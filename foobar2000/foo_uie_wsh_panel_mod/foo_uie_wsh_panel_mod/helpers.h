@@ -28,6 +28,9 @@ namespace helpers
 
 	inline int is_wrap_char(wchar_t current, wchar_t next)
 	{
+		if (iswpunct(current))
+			return false;
+
 		if (next == '\0')
 			return true;
 
@@ -112,7 +115,6 @@ namespace helpers
 	const GUID convert_artid_to_guid(int art_id);
 	// bitmap must be NULL
 	bool read_album_art_into_bitmap(const album_art_data_ptr & data, Gdiplus::Bitmap ** bitmap);
-	HRESULT get_album_art(BSTR rawpath, IGdiBitmap ** pp, int art_id, VARIANT_BOOL need_stub);
 	HRESULT get_album_art_v2(const metadb_handle_ptr & handle, IGdiBitmap ** pp, int art_id, VARIANT_BOOL need_stub, VARIANT_BOOL no_load = VARIANT_FALSE, pfc::string_base * image_path_ptr = NULL);
 	HRESULT get_album_art_embedded(BSTR rawpath, IGdiBitmap ** pp, int art_id);
 

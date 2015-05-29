@@ -255,7 +255,6 @@ public:
 	STDMETHODIMP get_FileSize(LONGLONG* p);
 	STDMETHODIMP get_Length(double* p);
 	STDMETHODIMP GetFileInfo(IFbFileInfo ** pp);
-	STDMETHODIMP UpdateFileInfo(IFbFileInfo * fileinfo);
 	STDMETHODIMP UpdateFileInfoSimple(SAFEARRAY * p);
 	STDMETHODIMP Compare(IFbMetadbHandle * handle, VARIANT_BOOL * p);
 };
@@ -459,6 +458,7 @@ public:
 	STDMETHODIMP CreateContextMenuManager(IContextMenuManager ** pp);
 	STDMETHODIMP CreateMainMenuManager(IMainMenuManager ** pp);
 	STDMETHODIMP IsMetadbInMediaLibrary(IFbMetadbHandle * handle, VARIANT_BOOL * p);
+	STDMETHODIMP IsLibraryEnabled(VARIANT_BOOL * p);
 
 	STDMETHODIMP get_ActivePlaylist(UINT * p);
 	STDMETHODIMP put_ActivePlaylist(UINT idx);
@@ -475,6 +475,8 @@ public:
 	STDMETHODIMP IsAutoPlaylist(UINT idx, VARIANT_BOOL * p);
 	STDMETHODIMP CreateAutoPlaylist(UINT idx, BSTR name, BSTR query, BSTR sort, UINT flags, UINT * p);
 	STDMETHODIMP ShowAutoPlaylistUI(UINT idx, VARIANT_BOOL * p);
+	STDMETHODIMP ShowLibrarySearchUI(BSTR query);
+	STDMETHODIMP GetLibraryItems(IFbMetadbHandleList ** outItems);
 };
 
 class MenuObj : public IDisposableImpl4<IMenuObj>
@@ -543,7 +545,6 @@ protected:
 public:
 	STDMETHODIMP CheckComponent(BSTR name, VARIANT_BOOL is_dll, VARIANT_BOOL * p);
 	STDMETHODIMP CheckFont(BSTR name, VARIANT_BOOL * p);
-	STDMETHODIMP GetAlbumArt(BSTR rawpath, int art_id, VARIANT_BOOL need_stub, IGdiBitmap ** pp);
 	STDMETHODIMP GetAlbumArtV2(IFbMetadbHandle * handle, int art_id, VARIANT_BOOL need_stub, IGdiBitmap **pp);
 	STDMETHODIMP GetAlbumArtEmbedded(BSTR rawpath, int art_id, IGdiBitmap ** pp);
 	STDMETHODIMP GetAlbumArtAsync(UINT window_id, IFbMetadbHandle * handle, int art_id, VARIANT_BOOL need_stub, VARIANT_BOOL only_embed, VARIANT_BOOL no_load, UINT * p);

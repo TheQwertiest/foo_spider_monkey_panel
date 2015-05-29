@@ -1370,27 +1370,6 @@ STDMETHODIMP FbMetadbHandle::GetFileInfo(IFbFileInfo ** pp)
 	return S_OK;
 }
 
-STDMETHODIMP FbMetadbHandle::UpdateFileInfo(IFbFileInfo * fileinfo)
-{
-	TRACK_FUNCTION();
-
-	if (m_handle.is_empty()) return E_POINTER;
-	if (!fileinfo) return E_INVALIDARG;
-
-	static_api_ptr_t<metadb_io_v2> io;
-	file_info_impl * info_ptr = NULL;
-	fileinfo->get__ptr((void**)&info_ptr);
-	if (!info_ptr) return E_INVALIDARG;
-
-	PRINT_OBSOLETE_MESSAGE_ONCE("UpdateFileInfo() is now obsolete, please use UpdateFileInfoSimple() instead.");
-
-	io->update_info_async_simple(pfc::list_single_ref_t<metadb_handle_ptr>(m_handle),
-		pfc::list_single_ref_t<const file_info *>(info_ptr),
-		core_api::get_main_window(), metadb_io_v2::op_flag_delay_ui, NULL);
-
-	return S_OK;
-}
-
 STDMETHODIMP FbMetadbHandle::UpdateFileInfoSimple(SAFEARRAY * p)
 {
 	TRACK_FUNCTION();
@@ -2435,6 +2414,16 @@ STDMETHODIMP FbUtils::IsMetadbInMediaLibrary(IFbMetadbHandle * handle, VARIANT_B
 	return S_OK;
 }
 
+STDMETHODIMP FbUtils::IsLibraryEnabled(VARIANT_BOOL * p)
+{
+	TRACK_FUNCTION();
+
+	if (!p) return E_POINTER;
+
+	*p = TO_VARIANT_BOOL(static_api_ptr_t<library_manager>()->is_library_enabled());
+	return S_OK;
+}
+
 STDMETHODIMP FbUtils::get_ActivePlaylist(UINT * p)
 {
 	return FbPlaylistMangerTemplate::get_ActivePlaylist(p);
@@ -2557,13 +2546,37 @@ STDMETHODIMP FbUtils::ShowAutoPlaylistUI(UINT idx, VARIANT_BOOL * p)
 		}
 	}
 	catch (...)
-	{			
+	{
 		*p = VARIANT_FALSE;
 	}
 
 	return S_OK;
 }
 
+STDMETHODIMP FbUtils::ShowLibrarySearchUI(BSTR query)
+{
+	TRACK_FUNCTION();
+	
+	if (!query) return E_INVALIDARG;
+	
+	pfc::stringcvt::string_utf8_from_wide wquery(query);
+	static_api_ptr_t<library_search_ui>()->show(wquery);
+	
+	return S_OK;
+}
+
+STDMETHODIMP FbUtils::GetLibraryItems(IFbMetadbHandleList ** outItems)
+{
+	TRACK_FUNCTION();
+
+	if (!outItems) return E_POINTER;
+
+	metadb_handle_list items;
+	static_api_ptr_t<library_manager>()->get_all_items(items);
+	(*outItems) = new com_object_impl_t<FbMetadbHandleList>(items);
+
+	return S_OK;
+}
 
 STDMETHODIMP MenuObj::get_ID(UINT * p)
 {
@@ -2582,13 +2595,8 @@ STDMETHODIMP MenuObj::AppendMenuItem(UINT flags, UINT item_id, BSTR text)
 
 	if (!m_hMenu) return E_POINTER;
 	if ((flags & MF_STRING) && !text) return E_INVALIDARG;
-	if ((flags & MF_POPUP) && !(item_id & 0xffff0000)) return E_INVALIDARG;
-
-	if (flags & MF_POPUP)
-	{
-		PRINT_OBSOLETE_MESSAGE_ONCE("Please use AppendTo() method to create sub menu instead of AppendMenuItem()");
-	}
-
+	if (flags & MF_POPUP) return E_INVALIDARG;
+	
 	::AppendMenu(m_hMenu, flags, item_id, text);
 	return S_OK;
 }
@@ -3056,13 +3064,6 @@ STDMETHODIMP WSHUtils::CheckFont(BSTR name, VARIANT_BOOL * p)
 
 	delete [] font_families;
 	return S_OK;
-}
-
-STDMETHODIMP WSHUtils::GetAlbumArt(BSTR rawpath, int art_id, VARIANT_BOOL need_stub, IGdiBitmap ** pp)
-{
-	TRACK_FUNCTION();
-
-	return helpers::get_album_art(rawpath, pp, art_id, need_stub);
 }
 
 STDMETHODIMP WSHUtils::GetAlbumArtV2(IFbMetadbHandle * handle, int art_id, VARIANT_BOOL need_stub, IGdiBitmap **pp)

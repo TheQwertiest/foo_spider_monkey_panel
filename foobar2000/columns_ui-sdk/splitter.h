@@ -238,7 +238,7 @@ namespace ui_extension
 		/** This method may be called on both active and inactive (i.e. no window) instances */
 		virtual void replace_panel(t_size index, const splitter_item_t * p_item)=0;
 		virtual t_size get_panel_count()const=0;
-		virtual t_size get_maximum_panel_count()const{return infinite;};
+		virtual t_size get_maximum_panel_count()const{return pfc_infinite;};
 
 		/** Reserved for future use */
 		virtual void register_callback(splitter_callback * p_callback){};

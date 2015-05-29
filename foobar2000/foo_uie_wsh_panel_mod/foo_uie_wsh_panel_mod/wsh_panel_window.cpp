@@ -71,25 +71,6 @@ bool wsh_panel_window::script_load()
 
 	if (FAILED(hr))
 	{
-		// Format error message
-		pfc::string_simple win32_error_msg = format_win32_error(hr);
-		pfc::string_formatter msg_formatter;
-
-		msg_formatter << "Scripting Engine Initialization Failed ("
-			<< ScriptInfo().build_info_string() << ", CODE: 0x" 
-			<< pfc::format_hex_lowercase((unsigned)hr);
-
-		if (hr != E_UNEXPECTED && hr != _HRESULT_TYPEDEF_(0x80020101L) && hr != _HRESULT_TYPEDEF_(0x86664004L))
-		{
-			msg_formatter << "): " << win32_error_msg;
-		}
-		else
-		{
-			msg_formatter << ")\nCheck the console for more information (Always caused by unexcepted script error).";
-		}
-
-		// Show error message
-		popup_msg::g_show(msg_formatter, WSPM_NAME, popup_message::icon_error);
 		result = false;
 	}
 	else
@@ -240,6 +221,7 @@ LRESULT wsh_panel_window::on_message(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 		script_unload();
 		return 0;
 
+	case UWM_RELOAD:
 	case WM_DISPLAYCHANGE:
 	case WM_THEMECHANGED:
 		update_script();
@@ -584,6 +566,18 @@ LRESULT wsh_panel_window::on_message(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 
 	case CALLBACK_UWM_ON_PLAYBACK_QUEUE_CHANGED:
 		on_playback_queue_changed(wp);
+		return 0;
+
+	case CALLBACK_UWM_ON_LIBRARY_ITEMS_ADDED:
+		on_library_items_added();
+		return 0;
+
+	case CALLBACK_UWM_ON_LIBRARY_ITEMS_REMOVED:
+		on_library_items_removed();
+		return 0;
+
+	case CALLBACK_UWM_ON_LIBRARY_ITEMS_CHANGED:
+		on_library_items_changed();
 		return 0;
 	}
 
@@ -1005,6 +999,8 @@ void wsh_panel_window::on_refresh_background_done()
 
 void wsh_panel_window::build_context_menu(HMENU menu, int x, int y, int id_base)
 {
+	::AppendMenu(menu, MF_STRING, id_base + 3, _T("&Reload"));
+	::AppendMenu(menu, MF_SEPARATOR, 0, 0);
 	::AppendMenu(menu, MF_STRING, id_base + 1, _T("&Properties"));
 	::AppendMenu(menu, MF_STRING, id_base + 2, _T("&Configure..."));
 }
@@ -1017,7 +1013,10 @@ void wsh_panel_window::execute_context_menu_command(int id, int id_base)
 		show_property_popup(m_hwnd);
 		break;
 	case 2:
-		show_configure_popup(m_hwnd);
+		show_configure_popup(m_hwnd);			
+		break;
+	case 3:
+		update_script();
 		break;
 	}
 }
@@ -1422,4 +1421,25 @@ void wsh_panel_window::on_playback_queue_changed(WPARAM wp)
 	args[0].vt = VT_I4;
 	args[0].lVal = wp;
 	script_invoke_v(CallbackIds::on_playback_queue_changed, args, _countof(args));
+}
+
+void wsh_panel_window::on_library_items_added()
+{
+	TRACK_FUNCTION();
+	
+	script_invoke_v(CallbackIds::on_library_items_added);
+}
+
+void wsh_panel_window::on_library_items_removed()
+{
+	TRACK_FUNCTION();
+	
+	script_invoke_v(CallbackIds::on_library_items_removed);
+}
+
+void wsh_panel_window::on_library_items_changed()
+{
+	TRACK_FUNCTION();
+	
+	script_invoke_v(CallbackIds::on_library_items_changed);
 }

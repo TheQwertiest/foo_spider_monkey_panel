@@ -4,7 +4,7 @@
 #include "ui_property.h"
 
 
-// Some marcos defined by windowsx.h should be removed
+// Some macros defined by windowsx.h should be removed
 #ifdef _INC_WINDOWSX
 #undef SubclassWindow
 #endif

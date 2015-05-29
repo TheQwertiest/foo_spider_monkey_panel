@@ -101,7 +101,7 @@ namespace columns_ui
 			for (n=0;n<count;n++)
 			{
 				const char * ptr = get_item(n)->get_name();
-				if (!stricmp_utf8_ex(p_name,length,ptr,infinite))
+				if (!stricmp_utf8_ex(p_name,length,ptr,pfc_infinite))
 					return get_item(n)->get_value();
 			}
 			return 0;
@@ -128,7 +128,7 @@ namespace columns_ui
 		virtual bool process_function(titleformat_text_out * p_out,const char * p_name,unsigned p_name_length,titleformat_hook_function_params * p_params,bool & p_found_flag)
 		{
 			p_found_flag = false;
-			if (set && !stricmp_utf8_ex(p_name,p_name_length,"set_global",infinite))
+			if (set && !stricmp_utf8_ex(p_name,p_name_length,"set_global",pfc_infinite))
 			{
 				switch(p_params->get_param_count())
 				{
@@ -147,7 +147,7 @@ namespace columns_ui
 					return false;
 				}
 			}
-			else if (get && !stricmp_utf8_ex(p_name,p_name_length,"get_global",infinite))
+			else if (get && !stricmp_utf8_ex(p_name,p_name_length,"get_global",pfc_infinite))
 			{
 				switch(p_params->get_param_count())
 				{
@@ -159,10 +159,10 @@ namespace columns_ui
 						const char * ptr = p_vars.find_by_name(name,name_length);
 						if (ptr)
 						{
-							p_out->write(titleformat_inputtypes::meta, ptr,infinite);
+							p_out->write(titleformat_inputtypes::meta, ptr,pfc_infinite);
 							p_found_flag = true;
 						}
-						else p_out->write(titleformat_inputtypes::meta, "[unknown variable]",infinite);
+						else p_out->write(titleformat_inputtypes::meta, "[unknown variable]",pfc_infinite);
 						return true;
 					}
 				default:

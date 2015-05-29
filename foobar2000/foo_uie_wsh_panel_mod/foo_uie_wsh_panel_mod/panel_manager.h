@@ -219,3 +219,11 @@ class my_playback_queue_callback : public playback_queue_callback
 public:
 	void on_changed(t_change_origin p_origin);
 };
+
+class my_library_callback : public library_callback
+{
+public:
+	virtual void on_items_added(const pfc::list_base_const_t<metadb_handle_ptr> & p_data);
+	virtual void on_items_removed(const pfc::list_base_const_t<metadb_handle_ptr> & p_data);
+	virtual void on_items_modified(const pfc::list_base_const_t<metadb_handle_ptr> & p_data);
+};

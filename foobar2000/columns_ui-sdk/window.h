@@ -398,7 +398,7 @@ namespace ui_extension{
 	class window_factory : public service_factory_base
 	{
 	public:
-		window_factory() : service_factory_base(window::class_guid)
+		window_factory() : service_factory_base(window::class_guid, service_factory_traits<window>::factory_list())
 		{
 		}
 

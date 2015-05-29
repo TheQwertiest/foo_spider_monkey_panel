@@ -72,9 +72,6 @@ public:
 	void Repaint(bool force = false);
 	void RepaintRect(UINT x, UINT y, UINT w, UINT h, bool force = false);
 	void RefreshBackground(LPRECT lprcUpdate = NULL);
-	ITimerObj * CreateTimerTimeout(UINT timeout);
-	ITimerObj * CreateTimerInterval(UINT delay);
-	void KillTimer(ITimerObj * p);
 	unsigned SetTimeout(IDispatch * func, INT delay);
 	unsigned SetInterval(IDispatch * func, INT delay);
 	void ClearIntervalOrTimeout(UINT timerId);
@@ -116,17 +113,13 @@ public:
 	STDMETHODIMP Repaint(VARIANT_BOOL force);
 	STDMETHODIMP RepaintRect(UINT x, UINT y, UINT w, UINT h, VARIANT_BOOL force);
 	STDMETHODIMP CreatePopupMenu(IMenuObj ** pp);
-	STDMETHODIMP CreateTimerTimeout(UINT timeout, ITimerObj ** pp);
-	STDMETHODIMP CreateTimerInterval(UINT delay, ITimerObj ** pp);
-	STDMETHODIMP KillTimer(ITimerObj * p);
 	STDMETHODIMP SetInterval(IDispatch * func, INT delay, UINT * outIntervalID);
 	STDMETHODIMP ClearInterval(UINT intervalID);
 	STDMETHODIMP SetTimeout(IDispatch * func, INT delay, UINT * outTimeoutID);
 	STDMETHODIMP ClearTimeout(UINT timeoutID);
 	STDMETHODIMP NotifyOthers(BSTR name, VARIANT info);
-	STDMETHODIMP WatchMetadb(IFbMetadbHandle * handle);
-	STDMETHODIMP UnWatchMetadb();
 	STDMETHODIMP CreateTooltip(IFbTooltip ** pp);
+	STDMETHODIMP Reload();
 	STDMETHODIMP ShowConfigure();
 	STDMETHODIMP ShowProperties();
 	STDMETHODIMP GetProperty(BSTR name, VARIANT defaultval, VARIANT * p);

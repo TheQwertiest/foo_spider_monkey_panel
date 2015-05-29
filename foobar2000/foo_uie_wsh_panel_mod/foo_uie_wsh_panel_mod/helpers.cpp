@@ -471,47 +471,6 @@ namespace helpers
 		return ret;
 	}
 
-	HRESULT get_album_art(BSTR rawpath, IGdiBitmap ** pp, int art_id, VARIANT_BOOL need_stub)
-	{
-		if (!rawpath) return E_INVALIDARG;
-		if (!pp) return E_POINTER;
-
-		GUID what;
-		album_art_data_ptr data;
-		album_art_manager_instance_ptr aami = static_api_ptr_t<album_art_manager>()->instantiate();
-		abort_callback_dummy abort;
-
-		what = helpers::convert_artid_to_guid(art_id);
-
-		try
-		{
-			aami->open(pfc::stringcvt::string_utf8_from_wide(rawpath), abort);
-			data = aami->query(what, abort);
-		}
-		catch (std::exception &)
-		{
-			if (need_stub)
-			{
-				try
-				{
-					data = aami->query_stub_image(abort);
-				}
-				catch (std::exception &) {}
-			}
-		}
-
-		aami->close();
-
-		Gdiplus::Bitmap * bitmap = NULL;
-		IGdiBitmap * ret = NULL;
-
-		if (helpers::read_album_art_into_bitmap(data, &bitmap))
-			ret = new com_object_impl_t<GdiBitmap>(bitmap);
-
-		(*pp) = ret;
-		return S_OK;
-	}
-
 	IGdiBitmap * query_album_art(album_art_extractor_instance_v2::ptr extractor, GUID & what, VARIANT_BOOL no_load = VARIANT_FALSE, pfc::string_base * image_path_ptr = NULL) 
 	{
 		abort_callback_dummy abort;

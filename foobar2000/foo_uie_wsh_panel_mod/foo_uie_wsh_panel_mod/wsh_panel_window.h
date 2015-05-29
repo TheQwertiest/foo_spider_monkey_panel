@@ -115,6 +115,11 @@ private:
 	void on_playback_order_changed(t_size p_new_index);
 	void on_playlist_switch();
 	void on_playlists_changed();
+	
+	// library callback
+	void on_library_items_added();
+	void on_library_items_removed();
+	void on_library_items_changed();
 
 	// metadb_io_callback_dynamic
 	void on_changed_sorted(WPARAM wp);

@@ -143,29 +143,6 @@ void HostComm::RefreshBackground(LPRECT lprcUpdate /*= NULL*/)
 	Repaint(true);
 }
 
-ITimerObj * HostComm::CreateTimerTimeout(UINT timeout)
-{
-	UINT id = m_host_timer_dispatcher.setTimeoutLegacy(timeout);
-	if (id == 0) return NULL;
-	ITimerObj * timer = new com_object_impl_t<TimerObj>(id);
-	return timer;
-}
-
-ITimerObj * HostComm::CreateTimerInterval(UINT delay)
-{
-	UINT id = m_host_timer_dispatcher.setIntervalLegacy(delay);
-	if (id == 0) return NULL;
-	ITimerObj * timer = new com_object_impl_t<TimerObj>(id);
-	return timer;
-}
-
-void HostComm::KillTimer(ITimerObj * p)
-{
-	UINT id;
-	p->get_ID(&id);
-	m_host_timer_dispatcher.killLegacy(id); 
-}
-
 unsigned HostComm::SetTimeout(IDispatch * func, INT delay)
 {
 	return m_host_timer_dispatcher.setTimeout(delay, func);
@@ -389,32 +366,6 @@ STDMETHODIMP FbWindow::CreatePopupMenu(IMenuObj ** pp)
 	return S_OK;
 }
 
-STDMETHODIMP FbWindow::CreateTimerTimeout(UINT timeout, ITimerObj ** pp)
-{
-	TRACK_FUNCTION();
-	if (!pp) return E_POINTER;
-	PRINT_OBSOLETE_MESSAGE_ONCE("window.CreateTimerTimeout() is now obsolete, please use window.SetTimeout() in new script.");
-	(*pp) = m_host->CreateTimerTimeout(timeout);
-	return S_OK;
-}
-
-STDMETHODIMP FbWindow::CreateTimerInterval(UINT delay, ITimerObj ** pp)
-{
-	TRACK_FUNCTION();
-	if (!pp) return E_POINTER;
-	PRINT_OBSOLETE_MESSAGE_ONCE("window.CreateTimerInterval() is now obsolete, please use window.SetInterval() in new script.");
-	(*pp)= m_host->CreateTimerInterval(delay);
-	return S_OK;
-}
-
-STDMETHODIMP FbWindow::KillTimer(ITimerObj * p)
-{
-	TRACK_FUNCTION();
-	if (!p) return E_INVALIDARG;
-	m_host->KillTimer(p);
-	return S_OK;
-}
-
 STDMETHODIMP FbWindow::SetInterval(IDispatch * func, INT delay, UINT * outIntervalID)
 {
 	TRACK_FUNCTION();
@@ -466,36 +417,6 @@ STDMETHODIMP FbWindow::NotifyOthers(BSTR name, VARIANT info)
 	panel_manager::instance().send_msg_to_others_pointer(m_host->GetHWND(), 
 		CALLBACK_UWM_NOTIFY_DATA, notify_data);
 
-	return S_OK;
-}
-
-STDMETHODIMP FbWindow::WatchMetadb(IFbMetadbHandle * handle)
-{
-	TRACK_FUNCTION();
-
-	if (m_host->ScriptInfo().feature_mask & t_script_info::kFeatureMetadbHandleList0)
-	{
-		return E_NOTIMPL;
-	}
-
-	if (!handle) return E_INVALIDARG;
-	metadb_handle * ptr = NULL;
-	handle->get__ptr((void**)&ptr);
-	if (!ptr) return E_INVALIDARG;
-	m_host->GetWatchedMetadbHandle() = ptr;
-	return S_OK;
-}
-
-STDMETHODIMP FbWindow::UnWatchMetadb()
-{
-	TRACK_FUNCTION();
-
-	if (m_host->ScriptInfo().feature_mask & t_script_info::kFeatureMetadbHandleList0)
-	{
-		return E_NOTIMPL;
-	}
-
-	m_host->GetWatchedMetadbHandle() = NULL;
 	return S_OK;
 }
 
@@ -717,6 +638,13 @@ STDMETHODIMP FbWindow::CreateThemeManager(BSTR classid, IThemeManager ** pp)
 	return S_OK;
 }
 
+STDMETHODIMP FbWindow::Reload()
+{
+	TRACK_FUNCTION();
+
+	PostMessage(m_host->GetHWND(), UWM_RELOAD, 0, 0);
+	return S_OK;
+}
 
 ScriptHost::ScriptHost(HostComm * host) 
 	: m_host(host)
@@ -1138,7 +1066,7 @@ void ScriptHost::ReportError(IActiveScriptError* err)
 		formatter << "File: " << m_contextToPathMap[ctx] << "\n";
 	}
 
-	formatter << "Ln: " << (t_uint32)(line + 1) << ", Col: " << (t_uint32)(charpos + 1) << "\n";
+	formatter << "Line: " << (t_uint32)(line + 1) << ", Col: " << (t_uint32)(charpos + 1) << "\n";
 	formatter << string_utf8_from_wide(sourceline);
 	if (name.length() > 0) formatter << "\nAt: " << name;
 
@@ -1147,6 +1075,7 @@ void ScriptHost::ReportError(IActiveScriptError* err)
 	if (excep.bstrHelpFile)    SysFreeString(excep.bstrHelpFile);
 
 	console::error(formatter);
+	popup_msg::g_show(formatter, WSPM_NAME, popup_message::icon_error);
 	MessageBeep(MB_ICONASTERISK);
 	SendMessage(m_host->GetHWND(), UWM_SCRIPT_ERROR, 0, 0);
 }

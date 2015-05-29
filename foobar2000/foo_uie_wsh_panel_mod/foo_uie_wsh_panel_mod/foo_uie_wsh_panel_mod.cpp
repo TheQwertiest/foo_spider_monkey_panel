@@ -16,17 +16,18 @@ namespace
 		WSPM_NAME,
 		WSPM_VERSION,
 		"Windows Scripting Host Panel Modded v" WSPM_VERSION "\n"
-		"Modded by T.P. Wang\n\n"
+		"Modded by T.P. Wang\n"
+		"Changes since v1.5.6 by marc2003\n\n"
 		"Build: "  __TIME__ ", " __DATE__ "\n"
-		"Columns UI API Version: " UI_EXTENSION_VERSION "\n\n\n\n"
+		"Columns UI API Version: " UI_EXTENSION_VERSION "\n\n"
 		"Scintilla and SciTE\n"
-		"Copyright 1998-2003 by Neil Hodgson <neilh@scintilla.org>\n\n\n"
+		"Copyright 1998-2003 by Neil Hodgson <neilh@scintilla.org>\n\n"
 		"Text Designer Outline Text Library\n"
-		"Copyright (c) 2009 Wong Shao Voon\n\n\n"
+		"Copyright (c) 2009 Wong Shao Voon\n\n"
 		"box blur filter\n"
-		"Copyright 2006 Jerry Huxtable\n\n\n"
+		"Copyright 2006 Jerry Huxtable\n\n"
 		"CPropertyList - A Property List control\n"
-		"Copyright (c) 2001-2003 Bjarke Viksoe\n\n\n"
+		"Copyright (c) 2001-2003 Bjarke Viksoe"
 	);
 
 	//VALIDATE_COMPONENT_FILENAME(WSPM_DLL_NAME);

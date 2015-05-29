@@ -1,11 +1,9 @@
 #pragma once
 
-#include "hgrev.h"
-
 // TODO: Change Version Number Every Time
-#define WSPM_VERSION_NUMBER "1.5.6"
+#define WSPM_VERSION_NUMBER "1.5.10"
 #define WSPM_WILL_NOT_EXPIRE
-//#define WSPM_VERSION_TEST "Beta 6"
+//#define WSPM_VERSION_TEST "Beta 1"
 
 #ifdef WSPM_VERSION_TEST
 #	define WSPM_TESTING 1
@@ -22,11 +20,7 @@
 #	define WSPM_VERSION_DEBUG_SUFFIX    ""
 #endif
 
-#if HG_MODS == 1
-#	define WSPM_VERSION_MODS_SUFFIX     "m"
-#else
-#	define WSPM_VERSION_MODS_SUFFIX
-#endif
+#define WSPM_VERSION_MODS_SUFFIX
 
 #define WSPM_VERSION WSPM_VERSION_NUMBER WSPM_VERSION_MODS_SUFFIX WSPM_VERSION_TEST_PREFIX WSPM_VERSION_TEST WSPM_VERSION_DEBUG_SUFFIX
 

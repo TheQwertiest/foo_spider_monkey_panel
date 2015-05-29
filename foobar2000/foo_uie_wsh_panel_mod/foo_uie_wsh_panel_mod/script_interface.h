@@ -233,7 +233,6 @@ __interface IFbMetadbHandle: IDisposable
 	[propget] STDMETHOD(FileSize)([out,retval] LONGLONG* p);
 	[propget] STDMETHOD(Length)([out,retval] double* p);
 	STDMETHOD(GetFileInfo)([out,retval] IFbFileInfo ** pp);
-	STDMETHOD(UpdateFileInfo)(IFbFileInfo * fileinfo);
 	[vararg] STDMETHOD(UpdateFileInfoSimple)([satype(VARIANT)] SAFEARRAY * p);
 	STDMETHOD(Compare)(IFbMetadbHandle * handle, [out,retval] VARIANT_BOOL * p);
 };
@@ -426,6 +425,7 @@ __interface IFbUtils: IDispatch
 	STDMETHOD(CreateContextMenuManager)([out,retval] IContextMenuManager ** pp);
 	STDMETHOD(CreateMainMenuManager)([out,retval] IMainMenuManager ** pp);
 	STDMETHOD(IsMetadbInMediaLibrary)(IFbMetadbHandle * handle, [out,retval] VARIANT_BOOL * p);
+	STDMETHOD(IsLibraryEnabled)([out,retval] VARIANT_BOOL * p);
 	//
 	[propget] STDMETHOD(ActivePlaylist)([out,retval] UINT * p);
 	[propput] STDMETHOD(ActivePlaylist)(UINT idx);
@@ -442,6 +442,8 @@ __interface IFbUtils: IDispatch
 	STDMETHOD(IsAutoPlaylist)(UINT idx, [out,retval] VARIANT_BOOL * p);
 	STDMETHOD(CreateAutoPlaylist)(UINT idx, BSTR name, BSTR query, [defaultvalue("")] BSTR sort, [defaultvalue(0)]UINT flags, [out,retval] UINT * p);
 	STDMETHOD(ShowAutoPlaylistUI)(UINT idx, [out,retval] VARIANT_BOOL * p);
+	STDMETHOD(ShowLibrarySearchUI)(BSTR query);
+	STDMETHOD(GetLibraryItems)([out,retval] IFbMetadbHandleList ** outItems);
 };
 _COM_SMARTPTR_TYPEDEF(IFbUtils, __uuidof(IFbUtils));
 
@@ -523,17 +525,13 @@ __interface IFbWindow: IDispatch
 	STDMETHOD(Repaint)([defaultvalue(0)] VARIANT_BOOL force);
 	STDMETHOD(RepaintRect)(UINT x, UINT y, UINT w, UINT h, [defaultvalue(0)] VARIANT_BOOL force);
 	STDMETHOD(CreatePopupMenu)([out,retval] IMenuObj ** pp);
-	STDMETHOD(CreateTimerTimeout)(UINT timeout, [out,retval] ITimerObj ** pp);
-	STDMETHOD(CreateTimerInterval)(UINT delay, [out,retval] ITimerObj ** pp);
-	STDMETHOD(KillTimer)(ITimerObj * p);
 	STDMETHOD(SetInterval)(IDispatch * func, INT delay, [out,retval] UINT * outIntervalID);
 	STDMETHOD(ClearInterval)(UINT intervalID);
 	STDMETHOD(SetTimeout)(IDispatch * func, INT delay, [out,retval] UINT * outTimeoutID);
 	STDMETHOD(ClearTimeout)(UINT timeoutID);
 	STDMETHOD(NotifyOthers)(BSTR name, VARIANT info);
-	STDMETHOD(WatchMetadb)(IFbMetadbHandle * handle);
-	STDMETHOD(UnWatchMetadb)();
 	STDMETHOD(CreateTooltip)([out,retval] __interface IFbTooltip ** pp);
+	STDMETHOD(Reload)();
 	STDMETHOD(ShowConfigure)();
 	STDMETHOD(ShowProperties)();
 	STDMETHOD(GetProperty)(BSTR name, [optional] VARIANT defaultval, [out,retval] VARIANT * p);
@@ -561,7 +559,6 @@ __interface IWSHUtils: IDispatch
 {
 	STDMETHOD(CheckComponent)(BSTR name, [defaultvalue(-1)] VARIANT_BOOL is_dll, [out,retval] VARIANT_BOOL * p);
 	STDMETHOD(CheckFont)(BSTR name, [out,retval] VARIANT_BOOL * p);
-	STDMETHOD(GetAlbumArt)(BSTR rawpath, [defaultvalue(0)] int art_id, [defaultvalue(-1)] VARIANT_BOOL need_stub, [out,retval] IGdiBitmap ** pp);
 	STDMETHOD(GetAlbumArtV2)(IFbMetadbHandle * handle, [defaultvalue(0)] int art_id, [defaultvalue(-1)] VARIANT_BOOL need_stub, [out,retval] IGdiBitmap **pp);
 	STDMETHOD(GetAlbumArtEmbedded)(BSTR rawpath, [defaultvalue(0)] int art_id, [out,retval] IGdiBitmap ** pp);
 	STDMETHOD(GetAlbumArtAsync)(UINT window_id, IFbMetadbHandle * handle, [defaultvalue(0)] int art_id, [defaultvalue(-1)] VARIANT_BOOL need_stub, [defaultvalue(0)] VARIANT_BOOL only_embed, [defaultvalue(0)] VARIANT_BOOL no_load, [out,retval] UINT * p);

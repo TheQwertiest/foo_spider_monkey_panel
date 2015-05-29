@@ -4,7 +4,6 @@
 #include "helpers.h"
 #include "com_array.h"
 
-
 STDMETHODIMP FbPlaylistMangerTemplate::InsertPlaylistItems(UINT playlistIndex, UINT base, __interface IFbMetadbHandleList * handles, VARIANT_BOOL select, UINT * outSize)
 {
 	TRACK_FUNCTION();
@@ -90,6 +89,22 @@ STDMETHODIMP FbPlaylistMangerTemplate::ClearPlaylistSelection(UINT playlistIndex
 	TRACK_FUNCTION();
 
 	static_api_ptr_t<playlist_manager>()->playlist_clear_selection(playlistIndex);
+	return S_OK;
+}
+
+STDMETHODIMP FbPlaylistMangerTemplate::UndoBackup(UINT playlistIndex)
+{
+	TRACK_FUNCTION();
+
+	static_api_ptr_t<playlist_manager>()->playlist_undo_backup(playlistIndex);
+	return S_OK;
+}
+
+STDMETHODIMP FbPlaylistMangerTemplate::UndoRestore(UINT playlistIndex)
+{
+	TRACK_FUNCTION();
+
+	static_api_ptr_t<playlist_manager>()->playlist_undo_restore(playlistIndex);
 	return S_OK;
 }
 
@@ -675,6 +690,16 @@ STDMETHODIMP FbPlaylistManager::SetPlaylistSelection(UINT playlistIndex, VARIANT
 STDMETHODIMP FbPlaylistManager::ClearPlaylistSelection(UINT playlistIndex)
 {
 	return FbPlaylistMangerTemplate::ClearPlaylistSelection(playlistIndex);
+}
+
+STDMETHODIMP FbPlaylistManager::UndoBackup(UINT playlistIndex)
+{
+	return FbPlaylistMangerTemplate::UndoBackup(playlistIndex);
+}
+
+STDMETHODIMP FbPlaylistManager::UndoRestore(UINT playlistIndex)
+{
+	return FbPlaylistMangerTemplate::UndoRestore(playlistIndex);
 }
 
 STDMETHODIMP FbPlaylistManager::GetPlaylistFocusItemIndex(UINT playlistIndex, INT * outPlaylistItemIndex)

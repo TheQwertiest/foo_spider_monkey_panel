@@ -62,6 +62,9 @@ struct CallbackIds
 		on_selection_changed,
 		on_playback_queue_changed,
 		on_script_unload,
+		on_library_items_added,
+		on_library_items_removed,
+		on_library_items_changed,
 		end,
 	};
 };
