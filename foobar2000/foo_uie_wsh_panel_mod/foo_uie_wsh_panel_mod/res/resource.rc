@@ -1,0 +1,253 @@
+// Microsoft Visual C++ generated resource script.
+//
+#include "..\resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "afxres.h"
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// English (United States) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_DIALOG_PROPERTIES DIALOGEX 0, 0, 259, 213
+STYLE DS_SETFONT | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME
+CAPTION "Properties"
+FONT 8, "Tahoma", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,94,192,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,202,192,50,14
+    LISTBOX         IDC_LIST_PROPERTIES,7,24,245,161,LBS_OWNERDRAWVARIABLE | LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP
+    PUSHBUTTON      "&Apply",IDAPPLY,148,192,50,14
+    PUSHBUTTON      "C&lear",IDC_CLEARALL,126,7,40,13
+    PUSHBUTTON      "De&lete",IDC_DEL,83,7,40,13
+    PUSHBUTTON      "E&xport",IDC_EXPORT,212,7,40,13
+    PUSHBUTTON      "I&mport",IDC_IMPORT,169,7,40,13
+END
+
+IDD_DIALOG_CONFIG DIALOGEX 0, 0, 361, 340
+STYLE DS_SETFONT | WS_MAXIMIZEBOX | WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME
+CAPTION "WSH Panel Mod Configuration"
+FONT 8, "Tahoma", 0, 0, 0x0
+BEGIN
+    RTEXT           "Script Engine:",IDC_STATIC,7,9,45,8
+    COMBOBOX        IDC_SCRIPT_ENGINE,58,7,86,50,CBS_DROPDOWNLIST | WS_VSCROLL
+    CONTROL         "Pseudo Transparent",IDC_CHECK_PSEUDO_TRANSPARENT,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,272,7,81,10
+    DEFPUSHBUTTON   "&OK",IDOK,196,319,50,14
+    PUSHBUTTON      "&Apply",IDAPPLY,250,319,50,14
+    PUSHBUTTON      "&Cancel",IDCANCEL,304,319,50,14
+    CONTROL         "",IDC_EDIT,"WshScintilla",WS_CLIPCHILDREN,7,62,347,254
+    CONTROL         "&Grab Focus",IDC_CHECK_GRABFOCUS,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,272,20,52,10
+    COMBOBOX        IDC_EDGE_STYLE,58,30,50,30,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    RTEXT           "Edge Style:",IDC_STATIC,7,32,45,8
+    PUSHBUTTON      "&Tools",IDC_TOOLS,7,319,50,14
+    CONTROL         "&Delay Load",IDC_CHECK_DELAY_LOAD,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,272,33,47,10
+    EDITTEXT        IDC_STATIC_GUID,7,46,347,14,ES_CENTER | ES_READONLY | NOT WS_TABSTOP
+END
+
+IDD_DIALOG_FIND DIALOGEX 0, 0, 239, 96
+STYLE DS_SETFONT | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME
+CAPTION "Find"
+FONT 8, "Tahoma", 400, 0, 0x0
+BEGIN
+    CONTROL         "&Find:",IDC_STATIC,"Static",SS_LEFTNOWORDWRAP | WS_GROUP,7,7,35,8
+    EDITTEXT        IDC_EDIT_FINDWHAT,7,17,168,14,ES_AUTOHSCROLL
+    CONTROL         "Match c&ase",IDC_CHECK_MATCHCASE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,37,52,10
+    CONTROL         "&Whole word",IDC_CHECK_WHOLEWORD,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,51,54,10
+    CONTROL         "W&ord start",IDC_CHECK_WORDSTART,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,65,51,10
+    CONTROL         "&Regular Expression",IDC_CHECK_REGEXP,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,79,77,10
+    DEFPUSHBUTTON   "Find &Down",IDC_FINDDOWN,182,7,50,14
+    PUSHBUTTON      "Find &Up",IDC_FINDUP,182,26,50,14
+    PUSHBUTTON      "&Close",IDCANCEL,182,54,50,14
+END
+
+IDD_DIALOG_GOTO DIALOGEX 0, 0, 206, 59
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Go To Line"
+FONT 8, "Tahoma", 400, 0, 0x1
+BEGIN
+    LTEXT           "Line number:",IDC_STATIC,7,7,42,8
+    EDITTEXT        IDC_EDIT_LINENUMBER,7,17,192,14,ES_AUTOHSCROLL
+    DEFPUSHBUTTON   "OK",IDOK,95,38,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,149,38,50,14
+END
+
+IDD_DIALOG_REPLACE DIALOGEX 0, 0, 249, 136
+STYLE DS_SETFONT | WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME
+CAPTION "Find"
+FONT 8, "Tahoma", 400, 0, 0x0
+BEGIN
+    CONTROL         "&Find:",IDC_STATIC,"Static",SS_LEFTNOWORDWRAP | WS_GROUP,7,7,35,8
+    EDITTEXT        IDC_EDIT_FINDWHAT,7,17,168,14,ES_AUTOHSCROLL
+    LTEXT           "Re&place with:",IDC_STATIC,7,35,44,8
+    EDITTEXT        IDC_EDIT_REPLACE,7,45,168,14,ES_AUTOHSCROLL
+    CONTROL         "Ma&tch case",IDC_CHECK_MATCHCASE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,77,52,10
+    CONTROL         "&Whole word",IDC_CHECK_WHOLEWORD,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,91,54,10
+    CONTROL         "W&ord start",IDC_CHECK_WORDSTART,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,105,51,10
+    CONTROL         "Regular E&xpression",IDC_CHECK_REGEXP,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,119,77,10
+    DEFPUSHBUTTON   "Find &Next",IDC_FINDNEXT,192,7,50,14
+    PUSHBUTTON      "&Replace",IDC_REPLACE,192,25,50,14
+    PUSHBUTTON      "Replace &All",IDC_REPLACEALL,192,43,50,14
+    PUSHBUTTON      "&Close",IDCANCEL,192,72,50,14
+END
+
+IDD_DIALOG_PREFERENCE DIALOGEX 0, 0, 334, 269
+STYLE DS_SETFONT | WS_CHILD | WS_SYSMENU
+FONT 8, "Tahoma", 400, 0, 0x0
+BEGIN
+    GROUPBOX        "Editor Properties",IDC_STATIC,7,7,320,218
+    CONTROL         "",IDC_LIST_EDITOR_PROP,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_ALIGNLEFT | WS_BORDER | WS_TABSTOP,12,18,310,184
+    PUSHBUTTON      "&Import",IDC_BUTTON_IMPORT,219,206,50,14
+    PUSHBUTTON      "E&xport",IDC_BUTTON_EXPORT,273,206,50,14
+    GROUPBOX        "Scripting Host Setting",IDC_STATIC,7,226,320,36
+    CONTROL         "Safe mode",IDC_CHECK_SAFE_MODE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,14,242,54,10
+END
+
+IDD_DIALOG_NAME_VALUE DIALOGEX 0, 0, 242, 62
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Dialog"
+FONT 8, "Tahoma", 400, 0, 0x1
+BEGIN
+    LTEXT           "&Name:",IDC_STATIC,7,10,22,8
+    EDITTEXT        IDC_EDIT_NAME,35,7,200,14,WS_DISABLED
+    LTEXT           "&Value:",IDC_STATIC,7,27,21,8
+    EDITTEXT        IDC_EDIT_VALUE,35,24,200,14,ES_AUTOHSCROLL
+    DEFPUSHBUTTON   "OK",IDOK,131,41,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,185,41,50,14
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO
+BEGIN
+    IDD_DIALOG_PROPERTIES, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 252
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 206
+        HORZGUIDE, 20
+        HORZGUIDE, 24
+        HORZGUIDE, 185
+        HORZGUIDE, 192
+    END
+
+    IDD_DIALOG_CONFIG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 354
+        VERTGUIDE, 272
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 333
+    END
+
+    IDD_DIALOG_FIND, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 232
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 89
+    END
+
+    IDD_DIALOG_GOTO, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 199
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 52
+    END
+
+    IDD_DIALOG_REPLACE, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 242
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 129
+    END
+
+    IDD_DIALOG_PREFERENCE, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 327
+        VERTGUIDE, 12
+        VERTGUIDE, 322
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 262
+        HORZGUIDE, 18
+        HORZGUIDE, 225
+        HORZGUIDE, 226
+    END
+
+    IDD_DIALOG_NAME_VALUE, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 235
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 55
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE 
+BEGIN
+    "..\\resource.h\0"
+END
+
+3 TEXTINCLUDE 
+BEGIN
+    "\r\0"
+END
+
+2 TEXTINCLUDE 
+BEGIN
+    "#include ""afxres.h""\r\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// SCRIPT
+//
+
+IDR_SCRIPT              SCRIPT                  "./default.js"
+#endif    // English (United States) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+
