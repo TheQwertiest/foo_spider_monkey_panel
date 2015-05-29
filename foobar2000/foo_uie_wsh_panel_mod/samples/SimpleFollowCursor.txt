@@ -1,0 +1,87 @@
+// ==PREPROCESSOR==
+// @name "SimpleFollowCursor"
+// @author "T.P Wang"
+// ==/PREPROCESSOR==
+
+// This is a helper function, for generating flags in DrawString()/MeasureString()
+// args: h_align, v_align, trimming, flags
+function StringFormat() {
+	var h_align = 0,
+		v_align = 0,
+		trimming = 0,
+		flags = 0;
+	switch (arguments.length) {
+		// fall-thru
+	case 4:
+		flags = arguments[3];
+	case 3:
+		trimming = arguments[2];
+	case 2:
+		v_align = arguments[1];
+	case 1:
+		h_align = arguments[0];
+		break;
+	default:
+		return 0;
+	}
+	return ((h_align << 28) | (v_align << 24) | (trimming << 20) | flags);
+}
+
+// h_align/v_align:
+// http://msdn.microsoft.com/en-us/library/ms534177(VS.85).aspx
+StringAlignment = {
+	Near: 0,
+	Center: 1,
+	Far: 2
+};
+
+// trimming:
+// http://msdn.microsoft.com/en-us/library/ms534403(VS.85).aspx
+StringTrimming = {
+	None: 0,
+	Character: 1,
+	Word: 2,
+	EllipsisCharacter: 3,
+	EllipsisWord: 4,
+	EllipsisPath: 5
+};
+
+// flags, can be combined of:
+// http://msdn.microsoft.com/en-us/library/ms534181(VS.85).aspx
+StringFormatFlags = {
+	DirectionRightToLeft: 0x00000001,
+	DirectionVertical: 0x00000002,
+	NoFitBlackBox: 0x00000004,
+	DisplayFormatControl: 0x00000020,
+	NoFontFallback: 0x00000400,
+	MeasureTrailingSpaces: 0x00000800,
+	NoWrap: 0x00001000,
+	LineLimit: 0x00002000,
+	NoClip: 0x00004000
+};
+
+function RGB(r, g, b) {
+	return (0xff000000 | (r << 16) | (g << 8) | (b));
+}
+
+
+// APPLICATION - START
+g_focus_metadb = fb.GetFocusItem();
+g_font = gdi.Font("Tahoma", 12, 0);
+g_tfo = fb.TitleFormat("%title%[ - %artist%][' ['%playback_time%']']\n$if(%ispaused%,' (Paused)')");
+g_stringformat = StringFormat(StringAlignment.Center, StringAlignment.Center);
+
+// Key point
+
+function on_item_focus_change() {
+	g_focus_metadb = fb.GetFocusItem();
+	window.Repaint();
+}
+
+function on_paint(gr) {
+	// Draw info
+	if (g_focus_metadb) {
+		gr.DrawString(g_tfo.EvalWithMetadb(g_focus_metadb), g_font, RGB(0, 0, 0), 0, 0, window.Width, window.Height, g_stringformat);
+	}
+}
+// APPLICATION - END

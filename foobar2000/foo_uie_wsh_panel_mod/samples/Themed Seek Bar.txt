@@ -1,0 +1,90 @@
+// ==PREPROCESSOR==
+// @name "Themed Seek Bar"
+// @author "T.P Wang"
+// ==/PREPROCESSOR==
+
+var g_theme = window.CreateThemeManager("PROGRESS");
+var g_bar_height = 15;
+var ww = 0,
+	wh = 0;
+var top = 0;
+var g_pos = 0;
+var g_drag = false;
+var g_length = 1;
+
+function clamp(x, l, h) {
+	return (x < l) ? l : ((x > h) ? h : x);
+}
+
+function on_size() {
+	ww = window.Width;
+	wh = window.Height;
+	top = (wh - g_bar_height) >> 1;
+}
+
+function on_paint(gr) {
+	g_theme.SetPartAndStateID(1, 0);
+	g_theme.DrawThemeBackground(gr, 0, top, ww, g_bar_height);
+
+	if (fb.IsPlaying && g_length > 0) {
+		g_theme.SetPartAndStateID(5, fb.IsPaused ? 3 : 1);
+		g_theme.DrawThemeBackground(gr, 0, top, g_pos, g_bar_height);
+	}
+}
+
+function on_mouse_lbtn_down(x, y) {
+	if (g_length > 0) {
+		g_drag = true;
+		on_mouse_move(x, y);
+	}
+}
+
+function on_mouse_lbtn_up(x, y) {
+	if (g_length > 0 && g_drag) {
+		g_drag = false;
+		fb.PlaybackTime = g_length * g_pos / ww;
+		on_mouse_move(x, y);
+	}
+}
+
+function on_mouse_move(x, y) {
+	if (g_drag) {
+		g_pos = clamp(x, 0, ww);
+		window.Repaint();
+	}
+}
+
+function on_mouse_wheel(delta) {
+	fb.PlaybackTime = fb.PlaybackTime + delta * 2;
+}
+
+function on_playback_time(time) {
+	if (!g_drag) {
+		if (g_length > 0) g_pos = ww * time / g_length;
+		window.Repaint();
+	}
+}
+
+function on_playback_seek() {
+	if (!g_drag && g_length > 0) window.Repaint();
+}
+
+function on_playback_pause() {
+	window.Repaint();
+}
+
+function on_playback_stop() {
+	g_length = 0;
+	g_pos = 0;
+	g_drag = false;
+	window.Repaint();
+}
+
+function on_playback_new_track() {
+	g_length = fb.PlaybackLength;
+	g_pos = 0;
+	g_drag = false;
+	window.Repaint();
+}
+
+if (fb.IsPlaying) on_playback_new_track();

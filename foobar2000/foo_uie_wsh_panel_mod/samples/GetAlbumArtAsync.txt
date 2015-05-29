@@ -1,0 +1,62 @@
+// ==PREPROCESSOR==
+// @name "GetAlbumArtAsync"
+// @author "T.P Wang"
+// ==/PREPROCESSOR==
+
+AlbumArtId = {
+	front: 0,
+	back: 1,
+	disc: 2,
+	icon: 3
+};
+
+var path = "";
+var g_img = null;
+var ww = 0,
+	wh = 0;
+
+
+function on_paint(gr) {
+	gr.FillSolidRect(0, 0, ww, wh, 0xffffffff);
+
+	// Draw front cover
+	if (g_img) {
+		// Keep aspect ratio
+		var scale_w = ww / g_img.Width;
+		var scale_h = wh / g_img.Height;
+		var scale = Math.min(scale_w, scale_h);
+		var pos_x = 0,
+			pos_y = 0;
+
+		if (scale_w < scale_h) pos_y = (wh - g_img.height * scale) / 2;
+		else if (scale_w > scale_h) pos_x = (ww - g_img.Width * scale) / 2;
+
+		gr.DrawImage(g_img, pos_x, pos_y, g_img.Width * scale, g_img.Height * scale, 0, 0, g_img.Width, g_img.Height);
+	}
+}
+
+function on_size() {
+	ww = window.Width;
+	wh = window.Height;
+}
+
+function on_playback_new_track(metadb) {
+	// GetAlbumArtAsync will run in the background
+	// When it's finished, on_get_album_art_done() will get called.
+	if (metadb) utils.GetAlbumArtAsync(window.ID, metadb, AlbumArtId.front);
+	path = null;
+	g_img = null;
+}
+
+function on_get_album_art_done(metadb, art_id, image, image_path) {
+	path = image_path;
+	g_img = image;
+	window.Repaint();
+}
+
+function on_mouse_lbtn_dblclk(x, y) {
+	//double click panel to show path in popup window
+	if (path) fb.ShowPopupMessage(path);
+}
+
+on_playback_new_track(fb.GetNowPlaying());

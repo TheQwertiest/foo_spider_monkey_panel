@@ -1,0 +1,164 @@
+// ==PREPROCESSOR==
+// @name "Tooltip"
+// @author "T.P Wang"
+// ==/PREPROCESSOR==
+
+// ------------------------------
+// --- COMMON FUNCTIONS
+// ------------------------------
+function RGBA(r, g, b, a) {
+	return ((a << 24) | (r << 16) | (g << 8) | (b));
+}
+
+function RGB(r, g, b) {
+	return (0xff000000 | (r << 16) | (g << 8) | (b));
+}
+
+// Create a windows tooltip here
+// Please do not create more than one tooltip in one panel
+var g_tooltip = window.CreateTooltip();
+var g_down = false;
+
+var g_font = gdi.Font("Impact", 14, 0);
+
+var btn_down = null;
+var cur_btn = null;
+
+var ww, hh;
+
+// ------------------------------
+//    Class `SampleButton'
+// ------------------------------
+
+function SampleButton(x, y, w, h, caption, func, tiptext) {
+	// 'Constructor' stuff
+	this.left = x;
+	this.top = y;
+	this.w = w;
+	this.h = h;
+	this.right = x + w;
+	this.bottom = y + h;
+	this.caption = caption;
+	this.func = func;
+	this.tiptext = tiptext;
+
+	// Estimate whether the coordinate is in this button
+	this.traceMouse = function(x, y) {
+		return (this.left < x) && (x < this.right) && (this.top < y) && (y < this.bottom);
+	}
+
+	this.draw = function(gr) {
+		// Draw border
+		gr.FillRoundRect(this.left, this.top, this.w, this.h, 3, 3, RGB(19, 30, 38));
+		gr.DrawRoundRect(this.left, this.top, this.w, this.h, 3, 3, 1, RGB(151, 180, 202));
+		// Draw caption
+		gr.DrawString(this.caption, g_font, RGB(0xc0, 0xc0, 0xc0), this.left, this.top, this.w, this.h, 0x11005000);
+	}
+
+	this.onClick = function() {
+		this.func && this.func(x, y);
+	}
+
+	this.onMouseIn = function() {
+		// Update tooltip text
+		g_tooltip.Text = this.tiptext;
+		g_tooltip.Activate();
+	}
+
+	this.onMouseOut = function() {
+		// Hide tooltip
+		g_tooltip.Deactivate();
+	}
+}
+
+function buttonsDraw(gr) {
+	for (i in SampleButtons) {
+		SampleButtons[i].draw(gr);
+	}
+}
+
+function buttonsTraceMouse(x, y) {
+	var btn = null;
+
+	for (i in SampleButtons) {
+		if (SampleButtons[i].traceMouse(x, y) && !btn) btn = SampleButtons[i];
+	}
+
+	return btn;
+}
+
+
+// ------------------------------
+// --- APPLICATION START
+// ------------------------------
+
+function on_mouse_move(x, y) {
+	var btn = buttonsTraceMouse(x, y);
+
+	if (btn != cur_btn) {
+		cur_btn && cur_btn.onMouseOut();
+		btn && btn.onMouseIn();
+	}
+
+	if (btn != btn_down) {
+		btn_down = null;
+	}
+
+	cur_btn = btn;
+}
+
+function on_mouse_lbtn_down(x, y) {
+	g_down = true;
+	btn_down = cur_btn;
+}
+
+function on_mouse_lbtn_up(x, y) {
+	if (cur_btn) {
+		if (btn_down == cur_btn) cur_btn.onClick(x, y);
+	}
+
+	g_down = false;
+}
+
+function on_paint(gr) {
+	gr.SetTextRenderingHint(5); // clear type
+	gr.SetSmoothingMode(4); // Anti-Alias
+	gr.FillGradRect(0, 0, ww, 63, 90, RGBA(151, 180, 202, 128), RGBA(0, 0, 0, 0));
+	buttonsDraw(gr);
+}
+
+function on_size() {
+	ww = window.Width;
+	hh = window.Height;
+
+	var buttonY = 30;
+
+	SampleButtons = {
+		stop: new SampleButton(5, buttonY, 60, 30, "Stop", function() {
+			fb.Stop();
+		},
+		"Stop"),
+		prev: new SampleButton(ww / 2 - 112, buttonY, 58, 30, "Previous", function() {
+			fb.Prev();
+		},
+		"Previous"),
+		play: new SampleButton(ww / 2 - 54, buttonY, 54, 30, "Play", function() {
+			fb.Play();
+		},
+		"Play"),
+		pause: new SampleButton(ww / 2, buttonY, 55, 30, "Pause", function() {
+			fb.Pause();
+		},
+		"Pause"),
+		next: new SampleButton(ww / 2 + 55, buttonY, 58, 30, "Next", function() {
+			fb.Next();
+		},
+		"Next"),
+		rand: new SampleButton(ww - 64, buttonY, 60, 30, "Random", function() {
+			fb.Random();
+		},
+		"Random")
+	};
+}
+
+// --- APPLICATION END

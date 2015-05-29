@@ -1,0 +1,181 @@
+// ==PREPROCESSOR==
+// @name "Playback Order Button (Popup Menu)"
+// @author "tedGo and T.P Wang"
+// ==/PREPROCESSOR==
+
+var MF_SEPARATOR = 0x00000800;
+var MF_ENABLED = 0x00000000;
+var MF_GRAYED = 0x00000001;
+var MF_DISABLED = 0x00000002;
+var MF_UNCHECKED = 0x00000000;
+var MF_CHECKED = 0x00000008;
+var MF_STRING = 0x00000000;
+var MF_RIGHTJUSTIFY = 0x00004000;
+
+ButtonStates = {
+	normal: 0,
+	hover: 1,
+	down: 2
+}
+
+Buttons = [];
+g_down = false;
+
+function Button(x, y, w, h, img_src, func) {
+	// ctor
+	this.left = x;
+	this.top = y;
+	this.w = w;
+	this.h = h;
+	this.right = x + w;
+	this.bottom = y + h;
+	this.func = func;
+	this.state = ButtonStates.normal;
+	this.img_normal = img_src && img_src.normal ? gdi.Image(img_src.normal) : null;
+	this.img_hover = img_src && img_src.hover ? gdi.Image(img_src.hover) : this.img_normal;
+	this.img_down = img_src && img_src.down ? gdi.Image(img_src.down) : this.img_hover;
+	this.img = this.img_normal;
+	Buttons.push(this);
+
+	this.traceMouse = function(x, y) {
+		var b = (this.left < x) && (x < this.right) && (this.top < y) && (y < this.bottom);
+		// hover?
+		if (b) g_down ? this.changeState(ButtonStates.down) : this.changeState(ButtonStates.hover);
+		else this.changeState(ButtonStates.normal);
+		return b;
+	}
+
+	this.changeState = function(newstate) {
+		// State changed?
+		if (newstate != this.state) window.RepaintRect(this.left, this.top, this.w, this.h);
+		this.state = newstate;
+		switch (this.state) {
+		case ButtonStates.normal:
+			this.img = this.img_normal;
+			break;
+
+		case ButtonStates.hover:
+			this.img = this.img_hover;
+			break;
+
+		case ButtonStates.down:
+			this.img = this.img_down;
+			break;
+
+		default:
+			this.img = null;
+		}
+	}
+
+	this.draw = function(gr) {
+		this.img && gr.DrawImage(this.img, this.left, this.top, this.w, this.h, 0, 0, this.w, this.h);
+	}
+
+	this.onClick = function(x, y) {
+		this.func && this.func(x, y);
+	}
+}
+
+function buttonsDraw(gr) {
+	for (i in Buttons) {
+		Buttons[i].draw(gr);
+	}
+}
+
+function buttonsTraceMouse(x, y) {
+	var btn = null;
+
+	for (i in Buttons) {
+		if (Buttons[i].traceMouse(x, y) && !btn) btn = Buttons[i];
+	}
+
+	return btn;
+}
+
+function RGB(r, g, b) {
+	return (0xff000000 | (r << 16) | (g << 8) | (b));
+}
+
+function RGBA(r, g, b, a) {
+	return ((a << 24) | (r << 16) | (g << 8) | (b));
+}
+
+
+// --- APPLICATION START
+var ww, hh;
+cur_btn = null;
+
+function on_mouse_move(x, y) {
+	cur_btn = buttonsTraceMouse(x, y);
+}
+
+function on_mouse_lbtn_down(x, y) {
+	if (cur_btn) {
+		cur_btn.changeState(ButtonStates.down);
+		g_down = true;
+	}
+}
+
+function on_mouse_lbtn_up(x, y) {
+	g_down = false;
+	if (cur_btn) {
+		cur_btn.changeState(ButtonStates.hover);
+		cur_btn.onClick(x, y);
+	}
+}
+
+function on_paint(gr) {
+	gr.FillGradRect(0, -1, ww, hh + 1, 270, RGB(25, 40, 51), RGB(38, 60, 76));
+	buttonsDraw(gr);
+}
+
+function on_mouse_leave() {
+	if (cur_btn) {
+		cur_btn.changeState(ButtonStates.normal);
+	}
+}
+
+function on_size() {
+	ww = window.Width;
+	hh = window.Height;
+}
+
+// Create and init PBO Menu
+var PBOArray = new Array("Default", "Repeat (Playlist)", "Repeat (Track)", "Random", "Shuffle (tracks)", "Shuffle (albums)", "Shuffle (folders)");
+var PBOMenu = window.CreatePopupMenu();
+
+//build menu from PBOArray
+for (var i = 0; i < PBOArray.length; i++) {
+	//add 1 to id. you cannot use 0 as that is reserved for when menu is cancelled.
+	//remember to subtract 1 from result later
+	PBOMenu.AppendMenuItem(MF_STRING, i + 1, PBOArray[i]);
+}
+
+// Used in onClick
+
+function switchPBO(x, y) {
+	ret = PBOMenu.TrackPopupMenu(x, y);
+
+	if (ret == 0) return;
+	//subtract 1 here to account for what we added earlier
+	fb.PlayBackOrder = ret - 1;
+}
+
+// Create a button
+
+function createPBOButton() {
+	return new Button(10, 10, 18, 9, {
+		normal: fb.ComponentPath + "samples\\images\\" + PBOArray[fb.PlayBackOrder] + ".png"
+	},
+	switchPBO);
+}
+
+function on_playback_order_changed() {
+	Buttons = [];
+	PBOMenu.CheckMenuRadioItem(1, 7, fb.PlayBackOrder + 1);
+	PBOButton = createPBOButton();
+	window.Repaint();
+}
+
+var PBOButton = createPBOButton();
+on_playback_order_changed();

@@ -1,0 +1,11 @@
+ 1. If anything goes wrong, check the console first.
+ 2. Usage of gdi.Font() is different from original WSH Panel: gdi.Font(name, pxSize, style);
+ 3. Don't call repaint functions such as window.Repaint() in callback function on_size() {}, especially in pseudo transparent mode.
+ 4. Don't try to assign parameter "gr" from function on_paint(gr) {} with other value, nor try to store "gr" in another variable.
+ 5. CollectGarbage() is useful in JScript when you want to free memory immediately. (But please also refer to #11)
+ 6. Remember to retrieve window width and height in on_size() callback, because their values during startup is not reliable.
+ 7. It's NOT recommended to create objects in callback function on_paint(), since it will be called frenquently.
+ 8. Since v1.1.0, functions/methods which use IFbFileInfo Interface is replaced with IFbMetadbHandle Inferface.
+ 9. jsbeautifier.org is a good site for formatting your JScript files.
+10. Don't forget that error handling (JScript, VBScript) is useful to create more stable scripts.
+11. Consider using Dispose() method instead of CollectGarbage() function in JScript.

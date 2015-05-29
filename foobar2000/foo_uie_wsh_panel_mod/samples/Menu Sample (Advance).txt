@@ -1,0 +1,51 @@
+﻿// ==PREPROCESSOR==
+// @name "Menu Sample (Advance)"
+// @author "T.P Wang / marc2003"
+// ==/PREPROCESSOR==
+
+// Flags, used by Menu
+var MF_SEPARATOR = 0x00000800;
+var MF_ENABLED = 0x00000000;
+var MF_GRAYED = 0x00000001;
+var MF_DISABLED = 0x00000002;
+var MF_UNCHECKED = 0x00000000;
+var MF_CHECKED = 0x00000008;
+var MF_STRING = 0x00000000;
+var MF_RIGHTJUSTIFY = 0x00004000;
+
+// custom popup menu should always respond to left-click
+// This sample is more complex, because use fb2k's context menu manager to display system context menu
+
+function on_mouse_lbtn_down(x, y) {
+	var _context = fb.CreateContextMenuManager();
+	var _basemenu = window.CreatePopupMenu();
+	var _child = window.CreatePopupMenu();
+	var idx;
+
+	// Please start index at 1, NOT 0
+	_basemenu.AppendMenuItem(MF_STRING, 1, "item1");
+	_basemenu.AppendMenuItem(MF_STRING, 2, "item2");
+	_child.AppendTo(_basemenu, MF_STRING, "Now Playing");
+
+	_context.InitNowPlaying();
+	_context.BuildMenu(_child, 3, -1);
+
+	idx = _basemenu.TrackPopupMenu(x, y);
+
+	switch (idx) {
+		case 0: //user dismissed menu by clicking elsewhere. that's why you can't use 0 when building menu items
+			break;
+		case 1:
+			fb.ShowPopupMessage("Mmmm, you have choose item1, of course");
+			break;
+		case 2:
+			fb.ShowPopupMessage("Ok, item2 is clicked");
+			break;
+		default:
+			_context.ExecuteByID(idx - 3);
+			break;
+	}
+	_basemenu.Dispose();
+	_child.Dispose();
+	_context.Dispose();
+}

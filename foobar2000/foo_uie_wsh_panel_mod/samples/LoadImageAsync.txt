@@ -1,0 +1,64 @@
+﻿// ==PREPROCESSOR==
+// @name "LoadImageAsync"
+// @author "T.P Wang"
+// ==/PREPROCESSOR==
+
+// Get a list of jpg files from a folder
+// You can configure the path before use.
+var g_image_list = utils.Glob("c:\\windows\\web\\wallpaper\\*.jpg").toArray();
+
+var ww = 0,
+	wh = 0;
+var g_img = null;
+var g_valid_tid = 0;
+
+// Trigger every 5 seconds.
+var g_timer = window.SetInterval(on_every_5000_seconds, 5000);
+
+load_random_image_async();
+
+function load_random_image_async() {
+	// Load a random image from the list
+	var path = g_image_list[Math.floor(Math.random() * g_image_list.length)];
+	//fb.trace(path);
+	g_valid_tid = gdi.LoadImageAsync(window.ID, path);
+}
+
+function on_size() {
+	ww = window.Width;
+	wh = window.Height;
+}
+
+function on_paint(gr) {
+	if (g_img) {
+		var x = 0,
+			y = 0;
+		var scale = 0;
+		var scale_w = ww / g_img.Width;
+		var scale_h = wh / g_img.Height;
+
+		if (scale_w <= scale_h) {
+			scale = scale_w;
+			y = (wh - g_img.Height * scale) / 2;
+		} else {
+			scale = scale_h;
+			x = (ww - g_img.Width * scale) / 2;
+		}
+
+		gr.DrawImage(g_img, x, y, g_img.Width * scale, g_img.Height * scale, 0, 0, g_img.Width, g_img.Height);
+	}
+}
+
+function on_every_5000_seconds(timer_id) {
+	load_random_image_async();
+}
+
+// After loading image is done in the background, this callback will be invoked
+function on_load_image_done(tid, image) {
+	if (g_valid_tid == tid) {
+		// Dispose previous image, in order to save memory
+		g_img && g_img.Dispose();
+		g_img = image;
+		window.Repaint();
+	}
+}

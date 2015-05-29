@@ -1,0 +1,8 @@
+// ==PREPROCESSOR==
+// @name "Preprocessor"
+// @author "T.P Wang"
+// @import "%fb2k_profile_path%user-components\foo_uie_wsh_panel_mod\samples\scripts\includeme.js"
+// ==/PREPROCESSOR==
+
+// Only print one message to the console
+print_to_console("Hello, world!");

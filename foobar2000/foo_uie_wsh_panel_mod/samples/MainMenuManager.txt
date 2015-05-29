@@ -1,0 +1,40 @@
+// ==PREPROCESSOR==
+// @name "MainMenuManager"
+// @author "T.P Wang"
+// ==/PREPROCESSOR==
+
+// Flags, used by Menu
+var MF_SEPARATOR = 0x00000800;
+var MF_ENABLED = 0x00000000;
+var MF_GRAYED = 0x00000001;
+var MF_DISABLED = 0x00000002;
+var MF_UNCHECKED = 0x00000000;
+var MF_CHECKED = 0x00000008;
+var MF_STRING = 0x00000000;
+var MF_RIGHTJUSTIFY = 0x00004000;
+
+// Custom popup menu should always respond to left-click
+
+function on_mouse_lbtn_down(x, y) {
+	var menuman = fb.CreateMainMenuManager();
+	var menu = window.CreatePopupMenu();
+	var ret;
+
+	// Build a menu based on "View"
+	menuman.Init("View");
+	menuman.BuildMenu(menu, 1, 128);
+
+	// Show menu
+	ret = menu.TrackPopupMenu(x, y);
+
+	//fb.trace(ret);
+
+	if (ret > 0) {
+		// Execute menu commands
+		// "ID" is based on which is generated
+		menuman.ExecuteByID(ret - 1);
+	}
+
+	menuman.Dispose();
+	menu.Dispose();
+}

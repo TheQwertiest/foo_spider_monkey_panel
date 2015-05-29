@@ -1,0 +1,80 @@
+DESCRIPTION
+  All preprocessors is started with "==PREPROCESSOR==" and ended with "==/PREPROCESSOR==":
+    VBSCRIPT:
+      ' // ==PREPROCESSOR==
+      ' ...
+      ' // ==/PREPROCESSOR==
+
+    JScript:
+      // ==PREPROCESSOR==
+      // ...
+      // ==/PREPROCESSOR==
+
+  And be aware that all preprocessors (directives) are case sensitive.
+
+DIRECTIVES
+  Directives should be started with "@", and placed into a single comment.
+  e.g:
+    VBScript:
+      ' // ==PREPROCESSOR==
+      ' // @directive "value-here"
+      ' // ==/PREPROCESSOR==
+
+    JScript:
+      // ==PREPROCESSOR==
+      // @directive "value-here"
+      // ==/PREPROCESSOR==
+
+  @import "path"
+  Load external script from "path".
+  Remarks:
+    You can place %fb2k_path%, %fb2k_component_path% and %fb2k_profile_path% into "path", they will be expanded while parsing.
+    Escape one double quote (") with two double quotes ("") if path includes double quote(") character. eg: @import "D:\""Something"""
+
+  @feature "feature-string"
+  Set feature(s).
+  NOTE: Read these carefully.
+  "feature-string":
+    -versions:
+      "v1.0" - Set by default.
+      "v1.4" - Effects:
+               Change on_metadb_changed() callback behavior, see Callbacks.txt for more information.
+               Disable window.WatchMetadb() and window.UnWatchMetadb() methods permanently ("watch-metadb" won't help);
+               No parameter will be passed to on_selection_changed() callback.
+
+    -commons:
+      "watch-metadb" - Set by default when version is only "v1.0".
+                       Enable on_metadb_changed() callback (See Notes in Callbacks.txt).
+                       Enable window.WatchMetadb() and window.UnWatchMetadb() methods (only in "v1.0").
+      "dragdrop"     - Enable drag drop callbacks.
+
+  e.g:
+    JScript:
+      // ==PREPROCESSOR==
+      // ...
+      // @feature "v1.4"
+      // @feature "watch-metadb"
+      // @feature "dragdrop"
+      // ==/PREPROCESSOR==
+      
+  @tooltip "tooltip-feature-string"
+  Set features(s) of tooltip control.
+  "tooltip-feature-string":
+    "custom-paint"                  - Enable tooltip custom paint support, with "on_tooltip_custom_paint" callback.
+    "custom-paint-no-background"    - Same as "custom-paint", but this one will not draw tooltip background.
+
+  @name "name"
+  Set name of the script.
+  Remarks:
+    Escape one double quote (") with two double quotes ("") if name includes double quote(") character. eg: @name "One aka ""1"""
+
+  @version "version"
+  Set version of the script.
+  Remarks:
+    Escape one double quote (") with two double quotes ("") if name includes double quote(") character. 
+
+  @author "author"
+  Set author of the script.
+  Remarks:
+    Escape one double quote (") with two double quotes ("") if name includes double quote(") character. 
+

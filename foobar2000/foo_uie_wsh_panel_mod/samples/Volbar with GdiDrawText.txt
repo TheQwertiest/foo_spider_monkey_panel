@@ -1,0 +1,80 @@
+// ==PREPROCESSOR==
+// @name "Volbar with GdiDrawText"
+// @author "T.P Wang"
+// ==/PREPROCESSOR==
+
+// Flags, used with GdiDrawText
+// For more information, see: http://msdn.microsoft.com/en-us/library/dd162498(VS.85).aspx
+var DT_TOP = 0x00000000;
+var DT_LEFT = 0x00000000;
+var DT_CENTER = 0x00000001;
+var DT_RIGHT = 0x00000002;
+var DT_VCENTER = 0x00000004;
+var DT_BOTTOM = 0x00000008;
+var DT_WORDBREAK = 0x00000010;
+var DT_SINGLELINE = 0x00000020;
+var DT_EXPANDTABS = 0x00000040;
+var DT_TABSTOP = 0x00000080;
+var DT_NOCLIP = 0x00000100;
+var DT_EXTERNALLEADING = 0x00000200;
+var DT_CALCRECT = 0x00000400;
+var DT_NOPREFIX = 0x00000800;
+var DT_INTERNAL = 0x00001000;
+var DT_EDITCONTROL = 0x00002000;
+var DT_PATH_ELLIPSIS = 0x00004000;
+var DT_END_ELLIPSIS = 0x00008000;
+var DT_MODIFYSTRING = 0x00010000;
+var DT_RTLREADING = 0x00020000;
+var DT_WORD_ELLIPSIS = 0x00040000;
+var DT_NOFULLWIDTHCHARBREAK = 0x00080000;
+var DT_HIDEPREFIX = 0x00100000;
+var DT_PREFIXONLY = 0x00200000;
+
+function RGB(r, g, b) {
+	return (0xff000000 | (r << 16) | (g << 8) | (b));
+}
+
+var g_font = gdi.Font("Tahoma", 12, 0);
+var g_drag = 0;
+var ww = 0;
+	wh = 0;
+
+function on_size() {
+	ww = window.Width;
+	wh = window.Height;
+}
+
+function on_paint(gr) {
+	var volume = fb.Volume;
+	var pos = ww * (Math.pow(10, volume / 50) - 0.01) / 0.99;
+	var txt = volume.toFixed(2) + "dB";
+	gr.FillGradRect(0, 0, pos, wh, 90, RGB(240, 240, 240), RGB(100, 230, 100));
+	gr.FillGradRect(pos, 0, ww - pos, wh, 90, RGB(240, 240, 240), RGB(190, 190, 190));
+	gr.GdiDrawText(txt, g_font, RGB(64, 64, 128), 0, 0, ww, wh, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
+	gr.DrawRect(0, 0, ww - 1, wh - 1, 1.0, RGB(150, 150, 150));
+}
+
+function on_mouse_lbtn_down(x, y) {
+	g_drag = 1;
+}
+
+function on_mouse_lbtn_up(x, y) {
+	on_mouse_move(x, y);
+	g_drag = 0;
+}
+
+function on_mouse_move(x, y) {
+	if (g_drag) {
+		var pos = x < 0 ? 0 : x > window.Width ? 1 : x / Window.Width;
+		fb.Volume = 50 * Math.log(0.99 * pos + 0.01) / Math.LN10;
+	}
+}
+
+function on_mouse_wheel(delta) {
+	if (delta > 0) fb.VolumeUp();
+	else fb.VolumeDown();
+}
+
+function on_volume_change(val) {
+	window.Repaint();
+}

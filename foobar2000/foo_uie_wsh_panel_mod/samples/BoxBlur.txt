@@ -1,0 +1,118 @@
+// ==PREPROCESSOR==
+// @name "BoxBlur"
+// @author "T.P Wang"
+// ==/PREPROCESSOR==
+
+// -- flags
+var TextRenderingHint = {
+	SystemDefault: 0,
+	// Glyph with system default rendering hint
+	SingleBitPerPixelGridFit: 1,
+	// Glyph bitmap with hinting
+	SingleBitPerPixel: 2,
+	// Glyph bitmap without hinting
+	AntiAliasGridFit: 3,
+	// Glyph anti-alias bitmap with hinting
+	AntiAlias: 4,
+	// Glyph anti-alias bitmap without hinting
+	ClearTypeGridFit: 5 // Glyph ClearType bitmap with hinting
+};
+
+// FYI, you can combine these flags using '|' operator
+var FontStyle = {
+	Regular: 0,
+	Bold: 1,
+	Italic: 2,
+	BoldItalic: 3,
+	Underline: 4,
+	Strikeout: 8
+};
+
+// FYI: http://msdn.microsoft.com/en-us/library/system.drawing.stringalignment(VS.71).aspx
+var StringAlignment = {
+	Near: 0,
+	Center: 1,
+	Far: 2
+};
+
+// FYI: http://msdn.microsoft.com/en-us/library/system.drawing.stringtrimming(VS.71).aspx
+var StringTrimming = {
+	None: 0,
+	Character: 1,
+	Word: 2,
+	EllipsisCharacter: 3,
+	EllipsisWord: 4,
+	EllipsisPath: 5
+};
+
+// FYI: http://msdn.microsoft.com/en-us/library/system.drawing.stringformatflags(VS.71).aspx
+var StringFormatFlags = {
+	DirectionRightToLeft: 0x00000001,
+	DirectionVertical: 0x00000002,
+	NoFitBlackBox: 0x00000004,
+	DisplayFormatControl: 0x00000020,
+	NoFontFallback: 0x00000400,
+	MeasureTrailingSpaces: 0x00000800,
+	NoWrap: 0x00001000,
+	LineLimit: 0x00002000,
+	NoClip: 0x00004000,
+	BypassGDI: 0x80000000
+}
+
+// -- predefined functions
+
+function RGBA(r, g, b, a) {
+	r &= 0xff;
+	g &= 0xff;
+	b &= 0xff;
+	a &= 0xff;
+	return ((a << 24) | (r << 16) | (g << 8) | (b));
+}
+
+function RGB(r, g, b) {
+	return RGBA(r, g, b, 0xff);
+}
+
+function StringFormat(h_align, v_align, trim, flag) {
+	return ((h_align << 28) | (v_align << 24) | (trim << 20) | flag);
+}
+
+// -- APPLICATION START
+// -- globals
+var ww = 0, wh = 0;
+var img_to_blur;
+var g_font = gdi.Font("Tahoma", 20, FontStyle.Bold);
+var text_to_draw = '"Box Blur" Sample';
+
+// -- callback functions
+
+function on_paint(gr) {
+	img_to_blur && gr.DrawImage(img_to_blur, 0, 0, ww, wh, 0, 0, ww, wh);
+	// Here you can set text rendering hint to clear type
+	gr.SetTextRenderingHint(TextRenderingHint.ClearTypeGridFit);
+	gr.DrawString(text_to_draw, g_font, RGB(0, 0, 255), 0, 0, ww, wh, StringFormat(StringAlignment.Center, StringAlignment.Center));
+}
+
+function on_size() {
+	ww = window.Width;
+	wh = window.Height;
+	
+	if (ww <= 0 || wh <= 0) return;
+	
+	// Create a image which background is true transparent
+	img_to_blur = gdi.CreateImage(ww, wh);
+	// Get graphics interface like "gr" in on_paint
+	var g = img_to_blur.GetGraphics();
+	// You cannot set it to 'ClearTypeGridFit' if background is TRANSPARENT
+	g.SetTextRenderingHint(TextRenderingHint.AntiAlias);
+	// If you wanto use cear type, fill a solid rect:
+	// g.FillSolidRect(0, 0, ww, wh, RGB(255, 255, 255));
+	// g.SetTextRenderingHint(TextRenderingHint.ClearTypeGridFit);
+	g.DrawString(text_to_draw, g_font, RGB(0, 0, 255), 0, 0, ww, wh, StringFormat(StringAlignment.Center, StringAlignment.Center));
+	// Release graphics (or it will remain in memory util system collects GC)
+	img_to_blur.ReleaseGraphics(g);
+	// Make box blur, radius = 2, iteration = 2
+	img_to_blur.BoxBlur(6, 2);
+}
+
+// -- APPLICATION END

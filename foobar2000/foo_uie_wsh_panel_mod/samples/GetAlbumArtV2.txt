@@ -1,0 +1,59 @@
+// ==PREPROCESSOR==
+// @name "GetAlbumArtV2"
+// @author "T.P Wang"
+// ==/PREPROCESSOR==
+
+// NOTE:
+// It's not recommended to use this example because whole process will be blocked 
+//  and waited before utils.GetAlbumArtV2() is finished.
+
+AlbumArtId = {
+	front: 0,
+	back: 1,
+	disc: 2,
+	icon: 3
+};
+
+var g_img = null;
+var ww = 0,
+	wh = 0;
+
+function on_paint(gr) {
+	// Draw front cover, keep aspect-ratio
+	if (g_img) {
+		var scale = 0;
+		var x = 0,
+			y = 0;
+		var scale_w = ww / g_img.Width;
+		var scale_h = wh / g_img.Height;
+
+		if (scale_w <= scale_h) {
+			scale = scale_w;
+			y = (wh - g_img.Height * scale) / 2;
+		} else {
+			scale = scale_h;
+			x = (ww - g_img.Width * scale) / 2;
+		}
+
+		gr.DrawImage(g_img, x, y, g_img.Width * scale, g_img.Height * scale, 0, 0, g_img.Width, g_img.Height);
+	}
+}
+
+function on_size() {
+	ww = window.Width;
+	wh = window.Height;
+}
+
+function get_album_art(metadb) {
+	if (metadb)
+	// Get front cover
+	return utils.GetAlbumArtV2(metadb, AlbumArtId.front);
+}
+
+g_img = get_album_art(fb.GetNowPlaying());
+
+function on_playback_new_track(metadb) {
+	if (g_img) g_img.Dispose();
+	g_img = get_album_art(metadb);
+	window.Repaint();
+}
