@@ -5,30 +5,9 @@
 
 // Flags, used with GdiDrawText
 // For more information, see: http://msdn.microsoft.com/en-us/library/dd162498(VS.85).aspx
-var DT_TOP = 0x00000000;
-var DT_LEFT = 0x00000000;
 var DT_CENTER = 0x00000001;
-var DT_RIGHT = 0x00000002;
 var DT_VCENTER = 0x00000004;
-var DT_BOTTOM = 0x00000008;
-var DT_WORDBREAK = 0x00000010;
 var DT_SINGLELINE = 0x00000020;
-var DT_EXPANDTABS = 0x00000040;
-var DT_TABSTOP = 0x00000080;
-var DT_NOCLIP = 0x00000100;
-var DT_EXTERNALLEADING = 0x00000200;
-var DT_CALCRECT = 0x00000400;
-var DT_NOPREFIX = 0x00000800;
-var DT_INTERNAL = 0x00001000;
-var DT_EDITCONTROL = 0x00002000;
-var DT_PATH_ELLIPSIS = 0x00004000;
-var DT_END_ELLIPSIS = 0x00008000;
-var DT_MODIFYSTRING = 0x00010000;
-var DT_RTLREADING = 0x00020000;
-var DT_WORD_ELLIPSIS = 0x00040000;
-var DT_NOFULLWIDTHCHARBREAK = 0x00080000;
-var DT_HIDEPREFIX = 0x00100000;
-var DT_PREFIXONLY = 0x00200000;
 
 function RGB(r, g, b) {
 	return (0xff000000 | (r << 16) | (g << 8) | (b));
@@ -65,7 +44,7 @@ function on_mouse_lbtn_up(x, y) {
 
 function on_mouse_move(x, y) {
 	if (g_drag) {
-		var pos = x < 0 ? 0 : x > window.Width ? 1 : x / Window.Width;
+		var pos = x < 0 ? 0 : x > ww ? 1 : x / ww;
 		fb.Volume = 50 * Math.log(0.99 * pos + 0.01) / Math.LN10;
 	}
 }
