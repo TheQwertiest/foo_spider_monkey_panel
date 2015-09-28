@@ -7,9 +7,6 @@ All credit to T.P Wang for the official version which is available here: https:/
 
 Please read the changelog below and pay special attention to the features removed in `v1.5.7`. These were marked as obsolete well over 3 years ago and the official component `v1.5.6` already reports them as such in the `foobar2000` `Console`. If any of your scripts are triggering these warnings, they will not even run in this component. The scripts will need updating. Script authors should check `preprocessors.txt` and `interfaces.txt` in the docs. For anyone not capable of fixing their own scripts, they should continue to use the official component.
 
-
-My changes:
-
 ```
 v1.5.10
 - ADD: plman.UndoBackup(playlistIndex). If you call this before using other
