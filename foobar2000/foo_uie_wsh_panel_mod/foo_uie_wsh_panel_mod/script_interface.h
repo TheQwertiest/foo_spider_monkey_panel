@@ -230,7 +230,7 @@ __interface IFbMetadbHandle: IDisposable
 	[propget] STDMETHOD(Path)([out,retval] BSTR* pp);
 	[propget] STDMETHOD(RawPath)([out,retval] BSTR * pp);
 	[propget] STDMETHOD(SubSong)([out,retval] UINT* p);
-	[propget] STDMETHOD(FileSize)([out,retval] LONGLONG* p);
+	[propget] STDMETHOD(FileSize)([out,retval] double* p);
 	[propget] STDMETHOD(Length)([out,retval] double* p);
 	STDMETHOD(GetFileInfo)([out,retval] IFbFileInfo ** pp);
 	[vararg] STDMETHOD(UpdateFileInfoSimple)([satype(VARIANT)] SAFEARRAY * p);

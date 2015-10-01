@@ -1334,7 +1334,7 @@ STDMETHODIMP FbMetadbHandle::get_SubSong(UINT* p)
 	return S_OK;
 }
 
-STDMETHODIMP FbMetadbHandle::get_FileSize(LONGLONG* p)
+STDMETHODIMP FbMetadbHandle::get_FileSize(double* p)
 {
 	TRACK_FUNCTION();
 

@@ -182,7 +182,7 @@ Properties:
     (readonly) String Path;
     (readonly) String RawPath;
     (readonly) int SubSong;
-    (readonly) int64 FileSize;
+    (readonly) double FileSize;
     (readonly) double Length;
     
 Methods:

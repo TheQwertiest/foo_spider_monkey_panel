@@ -252,7 +252,7 @@ public:
 	STDMETHODIMP get_Path(BSTR* pp);
 	STDMETHODIMP get_RawPath(BSTR * pp);
 	STDMETHODIMP get_SubSong(UINT* p);
-	STDMETHODIMP get_FileSize(LONGLONG* p);
+	STDMETHODIMP get_FileSize(double* p);
 	STDMETHODIMP get_Length(double* p);
 	STDMETHODIMP GetFileInfo(IFbFileInfo ** pp);
 	STDMETHODIMP UpdateFileInfoSimple(SAFEARRAY * p);
