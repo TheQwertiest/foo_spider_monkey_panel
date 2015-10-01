@@ -18,12 +18,9 @@ BOOL CDialogPref::OnInitDialog(HWND hwndFocus, LPARAM lParam)
 	uButton_SetCheck(m_hWnd, IDC_CHECK_SAFE_MODE, g_cfg_safe_mode);
 	DoDataExchange();
 
-	// Enable Visual Style
-	if (helpers::is_vista())
-		SetWindowTheme(m_props.m_hWnd, L"explorer", NULL);
+	SetWindowTheme(m_props.m_hWnd, L"explorer", NULL);
 
-	// Show Grid lines (XP only)
-	m_props.SetExtendedListViewStyle(LVS_EX_FULLROWSELECT | (helpers::is_vista() ? LVS_EX_DOUBLEBUFFER : LVS_EX_GRIDLINES));
+	m_props.SetExtendedListViewStyle(LVS_EX_FULLROWSELECT | LVS_EX_DOUBLEBUFFER);
 	m_props.AddColumn(_T("Name"), 0);
 	m_props.SetColumnWidth(0, 140);
 	m_props.AddColumn(_T("Value"), 1);

@@ -118,14 +118,6 @@ namespace helpers
 	HRESULT get_album_art_v2(const metadb_handle_ptr & handle, IGdiBitmap ** pp, int art_id, VARIANT_BOOL need_stub, VARIANT_BOOL no_load = VARIANT_FALSE, pfc::string_base * image_path_ptr = NULL);
 	HRESULT get_album_art_embedded(BSTR rawpath, IGdiBitmap ** pp, int art_id);
 
-	inline bool is_vista()
-	{
-		// Get OS version
-		OSVERSIONINFO ovi = { sizeof(OSVERSIONINFO) };
-		BOOL bRet = ::GetVersionEx(&ovi);
-		return ((bRet != FALSE) && (ovi.dwMajorVersion >= 6));
-	}
-
 	static pfc::string8_fast get_fb2k_path()
 	{
 		pfc::string8_fast path;
