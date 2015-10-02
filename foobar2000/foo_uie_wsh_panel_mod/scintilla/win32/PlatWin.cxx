@@ -3219,9 +3219,7 @@ int Platform::Clamp(int val, int minVal, int maxVal) {
 }
 
 void Platform_Initialise(void *hInstance) {
-	OSVERSIONINFO osv = {sizeof(OSVERSIONINFO),0,0,0,0,TEXT("")};
-	::GetVersionEx(&osv);
-	onNT = osv.dwPlatformId == VER_PLATFORM_WIN32_NT;
+	onNT = true;
 	::InitializeCriticalSection(&crPlatformLock);
 	hinstPlatformRes = reinterpret_cast<HINSTANCE>(hInstance);
 	// This may be called from DllMain, in which case the call to LoadLibrary
