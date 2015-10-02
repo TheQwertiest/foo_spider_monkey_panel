@@ -1,3 +1,8 @@
+v1.5.11
+- FIX: IFbMetadbHandle FileSize now works with "JScript" engine. Previously,
+       it only worked with "JScript9".
+- CHG: Windows XP is no longer supported.
+
 v1.5.10
 - ADD: plman.UndoBackup(playlistIndex). If you call this before
        adding/removing/reordering playlist items, you will be able to use
