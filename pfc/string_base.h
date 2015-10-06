@@ -1017,7 +1017,7 @@ namespace pfc {
 	bool stringEqualsI_ascii(const char * p1,const char * p2) throw();
 	char ascii_tolower_lookup(char c);
 
-	template<typename T> inline const char * stringToPtr(T const& val) {return val.c_str();}
+	template<typename T> inline const char * stringToPtr(T const& val) {return val.get_ptr();}
 	inline const char * stringToPtr(const char* val) {return val;}
 
 	template<typename T> static string_part_ref stringToRef(T const & val) {return string_part(stringToPtr(val), val.length());}
