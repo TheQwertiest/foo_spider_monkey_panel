@@ -7,7 +7,8 @@
 //
 // Generated from the TEXTINCLUDE 2 resource.
 //
-#include "afxres.h"
+#include "afxres.h"
+
 /////////////////////////////////////////////////////////////////////////////
 #undef APSTUDIO_READONLY_SYMBOLS
 
@@ -23,19 +24,19 @@ LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 // Dialog
 //
 
-IDD_DIALOG_PROPERTIES DIALOGEX 0, 0, 259, 213
+IDD_DIALOG_PROPERTIES DIALOGEX 0, 0, 359, 313
 STYLE DS_SETFONT | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME
 CAPTION "Properties"
 FONT 8, "Tahoma", 400, 0, 0x1
 BEGIN
-    DEFPUSHBUTTON   "OK",IDOK,94,192,50,14
-    PUSHBUTTON      "Cancel",IDCANCEL,202,192,50,14
-    LISTBOX         IDC_LIST_PROPERTIES,7,24,245,161,LBS_OWNERDRAWVARIABLE | LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP
-    PUSHBUTTON      "&Apply",IDAPPLY,148,192,50,14
-    PUSHBUTTON      "C&lear",IDC_CLEARALL,126,7,40,13
-    PUSHBUTTON      "De&lete",IDC_DEL,83,7,40,13
-    PUSHBUTTON      "E&xport",IDC_EXPORT,212,7,40,13
-    PUSHBUTTON      "I&mport",IDC_IMPORT,169,7,40,13
+    DEFPUSHBUTTON   "OK", IDOK, 194, 292, 50, 14
+    PUSHBUTTON      "Cancel", IDCANCEL, 302, 292, 50, 14
+    LISTBOX         IDC_LIST_PROPERTIES, 7, 24, 345, 261, LBS_OWNERDRAWVARIABLE | LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP
+    PUSHBUTTON      "&Apply", IDAPPLY, 248, 292, 50, 14
+    PUSHBUTTON      "C&lear", IDC_CLEARALL, 226, 7, 40, 13
+    PUSHBUTTON      "De&lete", IDC_DEL, 183, 7, 40, 13
+    PUSHBUTTON      "E&xport", IDC_EXPORT, 312, 7, 40, 13
+    PUSHBUTTON      "I&mport", IDC_IMPORT, 269, 7, 40, 13
 END
 
 IDD_DIALOG_CONFIG DIALOGEX 0, 0, 361, 340
@@ -247,7 +248,8 @@ IDR_SCRIPT              SCRIPT                  "./default.js"
 //
 // Generated from the TEXTINCLUDE 3 resource.
 //
-
+
+
 /////////////////////////////////////////////////////////////////////////////
 #endif    // not APSTUDIO_INVOKED
 
