@@ -166,7 +166,6 @@ void CDialogPref::apply()
 
 void CDialogPref::reset()
 {
-	g_cfg_safe_mode = true;
+	uButton_SetCheck(m_hWnd, IDC_CHECK_SAFE_MODE, false);
 	LoadProps(true);
-	OnChanged();
 }
