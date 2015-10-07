@@ -999,10 +999,10 @@ void wsh_panel_window::on_refresh_background_done()
 
 void wsh_panel_window::build_context_menu(HMENU menu, int x, int y, int id_base)
 {
-	::AppendMenu(menu, MF_STRING, id_base + 3, _T("&Reload"));
+	::AppendMenu(menu, MF_STRING, id_base + 1, _T("&Reload"));
 	::AppendMenu(menu, MF_SEPARATOR, 0, 0);
-	::AppendMenu(menu, MF_STRING, id_base + 1, _T("&Properties"));
-	::AppendMenu(menu, MF_STRING, id_base + 2, _T("&Configure..."));
+	::AppendMenu(menu, MF_STRING, id_base + 2, _T("&Properties"));
+	::AppendMenu(menu, MF_STRING, id_base + 3, _T("&Configure..."));
 }
 
 void wsh_panel_window::execute_context_menu_command(int id, int id_base)
@@ -1010,13 +1010,13 @@ void wsh_panel_window::execute_context_menu_command(int id, int id_base)
 	switch (id - id_base)
 	{
 	case 1:
-		show_property_popup(m_hwnd);
+		update_script();
 		break;
 	case 2:
-		show_configure_popup(m_hwnd);			
+		show_property_popup(m_hwnd);
 		break;
 	case 3:
-		update_script();
+		show_configure_popup(m_hwnd);			
 		break;
 	}
 }
