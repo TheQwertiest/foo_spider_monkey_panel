@@ -1,3 +1,9 @@
+v1.5.12
+- FIX: "Reset page" button in "Preferences" now turns "Safe Mode" off
+       to be consistent with the changes to default behaviour introduced
+       in "v1.5.7".
+- CHG: "Properties" dialog has a larger default size.
+
 v1.5.11
 - FIX: IFbMetadbHandle FileSize now works with "JScript" engine. Previously,
        it only worked with "JScript9".
