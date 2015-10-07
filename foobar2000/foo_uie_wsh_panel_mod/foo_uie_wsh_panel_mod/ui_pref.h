@@ -74,7 +74,7 @@ public:
 
 	bool get_help_url(pfc::string_base & p_out)
 	{
-		p_out = "http://code.google.com/p/foo-wsh-panel-mod/wiki/EditorProperties";
+		p_out = "https://github.com/19379/foo_uie_wsh_panel_mod/wiki/Editor-Properties";
 		return true;
 	}
 };

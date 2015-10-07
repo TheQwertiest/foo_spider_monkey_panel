@@ -68,7 +68,7 @@ namespace
 
 			if (IS_EXPIRED(__DATE__))
 			{
-				err_msg = "This beta version is over two weeks old, please get a new one now.\nVisit: http://foo-wsh-panel-mod.googlecode.com\n\n";
+				err_msg = "This beta version is over two weeks old, please get a new one now.\nVisit: https://github.com/19379/foo_uie_wsh_panel_mod/releases\n\n";
 			}
 			else if (g_load_status != E_OK)
 			{
