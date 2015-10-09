@@ -1,13 +1,10 @@
-// Windows Template Library - WTL version 9.0
+// Windows Template Library - WTL version 9.10
 // Copyright (C) Microsoft Corporation, WTL Team. All rights reserved.
 //
 // This file is a part of the Windows Template Library.
 // The use and distribution terms for this software are covered by the
-// Common Public License 1.0 (http://opensource.org/licenses/cpl1.0.php)
-// which can be found in the file CPL.TXT at the root of this distribution.
-// By using this software in any fashion, you are agreeing to be bound by
-// the terms of this license. You must not remove this notice, or
-// any other, from this software.
+// Microsoft Public License (http://opensource.org/licenses/MS-PL)
+// which can be found in the file MS-PL.txt at the root folder.
 
 #ifndef __ATLSPLIT_H__
 #define __ATLSPLIT_H__
@@ -54,7 +51,7 @@ namespace WTL
 
 // Note: SPLIT_PROPORTIONAL and SPLIT_RIGHTALIGNED/SPLIT_BOTTOMALIGNED are 
 // mutually exclusive. If both are set, splitter defaults to SPLIT_PROPORTIONAL.
-// SPLIT_GRADIENTBAR doesn't wotk with _ATL_NO_MSIMG
+// SPLIT_GRADIENTBAR doesn't work with _ATL_NO_MSIMG
 
 
 template <class T>
@@ -296,7 +293,7 @@ public:
 	{
 		ATLASSERT((nPane == SPLIT_PANE_LEFT) || (nPane == SPLIT_PANE_RIGHT));
 		if((nPane != SPLIT_PANE_LEFT) && (nPane != SPLIT_PANE_RIGHT))
-			return false;
+			return NULL;
 
 		return m_hWndPane[nPane];
 	}
@@ -671,9 +668,10 @@ public:
 		if(!m_bFullDrag)
 			DrawGhostBar();
 
-		if(!m_bFullDrag || (m_xySplitterPos != m_xySplitterPosNew))
+		if((m_xySplitterPosNew != -1) && (!m_bFullDrag || (m_xySplitterPos != m_xySplitterPosNew)))
 		{
 			m_xySplitterPos = m_xySplitterPosNew;
+			m_xySplitterPosNew = -1;
 			UpdateSplitterLayout();
 			T* pT = static_cast<T*>(this);
 			pT->UpdateWindow();
