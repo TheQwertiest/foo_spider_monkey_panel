@@ -459,19 +459,6 @@ public:
 	STDMETHODIMP CreateMainMenuManager(IMainMenuManager ** pp);
 	STDMETHODIMP IsMetadbInMediaLibrary(IFbMetadbHandle * handle, VARIANT_BOOL * p);
 	STDMETHODIMP IsLibraryEnabled(VARIANT_BOOL * p);
-
-	STDMETHODIMP get_ActivePlaylist(UINT * p);
-	STDMETHODIMP put_ActivePlaylist(UINT idx);
-	STDMETHODIMP get_PlayingPlaylist(UINT * p);
-	STDMETHODIMP put_PlayingPlaylist(UINT idx);
-	STDMETHODIMP get_PlaylistCount(UINT * p);
-	STDMETHODIMP get_PlaylistItemCount(UINT idx, UINT * p);
-	STDMETHODIMP GetPlaylistName(UINT idx, BSTR * p);
-	STDMETHODIMP CreatePlaylist(UINT idx, BSTR name, UINT * p);
-	STDMETHODIMP RemovePlaylist(UINT idx, VARIANT_BOOL * p);
-	STDMETHODIMP MovePlaylist(UINT from, UINT to, VARIANT_BOOL * p);
-	STDMETHODIMP RenamePlaylist(UINT idx, BSTR name, VARIANT_BOOL * p);
-	STDMETHODIMP DuplicatePlaylist(UINT from, BSTR name, UINT * p);
 	STDMETHODIMP IsAutoPlaylist(UINT idx, VARIANT_BOOL * p);
 	STDMETHODIMP CreateAutoPlaylist(UINT idx, BSTR name, BSTR query, BSTR sort, UINT flags, UINT * p);
 	STDMETHODIMP ShowAutoPlaylistUI(UINT idx, VARIANT_BOOL * p);

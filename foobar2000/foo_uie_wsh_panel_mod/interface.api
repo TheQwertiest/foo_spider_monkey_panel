@@ -49,9 +49,6 @@ fb.StopAfterCurrent
 fb.CursorFollowPlayback
 fb.PlaybackFollowCursor
 fb.Volume
-fb.PlaylistCount
-fb.ActivePlaylist
-fb.PlayingPlaylist
 fb.trace(...)
 fb.ShowPopupMessage(msg[, title, iconid])
 fb.CreateProfiler([name])
@@ -86,16 +83,9 @@ fb.RunContextCommandWithMetadb(command, handle_or_handles[, flags])
 fb.CreateContextMenuManager()
 fb.CreateMainMenuManager()
 fb.IsMetadbInMediaLibrary(metadb)
-fb.GetPlaylistName(idx)
-fb.CreatePlaylist(idx, name)
-fb.RemovePlaylist(idx)
-fb.MovePlaylist(from, to)
-fb.RenamePlaylist(idx, name)
-fb.DuplicatePlaylist(from, name)
 fb.IsAutoPlaylist(idx)
 fb.CreateAutoPlaylist(idx, name, query[, sort, flags])
 fb.ShowAutoPlaylistUI(idx)
-fb.PlaylistItemCount(idx)
 fb.ShowLibrarySearchUI(query);
 fb.GetLibraryItems();
 fb.IsLibraryEnabled();
@@ -119,7 +109,7 @@ plman.PlaybackOrder
 plman.ActivePlaylist
 plman.PlayingPlaylist
 plman.PlaylistCount
-plman.PlaylistItemCount
+plman.PlaylistItemCount(playlistIndex)
 plman.PlaylistRecyclerManager
 plman.InsertPlaylistItems(playlistIndex, base, handles[, select])
 plman.InsertPlaylistItemsFilter(playlistIndex, base, handles[, select])

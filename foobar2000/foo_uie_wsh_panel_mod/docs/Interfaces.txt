@@ -343,10 +343,6 @@ Properties:
     (read, write) boolean CursorFollowPlayback;
     (read, write) boolean PlaybackFollowCursor;
     (read, write) float Volume;
-    (readonly) uint PlaylistCount;
-    (read, write) uint ActivePlaylist;
-    (read, write) uint PlayingPlaylist;
-    (readonly) uint PlaylistItemCount(idx);
 
 Methods:
     void trace(...);
@@ -412,19 +408,6 @@ Methods:
     boolean IsLibraryEnabled();
     // Get all library items into an instance of IFbMetadbHandleList
     IFbMetadbHandleList GetLibraryItems();
-    String GetPlaylistName(idx);
-    // if name is "", then Create a playlist autonamed with "New Playlist <number>".
-    // return the index of the created playlist.
-    uint CreatePlaylist(idx, name);
-    boolean RemovePlaylist(idx);
-    boolean MovePlaylist(from, to);
-    boolean RenamePlaylist(idx, name);
-    // Duplicate all contents from one playlist to a new playlist.
-    // NOTE: This method only duplicate contents of the playlist, not its properties (eg. autoplaylist).
-    // from: Which index of playlist to copy from.
-    // name: New playlist name, when empty, using the same name as 'from'.
-    // Returns the index of newly created playlist.
-    uint DuplicatePlaylist(from, name = "");
     boolean IsAutoPlaylist(idx);
     // sort: sort string expression.
     // flags: 1 - always sort.

@@ -426,19 +426,6 @@ __interface IFbUtils: IDispatch
 	STDMETHOD(CreateMainMenuManager)([out,retval] IMainMenuManager ** pp);
 	STDMETHOD(IsMetadbInMediaLibrary)(IFbMetadbHandle * handle, [out,retval] VARIANT_BOOL * p);
 	STDMETHOD(IsLibraryEnabled)([out,retval] VARIANT_BOOL * p);
-	//
-	[propget] STDMETHOD(ActivePlaylist)([out,retval] UINT * p);
-	[propput] STDMETHOD(ActivePlaylist)(UINT idx);
-	[propget] STDMETHOD(PlayingPlaylist)([out,retval] UINT * p);
-	[propput] STDMETHOD(PlayingPlaylist)(UINT idx);
-	[propget] STDMETHOD(PlaylistCount)([out,retval] UINT * p);
-	[propget] STDMETHOD(PlaylistItemCount)(UINT idx, [out,retval] UINT * p);
-	STDMETHOD(GetPlaylistName)(UINT idx, [out,retval] BSTR * p);
-	STDMETHOD(CreatePlaylist)(UINT idx, BSTR name, [out,retval] UINT * p);
-	STDMETHOD(RemovePlaylist)(UINT idx, [out,retval] VARIANT_BOOL * p);
-	STDMETHOD(MovePlaylist)(UINT from, UINT to, [out,retval] VARIANT_BOOL * p);
-	STDMETHOD(RenamePlaylist)(UINT idx, BSTR name, [out,retval] VARIANT_BOOL * p);
-	STDMETHOD(DuplicatePlaylist)(UINT from, [defaultvalue("")] BSTR name, [out,retval] UINT * p);
 	STDMETHOD(IsAutoPlaylist)(UINT idx, [out,retval] VARIANT_BOOL * p);
 	STDMETHOD(CreateAutoPlaylist)(UINT idx, BSTR name, BSTR query, [defaultvalue("")] BSTR sort, [defaultvalue(0)]UINT flags, [out,retval] UINT * p);
 	STDMETHOD(ShowAutoPlaylistUI)(UINT idx, [out,retval] VARIANT_BOOL * p);

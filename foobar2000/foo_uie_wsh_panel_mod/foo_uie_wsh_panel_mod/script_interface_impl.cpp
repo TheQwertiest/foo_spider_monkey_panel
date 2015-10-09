@@ -2424,66 +2424,6 @@ STDMETHODIMP FbUtils::IsLibraryEnabled(VARIANT_BOOL * p)
 	return S_OK;
 }
 
-STDMETHODIMP FbUtils::get_ActivePlaylist(UINT * p)
-{
-	return FbPlaylistMangerTemplate::get_ActivePlaylist(p);
-}
-
-STDMETHODIMP FbUtils::put_ActivePlaylist(UINT idx)
-{
-	return FbPlaylistMangerTemplate::put_ActivePlaylist(idx);
-}
-
-STDMETHODIMP FbUtils::get_PlayingPlaylist(UINT * p)
-{
-	return FbPlaylistMangerTemplate::get_PlayingPlaylist(p);
-}
-
-STDMETHODIMP FbUtils::put_PlayingPlaylist(UINT idx)
-{
-	return FbPlaylistMangerTemplate::put_PlayingPlaylist(idx);
-}
-
-STDMETHODIMP FbUtils::get_PlaylistCount(UINT * p)
-{
-	return FbPlaylistMangerTemplate::get_PlaylistCount(p);
-}
-
-STDMETHODIMP FbUtils::get_PlaylistItemCount(UINT idx, UINT * p)
-{
-	return FbPlaylistMangerTemplate::get_PlaylistItemCount(idx, p);
-}
-
-STDMETHODIMP FbUtils::GetPlaylistName(UINT idx, BSTR * p)
-{
-	return FbPlaylistMangerTemplate::GetPlaylistName(idx, p);
-}
-
-STDMETHODIMP FbUtils::CreatePlaylist(UINT idx, BSTR name, UINT * p)
-{
-	return FbPlaylistMangerTemplate::CreatePlaylist(idx, name, p);
-}
-
-STDMETHODIMP FbUtils::RemovePlaylist(UINT idx, VARIANT_BOOL * p)
-{
-	return FbPlaylistMangerTemplate::RemovePlaylist(idx, p);
-}
-
-STDMETHODIMP FbUtils::MovePlaylist(UINT from, UINT to, VARIANT_BOOL * p)
-{
-	return FbPlaylistMangerTemplate::MovePlaylist(from, to, p);
-}
-
-STDMETHODIMP FbUtils::RenamePlaylist(UINT idx, BSTR name, VARIANT_BOOL * p)
-{
-	return FbPlaylistMangerTemplate::RenamePlaylist(idx, name, p);
-}
-
-STDMETHODIMP FbUtils::DuplicatePlaylist(UINT from, BSTR name, UINT * p)
-{
-	return FbPlaylistMangerTemplate::DuplicatePlaylist(from, name, p);
-}
-
 STDMETHODIMP FbUtils::IsAutoPlaylist(UINT idx, VARIANT_BOOL * p)
 {
 	TRACK_FUNCTION();
@@ -2510,7 +2450,7 @@ STDMETHODIMP FbUtils::CreateAutoPlaylist(UINT idx, BSTR name, BSTR query, BSTR s
 	if (!p) return E_POINTER;
 
 	UINT pos = 0;
-	HRESULT hr = CreatePlaylist(idx, name, &pos);
+	HRESULT hr = FbPlaylistMangerTemplate::CreatePlaylist(idx, name, &pos);
 
 	if (FAILED(hr)) return hr;
 
