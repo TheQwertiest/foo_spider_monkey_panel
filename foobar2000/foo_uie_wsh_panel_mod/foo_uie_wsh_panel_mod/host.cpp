@@ -6,8 +6,6 @@
 #include "global_cfg.h"
 #include "popup_msg.h"
 #include "dbgtrace.h"
-#include "obsolete.h"
-
 
 HostComm::HostComm() 
 	: m_hwnd(NULL)

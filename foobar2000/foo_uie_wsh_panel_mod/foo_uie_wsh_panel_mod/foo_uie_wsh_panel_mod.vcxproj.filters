@@ -275,9 +275,6 @@
     <ClInclude Include="script_interface_dragsource_impl.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="obsolete.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="wsh_panel_window_dui.h">
       <Filter>Header Files</Filter>
     </ClInclude>
