@@ -413,6 +413,8 @@ Methods:
     // flags: 1 - always sort.
     boolean CreateAutoPlaylist(idx, name, query, sort = "", flags = 0);
     boolean ShowAutoPlaylistUI(idx);
+    //opens the Library>Search window populated with the query you set
+    void ShowLibrarySearchUI(query);
 }
 
 interface IFbTooltip {
