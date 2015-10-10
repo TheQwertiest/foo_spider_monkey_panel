@@ -2,6 +2,7 @@
 #include "config.h"
 #include "script_preprocessor.h"
 #include "helpers.h"
+#include "popup_msg.h"
 
 
 HRESULT script_preprocessor::process_import(const t_script_info & info, t_script_list & scripts)
@@ -9,6 +10,8 @@ HRESULT script_preprocessor::process_import(const t_script_info & info, t_script
 	HRESULT hr = S_OK;
 
 	if (!m_is_ok) return hr;
+
+	pfc::string_formatter pmsg;
 
 	for (t_size i = 0; i < m_directive_value_list.get_count(); ++i)
 	{
@@ -22,6 +25,7 @@ HRESULT script_preprocessor::process_import(const t_script_info & info, t_script
 			pfc::array_t<wchar_t> code;
 			bool success = helpers::read_file_wide(CP_ACP, val.value.get_ptr(), code);
 			pfc::string_formatter msg;
+			
 
 			if (!success)
 			{
@@ -35,6 +39,11 @@ HRESULT script_preprocessor::process_import(const t_script_info & info, t_script
 			if (!success)
 			{
 				msg << ": Failed to load";
+				if (pmsg.is_empty())
+				{
+					pmsg << info.build_info_string() << "\n\nThe following file(s) were not found:\n\n";
+				}
+				pmsg << pfc::stringcvt::string_utf8_from_wide(val.value.get_ptr()) << "\n";
 			}
 
 			console::formatter() << msg;
@@ -48,6 +57,11 @@ HRESULT script_preprocessor::process_import(const t_script_info & info, t_script
 				scripts.add_item(script);
 			}
 		}
+	}
+
+	if (!pmsg.is_empty())
+	{
+		popup_msg::g_show(pmsg, WSPM_NAME, popup_message::icon_error);
 	}
 
 	return hr;
