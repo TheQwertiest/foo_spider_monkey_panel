@@ -15,7 +15,6 @@ struct CallbackIds
 		on_focus,
 		on_size,
 		on_paint,
-		on_timer,
 		on_mouse_wheel,
 		on_mouse_leave,
 		on_mouse_move,

@@ -62,7 +62,6 @@ private:
 	void on_paint(HDC dc, LPRECT lpUpdateRect);
 	void on_paint_user( HDC memdc, LPRECT lpUpdateRect);
 	void on_paint_error(HDC memdc);
-	void on_timer(UINT timer_id);
 	void on_context_menu(int x, int y);
 	void on_mouse_wheel(WPARAM wp);
 	void on_mouse_leave();

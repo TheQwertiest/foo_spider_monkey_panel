@@ -428,10 +428,6 @@ LRESULT wsh_panel_window::on_message(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 			popup_message::icon_error);
 		return 0;
 
-	case UWM_TIMER:
-		on_timer(wp);
-		return 0;
-
 	case UWM_TIMER_NEW:
 		m_host_timer_dispatcher.invoke(wp);
 		return 0;
@@ -694,17 +690,6 @@ void wsh_panel_window::on_paint_error(HDC memdc)
 	}
 
 	SelectObject(memdc, oldfont);
-}
-
-void wsh_panel_window::on_timer(UINT timer_id)
-{
-	TRACK_FUNCTION();
-
-	VARIANTARG args[1];
-
-	args[0].vt = VT_UI4;
-	args[0].ulVal = timer_id;
-	script_invoke_v(CallbackIds::on_timer, args, _countof(args));
 }
 
 void wsh_panel_window::on_context_menu(int x, int y)

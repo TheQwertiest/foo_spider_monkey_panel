@@ -24,7 +24,6 @@ static const IDToNameEntry g_idToNames[] =
 	DEFINE_ID_NAME_MAP_ENTRY(on_focus),
 	DEFINE_ID_NAME_MAP_ENTRY(on_size),
 	DEFINE_ID_NAME_MAP_ENTRY(on_paint),
-	DEFINE_ID_NAME_MAP_ENTRY(on_timer),
 	DEFINE_ID_NAME_MAP_ENTRY(on_mouse_wheel),
 	DEFINE_ID_NAME_MAP_ENTRY(on_mouse_leave),
 	DEFINE_ID_NAME_MAP_ENTRY(on_mouse_move),

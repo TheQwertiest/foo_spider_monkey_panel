@@ -141,8 +141,6 @@ function on_volume_change(val) {}
 //      6 - "Shuffle (folders)"
 function on_playback_order_changed(new_order_index) {}
 
-function on_timer(timer_id) {}
-
 // Called when playlist focus has been changed
 // For those who what to implement "follow cursor"
 // Add callback parameters "playlist", "from" and "to"
