@@ -446,7 +446,6 @@ STDMETHODIMP FbWindow::ShowProperties()
 	return S_OK;
 }
 
-
 STDMETHODIMP FbWindow::GetProperty(BSTR name, VARIANT defaultval, VARIANT * p)
 {
 	TRACK_FUNCTION();

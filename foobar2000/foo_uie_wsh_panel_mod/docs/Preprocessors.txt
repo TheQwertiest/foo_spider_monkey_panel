@@ -1,80 +1,64 @@
 DESCRIPTION
-  All preprocessors is started with "==PREPROCESSOR==" and ended with "==/PREPROCESSOR==":
-    VBSCRIPT:
-      ' // ==PREPROCESSOR==
-      ' ...
-      ' // ==/PREPROCESSOR==
+All preprocessors are started with "==PREPROCESSOR==" and ended with "==/PREPROCESSOR==":
+VBSCRIPT:
+' // ==PREPROCESSOR==
+' ...
+' // ==/PREPROCESSOR==
 
-    JScript:
-      // ==PREPROCESSOR==
-      // ...
-      // ==/PREPROCESSOR==
+JScript:
+// ==PREPROCESSOR==
+// ...
+// ==/PREPROCESSOR==
 
-  And be aware that all preprocessors (directives) are case sensitive.
+And be aware that all preprocessors (directives) are case sensitive.
 
 DIRECTIVES
-  Directives should be started with "@", and placed into a single comment.
-  e.g:
-    VBScript:
-      ' // ==PREPROCESSOR==
-      ' // @directive "value-here"
-      ' // ==/PREPROCESSOR==
+Directives should be started with "@", and placed into a single comment.
+VBScript:
+' // @directive "value-here"
 
-    JScript:
-      // ==PREPROCESSOR==
-      // @directive "value-here"
-      // ==/PREPROCESSOR==
+JScript:
+// @directive "value-here"
 
-  @import "path"
-  Load external script from "path".
-  Remarks:
-    You can place %fb2k_path%, %fb2k_component_path% and %fb2k_profile_path% into "path", they will be expanded while parsing.
-    Escape one double quote (") with two double quotes ("") if path includes double quote(") character. eg: @import "D:\""Something"""
+IMPORT
+@import "path"
+Load external script from "path".
+You can place %fb2k_path%, %fb2k_component_path% and %fb2k_profile_path% into "path", they will be expanded while parsing.
 
-  @feature "feature-string"
-  Set feature(s).
-  NOTE: Read these carefully.
-  "feature-string":
-    -versions:
-      "v1.0" - Set by default.
-      "v1.4" - Effects:
-               Change on_metadb_changed() callback behavior, see Callbacks.txt for more information.
-               Disable window.WatchMetadb() and window.UnWatchMetadb() methods permanently ("watch-metadb" won't help);
-               No parameter will be passed to on_selection_changed() callback.
+FEATURE
+@feature "dragdrop"
+Enable drag drop callbacks.
 
-    -commons:
-      "watch-metadb" - Set by default when version is only "v1.0".
-                       Enable on_metadb_changed() callback (See Notes in Callbacks.txt).
-                       Enable window.WatchMetadb() and window.UnWatchMetadb() methods (only in "v1.0").
-      "dragdrop"     - Enable drag drop callbacks.
+Between versions "v1.5.7" and "v1.5.12", the following must be set for on_metadb_changed()
+to work (see notes in Callbacks.txt)
+@feature "v1.4"
+@feature "watch-metadb"
 
-  e.g:
-    JScript:
-      // ==PREPROCESSOR==
-      // ...
-      // @feature "v1.4"
-      // @feature "watch-metadb"
-      // @feature "dragdrop"
-      // ==/PREPROCESSOR==
-      
-  @tooltip "tooltip-feature-string"
-  Set features(s) of tooltip control.
-  "tooltip-feature-string":
-    "custom-paint"                  - Enable tooltip custom paint support, with "on_tooltip_custom_paint" callback.
-    "custom-paint-no-background"    - Same as "custom-paint", but this one will not draw tooltip background.
+As of v1.5.13, they are default and may be omitted. If you share scripts, you should leave
+them intact for compatibilty with previous components.
 
-  @name "name"
-  Set name of the script.
-  Remarks:
-    Escape one double quote (") with two double quotes ("") if name includes double quote(") character. eg: @name "One aka ""1"""
+TOOLTIP
+@tooltip "custom-paint"               - Enable tooltip custom paint support, with "on_tooltip_custom_paint" callback.
+@tooltip "custom-paint-no-background" - Same as "custom-paint", but this one will not draw tooltip background.
 
-  @version "version"
-  Set version of the script.
-  Remarks:
-    Escape one double quote (") with two double quotes ("") if name includes double quote(") character. 
+NAME
+@name "name"
 
-  @author "author"
-  Set author of the script.
-  Remarks:
-    Escape one double quote (") with two double quotes ("") if name includes double quote(") character. 
+VERSION
+@version "version"
 
+AUTHOR
+@author "author"
+
+With "name", "version" and "author", if you want to use double quotes then you must escape each one with another...
+@name "One aka ""1"""
+
+A JSscript example:
+// ==PREPROCESSOR==
+// @name "my sooper dooper script"
+// @author "marc"
+// @version "0.1"
+// @feature "v1.4"
+// @feature "watch-metadb"
+// @feature "dragdrop"
+// ==/PREPROCESSOR==

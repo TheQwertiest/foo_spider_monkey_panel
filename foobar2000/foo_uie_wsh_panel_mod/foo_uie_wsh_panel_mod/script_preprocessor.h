@@ -26,9 +26,7 @@ struct t_script_info
 {
 	enum 
 	{
-		kFeatureMetadbHandleList0	=	1 << 0,
-		kFeatureDragDrop			=	1 << 1,
-		kFeatureNoWatchMetadb		=	1 << 7,
+		kFeatureDragDrop			=	1 << 1
 	};
 
 	enum

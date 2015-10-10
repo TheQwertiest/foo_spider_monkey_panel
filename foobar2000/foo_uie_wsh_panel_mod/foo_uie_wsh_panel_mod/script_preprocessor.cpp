@@ -380,42 +380,7 @@ void script_preprocessor::parse_directive_feature(pfc::string_simple &value, t_s
 	const char * str = value.get_ptr();
 	const char first_char = *str;
 
-	if (*str == 'v')
-	{
-		++str;
-		int pos = strchr(str, '.') - str;
-
-		if (pos > 0)
-		{
-			t_uint8 major = pfc::atoui_ex(str, pos) & 0xff;
-			t_uint8 minor = atoi(str + pos + 1) & 0xff;
-
-			switch (major)
-			{
-			case 1:
-				switch (minor)
-				{
-				case 4:
-					info.feature_mask |= t_script_info::kFeatureMetadbHandleList0;
-					info.feature_mask |= t_script_info::kFeatureNoWatchMetadb;
-					break;
-
-				default:
-					break;
-				}
-				break;
-
-			default:
-				info.feature_mask = 0;
-				break;
-			}
-		}
-	}
-	else if (strcmp(str, "watch-metadb") == 0)
-	{
-		info.feature_mask &= ~t_script_info::kFeatureNoWatchMetadb;
-	}
-	else if (strcmp(str, "dragdrop") == 0)
+	if (strcmp(str, "dragdrop") == 0)
 	{
 		info.feature_mask |= t_script_info::kFeatureDragDrop;
 	}

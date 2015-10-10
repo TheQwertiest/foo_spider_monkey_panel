@@ -1338,27 +1338,11 @@ void wsh_panel_window::on_changed_sorted(WPARAM wp)
 {
 	TRACK_FUNCTION();
 
-	if (ScriptInfo().feature_mask & t_script_info::kFeatureNoWatchMetadb)
-		return;
-
 	simple_callback_data_scope_releaser<nonautoregister_callbacks::t_on_changed_sorted_data> data(wp);
 	VARIANTARG args[2];
 	IDispatch * handle = NULL;
 
-	if (ScriptInfo().feature_mask & t_script_info::kFeatureMetadbHandleList0)
-	{
-		handle = new com_object_impl_t<FbMetadbHandleList>(data->m_items_sorted);
-	}
-	else
-	{
-		if (m_watched_handle.is_empty())
-			return;
-
-		if (!data->m_items_sorted.have_item(m_watched_handle))
-			return;
-
-		handle = new com_object_impl_t<FbMetadbHandle>(m_watched_handle);
-	}
+	handle = new com_object_impl_t<FbMetadbHandleList>(data->m_items_sorted);
 
 	args[0].vt = VT_BOOL;
 	args[0].boolVal = TO_VARIANT_BOOL(data->m_fromhook);
@@ -1376,25 +1360,7 @@ void wsh_panel_window::on_selection_changed(WPARAM wp)
 
 	if (wp != 0)
 	{
-		if (ScriptInfo().feature_mask & t_script_info::kFeatureMetadbHandleList0)
-		{
-			script_invoke_v(CallbackIds::on_selection_changed);
-		}
-		else
-		{
-			IDispatch * handle = NULL;
-			simple_callback_data_scope_releaser<simple_callback_data<metadb_handle_ptr> > data(wp);
-			handle = new com_object_impl_t<FbMetadbHandle>(data->m_item);
-
-			VARIANTARG args[1];
-
-			args[0].vt = VT_DISPATCH;
-			args[0].pdispVal = handle;
-			script_invoke_v(CallbackIds::on_selection_changed, args, _countof(args));
-
-			if (handle)
-				handle->Release();
-		}
+		script_invoke_v(CallbackIds::on_selection_changed);
 	}
 }
 
