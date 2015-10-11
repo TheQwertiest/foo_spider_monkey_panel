@@ -8,6 +8,35 @@ All credit to T.P Wang for the official version which is available here: https:/
 Please read the changelog below and pay special attention to the features removed in `v1.5.7`. These were marked as obsolete well over 3 years ago and the official component `v1.5.6` already reports them as such in the `foobar2000` `Console`. If any of your scripts are triggering these warnings, they will not even run in this component. The scripts will need updating. Script authors should check `preprocessors.txt` and `interfaces.txt` in the docs. For anyone not capable of fixing their own scripts, they should continue to use the official component.
 
 ```
+v1.6.0 Beta 1
+- ADD: If "import" files listed in the "preprocessor" section are missing, a popup
+       window will notify you.
+- CHG: Remove these duplicate functions because "plman" alternatives also exist.
+
+       fb.CreatePlaylist
+       fb.RemovePlaylist
+       fb.RenamePlaylist
+       fb.DuplicatePlaylist
+       fb.MovePlaylist
+       fb.ActivePlaylist
+       fb.PlayingPlaylist
+       fb.PlaylistCount
+       fb.PlaylistItemCount
+       fb.GetPlaylistName
+
+       Simply replace "fb" with "plman" in any affected scripts. Scripts updated
+       with these changes will still work with the official component "v1.5.0"
+       and above.
+
+       I've updated my latest scripts to be compliant. Get "v11" or later from here:
+
+       https://github.com/19379/wsh_marc2003/releases
+
+       I've also updated Br3tt's "JSplaylist":
+
+       https://github.com/19379/jsplaylist-mod
+- CHG: Tidy up internal preprocessor handling. This is why this version has a beta!
+
 v1.5.12
 - FIX: "Reset page" button in "Preferences" now turns "Safe Mode" off
        to be consistent with the changes to default behaviour introduced
