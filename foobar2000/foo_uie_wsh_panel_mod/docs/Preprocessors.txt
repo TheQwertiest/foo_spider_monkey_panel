@@ -34,7 +34,7 @@ to work (see notes in Callbacks.txt)
 @feature "v1.4"
 @feature "watch-metadb"
 
-As of v1.5.13, they are default and may be omitted. If you share scripts, you should leave
+As of v1.6.0, they are default and may be omitted. If you share scripts, you should leave
 them present for compatibilty with previous components.
 
 TOOLTIP
@@ -53,7 +53,7 @@ AUTHOR
 With "name", "version" and "author", if you want to use double quotes then you must escape each one with another...
 @name "One aka ""1"""
 
-A JSscript example:
+A JScript example:
 // ==PREPROCESSOR==
 // @name "my sooper dooper script"
 // @author "marc"
