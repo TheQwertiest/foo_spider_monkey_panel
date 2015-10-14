@@ -97,7 +97,10 @@ bool script_preprocessor::process_script_info(t_script_info & info)
 		}
 		else if (wcscmp(v.directive.get_ptr(), L"feature") == 0)
 		{
-			parse_directive_feature(value, info);
+			if (strcmp(value.get_ptr(), "dragdrop") == 0)
+			{
+				info.feature_mask |= t_script_info::kFeatureDragDrop;
+			}
 		}
 		else if (wcscmp(v.directive.get_ptr(), L"tooltip") == 0)
 		{
@@ -375,12 +378,3 @@ bool script_preprocessor::extract_preprocessor_block(const wchar_t * script, int
 	return true;
 }
 
-void script_preprocessor::parse_directive_feature(pfc::string_simple &value, t_script_info &info)
-{
-	const char * str = value.get_ptr();
-
-	if (strcmp(str, "dragdrop") == 0)
-	{
-		info.feature_mask |= t_script_info::kFeatureDragDrop;
-	}
-}

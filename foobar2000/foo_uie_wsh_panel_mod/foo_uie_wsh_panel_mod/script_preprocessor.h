@@ -90,7 +90,6 @@ public:
 
 	HRESULT process_import(const t_script_info & info, t_script_list & scripts);
 	bool process_script_info(t_script_info & info);
-	void parse_directive_feature(pfc::string_simple &value, t_script_info &info);
 
 private:
 	bool preprocess(const wchar_t * script);
