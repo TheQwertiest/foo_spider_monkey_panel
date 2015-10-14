@@ -177,14 +177,6 @@ IGdiBitmap * HostComm::GetBackgroundImage()
 	return ret;
 }
 
-void CALLBACK HostComm::g_timer_proc(UINT uTimerID, UINT uMsg, DWORD_PTR dwUser, DWORD_PTR dw1, DWORD_PTR dw2)
-{
-	HWND wnd = reinterpret_cast<HWND>(dwUser);
-
-	SendMessage(wnd, UWM_TIMER, uTimerID, 0);
-}
-
-
 STDMETHODIMP FbWindow::get_ID(UINT* p)
 {
 	TRACK_FUNCTION();

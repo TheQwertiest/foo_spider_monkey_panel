@@ -80,8 +80,6 @@ public:
 	virtual HFONT GetFontCUI(unsigned type, const GUID & guid) = 0;
 	virtual DWORD GetColorDUI(unsigned type) = 0;
 	virtual HFONT GetFontDUI(unsigned type) = 0;
-	
-	static void CALLBACK g_timer_proc(UINT uTimerID, UINT uMsg, DWORD_PTR dwUser, DWORD_PTR dw1, DWORD_PTR dw2);
 };
 
 class FbWindow : public IDispatchImpl3<IFbWindow>

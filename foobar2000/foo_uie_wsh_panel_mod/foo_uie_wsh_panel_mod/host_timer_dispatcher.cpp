@@ -20,11 +20,6 @@ HostTimerDispatcher::~HostTimerDispatcher()
 	timeEndPeriod(m_accuracy);
 }
 
-unsigned HostTimerDispatcher::setIntervalLegacy(unsigned delay)
-{
-	return timeSetEvent(delay, m_accuracy, g_timer_proc_legacy, reinterpret_cast<DWORD_PTR>(m_hWnd), TIME_PERIODIC);
-}
-
 unsigned HostTimerDispatcher::setInterval(unsigned delay, IDispatch * pDisp)
 {
 	if (!pDisp) return 0;
@@ -33,22 +28,12 @@ unsigned HostTimerDispatcher::setInterval(unsigned delay, IDispatch * pDisp)
 	return timerID;
 }
 
-unsigned HostTimerDispatcher::setTimeoutLegacy(unsigned delay)
-{
-	return timeSetEvent(delay, m_accuracy, g_timer_proc_legacy, reinterpret_cast<DWORD_PTR>(m_hWnd), TIME_ONESHOT);
-}
-
 unsigned HostTimerDispatcher::setTimeout(unsigned delay, IDispatch * pDisp)
 {
 	if (!pDisp) return 0;
 	unsigned timerID = timeSetEvent(delay, m_accuracy, g_timer_proc, reinterpret_cast<DWORD_PTR>(m_hWnd), TIME_ONESHOT);
 	addTimerMap(timerID, pDisp);
 	return timerID;
-}
-
-void HostTimerDispatcher::killLegacy(unsigned timerID)
-{
-	timeKillEvent(timerID);
 }
 
 void HostTimerDispatcher::kill(unsigned timerID)
@@ -93,12 +78,6 @@ void HostTimerDispatcher::addTimerMap(unsigned timerID, IDispatch * pDisp)
 	PFC_ASSERT(pDisp != NULL);
 	pDisp->AddRef();
 	m_timerDispatchMap[timerID] = pDisp;
-}
-
-void CALLBACK HostTimerDispatcher::g_timer_proc_legacy(UINT uTimerID, UINT uMsg, DWORD_PTR dwUser, DWORD_PTR dw1, DWORD_PTR dw2)
-{
-	HWND hWnd = reinterpret_cast<HWND>(dwUser);
-	SendMessage(hWnd, UWM_TIMER, uTimerID, 0);
 }
 
 void CALLBACK HostTimerDispatcher::g_timer_proc(UINT uTimerID, UINT uMsg, DWORD_PTR dwUser, DWORD_PTR dw1, DWORD_PTR dw2)

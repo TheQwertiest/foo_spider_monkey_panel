@@ -434,20 +434,6 @@ __interface IFbUtils: IDispatch
 };
 _COM_SMARTPTR_TYPEDEF(IFbUtils, __uuidof(IFbUtils));
 
-//---
-[
-	object,
-	dual,
-	pointer_default(unique),
-	library_block,
-	uuid("c74bdea4-4587-45c2-b0a7-91fae0cdf1a4")
-]
-__interface ITimerObj: IDisposable
-{
-	[propget] STDMETHOD(ID)([out,retval] UINT * p);
-};
-
-
 [
 	object,
 	dual,

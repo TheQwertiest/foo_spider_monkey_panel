@@ -2757,16 +2757,6 @@ STDMETHODIMP MainMenuManager::ExecuteByID(UINT id, VARIANT_BOOL * p)
 	return S_OK;
 }
 
-STDMETHODIMP TimerObj::get_ID(UINT * p)
-{
-	TRACK_FUNCTION();
-
-	if (!p) return E_POINTER;
-
-	*p = m_id;
-	return S_OK;
-}
-
 STDMETHODIMP FbProfiler::Reset()
 {
 	TRACK_FUNCTION();

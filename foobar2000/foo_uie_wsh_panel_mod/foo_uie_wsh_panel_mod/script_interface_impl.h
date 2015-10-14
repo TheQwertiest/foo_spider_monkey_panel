@@ -500,28 +500,6 @@ public:
 	STDMETHODIMP AppendTo(IMenuObj * parent, UINT flags, BSTR text);
 };
 
-class TimerObj : public IDisposableImpl4<ITimerObj>
-{
-protected:
-	UINT m_id;
-
-	TimerObj(UINT id) : m_id(id) {}
-
-	virtual ~TimerObj() { }
-
-	virtual void FinalRelease()
-	{		
-		if (m_id != 0)
-		{
-			timeKillEvent(m_id);
-			m_id = 0;
-		}
-	}
-
-public:
-	STDMETHODIMP get_ID(UINT * p);
-};
-
 // NOTE: Do not use com_object_impl_t<> to initialize, use com_object_singleton_t<> instead.
 class WSHUtils : public IDispatchImpl3<IWSHUtils>
 {
