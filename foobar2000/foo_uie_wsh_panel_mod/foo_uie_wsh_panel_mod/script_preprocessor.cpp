@@ -378,7 +378,6 @@ bool script_preprocessor::extract_preprocessor_block(const wchar_t * script, int
 void script_preprocessor::parse_directive_feature(pfc::string_simple &value, t_script_info &info)
 {
 	const char * str = value.get_ptr();
-	const char first_char = *str;
 
 	if (strcmp(str, "dragdrop") == 0)
 	{
