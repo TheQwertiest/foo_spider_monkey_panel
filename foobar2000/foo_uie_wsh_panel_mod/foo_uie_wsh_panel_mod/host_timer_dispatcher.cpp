@@ -83,5 +83,5 @@ void HostTimerDispatcher::addTimerMap(unsigned timerID, IDispatch * pDisp)
 void CALLBACK HostTimerDispatcher::g_timer_proc(UINT uTimerID, UINT uMsg, DWORD_PTR dwUser, DWORD_PTR dw1, DWORD_PTR dw2)
 {
 	HWND hWnd = reinterpret_cast<HWND>(dwUser);
-	SendMessage(hWnd, UWM_TIMER_NEW, uTimerID, 0);
+	SendMessage(hWnd, UWM_TIMER, uTimerID, 0);
 }

@@ -428,7 +428,7 @@ LRESULT wsh_panel_window::on_message(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 			popup_message::icon_error);
 		return 0;
 
-	case UWM_TIMER_NEW:
+	case UWM_TIMER:
 		m_host_timer_dispatcher.invoke(wp);
 		return 0;
 
