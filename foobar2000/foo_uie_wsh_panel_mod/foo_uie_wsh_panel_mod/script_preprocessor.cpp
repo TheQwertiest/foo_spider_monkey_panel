@@ -41,7 +41,7 @@ HRESULT script_preprocessor::process_import(const t_script_info & info, t_script
 				msg << ": Failed to load";
 				if (pmsg.is_empty())
 				{
-					pmsg << info.build_info_string() << "\n\nThe following file(s) were not found:\n\n";
+					pmsg << info.build_info_string() << "\n\nThe following preprocessor @import file(s) were not found:\n\n";
 				}
 				pmsg << pfc::stringcvt::string_utf8_from_wide(val.value.get_ptr()) << "\n";
 			}
