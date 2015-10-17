@@ -10,7 +10,7 @@ Please read the changelog below and pay special attention to the features remove
 As of `v1.5.11`, Windows XP is no longer supported. `v1.5.10` is still available on the [releases](https://github.com/19379/foo_uie_wsh_panel_mod/releases) page.
 
 ```
-v1.6.0 Beta 2
+v1.6.0
 - ADD: If "import" files listed in the "preprocessor" section are missing, a popup
        window will notify you.
 - CHG: Remove these duplicate functions because "plman" alternatives also exist.
@@ -38,7 +38,7 @@ v1.6.0 Beta 2
 
        https://github.com/19379/jsplaylist-mod
 - CHG: Tidy up internal preprocessor handling. Also, some other obsolete code has been
-       removed. It needs testing though and this is why this version has a beta!
+       removed.
 
 v1.5.12
 - FIX: "Reset page" button in "Preferences" now turns "Safe Mode" off
