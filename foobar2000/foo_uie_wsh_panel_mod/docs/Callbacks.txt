@@ -212,10 +212,6 @@ function on_drag_leave() {}
 // action: an object of IDropTargetAction interface.
 function on_drag_drop(action, x, y, mask) {}
 
-// gr - Refer to IGdiGraphics, note that gr will be invalid out of this callback scope.
-// Please check your "tooltip" preprocessor directive before use.
-function on_tooltip_custom_paint(gr) {}
-
 function on_library_items_added() {}
 function on_library_items_removed() {}
 function on_library_items_changed() {}

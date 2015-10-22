@@ -422,10 +422,6 @@ Properties:
     (read, write) Text; // Set tooltip text
     // Set if enable tooltip tracking.
     (writeonly) boolean TrackActivate;
-    // Used with custom paint only
-    (read, write) int Width;
-    // Used with custom paint only
-    (read, write) int Width;
     
 Methods:
     // NOTE: Don't try to update tooltip text when tooltip is activated, because it will flick in Windows Vista/7.
