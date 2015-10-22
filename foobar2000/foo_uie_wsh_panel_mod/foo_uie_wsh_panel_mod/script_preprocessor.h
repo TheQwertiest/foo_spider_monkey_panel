@@ -29,12 +29,6 @@ struct t_script_info
 		kFeatureDragDrop			=	1 << 1
 	};
 
-	enum
-	{
-		kTooltipCustomPaint             =   1 << 0,
-		kTooltipCustomPaintNoBackground =   1 << 1,
-	};
-
 	pfc::string_simple name;
 	pfc::string_simple version;
 	pfc::string_simple author;

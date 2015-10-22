@@ -6,7 +6,7 @@
 #include "panel_manager.h"
 
 
-FbTooltip::FbTooltip(HWND p_wndparent, bool p_no_background, const panel_tooltip_param_ptr & p_param_ptr) 
+FbTooltip::FbTooltip(HWND p_wndparent, const panel_tooltip_param_ptr & p_param_ptr) 
 	: m_wndparent(p_wndparent)
 	, m_panel_tooltip_param_ptr(p_param_ptr)
 	, m_tip_buffer(SysAllocString(PFC_WIDESTRING(WSPM_NAME)))
@@ -19,12 +19,6 @@ FbTooltip::FbTooltip(HWND p_wndparent, bool p_no_background, const panel_tooltip
 
 	// Original position
 	SetWindowPos(m_wndtooltip, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
-
-	if (p_no_background)
-	{
-		ULONG_PTR extstyle = GetClassLongPtr(m_wndtooltip, GCL_STYLE);
-		SetClassLongPtr(m_wndtooltip, GCL_STYLE, extstyle & ~CS_DROPSHADOW);
-	}
 
 	// Set up tooltip information.
 	memset(&m_ti, 0, sizeof(m_ti));
@@ -93,42 +87,6 @@ STDMETHODIMP FbTooltip::put_TrackActivate(VARIANT_BOOL activate)
 	}
 
 	SendMessage(m_wndtooltip, TTM_TRACKACTIVATE, activate ? TRUE : FALSE, (LPARAM)&m_ti);
-	return S_OK;
-}
-
-
-STDMETHODIMP FbTooltip::get_Width(int * outWidth)
-{
-	TRACK_FUNCTION();
-
-	if (!outWidth) return E_POINTER;
-	(*outWidth) = m_panel_tooltip_param_ptr->tooltip_size.cx;
-	return S_OK;
-}
-
-STDMETHODIMP FbTooltip::put_Width(int width)
-{
-	TRACK_FUNCTION();
-
-	m_panel_tooltip_param_ptr->tooltip_size.cx = width;
-	return S_OK;
-}
-
-STDMETHODIMP FbTooltip::get_Height(int * outHeight)
-{
-	TRACK_FUNCTION();
-
-	if (!outHeight) return E_POINTER;
-
-	(*outHeight) = m_panel_tooltip_param_ptr->tooltip_size.cy;
-	return S_OK;
-}
-
-STDMETHODIMP FbTooltip::put_Height(int height)
-{
-	TRACK_FUNCTION();
-
-	m_panel_tooltip_param_ptr->tooltip_size.cy = height;
 	return S_OK;
 }
 

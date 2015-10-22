@@ -71,10 +71,6 @@ private:
 	void on_mouse_button_down(UINT msg, WPARAM wp, LPARAM lp);
 	void on_refresh_background_done();
 
-	bool on_notify(LPARAM lp, LRESULT *pResult);
-	bool on_tooltip_custom_draw(LPNMTTCUSTOMDRAW lpnmcd, t_uint32 mask, LRESULT * &pResult);
-	bool on_tooltip_custom_paint(LPNMTTCUSTOMDRAW lpnmcd, LRESULT * &pResult);
-
 protected:
 	static void build_context_menu(HMENU menu, int x, int y, int id_base);
 	void execute_context_menu_command(int id, int id_base);

@@ -27,7 +27,6 @@ struct CallbackIds
 		on_mouse_lbtn_down,
 		on_mouse_mbtn_down,
 		on_mouse_rbtn_down,
-		on_tooltip_custom_paint,
 		on_refresh_background_done,
 		on_item_played,
 		on_get_album_art_done,

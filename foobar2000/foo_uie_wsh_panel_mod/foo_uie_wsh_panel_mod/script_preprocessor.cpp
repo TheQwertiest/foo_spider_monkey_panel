@@ -94,17 +94,6 @@ bool script_preprocessor::process_script_info(t_script_info & info)
 				info.feature_mask |= t_script_info::kFeatureDragDrop;
 			}
 		}
-		else if (wcscmp(v.directive.get_ptr(), L"tooltip") == 0)
-		{
-			if (strcmp(value.get_ptr(), "custom-paint") == 0)
-			{
-				info.tooltip_mask |= t_script_info::kTooltipCustomPaint;
-			}
-			else if (strcmp(value.get_ptr(), "custom-paint-no-background") == 0)
-			{
-				info.tooltip_mask |= t_script_info::kTooltipCustomPaintNoBackground;
-			}
-		}
 	}
 
 	return ret;

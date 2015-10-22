@@ -404,13 +404,6 @@ LRESULT wsh_panel_window::on_message(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 		}
 		break;
 
-	case WM_NOTIFY:
-		{
-			LRESULT result = 0;
-			if (on_notify(lp, &result)) return result;
-		}
-		break;
-
 	case UWM_SCRIPT_ERROR:
 		Repaint();
 		m_script_host->Stop();
@@ -863,116 +856,6 @@ void wsh_panel_window::on_mouse_button_down(UINT msg, WPARAM wp, LPARAM lp)
 		script_invoke_v(CallbackIds::on_mouse_rbtn_down, args, _countof(args));
 		break;
 	}
-}
-
-bool wsh_panel_window::on_notify(LPARAM lp, LRESULT *pResult)
-{
-	const auto& tooltip_param = PanelTooltipParam();
-
-	if (!tooltip_param)
-		return false;
-
-	LPNMHDR lpnmhdr = (LPNMHDR)lp;
-
-	if (lpnmhdr->code == NM_CUSTOMDRAW) 
-	{
-		LPNMTTCUSTOMDRAW lpnmcd = (LPNMTTCUSTOMDRAW)lpnmhdr;
-
-		// Check feature
-		t_uint32 mask = ScriptInfo().tooltip_mask;
-		if ((mask & t_script_info::kTooltipCustomPaint) == 0 &&
-			(mask & t_script_info::kTooltipCustomPaintNoBackground) == 0)
-			return false;
-
-		// Check tooltip
-		if (!tooltip_param->tooltip_hwnd)
-			return false;
-		if (lpnmhdr->hwndFrom != tooltip_param->tooltip_hwnd)
-			return false;
-		return on_tooltip_custom_draw(lpnmcd, mask, pResult);
-	}
-
-	return false;
-}
-
-bool wsh_panel_window::on_tooltip_custom_draw(LPNMTTCUSTOMDRAW lpnmcd, t_uint32 mask, LRESULT * &pResult)
-{
-	const auto& tooltip_param = PanelTooltipParam();
-
-	if (!tooltip_param) 
-		return false;
-
-	// From emule source code:
-	// For each tooltip which is to be shown Windows invokes the draw function at least 2 times.
-	//	1st invokation: to get the drawing rectangle
-	//	2nd invokation: to draw the actual tooltip window contents
-	// 
-	// 'DrawText' flags for the 1st and 2nd/3rd call
-	// ---------------------------------------------
-	// NMTTCUSTOMDRAW 00000e50	DT_NOPREFIX | DT_CALCRECT | DT_EXTERNALLEADING | DT_EXPANDTABS | DT_WORDBREAK
-	// TTN_SHOW
-	// NMTTCUSTOMDRAW 00000a50	DT_NOPREFIX |               DT_EXTERNALLEADING | DT_EXPANDTABS | DT_WORDBREAK
-	// --an additional NMTTCUSTOMDRAW may follow which is identical to the 2nd--
-	// NMTTCUSTOMDRAW 00000a50	DT_NOPREFIX |               DT_EXTERNALLEADING | DT_EXPANDTABS | DT_WORDBREAK
-
-	if (lpnmcd->nmcd.dwDrawStage == CDDS_PREPAINT)
-	{
-		if (lpnmcd->uDrawFlags & DT_CALCRECT)
-		{
-			SIZE sz;
-			memcpy(&sz, &tooltip_param->tooltip_size, sizeof(SIZE));
-
-			if (sz.cx > 0 || sz.cy > 0) 
-			{
-				lpnmcd->nmcd.rc.right = lpnmcd->nmcd.rc.left + sz.cx;
-				lpnmcd->nmcd.rc.bottom = lpnmcd->nmcd.rc.top + sz.cy;
-			}
-
-			return true;
-		}
-
-		if (mask & t_script_info::kTooltipCustomPaintNoBackground) 
-		{
-			return on_tooltip_custom_paint(lpnmcd, pResult);
-		}
-		else
-		{
-			*pResult = CDRF_NOTIFYPOSTPAINT;
-			return true;
-		}
-	}
-	else if (lpnmcd->nmcd.dwDrawStage == CDDS_POSTPAINT)
-	{
-		if ((lpnmcd->uDrawFlags & DT_CALCRECT) == 0)
-			return on_tooltip_custom_paint(lpnmcd, pResult);
-	}
-
-	return false;
-}
-
-bool wsh_panel_window::on_tooltip_custom_paint(LPNMTTCUSTOMDRAW lpnmcd, LRESULT * &pResult)
-{
-	Gdiplus::Graphics gr(lpnmcd->nmcd.hdc);
-	Gdiplus::Rect rect(lpnmcd->nmcd.rc.left, lpnmcd->nmcd.rc.top,
-		lpnmcd->nmcd.rc.right - lpnmcd->nmcd.rc.left,
-		lpnmcd->nmcd.rc.bottom -lpnmcd->nmcd.rc.top);
-
-	gr.SetClip(rect);
-	m_gr_wrap->put__ptr(&gr);
-
-	bool succeeded = false;
-	VARIANTARG args[1];
-	args[0].vt = VT_DISPATCH;
-	args[0].pdispVal = m_gr_wrap;
-	if (SUCCEEDED(script_invoke_v(CallbackIds::on_tooltip_custom_paint, args, _countof(args))))
-		succeeded = true;
-
-	m_gr_wrap->put__ptr(NULL);
-
-	if (!succeeded)
-		return false;
-	*pResult = CDRF_SKIPDEFAULT;
-	return true;
 }
 
 void wsh_panel_window::on_refresh_background_done()

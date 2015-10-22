@@ -416,9 +416,8 @@ STDMETHODIMP FbWindow::CreateTooltip(IFbTooltip ** pp)
 
 	if (!pp) return E_POINTER;
 
-	auto no_background = (m_host->ScriptInfo().tooltip_mask & t_script_info::kTooltipCustomPaintNoBackground) != 0;
 	const auto& tooltip_param = m_host->PanelTooltipParam();
-	(*pp) = new com_object_impl_t<FbTooltip>(m_host->GetHWND(), no_background, tooltip_param);
+	(*pp) = new com_object_impl_t<FbTooltip>(m_host->GetHWND(), tooltip_param);
 	return S_OK;
 }
 

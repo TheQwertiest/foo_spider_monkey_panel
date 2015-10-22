@@ -36,7 +36,6 @@ static const IDToNameEntry g_idToNames[] =
 	DEFINE_ID_NAME_MAP_ENTRY(on_mouse_lbtn_down),
 	DEFINE_ID_NAME_MAP_ENTRY(on_mouse_mbtn_down),
 	DEFINE_ID_NAME_MAP_ENTRY(on_mouse_rbtn_down),
-	DEFINE_ID_NAME_MAP_ENTRY(on_tooltip_custom_paint),
 	DEFINE_ID_NAME_MAP_ENTRY(on_refresh_background_done),
 	DEFINE_ID_NAME_MAP_ENTRY(on_item_played),
 	DEFINE_ID_NAME_MAP_ENTRY(on_get_album_art_done),

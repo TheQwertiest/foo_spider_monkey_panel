@@ -14,10 +14,6 @@ __interface IFbTooltip: IDisposable
 	[propget] STDMETHOD(Text)([out,retval] BSTR * pp);
 	[propput] STDMETHOD(Text)(BSTR text);
 	[propput] STDMETHOD(TrackActivate)(VARIANT_BOOL activate);
-	[propget] STDMETHOD(Width)([out,retval] int * outWidth);
-	[propput] STDMETHOD(Width)(int width);
-	[propget] STDMETHOD(Height)([out,retval] int * outHeight);
-	[propput] STDMETHOD(Height)(int height);
 	STDMETHOD(Activate)();
 	STDMETHOD(Deactivate)();
 	STDMETHOD(SetMaxWidth)(int width);
