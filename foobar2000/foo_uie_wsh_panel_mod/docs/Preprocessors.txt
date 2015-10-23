@@ -37,10 +37,6 @@ to work (see notes in Callbacks.txt)
 As of v1.6.0, they are default and may be omitted. If you share scripts, you should leave
 them present for compatibilty with previous components.
 
-TOOLTIP
-@tooltip "custom-paint"               - Enable tooltip custom paint support, with "on_tooltip_custom_paint" callback.
-@tooltip "custom-paint-no-background" - Same as "custom-paint", but this one will not draw tooltip background.
-
 NAME
 @name "name"
 
