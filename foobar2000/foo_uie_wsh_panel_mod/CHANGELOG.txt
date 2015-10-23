@@ -1,3 +1,6 @@
+v1.6.0.1
+- CHG: Remove on_tooltip_custom_paint() callback.
+
 v1.6.0
 - ADD: If "import" files listed in the "preprocessor" section are missing, a popup
        window will notify you.

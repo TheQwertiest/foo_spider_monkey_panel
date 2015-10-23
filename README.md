@@ -10,6 +10,9 @@ Please read the changelog below and pay special attention to the features remove
 As of `v1.5.11`, Windows XP is no longer supported. `v1.5.10` is still available on the [releases](https://github.com/19379/foo_uie_wsh_panel_mod/releases) page.
 
 ```
+v1.6.0.1
+- CHG: Remove on_tooltip_custom_paint() callback.
+
 v1.6.0
 - ADD: If "import" files listed in the "preprocessor" section are missing, a popup
        window will notify you.
