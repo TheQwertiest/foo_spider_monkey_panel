@@ -686,7 +686,7 @@ Methods:
     boolean SortByFormat(playlistIndex, pattern, selOnly = false);
     // direction: 1= Sort ascendingly, -1= Sort descendingly
     boolean SortByFormatV2(playlistIndex, pattern, direction = 1);
-    // 
+    // [new v1.5.10]
     // Call before using other plman methods that add/remove/reorder playlist items so a history will be
     // usable from the Edit menu.
     void UndoBackup(playlistIndex);
