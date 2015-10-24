@@ -330,36 +330,3 @@ void prop_kv_config::g_save(const t_map & data, stream_writer * writer, abort_ca
 
 	}
 }
-
-//void panel_config::g_import(t_map & data, stream_reader * reader, abort_callback & abort) throw()
-//{
-//	GUID guid;
-//
-//	try
-//	{
-//		reader->read_lendian_t(guid, abort);
-//
-//		if (guid != m_guid)
-//			return;
-//	}
-//	catch (std::exception &)
-//	{
-//		return;
-//	}
-//
-//	g_load(data, reader, abort);
-//}
-//
-//void panel_config::g_export(const t_map & data, stream_writer * writer, abort_callback & abort) throw()
-//{
-//	try
-//	{
-//		writer->write_lendian_t(m_guid, abort);
-//	}
-//	catch (std::exception &)
-//	{
-//		return;
-//	}
-//
-//	g_save(data, writer, abort);
-//}

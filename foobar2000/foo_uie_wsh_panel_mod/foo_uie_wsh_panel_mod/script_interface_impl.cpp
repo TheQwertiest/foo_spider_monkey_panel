@@ -2914,18 +2914,6 @@ GdiRawBitmap::GdiRawBitmap(Gdiplus::Bitmap * p_bmp)
 	m_hbmpold = SelectBitmap(m_hdc, m_hbmp);
 }
 
-//STDMETHODIMP GdiRawBitmap::GetBitmap(IGdiBitmap ** pp)
-//{
-//	SelectBitmap(m_hdc, m_hbmpold);
-//
-//	Gdiplus::Bitmap * bitmap_mask = Gdiplus::Bitmap::FromHBITMAP(m_hbmp, NULL);
-//
-//	(*pp) = new com_object_impl_t<GdiBitmap>(bitmap_mask);
-//	SelectBitmap(m_hdc, m_hbmp);
-//
-//	return S_OK;
-//}
-
 STDMETHODIMP WSHUtils::CheckComponent(BSTR name, VARIANT_BOOL is_dll, VARIANT_BOOL * p)
 {
 	TRACK_FUNCTION();
@@ -3309,18 +3297,6 @@ STDMETHODIMP WSHUtils::FileTest(BSTR path, BSTR mode, VARIANT * p)
 		p->vt = VT_UI4;
 		p->ulVal = helpers::detect_charset(pfc::stringcvt::string_utf8_from_wide(path));
 	}
-	//{
-	//    p->vt = VT_BSTR;
-	//    const char * codepage = helpers::detect_charset_moz_chardet(pfc::stringcvt::string_utf8_from_wide(path));
-	//    if (!codepage)
-	//    {
-	//        p->bstrVal = NULL;
-	//    }
-	//    else
-	//    {
-	//        p->bstrVal = SysAllocString(pfc::stringcvt::string_wide_from_ansi(codepage));
-	//    }
-	//}
 	else
 	{
 		return E_INVALIDARG;

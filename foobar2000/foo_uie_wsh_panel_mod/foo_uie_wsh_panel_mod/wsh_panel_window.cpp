@@ -108,7 +108,6 @@ void wsh_panel_window::script_unload()
 	}
 
 	m_host_timer_dispatcher.reset();
-	m_watched_handle.release();
 	m_selection_holder.release();
 }
 

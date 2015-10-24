@@ -40,7 +40,6 @@ protected:
 	HBITMAP                     m_gr_bmp;
 	HBITMAP                     m_gr_bmp_bk;
 	UINT                        m_accuracy;
-	metadb_handle_ptr           m_watched_handle;
 	t_script_info               m_script_info;
 	ui_selection_holder::ptr    m_selection_holder;
 	int                         m_instance_type;
@@ -62,7 +61,6 @@ public:
 	inline POINT & MaxSize() { return m_max_size; }
 	inline POINT & MinSize() { return m_min_size; }
 	inline UINT & DlgCode() { return m_dlg_code; }
-	inline metadb_handle_ptr & GetWatchedMetadbHandle() { return m_watched_handle; }
 	IGdiBitmap * GetBackgroundImage();
 	inline void PreserveSelection() { m_selection_holder = static_api_ptr_t<ui_selection_manager>()->acquire(); }
 	inline t_script_info & ScriptInfo() { return m_script_info; }

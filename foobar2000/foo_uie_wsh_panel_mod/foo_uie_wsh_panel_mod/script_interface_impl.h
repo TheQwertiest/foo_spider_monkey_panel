@@ -159,7 +159,6 @@ public:
 	STDMETHODIMP get__Handle(HDC * p);
 	STDMETHODIMP get_Width(UINT* p);
 	STDMETHODIMP get_Height(UINT* p);
-	//STDMETHODIMP GetBitmap(IGdiBitmap ** pp);
 };
 
 class MeasureStringInfo : public IDispatchImpl3<IMeasureStringInfo>

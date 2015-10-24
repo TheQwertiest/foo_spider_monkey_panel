@@ -60,7 +60,6 @@ __interface IGdiRawBitmap: IDisposable
 	[propget] STDMETHOD(_Handle)([out] HDC * p);
 	[propget] STDMETHOD(Width)([out,retval] UINT* p);
 	[propget] STDMETHOD(Height)([out,retval] UINT* p);
-	//STDMETHOD(GetBitmap)([out,retval] __interface IGdiBitmap ** pp);
 };
 
 [
@@ -131,7 +130,6 @@ __interface IGdiGraphics: IGdiObj
 	STDMETHOD(DrawImage)(IGdiBitmap* image, float dstX, float dstY, float dstW, float dstH, float srcX, float srcY, float srcW, float srcH, [defaultvalue(0.0)]float angle, [defaultvalue(255)]BYTE alpha);
 	STDMETHOD(GdiDrawBitmap)(IGdiRawBitmap * bitmap, int dstX, int dstY, int dstW, int dstH, int srcX, int srcY, int srcW, int srcH);
 	STDMETHOD(GdiAlphaBlend)(IGdiRawBitmap * bitmap, int dstX, int dstY, int dstW, int dstH, int srcX, int srcY, int srcW, int srcH, [defaultvalue(255)]BYTE alpha);
-	//STDMETHOD(GdiTransparentBlt)(IGdiRawBitmap * bitmap, int dstX, int dstY, int dstW, int dstH, int srcX, int srcY, int srcW, int srcH, VARIANT color);
 	STDMETHOD(MeasureString)(BSTR str, IGdiFont * font, float x, float y, float w, float h, [defaultvalue(0)] int flags, [out,retval] IMeasureStringInfo ** pp);
 	STDMETHOD(CalcTextWidth)(BSTR str, IGdiFont * font, [out,retval] UINT * p);
 	STDMETHOD(CalcTextHeight)(BSTR str, IGdiFont * font, [out,retval] UINT * p);
@@ -139,8 +137,6 @@ __interface IGdiGraphics: IGdiObj
 	STDMETHOD(SetTextRenderingHint)([range(Gdiplus::TextRenderingHintSystemDefault, Gdiplus::TextRenderingHintClearTypeGridFit)] UINT mode);
 	STDMETHOD(SetSmoothingMode)([range(Gdiplus::SmoothingModeInvalid, Gdiplus::SmoothingModeAntiAlias)] int mode);
 	STDMETHOD(SetInterpolationMode)([range(Gdiplus::InterpolationModeInvalid, Gdiplus::InterpolationModeHighQualityBicubic)] int mode);
-	//STDMETHOD(SetCompositingMode)([range(Gdiplus::CompositingModeSourceOver, Gdiplus::CompositingModeSourceCopy)] UINT mode);
-	//STDMETHOD(SetCompositingQuality)([range(Gdiplus::CompositingQualityInvalid, Gdiplus::CompositingQualityAssumeLinear)] int mode);
 };
 _COM_SMARTPTR_TYPEDEF(IGdiGraphics, __uuidof(IGdiGraphics));
 
@@ -446,8 +442,6 @@ __interface IThemeManager: IDisposable
 	STDMETHOD(SetPartAndStateID)(int partid, int stateid);
 	STDMETHOD(IsThemePartDefined)(int partid, [defaultvalue(0)] int stateid, [out,retval] VARIANT_BOOL * p);
 	STDMETHOD(DrawThemeBackground)(IGdiGraphics * gr, int x, int y, int w, int h, [defaultvalue(0)] int clip_x, [defaultvalue(0)] int clip_y, [defaultvalue(0)] int clip_w, [defaultvalue(0)] int clip_h);
-	// Vista+
-	//STDMETHOD(DrawThemeTextEx)(IGdiGraphics * gr, BSTR text, int x, int y, int w, int h, [defaultvalue(0)] int format, [out,retval] VARIANT * p);
 };
 
 [
@@ -461,7 +455,6 @@ __interface IDropSourceAction: IDisposable
 {
 	[propget] STDMETHOD(Parsable)([out,retval] VARIANT_BOOL * parsable);
 	[propput] STDMETHOD(Parsable)(VARIANT_BOOL parsable);
-	//[propget] STDMETHOD(Mode)([out,retval] int * mode);
 	[propget] STDMETHOD(Playlist)([out,retval] int * id);
 	[propput] STDMETHOD(Playlist)(int id);
 	[propget] STDMETHOD(ToSelect)([out,retval] VARIANT_BOOL * to_select);

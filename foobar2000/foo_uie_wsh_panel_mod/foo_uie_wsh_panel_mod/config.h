@@ -59,9 +59,6 @@ public:
 	static void g_load(t_map & data, stream_reader * reader, abort_callback & abort) throw();
 	static void g_save(const t_map & data, stream_writer * writer, abort_callback & abort) throw();
 
-	//static void g_import(t_map & data, stream_reader * reader, abort_callback & abort) throw();
-	//static void g_export(const t_map & data, stream_writer * writer, abort_callback & abort) throw();
-
 private:
 	t_map m_map;
 };
