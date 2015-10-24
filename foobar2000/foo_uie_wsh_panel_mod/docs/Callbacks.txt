@@ -212,6 +212,7 @@ function on_drag_leave() {}
 // action: an object of IDropTargetAction interface.
 function on_drag_drop(action, x, y, mask) {}
 
+// [new v1.5.9]
 function on_library_items_added() {}
 function on_library_items_removed() {}
 function on_library_items_changed() {}

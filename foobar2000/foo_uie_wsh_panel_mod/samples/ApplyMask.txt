@@ -37,7 +37,6 @@ function on_size() {
 	// Apply mask image to g_img
 	g_img.ApplyMask(mask);
 
-	// Dispose() method is added in WSH Panel Mod 1.1.10, in order to free unused resource
-	// So, now CollectGarbage() is no longer encouraged
+	// Dispose() method is used to free unused resource
 	mask.Dispose();
 })();

@@ -1,4 +1,5 @@
 ﻿// Global objects:
+// Global objects:
 //   window - IFbWindow
 //   gdi - IGdiUtils
 //   fb - IFbUtils
@@ -405,15 +406,16 @@ Methods:
     boolean RunContextCommandWithMetadb(command, handle_or_handles, flags = 0);
     IContextMenuManager CreateContextMenuManager();
     boolean IsMetadbInMediaLibrary(metadb);
-    boolean IsLibraryEnabled();
-    // Get all library items into an instance of IFbMetadbHandleList
-    IFbMetadbHandleList GetLibraryItems();
     boolean IsAutoPlaylist(idx);
     // sort: sort string expression.
     // flags: 1 - always sort.
     boolean CreateAutoPlaylist(idx, name, query, sort = "", flags = 0);
     boolean ShowAutoPlaylistUI(idx);
-    //opens the Library>Search window populated with the query you set
+    // [new v1.5.8] 
+    boolean IsLibraryEnabled();
+    // [new v1.5.8] get all library items into an instance of IFbMetadbHandleList
+    IFbMetadbHandleList GetLibraryItems();
+    // [new v1.5.8] opens the Library>Search window populated with the query you set
     void ShowLibrarySearchUI(query);
 }
 
@@ -498,8 +500,6 @@ Methods:
     // These two methods below are in cooperation with callback on_metadb_changed().
     // Create a tooltip object
     IFbTooltip CreateTooltip();
-    //force reload of panel
-    void Reload()
     // Show configuration window of current panel
     void ShowConfigure();
     // Show properties window of current panel
@@ -531,6 +531,8 @@ Methods:
     // class list: http://msdn.microsoft.com/en-us/library/bb773210%28VS.85%29.aspx
     // e.g: var theme = window.CreateThemeManager("Button");
     IThemeManager CreateThemeManager(classlist);
+    // [new v1.5.7.1] force reload of panel
+    void Reload()
 }
 
 
@@ -612,9 +614,6 @@ Properties:
 
 interface IFbPlaylistManager {
 Methods:
-    // Call before using other plman methods that add/remove/reorder playlist items so a history will be
-    // usable from the Edit menu.
-    void UndoBackup(playlistIndex);
     // Inserts new items into specified playlist, at specified position.
     uint InsertPlaylistItems(playlistIndex, base, handles, select = false);
     uint InsertPlaylistItemsFilter(playlistIndex, base, handles, select = false);
@@ -679,16 +678,18 @@ Methods:
     void FlushPlaybackQueue();
     // This is actually the same as GetPlaybackQueueCount() > 0
     boolean IsPlaybackQueueActive();
-
     // Sorts specified playlist - entire playlist or selection only - by specified title formatting pattern, or randomizes the order.
     // playlistIndex: Index of playlist to alter.
     // pattern: Title formatting pattern to sort by. Set to "" to randomize the order of items.
     // selOnly: Set to false to sort/randomize whole playlist, or to true to sort/randomize only selection on the playlist.
     // returns true on success, false on failure (playlist locked etc).
     boolean SortByFormat(playlistIndex, pattern, selOnly = false);
-
     // direction: 1= Sort ascendingly, -1= Sort descendingly
     boolean SortByFormatV2(playlistIndex, pattern, direction = 1);
+    // 
+    // Call before using other plman methods that add/remove/reorder playlist items so a history will be
+    // usable from the Edit menu.
+    void UndoBackup(playlistIndex);
 
 Properties:
     // Known playback orders:
