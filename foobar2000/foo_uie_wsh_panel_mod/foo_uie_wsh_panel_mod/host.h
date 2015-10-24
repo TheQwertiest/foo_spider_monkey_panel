@@ -143,7 +143,7 @@ private:
 	IFbUtilsPtr             m_fb2k;
 	IWSHUtilsPtr            m_utils;
 	IFbPlaylistManagerPtr   m_playlistman;
-	DWORD                   m_dwStartTime;
+	pfc::tickcount_t        m_dwStartTime;
 
 	// Scripting
 	IActiveScriptPtr        m_script_engine;

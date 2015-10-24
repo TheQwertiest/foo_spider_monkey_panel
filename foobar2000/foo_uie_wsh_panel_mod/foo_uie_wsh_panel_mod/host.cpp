@@ -748,7 +748,7 @@ STDMETHODIMP ScriptHost::OnScriptError(IActiveScriptError* err)
 
 STDMETHODIMP ScriptHost::OnEnterScript()
 {
-	m_dwStartTime = GetTickCount();
+	m_dwStartTime = pfc::getTickCount();
 	return S_OK;
 }
 

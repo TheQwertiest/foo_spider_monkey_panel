@@ -48,7 +48,7 @@ unsigned CALLBACK simple_thread::g_entry(void* p_instance)
 
 void simple_thread_worker::threadProc()
 {
-	DWORD last_tick = GetTickCount();
+	pfc::tickcount_t last_tick = pfc::getTickCount();
 
 	while (WaitForSingleObject(simple_thread_pool::instance().exiting_, 0) == WAIT_TIMEOUT)
 	{
@@ -60,12 +60,12 @@ void simple_thread_worker::threadProc()
 			{
 				task->run();
 				simple_thread_pool::instance().untrack(task);
-				last_tick = GetTickCount();
+				last_tick = pfc::getTickCount();
 				continue;
 			}
 		}
 
-		if (GetTickCount() - last_tick >= 10000)
+		if (pfc::getTickCount() - last_tick >= 10000)
 		{
 			insync(simple_thread_pool::instance().cs_);
 
