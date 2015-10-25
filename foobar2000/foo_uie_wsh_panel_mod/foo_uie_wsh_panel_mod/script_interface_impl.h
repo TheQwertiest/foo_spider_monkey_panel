@@ -423,7 +423,7 @@ public:
 	STDMETHODIMP put_PlaybackTime(double time);
 	STDMETHODIMP get_PlaybackLength(double* p);
 	STDMETHODIMP get_PlaybackOrder(UINT* p);
-	STDMETHODIMP put_PlaybackOrder(UINT order);
+	STDMETHODIMP put_PlaybackOrder(UINT p);
 	STDMETHODIMP get_StopAfterCurrent(VARIANT_BOOL * p);
 	STDMETHODIMP put_StopAfterCurrent(VARIANT_BOOL p);
 	STDMETHODIMP get_CursorFollowPlayback(VARIANT_BOOL * p);

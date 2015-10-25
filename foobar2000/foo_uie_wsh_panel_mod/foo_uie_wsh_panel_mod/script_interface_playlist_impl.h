@@ -3,61 +3,13 @@
 #include "script_interface_playlist.h"
 #include "com_tools.h"
 
-class FbPlaylistMangerTemplate
+class FbPlaylistManagerTemplate
 {
 public:
-	// Methods
-	static STDMETHODIMP InsertPlaylistItems(UINT playlistIndex, UINT base, __interface IFbMetadbHandleList * handles, VARIANT_BOOL select, UINT * outSize);
-	static STDMETHODIMP InsertPlaylistItemsFilter(UINT playlistIndex, UINT base, __interface IFbMetadbHandleList * handles, VARIANT_BOOL select, UINT * outSize);
-	static STDMETHODIMP MovePlaylistSelection(UINT playlistIndex, int delta);
-	static STDMETHODIMP RemovePlaylistSelection(UINT playlistIndex, VARIANT_BOOL crop);
-	static STDMETHODIMP GetPlaylistSelectedItems(UINT playlistIndex, __interface IFbMetadbHandleList ** outItems);
-	static STDMETHODIMP GetPlaylistItems(UINT playlistIndex, IFbMetadbHandleList ** outItems);
-	static STDMETHODIMP SetPlaylistSelectionSingle(UINT playlistIndex, UINT itemIndex, VARIANT_BOOL state);
-	static STDMETHODIMP SetPlaylistSelection(UINT playlistIndex, VARIANT affectedItems, VARIANT_BOOL state);
-	static STDMETHODIMP ClearPlaylistSelection(UINT playlistIndex);
-	static STDMETHODIMP UndoBackup(UINT playlistIndex);
-	static STDMETHODIMP UndoRestore(UINT playlistIndex);
-	static STDMETHODIMP GetPlaylistFocusItemIndex(UINT playlistIndex, INT * outPlaylistItemIndex);
 	static STDMETHODIMP GetPlaylistFocusItemHandle(VARIANT_BOOL force, IFbMetadbHandle ** outItem);
-	static STDMETHODIMP SetPlaylistFocusItem(UINT playlistIndex, UINT itemIndex);
-	static STDMETHODIMP SetPlaylistFocusItemByHandle(UINT playlistIndex, IFbMetadbHandle * item);
-	static STDMETHODIMP GetPlaylistName(UINT playlistIndex, BSTR * outName);
 	static STDMETHODIMP CreatePlaylist(UINT playlistIndex, BSTR name, UINT * outPlaylistIndex);
-	static STDMETHODIMP RemovePlaylist(UINT playlistIndex, VARIANT_BOOL * outSuccess);
-	static STDMETHODIMP MovePlaylist(UINT from, UINT to, VARIANT_BOOL * outSuccess);
-	static STDMETHODIMP RenamePlaylist(UINT playlistIndex, BSTR name, VARIANT_BOOL * outSuccess);
-	static STDMETHODIMP DuplicatePlaylist(UINT from, BSTR name, UINT * outPlaylistIndex);
-	static STDMETHODIMP EnsurePlaylistItemVisible(UINT playlistIndex, UINT itemIndex);
-	static STDMETHODIMP GetPlayingItemLocation(IFbPlayingItemLocation ** outPlayingLocation);
-	static STDMETHODIMP ExecutePlaylistDefaultAction(UINT playlistIndex, UINT playlistItemIndex, VARIANT_BOOL * outSuccess);
-	static STDMETHODIMP IsPlaylistItemSelected(UINT playlistIndex, UINT playlistItemIndex, UINT * outSeleted);
-	static STDMETHODIMP SetActivePlaylistContext();
-
-	static STDMETHODIMP CreatePlaybackQueueItem(IFbPlaybackQueueItem ** outPlaybackQueueItem);
-	static STDMETHODIMP RemoveItemFromPlaybackQueue(UINT index);
-	static STDMETHODIMP RemoveItemsFromPlaybackQueue(VARIANT affectedItems);
-	static STDMETHODIMP AddPlaylistItemToPlaybackQueue(UINT playlistIndex, UINT playlistItemIndex);
-	static STDMETHODIMP AddItemToPlaybackQueue(IFbMetadbHandle * handle);
-	static STDMETHODIMP GetPlaybackQueueCount(UINT * outCount);
-	static STDMETHODIMP GetPlaybackQueueContents(VARIANT * outContents);
-	static STDMETHODIMP FindPlaybackQueueItemIndex(IFbMetadbHandle * handle, UINT playlistIndex, UINT playlistItemIndex, INT * outIndex);
-	static STDMETHODIMP FlushPlaybackQueue();
-	static STDMETHODIMP IsPlaybackQueueActive(VARIANT_BOOL * outIsActive);
-
-	static STDMETHODIMP SortByFormat(UINT playlistIndex, BSTR pattern, VARIANT_BOOL selOnly, VARIANT_BOOL * outSuccess);
-	static STDMETHODIMP SortByFormatV2(UINT playlistIndex, BSTR pattern, INT direction, VARIANT_BOOL * outSuccess);
-
-	// Properties
-	static STDMETHODIMP get_PlaybackOrder(UINT * outOrder);
-	static STDMETHODIMP put_PlaybackOrder(UINT order);
-	static STDMETHODIMP get_ActivePlaylist(UINT * outPlaylistIndex);
-	static STDMETHODIMP put_ActivePlaylist(UINT playlistIndex);
-	static STDMETHODIMP get_PlayingPlaylist(UINT * outPlaylistIndex);
-	static STDMETHODIMP put_PlayingPlaylist(UINT playlistIndex);
-	static STDMETHODIMP get_PlaylistCount(UINT * outCount);
-	static STDMETHODIMP get_PlaylistItemCount(UINT playlistIndex, UINT * outCount);
 };
+
 
 // NOTE: Do not use com_object_impl_t<> to initialize, use com_object_singleton_t<> instead.
 class FbPlaylistManager : public IDispatchImpl3<IFbPlaylistManager>

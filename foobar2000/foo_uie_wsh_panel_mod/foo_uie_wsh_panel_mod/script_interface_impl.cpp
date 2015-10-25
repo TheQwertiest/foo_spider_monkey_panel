@@ -1925,7 +1925,7 @@ STDMETHODIMP FbUtils::GetNowPlaying(IFbMetadbHandle** pp)
 
 STDMETHODIMP FbUtils::GetFocusItem(VARIANT_BOOL force, IFbMetadbHandle** pp)
 {
-	return FbPlaylistMangerTemplate::GetPlaylistFocusItemHandle(force, pp);
+	return FbPlaylistManagerTemplate::GetPlaylistFocusItemHandle(force, pp);
 }
 
 STDMETHODIMP FbUtils::GetSelection(IFbMetadbHandle** pp)
@@ -2088,12 +2088,20 @@ STDMETHODIMP FbUtils::get_PlaybackLength(double* p)
 
 STDMETHODIMP FbUtils::get_PlaybackOrder(UINT* p)
 {
-	return FbPlaylistMangerTemplate::get_PlaybackOrder(p);
+	TRACK_FUNCTION();
+
+	if (!p) return E_POINTER;
+
+	(*p) = static_api_ptr_t<playlist_manager>()->playback_order_get_active();
+	return S_OK;
 }
 
-STDMETHODIMP FbUtils::put_PlaybackOrder(UINT order)
+STDMETHODIMP FbUtils::put_PlaybackOrder(UINT p)
 {
-	return FbPlaylistMangerTemplate::put_PlaybackOrder(order);
+	TRACK_FUNCTION();
+
+	static_api_ptr_t<playlist_manager>()->playback_order_set_active(p);
+	return S_OK;
 }
 
 STDMETHODIMP FbUtils::get_StopAfterCurrent(VARIANT_BOOL * p)
@@ -2449,7 +2457,7 @@ STDMETHODIMP FbUtils::CreateAutoPlaylist(UINT idx, BSTR name, BSTR query, BSTR s
 	if (!p) return E_POINTER;
 
 	UINT pos = 0;
-	HRESULT hr = FbPlaylistMangerTemplate::CreatePlaylist(idx, name, &pos);
+	HRESULT hr = FbPlaylistManagerTemplate::CreatePlaylist(idx, name, &pos);
 
 	if (FAILED(hr)) return hr;
 
