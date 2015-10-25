@@ -30,11 +30,6 @@ extern const GUID g_guid_prop_sets;
 FOOGUIDDECL const GUID g_guid_prop_sets = 
 { 0x3e56779f, 0x2884, 0x4f98, { 0x9a, 0x61, 0x99, 0x2f, 0x66, 0x49, 0x99, 0xd0 } };
 
-// {8826D886-6E34-4796-9B61-1FEA996730F0}
-extern const GUID g_guid_cfg_safe_mode;
-FOOGUIDDECL const GUID g_guid_cfg_safe_mode = 
-{ 0x8826d886, 0x6e34, 0x4796, { 0x9b, 0x61, 0x1f, 0xea, 0x99, 0x67, 0x30, 0xf0 } };
-
 // {E0521E81-C2A4-4a3e-A5FC-A1E62B187053}
 extern const GUID g_guid_cfg_cui_warning_reported;
 FOOGUIDDECL const GUID g_guid_cfg_cui_warning_reported = 

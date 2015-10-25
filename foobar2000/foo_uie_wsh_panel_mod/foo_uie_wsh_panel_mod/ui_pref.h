@@ -17,7 +17,6 @@ public:
 	void uGetItemText(int nItem, int nSubItem, pfc::string_base & out);
 
 	void OnChanged();
-	bool HasChanged();
 
 	// preferences_page_instance
 	HWND get_wnd();
@@ -32,7 +31,6 @@ public:
 		MSG_WM_INITDIALOG(OnInitDialog)
 		COMMAND_HANDLER_EX(IDC_BUTTON_EXPORT, BN_CLICKED, OnButtonExportBnClicked)
 		COMMAND_HANDLER_EX(IDC_BUTTON_IMPORT, BN_CLICKED, OnButtonImportBnClicked)
-		COMMAND_HANDLER_EX(IDC_CHECK_SAFE_MODE, BN_CLICKED, OnEditChange)
 		NOTIFY_HANDLER_EX(IDC_LIST_EDITOR_PROP, NM_DBLCLK, OnPropNMDblClk)
 	END_MSG_MAP()
 
