@@ -13,6 +13,7 @@
 __interface IFbPlaylistManager : IDispatch
 {
 	// Methods
+	STDMETHOD(GetQueryItems)(IFbMetadbHandleList * items, BSTR query, [out, retval] IFbMetadbHandleList ** pp);
 	STDMETHOD(InsertPlaylistItems)(UINT playlistIndex, UINT base, __interface IFbMetadbHandleList * handles, [defaultvalue(0)] VARIANT_BOOL select, [out,retval] UINT * outSize);
 	STDMETHOD(InsertPlaylistItemsFilter)(UINT playlistIndex, UINT base, __interface IFbMetadbHandleList * handles, [defaultvalue(0)] VARIANT_BOOL select, [out,retval] UINT * outSize);
 	STDMETHOD(MovePlaylistSelection)(UINT playlistIndex, int delta);

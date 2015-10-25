@@ -25,6 +25,7 @@ protected:
 
 public:
 	// Methods
+	STDMETHODIMP GetQueryItems(IFbMetadbHandleList * items, BSTR query, IFbMetadbHandleList ** pp);
 	STDMETHODIMP InsertPlaylistItems(UINT playlistIndex, UINT base, __interface IFbMetadbHandleList * handles, VARIANT_BOOL select, UINT * outSize);
 	STDMETHODIMP InsertPlaylistItemsFilter(UINT playlistIndex, UINT base, __interface IFbMetadbHandleList * handles, VARIANT_BOOL select, UINT * outSize);
 	STDMETHODIMP MovePlaylistSelection(UINT playlistIndex, int delta);
