@@ -1,3 +1,7 @@
+v1.6.1 Beta 2
+- CHG: "Safe mode" is no longer an option.
+- CHG: Tidy up samples.
+
 v1.6.1 Beta 1
 - ADD: plman.CreateAutoplaylist, plman.IsAutoPlaylist, plman.ClearPlaylist
        These are in addition to the "fb" methods which already exist.

@@ -10,6 +10,10 @@ Please read the changelog below and pay special attention to the features remove
 As of `v1.5.11`, Windows XP is no longer supported. `v1.5.10` is still available on the [releases](https://github.com/19379/foo_uie_wsh_panel_mod/releases) page.
 
 ```
+v1.6.1 Beta 2
+- CHG: "Safe mode" is no longer an option.
+- CHG: Tidy up samples.
+
 v1.6.1 Beta 1
 - ADD: plman.CreateAutoplaylist, plman.IsAutoPlaylist, plman.ClearPlaylist
        These are in addition to the "fb" methods which already exist.
