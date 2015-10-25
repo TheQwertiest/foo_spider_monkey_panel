@@ -97,6 +97,24 @@ STDMETHODIMP FbPlaylistManager::GetPlaylistFocusItemHandle(VARIANT_BOOL force, I
 
 //---
 
+STDMETHODIMP FbPlaylistManager::IsAutoPlaylist(UINT idx, VARIANT_BOOL * p)
+{
+	TRACK_FUNCTION();
+
+	if (!p) return E_POINTER;
+
+	try
+	{
+		*p = TO_VARIANT_BOOL(static_api_ptr_t<autoplaylist_manager>()->is_client_present(idx));
+	}
+	catch (...)
+	{
+		*p = VARIANT_FALSE;
+	}
+
+	return S_OK;
+}
+
 STDMETHODIMP FbPlaylistManager::ClearPlaylist()
 {
 	TRACK_FUNCTION();

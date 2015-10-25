@@ -33,6 +33,7 @@ public:
 	STDMETHODIMP GetPlaylistItems(UINT playlistIndex, IFbMetadbHandleList ** outItems);
 	STDMETHODIMP SetPlaylistSelectionSingle(UINT playlistIndex, UINT itemIndex, VARIANT_BOOL state);
 	STDMETHODIMP SetPlaylistSelection(UINT playlistIndex, VARIANT affectedItems, VARIANT_BOOL state);
+	STDMETHODIMP IsAutoPlaylist(UINT idx, VARIANT_BOOL * p);
 	STDMETHODIMP ClearPlaylist();
 	STDMETHODIMP ClearPlaylistSelection(UINT playlistIndex);
 	STDMETHODIMP UndoBackup(UINT playlistIndex);
