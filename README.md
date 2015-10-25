@@ -11,12 +11,10 @@ As of `v1.5.11`, Windows XP is no longer supported. `v1.5.10` is still available
 
 ```
 v1.6.1 Beta 2
-- CHG: "Safe mode" is no longer an option.
-- CHG: Tidy up samples.
-
-v1.6.1 Beta 1
 - ADD: plman.CreateAutoplaylist, plman.IsAutoPlaylist, plman.ClearPlaylist
        These are in addition to the "fb" methods which already exist.
+- CHG: "Safe mode" is no longer an option.
+- CHG: Tidy up samples.
 
 v1.6.0.1
 - CHG: Remove on_tooltip_custom_paint() callback.
