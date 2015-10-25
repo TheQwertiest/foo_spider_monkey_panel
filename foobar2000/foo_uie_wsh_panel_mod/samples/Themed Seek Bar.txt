@@ -6,10 +6,14 @@
 
 var g_theme = window.CreateThemeManager("PROGRESS");
 // seekbar is defined inside samples\scripts\seekbar.js
+// 4 arguments are x, y, w, h
+// y and w are dynamic based on panel size so we set those inside on_size function
 var s = new seekbar(10, 0, 0, 20);
 
 function on_size() {
 	s.y = Math.floor((window.Height - 20) / 2);
+	//because we've set x 10 pixels from the left, the seekbar width can be the panel
+	//width minus 20 pixels to leave the same gap on the right side.
 	s.w = window.Width - 20;
 }
 
