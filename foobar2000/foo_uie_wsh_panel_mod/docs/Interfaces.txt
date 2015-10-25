@@ -1,5 +1,4 @@
 ﻿// Global objects:
-// Global objects:
 //   window - IFbWindow
 //   gdi - IGdiUtils
 //   fb - IFbUtils

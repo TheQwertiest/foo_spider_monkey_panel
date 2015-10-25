@@ -11,10 +11,8 @@ As of `v1.5.11`, Windows XP is no longer supported. `v1.5.10` is still available
 
 ```
 v1.6.1 Beta 1
-- ADD: plman.CreateAutplaylist, plman.IsAutoPlaylist, plman.ClearPlaylist
-       These are in addition to the "fb" methods which already exist. If you
-       use these, your scripts will only work with this component version
-       and later.
+- ADD: plman.CreateAutoplaylist, plman.IsAutoPlaylist, plman.ClearPlaylist
+       These are in addition to the "fb" methods which already exist.
 
 v1.6.0.1
 - CHG: Remove on_tooltip_custom_paint() callback.
