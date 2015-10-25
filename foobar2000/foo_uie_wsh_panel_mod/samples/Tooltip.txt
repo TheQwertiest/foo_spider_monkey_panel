@@ -1,34 +1,19 @@
 // ==PREPROCESSOR==
 // @name "Tooltip"
 // @author "T.P Wang"
+// @import "%fb2k_component_path%docs\helpers.txt"
 // ==/PREPROCESSOR==
 
-// ------------------------------
-// --- COMMON FUNCTIONS
-// ------------------------------
-function RGBA(r, g, b, a) {
-	return ((a << 24) | (r << 16) | (g << 8) | (b));
-}
-
-function RGB(r, g, b) {
-	return (0xff000000 | (r << 16) | (g << 8) | (b));
-}
-
-// Create a windows tooltip here
-// Please do not create more than one tooltip in one panel
+// Do not create more than one tooltip in one panel
 var g_tooltip = window.CreateTooltip();
 var g_down = false;
 
-var g_font = gdi.Font("Impact", 14, 0);
+var g_font = gdi.Font("Segoe UI", 14, 1);
 
 var btn_down = null;
 var cur_btn = null;
 
 var ww, hh;
-
-// ------------------------------
-//    Class `SampleButton'
-// ------------------------------
 
 function SampleButton(x, y, w, h, caption, func, tiptext) {
 	// 'Constructor' stuff
@@ -49,6 +34,7 @@ function SampleButton(x, y, w, h, caption, func, tiptext) {
 
 	this.draw = function(gr) {
 		// Draw border
+		// RGB function is defined in docs\helpers.txt
 		gr.FillRoundRect(this.left, this.top, this.w, this.h, 3, 3, RGB(19, 30, 38));
 		gr.DrawRoundRect(this.left, this.top, this.w, this.h, 3, 3, 1, RGB(151, 180, 202));
 		// Draw caption
@@ -87,11 +73,6 @@ function buttonsTraceMouse(x, y) {
 	return btn;
 }
 
-
-// ------------------------------
-// --- APPLICATION START
-// ------------------------------
-
 function on_mouse_move(x, y) {
 	var btn = buttonsTraceMouse(x, y);
 
@@ -123,6 +104,7 @@ function on_mouse_lbtn_up(x, y) {
 function on_paint(gr) {
 	gr.SetTextRenderingHint(5); // clear type
 	gr.SetSmoothingMode(4); // Anti-Alias
+	// RGBA function is defined in docs\helpers.txt
 	gr.FillGradRect(0, 0, ww, 63, 90, RGBA(151, 180, 202, 128), RGBA(0, 0, 0, 0));
 	buttonsDraw(gr);
 }
@@ -131,34 +113,32 @@ function on_size() {
 	ww = window.Width;
 	hh = window.Height;
 
-	var buttonY = 30;
+	var buttonY = 5;
 
 	SampleButtons = {
-		stop: new SampleButton(5, buttonY, 60, 30, "Stop", function() {
+		stop: new SampleButton(5, buttonY, 70, 30, "Stop", function() {
 			fb.Stop();
 		},
 		"Stop"),
-		prev: new SampleButton(ww / 2 - 112, buttonY, 58, 30, "Previous", function() {
+		prev: new SampleButton(80, buttonY, 70, 30, "Previous", function() {
 			fb.Prev();
 		},
 		"Previous"),
-		play: new SampleButton(ww / 2 - 54, buttonY, 54, 30, "Play", function() {
+		play: new SampleButton(155, buttonY, 70, 30, "Play", function() {
 			fb.Play();
 		},
 		"Play"),
-		pause: new SampleButton(ww / 2, buttonY, 55, 30, "Pause", function() {
+		pause: new SampleButton(230, buttonY, 70, 30, "Pause", function() {
 			fb.Pause();
 		},
 		"Pause"),
-		next: new SampleButton(ww / 2 + 55, buttonY, 58, 30, "Next", function() {
+		next: new SampleButton(305, buttonY, 70, 30, "Next", function() {
 			fb.Next();
 		},
 		"Next"),
-		rand: new SampleButton(ww - 64, buttonY, 60, 30, "Random", function() {
+		rand: new SampleButton(380, buttonY, 70, 30, "Random", function() {
 			fb.Random();
 		},
 		"Random")
 	};
 }
-
-// --- APPLICATION END

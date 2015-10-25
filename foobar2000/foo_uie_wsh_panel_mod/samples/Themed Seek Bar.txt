@@ -5,12 +5,13 @@
 
 var g_theme = window.CreateThemeManager("PROGRESS");
 var g_bar_height = 15;
-var ww = 0,
-	wh = 0;
+var ww = 0, wh = 0;
 var top = 0;
 var g_pos = 0;
 var g_drag = false;
 var g_length = 1;
+if (fb.IsPlaying)
+	on_playback_new_track();
 
 function clamp(x, l, h) {
 	return (x < l) ? l : ((x > h) ? h : x);
@@ -25,7 +26,6 @@ function on_size() {
 function on_paint(gr) {
 	g_theme.SetPartAndStateID(1, 0);
 	g_theme.DrawThemeBackground(gr, 0, top, ww, g_bar_height);
-
 	if (fb.IsPlaying && g_length > 0) {
 		g_theme.SetPartAndStateID(5, fb.IsPaused ? 3 : 1);
 		g_theme.DrawThemeBackground(gr, 0, top, g_pos, g_bar_height);
@@ -86,5 +86,3 @@ function on_playback_new_track() {
 	g_drag = false;
 	window.Repaint();
 }
-
-if (fb.IsPlaying) on_playback_new_track();

@@ -1,11 +1,9 @@
 // ==PREPROCESSOR==
 // @name "SimpleThemedButton"
 // @author "T.P Wang"
+// @import "%fb2k_component_path%docs\flags.txt"
+// @import "%fb2k_component_path%docs\helpers.txt"
 // ==/PREPROCESSOR==
-
-function RGB(r, g, b) {
-	return (0xff000000 | (r << 16) | (g << 8) | (b));
-}
 
 ButtonStates = {
 	normal: 0,
@@ -14,15 +12,8 @@ ButtonStates = {
 	hide: 3
 }
 
-var DT_TOP = 0x00000000;
-var DT_CENTER = 0x00000001;
-var DT_VCENTER = 0x00000004;
-var DT_WORDBREAK = 0x00000010;
-var DT_CALCRECT = 0x00000400;
-var DT_NOPREFIX = 0x00000800;
-
 var g_theme = window.CreateThemeManager("Button");
-var g_font = gdi.Font("Tahoma", 12);
+var g_font = gdi.Font("Segoe UI", 12);
 
 function SimpleButton(x, y, w, h, text, fonClick, state) {
 	this.state = state ? state : ButtonStates.normal;
@@ -65,6 +56,8 @@ function SimpleButton(x, y, w, h, text, fonClick, state) {
 		}
 
 		g_theme.DrawThemeBackground(gr, this.x, this.y, this.w, this.h);
+		// RGB function is defined in docs\helpers.txt
+		// DT_* are defined in docs\flags.txt
 		gr.GdiDrawText(this.text, g_font, RGB(0,0,0), this.x, this.y, this.w, this.h, DT_CENTER| DT_VCENTER | DT_CALCRECT | DT_NOPREFIX);
 	}
 
@@ -98,8 +91,6 @@ $buttons = {
 
 var cur_btn = null;
 var g_down = false;
-
-// --- APPLICATION START
 
 function on_paint(gr) {
 	drawAllButtons(gr);
@@ -149,5 +140,3 @@ function on_mouse_lbtn_up(x, y) {
 		window.Repaint();
 	}
 }
-
-// --- APPLICATION END

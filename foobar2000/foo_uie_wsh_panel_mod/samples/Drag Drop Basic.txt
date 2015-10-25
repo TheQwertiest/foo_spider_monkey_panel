@@ -3,15 +3,13 @@
 // @author "T.P Wang"
 // Add feature below to enable drag and drop support
 // @feature "dragdrop"
+// @import "%fb2k_component_path%docs\helpers.txt"
 // ==/PREPROCESSOR==
 
-function RGB(r, g, b) {
-	return (0xff000000 | (r << 16) | (g << 8) | (b));
-}
-
-var color_background    =   RGB(255, 255, 255);
-var color_background2   =   RGB(193, 219, 252);
-var dragging            =   false;
+// RGB function is defined in docs\helpers.txt
+var color_background = RGB(255, 255, 255);
+var color_background2 = RGB(193, 219, 252);
+var dragging = false;
 
 function on_paint(gr) {
 	var color = dragging ? color_background2 : color_background;
@@ -32,18 +30,18 @@ function on_drag_leave() {
 function on_drag_drop(action) {
 	var playlist_name = "Dropped Items";
 	var idx = -1;
-
+	
 	// Find the playlist first.
-	for (var i = 0; i < fb.PlaylistCount; ++i) {
-		if (fb.GetPlaylistName(i) == playlist_name) {
+	for (var i = 0; i < plman.PlaylistCount; ++i) {
+		if (plman.GetPlaylistName(i) == playlist_name) {
 			idx = i;
 			break;
 		}
 	}
-
+	
 	// If not found, then create one.
 	if (idx == -1)
-		idx = fb.CreatePlaylist(fb.PlaylistCount, playlist_name);
+		idx = plman.CreatePlaylist(plman.PlaylistCount, playlist_name);
 	
 	// This is required because when a drop event is fired, you won't get on_drag_leave() called.
 	dragging = false;
@@ -53,7 +51,7 @@ function on_drag_drop(action) {
 	action.ToPlaylist();
 	action.Playlist = idx;
 	action.ToSelect = false;
-
+	
 	// Switch to "Dropped Items" playlist
 	plman.ActivePlaylist = idx;
 }

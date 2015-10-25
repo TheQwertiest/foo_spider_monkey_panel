@@ -1,41 +1,28 @@
 // ==PREPROCESSOR==
 // @name "GetAlbumArtV2"
 // @author "T.P Wang"
+// @import "%fb2k_component_path%docs\flags.txt"
+// @import "%fb2k_component_path%docs\helpers.txt"
 // ==/PREPROCESSOR==
 
-// NOTE:
-// It's not recommended to use this example because whole process will be blocked 
-//  and waited before utils.GetAlbumArtV2() is finished.
-
-AlbumArtId = {
-	front: 0,
-	back: 1,
-	disc: 2,
-	icon: 3
-};
-
 var g_img = null;
-var ww = 0,
-	wh = 0;
+var ww = 0, wh = 0;
+on_playback_new_track();
 
 function on_paint(gr) {
-	// Draw front cover, keep aspect-ratio
+	// RGB function is defined in docs\helpers.txt
+	gr.FillSolidRect(0, 0, ww, wh, RGB(255, 255, 255));
 	if (g_img) {
-		var scale = 0;
-		var x = 0,
-			y = 0;
+		// Keep aspect ratio
 		var scale_w = ww / g_img.Width;
 		var scale_h = wh / g_img.Height;
-
-		if (scale_w <= scale_h) {
-			scale = scale_w;
-			y = (wh - g_img.Height * scale) / 2;
-		} else {
-			scale = scale_h;
-			x = (ww - g_img.Width * scale) / 2;
-		}
-
-		gr.DrawImage(g_img, x, y, g_img.Width * scale, g_img.Height * scale, 0, 0, g_img.Width, g_img.Height);
+		var scale = Math.min(scale_w, scale_h);
+		var pos_x = 0, pos_y = 0;
+		if (scale_w < scale_h)
+			pos_y = (wh - g_img.height * scale) / 2;
+		else if (scale_w > scale_h)
+			pos_x = (ww - g_img.Width * scale) / 2;
+		gr.DrawImage(g_img, pos_x, pos_y, g_img.Width * scale, g_img.Height * scale, 0, 0, g_img.Width, g_img.Height);
 	}
 }
 
@@ -44,16 +31,13 @@ function on_size() {
 	wh = window.Height;
 }
 
-function get_album_art(metadb) {
-	if (metadb)
-	// Get front cover
-	return utils.GetAlbumArtV2(metadb, AlbumArtId.front);
-}
-
-g_img = get_album_art(fb.GetNowPlaying());
-
-function on_playback_new_track(metadb) {
-	if (g_img) g_img.Dispose();
-	g_img = get_album_art(metadb);
+function on_playback_new_track() {
+	var metadb = fb.GetNowPlaying();
+	if (!metadb)
+		return;
+	if (g_img)
+		g_img.Dispose();
+	// AlbumArtId.front is defined in docs\flags.txt
+	g_img = utils.GetAlbumArtV2(metadb, AlbumArtId.front);
 	window.Repaint();
 }

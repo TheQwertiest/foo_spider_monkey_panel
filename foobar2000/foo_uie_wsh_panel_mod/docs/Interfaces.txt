@@ -135,7 +135,7 @@ Methods:
     // ---- Shadow ----
     void EnableShadow(enable);
     // if you have a *global* IStyleTextRender instance once called EnableShadow(), 
-    //   it's recommended to call ResetShadow() then.
+    // it's recommended to call ResetShadow() then.
     void ResetShadow();
     // Mode: Default shadow, used in solid shadow color
     void Shadow(color, thickness, offset_x, offset_y);
@@ -146,7 +146,7 @@ Methods:
     void SetShadowBackgroundImage(img);
     // ---- Render ----
     // Not recommended, if the flags contains something as "center", this won't 
-    //  work properly, because it's lack of width and height information.
+    // work properly, because it's lack of width and height information.
     boolean RenderStringPoint(g, str, font, x, y[, flags]);
     boolean RenderStringRect(g, str, font, x, y, w, h[, flags]);
     // Only in pngmode, the image should be a transparent image created by gdi.CreateImage().

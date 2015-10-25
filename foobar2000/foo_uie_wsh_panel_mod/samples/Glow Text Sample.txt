@@ -1,37 +1,26 @@
 // ==PREPROCESSOR==
 // @name "Glow Text Sample"
 // @author "T.P Wang"
+// @import "%fb2k_component_path%docs\helpers.txt"
 // ==/PREPROCESSOR==
-
-function RGB(r, g, b) {
-	return (0xff000000 | (r << 16) | (g << 8) | (b));
-}
-
-function RGBA(r, g, b, a) {
-	return ((a << 24) | (r << 16) | (g << 8) | (b));
-}
 
 var g_font = gdi.Font("Segoe UI", 22, 1);
 var g_drag = false;
 var g_textrender = gdi.CreateStyleTextRender();
-var g_bkclr = RGB(0, 0, 0);
+// RGB function is defined in docs\helpers.txt
+var g_background_colour = RGB(0, 0, 0);
 
 function on_paint(gr) {
 	gr.SetTextRenderingHint(5);
 	gr.SetSmoothingMode(4);
 	gr.SetInterpolationMode(7);
-
 	var ww = window.Width;
 	var wh = window.Height;
-
-	// Draw background first
-	gr.FillSolidRect(0, 0, ww, wh, g_bkclr);
-
+	gr.FillSolidRect(0, 0, ww, wh, g_background_colour);
+	// RGB / RGBA functions are defined in docs\helpers.txt
 	g_textrender.GlowText(RGB(0, 0, 64), RGBA(255, 255, 0, 30), 12);
-
 	// Clear previous shadow setting
 	g_textrender.EnableShadow(true);
 	g_textrender.ResetShadow();
-
 	g_textrender.RenderStringRect(gr, "Glow Text Sample", g_font, 0, 0, ww, wh, 0x11005000);
 }

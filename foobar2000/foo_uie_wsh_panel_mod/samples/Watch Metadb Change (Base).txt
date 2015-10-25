@@ -1,7 +1,8 @@
 // ==PREPROCESSOR==
 // @name "Watch Metadb Change (Base)"
 // @author "T.P Wang"
-// The following two lines are required to make this sample to work.
+// As of v1.6.0, the following 2 @feature lines are not required but if you want
+// on_metadb_changed to work with earlier components, they must be included.
 // @feature "v1.4"
 // @feature "watch-metadb"
 // ==/PREPROCESSOR==
