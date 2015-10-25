@@ -147,6 +147,9 @@ plman.IsPlaylistItemSelected(playlistIndex, itemIndex)
 plman.SortByFormat(playlistIndex, pattern[, selOnly])
 plman.SortByFormatV2(playlistIndex, pattern[, direction])
 plman.UndoBackup(playlistIndex);
+plman.ClearPlaylist()
+plman.CreateAutoPlaylist(idx, name, query[, sort, flags])
+plman.IsAutoPlaylist(playlistIndex)
 
 # Callback function prototypes
 on_mouse_lbtn_down(x, y, mask)
