@@ -690,6 +690,14 @@ Methods:
     // Call before using other plman methods that add/remove/reorder playlist items so a history will be
     // usable from the Edit menu.
     void UndoBackup(playlistIndex);
+    // [new v1.6.1]
+    void ClearPlaylist();
+    // [new v1.6.1]
+    boolean IsAutoPlaylist(idx);
+    // [new v1.6.1]
+    // sort: sort string expression.
+    // flags: 1 - always sort.
+    boolean CreateAutoPlaylist(idx, name, query, sort = "", flags = 0);
 
 Properties:
     // Known playback orders:
