@@ -97,6 +97,14 @@ STDMETHODIMP FbPlaylistManager::GetPlaylistFocusItemHandle(VARIANT_BOOL force, I
 
 //---
 
+STDMETHODIMP FbPlaylistManager::ClearPlaylist()
+{
+	TRACK_FUNCTION();
+
+	standard_commands::main_clear_playlist();
+	return S_OK;
+}
+
 STDMETHODIMP FbPlaylistManager::get_PlaybackOrder(UINT * p)
 {
 	TRACK_FUNCTION();
