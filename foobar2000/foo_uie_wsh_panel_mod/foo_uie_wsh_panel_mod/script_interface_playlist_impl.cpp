@@ -4,6 +4,55 @@
 #include "helpers.h"
 #include "com_array.h"
 
+STDMETHODIMP FbPlaylistManagerTemplate::CreateAutoPlaylist(UINT idx, BSTR name, BSTR query, BSTR sort, UINT flags, UINT * p)
+{
+	TRACK_FUNCTION();
+
+	if (!name || !query) return E_INVALIDARG;
+	if (!p) return E_POINTER;
+
+	UINT pos = 0;
+	HRESULT hr = CreatePlaylist(idx, name, &pos);
+
+	if (FAILED(hr)) return hr;
+
+	pfc::stringcvt::string_utf8_from_wide wquery(query);
+	pfc::stringcvt::string_utf8_from_wide wsort(sort);
+
+	try
+	{
+		*p = pos;
+		static_api_ptr_t<autoplaylist_manager>()->add_client_simple(wquery, wsort, pos, flags);
+	}
+	catch (...)
+	{
+		*p = pfc_infinite;
+	}
+
+	return S_OK;
+}
+
+STDMETHODIMP FbPlaylistManagerTemplate::CreatePlaylist(UINT playlistIndex, BSTR name, UINT * outPlaylistIndex)
+{
+	TRACK_FUNCTION();
+
+	if (!name) return E_INVALIDARG;
+	if (!outPlaylistIndex) return E_POINTER;
+
+	if (*name)
+	{
+		pfc::stringcvt::string_utf8_from_wide uname(name);
+
+		*outPlaylistIndex = static_api_ptr_t<playlist_manager>()->create_playlist(uname, uname.length(), playlistIndex);
+	}
+	else
+	{
+		*outPlaylistIndex = static_api_ptr_t<playlist_manager>()->create_playlist_autoname(playlistIndex);
+	}
+
+	return S_OK;
+}
+
 STDMETHODIMP FbPlaylistManagerTemplate::GetPlaylistFocusItemHandle(VARIANT_BOOL force, IFbMetadbHandle ** outItem)
 {
 	TRACK_FUNCTION();
@@ -31,25 +80,14 @@ STDMETHODIMP FbPlaylistManagerTemplate::GetPlaylistFocusItemHandle(VARIANT_BOOL 
 	return S_OK;
 }
 
-STDMETHODIMP FbPlaylistManagerTemplate::CreatePlaylist(UINT playlistIndex, BSTR name, UINT * outPlaylistIndex)
+STDMETHODIMP FbPlaylistManager::CreateAutoPlaylist(UINT idx, BSTR name, BSTR query, BSTR sort, UINT flags, UINT * p)
 {
-	TRACK_FUNCTION();
+	return FbPlaylistManagerTemplate::CreateAutoPlaylist(idx, name, query, sort, flags, p);
+}
 
-	if (!name) return E_INVALIDARG;
-	if (!outPlaylistIndex) return E_POINTER;
-
-	if (*name)
-	{
-		pfc::stringcvt::string_utf8_from_wide uname(name);
-
-		*outPlaylistIndex = static_api_ptr_t<playlist_manager>()->create_playlist(uname, uname.length(), playlistIndex);
-	}
-	else
-	{
-		*outPlaylistIndex = static_api_ptr_t<playlist_manager>()->create_playlist_autoname(playlistIndex);
-	}
-
-	return S_OK;
+STDMETHODIMP FbPlaylistManager::CreatePlaylist(UINT playlistIndex, BSTR name, UINT * outPlaylistIndex)
+{
+	return FbPlaylistManagerTemplate::CreatePlaylist(playlistIndex, name, outPlaylistIndex);
 }
 
 STDMETHODIMP FbPlaylistManager::GetPlaylistFocusItemHandle(VARIANT_BOOL force, IFbMetadbHandle ** outItem)
@@ -57,10 +95,7 @@ STDMETHODIMP FbPlaylistManager::GetPlaylistFocusItemHandle(VARIANT_BOOL force, I
 	return FbPlaylistManagerTemplate::GetPlaylistFocusItemHandle(force, outItem);
 }
 
-STDMETHODIMP FbPlaylistManager::CreatePlaylist(UINT playlistIndex, BSTR name, UINT * outPlaylistIndex)
-{
-	return FbPlaylistManagerTemplate::CreatePlaylist(playlistIndex, name, outPlaylistIndex);
-}
+//---
 
 STDMETHODIMP FbPlaylistManager::get_PlaybackOrder(UINT * p)
 {

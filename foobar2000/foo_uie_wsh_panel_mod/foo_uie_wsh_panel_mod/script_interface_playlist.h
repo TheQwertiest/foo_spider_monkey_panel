@@ -29,6 +29,7 @@ __interface IFbPlaylistManager : IDispatch
 	STDMETHOD(SetPlaylistFocusItem)(UINT playlistIndex, UINT itemIndex);
 	STDMETHOD(SetPlaylistFocusItemByHandle)(UINT playlistIndex, IFbMetadbHandle * item);
 	STDMETHOD(GetPlaylistName)(UINT playlistIndex, [out,retval] BSTR * outName);
+	STDMETHOD(CreateAutoPlaylist)(UINT idx, BSTR name, BSTR query, [defaultvalue("")] BSTR sort, [defaultvalue(0)]UINT flags, [out, retval] UINT * p);
 	STDMETHOD(CreatePlaylist)(UINT playlistIndex, BSTR name, [out,retval] UINT * outPlaylistIndex);
 	STDMETHOD(RemovePlaylist)(UINT playlistIndex, [out,retval] VARIANT_BOOL * outSuccess);
 	STDMETHOD(MovePlaylist)(UINT from, UINT to, [out,retval] VARIANT_BOOL * outSuccess);

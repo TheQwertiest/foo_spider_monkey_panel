@@ -2451,30 +2451,7 @@ STDMETHODIMP FbUtils::IsAutoPlaylist(UINT idx, VARIANT_BOOL * p)
 
 STDMETHODIMP FbUtils::CreateAutoPlaylist(UINT idx, BSTR name, BSTR query, BSTR sort, UINT flags, UINT * p)
 {
-	TRACK_FUNCTION();
-
-	if (!name || !query) return E_INVALIDARG;
-	if (!p) return E_POINTER;
-
-	UINT pos = 0;
-	HRESULT hr = FbPlaylistManagerTemplate::CreatePlaylist(idx, name, &pos);
-
-	if (FAILED(hr)) return hr;
-
-	pfc::stringcvt::string_utf8_from_wide wquery(query);
-	pfc::stringcvt::string_utf8_from_wide wsort(sort);
-
-	try
-	{
-		*p = pos;
-		static_api_ptr_t<autoplaylist_manager>()->add_client_simple(wquery, wsort, pos, flags);
-	}
-	catch (...)
-	{
-		*p = pfc_infinite;
-	}
-
-	return S_OK;
+	return FbPlaylistManagerTemplate::CreateAutoPlaylist(idx, name, query, sort, flags, p);
 }
 
 STDMETHODIMP FbUtils::ShowAutoPlaylistUI(UINT idx, VARIANT_BOOL * p)
