@@ -352,7 +352,7 @@ Methods:
     IFbTitleFormat TitleFormat(expression);
     IFbMetadbHandle GetNowPlaying();
     // force: if this parameter is set to false, GetFocusItem() will only look for the focus item, otherwise, 
-    //   if the focus item not found, find the first item of the active playlist.
+    // if the focus item not found, find the first item of the active playlist.
     IFbMetadbHandle GetFocusItem(force = true);
     // Get Now playing item or selection, as you prefer, in "Display->Selection viewers" of foobar2000 preferences
     // NOTE: Selection contains but not limited to the playlist.
@@ -420,12 +420,12 @@ Methods:
 
 interface IFbTooltip {
 Properties:
-    (read, write) Text; // Set tooltip text
+    (read, write) Text;
     // Set if enable tooltip tracking.
     (writeonly) boolean TrackActivate;
     
 Methods:
-    // NOTE: Don't try to update tooltip text when tooltip is activated, because it will flick in Windows Vista/7.
+    // NOTE: Don't try to update tooltip text when tooltip is activated, because it will flicker in Windows Vista/7.
     void Activate();
     void Deactivate();
     void SetMaxWidth(width);
@@ -492,13 +492,13 @@ Methods:
     uint SetTimeout(func, delay);
     void ClearTimeout(timerID);
     void ClearInterval(timerID);
-    // Notify other wsh panels with specified info thru callback function on_notify_data(name, info).
-    //  info can be any type now, but be aware of passing arrays and objects (because they may be unrecognized between
-    //     JScript and VBScript). However, VBArrays, strings, booleans, integers and floats, are safe to use.
+    // Notify other wsh panels with specified info through callback function on_notify_data(name, info).
+    // info can be any type now, but be aware of passing arrays and objects (because they may be unrecognized between
+    // JScript and VBScript). However, VBArrays, strings, booleans, integers and floats, are safe to use.
     void NotifyOthers(name, info);
-    // These two methods below are in cooperation with callback on_metadb_changed().
-    // Create a tooltip object
-    IFbTooltip CreateTooltip();
+    // [updated v1.6.1]
+    // font_name and font_size_px are optional. defaults are "Segoe UI" and 16.
+    IFbTooltip CreateTooltip(font_name, font_size_px);
     // Show configuration window of current panel
     void ShowConfigure();
     // Show properties window of current panel
@@ -697,6 +697,9 @@ Methods:
     // sort: sort string expression.
     // flags: 1 - always sort.
     boolean CreateAutoPlaylist(idx, name, query, sort = "", flags = 0);
+    // [new v1.6.1]
+    // returns an unsorted handle list. use IFbMetadbHandleList OrderByFormat, OrderByPath or OrderByRelativePath on the result.
+    void GetQueryItems(handles, query);
 
 Properties:
     // Known playback orders:
