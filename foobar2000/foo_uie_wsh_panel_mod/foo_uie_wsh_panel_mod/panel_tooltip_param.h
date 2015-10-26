@@ -6,6 +6,8 @@ struct panel_tooltip_param
 {
 	HWND tooltip_hwnd;
 	SIZE tooltip_size;
+	BSTR font_name;
+	float font_size;
 
 	panel_tooltip_param() : tooltip_hwnd(0) {}
 };

@@ -30,8 +30,13 @@ FbTooltip::FbTooltip(HWND p_wndparent, const panel_tooltip_param_ptr & p_param_p
 	m_ti.uId = (UINT_PTR)p_wndparent;
 	m_ti.lpszText = m_tip_buffer;
 
+	HFONT font = CreateFont(m_panel_tooltip_param_ptr->font_size, 0, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE,
+		DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
+		DEFAULT_PITCH | FF_DONTCARE, m_panel_tooltip_param_ptr->font_name);
+
 	SendMessage(m_wndtooltip, TTM_ADDTOOL, 0, (LPARAM)&m_ti);	
 	SendMessage(m_wndtooltip, TTM_ACTIVATE, FALSE, 0);
+	SendMessage(m_wndtooltip, WM_SETFONT, (WPARAM)font, MAKELPARAM(FALSE, 0));
 
 	m_panel_tooltip_param_ptr->tooltip_hwnd = m_wndtooltip;
 	m_panel_tooltip_param_ptr->tooltip_size.cx = -1;

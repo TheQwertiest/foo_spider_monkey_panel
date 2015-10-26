@@ -114,7 +114,7 @@ public:
 	STDMETHODIMP SetTimeout(IDispatch * func, INT delay, UINT * outTimeoutID);
 	STDMETHODIMP ClearTimeout(UINT timeoutID);
 	STDMETHODIMP NotifyOthers(BSTR name, VARIANT info);
-	STDMETHODIMP CreateTooltip(IFbTooltip ** pp);
+	STDMETHODIMP CreateTooltip(BSTR name, float pxSize, IFbTooltip ** pp);
 	STDMETHODIMP Reload();
 	STDMETHODIMP ShowConfigure();
 	STDMETHODIMP ShowProperties();
