@@ -1,4 +1,9 @@
-v1.6.1 Beta 2
+v1.6.1 Beta 3
+- ADD: window.CreateToolTip now takes optional font name and font size (px)
+       arguments. eg window.CreateToolTip("Segoe UI", 32);
+       Defaults of "Segoe UI" and 16 are used if omitted.
+- ADD: plman.GetQueryItems(source_handlelist, query) returns an unsorted
+       handle list. Consider using OrderByFormat, etc on the result
 - ADD: plman.CreateAutoplaylist, plman.IsAutoPlaylist, plman.ClearPlaylist
        These are in addition to the "fb" methods which already exist.
 - CHG: "Safe mode" is no longer an option.
