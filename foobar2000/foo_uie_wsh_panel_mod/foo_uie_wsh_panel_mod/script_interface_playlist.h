@@ -23,7 +23,7 @@ __interface IFbPlaylistManager : IDispatch
 	STDMETHOD(SetPlaylistSelectionSingle)(UINT playlistIndex, UINT itemIndex, VARIANT_BOOL state);
 	STDMETHOD(SetPlaylistSelection)(UINT playlistIndex, VARIANT affectedItems, VARIANT_BOOL state);
 	STDMETHOD(IsAutoPlaylist)(UINT idx, [out, retval] VARIANT_BOOL * p);
-	STDMETHOD(ClearPlaylist)();
+	STDMETHOD(ClearPlaylist)(UINT playlistIndex);
 	STDMETHOD(ClearPlaylistSelection)(UINT playlistIndex);
 	STDMETHOD(UndoBackup)(UINT playlistIndex);
 	STDMETHOD(UndoRestore)(UINT playlistIndex);

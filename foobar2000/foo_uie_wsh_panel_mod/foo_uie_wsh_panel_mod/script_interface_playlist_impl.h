@@ -35,7 +35,7 @@ public:
 	STDMETHODIMP SetPlaylistSelectionSingle(UINT playlistIndex, UINT itemIndex, VARIANT_BOOL state);
 	STDMETHODIMP SetPlaylistSelection(UINT playlistIndex, VARIANT affectedItems, VARIANT_BOOL state);
 	STDMETHODIMP IsAutoPlaylist(UINT idx, VARIANT_BOOL * p);
-	STDMETHODIMP ClearPlaylist();
+	STDMETHODIMP ClearPlaylist(UINT playlistIndex);
 	STDMETHODIMP ClearPlaylistSelection(UINT playlistIndex);
 	STDMETHODIMP UndoBackup(UINT playlistIndex);
 	STDMETHODIMP UndoRestore(UINT playlistIndex);

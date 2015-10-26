@@ -147,11 +147,12 @@ STDMETHODIMP FbPlaylistManager::IsAutoPlaylist(UINT idx, VARIANT_BOOL * p)
 	return S_OK;
 }
 
-STDMETHODIMP FbPlaylistManager::ClearPlaylist()
+STDMETHODIMP FbPlaylistManager::ClearPlaylist(UINT playlistIndex)
 {
 	TRACK_FUNCTION();
 
-	standard_commands::main_clear_playlist();
+	static_api_ptr_t<playlist_manager>()->playlist_clear(playlistIndex);
+	
 	return S_OK;
 }
 
