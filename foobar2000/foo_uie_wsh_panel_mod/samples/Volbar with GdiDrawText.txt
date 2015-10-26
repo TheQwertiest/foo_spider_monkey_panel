@@ -5,7 +5,7 @@
 // @import "%fb2k_component_path%docs\helpers.txt"
 // ==/PREPROCESSOR==
 
-var g_font = gdi.Font("Tahoma", 12, 0);
+var g_font = gdi.Font("Segoe UI", 12, 0);
 var g_drag = 0;
 var ww = 0, wh = 0;
 
