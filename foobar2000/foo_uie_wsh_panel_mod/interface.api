@@ -150,6 +150,7 @@ plman.UndoBackup(playlistIndex);
 plman.ClearPlaylist()
 plman.CreateAutoPlaylist(idx, name, query[, sort, flags])
 plman.IsAutoPlaylist(playlistIndex)
+plman.GetQueryItems(handles, query)
 
 # Callback function prototypes
 on_mouse_lbtn_down(x, y, mask)
