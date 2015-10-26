@@ -698,8 +698,7 @@ Methods:
     // flags: 1 - always sort.
     boolean CreateAutoPlaylist(idx, name, query, sort = "", flags = 0);
     // [new v1.6.1]
-    // returns an unsorted handle list. use IFbMetadbHandleList OrderByFormat, OrderByPath or OrderByRelativePath on the result.
-    void GetQueryItems(handles, query);
+    IFbMetadbHandleList GetQueryItems(handles, query);
 
 Properties:
     // Known playback orders:
