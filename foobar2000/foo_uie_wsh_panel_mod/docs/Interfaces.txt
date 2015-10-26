@@ -389,6 +389,8 @@ Methods:
     void AddFiles();
     void ShowConsole();
     void ShowPreferences();
+    // clears active playlist
+    // if you wish to clear a specific playlist, use plman.ClearPlaylist(playlistIndex)
     void ClearPlaylist();
     void LoadPlaylist();
     void SavePlaylist();
@@ -690,7 +692,9 @@ Methods:
     // usable from the Edit menu.
     void UndoBackup(playlistIndex);
     // [new v1.6.1]
-    void ClearPlaylist();
+    // Unlike fb.ClearPlaylist which clears the active playlist, this requires a "playlistIndex"
+    // argument.
+    void ClearPlaylist(playlistIndex);
     // [new v1.6.1]
     boolean IsAutoPlaylist(idx);
     // [new v1.6.1]
