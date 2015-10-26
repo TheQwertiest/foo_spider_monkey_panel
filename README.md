@@ -10,14 +10,17 @@ Please read the changelog below and pay special attention to the features remove
 As of `v1.5.11`, Windows XP is no longer supported. `v1.5.10` is still available on the [releases](https://github.com/19379/foo_uie_wsh_panel_mod/releases) page.
 
 ```
-v1.6.1 Beta 3
+v1.6.1 Beta 4
 - ADD: window.CreateToolTip now takes optional font name and font size (px)
        arguments. eg window.CreateToolTip("Segoe UI", 32);
        Defaults of "Segoe UI" and 16 are used if omitted.
 - ADD: plman.GetQueryItems(source_handlelist, query) returns an unsorted
        handle list. Consider using OrderByFormat, etc on the result
-- ADD: plman.CreateAutoplaylist, plman.IsAutoPlaylist, plman.ClearPlaylist
-       These are in addition to the "fb" methods which already exist.
+- ADD: plman.CreateAutoplaylist, plman.IsAutoPlaylist
+       These behave the same as the "fb" methods which already exist.
+- ADD: plman.ClearPlaylist(playlistIndex). Unlike fb.ClearPlaylist which
+       clears the active playlist, this requires a "playlistIndex"
+       argument.
 - CHG: "Safe mode" is no longer an option.
 - CHG: Tidy up samples.
 
