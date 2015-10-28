@@ -1,11 +1,12 @@
 // ==PREPROCESSOR==
 // @name "Themed Seek Bar"
 // @author "marc2003"
-// @import "%fb2k_component_path%samples\scripts\seekbar.js"
+// @import "%fb2k_component_path%docs\helpers.txt"
 // ==/PREPROCESSOR==
 
+var tooltip = window.CreateTooltip();
 var g_theme = window.CreateThemeManager("PROGRESS");
-// seekbar is defined inside samples\scripts\seekbar.js
+// seekbar is defined inside docs\helpers.txt
 // 4 arguments are x, y, w, h
 // y and w are dynamic based on panel size so we set those inside on_size function
 var s = new seekbar(10, 0, 0, 20);

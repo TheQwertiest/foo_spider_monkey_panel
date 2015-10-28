@@ -3,10 +3,10 @@
 // @author "marc2003"
 // @import "%fb2k_component_path%docs\flags.txt"
 // @import "%fb2k_component_path%docs\helpers.txt"
-// @import "%fb2k_component_path%samples\scripts\buttons.js"
 // ==/PREPROCESSOR==
 
-// buttons is defined in samples\scripts\buttons.js
+var tooltip = window.CreateTooltip();
+// buttons is defined in docs\helpers.txt
 var b = new buttons();
 var PBOArray = ["Default", "Repeat (Playlist)", "Repeat (Track)", "Random", "Shuffle (tracks)", "Shuffle (albums)", "Shuffle (folders)"];
 on_playback_order_changed();
