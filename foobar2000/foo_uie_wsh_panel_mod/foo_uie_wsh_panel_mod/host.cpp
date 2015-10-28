@@ -410,7 +410,7 @@ STDMETHODIMP FbWindow::NotifyOthers(BSTR name, VARIANT info)
 	return S_OK;
 }
 
-STDMETHODIMP FbWindow::CreateTooltip(BSTR name, float pxSize, IFbTooltip ** pp)
+STDMETHODIMP FbWindow::CreateTooltip(BSTR name, float pxSize, INT style, IFbTooltip ** pp)
 {
 	TRACK_FUNCTION();
 
@@ -419,6 +419,7 @@ STDMETHODIMP FbWindow::CreateTooltip(BSTR name, float pxSize, IFbTooltip ** pp)
 	const auto& tooltip_param = m_host->PanelTooltipParam();
 	tooltip_param->font_name = name;
 	tooltip_param->font_size = pxSize;
+	tooltip_param->font_style = style;
 	(*pp) = new com_object_impl_t<FbTooltip>(m_host->GetHWND(), tooltip_param);
 	return S_OK;
 }
