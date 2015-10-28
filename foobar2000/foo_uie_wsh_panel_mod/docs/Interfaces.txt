@@ -499,8 +499,8 @@ Methods:
     // JScript and VBScript). However, VBArrays, strings, booleans, integers and floats, are safe to use.
     void NotifyOthers(name, info);
     // [updated v1.6.1]
-    // font_name and font_size_px are optional. defaults are "Segoe UI" and 16.
-    IFbTooltip CreateTooltip(font_name, font_size_px);
+    // font_name, font_size_px and font_style are optional. If omitted, defaults are "Segoe UI", 16 and 0.
+    IFbTooltip CreateTooltip(font_name, font_size_px, font_style);
     // Show configuration window of current panel
     void ShowConfigure();
     // Show properties window of current panel
