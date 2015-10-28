@@ -10,10 +10,10 @@ Please read the changelog below and pay special attention to the features remove
 As of `v1.5.11`, Windows XP is no longer supported. `v1.5.10` is still available on the [releases](https://github.com/19379/foo_uie_wsh_panel_mod/releases) page.
 
 ```
-v1.6.1 Beta 5
+v1.6.1
 - ADD: window.CreateToolTip now takes optional font name, font size (px) and
        style arguments. eg window.CreateToolTip("Segoe UI", 32, 1);
-       Defaults of "Segoe UI", 16 and 0 are used if omitted. See docs\flags.txt
+       Defaults of "Segoe UI", 12 and 0 are used if omitted. See docs\flags.txt
        for valid style values.
 - ADD: plman.GetQueryItems(source_handlelist, query) returns an unsorted
        handle list. Consider using OrderByFormat, etc on the result

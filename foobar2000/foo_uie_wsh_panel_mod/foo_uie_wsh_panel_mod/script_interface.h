@@ -496,7 +496,7 @@ __interface IFbWindow: IDispatch
 	STDMETHOD(SetTimeout)(IDispatch * func, INT delay, [out,retval] UINT * outTimeoutID);
 	STDMETHOD(ClearTimeout)(UINT timeoutID);
 	STDMETHOD(NotifyOthers)(BSTR name, VARIANT info);
-	STDMETHOD(CreateTooltip)([defaultvalue("Segoe UI")] BSTR name, [defaultvalue(16)] float pxSize, [defaultvalue(0)] INT style, [out,retval] __interface IFbTooltip ** pp);
+	STDMETHOD(CreateTooltip)([defaultvalue("Segoe UI")] BSTR name, [defaultvalue(12)] float pxSize, [defaultvalue(0)] INT style, [out,retval] __interface IFbTooltip ** pp);
 	STDMETHOD(Reload)();
 	STDMETHOD(ShowConfigure)();
 	STDMETHOD(ShowProperties)();
