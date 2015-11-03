@@ -9,7 +9,7 @@
 #undef SubclassWindow
 #endif
 
-#include "PropertyList.h"
+#include "../PropertyList/PropertyList.h"
 
 LRESULT CDialogProperty::OnInitDialog(HWND hwndFocus, LPARAM lParam)
 {
