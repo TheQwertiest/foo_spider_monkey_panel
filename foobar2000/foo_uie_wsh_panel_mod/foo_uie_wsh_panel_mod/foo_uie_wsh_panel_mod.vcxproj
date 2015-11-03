@@ -165,6 +165,10 @@
     <ClCompile Include="wsh_panel_window_dui.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\PropertyList\PropertyItem.h" />
+    <ClInclude Include="..\PropertyList\PropertyItemEditors.h" />
+    <ClInclude Include="..\PropertyList\PropertyItemImpl.h" />
+    <ClInclude Include="..\PropertyList\PropertyList.h" />
     <ClInclude Include="gdiplus_helpers.h" />
     <ClInclude Include="com_tools.h" />
     <ClInclude Include="config.h" />
@@ -208,10 +212,6 @@
       </Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(Outputs)</Outputs>
     </CustomBuild>
-    <ClInclude Include="PropertyItem.h" />
-    <ClInclude Include="PropertyItemEditors.h" />
-    <ClInclude Include="PropertyItemImpl.h" />
-    <ClInclude Include="PropertyList.h" />
     <ClInclude Include="ui_conf.h" />
     <ClInclude Include="ui_find.h" />
     <ClInclude Include="ui_goto.h" />
