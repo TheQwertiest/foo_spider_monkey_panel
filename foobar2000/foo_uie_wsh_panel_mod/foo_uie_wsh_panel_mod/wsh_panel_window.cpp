@@ -662,14 +662,14 @@ void wsh_panel_window::on_paint_error(HDC memdc)
 	SIZE sz = {0};
 
 	// Font chosing
-	HFONT newfont = CreateFont(20, 0, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE, 
+	HFONT newfont = CreateFont(20, 0, 0, 0, FW_BOLD, FALSE, FALSE, FALSE, 
 		DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
 		DEFAULT_PITCH | FF_DONTCARE, _T("Tahoma"));
 	HFONT oldfont = (HFONT)SelectObject(memdc, newfont);
 
 	// Font drawing
 	{
-		LOGBRUSH lbBack = {BS_SOLID, RGB(35, 48, 64), 0};
+		LOGBRUSH lbBack = {BS_SOLID, RGB(225, 60, 45), 0};
 		HBRUSH hBack = CreateBrushIndirect(&lbBack);
 
 		FillRect(memdc, &rc, hBack);
