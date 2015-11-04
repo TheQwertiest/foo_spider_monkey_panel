@@ -11,7 +11,7 @@ As of `v1.5.11`, Windows XP is no longer supported. `v1.5.10` is still available
 
 ```
 v1.6.1.1
-- CHG: Fix minor errors in some sample script comments.
+- FIX: Fix minor errors in some sample script comments.
 - CHG: Change script error background colour.
 
 v1.6.1
