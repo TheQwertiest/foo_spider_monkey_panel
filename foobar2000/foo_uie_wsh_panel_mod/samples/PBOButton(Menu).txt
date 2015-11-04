@@ -12,7 +12,7 @@ var PBOArray = ["Default", "Repeat (Playlist)", "Repeat (Track)", "Random", "Shu
 on_playback_order_changed();
 
 function on_playback_order_changed() {
-	// button is defined in samples\scripts\buttons.js
+	// button is defined in docs\helpers.txt
 	// arguments are x, y, w, h, {normal image, hover image is optional}, function, tooltip
 	b.buttons.pbo = new button(5, 5, 18, 9, {normal : fb.ComponentPath + "samples\\images\\" + PBOArray[plman.PlaybackOrder] + ".png"}, function () {
 		pbo_menu();

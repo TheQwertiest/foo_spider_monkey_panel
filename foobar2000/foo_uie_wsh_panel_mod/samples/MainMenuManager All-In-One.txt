@@ -9,7 +9,7 @@ var tooltip = window.CreateTooltip();
 // buttons is defined in docs\helpers.txt
 var b = new buttons();
 
-// button is defined in samples\scripts\buttons.js
+// button is defined in docs\helpers.txt
 // arguments are x, y, w, h, {normal image, hover image is optional}, function, tooltip
 b.buttons.menu = new button(5, 5, 32, 32, {normal : fb.ComponentPath + "samples\\images\\cog.png"}, function () { menu(); }, "Menu");
 
