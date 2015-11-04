@@ -10,6 +10,10 @@ Please read the changelog below and pay special attention to the features remove
 As of `v1.5.11`, Windows XP is no longer supported. `v1.5.10` is still available on the [releases](https://github.com/19379/foo_uie_wsh_panel_mod/releases) page.
 
 ```
+v1.6.1.1
+- CHG: Fix minor errors in some sample script comments.
+- CHG: Change script error background colour.
+
 v1.6.1
 - ADD: window.CreateToolTip now takes optional font name, font size (px) and
        style arguments. eg window.CreateToolTip("Segoe UI", 32, 1);
