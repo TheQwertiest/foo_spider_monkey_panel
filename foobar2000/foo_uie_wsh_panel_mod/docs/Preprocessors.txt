@@ -30,7 +30,7 @@ FEATURE
 Enable drag drop callbacks.
 
 Between versions "v1.5.7" and "v1.5.12", the following must be set for on_metadb_changed()
-to work (see notes in Callbacks.txt)
+to work (see notes in callbacks.txt)
 @feature "v1.4"
 @feature "watch-metadb"
 

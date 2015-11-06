@@ -57,7 +57,7 @@ TPM_VERPOSANIMATION = 0x1000;
 TPM_VERNEGANIMATION = 0x2000;
 TPM_NOANIMATION     = 0x4000;
 
-// Used in mouse callbacks, as mask, used in on_mouse_lbtn_up(), on_mouse_rbtn_up() and so on
+// Mask for mouse callbacks
 MK_LBUTTON  = 0x0001;
 MK_RBUTTON  = 0x0002;
 MK_SHIFT    = 0x0004; // The SHIFT key is down.

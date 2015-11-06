@@ -32,7 +32,7 @@ Methods:
     IGdiGraphics GetGraphics();
     void ReleaseGraphics(IGdiGraphics);
     void BoxBlur(radius, iteration = 1);
-    // See Flags.txt meanings of modes.
+    // See flags.txt meanings of modes.
     IGdiBitmap Resize(w, h, interpolationMode = 0);
     VBArray GetColorScheme(max_count);
     void Dispose();
@@ -93,11 +93,11 @@ Methods:
     //   [2n + 2] text line n
     //   [2n + 3] width of text line n (in pixel)
     VBArray EstimateLineWrap(str, IGdiFont, max_width);
-    // See Flags.txt meanings of modes.
+    // See flags.txt meanings of modes.
     void SetTextRenderingHint(mode);
-    // See Flags.txt meanings of modes.
+    // See flags.txt meanings of modes.
     void SetSmoothingMode(mode);
-    // See Flags.txt meanings of modes.
+    // See flags.txt meanings of modes.
     void SetInterpolationMode(mode);
     void GdiAlphaBlend(IGdiRawBitmap, dstX, dstY, dstW, dstH, srcX, srcY, srcW, srcH, alpha = 255);
 }
@@ -252,7 +252,7 @@ Properties:
     (readonly) uint ID;
 
 Methods:
-    // flags: see Flags.txt.
+    // flags: see flags.txt.
     void AppendMenuItem(flags, item_id, text);
     // Same as AppendMenuItem(MF_SEPARATOR,...,...)
     void AppendMenuSeparator();
@@ -263,7 +263,7 @@ Methods:
     void CheckMenuItem(id_or_pos, check, bypos = false);
     // Add bypos parameter.
     void CheckMenuRadioItem(first, last, check, bypos = false);
-    // flags: Control popup positions and animations. (See Flags.txt)
+    // flags: Control popup positions and animations. (See flags.txt)
     int TrackPopupMenu(x, y, flags = 0);
     void AppendTo(parentMenu, flags, text);
     void Dispose();
@@ -346,7 +346,7 @@ Properties:
 
 Methods:
     void trace(...);
-    // iconid: See Flags.txt for more information
+    // iconid: See flags.txt for more information
     void ShowPopupMessage(msg, title = "WSH Panel Mod", iconid = 0);
     IFbProfiler CreateProfiler(name = "");
     IFbTitleFormat TitleFormat(expression);
@@ -479,7 +479,7 @@ Properties:
     (read, write) int MaxHeight;
     (read, write) int MinWidth;
     (read, write) int MinHeight;
-    // See Flags.txt for more details
+    // See flags.txt for more details
     (read, write) int DlgCode;
     (readonly) boolean IsTransparent;
     (readonly) boolean IsVisible;
@@ -514,20 +514,20 @@ Methods:
     // Retrieve pseudo transparent bakground image.
     IGdiBitmap GetBackgroundImage();
     // Set mouse cursor
-    // For standard cursors, see Flags.txt for more details.
+    // For standard cursors, see flags.txt for more details.
     void SetCursor(id);
     // Only valid in CUI
-    // for type and client_guid, see Flags.txt
+    // for type and client_guid, see flags.txt
     uint GetColorCUI(type, client_guid = "");
     // Only valid in CUI
-    // for type and client_guid, see Flags.txt
+    // for type and client_guid, see flags.txt
     // NOTE: If 'client_guid' is not an empty string, the 'type' will be ignored.
     // Say that you can only specify 'type' or 'client_guid' at one time.
     IGdiFont GetFontCUI(type, client_guid = "");
-    // for type, see Flags.txt
+    // for type, see flags.txt
     uint GetColorDUI(type);
     // Only valid in DUI
-    // for type, see Flags.txt
+    // for type, see flags.txt
     IGdiFont GetFontDUI(type);
     // class list: http://msdn.microsoft.com/en-us/library/bb773210%28VS.85%29.aspx
     // e.g: var theme = window.CreateThemeManager("Button");
@@ -573,7 +573,7 @@ Methods:
     // index: http://msdn.microsoft.com/en-us/library/ms724385%28VS.85%29.aspx
     // Returns 0 if failed.
     int GetSystemMetrics(index);
-    // for masks, see Flags.txt, you can ignore these two parameters in almost all circumstances.
+    // for masks, see flags.txt, you can ignore these two parameters in almost all circumstances.
     // VBArray is supported natived in VBScript and JScript: http://msdn.microsoft.com/en-us/library/3s0fw3t2%28VS.80%29.aspx
     // If you want to convert it to a JScript array, use .toArray() method.
     // Sample usage: var arr = utils.Glob("C:\\*.*").toArray();

@@ -16,7 +16,8 @@ function on_size() {
 
 function on_paint(gr) {
 	var volume = fb.Volume;
-	var pos = ww * (Math.pow(10, volume / 50) - 0.01) / 0.99;
+	// vol2pos function is defined in docs\helpers.txt
+	var pos = ww * vol2pos(volume);
 	var txt = volume.toFixed(2) + "dB";
 	// RGB function is defined in docs\helpers.txt
 	gr.FillGradRect(0, 0, pos, wh, 90, RGB(240, 240, 240), RGB(100, 230, 100));
@@ -38,7 +39,8 @@ function on_mouse_lbtn_up(x, y) {
 function on_mouse_move(x, y) {
 	if (g_drag) {
 		var pos = x < 0 ? 0 : x > ww ? 1 : x / ww;
-		fb.Volume = 50 * Math.log(0.99 * pos + 0.01) / Math.LN10;
+		// pos2vol function is defined in docs\helpers.txt
+		fb.Volume = pos2vol(pos);
 	}
 }
 
