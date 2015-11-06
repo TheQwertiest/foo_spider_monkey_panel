@@ -14,12 +14,12 @@ __interface IFbPlaylistManager : IDispatch
 {
 	// Methods
 	STDMETHOD(GetQueryItems)(IFbMetadbHandleList * items, BSTR query, [out, retval] IFbMetadbHandleList ** pp);
-	STDMETHOD(InsertPlaylistItems)(UINT playlistIndex, UINT base, __interface IFbMetadbHandleList * handles, [defaultvalue(0)] VARIANT_BOOL select, [out,retval] UINT * outSize);
-	STDMETHOD(InsertPlaylistItemsFilter)(UINT playlistIndex, UINT base, __interface IFbMetadbHandleList * handles, [defaultvalue(0)] VARIANT_BOOL select, [out,retval] UINT * outSize);
+	STDMETHOD(InsertPlaylistItems)(UINT playlistIndex, UINT base, IFbMetadbHandleList * handles, [defaultvalue(0)] VARIANT_BOOL select, [out,retval] UINT * outSize);
+	STDMETHOD(InsertPlaylistItemsFilter)(UINT playlistIndex, UINT base, IFbMetadbHandleList * handles, [defaultvalue(0)] VARIANT_BOOL select, [out,retval] UINT * outSize);
 	STDMETHOD(MovePlaylistSelection)(UINT playlistIndex, int delta);
 	STDMETHOD(RemovePlaylistSelection)(UINT playlistIndex, [defaultvalue(0)] VARIANT_BOOL crop);
-	STDMETHOD(GetPlaylistSelectedItems)(UINT playlistIndex, [out,retval] __interface IFbMetadbHandleList ** outItems);
-	STDMETHOD(GetPlaylistItems)(UINT playlistIndex, [out,retval] __interface IFbMetadbHandleList ** outItems);
+	STDMETHOD(GetPlaylistSelectedItems)(UINT playlistIndex, [out,retval] IFbMetadbHandleList ** outItems);
+	STDMETHOD(GetPlaylistItems)(UINT playlistIndex, [out,retval] IFbMetadbHandleList ** outItems);
 	STDMETHOD(SetPlaylistSelectionSingle)(UINT playlistIndex, UINT itemIndex, VARIANT_BOOL state);
 	STDMETHOD(SetPlaylistSelection)(UINT playlistIndex, VARIANT affectedItems, VARIANT_BOOL state);
 	STDMETHOD(IsAutoPlaylist)(UINT idx, [out, retval] VARIANT_BOOL * p);
@@ -118,7 +118,7 @@ __interface IFbPlaylistRecyclerManager : IDispatch
 {
 	[propget] STDMETHOD(Count)([out,retval] UINT * outCount);
 	[propget] STDMETHOD(Name)(UINT index, [out,retval] BSTR * outName);
-	[propget] STDMETHOD(Content)(UINT index, [out,retval] __interface IFbMetadbHandleList ** outContent);
+	[propget] STDMETHOD(Content)(UINT index, [out,retval] IFbMetadbHandleList ** outContent);
 	[propget] STDMETHOD(Id)(UINT index, UINT * outId);
 
 	STDMETHOD(Purge)(VARIANT affectedItems);

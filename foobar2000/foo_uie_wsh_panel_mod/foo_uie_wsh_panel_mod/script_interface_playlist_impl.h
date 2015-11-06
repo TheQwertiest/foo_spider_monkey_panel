@@ -26,11 +26,11 @@ protected:
 public:
 	// Methods
 	STDMETHODIMP GetQueryItems(IFbMetadbHandleList * items, BSTR query, IFbMetadbHandleList ** pp);
-	STDMETHODIMP InsertPlaylistItems(UINT playlistIndex, UINT base, __interface IFbMetadbHandleList * handles, VARIANT_BOOL select, UINT * outSize);
-	STDMETHODIMP InsertPlaylistItemsFilter(UINT playlistIndex, UINT base, __interface IFbMetadbHandleList * handles, VARIANT_BOOL select, UINT * outSize);
+	STDMETHODIMP InsertPlaylistItems(UINT playlistIndex, UINT base, IFbMetadbHandleList * handles, VARIANT_BOOL select, UINT * outSize);
+	STDMETHODIMP InsertPlaylistItemsFilter(UINT playlistIndex, UINT base, IFbMetadbHandleList * handles, VARIANT_BOOL select, UINT * outSize);
 	STDMETHODIMP MovePlaylistSelection(UINT playlistIndex, int delta);
 	STDMETHODIMP RemovePlaylistSelection(UINT playlistIndex, VARIANT_BOOL crop);
-	STDMETHODIMP GetPlaylistSelectedItems(UINT playlistIndex, __interface IFbMetadbHandleList ** outItems);
+	STDMETHODIMP GetPlaylistSelectedItems(UINT playlistIndex, IFbMetadbHandleList ** outItems);
 	STDMETHODIMP GetPlaylistItems(UINT playlistIndex, IFbMetadbHandleList ** outItems);
 	STDMETHODIMP SetPlaylistSelectionSingle(UINT playlistIndex, UINT itemIndex, VARIANT_BOOL state);
 	STDMETHODIMP SetPlaylistSelection(UINT playlistIndex, VARIANT affectedItems, VARIANT_BOOL state);
@@ -129,7 +129,7 @@ class FbPlaylistRecyclerManager : public IDispatchImpl3<IFbPlaylistRecyclerManag
 public:
 	STDMETHODIMP get_Count(UINT * outCount);
 	STDMETHODIMP get_Name(UINT index, BSTR * outName);
-	STDMETHODIMP get_Content(UINT index, __interface IFbMetadbHandleList ** outContent);
+	STDMETHODIMP get_Content(UINT index, IFbMetadbHandleList ** outContent);
 	STDMETHODIMP get_Id(UINT index, UINT * outId);
 
 	STDMETHODIMP Purge(VARIANT affectedItems);

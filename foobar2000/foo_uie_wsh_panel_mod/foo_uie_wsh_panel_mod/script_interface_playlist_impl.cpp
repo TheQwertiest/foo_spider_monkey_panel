@@ -174,7 +174,7 @@ STDMETHODIMP FbPlaylistManager::put_PlaybackOrder(UINT p)
 	return S_OK;
 }
 
-STDMETHODIMP FbPlaylistManager::InsertPlaylistItems(UINT playlistIndex, UINT base, __interface IFbMetadbHandleList * handles, VARIANT_BOOL select, UINT * outSize)
+STDMETHODIMP FbPlaylistManager::InsertPlaylistItems(UINT playlistIndex, UINT base, IFbMetadbHandleList * handles, VARIANT_BOOL select, UINT * outSize)
 {
 	TRACK_FUNCTION();
 	
@@ -190,7 +190,7 @@ STDMETHODIMP FbPlaylistManager::InsertPlaylistItems(UINT playlistIndex, UINT bas
 	return S_OK;
 }
 
-STDMETHODIMP FbPlaylistManager::InsertPlaylistItemsFilter(UINT playlistIndex, UINT base, __interface IFbMetadbHandleList * handles, VARIANT_BOOL select, UINT * outSize)
+STDMETHODIMP FbPlaylistManager::InsertPlaylistItemsFilter(UINT playlistIndex, UINT base, IFbMetadbHandleList * handles, VARIANT_BOOL select, UINT * outSize)
 {
 	TRACK_FUNCTION();
 
@@ -205,7 +205,7 @@ STDMETHODIMP FbPlaylistManager::InsertPlaylistItemsFilter(UINT playlistIndex, UI
 	return S_OK;
 }
 
-STDMETHODIMP FbPlaylistManager::GetPlaylistSelectedItems(UINT playlistIndex, __interface IFbMetadbHandleList ** outItems)
+STDMETHODIMP FbPlaylistManager::GetPlaylistSelectedItems(UINT playlistIndex, IFbMetadbHandleList ** outItems)
 {
 	TRACK_FUNCTION();
 
@@ -906,7 +906,7 @@ STDMETHODIMP FbPlaylistRecyclerManager::get_Name(UINT index, BSTR * outName)
 	return S_OK;
 }
 
-STDMETHODIMP FbPlaylistRecyclerManager::get_Content(UINT index, __interface IFbMetadbHandleList ** outContent)
+STDMETHODIMP FbPlaylistRecyclerManager::get_Content(UINT index, IFbMetadbHandleList ** outContent)
 {
 	TRACK_FUNCTION();
 
