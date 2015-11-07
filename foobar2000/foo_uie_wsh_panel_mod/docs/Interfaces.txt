@@ -870,10 +870,12 @@ interface IFbMetadbHandle {
 Properties:
 
 Path; (read)
-// example: fb.trace(handle.Path); // D:\some song.flac
+// example: fb.trace(handle.Path);
+// D:\some song.flac
 
 RawPath; (read)
-// example: fb.trace(handle.RawPath); // file://D:\some song.flac
+// example: fb.trace(handle.RawPath);
+// file://D:\some song.flac
 
 SubSong; (read)
 
@@ -886,7 +888,7 @@ Methods:
 Compare(handle);
 // compare two IFbMetadbHandle instances, pointer only.
 // example: handle.Compare(handle2);
-// if you want to compare them physically, use the "RawPath" property, and compare these two values.
+// if you want to compare them physically, use the "RawPath" property.
 
 Dispose();
 // example: handle.Dispose();
@@ -942,9 +944,11 @@ Find(handle);
 // if sorted, use BSearch instead
 
 Insert(index, handle);
-// example: items.Insert(0, handle); //0 inserts at the start of playlist. you can use plman.PlaylistItemCount(playlistIndex) to get the current number of items in a playlist.
+// example: items.Insert(0, handle);
+// 0 inserts at the start of playlist. if you want to insert at the end, you can use plman.PlaylistItemCount(playlistIndex) to get the current number of items in a playlist.
 
 InsertRange(index, handle_list);
+
 MakeDifference(handle_list);
 // must be sorted
 
@@ -972,6 +976,7 @@ RemoveAll();
 RemoveById(idx);
 // example: items.RemoveById(0);
 // remove first item in playlist
+
 RemoveRange(from, num);
 // example: items.RemoveRange(10, 20);
 }
