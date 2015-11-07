@@ -944,8 +944,10 @@ Find(handle);
 // if sorted, use BSearch instead
 
 Insert(index, handle);
-// example: items.Insert(0, handle);
-// 0 inserts at the start of playlist. if you want to insert at the end, you can use plman.PlaylistItemCount(playlistIndex) to get the current number of items in a playlist.
+// example1: items.Insert(0, fb.GetNowPlaying());
+// 0 inserts at the start of the handle list.
+// example2: items.Insert(items.Count, fb.GetNowPlaying());
+// this inserts at the end of the handle list.
 
 InsertRange(index, handle_list);
 
