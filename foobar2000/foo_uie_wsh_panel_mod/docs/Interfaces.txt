@@ -45,7 +45,8 @@ fb.PlaybackOrder; (read, write)
 // see samples\PBOButton(Menu).txt.
 
 fb.PlaybackTime; (read, write)
-// example: fb.PlaybackTime = 60; // jumps to the 1 minute mark.
+// example: fb.PlaybackTime = 60;
+// jumps to the 1 minute mark.
 
 fb.ProfilePath; (read)
 fb.StopAfterCurrent; (boolean) (read, write)
@@ -820,11 +821,13 @@ Properties:
 MetaCount; (read)
 // example: fb.trace(f.MetaCount);
 // 11
+
 InfoCount; (read)
 // example: fb.trace(f.InfoCount);
 // 9
 
 Methods:
+
 Dispose();
 // example: f.Dispose();
 
