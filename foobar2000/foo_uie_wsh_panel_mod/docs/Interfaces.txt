@@ -191,7 +191,9 @@ fb.VolumeUp();
 
 interface IGdiUtils {
 Methods:
+
 gdi.CreateImage(w, h);
+
 gdi.CreateStyleTextRender([pngmode]);
 // pngmode: default false.
 // see samples\Glow Text Sample.txt
@@ -289,7 +291,7 @@ plman.GetPlayingItemLocation();
 	}
 	/* example:
 	var playing_item_location = plman.GetPlayingItemLocation();
-	if (playling_item_location.IsValid) {
+	if (playing_item_location.IsValid) {
 		fb.trace(playing_item_location.PlaylistIndex);
 		fb.trace(playing_item_location.PlaylistItemIndex);
 	}
@@ -923,9 +925,9 @@ Add(handle);
 
 AddRange(handle_list);
 // example: items.Add(fb.GetLibraryItems());
-// must be sorted, faster than Find()
 
 BSearch(handle);
+// must be sorted, faster than Find()
 
 Clone();
 // example: var items2 = items.Clone();
@@ -935,13 +937,17 @@ Dispose();
 
 Find(handle);
 // if sorted, use BSearch instead
+
 Insert(index, handle);
-// example: items.Insert(0, metadb); //0 inserts at the start of playlist. you can use plman.PlaylistItemCount(playlistIndex) to get the current number of items in a playlist.
+// example: items.Insert(0, handle); //0 inserts at the start of playlist. you can use plman.PlaylistItemCount(playlistIndex) to get the current number of items in a playlist.
+
 InsertRange(index, handle_list);
 MakeDifference(handle_list);
 // must be sorted
+
 MakeIntersection(handle_list);
 // must be sorted
+
 MakeUnion(handle_list);
 // must be sorted
 
