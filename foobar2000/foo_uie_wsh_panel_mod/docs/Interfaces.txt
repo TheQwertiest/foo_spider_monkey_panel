@@ -501,6 +501,7 @@ window.InstanceType;
 
 window.IsTransparent; (boolean) (read)
 // depends on setting inside WSH panel mod Configuration window. you generally use it to determine whether or not to draw a background.
+
 window.IsVisible; (boolean) (read)
 
 window.Height; (read)
@@ -773,7 +774,7 @@ function on_paint(gr) {
 
 interface IStyleTextRender {
 // see samples\Glow Text Sample.txt
-	
+
 Methods:
 
 // ---- outline mode ----
@@ -808,6 +809,7 @@ SetPngImage(IGdiBitmap);
 // var f = handle.GetFileInfo();
 interface IFbFileInfo {
 Properties:
+
 MetaCount; (read)
 // example: fb.trace(f.MetaCount);
 // 11
@@ -830,6 +832,7 @@ MetaAdd(name, value);
 
 MetaFind(name);
 // returns idx
+
 MetaInsertValue(idx, vidx, value);
 
 MetaName(idx);
@@ -858,8 +861,10 @@ Properties:
 
 Path; (read)
 // example: fb.trace(handle.Path); // D:\some song.flac
+
 RawPath; (read)
 // example: fb.trace(handle.RawPath); // file://D:\some song.flac
+
 SubSong; (read)
 
 FileSize; (read)
@@ -894,14 +899,17 @@ interface IFbMetadbHandleList
 // var items = plman.GetPlaylistItems(-1);
 
 Properties:
+
 Count; (read)
 // example: fb.trace(items.Count);
 // 12
+
 Item(idx); (read, write)
 // example: fb.trace(fb.TitleFormat("%artist%").EvalWithMetadb(items.Item(0)));
 // displays artist of first item in handle list
 
 Methods:
+
 Sort();
 // Sort and remove duplicates
 
