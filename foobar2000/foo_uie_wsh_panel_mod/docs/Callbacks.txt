@@ -1,52 +1,63 @@
-// code: UTF16 encoded char.
-// In order to use this callback, use window.DlgCode(DLGC_WANTCHARS);
-// See flags.txt for DLGC_WANTCHARS.
 function on_char(code) {}
-// Called when colours are changed via default UI/columns UI preferences.
-// use window.GetColourCUI/window.GetColorDUI to get new colours
+// code: UTF16 encoded char.
+// in order to use this callback, use window.DlgCode(DLGC_WANTCHARS);
+// see flags.txt > DLGC_WANTCHARS.
+
 function on_colors_changed() {}
-// Called when "cursor follow playback" state is changed
-// state: boolean, reflect current "cursor follow playback"  value
+// called when colours are changed via default UI/columns UI preferences.
+// use window.GetColourCUI()/window.GetColorDUI() to get new colours.
+
 function on_cursor_follow_playback_changed(state) {}
-// For on_drag_* callbacks, @feature "dragdrop" must be set in the preprocessor section.
-// See preprocessors.txt for more details.
-// See samples\Drag Drop Basic.txt for how to use "action".
+// called when "cursor follow playback" state is changed.
+// state: boolean. reflect current "cursor follow playback"  value.
+
 function on_drag_drop(action, x, y, mask) {}
 function on_drag_enter(action, x, y, mask) {}
 function on_drag_leave() {}
 function on_drag_over(action, x, y, mask) {}
-// Called when the panel gets/loses focus
+// for on_drag_* callbacks, @feature "dragdrop" must be set in the preprocessor section.
+// see preprocessors.txt for more details.
+// see samples\Drag Drop Basic.txt for how to use "action".
+
 function on_focus(is_focused) {}
-// Called when colours are changed via default UI/columns UI preferences
-// Retrieve fonts using window.GetFontXXX() method.
+// called when the panel gets/loses focus
+
 function on_font_changed() {}
-// Called when thread created by utils.GetAlbumArtAsync() is done.
-// image_path will point to the image file (or music file if image is embedded)
+// called when colours are changed via default UI/columns UI preferences
+// retrieve fonts using window.GetFontDUI()/window.GetFontCUI()
+
 function on_get_album_art_done(metadb, art_id, image, image_path) {}
-// Called when playlist focus has been changed
+// called when thread created by utils.GetAlbumArtAsync() is done.
+// image_path will point to the image file (or music file if image is embedded).
+
 function on_item_focus_change(playlist, from, to) {}
-// Called when at least 60s of the track has been played or the track has reached 
-// its end after at least 1/3 of it has been played through.
+// called when playlist focus has been changed
+
 function on_item_played(metadb) {}
-// Both keyboard related callbacks require "Grab focus" enabled in the Configuration window.
-// In order to use arrow keys, use window.DlgCode(DLGC_WANTARROWS);
-// See flags.txt for DLGC_WANTARROWS.
-// You must return true to suppress processing keyboard shortcuts
-// vkey: Virtual Key Code, refer to: http://msdn.microsoft.com/en-us/library/ms927178.aspx
+// called when at least 60s of the track has been played or the track has reached 
+// its end after at least 1/3 of it has been played through.
+
 function on_key_down(vkey) {}
 function on_key_up(vkey) {}
-// [new v1.5.9]
+// both keyboard related callbacks require "Grab focus" enabled in the Configuration window.
+// in order to use arrow keys, use window.DlgCode(DLGC_WANTARROWS);
+// see flags.txt > DLGC_WANTARROWS.
+// you must return true to suppress processing keyboard shortcuts
+// vkey: Virtual Key Code, refer to: http://msdn.microsoft.com/en-us/library/ms927178.aspx
+
 function on_library_items_added() {}
 function on_library_items_removed() {}
 function on_library_items_changed() {}
-// Called when thread created by gdi.LoadImageAsync() is done.
+
 function on_load_image_done(cookie, image) {}
-// Called when metadb contents change.
-// If you need your scripts to be compatible with component versions 1.5.12 and earlier, 
+// called when thread created by gdi.LoadImageAsync() is done.
+
+function on_metadb_changed(metadb_or_metadbs, fromhook) {}
+// called when metadb contents change.
+// if you need your scripts to be compatible with component versions 1.5.12 and earlier, 
 // you must check Preprocessors.txt for the @feature directives which need to be set.
 // See samples\Watch Metadb Change.txt for example usage.
-function on_metadb_changed(metadb_or_metadbs, fromhook) {}
-// For all mouse callbacks, see flags.txt for "mask".
+
 function on_mouse_lbtn_dblclk(x, y, mask) {}
 function on_mouse_lbtn_down(x, y, mask) {}
 function on_mouse_lbtn_up(x, y, mask) {}
@@ -57,27 +68,39 @@ function on_mouse_mbtn_up(x, y, mask) {}
 function on_mouse_move(x, y, mask) {}
 function on_mouse_rbtn_dblclk(x, y, mask) {}
 function on_mouse_rbtn_down(x, y, mask) {}
-// You must return true if you want to suppress the default context menu.
-// Hold left shift + left windows key to bypass user code and open default context menu.
+// see flags.txt > Mask for mouse callbacks
+
 function on_mouse_rbtn_up(x, y, mask) {}
+// you must return true if you want to suppress the default context menu.
+// hold left shift + left windows key to bypass user code and open default context menu.
+
 function on_mouse_wheel(step) {}
-// Called in other panels after window.NotifyOthers(name, info) is executed
+
 function on_notify_data(name, info) {}
-// Called when window is ready to draw
-// see interfaces.txt for all the methods used with gr
+// called in other panels after window.NotifyOthers(name, info) is executed
+
 function on_paint(gr) {}
-// Called when "playback follow cursor" state is changed
-// state: boolean, reflect current "playback follow cursor" value
+// called when window is ready to draw
+// see interfaces.txt for all the methods used with gr
+
 function on_playback_follow_cursor_changed(state) {}
-// Dynamic info (VBR bitrate etc) change.
+// called when "playback follow cursor" state is changed
+// state: boolean, reflect current "playback follow cursor" value
+
 function on_playback_dynamic_info() {}
-// Per-track dynamic info (stream track titles etc) change.
-// Happens less often than on_playback_dynamic_info().
+// dynamic info (VBR bitrate etc) change.
+
 function on_playback_dynamic_info_track() {}
-// Called when currently playing file gets edited.
+// per-track dynamic info (stream track titles etc) change.
+// happens less often than on_playback_dynamic_info().
+
 function on_playback_edited(metadb) {}
+// called when currently playing file gets edited.
+
 function on_playback_new_track(metadb) {}
-// Called when playback order is changed
+
+function on_playback_order_changed(new_order_index) {}
+// called when playback order is changed
 // new_order_index:
 // 0 Default
 // 1 Repeat (Playlist)
@@ -86,38 +109,50 @@ function on_playback_new_track(metadb) {}
 // 4 Shuffle (tracks)
 // 5 Shuffle (albums)
 // 6 Shuffle (folders)
-function on_playback_order_changed(new_order_index) {}
-// state: true when paused, false when unpaused.
+
 function on_playback_pause(state) {}
-// origin: 0 user_added, 1 user_removed, 2 playback advance
+// state: true when paused, false when unpaused.
+
 function on_playback_queue_changed(origin) {}
-// time: float value, in seconds.
+// origin: 0 user_added, 1 user_removed, 2 playback advance
+
 function on_playback_seek(time) {}
-// cmd: 0 default, 1 play, 2 next, 3 prev, 4 settrack, 5 rand, 6 resume.
+// time: float value, in seconds.
+
 function on_playback_starting(cmd, is_paused) {}
-// reason: 0 user, 1 eof, 2 starting_another.
+// cmd: 0 default, 1 play, 2 next, 3 prev, 4 settrack, 5 rand, 6 resume.
+
 function on_playback_stop(reason) {}
-// Called when "stop after current" is enabled/disabled.
-// state: "stop after current" value, either true or false.
+// reason: 0 user, 1 eof, 2 starting_another.
+
 function on_playlist_stop_after_current_changed(state) {}
-// Called every second, for time display.
-// time - float value, in sec.
+// called when "stop after current" is enabled/disabled.
+// state: "stop after current" value, either true or false.
+
 function on_playback_time(time) {}
+// called every second, for time display.
+// time - float value, in sec.
+
 function on_playlist_items_added(playlistIndex) {}
 function on_playlist_item_ensure_visible(playlistIndex, item) {}
 function on_playlist_items_removed(playlistIndex, new_count) {}
 function on_playlist_items_reordered(playlistIndex) {}
 function on_playlist_switch() {}
 function on_playlists_changed() {}
-// Always call window.GetBackgroundImage() during this callback
-// IMPORTANT: DO NOT call window.Repaint()
+
 function on_refresh_background_done() {}
-// This callback is not guaranteed to be called during unloading.
-function on_script_unload() {}
-// Called when selection changes based on "File>Preferences>Display>Selection viewers".
-function on_selection_changed() {}
-// Called when panel is resized.
+// Always call window.GetBackgroundImage() during this callback.
 // IMPORTANT: DO NOT call window.Repaint()
+
+function on_script_unload() {}
+// This callback is not guaranteed to be called during unloading.
+
+function on_selection_changed() {}
+// called when selection changes based on "File>Preferences>Display>Selection viewers".
+
 function on_size() {}
-// val: volume level in dB. minimum is -100. maximum is 0.
+// called when panel is resized.
+// IMPORTANT: DO NOT call window.Repaint()
+
 function on_volume_change(val) {}
+// val: volume level in dB. minimum is -100. maximum is 0.
