@@ -2,10 +2,10 @@
 
 #include "stdafx.h"
 
-class process_locations : public process_locations_notify
+class wsh_process_locations : public process_locations_notify
 {
 public:
-	process_locations(int playlist_idx, bool to_select)
+	wsh_process_locations(int playlist_idx, bool to_select)
 		: m_playlist_idx(playlist_idx), m_to_select(to_select) {}
 
 	void on_completion(const pfc::list_base_const_t<metadb_handle_ptr> & p_items)
