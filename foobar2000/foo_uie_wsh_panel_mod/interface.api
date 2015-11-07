@@ -58,6 +58,7 @@ gdi.Image(path)
 gdi.LoadImageAsync(window_id, path)
 
 plman.ActivePlaylist
+plman.AddLocations(playlistIndex, paths[, select])
 plman.AddItemToPlaybackQueue(IFbMetadbHandle)
 plman.AddPlaylistItemToPlaybackQueue(playlistIndex, playlistItemIndex)
 plman.ClearPlaylist(playlistIndex)

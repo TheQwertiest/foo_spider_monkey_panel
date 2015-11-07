@@ -239,6 +239,11 @@ plman.PlaylistRecyclerManager; (read)
 
 Methods:
 
+plman.AddLocations(playlistIndex, paths[, select]);
+// paths: an array of files/URLs
+// select: default false
+// example: plman.AddLocations(plman.ActivePlaylist, ["e:\\1.mp3"]);
+
 plman.ClearPlaylist(playlistIndex);
 // [new v1.6.1]
 // Unlike fb.ClearPlaylist which clears the active playlist, this requires a "playlistIndex"

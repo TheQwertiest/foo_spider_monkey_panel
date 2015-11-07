@@ -296,6 +296,9 @@
     <ClInclude Include="SString.h">
       <Filter>Header Files\Scintilla</Filter>
     </ClInclude>
+    <ClInclude Include="process_locations.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="res\default.js">

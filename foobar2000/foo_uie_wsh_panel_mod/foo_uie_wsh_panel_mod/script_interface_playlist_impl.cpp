@@ -3,6 +3,7 @@
 #include "script_interface_playlist_impl.h"
 #include "helpers.h"
 #include "com_array.h"
+#include "process_locations.h"
 
 STDMETHODIMP FbPlaylistManagerTemplate::CreateAutoPlaylist(UINT idx, BSTR name, BSTR query, BSTR sort, UINT flags, UINT * p)
 {
@@ -96,6 +97,39 @@ STDMETHODIMP FbPlaylistManager::GetPlaylistFocusItemHandle(VARIANT_BOOL force, I
 }
 
 //---
+
+STDMETHODIMP FbPlaylistManager::AddLocations(UINT playlistIndex, VARIANT locations, VARIANT_BOOL select)
+{
+	TRACK_FUNCTION();
+	
+	helpers::com_array_reader helper;
+
+	if (!helper.convert(&locations)) return E_INVALIDARG;
+	pfc::list_t<pfc::string8> locations2;
+
+	for (long i = 0; i < static_cast<long>(helper.get_count()); ++i)
+	{
+		_variant_t varUrl;
+
+		helper.get_item(i, varUrl);
+
+		if (FAILED(VariantChangeType(&varUrl, &varUrl, 0, VT_BSTR))) return E_INVALIDARG;
+
+		locations2.add_item(pfc::string8(pfc::stringcvt::string_utf8_from_wide(varUrl.bstrVal)));
+	}
+
+	pfc::list_const_array_t<const char*, pfc::list_t<pfc::string8> > locations3(locations2, locations2.get_count());
+
+	static_api_ptr_t<playlist_incoming_item_filter_v2>()->process_locations_async(
+		locations3,
+		playlist_incoming_item_filter_v2::op_flag_background,
+		NULL,
+		NULL,
+		NULL,
+		new service_impl_t<process_locations>(playlistIndex, select));
+
+	return S_OK;
+}
 
 STDMETHODIMP FbPlaylistManager::GetQueryItems(IFbMetadbHandleList * items, BSTR query, IFbMetadbHandleList ** pp)
 {

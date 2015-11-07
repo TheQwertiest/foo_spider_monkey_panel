@@ -10,6 +10,11 @@ Please read the changelog below and pay special attention to the features remove
 As of `v1.5.11`, Windows XP is no longer supported. `v1.5.10` is still available on the [releases](https://github.com/19379/foo_uie_wsh_panel_mod/releases) page.
 
 ```
+v1.6.2
+- ADD: plman.AddLocations(playlistIndex, paths[, select]
+       paths: an array of file paths and/or URLs
+       select: false if omitted.
+
 v1.6.1.2
 - CHG: Large docs update to interfaces.txt and callbacks.txt
 

@@ -1,3 +1,8 @@
+v1.6.2
+- ADD: plman.AddLocations(playlistIndex, paths[, select]
+       paths: an array of file paths and/or URLs
+       select: false if omitted.
+
 v1.6.1.2
 - CHG: Large docs update to interfaces.txt and callbacks.txt
 

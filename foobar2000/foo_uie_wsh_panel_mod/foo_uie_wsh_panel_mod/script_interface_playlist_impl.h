@@ -25,6 +25,7 @@ protected:
 
 public:
 	// Methods
+	STDMETHODIMP AddLocations(UINT playlistIndex, VARIANT locations, VARIANT_BOOL select);
 	STDMETHODIMP GetQueryItems(IFbMetadbHandleList * items, BSTR query, IFbMetadbHandleList ** pp);
 	STDMETHODIMP InsertPlaylistItems(UINT playlistIndex, UINT base, IFbMetadbHandleList * handles, VARIANT_BOOL select, UINT * outSize);
 	STDMETHODIMP InsertPlaylistItemsFilter(UINT playlistIndex, UINT base, IFbMetadbHandleList * handles, VARIANT_BOOL select, UINT * outSize);
