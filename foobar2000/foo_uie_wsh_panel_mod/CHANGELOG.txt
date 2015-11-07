@@ -1,5 +1,5 @@
 v1.6.2
-- ADD: plman.AddLocations(playlistIndex, paths[, select]
+- ADD: plman.AddLocations(playlistIndex, paths[, select])
        paths: an array of file paths and/or URLs
        select: false if omitted.
 

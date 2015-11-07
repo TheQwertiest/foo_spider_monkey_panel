@@ -11,7 +11,7 @@ As of `v1.5.11`, Windows XP is no longer supported. `v1.5.10` is still available
 
 ```
 v1.6.2
-- ADD: plman.AddLocations(playlistIndex, paths[, select]
+- ADD: plman.AddLocations(playlistIndex, paths[, select])
        paths: an array of file paths and/or URLs
        select: false if omitted.
 
