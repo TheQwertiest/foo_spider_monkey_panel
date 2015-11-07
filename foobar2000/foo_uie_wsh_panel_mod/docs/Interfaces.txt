@@ -1,5 +1,5 @@
 ﻿// you can use fb.trace(something) to output variables/strings/properties to the Console
-// and will be used in some examples below.
+// and it will be used in some examples below.
 // any parameters in [] are optional and may be omitted.
 
 // any undocumented references to "handle" mean a single playlist item like
@@ -108,7 +108,7 @@ fb.GetSelection();
 // the return value may be null.
 
 fb.GetSelections([flags]);
-// works like GetSelection(), but returns a list of metadb handles.
+// works like GetSelection(), but returns a handle list.
 // always returns a valid handle list instance instead of null.
 // flags: 0 default, 1 no now playing
 
@@ -155,8 +155,8 @@ fb.RunContextCommand(command, [flags]);
 // 8 flag_view_full. this can be useful if you need to run context commands the user may have hidden using File>Preferences>Display>Context Menu
 // example: fb.RunContextCommand("Properties");
 
-fb.RunContextCommandWithMetadb(command, handle_or_handles[, flags]);
-// same flags as fb.RunContextCommand. handle_or_handles can be something like plman.GetFocusItem or plman.GetPlaylistSelectedItems(plman.ActivePlaylist)
+fb.RunContextCommandWithMetadb(command, handle_or_handle_list[, flags]);
+// same flags as fb.RunContextCommand. handle_or_handle_list can be something like plman.GetFocusItem or plman.GetPlaylistSelectedItems(plman.ActivePlaylist)
 
 fb.RunMainMenuCommand(command);
 //example: fb.RunMainMenuCommand("File/Add Location...");
@@ -311,7 +311,7 @@ plman.GetQueryItems(handle_list, query);
 // example2: var fav_library_items = plman.GetQueryItems(fb.GetLibraryItems(), "rating IS 5");
 // results are unsorted
 
-plman.InsertPlaylistItems(playlistIndex, base, handles, [select]);
+plman.InsertPlaylistItems(playlistIndex, base, handle_list), [select]);
 // select: default false.
 // inserts new items into specified playlist, at specified position
 // example1: plman.InsertPlaylistItems(plman.ActivePlaylist, 0, fb.GetLibraryItems());
@@ -319,8 +319,8 @@ plman.InsertPlaylistItems(playlistIndex, base, handles, [select]);
 // example2: plman.InsertPlaylistItems(plman.ActivePlaylist, plman.PlaylistItemCount(plman.ActivePlaylist), fb.GetLibraryItems());
 // adds all library tracks to end of playlist.
 
-plman.InsertPlaylistItemsFilter(playlistIndex, base, handles, select = false);
-// same as above except any duplicates contained in handles are removed.
+plman.InsertPlaylistItemsFilter(playlistIndex, base, handle_list, select = false);
+// same as above except any duplicates contained in handle_list are removed.
 
 plman.IsAutoPlaylist(playlistIndex);
 // [new v1.6.1]
@@ -908,7 +908,7 @@ Sort();
 Add(handle);
 // example: items.Add(fb.GetNowPlaying());
 
-AddRange(handles);
+AddRange(handle_list);
 // example: items.Add(fb.GetLibraryItems());
 // must be sorted, faster than Find()
 
@@ -924,12 +924,12 @@ Find(handle);
 // if sorted, use BSearch instead
 Insert(index, handle);
 // example: items.Insert(0, metadb); //0 inserts at the start of playlist. you can use plman.PlaylistItemCount(playlistIndex) to get the current number of items in a playlist.
-InsertRange(index, handles);
-MakeDifference(handles);
+InsertRange(index, handle_list);
+MakeDifference(handle_list);
 // must be sorted
-MakeIntersection(handles);
+MakeIntersection(handle_list);
 // must be sorted
-MakeUnion(handles);
+MakeUnion(handle_list);
 // must be sorted
 
 OrderByFormat(titleformatObject, direction);
@@ -1016,7 +1016,7 @@ Dispose();
 
 ExecuteByID(id);
 
-InitContext(handle_or_handles);
+InitContext(handle_or_handle_list);
 
 InitNowPlaying();
 }
