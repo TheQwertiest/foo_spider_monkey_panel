@@ -102,6 +102,7 @@ STDMETHODIMP FbPlaylistManager::AddLocations(UINT playlistIndex, VARIANT locatio
 {
 	TRACK_FUNCTION();
 	
+	bool toSelect = (select == VARIANT_TRUE);
 	helpers::com_array_reader helper;
 
 	if (!helper.convert(&locations)) return E_INVALIDARG;
@@ -126,7 +127,7 @@ STDMETHODIMP FbPlaylistManager::AddLocations(UINT playlistIndex, VARIANT locatio
 		NULL,
 		NULL,
 		NULL,
-		new service_impl_t<wsh_process_locations>(playlistIndex, select));
+		new service_impl_t<wsh_process_locations>(playlistIndex, toSelect));
 
 	return S_OK;
 }

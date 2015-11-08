@@ -265,6 +265,8 @@ __interface IFbMetadbHandleList: IDisposable
 	STDMETHOD(OrderByFormat)(__interface IFbTitleFormat * script, int direction);
 	STDMETHOD(OrderByPath)();
 	STDMETHOD(OrderByRelativePath)();
+	STDMETHOD(CalcTotalDuration)([out,retval] double* p);
+	STDMETHOD(CalcTotalSize)([out,retval] double* p);
 };
 
 [

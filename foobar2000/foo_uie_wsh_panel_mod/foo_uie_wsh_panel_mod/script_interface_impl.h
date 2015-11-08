@@ -296,6 +296,8 @@ public:
 	STDMETHODIMP OrderByFormat(__interface IFbTitleFormat * script, int direction);
 	STDMETHODIMP OrderByPath();
 	STDMETHODIMP OrderByRelativePath();
+	STDMETHODIMP CalcTotalDuration(double* p);
+	STDMETHODIMP CalcTotalSize(double* p);
 };
 
 class FbTitleFormat : public IDisposableImpl4<IFbTitleFormat>

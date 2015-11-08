@@ -1781,6 +1781,21 @@ STDMETHODIMP FbMetadbHandleList::OrderByRelativePath()
 	return S_OK;
 }
 
+STDMETHODIMP FbMetadbHandleList::CalcTotalDuration(double* p)
+{
+	TRACK_FUNCTION();
+
+	*p = m_handles.calc_total_duration();
+	return S_OK;
+}
+
+STDMETHODIMP FbMetadbHandleList::CalcTotalSize(double* p)
+{
+	TRACK_FUNCTION();
+
+	*p = metadb_handle_list_helper::calc_total_size(m_handles, true);
+	return S_OK;
+}
 
 STDMETHODIMP FbTitleFormat::get__ptr(void ** pp)
 {
