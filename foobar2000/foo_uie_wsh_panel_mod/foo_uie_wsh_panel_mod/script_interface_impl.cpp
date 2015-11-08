@@ -3318,7 +3318,7 @@ STDMETHODIMP WSHUtils::FormatDuration(double p, BSTR * pp)
 	return S_OK;
 }
 
-STDMETHODIMP WSHUtils::FormatFileSize(double p, BSTR *pp)
+STDMETHODIMP WSHUtils::FormatFileSize(double p, BSTR * pp)
 {
 	TRACK_FUNCTION();
 
