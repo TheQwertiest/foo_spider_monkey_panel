@@ -7,7 +7,7 @@ All credit to T.P Wang for the official version which is available here: https:/
 
 Please read the changelog below and pay special attention to the features removed in `v1.5.7`. These were marked as obsolete well over 3 years ago and the official component `v1.5.6` already reports them as such in the `foobar2000` `Console`. If any of your scripts are triggering these warnings, they will not even run in this component. The scripts will need updating. Script authors should check `preprocessors.txt` and `interfaces.txt` in the docs. 
 
-I also removed some `fb` methods in `1.6.0` because there are identical `plman` methods which are also supported in the official component. Scripts updated with these changes should work in both components so I haven't done anything to break sharing scripts between component versions, so long as they updated. 
+I also removed some `fb` methods in `1.6.0` because there are identical `plman` methods which are also supported in the official component. Scripts updated with these changes should work in both components so I haven't done anything to break sharing scripts between component versions, so long as they are updated. 
 
 For anyone not capable of fixing their own scripts, they should continue to use the official component.
 
