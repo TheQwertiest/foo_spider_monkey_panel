@@ -320,10 +320,10 @@ plman.InsertPlaylistItems(playlistIndex, base, handle_list), [select]);
 plman.InsertPlaylistItemsFilter(playlistIndex, base, handle_list, select = false);
 // same as above except any duplicates contained in handle_list are removed.
 
-plman.IsAutoPlaylist(playlistIndex);
+plman.IsAutoPlaylist(playlistIndex); (boolean)
 // [new v1.6.1]
 
-plman.IsPlaylistItemSelected(playlistIndex, itemIndex);
+plman.IsPlaylistItemSelected(playlistIndex, itemIndex); (boolean)
 // returns true/false
 
 plman.MovePlaylist(from, to);
@@ -498,6 +498,7 @@ utils.PathWildcardMatch(pattern, str); (boolean)
 utils.ReadTextFile(filename[,codepage]);
 // codepage: default 0 see codepages.txt
 // if codepage is 0, text file can be either UTF-16 with BOM or UTF-8 with BOM and ANSI.
+// example: var text = utils.ReadTextFile("E:\\some text file.txt");
 
 utils.ReadINI(filename, section, key[, defaultval]);
 // an INI file should like this:
@@ -801,7 +802,6 @@ function on_paint(gr) {
 }
 */
 }
-
 
 interface IStyleTextRender {
 // see samples\Glow Text Sample.txt
