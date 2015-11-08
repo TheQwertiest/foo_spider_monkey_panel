@@ -403,7 +403,23 @@ plman.AddPlaylistItemToPlaybackQueue(playlistIndex, playlistItemIndex);
 
 plman.CreatePlaybackQueueItem();
 
+	interface IFbPlaybackQueueItem {
+	
+	Properties:
+	Handle; (read, write)
+	PlaylistIndex; (read, write)
+	PlaylistItemIndex; (read, write)
+	
+	Methods:
+	
+	Equals(item);
+	// item: an instance of IFbPlaybackQueueItem.
+	
+	Dispose();
+	}
+
 plman.FindPlaybackQueueItemIndex(handle, playlistIndex, playlistItemIndex);
+// returns -1 on failure
 
 plman.FlushPlaybackQueue();
 
@@ -412,7 +428,7 @@ plman.GetPlaybackQueueContents();
 
 plman.GetPlaybackQueueCount();
 
-plman.IsPlaybackQueueActive();
+plman.IsPlaybackQueueActive(); (boolean)
 
 plman.RemoveItemFromPlaybackQueue(index);
 
@@ -1075,7 +1091,6 @@ InitContext(handle_or_handle_list);
 InitNowPlaying();
 }
 
-
 interface IMainMenuManager {
 // see samples\MainMenuManager All-In-One, samples\Menu Sample.txt
 
@@ -1171,21 +1186,6 @@ ToSelect; (boolean) (read, write)
 Methods:
 
 ToPlaylist();
-}
-
-interface IFbPlaybackQueueItem {
-
-Properties:
-Handle; (read, write)
-PlaylistIndex; (read, write)
-PlaylistItemIndex; (read, write)
-
-Methods:
-
-Equals(item);
-// item: an instance of IFbPlaybackQueueItem.
-
-Dispose();
 }
 
 interface PlaylistRecyclerManager {
