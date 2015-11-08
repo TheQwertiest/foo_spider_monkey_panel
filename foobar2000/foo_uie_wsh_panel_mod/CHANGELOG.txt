@@ -1,3 +1,9 @@
+v1.6.3
+- ADD: CalcTotalDuration() handle list method. returns the total in seconds.
+- ADD: CalcTotalSize() handle list method. returns the total in bytes.
+- ADD: utils.FormatDuration(seconds). returns a string like "3wk 2d 1:30:21"
+- ADD: utils.FormatFileSize(bytes). returns a string like "7.9 GB"
+
 v1.6.2
 - ADD: plman.AddLocations(playlistIndex, paths[, select])
        paths: an array of file paths and/or URLs

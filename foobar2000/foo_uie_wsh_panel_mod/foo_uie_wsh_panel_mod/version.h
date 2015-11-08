@@ -1,7 +1,7 @@
 #pragma once
 
 // TODO: Change Version Number Every Time
-#define WSPM_VERSION_NUMBER "1.6.2"
+#define WSPM_VERSION_NUMBER "1.6.3"
 #define WSPM_WILL_NOT_EXPIRE
 //#define WSPM_VERSION_TEST "Beta 1"
 

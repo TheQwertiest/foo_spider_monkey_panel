@@ -109,6 +109,8 @@ plman.UndoBackup(playlistIndex);
 utils.CheckComponent(name[, is_dll])
 utils.CheckFont(name)
 utils.FileTest(path, mode)
+utils.FormatDuration(time)
+utils.FormatFileSize(size)
 utils.GetAlbumArtAsync(window_id, IFbMetadbHandle[, art_id, need_stub, only_embed])
 utils.GetAlbumArtEmbedded(rawpath[, art_id])
 utils.GetAlbumArtV2(metadb[, art_id, need_stub])

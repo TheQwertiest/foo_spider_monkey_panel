@@ -424,7 +424,7 @@ interface IWSHUtils {
 Methods:
 utils.CheckComponent(name[, is_dll]); (boolean)
 // is_dll: default false. if true, method checks filename as well as the internal name.
-// example: fb.trace(utils.CheckComponent("foo_uie_wsh_panel_mod", true)); // true
+// example: fb.trace(utils.CheckComponent("foo_uie_wsh_panel_mod", true));
 
 utils.CheckFont(name); (boolean)
 // name: can be either in English or the localised name in your OS.
@@ -440,6 +440,16 @@ utils.FileTest(path, mode);
 // arr[0] <= "D:\\Somedir\\" (always includes backslash at the end)
 // arr[1] <= "Somefile"
 // arr[2] <= ".txt"
+
+utils.FormatDuration(seconds)
+// [new v1.6.3]
+// example: fb.trace(utils.FormatDuration(plman.GetPlaylistItems(plman.ActivePlaylist).CalcTotalDuration()));
+// 1wk 1d 17:25:30
+
+utils.FormatFileSize(bytes)
+// [new v1.6.3]
+// example: fb.trace(utils.FormatFileSize(plman.GetPlaylistItems(plman.ActivePlaylist).CalcTotalSize()));
+// 7.9 GB 
 
 utils.GetAlbumArtAsync(window_id, handle[, art_id][, need_stub][, only_embed][, no_load]);
 // window_id: window.ID
@@ -594,13 +604,20 @@ interface IGdiFont {
 Properties:
 
 Height (read)
-// example: fb.trace(my_font.Height); // 15
+// example: fb.trace(my_font.Height);
+// 15
+
 Name (read)
-// example: fb.trace(my_font.Name); // Segoe UI
+// example: fb.trace(my_font.Name);
+// Segoe UI
+
 Size (read)
-// example: fb.trace(my_font.Size); // 12
+// example: fb.trace(my_font.Size);
+// 12
+
 Style (read)
-// example: fb.trace(my_font.Style); // 0 see flags.txt > FontStyle
+// example: fb.trace(my_font.Style);
+// 0 see flags.txt > FontStyle
 
 Methods:
 
@@ -933,6 +950,14 @@ AddRange(handle_list);
 
 BSearch(handle);
 // must be sorted, faster than Find()
+
+CalcTotalDuration();
+// returns total in seconds.
+// consider using utils.FormatDuration() on the result.
+
+CalcTotalSize();
+// return total in bytes.
+// consider using utils.FormatFileSize() on the result.
 
 Clone();
 // example: var items2 = items.Clone();
