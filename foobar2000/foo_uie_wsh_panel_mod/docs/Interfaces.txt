@@ -34,16 +34,6 @@ fb.PlaybackLength; (read)
 
 fb.PlaybackFollowCursor; (boolean) (read, write)
 
-fb.PlaybackOrder; (read, write)
-// 0 Default
-// 1 Repeat (Playlist)
-// 2 Repeat (Track)
-// 3 Random
-// 4 Shuffle (tracks)
-// 5 Shuffle (albums)
-// 6 Shuffle (folders)
-// see samples\PBOButton(Menu).txt.
-
 fb.PlaybackTime; (read, write)
 // example: fb.PlaybackTime = 60;
 // jumps to the 1 minute mark.
