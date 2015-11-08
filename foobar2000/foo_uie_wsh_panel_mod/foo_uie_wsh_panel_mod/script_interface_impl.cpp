@@ -3305,6 +3305,32 @@ STDMETHODIMP WSHUtils::FileTest(BSTR path, BSTR mode, VARIANT * p)
 	return S_OK;
 }
 
+STDMETHODIMP WSHUtils::FormatDuration(double p, BSTR * pp)
+{
+	TRACK_FUNCTION();
+
+	pfc::string8_fast str;
+	
+	str = pfc::format_time_ex(p, 0);
+
+	*pp = SysAllocString(pfc::stringcvt::string_wide_from_utf8_fast(str));
+
+	return S_OK;
+}
+
+STDMETHODIMP WSHUtils::FormatFileSize(double p, BSTR *pp)
+{
+	TRACK_FUNCTION();
+
+	pfc::string8_fast str;
+
+	str = pfc::format_file_size_short(p);
+
+	*pp = SysAllocString(pfc::stringcvt::string_wide_from_utf8_fast(str));
+
+	return S_OK;	
+}
+
 StyleTextRender::StyleTextRender(bool pngmode) : m_pOutLineText(NULL), m_pngmode(pngmode)
 {
 	if (!pngmode)

@@ -539,5 +539,7 @@ __interface IWSHUtils: IDispatch
 	STDMETHOD(GetSystemMetrics)(UINT index, [out,retval] int * p);
 	STDMETHOD(Glob)(BSTR pattern, [defaultvalue(FILE_ATTRIBUTE_DIRECTORY)] UINT exc_mask, [defaultvalue(0xffffffff)] UINT inc_mask, [out,retval] VARIANT * p);
 	STDMETHOD(FileTest)(BSTR path, BSTR mode, [out,retval] VARIANT * p);
+	STDMETHOD(FormatDuration)(double p, [out,retval] BSTR * pp);
+	STDMETHOD(FormatFileSize)(double p, [out, retval] BSTR * pp);
 };
 _COM_SMARTPTR_TYPEDEF(IWSHUtils, __uuidof(IWSHUtils));

@@ -523,6 +523,8 @@ public:
 	STDMETHODIMP GetSystemMetrics(UINT index, INT * p);
 	STDMETHODIMP Glob(BSTR pattern, UINT exc_mask, UINT inc_mask, VARIANT * p);
 	STDMETHODIMP FileTest(BSTR path, BSTR mode, VARIANT * p);
+	STDMETHODIMP FormatDuration(double p, BSTR * pp);
+	STDMETHODIMP FormatFileSize(double p, BSTR * pp);
 };
 
 // forward declaration
