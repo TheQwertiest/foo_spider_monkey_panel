@@ -388,8 +388,6 @@ __interface IFbUtils: IDispatch
 	[propget] STDMETHOD(PlaybackTime)([out,retval] double* p);
 	[propput] STDMETHOD(PlaybackTime)(double time);
 	[propget] STDMETHOD(PlaybackLength)([out,retval] double* p);
-	[propget] STDMETHOD(PlaybackOrder)([out,retval] UINT* p);
-	[propput] STDMETHOD(PlaybackOrder)(UINT p);
 	[propget] STDMETHOD(StopAfterCurrent)([out,retval] VARIANT_BOOL * p);
 	[propput] STDMETHOD(StopAfterCurrent)(VARIANT_BOOL p);
 	[propget] STDMETHOD(CursorFollowPlayback)([out,retval] VARIANT_BOOL * p);

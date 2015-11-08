@@ -2101,24 +2101,6 @@ STDMETHODIMP FbUtils::get_PlaybackLength(double* p)
 	return S_OK;
 }
 
-STDMETHODIMP FbUtils::get_PlaybackOrder(UINT* p)
-{
-	TRACK_FUNCTION();
-
-	if (!p) return E_POINTER;
-
-	(*p) = static_api_ptr_t<playlist_manager>()->playback_order_get_active();
-	return S_OK;
-}
-
-STDMETHODIMP FbUtils::put_PlaybackOrder(UINT p)
-{
-	TRACK_FUNCTION();
-
-	static_api_ptr_t<playlist_manager>()->playback_order_set_active(p);
-	return S_OK;
-}
-
 STDMETHODIMP FbUtils::get_StopAfterCurrent(VARIANT_BOOL * p)
 {
 	TRACK_FUNCTION();
