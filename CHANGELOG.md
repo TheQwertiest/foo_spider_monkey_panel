@@ -1,0 +1,104 @@
+## v1.0.2
+
+```
+- CHG: Update to latest Columns UI SDK.
+- CHG: Hopefully removed all traces of WSH Panel Mod
+       from sources and documentation!
+```
+
+## v1.0.1
+
+```
+- CHG: Update default script so you know a blank panel
+       is JScript Panel as opposed to WSH Panel Mod.
+```
+
+## v1.0.0 (Compared to WSH Panel Mod 1.5.6)
+
+```
+- CHG: Given the name, it obviously doesn't support VBScript.
+- CHG: Due to using updated library files, support for Windows XP
+       has been dropped.
+- CHG: Compiled with new SDK. Requires foobar2000 v1.3 or above.
+- CHG: Remove functions marked as obsolete 3+ years ago. Obviously
+       there are replacements that been around even longer.
+
+       window.WatchMetadb
+       window.UnWatchMetadb
+       window.CreateTimerTimeout
+       window.CreateTimerInterval
+       window.KillTimer
+       UpdateFileInfo
+- CHG: Remove all these fb methods because plman (Playlist Manager) methods
+       also exist.
+
+       fb.CreatePlaylist
+       fb.RemovePlaylist
+       fb.RenamePlaylist
+       fb.DuplicatePlaylist
+       fb.MovePlaylist
+       fb.ActivePlaylist
+       fb.PlayingPlaylist
+       fb.PlaylistCount
+       fb.PlaylistItemCount
+       fb.GetPlaylistName
+       fb.PlaybackOrder
+- CHG: Even though plman alternatives of these fb methods did not exist, I've
+       removed them for consistency.
+
+       fb.CreateAutoPlaylist
+       fb.IsAutoPlaylist
+       fb.ShowAutoPlaylistUI
+
+       plman.CreateAutoPlaylist, plman.IsAutoPlaylist and plman.ShowAutoPlaylistUI
+       have been created to replace them.
+- CHG: utils.GetAlbumArt removed as the corresponding function has been
+       removed from the foobar2000 SDK. utils.GetAlbumArtAsync, utils.GetAlbumArtEmbedded
+       and utils.GetAlbumArtV2 are still present.
+- CHG: AppendMenuItem no longer accepts MF_POPUP as a flag. Use
+       AppendTo instead.
+- CHG: Remove on_tooltip_custom_paint() callback. window.CreateTooltip has been
+       updated to accept custom font paramters. See below and interfaces.txt.
+- CHG: "Properties" dialog has a larger default size.
+- CHG: "Safe mode" is no longer an option.
+- CHG: Tidy up samples.
+- CHG: Tidy up preprocessors. You no longer have to specify these when using the on_metadb_changed()
+       callback.
+       // @feature "v1.4"
+       // @feature "watch-metadb"
+- ADD: fb.GetLibraryItems() returns a handle list of all items in library.
+- ADD: fb.IsLibraryEnabled() (boolean)
+- ADD: fb.ShowLibrarySearchUI(query) opens the Library>Search window
+       populated with the query you set.
+- ADD: on_library_items_added() callback.
+- ADD: on_library_items_removed() callback.
+- ADD: on_library_items_changed() callback.
+- ADD: plman.AddLocations(playlistIndex, paths[, select])
+       paths: an array of file paths and/or URLs
+       select: false if omitted.
+- ADD: plman.ClearPlaylist(playlistIndex). Use to clear a specified playlist. fb.ClearPlaylist still exists
+       because it is just a shortcut to the Edit menu command which clears the active playlist.
+- ADD: plman.GetQueryItems(source_handlelist, query) returns an unsorted
+       handle list. Consider using OrderByFormat, etc on the result.
+- ADD: plman.UndoBackup(playlistIndex). If you call this before
+       adding/removing/reordering playlist items, you will be able to use
+       the undo/redo commands on the Edit menu.
+- ADD: CalcTotalDuration() handle list method. returns the total in seconds.
+- ADD: CalcTotalSize() handle list method. returns the total in bytes.
+- ADD: utils.FormatDuration(seconds). returns a string like "3wk 2d 1:30:21"
+- ADD: utils.FormatFileSize(bytes). returns a string like "7.9 GB"
+- ADD: window.CreateToolTip now takes optional font name, font size (px) and
+       style arguments. eg window.CreateToolTip("Segoe UI", 32, 1);
+       Defaults of "Segoe UI", 12 and 0 are used if omitted. See docs\flags.txt
+       for valid style values.
+- ADD: Default right click menu now has a "Reload" script option. This
+       saves opening/closing the dialog when working on external files. In
+       addition, a new window.Reload method has been added so you can force a panel
+       reload with your own menus, buttons, etc.
+- ADD: Script errors are now displayed in a popup window in addition to
+       the Console like it was previously.
+- FIX: EstimateLineWrap no longer leaves stray punctuation when wrapping
+       text at end of line.
+- FIX: IFbMetadbHandle FileSize now works with "JScript" engine. Previously,
+       it only worked with "JScript9".
+```
