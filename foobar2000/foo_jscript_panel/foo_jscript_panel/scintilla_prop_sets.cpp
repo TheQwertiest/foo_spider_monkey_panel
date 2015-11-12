@@ -21,7 +21,6 @@ const t_prop_set_init_table prop_sets_init_table[] =
 	{"style.caret.width", "1"},
 	{"style.caret.line.back", ""},
 	{"style.caret.line.back.alpha", "256"},
-	{"api.vbscript", "$(dir.component)interface.api"},
 	{"api.jscript", "$(dir.component)jscript.api;$(dir.component)interface.api"},
 	{0, 0},
 };

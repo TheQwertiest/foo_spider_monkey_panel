@@ -3,15 +3,6 @@
 #include "script_interface_playlist.h"
 #include "com_tools.h"
 
-class FbPlaylistManagerTemplate
-{
-public:
-	static STDMETHODIMP GetPlaylistFocusItemHandle(VARIANT_BOOL force, IFbMetadbHandle ** outItem);
-	static STDMETHODIMP CreateAutoPlaylist(UINT idx, BSTR name, BSTR query, BSTR sort, UINT flags, UINT * p);
-	static STDMETHODIMP CreatePlaylist(UINT playlistIndex, BSTR name, UINT * outPlaylistIndex);
-};
-
-
 // NOTE: Do not use com_object_impl_t<> to initialize, use com_object_singleton_t<> instead.
 class FbPlaylistManager : public IDispatchImpl3<IFbPlaylistManager>
 {
@@ -25,6 +16,7 @@ protected:
 
 public:
 	// Methods
+	STDMETHODIMP ShowAutoPlaylistUI(UINT idx, VARIANT_BOOL * p);
 	STDMETHODIMP AddLocations(UINT playlistIndex, VARIANT locations, VARIANT_BOOL select);
 	STDMETHODIMP GetQueryItems(IFbMetadbHandleList * items, BSTR query, IFbMetadbHandleList ** pp);
 	STDMETHODIMP InsertPlaylistItems(UINT playlistIndex, UINT base, IFbMetadbHandleList * handles, VARIANT_BOOL select, UINT * outSize);
@@ -41,7 +33,6 @@ public:
 	STDMETHODIMP UndoBackup(UINT playlistIndex);
 	STDMETHODIMP UndoRestore(UINT playlistIndex);
 	STDMETHODIMP GetPlaylistFocusItemIndex(UINT playlistIndex, INT * outPlaylistItemIndex);
-	STDMETHODIMP GetPlaylistFocusItemHandle(VARIANT_BOOL force, IFbMetadbHandle ** outItem);
 	STDMETHODIMP SetPlaylistFocusItem(UINT playlistIndex, UINT itemIndex);
 	STDMETHODIMP SetPlaylistFocusItemByHandle(UINT playlistIndex, IFbMetadbHandle * item);
 	STDMETHODIMP GetPlaylistName(UINT playlistIndex, BSTR * outName);

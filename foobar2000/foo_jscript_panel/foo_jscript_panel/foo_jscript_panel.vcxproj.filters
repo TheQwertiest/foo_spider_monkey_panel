@@ -39,7 +39,7 @@
     <ClCompile Include="config.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="foo_uie_wsh_panel_mod.cpp">
+    <ClCompile Include="foo_jscript_panel.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="global_cfg.cpp">

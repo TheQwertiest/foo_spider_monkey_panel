@@ -6,31 +6,32 @@
  *   co-exist with the original release of WSH Panel Mod.
  */
 
-#define WSPM_NAME "WSH Panel Mod"
-#define WSPM_WINDOW_CLASS_NAME "uie_wsh_panel_mod_class"
-#define WSPM_DLL_NAME "foo_uie_wsh_panel_mod.dll"
+#define WSPM_NAME "JScript Panel"
+#define WSPM_WINDOW_CLASS_NAME "uie_jscript_panel_class"
+#define WSPM_DLL_NAME "foo_jscript_panel.dll"
 
-// {1624E0E0-049E-4927-B4DD-2DAF7FC2415F}
+ // {19681D48-D90E-4CB6-BB06-695F4257BE23}
 extern const GUID g_ui_pref_window_guid;
-FOOGUIDDECL const GUID g_ui_pref_window_guid = 
-{ 0x1624e0e0, 0x49e, 0x4927, { 0xb4, 0xdd, 0x2d, 0xaf, 0x7f, 0xc2, 0x41, 0x5f } };
+FOOGUIDDECL const GUID g_ui_pref_window_guid =
+{ 0x19681d48, 0xd90e, 0x4cb6,{ 0xbb, 0x6, 0x69, 0x5f, 0x42, 0x57, 0xbe, 0x23 } };
 
-// {75A7B642-786C-4f24-9B52-17D737DEA09A}
+// {19646267-86FC-4676-A98A-49273852B088}
 extern const GUID g_wsh_panel_window_extension_guid;
 FOOGUIDDECL const GUID g_wsh_panel_window_extension_guid =
-{ 0x75a7b642, 0x786c, 0x4f24, { 0x9b, 0x52, 0x17, 0xd7, 0x37, 0xde, 0xa0, 0x9a } };
+{ 0x19646267, 0x86fc, 0x4676,{ 0xa9, 0x8a, 0x49, 0x27, 0x38, 0x52, 0xb0, 0x88 } };
 
-// {A290D430-E431-45c5-BF76-EF1130EF1CF5}
+// {DAA5F4E7-177D-4489-9AD9-9F3A8EFA96AB}
 extern const GUID g_wsh_panel_window_dui_guid;
-FOOGUIDDECL const GUID g_wsh_panel_window_dui_guid = 
-{ 0xa290d430, 0xe431, 0x45c5, { 0xbf, 0x76, 0xef, 0x11, 0x30, 0xef, 0x1c, 0xf5 } };
+FOOGUIDDECL const GUID g_wsh_panel_window_dui_guid =
+{ 0xdaa5f4e7, 0x177d, 0x4489,{ 0x9a, 0xd9, 0x9f, 0x3a, 0x8e, 0xfa, 0x96, 0xab } };
 
-// {3E56779F-2884-4f98-9A61-992F664999D0}
+// {7F6B71A1-4F1A-437D-84CC-D1ADD67AD962}
 extern const GUID g_guid_prop_sets;
-FOOGUIDDECL const GUID g_guid_prop_sets = 
-{ 0x3e56779f, 0x2884, 0x4f98, { 0x9a, 0x61, 0x99, 0x2f, 0x66, 0x49, 0x99, 0xd0 } };
+FOOGUIDDECL const GUID g_guid_prop_sets =
+{ 0x7f6b71a1, 0x4f1a, 0x437d,{ 0x84, 0xcc, 0xd1, 0xad, 0xd6, 0x7a, 0xd9, 0x62 } };
 
-// {E0521E81-C2A4-4a3e-A5FC-A1E62B187053}
+// {FAEF770E-D8E7-43CF-A11D-87CBD52B3FFA}
 extern const GUID g_guid_cfg_cui_warning_reported;
-FOOGUIDDECL const GUID g_guid_cfg_cui_warning_reported = 
-{ 0xe0521e81, 0xc2a4, 0x4a3e, { 0xa5, 0xfc, 0xa1, 0xe6, 0x2b, 0x18, 0x70, 0x53 } };
+FOOGUIDDECL const GUID g_guid_cfg_cui_warning_reported =
+{ 0xfaef770e, 0xd8e7, 0x43cf,{ 0xa1, 0x1d, 0x87, 0xcb, 0xd5, 0x2b, 0x3f, 0xfa } };
+

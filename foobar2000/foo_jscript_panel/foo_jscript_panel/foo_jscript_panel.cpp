@@ -15,9 +15,8 @@ namespace
 	DECLARE_COMPONENT_VERSION(
 		WSPM_NAME,
 		WSPM_VERSION,
-		"Windows Scripting Host Panel Modded v" WSPM_VERSION "\n"
-		"Modded by T.P. Wang\n"
-		"Changes since v1.5.6 by marc2003\n\n"
+		"JScript Panel v" WSPM_VERSION " by marc2003\n"
+		"Based on WSH Panel Mod by T.P. Wang\n\n"
 		"Build: "  __TIME__ ", " __DATE__ "\n"
 		"Columns UI API Version: " UI_EXTENSION_VERSION "\n\n"
 		"Scintilla and SciTE\n"

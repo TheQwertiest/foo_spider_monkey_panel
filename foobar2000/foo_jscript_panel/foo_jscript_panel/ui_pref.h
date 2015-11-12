@@ -72,7 +72,7 @@ public:
 
 	bool get_help_url(pfc::string_base & p_out)
 	{
-		p_out = "https://github.com/19379/foo_uie_wsh_panel_mod/wiki/Editor-Properties";
+		p_out = "https://github.com/19379/foo_jscript_panel/wiki/Editor-Properties";
 		return true;
 	}
 };

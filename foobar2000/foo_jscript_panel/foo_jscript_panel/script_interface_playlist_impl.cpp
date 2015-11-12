@@ -5,7 +5,30 @@
 #include "com_array.h"
 #include "process_locations.h"
 
-STDMETHODIMP FbPlaylistManagerTemplate::CreateAutoPlaylist(UINT idx, BSTR name, BSTR query, BSTR sort, UINT flags, UINT * p)
+STDMETHODIMP FbPlaylistManager::ShowAutoPlaylistUI(UINT idx, VARIANT_BOOL * p)
+{
+	TRACK_FUNCTION();
+
+	*p = VARIANT_TRUE;
+	static_api_ptr_t<autoplaylist_manager> manager;
+
+	try
+	{
+		if (manager->is_client_present(idx))
+		{
+			autoplaylist_client_ptr client = manager->query_client(idx);
+			client->show_ui(idx);
+		}
+	}
+	catch (...)
+	{
+		*p = VARIANT_FALSE;
+	}
+
+	return S_OK;
+}
+
+STDMETHODIMP FbPlaylistManager::CreateAutoPlaylist(UINT idx, BSTR name, BSTR query, BSTR sort, UINT flags, UINT * p)
 {
 	TRACK_FUNCTION();
 
@@ -33,7 +56,7 @@ STDMETHODIMP FbPlaylistManagerTemplate::CreateAutoPlaylist(UINT idx, BSTR name, 
 	return S_OK;
 }
 
-STDMETHODIMP FbPlaylistManagerTemplate::CreatePlaylist(UINT playlistIndex, BSTR name, UINT * outPlaylistIndex)
+STDMETHODIMP FbPlaylistManager::CreatePlaylist(UINT playlistIndex, BSTR name, UINT * outPlaylistIndex)
 {
 	TRACK_FUNCTION();
 
@@ -53,50 +76,6 @@ STDMETHODIMP FbPlaylistManagerTemplate::CreatePlaylist(UINT playlistIndex, BSTR 
 
 	return S_OK;
 }
-
-STDMETHODIMP FbPlaylistManagerTemplate::GetPlaylistFocusItemHandle(VARIANT_BOOL force, IFbMetadbHandle ** outItem)
-{
-	TRACK_FUNCTION();
-
-	if (!outItem) return E_POINTER;
-
-	metadb_handle_ptr metadb;
-
-	try
-	{
-		static_api_ptr_t<playlist_manager>()->activeplaylist_get_focus_item_handle(metadb);
-		if (force && metadb.is_empty())
-		{
-			static_api_ptr_t<playlist_manager>()->activeplaylist_get_item_handle(metadb, 0);
-		}
-		if (metadb.is_empty())
-		{
-			(*outItem) = NULL;
-			return S_OK;
-		}
-	}
-	catch (std::exception &) {}
-
-	(*outItem) = new com_object_impl_t<FbMetadbHandle>(metadb);
-	return S_OK;
-}
-
-STDMETHODIMP FbPlaylistManager::CreateAutoPlaylist(UINT idx, BSTR name, BSTR query, BSTR sort, UINT flags, UINT * p)
-{
-	return FbPlaylistManagerTemplate::CreateAutoPlaylist(idx, name, query, sort, flags, p);
-}
-
-STDMETHODIMP FbPlaylistManager::CreatePlaylist(UINT playlistIndex, BSTR name, UINT * outPlaylistIndex)
-{
-	return FbPlaylistManagerTemplate::CreatePlaylist(playlistIndex, name, outPlaylistIndex);
-}
-
-STDMETHODIMP FbPlaylistManager::GetPlaylistFocusItemHandle(VARIANT_BOOL force, IFbMetadbHandle ** outItem)
-{
-	return FbPlaylistManagerTemplate::GetPlaylistFocusItemHandle(force, outItem);
-}
-
-//---
 
 STDMETHODIMP FbPlaylistManager::AddLocations(UINT playlistIndex, VARIANT locations, VARIANT_BOOL select)
 {

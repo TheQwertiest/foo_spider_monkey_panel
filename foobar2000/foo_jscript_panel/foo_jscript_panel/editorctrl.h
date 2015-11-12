@@ -59,7 +59,6 @@ public:
 	void RestoreDefaultStyle();
 	void SetLanguage(const char * lang);
 	void SetJScript();
-	void SetVBScript();	
 	void TrackWidth();
 	void SetAllStylesFromTable(const t_style_to_key_table table[]);
 	void AutoMarginWidth();

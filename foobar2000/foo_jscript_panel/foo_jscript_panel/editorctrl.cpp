@@ -1063,14 +1063,7 @@ void CScriptEditorCtrl::RestoreDefaultStyle()
 
 void CScriptEditorCtrl::SetLanguage(const char * lang)
 {
-	if (strcmp(lang, "JScript") == 0 || strcmp(lang, "JScript9") == 0) 
-	{
-		SetJScript();
-	}
-	else if (strcmp(lang, "VBScript") == 0)
-	{
-		SetVBScript();
-	}
+	SetJScript();
 
 	ReadAPI();
 }
@@ -1093,30 +1086,6 @@ void CScriptEditorCtrl::SetJScript()
 	SetKeyWords(0, js_keywords);
 	// Set styles
 	SetAllStylesFromTable(js_style_table);
-	// Colorise
-	Colourise(0, -1);
-}
-
-void CScriptEditorCtrl::SetVBScript()
-{
-	const char vbs_keywords[] = "addressof alias and as attribute base begin binary boolean byref byte byval call case cdbl"
-								" cint clng compare const csng cstr currency date decimal declare defbool defbyte defcur"
-								" defdate defdbl defdec defint deflng defobj defsng defstr defvar dim do double each else"
-								" elseif empty end enum eqv erase error event exit explicit false for friend function get"
-								" global gosub goto if imp implements in input integer is len let lib like load lock long"
-								" loop lset me mid midb mod new next not nothing null object on option optional or paramarray"
-								" preserve print private property public raiseevent randomize redim rem resume return rset"
-								" seek select set single static step stop string sub text then time to true type typeof"
-								" unload until variant wend while with withevents xor window fb gdi utils plman";
-
-	RestoreDefaultStyle();
-
-	// Set lexer
-	SetLexer(SCLEX_VBSCRIPT);
-	// Set keywords
-	SetKeyWords(0, vbs_keywords);
-	// Set styles
-	SetAllStylesFromTable(vbs_style_table);
 	// Colorise
 	Colourise(0, -1);
 }
@@ -1289,10 +1258,6 @@ void CScriptEditorCtrl::ReadAPI()
 	{
 	case SCLEX_CPP:
 		propname = "api.jscript";
-		break;
-
-	case SCLEX_VBSCRIPT:
-		propname = "api.vbscript";
 		break;
 
 	default:

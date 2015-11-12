@@ -1,6 +1,6 @@
 #pragma once
 
-[module(name="foo_uie_wsh_panel_mod", version="1.8")];
+[module(name="foo_jscript_panel", version="1.8")];
 
 extern ITypeLibPtr g_typelib;
 
@@ -422,9 +422,6 @@ __interface IFbUtils: IDispatch
 	STDMETHOD(CreateMainMenuManager)([out,retval] IMainMenuManager ** pp);
 	STDMETHOD(IsMetadbInMediaLibrary)(IFbMetadbHandle * handle, [out,retval] VARIANT_BOOL * p);
 	STDMETHOD(IsLibraryEnabled)([out,retval] VARIANT_BOOL * p);
-	STDMETHOD(IsAutoPlaylist)(UINT idx, [out,retval] VARIANT_BOOL * p);
-	STDMETHOD(CreateAutoPlaylist)(UINT idx, BSTR name, BSTR query, [defaultvalue("")] BSTR sort, [defaultvalue(0)]UINT flags, [out,retval] UINT * p);
-	STDMETHOD(ShowAutoPlaylistUI)(UINT idx, [out,retval] VARIANT_BOOL * p);
 	STDMETHOD(ShowLibrarySearchUI)(BSTR query);
 	STDMETHOD(GetLibraryItems)([out,retval] IFbMetadbHandleList ** outItems);
 };

@@ -1940,7 +1940,29 @@ STDMETHODIMP FbUtils::GetNowPlaying(IFbMetadbHandle** pp)
 
 STDMETHODIMP FbUtils::GetFocusItem(VARIANT_BOOL force, IFbMetadbHandle** pp)
 {
-	return FbPlaylistManagerTemplate::GetPlaylistFocusItemHandle(force, pp);
+	TRACK_FUNCTION();
+
+	if (!pp) return E_POINTER;
+
+	metadb_handle_ptr metadb;
+
+	try
+	{
+		static_api_ptr_t<playlist_manager>()->activeplaylist_get_focus_item_handle(metadb);
+		if (force && metadb.is_empty())
+		{
+			static_api_ptr_t<playlist_manager>()->activeplaylist_get_item_handle(metadb, 0);
+		}
+		if (metadb.is_empty())
+		{
+			(*pp) = NULL;
+			return S_OK;
+		}
+	}
+	catch (std::exception &) {}
+
+	(*pp) = new com_object_impl_t<FbMetadbHandle>(metadb);
+	return S_OK;
 }
 
 STDMETHODIMP FbUtils::GetSelection(IFbMetadbHandle** pp)
@@ -2425,52 +2447,6 @@ STDMETHODIMP FbUtils::IsLibraryEnabled(VARIANT_BOOL * p)
 	if (!p) return E_POINTER;
 
 	*p = TO_VARIANT_BOOL(static_api_ptr_t<library_manager>()->is_library_enabled());
-	return S_OK;
-}
-
-STDMETHODIMP FbUtils::IsAutoPlaylist(UINT idx, VARIANT_BOOL * p)
-{
-	TRACK_FUNCTION();
-
-	if (!p) return E_POINTER;
-
-	try
-	{
-		*p = TO_VARIANT_BOOL(static_api_ptr_t<autoplaylist_manager>()->is_client_present(idx));
-	}
-	catch (...)
-	{
-		*p = VARIANT_FALSE;
-	}
-
-	return S_OK;
-}
-
-STDMETHODIMP FbUtils::CreateAutoPlaylist(UINT idx, BSTR name, BSTR query, BSTR sort, UINT flags, UINT * p)
-{
-	return FbPlaylistManagerTemplate::CreateAutoPlaylist(idx, name, query, sort, flags, p);
-}
-
-STDMETHODIMP FbUtils::ShowAutoPlaylistUI(UINT idx, VARIANT_BOOL * p)
-{
-	TRACK_FUNCTION();
-
-	*p = VARIANT_TRUE;
-	static_api_ptr_t<autoplaylist_manager> manager;
-
-	try
-	{
-		if (manager->is_client_present(idx))
-		{
-			autoplaylist_client_ptr client = manager->query_client(idx);
-			client->show_ui(idx);
-		}
-	}
-	catch (...)
-	{
-		*p = VARIANT_FALSE;
-	}
-
 	return S_OK;
 }
 

@@ -87,7 +87,7 @@ void wsh_panel_window_dui::g_get_name(pfc::string_base & out)
 
 pfc::string8 wsh_panel_window_dui::g_get_description()
 {
-	return "Customisable panel with JScript and VBScript scripting support.";
+	return "Customisable panel with JScript scripting support.";
 }
 
 GUID wsh_panel_window_dui::g_get_guid()

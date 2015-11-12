@@ -1,6 +1,5 @@
 //{{NO_DEPENDENCIES}}
 // Microsoft Visual C++ generated include file.
-// Used by F:\Develop\foobar2000-Dev.2011-03-11\foobar2000\foo_uie_wsh_panel_mod\foo_uie_wsh_panel_mod\res\resource.rc
 //
 #define IDD_DIALOG_CONFIG               101
 #define IDR_SCRIPT                      102

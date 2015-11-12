@@ -458,9 +458,6 @@ public:
 	STDMETHODIMP CreateMainMenuManager(IMainMenuManager ** pp);
 	STDMETHODIMP IsMetadbInMediaLibrary(IFbMetadbHandle * handle, VARIANT_BOOL * p);
 	STDMETHODIMP IsLibraryEnabled(VARIANT_BOOL * p);
-	STDMETHODIMP IsAutoPlaylist(UINT idx, VARIANT_BOOL * p);
-	STDMETHODIMP CreateAutoPlaylist(UINT idx, BSTR name, BSTR query, BSTR sort, UINT flags, UINT * p);
-	STDMETHODIMP ShowAutoPlaylistUI(UINT idx, VARIANT_BOOL * p);
 	STDMETHODIMP ShowLibrarySearchUI(BSTR query);
 	STDMETHODIMP GetLibraryItems(IFbMetadbHandleList ** outItems);
 };

@@ -13,6 +13,7 @@
 __interface IFbPlaylistManager : IDispatch
 {
 	// Methods
+	STDMETHOD(ShowAutoPlaylistUI)(UINT idx, [out,retval] VARIANT_BOOL * p);
 	STDMETHOD(AddLocations)(UINT playlistIndex, VARIANT locations, [defaultvalue(0)] VARIANT_BOOL select);
 	STDMETHOD(GetQueryItems)(IFbMetadbHandleList * items, BSTR query, [out,retval] IFbMetadbHandleList ** pp);
 	STDMETHOD(InsertPlaylistItems)(UINT playlistIndex, UINT base, IFbMetadbHandleList * handles, [defaultvalue(0)] VARIANT_BOOL select, [out,retval] UINT * outSize);
@@ -29,7 +30,6 @@ __interface IFbPlaylistManager : IDispatch
 	STDMETHOD(UndoBackup)(UINT playlistIndex);
 	STDMETHOD(UndoRestore)(UINT playlistIndex);
 	STDMETHOD(GetPlaylistFocusItemIndex)(UINT playlistIndex, [out,retval] INT * outPlaylistItemIndex);
-	STDMETHOD(GetPlaylistFocusItemHandle)(VARIANT_BOOL force, [out,retval] IFbMetadbHandle ** outItem);
 	STDMETHOD(SetPlaylistFocusItem)(UINT playlistIndex, UINT itemIndex);
 	STDMETHOD(SetPlaylistFocusItemByHandle)(UINT playlistIndex, IFbMetadbHandle * item);
 	STDMETHOD(GetPlaylistName)(UINT playlistIndex, [out,retval] BSTR * outName);
