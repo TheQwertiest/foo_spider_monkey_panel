@@ -219,6 +219,37 @@ public:
 	FB2K_MAKE_SERVICE_INTERFACE_ENTRYPOINT(button);
 };
 
+/** \brief Revised button interface (version 2) */
+class NOVTABLE button_v2 : public button
+{
+public:
+	enum handle_type_t {
+		handle_type_bitmap = 0, /**HBITMAP */
+		handle_type_icon = 1, /**HICON */
+	};
+	/**
+	* \brief Get a handle to a bitmap of the menu item.
+	*
+	* Caller presumes ownership of bitmap.
+	*
+	* \param [in]	cr_btntext	Colour to use for text/foreground
+	* \param [in]	cx_hint		Displayed bitmap width
+	* \param [in]	cy_hint		Displayed bitmap width
+	*
+	* \note Use alpha channel for transparency.
+	*
+	* \return HBITMAP of menu item
+	*/
+	virtual HANDLE get_item_bitmap(unsigned command_state_index, COLORREF cr_btntext, unsigned cx_hint, unsigned cy_hint, unsigned & handle_type) const = 0;
+
+	virtual HBITMAP get_item_bitmap(unsigned command_state_index, COLORREF cr_btntext, t_mask & p_mask_type, COLORREF & cr_mask, HBITMAP & bm_mask) const
+	{
+		return NULL;//(HANDLE)get_item_bitmap(command_state_index, cr_btntext, GetSystemMetrics(SM_CXSMICON), GetSystemMetrics(SM_CYSMICON)
+	}
+
+	FB2K_MAKE_SERVICE_INTERFACE(button_v2, button);
+};
+
 /** \brief Sub-class of ui_extension::button, for buttons based upon a context menu item */
 class NOVTABLE menu_button : public button
 {
