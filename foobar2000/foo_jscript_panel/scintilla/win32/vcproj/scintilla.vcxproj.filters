@@ -18,9 +18,6 @@
     <ClCompile Include="..\..\lexers\LexCPP.cxx">
       <Filter>lexers</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\lexers\LexVB.cxx">
-      <Filter>lexers</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\lexlib\Accessor.cxx">
       <Filter>lexlib</Filter>
     </ClCompile>

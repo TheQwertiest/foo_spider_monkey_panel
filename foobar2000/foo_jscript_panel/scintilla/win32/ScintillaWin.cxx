@@ -103,8 +103,8 @@ typedef BOOL (WINAPI *TrackMouseEventSig)(LPTRACKMOUSEEVENT);
 
 // GCC has trouble with the standard COM ABI so do it the old C way with explicit vtables.
 
-const TCHAR scintillaClassName[] = TEXT("WshScintilla");
-const TCHAR callClassName[] = TEXT("WshCallTip");
+const TCHAR scintillaClassName[] = TEXT("JScriptPanelScintilla");
+const TCHAR callClassName[] = TEXT("JScriptCallTip");
 
 #ifdef SCI_NAMESPACE
 using namespace Scintilla;

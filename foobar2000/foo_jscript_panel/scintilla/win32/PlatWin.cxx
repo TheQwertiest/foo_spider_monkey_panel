@@ -2134,7 +2134,7 @@ ListItemData *LineToItem::Append(const char *text, int imageIndex) {
 	return item;
 }
 
-const TCHAR ListBoxX_ClassName[] = TEXT("WshListBoxX");
+const TCHAR ListBoxX_ClassName[] = TEXT("JSListBoxX");
 
 ListBox::ListBox() {
 }
