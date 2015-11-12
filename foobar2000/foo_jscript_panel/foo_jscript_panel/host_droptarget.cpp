@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "host.h"
 #include "host_droptarget.h"
-#include "wsh_panel_window.h"
+#include "js_panel_window.h"
 
 
 class process_dropped_items_to_playlist : public process_locations_notify 
@@ -39,7 +39,7 @@ private:
 };
 
 
-HostDropTarget::HostDropTarget(wsh_panel_window * host) 
+HostDropTarget::HostDropTarget(js_panel_window * host) 
 	: IDropTargetImpl(host->GetHWND())
 	, m_host(host)
 	, m_effect(DROPEFFECT_NONE)

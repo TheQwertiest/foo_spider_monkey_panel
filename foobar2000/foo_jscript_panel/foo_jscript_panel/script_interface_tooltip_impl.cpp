@@ -9,7 +9,7 @@
 FbTooltip::FbTooltip(HWND p_wndparent, const panel_tooltip_param_ptr & p_param_ptr) 
 	: m_wndparent(p_wndparent)
 	, m_panel_tooltip_param_ptr(p_param_ptr)
-	, m_tip_buffer(SysAllocString(PFC_WIDESTRING(WSPM_NAME)))
+	, m_tip_buffer(SysAllocString(PFC_WIDESTRING(JSP_NAME)))
 {
 	m_wndtooltip = CreateWindowEx(WS_EX_TOPMOST, TOOLTIPS_CLASS, NULL,
 		WS_POPUP | TTS_ALWAYSTIP | TTS_NOPREFIX,

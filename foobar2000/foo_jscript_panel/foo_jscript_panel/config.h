@@ -63,7 +63,7 @@ private:
 	t_map m_map;
 };
 
-class wsh_panel_vars
+class js_panel_vars
 {
 private:
 	GUID m_config_guid;
@@ -78,7 +78,7 @@ private:
 	bool m_delay_load;
 
 public:
-	wsh_panel_vars()
+	js_panel_vars()
 	{
 		reset_config();
 	}

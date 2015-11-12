@@ -4,7 +4,7 @@
 #include "resource.h"
 
 // Forward declarations
-class wsh_panel_window;
+class js_panel_window;
 class CDialogFind;
 class CDialogReplace;
 
@@ -17,13 +17,13 @@ private:
 	CScriptEditorCtrl m_editorctrl;
 	CDialogFind * m_dlgfind;
 	CDialogReplace * m_dlgreplace;
-	wsh_panel_window * m_parent;
+	js_panel_window * m_parent;
 	pfc::string8 m_caption;
 	unsigned int m_lastFlags;
 	pfc::string8 m_lastSearchText;
 
 public:
-	CDialogConf(wsh_panel_window * p_parent) 
+	CDialogConf(js_panel_window * p_parent) 
 		: m_parent(p_parent)
 		, m_dlgfind(NULL)
 		, m_dlgreplace(NULL)

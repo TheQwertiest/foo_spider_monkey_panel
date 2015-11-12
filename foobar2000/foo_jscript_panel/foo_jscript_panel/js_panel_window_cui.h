@@ -1,6 +1,6 @@
 #pragma once
 
-class wsh_panel_window_cui : public wsh_panel_window, public uie::window, 
+class js_panel_window_cui : public js_panel_window, public uie::window, 
 	public columns_ui::fonts::common_callback, public columns_ui::colours::common_callback
 {
 protected:
@@ -38,6 +38,6 @@ private:
 	virtual void notify_size_limit_changed_(LPARAM lp);
 
 private:
-	typedef wsh_panel_window t_parent;
+	typedef js_panel_window t_parent;
 	uie::window_host_ptr m_host;
 };

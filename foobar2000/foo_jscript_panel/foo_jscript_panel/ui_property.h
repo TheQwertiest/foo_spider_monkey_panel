@@ -6,7 +6,7 @@
 
 
 // Forward declarations
-class wsh_panel_window;
+class js_panel_window;
 
 
 class CDialogProperty
@@ -14,12 +14,12 @@ class CDialogProperty
 	, public CDialogResize<CDialogProperty>
 {
 private:
-	wsh_panel_window * m_parent;
+	js_panel_window * m_parent;
 	CPropertyListCtrl m_properties;
 	prop_kv_config::t_map m_dup_prop_map;
 
 public:
-	CDialogProperty(wsh_panel_window * p_parent) : m_parent(p_parent)
+	CDialogProperty(js_panel_window * p_parent) : m_parent(p_parent)
 	{
 	}
 

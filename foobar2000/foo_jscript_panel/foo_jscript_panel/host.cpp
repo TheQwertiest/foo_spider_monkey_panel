@@ -642,7 +642,7 @@ ScriptHost::ScriptHost(HostComm * host)
 	, m_window(new com_object_impl_t<FbWindow, false>(host))
 	, m_gdi(com_object_singleton_t<GdiUtils>::instance())
 	, m_fb2k(com_object_singleton_t<FbUtils>::instance())
-	, m_utils(com_object_singleton_t<WSHUtils>::instance())
+	, m_utils(com_object_singleton_t<JSUtils>::instance())
 	, m_playlistman(com_object_singleton_t<FbPlaylistManager>::instance())
 	, m_dwStartTime(0)
 	, m_dwRef(1)
@@ -944,14 +944,14 @@ HRESULT ScriptHost::InvokeCallback(int callbackId, VARIANTARG * argv /*= NULL*/,
 	catch (std::exception & e)
 	{
 		pfc::print_guid guid(m_host->get_config_guid());
-		console::printf(WSPM_NAME " (%s): Unhandled C++ Exception: \"%s\", will crash now...", 
+		console::printf(JSP_NAME " (%s): Unhandled C++ Exception: \"%s\", will crash now...", 
 			m_host->ScriptInfo().build_info_string().get_ptr(), e.what());
 		PRINT_DISPATCH_TRACK_MESSAGE_AND_BREAK();
 	}
 	catch (_com_error & e)
 	{
 		pfc::print_guid guid(m_host->get_config_guid());
-		console::printf(WSPM_NAME " (%s): Unhandled COM Error: \"%s\", will crash now...", 
+		console::printf(JSP_NAME " (%s): Unhandled COM Error: \"%s\", will crash now...", 
 			m_host->ScriptInfo().build_info_string().get_ptr(), 
 			pfc::stringcvt::string_utf8_from_wide(e.ErrorMessage()).get_ptr());
 		PRINT_DISPATCH_TRACK_MESSAGE_AND_BREAK();
@@ -959,7 +959,7 @@ HRESULT ScriptHost::InvokeCallback(int callbackId, VARIANTARG * argv /*= NULL*/,
 	catch (...)
 	{
 		pfc::print_guid guid(m_host->get_config_guid());
-		console::printf(WSPM_NAME " (%s): Unhandled Unknown Exception, will crash now...", 
+		console::printf(JSP_NAME " (%s): Unhandled Unknown Exception, will crash now...", 
 			m_host->ScriptInfo().build_info_string().get_ptr());
 		PRINT_DISPATCH_TRACK_MESSAGE_AND_BREAK();
 	}
@@ -1019,7 +1019,7 @@ void ScriptHost::ReportError(IActiveScriptError* err)
 
 	using namespace pfc::stringcvt;
 	pfc::string_formatter formatter;
-	formatter << WSPM_NAME << " (" << m_host->ScriptInfo().build_info_string().get_ptr() << "): ";
+	formatter << JSP_NAME << " (" << m_host->ScriptInfo().build_info_string().get_ptr() << "): ";
 
 	if (excep.bstrSource && excep.bstrDescription) 
 	{
@@ -1050,7 +1050,7 @@ void ScriptHost::ReportError(IActiveScriptError* err)
 	if (excep.bstrHelpFile)    SysFreeString(excep.bstrHelpFile);
 
 	console::error(formatter);
-	popup_msg::g_show(formatter, WSPM_NAME, popup_message::icon_error);
+	popup_msg::g_show(formatter, JSP_NAME, popup_message::icon_error);
 	MessageBeep(MB_ICONASTERISK);
 	SendMessage(m_host->GetHWND(), UWM_SCRIPT_ERROR, 0, 0);
 }

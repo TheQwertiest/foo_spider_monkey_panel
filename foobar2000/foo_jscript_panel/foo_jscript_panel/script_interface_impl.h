@@ -497,11 +497,11 @@ public:
 };
 
 // NOTE: Do not use com_object_impl_t<> to initialize, use com_object_singleton_t<> instead.
-class WSHUtils : public IDispatchImpl3<IWSHUtils>
+class JSUtils : public IDispatchImpl3<IJSUtils>
 {
 protected:
-	WSHUtils() {}
-	virtual ~WSHUtils() {}
+	JSUtils() {}
+	virtual ~JSUtils() {}
 
 public:
 	STDMETHODIMP CheckComponent(BSTR name, VARIANT_BOOL is_dll, VARIANT_BOOL * p);

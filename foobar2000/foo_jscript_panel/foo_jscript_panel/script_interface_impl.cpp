@@ -2727,7 +2727,7 @@ STDMETHODIMP FbProfiler::Print()
 {
 	TRACK_FUNCTION();
 
-	console::formatter() << WSPM_NAME ": FbProfiler (" << m_name << "): " << (int)(m_timer.query() * 1000) << " ms";
+	console::formatter() << JSP_NAME ": FbProfiler (" << m_name << "): " << (int)(m_timer.query() * 1000) << " ms";
 	return S_OK;
 }
 
@@ -2872,7 +2872,7 @@ GdiRawBitmap::GdiRawBitmap(Gdiplus::Bitmap * p_bmp)
 	m_hbmpold = SelectBitmap(m_hdc, m_hbmp);
 }
 
-STDMETHODIMP WSHUtils::CheckComponent(BSTR name, VARIANT_BOOL is_dll, VARIANT_BOOL * p)
+STDMETHODIMP JSUtils::CheckComponent(BSTR name, VARIANT_BOOL is_dll, VARIANT_BOOL * p)
 {
 	TRACK_FUNCTION();
 
@@ -2903,7 +2903,7 @@ STDMETHODIMP WSHUtils::CheckComponent(BSTR name, VARIANT_BOOL is_dll, VARIANT_BO
 	return S_OK;
 }
 
-STDMETHODIMP WSHUtils::CheckFont(BSTR name, VARIANT_BOOL * p)
+STDMETHODIMP JSUtils::CheckFont(BSTR name, VARIANT_BOOL * p)
 {
 	TRACK_FUNCTION();
 
@@ -2941,7 +2941,7 @@ STDMETHODIMP WSHUtils::CheckFont(BSTR name, VARIANT_BOOL * p)
 	return S_OK;
 }
 
-STDMETHODIMP WSHUtils::GetAlbumArtV2(IFbMetadbHandle * handle, int art_id, VARIANT_BOOL need_stub, IGdiBitmap **pp)
+STDMETHODIMP JSUtils::GetAlbumArtV2(IFbMetadbHandle * handle, int art_id, VARIANT_BOOL need_stub, IGdiBitmap **pp)
 {
 	TRACK_FUNCTION();
 
@@ -2953,7 +2953,7 @@ STDMETHODIMP WSHUtils::GetAlbumArtV2(IFbMetadbHandle * handle, int art_id, VARIA
 	return helpers::get_album_art_v2(ptr, pp, art_id, need_stub);
 }
 
-STDMETHODIMP WSHUtils::GetAlbumArtEmbedded(BSTR rawpath, int art_id, IGdiBitmap ** pp)
+STDMETHODIMP JSUtils::GetAlbumArtEmbedded(BSTR rawpath, int art_id, IGdiBitmap ** pp)
 {
 	TRACK_FUNCTION();
 
@@ -2963,7 +2963,7 @@ STDMETHODIMP WSHUtils::GetAlbumArtEmbedded(BSTR rawpath, int art_id, IGdiBitmap 
 	return helpers::get_album_art_embedded(rawpath, pp, art_id);
 }
 
-STDMETHODIMP WSHUtils::GetAlbumArtAsync(UINT window_id, IFbMetadbHandle * handle, int art_id, VARIANT_BOOL need_stub, VARIANT_BOOL only_embed, VARIANT_BOOL no_load, UINT * p)
+STDMETHODIMP JSUtils::GetAlbumArtAsync(UINT window_id, IFbMetadbHandle * handle, int art_id, VARIANT_BOOL need_stub, VARIANT_BOOL only_embed, VARIANT_BOOL no_load, UINT * p)
 {
 	TRACK_FUNCTION();
 
@@ -3000,7 +3000,7 @@ STDMETHODIMP WSHUtils::GetAlbumArtAsync(UINT window_id, IFbMetadbHandle * handle
 	return S_OK;
 }
 
-STDMETHODIMP WSHUtils::ReadINI(BSTR filename, BSTR section, BSTR key, VARIANT defaultval, BSTR * pp)
+STDMETHODIMP JSUtils::ReadINI(BSTR filename, BSTR section, BSTR key, VARIANT defaultval, BSTR * pp)
 {
 	TRACK_FUNCTION();
 
@@ -3027,7 +3027,7 @@ STDMETHODIMP WSHUtils::ReadINI(BSTR filename, BSTR section, BSTR key, VARIANT de
 	return S_OK;
 }
 
-STDMETHODIMP WSHUtils::WriteINI(BSTR filename, BSTR section, BSTR key, VARIANT val, VARIANT_BOOL * p)
+STDMETHODIMP JSUtils::WriteINI(BSTR filename, BSTR section, BSTR key, VARIANT val, VARIANT_BOOL * p)
 {
 	TRACK_FUNCTION();
 
@@ -3044,7 +3044,7 @@ STDMETHODIMP WSHUtils::WriteINI(BSTR filename, BSTR section, BSTR key, VARIANT v
 	return S_OK;
 }
 
-STDMETHODIMP WSHUtils::IsKeyPressed(UINT vkey, VARIANT_BOOL * p)
+STDMETHODIMP JSUtils::IsKeyPressed(UINT vkey, VARIANT_BOOL * p)
 {
 	TRACK_FUNCTION();
 
@@ -3054,7 +3054,7 @@ STDMETHODIMP WSHUtils::IsKeyPressed(UINT vkey, VARIANT_BOOL * p)
 	return S_OK;
 }
 
-STDMETHODIMP WSHUtils::PathWildcardMatch(BSTR pattern, BSTR str, VARIANT_BOOL * p)
+STDMETHODIMP JSUtils::PathWildcardMatch(BSTR pattern, BSTR str, VARIANT_BOOL * p)
 {
 	TRACK_FUNCTION();
 
@@ -3065,7 +3065,7 @@ STDMETHODIMP WSHUtils::PathWildcardMatch(BSTR pattern, BSTR str, VARIANT_BOOL * 
 	return S_OK;
 }
 
-STDMETHODIMP WSHUtils::ReadTextFile(BSTR filename, UINT codepage, BSTR * pp)
+STDMETHODIMP JSUtils::ReadTextFile(BSTR filename, UINT codepage, BSTR * pp)
 {
 	TRACK_FUNCTION();
 
@@ -3084,7 +3084,7 @@ STDMETHODIMP WSHUtils::ReadTextFile(BSTR filename, UINT codepage, BSTR * pp)
 	return S_OK;
 }
 
-STDMETHODIMP WSHUtils::GetSysColor(UINT index, int * p)
+STDMETHODIMP JSUtils::GetSysColor(UINT index, int * p)
 {
 	TRACK_FUNCTION();
 
@@ -3106,7 +3106,7 @@ STDMETHODIMP WSHUtils::GetSysColor(UINT index, int * p)
 	return S_OK;
 }
 
-STDMETHODIMP WSHUtils::GetSystemMetrics(UINT index, INT * p)
+STDMETHODIMP JSUtils::GetSystemMetrics(UINT index, INT * p)
 {
 	TRACK_FUNCTION();
 
@@ -3116,7 +3116,7 @@ STDMETHODIMP WSHUtils::GetSystemMetrics(UINT index, INT * p)
 	return S_OK;
 }
 
-STDMETHODIMP WSHUtils::Glob(BSTR pattern, UINT exc_mask, UINT inc_mask, VARIANT * p)
+STDMETHODIMP JSUtils::Glob(BSTR pattern, UINT exc_mask, UINT inc_mask, VARIANT * p)
 {
 	TRACK_FUNCTION();
 
@@ -3172,7 +3172,7 @@ STDMETHODIMP WSHUtils::Glob(BSTR pattern, UINT exc_mask, UINT inc_mask, VARIANT 
 	return S_OK;
 }
 
-STDMETHODIMP WSHUtils::FileTest(BSTR path, BSTR mode, VARIANT * p)
+STDMETHODIMP JSUtils::FileTest(BSTR path, BSTR mode, VARIANT * p)
 {
 	TRACK_FUNCTION();
 
@@ -3263,7 +3263,7 @@ STDMETHODIMP WSHUtils::FileTest(BSTR path, BSTR mode, VARIANT * p)
 	return S_OK;
 }
 
-STDMETHODIMP WSHUtils::FormatDuration(double p, BSTR * pp)
+STDMETHODIMP JSUtils::FormatDuration(double p, BSTR * pp)
 {
 	TRACK_FUNCTION();
 
@@ -3276,7 +3276,7 @@ STDMETHODIMP WSHUtils::FormatDuration(double p, BSTR * pp)
 	return S_OK;
 }
 
-STDMETHODIMP WSHUtils::FormatFileSize(double p, BSTR * pp)
+STDMETHODIMP JSUtils::FormatFileSize(double p, BSTR * pp)
 {
 	TRACK_FUNCTION();
 

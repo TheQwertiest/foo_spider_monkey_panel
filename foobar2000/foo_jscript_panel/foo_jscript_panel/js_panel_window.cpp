@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "wsh_panel_window.h"
+#include "js_panel_window.h"
 #include "host.h"
 #include "host_droptarget.h"
 #include "ui_conf.h"
@@ -8,7 +8,7 @@
 #include "popup_msg.h"
 
 
-wsh_panel_window::wsh_panel_window() :
+js_panel_window::js_panel_window() :
 	m_script_host(new ScriptHost(this)), 
 	m_is_mouse_tracked(false),
 	m_is_droptarget_registered(false)
@@ -16,12 +16,12 @@ wsh_panel_window::wsh_panel_window() :
 
 }
 
-wsh_panel_window::~wsh_panel_window()
+js_panel_window::~js_panel_window()
 {
 	m_script_host->Release();
 }
 
-void wsh_panel_window::update_script(const char * name /*= NULL*/, const char * code /*= NULL*/)
+void js_panel_window::update_script(const char * name /*= NULL*/, const char * code /*= NULL*/)
 {
 	if (name && code)
 	{
@@ -33,7 +33,7 @@ void wsh_panel_window::update_script(const char * name /*= NULL*/, const char * 
 	script_load();
 }
 
-bool wsh_panel_window::script_load()
+bool js_panel_window::script_load()
 {
 	TRACK_FUNCTION();
 
@@ -87,7 +87,7 @@ bool wsh_panel_window::script_load()
 		SendMessage(m_hwnd, UWM_SIZE, 0, 0);
 
 		// Show init message
-		console::formatter() << WSPM_NAME " (" 
+		console::formatter() << JSP_NAME " (" 
 			<< ScriptInfo().build_info_string()
 			<< "): initialized in "
 			<< (int)(timer.query() * 1000)
@@ -97,7 +97,7 @@ bool wsh_panel_window::script_load()
 	return result;
 }
 
-void wsh_panel_window::script_unload()
+void js_panel_window::script_unload()
 {
 	m_script_host->Finalize();
 
@@ -111,7 +111,7 @@ void wsh_panel_window::script_unload()
 	m_selection_holder.release();
 }
 
-void wsh_panel_window::create_context()
+void js_panel_window::create_context()
 {
 	if (m_gr_bmp || m_gr_bmp_bk)
 		delete_context();
@@ -124,7 +124,7 @@ void wsh_panel_window::create_context()
 	}
 }
 
-void wsh_panel_window::delete_context()
+void js_panel_window::delete_context()
 {
 	if (m_gr_bmp)
 	{
@@ -139,11 +139,11 @@ void wsh_panel_window::delete_context()
 	}
 }
 
-ui_helpers::container_window::class_data & wsh_panel_window::get_class_data() const
+ui_helpers::container_window::class_data & js_panel_window::get_class_data() const
 {
 	static ui_helpers::container_window::class_data my_class_data =
 	{
-		_T(WSPM_WINDOW_CLASS_NAME),
+		_T(JSP_WINDOW_CLASS_NAME),
 		_T(""), 
 		0, 
 		false, 
@@ -158,7 +158,7 @@ ui_helpers::container_window::class_data & wsh_panel_window::get_class_data() co
 	return my_class_data;
 }
 
-bool wsh_panel_window::show_configure_popup(HWND parent)
+bool js_panel_window::show_configure_popup(HWND parent)
 {
 	modal_dialog_scope scope;
 	if (!scope.can_create()) return false;
@@ -168,7 +168,7 @@ bool wsh_panel_window::show_configure_popup(HWND parent)
 	return (dlg.DoModal(parent) == IDOK);
 }
 
-bool wsh_panel_window::show_property_popup(HWND parent)
+bool js_panel_window::show_property_popup(HWND parent)
 {
 	modal_dialog_scope scope;
 	if (!scope.can_create()) return false;
@@ -178,7 +178,7 @@ bool wsh_panel_window::show_property_popup(HWND parent)
 	return (dlg.DoModal(parent) == IDOK);
 }
 
-LRESULT wsh_panel_window::on_message(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
+LRESULT js_panel_window::on_message(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 {
 	//TRACK_CALL_TEXT_FORMAT("uie_win::on_message(hwnd=0x%x,msg=%u,wp=%d,lp=%d)", m_hwnd, msg, wp, lp);
 
@@ -416,7 +416,7 @@ LRESULT wsh_panel_window::on_message(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 			<< ScriptInfo().build_info_string()
 			<< "): Refuse to load script due to critical error last run,"
 			<< " please check your script and apply it again.",
-			WSPM_NAME, 
+			JSP_NAME, 
 			popup_message::icon_error);
 		return 0;
 
@@ -572,7 +572,7 @@ LRESULT wsh_panel_window::on_message(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 	return uDefWindowProc(hwnd, msg, wp, lp);
 }
 
-void wsh_panel_window::on_size(int w, int h)
+void js_panel_window::on_size(int w, int h)
 {
 	TRACK_FUNCTION();
 
@@ -585,7 +585,7 @@ void wsh_panel_window::on_size(int w, int h)
 	script_invoke_v(CallbackIds::on_size);
 }
 
-void wsh_panel_window::on_paint(HDC dc, LPRECT lpUpdateRect)
+void js_panel_window::on_paint(HDC dc, LPRECT lpUpdateRect)
 {
 	TRACK_FUNCTION();
 
@@ -628,7 +628,7 @@ void wsh_panel_window::on_paint(HDC dc, LPRECT lpUpdateRect)
 	DeleteDC(memdc);
 }
 
-void wsh_panel_window::on_paint_user(HDC memdc, LPRECT lpUpdateRect)
+void js_panel_window::on_paint_user(HDC memdc, LPRECT lpUpdateRect)
 {
 	if (m_script_host->Ready())
 	{
@@ -655,7 +655,7 @@ void wsh_panel_window::on_paint_user(HDC memdc, LPRECT lpUpdateRect)
 	}
 }
 
-void wsh_panel_window::on_paint_error(HDC memdc)
+void js_panel_window::on_paint_error(HDC memdc)
 {
 	const TCHAR errmsg[] = _T("Aw, crashed :(");
 	RECT rc = {0, 0, m_width, m_height};
@@ -684,7 +684,7 @@ void wsh_panel_window::on_paint_error(HDC memdc)
 	SelectObject(memdc, oldfont);
 }
 
-void wsh_panel_window::on_context_menu(int x, int y)
+void js_panel_window::on_context_menu(int x, int y)
 {
 	const int base_id = 0;
 	HMENU menu = CreatePopupMenu();
@@ -696,7 +696,7 @@ void wsh_panel_window::on_context_menu(int x, int y)
 	DestroyMenu(menu);
 }
 
-void wsh_panel_window::on_mouse_wheel(WPARAM wp)
+void js_panel_window::on_mouse_wheel(WPARAM wp)
 {
 	TRACK_FUNCTION();
 
@@ -707,7 +707,7 @@ void wsh_panel_window::on_mouse_wheel(WPARAM wp)
 	script_invoke_v(CallbackIds::on_mouse_wheel, args, _countof(args));
 }
 
-void wsh_panel_window::on_mouse_leave()
+void js_panel_window::on_mouse_leave()
 {
 	TRACK_FUNCTION();
 
@@ -718,7 +718,7 @@ void wsh_panel_window::on_mouse_leave()
 	SetCursor(LoadCursor(NULL, MAKEINTRESOURCE(IDC_ARROW)));
 }
 
-void wsh_panel_window::on_mouse_move(WPARAM wp, LPARAM lp)
+void js_panel_window::on_mouse_move(WPARAM wp, LPARAM lp)
 {
 	TRACK_FUNCTION();
 
@@ -747,7 +747,7 @@ void wsh_panel_window::on_mouse_move(WPARAM wp, LPARAM lp)
 	script_invoke_v(CallbackIds::on_mouse_move, args, _countof(args));
 }
 
-void wsh_panel_window::on_mouse_button_dblclk(UINT msg, WPARAM wp, LPARAM lp)
+void js_panel_window::on_mouse_button_dblclk(UINT msg, WPARAM wp, LPARAM lp)
 {
 	TRACK_FUNCTION();
 
@@ -776,7 +776,7 @@ void wsh_panel_window::on_mouse_button_dblclk(UINT msg, WPARAM wp, LPARAM lp)
 	}
 }
 
-bool wsh_panel_window::on_mouse_button_up(UINT msg, WPARAM wp, LPARAM lp)
+bool js_panel_window::on_mouse_button_up(UINT msg, WPARAM wp, LPARAM lp)
 {
 	TRACK_FUNCTION();
 
@@ -823,7 +823,7 @@ bool wsh_panel_window::on_mouse_button_up(UINT msg, WPARAM wp, LPARAM lp)
 	return ret;
 }
 
-void wsh_panel_window::on_mouse_button_down(UINT msg, WPARAM wp, LPARAM lp)
+void js_panel_window::on_mouse_button_down(UINT msg, WPARAM wp, LPARAM lp)
 {
 	TRACK_FUNCTION();
 
@@ -857,14 +857,14 @@ void wsh_panel_window::on_mouse_button_down(UINT msg, WPARAM wp, LPARAM lp)
 	}
 }
 
-void wsh_panel_window::on_refresh_background_done()
+void js_panel_window::on_refresh_background_done()
 {
 	TRACK_FUNCTION();
 
 	script_invoke_v(CallbackIds::on_refresh_background_done);
 }
 
-void wsh_panel_window::build_context_menu(HMENU menu, int x, int y, int id_base)
+void js_panel_window::build_context_menu(HMENU menu, int x, int y, int id_base)
 {
 	::AppendMenu(menu, MF_STRING, id_base + 1, _T("&Reload"));
 	::AppendMenu(menu, MF_SEPARATOR, 0, 0);
@@ -872,7 +872,7 @@ void wsh_panel_window::build_context_menu(HMENU menu, int x, int y, int id_base)
 	::AppendMenu(menu, MF_STRING, id_base + 3, _T("&Configure..."));
 }
 
-void wsh_panel_window::execute_context_menu_command(int id, int id_base)
+void js_panel_window::execute_context_menu_command(int id, int id_base)
 {
 	switch (id - id_base)
 	{
@@ -888,7 +888,7 @@ void wsh_panel_window::execute_context_menu_command(int id, int id_base)
 	}
 }
 
-void wsh_panel_window::on_item_played(WPARAM wp)
+void js_panel_window::on_item_played(WPARAM wp)
 {
 	TRACK_FUNCTION();
 
@@ -905,7 +905,7 @@ void wsh_panel_window::on_item_played(WPARAM wp)
 		handle->Release();
 }
 
-void wsh_panel_window::on_get_album_art_done(LPARAM lp)
+void js_panel_window::on_get_album_art_done(LPARAM lp)
 {
 	TRACK_FUNCTION();
 
@@ -924,7 +924,7 @@ void wsh_panel_window::on_get_album_art_done(LPARAM lp)
 	script_invoke_v(CallbackIds::on_get_album_art_done, args, _countof(args));
 }
 
-void wsh_panel_window::on_load_image_done(LPARAM lp)
+void js_panel_window::on_load_image_done(LPARAM lp)
 {
 	TRACK_FUNCTION();
 
@@ -941,7 +941,7 @@ void wsh_panel_window::on_load_image_done(LPARAM lp)
 	script_invoke_v(CallbackIds::on_load_image_done, args, _countof(args));
 }
 
-void wsh_panel_window::on_playlist_stop_after_current_changed(WPARAM wp)
+void js_panel_window::on_playlist_stop_after_current_changed(WPARAM wp)
 {
 	TRACK_FUNCTION();
 
@@ -952,7 +952,7 @@ void wsh_panel_window::on_playlist_stop_after_current_changed(WPARAM wp)
 	script_invoke_v(CallbackIds::on_playlist_stop_after_current_changed, args, _countof(args));
 }
 
-void wsh_panel_window::on_cursor_follow_playback_changed(WPARAM wp)
+void js_panel_window::on_cursor_follow_playback_changed(WPARAM wp)
 {
 	TRACK_FUNCTION();
 
@@ -963,7 +963,7 @@ void wsh_panel_window::on_cursor_follow_playback_changed(WPARAM wp)
 	script_invoke_v(CallbackIds::on_cursor_follow_playback_changed, args, _countof(args));
 }
 
-void wsh_panel_window::on_playback_follow_cursor_changed(WPARAM wp)
+void js_panel_window::on_playback_follow_cursor_changed(WPARAM wp)
 {
 	TRACK_FUNCTION();
 
@@ -974,7 +974,7 @@ void wsh_panel_window::on_playback_follow_cursor_changed(WPARAM wp)
 	script_invoke_v(CallbackIds::on_playback_follow_cursor_changed, args, _countof(args));
 }
 
-void wsh_panel_window::on_notify_data(WPARAM wp)
+void js_panel_window::on_notify_data(WPARAM wp)
 {
 	TRACK_FUNCTION();
 
@@ -987,21 +987,21 @@ void wsh_panel_window::on_notify_data(WPARAM wp)
 	script_invoke_v(CallbackIds::on_notify_data, args, _countof(args));
 }
 
-void wsh_panel_window::on_font_changed()
+void js_panel_window::on_font_changed()
 {
 	TRACK_FUNCTION();
 
 	script_invoke_v(CallbackIds::on_font_changed);
 }
 
-void wsh_panel_window::on_colors_changed()
+void js_panel_window::on_colors_changed()
 {
 	TRACK_FUNCTION();
 
 	script_invoke_v(CallbackIds::on_colors_changed);
 }
 
-void wsh_panel_window::on_playback_starting(play_control::t_track_command cmd, bool paused)
+void js_panel_window::on_playback_starting(play_control::t_track_command cmd, bool paused)
 {
 	TRACK_FUNCTION();
 
@@ -1014,7 +1014,7 @@ void wsh_panel_window::on_playback_starting(play_control::t_track_command cmd, b
 	script_invoke_v(CallbackIds::on_playback_starting, args, _countof(args));
 }
 
-void wsh_panel_window::on_playback_new_track(WPARAM wp)
+void js_panel_window::on_playback_new_track(WPARAM wp)
 {
 	TRACK_FUNCTION();
 
@@ -1030,7 +1030,7 @@ void wsh_panel_window::on_playback_new_track(WPARAM wp)
 		handle->Release();
 }
 
-void wsh_panel_window::on_playback_stop(play_control::t_stop_reason reason)
+void js_panel_window::on_playback_stop(play_control::t_stop_reason reason)
 {
 	TRACK_FUNCTION();
 
@@ -1041,7 +1041,7 @@ void wsh_panel_window::on_playback_stop(play_control::t_stop_reason reason)
 	script_invoke_v(CallbackIds::on_playback_stop, args, _countof(args));
 }
 
-void wsh_panel_window::on_playback_seek(WPARAM wp)
+void js_panel_window::on_playback_seek(WPARAM wp)
 {
 	TRACK_FUNCTION();
 
@@ -1054,7 +1054,7 @@ void wsh_panel_window::on_playback_seek(WPARAM wp)
 	script_invoke_v(CallbackIds::on_playback_seek, args, _countof(args));
 }
 
-void wsh_panel_window::on_playback_pause(bool state)
+void js_panel_window::on_playback_pause(bool state)
 {
 	TRACK_FUNCTION();
 
@@ -1065,7 +1065,7 @@ void wsh_panel_window::on_playback_pause(bool state)
 	script_invoke_v(CallbackIds::on_playback_pause, args, _countof(args));
 }
 
-void wsh_panel_window::on_playback_edited(WPARAM wp)
+void js_panel_window::on_playback_edited(WPARAM wp)
 {
 	TRACK_FUNCTION();
 
@@ -1084,21 +1084,21 @@ void wsh_panel_window::on_playback_edited(WPARAM wp)
 	}
 }
 
-void wsh_panel_window::on_playback_dynamic_info()
+void js_panel_window::on_playback_dynamic_info()
 {
 	TRACK_FUNCTION();
 
 	script_invoke_v(CallbackIds::on_playback_dynamic_info);
 }
 
-void wsh_panel_window::on_playback_dynamic_info_track()
+void js_panel_window::on_playback_dynamic_info_track()
 {
 	TRACK_FUNCTION();
 
 	script_invoke_v(CallbackIds::on_playback_dynamic_info_track);
 }
 
-void wsh_panel_window::on_playback_time(WPARAM wp)
+void js_panel_window::on_playback_time(WPARAM wp)
 {
 	TRACK_FUNCTION();
 
@@ -1111,7 +1111,7 @@ void wsh_panel_window::on_playback_time(WPARAM wp)
 	script_invoke_v(CallbackIds::on_playback_time, args, _countof(args));
 }
 
-void wsh_panel_window::on_volume_change(WPARAM wp)
+void js_panel_window::on_volume_change(WPARAM wp)
 {
 	TRACK_FUNCTION();
 
@@ -1124,7 +1124,7 @@ void wsh_panel_window::on_volume_change(WPARAM wp)
 	script_invoke_v(CallbackIds::on_volume_change, args, _countof(args));
 }
 
-void wsh_panel_window::on_item_focus_change(WPARAM wp)
+void js_panel_window::on_item_focus_change(WPARAM wp)
 {
 	TRACK_FUNCTION();
 
@@ -1140,7 +1140,7 @@ void wsh_panel_window::on_item_focus_change(WPARAM wp)
 	script_invoke_v(CallbackIds::on_item_focus_change, args, _countof(args));
 }
 
-void wsh_panel_window::on_playback_order_changed(t_size p_new_index)
+void js_panel_window::on_playback_order_changed(t_size p_new_index)
 {
 	TRACK_FUNCTION();
 
@@ -1151,21 +1151,21 @@ void wsh_panel_window::on_playback_order_changed(t_size p_new_index)
 	script_invoke_v(CallbackIds::on_playback_order_changed, args, _countof(args));
 }
 
-void wsh_panel_window::on_playlist_switch()
+void js_panel_window::on_playlist_switch()
 {
 	TRACK_FUNCTION();
 
 	script_invoke_v(CallbackIds::on_playlist_switch);
 }
 
-void wsh_panel_window::on_playlists_changed()
+void js_panel_window::on_playlists_changed()
 {
 	TRACK_FUNCTION();
 
 	script_invoke_v(CallbackIds::on_playlists_changed);
 }
 
-void wsh_panel_window::on_playlist_items_added(WPARAM wp)
+void js_panel_window::on_playlist_items_added(WPARAM wp)
 {
 	TRACK_FUNCTION();
 
@@ -1175,7 +1175,7 @@ void wsh_panel_window::on_playlist_items_added(WPARAM wp)
 	script_invoke_v(CallbackIds::on_playlist_items_added, args, _countof(args));
 }
 
-void wsh_panel_window::on_playlist_items_reordered(WPARAM wp)
+void js_panel_window::on_playlist_items_reordered(WPARAM wp)
 {
 	TRACK_FUNCTION();
 
@@ -1185,7 +1185,7 @@ void wsh_panel_window::on_playlist_items_reordered(WPARAM wp)
 	script_invoke_v(CallbackIds::on_playlist_items_reordered, args, _countof(args));
 }
 
-void wsh_panel_window::on_playlist_items_removed(WPARAM wp, LPARAM lp)
+void js_panel_window::on_playlist_items_removed(WPARAM wp, LPARAM lp)
 {
 	TRACK_FUNCTION();
 
@@ -1197,14 +1197,14 @@ void wsh_panel_window::on_playlist_items_removed(WPARAM wp, LPARAM lp)
 	script_invoke_v(CallbackIds::on_playlist_items_removed, args, _countof(args));
 }
 
-void wsh_panel_window::on_playlist_items_selection_change()
+void js_panel_window::on_playlist_items_selection_change()
 {
 	TRACK_FUNCTION();
 
 	script_invoke_v(CallbackIds::on_playlist_items_selection_change);
 }
 
-void wsh_panel_window::on_playlist_item_ensure_visible(WPARAM wp, LPARAM lp)
+void js_panel_window::on_playlist_item_ensure_visible(WPARAM wp, LPARAM lp)
 {
 	TRACK_FUNCTION();
 
@@ -1216,7 +1216,7 @@ void wsh_panel_window::on_playlist_item_ensure_visible(WPARAM wp, LPARAM lp)
 	script_invoke_v(CallbackIds::on_playlist_item_ensure_visible, args, _countof(args));
 }
 
-void wsh_panel_window::on_changed_sorted(WPARAM wp)
+void js_panel_window::on_changed_sorted(WPARAM wp)
 {
 	TRACK_FUNCTION();
 
@@ -1236,7 +1236,7 @@ void wsh_panel_window::on_changed_sorted(WPARAM wp)
 		handle->Release();
 }
 
-void wsh_panel_window::on_selection_changed(WPARAM wp)
+void js_panel_window::on_selection_changed(WPARAM wp)
 {
 	TRACK_FUNCTION();
 
@@ -1246,7 +1246,7 @@ void wsh_panel_window::on_selection_changed(WPARAM wp)
 	}
 }
 
-void wsh_panel_window::on_playback_queue_changed(WPARAM wp)
+void js_panel_window::on_playback_queue_changed(WPARAM wp)
 {
 	TRACK_FUNCTION();
 
@@ -1256,21 +1256,21 @@ void wsh_panel_window::on_playback_queue_changed(WPARAM wp)
 	script_invoke_v(CallbackIds::on_playback_queue_changed, args, _countof(args));
 }
 
-void wsh_panel_window::on_library_items_added()
+void js_panel_window::on_library_items_added()
 {
 	TRACK_FUNCTION();
 	
 	script_invoke_v(CallbackIds::on_library_items_added);
 }
 
-void wsh_panel_window::on_library_items_removed()
+void js_panel_window::on_library_items_removed()
 {
 	TRACK_FUNCTION();
 	
 	script_invoke_v(CallbackIds::on_library_items_removed);
 }
 
-void wsh_panel_window::on_library_items_changed()
+void js_panel_window::on_library_items_changed()
 {
 	TRACK_FUNCTION();
 	

@@ -20,7 +20,7 @@ _COM_SMARTPTR_TYPEDEF(IDebugDocumentHelper, IID_IDebugDocumentHelper);
 _COM_SMARTPTR_TYPEDEF(IDebugApplication, IID_IDebugApplication);
 
 
-class HostComm : public wsh_panel_vars
+class HostComm : public js_panel_vars
 {
 public:
 	enum 
@@ -139,7 +139,7 @@ private:
 	IFbWindowPtr            m_window;
 	IGdiUtilsPtr            m_gdi;
 	IFbUtilsPtr             m_fb2k;
-	IWSHUtilsPtr            m_utils;
+	IJSUtilsPtr            m_utils;
 	IFbPlaylistManagerPtr   m_playlistman;
 	pfc::tickcount_t        m_dwStartTime;
 

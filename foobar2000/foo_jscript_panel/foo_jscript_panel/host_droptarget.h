@@ -4,13 +4,13 @@
 #include "script_interface_impl.h"
 
 
-class wsh_panel_window;
+class js_panel_window;
 
 class HostDropTarget : public IDropTargetImpl
 {
 private:
 	DWORD m_effect;
-	wsh_panel_window *m_host;
+	js_panel_window *m_host;
 	DropSourceAction *m_action;
 
 	BEGIN_COM_QI_IMPL()
@@ -22,7 +22,7 @@ protected:
 	virtual void FinalRelease() {}
 
 public:
-	HostDropTarget(wsh_panel_window * host);
+	HostDropTarget(js_panel_window * host);
 	virtual ~HostDropTarget();
 
 public:

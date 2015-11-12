@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "version.h"
 
-#if WSPM_TESTING == 1
+#if JSP_TESTING == 1
 #include <time.h>
 
 /* NOTE: Assume that date is following this format: "Jan 28 2010" */

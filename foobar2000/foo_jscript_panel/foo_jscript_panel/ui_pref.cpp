@@ -8,7 +8,7 @@
 
 namespace 
 {
-	static preferences_page_factory_t<wsh_preferences_page_impl> g_pref;
+	static preferences_page_factory_t<js_preferences_page_impl> g_pref;
 }
 
 

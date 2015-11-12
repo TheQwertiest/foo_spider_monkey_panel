@@ -3,7 +3,7 @@
 #include "resource.h"
 
 
-void wsh_panel_vars::get_default_script_code(pfc::string_base & out)
+void js_panel_vars::get_default_script_code(pfc::string_base & out)
 {
 	out.reset();
 	puResource pures = uLoadResource(core_api::get_my_instance(), uMAKEINTRESOURCE(IDR_SCRIPT), "SCRIPT");
@@ -12,7 +12,7 @@ void wsh_panel_vars::get_default_script_code(pfc::string_base & out)
 		out.set_string(reinterpret_cast<const char *>(pures->GetPointer()), pures->GetSize());
 }
 
-void wsh_panel_vars::reset_config()
+void js_panel_vars::reset_config()
 {
 	m_script_engine_str = "JScript";
 	get_default_script_code(m_script_code);
@@ -25,7 +25,7 @@ void wsh_panel_vars::reset_config()
 	CoCreateGuid(&m_config_guid);
 }
 
-void wsh_panel_vars::load_config(stream_reader * reader, t_size size, abort_callback & abort)
+void js_panel_vars::load_config(stream_reader * reader, t_size size, abort_callback & abort)
 {
 	reset_config();
 
@@ -87,13 +87,13 @@ void wsh_panel_vars::load_config(stream_reader * reader, t_size size, abort_call
 		if (!have_read_config)
 		{
 			// Configuration corruputed or config version dismatch.
-			console::complain(WSPM_NAME, 
+			console::complain(JSP_NAME, 
 				"Error: Configuration needs a newer component or is corrupted");
 		}
 	}
 }
 
-void wsh_panel_vars::save_config(stream_writer * writer, abort_callback & abort) const
+void js_panel_vars::save_config(stream_writer * writer, abort_callback & abort) const
 {
 	unsigned const VERSION_CURRENT = CONFIG_VERSION_CURRENT;
 

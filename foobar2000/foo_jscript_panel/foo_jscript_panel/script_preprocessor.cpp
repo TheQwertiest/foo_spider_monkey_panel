@@ -13,7 +13,7 @@ HRESULT script_preprocessor::process_import(const t_script_info & info, t_script
 
 	pfc::string_formatter pre;
 	pfc::string_formatter pmsg;
-	pre << WSPM_NAME " (" << info.build_info_string() << "): " << "Parsing file ";
+	pre << JSP_NAME " (" << info.build_info_string() << "): " << "Parsing file ";
 
 	for (t_size i = 0; i < m_directive_value_list.get_count(); ++i)
 	{
@@ -53,7 +53,7 @@ HRESULT script_preprocessor::process_import(const t_script_info & info, t_script
 
 	if (!pmsg.is_empty())
 	{
-		popup_msg::g_show(pmsg, WSPM_NAME, popup_message::icon_error);
+		popup_msg::g_show(pmsg, JSP_NAME, popup_message::icon_error);
 	}
 
 	return hr;

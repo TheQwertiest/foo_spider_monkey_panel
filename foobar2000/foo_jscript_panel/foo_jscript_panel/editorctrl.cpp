@@ -1296,7 +1296,7 @@ void CScriptEditorCtrl::ReadAPI()
 		}
 		else
 		{
-			console::formatter() << WSPM_NAME ": Warning: Could not load file " << api_filename;
+			console::formatter() << JSP_NAME ": Warning: Could not load file " << api_filename;
 		}
 
 		api_filename += strlen(api_filename) + 1;

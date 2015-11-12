@@ -117,13 +117,13 @@
     <ClCompile Include="script_interface_dragsource_impl.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="wsh_panel_window.cpp">
+    <ClCompile Include="js_panel_window.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="wsh_panel_window_cui.cpp">
+    <ClCompile Include="js_panel_window_cui.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="wsh_panel_window_dui.cpp">
+    <ClCompile Include="js_panel_window_dui.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="host_timer_dispatcher.cpp">
@@ -260,13 +260,13 @@
     <ClInclude Include="script_interface_dragsource_impl.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="wsh_panel_window_dui.h">
+    <ClInclude Include="js_panel_window_dui.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="wsh_panel_window_cui.h">
+    <ClInclude Include="js_panel_window_cui.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="wsh_panel_window.h">
+    <ClInclude Include="js_panel_window.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="host_timer_dispatcher.h">

@@ -45,7 +45,7 @@ public:
 	void OnEditChange(WORD, WORD, HWND);
 };
 
-class wsh_preferences_page_impl : public preferences_page_v3
+class js_preferences_page_impl : public preferences_page_v3
 {
 public:
 	preferences_page_instance::ptr instantiate(HWND parent, preferences_page_callback::ptr callback)
@@ -57,7 +57,7 @@ public:
 
 	const char * get_name()
 	{
-		return WSPM_NAME;
+		return JSP_NAME;
 	}
 
 	GUID get_guid()
@@ -72,7 +72,7 @@ public:
 
 	bool get_help_url(pfc::string_base & p_out)
 	{
-		p_out = "https://github.com/19379/foo_jscript_panel/wiki/Editor-Properties";
+		p_out = "https://github.com/19379/foo-jscript-panel/wiki/Editor-Properties";
 		return true;
 	}
 };

@@ -370,7 +370,7 @@ __interface IFbUiSelectionHolder: IDisposable
 __interface IFbUtils: IDispatch
 {
 	[vararg] STDMETHOD(trace)([satype(VARIANT)] SAFEARRAY * p);
-	STDMETHOD(ShowPopupMessage)(BSTR msg, [defaultvalue(WSPM_NAME)] BSTR title, [defaultvalue(0),range(0,2)] int iconid);
+	STDMETHOD(ShowPopupMessage)(BSTR msg, [defaultvalue(JSP_NAME)] BSTR title, [defaultvalue(0),range(0,2)] int iconid);
 	STDMETHOD(CreateProfiler)([defaultvalue("")] BSTR name, [out,retval] IFbProfiler ** pp);
 	STDMETHOD(TitleFormat)(BSTR expression, [out,retval] IFbTitleFormat** pp);
 	STDMETHOD(GetNowPlaying)([out,retval] IFbMetadbHandle** pp);
@@ -518,7 +518,7 @@ _COM_SMARTPTR_TYPEDEF(IFbWindow, __uuidof(IFbWindow));
 	library_block,
 	uuid("d53e81cd-0157-4cfe-a618-1F88d48dc0b7")
 ]
-__interface IWSHUtils: IDispatch
+__interface IJSUtils: IDispatch
 {
 	STDMETHOD(CheckComponent)(BSTR name, [defaultvalue(-1)] VARIANT_BOOL is_dll, [out,retval] VARIANT_BOOL * p);
 	STDMETHOD(CheckFont)(BSTR name, [out,retval] VARIANT_BOOL * p);
@@ -537,4 +537,4 @@ __interface IWSHUtils: IDispatch
 	STDMETHOD(FormatDuration)(double p, [out,retval] BSTR * pp);
 	STDMETHOD(FormatFileSize)(double p, [out, retval] BSTR * pp);
 };
-_COM_SMARTPTR_TYPEDEF(IWSHUtils, __uuidof(IWSHUtils));
+_COM_SMARTPTR_TYPEDEF(IJSUtils, __uuidof(IJSUtils));

@@ -1,6 +1,6 @@
 #include "stdafx.h"
-#include "wsh_panel_window.h"
-#include "wsh_panel_window_dui.h"
+#include "js_panel_window.h"
+#include "js_panel_window_dui.h"
 
 
 // Just because I don't want to include the helpers
@@ -34,19 +34,19 @@ private:
 };
 
 // DUI panel instance
-static service_factory_t<my_ui_element_impl<wsh_panel_window_dui> > g_wsh_panel_wndow_dui;
+static service_factory_t<my_ui_element_impl<js_panel_window_dui> > g_js_panel_wndow_dui;
 
-void wsh_panel_window_dui::initialize_window(HWND parent)
+void js_panel_window_dui::initialize_window(HWND parent)
 {
 	t_parent::create(parent);
 }
 
-HWND wsh_panel_window_dui::get_wnd()
+HWND js_panel_window_dui::get_wnd()
 {
 	return t_parent::get_wnd();
 }
 
-void wsh_panel_window_dui::set_configuration(ui_element_config::ptr data)
+void js_panel_window_dui::set_configuration(ui_element_config::ptr data)
 {
 	ui_element_config_parser parser(data);
 	abort_callback_dummy abort;
@@ -60,18 +60,18 @@ void wsh_panel_window_dui::set_configuration(ui_element_config::ptr data)
 	}
 }
 
-ui_element_config::ptr wsh_panel_window_dui::g_get_default_configuration()
+ui_element_config::ptr js_panel_window_dui::g_get_default_configuration()
 {
 	ui_element_config_builder builder;
 	abort_callback_dummy abort;
-	wsh_panel_vars vars;
+	js_panel_vars vars;
 
 	vars.reset_config();
 	vars.save_config(&builder.m_stream, abort);
 	return builder.finish(g_get_guid());
 }
 
-ui_element_config::ptr wsh_panel_window_dui::get_configuration()
+ui_element_config::ptr js_panel_window_dui::get_configuration()
 {
 	ui_element_config_builder builder;
 	abort_callback_dummy abort;
@@ -80,37 +80,37 @@ ui_element_config::ptr wsh_panel_window_dui::get_configuration()
 	return builder.finish(g_get_guid());
 }
 
-void wsh_panel_window_dui::g_get_name(pfc::string_base & out)
+void js_panel_window_dui::g_get_name(pfc::string_base & out)
 {
-	out = WSPM_NAME;
+	out = JSP_NAME;
 }
 
-pfc::string8 wsh_panel_window_dui::g_get_description()
+pfc::string8 js_panel_window_dui::g_get_description()
 {
 	return "Customisable panel with JScript scripting support.";
 }
 
-GUID wsh_panel_window_dui::g_get_guid()
+GUID js_panel_window_dui::g_get_guid()
 {
-	return g_wsh_panel_window_dui_guid;
+	return g_js_panel_window_dui_guid;
 }
 
-GUID wsh_panel_window_dui::get_guid()
+GUID js_panel_window_dui::get_guid()
 {
 	return g_get_guid();
 }
 
-GUID wsh_panel_window_dui::g_get_subclass()
+GUID js_panel_window_dui::g_get_subclass()
 {
 	return ui_element_subclass_utility;
 }
 
-GUID wsh_panel_window_dui::get_subclass()
+GUID js_panel_window_dui::get_subclass()
 {
 	return g_get_subclass();
 }
 
-void wsh_panel_window_dui::notify(const GUID & p_what, t_size p_param1, const void * p_param2, t_size p_param2size)
+void js_panel_window_dui::notify(const GUID & p_what, t_size p_param1, const void * p_param2, t_size p_param2size)
 {
 	if (p_what == ui_element_notify_edit_mode_changed)
 	{
@@ -126,7 +126,7 @@ void wsh_panel_window_dui::notify(const GUID & p_what, t_size p_param1, const vo
 	}
 }
 
-LRESULT wsh_panel_window_dui::on_message(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
+LRESULT js_panel_window_dui::on_message(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 {
 	switch (msg)
 	{	
@@ -146,12 +146,12 @@ LRESULT wsh_panel_window_dui::on_message(HWND hwnd, UINT msg, WPARAM wp, LPARAM 
 	return t_parent::on_message(hwnd, msg, wp, lp);
 }
 
-void wsh_panel_window_dui::notify_size_limit_changed_(LPARAM lp)
+void js_panel_window_dui::notify_size_limit_changed_(LPARAM lp)
 {
 	m_callback->on_min_max_info_change();
 }
 
-DWORD wsh_panel_window_dui::GetColorDUI(unsigned type)
+DWORD js_panel_window_dui::GetColorDUI(unsigned type)
 {
 	const GUID * guids[] = {
 		&ui_color_text,
@@ -168,7 +168,7 @@ DWORD wsh_panel_window_dui::GetColorDUI(unsigned type)
 	return 0;
 }
 
-HFONT wsh_panel_window_dui::GetFontDUI(unsigned type)
+HFONT js_panel_window_dui::GetFontDUI(unsigned type)
 {
 	const GUID * guids[] = {
 		&ui_font_default,

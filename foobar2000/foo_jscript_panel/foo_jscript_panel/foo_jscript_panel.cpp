@@ -13,12 +13,12 @@ ITypeLibPtr g_typelib;
 namespace
 {
 	DECLARE_COMPONENT_VERSION(
-		WSPM_NAME,
-		WSPM_VERSION,
-		"JScript Panel v" WSPM_VERSION " by marc2003\n"
+		JSP_NAME,
+		JSP_VERSION,
+		"JScript Panel v" JSP_VERSION " by marc2003\n"
 		"Based on WSH Panel Mod by T.P. Wang\n\n"
 		"Build: "  __TIME__ ", " __DATE__ "\n"
-		"Columns UI API Version: " UI_EXTENSION_VERSION "\n\n"
+		"Columns UI SDK Version: " UI_EXTENSION_VERSION "\n\n"
 		"Scintilla and SciTE\n"
 		"Copyright 1998-2003 by Neil Hodgson <neilh@scintilla.org>\n\n"
 		"Text Designer Outline Text Library\n"
@@ -29,7 +29,7 @@ namespace
 		"Copyright (c) 2001-2003 Bjarke Viksoe"
 	);
 
-	//VALIDATE_COMPONENT_FILENAME(WSPM_DLL_NAME);
+	//VALIDATE_COMPONENT_FILENAME(JSP_DLL_NAME);
 
 	// Is there anything not correctly loaded?
 	enum t_load_status_error
@@ -43,7 +43,7 @@ namespace
 
 	static int g_load_status = E_OK;
 
-	class wsh_initquit : public initquit
+	class js_initquit : public initquit
 	{
 	public:
 		void on_init()
@@ -67,7 +67,7 @@ namespace
 
 			if (IS_EXPIRED(__DATE__))
 			{
-				err_msg = "This beta version is over two weeks old. Please check here for updates:\n\nhttps://github.com/19379/foo_uie_wsh_panel_mod/releases";
+				err_msg = "This beta version is over two weeks old. Please check here for updates:\n\nhttps://github.com/19379/foo-jscript-panel/releases";
 			}
 			else if (g_load_status != E_OK)
 			{
@@ -87,11 +87,11 @@ namespace
 			}
 
 			if (!err_msg.is_empty())
-				popup_msg::g_show(err_msg, WSPM_NAME, popup_message::icon_error);
+				popup_msg::g_show(err_msg, JSP_NAME, popup_message::icon_error);
 		}
 	};
 
-	static initquit_factory_t<wsh_initquit> g_initquit;
+	static initquit_factory_t<js_initquit> g_initquit;
 	CAppModule _Module;
 
 	extern "C" BOOL WINAPI DllMain(HINSTANCE ins, DWORD reason, LPVOID lp)

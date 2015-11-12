@@ -1,16 +1,16 @@
 #pragma once
 
-class wsh_panel_window_dui : public wsh_panel_window, public ui_element_instance
+class js_panel_window_dui : public js_panel_window, public ui_element_instance
 {
 public:
-	wsh_panel_window_dui(ui_element_config::ptr cfg, ui_element_instance_callback::ptr callback) : m_callback(callback)
+	js_panel_window_dui(ui_element_config::ptr cfg, ui_element_instance_callback::ptr callback) : m_callback(callback)
 	{
 		m_instance_type = KInstanceTypeDUI;
 		m_is_edit_mode = m_callback->is_edit_mode_enabled();
 		set_configuration(cfg);
 	}
 
-	virtual ~wsh_panel_window_dui() { t_parent::destroy(); }
+	virtual ~js_panel_window_dui() { t_parent::destroy(); }
 
 	void initialize_window(HWND parent);
 
@@ -50,7 +50,7 @@ private:
 	virtual void notify_size_limit_changed_(LPARAM lp);
 
 private:
-	typedef wsh_panel_window t_parent;
+	typedef js_panel_window t_parent;
 	ui_element_instance_callback::ptr m_callback;
 	bool m_is_edit_mode;
 };

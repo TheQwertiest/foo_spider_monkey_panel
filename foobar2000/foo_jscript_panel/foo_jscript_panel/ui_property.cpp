@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "wsh_panel_window.h"
+#include "js_panel_window.h"
 #include "ui_name_value_edit.h"
 #include "ui_property.h"
 

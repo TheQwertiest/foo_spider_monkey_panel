@@ -45,7 +45,7 @@ var IDC_HAND = 32649;
 
 var g_is_default_ui = window.InstanceType;
 var g_font = null;
-var g_text = "Create your script.\nClick here to open the editor.";
+var g_text = "JScript Panel.\n\nClick here to open the editor.";
 var ww = 0, wh = 0;
 var g_textcolor = 0, g_textcolor_hl = 0;
 var g_backcolor = 0;

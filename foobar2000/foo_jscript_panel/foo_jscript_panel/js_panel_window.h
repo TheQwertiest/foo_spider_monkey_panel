@@ -10,7 +10,7 @@ class CDialogConf;
 class CDialogProperty;
 
 
-class wsh_panel_window : public HostComm, public ui_helpers::container_window
+class js_panel_window : public HostComm, public ui_helpers::container_window
 {
 private:
 	class delay_script_init_action : public delay_loader_action
@@ -35,8 +35,8 @@ private:
 	bool	         m_is_droptarget_registered;
 
 public:
-	wsh_panel_window();
-	virtual ~wsh_panel_window();
+	js_panel_window();
+	virtual ~js_panel_window();
 	void update_script(const char * name = NULL, const char * code = NULL);
 	inline HRESULT script_invoke_v(int callbackId, VARIANTARG * argv = NULL, UINT argc = 0, VARIANT * ret = NULL)
 	{

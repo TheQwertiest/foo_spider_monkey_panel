@@ -66,7 +66,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;FOO_UIE_WSH_PANEL_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
@@ -95,7 +95,7 @@
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
       <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;FOO_UIE_WSH_PANEL_EXPORTS;_CRT_SECURE_NO_WARNINGS;_CRT_NON_CONFORMING_SWPRINTFS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;_CRT_SECURE_NO_WARNINGS;_CRT_NON_CONFORMING_SWPRINTFS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <BufferSecurityCheck>false</BufferSecurityCheck>
@@ -160,9 +160,9 @@
     <ClCompile Include="editorctrl.cpp" />
     <ClCompile Include="scintilla_prop_sets.cpp" />
     <ClCompile Include="version.cpp" />
-    <ClCompile Include="wsh_panel_window.cpp" />
-    <ClCompile Include="wsh_panel_window_cui.cpp" />
-    <ClCompile Include="wsh_panel_window_dui.cpp" />
+    <ClCompile Include="js_panel_window.cpp" />
+    <ClCompile Include="js_panel_window_cui.cpp" />
+    <ClCompile Include="js_panel_window_dui.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\PropertyList\PropertyItem.h" />
@@ -184,9 +184,9 @@
     <ClInclude Include="host.h" />
     <ClInclude Include="IDropTargetImpl.h" />
     <ClInclude Include="host_droptarget.h" />
-    <ClInclude Include="wsh_panel_window.h" />
-    <ClInclude Include="wsh_panel_window_dui.h" />
-    <ClInclude Include="wsh_panel_window_cui.h" />
+    <ClInclude Include="js_panel_window.h" />
+    <ClInclude Include="js_panel_window_dui.h" />
+    <ClInclude Include="js_panel_window_cui.h" />
     <ClInclude Include="panel_manager.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="script_interface.h" />

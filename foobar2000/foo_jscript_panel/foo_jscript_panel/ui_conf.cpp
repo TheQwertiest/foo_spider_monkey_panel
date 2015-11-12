@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "ui_conf.h"
-#include "wsh_panel_window.h"
+#include "js_panel_window.h"
 #include "ui_goto.h"
 #include "ui_find.h"
 #include "ui_replace.h"
@@ -139,7 +139,7 @@ void CDialogConf::OnResetDefault()
 	pfc::string8 code;
 	HWND combo = GetDlgItem(IDC_SCRIPT_ENGINE);
 
-	wsh_panel_vars::get_default_script_code(code);
+	js_panel_vars::get_default_script_code(code);
 	uComboBox_SelectString(combo, "JScript");
 	m_editorctrl.SetContent(code);
 }
@@ -404,7 +404,7 @@ bool CDialogConf::FindResult(HWND hWnd, HWND hWndEdit, int pos, const char *whic
 	pfc::string8 buff = "Cannot find \"";
 	buff += which;
 	buff += "\"";
-	uMessageBox(hWnd, buff.get_ptr(), WSPM_NAME, MB_ICONINFORMATION | MB_SETFOREGROUND);
+	uMessageBox(hWnd, buff.get_ptr(), JSP_NAME, MB_ICONINFORMATION | MB_SETFOREGROUND);
 	return false;
 }
 

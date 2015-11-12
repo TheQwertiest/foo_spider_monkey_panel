@@ -106,7 +106,7 @@ STDMETHODIMP FbPlaylistManager::AddLocations(UINT playlistIndex, VARIANT locatio
 		NULL,
 		NULL,
 		NULL,
-		new service_impl_t<wsh_process_locations>(playlistIndex, toSelect));
+		new service_impl_t<js_process_locations>(playlistIndex, toSelect));
 
 	return S_OK;
 }

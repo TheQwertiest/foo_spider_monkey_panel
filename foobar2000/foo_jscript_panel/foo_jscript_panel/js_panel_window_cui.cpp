@@ -1,54 +1,54 @@
 #include "stdafx.h"
-#include "wsh_panel_window.h"
-#include "wsh_panel_window_cui.h"
+#include "js_panel_window.h"
+#include "js_panel_window_cui.h"
 #include "popup_msg.h"
 
 
 // CUI panel instance
-static uie::window_factory<wsh_panel_window_cui> g_wsh_panel_wndow_cui;
+static uie::window_factory<js_panel_window_cui> g_js_panel_wndow_cui;
 
 
-const GUID& wsh_panel_window_cui::get_extension_guid() const
+const GUID& js_panel_window_cui::get_extension_guid() const
 {
-	return g_wsh_panel_window_extension_guid;
+	return g_js_panel_window_extension_guid;
 }
 
-void wsh_panel_window_cui::get_name(pfc::string_base& out) const
+void js_panel_window_cui::get_name(pfc::string_base& out) const
 {
-	out = WSPM_NAME;
+	out = JSP_NAME;
 }
 
-void wsh_panel_window_cui::get_category(pfc::string_base& out) const
+void js_panel_window_cui::get_category(pfc::string_base& out) const
 {
 	out = "Panels";
 }
 
-unsigned wsh_panel_window_cui::get_type() const
+unsigned js_panel_window_cui::get_type() const
 {
 	return uie::type_toolbar | uie::type_panel;
 }
 
-void wsh_panel_window_cui::set_config(stream_reader * reader, t_size size, abort_callback & abort)
+void js_panel_window_cui::set_config(stream_reader * reader, t_size size, abort_callback & abort)
 {
 	load_config(reader, size, abort);
 }
 
-void wsh_panel_window_cui::get_config(stream_writer * writer, abort_callback & abort) const
+void js_panel_window_cui::get_config(stream_writer * writer, abort_callback & abort) const
 {
 	save_config(writer, abort);
 }
 
-bool wsh_panel_window_cui::have_config_popup() const
+bool js_panel_window_cui::have_config_popup() const
 {
 	return true;
 }
 
-bool wsh_panel_window_cui::show_config_popup(HWND parent)
+bool js_panel_window_cui::show_config_popup(HWND parent)
 {
 	return show_configure_popup(parent);
 }
 
-LRESULT wsh_panel_window_cui::on_message(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
+LRESULT js_panel_window_cui::on_message(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 {
 	switch (msg)
 	{
@@ -62,7 +62,7 @@ LRESULT wsh_panel_window_cui::on_message(HWND hwnd, UINT msg, WPARAM wp, LPARAM 
 		{
 			// Using in Default UI and dockable panels without Columns UI installed?
 			static bool g_reported = false;
-			const char warning[] = "Warning: At least one " WSPM_NAME " instance is running in CUI containers "
+			const char warning[] = "Warning: At least one " JSP_NAME " instance is running in CUI containers "
 				"(dockable panels, Func UI, etc) without some services provided by the "
 				"Columns UI component (have not been installed or have a very old "
 				"version installed?).\n"
@@ -72,13 +72,13 @@ LRESULT wsh_panel_window_cui::on_message(HWND hwnd, UINT msg, WPARAM wp, LPARAM 
 			if (!g_cfg_cui_warning_reported)
 			{
 				popup_msg::g_show(pfc::string_formatter(warning) << "\n\n[This popup message will be shown only once]", 
-					WSPM_NAME);
+					JSP_NAME);
 
 				g_cfg_cui_warning_reported = true;
 			}
 			else if (!g_reported)
 			{
-				console::formatter() << "\n" WSPM_NAME ": " << warning << "\n\n";
+				console::formatter() << "\n" JSP_NAME ": " << warning << "\n\n";
 				g_reported = true;
 			}
 		}
@@ -106,7 +106,7 @@ LRESULT wsh_panel_window_cui::on_message(HWND hwnd, UINT msg, WPARAM wp, LPARAM 
 	return t_parent::on_message(hwnd, msg, wp, lp);
 }
 
-HWND wsh_panel_window_cui::create_or_transfer_window(HWND parent, const uie::window_host_ptr & host, const ui_helpers::window_position_t & p_position)
+HWND js_panel_window_cui::create_or_transfer_window(HWND parent, const uie::window_host_ptr & host, const ui_helpers::window_position_t & p_position)
 {
 	if (m_host.is_valid())
 	{
@@ -126,27 +126,27 @@ HWND wsh_panel_window_cui::create_or_transfer_window(HWND parent, const uie::win
 	return get_wnd();
 }
 
-void wsh_panel_window_cui::notify_size_limit_changed_(LPARAM lp)
+void js_panel_window_cui::notify_size_limit_changed_(LPARAM lp)
 {
 	get_host()->on_size_limit_change(m_hwnd, lp);
 }
 
-void wsh_panel_window_cui::on_font_changed(t_size mask) const
+void js_panel_window_cui::on_font_changed(t_size mask) const
 {
 	PostMessage(m_hwnd, CALLBACK_UWM_FONT_CHANGED, 0, 0);
 }
 
-void wsh_panel_window_cui::on_colour_changed(t_size mask) const
+void js_panel_window_cui::on_colour_changed(t_size mask) const
 {
 	PostMessage(m_hwnd, CALLBACK_UWM_COLORS_CHANGED, 0, 0);
 }
 
-void wsh_panel_window_cui::on_bool_changed(t_size mask) const
+void js_panel_window_cui::on_bool_changed(t_size mask) const
 {
 	// TODO: may be implemented one day
 }
 
-DWORD wsh_panel_window_cui::GetColorCUI(unsigned type, const GUID & guid)
+DWORD js_panel_window_cui::GetColorCUI(unsigned type, const GUID & guid)
 {
 	if (type <= columns_ui::colours::colour_active_item_frame)
 	{
@@ -159,7 +159,7 @@ DWORD wsh_panel_window_cui::GetColorCUI(unsigned type, const GUID & guid)
 	return 0;
 }
 
-HFONT wsh_panel_window_cui::GetFontCUI(unsigned type, const GUID & guid)
+HFONT js_panel_window_cui::GetFontCUI(unsigned type, const GUID & guid)
 {
 	if (guid == pfc::guid_null)
 	{
