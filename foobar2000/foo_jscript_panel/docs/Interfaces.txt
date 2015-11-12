@@ -16,7 +16,7 @@ Properties:
 
 fb.ComponentPath; (read)
 // example: fb.trace(fb.ComponentPath);
-// C:\Users\User\AppData\Roaming\foobar2000\user-components\foo_uie_wsh_panel_mod\
+// C:\Users\User\AppData\Roaming\foobar2000\user-components\foo_jscript_panel\
 
 fb.CursorFollowPlayback; (boolean) (read, write)
 
@@ -58,10 +58,6 @@ fb.ClearPlaylist();
 // clears active playlist.
 // if you wish to clear a specific playlist, use plman.ClearPlaylist(playlistIndex).
 
-fb.CreateAutoPlaylist(playlistIndex, name, query[, sort][, flags]);
-// sort: title format string eg "%path_sort%"
-// flags: 0 default, 1 always sort
-
 fb.CreateContextMenuManager();
 // see samples\Menu Sample.txt
 
@@ -89,7 +85,7 @@ fb.GetFocusItem([force]);
 // if it is unable to get the focus item.
 
 fb.GetLibraryItems();
-// [new v1.5.8] returns all library items as a handle list.
+// returns all library items as a handle list.
 
 fb.GetNowPlaying();
 // get handle of now playing item.
@@ -113,10 +109,7 @@ fb.GetSelectionType();
 // 5 keyboard_shortcut_list
 // 6 media_library_viewer
 
-fb.IsAutoPlaylist(playlistIndex); (boolean)
-
 fb.IsLibraryEnabled(); (boolean)
-// [new v1.5.8]
 
 fb.IsMetadbInMediaLibrary(handle); (boolean)
 // example: fb.trace(fb.IsMetadbInMediaLibrary(fb.GetNowplaying()));
@@ -154,17 +147,13 @@ fb.RunMainMenuCommand(command);
 
 fb.SavePlaylist();
 
-fb.ShowAutoPlaylistUI(playlistIndex);
-// example: if (fb.IsAutoPlaylist(plman.ActivePlaylist)) fb.ShowAutoPlaylistUI(plman.ActivePlaylist);
-// that only runs fb.ShowAutoPlaylistUI if active playlist is an Autoplaylist.
-
 fb.ShowConsole();
 
 fb.ShowLibrarySearchUI(query);
-// [new v1.5.8] opens the Library>Search window populated with the query you set.
+// opens the Library>Search window populated with the query you set.
 
 fb.ShowPopupMessage(msg[, title][, iconid]);
-// title: default "WSH Panel Mod"
+// title: default "JScript Panel"
 // iconid: default 0 see flags.txt > IconId
 
 fb.ShowPreferences();
@@ -204,6 +193,13 @@ gdi.LoadImageAsync(window_id, path);
 interface IFbPlaylistManager {
 Properties:
 
+plman.ActivePlaylist; (read, write)
+// example1: fb.trace(plman.ActivePlaylist);
+// 0 this is the first playlist.
+// example2: plman.ActivePlaylist = 1;
+// switches to 2nd playlist.
+
+
 plman.PlaybackOrder; (read, write)
 // 0 Default
 // 1 Repeat (Playlist)
@@ -213,12 +209,6 @@ plman.PlaybackOrder; (read, write)
 // 5 Shuffle (albums)
 // 6 Shuffle (folders)
 // see samples\PBOButton(Menu).txt.
-
-plman.ActivePlaylist; (read, write)
-// example1: fb.trace(plman.ActivePlaylist);
-// 0 this is the first playlist.
-// example2: plman.ActivePlaylist = 1;
-// switches to 2nd playlist.
 
 plman.PlayingPlaylist; (read, write)
 
@@ -238,8 +228,7 @@ plman.AddLocations(playlistIndex, paths[, select]);
 // example: plman.AddLocations(plman.ActivePlaylist, ["e:\\1.mp3"]);
 
 plman.ClearPlaylist(playlistIndex);
-// [new v1.6.1]
-// Unlike fb.ClearPlaylist which clears the active playlist, this requires a "playlistIndex"
+// unlike fb.ClearPlaylist which clears the active playlist, this requires a "playlistIndex"
 // argument.
 // example: plman.ClearPlaylist(0);
 // clears content of first playlist
@@ -248,7 +237,6 @@ plman.ClearPlaylistSelection(playlistIndex);
 // example: plman.ClearPlaylistSelection(plman.ActivePlaylist);
 
 plman.CreateAutoPlaylist(playlistIndex, name, query[, sort][, flags]);
-// [new v1.6.1]
 // sort: default "". title formatting pattern.
 // flags: default 0, force sort 1
 
@@ -288,9 +276,6 @@ plman.GetPlayingItemLocation();
 	}
 	*/
 
-plman.GetPlaylistFocusItemHandle([force]);
-// exactly the same as fb.GetFocusItem();
-
 plman.GetPlaylistFocusItemIndex(playlistIndex);
 // example: var focus_item_index = plman.GetPlaylistFocusItemIndex(plman.ActivePlaylist); // 0 first item
 // returns -1 if nothing is selected
@@ -321,7 +306,6 @@ plman.InsertPlaylistItemsFilter(playlistIndex, base, handle_list, select = false
 // same as above except any duplicates contained in handle_list are removed.
 
 plman.IsAutoPlaylist(playlistIndex); (boolean)
-// [new v1.6.1]
 
 plman.IsPlaylistItemSelected(playlistIndex, itemIndex); (boolean)
 // returns true/false
@@ -344,7 +328,7 @@ plman.RemovePlaylistSelection(playlistIndex[, crop]);
 plman.RenamePlaylist(playlistIndex, name);
 
 plman.SetActivePlaylistContext();
-// workaround so Edit menu items work in default UI when playlist doesn't have focus.
+// workaround so you can run fb.RunMainMenuCommand() on the Edit menu when the playlist doesn't have focus.
 
 plman.SetPlaylistFocusItem(playlistIndex, itemIndex);
 // example: plman.SetPlaylistFocusItem(plman.ActivePlaylist, 0);
@@ -371,6 +355,11 @@ plman.SetPlaylistSelectionSingle(playlistIndex, itemIndex, state);
 // selects last item in playlist.
 // note this does not affect other selected items.
 
+plman.ShowAutoPlaylistUI(playlistIndex)
+// shows popup window letting you edit certain Autoplaylist properties.
+// example: fb.ShowAutoPlaylistUI(plman.ActivePlaylist);
+// before using, check if your playlist is an Autoplaylist by using plman.IsAutoPlaylist(...);
+
 plman.SortByFormat(playlistIndex, pattern[, selected items only]);
 // playlistIndex: index of playlist to alter.
 // pattern: title formatting pattern to sort by. Set to "" to randomise the order of items.
@@ -381,7 +370,6 @@ plman.SortByFormatV2(playlistIndex, pattern[, direction]);
 // direction: default 1 (ascending), -1 (descending).
 
 plman.UndoBackup(playlistIndex);
-// [new v1.5.10]
 // call before using other plman methods that add/remove/reorder playlist items so a history will be
 // usable from the Edit menu.
 
@@ -414,7 +402,7 @@ plman.FindPlaybackQueueItemIndex(handle, playlistIndex, playlistItemIndex);
 plman.FlushPlaybackQueue();
 
 plman.GetPlaybackQueueContents();
-// returns a VBArray. if using JScript, use .toArray() on the result.
+// returns a VBArray so you need to use .toArray() on the result.
 
 plman.GetPlaybackQueueCount();
 
@@ -426,11 +414,11 @@ plman.RemoveItemsFromPlaybackQueue(affectedItems);
 // affectedItems: array like [1, 3, 5]
 }
 
-interface IWSHUtils {
+interface IJSUtils {
 Methods:
 utils.CheckComponent(name[, is_dll]); (boolean)
 // is_dll: default false. if true, method checks filename as well as the internal name.
-// example: fb.trace(utils.CheckComponent("foo_uie_wsh_panel_mod", true));
+// example: fb.trace(utils.CheckComponent("foo_jscript_panel", true));
 
 utils.CheckFont(name); (boolean)
 // name: can be either in English or the localised name in your OS.
@@ -441,19 +429,17 @@ utils.FileTest(path, mode);
 // "e": if path exists, return true
 // "s": retrieve file size, in bytes
 // "d": if path is a directory, return true
-// "split": returns a VBArray. if using JScript, use .toArray() on the result.
+// "split": returns a VBArray so you need to use .toArray() on the result.
 // example: var arr = utils.FileTest("D:\\Somdir\\Somefile.txt", "split").toArray();
 // arr[0] <= "D:\\Somedir\\" (always includes backslash at the end)
 // arr[1] <= "Somefile"
 // arr[2] <= ".txt"
 
 utils.FormatDuration(seconds)
-// [new v1.6.3]
 // example: fb.trace(utils.FormatDuration(plman.GetPlaylistItems(plman.ActivePlaylist).CalcTotalDuration()));
 // 1wk 1d 17:25:30
 
 utils.FormatFileSize(bytes)
-// [new v1.6.3]
 // example: fb.trace(utils.FormatFileSize(plman.GetPlaylistItems(plman.ActivePlaylist).CalcTotalSize()));
 // 7.9 GB 
 
@@ -486,7 +472,7 @@ utils.GetSystemMetrics(index);
 utils.Glob(pattern[, exc_mask][, inc_mask]);
 // exc_mask: default FILE_ATTRIBUTE_DIRECTORY see flags.txt > Used in utils.Glob()
 // inc_mask: default 0xffffffff
-// returns a VBArray. if using JScript, use .toArray() on the result.
+// returns a VBArray so you need to use .toArray() on the result.
 // example: var arr = utils.Glob("C:\\*.*").toArray();
 
 utils.IsKeyPressed(vkey); (boolean)
@@ -525,7 +511,7 @@ window.InstanceType;
 // 0 CUI, 1 DUI. you need this to determine which GetFontXXX and GetColorXXX methods to use, assuming you want to support both interfaces.
 
 window.IsTransparent; (boolean) (read)
-// depends on setting inside WSH panel mod Configuration window. you generally use it to determine whether or not to draw a background.
+// depends on setting inside JScript Panel Configuration window. you generally use it to determine whether or not to draw a background.
 
 window.IsVisible; (boolean) (read)
 
@@ -556,7 +542,6 @@ window.CreateThemeManager(class_list);
 // see samples\SimpleThemedButton.txt, samples\Themed Seek Bar.txt
 
 window.CreateTooltip([font_name][, font_size_px][, font_style]);
-// [updated v1.6.1]
 // font_name: default "Segoe UI"
 // font_size_px: default 12
 // font_style: default 0 see flags.txt > FontStyle
@@ -566,18 +551,29 @@ window.GetBackgroundImage();
 
 window.GetColorCUI(type[, client_guid]);
 window.GetColorDUI(type);
+
 window.GetFontCUI(type[, client_guid]);
 window.GetFontDUI(type);
-// type: see flags.txt
-// client_guid: default "" see flags.txt
+/*
+type: see flags.txt > Used in window.GetFontXXX()
+client_guid: default "" see flags.txt > Used in GetFontCUI() as client_guid
+note this returns null if the component was unable to determine your font.
+to avoid errors when trying to use the font or access its properties, you
+should use code something like this...
+
+var font = window.GetFontDUI(0);
+if (!font) {
+	fb.trace("Unable to determine your default font. Using Segoe UI instead.");
+	font = gdi.Font("Segoe UI", 12);
+}
+*/
 
 window.NotifyOthers(name, info);
-// send messages to other panels. all data types should be supported but communication between JScript and VBScript panels
-// will not succeed with arrays & objects.
+// send messages to other panels. all data types should be supported.
 // they will received by on_notify_data(name, info)
 
 window.Reload();
-// [new v1.5.7.1] force reload of panel
+// force reload of panel
 
 window.Repaint([force]);
 // force: default false
@@ -709,7 +705,7 @@ gr.DrawImage(IGdiBitmap, dstX, dstY, dstW, dstH, srcX, srcY, srcW, srcH, [angle]
 gr.DrawLine(x1, y1, x2, y2, line_width, colour);
 
 gr.DrawPolygon(color, line_width, points);
-// points: either a VBArray or JScript array.
+// points: a JScript array.
 
 gr.DrawString(str, IGdiFont, color, x, y, w, h, [flags]);
 // flags: default 0. see flags.txt > StringFormatFlags
@@ -719,7 +715,7 @@ gr.DrawRect(x, y, w, h, line_width, colour);
 gr.DrawRoundRect(x, y, w, h, arc_width, arc_height, line_width, color);
 
 gr.EstimateLineWrap(str, IGdiFont, max_width);
-// returns a VBArray. if using JScript, use .toArray() on the result.
+// returns a VBArray so you need to use .toArray() on the result.
 // index | meaning
 // [0] text line 1
 // [1] width of text line 1 (in pixel)
@@ -737,7 +733,7 @@ gr.FillGradRect(x, y, w, h, angle, colour1, colour2, [focus]);
 
 gr.FillPolygon(colour, fillmode, points);
 // fillmode: 0 Alternate, 1 Winding.
-// points: either a VBArray or JScript array.
+// points: a JScript array.
 
 gr.FillRoundRect(x, y, w, h, arc_width, arc_height, colour);
 
@@ -747,7 +743,7 @@ gr.GdiDrawBitmap(IGdiRawBitmap, dstX, dstY, dstW, dstH, srcX, srcY, srcW, srcH);
 // always faster than DrawImage, does not support alpha channel.
 
 gr.GdiDrawText(str, IGdiFont, color, x, y, w, h, [format]);
-// returns a VBArray. if using JScript, use .toArray() on the result.
+// returns a VBArray so you need to use .toArray() on the result.
 // index | meaning
 // [0] left   (DT_CALCRECT)
 // [1] top    (DT_CALCRECT)

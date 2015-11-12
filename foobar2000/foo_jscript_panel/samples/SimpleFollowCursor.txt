@@ -1,23 +1,28 @@
 // ==PREPROCESSOR==
 // @name "SimpleFollowCursor"
-// @author "T.P Wang"
 // @import "%fb2k_component_path%docs\flags.txt"
 // @import "%fb2k_component_path%docs\helpers.txt"
 // ==/PREPROCESSOR==
 
-g_focus_metadb = fb.GetFocusItem();
-g_font = gdi.Font("Segoe UI", 14, 0);
-g_tfo = fb.TitleFormat("%title%[ - %artist%]");
+var handle = fb.GetFocusItem();
+var font = gdi.Font("Segoe UI", 14, 0);
+var tfo = fb.TitleFormat("%title%[ - %artist%]");
 
 function on_item_focus_change() {
-	g_focus_metadb = fb.GetFocusItem();
+	handle = fb.GetFocusItem();
 	window.Repaint();
 }
 
+function on_playlist_switch() {
+	//because on_item_focus_change isn't called when the user switches playlists
+	//we must invoke it manually inside this callback
+	on_item_focus_change();
+}
+
 function on_paint(gr) {
-	if (g_focus_metadb) {
+	if (handle) {
 		// RGB function is defined in docs\helpers.txt
 		// DT_* are defined in docs\flags.txt
-		gr.gdiDrawText(g_tfo.EvalWithMetadb(g_focus_metadb), g_font, RGB(0, 0, 0), 0, 0, window.Width, window.Height, DT_VCENTER | DT_CENTER | DT_END_ELLIPSIS | DT_CALCRECT | DT_NOPREFIX);
+		gr.gdiDrawText(tfo.EvalWithMetadb(handle), g_font, RGB(0, 0, 0), 0, 0, window.Width, window.Height, DT_VCENTER | DT_CENTER | DT_END_ELLIPSIS | DT_CALCRECT | DT_NOPREFIX);
 	}
 }

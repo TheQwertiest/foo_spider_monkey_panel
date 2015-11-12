@@ -1,15 +1,11 @@
 // ==PREPROCESSOR==
-// @name "Watch Metadb Change (Base)"
+// @name "Watch Metadb Change"
 // @author "T.P Wang"
-// As of v1.6.0, the following 2 @feature lines are not required but if you want
-// on_metadb_changed to work with earlier components, they must be included.
-// @feature "v1.4"
-// @feature "watch-metadb"
 // ==/PREPROCESSOR==
 
 // Callback
-function on_metadb_changed(handles, fromhook) {
-	var count = handles.Count;
+function on_metadb_changed(handle_list) {
+	var count = handle_list.Count;
 	// show how many files have been changed
 	fb.ShowPopupMessage("" + count + (count > 1 ? " files have" : " file has") + " been changed.");
 }

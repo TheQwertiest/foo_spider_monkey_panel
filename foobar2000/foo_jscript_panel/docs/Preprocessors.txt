@@ -1,11 +1,6 @@
 DESCRIPTION
 All preprocessors are started with "==PREPROCESSOR==" and ended with "==/PREPROCESSOR==":
-VBScript:
-' // ==PREPROCESSOR==
-' ...
-' // ==/PREPROCESSOR==
 
-JScript:
 // ==PREPROCESSOR==
 // ...
 // ==/PREPROCESSOR==
@@ -14,10 +9,7 @@ And be aware that all preprocessors (directives) are case sensitive.
 
 DIRECTIVES
 Directives should be started with "@", and placed into a single comment.
-VBScript:
-' // @directive "value-here"
 
-JScript:
 // @directive "value-here"
 
 IMPORT
@@ -28,14 +20,6 @@ You can place %fb2k_path%, %fb2k_component_path% and %fb2k_profile_path% into "p
 FEATURE
 @feature "dragdrop"
 Enable drag drop callbacks.
-
-Between versions "v1.5.7" and "v1.5.12", the following must be set for on_metadb_changed()
-to work (see notes in callbacks.txt)
-@feature "v1.4"
-@feature "watch-metadb"
-
-As of v1.6.0, they are default and may be omitted. If you share scripts, you should leave
-them present for compatibilty with previous components.
 
 NAME
 @name "name"
@@ -49,12 +33,10 @@ AUTHOR
 With "name", "version" and "author", if you want to use double quotes then you must escape each one with another...
 @name "One aka ""1"""
 
-A JScript example:
+Example:
 // ==PREPROCESSOR==
 // @name "my sooper dooper script"
 // @author "marc"
 // @version "0.1"
-// @feature "v1.4"
-// @feature "watch-metadb"
 // @feature "dragdrop"
 // ==/PREPROCESSOR==

@@ -33,18 +33,18 @@ function on_size() {
 }
 
 function on_playback_new_track() {
-	var metadb = fb.GetNowPlaying();
-	if (!metadb)
+	var handle = fb.GetNowPlaying();
+	if (!handle)
 		return;
 	if (g_img)
 		g_img.Dispose();
 	// AlbumArtId.front is defined in docs\flags.txt
-	utils.GetAlbumArtAsync(window.ID, metadb, AlbumArtId.front);
+	utils.GetAlbumArtAsync(window.ID, handle, AlbumArtId.front);
 	g_img = null;
 	path = null;
 }
 
-function on_get_album_art_done(metadb, art_id, image, image_path) {
+function on_get_album_art_done(handle, art_id, image, image_path) {
 	path = image_path;
 	g_img = image;
 	window.Repaint();

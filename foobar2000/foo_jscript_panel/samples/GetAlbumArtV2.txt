@@ -32,12 +32,12 @@ function on_size() {
 }
 
 function on_playback_new_track() {
-	var metadb = fb.GetNowPlaying();
-	if (!metadb)
+	var handle = fb.GetNowPlaying();
+	if (!handle)
 		return;
 	if (g_img)
 		g_img.Dispose();
 	// AlbumArtId.front is defined in docs\flags.txt
-	g_img = utils.GetAlbumArtV2(metadb, AlbumArtId.front);
+	g_img = utils.GetAlbumArtV2(handle, AlbumArtId.front);
 	window.Repaint();
 }

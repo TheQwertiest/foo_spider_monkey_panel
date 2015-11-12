@@ -26,14 +26,14 @@ function on_font_changed() {}
 // called when colours are changed via default UI/columns UI preferences
 // retrieve fonts using window.GetFontDUI()/window.GetFontCUI()
 
-function on_get_album_art_done(metadb, art_id, image, image_path) {}
+function on_get_album_art_done(handle, art_id, image, image_path) {}
 // called when thread created by utils.GetAlbumArtAsync() is done.
 // image_path will point to the image file (or music file if image is embedded).
 
-function on_item_focus_change(playlist, from, to) {}
+function on_item_focus_change(playlistIndex, from, to) {}
 // called when playlist focus has been changed
 
-function on_item_played(metadb) {}
+function on_item_played(handle) {}
 // called when at least 60s of the track has been played or the track has reached 
 // its end after at least 1/3 of it has been played through.
 
@@ -52,11 +52,9 @@ function on_library_items_changed() {}
 function on_load_image_done(cookie, image) {}
 // called when thread created by gdi.LoadImageAsync() is done.
 
-function on_metadb_changed(metadb_or_metadbs, fromhook) {}
+function on_metadb_changed(handle_list, fromhook) {}
 // called when metadb contents change.
-// if you need your scripts to be compatible with component versions 1.5.12 and earlier, 
-// you must check Preprocessors.txt for the @feature directives which need to be set.
-// See samples\Watch Metadb Change.txt for example usage.
+// see samples\Watch Metadb Change.txt
 
 function on_mouse_lbtn_dblclk(x, y, mask) {}
 function on_mouse_lbtn_down(x, y, mask) {}
@@ -94,10 +92,10 @@ function on_playback_dynamic_info_track() {}
 // per-track dynamic info (stream track titles etc) change.
 // happens less often than on_playback_dynamic_info().
 
-function on_playback_edited(metadb) {}
+function on_playback_edited(handle) {}
 // called when currently playing file gets edited.
 
-function on_playback_new_track(metadb) {}
+function on_playback_new_track(handle) {}
 
 function on_playback_order_changed(new_order_index) {}
 // called when playback order is changed
