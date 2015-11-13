@@ -320,16 +320,5 @@ namespace ui_extension
 
 		FB2K_MAKE_SERVICE_INTERFACE(splitter_window, window);
 	};
-	class NOVTABLE splitter_window_v2 : public splitter_window
-	{
-	public:
-		//virtual void enter_layout_editing_mode()=0;
-		//virtual void exit_layout_editing_mode()=0;
-		//virtual bool check_wnd_is_splitter(HWND wnd)=0;
-
-		virtual bool is_point_ours(HWND wnd_point, const POINT & pt_screen, pfc::list_base_t<uie::window::ptr> & p_hierarchy) {return false;};
-		virtual void get_supported_panels(const pfc::list_base_const_t<uie::window::ptr> & p_windows, bit_array_var & p_mask_unsupported) {};
-		FB2K_MAKE_SERVICE_INTERFACE(splitter_window_v2, splitter_window);
-	};
 }
 #endif //_COLUMNS_API_SPLITTER_H_

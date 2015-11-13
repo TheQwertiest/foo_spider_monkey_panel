@@ -131,12 +131,12 @@ int uHeader_InsertItem(HWND wnd, int n, uHDITEM * hdi, bool insert)
 BOOL uRebar_InsertItem(HWND wnd, int n, uREBARBANDINFO * rbbi, bool insert)
 {
 	BOOL rv = FALSE;
-
+	if (IsUnicode())
 	{
 		param_utf16_from_utf8 text((rbbi->fMask & RBBIM_TEXT) ? rbbi->lpText : 0);
 
 		REBARBANDINFOW  rbw;
-		rbw.cbSize = REBARBANDINFOW_V6_SIZE;
+		rbw.cbSize       = sizeof(REBARBANDINFOW);
 
 		rbw.fMask = rbbi->fMask;
 		rbw.fStyle = rbbi->fStyle;
@@ -161,6 +161,38 @@ BOOL uRebar_InsertItem(HWND wnd, int n, uREBARBANDINFO * rbbi, bool insert)
 	#endif
 		
 		rv = uSendMessage(wnd, insert ? RB_INSERTBANDW : RB_SETBANDINFOW, n, (LPARAM)&rbw);
+
+	}
+	else
+	{
+		param_ansi_from_utf8 text((rbbi->fMask & RBBIM_TEXT) ? rbbi->lpText : 0);
+
+		REBARBANDINFOA  rba;
+		rba.cbSize       = sizeof(REBARBANDINFOA);
+
+		rba.fMask = rbbi->fMask;
+		rba.fStyle = rbbi->fStyle;
+		rba.clrFore = rbbi->clrFore;
+		rba.clrBack = rbbi->clrBack;
+		rba.lpText = const_cast<char *>(text.get_ptr());;
+		rba.cch = rbbi->cch;
+		rba.iImage = rbbi->iImage;
+		rba.hwndChild = rbbi->hwndChild;
+		rba.cxMinChild = rbbi->cxMinChild;
+		rba.cyMinChild = rbbi->cyMinChild;
+		rba.cx = rbbi->cx;
+		rba.hbmBack = rbbi->hbmBack;
+		rba.wID = rbbi->wID;
+	#if (_WIN32_IE >= 0x0400)
+		rba.cyChild = rbbi->cyChild;
+		rba.cyMaxChild = rbbi->cyMaxChild;
+		rba.cyIntegral = rbbi->cyIntegral;
+		rba.cxIdeal = rbbi->cxIdeal;
+		rba.lParam = rbbi->lParam;
+		rba.cxHeader = rbbi->cxHeader;
+	#endif
+		
+		rv = uSendMessage(wnd, insert ? RB_INSERTBANDA : RB_SETBANDINFOA, n, (LPARAM)&rba);
 
 	}
 	return rv;
@@ -373,7 +405,7 @@ BOOL uFormatMessage(DWORD dw_error, pfc::string_base & out)
 		pfc::array_t<WCHAR> buffer;
 		buffer.set_size(256);
 		//MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-		if (FormatMessageW(FORMAT_MESSAGE_FROM_SYSTEM|FORMAT_MESSAGE_IGNORE_INSERTS, 0, dw_error, 0, buffer.get_ptr(), buffer.get_size(), 0))
+		if (FormatMessageW(FORMAT_MESSAGE_FROM_SYSTEM, 0, dw_error, 0, buffer.get_ptr(), buffer.get_size(), 0))
 		{
 			out.set_string(pfc::stringcvt::string_utf8_from_wide(buffer.get_ptr()));
 			rv = TRUE;
@@ -383,7 +415,7 @@ BOOL uFormatMessage(DWORD dw_error, pfc::string_base & out)
 	{
 		pfc::array_t<char> buffer;
 		buffer.set_size(256);
-		if (FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM|FORMAT_MESSAGE_IGNORE_INSERTS, 0, dw_error, 0, buffer.get_ptr(), buffer.get_size(), 0))
+		if (FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM, 0, dw_error, 0, buffer.get_ptr(), buffer.get_size(), 0))
 		{
 			//is it actually ANSI ?
 			out.set_string(pfc::stringcvt::string_utf8_from_ansi(buffer.get_ptr()));

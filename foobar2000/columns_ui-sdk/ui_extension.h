@@ -1,7 +1,7 @@
 #ifndef _UI_EXTENSION_H_
 #define _UI_EXTENSION_H_
 
-#define UI_EXTENSION_VERSION "6.4"
+#define UI_EXTENSION_VERSION "6.3"
 
 #define uie ui_extension
 
@@ -122,7 +122,6 @@ namespace ui_extension
 	typedef service_ptr_t<class window_host> window_host_ptr;
 
 	typedef service_ptr_t<class splitter_window> splitter_window_ptr;
-	typedef service_ptr_t<class splitter_window_v2> splitter_window_v2_ptr;
 	typedef service_ptr_t<class menu_window> menu_window_ptr;
 	typedef service_ptr_t<class playlist_window> playlist_window_ptr;
 
@@ -133,12 +132,11 @@ namespace ui_extension
 #include "window_host.h"
 #include "base.h"
 #include "window.h"
-#include "win32_helpers.h"
 #include "window_helper.h"
-#include "container_window_v2.h"
 #include "splitter.h"
 #include "visualisation.h"
 #include "imp_helper.h"
+#include "win32_helpers.h"
 #include "buttons.h"
 #include "columns_ui.h"
 #include "columns_ui_appearance.h"

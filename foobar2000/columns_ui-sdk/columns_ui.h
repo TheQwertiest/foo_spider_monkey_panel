@@ -18,8 +18,7 @@ namespace columns_ui
 			guid_playback_order,
 			guid_spectrum_analyser,
 			guid_seek_bar,
-			guid_volume_control,
-			guid_filter_search_bar;
+			guid_volume_control;
 	}
 	/** \brief Namespace containting standard Columns UI panel GUIDs */
 	namespace panels
@@ -30,11 +29,8 @@ namespace columns_ui
 			guid_playlist_tabs,
 			guid_horizontal_splitter,
 			guid_vertical_splitter,
-			guid_playlist_view_v2,
 			guid_filter,
-			guid_artwork_view,
-			guid_item_properties,
-			guid_item_details;
+			guid_artwork_view;
 	}
 	/** \brief Namespace containting standard Columns UI visualisation GUIDs */
 	namespace visualisations
@@ -337,7 +333,7 @@ namespace columns_ui
 				pfc::string8 n1, n2;
 				i1->get_name(n1);
 				i2->get_name(n2);
-				return StrCmpLogicalW(pfc::stringcvt::string_os_from_utf8(n1), pfc::stringcvt::string_os_from_utf8(n2));
+				return lstrcmpi(pfc::stringcvt::string_os_from_utf8(n1), pfc::stringcvt::string_os_from_utf8(n2));
 			}
 			void sort_by_name() {sort_t(g_compare_name);}
 		};		
