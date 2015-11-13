@@ -1,3 +1,14 @@
+## v1.0.3
+
+``` 
+- CHG: Revert previous Columns UI SDK update as I've just had foobar2000 crash.
+       It did actually point at Panel Stack Splitter as the problematic
+       component but I've never had an issue with it before. Given PSS acts
+       as a container for other panels, I think it might be related. I don't
+       have the skills to troubleshoot such an issue so the easiest thing to do
+       is roll back.
+```
+
 ## v1.0.2
 
 ```
