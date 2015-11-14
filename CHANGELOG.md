@@ -63,6 +63,8 @@
 
        plman.CreateAutoPlaylist, plman.IsAutoPlaylist and plman.ShowAutoPlaylistUI
        have been created to replace them.
+- CHG: plman.GetPlaylistFocusItemHandle has been removed because it's identical to fb.GetFocusItem
+       which is more commonly used.
 - CHG: utils.GetAlbumArt removed as the corresponding function has been
        removed from the foobar2000 SDK. utils.GetAlbumArtAsync, utils.GetAlbumArtEmbedded
        and utils.GetAlbumArtV2 are still present.
