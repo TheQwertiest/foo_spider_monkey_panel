@@ -1,3 +1,9 @@
+## v1.0.4
+
+```
+- ADD: utils.MapString(text, lcid, flags)
+```
+
 ## v1.0.3
 
 ``` 

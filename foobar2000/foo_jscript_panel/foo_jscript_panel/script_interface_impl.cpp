@@ -3289,6 +3289,23 @@ STDMETHODIMP JSUtils::FormatFileSize(double p, BSTR * pp)
 	return S_OK;	
 }
 
+STDMETHODIMP JSUtils::MapString(BSTR str, UINT lcid, UINT flags, BSTR * pp)
+{
+	TRACK_FUNCTION();
+
+	if (!str || !lcid || !flags) return E_INVALIDARG;
+	if (!pp) return E_POINTER;
+
+	int r = ::LCMapStringW(lcid, flags, str, wcslen(str) + 1, NULL, 0);
+	if (!r) return E_FAIL;
+	wchar_t * dst = new wchar_t[r];
+	r = ::LCMapStringW(lcid, flags, str, wcslen(str) + 1, dst, r);
+	if (r) (*pp) = SysAllocString(dst);
+	delete dst;
+
+	return S_OK;
+}
+
 StyleTextRender::StyleTextRender(bool pngmode) : m_pOutLineText(NULL), m_pngmode(pngmode)
 {
 	if (!pngmode)

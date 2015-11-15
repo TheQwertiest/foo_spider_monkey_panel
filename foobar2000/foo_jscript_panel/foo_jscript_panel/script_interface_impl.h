@@ -520,6 +520,7 @@ public:
 	STDMETHODIMP FileTest(BSTR path, BSTR mode, VARIANT * p);
 	STDMETHODIMP FormatDuration(double p, BSTR * pp);
 	STDMETHODIMP FormatFileSize(double p, BSTR * pp);
+	STDMETHODIMP MapString(BSTR str, UINT lcid, UINT flags, BSTR * pp);
 };
 
 // forward declaration

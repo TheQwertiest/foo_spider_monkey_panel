@@ -535,6 +535,7 @@ __interface IJSUtils: IDispatch
 	STDMETHOD(Glob)(BSTR pattern, [defaultvalue(FILE_ATTRIBUTE_DIRECTORY)] UINT exc_mask, [defaultvalue(0xffffffff)] UINT inc_mask, [out,retval] VARIANT * p);
 	STDMETHOD(FileTest)(BSTR path, BSTR mode, [out,retval] VARIANT * p);
 	STDMETHOD(FormatDuration)(double p, [out,retval] BSTR * pp);
-	STDMETHOD(FormatFileSize)(double p, [out, retval] BSTR * pp);
+	STDMETHOD(FormatFileSize)(double p, [out,retval] BSTR * pp);
+	STDMETHOD(MapString)(BSTR str, UINT lcid, UINT flags, [out,retval] BSTR * pp);
 };
 _COM_SMARTPTR_TYPEDEF(IJSUtils, __uuidof(IJSUtils));

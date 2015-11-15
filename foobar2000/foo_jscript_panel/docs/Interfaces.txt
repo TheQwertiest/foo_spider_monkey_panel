@@ -478,6 +478,8 @@ utils.Glob(pattern[, exc_mask][, inc_mask]);
 utils.IsKeyPressed(vkey); (boolean)
 // vkey: http://msdn.microsoft.com/en-us/library/ms927178.aspx
 
+utils.MapString(text, lcid, flags);
+
 utils.PathWildcardMatch(pattern, str); (boolean)
 // using Microsoft MS-DOS wildcards match type. eg "*.txt", "abc?.tx?"
 
