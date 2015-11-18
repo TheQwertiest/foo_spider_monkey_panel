@@ -81,7 +81,7 @@ fb.CreateProfiler([name]);
 fb.Exit();
 
 fb.GetFocusItem([force]);
-// force: default true. when true, it will use the first item of the active playlist
+// force: boolean, default true. when true, it will use the first item of the active playlist
 // if it is unable to get the focus item.
 
 fb.GetLibraryItems();
@@ -175,7 +175,7 @@ Methods:
 gdi.CreateImage(w, h);
 
 gdi.CreateStyleTextRender([pngmode]);
-// pngmode: default false.
+// pngmode: boolean, default false.
 // see samples\Glow Text Sample.txt
 
 gdi.Font(name, size px, [style]);
@@ -224,7 +224,7 @@ Methods:
 
 plman.AddLocations(playlistIndex, paths[, select]);
 // paths: an array of files/URLs
-// select: default false
+// select: boolean, default false
 // example: plman.AddLocations(plman.ActivePlaylist, ["e:\\1.mp3"]);
 
 plman.ClearPlaylist(playlistIndex);
@@ -295,7 +295,7 @@ plman.GetQueryItems(handle_list, query);
 // results are unsorted
 
 plman.InsertPlaylistItems(playlistIndex, base, handle_list), [select]);
-// select: default false.
+// select: boolean, default false.
 // inserts new items into specified playlist, at specified position
 // example1: plman.InsertPlaylistItems(plman.ActivePlaylist, 0, fb.GetLibraryItems());
 // adds all library tracks to beginning of playlist.
@@ -319,7 +319,7 @@ plman.MovePlaylistSelection(playlistIndex, delta);
 plman.RemovePlaylist(playlistIndex);
 
 plman.RemovePlaylistSelection(playlistIndex[, crop]);
-// crop: default false.
+// crop: boolean, default false.
 // example1: plman.RemovePlaylistSelection(plman.ActivePlaylist);
 // removes selected items from playlist.
 // example2: plman.RemovePlaylistSelection(plman.ActivePlaylist, true);
@@ -360,10 +360,10 @@ plman.ShowAutoPlaylistUI(playlistIndex)
 // example: fb.ShowAutoPlaylistUI(plman.ActivePlaylist);
 // before using, check if your playlist is an Autoplaylist by using plman.IsAutoPlaylist(...);
 
-plman.SortByFormat(playlistIndex, pattern[, selected items only]);
+plman.SortByFormat(playlistIndex, pattern[, selected_items_only]);
 // playlistIndex: index of playlist to alter.
 // pattern: title formatting pattern to sort by. Set to "" to randomise the order of items.
-// selected items only: default false.
+// selected_items_only: boolean, default false.
 // returns true on success, false on failure (playlist locked etc).
 
 plman.SortByFormatV2(playlistIndex, pattern[, direction]);
@@ -417,7 +417,7 @@ plman.RemoveItemsFromPlaybackQueue(affectedItems);
 interface IJSUtils {
 Methods:
 utils.CheckComponent(name[, is_dll]); (boolean)
-// is_dll: default false. if true, method checks filename as well as the internal name.
+// is_dll: boolean, default false. if true, method checks filename as well as the internal name.
 // example: fb.trace(utils.CheckComponent("foo_jscript_panel", true));
 
 utils.CheckFont(name); (boolean)
@@ -446,9 +446,9 @@ utils.FormatFileSize(bytes)
 utils.GetAlbumArtAsync(window_id, handle[, art_id][, need_stub][, only_embed][, no_load]);
 // window_id: window.ID
 // art_id: default 0. see flags.txt > AlbumArtId
-// need_stub: default true
-// only_embed: default false
-// no_load: default false. if true, "image" parameter will be null in on_get_album_art_done callback.
+// need_stub: boolean, default true
+// only_embed: boolean, default false
+// no_load: boolean, default false. if true, "image" parameter will be null in on_get_album_art_done callback.
 // see samples\GetAlbumArtAsync.txt
 
 utils.GetAlbumArtEmbedded(rawpath[, art_id]);
@@ -457,7 +457,7 @@ utils.GetAlbumArtEmbedded(rawpath[, art_id]);
 
 utils.GetAlbumArtV2(handle[, art_id][, need_stub]);
 // art_id: default 0. see flags.txt > AlbumArtId
-// need stub: default true.
+// need stub: boolean, default true.
 // see samples\GetAlbumArtV2.txt
 
 utils.GetSysColor(index);
@@ -571,17 +571,24 @@ if (!font) {
 */
 
 window.NotifyOthers(name, info);
-// send messages to other panels. all data types should be supported.
-// they will received by on_notify_data(name, info)
+// name: string
+// info: all variable/array/object types should be supported
+// listen for notifications in other panels using on_notify_data(name, info) {}
 
 window.Reload();
-// force reload of panel
+// reload panel
 
 window.Repaint([force]);
-// force: default false
+// force: boolean, default false
+
 window.RepaintRect(x, y, w, h[, force]);
-// force: default false
-// use this with seekbars, time display etc to reduce cpu usage with frequent updates
+// x, y, w, h must be an integer, 0 or above. if you cannot be sure of values when
+// calculating, do something like this...
+// window.RepaintRect(Math.max(0, x), Math.max(0, y), w, h);
+// force: boolean, default false
+// use this instead of Repaint on frequently updated areas
+// such as time, bitrate, seekbar, etc. this should reduce CPU usage.
+// you can use Windows Task Manager to double check.
 
 window.SetCursor(id);
 // id: see flags.txt > Used in window.SetCursor()
@@ -591,6 +598,8 @@ window.GetProperty(name[, defaultval]);
 // if no value is present, store the defaultval for the name and returns
 
 window.SetProperty(name, val);
+// name: string
+// val: string, number, boolean
 // set property value, if val is invalid/null, it is removed
 // property values will be saved per panel instance and are remembered between foobar2000 restarts.
 
@@ -1021,7 +1030,7 @@ Dispose();
 Eval([force]);
 // when playing, you should always get a result.
 // always use eval when you want dynamic info such as %playback_time%, %bitrate% etc. EvalWithMetadb(fb.GetNowplaying()) will not give the results you want.
-// force: default false. if true, you can process text that doesn't contain title formatting even when foobar2000 isn't playing
+// force: boolean, default false. if true, you can process text that doesn't contain title formatting even when foobar2000 isn't playing
 // example: fb.trace(fb.TitleFormat("%artist%").Eval());
 
 EvalWithMetadb(handle);
@@ -1046,18 +1055,18 @@ AppendMenuSeparator();
 AppendTo(parentMenu, flags, text);
 
 CheckMenuItem(id_or_pos, check[, bypos]);
-// check: true/false.
-// bypos: default false.
+// check: boolean.
+// bypos: boolean, default false.
 
 CheckMenuRadioItem(first, last, check[, bypos]);
-// check: true/false.
-// bypos: default false.
+// check: boolean.
+// bypos: boolean, default false.
 
 Dispose();
 
 EnableMenuItem(id_or_pos, enable[, bypos]);
-// enable: true/false.
-// bypos: default false
+// enable: boolean.
+// bypos: boolean, default false
 
 TrackPopupMenu(x, y[, flags]);
 // flags: default 0, see flags.txt > Used in TrackPopupMenu()
