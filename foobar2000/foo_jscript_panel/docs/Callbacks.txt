@@ -135,6 +135,10 @@ function on_playlist_items_added(playlistIndex) {}
 function on_playlist_item_ensure_visible(playlistIndex, item) {}
 function on_playlist_items_removed(playlistIndex, new_count) {}
 function on_playlist_items_reordered(playlistIndex) {}
+
+function on_playlist_items_selection_change() {}
+// workaround for some 3rd party playlist viewers not working with on_selection_changed()
+
 function on_playlist_switch() {}
 function on_playlists_changed() {}
 
