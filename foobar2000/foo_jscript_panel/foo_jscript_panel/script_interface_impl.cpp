@@ -458,10 +458,7 @@ STDMETHODIMP GdiGraphics::FillGradRect(float x, float y, float w, float h, float
 	if (!m_ptr) return E_POINTER;
 
 	Gdiplus::RectF rect(x, y, w, h);
-	// HACK: Workaround for one pixel black line problem.
-	//rect.Inflate(0.1f, 0.1f);
 	Gdiplus::LinearGradientBrush brush(rect, ExtractColorFromVariant(color1), ExtractColorFromVariant(color2), angle, TRUE);
-
 	brush.SetBlendTriangularShape(focus);
 	m_ptr->FillRectangle(&brush, rect);
 	return S_OK;
