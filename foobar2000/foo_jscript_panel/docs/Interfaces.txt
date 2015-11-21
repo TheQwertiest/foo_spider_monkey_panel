@@ -1025,10 +1025,11 @@ interface IFbMetadbHandle {
 
 		GetFileInfo(); (IFbFileInfo)
 
-			// this will be used in the examples below.
-			// var handle = fb.GetFocusItem();
-			// var f = handle.GetFileInfo();
 			interface IFbFileInfo {
+				// this will be used in the examples below.
+				// var handle = fb.GetFocusItem();
+				// var f = handle.GetFileInfo();
+
 				Properties:
 					MetaCount; (read)
 					// example: fb.trace(f.MetaCount);
@@ -1187,5 +1188,5 @@ interface IDropTargetAction {
 		ToSelect; (boolean) (read, write)
 
 	Methods:
-		ToPlaylist();
+		ToPlaylist(); (void)
 }
