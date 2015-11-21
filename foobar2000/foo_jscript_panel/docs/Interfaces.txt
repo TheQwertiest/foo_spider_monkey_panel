@@ -127,7 +127,8 @@ interface IFbUtils {
 					Print(); (void)
 				}
 
-				/* example:
+				/*
+				example:
 				var test = fb.CreateProfiler();
 				// do something very time consuming
 				fb.trace(test.Time);
@@ -400,7 +401,8 @@ interface IFbPlaylistManager {
 					PlaylistItemIndex; (uint) (read)
 			}
 
-			/* example:
+			/*
+			example:
 			var playing_item_location = plman.GetPlayingItemLocation();
 			if (playing_item_location.IsValid) {
 				fb.trace(playing_item_location.PlaylistIndex);
@@ -472,7 +474,8 @@ interface IFbPlaylistManager {
 		// example: plman.SetPlaylistFocusItem(plman.ActivePlaylist, 0);
 
 		plman.SetPlaylistFocusItemByHandle(playlistIndex, handle); (void)
-		/* example:
+		/*
+		example:
 		var ap = plman.ActivePlaylist;
 		var handle = plman.GetPlaylistItems(ap).Item(1); //2nd item in playlist
 		plman.SetPlaylistFocusItemByHandle(ap, handle);
@@ -761,7 +764,8 @@ interface IFbWindow {
 
 				Methods:
 					Activate(); (void)
-					/* only do this when text has changed otherwise it will flicker
+					/*
+					only do this when text has changed otherwise it will flicker
 					example:
 					var text = "...";
 					if (tooltip.Text != text) {
@@ -779,7 +783,8 @@ interface IFbWindow {
 					// type: see flags.txt > Used in IFbTooltip.GetDelayTime() and IFbTooltip.SetDelayTime()
 
 					SetMaxWidth(width); (void)
-					/* use if you want multi-line tooltips
+					/*
+					use if you want multi-line tooltips
 					example:
 					tooltip.SetMaxWidth(800);
 					tooltip.Text = "Line1\nLine2";
@@ -988,7 +993,7 @@ interface IGdiGraphics {
 		gr.FillEllipse(x, y, w, h, colour); (void)
 
 		gr.FillGradRect(x, y, w, h, angle, colour1, colour2, [focus]); (void)
-		/* 
+		/*
 		focus: default 1.0. valid values are between 0.0 and 1.0
 		specify where the centred colour will be at its highest intensity.
 
@@ -1032,7 +1037,8 @@ interface IGdiGraphics {
 					y; (float) (read)
 					Width; (float) (read)
 
-					/* example:
+					/*
+					example:
 					// ==PREPROCESSOR==
 					// @import "%fb2k_component_path%docs\flags.txt"
 					// @import "%fb2k_component_path%docs\helpers.txt"
@@ -1132,7 +1138,8 @@ interface IFbMetadbHandle {
 					MetaInsertValue(idx, vidx, value);
 
 					MetaName(idx);
-					/* example:
+					/*
+					example:
 					var text = "";
 					for (var i = 0; i < f.MetaCount; i++) {
 						text += f.MetaName(i).toUpperCase() + " ");
