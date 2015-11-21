@@ -925,8 +925,13 @@ interface IGdiGraphics {
 		gr.FillEllipse(x, y, w, h, colour); (void)
 
 		gr.FillGradRect(x, y, w, h, angle, colour1, colour2, [focus]); (void)
-		// focus: default 1.0. valid values are between 0.0 and 1.0
-		// specify where the centere colour will be at its highest intensity.
+		/* 
+		focus: default 1.0. valid values are between 0.0 and 1.0
+		specify where the centred colour will be at its highest intensity.
+
+		NOTE: This may appear buggy depending on rectangle size. The easiest fix is
+		to adjust the "angle" by a degree or two.
+		*/
 
 		gr.FillPolygon(colour, fillmode, points); (void)
 		// fillmode: 0 Alternate, 1 Winding.
