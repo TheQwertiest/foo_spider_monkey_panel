@@ -182,6 +182,11 @@ public:
 		return bRet;
 	}
 
+	int GetSplitterPos() const
+	{
+		return m_xySplitterPos;
+	}
+
 	void SetSplitterPosPct(int nPct, bool bUpdate = true)
 	{
 		ATLASSERT((nPct >= 0) && (nPct <= 100));
@@ -193,9 +198,10 @@ public:
 			UpdateSplitterLayout();
 	}
 
-	int GetSplitterPos() const
+	int GetSplitterPosPct() const
 	{
-		return m_xySplitterPos;
+		int cxyTotal = m_bVertical ? (m_rcSplitter.right - m_rcSplitter.left - m_cxySplitBar - m_cxyBarEdge) : (m_rcSplitter.bottom - m_rcSplitter.top - m_cxySplitBar - m_cxyBarEdge);
+		return ((cxyTotal > 0) && (m_xySplitterPos >= 0)) ? (::MulDiv(m_xySplitterPos, m_nPropMax, cxyTotal) / 100) : -1;
 	}
 
 	bool SetSinglePaneMode(int nPane = SPLIT_PANE_NONE)

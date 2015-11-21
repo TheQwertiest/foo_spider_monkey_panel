@@ -1094,6 +1094,12 @@ public:
 #ifdef _CMDBAR_EXTRA_TRACE
 		ATLTRACE2(atlTraceUI, 0, _T("CmdBar - OnKeyDown\n"));
 #endif
+		if(m_bAttachedMenu)   // nothing to do in this mode
+		{
+			bHandled = FALSE;
+			return 1;
+		}
+
 		bHandled = FALSE;
 		// Simulate Alt+Space for the parent
 		if(wParam == VK_SPACE)
@@ -1128,8 +1134,15 @@ public:
 #ifdef _CMDBAR_EXTRA_TRACE
 		ATLTRACE2(atlTraceUI, 0, _T("CmdBar - OnKeyUp\n"));
 #endif
+		if(m_bAttachedMenu)   // nothing to do in this mode
+		{
+			bHandled = FALSE;
+			return 1;
+		}
+
 		if(wParam != VK_SPACE)
 			bHandled = FALSE;
+
 		return 0;
 	}
 
@@ -1138,6 +1151,12 @@ public:
 #ifdef _CMDBAR_EXTRA_TRACE
 		ATLTRACE2(atlTraceUI, 0, _T("CmdBar - OnChar\n"));
 #endif
+		if(m_bAttachedMenu)   // nothing to do in this mode
+		{
+			bHandled = FALSE;
+			return 1;
+		}
+
 		if(wParam != VK_SPACE)
 			bHandled = FALSE;
 		else

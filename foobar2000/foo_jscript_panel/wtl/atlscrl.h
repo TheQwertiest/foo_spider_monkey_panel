@@ -909,7 +909,7 @@ public:
 #if (_MSC_VER >= 1300)
 		BOOL bRet = ATL::CWindowImpl< T, TBase, TWinTraits >::SubclassWindow(hWnd);
 #else // !(_MSC_VER >= 1300)
-/		typedef ATL::CWindowImpl< T, TBase, TWinTraits >   _baseClass;
+		typedef ATL::CWindowImpl< T, TBase, TWinTraits >   _baseClass;
 		BOOL bRet = _baseClass::SubclassWindow(hWnd);
 #endif // !(_MSC_VER >= 1300)
 		if(bRet != FALSE)
@@ -1208,7 +1208,7 @@ public:
 #if (_MSC_VER >= 1300)
 		BOOL bRet = ATL::CWindowImpl< T, TBase, TWinTraits >::SubclassWindow(hWnd);
 #else // !(_MSC_VER >= 1300)
-/		typedef ATL::CWindowImpl< T, TBase, TWinTraits >   _baseClass;
+		typedef ATL::CWindowImpl< T, TBase, TWinTraits >   _baseClass;
 		BOOL bRet = _baseClass::SubclassWindow(hWnd);
 #endif // !(_MSC_VER >= 1300)
 		if(bRet != FALSE)
@@ -1941,7 +1941,7 @@ public:
 #if (_MSC_VER >= 1300)
 		BOOL bRet = ATL::CWindowImpl< T, TBase, TWinTraits >::SubclassWindow(hWnd);
 #else // !(_MSC_VER >= 1300)
-/		typedef ATL::CWindowImpl< T, TBase, TWinTraits >   _baseClass;
+		typedef ATL::CWindowImpl< T, TBase, TWinTraits >   _baseClass;
 		BOOL bRet = _baseClass::SubclassWindow(hWnd);
 #endif // !(_MSC_VER >= 1300)
 		if(bRet != FALSE)
