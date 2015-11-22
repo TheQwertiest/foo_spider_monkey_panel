@@ -11,13 +11,20 @@
 #include <WindowsX.h>
 #include <commctrl.h>
 
+#ifndef uT
 #define uT(x) (pfc::stringcvt::string_os_from_utf8(x).get_ptr())
+#define uTS(x,s) (pfc::stringcvt::string_os_from_utf8(x,s).get_ptr())
+#endif
+#define Tu(x) (pfc::stringcvt::string_utf8_from_os(x).get_ptr())
+#define TSu(x,s) (pfc::stringcvt::string_utf8_from_os(x,s).get_ptr())
 
 typedef HDITEMA uHDITEM;
 typedef TOOLINFOA uTOOLINFO;
 typedef REBARBANDINFOA uREBARBANDINFO;
 typedef LOGFONTA uLOGFONT;
 
+#define RECT_CX(rc) (rc.right-rc.left)
+#define RECT_CY(rc) (rc.bottom-rc.top)
 
 int uHeader_InsertItem(HWND wnd, int n, uHDITEM * hdi, bool insert = true); //set insert to false to set the item instead
 int uHeader_SetItemText(HWND wnd, int n, const char * text);

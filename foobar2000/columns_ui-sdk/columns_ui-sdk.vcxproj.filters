@@ -2,13 +2,13 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="Panel API">
-      <UniqueIdentifier>{c53af1c3-5e83-42a7-b669-c6b40f973a95}</UniqueIdentifier>
+      <UniqueIdentifier>{e15fcf9c-8637-43d0-98a1-0e78f81b8e2d}</UniqueIdentifier>
     </Filter>
     <Filter Include="Helpers">
-      <UniqueIdentifier>{36dd5cb7-231e-4591-8fa2-9db39a535e29}</UniqueIdentifier>
+      <UniqueIdentifier>{2022b9c3-c253-4235-97b9-90dac50f6f52}</UniqueIdentifier>
     </Filter>
     <Filter Include="CUI">
-      <UniqueIdentifier>{0ef588aa-729d-4f43-9160-c7d505d1f744}</UniqueIdentifier>
+      <UniqueIdentifier>{f53abb3c-f2b1-4908-85d7-657f3e54b28b}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -32,6 +32,9 @@
     </ClInclude>
     <ClInclude Include="..\columns_ui-sdk\window_host.h">
       <Filter>Panel API</Filter>
+    </ClInclude>
+    <ClInclude Include="..\columns_ui-sdk\container_window_v2.h">
+      <Filter>Helpers</Filter>
     </ClInclude>
     <ClInclude Include="..\columns_ui-sdk\imp_helper.h">
       <Filter>Helpers</Filter>

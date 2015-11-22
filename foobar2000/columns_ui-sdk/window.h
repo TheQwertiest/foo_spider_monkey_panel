@@ -23,6 +23,16 @@ namespace ui_helpers
 			: x(rc.left), y(rc.top), cx (rc.right-rc.left), cy(rc.bottom-rc.top)
 		{};
 		window_position_t(){};
+		window_position_t(HWND wnd_relative, int i_x, int i_y, unsigned u_cx, unsigned u_cy)
+		{
+			RECT rc;
+			GetClientRect(wnd_relative, &rc);
+			MapWindowPoints(wnd_relative, HWND_DESKTOP, (LPPOINT)&rc, 2);
+			x = rc.left;// + (RECT_CX(rc)-cx)/2;
+			y = rc.top;// + (RECT_CY(rc)-cy)/2;
+			cx = u_cx;
+			cy = u_cy;
+		};
 
 		void convert_to_rect(RECT & p_out) const
 		{
@@ -247,6 +257,15 @@ namespace ui_extension
 		* \return						The handle to the window that was activated, or NULL if none was.
 		*/
 		static HWND g_on_tab(HWND wnd_focus);
+
+		/**
+		* \brief	Helper function. Processes keyboard shortcuts using keyboard_shortcut_manager_v2::process_keydown_simple().
+		*			Requires foobar2000 >= 0.9.5.
+		* 
+		* \param [in]	wp				Key down message WPARAM value.
+		* \return						If a shortcut was executed.
+		*/
+		static bool g_process_keydown_keyboard_shortcuts(WPARAM wp);
 		
 		FB2K_MAKE_SERVICE_INTERFACE_ENTRYPOINT(window);
 	};
@@ -340,14 +359,15 @@ namespace ui_extension
 		FB2K_MAKE_SERVICE_INTERFACE(playlist_window, window);
 	};
 
-	/** \brief Standard implementation of ui_extension::menu_node_command_t, for a "Configure..." menu item */
+	/** \brief Standard implementation of ui_extension::menu_node_command_t, for an "Options" menu item */
 	class menu_node_configure : public ui_extension::menu_node_command_t
 	{
 		window_ptr p_this;
+		pfc::string8 m_title;
 	public:
 		virtual bool get_display_data(pfc::string_base & p_out,unsigned & p_displayflags) const
 		{
-			p_out = "Configure...";
+			p_out = m_title;
 			p_displayflags= 0;
 			return true;
 		}
@@ -359,7 +379,7 @@ namespace ui_extension
 		{
 			p_this->show_config_popup(p_this->get_wnd());
 		}
-		menu_node_configure(window * wnd) : p_this(wnd) {};
+		menu_node_configure(window * wnd, const char * p_title = "Options") : p_this(wnd), m_title(p_title) {};
 	};
 
 	template<class T>
@@ -391,14 +411,14 @@ namespace ui_extension{
 	* \brief Service factory for multiple instance windows.
 	* \par Usage example
 	* \code
-	* static ui_extension_factory< my_ui_extension > foo_extension;
+	* static window_factory< my_ui_extension > foo_extension;
 	* \endcode
 	*/
 	template<class T>
-	class window_factory : public service_factory_base
+	class window_factory : public service_factory_base_t<window>
 	{
 	public:
-		window_factory() : service_factory_base(window::class_guid, service_factory_traits<window>::factory_list())
+		window_factory() : service_factory_base_t<window>()
 		{
 		}
 
@@ -423,11 +443,11 @@ namespace ui_extension{
 	* as <code>foo_extension2.get_static_instance()</code>.
 	*/
 	template<class T>
-	class window_factory_single : public service_factory_base
+	class window_factory_single : public service_factory_base_t<window>
 	{
 		service_impl_single_t<window_implementation<T, true> > g_instance;
 	public:
-		window_factory_single() : service_factory_base(window::class_guid) {}
+		window_factory_single() : service_factory_base_t<window>() {}
 
 		~window_factory_single() {}
 
@@ -449,10 +469,10 @@ namespace ui_extension{
 	* as <code>foo_extension3</code>.
 	*/
 	template<class T>
-	class window_factory_transparent_single : public service_factory_base, public service_impl_single_t<window_implementation<T, true> >
+	class window_factory_transparent_single : public service_factory_base_t<window>, public service_impl_single_t<window_implementation<T, true> >
 	{	
 	public:
-		window_factory_transparent_single() : service_factory_base(window::class_guid) {}
+		window_factory_transparent_single() : service_factory_base_t<window>() {}
 
 		virtual void instance_create(service_ptr_t<service_base> & p_out)
 		{

@@ -12,6 +12,10 @@
 const GUID ui_extension::window_host::class_guid = 
 { 0x5e283800, 0xe682, 0x4120, { 0xa1, 0xa8, 0xd9, 0xcd, 0xad, 0xdc, 0x89, 0x56 } };
 
+// {0503EC86-FCBB-4643-8274-1A6A135A404D}
+const GUID ui_extension::window_host_ex::class_guid = 
+{ 0x503ec86, 0xfcbb, 0x4643, { 0x82, 0x74, 0x1a, 0x6a, 0x13, 0x5a, 0x40, 0x4d } };
+
 // {A2A21B5F-6280-47bf-856F-C5F2C129C3EA}
 const GUID ui_extension::menu_window::class_guid = 
 { 0xa2a21b5f, 0x6280, 0x47bf, { 0x85, 0x6f, 0xc5, 0xf2, 0xc1, 0x29, 0xc3, 0xea } };
@@ -23,6 +27,10 @@ const GUID ui_extension::window::class_guid =
 // {0627C2F4-3D09-4c02-A186-D6C2A11D7AFC}
 const GUID ui_extension::splitter_window::class_guid = 
 { 0x627c2f4, 0x3d09, 0x4c02, { 0xa1, 0x86, 0xd6, 0xc2, 0xa1, 0x1d, 0x7a, 0xfc } };
+
+// {B2F8E8D9-3302-481e-B615-39D70ADF818E}
+const GUID ui_extension::splitter_window_v2::class_guid = 
+{ 0xb2f8e8d9, 0x3302, 0x481e, { 0xb6, 0x15, 0x39, 0xd7, 0xa, 0xdf, 0x81, 0x8e } };
 
 // {47D142FB-27E3-4a51-9817-10E2A1480E7D}
 const GUID ui_extension::visualisation::class_guid = 
@@ -36,12 +44,16 @@ const GUID ui_extension::visualisation_host::class_guid =
 const GUID ui_extension::button::class_guid = 
 { 0xef05de6b, 0xd65e, 0x47b7, { 0x9a, 0x45, 0x73, 0x10, 0xdb, 0xe5, 0x23, 0xe0 } };
 
+// {87FC6DE2-26E7-40ec-8CC6-4D24198B1ED5}
+const GUID ui_extension::button_v2::class_guid = 
+{ 0x87fc6de2, 0x26e7, 0x40ec, { 0x8c, 0xc6, 0x4d, 0x24, 0x19, 0x8b, 0x1e, 0xd5 } };
+
 // {C27A5B38-97C4-491a-9B61-597BB84837EF}
 const GUID uie::custom_button::class_guid = 
 { 0xc27a5b38, 0x97c4, 0x491a, { 0x9b, 0x61, 0x59, 0x7b, 0xb8, 0x48, 0x37, 0xef } };
 
 // {6AB8127D-F3E2-4ef6-A515-D54F66FDB7AC}
-const GUID uie::menu_button = 
+const GUID uie::menu_button::class_guid =
 { 0x6ab8127d, 0xf3e2, 0x4ef6, { 0xa5, 0x15, 0xd5, 0x4f, 0x66, 0xfd, 0xb7, 0xac } };
 
 // {E67BC90B-40A8-4f54-A1C9-169A14E639D0}
@@ -249,6 +261,31 @@ void ui_extension::menu_hook_impl::win32_build_menu(HMENU menu,unsigned base_id,
 void ui_extension::menu_hook_impl::execute_by_id(unsigned id_exec)
 {
 	execute_by_id_recur(this, m_base_id, m_max_id, id_exec);
+}
+
+/**Stoled from menu_manager.cpp */
+bool test_key(unsigned k)
+{
+	return (GetKeyState(k) & 0x8000) ? true : false;
+}
+
+#define F_SHIFT (HOTKEYF_SHIFT<<8)
+#define F_CTRL (HOTKEYF_CONTROL<<8)
+#define F_ALT (HOTKEYF_ALT<<8)
+#define F_WIN (HOTKEYF_EXT<<8)
+
+t_uint32 get_key_code(WPARAM wp) {
+	t_uint32 code = (t_uint32)(wp & 0xFF);
+	if (test_key(VK_CONTROL)) code|=F_CTRL;
+	if (test_key(VK_SHIFT)) code|=F_SHIFT;
+	if (test_key(VK_MENU)) code|=F_ALT;
+	if (test_key(VK_LWIN) || test_key(VK_RWIN)) code|=F_WIN;
+	return code;
+}
+
+bool uie::window::g_process_keydown_keyboard_shortcuts(WPARAM wp)
+{
+	return static_api_ptr_t<keyboard_shortcut_manager_v2>()->process_keydown_simple(get_key_code(wp));
 }
 
 namespace ui_extension
