@@ -39,6 +39,6 @@ function on_size() {
 	g.DrawString(text_to_draw, g_font, RGB(0, 0, 255), 0, 0, ww, wh, StringFormat(StringAlignment.Center, StringAlignment.Center));
 	// Release graphics (or it will remain in memory util system collects GC)
 	img_to_blur.ReleaseGraphics(g);
-	// Make box blur, radius = 2, iteration = 2
+	// Make box blur, radius = 6, iteration = 2
 	img_to_blur.BoxBlur(6, 2);
 }
