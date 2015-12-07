@@ -1,3 +1,12 @@
+## v1.0.5
+
+```
+- CHG: Update Columns UI SDK to 6.4
+- CHG: Update WTL to 9.1
+- CHG: Update scintilla to 3.6.2
+- CHG: Tidy up docs/samples.
+```
+
 ## v1.0.4
 
 ```
