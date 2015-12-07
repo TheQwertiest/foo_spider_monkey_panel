@@ -251,7 +251,7 @@
       <Project>{e8091321-d79d-4575-86ef-064ea1a4a20d}</Project>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
-    <ProjectReference Include="..\scintilla\win32\vcproj\scintilla.vcxproj">
+    <ProjectReference Include="..\scintilla\win32\scintilla.vcxproj">
       <Project>{641a7d58-c47d-4110-b800-e18e8a5d818f}</Project>
       <Private>true</Private>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
