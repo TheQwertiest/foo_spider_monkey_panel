@@ -298,6 +298,7 @@ public:
 	STDMETHODIMP OrderByRelativePath();
 	STDMETHODIMP CalcTotalDuration(double* p);
 	STDMETHODIMP CalcTotalSize(double* p);
+	STDMETHODIMP UpdateFileInfoSimple(SAFEARRAY * p);
 };
 
 class FbTitleFormat : public IDisposableImpl4<IFbTitleFormat>

@@ -1457,6 +1457,93 @@ STDMETHODIMP FbMetadbHandle::Compare(IFbMetadbHandle * handle, VARIANT_BOOL * p)
 	return S_OK;
 }
 
+STDMETHODIMP FbMetadbHandleList::UpdateFileInfoSimple(SAFEARRAY * p)
+{
+	TRACK_FUNCTION();
+
+	if (m_handles.get_count() == 0) return E_POINTER;
+	if (!p) return E_INVALIDARG;
+
+	helpers::file_info_pairs_filter::t_field_value_map field_value_map;
+	pfc::stringcvt::string_utf8_from_wide ufield, uvalue, umultival;
+	HRESULT hr;
+	LONG nLBound = 0, nUBound = -1;
+	LONG nCount;
+
+	if (FAILED(hr = SafeArrayGetLBound(p, 1, &nLBound)))
+		return hr;
+
+	if (FAILED(hr = SafeArrayGetUBound(p, 1, &nUBound)))
+		return hr;
+
+	nCount = nUBound - nLBound + 1;
+
+	if (nCount < 2)
+		return DISP_E_BADPARAMCOUNT;
+
+	// Enum every two elems
+	for (LONG i = nLBound; i < nUBound; i += 2)
+	{
+		_variant_t var_field, var_value;
+		LONG n1 = i;
+		LONG n2 = i + 1;
+
+		if (FAILED(hr = SafeArrayGetElement(p, &n1, &var_field)))
+			return hr;
+
+		if (FAILED(hr = SafeArrayGetElement(p, &n2, &var_value)))
+			return hr;
+
+		if (FAILED(hr = VariantChangeType(&var_field, &var_field, 0, VT_BSTR)))
+			return hr;
+
+		if (FAILED(hr = VariantChangeType(&var_value, &var_value, 0, VT_BSTR)))
+			return hr;
+
+		ufield.convert(var_field.bstrVal);
+		uvalue.convert(var_value.bstrVal);
+
+		field_value_map[ufield] = uvalue;
+	}
+
+	// Get multivalue fields
+	if (nCount % 2 != 0)
+	{
+		_variant_t var_multival;
+		LONG n = nUBound;
+
+		if (FAILED(hr = SafeArrayGetElement(p, &n, &var_multival)))
+			return hr;
+
+		if (FAILED(hr = VariantChangeType(&var_multival, &var_multival, 0, VT_BSTR)))
+			return hr;
+
+		umultival.convert(var_multival.bstrVal);
+	}
+
+	static_api_ptr_t<metadb_io_v2> io;
+	pfc::list_t<file_info_impl> info;
+	info.set_size(m_handles.get_count());
+	metadb_handle_ptr item;
+	foobar2000_io::t_filestats null_stats;
+
+	for (int i = 0; i < (int)m_handles.get_count(); i++) {
+		item = m_handles.get_item(i);
+		item->get_info(info[i]);
+
+		helpers::file_info_pairs_filter * item_filters = new service_impl_t<helpers::file_info_pairs_filter>(m_handles[i], field_value_map, umultival);
+		item_filters->apply_filter(m_handles[i], null_stats, info[i]);
+	}
+
+	io->update_info_async_simple(
+		m_handles,
+		pfc::ptr_list_const_array_t<const file_info, file_info_impl *>(info.get_ptr(), info.get_count()),
+		core_api::get_main_window(), metadb_io_v2::op_flag_delay_ui, NULL
+		);
+
+	return S_OK;
+}
+
 STDMETHODIMP FbMetadbHandleList::get__ptr(void ** pp)
 {
 	TRACK_FUNCTION();

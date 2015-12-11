@@ -267,6 +267,7 @@ __interface IFbMetadbHandleList: IDisposable
 	STDMETHOD(OrderByRelativePath)();
 	STDMETHOD(CalcTotalDuration)([out,retval] double* p);
 	STDMETHOD(CalcTotalSize)([out,retval] double* p);
+	[vararg] STDMETHOD(UpdateFileInfoSimple)([satype(VARIANT)] SAFEARRAY * p);
 };
 
 [
