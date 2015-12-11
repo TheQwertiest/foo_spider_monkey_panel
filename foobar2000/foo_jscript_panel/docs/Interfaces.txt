@@ -1263,7 +1263,7 @@ interface IFbMetadbHandleList {
 		UpdateFileInfoSimple(field1, value1 [, field2, value2 [,...] ] [, multivalue_fields]);
 		// If value is a empty string, field will be removed
 		// multivalue_fields is a semicolon-separated list containing field names which need to be treated as multivalue.
-		// example: handle.UpdateFileInfoSimple("ARTIST", "Enigma", "GENRE", "Downtempo;Ambient", "GENRE");
+		// example: handle_list.UpdateFileInfoSimple("ARTIST", "Enigma", "GENRE", "Downtempo;Ambient", "GENRE");
 		// GENRE will be treated as a multivalue field. So GENRE[0] = "Downtempo", GENRE[1] = "Ambient"
 }
 
