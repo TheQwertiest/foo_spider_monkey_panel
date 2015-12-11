@@ -700,10 +700,14 @@ void js_panel_window::on_mouse_wheel(WPARAM wp)
 {
 	TRACK_FUNCTION();
 
-	VARIANTARG args[1];
+	VARIANTARG args[3];
 
+	args[2].vt = VT_I4;
+	args[2].lVal = GET_WHEEL_DELTA_WPARAM(wp) / WHEEL_DELTA;
+	args[1].vt = VT_I4;
+	args[1].lVal = GET_WHEEL_DELTA_WPARAM(wp);
 	args[0].vt = VT_I4;
-	args[0].lVal = GET_WHEEL_DELTA_WPARAM(wp) / WHEEL_DELTA;
+	args[0].lVal = WHEEL_DELTA;
 	script_invoke_v(CallbackIds::on_mouse_wheel, args, _countof(args));
 }
 
