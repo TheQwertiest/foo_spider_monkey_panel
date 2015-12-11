@@ -60,7 +60,7 @@
 // Columns UI SDK
 #include "../../columns_ui-sdk/ui_extension.h"
 
-// Some marcos defined by windowsx.h should be removed
+// Some macros defined by windowsx.h should be removed
 #ifdef _INC_WINDOWSX
 #undef SubclassWindow
 #endif
