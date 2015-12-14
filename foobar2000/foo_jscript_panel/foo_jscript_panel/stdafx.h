@@ -1,9 +1,8 @@
 #pragma once
 
-
-#define _WIN32_WINNT 0x0700 // Require Windows 7
-#define WINVER 0x0700
-#define _WIN32_IE 0x600
+#define _WIN32_WINNT _WIN32_WINNT_VISTA
+#define WINVER _WIN32_WINNT_VISTA
+#define _WIN32_IE _WIN32_IE_IE70
 
 // Undefine to enable VLD
 #define NO_VISUAL_LEAK_DETECTOR
@@ -11,7 +10,6 @@
 #if defined(_DEBUG) && !defined(NO_VISUAL_LEAK_DETECTOR)
 #include <vld.h>
 #endif
-
 
 #include <tchar.h>
 #include <Windows.h>
@@ -25,13 +23,6 @@
 #include <ObjSafe.h>
 #include <StrSafe.h>
 #include <uxtheme.h>
-
-// Direct2D DirectWrite relative
-//#include <d2d1.h>
-//#include <d2d1helper.h>
-//#include <dwrite.h>
-//#include <wincodec.h>
-
 
 // ATL/WTL
 #define _WTL_USE_CSTRING
