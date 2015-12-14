@@ -781,7 +781,7 @@ namespace helpers
 		const t_field_value_map & p_field_value_map, 
 		const char * p_multivalue_field /*= NULL*/) 
 		: m_handle(p_handle)
-		, m_filed_value_map(p_field_value_map)
+		, m_field_value_map(p_field_value_map)
 	{
 		if (p_multivalue_field)
 		{
@@ -796,7 +796,7 @@ namespace helpers
 	{
 		if (p_location == m_handle)
 		{
-			for (t_field_value_map::const_iterator iter = m_filed_value_map.first(); iter.is_valid(); ++iter)
+			for (t_field_value_map::const_iterator iter = m_field_value_map.first(); iter.is_valid(); ++iter)
 			{
 				if (iter->m_key.is_empty())
 					continue;

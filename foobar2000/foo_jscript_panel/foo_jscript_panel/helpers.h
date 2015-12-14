@@ -163,7 +163,7 @@ namespace helpers
 
 	private:
 		metadb_handle_ptr m_handle;
-		t_field_value_map m_filed_value_map; 
+		t_field_value_map m_field_value_map; 
 		pfc::string_list_impl m_multivalue_fields;
 
 	public:
