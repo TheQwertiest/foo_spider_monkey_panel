@@ -1,3 +1,9 @@
+## v1.0.6
+
+```
+- ADD: FbMetadbHandleList UpdateFileInfoSimple method.
+```
+
 ## v1.0.5
 
 ```
