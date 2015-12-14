@@ -584,7 +584,7 @@ public:
 				IProperty* prop = reinterpret_cast<IProperty*>(TBase::GetItemData(idx));
 				ATLASSERT(prop);
 				// Ask owner first
-				NMPROPERTYITEM nmh = { m_hWnd, GetDlgCtrlID(), PIN_CLICK, prop };
+				NMPROPERTYITEM nmh = { m_hWnd, UINT_PTR(GetDlgCtrlID()), PIN_CLICK, prop };
 				if (::SendMessage(GetParent(), WM_NOTIFY, nmh.hdr.idFrom, (LPARAM) &nmh) == 0)
 				{
 					if (prop->IsEnabled()) prop->Activate(PACT_CLICK, lParam);
@@ -614,7 +614,7 @@ public:
 				IProperty* prop = reinterpret_cast<IProperty*>(TBase::GetItemData(idx));
 				ATLASSERT(prop);
 				// Ask owner first
-				NMPROPERTYITEM nmh = { m_hWnd, GetDlgCtrlID(), PIN_DBLCLICK, prop };
+				NMPROPERTYITEM nmh = { m_hWnd, UINT_PTR(GetDlgCtrlID()), PIN_DBLCLICK, prop };
 				if (::SendMessage(GetParent(), WM_NOTIFY, nmh.hdr.idFrom, (LPARAM) &nmh) == 0)
 				{
 					// Send DblClick action
@@ -715,7 +715,7 @@ public:
 			ATLASSERT(prop);
 			if (prop == NULL) return 0;
 			// Ask owner about change
-			NMPROPERTYITEM nmh = { m_hWnd, GetDlgCtrlID(), PIN_ITEMCHANGING, prop };
+			NMPROPERTYITEM nmh = { m_hWnd, UINT_PTR(GetDlgCtrlID()), PIN_ITEMCHANGING, prop };
 			if (::SendMessage(GetParent(), WM_NOTIFY, nmh.hdr.idFrom, (LPARAM) &nmh) == 0)
 			{
 				// Set new value
@@ -756,7 +756,7 @@ public:
 			ATLASSERT(prop && pVariant);
 			if (prop == NULL || pVariant == NULL) return 0;
 			// Ask owner about change
-			NMPROPERTYITEM nmh = { m_hWnd, GetDlgCtrlID(), PIN_ITEMCHANGING, prop };
+			NMPROPERTYITEM nmh = { m_hWnd, UINT_PTR(GetDlgCtrlID()), PIN_ITEMCHANGING, prop };
 			if (::SendMessage(GetParent(), WM_NOTIFY, nmh.hdr.idFrom, (LPARAM) &nmh) == 0)
 			{
 				// Set new value
@@ -799,7 +799,7 @@ public:
 				}
 			}
 			// Let owner know
-			NMPROPERTYITEM nmh = { m_hWnd, GetDlgCtrlID(), PIN_SELCHANGED, prop };
+			NMPROPERTYITEM nmh = { m_hWnd, UINT_PTR(GetDlgCtrlID()), PIN_SELCHANGED, prop };
 			::SendMessage(GetParent(), WM_NOTIFY, nmh.hdr.idFrom, (LPARAM) &nmh);
 			// Redraw drag-band
 			if (m_iPrevXGhostBar > 0) _DrawGhostBar(m_iPrevXGhostBar);
