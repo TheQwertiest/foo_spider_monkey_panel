@@ -648,7 +648,7 @@ public:
 
 			if (pt.x == m_iMiddle)
 			{
-				::SetCursor(::LoadCursor(NULL, MAKEINTRESOURCE(IDC_SIZEWE)));
+				::SetCursor(::LoadCursor(NULL, IDC_SIZEWE));
 				return FALSE;
 			}
 			bHandled = FALSE;

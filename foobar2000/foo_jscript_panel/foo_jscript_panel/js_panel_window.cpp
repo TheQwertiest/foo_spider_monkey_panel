@@ -719,7 +719,7 @@ void js_panel_window::on_mouse_leave()
 
 	script_invoke_v(CallbackIds::on_mouse_leave);
 	// Restore default cursor
-	SetCursor(LoadCursor(NULL, MAKEINTRESOURCE(IDC_ARROW)));
+	SetCursor(LoadCursor(NULL, IDC_ARROW));
 }
 
 void js_panel_window::on_mouse_move(WPARAM wp, LPARAM lp)
@@ -737,7 +737,7 @@ void js_panel_window::on_mouse_move(WPARAM wp, LPARAM lp)
 		m_is_mouse_tracked = true;
 
 		// Restore default cursor
-		SetCursor(LoadCursor(NULL, MAKEINTRESOURCE(IDC_ARROW)));
+		SetCursor(LoadCursor(NULL, IDC_ARROW));
 	}
 
 	VARIANTARG args[3];

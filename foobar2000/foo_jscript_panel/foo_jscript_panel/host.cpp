@@ -54,7 +54,11 @@ void HostComm::Repaint(bool force /*= false*/)
 
 void HostComm::RepaintRect(UINT x, UINT y, UINT w, UINT h, bool force /*= false*/)
 {
-	RECT rc = {x, y, x + w, y + h};
+	RECT rc;
+	rc.left = x;
+	rc.top = y;
+	rc.right = x + w;
+	rc.bottom = y + h;
 
 	m_paint_pending = true;
 
