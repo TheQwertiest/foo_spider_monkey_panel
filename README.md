@@ -1,7 +1,7 @@
 # foo_jscript_panel
 foobar2000 component
 
-This is a customisable panel for the [foobar2000)[https://www.foobar2000.org/] audio player. It is based on [WSH Panel Mod](https://code.google.com/p/foo-wsh-panel-mod/).
+This is a customisable panel for the [foobar2000](https://www.foobar2000.org) audio player. It is based on [WSH Panel Mod](https://code.google.com/p/foo-wsh-panel-mod/).
 
 All scripts are written in Javascript but the component provides means to do the following:
 
