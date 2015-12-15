@@ -36,47 +36,18 @@ void js_panel_vars::load_config(stream_reader * reader, t_size size, abort_callb
 		
 		try
 		{
-			// Read version
 			reader->read_object_t(ver, abort);
-
-			// fall-thru
-			switch (ver)
-			{
-			case VERSION_0x81:
-				reader->read_object_t(m_delay_load, abort);
-
-			case VERSION_0x80:
-				// Due to default value of delay load had been changed, skip
-				if (ver < VERSION_0x81)
-				{
-					reader->skip_object(sizeof(m_delay_load), abort);
-				}
-
-			case VERSION_0x79:
-				reader->read_object_t(m_config_guid, abort);
-
-			case VERSION_0x78:
-				reader->read_object(&m_edge_style, sizeof(m_edge_style), abort);
-
-			case VERSION_0x77:
-				m_config_prop.load(reader, abort);
-
-			case VERSION_0x76:
-				reader->read_object_t(m_disabled_before, abort);
-
-			case VERSION_0x75:
-				reader->read_object_t(m_grab_focus, abort);
-
-			case VERSION_0x74:
-				reader->read_object(&m_wndpl, sizeof(m_wndpl), abort);
-
-			case VERSION_0x73:
-				reader->read_string(m_script_engine_str, abort);
-				reader->read_string(m_script_code, abort);
-				reader->read_object_t(m_pseudo_transparent, abort);
-				have_read_config = true;
-				break;
-			}
+			reader->read_object_t(m_delay_load, abort);
+			reader->read_object_t(m_config_guid, abort);
+			reader->read_object(&m_edge_style, sizeof(m_edge_style), abort);
+			m_config_prop.load(reader, abort);
+			reader->read_object_t(m_disabled_before, abort);
+			reader->read_object_t(m_grab_focus, abort);
+			reader->read_object(&m_wndpl, sizeof(m_wndpl), abort);
+			reader->read_string(m_script_engine_str, abort);
+			reader->read_string(m_script_code, abort);
+			reader->read_object_t(m_pseudo_transparent, abort);
+			have_read_config = true;
 		}
 		catch (std::exception &)
 		{
@@ -86,9 +57,7 @@ void js_panel_vars::load_config(stream_reader * reader, t_size size, abort_callb
 
 		if (!have_read_config)
 		{
-			// Configuration corruputed or config version dismatch.
-			console::complain(JSP_NAME, 
-				"Error: Configuration needs a newer component or is corrupted");
+			console::complain(JSP_NAME, "Error: Configuration is corrupted");
 		}
 	}
 }
@@ -99,9 +68,7 @@ void js_panel_vars::save_config(stream_writer * writer, abort_callback & abort) 
 
 	try
 	{
-		// Write version
 		writer->write_object_t(VERSION_CURRENT, abort);
-		//
 		writer->write_object_t(m_delay_load, abort);
 		writer->write_object_t(m_config_guid, abort);
 		writer->write_object(&m_edge_style, sizeof(m_edge_style), abort);
