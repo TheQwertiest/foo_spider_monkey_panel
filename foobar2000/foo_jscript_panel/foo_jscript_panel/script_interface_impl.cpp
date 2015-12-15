@@ -1525,14 +1525,14 @@ STDMETHODIMP FbMetadbHandleList::UpdateFileInfoSimple(SAFEARRAY * p)
 	pfc::list_t<file_info_impl> info;
 	info.set_size(m_handles.get_count());
 	metadb_handle_ptr item;
-	foobar2000_io::t_filestats null_stats;
+	t_filestats p_stats = filestats_invalid;
 
 	for (int i = 0; i < (int)m_handles.get_count(); i++) {
 		item = m_handles.get_item(i);
 		item->get_info(info[i]);
 
 		helpers::file_info_pairs_filter * item_filters = new service_impl_t<helpers::file_info_pairs_filter>(m_handles[i], field_value_map, umultival);
-		item_filters->apply_filter(m_handles[i], null_stats, info[i]);
+		item_filters->apply_filter(m_handles[i], p_stats, info[i]);
 	}
 
 	io->update_info_async_simple(
