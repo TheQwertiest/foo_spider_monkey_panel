@@ -13,7 +13,7 @@ All scripts are written in Javascript but the component provides means to do the
 * Complete manipulation of playlists.
 * And much more...
 
-[Requirements & Installation](https://github.com/19379/foo-jscript-panel/wiki)
+[Requirements & Installation](https://github.com/19379/foo-jscript-panel/wiki/Requirements-&-Installation)
 
 [Changelog](https://github.com/19379/foo-jscript-panel/blob/master/CHANGELOG.md)
 
