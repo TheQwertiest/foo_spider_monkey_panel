@@ -1,3 +1,9 @@
+## v1.0.7
+
+```
+- ADD: fb.GetLibraryRelativePath(handle)
+```
+
 ## v1.0.6
 
 ```

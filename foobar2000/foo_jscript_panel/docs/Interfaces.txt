@@ -155,6 +155,9 @@ interface IFbUtils {
 		fb.trace(fb.GetLibraryRelativePath(handle));
 		
 		outputs "Albums\Artist\Some Album\Some Song.flac"
+		
+		NOTE: If you intend to loop through a large handle list and you have no control over what is happening in the background,
+		consider using try/catch as errors may occur if the Media Library settings/content changes.
 		*/
 		
 		fb.GetNowPlaying(); (IFbMetadbHandle)
