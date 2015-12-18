@@ -148,8 +148,8 @@ interface IFbUtils {
 		returns an empty string when used on track not in Media Library
 		
 		example:
-		the foobar2000 Media Library is configured to watch D:\Music
-		path of now playing item is "D:\Music\Albums\Artist\Some Album\Some Song.flac"
+		the foobar2000 Media Library is configured to watch "D:\Music" and the
+		path of the now playing item is "D:\Music\Albums\Artist\Some Album\Some Song.flac"
 		
 		var handle = fb.GetNowPlaying();
 		fb.trace(fb.GetLibraryRelativePath(handle));
