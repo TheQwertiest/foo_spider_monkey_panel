@@ -457,6 +457,7 @@ public:
 	STDMETHODIMP RunContextCommandWithMetadb(BSTR command, VARIANT handle, UINT flags, VARIANT_BOOL * p);
 	STDMETHODIMP CreateContextMenuManager(IContextMenuManager ** pp);
 	STDMETHODIMP CreateMainMenuManager(IMainMenuManager ** pp);
+	STDMETHODIMP GetLibraryRelativePath(IFbMetadbHandle * handle, BSTR * p);
 	STDMETHODIMP IsMetadbInMediaLibrary(IFbMetadbHandle * handle, VARIANT_BOOL * p);
 	STDMETHODIMP IsLibraryEnabled(VARIANT_BOOL * p);
 	STDMETHODIMP ShowLibrarySearchUI(BSTR query);

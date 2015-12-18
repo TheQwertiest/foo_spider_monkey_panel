@@ -141,8 +141,22 @@ interface IFbUtils {
 		// if it is unable to get the focus item.
 
 		fb.GetLibraryItems(); (IFbMetadbHandleList)
-		// returns all library items as a handle list.
-
+		// returns all Media Library items as a handle list.
+		
+		fb.GetLibraryRelativePath(handle); (string)
+		/* 
+		returns an empty string when used on track not in Media Library
+		
+		example:
+		the foobar2000 Media Library is configured to watch D:\Music
+		path of now playing item is "D:\Music\Albums\Artist\Some Album\Some Song.flac"
+		
+		var handle = fb.GetNowPlaying();
+		fb.trace(fb.GetLibraryRelativePath(handle));
+		
+		outputs "Albums\Artist\Some Album\Some Song.flac"
+		*/
+		
 		fb.GetNowPlaying(); (IFbMetadbHandle)
 		// get handle of now playing item.
 

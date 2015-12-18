@@ -2511,6 +2511,24 @@ STDMETHODIMP FbUtils::CreateMainMenuManager(IMainMenuManager ** pp)
 	return S_OK;
 }
 
+STDMETHODIMP FbUtils::GetLibraryRelativePath(IFbMetadbHandle * handle, BSTR * p)
+{
+	TRACK_FUNCTION();
+
+	if (!handle) return E_INVALIDARG;
+	if (!p) return E_POINTER;
+
+	metadb_handle * ptr = NULL;
+	handle->get__ptr((void**)&ptr);
+
+	pfc::string8_fast temp;
+	static_api_ptr_t<library_manager> api;
+
+	if (!api->get_relative_path(ptr, temp)) temp = "";
+	*p = SysAllocString(pfc::stringcvt::string_wide_from_utf8_fast(temp));
+	return S_OK;
+}
+
 STDMETHODIMP FbUtils::IsMetadbInMediaLibrary(IFbMetadbHandle * handle, VARIANT_BOOL * p)
 {
 	TRACK_FUNCTION();

@@ -421,6 +421,7 @@ __interface IFbUtils: IDispatch
 	STDMETHOD(RunContextCommandWithMetadb)(BSTR command, VARIANT handle, [defaultvalue(0)] UINT flags, [out,retval] VARIANT_BOOL * p);
 	STDMETHOD(CreateContextMenuManager)([out,retval] IContextMenuManager ** pp);
 	STDMETHOD(CreateMainMenuManager)([out,retval] IMainMenuManager ** pp);
+	STDMETHOD(GetLibraryRelativePath)(IFbMetadbHandle * handle, [out,retval] BSTR * p);
 	STDMETHOD(IsMetadbInMediaLibrary)(IFbMetadbHandle * handle, [out,retval] VARIANT_BOOL * p);
 	STDMETHOD(IsLibraryEnabled)([out,retval] VARIANT_BOOL * p);
 	STDMETHOD(ShowLibrarySearchUI)(BSTR query);
