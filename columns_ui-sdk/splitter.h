@@ -320,15 +320,41 @@ namespace ui_extension
 
 		FB2K_MAKE_SERVICE_INTERFACE(splitter_window, window);
 	};
+
+	/**
+	* \brief	Extends ui_extension::splitter_window, providing additional methods used for live editing.
+	* 
+	* New in SDK version 6.5.
+	*/
 	class NOVTABLE splitter_window_v2 : public splitter_window
 	{
 	public:
-		//virtual void enter_layout_editing_mode()=0;
-		//virtual void exit_layout_editing_mode()=0;
-		//virtual bool check_wnd_is_splitter(HWND wnd)=0;
-
+		/**
+		* \brief Checks if a point is within this splitter window. Used for live layout editing.
+		*
+		* \param  [in]	wnd_point		The window the original mouse message was being sent to.
+		* \param  [in]	pt_screen		The point being checked.
+		* \param  [out]	p_hierarchy		Receives the hierarchy of windows leading to the point including this window. 
+		*								If the point is within your window (including any child windows), append yourself to the list.
+		*								If it is in a non-splitter child window, additionally append the child window to the list.
+		*								If the child window is a splitter window, call its is_point_ours to complete the hierarchy.
+		* 
+		* \return						True if the point is window the window; otherwise false.
+		*/
 		virtual bool is_point_ours(HWND wnd_point, const POINT & pt_screen, pfc::list_base_t<uie::window::ptr> & p_hierarchy) {return false;};
+
+		/**
+		* \brief Checks if windows can be inserted into this splitter. Used for live editing.
+		* 
+		* Implement this by calling ui_extension::window::is_available on each window.
+		*
+		* \param  [in]	p_windows				List of windows to check.
+		* \param  [out]	p_mask_unsupported		A bit array the same size as the number of windows in p_windows. 
+		*										Receives values indicating whether each window can be inserted.
+		*										A set bit indicates the respective window cannot be inserted.
+		*/
 		virtual void get_supported_panels(const pfc::list_base_const_t<uie::window::ptr> & p_windows, bit_array_var & p_mask_unsupported) {};
+
 		FB2K_MAKE_SERVICE_INTERFACE(splitter_window_v2, splitter_window);
 	};
 }

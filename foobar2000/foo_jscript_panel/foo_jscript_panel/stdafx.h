@@ -49,7 +49,7 @@
 // foobar2000 SDK
 #include "../../SDK/foobar2000.h"
 // Columns UI SDK
-#include "../../columns_ui-sdk/ui_extension.h"
+#include "../../../columns_ui-sdk/ui_extension.h"
 
 // Some macros defined by windowsx.h should be removed
 #ifdef _INC_WINDOWSX

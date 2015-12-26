@@ -185,8 +185,10 @@ public:
 };
 
 /** 
- *  \brief Sub-class of window_host, providing methods for retrieving information about children panels 
+ *  \brief Sub-class of window_host, providing methods for retrieving information about child panels 
  *
+ *  New in SDK version 6.5.
+ * 
  *  In addition to the methods exposed through the window_host interface, 
  *  this interface provides information about children panels that are in the same container/splitter.
  *  Note that these do not necessarily have the same window_host instance.
@@ -195,18 +197,12 @@ class window_host_ex : public window_host
 {
 public:
 	/**
-	 * \brief Retreives list of children panels.
+	 * \brief	Retreives list of child panels. This is used by Filter panels 
+	 *			so they can link themselves together.
 	 *
 	 * \param[in]	p_out 			receives the list of panels
 	 */
 	virtual void get_children(pfc::list_base_t<uie::window_ptr> & p_out)=0;
-
-	/**
-	 * \brief Retreives deinitialising date.
-	 *
-	 * \return			 			deinitialising state
-	 */
-	//virtual bool is_deinitialising()=0;
 
 	FB2K_MAKE_SERVICE_INTERFACE(window_host_ex, window_host);
 };

@@ -3,7 +3,10 @@
 namespace ui_helpers 
 {
 
-	/** \brief Implements a window that serves either as an empty container for either other windows, or as a custom control */
+	/**
+	* \brief Implements a window that serves either as an empty container for other windows, or as a custom control 
+	* This is a newer version of ui_helpers::container_window, and has not been extensively used/tested.
+	*/
 	template <typename TBase>
 	class container_window_v2_t : public TBase
 	{
@@ -269,11 +272,7 @@ namespace ui_helpers
 				}
 				else
 				{
-#if 0
-					SendMessage(wnd_parent, WM_PRINTCLIENT,wp, PRF_ERASEBKGND);
-#else
 					b_ret = SendMessage(wnd_parent, WM_ERASEBKGND,wp, 0);
-#endif
 				}
 				SetWindowOrgEx(dc, pt_old.x, pt_old.y, 0);
 
@@ -299,7 +298,10 @@ namespace ui_helpers
 
 namespace ui_extension{
 
-	/** \brief Wraps ui_helpers::container_window into a panel */
+	/** \brief
+	* Wraps ui_helpers::container_window_v2_t into a panel 
+	* Hasn't been extensively used or tested.
+	*/
 	template <class W = ui_helpers::container_window_v2_t<window> >
 	class container_uie_window_v2_t : public W
 	{
