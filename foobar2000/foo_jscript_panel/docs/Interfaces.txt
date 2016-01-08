@@ -219,7 +219,7 @@ interface IFbUtils {
 		*/
 
 		fb.RunContextCommandWithMetadb(command, handle_or_handle_list[, flags]); (boolean)
-		// same flags as fb.RunContextCommand. handle_or_handle_list can be something like plman.GetFocusItem or plman.GetPlaylistSelectedItems(plman.ActivePlaylist)
+		// same flags as fb.RunContextCommand. handle_or_handle_list can be something like fb.GetFocusItem() or plman.GetPlaylistSelectedItems(plman.ActivePlaylist)
 
 		fb.RunMainMenuCommand(command); (boolean)
 		//example: fb.RunMainMenuCommand("File/Add Location...");
