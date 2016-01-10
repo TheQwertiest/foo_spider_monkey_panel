@@ -2581,8 +2581,8 @@ STDMETHODIMP FbUtils::GetQueryItems(IFbMetadbHandleList * items, BSTR query, IFb
 {
 	TRACK_FUNCTION();
 
-	if (!pp)return E_POINTER;
-	if (!query)return E_INVALIDARG;
+	if (!pp) return E_POINTER;
+	if (!query) return E_INVALIDARG;
 
 	metadb_handle_list *srclist_ptr, dst_list;
 

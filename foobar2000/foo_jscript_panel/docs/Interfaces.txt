@@ -163,6 +163,13 @@ interface IFbUtils {
 		fb.GetNowPlaying(); (IFbMetadbHandle)
 		// get handle of now playing item.
 
+		fb.GetQueryItems(handle_list, query); (IFbMetadbHandleList)
+		/*
+		example1: var fav_playlist_items = fb.GetQueryItems(plman.GetPlaylistItems(plman.ActivePlaylist), "rating IS 5");
+		example2: var fav_library_items = fb.GetQueryItems(fb.GetLibraryItems(), "rating IS 5");
+		results are unsorted
+		*/
+
 		fb.GetSelection(); (IFbMetadbHandle)
 		// gets now playing or selected item. what you get will depend on "File>Preferences>Display>Selection viewers".
 		// the return value may be null.
@@ -439,13 +446,6 @@ interface IFbPlaylistManager {
 
 		plman.GetPlaylistSelectedItems(playlistIndex); (IFbMetadbHandleList)
 		// example: var selected_items = plman.GetPlaylistSelectedItems(plman.ActivePlaylist);
-
-		plman.GetQueryItems(handle_list, query); (IFbMetadbHandleList)
-		/*
-		example1: var fav_playlist_items = plman.GetQueryItems(plman.GetPlaylistItems(plman.ActivePlaylist), "rating IS 5");
-		example2: var fav_library_items = plman.GetQueryItems(fb.GetLibraryItems(), "rating IS 5");
-		results are unsorted
-		*/
 
 		plman.InsertPlaylistItems(playlistIndex, base, handle_list), [select]); (uint)
 		/*

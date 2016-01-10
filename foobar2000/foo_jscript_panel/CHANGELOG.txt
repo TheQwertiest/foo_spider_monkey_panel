@@ -1,3 +1,7 @@
+v1.1.0
+- CHG: GetQueryItems should be a "fb" method, not "plman".
+- FIX: Fix crash when using GetQueryItems with dates as part of the query.
+
 v1.0.7
 - ADD: fb.GetLibraryRelativePath(handle)
 
