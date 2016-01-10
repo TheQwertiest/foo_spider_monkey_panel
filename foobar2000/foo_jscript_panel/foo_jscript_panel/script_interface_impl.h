@@ -462,6 +462,7 @@ public:
 	STDMETHODIMP IsLibraryEnabled(VARIANT_BOOL * p);
 	STDMETHODIMP ShowLibrarySearchUI(BSTR query);
 	STDMETHODIMP GetLibraryItems(IFbMetadbHandleList ** outItems);
+	STDMETHODIMP GetQueryItems(IFbMetadbHandleList * items, BSTR query, IFbMetadbHandleList ** pp);
 };
 
 class MenuObj : public IDisposableImpl4<IMenuObj>

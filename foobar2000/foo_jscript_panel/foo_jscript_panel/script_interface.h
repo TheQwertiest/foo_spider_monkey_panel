@@ -426,6 +426,7 @@ __interface IFbUtils: IDispatch
 	STDMETHOD(IsLibraryEnabled)([out,retval] VARIANT_BOOL * p);
 	STDMETHOD(ShowLibrarySearchUI)(BSTR query);
 	STDMETHOD(GetLibraryItems)([out,retval] IFbMetadbHandleList ** outItems);
+	STDMETHOD(GetQueryItems)(IFbMetadbHandleList * items, BSTR query, [out, retval] IFbMetadbHandleList ** pp);
 };
 _COM_SMARTPTR_TYPEDEF(IFbUtils, __uuidof(IFbUtils));
 

@@ -2577,6 +2577,42 @@ STDMETHODIMP FbUtils::GetLibraryItems(IFbMetadbHandleList ** outItems)
 	return S_OK;
 }
 
+STDMETHODIMP FbUtils::GetQueryItems(IFbMetadbHandleList * items, BSTR query, IFbMetadbHandleList ** pp)
+{
+	TRACK_FUNCTION();
+
+	if (!pp)return E_POINTER;
+	if (!query)return E_INVALIDARG;
+
+	metadb_handle_list *srclist_ptr, dst_list;
+
+	items->get__ptr((void **)&srclist_ptr);
+
+	dst_list = *srclist_ptr;
+	pfc::stringcvt::string_utf8_from_wide query8(query);
+
+	static_api_ptr_t<search_filter_manager_v2> api;
+	search_filter_v2::ptr filter;
+
+	try
+	{
+		filter = api->create_ex(query8, new service_impl_t<completion_notify_dummy>(), search_filter_manager_v2::KFlagSuppressNotify);
+	}
+	catch (...)
+	{
+		return E_FAIL;
+	}
+
+	pfc::array_t<bool> mask;
+	mask.set_size(dst_list.get_size());
+	filter->test_multi(dst_list, mask.get_ptr());
+	dst_list.filter_mask(mask.get_ptr());
+
+	(*pp) = new com_object_impl_t<FbMetadbHandleList>(dst_list);
+
+	return S_OK;
+}
+
 STDMETHODIMP MenuObj::get_ID(UINT * p)
 {
 	TRACK_FUNCTION();

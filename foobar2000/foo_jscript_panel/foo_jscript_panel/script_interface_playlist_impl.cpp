@@ -111,38 +111,6 @@ STDMETHODIMP FbPlaylistManager::AddLocations(UINT playlistIndex, VARIANT locatio
 	return S_OK;
 }
 
-STDMETHODIMP FbPlaylistManager::GetQueryItems(IFbMetadbHandleList * items, BSTR query, IFbMetadbHandleList ** pp)
-{
-	TRACK_FUNCTION();
-
-	if (!pp)return E_POINTER;
-	if (!query)return E_INVALIDARG;
-
-	metadb_handle_list *srclist_ptr, dst_list;
-
-	items->get__ptr((void **)&srclist_ptr);
-
-	dst_list = *srclist_ptr;
-	pfc::stringcvt::string_utf8_from_wide query8(query);
-
-	try
-	{
-		pfc::array_t<bool> mask;
-		mask.set_size(dst_list.get_size());
-		search_filter::ptr ptr = static_api_ptr_t<search_filter_manager>()->create(query8);
-		ptr->test_multi(dst_list, mask.get_ptr());
-		dst_list.filter_mask(mask.get_ptr());
-	}
-	catch (...)
-	{
-		return E_FAIL;
-	}
-
-	(*pp) = new com_object_impl_t<FbMetadbHandleList>(dst_list);
-
-	return S_OK;
-}
-
 STDMETHODIMP FbPlaylistManager::IsAutoPlaylist(UINT idx, VARIANT_BOOL * p)
 {
 	TRACK_FUNCTION();
