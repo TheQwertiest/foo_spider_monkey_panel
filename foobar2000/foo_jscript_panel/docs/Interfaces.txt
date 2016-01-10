@@ -168,6 +168,8 @@ interface IFbUtils {
 		example1: var fav_playlist_items = fb.GetQueryItems(plman.GetPlaylistItems(plman.ActivePlaylist), "rating IS 5");
 		example2: var fav_library_items = fb.GetQueryItems(fb.GetLibraryItems(), "rating IS 5");
 		results are unsorted
+
+		NOTE: use try/catch to handle invalid queries. An empty handle list will be returned if the query is valid but there are no results.
 		*/
 
 		fb.GetSelection(); (IFbMetadbHandle)
