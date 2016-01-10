@@ -3,6 +3,7 @@
 ```
 - CHG: GetQueryItems should be a "fb" method, not "plman".
 - FIX: Fix crash when using GetQueryItems with dates as part of the query.
+- CHG: Update Columns UI SDK to 6.5
 ```
 
 ## v1.0.7
