@@ -73,6 +73,10 @@ function on_mouse_rbtn_up(x, y, mask) {}
 // hold left shift + left windows key to bypass user code and open default context menu.
 
 function on_mouse_wheel(step) {}
+// scroll up/down
+
+function on_mouse_wheel_h(step) {}
+// scroll left/right
 
 function on_notify_data(name, info) {}
 // called in other panels after window.NotifyOthers(name, info) is executed

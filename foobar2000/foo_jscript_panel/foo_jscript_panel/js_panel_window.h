@@ -64,6 +64,7 @@ private:
 	void on_paint_error(HDC memdc);
 	void on_context_menu(int x, int y);
 	void on_mouse_wheel(WPARAM wp);
+	void on_mouse_wheel_h(WPARAM wp);
 	void on_mouse_leave();
 	void on_mouse_move(WPARAM wp, LPARAM lp);
 	void on_mouse_button_dblclk(UINT msg, WPARAM wp, LPARAM lp);

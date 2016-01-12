@@ -327,6 +327,10 @@ LRESULT js_panel_window::on_message(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 		on_mouse_wheel(wp);
 		break;
 
+	case WM_MOUSEHWHEEL:
+		on_mouse_wheel_h(wp);
+		break;
+
 	case WM_SETCURSOR:
 		return 1;
 
@@ -709,6 +713,17 @@ void js_panel_window::on_mouse_wheel(WPARAM wp)
 	args[0].vt = VT_I4;
 	args[0].lVal = WHEEL_DELTA;
 	script_invoke_v(CallbackIds::on_mouse_wheel, args, _countof(args));
+}
+
+void js_panel_window::on_mouse_wheel_h(WPARAM wp)
+{
+	TRACK_FUNCTION();
+
+	VARIANTARG args[1];
+
+	args[0].vt = VT_I4;
+	args[0].lVal = GET_WHEEL_DELTA_WPARAM(wp) / WHEEL_DELTA;
+	script_invoke_v(CallbackIds::on_mouse_wheel_h, args, _countof(args));
 }
 
 void js_panel_window::on_mouse_leave()
