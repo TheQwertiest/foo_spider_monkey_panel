@@ -1,3 +1,6 @@
+v1.1.1
+- ADD: New "on_mouse_wheel_h" callback for left/right scrolling. See callbacks.txt.
+
 v1.1.0
 - CHG: GetQueryItems should be a "fb" method, not "plman".
 - FIX: Fix crash when using GetQueryItems with dates as part of the query.

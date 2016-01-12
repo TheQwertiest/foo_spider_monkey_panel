@@ -1,3 +1,9 @@
+## v1.1.1
+
+```
+- ADD: New "on_mouse_wheel_h" callback for left/right scrolling. See callbacks.txt.
+```
+
 ## v1.1.0
 
 ```
