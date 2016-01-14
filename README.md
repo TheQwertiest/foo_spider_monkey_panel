@@ -19,4 +19,4 @@ All scripts are written in Javascript but the component provides means to do the
 
 [Scripts](https://github.com/19379/foo-jscript-panel/wiki/Scripts)
 
-[Discussion thread @ hydrogenaud.io](https://www.hydrogenaud.io/index.php/topic,110499.0.html)
+[Discussion thread @ hydrogenaud.io](https://hydrogenaud.io/index.php/topic,110499.0.html)
