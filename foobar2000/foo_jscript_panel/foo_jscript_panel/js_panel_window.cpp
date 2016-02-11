@@ -707,7 +707,7 @@ void js_panel_window::on_mouse_wheel(WPARAM wp)
 	VARIANTARG args[3];
 
 	args[2].vt = VT_I4;
-	args[2].lVal = GET_WHEEL_DELTA_WPARAM(wp) / WHEEL_DELTA;
+	args[2].lVal = GET_WHEEL_DELTA_WPARAM(wp) > 0 ? 1 : -1;
 	args[1].vt = VT_I4;
 	args[1].lVal = GET_WHEEL_DELTA_WPARAM(wp);
 	args[0].vt = VT_I4;
@@ -722,7 +722,7 @@ void js_panel_window::on_mouse_wheel_h(WPARAM wp)
 	VARIANTARG args[1];
 
 	args[0].vt = VT_I4;
-	args[0].lVal = GET_WHEEL_DELTA_WPARAM(wp) / WHEEL_DELTA;
+	args[0].lVal = GET_WHEEL_DELTA_WPARAM(wp) > 0 ? 1 : -1;
 	script_invoke_v(CallbackIds::on_mouse_wheel_h, args, _countof(args));
 }
 
