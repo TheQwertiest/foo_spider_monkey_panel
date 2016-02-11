@@ -1,3 +1,9 @@
+## v1.1.2
+
+```
+- FIX: Fix on_mouse_wheel not being called with certain trackpads.
+```
+
 ## v1.1.1
 
 ```
