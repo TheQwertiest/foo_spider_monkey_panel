@@ -40,24 +40,22 @@ namespace helpers
 
 	int GetEncoderClsid(const WCHAR* format, CLSID* pClsid)
 	{
-		TRACK_FUNCTION();
-
 		int ret = -1;
 
-		UINT num_of_encoders = 0;
-		UINT size_of_encoder = 0;
+		UINT num = 0;
+		UINT size = 0;
 
 		Gdiplus::ImageCodecInfo* pImageCodecInfo = NULL;
 
-		Gdiplus::GetImageEncodersSize(&num_of_encoders, &size_of_encoder);
-		if (size_of_encoder == 0) return ret;
+		Gdiplus::GetImageEncodersSize(&num, &size);
+		if (size== 0) return ret;
 
-		pImageCodecInfo = (Gdiplus::ImageCodecInfo*)(malloc((size_t)size_of_encoder));
+		pImageCodecInfo = (Gdiplus::ImageCodecInfo*)(malloc((size_t)size));
 		if (pImageCodecInfo == NULL) return ret;
 
-		Gdiplus::GetImageEncoders(num_of_encoders, size_of_encoder, pImageCodecInfo);
+		Gdiplus::GetImageEncoders(num, size, pImageCodecInfo);
 
-		for (UINT j = 0; j < num_of_encoders; ++j)
+		for (UINT j = 0; j < num; ++j)
 		{
 			if (wcscmp(pImageCodecInfo[j].MimeType, format) == 0)
 			{
