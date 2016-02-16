@@ -404,6 +404,30 @@ STDMETHODIMP GdiBitmap::GetColorScheme(UINT count, VARIANT * outArray)
 	return S_OK;
 }
 
+STDMETHODIMP GdiBitmap::SaveAs(BSTR path, BSTR format, VARIANT_BOOL *p)
+{
+	TRACK_FUNCTION();
+
+	if (!p || !m_ptr) return E_POINTER;
+	if (!path) return E_INVALIDARG;
+
+	CLSID clsid_encoder;
+
+	int ret = helpers::GetEncoderClsid(format, &clsid_encoder);
+
+	if (ret > -1)
+	{
+		m_ptr->Save(path, &clsid_encoder);
+		*p = TO_VARIANT_BOOL(m_ptr->GetLastStatus() == Gdiplus::Ok);
+	}
+	else
+	{
+		*p = VARIANT_FALSE;
+	}
+
+	return S_OK;
+}
+
 void GdiGraphics::GetRoundRectPath(Gdiplus::GraphicsPath & gp, Gdiplus::RectF & rect, float arc_width, float arc_height)
 {
 	TRACK_FUNCTION();

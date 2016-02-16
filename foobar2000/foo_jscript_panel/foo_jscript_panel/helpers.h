@@ -7,6 +7,7 @@
 
 namespace helpers
 {
+	int GetEncoderClsid(const WCHAR* format, CLSID* pClsid);
 	bool execute_context_command_by_name(const char * p_name, metadb_handle_list_cref p_handles, unsigned flags);
 	bool execute_mainmenu_command_by_name(const char * p_name);
 	unsigned detect_charset(const char * fileName);

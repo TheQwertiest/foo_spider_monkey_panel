@@ -86,6 +86,7 @@ public:
 	STDMETHODIMP BoxBlur(int radius, int iteration);
 	STDMETHODIMP Resize(UINT w, UINT h, INT interpolationMode, IGdiBitmap ** pp);
 	STDMETHODIMP GetColorScheme(UINT count, VARIANT * outArray);
+	STDMETHODIMP SaveAs(BSTR path, BSTR format, VARIANT_BOOL * p);
 };
 
 class GdiGraphics : public GdiObj<IGdiGraphics, Gdiplus::Graphics>

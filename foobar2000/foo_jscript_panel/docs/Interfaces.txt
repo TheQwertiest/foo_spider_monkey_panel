@@ -960,6 +960,22 @@ interface IGdiBitmap {
 
 		RotateFlip(mode); (void)
 		// mode: see flags.txt > RotateFlipType
+
+		SaveAs(path, [format]); (boolean)
+		/*
+		path: full path including file extension. the parent folder must already exist.
+		format:
+		"image/png" (default if omitted)
+		"image/bmp"
+		"image/jpeg"
+		"image/gif"
+		"image/tiff"
+
+		example:
+		var img = utils.GetAlbumArtEmbedded(fb.GetFocusItem().RawPath, 0);
+		if (img)
+			img.SaveAs("D:\\export.jpg", "image/jpeg");
+		*/
 }
 
 interface IGdiGraphics {

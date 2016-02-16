@@ -83,6 +83,7 @@ __interface IGdiBitmap: IGdiObj
 	STDMETHOD(BoxBlur)([range(1,20)] int radius, [range(1,20),defaultvalue(1)] int iteration);
 	STDMETHOD(Resize)(UINT w, UINT h, [range(Gdiplus::InterpolationModeInvalid, Gdiplus::InterpolationModeHighQualityBicubic), defaultvalue(0)] INT interpolationMode, [out,retval] IGdiBitmap ** pp);
 	STDMETHOD(GetColorScheme)(UINT count, [out,retval] VARIANT * outArray);
+	STDMETHOD(SaveAs)(BSTR path, [defaultvalue("image/png")] BSTR format, [out,retval] VARIANT_BOOL * p);
 };
 
 [
@@ -198,6 +199,7 @@ __interface IFbFileInfo: IDisposable
 {
 	[propget] STDMETHOD(_ptr)([out]void ** pp);
 	[propget] STDMETHOD(MetaCount)([out,retval] UINT* p);
+	[propget] STDMETHOD(InfoCount)([out,retval] UINT* p);
 	STDMETHOD(MetaValueCount)(UINT idx, [out,retval] UINT* p);
 	STDMETHOD(MetaName)(UINT idx, [out,retval] BSTR* pp);
 	STDMETHOD(MetaValue)(UINT idx, UINT vidx, [out,retval] BSTR* pp);
@@ -205,7 +207,6 @@ __interface IFbFileInfo: IDisposable
 	STDMETHOD(MetaRemoveField)(BSTR name);
 	STDMETHOD(MetaAdd)(BSTR name, BSTR value, [out,retval] UINT * p);
 	STDMETHOD(MetaInsertValue)(UINT idx, UINT vidx, BSTR value);
-	[propget] STDMETHOD(InfoCount)([out,retval] UINT* p);
 	STDMETHOD(InfoName)(UINT idx, [out,retval] BSTR* pp);
 	STDMETHOD(InfoValue)(UINT idx, [out,retval] BSTR* pp);
 	STDMETHOD(InfoFind)(BSTR name, [out,retval] UINT * p);
@@ -228,8 +229,8 @@ __interface IFbMetadbHandle: IDisposable
 	[propget] STDMETHOD(SubSong)([out,retval] UINT* p);
 	[propget] STDMETHOD(FileSize)([out,retval] double* p);
 	[propget] STDMETHOD(Length)([out,retval] double* p);
-	STDMETHOD(GetFileInfo)([out,retval] IFbFileInfo ** pp);
 	[vararg] STDMETHOD(UpdateFileInfoSimple)([satype(VARIANT)] SAFEARRAY * p);
+	STDMETHOD(GetFileInfo)([out,retval] IFbFileInfo ** pp);
 	STDMETHOD(Compare)(IFbMetadbHandle * handle, [out,retval] VARIANT_BOOL * p);
 };
 
@@ -246,7 +247,7 @@ __interface IFbMetadbHandleList: IDisposable
 	[propget] STDMETHOD(Item)(UINT index, [out,retval] IFbMetadbHandle ** pp);
 	[propput] STDMETHOD(Item)(UINT index, IFbMetadbHandle * handle);
 	[propget] STDMETHOD(Count)([out,retval] UINT * p);
-
+	[vararg] STDMETHOD(UpdateFileInfoSimple)([satype(VARIANT)] SAFEARRAY * p);
 	STDMETHOD(Clone)([out,retval] IFbMetadbHandleList ** pp);
 	STDMETHOD(Insert)(UINT index, IFbMetadbHandle * handle, [out,retval] UINT * outIndex);
 	STDMETHOD(InsertRange)(UINT index, IFbMetadbHandleList * handles, [out,retval] UINT * outIndex);
@@ -267,7 +268,6 @@ __interface IFbMetadbHandleList: IDisposable
 	STDMETHOD(OrderByRelativePath)();
 	STDMETHOD(CalcTotalDuration)([out,retval] double* p);
 	STDMETHOD(CalcTotalSize)([out,retval] double* p);
-	[vararg] STDMETHOD(UpdateFileInfoSimple)([satype(VARIANT)] SAFEARRAY * p);
 };
 
 [
@@ -426,7 +426,7 @@ __interface IFbUtils: IDispatch
 	STDMETHOD(IsLibraryEnabled)([out,retval] VARIANT_BOOL * p);
 	STDMETHOD(ShowLibrarySearchUI)(BSTR query);
 	STDMETHOD(GetLibraryItems)([out,retval] IFbMetadbHandleList ** outItems);
-	STDMETHOD(GetQueryItems)(IFbMetadbHandleList * items, BSTR query, [out, retval] IFbMetadbHandleList ** pp);
+	STDMETHOD(GetQueryItems)(IFbMetadbHandleList * items, BSTR query, [out,retval] IFbMetadbHandleList ** pp);
 };
 _COM_SMARTPTR_TYPEDEF(IFbUtils, __uuidof(IFbUtils));
 

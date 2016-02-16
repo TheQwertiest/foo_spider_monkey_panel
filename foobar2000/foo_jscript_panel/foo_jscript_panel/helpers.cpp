@@ -8,6 +8,39 @@
 
 namespace helpers
 {
+	int GetEncoderClsid(const WCHAR* format, CLSID* pClsid)
+	{
+		TRACK_FUNCTION();
+
+		int ret = -1;
+
+		UINT num_of_encoders = 0;
+		UINT size_of_encoder = 0;
+
+		Gdiplus::ImageCodecInfo* pImageCodecInfo = NULL;
+
+		Gdiplus::GetImageEncodersSize(&num_of_encoders, &size_of_encoder);
+		if (size_of_encoder == 0) return ret;
+
+		pImageCodecInfo = (Gdiplus::ImageCodecInfo*)(malloc((size_t)size_of_encoder));
+		if (pImageCodecInfo == NULL) return ret;
+
+		Gdiplus::GetImageEncoders(num_of_encoders, size_of_encoder, pImageCodecInfo);
+
+		for (UINT j = 0; j < num_of_encoders; ++j)
+		{
+			if (wcscmp(pImageCodecInfo[j].MimeType, format) == 0)
+			{
+				*pClsid = pImageCodecInfo[j].Clsid;
+				ret = j;
+				break;
+			}
+		}
+
+		free(pImageCodecInfo);
+		return ret;
+	}
+
 	static bool match_menu_command(const pfc::string_base & path, const char * command, t_size command_len = ~0)
 	{
 		if (command_len == ~0)
