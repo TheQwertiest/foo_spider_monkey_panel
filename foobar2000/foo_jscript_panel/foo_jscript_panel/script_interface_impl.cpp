@@ -3,7 +3,6 @@
 #include "script_interface_playlist_impl.h"
 #include "helpers.h"
 #include "com_array.h"
-#include "gdiplus_helpers.h"
 #include "boxblurfilter.h"
 #include "user_message.h"
 #include "popup_msg.h"
@@ -3030,7 +3029,7 @@ GdiRawBitmap::GdiRawBitmap(Gdiplus::Bitmap * p_bmp)
 	m_height = p_bmp->GetHeight();
 
 	m_hdc = CreateCompatibleDC(NULL);
-	m_hbmp = gdiplus_helpers::create_hbitmap_from_gdiplus_bitmap(p_bmp);
+	m_hbmp = helpers::create_hbitmap_from_gdiplus_bitmap(p_bmp);
 	m_hbmpold = SelectBitmap(m_hdc, m_hbmp);
 }
 

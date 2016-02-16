@@ -135,9 +135,6 @@
     <ClCompile Include="com_tools.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="gdiplus_helpers.cpp">
-      <Filter>Source Files\Misc</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="config.h">
@@ -274,9 +271,6 @@
     </ClInclude>
     <ClInclude Include="script_callback_invoker.h">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="gdiplus_helpers.h">
-      <Filter>Header Files\Misc</Filter>
     </ClInclude>
     <ClInclude Include="panel_tooltip_param.h">
       <Filter>Header Files</Filter>

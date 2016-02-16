@@ -129,7 +129,6 @@
     <ClCompile Include="foo_jscript_panel.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="gdiplus_helpers.cpp" />
     <ClCompile Include="global_cfg.cpp" />
     <ClCompile Include="host.cpp" />
     <ClCompile Include="script_callback_invoker.cpp" />
@@ -169,7 +168,6 @@
     <ClInclude Include="..\PropertyList\PropertyItemEditors.h" />
     <ClInclude Include="..\PropertyList\PropertyItemImpl.h" />
     <ClInclude Include="..\PropertyList\PropertyList.h" />
-    <ClInclude Include="gdiplus_helpers.h" />
     <ClInclude Include="com_tools.h" />
     <ClInclude Include="config.h" />
     <ClInclude Include="dbgtrace.h" />

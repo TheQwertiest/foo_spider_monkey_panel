@@ -7,6 +7,7 @@
 
 namespace helpers
 {
+	HBITMAP create_hbitmap_from_gdiplus_bitmap(Gdiplus::Bitmap * bitmap_ptr);
 	int GetEncoderClsid(const WCHAR* format, CLSID* pClsid);
 	bool execute_context_command_by_name(const char * p_name, metadb_handle_list_cref p_handles, unsigned flags);
 	bool execute_mainmenu_command_by_name(const char * p_name);
