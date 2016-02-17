@@ -8,9 +8,10 @@ All scripts are written in Javascript but the component provides means to do the
 * Custom drawing of text, images, lines, rectangles, etc.
 * Executing main/context menu commands.
 * Ability to create custom buttons/menus.
-* Callbacks can be used to trigger code based on foobar2000 events such as playback starting, switching playlists, removing playlist items, etc.
+* Callbacks can be used to trigger code based on foobar2000 events . See [callbacks.txt](https://raw.githubusercontent.com/19379/foo-jscript-panel/master/foobar2000/foo_jscript_panel/docs/Callbacks.txt).
 * Read/write file tags.
 * Complete manipulation of playlists.
+* Media Library display/sorting/filtering
 * And much more...
 
 [Requirements & Installation](https://github.com/19379/foo-jscript-panel/wiki/Requirements-&-Installation)

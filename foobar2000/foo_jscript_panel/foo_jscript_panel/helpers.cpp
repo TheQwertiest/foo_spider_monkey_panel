@@ -48,7 +48,7 @@ namespace helpers
 		Gdiplus::ImageCodecInfo* pImageCodecInfo = NULL;
 
 		Gdiplus::GetImageEncodersSize(&num, &size);
-		if (size== 0) return ret;
+		if (size == 0) return ret;
 
 		pImageCodecInfo = (Gdiplus::ImageCodecInfo*)(malloc((size_t)size));
 		if (pImageCodecInfo == NULL) return ret;
