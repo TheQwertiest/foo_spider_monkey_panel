@@ -1,3 +1,9 @@
+##v.1.1.3
+
+```
+- ADD: IGdiBitmap SaveAs method.
+```
+
 ## v1.1.2
 
 ```
