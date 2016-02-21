@@ -302,25 +302,6 @@ function buttons() {
 	this.btn = null;
 }
 
-function format_length(y) {
-	var t = Math.round(y);
-	var w = Math.floor(t / 604800);
-	var d = Math.floor((t -= w * 604800) / 86400);
-	var h = Math.floor((t -= d * 86400) / 3600);
-	var m = Math.floor((t -= h * 3600) / 60);
-	var s = t -= m * 60;
-	var temp = "";
-	if (w > 0)
-		temp += w + "wk ";
-	if (w > 0 || d > 0)
-		temp += d + "d ";
-	if (w > 0 || d > 0 || h > 0)
-		temp += h + ":";
-	temp += (h > 0 && m < 10 ? "0" + m : m) + ":";
-	temp += s < 10 ? "0" + s : s;
-	return temp;
-}
-
 function seekbar(x, y, w, h) {
 	this.playback_seek = function () {
 		window.RepaintRect(this.x - 100, this.y, this.w + 200, this.h);
@@ -365,7 +346,7 @@ function seekbar(x, y, w, h) {
 			if (fb.IsPlaying && fb.PlaybackLength > 0) {
 				x -= this.x;
 				this.drag_seek = x < 0 ? 0 : x > this.w ? 1 : x / this.w;
-				tt(format_length(fb.PlaybackLength * this.drag_seek));
+				tt(utils.FormatDuration(fb.PlaybackLength * this.drag_seek));
 				if (this.drag)
 					this.playback_seek();
 			}
