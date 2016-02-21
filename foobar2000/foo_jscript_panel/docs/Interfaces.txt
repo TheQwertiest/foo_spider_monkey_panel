@@ -62,17 +62,17 @@ interface IFbUtils {
 					SetPlaylistSelectionTracking(); (void)
 					/*
 					sets selected items to playlist selection and enables tracking.
-					when the playlist selection changes, the stored selection is automatically updated.
-					tracking ends when a set method is called on any ui_selection_holder or when
-					the last reference to this ui_selection_holder is released.
+					when the playlist selection changes, the stored selection is automatically
+					updated. tracking ends when a set method is called on any ui_selection_holder
+					or when the last reference to this ui_selection_holder is released.
 					*/
 
 					SetPlaylistTracking(); (void)
 					/*
-					sets selected items to the contents of the active playlist and enables tracking.
-					when the active playlist or its contents changes, the stored selection is automatically updated.
-					tracking ends when a set method is called on any ui_selection_holder or when
-					the last reference to this ui_selection_holder is released.
+					sets selected items to playlist selection and enables tracking.
+					when the playlist selection changes, the stored selection is automatically
+					updated. tracking ends when a set method is called on any ui_selection_holder
+					or when the last reference to this ui_selection_holder is released.
 					*/
 			}
 
@@ -156,8 +156,9 @@ interface IFbUtils {
 		
 		outputs "Albums\Artist\Some Album\Some Song.flac"
 		
-		NOTE: If you intend to loop through a large handle list and you have no control over what is happening in the background,
-		consider using try/catch as errors may occur if the Media Library settings/content changes.
+		NOTE: If you intend to loop through a large handle list and you have no control over what is
+		happening in the background, consider using try/catch as errors may occur if the Media Library
+		settings/content changes.
 		*/
 		
 		fb.GetNowPlaying(); (IFbMetadbHandle)
@@ -165,16 +166,20 @@ interface IFbUtils {
 
 		fb.GetQueryItems(handle_list, query); (IFbMetadbHandleList)
 		/*
-		example1: var fav_playlist_items = fb.GetQueryItems(plman.GetPlaylistItems(plman.ActivePlaylist), "rating IS 5");
-		example2: var fav_library_items = fb.GetQueryItems(fb.GetLibraryItems(), "rating IS 5");
+		example1: var a = fb.GetQueryItems(plman.GetPlaylistItems(plman.ActivePlaylist), "rating IS 5");
+		example2: var b = fb.GetQueryItems(fb.GetLibraryItems(), "rating IS 5");
 		results are unsorted
 
-		NOTE: use try/catch to handle invalid queries. An empty handle list will be returned if the query is valid but there are no results.
+		NOTE: use try/catch to handle invalid queries. An empty handle list will be returned if the query
+		is valid but there are no results.
 		*/
 
 		fb.GetSelection(); (IFbMetadbHandle)
-		// gets now playing or selected item. what you get will depend on "File>Preferences>Display>Selection viewers".
-		// the return value may be null.
+		/*
+		gets now playing or selected item. what you get will depend on
+		"File>Preferences>Display>Selection viewers".
+		the return value may be null.
+		*/
 
 		fb.GetSelections([flags]); (IFbMetadbHandleList)
 		/*
@@ -223,12 +228,14 @@ interface IFbUtils {
 		flags:
 		0 default (depends on whether SHIFT key is pressed, flag_view_reduced or flag_view_full is selected)
 		4 flag_view_reduced
-		8 flag_view_full. this can be useful if you need to run context commands the user may have hidden using File>Preferences>Display>Context Menu
+		8 flag_view_full. this can be useful if you need to run context commands the user may have hidden
+		  using File>Preferences>Display>Context Menu
 		example: fb.RunContextCommand("Properties");
 		*/
 
 		fb.RunContextCommandWithMetadb(command, handle_or_handle_list[, flags]); (boolean)
-		// same flags as fb.RunContextCommand. handle_or_handle_list can be something like fb.GetFocusItem() or plman.GetPlaylistSelectedItems(plman.ActivePlaylist)
+		// same flags as fb.RunContextCommand. handle_or_handle_list can be something like fb.GetFocusItem()
+		// or plman.GetPlaylistSelectedItems(plman.ActivePlaylist)
 
 		fb.RunMainMenuCommand(command); (boolean)
 		//example: fb.RunMainMenuCommand("File/Add Location...");
@@ -258,9 +265,12 @@ interface IFbUtils {
 
 					Eval([force]);
 					/*
-					force: boolean, default false. if true, you can process text that doesn't contain title formatting even when foobar2000 isn't playing
-					when playing, you should always get a result.
-					always use eval when you want dynamic info such as %playback_time%, %bitrate% etc. EvalWithMetadb(fb.GetNowplaying()) will not give the results you want.
+					force: boolean, default false. if true, you can process text that doesn't contain 
+						   title formatting even when foobar2000 isn't playing. when playing, you
+						   should always get a result.
+					
+					always use eval when you want dynamic info such as %playback_time%, %bitrate% etc.
+					EvalWithMetadb(fb.GetNowplaying()) will not give the results you want.
 					example: fb.trace(tfo.Eval());
 					*/
 
@@ -453,9 +463,15 @@ interface IFbPlaylistManager {
 		/*
 		select: boolean, default false.
 		inserts new items into specified playlist, at specified position
-		example1: plman.InsertPlaylistItems(plman.ActivePlaylist, 0, fb.GetLibraryItems());
+
+		example1:
+		var ap = plman.ActivePlaylist;
+		plman.InsertPlaylistItems(ap, 0, fb.GetLibraryItems());
 		adds all library tracks to beginning of playlist.
-		example2: plman.InsertPlaylistItems(plman.ActivePlaylist, plman.PlaylistItemCount(plman.ActivePlaylist), fb.GetLibraryItems());
+
+		example2:
+		var ap = plman.ActivePlaylist;
+		plman.InsertPlaylistItems(ap, plman.PlaylistItemCount(ap), fb.GetLibraryItems());
 		adds all library tracks to end of playlist.
 		*/
 
@@ -470,7 +486,8 @@ interface IFbPlaylistManager {
 		plman.MovePlaylist(from, to); (boolean)
 
 		plman.MovePlaylistSelection(playlistIndex, delta); (void)
-		// example: plman.MovePlaylistSelection(plman.ActivePlaylist, plman.PlaylistItemCount(plman.ActivePlaylist));
+		// example:
+		// plman.MovePlaylistSelection(plman.ActivePlaylist, plman.PlaylistItemCount(plman.ActivePlaylist));
 		// sends selected items to end of playlist.
 
 		plman.RemovePlaylist(playlistIndex); (boolean)
@@ -512,9 +529,13 @@ interface IFbPlaylistManager {
 		plman.SetPlaylistSelectionSingle(playlistIndex, itemIndex, state); (void)
 		/*
 		state: boolean
-		example1: plman.SetPlaylistSelectionSingle(plman.ActivePlaylist, 0, false);
+		example1:
+		plman.SetPlaylistSelectionSingle(plman.ActivePlaylist, 0, false);
 		deselects first playlist item. obviously only works when it is already selected.
-		example2: plman.SetPlaylistSelectionSingle(plman.ActivePlaylist, plman.PlaylistItemCount(plman.ActivePlaylist) - 1, true);
+
+		example2:
+		var ap = plman.ActivePlaylist;
+		plman.SetPlaylistSelectionSingle(ap, plman.PlaylistItemCount(ap) - 1, true);
 		selects last item in playlist.
 		note this does not affect other selected items.
 		*/
@@ -592,7 +613,8 @@ interface IJSUtils {
 		utils.FileTest(path, mode); (VARIANT)
 		/*
 		mode:
-		"chardet": guess the charset of a file and return the codepage. it may not be accurate and returns 0 if an error occurred.
+		"chardet": guess the charset of a file and return the codepage. it may not be accurate and
+				   returns 0 if an error occurred.
 		"e": if path exists, return true
 		"s": retrieve file size, in bytes
 		"d": if path is a directory, return true
@@ -604,11 +626,13 @@ interface IJSUtils {
 		*/
 
 		utils.FormatDuration(seconds) (string)
-		// example: fb.trace(utils.FormatDuration(plman.GetPlaylistItems(plman.ActivePlaylist).CalcTotalDuration()));
+		// example:
+		// fb.trace(utils.FormatDuration(plman.GetPlaylistItems(plman.ActivePlaylist).CalcTotalDuration()));
 		// 1wk 1d 17:25:30
 
 		utils.FormatFileSize(bytes) (string)
-		// example: fb.trace(utils.FormatFileSize(plman.GetPlaylistItems(plman.ActivePlaylist).CalcTotalSize()));
+		// example:
+		// fb.trace(utils.FormatFileSize(plman.GetPlaylistItems(plman.ActivePlaylist).CalcTotalSize()));
 		// 7.9 GB 
 
 		utils.GetAlbumArtAsync(window_id, handle[, art_id][, need_stub][, only_embed][, no_load]); (uint)
@@ -689,10 +713,13 @@ interface IFbWindow {
 		// required in utils.GetAlbumArtAsync, utils.LoadImageAsync
 
 		window.InstanceType; (int)
-		// 0 CUI, 1 DUI. you need this to determine which GetFontXXX and GetColorXXX methods to use, assuming you want to support both interfaces.
+		// 0 CUI, 1 DUI.
+		// you need this to determine which GetFontXXX and GetColorXXX methods to use, assuming you want
+		// to support both interfaces.
 
 		window.IsTransparent; (boolean) (read)
-		// depends on setting inside JScript Panel Configuration window. you generally use it to determine whether or not to draw a background.
+		// depends on setting inside JScript Panel Configuration window. you generally use it to determine 
+		// whether or not to draw a background.
 
 		window.IsVisible; (boolean) (read)
 
@@ -702,7 +729,8 @@ interface IFbWindow {
 		window.MaxWidth; (int) (read, write)
 		window.MinHeight; (int) (read, write)
 		window.MinWidth; (int) (read, write)
-		// the previous 4 methods can be used to lock the panel size. do not use if panels are contained within Panel Stack Splitter.
+		// the previous 4 methods can be used to lock the panel size. do not use if panels are contained within
+		// Panel Stack Splitter (Columns UI component).
 
 		window.Width; (int) (read)
 
@@ -1080,13 +1108,15 @@ interface IGdiGraphics {
 					// ==/PREPROCESSOR==
 
 					var sf = StringFormat(StringAlignment.Near, StringAlignment.Near);
-					var text = utils.ReadTextFile(fb.TitleFormat("$directory_path(%path%)").Eval() + "\\cuetools.log");
+					var text = utils.ReadTextFile("z:\\info.txt");
 					var font = window.GetFontDUI(0);
 
 					function on_paint(gr) {
 						gr.DrawString(text, font, RGB(255, 0, 0), 0, 0, window.Width, window.Height, sf);
-						//if we want to calculate height, we must set the height to be far larger than what the text could possibly be.
 						var temp = gr.MeasureString(text, font, 0, 0, window.Width, 10000, sf);
+						// if we want to calculate height, we must set the height to be far larger than what
+						// the text could possibly be.
+						
 						fb.trace(temp.Height); // 2761.2421875 // far larger than my panel height!
 						fb.trace(temp.Chars); // 7967
 					}
@@ -1192,10 +1222,16 @@ interface IFbMetadbHandle {
 			}
 
 		UpdateFileInfoSimple(field1, value1 [, field2, value2 [,...] ] [, multivalue_fields]);
-		// If value is a empty string, field will be removed
-		// multivalue_fields is a semicolon-separated list containing field names which need to be treated as multivalue.
-		// example: handle.UpdateFileInfoSimple("ARTIST", "Enigma", "GENRE", "Downtempo;Ambient", "GENRE");
-		// GENRE will be treated as a multivalue field. So GENRE[0] = "Downtempo", GENRE[1] = "Ambient"
+		/*
+		if value is a empty string, field will be removed
+		multivalue_fields is a semicolon-separated list containing field names which need to be treated
+		as multivalue.
+
+		example:
+		handle.UpdateFileInfoSimple("ARTIST", "Enigma", "GENRE", "Downtempo;Ambient", "GENRE");
+
+		GENRE will be treated as a multivalue field. So GENRE[0] = "Downtempo", GENRE[1] = "Ambient"
+		*/
 }
 
 interface IFbMetadbHandleList {
@@ -1296,10 +1332,16 @@ interface IFbMetadbHandleList {
 		// example: handle_list.RemoveRange(10, 20);
 		
 		UpdateFileInfoSimple(field1, value1 [, field2, value2 [,...] ] [, multivalue_fields]);
-		// If value is a empty string, field will be removed
-		// multivalue_fields is a semicolon-separated list containing field names which need to be treated as multivalue.
-		// example: handle_list.UpdateFileInfoSimple("ARTIST", "Enigma", "GENRE", "Downtempo;Ambient", "GENRE");
-		// GENRE will be treated as a multivalue field. So GENRE[0] = "Downtempo", GENRE[1] = "Ambient"
+		/*
+		if value is a empty string, field will be removed
+		multivalue_fields is a semicolon-separated list containing field names which need to be treated
+		as multivalue.
+
+		example:
+		handle.UpdateFileInfoSimple("ARTIST", "Enigma", "GENRE", "Downtempo;Ambient", "GENRE");
+
+		GENRE will be treated as a multivalue field. So GENRE[0] = "Downtempo", GENRE[1] = "Ambient"
+		*/
 }
 
 interface IDropTargetAction {
