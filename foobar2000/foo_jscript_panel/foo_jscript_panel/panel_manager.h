@@ -164,7 +164,7 @@ public:
 class my_play_callback : public play_callback_static 
 {
 public:
-	// flag_on_playback_all dosen't contain flag_on_volume_change!
+	// flag_on_playback_all doesn't contain flag_on_volume_change!
 	virtual unsigned get_flags() { return flag_on_playback_all | flag_on_volume_change; }
 
 	virtual void on_playback_starting(play_control::t_track_command cmd, bool paused);
