@@ -71,7 +71,7 @@ namespace
 			}
 			else if (g_load_status != E_OK)
 			{
-				err_msg = "This error message indicates that means this component will not function properly:\n\n";
+				err_msg = "This error message indicates that this component will not function properly:\n\n";
 
 				if (g_load_status & E_OLE)
 					err_msg += "OLE: Initialize OLE Failed.\n\n";
