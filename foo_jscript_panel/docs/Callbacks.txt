@@ -23,7 +23,7 @@ function on_focus(is_focused) {}
 // called when the panel gets/loses focus
 
 function on_font_changed() {}
-// called when colours are changed via default UI/columns UI preferences
+// called when fonts are changed via default UI/columns UI preferences
 // retrieve fonts using window.GetFontDUI()/window.GetFontCUI()
 
 function on_get_album_art_done(handle, art_id, image, image_path) {}
