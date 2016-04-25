@@ -592,7 +592,7 @@ namespace helpers
 			}
 		}
 
-		(*pp) = ret;
+		*pp = ret;
 		return S_OK;
 	}
 
@@ -634,7 +634,7 @@ namespace helpers
 			}
 		}
 
-		(*pp) = ret;
+		*pp = ret;
 		return S_OK;
 	}
 

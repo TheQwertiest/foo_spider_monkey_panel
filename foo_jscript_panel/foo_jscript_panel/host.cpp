@@ -356,7 +356,7 @@ STDMETHODIMP FbWindow::CreatePopupMenu(IMenuObj ** pp)
 
 	if (!pp) return E_POINTER;
 
-	(*pp) = new com_object_impl_t<MenuObj>(m_host->GetHWND());
+	*pp = new com_object_impl_t<MenuObj>(m_host->GetHWND());
 	return S_OK;
 }
 
@@ -364,7 +364,7 @@ STDMETHODIMP FbWindow::SetInterval(IDispatch * func, INT delay, UINT * outInterv
 {
 	TRACK_FUNCTION();
 	if (!outIntervalID) return E_POINTER;
-	(*outIntervalID) = m_host->SetInterval(func, delay);
+	*outIntervalID = m_host->SetInterval(func, delay);
 	return S_OK;
 }
 
@@ -378,7 +378,7 @@ STDMETHODIMP FbWindow::ClearInterval(UINT intervalID)
 STDMETHODIMP FbWindow::SetTimeout(IDispatch * func, INT delay, UINT * outTimeoutID)
 {
 	TRACK_FUNCTION();
-	(*outTimeoutID) = m_host->SetTimeout(func, delay);
+	*outTimeoutID = m_host->SetTimeout(func, delay);
 	return S_OK;
 }
 
@@ -424,7 +424,7 @@ STDMETHODIMP FbWindow::CreateTooltip(BSTR name, float pxSize, INT style, IFbTool
 	tooltip_param->font_name = name;
 	tooltip_param->font_size = pxSize;
 	tooltip_param->font_style = style;
-	(*pp) = new com_object_impl_t<FbTooltip>(m_host->GetHWND(), tooltip_param);
+	*pp = new com_object_impl_t<FbTooltip>(m_host->GetHWND(), tooltip_param);
 	return S_OK;
 }
 
@@ -487,7 +487,7 @@ STDMETHODIMP FbWindow::GetBackgroundImage(IGdiBitmap ** pp)
 
 	if (!pp) return E_POINTER;
 
-	(*pp) = m_host->GetBackgroundImage();
+	*pp = m_host->GetBackgroundImage();
 	return S_OK;
 }
 
@@ -558,7 +558,7 @@ STDMETHODIMP FbWindow::GetFontCUI(UINT type, BSTR guidstr, IGdiFont ** pp)
 		if (!helpers::ensure_gdiplus_object(font))
 		{
 			if (font) delete font;
-			(*pp) = NULL;
+			*pp = NULL;
 			return S_OK;
 		}
 
@@ -596,7 +596,7 @@ STDMETHODIMP FbWindow::GetFontDUI(UINT type, IGdiFont ** pp)
 		if (!helpers::ensure_gdiplus_object(font))
 		{
 			if (font) delete font;
-			(*pp) = NULL;
+			*pp = NULL;
 			return S_OK;
 		}
 

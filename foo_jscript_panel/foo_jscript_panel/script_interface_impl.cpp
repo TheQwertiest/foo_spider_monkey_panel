@@ -96,7 +96,7 @@ STDMETHODIMP GdiFont::get_Name(LANGID langId, BSTR * outName)
 	WCHAR name[LF_FACESIZE] = {0};
 	m_ptr->GetFamily(&fontFamily);
 	fontFamily.GetFamilyName(name, langId);
-	(*outName) = SysAllocString(name);
+	*outName = SysAllocString(name);
 	return S_OK;
 }
 
@@ -106,7 +106,7 @@ STDMETHODIMP GdiFont::get_Size(float * outSize)
 
 	if (!outSize || !m_ptr) return E_POINTER;
 
-	(*outSize) = m_ptr->GetSize();
+	*outSize = m_ptr->GetSize();
 	return S_OK;
 }
 
@@ -116,7 +116,7 @@ STDMETHODIMP GdiFont::get_Style(INT * outStyle)
 
 	if (!outStyle || !m_ptr) return E_POINTER;
 
-	(*outStyle) = m_ptr->GetStyle();
+	*outStyle = m_ptr->GetStyle();
 	return S_OK;
 }
 
@@ -154,11 +154,11 @@ STDMETHODIMP GdiBitmap::Clone(float x, float y, float w, float h, IGdiBitmap** p
 	if (!helpers::ensure_gdiplus_object(img))
 	{
 		if (img) delete img;
-		(*pp) = NULL;
+		*pp = NULL;
 		return S_OK;
 	}
 
-	(*pp) = new com_object_impl_t<GdiBitmap>(img);
+	*pp = new com_object_impl_t<GdiBitmap>(img);
 	return S_OK;
 }
 
@@ -197,7 +197,7 @@ STDMETHODIMP GdiBitmap::ApplyAlpha(BYTE alpha, IGdiBitmap ** pp)
 
 	g.DrawImage(m_ptr, rc, 0, 0, width, height, Gdiplus::UnitPixel, &ia);
 
-	(*pp) = new com_object_impl_t<GdiBitmap>(out);
+	*pp = new com_object_impl_t<GdiBitmap>(out);
 	return S_OK;
 }
 
@@ -268,7 +268,7 @@ STDMETHODIMP GdiBitmap::CreateRawBitmap(IGdiRawBitmap ** pp)
 	if (!pp) return E_POINTER;
 	if (!m_ptr) return E_POINTER;
 
-	(*pp) = new com_object_impl_t<GdiRawBitmap>(m_ptr);
+	*pp = new com_object_impl_t<GdiRawBitmap>(m_ptr);
 	return S_OK;
 }
 
@@ -281,7 +281,7 @@ STDMETHODIMP GdiBitmap::GetGraphics(IGdiGraphics ** pp)
 
 	Gdiplus::Graphics * g = new Gdiplus::Graphics(m_ptr);
 
-	(*pp) = new com_object_impl_t<GdiGraphics>();
+	*pp = new com_object_impl_t<GdiGraphics>();
 	(*pp)->put__ptr(g);
 	return S_OK;
 }
@@ -328,7 +328,7 @@ STDMETHODIMP GdiBitmap::Resize(UINT w, UINT h, INT interpolationMode, IGdiBitmap
 	g.SetInterpolationMode((Gdiplus::InterpolationMode)interpolationMode);
 	g.DrawImage(m_ptr, 0, 0, w, h);
 
-	(*pp) = new com_object_impl_t<GdiBitmap>(bitmap);
+	*pp = new com_object_impl_t<GdiBitmap>(bitmap);
 	return S_OK;
 }
 
@@ -880,7 +880,7 @@ STDMETHODIMP GdiGraphics::MeasureString(BSTR str, IGdiFont * font, float x, floa
 
 	m_ptr->MeasureString(str, -1, fn, Gdiplus::RectF(x, y, w, h), &fmt, &bound, &chars, &lines);
 
-	(*pp) = new com_object_impl_t<MeasureStringInfo>(bound.X, bound.Y, bound.Width, bound.Height, lines, chars);
+	*pp = new com_object_impl_t<MeasureStringInfo>(bound.X, bound.Y, bound.Width, bound.Height, lines, chars);
 	return S_OK;
 }
 
@@ -1014,7 +1014,7 @@ STDMETHODIMP GdiUtils::Font(BSTR name, float pxSize, int style, IGdiFont** pp)
 	if (!helpers::ensure_gdiplus_object(font))
 	{
 		if (font) delete font;
-		(*pp) = NULL;
+		*pp = NULL;
 		return S_OK;
 	}
 
@@ -1035,7 +1035,7 @@ STDMETHODIMP GdiUtils::Font(BSTR name, float pxSize, int style, IGdiFont** pp)
 			DEFAULT_QUALITY,
 			DEFAULT_PITCH | FF_DONTCARE,
 			name);
-	(*pp) = new com_object_impl_t<GdiFont>(font, hFont);
+	*pp = new com_object_impl_t<GdiFont>(font, hFont);
 	return S_OK;
 }
 
@@ -1045,7 +1045,7 @@ STDMETHODIMP GdiUtils::Image(BSTR path, IGdiBitmap** pp)
 
 	if (!path) return E_INVALIDARG;
 	if (!pp) return E_POINTER;
-	(*pp) = NULL;
+	*pp = NULL;
 
 	// Since using Gdiplus::Bitmap(path) will result locking file, so use IStream instead to prevent it.
 	IStreamPtr pStream;
@@ -1059,7 +1059,7 @@ STDMETHODIMP GdiUtils::Image(BSTR path, IGdiBitmap** pp)
 		return S_OK;
 	}
 
-	(*pp) = new com_object_impl_t<GdiBitmap>(img);
+	*pp = new com_object_impl_t<GdiBitmap>(img);
 	return S_OK;
 }
 
@@ -1074,11 +1074,11 @@ STDMETHODIMP GdiUtils::CreateImage(int w, int h, IGdiBitmap ** pp)
 	if (!helpers::ensure_gdiplus_object(img))
 	{
 		if (img) delete img;
-		(*pp) = NULL;
+		*pp = NULL;
 		return S_OK;
 	}
 
-	(*pp) = new com_object_impl_t<GdiBitmap>(img);
+	*pp = new com_object_impl_t<GdiBitmap>(img);
 	return S_OK;
 }
 
@@ -1088,7 +1088,7 @@ STDMETHODIMP GdiUtils::CreateStyleTextRender(VARIANT_BOOL pngmode, IStyleTextRen
 
 	if (!pp) return E_POINTER;
 
-	(*pp) = new com_object_impl_t<StyleTextRender>(pngmode != VARIANT_FALSE);
+	*pp = new com_object_impl_t<StyleTextRender>(pngmode != VARIANT_FALSE);
 	return S_OK;
 }
 
@@ -1112,7 +1112,7 @@ STDMETHODIMP GdiUtils::LoadImageAsync(UINT window_id, BSTR path, UINT * p)
 	}
 	catch (std::exception &) {}
 
-	(*p) = cookie;
+	*p = cookie;
 	return S_OK;
 }
 
@@ -1155,12 +1155,12 @@ STDMETHODIMP FbFileInfo::MetaName(UINT idx, BSTR* pp)
 	if (!m_info_ptr) return E_POINTER;
 	if (!pp) return E_POINTER;
 
-	(*pp) = NULL;
+	*pp = NULL;
 
 	if (idx < m_info_ptr->meta_get_count())
 	{
 		pfc::stringcvt::string_wide_from_utf8_fast ucs = m_info_ptr->meta_enum_name(idx);
-		(*pp) = SysAllocString(ucs);
+		*pp = SysAllocString(ucs);
 	}
 
 	return S_OK;
@@ -1173,12 +1173,12 @@ STDMETHODIMP FbFileInfo::MetaValue(UINT idx, UINT vidx, BSTR* pp)
 	if (!m_info_ptr) return E_POINTER;
 	if (!pp) return E_POINTER;
 
-	(*pp) = NULL;
+	*pp = NULL;
 
 	if (idx < m_info_ptr->meta_get_count() && vidx < m_info_ptr->meta_enum_value_count(idx))
 	{
 		pfc::stringcvt::string_wide_from_utf8_fast ucs = m_info_ptr->meta_enum_value(idx, vidx);
-		(*pp) = SysAllocString(ucs);
+		*pp = SysAllocString(ucs);
 	}
 
 	return S_OK;
@@ -1253,12 +1253,12 @@ STDMETHODIMP FbFileInfo::InfoName(UINT idx, BSTR* pp)
 	if (!m_info_ptr) return E_POINTER;
 	if (!pp) return E_POINTER;
 
-	(*pp) = NULL;
+	*pp = NULL;
 
 	if (idx < m_info_ptr->info_get_count())
 	{
 		pfc::stringcvt::string_wide_from_utf8_fast ucs = m_info_ptr->info_enum_name(idx);
-		(*pp) = SysAllocString(ucs);
+		*pp = SysAllocString(ucs);
 	}
 
 	return S_OK;
@@ -1271,12 +1271,12 @@ STDMETHODIMP FbFileInfo::InfoValue(UINT idx, BSTR* pp)
 	if (!m_info_ptr) return E_POINTER;
 	if (!pp) return E_POINTER;
 
-	(*pp) = NULL;
+	*pp = NULL;
 
 	if (idx < m_info_ptr->info_get_count())
 	{
 		pfc::stringcvt::string_wide_from_utf8_fast ucs = m_info_ptr->info_enum_value(idx);
-		(*pp) = SysAllocString(ucs);
+		*pp = SysAllocString(ucs);
 	}
 
 	return S_OK;
@@ -1312,7 +1312,7 @@ STDMETHODIMP FbMetadbHandle::get__ptr(void ** pp)
 {
 	TRACK_FUNCTION();
 
-	(*pp) = m_handle.get_ptr();
+	*pp = m_handle.get_ptr();
 	return S_OK;
 }
 
@@ -1325,7 +1325,7 @@ STDMETHODIMP FbMetadbHandle::get_Path(BSTR* pp)
 
 	pfc::stringcvt::string_wide_from_utf8_fast ucs = file_path_display(m_handle->get_path());
 
-	(*pp) = SysAllocString(ucs);
+	*pp = SysAllocString(ucs);
 	return S_OK;
 }
 
@@ -1338,7 +1338,7 @@ STDMETHODIMP FbMetadbHandle::get_RawPath(BSTR * pp)
 
 	pfc::stringcvt::string_wide_from_utf8_fast ucs = m_handle->get_path();
 
-	(*pp) = SysAllocString(ucs);
+	*pp = SysAllocString(ucs);
 	return S_OK;
 }
 
@@ -1385,7 +1385,7 @@ STDMETHODIMP FbMetadbHandle::GetFileInfo(IFbFileInfo ** pp)
 	file_info_impl * info_ptr = new file_info_impl;
 
 	m_handle->get_info(*info_ptr);
-	(*pp) = new com_object_impl_t<FbFileInfo>(info_ptr);
+	*pp = new com_object_impl_t<FbFileInfo>(info_ptr);
 	return S_OK;
 }
 
@@ -1664,7 +1664,7 @@ STDMETHODIMP FbMetadbHandleList::Insert(UINT index, IFbMetadbHandle * handle, UI
 
 	metadb_handle * ptr = NULL;
 	handle->get__ptr((void **)&ptr);
-	(*outIndex) = m_handles.insert_item(ptr, index);
+	*outIndex = m_handles.insert_item(ptr, index);
 	return S_OK;
 }
 
@@ -1678,7 +1678,7 @@ STDMETHODIMP FbMetadbHandleList::InsertRange(UINT index, IFbMetadbHandleList * h
 	metadb_handle_list * handles_ptr = NULL;
 	handles->get__ptr((void **)&handles_ptr);
 	if (!handles_ptr) return E_INVALIDARG;
-	(*outIndex) = m_handles.insert_items(*handles_ptr, index);
+	*outIndex = m_handles.insert_items(*handles_ptr, index);
 	return S_OK;
 }
 
@@ -1936,7 +1936,7 @@ STDMETHODIMP FbTitleFormat::Eval(VARIANT_BOOL force, BSTR* pp)
 		handle->format_title(NULL, text, m_obj, NULL);
 	}
 
-	(*pp) = SysAllocString(pfc::stringcvt::string_wide_from_utf8_fast(text));
+	*pp = SysAllocString(pfc::stringcvt::string_wide_from_utf8_fast(text));
 	return S_OK;
 }
 
@@ -1954,7 +1954,7 @@ STDMETHODIMP FbTitleFormat::EvalWithMetadb(IFbMetadbHandle * handle, BSTR * pp)
 
 	pfc::string8_fast text;
 	ptr->format_title(NULL, text, m_obj, NULL);
-	(*pp) = SysAllocString(pfc::stringcvt::string_wide_from_utf8_fast(text));
+	*pp = SysAllocString(pfc::stringcvt::string_wide_from_utf8_fast(text));
 	return S_OK;
 }
 
@@ -2012,7 +2012,7 @@ STDMETHODIMP FbUtils::CreateProfiler(BSTR name, IFbProfiler ** pp)
 	if (!pp) return E_POINTER;
 	if (!name) return E_INVALIDARG;
 
-	(*pp) = new com_object_impl_t<FbProfiler>(pfc::stringcvt::string_utf8_from_wide(name));
+	*pp = new com_object_impl_t<FbProfiler>(pfc::stringcvt::string_utf8_from_wide(name));
 	return S_OK;
 }
 
@@ -2023,7 +2023,7 @@ STDMETHODIMP FbUtils::TitleFormat(BSTR expression, IFbTitleFormat** pp)
 	if (!pp) return E_POINTER;
 	if (!expression) return E_INVALIDARG;
 
-	(*pp) = new com_object_impl_t<FbTitleFormat>(expression);
+	*pp = new com_object_impl_t<FbTitleFormat>(expression);
 	return S_OK;
 }
 
@@ -2037,11 +2037,11 @@ STDMETHODIMP FbUtils::GetNowPlaying(IFbMetadbHandle** pp)
 
 	if (!static_api_ptr_t<playback_control>()->get_now_playing(metadb))
 	{
-		(*pp) = NULL;
+		*pp = NULL;
 		return S_OK;
 	}
 
-	(*pp) = new com_object_impl_t<FbMetadbHandle>(metadb);
+	*pp = new com_object_impl_t<FbMetadbHandle>(metadb);
 	return S_OK;
 }
 
@@ -2062,13 +2062,13 @@ STDMETHODIMP FbUtils::GetFocusItem(VARIANT_BOOL force, IFbMetadbHandle** pp)
 		}
 		if (metadb.is_empty())
 		{
-			(*pp) = NULL;
+			*pp = NULL;
 			return S_OK;
 		}
 	}
 	catch (std::exception &) {}
 
-	(*pp) = new com_object_impl_t<FbMetadbHandle>(metadb);
+	*pp = new com_object_impl_t<FbMetadbHandle>(metadb);
 	return S_OK;
 }
 
@@ -2084,11 +2084,11 @@ STDMETHODIMP FbUtils::GetSelection(IFbMetadbHandle** pp)
 
 	if (items.get_count() > 0)
 	{
-		(*pp) = new com_object_impl_t<FbMetadbHandle>(items[0]);
+		*pp = new com_object_impl_t<FbMetadbHandle>(items[0]);
 	}
 	else
 	{
-		(*pp) = NULL;
+		*pp = NULL;
 	}
 
 	return S_OK;
@@ -2102,7 +2102,7 @@ STDMETHODIMP FbUtils::GetSelections(UINT flags, IFbMetadbHandleList ** pp)
 
 	metadb_handle_list items;
 	static_api_ptr_t<ui_selection_manager_v2>()->get_selection(items, flags);
-	(*pp) = new com_object_impl_t<FbMetadbHandleList>(items);
+	*pp = new com_object_impl_t<FbMetadbHandleList>(items);
 	return S_OK;
 }
 
@@ -2144,7 +2144,7 @@ STDMETHODIMP FbUtils::AcquireUiSelectionHolder(IFbUiSelectionHolder ** outHolder
 	if (!outHolder) return E_INVALIDARG;
 
 	ui_selection_holder::ptr holder = static_api_ptr_t<ui_selection_manager>()->acquire();
-	(*outHolder) = new com_object_impl_t<FbUiSelectionHolder>(holder);
+	*outHolder = new com_object_impl_t<FbUiSelectionHolder>(holder);
 	return S_OK;
 }
 
@@ -2154,7 +2154,7 @@ STDMETHODIMP FbUtils::get_ComponentPath(BSTR* pp)
 
 	static pfc::stringcvt::string_wide_from_utf8 path(helpers::get_fb2k_component_path());
 
-	(*pp) = SysAllocString(path.get_ptr());
+	*pp = SysAllocString(path.get_ptr());
 	return S_OK;
 }
 
@@ -2166,7 +2166,7 @@ STDMETHODIMP FbUtils::get_FoobarPath(BSTR* pp)
 
 	static pfc::stringcvt::string_wide_from_utf8 path(helpers::get_fb2k_path());
 
-	(*pp) = SysAllocString(path.get_ptr());
+	*pp = SysAllocString(path.get_ptr());
 	return S_OK;
 }
 
@@ -2178,7 +2178,7 @@ STDMETHODIMP FbUtils::get_ProfilePath(BSTR* pp)
 
 	static pfc::stringcvt::string_wide_from_utf8 path(helpers::get_profile_path());
 
-	(*pp) = SysAllocString(path.get_ptr());
+	*pp = SysAllocString(path.get_ptr());
 	return S_OK;
 }
 
@@ -2520,7 +2520,7 @@ STDMETHODIMP FbUtils::CreateContextMenuManager(IContextMenuManager ** pp)
 
 	if (!pp) return E_POINTER;
 
-	(*pp) = new com_object_impl_t<ContextMenuManager>();
+	*pp = new com_object_impl_t<ContextMenuManager>();
 	return S_OK;
 }
 
@@ -2530,7 +2530,7 @@ STDMETHODIMP FbUtils::CreateMainMenuManager(IMainMenuManager ** pp)
 
 	if (!pp) return E_POINTER;
 
-	(*pp) = new com_object_impl_t<MainMenuManager>();
+	*pp = new com_object_impl_t<MainMenuManager>();
 	return S_OK;
 }
 
@@ -2595,7 +2595,7 @@ STDMETHODIMP FbUtils::GetLibraryItems(IFbMetadbHandleList ** outItems)
 
 	metadb_handle_list items;
 	static_api_ptr_t<library_manager>()->get_all_items(items);
-	(*outItems) = new com_object_impl_t<FbMetadbHandleList>(items);
+	*outItems = new com_object_impl_t<FbMetadbHandleList>(items);
 
 	return S_OK;
 }
@@ -2631,7 +2631,7 @@ STDMETHODIMP FbUtils::GetQueryItems(IFbMetadbHandleList * items, BSTR query, IFb
 	filter->test_multi(dst_list, mask.get_ptr());
 	dst_list.filter_mask(mask.get_ptr());
 
-	(*pp) = new com_object_impl_t<FbMetadbHandleList>(dst_list);
+	*pp = new com_object_impl_t<FbMetadbHandleList>(dst_list);
 
 	return S_OK;
 }
@@ -2716,7 +2716,7 @@ STDMETHODIMP MenuObj::TrackPopupMenu(int x, int y, UINT flags, UINT * item_id)
 	flags &= ~TPM_RECURSE;
 
 	ClientToScreen(m_wnd_parent, &pt);
-	(*item_id) = ::TrackPopupMenu(m_hMenu, flags, pt.x, pt.y, 0, m_wnd_parent, 0);
+	*item_id = ::TrackPopupMenu(m_hMenu, flags, pt.x, pt.y, 0, m_wnd_parent, 0);
 	return S_OK;
 }
 
@@ -3157,7 +3157,7 @@ STDMETHODIMP JSUtils::GetAlbumArtAsync(UINT window_id, IFbMetadbHandle * handle,
 		cookie = 0;
 	}
 
-	(*p) = cookie;
+	*p = cookie;
 	return S_OK;
 }
 
@@ -3179,12 +3179,12 @@ STDMETHODIMP JSUtils::ReadINI(BSTR filename, BSTR section, BSTR key, VARIANT def
 
 		if (SUCCEEDED(VariantChangeType(&var, &defaultval, 0, VT_BSTR)))
 		{
-			(*pp) = SysAllocString(var.bstrVal);
+			*pp = SysAllocString(var.bstrVal);
 			return S_OK;
 		}
 	}
 
-	(*pp) = SysAllocString(buff);
+	*pp = SysAllocString(buff);
 	return S_OK;
 }
 
@@ -3461,7 +3461,7 @@ STDMETHODIMP JSUtils::MapString(BSTR str, UINT lcid, UINT flags, BSTR * pp)
 	if (!r) return E_FAIL;
 	wchar_t * dst = new wchar_t[r];
 	r = ::LCMapStringW(lcid, flags, str, wcslen(str) + 1, dst, r);
-	if (r) (*pp) = SysAllocString(dst);
+	if (r) *pp = SysAllocString(dst);
 	delete dst;
 
 	return S_OK;

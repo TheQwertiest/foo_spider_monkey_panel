@@ -76,7 +76,7 @@ STDMETHODIMP FbTooltip::get_Text(BSTR * pp)
 
 	if (!pp) return E_POINTER;
 
-	(*pp) = SysAllocString(m_tip_buffer);
+	*pp = SysAllocString(m_tip_buffer);
 	return S_OK;
 }
 

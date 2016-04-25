@@ -6,7 +6,7 @@ bool name_to_id_cache::lookup(hash_type hash, DISPID* p_dispid) const
 {
 	DISPID dispId;
 	if (!m_map.query(hash, dispId)) return false;
-	(*p_dispid) = dispId;
+	*p_dispid = dispId;
 	return true;
 }
 
@@ -20,7 +20,6 @@ name_to_id_cache::hash_type name_to_id_cache::g_hash(const wchar_t* name)
 	return LHashValOfName(LANG_NEUTRAL, name);
 }
 
-
 void type_info_cache_holder::init_from_typelib(ITypeLib * p_typeLib, const GUID & guid)
 {
 	p_typeLib->GetTypeInfoOfGuid(guid, &m_type_info);
@@ -32,7 +31,7 @@ HRESULT type_info_cache_holder::GetTypeInfo(UINT iTInfo, LCID lcid, ITypeInfo **
 	if (!ppTInfo) return E_POINTER;
 	if (iTInfo != 0) return DISP_E_BADINDEX;
 	m_type_info->AddRef();
-	(*ppTInfo) = m_type_info.GetInterfacePtr();
+	*ppTInfo = m_type_info.GetInterfacePtr();
 	return S_OK;
 }
 

@@ -41,7 +41,7 @@ __interface IFbPlaylistManager : IDispatch
 	STDMETHOD(EnsurePlaylistItemVisible)(UINT playlistIndex, UINT itemIndex);
 	STDMETHOD(GetPlayingItemLocation)([out,retval] __interface IFbPlayingItemLocation ** outPlayingLocation);
 	STDMETHOD(ExecutePlaylistDefaultAction)(UINT playlistIndex, UINT playlistItemIndex, [out,retval] VARIANT_BOOL * outSuccess);
-	STDMETHOD(IsPlaylistItemSelected)(UINT playlistIndex, UINT playlistItemIndex, [out,retval] UINT * outSeleted);
+	STDMETHOD(IsPlaylistItemSelected)(UINT playlistIndex, UINT playlistItemIndex, [out,retval] UINT * outSelected);
 	STDMETHOD(SetActivePlaylistContext)();
 
 	STDMETHOD(CreatePlaybackQueueItem)([out,retval] __interface IFbPlaybackQueueItem ** outPlaybackQueueItem);
