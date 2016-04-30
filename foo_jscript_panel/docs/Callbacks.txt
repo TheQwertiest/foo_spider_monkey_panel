@@ -39,10 +39,17 @@ function on_item_played(handle) {}
 
 function on_key_down(vkey) {}
 function on_key_up(vkey) {}
-// both keyboard related callbacks require "Grab focus" enabled in the Configuration window.
-// in order to use arrow keys, use window.DlgCode(DLGC_WANTARROWS);
-// see flags.txt > DLGC_WANTARROWS.
-// vkey: Virtual Key Code, refer to: http://msdn.microsoft.com/en-us/library/ms927178.aspx
+/*
+both keyboard related callbacks require "Grab focus" enabled in the Configuration window.
+in order to use arrow keys, use window.DlgCode(DLGC_WANTARROWS);
+see flags.txt > DLGC_WANTARROWS.
+vkey: Virtual Key Code, refer to: http://msdn.microsoft.com/en-us/library/ms927178.aspx
+
+on_key_down only: keyboard shortcuts defined in the main preferences are always executed first
+and are not passed to the callback.
+v1.1.4 and above: behaviour in columns UI is now consistent with default UI. main preferences
+shortcuts were not processed at all previously.
+*/
 
 function on_library_items_added() {}
 function on_library_items_removed() {}
@@ -101,15 +108,17 @@ function on_playback_edited(handle) {}
 function on_playback_new_track(handle) {}
 
 function on_playback_order_changed(new_order_index) {}
-// called when playback order is changed
-// new_order_index:
-// 0 Default
-// 1 Repeat (Playlist)
-// 2 Repeat (Track)
-// 3 Random
-// 4 Shuffle (tracks)
-// 5 Shuffle (albums)
-// 6 Shuffle (folders)
+/*
+called when playback order is changed
+new_order_index:
+0 Default
+1 Repeat (Playlist)
+2 Repeat (Track)
+3 Random
+4 Shuffle (tracks)
+5 Shuffle (albums)
+6 Shuffle (folders)
+*/
 
 function on_playback_pause(state) {}
 // state: true when paused, false when unpaused.
