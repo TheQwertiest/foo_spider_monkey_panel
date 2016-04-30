@@ -338,11 +338,9 @@ LRESULT js_panel_window::on_message(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 	case WM_KEYDOWN:
 		{
 			VARIANTARG args[1];
-			_variant_t result;
 
 			args[0].vt = VT_UI4;
 			args[0].ulVal = (ULONG)wp;
-
 			script_invoke_v(CallbackIds::on_key_down, args, _countof(args));
 		}
 		return 0;
@@ -353,7 +351,6 @@ LRESULT js_panel_window::on_message(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 
 			args[0].vt = VT_UI4;
 			args[0].ulVal = (ULONG)wp;
-
 			script_invoke_v(CallbackIds::on_key_up, args, _countof(args));
 		}
 		return 0;
