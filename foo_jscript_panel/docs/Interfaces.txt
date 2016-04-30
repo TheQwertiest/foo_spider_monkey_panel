@@ -676,6 +676,7 @@ interface IJSUtils {
 
 		utils.IsKeyPressed(vkey); (boolean)
 		// vkey: http://msdn.microsoft.com/en-us/library/ms927178.aspx
+		// some are defined in flags.txt > Used with utils.IsKeyPressed()
 
 		utils.MapString(text, lcid, flags); (string)
 

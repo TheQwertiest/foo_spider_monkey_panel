@@ -118,6 +118,26 @@ DLGC_WANTCHARS             = 0x0080;     /* Want WM_CHAR messages            */
 DLGC_STATIC                = 0x0100;     /* Static item: don't include       */
 DLGC_BUTTON                = 0x2000;     /* Button item: can be checked      */
 
+// Used with utils.IsKeyPressed()
+VK_BACK = 0x08;
+VK_TAB = 0x09;
+VK_RETURN = 0x0D;
+VK_SHIFT = 0x10;
+VK_CONTROL = 0x11;
+VK_ALT = 0x12;
+VK_ESCAPE = 0x1B;
+VK_PGUP = 0x21;
+VK_PGDN = 0x22;
+VK_END = 0x23;
+VK_HOME = 0x24;
+VK_LEFT = 0x25;
+VK_UP = 0x26;
+VK_RIGHT = 0x27;
+VK_DOWN = 0x28;
+VK_INSERT = 0x2D;
+VK_DELETE = 0x2E;
+VK_SPACEBAR = 0x20;
+
 // Used in IFbTooltip.GetDelayTime() and IFbTooltip.SetDelayTime()
 // For more information, see: http://msdn.microsoft.com/en-us/library/bb760404(VS.85).aspx
 TTDT_AUTOMATIC             =   0;
