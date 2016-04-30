@@ -42,7 +42,6 @@ function on_key_up(vkey) {}
 // both keyboard related callbacks require "Grab focus" enabled in the Configuration window.
 // in order to use arrow keys, use window.DlgCode(DLGC_WANTARROWS);
 // see flags.txt > DLGC_WANTARROWS.
-// you must return true to suppress processing keyboard shortcuts
 // vkey: Virtual Key Code, refer to: http://msdn.microsoft.com/en-us/library/ms927178.aspx
 
 function on_library_items_added() {}
