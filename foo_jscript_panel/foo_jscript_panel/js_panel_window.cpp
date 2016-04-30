@@ -343,22 +343,7 @@ LRESULT js_panel_window::on_message(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 			args[0].vt = VT_UI4;
 			args[0].ulVal = (ULONG)wp;
 
-			if (SUCCEEDED(script_invoke_v(CallbackIds::on_key_down, args, _countof(args), &result)))
-			{
-				result.ChangeType(VT_BOOL);
-				if (result.boolVal != VARIANT_FALSE) 
-				{
-					// If user return true in the callback, bypass keyboard shortcut processing.
-					return 0;
-				}
-			}
-
-			static_api_ptr_t<keyboard_shortcut_manager_v2> ksm;
-
-			if (ksm->process_keydown_simple(wp)) 
-			{
-				return 0;
-			}
+			script_invoke_v(CallbackIds::on_key_down, args, _countof(args));
 		}
 		return 0;
 
