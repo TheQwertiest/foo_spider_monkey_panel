@@ -1,4 +1,5 @@
 ##v1.1.4
+
 ```
 - FIX: main preferences keyboard shortcuts were never processed in columns UI
        when JScript Panel had focus. More details here:
