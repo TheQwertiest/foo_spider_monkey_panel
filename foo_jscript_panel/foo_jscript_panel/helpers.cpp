@@ -38,14 +38,14 @@ namespace helpers
 		return hBitmap;
 	}
 
-	int GetEncoderClsid(const WCHAR* format, CLSID* pClsid)
+	int GetEncoderClsid(const WCHAR * format, CLSID * pClsid)
 	{
 		int ret = -1;
 
 		UINT num = 0;
 		UINT size = 0;
 
-		Gdiplus::ImageCodecInfo* pImageCodecInfo = NULL;
+		Gdiplus::ImageCodecInfo * pImageCodecInfo = NULL;
 
 		Gdiplus::GetImageEncodersSize(&num, &size);
 		if (size == 0) return ret;

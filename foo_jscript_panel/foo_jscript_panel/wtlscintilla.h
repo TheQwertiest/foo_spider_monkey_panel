@@ -14,7 +14,7 @@ Copyright (c) 2006 by Reece Dunn.
 License Agreement (zlib license)
 -------------------------
 This software is provided 'as-is',without any express or implied
-warranty.  In no event will the authors be held liable for any damages
+warranty. In no event will the authors be held liable for any damages
 arising from the use of this software.
 
 Permission is granted to anyone to use this software for any purpose,
@@ -1934,5 +1934,5 @@ public:
 
 class CScintillaCtrl : public CScintillaImpl< CScintillaCtrl >
 {
-	DECLARE_WND_SUPERCLASS(_T("WTL_ScintillaCtrl"), GetWndClassName())  
+	DECLARE_WND_SUPERCLASS(_T("WTL_ScintillaCtrl"), GetWndClassName())
 };

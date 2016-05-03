@@ -25,7 +25,7 @@ protected:
 
 private:
 	void close();
-	static unsigned CALLBACK g_entry(void* p_instance);
+	static unsigned CALLBACK g_entry(void * p_instance);
 	unsigned entry();
 
 	HANDLE m_thread;

@@ -181,7 +181,7 @@ IGdiBitmap * HostComm::GetBackgroundImage()
 	return ret;
 }
 
-STDMETHODIMP FbWindow::get_ID(UINT* p)
+STDMETHODIMP FbWindow::get_ID(UINT * p)
 {
 	TRACK_FUNCTION();
 
@@ -191,7 +191,7 @@ STDMETHODIMP FbWindow::get_ID(UINT* p)
 	return S_OK;
 }
 
-STDMETHODIMP FbWindow::get_Width(INT* p)
+STDMETHODIMP FbWindow::get_Width(INT * p)
 {
 	TRACK_FUNCTION();
 
@@ -201,7 +201,7 @@ STDMETHODIMP FbWindow::get_Width(INT* p)
 	return S_OK;
 }
 
-STDMETHODIMP FbWindow::get_Height(INT* p)
+STDMETHODIMP FbWindow::get_Height(INT * p)
 {
 	TRACK_FUNCTION();
 
@@ -211,7 +211,7 @@ STDMETHODIMP FbWindow::get_Height(INT* p)
 	return S_OK;
 }
 
-STDMETHODIMP FbWindow::get_InstanceType(UINT* p)
+STDMETHODIMP FbWindow::get_InstanceType(UINT * p)
 {
 	TRACK_FUNCTION();
 
@@ -220,7 +220,7 @@ STDMETHODIMP FbWindow::get_InstanceType(UINT* p)
 	return S_OK;
 }
 
-STDMETHODIMP FbWindow::get_MaxWidth(UINT* p)
+STDMETHODIMP FbWindow::get_MaxWidth(UINT * p)
 {
 	TRACK_FUNCTION();
 
@@ -239,7 +239,7 @@ STDMETHODIMP FbWindow::put_MaxWidth(UINT width)
 	return S_OK;
 }
 
-STDMETHODIMP FbWindow::get_MaxHeight(UINT* p)
+STDMETHODIMP FbWindow::get_MaxHeight(UINT * p)
 {
 	TRACK_FUNCTION();
 
@@ -258,7 +258,7 @@ STDMETHODIMP FbWindow::put_MaxHeight(UINT height)
 	return S_OK;
 }
 
-STDMETHODIMP FbWindow::get_MinWidth(UINT* p)
+STDMETHODIMP FbWindow::get_MinWidth(UINT * p)
 {
 	TRACK_FUNCTION();
 
@@ -277,7 +277,7 @@ STDMETHODIMP FbWindow::put_MinWidth(UINT width)
 	return S_OK;
 }
 
-STDMETHODIMP FbWindow::get_MinHeight(UINT* p)
+STDMETHODIMP FbWindow::get_MinHeight(UINT * p)
 {
 	TRACK_FUNCTION();
 
@@ -296,7 +296,7 @@ STDMETHODIMP FbWindow::put_MinHeight(UINT height)
 	return S_OK;
 }
 
-STDMETHODIMP FbWindow::get_DlgCode(UINT* p)
+STDMETHODIMP FbWindow::get_DlgCode(UINT * p)
 {
 	TRACK_FUNCTION();
 
@@ -314,7 +314,7 @@ STDMETHODIMP FbWindow::put_DlgCode(UINT code)
 	return S_OK;
 }
 
-STDMETHODIMP FbWindow::get_IsTransparent(VARIANT_BOOL* p)
+STDMETHODIMP FbWindow::get_IsTransparent(VARIANT_BOOL * p)
 {
 	TRACK_FUNCTION();
 
@@ -324,7 +324,7 @@ STDMETHODIMP FbWindow::get_IsTransparent(VARIANT_BOOL* p)
 	return S_OK;
 }
 
-STDMETHODIMP FbWindow::get_IsVisible(VARIANT_BOOL* p)
+STDMETHODIMP FbWindow::get_IsVisible(VARIANT_BOOL * p)
 {
 	TRACK_FUNCTION();
 
@@ -677,12 +677,12 @@ STDMETHODIMP_(ULONG) ScriptHost::Release()
 	return n;
 }
 
-STDMETHODIMP ScriptHost::GetLCID(LCID* plcid)
+STDMETHODIMP ScriptHost::GetLCID(LCID * plcid)
 {
 	return E_NOTIMPL;
 }
 
-STDMETHODIMP ScriptHost::GetItemInfo(LPCOLESTR name, DWORD mask, IUnknown** ppunk, ITypeInfo** ppti)
+STDMETHODIMP ScriptHost::GetItemInfo(LPCOLESTR name, DWORD mask, IUnknown ** ppunk, ITypeInfo ** ppti)
 {
 	if (ppti) *ppti = NULL;
 
@@ -728,12 +728,12 @@ STDMETHODIMP ScriptHost::GetItemInfo(LPCOLESTR name, DWORD mask, IUnknown** ppun
 	return TYPE_E_ELEMENTNOTFOUND;
 }
 
-STDMETHODIMP ScriptHost::GetDocVersionString(BSTR* pstr)
+STDMETHODIMP ScriptHost::GetDocVersionString(BSTR * pstr)
 {
 	return E_NOTIMPL;
 }
 
-STDMETHODIMP ScriptHost::OnScriptTerminate(const VARIANT* result, const EXCEPINFO* excep)
+STDMETHODIMP ScriptHost::OnScriptTerminate(const VARIANT * result, const EXCEPINFO * excep)
 {
 	return E_NOTIMPL;
 }
@@ -743,7 +743,7 @@ STDMETHODIMP ScriptHost::OnStateChange(SCRIPTSTATE state)
 	return E_NOTIMPL;
 }
 
-STDMETHODIMP ScriptHost::OnScriptError(IActiveScriptError* err)
+STDMETHODIMP ScriptHost::OnScriptError(IActiveScriptError * err)
 {
 	m_has_error = true;
 
@@ -991,13 +991,13 @@ HRESULT ScriptHost::GenerateSourceContext(const wchar_t * path, const wchar_t * 
 	return hr;
 }
 
-void ScriptHost::ReportError(IActiveScriptError* err)
+void ScriptHost::ReportError(IActiveScriptError * err)
 {
 	if (!err) return;
 
 	DWORD ctx = 0;
 	ULONG line = 0;
-	LONG  charpos = 0;
+	LONG charpos = 0;
 	EXCEPINFO excep = { 0 };
 	//WCHAR buf[512] = { 0 };
 	_bstr_t sourceline;

@@ -8,7 +8,7 @@
 namespace helpers
 {
 	HBITMAP create_hbitmap_from_gdiplus_bitmap(Gdiplus::Bitmap * bitmap_ptr);
-	int GetEncoderClsid(const WCHAR* format, CLSID* pClsid);
+	int GetEncoderClsid(const WCHAR * format, CLSID * pClsid);
 	bool execute_context_command_by_name(const char * p_name, metadb_handle_list_cref p_handles, unsigned flags);
 	bool execute_mainmenu_command_by_name(const char * p_name);
 	unsigned detect_charset(const char * fileName);
@@ -236,7 +236,7 @@ namespace helpers
 			_bstr_t path;
 
 			t_param(int p_cookie, IGdiBitmap * p_bitmap, BSTR p_path) 
-				:  cookie(p_cookie), bitmap(p_bitmap), path(p_path)
+				: cookie(p_cookie), bitmap(p_bitmap), path(p_path)
 			{
 			}
 

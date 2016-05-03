@@ -27,7 +27,7 @@ namespace helpers
 			if (pdisp)
 			{
 				// {3EEF9758-35FC-11D1-8CE4-00C04FC2B092}
-				//const GUID  guid_array_instance = 
+				//const GUID guid_array_instance = 
 				//{ 0x3eef9758, 0x35fc, 0x11d1, { 0x8c, 0xe4, 0x00, 0xc0, 0x4f, 0xc2, 0xb0, 0x92 } };
 
 				return convert_jsarray(pdisp);

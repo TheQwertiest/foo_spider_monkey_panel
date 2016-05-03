@@ -41,7 +41,7 @@ unsigned simple_thread::entry()
 	return 0;
 }
 
-unsigned CALLBACK simple_thread::g_entry(void* p_instance)
+unsigned CALLBACK simple_thread::g_entry(void * p_instance)
 {
 	return reinterpret_cast<simple_thread*>(p_instance)->entry();
 }
@@ -144,8 +144,8 @@ void simple_thread_pool::join()
 	SetEvent(exiting_);
 	
 	// Because the tasks may use blocking SendMessage() function, it should be avoid using
-	//   infinite wait here, or both main thread and worker thread will bock, and it's also
-	//   important to dispatch windows messages here.
+	// infinite wait here, or both main thread and worker thread will block, and it's also
+	// important to dispatch windows messages here.
 	while (WaitForSingleObject(empty_worker_, 0) == WAIT_TIMEOUT)
 	{
 		MSG msg;

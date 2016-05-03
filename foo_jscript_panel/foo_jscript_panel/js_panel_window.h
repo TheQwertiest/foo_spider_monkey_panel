@@ -27,7 +27,7 @@ private:
 		HWND wnd_;
 	};
 
-	CComPtr<IDropTargetImpl>   m_drop_target;
+	CComPtr<IDropTargetImpl> m_drop_target;
 	// Scripting
 	IGdiGraphicsPtr  m_gr_wrap;
 	ScriptHost      *m_script_host;

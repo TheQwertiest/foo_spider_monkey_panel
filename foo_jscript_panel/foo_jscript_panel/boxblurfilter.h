@@ -63,7 +63,7 @@ public:
 
 	static inline DWORD make_argb(BYTE a, BYTE r, BYTE g, BYTE b)
 	{
-		return (a << ALPHA_SHIFT) | (b <<  BLUE_SHIFT) | (g << GREEN_SHIFT) | (r << RED_SHIFT);
+		return (a << ALPHA_SHIFT) | (b << BLUE_SHIFT) | (g << GREEN_SHIFT) | (r << RED_SHIFT);
 	}
 
 private:

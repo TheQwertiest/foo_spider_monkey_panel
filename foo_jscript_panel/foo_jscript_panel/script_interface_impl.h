@@ -52,17 +52,17 @@ class GdiFont : public GdiObj<IGdiFont, Gdiplus::Font>
 {
 protected:
 	HFONT m_hFont;
-	bool  m_managed;
+	bool m_managed;
 
-	GdiFont(Gdiplus::Font* p, HFONT hFont, bool managed = true);
+	GdiFont(Gdiplus::Font * p, HFONT hFont, bool managed = true);
 
 	virtual ~GdiFont() {}
 
 	virtual void FinalRelease();
 
 public:
-	STDMETHODIMP get_HFont(UINT* p);
-	STDMETHODIMP get_Height(UINT* p);
+	STDMETHODIMP get_HFont(UINT * p);
+	STDMETHODIMP get_Height(UINT * p);
 	STDMETHODIMP get_Name(LANGID langId, BSTR * outName);
 	STDMETHODIMP get_Size(float * outSize);
 	STDMETHODIMP get_Style(INT * outStyle);
@@ -74,8 +74,8 @@ protected:
 	GdiBitmap(Gdiplus::Bitmap* p): GdiObj<IGdiBitmap, Gdiplus::Bitmap>(p) {}
 
 public:
-	STDMETHODIMP get_Width(UINT* p);
-	STDMETHODIMP get_Height(UINT* p);
+	STDMETHODIMP get_Width(UINT * p);
+	STDMETHODIMP get_Height(UINT * p);
 	STDMETHODIMP Clone(float x, float y, float w, float h, IGdiBitmap ** pp);
 	STDMETHODIMP RotateFlip(UINT mode);
 	STDMETHODIMP ApplyAlpha(BYTE alpha, IGdiBitmap ** pp);
@@ -115,9 +115,9 @@ public:
 	STDMETHODIMP DrawEllipse(float x, float y, float w, float h, float line_width, VARIANT color);
 	STDMETHODIMP DrawPolygon(VARIANT color, float line_width, VARIANT points);
 
-	STDMETHODIMP DrawString(BSTR str, IGdiFont* font, VARIANT color, float x, float y, float w, float h, int flags);
+	STDMETHODIMP DrawString(BSTR str, IGdiFont * font, VARIANT color, float x, float y, float w, float h, int flags);
 	STDMETHODIMP GdiDrawText(BSTR str, IGdiFont * font, VARIANT color, int x, int y, int w, int h, int format, VARIANT * p);
-	STDMETHODIMP DrawImage(IGdiBitmap* image, float dstX, float dstY, float dstW, float dstH, float srcX, float srcY, float srcW, float srcH, float angle, BYTE alpha);
+	STDMETHODIMP DrawImage(IGdiBitmap * image, float dstX, float dstY, float dstW, float dstH, float srcX, float srcY, float srcW, float srcH, float angle, BYTE alpha);
 	STDMETHODIMP GdiDrawBitmap(IGdiRawBitmap * bitmap, int dstX, int dstY, int dstW, int dstH, int srcX, int srcY, int srcW, int srcH);
 	STDMETHODIMP GdiAlphaBlend(IGdiRawBitmap * bitmap, int dstX, int dstY, int dstW, int dstH, int srcX, int srcY, int srcW, int srcH, BYTE alpha);
 	STDMETHODIMP MeasureString(BSTR str, IGdiFont * font, float x, float y, float w, float h, int flags, IMeasureStringInfo ** pp);
@@ -158,8 +158,8 @@ protected:
 
 public:
 	STDMETHODIMP get__Handle(HDC * p);
-	STDMETHODIMP get_Width(UINT* p);
-	STDMETHODIMP get_Height(UINT* p);
+	STDMETHODIMP get_Width(UINT * p);
+	STDMETHODIMP get_Height(UINT * p);
 };
 
 class MeasureStringInfo : public IDispatchImpl3<IMeasureStringInfo>
@@ -189,8 +189,8 @@ protected:
 	virtual ~GdiUtils() {}
 
 public:
-	STDMETHODIMP Font(BSTR name, float pxSize, int style, IGdiFont** pp);
-	STDMETHODIMP Image(BSTR path, IGdiBitmap** pp);
+	STDMETHODIMP Font(BSTR name, float pxSize, int style, IGdiFont ** pp);
+	STDMETHODIMP Image(BSTR path, IGdiBitmap ** pp);
 	STDMETHODIMP CreateImage(int w, int h, IGdiBitmap ** pp);
 	STDMETHODIMP CreateStyleTextRender(VARIANT_BOOL pngmode, IStyleTextRender ** pp);
 	STDMETHODIMP LoadImageAsync(UINT window_id, BSTR path, UINT * p);
@@ -216,17 +216,17 @@ protected:
 
 public:
 	STDMETHODIMP get__ptr(void ** pp);
-	STDMETHODIMP get_MetaCount(UINT* p);
-	STDMETHODIMP MetaValueCount(UINT idx, UINT* p);
-	STDMETHODIMP MetaName(UINT idx, BSTR* pp);
-	STDMETHODIMP MetaValue(UINT idx, UINT vidx, BSTR* pp);
+	STDMETHODIMP get_MetaCount(UINT * p);
+	STDMETHODIMP MetaValueCount(UINT idx, UINT * p);
+	STDMETHODIMP MetaName(UINT idx, BSTR * pp);
+	STDMETHODIMP MetaValue(UINT idx, UINT vidx, BSTR * pp);
 	STDMETHODIMP MetaFind(BSTR name, UINT * p);
 	STDMETHODIMP MetaRemoveField(BSTR name);
 	STDMETHODIMP MetaAdd(BSTR name, BSTR value, UINT * p);
 	STDMETHODIMP MetaInsertValue(UINT idx, UINT vidx, BSTR value);
-	STDMETHODIMP get_InfoCount(UINT* p);
-	STDMETHODIMP InfoName(UINT idx, BSTR* pp);
-	STDMETHODIMP InfoValue(UINT idx, BSTR* pp);
+	STDMETHODIMP get_InfoCount(UINT * p);
+	STDMETHODIMP InfoName(UINT idx, BSTR * pp);
+	STDMETHODIMP InfoValue(UINT idx, BSTR * pp);
 	STDMETHODIMP InfoFind(BSTR name, UINT * p);
 	STDMETHODIMP MetaSet(BSTR name, BSTR value);
 };
@@ -249,11 +249,11 @@ protected:
 
 public:
 	STDMETHODIMP get__ptr(void ** pp);
-	STDMETHODIMP get_Path(BSTR* pp);
+	STDMETHODIMP get_Path(BSTR * pp);
 	STDMETHODIMP get_RawPath(BSTR * pp);
-	STDMETHODIMP get_SubSong(UINT* p);
-	STDMETHODIMP get_FileSize(double* p);
-	STDMETHODIMP get_Length(double* p);
+	STDMETHODIMP get_SubSong(UINT * p);
+	STDMETHODIMP get_FileSize(double * p);
+	STDMETHODIMP get_Length(double * p);
 	STDMETHODIMP GetFileInfo(IFbFileInfo ** pp);
 	STDMETHODIMP UpdateFileInfoSimple(SAFEARRAY * p);
 	STDMETHODIMP Compare(IFbMetadbHandle * handle, VARIANT_BOOL * p);
@@ -297,8 +297,8 @@ public:
 	STDMETHODIMP OrderByFormat(__interface IFbTitleFormat * script, int direction);
 	STDMETHODIMP OrderByPath();
 	STDMETHODIMP OrderByRelativePath();
-	STDMETHODIMP CalcTotalDuration(double* p);
-	STDMETHODIMP CalcTotalSize(double* p);
+	STDMETHODIMP CalcTotalDuration(double * p);
+	STDMETHODIMP CalcTotalSize(double * p);
 	STDMETHODIMP UpdateFileInfoSimple(SAFEARRAY * p);
 };
 
@@ -410,29 +410,29 @@ public:
 	STDMETHODIMP trace(SAFEARRAY * p);
 	STDMETHODIMP ShowPopupMessage(BSTR msg, BSTR title, int iconid);
 	STDMETHODIMP CreateProfiler(BSTR name, IFbProfiler ** pp);
-	STDMETHODIMP TitleFormat(BSTR expression, IFbTitleFormat** pp);
-	STDMETHODIMP GetNowPlaying(IFbMetadbHandle** pp);
-	STDMETHODIMP GetFocusItem(VARIANT_BOOL force, IFbMetadbHandle** pp);
-	STDMETHODIMP GetSelection(IFbMetadbHandle** pp);
+	STDMETHODIMP TitleFormat(BSTR expression, IFbTitleFormat ** pp);
+	STDMETHODIMP GetNowPlaying(IFbMetadbHandle ** pp);
+	STDMETHODIMP GetFocusItem(VARIANT_BOOL force, IFbMetadbHandle ** pp);
+	STDMETHODIMP GetSelection(IFbMetadbHandle ** pp);
 	STDMETHODIMP GetSelections(UINT flags, IFbMetadbHandleList ** pp);
-	STDMETHODIMP GetSelectionType(UINT* p);
+	STDMETHODIMP GetSelectionType(UINT * p);
 	STDMETHODIMP AcquireUiSelectionHolder(IFbUiSelectionHolder ** outHolder);
 
-	STDMETHODIMP get_ComponentPath(BSTR* pp);
-	STDMETHODIMP get_FoobarPath(BSTR* pp);
-	STDMETHODIMP get_ProfilePath(BSTR* pp);
-	STDMETHODIMP get_IsPlaying(VARIANT_BOOL* p);
-	STDMETHODIMP get_IsPaused(VARIANT_BOOL* p);
-	STDMETHODIMP get_PlaybackTime(double* p);
+	STDMETHODIMP get_ComponentPath(BSTR * pp);
+	STDMETHODIMP get_FoobarPath(BSTR * pp);
+	STDMETHODIMP get_ProfilePath(BSTR * pp);
+	STDMETHODIMP get_IsPlaying(VARIANT_BOOL * p);
+	STDMETHODIMP get_IsPaused(VARIANT_BOOL * p);
+	STDMETHODIMP get_PlaybackTime(double * p);
 	STDMETHODIMP put_PlaybackTime(double time);
-	STDMETHODIMP get_PlaybackLength(double* p);
+	STDMETHODIMP get_PlaybackLength(double * p);
 	STDMETHODIMP get_StopAfterCurrent(VARIANT_BOOL * p);
 	STDMETHODIMP put_StopAfterCurrent(VARIANT_BOOL p);
 	STDMETHODIMP get_CursorFollowPlayback(VARIANT_BOOL * p);
 	STDMETHODIMP put_CursorFollowPlayback(VARIANT_BOOL p);
 	STDMETHODIMP get_PlaybackFollowCursor(VARIANT_BOOL * p);
 	STDMETHODIMP put_PlaybackFollowCursor(VARIANT_BOOL p);
-	STDMETHODIMP get_Volume(float* p);
+	STDMETHODIMP get_Volume(float * p);
 	STDMETHODIMP put_Volume(float value);
 
 	STDMETHODIMP Exit();
@@ -470,8 +470,8 @@ class MenuObj : public IDisposableImpl4<IMenuObj>
 {
 protected:
 	HMENU m_hMenu;
-	HWND  m_wnd_parent;
-	bool  m_has_detached;
+	HWND m_wnd_parent;
+	bool m_has_detached;
 
 	MenuObj(HWND wnd_parent) : m_wnd_parent(wnd_parent), m_has_detached(false)
 	{
@@ -510,7 +510,7 @@ protected:
 public:
 	STDMETHODIMP CheckComponent(BSTR name, VARIANT_BOOL is_dll, VARIANT_BOOL * p);
 	STDMETHODIMP CheckFont(BSTR name, VARIANT_BOOL * p);
-	STDMETHODIMP GetAlbumArtV2(IFbMetadbHandle * handle, int art_id, VARIANT_BOOL need_stub, IGdiBitmap **pp);
+	STDMETHODIMP GetAlbumArtV2(IFbMetadbHandle * handle, int art_id, VARIANT_BOOL need_stub, IGdiBitmap ** pp);
 	STDMETHODIMP GetAlbumArtEmbedded(BSTR rawpath, int art_id, IGdiBitmap ** pp);
 	STDMETHODIMP GetAlbumArtAsync(UINT window_id, IFbMetadbHandle * handle, int art_id, VARIANT_BOOL need_stub, VARIANT_BOOL only_embed, VARIANT_BOOL no_load, UINT * p);
 	STDMETHODIMP ReadINI(BSTR filename, BSTR section, BSTR key, VARIANT defaultval, BSTR * pp);
@@ -557,8 +557,8 @@ public:
 	STDMETHODIMP SetShadowBackgroundColor(VARIANT color, int width, int height);
 	STDMETHODIMP SetShadowBackgroundImage(IGdiBitmap * img);
 	// Render 
-	STDMETHODIMP RenderStringPoint(IGdiGraphics * g, BSTR str, IGdiFont* font, int x, int y, int flags, VARIANT_BOOL * p);
-	STDMETHODIMP RenderStringRect(IGdiGraphics * g, BSTR str, IGdiFont* font, int x, int y, int w, int h, int flags, VARIANT_BOOL * p);
+	STDMETHODIMP RenderStringPoint(IGdiGraphics * g, BSTR str, IGdiFont * font, int x, int y, int flags, VARIANT_BOOL * p);
+	STDMETHODIMP RenderStringRect(IGdiGraphics * g, BSTR str, IGdiFont * font, int x, int y, int w, int h, int flags, VARIANT_BOOL * p);
 	// PNG Mode only
 	STDMETHODIMP SetPngImage(IGdiBitmap * img);
 };

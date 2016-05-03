@@ -16,7 +16,7 @@ const t_prop_set_init_table prop_sets_init_table[] =
 	{"style.bracebad", "bold,fore:#ff0000"},
 	{"style.selection.fore", ""},
 	{"style.selection.back", ""},
-	{"style.selection.alpha", "256"},  // 256 - SC_ALPHA_NOALPHA
+	{"style.selection.alpha", "256"}, // 256 - SC_ALPHA_NOALPHA
 	{"style.caret.fore", ""},
 	{"style.caret.width", "1"},
 	{"style.caret.line.back", ""},

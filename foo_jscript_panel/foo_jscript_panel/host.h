@@ -90,22 +90,22 @@ protected:
 	virtual ~FbWindow() {}
 
 public:
-	STDMETHODIMP get_ID(UINT* p);
-	STDMETHODIMP get_Width(INT* p);
-	STDMETHODIMP get_Height(INT* p);
-	STDMETHODIMP get_InstanceType(UINT* p);
-	STDMETHODIMP get_MaxWidth(UINT* p);
+	STDMETHODIMP get_ID(UINT * p);
+	STDMETHODIMP get_Width(INT * p);
+	STDMETHODIMP get_Height(INT * p);
+	STDMETHODIMP get_InstanceType(UINT * p);
+	STDMETHODIMP get_MaxWidth(UINT * p);
 	STDMETHODIMP put_MaxWidth(UINT width);
-	STDMETHODIMP get_MaxHeight(UINT* p);
+	STDMETHODIMP get_MaxHeight(UINT * p);
 	STDMETHODIMP put_MaxHeight(UINT height);
-	STDMETHODIMP get_MinWidth(UINT* p);
+	STDMETHODIMP get_MinWidth(UINT * p);
 	STDMETHODIMP put_MinWidth(UINT width);
-	STDMETHODIMP get_MinHeight(UINT* p);
+	STDMETHODIMP get_MinHeight(UINT * p);
 	STDMETHODIMP put_MinHeight(UINT height);
-	STDMETHODIMP get_DlgCode(UINT* p);
+	STDMETHODIMP get_DlgCode(UINT * p);
 	STDMETHODIMP put_DlgCode(UINT code);
-	STDMETHODIMP get_IsTransparent(VARIANT_BOOL* p);
-	STDMETHODIMP get_IsVisible(VARIANT_BOOL* p);
+	STDMETHODIMP get_IsTransparent(VARIANT_BOOL * p);
+	STDMETHODIMP get_IsVisible(VARIANT_BOOL * p);
 	STDMETHODIMP Repaint(VARIANT_BOOL force);
 	STDMETHODIMP RepaintRect(UINT x, UINT y, UINT w, UINT h, VARIANT_BOOL force);
 	STDMETHODIMP CreatePopupMenu(IMenuObj ** pp);
@@ -172,12 +172,12 @@ public:
 	STDMETHOD_(ULONG, Release)();
 
 	// IActiveScriptSite
-	STDMETHODIMP GetLCID(LCID* plcid);
-	STDMETHODIMP GetItemInfo(LPCOLESTR name, DWORD mask, IUnknown** ppunk, ITypeInfo** ppti);
-	STDMETHODIMP GetDocVersionString(BSTR* pstr);
-	STDMETHODIMP OnScriptTerminate(const VARIANT* result, const EXCEPINFO* excep);
+	STDMETHODIMP GetLCID(LCID * plcid);
+	STDMETHODIMP GetItemInfo(LPCOLESTR name, DWORD mask, IUnknown ** ppunk, ITypeInfo ** ppti);
+	STDMETHODIMP GetDocVersionString(BSTR * pstr);
+	STDMETHODIMP OnScriptTerminate(const VARIANT * result, const EXCEPINFO * excep);
 	STDMETHODIMP OnStateChange(SCRIPTSTATE state);
-	STDMETHODIMP OnScriptError(IActiveScriptError* err);
+	STDMETHODIMP OnScriptError(IActiveScriptError * err);
 	STDMETHODIMP OnEnterScript();
 	STDMETHODIMP OnLeaveScript();
 
@@ -196,5 +196,5 @@ public:
 	inline bool HasError() { return m_has_error; }
 	HRESULT InvokeCallback(int callbackId, VARIANTARG * argv = NULL, UINT argc = 0, VARIANT * ret = NULL);
 	HRESULT GenerateSourceContext(const wchar_t * path, const wchar_t * code, DWORD & source_context);
-	void ReportError(IActiveScriptError* err);
+	void ReportError(IActiveScriptError * err);
 };

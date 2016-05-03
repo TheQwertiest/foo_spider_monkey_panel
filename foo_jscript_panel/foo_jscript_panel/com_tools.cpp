@@ -2,7 +2,7 @@
 #include "com_tools.h"
 
 
-bool name_to_id_cache::lookup(hash_type hash, DISPID* p_dispid) const
+bool name_to_id_cache::lookup(hash_type hash, DISPID * p_dispid) const
 {
 	DISPID dispId;
 	if (!m_map.query(hash, dispId)) return false;
@@ -15,7 +15,7 @@ void name_to_id_cache::add(hash_type hash, DISPID dispid)
 	m_map[hash] = dispid;
 }
 
-name_to_id_cache::hash_type name_to_id_cache::g_hash(const wchar_t* name)
+name_to_id_cache::hash_type name_to_id_cache::g_hash(const wchar_t * name)
 {
 	return LHashValOfName(LANG_NEUTRAL, name);
 }

@@ -41,8 +41,8 @@ __interface IGdiObj: IDisposable
 ]
 __interface IGdiFont: IGdiObj
 {
-	[propget] STDMETHOD(HFont)([out,retval] UINT* p);
-	[propget] STDMETHOD(Height)([out,retval] UINT* p);
+	[propget] STDMETHOD(HFont)([out,retval] UINT * p);
+	[propget] STDMETHOD(Height)([out,retval] UINT * p);
 	[propget] STDMETHOD(Name)([defaultvalue(LANG_NEUTRAL)] LANGID langId, [out,retval] BSTR * outName);
 	[propget] STDMETHOD(Size)([out,retval] float * outSize);
 	[propget] STDMETHOD(Style)([out,retval] INT * outStyle);
@@ -58,8 +58,8 @@ __interface IGdiFont: IGdiObj
 __interface IGdiRawBitmap: IDisposable
 {
 	[propget] STDMETHOD(_Handle)([out] HDC * p);
-	[propget] STDMETHOD(Width)([out,retval] UINT* p);
-	[propget] STDMETHOD(Height)([out,retval] UINT* p);
+	[propget] STDMETHOD(Width)([out,retval] UINT * p);
+	[propget] STDMETHOD(Height)([out,retval] UINT * p);
 };
 
 [
@@ -71,8 +71,8 @@ __interface IGdiRawBitmap: IDisposable
 ]
 __interface IGdiBitmap: IGdiObj
 {
-	[propget] STDMETHOD(Width)([out,retval] UINT* p);
-	[propget] STDMETHOD(Height)([out,retval] UINT* p);
+	[propget] STDMETHOD(Width)([out,retval] UINT * p);
+	[propget] STDMETHOD(Height)([out,retval] UINT * p);
 	STDMETHOD(Clone)(float x, float y, float w, float h, [out,retval] IGdiBitmap ** pp);
 	STDMETHOD(RotateFlip)([range(Gdiplus::RotateNoneFlipNone, Gdiplus::Rotate270FlipX)] UINT mode);
 	STDMETHOD(ApplyAlpha)(BYTE alpha, [out,retval] IGdiBitmap ** pp);
@@ -126,9 +126,9 @@ __interface IGdiGraphics: IGdiObj
 	STDMETHOD(DrawEllipse)(float x, float y, float w, float h, float line_width, VARIANT color);
 	STDMETHOD(DrawPolygon)(VARIANT color, float line_width, VARIANT points);
 
-	STDMETHOD(DrawString)(BSTR str, IGdiFont* font, VARIANT color, float x, float y, float w, float h, [defaultvalue(0)] int flags);
+	STDMETHOD(DrawString)(BSTR str, IGdiFont * font, VARIANT color, float x, float y, float w, float h, [defaultvalue(0)] int flags);
 	STDMETHOD(GdiDrawText)(BSTR str, IGdiFont * font, VARIANT color, int x, int y, int w, int h, [defaultvalue(0)] int format, [out,retval] VARIANT * p);
-	STDMETHOD(DrawImage)(IGdiBitmap* image, float dstX, float dstY, float dstW, float dstH, float srcX, float srcY, float srcW, float srcH, [defaultvalue(0.0)]float angle, [defaultvalue(255)]BYTE alpha);
+	STDMETHOD(DrawImage)(IGdiBitmap * image, float dstX, float dstY, float dstW, float dstH, float srcX, float srcY, float srcW, float srcH, [defaultvalue(0.0)]float angle, [defaultvalue(255)]BYTE alpha);
 	STDMETHOD(GdiDrawBitmap)(IGdiRawBitmap * bitmap, int dstX, int dstY, int dstW, int dstH, int srcX, int srcY, int srcW, int srcH);
 	STDMETHOD(GdiAlphaBlend)(IGdiRawBitmap * bitmap, int dstX, int dstY, int dstW, int dstH, int srcX, int srcY, int srcW, int srcH, [defaultvalue(255)]BYTE alpha);
 	STDMETHOD(MeasureString)(BSTR str, IGdiFont * font, float x, float y, float w, float h, [defaultvalue(0)] int flags, [out,retval] IMeasureStringInfo ** pp);
@@ -151,9 +151,9 @@ _COM_SMARTPTR_TYPEDEF(IGdiGraphics, __uuidof(IGdiGraphics));
 ]
 __interface IGdiUtils: IDispatch
 {
-	STDMETHOD(Font)(BSTR name, float pxSize, [defaultvalue(0)] int style, [out,retval] IGdiFont** pp);
-	STDMETHOD(Image)(BSTR path, [out,retval] IGdiBitmap** pp);
-	STDMETHOD(CreateImage)(int w, int h, [out,retval] IGdiBitmap** pp);
+	STDMETHOD(Font)(BSTR name, float pxSize, [defaultvalue(0)] int style, [out,retval] IGdiFont ** pp);
+	STDMETHOD(Image)(BSTR path, [out,retval] IGdiBitmap ** pp);
+	STDMETHOD(CreateImage)(int w, int h, [out,retval] IGdiBitmap ** pp);
 	STDMETHOD(CreateStyleTextRender)([defaultvalue(0)] VARIANT_BOOL pngmode, [out,retval] __interface IStyleTextRender ** pp);
 	STDMETHOD(LoadImageAsync)(UINT window_id, BSTR path, [out,retval] UINT * p);
 };
@@ -181,8 +181,8 @@ __interface IStyleTextRender: IDisposable
 	STDMETHOD(SetShadowBackgroundColor)(VARIANT color, int width, int height);
 	STDMETHOD(SetShadowBackgroundImage)(IGdiBitmap * img);
 	// Render 
-	STDMETHOD(RenderStringPoint)(IGdiGraphics * g, BSTR str, IGdiFont* font, int x, int y, [defaultvalue(0)] int flags, [out,retval] VARIANT_BOOL * p);
-	STDMETHOD(RenderStringRect)(IGdiGraphics * g, BSTR str, IGdiFont* font, int x, int y, int w, int h, [defaultvalue(0)] int flags, [out,retval] VARIANT_BOOL * p);
+	STDMETHOD(RenderStringPoint)(IGdiGraphics * g, BSTR str, IGdiFont * font, int x, int y, [defaultvalue(0)] int flags, [out,retval] VARIANT_BOOL * p);
+	STDMETHOD(RenderStringRect)(IGdiGraphics * g, BSTR str, IGdiFont * font, int x, int y, int w, int h, [defaultvalue(0)] int flags, [out,retval] VARIANT_BOOL * p);
 	// PNG Mode Only
 	STDMETHOD(SetPngImage)(IGdiBitmap * img);
 };
@@ -198,17 +198,17 @@ __interface IStyleTextRender: IDisposable
 __interface IFbFileInfo: IDisposable
 {
 	[propget] STDMETHOD(_ptr)([out]void ** pp);
-	[propget] STDMETHOD(MetaCount)([out,retval] UINT* p);
-	[propget] STDMETHOD(InfoCount)([out,retval] UINT* p);
-	STDMETHOD(MetaValueCount)(UINT idx, [out,retval] UINT* p);
-	STDMETHOD(MetaName)(UINT idx, [out,retval] BSTR* pp);
-	STDMETHOD(MetaValue)(UINT idx, UINT vidx, [out,retval] BSTR* pp);
+	[propget] STDMETHOD(MetaCount)([out,retval] UINT * p);
+	[propget] STDMETHOD(InfoCount)([out,retval] UINT * p);
+	STDMETHOD(MetaValueCount)(UINT idx, [out,retval] UINT * p);
+	STDMETHOD(MetaName)(UINT idx, [out,retval] BSTR * pp);
+	STDMETHOD(MetaValue)(UINT idx, UINT vidx, [out,retval] BSTR * pp);
 	STDMETHOD(MetaFind)(BSTR name, [out,retval] UINT * p);
 	STDMETHOD(MetaRemoveField)(BSTR name);
 	STDMETHOD(MetaAdd)(BSTR name, BSTR value, [out,retval] UINT * p);
 	STDMETHOD(MetaInsertValue)(UINT idx, UINT vidx, BSTR value);
-	STDMETHOD(InfoName)(UINT idx, [out,retval] BSTR* pp);
-	STDMETHOD(InfoValue)(UINT idx, [out,retval] BSTR* pp);
+	STDMETHOD(InfoName)(UINT idx, [out,retval] BSTR * pp);
+	STDMETHOD(InfoValue)(UINT idx, [out,retval] BSTR * pp);
 	STDMETHOD(InfoFind)(BSTR name, [out,retval] UINT * p);
 	STDMETHOD(MetaSet)(BSTR name, BSTR value);
 };
@@ -224,11 +224,11 @@ __interface IFbFileInfo: IDisposable
 __interface IFbMetadbHandle: IDisposable
 {
 	[propget] STDMETHOD(_ptr)([out]void ** pp);
-	[propget] STDMETHOD(Path)([out,retval] BSTR* pp);
+	[propget] STDMETHOD(Path)([out,retval] BSTR * pp);
 	[propget] STDMETHOD(RawPath)([out,retval] BSTR * pp);
-	[propget] STDMETHOD(SubSong)([out,retval] UINT* p);
-	[propget] STDMETHOD(FileSize)([out,retval] double* p);
-	[propget] STDMETHOD(Length)([out,retval] double* p);
+	[propget] STDMETHOD(SubSong)([out,retval] UINT * p);
+	[propget] STDMETHOD(FileSize)([out,retval] double * p);
+	[propget] STDMETHOD(Length)([out,retval] double * p);
 	[vararg] STDMETHOD(UpdateFileInfoSimple)([satype(VARIANT)] SAFEARRAY * p);
 	STDMETHOD(GetFileInfo)([out,retval] IFbFileInfo ** pp);
 	STDMETHOD(Compare)(IFbMetadbHandle * handle, [out,retval] VARIANT_BOOL * p);
@@ -266,8 +266,8 @@ __interface IFbMetadbHandleList: IDisposable
 	STDMETHOD(OrderByFormat)(__interface IFbTitleFormat * script, int direction);
 	STDMETHOD(OrderByPath)();
 	STDMETHOD(OrderByRelativePath)();
-	STDMETHOD(CalcTotalDuration)([out,retval] double* p);
-	STDMETHOD(CalcTotalSize)([out,retval] double* p);
+	STDMETHOD(CalcTotalDuration)([out,retval] double * p);
+	STDMETHOD(CalcTotalSize)([out,retval] double * p);
 };
 
 [
@@ -280,7 +280,7 @@ __interface IFbMetadbHandleList: IDisposable
 __interface IFbTitleFormat: IDisposable
 {
 	[propget] STDMETHOD(_ptr)([out,retval] void ** pp);
-	STDMETHOD(Eval)([defaultvalue(0)] VARIANT_BOOL force, [out,retval] BSTR* pp);
+	STDMETHOD(Eval)([defaultvalue(0)] VARIANT_BOOL force, [out,retval] BSTR * pp);
 	STDMETHOD(EvalWithMetadb)(IFbMetadbHandle * handle, [out,retval] BSTR * pp);
 };
 
@@ -373,29 +373,29 @@ __interface IFbUtils: IDispatch
 	[vararg] STDMETHOD(trace)([satype(VARIANT)] SAFEARRAY * p);
 	STDMETHOD(ShowPopupMessage)(BSTR msg, [defaultvalue(JSP_NAME)] BSTR title, [defaultvalue(0),range(0,2)] int iconid);
 	STDMETHOD(CreateProfiler)([defaultvalue("")] BSTR name, [out,retval] IFbProfiler ** pp);
-	STDMETHOD(TitleFormat)(BSTR expression, [out,retval] IFbTitleFormat** pp);
-	STDMETHOD(GetNowPlaying)([out,retval] IFbMetadbHandle** pp);
-	STDMETHOD(GetFocusItem)([defaultvalue(-1)] VARIANT_BOOL force, [out,retval] IFbMetadbHandle** pp);
-	STDMETHOD(GetSelection)([out,retval] IFbMetadbHandle** pp);
+	STDMETHOD(TitleFormat)(BSTR expression, [out,retval] IFbTitleFormat ** pp);
+	STDMETHOD(GetNowPlaying)([out,retval] IFbMetadbHandle ** pp);
+	STDMETHOD(GetFocusItem)([defaultvalue(-1)] VARIANT_BOOL force, [out,retval] IFbMetadbHandle ** pp);
+	STDMETHOD(GetSelection)([out,retval] IFbMetadbHandle ** pp);
 	STDMETHOD(GetSelections)([defaultvalue(0)] UINT flags, [out,retval] IFbMetadbHandleList ** pp);
-	STDMETHOD(GetSelectionType)([out,retval] UINT* p);
+	STDMETHOD(GetSelectionType)([out,retval] UINT * p);
 	STDMETHOD(AcquireUiSelectionHolder)([out,retval] IFbUiSelectionHolder ** outHolder);
 	
-	[propget] STDMETHOD(ComponentPath)([out,retval] BSTR* pp);
-	[propget] STDMETHOD(FoobarPath)([out,retval] BSTR* pp);
-	[propget] STDMETHOD(ProfilePath)([out,retval] BSTR* pp);
+	[propget] STDMETHOD(ComponentPath)([out,retval] BSTR * pp);
+	[propget] STDMETHOD(FoobarPath)([out,retval] BSTR * pp);
+	[propget] STDMETHOD(ProfilePath)([out,retval] BSTR * pp);
 	[propget] STDMETHOD(IsPlaying)([out,retval] VARIANT_BOOL * p);
 	[propget] STDMETHOD(IsPaused)([out,retval] VARIANT_BOOL * p);
-	[propget] STDMETHOD(PlaybackTime)([out,retval] double* p);
+	[propget] STDMETHOD(PlaybackTime)([out,retval] double * p);
 	[propput] STDMETHOD(PlaybackTime)(double time);
-	[propget] STDMETHOD(PlaybackLength)([out,retval] double* p);
+	[propget] STDMETHOD(PlaybackLength)([out,retval] double * p);
 	[propget] STDMETHOD(StopAfterCurrent)([out,retval] VARIANT_BOOL * p);
 	[propput] STDMETHOD(StopAfterCurrent)(VARIANT_BOOL p);
 	[propget] STDMETHOD(CursorFollowPlayback)([out,retval] VARIANT_BOOL * p);
 	[propput] STDMETHOD(CursorFollowPlayback)(VARIANT_BOOL p);
 	[propget] STDMETHOD(PlaybackFollowCursor)([out,retval] VARIANT_BOOL * p);
 	[propput] STDMETHOD(PlaybackFollowCursor)(VARIANT_BOOL p);
-	[propget] STDMETHOD(Volume)([out,retval] float* p);
+	[propget] STDMETHOD(Volume)([out,retval] float * p);
 	[propput] STDMETHOD(Volume)(float value);
 	//
 	STDMETHOD(Exit)();
@@ -472,22 +472,22 @@ __interface IDropSourceAction: IDisposable
 ]
 __interface IFbWindow: IDispatch
 {
-	[propget] STDMETHOD(ID)([out,retval] UINT* p);
-	[propget] STDMETHOD(Width)([out,retval] INT* p);
-	[propget] STDMETHOD(Height)([out,retval] INT* p);
-	[propget] STDMETHOD(InstanceType)([out,retval] UINT* p);
-	[propget] STDMETHOD(MaxWidth)([out,retval] UINT* p);
+	[propget] STDMETHOD(ID)([out,retval] UINT * p);
+	[propget] STDMETHOD(Width)([out,retval] INT * p);
+	[propget] STDMETHOD(Height)([out,retval] INT * p);
+	[propget] STDMETHOD(InstanceType)([out,retval] UINT * p);
+	[propget] STDMETHOD(MaxWidth)([out,retval] UINT * p);
 	[propput] STDMETHOD(MaxWidth)(UINT width);
-	[propget] STDMETHOD(MaxHeight)([out,retval] UINT* p);
+	[propget] STDMETHOD(MaxHeight)([out,retval] UINT * p);
 	[propput] STDMETHOD(MaxHeight)(UINT height);
-	[propget] STDMETHOD(MinWidth)([out,retval] UINT* p);
+	[propget] STDMETHOD(MinWidth)([out,retval] UINT * p);
 	[propput] STDMETHOD(MinWidth)(UINT width);
-	[propget] STDMETHOD(MinHeight)([out,retval] UINT* p);
+	[propget] STDMETHOD(MinHeight)([out,retval] UINT * p);
 	[propput] STDMETHOD(MinHeight)(UINT height);
-	[propget] STDMETHOD(DlgCode)([out,retval] UINT* p);
+	[propget] STDMETHOD(DlgCode)([out,retval] UINT * p);
 	[propput] STDMETHOD(DlgCode)(UINT code);
-	[propget] STDMETHOD(IsTransparent)([out,retval] VARIANT_BOOL* p);
-	[propget] STDMETHOD(IsVisible)([out,retval] VARIANT_BOOL* p);
+	[propget] STDMETHOD(IsTransparent)([out,retval] VARIANT_BOOL * p);
+	[propget] STDMETHOD(IsVisible)([out,retval] VARIANT_BOOL * p);
 	STDMETHOD(Repaint)([defaultvalue(0)] VARIANT_BOOL force);
 	STDMETHOD(RepaintRect)(UINT x, UINT y, UINT w, UINT h, [defaultvalue(0)] VARIANT_BOOL force);
 	STDMETHOD(CreatePopupMenu)([out,retval] IMenuObj ** pp);
@@ -525,7 +525,7 @@ __interface IJSUtils: IDispatch
 {
 	STDMETHOD(CheckComponent)(BSTR name, [defaultvalue(-1)] VARIANT_BOOL is_dll, [out,retval] VARIANT_BOOL * p);
 	STDMETHOD(CheckFont)(BSTR name, [out,retval] VARIANT_BOOL * p);
-	STDMETHOD(GetAlbumArtV2)(IFbMetadbHandle * handle, [defaultvalue(0)] int art_id, [defaultvalue(-1)] VARIANT_BOOL need_stub, [out,retval] IGdiBitmap **pp);
+	STDMETHOD(GetAlbumArtV2)(IFbMetadbHandle * handle, [defaultvalue(0)] int art_id, [defaultvalue(-1)] VARIANT_BOOL need_stub, [out,retval] IGdiBitmap ** pp);
 	STDMETHOD(GetAlbumArtEmbedded)(BSTR rawpath, [defaultvalue(0)] int art_id, [out,retval] IGdiBitmap ** pp);
 	STDMETHOD(GetAlbumArtAsync)(UINT window_id, IFbMetadbHandle * handle, [defaultvalue(0)] int art_id, [defaultvalue(-1)] VARIANT_BOOL need_stub, [defaultvalue(0)] VARIANT_BOOL only_embed, [defaultvalue(0)] VARIANT_BOOL no_load, [out,retval] UINT * p);
 	STDMETHOD(ReadINI)(BSTR filename, BSTR section, BSTR key, [optional] VARIANT defaultval, [out,retval] BSTR * pp);

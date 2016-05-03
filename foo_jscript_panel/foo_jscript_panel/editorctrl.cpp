@@ -903,7 +903,7 @@ bool CScriptEditorCtrl::GetNearestWords(pfc::string_base & out, const char * wor
 DWORD CScriptEditorCtrl::GetPropertyColor(const char * key, bool * key_exist /*= NULL*/)
 {
 	pfc::array_t<char> buff;
-	int len = GetPropertyExpanded(key, 0);  // Get property len
+	int len = GetPropertyExpanded(key, 0); // Get property len
 
 	if (key_exist)
 		*key_exist = (len != 0);
@@ -932,7 +932,7 @@ void CScriptEditorCtrl::Init()
 	UsePopUp(true);
 
 	// Disable Ctrl + some char
-	const int ctrlcode[22] =  {'Q', 'W', 'E', 'R', 'I', 'O', 'P', 'S', 'D', 'F',
+	const int ctrlcode[22] = {'Q', 'W', 'E', 'R', 'I', 'O', 'P', 'S', 'D', 'F',
 		'G', 'H', 'J', 'K', 'L', 'B', 'N', 'M', 186, 187, 226
 	};
 

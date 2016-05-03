@@ -45,7 +45,7 @@ static inline unsigned ExtractColorFromVariant(VARIANT v)
 	return (v.vt == VT_R8) ? static_cast<unsigned>(v.dblVal) : v.lVal;
 }
 
-GdiFont::GdiFont(Gdiplus::Font* p, HFONT hFont, bool managed /*= true*/) : GdiObj<IGdiFont, Gdiplus::Font>(p), 
+GdiFont::GdiFont(Gdiplus::Font * p, HFONT hFont, bool managed /*= true*/) : GdiObj<IGdiFont, Gdiplus::Font>(p), 
 	m_hFont(hFont), m_managed(managed)
 {
 
@@ -63,7 +63,7 @@ void GdiFont::FinalRelease()
 	GdiObj<IGdiFont, Gdiplus::Font>::FinalRelease();
 }
 
-STDMETHODIMP GdiFont::get_HFont(UINT* p)
+STDMETHODIMP GdiFont::get_HFont(UINT * p)
 {
 	TRACK_FUNCTION();
 
@@ -73,7 +73,7 @@ STDMETHODIMP GdiFont::get_HFont(UINT* p)
 	return S_OK;
 }
 
-STDMETHODIMP GdiFont::get_Height(UINT* p)
+STDMETHODIMP GdiFont::get_Height(UINT * p)
 {
 	TRACK_FUNCTION();
 
@@ -121,7 +121,7 @@ STDMETHODIMP GdiFont::get_Style(INT * outStyle)
 }
 
 
-STDMETHODIMP GdiBitmap::get_Width(UINT* p)
+STDMETHODIMP GdiBitmap::get_Width(UINT * p)
 {
 	TRACK_FUNCTION();
 
@@ -131,7 +131,7 @@ STDMETHODIMP GdiBitmap::get_Width(UINT* p)
 	return S_OK;
 }
 
-STDMETHODIMP GdiBitmap::get_Height(UINT* p)
+STDMETHODIMP GdiBitmap::get_Height(UINT * p)
 {
 	TRACK_FUNCTION();
 
@@ -142,7 +142,7 @@ STDMETHODIMP GdiBitmap::get_Height(UINT* p)
 	return S_OK;
 }
 
-STDMETHODIMP GdiBitmap::Clone(float x, float y, float w, float h, IGdiBitmap** pp)
+STDMETHODIMP GdiBitmap::Clone(float x, float y, float w, float h, IGdiBitmap ** pp)
 {
 	TRACK_FUNCTION();
 
@@ -403,7 +403,7 @@ STDMETHODIMP GdiBitmap::GetColorScheme(UINT count, VARIANT * outArray)
 	return S_OK;
 }
 
-STDMETHODIMP GdiBitmap::SaveAs(BSTR path, BSTR format, VARIANT_BOOL *p)
+STDMETHODIMP GdiBitmap::SaveAs(BSTR path, BSTR format, VARIANT_BOOL * p)
 {
 	TRACK_FUNCTION();
 
@@ -636,14 +636,14 @@ STDMETHODIMP GdiGraphics::DrawPolygon(VARIANT color, float line_width, VARIANT p
 	return S_OK;
 }
 
-STDMETHODIMP GdiGraphics::DrawString(BSTR str, IGdiFont* font, VARIANT color, float x, float y, float w, float h, int flags)
+STDMETHODIMP GdiGraphics::DrawString(BSTR str, IGdiFont * font, VARIANT color, float x, float y, float w, float h, int flags)
 {
 	TRACK_FUNCTION();
 
 	if (!m_ptr) return E_POINTER;
 	if (!str || !font) return E_INVALIDARG;
 
-	Gdiplus::Font* fn = NULL;
+	Gdiplus::Font * fn = NULL;
 	font->get__ptr((void**)&fn);
 	if (!fn) return E_INVALIDARG;
 
@@ -662,14 +662,14 @@ STDMETHODIMP GdiGraphics::DrawString(BSTR str, IGdiFont* font, VARIANT color, fl
 	return S_OK;
 }
 
-STDMETHODIMP GdiGraphics::DrawImage(IGdiBitmap* image, float dstX, float dstY, float dstW, float dstH, float srcX, float srcY, float srcW, float srcH, float angle, BYTE alpha)
+STDMETHODIMP GdiGraphics::DrawImage(IGdiBitmap * image, float dstX, float dstY, float dstW, float dstH, float srcX, float srcY, float srcW, float srcH, float angle, BYTE alpha)
 {
 	TRACK_FUNCTION();
 
 	if (!m_ptr) return E_POINTER;
 	if (!image) return E_INVALIDARG;
 
-	Gdiplus::Bitmap* img = NULL;
+	Gdiplus::Bitmap * img = NULL;
 	image->get__ptr((void**)&img);
 	if (!img) return E_INVALIDARG;
 
@@ -861,7 +861,7 @@ STDMETHODIMP GdiGraphics::MeasureString(BSTR str, IGdiFont * font, float x, floa
 	if (!str || !font) return E_INVALIDARG;
 	if (!pp) return E_POINTER;
 
-	Gdiplus::Font* fn = NULL;
+	Gdiplus::Font * fn = NULL;
 	font->get__ptr((void**)&fn);
 	if (!fn) return E_INVALIDARG;
 
@@ -1002,7 +1002,7 @@ STDMETHODIMP GdiGraphics::SetInterpolationMode(INT mode)
 	return S_OK;
 }
 
-STDMETHODIMP GdiUtils::Font(BSTR name, float pxSize, int style, IGdiFont** pp)
+STDMETHODIMP GdiUtils::Font(BSTR name, float pxSize, int style, IGdiFont ** pp)
 {
 	TRACK_FUNCTION();
 
@@ -1039,7 +1039,7 @@ STDMETHODIMP GdiUtils::Font(BSTR name, float pxSize, int style, IGdiFont** pp)
 	return S_OK;
 }
 
-STDMETHODIMP GdiUtils::Image(BSTR path, IGdiBitmap** pp)
+STDMETHODIMP GdiUtils::Image(BSTR path, IGdiBitmap ** pp)
 {
 	TRACK_FUNCTION();
 
@@ -1126,7 +1126,7 @@ STDMETHODIMP FbFileInfo::get__ptr(void ** pp)
 	return S_OK;
 }
 
-STDMETHODIMP FbFileInfo::get_MetaCount(UINT* p)
+STDMETHODIMP FbFileInfo::get_MetaCount(UINT * p)
 {
 	TRACK_FUNCTION();
 
@@ -1137,7 +1137,7 @@ STDMETHODIMP FbFileInfo::get_MetaCount(UINT* p)
 	return S_OK;
 }
 
-STDMETHODIMP FbFileInfo::MetaValueCount(UINT idx, UINT* p)
+STDMETHODIMP FbFileInfo::MetaValueCount(UINT idx, UINT * p)
 {
 	TRACK_FUNCTION();
 
@@ -1148,7 +1148,7 @@ STDMETHODIMP FbFileInfo::MetaValueCount(UINT idx, UINT* p)
 	return S_OK;
 }
 
-STDMETHODIMP FbFileInfo::MetaName(UINT idx, BSTR* pp)
+STDMETHODIMP FbFileInfo::MetaName(UINT idx, BSTR * pp)
 {
 	TRACK_FUNCTION();
 
@@ -1166,7 +1166,7 @@ STDMETHODIMP FbFileInfo::MetaName(UINT idx, BSTR* pp)
 	return S_OK;
 }
 
-STDMETHODIMP FbFileInfo::MetaValue(UINT idx, UINT vidx, BSTR* pp)
+STDMETHODIMP FbFileInfo::MetaValue(UINT idx, UINT vidx, BSTR * pp)
 {
 	TRACK_FUNCTION();
 
@@ -1235,7 +1235,7 @@ STDMETHODIMP FbFileInfo::MetaInsertValue(UINT idx, UINT vidx, BSTR value)
 	return S_OK;
 }
 
-STDMETHODIMP FbFileInfo::get_InfoCount(UINT* p)
+STDMETHODIMP FbFileInfo::get_InfoCount(UINT * p)
 {
 	TRACK_FUNCTION();
 
@@ -1246,7 +1246,7 @@ STDMETHODIMP FbFileInfo::get_InfoCount(UINT* p)
 	return S_OK;
 }
 
-STDMETHODIMP FbFileInfo::InfoName(UINT idx, BSTR* pp)
+STDMETHODIMP FbFileInfo::InfoName(UINT idx, BSTR * pp)
 {
 	TRACK_FUNCTION();
 
@@ -1264,7 +1264,7 @@ STDMETHODIMP FbFileInfo::InfoName(UINT idx, BSTR* pp)
 	return S_OK;
 }
 
-STDMETHODIMP FbFileInfo::InfoValue(UINT idx, BSTR* pp)
+STDMETHODIMP FbFileInfo::InfoValue(UINT idx, BSTR * pp)
 {
 	TRACK_FUNCTION();
 
@@ -1316,7 +1316,7 @@ STDMETHODIMP FbMetadbHandle::get__ptr(void ** pp)
 	return S_OK;
 }
 
-STDMETHODIMP FbMetadbHandle::get_Path(BSTR* pp)
+STDMETHODIMP FbMetadbHandle::get_Path(BSTR * pp)
 {
 	TRACK_FUNCTION();
 
@@ -1342,7 +1342,7 @@ STDMETHODIMP FbMetadbHandle::get_RawPath(BSTR * pp)
 	return S_OK;
 }
 
-STDMETHODIMP FbMetadbHandle::get_SubSong(UINT* p)
+STDMETHODIMP FbMetadbHandle::get_SubSong(UINT * p)
 {
 	TRACK_FUNCTION();
 
@@ -1353,7 +1353,7 @@ STDMETHODIMP FbMetadbHandle::get_SubSong(UINT* p)
 	return S_OK;
 }
 
-STDMETHODIMP FbMetadbHandle::get_FileSize(double* p)
+STDMETHODIMP FbMetadbHandle::get_FileSize(double * p)
 {
 	TRACK_FUNCTION();
 
@@ -1364,7 +1364,7 @@ STDMETHODIMP FbMetadbHandle::get_FileSize(double* p)
 	return S_OK;
 }
 
-STDMETHODIMP FbMetadbHandle::get_Length(double* p)
+STDMETHODIMP FbMetadbHandle::get_Length(double * p)
 {
 	TRACK_FUNCTION();
 
@@ -1888,7 +1888,7 @@ STDMETHODIMP FbMetadbHandleList::OrderByRelativePath()
 	return S_OK;
 }
 
-STDMETHODIMP FbMetadbHandleList::CalcTotalDuration(double* p)
+STDMETHODIMP FbMetadbHandleList::CalcTotalDuration(double * p)
 {
 	TRACK_FUNCTION();
 
@@ -1896,7 +1896,7 @@ STDMETHODIMP FbMetadbHandleList::CalcTotalDuration(double* p)
 	return S_OK;
 }
 
-STDMETHODIMP FbMetadbHandleList::CalcTotalSize(double* p)
+STDMETHODIMP FbMetadbHandleList::CalcTotalSize(double * p)
 {
 	TRACK_FUNCTION();
 
@@ -1912,7 +1912,7 @@ STDMETHODIMP FbTitleFormat::get__ptr(void ** pp)
 	return S_OK;
 }
 
-STDMETHODIMP FbTitleFormat::Eval(VARIANT_BOOL force, BSTR* pp)
+STDMETHODIMP FbTitleFormat::Eval(VARIANT_BOOL force, BSTR * pp)
 {
 	TRACK_FUNCTION();
 
@@ -2016,7 +2016,7 @@ STDMETHODIMP FbUtils::CreateProfiler(BSTR name, IFbProfiler ** pp)
 	return S_OK;
 }
 
-STDMETHODIMP FbUtils::TitleFormat(BSTR expression, IFbTitleFormat** pp)
+STDMETHODIMP FbUtils::TitleFormat(BSTR expression, IFbTitleFormat ** pp)
 {
 	TRACK_FUNCTION();
 
@@ -2027,7 +2027,7 @@ STDMETHODIMP FbUtils::TitleFormat(BSTR expression, IFbTitleFormat** pp)
 	return S_OK;
 }
 
-STDMETHODIMP FbUtils::GetNowPlaying(IFbMetadbHandle** pp)
+STDMETHODIMP FbUtils::GetNowPlaying(IFbMetadbHandle ** pp)
 {
 	TRACK_FUNCTION();
 
@@ -2045,7 +2045,7 @@ STDMETHODIMP FbUtils::GetNowPlaying(IFbMetadbHandle** pp)
 	return S_OK;
 }
 
-STDMETHODIMP FbUtils::GetFocusItem(VARIANT_BOOL force, IFbMetadbHandle** pp)
+STDMETHODIMP FbUtils::GetFocusItem(VARIANT_BOOL force, IFbMetadbHandle ** pp)
 {
 	TRACK_FUNCTION();
 
@@ -2072,7 +2072,7 @@ STDMETHODIMP FbUtils::GetFocusItem(VARIANT_BOOL force, IFbMetadbHandle** pp)
 	return S_OK;
 }
 
-STDMETHODIMP FbUtils::GetSelection(IFbMetadbHandle** pp)
+STDMETHODIMP FbUtils::GetSelection(IFbMetadbHandle ** pp)
 {
 	TRACK_FUNCTION();
 
@@ -2106,7 +2106,7 @@ STDMETHODIMP FbUtils::GetSelections(UINT flags, IFbMetadbHandleList ** pp)
 	return S_OK;
 }
 
-STDMETHODIMP FbUtils::GetSelectionType(UINT* p)
+STDMETHODIMP FbUtils::GetSelectionType(UINT * p)
 {
 	TRACK_FUNCTION();
 
@@ -2148,7 +2148,7 @@ STDMETHODIMP FbUtils::AcquireUiSelectionHolder(IFbUiSelectionHolder ** outHolder
 	return S_OK;
 }
 
-STDMETHODIMP FbUtils::get_ComponentPath(BSTR* pp)
+STDMETHODIMP FbUtils::get_ComponentPath(BSTR * pp)
 {
 	TRACK_FUNCTION();
 
@@ -2158,7 +2158,7 @@ STDMETHODIMP FbUtils::get_ComponentPath(BSTR* pp)
 	return S_OK;
 }
 
-STDMETHODIMP FbUtils::get_FoobarPath(BSTR* pp)
+STDMETHODIMP FbUtils::get_FoobarPath(BSTR * pp)
 {
 	TRACK_FUNCTION();
 
@@ -2170,7 +2170,7 @@ STDMETHODIMP FbUtils::get_FoobarPath(BSTR* pp)
 	return S_OK;
 }
 
-STDMETHODIMP FbUtils::get_ProfilePath(BSTR* pp)
+STDMETHODIMP FbUtils::get_ProfilePath(BSTR * pp)
 {
 	TRACK_FUNCTION();
 
@@ -2182,7 +2182,7 @@ STDMETHODIMP FbUtils::get_ProfilePath(BSTR* pp)
 	return S_OK;
 }
 
-STDMETHODIMP FbUtils::get_IsPlaying(VARIANT_BOOL* p)
+STDMETHODIMP FbUtils::get_IsPlaying(VARIANT_BOOL * p)
 {
 	TRACK_FUNCTION();
 
@@ -2192,7 +2192,7 @@ STDMETHODIMP FbUtils::get_IsPlaying(VARIANT_BOOL* p)
 	return S_OK;
 }
 
-STDMETHODIMP FbUtils::get_IsPaused(VARIANT_BOOL* p)
+STDMETHODIMP FbUtils::get_IsPaused(VARIANT_BOOL * p)
 {
 	TRACK_FUNCTION();
 
@@ -2202,7 +2202,7 @@ STDMETHODIMP FbUtils::get_IsPaused(VARIANT_BOOL* p)
 	return S_OK;
 }
 
-STDMETHODIMP FbUtils::get_PlaybackTime(double* p)
+STDMETHODIMP FbUtils::get_PlaybackTime(double * p)
 {
 	TRACK_FUNCTION();
 
@@ -2220,7 +2220,7 @@ STDMETHODIMP FbUtils::put_PlaybackTime(double time)
 	return S_OK;
 }
 
-STDMETHODIMP FbUtils::get_PlaybackLength(double* p)
+STDMETHODIMP FbUtils::get_PlaybackLength(double * p)
 {
 	TRACK_FUNCTION();
 
@@ -2284,7 +2284,7 @@ STDMETHODIMP FbUtils::put_PlaybackFollowCursor(VARIANT_BOOL p)
 	return S_OK;
 }
 
-STDMETHODIMP FbUtils::get_Volume(float* p)
+STDMETHODIMP FbUtils::get_Volume(float * p)
 {
 	TRACK_FUNCTION();
 
@@ -2992,7 +2992,7 @@ STDMETHODIMP MeasureStringInfo::get_chars(int * p)
 	return S_OK;
 }
 
-STDMETHODIMP GdiRawBitmap::get_Width(UINT* p)
+STDMETHODIMP GdiRawBitmap::get_Width(UINT * p)
 {
 	TRACK_FUNCTION();
 
@@ -3002,7 +3002,7 @@ STDMETHODIMP GdiRawBitmap::get_Width(UINT* p)
 	return S_OK;
 }
 
-STDMETHODIMP GdiRawBitmap::get_Height(UINT* p)
+STDMETHODIMP GdiRawBitmap::get_Height(UINT * p)
 {
 	TRACK_FUNCTION();
 
@@ -3102,7 +3102,7 @@ STDMETHODIMP JSUtils::CheckFont(BSTR name, VARIANT_BOOL * p)
 	return S_OK;
 }
 
-STDMETHODIMP JSUtils::GetAlbumArtV2(IFbMetadbHandle * handle, int art_id, VARIANT_BOOL need_stub, IGdiBitmap **pp)
+STDMETHODIMP JSUtils::GetAlbumArtV2(IFbMetadbHandle * handle, int art_id, VARIANT_BOOL need_stub, IGdiBitmap ** pp)
 {
 	TRACK_FUNCTION();
 
@@ -3340,7 +3340,7 @@ STDMETHODIMP JSUtils::FileTest(BSTR path, BSTR mode, VARIANT * p)
 	if (!path || !mode) return E_INVALIDARG;
 	if (!p) return E_POINTER;
 
-	if (wcscmp(mode, L"e") == 0)  // exists
+	if (wcscmp(mode, L"e") == 0) // exists
 	{
 		p->vt = VT_BOOL;
 		p->boolVal = TO_VARIANT_BOOL(PathFileExists(path));
@@ -3575,7 +3575,7 @@ STDMETHODIMP StyleTextRender::SetShadowBackgroundImage(IGdiBitmap * img)
 	return S_OK;
 }
 
-STDMETHODIMP StyleTextRender::RenderStringPoint(IGdiGraphics * g, BSTR str, IGdiFont* font, int x, int y, int flags, VARIANT_BOOL * p)
+STDMETHODIMP StyleTextRender::RenderStringPoint(IGdiGraphics * g, BSTR str, IGdiFont * font, int x, int y, int flags, VARIANT_BOOL * p)
 {
 	TRACK_FUNCTION();
 
@@ -3609,7 +3609,7 @@ STDMETHODIMP StyleTextRender::RenderStringPoint(IGdiGraphics * g, BSTR str, IGdi
 	return S_OK;
 }
 
-STDMETHODIMP StyleTextRender::RenderStringRect(IGdiGraphics * g, BSTR str, IGdiFont* font, int x, int y, int w, int h, int flags, VARIANT_BOOL * p)
+STDMETHODIMP StyleTextRender::RenderStringRect(IGdiGraphics * g, BSTR str, IGdiFont * font, int x, int y, int w, int h, int flags, VARIANT_BOOL * p)
 {
 	TRACK_FUNCTION();
 

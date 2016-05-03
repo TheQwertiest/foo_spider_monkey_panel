@@ -46,9 +46,9 @@ LRESULT CDialogConf::OnInitDialog(HWND hwndFocus, LPARAM lParam)
 	// Edge Style
 	HWND combo_edge_style = GetDlgItem(IDC_EDGE_STYLE);
 
-	ComboBox_AddString(combo_edge_style, _T("None"));    // NO_EDGE
-	ComboBox_AddString(combo_edge_style, _T("Sunken"));  // SUNKEN_EDGE
-	ComboBox_AddString(combo_edge_style, _T("Grey"));    // GREY_EDGE
+	ComboBox_AddString(combo_edge_style, _T("None"));
+	ComboBox_AddString(combo_edge_style, _T("Sunken"));
+	ComboBox_AddString(combo_edge_style, _T("Grey"));
 	ComboBox_SetCurSel(combo_edge_style, m_parent->get_edge_style());
 
 	// Edit box

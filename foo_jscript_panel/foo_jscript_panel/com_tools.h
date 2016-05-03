@@ -6,7 +6,7 @@
 //-- IUnknown ---
 #define BEGIN_COM_QI_IMPL() \
 	public:\
-		STDMETHOD(QueryInterface)(REFIID riid, void** ppv) { \
+		STDMETHOD(QueryInterface)(REFIID riid, void ** ppv) { \
 			if (!ppv) return E_INVALIDARG; \
 
 // C2594: ambiguous conversions
@@ -37,9 +37,9 @@ class name_to_id_cache
 public:
 	typedef ULONG hash_type;
 
-	bool lookup(hash_type hash, DISPID* p_dispid) const;
+	bool lookup(hash_type hash, DISPID * p_dispid) const;
 	void add(hash_type hash, DISPID dispid);
-	static hash_type g_hash(const wchar_t* name);
+	static hash_type g_hash(const wchar_t * name);
 
 protected:
 	typedef pfc::map_t<hash_type, DISPID> name_to_id_map;
@@ -117,18 +117,18 @@ public:
 		return S_OK;
 	}
 
-	STDMETHOD(GetTypeInfo)(unsigned int i, LCID lcid, ITypeInfo** pp)
+	STDMETHOD(GetTypeInfo)(unsigned int i, LCID lcid, ITypeInfo ** pp)
 	{
 		return g_type_info_cache_holder.GetTypeInfo(i, lcid, pp);
 	}
 
-	STDMETHOD(GetIDsOfNames)(REFIID riid, OLECHAR** names, unsigned int cnames, LCID lcid, DISPID* dispids)
+	STDMETHOD(GetIDsOfNames)(REFIID riid, OLECHAR ** names, unsigned int cnames, LCID lcid, DISPID * dispids)
 	{
 		if (g_type_info_cache_holder.empty()) return E_UNEXPECTED;
 		return g_type_info_cache_holder.GetIDsOfNames(names, cnames, dispids);
 	}
 
-	STDMETHOD(Invoke)(DISPID dispid, REFIID riid, LCID lcid, WORD flag, DISPPARAMS* params, VARIANT* result, EXCEPINFO* excep, unsigned int* err)
+	STDMETHOD(Invoke)(DISPID dispid, REFIID riid, LCID lcid, WORD flag, DISPPARAMS * params, VARIANT * result, EXCEPINFO * excep, unsigned int * err)
 	{
 		if (g_type_info_cache_holder.empty()) return E_UNEXPECTED;
 		TRACK_THIS_DISPATCH_CALL(g_type_info_cache_holder.get_ptr(), dispid, flag);
@@ -181,7 +181,7 @@ public:
 };
 
 template <typename _Base, bool _AddRef = true>
-class com_object_impl_t :  public _Base
+class com_object_impl_t : public _Base
 {
 private:
 	volatile LONG m_dwRef;
