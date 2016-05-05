@@ -1,153 +1,153 @@
 // Flags, used with GdiDrawText()
 // For more information, see: http://msdn.microsoft.com/en-us/library/dd162498(VS.85).aspx
-DT_TOP = 0x00000000;
-DT_LEFT = 0x00000000;
-DT_CENTER = 0x00000001;
-DT_RIGHT = 0x00000002;
-DT_VCENTER = 0x00000004;
-DT_BOTTOM = 0x00000008;
-DT_WORDBREAK = 0x00000010;
-DT_SINGLELINE = 0x00000020; 
-DT_EXPANDTABS = 0x00000040;
-DT_TABSTOP = 0x00000080;
-DT_NOCLIP = 0x00000100;
-DT_EXTERNALLEADING = 0x00000200;
-DT_CALCRECT = 0x00000400;
-DT_NOPREFIX = 0x00000800;  // NOTE: Please use this flag, or a '&' character will become an underline '_'
-DT_INTERNAL = 0x00001000;
-DT_EDITCONTROL = 0x00002000;
-DT_PATH_ELLIPSIS = 0x00004000;
-DT_END_ELLIPSIS = 0x00008000;
-DT_MODIFYSTRING = 0x00010000;  // do not use
-DT_RTLREADING = 0x00020000;
-DT_WORD_ELLIPSIS = 0x00040000;
-DT_NOFULLWIDTHCHARBREAK = 0x00080000;
-DT_HIDEPREFIX = 0x00100000;
-DT_PREFIXONLY = 0x00200000;
+var DT_TOP = 0x00000000;
+var DT_LEFT = 0x00000000;
+var DT_CENTER = 0x00000001;
+var DT_RIGHT = 0x00000002;
+var DT_VCENTER = 0x00000004;
+var DT_BOTTOM = 0x00000008;
+var DT_WORDBREAK = 0x00000010;
+var DT_SINGLELINE = 0x00000020; 
+var DT_EXPANvar DTABS = 0x00000040;
+var DT_TABSTOP = 0x00000080;
+var DT_NOCLIP = 0x00000100;
+var DT_EXTERNALLEADING = 0x00000200;
+var DT_CALCRECT = 0x00000400;
+var DT_NOPREFIX = 0x00000800;  // NOTE: Please use this flag, or a '&' character will become an underline '_'
+var DT_INTERNAL = 0x00001000;
+var DT_EDITCONTROL = 0x00002000;
+var DT_PATH_ELLIPSIS = 0x00004000;
+var DT_END_ELLIPSIS = 0x00008000;
+var DT_MODIFYSTRING = 0x00010000;  // do not use
+var DT_RTLREADING = 0x00020000;
+var DT_WORD_ELLIPSIS = 0x00040000;
+var DT_NOFULLWIvar DTHCHARBREAK = 0x00080000;
+var DT_HIDEPREFIX = 0x00100000;
+var DT_PREFIXONLY = 0x00200000;
 
 // Used in AppendMenuItem()
 // For more information, see: http://msdn.microsoft.com/en-us/library/ms647616(VS.85).aspx
-MF_SEPARATOR = 0x00000800;
-MF_ENABLED = 0x00000000;
-MF_GRAYED = 0x00000001;
-MF_DISABLED = 0x00000002;
-MF_UNCHECKED = 0x00000000;
-MF_CHECKED = 0x00000008;
-MF_STRING = 0x00000000;
-//MF_BITMAP = 0x00000004;  // do not use
-//MF_OWNERDRAW = 0x00000100;  // do not use
-//MF_POPUP = 0x00000010; // do not use
-MF_MENUBARBREAK = 0x00000020;
-MF_MENUBREAK = 0x00000040;
+var MF_SEPARATOR = 0x00000800;
+var MF_ENABLED = 0x00000000;
+var MF_GRAYED = 0x00000001;
+var MF_DISABLED = 0x00000002;
+var MF_UNCHECKED = 0x00000000;
+var MF_CHECKED = 0x00000008;
+var MF_STRING = 0x00000000;
+//var MF_BITMAP = 0x00000004;  // do not use
+//var MF_OWNERDRAW = 0x00000100;  // do not use
+//var MF_POPUP = 0x00000010; // do not use
+var MF_MENUBARBREAK = 0x00000020;
+var MF_MENUBREAK = 0x00000040;
 
 // Used in TrackPopupMenu()
 // For more information, see: http://msdn.microsoft.com/en-us/library/ms648002(VS.85).aspx
-TPM_LEFTALIGN       = 0x0000;
-TPM_CENTERALIGN     = 0x0004;
-TPM_RIGHTALIGN      = 0x0008;
-TPM_TOPALIGN        = 0x0000;
-TPM_VCENTERALIGN    = 0x0010;
-TPM_BOTTOMALIGN     = 0x0020;
-TPM_HORIZONTAL      = 0x0000;     /* Horz alignment matters more */
-TPM_VERTICAL        = 0x0040;     /* Vert alignment matters more */
+var TPM_LEFTALIGN       = 0x0000;
+var TPM_CENTERALIGN     = 0x0004;
+var TPM_RIGHTALIGN      = 0x0008;
+var TPM_TOPALIGN        = 0x0000;
+var TPM_VCENTERALIGN    = 0x0010;
+var TPM_BOTTOMALIGN     = 0x0020;
+var TPM_HORIZONTAL      = 0x0000;     /* Horz alignment matters more */
+var TPM_VERTICAL        = 0x0040;     /* Vert alignment matters more */
 // Animations
-TPM_HORPOSANIMATION = 0x0400;
-TPM_HORNEGANIMATION = 0x0800;
-TPM_VERPOSANIMATION = 0x1000;
-TPM_VERNEGANIMATION = 0x2000;
-TPM_NOANIMATION     = 0x4000;
+var TPM_HORPOSANIMATION = 0x0400;
+var TPM_HORNEGANIMATION = 0x0800;
+var TPM_VERPOSANIMATION = 0x1000;
+var TPM_VERNEGANIMATION = 0x2000;
+var TPM_NOANIMATION     = 0x4000;
 
 // Mask for mouse callbacks
-MK_LBUTTON  = 0x0001;
-MK_RBUTTON  = 0x0002;
-MK_SHIFT    = 0x0004; // The SHIFT key is down.
-MK_CONTROL  = 0x0008; // The CTRL key is down.
-MK_MBUTTON  = 0x0010;
-MK_XBUTTON1 = 0x0020;
-MK_XBUTTON2 = 0x0040;
-MK_SHIFT = 0x0004;  
-MK_CONTROL = 0x0008;  
+var MK_LBUTTON  = 0x0001;
+var K_RBUTTON  = 0x0002;
+var MK_SHIFT    = 0x0004; // The SHIFT key is down.
+var MK_CONTROL  = 0x0008; // The CTRL key is down.
+var MK_MBUTTON  = 0x0010;
+var MK_XBUTTON1 = 0x0020;
+var MK_XBUTTON2 = 0x0040;
+var MK_SHIFT = 0x0004;  
+var MK_CONTROL = 0x0008;  
 
 // Used in window.SetCursor()
-IDC_ARROW = 32512;
-IDC_IBEAM = 32513;
-IDC_WAIT = 32514;
-IDC_CROSS = 32515;
-IDC_UPARROW = 32516;
-IDC_SIZE = 32640;
-IDC_ICON = 32641;
-IDC_SIZENWSE = 32642;
-IDC_SIZENESW = 32643;
-IDC_SIZEWE = 32644;
-IDC_SIZENS = 32645;
-IDC_SIZEALL = 32646;
-IDC_NO = 32648;
-IDC_APPSTARTING = 32650;
-IDC_HAND = 32649;
-IDC_HELP = 32651;
+var IDC_ARROW = 32512;
+var IDC_IBEAM = 32513;
+var IDC_WAIT = 32514;
+var IDC_CROSS = 32515;
+var IDC_UPARROW = 32516;
+var IDC_SIZE = 32640;
+var IDC_ICON = 32641;
+var IDC_SIZENWSE = 32642;
+var IDC_SIZENESW = 32643;
+var IDC_SIZEWE = 32644;
+var IDC_SIZENS = 32645;
+var IDC_SIZEALL = 32646;
+var IDC_NO = 32648;
+var IDC_APPSTARTING = 32650;
+var IDC_HAND = 32649;
+var IDC_HELP = 32651;
 
 // Used in utils.Glob()
 // For more information, see: http://msdn.microsoft.com/en-us/library/ee332330%28VS.85%29.aspx
-FILE_ATTRIBUTE_READONLY            = 0x00000001;
-FILE_ATTRIBUTE_HIDDEN              = 0x00000002;
-FILE_ATTRIBUTE_SYSTEM              = 0x00000004;
-FILE_ATTRIBUTE_DIRECTORY           = 0x00000010;
-FILE_ATTRIBUTE_ARCHIVE             = 0x00000020;
-//FILE_ATTRIBUTE_DEVICE            = 0x00000040; // do not use
-FILE_ATTRIBUTE_NORMAL              = 0x00000080;
-FILE_ATTRIBUTE_TEMPORARY           = 0x00000100;
-FILE_ATTRIBUTE_SPARSE_FILE         = 0x00000200;
-FILE_ATTRIBUTE_REPARSE_POINT       = 0x00000400;
-FILE_ATTRIBUTE_COMPRESSED          = 0x00000800;
-FILE_ATTRIBUTE_OFFLINE             = 0x00001000;
-FILE_ATTRIBUTE_NOT_CONTENT_INDEXED = 0x00002000;
-FILE_ATTRIBUTE_ENCRYPTED           = 0x00004000;
-//FILE_ATTRIBUTE_VIRTUAL           = 0x00010000; // do not use
+var FILE_ATTRIBUTE_READONLY            = 0x00000001;
+var FILE_ATTRIBUTE_HIDDEN              = 0x00000002;
+var FILE_ATTRIBUTE_SYSTEM              = 0x00000004;
+var FILE_ATTRIBUTE_DIRECTORY           = 0x00000010;
+var FILE_ATTRIBUTE_ARCHIVE             = 0x00000020;
+//var FILE_ATTRIBUTE_DEVICE            = 0x00000040; // do not use
+var FILE_ATTRIBUTE_NORMAL              = 0x00000080;
+var FILE_ATTRIBUTE_TEMPORARY           = 0x00000100;
+var FILE_ATTRIBUTE_SPARSE_FILE         = 0x00000200;
+var FILE_ATTRIBUTE_REPARSE_POINT       = 0x00000400;
+var FILE_ATTRIBUTE_COMPRESSED          = 0x00000800;
+var FILE_ATTRIBUTE_OFFLINE             = 0x00001000;
+var FILE_ATTRIBUTE_NOT_CONTENT_INDEXED = 0x00002000;
+var FILE_ATTRIBUTE_ENCRYPTED           = 0x00004000;
+//var FILE_ATTRIBUTE_VIRTUAL           = 0x00010000; // do not use
 
 // With window.DlgCode, can be combined.
 // If you don't know what they mean, igonre them.
-DLGC_WANTARROWS            = 0x0001;     /* Control wants arrow keys         */
-DLGC_WANTTAB               = 0x0002;     /* Control wants tab keys           */
-DLGC_WANTALLKEYS           = 0x0004;     /* Control wants all keys           */
-DLGC_WANTMESSAGE           = 0x0004;     /* Pass message to control          */
-DLGC_HASSETSEL             = 0x0008;     /* Understands EM_SETSEL message    */
-DLGC_DEFPUSHBUTTON         = 0x0010;     /* Default pushbutton               */
-DLGC_UNDEFPUSHBUTTON       = 0x0020;     /* Non-default pushbutton           */
-DLGC_RADIOBUTTON           = 0x0040;     /* Radio button                     */
-DLGC_WANTCHARS             = 0x0080;     /* Want WM_CHAR messages            */
-DLGC_STATIC                = 0x0100;     /* Static item: don't include       */
-DLGC_BUTTON                = 0x2000;     /* Button item: can be checked      */
+var DLGC_WANTARROWS            = 0x0001;     /* Control wants arrow keys         */
+var DLGC_WANTTAB               = 0x0002;     /* Control wants tab keys           */
+var DLGC_WANTALLKEYS           = 0x0004;     /* Control wants all keys           */
+var DLGC_WANTMESSAGE           = 0x0004;     /* Pass message to control          */
+var DLGC_HASSETSEL             = 0x0008;     /* Understands EM_SETSEL message    */
+var DLGC_DEFPUSHBUTTON         = 0x0010;     /* Default pushbutton               */
+var DLGC_UNDEFPUSHBUTTON       = 0x0020;     /* Non-default pushbutton           */
+var DLGC_RADIOBUTTON           = 0x0040;     /* Radio button                     */
+var DLGC_WANTCHARS             = 0x0080;     /* Want WM_CHAR messages            */
+var DLGC_STATIC                = 0x0100;     /* Static item: don't include       */
+var DLGC_BUTTON                = 0x2000;     /* Button item: can be checked      */
 
 // Used with utils.IsKeyPressed()
-VK_BACK = 0x08;
-VK_TAB = 0x09;
-VK_RETURN = 0x0D;
-VK_SHIFT = 0x10;
-VK_CONTROL = 0x11;
-VK_ALT = 0x12;
-VK_ESCAPE = 0x1B;
-VK_PGUP = 0x21;
-VK_PGDN = 0x22;
-VK_END = 0x23;
-VK_HOME = 0x24;
-VK_LEFT = 0x25;
-VK_UP = 0x26;
-VK_RIGHT = 0x27;
-VK_DOWN = 0x28;
-VK_INSERT = 0x2D;
-VK_DELETE = 0x2E;
-VK_SPACEBAR = 0x20;
+var VK_BACK = 0x08;
+var VK_TAB = 0x09;
+var VK_RETURN = 0x0D;
+var VK_SHIFT = 0x10;
+var VK_CONTROL = 0x11;
+var VK_ALT = 0x12;
+var VK_ESCAPE = 0x1B;
+var VK_PGUP = 0x21;
+var VK_PGDN = 0x22;
+var VK_END = 0x23;
+var VK_HOME = 0x24;
+var VK_LEFT = 0x25;
+var VK_UP = 0x26;
+var VK_RIGHT = 0x27;
+var VK_DOWN = 0x28;
+var VK_INSERT = 0x2D;
+var VK_DELETE = 0x2E;
+var VK_SPACEBAR = 0x20;
 
 // Used in IFbTooltip.GetDelayTime() and IFbTooltip.SetDelayTime()
 // For more information, see: http://msdn.microsoft.com/en-us/library/bb760404(VS.85).aspx
-TTDT_AUTOMATIC             =   0;
-TTDT_RESHOW                =   1;
-TTDT_AUTOPOP               =   2;
-TTDT_INITIAL               =   3;
+var TTDT_AUTOMATIC = 0;
+var TTDT_RESHOW = 1;
+var TTDT_AUTOPOP = 2;
+var TTDT_INITIAL =3;
 
 // Used in gdi.Font(), can be combined
 // For more information, see: http://msdn.microsoft.com/en-us/library/ms534124(VS.85).aspx
-FontStyle = {
+var FontStyle = {
 	Regular: 0,
 	Bold: 1,
 	Italic: 2,
@@ -158,7 +158,7 @@ FontStyle = {
 
 // Used in SetTextRenderingHint()
 // For more information, see: http://msdn.microsoft.com/en-us/library/ms534404(VS.85).aspx
-TextRenderingHint = {
+var TextRenderingHint = {
 	SystemDefault: 0,
 	SingleBitPerPixelGridFit: 1,
 	SingleBitPerPixel: 2,
@@ -169,7 +169,7 @@ TextRenderingHint = {
 
 // Used in SetSmoothingMode()
 // For more information, see: http://msdn.microsoft.com/en-us/library/ms534173(VS.85).aspx
-SmoothingMode = {
+var SmoothingMode = {
 	Invalid: -1,
 	Default: 0,
 	HighSpeed: 1,
@@ -180,7 +180,7 @@ SmoothingMode = {
 
 // Used in SetInterpolationMode()
 // For more information, see: http://msdn.microsoft.com/en-us/library/ms534141(VS.85).aspx
-InterpolationMode = {
+var InterpolationMode = {
 	Invalid: -1,
 	Default: 0,
 	LowQuality: 1,
@@ -194,8 +194,7 @@ InterpolationMode = {
 
 // Used in RotateFlip()
 // For more information, see: http://msdn.microsoft.com/en-us/library/ms534171(VS.85).aspx
-RotateFlipType = 
-{
+var RotateFlipType = {
 	RotateNoneFlipNone: 0,
 	Rotate90FlipNone: 1,
 	Rotate180FlipNone: 2,
@@ -219,7 +218,7 @@ RotateFlipType =
 
 // h_align/v_align:
 // http://msdn.microsoft.com/en-us/library/ms534177(VS.85).aspx
-StringAlignment = {
+var StringAlignment = {
 	Near: 0,
 	Center: 1,
 	Far: 2
@@ -227,7 +226,7 @@ StringAlignment = {
 
 // trimming:
 // http://msdn.microsoft.com/en-us/library/ms534403(VS.85).aspx
-StringTrimming = {
+var StringTrimming = {
 	None: 0,
 	Character: 1,
 	Word: 2,
@@ -238,7 +237,7 @@ StringTrimming = {
 
 // flags, can be combined of:
 // http://msdn.microsoft.com/en-us/library/ms534181(VS.85).aspx
-StringFormatFlags = {
+var StringFormatFlags = {
 	DirectionRightToLeft: 0x00000001,
 	DirectionVertical: 0x00000002,
 	NoFitBlackBox: 0x00000004,
@@ -251,7 +250,7 @@ StringFormatFlags = {
 };
 
 // Used in utils.GetAlbumArt()
-AlbumArtId = {
+var AlbumArtId = {
 	front: 0,
 	back: 1,
 	disc: 2,
@@ -260,14 +259,14 @@ AlbumArtId = {
 };
 
 // Used in fb.ShowPopupMessage()
-IconId = {
+var IconId = {
 	information: 0,
 	error: 1,
 	query: 2
 };
 
 // Used in window.GetColorCUI()
-ColorTypeCUI = {
+var ColorTypeCUI = {
 	text: 0,
 	selection_text: 1,
 	inactive_selection_text: 2,
@@ -278,13 +277,13 @@ ColorTypeCUI = {
 };
 
 // Used in window.GetFontCUI()
-FontTypeCUI = {
+var FontTypeCUI = {
 	items: 0,
 	labels: 1
 };
 
 // Used in window.GetColorDUI()
-ColorTypeDUI = {
+var ColorTypeDUI = {
 	text: 0,
 	background: 1,
 	highlight: 2,
@@ -292,7 +291,7 @@ ColorTypeDUI = {
 };
 
 // Used in window.GetFontDUI()
-FontTypeDUI = {
+var FontTypeDUI = {
 	defaults: 0,
 	tabs: 1,
 	lists: 2,
