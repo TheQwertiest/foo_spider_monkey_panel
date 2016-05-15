@@ -8,7 +8,7 @@
 #include "user_message.h"
 
 
-enum IndentationStatus 
+enum IndentationStatus
 {
 	isNone,		// no effect on indentation
 	isBlockStart,	// indentation block begin such as "{" or VB "function"

@@ -2,7 +2,7 @@
 #include "script_callback_invoker.h"
 
 
-struct IDToNameEntry 
+struct IDToNameEntry
 {
 	int id;
 	const wchar_t *name;
@@ -12,7 +12,7 @@ struct IDToNameEntry
 #define _TOSTRING(x)        _STRINGIFY(x)
 #define DEFINE_ID_NAME_MAP_ENTRY(x)    { CallbackIds::##x, PFC_WIDESTRING(_STRINGIFY(x)) }
 
-static const IDToNameEntry g_idToNames[] = 
+static const IDToNameEntry g_idToNames[] =
 {
 	DEFINE_ID_NAME_MAP_ENTRY(on_drag_enter),
 	DEFINE_ID_NAME_MAP_ENTRY(on_drag_over),
@@ -87,7 +87,7 @@ ScriptCallbackInvoker::~ScriptCallbackInvoker()
 void ScriptCallbackInvoker::init(IDispatch * pActiveScriptRoot)
 {
 	reset();
-	if (!pActiveScriptRoot) 
+	if (!pActiveScriptRoot)
 		return;
 
 	m_activeScriptRoot = pActiveScriptRoot;

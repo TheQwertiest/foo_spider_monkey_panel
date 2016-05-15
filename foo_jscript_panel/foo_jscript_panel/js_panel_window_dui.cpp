@@ -5,14 +5,14 @@
 
 // Just because I don't want to include the helpers
 template<typename TImpl>
-class my_ui_element_impl : public ui_element 
+class my_ui_element_impl : public ui_element
 {
 public:
 	GUID get_guid() { return TImpl::g_get_guid();}
 	GUID get_subclass() { return TImpl::g_get_subclass();}
 	void get_name(pfc::string_base & out) { TImpl::g_get_name(out); }
 
-	ui_element_instance::ptr instantiate(HWND parent,ui_element_config::ptr cfg,ui_element_instance_callback::ptr callback) 
+	ui_element_instance::ptr instantiate(HWND parent,ui_element_config::ptr cfg,ui_element_instance_callback::ptr callback)
 	{
 		PFC_ASSERT( cfg->get_guid() == get_guid() );
 		service_nnptr_t<ui_element_instance_impl_helper> item = new service_impl_t<ui_element_instance_impl_helper>(cfg, callback);
@@ -25,7 +25,7 @@ public:
 	bool get_description(pfc::string_base & out) {out = TImpl::g_get_description(); return true;}
 
 private:
-	class ui_element_instance_impl_helper : public TImpl 
+	class ui_element_instance_impl_helper : public TImpl
 	{
 	public:
 		ui_element_instance_impl_helper(ui_element_config::ptr cfg, ui_element_instance_callback::ptr callback)
@@ -134,7 +134,7 @@ LRESULT js_panel_window_dui::on_message(HWND hwnd, UINT msg, WPARAM wp, LPARAM l
 	case WM_RBUTTONDOWN:
 	case WM_RBUTTONDBLCLK:
 	case WM_CONTEXTMENU:
-		if (m_is_edit_mode) 
+		if (m_is_edit_mode)
 			return DefWindowProc(hwnd, msg, wp, lp);
 		break;
 

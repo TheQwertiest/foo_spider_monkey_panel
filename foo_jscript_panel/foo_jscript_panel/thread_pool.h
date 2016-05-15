@@ -8,7 +8,7 @@ public:
 
 // Rip from pfc
 //! IMPORTANT: all classes derived from thread must call waitTillDone() in their destructor, to avoid object destruction during a virtual function call!
-class simple_thread 
+class simple_thread
 {
 public:
 	PFC_DECLARE_EXCEPTION(exception_creation, pfc::exception, "Could not create thread");

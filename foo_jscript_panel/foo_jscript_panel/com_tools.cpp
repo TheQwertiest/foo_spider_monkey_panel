@@ -39,13 +39,13 @@ HRESULT type_info_cache_holder::GetIDsOfNames(LPOLESTR *rgszNames, UINT cNames, 
 {
 	PFC_ASSERT(m_type_info != NULL);
 	HRESULT hr = S_OK;
-	for (unsigned i = 0; i < cNames && SUCCEEDED(hr); ++i) 
+	for (unsigned i = 0; i < cNames && SUCCEEDED(hr); ++i)
 	{
 		auto hash = name_to_id_cache::g_hash(rgszNames[i]);
-		if (!m_cache.lookup(hash, &pMemId[i])) 
+		if (!m_cache.lookup(hash, &pMemId[i]))
 		{
 			hr = m_type_info->GetIDsOfNames(&rgszNames[i], 1, &pMemId[i]);
-			if (SUCCEEDED(hr)) 
+			if (SUCCEEDED(hr))
 			{
 				m_cache.add(hash, pMemId[i]);
 			}

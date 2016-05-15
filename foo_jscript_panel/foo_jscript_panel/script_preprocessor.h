@@ -16,7 +16,7 @@ struct t_directive_value
 	}
 
 	t_directive_value(const t_array & p_directive, const t_array & p_value) :
-		directive(p_directive), 
+		directive(p_directive),
 		value(p_value)
 	{
 	}
@@ -24,7 +24,7 @@ struct t_directive_value
 
 struct t_script_info
 {
-	enum 
+	enum
 	{
 		kFeatureDragDrop			=	1 << 1
 	};

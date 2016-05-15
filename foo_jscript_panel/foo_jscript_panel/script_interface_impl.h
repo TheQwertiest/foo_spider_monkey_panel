@@ -388,7 +388,7 @@ protected:
 	FbUiSelectionHolder(const ui_selection_holder::ptr & holder) : m_holder(holder) {}
 	virtual ~FbUiSelectionHolder() {}
 
-	virtual void FinalRelease() 
+	virtual void FinalRelease()
 	{
 		m_holder.release();
 	}
@@ -556,7 +556,7 @@ public:
 	STDMETHODIMP DiffusedShadow(VARIANT color, int thickness, int offset_x, int offset_y);
 	STDMETHODIMP SetShadowBackgroundColor(VARIANT color, int width, int height);
 	STDMETHODIMP SetShadowBackgroundImage(IGdiBitmap * img);
-	// Render 
+	// Render
 	STDMETHODIMP RenderStringPoint(IGdiGraphics * g, BSTR str, IGdiFont * font, int x, int y, int flags, VARIANT_BOOL * p);
 	STDMETHODIMP RenderStringRect(IGdiGraphics * g, BSTR str, IGdiFont * font, int x, int y, int w, int h, int flags, VARIANT_BOOL * p);
 	// PNG Mode only

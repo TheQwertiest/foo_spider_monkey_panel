@@ -1,7 +1,7 @@
 #pragma once
 
 
-enum t_sci_editor_style_flag 
+enum t_sci_editor_style_flag
 {
 	ESF_NONE = 0,
 	ESF_FONT = 1 << 0,
@@ -14,7 +14,7 @@ enum t_sci_editor_style_flag
 	ESF_CASEFORCE = 1 << 7,
 };
 
-struct t_sci_editor_style 
+struct t_sci_editor_style
 {
 	t_sci_editor_style()
 	{
@@ -29,12 +29,12 @@ struct t_sci_editor_style
 	int case_force;
 };
 
-struct t_sci_prop_set 
+struct t_sci_prop_set
 {
 	pfc::string_simple key, defaultval, val;
 };
 
-struct t_prop_set_init_table 
+struct t_prop_set_init_table
 {
 	const char * key;
 	const char * defaultval;

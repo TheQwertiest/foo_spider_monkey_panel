@@ -23,7 +23,7 @@ STDMETHODIMP DataTransferObject::get_DropEffect(BSTR * outDropEffect)
 
 	if (!outDropEffect) return E_POINTER;
 
-	switch (m_dropEffect) 
+	switch (m_dropEffect)
 	{
 	case DROPEFFECT_COPY:
 		*outDropEffect = SysAllocString(L"copy");
@@ -49,7 +49,7 @@ STDMETHODIMP DataTransferObject::put_DropEffect(BSTR dropEffect)
 
 	if (!dropEffect) return E_INVALIDARG;
 
-	const NameToValueTable dropEffectTable[] = 
+	const NameToValueTable dropEffectTable[] =
 	{
 		{ L"copy", DROPEFFECT_COPY },
 		{ L"link", DROPEFFECT_LINK },

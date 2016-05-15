@@ -19,8 +19,8 @@ namespace
 
 void panel_manager::send_msg_to_all(UINT p_msg, WPARAM p_wp, LPARAM p_lp)
 {
-	m_hwnds.for_each([p_msg, p_wp, p_lp](const HWND & hWnd) -> void 
-	{ 
+	m_hwnds.for_each([p_msg, p_wp, p_lp](const HWND & hWnd) -> void
+	{
 		SendMessage(hWnd, p_msg, p_wp, p_lp);
 	});
 }
@@ -35,20 +35,20 @@ void panel_manager::send_msg_to_others_pointer(HWND p_wnd_except, UINT p_msg, pf
 	for (t_size i = 0; i < count - 1; ++i)
 		p_param->refcount_add_ref();
 
-	m_hwnds.for_each([p_msg, p_param, p_wnd_except] (const HWND & hWnd) -> void 
+	m_hwnds.for_each([p_msg, p_param, p_wnd_except] (const HWND & hWnd) -> void
 	{
-		if (hWnd != p_wnd_except) 
+		if (hWnd != p_wnd_except)
 		{
-			SendMessage(hWnd, p_msg, reinterpret_cast<WPARAM>(p_param), 0); 
+			SendMessage(hWnd, p_msg, reinterpret_cast<WPARAM>(p_param), 0);
 		}
 	});
 }
 
 void panel_manager::post_msg_to_all(UINT p_msg, WPARAM p_wp, LPARAM p_lp)
 {
-	m_hwnds.for_each([p_msg, p_wp, p_lp] (const HWND & hWnd) -> void 
+	m_hwnds.for_each([p_msg, p_wp, p_lp] (const HWND & hWnd) -> void
 	{
-		PostMessage(hWnd, p_msg, p_wp, p_lp); 
+		PostMessage(hWnd, p_msg, p_wp, p_lp);
 	});
 }
 
@@ -62,9 +62,9 @@ void panel_manager::post_msg_to_all_pointer(UINT p_msg, pfc::refcounted_object_r
 	for (t_size i = 0; i < count; ++i)
 		p_param->refcount_add_ref();
 
-	m_hwnds.for_each([p_msg, p_param] (const HWND & hWnd) -> void 
-	{ 
-		PostMessage(hWnd, p_msg, reinterpret_cast<WPARAM>(p_param), 0); 
+	m_hwnds.for_each([p_msg, p_param] (const HWND & hWnd) -> void
+	{
+		PostMessage(hWnd, p_msg, reinterpret_cast<WPARAM>(p_param), 0);
 	});
 }
 
@@ -110,10 +110,10 @@ void config_object_callback::on_watched_object_changed(const service_ptr_t<confi
 
 void playback_stat_callback::on_item_played(metadb_handle_ptr p_item)
 {
-	simple_callback_data<metadb_handle_ptr> * on_item_played_data 
+	simple_callback_data<metadb_handle_ptr> * on_item_played_data
 		= new simple_callback_data<metadb_handle_ptr>(p_item);
 
-	panel_manager::instance().post_msg_to_all_pointer(CALLBACK_UWM_ON_ITEM_PLAYED, 
+	panel_manager::instance().post_msg_to_all_pointer(CALLBACK_UWM_ON_ITEM_PLAYED,
 		on_item_played_data);
 }
 
@@ -121,7 +121,7 @@ void nonautoregister_callbacks::on_changed_sorted(metadb_handle_list_cref p_item
 {
 	t_on_changed_sorted_data * on_changed_sorted_data = new t_on_changed_sorted_data(p_items_sorted, p_fromhook);
 
-	panel_manager::instance().post_msg_to_all_pointer(CALLBACK_UWM_ON_CHANGED_SORTED, 
+	panel_manager::instance().post_msg_to_all_pointer(CALLBACK_UWM_ON_CHANGED_SORTED,
 		on_changed_sorted_data);
 }
 
@@ -129,10 +129,10 @@ void nonautoregister_callbacks::on_selection_changed(metadb_handle_list_cref p_s
 {
 	if (p_selection.get_count() > 0)
 	{
-		simple_callback_data<metadb_handle_ptr> * on_selection_changed_data 
+		simple_callback_data<metadb_handle_ptr> * on_selection_changed_data
 			= new simple_callback_data<metadb_handle_ptr>(p_selection[0]);
 
-		panel_manager::instance().post_msg_to_all_pointer(CALLBACK_UWM_ON_SELECTION_CHANGED, 
+		panel_manager::instance().post_msg_to_all_pointer(CALLBACK_UWM_ON_SELECTION_CHANGED,
 			on_selection_changed_data);
 	}
 	else
@@ -143,7 +143,7 @@ void nonautoregister_callbacks::on_selection_changed(metadb_handle_list_cref p_s
 
 void my_play_callback::on_playback_starting(play_control::t_track_command cmd, bool paused)
 {
-	panel_manager::instance().post_msg_to_all(CALLBACK_UWM_ON_PLAYBACK_STARTING, 
+	panel_manager::instance().post_msg_to_all(CALLBACK_UWM_ON_PLAYBACK_STARTING,
 		(WPARAM)cmd, (LPARAM)paused);
 }
 
@@ -151,7 +151,7 @@ void my_play_callback::on_playback_new_track(metadb_handle_ptr track)
 {
 	simple_callback_data<metadb_handle_ptr> * on_playback_new_track_data = new simple_callback_data<metadb_handle_ptr>(track);
 
-	panel_manager::instance().post_msg_to_all_pointer(CALLBACK_UWM_ON_PLAYBACK_NEW_TRACK, 
+	panel_manager::instance().post_msg_to_all_pointer(CALLBACK_UWM_ON_PLAYBACK_NEW_TRACK,
 		on_playback_new_track_data);
 }
 
@@ -178,7 +178,7 @@ void my_play_callback::on_playback_edited(metadb_handle_ptr track)
 {
 	simple_callback_data<metadb_handle_ptr> * on_playback_edited_data = new simple_callback_data<metadb_handle_ptr>(track);
 
-	panel_manager::instance().post_msg_to_all_pointer(CALLBACK_UWM_ON_PLAYBACK_EDITED, 
+	panel_manager::instance().post_msg_to_all_pointer(CALLBACK_UWM_ON_PLAYBACK_EDITED,
 		on_playback_edited_data);
 }
 
@@ -212,7 +212,7 @@ void my_play_callback::on_volume_change(float newval)
 
 void my_playlist_callback::on_item_focus_change(t_size p_playlist,t_size p_from,t_size p_to)
 {
-	simple_callback_data_3<t_size, t_size, t_size> * on_item_focus_change_data = 
+	simple_callback_data_3<t_size, t_size, t_size> * on_item_focus_change_data =
 		new simple_callback_data_3<t_size, t_size, t_size>(p_playlist, p_from, p_to);
 	panel_manager::instance().post_msg_to_all_pointer(CALLBACK_UWM_ON_ITEM_FOCUS_CHANGE, on_item_focus_change_data);
 }
@@ -260,7 +260,7 @@ void my_playlist_callback::on_item_ensure_visible(t_size p_playlist,t_size p_idx
 void my_playlist_callback::on_playlist_activate(t_size p_old,t_size p_new)
 {
 	// redirect
-	if (p_old != p_new) 
+	if (p_old != p_new)
 		on_playlist_switch();
 }
 

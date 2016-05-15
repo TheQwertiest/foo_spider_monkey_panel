@@ -9,7 +9,7 @@
 
 
 js_panel_window::js_panel_window() :
-	m_script_host(new ScriptHost(this)), 
+	m_script_host(new ScriptHost(this)),
 	m_is_mouse_tracked(false),
 	m_is_droptarget_registered(false)
 {
@@ -87,7 +87,7 @@ bool js_panel_window::script_load()
 		SendMessage(m_hwnd, UWM_SIZE, 0, 0);
 
 		// Show init message
-		console::formatter() << JSP_NAME " (" 
+		console::formatter() << JSP_NAME " ("
 			<< ScriptInfo().build_info_string()
 			<< "): initialized in "
 			<< (int)(timer.query() * 1000)
@@ -144,12 +144,12 @@ ui_helpers::container_window::class_data & js_panel_window::get_class_data() con
 	static ui_helpers::container_window::class_data my_class_data =
 	{
 		_T(JSP_WINDOW_CLASS_NAME),
-		_T(""), 
-		0, 
-		false, 
-		false, 
-		0, 
-		WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, 
+		_T(""),
+		0,
+		false,
+		false,
+		0,
+		WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
 		edge_style_from_config(get_edge_style()),
 		CS_DBLCLKS,
 		true, true, true, IDC_ARROW
@@ -397,12 +397,12 @@ LRESULT js_panel_window::on_message(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 
 	case UWM_SCRIPT_DISABLED_BEFORE:
 		// Show error message
-		popup_msg::g_show(pfc::string_formatter() 
+		popup_msg::g_show(pfc::string_formatter()
 			<< "Panel ("
 			<< ScriptInfo().build_info_string()
 			<< "): Refuse to load script due to critical error last run,"
 			<< " please check your script and apply it again.",
-			JSP_NAME, 
+			JSP_NAME,
 			popup_message::icon_error);
 		return 0;
 
@@ -592,8 +592,8 @@ void js_panel_window::on_paint(HDC dc, LPRECT lpUpdateRect)
 			HDC bkdc = CreateCompatibleDC(dc);
 			HBITMAP bkoldbmp = SelectBitmap(bkdc, m_gr_bmp_bk);
 
-			BitBlt(memdc, lpUpdateRect->left, lpUpdateRect->top, 
-				lpUpdateRect->right - lpUpdateRect->left, 
+			BitBlt(memdc, lpUpdateRect->left, lpUpdateRect->top,
+				lpUpdateRect->right - lpUpdateRect->left,
 				lpUpdateRect->bottom - lpUpdateRect->top, bkdc, lpUpdateRect->left, lpUpdateRect->top, SRCCOPY);
 
 			SelectBitmap(bkdc, bkoldbmp);
@@ -648,7 +648,7 @@ void js_panel_window::on_paint_error(HDC memdc)
 	SIZE sz = {0};
 
 	// Font chosing
-	HFONT newfont = CreateFont(20, 0, 0, 0, FW_BOLD, FALSE, FALSE, FALSE, 
+	HFONT newfont = CreateFont(20, 0, 0, 0, FW_BOLD, FALSE, FALSE, FALSE,
 		DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
 		DEFAULT_PITCH | FF_DONTCARE, _T("Tahoma"));
 	HFONT oldfont = (HFONT)SelectObject(memdc, newfont);

@@ -6,7 +6,7 @@
 #include "ui_conf.h"
 #include "helpers.h"
 
-namespace 
+namespace
 {
 	static preferences_page_factory_t<js_preferences_page_impl> g_pref;
 }

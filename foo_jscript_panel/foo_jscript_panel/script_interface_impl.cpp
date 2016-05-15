@@ -15,10 +15,9 @@
 
 
 // Helper functions
-// 
 // -1: not a valid metadb interface
-//  0: metadb interface
-//  1: metadb handles interface
+// 0: metadb interface
+// 1: metadb handles interface
 static int TryGetMetadbHandleFromVariant(const VARIANT & obj, IDispatch ** ppuk)
 {
 	if (obj.vt != VT_DISPATCH || !obj.pdispVal)
@@ -45,7 +44,7 @@ static inline unsigned ExtractColorFromVariant(VARIANT v)
 	return (v.vt == VT_R8) ? static_cast<unsigned>(v.dblVal) : v.lVal;
 }
 
-GdiFont::GdiFont(Gdiplus::Font * p, HFONT hFont, bool managed /*= true*/) : GdiObj<IGdiFont, Gdiplus::Font>(p), 
+GdiFont::GdiFont(Gdiplus::Font * p, HFONT hFont, bool managed /*= true*/) : GdiObj<IGdiFont, Gdiplus::Font>(p),
 	m_hFont(hFont), m_managed(managed)
 {
 
@@ -322,7 +321,7 @@ STDMETHODIMP GdiBitmap::Resize(UINT w, UINT h, INT interpolationMode, IGdiBitmap
 	if (!m_ptr) return E_POINTER;
 	if (!pp) return E_POINTER;
 
-	Gdiplus::Bitmap * bitmap = new Gdiplus::Bitmap(w, h, PixelFormat32bppPARGB); 
+	Gdiplus::Bitmap * bitmap = new Gdiplus::Bitmap(w, h, PixelFormat32bppPARGB);
 	Gdiplus::Graphics g(bitmap);
 
 	g.SetInterpolationMode((Gdiplus::InterpolationMode)interpolationMode);
@@ -376,14 +375,14 @@ STDMETHODIMP GdiBitmap::GetColorScheme(UINT count, VARIANT * outArray)
 	std::vector<sort_vec_pair_t> sort_vec(color_counters.begin(), color_counters.end());
 	color_counters.clear();
 	count = min(count, sort_vec.size());
-	std::partial_sort(sort_vec.begin(), sort_vec.begin() + count, sort_vec.end(), 
+	std::partial_sort(sort_vec.begin(), sort_vec.begin() + count, sort_vec.end(),
 		[](const sort_vec_pair_t &a, const sort_vec_pair_t &b)
 		{
 			return a.second > b.second;
 		});
 
 	helpers::com_array_writer<> helper;
-	if (!helper.create(count)) 
+	if (!helper.create(count))
 		return E_OUTOFMEMORY;
 	for (long i = 0; i < helper.get_count(); ++i)
 	{
@@ -816,12 +815,12 @@ STDMETHODIMP GdiGraphics::GdiDrawText(BSTR str, IGdiFont * font, VARIANT color, 
 	m_ptr->ReleaseHDC(dc);
 
 	// Returns an VBArray:
-	//   [0] left   (DT_CALCRECT) 
+	//   [0] left   (DT_CALCRECT)
 	//   [1] top    (DT_CALCRECT)
 	//   [2] right  (DT_CALCRECT)
 	//   [3] bottom (DT_CALCRECT)
 	//   [4] characters drawn
-	const int elements[] = 
+	const int elements[] =
 	{
 		rc.left,
 		rc.top,
@@ -1214,7 +1213,7 @@ STDMETHODIMP FbFileInfo::MetaAdd(BSTR name, BSTR value, UINT * p)
 	if (!m_info_ptr) return E_POINTER;
 	if (!name || !value) return E_INVALIDARG;
 
-	*p = m_info_ptr->meta_add(pfc::stringcvt::string_utf8_from_wide(name), 
+	*p = m_info_ptr->meta_add(pfc::stringcvt::string_utf8_from_wide(name),
 		pfc::stringcvt::string_utf8_from_wide(value));
 
 	return S_OK;
@@ -1455,8 +1454,8 @@ STDMETHODIMP FbMetadbHandle::UpdateFileInfoSimple(SAFEARRAY * p)
 
 	static_api_ptr_t<metadb_io_v2> io;
 
-	io->update_info_async(pfc::list_single_ref_t<metadb_handle_ptr>(m_handle), 
-		new service_impl_t<helpers::file_info_pairs_filter>(m_handle, field_value_map, umultival), 
+	io->update_info_async(pfc::list_single_ref_t<metadb_handle_ptr>(m_handle),
+		new service_impl_t<helpers::file_info_pairs_filter>(m_handle, field_value_map, umultival),
 		core_api::get_main_window(), metadb_io_v2::op_flag_delay_ui, NULL);
 
 	return S_OK;
@@ -1768,7 +1767,7 @@ STDMETHODIMP FbMetadbHandleList::MakeIntersection(IFbMetadbHandleList * handles)
 			++walk1;
 		else if (handles_ref[walk2] < m_handles[walk1])
 			++walk2;
-		else 
+		else
 		{
 			result.add_item(m_handles[walk1]);
 			++walk1;
@@ -1797,19 +1796,19 @@ STDMETHODIMP FbMetadbHandleList::MakeUnion(IFbMetadbHandleList * handles)
 	t_size last1 = m_handles.get_count();
 	t_size last2 = handles_ptr->get_count();
 
-	while (walk1 != last1 && walk2 != last2) 
+	while (walk1 != last1 && walk2 != last2)
 	{
-		if (m_handles[walk1] < handles_ref[walk2]) 
+		if (m_handles[walk1] < handles_ref[walk2])
 		{
 			result.add_item(m_handles[walk1]);
 			++walk1;
 		}
-		else if (handles_ref[walk2] < m_handles[walk1]) 
+		else if (handles_ref[walk2] < m_handles[walk1])
 		{
 			result.add_item(handles_ref[walk2]);
 			++walk2;
 		}
-		else 
+		else
 		{
 			result.add_item(m_handles[walk1]);
 			++walk1;
@@ -1840,7 +1839,7 @@ STDMETHODIMP FbMetadbHandleList::MakeDifference(IFbMetadbHandleList * handles)
 
 	while (walk1 != last1 && walk2 != last2)
 	{
-		if (m_handles[walk1] < handles_ref[walk2]) 
+		if (m_handles[walk1] < handles_ref[walk2])
 		{
 			result.add_item(m_handles[walk1]);
 			++walk1;
@@ -1849,7 +1848,7 @@ STDMETHODIMP FbMetadbHandleList::MakeDifference(IFbMetadbHandleList * handles)
 		{
 			++walk2;
 		}
-		else 
+		else
 		{
 			++walk1;
 			++walk2;
@@ -2000,7 +1999,7 @@ STDMETHODIMP FbUtils::ShowPopupMessage(BSTR msg, BSTR title, int iconid)
 
 	if (!msg || !title) return E_INVALIDARG;
 
-	popup_msg::g_show(pfc::stringcvt::string_utf8_from_wide(msg), 
+	popup_msg::g_show(pfc::stringcvt::string_utf8_from_wide(msg),
 		pfc::stringcvt::string_utf8_from_wide(title), (popup_message::t_icon)iconid);
 	return S_OK;
 }
@@ -2116,9 +2115,9 @@ STDMETHODIMP FbUtils::GetSelectionType(UINT * p)
 		&contextmenu_item::caller_undefined,
 		&contextmenu_item::caller_active_playlist_selection,
 		&contextmenu_item::caller_active_playlist,
-		&contextmenu_item::caller_playlist_manager, 
-		&contextmenu_item::caller_now_playing, 
-		&contextmenu_item::caller_keyboard_shortcut_list, 
+		&contextmenu_item::caller_playlist_manager,
+		&contextmenu_item::caller_now_playing,
+		&contextmenu_item::caller_keyboard_shortcut_list,
 		&contextmenu_item::caller_media_library_viewer,
 	};
 
@@ -2414,7 +2413,7 @@ STDMETHODIMP FbUtils::ShowConsole()
 	//standard_commands::main_show_console();
 
 	// {5B652D25-CE44-4737-99BB-A3CF2AEB35CC}
-	const GUID guid_main_show_console = 
+	const GUID guid_main_show_console =
 	{ 0x5b652d25, 0xce44, 0x4737, { 0x99, 0xbb, 0xa3, 0xcf, 0x2a, 0xeb, 0x35, 0xcc } };
 
 	standard_commands::run_main(guid_main_show_console);
@@ -2817,9 +2816,9 @@ STDMETHODIMP MainMenuManager::Init(BSTR root_name)
 		const GUID * guid;
 	};
 
-	// In mainmenu_groups: 
-	//   static const GUID file,view,edit,playback,library,help;
-	const t_valid_root_name valid_root_names[] = 
+	// In mainmenu_groups:
+	// static const GUID file,view,edit,playback,library,help;
+	const t_valid_root_name valid_root_names[] =
 	{
 		{L"file",     &mainmenu_groups::file},
 		{L"view",     &mainmenu_groups::view},
@@ -3311,7 +3310,7 @@ STDMETHODIMP JSUtils::Glob(BSTR pattern, UINT exc_mask, UINT inc_mask, VARIANT *
 
 	helpers::com_array_writer<> helper;
 
-	if (!helper.create(files.get_count())) 
+	if (!helper.create(files.get_count()))
 		return E_OUTOFMEMORY;
 
 	for (long i = 0; i < helper.get_count(); ++i)
@@ -3347,7 +3346,7 @@ STDMETHODIMP JSUtils::FileTest(BSTR path, BSTR mode, VARIANT * p)
 	}
 	else if (wcscmp(mode, L"s") == 0)
 	{
-		HANDLE fh = CreateFile(path, GENERIC_READ, FILE_SHARE_READ, 0, OPEN_EXISTING, 0, 0);  
+		HANDLE fh = CreateFile(path, GENERIC_READ, FILE_SHARE_READ, 0, OPEN_EXISTING, 0, 0);
 		LARGE_INTEGER size = {0};
 
 		if (fh != INVALID_HANDLE_VALUE)
@@ -3604,7 +3603,7 @@ STDMETHODIMP StyleTextRender::RenderStringPoint(IGdiGraphics * g, BSTR str, IGdi
 		fmt.SetFormatFlags((Gdiplus::StringFormatFlags)(flags & 0x7FFF));       //0x0000ffff
 	}
 
-	m_pOutLineText->DrawString(graphics, &family, (Gdiplus::FontStyle)fontstyle, 
+	m_pOutLineText->DrawString(graphics, &family, (Gdiplus::FontStyle)fontstyle,
 		fontsize, str, Gdiplus::Point(x, y), &fmt);
 	return S_OK;
 }
@@ -3638,7 +3637,7 @@ STDMETHODIMP StyleTextRender::RenderStringRect(IGdiGraphics * g, BSTR str, IGdiF
 		fmt.SetFormatFlags((Gdiplus::StringFormatFlags)(flags & 0x7FFF));       //0x0000ffff
 	}
 
-	m_pOutLineText->DrawString(graphics, &family, (Gdiplus::FontStyle)fontstyle, 
+	m_pOutLineText->DrawString(graphics, &family, (Gdiplus::FontStyle)fontstyle,
 		fontsize, str, Gdiplus::Rect(x, y, w, h), &fmt);
 	return S_OK;
 }

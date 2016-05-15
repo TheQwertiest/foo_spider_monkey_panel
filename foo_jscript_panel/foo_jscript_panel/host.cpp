@@ -7,7 +7,7 @@
 #include "popup_msg.h"
 #include "dbgtrace.h"
 
-HostComm::HostComm() 
+HostComm::HostComm()
 	: m_hwnd(NULL)
 	, m_hdc(NULL)
 	, m_width(0)
@@ -15,7 +15,7 @@ HostComm::HostComm()
 	, m_gr_bmp(NULL)
 	, m_suppress_drawing(false)
 	, m_paint_pending(false)
-	, m_accuracy(0) 
+	, m_accuracy(0)
 	, m_instance_type(KInstanceTypeCUI)
 	, m_dlg_code(0)
 	, m_script_info(get_config_guid())
@@ -94,7 +94,7 @@ void HostComm::RefreshBackground(LPRECT lprcUpdate /*= NULL*/)
 		TCHAR buff[64];
 		if (hwnd == m_hwnd) continue;
 		GetClassName(hwnd, buff, _countof(buff));
-		if (_tcsstr(buff, _T("SysTabControl32"))) 
+		if (_tcsstr(buff, _T("SysTabControl32")))
 		{
 			wnd_parent = hwnd;
 			break;
@@ -131,7 +131,7 @@ void HostComm::RefreshBackground(LPRECT lprcUpdate /*= NULL*/)
 	HBITMAP old_bmp = SelectBitmap(hdc_bk, m_gr_bmp_bk);
 
 	// Paint BK
-	BitBlt(hdc_bk, rect_child.left, rect_child.top, rect_child.right - rect_child.left, rect_child.bottom - rect_child.top, 
+	BitBlt(hdc_bk, rect_child.left, rect_child.top, rect_child.right - rect_child.left, rect_child.bottom - rect_child.top,
 		dc_parent, pt.x, pt.y, SRCCOPY);
 
 	SelectBitmap(hdc_bk, old_bmp);
@@ -403,12 +403,12 @@ STDMETHODIMP FbWindow::NotifyOthers(BSTR name, VARIANT info)
 
 	if (FAILED(hr)) return hr;
 
-	simple_callback_data_2<_bstr_t, _variant_t> * notify_data 
+	simple_callback_data_2<_bstr_t, _variant_t> * notify_data
 		= new simple_callback_data_2<_bstr_t, _variant_t>(name, NULL);
 
 	notify_data->m_item2.Attach(var.Detach());
 
-	panel_manager::instance().send_msg_to_others_pointer(m_host->GetHWND(), 
+	panel_manager::instance().send_msg_to_others_pointer(m_host->GetHWND(),
 		CALLBACK_UWM_NOTIFY_DATA, notify_data);
 
 	return S_OK;
@@ -641,7 +641,7 @@ STDMETHODIMP FbWindow::Reload()
 	return S_OK;
 }
 
-ScriptHost::ScriptHost(HostComm * host) 
+ScriptHost::ScriptHost(HostComm * host)
 	: m_host(host)
 	, m_window(new com_object_impl_t<FbWindow, false>(host))
 	, m_gdi(com_object_singleton_t<GdiUtils>::instance())
@@ -667,7 +667,7 @@ STDMETHODIMP_(ULONG) ScriptHost::AddRef()
 
 STDMETHODIMP_(ULONG) ScriptHost::Release()
 {
-	ULONG n = InterlockedDecrement(&m_dwRef); 
+	ULONG n = InterlockedDecrement(&m_dwRef);
 
 	if (n == 0)
 	{
@@ -811,7 +811,7 @@ HRESULT ScriptHost::Initialize()
 	if (SUCCEEDED(hr)) hr = GenerateSourceContext(NULL, wcode, source_context);
 	m_contextToPathMap[source_context] = "<main>";
 
-	if (SUCCEEDED(hr)) hr = parser->ParseScriptText(wcode.get_ptr(), NULL, NULL, NULL, 
+	if (SUCCEEDED(hr)) hr = parser->ParseScriptText(wcode.get_ptr(), NULL, NULL, NULL,
 		source_context, 0, SCRIPTTEXT_HOSTMANAGESSOURCE | SCRIPTTEXT_ISVISIBLE, NULL, NULL);
 
 	if (SUCCEEDED(hr))
@@ -842,7 +842,7 @@ HRESULT ScriptHost::ProcessImportedScripts(script_preprocessor &preprocessor, IA
 		if (FAILED(hr)) break;
 
 		m_contextToPathMap[source_context] = pfc::stringcvt::string_utf8_from_wide(scripts[i].path.get_ptr());
-		hr = parser->ParseScriptText(scripts[i].code.get_ptr(), NULL, NULL, NULL, 
+		hr = parser->ParseScriptText(scripts[i].code.get_ptr(), NULL, NULL, NULL,
 			source_context, 0, SCRIPTTEXT_HOSTMANAGESSOURCE | SCRIPTTEXT_ISVISIBLE, NULL, NULL);
 	}
 
@@ -857,11 +857,11 @@ HRESULT ScriptHost::InitScriptEngineByName(const wchar_t * engineName)
 	bool isJScript = wcsncmp(engineName, jscriptName, _countof(jscriptName) - 1) == 0;
 	bool isJScript9 = wcscmp(engineName, L"JScript9") == 0;
 
-	if (isJScript9) 
+	if (isJScript9)
 	{
 		// Try using JScript9 from IE9
 		// {16d51579-a30b-4c8b-a276-0ff4dc41e755}
-		static const CLSID jscript9clsid = 
+		static const CLSID jscript9clsid =
 		{0x16d51579, 0xa30b, 0x4c8b, {0xa2, 0x76, 0x0f, 0xf4, 0xdc, 0x41, 0xe7, 0x55 } };
 
 		if (FAILED(hr = m_script_engine.CreateInstance(jscript9clsid, NULL, classContext)))
@@ -871,12 +871,12 @@ HRESULT ScriptHost::InitScriptEngineByName(const wchar_t * engineName)
 		}
 	}
 
-	if (FAILED(hr)) 
+	if (FAILED(hr))
 	{
 		hr = m_script_engine.CreateInstance(engineName, NULL, classContext);
 	}
 
-	if (FAILED(hr)) 
+	if (FAILED(hr))
 	{
 		return hr;
 	}
@@ -905,7 +905,7 @@ void ScriptHost::Finalize()
 
 	if (Ready())
 	{
-		// Call GC explicitly 
+		// Call GC explicitly
 		IActiveScriptGarbageCollector * gc = NULL;
 		if (SUCCEEDED(m_script_engine->QueryInterface(IID_IActiveScriptGarbageCollector, (void **)&gc)))
 		{
@@ -948,22 +948,22 @@ HRESULT ScriptHost::InvokeCallback(int callbackId, VARIANTARG * argv /*= NULL*/,
 	catch (std::exception & e)
 	{
 		pfc::print_guid guid(m_host->get_config_guid());
-		console::printf(JSP_NAME " (%s): Unhandled C++ Exception: \"%s\", will crash now...", 
+		console::printf(JSP_NAME " (%s): Unhandled C++ Exception: \"%s\", will crash now...",
 			m_host->ScriptInfo().build_info_string().get_ptr(), e.what());
 		PRINT_DISPATCH_TRACK_MESSAGE_AND_BREAK();
 	}
 	catch (_com_error & e)
 	{
 		pfc::print_guid guid(m_host->get_config_guid());
-		console::printf(JSP_NAME " (%s): Unhandled COM Error: \"%s\", will crash now...", 
-			m_host->ScriptInfo().build_info_string().get_ptr(), 
+		console::printf(JSP_NAME " (%s): Unhandled COM Error: \"%s\", will crash now...",
+			m_host->ScriptInfo().build_info_string().get_ptr(),
 			pfc::stringcvt::string_utf8_from_wide(e.ErrorMessage()).get_ptr());
 		PRINT_DISPATCH_TRACK_MESSAGE_AND_BREAK();
 	}
 	catch (...)
 	{
 		pfc::print_guid guid(m_host->get_config_guid());
-		console::printf(JSP_NAME " (%s): Unhandled Unknown Exception, will crash now...", 
+		console::printf(JSP_NAME " (%s): Unhandled Unknown Exception, will crash now...",
 			m_host->ScriptInfo().build_info_string().get_ptr());
 		PRINT_DISPATCH_TRACK_MESSAGE_AND_BREAK();
 	}
@@ -977,7 +977,7 @@ HRESULT ScriptHost::GenerateSourceContext(const wchar_t * path, const wchar_t * 
 	HRESULT hr = S_OK;
 	t_size len = wcslen(code);
 
-	if (!path) 
+	if (!path)
 	{
 		if (m_host->ScriptInfo().name.is_empty())
 			name.convert(pfc::print_guid(m_host->GetGUID()));
@@ -1025,7 +1025,7 @@ void ScriptHost::ReportError(IActiveScriptError * err)
 	pfc::string_formatter formatter;
 	formatter << JSP_NAME << " (" << m_host->ScriptInfo().build_info_string().get_ptr() << "): ";
 
-	if (excep.bstrSource && excep.bstrDescription) 
+	if (excep.bstrSource && excep.bstrDescription)
 	{
 		formatter << string_utf8_from_wide(excep.bstrSource) << ":\n";
 		formatter << string_utf8_from_wide(excep.bstrDescription) << "\n";

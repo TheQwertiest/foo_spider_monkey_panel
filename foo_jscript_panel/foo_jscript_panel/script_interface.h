@@ -180,7 +180,7 @@ __interface IStyleTextRender: IDisposable
 	STDMETHOD(DiffusedShadow)(VARIANT color, int thickness, int offset_x, int offset_y);
 	STDMETHOD(SetShadowBackgroundColor)(VARIANT color, int width, int height);
 	STDMETHOD(SetShadowBackgroundImage)(IGdiBitmap * img);
-	// Render 
+	// Render
 	STDMETHOD(RenderStringPoint)(IGdiGraphics * g, BSTR str, IGdiFont * font, int x, int y, [defaultvalue(0)] int flags, [out,retval] VARIANT_BOOL * p);
 	STDMETHOD(RenderStringRect)(IGdiGraphics * g, BSTR str, IGdiFont * font, int x, int y, int w, int h, [defaultvalue(0)] int flags, [out,retval] VARIANT_BOOL * p);
 	// PNG Mode Only

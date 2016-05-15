@@ -7,8 +7,8 @@
 #define TRACK_FUNCTION() TRACK_CALL_TEXT(__FUNCTION__)
 #define TRACK_CALL_TEXT_FORMAT(fmt, ...) TRACK_CALL_TEXT(uStringPrintf((fmt), __VA_ARGS__))
 #else
-#define TRACK_FUNCTION() 
-#define TRACK_CALL_TEXT_FORMAT(fmt, ...) 
+#define TRACK_FUNCTION()
+#define TRACK_CALL_TEXT_FORMAT(fmt, ...)
 #endif
 
 #if !defined(NO_TRACK_DISPATCH)
@@ -17,9 +17,9 @@
 #define PRINT_DISPATCH_TRACK_MESSAGE() do { disp_call_tracker::print_msg(); } while(0)
 #define PRINT_DISPATCH_TRACK_MESSAGE_AND_BREAK() do { PRINT_DISPATCH_TRACK_MESSAGE(); __debugbreak(); } while(0)
 #else
-#define TRACK_THIS_DISPATCH_CALL(typeinfo, dispid, flag) 
-#define PRINT_DISPATCH_TRACK_MESSAGE() 
-#define PRINT_DISPATCH_TRACK_MESSAGE_AND_BREAK() 
+#define TRACK_THIS_DISPATCH_CALL(typeinfo, dispid, flag)
+#define PRINT_DISPATCH_TRACK_MESSAGE()
+#define PRINT_DISPATCH_TRACK_MESSAGE_AND_BREAK()
 #endif
 
 #if !defined(NO_TRACK_DISPATCH)

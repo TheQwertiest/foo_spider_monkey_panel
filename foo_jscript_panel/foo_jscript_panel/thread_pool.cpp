@@ -25,10 +25,10 @@ void simple_thread::waitTillDone()
 
 void simple_thread::close()
 {
-	if (isActive()) 
+	if (isActive())
 	{
 		WaitForSingleObject(m_thread, INFINITE);
-		CloseHandle(m_thread); 
+		CloseHandle(m_thread);
 		m_thread = INVALID_HANDLE_VALUE;
 	}
 }

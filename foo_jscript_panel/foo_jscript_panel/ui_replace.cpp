@@ -80,7 +80,7 @@ LRESULT CDialogReplace::OnEditReplaceEnChange(WORD wNotifyCode, WORD wID, HWND h
 
 LRESULT CDialogReplace::OnReplace(WORD wNotifyCode, WORD wID, HWND hWndCtl)
 {
-	if (m_havefound) 
+	if (m_havefound)
 	{
 		CHARRANGE cr = GetSelection();
 

@@ -39,7 +39,7 @@ void box_blur_filter::filter(Gdiplus::Bitmap & p_img)
 	rect.Width = width;
 	rect.Height = height;
 
-	if (pixels_out && p_img.LockBits(&rect, 
+	if (pixels_out && p_img.LockBits(&rect,
 		Gdiplus::ImageLockModeRead | Gdiplus::ImageLockModeWrite,
 		PixelFormat32bppPARGB, &bmpdata) == Gdiplus::Ok)
 	{

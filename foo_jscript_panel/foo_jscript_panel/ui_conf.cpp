@@ -280,12 +280,12 @@ LRESULT CDialogConf::OnNotify(int idCtrl, LPNMHDR pnmh)
 	}
 
 	SetMsgHandled(FALSE);
-	return 0; 
+	return 0;
 }
 
 bool CDialogConf::MatchShortcuts(unsigned vk)
 {
-	int modifiers = 
+	int modifiers =
 		(IsKeyPressed(VK_SHIFT) ? SCMOD_SHIFT : 0) |
 		(IsKeyPressed(VK_CONTROL) ? SCMOD_CTRL : 0) |
 		(IsKeyPressed(VK_MENU) ? SCMOD_ALT : 0);
@@ -326,13 +326,13 @@ bool CDialogConf::MatchShortcuts(unsigned vk)
 			Apply();
 			return true;
 		}
-	} 
-	else if (modifiers == 0) 
+	}
+	else if (modifiers == 0)
 	{
 		if (vk == VK_F3)
 		{
 			// Find next one
-			if (!m_lastSearchText.is_empty()) 
+			if (!m_lastSearchText.is_empty())
 			{
 				FindNext(m_hWnd, m_editorctrl.m_hWnd, m_lastFlags, m_lastSearchText);
 			}
@@ -347,7 +347,7 @@ bool CDialogConf::MatchShortcuts(unsigned vk)
 		if (vk == VK_F3)
 		{
 			// Find previous one
-			if (!m_lastSearchText.is_empty()) 
+			if (!m_lastSearchText.is_empty())
 			{
 				FindPrevious(m_hWnd, m_editorctrl.m_hWnd, m_lastFlags, m_lastSearchText);
 			}

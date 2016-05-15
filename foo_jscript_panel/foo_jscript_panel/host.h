@@ -23,7 +23,7 @@ _COM_SMARTPTR_TYPEDEF(IDebugApplication, IID_IDebugApplication);
 class HostComm : public js_panel_vars
 {
 public:
-	enum 
+	enum
 	{
 		KInstanceTypeCUI = 0,
 		KInstanceTypeDUI,
@@ -129,7 +129,7 @@ public:
 	STDMETHODIMP CreateThemeManager(BSTR classid, IThemeManager ** pp);
 };
 
-class ScriptHost : 
+class ScriptHost :
 	public IActiveScriptSite,
 	public IActiveScriptSiteWindow
 {

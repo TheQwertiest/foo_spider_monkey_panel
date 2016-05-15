@@ -1,6 +1,6 @@
 #pragma once
 
-class js_panel_window_cui : public js_panel_window, public uie::window, 
+class js_panel_window_cui : public js_panel_window, public uie::window,
 	public columns_ui::fonts::common_callback, public columns_ui::colours::common_callback
 {
 protected:

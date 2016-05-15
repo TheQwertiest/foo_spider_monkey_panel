@@ -26,10 +26,6 @@ namespace helpers
 
 			if (pdisp)
 			{
-				// {3EEF9758-35FC-11D1-8CE4-00C04FC2B092}
-				//const GUID guid_array_instance = 
-				//{ 0x3eef9758, 0x35fc, 0x11d1, { 0x8c, 0xe4, 0x00, 0xc0, 0x4f, 0xc2, 0xb0, 0x92 } };
-
 				return convert_jsarray(pdisp);
 			}
 		}
@@ -91,7 +87,7 @@ error_get_bound:
 			_itow_s(i, buf, 10);
 
 			if (SUCCEEDED(hr)) hr = pdisp->GetIDsOfNames(IID_NULL, &name, 1, LOCALE_USER_DEFAULT, &dispid);
-			if (SUCCEEDED(hr)) hr = pdisp->Invoke(dispid, IID_NULL, LOCALE_USER_DEFAULT, DISPATCH_PROPERTYGET, 
+			if (SUCCEEDED(hr)) hr = pdisp->Invoke(dispid, IID_NULL, LOCALE_USER_DEFAULT, DISPATCH_PROPERTYGET,
 				&params, &element, NULL, NULL);
 
 			if (FAILED(hr)) goto cleanup_and_return;
@@ -103,7 +99,7 @@ error_get_bound:
 
 cleanup_and_return:
 		reset();
-		SafeArrayDestroy(psa); 
+		SafeArrayDestroy(psa);
 		return false;
 	}
 }

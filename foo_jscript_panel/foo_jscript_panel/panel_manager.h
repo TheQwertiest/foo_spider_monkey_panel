@@ -125,8 +125,8 @@ public:
 	virtual void on_item_played(metadb_handle_ptr p_item);
 };
 
-class nonautoregister_callbacks : public initquit, 
-	public metadb_io_callback_dynamic, 
+class nonautoregister_callbacks : public initquit,
+	public metadb_io_callback_dynamic,
 	public ui_selection_callback
 {
 public:
@@ -135,7 +135,7 @@ public:
 		metadb_handle_list m_items_sorted;
 		bool m_fromhook;
 
-		t_on_changed_sorted_data(metadb_handle_list_cref p_items_sorted, bool p_fromhook) 
+		t_on_changed_sorted_data(metadb_handle_list_cref p_items_sorted, bool p_fromhook)
 			: m_items_sorted(p_items_sorted)
 			, m_fromhook(p_fromhook)
 		{}
@@ -161,7 +161,7 @@ public:
 	virtual void on_selection_changed(metadb_handle_list_cref p_selection);
 };
 
-class my_play_callback : public play_callback_static 
+class my_play_callback : public play_callback_static
 {
 public:
 	// flag_on_playback_all doesn't contain flag_on_volume_change!
@@ -182,11 +182,11 @@ public:
 class my_playlist_callback : public playlist_callback_static
 {
 public:
-	virtual unsigned get_flags() 
+	virtual unsigned get_flags()
 	{
 		return flag_on_items_added | flag_on_items_reordered | flag_on_items_removed | flag_on_item_focus_change | flag_on_items_selection_change |
 			flag_on_playlist_activate | flag_on_playlist_created | flag_on_playlists_reorder |
-			flag_on_playlists_removed | flag_on_playlist_renamed | flag_on_playback_order_changed ; 
+			flag_on_playlists_removed | flag_on_playlist_renamed | flag_on_playback_order_changed;
 	}
 
 	virtual void on_items_added(t_size p_playlist,t_size p_start, const pfc::list_base_const_t<metadb_handle_ptr> & p_data,const bit_array & p_selection);

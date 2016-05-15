@@ -63,7 +63,7 @@ void cfg_sci_prop_sets::set_data_raw(stream_reader * p_stream, t_size p_sizehint
 
 			data_map[key] = val;
 		}
-	} 
+	}
 	catch (std::exception &)
 	{
 		// Load default

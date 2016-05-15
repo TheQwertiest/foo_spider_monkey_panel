@@ -160,7 +160,7 @@ namespace helpers
 			// cannot convert, just fail
 			if (!arrayReader.convert(&items)) return false;
 			// no items
-			if (arrayReader.get_count() == 0) 
+			if (arrayReader.get_count() == 0)
 			{
 				empty = true;
 				out.resize(0);

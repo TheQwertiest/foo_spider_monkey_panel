@@ -9,7 +9,7 @@ class CDialogFind;
 class CDialogReplace;
 
 //-----
-class CDialogConf 
+class CDialogConf
 	: public CDialogImpl<CDialogConf>
 	, public CDialogResize<CDialogConf>
 {
@@ -23,7 +23,7 @@ private:
 	pfc::string8 m_lastSearchText;
 
 public:
-	CDialogConf(js_panel_window * p_parent) 
+	CDialogConf(js_panel_window * p_parent)
 		: m_parent(p_parent)
 		, m_dlgfind(NULL)
 		, m_dlgreplace(NULL)

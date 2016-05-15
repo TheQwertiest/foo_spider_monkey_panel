@@ -36,7 +36,7 @@ namespace helpers
 		if (next == '\0')
 			return true;
 
-		if (iswspace(current)) 
+		if (iswspace(current))
 			return true;
 
 		int currentAlphaNum = iswalnum(current);
@@ -62,7 +62,7 @@ namespace helpers
 	{
 		bool ret = false;
 
-		__try 
+		__try
 		{
 			ret = execute_context_command_by_name(p_name, p_handles, flags);
 		}
@@ -78,7 +78,7 @@ namespace helpers
 	{
 		bool ret = false;
 
-		__try 
+		__try
 		{
 			ret = execute_mainmenu_command_by_name(p_name);
 		}
@@ -99,9 +99,9 @@ namespace helpers
 	{
 		// COLORREF : 0x00bbggrr
 		// ARGB : 0xaarrggbb
-		return (GetRValue(color) << RED_SHIFT) | 
-			(GetGValue(color) << GREEN_SHIFT) | 
-			(GetBValue(color) << BLUE_SHIFT) | 
+		return (GetRValue(color) << RED_SHIFT) |
+			(GetGValue(color) << GREEN_SHIFT) |
+			(GetBValue(color) << BLUE_SHIFT) |
 			0xff000000;
 	}
 
@@ -160,12 +160,12 @@ namespace helpers
 	class file_info_pairs_filter : public file_info_filter
 	{
 	public:
-		typedef pfc::map_t<pfc::string_simple, pfc::string_simple, 
+		typedef pfc::map_t<pfc::string_simple, pfc::string_simple,
 			file_info::field_name_comparator> t_field_value_map;
 
 	private:
 		metadb_handle_ptr m_handle;
-		t_field_value_map m_field_value_map; 
+		t_field_value_map m_field_value_map;
 		pfc::string_list_impl m_multivalue_fields;
 
 	public:
@@ -184,7 +184,7 @@ namespace helpers
 			IGdiBitmap * bitmap;
 			pfc::stringcvt::string_wide_from_utf8 image_path;
 
-			t_param(IFbMetadbHandle * p_handle, int p_art_id, IGdiBitmap * p_bitmap, const char * p_image_path) 
+			t_param(IFbMetadbHandle * p_handle, int p_art_id, IGdiBitmap * p_bitmap, const char * p_image_path)
 				: handle(p_handle), art_id(p_art_id), bitmap(p_bitmap), image_path(p_image_path)
 			{
 			}
@@ -200,8 +200,8 @@ namespace helpers
 		};
 
 	public:
-		album_art_async(HWND notify_hwnd, metadb_handle * handle, int art_id, 
-			VARIANT_BOOL need_stub, VARIANT_BOOL only_embed, VARIANT_BOOL no_load) 
+		album_art_async(HWND notify_hwnd, metadb_handle * handle, int art_id,
+			VARIANT_BOOL need_stub, VARIANT_BOOL only_embed, VARIANT_BOOL no_load)
 			: m_notify_hwnd(notify_hwnd)
 			, m_handle(handle)
 			, m_art_id(art_id)
@@ -235,7 +235,7 @@ namespace helpers
 			IGdiBitmap * bitmap;
 			_bstr_t path;
 
-			t_param(int p_cookie, IGdiBitmap * p_bitmap, BSTR p_path) 
+			t_param(int p_cookie, IGdiBitmap * p_bitmap, BSTR p_path)
 				: cookie(p_cookie), bitmap(p_bitmap), path(p_path)
 			{
 			}
@@ -248,7 +248,7 @@ namespace helpers
 		};
 
 	public:
-		load_image_async(HWND notify_wnd, BSTR path) 
+		load_image_async(HWND notify_wnd, BSTR path)
 			: m_notify_hwnd(notify_wnd), m_path(path)
 		{}
 
@@ -261,20 +261,20 @@ namespace helpers
 	};
 	
 	// Taken from pfc::lores_timer
-	class mm_timer 
+	class mm_timer
 	{
 	public:
-		void start() 
+		void start()
 		{
 			_start(timeGetTime());
 		}
 
-		double query() const 
+		double query() const
 		{
 			return _query(timeGetTime());
 		}
 
-		double query_reset() 
+		double query_reset()
 		{
 			t_uint32 time = timeGetTime();
 			double ret = _query(time);
@@ -283,7 +283,7 @@ namespace helpers
 		}
 	private:
 		void _start(t_uint32 p_time) {m_last_seen = m_start = p_time;}
-		double _query(t_uint32 p_time) const 
+		double _query(t_uint32 p_time) const
 		{
 			t_uint64 time = p_time;
 			if (time < (m_last_seen & 0xFFFFFFFF)) time += 0x100000000;

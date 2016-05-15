@@ -32,7 +32,7 @@
 	private:
 
 
-class name_to_id_cache 
+class name_to_id_cache
 {
 public:
 	typedef ULONG hash_type;
@@ -198,7 +198,7 @@ private:
 
 	inline void Construct_()
 	{
-		m_dwRef = 0; 
+		m_dwRef = 0;
 		if (_AddRef)
 			AddRef_();
 	}

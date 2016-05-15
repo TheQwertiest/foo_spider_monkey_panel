@@ -2,7 +2,7 @@
 
 #include "resource.h"
 
-class CDialogFind 
+class CDialogFind
 	: public CDialogImpl<CDialogFind>
 	, public CDialogResize<CDialogFind>
 {

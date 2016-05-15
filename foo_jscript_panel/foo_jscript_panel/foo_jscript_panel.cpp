@@ -60,7 +60,7 @@ namespace
 		}
 
 	private:
-		void check_error() 
+		void check_error()
 		{
 			// Check and show error message
 			pfc::string8 err_msg;

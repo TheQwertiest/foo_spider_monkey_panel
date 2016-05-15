@@ -11,7 +11,7 @@ LRESULT CNameValueEdit::OnInitDialog(HWND hwndFocus, LPARAM lParam)
 	SendDlgItemMessage(IDC_EDIT_VALUE, EM_SETSEL, 0, -1);
 	::SetFocus(GetDlgItem(IDC_EDIT_VALUE));
 
-	return FALSE; 
+	return FALSE;
 }
 
 LRESULT CNameValueEdit::OnCommand(UINT codeNotify, int id, HWND hwndCtl)

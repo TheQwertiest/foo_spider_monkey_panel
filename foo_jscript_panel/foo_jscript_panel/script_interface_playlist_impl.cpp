@@ -590,7 +590,8 @@ STDMETHODIMP FbPlaylistManager::SortByFormat(UINT playlistIndex, BSTR pattern, V
 	pfc::stringcvt::string_utf8_from_wide string_conv;
 	const char * pattern_ptr = NULL;
 
-	if (*pattern) {
+	if (*pattern)
+	{
 		string_conv.convert(pattern);
 		pattern_ptr = string_conv.get_ptr();
 	}
@@ -612,7 +613,8 @@ STDMETHODIMP FbPlaylistManager::SortByFormatV2(UINT playlistIndex, BSTR pattern,
 	metadb_handle_list metadb_handles;
 	pfc::array_t<size_t> order;
 
-	if (static_api_ptr_t<titleformat_compiler>()->compile(script, spec)) {
+	if (static_api_ptr_t<titleformat_compiler>()->compile(script, spec))
+	{
 		static_api_ptr_t<playlist_manager> api;
 
 		// Get metadb_handle_list for playlist specified.
@@ -622,7 +624,9 @@ STDMETHODIMP FbPlaylistManager::SortByFormatV2(UINT playlistIndex, BSTR pattern,
 		metadb_handle_list_helper::sort_by_format_get_order(metadb_handles, order.get_ptr(), script, NULL, direction);
 		// Reorder the playlist
 		*outSuccess = TO_VARIANT_BOOL(api->playlist_reorder_items(playlistIndex, order.get_ptr(), order.get_count()));
-	} else {
+	}
+	else
+	{
 		*outSuccess = VARIANT_FALSE;
 	}
 

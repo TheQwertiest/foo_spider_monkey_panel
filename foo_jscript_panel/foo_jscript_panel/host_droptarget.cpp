@@ -4,10 +4,10 @@
 #include "js_panel_window.h"
 
 
-class process_dropped_items_to_playlist : public process_locations_notify 
+class process_dropped_items_to_playlist : public process_locations_notify
 {
 public:
-	process_dropped_items_to_playlist(int playlist_idx, bool to_select) 
+	process_dropped_items_to_playlist(int playlist_idx, bool to_select)
 		: m_playlist_idx(playlist_idx), m_to_select(to_select) {}
 
 	void on_completion(const pfc::list_base_const_t<metadb_handle_ptr> & p_items)
@@ -23,7 +23,7 @@ public:
 		else
 			playlist = m_playlist_idx;
 
-		if (!m_to_select) 
+		if (!m_to_select)
 			select_ptr = &selection_none;
 
 		if (playlist != pfc_infinite && playlist < pm->get_playlist_count())
@@ -39,7 +39,7 @@ private:
 };
 
 
-HostDropTarget::HostDropTarget(js_panel_window * host) 
+HostDropTarget::HostDropTarget(js_panel_window * host)
 	: IDropTargetImpl(host->GetHWND())
 	, m_host(host)
 	, m_effect(DROPEFFECT_NONE)
@@ -107,7 +107,7 @@ HRESULT HostDropTarget::OnDrop(IDataObject *pDataObj, DWORD grfKeyState, POINTL 
 		switch (m_action->Mode())
 		{
 		case DropSourceAction::kActionModePlaylist:
-			static_api_ptr_t<playlist_incoming_item_filter_v2>()->process_dropped_files_async(pDataObj, 
+			static_api_ptr_t<playlist_incoming_item_filter_v2>()->process_dropped_files_async(pDataObj,
 				playlist_incoming_item_filter_v2::op_flag_delay_ui,
 				core_api::get_main_window(), new service_impl_t<process_dropped_items_to_playlist>(playlist, to_select));
 			break;
