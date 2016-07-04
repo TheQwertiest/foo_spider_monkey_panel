@@ -139,7 +139,7 @@ private:
 	IFbWindowPtr            m_window;
 	IGdiUtilsPtr            m_gdi;
 	IFbUtilsPtr             m_fb2k;
-	IJSUtilsPtr            m_utils;
+	IJSUtilsPtr             m_utils;
 	IFbPlaylistManagerPtr   m_playlistman;
 	pfc::tickcount_t        m_dwStartTime;
 
@@ -147,8 +147,8 @@ private:
 	IActiveScriptPtr        m_script_engine;
 	IDispatchPtr            m_script_root;
 
-	bool  m_engine_inited;
-	bool  m_has_error;
+	bool m_engine_inited;
+	bool m_has_error;
 
 	typedef pfc::map_t<DWORD, pfc::string8> contextToPathMap;
 	contextToPathMap m_contextToPathMap;

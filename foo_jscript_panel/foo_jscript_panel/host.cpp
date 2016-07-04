@@ -854,10 +854,8 @@ HRESULT ScriptHost::InitScriptEngineByName(const wchar_t * engineName)
 	HRESULT hr = E_FAIL;
 	const DWORD classContext = CLSCTX_INPROC_SERVER | CLSCTX_INPROC_HANDLER;
 	const wchar_t jscriptName[] = L"JScript";
-	bool isJScript = wcsncmp(engineName, jscriptName, _countof(jscriptName) - 1) == 0;
-	bool isJScript9 = wcscmp(engineName, L"JScript9") == 0;
 
-	if (isJScript9)
+	if (wcscmp(engineName, L"JScript9") == 0)
 	{
 		// Try using JScript9 from IE9
 		// {16d51579-a30b-4c8b-a276-0ff4dc41e755}
@@ -882,18 +880,15 @@ HRESULT ScriptHost::InitScriptEngineByName(const wchar_t * engineName)
 	}
 
 	// In order to support new features after JScript 5.8
-	if (isJScript)
-	{
-		IActiveScriptProperty *pActScriProp = NULL;
+	IActiveScriptProperty *pActScriProp = NULL;
 		
-		if (SUCCEEDED(m_script_engine->QueryInterface(IID_IActiveScriptProperty, (void **)&pActScriProp)))
-		{
-			VARIANT scriptLangVersion;
-			scriptLangVersion.vt = VT_I4;
-			scriptLangVersion.lVal = SCRIPTLANGUAGEVERSION_5_8;
-			pActScriProp->SetProperty(SCRIPTPROP_INVOKEVERSIONING, NULL, &scriptLangVersion);
-			pActScriProp->Release();
-		}
+	if (SUCCEEDED(m_script_engine->QueryInterface(IID_IActiveScriptProperty, (void **)&pActScriProp)))
+	{
+		VARIANT scriptLangVersion;
+		scriptLangVersion.vt = VT_I4;
+		scriptLangVersion.lVal = SCRIPTLANGUAGEVERSION_5_8;
+		pActScriProp->SetProperty(SCRIPTPROP_INVOKEVERSIONING, NULL, &scriptLangVersion);
+		pActScriProp->Release();
 	}
 
 	return hr;
