@@ -390,9 +390,15 @@ LRESULT js_panel_window::on_message(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 		break;
 
 	case UWM_SCRIPT_ERROR:
-		Repaint();
-		m_script_host->Stop();
-		script_unload();
+		{
+			const auto& tooltip_param = PanelTooltipParam();
+			if (tooltip_param && tooltip_param->tooltip_hwnd)
+				SendMessage(tooltip_param->tooltip_hwnd, TTM_ACTIVATE, FALSE, 0);
+
+			Repaint();
+			m_script_host->Stop();
+			script_unload();
+		}
 		return 0;
 
 	case UWM_SCRIPT_DISABLED_BEFORE:
