@@ -853,7 +853,6 @@ HRESULT ScriptHost::InitScriptEngineByName(const wchar_t * engineName)
 {
 	HRESULT hr = E_FAIL;
 	const DWORD classContext = CLSCTX_INPROC_SERVER | CLSCTX_INPROC_HANDLER;
-	const wchar_t jscriptName[] = L"JScript";
 
 	if (wcscmp(engineName, L"JScript9") == 0)
 	{
