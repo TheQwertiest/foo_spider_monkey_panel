@@ -1,4 +1,4 @@
-##1.1.4.1
+##v1.1.4.1
 
 ```
 - FIX: Prevent old tooltips lingering after script error.
