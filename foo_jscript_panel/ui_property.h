@@ -2,7 +2,7 @@
 
 #include "config.h"
 #include "resource.h"
-#include "../PropertyList/PropertyList.h"
+#include "PropertyList/PropertyList.h"
 
 
 // Forward declarations

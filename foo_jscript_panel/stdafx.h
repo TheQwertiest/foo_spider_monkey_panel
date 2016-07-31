@@ -47,9 +47,9 @@
 #include <SciLexer.h>
 
 // foobar2000 SDK
-#include "../../foobar2000/SDK/foobar2000.h"
+#include "../foobar2000/SDK/foobar2000.h"
 // Columns UI SDK
-#include "../../columns_ui-sdk/ui_extension.h"
+#include "../columns_ui-sdk/ui_extension.h"
 
 // Some macros defined by windowsx.h should be removed
 #ifdef _INC_WINDOWSX

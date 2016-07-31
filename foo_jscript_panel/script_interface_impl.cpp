@@ -7,8 +7,8 @@
 #include "user_message.h"
 #include "popup_msg.h"
 #include "dbgtrace.h"
-#include "../TextDesinger/OutlineText.h"
-#include "../TextDesinger/PngOutlineText.h"
+#include "TextDesinger/OutlineText.h"
+#include "TextDesinger/PngOutlineText.h"
 #include <map>
 #include <vector>
 #include <algorithm>

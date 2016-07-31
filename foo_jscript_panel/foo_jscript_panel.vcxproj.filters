@@ -275,16 +275,16 @@
     <ClInclude Include="panel_tooltip_param.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\PropertyList\PropertyItem.h">
+    <ClInclude Include="PropertyList\PropertyItem.h">
       <Filter>Header Files\PropertyList</Filter>
     </ClInclude>
-    <ClInclude Include="..\PropertyList\PropertyItemEditors.h">
+    <ClInclude Include="PropertyList\PropertyItemEditors.h">
       <Filter>Header Files\PropertyList</Filter>
     </ClInclude>
-    <ClInclude Include="..\PropertyList\PropertyItemImpl.h">
+    <ClInclude Include="PropertyList\PropertyItemImpl.h">
       <Filter>Header Files\PropertyList</Filter>
     </ClInclude>
-    <ClInclude Include="..\PropertyList\PropertyList.h">
+    <ClInclude Include="PropertyList\PropertyList.h">
       <Filter>Header Files\PropertyList</Filter>
     </ClInclude>
     <ClInclude Include="SString.h">
