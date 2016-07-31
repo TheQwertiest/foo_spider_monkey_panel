@@ -83,8 +83,9 @@
       <TargetMachine>MachineX86</TargetMachine>
     </Link>
     <PostBuildEvent>
-      <Command>
-      </Command>
+      <Command>set component_path=$(SolutionDir)..\component
+mkdir "%component_path%"
+copy /Y "$(TargetPath)" "%component_path%\"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -119,8 +120,9 @@
       <TargetMachine>MachineX86</TargetMachine>
     </Link>
     <PostBuildEvent>
-      <Command>
-      </Command>
+      <Command>set component_path=$(SolutionDir)..\component
+mkdir "%component_path%"
+copy /Y "$(TargetPath)" "%component_path%\"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
