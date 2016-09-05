@@ -1958,7 +1958,7 @@ STDMETHODIMP FbTitleFormat::EvalWithMetadb(IFbMetadbHandle * handle, BSTR * pp)
 }
 
 
-STDMETHODIMP FbUtils::trace(SAFEARRAY * p)
+STDMETHODIMP FbUtils::Trace(SAFEARRAY * p)
 {
 	TRACK_FUNCTION();
 

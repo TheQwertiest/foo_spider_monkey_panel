@@ -53,31 +53,29 @@ protected:
 
 public:
 	GUID GetGUID() { return get_config_guid(); }
+	IGdiBitmap * GetBackgroundImage();
 	inline HDC GetHDC() { return m_hdc; }
 	inline HWND GetHWND() { return m_hwnd; }
-	inline INT GetWidth() { return m_width; }
 	inline INT GetHeight() { return m_height; }
-	inline UINT GetInstanceType() { return m_instance_type; }
+	inline INT GetWidth() { return m_width; }
 	inline POINT & MaxSize() { return m_max_size; }
 	inline POINT & MinSize() { return m_min_size; }
 	inline UINT & DlgCode() { return m_dlg_code; }
-	IGdiBitmap * GetBackgroundImage();
-	inline void PreserveSelection() { m_selection_holder = static_api_ptr_t<ui_selection_manager>()->acquire(); }
-	inline t_script_info & ScriptInfo() { return m_script_info; }
+	inline UINT GetInstanceType() { return m_instance_type; }
 	inline panel_tooltip_param_ptr & PanelTooltipParam() { return m_panel_tooltip_param_ptr; }
-
+	inline t_script_info & ScriptInfo() { return m_script_info; }
+	inline void PreserveSelection() { m_selection_holder = static_api_ptr_t<ui_selection_manager>()->acquire(); }
+	unsigned SetInterval(IDispatch * func, INT delay);
+	unsigned SetTimeout(IDispatch * func, INT delay);
+	virtual DWORD GetColorCUI(unsigned type, const GUID & guid) = 0;
+	virtual DWORD GetColorDUI(unsigned type) = 0;
+	virtual HFONT GetFontCUI(unsigned type, const GUID & guid) = 0;
+	virtual HFONT GetFontDUI(unsigned type) = 0;
+	void ClearIntervalOrTimeout(UINT timerId);
 	void Redraw();
+	void RefreshBackground(LPRECT lprcUpdate = NULL);
 	void Repaint(bool force = false);
 	void RepaintRect(UINT x, UINT y, UINT w, UINT h, bool force = false);
-	void RefreshBackground(LPRECT lprcUpdate = NULL);
-	unsigned SetTimeout(IDispatch * func, INT delay);
-	unsigned SetInterval(IDispatch * func, INT delay);
-	void ClearIntervalOrTimeout(UINT timerId);
-
-	virtual DWORD GetColorCUI(unsigned type, const GUID & guid) = 0;
-	virtual HFONT GetFontCUI(unsigned type, const GUID & guid) = 0;
-	virtual DWORD GetColorDUI(unsigned type) = 0;
-	virtual HFONT GetFontDUI(unsigned type) = 0;
 };
 
 class FbWindow : public IDispatchImpl3<IFbWindow>
@@ -90,43 +88,43 @@ protected:
 	virtual ~FbWindow() {}
 
 public:
-	STDMETHODIMP get_ID(UINT * p);
-	STDMETHODIMP get_Width(INT * p);
-	STDMETHODIMP get_Height(INT * p);
-	STDMETHODIMP get_InstanceType(UINT * p);
-	STDMETHODIMP get_MaxWidth(UINT * p);
-	STDMETHODIMP put_MaxWidth(UINT width);
-	STDMETHODIMP get_MaxHeight(UINT * p);
-	STDMETHODIMP put_MaxHeight(UINT height);
-	STDMETHODIMP get_MinWidth(UINT * p);
-	STDMETHODIMP put_MinWidth(UINT width);
-	STDMETHODIMP get_MinHeight(UINT * p);
-	STDMETHODIMP put_MinHeight(UINT height);
-	STDMETHODIMP get_DlgCode(UINT * p);
-	STDMETHODIMP put_DlgCode(UINT code);
-	STDMETHODIMP get_IsTransparent(VARIANT_BOOL * p);
-	STDMETHODIMP get_IsVisible(VARIANT_BOOL * p);
+	STDMETHODIMP ClearInterval(UINT intervalID);
+	STDMETHODIMP ClearTimeout(UINT timeoutID);
+	STDMETHODIMP CreatePopupMenu(IMenuObj ** pp);
+	STDMETHODIMP CreateThemeManager(BSTR classid, IThemeManager ** pp);
+	STDMETHODIMP CreateTooltip(BSTR name, float pxSize, INT style, IFbTooltip ** pp);
+	STDMETHODIMP GetBackgroundImage(IGdiBitmap ** pp);
+	STDMETHODIMP GetColorCUI(UINT type, BSTR guidstr, int * p);
+	STDMETHODIMP GetColorDUI(UINT type, int * p);
+	STDMETHODIMP GetFontCUI(UINT type, BSTR guidstr, IGdiFont ** pp);
+	STDMETHODIMP GetFontDUI(UINT type, IGdiFont ** pp);
+	STDMETHODIMP GetProperty(BSTR name, VARIANT defaultval, VARIANT * p);
+	STDMETHODIMP NotifyOthers(BSTR name, VARIANT info);
+	STDMETHODIMP Reload();
 	STDMETHODIMP Repaint(VARIANT_BOOL force);
 	STDMETHODIMP RepaintRect(UINT x, UINT y, UINT w, UINT h, VARIANT_BOOL force);
-	STDMETHODIMP CreatePopupMenu(IMenuObj ** pp);
+	STDMETHODIMP SetCursor(UINT id);
 	STDMETHODIMP SetInterval(IDispatch * func, INT delay, UINT * outIntervalID);
-	STDMETHODIMP ClearInterval(UINT intervalID);
+	STDMETHODIMP SetProperty(BSTR name, VARIANT val);
 	STDMETHODIMP SetTimeout(IDispatch * func, INT delay, UINT * outTimeoutID);
-	STDMETHODIMP ClearTimeout(UINT timeoutID);
-	STDMETHODIMP NotifyOthers(BSTR name, VARIANT info);
-	STDMETHODIMP CreateTooltip(BSTR name, float pxSize, INT style, IFbTooltip ** pp);
-	STDMETHODIMP Reload();
 	STDMETHODIMP ShowConfigure();
 	STDMETHODIMP ShowProperties();
-	STDMETHODIMP GetProperty(BSTR name, VARIANT defaultval, VARIANT * p);
-	STDMETHODIMP SetProperty(BSTR name, VARIANT val);
-	STDMETHODIMP GetBackgroundImage(IGdiBitmap ** pp);
-	STDMETHODIMP SetCursor(UINT id);
-	STDMETHODIMP GetColorCUI(UINT type, BSTR guidstr, int * p);
-	STDMETHODIMP GetFontCUI(UINT type, BSTR guidstr, IGdiFont ** pp);
-	STDMETHODIMP GetColorDUI(UINT type, int * p);
-	STDMETHODIMP GetFontDUI(UINT type, IGdiFont ** pp);
-	STDMETHODIMP CreateThemeManager(BSTR classid, IThemeManager ** pp);
+	STDMETHODIMP get_DlgCode(UINT * p);
+	STDMETHODIMP get_Height(INT * p);
+	STDMETHODIMP get_ID(UINT * p);
+	STDMETHODIMP get_InstanceType(UINT * p);
+	STDMETHODIMP get_IsTransparent(VARIANT_BOOL * p);
+	STDMETHODIMP get_IsVisible(VARIANT_BOOL * p);
+	STDMETHODIMP get_MaxHeight(UINT * p);
+	STDMETHODIMP get_MaxWidth(UINT * p);
+	STDMETHODIMP get_MinHeight(UINT * p);
+	STDMETHODIMP get_MinWidth(UINT * p);
+	STDMETHODIMP get_Width(INT * p);
+	STDMETHODIMP put_DlgCode(UINT code);
+	STDMETHODIMP put_MaxHeight(UINT height);
+	STDMETHODIMP put_MaxWidth(UINT width);
+	STDMETHODIMP put_MinHeight(UINT height);
+	STDMETHODIMP put_MinWidth(UINT width);
 };
 
 class ScriptHost :
@@ -143,7 +141,6 @@ private:
 	IFbPlaylistManagerPtr   m_playlistman;
 	pfc::tickcount_t        m_dwStartTime;
 
-	// Scripting
 	IActiveScriptPtr        m_script_engine;
 	IDispatchPtr            m_script_root;
 
@@ -167,34 +164,28 @@ public:
 	virtual ~ScriptHost();
 
 public:
-	// IUnknown
+	STDMETHODIMP EnableModeless(BOOL fEnable);
+	STDMETHODIMP GetDocVersionString(BSTR * pstr);
+	STDMETHODIMP GetItemInfo(LPCOLESTR name, DWORD mask, IUnknown ** ppunk, ITypeInfo ** ppti);
+	STDMETHODIMP GetLCID(LCID * plcid);
+	STDMETHODIMP GetWindow(HWND *phwnd);
+	STDMETHODIMP OnEnterScript();
+	STDMETHODIMP OnLeaveScript();
+	STDMETHODIMP OnScriptError(IActiveScriptError * err);
+	STDMETHODIMP OnScriptTerminate(const VARIANT * result, const EXCEPINFO * excep);
+	STDMETHODIMP OnStateChange(SCRIPTSTATE state);
 	STDMETHOD_(ULONG, AddRef)();
 	STDMETHOD_(ULONG, Release)();
 
-	// IActiveScriptSite
-	STDMETHODIMP GetLCID(LCID * plcid);
-	STDMETHODIMP GetItemInfo(LPCOLESTR name, DWORD mask, IUnknown ** ppunk, ITypeInfo ** ppti);
-	STDMETHODIMP GetDocVersionString(BSTR * pstr);
-	STDMETHODIMP OnScriptTerminate(const VARIANT * result, const EXCEPINFO * excep);
-	STDMETHODIMP OnStateChange(SCRIPTSTATE state);
-	STDMETHODIMP OnScriptError(IActiveScriptError * err);
-	STDMETHODIMP OnEnterScript();
-	STDMETHODIMP OnLeaveScript();
-
-	// IActiveScriptSiteWindow
-	STDMETHODIMP GetWindow(HWND *phwnd);
-	STDMETHODIMP EnableModeless(BOOL fEnable);
-
 public:
-	HRESULT Initialize();
-	HRESULT ProcessImportedScripts(script_preprocessor &preprocessor, IActiveScriptParsePtr& parser);
-	HRESULT InitScriptEngineByName(const wchar_t * engineName);
-	void Finalize();
-
-	inline void Stop() { m_engine_inited = false; if (m_script_engine) m_script_engine->SetScriptState(SCRIPTSTATE_DISCONNECTED); }
-	inline bool Ready() { return m_engine_inited && m_script_engine; }
-	inline bool HasError() { return m_has_error; }
-	HRESULT InvokeCallback(int callbackId, VARIANTARG * argv = NULL, UINT argc = 0, VARIANT * ret = NULL);
 	HRESULT GenerateSourceContext(const wchar_t * path, const wchar_t * code, DWORD & source_context);
+	HRESULT InitScriptEngineByName(const wchar_t * engineName);
+	HRESULT Initialize();
+	HRESULT InvokeCallback(int callbackId, VARIANTARG * argv = NULL, UINT argc = 0, VARIANT * ret = NULL);
+	HRESULT ProcessImportedScripts(script_preprocessor &preprocessor, IActiveScriptParsePtr& parser);
+	inline bool HasError() { return m_has_error; }
+	inline bool Ready() { return m_engine_inited && m_script_engine; }
+	inline void Stop() { m_engine_inited = false; if (m_script_engine) m_script_engine->SetScriptState(SCRIPTSTATE_DISCONNECTED); }
+	void Finalize();
 	void ReportError(IActiveScriptError * err);
 };

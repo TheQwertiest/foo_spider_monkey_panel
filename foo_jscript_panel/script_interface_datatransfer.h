@@ -11,16 +11,13 @@
 ]
 __interface IDataTransferObject : IDispatch
 {
-	// Properties
-	[propget] STDMETHOD(DropEffect)([out,retval] BSTR * outDropEffect);
-	[propput] STDMETHOD(DropEffect)(BSTR dropEffect);
-	[propget] STDMETHOD(EffectAllowed)([out,retval] BSTR * outEffectAllowed);
-	[propput] STDMETHOD(EffectAllowed)(BSTR effectAllowed);
-	[propget] STDMETHOD(Types)([out,retval] VARIANT * outTypes);
-
-	// Methods
 	STDMETHOD(ClearData)([defaultvalue("")] BSTR type);
+	STDMETHOD(GetData)(BSTR type, [out, retval] VARIANT * outData);
 	STDMETHOD(SetData)(BSTR type, VARIANT data);
-	STDMETHOD(GetData)(BSTR type, [out,retval] VARIANT * outData);
 	STDMETHOD(SetDragImage)(__interface IGdiBitmap * bitmap, int x, int y);
+	[propget] STDMETHOD(DropEffect)([out, retval] BSTR * outDropEffect);
+	[propget] STDMETHOD(EffectAllowed)([out, retval] BSTR * outEffectAllowed);
+	[propget] STDMETHOD(Types)([out, retval] VARIANT * outTypes);
+	[propput] STDMETHOD(DropEffect)(BSTR dropEffect);
+	[propput] STDMETHOD(EffectAllowed)(BSTR effectAllowed);
 };

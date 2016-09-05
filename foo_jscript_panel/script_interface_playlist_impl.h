@@ -15,62 +15,57 @@ protected:
 	}
 
 public:
-	// Methods
-	STDMETHODIMP ShowAutoPlaylistUI(UINT idx, VARIANT_BOOL * p);
+	STDMETHODIMP AddItemToPlaybackQueue(IFbMetadbHandle * handle);
 	STDMETHODIMP AddLocations(UINT playlistIndex, VARIANT locations, VARIANT_BOOL select);
-	STDMETHODIMP InsertPlaylistItems(UINT playlistIndex, UINT base, IFbMetadbHandleList * handles, VARIANT_BOOL select, UINT * outSize);
-	STDMETHODIMP InsertPlaylistItemsFilter(UINT playlistIndex, UINT base, IFbMetadbHandleList * handles, VARIANT_BOOL select, UINT * outSize);
-	STDMETHODIMP MovePlaylistSelection(UINT playlistIndex, int delta);
-	STDMETHODIMP RemovePlaylistSelection(UINT playlistIndex, VARIANT_BOOL crop);
-	STDMETHODIMP GetPlaylistSelectedItems(UINT playlistIndex, IFbMetadbHandleList ** outItems);
-	STDMETHODIMP GetPlaylistItems(UINT playlistIndex, IFbMetadbHandleList ** outItems);
-	STDMETHODIMP SetPlaylistSelectionSingle(UINT playlistIndex, UINT itemIndex, VARIANT_BOOL state);
-	STDMETHODIMP SetPlaylistSelection(UINT playlistIndex, VARIANT affectedItems, VARIANT_BOOL state);
-	STDMETHODIMP IsAutoPlaylist(UINT idx, VARIANT_BOOL * p);
+	STDMETHODIMP AddPlaylistItemToPlaybackQueue(UINT playlistIndex, UINT playlistItemIndex);
 	STDMETHODIMP ClearPlaylist(UINT playlistIndex);
 	STDMETHODIMP ClearPlaylistSelection(UINT playlistIndex);
-	STDMETHODIMP UndoBackup(UINT playlistIndex);
-	STDMETHODIMP UndoRestore(UINT playlistIndex);
-	STDMETHODIMP GetPlaylistFocusItemIndex(UINT playlistIndex, INT * outPlaylistItemIndex);
-	STDMETHODIMP SetPlaylistFocusItem(UINT playlistIndex, UINT itemIndex);
-	STDMETHODIMP SetPlaylistFocusItemByHandle(UINT playlistIndex, IFbMetadbHandle * item);
-	STDMETHODIMP GetPlaylistName(UINT playlistIndex, BSTR * outName);
 	STDMETHODIMP CreateAutoPlaylist(UINT idx, BSTR name, BSTR query, BSTR sort, UINT flags, UINT * p);
+	STDMETHODIMP CreatePlaybackQueueItem(IFbPlaybackQueueItem ** outPlaybackQueueItem);
 	STDMETHODIMP CreatePlaylist(UINT playlistIndex, BSTR name, UINT * outPlaylistIndex);
-	STDMETHODIMP RemovePlaylist(UINT playlistIndex, VARIANT_BOOL * outSuccess);
-	STDMETHODIMP MovePlaylist(UINT from, UINT to, VARIANT_BOOL * outSuccess);
-	STDMETHODIMP RenamePlaylist(UINT playlistIndex, BSTR name, VARIANT_BOOL * outSuccess);
 	STDMETHODIMP DuplicatePlaylist(UINT from, BSTR name, UINT * outPlaylistIndex);
 	STDMETHODIMP EnsurePlaylistItemVisible(UINT playlistIndex, UINT itemIndex);
-	STDMETHODIMP GetPlayingItemLocation(IFbPlayingItemLocation ** outPlayingLocation);
 	STDMETHODIMP ExecutePlaylistDefaultAction(UINT playlistIndex, UINT playlistItemIndex, VARIANT_BOOL * outSuccess);
-	STDMETHODIMP IsPlaylistItemSelected(UINT playlistIndex, UINT playlistItemIndex, UINT * outSelected);
-	STDMETHODIMP SetActivePlaylistContext();
-
-	STDMETHODIMP CreatePlaybackQueueItem(IFbPlaybackQueueItem ** outPlaybackQueueItem);
-	STDMETHODIMP RemoveItemFromPlaybackQueue(UINT index);
-	STDMETHODIMP RemoveItemsFromPlaybackQueue(VARIANT affectedItems);
-	STDMETHODIMP AddPlaylistItemToPlaybackQueue(UINT playlistIndex, UINT playlistItemIndex);
-	STDMETHODIMP AddItemToPlaybackQueue(IFbMetadbHandle * handle);
-	STDMETHODIMP GetPlaybackQueueCount(UINT * outCount);
-	STDMETHODIMP GetPlaybackQueueContents(VARIANT * outContents);
 	STDMETHODIMP FindPlaybackQueueItemIndex(IFbMetadbHandle * handle, UINT playlistIndex, UINT playlistItemIndex, INT * outIndex);
 	STDMETHODIMP FlushPlaybackQueue();
+	STDMETHODIMP GetPlaybackQueueContents(VARIANT * outContents);
+	STDMETHODIMP GetPlaybackQueueCount(UINT * outCount);
+	STDMETHODIMP GetPlayingItemLocation(IFbPlayingItemLocation ** outPlayingLocation);
+	STDMETHODIMP GetPlaylistFocusItemIndex(UINT playlistIndex, INT * outPlaylistItemIndex);
+	STDMETHODIMP GetPlaylistItems(UINT playlistIndex, IFbMetadbHandleList ** outItems);
+	STDMETHODIMP GetPlaylistName(UINT playlistIndex, BSTR * outName);
+	STDMETHODIMP GetPlaylistSelectedItems(UINT playlistIndex, IFbMetadbHandleList ** outItems);
+	STDMETHODIMP InsertPlaylistItems(UINT playlistIndex, UINT base, IFbMetadbHandleList * handles, VARIANT_BOOL select, UINT * outSize);
+	STDMETHODIMP InsertPlaylistItemsFilter(UINT playlistIndex, UINT base, IFbMetadbHandleList * handles, VARIANT_BOOL select, UINT * outSize);
+	STDMETHODIMP IsAutoPlaylist(UINT idx, VARIANT_BOOL * p);
 	STDMETHODIMP IsPlaybackQueueActive(VARIANT_BOOL * outIsActive);
-
+	STDMETHODIMP IsPlaylistItemSelected(UINT playlistIndex, UINT playlistItemIndex, UINT * outSelected);
+	STDMETHODIMP MovePlaylist(UINT from, UINT to, VARIANT_BOOL * outSuccess);
+	STDMETHODIMP MovePlaylistSelection(UINT playlistIndex, int delta);
+	STDMETHODIMP RemoveItemFromPlaybackQueue(UINT index);
+	STDMETHODIMP RemoveItemsFromPlaybackQueue(VARIANT affectedItems);
+	STDMETHODIMP RemovePlaylist(UINT playlistIndex, VARIANT_BOOL * outSuccess);
+	STDMETHODIMP RemovePlaylistSelection(UINT playlistIndex, VARIANT_BOOL crop);
+	STDMETHODIMP RenamePlaylist(UINT playlistIndex, BSTR name, VARIANT_BOOL * outSuccess);
+	STDMETHODIMP SetActivePlaylistContext();
+	STDMETHODIMP SetPlaylistFocusItem(UINT playlistIndex, UINT itemIndex);
+	STDMETHODIMP SetPlaylistFocusItemByHandle(UINT playlistIndex, IFbMetadbHandle * item);
+	STDMETHODIMP SetPlaylistSelection(UINT playlistIndex, VARIANT affectedItems, VARIANT_BOOL state);
+	STDMETHODIMP SetPlaylistSelectionSingle(UINT playlistIndex, UINT itemIndex, VARIANT_BOOL state);
+	STDMETHODIMP ShowAutoPlaylistUI(UINT idx, VARIANT_BOOL * p);
 	STDMETHODIMP SortByFormat(UINT playlistIndex, BSTR pattern, VARIANT_BOOL selOnly, VARIANT_BOOL * outSuccess);
 	STDMETHODIMP SortByFormatV2(UINT playlistIndex, BSTR pattern, INT direction, VARIANT_BOOL * outSuccess);
-
-	// Properties
-	STDMETHODIMP get_PlaybackOrder(UINT * outOrder);
-	STDMETHODIMP put_PlaybackOrder(UINT order);
+	STDMETHODIMP UndoBackup(UINT playlistIndex);
+	STDMETHODIMP UndoRestore(UINT playlistIndex);
 	STDMETHODIMP get_ActivePlaylist(UINT * outPlaylistIndex);
-	STDMETHODIMP put_ActivePlaylist(UINT playlistIndex);
+	STDMETHODIMP get_PlaybackOrder(UINT * outOrder);
 	STDMETHODIMP get_PlayingPlaylist(UINT * outPlaylistIndex);
-	STDMETHODIMP put_PlayingPlaylist(UINT playlistIndex);
 	STDMETHODIMP get_PlaylistCount(UINT * outCount);
 	STDMETHODIMP get_PlaylistItemCount(UINT playlistIndex, UINT * outCount);
 	STDMETHODIMP get_PlaylistRecyclerManager(__interface IFbPlaylistRecyclerManager ** outRecyclerManager);
+	STDMETHODIMP put_ActivePlaylist(UINT playlistIndex);
+	STDMETHODIMP put_PlaybackOrder(UINT order);
+	STDMETHODIMP put_PlayingPlaylist(UINT playlistIndex);
 };
 
 class FbPlaybackQueueItem : public IDisposableImpl4<IFbPlaybackQueueItem>
@@ -84,16 +79,13 @@ protected:
 	virtual void FinalRelease();
 
 public:
-	// Methods
 	STDMETHODIMP Equals(IFbPlaybackQueueItem * item, VARIANT_BOOL * outEquals);
-
-	// Properties
-	STDMETHODIMP get__ptr(void ** pp);
 	STDMETHODIMP get_Handle(IFbMetadbHandle ** outHandle);
-	STDMETHODIMP put_Handle(IFbMetadbHandle * handle);
 	STDMETHODIMP get_PlaylistIndex(UINT * outPlaylistIndex);
-	STDMETHODIMP put_PlaylistIndex(UINT playlistIndex);
 	STDMETHODIMP get_PlaylistItemIndex(UINT * outItemIndex);
+	STDMETHODIMP get__ptr(void ** pp);
+	STDMETHODIMP put_Handle(IFbMetadbHandle * handle);
+	STDMETHODIMP put_PlaylistIndex(UINT playlistIndex);
 	STDMETHODIMP put_PlaylistItemIndex(UINT itemIndex);
 };
 
@@ -118,13 +110,12 @@ public:
 class FbPlaylistRecyclerManager : public IDispatchImpl3<IFbPlaylistRecyclerManager>
 {
 public:
-	STDMETHODIMP get_Count(UINT * outCount);
-	STDMETHODIMP get_Name(UINT index, BSTR * outName);
-	STDMETHODIMP get_Content(UINT index, IFbMetadbHandleList ** outContent);
-	STDMETHODIMP get_Id(UINT index, UINT * outId);
-
+	STDMETHODIMP FindById(UINT id, UINT * outId);
 	STDMETHODIMP Purge(VARIANT affectedItems);
 	STDMETHODIMP Restore(UINT index);
 	STDMETHODIMP RestoreById(UINT id);
-	STDMETHODIMP FindById(UINT id, UINT * outId);
+	STDMETHODIMP get_Content(UINT index, IFbMetadbHandleList ** outContent);
+	STDMETHODIMP get_Count(UINT * outCount);
+	STDMETHODIMP get_Id(UINT index, UINT * outId);
+	STDMETHODIMP get_Name(UINT index, BSTR * outName);
 };

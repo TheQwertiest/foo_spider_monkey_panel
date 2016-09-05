@@ -15,17 +15,14 @@ protected:
 	DataTransferObject();
 
 public:
-	// Properties
-	STDMETHODIMP get_DropEffect(BSTR * outDropEffect);
-	STDMETHODIMP put_DropEffect(BSTR dropEffect);
-	STDMETHODIMP get_EffectAllowed(BSTR * outEffectAllowed);
-	STDMETHODIMP put_EffectAllowed(BSTR effectAllowed);
-	STDMETHODIMP get_Types(VARIANT * outTypes);
-
-	// Methods
 	STDMETHODIMP ClearData(BSTR type);
-	STDMETHODIMP SetData(BSTR type, BSTR data);
 	STDMETHODIMP GetData(BSTR type, VARIANT * outData);
 	STDMETHODIMP GetMetadbHandles(IDispatch * callback);
+	STDMETHODIMP SetData(BSTR type, BSTR data);
 	STDMETHODIMP SetDragImage(__interface IGdiBitmap * bitmap, int x, int y);
+	STDMETHODIMP get_DropEffect(BSTR * outDropEffect);
+	STDMETHODIMP get_EffectAllowed(BSTR * outEffectAllowed);
+	STDMETHODIMP get_Types(VARIANT * outTypes);
+	STDMETHODIMP put_DropEffect(BSTR dropEffect);
+	STDMETHODIMP put_EffectAllowed(BSTR effectAllowed);
 };

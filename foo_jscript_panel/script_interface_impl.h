@@ -74,19 +74,19 @@ protected:
 	GdiBitmap(Gdiplus::Bitmap* p): GdiObj<IGdiBitmap, Gdiplus::Bitmap>(p) {}
 
 public:
-	STDMETHODIMP get_Width(UINT * p);
-	STDMETHODIMP get_Height(UINT * p);
-	STDMETHODIMP Clone(float x, float y, float w, float h, IGdiBitmap ** pp);
-	STDMETHODIMP RotateFlip(UINT mode);
 	STDMETHODIMP ApplyAlpha(BYTE alpha, IGdiBitmap ** pp);
 	STDMETHODIMP ApplyMask(IGdiBitmap * mask, VARIANT_BOOL * p);
+	STDMETHODIMP BoxBlur(int radius, int iteration);
+	STDMETHODIMP Clone(float x, float y, float w, float h, IGdiBitmap ** pp);
 	STDMETHODIMP CreateRawBitmap(IGdiRawBitmap ** pp);
+	STDMETHODIMP GetColorScheme(UINT count, VARIANT * outArray);
 	STDMETHODIMP GetGraphics(IGdiGraphics ** pp);
 	STDMETHODIMP ReleaseGraphics(IGdiGraphics * p);
-	STDMETHODIMP BoxBlur(int radius, int iteration);
 	STDMETHODIMP Resize(UINT w, UINT h, INT interpolationMode, IGdiBitmap ** pp);
-	STDMETHODIMP GetColorScheme(UINT count, VARIANT * outArray);
+	STDMETHODIMP RotateFlip(UINT mode);
 	STDMETHODIMP SaveAs(BSTR path, BSTR format, VARIANT_BOOL * p);
+	STDMETHODIMP get_Height(UINT * p);
+	STDMETHODIMP get_Width(UINT * p);
 };
 
 class GdiGraphics : public GdiObj<IGdiGraphics, Gdiplus::Graphics>
@@ -102,31 +102,29 @@ public:
 		return E_NOTIMPL;
 	}
 
-	STDMETHODIMP put__ptr(void * p);
-	STDMETHODIMP FillSolidRect(float x, float y, float w, float h, VARIANT color);
-	STDMETHODIMP FillGradRect(float x, float y, float w, float h, float angle, VARIANT color1, VARIANT color2, float focus);
-	STDMETHODIMP FillRoundRect(float x, float y, float w, float h, float arc_width, float arc_height, VARIANT color);
-	STDMETHODIMP FillEllipse(float x, float y, float w, float h, VARIANT color);
-	STDMETHODIMP FillPolygon(VARIANT color, INT fillmode, VARIANT points);
-
+	STDMETHODIMP CalcTextHeight(BSTR str, IGdiFont * font, UINT * p);
+	STDMETHODIMP CalcTextWidth(BSTR str, IGdiFont * font, UINT * p);
+	STDMETHODIMP DrawEllipse(float x, float y, float w, float h, float line_width, VARIANT color);
+	STDMETHODIMP DrawImage(IGdiBitmap * image, float dstX, float dstY, float dstW, float dstH, float srcX, float srcY, float srcW, float srcH, float angle, BYTE alpha);
 	STDMETHODIMP DrawLine(float x1, float y1, float x2, float y2, float line_width, VARIANT color);
+	STDMETHODIMP DrawPolygon(VARIANT color, float line_width, VARIANT points);
 	STDMETHODIMP DrawRect(float x, float y, float w, float h, float line_width, VARIANT color);
 	STDMETHODIMP DrawRoundRect(float x, float y, float w, float h, float arc_width, float arc_height, float line_width, VARIANT color);
-	STDMETHODIMP DrawEllipse(float x, float y, float w, float h, float line_width, VARIANT color);
-	STDMETHODIMP DrawPolygon(VARIANT color, float line_width, VARIANT points);
-
 	STDMETHODIMP DrawString(BSTR str, IGdiFont * font, VARIANT color, float x, float y, float w, float h, int flags);
-	STDMETHODIMP GdiDrawText(BSTR str, IGdiFont * font, VARIANT color, int x, int y, int w, int h, int format, VARIANT * p);
-	STDMETHODIMP DrawImage(IGdiBitmap * image, float dstX, float dstY, float dstW, float dstH, float srcX, float srcY, float srcW, float srcH, float angle, BYTE alpha);
-	STDMETHODIMP GdiDrawBitmap(IGdiRawBitmap * bitmap, int dstX, int dstY, int dstW, int dstH, int srcX, int srcY, int srcW, int srcH);
-	STDMETHODIMP GdiAlphaBlend(IGdiRawBitmap * bitmap, int dstX, int dstY, int dstW, int dstH, int srcX, int srcY, int srcW, int srcH, BYTE alpha);
-	STDMETHODIMP MeasureString(BSTR str, IGdiFont * font, float x, float y, float w, float h, int flags, IMeasureStringInfo ** pp);
-	STDMETHODIMP CalcTextWidth(BSTR str, IGdiFont * font, UINT * p);
-	STDMETHODIMP CalcTextHeight(BSTR str, IGdiFont * font, UINT * p);
 	STDMETHODIMP EstimateLineWrap(BSTR str, IGdiFont * font, int max_width, VARIANT * p);
-	STDMETHODIMP SetTextRenderingHint(UINT mode);
-	STDMETHODIMP SetSmoothingMode(INT mode);
+	STDMETHODIMP FillEllipse(float x, float y, float w, float h, VARIANT color);
+	STDMETHODIMP FillGradRect(float x, float y, float w, float h, float angle, VARIANT color1, VARIANT color2, float focus);
+	STDMETHODIMP FillPolygon(VARIANT color, INT fillmode, VARIANT points);
+	STDMETHODIMP FillRoundRect(float x, float y, float w, float h, float arc_width, float arc_height, VARIANT color);
+	STDMETHODIMP FillSolidRect(float x, float y, float w, float h, VARIANT color);
+	STDMETHODIMP GdiAlphaBlend(IGdiRawBitmap * bitmap, int dstX, int dstY, int dstW, int dstH, int srcX, int srcY, int srcW, int srcH, BYTE alpha);
+	STDMETHODIMP GdiDrawBitmap(IGdiRawBitmap * bitmap, int dstX, int dstY, int dstW, int dstH, int srcX, int srcY, int srcW, int srcH);
+	STDMETHODIMP GdiDrawText(BSTR str, IGdiFont * font, VARIANT color, int x, int y, int w, int h, int format, VARIANT * p);
+	STDMETHODIMP MeasureString(BSTR str, IGdiFont * font, float x, float y, float w, float h, int flags, IMeasureStringInfo ** pp);
 	STDMETHODIMP SetInterpolationMode(INT mode);
+	STDMETHODIMP SetSmoothingMode(INT mode);
+	STDMETHODIMP SetTextRenderingHint(UINT mode);
+	STDMETHODIMP put__ptr(void * p);
 };
 
 class GdiRawBitmap : public IDisposableImpl4<IGdiRawBitmap>
@@ -157,9 +155,9 @@ protected:
 	}
 
 public:
-	STDMETHODIMP get__Handle(HDC * p);
-	STDMETHODIMP get_Width(UINT * p);
 	STDMETHODIMP get_Height(UINT * p);
+	STDMETHODIMP get_Width(UINT * p);
+	STDMETHODIMP get__Handle(HDC * p);
 };
 
 class MeasureStringInfo : public IDispatchImpl3<IMeasureStringInfo>
@@ -173,12 +171,12 @@ protected:
 	virtual ~MeasureStringInfo() {}
 
 public:
-	STDMETHODIMP get_x(float * p);
-	STDMETHODIMP get_y(float * p);
-	STDMETHODIMP get_width(float * p);
+	STDMETHODIMP get_chars(int * p);
 	STDMETHODIMP get_height(float * p);
 	STDMETHODIMP get_lines(int * p);
-	STDMETHODIMP get_chars(int * p);
+	STDMETHODIMP get_width(float * p);
+	STDMETHODIMP get_x(float * p);
+	STDMETHODIMP get_y(float * p);
 };
 
 // NOTE: Do not use com_object_impl_t<> to initialize, use com_object_singleton_t<> instead.
@@ -189,10 +187,10 @@ protected:
 	virtual ~GdiUtils() {}
 
 public:
-	STDMETHODIMP Font(BSTR name, float pxSize, int style, IGdiFont ** pp);
-	STDMETHODIMP Image(BSTR path, IGdiBitmap ** pp);
 	STDMETHODIMP CreateImage(int w, int h, IGdiBitmap ** pp);
 	STDMETHODIMP CreateStyleTextRender(VARIANT_BOOL pngmode, IStyleTextRender ** pp);
+	STDMETHODIMP Font(BSTR name, float pxSize, int style, IGdiFont ** pp);
+	STDMETHODIMP Image(BSTR path, IGdiBitmap ** pp);
 	STDMETHODIMP LoadImageAsync(UINT window_id, BSTR path, UINT * p);
 };
 
@@ -215,20 +213,20 @@ protected:
 	}
 
 public:
-	STDMETHODIMP get__ptr(void ** pp);
-	STDMETHODIMP get_MetaCount(UINT * p);
-	STDMETHODIMP MetaValueCount(UINT idx, UINT * p);
-	STDMETHODIMP MetaName(UINT idx, BSTR * pp);
-	STDMETHODIMP MetaValue(UINT idx, UINT vidx, BSTR * pp);
-	STDMETHODIMP MetaFind(BSTR name, UINT * p);
-	STDMETHODIMP MetaRemoveField(BSTR name);
-	STDMETHODIMP MetaAdd(BSTR name, BSTR value, UINT * p);
-	STDMETHODIMP MetaInsertValue(UINT idx, UINT vidx, BSTR value);
-	STDMETHODIMP get_InfoCount(UINT * p);
+	STDMETHODIMP InfoFind(BSTR name, UINT * p);
 	STDMETHODIMP InfoName(UINT idx, BSTR * pp);
 	STDMETHODIMP InfoValue(UINT idx, BSTR * pp);
-	STDMETHODIMP InfoFind(BSTR name, UINT * p);
+	STDMETHODIMP MetaAdd(BSTR name, BSTR value, UINT * p);
+	STDMETHODIMP MetaFind(BSTR name, UINT * p);
+	STDMETHODIMP MetaInsertValue(UINT idx, UINT vidx, BSTR value);
+	STDMETHODIMP MetaName(UINT idx, BSTR * pp);
+	STDMETHODIMP MetaRemoveField(BSTR name);
 	STDMETHODIMP MetaSet(BSTR name, BSTR value);
+	STDMETHODIMP MetaValue(UINT idx, UINT vidx, BSTR * pp);
+	STDMETHODIMP MetaValueCount(UINT idx, UINT * p);
+	STDMETHODIMP get_InfoCount(UINT * p);
+	STDMETHODIMP get_MetaCount(UINT * p);
+	STDMETHODIMP get__ptr(void ** pp);
 };
 
 class FbMetadbHandle : public IDisposableImpl4<IFbMetadbHandle>
@@ -248,15 +246,15 @@ protected:
 	}
 
 public:
-	STDMETHODIMP get__ptr(void ** pp);
+	STDMETHODIMP Compare(IFbMetadbHandle * handle, VARIANT_BOOL * p);
+	STDMETHODIMP GetFileInfo(IFbFileInfo ** pp);
+	STDMETHODIMP UpdateFileInfoSimple(SAFEARRAY * p);
+	STDMETHODIMP get_FileSize(double * p);
+	STDMETHODIMP get_Length(double * p);
 	STDMETHODIMP get_Path(BSTR * pp);
 	STDMETHODIMP get_RawPath(BSTR * pp);
 	STDMETHODIMP get_SubSong(UINT * p);
-	STDMETHODIMP get_FileSize(double * p);
-	STDMETHODIMP get_Length(double * p);
-	STDMETHODIMP GetFileInfo(IFbFileInfo ** pp);
-	STDMETHODIMP UpdateFileInfoSimple(SAFEARRAY * p);
-	STDMETHODIMP Compare(IFbMetadbHandle * handle, VARIANT_BOOL * p);
+	STDMETHODIMP get__ptr(void ** pp);
 };
 
 class FbMetadbHandleList : public IDisposableImpl4<IFbMetadbHandleList>
@@ -274,32 +272,31 @@ protected:
 	}
 
 public:
-	STDMETHODIMP get__ptr(void ** pp);
-	STDMETHODIMP get_Item(UINT index, IFbMetadbHandle ** pp);
-	STDMETHODIMP put_Item(UINT index, IFbMetadbHandle * handle);
-	STDMETHODIMP get_Count(UINT * p);
-
-	STDMETHODIMP Clone(IFbMetadbHandleList ** pp);
-	STDMETHODIMP Insert(UINT index, IFbMetadbHandle * handle, UINT * outIndex);
-	STDMETHODIMP InsertRange(UINT index, IFbMetadbHandleList * handles, UINT * outIndex);
 	STDMETHODIMP Add(IFbMetadbHandle * handle, UINT * p);
 	STDMETHODIMP AddRange(IFbMetadbHandleList * handles);
-	STDMETHODIMP RemoveById(UINT index);
-	STDMETHODIMP Remove(IFbMetadbHandle * handle);
-	STDMETHODIMP RemoveRange(UINT from, UINT count);
-	STDMETHODIMP RemoveAll();
-	STDMETHODIMP Sort();
-	STDMETHODIMP Find(IFbMetadbHandle * handle, UINT * p);
 	STDMETHODIMP BSearch(IFbMetadbHandle * handle, UINT * p);
+	STDMETHODIMP CalcTotalDuration(double * p);
+	STDMETHODIMP CalcTotalSize(double * p);
+	STDMETHODIMP Clone(IFbMetadbHandleList ** pp);
+	STDMETHODIMP Find(IFbMetadbHandle * handle, UINT * p);
+	STDMETHODIMP Insert(UINT index, IFbMetadbHandle * handle, UINT * outIndex);
+	STDMETHODIMP InsertRange(UINT index, IFbMetadbHandleList * handles, UINT * outIndex);
+	STDMETHODIMP MakeDifference(IFbMetadbHandleList * handles);
 	STDMETHODIMP MakeIntersection(IFbMetadbHandleList * handles);
 	STDMETHODIMP MakeUnion(IFbMetadbHandleList * handles);
-	STDMETHODIMP MakeDifference(IFbMetadbHandleList * handles);
 	STDMETHODIMP OrderByFormat(__interface IFbTitleFormat * script, int direction);
 	STDMETHODIMP OrderByPath();
 	STDMETHODIMP OrderByRelativePath();
-	STDMETHODIMP CalcTotalDuration(double * p);
-	STDMETHODIMP CalcTotalSize(double * p);
+	STDMETHODIMP Remove(IFbMetadbHandle * handle);
+	STDMETHODIMP RemoveAll();
+	STDMETHODIMP RemoveById(UINT index);
+	STDMETHODIMP RemoveRange(UINT from, UINT count);
+	STDMETHODIMP Sort();
 	STDMETHODIMP UpdateFileInfoSimple(SAFEARRAY * p);
+	STDMETHODIMP get_Count(UINT * p);
+	STDMETHODIMP get_Item(UINT index, IFbMetadbHandle ** pp);
+	STDMETHODIMP get__ptr(void ** pp);
+	STDMETHODIMP put_Item(UINT index, IFbMetadbHandle * handle);
 };
 
 class FbTitleFormat : public IDisposableImpl4<IFbTitleFormat>
@@ -321,9 +318,9 @@ protected:
 	}
 
 public:
-	STDMETHODIMP get__ptr(void ** pp);
 	STDMETHODIMP Eval(VARIANT_BOOL force, BSTR * pp);
 	STDMETHODIMP EvalWithMetadb(IFbMetadbHandle * handle, BSTR * pp);
+	STDMETHODIMP get__ptr(void ** pp);
 };
 
 class ContextMenuManager : public IDisposableImpl4<IContextMenuManager>
@@ -340,10 +337,10 @@ protected:
 	}
 
 public:
-	STDMETHODIMP InitContext(VARIANT handle);
-	STDMETHODIMP InitNowPlaying();
 	STDMETHODIMP BuildMenu(IMenuObj * p, int base_id, int max_id);
 	STDMETHODIMP ExecuteByID(UINT id, VARIANT_BOOL * p);
+	STDMETHODIMP InitContext(VARIANT handle);
+	STDMETHODIMP InitNowPlaying();
 };
 
 class MainMenuManager : public IDisposableImpl4<IMainMenuManager>
@@ -360,9 +357,9 @@ protected:
 	}
 
 public:
-	STDMETHODIMP Init(BSTR root_name);
 	STDMETHODIMP BuildMenu(IMenuObj * p, int base_id, int count);
 	STDMETHODIMP ExecuteByID(UINT id, VARIANT_BOOL * p);
+	STDMETHODIMP Init(BSTR root_name);
 };
 
 class FbProfiler: public IDispatchImpl3<IFbProfiler>
@@ -375,8 +372,8 @@ protected:
 	virtual ~FbProfiler() {}
 
 public:
-	STDMETHODIMP Reset();
 	STDMETHODIMP Print();
+	STDMETHODIMP Reset();
 	STDMETHODIMP get_Time(INT * p);
 };
 
@@ -394,9 +391,9 @@ protected:
 	}
 
 public:
-	STDMETHODIMP SetSelection(IFbMetadbHandleList * handles);
 	STDMETHODIMP SetPlaylistSelectionTracking();
 	STDMETHODIMP SetPlaylistTracking();
+	STDMETHODIMP SetSelection(IFbMetadbHandleList * handles);
 };
 
 // NOTE: Do not use com_object_impl_t<> to initialize, use com_object_singleton_t<> instead.
@@ -407,63 +404,61 @@ protected:
 	virtual ~FbUtils() {}
 
 public:
-	STDMETHODIMP trace(SAFEARRAY * p);
-	STDMETHODIMP ShowPopupMessage(BSTR msg, BSTR title, int iconid);
-	STDMETHODIMP CreateProfiler(BSTR name, IFbProfiler ** pp);
-	STDMETHODIMP TitleFormat(BSTR expression, IFbTitleFormat ** pp);
-	STDMETHODIMP GetNowPlaying(IFbMetadbHandle ** pp);
-	STDMETHODIMP GetFocusItem(VARIANT_BOOL force, IFbMetadbHandle ** pp);
-	STDMETHODIMP GetSelection(IFbMetadbHandle ** pp);
-	STDMETHODIMP GetSelections(UINT flags, IFbMetadbHandleList ** pp);
-	STDMETHODIMP GetSelectionType(UINT * p);
 	STDMETHODIMP AcquireUiSelectionHolder(IFbUiSelectionHolder ** outHolder);
-
-	STDMETHODIMP get_ComponentPath(BSTR * pp);
-	STDMETHODIMP get_FoobarPath(BSTR * pp);
-	STDMETHODIMP get_ProfilePath(BSTR * pp);
-	STDMETHODIMP get_IsPlaying(VARIANT_BOOL * p);
-	STDMETHODIMP get_IsPaused(VARIANT_BOOL * p);
-	STDMETHODIMP get_PlaybackTime(double * p);
-	STDMETHODIMP put_PlaybackTime(double time);
-	STDMETHODIMP get_PlaybackLength(double * p);
-	STDMETHODIMP get_StopAfterCurrent(VARIANT_BOOL * p);
-	STDMETHODIMP put_StopAfterCurrent(VARIANT_BOOL p);
-	STDMETHODIMP get_CursorFollowPlayback(VARIANT_BOOL * p);
-	STDMETHODIMP put_CursorFollowPlayback(VARIANT_BOOL p);
-	STDMETHODIMP get_PlaybackFollowCursor(VARIANT_BOOL * p);
-	STDMETHODIMP put_PlaybackFollowCursor(VARIANT_BOOL p);
-	STDMETHODIMP get_Volume(float * p);
-	STDMETHODIMP put_Volume(float value);
-
-	STDMETHODIMP Exit();
-	STDMETHODIMP Play();
-	STDMETHODIMP Stop();
-	STDMETHODIMP Pause();
-	STDMETHODIMP PlayOrPause();
-	STDMETHODIMP Random();
-	STDMETHODIMP Next();
-	STDMETHODIMP Prev();
-	STDMETHODIMP VolumeDown();
-	STDMETHODIMP VolumeUp();
-	STDMETHODIMP VolumeMute();
 	STDMETHODIMP AddDirectory();
 	STDMETHODIMP AddFiles();
-	STDMETHODIMP ShowConsole();
-	STDMETHODIMP ShowPreferences();
 	STDMETHODIMP ClearPlaylist();
-	STDMETHODIMP LoadPlaylist();
-	STDMETHODIMP SavePlaylist();
-	STDMETHODIMP RunMainMenuCommand(BSTR command, VARIANT_BOOL * p);
-	STDMETHODIMP RunContextCommand(BSTR command, UINT flags, VARIANT_BOOL * p);
-	STDMETHODIMP RunContextCommandWithMetadb(BSTR command, VARIANT handle, UINT flags, VARIANT_BOOL * p);
 	STDMETHODIMP CreateContextMenuManager(IContextMenuManager ** pp);
 	STDMETHODIMP CreateMainMenuManager(IMainMenuManager ** pp);
-	STDMETHODIMP GetLibraryRelativePath(IFbMetadbHandle * handle, BSTR * p);
-	STDMETHODIMP IsMetadbInMediaLibrary(IFbMetadbHandle * handle, VARIANT_BOOL * p);
-	STDMETHODIMP IsLibraryEnabled(VARIANT_BOOL * p);
-	STDMETHODIMP ShowLibrarySearchUI(BSTR query);
+	STDMETHODIMP CreateProfiler(BSTR name, IFbProfiler ** pp);
+	STDMETHODIMP Exit();
+	STDMETHODIMP GetFocusItem(VARIANT_BOOL force, IFbMetadbHandle ** pp);
 	STDMETHODIMP GetLibraryItems(IFbMetadbHandleList ** outItems);
+	STDMETHODIMP GetLibraryRelativePath(IFbMetadbHandle * handle, BSTR * p);
+	STDMETHODIMP GetNowPlaying(IFbMetadbHandle ** pp);
 	STDMETHODIMP GetQueryItems(IFbMetadbHandleList * items, BSTR query, IFbMetadbHandleList ** pp);
+	STDMETHODIMP GetSelection(IFbMetadbHandle ** pp);
+	STDMETHODIMP GetSelectionType(UINT * p);
+	STDMETHODIMP GetSelections(UINT flags, IFbMetadbHandleList ** pp);
+	STDMETHODIMP IsLibraryEnabled(VARIANT_BOOL * p);
+	STDMETHODIMP IsMetadbInMediaLibrary(IFbMetadbHandle * handle, VARIANT_BOOL * p);
+	STDMETHODIMP LoadPlaylist();
+	STDMETHODIMP Next();
+	STDMETHODIMP Pause();
+	STDMETHODIMP Play();
+	STDMETHODIMP PlayOrPause();
+	STDMETHODIMP Prev();
+	STDMETHODIMP Random();
+	STDMETHODIMP RunContextCommand(BSTR command, UINT flags, VARIANT_BOOL * p);
+	STDMETHODIMP RunContextCommandWithMetadb(BSTR command, VARIANT handle, UINT flags, VARIANT_BOOL * p);
+	STDMETHODIMP RunMainMenuCommand(BSTR command, VARIANT_BOOL * p);
+	STDMETHODIMP SavePlaylist();
+	STDMETHODIMP ShowConsole();
+	STDMETHODIMP ShowLibrarySearchUI(BSTR query);
+	STDMETHODIMP ShowPopupMessage(BSTR msg, BSTR title, int iconid);
+	STDMETHODIMP ShowPreferences();
+	STDMETHODIMP Stop();
+	STDMETHODIMP TitleFormat(BSTR expression, IFbTitleFormat ** pp);
+	STDMETHODIMP Trace(SAFEARRAY * p);
+	STDMETHODIMP VolumeDown();
+	STDMETHODIMP VolumeMute();
+	STDMETHODIMP VolumeUp();
+	STDMETHODIMP get_ComponentPath(BSTR * pp);
+	STDMETHODIMP get_CursorFollowPlayback(VARIANT_BOOL * p);
+	STDMETHODIMP get_FoobarPath(BSTR * pp);
+	STDMETHODIMP get_IsPaused(VARIANT_BOOL * p);
+	STDMETHODIMP get_IsPlaying(VARIANT_BOOL * p);
+	STDMETHODIMP get_PlaybackFollowCursor(VARIANT_BOOL * p);
+	STDMETHODIMP get_PlaybackLength(double * p);
+	STDMETHODIMP get_PlaybackTime(double * p);
+	STDMETHODIMP get_ProfilePath(BSTR * pp);
+	STDMETHODIMP get_StopAfterCurrent(VARIANT_BOOL * p);
+	STDMETHODIMP get_Volume(float * p);
+	STDMETHODIMP put_CursorFollowPlayback(VARIANT_BOOL p);
+	STDMETHODIMP put_PlaybackFollowCursor(VARIANT_BOOL p);
+	STDMETHODIMP put_PlaybackTime(double time);
+	STDMETHODIMP put_StopAfterCurrent(VARIANT_BOOL p);
+	STDMETHODIMP put_Volume(float value);
 };
 
 class MenuObj : public IDisposableImpl4<IMenuObj>
@@ -490,14 +485,14 @@ protected:
 	}
 
 public:
-	STDMETHODIMP get_ID(UINT * p);
 	STDMETHODIMP AppendMenuItem(UINT flags, UINT item_id, BSTR text);
 	STDMETHODIMP AppendMenuSeparator();
-	STDMETHODIMP EnableMenuItem(UINT id_or_pos, UINT enable, VARIANT_BOOL bypos);
+	STDMETHODIMP AppendTo(IMenuObj * parent, UINT flags, BSTR text);
 	STDMETHODIMP CheckMenuItem(UINT id_or_pos, VARIANT_BOOL check, VARIANT_BOOL bypos);
 	STDMETHODIMP CheckMenuRadioItem(UINT first, UINT last, UINT check, VARIANT_BOOL bypos);
+	STDMETHODIMP EnableMenuItem(UINT id_or_pos, UINT enable, VARIANT_BOOL bypos);
 	STDMETHODIMP TrackPopupMenu(int x, int y, UINT flags, UINT * item_id);
-	STDMETHODIMP AppendTo(IMenuObj * parent, UINT flags, BSTR text);
+	STDMETHODIMP get_ID(UINT * p);
 };
 
 // NOTE: Do not use com_object_impl_t<> to initialize, use com_object_singleton_t<> instead.
@@ -510,21 +505,21 @@ protected:
 public:
 	STDMETHODIMP CheckComponent(BSTR name, VARIANT_BOOL is_dll, VARIANT_BOOL * p);
 	STDMETHODIMP CheckFont(BSTR name, VARIANT_BOOL * p);
-	STDMETHODIMP GetAlbumArtV2(IFbMetadbHandle * handle, int art_id, VARIANT_BOOL need_stub, IGdiBitmap ** pp);
-	STDMETHODIMP GetAlbumArtEmbedded(BSTR rawpath, int art_id, IGdiBitmap ** pp);
-	STDMETHODIMP GetAlbumArtAsync(UINT window_id, IFbMetadbHandle * handle, int art_id, VARIANT_BOOL need_stub, VARIANT_BOOL only_embed, VARIANT_BOOL no_load, UINT * p);
-	STDMETHODIMP ReadINI(BSTR filename, BSTR section, BSTR key, VARIANT defaultval, BSTR * pp);
-	STDMETHODIMP WriteINI(BSTR filename, BSTR section, BSTR key, VARIANT val, VARIANT_BOOL * p);
-	STDMETHODIMP IsKeyPressed(UINT vkey, VARIANT_BOOL * p);
-	STDMETHODIMP PathWildcardMatch(BSTR pattern, BSTR str, VARIANT_BOOL * p);
-	STDMETHODIMP ReadTextFile(BSTR filename, UINT codepage, BSTR * pp);
-	STDMETHODIMP GetSysColor(UINT index, int * p);
-	STDMETHODIMP GetSystemMetrics(UINT index, INT * p);
-	STDMETHODIMP Glob(BSTR pattern, UINT exc_mask, UINT inc_mask, VARIANT * p);
 	STDMETHODIMP FileTest(BSTR path, BSTR mode, VARIANT * p);
 	STDMETHODIMP FormatDuration(double p, BSTR * pp);
 	STDMETHODIMP FormatFileSize(double p, BSTR * pp);
+	STDMETHODIMP GetAlbumArtAsync(UINT window_id, IFbMetadbHandle * handle, int art_id, VARIANT_BOOL need_stub, VARIANT_BOOL only_embed, VARIANT_BOOL no_load, UINT * p);
+	STDMETHODIMP GetAlbumArtEmbedded(BSTR rawpath, int art_id, IGdiBitmap ** pp);
+	STDMETHODIMP GetAlbumArtV2(IFbMetadbHandle * handle, int art_id, VARIANT_BOOL need_stub, IGdiBitmap ** pp);
+	STDMETHODIMP GetSysColor(UINT index, int * p);
+	STDMETHODIMP GetSystemMetrics(UINT index, INT * p);
+	STDMETHODIMP Glob(BSTR pattern, UINT exc_mask, UINT inc_mask, VARIANT * p);
+	STDMETHODIMP IsKeyPressed(UINT vkey, VARIANT_BOOL * p);
 	STDMETHODIMP MapString(BSTR str, UINT lcid, UINT flags, BSTR * pp);
+	STDMETHODIMP PathWildcardMatch(BSTR pattern, BSTR str, VARIANT_BOOL * p);
+	STDMETHODIMP ReadINI(BSTR filename, BSTR section, BSTR key, VARIANT defaultval, BSTR * pp);
+	STDMETHODIMP ReadTextFile(BSTR filename, UINT codepage, BSTR * pp);
+	STDMETHODIMP WriteINI(BSTR filename, BSTR section, BSTR key, VARIANT val, VARIANT_BOOL * p);
 };
 
 // forward declaration
@@ -545,22 +540,18 @@ protected:
 	virtual void FinalRelease();
 
 public:
-	// Outline
-	STDMETHODIMP OutLineText(int text_color, int outline_color, int outline_width);
-	STDMETHODIMP DoubleOutLineText(int text_color, int outline_color1, int outline_color2, int outline_width1, int outline_width2);
-	STDMETHODIMP GlowText(int text_color, int glow_color, int glow_width);
-	// Shadow
-	STDMETHODIMP EnableShadow(VARIANT_BOOL enable);
-	STDMETHODIMP ResetShadow();
-	STDMETHODIMP Shadow(VARIANT color, int thickness, int offset_x, int offset_y);
 	STDMETHODIMP DiffusedShadow(VARIANT color, int thickness, int offset_x, int offset_y);
-	STDMETHODIMP SetShadowBackgroundColor(VARIANT color, int width, int height);
-	STDMETHODIMP SetShadowBackgroundImage(IGdiBitmap * img);
-	// Render
+	STDMETHODIMP DoubleOutLineText(int text_color, int outline_color1, int outline_color2, int outline_width1, int outline_width2);
+	STDMETHODIMP EnableShadow(VARIANT_BOOL enable);
+	STDMETHODIMP GlowText(int text_color, int glow_color, int glow_width);
+	STDMETHODIMP OutLineText(int text_color, int outline_color, int outline_width);
 	STDMETHODIMP RenderStringPoint(IGdiGraphics * g, BSTR str, IGdiFont * font, int x, int y, int flags, VARIANT_BOOL * p);
 	STDMETHODIMP RenderStringRect(IGdiGraphics * g, BSTR str, IGdiFont * font, int x, int y, int w, int h, int flags, VARIANT_BOOL * p);
-	// PNG Mode only
+	STDMETHODIMP ResetShadow();
 	STDMETHODIMP SetPngImage(IGdiBitmap * img);
+	STDMETHODIMP SetShadowBackgroundColor(VARIANT color, int width, int height);
+	STDMETHODIMP SetShadowBackgroundImage(IGdiBitmap * img);
+	STDMETHODIMP Shadow(VARIANT color, int thickness, int offset_x, int offset_y);
 };
 
 class ThemeManager : public IDisposableImpl4<IThemeManager>
@@ -589,9 +580,9 @@ protected:
 	}
 
 public:
-	STDMETHODIMP SetPartAndStateID(int partid, int stateid);
-	STDMETHODIMP IsThemePartDefined(int partid, int stateid, VARIANT_BOOL * p);
 	STDMETHODIMP DrawThemeBackground(IGdiGraphics * gr, int x, int y, int w, int h, int clip_x, int clip_y, int clip_w, int clip_h);
+	STDMETHODIMP IsThemePartDefined(int partid, int stateid, VARIANT_BOOL * p);
+	STDMETHODIMP SetPartAndStateID(int partid, int stateid);
 };
 
 class DropSourceAction : public IDisposableImpl4<IDropSourceAction>
@@ -631,13 +622,12 @@ public:
 	inline bool & ToSelect() { return m_to_select; }
 
 public:
-	STDMETHODIMP get_Parsable(VARIANT_BOOL * parsable);
-	STDMETHODIMP put_Parsable(VARIANT_BOOL parsable);
-	STDMETHODIMP get_Mode(int * mode);
-	STDMETHODIMP get_Playlist(int * id);
-	STDMETHODIMP put_Playlist(int id);
-	STDMETHODIMP get_ToSelect(VARIANT_BOOL * to_select);
-	STDMETHODIMP put_ToSelect(VARIANT_BOOL to_select);
-
 	STDMETHODIMP ToPlaylist();
+	STDMETHODIMP get_Mode(int * mode);
+	STDMETHODIMP get_Parsable(VARIANT_BOOL * parsable);
+	STDMETHODIMP get_Playlist(int * id);
+	STDMETHODIMP get_ToSelect(VARIANT_BOOL * to_select);
+	STDMETHODIMP put_Parsable(VARIANT_BOOL parsable);
+	STDMETHODIMP put_Playlist(int id);
+	STDMETHODIMP put_ToSelect(VARIANT_BOOL to_select);
 };

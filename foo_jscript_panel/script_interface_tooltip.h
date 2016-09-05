@@ -11,14 +11,14 @@
 ]
 __interface IFbTooltip: IDisposable
 {
-	[propget] STDMETHOD(Text)([out,retval] BSTR * pp);
-	[propput] STDMETHOD(Text)(BSTR text);
-	[propput] STDMETHOD(TrackActivate)(VARIANT_BOOL activate);
 	STDMETHOD(Activate)();
 	STDMETHOD(Deactivate)();
-	STDMETHOD(SetMaxWidth)(int width);
-	STDMETHOD(GetDelayTime)(int type, [out,retval] INT * p);
+	STDMETHOD(GetDelayTime)(int type, [out, retval] INT * p);
 	STDMETHOD(SetDelayTime)(int type, int time);
+	STDMETHOD(SetMaxWidth)(int width);
 	STDMETHOD(TrackPosition)(int x, int y);
+	[propget] STDMETHOD(Text)([out, retval] BSTR * pp);
+	[propput] STDMETHOD(Text)(BSTR text);
+	[propput] STDMETHOD(TrackActivate)(VARIANT_BOOL activate);
 };
 
