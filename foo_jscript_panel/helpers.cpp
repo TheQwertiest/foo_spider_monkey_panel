@@ -562,18 +562,16 @@ namespace helpers
 		if (handle.is_empty()) return E_INVALIDARG;
 		if (!pp) return E_POINTER;
 
-		GUID what;
+		GUID what = helpers::convert_artid_to_guid(art_id);
 		abort_callback_dummy abort;
 		static_api_ptr_t<album_art_manager_v2> aamv2;
 		album_art_extractor_instance_v2::ptr aaeiv2;
 		IGdiBitmap * ret = NULL;
 
-		what = helpers::convert_artid_to_guid(art_id);
-
 		try
 		{
 			aaeiv2 = aamv2->open(pfc::list_single_ref_t<metadb_handle_ptr>(handle),
-				pfc::list_single_ref_t<GUID>(helpers::convert_artid_to_guid(art_id)), abort);
+				pfc::list_single_ref_t<GUID>(what), abort);
 
 			ret = query_album_art(aaeiv2, what, no_load, image_path_ptr);
 		}
@@ -604,7 +602,7 @@ namespace helpers
 		service_enum_t<album_art_extractor> e;
 		service_ptr_t<album_art_extractor> ptr;
 		pfc::stringcvt::string_utf8_from_wide urawpath(rawpath);
-		pfc::string_simple ext = pfc::string_extension(file_path_display(urawpath));
+		pfc::string_extension ext(urawpath);
 		abort_callback_dummy abort;
 		IGdiBitmap * ret = NULL;
 
