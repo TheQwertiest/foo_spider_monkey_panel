@@ -1,4 +1,5 @@
 #pragma once
+#pragma warning(disable:4467)
 
 [module(name="foo_jscript_panel", version="1.8")];
 
