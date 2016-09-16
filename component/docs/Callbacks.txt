@@ -152,7 +152,13 @@ function on_playlist_items_selection_change() {}
 // workaround for some 3rd party playlist viewers not working with on_selection_changed()
 
 function on_playlist_switch() {}
+
 function on_playlists_changed() {}
+/*
+on_playlists_changed will be called when:
+-playlists are addded/removed/reordered/renamed
+-a playlist's lock status changes through the use of components such as foo_utils or foo_playlist_attributes
+*/
 
 function on_refresh_background_done() {}
 // Always call window.GetBackgroundImage() during this callback.

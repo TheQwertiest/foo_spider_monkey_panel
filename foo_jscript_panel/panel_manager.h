@@ -186,7 +186,7 @@ public:
 	{
 		return flag_on_items_added | flag_on_items_reordered | flag_on_items_removed | flag_on_item_focus_change | flag_on_items_selection_change |
 			flag_on_playlist_activate | flag_on_playlist_created | flag_on_playlists_reorder |
-			flag_on_playlists_removed | flag_on_playlist_renamed | flag_on_playback_order_changed;
+			flag_on_playlists_removed | flag_on_playlist_renamed | flag_on_playback_order_changed | flag_on_playlist_locked;
 	}
 
 	virtual void on_items_added(t_size p_playlist,t_size p_start, const pfc::list_base_const_t<metadb_handle_ptr> & p_data,const bit_array & p_selection);
@@ -207,7 +207,7 @@ public:
 	virtual void on_playlist_renamed(t_size p_index,const char * p_new_name,t_size p_new_name_len);
 	virtual void on_default_format_changed() {}
 	virtual void on_playback_order_changed(t_size p_new_index);
-	virtual void on_playlist_locked(t_size p_playlist,bool p_locked) {}
+	virtual void on_playlist_locked(t_size p_playlist, bool p_locked);
 	
 private:
 	void on_playlist_switch();

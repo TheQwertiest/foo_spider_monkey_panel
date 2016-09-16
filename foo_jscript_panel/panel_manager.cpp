@@ -288,6 +288,12 @@ void my_playlist_callback::on_playlist_renamed(t_size p_index,const char * p_new
 	on_playlists_changed();
 }
 
+void my_playlist_callback::on_playlist_locked(t_size p_playlist, bool p_locked)
+{
+	// redirect
+	on_playlists_changed();
+}
+
 void my_playback_queue_callback::on_changed(t_change_origin p_origin)
 {
 	panel_manager::instance().post_msg_to_all(CALLBACK_UWM_ON_PLAYBACK_QUEUE_CHANGED, (WPARAM)p_origin);

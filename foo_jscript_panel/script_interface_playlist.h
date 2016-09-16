@@ -37,6 +37,7 @@ __interface IFbPlaylistManager : IDispatch
 	STDMETHOD(IsAutoPlaylist)(UINT idx, [out, retval] VARIANT_BOOL * p);
 	STDMETHOD(IsPlaybackQueueActive)([out, retval] VARIANT_BOOL * outIsActive);
 	STDMETHOD(IsPlaylistItemSelected)(UINT playlistIndex, UINT playlistItemIndex, [out, retval] UINT * outSelected);
+	STDMETHOD(IsPlaylistLocked)(UINT playlistIndex, [out, retval] VARIANT_BOOL * p);
 	STDMETHOD(MovePlaylist)(UINT from, UINT to, [out, retval] VARIANT_BOOL * outSuccess);
 	STDMETHOD(MovePlaylistSelection)(UINT playlistIndex, int delta);
 	STDMETHOD(RemoveItemFromPlaybackQueue)(UINT index);

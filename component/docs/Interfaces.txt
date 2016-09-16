@@ -483,6 +483,16 @@ interface IFbPlaylistManager {
 		plman.IsPlaylistItemSelected(playlistIndex, itemIndex); (boolean)
 		// returns true/false
 
+		plman.IsPlaylistLocked(playlistIndex); (boolean)
+		/* Note: this returns true if the playlist is an autoplaylist.
+		To determine if a playlist is not an autoplaylist but locked with something like foo_utils or
+		foo_playlist_attributes, do something like...
+
+		if (!plman.IsAutoPlaylist(plman.ActivePlaylist) && plman.IsPlaylistLocked(plman.ActivePlaylist)) {
+			blah();
+		}
+		*/
+
 		plman.MovePlaylist(from, to); (boolean)
 
 		plman.MovePlaylistSelection(playlistIndex, delta); (void)

@@ -85,6 +85,7 @@ plman.InsertPlaylistItemsFilter(playlistIndex, base, handles[, select])
 plman.IsAutoPlaylist(playlistIndex)
 plman.IsPlaybackQueueActive()
 plman.IsPlaylistItemSelected(playlistIndex, itemIndex)
+plman.IsPlaylistLocked(playlistIndex)
 plman.MovePlaylist(from, to)
 plman.MovePlaylistSelection(playlistIndex, delta)
 plman.PlaybackOrder

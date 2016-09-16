@@ -129,12 +129,21 @@ STDMETHODIMP FbPlaylistManager::IsAutoPlaylist(UINT idx, VARIANT_BOOL * p)
 	return S_OK;
 }
 
+STDMETHODIMP FbPlaylistManager::IsPlaylistLocked(UINT playlistIndex, VARIANT_BOOL * p)
+{
+	TRACK_FUNCTION();
+
+	if (!p) return E_POINTER;
+
+	*p = TO_VARIANT_BOOL(static_api_ptr_t<playlist_manager>()->playlist_lock_is_present(playlistIndex));
+	return S_OK;
+}
+
 STDMETHODIMP FbPlaylistManager::ClearPlaylist(UINT playlistIndex)
 {
 	TRACK_FUNCTION();
 
 	static_api_ptr_t<playlist_manager>()->playlist_clear(playlistIndex);
-	
 	return S_OK;
 }
 
