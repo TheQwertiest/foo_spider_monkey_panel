@@ -4,7 +4,7 @@
 #include "user_message.h"
 
 
-/*static*/ panel_manager panel_manager::sm_instance;
+panel_manager panel_manager::sm_instance;
 
 namespace
 {
