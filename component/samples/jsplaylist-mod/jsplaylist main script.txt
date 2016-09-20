@@ -1,0 +1,14 @@
+﻿// ==PREPROCESSOR==
+// @name "jsplaylist-mod"
+// @author "Br3tt aka Falstaff >> modded by marc2003"
+// @feature "dragdrop"
+// @import "%fb2k_component_path%samples\jsplaylist-mod\js\WSHcommon.js"
+// @import "%fb2k_component_path%samples\jsplaylist-mod\js\WSHinputbox.js"
+// @import "%fb2k_component_path%samples\jsplaylist-mod\js\WSHtopbar.js"
+// @import "%fb2k_component_path%samples\jsplaylist-mod\js\WSHscrollbar.js"
+// @import "%fb2k_component_path%samples\jsplaylist-mod\js\WSHheaderbar.js"
+// @import "%fb2k_component_path%samples\jsplaylist-mod\js\WSHplaylist.js"
+// @import "%fb2k_component_path%samples\jsplaylist-mod\js\WSHplaylistmanager.js"
+// @import "%fb2k_component_path%samples\jsplaylist-mod\js\WSHsettings.js"
+// @import "%fb2k_component_path%samples\jsplaylist-mod\js\main.js"
+// ==/PREPROCESSOR==
