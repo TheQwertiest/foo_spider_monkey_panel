@@ -156,7 +156,7 @@ function on_playlist_switch() {}
 function on_playlists_changed() {}
 /*
 on_playlists_changed will be called when:
--playlists are addded/removed/reordered/renamed
+-playlists are added/removed/reordered/renamed
 -a playlist's lock status changes through the use of components such as foo_utils or foo_playlist_attributes
 */
 
