@@ -1,3 +1,9 @@
+##v1.1.5.1
+```
+- ADD: Add "Open component folder" to default right click menu.
+       This provides quick access to the docs and samples.
+```
+
 ##v1.1.5
 ```
 - ADD: plman.IsPlaylistLocked(playlistIndex). See interfaces.txt.
