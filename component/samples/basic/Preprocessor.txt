@@ -1,8 +1,8 @@
 // ==PREPROCESSOR==
 // @name "Preprocessor"
 // @author "T.P Wang"
-// @import "%fb2k_component_path%samples\basic\scripts\includeme.js"
+// @import "%fb2k_component_path%samples\basic\js\includeme.js"
 // ==/PREPROCESSOR==
 
-//check samples\basic\scripts\includeme.js for print_to_console function
+//check samples\basic\js\includeme.js for print_to_console function
 print_to_console("Hello world!");

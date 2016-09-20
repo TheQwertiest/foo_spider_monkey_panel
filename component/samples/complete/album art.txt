@@ -1,0 +1,52 @@
+// ==PREPROCESSOR==
+// @name "Album Art"
+// @author "marc2003"
+// @import "%fb2k_component_path%samples\complete\js\lodash.min.js"
+// @import "%fb2k_component_path%samples\complete\js\helpers.js"
+// @import "%fb2k_component_path%samples\complete\js\panel.js"
+// @import "%fb2k_component_path%samples\complete\js\albumart.js"
+// ==/PREPROCESSOR==
+
+var panel = new _.panel("Album Art", ["metadb", "custom_background"]);
+var albumart = new _.albumart(0, 0, 0, 0);
+
+panel.item_focus_change();
+
+function on_size() {
+	panel.size();
+	albumart.w = panel.w;
+	albumart.h = panel.h;
+}
+
+function on_paint(gr) {
+	panel.paint(gr);
+	albumart.paint(gr);
+}
+
+function on_metadb_changed() {
+	albumart.metadb_changed();
+}
+
+function on_get_album_art_done(m, id, im, p) {
+	albumart.get_album_art_done(p);
+}
+
+function on_mouse_wheel(s) {
+	albumart.wheel(s);
+}
+
+function on_mouse_move(x, y) {
+	albumart.move(x, y);
+}
+
+function on_mouse_lbtn_dblclk(x, y) {
+	albumart.lbtn_dblclk(x, y);
+}
+
+function on_mouse_rbtn_up(x, y) {
+	return panel.rbtn_up(x, y, albumart);
+}
+
+function on_key_down(k) {
+	albumart.key_down(k);
+}

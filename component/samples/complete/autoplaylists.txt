@@ -1,0 +1,49 @@
+// ==PREPROCESSOR==
+// @name "Autoplaylists"
+// @author "marc2003"
+// @import "%fb2k_component_path%samples\complete\js\lodash.min.js"
+// @import "%fb2k_component_path%samples\complete\js\helpers.js"
+// @import "%fb2k_component_path%samples\complete\js\panel.js"
+// @import "%fb2k_component_path%samples\complete\js\list.js"
+// ==/PREPROCESSOR==
+
+var panel = new _.panel("Autoplaylists");
+var list = new _.list("autoplaylists", 10, 24, 0, 0);
+
+function on_size() {
+	panel.size();
+	list.w = panel.w - 20;
+	list.h = panel.h - 24;
+	list.size();
+}
+
+function on_paint(gr) {
+	panel.paint(gr);
+	gr.FillSolidRect(0, 0, panel.w, 24, panel.colours.header);
+	gr.GdiDrawText(list.header_text(), panel.fonts.title, panel.colours.highlight, 10, 0, panel.w - 20, 24, LEFT);
+	list.paint(gr);
+}
+
+function on_mouse_wheel(s) {
+	list.wheel(s);
+}
+
+function on_mouse_move(x, y) {
+	list.move(x, y);
+}
+
+function on_mouse_leave() {
+	list.leave();
+}
+
+function on_mouse_lbtn_up(x, y) {
+	list.lbtn_up(x, y);
+}
+
+function on_key_down(k) {
+	list.key_down(k);
+}
+
+function on_mouse_rbtn_up(x, y) {
+	return panel.rbtn_up(x, y, list);
+}

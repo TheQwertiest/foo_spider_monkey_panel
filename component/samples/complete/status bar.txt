@@ -1,0 +1,166 @@
+// ==PREPROCESSOR==
+// @name "Status Bar"
+// @author "marc2003"
+// @import "%fb2k_component_path%samples\complete\js\lodash.min.js"
+// @import "%fb2k_component_path%samples\complete\js\helpers.js"
+// ==/PREPROCESSOR==
+
+var left_text_tf = "%playback_time%[ / %length%] :: %__bitrate% kbps %codec% [%codec_profile% ][%__tool% ][%__tagtype% ]";
+var bg = _.RGB(240, 240, 240);
+var text_colour = _.RGB(0, 0, 0);
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+var show_name = window.GetProperty("2K3.STATUS.SHOW.NAME", true);
+var show_count = window.GetProperty("2K3.STATUS.SHOW.COUNT", true);
+var show_duration = window.GetProperty("2K3.STATUS.SHOW.DURATION", true);
+var show_size = window.GetProperty("2K3.STATUS.SHOW.SIZE", true);
+var show_volume = window.GetProperty("2K3.STATUS.SHOW.VOLUME", true);
+var font = _.gdiFont("Segoe UI", 11);
+var ww = 0;
+var wh = 0;
+var right_text = "";
+var right_text_width = 0;
+refresh();
+
+function on_size() {
+	ww = window.Width;
+	wh = window.Height;
+}
+
+function on_paint(gr) {
+	gr.FillSolidRect(0, 0, ww, wh, bg);
+	if (fb.IsPlaying)
+		gr.GdiDrawText(_.tfe(left_text_tf), font, text_colour, 5, -1, ww - right_text_width - (show_volume ? 180: 50), font.Height, LEFT);
+	if (plman.ActivePlaylist < plman.PlaylistCount)
+		gr.GdiDrawText(right_text, font, text_colour, 0, -1, ww - (show_volume ? 130 : 5), font.Height, RIGHT);
+	if (show_volume)
+		gr.GdiDrawText(fb.Volume.toFixed(2) + " dB", font, text_colour, 0, -1, ww - 5, font.Height, RIGHT);
+}
+
+function on_playback_time() {
+	window.Repaint();
+}
+
+function on_playback_stop() {
+	window.Repaint();
+}
+
+function on_volume_change() {
+	window.Repaint();
+}
+
+function on_mouse_wheel(s) {
+	if (!show_volume)
+		return;
+	if (s == 1)
+		fb.VolumeUp();
+	else
+		fb.VolumeDown();
+}
+
+function on_mouse_lbtn_dblclk() {
+	fb.RunMainMenuCommand("View/Show now playing in playlist");
+}
+
+function on_mouse_rbtn_up(x, y) {
+	var m = window.CreatePopupMenu();
+	var s = window.CreatePopupMenu();
+	var c = fb.CreateContextMenuManager();
+	if (fb.IsPlaying) {
+		c.InitNowPlaying();
+		c.BuildMenu(s, 1, -1);
+		s.AppendTo(m, MF_STRING, "Now playing");
+		m.AppendMenuSeparator();
+	}
+	m.AppendMenuItem(MF_STRING, 10000, "Show playlist name");
+	m.CheckMenuItem(10000, show_name);
+	m.AppendMenuItem(MF_STRING, 10001, "Show playlist item count");
+	m.CheckMenuItem(10001, show_count);
+	m.AppendMenuItem(MF_STRING, 10002, "Show playlist duration");
+	m.CheckMenuItem(10002, show_duration);
+	m.AppendMenuItem(MF_STRING, 10003, "Show playlist size");
+	m.CheckMenuItem(10003, show_size);
+	m.AppendMenuSeparator();
+	m.AppendMenuItem(MF_STRING, 10004, "Show volume");
+	m.CheckMenuItem(10004, show_volume);
+	m.AppendMenuSeparator();
+	m.AppendMenuItem(MF_STRING, 10010, "Configure...");
+	var idx = m.TrackPopupMenu(x, y);
+	switch (idx) {
+	case 0:
+		break;
+	case 10000:
+		show_name = !show_name;
+		window.SetProperty("2K3.STATUS.SHOW.NAME", show_name);
+		refresh();
+		break;
+	case 10001:
+		show_count = !show_count;
+		window.SetProperty("2K3.STATUS.SHOW.COUNT", show_count);
+		refresh();
+		break;
+	case 10002:
+		show_duration = !show_duration;
+		window.SetProperty("2K3.STATUS.SHOW.DURATION", show_duration);
+		refresh();
+		break;
+	case 10003:
+		show_size = !show_size;
+		window.SetProperty("2K3.STATUS.SHOW.SIZE", show_size);
+		refresh();
+		break;
+	case 10004:
+		show_volume = !show_volume;
+		window.SetProperty("2K3.STATUS.SHOW.VOLUME", show_volume);
+		window.Repaint();
+		break;
+	case 10010:
+		window.ShowConfigure();
+		break;
+	default:
+		c.ExecuteByID(idx - 1);
+		break;
+	}
+	m.Dispose();
+	s.Dispose();
+	c.Dispose();
+	return true;
+}
+
+function on_playlist_items_added(p) {
+	if (p == plman.ActivePlaylist)
+		refresh();
+}
+
+function on_playlist_items_removed(p) {
+	if (p == plman.ActivePlaylist)
+		refresh();
+}
+
+function on_playlists_changed() {
+	if (show_name)
+		refresh();
+}
+
+function on_playlist_switch() {
+	refresh();
+}
+
+function refresh() {
+	var items = plman.GetPlaylistItems(plman.ActivePlaylist);
+	var count = items.Count;
+	var tmp = [];
+	if (show_name)
+		tmp.push(plman.GetPlaylistName(plman.ActivePlaylist));
+	if (show_count)
+		tmp.push(count + (count == 1 ? " track" : " tracks"));
+	if (show_duration)
+		tmp.push(utils.FormatDuration(items.CalcTotalDuration()));
+	if (show_size)
+		tmp.push(utils.FormatFileSize(items.CalcTotalSize()));
+	right_text = tmp.join(" :: ");
+	right_text_width = _.textWidth(right_text, font);
+	window.Repaint();
+	items.Dispose();
+}

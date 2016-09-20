@@ -1,0 +1,133 @@
+﻿// ==PREPROCESSOR==
+// @name "track info + seekbar + buttons"
+// @author "marc2003"
+// @import "%fb2k_component_path%samples\complete\js\lodash.min.js"
+// @import "%fb2k_component_path%samples\complete\js\helpers.js"
+// @import "%fb2k_component_path%samples\complete\js\panel.js"
+// @import "%fb2k_component_path%samples\complete\js\seekbar.js"
+// ==/PREPROCESSOR==
+
+//note the buttons are white and you'd have to edit the images to change them...
+var colours = {
+	background : _.RGB(30, 30, 30),
+	title : _.RGB(255, 255, 255),
+	artist : _.RGB(240, 240, 240),
+	time : _.RGB(240, 240, 240),
+	seekbar_background : _.RGB(160, 160, 160),
+	seekbar_progress : _.RGB(255, 255, 255),
+	seekbar_knob : _.RGB(196, 30, 35)
+};
+
+//////////////////////////////////////////////////////////////
+
+var panel = new _.panel("track info + seekbar + buttons");
+var seekbar = new _.seekbar(60, 5, 0, 20);
+var buttons = new _.buttons();
+var img = null;
+on_playback_new_track();
+
+buttons.update = function () {
+	var y = _.round((panel.h - 36) / 2);
+	this.buttons.stop = new _.button(panel.w - 290, y, 36, 36, {normal : "mono\\appbar.control.stop.png"}, function () { fb.Stop(); }, "Stop");
+	this.buttons.previous = new _.button(panel.w - 254, y, 36, 36, {normal : "mono\\appbar.control.rewind.png"}, function () { fb.Prev(); }, "Previous");
+	this.buttons.play = new _.button(panel.w - 218, y, 36, 36, {normal : !fb.IsPlaying || fb.IsPaused ? "mono\\appbar.control.play.png" : "mono\\appbar.control.pause.png"}, function () { fb.PlayOrPause(); }, !fb.IsPlaying || fb.IsPaused ? "Play" : "Pause");
+	this.buttons.next = new _.button(panel.w - 182, y, 36, 36, {normal : "mono\\appbar.control.fastforward.png"}, function () { fb.Next(); }, "Next");
+	this.buttons.console = new _.button(panel.w - 124, y, 36, 36, {normal : "mono\\appbar.console.png"}, function () { fb.ShowConsole(); }, "Console");
+	this.buttons.search = new _.button(panel.w - 86, y, 36, 36, {normal : "mono\\appbar.magnify.png"}, function () { fb.RunMainMenuCommand("Library/Search"); }, "Library Search");
+	this.buttons.preferences = new _.button(panel.w - 50, y, 36, 36, {normal : "mono\\appbar.settings.png"}, function () { fb.ShowPreferences(); }, "Preferences");
+}
+
+function on_size() {
+	panel.size();
+	seekbar.x = panel.h + 310
+	seekbar.w = panel.w - panel.h - 710;
+	seekbar.y = (panel.h - 20) / 2;
+	buttons.update();
+}
+
+function on_paint(gr) {
+	gr.FillSolidRect(0, 0, panel.w, panel.h, colours.background);
+	buttons.paint(gr);
+	gr.FillSolidRect(seekbar.x, seekbar.y + 7, seekbar.w + 16, 6, colours.seekbar_background);
+	if (fb.IsPlaying) {
+		img && _.drawImage(gr, img, 0, 0, panel.h, panel.h, image.centre);
+		gr.GdiDrawText(_.tfe("%title%"), panel.fonts.title, colours.title, panel.h + 10, 0, seekbar.x - panel.h - 80, panel.h * 0.6, LEFT);
+		gr.GdiDrawText(_.tfe("%artist%"), panel.fonts.normal, colours.artist, panel.h + 10, panel.h * 0.3, seekbar.x - panel.h - 80, panel.h * 0.7, LEFT);
+		gr.SetSmoothingMode(4);
+		if (fb.PlaybackLength > 0) {
+			var pos = seekbar.pos();
+			gr.FillRoundRect(seekbar.x + pos, seekbar.y + 2, 16, 16, 8, 8, colours.seekbar_progress);
+			gr.FillRoundRect(seekbar.x + pos + 3, seekbar.y + 5, 10, 10, 5, 5, colours.seekbar_knob);
+			gr.FillSolidRect(seekbar.x, seekbar.y + 7, pos, 6, colours.seekbar_progress);
+			gr.GdiDrawText(_.tfe("%playback_time%  "), panel.fonts.normal, colours.time, seekbar.x - 60, 0, 60, panel.h, RIGHT);
+			gr.GdiDrawText(_.tfe("  %length%"), panel.fonts.normal, colours.time, seekbar.x + seekbar.w + 16, 0, 60, panel.h, LEFT);
+		}
+	}
+}
+
+function on_playback_new_track() {
+	var metadb = fb.GetNowPlaying();
+	if (!metadb)
+		return;
+	_.dispose(img);
+	img = utils.GetAlbumArtV2(metadb, 0);
+	window.Repaint();
+}
+
+function on_playback_edited() {
+	window.Repaint();
+}
+
+function on_playback_seek() {
+	seekbar.playback_seek();
+}
+
+function on_playback_stop() {
+	buttons.update();
+	window.Repaint();
+}
+
+function on_playback_pause() {
+	buttons.update();
+	window.Repaint();
+}
+
+function on_playback_starting() {
+	buttons.update();
+	window.Repaint();
+}
+
+function on_mouse_wheel(s) {
+	if (seekbar.wheel(s))
+		return;
+	if (s == 1)
+		fb.VolumeUp();
+	else
+		fb.VolumeDown();
+}
+
+function on_mouse_move(x, y) {
+	if (buttons.move(x, y))
+		return;
+	seekbar.move(x, y);
+}
+
+function on_mouse_leave() {
+	buttons.leave();
+}
+
+function on_mouse_lbtn_down(x, y) {
+	seekbar.lbtn_down(x, y);
+}
+
+function on_mouse_lbtn_up(x, y) {
+	if (buttons.lbtn_up(x, y))
+		return;
+	if (seekbar.lbtn_up(x, y))
+		return;
+	fb.RunMainMenuCommand("View/Show now playing in playlist");
+}
+
+function on_mouse_rbtn_up(x, y) {
+	return panel.rbtn_up(x, y);
+}

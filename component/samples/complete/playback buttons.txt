@@ -1,0 +1,59 @@
+// ==PREPROCESSOR==
+// @name "Playback Buttons"
+// @author "marc2003"
+// @import "%fb2k_component_path%samples\complete\js\lodash.min.js"
+// @import "%fb2k_component_path%samples\complete\js\helpers.js"
+// @import "%fb2k_component_path%samples\complete\js\panel.js"
+// ==/PREPROCESSOR==
+
+var panel = new _.panel("Playback Buttons", ["custom_background"]);
+var buttons = new _.buttons();
+var bs = 32;
+
+buttons.update = function () {
+	this.buttons.stop = new _.button(0, 0, bs, bs, {normal : "buttons\\stop.png"}, function () { fb.Stop(); }, "Stop");
+	this.buttons.play = new _.button(bs, 0, bs, bs, {normal : !fb.IsPlaying || fb.IsPaused ? "buttons\\play.png" : "buttons\\pause.png"}, function () { fb.PlayOrPause(); }, !fb.IsPlaying || fb.IsPaused ? "Play" : "Pause");
+	this.buttons.previous = new _.button(bs * 2, 0, bs, bs, {normal : "buttons\\previous.png"}, function () { fb.Prev(); }, "Previous");
+	this.buttons.next = new _.button(bs * 3, 0, bs, bs, {normal : "buttons\\next.png"}, function () { fb.Next(); }, "Next");
+}
+
+function on_size() {
+	panel.size();
+	buttons.update();
+}
+
+function on_paint(gr) {
+	panel.paint(gr);
+	buttons.paint(gr);
+}
+
+function on_playback_stop() {
+	buttons.update();
+	window.Repaint();
+}
+
+function on_playback_pause() {
+	buttons.update();
+	window.Repaint();
+}
+
+function on_playback_starting() {
+	buttons.update();
+	window.Repaint();
+}
+
+function on_mouse_move(x, y) {
+	buttons.move(x, y);
+}
+
+function on_mouse_leave() {
+	buttons.leave();
+}
+
+function on_mouse_lbtn_up(x, y) {
+	buttons.lbtn_up(x, y);
+}
+
+function on_mouse_rbtn_up(x, y) {
+	return panel.rbtn_up(x, y);
+}
