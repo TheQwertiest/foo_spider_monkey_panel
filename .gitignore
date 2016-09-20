@@ -48,6 +48,7 @@ dlldata.c
 
 # DNX
 project.lock.json
+project.fragment.lock.json
 artifacts/
 
 *_i.c
@@ -114,6 +115,10 @@ _TeamCity*
 
 # DotCover is a Code Coverage Tool
 *.dotCover
+
+# Visual Studio code coverage results
+*.coverage
+*.coveragexml
 
 # NCrunch
 _NCrunch_*
@@ -194,6 +199,7 @@ ClientBin/
 *~
 *.dbmdl
 *.dbproj.schemaview
+*.jfm
 *.pfx
 *.publishsettings
 node_modules/
@@ -256,3 +262,13 @@ paket-files/
 # JetBrains Rider
 .idea/
 *.sln.iml
+
+# CodeRush
+.cr/
+
+# Python Tools for Visual Studio (PTVS)
+__pycache__/
+*.pyc
+
+### VisualStudio Patch ###
+build/
