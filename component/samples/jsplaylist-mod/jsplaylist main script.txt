@@ -33,7 +33,7 @@
 // * foobar2000 v1.3 or later >> http://www.foobar2000.org
 // * JScript Panel >> https://github.com/19379/foo-jscript-panel/wiki
 // * Windows Vista or later. This is a requirement for the new component, not the script.
-// * Fonts: Guifx v2 Transports, WingDings 2 & WingDings 3. Install from the "samples\fonts" folder.
+// * Fonts: Guifx v2 Transports, WingDings 2 & WingDings 3.
 // [/Requirements]
 //
 // [Installation]
