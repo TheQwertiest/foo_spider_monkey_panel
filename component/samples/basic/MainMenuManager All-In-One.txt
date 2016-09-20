@@ -11,7 +11,7 @@ var b = new buttons();
 
 // button is defined in docs\helpers.txt
 // arguments are x, y, w, h, {normal image, hover image is optional}, function, tooltip
-b.buttons.menu = new button(5, 5, 32, 32, {normal : fb.ComponentPath + "samples\\images\\cog.png"}, function () { menu(); }, "Menu");
+b.buttons.menu = new button(5, 5, 32, 32, {normal : fb.ComponentPath + "samples\\basic\\images\\cog.png"}, function () { menu(); }, "Menu");
 
 function on_paint(gr) {
 	b.paint(gr);

@@ -17,7 +17,7 @@ function on_drag_leave() {}
 function on_drag_over(action, x, y, mask) {}
 // for on_drag_* callbacks, @feature "dragdrop" must be set in the preprocessor section.
 // see preprocessors.txt for more details.
-// see samples\Drag Drop Basic.txt for how to use "action".
+// see samples\basic\Drag Drop Basic.txt for how to use "action".
 
 function on_focus(is_focused) {}
 // called when the panel gets/loses focus
@@ -60,7 +60,7 @@ function on_load_image_done(cookie, image) {}
 
 function on_metadb_changed(handle_list, fromhook) {}
 // called when metadb contents change.
-// see samples\Watch Metadb Change.txt
+// see samples\basic\Watch Metadb Change.txt
 
 function on_mouse_lbtn_dblclk(x, y, mask) {}
 function on_mouse_lbtn_down(x, y, mask) {}

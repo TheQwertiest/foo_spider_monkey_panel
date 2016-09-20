@@ -3,8 +3,8 @@
 // @author "T.P Wang"
 // ==/PREPROCESSOR==
 
-var g_img_mask = gdi.Image(fb.ComponentPath + "samples\\images\\mask.png");
-var g_img = gdi.Image(fb.ComponentPath + "samples\\images\\image.jpg");
+var g_img_mask = gdi.Image(fb.ComponentPath + "samples\\basic\\images\\mask.png");
+var g_img = gdi.Image(fb.ComponentPath + "samples\\basic\\images\\image.jpg");
 var ww = 0, wh = 0;
 
 // mask *MUST* be the same size as g_img

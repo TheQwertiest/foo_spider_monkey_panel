@@ -87,7 +87,7 @@ interface IFbUtils {
 		fb.CreateContextMenuManager(); (IContextMenuManager)
 
 			interface IContextMenuManager {
-				// see samples\MainMenuManager All-In-One, samples\Menu Sample.txt
+				// see samples\basic\MainMenuManager All-In-One, samples\basic\Menu Sample.txt
 
 				Methods:
 					BuildMenu(IMenuObj, base_id, max_id); (void)
@@ -104,7 +104,7 @@ interface IFbUtils {
 		fb.CreateMainMenuManager(); (IMainMenuManager)
 
 			interface IMainMenuManager {
-				// see samples\MainMenuManager All-In-One, samples\Menu Sample.txt
+				// see samples\basic\MainMenuManager All-In-One, samples\basic\Menu Sample.txt
 
 				Methods:
 					BuildMenu(IMenuObj, base_id, count); (void)
@@ -293,7 +293,7 @@ interface IGdiUtils {
 
 		gdi.CreateStyleTextRender([pngmode]); (IStyleTextRender)
 		// pngmode: boolean, default false.
-		// see samples\Glow Text Sample.txt
+		// see samples\basic\Glow Text Sample.txt
 
 			interface IStyleTextRender {
 				Methods:
@@ -333,7 +333,7 @@ interface IGdiUtils {
 		// note that you must escape backslashes whenever they are in quotes.
 
 		gdi.LoadImageAsync(window_id, path); (uint)
-		// returns a unqiue id. see samples\LoadImageAsync.txt
+		// returns a unqiue id. see samples\basic\LoadImageAsync.txt
 }
 
 interface IFbPlaylistManager {
@@ -355,7 +355,7 @@ interface IFbPlaylistManager {
 		4 Shuffle (tracks)
 		5 Shuffle (albums)
 		6 Shuffle (folders)
-		see samples\PBOButton(Menu).txt.
+		see samples\basic\PBOButton(Menu).txt.
 		*/
 
 		plman.PlayingPlaylist; (uint) (read, write)
@@ -652,7 +652,7 @@ interface IJSUtils {
 		need_stub: boolean, default true
 		only_embed: boolean, default false
 		no_load: boolean, default false. if true, "image" parameter will be null in on_get_album_art_done callback.
-		see samples\GetAlbumArtAsync.txt
+		see samples\basic\GetAlbumArtAsync.txt
 		*/
 
 		utils.GetAlbumArtEmbedded(rawpath[, art_id]); (IGdiBitmap)
@@ -663,7 +663,7 @@ interface IJSUtils {
 		/*
 		art_id: default 0. see flags.txt > AlbumArtId
 		need stub: boolean, default true.
-		see samples\GetAlbumArtV2.txt
+		see samples\basic\GetAlbumArtV2.txt
 		*/
 
 		utils.GetSysColor(index); (uint)
@@ -750,12 +750,12 @@ interface IFbWindow {
 		window.ClearInterval(timerID); (void)
 		window.SetInterval(func, delay); (uint)
 		window.SetTimeout(func, delay); (uint)
-		// for the previous 4 methods, see samples\timers.txt
+		// for the previous 4 methods, see samples\basic\timers.txt
 
 		window.CreatePopupMenu(); (IMenuObj)
 
 			interface IMenuObj {
-				// see samples\MainMenuManager All-In-One, samples\Menu Sample.txt
+				// see samples\basic\MainMenuManager All-In-One, samples\basic\Menu Sample.txt
 
 				Properties:
 					ID; (uint) (read)
@@ -789,10 +789,10 @@ interface IFbWindow {
 
 		window.CreateThemeManager(class_list); (IThemeManager)
 		// class_list: http://msdn.microsoft.com/en-us/library/bb773210%28VS.85%29.aspx
-		// see samples\SimpleThemedButton.txt, samples\Themed Seek Bar.txt
+		// see samples\basic\SimpleThemedButton.txt, samples\basic\Themed Seek Bar.txt
 
 			interface IThemeManager {
-				// see samples\SimpleThemedButton, samples\Themed Seekbar.txt
+				// see samples\basic\SimpleThemedButton, samples\basic\Themed Seekbar.txt
 
 				Methods:
 					DrawThemeBackground(IGdiGraphics, x, y, w, h[, clip_x][, clip_y][, clip_w][, clip_h]); (void)
@@ -956,9 +956,9 @@ interface IGdiFont {
 
 interface IGdiBitmap {
 	/*
-	example1: samples\Apply Mask.txt
-	example2: samples\Box Blur.txt
-	example3: samples\Glow Text Sample.txt
+	example1: samples\basic\Apply Mask.txt
+	example2: samples\basic\Box Blur.txt
+	example3: samples\basic\Glow Text Sample.txt
 	*/
 
 	Properties:
@@ -1361,7 +1361,7 @@ interface IFbMetadbHandleList {
 }
 
 interface IDropTargetAction {
-	// see samples\Drag Drop Basic.txt
+	// see samples\basic\Drag Drop Basic.txt
 
 	Properties:
 		Parsable; (boolean) (read, write)
