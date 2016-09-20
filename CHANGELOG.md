@@ -1,3 +1,16 @@
+##v1.1.5
+```
+- ADD: plman.IsPlaylistLocked(playlistIndex). See interfaces.txt.
+- ADD: on_playlists_changed is now called when a playlist's lock
+       status changes through the use of components such as foo_utils or
+       foo_playlist_attributes. See callbacks.txt
+- CHG: Existing samples moved in to new "basic" subfolder.
+- ADD: Add new "complete" samples folder containing some more feature complete
+       samples.
+- ADD: Add "jsplaylist-mod". Since Br3tt's excellent JSplaylist doesn't work
+       with JScript Panel, this updated "mod" version has been created.
+```
+
 ##v1.1.4.1
 
 ```
