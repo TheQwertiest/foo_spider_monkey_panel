@@ -35,7 +35,8 @@ function on_paint(gr) {
 }
 
 function on_mouse_lbtn_dblclk() {
-	apply();
+	if (!applied)
+		apply();
 }
 
 function apply() {
