@@ -957,8 +957,9 @@ interface IGdiFont {
 interface IGdiBitmap {
 	/*
 	example1: samples\basic\Apply Mask.txt
-	example2: samples\basic\Box Blur.txt
+	example2: samples\basic\BoxBlur.txt
 	example3: samples\basic\Glow Text Sample.txt
+	example4: samples\basic\StackBlur.txt
 	*/
 
 	Properties:
@@ -973,7 +974,8 @@ interface IGdiBitmap {
 		// Changes will be saved in the current bitmap
 
 		BoxBlur(radius[, iteration]); (void)
-		// iteration: default 1.
+		// radius: valid values 1-20
+		// iteration: default 1. valid values 1-20
 
 		Clone(x, y, w, h); (IGdiBitmap)
 
@@ -1020,6 +1022,9 @@ interface IGdiBitmap {
 		if (img)
 			img.SaveAs("D:\\export.jpg", "image/jpeg");
 		*/
+
+		StackBlur(radius); (void)
+		// radius: valid values 2-254
 }
 
 interface IGdiGraphics {

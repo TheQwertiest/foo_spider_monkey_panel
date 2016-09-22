@@ -4,6 +4,7 @@
 #include "helpers.h"
 #include "com_array.h"
 #include "boxblurfilter.h"
+#include "stackblur.h"
 #include "user_message.h"
 #include "popup_msg.h"
 #include "dbgtrace.h"
@@ -310,6 +311,18 @@ STDMETHODIMP GdiBitmap::BoxBlur(int radius, int iteration)
 
 	bbf.set_op(radius, iteration);
 	bbf.filter(*m_ptr);
+
+	return S_OK;
+}
+
+STDMETHODIMP GdiBitmap::StackBlur(int radius)
+{
+	TRACK_FUNCTION();
+
+	if (!m_ptr) return E_POINTER;
+
+	t_size threads = pfc::getOptimalWorkerThreadCount();
+	stack_blur_filter(*m_ptr, radius, threads);
 
 	return S_OK;
 }

@@ -143,6 +143,7 @@ copy /Y "$(TargetPath)" "%component_path%\"</Command>
     <ClCompile Include="script_interface_playlist_impl.cpp" />
     <ClCompile Include="script_interface_tooltip_impl.cpp" />
     <ClCompile Include="script_preprocessor.cpp" />
+    <ClCompile Include="stackblur.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
@@ -201,6 +202,7 @@ copy /Y "$(TargetPath)" "%component_path%\"</Command>
     <ClInclude Include="script_interface_tooltip_impl.h" />
     <ClInclude Include="script_preprocessor.h" />
     <ClInclude Include="SString.h" />
+    <ClInclude Include="stackblur.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="user_message.h" />
     <CustomBuild Include="version.h">

@@ -85,6 +85,7 @@ public:
 	STDMETHODIMP Resize(UINT w, UINT h, INT interpolationMode, IGdiBitmap ** pp);
 	STDMETHODIMP RotateFlip(UINT mode);
 	STDMETHODIMP SaveAs(BSTR path, BSTR format, VARIANT_BOOL * p);
+	STDMETHODIMP StackBlur(int radius);
 	STDMETHODIMP get_Height(UINT * p);
 	STDMETHODIMP get_Width(UINT * p);
 };

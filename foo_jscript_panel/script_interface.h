@@ -83,6 +83,7 @@ __interface IGdiBitmap: IGdiObj
 	STDMETHOD(Resize)(UINT w, UINT h, [range(Gdiplus::InterpolationModeInvalid, Gdiplus::InterpolationModeHighQualityBicubic), defaultvalue(0)] INT interpolationMode, [out, retval] IGdiBitmap ** pp);
 	STDMETHOD(RotateFlip)([range(Gdiplus::RotateNoneFlipNone, Gdiplus::Rotate270FlipX)] UINT mode);
 	STDMETHOD(SaveAs)(BSTR path, [defaultvalue("image/png")] BSTR format, [out, retval] VARIANT_BOOL * p);
+	STDMETHOD(StackBlur)([range(0, 255)] int radius);
 	[propget] STDMETHOD(Height)([out, retval] UINT * p);
 	[propget] STDMETHOD(Width)([out, retval] UINT * p);
 };
