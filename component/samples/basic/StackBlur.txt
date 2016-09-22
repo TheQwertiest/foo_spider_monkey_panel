@@ -5,14 +5,10 @@
 // @import "%fb2k_component_path%docs\helpers.txt"
 // ==/PREPROCESSOR==
 
-// Scroll your mouse wheel to change radius.
-
 var img = gdi.Image(fb.ComponentPath + "samples\\basic\\images\\post.jpg");
 var blur_img = null;
 var font = gdi.Font("Segoe UI", 16, 1);
 var radius = 20;
-var tooltip = window.CreateTooltip();
-tooltip.SetMaxWidth(800);
 
 StackBlur(radius);
 
@@ -24,15 +20,11 @@ function StackBlur(radius) {
 
 function on_paint(gr) {
 	gr.DrawImage(blur_img, 0, 0, 600, 600, 0, 0, 600, 600);
-	gr.DrawImage(img, 20, 20, 200, 200, 0, 0, 600, 600);
+	gr.DrawImage(img, 6, 30, 200, 200, 0, 0, 600, 600);
 	// RGB function is defined in docs\helpers.txt
-	gr.FillSolidRect(500, 0, 100, 20, RGB(0, 0, 0));
-	// DT_RIGHT is defined in docs\flags.txt
-	gr.GdiDrawText("Radius: " + radius, font, RGB(255, 255, 255), 500, -1, 95, 20, DT_RIGHT)
-}
-
-function on_mouse_move(x, y) {
-	tt("Scroll your mouse wheel to change radius.");
+	gr.FillSolidRect(0, 0, 600, 24, RGB(0, 0, 0));
+	// DT_CENTER is defined in docs\flags.txt
+	gr.GdiDrawText("Scroll mouse to change radius: " + radius, font, RGB(255, 255, 255), 0, 0, 600, 24, DT_CENTER);
 }
 
 function on_mouse_wheel(step) {

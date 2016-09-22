@@ -1,3 +1,10 @@
+##v1.1.6
+```
+- ADD: IGdiBitmap StackBlur method. See docs\interfaces.txt and
+       samples\basic\StackBlur.txt.
+- CHG: Update ApplyMask sample.
+```
+
 ##v1.1.5.1
 ```
 - ADD: Add "Open component folder" to default right click menu.
@@ -6,10 +13,10 @@
 
 ##v1.1.5
 ```
-- ADD: plman.IsPlaylistLocked(playlistIndex). See interfaces.txt.
+- ADD: plman.IsPlaylistLocked(playlistIndex). See docs\interfaces.txt.
 - ADD: on_playlists_changed is now called when a playlist's lock
        status changes through the use of components such as foo_utils or
-       foo_playlist_attributes. See callbacks.txt
+       foo_playlist_attributes. See docs\callbacks.txt
 - CHG: Existing samples moved in to new "basic" subfolder.
 - ADD: Add new "complete" samples folder containing some more feature complete
        samples.
@@ -46,7 +53,7 @@
 ##v1.1.1
 
 ```
-- ADD: New "on_mouse_wheel_h" callback for left/right scrolling. See callbacks.txt.
+- ADD: New "on_mouse_wheel_h" callback for left/right scrolling. See docs\callbacks.txt.
 ```
 
 ##v1.1.0

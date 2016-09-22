@@ -1,3 +1,24 @@
+v1.1.6
+- ADD: IGdiBitmap StackBlur method. See docs\interfaces.txt and
+       samples\basic\StackBlur.txt.
+- CHG: Update ApplyMask sample.
+
+v1.1.5.1
+- ADD: Add "Open component folder" to default right click menu.
+       This provides quick access to the docs and samples.
+
+
+v1.1.5
+- ADD: plman.IsPlaylistLocked(playlistIndex). See docs\interfaces.txt.
+- ADD: on_playlists_changed is now called when a playlist's lock
+       status changes through the use of components such as foo_utils or
+       foo_playlist_attributes. See docs\callbacks.txt
+- CHG: Existing samples moved in to new "basic" subfolder.
+- ADD: Add new "complete" samples folder containing some more feature complete
+       samples.
+- ADD: Add "jsplaylist-mod". Since Br3tt's excellent JSplaylist doesn't work
+       with JScript Panel, this updated "mod" version has been created.
+
 v1.1.4.1
 - FIX: Prevent old tooltips lingering after script error.
 
@@ -13,7 +34,7 @@ v1.1.2
 - FIX: Fix on_mouse_wheel not being called with certain trackpads.
 
 v1.1.1
-- ADD: New "on_mouse_wheel_h" callback for left/right scrolling. See callbacks.txt.
+- ADD: New "on_mouse_wheel_h" callback for left/right scrolling. See docs\callbacks.txt.
 
 v1.1.0
 - CHG: GetQueryItems should be a "fb" method, not "plman".
@@ -97,7 +118,7 @@ v1.0.0 (Compared to WSH Panel Mod 1.5.6)
 - CHG: AppendMenuItem no longer accepts MF_POPUP as a flag. Use
        AppendTo instead.
 - CHG: Remove on_tooltip_custom_paint() callback. window.CreateTooltip has been
-       updated to accept custom font paramters. See below and interfaces.txt.
+       updated to accept custom font paramters. See below and docs\interfaces.txt.
 - CHG: "Properties" dialog has a larger default size.
 - CHG: "Safe mode" is no longer an option.
 - CHG: Tidy up samples.
