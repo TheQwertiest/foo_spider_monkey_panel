@@ -71,6 +71,12 @@ HRESULT HostDropTarget::OnDragEnter(IDataObject *pDataObj, DWORD grfKeyState, PO
 	return S_OK;
 }
 
+HRESULT HostDropTarget::OnDragLeave()
+{
+	on_drag_leave();
+	return S_OK;
+}
+
 HRESULT HostDropTarget::OnDragOver(DWORD grfKeyState, POINTL pt, DWORD *pdwEffect)
 {
 	if (!pdwEffect) return E_POINTER;
@@ -83,12 +89,6 @@ HRESULT HostDropTarget::OnDragOver(DWORD grfKeyState, POINTL pt, DWORD *pdwEffec
 	else
 		*pdwEffect = m_effect;
 
-	return S_OK;
-}
-
-HRESULT HostDropTarget::OnDragLeave()
-{
-	on_drag_leave();
 	return S_OK;
 }
 
@@ -144,6 +144,13 @@ void HostDropTarget::on_drag_enter(unsigned keyState, POINTL & pt, IDropSourceAc
 	m_host->script_invoke_v(CallbackIds::on_drag_enter, args, _countof(args));
 }
 
+void HostDropTarget::on_drag_leave()
+{
+	TRACK_FUNCTION();
+
+	m_host->script_invoke_v(CallbackIds::on_drag_leave);
+}
+
 void HostDropTarget::on_drag_over(unsigned keyState, POINTL & pt, IDropSourceAction * action)
 {
 	TRACK_FUNCTION();
@@ -158,13 +165,6 @@ void HostDropTarget::on_drag_over(unsigned keyState, POINTL & pt, IDropSourceAct
 	args[3].vt = VT_DISPATCH;
 	args[3].pdispVal = action;
 	m_host->script_invoke_v(CallbackIds::on_drag_over, args, _countof(args));
-}
-
-void HostDropTarget::on_drag_leave()
-{
-	TRACK_FUNCTION();
-
-	m_host->script_invoke_v(CallbackIds::on_drag_leave);
 }
 
 void HostDropTarget::on_drag_drop(unsigned keyState, POINTL & pt, IDropSourceAction * action)

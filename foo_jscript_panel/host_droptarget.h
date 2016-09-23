@@ -3,7 +3,6 @@
 #include "IDropTargetImpl.h"
 #include "script_interface_impl.h"
 
-
 class js_panel_window;
 
 class HostDropTarget : public IDropTargetImpl
@@ -28,14 +27,14 @@ public:
 public:
 	// IDropTarget
 	HRESULT OnDragEnter(IDataObject *pDataObj, DWORD grfKeyState, POINTL pt, DWORD *pdwEffect);
+	HRESULT OnDragLeave();
 	HRESULT OnDragOver(DWORD grfKeyState, POINTL pt, DWORD *pdwEffect);
 	HRESULT OnDrop(IDataObject *pDataObj, DWORD grfKeyState, POINTL pt, DWORD *pdwEffect);
-	HRESULT OnDragLeave();
 
 public:
 	void on_drag_enter(unsigned keyState, POINTL & pt, IDropSourceAction * action);
-	void on_drag_over(unsigned keyState, POINTL & pt, IDropSourceAction * action);
 	void on_drag_leave();
+	void on_drag_over(unsigned keyState, POINTL & pt, IDropSourceAction * action);
 	void on_drag_drop(unsigned keyState, POINTL & pt, IDropSourceAction * action);
 };
 
@@ -50,13 +49,13 @@ private:
 public:
 	// IDropTarget
 	HRESULT OnDragEnter(IDataObject *pDataObj, DWORD grfKeyState, POINTL pt, DWORD *pdwEffect);
+	HRESULT OnDragLeave();
 	HRESULT OnDragOver(DWORD grfKeyState, POINTL pt, DWORD *pdwEffect);
 	HRESULT OnDrop(IDataObject *pDataObj, DWORD grfKeyState, POINTL pt, DWORD *pdwEffect);
-	HRESULT OnDragLeave();
 
 public:
 	void on_drag_enter(unsigned keyState, POINTL & pt, IDropSourceAction * action);
-	void on_drag_over(unsigned keyState, POINTL & pt, IDropSourceAction * action);
 	void on_drag_leave();
+	void on_drag_over(unsigned keyState, POINTL & pt, IDropSourceAction * action);
 	void on_drag_drop(unsigned keyState, POINTL & pt, IDropSourceAction * action);
 };

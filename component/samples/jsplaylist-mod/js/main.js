@@ -1,4 +1,4 @@
-var g_script_version = "1.3.2";
+var g_script_version = "mod";
 var g_LDT = DT_LEFT | DT_VCENTER | DT_CALCRECT | DT_NOPREFIX | DT_END_ELLIPSIS;
 var g_middle_clicked = false;
 var g_middle_click_timer = false;

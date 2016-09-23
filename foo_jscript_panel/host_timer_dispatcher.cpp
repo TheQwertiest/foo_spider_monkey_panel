@@ -36,18 +36,6 @@ unsigned HostTimerDispatcher::setTimeout(unsigned delay, IDispatch * pDisp)
 	return timerID;
 }
 
-void HostTimerDispatcher::kill(unsigned timerID)
-{
-	timeKillEvent(timerID);
-
-	if (m_timerDispatchMap.exists(timerID))
-	{
-		IDispatch * pDisp = m_timerDispatchMap[timerID];
-		if (pDisp) pDisp->Release();
-		m_timerDispatchMap.remove(timerID);
-	}
-}
-
 void HostTimerDispatcher::invoke(UINT timerId)
 {
 	IDispatch * pDisp = NULL;
@@ -59,6 +47,18 @@ void HostTimerDispatcher::invoke(UINT timerId)
 	args[0].lVal = timerId;
 	DISPPARAMS dispParams = { args, NULL, _countof(args), 0 };
 	pDisp->Invoke(DISPID_VALUE, IID_NULL, LOCALE_USER_DEFAULT, DISPATCH_METHOD, &dispParams, NULL, NULL, NULL);
+}
+
+void HostTimerDispatcher::kill(unsigned timerID)
+{
+	timeKillEvent(timerID);
+
+	if (m_timerDispatchMap.exists(timerID))
+	{
+		IDispatch * pDisp = m_timerDispatchMap[timerID];
+		if (pDisp) pDisp->Release();
+		m_timerDispatchMap.remove(timerID);
+	}
 }
 
 void HostTimerDispatcher::reset()

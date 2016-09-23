@@ -12,9 +12,8 @@ public:
 
 	unsigned setInterval(unsigned delay, IDispatch * pDisp);
 	unsigned setTimeout(unsigned delay, IDispatch * pDisp);
-	void kill(unsigned timerID);
-	// main thread only
 	void invoke(UINT timerId);
+	void kill(unsigned timerID);
 	void reset();
 
 private:
