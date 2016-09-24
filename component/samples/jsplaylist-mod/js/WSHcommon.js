@@ -787,6 +787,54 @@ function RefreshBG() {
     };
 };
 
+function drawImage(gr, img, src_x, src_y, src_w, src_h, aspect, border, alpha) {
+	if (!img)
+		return [];
+	switch (aspect) {
+	case "crop":
+	case "crop_top":
+		if (img.Width / img.Height < src_w / src_h) {
+			var dst_w = img.Width;
+			var dst_h = Math.round(src_h * img.Width / src_w);
+			var dst_x = 0;
+			var dst_y = Math.round((img.Height - dst_h) / (aspect == "crop_top" ? 4 : 2));
+		} else {
+			var dst_w = Math.round(src_w * img.Height / src_h);
+			var dst_h = img.Height;
+			var dst_x = Math.round((img.Width - dst_w) / 2);
+			var dst_y = 0;
+		}
+		break;
+	case "stretch":
+		var dst_x = 0;
+		var dst_y = 0;
+		var dst_w = img.Width;
+		var dst_h = img.Height;
+		break;
+	case "centre":
+	default:
+		var s = Math.min(src_w / img.Width, src_h / img.Height);
+		var w = Math.floor(img.Width * s);
+		var h = Math.floor(img.Height * s);
+		src_x += Math.round((src_w - w) / 2);
+		src_y += Math.round((src_h - h) / 2);
+		src_w = w;
+		src_h = h;
+		var dst_x = 0;
+		var dst_y = 0;
+		var dst_w = img.Width;
+		var dst_h = img.Height;
+		break;
+	}
+	gr.SetInterpolationMode(7);
+	if (typeof aspect == "undefined")
+		gr.DrawImage(img, src_x, src_y, src_w, src_h, dst_x, dst_y, dst_w, dst_h, 0, alpha || 255);
+	else
+		gr.DrawImage(img, src_x, src_y, src_w, src_h, dst_x + 5, dst_y + 5, dst_w - 10, dst_h - 10, 0, alpha || 255);
+	if (border)
+		gr.DrawRect(src_x, src_y, src_w - 1, src_h - 1, 1, border);
+}
+
 // --- UIHacks
 
 MainMenuState = {

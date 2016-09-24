@@ -101,6 +101,7 @@ cStats = {
 };
 
 //=================================================// main properties / parameters
+window.SetProperty("Custom Wallpaper Blur Value", null);// Clear this because it's obsolete
 properties = {
     showDPI: window.GetProperty("SYSTEM.Show DPI", false),
     enableTouchControl: window.GetProperty("SYSTEM.Enable Touch Scrolling", false),
@@ -114,7 +115,7 @@ properties = {
     showwallpaper: window.GetProperty("CUSTOM Show Wallpaper", false),
 	wallpaperalpha: window.GetProperty("CUSTOM Wallpaper Alpha", 192),
     wallpaperblurred: window.GetProperty("CUSTOM Wallpaper Blurred", true),
-    wallpaperblurvalue: window.GetProperty("CUSTOM Wallpaper Blur value", 1.05),
+    wallpaperblurvalue: window.GetProperty("CUSTOM Wallpaper StackBlur", 30),
     wallpapermode: window.GetProperty("CUSTOM Wallpaper Type", 0),
 	wallpaperpath: window.GetProperty("CUSTOM Default Wallpaper Path", ".\\user-components\\foo_jscript_panel\\samples\\jsplaylist-mod\\images\\default.jpg"),
 	oddevenrowshighlight: window.GetProperty("CUSTOM Highlight Odd/Even Rows", true),
@@ -911,6 +912,8 @@ function on_init() {
             };
         };
     }, properties.repaint_rate2);
+	if (fb.IsPlaying)
+		on_playback_new_track(fb.GetNowPlaying());
 };
 on_init();
 
@@ -931,13 +934,6 @@ function on_size() {
     wh = window.Height;
     
     resize_panels();
-    
-    // set wallpaper
-    if(fb.IsPlaying) {
-        p.wallpaperImg = setWallpaperImg(properties.wallpaperpath, fb.GetNowPlaying());
-    }; else {
-        p.wallpaperImg = null;
-    };
     
     // Set the empty rows count in playlist setup for cover column size!
     if(p.headerBar.columns[0].percent > 0) {
@@ -978,12 +974,11 @@ function on_paint(gr) {
 
             // draw background under playlist
             if(fb.IsPlaying && p.wallpaperImg && properties.showwallpaper) {
-                gr.GdiDrawBitmap(p.wallpaperImg, 0, p.list.y, ww, wh-p.list.y, 0, p.list.y, p.wallpaperImg.Width, p.wallpaperImg.Height-p.list.y);
-                gr.FillSolidRect(0, p.list.y, ww, wh-p.list.y, g_color_normal_bg & RGBA(255,255,255,properties.wallpaperalpha));
+                drawImage(gr, p.wallpaperImg, 0, 0, ww, wh, "crop_top");
+                gr.FillSolidRect(0, 0, ww, wh, g_color_normal_bg & RGBA(255,255,255,properties.wallpaperalpha));
             }; else {
-                gr.FillSolidRect(0, p.list.y, ww, wh-p.list.y, g_color_normal_bg);
+                gr.FillSolidRect(0, 0, ww, wh, g_color_normal_bg);
             };
-
             // List
             if(p.list) {
                 if(p.list.count > 0) {
@@ -1042,16 +1037,6 @@ function on_paint(gr) {
                         gr.DrawString(text_bot, gdi.Font(g_fname, g_fsize + 2, 0), g_color_normal_txt & 0x40ffffff, 0, 0 + zoom(20, g_dpi), ww, wh, cc_stringformat);
                         gr.FillGradRect(40, Math.floor(wh/2), ww-80, Math.floor(zoom(1, g_dpi)), 0, 0, g_color_normal_txt & 0x40ffffff, 0.5);
                     };
-                };
-            };
-            
-            // draw background part above playlist (topbar + headerbar)
-            if(cTopBar.visible || p.headerBar.visible) {
-                if(fb.IsPlaying && p.wallpaperImg && properties.showwallpaper) {
-                    gr.GdiDrawBitmap(p.wallpaperImg, 0, 0, ww, p.list.y, 0, 0, p.wallpaperImg.Width, p.list.y);
-                    gr.FillSolidRect(0, 0, ww, p.list.y, g_color_normal_bg & RGBA(255,255,255,properties.wallpaperalpha));
-                }; else {
-                    gr.FillSolidRect(0, 0, ww, p.list.y, g_color_normal_bg);
                 };
             };
             
@@ -2825,35 +2810,21 @@ function get_images() {
 // ===================================================== // Wallpaper
 
 function setWallpaperImg(path, metadb) {
-
-    var fmt_path = fb.TitleFormat(path).Eval(true);
-    var fmt_path_arr = utils.Glob(fmt_path).toArray();
-    if(fmt_path_arr.length > 0) {
-        var final_path = fmt_path_arr[0];
-    }; else {
-        var final_path = null;
-    };
-    
-    if(metadb && properties.wallpapermode > -1) {
-        var tmp_img = utils.GetAlbumArtV2(metadb, properties.wallpapermode);
-    }; else {
-        if(final_path) {
-            tmp_img = gdi.Image(final_path);
-        }; else {
-            tmp_img = null;
-        };
-    };
-    if(!tmp_img) {
-        if(final_path) {
-            tmp_img = gdi.Image(final_path);
-        }; else {
-            tmp_img = null;
-        };
-    };
-
-    p.wallpaperImg = null;
-    var img = FormatWallpaper(tmp_img, ww, wh, 2, 0, 0, "", true);
-    return img;
+	if (!metadb)
+		return null;
+	
+	var default_img = gdi.Image(utils.Glob(fb.TitleFormat(path).Eval(true)).toArray()[0]);
+	var tmp_img = utils.GetAlbumArtV2(metadb, properties.wallpapermode);
+	
+	if (properties.wallpaperblurred) {
+		default_img && default_img.StackBlur(properties.wallpaperblurvalue);
+		tmp_img && tmp_img.StackBlur(properties.wallpaperblurvalue);
+	}
+	
+	if (properties.wallpapermode == -1)
+		return default_img;
+	else
+		return tmp_img || default_img;
 };
 
 function draw_beam_image() {
@@ -2866,133 +2837,6 @@ function draw_beam_image() {
     var beamA = sbeam.Resize(500/50,128/50,2);
     var beamB = beamA.Resize(500,128,2);
     return beamB;
-};
-
-function draw_blurred_image(image,ix,iy,iw,ih,bx,by,bw,bh,blur_value,overlay_color) {
-    var blurValue = blur_value;
-    var imgA = image.Resize(iw*blurValue/100,ih*blurValue/100,2);
-    var imgB = imgA.resize(iw, ih, 2);
-    
-    var bbox = gdi.CreateImage(bw, bh);
-    // Get graphics interface like "gr" in on_paint
-    var gb = bbox.GetGraphics();
-    var offset = 90-blurValue;
-    gb.DrawImage(imgB, 0-offset, 0-(ih-bh)-offset, iw+offset*2, ih+offset*2, 0, 0, imgB.Width, imgB.Height, 0, 255);
-    bbox.ReleaseGraphics(gb);
-
-    var newImg = gdi.CreateImage(iw, ih);
-    var gb = newImg.GetGraphics();
-
-    if(ix!=bx || iy!=by || iw!=bw || ih!=bh) {
-        gb.DrawImage(image, ix, iy, iw, ih, 0, 0, image.Width, image.Height, 0, 255);
-        gb.FillSolidRect(bx,by,bw,bh,0xffffffff);
-    };
-    gb.DrawImage(bbox, bx, by, bw, bh, 0, 0, bbox.Width, bbox.Height, 0, 255);
-    
-    // overlay
-    if(overlay_color!=null) {
-        gb.FillSolidRect(bx,by,bw,bh,overlay_color);
-    };
-    
-    // top border of blur area
-    if(ix!=bx || iy!=by || iw!=bw || ih!=bh) {
-        gb.FillSolidRect(bx,by,bw,1,0x22ffffff);
-        gb.FillSolidRect(bx,by-1,bw,1,0x22000000);
-    };
-    newImg.ReleaseGraphics(gb);
-    
-    return newImg;
-};
-
-function FormatWallpaper(image, iw, ih, interpolation_mode, display_mode, angle, txt, rawBitmap) {
-	if(!image||!iw||!ih) return image;
-    var i, j;
-
-    var panel_ratio = iw / ih;
-    wpp_img_info.ratio = image.Width / image.Height;
-    wpp_img_info.orient = 0;
-
-    if(wpp_img_info.ratio > panel_ratio) {
-        wpp_img_info.orient = 1;
-        // 1/3 : default image is in landscape mode    
-        switch(display_mode) {
-            case 0:     // Filling
-                //wpp_img_info.w = iw * wpp_img_info.ratio / panel_ratio;
-                wpp_img_info.w = ih * wpp_img_info.ratio;
-                wpp_img_info.h = ih;
-                wpp_img_info.cut = wpp_img_info.w - iw;
-                wpp_img_info.x = 0 - (wpp_img_info.cut / 2);
-                wpp_img_info.y = 0;
-                break;
-            case 1:     // Adjust
-                wpp_img_info.w = iw;
-                wpp_img_info.h = ih / wpp_img_info.ratio * panel_ratio;
-                wpp_img_info.cut = ih - wpp_img_info.h;
-                wpp_img_info.x = 0;
-                wpp_img_info.y = wpp_img_info.cut / 2;
-                break;
-            case 2:     // Stretch
-                wpp_img_info.w = iw;
-                wpp_img_info.h = ih;
-                wpp_img_info.cut = 0;
-                wpp_img_info.x = 0;
-                wpp_img_info.y = 0;
-                break;
-        };
-    }; else if(wpp_img_info.ratio < panel_ratio) {
-        wpp_img_info.orient = 2;
-        // 2/3 : default image is in portrait mode
-        switch(display_mode) {
-            case 0:     // Filling
-                wpp_img_info.w = iw;
-                //wpp_img_info.h = ih / wpp_img_info.ratio * panel_ratio;
-                wpp_img_info.h = iw / wpp_img_info.ratio;
-                wpp_img_info.cut = wpp_img_info.h - ih;
-                wpp_img_info.x = 0;
-                wpp_img_info.y = 0 - (wpp_img_info.cut / 4);
-                break;
-            case 1:     // Adjust
-                wpp_img_info.h = ih;
-                wpp_img_info.w = iw * wpp_img_info.ratio / panel_ratio;
-                wpp_img_info.cut = iw - wpp_img_info.w;
-                wpp_img_info.y = 0;
-                wpp_img_info.x = wpp_img_info.cut / 2;
-                break;
-            case 2:     // Stretch
-                wpp_img_info.w = iw;
-                wpp_img_info.h = ih;
-                wpp_img_info.cut = 0;
-                wpp_img_info.x = 0;
-                wpp_img_info.y = 0;
-                break;
-        };
-    }; else {
-        // 3/3 : default image is a square picture, ratio = 1
-        wpp_img_info.w = iw;
-        wpp_img_info.h = ih;
-        wpp_img_info.cut = 0;
-        wpp_img_info.x = 0;
-        wpp_img_info.y = 0;
-    };
-
-    var tmp_img = gdi.CreateImage(iw, ih);
-    var gp = tmp_img.GetGraphics();
-	gp.SetInterpolationMode(interpolation_mode);
-    gp.DrawImage(image, wpp_img_info.x, wpp_img_info.y, wpp_img_info.w, wpp_img_info.h, 0, 0, image.Width, image.Height, angle, 255);
-	tmp_img.ReleaseGraphics(gp);
-    
-    // blur it!
-    if(properties.wallpaperblurred) {
-        var blur_factor = properties.wallpaperblurvalue; // [1-90]
-        tmp_img = draw_blurred_image(tmp_img,0,0,tmp_img.Width,tmp_img.Height,0,0,tmp_img.Width,tmp_img.Height,blur_factor,0x00ffffff);
-    };
-    
-	CollectGarbage();
-    if(rawBitmap) {
-        return tmp_img.CreateRawBitmap();
-    }; else {
-        return tmp_img;
-    };
 };
 
 //=================================================// Queue Playlist features
