@@ -50,9 +50,9 @@ folders.home = fb.ComponentPath + "samples\\complete\\";
 folders.js = folders.home + "js\\";
 folders.images = folders.home + "images\\";
 folders.settings = fb.ProfilePath + "js_settings\\";
-//folders.data = fb.ProfilePath + "js_data\\";
-//folders.artists = folders.data + "artists\\";
-//folders.lastfm = folders.data + "lastfm\\";
+folders.data = fb.ProfilePath + "js_data\\";
+folders.artists = folders.data + "artists\\";
+folders.lastfm = folders.data + "lastfm\\";
 folders.docs = fb.ComponentPath + "docs\\";
 
 var console = {
