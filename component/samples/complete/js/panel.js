@@ -211,12 +211,6 @@ _.mixin({
 				return _.tf(t, this.metadb);
 		}
 		
-		this.new_artist_folder = function (t) {
-			var folder = folders.artists + _.fbSanitise(t);
-			_.createFolder(folder);
-			return fso.GetFolder(folder) + "\\";
-		}
-		
 		this.name = name;
 		this.features = features || [];
 		this.w = 0;

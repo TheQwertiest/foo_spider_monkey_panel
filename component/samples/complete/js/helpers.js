@@ -106,6 +106,11 @@ return a.length-b.length;});for(var z=0;z<this.length;z++)
 this[z]=this[z].join("");}
 
 _.mixin({
+	artistFolder : function (artist) {
+		var folder = folders.artists + _.fbSanitise(artist);
+		_.createFolder(folder);
+		return fso.GetFolder(folder) + "\\";
+	},
 	cc : function (name) {
 		return utils.CheckComponent(name, true);
 	},
