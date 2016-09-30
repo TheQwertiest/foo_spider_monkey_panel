@@ -46,8 +46,7 @@ var tooltip = window.CreateTooltip();
 tooltip.SetMaxWidth(800);
 
 var folders = {};
-folders.home = fb.ComponentPath + "samples\\complete\\";
-folders.images = folders.home + "images\\";
+folders.images = fb.ComponentPath + "samples\\complete\\images\\";
 folders.settings = fb.ProfilePath + "js_settings\\";
 folders.data = fb.ProfilePath + "js_data\\";
 folders.artists = folders.data + "artists\\";
