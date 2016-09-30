@@ -47,13 +47,11 @@ tooltip.SetMaxWidth(800);
 
 var folders = {};
 folders.home = fb.ComponentPath + "samples\\complete\\";
-folders.js = folders.home + "js\\";
 folders.images = folders.home + "images\\";
 folders.settings = fb.ProfilePath + "js_settings\\";
 folders.data = fb.ProfilePath + "js_data\\";
 folders.artists = folders.data + "artists\\";
 folders.lastfm = folders.data + "lastfm\\";
-folders.docs = fb.ComponentPath + "docs\\";
 
 var console = {
 	pre : "",
@@ -61,8 +59,6 @@ var console = {
 		fb.trace(this.pre + text);
 	}
 }
-
-var np_exe = fb.ProfilePath.substring(0, 3) + "Applications\\Notepad++\\notepad++.exe";
 
 var guifx = {
 	font : "Guifx v2 Transports",
@@ -606,37 +602,12 @@ _.mixin({
 				m1.AppendMenuSeparator();
 		});
 		m1.AppendMenuSeparator();
-		if (_.isFile(np_exe)) {
-			var js_files = _.getFiles(folders.js, "js");
-			_.forEach(js_files, function (item, i) {
-				s1.AppendMenuItem(MF_STRING, i + 1, item.split("\\").pop());
-			});
-			s1.AppendTo(m1, MF_STRING, "Scripts");
-			m1.AppendMenuSeparator();
-			var doc_files = _.getFiles(folders.docs, "txt");
-			_.forEach(doc_files, function (item, i) {
-				s2.AppendMenuItem(MF_STRING, i + 40, doc_files[i].split("\\").pop().replace("&", "&&"));
-			});
-			s2.AppendTo(m1, MF_STRING, "Docs");
-			m1.AppendMenuSeparator();
-			m1.AppendMenuItem(MF_STRING, 50, "Notepad++");
-			m1.AppendMenuSeparator();
-		}
-		m1.AppendMenuItem(MF_STRING, 70, "Configure...");
+		m1.AppendMenuItem(MF_STRING, 1, "Configure...");
 		var idx = m1.TrackPopupMenu(x, y, flags);
 		switch (true) {
 		case idx == 0:
 			break;
-		case idx < 30:
-			_.run(np_exe, js_files[idx - 1]);
-			break;
-		case idx > 39 && idx < 50:
-			_.run(np_exe, doc_files[idx - 40]);
-			break;
-		case idx == 50:
-			_.run(np_exe);
-			break;
-		case idx == 70:
+		case idx == 1:
 			window.ShowConfigure();
 			break;
 		default:
