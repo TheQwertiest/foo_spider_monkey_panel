@@ -1,0 +1,50 @@
+// ==PREPROCESSOR==
+// @name "Thumbs"
+// @import "%fb2k_component_path%samples\complete\js\lodash.min.js"
+// @import "%fb2k_component_path%samples\complete\js\helpers.js"
+// @import "%fb2k_component_path%samples\complete\js\panel.js"
+// @import "%fb2k_component_path%samples\complete\js\thumbs.js"
+// ==/PREPROCESSOR==
+
+var panel = new _.panel("Thumbs", ["metadb", "custom_background"]);
+var thumbs = new _.thumbs();
+
+panel.item_focus_change();
+
+function on_size() {
+	panel.size();
+	thumbs.size();
+}
+
+function on_paint(gr) {
+	panel.paint(gr);
+	thumbs.paint(gr);
+}
+
+function on_metadb_changed() {
+	thumbs.metadb_changed();
+}
+
+function on_mouse_wheel(s) {
+	thumbs.wheel(s);
+}
+
+function on_mouse_move(x, y) {
+	thumbs.move(x, y);
+}
+
+function on_mouse_lbtn_up(x, y) {
+	thumbs.lbtn_up(x, y);
+}
+
+function on_mouse_lbtn_dblclk(x, y) {
+	thumbs.lbtn_dblclk(x, y);
+}
+
+function on_key_down(k) {
+	thumbs.key_down(k);
+}
+
+function on_mouse_rbtn_up(x, y) {
+	return panel.rbtn_up(x, y, thumbs);
+}
