@@ -20,8 +20,9 @@ function on_playback_dynamic_info_track() {
 	panel.item_focus_change();
 }
 
-function on_playback_stop() {
-	panel.item_focus_change();
+function on_playback_stop(reason) {
+	if (reason != 2)
+		panel.item_focus_change();
 }
 
 function on_item_focus_change() {
