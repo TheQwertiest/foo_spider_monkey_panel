@@ -265,7 +265,7 @@ _.mixin({
 		return [src_x, src_y, src_w, src_h];
 	},
 	drawOverlay : function (gr, x, y, w, h) {
-		gr.FillGradRect(x, y, w, h, 90, _.RGBA(0, 0, 0, 200), _.RGBA(0, 0, 0, 170));
+		gr.FillGradRect(x, y, w, h, 90, _.RGBA(0, 0, 0, 230), _.RGBA(0, 0, 0, 200));
 	},
 	explorer : function (file) {
 		if (_.isFile(file))
