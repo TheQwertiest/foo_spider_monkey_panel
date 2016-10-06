@@ -363,14 +363,14 @@ _.mixin({
 	isFolder : function (folder) {
 		return _.isString(folder) ? fso.FolderExists(folder) : false;
 	},
-	jsonParse : function (value, path) {
+	jsonParse : function (value) {
 		try {
 			var data = JSON.parse(value);
+			return data;
 		} catch (e) {
 			console.log("JSON.parse error: " + value);
 			return [];
 		}
-		return path ? _.get(data, path, []) : data;
 	},
 	lastModified : function (file) {
 		return Date.parse(fso.Getfile(file).DateLastModified);
