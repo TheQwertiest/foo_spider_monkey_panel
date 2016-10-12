@@ -789,7 +789,7 @@ function RefreshBG() {
 
 function drawImage(gr, img, src_x, src_y, src_w, src_h, aspect, border, alpha) {
 	if (!img)
-		return;
+		return [];
 	switch (aspect) {
 	case "crop":
 	case "crop_top":
