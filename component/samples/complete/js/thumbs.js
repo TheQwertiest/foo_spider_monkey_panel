@@ -288,8 +288,8 @@ _.mixin({
 			panel.s12.CheckMenuRadioItem(4060, 4080, this.cycle + 4060);
 			panel.s12.AppendTo(panel.m, MF_STRING, "Cycle");
 			panel.m.AppendMenuSeparator();
-			panel.s13.AppendMenuItem(MF_STRING, 4500, "Newest first");
-			panel.s13.AppendMenuItem(MF_STRING, 4501, "A-Z");
+			panel.s13.AppendMenuItem(MF_STRING, 4500, "A-Z");
+			panel.s13.AppendMenuItem(MF_STRING, 4501, "Newest first");
 			panel.s13.CheckMenuRadioItem(4500, 4501, this.sort + 4500);
 			panel.s13.AppendTo(panel.m, MF_STRING, "Sort");
 			panel.m.AppendMenuSeparator();
@@ -408,7 +408,7 @@ _.mixin({
 		this.update = function () {
 			this.image = 0;
 			_.map(this.images, _.dispose);
-			this.files = _.getFiles(this.folder, this.exts, this.sort == 0);
+			this.files = _.getFiles(this.folder, this.exts, this.sort == 1);
 			this.images = _.map(this.files, _.img);
 			this.size(true);
 			window.Repaint();
@@ -445,7 +445,7 @@ _.mixin({
 		this.aspect = window.GetProperty("2K3.THUMBS.ASPECT", image.crop_top);
 		this.custom_folder_tf = window.GetProperty("2K3.THUMBS.CUSTOM.FOLDER.TF", "$directory_path(%path%)");
 		this.px = window.GetProperty("2K3.THUMBS.PX", 75);
-		this.sort = window.GetProperty("2K3.THUMBS.SORT", 0); // 0 newest first 1 a-z
+		this.sort = window.GetProperty("2K3.THUMBS.SORT", 0); // 0 a-z 1 newest first
 		this.exts = "jpg|jpeg|png|gif";
 		this.folder = "";
 		this.img = null;
