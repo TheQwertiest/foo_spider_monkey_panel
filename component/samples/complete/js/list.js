@@ -30,6 +30,7 @@ _.mixin({
 					gr.GdiDrawText(this.data[i + this.offset].value, panel.fonts.normal, panel.colours.text, this.x + this.text_x, this.y + 16 + (i * panel.row_height), this.text_width, panel.row_height, LEFT);
 				}
 				break;
+			}
 			this.up_btn.paint(gr, panel.colours.text);
 			this.down_btn.paint(gr, panel.colours.text);
 		}
