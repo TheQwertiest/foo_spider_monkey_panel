@@ -30,13 +30,6 @@ _.mixin({
 					gr.GdiDrawText(this.data[i + this.offset].value, panel.fonts.normal, panel.colours.text, this.x + this.text_x, this.y + 16 + (i * panel.row_height), this.text_width, panel.row_height, LEFT);
 				}
 				break;
-			default:
-				this.text_width = this.w;
-				for (var i = 0; i < Math.min(this.items, this.rows); i++) {
-					gr.GdiDrawText(this.data[i + this.offset].name, panel.fonts.normal, panel.colours.text, this.x, this.y + 16 + (i * panel.row_height), this.text_width, panel.row_height, LEFT);
-				}
-				break;
-			}
 			this.up_btn.paint(gr, panel.colours.text);
 			this.down_btn.paint(gr, panel.colours.text);
 		}
@@ -46,7 +39,6 @@ _.mixin({
 			case this.mode == "autoplaylists":
 				break;
 			case !panel.metadb:
-				this.artist = "";
 				this.data = [];
 				this.items = 0;
 				window.Repaint();
@@ -54,27 +46,7 @@ _.mixin({
 			case this.mode == "properties":
 				this.update();
 				break;
-			default:
-				var temp_artist = panel.tf(DEFAULT_ARTIST);
-				if (this.artist == temp_artist)
-					return;
-				this.artist = temp_artist;
-				this.update();
-				break;
 			}
-		}
-		
-		this.playback_new_track = function () {
-			panel.item_focus_change();
-			this.time_elapsed = 0;
-		}
-		
-		this.playback_time = function () {
-			if (this.lastfm_mode != 2)
-				return;
-			this.time_elapsed++;
-			if (this.time_elapsed == 3)
-				this.get();
 		}
 		
 		this.trace = function (x, y) {
@@ -347,13 +319,6 @@ _.mixin({
 			}
 		}
 		
-		this.reset = function () {
-			this.items = 0;
-			this.data = [];
-			this.artist = "";
-			panel.item_focus_change();
-		}
-		
 		this.init = function () {
 			switch (this.mode) {
 			case "autoplaylists":
@@ -596,7 +561,6 @@ _.mixin({
 		this.text_x = 0;
 		this.spacer_w = 0;
 		this.time_elapsed = 0;
-		this.artist = "";
 		this.filename = "";
 		this.up_btn = new _.sb(guifx.up, this.x, this.y, 16, 16, _.bind(function () { return this.offset > 0; }, this), _.bind(function () { this.wheel(1); }, this));
 		this.down_btn = new _.sb(guifx.down, this.x, this.y, 16, 16, _.bind(function () { return this.offset < this.items - this.rows; }, this), _.bind(function () { this.wheel(-1); }, this));
