@@ -561,7 +561,6 @@ _.mixin({
 		this.items = 0;
 		this.text_x = 0;
 		this.spacer_w = 0;
-		this.time_elapsed = 0;
 		this.filename = "";
 		this.up_btn = new _.sb(guifx.up, this.x, this.y, 16, 16, _.bind(function () { return this.offset > 0; }, this), _.bind(function () { this.wheel(1); }, this));
 		this.down_btn = new _.sb(guifx.down, this.x, this.y, 16, 16, _.bind(function () { return this.offset < this.items - this.rows; }, this), _.bind(function () { this.wheel(-1); }, this));
