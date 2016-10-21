@@ -407,7 +407,7 @@ _.mixin({
 		
 		this.update = function () {
 			this.image = 0;
-			_.map(this.images, _.dispose);
+			_.dispose.apply(null, this.images);
 			this.files = _.getFiles(this.folder, this.exts, this.sort == 1);
 			this.images = _.map(this.files, _.img);
 			this.size(true);

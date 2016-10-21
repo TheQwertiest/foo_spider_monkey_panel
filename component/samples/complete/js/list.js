@@ -302,7 +302,7 @@ _.mixin({
 					item.width = _.textWidth(item.value, panel.fonts.normal);
 					this.text_x = Math.max(this.text_x, _.textWidth(item.name, panel.fonts.normal) + 20);
 				}, this);
-				fileinfo.Dispose();
+				_.dispose(fileinfo);
 				break;
 			}
 			this.items = this.data.length;
@@ -404,7 +404,7 @@ _.mixin({
 						break;
 					}
 					this.editing = false;
-					m.Dispose();
+					_.dispose(m);
 				}
 				
 				this.edit_done = function (z) {

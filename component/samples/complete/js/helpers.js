@@ -213,8 +213,10 @@ _.mixin({
 			}
 		}
 	},
-	dispose : function (o) {
-		o && o.Dispose();
+	dispose : function () {
+		_.forEach(arguments, function (item) {
+			item && item.Dispose();
+		});
 	},
 	drawImage : function (gr, img, src_x, src_y, src_w, src_h, aspect, border, alpha) {
 		if (!img)
@@ -339,9 +341,7 @@ _.mixin({
 			_.browser(ha_links[idx - 100][1]);
 			break;
 		}
-		m1.Dispose();
-		s1.Dispose();
-		s2.Dispose();
+		_.dispose(m1, s1, s2);
 	},
 	img : function (value) {
 		if (_.isFile(value))
@@ -386,7 +386,7 @@ _.mixin({
 			result.push.apply(result, _.map(lines, _.trim));
 		});
 		temp_bmp.ReleaseGraphics(temp_gr);
-		temp_bmp.Dispose();
+		_.dispose(temp_bmp);
 		temp_gr = null;
 		temp_bmp = null;
 		return result;
@@ -457,19 +457,7 @@ _.mixin({
 			mm6.ExecuteByID(idx - 6000);
 			break;
 		}
-		m1.Dispose();
-		s1.Dispose();
-		s2.Dispose();
-		s3.Dispose();
-		s4.Dispose();
-		s5.Dispose();
-		s6.Dispose();
-		mm1.Dispose();
-		mm2.Dispose();
-		mm3.Dispose();
-		mm4.Dispose();
-		mm5.Dispose();
-		mm6.Dispose();
+		_.dispose(m1, s1 ,s2, s3, s4, s5, s6, mm1, mm2, mm3, mm4, mm5, mm6);
 	},
 	nest : function (collection, keys) {
 		if (!keys.length) {
@@ -588,7 +576,7 @@ _.mixin({
 		var temp_gr = temp_bmp.GetGraphics();
 		var width = temp_gr.CalcTextWidth(value, font);
 		temp_bmp.ReleaseGraphics(temp_gr);
-		temp_bmp.Dispose();
+		_.dispose(temp_bmp);
 		temp_gr = null;
 		temp_bmp = null;
 		return width;
@@ -598,13 +586,13 @@ _.mixin({
 			return "";
 		var tfo = fb.TitleFormat(t);
 		var str = tfo.EvalWithMetadb(metadb);
-		tfo.Dispose();
+		_.dispose(tfo);
 		return str;
 	},
 	tfe : function (t, force) {
 		var tfo = fb.TitleFormat(t);
 		var str = tfo.Eval(force);
-		tfo.Dispose();
+		_.dispose(tfo);
 		return str;
 	},
 	toRGB : function (a) {

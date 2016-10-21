@@ -64,7 +64,7 @@ _.mixin({
 			var font = window.InstanceType ? window.GetFontDUI(0) : window.GetFontCUI(0);
 			if (font) {
 				this.fonts.name = font.Name;
-				font.Dispose();
+				_.dispose(font);
 			} else {
 				this.fonts.name = "Segoe UI";
 				this.console("Unable to use default font. Using " + this.fonts.name + " instead.");
@@ -110,9 +110,9 @@ _.mixin({
 		
 		this.rbtn_up = function (x, y, object) {
 			this.m = window.CreatePopupMenu();
-			this.fonts_menu = window.CreatePopupMenu();
-			this.background_menu = window.CreatePopupMenu();
-			this.metadb_menu = window.CreatePopupMenu();
+			this.s1 = window.CreatePopupMenu();
+			this.s2 = window.CreatePopupMenu();
+			this.s3 = window.CreatePopupMenu();
 			this.s10 = window.CreatePopupMenu();
 			this.s11 = window.CreatePopupMenu();
 			this.s12 = window.CreatePopupMenu();
@@ -123,29 +123,29 @@ _.mixin({
 			// text 5000-5999
 			object && object.rbtn_up(x, y);
 			if (this.list_objects.length || this.text_objects.length) {
-				this.fonts_menu.AppendMenuItem(MF_STRING, 10, 10);
-				this.fonts_menu.AppendMenuItem(MF_STRING, 12, 12);
-				this.fonts_menu.AppendMenuItem(MF_STRING, 14, 14);
-				this.fonts_menu.AppendMenuItem(MF_STRING, 16, 16);
-				this.fonts_menu.AppendTo(this.m, MF_STRING, "Font size");
-				this.fonts_menu.CheckMenuRadioItem(10, 16, this.fonts.size);
+				this.s1.AppendMenuItem(MF_STRING, 10, 10);
+				this.s1.AppendMenuItem(MF_STRING, 12, 12);
+				this.s1.AppendMenuItem(MF_STRING, 14, 14);
+				this.s1.AppendMenuItem(MF_STRING, 16, 16);
+				this.s1.CheckMenuRadioItem(10, 16, this.fonts.size);
+				this.s1.AppendTo(this.m, MF_STRING, "Font size");
 				this.m.AppendMenuSeparator();
 			}
 			if (this.check_feature("custom_background")) {
-				this.background_menu.AppendMenuItem(MF_STRING, 100, window.InstanceType ? "Use default UI setting" : "Use columns UI setting");
-				this.background_menu.AppendMenuItem(MF_STRING, 101, "Splitter");
-				this.background_menu.AppendMenuItem(MF_STRING, 102, "Custom");
-				this.background_menu.CheckMenuRadioItem(100, 102, this.colours.mode + 100);
-				this.background_menu.AppendMenuSeparator();
-				this.background_menu.AppendMenuItem(this.colours.mode == 2 ? MF_STRING : MF_GRAYED, 103, "Set custom colour...");
-				this.background_menu.AppendTo(this.m, window.IsTransparent ? MF_GRAYED : MF_STRING, "Background");
+				this.s2.AppendMenuItem(MF_STRING, 100, window.InstanceType ? "Use default UI setting" : "Use columns UI setting");
+				this.s2.AppendMenuItem(MF_STRING, 101, "Splitter");
+				this.s2.AppendMenuItem(MF_STRING, 102, "Custom");
+				this.s2.CheckMenuRadioItem(100, 102, this.colours.mode + 100);
+				this.s2.AppendMenuSeparator();
+				this.s2.AppendMenuItem(this.colours.mode == 2 ? MF_STRING : MF_GRAYED, 103, "Set custom colour...");
+				this.s2.AppendTo(this.m, window.IsTransparent ? MF_GRAYED : MF_STRING, "Background");
 				this.m.AppendMenuSeparator();
 			}
 			if (this.check_feature("metadb")) {
-				this.metadb_menu.AppendMenuItem(MF_STRING, 110, "Prefer now playing");
-				this.metadb_menu.AppendMenuItem(MF_STRING, 111, "Follow selected track");
-				this.metadb_menu.CheckMenuRadioItem(110, 111, this.selection + 110);
-				this.metadb_menu.AppendTo(this.m, MF_STRING, "Selection mode");
+				this.s3.AppendMenuItem(MF_STRING, 110, "Prefer now playing");
+				this.s3.AppendMenuItem(MF_STRING, 111, "Follow selected track");
+				this.s3.CheckMenuRadioItem(110, 111, this.selection + 110);
+				this.s3.AppendTo(this.m, MF_STRING, "Selection mode");
 				this.m.AppendMenuSeparator();
 			}
 			this.m.AppendMenuItem(MF_STRING, 120, "Configure...");
@@ -186,14 +186,7 @@ _.mixin({
 				object && object.rbtn_up_done(idx);
 				break;
 			}
-			this.m.Dispose();
-			this.fonts_menu.Dispose();
-			this.background_menu.Dispose();
-			this.metadb_menu.Dispose();
-			this.s10.Dispose();
-			this.s11.Dispose();
-			this.s12.Dispose();
-			this.s13.Dispose();
+			_.dispose(this.m, this.s1, this.s2, this.s3, this.s10, this.s11, this.s12, this.s13);
 			return true;
 		}
 		
