@@ -1,3 +1,12 @@
+##v1.1.6.1
+```
+- CHG: Minor changes to Console logging on startup.
+- ADD: The "complete" samples folder has 2 new scripts: "thumbs.txt" and "text reader.txt".
+       Thumbs allows the display/cycling of multiple images in a given folder. Text reader
+       displays the contents of any plain text file. Title formatting can be used to specify
+       the folder/file paths.
+```
+
 ##v1.1.6
 ```
 - ADD: IGdiBitmap StackBlur method. See docs\interfaces.txt and

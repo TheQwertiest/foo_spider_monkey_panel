@@ -1,7 +1,7 @@
 #pragma once
 
 // TODO: Change Version Number Every Time
-#define JSP_VERSION_NUMBER "1.1.6"
+#define JSP_VERSION_NUMBER "1.1.6.1"
 #define JSP_WILL_NOT_EXPIRE
 //#define JSP_VERSION_TEST "Beta 1"
 
