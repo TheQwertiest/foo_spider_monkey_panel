@@ -12,8 +12,7 @@ HRESULT script_preprocessor::process_import(const t_script_info & info, t_script
 	if (!m_is_ok) return hr;
 
 	pfc::string_formatter pre;
-	pfc::string_formatter pmsg;
-	pre << JSP_NAME " (" << info.build_info_string() << "): " << "Parsing file ";
+	pre << "Error: " << JSP_NAME " (" << info.build_info_string() << ")";
 
 	for (t_size i = 0; i < m_directive_value_list.get_count(); ++i)
 	{
@@ -21,12 +20,10 @@ HRESULT script_preprocessor::process_import(const t_script_info & info, t_script
 
 		if (wcscmp(val.directive.get_ptr(), L"import") == 0)
 		{
-			// Try parse
 			expand_var(val.value);
 
 			pfc::array_t<wchar_t> code;
 			bool success = helpers::read_file_wide(CP_ACP, val.value.get_ptr(), code);
-			pfc::string_formatter msg;
 
 			if (success)
 			{
@@ -35,25 +32,13 @@ HRESULT script_preprocessor::process_import(const t_script_info & info, t_script
 				script.code = code;
 
 				scripts.add_item(script);
-				msg << pre << "\"" << pfc::stringcvt::string_utf8_from_wide(val.value.get_ptr()) << "\"";
 			}
 			else
 			{
-				if (pmsg.is_empty())
-				{
-					pmsg << info.build_info_string() << "\n\nThe following preprocessor @import file(s) were not found:\n\n";
-				}
-				pmsg << pfc::stringcvt::string_utf8_from_wide(val.value.get_ptr()) << "\n";
-				msg << "Error: " << pre << "\"" << pfc::stringcvt::string_utf8_from_wide(val.value.get_ptr()) << "\": Failed to load.";
+				console::formatter() << pre;
+				console::formatter() << "Failed to load: " << "\"" << pfc::stringcvt::string_utf8_from_wide(val.value.get_ptr());
 			}
-
-			console::formatter() << msg;
 		}
-	}
-
-	if (!pmsg.is_empty())
-	{
-		popup_msg::g_show(pmsg, JSP_NAME, popup_message::icon_error);
 	}
 
 	return hr;
