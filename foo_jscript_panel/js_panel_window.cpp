@@ -89,7 +89,7 @@ bool js_panel_window::script_load()
 		// Show init message
 		console::formatter() << JSP_NAME " ("
 			<< ScriptInfo().build_info_string()
-			<< "): initialized in "
+			<< "): initialised in "
 			<< (int)(timer.query() * 1000)
 			<< " ms";
 	}
