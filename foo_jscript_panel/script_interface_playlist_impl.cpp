@@ -42,7 +42,7 @@ STDMETHODIMP FbPlaylistManager::AddLocations(UINT playlistIndex, VARIANT locatio
 
 	static_api_ptr_t<playlist_incoming_item_filter_v2>()->process_locations_async(
 		locations3,
-		playlist_incoming_item_filter_v2::op_flag_background,
+		playlist_incoming_item_filter_v2::op_flag_no_filter | playlist_incoming_item_filter_v2::op_flag_delay_ui,
 		NULL,
 		NULL,
 		NULL,
