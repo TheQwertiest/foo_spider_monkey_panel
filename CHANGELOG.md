@@ -1,3 +1,9 @@
+##v1.1.6.2
+```
+- FIX: plman.AddLocations: Original order of files in array is now maintained.
+- CHG: plman.AddLocations: Progress dialog stays hidden for short operations.
+```
+
 ##v1.1.6.1
 ```
 - CHG: Minor changes to Console logging on startup.
