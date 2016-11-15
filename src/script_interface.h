@@ -383,6 +383,7 @@ __interface IFbUtils : IDispatch
 	STDMETHOD(GetSelections)([defaultvalue(0)] UINT flags, [out, retval] IFbMetadbHandleList** pp);
 	STDMETHOD(GetSelectionType)([out, retval] UINT* p);
 	STDMETHOD(IsLibraryEnabled)([out, retval] VARIANT_BOOL* p);
+	STDMETHOD(IsMainMenuCommandChecked)(BSTR command, [out, retval] VARIANT_BOOL* p);
 	STDMETHOD(IsMetadbInMediaLibrary)(IFbMetadbHandle* handle, [out, retval] VARIANT_BOOL* p);
 	STDMETHOD(LoadPlaylist)();
 	STDMETHOD(Next)();

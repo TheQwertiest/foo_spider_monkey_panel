@@ -7,6 +7,32 @@
 
 namespace helpers
 {
+	static void generate_mainmenu_command_path(const pfc::map_t<GUID, mainmenu_group::ptr> &group_guid_map, const service_ptr_t<mainmenu_commands> ptr, pfc::string8_fast &path)
+	{
+		GUID group_guid = ptr->get_parent();
+
+		while (group_guid_map.have_item(group_guid))
+		{
+			mainmenu_group::ptr group_ptr = group_guid_map[group_guid];
+			mainmenu_group_popup::ptr group_popup_ptr;
+
+			if (group_ptr->service_query_t(group_popup_ptr))
+			{
+				pfc::string8_fast temp;
+				group_popup_ptr->get_display_string(temp);
+
+				if (!temp.is_empty())
+				{
+					temp.add_char('/');
+					temp.add_string(path);
+					path = temp;
+				}
+			}
+
+			group_guid = group_ptr->get_parent();
+		}
+	}
+    
 	COLORREF convert_argb_to_colorref(DWORD argb)
 	{
 		return RGB(argb >> RED_SHIFT, argb >> GREEN_SHIFT, argb >> BLUE_SHIFT);
@@ -201,29 +227,8 @@ namespace helpers
 		{
 			for (t_uint32 idx = 0; idx < ptr->get_command_count(); ++idx)
 			{
-				GUID group_guid = ptr->get_parent();
 				pfc::string8_fast path;
-
-				while (group_guid_text_map.have_item(group_guid))
-				{
-					mainmenu_group::ptr group_ptr = group_guid_text_map[group_guid];
-					mainmenu_group_popup::ptr group_popup_ptr;
-
-					if (group_ptr->service_query_t(group_popup_ptr))
-					{
-						pfc::string8_fast temp;
-						group_popup_ptr->get_display_string(temp);
-
-						if (!temp.is_empty())
-						{
-							temp.add_char('/');
-							temp.add_string(path);
-							path = temp;
-						}
-					}
-
-					group_guid = group_ptr->get_parent();
-				}
+				generate_mainmenu_command_path(group_guid_text_map, ptr, path);
 
 				// for new fb2k1.0 commands
 				mainmenu_commands_v2::ptr v2_ptr;
@@ -233,11 +238,17 @@ namespace helpers
 					if (v2_ptr->is_command_dynamic(idx))
 					{
 						mainmenu_node::ptr node = v2_ptr->dynamic_instantiate(idx);
+						mainmenu_node::ptr node_out;
 
-						if (execute_mainmenu_command_recur_v2(node, path, p_name, name_len))
+						if (get_mainmenu_command_node_recur_v2(node, path, p_name, name_len, node_out))
+						{
+							node_out->execute(NULL);
 							return true;
+						}
 						else
+						{
 							continue;
+						}
 					}
 				}
 
@@ -257,7 +268,65 @@ namespace helpers
 		return false;
 	}
 
-	bool execute_mainmenu_command_recur_v2(mainmenu_node::ptr node, pfc::string8_fast path, const char* p_name, t_size p_name_len)
+	bool get_mainmenu_command_status_by_name(const char* p_name, t_uint32 &status)
+	{
+		// First generate a map of all mainmenu_group
+		pfc::map_t<GUID, mainmenu_group::ptr> group_guid_text_map;
+		build_mainmenu_group_map(group_guid_text_map);
+
+		// Second, generate a list of all mainmenu commands
+		service_enum_t<mainmenu_commands> e;
+		service_ptr_t<mainmenu_commands> ptr;
+		t_size name_len = strlen(p_name);
+
+		while (e.next(ptr))
+		{
+			for (t_uint32 idx = 0; idx < ptr->get_command_count(); ++idx)
+			{
+				pfc::string8_fast path;
+				generate_mainmenu_command_path(group_guid_text_map, ptr, path);
+
+				// for new fb2k1.0 commands
+				mainmenu_commands_v2::ptr v2_ptr;
+
+				if (ptr->service_query_t(v2_ptr))
+				{
+					if (v2_ptr->is_command_dynamic(idx))
+					{
+						mainmenu_node::ptr node = v2_ptr->dynamic_instantiate(idx);
+						mainmenu_node::ptr retNode;
+
+						if (get_mainmenu_command_node_recur_v2(node, path, p_name, name_len, retNode))
+						{
+							pfc::string8_fast tmp;
+							retNode->get_display(tmp, status);
+							return true;
+						}
+						else
+						{
+							continue;
+						}
+					}
+				}
+
+				// old commands
+				pfc::string8_fast command;
+				ptr->get_name(idx, command);
+				path.add_string(command);
+
+				if (match_menu_command(path, p_name, name_len))
+				{
+					pfc::string8_fast tmp;
+					ptr->get_display(idx, tmp, status);
+					return true;
+				}
+			}
+		}
+
+		return false;
+	}
+
+	static bool get_mainmenu_command_node_recur_v2(mainmenu_node::ptr node, pfc::string8_fast path, const char* p_name, t_size p_name_len, mainmenu_node::ptr &node_out)
 	{
 		pfc::string8_fast text;
 		t_uint32 flags;
@@ -276,7 +345,7 @@ namespace helpers
 		{
 			if (match_menu_command(path, p_name, p_name_len))
 			{
-				node->execute(NULL);
+				node_out = node;
 				return true;
 			}
 		}
@@ -291,7 +360,7 @@ namespace helpers
 			{
 				mainmenu_node::ptr child = node->get_child(i);
 
-				if (execute_mainmenu_command_recur_v2(child, path, p_name, p_name_len))
+				if (get_mainmenu_command_node_recur_v2(child, path, p_name, p_name_len, node_out))
 					return true;
 			}
 		}

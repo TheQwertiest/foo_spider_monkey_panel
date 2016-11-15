@@ -2370,6 +2370,23 @@ STDMETHODIMP FbUtils::IsMetadbInMediaLibrary(IFbMetadbHandle* handle, VARIANT_BO
 	return S_OK;
 }
 
+STDMETHODIMP FbUtils::IsMainMenuCommandChecked(BSTR command, VARIANT_BOOL* p)
+{
+	TRACK_FUNCTION();
+
+	if (!p) return E_POINTER;
+
+	pfc::stringcvt::string_utf8_from_wide name(command);
+	t_uint32 status;
+	if (!helpers::get_mainmenu_command_status_by_name_SEH(name, status))
+	{
+		return E_INVALIDARG;
+	}
+
+	*p = TO_VARIANT_BOOL(mainmenu_commands::flag_checked == status || mainmenu_commands::flag_radiochecked == status);
+	return S_OK;
+}
+
 STDMETHODIMP FbUtils::LoadPlaylist()
 {
 	standard_commands::main_load_playlist();
