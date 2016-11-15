@@ -29,7 +29,8 @@ namespace helpers
 	IGdiBitmap* query_album_art(album_art_extractor_instance_v2::ptr extractor, GUID& what, bool no_load = false, pfc::string_base* image_path_ptr = NULL);
 	bool execute_context_command_by_name(const char* p_name, metadb_handle_list_cref p_handles, unsigned flags);
 	bool execute_mainmenu_command_by_name(const char* p_name);
-	bool execute_mainmenu_command_recur_v2(mainmenu_node::ptr node, pfc::string8_fast path, const char* p_name, t_size p_name_len);
+	bool get_mainmenu_command_node_recur_v2(mainmenu_node::ptr node, pfc::string8_fast path, const char* p_name, t_size p_name_len, mainmenu_node::ptr &node_out);
+	bool get_mainmenu_command_status_by_name(const char* p_name, t_uint32 &status);
 	bool find_context_command_recur(const char* p_command, pfc::string_base& p_path, contextmenu_node* p_parent, contextmenu_node*& p_out);
 	bool match_menu_command(const pfc::string_base& path, const char* command, t_size command_len = ~0);
 	bool read_album_art_into_bitmap(const album_art_data_ptr& data, Gdiplus::Bitmap** bitmap);
@@ -144,6 +145,22 @@ namespace helpers
 		GUID m_what;
 	};
 
+	__declspec(noinline) static bool get_mainmenu_command_status_by_name_SEH(const char* p_name, t_uint32 &status)
+	{
+		bool ret = false;
+
+		__try
+		{
+			ret = get_mainmenu_command_status_by_name(p_name, status);
+		}
+		__except (EXCEPTION_EXECUTE_HANDLER)
+		{
+			ret = false;
+		}
+
+		return ret;
+	}
+    
 	class album_art_async : public simple_thread_task
 	{
 	public:
