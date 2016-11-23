@@ -17,7 +17,7 @@ __interface IFbPlaylistManager : IDispatch
 	STDMETHOD(AddPlaylistItemToPlaybackQueue)(UINT playlistIndex, UINT playlistItemIndex);
 	STDMETHOD(ClearPlaylist)(UINT playlistIndex);
 	STDMETHOD(ClearPlaylistSelection)(UINT playlistIndex);
-	STDMETHOD(CreateAutoPlaylist)(UINT idx, BSTR name, BSTR query, [defaultvalue("")] BSTR sort, [defaultvalue(0)]UINT flags, [out, retval] UINT * p);
+	STDMETHOD(CreateAutoPlaylist)(UINT idx, BSTR name, BSTR query, [defaultvalue("")] BSTR sort, [defaultvalue(0)] UINT flags, [out, retval] UINT * p);
 	STDMETHOD(CreatePlaybackQueueItem)([out, retval] __interface IFbPlaybackQueueItem ** outPlaybackQueueItem);
 	STDMETHOD(CreatePlaylist)(UINT playlistIndex, BSTR name, [out, retval] UINT * outPlaylistIndex);
 	STDMETHOD(DuplicatePlaylist)(UINT from, BSTR name, [out, retval] UINT * outPlaylistIndex);
