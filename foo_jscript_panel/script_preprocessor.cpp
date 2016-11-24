@@ -35,8 +35,7 @@ HRESULT script_preprocessor::process_import(const t_script_info & info, t_script
 			}
 			else
 			{
-				console::formatter() << pre;
-				console::formatter() << "Failed to load: " << pfc::stringcvt::string_utf8_from_wide(val.value.get_ptr());
+				console::formatter() << pre << "\nFailed to load: " << pfc::stringcvt::string_utf8_from_wide(val.value.get_ptr());
 			}
 		}
 	}

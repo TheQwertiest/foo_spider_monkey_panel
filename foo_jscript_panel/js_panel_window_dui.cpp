@@ -38,7 +38,7 @@ static service_factory_t<my_ui_element_impl<js_panel_window_dui> > g_js_panel_wn
 
 void js_panel_window_dui::initialize_window(HWND parent)
 {
-	t_parent::create(parent);
+	create(parent);
 }
 
 HWND js_panel_window_dui::get_wnd()

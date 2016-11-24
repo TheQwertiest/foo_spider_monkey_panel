@@ -18,7 +18,6 @@ limitations under the License.
 #include "stdafx.h"
 #include "boxblurfilter.h"
 
-
 void box_blur_filter::filter(Gdiplus::Bitmap & p_img)
 {
 	int width = p_img.GetWidth();

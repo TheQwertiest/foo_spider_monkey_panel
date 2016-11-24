@@ -609,7 +609,7 @@ protected:
 	virtual void FinalRelease() {}
 
 public:
-	inline void Reset()
+	void Reset()
 	{
 		m_playlist_idx = -1;
 		m_to_select = true;
@@ -617,12 +617,11 @@ public:
 		m_parsable = false;
 	}
 
-	inline t_action_mode & Mode() { return m_action_mode; }
-	inline bool & Parsable() { return m_parsable; }
-	inline int & Playlist() { return m_playlist_idx; }
-	inline bool & ToSelect() { return m_to_select; }
+	t_action_mode & Mode() { return m_action_mode; }
+	bool & Parsable() { return m_parsable; }
+	int & Playlist() { return m_playlist_idx; }
+	bool & ToSelect() { return m_to_select; }
 
-public:
 	STDMETHODIMP ToPlaylist();
 	STDMETHODIMP get_Mode(int * mode);
 	STDMETHODIMP get_Parsable(VARIANT_BOOL * parsable);

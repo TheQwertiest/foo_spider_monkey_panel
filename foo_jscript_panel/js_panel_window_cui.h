@@ -36,8 +36,6 @@ protected:
 
 private:
 	virtual void notify_size_limit_changed_(LPARAM lp);
-
-private:
 	typedef js_panel_window t_parent;
 	uie::window_host_ptr m_host;
 };

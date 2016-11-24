@@ -109,7 +109,7 @@ namespace helpers
 	int int_from_hex_byte(const char * hex_byte);
 
 	template<class T>
-	inline bool ensure_gdiplus_object(T * obj)
+	bool ensure_gdiplus_object(T * obj)
 	{
 		return ((obj) && (obj->GetLastStatus() == Gdiplus::Ok));
 	}
@@ -199,7 +199,6 @@ namespace helpers
 			}
 		};
 
-	public:
 		album_art_async(HWND notify_hwnd, metadb_handle * handle, int art_id,
 			VARIANT_BOOL need_stub, VARIANT_BOOL only_embed, VARIANT_BOOL no_load)
 			: m_notify_hwnd(notify_hwnd)
@@ -215,8 +214,6 @@ namespace helpers
 
 	private:
 		virtual void run();
-
-	private:
 		metadb_handle_ptr m_handle;
 		_bstr_t m_rawpath;
 		int m_art_id;
@@ -247,15 +244,12 @@ namespace helpers
 			}
 		};
 
-	public:
 		load_image_async(HWND notify_wnd, BSTR path)
 			: m_notify_hwnd(notify_wnd), m_path(path)
 		{}
 
 	private:
 		virtual void run();
-
-	private:
 		HWND m_notify_hwnd;
 		_bstr_t m_path;
 	};

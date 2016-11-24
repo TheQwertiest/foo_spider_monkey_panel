@@ -10,12 +10,12 @@ public:
 	{
 	}
 
-	static inline panel_manager & instance()
+	static panel_manager & instance()
 	{
 		return sm_instance;
 	}
 
-	inline void add_window(HWND p_wnd)
+	void add_window(HWND p_wnd)
 	{
 		if (m_hwnds.find_item(p_wnd) == pfc_infinite)
 		{
@@ -23,18 +23,18 @@ public:
 		}
 	}
 
-	inline void remove_window(HWND p_wnd)
+	void remove_window(HWND p_wnd)
 	{
 		m_hwnds.remove_item(p_wnd);
 	}
 
-	inline t_size get_count()
+	t_size get_count()
 	{
 		return m_hwnds.get_count();
 	}
 
-	inline void post_msg_to_all(UINT p_msg) { post_msg_to_all(p_msg, 0, 0); }
-	inline void post_msg_to_all(UINT p_msg, WPARAM p_wp) { post_msg_to_all(p_msg, p_wp, 0); }
+	void post_msg_to_all(UINT p_msg) { post_msg_to_all(p_msg, 0, 0); }
+	void post_msg_to_all(UINT p_msg, WPARAM p_wp) { post_msg_to_all(p_msg, p_wp, 0); }
 	void post_msg_to_all(UINT p_msg, WPARAM p_wp, LPARAM p_lp);
 	void post_msg_to_all_pointer(UINT p_msg, pfc::refcounted_object_root * p_param);
 	void send_msg_to_all(UINT p_msg, WPARAM p_wp, LPARAM p_lp);
@@ -60,7 +60,7 @@ struct simple_callback_data : public pfc::refcounted_object_root
 {
 	T m_item;
 
-	inline simple_callback_data(const T & p_item) : m_item(p_item) {}
+	simple_callback_data(const T & p_item) : m_item(p_item) {}
 };
 
 template <typename T1, typename T2>
@@ -69,7 +69,7 @@ struct simple_callback_data_2 : public pfc::refcounted_object_root
 	T1 m_item1;
 	T2 m_item2;
 
-	inline simple_callback_data_2(const T1 & p_item1, const T2 & p_item2) : m_item1(p_item1), m_item2(p_item2) {}
+	simple_callback_data_2(const T1 & p_item1, const T2 & p_item2) : m_item1(p_item1), m_item2(p_item2) {}
 };
 
 template <typename T1, typename T2, typename T3>
@@ -79,7 +79,7 @@ struct simple_callback_data_3 : public pfc::refcounted_object_root
 	T2 m_item2;
 	T3 m_item3;
 
-	inline simple_callback_data_3(const T1 & p_item1, const T2 & p_item2, const T3 & p_item3)
+	simple_callback_data_3(const T1 & p_item1, const T2 & p_item2, const T3 & p_item3)
 		: m_item1(p_item1)
 		, m_item2(p_item2)
 		, m_item3(p_item3)
@@ -91,23 +91,20 @@ struct simple_callback_data_3 : public pfc::refcounted_object_root
 template <class T>
 class simple_callback_data_scope_releaser
 {
-private:
-	T * m_data;
-
 public:
 	template <class TParam>
-	inline simple_callback_data_scope_releaser(TParam p_data)
+	simple_callback_data_scope_releaser(TParam p_data)
 	{
 		m_data = reinterpret_cast<T *>(p_data);
 	}
 
 	template <class TParam>
-	inline simple_callback_data_scope_releaser(TParam * p_data)
+	simple_callback_data_scope_releaser(TParam * p_data)
 	{
 		m_data = reinterpret_cast<T *>(p_data);
 	}
 
-	inline ~simple_callback_data_scope_releaser()
+	~simple_callback_data_scope_releaser()
 	{
 		m_data->refcount_release();
 	}
@@ -116,6 +113,9 @@ public:
 	{
 		return m_data;
 	}
+
+private:
+	T * m_data;
 };
 
 class playback_stat_callback : public playback_statistics_collector

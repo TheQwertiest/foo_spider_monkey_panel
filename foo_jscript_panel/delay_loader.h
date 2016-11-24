@@ -10,7 +10,7 @@ public:
 class delay_loader
 {
 public:
-	static inline void g_enqueue(delay_loader_action * callback)
+	static void g_enqueue(delay_loader_action * callback)
 	{
 		if (!callback)
 			return;
@@ -21,7 +21,7 @@ public:
 			callback->execute();
 	}
 
-	static inline void g_set_ready()
+	static void g_set_ready()
 	{
 		services_initialized_ = true;
 
@@ -34,7 +34,7 @@ public:
 		callbacks_.remove_all();
 	}
 
-	static inline bool g_ready()
+	static bool g_ready()
 	{
 		return services_initialized_;
 	}

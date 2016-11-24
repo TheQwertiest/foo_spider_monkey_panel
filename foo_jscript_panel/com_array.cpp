@@ -4,7 +4,6 @@
 
 namespace helpers
 {
-
 	bool com_array_reader::convert(VARIANT * pVarSrc)
 	{
 		reset();

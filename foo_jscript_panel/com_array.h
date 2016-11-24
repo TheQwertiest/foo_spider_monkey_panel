@@ -22,27 +22,27 @@ namespace helpers
 			reset();
 		}
 
-		inline SAFEARRAY * get_ptr()
+		SAFEARRAY * get_ptr()
 		{
 			return m_psa;
 		}
 
-		inline long get_lbound()
+		long get_lbound()
 		{
 			return m_lbound;
 		}
 
-		inline long get_ubound()
+		long get_ubound()
 		{
 			return m_ubound;
 		}
 
-		inline int get_count()
+		int get_count()
 		{
 			return get_ubound() - get_lbound() + 1;
 		}
 
-		inline bool get_item(long idx, VARIANT & dest)
+		bool get_item(long idx, VARIANT & dest)
 		{
 			if (!m_psa) return false;
 			if (idx < m_lbound || idx > m_ubound) return false;
@@ -50,7 +50,7 @@ namespace helpers
 			return SUCCEEDED(SafeArrayGetElement(m_psa, &idx, &dest));
 		}
 
-		inline VARIANT operator[](long idx)
+		VARIANT operator[](long idx)
 		{
 			_variant_t var;
 
@@ -62,7 +62,6 @@ namespace helpers
 			return var;
 		}
 
-	public:
 		bool convert(VARIANT * pVarSrc);
 
 		void reset()
@@ -80,8 +79,6 @@ namespace helpers
 	private:
 		void calc_bound();
 		bool convert_jsarray(IDispatch * pdisp);
-
-	private:
 		SAFEARRAY * m_psa;
 		long m_lbound, m_ubound;
 	};
@@ -104,17 +101,17 @@ namespace helpers
 			}
 		}
 
-		inline SAFEARRAY * get_ptr()
+		SAFEARRAY * get_ptr()
 		{
 			return m_psa;
 		}
 
-		inline long get_count()
+		long get_count()
 		{
 			return m_count;
 		}
 
-		inline bool create(long count)
+		bool create(long count)
 		{
 			reset();
 
@@ -123,7 +120,7 @@ namespace helpers
 			return (m_psa != NULL);
 		}
 
-		inline HRESULT put(long idx, VARIANT & pVar)
+		HRESULT put(long idx, VARIANT & pVar)
 		{
 			if (idx >= m_count) return E_INVALIDARG;
 			if (!m_psa) return E_POINTER;
@@ -132,7 +129,6 @@ namespace helpers
 			return hr;
 		}
 
-	public:
 		void reset()
 		{
 			m_count = 0;

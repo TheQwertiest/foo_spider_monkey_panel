@@ -13,11 +13,6 @@ class CDialogProperty
 	: public CDialogImpl<CDialogProperty>
 	, public CDialogResize<CDialogProperty>
 {
-private:
-	js_panel_window * m_parent;
-	CPropertyListCtrl m_properties;
-	prop_kv_config::t_map m_dup_prop_map;
-
 public:
 	CDialogProperty(js_panel_window * p_parent) : m_parent(p_parent)
 	{
@@ -31,7 +26,6 @@ public:
 	void LoadProperties(bool reload = true);
 	void Apply();
 
-public:
 	enum { IDD = IDD_DIALOG_PROPERTIES };
 
 	BEGIN_MSG_MAP(CDialogProperty)
@@ -58,7 +52,6 @@ public:
 		DLGRESIZE_CONTROL(IDAPPLY, DLSZ_MOVE_X | DLSZ_MOVE_Y)
 	END_DLGRESIZE_MAP()
 
-public:
 	LRESULT OnInitDialog(HWND hwndFocus, LPARAM lParam);
 	LRESULT OnCloseCmd(WORD wNotifyCode, WORD wID, HWND hWndCtl);
 	LRESULT OnPinItemChanged(LPNMHDR pnmh);
@@ -66,4 +59,9 @@ public:
 	LRESULT OnDelBnClicked(WORD wNotifyCode, WORD wID, HWND hWndCtl);
 	LRESULT OnImportBnClicked(WORD wNotifyCode, WORD wID, HWND hWndCtl);
 	LRESULT OnExportBnClicked(WORD wNotifyCode, WORD wID, HWND hWndCtl);
+
+private:
+	js_panel_window * m_parent;
+	CPropertyListCtrl m_properties;
+	prop_kv_config::t_map m_dup_prop_map;
 };

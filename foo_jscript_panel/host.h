@@ -54,17 +54,17 @@ protected:
 public:
 	GUID GetGUID() { return get_config_guid(); }
 	IGdiBitmap * GetBackgroundImage();
-	inline HDC GetHDC() { return m_hdc; }
-	inline HWND GetHWND() { return m_hwnd; }
-	inline INT GetHeight() { return m_height; }
-	inline INT GetWidth() { return m_width; }
-	inline POINT & MaxSize() { return m_max_size; }
-	inline POINT & MinSize() { return m_min_size; }
-	inline UINT & DlgCode() { return m_dlg_code; }
-	inline UINT GetInstanceType() { return m_instance_type; }
-	inline panel_tooltip_param_ptr & PanelTooltipParam() { return m_panel_tooltip_param_ptr; }
-	inline t_script_info & ScriptInfo() { return m_script_info; }
-	inline void PreserveSelection() { m_selection_holder = static_api_ptr_t<ui_selection_manager>()->acquire(); }
+	HDC GetHDC() { return m_hdc; }
+	HWND GetHWND() { return m_hwnd; }
+	INT GetHeight() { return m_height; }
+	INT GetWidth() { return m_width; }
+	POINT & MaxSize() { return m_max_size; }
+	POINT & MinSize() { return m_min_size; }
+	UINT & DlgCode() { return m_dlg_code; }
+	UINT GetInstanceType() { return m_instance_type; }
+	panel_tooltip_param_ptr & PanelTooltipParam() { return m_panel_tooltip_param_ptr; }
+	t_script_info & ScriptInfo() { return m_script_info; }
+	void PreserveSelection() { m_selection_holder = static_api_ptr_t<ui_selection_manager>()->acquire(); }
 	unsigned SetInterval(IDispatch * func, INT delay);
 	unsigned SetTimeout(IDispatch * func, INT delay);
 	virtual DWORD GetColorCUI(unsigned type, const GUID & guid) = 0;
@@ -80,9 +80,6 @@ public:
 
 class FbWindow : public IDispatchImpl3<IFbWindow>
 {
-private:
-	HostComm * m_host;
-
 protected:
 	FbWindow(HostComm* p) : m_host(p) {}
 	virtual ~FbWindow() {}
@@ -125,12 +122,43 @@ public:
 	STDMETHODIMP put_MaxWidth(UINT width);
 	STDMETHODIMP put_MinHeight(UINT height);
 	STDMETHODIMP put_MinWidth(UINT width);
+
+private:
+	HostComm * m_host;
 };
 
 class ScriptHost :
 	public IActiveScriptSite,
 	public IActiveScriptSiteWindow
 {
+public:
+	ScriptHost(HostComm * host);
+	virtual ~ScriptHost();
+
+	STDMETHODIMP EnableModeless(BOOL fEnable);
+	STDMETHODIMP GetDocVersionString(BSTR * pstr);
+	STDMETHODIMP GetItemInfo(LPCOLESTR name, DWORD mask, IUnknown ** ppunk, ITypeInfo ** ppti);
+	STDMETHODIMP GetLCID(LCID * plcid);
+	STDMETHODIMP GetWindow(HWND *phwnd);
+	STDMETHODIMP OnEnterScript();
+	STDMETHODIMP OnLeaveScript();
+	STDMETHODIMP OnScriptError(IActiveScriptError * err);
+	STDMETHODIMP OnScriptTerminate(const VARIANT * result, const EXCEPINFO * excep);
+	STDMETHODIMP OnStateChange(SCRIPTSTATE state);
+	STDMETHOD_(ULONG, AddRef)();
+	STDMETHOD_(ULONG, Release)();
+
+	HRESULT GenerateSourceContext(const wchar_t * path, const wchar_t * code, DWORD & source_context);
+	HRESULT InitScriptEngineByName(const wchar_t * engineName);
+	HRESULT Initialize();
+	HRESULT InvokeCallback(int callbackId, VARIANTARG * argv = NULL, UINT argc = 0, VARIANT * ret = NULL);
+	HRESULT ProcessImportedScripts(script_preprocessor &preprocessor, IActiveScriptParsePtr& parser);
+	bool HasError() { return m_has_error; }
+	bool Ready() { return m_engine_inited && m_script_engine; }
+	void Stop() { m_engine_inited = false; if (m_script_engine) m_script_engine->SetScriptState(SCRIPTSTATE_DISCONNECTED); }
+	void Finalize();
+	void ReportError(IActiveScriptError * err);
+
 private:
 	volatile DWORD          m_dwRef;
 	HostComm*               m_host;
@@ -158,34 +186,4 @@ private:
 		COM_QI_ENTRY(IActiveScriptSite)
 		COM_QI_ENTRY(IActiveScriptSiteWindow)
 	END_COM_QI_IMPL()
-
-public:
-	ScriptHost(HostComm * host);
-	virtual ~ScriptHost();
-
-public:
-	STDMETHODIMP EnableModeless(BOOL fEnable);
-	STDMETHODIMP GetDocVersionString(BSTR * pstr);
-	STDMETHODIMP GetItemInfo(LPCOLESTR name, DWORD mask, IUnknown ** ppunk, ITypeInfo ** ppti);
-	STDMETHODIMP GetLCID(LCID * plcid);
-	STDMETHODIMP GetWindow(HWND *phwnd);
-	STDMETHODIMP OnEnterScript();
-	STDMETHODIMP OnLeaveScript();
-	STDMETHODIMP OnScriptError(IActiveScriptError * err);
-	STDMETHODIMP OnScriptTerminate(const VARIANT * result, const EXCEPINFO * excep);
-	STDMETHODIMP OnStateChange(SCRIPTSTATE state);
-	STDMETHOD_(ULONG, AddRef)();
-	STDMETHOD_(ULONG, Release)();
-
-public:
-	HRESULT GenerateSourceContext(const wchar_t * path, const wchar_t * code, DWORD & source_context);
-	HRESULT InitScriptEngineByName(const wchar_t * engineName);
-	HRESULT Initialize();
-	HRESULT InvokeCallback(int callbackId, VARIANTARG * argv = NULL, UINT argc = 0, VARIANT * ret = NULL);
-	HRESULT ProcessImportedScripts(script_preprocessor &preprocessor, IActiveScriptParsePtr& parser);
-	inline bool HasError() { return m_has_error; }
-	inline bool Ready() { return m_engine_inited && m_script_engine; }
-	inline void Stop() { m_engine_inited = false; if (m_script_engine) m_script_engine->SetScriptState(SCRIPTSTATE_DISCONNECTED); }
-	void Finalize();
-	void ReportError(IActiveScriptError * err);
 };

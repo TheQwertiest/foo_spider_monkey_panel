@@ -4,15 +4,53 @@
 #include "delay_loader.h"
 #include "panel_tooltip_param.h"
 
-
 class ScriptHost;
 class CDialogConf;
 class CDialogProperty;
 
-
 class js_panel_window : public HostComm, public ui_helpers::container_window
 {
+protected:
+	virtual void notify_size_limit_changed_(LPARAM lp) = 0;
+	static void build_context_menu(HMENU menu, int x, int y, int id_base);
+	void execute_context_menu_command(int id, int id_base);
+	bool show_configure_popup(HWND parent);
+	bool show_property_popup(HWND parent);
+	LRESULT on_message(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp);
+
+public:
+	js_panel_window();
+	virtual ~js_panel_window();
+	void update_script(const char * name = NULL, const char * code = NULL);
+	HRESULT script_invoke_v(int callbackId, VARIANTARG * argv = NULL, UINT argc = 0, VARIANT * ret = NULL)
+	{
+		return m_script_host->InvokeCallback(callbackId, argv, argc, ret);
+	}
+
+
 private:
+	void on_size(int w, int h);
+	void on_paint(HDC dc, LPRECT lpUpdateRect);
+	void on_paint_user( HDC memdc, LPRECT lpUpdateRect);
+	void on_paint_error(HDC memdc);
+	void on_context_menu(int x, int y);
+	void on_mouse_wheel(WPARAM wp);
+	void on_mouse_wheel_h(WPARAM wp);
+	void on_mouse_leave();
+	void on_mouse_move(WPARAM wp, LPARAM lp);
+	void on_mouse_button_dblclk(UINT msg, WPARAM wp, LPARAM lp);
+	bool on_mouse_button_up(UINT msg, WPARAM wp, LPARAM lp);
+	void on_mouse_button_down(UINT msg, WPARAM wp, LPARAM lp);
+	void on_refresh_background_done();
+
+	bool script_load();
+	void script_unload();
+
+	void create_context();
+	void delete_context();
+
+	virtual class_data & get_class_data() const;
+
 	class delay_script_init_action : public delay_loader_action
 	{
 	public:
@@ -34,49 +72,6 @@ private:
 	bool             m_is_mouse_tracked;
 	bool	         m_is_droptarget_registered;
 
-public:
-	js_panel_window();
-	virtual ~js_panel_window();
-	void update_script(const char * name = NULL, const char * code = NULL);
-	inline HRESULT script_invoke_v(int callbackId, VARIANTARG * argv = NULL, UINT argc = 0, VARIANT * ret = NULL)
-	{
-		return m_script_host->InvokeCallback(callbackId, argv, argc, ret);
-	}
-
-private:
-	bool script_load();
-	void script_unload();
-
-	void create_context();
-	void delete_context();
-
-	virtual ui_helpers::container_window::class_data & get_class_data() const;
-
-protected:
-	bool show_configure_popup(HWND parent);
-	bool show_property_popup(HWND parent);
-	LRESULT on_message(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp);
-
-private:
-	void on_size(int w, int h);
-	void on_paint(HDC dc, LPRECT lpUpdateRect);
-	void on_paint_user( HDC memdc, LPRECT lpUpdateRect);
-	void on_paint_error(HDC memdc);
-	void on_context_menu(int x, int y);
-	void on_mouse_wheel(WPARAM wp);
-	void on_mouse_wheel_h(WPARAM wp);
-	void on_mouse_leave();
-	void on_mouse_move(WPARAM wp, LPARAM lp);
-	void on_mouse_button_dblclk(UINT msg, WPARAM wp, LPARAM lp);
-	bool on_mouse_button_up(UINT msg, WPARAM wp, LPARAM lp);
-	void on_mouse_button_down(UINT msg, WPARAM wp, LPARAM lp);
-	void on_refresh_background_done();
-
-protected:
-	static void build_context_menu(HMENU menu, int x, int y, int id_base);
-	void execute_context_menu_command(int id, int id_base);
-
-private:
 	// callbacks
 	void on_get_album_art_done(LPARAM lp);
 	void on_load_image_done(LPARAM lp);
@@ -125,8 +120,4 @@ private:
 
 	// playback queue callback
 	void on_playback_queue_changed(WPARAM wp);
-
-protected:
-	// override me
-	virtual void notify_size_limit_changed_(LPARAM lp) = 0;
 };

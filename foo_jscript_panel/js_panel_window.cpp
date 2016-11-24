@@ -141,7 +141,7 @@ void js_panel_window::delete_context()
 
 ui_helpers::container_window::class_data & js_panel_window::get_class_data() const
 {
-	static ui_helpers::container_window::class_data my_class_data =
+	static class_data my_class_data =
 	{
 		_T(JSP_WINDOW_CLASS_NAME),
 		_T(""),

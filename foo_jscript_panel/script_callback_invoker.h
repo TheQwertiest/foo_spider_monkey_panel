@@ -76,7 +76,7 @@ public:
 	void init(IDispatch * pActiveScriptRoot);
 	HRESULT invoke(int callbackId, VARIANTARG * argv = NULL, UINT argc = 0, VARIANT * ret = NULL);
 
-	inline void reset() { m_callbackInvokerMap.remove_all(); }
+	void reset() { m_callbackInvokerMap.remove_all(); }
 	
 private:
 	typedef pfc::map_t<int, int> CallbackInvokerMap;

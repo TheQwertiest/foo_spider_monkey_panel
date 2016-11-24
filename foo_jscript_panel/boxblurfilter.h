@@ -24,7 +24,7 @@ public:
 	{
 	}
 
-	inline void set_op(int p_radius = 1, int p_iterations = 1) throw()
+	void set_op(int p_radius = 1, int p_iterations = 1) throw()
 	{
 		m_radius = p_radius;
 		m_iterations = p_iterations;
@@ -34,34 +34,33 @@ public:
 
 	static void blur(const int * in, int * out, int width, int height, int radius) throw();
 
-public:
-	static inline BYTE get_color_alpha(DWORD color)
+	static BYTE get_color_alpha(DWORD color)
 	{
 		return (color >> ALPHA_SHIFT) & 0xff;
 	}
 
-	static inline BYTE get_color_red(DWORD color)
+	static BYTE get_color_red(DWORD color)
 	{
 		return (color >> RED_SHIFT) & 0xff;
 	}
 
-	static inline BYTE get_color_green(DWORD color)
+	static BYTE get_color_green(DWORD color)
 	{
 		return (color >> GREEN_SHIFT) & 0xff;
 	}
 
-	static inline BYTE get_color_blue(DWORD color)
+	static BYTE get_color_blue(DWORD color)
 	{
 		return (color >> BLUE_SHIFT) & 0xff;
 	}
 
 	template <typename T>
-	static inline T clamp(T x, T l, T r)
+	static T clamp(T x, T l, T r)
 	{
 		return (x < l) ? l : ((x > r) ? r : x);
 	}
 
-	static inline DWORD make_argb(BYTE a, BYTE r, BYTE g, BYTE b)
+	static DWORD make_argb(BYTE a, BYTE r, BYTE g, BYTE b)
 	{
 		return (a << ALPHA_SHIFT) | (b << BLUE_SHIFT) | (g << GREEN_SHIFT) | (r << RED_SHIFT);
 	}

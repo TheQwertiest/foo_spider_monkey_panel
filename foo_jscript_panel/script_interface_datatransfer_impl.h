@@ -6,11 +6,6 @@
 
 class DataTransferObject : public IDispatchImpl3<IDataTransferObject>
 {
-private:
-	unsigned m_dropEffect;
-	unsigned m_effectAllowed;
-	IDataObject * m_dataObject;
-
 protected:
 	DataTransferObject();
 
@@ -25,4 +20,9 @@ public:
 	STDMETHODIMP get_Types(VARIANT * outTypes);
 	STDMETHODIMP put_DropEffect(BSTR dropEffect);
 	STDMETHODIMP put_EffectAllowed(BSTR effectAllowed);
+
+private:
+	unsigned m_dropEffect;
+	unsigned m_effectAllowed;
+	IDataObject * m_dataObject;
 };

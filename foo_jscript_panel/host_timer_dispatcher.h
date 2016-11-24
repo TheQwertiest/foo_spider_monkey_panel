@@ -7,14 +7,12 @@ public:
 	HostTimerDispatcher();
 	~HostTimerDispatcher();
 
-	inline void setWindow(HWND hWnd) { m_hWnd = hWnd; }
-
-
 	unsigned setInterval(unsigned delay, IDispatch * pDisp);
 	unsigned setTimeout(unsigned delay, IDispatch * pDisp);
 	void invoke(UINT timerId);
 	void kill(unsigned timerID);
 	void reset();
+	void setWindow(HWND hWnd) { m_hWnd = hWnd; }
 
 private:
 	void addTimerMap(unsigned timerID, IDispatch * pDisp);

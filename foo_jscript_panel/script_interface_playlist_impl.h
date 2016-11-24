@@ -6,9 +6,6 @@
 // NOTE: Do not use com_object_impl_t<> to initialize, use com_object_singleton_t<> instead.
 class FbPlaylistManager : public IDispatchImpl3<IFbPlaylistManager>
 {
-private:
-	IFbPlaylistRecyclerManagerPtr m_fbPlaylistRecyclerManager;
-
 protected:
 	FbPlaylistManager() : m_fbPlaylistRecyclerManager(NULL)
 	{
@@ -67,6 +64,9 @@ public:
 	STDMETHODIMP put_ActivePlaylist(UINT playlistIndex);
 	STDMETHODIMP put_PlaybackOrder(UINT order);
 	STDMETHODIMP put_PlayingPlaylist(UINT playlistIndex);
+
+private:
+	IFbPlaylistRecyclerManagerPtr m_fbPlaylistRecyclerManager;
 };
 
 class FbPlaybackQueueItem : public IDisposableImpl4<IFbPlaybackQueueItem>

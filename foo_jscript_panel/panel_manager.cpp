@@ -8,13 +8,13 @@ panel_manager panel_manager::sm_instance;
 
 namespace
 {
-	static service_factory_single_t<config_object_callback> g_config_object_callback;
-	static playback_statistics_collector_factory_t<playback_stat_callback> g_stat_collector_callback;
-	static play_callback_static_factory_t<my_play_callback > g_my_play_callback;
-	static service_factory_single_t<my_playlist_callback> g_my_playlist_callback;
-	static initquit_factory_t<nonautoregister_callbacks> g_nonautoregister_callbacks;
-	static play_callback_static_factory_t<my_playback_queue_callback> g_my_playback_queue_callback;
-	static library_callback_factory_t<my_library_callback> g_my_library_callback;
+	service_factory_single_t<config_object_callback> g_config_object_callback;
+	playback_statistics_collector_factory_t<playback_stat_callback> g_stat_collector_callback;
+	play_callback_static_factory_t<my_play_callback > g_my_play_callback;
+	service_factory_single_t<my_playlist_callback> g_my_playlist_callback;
+	initquit_factory_t<nonautoregister_callbacks> g_nonautoregister_callbacks;
+	play_callback_static_factory_t<my_playback_queue_callback> g_my_playback_queue_callback;
+	library_callback_factory_t<my_library_callback> g_my_library_callback;
 }
 
 void panel_manager::send_msg_to_all(UINT p_msg, WPARAM p_wp, LPARAM p_lp)

@@ -13,15 +13,6 @@ class CDialogConf
 	: public CDialogImpl<CDialogConf>
 	, public CDialogResize<CDialogConf>
 {
-private:
-	CScriptEditorCtrl m_editorctrl;
-	CDialogFind * m_dlgfind;
-	CDialogReplace * m_dlgreplace;
-	js_panel_window * m_parent;
-	pfc::string8 m_caption;
-	unsigned int m_lastFlags;
-	pfc::string8 m_lastSearchText;
-
 public:
 	CDialogConf(js_panel_window * p_parent)
 		: m_parent(p_parent)
@@ -46,7 +37,6 @@ public:
 	void OnImport();
 	void OnExport();
 
-public:
 	enum { IDD = IDD_DIALOG_CONFIG };
 
 	BEGIN_MSG_MAP(CDialogConf)
@@ -74,7 +64,6 @@ public:
 		DLGRESIZE_CONTROL(IDC_STATIC_GUID, DLSZ_SIZE_X)
 	END_DLGRESIZE_MAP()
 
-public:
 	LRESULT OnInitDialog(HWND hwndFocus, LPARAM lParam);
 	LRESULT OnCloseCmd(WORD wNotifyCode, WORD wID, HWND hWndCtl);
 	LRESULT OnScriptEngineCbnSelEndOk(WORD wNotifyCode, WORD wID, HWND hWndCtl);
@@ -86,4 +75,13 @@ public:
 	static bool FindNext(HWND hWnd, HWND hWndEdit, unsigned flags, const char *which);
 	static bool FindPrevious(HWND hWnd, HWND hWndEdit, unsigned flags, const char *which);
 	static bool FindResult(HWND hWnd, HWND hWndEdit, int pos, const char *which);
+
+private:
+	CScriptEditorCtrl m_editorctrl;
+	CDialogFind * m_dlgfind;
+	CDialogReplace * m_dlgreplace;
+	js_panel_window * m_parent;
+	pfc::string8 m_caption;
+	unsigned int m_lastFlags;
+	pfc::string8 m_lastSearchText;
 };

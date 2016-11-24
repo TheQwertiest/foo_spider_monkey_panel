@@ -92,7 +92,6 @@ private:
 	bool expand_var(pfc::array_t<wchar_t> & out);
 	bool extract_preprocessor_block(const wchar_t * script, int & block_begin, int & block_end);
 
-private:
 	pfc::array_t<wchar_t> m_directive_buffer;
 	pfc::array_t<wchar_t> m_value_buffer;
 	pfc::list_t<t_directive_value> m_directive_value_list;

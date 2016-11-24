@@ -26,27 +26,26 @@ public:
 		RevokeDragDrop();
 	}
 
-	inline HRESULT RegisterDragDrop()
+	HRESULT RegisterDragDrop()
 	{
 		return ::RegisterDragDrop(m_hWnd, this);
 	}
 
-	inline HRESULT RevokeDragDrop()
+	HRESULT RevokeDragDrop()
 	{
 		return ::RevokeDragDrop(m_hWnd);
 	}
 
-	inline void SetHWND(HWND hWnd)
+	void SetHWND(HWND hWnd)
 	{
 		m_hWnd = hWnd;
 	}
 
-	inline HWND GetHWND()
+	HWND GetHWND()
 	{
 		return m_hWnd;
 	}
 
-public:
 	// IDropTarget
 	STDMETHODIMP DragEnter(IDataObject *pDataObj, DWORD grfKeyState, POINTL pt, DWORD *pdwEffect)
 	{
@@ -153,7 +152,6 @@ public:
 		return hr;
 	}
 
-public:
 	// Overrides
 	virtual HRESULT OnDragEnter(IDataObject *pDataObj, DWORD grfKeyState, POINTL pt, DWORD *pdwEffect)
 	{

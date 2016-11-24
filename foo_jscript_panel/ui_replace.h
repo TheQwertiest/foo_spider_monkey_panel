@@ -6,70 +6,6 @@ class CDialogReplace
 	: public CDialogImpl<CDialogReplace>
 	, public CDialogResize<CDialogReplace>
 {
-private:
-	class CEditWithReturn : public CWindowImpl<CEditWithReturn, CEdit>
-	{
-	private:
-		HWND m_parent;
-
-	public:
-		typedef CWindowImpl<CEditWithReturn, CEdit> parent;
-		BOOL SubclassWindow(HWND hWnd, HWND hParent)
-		{
-			m_parent = hParent;
-			return parent::SubclassWindow(hWnd);
-		}
-
-	public:
-		BEGIN_MSG_MAP(CEditWithReturn)
-			MESSAGE_HANDLER(WM_CHAR, OnChar)
-			MESSAGE_HANDLER(WM_KEYDOWN, OnKeyDown)
-		END_MSG_MAP()
-
-	public:
-		LRESULT OnChar(UINT uMsg, WPARAM wParam,LPARAM lParam, BOOL &bHandled)
-		{
-			// Disable anonying sound
-			switch (wParam)
-			{
-			case '\n':
-			case '\r':
-			case '\t':
-			case '\x1b':
-				return 0;
-			}
-
-			return DefWindowProc(uMsg, wParam, lParam);
-		}
-
-		LRESULT OnKeyDown(UINT uMsg, WPARAM wParam,LPARAM lParam, BOOL &bHandled)
-		{
-			switch (wParam)
-			{
-			case VK_RETURN:
-				::PostMessage(m_parent, WM_COMMAND, MAKEWPARAM(IDC_REPLACE, BN_CLICKED), (LPARAM)m_hWnd);
-				return FALSE;
-
-			case VK_ESCAPE:
-				::PostMessage(m_parent, WM_COMMAND, MAKEWPARAM(IDCANCEL, BN_CLICKED), (LPARAM)m_hWnd);
-				return FALSE;
-
-			case VK_TAB:
-				::PostMessage(m_parent, WM_NEXTDLGCTL, 0, 0);
-				return FALSE;
-			}
-
-			return DefWindowProc(uMsg, wParam, lParam);
-		}
-	};
-
-	int m_flags;
-	pfc::string8 m_text;
-	pfc::string8 m_reptext;
-	HWND m_hedit;
-	bool m_havefound;
-	CEditWithReturn m_replace, m_find;
-
 public:
 	CDialogReplace(HWND p_hedit) : m_hedit(p_hedit), m_flags(0), m_havefound(false)
 	{
@@ -78,7 +14,6 @@ public:
 	void OnFinalMessage(HWND hWnd);
 	CHARRANGE GetSelection();
 
-public:
 	enum { IDD = IDD_DIALOG_REPLACE };
 
 	BEGIN_MSG_MAP(CDialogReplace)
@@ -102,7 +37,6 @@ public:
 		DLGRESIZE_CONTROL(IDCANCEL, DLSZ_MOVE_X)
 	END_DLGRESIZE_MAP()
 
-public:
 	LRESULT OnFindNext(WORD wNotifyCode, WORD wID, HWND hWndCtl);
 	LRESULT OnEditFindWhatEnChange(WORD wNotifyCode, WORD wID, HWND hWndCtl);
 	LRESULT OnFlagCommand(WORD wNotifyCode, WORD wID, HWND hWndCtl);
@@ -111,4 +45,66 @@ public:
 	LRESULT OnEditReplaceEnChange(WORD wNotifyCode, WORD wID, HWND hWndCtl);
 	LRESULT OnReplace(WORD wNotifyCode, WORD wID, HWND hWndCtl);
 	LRESULT OnReplaceall(WORD wNotifyCode, WORD wID, HWND hWndCtl);
+
+private:
+	class CEditWithReturn : public CWindowImpl<CEditWithReturn, CEdit>
+	{
+	public:
+		typedef CWindowImpl<CEditWithReturn, CEdit> parent;
+		BOOL SubclassWindow(HWND hWnd, HWND hParent)
+		{
+			m_parent = hParent;
+			return parent::SubclassWindow(hWnd);
+		}
+
+		BEGIN_MSG_MAP(CEditWithReturn)
+			MESSAGE_HANDLER(WM_CHAR, OnChar)
+			MESSAGE_HANDLER(WM_KEYDOWN, OnKeyDown)
+		END_MSG_MAP()
+
+		LRESULT OnChar(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bHandled)
+		{
+			// Disable anonying sound
+			switch (wParam)
+			{
+			case '\n':
+			case '\r':
+			case '\t':
+			case '\x1b':
+				return 0;
+			}
+
+			return DefWindowProc(uMsg, wParam, lParam);
+		}
+
+		LRESULT OnKeyDown(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bHandled)
+		{
+			switch (wParam)
+			{
+			case VK_RETURN:
+				::PostMessage(m_parent, WM_COMMAND, MAKEWPARAM(IDC_REPLACE, BN_CLICKED), (LPARAM)m_hWnd);
+				return FALSE;
+
+			case VK_ESCAPE:
+				::PostMessage(m_parent, WM_COMMAND, MAKEWPARAM(IDCANCEL, BN_CLICKED), (LPARAM)m_hWnd);
+				return FALSE;
+
+			case VK_TAB:
+				::PostMessage(m_parent, WM_NEXTDLGCTL, 0, 0);
+				return FALSE;
+			}
+
+			return DefWindowProc(uMsg, wParam, lParam);
+		}
+
+	private:
+		HWND m_parent;
+	};
+
+	int m_flags;
+	pfc::string8 m_text;
+	pfc::string8 m_reptext;
+	HWND m_hedit;
+	bool m_havefound;
+	CEditWithReturn m_replace, m_find;
 };

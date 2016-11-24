@@ -47,12 +47,12 @@ private:
 class simple_thread_pool
 {
 public:
-	static inline simple_thread_pool & instance()
+	static simple_thread_pool & instance()
 	{
 		return instance_;
 	}
 
-	inline simple_thread_pool() : num_workers_(0)
+	simple_thread_pool() : num_workers_(0)
 	{
 		empty_worker_ = CreateEvent(NULL, TRUE, TRUE, NULL);
 		exiting_ = CreateEvent(NULL, TRUE, FALSE, NULL);
@@ -63,7 +63,7 @@ public:
 		pfc::dynamic_assert(have_task_ != INVALID_HANDLE_VALUE);
 	}
 
-	inline ~simple_thread_pool()
+	~simple_thread_pool()
 	{
 		CloseHandle(empty_worker_);
 		CloseHandle(exiting_);

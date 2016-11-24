@@ -6,12 +6,8 @@ class CDialogFind
 	: public CDialogImpl<CDialogFind>
 	, public CDialogResize<CDialogFind>
 {
-private:
 	class CEditWithReturn : public CWindowImpl<CEditWithReturn, CEdit>
 	{
-	private:
-		HWND m_parent;
-
 	public:
 		typedef CWindowImpl<CEditWithReturn, CEdit> parent;
 		BOOL SubclassWindow(HWND hWnd, HWND hParent)
@@ -20,13 +16,11 @@ private:
 			return parent::SubclassWindow(hWnd);
 		}
 
-	public:
 		BEGIN_MSG_MAP(CEditWithReturn)
 			MESSAGE_HANDLER(WM_CHAR, OnChar)
 			MESSAGE_HANDLER(WM_KEYDOWN, OnKeyDown)
 		END_MSG_MAP()
 
-	public:
 		LRESULT OnChar(UINT uMsg, WPARAM wParam,LPARAM lParam, BOOL &bHandled)
 		{
 			// Disable anonying sound
@@ -57,6 +51,8 @@ private:
 
 			return DefWindowProc(uMsg, wParam, lParam);
 		}
+	private:
+		HWND m_parent;
 	};
 
 	int m_flags;
@@ -71,7 +67,6 @@ public:
 
 	void OnFinalMessage(HWND hWnd);
 
-public:
 	enum { IDD = IDD_DIALOG_FIND };
 
 	BEGIN_MSG_MAP(CDialogFind)
@@ -91,7 +86,6 @@ public:
 		DLGRESIZE_CONTROL(IDCANCEL, DLSZ_MOVE_X)
 	END_DLGRESIZE_MAP()
 
-public:
 	LRESULT OnFindUp(WORD wNotifyCode, WORD wID, HWND hWndCtl);
 	LRESULT OnFindDown(WORD wNotifyCode, WORD wID, HWND hWndCtl);
 	LRESULT OnEditFindWhatEnChange(WORD wNotifyCode, WORD wID, HWND hWndCtl);

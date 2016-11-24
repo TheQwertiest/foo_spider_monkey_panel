@@ -43,7 +43,7 @@ namespace
 		E_OLE		= 1 << 3,
 	};
 
-	static int g_load_status = E_OK;
+	int g_load_status = E_OK;
 
 	class js_initquit : public initquit
 	{
@@ -93,7 +93,7 @@ namespace
 		}
 	};
 
-	static initquit_factory_t<js_initquit> g_initquit;
+	initquit_factory_t<js_initquit> g_initquit;
 	CAppModule _Module;
 
 	extern "C" BOOL WINAPI DllMain(HINSTANCE ins, DWORD reason, LPVOID lp)

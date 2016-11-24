@@ -6,10 +6,6 @@ class CDialogPref : public CDialogImpl<CDialogPref>
 	, public CWinDataExchange<CDialogPref>
 	, public preferences_page_instance
 {
-private:
-	CListViewCtrl m_props;
-	preferences_page_callback::ptr m_callback;
-
 public:
 	CDialogPref(preferences_page_callback::ptr callback) : m_callback(callback) {}
 
@@ -24,7 +20,6 @@ public:
 	void apply();
 	void reset();
 
-public:
 	enum { IDD = IDD_DIALOG_PREFERENCE };
 
 	BEGIN_MSG_MAP(CDialogPref)
@@ -43,6 +38,10 @@ public:
 	void OnButtonExportBnClicked(WORD wNotifyCode, WORD wID, HWND hWndCtl);
 	void OnButtonImportBnClicked(WORD wNotifyCode, WORD wID, HWND hWndCtl);
 	void OnEditChange(WORD, WORD, HWND);
+
+private:
+	CListViewCtrl m_props;
+	preferences_page_callback::ptr m_callback;
 };
 
 class js_preferences_page_impl : public preferences_page_v3

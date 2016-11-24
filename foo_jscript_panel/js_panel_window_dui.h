@@ -48,8 +48,6 @@ public:
 private:
 	void notify_is_edit_mode_changed_(bool enabled) { m_is_edit_mode = enabled; }
 	virtual void notify_size_limit_changed_(LPARAM lp);
-
-private:
 	typedef js_panel_window t_parent;
 	ui_element_instance_callback::ptr m_callback;
 	bool m_is_edit_mode;

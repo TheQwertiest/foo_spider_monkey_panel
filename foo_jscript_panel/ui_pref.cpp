@@ -8,7 +8,7 @@
 
 namespace
 {
-	static preferences_page_factory_t<js_preferences_page_impl> g_pref;
+	preferences_page_factory_t<js_preferences_page_impl> g_pref;
 }
 
 

@@ -2,7 +2,6 @@
 
 #include "dbgtrace.h"
 
-
 //-- IUnknown ---
 #define BEGIN_COM_QI_IMPL() \
 	public:\
@@ -53,29 +52,28 @@ public:
 	{
 	}
 
-	inline void set_type_info(ITypeInfo * type_info)
+	void set_type_info(ITypeInfo * type_info)
 	{
 		m_type_info = type_info;
 	}
 
-	inline bool valid() throw()
+	bool valid() throw()
 	{
 		return m_type_info != NULL;
 	}
 
-	inline bool empty() throw()
+	bool empty() throw()
 	{
 		return m_type_info == NULL;
 	}
 
-	inline ITypeInfo * get_ptr() throw()
+	ITypeInfo * get_ptr() throw()
 	{
 		return m_type_info;
 	}
 
 	void init_from_typelib(ITypeLib * p_typeLib, const GUID & guid);
 
-public:
 	// "Expose" some ITypeInfo related methods here
 	HRESULT GetTypeInfo(UINT iTInfo, LCID lcid, ITypeInfo **ppTInfo);
 	HRESULT GetIDsOfNames(LPOLESTR *rgszNames, UINT cNames, MEMBERID *pMemId);
@@ -183,30 +181,6 @@ public:
 template <typename _Base, bool _AddRef = true>
 class com_object_impl_t : public _Base
 {
-private:
-	volatile LONG m_dwRef;
-
-	inline ULONG AddRef_()
-	{
-		return InterlockedIncrement(&m_dwRef);
-	}
-
-	inline ULONG Release_()
-	{
-		return InterlockedDecrement(&m_dwRef);
-	}
-
-	inline void Construct_()
-	{
-		m_dwRef = 0;
-		if (_AddRef)
-			AddRef_();
-	}
-
-	virtual ~com_object_impl_t()
-	{
-	}
-
 public:
 	STDMETHODIMP_(ULONG) AddRef()
 	{
@@ -225,13 +199,37 @@ public:
 	}
 
 	TEMPLATE_CONSTRUCTOR_FORWARD_FLOOD_WITH_INITIALIZER(com_object_impl_t, _Base, { Construct_(); })
+
+private:
+	volatile LONG m_dwRef;
+
+	ULONG AddRef_()
+	{
+		return InterlockedIncrement(&m_dwRef);
+	}
+
+	ULONG Release_()
+	{
+		return InterlockedDecrement(&m_dwRef);
+	}
+
+	void Construct_()
+	{
+		m_dwRef = 0;
+		if (_AddRef)
+			AddRef_();
+	}
+
+	virtual ~com_object_impl_t()
+	{
+	}
 };
 
 template <class T>
 class com_object_singleton_t
 {
 public:
-	static inline T * instance()
+	static T * instance()
 	{
 		if (!_instance)
 		{
