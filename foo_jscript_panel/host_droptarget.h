@@ -35,7 +35,7 @@ private:
 	BEGIN_COM_QI_IMPL()
 		COM_QI_ENTRY_MULTI(IUnknown, IDropTarget)
 		COM_QI_ENTRY(IDropTarget)
-		END_COM_QI_IMPL()
+	END_COM_QI_IMPL()
 };
 
 class HostDropTargetV2 : public IDropTargetImpl
@@ -56,5 +56,5 @@ private:
 	BEGIN_COM_QI_IMPL()
 		COM_QI_ENTRY_MULTI(IUnknown, IDropTarget)
 		COM_QI_ENTRY(IDropTarget)
-		END_COM_QI_IMPL()
+	END_COM_QI_IMPL()
 };

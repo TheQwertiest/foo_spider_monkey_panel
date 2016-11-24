@@ -146,7 +146,7 @@ class IDispatchImpl3: public MyIDispatchImpl<T>
 		COM_QI_ENTRY_MULTI(IUnknown, IDispatch)
 		COM_QI_ENTRY(T)
 		COM_QI_ENTRY(IDispatch)
-		END_COM_QI_IMPL()
+	END_COM_QI_IMPL()
 
 protected:
 	IDispatchImpl3<T>()
@@ -167,7 +167,7 @@ class IDisposableImpl4: public MyIDispatchImpl<T>
 		COM_QI_ENTRY(T)
 		COM_QI_ENTRY(IDisposable)
 		COM_QI_ENTRY(IDispatch)
-		END_COM_QI_IMPL()
+	END_COM_QI_IMPL()
 
 protected:
 	IDisposableImpl4<T>()

@@ -196,5 +196,5 @@ private:
 		COM_QI_ENTRY_MULTI(IUnknown, IActiveScriptSite)
 		COM_QI_ENTRY(IActiveScriptSite)
 		COM_QI_ENTRY(IActiveScriptSiteWindow)
-		END_COM_QI_IMPL()
+	END_COM_QI_IMPL()
 };
