@@ -18,7 +18,7 @@ limitations under the License.
 #include "stdafx.h"
 #include "boxblurfilter.h"
 
-void box_blur_filter::filter(Gdiplus::Bitmap & p_img)
+void box_blur_filter::filter(Gdiplus::Bitmap& p_img)
 {
 	int width = p_img.GetWidth();
 	int height = p_img.GetHeight();
@@ -26,10 +26,10 @@ void box_blur_filter::filter(Gdiplus::Bitmap & p_img)
 	// Optimized for memory alloc.
 	unsigned count = width * height * sizeof(int);
 	bool is_big_chunk = count >= (2 << 20);
-	int * pixels_in = NULL;
-	int * pixels_out = reinterpret_cast<int *>(
+	int* pixels_in = NULL;
+	int* pixels_out = reinterpret_cast<int *>(
 		is_big_chunk ?
-		VirtualAlloc(NULL, count, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE) : malloc(count));
+			VirtualAlloc(NULL, count, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE) : malloc(count));
 
 	Gdiplus::BitmapData bmpdata;
 	Gdiplus::Rect rect;
@@ -39,8 +39,8 @@ void box_blur_filter::filter(Gdiplus::Bitmap & p_img)
 	rect.Height = height;
 
 	if (pixels_out && p_img.LockBits(&rect,
-		Gdiplus::ImageLockModeRead | Gdiplus::ImageLockModeWrite,
-		PixelFormat32bppPARGB, &bmpdata) == Gdiplus::Ok)
+	                                 Gdiplus::ImageLockModeRead | Gdiplus::ImageLockModeWrite,
+	                                 PixelFormat32bppPARGB, &bmpdata) == Gdiplus::Ok)
 	{
 		pixels_in = reinterpret_cast<int *>(bmpdata.Scan0);
 
@@ -57,12 +57,12 @@ void box_blur_filter::filter(Gdiplus::Bitmap & p_img)
 		is_big_chunk ? VirtualFree(pixels_out, 0, MEM_RELEASE) : free(pixels_out);
 }
 
-void box_blur_filter::blur(const int * in, int * out, int width, int height, int radius)
+void box_blur_filter::blur(const int* in, int* out, int width, int height, int radius)
 {
 	int width_minus_1 = width - 1;
 	int table_size = radius * 2 + 1;
 	int count = table_size * 256;
-	int * divide = reinterpret_cast<int *>(malloc(count * sizeof(int)));
+	int* divide = reinterpret_cast<int *>(malloc(count * sizeof(int)));
 
 	if (!divide) return;
 

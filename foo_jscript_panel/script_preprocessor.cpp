@@ -5,7 +5,7 @@
 #include "popup_msg.h"
 
 
-HRESULT script_preprocessor::process_import(const t_script_info & info, t_script_list & scripts)
+HRESULT script_preprocessor::process_import(const t_script_info& info, t_script_list& scripts)
 {
 	HRESULT hr = S_OK;
 
@@ -16,7 +16,7 @@ HRESULT script_preprocessor::process_import(const t_script_info & info, t_script
 
 	for (t_size i = 0; i < m_directive_value_list.get_count(); ++i)
 	{
-		t_directive_value & val = m_directive_value_list[i];
+		t_directive_value& val = m_directive_value_list[i];
 
 		if (wcscmp(val.directive.get_ptr(), L"import") == 0)
 		{
@@ -43,7 +43,7 @@ HRESULT script_preprocessor::process_import(const t_script_info & info, t_script
 	return hr;
 }
 
-bool script_preprocessor::process_script_info(t_script_info & info)
+bool script_preprocessor::process_script_info(t_script_info& info)
 {
 	bool ret = false;
 
@@ -52,7 +52,7 @@ bool script_preprocessor::process_script_info(t_script_info & info)
 
 	for (t_size i = 0; i < m_directive_value_list.get_count(); ++i)
 	{
-		t_directive_value & v = m_directive_value_list[i];
+		t_directive_value& v = m_directive_value_list[i];
 		expand_var(v.value);
 		pfc::string_simple value = pfc::stringcvt::string_utf8_from_wide(v.value.get_ptr());
 
@@ -83,7 +83,7 @@ bool script_preprocessor::process_script_info(t_script_info & info)
 	return ret;
 }
 
-bool script_preprocessor::preprocess(const wchar_t * script)
+bool script_preprocessor::preprocess(const wchar_t* script)
 {
 	// Haven't introduce a FSM, so yes, these codes below looks really UGLY.
 	int block_begin = 0;
@@ -92,8 +92,8 @@ bool script_preprocessor::preprocess(const wchar_t * script)
 	if (!extract_preprocessor_block(script, block_begin, block_end))
 		return false;
 
-	const wchar_t * p = script + block_begin;
-	const wchar_t * pend = script + block_end;
+	const wchar_t* p = script + block_begin;
+	const wchar_t* pend = script + block_end;
 
 	while (*p && p < pend)
 	{
@@ -126,7 +126,7 @@ bool script_preprocessor::preprocess(const wchar_t * script)
 	return true;
 }
 
-bool script_preprocessor::scan_directive_and_value(const wchar_t *& p, const wchar_t * pend)
+bool script_preprocessor::scan_directive_and_value(const wchar_t*& p, const wchar_t* pend)
 {
 	m_directive_buffer.force_reset();
 
@@ -134,8 +134,8 @@ bool script_preprocessor::scan_directive_and_value(const wchar_t *& p, const wch
 	{
 		++p;
 
-		const wchar_t * pdirective_begin = 0;
-		const wchar_t * pdirective_end = 0;
+		const wchar_t* pdirective_begin = 0;
+		const wchar_t* pdirective_end = 0;
 
 		if (isalpha(*p))
 		{
@@ -162,7 +162,7 @@ bool script_preprocessor::scan_directive_and_value(const wchar_t *& p, const wch
 	return (m_directive_buffer.get_size() > 0 && m_value_buffer.get_size() > 0);
 }
 
-bool script_preprocessor::scan_value(const wchar_t *& p, const wchar_t * pend)
+bool script_preprocessor::scan_value(const wchar_t*& p, const wchar_t* pend)
 {
 	const t_size delta = 32;
 
@@ -178,7 +178,7 @@ bool script_preprocessor::scan_value(const wchar_t *& p, const wchar_t * pend)
 
 		while (*p && (p < pend) && (*p != '\r') && (*p != '\n'))
 		{
-			const wchar_t * p2 = p + 1;
+			const wchar_t* p2 = p + 1;
 
 			// Escape (")
 			if (*p == '"')
@@ -208,28 +208,30 @@ bool script_preprocessor::scan_value(const wchar_t *& p, const wchar_t * pend)
 	return false;
 }
 
-bool script_preprocessor::expand_var(pfc::array_t<wchar_t> & out)
+bool script_preprocessor::expand_var(pfc::array_t<wchar_t>& out)
 {
 	typedef pfc::string8_fast (*t_func)();
 
-	enum {
-		KStateInNormal,
-		KStateInPercent,
-	};
+	enum
+		{
+			KStateInNormal,
+			KStateInPercent,
+		};
 
-	struct {
-		const wchar_t * which;
+	struct
+	{
+		const wchar_t* which;
 		t_func func;
 	} expand_table[] = {
-		{ L"fb2k_path", helpers::get_fb2k_path },
-		{ L"fb2k_component_path", helpers::get_fb2k_component_path },
-		{ L"fb2k_profile_path", helpers::get_profile_path },
+		{L"fb2k_path", helpers::get_fb2k_path},
+		{L"fb2k_component_path", helpers::get_fb2k_component_path},
+		{L"fb2k_profile_path", helpers::get_profile_path},
 	};
 
 	pfc::array_t<wchar_t> buffer;
 
-	wchar_t * pscan = out.get_ptr();
-	const wchar_t * pready = NULL;
+	wchar_t* pscan = out.get_ptr();
+	const wchar_t* pready = NULL;
 	const t_size delta = 32;
 
 	int state = KStateInNormal;
@@ -304,7 +306,7 @@ bool script_preprocessor::expand_var(pfc::array_t<wchar_t> & out)
 	return true;
 }
 
-bool script_preprocessor::extract_preprocessor_block(const wchar_t * script, int & block_begin, int & block_end)
+bool script_preprocessor::extract_preprocessor_block(const wchar_t* script, int& block_begin, int& block_end)
 {
 	block_begin = 0;
 	block_end = 0;
@@ -314,7 +316,7 @@ bool script_preprocessor::extract_preprocessor_block(const wchar_t * script, int
 	const wchar_t preprocessor_begin[] = L"==PREPROCESSOR==";
 	const wchar_t preprocessor_end[] = L"==/PREPROCESSOR==";
 
-	const wchar_t * pblock_begin = wcsstr(script, preprocessor_begin);
+	const wchar_t* pblock_begin = wcsstr(script, preprocessor_begin);
 
 	if (!pblock_begin) return false;
 
@@ -324,7 +326,7 @@ bool script_preprocessor::extract_preprocessor_block(const wchar_t * script, int
 	while (*pblock_begin && (*pblock_begin != '\n'))
 		++pblock_begin;
 
-	const wchar_t * pblock_end = wcsstr(pblock_begin, preprocessor_end);
+	const wchar_t* pblock_end = wcsstr(pblock_begin, preprocessor_end);
 
 	if (!pblock_end) return false;
 
@@ -342,4 +344,3 @@ bool script_preprocessor::extract_preprocessor_block(const wchar_t * script, int
 	block_end = pblock_end - script;
 	return true;
 }
-

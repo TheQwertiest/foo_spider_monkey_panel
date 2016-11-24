@@ -9,17 +9,17 @@
 
 HostComm::HostComm()
 	: m_hwnd(NULL)
-	, m_hdc(NULL)
-	, m_width(0)
-	, m_height(0)
-	, m_gr_bmp(NULL)
-	, m_suppress_drawing(false)
-	, m_paint_pending(false)
-	, m_accuracy(0)
-	, m_instance_type(KInstanceTypeCUI)
-	, m_dlg_code(0)
-	, m_script_info(get_config_guid())
-	, m_panel_tooltip_param_ptr(new panel_tooltip_param)
+	  , m_hdc(NULL)
+	  , m_width(0)
+	  , m_height(0)
+	  , m_gr_bmp(NULL)
+	  , m_suppress_drawing(false)
+	  , m_paint_pending(false)
+	  , m_accuracy(0)
+	  , m_instance_type(KInstanceTypeCUI)
+	  , m_dlg_code(0)
+	  , m_script_info(get_config_guid())
+	  , m_panel_tooltip_param_ptr(new panel_tooltip_param)
 {
 	m_max_size.x = INT_MAX;
 	m_max_size.y = INT_MAX;
@@ -132,7 +132,7 @@ void HostComm::RefreshBackground(LPRECT lprcUpdate /*= NULL*/)
 
 	// Paint BK
 	BitBlt(hdc_bk, rect_child.left, rect_child.top, rect_child.right - rect_child.left, rect_child.bottom - rect_child.top,
-		dc_parent, pt.x, pt.y, SRCCOPY);
+	       dc_parent, pt.x, pt.y, SRCCOPY);
 
 	SelectBitmap(hdc_bk, old_bmp);
 	DeleteDC(hdc_bk);
@@ -145,12 +145,12 @@ void HostComm::RefreshBackground(LPRECT lprcUpdate /*= NULL*/)
 	Repaint(true);
 }
 
-unsigned HostComm::SetTimeout(IDispatch * func, INT delay)
+unsigned HostComm::SetTimeout(IDispatch* func, INT delay)
 {
 	return m_host_timer_dispatcher.setTimeout(delay, func);
 }
 
-unsigned HostComm::SetInterval(IDispatch * func, INT delay)
+unsigned HostComm::SetInterval(IDispatch* func, INT delay)
 {
 	return m_host_timer_dispatcher.setInterval(delay, func);
 }
@@ -160,10 +160,10 @@ void HostComm::ClearIntervalOrTimeout(UINT timerId)
 	m_host_timer_dispatcher.kill(timerId);
 }
 
-IGdiBitmap * HostComm::GetBackgroundImage()
+IGdiBitmap* HostComm::GetBackgroundImage()
 {
-	Gdiplus::Bitmap * bitmap = NULL;
-	IGdiBitmap * ret = NULL;
+	Gdiplus::Bitmap* bitmap = NULL;
+	IGdiBitmap* ret = NULL;
 
 	if (get_pseudo_transparent())
 	{
@@ -181,17 +181,17 @@ IGdiBitmap * HostComm::GetBackgroundImage()
 	return ret;
 }
 
-STDMETHODIMP FbWindow::get_ID(UINT * p)
+STDMETHODIMP FbWindow::get_ID(UINT* p)
 {
 	TRACK_FUNCTION();
 
-	if (!p ) return E_POINTER;
+	if (!p) return E_POINTER;
 
 	*p = (UINT)m_host->GetHWND();
 	return S_OK;
 }
 
-STDMETHODIMP FbWindow::get_Width(INT * p)
+STDMETHODIMP FbWindow::get_Width(INT* p)
 {
 	TRACK_FUNCTION();
 
@@ -201,7 +201,7 @@ STDMETHODIMP FbWindow::get_Width(INT * p)
 	return S_OK;
 }
 
-STDMETHODIMP FbWindow::get_Height(INT * p)
+STDMETHODIMP FbWindow::get_Height(INT* p)
 {
 	TRACK_FUNCTION();
 
@@ -211,7 +211,7 @@ STDMETHODIMP FbWindow::get_Height(INT * p)
 	return S_OK;
 }
 
-STDMETHODIMP FbWindow::get_InstanceType(UINT * p)
+STDMETHODIMP FbWindow::get_InstanceType(UINT* p)
 {
 	TRACK_FUNCTION();
 
@@ -220,7 +220,7 @@ STDMETHODIMP FbWindow::get_InstanceType(UINT * p)
 	return S_OK;
 }
 
-STDMETHODIMP FbWindow::get_MaxWidth(UINT * p)
+STDMETHODIMP FbWindow::get_MaxWidth(UINT* p)
 {
 	TRACK_FUNCTION();
 
@@ -239,7 +239,7 @@ STDMETHODIMP FbWindow::put_MaxWidth(UINT width)
 	return S_OK;
 }
 
-STDMETHODIMP FbWindow::get_MaxHeight(UINT * p)
+STDMETHODIMP FbWindow::get_MaxHeight(UINT* p)
 {
 	TRACK_FUNCTION();
 
@@ -258,7 +258,7 @@ STDMETHODIMP FbWindow::put_MaxHeight(UINT height)
 	return S_OK;
 }
 
-STDMETHODIMP FbWindow::get_MinWidth(UINT * p)
+STDMETHODIMP FbWindow::get_MinWidth(UINT* p)
 {
 	TRACK_FUNCTION();
 
@@ -277,7 +277,7 @@ STDMETHODIMP FbWindow::put_MinWidth(UINT width)
 	return S_OK;
 }
 
-STDMETHODIMP FbWindow::get_MinHeight(UINT * p)
+STDMETHODIMP FbWindow::get_MinHeight(UINT* p)
 {
 	TRACK_FUNCTION();
 
@@ -296,7 +296,7 @@ STDMETHODIMP FbWindow::put_MinHeight(UINT height)
 	return S_OK;
 }
 
-STDMETHODIMP FbWindow::get_DlgCode(UINT * p)
+STDMETHODIMP FbWindow::get_DlgCode(UINT* p)
 {
 	TRACK_FUNCTION();
 
@@ -314,7 +314,7 @@ STDMETHODIMP FbWindow::put_DlgCode(UINT code)
 	return S_OK;
 }
 
-STDMETHODIMP FbWindow::get_IsTransparent(VARIANT_BOOL * p)
+STDMETHODIMP FbWindow::get_IsTransparent(VARIANT_BOOL* p)
 {
 	TRACK_FUNCTION();
 
@@ -324,7 +324,7 @@ STDMETHODIMP FbWindow::get_IsTransparent(VARIANT_BOOL * p)
 	return S_OK;
 }
 
-STDMETHODIMP FbWindow::get_IsVisible(VARIANT_BOOL * p)
+STDMETHODIMP FbWindow::get_IsVisible(VARIANT_BOOL* p)
 {
 	TRACK_FUNCTION();
 
@@ -350,7 +350,7 @@ STDMETHODIMP FbWindow::RepaintRect(UINT x, UINT y, UINT w, UINT h, VARIANT_BOOL 
 	return S_OK;
 }
 
-STDMETHODIMP FbWindow::CreatePopupMenu(IMenuObj ** pp)
+STDMETHODIMP FbWindow::CreatePopupMenu(IMenuObj** pp)
 {
 	TRACK_FUNCTION();
 
@@ -360,7 +360,7 @@ STDMETHODIMP FbWindow::CreatePopupMenu(IMenuObj ** pp)
 	return S_OK;
 }
 
-STDMETHODIMP FbWindow::SetInterval(IDispatch * func, INT delay, UINT * outIntervalID)
+STDMETHODIMP FbWindow::SetInterval(IDispatch* func, INT delay, UINT* outIntervalID)
 {
 	TRACK_FUNCTION();
 	if (!outIntervalID) return E_POINTER;
@@ -375,7 +375,7 @@ STDMETHODIMP FbWindow::ClearInterval(UINT intervalID)
 	return S_OK;
 }
 
-STDMETHODIMP FbWindow::SetTimeout(IDispatch * func, INT delay, UINT * outTimeoutID)
+STDMETHODIMP FbWindow::SetTimeout(IDispatch* func, INT delay, UINT* outTimeoutID)
 {
 	TRACK_FUNCTION();
 	*outTimeoutID = m_host->SetTimeout(func, delay);
@@ -403,18 +403,18 @@ STDMETHODIMP FbWindow::NotifyOthers(BSTR name, VARIANT info)
 
 	if (FAILED(hr)) return hr;
 
-	simple_callback_data_2<_bstr_t, _variant_t> * notify_data
+	simple_callback_data_2<_bstr_t, _variant_t>* notify_data
 		= new simple_callback_data_2<_bstr_t, _variant_t>(name, NULL);
 
 	notify_data->m_item2.Attach(var.Detach());
 
 	panel_manager::instance().send_msg_to_others_pointer(m_host->GetHWND(),
-		CALLBACK_UWM_NOTIFY_DATA, notify_data);
+	                                                     CALLBACK_UWM_NOTIFY_DATA, notify_data);
 
 	return S_OK;
 }
 
-STDMETHODIMP FbWindow::CreateTooltip(BSTR name, float pxSize, INT style, IFbTooltip ** pp)
+STDMETHODIMP FbWindow::CreateTooltip(BSTR name, float pxSize, INT style, IFbTooltip** pp)
 {
 	TRACK_FUNCTION();
 
@@ -444,7 +444,7 @@ STDMETHODIMP FbWindow::ShowProperties()
 	return S_OK;
 }
 
-STDMETHODIMP FbWindow::GetProperty(BSTR name, VARIANT defaultval, VARIANT * p)
+STDMETHODIMP FbWindow::GetProperty(BSTR name, VARIANT defaultval, VARIANT* p)
 {
 	TRACK_FUNCTION();
 
@@ -481,7 +481,7 @@ STDMETHODIMP FbWindow::SetProperty(BSTR name, VARIANT val)
 	return S_OK;
 }
 
-STDMETHODIMP FbWindow::GetBackgroundImage(IGdiBitmap ** pp)
+STDMETHODIMP FbWindow::GetBackgroundImage(IGdiBitmap** pp)
 {
 	TRACK_FUNCTION();
 
@@ -499,7 +499,7 @@ STDMETHODIMP FbWindow::SetCursor(UINT id)
 	return S_OK;
 }
 
-STDMETHODIMP FbWindow::GetColorCUI(UINT type, BSTR guidstr, int * p)
+STDMETHODIMP FbWindow::GetColorCUI(UINT type, BSTR guidstr, int* p)
 {
 	TRACK_FUNCTION();
 
@@ -525,7 +525,7 @@ STDMETHODIMP FbWindow::GetColorCUI(UINT type, BSTR guidstr, int * p)
 	return S_OK;
 }
 
-STDMETHODIMP FbWindow::GetFontCUI(UINT type, BSTR guidstr, IGdiFont ** pp)
+STDMETHODIMP FbWindow::GetFontCUI(UINT type, BSTR guidstr, IGdiFont** pp)
 {
 	TRACK_FUNCTION();
 
@@ -553,7 +553,7 @@ STDMETHODIMP FbWindow::GetFontCUI(UINT type, BSTR guidstr, IGdiFont ** pp)
 
 	if (hFont)
 	{
-		Gdiplus::Font * font = new Gdiplus::Font(m_host->GetHDC(), hFont);
+		Gdiplus::Font* font = new Gdiplus::Font(m_host->GetHDC(), hFont);
 
 		if (!helpers::ensure_gdiplus_object(font))
 		{
@@ -568,7 +568,7 @@ STDMETHODIMP FbWindow::GetFontCUI(UINT type, BSTR guidstr, IGdiFont ** pp)
 	return S_OK;
 }
 
-STDMETHODIMP FbWindow::GetColorDUI(UINT type, int * p)
+STDMETHODIMP FbWindow::GetColorDUI(UINT type, int* p)
 {
 	TRACK_FUNCTION();
 
@@ -579,7 +579,7 @@ STDMETHODIMP FbWindow::GetColorDUI(UINT type, int * p)
 	return S_OK;
 }
 
-STDMETHODIMP FbWindow::GetFontDUI(UINT type, IGdiFont ** pp)
+STDMETHODIMP FbWindow::GetFontDUI(UINT type, IGdiFont** pp)
 {
 	TRACK_FUNCTION();
 
@@ -591,7 +591,7 @@ STDMETHODIMP FbWindow::GetFontDUI(UINT type, IGdiFont ** pp)
 
 	if (hFont)
 	{
-		Gdiplus::Font * font = new Gdiplus::Font(m_host->GetHDC(), hFont);
+		Gdiplus::Font* font = new Gdiplus::Font(m_host->GetHDC(), hFont);
 
 		if (!helpers::ensure_gdiplus_object(font))
 		{
@@ -606,20 +606,20 @@ STDMETHODIMP FbWindow::GetFontDUI(UINT type, IGdiFont ** pp)
 	return S_OK;
 }
 
-STDMETHODIMP FbWindow::CreateThemeManager(BSTR classid, IThemeManager ** pp)
+STDMETHODIMP FbWindow::CreateThemeManager(BSTR classid, IThemeManager** pp)
 {
 	TRACK_FUNCTION();
 
 	if (!classid) return E_INVALIDARG;
 	if (!pp) return E_POINTER;
 
-	IThemeManager * ptheme = NULL;
+	IThemeManager* ptheme = NULL;
 
 	try
 	{
 		ptheme = new com_object_impl_t<ThemeManager>(m_host->GetHWND(), classid);
 	}
-	catch (pfc::exception_invalid_params &)
+	catch (pfc::exception_invalid_params&)
 	{
 		if (ptheme)
 		{
@@ -641,18 +641,18 @@ STDMETHODIMP FbWindow::Reload()
 	return S_OK;
 }
 
-ScriptHost::ScriptHost(HostComm * host)
+ScriptHost::ScriptHost(HostComm* host)
 	: m_host(host)
-	, m_window(new com_object_impl_t<FbWindow, false>(host))
-	, m_gdi(com_object_singleton_t<GdiUtils>::instance())
-	, m_fb2k(com_object_singleton_t<FbUtils>::instance())
-	, m_utils(com_object_singleton_t<JSUtils>::instance())
-	, m_playlistman(com_object_singleton_t<FbPlaylistManager>::instance())
-	, m_dwStartTime(0)
-	, m_dwRef(1)
-	, m_engine_inited(false)
-	, m_has_error(false)
-	, m_lastSourceContext(0)
+	  , m_window(new com_object_impl_t<FbWindow, false>(host))
+	  , m_gdi(com_object_singleton_t<GdiUtils>::instance())
+	  , m_fb2k(com_object_singleton_t<FbUtils>::instance())
+	  , m_utils(com_object_singleton_t<JSUtils>::instance())
+	  , m_playlistman(com_object_singleton_t<FbPlaylistManager>::instance())
+	  , m_dwStartTime(0)
+	  , m_dwRef(1)
+	  , m_engine_inited(false)
+	  , m_has_error(false)
+	  , m_lastSourceContext(0)
 {
 }
 
@@ -677,12 +677,12 @@ STDMETHODIMP_(ULONG) ScriptHost::Release()
 	return n;
 }
 
-STDMETHODIMP ScriptHost::GetLCID(LCID * plcid)
+STDMETHODIMP ScriptHost::GetLCID(LCID* plcid)
 {
 	return E_NOTIMPL;
 }
 
-STDMETHODIMP ScriptHost::GetItemInfo(LPCOLESTR name, DWORD mask, IUnknown ** ppunk, ITypeInfo ** ppti)
+STDMETHODIMP ScriptHost::GetItemInfo(LPCOLESTR name, DWORD mask, IUnknown** ppunk, ITypeInfo** ppti)
 {
 	if (ppti) *ppti = NULL;
 
@@ -728,12 +728,12 @@ STDMETHODIMP ScriptHost::GetItemInfo(LPCOLESTR name, DWORD mask, IUnknown ** ppu
 	return TYPE_E_ELEMENTNOTFOUND;
 }
 
-STDMETHODIMP ScriptHost::GetDocVersionString(BSTR * pstr)
+STDMETHODIMP ScriptHost::GetDocVersionString(BSTR* pstr)
 {
 	return E_NOTIMPL;
 }
 
-STDMETHODIMP ScriptHost::OnScriptTerminate(const VARIANT * result, const EXCEPINFO * excep)
+STDMETHODIMP ScriptHost::OnScriptTerminate(const VARIANT* result, const EXCEPINFO* excep)
 {
 	return E_NOTIMPL;
 }
@@ -743,7 +743,7 @@ STDMETHODIMP ScriptHost::OnStateChange(SCRIPTSTATE state)
 	return E_NOTIMPL;
 }
 
-STDMETHODIMP ScriptHost::OnScriptError(IActiveScriptError * err)
+STDMETHODIMP ScriptHost::OnScriptError(IActiveScriptError* err)
 {
 	m_has_error = true;
 
@@ -764,7 +764,7 @@ STDMETHODIMP ScriptHost::OnLeaveScript()
 	return S_OK;
 }
 
-STDMETHODIMP ScriptHost::GetWindow(HWND *phwnd)
+STDMETHODIMP ScriptHost::GetWindow(HWND* phwnd)
 {
 	*phwnd = m_host->GetHWND();
 
@@ -811,8 +811,9 @@ HRESULT ScriptHost::Initialize()
 	if (SUCCEEDED(hr)) hr = GenerateSourceContext(NULL, wcode, source_context);
 	m_contextToPathMap[source_context] = "<main>";
 
-	if (SUCCEEDED(hr)) hr = parser->ParseScriptText(wcode.get_ptr(), NULL, NULL, NULL,
-		source_context, 0, SCRIPTTEXT_HOSTMANAGESSOURCE | SCRIPTTEXT_ISVISIBLE, NULL, NULL);
+	if (SUCCEEDED(hr))
+		hr = parser->ParseScriptText(wcode.get_ptr(), NULL, NULL, NULL,
+		                             source_context, 0, SCRIPTTEXT_HOSTMANAGESSOURCE | SCRIPTTEXT_ISVISIBLE, NULL, NULL);
 
 	if (SUCCEEDED(hr))
 	{
@@ -828,7 +829,7 @@ HRESULT ScriptHost::Initialize()
 	return hr;
 }
 
-HRESULT ScriptHost::ProcessImportedScripts(script_preprocessor &preprocessor, IActiveScriptParsePtr &parser)
+HRESULT ScriptHost::ProcessImportedScripts(script_preprocessor& preprocessor, IActiveScriptParsePtr& parser)
 {
 	// processing "@import"
 	script_preprocessor::t_script_list scripts;
@@ -843,13 +844,13 @@ HRESULT ScriptHost::ProcessImportedScripts(script_preprocessor &preprocessor, IA
 
 		m_contextToPathMap[source_context] = pfc::stringcvt::string_utf8_from_wide(scripts[i].path.get_ptr());
 		hr = parser->ParseScriptText(scripts[i].code.get_ptr(), NULL, NULL, NULL,
-			source_context, 0, SCRIPTTEXT_HOSTMANAGESSOURCE | SCRIPTTEXT_ISVISIBLE, NULL, NULL);
+		                             source_context, 0, SCRIPTTEXT_HOSTMANAGESSOURCE | SCRIPTTEXT_ISVISIBLE, NULL, NULL);
 	}
 
 	return hr;
 }
 
-HRESULT ScriptHost::InitScriptEngineByName(const wchar_t * engineName)
+HRESULT ScriptHost::InitScriptEngineByName(const wchar_t* engineName)
 {
 	HRESULT hr = E_FAIL;
 	const DWORD classContext = CLSCTX_INPROC_SERVER | CLSCTX_INPROC_HANDLER;
@@ -859,7 +860,7 @@ HRESULT ScriptHost::InitScriptEngineByName(const wchar_t * engineName)
 		// Try using JScript9 from IE9
 		// {16d51579-a30b-4c8b-a276-0ff4dc41e755}
 		static const CLSID jscript9clsid =
-		{0x16d51579, 0xa30b, 0x4c8b, {0xa2, 0x76, 0x0f, 0xf4, 0xdc, 0x41, 0xe7, 0x55 } };
+			{0x16d51579, 0xa30b, 0x4c8b, {0xa2, 0x76, 0x0f, 0xf4, 0xdc, 0x41, 0xe7, 0x55}};
 
 		if (FAILED(hr = m_script_engine.CreateInstance(jscript9clsid, NULL, classContext)))
 		{
@@ -879,8 +880,8 @@ HRESULT ScriptHost::InitScriptEngineByName(const wchar_t * engineName)
 	}
 
 	// In order to support new features after JScript 5.8
-	IActiveScriptProperty *pActScriProp = NULL;
-		
+	IActiveScriptProperty* pActScriProp = NULL;
+
 	if (SUCCEEDED(m_script_engine->QueryInterface(IID_IActiveScriptProperty, (void **)&pActScriProp)))
 	{
 		VARIANT scriptLangVersion;
@@ -900,7 +901,7 @@ void ScriptHost::Finalize()
 	if (Ready())
 	{
 		// Call GC explicitly
-		IActiveScriptGarbageCollector * gc = NULL;
+		IActiveScriptGarbageCollector* gc = NULL;
 		if (SUCCEEDED(m_script_engine->QueryInterface(IID_IActiveScriptGarbageCollector, (void **)&gc)))
 		{
 			gc->CollectGarbage(SCRIPTGCTYPE_EXHAUSTIVE);
@@ -928,44 +929,44 @@ void ScriptHost::Finalize()
 	}
 }
 
-HRESULT ScriptHost::InvokeCallback(int callbackId, VARIANTARG * argv /*= NULL*/, UINT argc /*= 0*/, VARIANT * ret /*= NULL*/)
+HRESULT ScriptHost::InvokeCallback(int callbackId, VARIANTARG* argv /*= NULL*/, UINT argc /*= 0*/, VARIANT* ret /*= NULL*/)
 {
 	if (HasError()) return E_FAIL;
 	if (!Ready()) return E_FAIL;
-	
+
 	HRESULT hr = E_FAIL;
 
 	try
 	{
 		hr = m_callback_invoker.invoke(callbackId, argv, argc, ret);
 	}
-	catch (std::exception & e)
+	catch (std::exception& e)
 	{
 		pfc::print_guid guid(m_host->get_config_guid());
 		console::printf(JSP_NAME " (%s): Unhandled C++ Exception: \"%s\", will crash now...",
-			m_host->ScriptInfo().build_info_string().get_ptr(), e.what());
+		                        m_host->ScriptInfo().build_info_string().get_ptr(), e.what());
 		PRINT_DISPATCH_TRACK_MESSAGE_AND_BREAK();
 	}
-	catch (_com_error & e)
+	catch (_com_error& e)
 	{
 		pfc::print_guid guid(m_host->get_config_guid());
 		console::printf(JSP_NAME " (%s): Unhandled COM Error: \"%s\", will crash now...",
-			m_host->ScriptInfo().build_info_string().get_ptr(),
-			pfc::stringcvt::string_utf8_from_wide(e.ErrorMessage()).get_ptr());
+		                        m_host->ScriptInfo().build_info_string().get_ptr(),
+		                        pfc::stringcvt::string_utf8_from_wide(e.ErrorMessage()).get_ptr());
 		PRINT_DISPATCH_TRACK_MESSAGE_AND_BREAK();
 	}
 	catch (...)
 	{
 		pfc::print_guid guid(m_host->get_config_guid());
 		console::printf(JSP_NAME " (%s): Unhandled Unknown Exception, will crash now...",
-			m_host->ScriptInfo().build_info_string().get_ptr());
+		                        m_host->ScriptInfo().build_info_string().get_ptr());
 		PRINT_DISPATCH_TRACK_MESSAGE_AND_BREAK();
 	}
 
 	return hr;
 }
 
-HRESULT ScriptHost::GenerateSourceContext(const wchar_t * path, const wchar_t * code, DWORD & source_context)
+HRESULT ScriptHost::GenerateSourceContext(const wchar_t* path, const wchar_t* code, DWORD& source_context)
 {
 	pfc::stringcvt::string_wide_from_utf8_fast name, guidString;
 	HRESULT hr = S_OK;
@@ -979,20 +980,20 @@ HRESULT ScriptHost::GenerateSourceContext(const wchar_t * path, const wchar_t * 
 			name.convert(m_host->ScriptInfo().name);
 
 		guidString.convert(pfc::print_guid(m_host->GetGUID()));
-	}	
+	}
 
 	source_context = m_lastSourceContext++;
 	return hr;
 }
 
-void ScriptHost::ReportError(IActiveScriptError * err)
+void ScriptHost::ReportError(IActiveScriptError* err)
 {
 	if (!err) return;
 
 	DWORD ctx = 0;
 	ULONG line = 0;
 	LONG charpos = 0;
-	EXCEPINFO excep = { 0 };
+	EXCEPINFO excep = {0};
 	//WCHAR buf[512] = { 0 };
 	_bstr_t sourceline;
 	_bstr_t name;
@@ -1043,13 +1044,12 @@ void ScriptHost::ReportError(IActiveScriptError * err)
 	formatter << string_utf8_from_wide(sourceline);
 	if (name.length() > 0) formatter << "\nAt: " << name;
 
-	if (excep.bstrSource)      SysFreeString(excep.bstrSource);
+	if (excep.bstrSource) SysFreeString(excep.bstrSource);
 	if (excep.bstrDescription) SysFreeString(excep.bstrDescription);
-	if (excep.bstrHelpFile)    SysFreeString(excep.bstrHelpFile);
+	if (excep.bstrHelpFile) SysFreeString(excep.bstrHelpFile);
 
 	console::error(formatter);
 	popup_msg::g_show(formatter, JSP_NAME, popup_message::icon_error);
 	MessageBeep(MB_ICONASTERISK);
 	SendMessage(m_host->GetHWND(), UWM_SCRIPT_ERROR, 0, 0);
 }
-

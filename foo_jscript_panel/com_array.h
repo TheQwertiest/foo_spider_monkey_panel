@@ -12,7 +12,7 @@ namespace helpers
 			reset();
 		}
 
-		com_array_reader(VARIANT * pVarSrc) : m_psa(NULL)
+		com_array_reader(VARIANT* pVarSrc) : m_psa(NULL)
 		{
 			convert(pVarSrc);
 		}
@@ -22,7 +22,7 @@ namespace helpers
 			reset();
 		}
 
-		SAFEARRAY * get_ptr()
+		SAFEARRAY* get_ptr()
 		{
 			return m_psa;
 		}
@@ -42,7 +42,7 @@ namespace helpers
 			return get_ubound() - get_lbound() + 1;
 		}
 
-		bool get_item(long idx, VARIANT & dest)
+		bool get_item(long idx, VARIANT& dest)
 		{
 			if (!m_psa) return false;
 			if (idx < m_lbound || idx > m_ubound) return false;
@@ -62,7 +62,7 @@ namespace helpers
 			return var;
 		}
 
-		bool convert(VARIANT * pVarSrc);
+		bool convert(VARIANT* pVarSrc);
 
 		void reset()
 		{
@@ -78,8 +78,8 @@ namespace helpers
 
 	private:
 		void calc_bound();
-		bool convert_jsarray(IDispatch * pdisp);
-		SAFEARRAY * m_psa;
+		bool convert_jsarray(IDispatch* pdisp);
+		SAFEARRAY* m_psa;
 		long m_lbound, m_ubound;
 	};
 
@@ -101,7 +101,7 @@ namespace helpers
 			}
 		}
 
-		SAFEARRAY * get_ptr()
+		SAFEARRAY* get_ptr()
 		{
 			return m_psa;
 		}
@@ -120,7 +120,7 @@ namespace helpers
 			return (m_psa != NULL);
 		}
 
-		HRESULT put(long idx, VARIANT & pVar)
+		HRESULT put(long idx, VARIANT& pVar)
 		{
 			if (idx >= m_count) return E_INVALIDARG;
 			if (!m_psa) return E_POINTER;
@@ -141,14 +141,14 @@ namespace helpers
 		}
 
 	private:
-		SAFEARRAY * m_psa;
+		SAFEARRAY* m_psa;
 		long m_count;
 	};
 
 	class com_array_to_bitarray
 	{
 	public:
-		static bool convert(VARIANT items, unsigned bitArrayCount, bit_array_bittable & out, bool & empty)
+		static bool convert(VARIANT items, unsigned bitArrayCount, bit_array_bittable& out, bool& empty)
 		{
 			helpers::com_array_reader arrayReader;
 			empty = false;

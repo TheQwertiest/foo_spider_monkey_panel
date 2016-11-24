@@ -5,7 +5,7 @@
 
 struct NameToValueTable
 {
-	const wchar_t * name;
+	const wchar_t* name;
 	unsigned value;
 };
 
@@ -14,10 +14,9 @@ _COM_SMARTPTR_TYPEDEF(IDragSourceHelper, IID_IDragSourceHelper);
 
 DataTransferObject::DataTransferObject() : m_dropEffect(DROPEFFECT_MOVE), m_effectAllowed(~0)
 {
-
 }
 
-STDMETHODIMP DataTransferObject::get_DropEffect(BSTR * outDropEffect)
+STDMETHODIMP DataTransferObject::get_DropEffect(BSTR* outDropEffect)
 {
 	TRACK_FUNCTION();
 
@@ -51,10 +50,10 @@ STDMETHODIMP DataTransferObject::put_DropEffect(BSTR dropEffect)
 
 	const NameToValueTable dropEffectTable[] =
 	{
-		{ L"copy", DROPEFFECT_COPY },
-		{ L"link", DROPEFFECT_LINK },
-		{ L"move", DROPEFFECT_MOVE },
-		{ L"none", DROPEFFECT_NONE },
+		{L"copy", DROPEFFECT_COPY},
+		{L"link", DROPEFFECT_LINK},
+		{L"move", DROPEFFECT_MOVE},
+		{L"none", DROPEFFECT_NONE},
 	};
 
 	for (int i = 0; i < _countof(dropEffectTable); i++)
@@ -69,7 +68,7 @@ STDMETHODIMP DataTransferObject::put_DropEffect(BSTR dropEffect)
 	return E_INVALIDARG;
 }
 
-STDMETHODIMP DataTransferObject::get_EffectAllowed(BSTR * outEffectAllowed)
+STDMETHODIMP DataTransferObject::get_EffectAllowed(BSTR* outEffectAllowed)
 {
 	TRACK_FUNCTION();
 
@@ -114,14 +113,14 @@ STDMETHODIMP DataTransferObject::put_EffectAllowed(BSTR effectAllowed)
 	if (!effectAllowed) return E_INVALIDARG;
 
 	const NameToValueTable effectAllowedTable[] = {
-		{ L"copy", DROPEFFECT_COPY },
-		{ L"link", DROPEFFECT_LINK },
-		{ L"move", DROPEFFECT_MOVE },
-		{ L"copyLink", DROPEFFECT_COPY | DROPEFFECT_LINK },
-		{ L"copyMove", DROPEFFECT_COPY | DROPEFFECT_MOVE },
-		{ L"linkMove", DROPEFFECT_LINK | DROPEFFECT_MOVE },
-		{ L"all", ~0},
-		{ L"none", DROPEFFECT_NONE},
+		{L"copy", DROPEFFECT_COPY},
+		{L"link", DROPEFFECT_LINK},
+		{L"move", DROPEFFECT_MOVE},
+		{L"copyLink", DROPEFFECT_COPY | DROPEFFECT_LINK},
+		{L"copyMove", DROPEFFECT_COPY | DROPEFFECT_MOVE},
+		{L"linkMove", DROPEFFECT_LINK | DROPEFFECT_MOVE},
+		{L"all", ~0},
+		{L"none", DROPEFFECT_NONE},
 	};
 
 	for (int i = 0; i < _countof(effectAllowedTable); i++)
@@ -136,11 +135,11 @@ STDMETHODIMP DataTransferObject::put_EffectAllowed(BSTR effectAllowed)
 	return E_INVALIDARG;
 }
 
-STDMETHODIMP DataTransferObject::get_Types(VARIANT * outTypes)
+STDMETHODIMP DataTransferObject::get_Types(VARIANT* outTypes)
 {
 	TRACK_FUNCTION();
 
-	if(!outTypes) return E_POINTER;
+	if (!outTypes) return E_POINTER;
 	return S_OK;
 }
 
@@ -160,7 +159,7 @@ STDMETHODIMP DataTransferObject::SetData(BSTR type, BSTR data)
 	return S_OK;
 }
 
-STDMETHODIMP DataTransferObject::GetData(BSTR type, VARIANT * outData)
+STDMETHODIMP DataTransferObject::GetData(BSTR type, VARIANT* outData)
 {
 	TRACK_FUNCTION();
 
@@ -169,7 +168,7 @@ STDMETHODIMP DataTransferObject::GetData(BSTR type, VARIANT * outData)
 	return S_OK;
 }
 
-STDMETHODIMP DataTransferObject::GetMetadbHandles(IDispatch * callback)
+STDMETHODIMP DataTransferObject::GetMetadbHandles(IDispatch* callback)
 {
 	TRACK_FUNCTION();
 
@@ -180,7 +179,7 @@ STDMETHODIMP DataTransferObject::GetMetadbHandles(IDispatch * callback)
 	return S_OK;
 }
 
-STDMETHODIMP DataTransferObject::SetDragImage(__interface IGdiBitmap * bitmap, int x, int y)
+STDMETHODIMP DataTransferObject::SetDragImage(__interface IGdiBitmap* bitmap, int x, int y)
 {
 	TRACK_FUNCTION();
 
@@ -189,7 +188,7 @@ STDMETHODIMP DataTransferObject::SetDragImage(__interface IGdiBitmap * bitmap, i
 	IDragSourceHelperPtr dragSourceHelper;
 	if (dragSourceHelper.CreateInstance(CLSID_DragDropHelper, NULL, CLSCTX_INPROC_SERVER) && dragSourceHelper)
 	{
-		Gdiplus::Bitmap * pBitmap = NULL;
+		Gdiplus::Bitmap* pBitmap = NULL;
 		HBITMAP hBitmap = NULL;
 		bitmap->get__ptr((void**)&pBitmap);
 		if (!pBitmap) return E_INVALIDARG;
@@ -198,12 +197,12 @@ STDMETHODIMP DataTransferObject::SetDragImage(__interface IGdiBitmap * bitmap, i
 		if (!hBitmap) return E_INVALIDARG;
 
 		SHDRAGIMAGE sdi;
-		sdi.crColorKey          = 0xffffffff;
-		sdi.hbmpDragImage       = hBitmap;
-		sdi.ptOffset.x          = x;
-		sdi.ptOffset.y          = y;
-		sdi.sizeDragImage.cx    = pBitmap->GetWidth();
-		sdi.sizeDragImage.cy    = pBitmap->GetHeight();
+		sdi.crColorKey = 0xffffffff;
+		sdi.hbmpDragImage = hBitmap;
+		sdi.ptOffset.x = x;
+		sdi.ptOffset.y = y;
+		sdi.sizeDragImage.cx = pBitmap->GetWidth();
+		sdi.sizeDragImage.cy = pBitmap->GetHeight();
 
 		dragSourceHelper->InitializeFromBitmap(&sdi, m_dataObject);
 	}

@@ -25,7 +25,7 @@ bool is_expired(const char * date)
 	time_t start = mktime(&t);
 	time_t end = time(NULL);
 
-	// expire in ~15 days
+// expire in ~15 days
 	const double secs = 15 * 60 * 60 * 24;
 	return (difftime(end, start) > secs);
 }

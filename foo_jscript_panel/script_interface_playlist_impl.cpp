@@ -5,11 +5,11 @@
 #include "com_array.h"
 #include "process_locations.h"
 
-STDMETHODIMP FbPlaylistManager::AddItemToPlaybackQueue(IFbMetadbHandle * handle)
+STDMETHODIMP FbPlaylistManager::AddItemToPlaybackQueue(IFbMetadbHandle* handle)
 {
 	TRACK_FUNCTION();
 
-	metadb_handle * ptrHandle = NULL;
+	metadb_handle* ptrHandle = NULL;
 	handle->get__ptr((void **)&ptrHandle);
 	if (!ptrHandle) return E_INVALIDARG;
 
@@ -20,7 +20,7 @@ STDMETHODIMP FbPlaylistManager::AddItemToPlaybackQueue(IFbMetadbHandle * handle)
 STDMETHODIMP FbPlaylistManager::AddLocations(UINT playlistIndex, VARIANT locations, VARIANT_BOOL select)
 {
 	TRACK_FUNCTION();
-	
+
 	bool toSelect = (select == VARIANT_TRUE);
 	helpers::com_array_reader helper;
 
@@ -38,7 +38,7 @@ STDMETHODIMP FbPlaylistManager::AddLocations(UINT playlistIndex, VARIANT locatio
 		locations2.add_item(pfc::string8(pfc::stringcvt::string_utf8_from_wide(varUrl.bstrVal)));
 	}
 
-	pfc::list_const_array_t<const char*, pfc::list_t<pfc::string8> > locations3(locations2, locations2.get_count());
+	pfc::list_const_array_t<const char*, pfc::list_t<pfc::string8>> locations3(locations2, locations2.get_count());
 
 	static_api_ptr_t<playlist_incoming_item_filter_v2>()->process_locations_async(
 		locations3,
@@ -75,7 +75,7 @@ STDMETHODIMP FbPlaylistManager::ClearPlaylistSelection(UINT playlistIndex)
 	return S_OK;
 }
 
-STDMETHODIMP FbPlaylistManager::CreateAutoPlaylist(UINT idx, BSTR name, BSTR query, BSTR sort, UINT flags, UINT * p)
+STDMETHODIMP FbPlaylistManager::CreateAutoPlaylist(UINT idx, BSTR name, BSTR query, BSTR sort, UINT flags, UINT* p)
 {
 	TRACK_FUNCTION();
 
@@ -103,7 +103,7 @@ STDMETHODIMP FbPlaylistManager::CreateAutoPlaylist(UINT idx, BSTR name, BSTR que
 	return S_OK;
 }
 
-STDMETHODIMP FbPlaylistManager::CreatePlaybackQueueItem(IFbPlaybackQueueItem ** outPlaybackQueueItem)
+STDMETHODIMP FbPlaylistManager::CreatePlaybackQueueItem(IFbPlaybackQueueItem** outPlaybackQueueItem)
 {
 	TRACK_FUNCTION();
 
@@ -113,7 +113,7 @@ STDMETHODIMP FbPlaylistManager::CreatePlaybackQueueItem(IFbPlaybackQueueItem ** 
 	return S_OK;
 }
 
-STDMETHODIMP FbPlaylistManager::CreatePlaylist(UINT playlistIndex, BSTR name, UINT * outPlaylistIndex)
+STDMETHODIMP FbPlaylistManager::CreatePlaylist(UINT playlistIndex, BSTR name, UINT* outPlaylistIndex)
 {
 	TRACK_FUNCTION();
 
@@ -134,7 +134,7 @@ STDMETHODIMP FbPlaylistManager::CreatePlaylist(UINT playlistIndex, BSTR name, UI
 	return S_OK;
 }
 
-STDMETHODIMP FbPlaylistManager::DuplicatePlaylist(UINT from, BSTR name, UINT * outPlaylistIndex)
+STDMETHODIMP FbPlaylistManager::DuplicatePlaylist(UINT from, BSTR name, UINT* outPlaylistIndex)
 {
 	TRACK_FUNCTION();
 
@@ -149,7 +149,7 @@ STDMETHODIMP FbPlaylistManager::DuplicatePlaylist(UINT from, BSTR name, UINT * o
 	manager->playlist_get_all_items(from, contents);
 
 	if (!name || !*name)
-		// If no name specified, create a playlistIndex which will have the same name
+	// If no name specified, create a playlistIndex which will have the same name
 		manager->playlist_get_name(from, name_utf8);
 	else
 		name_utf8 = pfc::stringcvt::string_utf8_from_wide(name);
@@ -170,7 +170,7 @@ STDMETHODIMP FbPlaylistManager::EnsurePlaylistItemVisible(UINT playlistIndex, UI
 	return S_OK;
 }
 
-STDMETHODIMP FbPlaylistManager::ExecutePlaylistDefaultAction(UINT playlistIndex, UINT playlistItemIndex, VARIANT_BOOL * outSuccess)
+STDMETHODIMP FbPlaylistManager::ExecutePlaylistDefaultAction(UINT playlistIndex, UINT playlistItemIndex, VARIANT_BOOL* outSuccess)
 {
 	TRACK_FUNCTION();
 
@@ -180,14 +180,14 @@ STDMETHODIMP FbPlaylistManager::ExecutePlaylistDefaultAction(UINT playlistIndex,
 	return S_OK;
 }
 
-STDMETHODIMP FbPlaylistManager::FindPlaybackQueueItemIndex(IFbMetadbHandle * handle, UINT playlistIndex, UINT playlistItemIndex, INT * outIndex)
+STDMETHODIMP FbPlaylistManager::FindPlaybackQueueItemIndex(IFbMetadbHandle* handle, UINT playlistIndex, UINT playlistItemIndex, INT* outIndex)
 {
 	TRACK_FUNCTION();
 
 	if (!outIndex) return E_POINTER;
 	if (!handle) return E_INVALIDARG;
 
-	metadb_handle * ptrHandle = NULL;
+	metadb_handle* ptrHandle = NULL;
 	handle->get__ptr((void **)&ptrHandle);
 
 	t_playback_queue_item item;
@@ -206,7 +206,7 @@ STDMETHODIMP FbPlaylistManager::FlushPlaybackQueue()
 	return S_OK;
 }
 
-STDMETHODIMP FbPlaylistManager::GetPlaybackQueueContents(VARIANT * outContents)
+STDMETHODIMP FbPlaylistManager::GetPlaybackQueueContents(VARIANT* outContents)
 {
 	TRACK_FUNCTION();
 
@@ -216,7 +216,7 @@ STDMETHODIMP FbPlaylistManager::GetPlaybackQueueContents(VARIANT * outContents)
 	helpers::com_array_writer<> arrayWriter;
 
 	static_api_ptr_t<playlist_manager>()->queue_get_contents(contents);
-	
+
 	if (!arrayWriter.create(contents.get_count()))
 	{
 		return E_OUTOFMEMORY;
@@ -241,7 +241,7 @@ STDMETHODIMP FbPlaylistManager::GetPlaybackQueueContents(VARIANT * outContents)
 	return S_OK;
 }
 
-STDMETHODIMP FbPlaylistManager::GetPlaybackQueueCount(UINT * outCount)
+STDMETHODIMP FbPlaylistManager::GetPlaybackQueueCount(UINT* outCount)
 {
 	TRACK_FUNCTION();
 
@@ -251,7 +251,7 @@ STDMETHODIMP FbPlaylistManager::GetPlaybackQueueCount(UINT * outCount)
 	return S_OK;
 }
 
-STDMETHODIMP FbPlaylistManager::GetPlayingItemLocation(IFbPlayingItemLocation ** outPlayingLocation)
+STDMETHODIMP FbPlaylistManager::GetPlayingItemLocation(IFbPlayingItemLocation** outPlayingLocation)
 {
 	TRACK_FUNCTION();
 
@@ -264,7 +264,7 @@ STDMETHODIMP FbPlaylistManager::GetPlayingItemLocation(IFbPlayingItemLocation **
 	return S_OK;
 }
 
-STDMETHODIMP FbPlaylistManager::GetPlaylistFocusItemIndex(UINT playlistIndex, INT * outPlaylistItemIndex)
+STDMETHODIMP FbPlaylistManager::GetPlaylistFocusItemIndex(UINT playlistIndex, INT* outPlaylistItemIndex)
 {
 	TRACK_FUNCTION();
 
@@ -273,7 +273,7 @@ STDMETHODIMP FbPlaylistManager::GetPlaylistFocusItemIndex(UINT playlistIndex, IN
 	return S_OK;
 }
 
-STDMETHODIMP FbPlaylistManager::GetPlaylistItems(UINT playlistIndex, IFbMetadbHandleList ** outItems)
+STDMETHODIMP FbPlaylistManager::GetPlaylistItems(UINT playlistIndex, IFbMetadbHandleList** outItems)
 {
 	TRACK_FUNCTION();
 
@@ -285,7 +285,7 @@ STDMETHODIMP FbPlaylistManager::GetPlaylistItems(UINT playlistIndex, IFbMetadbHa
 	return S_OK;
 }
 
-STDMETHODIMP FbPlaylistManager::GetPlaylistName(UINT playlistIndex, BSTR * outName)
+STDMETHODIMP FbPlaylistManager::GetPlaylistName(UINT playlistIndex, BSTR* outName)
 {
 	TRACK_FUNCTION();
 
@@ -298,7 +298,7 @@ STDMETHODIMP FbPlaylistManager::GetPlaylistName(UINT playlistIndex, BSTR * outNa
 	return S_OK;
 }
 
-STDMETHODIMP FbPlaylistManager::GetPlaylistSelectedItems(UINT playlistIndex, IFbMetadbHandleList ** outItems)
+STDMETHODIMP FbPlaylistManager::GetPlaylistSelectedItems(UINT playlistIndex, IFbMetadbHandleList** outItems)
 {
 	TRACK_FUNCTION();
 
@@ -310,14 +310,14 @@ STDMETHODIMP FbPlaylistManager::GetPlaylistSelectedItems(UINT playlistIndex, IFb
 	return S_OK;
 }
 
-STDMETHODIMP FbPlaylistManager::InsertPlaylistItems(UINT playlistIndex, UINT base, IFbMetadbHandleList * handles, VARIANT_BOOL select, UINT * outSize)
+STDMETHODIMP FbPlaylistManager::InsertPlaylistItems(UINT playlistIndex, UINT base, IFbMetadbHandleList* handles, VARIANT_BOOL select, UINT* outSize)
 {
 	TRACK_FUNCTION();
-	
+
 	if (!outSize) return E_POINTER;
 	if (!handles) return E_INVALIDARG;
-	
-	metadb_handle_list * metadbHandles = NULL;
+
+	metadb_handle_list* metadbHandles = NULL;
 	handles->get__ptr((void**)&metadbHandles);
 	if (!metadbHandles) return E_INVALIDARG;
 
@@ -326,14 +326,14 @@ STDMETHODIMP FbPlaylistManager::InsertPlaylistItems(UINT playlistIndex, UINT bas
 	return S_OK;
 }
 
-STDMETHODIMP FbPlaylistManager::InsertPlaylistItemsFilter(UINT playlistIndex, UINT base, IFbMetadbHandleList * handles, VARIANT_BOOL select, UINT * outSize)
+STDMETHODIMP FbPlaylistManager::InsertPlaylistItemsFilter(UINT playlistIndex, UINT base, IFbMetadbHandleList* handles, VARIANT_BOOL select, UINT* outSize)
 {
 	TRACK_FUNCTION();
 
 	if (!outSize) return E_POINTER;
 	if (!handles) return E_INVALIDARG;
 
-	metadb_handle_list * metadbHandles = NULL;
+	metadb_handle_list* metadbHandles = NULL;
 	handles->get__ptr((void**)&metadbHandles);
 	if (!metadbHandles) return E_INVALIDARG;
 
@@ -341,7 +341,7 @@ STDMETHODIMP FbPlaylistManager::InsertPlaylistItemsFilter(UINT playlistIndex, UI
 	return S_OK;
 }
 
-STDMETHODIMP FbPlaylistManager::IsAutoPlaylist(UINT idx, VARIANT_BOOL * p)
+STDMETHODIMP FbPlaylistManager::IsAutoPlaylist(UINT idx, VARIANT_BOOL* p)
 {
 	TRACK_FUNCTION();
 
@@ -359,7 +359,7 @@ STDMETHODIMP FbPlaylistManager::IsAutoPlaylist(UINT idx, VARIANT_BOOL * p)
 	return S_OK;
 }
 
-STDMETHODIMP FbPlaylistManager::IsPlaybackQueueActive(VARIANT_BOOL * outIsActive)
+STDMETHODIMP FbPlaylistManager::IsPlaybackQueueActive(VARIANT_BOOL* outIsActive)
 {
 	TRACK_FUNCTION();
 
@@ -369,7 +369,7 @@ STDMETHODIMP FbPlaylistManager::IsPlaybackQueueActive(VARIANT_BOOL * outIsActive
 	return S_OK;
 }
 
-STDMETHODIMP FbPlaylistManager::IsPlaylistItemSelected(UINT playlistIndex, UINT playlistItemIndex, UINT * outSelected)
+STDMETHODIMP FbPlaylistManager::IsPlaylistItemSelected(UINT playlistIndex, UINT playlistItemIndex, UINT* outSelected)
 {
 	TRACK_FUNCTION();
 
@@ -379,7 +379,7 @@ STDMETHODIMP FbPlaylistManager::IsPlaylistItemSelected(UINT playlistIndex, UINT 
 	return S_OK;
 }
 
-STDMETHODIMP FbPlaylistManager::IsPlaylistLocked(UINT playlistIndex, VARIANT_BOOL * p)
+STDMETHODIMP FbPlaylistManager::IsPlaylistLocked(UINT playlistIndex, VARIANT_BOOL* p)
 {
 	TRACK_FUNCTION();
 
@@ -389,7 +389,7 @@ STDMETHODIMP FbPlaylistManager::IsPlaylistLocked(UINT playlistIndex, VARIANT_BOO
 	return S_OK;
 }
 
-STDMETHODIMP FbPlaylistManager::MovePlaylist(UINT from, UINT to, VARIANT_BOOL * outSuccess)
+STDMETHODIMP FbPlaylistManager::MovePlaylist(UINT from, UINT to, VARIANT_BOOL* outSuccess)
 {
 	TRACK_FUNCTION();
 
@@ -449,7 +449,7 @@ STDMETHODIMP FbPlaylistManager::RemoveItemsFromPlaybackQueue(VARIANT affectedIte
 	return S_OK;
 }
 
-STDMETHODIMP FbPlaylistManager::RemovePlaylist(UINT playlistIndex, VARIANT_BOOL * outSuccess)
+STDMETHODIMP FbPlaylistManager::RemovePlaylist(UINT playlistIndex, VARIANT_BOOL* outSuccess)
 {
 	TRACK_FUNCTION();
 
@@ -467,7 +467,7 @@ STDMETHODIMP FbPlaylistManager::RemovePlaylistSelection(UINT playlistIndex, VARI
 	return S_OK;
 }
 
-STDMETHODIMP FbPlaylistManager::RenamePlaylist(UINT playlistIndex, BSTR name, VARIANT_BOOL * outSuccess)
+STDMETHODIMP FbPlaylistManager::RenamePlaylist(UINT playlistIndex, BSTR name, VARIANT_BOOL* outSuccess)
 {
 	TRACK_FUNCTION();
 
@@ -496,13 +496,13 @@ STDMETHODIMP FbPlaylistManager::SetPlaylistFocusItem(UINT playlistIndex, UINT it
 	return S_OK;
 }
 
-STDMETHODIMP FbPlaylistManager::SetPlaylistFocusItemByHandle(UINT playlistIndex, IFbMetadbHandle * item)
+STDMETHODIMP FbPlaylistManager::SetPlaylistFocusItemByHandle(UINT playlistIndex, IFbMetadbHandle* item)
 {
 	TRACK_FUNCTION();
 
 	if (!item) return E_INVALIDARG;
 
-	metadb_handle * ptr = NULL;
+	metadb_handle* ptr = NULL;
 	item->get__ptr((void**)&ptr);
 
 	static_api_ptr_t<playlist_manager>()->playlist_set_focus_by_handle(playlistIndex, ptr);
@@ -534,7 +534,7 @@ STDMETHODIMP FbPlaylistManager::SetPlaylistSelectionSingle(UINT playlistIndex, U
 	return S_OK;
 }
 
-STDMETHODIMP FbPlaylistManager::ShowAutoPlaylistUI(UINT idx, VARIANT_BOOL * p)
+STDMETHODIMP FbPlaylistManager::ShowAutoPlaylistUI(UINT idx, VARIANT_BOOL* p)
 {
 	TRACK_FUNCTION();
 
@@ -557,7 +557,7 @@ STDMETHODIMP FbPlaylistManager::ShowAutoPlaylistUI(UINT idx, VARIANT_BOOL * p)
 	return S_OK;
 }
 
-STDMETHODIMP FbPlaylistManager::SortByFormat(UINT playlistIndex, BSTR pattern, VARIANT_BOOL selOnly, VARIANT_BOOL * outSuccess)
+STDMETHODIMP FbPlaylistManager::SortByFormat(UINT playlistIndex, BSTR pattern, VARIANT_BOOL selOnly, VARIANT_BOOL* outSuccess)
 {
 	TRACK_FUNCTION();
 
@@ -566,7 +566,7 @@ STDMETHODIMP FbPlaylistManager::SortByFormat(UINT playlistIndex, BSTR pattern, V
 
 	bool sel_only = (selOnly == VARIANT_TRUE);
 	pfc::stringcvt::string_utf8_from_wide string_conv;
-	const char * pattern_ptr = NULL;
+	const char* pattern_ptr = NULL;
 
 	if (*pattern)
 	{
@@ -579,7 +579,7 @@ STDMETHODIMP FbPlaylistManager::SortByFormat(UINT playlistIndex, BSTR pattern, V
 	return S_OK;
 }
 
-STDMETHODIMP FbPlaylistManager::SortByFormatV2(UINT playlistIndex, BSTR pattern, INT direction, VARIANT_BOOL * outSuccess)
+STDMETHODIMP FbPlaylistManager::SortByFormatV2(UINT playlistIndex, BSTR pattern, INT direction, VARIANT_BOOL* outSuccess)
 {
 	TRACK_FUNCTION();
 
@@ -627,7 +627,7 @@ STDMETHODIMP FbPlaylistManager::UndoRestore(UINT playlistIndex)
 	return S_OK;
 }
 
-STDMETHODIMP FbPlaylistManager::get_ActivePlaylist(UINT * outPlaylistIndex)
+STDMETHODIMP FbPlaylistManager::get_ActivePlaylist(UINT* outPlaylistIndex)
 {
 	TRACK_FUNCTION();
 
@@ -637,7 +637,7 @@ STDMETHODIMP FbPlaylistManager::get_ActivePlaylist(UINT * outPlaylistIndex)
 	return S_OK;
 }
 
-STDMETHODIMP FbPlaylistManager::get_PlaybackOrder(UINT * p)
+STDMETHODIMP FbPlaylistManager::get_PlaybackOrder(UINT* p)
 {
 	TRACK_FUNCTION();
 
@@ -647,7 +647,7 @@ STDMETHODIMP FbPlaylistManager::get_PlaybackOrder(UINT * p)
 	return S_OK;
 }
 
-STDMETHODIMP FbPlaylistManager::get_PlayingPlaylist(UINT * outPlaylistIndex)
+STDMETHODIMP FbPlaylistManager::get_PlayingPlaylist(UINT* outPlaylistIndex)
 {
 	TRACK_FUNCTION();
 
@@ -657,7 +657,7 @@ STDMETHODIMP FbPlaylistManager::get_PlayingPlaylist(UINT * outPlaylistIndex)
 	return S_OK;
 }
 
-STDMETHODIMP FbPlaylistManager::get_PlaylistCount(UINT * outCount)
+STDMETHODIMP FbPlaylistManager::get_PlaylistCount(UINT* outCount)
 {
 	TRACK_FUNCTION();
 
@@ -667,7 +667,7 @@ STDMETHODIMP FbPlaylistManager::get_PlaylistCount(UINT * outCount)
 	return S_OK;
 }
 
-STDMETHODIMP FbPlaylistManager::get_PlaylistItemCount(UINT playlistIndex, UINT * outCount)
+STDMETHODIMP FbPlaylistManager::get_PlaylistItemCount(UINT playlistIndex, UINT* outCount)
 {
 	TRACK_FUNCTION();
 
@@ -677,10 +677,10 @@ STDMETHODIMP FbPlaylistManager::get_PlaylistItemCount(UINT playlistIndex, UINT *
 	return S_OK;
 }
 
-STDMETHODIMP FbPlaylistManager::get_PlaylistRecyclerManager(__interface IFbPlaylistRecyclerManager ** outRecyclerManagerManager)
+STDMETHODIMP FbPlaylistManager::get_PlaylistRecyclerManager(__interface IFbPlaylistRecyclerManager** outRecyclerManagerManager)
 {
 	TRACK_FUNCTION();
-	
+
 	try
 	{
 		if (!m_fbPlaylistRecyclerManager)
@@ -729,7 +729,7 @@ STDMETHODIMP FbPlaylistManager::put_PlayingPlaylist(UINT playlistIndex)
 	return S_OK;
 }
 
-FbPlaybackQueueItem::FbPlaybackQueueItem(const t_playback_queue_item & playbackQueueItem)
+FbPlaybackQueueItem::FbPlaybackQueueItem(const t_playback_queue_item& playbackQueueItem)
 {
 	m_playback_queue_item.m_handle = playbackQueueItem.m_handle;
 	m_playback_queue_item.m_playlist = playbackQueueItem.m_playlist;
@@ -738,7 +738,6 @@ FbPlaybackQueueItem::FbPlaybackQueueItem(const t_playback_queue_item & playbackQ
 
 FbPlaybackQueueItem::~FbPlaybackQueueItem()
 {
-
 }
 
 void FbPlaybackQueueItem::FinalRelease()
@@ -748,13 +747,13 @@ void FbPlaybackQueueItem::FinalRelease()
 	m_playback_queue_item.m_item = 0;
 }
 
-STDMETHODIMP FbPlaybackQueueItem::Equals(IFbPlaybackQueueItem * item, VARIANT_BOOL * outEquals)
+STDMETHODIMP FbPlaybackQueueItem::Equals(IFbPlaybackQueueItem* item, VARIANT_BOOL* outEquals)
 {
 	TRACK_FUNCTION();
 
 	if (!item) return E_INVALIDARG;
 
-	t_playback_queue_item * ptrQueueItem = NULL;
+	t_playback_queue_item* ptrQueueItem = NULL;
 	item->get__ptr((void **)&ptrQueueItem);
 	if (!ptrQueueItem) return E_INVALIDARG;
 
@@ -762,7 +761,7 @@ STDMETHODIMP FbPlaybackQueueItem::Equals(IFbPlaybackQueueItem * item, VARIANT_BO
 	return S_OK;
 }
 
-STDMETHODIMP FbPlaybackQueueItem::get_Handle(IFbMetadbHandle ** outHandle)
+STDMETHODIMP FbPlaybackQueueItem::get_Handle(IFbMetadbHandle** outHandle)
 {
 	TRACK_FUNCTION();
 
@@ -772,7 +771,7 @@ STDMETHODIMP FbPlaybackQueueItem::get_Handle(IFbMetadbHandle ** outHandle)
 	return S_OK;
 }
 
-STDMETHODIMP FbPlaybackQueueItem::get_PlaylistIndex(UINT * outPlaylistIndex)
+STDMETHODIMP FbPlaybackQueueItem::get_PlaylistIndex(UINT* outPlaylistIndex)
 {
 	TRACK_FUNCTION();
 
@@ -782,7 +781,7 @@ STDMETHODIMP FbPlaybackQueueItem::get_PlaylistIndex(UINT * outPlaylistIndex)
 	return S_OK;
 }
 
-STDMETHODIMP FbPlaybackQueueItem::get_PlaylistItemIndex(UINT * outItemIndex)
+STDMETHODIMP FbPlaybackQueueItem::get_PlaylistItemIndex(UINT* outItemIndex)
 {
 	TRACK_FUNCTION();
 
@@ -792,7 +791,7 @@ STDMETHODIMP FbPlaybackQueueItem::get_PlaylistItemIndex(UINT * outItemIndex)
 	return S_OK;
 }
 
-STDMETHODIMP FbPlaybackQueueItem::get__ptr(void ** pp)
+STDMETHODIMP FbPlaybackQueueItem::get__ptr(void** pp)
 {
 	TRACK_FUNCTION();
 
@@ -802,12 +801,12 @@ STDMETHODIMP FbPlaybackQueueItem::get__ptr(void ** pp)
 	return S_OK;
 }
 
-STDMETHODIMP FbPlaybackQueueItem::put_Handle(IFbMetadbHandle * handle)
+STDMETHODIMP FbPlaybackQueueItem::put_Handle(IFbMetadbHandle* handle)
 {
 	TRACK_FUNCTION();
 
 	if (!handle) return E_INVALIDARG;
-	metadb_handle * ptrHandle = NULL;
+	metadb_handle* ptrHandle = NULL;
 	handle->get__ptr((void **)&ptrHandle);
 
 	m_playback_queue_item.m_handle = ptrHandle;
@@ -830,7 +829,7 @@ STDMETHODIMP FbPlaybackQueueItem::put_PlaylistItemIndex(UINT itemIndex)
 	return S_OK;
 }
 
-STDMETHODIMP FbPlayingItemLocation::get_IsValid(VARIANT_BOOL * outIsValid)
+STDMETHODIMP FbPlayingItemLocation::get_IsValid(VARIANT_BOOL* outIsValid)
 {
 	TRACK_FUNCTION();
 
@@ -839,7 +838,7 @@ STDMETHODIMP FbPlayingItemLocation::get_IsValid(VARIANT_BOOL * outIsValid)
 	return S_OK;
 }
 
-STDMETHODIMP FbPlayingItemLocation::get_PlaylistIndex(UINT * outPlaylistIndex)
+STDMETHODIMP FbPlayingItemLocation::get_PlaylistIndex(UINT* outPlaylistIndex)
 {
 	TRACK_FUNCTION();
 
@@ -848,7 +847,7 @@ STDMETHODIMP FbPlayingItemLocation::get_PlaylistIndex(UINT * outPlaylistIndex)
 	return S_OK;
 }
 
-STDMETHODIMP FbPlayingItemLocation::get_PlaylistItemIndex(UINT * outPlaylistItemIndex)
+STDMETHODIMP FbPlayingItemLocation::get_PlaylistItemIndex(UINT* outPlaylistItemIndex)
 {
 	TRACK_FUNCTION();
 
@@ -857,7 +856,7 @@ STDMETHODIMP FbPlayingItemLocation::get_PlaylistItemIndex(UINT * outPlaylistItem
 	return S_OK;
 }
 
-STDMETHODIMP FbPlaylistRecyclerManager::FindById(UINT id, UINT * outId)
+STDMETHODIMP FbPlaylistRecyclerManager::FindById(UINT id, UINT* outId)
 {
 	TRACK_FUNCTION();
 
@@ -947,7 +946,7 @@ STDMETHODIMP FbPlaylistRecyclerManager::RestoreById(UINT id)
 	return S_OK;
 }
 
-STDMETHODIMP FbPlaylistRecyclerManager::get_Content(UINT index, IFbMetadbHandleList ** outContent)
+STDMETHODIMP FbPlaylistRecyclerManager::get_Content(UINT index, IFbMetadbHandleList** outContent)
 {
 	TRACK_FUNCTION();
 
@@ -971,7 +970,7 @@ STDMETHODIMP FbPlaylistRecyclerManager::get_Content(UINT index, IFbMetadbHandleL
 	return S_OK;
 }
 
-STDMETHODIMP FbPlaylistRecyclerManager::get_Count(UINT * outCount)
+STDMETHODIMP FbPlaylistRecyclerManager::get_Count(UINT* outCount)
 {
 	TRACK_FUNCTION();
 
@@ -989,7 +988,7 @@ STDMETHODIMP FbPlaylistRecyclerManager::get_Count(UINT * outCount)
 	return S_OK;
 }
 
-STDMETHODIMP FbPlaylistRecyclerManager::get_Id(UINT index, UINT * outId)
+STDMETHODIMP FbPlaylistRecyclerManager::get_Id(UINT index, UINT* outId)
 {
 	TRACK_FUNCTION();
 
@@ -1011,7 +1010,7 @@ STDMETHODIMP FbPlaylistRecyclerManager::get_Id(UINT index, UINT * outId)
 	return S_OK;
 }
 
-STDMETHODIMP FbPlaylistRecyclerManager::get_Name(UINT index, BSTR * outName)
+STDMETHODIMP FbPlaylistRecyclerManager::get_Name(UINT index, BSTR* outName)
 {
 	TRACK_FUNCTION();
 

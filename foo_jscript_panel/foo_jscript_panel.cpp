@@ -17,7 +17,7 @@ namespace
 		JSP_VERSION,
 		"JScript Panel v" JSP_VERSION " by marc2003\n"
 		"Based on WSH Panel Mod by T.P. Wang\n\n"
-		"Build: "  __TIME__ ", " __DATE__ "\n"
+		"Build: " __TIME__ ", " __DATE__ "\n"
 		"Columns UI SDK Version: " UI_EXTENSION_VERSION "\n\n"
 		"Scintilla and SciTE\n"
 		"Copyright 1998-2003 by Neil Hodgson\n\n"
@@ -36,11 +36,11 @@ namespace
 	// Is there anything not correctly loaded?
 	enum t_load_status_error
 	{
-		E_OK		= 0,
-		E_TYPELIB	= 1 << 0,
+		E_OK = 0,
+		E_TYPELIB = 1 << 0,
 		E_SCINTILLA = 1 << 1,
-		E_GDIPLUS	= 1 << 2,
-		E_OLE		= 1 << 3,
+		E_GDIPLUS = 1 << 2,
+		E_OLE = 1 << 3,
 	};
 
 	int g_load_status = E_OK;
@@ -148,5 +148,4 @@ namespace
 
 		return TRUE;
 	}
-
 }

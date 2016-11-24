@@ -4,12 +4,13 @@
 
 class CDialogFind
 	: public CDialogImpl<CDialogFind>
-	, public CDialogResize<CDialogFind>
+	  , public CDialogResize<CDialogFind>
 {
 	class CEditWithReturn : public CWindowImpl<CEditWithReturn, CEdit>
 	{
 	public:
 		typedef CWindowImpl<CEditWithReturn, CEdit> parent;
+
 		BOOL SubclassWindow(HWND hWnd, HWND hParent)
 		{
 			m_parent = hParent;
@@ -19,9 +20,9 @@ class CDialogFind
 		BEGIN_MSG_MAP(CEditWithReturn)
 			MESSAGE_HANDLER(WM_CHAR, OnChar)
 			MESSAGE_HANDLER(WM_KEYDOWN, OnKeyDown)
-		END_MSG_MAP()
+			END_MSG_MAP()
 
-		LRESULT OnChar(UINT uMsg, WPARAM wParam,LPARAM lParam, BOOL &bHandled)
+		LRESULT OnChar(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 		{
 			// Disable anonying sound
 			switch (wParam)
@@ -36,7 +37,7 @@ class CDialogFind
 			return DefWindowProc(uMsg, wParam, lParam);
 		}
 
-		LRESULT OnKeyDown(UINT uMsg, WPARAM wParam,LPARAM lParam, BOOL &bHandled)
+		LRESULT OnKeyDown(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 		{
 			switch (wParam)
 			{
@@ -51,6 +52,7 @@ class CDialogFind
 
 			return DefWindowProc(uMsg, wParam, lParam);
 		}
+
 	private:
 		HWND m_parent;
 	};
@@ -67,7 +69,10 @@ public:
 
 	void OnFinalMessage(HWND hWnd);
 
-	enum { IDD = IDD_DIALOG_FIND };
+	enum
+	{
+		IDD = IDD_DIALOG_FIND
+	};
 
 	BEGIN_MSG_MAP(CDialogFind)
 		MSG_WM_INITDIALOG(OnInitDialog)
@@ -77,14 +82,14 @@ public:
 		COMMAND_RANGE_HANDLER_EX(IDC_CHECK_MATCHCASE, IDC_CHECK_REGEXP, OnFlagCommand)
 		COMMAND_ID_HANDLER_EX(IDCANCEL, OnCancel)
 		CHAIN_MSG_MAP(CDialogResize<CDialogFind>)
-	END_MSG_MAP()
+		END_MSG_MAP()
 
 	BEGIN_DLGRESIZE_MAP(CDialogFind)
 		DLGRESIZE_CONTROL(IDC_EDIT_FINDWHAT, DLSZ_SIZE_X)
 		DLGRESIZE_CONTROL(IDC_FINDUP, DLSZ_MOVE_X)
 		DLGRESIZE_CONTROL(IDC_FINDDOWN, DLSZ_MOVE_X)
 		DLGRESIZE_CONTROL(IDCANCEL, DLSZ_MOVE_X)
-	END_DLGRESIZE_MAP()
+		END_DLGRESIZE_MAP()
 
 	LRESULT OnFindUp(WORD wNotifyCode, WORD wID, HWND hWndCtl);
 	LRESULT OnFindDown(WORD wNotifyCode, WORD wID, HWND hWndCtl);

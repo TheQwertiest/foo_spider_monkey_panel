@@ -11,5 +11,5 @@
 ]
 __interface IDragSourceObject : IDispatch
 {
-	STDMETHOD(StartDrag)(__interface IDataTransferObject * dataTransfer);
+	STDMETHOD(StartDrag)(__interface IDataTransferObject* dataTransfer);
 };

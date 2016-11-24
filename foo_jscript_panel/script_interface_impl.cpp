@@ -19,12 +19,12 @@
 // -1: not a valid metadb interface
 // 0: metadb interface
 // 1: metadb handles interface
-static int TryGetMetadbHandleFromVariant(const VARIANT & obj, IDispatch ** ppuk)
+static int TryGetMetadbHandleFromVariant(const VARIANT& obj, IDispatch** ppuk)
 {
 	if (obj.vt != VT_DISPATCH || !obj.pdispVal)
 		return -1;
 
-	IDispatch * temp = NULL;
+	IDispatch* temp = NULL;
 
 	if (SUCCEEDED(obj.pdispVal->QueryInterface(__uuidof(IFbMetadbHandle), (void **)&temp)))
 	{
@@ -45,10 +45,9 @@ static inline unsigned ExtractColorFromVariant(VARIANT v)
 	return (v.vt == VT_R8) ? static_cast<unsigned>(v.dblVal) : v.lVal;
 }
 
-GdiFont::GdiFont(Gdiplus::Font * p, HFONT hFont, bool managed /*= true*/) : GdiObj<IGdiFont, Gdiplus::Font>(p),
-	m_hFont(hFont), m_managed(managed)
+GdiFont::GdiFont(Gdiplus::Font* p, HFONT hFont, bool managed /*= true*/) : GdiObj<IGdiFont, Gdiplus::Font>(p),
+                                                                           m_hFont(hFont), m_managed(managed)
 {
-
 }
 
 void GdiFont::FinalRelease()
@@ -63,7 +62,7 @@ void GdiFont::FinalRelease()
 	GdiObj<IGdiFont, Gdiplus::Font>::FinalRelease();
 }
 
-STDMETHODIMP GdiFont::get_HFont(UINT * p)
+STDMETHODIMP GdiFont::get_HFont(UINT* p)
 {
 	TRACK_FUNCTION();
 
@@ -73,7 +72,7 @@ STDMETHODIMP GdiFont::get_HFont(UINT * p)
 	return S_OK;
 }
 
-STDMETHODIMP GdiFont::get_Height(UINT * p)
+STDMETHODIMP GdiFont::get_Height(UINT* p)
 {
 	TRACK_FUNCTION();
 
@@ -86,7 +85,7 @@ STDMETHODIMP GdiFont::get_Height(UINT * p)
 	return S_OK;
 }
 
-STDMETHODIMP GdiFont::get_Name(LANGID langId, BSTR * outName)
+STDMETHODIMP GdiFont::get_Name(LANGID langId, BSTR* outName)
 {
 	TRACK_FUNCTION();
 
@@ -100,7 +99,7 @@ STDMETHODIMP GdiFont::get_Name(LANGID langId, BSTR * outName)
 	return S_OK;
 }
 
-STDMETHODIMP GdiFont::get_Size(float * outSize)
+STDMETHODIMP GdiFont::get_Size(float* outSize)
 {
 	TRACK_FUNCTION();
 
@@ -110,7 +109,7 @@ STDMETHODIMP GdiFont::get_Size(float * outSize)
 	return S_OK;
 }
 
-STDMETHODIMP GdiFont::get_Style(INT * outStyle)
+STDMETHODIMP GdiFont::get_Style(INT* outStyle)
 {
 	TRACK_FUNCTION();
 
@@ -120,7 +119,7 @@ STDMETHODIMP GdiFont::get_Style(INT * outStyle)
 	return S_OK;
 }
 
-STDMETHODIMP GdiBitmap::ApplyAlpha(BYTE alpha, IGdiBitmap ** pp)
+STDMETHODIMP GdiBitmap::ApplyAlpha(BYTE alpha, IGdiBitmap** pp)
 {
 	TRACK_FUNCTION();
 
@@ -129,10 +128,10 @@ STDMETHODIMP GdiBitmap::ApplyAlpha(BYTE alpha, IGdiBitmap ** pp)
 
 	UINT width = m_ptr->GetWidth();
 	UINT height = m_ptr->GetHeight();
-	Gdiplus::Bitmap * out = new Gdiplus::Bitmap(width, height, PixelFormat32bppPARGB);
+	Gdiplus::Bitmap* out = new Gdiplus::Bitmap(width, height, PixelFormat32bppPARGB);
 	Gdiplus::Graphics g(out);
 	Gdiplus::ImageAttributes ia;
-	Gdiplus::ColorMatrix cm = { 0.0 };
+	Gdiplus::ColorMatrix cm = {0.0};
 	Gdiplus::Rect rc;
 
 	cm.m[0][0] = cm.m[1][1] = cm.m[2][2] = cm.m[4][4] = 1.0;
@@ -149,7 +148,7 @@ STDMETHODIMP GdiBitmap::ApplyAlpha(BYTE alpha, IGdiBitmap ** pp)
 	return S_OK;
 }
 
-STDMETHODIMP GdiBitmap::ApplyMask(IGdiBitmap * mask, VARIANT_BOOL * p)
+STDMETHODIMP GdiBitmap::ApplyMask(IGdiBitmap* mask, VARIANT_BOOL* p)
 {
 	TRACK_FUNCTION();
 
@@ -158,7 +157,7 @@ STDMETHODIMP GdiBitmap::ApplyMask(IGdiBitmap * mask, VARIANT_BOOL * p)
 	if (!m_ptr) return E_POINTER;
 	if (!mask) return E_INVALIDARG;
 
-	Gdiplus::Bitmap * bitmap_mask = NULL;
+	Gdiplus::Bitmap* bitmap_mask = NULL;
 	mask->get__ptr((void**)&bitmap_mask);
 
 	if (!bitmap_mask || bitmap_mask->GetHeight() != m_ptr->GetHeight() || bitmap_mask->GetWidth() != m_ptr->GetWidth())
@@ -167,7 +166,7 @@ STDMETHODIMP GdiBitmap::ApplyMask(IGdiBitmap * mask, VARIANT_BOOL * p)
 	}
 
 	Gdiplus::Rect rect(0, 0, m_ptr->GetWidth(), m_ptr->GetHeight());
-	Gdiplus::BitmapData bmpdata_mask = { 0 }, bmpdata_dst = { 0 };
+	Gdiplus::BitmapData bmpdata_mask = {0}, bmpdata_dst = {0};
 
 	if (bitmap_mask->LockBits(&rect, Gdiplus::ImageLockModeRead, PixelFormat32bppARGB, &bmpdata_mask) != Gdiplus::Ok)
 	{
@@ -184,9 +183,9 @@ STDMETHODIMP GdiBitmap::ApplyMask(IGdiBitmap * mask, VARIANT_BOOL * p)
 	const int height = rect.Height;
 	const int size = width * height;
 	//const int size_threshold = 512;
-	t_uint32 * p_mask = reinterpret_cast<t_uint32 *>(bmpdata_mask.Scan0);
-	t_uint32 * p_dst = reinterpret_cast<t_uint32 *>(bmpdata_dst.Scan0);
-	const t_uint32 * p_mask_end = p_mask + rect.Width * rect.Height;
+	t_uint32* p_mask = reinterpret_cast<t_uint32 *>(bmpdata_mask.Scan0);
+	t_uint32* p_dst = reinterpret_cast<t_uint32 *>(bmpdata_dst.Scan0);
+	const t_uint32* p_mask_end = p_mask + rect.Width * rect.Height;
 	t_uint32 alpha;
 
 	while (p_mask < p_mask_end)
@@ -223,14 +222,14 @@ STDMETHODIMP GdiBitmap::BoxBlur(int radius, int iteration)
 	return S_OK;
 }
 
-STDMETHODIMP GdiBitmap::Clone(float x, float y, float w, float h, IGdiBitmap ** pp)
+STDMETHODIMP GdiBitmap::Clone(float x, float y, float w, float h, IGdiBitmap** pp)
 {
 	TRACK_FUNCTION();
 
 	if (!pp) return E_POINTER;
 	if (!m_ptr) return E_POINTER;
 
-	Gdiplus::Bitmap * img = m_ptr->Clone(x, y, w, h, PixelFormat32bppPARGB);
+	Gdiplus::Bitmap* img = m_ptr->Clone(x, y, w, h, PixelFormat32bppPARGB);
 
 	if (!helpers::ensure_gdiplus_object(img))
 	{
@@ -243,7 +242,7 @@ STDMETHODIMP GdiBitmap::Clone(float x, float y, float w, float h, IGdiBitmap ** 
 	return S_OK;
 }
 
-STDMETHODIMP GdiBitmap::CreateRawBitmap(IGdiRawBitmap ** pp)
+STDMETHODIMP GdiBitmap::CreateRawBitmap(IGdiRawBitmap** pp)
 {
 	TRACK_FUNCTION();
 
@@ -254,7 +253,7 @@ STDMETHODIMP GdiBitmap::CreateRawBitmap(IGdiRawBitmap ** pp)
 	return S_OK;
 }
 
-STDMETHODIMP GdiBitmap::GetColorScheme(UINT count, VARIANT * outArray)
+STDMETHODIMP GdiBitmap::GetColorScheme(UINT count, VARIANT* outArray)
 {
 	TRACK_FUNCTION();
 
@@ -269,7 +268,7 @@ STDMETHODIMP GdiBitmap::GetColorScheme(UINT count, VARIANT * outArray)
 
 	std::map<unsigned, int> color_counters;
 	const unsigned colors_length = bmpdata.Width * bmpdata.Height;
-	const t_uint32 *colors = (const t_uint32 *)bmpdata.Scan0;
+	const t_uint32* colors = (const t_uint32 *)bmpdata.Scan0;
 
 	for (unsigned i = 0; i < colors_length; i++)
 	{
@@ -299,10 +298,10 @@ STDMETHODIMP GdiBitmap::GetColorScheme(UINT count, VARIANT * outArray)
 	color_counters.clear();
 	count = min(count, sort_vec.size());
 	std::partial_sort(sort_vec.begin(), sort_vec.begin() + count, sort_vec.end(),
-		[](const sort_vec_pair_t &a, const sort_vec_pair_t &b)
-		{
-			return a.second > b.second;
-		});
+	                  [](const sort_vec_pair_t& a, const sort_vec_pair_t& b)
+	                  {
+		                  return a.second > b.second;
+	                  });
 
 	helpers::com_array_writer<> helper;
 	if (!helper.create(count))
@@ -325,27 +324,27 @@ STDMETHODIMP GdiBitmap::GetColorScheme(UINT count, VARIANT * outArray)
 	return S_OK;
 }
 
-STDMETHODIMP GdiBitmap::GetGraphics(IGdiGraphics ** pp)
+STDMETHODIMP GdiBitmap::GetGraphics(IGdiGraphics** pp)
 {
 	TRACK_FUNCTION();
 
 	if (!pp) return E_POINTER;
 	if (!m_ptr) return E_POINTER;
 
-	Gdiplus::Graphics * g = new Gdiplus::Graphics(m_ptr);
+	Gdiplus::Graphics* g = new Gdiplus::Graphics(m_ptr);
 
 	*pp = new com_object_impl_t<GdiGraphics>();
 	(*pp)->put__ptr(g);
 	return S_OK;
 }
 
-STDMETHODIMP GdiBitmap::ReleaseGraphics(IGdiGraphics * p)
+STDMETHODIMP GdiBitmap::ReleaseGraphics(IGdiGraphics* p)
 {
 	TRACK_FUNCTION();
 
 	if (p)
 	{
-		Gdiplus::Graphics * g = NULL;
+		Gdiplus::Graphics* g = NULL;
 		p->get__ptr((void**)&g);
 		p->put__ptr(NULL);
 		if (g) delete g;
@@ -354,14 +353,14 @@ STDMETHODIMP GdiBitmap::ReleaseGraphics(IGdiGraphics * p)
 	return S_OK;
 }
 
-STDMETHODIMP GdiBitmap::Resize(UINT w, UINT h, INT interpolationMode, IGdiBitmap ** pp)
+STDMETHODIMP GdiBitmap::Resize(UINT w, UINT h, INT interpolationMode, IGdiBitmap** pp)
 {
 	TRACK_FUNCTION();
 
 	if (!m_ptr) return E_POINTER;
 	if (!pp) return E_POINTER;
 
-	Gdiplus::Bitmap * bitmap = new Gdiplus::Bitmap(w, h, PixelFormat32bppPARGB);
+	Gdiplus::Bitmap* bitmap = new Gdiplus::Bitmap(w, h, PixelFormat32bppPARGB);
 	Gdiplus::Graphics g(bitmap);
 
 	g.SetInterpolationMode((Gdiplus::InterpolationMode)interpolationMode);
@@ -381,7 +380,7 @@ STDMETHODIMP GdiBitmap::RotateFlip(UINT mode)
 	return S_OK;
 }
 
-STDMETHODIMP GdiBitmap::SaveAs(BSTR path, BSTR format, VARIANT_BOOL * p)
+STDMETHODIMP GdiBitmap::SaveAs(BSTR path, BSTR format, VARIANT_BOOL* p)
 {
 	TRACK_FUNCTION();
 
@@ -417,7 +416,7 @@ STDMETHODIMP GdiBitmap::StackBlur(int radius)
 	return S_OK;
 }
 
-STDMETHODIMP GdiBitmap::get_Height(UINT * p)
+STDMETHODIMP GdiBitmap::get_Height(UINT* p)
 {
 	TRACK_FUNCTION();
 
@@ -428,7 +427,7 @@ STDMETHODIMP GdiBitmap::get_Height(UINT * p)
 	return S_OK;
 }
 
-STDMETHODIMP GdiBitmap::get_Width(UINT * p)
+STDMETHODIMP GdiBitmap::get_Width(UINT* p)
 {
 	TRACK_FUNCTION();
 
@@ -438,7 +437,7 @@ STDMETHODIMP GdiBitmap::get_Width(UINT * p)
 	return S_OK;
 }
 
-void GdiGraphics::GetRoundRectPath(Gdiplus::GraphicsPath & gp, Gdiplus::RectF & rect, float arc_width, float arc_height)
+void GdiGraphics::GetRoundRectPath(Gdiplus::GraphicsPath& gp, Gdiplus::RectF& rect, float arc_width, float arc_height)
 {
 	TRACK_FUNCTION();
 
@@ -466,7 +465,7 @@ void GdiGraphics::GetRoundRectPath(Gdiplus::GraphicsPath & gp, Gdiplus::RectF & 
 	gp.CloseFigure();
 }
 
-STDMETHODIMP GdiGraphics::CalcTextHeight(BSTR str, IGdiFont * font, UINT * p)
+STDMETHODIMP GdiGraphics::CalcTextHeight(BSTR str, IGdiFont* font, UINT* p)
 {
 	TRACK_FUNCTION();
 
@@ -488,7 +487,7 @@ STDMETHODIMP GdiGraphics::CalcTextHeight(BSTR str, IGdiFont * font, UINT * p)
 	return S_OK;
 }
 
-STDMETHODIMP GdiGraphics::CalcTextWidth(BSTR str, IGdiFont * font, UINT * p)
+STDMETHODIMP GdiGraphics::CalcTextWidth(BSTR str, IGdiFont* font, UINT* p)
 {
 	TRACK_FUNCTION();
 
@@ -521,14 +520,14 @@ STDMETHODIMP GdiGraphics::DrawEllipse(float x, float y, float w, float h, float 
 	return S_OK;
 }
 
-STDMETHODIMP GdiGraphics::DrawImage(IGdiBitmap * image, float dstX, float dstY, float dstW, float dstH, float srcX, float srcY, float srcW, float srcH, float angle, BYTE alpha)
+STDMETHODIMP GdiGraphics::DrawImage(IGdiBitmap* image, float dstX, float dstY, float dstW, float dstH, float srcX, float srcY, float srcW, float srcH, float angle, BYTE alpha)
 {
 	TRACK_FUNCTION();
 
 	if (!m_ptr) return E_POINTER;
 	if (!image) return E_INVALIDARG;
 
-	Gdiplus::Bitmap * img = NULL;
+	Gdiplus::Bitmap* img = NULL;
 	image->get__ptr((void**)&img);
 	if (!img) return E_INVALIDARG;
 
@@ -550,7 +549,7 @@ STDMETHODIMP GdiGraphics::DrawImage(IGdiBitmap * image, float dstX, float dstY, 
 	if (alpha != (BYTE)~0)
 	{
 		Gdiplus::ImageAttributes ia;
-		Gdiplus::ColorMatrix cm = { 0.0f };
+		Gdiplus::ColorMatrix cm = {0.0f};
 
 		cm.m[0][0] = cm.m[1][1] = cm.m[2][2] = cm.m[4][4] = 1.0f;
 		cm.m[3][3] = static_cast<float>(alpha) / 255;
@@ -648,14 +647,14 @@ STDMETHODIMP GdiGraphics::DrawRoundRect(float x, float y, float w, float h, floa
 	return S_OK;
 }
 
-STDMETHODIMP GdiGraphics::DrawString(BSTR str, IGdiFont * font, VARIANT color, float x, float y, float w, float h, int flags)
+STDMETHODIMP GdiGraphics::DrawString(BSTR str, IGdiFont* font, VARIANT color, float x, float y, float w, float h, int flags)
 {
 	TRACK_FUNCTION();
 
 	if (!m_ptr) return E_POINTER;
 	if (!str || !font) return E_INVALIDARG;
 
-	Gdiplus::Font * fn = NULL;
+	Gdiplus::Font* fn = NULL;
 	font->get__ptr((void**)&fn);
 	if (!fn) return E_INVALIDARG;
 
@@ -664,17 +663,17 @@ STDMETHODIMP GdiGraphics::DrawString(BSTR str, IGdiFont * font, VARIANT color, f
 
 	if (flags != 0)
 	{
-		fmt.SetAlignment((Gdiplus::StringAlignment)((flags >> 28) & 0x3));      //0xf0000000
-		fmt.SetLineAlignment((Gdiplus::StringAlignment)((flags >> 24) & 0x3));  //0x0f000000
-		fmt.SetTrimming((Gdiplus::StringTrimming)((flags >> 20) & 0x7));        //0x00f00000
-		fmt.SetFormatFlags((Gdiplus::StringFormatFlags)(flags & 0x7FFF));       //0x0000ffff
+		fmt.SetAlignment((Gdiplus::StringAlignment)((flags >> 28) & 0x3)); //0xf0000000
+		fmt.SetLineAlignment((Gdiplus::StringAlignment)((flags >> 24) & 0x3)); //0x0f000000
+		fmt.SetTrimming((Gdiplus::StringTrimming)((flags >> 20) & 0x7)); //0x00f00000
+		fmt.SetFormatFlags((Gdiplus::StringFormatFlags)(flags & 0x7FFF)); //0x0000ffff
 	}
 
 	m_ptr->DrawString(str, -1, fn, Gdiplus::RectF(x, y, w, h), &fmt, &br);
 	return S_OK;
 }
 
-STDMETHODIMP GdiGraphics::EstimateLineWrap(BSTR str, IGdiFont * font, int max_width, VARIANT * p)
+STDMETHODIMP GdiGraphics::EstimateLineWrap(BSTR str, IGdiFont* font, int max_width, VARIANT* p)
 {
 	if (!m_ptr) return E_POINTER;
 	if (!str || !font) return E_INVALIDARG;
@@ -804,7 +803,7 @@ STDMETHODIMP GdiGraphics::FillSolidRect(float x, float y, float w, float h, VARI
 	return S_OK;
 }
 
-STDMETHODIMP GdiGraphics::GdiAlphaBlend(IGdiRawBitmap * bitmap, int dstX, int dstY, int dstW, int dstH, int srcX, int srcY, int srcW, int srcH, BYTE alpha)
+STDMETHODIMP GdiGraphics::GdiAlphaBlend(IGdiRawBitmap* bitmap, int dstX, int dstY, int dstW, int dstH, int srcX, int srcY, int srcW, int srcH, BYTE alpha)
 {
 	TRACK_FUNCTION();
 
@@ -816,14 +815,14 @@ STDMETHODIMP GdiGraphics::GdiAlphaBlend(IGdiRawBitmap * bitmap, int dstX, int ds
 	if (!src_dc) return E_INVALIDARG;
 
 	HDC dc = m_ptr->GetHDC();
-	BLENDFUNCTION bf = { AC_SRC_OVER, 0, alpha, AC_SRC_ALPHA };
+	BLENDFUNCTION bf = {AC_SRC_OVER, 0, alpha, AC_SRC_ALPHA};
 
 	::GdiAlphaBlend(dc, dstX, dstY, dstW, dstH, src_dc, srcX, srcY, srcW, srcH, bf);
 	m_ptr->ReleaseHDC(dc);
 	return S_OK;
 }
 
-STDMETHODIMP GdiGraphics::GdiDrawBitmap(IGdiRawBitmap * bitmap, int dstX, int dstY, int dstW, int dstH, int srcX, int srcY, int srcW, int srcH)
+STDMETHODIMP GdiGraphics::GdiDrawBitmap(IGdiRawBitmap* bitmap, int dstX, int dstY, int dstW, int dstH, int srcX, int srcY, int srcW, int srcH)
 {
 	TRACK_FUNCTION();
 
@@ -851,7 +850,7 @@ STDMETHODIMP GdiGraphics::GdiDrawBitmap(IGdiRawBitmap * bitmap, int dstX, int ds
 	return S_OK;
 }
 
-STDMETHODIMP GdiGraphics::GdiDrawText(BSTR str, IGdiFont * font, VARIANT color, int x, int y, int w, int h, int format, VARIANT * p)
+STDMETHODIMP GdiGraphics::GdiDrawText(BSTR str, IGdiFont* font, VARIANT color, int x, int y, int w, int h, int format, VARIANT* p)
 {
 	TRACK_FUNCTION();
 
@@ -865,8 +864,8 @@ STDMETHODIMP GdiGraphics::GdiDrawText(BSTR str, IGdiFont * font, VARIANT color, 
 
 	HFONT oldfont;
 	HDC dc = m_ptr->GetHDC();
-	RECT rc = { x, y, x + w, y + h };
-	DRAWTEXTPARAMS dpt = { sizeof(DRAWTEXTPARAMS), 4, 0, 0, -1 };
+	RECT rc = {x, y, x + w, y + h};
+	DRAWTEXTPARAMS dpt = {sizeof(DRAWTEXTPARAMS), 4, 0, 0, -1};
 
 	oldfont = SelectFont(dc, hFont);
 	SetTextColor(dc, helpers::convert_argb_to_colorref(ExtractColorFromVariant(color)));
@@ -944,7 +943,7 @@ STDMETHODIMP GdiGraphics::GdiDrawText(BSTR str, IGdiFont * font, VARIANT color, 
 	return S_OK;
 }
 
-STDMETHODIMP GdiGraphics::MeasureString(BSTR str, IGdiFont * font, float x, float y, float w, float h, int flags, IMeasureStringInfo ** pp)
+STDMETHODIMP GdiGraphics::MeasureString(BSTR str, IGdiFont* font, float x, float y, float w, float h, int flags, IMeasureStringInfo** pp)
 {
 	TRACK_FUNCTION();
 
@@ -952,7 +951,7 @@ STDMETHODIMP GdiGraphics::MeasureString(BSTR str, IGdiFont * font, float x, floa
 	if (!str || !font) return E_INVALIDARG;
 	if (!pp) return E_POINTER;
 
-	Gdiplus::Font * fn = NULL;
+	Gdiplus::Font* fn = NULL;
 	font->get__ptr((void**)&fn);
 	if (!fn) return E_INVALIDARG;
 
@@ -960,10 +959,10 @@ STDMETHODIMP GdiGraphics::MeasureString(BSTR str, IGdiFont * font, float x, floa
 
 	if (flags != 0)
 	{
-		fmt.SetAlignment((Gdiplus::StringAlignment)((flags >> 28) & 0x3));      //0xf0000000
-		fmt.SetLineAlignment((Gdiplus::StringAlignment)((flags >> 24) & 0x3));  //0x0f000000
-		fmt.SetTrimming((Gdiplus::StringTrimming)((flags >> 20) & 0x7));        //0x00f00000
-		fmt.SetFormatFlags((Gdiplus::StringFormatFlags)(flags & 0x7FFF));       //0x0000ffff
+		fmt.SetAlignment((Gdiplus::StringAlignment)((flags >> 28) & 0x3)); //0xf0000000
+		fmt.SetLineAlignment((Gdiplus::StringAlignment)((flags >> 24) & 0x3)); //0x0f000000
+		fmt.SetTrimming((Gdiplus::StringTrimming)((flags >> 20) & 0x7)); //0x00f00000
+		fmt.SetFormatFlags((Gdiplus::StringFormatFlags)(flags & 0x7FFF)); //0x0000ffff
 	}
 
 	Gdiplus::RectF bound;
@@ -1005,7 +1004,7 @@ STDMETHODIMP GdiGraphics::SetTextRenderingHint(UINT mode)
 	return S_OK;
 }
 
-STDMETHODIMP GdiGraphics::put__ptr(void * p)
+STDMETHODIMP GdiGraphics::put__ptr(void* p)
 {
 	TRACK_FUNCTION();
 
@@ -1013,7 +1012,7 @@ STDMETHODIMP GdiGraphics::put__ptr(void * p)
 	return S_OK;
 }
 
-GdiRawBitmap::GdiRawBitmap(Gdiplus::Bitmap * p_bmp)
+GdiRawBitmap::GdiRawBitmap(Gdiplus::Bitmap* p_bmp)
 {
 	PFC_ASSERT(p_bmp != NULL);
 	m_width = p_bmp->GetWidth();
@@ -1024,7 +1023,7 @@ GdiRawBitmap::GdiRawBitmap(Gdiplus::Bitmap * p_bmp)
 	m_hbmpold = SelectBitmap(m_hdc, m_hbmp);
 }
 
-STDMETHODIMP GdiRawBitmap::get_Height(UINT * p)
+STDMETHODIMP GdiRawBitmap::get_Height(UINT* p)
 {
 	TRACK_FUNCTION();
 
@@ -1034,7 +1033,7 @@ STDMETHODIMP GdiRawBitmap::get_Height(UINT * p)
 	return S_OK;
 }
 
-STDMETHODIMP GdiRawBitmap::get_Width(UINT * p)
+STDMETHODIMP GdiRawBitmap::get_Width(UINT* p)
 {
 	TRACK_FUNCTION();
 
@@ -1044,7 +1043,7 @@ STDMETHODIMP GdiRawBitmap::get_Width(UINT * p)
 	return S_OK;
 }
 
-STDMETHODIMP GdiRawBitmap::get__Handle(HDC * p)
+STDMETHODIMP GdiRawBitmap::get__Handle(HDC* p)
 {
 	TRACK_FUNCTION();
 
@@ -1054,7 +1053,7 @@ STDMETHODIMP GdiRawBitmap::get__Handle(HDC * p)
 	return S_OK;
 }
 
-STDMETHODIMP MeasureStringInfo::get_chars(int * p)
+STDMETHODIMP MeasureStringInfo::get_chars(int* p)
 {
 	TRACK_FUNCTION();
 
@@ -1064,7 +1063,7 @@ STDMETHODIMP MeasureStringInfo::get_chars(int * p)
 	return S_OK;
 }
 
-STDMETHODIMP MeasureStringInfo::get_height(float * p)
+STDMETHODIMP MeasureStringInfo::get_height(float* p)
 {
 	TRACK_FUNCTION();
 
@@ -1074,7 +1073,7 @@ STDMETHODIMP MeasureStringInfo::get_height(float * p)
 	return S_OK;
 }
 
-STDMETHODIMP MeasureStringInfo::get_lines(int * p)
+STDMETHODIMP MeasureStringInfo::get_lines(int* p)
 {
 	TRACK_FUNCTION();
 
@@ -1084,7 +1083,7 @@ STDMETHODIMP MeasureStringInfo::get_lines(int * p)
 	return S_OK;
 }
 
-STDMETHODIMP MeasureStringInfo::get_width(float * p)
+STDMETHODIMP MeasureStringInfo::get_width(float* p)
 {
 	TRACK_FUNCTION();
 
@@ -1094,7 +1093,7 @@ STDMETHODIMP MeasureStringInfo::get_width(float * p)
 	return S_OK;
 }
 
-STDMETHODIMP MeasureStringInfo::get_x(float * p)
+STDMETHODIMP MeasureStringInfo::get_x(float* p)
 {
 	TRACK_FUNCTION();
 
@@ -1104,7 +1103,7 @@ STDMETHODIMP MeasureStringInfo::get_x(float * p)
 	return S_OK;
 }
 
-STDMETHODIMP MeasureStringInfo::get_y(float * p)
+STDMETHODIMP MeasureStringInfo::get_y(float* p)
 {
 	TRACK_FUNCTION();
 
@@ -1114,13 +1113,13 @@ STDMETHODIMP MeasureStringInfo::get_y(float * p)
 	return S_OK;
 }
 
-STDMETHODIMP GdiUtils::CreateImage(int w, int h, IGdiBitmap ** pp)
+STDMETHODIMP GdiUtils::CreateImage(int w, int h, IGdiBitmap** pp)
 {
 	TRACK_FUNCTION();
 
 	if (!pp) return E_POINTER;
 
-	Gdiplus::Bitmap * img = new Gdiplus::Bitmap(w, h, PixelFormat32bppPARGB);
+	Gdiplus::Bitmap* img = new Gdiplus::Bitmap(w, h, PixelFormat32bppPARGB);
 
 	if (!helpers::ensure_gdiplus_object(img))
 	{
@@ -1133,7 +1132,7 @@ STDMETHODIMP GdiUtils::CreateImage(int w, int h, IGdiBitmap ** pp)
 	return S_OK;
 }
 
-STDMETHODIMP GdiUtils::CreateStyleTextRender(VARIANT_BOOL pngmode, IStyleTextRender ** pp)
+STDMETHODIMP GdiUtils::CreateStyleTextRender(VARIANT_BOOL pngmode, IStyleTextRender** pp)
 {
 	TRACK_FUNCTION();
 
@@ -1143,14 +1142,14 @@ STDMETHODIMP GdiUtils::CreateStyleTextRender(VARIANT_BOOL pngmode, IStyleTextRen
 	return S_OK;
 }
 
-STDMETHODIMP GdiUtils::Font(BSTR name, float pxSize, int style, IGdiFont ** pp)
+STDMETHODIMP GdiUtils::Font(BSTR name, float pxSize, int style, IGdiFont** pp)
 {
 	TRACK_FUNCTION();
 
 	if (!name) return E_INVALIDARG;
 	if (!pp) return E_POINTER;
 
-	Gdiplus::Font * font = new Gdiplus::Font(name, pxSize, style, Gdiplus::UnitPixel);
+	Gdiplus::Font* font = new Gdiplus::Font(name, pxSize, style, Gdiplus::UnitPixel);
 
 	if (!helpers::ensure_gdiplus_object(font))
 	{
@@ -1162,25 +1161,25 @@ STDMETHODIMP GdiUtils::Font(BSTR name, float pxSize, int style, IGdiFont ** pp)
 	// Generate HFONT
 	// The benefit of replacing Gdiplus::Font::GetLogFontW is that you can get it work with CCF/OpenType fonts.
 	HFONT hFont = CreateFont(
-			-(int)pxSize,
-			0,
-			0,
-			0,
-			(style & Gdiplus::FontStyleBold) ? FW_BOLD : FW_NORMAL,
-			(style & Gdiplus::FontStyleItalic) ? TRUE : FALSE,
-			(style & Gdiplus::FontStyleUnderline) ? TRUE : FALSE,
-			(style & Gdiplus::FontStyleStrikeout) ? TRUE : FALSE,
-			DEFAULT_CHARSET,
-			OUT_DEFAULT_PRECIS,
-			CLIP_DEFAULT_PRECIS,
-			DEFAULT_QUALITY,
-			DEFAULT_PITCH | FF_DONTCARE,
-			name);
+		-(int)pxSize,
+		0,
+		0,
+		0,
+		(style & Gdiplus::FontStyleBold) ? FW_BOLD : FW_NORMAL,
+		(style & Gdiplus::FontStyleItalic) ? TRUE : FALSE,
+		(style & Gdiplus::FontStyleUnderline) ? TRUE : FALSE,
+		(style & Gdiplus::FontStyleStrikeout) ? TRUE : FALSE,
+		DEFAULT_CHARSET,
+		OUT_DEFAULT_PRECIS,
+		CLIP_DEFAULT_PRECIS,
+		DEFAULT_QUALITY,
+		DEFAULT_PITCH | FF_DONTCARE,
+		name);
 	*pp = new com_object_impl_t<GdiFont>(font, hFont);
 	return S_OK;
 }
 
-STDMETHODIMP GdiUtils::Image(BSTR path, IGdiBitmap ** pp)
+STDMETHODIMP GdiUtils::Image(BSTR path, IGdiBitmap** pp)
 {
 	TRACK_FUNCTION();
 
@@ -1192,7 +1191,7 @@ STDMETHODIMP GdiUtils::Image(BSTR path, IGdiBitmap ** pp)
 	IStreamPtr pStream;
 	HRESULT hr = SHCreateStreamOnFileEx(path, STGM_READ | STGM_SHARE_DENY_WRITE, GENERIC_READ, FALSE, NULL, &pStream);
 	if (FAILED(hr)) return S_OK;
-	Gdiplus::Bitmap * img = new Gdiplus::Bitmap(pStream, PixelFormat32bppPARGB);
+	Gdiplus::Bitmap* img = new Gdiplus::Bitmap(pStream, PixelFormat32bppPARGB);
 
 	if (!helpers::ensure_gdiplus_object(img))
 	{
@@ -1204,7 +1203,7 @@ STDMETHODIMP GdiUtils::Image(BSTR path, IGdiBitmap ** pp)
 	return S_OK;
 }
 
-STDMETHODIMP GdiUtils::LoadImageAsync(UINT window_id, BSTR path, UINT * p)
+STDMETHODIMP GdiUtils::LoadImageAsync(UINT window_id, BSTR path, UINT* p)
 {
 	TRACK_FUNCTION();
 
@@ -1215,20 +1214,22 @@ STDMETHODIMP GdiUtils::LoadImageAsync(UINT window_id, BSTR path, UINT * p)
 
 	try
 	{
-		helpers::load_image_async * task = new helpers::load_image_async((HWND)window_id, path);
+		helpers::load_image_async* task = new helpers::load_image_async((HWND)window_id, path);
 
 		if (simple_thread_pool::instance().enqueue(task))
 			cookie = reinterpret_cast<unsigned>(task);
 		else
 			delete task;
 	}
-	catch (std::exception &) {}
+	catch (std::exception&)
+	{
+	}
 
 	*p = cookie;
 	return S_OK;
 }
 
-STDMETHODIMP FbFileInfo::InfoFind(BSTR name, UINT * p)
+STDMETHODIMP FbFileInfo::InfoFind(BSTR name, UINT* p)
 {
 	TRACK_FUNCTION();
 
@@ -1240,7 +1241,7 @@ STDMETHODIMP FbFileInfo::InfoFind(BSTR name, UINT * p)
 	return S_OK;
 }
 
-STDMETHODIMP FbFileInfo::InfoName(UINT idx, BSTR * pp)
+STDMETHODIMP FbFileInfo::InfoName(UINT idx, BSTR* pp)
 {
 	TRACK_FUNCTION();
 
@@ -1258,7 +1259,7 @@ STDMETHODIMP FbFileInfo::InfoName(UINT idx, BSTR * pp)
 	return S_OK;
 }
 
-STDMETHODIMP FbFileInfo::InfoValue(UINT idx, BSTR * pp)
+STDMETHODIMP FbFileInfo::InfoValue(UINT idx, BSTR* pp)
 {
 	TRACK_FUNCTION();
 
@@ -1276,7 +1277,7 @@ STDMETHODIMP FbFileInfo::InfoValue(UINT idx, BSTR * pp)
 	return S_OK;
 }
 
-STDMETHODIMP FbFileInfo::MetaAdd(BSTR name, BSTR value, UINT * p)
+STDMETHODIMP FbFileInfo::MetaAdd(BSTR name, BSTR value, UINT* p)
 {
 	TRACK_FUNCTION();
 
@@ -1284,12 +1285,12 @@ STDMETHODIMP FbFileInfo::MetaAdd(BSTR name, BSTR value, UINT * p)
 	if (!name || !value) return E_INVALIDARG;
 
 	*p = m_info_ptr->meta_add(pfc::stringcvt::string_utf8_from_wide(name),
-		pfc::stringcvt::string_utf8_from_wide(value));
+	                          pfc::stringcvt::string_utf8_from_wide(value));
 
 	return S_OK;
 }
 
-STDMETHODIMP FbFileInfo::MetaFind(BSTR name, UINT * p)
+STDMETHODIMP FbFileInfo::MetaFind(BSTR name, UINT* p)
 {
 	TRACK_FUNCTION();
 
@@ -1316,7 +1317,7 @@ STDMETHODIMP FbFileInfo::MetaInsertValue(UINT idx, UINT vidx, BSTR value)
 	return S_OK;
 }
 
-STDMETHODIMP FbFileInfo::MetaName(UINT idx, BSTR * pp)
+STDMETHODIMP FbFileInfo::MetaName(UINT idx, BSTR* pp)
 {
 	TRACK_FUNCTION();
 
@@ -1359,7 +1360,7 @@ STDMETHODIMP FbFileInfo::MetaSet(BSTR name, BSTR value)
 	return S_OK;
 }
 
-STDMETHODIMP FbFileInfo::MetaValue(UINT idx, UINT vidx, BSTR * pp)
+STDMETHODIMP FbFileInfo::MetaValue(UINT idx, UINT vidx, BSTR* pp)
 {
 	TRACK_FUNCTION();
 
@@ -1377,7 +1378,7 @@ STDMETHODIMP FbFileInfo::MetaValue(UINT idx, UINT vidx, BSTR * pp)
 	return S_OK;
 }
 
-STDMETHODIMP FbFileInfo::MetaValueCount(UINT idx, UINT * p)
+STDMETHODIMP FbFileInfo::MetaValueCount(UINT idx, UINT* p)
 {
 	TRACK_FUNCTION();
 
@@ -1388,7 +1389,7 @@ STDMETHODIMP FbFileInfo::MetaValueCount(UINT idx, UINT * p)
 	return S_OK;
 }
 
-STDMETHODIMP FbFileInfo::get_InfoCount(UINT * p)
+STDMETHODIMP FbFileInfo::get_InfoCount(UINT* p)
 {
 	TRACK_FUNCTION();
 
@@ -1399,7 +1400,7 @@ STDMETHODIMP FbFileInfo::get_InfoCount(UINT * p)
 	return S_OK;
 }
 
-STDMETHODIMP FbFileInfo::get_MetaCount(UINT * p)
+STDMETHODIMP FbFileInfo::get_MetaCount(UINT* p)
 {
 	TRACK_FUNCTION();
 
@@ -1410,7 +1411,7 @@ STDMETHODIMP FbFileInfo::get_MetaCount(UINT * p)
 	return S_OK;
 }
 
-STDMETHODIMP FbFileInfo::get__ptr(void ** pp)
+STDMETHODIMP FbFileInfo::get__ptr(void** pp)
 {
 	TRACK_FUNCTION();
 
@@ -1420,7 +1421,7 @@ STDMETHODIMP FbFileInfo::get__ptr(void ** pp)
 	return S_OK;
 }
 
-STDMETHODIMP FbMetadbHandle::Compare(IFbMetadbHandle * handle, VARIANT_BOOL * p)
+STDMETHODIMP FbMetadbHandle::Compare(IFbMetadbHandle* handle, VARIANT_BOOL* p)
 {
 	TRACK_FUNCTION();
 
@@ -1429,7 +1430,7 @@ STDMETHODIMP FbMetadbHandle::Compare(IFbMetadbHandle * handle, VARIANT_BOOL * p)
 
 	if (handle)
 	{
-		metadb_handle * ptr = NULL;
+		metadb_handle* ptr = NULL;
 		handle->get__ptr((void **)&ptr);
 
 		*p = TO_VARIANT_BOOL(ptr == m_handle.get_ptr());
@@ -1438,21 +1439,21 @@ STDMETHODIMP FbMetadbHandle::Compare(IFbMetadbHandle * handle, VARIANT_BOOL * p)
 	return S_OK;
 }
 
-STDMETHODIMP FbMetadbHandle::GetFileInfo(IFbFileInfo ** pp)
+STDMETHODIMP FbMetadbHandle::GetFileInfo(IFbFileInfo** pp)
 {
 	TRACK_FUNCTION();
 
 	if (m_handle.is_empty()) return E_POINTER;
 	if (!pp) return E_POINTER;
 
-	file_info_impl * info_ptr = new file_info_impl;
+	file_info_impl* info_ptr = new file_info_impl;
 
 	m_handle->get_info(*info_ptr);
 	*pp = new com_object_impl_t<FbFileInfo>(info_ptr);
 	return S_OK;
 }
 
-STDMETHODIMP FbMetadbHandle::UpdateFileInfoSimple(SAFEARRAY * p)
+STDMETHODIMP FbMetadbHandle::UpdateFileInfoSimple(SAFEARRAY* p)
 {
 	TRACK_FUNCTION();
 
@@ -1519,13 +1520,13 @@ STDMETHODIMP FbMetadbHandle::UpdateFileInfoSimple(SAFEARRAY * p)
 	static_api_ptr_t<metadb_io_v2> io;
 
 	io->update_info_async(pfc::list_single_ref_t<metadb_handle_ptr>(m_handle),
-		new service_impl_t<helpers::file_info_pairs_filter>(m_handle, field_value_map, umultival),
-		core_api::get_main_window(), metadb_io_v2::op_flag_delay_ui, NULL);
+	                      new service_impl_t<helpers::file_info_pairs_filter>(m_handle, field_value_map, umultival),
+	                      core_api::get_main_window(), metadb_io_v2::op_flag_delay_ui, NULL);
 
 	return S_OK;
 }
 
-STDMETHODIMP FbMetadbHandle::get_FileSize(double * p)
+STDMETHODIMP FbMetadbHandle::get_FileSize(double* p)
 {
 	TRACK_FUNCTION();
 
@@ -1536,7 +1537,7 @@ STDMETHODIMP FbMetadbHandle::get_FileSize(double * p)
 	return S_OK;
 }
 
-STDMETHODIMP FbMetadbHandle::get_Length(double * p)
+STDMETHODIMP FbMetadbHandle::get_Length(double* p)
 {
 	TRACK_FUNCTION();
 
@@ -1547,7 +1548,7 @@ STDMETHODIMP FbMetadbHandle::get_Length(double * p)
 	return S_OK;
 }
 
-STDMETHODIMP FbMetadbHandle::get_Path(BSTR * pp)
+STDMETHODIMP FbMetadbHandle::get_Path(BSTR* pp)
 {
 	TRACK_FUNCTION();
 
@@ -1560,7 +1561,7 @@ STDMETHODIMP FbMetadbHandle::get_Path(BSTR * pp)
 	return S_OK;
 }
 
-STDMETHODIMP FbMetadbHandle::get_RawPath(BSTR * pp)
+STDMETHODIMP FbMetadbHandle::get_RawPath(BSTR* pp)
 {
 	TRACK_FUNCTION();
 
@@ -1573,7 +1574,7 @@ STDMETHODIMP FbMetadbHandle::get_RawPath(BSTR * pp)
 	return S_OK;
 }
 
-STDMETHODIMP FbMetadbHandle::get_SubSong(UINT * p)
+STDMETHODIMP FbMetadbHandle::get_SubSong(UINT* p)
 {
 	TRACK_FUNCTION();
 
@@ -1584,7 +1585,7 @@ STDMETHODIMP FbMetadbHandle::get_SubSong(UINT * p)
 	return S_OK;
 }
 
-STDMETHODIMP FbMetadbHandle::get__ptr(void ** pp)
+STDMETHODIMP FbMetadbHandle::get__ptr(void** pp)
 {
 	TRACK_FUNCTION();
 
@@ -1592,46 +1593,46 @@ STDMETHODIMP FbMetadbHandle::get__ptr(void ** pp)
 	return S_OK;
 }
 
-STDMETHODIMP FbMetadbHandleList::Add(IFbMetadbHandle * handle, UINT * p)
+STDMETHODIMP FbMetadbHandleList::Add(IFbMetadbHandle* handle, UINT* p)
 {
 	TRACK_FUNCTION();
 
 	if (!handle) return E_INVALIDARG;
 	if (!p) return E_POINTER;
 
-	metadb_handle * ptr = NULL;
+	metadb_handle* ptr = NULL;
 	handle->get__ptr((void **)&ptr);
 	*p = m_handles.add_item(ptr);
 	return S_OK;
 }
 
-STDMETHODIMP FbMetadbHandleList::AddRange(IFbMetadbHandleList * handles)
+STDMETHODIMP FbMetadbHandleList::AddRange(IFbMetadbHandleList* handles)
 {
 	TRACK_FUNCTION();
 
 	if (!handles) return E_INVALIDARG;
 
-	metadb_handle_list * handles_ptr = NULL;
+	metadb_handle_list* handles_ptr = NULL;
 	handles->get__ptr((void **)&handles_ptr);
 	if (!handles_ptr) return E_INVALIDARG;
 	m_handles.add_items(*handles_ptr);
 	return S_OK;
 }
 
-STDMETHODIMP FbMetadbHandleList::BSearch(IFbMetadbHandle * handle, UINT * p)
+STDMETHODIMP FbMetadbHandleList::BSearch(IFbMetadbHandle* handle, UINT* p)
 {
 	TRACK_FUNCTION();
 
 	if (!handle) return E_INVALIDARG;
 	if (!p) return E_POINTER;
 
-	metadb_handle * ptr = NULL;
+	metadb_handle* ptr = NULL;
 	handle->get__ptr((void **)&ptr);
 	*p = m_handles.bsearch_by_pointer(ptr);
 	return S_OK;
 }
 
-STDMETHODIMP FbMetadbHandleList::CalcTotalDuration(double * p)
+STDMETHODIMP FbMetadbHandleList::CalcTotalDuration(double* p)
 {
 	TRACK_FUNCTION();
 
@@ -1639,7 +1640,7 @@ STDMETHODIMP FbMetadbHandleList::CalcTotalDuration(double * p)
 	return S_OK;
 }
 
-STDMETHODIMP FbMetadbHandleList::CalcTotalSize(double * p)
+STDMETHODIMP FbMetadbHandleList::CalcTotalSize(double* p)
 {
 	TRACK_FUNCTION();
 
@@ -1647,7 +1648,7 @@ STDMETHODIMP FbMetadbHandleList::CalcTotalSize(double * p)
 	return S_OK;
 }
 
-STDMETHODIMP FbMetadbHandleList::Clone(IFbMetadbHandleList ** pp)
+STDMETHODIMP FbMetadbHandleList::Clone(IFbMetadbHandleList** pp)
 {
 	TRACK_FUNCTION();
 
@@ -1656,53 +1657,53 @@ STDMETHODIMP FbMetadbHandleList::Clone(IFbMetadbHandleList ** pp)
 	return S_OK;
 }
 
-STDMETHODIMP FbMetadbHandleList::Find(IFbMetadbHandle * handle, UINT * p)
+STDMETHODIMP FbMetadbHandleList::Find(IFbMetadbHandle* handle, UINT* p)
 {
 	TRACK_FUNCTION();
 
 	if (!handle) return E_INVALIDARG;
 	if (!p) return E_POINTER;
 
-	metadb_handle * ptr = NULL;
+	metadb_handle* ptr = NULL;
 	handle->get__ptr((void **)&ptr);
 	*p = m_handles.find_item(ptr);
 	return S_OK;
 }
 
-STDMETHODIMP FbMetadbHandleList::Insert(UINT index, IFbMetadbHandle * handle, UINT * outIndex)
+STDMETHODIMP FbMetadbHandleList::Insert(UINT index, IFbMetadbHandle* handle, UINT* outIndex)
 {
 	TRACK_FUNCTION();
 
 	if (!outIndex) return E_POINTER;
 	if (!handle) return E_INVALIDARG;
 
-	metadb_handle * ptr = NULL;
+	metadb_handle* ptr = NULL;
 	handle->get__ptr((void **)&ptr);
 	*outIndex = m_handles.insert_item(ptr, index);
 	return S_OK;
 }
 
-STDMETHODIMP FbMetadbHandleList::InsertRange(UINT index, IFbMetadbHandleList * handles, UINT * outIndex)
+STDMETHODIMP FbMetadbHandleList::InsertRange(UINT index, IFbMetadbHandleList* handles, UINT* outIndex)
 {
 	TRACK_FUNCTION();
 
 	if (!outIndex) return E_POINTER;
 	if (!handles) return E_INVALIDARG;
 
-	metadb_handle_list * handles_ptr = NULL;
+	metadb_handle_list* handles_ptr = NULL;
 	handles->get__ptr((void **)&handles_ptr);
 	if (!handles_ptr) return E_INVALIDARG;
 	*outIndex = m_handles.insert_items(*handles_ptr, index);
 	return S_OK;
 }
 
-STDMETHODIMP FbMetadbHandleList::MakeDifference(IFbMetadbHandleList * handles)
+STDMETHODIMP FbMetadbHandleList::MakeDifference(IFbMetadbHandleList* handles)
 {
 	TRACK_FUNCTION();
 
 	if (!handles) return E_INVALIDARG;
 
-	metadb_handle_list * handles_ptr = NULL;
+	metadb_handle_list* handles_ptr = NULL;
 	handles->get__ptr((void **)&handles_ptr);
 	if (!handles_ptr) return E_INVALIDARG;
 
@@ -1735,13 +1736,13 @@ STDMETHODIMP FbMetadbHandleList::MakeDifference(IFbMetadbHandleList * handles)
 	return S_OK;
 }
 
-STDMETHODIMP FbMetadbHandleList::MakeIntersection(IFbMetadbHandleList * handles)
+STDMETHODIMP FbMetadbHandleList::MakeIntersection(IFbMetadbHandleList* handles)
 {
 	TRACK_FUNCTION();
 
 	if (!handles) return E_INVALIDARG;
 
-	metadb_handle_list * handles_ptr = NULL;
+	metadb_handle_list* handles_ptr = NULL;
 	handles->get__ptr((void **)&handles_ptr);
 	if (!handles_ptr) return E_INVALIDARG;
 
@@ -1770,13 +1771,13 @@ STDMETHODIMP FbMetadbHandleList::MakeIntersection(IFbMetadbHandleList * handles)
 	return S_OK;
 }
 
-STDMETHODIMP FbMetadbHandleList::MakeUnion(IFbMetadbHandleList * handles)
+STDMETHODIMP FbMetadbHandleList::MakeUnion(IFbMetadbHandleList* handles)
 {
 	TRACK_FUNCTION();
 
 	if (!handles) return E_INVALIDARG;
 
-	metadb_handle_list * handles_ptr = NULL;
+	metadb_handle_list* handles_ptr = NULL;
 	handles->get__ptr((void **)&handles_ptr);
 	if (!handles_ptr) return E_INVALIDARG;
 
@@ -1811,12 +1812,12 @@ STDMETHODIMP FbMetadbHandleList::MakeUnion(IFbMetadbHandleList * handles)
 	return S_OK;
 }
 
-STDMETHODIMP FbMetadbHandleList::OrderByFormat(__interface IFbTitleFormat * script, int direction)
+STDMETHODIMP FbMetadbHandleList::OrderByFormat(__interface IFbTitleFormat* script, int direction)
 {
 	TRACK_FUNCTION();
 
 	if (!script) return E_INVALIDARG;
-	titleformat_object * obj = NULL;
+	titleformat_object* obj = NULL;
 	script->get__ptr((void **)&obj);
 	if (!obj) return E_INVALIDARG;
 	m_handles.sort_by_format(obj, NULL, direction);
@@ -1839,13 +1840,13 @@ STDMETHODIMP FbMetadbHandleList::OrderByRelativePath()
 	return S_OK;
 }
 
-STDMETHODIMP FbMetadbHandleList::Remove(IFbMetadbHandle * handle)
+STDMETHODIMP FbMetadbHandleList::Remove(IFbMetadbHandle* handle)
 {
 	TRACK_FUNCTION();
 
 	if (!handle) return E_INVALIDARG;
 
-	metadb_handle * ptr = NULL;
+	metadb_handle* ptr = NULL;
 	handle->get__ptr((void **)&ptr);
 	m_handles.remove_item(ptr);
 	return S_OK;
@@ -1884,7 +1885,7 @@ STDMETHODIMP FbMetadbHandleList::Sort()
 	return S_OK;
 }
 
-STDMETHODIMP FbMetadbHandleList::UpdateFileInfoSimple(SAFEARRAY * p)
+STDMETHODIMP FbMetadbHandleList::UpdateFileInfoSimple(SAFEARRAY* p)
 {
 	TRACK_FUNCTION();
 
@@ -1954,11 +1955,12 @@ STDMETHODIMP FbMetadbHandleList::UpdateFileInfoSimple(SAFEARRAY * p)
 	metadb_handle_ptr item;
 	t_filestats p_stats = filestats_invalid;
 
-	for (int i = 0; i < (int)m_handles.get_count(); i++) {
+	for (int i = 0; i < (int)m_handles.get_count(); i++)
+	{
 		item = m_handles.get_item(i);
 		item->get_info(info[i]);
 
-		helpers::file_info_pairs_filter * item_filters = new service_impl_t<helpers::file_info_pairs_filter>(m_handles[i], field_value_map, umultival);
+		helpers::file_info_pairs_filter* item_filters = new service_impl_t<helpers::file_info_pairs_filter>(m_handles[i], field_value_map, umultival);
 		item_filters->apply_filter(m_handles[i], p_stats, info[i]);
 	}
 
@@ -1966,12 +1968,12 @@ STDMETHODIMP FbMetadbHandleList::UpdateFileInfoSimple(SAFEARRAY * p)
 		m_handles,
 		pfc::ptr_list_const_array_t<const file_info, file_info_impl *>(info.get_ptr(), info.get_count()),
 		core_api::get_main_window(), metadb_io_v2::op_flag_delay_ui, NULL
-		);
+	);
 
 	return S_OK;
 }
 
-STDMETHODIMP FbMetadbHandleList::get_Count(UINT * p)
+STDMETHODIMP FbMetadbHandleList::get_Count(UINT* p)
 {
 	TRACK_FUNCTION();
 
@@ -1981,7 +1983,7 @@ STDMETHODIMP FbMetadbHandleList::get_Count(UINT * p)
 	return S_OK;
 }
 
-STDMETHODIMP FbMetadbHandleList::get_Item(UINT index, IFbMetadbHandle ** pp)
+STDMETHODIMP FbMetadbHandleList::get_Item(UINT index, IFbMetadbHandle** pp)
 {
 	TRACK_FUNCTION();
 
@@ -1992,7 +1994,8 @@ STDMETHODIMP FbMetadbHandleList::get_Item(UINT index, IFbMetadbHandle ** pp)
 	*pp = new com_object_impl_t<FbMetadbHandle>(m_handles.get_item_ref(index));
 	return S_OK;
 }
-STDMETHODIMP FbMetadbHandleList::get__ptr(void ** pp)
+
+STDMETHODIMP FbMetadbHandleList::get__ptr(void** pp)
 {
 	TRACK_FUNCTION();
 
@@ -2002,20 +2005,20 @@ STDMETHODIMP FbMetadbHandleList::get__ptr(void ** pp)
 	return S_OK;
 }
 
-STDMETHODIMP FbMetadbHandleList::put_Item(UINT index, IFbMetadbHandle * handle)
+STDMETHODIMP FbMetadbHandleList::put_Item(UINT index, IFbMetadbHandle* handle)
 {
 	TRACK_FUNCTION();
 
 	if (index >= m_handles.get_size()) return E_INVALIDARG;
 	if (!handle) return E_INVALIDARG;
 
-	metadb_handle * ptr = NULL;
+	metadb_handle* ptr = NULL;
 	handle->get__ptr((void **)&ptr);
 	m_handles.replace_item(index, ptr);
 	return S_OK;
 }
 
-STDMETHODIMP FbTitleFormat::Eval(VARIANT_BOOL force, BSTR * pp)
+STDMETHODIMP FbTitleFormat::Eval(VARIANT_BOOL force, BSTR* pp)
 {
 	TRACK_FUNCTION();
 
@@ -2043,7 +2046,7 @@ STDMETHODIMP FbTitleFormat::Eval(VARIANT_BOOL force, BSTR * pp)
 	return S_OK;
 }
 
-STDMETHODIMP FbTitleFormat::EvalWithMetadb(IFbMetadbHandle * handle, BSTR * pp)
+STDMETHODIMP FbTitleFormat::EvalWithMetadb(IFbMetadbHandle* handle, BSTR* pp)
 {
 	TRACK_FUNCTION();
 
@@ -2051,7 +2054,7 @@ STDMETHODIMP FbTitleFormat::EvalWithMetadb(IFbMetadbHandle * handle, BSTR * pp)
 	if (!handle) return E_INVALIDARG;
 	if (!pp) return E_POINTER;
 
-	metadb_handle * ptr = NULL;
+	metadb_handle* ptr = NULL;
 	handle->get__ptr((void**)&ptr);
 	if (!ptr) return E_INVALIDARG;
 
@@ -2061,7 +2064,7 @@ STDMETHODIMP FbTitleFormat::EvalWithMetadb(IFbMetadbHandle * handle, BSTR * pp)
 	return S_OK;
 }
 
-STDMETHODIMP FbTitleFormat::get__ptr(void ** pp)
+STDMETHODIMP FbTitleFormat::get__ptr(void** pp)
 {
 	TRACK_FUNCTION();
 
@@ -2069,7 +2072,7 @@ STDMETHODIMP FbTitleFormat::get__ptr(void ** pp)
 	return S_OK;
 }
 
-STDMETHODIMP ContextMenuManager::BuildMenu(IMenuObj * p, int base_id, int max_id)
+STDMETHODIMP ContextMenuManager::BuildMenu(IMenuObj* p, int base_id, int max_id)
 {
 	TRACK_FUNCTION();
 
@@ -2077,14 +2080,14 @@ STDMETHODIMP ContextMenuManager::BuildMenu(IMenuObj * p, int base_id, int max_id
 	if (!p) return E_INVALIDARG;
 
 	UINT menuid;
-	contextmenu_node * parent = parent = m_cm->get_root();
+	contextmenu_node* parent = parent = m_cm->get_root();
 
 	p->get_ID(&menuid);
 	m_cm->win32_build_menu((HMENU)menuid, parent, base_id, max_id);
 	return S_OK;
 }
 
-STDMETHODIMP ContextMenuManager::ExecuteByID(UINT id, VARIANT_BOOL * p)
+STDMETHODIMP ContextMenuManager::ExecuteByID(UINT id, VARIANT_BOOL* p)
 {
 	TRACK_FUNCTION();
 
@@ -2106,7 +2109,7 @@ STDMETHODIMP ContextMenuManager::InitContext(VARIANT handle)
 	if (try_result < 0 || !handle_s) return E_INVALIDARG;
 
 	metadb_handle_list handle_list;
-	void * ptr = NULL;
+	void* ptr = NULL;
 
 	switch (try_result)
 	{
@@ -2140,7 +2143,7 @@ STDMETHODIMP ContextMenuManager::InitNowPlaying()
 	return S_OK;
 }
 
-STDMETHODIMP MainMenuManager::BuildMenu(IMenuObj * p, int base_id, int count)
+STDMETHODIMP MainMenuManager::BuildMenu(IMenuObj* p, int base_id, int count)
 {
 	TRACK_FUNCTION();
 
@@ -2156,12 +2159,14 @@ STDMETHODIMP MainMenuManager::BuildMenu(IMenuObj * p, int base_id, int count)
 	{
 		m_mm->generate_menu_win32((HMENU)menuid, base_id, count, mainmenu_manager::flag_show_shortcuts);
 	}
-	catch (...) {}
+	catch (...)
+	{
+	}
 
 	return S_OK;
 }
 
-STDMETHODIMP MainMenuManager::ExecuteByID(UINT id, VARIANT_BOOL * p)
+STDMETHODIMP MainMenuManager::ExecuteByID(UINT id, VARIANT_BOOL* p)
 {
 	TRACK_FUNCTION();
 
@@ -2180,20 +2185,20 @@ STDMETHODIMP MainMenuManager::Init(BSTR root_name)
 
 	struct t_valid_root_name
 	{
-		const wchar_t * name;
-		const GUID * guid;
+		const wchar_t* name;
+		const GUID* guid;
 	};
 
 	// In mainmenu_groups:
 	// static const GUID file,view,edit,playback,library,help;
 	const t_valid_root_name valid_root_names[] =
 	{
-		{L"file",     &mainmenu_groups::file},
-		{L"view",     &mainmenu_groups::view},
-		{L"edit",     &mainmenu_groups::edit},
+		{L"file", &mainmenu_groups::file},
+		{L"view", &mainmenu_groups::view},
+		{L"edit", &mainmenu_groups::edit},
 		{L"playback", &mainmenu_groups::playback},
-		{L"library",  &mainmenu_groups::library},
-		{L"help",     &mainmenu_groups::help},
+		{L"library", &mainmenu_groups::library},
+		{L"help", &mainmenu_groups::help},
 	};
 
 	// Find
@@ -2227,7 +2232,7 @@ STDMETHODIMP FbProfiler::Reset()
 	return S_OK;
 }
 
-STDMETHODIMP FbProfiler::get_Time(INT * p)
+STDMETHODIMP FbProfiler::get_Time(INT* p)
 {
 	TRACK_FUNCTION();
 
@@ -2253,19 +2258,19 @@ STDMETHODIMP FbUiSelectionHolder::SetPlaylistTracking()
 	return S_OK;
 }
 
-STDMETHODIMP FbUiSelectionHolder::SetSelection(IFbMetadbHandleList * handles)
+STDMETHODIMP FbUiSelectionHolder::SetSelection(IFbMetadbHandleList* handles)
 {
 	TRACK_FUNCTION();
 
 	if (!handles) return E_INVALIDARG;
 
-	metadb_handle_list * ptrHandles = NULL;
+	metadb_handle_list* ptrHandles = NULL;
 	handles->get__ptr((void**)&handles);
 	if (ptrHandles) m_holder->set_selection(*ptrHandles);
 	return S_OK;
 }
 
-STDMETHODIMP FbUtils::AcquireUiSelectionHolder(IFbUiSelectionHolder ** outHolder)
+STDMETHODIMP FbUtils::AcquireUiSelectionHolder(IFbUiSelectionHolder** outHolder)
 {
 	TRACK_FUNCTION();
 
@@ -2300,7 +2305,7 @@ STDMETHODIMP FbUtils::ClearPlaylist()
 	return S_OK;
 }
 
-STDMETHODIMP FbUtils::CreateContextMenuManager(IContextMenuManager ** pp)
+STDMETHODIMP FbUtils::CreateContextMenuManager(IContextMenuManager** pp)
 {
 	TRACK_FUNCTION();
 
@@ -2310,7 +2315,7 @@ STDMETHODIMP FbUtils::CreateContextMenuManager(IContextMenuManager ** pp)
 	return S_OK;
 }
 
-STDMETHODIMP FbUtils::CreateMainMenuManager(IMainMenuManager ** pp)
+STDMETHODIMP FbUtils::CreateMainMenuManager(IMainMenuManager** pp)
 {
 	TRACK_FUNCTION();
 
@@ -2320,7 +2325,7 @@ STDMETHODIMP FbUtils::CreateMainMenuManager(IMainMenuManager ** pp)
 	return S_OK;
 }
 
-STDMETHODIMP FbUtils::CreateProfiler(BSTR name, IFbProfiler ** pp)
+STDMETHODIMP FbUtils::CreateProfiler(BSTR name, IFbProfiler** pp)
 {
 	TRACK_FUNCTION();
 
@@ -2339,7 +2344,7 @@ STDMETHODIMP FbUtils::Exit()
 	return S_OK;
 }
 
-STDMETHODIMP FbUtils::GetFocusItem(VARIANT_BOOL force, IFbMetadbHandle ** pp)
+STDMETHODIMP FbUtils::GetFocusItem(VARIANT_BOOL force, IFbMetadbHandle** pp)
 {
 	TRACK_FUNCTION();
 
@@ -2360,13 +2365,15 @@ STDMETHODIMP FbUtils::GetFocusItem(VARIANT_BOOL force, IFbMetadbHandle ** pp)
 			return S_OK;
 		}
 	}
-	catch (std::exception &) {}
+	catch (std::exception&)
+	{
+	}
 
 	*pp = new com_object_impl_t<FbMetadbHandle>(metadb);
 	return S_OK;
 }
 
-STDMETHODIMP FbUtils::GetLibraryItems(IFbMetadbHandleList ** outItems)
+STDMETHODIMP FbUtils::GetLibraryItems(IFbMetadbHandleList** outItems)
 {
 	TRACK_FUNCTION();
 
@@ -2379,14 +2386,14 @@ STDMETHODIMP FbUtils::GetLibraryItems(IFbMetadbHandleList ** outItems)
 	return S_OK;
 }
 
-STDMETHODIMP FbUtils::GetLibraryRelativePath(IFbMetadbHandle * handle, BSTR * p)
+STDMETHODIMP FbUtils::GetLibraryRelativePath(IFbMetadbHandle* handle, BSTR* p)
 {
 	TRACK_FUNCTION();
 
 	if (!handle) return E_INVALIDARG;
 	if (!p) return E_POINTER;
 
-	metadb_handle * ptr = NULL;
+	metadb_handle* ptr = NULL;
 	handle->get__ptr((void**)&ptr);
 
 	pfc::string8_fast temp;
@@ -2397,7 +2404,7 @@ STDMETHODIMP FbUtils::GetLibraryRelativePath(IFbMetadbHandle * handle, BSTR * p)
 	return S_OK;
 }
 
-STDMETHODIMP FbUtils::GetNowPlaying(IFbMetadbHandle ** pp)
+STDMETHODIMP FbUtils::GetNowPlaying(IFbMetadbHandle** pp)
 {
 	TRACK_FUNCTION();
 
@@ -2415,7 +2422,7 @@ STDMETHODIMP FbUtils::GetNowPlaying(IFbMetadbHandle ** pp)
 	return S_OK;
 }
 
-STDMETHODIMP FbUtils::GetQueryItems(IFbMetadbHandleList * items, BSTR query, IFbMetadbHandleList ** pp)
+STDMETHODIMP FbUtils::GetQueryItems(IFbMetadbHandleList* items, BSTR query, IFbMetadbHandleList** pp)
 {
 	TRACK_FUNCTION();
 
@@ -2451,7 +2458,7 @@ STDMETHODIMP FbUtils::GetQueryItems(IFbMetadbHandleList * items, BSTR query, IFb
 	return S_OK;
 }
 
-STDMETHODIMP FbUtils::GetSelection(IFbMetadbHandle ** pp)
+STDMETHODIMP FbUtils::GetSelection(IFbMetadbHandle** pp)
 {
 	TRACK_FUNCTION();
 
@@ -2473,13 +2480,13 @@ STDMETHODIMP FbUtils::GetSelection(IFbMetadbHandle ** pp)
 	return S_OK;
 }
 
-STDMETHODIMP FbUtils::GetSelectionType(UINT * p)
+STDMETHODIMP FbUtils::GetSelectionType(UINT* p)
 {
 	TRACK_FUNCTION();
 
 	if (!p) return E_POINTER;
 
-	const GUID * guids[] = {
+	const GUID* guids[] = {
 		&contextmenu_item::caller_undefined,
 		&contextmenu_item::caller_active_playlist_selection,
 		&contextmenu_item::caller_active_playlist,
@@ -2504,7 +2511,7 @@ STDMETHODIMP FbUtils::GetSelectionType(UINT * p)
 	return S_OK;
 }
 
-STDMETHODIMP FbUtils::GetSelections(UINT flags, IFbMetadbHandleList ** pp)
+STDMETHODIMP FbUtils::GetSelections(UINT flags, IFbMetadbHandleList** pp)
 {
 	TRACK_FUNCTION();
 
@@ -2516,7 +2523,7 @@ STDMETHODIMP FbUtils::GetSelections(UINT flags, IFbMetadbHandleList ** pp)
 	return S_OK;
 }
 
-STDMETHODIMP FbUtils::IsLibraryEnabled(VARIANT_BOOL * p)
+STDMETHODIMP FbUtils::IsLibraryEnabled(VARIANT_BOOL* p)
 {
 	TRACK_FUNCTION();
 
@@ -2526,14 +2533,14 @@ STDMETHODIMP FbUtils::IsLibraryEnabled(VARIANT_BOOL * p)
 	return S_OK;
 }
 
-STDMETHODIMP FbUtils::IsMetadbInMediaLibrary(IFbMetadbHandle * handle, VARIANT_BOOL * p)
+STDMETHODIMP FbUtils::IsMetadbInMediaLibrary(IFbMetadbHandle* handle, VARIANT_BOOL* p)
 {
 	TRACK_FUNCTION();
 
 	if (!handle) return E_INVALIDARG;
 	if (!p) return E_POINTER;
 
-	metadb_handle * ptr = NULL;
+	metadb_handle* ptr = NULL;
 	handle->get__ptr((void**)&ptr);
 	*p = TO_VARIANT_BOOL(static_api_ptr_t<library_manager>()->is_item_in_library(ptr));
 	return S_OK;
@@ -2595,7 +2602,7 @@ STDMETHODIMP FbUtils::Random()
 	return S_OK;
 }
 
-STDMETHODIMP FbUtils::RunContextCommand(BSTR command, UINT flags, VARIANT_BOOL * p)
+STDMETHODIMP FbUtils::RunContextCommand(BSTR command, UINT flags, VARIANT_BOOL* p)
 {
 	TRACK_FUNCTION();
 
@@ -2607,7 +2614,7 @@ STDMETHODIMP FbUtils::RunContextCommand(BSTR command, UINT flags, VARIANT_BOOL *
 	return S_OK;
 }
 
-STDMETHODIMP FbUtils::RunContextCommandWithMetadb(BSTR command, VARIANT handle, UINT flags, VARIANT_BOOL * p)
+STDMETHODIMP FbUtils::RunContextCommandWithMetadb(BSTR command, VARIANT handle, UINT flags, VARIANT_BOOL* p)
 {
 	TRACK_FUNCTION();
 
@@ -2619,7 +2626,7 @@ STDMETHODIMP FbUtils::RunContextCommandWithMetadb(BSTR command, VARIANT handle, 
 
 	pfc::stringcvt::string_utf8_from_wide name(command);
 	metadb_handle_list handle_list;
-	void * ptr = NULL;
+	void* ptr = NULL;
 
 	switch (try_result)
 	{
@@ -2643,7 +2650,7 @@ STDMETHODIMP FbUtils::RunContextCommandWithMetadb(BSTR command, VARIANT handle, 
 	return S_OK;
 }
 
-STDMETHODIMP FbUtils::RunMainMenuCommand(BSTR command, VARIANT_BOOL * p)
+STDMETHODIMP FbUtils::RunMainMenuCommand(BSTR command, VARIANT_BOOL* p)
 {
 	TRACK_FUNCTION();
 
@@ -2669,7 +2676,7 @@ STDMETHODIMP FbUtils::ShowConsole()
 	TRACK_FUNCTION();
 
 	const GUID guid_main_show_console =
-	{ 0x5b652d25, 0xce44, 0x4737, { 0x99, 0xbb, 0xa3, 0xcf, 0x2a, 0xeb, 0x35, 0xcc } };
+		{0x5b652d25, 0xce44, 0x4737, {0x99, 0xbb, 0xa3, 0xcf, 0x2a, 0xeb, 0x35, 0xcc}};
 
 	standard_commands::run_main(guid_main_show_console);
 	return S_OK;
@@ -2678,12 +2685,12 @@ STDMETHODIMP FbUtils::ShowConsole()
 STDMETHODIMP FbUtils::ShowLibrarySearchUI(BSTR query)
 {
 	TRACK_FUNCTION();
-	
+
 	if (!query) return E_INVALIDARG;
-	
+
 	pfc::stringcvt::string_utf8_from_wide wquery(query);
 	static_api_ptr_t<library_search_ui>()->show(wquery);
-	
+
 	return S_OK;
 }
 
@@ -2694,7 +2701,7 @@ STDMETHODIMP FbUtils::ShowPopupMessage(BSTR msg, BSTR title, int iconid)
 	if (!msg || !title) return E_INVALIDARG;
 
 	popup_msg::g_show(pfc::stringcvt::string_utf8_from_wide(msg),
-		pfc::stringcvt::string_utf8_from_wide(title), (popup_message::t_icon)iconid);
+	                  pfc::stringcvt::string_utf8_from_wide(title), (popup_message::t_icon)iconid);
 	return S_OK;
 }
 
@@ -2714,7 +2721,7 @@ STDMETHODIMP FbUtils::Stop()
 	return S_OK;
 }
 
-STDMETHODIMP FbUtils::TitleFormat(BSTR expression, IFbTitleFormat ** pp)
+STDMETHODIMP FbUtils::TitleFormat(BSTR expression, IFbTitleFormat** pp)
 {
 	TRACK_FUNCTION();
 
@@ -2725,7 +2732,7 @@ STDMETHODIMP FbUtils::TitleFormat(BSTR expression, IFbTitleFormat ** pp)
 	return S_OK;
 }
 
-STDMETHODIMP FbUtils::Trace(SAFEARRAY * p)
+STDMETHODIMP FbUtils::Trace(SAFEARRAY* p)
 {
 	TRACK_FUNCTION();
 
@@ -2784,7 +2791,7 @@ STDMETHODIMP FbUtils::VolumeUp()
 	return S_OK;
 }
 
-STDMETHODIMP FbUtils::get_ComponentPath(BSTR * pp)
+STDMETHODIMP FbUtils::get_ComponentPath(BSTR* pp)
 {
 	TRACK_FUNCTION();
 
@@ -2794,7 +2801,7 @@ STDMETHODIMP FbUtils::get_ComponentPath(BSTR * pp)
 	return S_OK;
 }
 
-STDMETHODIMP FbUtils::get_CursorFollowPlayback(VARIANT_BOOL * p)
+STDMETHODIMP FbUtils::get_CursorFollowPlayback(VARIANT_BOOL* p)
 {
 	TRACK_FUNCTION();
 
@@ -2804,7 +2811,7 @@ STDMETHODIMP FbUtils::get_CursorFollowPlayback(VARIANT_BOOL * p)
 	return S_OK;
 }
 
-STDMETHODIMP FbUtils::get_FoobarPath(BSTR * pp)
+STDMETHODIMP FbUtils::get_FoobarPath(BSTR* pp)
 {
 	TRACK_FUNCTION();
 
@@ -2816,7 +2823,7 @@ STDMETHODIMP FbUtils::get_FoobarPath(BSTR * pp)
 	return S_OK;
 }
 
-STDMETHODIMP FbUtils::get_IsPaused(VARIANT_BOOL * p)
+STDMETHODIMP FbUtils::get_IsPaused(VARIANT_BOOL* p)
 {
 	TRACK_FUNCTION();
 
@@ -2826,7 +2833,7 @@ STDMETHODIMP FbUtils::get_IsPaused(VARIANT_BOOL * p)
 	return S_OK;
 }
 
-STDMETHODIMP FbUtils::get_IsPlaying(VARIANT_BOOL * p)
+STDMETHODIMP FbUtils::get_IsPlaying(VARIANT_BOOL* p)
 {
 	TRACK_FUNCTION();
 
@@ -2836,7 +2843,7 @@ STDMETHODIMP FbUtils::get_IsPlaying(VARIANT_BOOL * p)
 	return S_OK;
 }
 
-STDMETHODIMP FbUtils::get_PlaybackFollowCursor(VARIANT_BOOL * p)
+STDMETHODIMP FbUtils::get_PlaybackFollowCursor(VARIANT_BOOL* p)
 {
 	TRACK_FUNCTION();
 
@@ -2846,7 +2853,7 @@ STDMETHODIMP FbUtils::get_PlaybackFollowCursor(VARIANT_BOOL * p)
 	return S_OK;
 }
 
-STDMETHODIMP FbUtils::get_PlaybackLength(double * p)
+STDMETHODIMP FbUtils::get_PlaybackLength(double* p)
 {
 	TRACK_FUNCTION();
 
@@ -2856,7 +2863,7 @@ STDMETHODIMP FbUtils::get_PlaybackLength(double * p)
 	return S_OK;
 }
 
-STDMETHODIMP FbUtils::get_PlaybackTime(double * p)
+STDMETHODIMP FbUtils::get_PlaybackTime(double* p)
 {
 	TRACK_FUNCTION();
 
@@ -2866,7 +2873,7 @@ STDMETHODIMP FbUtils::get_PlaybackTime(double * p)
 	return S_OK;
 }
 
-STDMETHODIMP FbUtils::get_ProfilePath(BSTR * pp)
+STDMETHODIMP FbUtils::get_ProfilePath(BSTR* pp)
 {
 	TRACK_FUNCTION();
 
@@ -2878,7 +2885,7 @@ STDMETHODIMP FbUtils::get_ProfilePath(BSTR * pp)
 	return S_OK;
 }
 
-STDMETHODIMP FbUtils::get_StopAfterCurrent(VARIANT_BOOL * p)
+STDMETHODIMP FbUtils::get_StopAfterCurrent(VARIANT_BOOL* p)
 {
 	TRACK_FUNCTION();
 
@@ -2888,7 +2895,7 @@ STDMETHODIMP FbUtils::get_StopAfterCurrent(VARIANT_BOOL * p)
 	return S_OK;
 }
 
-STDMETHODIMP FbUtils::get_Volume(float * p)
+STDMETHODIMP FbUtils::get_Volume(float* p)
 {
 	TRACK_FUNCTION();
 
@@ -2945,7 +2952,7 @@ STDMETHODIMP MenuObj::AppendMenuItem(UINT flags, UINT item_id, BSTR text)
 	if (!m_hMenu) return E_POINTER;
 	if ((flags & MF_STRING) && !text) return E_INVALIDARG;
 	if (flags & MF_POPUP) return E_INVALIDARG;
-	
+
 	::AppendMenu(m_hMenu, flags, item_id, text);
 	return S_OK;
 }
@@ -2959,7 +2966,7 @@ STDMETHODIMP MenuObj::AppendMenuSeparator()
 	return S_OK;
 }
 
-STDMETHODIMP MenuObj::AppendTo(IMenuObj * parent, UINT flags, BSTR text)
+STDMETHODIMP MenuObj::AppendTo(IMenuObj* parent, UINT flags, BSTR text)
 {
 	TRACK_FUNCTION();
 
@@ -2967,7 +2974,7 @@ STDMETHODIMP MenuObj::AppendTo(IMenuObj * parent, UINT flags, BSTR text)
 	if (!m_hMenu) return E_POINTER;
 	if (!text) return E_INVALIDARG;
 
-	MenuObj * pMenuParent = static_cast<MenuObj *>(parent);
+	MenuObj* pMenuParent = static_cast<MenuObj *>(parent);
 	if (::AppendMenu(pMenuParent->m_hMenu, flags | MF_STRING | MF_POPUP, UINT_PTR(m_hMenu), text))
 		m_has_detached = true;
 	return S_OK;
@@ -3007,7 +3014,7 @@ STDMETHODIMP MenuObj::EnableMenuItem(UINT id_or_pos, UINT enable, VARIANT_BOOL b
 	return S_OK;
 }
 
-STDMETHODIMP MenuObj::TrackPopupMenu(int x, int y, UINT flags, UINT * item_id)
+STDMETHODIMP MenuObj::TrackPopupMenu(int x, int y, UINT flags, UINT* item_id)
 {
 	TRACK_FUNCTION();
 
@@ -3025,7 +3032,7 @@ STDMETHODIMP MenuObj::TrackPopupMenu(int x, int y, UINT flags, UINT * item_id)
 	return S_OK;
 }
 
-STDMETHODIMP MenuObj::get_ID(UINT * p)
+STDMETHODIMP MenuObj::get_ID(UINT* p)
 {
 	TRACK_FUNCTION();
 
@@ -3036,7 +3043,7 @@ STDMETHODIMP MenuObj::get_ID(UINT * p)
 	return S_OK;
 }
 
-STDMETHODIMP JSUtils::CheckComponent(BSTR name, VARIANT_BOOL is_dll, VARIANT_BOOL * p)
+STDMETHODIMP JSUtils::CheckComponent(BSTR name, VARIANT_BOOL is_dll, VARIANT_BOOL* p)
 {
 	TRACK_FUNCTION();
 
@@ -3067,17 +3074,17 @@ STDMETHODIMP JSUtils::CheckComponent(BSTR name, VARIANT_BOOL is_dll, VARIANT_BOO
 	return S_OK;
 }
 
-STDMETHODIMP JSUtils::CheckFont(BSTR name, VARIANT_BOOL * p)
+STDMETHODIMP JSUtils::CheckFont(BSTR name, VARIANT_BOOL* p)
 {
 	TRACK_FUNCTION();
 
 	if (!name) return E_INVALIDARG;
 	if (!p) return E_POINTER;
 
-	WCHAR family_name_eng[LF_FACESIZE] = { 0 };
-	WCHAR family_name_loc[LF_FACESIZE] = { 0 };
+	WCHAR family_name_eng[LF_FACESIZE] = {0};
+	WCHAR family_name_loc[LF_FACESIZE] = {0};
 	Gdiplus::InstalledFontCollection font_collection;
-	Gdiplus::FontFamily * font_families;
+	Gdiplus::FontFamily* font_families;
 	int count = font_collection.GetFamilyCount();
 	int recv;
 
@@ -3105,7 +3112,7 @@ STDMETHODIMP JSUtils::CheckFont(BSTR name, VARIANT_BOOL * p)
 	return S_OK;
 }
 
-STDMETHODIMP JSUtils::FileTest(BSTR path, BSTR mode, VARIANT * p)
+STDMETHODIMP JSUtils::FileTest(BSTR path, BSTR mode, VARIANT* p)
 {
 	TRACK_FUNCTION();
 
@@ -3139,8 +3146,8 @@ STDMETHODIMP JSUtils::FileTest(BSTR path, BSTR mode, VARIANT * p)
 	}
 	else if (wcscmp(mode, L"split") == 0)
 	{
-		const wchar_t * fn = PathFindFileName(path);
-		const wchar_t * ext = PathFindExtension(fn);
+		const wchar_t* fn = PathFindFileName(path);
+		const wchar_t* ext = PathFindExtension(fn);
 		wchar_t dir[MAX_PATH] = {0};
 		helpers::com_array_writer<> helper;
 		_variant_t vars[3];
@@ -3196,7 +3203,7 @@ STDMETHODIMP JSUtils::FileTest(BSTR path, BSTR mode, VARIANT * p)
 	return S_OK;
 }
 
-STDMETHODIMP JSUtils::FormatDuration(double p, BSTR * pp)
+STDMETHODIMP JSUtils::FormatDuration(double p, BSTR* pp)
 {
 	TRACK_FUNCTION();
 
@@ -3209,7 +3216,7 @@ STDMETHODIMP JSUtils::FormatDuration(double p, BSTR * pp)
 	return S_OK;
 }
 
-STDMETHODIMP JSUtils::FormatFileSize(double p, BSTR * pp)
+STDMETHODIMP JSUtils::FormatFileSize(double p, BSTR* pp)
 {
 	TRACK_FUNCTION();
 
@@ -3222,7 +3229,7 @@ STDMETHODIMP JSUtils::FormatFileSize(double p, BSTR * pp)
 	return S_OK;
 }
 
-STDMETHODIMP JSUtils::GetAlbumArtAsync(UINT window_id, IFbMetadbHandle * handle, int art_id, VARIANT_BOOL need_stub, VARIANT_BOOL only_embed, VARIANT_BOOL no_load, UINT * p)
+STDMETHODIMP JSUtils::GetAlbumArtAsync(UINT window_id, IFbMetadbHandle* handle, int art_id, VARIANT_BOOL need_stub, VARIANT_BOOL only_embed, VARIANT_BOOL no_load, UINT* p)
 {
 	TRACK_FUNCTION();
 
@@ -3230,22 +3237,22 @@ STDMETHODIMP JSUtils::GetAlbumArtAsync(UINT window_id, IFbMetadbHandle * handle,
 	if (!p) return E_POINTER;
 
 	unsigned cookie = 0;
-	metadb_handle * ptr = NULL;
+	metadb_handle* ptr = NULL;
 	handle->get__ptr((void**)&ptr);
 
 	if (ptr)
 	{
 		try
 		{
-			helpers::album_art_async * task = new helpers::album_art_async((HWND)window_id,
-				ptr, art_id, need_stub, only_embed, no_load);
+			helpers::album_art_async* task = new helpers::album_art_async((HWND)window_id,
+			                                                              ptr, art_id, need_stub, only_embed, no_load);
 
 			if (simple_thread_pool::instance().enqueue(task))
 				cookie = reinterpret_cast<unsigned>(task);
 			else
 				delete task;
 		}
-		catch (std::exception &)
+		catch (std::exception&)
 		{
 			cookie = 0;
 		}
@@ -3259,7 +3266,7 @@ STDMETHODIMP JSUtils::GetAlbumArtAsync(UINT window_id, IFbMetadbHandle * handle,
 	return S_OK;
 }
 
-STDMETHODIMP JSUtils::GetAlbumArtEmbedded(BSTR rawpath, int art_id, IGdiBitmap ** pp)
+STDMETHODIMP JSUtils::GetAlbumArtEmbedded(BSTR rawpath, int art_id, IGdiBitmap** pp)
 {
 	TRACK_FUNCTION();
 
@@ -3269,19 +3276,19 @@ STDMETHODIMP JSUtils::GetAlbumArtEmbedded(BSTR rawpath, int art_id, IGdiBitmap *
 	return helpers::get_album_art_embedded(rawpath, pp, art_id);
 }
 
-STDMETHODIMP JSUtils::GetAlbumArtV2(IFbMetadbHandle * handle, int art_id, VARIANT_BOOL need_stub, IGdiBitmap ** pp)
+STDMETHODIMP JSUtils::GetAlbumArtV2(IFbMetadbHandle* handle, int art_id, VARIANT_BOOL need_stub, IGdiBitmap** pp)
 {
 	TRACK_FUNCTION();
 
 	if (!handle) return E_INVALIDARG;
 	if (!pp) return E_POINTER;
 
-	metadb_handle * ptr = NULL;
+	metadb_handle* ptr = NULL;
 	handle->get__ptr((void**)&ptr);
 	return helpers::get_album_art_v2(ptr, pp, art_id, need_stub);
 }
 
-STDMETHODIMP JSUtils::GetSysColor(UINT index, int * p)
+STDMETHODIMP JSUtils::GetSysColor(UINT index, int* p)
 {
 	TRACK_FUNCTION();
 
@@ -3303,7 +3310,7 @@ STDMETHODIMP JSUtils::GetSysColor(UINT index, int * p)
 	return S_OK;
 }
 
-STDMETHODIMP JSUtils::GetSystemMetrics(UINT index, INT * p)
+STDMETHODIMP JSUtils::GetSystemMetrics(UINT index, INT* p)
 {
 	TRACK_FUNCTION();
 
@@ -3313,7 +3320,7 @@ STDMETHODIMP JSUtils::GetSystemMetrics(UINT index, INT * p)
 	return S_OK;
 }
 
-STDMETHODIMP JSUtils::Glob(BSTR pattern, UINT exc_mask, UINT inc_mask, VARIANT * p)
+STDMETHODIMP JSUtils::Glob(BSTR pattern, UINT exc_mask, UINT inc_mask, VARIANT* p)
 {
 	TRACK_FUNCTION();
 
@@ -3321,7 +3328,7 @@ STDMETHODIMP JSUtils::Glob(BSTR pattern, UINT exc_mask, UINT inc_mask, VARIANT *
 	if (!p) return E_POINTER;
 
 	pfc::string8_fast path = pfc::stringcvt::string_utf8_from_wide(pattern);
-	const char * fn = path.get_ptr() + path.scan_filename();
+	const char* fn = path.get_ptr() + path.scan_filename();
 	pfc::string8_fast dir(path.get_ptr(), fn - path.get_ptr());
 	puFindFile ff = uFindFirstFile(path.get_ptr());
 
@@ -3339,7 +3346,8 @@ STDMETHODIMP JSUtils::Glob(BSTR pattern, UINT exc_mask, UINT inc_mask, VARIANT *
 				fullpath.add_string(ff->GetFileName());
 				files.add_item(fullpath.get_ptr());
 			}
-		} while (ff->FindNext());
+		}
+		while (ff->FindNext());
 	}
 
 	delete ff;
@@ -3369,7 +3377,7 @@ STDMETHODIMP JSUtils::Glob(BSTR pattern, UINT exc_mask, UINT inc_mask, VARIANT *
 	return S_OK;
 }
 
-STDMETHODIMP JSUtils::IsKeyPressed(UINT vkey, VARIANT_BOOL * p)
+STDMETHODIMP JSUtils::IsKeyPressed(UINT vkey, VARIANT_BOOL* p)
 {
 	TRACK_FUNCTION();
 
@@ -3379,7 +3387,7 @@ STDMETHODIMP JSUtils::IsKeyPressed(UINT vkey, VARIANT_BOOL * p)
 	return S_OK;
 }
 
-STDMETHODIMP JSUtils::MapString(BSTR str, UINT lcid, UINT flags, BSTR * pp)
+STDMETHODIMP JSUtils::MapString(BSTR str, UINT lcid, UINT flags, BSTR* pp)
 {
 	TRACK_FUNCTION();
 
@@ -3388,7 +3396,7 @@ STDMETHODIMP JSUtils::MapString(BSTR str, UINT lcid, UINT flags, BSTR * pp)
 
 	int r = ::LCMapStringW(lcid, flags, str, wcslen(str) + 1, NULL, 0);
 	if (!r) return E_FAIL;
-	wchar_t * dst = new wchar_t[r];
+	wchar_t* dst = new wchar_t[r];
 	r = ::LCMapStringW(lcid, flags, str, wcslen(str) + 1, dst, r);
 	if (r) *pp = SysAllocString(dst);
 	delete dst;
@@ -3396,7 +3404,7 @@ STDMETHODIMP JSUtils::MapString(BSTR str, UINT lcid, UINT flags, BSTR * pp)
 	return S_OK;
 }
 
-STDMETHODIMP JSUtils::PathWildcardMatch(BSTR pattern, BSTR str, VARIANT_BOOL * p)
+STDMETHODIMP JSUtils::PathWildcardMatch(BSTR pattern, BSTR str, VARIANT_BOOL* p)
 {
 	TRACK_FUNCTION();
 
@@ -3407,15 +3415,18 @@ STDMETHODIMP JSUtils::PathWildcardMatch(BSTR pattern, BSTR str, VARIANT_BOOL * p
 	return S_OK;
 }
 
-STDMETHODIMP JSUtils::ReadINI(BSTR filename, BSTR section, BSTR key, VARIANT defaultval, BSTR * pp)
+STDMETHODIMP JSUtils::ReadINI(BSTR filename, BSTR section, BSTR key, VARIANT defaultval, BSTR* pp)
 {
 	TRACK_FUNCTION();
 
 	if (!filename || !section || !key) return E_INVALIDARG;
 	if (!pp) return E_POINTER;
 
-	enum { BUFFER_LEN = 255 };
-	TCHAR buff[BUFFER_LEN] = { 0 };
+	enum
+		{
+			BUFFER_LEN = 255
+		};
+	TCHAR buff[BUFFER_LEN] = {0};
 
 	GetPrivateProfileString(section, key, NULL, buff, BUFFER_LEN, filename);
 
@@ -3434,7 +3445,7 @@ STDMETHODIMP JSUtils::ReadINI(BSTR filename, BSTR section, BSTR key, VARIANT def
 	return S_OK;
 }
 
-STDMETHODIMP JSUtils::ReadTextFile(BSTR filename, UINT codepage, BSTR * pp)
+STDMETHODIMP JSUtils::ReadTextFile(BSTR filename, UINT codepage, BSTR* pp)
 {
 	TRACK_FUNCTION();
 
@@ -3453,7 +3464,7 @@ STDMETHODIMP JSUtils::ReadTextFile(BSTR filename, UINT codepage, BSTR * pp)
 	return S_OK;
 }
 
-STDMETHODIMP JSUtils::WriteINI(BSTR filename, BSTR section, BSTR key, VARIANT val, VARIANT_BOOL * p)
+STDMETHODIMP JSUtils::WriteINI(BSTR filename, BSTR section, BSTR key, VARIANT val, VARIANT_BOOL* p)
 {
 	TRACK_FUNCTION();
 
@@ -3536,15 +3547,15 @@ STDMETHODIMP StyleTextRender::OutLineText(int text_color, int outline_color, int
 	return S_OK;
 }
 
-STDMETHODIMP StyleTextRender::RenderStringPoint(IGdiGraphics * g, BSTR str, IGdiFont * font, int x, int y, int flags, VARIANT_BOOL * p)
+STDMETHODIMP StyleTextRender::RenderStringPoint(IGdiGraphics* g, BSTR str, IGdiFont* font, int x, int y, int flags, VARIANT_BOOL* p)
 {
 	TRACK_FUNCTION();
 
 	if (!p || !m_pOutLineText) return E_POINTER;
 	if (!g || !font || !str) return E_INVALIDARG;
 
-	Gdiplus::Font * fn = NULL;
-	Gdiplus::Graphics * graphics = NULL;
+	Gdiplus::Font* fn = NULL;
+	Gdiplus::Graphics* graphics = NULL;
 	font->get__ptr((void**)&fn);
 	g->get__ptr((void**)&graphics);
 	if (!fn || !graphics) return E_INVALIDARG;
@@ -3559,26 +3570,26 @@ STDMETHODIMP StyleTextRender::RenderStringPoint(IGdiGraphics * g, BSTR str, IGdi
 
 	if (flags != 0)
 	{
-		fmt.SetAlignment((Gdiplus::StringAlignment)((flags >> 28) & 0x3));      //0xf0000000
-		fmt.SetLineAlignment((Gdiplus::StringAlignment)((flags >> 24) & 0x3));  //0x0f000000
-		fmt.SetTrimming((Gdiplus::StringTrimming)((flags >> 20) & 0x7));        //0x00f00000
-		fmt.SetFormatFlags((Gdiplus::StringFormatFlags)(flags & 0x7FFF));       //0x0000ffff
+		fmt.SetAlignment((Gdiplus::StringAlignment)((flags >> 28) & 0x3)); //0xf0000000
+		fmt.SetLineAlignment((Gdiplus::StringAlignment)((flags >> 24) & 0x3)); //0x0f000000
+		fmt.SetTrimming((Gdiplus::StringTrimming)((flags >> 20) & 0x7)); //0x00f00000
+		fmt.SetFormatFlags((Gdiplus::StringFormatFlags)(flags & 0x7FFF)); //0x0000ffff
 	}
 
 	m_pOutLineText->DrawString(graphics, &family, (Gdiplus::FontStyle)fontstyle,
-		fontsize, str, Gdiplus::Point(x, y), &fmt);
+	                           fontsize, str, Gdiplus::Point(x, y), &fmt);
 	return S_OK;
 }
 
-STDMETHODIMP StyleTextRender::RenderStringRect(IGdiGraphics * g, BSTR str, IGdiFont * font, int x, int y, int w, int h, int flags, VARIANT_BOOL * p)
+STDMETHODIMP StyleTextRender::RenderStringRect(IGdiGraphics* g, BSTR str, IGdiFont* font, int x, int y, int w, int h, int flags, VARIANT_BOOL* p)
 {
 	TRACK_FUNCTION();
 
 	if (!p || !m_pOutLineText) return E_POINTER;
 	if (!g || !font || !str) return E_INVALIDARG;
 
-	Gdiplus::Font * fn = NULL;
-	Gdiplus::Graphics * graphics = NULL;
+	Gdiplus::Font* fn = NULL;
+	Gdiplus::Graphics* graphics = NULL;
 	font->get__ptr((void**)&fn);
 	g->get__ptr((void**)&graphics);
 	if (!fn || !graphics) return E_INVALIDARG;
@@ -3593,14 +3604,14 @@ STDMETHODIMP StyleTextRender::RenderStringRect(IGdiGraphics * g, BSTR str, IGdiF
 
 	if (flags != 0)
 	{
-		fmt.SetAlignment((Gdiplus::StringAlignment)((flags >> 28) & 0x3));      //0xf0000000
-		fmt.SetLineAlignment((Gdiplus::StringAlignment)((flags >> 24) & 0x3));  //0x0f000000
-		fmt.SetTrimming((Gdiplus::StringTrimming)((flags >> 20) & 0x7));        //0x00f00000
-		fmt.SetFormatFlags((Gdiplus::StringFormatFlags)(flags & 0x7FFF));       //0x0000ffff
+		fmt.SetAlignment((Gdiplus::StringAlignment)((flags >> 28) & 0x3)); //0xf0000000
+		fmt.SetLineAlignment((Gdiplus::StringAlignment)((flags >> 24) & 0x3)); //0x0f000000
+		fmt.SetTrimming((Gdiplus::StringTrimming)((flags >> 20) & 0x7)); //0x00f00000
+		fmt.SetFormatFlags((Gdiplus::StringFormatFlags)(flags & 0x7FFF)); //0x0000ffff
 	}
 
 	m_pOutLineText->DrawString(graphics, &family, (Gdiplus::FontStyle)fontstyle,
-		fontsize, str, Gdiplus::Rect(x, y, w, h), &fmt);
+	                           fontsize, str, Gdiplus::Rect(x, y, w, h), &fmt);
 	return S_OK;
 }
 
@@ -3614,7 +3625,7 @@ STDMETHODIMP StyleTextRender::ResetShadow()
 	return S_OK;
 }
 
-STDMETHODIMP StyleTextRender::SetPngImage(IGdiBitmap * img)
+STDMETHODIMP StyleTextRender::SetPngImage(IGdiBitmap* img)
 {
 	TRACK_FUNCTION();
 
@@ -3622,10 +3633,10 @@ STDMETHODIMP StyleTextRender::SetPngImage(IGdiBitmap * img)
 	if (!img) return E_INVALIDARG;
 	if (!m_pOutLineText) return E_POINTER;
 
-	Gdiplus::Bitmap * pBitmap = NULL;
+	Gdiplus::Bitmap* pBitmap = NULL;
 	img->get__ptr((void**)&pBitmap);
 	if (!pBitmap) return E_INVALIDARG;
-	TextDesign::PngOutlineText * pPngOutlineText = reinterpret_cast<TextDesign::PngOutlineText *>(m_pOutLineText);
+	TextDesign::PngOutlineText* pPngOutlineText = reinterpret_cast<TextDesign::PngOutlineText *>(m_pOutLineText);
 	pPngOutlineText->SetPngImage(pBitmap);
 	return S_OK;
 }
@@ -3639,14 +3650,14 @@ STDMETHODIMP StyleTextRender::SetShadowBackgroundColor(VARIANT color, int width,
 	return S_OK;
 }
 
-STDMETHODIMP StyleTextRender::SetShadowBackgroundImage(IGdiBitmap * img)
+STDMETHODIMP StyleTextRender::SetShadowBackgroundImage(IGdiBitmap* img)
 {
 	TRACK_FUNCTION();
 
 	if (!m_pOutLineText) return E_POINTER;
 	if (!img) return E_INVALIDARG;
 
-	Gdiplus::Bitmap * pBitmap = NULL;
+	Gdiplus::Bitmap* pBitmap = NULL;
 	img->get__ptr((void**)&pBitmap);
 	if (!pBitmap) return E_INVALIDARG;
 	m_pOutLineText->SetShadowBkgd(pBitmap);
@@ -3662,19 +3673,19 @@ STDMETHODIMP StyleTextRender::Shadow(VARIANT color, int thickness, int offset_x,
 	return S_OK;
 }
 
-STDMETHODIMP ThemeManager::DrawThemeBackground(IGdiGraphics * gr, int x, int y, int w, int h, int clip_x, int clip_y, int clip_w, int clip_h)
+STDMETHODIMP ThemeManager::DrawThemeBackground(IGdiGraphics* gr, int x, int y, int w, int h, int clip_x, int clip_y, int clip_w, int clip_h)
 {
 	TRACK_FUNCTION();
 
 	if (!m_theme) return E_POINTER;
 	if (!gr) return E_INVALIDARG;
 
-	Gdiplus::Graphics * graphics = NULL;
+	Gdiplus::Graphics* graphics = NULL;
 	gr->get__ptr((void **)&graphics);
 	if (!graphics) return E_INVALIDARG;
 
-	RECT rc = { x, y, x + w, y + h};
-	RECT clip_rc = { clip_x, clip_y, clip_x + clip_w, clip_y + clip_h};
+	RECT rc = {x, y, x + w, y + h};
+	RECT clip_rc = {clip_x, clip_y, clip_x + clip_w, clip_y + clip_h};
 	LPCRECT pclip_rc = &clip_rc;
 	HDC dc = graphics->GetHDC();
 
@@ -3689,7 +3700,7 @@ STDMETHODIMP ThemeManager::DrawThemeBackground(IGdiGraphics * gr, int x, int y, 
 	return hr;
 }
 
-STDMETHODIMP ThemeManager::IsThemePartDefined(int partid, int stateid, VARIANT_BOOL * p)
+STDMETHODIMP ThemeManager::IsThemePartDefined(int partid, int stateid, VARIANT_BOOL* p)
 {
 	TRACK_FUNCTION();
 
@@ -3718,7 +3729,7 @@ STDMETHODIMP DropSourceAction::ToPlaylist()
 	return S_OK;
 }
 
-STDMETHODIMP DropSourceAction::get_Mode(int * mode)
+STDMETHODIMP DropSourceAction::get_Mode(int* mode)
 {
 	TRACK_FUNCTION();
 	if (!mode) return E_POINTER;
@@ -3726,7 +3737,7 @@ STDMETHODIMP DropSourceAction::get_Mode(int * mode)
 	return S_OK;
 }
 
-STDMETHODIMP DropSourceAction::get_Parsable(VARIANT_BOOL * parsable)
+STDMETHODIMP DropSourceAction::get_Parsable(VARIANT_BOOL* parsable)
 {
 	TRACK_FUNCTION();
 	if (!parsable) return E_POINTER;
@@ -3734,7 +3745,7 @@ STDMETHODIMP DropSourceAction::get_Parsable(VARIANT_BOOL * parsable)
 	return S_OK;
 }
 
-STDMETHODIMP DropSourceAction::get_Playlist(int * id)
+STDMETHODIMP DropSourceAction::get_Playlist(int* id)
 {
 	TRACK_FUNCTION();
 	if (!id) return E_POINTER;
@@ -3742,7 +3753,7 @@ STDMETHODIMP DropSourceAction::get_Playlist(int * id)
 	return S_OK;
 }
 
-STDMETHODIMP DropSourceAction::get_ToSelect(VARIANT_BOOL * select)
+STDMETHODIMP DropSourceAction::get_ToSelect(VARIANT_BOOL* select)
 {
 	TRACK_FUNCTION();
 	if (!select) return E_POINTER;

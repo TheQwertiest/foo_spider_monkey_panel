@@ -18,7 +18,7 @@ public:
 	IDropTargetImpl(HWND hWnd = NULL) : m_hWnd(hWnd)
 	{
 		CoCreateInstance(CLSID_DragDropHelper, NULL, CLSCTX_INPROC_SERVER,
-			IID_IDropTargetHelper, (LPVOID*)&m_dropTargetHelper);
+		                 IID_IDropTargetHelper, (LPVOID*)&m_dropTargetHelper);
 	}
 
 	virtual ~IDropTargetImpl()
@@ -47,17 +47,17 @@ public:
 	}
 
 	// IDropTarget
-	STDMETHODIMP DragEnter(IDataObject *pDataObj, DWORD grfKeyState, POINTL pt, DWORD *pdwEffect)
+	STDMETHODIMP DragEnter(IDataObject* pDataObj, DWORD grfKeyState, POINTL pt, DWORD* pdwEffect)
 	{
 		if (pDataObj == NULL) return E_FAIL;
 		if (pdwEffect == NULL) return E_POINTER;
-		
+
 		HRESULT hr = S_OK;
 		try
 		{
 			if (m_dropTargetHelper)
 			{
-				POINT point = { pt.x, pt.y };
+				POINT point = {pt.x, pt.y};
 				m_dropTargetHelper->DragEnter(m_hWnd, pDataObj, &point, *pdwEffect);
 			}
 
@@ -74,7 +74,7 @@ public:
 		return hr;
 	}
 
-	STDMETHODIMP DragOver(DWORD grfKeyState, POINTL pt, DWORD *pdwEffect)
+	STDMETHODIMP DragOver(DWORD grfKeyState, POINTL pt, DWORD* pdwEffect)
 	{
 		if (pdwEffect == NULL) return E_POINTER;
 
@@ -83,7 +83,7 @@ public:
 		{
 			if (m_dropTargetHelper)
 			{
-				POINT point = { pt.x, pt.y };
+				POINT point = {pt.x, pt.y};
 				m_dropTargetHelper->DragOver(&point, *pdwEffect);
 			}
 
@@ -124,7 +124,7 @@ public:
 		return hr;
 	}
 
-	STDMETHODIMP Drop(IDataObject *pDataObj, DWORD grfKeyState, POINTL pt, DWORD *pdwEffect)
+	STDMETHODIMP Drop(IDataObject* pDataObj, DWORD grfKeyState, POINTL pt, DWORD* pdwEffect)
 	{
 		HRESULT hr = S_OK;
 
@@ -135,7 +135,7 @@ public:
 		{
 			if (m_dropTargetHelper)
 			{
-				POINT point = { pt.x, pt.y };
+				POINT point = {pt.x, pt.y};
 				m_dropTargetHelper->Drop(pDataObj, &point, *pdwEffect);
 			}
 
@@ -153,17 +153,17 @@ public:
 	}
 
 	// Overrides
-	virtual HRESULT OnDragEnter(IDataObject *pDataObj, DWORD grfKeyState, POINTL pt, DWORD *pdwEffect)
+	virtual HRESULT OnDragEnter(IDataObject* pDataObj, DWORD grfKeyState, POINTL pt, DWORD* pdwEffect)
 	{
 		return S_OK;
 	}
 
-	virtual HRESULT OnDragOver(DWORD grfKeyState, POINTL pt, DWORD *pdwEffect)
+	virtual HRESULT OnDragOver(DWORD grfKeyState, POINTL pt, DWORD* pdwEffect)
 	{
 		return S_OK;
 	}
 
-	virtual HRESULT OnDrop(IDataObject *pDataObj, DWORD grfKeyState, POINTL pt, DWORD *pdwEffect)
+	virtual HRESULT OnDrop(IDataObject* pDataObj, DWORD grfKeyState, POINTL pt, DWORD* pdwEffect)
 	{
 		return S_OK;
 	}

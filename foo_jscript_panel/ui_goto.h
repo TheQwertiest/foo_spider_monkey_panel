@@ -5,12 +5,15 @@
 class CDialogGoto : public CDialogImpl<CDialogGoto>
 {
 public:
-	enum { IDD = IDD_DIALOG_GOTO };
+	enum
+	{
+		IDD = IDD_DIALOG_GOTO
+	};
 
 	BEGIN_MSG_MAP(CDialogGoto)
 		MSG_WM_INITDIALOG(OnInitDialog)
 		COMMAND_RANGE_HANDLER_EX(IDOK, IDCANCEL, OnCloseCmd)
-	END_MSG_MAP()
+		END_MSG_MAP()
 
 	CDialogGoto(HWND p_hedit) : m_hedit(p_hedit)
 	{

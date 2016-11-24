@@ -4,7 +4,7 @@
 
 namespace helpers
 {
-	bool com_array_reader::convert(VARIANT * pVarSrc)
+	bool com_array_reader::convert(VARIANT* pVarSrc)
 	{
 		reset();
 
@@ -16,7 +16,7 @@ namespace helpers
 		}
 		else if ((pVarSrc->vt & VT_TYPEMASK) == VT_DISPATCH)
 		{
-			IDispatch * pdisp = pVarSrc->pdispVal;
+			IDispatch* pdisp = pVarSrc->pdispVal;
 
 			if (pVarSrc->vt & VT_BYREF)
 			{
@@ -42,12 +42,12 @@ namespace helpers
 
 		return;
 
-error_get_bound:
+	error_get_bound:
 		m_ubound = -1;
 		m_lbound = 0;
 	}
 
-	bool com_array_reader::convert_jsarray(IDispatch * pdisp)
+	bool com_array_reader::convert_jsarray(IDispatch* pdisp)
 	{
 		if (!pdisp) return false;
 
@@ -70,7 +70,7 @@ error_get_bound:
 		m_lbound = 0;
 		m_ubound = ret.lVal - 1;
 
-		SAFEARRAY * psa = SafeArrayCreateVector(VT_VARIANT, 0, get_count());
+		SAFEARRAY* psa = SafeArrayCreateVector(VT_VARIANT, 0, get_count());
 
 		if (!psa) goto cleanup_and_return;
 
@@ -86,8 +86,9 @@ error_get_bound:
 			_itow_s(i, buf, 10);
 
 			if (SUCCEEDED(hr)) hr = pdisp->GetIDsOfNames(IID_NULL, &name, 1, LOCALE_USER_DEFAULT, &dispid);
-			if (SUCCEEDED(hr)) hr = pdisp->Invoke(dispid, IID_NULL, LOCALE_USER_DEFAULT, DISPATCH_PROPERTYGET,
-				&params, &element, NULL, NULL);
+			if (SUCCEEDED(hr))
+				hr = pdisp->Invoke(dispid, IID_NULL, LOCALE_USER_DEFAULT, DISPATCH_PROPERTYGET,
+				                   &params, &element, NULL, NULL);
 
 			if (FAILED(hr)) goto cleanup_and_return;
 			if (FAILED(SafeArrayPutElement(psa, &i, &element))) goto cleanup_and_return;
@@ -96,7 +97,7 @@ error_get_bound:
 		m_psa = psa;
 		return true;
 
-cleanup_and_return:
+	cleanup_and_return:
 		reset();
 		SafeArrayDestroy(psa);
 		return false;

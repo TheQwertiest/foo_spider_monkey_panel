@@ -7,11 +7,11 @@
 
 namespace helpers
 {
-	HBITMAP create_hbitmap_from_gdiplus_bitmap(Gdiplus::Bitmap * bitmap_ptr);
-	int GetEncoderClsid(const WCHAR * format, CLSID * pClsid);
-	bool execute_context_command_by_name(const char * p_name, metadb_handle_list_cref p_handles, unsigned flags);
-	bool execute_mainmenu_command_by_name(const char * p_name);
-	unsigned detect_charset(const char * fileName);
+	HBITMAP create_hbitmap_from_gdiplus_bitmap(Gdiplus::Bitmap* bitmap_ptr);
+	int GetEncoderClsid(const WCHAR* format, CLSID* pClsid);
+	bool execute_context_command_by_name(const char* p_name, metadb_handle_list_cref p_handles, unsigned flags);
+	bool execute_mainmenu_command_by_name(const char* p_name);
+	unsigned detect_charset(const char* fileName);
 
 	inline int get_text_width(HDC hdc, LPCTSTR text, int len)
 	{
@@ -21,7 +21,7 @@ namespace helpers
 		return size.cx;
 	}
 
-	inline int get_text_height(HDC hdc, const wchar_t * text, int len)
+	inline int get_text_height(HDC hdc, const wchar_t* text, int len)
 	{
 		SIZE size;
 		GetTextExtentPoint32(hdc, text, len, &size);
@@ -56,9 +56,9 @@ namespace helpers
 		int width;
 	};
 
-	extern void estimate_line_wrap(HDC hdc, const wchar_t * text, int len, int width, pfc::list_t<wrapped_item> & out);
+	extern void estimate_line_wrap(HDC hdc, const wchar_t* text, int len, int width, pfc::list_t<wrapped_item>& out);
 
-	__declspec(noinline) static bool execute_context_command_by_name_SEH(const char * p_name, metadb_handle_list_cref p_handles, unsigned flags)
+	__declspec(noinline) static bool execute_context_command_by_name_SEH(const char* p_name, metadb_handle_list_cref p_handles, unsigned flags)
 	{
 		bool ret = false;
 
@@ -74,7 +74,7 @@ namespace helpers
 		return ret;
 	}
 
-	__declspec(noinline) static bool execute_mainmenu_command_by_name_SEH(const char * p_name)
+	__declspec(noinline) static bool execute_mainmenu_command_by_name_SEH(const char* p_name)
 	{
 		bool ret = false;
 
@@ -106,19 +106,19 @@ namespace helpers
 	}
 
 	int int_from_hex_digit(int ch);
-	int int_from_hex_byte(const char * hex_byte);
+	int int_from_hex_byte(const char* hex_byte);
 
-	template<class T>
-	bool ensure_gdiplus_object(T * obj)
+	template <class T>
+	bool ensure_gdiplus_object(T* obj)
 	{
 		return ((obj) && (obj->GetLastStatus() == Gdiplus::Ok));
 	}
 
 	const GUID convert_artid_to_guid(int art_id);
 	// bitmap must be NULL
-	bool read_album_art_into_bitmap(const album_art_data_ptr & data, Gdiplus::Bitmap ** bitmap);
-	HRESULT get_album_art_v2(const metadb_handle_ptr & handle, IGdiBitmap ** pp, int art_id, VARIANT_BOOL need_stub, VARIANT_BOOL no_load = VARIANT_FALSE, pfc::string_base * image_path_ptr = NULL);
-	HRESULT get_album_art_embedded(BSTR rawpath, IGdiBitmap ** pp, int art_id);
+	bool read_album_art_into_bitmap(const album_art_data_ptr& data, Gdiplus::Bitmap** bitmap);
+	HRESULT get_album_art_v2(const metadb_handle_ptr& handle, IGdiBitmap** pp, int art_id, VARIANT_BOOL need_stub, VARIANT_BOOL no_load = VARIANT_FALSE, pfc::string_base* image_path_ptr = NULL);
+	HRESULT get_album_art_embedded(BSTR rawpath, IGdiBitmap** pp, int art_id);
 
 	static pfc::string8_fast get_fb2k_path()
 	{
@@ -152,16 +152,16 @@ namespace helpers
 	}
 
 	// File r/w
-	bool read_file(const char * path, pfc::string_base & content);
-	bool read_file_wide(unsigned codepage, const wchar_t * path, pfc::array_t<wchar_t> & content);
+	bool read_file(const char* path, pfc::string_base& content);
+	bool read_file_wide(unsigned codepage, const wchar_t* path, pfc::array_t<wchar_t>& content);
 	// Always save as UTF8 BOM
-	bool write_file(const char * path, const pfc::string_base & content);
+	bool write_file(const char* path, const pfc::string_base& content);
 
 	class file_info_pairs_filter : public file_info_filter
 	{
 	public:
 		typedef pfc::map_t<pfc::string_simple, pfc::string_simple,
-			file_info::field_name_comparator> t_field_value_map;
+		                   file_info::field_name_comparator> t_field_value_map;
 
 	private:
 		metadb_handle_ptr m_handle;
@@ -169,9 +169,9 @@ namespace helpers
 		pfc::string_list_impl m_multivalue_fields;
 
 	public:
-		file_info_pairs_filter(const metadb_handle_ptr & p_handle, const t_field_value_map & p_field_value_map, const char * p_multivalue_field = NULL);
+		file_info_pairs_filter(const metadb_handle_ptr& p_handle, const t_field_value_map& p_field_value_map, const char* p_multivalue_field = NULL);
 
-		bool apply_filter(metadb_handle_ptr p_location,t_filestats p_stats,file_info & p_info);
+		bool apply_filter(metadb_handle_ptr p_location, t_filestats p_stats, file_info& p_info);
 	};
 
 	class album_art_async : public simple_thread_task
@@ -179,12 +179,12 @@ namespace helpers
 	public:
 		struct t_param
 		{
-			IFbMetadbHandle * handle;
+			IFbMetadbHandle* handle;
 			int art_id;
-			IGdiBitmap * bitmap;
+			IGdiBitmap* bitmap;
 			pfc::stringcvt::string_wide_from_utf8 image_path;
 
-			t_param(IFbMetadbHandle * p_handle, int p_art_id, IGdiBitmap * p_bitmap, const char * p_image_path)
+			t_param(IFbMetadbHandle* p_handle, int p_art_id, IGdiBitmap* p_bitmap, const char* p_image_path)
 				: handle(p_handle), art_id(p_art_id), bitmap(p_bitmap), image_path(p_image_path)
 			{
 			}
@@ -199,14 +199,14 @@ namespace helpers
 			}
 		};
 
-		album_art_async(HWND notify_hwnd, metadb_handle * handle, int art_id,
-			VARIANT_BOOL need_stub, VARIANT_BOOL only_embed, VARIANT_BOOL no_load)
+		album_art_async(HWND notify_hwnd, metadb_handle* handle, int art_id,
+		                VARIANT_BOOL need_stub, VARIANT_BOOL only_embed, VARIANT_BOOL no_load)
 			: m_notify_hwnd(notify_hwnd)
-			, m_handle(handle)
-			, m_art_id(art_id)
-			, m_need_stub(need_stub)
-			, m_only_embed(only_embed)
-			, m_no_load(no_load)
+			  , m_handle(handle)
+			  , m_art_id(art_id)
+			  , m_need_stub(need_stub)
+			  , m_only_embed(only_embed)
+			  , m_no_load(no_load)
 		{
 			if (m_handle.is_valid())
 				m_rawpath = pfc::stringcvt::string_wide_from_utf8(m_handle->get_path());
@@ -229,10 +229,10 @@ namespace helpers
 		struct t_param
 		{
 			unsigned cookie;
-			IGdiBitmap * bitmap;
+			IGdiBitmap* bitmap;
 			_bstr_t path;
 
-			t_param(int p_cookie, IGdiBitmap * p_bitmap, BSTR p_path)
+			t_param(int p_cookie, IGdiBitmap* p_bitmap, BSTR p_path)
 				: cookie(p_cookie), bitmap(p_bitmap), path(p_path)
 			{
 			}
@@ -246,14 +246,15 @@ namespace helpers
 
 		load_image_async(HWND notify_wnd, BSTR path)
 			: m_notify_hwnd(notify_wnd), m_path(path)
-		{}
+		{
+		}
 
 	private:
 		virtual void run();
 		HWND m_notify_hwnd;
 		_bstr_t m_path;
 	};
-	
+
 	// Taken from pfc::lores_timer
 	class mm_timer
 	{
@@ -275,8 +276,10 @@ namespace helpers
 			_start(time);
 			return ret;
 		}
+
 	private:
-		void _start(t_uint32 p_time) {m_last_seen = m_start = p_time;}
+		void _start(t_uint32 p_time) { m_last_seen = m_start = p_time; }
+
 		double _query(t_uint32 p_time) const
 		{
 			t_uint64 time = p_time;

@@ -28,12 +28,12 @@ unsigned js_panel_window_cui::get_type() const
 	return uie::type_toolbar | uie::type_panel;
 }
 
-void js_panel_window_cui::set_config(stream_reader * reader, t_size size, abort_callback & abort)
+void js_panel_window_cui::set_config(stream_reader* reader, t_size size, abort_callback& abort)
 {
 	load_config(reader, size, abort);
 }
 
-void js_panel_window_cui::get_config(stream_writer * writer, abort_callback & abort) const
+void js_panel_window_cui::get_config(stream_writer* writer, abort_callback& abort) const
 {
 	save_config(writer, abort);
 }
@@ -64,7 +64,7 @@ LRESULT js_panel_window_cui::on_message(HWND hwnd, UINT msg, WPARAM wp, LPARAM l
 			static_api_ptr_t<columns_ui::fonts::manager>()->register_common_callback(this);
 			static_api_ptr_t<columns_ui::colours::manager>()->register_common_callback(this);
 		}
-		catch (exception_service_not_found &)
+		catch (exception_service_not_found&)
 		{
 			// Using in Default UI and dockable panels without Columns UI installed?
 			static bool g_reported = false;
@@ -78,7 +78,7 @@ LRESULT js_panel_window_cui::on_message(HWND hwnd, UINT msg, WPARAM wp, LPARAM l
 			if (!g_cfg_cui_warning_reported)
 			{
 				popup_msg::g_show(pfc::string_formatter(warning) << "\n\n[This popup message will be shown only once]",
-					JSP_NAME);
+				                  JSP_NAME);
 
 				g_cfg_cui_warning_reported = true;
 			}
@@ -112,7 +112,7 @@ LRESULT js_panel_window_cui::on_message(HWND hwnd, UINT msg, WPARAM wp, LPARAM l
 	return t_parent::on_message(hwnd, msg, wp, lp);
 }
 
-HWND js_panel_window_cui::create_or_transfer_window(HWND parent, const uie::window_host_ptr & host, const ui_helpers::window_position_t & p_position)
+HWND js_panel_window_cui::create_or_transfer_window(HWND parent, const uie::window_host_ptr& host, const ui_helpers::window_position_t& p_position)
 {
 	if (m_host.is_valid())
 	{
@@ -152,7 +152,7 @@ void js_panel_window_cui::on_bool_changed(t_size mask) const
 	// TODO: may be implemented one day
 }
 
-DWORD js_panel_window_cui::GetColorCUI(unsigned type, const GUID & guid)
+DWORD js_panel_window_cui::GetColorCUI(unsigned type, const GUID& guid)
 {
 	if (type <= columns_ui::colours::colour_active_item_frame)
 	{
@@ -165,7 +165,7 @@ DWORD js_panel_window_cui::GetColorCUI(unsigned type, const GUID & guid)
 	return 0;
 }
 
-HFONT js_panel_window_cui::GetFontCUI(unsigned type, const GUID & guid)
+HFONT js_panel_window_cui::GetFontCUI(unsigned type, const GUID& guid)
 {
 	if (guid == pfc::guid_null)
 	{
@@ -175,7 +175,7 @@ HFONT js_panel_window_cui::GetFontCUI(unsigned type, const GUID & guid)
 			{
 				return static_api_ptr_t<columns_ui::fonts::manager>()->get_font((columns_ui::fonts::font_type_t)type);
 			}
-			catch (exception_service_not_found &)
+			catch (exception_service_not_found&)
 			{
 				return uCreateIconFont();
 			}

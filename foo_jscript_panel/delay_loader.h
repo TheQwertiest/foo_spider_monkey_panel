@@ -10,7 +10,7 @@ public:
 class delay_loader
 {
 public:
-	static void g_enqueue(delay_loader_action * callback)
+	static void g_enqueue(delay_loader_action* callback)
 	{
 		if (!callback)
 			return;

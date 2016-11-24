@@ -26,7 +26,7 @@
 class disp_call_tracker
 {
 public:
-	disp_call_tracker(ITypeInfo * p_typeinfo, DISPID p_dispid, WORD p_flag)
+	disp_call_tracker(ITypeInfo* p_typeinfo, DISPID p_dispid, WORD p_flag)
 	{
 		sm_last_typeinfo = p_typeinfo;
 		sm_last_dispid = p_dispid;
@@ -42,7 +42,7 @@ public:
 	{
 		BSTR name = NULL;
 		UINT name_count = 0;
-		TYPEATTR * ptype_attr = NULL;
+		TYPEATTR* ptype_attr = NULL;
 		GUID guid = IID_NULL;
 
 		if (sm_last_typeinfo)
@@ -71,12 +71,12 @@ public:
 	}
 
 private:
-	static ITypeInfo   *sm_last_typeinfo;
-	static DISPID       sm_last_dispid;
-	static WORD         sm_last_flag;
+	static ITypeInfo* sm_last_typeinfo;
+	static DISPID sm_last_dispid;
+	static WORD sm_last_flag;
 };
 
-FOOGUIDDECL ITypeInfo * disp_call_tracker::sm_last_typeinfo = NULL;
+FOOGUIDDECL ITypeInfo* disp_call_tracker::sm_last_typeinfo = NULL;
 FOOGUIDDECL DISPID disp_call_tracker::sm_last_dispid = 0;
 FOOGUIDDECL WORD disp_call_tracker::sm_last_flag = 0;
 

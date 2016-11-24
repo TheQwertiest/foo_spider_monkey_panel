@@ -21,8 +21,9 @@ protected:
 public:
 	js_panel_window();
 	virtual ~js_panel_window();
-	void update_script(const char * name = NULL, const char * code = NULL);
-	HRESULT script_invoke_v(int callbackId, VARIANTARG * argv = NULL, UINT argc = 0, VARIANT * ret = NULL)
+	void update_script(const char* name = NULL, const char* code = NULL);
+
+	HRESULT script_invoke_v(int callbackId, VARIANTARG* argv = NULL, UINT argc = 0, VARIANT* ret = NULL)
 	{
 		return m_script_host->InvokeCallback(callbackId, argv, argc, ret);
 	}
@@ -31,7 +32,7 @@ public:
 private:
 	void on_size(int w, int h);
 	void on_paint(HDC dc, LPRECT lpUpdateRect);
-	void on_paint_user( HDC memdc, LPRECT lpUpdateRect);
+	void on_paint_user(HDC memdc, LPRECT lpUpdateRect);
 	void on_paint_error(HDC memdc);
 	void on_context_menu(int x, int y);
 	void on_mouse_wheel(WPARAM wp);
@@ -49,12 +50,14 @@ private:
 	void create_context();
 	void delete_context();
 
-	virtual class_data & get_class_data() const;
+	virtual class_data& get_class_data() const;
 
 	class delay_script_init_action : public delay_loader_action
 	{
 	public:
-		delay_script_init_action(HWND wnd) : wnd_(wnd) {}
+		delay_script_init_action(HWND wnd) : wnd_(wnd)
+		{
+		}
 
 		virtual void execute()
 		{
@@ -67,10 +70,10 @@ private:
 
 	CComPtr<IDropTargetImpl> m_drop_target;
 	// Scripting
-	IGdiGraphicsPtr  m_gr_wrap;
-	ScriptHost      *m_script_host;
-	bool             m_is_mouse_tracked;
-	bool	         m_is_droptarget_registered;
+	IGdiGraphicsPtr m_gr_wrap;
+	ScriptHost* m_script_host;
+	bool m_is_mouse_tracked;
+	bool m_is_droptarget_registered;
 
 	// callbacks
 	void on_get_album_art_done(LPARAM lp);
@@ -106,7 +109,7 @@ private:
 	void on_playback_order_changed(t_size p_new_index);
 	void on_playlist_switch();
 	void on_playlists_changed();
-	
+
 	// library callback
 	void on_library_items_added();
 	void on_library_items_removed();

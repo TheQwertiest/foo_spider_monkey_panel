@@ -6,16 +6,16 @@
 #include "panel_manager.h"
 
 
-FbTooltip::FbTooltip(HWND p_wndparent, const panel_tooltip_param_ptr & p_param_ptr)
+FbTooltip::FbTooltip(HWND p_wndparent, const panel_tooltip_param_ptr& p_param_ptr)
 	: m_wndparent(p_wndparent)
-	, m_panel_tooltip_param_ptr(p_param_ptr)
-	, m_tip_buffer(SysAllocString(PFC_WIDESTRING(JSP_NAME)))
+	  , m_panel_tooltip_param_ptr(p_param_ptr)
+	  , m_tip_buffer(SysAllocString(PFC_WIDESTRING(JSP_NAME)))
 {
 	m_wndtooltip = CreateWindowEx(WS_EX_TOPMOST, TOOLTIPS_CLASS, NULL,
-		WS_POPUP | TTS_ALWAYSTIP | TTS_NOPREFIX,
-		CW_USEDEFAULT, CW_USEDEFAULT,
-		CW_USEDEFAULT, CW_USEDEFAULT,
-		p_wndparent, NULL, core_api::get_my_instance(), NULL);
+	                                           WS_POPUP | TTS_ALWAYSTIP | TTS_NOPREFIX,
+	                                           CW_USEDEFAULT, CW_USEDEFAULT,
+	                                           CW_USEDEFAULT, CW_USEDEFAULT,
+	                                           p_wndparent, NULL, core_api::get_my_instance(), NULL);
 
 	// Original position
 	SetWindowPos(m_wndtooltip, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
@@ -46,7 +46,7 @@ FbTooltip::FbTooltip(HWND p_wndparent, const panel_tooltip_param_ptr & p_param_p
 		DEFAULT_PITCH | FF_DONTCARE,
 		m_panel_tooltip_param_ptr->font_name);
 
-	SendMessage(m_wndtooltip, TTM_ADDTOOL, 0, (LPARAM)&m_ti);	
+	SendMessage(m_wndtooltip, TTM_ADDTOOL, 0, (LPARAM)&m_ti);
 	SendMessage(m_wndtooltip, TTM_ACTIVATE, FALSE, 0);
 	SendMessage(m_wndtooltip, WM_SETFONT, (WPARAM)font, MAKELPARAM(FALSE, 0));
 
@@ -70,7 +70,7 @@ void FbTooltip::FinalRelease()
 	}
 }
 
-STDMETHODIMP FbTooltip::get_Text(BSTR * pp)
+STDMETHODIMP FbTooltip::get_Text(BSTR* pp)
 {
 	TRACK_FUNCTION();
 
@@ -134,7 +134,7 @@ STDMETHODIMP FbTooltip::SetMaxWidth(int width)
 	return S_OK;
 }
 
-STDMETHODIMP FbTooltip::GetDelayTime(int type, INT * p)
+STDMETHODIMP FbTooltip::GetDelayTime(int type, INT* p)
 {
 	TRACK_FUNCTION();
 
@@ -159,7 +159,7 @@ STDMETHODIMP FbTooltip::TrackPosition(int x, int y)
 {
 	TRACK_FUNCTION();
 
-	POINT pt = { x, y };
+	POINT pt = {x, y};
 	ClientToScreen(m_wndparent, &pt);
 	SendMessage(m_wndtooltip, TTM_TRACKPOSITION, 0, MAKELONG(pt.x, pt.y));
 	return S_OK;

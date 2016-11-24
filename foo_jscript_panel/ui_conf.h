@@ -11,15 +11,15 @@ class CDialogReplace;
 //-----
 class CDialogConf
 	: public CDialogImpl<CDialogConf>
-	, public CDialogResize<CDialogConf>
+	  , public CDialogResize<CDialogConf>
 {
 public:
-	CDialogConf(js_panel_window * p_parent)
+	CDialogConf(js_panel_window* p_parent)
 		: m_parent(p_parent)
-		, m_dlgfind(NULL)
-		, m_dlgreplace(NULL)
-		, m_lastSearchText("")
-		, m_lastFlags(0)
+		  , m_dlgfind(NULL)
+		  , m_dlgreplace(NULL)
+		  , m_lastSearchText("")
+		  , m_lastFlags(0)
 	{
 		//pfc::dynamic_assert(m_parent != NULL, "CDialogConf: m_parent invalid.");
 	}
@@ -37,7 +37,10 @@ public:
 	void OnImport();
 	void OnExport();
 
-	enum { IDD = IDD_DIALOG_CONFIG };
+	enum
+	{
+		IDD = IDD_DIALOG_CONFIG
+	};
 
 	BEGIN_MSG_MAP(CDialogConf)
 		MSG_WM_INITDIALOG(OnInitDialog)
@@ -50,7 +53,7 @@ public:
 		COMMAND_ID_HANDLER_EX(IDC_TOOLS, OnTools)
 		CHAIN_MSG_MAP(CDialogResize<CDialogConf>)
 		REFLECT_NOTIFICATIONS()
-	END_MSG_MAP()
+		END_MSG_MAP()
 
 	BEGIN_DLGRESIZE_MAP(CDialogConf)
 		DLGRESIZE_CONTROL(IDC_CHECK_PSEUDO_TRANSPARENT, DLSZ_MOVE_X)
@@ -62,7 +65,7 @@ public:
 		DLGRESIZE_CONTROL(IDAPPLY, DLSZ_MOVE_X | DLSZ_MOVE_Y)
 		DLGRESIZE_CONTROL(IDCANCEL, DLSZ_MOVE_X | DLSZ_MOVE_Y)
 		DLGRESIZE_CONTROL(IDC_STATIC_GUID, DLSZ_SIZE_X)
-	END_DLGRESIZE_MAP()
+		END_DLGRESIZE_MAP()
 
 	LRESULT OnInitDialog(HWND hwndFocus, LPARAM lParam);
 	LRESULT OnCloseCmd(WORD wNotifyCode, WORD wID, HWND hWndCtl);
@@ -72,15 +75,15 @@ public:
 	LRESULT OnNCDestroy();
 	LRESULT OnUwmKeyDown(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
 	LRESULT OnUwmFindTextChanged(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
-	static bool FindNext(HWND hWnd, HWND hWndEdit, unsigned flags, const char *which);
-	static bool FindPrevious(HWND hWnd, HWND hWndEdit, unsigned flags, const char *which);
-	static bool FindResult(HWND hWnd, HWND hWndEdit, int pos, const char *which);
+	static bool FindNext(HWND hWnd, HWND hWndEdit, unsigned flags, const char* which);
+	static bool FindPrevious(HWND hWnd, HWND hWndEdit, unsigned flags, const char* which);
+	static bool FindResult(HWND hWnd, HWND hWndEdit, int pos, const char* which);
 
 private:
 	CScriptEditorCtrl m_editorctrl;
-	CDialogFind * m_dlgfind;
-	CDialogReplace * m_dlgreplace;
-	js_panel_window * m_parent;
+	CDialogFind* m_dlgfind;
+	CDialogReplace* m_dlgreplace;
+	js_panel_window* m_parent;
 	pfc::string8 m_caption;
 	unsigned int m_lastFlags;
 	pfc::string8 m_lastSearchText;

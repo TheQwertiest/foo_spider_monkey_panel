@@ -30,9 +30,9 @@ public:
 		m_iterations = p_iterations;
 	}
 
-	void filter(Gdiplus::Bitmap & p_img) throw();
+	void filter(Gdiplus::Bitmap& p_img) throw();
 
-	static void blur(const int * in, int * out, int width, int height, int radius) throw();
+	static void blur(const int* in, int* out, int width, int height, int radius) throw();
 
 	static BYTE get_color_alpha(DWORD color)
 	{

@@ -3,14 +3,16 @@
 #include "resource.h"
 
 class CDialogPref : public CDialogImpl<CDialogPref>
-	, public CWinDataExchange<CDialogPref>
-	, public preferences_page_instance
+                    , public CWinDataExchange<CDialogPref>
+                    , public preferences_page_instance
 {
 public:
-	CDialogPref(preferences_page_callback::ptr callback) : m_callback(callback) {}
+	CDialogPref(preferences_page_callback::ptr callback) : m_callback(callback)
+	{
+	}
 
 	void LoadProps(bool reset = false);
-	void uGetItemText(int nItem, int nSubItem, pfc::string_base & out);
+	void uGetItemText(int nItem, int nSubItem, pfc::string_base& out);
 
 	void OnChanged();
 
@@ -20,18 +22,21 @@ public:
 	void apply();
 	void reset();
 
-	enum { IDD = IDD_DIALOG_PREFERENCE };
+	enum
+	{
+		IDD = IDD_DIALOG_PREFERENCE
+	};
 
 	BEGIN_MSG_MAP(CDialogPref)
 		MSG_WM_INITDIALOG(OnInitDialog)
 		COMMAND_HANDLER_EX(IDC_BUTTON_EXPORT, BN_CLICKED, OnButtonExportBnClicked)
 		COMMAND_HANDLER_EX(IDC_BUTTON_IMPORT, BN_CLICKED, OnButtonImportBnClicked)
 		NOTIFY_HANDLER_EX(IDC_LIST_EDITOR_PROP, NM_DBLCLK, OnPropNMDblClk)
-	END_MSG_MAP()
+		END_MSG_MAP()
 
 	BEGIN_DDX_MAP(CDialogPref)
 		DDX_CONTROL_HANDLE(IDC_LIST_EDITOR_PROP, m_props)
-	END_DDX_MAP()
+		END_DDX_MAP()
 
 	BOOL OnInitDialog(HWND hwndFocus, LPARAM lParam);
 	LRESULT OnPropNMDblClk(LPNMHDR pnmh);
@@ -49,12 +54,12 @@ class js_preferences_page_impl : public preferences_page_v3
 public:
 	preferences_page_instance::ptr instantiate(HWND parent, preferences_page_callback::ptr callback)
 	{
-		service_impl_t<CDialogPref> * p = new service_impl_t<CDialogPref>(callback);
+		service_impl_t<CDialogPref>* p = new service_impl_t<CDialogPref>(callback);
 		p->Create(parent);
 		return p;
 	}
 
-	const char * get_name()
+	const char* get_name()
 	{
 		return JSP_NAME;
 	}
@@ -63,13 +68,13 @@ public:
 	{
 		return g_ui_pref_window_guid;
 	}
-	
+
 	GUID get_parent_guid()
 	{
 		return preferences_page::guid_tools;
 	}
 
-	bool get_help_url(pfc::string_base & p_out)
+	bool get_help_url(pfc::string_base& p_out)
 	{
 		p_out = "https://github.com/19379/foo-jscript-panel/wiki/Editor-Properties";
 		return true;

@@ -3,7 +3,7 @@
 #include "resource.h"
 
 
-void js_panel_vars::get_default_script_code(pfc::string_base & out)
+void js_panel_vars::get_default_script_code(pfc::string_base& out)
 {
 	out.reset();
 	puResource pures = uLoadResource(core_api::get_my_instance(), uMAKEINTRESOURCE(IDR_SCRIPT), "SCRIPT");
@@ -25,7 +25,7 @@ void js_panel_vars::reset_config()
 	CoCreateGuid(&m_config_guid);
 }
 
-void js_panel_vars::load_config(stream_reader * reader, t_size size, abort_callback & abort)
+void js_panel_vars::load_config(stream_reader* reader, t_size size, abort_callback& abort)
 {
 	reset_config();
 
@@ -33,7 +33,7 @@ void js_panel_vars::load_config(stream_reader * reader, t_size size, abort_callb
 	{
 		bool have_read_config = false;
 		unsigned ver = 0;
-		
+
 		try
 		{
 			// Read version
@@ -78,7 +78,7 @@ void js_panel_vars::load_config(stream_reader * reader, t_size size, abort_callb
 				break;
 			}
 		}
-		catch (std::exception &)
+		catch (std::exception&)
 		{
 			have_read_config = false;
 			reset_config();
@@ -88,12 +88,12 @@ void js_panel_vars::load_config(stream_reader * reader, t_size size, abort_callb
 		{
 			// Configuration corruputed or config version dismatch.
 			console::complain(JSP_NAME,
-				"Error: Configuration needs a newer component or is corrupted");
+			                          "Error: Configuration needs a newer component or is corrupted");
 		}
 	}
 }
 
-void js_panel_vars::save_config(stream_writer * writer, abort_callback & abort) const
+void js_panel_vars::save_config(stream_writer* writer, abort_callback& abort) const
 {
 	unsigned const VERSION_CURRENT = CONFIG_VERSION_CURRENT;
 
@@ -113,7 +113,7 @@ void js_panel_vars::save_config(stream_writer * writer, abort_callback & abort) 
 		writer->write_string(m_script_code, abort);
 		writer->write_object_t(m_pseudo_transparent, abort);
 	}
-	catch (std::exception &)
+	catch (std::exception&)
 	{
 	}
 }
@@ -144,7 +144,7 @@ bool prop_kv_config::g_is_allowed_type(VARTYPE p_vt)
 	return false;
 }
 
-bool prop_kv_config::get_config_item(const char * p_key, VARIANT & p_out)
+bool prop_kv_config::get_config_item(const char* p_key, VARIANT& p_out)
 {
 	t_val val;
 
@@ -163,7 +163,7 @@ bool prop_kv_config::get_config_item(const char * p_key, VARIANT & p_out)
 	return false;
 }
 
-void prop_kv_config::set_config_item(const char * p_key, const VARIANT & p_val)
+void prop_kv_config::set_config_item(const char* p_key, const VARIANT& p_val)
 {
 	if (!g_is_allowed_type(p_val.vt))
 	{
@@ -175,17 +175,17 @@ void prop_kv_config::set_config_item(const char * p_key, const VARIANT & p_val)
 	}
 }
 
-void prop_kv_config::load(stream_reader * reader, abort_callback & abort)
+void prop_kv_config::load(stream_reader* reader, abort_callback& abort)
 {
 	g_load(m_map, reader, abort);
 }
 
-void prop_kv_config::save(stream_writer * writer, abort_callback & abort) const
+void prop_kv_config::save(stream_writer* writer, abort_callback& abort) const
 {
 	g_save(m_map, writer, abort);
 }
 
-void prop_kv_config::g_load(t_map & data, stream_reader * reader, abort_callback & abort) throw()
+void prop_kv_config::g_load(t_map& data, stream_reader* reader, abort_callback& abort) throw()
 {
 	t_size count;
 
@@ -259,13 +259,12 @@ void prop_kv_config::g_load(t_map & data, stream_reader * reader, abort_callback
 			data[key] = val;
 		}
 	}
-	catch (std::exception &)
+	catch (std::exception&)
 	{
-
 	}
 }
 
-void prop_kv_config::g_save(const t_map & data, stream_writer * writer, abort_callback & abort) throw()
+void prop_kv_config::g_save(const t_map& data, stream_writer* writer, abort_callback& abort) throw()
 {
 	try
 	{
@@ -325,8 +324,7 @@ void prop_kv_config::g_save(const t_map & data, stream_writer * writer, abort_ca
 			}
 		}
 	}
-	catch (std::exception &)
+	catch (std::exception&)
 	{
-
 	}
 }

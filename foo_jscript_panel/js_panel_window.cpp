@@ -13,7 +13,6 @@ js_panel_window::js_panel_window() :
 	m_is_mouse_tracked(false),
 	m_is_droptarget_registered(false)
 {
-
 }
 
 js_panel_window::~js_panel_window()
@@ -21,7 +20,7 @@ js_panel_window::~js_panel_window()
 	m_script_host->Release();
 }
 
-void js_panel_window::update_script(const char * name /*= NULL*/, const char * code /*= NULL*/)
+void js_panel_window::update_script(const char* name /*= NULL*/, const char* code /*= NULL*/)
 {
 	if (name && code)
 	{
@@ -139,7 +138,7 @@ void js_panel_window::delete_context()
 	}
 }
 
-ui_helpers::container_window::class_data & js_panel_window::get_class_data() const
+ui_helpers::container_window::class_data& js_panel_window::get_class_data() const
 {
 	static class_data my_class_data =
 	{
@@ -190,7 +189,7 @@ LRESULT js_panel_window::on_message(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 			m_hwnd = hwnd;
 			m_hdc = GetDC(m_hwnd);
 			GetClientRect(m_hwnd, &rect);
-			m_width  = rect.right - rect.left;
+			m_width = rect.right - rect.left;
 			m_height = rect.bottom - rect.top;
 			create_context();
 			// Interfaces
@@ -228,7 +227,7 @@ LRESULT js_panel_window::on_message(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 
 	case WM_ERASEBKGND:
 		if (get_pseudo_transparent())
-			PostMessage(m_hwnd, UWM_REFRESHBK, 0, 0);
+		PostMessage(m_hwnd, UWM_REFRESHBK, 0, 0);
 		return 1;
 
 	case UWM_REFRESHBK:
@@ -264,7 +263,7 @@ LRESULT js_panel_window::on_message(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 	case UWM_SIZE:
 		on_size(m_width, m_height);
 		if (get_pseudo_transparent())
-			PostMessage(m_hwnd, UWM_REFRESHBK, 0, 0);
+		PostMessage(m_hwnd, UWM_REFRESHBK, 0, 0);
 		else
 			Repaint();
 		return 0;
@@ -275,7 +274,7 @@ LRESULT js_panel_window::on_message(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 			GetClientRect(m_hwnd, &rect);
 			on_size(rect.right - rect.left, rect.bottom - rect.top);
 			if (get_pseudo_transparent())
-				PostMessage(m_hwnd, UWM_REFRESHBK, 0, 0);
+			PostMessage(m_hwnd, UWM_REFRESHBK, 0, 0);
 			else
 				Repaint();
 		}
@@ -393,7 +392,7 @@ LRESULT js_panel_window::on_message(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 		{
 			const auto& tooltip_param = PanelTooltipParam();
 			if (tooltip_param && tooltip_param->tooltip_hwnd)
-				SendMessage(tooltip_param->tooltip_hwnd, TTM_ACTIVATE, FALSE, 0);
+			SendMessage(tooltip_param->tooltip_hwnd, TTM_ACTIVATE, FALSE, 0);
 
 			Repaint();
 			m_script_host->Stop();
@@ -404,12 +403,12 @@ LRESULT js_panel_window::on_message(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 	case UWM_SCRIPT_DISABLED_BEFORE:
 		// Show error message
 		popup_msg::g_show(pfc::string_formatter()
-			<< "Panel ("
-			<< ScriptInfo().build_info_string()
-			<< "): Refuse to load script due to critical error last run,"
-			<< " please check your script and apply it again.",
-			JSP_NAME,
-			popup_message::icon_error);
+		                  << "Panel ("
+		                  << ScriptInfo().build_info_string()
+		                  << "): Refuse to load script due to critical error last run,"
+		                  << " please check your script and apply it again.",
+		                  JSP_NAME,
+		                  popup_message::icon_error);
 		return 0;
 
 	case UWM_TIMER:
@@ -599,8 +598,8 @@ void js_panel_window::on_paint(HDC dc, LPRECT lpUpdateRect)
 			HBITMAP bkoldbmp = SelectBitmap(bkdc, m_gr_bmp_bk);
 
 			BitBlt(memdc, lpUpdateRect->left, lpUpdateRect->top,
-				lpUpdateRect->right - lpUpdateRect->left,
-				lpUpdateRect->bottom - lpUpdateRect->top, bkdc, lpUpdateRect->left, lpUpdateRect->top, SRCCOPY);
+			       lpUpdateRect->right - lpUpdateRect->left,
+			       lpUpdateRect->bottom - lpUpdateRect->top, bkdc, lpUpdateRect->left, lpUpdateRect->top, SRCCOPY);
 
 			SelectBitmap(bkdc, bkoldbmp);
 			DeleteDC(bkdc);
@@ -627,8 +626,8 @@ void js_panel_window::on_paint_user(HDC memdc, LPRECT lpUpdateRect)
 		// Prepare graphics object to the script.
 		Gdiplus::Graphics gr(memdc);
 		Gdiplus::Rect rect(lpUpdateRect->left, lpUpdateRect->top,
-			lpUpdateRect->right - lpUpdateRect->left,
-			lpUpdateRect->bottom - lpUpdateRect->top);
+		                   lpUpdateRect->right - lpUpdateRect->left,
+		                   lpUpdateRect->bottom - lpUpdateRect->top);
 
 		// SetClip() may improve performance slightly
 		gr.SetClip(rect);
@@ -655,8 +654,8 @@ void js_panel_window::on_paint_error(HDC memdc)
 
 	// Font chosing
 	HFONT newfont = CreateFont(20, 0, 0, 0, FW_BOLD, FALSE, FALSE, FALSE,
-		DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
-		DEFAULT_PITCH | FF_DONTCARE, _T("Tahoma"));
+	                           DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
+	                           DEFAULT_PITCH | FF_DONTCARE, _T("Tahoma"));
 	HFONT oldfont = (HFONT)SelectObject(memdc, newfont);
 
 	// Font drawing
@@ -750,7 +749,7 @@ void js_panel_window::on_mouse_move(WPARAM wp, LPARAM lp)
 	args[1].vt = VT_I4;
 	args[1].lVal = GET_Y_LPARAM(lp);
 	args[2].vt = VT_I4;
-	args[2].lVal = GET_X_LPARAM(lp);	
+	args[2].lVal = GET_X_LPARAM(lp);
 	script_invoke_v(CallbackIds::on_mouse_move, args, _countof(args));
 }
 
@@ -794,7 +793,7 @@ bool js_panel_window::on_mouse_button_up(UINT msg, WPARAM wp, LPARAM lp)
 	args[1].vt = VT_I4;
 	args[1].lVal = GET_Y_LPARAM(lp);
 	args[2].vt = VT_I4;
-	args[2].lVal = GET_X_LPARAM(lp);	
+	args[2].lVal = GET_X_LPARAM(lp);
 
 	switch (msg)
 	{
@@ -898,7 +897,7 @@ void js_panel_window::execute_context_menu_command(int id, int id_base)
 		show_property_popup(m_hwnd);
 		break;
 	case 4:
-		show_configure_popup(m_hwnd);			
+		show_configure_popup(m_hwnd);
 		break;
 	}
 }
@@ -907,9 +906,9 @@ void js_panel_window::on_item_played(WPARAM wp)
 {
 	TRACK_FUNCTION();
 
-	simple_callback_data_scope_releaser<simple_callback_data<metadb_handle_ptr> > data(wp);
+	simple_callback_data_scope_releaser<simple_callback_data<metadb_handle_ptr>> data(wp);
 
-	FbMetadbHandle * handle = new com_object_impl_t<FbMetadbHandle>(data->m_item);
+	FbMetadbHandle* handle = new com_object_impl_t<FbMetadbHandle>(data->m_item);
 	VARIANTARG args[1];
 
 	args[0].vt = VT_DISPATCH;
@@ -925,7 +924,7 @@ void js_panel_window::on_get_album_art_done(LPARAM lp)
 	TRACK_FUNCTION();
 
 	using namespace helpers;
-	album_art_async::t_param * param = reinterpret_cast<album_art_async::t_param *>(lp);
+	album_art_async::t_param* param = reinterpret_cast<album_art_async::t_param *>(lp);
 	VARIANTARG args[4];
 
 	args[0].vt = VT_BSTR;
@@ -944,7 +943,7 @@ void js_panel_window::on_load_image_done(LPARAM lp)
 	TRACK_FUNCTION();
 
 	using namespace helpers;
-	load_image_async::t_param * param = reinterpret_cast<load_image_async::t_param *>(lp);
+	load_image_async::t_param* param = reinterpret_cast<load_image_async::t_param *>(lp);
 	VARIANTARG args[3];
 
 	args[0].vt = VT_BSTR;
@@ -994,7 +993,7 @@ void js_panel_window::on_notify_data(WPARAM wp)
 	TRACK_FUNCTION();
 
 	VARIANTARG args[2];
-	simple_callback_data_scope_releaser<simple_callback_data_2<_bstr_t, _variant_t> > data(wp);
+	simple_callback_data_scope_releaser<simple_callback_data_2<_bstr_t, _variant_t>> data(wp);
 
 	args[0] = data->m_item2;
 	args[1].vt = VT_BSTR;
@@ -1033,9 +1032,9 @@ void js_panel_window::on_playback_new_track(WPARAM wp)
 {
 	TRACK_FUNCTION();
 
-	simple_callback_data_scope_releaser<simple_callback_data<metadb_handle_ptr> > data(wp);
+	simple_callback_data_scope_releaser<simple_callback_data<metadb_handle_ptr>> data(wp);
 	VARIANTARG args[1];
-	FbMetadbHandle * handle = new com_object_impl_t<FbMetadbHandle>(data->m_item);
+	FbMetadbHandle* handle = new com_object_impl_t<FbMetadbHandle>(data->m_item);
 
 	args[0].vt = VT_DISPATCH;
 	args[0].pdispVal = handle;
@@ -1060,7 +1059,7 @@ void js_panel_window::on_playback_seek(WPARAM wp)
 {
 	TRACK_FUNCTION();
 
-	simple_callback_data_scope_releaser<simple_callback_data<double> > data(wp);
+	simple_callback_data_scope_releaser<simple_callback_data<double>> data(wp);
 
 	VARIANTARG args[1];
 
@@ -1084,8 +1083,8 @@ void js_panel_window::on_playback_edited(WPARAM wp)
 {
 	TRACK_FUNCTION();
 
-	simple_callback_data_scope_releaser<simple_callback_data<metadb_handle_ptr> > data(wp);
-	FbMetadbHandle * handle = new com_object_impl_t<FbMetadbHandle>(data->m_item);
+	simple_callback_data_scope_releaser<simple_callback_data<metadb_handle_ptr>> data(wp);
+	FbMetadbHandle* handle = new com_object_impl_t<FbMetadbHandle>(data->m_item);
 	VARIANTARG args[1];
 
 	args[0].vt = VT_DISPATCH;
@@ -1117,7 +1116,7 @@ void js_panel_window::on_playback_time(WPARAM wp)
 {
 	TRACK_FUNCTION();
 
-	simple_callback_data_scope_releaser<simple_callback_data<double> > data(wp);
+	simple_callback_data_scope_releaser<simple_callback_data<double>> data(wp);
 
 	VARIANTARG args[1];
 
@@ -1130,7 +1129,7 @@ void js_panel_window::on_volume_change(WPARAM wp)
 {
 	TRACK_FUNCTION();
 
-	simple_callback_data_scope_releaser<simple_callback_data<float> > data(wp);
+	simple_callback_data_scope_releaser<simple_callback_data<float>> data(wp);
 
 	VARIANTARG args[1];
 
@@ -1143,7 +1142,7 @@ void js_panel_window::on_item_focus_change(WPARAM wp)
 {
 	TRACK_FUNCTION();
 
-	simple_callback_data_scope_releaser<simple_callback_data_3<t_size, t_size, t_size> > data(wp);
+	simple_callback_data_scope_releaser<simple_callback_data_3<t_size, t_size, t_size>> data(wp);
 	VARIANTARG args[3];
 
 	args[0].vt = VT_I4;
@@ -1237,7 +1236,7 @@ void js_panel_window::on_changed_sorted(WPARAM wp)
 
 	simple_callback_data_scope_releaser<nonautoregister_callbacks::t_on_changed_sorted_data> data(wp);
 	VARIANTARG args[2];
-	IDispatch * handle = NULL;
+	IDispatch* handle = NULL;
 
 	handle = new com_object_impl_t<FbMetadbHandleList>(data->m_items_sorted);
 
@@ -1274,20 +1273,20 @@ void js_panel_window::on_playback_queue_changed(WPARAM wp)
 void js_panel_window::on_library_items_added()
 {
 	TRACK_FUNCTION();
-	
+
 	script_invoke_v(CallbackIds::on_library_items_added);
 }
 
 void js_panel_window::on_library_items_removed()
 {
 	TRACK_FUNCTION();
-	
+
 	script_invoke_v(CallbackIds::on_library_items_removed);
 }
 
 void js_panel_window::on_library_items_changed()
 {
 	TRACK_FUNCTION();
-	
+
 	script_invoke_v(CallbackIds::on_library_items_changed);
 }

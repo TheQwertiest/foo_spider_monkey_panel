@@ -34,8 +34,8 @@ void CDialogPref::LoadProps(bool reset /*= false*/)
 		g_sci_prop_sets.reset();
 
 	pfc::stringcvt::string_os_from_utf8_fast conv;
-	t_sci_prop_set_list & prop_sets = g_sci_prop_sets.val();
-	
+	t_sci_prop_set_list& prop_sets = g_sci_prop_sets.val();
+
 	m_props.DeleteAllItems();
 
 	for (t_size i = 0; i < prop_sets.get_count(); ++i)
@@ -58,9 +58,9 @@ LRESULT CDialogPref::OnPropNMDblClk(LPNMHDR pnmh)
 
 	if (pniv->iItem >= 0)
 	{
-		t_sci_prop_set_list & prop_sets = g_sci_prop_sets.val();
+		t_sci_prop_set_list& prop_sets = g_sci_prop_sets.val();
 		pfc::string8 key, val;
-	
+
 		uGetItemText(pniv->iItem, 0, key);
 		uGetItemText(pniv->iItem, 1, val);
 
@@ -69,7 +69,7 @@ LRESULT CDialogPref::OnPropNMDblClk(LPNMHDR pnmh)
 		scope.initialize(m_hWnd);
 
 		CNameValueEdit dlg(key, val);
-		
+
 		if (IDOK == dlg.DoModal(m_hWnd))
 		{
 			dlg.GetValue(val);
@@ -93,9 +93,12 @@ LRESULT CDialogPref::OnPropNMDblClk(LPNMHDR pnmh)
 	return 0;
 }
 
-void CDialogPref::uGetItemText(int nItem, int nSubItem, pfc::string_base & out)
+void CDialogPref::uGetItemText(int nItem, int nSubItem, pfc::string_base& out)
 {
-	enum { BUFFER_LEN = 1024 };
+	enum
+		{
+			BUFFER_LEN = 1024
+		};
 	TCHAR buffer[BUFFER_LEN];
 
 	m_props.GetItemText(nItem, nSubItem, buffer, BUFFER_LEN);

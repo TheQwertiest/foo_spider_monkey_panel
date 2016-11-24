@@ -3,7 +3,10 @@
 class simple_thread_task
 {
 public:
-	virtual void run() { PFC_ASSERT(!"Should not go here"); }
+	virtual void run()
+	{
+		PFC_ASSERT(!"Should not go here");
+	}
 };
 
 // Rip from pfc
@@ -13,19 +16,29 @@ class simple_thread
 public:
 	PFC_DECLARE_EXCEPTION(exception_creation, pfc::exception, "Could not create thread");
 
-	simple_thread() : m_thread(INVALID_HANDLE_VALUE) {}
-	~simple_thread() {PFC_ASSERT(!isActive()); waitTillDone();}
+	simple_thread() : m_thread(INVALID_HANDLE_VALUE)
+	{
+	}
+
+	~simple_thread()
+	{
+		PFC_ASSERT(!isActive());
+		waitTillDone();
+	}
 
 	void start();
 	bool isActive() const;
 	void waitTillDone();
 
 protected:
-	virtual void threadProc() {PFC_ASSERT(!"Stub thread entry - should not get here");}
+	virtual void threadProc()
+	{
+		PFC_ASSERT(!"Stub thread entry - should not get here");
+	}
 
 private:
 	void close();
-	static unsigned CALLBACK g_entry(void * p_instance);
+	static unsigned CALLBACK g_entry(void* p_instance);
 	unsigned entry();
 
 	HANDLE m_thread;
@@ -36,7 +49,10 @@ private:
 class simple_thread_worker : public simple_thread
 {
 public:
-	simple_thread_worker() {}
+	simple_thread_worker()
+	{
+	}
+
 	virtual ~simple_thread_worker() { waitTillDone(); }
 	virtual void threadProc();
 
@@ -47,7 +63,7 @@ private:
 class simple_thread_pool
 {
 public:
-	static simple_thread_pool & instance()
+	static simple_thread_pool& instance()
 	{
 		return instance_;
 	}
@@ -70,18 +86,18 @@ public:
 		CloseHandle(have_task_);
 	}
 
-	bool enqueue(simple_thread_task * task);
+	bool enqueue(simple_thread_task* task);
 	bool is_queue_empty();
-	void track(simple_thread_task * task);
-	void untrack(simple_thread_task * task);
+	void track(simple_thread_task* task);
+	void untrack(simple_thread_task* task);
 	void untrack_all();
 	// Should always called from the main thread
 	void join();
-	simple_thread_task * acquire_task();
+	simple_thread_task* acquire_task();
 
 private:
-	void add_worker_(simple_thread_worker * worker);
-	void remove_worker_(simple_thread_worker * worker);
+	void add_worker_(simple_thread_worker* worker);
+	void remove_worker_(simple_thread_worker* worker);
 
 	typedef pfc::chain_list_v2_t<simple_thread_task *> t_task_list;
 	t_task_list task_list_;

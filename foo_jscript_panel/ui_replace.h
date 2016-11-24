@@ -4,7 +4,7 @@
 
 class CDialogReplace
 	: public CDialogImpl<CDialogReplace>
-	, public CDialogResize<CDialogReplace>
+	  , public CDialogResize<CDialogReplace>
 {
 public:
 	CDialogReplace(HWND p_hedit) : m_hedit(p_hedit), m_flags(0), m_havefound(false)
@@ -14,7 +14,10 @@ public:
 	void OnFinalMessage(HWND hWnd);
 	CHARRANGE GetSelection();
 
-	enum { IDD = IDD_DIALOG_REPLACE };
+	enum
+	{
+		IDD = IDD_DIALOG_REPLACE
+	};
 
 	BEGIN_MSG_MAP(CDialogReplace)
 		MSG_WM_INITDIALOG(OnInitDialog)
@@ -26,7 +29,7 @@ public:
 		COMMAND_ID_HANDLER_EX(IDC_REPLACE, OnReplace)
 		COMMAND_ID_HANDLER_EX(IDC_REPLACEALL, OnReplaceall)
 		CHAIN_MSG_MAP(CDialogResize<CDialogReplace>)
-	END_MSG_MAP()
+		END_MSG_MAP()
 
 	BEGIN_DLGRESIZE_MAP(CDialogReplace)
 		DLGRESIZE_CONTROL(IDC_EDIT_FINDWHAT, DLSZ_SIZE_X)
@@ -35,7 +38,7 @@ public:
 		DLGRESIZE_CONTROL(IDC_REPLACE, DLSZ_MOVE_X)
 		DLGRESIZE_CONTROL(IDC_REPLACEALL, DLSZ_MOVE_X)
 		DLGRESIZE_CONTROL(IDCANCEL, DLSZ_MOVE_X)
-	END_DLGRESIZE_MAP()
+		END_DLGRESIZE_MAP()
 
 	LRESULT OnFindNext(WORD wNotifyCode, WORD wID, HWND hWndCtl);
 	LRESULT OnEditFindWhatEnChange(WORD wNotifyCode, WORD wID, HWND hWndCtl);
@@ -51,6 +54,7 @@ private:
 	{
 	public:
 		typedef CWindowImpl<CEditWithReturn, CEdit> parent;
+
 		BOOL SubclassWindow(HWND hWnd, HWND hParent)
 		{
 			m_parent = hParent;
@@ -60,9 +64,9 @@ private:
 		BEGIN_MSG_MAP(CEditWithReturn)
 			MESSAGE_HANDLER(WM_CHAR, OnChar)
 			MESSAGE_HANDLER(WM_KEYDOWN, OnKeyDown)
-		END_MSG_MAP()
+			END_MSG_MAP()
 
-		LRESULT OnChar(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bHandled)
+		LRESULT OnChar(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 		{
 			// Disable anonying sound
 			switch (wParam)
@@ -77,7 +81,7 @@ private:
 			return DefWindowProc(uMsg, wParam, lParam);
 		}
 
-		LRESULT OnKeyDown(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bHandled)
+		LRESULT OnKeyDown(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 		{
 			switch (wParam)
 			{

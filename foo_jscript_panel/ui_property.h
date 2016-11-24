@@ -11,22 +11,24 @@ class js_panel_window;
 
 class CDialogProperty
 	: public CDialogImpl<CDialogProperty>
-	, public CDialogResize<CDialogProperty>
+	  , public CDialogResize<CDialogProperty>
 {
 public:
-	CDialogProperty(js_panel_window * p_parent) : m_parent(p_parent)
+	CDialogProperty(js_panel_window* p_parent) : m_parent(p_parent)
 	{
 	}
 
 	virtual ~CDialogProperty()
 	{
-
 	}
 
 	void LoadProperties(bool reload = true);
 	void Apply();
 
-	enum { IDD = IDD_DIALOG_PROPERTIES };
+	enum
+	{
+		IDD = IDD_DIALOG_PROPERTIES
+	};
 
 	BEGIN_MSG_MAP(CDialogProperty)
 		MSG_WM_INITDIALOG(OnInitDialog)
@@ -39,7 +41,7 @@ public:
 		NOTIFY_CODE_HANDLER_EX(PIN_ITEMCHANGED, OnPinItemChanged)
 		CHAIN_MSG_MAP(CDialogResize<CDialogProperty>)
 		REFLECT_NOTIFICATIONS()
-	END_MSG_MAP()
+		END_MSG_MAP()
 
 	BEGIN_DLGRESIZE_MAP(CDialogProperty)
 		DLGRESIZE_CONTROL(IDC_LIST_PROPERTIES, DLSZ_SIZE_X | DLSZ_SIZE_Y)
@@ -50,7 +52,7 @@ public:
 		DLGRESIZE_CONTROL(IDOK, DLSZ_MOVE_X | DLSZ_MOVE_Y)
 		DLGRESIZE_CONTROL(IDCANCEL, DLSZ_MOVE_X | DLSZ_MOVE_Y)
 		DLGRESIZE_CONTROL(IDAPPLY, DLSZ_MOVE_X | DLSZ_MOVE_Y)
-	END_DLGRESIZE_MAP()
+		END_DLGRESIZE_MAP()
 
 	LRESULT OnInitDialog(HWND hwndFocus, LPARAM lParam);
 	LRESULT OnCloseCmd(WORD wNotifyCode, WORD wID, HWND hWndCtl);
@@ -61,7 +63,7 @@ public:
 	LRESULT OnExportBnClicked(WORD wNotifyCode, WORD wID, HWND hWndCtl);
 
 private:
-	js_panel_window * m_parent;
+	js_panel_window* m_parent;
 	CPropertyListCtrl m_properties;
 	prop_kv_config::t_map m_dup_prop_map;
 };

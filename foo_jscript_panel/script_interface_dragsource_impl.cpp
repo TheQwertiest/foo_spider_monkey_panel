@@ -8,7 +8,7 @@ DragSourceObject::DragSourceObject()
 {
 }
 
-STDMETHODIMP DragSourceObject::StartDrag(__interface IDataTransferObject * dataTransfer)
+STDMETHODIMP DragSourceObject::StartDrag(__interface IDataTransferObject* dataTransfer)
 {
 	TRACK_FUNCTION();
 

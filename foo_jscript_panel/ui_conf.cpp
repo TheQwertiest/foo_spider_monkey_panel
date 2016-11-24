@@ -41,7 +41,7 @@ LRESULT CDialogConf::OnInitDialog(HWND hwndFocus, LPARAM lParam)
 	ComboBox_AddString(combo_script_engine, _T("JScript9"));
 
 	if (!uComboBox_SelectString(combo_script_engine, m_parent->get_script_engine()))
-		ComboBox_SetCurSel(combo_script_engine, 0);
+	ComboBox_SetCurSel(combo_script_engine, 0);
 
 	// Edge Style
 	HWND combo_edge_style = GetDlgItem(IDC_EDGE_STYLE);
@@ -115,7 +115,7 @@ LRESULT CDialogConf::OnCloseCmd(WORD wNotifyCode, WORD wID, HWND hWndCtl)
 
 		EndDialog(IDCANCEL);
 	}
-	
+
 	return 0;
 }
 
@@ -148,7 +148,7 @@ void CDialogConf::OnResetCurrent()
 {
 	HWND combo = GetDlgItem(IDC_SCRIPT_ENGINE);
 
-	uComboBox_SelectString(combo, m_parent->get_script_engine());			
+	uComboBox_SelectString(combo, m_parent->get_script_engine());
 	m_editorctrl.SetContent(m_parent->get_script_code());
 }
 
@@ -185,12 +185,12 @@ void CDialogConf::OnExport()
 LRESULT CDialogConf::OnTools(WORD wNotifyCode, WORD wID, HWND hWndCtl)
 {
 	enum
-	{
-		kImport = 1,
-		kExport,
-		kResetDefault,
-		kResetCurrent,
-	};
+		{
+			kImport = 1,
+			kExport,
+			kResetDefault,
+			kResetCurrent,
+		};
 
 	HMENU menu = CreatePopupMenu();
 	int ret = 0;
@@ -259,7 +259,7 @@ void CDialogConf::Apply()
 
 LRESULT CDialogConf::OnNotify(int idCtrl, LPNMHDR pnmh)
 {
-	SCNotification * notification = (SCNotification *)pnmh;
+	SCNotification* notification = (SCNotification *)pnmh;
 
 	switch (pnmh->code)
 	{
@@ -304,7 +304,7 @@ bool CDialogConf::MatchShortcuts(unsigned vk)
 				if (!m_dlgreplace)
 				{
 					m_dlgreplace = new CDialogReplace(GetDlgItem(IDC_EDIT));
-					
+
 					if (!m_dlgreplace || !m_dlgreplace->Create(m_hWnd))
 						break;
 				}
@@ -373,7 +373,7 @@ LRESULT CDialogConf::OnUwmFindTextChanged(UINT uMsg, WPARAM wParam, LPARAM lPara
 	return 0;
 }
 
-bool CDialogConf::FindNext(HWND hWnd, HWND hWndEdit, unsigned flags, const char *which)
+bool CDialogConf::FindNext(HWND hWnd, HWND hWndEdit, unsigned flags, const char* which)
 {
 	::SendMessage(::GetAncestor(hWndEdit, GA_PARENT), UWM_FINDTEXTCHANGED, flags, reinterpret_cast<LPARAM>(which));
 
@@ -383,7 +383,7 @@ bool CDialogConf::FindNext(HWND hWnd, HWND hWndEdit, unsigned flags, const char 
 	return FindResult(hWnd, hWndEdit, pos, which);
 }
 
-bool CDialogConf::FindPrevious(HWND hWnd, HWND hWndEdit, unsigned flags, const char *which)
+bool CDialogConf::FindPrevious(HWND hWnd, HWND hWndEdit, unsigned flags, const char* which)
 {
 	::SendMessage(::GetAncestor(hWndEdit, GA_PARENT), UWM_FINDTEXTCHANGED, flags, reinterpret_cast<LPARAM>(which));
 
@@ -392,7 +392,7 @@ bool CDialogConf::FindPrevious(HWND hWnd, HWND hWndEdit, unsigned flags, const c
 	return FindResult(hWnd, hWndEdit, pos, which);
 }
 
-bool CDialogConf::FindResult(HWND hWnd, HWND hWndEdit, int pos, const char *which)
+bool CDialogConf::FindResult(HWND hWnd, HWND hWndEdit, int pos, const char* which)
 {
 	if (pos != -1)
 	{

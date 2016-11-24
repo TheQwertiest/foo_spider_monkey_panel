@@ -36,9 +36,9 @@ class name_to_id_cache
 public:
 	typedef ULONG hash_type;
 
-	bool lookup(hash_type hash, DISPID * p_dispid) const;
+	bool lookup(hash_type hash, DISPID* p_dispid) const;
 	void add(hash_type hash, DISPID dispid);
-	static hash_type g_hash(const wchar_t * name);
+	static hash_type g_hash(const wchar_t* name);
 
 protected:
 	typedef pfc::map_t<hash_type, DISPID> name_to_id_map;
@@ -52,7 +52,7 @@ public:
 	{
 	}
 
-	void set_type_info(ITypeInfo * type_info)
+	void set_type_info(ITypeInfo* type_info)
 	{
 		m_type_info = type_info;
 	}
@@ -67,17 +67,17 @@ public:
 		return m_type_info == NULL;
 	}
 
-	ITypeInfo * get_ptr() throw()
+	ITypeInfo* get_ptr() throw()
 	{
 		return m_type_info;
 	}
 
-	void init_from_typelib(ITypeLib * p_typeLib, const GUID & guid);
+	void init_from_typelib(ITypeLib* p_typeLib, const GUID& guid);
 
 	// "Expose" some ITypeInfo related methods here
-	HRESULT GetTypeInfo(UINT iTInfo, LCID lcid, ITypeInfo **ppTInfo);
-	HRESULT GetIDsOfNames(LPOLESTR *rgszNames, UINT cNames, MEMBERID *pMemId);
-	HRESULT Invoke(PVOID pvInstance, MEMBERID memid, WORD wFlags, DISPPARAMS *pDispParams, VARIANT *pVarResult, EXCEPINFO *pExcepInfo, UINT *puArgErr);
+	HRESULT GetTypeInfo(UINT iTInfo, LCID lcid, ITypeInfo** ppTInfo);
+	HRESULT GetIDsOfNames(LPOLESTR* rgszNames, UINT cNames, MEMBERID* pMemId);
+	HRESULT Invoke(PVOID pvInstance, MEMBERID memid, WORD wFlags, DISPPARAMS* pDispParams, VARIANT* pVarResult, EXCEPINFO* pExcepInfo, UINT* puArgErr);
 
 protected:
 	name_to_id_cache m_cache;
@@ -85,7 +85,7 @@ protected:
 };
 
 //-- IDispatch --
-template<class T>
+template <class T>
 class MyIDispatchImpl: public T
 {
 protected:
@@ -95,7 +95,7 @@ protected:
 	{
 		if (g_type_info_cache_holder.empty() && g_typelib)
 		{
-			g_type_info_cache_holder.init_from_typelib(g_typelib, __uuidof(T));	
+			g_type_info_cache_holder.init_from_typelib(g_typelib, __uuidof(T));
 		}
 	}
 
@@ -108,25 +108,25 @@ protected:
 	}
 
 public:
-	STDMETHOD(GetTypeInfoCount)(unsigned int * n)
+	STDMETHOD(GetTypeInfoCount)(unsigned int* n)
 	{
 		if (!n) return E_INVALIDARG;
 		*n = 1;
 		return S_OK;
 	}
 
-	STDMETHOD(GetTypeInfo)(unsigned int i, LCID lcid, ITypeInfo ** pp)
+	STDMETHOD(GetTypeInfo)(unsigned int i, LCID lcid, ITypeInfo** pp)
 	{
 		return g_type_info_cache_holder.GetTypeInfo(i, lcid, pp);
 	}
 
-	STDMETHOD(GetIDsOfNames)(REFIID riid, OLECHAR ** names, unsigned int cnames, LCID lcid, DISPID * dispids)
+	STDMETHOD(GetIDsOfNames)(REFIID riid, OLECHAR** names, unsigned int cnames, LCID lcid, DISPID* dispids)
 	{
 		if (g_type_info_cache_holder.empty()) return E_UNEXPECTED;
 		return g_type_info_cache_holder.GetIDsOfNames(names, cnames, dispids);
 	}
 
-	STDMETHOD(Invoke)(DISPID dispid, REFIID riid, LCID lcid, WORD flag, DISPPARAMS * params, VARIANT * result, EXCEPINFO * excep, unsigned int * err)
+	STDMETHOD(Invoke)(DISPID dispid, REFIID riid, LCID lcid, WORD flag, DISPPARAMS* params, VARIANT* result, EXCEPINFO* excep, unsigned int* err)
 	{
 		if (g_type_info_cache_holder.empty()) return E_UNEXPECTED;
 		TRACK_THIS_DISPATCH_CALL(g_type_info_cache_holder.get_ptr(), dispid, flag);
@@ -134,28 +134,32 @@ public:
 	}
 };
 
-template<class T>
+template <class T>
 FOOGUIDDECL type_info_cache_holder MyIDispatchImpl<T>::g_type_info_cache_holder;
 
 
 //-- IDispatch impl -- [T] [IDispatch] [IUnknown]
-template<class T>
+template <class T>
 class IDispatchImpl3: public MyIDispatchImpl<T>
 {
 	BEGIN_COM_QI_IMPL()
 		COM_QI_ENTRY_MULTI(IUnknown, IDispatch)
 		COM_QI_ENTRY(T)
 		COM_QI_ENTRY(IDispatch)
-	END_COM_QI_IMPL()
+		END_COM_QI_IMPL()
 
 protected:
-	IDispatchImpl3<T>() {}
+	IDispatchImpl3<T>()
+	{
+	}
 
-	virtual ~IDispatchImpl3<T>() {}
+	virtual ~IDispatchImpl3<T>()
+	{
+	}
 };
 
 //-- IDisposable impl -- [T] [IDisposable] [IDispatch] [IUnknown]
-template<class T>
+template <class T>
 class IDisposableImpl4: public MyIDispatchImpl<T>
 {
 	BEGIN_COM_QI_IMPL()
@@ -163,12 +167,16 @@ class IDisposableImpl4: public MyIDispatchImpl<T>
 		COM_QI_ENTRY(T)
 		COM_QI_ENTRY(IDisposable)
 		COM_QI_ENTRY(IDispatch)
-	END_COM_QI_IMPL()
+		END_COM_QI_IMPL()
 
 protected:
-	IDisposableImpl4<T>() {}
+	IDisposableImpl4<T>()
+	{
+	}
 
-	virtual ~IDisposableImpl4() { }
+	virtual ~IDisposableImpl4()
+	{
+	}
 
 public:
 	STDMETHODIMP Dispose()
@@ -229,7 +237,7 @@ template <class T>
 class com_object_singleton_t
 {
 public:
-	static T * instance()
+	static T* instance()
 	{
 		if (!_instance)
 		{

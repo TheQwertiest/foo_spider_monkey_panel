@@ -10,5 +10,5 @@ protected:
 	DragSourceObject();
 
 public:
-	STDMETHODIMP StartDrag(__interface IDataTransferObject * dataTransfer);
+	STDMETHODIMP StartDrag(__interface IDataTransferObject* dataTransfer);
 };

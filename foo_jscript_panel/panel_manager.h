@@ -10,7 +10,7 @@ public:
 	{
 	}
 
-	static panel_manager & instance()
+	static panel_manager& instance()
 	{
 		return sm_instance;
 	}
@@ -36,9 +36,9 @@ public:
 	void post_msg_to_all(UINT p_msg) { post_msg_to_all(p_msg, 0, 0); }
 	void post_msg_to_all(UINT p_msg, WPARAM p_wp) { post_msg_to_all(p_msg, p_wp, 0); }
 	void post_msg_to_all(UINT p_msg, WPARAM p_wp, LPARAM p_lp);
-	void post_msg_to_all_pointer(UINT p_msg, pfc::refcounted_object_root * p_param);
+	void post_msg_to_all_pointer(UINT p_msg, pfc::refcounted_object_root* p_param);
 	void send_msg_to_all(UINT p_msg, WPARAM p_wp, LPARAM p_lp);
-	void send_msg_to_others_pointer(HWND p_wnd_except, UINT p_msg, pfc::refcounted_object_root * p_param);
+	void send_msg_to_others_pointer(HWND p_wnd_except, UINT p_msg, pfc::refcounted_object_root* p_param);
 
 private:
 	t_hwnd_list m_hwnds;
@@ -52,7 +52,7 @@ class config_object_callback : public config_object_notify
 public:
 	virtual GUID get_watched_object(t_size p_index);
 	virtual t_size get_watched_object_count();
-	virtual void on_watched_object_changed(const service_ptr_t<config_object> & p_object);
+	virtual void on_watched_object_changed(const service_ptr_t<config_object>& p_object);
 };
 
 template <typename T>
@@ -60,7 +60,9 @@ struct simple_callback_data : public pfc::refcounted_object_root
 {
 	T m_item;
 
-	simple_callback_data(const T & p_item) : m_item(p_item) {}
+	simple_callback_data(const T& p_item) : m_item(p_item)
+	{
+	}
 };
 
 template <typename T1, typename T2>
@@ -69,7 +71,9 @@ struct simple_callback_data_2 : public pfc::refcounted_object_root
 	T1 m_item1;
 	T2 m_item2;
 
-	simple_callback_data_2(const T1 & p_item1, const T2 & p_item2) : m_item1(p_item1), m_item2(p_item2) {}
+	simple_callback_data_2(const T1& p_item1, const T2& p_item2) : m_item1(p_item1), m_item2(p_item2)
+	{
+	}
 };
 
 template <typename T1, typename T2, typename T3>
@@ -79,10 +83,10 @@ struct simple_callback_data_3 : public pfc::refcounted_object_root
 	T2 m_item2;
 	T3 m_item3;
 
-	simple_callback_data_3(const T1 & p_item1, const T2 & p_item2, const T3 & p_item3)
+	simple_callback_data_3(const T1& p_item1, const T2& p_item2, const T3& p_item3)
 		: m_item1(p_item1)
-		, m_item2(p_item2)
-		, m_item3(p_item3)
+		  , m_item2(p_item2)
+		  , m_item3(p_item3)
 	{
 	}
 };
@@ -99,7 +103,7 @@ public:
 	}
 
 	template <class TParam>
-	simple_callback_data_scope_releaser(TParam * p_data)
+	simple_callback_data_scope_releaser(TParam* p_data)
 	{
 		m_data = reinterpret_cast<T *>(p_data);
 	}
@@ -109,13 +113,13 @@ public:
 		m_data->refcount_release();
 	}
 
-	T * operator->()
+	T* operator->()
 	{
 		return m_data;
 	}
 
 private:
-	T * m_data;
+	T* m_data;
 };
 
 class playback_stat_callback : public playback_statistics_collector
@@ -125,8 +129,8 @@ public:
 };
 
 class nonautoregister_callbacks : public initquit,
-	public metadb_io_callback_dynamic,
-	public ui_selection_callback
+                                  public metadb_io_callback_dynamic,
+                                  public ui_selection_callback
 {
 public:
 	struct t_on_changed_sorted_data : public pfc::refcounted_object_root
@@ -136,8 +140,9 @@ public:
 
 		t_on_changed_sorted_data(metadb_handle_list_cref p_items_sorted, bool p_fromhook)
 			: m_items_sorted(p_items_sorted)
-			, m_fromhook(p_fromhook)
-		{}
+			  , m_fromhook(p_fromhook)
+		{
+		}
 	};
 
 	// initquit
@@ -189,27 +194,44 @@ public:
 			flag_on_playlist_renamed | flag_on_playlists_removed | flag_on_playlists_reorder;
 	}
 
-	virtual void on_default_format_changed() {}
-	virtual void on_items_modified(t_size p_playlist, const bit_array & p_mask) {}
-	virtual void on_items_modified_fromplayback(t_size p_playlist, const bit_array & p_mask, play_control::t_display_level p_level) {}
-	virtual void on_items_removing(t_size p_playlist, const bit_array & p_mask, t_size p_old_count, t_size p_new_count) {}
-	virtual void on_items_replaced(t_size p_playlist, const bit_array & p_mask, const pfc::list_base_const_t<t_on_items_replaced_entry> & p_data) {}
-	virtual void on_playlists_removing(const bit_array & p_mask, t_size p_old_count, t_size p_new_count) {}
+	virtual void on_default_format_changed()
+	{
+	}
+
+	virtual void on_items_modified(t_size p_playlist, const bit_array& p_mask)
+	{
+	}
+
+	virtual void on_items_modified_fromplayback(t_size p_playlist, const bit_array& p_mask, play_control::t_display_level p_level)
+	{
+	}
+
+	virtual void on_items_removing(t_size p_playlist, const bit_array& p_mask, t_size p_old_count, t_size p_new_count)
+	{
+	}
+
+	virtual void on_items_replaced(t_size p_playlist, const bit_array& p_mask, const pfc::list_base_const_t<t_on_items_replaced_entry>& p_data)
+	{
+	}
+
+	virtual void on_playlists_removing(const bit_array& p_mask, t_size p_old_count, t_size p_new_count)
+	{
+	}
 
 	virtual void on_item_ensure_visible(t_size p_playlist, t_size p_idx);
 	virtual void on_item_focus_change(t_size p_playlist, t_size p_from, t_size p_to);
-	virtual void on_items_added(t_size p_playlist, t_size p_start, const pfc::list_base_const_t<metadb_handle_ptr> & p_data, const bit_array & p_selection);
-	virtual void on_items_removed(t_size p_playlist, const bit_array & p_mask, t_size p_old_count, t_size p_new_count);
-	virtual void on_items_reordered(t_size p_playlist, const t_size * p_order, t_size p_count);
-	virtual void on_items_selection_change(t_size p_playlist, const bit_array & p_affected, const bit_array & p_state);
+	virtual void on_items_added(t_size p_playlist, t_size p_start, const pfc::list_base_const_t<metadb_handle_ptr>& p_data, const bit_array& p_selection);
+	virtual void on_items_removed(t_size p_playlist, const bit_array& p_mask, t_size p_old_count, t_size p_new_count);
+	virtual void on_items_reordered(t_size p_playlist, const t_size* p_order, t_size p_count);
+	virtual void on_items_selection_change(t_size p_playlist, const bit_array& p_affected, const bit_array& p_state);
 	virtual void on_playback_order_changed(t_size p_new_index);
 	virtual void on_playlist_activate(t_size p_old, t_size p_new);
-	virtual void on_playlist_created(t_size p_index, const char * p_name, t_size p_name_len);
+	virtual void on_playlist_created(t_size p_index, const char* p_name, t_size p_name_len);
 	virtual void on_playlist_locked(t_size p_playlist, bool p_locked);
-	virtual void on_playlist_renamed(t_size p_index, const char * p_new_name, t_size p_new_name_len);
-	virtual void on_playlists_removed(const bit_array & p_mask, t_size p_old_count, t_size p_new_count);
-	virtual void on_playlists_reorder(const t_size * p_order, t_size p_count);
-	
+	virtual void on_playlist_renamed(t_size p_index, const char* p_new_name, t_size p_new_name_len);
+	virtual void on_playlists_removed(const bit_array& p_mask, t_size p_old_count, t_size p_new_count);
+	virtual void on_playlists_reorder(const t_size* p_order, t_size p_count);
+
 private:
 	void on_playlist_switch();
 	void on_playlists_changed();
@@ -224,7 +246,7 @@ public:
 class my_library_callback : public library_callback
 {
 public:
-	virtual void on_items_added(const pfc::list_base_const_t<metadb_handle_ptr> & p_data);
-	virtual void on_items_modified(const pfc::list_base_const_t<metadb_handle_ptr> & p_data);
-	virtual void on_items_removed(const pfc::list_base_const_t<metadb_handle_ptr> & p_data);
+	virtual void on_items_added(const pfc::list_base_const_t<metadb_handle_ptr>& p_data);
+	virtual void on_items_modified(const pfc::list_base_const_t<metadb_handle_ptr>& p_data);
+	virtual void on_items_removed(const pfc::list_base_const_t<metadb_handle_ptr>& p_data);
 };

@@ -2,7 +2,7 @@
 #include "com_tools.h"
 
 
-bool name_to_id_cache::lookup(hash_type hash, DISPID * p_dispid) const
+bool name_to_id_cache::lookup(hash_type hash, DISPID* p_dispid) const
 {
 	DISPID dispId;
 	if (!m_map.query(hash, dispId)) return false;
@@ -15,17 +15,17 @@ void name_to_id_cache::add(hash_type hash, DISPID dispid)
 	m_map[hash] = dispid;
 }
 
-name_to_id_cache::hash_type name_to_id_cache::g_hash(const wchar_t * name)
+name_to_id_cache::hash_type name_to_id_cache::g_hash(const wchar_t* name)
 {
 	return LHashValOfName(LANG_NEUTRAL, name);
 }
 
-void type_info_cache_holder::init_from_typelib(ITypeLib * p_typeLib, const GUID & guid)
+void type_info_cache_holder::init_from_typelib(ITypeLib* p_typeLib, const GUID& guid)
 {
 	p_typeLib->GetTypeInfoOfGuid(guid, &m_type_info);
 }
 
-HRESULT type_info_cache_holder::GetTypeInfo(UINT iTInfo, LCID lcid, ITypeInfo **ppTInfo)
+HRESULT type_info_cache_holder::GetTypeInfo(UINT iTInfo, LCID lcid, ITypeInfo** ppTInfo)
 {
 	if (empty()) return E_UNEXPECTED;
 	if (!ppTInfo) return E_POINTER;
@@ -35,7 +35,7 @@ HRESULT type_info_cache_holder::GetTypeInfo(UINT iTInfo, LCID lcid, ITypeInfo **
 	return S_OK;
 }
 
-HRESULT type_info_cache_holder::GetIDsOfNames(LPOLESTR *rgszNames, UINT cNames, MEMBERID *pMemId)
+HRESULT type_info_cache_holder::GetIDsOfNames(LPOLESTR* rgszNames, UINT cNames, MEMBERID* pMemId)
 {
 	PFC_ASSERT(m_type_info != NULL);
 	HRESULT hr = S_OK;
@@ -55,7 +55,7 @@ HRESULT type_info_cache_holder::GetIDsOfNames(LPOLESTR *rgszNames, UINT cNames, 
 	return hr;
 }
 
-HRESULT type_info_cache_holder::Invoke(PVOID pvInstance, MEMBERID memid, WORD wFlags, DISPPARAMS *pDispParams, VARIANT *pVarResult, EXCEPINFO *pExcepInfo, UINT *puArgErr)
+HRESULT type_info_cache_holder::Invoke(PVOID pvInstance, MEMBERID memid, WORD wFlags, DISPPARAMS* pDispParams, VARIANT* pVarResult, EXCEPINFO* pExcepInfo, UINT* puArgErr)
 {
 	PFC_ASSERT(m_type_info != NULL);
 	HRESULT hr = m_type_info->Invoke(pvInstance, memid, wFlags, pDispParams, pVarResult, pExcepInfo, puArgErr);

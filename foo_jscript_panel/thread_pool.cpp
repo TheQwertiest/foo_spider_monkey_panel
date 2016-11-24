@@ -35,13 +35,17 @@ void simple_thread::close()
 
 unsigned simple_thread::entry()
 {
-	try {
+	try
+	{
 		threadProc();
-	} catch(...) {}
+	}
+	catch (...)
+	{
+	}
 	return 0;
 }
 
-unsigned CALLBACK simple_thread::g_entry(void * p_instance)
+unsigned CALLBACK simple_thread::g_entry(void* p_instance)
 {
 	return reinterpret_cast<simple_thread*>(p_instance)->entry();
 }
@@ -54,7 +58,7 @@ void simple_thread_worker::threadProc()
 	{
 		if (WaitForSingleObject(simple_thread_pool::instance().have_task_, 1000) == WAIT_OBJECT_0)
 		{
-			simple_thread_task * task = simple_thread_pool::instance().acquire_task();
+			simple_thread_task* task = simple_thread_pool::instance().acquire_task();
 
 			if (task)
 			{
@@ -80,7 +84,7 @@ void simple_thread_worker::threadProc()
 	simple_thread_pool::instance().remove_worker_(this);
 }
 
-bool simple_thread_pool::enqueue(simple_thread_task * task)
+bool simple_thread_pool::enqueue(simple_thread_task* task)
 {
 	if (WaitForSingleObject(exiting_, 0) == WAIT_OBJECT_0)
 		return false;
@@ -91,7 +95,7 @@ bool simple_thread_pool::enqueue(simple_thread_task * task)
 
 	if (num_workers_ < max_count)
 	{
-		simple_thread_worker * worker = new simple_thread_worker;
+		simple_thread_worker* worker = new simple_thread_worker;
 		add_worker_(worker);
 		worker->start();
 	}
@@ -105,7 +109,7 @@ bool simple_thread_pool::is_queue_empty()
 	return task_list_.get_count() == 0;
 }
 
-void simple_thread_pool::track(simple_thread_task * task)
+void simple_thread_pool::track(simple_thread_task* task)
 {
 	insync(cs_);
 	bool empty = is_queue_empty();
@@ -115,7 +119,7 @@ void simple_thread_pool::track(simple_thread_task * task)
 		SetEvent(have_task_);
 }
 
-void simple_thread_pool::untrack(simple_thread_task * task)
+void simple_thread_pool::untrack(simple_thread_task* task)
 {
 	insync(cs_);
 	task_list_.remove_item(task);
@@ -140,16 +144,16 @@ void simple_thread_pool::untrack_all()
 void simple_thread_pool::join()
 {
 	core_api::ensure_main_thread();
-	
+
 	SetEvent(exiting_);
-	
+
 	// Because the tasks may use blocking SendMessage() function, it should be avoid using
 	// infinite wait here, or both main thread and worker thread will block, and it's also
 	// important to dispatch windows messages here.
 	while (WaitForSingleObject(empty_worker_, 0) == WAIT_TIMEOUT)
 	{
 		MSG msg;
-		
+
 		if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
 		{
 			TranslateMessage(&msg);
@@ -158,10 +162,9 @@ void simple_thread_pool::join()
 	}
 
 	untrack_all();
-
 }
 
-simple_thread_task * simple_thread_pool::acquire_task()
+simple_thread_task* simple_thread_pool::acquire_task()
 {
 	insync(cs_);
 
@@ -178,7 +181,7 @@ simple_thread_task * simple_thread_pool::acquire_task()
 	return iter.is_valid() ? *iter : NULL;
 }
 
-void simple_thread_pool::add_worker_(simple_thread_worker * worker)
+void simple_thread_pool::add_worker_(simple_thread_worker* worker)
 {
 	insync(cs_);
 	InterlockedIncrement(&num_workers_);
@@ -188,7 +191,9 @@ void simple_thread_pool::add_worker_(simple_thread_worker * worker)
 class simple_thread_worker_remover : public main_thread_callback
 {
 public:
-	simple_thread_worker_remover(simple_thread_worker * worker) : worker_(worker) {}
+	simple_thread_worker_remover(simple_thread_worker* worker) : worker_(worker)
+	{
+	}
 
 	virtual void callback_run()
 	{
@@ -196,14 +201,14 @@ public:
 	}
 
 private:
-	simple_thread_worker * worker_;
+	simple_thread_worker* worker_;
 };
 
-void simple_thread_pool::remove_worker_(simple_thread_worker * worker)
+void simple_thread_pool::remove_worker_(simple_thread_worker* worker)
 {
 	InterlockedDecrement(&num_workers_);
 	insync(cs_);
-	
+
 	if (num_workers_ == 0)
 		SetEvent(empty_worker_);
 
