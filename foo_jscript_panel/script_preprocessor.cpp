@@ -1,9 +1,6 @@
 #include "stdafx.h"
-#include "config.h"
 #include "script_preprocessor.h"
 #include "helpers.h"
-#include "popup_msg.h"
-
 
 HRESULT script_preprocessor::process_import(const t_script_info& info, t_script_list& scripts)
 {

@@ -160,8 +160,7 @@ namespace helpers
 	class file_info_pairs_filter : public file_info_filter
 	{
 	public:
-		typedef pfc::map_t<pfc::string_simple, pfc::string_simple,
-		                   file_info::field_name_comparator> t_field_value_map;
+		typedef pfc::map_t<pfc::string_simple, pfc::string_simple, file_info::field_name_comparator> t_field_value_map;
 
 	private:
 		metadb_handle_ptr m_handle;
@@ -199,14 +198,13 @@ namespace helpers
 			}
 		};
 
-		album_art_async(HWND notify_hwnd, metadb_handle* handle, int art_id,
-		                VARIANT_BOOL need_stub, VARIANT_BOOL only_embed, VARIANT_BOOL no_load)
+		album_art_async(HWND notify_hwnd, metadb_handle* handle, int art_id, VARIANT_BOOL need_stub, VARIANT_BOOL only_embed, VARIANT_BOOL no_load)
 			: m_notify_hwnd(notify_hwnd)
-			  , m_handle(handle)
-			  , m_art_id(art_id)
-			  , m_need_stub(need_stub)
-			  , m_only_embed(only_embed)
-			  , m_no_load(no_load)
+			, m_handle(handle)
+			, m_art_id(art_id)
+			, m_need_stub(need_stub)
+			, m_only_embed(only_embed)
+			, m_no_load(no_load)
 		{
 			if (m_handle.is_valid())
 				m_rawpath = pfc::stringcvt::string_wide_from_utf8(m_handle->get_path());

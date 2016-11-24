@@ -85,8 +85,8 @@ struct simple_callback_data_3 : public pfc::refcounted_object_root
 
 	simple_callback_data_3(const T1& p_item1, const T2& p_item2, const T3& p_item3)
 		: m_item1(p_item1)
-		  , m_item2(p_item2)
-		  , m_item3(p_item3)
+		, m_item2(p_item2)
+		, m_item3(p_item3)
 	{
 	}
 };
@@ -128,9 +128,7 @@ public:
 	virtual void on_item_played(metadb_handle_ptr p_item);
 };
 
-class nonautoregister_callbacks : public initquit,
-                                  public metadb_io_callback_dynamic,
-                                  public ui_selection_callback
+class nonautoregister_callbacks : public initquit, public metadb_io_callback_dynamic, public ui_selection_callback
 {
 public:
 	struct t_on_changed_sorted_data : public pfc::refcounted_object_root
@@ -140,7 +138,7 @@ public:
 
 		t_on_changed_sorted_data(metadb_handle_list_cref p_items_sorted, bool p_fromhook)
 			: m_items_sorted(p_items_sorted)
-			  , m_fromhook(p_fromhook)
+			, m_fromhook(p_fromhook)
 		{
 		}
 	};

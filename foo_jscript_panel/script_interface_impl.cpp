@@ -45,8 +45,7 @@ static inline unsigned ExtractColorFromVariant(VARIANT v)
 	return (v.vt == VT_R8) ? static_cast<unsigned>(v.dblVal) : v.lVal;
 }
 
-GdiFont::GdiFont(Gdiplus::Font* p, HFONT hFont, bool managed /*= true*/) : GdiObj<IGdiFont, Gdiplus::Font>(p),
-                                                                           m_hFont(hFont), m_managed(managed)
+GdiFont::GdiFont(Gdiplus::Font* p, HFONT hFont, bool managed /*= true*/) : GdiObj<IGdiFont, Gdiplus::Font>(p), m_hFont(hFont), m_managed(managed)
 {
 }
 
@@ -297,11 +296,14 @@ STDMETHODIMP GdiBitmap::GetColorScheme(UINT count, VARIANT* outArray)
 	std::vector<sort_vec_pair_t> sort_vec(color_counters.begin(), color_counters.end());
 	color_counters.clear();
 	count = min(count, sort_vec.size());
-	std::partial_sort(sort_vec.begin(), sort_vec.begin() + count, sort_vec.end(),
-	                  [](const sort_vec_pair_t& a, const sort_vec_pair_t& b)
-	                  {
-		                  return a.second > b.second;
-	                  });
+	std::partial_sort(
+		sort_vec.begin(),
+		sort_vec.begin() + count,
+		sort_vec.end(),
+		[](const sort_vec_pair_t& a, const sort_vec_pair_t& b)
+		{
+			return a.second > b.second;
+		});
 
 	helpers::com_array_writer<> helper;
 	if (!helper.create(count))
@@ -1284,8 +1286,7 @@ STDMETHODIMP FbFileInfo::MetaAdd(BSTR name, BSTR value, UINT* p)
 	if (!m_info_ptr) return E_POINTER;
 	if (!name || !value) return E_INVALIDARG;
 
-	*p = m_info_ptr->meta_add(pfc::stringcvt::string_utf8_from_wide(name),
-	                          pfc::stringcvt::string_utf8_from_wide(value));
+	*p = m_info_ptr->meta_add(pfc::stringcvt::string_utf8_from_wide(name), pfc::stringcvt::string_utf8_from_wide(value));
 
 	return S_OK;
 }
@@ -1519,9 +1520,12 @@ STDMETHODIMP FbMetadbHandle::UpdateFileInfoSimple(SAFEARRAY* p)
 
 	static_api_ptr_t<metadb_io_v2> io;
 
-	io->update_info_async(pfc::list_single_ref_t<metadb_handle_ptr>(m_handle),
-	                      new service_impl_t<helpers::file_info_pairs_filter>(m_handle, field_value_map, umultival),
-	                      core_api::get_main_window(), metadb_io_v2::op_flag_delay_ui, NULL);
+	io->update_info_async(
+		pfc::list_single_ref_t<metadb_handle_ptr>(m_handle),
+		new service_impl_t<helpers::file_info_pairs_filter>(m_handle, field_value_map, umultival),
+		core_api::get_main_window(),
+		metadb_io_v2::op_flag_delay_ui,
+		NULL);
 
 	return S_OK;
 }
@@ -2700,8 +2704,7 @@ STDMETHODIMP FbUtils::ShowPopupMessage(BSTR msg, BSTR title, int iconid)
 
 	if (!msg || !title) return E_INVALIDARG;
 
-	popup_msg::g_show(pfc::stringcvt::string_utf8_from_wide(msg),
-	                  pfc::stringcvt::string_utf8_from_wide(title), (popup_message::t_icon)iconid);
+	popup_msg::g_show(pfc::stringcvt::string_utf8_from_wide(msg), pfc::stringcvt::string_utf8_from_wide(title), (popup_message::t_icon)iconid);
 	return S_OK;
 }
 
@@ -3244,8 +3247,7 @@ STDMETHODIMP JSUtils::GetAlbumArtAsync(UINT window_id, IFbMetadbHandle* handle, 
 	{
 		try
 		{
-			helpers::album_art_async* task = new helpers::album_art_async((HWND)window_id,
-			                                                              ptr, art_id, need_stub, only_embed, no_load);
+			helpers::album_art_async* task = new helpers::album_art_async((HWND)window_id, ptr, art_id, need_stub, only_embed, no_load);
 
 			if (simple_thread_pool::instance().enqueue(task))
 				cookie = reinterpret_cast<unsigned>(task);
@@ -3576,8 +3578,7 @@ STDMETHODIMP StyleTextRender::RenderStringPoint(IGdiGraphics* g, BSTR str, IGdiF
 		fmt.SetFormatFlags((Gdiplus::StringFormatFlags)(flags & 0x7FFF)); //0x0000ffff
 	}
 
-	m_pOutLineText->DrawString(graphics, &family, (Gdiplus::FontStyle)fontstyle,
-	                           fontsize, str, Gdiplus::Point(x, y), &fmt);
+	m_pOutLineText->DrawString(graphics, &family, (Gdiplus::FontStyle)fontstyle, fontsize, str, Gdiplus::Point(x, y), &fmt);
 	return S_OK;
 }
 
@@ -3610,8 +3611,7 @@ STDMETHODIMP StyleTextRender::RenderStringRect(IGdiGraphics* g, BSTR str, IGdiFo
 		fmt.SetFormatFlags((Gdiplus::StringFormatFlags)(flags & 0x7FFF)); //0x0000ffff
 	}
 
-	m_pOutLineText->DrawString(graphics, &family, (Gdiplus::FontStyle)fontstyle,
-	                           fontsize, str, Gdiplus::Rect(x, y, w, h), &fmt);
+	m_pOutLineText->DrawString(graphics, &family, (Gdiplus::FontStyle)fontstyle, fontsize, str, Gdiplus::Rect(x, y, w, h), &fmt);
 	return S_OK;
 }
 

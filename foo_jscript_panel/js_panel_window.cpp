@@ -402,13 +402,14 @@ LRESULT js_panel_window::on_message(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 
 	case UWM_SCRIPT_DISABLED_BEFORE:
 		// Show error message
-		popup_msg::g_show(pfc::string_formatter()
-		                  << "Panel ("
-		                  << ScriptInfo().build_info_string()
-		                  << "): Refuse to load script due to critical error last run,"
-		                  << " please check your script and apply it again.",
-		                  JSP_NAME,
-		                  popup_message::icon_error);
+		popup_msg::g_show(
+			pfc::string_formatter()
+			<< "Panel ("
+			<< ScriptInfo().build_info_string()
+			<< "): Refuse to load script due to critical error last run,"
+			<< " please check your script and apply it again.",
+			JSP_NAME,
+			popup_message::icon_error);
 		return 0;
 
 	case UWM_TIMER:
@@ -597,9 +598,16 @@ void js_panel_window::on_paint(HDC dc, LPRECT lpUpdateRect)
 			HDC bkdc = CreateCompatibleDC(dc);
 			HBITMAP bkoldbmp = SelectBitmap(bkdc, m_gr_bmp_bk);
 
-			BitBlt(memdc, lpUpdateRect->left, lpUpdateRect->top,
-			       lpUpdateRect->right - lpUpdateRect->left,
-			       lpUpdateRect->bottom - lpUpdateRect->top, bkdc, lpUpdateRect->left, lpUpdateRect->top, SRCCOPY);
+			BitBlt(
+				memdc,
+				lpUpdateRect->left,
+				lpUpdateRect->top,
+				lpUpdateRect->right - lpUpdateRect->left,
+				lpUpdateRect->bottom - lpUpdateRect->top,
+				bkdc,
+				lpUpdateRect->left,
+				lpUpdateRect->top,
+				SRCCOPY);
 
 			SelectBitmap(bkdc, bkoldbmp);
 			DeleteDC(bkdc);
@@ -625,9 +633,7 @@ void js_panel_window::on_paint_user(HDC memdc, LPRECT lpUpdateRect)
 	{
 		// Prepare graphics object to the script.
 		Gdiplus::Graphics gr(memdc);
-		Gdiplus::Rect rect(lpUpdateRect->left, lpUpdateRect->top,
-		                   lpUpdateRect->right - lpUpdateRect->left,
-		                   lpUpdateRect->bottom - lpUpdateRect->top);
+		Gdiplus::Rect rect(lpUpdateRect->left, lpUpdateRect->top, lpUpdateRect->right - lpUpdateRect->left, lpUpdateRect->bottom - lpUpdateRect->top);
 
 		// SetClip() may improve performance slightly
 		gr.SetClip(rect);
@@ -653,9 +659,22 @@ void js_panel_window::on_paint_error(HDC memdc)
 	SIZE sz = {0};
 
 	// Font chosing
-	HFONT newfont = CreateFont(20, 0, 0, 0, FW_BOLD, FALSE, FALSE, FALSE,
-	                           DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
-	                           DEFAULT_PITCH | FF_DONTCARE, _T("Tahoma"));
+	HFONT newfont = CreateFont(
+		20,
+		0,
+		0,
+		0,
+		FW_BOLD,
+		FALSE,
+		FALSE,
+		FALSE,
+		DEFAULT_CHARSET,
+		OUT_DEFAULT_PRECIS,
+		CLIP_DEFAULT_PRECIS,
+		DEFAULT_QUALITY,
+		DEFAULT_PITCH | FF_DONTCARE,
+		_T("Tahoma"));
+
 	HFONT oldfont = (HFONT)SelectObject(memdc, newfont);
 
 	// Font drawing

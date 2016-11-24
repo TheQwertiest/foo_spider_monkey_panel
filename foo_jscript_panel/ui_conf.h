@@ -11,15 +11,15 @@ class CDialogReplace;
 //-----
 class CDialogConf
 	: public CDialogImpl<CDialogConf>
-	  , public CDialogResize<CDialogConf>
+	, public CDialogResize<CDialogConf>
 {
 public:
 	CDialogConf(js_panel_window* p_parent)
 		: m_parent(p_parent)
-		  , m_dlgfind(NULL)
-		  , m_dlgreplace(NULL)
-		  , m_lastSearchText("")
-		  , m_lastFlags(0)
+		, m_dlgfind(NULL)
+		, m_dlgreplace(NULL)
+		, m_lastSearchText("")
+		, m_lastFlags(0)
 	{
 		//pfc::dynamic_assert(m_parent != NULL, "CDialogConf: m_parent invalid.");
 	}

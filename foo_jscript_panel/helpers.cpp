@@ -316,8 +316,7 @@ namespace helpers
 			return 0;
 		}
 
-		hr = lang->DetectInputCodepage(MLDETECTCP_NONE, 0, const_cast<char *>(text.get_ptr()),
-		                               &textSize, encodings, &encodingCount);
+		hr = lang->DetectInputCodepage(MLDETECTCP_NONE, 0, const_cast<char *>(text.get_ptr()), &textSize, encodings, &encodingCount);
 
 		if (FAILED(hr)) return 0;
 
@@ -570,8 +569,7 @@ namespace helpers
 
 		try
 		{
-			aaeiv2 = aamv2->open(pfc::list_single_ref_t<metadb_handle_ptr>(handle),
-			                     pfc::list_single_ref_t<GUID>(what), abort);
+			aaeiv2 = aamv2->open(pfc::list_single_ref_t<metadb_handle_ptr>(handle), pfc::list_single_ref_t<GUID>(what), abort);
 
 			ret = query_album_art(aaeiv2, what, no_load, image_path_ptr);
 		}
@@ -641,8 +639,7 @@ namespace helpers
 
 	bool read_file(const char* path, pfc::string_base& content)
 	{
-		HANDLE hFile = uCreateFile(path, GENERIC_READ, FILE_SHARE_READ, NULL,
-		                           OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+		HANDLE hFile = uCreateFile(path, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 
 		if (hFile == INVALID_HANDLE_VALUE)
 		{
@@ -717,8 +714,7 @@ namespace helpers
 
 	bool read_file_wide(unsigned codepage, const wchar_t* path, pfc::array_t<wchar_t>& content)
 	{
-		HANDLE hFile = CreateFile(path, GENERIC_READ, FILE_SHARE_READ, NULL,
-		                          OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+		HANDLE hFile = CreateFile(path, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 
 		if (hFile == INVALID_HANDLE_VALUE)
 		{
@@ -837,11 +833,9 @@ namespace helpers
 		return true;
 	}
 
-	file_info_pairs_filter::file_info_pairs_filter(const metadb_handle_ptr& p_handle,
-	                                               const t_field_value_map& p_field_value_map,
-	                                               const char* p_multivalue_field /*= NULL*/)
+	file_info_pairs_filter::file_info_pairs_filter(const metadb_handle_ptr& p_handle, const t_field_value_map& p_field_value_map, const char* p_multivalue_field /*= NULL*/)
 		: m_handle(p_handle)
-		  , m_field_value_map(p_field_value_map)
+		, m_field_value_map(p_field_value_map)
 	{
 		if (p_multivalue_field)
 		{

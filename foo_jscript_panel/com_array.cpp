@@ -86,9 +86,7 @@ namespace helpers
 			_itow_s(i, buf, 10);
 
 			if (SUCCEEDED(hr)) hr = pdisp->GetIDsOfNames(IID_NULL, &name, 1, LOCALE_USER_DEFAULT, &dispid);
-			if (SUCCEEDED(hr))
-				hr = pdisp->Invoke(dispid, IID_NULL, LOCALE_USER_DEFAULT, DISPATCH_PROPERTYGET,
-				                   &params, &element, NULL, NULL);
+			if (SUCCEEDED(hr)) hr = pdisp->Invoke(dispid, IID_NULL, LOCALE_USER_DEFAULT, DISPATCH_PROPERTYGET, &params, &element, NULL, NULL);
 
 			if (FAILED(hr)) goto cleanup_and_return;
 			if (FAILED(SafeArrayPutElement(psa, &i, &element))) goto cleanup_and_return;

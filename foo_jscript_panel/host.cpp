@@ -9,17 +9,17 @@
 
 HostComm::HostComm()
 	: m_hwnd(NULL)
-	  , m_hdc(NULL)
-	  , m_width(0)
-	  , m_height(0)
-	  , m_gr_bmp(NULL)
-	  , m_suppress_drawing(false)
-	  , m_paint_pending(false)
-	  , m_accuracy(0)
-	  , m_instance_type(KInstanceTypeCUI)
-	  , m_dlg_code(0)
-	  , m_script_info(get_config_guid())
-	  , m_panel_tooltip_param_ptr(new panel_tooltip_param)
+	, m_hdc(NULL)
+	, m_width(0)
+	, m_height(0)
+	, m_gr_bmp(NULL)
+	, m_suppress_drawing(false)
+	, m_paint_pending(false)
+	, m_accuracy(0)
+	, m_instance_type(KInstanceTypeCUI)
+	, m_dlg_code(0)
+	, m_script_info(get_config_guid())
+	, m_panel_tooltip_param_ptr(new panel_tooltip_param)
 {
 	m_max_size.x = INT_MAX;
 	m_max_size.y = INT_MAX;
@@ -131,8 +131,7 @@ void HostComm::RefreshBackground(LPRECT lprcUpdate /*= NULL*/)
 	HBITMAP old_bmp = SelectBitmap(hdc_bk, m_gr_bmp_bk);
 
 	// Paint BK
-	BitBlt(hdc_bk, rect_child.left, rect_child.top, rect_child.right - rect_child.left, rect_child.bottom - rect_child.top,
-	       dc_parent, pt.x, pt.y, SRCCOPY);
+	BitBlt(hdc_bk, rect_child.left, rect_child.top, rect_child.right - rect_child.left, rect_child.bottom - rect_child.top, dc_parent, pt.x, pt.y, SRCCOPY);
 
 	SelectBitmap(hdc_bk, old_bmp);
 	DeleteDC(hdc_bk);
@@ -408,8 +407,7 @@ STDMETHODIMP FbWindow::NotifyOthers(BSTR name, VARIANT info)
 
 	notify_data->m_item2.Attach(var.Detach());
 
-	panel_manager::instance().send_msg_to_others_pointer(m_host->GetHWND(),
-	                                                     CALLBACK_UWM_NOTIFY_DATA, notify_data);
+	panel_manager::instance().send_msg_to_others_pointer(m_host->GetHWND(), CALLBACK_UWM_NOTIFY_DATA, notify_data);
 
 	return S_OK;
 }
@@ -643,16 +641,16 @@ STDMETHODIMP FbWindow::Reload()
 
 ScriptHost::ScriptHost(HostComm* host)
 	: m_host(host)
-	  , m_window(new com_object_impl_t<FbWindow, false>(host))
-	  , m_gdi(com_object_singleton_t<GdiUtils>::instance())
-	  , m_fb2k(com_object_singleton_t<FbUtils>::instance())
-	  , m_utils(com_object_singleton_t<JSUtils>::instance())
-	  , m_playlistman(com_object_singleton_t<FbPlaylistManager>::instance())
-	  , m_dwStartTime(0)
-	  , m_dwRef(1)
-	  , m_engine_inited(false)
-	  , m_has_error(false)
-	  , m_lastSourceContext(0)
+	, m_window(new com_object_impl_t<FbWindow, false>(host))
+	, m_gdi(com_object_singleton_t<GdiUtils>::instance())
+	, m_fb2k(com_object_singleton_t<FbUtils>::instance())
+	, m_utils(com_object_singleton_t<JSUtils>::instance())
+	, m_playlistman(com_object_singleton_t<FbPlaylistManager>::instance())
+	, m_dwStartTime(0)
+	, m_dwRef(1)
+	, m_engine_inited(false)
+	, m_has_error(false)
+	, m_lastSourceContext(0)
 {
 }
 
@@ -812,8 +810,7 @@ HRESULT ScriptHost::Initialize()
 	m_contextToPathMap[source_context] = "<main>";
 
 	if (SUCCEEDED(hr))
-		hr = parser->ParseScriptText(wcode.get_ptr(), NULL, NULL, NULL,
-		                             source_context, 0, SCRIPTTEXT_HOSTMANAGESSOURCE | SCRIPTTEXT_ISVISIBLE, NULL, NULL);
+		hr = parser->ParseScriptText(wcode.get_ptr(), NULL, NULL, NULL, source_context, 0, SCRIPTTEXT_HOSTMANAGESSOURCE | SCRIPTTEXT_ISVISIBLE, NULL, NULL);
 
 	if (SUCCEEDED(hr))
 	{
@@ -843,8 +840,7 @@ HRESULT ScriptHost::ProcessImportedScripts(script_preprocessor& preprocessor, IA
 		if (FAILED(hr)) break;
 
 		m_contextToPathMap[source_context] = pfc::stringcvt::string_utf8_from_wide(scripts[i].path.get_ptr());
-		hr = parser->ParseScriptText(scripts[i].code.get_ptr(), NULL, NULL, NULL,
-		                             source_context, 0, SCRIPTTEXT_HOSTMANAGESSOURCE | SCRIPTTEXT_ISVISIBLE, NULL, NULL);
+		hr = parser->ParseScriptText(scripts[i].code.get_ptr(), NULL, NULL, NULL, source_context, 0, SCRIPTTEXT_HOSTMANAGESSOURCE | SCRIPTTEXT_ISVISIBLE, NULL, NULL);
 	}
 
 	return hr;
@@ -943,23 +939,19 @@ HRESULT ScriptHost::InvokeCallback(int callbackId, VARIANTARG* argv /*= NULL*/, 
 	catch (std::exception& e)
 	{
 		pfc::print_guid guid(m_host->get_config_guid());
-		console::printf(JSP_NAME " (%s): Unhandled C++ Exception: \"%s\", will crash now...",
-		                        m_host->ScriptInfo().build_info_string().get_ptr(), e.what());
+		console::printf(JSP_NAME " (%s): Unhandled C++ Exception: \"%s\", will crash now...", m_host->ScriptInfo().build_info_string().get_ptr(), e.what());
 		PRINT_DISPATCH_TRACK_MESSAGE_AND_BREAK();
 	}
 	catch (_com_error& e)
 	{
 		pfc::print_guid guid(m_host->get_config_guid());
-		console::printf(JSP_NAME " (%s): Unhandled COM Error: \"%s\", will crash now...",
-		                        m_host->ScriptInfo().build_info_string().get_ptr(),
-		                        pfc::stringcvt::string_utf8_from_wide(e.ErrorMessage()).get_ptr());
+		console::printf(JSP_NAME " (%s): Unhandled COM Error: \"%s\", will crash now...", m_host->ScriptInfo().build_info_string().get_ptr(), pfc::stringcvt::string_utf8_from_wide(e.ErrorMessage()).get_ptr());
 		PRINT_DISPATCH_TRACK_MESSAGE_AND_BREAK();
 	}
 	catch (...)
 	{
 		pfc::print_guid guid(m_host->get_config_guid());
-		console::printf(JSP_NAME " (%s): Unhandled Unknown Exception, will crash now...",
-		                        m_host->ScriptInfo().build_info_string().get_ptr());
+		console::printf(JSP_NAME " (%s): Unhandled Unknown Exception, will crash now...", m_host->ScriptInfo().build_info_string().get_ptr());
 		PRINT_DISPATCH_TRACK_MESSAGE_AND_BREAK();
 	}
 

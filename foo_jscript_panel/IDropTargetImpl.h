@@ -17,8 +17,7 @@ protected:
 public:
 	IDropTargetImpl(HWND hWnd = NULL) : m_hWnd(hWnd)
 	{
-		CoCreateInstance(CLSID_DragDropHelper, NULL, CLSCTX_INPROC_SERVER,
-		                 IID_IDropTargetHelper, (LPVOID*)&m_dropTargetHelper);
+		CoCreateInstance(CLSID_DragDropHelper, NULL, CLSCTX_INPROC_SERVER, IID_IDropTargetHelper, (LPVOID*)&m_dropTargetHelper);
 	}
 
 	virtual ~IDropTargetImpl()

@@ -22,13 +22,6 @@ _COM_SMARTPTR_TYPEDEF(IDebugApplication, IID_IDebugApplication);
 
 class HostComm : public js_panel_vars
 {
-public:
-	enum
-	{
-		KInstanceTypeCUI = 0,
-		KInstanceTypeDUI,
-	};
-
 protected:
 	HWND m_hwnd;
 	INT m_width;
@@ -52,6 +45,12 @@ protected:
 	virtual ~HostComm();
 
 public:
+	enum
+	{
+		KInstanceTypeCUI = 0,
+		KInstanceTypeDUI,
+	};
+
 	GUID GetGUID() { return get_config_guid(); }
 	IGdiBitmap* GetBackgroundImage();
 	HDC GetHDC() { return m_hdc; }

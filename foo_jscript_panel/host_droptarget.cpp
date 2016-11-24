@@ -46,9 +46,9 @@ private:
 
 HostDropTarget::HostDropTarget(js_panel_window* host)
 	: IDropTargetImpl(host->GetHWND())
-	  , m_host(host)
-	  , m_effect(DROPEFFECT_NONE)
-	  , m_action(new com_object_impl_t<DropSourceAction, true>())
+	, m_host(host)
+	, m_effect(DROPEFFECT_NONE)
+	, m_action(new com_object_impl_t<DropSourceAction, true>())
 {
 }
 
@@ -111,9 +111,11 @@ HRESULT HostDropTarget::OnDrop(IDataObject* pDataObj, DWORD grfKeyState, POINTL 
 		switch (m_action->Mode())
 		{
 		case DropSourceAction::kActionModePlaylist:
-			static_api_ptr_t<playlist_incoming_item_filter_v2>()->process_dropped_files_async(pDataObj,
-			                                                                                  playlist_incoming_item_filter_v2::op_flag_delay_ui,
-			                                                                                  core_api::get_main_window(), new service_impl_t<process_dropped_items_to_playlist>(playlist, to_select));
+			static_api_ptr_t<playlist_incoming_item_filter_v2>()->process_dropped_files_async(
+				pDataObj,
+				playlist_incoming_item_filter_v2::op_flag_delay_ui,
+				core_api::get_main_window(),
+				new service_impl_t<process_dropped_items_to_playlist>(playlist, to_select));
 			break;
 
 		case DropSourceAction::kActionModeFilenames:

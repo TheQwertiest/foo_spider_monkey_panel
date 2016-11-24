@@ -11,7 +11,7 @@ class js_panel_window;
 
 class CDialogProperty
 	: public CDialogImpl<CDialogProperty>
-	  , public CDialogResize<CDialogProperty>
+	, public CDialogResize<CDialogProperty>
 {
 public:
 	CDialogProperty(js_panel_window* p_parent) : m_parent(p_parent)

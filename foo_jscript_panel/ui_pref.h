@@ -2,9 +2,7 @@
 
 #include "resource.h"
 
-class CDialogPref : public CDialogImpl<CDialogPref>
-                    , public CWinDataExchange<CDialogPref>
-                    , public preferences_page_instance
+class CDialogPref : public CDialogImpl<CDialogPref>, public CWinDataExchange<CDialogPref>, public preferences_page_instance
 {
 public:
 	CDialogPref(preferences_page_callback::ptr callback) : m_callback(callback)

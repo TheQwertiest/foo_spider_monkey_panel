@@ -1,7 +1,5 @@
 #pragma once
 
-
-// pre declaration
 class HostComm;
 
 struct t_directive_value

@@ -87,8 +87,7 @@ void js_panel_vars::load_config(stream_reader* reader, t_size size, abort_callba
 		if (!have_read_config)
 		{
 			// Configuration corruputed or config version dismatch.
-			console::complain(JSP_NAME,
-			                          "Error: Configuration needs a newer component or is corrupted");
+			console::complain(JSP_NAME, "Error: Configuration needs a newer component or is corrupted");
 		}
 	}
 }

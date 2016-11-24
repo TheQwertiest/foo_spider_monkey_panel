@@ -113,16 +113,14 @@ void playback_stat_callback::on_item_played(metadb_handle_ptr p_item)
 	simple_callback_data<metadb_handle_ptr>* on_item_played_data
 		= new simple_callback_data<metadb_handle_ptr>(p_item);
 
-	panel_manager::instance().post_msg_to_all_pointer(CALLBACK_UWM_ON_ITEM_PLAYED,
-	                                                  on_item_played_data);
+	panel_manager::instance().post_msg_to_all_pointer(CALLBACK_UWM_ON_ITEM_PLAYED, on_item_played_data);
 }
 
 void nonautoregister_callbacks::on_changed_sorted(metadb_handle_list_cref p_items_sorted, bool p_fromhook)
 {
 	t_on_changed_sorted_data* on_changed_sorted_data = new t_on_changed_sorted_data(p_items_sorted, p_fromhook);
 
-	panel_manager::instance().post_msg_to_all_pointer(CALLBACK_UWM_ON_CHANGED_SORTED,
-	                                                  on_changed_sorted_data);
+	panel_manager::instance().post_msg_to_all_pointer(CALLBACK_UWM_ON_CHANGED_SORTED, on_changed_sorted_data);
 }
 
 void nonautoregister_callbacks::on_selection_changed(metadb_handle_list_cref p_selection)
@@ -132,8 +130,7 @@ void nonautoregister_callbacks::on_selection_changed(metadb_handle_list_cref p_s
 		simple_callback_data<metadb_handle_ptr>* on_selection_changed_data
 			= new simple_callback_data<metadb_handle_ptr>(p_selection[0]);
 
-		panel_manager::instance().post_msg_to_all_pointer(CALLBACK_UWM_ON_SELECTION_CHANGED,
-		                                                  on_selection_changed_data);
+		panel_manager::instance().post_msg_to_all_pointer(CALLBACK_UWM_ON_SELECTION_CHANGED, on_selection_changed_data);
 	}
 	else
 	{
@@ -143,16 +140,14 @@ void nonautoregister_callbacks::on_selection_changed(metadb_handle_list_cref p_s
 
 void my_play_callback::on_playback_starting(play_control::t_track_command cmd, bool paused)
 {
-	panel_manager::instance().post_msg_to_all(CALLBACK_UWM_ON_PLAYBACK_STARTING,
-	                                          (WPARAM)cmd, (LPARAM)paused);
+	panel_manager::instance().post_msg_to_all(CALLBACK_UWM_ON_PLAYBACK_STARTING, (WPARAM)cmd, (LPARAM)paused);
 }
 
 void my_play_callback::on_playback_new_track(metadb_handle_ptr track)
 {
 	simple_callback_data<metadb_handle_ptr>* on_playback_new_track_data = new simple_callback_data<metadb_handle_ptr>(track);
 
-	panel_manager::instance().post_msg_to_all_pointer(CALLBACK_UWM_ON_PLAYBACK_NEW_TRACK,
-	                                                  on_playback_new_track_data);
+	panel_manager::instance().post_msg_to_all_pointer(CALLBACK_UWM_ON_PLAYBACK_NEW_TRACK, on_playback_new_track_data);
 }
 
 void my_play_callback::on_playback_stop(play_control::t_stop_reason reason)
@@ -165,8 +160,7 @@ void my_play_callback::on_playback_seek(double time)
 	// sizeof(double) >= sizeof(WPARAM)
 	simple_callback_data<double>* on_playback_seek_data = new simple_callback_data<double>(time);
 
-	panel_manager::instance().post_msg_to_all_pointer(CALLBACK_UWM_ON_PLAYBACK_SEEK,
-	                                                  on_playback_seek_data);
+	panel_manager::instance().post_msg_to_all_pointer(CALLBACK_UWM_ON_PLAYBACK_SEEK, on_playback_seek_data);
 }
 
 void my_play_callback::on_playback_pause(bool state)
@@ -178,8 +172,7 @@ void my_play_callback::on_playback_edited(metadb_handle_ptr track)
 {
 	simple_callback_data<metadb_handle_ptr>* on_playback_edited_data = new simple_callback_data<metadb_handle_ptr>(track);
 
-	panel_manager::instance().post_msg_to_all_pointer(CALLBACK_UWM_ON_PLAYBACK_EDITED,
-	                                                  on_playback_edited_data);
+	panel_manager::instance().post_msg_to_all_pointer(CALLBACK_UWM_ON_PLAYBACK_EDITED, on_playback_edited_data);
 }
 
 void my_play_callback::on_playback_dynamic_info(const file_info& info)
@@ -197,8 +190,7 @@ void my_play_callback::on_playback_time(double time)
 	// sizeof(double) >= sizeof(WPARAM)
 	simple_callback_data<double>* on_playback_time_data = new simple_callback_data<double>(time);
 
-	panel_manager::instance().post_msg_to_all_pointer(CALLBACK_UWM_ON_PLAYBACK_TIME,
-	                                                  on_playback_time_data);
+	panel_manager::instance().post_msg_to_all_pointer(CALLBACK_UWM_ON_PLAYBACK_TIME, on_playback_time_data);
 }
 
 void my_play_callback::on_volume_change(float newval)
@@ -206,8 +198,7 @@ void my_play_callback::on_volume_change(float newval)
 	// though sizeof(float) == sizeof(int), cast of IEEE754 is dangerous, always.
 	simple_callback_data<float>* on_volume_change_data = new simple_callback_data<float>(newval);
 
-	panel_manager::instance().post_msg_to_all_pointer(CALLBACK_UWM_ON_VOLUME_CHANGE,
-	                                                  on_volume_change_data);
+	panel_manager::instance().post_msg_to_all_pointer(CALLBACK_UWM_ON_VOLUME_CHANGE, on_volume_change_data);
 }
 
 void my_playlist_callback::on_item_focus_change(t_size p_playlist, t_size p_from, t_size p_to)

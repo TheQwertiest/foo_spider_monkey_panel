@@ -8,14 +8,19 @@
 
 FbTooltip::FbTooltip(HWND p_wndparent, const panel_tooltip_param_ptr& p_param_ptr)
 	: m_wndparent(p_wndparent)
-	  , m_panel_tooltip_param_ptr(p_param_ptr)
-	  , m_tip_buffer(SysAllocString(PFC_WIDESTRING(JSP_NAME)))
+	, m_panel_tooltip_param_ptr(p_param_ptr)
+	, m_tip_buffer(SysAllocString(PFC_WIDESTRING(JSP_NAME)))
 {
-	m_wndtooltip = CreateWindowEx(WS_EX_TOPMOST, TOOLTIPS_CLASS, NULL,
-	                                           WS_POPUP | TTS_ALWAYSTIP | TTS_NOPREFIX,
-	                                           CW_USEDEFAULT, CW_USEDEFAULT,
-	                                           CW_USEDEFAULT, CW_USEDEFAULT,
-	                                           p_wndparent, NULL, core_api::get_my_instance(), NULL);
+	m_wndtooltip = CreateWindowEx(
+		WS_EX_TOPMOST,
+		TOOLTIPS_CLASS,
+		NULL, WS_POPUP | TTS_ALWAYSTIP | TTS_NOPREFIX,
+		CW_USEDEFAULT, CW_USEDEFAULT,
+		CW_USEDEFAULT, CW_USEDEFAULT,
+		p_wndparent,
+		NULL,
+		core_api::get_my_instance(),
+		NULL);
 
 	// Original position
 	SetWindowPos(m_wndtooltip, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);

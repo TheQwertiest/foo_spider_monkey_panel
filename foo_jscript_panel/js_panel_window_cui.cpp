@@ -77,8 +77,7 @@ LRESULT js_panel_window_cui::on_message(HWND hwnd, UINT msg, WPARAM wp, LPARAM l
 
 			if (!g_cfg_cui_warning_reported)
 			{
-				popup_msg::g_show(pfc::string_formatter(warning) << "\n\n[This popup message will be shown only once]",
-				                  JSP_NAME);
+				popup_msg::g_show(pfc::string_formatter(warning) << "\n\n[This popup message will be shown only once]", JSP_NAME);
 
 				g_cfg_cui_warning_reported = true;
 			}
