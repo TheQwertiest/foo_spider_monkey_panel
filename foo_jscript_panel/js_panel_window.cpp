@@ -7,7 +7,6 @@
 #include "panel_manager.h"
 #include "popup_msg.h"
 
-
 js_panel_window::js_panel_window() :
 	m_script_host(new ScriptHost(this)),
 	m_is_mouse_tracked(false),

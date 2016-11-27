@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "ui_name_value_edit.h"
 
-
 LRESULT CNameValueEdit::OnInitDialog(HWND hwndFocus, LPARAM lParam)
 {
 	uSendDlgItemMessageText(m_hWnd, IDC_EDIT_NAME, WM_SETTEXT, 0, m_name);

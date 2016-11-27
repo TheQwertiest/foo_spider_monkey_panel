@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "com_array.h"
 
-
 namespace helpers
 {
 	bool com_array_reader::convert(VARIANT* pVarSrc)

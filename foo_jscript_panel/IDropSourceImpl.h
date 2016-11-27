@@ -1,10 +1,6 @@
 #pragma once
 
 #include <OleIdl.h>
-#include <ShlObj.h>
-#include <comdef.h>
-#include <atlbase.h>
-
 
 class IDropSourceImpl : public IDropSource
 {

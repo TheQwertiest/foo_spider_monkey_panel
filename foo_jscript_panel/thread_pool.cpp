@@ -1,6 +1,5 @@
 #include "stdafx.h"
 #include "thread_pool.h"
-#include "user_message.h"
 
 simple_thread_pool simple_thread_pool::instance_;
 

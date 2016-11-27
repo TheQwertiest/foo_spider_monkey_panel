@@ -1,10 +1,7 @@
 #include "stdafx.h"
 #include "ui_pref.h"
 #include "scintilla_prop_sets.h"
-#include "global_cfg.h"
 #include "ui_name_value_edit.h"
-#include "ui_conf.h"
-#include "helpers.h"
 
 namespace
 {

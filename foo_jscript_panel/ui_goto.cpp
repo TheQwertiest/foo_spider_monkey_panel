@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "ui_goto.h"
 
-
 LRESULT CDialogGoto::OnInitDialog(HWND hwndFocus, LPARAM lParam)
 {
 	int cur_pos = SendMessage(m_hedit, SCI_GETCURRENTPOS, 0, 0);

@@ -1,9 +1,7 @@
 #include "stdafx.h"
 #include "host.h"
-#include "resource.h"
 #include "helpers.h"
 #include "panel_manager.h"
-#include "global_cfg.h"
 #include "popup_msg.h"
 #include "dbgtrace.h"
 

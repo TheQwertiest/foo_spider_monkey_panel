@@ -1,6 +1,5 @@
 #pragma once
 
-
 class panel_manager
 {
 public:

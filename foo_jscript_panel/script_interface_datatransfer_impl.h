@@ -3,7 +3,6 @@
 #include "script_interface_datatransfer.h"
 #include "com_tools.h"
 
-
 class DataTransferObject : public IDispatchImpl3<IDataTransferObject>
 {
 protected:

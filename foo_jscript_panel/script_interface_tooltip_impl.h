@@ -4,7 +4,6 @@
 #include "com_tools.h"
 #include "panel_tooltip_param.h"
 
-
 class FbTooltip : public IDisposableImpl4<IFbTooltip>
 {
 protected:

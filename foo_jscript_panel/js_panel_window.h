@@ -2,7 +2,6 @@
 
 #include "host.h"
 #include "delay_loader.h"
-#include "panel_tooltip_param.h"
 
 class ScriptHost;
 class CDialogConf;
@@ -27,7 +26,6 @@ public:
 	{
 		return m_script_host->InvokeCallback(callbackId, argv, argc, ret);
 	}
-
 
 private:
 	void on_size(int w, int h);

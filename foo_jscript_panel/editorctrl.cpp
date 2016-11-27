@@ -3,7 +3,6 @@
 #include "scintilla_prop_sets.h"
 #include "helpers.h"
 
-
 const t_style_to_key_table default_style_table[] =
 {
 	// Default

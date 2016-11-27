@@ -1,6 +1,5 @@
 #pragma once
 
-
 enum t_version_info
 {
 	VERSION_0x73 = 0x73,

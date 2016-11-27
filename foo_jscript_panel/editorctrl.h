@@ -7,7 +7,6 @@
 #include "SString.h"
 #include "user_message.h"
 
-
 enum IndentationStatus
 {
 	isNone,		// no effect on indentation

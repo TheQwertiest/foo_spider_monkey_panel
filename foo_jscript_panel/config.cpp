@@ -2,7 +2,6 @@
 #include "config.h"
 #include "resource.h"
 
-
 void js_panel_vars::get_default_script_code(pfc::string_base& out)
 {
 	out.reset();

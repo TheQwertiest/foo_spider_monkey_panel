@@ -3,7 +3,6 @@
 #include "script_interface_datatransfer_impl.h"
 #include "script_interface_dragsource_impl.h"
 
-
 DragSourceObject::DragSourceObject()
 {
 }

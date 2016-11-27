@@ -1,7 +1,5 @@
 #pragma once
 
-#include <ObjBase.h>
-
 [
 	object,
 	dual,

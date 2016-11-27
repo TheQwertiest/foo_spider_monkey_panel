@@ -1,6 +1,5 @@
 #pragma once
 
-
 enum t_sci_editor_style_flag
 {
 	ESF_NONE = 0,

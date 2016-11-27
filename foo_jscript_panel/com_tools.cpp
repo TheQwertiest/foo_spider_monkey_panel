@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "com_tools.h"
 
-
 bool name_to_id_cache::lookup(hash_type hash, DISPID* p_dispid) const
 {
 	DISPID dispId;

@@ -3,7 +3,6 @@
 #include "helpers.h"
 #include "user_message.h"
 
-
 panel_manager panel_manager::sm_instance;
 
 namespace

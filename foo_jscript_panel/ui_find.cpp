@@ -2,7 +2,6 @@
 #include "ui_find.h"
 #include "ui_conf.h"
 
-
 LRESULT CDialogFind::OnFindUp(WORD wNotifyCode, WORD wID, HWND hWndCtl)
 {
 	if (m_text.is_empty())

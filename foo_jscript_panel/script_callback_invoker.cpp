@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "script_callback_invoker.h"
 
-
 struct IDToNameEntry
 {
 	int id;

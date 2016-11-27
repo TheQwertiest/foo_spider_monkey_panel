@@ -2,7 +2,6 @@
 #include "script_interface_impl.h"
 #include "script_interface_datatransfer_impl.h"
 
-
 struct NameToValueTable
 {
 	const wchar_t* name;
@@ -10,7 +9,6 @@ struct NameToValueTable
 };
 
 _COM_SMARTPTR_TYPEDEF(IDragSourceHelper, IID_IDragSourceHelper);
-
 
 DataTransferObject::DataTransferObject() : m_dropEffect(DROPEFFECT_MOVE), m_effectAllowed(~0)
 {

@@ -2,7 +2,6 @@
 #include "ui_replace.h"
 #include "ui_conf.h"
 
-
 LRESULT CDialogReplace::OnFindNext(WORD wNotifyCode, WORD wID, HWND hWndCtl)
 {
 	if (m_text.is_empty())

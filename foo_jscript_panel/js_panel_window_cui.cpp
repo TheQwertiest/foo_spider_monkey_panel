@@ -3,10 +3,8 @@
 #include "js_panel_window_cui.h"
 #include "popup_msg.h"
 
-
 // CUI panel instance
 static uie::window_factory<js_panel_window_cui> g_js_panel_wndow_cui;
-
 
 const GUID& js_panel_window_cui::get_extension_guid() const
 {

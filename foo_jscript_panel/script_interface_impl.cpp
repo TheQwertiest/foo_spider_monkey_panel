@@ -5,7 +5,6 @@
 #include "com_array.h"
 #include "boxblurfilter.h"
 #include "stackblur.h"
-#include "user_message.h"
 #include "popup_msg.h"
 #include "dbgtrace.h"
 #include "TextDesinger/OutlineText.h"
@@ -13,7 +12,6 @@
 #include <map>
 #include <vector>
 #include <algorithm>
-
 
 // Helper functions
 // -1: not a valid metadb interface

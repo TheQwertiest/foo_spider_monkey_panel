@@ -1,10 +1,10 @@
 #pragma once
 
 /*
- * IMPORTANT NOTE:
- * For modders: You should change these Defines/Guids below, in order to
- *   co-exist with the original release of WSH Panel Mod.
- */
+IMPORTANT NOTE:
+For modders: You should change these Defines/Guids below, in order to
+co-exist with the original release of JScript Panel.
+*/
 
 #define JSP_NAME "JScript Panel"
 #define JSP_WINDOW_CLASS_NAME "uie_jscript_panel_class"

@@ -1,10 +1,6 @@
 #include "stdafx.h"
 #include "script_interface_impl.h"
 #include "script_interface_tooltip_impl.h"
-#include "helpers.h"
-#include "com_array.h"
-#include "panel_manager.h"
-
 
 FbTooltip::FbTooltip(HWND p_wndparent, const panel_tooltip_param_ptr& p_param_ptr)
 	: m_wndparent(p_wndparent)
@@ -14,9 +10,12 @@ FbTooltip::FbTooltip(HWND p_wndparent, const panel_tooltip_param_ptr& p_param_pt
 	m_wndtooltip = CreateWindowEx(
 		WS_EX_TOPMOST,
 		TOOLTIPS_CLASS,
-		NULL, WS_POPUP | TTS_ALWAYSTIP | TTS_NOPREFIX,
-		CW_USEDEFAULT, CW_USEDEFAULT,
-		CW_USEDEFAULT, CW_USEDEFAULT,
+		NULL,
+		WS_POPUP | TTS_ALWAYSTIP | TTS_NOPREFIX,
+		CW_USEDEFAULT,
+		CW_USEDEFAULT,
+		CW_USEDEFAULT,
+		CW_USEDEFAULT,
 		p_wndparent,
 		NULL,
 		core_api::get_my_instance(),
