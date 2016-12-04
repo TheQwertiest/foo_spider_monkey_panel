@@ -876,7 +876,7 @@ HRESULT ScriptHost::InitScriptEngineByName(const wchar_t* engineName)
 	// In order to support new features after JScript 5.8
 	IActiveScriptProperty* pActScriProp = NULL;
 
-	if (SUCCEEDED(m_script_engine->QueryInterface(IID_IActiveScriptProperty, (void **)&pActScriProp)))
+	if (SUCCEEDED(m_script_engine->QueryInterface(IID_IActiveScriptProperty, (void**)&pActScriProp)))
 	{
 		VARIANT scriptLangVersion;
 		scriptLangVersion.vt = VT_I4;
@@ -896,7 +896,7 @@ void ScriptHost::Finalize()
 	{
 		// Call GC explicitly
 		IActiveScriptGarbageCollector* gc = NULL;
-		if (SUCCEEDED(m_script_engine->QueryInterface(IID_IActiveScriptGarbageCollector, (void **)&gc)))
+		if (SUCCEEDED(m_script_engine->QueryInterface(IID_IActiveScriptGarbageCollector, (void**)&gc)))
 		{
 			gc->CollectGarbage(SCRIPTGCTYPE_EXHAUSTIVE);
 			gc->Release();

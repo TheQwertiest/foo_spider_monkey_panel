@@ -22,8 +22,7 @@ public:
 	BEGIN_MSG_MAP(CNameValueEdit)
 		MSG_WM_INITDIALOG(OnInitDialog)
 		MSG_WM_COMMAND(OnCommand)
-		END_MSG_MAP()
-
+	END_MSG_MAP()
 
 	LRESULT OnInitDialog(HWND hwndFocus, LPARAM lParam);
 	LRESULT OnCommand(UINT codeNotify, int id, HWND hwndCtl);

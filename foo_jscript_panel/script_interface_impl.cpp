@@ -24,12 +24,12 @@ static int TryGetMetadbHandleFromVariant(const VARIANT& obj, IDispatch** ppuk)
 
 	IDispatch* temp = NULL;
 
-	if (SUCCEEDED(obj.pdispVal->QueryInterface(__uuidof(IFbMetadbHandle), (void **)&temp)))
+	if (SUCCEEDED(obj.pdispVal->QueryInterface(__uuidof(IFbMetadbHandle), (void**)&temp)))
 	{
 		*ppuk = temp;
 		return 0;
 	}
-	else if (SUCCEEDED(obj.pdispVal->QueryInterface(__uuidof(IFbMetadbHandleList), (void **)&temp)))
+	else if (SUCCEEDED(obj.pdispVal->QueryInterface(__uuidof(IFbMetadbHandleList), (void**)&temp)))
 	{
 		*ppuk = temp;
 		return 1;
@@ -1430,7 +1430,7 @@ STDMETHODIMP FbMetadbHandle::Compare(IFbMetadbHandle* handle, VARIANT_BOOL* p)
 	if (handle)
 	{
 		metadb_handle* ptr = NULL;
-		handle->get__ptr((void **)&ptr);
+		handle->get__ptr((void**)&ptr);
 
 		*p = TO_VARIANT_BOOL(ptr == m_handle.get_ptr());
 	}
@@ -1603,7 +1603,7 @@ STDMETHODIMP FbMetadbHandleList::Add(IFbMetadbHandle* handle, UINT* p)
 	if (!p) return E_POINTER;
 
 	metadb_handle* ptr = NULL;
-	handle->get__ptr((void **)&ptr);
+	handle->get__ptr((void**)&ptr);
 	*p = m_handles.add_item(ptr);
 	return S_OK;
 }
@@ -1615,7 +1615,7 @@ STDMETHODIMP FbMetadbHandleList::AddRange(IFbMetadbHandleList* handles)
 	if (!handles) return E_INVALIDARG;
 
 	metadb_handle_list* handles_ptr = NULL;
-	handles->get__ptr((void **)&handles_ptr);
+	handles->get__ptr((void**)&handles_ptr);
 	if (!handles_ptr) return E_INVALIDARG;
 	m_handles.add_items(*handles_ptr);
 	return S_OK;
@@ -1629,7 +1629,7 @@ STDMETHODIMP FbMetadbHandleList::BSearch(IFbMetadbHandle* handle, UINT* p)
 	if (!p) return E_POINTER;
 
 	metadb_handle* ptr = NULL;
-	handle->get__ptr((void **)&ptr);
+	handle->get__ptr((void**)&ptr);
 	*p = m_handles.bsearch_by_pointer(ptr);
 	return S_OK;
 }
@@ -1667,7 +1667,7 @@ STDMETHODIMP FbMetadbHandleList::Find(IFbMetadbHandle* handle, UINT* p)
 	if (!p) return E_POINTER;
 
 	metadb_handle* ptr = NULL;
-	handle->get__ptr((void **)&ptr);
+	handle->get__ptr((void**)&ptr);
 	*p = m_handles.find_item(ptr);
 	return S_OK;
 }
@@ -1680,7 +1680,7 @@ STDMETHODIMP FbMetadbHandleList::Insert(UINT index, IFbMetadbHandle* handle, UIN
 	if (!handle) return E_INVALIDARG;
 
 	metadb_handle* ptr = NULL;
-	handle->get__ptr((void **)&ptr);
+	handle->get__ptr((void**)&ptr);
 	*outIndex = m_handles.insert_item(ptr, index);
 	return S_OK;
 }
@@ -1693,7 +1693,7 @@ STDMETHODIMP FbMetadbHandleList::InsertRange(UINT index, IFbMetadbHandleList* ha
 	if (!handles) return E_INVALIDARG;
 
 	metadb_handle_list* handles_ptr = NULL;
-	handles->get__ptr((void **)&handles_ptr);
+	handles->get__ptr((void**)&handles_ptr);
 	if (!handles_ptr) return E_INVALIDARG;
 	*outIndex = m_handles.insert_items(*handles_ptr, index);
 	return S_OK;
@@ -1706,7 +1706,7 @@ STDMETHODIMP FbMetadbHandleList::MakeDifference(IFbMetadbHandleList* handles)
 	if (!handles) return E_INVALIDARG;
 
 	metadb_handle_list* handles_ptr = NULL;
-	handles->get__ptr((void **)&handles_ptr);
+	handles->get__ptr((void**)&handles_ptr);
 	if (!handles_ptr) return E_INVALIDARG;
 
 	metadb_handle_list_ref handles_ref = *handles_ptr;
@@ -1745,7 +1745,7 @@ STDMETHODIMP FbMetadbHandleList::MakeIntersection(IFbMetadbHandleList* handles)
 	if (!handles) return E_INVALIDARG;
 
 	metadb_handle_list* handles_ptr = NULL;
-	handles->get__ptr((void **)&handles_ptr);
+	handles->get__ptr((void**)&handles_ptr);
 	if (!handles_ptr) return E_INVALIDARG;
 
 	metadb_handle_list_ref handles_ref = *handles_ptr;
@@ -1780,7 +1780,7 @@ STDMETHODIMP FbMetadbHandleList::MakeUnion(IFbMetadbHandleList* handles)
 	if (!handles) return E_INVALIDARG;
 
 	metadb_handle_list* handles_ptr = NULL;
-	handles->get__ptr((void **)&handles_ptr);
+	handles->get__ptr((void**)&handles_ptr);
 	if (!handles_ptr) return E_INVALIDARG;
 
 	metadb_handle_list_ref handles_ref = *handles_ptr;
@@ -1820,7 +1820,7 @@ STDMETHODIMP FbMetadbHandleList::OrderByFormat(__interface IFbTitleFormat* scrip
 
 	if (!script) return E_INVALIDARG;
 	titleformat_object* obj = NULL;
-	script->get__ptr((void **)&obj);
+	script->get__ptr((void**)&obj);
 	if (!obj) return E_INVALIDARG;
 	m_handles.sort_by_format(obj, NULL, direction);
 	return S_OK;
@@ -1849,7 +1849,7 @@ STDMETHODIMP FbMetadbHandleList::Remove(IFbMetadbHandle* handle)
 	if (!handle) return E_INVALIDARG;
 
 	metadb_handle* ptr = NULL;
-	handle->get__ptr((void **)&ptr);
+	handle->get__ptr((void**)&ptr);
 	m_handles.remove_item(ptr);
 	return S_OK;
 }
@@ -2015,7 +2015,7 @@ STDMETHODIMP FbMetadbHandleList::put_Item(UINT index, IFbMetadbHandle* handle)
 	if (!handle) return E_INVALIDARG;
 
 	metadb_handle* ptr = NULL;
-	handle->get__ptr((void **)&ptr);
+	handle->get__ptr((void**)&ptr);
 	m_handles.replace_item(index, ptr);
 	return S_OK;
 }
@@ -2433,7 +2433,7 @@ STDMETHODIMP FbUtils::GetQueryItems(IFbMetadbHandleList* items, BSTR query, IFbM
 
 	metadb_handle_list *srclist_ptr, dst_list;
 
-	items->get__ptr((void **)&srclist_ptr);
+	items->get__ptr((void**)&srclist_ptr);
 
 	dst_list = *srclist_ptr;
 	pfc::stringcvt::string_utf8_from_wide query8(query);
@@ -3679,7 +3679,7 @@ STDMETHODIMP ThemeManager::DrawThemeBackground(IGdiGraphics* gr, int x, int y, i
 	if (!gr) return E_INVALIDARG;
 
 	Gdiplus::Graphics* graphics = NULL;
-	gr->get__ptr((void **)&graphics);
+	gr->get__ptr((void**)&graphics);
 	if (!graphics) return E_INVALIDARG;
 
 	RECT rc = {x, y, x + w, y + h};

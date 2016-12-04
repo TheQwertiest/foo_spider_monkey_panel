@@ -10,7 +10,7 @@ STDMETHODIMP FbPlaylistManager::AddItemToPlaybackQueue(IFbMetadbHandle* handle)
 	TRACK_FUNCTION();
 
 	metadb_handle* ptrHandle = NULL;
-	handle->get__ptr((void **)&ptrHandle);
+	handle->get__ptr((void**)&ptrHandle);
 	if (!ptrHandle) return E_INVALIDARG;
 
 	static_api_ptr_t<playlist_manager>()->queue_add_item(ptrHandle);
@@ -188,7 +188,7 @@ STDMETHODIMP FbPlaylistManager::FindPlaybackQueueItemIndex(IFbMetadbHandle* hand
 	if (!handle) return E_INVALIDARG;
 
 	metadb_handle* ptrHandle = NULL;
-	handle->get__ptr((void **)&ptrHandle);
+	handle->get__ptr((void**)&ptrHandle);
 
 	t_playback_queue_item item;
 	item.m_handle = ptrHandle;
@@ -754,7 +754,7 @@ STDMETHODIMP FbPlaybackQueueItem::Equals(IFbPlaybackQueueItem* item, VARIANT_BOO
 	if (!item) return E_INVALIDARG;
 
 	t_playback_queue_item* ptrQueueItem = NULL;
-	item->get__ptr((void **)&ptrQueueItem);
+	item->get__ptr((void**)&ptrQueueItem);
 	if (!ptrQueueItem) return E_INVALIDARG;
 
 	*outEquals = TO_VARIANT_BOOL(m_playback_queue_item == *ptrQueueItem);
@@ -807,7 +807,7 @@ STDMETHODIMP FbPlaybackQueueItem::put_Handle(IFbMetadbHandle* handle)
 
 	if (!handle) return E_INVALIDARG;
 	metadb_handle* ptrHandle = NULL;
-	handle->get__ptr((void **)&ptrHandle);
+	handle->get__ptr((void**)&ptrHandle);
 
 	m_playback_queue_item.m_handle = ptrHandle;
 	return S_OK;
