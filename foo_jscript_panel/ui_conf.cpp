@@ -6,15 +6,10 @@
 #include "ui_replace.h"
 #include "helpers.h"
 
-
 using namespace pfc::stringcvt;
-
-//config_dialog_manager g_config_dlg_mgr;
 
 LRESULT CDialogConf::OnInitDialog(HWND hwndFocus, LPARAM lParam)
 {
-	//g_config_dlg_mgr.add_window(m_hWnd);
-
 	// Get caption text
 	uGetWindowText(m_hWnd, m_caption);
 
@@ -39,9 +34,7 @@ LRESULT CDialogConf::OnInitDialog(HWND hwndFocus, LPARAM lParam)
 
 	ComboBox_AddString(combo_script_engine, _T("JScript"));
 	ComboBox_AddString(combo_script_engine, _T("JScript9"));
-
-	if (!uComboBox_SelectString(combo_script_engine, m_parent->get_script_engine()))
-	ComboBox_SetCurSel(combo_script_engine, 0);
+	uComboBox_SelectString(combo_script_engine, m_parent->get_script_engine());
 
 	// Edge Style
 	HWND combo_edge_style = GetDlgItem(IDC_EDGE_STYLE);
@@ -53,10 +46,9 @@ LRESULT CDialogConf::OnInitDialog(HWND hwndFocus, LPARAM lParam)
 
 	// Subclassing scintilla
 	m_editorctrl.SubclassWindow(GetDlgItem(IDC_EDIT));
-
 	m_editorctrl.SetLanguage();
 
-	// Checkboxs
+	// Checkboxes
 	uButton_SetCheck(m_hWnd, IDC_CHECK_GRABFOCUS, m_parent->get_grab_focus());
 	uButton_SetCheck(m_hWnd, IDC_CHECK_PSEUDO_TRANSPARENT, m_parent->get_pseudo_transparent());
 	uButton_SetCheck(m_hWnd, IDC_CHECK_DELAY_LOAD, m_parent->get_delay_load());
