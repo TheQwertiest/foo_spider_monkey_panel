@@ -4,10 +4,7 @@
 #include "resource.h"
 #include "PropertyList/PropertyList.h"
 
-
-// Forward declarations
 class js_panel_window;
-
 
 class CDialogProperty
 	: public CDialogImpl<CDialogProperty>
@@ -22,13 +19,16 @@ public:
 	{
 	}
 
-	void LoadProperties(bool reload = true);
-	void Apply();
-
-	enum
-	{
-		IDD = IDD_DIALOG_PROPERTIES
-	};
+	BEGIN_DLGRESIZE_MAP(CDialogProperty)
+		DLGRESIZE_CONTROL(IDC_LIST_PROPERTIES, DLSZ_SIZE_X | DLSZ_SIZE_Y)
+		DLGRESIZE_CONTROL(IDC_DEL, DLSZ_MOVE_X)
+		DLGRESIZE_CONTROL(IDC_CLEARALL, DLSZ_MOVE_X)
+		DLGRESIZE_CONTROL(IDC_IMPORT, DLSZ_MOVE_X)
+		DLGRESIZE_CONTROL(IDC_EXPORT, DLSZ_MOVE_X)
+		DLGRESIZE_CONTROL(IDOK, DLSZ_MOVE_X | DLSZ_MOVE_Y)
+		DLGRESIZE_CONTROL(IDCANCEL, DLSZ_MOVE_X | DLSZ_MOVE_Y)
+		DLGRESIZE_CONTROL(IDAPPLY, DLSZ_MOVE_X | DLSZ_MOVE_Y)
+	END_DLGRESIZE_MAP()
 
 	BEGIN_MSG_MAP(CDialogProperty)
 		MSG_WM_INITDIALOG(OnInitDialog)
@@ -43,27 +43,23 @@ public:
 		REFLECT_NOTIFICATIONS()
 	END_MSG_MAP()
 
-	BEGIN_DLGRESIZE_MAP(CDialogProperty)
-		DLGRESIZE_CONTROL(IDC_LIST_PROPERTIES, DLSZ_SIZE_X | DLSZ_SIZE_Y)
-		DLGRESIZE_CONTROL(IDC_DEL, DLSZ_MOVE_X)
-		DLGRESIZE_CONTROL(IDC_CLEARALL, DLSZ_MOVE_X)
-		DLGRESIZE_CONTROL(IDC_IMPORT, DLSZ_MOVE_X)
-		DLGRESIZE_CONTROL(IDC_EXPORT, DLSZ_MOVE_X)
-		DLGRESIZE_CONTROL(IDOK, DLSZ_MOVE_X | DLSZ_MOVE_Y)
-		DLGRESIZE_CONTROL(IDCANCEL, DLSZ_MOVE_X | DLSZ_MOVE_Y)
-		DLGRESIZE_CONTROL(IDAPPLY, DLSZ_MOVE_X | DLSZ_MOVE_Y)
-	END_DLGRESIZE_MAP()
+	enum
+	{
+		IDD = IDD_DIALOG_PROPERTIES
+	};
 
-	LRESULT OnInitDialog(HWND hwndFocus, LPARAM lParam);
-	LRESULT OnCloseCmd(WORD wNotifyCode, WORD wID, HWND hWndCtl);
-	LRESULT OnPinItemChanged(LPNMHDR pnmh);
 	LRESULT OnClearallBnClicked(WORD wNotifyCode, WORD wID, HWND hWndCtl);
+	LRESULT OnCloseCmd(WORD wNotifyCode, WORD wID, HWND hWndCtl);
 	LRESULT OnDelBnClicked(WORD wNotifyCode, WORD wID, HWND hWndCtl);
-	LRESULT OnImportBnClicked(WORD wNotifyCode, WORD wID, HWND hWndCtl);
 	LRESULT OnExportBnClicked(WORD wNotifyCode, WORD wID, HWND hWndCtl);
+	LRESULT OnImportBnClicked(WORD wNotifyCode, WORD wID, HWND hWndCtl);
+	LRESULT OnInitDialog(HWND hwndFocus, LPARAM lParam);
+	LRESULT OnPinItemChanged(LPNMHDR pnmh);
+	void Apply();
+	void LoadProperties(bool reload = true);
 
 private:
-	js_panel_window* m_parent;
 	CPropertyListCtrl m_properties;
+	js_panel_window* m_parent;
 	prop_kv_config::t_map m_dup_prop_map;
 };

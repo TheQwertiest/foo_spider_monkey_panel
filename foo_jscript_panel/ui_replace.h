@@ -11,13 +11,14 @@ public:
 	{
 	}
 
-	void OnFinalMessage(HWND hWnd);
-	CHARRANGE GetSelection();
-
-	enum
-	{
-		IDD = IDD_DIALOG_REPLACE
-	};
+	BEGIN_DLGRESIZE_MAP(CDialogReplace)
+		DLGRESIZE_CONTROL(IDC_EDIT_FINDWHAT, DLSZ_SIZE_X)
+		DLGRESIZE_CONTROL(IDC_EDIT_REPLACE, DLSZ_SIZE_X)
+		DLGRESIZE_CONTROL(IDC_FINDNEXT, DLSZ_MOVE_X)
+		DLGRESIZE_CONTROL(IDC_REPLACE, DLSZ_MOVE_X)
+		DLGRESIZE_CONTROL(IDC_REPLACEALL, DLSZ_MOVE_X)
+		DLGRESIZE_CONTROL(IDCANCEL, DLSZ_MOVE_X)
+	END_DLGRESIZE_MAP()
 
 	BEGIN_MSG_MAP(CDialogReplace)
 		MSG_WM_INITDIALOG(OnInitDialog)
@@ -31,23 +32,22 @@ public:
 		CHAIN_MSG_MAP(CDialogResize<CDialogReplace>)
 	END_MSG_MAP()
 
-	BEGIN_DLGRESIZE_MAP(CDialogReplace)
-		DLGRESIZE_CONTROL(IDC_EDIT_FINDWHAT, DLSZ_SIZE_X)
-		DLGRESIZE_CONTROL(IDC_EDIT_REPLACE, DLSZ_SIZE_X)
-		DLGRESIZE_CONTROL(IDC_FINDNEXT, DLSZ_MOVE_X)
-		DLGRESIZE_CONTROL(IDC_REPLACE, DLSZ_MOVE_X)
-		DLGRESIZE_CONTROL(IDC_REPLACEALL, DLSZ_MOVE_X)
-		DLGRESIZE_CONTROL(IDCANCEL, DLSZ_MOVE_X)
-	END_DLGRESIZE_MAP()
+	CHARRANGE GetSelection();
 
-	LRESULT OnFindNext(WORD wNotifyCode, WORD wID, HWND hWndCtl);
-	LRESULT OnEditFindWhatEnChange(WORD wNotifyCode, WORD wID, HWND hWndCtl);
-	LRESULT OnFlagCommand(WORD wNotifyCode, WORD wID, HWND hWndCtl);
+	enum
+	{
+		IDD = IDD_DIALOG_REPLACE
+	};
+
 	LRESULT OnCancel(WORD wNotifyCode, WORD wID, HWND hWndCtl);
-	LRESULT OnInitDialog(HWND hwndFocus, LPARAM lParam);
+	LRESULT OnEditFindWhatEnChange(WORD wNotifyCode, WORD wID, HWND hWndCtl);
 	LRESULT OnEditReplaceEnChange(WORD wNotifyCode, WORD wID, HWND hWndCtl);
+	LRESULT OnFindNext(WORD wNotifyCode, WORD wID, HWND hWndCtl);
+	LRESULT OnFlagCommand(WORD wNotifyCode, WORD wID, HWND hWndCtl);
+	LRESULT OnInitDialog(HWND hwndFocus, LPARAM lParam);
 	LRESULT OnReplace(WORD wNotifyCode, WORD wID, HWND hWndCtl);
 	LRESULT OnReplaceall(WORD wNotifyCode, WORD wID, HWND hWndCtl);
+	void OnFinalMessage(HWND hWnd);
 
 private:
 	class CEditWithReturn : public CWindowImpl<CEditWithReturn, CEdit>
@@ -105,10 +105,10 @@ private:
 		HWND m_parent;
 	};
 
-	int m_flags;
-	pfc::string8 m_text;
-	pfc::string8 m_reptext;
-	HWND m_hedit;
 	bool m_havefound;
-	CEditWithReturn m_replace, m_find;
+	CEditWithReturn m_find, m_replace;
+	HWND m_hedit;
+	int m_flags;
+	pfc::string8 m_reptext;
+	pfc::string8 m_text;
 };

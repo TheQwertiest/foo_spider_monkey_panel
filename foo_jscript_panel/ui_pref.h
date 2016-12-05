@@ -9,21 +9,9 @@ public:
 	{
 	}
 
-	void LoadProps(bool reset = false);
-	void uGetItemText(int nItem, int nSubItem, pfc::string_base& out);
-
-	void OnChanged();
-
-	// preferences_page_instance
-	HWND get_wnd();
-	t_uint32 get_state();
-	void apply();
-	void reset();
-
-	enum
-	{
-		IDD = IDD_DIALOG_PREFERENCE
-	};
+	BEGIN_DDX_MAP(CDialogPref)
+		DDX_CONTROL_HANDLE(IDC_LIST_EDITOR_PROP, m_props)
+	END_DDX_MAP()
 
 	BEGIN_MSG_MAP(CDialogPref)
 		MSG_WM_INITDIALOG(OnInitDialog)
@@ -32,15 +20,24 @@ public:
 		NOTIFY_HANDLER_EX(IDC_LIST_EDITOR_PROP, NM_DBLCLK, OnPropNMDblClk)
 	END_MSG_MAP()
 
-	BEGIN_DDX_MAP(CDialogPref)
-		DDX_CONTROL_HANDLE(IDC_LIST_EDITOR_PROP, m_props)
-	END_DDX_MAP()
-
 	BOOL OnInitDialog(HWND hwndFocus, LPARAM lParam);
+
+	enum
+	{
+		IDD = IDD_DIALOG_PREFERENCE
+	};
+
+	HWND get_wnd();
 	LRESULT OnPropNMDblClk(LPNMHDR pnmh);
+	t_uint32 get_state();
+	void LoadProps(bool reset = false);
 	void OnButtonExportBnClicked(WORD wNotifyCode, WORD wID, HWND hWndCtl);
 	void OnButtonImportBnClicked(WORD wNotifyCode, WORD wID, HWND hWndCtl);
+	void OnChanged();
 	void OnEditChange(WORD, WORD, HWND);
+	void uGetItemText(int nItem, int nSubItem, pfc::string_base& out);
+	void apply();
+	void reset();
 
 private:
 	CListViewCtrl m_props;
@@ -50,11 +47,10 @@ private:
 class js_preferences_page_impl : public preferences_page_v3
 {
 public:
-	preferences_page_instance::ptr instantiate(HWND parent, preferences_page_callback::ptr callback)
+	bool get_help_url(pfc::string_base& p_out)
 	{
-		service_impl_t<CDialogPref>* p = new service_impl_t<CDialogPref>(callback);
-		p->Create(parent);
-		return p;
+		p_out = "https://github.com/19379/foo-jscript-panel/wiki/Editor-Properties";
+		return true;
 	}
 
 	const char* get_name()
@@ -72,9 +68,10 @@ public:
 		return preferences_page::guid_tools;
 	}
 
-	bool get_help_url(pfc::string_base& p_out)
+	preferences_page_instance::ptr instantiate(HWND parent, preferences_page_callback::ptr callback)
 	{
-		p_out = "https://github.com/19379/foo-jscript-panel/wiki/Editor-Properties";
-		return true;
+		service_impl_t<CDialogPref>* p = new service_impl_t<CDialogPref>(callback);
+		p->Create(parent);
+		return p;
 	}
 };

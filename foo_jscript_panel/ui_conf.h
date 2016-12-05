@@ -21,7 +21,6 @@ public:
 		, m_lastSearchText("")
 		, m_lastFlags(0)
 	{
-		//pfc::dynamic_assert(m_parent != NULL, "CDialogConf: m_parent invalid.");
 	}
 
 	virtual ~CDialogConf()
@@ -29,18 +28,17 @@ public:
 		m_hWnd = NULL;
 	}
 
-	bool MatchShortcuts(unsigned vk);
-	void OpenFindDialog();
-	void Apply();
-	void OnResetDefault();
-	void OnResetCurrent();
-	void OnImport();
-	void OnExport();
-
-	enum
-	{
-		IDD = IDD_DIALOG_CONFIG
-	};
+	BEGIN_DLGRESIZE_MAP(CDialogConf)
+		DLGRESIZE_CONTROL(IDC_CHECK_PSEUDO_TRANSPARENT, DLSZ_MOVE_X)
+		DLGRESIZE_CONTROL(IDC_CHECK_GRABFOCUS, DLSZ_MOVE_X)
+		DLGRESIZE_CONTROL(IDC_CHECK_DELAY_LOAD, DLSZ_MOVE_X)
+		DLGRESIZE_CONTROL(IDC_TOOLS, DLSZ_MOVE_Y)
+		DLGRESIZE_CONTROL(IDC_EDIT, DLSZ_SIZE_X | DLSZ_SIZE_Y)
+		DLGRESIZE_CONTROL(IDOK, DLSZ_MOVE_X | DLSZ_MOVE_Y)
+		DLGRESIZE_CONTROL(IDAPPLY, DLSZ_MOVE_X | DLSZ_MOVE_Y)
+		DLGRESIZE_CONTROL(IDCANCEL, DLSZ_MOVE_X | DLSZ_MOVE_Y)
+		DLGRESIZE_CONTROL(IDC_STATIC_GUID, DLSZ_SIZE_X)
+	END_DLGRESIZE_MAP()
 
 	BEGIN_MSG_MAP(CDialogConf)
 		MSG_WM_INITDIALOG(OnInitDialog)
@@ -55,29 +53,29 @@ public:
 		REFLECT_NOTIFICATIONS()
 	END_MSG_MAP()
 
-	BEGIN_DLGRESIZE_MAP(CDialogConf)
-		DLGRESIZE_CONTROL(IDC_CHECK_PSEUDO_TRANSPARENT, DLSZ_MOVE_X)
-		DLGRESIZE_CONTROL(IDC_CHECK_GRABFOCUS, DLSZ_MOVE_X)
-		DLGRESIZE_CONTROL(IDC_CHECK_DELAY_LOAD, DLSZ_MOVE_X)
-		DLGRESIZE_CONTROL(IDC_TOOLS, DLSZ_MOVE_Y)
-		DLGRESIZE_CONTROL(IDC_EDIT, DLSZ_SIZE_X | DLSZ_SIZE_Y)
-		DLGRESIZE_CONTROL(IDOK, DLSZ_MOVE_X | DLSZ_MOVE_Y)
-		DLGRESIZE_CONTROL(IDAPPLY, DLSZ_MOVE_X | DLSZ_MOVE_Y)
-		DLGRESIZE_CONTROL(IDCANCEL, DLSZ_MOVE_X | DLSZ_MOVE_Y)
-		DLGRESIZE_CONTROL(IDC_STATIC_GUID, DLSZ_SIZE_X)
-	END_DLGRESIZE_MAP()
+	enum
+	{
+		IDD = IDD_DIALOG_CONFIG
+	};
 
-	LRESULT OnInitDialog(HWND hwndFocus, LPARAM lParam);
 	LRESULT OnCloseCmd(WORD wNotifyCode, WORD wID, HWND hWndCtl);
+	LRESULT OnInitDialog(HWND hwndFocus, LPARAM lParam);
+	LRESULT OnNCDestroy();
+	LRESULT OnNotify(int idCtrl, LPNMHDR pnmh);
 	LRESULT OnScriptEngineCbnSelEndOk(WORD wNotifyCode, WORD wID, HWND hWndCtl);
 	LRESULT OnTools(WORD wNotifyCode, WORD wID, HWND hWndCtl);
-	LRESULT OnNotify(int idCtrl, LPNMHDR pnmh);
-	LRESULT OnNCDestroy();
-	LRESULT OnUwmKeyDown(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
 	LRESULT OnUwmFindTextChanged(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
+	LRESULT OnUwmKeyDown(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
+	bool MatchShortcuts(unsigned vk);
 	static bool FindNext(HWND hWnd, HWND hWndEdit, unsigned flags, const char* which);
 	static bool FindPrevious(HWND hWnd, HWND hWndEdit, unsigned flags, const char* which);
 	static bool FindResult(HWND hWnd, HWND hWndEdit, int pos, const char* which);
+	void Apply();
+	void OnExport();
+	void OnImport();
+	void OnResetCurrent();
+	void OnResetDefault();
+	void OpenFindDialog();
 
 private:
 	CScriptEditorCtrl m_editorctrl;
