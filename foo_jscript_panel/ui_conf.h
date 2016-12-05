@@ -47,7 +47,6 @@ public:
 		MESSAGE_HANDLER(UWM_FINDTEXTCHANGED, OnUwmFindTextChanged)
 		COMMAND_RANGE_HANDLER_EX(IDOK, IDCANCEL, OnCloseCmd)
 		COMMAND_ID_HANDLER_EX(IDAPPLY, OnCloseCmd)
-		COMMAND_HANDLER_EX(IDC_SCRIPT_ENGINE, CBN_SELENDOK, OnScriptEngineCbnSelEndOk)
 		COMMAND_ID_HANDLER_EX(IDC_TOOLS, OnTools)
 		CHAIN_MSG_MAP(CDialogResize<CDialogConf>)
 		REFLECT_NOTIFICATIONS()
@@ -62,7 +61,6 @@ public:
 	LRESULT OnInitDialog(HWND hwndFocus, LPARAM lParam);
 	LRESULT OnNCDestroy();
 	LRESULT OnNotify(int idCtrl, LPNMHDR pnmh);
-	LRESULT OnScriptEngineCbnSelEndOk(WORD wNotifyCode, WORD wID, HWND hWndCtl);
 	LRESULT OnTools(WORD wNotifyCode, WORD wID, HWND hWndCtl);
 	LRESULT OnUwmFindTextChanged(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
 	LRESULT OnUwmKeyDown(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);

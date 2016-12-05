@@ -1059,10 +1059,9 @@ void CScriptEditorCtrl::RestoreDefaultStyle()
 	SetCaretLineBackAlpha(GetPropertyInt("style.caret.line.back.alpha", SC_ALPHA_NOALPHA));
 }
 
-void CScriptEditorCtrl::SetLanguage(const char * lang)
+void CScriptEditorCtrl::SetLanguage()
 {
 	SetJScript();
-
 	ReadAPI();
 }
 

@@ -51,17 +51,10 @@ LRESULT CDialogConf::OnInitDialog(HWND hwndFocus, LPARAM lParam)
 	ComboBox_AddString(combo_edge_style, _T("Grey"));
 	ComboBox_SetCurSel(combo_edge_style, m_parent->get_edge_style());
 
-	// Edit box
-	pfc::string8_fast text;
-	int cursel = ComboBox_GetCurSel(combo_script_engine);
-
 	// Subclassing scintilla
 	m_editorctrl.SubclassWindow(GetDlgItem(IDC_EDIT));
 
-	if (uComboBox_GetText(combo_script_engine, cursel, text))
-	{
-		m_editorctrl.SetLanguage(text);
-	}
+	m_editorctrl.SetLanguage();
 
 	// Checkboxs
 	uButton_SetCheck(m_hWnd, IDC_CHECK_GRABFOCUS, m_parent->get_grab_focus());
@@ -114,21 +107,6 @@ LRESULT CDialogConf::OnCloseCmd(WORD wNotifyCode, WORD wID, HWND hWndCtl)
 		}
 
 		EndDialog(IDCANCEL);
-	}
-
-	return 0;
-}
-
-LRESULT CDialogConf::OnScriptEngineCbnSelEndOk(WORD wNotifyCode, WORD wID, HWND hWndCtl)
-{
-	pfc::string8_fast text;
-	HWND edit = GetDlgItem(IDC_EDIT);
-	HWND combo = GetDlgItem(IDC_SCRIPT_ENGINE);
-	int cursel = ComboBox_GetCurSel(combo);
-
-	if (uComboBox_GetText(combo, cursel, text))
-	{
-		m_editorctrl.SetLanguage(text);
 	}
 
 	return 0;
