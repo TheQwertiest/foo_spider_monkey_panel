@@ -2,16 +2,8 @@
 
 enum t_version_info
 {
-	VERSION_0x73 = 0x73,
-	VERSION_0x74,
-	VERSION_0x75,
-	VERSION_0x76,
-	VERSION_0x77,
-	VERSION_0x78,
-	VERSION_0x79,
-	VERSION_0x80,
-	VERSION_0x81,
-	CONFIG_VERSION_CURRENT = VERSION_0x81,
+	JSP_VERSION_100 = 123, // must start with 123 so we don't break component upgrades
+	CONFIG_VERSION_CURRENT = JSP_VERSION_100
 };
 
 enum t_edge_style : char
