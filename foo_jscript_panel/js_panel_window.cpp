@@ -194,10 +194,7 @@ LRESULT js_panel_window::on_message(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 			// Interfaces
 			m_gr_wrap.Attach(new com_object_impl_t<GdiGraphics>(), false);
 			panel_manager::instance().add_window(m_hwnd);
-			if (get_delay_load())
-				delay_loader::g_enqueue(new delay_script_init_action(m_hwnd));
-			else
-				script_load();
+			delay_loader::g_enqueue(new delay_script_init_action(m_hwnd));
 		}
 		return 0;
 

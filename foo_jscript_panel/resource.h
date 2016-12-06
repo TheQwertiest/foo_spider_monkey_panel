@@ -39,11 +39,9 @@
 #define IDC_DEL                         1030
 #define IDC_EDIT_TIMEOUT                1031
 #define IDC_SPIN_TIMEOUT                1032
-//#define IDC_CHECK_SAFE_MODE             1033
 #define IDC_EDGE_STYLE                  1034
 #define IDC_STATIC_GUID                 1035
 #define IDC_TOOLS                       1036
-#define IDC_CHECK_DELAY_LOAD            1037
 #define IDC_CHECK1                      1038
 #define IDC_CHECK_DEBUG_MODE            1038
 #define IDC_EDIT1                       1039

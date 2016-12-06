@@ -76,11 +76,6 @@ public:
 		return m_script_code;
 	}
 
-	bool& get_delay_load()
-	{
-		return m_delay_load;
-	}
-
 	bool& get_pseudo_transparent()
 	{
 		return m_pseudo_transparent;
@@ -136,5 +131,4 @@ private:
 	bool m_disabled_before;
 	bool m_grab_focus;
 	bool m_pseudo_transparent;
-	bool m_delay_load;
 };

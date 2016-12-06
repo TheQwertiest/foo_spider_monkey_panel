@@ -19,7 +19,6 @@ void js_panel_vars::reset_config()
 	m_wndpl.length = 0;
 	m_grab_focus = true;
 	m_disabled_before = false;
-	m_delay_load = false;
 	m_edge_style = NO_EDGE;
 	CoCreateGuid(&m_config_guid);
 }
@@ -34,7 +33,7 @@ void js_panel_vars::load_config(stream_reader* reader, t_size size, abort_callba
 		try
 		{
 			reader->read_object_t(ver, abort);
-			reader->read_object_t(m_delay_load, abort);
+			reader->skip_object(sizeof(false), abort); // HACK: skip over old "delay load" preference
 			reader->read_object_t(m_config_guid, abort);
 			reader->read_object(&m_edge_style, sizeof(m_edge_style), abort);
 			m_config_prop.load(reader, abort);
@@ -61,7 +60,7 @@ void js_panel_vars::save_config(stream_writer* writer, abort_callback& abort) co
 	{
 		// Write version
 		writer->write_object_t(VERSION_CURRENT, abort);
-		writer->write_object_t(m_delay_load, abort);
+		writer->write_object_t(false, abort); // HACK: write this in place of old "delay load" preference
 		writer->write_object_t(m_config_guid, abort);
 		writer->write_object(&m_edge_style, sizeof(m_edge_style), abort);
 		m_config_prop.save(writer, abort);

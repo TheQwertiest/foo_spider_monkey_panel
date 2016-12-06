@@ -51,7 +51,6 @@ LRESULT CDialogConf::OnInitDialog(HWND hwndFocus, LPARAM lParam)
 	// Checkboxes
 	uButton_SetCheck(m_hWnd, IDC_CHECK_GRABFOCUS, m_parent->get_grab_focus());
 	uButton_SetCheck(m_hWnd, IDC_CHECK_PSEUDO_TRANSPARENT, m_parent->get_pseudo_transparent());
-	uButton_SetCheck(m_hWnd, IDC_CHECK_DELAY_LOAD, m_parent->get_delay_load());
 
 	// GUID Text
 	pfc::string8 guid_text = "GUID: ";
@@ -217,7 +216,6 @@ void CDialogConf::Apply()
 	m_parent->get_disabled_before() = false;
 	m_parent->get_grab_focus() = uButton_GetCheck(m_hWnd, IDC_CHECK_GRABFOCUS);
 	m_parent->get_pseudo_transparent() = uButton_GetCheck(m_hWnd, IDC_CHECK_PSEUDO_TRANSPARENT);
-	m_parent->get_delay_load() = uButton_GetCheck(m_hWnd, IDC_CHECK_DELAY_LOAD);
 	m_parent->update_script(name, code.get_ptr());
 
 	// Wndow position
