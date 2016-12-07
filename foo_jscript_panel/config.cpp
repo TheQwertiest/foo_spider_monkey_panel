@@ -17,7 +17,6 @@ void js_panel_vars::reset_config()
 	get_default_script_code(m_script_code);
 	m_pseudo_transparent = false;
 	m_wndpl.length = 0;
-	m_grab_focus = true;
 	m_disabled_before = false;
 	m_edge_style = NO_EDGE;
 	CoCreateGuid(&m_config_guid);
@@ -38,7 +37,7 @@ void js_panel_vars::load_config(stream_reader* reader, t_size size, abort_callba
 			reader->read_object(&m_edge_style, sizeof(m_edge_style), abort);
 			m_config_prop.load(reader, abort);
 			reader->read_object_t(m_disabled_before, abort);
-			reader->read_object_t(m_grab_focus, abort);
+			reader->skip_object(sizeof(true), abort); // HACK: skip over old "grab focus" preference 
 			reader->read_object(&m_wndpl, sizeof(m_wndpl), abort);
 			reader->read_string(m_script_engine_str, abort);
 			reader->read_string(m_script_code, abort);
@@ -65,7 +64,7 @@ void js_panel_vars::save_config(stream_writer* writer, abort_callback& abort) co
 		writer->write_object(&m_edge_style, sizeof(m_edge_style), abort);
 		m_config_prop.save(writer, abort);
 		writer->write_object_t(m_disabled_before, abort);
-		writer->write_object_t(m_grab_focus, abort);
+		writer->write_object_t(true, abort); // HACK: write this in place of old "grab focus" preference
 		writer->write_object(&m_wndpl, sizeof(m_wndpl), abort);
 		writer->write_string(m_script_engine_str, abort);
 		writer->write_string(m_script_code, abort);

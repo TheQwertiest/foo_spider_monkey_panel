@@ -848,8 +848,7 @@ void js_panel_window::on_mouse_button_down(UINT msg, WPARAM wp, LPARAM lp)
 {
 	TRACK_FUNCTION();
 
-	if (get_grab_focus())
-		SetFocus(m_hwnd);
+	SetFocus(m_hwnd);
 
 	SetCapture(m_hwnd);
 

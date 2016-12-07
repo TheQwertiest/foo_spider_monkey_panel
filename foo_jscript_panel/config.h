@@ -86,11 +86,6 @@ public:
 		return m_pseudo_transparent;
 	}
 
-	bool& get_grab_focus()
-	{
-		return m_grab_focus;
-	}
-
 	WINDOWPLACEMENT& get_windowplacement()
 	{
 		return m_wndpl;
@@ -129,6 +124,5 @@ private:
 	pfc::string8 m_script_code;
 	t_edge_style m_edge_style;
 	bool m_disabled_before;
-	bool m_grab_focus;
 	bool m_pseudo_transparent;
 };
