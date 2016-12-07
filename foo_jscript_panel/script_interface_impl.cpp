@@ -2761,7 +2761,11 @@ STDMETHODIMP FbUtils::Trace(SAFEARRAY* p)
 			continue;
 
 		str.add_string(pfc::stringcvt::string_utf8_from_wide(var.bstrVal));
-		str.add_byte(' ');
+		
+		if (i < nUBound)
+		{
+			str.add_byte(' ');
+		}
 	}
 
 	console::info(str);
