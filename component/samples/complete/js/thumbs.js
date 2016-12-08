@@ -143,7 +143,7 @@ _.mixin({
 		this.metadb_changed = function () {
 			if (panel.metadb) {
 				var temp_folder = this.custom_folder_tf.replace("%profile%", fb.ProfilePath);
-				temp_folder = temp_folder.indexOf(fb.ProfilePath) == 0 ? fb.ProfilePath + panel.tf(temp_folder.substring(fb.ProfilePath.length, temp_folder.length)) : temp_folder = panel.tf(temp_folder);
+				temp_folder = temp_folder.indexOf(fb.ProfilePath) == 0 ? fb.ProfilePath + panel.tf(temp_folder.substring(fb.ProfilePath.length, temp_folder.length)) : panel.tf(temp_folder);
 				if (this.folder == temp_folder)
 					return;
 				this.folder = temp_folder;
