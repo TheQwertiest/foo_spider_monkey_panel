@@ -3,7 +3,7 @@
 // TODO: Change Version Number Every Time
 #define JSP_VERSION_NUMBER "1.1.7"
 //#define JSP_WILL_NOT_EXPIRE
-#define JSP_VERSION_TEST "Beta 1"
+#define JSP_VERSION_TEST "Beta 2"
 
 #ifdef JSP_VERSION_TEST
 #	define JSP_TESTING 1
