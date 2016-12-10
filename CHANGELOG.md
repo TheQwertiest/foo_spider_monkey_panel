@@ -1,6 +1,9 @@
 ##v.1.1.7 Beta 1
 ```
 - FIX: Remove trailing space in "Console" when using fb.Trace.
+- FIX: Thumbs sample. Fix issue where using %profile% in the "Custom folder"
+       setting would fail if the profile path contained special title formatting
+       characters like %()[]%'
 - CHG: Remove "Grab focus" and "Delay load" from "Configuration" window. Both
        options are forced on for all panels. Don't want to give a panel focus?
        Don't click it! Let me know if you think "Delay load" on all panels has
