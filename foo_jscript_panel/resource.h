@@ -23,6 +23,7 @@
 #define IDC_FINDNEXT                    1012
 #define IDC_REPLACE                     1013
 #define IDC_REPLACEALL                  1014
+#define IDC_CHECK_GRABFOCUS             1015
 #define IDC_LIST_EDITOR_PROP            1016
 #define IDC_EDIT_VALUE                  1017
 #define IDC_EDIT_NAME                   1018
