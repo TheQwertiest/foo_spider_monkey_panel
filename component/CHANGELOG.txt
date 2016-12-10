@@ -1,3 +1,12 @@
+v.1.1.7 Beta 1
+- FIX: Remove trailing space in "Console" when using fb.Trace.
+- CHG: Remove "Grab focus" and "Delay load" from "Configuration" window. Both
+       options are forced on for all panels. Don't want to give a panel focus?
+       Don't click it! Let me know if you think "Delay load" on all panels has
+       noticeable side effects.
+- CHG: Some internal refactoring which is why we have a beta. I need to more users
+       to test I didn't break anything!
+
 v1.1.6.2
 - FIX: plman.AddLocations: Original order of files in array is now maintained.
 - CHG: plman.AddLocations: Progress dialog stays hidden for short operations.
