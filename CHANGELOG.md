@@ -8,7 +8,7 @@
        options are forced on for all panels. Don't want to give a panel focus?
        Don't click it! Let me know if you think "Delay load" on all panels has
        noticeable side effects.
-- CHG: Some internal refactoring which is why we have a beta. I need to more users
+- CHG: Some internal refactoring which is why we have a beta. I need more users
        to test I didn't break anything!
 ```
 
