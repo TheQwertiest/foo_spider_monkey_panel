@@ -1,11 +1,12 @@
-##v.1.1.7 Beta 2
+##v.1.1.7
 ```
 - FIX: Remove trailing space in "Console" when using fb.Trace.
+- FIX: Text Reader sample. Ensure "Open containing folder" works when specifiying
+       a folder rather than a full path to a file.
 - FIX: Thumbs sample. Fix issue where using %profile% in the "Custom folder"
        setting would fail if the profile path contained special title formatting
        characters like %()[]'
 - CHG: Remove "Delay load" from "Configuration" window.
-- CHG: Remove "Grab focus" from "Configuration" window. Beta 1 only, reverted in Beta2.
 - CHG: Some internal refactoring which is why we have a beta. I need more users
        to test I didn't break anything!
 ```
