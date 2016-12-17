@@ -98,7 +98,7 @@ _.mixin({
 			panel.m.AppendMenuItem(MF_STRING, 5230, "Fixed width font");
 			panel.m.CheckMenuItem(5230, this.fixed);
 			panel.m.AppendMenuSeparator();
-			panel.m.AppendMenuItem(_.isFile(this.filename) ? MF_STRING : MF_GRAYED, 5999, "Open containing folder");
+			panel.m.AppendMenuItem(_.isFile(this.filename) || _.isFolder(this.filename) ? MF_STRING : MF_GRAYED, 5999, "Open containing folder");
 			panel.m.AppendMenuSeparator();
 		}
 		
@@ -125,7 +125,10 @@ _.mixin({
 				window.RepaintRect(this.x, this.y, this.w, this.h);
 				break;
 			case 5999:
-				_.explorer(this.filename);
+				if (_.isFile(this.filename))
+					_.explorer(this.filename);
+				else
+					_.run(this.filename);
 				break;
 			}
 		}
