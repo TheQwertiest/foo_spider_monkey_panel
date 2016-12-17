@@ -7,8 +7,6 @@
        setting would fail if the profile path contained special title formatting
        characters like %()[]'
 - CHG: Remove "Delay load" from "Configuration" window.
-- CHG: Some internal refactoring which is why we have a beta. I need more users
-       to test I didn't break anything!
 ```
 
 ##v1.1.6.2
