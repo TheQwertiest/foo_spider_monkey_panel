@@ -1061,7 +1061,7 @@ void CScriptEditorCtrl::SetJScript()
 		" interface long native new null package private protected public return"
 		" short static super switch synchronized this throw throws transient true"
 		" try typeof var void while with enum byvalue cast future generic inner"
-		" operator outer rest Array Math RegExp window fb gdi utils plman console";
+		" operator outer rest Array Math RegExp window fb gdi utils wsh_utils plman console";
 
 	RestoreDefaultStyle();
 

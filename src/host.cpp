@@ -215,6 +215,7 @@ ScriptHost::ScriptHost(HostComm* host)
 	, m_gdi(com_object_singleton_t<GdiUtils>::instance())
 	, m_fb2k(com_object_singleton_t<FbUtils>::instance())
 	, m_utils(com_object_singleton_t<JSUtils>::instance())
+	, m_wsh_utils(com_object_singleton_t<WSHUtils>::instance())
 	, m_playlistman(com_object_singleton_t<FbPlaylistManager>::instance())
 	, m_console(com_object_singleton_t<JSConsole>::instance())
 	, m_dwStartTime(0)
@@ -312,6 +313,7 @@ HRESULT ScriptHost::Initialize()
 	if (SUCCEEDED(hr)) hr = m_script_engine->AddNamedItem(L"gdi", SCRIPTITEM_ISVISIBLE);
 	if (SUCCEEDED(hr)) hr = m_script_engine->AddNamedItem(L"fb", SCRIPTITEM_ISVISIBLE);
 	if (SUCCEEDED(hr)) hr = m_script_engine->AddNamedItem(L"utils", SCRIPTITEM_ISVISIBLE);
+	if (SUCCEEDED(hr)) hr = m_script_engine->AddNamedItem(L"wsh_utils", SCRIPTITEM_ISVISIBLE);
 	if (SUCCEEDED(hr)) hr = m_script_engine->AddNamedItem(L"plman", SCRIPTITEM_ISVISIBLE);
 	if (SUCCEEDED(hr)) hr = m_script_engine->AddNamedItem(L"console", SCRIPTITEM_ISVISIBLE);
 	if (SUCCEEDED(hr)) hr = m_script_engine->SetScriptState(SCRIPTSTATE_CONNECTED);
@@ -430,6 +432,12 @@ STDMETHODIMP ScriptHost::GetItemInfo(LPCOLESTR name, DWORD mask, IUnknown** ppun
 		else if (wcscmp(name, L"utils") == 0)
 		{
 			(*ppunk) = m_utils;
+			(*ppunk)->AddRef();
+			return S_OK;
+		}
+		else if (wcscmp(name, L"wsh_utils") == 0)
+		{
+			(*ppunk) = m_wsh_utils;
 			(*ppunk)->AddRef();
 			return S_OK;
 		}

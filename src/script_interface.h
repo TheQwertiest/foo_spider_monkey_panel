@@ -674,3 +674,67 @@ __interface IFbPlaylistRecyclerManager : IDispatch
 };
 
 _COM_SMARTPTR_TYPEDEF(IFbPlaylistRecyclerManager, __uuidof(IFbPlaylistRecyclerManager));
+
+[
+	object,
+	dual,
+	pointer_default(unique),
+	library_block,
+	uuid("d53e81cd-0157-4cfe-a618-1F88d48dc0b8")
+]
+__interface IWSHUtils : IDispatch
+{
+	STDMETHOD(GetWND)(BSTR class_name, [out, retval]__interface IWindow** pp);
+	STDMETHOD(CreateWND)(UINT window_id, [out, retval]__interface IWindow** pp);
+	STDMETHOD(ReleaseCapture)();
+};
+_COM_SMARTPTR_TYPEDEF(IWSHUtils, __uuidof(IWSHUtils));
+
+//PLUS VERSION
+#ifdef IsMinimized
+#	undef IsMinimized
+#endif
+#ifdef IsMaximized
+#	undef IsMaximized
+#endif
+
+[
+	object,
+	dual,
+	pointer_default(unique),
+	library_block,
+	uuid("2f691b02-bd48-4dee-ad75-443b4c8ab461")
+]
+__interface IWindow
+{
+	[propget] STDMETHOD(_ptr)([out]void** pp);
+	[propget] STDMETHOD(Left)([out, retval]INT* p);
+	[propget] STDMETHOD(Top)([out, retval]INT* p);
+	[propget] STDMETHOD(Width)([out, retval]INT* p);
+	[propget] STDMETHOD(Height)([out, retval]INT* p);
+	[propget] STDMETHOD(Style)([out, retval]INT* p);
+	[propget] STDMETHOD(ExStyle)([out, retval]INT* p);
+	[propget] STDMETHOD(Caption)([out, retval]BSTR* pp);
+	[propput] STDMETHOD(Left)(INT left);
+	[propput] STDMETHOD(Top)(INT top);
+	[propput] STDMETHOD(Width)(INT width);
+	[propput] STDMETHOD(Height)(INT height);
+	[propput] STDMETHOD(Style)(INT style);
+	[propput] STDMETHOD(ExStyle)(INT style);
+	[propput] STDMETHOD(Caption)(BSTR title);
+
+	STDMETHOD(GetChild)(BSTR class_name, UINT index, [out, retval] IWindow** pp);
+	STDMETHOD(GetAncestor)([defaultvalue(1)]UINT flag, [out, retval] IWindow** pp);
+	STDMETHOD(SetParent)(IWindow* p);
+	STDMETHOD(SendMsg)(UINT msg, INT wp, INT lp);
+	STDMETHOD(Show)(UINT flag);
+	STDMETHOD(Move)(UINT x, UINT y, UINT w, UINT h, [defaultvalue(0)] VARIANT_BOOL redraw);
+	STDMETHOD(IsVisible)([out, retval] VARIANT_BOOL* p);
+	STDMETHOD(IsMinimized)([out, retval] VARIANT_BOOL* p);
+	STDMETHOD(IsMaximized)([out, retval] VARIANT_BOOL* p);
+	STDMETHOD(ShowCaret)(void);
+	STDMETHOD(SetCaretPos)(INT x, INT y);
+	STDMETHOD(HideCaret)(void);
+	STDMETHOD(CreateCaret)(INT width, INT height);
+	STDMETHOD(DestroyCaret)(void);
+};
