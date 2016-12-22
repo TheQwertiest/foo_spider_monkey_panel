@@ -110,6 +110,7 @@ private:
 	IFbWindowPtr m_window;
 	IGdiUtilsPtr m_gdi;
 	IJSUtilsPtr m_utils;
+	IWSHUtilsPtr m_wsh_utils;
 	IJSConsolePtr m_console;
 	ScriptCallbackInvoker m_callback_invoker;
 	bool m_engine_inited;

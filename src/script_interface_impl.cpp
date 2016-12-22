@@ -4575,3 +4575,373 @@ STDMETHODIMP ThemeManager::SetPartAndStateID(int partid, int stateid)
 	m_stateid = stateid;
 	return S_OK;
 }
+
+STDMETHODIMP WSHUtils::GetWND(BSTR class_name, IWindow** pp)
+{
+	TRACK_FUNCTION();
+
+	if (!class_name) return E_INVALIDARG;
+	if (!pp) return E_POINTER;
+	IWindow *ret = NULL;
+	HWND hwnd = FindWindow(class_name, NULL);
+	if (hwnd != NULL)
+	{
+		ret = new com_object_impl_t<WindowObj>(hwnd);
+	}
+
+	*pp = ret;
+	return S_OK;
+}
+
+STDMETHODIMP WSHUtils::CreateWND(UINT window_id, IWindow** pp)
+{
+	TRACK_FUNCTION();
+
+	if (!window_id) return E_INVALIDARG;
+	if (!pp) return E_POINTER;
+	IWindow *ret = NULL;
+	HWND hwnd = reinterpret_cast<HWND>(window_id);
+	if (::IsWindow(hwnd))
+	{
+		ret = new com_object_impl_t<WindowObj>(hwnd);
+	}
+	*pp = ret;
+	return S_OK;
+}
+
+STDMETHODIMP WSHUtils::ReleaseCapture()
+{
+	TRACK_FUNCTION();
+	::ReleaseCapture();
+	return S_OK;
+}
+
+
+STDMETHODIMP WindowObj::get__ptr(void ** pp)
+{
+	TRACK_FUNCTION();
+	(*pp) = m_hwnd;
+	return S_OK;
+}
+
+STDMETHODIMP WindowObj::get_Left(INT * p)
+{
+	TRACK_FUNCTION();
+
+	RECT rc;
+	::GetWindowRect(m_hwnd, &rc);
+	*p = rc.left;
+	return S_OK;
+}
+
+STDMETHODIMP WindowObj::get_Top(INT * p)
+{
+	TRACK_FUNCTION();
+
+	RECT rc;
+	::GetWindowRect(m_hwnd, &rc);
+	*p = rc.top;
+
+	return S_OK;
+}
+
+STDMETHODIMP WindowObj::put_Left(INT l)
+{
+	TRACK_FUNCTION();
+
+	RECT rc;
+	::GetWindowRect(m_hwnd, &rc);
+	::SetWindowPos(m_hwnd, NULL, l, rc.top, 0, 0, SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE);
+
+	return S_OK;
+}
+
+STDMETHODIMP WindowObj::put_Top(INT t)
+{
+	TRACK_FUNCTION();
+
+	RECT rc;
+	::GetWindowRect(m_hwnd, &rc);
+	::SetWindowPos(m_hwnd, NULL, rc.left, t, 0, 0, SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE);
+	return S_OK;
+}
+
+STDMETHODIMP WindowObj::get_Width(INT * p)
+{
+	TRACK_FUNCTION();
+
+	if (!p) return E_POINTER;
+
+	RECT rc;
+	::GetWindowRect(m_hwnd, &rc);
+	*p = rc.right - rc.left;
+	return S_OK;
+}
+
+STDMETHODIMP WindowObj::get_Height(INT * p)
+{
+	TRACK_FUNCTION();
+
+	if (!p) return E_POINTER;
+
+	RECT rc;
+	::GetWindowRect(m_hwnd, &rc);
+	*p = rc.bottom - rc.top;
+	return S_OK;
+}
+
+STDMETHODIMP WindowObj::put_Width(INT w)
+{
+	TRACK_FUNCTION();
+	RECT rc;
+	::GetWindowRect(m_hwnd, &rc);
+	::SetWindowPos(m_hwnd, NULL, 0, 0, w, rc.bottom - rc.top, SWP_NOMOVE | SWP_NOZORDER | SWP_NOACTIVATE);
+	return S_OK;
+}
+
+STDMETHODIMP WindowObj::put_Height(INT h)
+{
+	TRACK_FUNCTION();
+	RECT rc;
+	::GetWindowRect(m_hwnd, &rc);
+	::SetWindowPos(m_hwnd, NULL, 0, 0, rc.right - rc.left, h, SWP_NOMOVE | SWP_NOZORDER | SWP_NOACTIVATE);
+	return S_OK;
+}
+
+STDMETHODIMP WindowObj::get_Style(INT * p)
+{
+	TRACK_FUNCTION();
+
+	if (!p) return E_POINTER;
+	*p = ::GetWindowLong(m_hwnd, GWL_STYLE);
+	return S_OK;
+}
+
+STDMETHODIMP WindowObj::put_Style(INT s)
+{
+	TRACK_FUNCTION();
+
+	::SetWindowLong(m_hwnd, GWL_STYLE, s);
+	::SetWindowPos(m_hwnd, NULL, 0, 0, 0, 0, SWP_FRAMECHANGED | SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOOWNERZORDER);
+	return S_OK;
+}
+
+STDMETHODIMP WindowObj::get_ExStyle(INT * p)
+{
+	TRACK_FUNCTION();
+
+	if (!p) return E_POINTER;
+	*p = ::GetWindowLong(m_hwnd, GWL_EXSTYLE);
+	return S_OK;
+}
+
+STDMETHODIMP WindowObj::put_ExStyle(INT s)
+{
+	TRACK_FUNCTION();
+
+	::SetWindowLong(m_hwnd, GWL_EXSTYLE, s);
+	::SetWindowPos(m_hwnd, NULL, 0, 0, 0, 0, SWP_FRAMECHANGED | SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOOWNERZORDER);
+	return S_OK;
+}
+
+STDMETHODIMP WindowObj::get_Caption(BSTR * pp)
+{
+	TRACK_FUNCTION();
+
+	if (!pp) return E_POINTER;
+
+	enum
+	{
+		BUFFER_LEN = 1024
+	};
+	TCHAR buff[BUFFER_LEN] = { 0 };
+
+	*pp = NULL;
+
+	if (::GetWindowText(m_hwnd, buff, BUFFER_LEN))
+	{
+		(*pp) = SysAllocString(buff);
+	}
+
+	return S_OK;
+}
+
+STDMETHODIMP WindowObj::put_Caption(BSTR title)
+{
+	TRACK_FUNCTION();
+
+	if (!title)return E_INVALIDARG;
+	::SetWindowText(m_hwnd, title);
+	return S_OK;
+}
+
+STDMETHODIMP WindowObj::SendMsg(UINT msg, INT wp, INT lp)
+{
+	TRACK_FUNCTION();
+	::SendMessage(m_hwnd, msg, (WPARAM)wp, (LPARAM)lp);
+	return S_OK;
+}
+
+STDMETHODIMP WindowObj::SetParent(IWindow* p)
+{
+	TRACK_FUNCTION();
+	if (!p) return E_INVALIDARG;
+	HWND hPWnd = NULL;
+	p->get__ptr((void**)&hPWnd);
+	::SetParent(m_hwnd, hPWnd);
+	return S_OK;
+}
+
+STDMETHODIMP WindowObj::Show(UINT flag)
+{
+	TRACK_FUNCTION();
+
+	::ShowWindow(m_hwnd, flag);
+	return S_OK;
+}
+
+STDMETHODIMP WindowObj::Move(UINT x, UINT y, UINT w, UINT h, VARIANT_BOOL redraw)
+{
+	TRACK_FUNCTION();
+
+	::MoveWindow(m_hwnd, x, y, w, h, redraw);
+	return S_OK;
+}
+
+STDMETHODIMP WindowObj::IsVisible(VARIANT_BOOL * p)
+{
+	TRACK_FUNCTION();
+
+	if (!p) return E_POINTER;
+	*p = TO_VARIANT_BOOL(::IsWindowVisible(m_hwnd));
+	return S_OK;
+}
+
+STDMETHODIMP WindowObj::IsMinimized(VARIANT_BOOL * p)
+{
+	TRACK_FUNCTION();
+
+	if (!p) return E_POINTER;
+
+	*p = TO_VARIANT_BOOL(::IsIconic(m_hwnd));
+	return S_OK;
+}
+
+STDMETHODIMP WindowObj::IsMaximized(VARIANT_BOOL * p)
+{
+	TRACK_FUNCTION();
+
+	if (!p) return E_POINTER;
+
+	*p = TO_VARIANT_BOOL(::IsZoomed(m_hwnd));
+	return S_OK;
+}
+
+STDMETHODIMP WindowObj::GetAncestor(UINT flag, IWindow** pp)
+{
+	TRACK_FUNCTION();
+
+	if (!pp) return E_POINTER;
+	IWindow *ret = NULL;
+	if (flag > 0 && flag < 4)
+	{
+		HWND hwnd = ::GetAncestor(m_hwnd, flag);
+		if (hwnd != NULL)
+			ret = new com_object_impl_t<WindowObj>(hwnd);
+	}
+	*pp = ret;
+	return S_OK;
+}
+
+STDMETHODIMP WindowObj::GetChild(BSTR class_name, UINT index, IWindow** pp)
+{
+	TRACK_FUNCTION();
+
+	if (!pp) return E_POINTER;
+	UINT idx = 0;
+	IWindow *ret = NULL;
+
+	t_param para = { NULL,class_name ,NULL,index };
+	::EnumChildWindows(m_hwnd, EnumChildProc, (LPARAM)&para);
+
+	if (para.hwnd != NULL)
+	{
+		ret = new com_object_impl_t<WindowObj>(para.hwnd);
+	}
+
+	*pp = ret;
+	return S_OK;
+}
+
+BOOL CALLBACK WindowObj::EnumChildProc(HWND hwnd, LPARAM lParam)
+{
+	TRACK_FUNCTION();
+
+	t_param* para = (t_param*)lParam;
+
+	enum
+	{
+		BUFFER_LEN = 1024
+	};
+	TCHAR buff[BUFFER_LEN] = { 0 };
+
+	if (para->caption == NULL)
+	{
+		::GetClassName(hwnd, buff, BUFFER_LEN);
+		if (wcscmp(buff, para->cls_name) == 0)
+		{
+			para->index--;
+			if (para->index == 0)
+			{
+				para->hwnd = hwnd;
+				return FALSE;
+			}
+		}
+		return TRUE;
+	}
+	else
+	{
+		::GetWindowText(hwnd, buff, BUFFER_LEN);
+		if (wcscmp(buff, para->caption) == 0)
+		{
+			para->hwnd = hwnd;
+			return FALSE;
+		}
+		return TRUE;
+	}
+}
+
+STDMETHODIMP WindowObj::ShowCaret(void)
+{
+	TRACK_FUNCTION();
+	::ShowCaret(m_hwnd);
+	return S_OK;
+}
+
+STDMETHODIMP WindowObj::SetCaretPos(INT x, INT y)
+{
+	TRACK_FUNCTION();
+	::SetCaretPos(x, y);
+	return S_OK;
+}
+
+STDMETHODIMP WindowObj::HideCaret(void)
+{
+	TRACK_FUNCTION();
+	::HideCaret(m_hwnd);
+	return S_OK;
+}
+
+STDMETHODIMP WindowObj::DestroyCaret(void)
+{
+	TRACK_FUNCTION();
+	::DestroyCaret();
+	return S_OK;
+}
+
+STDMETHODIMP WindowObj::CreateCaret(INT width, INT height)
+{
+	TRACK_FUNCTION();
+	::CreateCaret(m_hwnd, NULL, width, height);
+	return S_OK;
+}
