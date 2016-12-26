@@ -1,3 +1,5 @@
+#This file is used for text auto-completion in the Configuration window
+
 fb.AcquireUiSelectionHolder()
 fb.AddDirectory()
 fb.AddFiles()
@@ -47,11 +49,11 @@ fb.ShowPreferences()
 fb.Stop()
 fb.StopAfterCurrent
 fb.TitleFormat(expression)
+fb.Trace(...)
 fb.Volume
 fb.VolumeDown()
 fb.VolumeMute()
 fb.VolumeUp()
-fb.trace(...)
 
 gdi.CreateImage(w, h)
 gdi.CreateStyleTextRender([pngmode])

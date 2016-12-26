@@ -1,4 +1,5 @@
-#http://developer.mozilla.org/en/docs/Core_JavaScript_1.5_Reference:Global_Objects:Object
+#This file is used for text auto-completion in the Configuration window
+
 Object()
 Object(mixed value) value: The initial value of the Boolean object. 
 Object.toSource() Returns an object literal representing the specified object; you can use this value to create a new object.
@@ -6,7 +7,6 @@ Object.toString() Returns a string representing the specified object.
 Object.valueOf() Returns the primitive value of the specified object.
 Object.prototype
 
-#http://developer.mozilla.org/en/docs/Core_JavaScript_1.5_Reference:Global_Objects:Array
 Array()
 Array(arrayLength)
 Array(element0, element1, ..., elementN)
@@ -26,11 +26,9 @@ Array.join(separator) Joins all elements of an array into a string.
 Array.splice(begin[,end]) Extracts a section of an array and returns a new array.
 Array.prototype
 
-#http://developer.mozilla.org/en/docs/Core_JavaScript_1.5_Reference:Global_Objects:Boolean
 Boolean(mixed value) value: The initial value of the Boolean object. 
 Boolean.prototype
 
-#http://developer.mozilla.org/en/docs/Core_JavaScript_1.5_Reference:Global_Objects:Date
 Date()
 Date(milliseconds)
 Date(dateString)
@@ -82,12 +80,9 @@ Date.toUTCString() Converts a date to a string, using the universal time convent
 Date.valueOf() Returns the primitive value of a Date object. Overrides the Object.valueOf method. 
 Date.prototype
 
-#http://developer.mozilla.org/en/docs/Core_JavaScript_1.5_Reference:Global_Objects:Error
 Error
 Error(message)
 
-
-#http://developer.mozilla.org/en/docs/Core_JavaScript_1.5_Reference:Global_Objects:Function
 function()
 Function()
 Function([arg1[, arg2[, ... argN]],] functionBody)
@@ -98,7 +93,6 @@ Function.apply(thisArg[, argArray]) Allows you to apply a method of another obje
 Function.call(thisArg[, arg1[, arg2[, ...]]]) Allows you to call (execute) a method of another object in the context of a different object (the calling object).
 Function.prototype
 
-#http://developer.mozilla.org/en/docs/Core_JavaScript_1.5_Reference:Global_Objects:Math
 Math
 Math.prototype
 Math.E
@@ -128,7 +122,6 @@ Math.sin(x) Returns the sine of a number.
 Math.sqrt(x) Returns the square root of a number.
 Math.tan(x) Returns the tangent of a number. 
 
-#http://developer.mozilla.org/en/docs/Core_JavaScript_1.5_Reference:Global_Objects:Number
 Number
 Number(value)
 Number.MAX_VALUE
@@ -138,7 +131,6 @@ Number.POSITIVE_INFINITY
 Number.prototype
 Number.NaN
 
-#http://developer.mozilla.org/en/docs/Core_JavaScript_1.5_Reference:Global_Objects:RegExp
 RegExp
 RegExp("pattern"[, "flags"]) 
 RegExp.prototype
@@ -146,8 +138,6 @@ RegExp.exec(str) Executes a search for a match in a specified string. Returns a 
 RegExp.test(str) Executes the search for a match between a regular expression and a specified string. Returns true or false.
 RegExp.toString() Returns a string representing the specified object.
 
-
-#http://developer.mozilla.org/en/docs/Core_JavaScript_1.5_Reference:Global_Objects:String
 String
 String(string) Creates a new String Object
 String.charAt(index) Returns the character at the specified index.
