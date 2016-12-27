@@ -29,13 +29,6 @@ LRESULT CDialogConf::OnInitDialog(HWND hwndFocus, LPARAM lParam)
 		SetWindowPlacement(&m_parent->get_windowplacement());
 	}
 
-	// Script Engine
-	HWND combo_script_engine = GetDlgItem(IDC_SCRIPT_ENGINE);
-
-	ComboBox_AddString(combo_script_engine, _T("JScript"));
-	ComboBox_AddString(combo_script_engine, _T("JScript9"));
-	uComboBox_SelectString(combo_script_engine, m_parent->get_script_engine());
-
 	// Edge Style
 	HWND combo_edge_style = GetDlgItem(IDC_EDGE_STYLE);
 
@@ -106,18 +99,12 @@ LRESULT CDialogConf::OnCloseCmd(WORD wNotifyCode, WORD wID, HWND hWndCtl)
 void CDialogConf::OnResetDefault()
 {
 	pfc::string8 code;
-	HWND combo = GetDlgItem(IDC_SCRIPT_ENGINE);
-
 	js_panel_vars::get_default_script_code(code);
-	uComboBox_SelectString(combo, "JScript");
 	m_editorctrl.SetContent(code);
 }
 
 void CDialogConf::OnResetCurrent()
 {
-	HWND combo = GetDlgItem(IDC_SCRIPT_ENGINE);
-
-	uComboBox_SelectString(combo, m_parent->get_script_engine());
 	m_editorctrl.SetContent(m_parent->get_script_code());
 }
 
@@ -201,12 +188,9 @@ LRESULT CDialogConf::OnTools(WORD wNotifyCode, WORD wID, HWND hWndCtl)
 
 void CDialogConf::Apply()
 {
-	pfc::string8 name;
 	pfc::array_t<char> code;
 	int len = 0;
 
-	// Get engine name
-	uGetWindowText(GetDlgItem(IDC_SCRIPT_ENGINE), name);
 	// Get script text
 	len = m_editorctrl.GetTextLength();
 	code.set_size(len + 1);
@@ -216,7 +200,7 @@ void CDialogConf::Apply()
 	m_parent->get_disabled_before() = false;
 	m_parent->get_grab_focus() = uButton_GetCheck(m_hWnd, IDC_CHECK_GRABFOCUS);
 	m_parent->get_pseudo_transparent() = uButton_GetCheck(m_hWnd, IDC_CHECK_PSEUDO_TRANSPARENT);
-	m_parent->update_script(name, code.get_ptr());
+	m_parent->update_script(code.get_ptr());
 
 	// Wndow position
 	GetWindowPlacement(&m_parent->get_windowplacement());

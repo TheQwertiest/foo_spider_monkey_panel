@@ -780,13 +780,12 @@ HRESULT ScriptHost::Initialize()
 
 	HRESULT hr = S_OK;
 	IActiveScriptParsePtr parser;
-	pfc::stringcvt::string_wide_from_utf8_fast wname(m_host->get_script_engine());
 	pfc::stringcvt::string_wide_from_utf8_fast wcode(m_host->get_script_code());
 	// Load preprocessor module
 	script_preprocessor preprocessor(wcode.get_ptr());
 	preprocessor.process_script_info(m_host->ScriptInfo());
 
-	hr = InitScriptEngineByName(wname);
+	hr = InitScriptEngine();
 
 	if (SUCCEEDED(hr)) hr = m_script_engine->SetScriptSite(this);
 	if (SUCCEEDED(hr)) hr = m_script_engine->QueryInterface(&parser);
@@ -844,28 +843,19 @@ HRESULT ScriptHost::ProcessImportedScripts(script_preprocessor& preprocessor, IA
 	return hr;
 }
 
-HRESULT ScriptHost::InitScriptEngineByName(const wchar_t* engineName)
+HRESULT ScriptHost::InitScriptEngine()
 {
 	HRESULT hr = E_FAIL;
 	const DWORD classContext = CLSCTX_INPROC_SERVER | CLSCTX_INPROC_HANDLER;
 
-	if (wcscmp(engineName, L"JScript9") == 0)
-	{
-		// Try using JScript9 from IE9
-		// {16d51579-a30b-4c8b-a276-0ff4dc41e755}
-		static const CLSID jscript9clsid =
-			{0x16d51579, 0xa30b, 0x4c8b, {0xa2, 0x76, 0x0f, 0xf4, 0xdc, 0x41, 0xe7, 0x55}};
+	static const CLSID jscript9clsid =
+		{0x16d51579, 0xa30b, 0x4c8b, {0xa2, 0x76, 0x0f, 0xf4, 0xdc, 0x41, 0xe7, 0x55}};
 
-		if (FAILED(hr = m_script_engine.CreateInstance(jscript9clsid, NULL, classContext)))
-		{
-			// fallback to default JScript engine.
-			engineName = L"JScript";
-		}
-	}
+	hr = m_script_engine.CreateInstance(jscript9clsid, NULL, classContext);
 
 	if (FAILED(hr))
 	{
-		hr = m_script_engine.CreateInstance(engineName, NULL, classContext);
+		hr = m_script_engine.CreateInstance("jscript", NULL, classContext);
 	}
 
 	if (FAILED(hr))
@@ -873,17 +863,13 @@ HRESULT ScriptHost::InitScriptEngineByName(const wchar_t* engineName)
 		return hr;
 	}
 
-	// In order to support new features after JScript 5.8
 	IActiveScriptProperty* pActScriProp = NULL;
-
-	if (SUCCEEDED(m_script_engine->QueryInterface(IID_IActiveScriptProperty, (void**)&pActScriProp)))
-	{
-		VARIANT scriptLangVersion;
-		scriptLangVersion.vt = VT_I4;
-		scriptLangVersion.lVal = SCRIPTLANGUAGEVERSION_5_8;
-		pActScriProp->SetProperty(SCRIPTPROP_INVOKEVERSIONING, NULL, &scriptLangVersion);
-		pActScriProp->Release();
-	}
+	m_script_engine->QueryInterface(IID_IActiveScriptProperty, (void**)&pActScriProp);
+	VARIANT scriptLangVersion;
+	scriptLangVersion.vt = VT_I4;
+	scriptLangVersion.lVal = 3;
+	pActScriProp->SetProperty(SCRIPTPROP_INVOKEVERSIONING, NULL, &scriptLangVersion);
+	pActScriProp->Release();
 
 	return hr;
 }

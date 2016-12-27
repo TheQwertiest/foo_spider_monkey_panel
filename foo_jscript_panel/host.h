@@ -151,7 +151,7 @@ public:
 	STDMETHOD_(ULONG, Release)();
 
 	HRESULT GenerateSourceContext(const wchar_t* path, const wchar_t* code, DWORD& source_context);
-	HRESULT InitScriptEngineByName(const wchar_t* engineName);
+	HRESULT InitScriptEngine();
 	HRESULT Initialize();
 	HRESULT InvokeCallback(int callbackId, VARIANTARG* argv = NULL, UINT argc = 0, VARIANT* ret = NULL);
 	HRESULT ProcessImportedScripts(script_preprocessor& preprocessor, IActiveScriptParsePtr& parser);

@@ -13,7 +13,6 @@ void js_panel_vars::get_default_script_code(pfc::string_base& out)
 
 void js_panel_vars::reset_config()
 {
-	m_script_engine_str = "JScript";
 	get_default_script_code(m_script_code);
 	m_pseudo_transparent = false;
 	m_wndpl.length = 0;

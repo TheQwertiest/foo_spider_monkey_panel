@@ -19,11 +19,10 @@ js_panel_window::~js_panel_window()
 	m_script_host->Release();
 }
 
-void js_panel_window::update_script(const char* name /*= NULL*/, const char* code /*= NULL*/)
+void js_panel_window::update_script(const char* code /*= NULL*/)
 {
-	if (name && code)
+	if (code)
 	{
-		get_script_engine() = name;
 		get_script_code() = code;
 	}
 

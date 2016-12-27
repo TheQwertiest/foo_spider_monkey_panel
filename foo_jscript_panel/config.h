@@ -66,11 +66,6 @@ public:
 	void load_config(stream_reader* reader, t_size size, abort_callback& abort);
 	void save_config(stream_writer* writer, abort_callback& abort) const;
 
-	pfc::string_base& get_script_engine()
-	{
-		return m_script_engine_str;
-	}
-
 	pfc::string_base& get_script_code()
 	{
 		return m_script_code;
@@ -125,7 +120,7 @@ private:
 	GUID m_config_guid;
 	WINDOWPLACEMENT m_wndpl;
 	prop_kv_config m_config_prop;
-	pfc::string8 m_script_engine_str;
+	pfc::string8 m_script_engine_str = "JScript"; //Obsolete but leave in place in case anyone downgrades to previous component
 	pfc::string8 m_script_code;
 	t_edge_style m_edge_style;
 	bool m_disabled_before;

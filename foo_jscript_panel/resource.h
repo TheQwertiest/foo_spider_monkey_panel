@@ -31,7 +31,6 @@
 #define IDC_BUTTON_IMPORT               1020
 #define IDC_BUTTON_EXPORT               1021
 #define IDC_LIST_PROPERTIES             1022
-#define IDC_SCRIPT_ENGINE               1023
 #define IDC_EDIT                        1024
 #define IDC_IMPORT                      1027
 #define IDAPPLY                         1028
