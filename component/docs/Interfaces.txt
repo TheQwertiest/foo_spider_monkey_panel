@@ -1,4 +1,4 @@
-﻿/*
+/*
 you can use fb.trace(something) to output variables/strings/properties to the Console
 and it will be used in some examples below.
 any parameters in [] are optional and may be omitted.
@@ -1172,7 +1172,7 @@ interface IFbMetadbHandle {
 
 		SubSong; (int) (read)
 
-		FileSize; (double) (read)
+		FileSize; (LONGLONG) (read) // requires IE9 or later
 
 		Length; (double) (read)
 
@@ -1289,7 +1289,7 @@ interface IFbMetadbHandleList {
 		// returns total in seconds.
 		// consider using utils.FormatDuration() on the result.
 
-		CalcTotalSize(); (double)
+		CalcTotalSize(); (LONGLONG) // requires IE9 or later
 		// return total in bytes.
 		// consider using utils.FormatFileSize() on the result.
 

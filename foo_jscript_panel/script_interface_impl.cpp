@@ -1528,7 +1528,7 @@ STDMETHODIMP FbMetadbHandle::UpdateFileInfoSimple(SAFEARRAY* p)
 	return S_OK;
 }
 
-STDMETHODIMP FbMetadbHandle::get_FileSize(double* p)
+STDMETHODIMP FbMetadbHandle::get_FileSize(LONGLONG* p)
 {
 	TRACK_FUNCTION();
 
@@ -1642,7 +1642,7 @@ STDMETHODIMP FbMetadbHandleList::CalcTotalDuration(double* p)
 	return S_OK;
 }
 
-STDMETHODIMP FbMetadbHandleList::CalcTotalSize(double* p)
+STDMETHODIMP FbMetadbHandleList::CalcTotalSize(LONGLONG* p)
 {
 	TRACK_FUNCTION();
 

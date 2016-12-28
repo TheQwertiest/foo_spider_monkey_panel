@@ -223,7 +223,7 @@ __interface IFbMetadbHandle: IDisposable
 {
 	STDMETHOD(Compare)(IFbMetadbHandle* handle, [out, retval] VARIANT_BOOL* p);
 	STDMETHOD(GetFileInfo)([out, retval] IFbFileInfo** pp);
-	[propget] STDMETHOD(FileSize)([out, retval] double* p);
+	[propget] STDMETHOD(FileSize)([out, retval] LONGLONG* p);
 	[propget] STDMETHOD(Length)([out, retval] double* p);
 	[propget] STDMETHOD(Path)([out, retval] BSTR* pp);
 	[propget] STDMETHOD(RawPath)([out, retval] BSTR* pp);
@@ -245,7 +245,7 @@ __interface IFbMetadbHandleList: IDisposable
 	STDMETHOD(AddRange)(IFbMetadbHandleList* handles);
 	STDMETHOD(BSearch)(IFbMetadbHandle* handle, [out, retval] UINT* p);
 	STDMETHOD(CalcTotalDuration)([out, retval] double* p);
-	STDMETHOD(CalcTotalSize)([out, retval] double* p);
+	STDMETHOD(CalcTotalSize)([out, retval] LONGLONG* p);
 	STDMETHOD(Clone)([out, retval] IFbMetadbHandleList** pp);
 	STDMETHOD(Find)(IFbMetadbHandle* handle, [out, retval] UINT* p);
 	STDMETHOD(Insert)(UINT index, IFbMetadbHandle* handle, [out, retval] UINT* outIndex);

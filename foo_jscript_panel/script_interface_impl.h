@@ -279,7 +279,7 @@ public:
 	STDMETHODIMP Compare(IFbMetadbHandle* handle, VARIANT_BOOL* p);
 	STDMETHODIMP GetFileInfo(IFbFileInfo** pp);
 	STDMETHODIMP UpdateFileInfoSimple(SAFEARRAY* p);
-	STDMETHODIMP get_FileSize(double* p);
+	STDMETHODIMP get_FileSize(LONGLONG* p);
 	STDMETHODIMP get_Length(double* p);
 	STDMETHODIMP get_Path(BSTR* pp);
 	STDMETHODIMP get_RawPath(BSTR* pp);
@@ -310,7 +310,7 @@ public:
 	STDMETHODIMP AddRange(IFbMetadbHandleList* handles);
 	STDMETHODIMP BSearch(IFbMetadbHandle* handle, UINT* p);
 	STDMETHODIMP CalcTotalDuration(double* p);
-	STDMETHODIMP CalcTotalSize(double* p);
+	STDMETHODIMP CalcTotalSize(LONGLONG* p);
 	STDMETHODIMP Clone(IFbMetadbHandleList** pp);
 	STDMETHODIMP Find(IFbMetadbHandle* handle, UINT* p);
 	STDMETHODIMP Insert(UINT index, IFbMetadbHandle* handle, UINT* outIndex);
