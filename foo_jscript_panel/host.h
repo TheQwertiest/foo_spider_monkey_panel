@@ -72,7 +72,7 @@ public:
 	void Redraw();
 	void RefreshBackground(LPRECT lprcUpdate = NULL);
 	void Repaint(bool force = false);
-	void RepaintRect(UINT x, UINT y, UINT w, UINT h, bool force = false);
+	void RepaintRect(LONG x, LONG y, LONG w, LONG h, bool force = false);
 };
 
 class FbWindow : public IDispatchImpl3<IFbWindow>
@@ -101,7 +101,7 @@ public:
 	STDMETHODIMP NotifyOthers(BSTR name, VARIANT info);
 	STDMETHODIMP Reload();
 	STDMETHODIMP Repaint(VARIANT_BOOL force);
-	STDMETHODIMP RepaintRect(UINT x, UINT y, UINT w, UINT h, VARIANT_BOOL force);
+	STDMETHODIMP RepaintRect(LONG x, LONG y, LONG w, LONG h, VARIANT_BOOL force);
 	STDMETHODIMP SetCursor(UINT id);
 	STDMETHODIMP SetInterval(IDispatch* func, INT delay, UINT* outIntervalID);
 	STDMETHODIMP SetProperty(BSTR name, VARIANT val);

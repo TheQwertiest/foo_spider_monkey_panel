@@ -482,7 +482,7 @@ __interface IFbWindow: IDispatch
 	STDMETHOD(NotifyOthers)(BSTR name, VARIANT info);
 	STDMETHOD(Reload)();
 	STDMETHOD(Repaint)([defaultvalue(0)] VARIANT_BOOL force);
-	STDMETHOD(RepaintRect)(UINT x, UINT y, UINT w, UINT h, [defaultvalue(0)] VARIANT_BOOL force);
+	STDMETHOD(RepaintRect)(LONG x, LONG y, LONG w, LONG h, [defaultvalue(0)] VARIANT_BOOL force);
 	STDMETHOD(SetCursor)(UINT id);
 	STDMETHOD(SetInterval)(IDispatch* func, INT delay, [out, retval] UINT* outIntervalID);
 	STDMETHOD(SetProperty)(BSTR name, VARIANT val);

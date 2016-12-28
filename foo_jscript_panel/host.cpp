@@ -50,7 +50,7 @@ void HostComm::Repaint(bool force /*= false*/)
 	}
 }
 
-void HostComm::RepaintRect(UINT x, UINT y, UINT w, UINT h, bool force /*= false*/)
+void HostComm::RepaintRect(LONG x, LONG y, LONG w, LONG h, bool force /*= false*/)
 {
 	RECT rc;
 	rc.left = x;
@@ -339,7 +339,7 @@ STDMETHODIMP FbWindow::Repaint(VARIANT_BOOL force)
 	return S_OK;
 }
 
-STDMETHODIMP FbWindow::RepaintRect(UINT x, UINT y, UINT w, UINT h, VARIANT_BOOL force)
+STDMETHODIMP FbWindow::RepaintRect(LONG x, LONG y, LONG w, LONG h, VARIANT_BOOL force)
 {
 	TRACK_FUNCTION();
 
