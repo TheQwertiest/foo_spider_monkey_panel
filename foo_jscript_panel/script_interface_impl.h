@@ -586,6 +586,7 @@ public:
 	STDMETHODIMP ReadINI(BSTR filename, BSTR section, BSTR key, VARIANT defaultval, BSTR* pp);
 	STDMETHODIMP ReadTextFile(BSTR filename, UINT codepage, BSTR* pp);
 	STDMETHODIMP WriteINI(BSTR filename, BSTR section, BSTR key, VARIANT val, VARIANT_BOOL* p);
+	STDMETHODIMP get_Version(double* v);
 };
 
 // forward declaration

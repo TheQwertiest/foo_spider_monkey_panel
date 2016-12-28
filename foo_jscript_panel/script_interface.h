@@ -537,6 +537,7 @@ __interface IJSUtils: IDispatch
 	STDMETHOD(ReadINI)(BSTR filename, BSTR section, BSTR key, [optional] VARIANT defaultval, [out, retval] BSTR* pp);
 	STDMETHOD(ReadTextFile)(BSTR filename, [defaultvalue(0)] UINT codepage, [out, retval] BSTR* pp);
 	STDMETHOD(WriteINI)(BSTR filename, BSTR section, BSTR key, VARIANT val, [out, retval] VARIANT_BOOL* p);
+	[propget] STDMETHOD(Version)([out, retval] double* v);
 };
 
 _COM_SMARTPTR_TYPEDEF(IJSUtils, __uuidof(IJSUtils));

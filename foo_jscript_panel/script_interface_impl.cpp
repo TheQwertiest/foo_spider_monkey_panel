@@ -3485,6 +3485,14 @@ STDMETHODIMP JSUtils::WriteINI(BSTR filename, BSTR section, BSTR key, VARIANT va
 	return S_OK;
 }
 
+STDMETHODIMP JSUtils::get_Version(double* v)
+{
+	TRACK_FUNCTION();
+
+	*v = 1200;
+	return S_OK;
+}
+
 StyleTextRender::StyleTextRender(bool pngmode) : m_pOutLineText(NULL), m_pngmode(pngmode)
 {
 	if (!pngmode)
