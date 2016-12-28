@@ -77,7 +77,7 @@ static void fb2kWaitForThreadCompletion2(HANDLE hWaitFor, HANDLE hThread, DWORD 
 
 
 static void __cdecl _OverrideCrtAbort_handler(int signal) {
-	const ULONG_PTR args[] = {signal};
+	const ULONG_PTR args[] = { (ULONG)signal };
 	RaiseException(0x6F8E1DC8 /* random GUID */, EXCEPTION_NONCONTINUABLE, _countof(args), args);
 }
 
