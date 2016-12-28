@@ -890,12 +890,7 @@ interface IFbWindow {
 
 		window.RepaintRect(x, y, w, h[, force]); (void)
 		/*
-		x, y, w, h must be an integer, 0 or above. 
 		force: boolean, default false
-
-		if you cannot be sure of calculated x, y values, do
-		something like this...
-		window.RepaintRect(Math.max(0, x), Math.max(0, y), w, h);
 
 		use this instead of window.Repaint on frequently updated areas
 		such as time, bitrate, seekbar, etc. this should reduce CPU usage.
