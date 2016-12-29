@@ -42,7 +42,6 @@
 //
 // [Tips]
 // * Hold SHIFT key + right click on a toolbar to display Configure script and panel Properties entries
-// * Use Jscript9 engine (if supported by your system) for better performances (known issue: high %cpu on mouse move with older Windows 8.0 versions, in this case prefer Jscript engine)
 // * Change colors and fonts in foobar2000 Preferences > DefaultUI or ColumsUI
 // * Some minor settings can be changed in window Properties (right click on a playlist item > Settings...), use it carefully! main settings are now built in the panel with a graphic interface
 // * Left click on a column header to sort the playlist on this field

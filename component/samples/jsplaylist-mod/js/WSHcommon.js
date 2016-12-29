@@ -6,20 +6,20 @@
 SM_CXVSCROLL = 2;
 SM_CYHSCROLL = 3;
 
-DLGC_WANTARROWS            = 0x0001;     /* Control wants arrow keys         */
-DLGC_WANTTAB               = 0x0002;     /* Control wants tab keys           */
-DLGC_WANTALLKEYS           = 0x0004;     /* Control wants all keys           */
-DLGC_WANTMESSAGE           = 0x0004;     /* Pass message to control          */
-DLGC_HASSETSEL             = 0x0008;     /* Understands EM_SETSEL message    */
-DLGC_DEFPUSHBUTTON         = 0x0010;     /* Default pushbutton               */
-DLGC_UNDEFPUSHBUTTON       = 0x0020;     /* Non-default pushbutton           */
-DLGC_RADIOBUTTON           = 0x0040;     /* Radio button                     */
-DLGC_WANTCHARS             = 0x0080;     /* Want WM_CHAR messages            */
-DLGC_STATIC                = 0x0100;     /* Static item: don't include       */
-DLGC_BUTTON                = 0x2000;     /* Button item: can be checked      */
+DLGC_WANTARROWS = 0x0001; /* Control wants arrow keys         */
+DLGC_WANTTAB = 0x0002; /* Control wants tab keys           */
+DLGC_WANTALLKEYS = 0x0004; /* Control wants all keys           */
+DLGC_WANTMESSAGE = 0x0004; /* Pass message to control          */
+DLGC_HASSETSEL = 0x0008; /* Understands EM_SETSEL message    */
+DLGC_DEFPUSHBUTTON = 0x0010; /* Default pushbutton               */
+DLGC_UNDEFPUSHBUTTON = 0x0020; /* Non-default pushbutton           */
+DLGC_RADIOBUTTON = 0x0040; /* Radio button                     */
+DLGC_WANTCHARS = 0x0080; /* Want WM_CHAR messages            */
+DLGC_STATIC = 0x0100; /* Static item: don't include       */
+DLGC_BUTTON = 0x2000; /* Button item: can be checked      */
 
 // }}
-// Use with MenuManager() 
+// Use with MenuManager()
 // {{
 MF_STRING = 0x00000000;
 MF_SEPARATOR = 0x00000800;
@@ -53,7 +53,7 @@ IDC_APPSTARTING = 32650;
 IDC_HAND = 32649;
 IDC_HELP = 32651;
 // }}
-// Use with GdiDrawText() 
+// Use with GdiDrawText()
 // {{
 var DT_LEFT = 0x00000000;
 var DT_RIGHT = 0x00000002;
@@ -95,36 +95,36 @@ var VK_INSERT = 0x2D;
 var VK_DELETE = 0x2E;
 var VK_SPACEBAR = 0x20;
 var KMask = {
-    none: 0,
-    ctrl: 1,
-    shift: 2,
-    ctrlshift: 3,
-    ctrlalt: 4,
-    ctrlaltshift: 5,
-    alt: 6
+	none: 0,
+	ctrl: 1,
+	shift: 2,
+	ctrlshift: 3,
+	ctrlalt: 4,
+	ctrlaltshift: 5,
+	alt: 6
 };
 
 var vb = {};
 vb.Function = function (func) {
-    return function () {
-        return vb.Function.eval.call(this, func, arguments);
-    };
+	return function () {
+		return vb.Function.eval.call(this, func, arguments);
+	};
 };
 
 vb.Function.eval = function (func) {
-    var args = Array.prototype.slice.call(arguments[1]);
-    for (var i = 0;
-    i < args.length;
-    i++) {
-        if (typeof args[i] != 'string') {
-            continue;
-        };
-        args[i] = '"' + args[i].replace(/"/g, '" + Chr(34) + "') + '"';
-    };
-    var vbe;
-    vbe = new ActiveXObject('ScriptControl');
-    vbe.Language = 'VBScript';
-    return vbe.eval(func + '(' + args.join(', ') + ')');
+	var args = Array.prototype.slice.call(arguments[1]);
+	for (var i = 0;
+		i < args.length;
+		i++) {
+		if (typeof args[i] != 'string') {
+			continue;
+		};
+		args[i] = '"' + args[i].replace(/"/g, '" + Chr(34) + "') + '"';
+	};
+	var vbe;
+	vbe = new ActiveXObject('ScriptControl');
+	vbe.Language = 'VBScript';
+	return vbe.eval(func + '(' + args.join(', ') + ')');
 };
 
 var InputBox = vb.Function('InputBox');
@@ -154,76 +154,82 @@ vb.Yes = 6;
 vb.No = 7;
 
 function GetKeyboardMask() {
-    var c = utils.IsKeyPressed(VK_CONTROL) ? true : false;
-    var a = utils.IsKeyPressed(VK_ALT) ? true : false;
-    var s = utils.IsKeyPressed(VK_SHIFT) ? true : false;
-    var ret = KMask.none;
-    if (c && !a && !s) ret = KMask.ctrl;
-    if (!c && !a && s) ret = KMask.shift;
-    if (c && !a && s) ret = KMask.ctrlshift;
-    if (c && a && !s) ret = KMask.ctrlalt;
-    if (c && a && s) ret = KMask.ctrlaltshift;
-    if (!c && a && !s) ret = KMask.alt;
-    return ret;
+	var c = utils.IsKeyPressed(VK_CONTROL) ? true : false;
+	var a = utils.IsKeyPressed(VK_ALT) ? true : false;
+	var s = utils.IsKeyPressed(VK_SHIFT) ? true : false;
+	var ret = KMask.none;
+	if (c && !a && !s)
+		ret = KMask.ctrl;
+	if (!c && !a && s)
+		ret = KMask.shift;
+	if (c && !a && s)
+		ret = KMask.ctrlshift;
+	if (c && a && !s)
+		ret = KMask.ctrlalt;
+	if (c && a && s)
+		ret = KMask.ctrlaltshift;
+	if (!c && a && !s)
+		ret = KMask.alt;
+	return ret;
 };
 // }}
 // {{
 // Used in window.GetColorCUI()
 ColorTypeCUI = {
-    text: 0,
-    selection_text: 1,
-    inactive_selection_text: 2,
-    background: 3,
-    selection_background: 4,
-    inactive_selection_background: 5,
-    active_item_frame: 6
+	text: 0,
+	selection_text: 1,
+	inactive_selection_text: 2,
+	background: 3,
+	selection_background: 4,
+	inactive_selection_background: 5,
+	active_item_frame: 6
 };
 // Used in window.GetFontCUI()
 FontTypeCUI = {
-    items: 0,
-    labels: 1
+	items: 0,
+	labels: 1
 };
 // Used in window.GetColorDUI()
 ColorTypeDUI = {
-    text: 0,
-    background: 1,
-    highlight: 2,
-    selection: 3
+	text: 0,
+	background: 1,
+	highlight: 2,
+	selection: 3
 };
 // Used in window.GetFontDUI()
 FontTypeDUI = {
-    defaults: 0,
-    tabs: 1,
-    lists: 2,
-    playlists: 3,
-    statusbar: 4,
-    console: 5
+	defaults: 0,
+	tabs: 1,
+	lists: 2,
+	playlists: 3,
+	statusbar: 4,
+	console: 5
 };
 //}}
 // {{
 // Used in gr.DrawString()
 function StringFormat() {
-    var h_align = 0,
-    v_align = 0,
-    trimming = 0,
-    flags = 0;
-    switch (arguments.length) {
-        case 3:
-        trimming = arguments[2];
-        case 2:
-        v_align = arguments[1];
-        case 1:
-        h_align = arguments[0];
-        break;
-        default:
-        return 0;
-    };
-    return ((h_align << 28) | (v_align << 24) | (trimming << 20) | flags);
+	var h_align = 0,
+	v_align = 0,
+	trimming = 0,
+	flags = 0;
+	switch (arguments.length) {
+	case 3:
+		trimming = arguments[2];
+	case 2:
+		v_align = arguments[1];
+	case 1:
+		h_align = arguments[0];
+		break;
+	default:
+		return 0;
+	};
+	return ((h_align << 28) | (v_align << 24) | (trimming << 20) | flags);
 };
 StringAlignment = {
-    Near: 0,
-    Centre: 1,
-    Far: 2
+	Near: 0,
+	Centre: 1,
+	Far: 2
 };
 var lt_stringformat = StringFormat(StringAlignment.Near, StringAlignment.Near);
 var ct_stringformat = StringFormat(StringAlignment.Centre, StringAlignment.Near);
@@ -248,40 +254,40 @@ AlbumArtId = {
 // {{
 // Used everywhere!
 function RGB(r, g, b) {
-    return (0xff000000 | (r << 16) | (g << 8) | (b));
+	return (0xff000000 | (r << 16) | (g << 8) | (b));
 };
 function RGBA(r, g, b, a) {
-    return ((a << 24) | (r << 16) | (g << 8) | (b));
+	return ((a << 24) | (r << 16) | (g << 8) | (b));
 };
 function getAlpha(color) {
-    return ((color >> 24) & 0xff);
+	return ((color >> 24) & 0xff);
 };
 
 function getRed(color) {
-    return ((color >> 16) & 0xff);
+	return ((color >> 16) & 0xff);
 };
 
 function getGreen(color) {
-    return ((color >> 8) & 0xff);
+	return ((color >> 8) & 0xff);
 };
 
 function getBlue(color) {
-    return (color & 0xff);
+	return (color & 0xff);
 };
 
 function negative(colour) {
 	var R = getRed(colour);
-	var G = getGreen(colour);	
+	var G = getGreen(colour);
 	var B = getBlue(colour);
-	return RGB(Math.abs(R-255), Math.abs(G-255), Math.abs(B-255));
+	return RGB(Math.abs(R - 255), Math.abs(G - 255), Math.abs(B - 255));
 };
 
-function toRGB(d){ // convert back to RGB values
+function toRGB(d) { // convert back to RGB values
 	var d = d - 0xff000000;
 	var r = d >> 16;
 	var g = d >> 8 & 0xFF;
 	var b = d & 0xFF;
-	return [r,g,b];
+	return [r, g, b];
 };
 
 function blendColors(c1, c2, factor) {
@@ -295,467 +301,513 @@ function blendColors(c1, c2, factor) {
 };
 
 function draw_glass_reflect(w, h) {
-    // Mask for glass effect
-    var Mask_img = gdi.CreateImage(w, h);
-    var gb = Mask_img.GetGraphics();
-    gb.FillSolidRect(0,0,w,h,0xffffffff);
-    gb.FillGradRect(0,0,w-20,h,0,0xaa000000,0,1.0);
-    gb.SetSmoothingMode(2);
-    gb.FillEllipse(-20, 25, w*2+40, h*2, 0xffffffff);
-    Mask_img.ReleaseGraphics(gb);
-    // drawing the white rect
-    var glass_img = gdi.CreateImage(w, h);
-    gb = glass_img.GetGraphics();
-    gb.FillSolidRect(0, 0, w, h, 0xffffffff);
-    glass_img.ReleaseGraphics(gb);
-    // resizing and applying the mask
-    var Mask = Mask_img.Resize(w, h);
-    glass_img.ApplyMask(Mask);
-    Mask.Dispose();
-    return glass_img;
+	// Mask for glass effect
+	var Mask_img = gdi.CreateImage(w, h);
+	var gb = Mask_img.GetGraphics();
+	gb.FillSolidRect(0, 0, w, h, 0xffffffff);
+	gb.FillGradRect(0, 0, w - 20, h, 0, 0xaa000000, 0, 1.0);
+	gb.SetSmoothingMode(2);
+	gb.FillEllipse(-20, 25, w * 2 + 40, h * 2, 0xffffffff);
+	Mask_img.ReleaseGraphics(gb);
+	// drawing the white rect
+	var glass_img = gdi.CreateImage(w, h);
+	gb = glass_img.GetGraphics();
+	gb.FillSolidRect(0, 0, w, h, 0xffffffff);
+	glass_img.ReleaseGraphics(gb);
+	// resizing and applying the mask
+	var Mask = Mask_img.Resize(w, h);
+	glass_img.ApplyMask(Mask);
+	Mask.Dispose();
+	return glass_img;
 };
 
 function drawBlurbox(w, h, bgcolor, boxcolor, radius, iteration) {
-    // Create a image which background is true transparent
-    var g_blurbox = gdi.CreateImage(w+40, h+40);
-    // Get graphics interface like "gr" in on_paint
-    var gb = g_blurbox.GetGraphics();
-    gb.FillSolidRect(20, 20, w, h, boxcolor);
-    g_blurbox.ReleaseGraphics(gb);
-    // Make box blur, radius = 2, iteration = 2
-    g_blurbox.BoxBlur(radius, iteration);
-    var g_blurbox_main = gdi.CreateImage(w+40, h+40);
-    gb = g_blurbox_main.GetGraphics();
-    gb.FillSolidRect(0, 0, w+40, h+40, bgcolor);
-    gb.DrawImage(g_blurbox, 0, -10, w+40, h+40, 0, 0, w+40, h+40, 0, 255);
-    g_blurbox_main.ReleaseGraphics(gb);    
-    return g_blurbox_main;
+	// Create a image which background is true transparent
+	var g_blurbox = gdi.CreateImage(w + 40, h + 40);
+	// Get graphics interface like "gr" in on_paint
+	var gb = g_blurbox.GetGraphics();
+	gb.FillSolidRect(20, 20, w, h, boxcolor);
+	g_blurbox.ReleaseGraphics(gb);
+	// Make box blur, radius = 2, iteration = 2
+	g_blurbox.BoxBlur(radius, iteration);
+	var g_blurbox_main = gdi.CreateImage(w + 40, h + 40);
+	gb = g_blurbox_main.GetGraphics();
+	gb.FillSolidRect(0, 0, w + 40, h + 40, bgcolor);
+	gb.DrawImage(g_blurbox, 0, -10, w + 40, h + 40, 0, 0, w + 40, h + 40, 0, 255);
+	g_blurbox_main.ReleaseGraphics(gb);
+	return g_blurbox_main;
 };
 
 function num(strg, nb) {
-    var i;
-    var str = strg.toString();
-    var k = nb - str.length;
-    if (k > 0) {
-        for (i=0;i<k;i++) {
-            str = "0" + str;
-        };
-    };
-    return str.toString();
+	var i;
+	var str = strg.toString();
+	var k = nb - str.length;
+	if (k > 0) {
+		for (i = 0; i < k; i++) {
+			str = "0" + str;
+		};
+	};
+	return str.toString();
 };
 //Time formatting secondes -> 0:00
-function TimeFromSeconds(t){
-    var zpad = function(n){
-    var str = n.toString();
-        return (str.length<2) ? "0"+str : str;
-    };
-    var h = Math.floor(t/3600); t-=h*3600;
-    var m = Math.floor(t/60); t-=m*60;
-    var s = Math.floor(t);
-    if(h>0) return h.toString()+":"+zpad(m)+":"+zpad(s);
-    return m.toString()+":"+zpad(s);
+function TimeFromSeconds(t) {
+	var zpad = function (n) {
+		var str = n.toString();
+		return (str.length < 2) ? "0" + str : str;
+	};
+	var h = Math.floor(t / 3600);
+	t -= h * 3600;
+	var m = Math.floor(t / 60);
+	t -= m * 60;
+	var s = Math.floor(t);
+	if (h > 0)
+		return h.toString() + ":" + zpad(m) + ":" + zpad(s);
+	return m.toString() + ":" + zpad(s);
 };
 function TrackType(trkpath) {
-    var taggable;
-    var type;
-    switch (trkpath) {
-        case "file":
-        taggable = 1;
-        type = 0;
-        break;
-        case "cdda":
-        taggable = 1;
-        type = 1;
-        break;
-        case "FOO_":
-        taggable = 0;
-        type = 2;
-        break;
-        case "http":
-        taggable = 0;
-        type = 3;
-        break;
-        case "mms:":
-        taggable = 0;
-        type = 3;
-        break;
-        case "unpa":
-        taggable = 0;
-        type = 4;
-        break;
-        default:
-        taggable = 0;
-        type = 5;
-    };
-    return type;
+	var taggable;
+	var type;
+	switch (trkpath) {
+	case "file":
+		taggable = 1;
+		type = 0;
+		break;
+	case "cdda":
+		taggable = 1;
+		type = 1;
+		break;
+	case "FOO_":
+		taggable = 0;
+		type = 2;
+		break;
+	case "http":
+		taggable = 0;
+		type = 3;
+		break;
+	case "mms:":
+		taggable = 0;
+		type = 3;
+		break;
+	case "unpa":
+		taggable = 0;
+		type = 4;
+		break;
+	default:
+		taggable = 0;
+		type = 5;
+	};
+	return type;
 };
 function replaceAll(str, search, repl) {
-    while (str.indexOf(search) != -1) {
-        str = str.replace(search, repl);
-    };
-    return str;
+	while (str.indexOf(search) != -1) {
+		str = str.replace(search, repl);
+	};
+	return str;
 };
 function removeAccents(str) {
-    /*
-    var norm = new Array('À','Á','Â','Ã','Ä','Å','Æ','Ç','È','É','Ê','Ë',
-    'Ì','Í','Î','Ï', 'Ð','Ñ','Ò','Ó','Ô','Õ','Ö','Ø','Ù','Ú','Û','Ü','Ý',
-    'Þ','ß');
-    var spec = new Array('A','A','A','A','A','A','AE','C','E','E','E','E',
-    'I','I','I','I', 'D','N','O','O','O','O','O','O','U','U','U','U','Y',
-    'b','SS');
-    for (var i = 0; i < spec.length; i++) {
-        str = replaceAll(str, norm[i], spec[i]);
-    };
-    */
-    return str;
+	/*
+	var norm = new Array('À','Á','Â','Ã','Ä','Å','Æ','Ç','È','É','Ê','Ë',
+	'Ì','Í','Î','Ï', 'Ð','Ñ','Ò','Ó','Ô','Õ','Ö','Ø','Ù','Ú','Û','Ü','Ý',
+	'Þ','ß');
+	var spec = new Array('A','A','A','A','A','A','AE','C','E','E','E','E',
+	'I','I','I','I', 'D','N','O','O','O','O','O','O','U','U','U','U','Y',
+	'b','SS');
+	for (var i = 0; i < spec.length; i++) {
+	str = replaceAll(str, norm[i], spec[i]);
+	};
+	 */
+	return str;
 };
 //}}
 
 //=================================================// Button object
-ButtonStates = {normal: 0, hover: 1, down: 2};
+ButtonStates = {
+	normal: 0,
+	hover: 1,
+	down: 2
+};
 button = function (normal, hover, down) {
-    this.img = Array(normal, hover, down);
-    this.w = this.img[0].Width;
-    this.h = this.img[0].Height;
-    this.state = ButtonStates.normal;
-    this.update = function (normal, hover, down) {
-        this.img = Array(normal, hover, down);
-        this.w = this.img[0].Width;
-        this.h = this.img[0].Height;
-    };
-    this.draw = function (gr, x, y, alpha) {
-        this.x = x;
-        this.y = y;
-        this.img[this.state] && gr.DrawImage(this.img[this.state], this.x, this.y, this.w, this.h, 0, 0, this.w, this.h, 0, alpha);
-    };
-    this.repaint = function () {
-        window.RepaintRect(this.x, this.y, this.w, this.h);
-    };
-    this.checkstate = function (event, x, y) {
-        this.ishover = (x > this.x && x < this.x + this.w - 1 && y > this.y && y < this.y + this.h - 1);
-        this.old = this.state;
-        switch (event) {
-         case "down":
-            switch(this.state) {
-             case ButtonStates.normal:
-             case ButtonStates.hover:
-                this.state = this.ishover ? ButtonStates.down : ButtonStates.normal;
-                this.isdown = true;
-                break;
-            };
-            break;
-         case "up":
-            this.state = this.ishover ? ButtonStates.hover : ButtonStates.normal;
-            this.isdown = false;
-            break;
-         case "right":
+	this.img = Array(normal, hover, down);
+	this.w = this.img[0].Width;
+	this.h = this.img[0].Height;
+	this.state = ButtonStates.normal;
+	this.update = function (normal, hover, down) {
+		this.img = Array(normal, hover, down);
+		this.w = this.img[0].Width;
+		this.h = this.img[0].Height;
+	};
+	this.draw = function (gr, x, y, alpha) {
+		this.x = x;
+		this.y = y;
+		this.img[this.state] && gr.DrawImage(this.img[this.state], this.x, this.y, this.w, this.h, 0, 0, this.w, this.h, 0, alpha);
+	};
+	this.repaint = function () {
+		window.RepaintRect(this.x, this.y, this.w, this.h);
+	};
+	this.checkstate = function (event, x, y) {
+		this.ishover = (x > this.x && x < this.x + this.w - 1 && y > this.y && y < this.y + this.h - 1);
+		this.old = this.state;
+		switch (event) {
+		case "down":
+			switch (this.state) {
+			case ButtonStates.normal:
+			case ButtonStates.hover:
+				this.state = this.ishover ? ButtonStates.down : ButtonStates.normal;
+				this.isdown = true;
+				break;
+			};
+			break;
+		case "up":
+			this.state = this.ishover ? ButtonStates.hover : ButtonStates.normal;
+			this.isdown = false;
+			break;
+		case "right":
 
-             break;
-         case "move":
-            switch(this.state) {
-             case ButtonStates.normal:
-             case ButtonStates.hover:
-                this.state = this.ishover ? ButtonStates.hover : ButtonStates.normal;
-                break;
-            };
-            break;
-         case "leave":
-            this.state = this.isdown ? ButtonStates.down : ButtonStates.normal;
-            break;
-        };
-        if(this.state!=this.old) this.repaint();
-        return this.state;
-    };
+			break;
+		case "move":
+			switch (this.state) {
+			case ButtonStates.normal:
+			case ButtonStates.hover:
+				this.state = this.ishover ? ButtonStates.hover : ButtonStates.normal;
+				break;
+			};
+			break;
+		case "leave":
+			this.state = this.isdown ? ButtonStates.down : ButtonStates.normal;
+			break;
+		};
+		if (this.state != this.old)
+			this.repaint();
+		return this.state;
+	};
 };
 
 //=================================================// Tools (general)
 function decode_colour(opt_colour, resultype) {
-    var XYZ_colour = {
-        RGBcolour: 0,
-        H: 0,
-        S: 0,
-        L: 0
-    };
-    var R_read, G_read, B_read;
-    switch (resultype) {
-        case 1:
-            switch (opt_colour.length) {
-                case 23:
-                    XYZ_colour.H = Math.round(opt_colour.substring(0, 3));
-                    XYZ_colour.S = Math.round(opt_colour.substring(4, 7));
-                    XYZ_colour.L = Math.round(opt_colour.substring(8, 11));
-                    XYZ_colour.RGBcolour = HSL2RGB(XYZ_colour.H, XYZ_colour.S, XYZ_colour.L, "RGB");
-                    break;
-                default:
-                    XYZ_colour.H = 0;
-                    XYZ_colour.S = 0;
-                    XYZ_colour.L = 0;
-                    XYZ_colour.RGBcolour = RGB(0, 0, 0)
-            };
-            return XYZ_colour;
-            break;
-        default:
-            switch (opt_colour.length) {
-                case 23:
-                    R_read = Math.round(opt_colour.substring(12, 15));
-                    G_read = Math.round(opt_colour.substring(16, 19));
-                    B_read = Math.round(opt_colour.substring(20, 23));
-                    break;
-                default:
-                    R_read = 0;
-                    G_read = 0;
-                    B_read = 0
-            };
-            return RGB(R_read, G_read, B_read);
-    };
+	var XYZ_colour = {
+		RGBcolour: 0,
+		H: 0,
+		S: 0,
+		L: 0
+	};
+	var R_read,
+	G_read,
+	B_read;
+	switch (resultype) {
+	case 1:
+		switch (opt_colour.length) {
+		case 23:
+			XYZ_colour.H = Math.round(opt_colour.substring(0, 3));
+			XYZ_colour.S = Math.round(opt_colour.substring(4, 7));
+			XYZ_colour.L = Math.round(opt_colour.substring(8, 11));
+			XYZ_colour.RGBcolour = HSL2RGB(XYZ_colour.H, XYZ_colour.S, XYZ_colour.L, "RGB");
+			break;
+		default:
+			XYZ_colour.H = 0;
+			XYZ_colour.S = 0;
+			XYZ_colour.L = 0;
+			XYZ_colour.RGBcolour = RGB(0, 0, 0)
+		};
+		return XYZ_colour;
+		break;
+	default:
+		switch (opt_colour.length) {
+		case 23:
+			R_read = Math.round(opt_colour.substring(12, 15));
+			G_read = Math.round(opt_colour.substring(16, 19));
+			B_read = Math.round(opt_colour.substring(20, 23));
+			break;
+		default:
+			R_read = 0;
+			G_read = 0;
+			B_read = 0
+		};
+		return RGB(R_read, G_read, B_read);
+	};
 };
 
 function HSL2RGB(zH, zS, zL, result) {
-    var L = zL / 100;
-    var S = zS / 100;
-    var H = zH / 100;
-    var R, G, B, var_1, var_2;
-    if (S==0) {             //HSL from 0 to 1
-       R = L * 255;         //RGB results from 0 to 255
-       G = L * 255;
-       B = L * 255;
-    } else {
-       if (L<0.5) var_2 = L * (1 + S);
-       else var_2 = (L + S) - (S * L);
+	var L = zL / 100;
+	var S = zS / 100;
+	var H = zH / 100;
+	var R,
+	G,
+	B,
+	var_1,
+	var_2;
+	if (S == 0) { //HSL from 0 to 1
+		R = L * 255; //RGB results from 0 to 255
+		G = L * 255;
+		B = L * 255;
+	} else {
+		if (L < 0.5)
+			var_2 = L * (1 + S);
+		else
+			var_2 = (L + S) - (S * L);
 
-       var_1 = 2 * L - var_2;
+		var_1 = 2 * L - var_2;
 
-       R = 255 * Hue2RGB(var_1, var_2, H + ( 1 / 3 ));
-       G = 255 * Hue2RGB(var_1, var_2, H );
-       B = 255 * Hue2RGB(var_1, var_2, H - ( 1 / 3 ));
-    };
-    switch(result) {
-        case "R":
-            return Math.round(R);
-            break;
-        case "G":
-            return Math.round(G);
-            break;
-        case "B":
-            return Math.round(B);
-            break;
-        default:
-            return RGB(Math.round(R), Math.round(G), Math.round(B));
-    };
+		R = 255 * Hue2RGB(var_1, var_2, H + (1 / 3));
+		G = 255 * Hue2RGB(var_1, var_2, H);
+		B = 255 * Hue2RGB(var_1, var_2, H - (1 / 3));
+	};
+	switch (result) {
+	case "R":
+		return Math.round(R);
+		break;
+	case "G":
+		return Math.round(G);
+		break;
+	case "B":
+		return Math.round(B);
+		break;
+	default:
+		return RGB(Math.round(R), Math.round(G), Math.round(B));
+	};
 };
 
 function Hue2RGB(v1, v2, vH) {
-   if (vH < 0) vH += 1;
-   if (vH > 1) vH -= 1;
-   if ((6 * vH) < 1) return (v1 + ( v2 - v1 ) * 6 * vH);
-   if ((2 * vH) < 1) return (v2);
-   if ((3 * vH) < 2) return (v1 + ( v2 - v1 ) * ( ( 2 / 3 ) - vH ) * 6);
-   return (v1);
+	if (vH < 0)
+		vH += 1;
+	if (vH > 1)
+		vH -= 1;
+	if ((6 * vH) < 1)
+		return (v1 + (v2 - v1) * 6 * vH);
+	if ((2 * vH) < 1)
+		return (v2);
+	if ((3 * vH) < 2)
+		return (v1 + (v2 - v1) * ((2 / 3) - vH) * 6);
+	return (v1);
 };
 
 function RGB2HSL(RGB_colour) {
-    var R = (getRed(RGB_colour) / 255);
-    var G = (getGreen(RGB_colour) / 255);
-    var B = (getBlue(RGB_colour) / 255);
-    var HSL_colour = {RGB:0, H:0, S:0, L:0};
-    
-    var_Min = Math.min(R, G, B);    //Min. value of RGB
-    var_Max = Math.max(R, G, B);    //Max. value of RGB
-    del_Max = var_Max - var_Min;    //Delta RGB value
+	var R = (getRed(RGB_colour) / 255);
+	var G = (getGreen(RGB_colour) / 255);
+	var B = (getBlue(RGB_colour) / 255);
+	var HSL_colour = {
+		RGB: 0,
+		H: 0,
+		S: 0,
+		L: 0
+	};
 
-    L = ( var_Max + var_Min ) / 2;
+	var_Min = Math.min(R, G, B); //Min. value of RGB
+	var_Max = Math.max(R, G, B); //Max. value of RGB
+	del_Max = var_Max - var_Min; //Delta RGB value
 
-    if ( del_Max == 0 ) {           //This is a gray, no chroma...
-       H = 0;                       //HSL results from 0 to 1
-       S = 0;
-    } else {                          //Chromatic data...
-       if ( L < 0.5 ) S = del_Max / ( var_Max + var_Min );
-       else           S = del_Max / ( 2 - var_Max - var_Min );
+	L = (var_Max + var_Min) / 2;
 
-       del_R = ( ( ( var_Max - R ) / 6 ) + ( del_Max / 2 ) ) / del_Max;
-       del_G = ( ( ( var_Max - G ) / 6 ) + ( del_Max / 2 ) ) / del_Max;
-       del_B = ( ( ( var_Max - B ) / 6 ) + ( del_Max / 2 ) ) / del_Max;
+	if (del_Max == 0) { //This is a gray, no chroma...
+		H = 0; //HSL results from 0 to 1
+		S = 0;
+	} else { //Chromatic data...
+		if (L < 0.5)
+			S = del_Max / (var_Max + var_Min);
+		else
+			S = del_Max / (2 - var_Max - var_Min);
 
-       if      ( R == var_Max ) H = del_B - del_G;
-       else if ( G == var_Max ) H = ( 1 / 3 ) + del_R - del_B;
-       else if ( B == var_Max ) H = ( 2 / 3 ) + del_G - del_R;
+		del_R = (((var_Max - R) / 6) + (del_Max / 2)) / del_Max;
+		del_G = (((var_Max - G) / 6) + (del_Max / 2)) / del_Max;
+		del_B = (((var_Max - B) / 6) + (del_Max / 2)) / del_Max;
 
-       if ( H < 0 ) H += 1;
-       if ( H > 1 ) H -= 1;
-    };
-    HSL_colour.RGB = RGB_colour;
-    HSL_colour.H = Math.round(H * 100);
-    HSL_colour.S = Math.round(S * 100);
-    HSL_colour.L = Math.round(L * 100);
-    return HSL_colour;
+		if (R == var_Max)
+			H = del_B - del_G;
+		else if (G == var_Max)
+			H = (1 / 3) + del_R - del_B;
+		else if (B == var_Max)
+			H = (2 / 3) + del_G - del_R;
+
+		if (H < 0)
+			H += 1;
+		if (H > 1)
+			H -= 1;
+	};
+	HSL_colour.RGB = RGB_colour;
+	HSL_colour.H = Math.round(H * 100);
+	HSL_colour.S = Math.round(S * 100);
+	HSL_colour.L = Math.round(L * 100);
+	return HSL_colour;
 };
 
 function DrawColoredText(gr, text, font, default_color, x, y, w, h, alignment, force_default_color) {
-    var txt = "", color = default_color, lg = 0, i = 1, z = 0, tmp = "";
-    var pos = text.indexOf(String.fromCharCode(3));
-    if(pos < 0) { // no specific color
-        gr.GdiDrawText(text, font, default_color, x, y, w, h, alignment | DT_CALCRECT | DT_VCENTER | DT_END_ELLIPSIS | DT_NOPREFIX);
-    } else {
-        var tab = text.split(String.fromCharCode(3));
-        var fin = tab.length;
+	var txt = "",
+	color = default_color,
+	lg = 0,
+	i = 1,
+	z = 0,
+	tmp = "";
+	var pos = text.indexOf(String.fromCharCode(3));
+	if (pos < 0) { // no specific color
+		gr.GdiDrawText(text, font, default_color, x, y, w, h, alignment | DT_CALCRECT | DT_VCENTER | DT_END_ELLIPSIS | DT_NOPREFIX);
+	} else {
+		var tab = text.split(String.fromCharCode(3));
+		var fin = tab.length;
 
-        switch(alignment) {
-            case DT_CENTER:
-                var full_lg = gr.CalcTextWidth(tab[0], font);
-                for(var m = i; m < fin; m+=2){
-                    full_lg += gr.CalcTextWidth(tab[m+1], font);
-                };
-                if(full_lg > w) full_lg = w;
-                var delta_align = ((w - full_lg) / 2);
-                break;
-            case DT_RIGHT:
-                var full_lg = gr.CalcTextWidth(tab[0], font);
-                for(var m = i; m < fin; m+=2){
-                    full_lg += gr.CalcTextWidth(tab[m+1], font);
-                };
-                if(full_lg > w) full_lg = w;
-                var delta_align = (w - full_lg);
-                break;
-            default:
-                var delta_align = 0;
-        };
+		switch (alignment) {
+		case DT_CENTER:
+			var full_lg = gr.CalcTextWidth(tab[0], font);
+			for (var m = i; m < fin; m += 2) {
+				full_lg += gr.CalcTextWidth(tab[m + 1], font);
+			};
+			if (full_lg > w)
+				full_lg = w;
+			var delta_align = ((w - full_lg) / 2);
+			break;
+		case DT_RIGHT:
+			var full_lg = gr.CalcTextWidth(tab[0], font);
+			for (var m = i; m < fin; m += 2) {
+				full_lg += gr.CalcTextWidth(tab[m + 1], font);
+			};
+			if (full_lg > w)
+				full_lg = w;
+			var delta_align = (w - full_lg);
+			break;
+		default:
+			var delta_align = 0;
+		};
 
-        // if first part is default color
-        if(pos > 0) { 
-            txt = tab[0];
-            lg = gr.CalcTextWidth(txt, font);
-            gr.GdiDrawText(txt, font, color, x + delta_align + z, y, w-z, h, DT_LEFT | DT_CALCRECT | DT_VCENTER | DT_END_ELLIPSIS | DT_NOPREFIX);
-            z += lg;
-        };
+		// if first part is default color
+		if (pos > 0) {
+			txt = tab[0];
+			lg = gr.CalcTextWidth(txt, font);
+			gr.GdiDrawText(txt, font, color, x + delta_align + z, y, w - z, h, DT_LEFT | DT_CALCRECT | DT_VCENTER | DT_END_ELLIPSIS | DT_NOPREFIX);
+			z += lg;
+		};
 
-        // draw all other colored parts
-        while(i < fin && z < w) {
-            if(!force_default_color) {
-                tmp = tab[i];
-                color = eval("0xFF"+tmp.substr(4,2)+tmp.substr(2,2)+tmp.substr(0,2));
-            };
-            //color = RGB(parseInt(tmp.substr(0,2),16), parseInt(tmp.substr(2,2),16), parseInt(tmp.substr(4,2),16));
-            txt = tab[i+1];
-            lg = gr.CalcTextWidth(txt, font);
-            gr.GdiDrawText(txt, font, color, x + delta_align + z, y, w-z, h, DT_LEFT | DT_CALCRECT | DT_VCENTER | DT_END_ELLIPSIS | DT_NOPREFIX);
-            z += lg;
-            i += 2;
-        };
-    };
+		// draw all other colored parts
+		while (i < fin && z < w) {
+			if (!force_default_color) {
+				tmp = tab[i];
+				color = eval("0xFF" + tmp.substr(4, 2) + tmp.substr(2, 2) + tmp.substr(0, 2));
+			};
+			//color = RGB(parseInt(tmp.substr(0,2),16), parseInt(tmp.substr(2,2),16), parseInt(tmp.substr(4,2),16));
+			txt = tab[i + 1];
+			lg = gr.CalcTextWidth(txt, font);
+			gr.GdiDrawText(txt, font, color, x + delta_align + z, y, w - z, h, DT_LEFT | DT_CALCRECT | DT_VCENTER | DT_END_ELLIPSIS | DT_NOPREFIX);
+			z += lg;
+			i += 2;
+		};
+	};
 };
 
-function DrawPolyStar(gr, x, y, out_radius, in_radius, points, line_thickness, line_color, fill_color, angle, opacity){
-    // ---------------------
-    // code by ExtremeHunter
-    // ---------------------
+function DrawPolyStar(gr, x, y, out_radius, in_radius, points, line_thickness, line_color, fill_color, angle, opacity) {
+	// ---------------------
+	// code by ExtremeHunter
+	// ---------------------
 
-    if(!opacity && opacity != 0) opacity = 255;
+	if (!opacity && opacity != 0)
+		opacity = 255;
 
-    //---> Create points
-    var point_arr = [];
-    for (var i = 0; i != points; i++) {
-        i % 2 ? r = Math.round((out_radius-line_thickness*4)/2) / in_radius : r = Math.round((out_radius-line_thickness*4)/2);
-        var x_point = Math.floor(r * Math.cos(Math.PI * i / points * 2 - Math.PI / 2));
-        var y_point = Math.ceil(r * Math.sin(Math.PI * i / points * 2 - Math.PI / 2));
-        point_arr.push(x_point + out_radius/2);
-        point_arr.push(y_point + out_radius/2);
-    };
+	//---> Create points
+	var point_arr = [];
+	for (var i = 0; i != points; i++) {
+		i % 2 ? r = Math.round((out_radius - line_thickness * 4) / 2) / in_radius : r = Math.round((out_radius - line_thickness * 4) / 2);
+		var x_point = Math.floor(r * Math.cos(Math.PI * i / points * 2 - Math.PI / 2));
+		var y_point = Math.ceil(r * Math.sin(Math.PI * i / points * 2 - Math.PI / 2));
+		point_arr.push(x_point + out_radius / 2);
+		point_arr.push(y_point + out_radius / 2);
+	};
 
-    //---> Crate poligon image
-    var img = gdi.CreateImage(out_radius, out_radius);
-    var _gr = img.GetGraphics();
-    _gr.SetSmoothingMode(2);
-    _gr.FillPolygon(fill_color, 1, point_arr);
-    if(line_thickness > 0)
-    _gr.DrawPolygon(line_color, line_thickness, point_arr);
-    img.ReleaseGraphics(_gr);
+	//---> Crate poligon image
+	var img = gdi.CreateImage(out_radius, out_radius);
+	var _gr = img.GetGraphics();
+	_gr.SetSmoothingMode(2);
+	_gr.FillPolygon(fill_color, 1, point_arr);
+	if (line_thickness > 0)
+		_gr.DrawPolygon(line_color, line_thickness, point_arr);
+	img.ReleaseGraphics(_gr);
 
-    //---> Draw image
-    gr.DrawImage(img, x, y, out_radius, out_radius, 0, 0, out_radius, out_radius, angle, opacity);
+	//---> Draw image
+	gr.DrawImage(img, x, y, out_radius, out_radius, 0, 0, out_radius, out_radius, angle, opacity);
 };
 
 function zoom(value, factor) {
-    return Math.ceil(value * factor / 100);
+	return Math.ceil(value * factor / 100);
 };
 
 function Syscolor(color_n) {
-    var Shell = new ActiveXObject("WScript.Shell");
-    var tempc;
-    tempc = Shell.RegRead("HKEY_CURRENT_USER\\Control Panel\\Colors\\" + color_n).split(" ");
-    return (0xff000000|(tempc[0]<<16)|(tempc[1]<<8)|(tempc[2]));
+	var Shell = new ActiveXObject("WScript.Shell");
+	var tempc;
+	tempc = Shell.RegRead("HKEY_CURRENT_USER\\Control Panel\\Colors\\" + color_n).split(" ");
+	return (0xff000000 | (tempc[0] << 16) | (tempc[1] << 8) | (tempc[2]));
 };
 
 function get_system_dpi_percent() {
-    // get windows version
-    var wbemFlagReturnImmediately = 0x10;
-    var wbemFlagForwardOnly = 0x20;
-    var objWMIService = GetObject("winmgmts:\\\\.\\root\\CIMV2");
-    var colItems = objWMIService.ExecQuery("SELECT * FROM Win32_OperatingSystem", "WQL",
-                                          wbemFlagReturnImmediately | wbemFlagForwardOnly);
-    var enumItems = new Enumerator(colItems);
-    var objItem = enumItems.item();
-    var version_number = 0;
-    if(objItem.Caption.toUpperCase().indexOf("XP")!=-1) version_number = 5;
-    if(objItem.Caption.toUpperCase().indexOf("VISTA")!=-1) version_number = 6;
-    if(objItem.Caption.toUpperCase().indexOf("7")!=-1) version_number = 7;
-    if(objItem.Caption.toUpperCase().indexOf("8")!=-1) version_number = 8;
+	// get windows version
+	var wbemFlagReturnImmediately = 0x10;
+	var wbemFlagForwardOnly = 0x20;
+	var objWMIService = GetObject("winmgmts:\\\\.\\root\\CIMV2");
+	var colItems = objWMIService.ExecQuery("SELECT * FROM Win32_OperatingSystem", "WQL",
+			wbemFlagReturnImmediately | wbemFlagForwardOnly);
+	var enumItems = new Enumerator(colItems);
+	var objItem = enumItems.item();
+	var version_number = 0;
+	if (objItem.Caption.toUpperCase().indexOf("XP") != -1)
+		version_number = 5;
+	if (objItem.Caption.toUpperCase().indexOf("VISTA") != -1)
+		version_number = 6;
+	if (objItem.Caption.toUpperCase().indexOf("7") != -1)
+		version_number = 7;
+	if (objItem.Caption.toUpperCase().indexOf("8") != -1)
+		version_number = 8;
 
-    if(version_number==8) {
-        var Shell = new ActiveXObject("WScript.Shell");
-        var tmp;
-        tmp = Shell.RegRead("HKEY_CURRENT_USER\\Control Panel\\Desktop\\Win8DpiScaling");
-        if(tmp==1) {
-            tmp = Shell.RegRead("HKEY_CURRENT_USER\\Control Panel\\Desktop\\WindowMetrics\\AppliedDPI");
-        } else {
-            //tmp = 100;
-            tmp = Shell.RegRead("HKEY_CURRENT_USER\\Control Panel\\Desktop\\WindowMetrics\\AppliedDPI");
-            if(tmp < 100) tmp = 100;
-        };
-    } else {
-        tmp = 100;
-    };
-    //tmp = Math.ceil(tmp/10)*10;
-    return tmp;
+	if (version_number == 8) {
+		var Shell = new ActiveXObject("WScript.Shell");
+		var tmp;
+		tmp = Shell.RegRead("HKEY_CURRENT_USER\\Control Panel\\Desktop\\Win8DpiScaling");
+		if (tmp == 1) {
+			tmp = Shell.RegRead("HKEY_CURRENT_USER\\Control Panel\\Desktop\\WindowMetrics\\AppliedDPI");
+		} else {
+			//tmp = 100;
+			tmp = Shell.RegRead("HKEY_CURRENT_USER\\Control Panel\\Desktop\\WindowMetrics\\AppliedDPI");
+			if (tmp < 100)
+				tmp = 100;
+		};
+	} else {
+		tmp = 100;
+	};
+	//tmp = Math.ceil(tmp/10)*10;
+	return tmp;
 };
 
 function get_system_scrollbar_width() {
-    var tmp = utils.GetSystemMetrics(SM_CXVSCROLL);
-    return tmp;
+	var tmp = utils.GetSystemMetrics(SM_CXVSCROLL);
+	return tmp;
 };
 
 function get_system_scrollbar_height() {
-    var tmp = utils.GetSystemMetrics(SM_CYHSCROLL);
-    return tmp;
+	var tmp = utils.GetSystemMetrics(SM_CYHSCROLL);
+	return tmp;
 };
 
-String.prototype.repeat = function(num) {
-    if(num>=0 && num<=5) {
-        var g = Math.round(num);
-    } else {
-        return "";
-    };
-    return new Array(g+1).join(this);
+String.prototype.repeat = function (num) {
+	if (num >= 0 && num <= 5) {
+		var g = Math.round(num);
+	} else {
+		return "";
+	};
+	return new Array(g + 1).join(this);
 };
 
 function cloneObject(obj) {
-    var clone = {};
-    for(var i in obj) {
-        if(typeof(obj[i])=="object" && obj[i] != null)
-            clone[i] = cloneObject(obj[i]);
-        else
-            clone[i] = obj[i];
-    };
-    return clone;
+	var clone = {};
+	for (var i in obj) {
+		if (typeof(obj[i]) == "object" && obj[i] != null)
+			clone[i] = cloneObject(obj[i]);
+		else
+			clone[i] = obj[i];
+	};
+	return clone;
 };
 
-function compareObject(o1, o2){
-	for(var p in o1){
-		if(o1[p] != o2[p]) {
+function compareObject(o1, o2) {
+	for (var p in o1) {
+		if (o1[p] != o2[p]) {
 			return false;
 		};
 	};
-	for(var p in o2){
-		if(o1[p] != o2[p]) {
+	for (var p in o2) {
+		if (o1[p] != o2[p]) {
 			return false;
 		};
 	};
@@ -763,60 +815,68 @@ function compareObject(o1, o2){
 };
 
 function getTimestamp() {
-    var d, s1, s2, s3, hh, min, sec, timestamp;
-    d = new Date();
-    s1 = d.getFullYear();
-    s2 = (d.getMonth() + 1);
-    s3 = d.getDate();
-    hh = d.getHours();
-    min = d.getMinutes();
-    sec = d.getSeconds();
-    if(s3.length == 1) s3 = "0" + s3;
-    timestamp = s1 + ((s2 < 10) ? "-0" : "-") + s2 + ((s3 < 10) ? "-0" : "-" ) + s3 + ((hh < 10) ? " 0" : " ") + hh + ((min < 10) ? ":0" : ":") + min + ((sec < 10) ? ":0" : ":") + sec;
-    return timestamp;
+	var d,
+	s1,
+	s2,
+	s3,
+	hh,
+	min,
+	sec,
+	timestamp;
+	d = new Date();
+	s1 = d.getFullYear();
+	s2 = (d.getMonth() + 1);
+	s3 = d.getDate();
+	hh = d.getHours();
+	min = d.getMinutes();
+	sec = d.getSeconds();
+	if (s3.length == 1)
+		s3 = "0" + s3;
+	timestamp = s1 + ((s2 < 10) ? "-0" : "-") + s2 + ((s3 < 10) ? "-0" : "-") + s3 + ((hh < 10) ? " 0" : " ") + hh + ((min < 10) ? ":0" : ":") + min + ((sec < 10) ? ":0" : ":") + sec;
+	return timestamp;
 };
 
 function RefreshBG() {
-    if(fb.IsPlaying||fb.IsPaused) {
-        fb.RunMainMenuCommand("Playback/Play or Pause");
-        fb.RunMainMenuCommand("Playback/Play or Pause");
-    } else {
-        fb.RunMainMenuCommand("Playback/Play");
-        fb.RunMainMenuCommand("Playback/Stop");
-    };
+	if (fb.IsPlaying || fb.IsPaused) {
+		fb.RunMainMenuCommand("Playback/Play or Pause");
+		fb.RunMainMenuCommand("Playback/Play or Pause");
+	} else {
+		fb.RunMainMenuCommand("Playback/Play");
+		fb.RunMainMenuCommand("Playback/Stop");
+	};
 };
 
 // --- UIHacks
 
 MainMenuState = {
-    Show: 0,
-    Hide: 1,
-    Auto: 2
+	Show: 0,
+	Hide: 1,
+	Auto: 2
 };
 
 FrameStyle = {
-    Default: 0,
-    SmallCaption: 1,
-    NoCaption: 2,
-    NoBorder: 3
+	Default: 0,
+	SmallCaption: 1,
+	NoCaption: 2,
+	NoBorder: 3
 };
 
 MoveStyle = {
-    Default: 0,
-    Middle: 1,
-    Left: 2,
-    Both: 3
+	Default: 0,
+	Middle: 1,
+	Left: 2,
+	Both: 3
 };
 
 AeroEffect = {
-    Default: 0,
-    Disabled: 1,
-    GlassFrame: 2,
-    SheetOfGlass: 3
+	Default: 0,
+	Disabled: 1,
+	GlassFrame: 2,
+	SheetOfGlass: 3
 };
 
 WindowState = {
-    Normal: 0,
-    Minimized: 1,
-    Maximized: 2
+	Normal: 0,
+	Minimized: 1,
+	Maximized: 2
 };
