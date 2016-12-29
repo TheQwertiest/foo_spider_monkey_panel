@@ -11,7 +11,7 @@ oGroup = function(index, start, count, total_time_length, focusedTrackId, iscoll
 
     if(count < cGroup.count_minimum) {
         this.rowsToAdd = cGroup.count_minimum - count;
-    }; else {
+    } else {
         this.rowsToAdd = 0;
     };
     // Add extra rows to the total rows of the group
@@ -22,12 +22,12 @@ oGroup = function(index, start, count, total_time_length, focusedTrackId, iscoll
             this.collapsed = false;
             // save in globals the current group id of the focused track (used for autocollapse option)
             g_group_id_focused = this.index;
-        }; else {
+        } else {
             this.collapsed = true;
         };
-    }; else if(iscollapsed) {
+    } else if(iscollapsed) {
         this.collapsed = true;
-    }; else {
+    } else {
         this.collapsed = false;
     };
     
@@ -118,7 +118,7 @@ oItem = function (playlist, row_index, type, handle, track_index, group_index, t
                 case "State":
                     if(p.headerBar.columns[j].tf == "null") {
                         var columnColor = this.text_colour;
-                    }; else {
+                    } else {
                         if (typeof (this.state_color) == "undefined" && p.headerBar.columns[j].tf != "null") {
                             this.state_tf = fb.TitleFormat(p.headerBar.columns[j].tf).EvalWithMetadb(this.metadb);
                             var stateArray = this.parseTF(this.state_tf, this.text_colour);
@@ -145,56 +145,56 @@ oItem = function (playlist, row_index, type, handle, track_index, group_index, t
                             if (this.track_index == p.list.nowplaying.PlaylistItemIndex) {
                                 if (fb.isPaused) {
                                     gr.DrawString(String.fromCharCode(127).repeat(2), g_font_pauseicon, columnColor, icon_x, this.y, icon_w, cTrack.height + cTrack.parity, cc_stringformat);
-                                }; else {
+                                } else {
                                     gr.SetTextRenderingHint(4);
                                     if (g_seconds / 2 == Math.floor(g_seconds / 2)) {
                                         gr.DrawString(String.fromCharCode(117), g_font_playicon, columnColor, icon_x, this.y, icon_w, cTrack.height + cTrack.parity, cc_stringformat);
-                                    }; else {
+                                    } else {
                                         gr.DrawString(String.fromCharCode(119), g_font_playicon, columnColor, icon_x, this.y, icon_w, cTrack.height + cTrack.parity, cc_stringformat);
                                     };
                                 };
-                            }; else {
+                            } else {
                                 gr.SetTextRenderingHint(5);
                                 if (plman.IsPlaylistItemSelected(p.list.playlist, this.track_index)) { // if selected
                                     if(this.queue_idx > 0) {
                                         gr.DrawRect(icon_x-1, this.y + g_z8-1, queue_w + g_z6+1, cTrack.height - g_z16+1, 1.0, columnColor & 0x77ffffff);
                                         gr.DrawString(num(this.queue_idx,2), g_font_queue_idx, columnColor, icon_x + g_z3, this.y, queue_w, cTrack.height + cTrack.parity, lc_stringformat);
-                                    }; else {
+                                    } else {
                                         gr.DrawString(String.fromCharCode(80), g_font_checkbox, columnColor, icon_x + g_z3, this.y + g_z3, queue_w+g_z2, cTrack.height + cTrack.parity, lc_stringformat);
                                     };
-                                }; else { // if not selected
+                                } else { // if not selected
                                     gr.FillSolidRect(icon_x-1, this.y + g_z8-1, queue_w + g_z6+2, cTrack.height - g_z16+2, g_color_normal_txt & 0x08ffffff);
                                     if(this.queue_idx > 0) {
                                         gr.DrawString(num(this.queue_idx,2), g_font_queue_idx, columnColor & 0xbbffffff, icon_x + g_z3, this.y, queue_w, cTrack.height + cTrack.parity, lc_stringformat);
                                     };
                                 };
                             };
-                        }; else {
+                        } else {
                             gr.SetTextRenderingHint(5);
                             if (plman.IsPlaylistItemSelected(p.list.playlist, this.track_index)) { // if selected
                                 if(this.queue_idx > 0) {
                                     gr.DrawRect(icon_x-1, this.y + g_z8-1, queue_w + g_z6+1, cTrack.height - g_z16+1, 1.0, columnColor & 0x77ffffff);
                                     gr.DrawString(num(this.queue_idx,2), g_font_queue_idx, columnColor, icon_x + g_z3, this.y, queue_w, cTrack.height + cTrack.parity, lc_stringformat);
-                                }; else {
+                                } else {
                                     gr.DrawString(String.fromCharCode(80), g_font_checkbox, columnColor, icon_x + g_z3, this.y + g_z3, queue_w+g_z2, cTrack.height + cTrack.parity, lc_stringformat);
                                 };
-                            }; else { // if not selected
+                            } else { // if not selected
                                 gr.FillSolidRect(icon_x-1, this.y + g_z8-1, queue_w + g_z6+2, cTrack.height - g_z16+2, g_color_normal_txt & 0x08ffffff);
                                 if(this.queue_idx > 0) {
                                     gr.DrawString(num(this.queue_idx,2), g_font_queue_idx, g_color_highlight & 0xbbffffff, icon_x + g_z3, this.y, queue_w, cTrack.height + cTrack.parity, lc_stringformat);
                                 };
                             };
                         };
-                    }; else {
+                    } else {
                         gr.SetTextRenderingHint(5);
                         if (plman.IsPlaylistItemSelected(p.list.playlist, this.track_index)) { // if selected
                             if(this.queue_idx > 0) {
                                 gr.DrawRect(icon_x-1, this.y + g_z8-1, queue_w + g_z6+1, cTrack.height - g_z16+1, 1.0, columnColor & 0x77ffffff);
                                 gr.DrawString(num(this.queue_idx,2), g_font_queue_idx, columnColor, icon_x + g_z3, this.y, queue_w, cTrack.height + cTrack.parity, lc_stringformat);
-                            }; else {
+                            } else {
                                 gr.DrawString(String.fromCharCode(80), g_font_checkbox, columnColor, icon_x + g_z3, this.y + g_z3, queue_w+g_z2, cTrack.height + cTrack.parity, lc_stringformat);
                             };
-                        }; else { // if not selected
+                        } else { // if not selected
                             gr.FillSolidRect(icon_x-1, this.y + g_z8-1, queue_w + g_z6+2, cTrack.height - g_z16+2, g_color_normal_txt & 0x08ffffff);
                             if(this.queue_idx > 0) {
                                 gr.DrawString(num(this.queue_idx,2), g_font_queue_idx, g_color_highlight & 0xbbffffff, icon_x + g_z3, this.y, queue_w, cTrack.height + cTrack.parity, lc_stringformat);
@@ -213,7 +213,7 @@ oItem = function (playlist, row_index, type, handle, track_index, group_index, t
                     // column width
                     if (g_font_guifx_found) {
                         columns.mood_w = gr.CalcTextWidth("v", g_font_mood) + 3;
-                    }; else {
+                    } else {
                         columns.mood_w = gr.CalcTextWidth(String.fromCharCode(252), g_font_mood) + 3;
                     };
                     // for minimum width for this column
@@ -232,13 +232,13 @@ oItem = function (playlist, row_index, type, handle, track_index, group_index, t
                     };
                     if (this.tracktype < 2) {
                         var m_color = (this.mood != 0 ? this.mood_color : this.text_colour_default & 0x16ffffff);
-                    }; else {
+                    } else {
                         var m_color = this.text_colour_default & 0x16ffffff;
                     };
                     if (g_font_guifx_found) {
                         gr.SetTextRenderingHint(4);
                         gr.DrawString("v", g_font_mood, m_color, columns.mood_x, this.y+1, columns.mood_w, cTrack.height + cTrack.parity-1, lc_stringformat);
-                    }; else {
+                    } else {
                         gr.SetTextRenderingHint(4);
                         gr.DrawString(String.fromCharCode(60), g_font_mood, m_color, columns.mood_x, this.y+3, columns.mood_w, cTrack.height + cTrack.parity-1, lc_stringformat);
                     };
@@ -255,7 +255,7 @@ oItem = function (playlist, row_index, type, handle, track_index, group_index, t
                     // column width
                     if (g_font_guifx_found) {
                         columns.rating_w = gr.CalcTextWidth("bbbbb", g_font_rating);
-                    }; else {
+                    } else {
                         columns.rating_w = gr.CalcTextWidth(String.fromCharCode(234).repeat(5), g_font_rating);
                     };
                     // for minimum width for this column
@@ -286,7 +286,7 @@ oItem = function (playlist, row_index, type, handle, track_index, group_index, t
                             var drawn_star_w = gr.CalcTextWidth("b".repeat(total_stars_drawable), g_font_rating) - 1;
                             gr.gdiDrawText("...", g_font, this.text_colour_default, columns.rating_x - 6 + drawn_star_w, this.y - 1, columns.rating_w + 1, cTrack.height + cTrack.parity, g_LDT);
                         };
-                    }; else {
+                    } else {
                         gr.SetTextRenderingHint(3);
                         gr.DrawString(String.fromCharCode(234).repeat(total_stars_drawable), g_font_rating, this.text_colour_default & 0x20ffffff, columns.rating_x - 3, this.y + 3, cw + 1, cTrack.height + cTrack.parity, lc_stringformat);
                         gr.DrawString(String.fromCharCode(234).repeat(Math.round(this.rating > total_stars_drawable ? total_stars_drawable : this.rating)), g_font_rating, RGBA(0,0,0,40), columns.rating_x - 3, this.y + 3, cw + 1, cTrack.height + cTrack.parity, lc_stringformat);
@@ -311,13 +311,13 @@ oItem = function (playlist, row_index, type, handle, track_index, group_index, t
                         if(fb.IsPlaying && plman.PlayingPlaylist == this.playlist && this.track_index == p.list.nowplaying.PlaylistItemIndex) {
                             tf_prep = replaceAll(tf_prep, "%isplaying%", "$greater(1,0)");
                             eval_play = true;
-                        }; else {
+                        } else {
                             tf_prep = replaceAll(tf_prep, "%isplaying%", "$greater(0,1)");
                         };
                         // Evaluate TF field after parsing
                         if(eval_play) {
                             tf1 = fb.TitleFormat(tf_prep).Eval(true);
-                        }; else {
+                        } else {
                             tf1 = fb.TitleFormat(tf_prep).EvalWithMetadb(this.metadb);
                         };
                     };
@@ -340,24 +340,24 @@ oItem = function (playlist, row_index, type, handle, track_index, group_index, t
                                 if(fb.IsPlaying && plman.PlayingPlaylist == this.playlist && this.track_index == p.list.nowplaying.PlaylistItemIndex) {
                                     tf_prep = replaceAll(tf_prep, "%isplaying%", "$greater(1,0)");
                                     eval_play = true;
-                                }; else {
+                                } else {
                                     tf_prep = replaceAll(tf_prep, "%isplaying%", "$greater(0,1)");
                                 };
                                 // Evaluate TF field after parsing
                                 if(eval_play) {
                                     tf2 = fb.TitleFormat(tf_prep).Eval(true);
-                                }; else {
+                                } else {
                                     tf2 = fb.TitleFormat(tf_prep).EvalWithMetadb(this.metadb);
                                 };
-                            }; else {
+                            } else {
                                 tf2 = "";
                             };
                             DrawColoredText(gr, tf2, gdi.Font(g_fname, g_fsize - 1, g_fstyle), blendColors(this.text_colour, RGB(0,0,0), 0.25), cx, tf2_y, cw, tf2_h, p.headerBar.columns[j].DT_align, !this.normalTextColor);
                             //gr.GdiDrawText(tf2, gdi.Font(g_fname, g_fsize - 1, g_fstyle), blendColors(this.text_colour, RGB(0,0,0), 0.25), cx, tf2_y, cw, tf2_h, p.headerBar.columns[j].DT_align | DT_CALCRECT | DT_TOP | DT_END_ELLIPSIS | DT_NOPREFIX);
                         };
-                    //}; catch (e) {};
+                    //} catch (e) {};
                 };
-            }; else {
+            } else {
                 switch (p.headerBar.columns[j].ref) {
                 case "Mood":
                     columns.mood = false;
@@ -383,7 +383,7 @@ oItem = function (playlist, row_index, type, handle, track_index, group_index, t
             if (cover.column) {
                 cover.w = p.headerBar.columns[0].w;
                 cover.h = cover.w;
-            }; else {
+            } else {
                 cover.w = 0;
                 cover.h = 0;
             };
@@ -398,22 +398,22 @@ oItem = function (playlist, row_index, type, handle, track_index, group_index, t
                             gr.FillSolidRect(this.x + cover.w + 2, this.y + 3, this.w - cover.w - 4, this.h - 6, g_color_selected_bg & RGBA(255,255,255,properties.selection_rect_alpha));
                             // frame on focused item
                             gr.DrawRect(this.x + cover.w + 1, this.y + 2, this.w - cover.w - 2, this.h - 4, 2.0, g_color_selected_bg & RGBA(255,255,255,properties.focus_rect_alpha));
-                        }; else {
+                        } else {
                             //**
                             gr.FillSolidRect(this.x + cover.w, this.y + 1, this.w - cover.w, this.h - 2, g_color_selected_bg & RGBA(255,255,255,properties.selection_rect_alpha));
                         };
-                    }; else {
+                    } else {
                         // if row is focused, draw focused colors & style ELSE draw with normal colors
                         if (p.list.focusedTrackId == this.track_index) {
                             this.text_colour = blendColors(g_color_highlight, g_color_normal_bg, 0.1);
                             // frame on focused item
                             gr.DrawRect(this.x + cover.w + 1, this.y + 2, this.w - cover.w - 2, this.h - 4, 2.0, g_color_normal_txt & RGBA(255,255,255,properties.focus_rect_alpha));
-                        }; else {
+                        } else {
                             // draw stripes of the normal row background
                             if (properties.oddevenrowshighlight) {
                                 if(properties.showgroupheaders) {
                                     var parity = ((this.track_index_in_group / 2) == Math.floor(this.track_index_in_group / 2) ? 1 : 0);
-                                }; else {
+                                } else {
                                     var parity = ((this.track_index / 2) == Math.floor(this.track_index / 2) ? 1 : 0);
                                 };
                                 if(parity == 0) {
@@ -423,7 +423,7 @@ oItem = function (playlist, row_index, type, handle, track_index, group_index, t
                         };
                     };
                     this.text_colour = p.list.text_colour_playing;
-                }; else {
+                } else {
                     // no playing track bg
                     if (plman.IsPlaylistItemSelected(p.list.playlist, this.track_index)) {                           
                         if (p.list.focusedTrackId == this.track_index) {
@@ -431,22 +431,22 @@ oItem = function (playlist, row_index, type, handle, track_index, group_index, t
                             gr.FillSolidRect(this.x + cover.w + 2, this.y + 3, this.w - cover.w - 4, this.h - 6, g_color_selected_bg & RGBA(255,255,255,properties.selection_rect_alpha));
                             // frame on focused item
                             gr.DrawRect(this.x + cover.w + 1, this.y + 2, this.w - cover.w - 2, this.h - 4, 2.0, g_color_selected_bg & RGBA(255,255,255,properties.focus_rect_alpha));
-                        }; else {
+                        } else {
                             //**
                             gr.FillSolidRect(this.x + cover.w, this.y + 1, this.w - cover.w, this.h - 2, g_color_selected_bg & RGBA(255,255,255,properties.selection_rect_alpha));
                         };
                         this.text_colour = p.list.text_colour_selected;
-                    }; else {
+                    } else {
                         // if row is focused, draw focused colors & style ELSE draw with normal colors
                         if (p.list.focusedTrackId == this.track_index) {
                             // frame on focused item
                             gr.DrawRect(this.x + cover.w + 1, this.y + 2, this.w - cover.w - 2, this.h - 4, 2.0, g_color_normal_txt & RGBA(255,255,255,properties.focus_rect_alpha));
-                        }; else {
+                        } else {
                             // draw stripes of the normal row background
                             if (properties.oddevenrowshighlight) {
                                 if(properties.showgroupheaders) {
                                     var parity = ((this.track_index_in_group / 2) == Math.floor(this.track_index_in_group / 2) ? 1 : 0);
-                                }; else {
+                                } else {
                                     var parity = ((this.track_index / 2) == Math.floor(this.track_index / 2) ? 1 : 0);
                                 };
                                 if(parity == 0) {
@@ -458,13 +458,13 @@ oItem = function (playlist, row_index, type, handle, track_index, group_index, t
                         this.text_colour = g_color_normal_txt;
                     };
                 };
-            }; else {
+            } else {
                 /*
                 // draw stripes for the empty rows
                 var parity = ((this.track_index_in_group / 2) == Math.floor(this.track_index_in_group / 2)? 1 : 0);
                 if(parity == 0) {
                     gr.FillSolidRect(this.x + cover.w, this.y, this.w - cover.w, this.h, RGBA(000,000,000,5));
-                }; else {
+                } else {
                     gr.FillSolidRect(this.x + cover.w, this.y, this.w - cover.w, this.h, RGBA(255,255,255,5));
                 };
                 */
@@ -504,14 +504,14 @@ oItem = function (playlist, row_index, type, handle, track_index, group_index, t
             if (cover.column) {
                 if (this.row_index == 0 && this.track_index_in_group > 0 && this.track_index_in_group <= Math.ceil(cover.h / cTrack.height)) {
                     var cover_draw_delta = this.track_index_in_group * cTrack.height;
-                }; else {
+                } else {
                     var cover_draw_delta = 0;
                 };
                 if ((this.track_index_in_group == 0 || (this.row_index == 0 && cover_draw_delta > 0))) {
                     // cover bg
                     if(properties.showgroupsheader) {
                         var cMargin = cover.margin;
-                    }; else {
+                    } else {
                         var cMargin = 4;
                     };
                     var cv_x = Math.floor(this.x + cMargin);
@@ -539,7 +539,7 @@ oItem = function (playlist, row_index, type, handle, track_index, group_index, t
                                     cv_y += this.top;
                                     cv_w = cv_w - this.left * 2 - 1;
                                     cv_h = cv_h - this.top * 2 - 1;
-                                }; else {
+                                } else {
                                     var ratio = this.cover_img.Height / this.cover_img.Width;
                                     var pw = cv_w;
                                     var ph = cv_h * ratio;
@@ -558,12 +558,12 @@ oItem = function (playlist, row_index, type, handle, track_index, group_index, t
                             gr.SetSmoothingMode(0);
                             if(p.headerBar.columns[0].w < cover.max_w) {
                                 gr.DrawImage(this.cover_img.resize(cv_w, cv_h, 2), cv_x, cv_y, cv_w, cv_h, 0, 0, cv_w, cv_h);
-                            }; else {
+                            } else {
                                 gr.DrawImage(this.cover_img, cv_x, cv_y, cv_w, cv_h, 0, 0, this.cover_img.Width, this.cover_img.Height);
                             };
                             gr.DrawRect(cv_x, cv_y, cv_w, cv_h, 2.0, RGB(255,255,255));
                         };
-                    }; else {
+                    } else {
                         gr.DrawImage(images.loading, cv_x-2, cv_y-2, cv_w, cv_h, 0, 0, images.loading.Width, images.loading.Height, images.loading_angle, 225);
                     };
                 };
@@ -581,13 +581,13 @@ oItem = function (playlist, row_index, type, handle, track_index, group_index, t
                                         gr.FillSolidRect(this.x + cover.w, this.y + this.h - Math.floor(cList.borderWidth / 2) - 3*cList.borderWidth, cList.borderWidth, 7*cList.borderWidth, g_color_selected_bg);
                                         gr.FillSolidRect(this.x + this.w - cList.borderWidth, this.y + this.h - Math.floor(cList.borderWidth / 2) - 3*cList.borderWidth, cList.borderWidth, 7*cList.borderWidth, g_color_selected_bg);
                                         dragndrop.drop_id = this.track_index;
-                                    }; else if (this.track_index < dragndrop.drag_id) {
+                                    } else if (this.track_index < dragndrop.drag_id) {
                                         gr.FillSolidRect(this.x + cover.w, this.y - Math.floor(cList.borderWidth / 2), this.w - cover.w, cList.borderWidth, g_color_selected_bg);
                                         gr.FillSolidRect(this.x + cover.w, this.y - Math.floor(cList.borderWidth / 2) - 3*cList.borderWidth, cList.borderWidth, 7*cList.borderWidth, g_color_selected_bg);
                                         gr.FillSolidRect(this.x + this.w - cList.borderWidth, this.y - Math.floor(cList.borderWidth / 2) - 3*cList.borderWidth, cList.borderWidth, 7*cList.borderWidth, g_color_selected_bg);
                                         dragndrop.drop_id = this.track_index;
                                     };
-                                }; else {
+                                } else {
                                     dragndrop.drop_id = -1;
                                 };
                             };
@@ -614,15 +614,15 @@ oItem = function (playlist, row_index, type, handle, track_index, group_index, t
                     if (this.heightInRow > 1 && cover.show) {
                         cover.h = this.heightInRow * cTrack.height;
                         cover.w = cover.h;
-                    }; else {
+                    } else {
                         cover.h = g_z5;
                         cover.w = cover.h;
                     };
-                }; else {
+                } else {
                     cover.h = g_z4;
                     cover.w = cover.h;
                 };
-            }; else {
+            } else {
                 cover.h = g_z4;
                 cover.w = cover.h;
             };
@@ -678,7 +678,7 @@ oItem = function (playlist, row_index, type, handle, track_index, group_index, t
                 gr.FillSolidRect(this.x + cover.w + text_left_padding, (this.y + cTrack.height * 2 - groupDelta) - 1, this.w - cover.w - text_left_padding*5 + 2 - scrollbar_gape, 1.0, line_color);
                 if(this.obj) {
                     var lg3_left_field = this.obj.count+(this.obj.count > 1 ? " tracks. " : " track. ")+this.obj.total_group_duration_txt;
-                }; else {
+                } else {
                     var lg3_left_field = "";
                 }
                 var lg3_right_field = (this.group_index+1)+" / "+p.list.groups.length;
@@ -694,7 +694,7 @@ oItem = function (playlist, row_index, type, handle, track_index, group_index, t
                     if (plman.IsPlaylistItemSelected(p.list.playlist, this.obj.start + k) && this.obj.collapsed) {
                         gr.FillSolidRect(this.x, (this.y - groupDelta) + 1, this.w, this.h - 2, g_color_selected_bg & 0x20ffffff);
                         break;
-                    }; else {
+                    } else {
                         // highlight the now playing group header
                         if(fb.IsPlaying) {
                             if(plman.PlayingPlaylist == this.playlist) {
@@ -738,7 +738,7 @@ oItem = function (playlist, row_index, type, handle, track_index, group_index, t
                                         cv_y += this.top;
                                         cv_w = cv_w - this.left * 2 - 1;
                                         cv_h = cv_h - this.top * 2 - 1;
-                                    }; else {
+                                    } else {
                                         var ratio = this.cover_img.Height / this.cover_img.Width;
                                         var pw = cv_w;
                                         var ph = cv_h * ratio;
@@ -757,12 +757,12 @@ oItem = function (playlist, row_index, type, handle, track_index, group_index, t
                                 gr.SetSmoothingMode(0);
                                 if(this.obj.collapsed) {
                                     gr.DrawImage(this.cover_img.resize(cv_w, cv_h, 2), cv_x, cv_y, cv_w, cv_h, 0, 0, cv_w, cv_h);
-                                }; else {
+                                } else {
                                     gr.DrawImage(this.cover_img, cv_x, cv_y, cv_w, cv_h, 0, 0, this.cover_img.Width, this.cover_img.Height);
                                 };
                                 gr.DrawRect(cv_x, cv_y, cv_w, cv_h, 2.0, RGB(255,255,255));
                             };
-                        }; else {
+                        } else {
                             gr.DrawImage(images.loading, cv_x-2, cv_y-2, cv_w, cv_h, 0, 0, images.loading.Width, images.loading.Height, images.loading_angle, 225);
                         };
                     };
@@ -785,23 +785,23 @@ oItem = function (playlist, row_index, type, handle, track_index, group_index, t
                                         }
                                         if(this.obj.collapsed) {
                                             dragndrop.drop_id = this.track_index;
-                                        }; else {
+                                        } else {
                                             dragndrop.drop_id = this.track_index;
                                         };
-                                    }; else {
+                                    } else {
                                         if(this.obj.collapsed) {
                                             gr.FillSolidRect(this.x + cover_w, this.y + this.h - Math.floor(cList.borderWidth / 2), this.w - cover_w, cList.borderWidth, g_color_selected_bg);
                                             gr.FillSolidRect(this.x + cover_w, this.y + this.h - Math.floor(cList.borderWidth / 2) - 3*cList.borderWidth, cList.borderWidth, 7*cList.borderWidth, g_color_selected_bg);
                                             gr.FillSolidRect(this.x + this.w - cList.borderWidth, this.y + this.h - Math.floor(cList.borderWidth / 2) - 3*cList.borderWidth, cList.borderWidth, 7*cList.borderWidth, g_color_selected_bg);
                                             dragndrop.drop_id = this.track_index + this.obj.count - 1;
-                                        }; else {
+                                        } else {
                                             gr.FillSolidRect(this.x + cover_w, this.y + this.h - Math.floor(cList.borderWidth / 2), this.w - cover_w, cList.borderWidth, g_color_selected_bg);
                                             gr.FillSolidRect(this.x + cover_w, this.y + this.h - Math.floor(cList.borderWidth / 2) - 3*cList.borderWidth, cList.borderWidth, 7*cList.borderWidth, g_color_selected_bg);
                                             gr.FillSolidRect(this.x + this.w - cList.borderWidth, this.y + this.h - Math.floor(cList.borderWidth / 2) - 3*cList.borderWidth, cList.borderWidth, 7*cList.borderWidth, g_color_selected_bg);
                                             dragndrop.drop_id = this.track_index - 1;
                                         };
                                     };
-                                }; else {
+                                } else {
                                     dragndrop.drop_id = -1;
                                 };
                             };
@@ -857,15 +857,15 @@ oItem = function (playlist, row_index, type, handle, track_index, group_index, t
                             if (this.obj && p.list.focusedTrackId != this.track_index) {
                                 if (p.list.SHIFT_start_id != null) {
                                     p.list.selectAtoB(p.list.SHIFT_start_id, this.track_index + this.obj.count - 1);
-                                }; else {
+                                } else {
                                     p.list.selectAtoB(p.list.focusedTrackId, this.track_index + this.obj.count - 1);
                                 };
                             };
-                        }; else if (utils.IsKeyPressed(VK_CONTROL)) {
+                        } else if (utils.IsKeyPressed(VK_CONTROL)) {
                             plman.SetPlaylistFocusItem(p.list.playlist, this.track_index);
                             p.list.selectGroupTracks(this.group_index, true);
                             p.list.SHIFT_start_id = null;
-                        }; else {
+                        } else {
                             plman.SetPlaylistFocusItem(p.list.playlist, this.track_index);
                             plman.ClearPlaylistSelection(p.list.playlist);
                             if(this.obj) {
@@ -898,12 +898,12 @@ oItem = function (playlist, row_index, type, handle, track_index, group_index, t
                             };
                         };
                         p.list.metadblist_selection = plman.GetPlaylistSelectedItems(p.list.playlist);
-                    }; else { // track
+                    } else { // track
                         if(this.rating_hover) {
                             columns.rating_drag = true;
-                        }; else if (this.mood_hover) {
+                        } else if (this.mood_hover) {
                             columns.mood_drag = true;
-                        }; else {
+                        } else {
                             if(plman.IsPlaylistItemSelected(p.list.playlist, this.track_index)) {
                                 if (p.list.metadblist_selection.Count >= 1) {
                                     dragndrop.clicked = true;
@@ -915,7 +915,7 @@ oItem = function (playlist, row_index, type, handle, track_index, group_index, t
                                         var first_item_selected_id = p.list.handleList.Find(p.list.metadblist_selection.item(0));
                                         var last_item_selected_id = p.list.handleList.Find(p.list.metadblist_selection.item(p.list.metadblist_selection.Count - 1));
                                         var contigus_count = (last_item_selected_id - first_item_selected_id) + 1;
-                                    }; else {
+                                    } else {
                                         var contigus_count = 0;
                                     };
                                     if(p.list.metadblist_selection.Count == 1 || (p.list.metadblist_selection.Count > 1 && p.list.metadblist_selection.Count == contigus_count)) {
@@ -928,7 +928,7 @@ oItem = function (playlist, row_index, type, handle, track_index, group_index, t
                                                 dragndrop.timerID = false;
                                             }, 250);
                                         };
-                                    }; else if(p.list.metadblist_selection.Count > 1) {
+                                    } else if(p.list.metadblist_selection.Count > 1) {
                                         dragndrop.contigus_sel = false;
                                         dragndrop.drag_id = this.track_index;
                                         if (!isQueuePlaylistActive()) {
@@ -944,28 +944,28 @@ oItem = function (playlist, row_index, type, handle, track_index, group_index, t
                                     if(p.list.focusedTrackId != this.track_index) {
                                         if (p.list.SHIFT_start_id != null) {
                                             p.list.selectAtoB(p.list.SHIFT_start_id, this.track_index);
-                                        }; else {
+                                        } else {
                                             p.list.selectAtoB(p.list.focusedTrackId, this.track_index);
                                         };
                                     };
-                                }; else if(utils.IsKeyPressed(VK_CONTROL)) {
+                                } else if(utils.IsKeyPressed(VK_CONTROL)) {
                                     plman.SetPlaylistSelectionSingle(p.list.playlist, this.track_index, false);
                                     //};
-                                }; else if(p.list.metadblist_selection.Count == 1) {
+                                } else if(p.list.metadblist_selection.Count == 1) {
                                     plman.SetPlaylistFocusItem(p.list.playlist, this.track_index);
                                     plman.ClearPlaylistSelection(p.list.playlist);
                                     plman.SetPlaylistSelectionSingle(p.list.playlist, this.track_index, true);
                                 };
-                            }; else { // click on a not selected track
+                            } else { // click on a not selected track
                                 if(utils.IsKeyPressed(VK_SHIFT)) {
                                     if(p.list.focusedTrackId != this.track_index) {
                                         if (p.list.SHIFT_start_id != null) {
                                             p.list.selectAtoB(p.list.SHIFT_start_id, this.track_index);
-                                        }; else {
+                                        } else {
                                             p.list.selectAtoB(p.list.focusedTrackId, this.track_index);
                                         };
                                     };
-                                }; else {
+                                } else {
                                     if(!properties.enableTouchControl) {
                                         p.list.selX = x;
                                         p.list.selY = y;
@@ -998,16 +998,16 @@ oItem = function (playlist, row_index, type, handle, track_index, group_index, t
                         if(this.obj) {
                             if(this.obj.collapsed) {
                                 p.list.updateGroupStatus(this.group_index);
-                            }; else {
+                            } else {
                                 p.list.updateGroupsOnCollapse(this.group_index);
                             };
                         };
                         */
-                    }; else {
+                    } else {
                         if(this.obj) {
                             if (this.obj.collapsed) {
                                 p.list.updateGroupsOnExpand(this.group_index);
-                            }; else {
+                            } else {
                                 p.list.updateGroupsOnCollapse(this.group_index);
                             };
                         };
@@ -1015,11 +1015,11 @@ oItem = function (playlist, row_index, type, handle, track_index, group_index, t
                     p.list.setItems(false);
                     //**p.scrollbar.setCursor(p.list.totalRowVisible, p.list.totalRows, p.list.offset);
                     full_repaint();
-                }; else { // track
+                } else { // track
                     var cmd = properties.defaultPlaylistItemAction;
                     if(cmd == "Play") {
                         plman.ExecutePlaylistDefaultAction(p.list.playlist, this.track_index);
-                    }; else {
+                    } else {
                         fb.RunContextCommandWithMetadb(cmd, this.metadb, 0);
                     };
                 };
@@ -1044,24 +1044,24 @@ oItem = function (playlist, row_index, type, handle, track_index, group_index, t
                                         var bool = fb.RunContextCommandWithMetadb("Rating/" + ((this.l_rating == 0) ? "<not set>" : this.l_rating), this.metadb);
                                         this.rating = this.l_rating;
                                     };
-                                }; else {
+                                } else {
                                     var bool = fb.RunContextCommandWithMetadb("Rating/<not set>", this.metadb);
                                     this.rating = 0;
                                 };
-                            }; else {
+                            } else {
                                 // Rate to file
                                 if (this.l_rating != this.rating) {
                                     if (this.metadb) {
                                         var bool = this.metadb.UpdateFileInfoSimple("RATING", this.l_rating);
                                         this.rating = this.l_rating;
                                     };
-                                }; else {
+                                } else {
                                     var bool = this.metadb.UpdateFileInfoSimple("RATING", "");
                                     this.rating = 0;
                                 };
                             };
                         };
-                    }; else if(this.mood_hover) {
+                    } else if(this.mood_hover) {
                         // Mood
                         if (this.tracktype < 2) {
                             // tag to file
@@ -1070,12 +1070,12 @@ oItem = function (playlist, row_index, type, handle, track_index, group_index, t
                                     var bool = this.metadb.UpdateFileInfoSimple("MOOD", getTimestamp());
                                     this.mood = this.l_mood;
                                 };
-                            }; else {
+                            } else {
                                 var bool = this.metadb.UpdateFileInfoSimple("MOOD", "");
                                 this.mood = 0;
                             };
                         };
-                    }; else if(!cTouch.down) {
+                    } else if(!cTouch.down) {
                         if (!p.list.drawRectSel && plman.IsPlaylistItemSelected(p.list.playlist, this.track_index)) {
                             if (!utils.IsKeyPressed(VK_SHIFT) && !utils.IsKeyPressed(VK_CONTROL)) {
                                 if (!dragndrop.drag_in) {
@@ -1109,15 +1109,15 @@ oItem = function (playlist, row_index, type, handle, track_index, group_index, t
                     if(!utils.IsKeyPressed(VK_SHIFT)) {
                         p.list.contextMenu(x, y, this.track_index, this.row_index);
                     };
-                }; else { // track
+                } else { // track
                     if (this.rating_hover) {
 
-                    }; else if (this.mood_hover) {
+                    } else if (this.mood_hover) {
 
-                    }; else {
+                    } else {
                         if (plman.IsPlaylistItemSelected(p.list.playlist, this.track_index)) {
 
-                        }; else {
+                        } else {
                             plman.SetPlaylistFocusItem(p.list.playlist, this.track_index);
                             plman.ClearPlaylistSelection(p.list.playlist);
                             plman.SetPlaylistSelectionSingle(p.list.playlist, this.track_index, true);
@@ -1135,14 +1135,14 @@ oItem = function (playlist, row_index, type, handle, track_index, group_index, t
                     var one_star_w = Math.round(columns.rating_w / 5);
                     this.l_rating = Math.floor((x - columns.rating_x) / one_star_w) + 1;
                     if(this.l_rating>5) this.l_rating = 5;
-                }; else {
+                } else {
                     this.l_rating = 0;
                 };
             };
             if(columns.mood && !columns.mood_drag) {
                 if(this.mood_hover) {
                     this.l_mood = 1;
-                }; else {
+                } else {
                     this.l_mood = 0;
                 };
             };
@@ -1159,33 +1159,33 @@ oItem = function (playlist, row_index, type, handle, track_index, group_index, t
                 if(this.ishover) {
                     if(this.type == 0) { // track
                         p.list.selEndId = this.track_index;
-                    }; else { // group header
+                    } else { // group header
                         if(this.track_index > 0) {
                             if(y > p.list.selY) {
                                 if(p.list.selStartId <= p.list.selEndId) {
                                     if(this.track_index == this.track_index + 1) {
                                         p.list.selEndId = this.track_index - 0;
-                                    }; else {
+                                    } else {
                                         p.list.selEndId = this.track_index - 1;
                                     };
-                                }; else {
+                                } else {
                                     if(this.track_index == this.track_index + 1) {
                                         p.list.selEndId = this.track_index - 1;
-                                    }; else {
+                                    } else {
                                         p.list.selEndId = this.track_index - 0;
                                     };
                                 };
-                            }; else {
+                            } else {
                                 if(p.list.selStartId < p.list.selEndId) {
                                     if(this.track_index == this.track_index + 1) {
                                         p.list.selEndId = this.track_index - 0;
-                                    }; else {
+                                    } else {
                                         p.list.selEndId = this.track_index - 1;
                                     };
-                                }; else {
+                                } else {
                                     if(this.track_index == this.track_index + 1) {
                                         p.list.selEndId = this.track_index - 1;
-                                    }; else {
+                                    } else {
                                         p.list.selEndId = this.track_index - 0;
                                     };
                                 }; 
@@ -1199,7 +1199,7 @@ oItem = function (playlist, row_index, type, handle, track_index, group_index, t
                             if(mouse_y < p.list.y + cTrack.height * 0) {
                                 p.list.selEndId = p.list.selEndId > 0 ? p.list.items[0].track_index : 0;
                                 if(p.scrollbar.visible) on_mouse_wheel(1);
-                            }; else if(mouse_y > p.list.y + p.list.h - cTrack.height * 0) {
+                            } else if(mouse_y > p.list.y + p.list.h - cTrack.height * 0) {
                                 p.list.selEndId = p.list.selEndId < p.list.count - 1 ? p.list.items[p.list.items.length - 1].track_index : p.list.count - 1;
                                 if(p.scrollbar.visible) on_mouse_wheel(-1);
                             };
@@ -1217,7 +1217,7 @@ oItem = function (playlist, row_index, type, handle, track_index, group_index, t
                             //
                             p.list.selEndOffset = p.list.offset;
                         }, 100);
-                    }; else {
+                    } else {
                         window.SetCursor(IDC_ARROW);
                     };
                 };
@@ -1505,7 +1505,7 @@ oList = function(object_name, playlist) {
                 this.groupby.push(new oGroupBy(fields[0][k],fields[1][k],fields[2][k],fields[3][k],fields[4][k],fields[5][k],fields[6][k],fields[7][k],fields[8][k],fields[9][k],fields[10][k],fields[11][k],fields[12][k],fields[13][k],fields[14][k]));
             };
             
-        }; else {
+        } else {
             var fields = [];
             var tmp;
             // LOAD GroupBy patterns from Properties
@@ -1575,7 +1575,7 @@ oList = function(object_name, playlist) {
             this.groups[i].totalPreviousTracks += cv;
             if(this.groups[i].collapsed) {
                 ct += cGroup.collapsed_height;
-            }; else {
+            } else {
                 ct += this.groups[i].count + cGroup.expanded_height;
                 ct += this.groups[i].rowsToAdd;
             };
@@ -1595,7 +1595,7 @@ oList = function(object_name, playlist) {
             this.totalRows -= delta;
             if(this.totalRows <= this.totalRowVisible) {
                 this.offset = 0;
-            }; else {
+            } else {
                 if(this.totalRows - this.offset < this.totalRowVisible) {
                     this.offset = this.totalRows - this.totalRowVisible;
                     if(this.offset < 0) this.offset = 0;
@@ -1615,7 +1615,7 @@ oList = function(object_name, playlist) {
             this.totalRows += delta;
             if(this.totalRows <= this.totalRowVisible) {
                 this.offset = 0;
-            }; else {
+            } else {
                 if(this.totalRows - this.offset < this.totalRowVisible) {
                     this.offset = this.totalRows - this.totalRowVisible;
                     if(this.offset < 0) this.offset = 0;
@@ -1676,7 +1676,7 @@ oList = function(object_name, playlist) {
                 for(var m=0; m < fin; m++) {
                     if(default_pattern_index > -1 && found) {
                         break;
-                    }; else if(this.groupby[m].playlistFilter.length > 0) {
+                    } else if(this.groupby[m].playlistFilter.length > 0) {
                         arr_pl = this.groupby[m].playlistFilter.split(";");
                         fin2 = arr_pl.length;
                         for(var n=0; n < fin2; n++) {
@@ -1699,10 +1699,10 @@ oList = function(object_name, playlist) {
                     m = default_pattern_index;
                     this.updateGroupByPattern(m);
                 };
-            }; else {
+            } else {
                 this.updateGroupByPattern(cGroup.pattern_idx);
             };
-        }; else {
+        } else {
             tf_group_key = fb.TitleFormat("%path%");
             cGroup.extra_rows = 0;
         };
@@ -1719,10 +1719,10 @@ oList = function(object_name, playlist) {
                     total_time_length += handle.Length;
                     global_time += handle.Length;
                     this.groups.push(new oGroup(this.groups.length, start, count, total_time_length, this.focusedTrackId, iscollapsed));
-                }; else {
+                } else {
                     previous = current;
                 };
-            }; else {
+            } else {
                 if(current != previous || i == this.count - 1) {
                     if(current != previous) {
                         if(i == this.count - 1) {
@@ -1731,10 +1731,10 @@ oList = function(object_name, playlist) {
                             count = 1;
                             total_time_length = handle.Length;
                             this.groups.push(new oGroup(this.groups.length, start, count, total_time_length, this.focusedTrackId, iscollapsed));
-                        }; else {
+                        } else {
                             this.groups.push(new oGroup(this.groups.length, start, count, total_time_length, this.focusedTrackId, iscollapsed));
                         };
-                    }; else {
+                    } else {
                         total_time_length += handle.Length;
                         count++;
                         this.groups.push(new oGroup(this.groups.length, start, count, total_time_length, this.focusedTrackId, iscollapsed));
@@ -1764,7 +1764,7 @@ oList = function(object_name, playlist) {
         this.playlist = playlist;
         if(plman.PlaylistItemCount(this.playlist) > 0) {
             this.focusedTrackId = plman.GetPlaylistFocusItemIndex(this.playlist);
-        }; else {
+        } else {
             this.focusedTrackId = -1;
         };
         if(this.handleList) this.handleList.Dispose();
@@ -1798,7 +1798,7 @@ oList = function(object_name, playlist) {
         if(start_id < end_id) {
             var deb = start_id;
             var fin = end_id;
-        }; else {
+        } else {
             var deb = end_id;
             var fin = start_id;        
         };
@@ -1814,7 +1814,7 @@ oList = function(object_name, playlist) {
             if(end_id > previous_focus_id) {
                 var delta = end_id - previous_focus_id;
                 this.SHIFT_count += delta;
-            }; else {
+            } else {
                 var delta = previous_focus_id - end_id;
                 this.SHIFT_count -= delta;
             };
@@ -1839,7 +1839,7 @@ oList = function(object_name, playlist) {
                 this.nowplaying = plman.GetPlayingItemLocation();
                 // set focus on the now playing item
                 plman.SetPlaylistFocusItem(this.playlist, this.nowplaying.PlaylistItemIndex);
-            }; else {
+            } else {
                 this.nowplaying = plman.GetPlayingItemLocation();
                 // set focus on the now playing item
                 plman.SetPlaylistFocusItem(this.playlist, this.nowplaying.PlaylistItemIndex);
@@ -1858,7 +1858,7 @@ oList = function(object_name, playlist) {
         var mid = Math.floor(this.totalRowToLoad / 2) - 1;
         if(plman.PlaylistItemCount(this.playlist) > 0) {
             this.focusedTrackId = plman.GetPlaylistFocusItemIndex(this.playlist);
-        }; else {
+        } else {
             this.focusedTrackId = -1;
         };
         if(this.focusedTrackId < 0) {
@@ -1872,16 +1872,16 @@ oList = function(object_name, playlist) {
         if(this.totalRows > this.totalRowVisible) {
             if(this.focusedRowId <= mid) {
                 this.offset = 0;
-            }; else {
+            } else {
                 var d = this.totalRows - (this.focusedRowId + 1);
                 if(d >= Math.floor(this.totalRowToLoad / 2)) {
                     this.offset = this.focusedRowId - mid;
-                }; else {               
+                } else {               
                     this.offset = this.totalRows - this.totalRowVisible;
                 };
             };
             if(this.offset < 0) this.offset = 0;
-        }; else {
+        } else {
             this.offset = 0;
         };
         return this.offset;
@@ -1893,9 +1893,9 @@ oList = function(object_name, playlist) {
             mediane = Math.floor((fin + deb)/2);
             if(valeur >= this.groups[mediane].start && valeur < this.groups[mediane].start + this.groups[mediane].count) {
                 return mediane;
-            }; else if(valeur < this.groups[mediane].start) {
+            } else if(valeur < this.groups[mediane].start) {
                 fin = mediane - 1;
-            }; else {
+            } else {
                 deb = mediane + 1;
             };
         };
@@ -1910,9 +1910,9 @@ oList = function(object_name, playlist) {
             grp_size = this.groups[mediane].collapsed ? grp_height : grp_height + this.groups[mediane].count + this.groups[mediane].rowsToAdd;
             if(valeur >= this.groups[mediane].totalPreviousRows && valeur < this.groups[mediane].totalPreviousRows + grp_size) {
                 return mediane;
-            }; else if(valeur < this.groups[mediane].totalPreviousRows) {
+            } else if(valeur < this.groups[mediane].totalPreviousRows) {
                 fin = mediane - 1;
-            }; else {
+            } else {
                 deb = mediane + 1;
             };
         };
@@ -1926,7 +1926,7 @@ oList = function(object_name, playlist) {
         if(this.groups[grp_id].collapsed) { // track hidden in the collapsed group so return = -1 or we return the row id of the group it belongs to ?
             //var row_index = -1;
             var row_index = this.groups[grp_id].totalPreviousRows + 1;
-        }; else { // group expanded so we can return a valid row_id for the track searched
+        } else { // group expanded so we can return a valid row_id for the track searched
             var row_index = this.groups[grp_id].totalPreviousRows + cGroup.expanded_height + (trackId - this.groups[grp_id].start);
         };
         return row_index;
@@ -1940,25 +1940,25 @@ oList = function(object_name, playlist) {
                 var a = rowId - this.groups[this.s_group_id].totalPreviousRows;
                 this.s_groupheader_line_id = a;
                 this.s_track_id = this.groups[this.s_group_id].start;
-            }; else {
+            } else {
                 var a = rowId - this.groups[this.s_group_id].totalPreviousRows;
                 if(a < this.s_group_height) { // row is in the group header
                     this.s_groupheader_line_id = a;
                     this.s_track_id = this.groups[this.s_group_id].start;
-                }; else { // row is a track
+                } else { // row is a track
                     this.s_groupheader_line_id = -1;
                     this.s_track_id = (a - this.s_group_height) + this.groups[this.s_group_id].start;
                     var track_index_in_group = this.s_track_id - this.groups[this.s_group_id].start;
                     if(track_index_in_group >= this.groups[this.s_group_id].count) { // track is a copy of the last track of the group to fill the group with minimum track count in group feature!
                         this.s_delta = (track_index_in_group - this.groups[this.s_group_id].count) + 1;
                         this.s_track_id -= this.s_delta;
-                    }; else {
+                    } else {
                         this.s_delta = 0;
                     };
                 };
             };
             return this.s_track_id;
-        }; else {
+        } else {
             return 0;
         };
     };
@@ -1968,7 +1968,7 @@ oList = function(object_name, playlist) {
         if(delta > 0) { // scroll up
             this.offset -= scrollstep;
             if(this.offset < 0) this.offset = 0;    
-        }; else { // scroll down
+        } else { // scroll down
             this.offset += scrollstep;
             if(this.offset > this.totalRows - this.totalRowVisible) {
                 this.offset = this.totalRows - this.totalRowVisible;
@@ -1993,7 +1993,7 @@ oList = function(object_name, playlist) {
                 var i = this.getStartOffsetFromFocusId();
                 if(this.totalRows - this.offset <= this.totalRowVisible) {
                     var total_rows_to_draw = this.totalRows < this.totalRowVisible ? this.totalRows : this.totalRowVisible;
-                }; else {
+                } else {
                     var total_rows_to_draw = this.totalRows < this.totalRowToLoad ? this.totalRows : this.totalRowToLoad;
                 };
                 
@@ -2004,14 +2004,14 @@ oList = function(object_name, playlist) {
                         this.items.push(new oItem(this.playlist, row_index, 1, this.handleList.Item(this.s_track_id), this.s_track_id, this.s_group_id, 0, this.s_group_height, this.s_groupheader_line_id, this.groups[this.s_group_id], 0));
                         i += this.s_group_height - this.s_groupheader_line_id;
                         row_index += this.s_group_height - this.s_groupheader_line_id;
-                    }; else { // track row
+                    } else { // track row
                         track_index_in_group = this.s_track_id - this.groups[this.s_group_id].start + this.s_delta;
                         this.items.push(new oItem(this.playlist, row_index, 0, this.handleList.Item(this.s_track_id), this.s_track_id, this.s_group_id, track_index_in_group, 1, 0, null, this.s_delta));
                         i++;
                         row_index++;
                     };
                 };
-            }; else {
+            } else {
                 this.offset = 0;
                 var i = 0;  // offset = 0
                 
@@ -2022,7 +2022,7 @@ oList = function(object_name, playlist) {
                         this.items.push(new oItem(this.playlist, row_index, 1, this.handleList.Item(this.s_track_id), this.s_track_id, this.s_group_id, 0, this.s_group_height, this.s_groupheader_line_id, this.groups[this.s_group_id], 0));
                         i += this.s_group_height - this.s_groupheader_line_id;
                         row_index += this.s_group_height - this.s_groupheader_line_id;
-                    }; else { // track row
+                    } else { // track row
                         track_index_in_group = this.s_track_id - this.groups[this.s_group_id].start + this.s_delta;
                         this.items.push(new oItem(this.playlist, row_index, 0, this.handleList.Item(this.s_track_id), this.s_track_id, this.s_group_id, track_index_in_group, 1, 0, null, this.s_delta));
                         i++;
@@ -2030,7 +2030,7 @@ oList = function(object_name, playlist) {
                     };
                 };
             };  
-        }; else { // fill items from current offset
+        } else { // fill items from current offset
             if(this.totalRows > this.totalRowVisible) {
                 if(typeof(this.offset)=="undefined") {
                     this.getStartOffsetFromFocusId();
@@ -2040,7 +2040,7 @@ oList = function(object_name, playlist) {
                 var i = this.offset;
                 if(this.totalRows - this.offset <= this.totalRowVisible) {
                     var total_rows_to_draw = this.totalRows < this.totalRowVisible ? this.totalRows : this.totalRowVisible;
-                }; else {
+                } else {
                     var total_rows_to_draw = this.totalRows < this.totalRowToLoad ? this.totalRows : this.totalRowToLoad;
                 };
                 
@@ -2051,14 +2051,14 @@ oList = function(object_name, playlist) {
                         this.items.push(new oItem(this.playlist, row_index, 1, this.handleList.Item(this.s_track_id), this.s_track_id, this.s_group_id, 0, this.s_group_height, this.s_groupheader_line_id, this.groups[this.s_group_id], 0));
                         i += this.s_group_height - this.s_groupheader_line_id;
                         row_index += this.s_group_height - this.s_groupheader_line_id;
-                    }; else { // track row
+                    } else { // track row
                         track_index_in_group = this.s_track_id - this.groups[this.s_group_id].start + this.s_delta;
                         this.items.push(new oItem(this.playlist, row_index, 0, this.handleList.Item(this.s_track_id), this.s_track_id, this.s_group_id, track_index_in_group, 1, 0, null, this.s_delta));
                         i++;
                         row_index++;
                     };
                 };
-            }; else {
+            } else {
                 var i = 0;  // offset = 0   
                 this.items.splice(0, this.items.length);
                 while(i < this.totalRows) {
@@ -2067,7 +2067,7 @@ oList = function(object_name, playlist) {
                         this.items.push(new oItem(this.playlist, row_index, 1, this.handleList.Item(this.s_track_id), this.s_track_id, this.s_group_id, 0, this.s_group_height, this.s_groupheader_line_id, this.groups[this.s_group_id], 0));
                         i += this.s_group_height - this.s_groupheader_line_id;
                         row_index += this.s_group_height - this.s_groupheader_line_id;
-                    }; else { // track row
+                    } else { // track row
                         track_index_in_group = this.s_track_id - this.groups[this.s_group_id].start + this.s_delta;
                         this.items.push(new oItem(this.playlist, row_index, 0, this.handleList.Item(this.s_track_id), this.s_track_id, this.s_group_id, track_index_in_group, 1, 0, null, this.s_delta));
                         i++;
@@ -2087,7 +2087,7 @@ oList = function(object_name, playlist) {
     this.isFocusedItemVisible = function() {
         if(this.totalRows <= this.totalRowVisible) {
             return true;
-        }; else {
+        } else {
             var fin = this.items.length;
             for(var i = 0; i < fin; i++) {
                 if(this.items[i].group_index >= 0) {
@@ -2096,7 +2096,7 @@ oList = function(object_name, playlist) {
                             if(this.focusedTrackId >= this.groups[this.items[i].group_index].start && this.focusedTrackId < this.groups[this.items[i].group_index].start + this.groups[this.items[i].group_index].count) {
                                 return true;
                             };
-                        }; else if(this.focusedTrackId == this.items[i].track_index && this.items[i].row_index < this.totalRowVisible) {
+                        } else if(this.focusedTrackId == this.items[i].track_index && this.items[i].row_index < this.totalRowVisible) {
                             return true;
                         };
                     };
@@ -2111,7 +2111,7 @@ oList = function(object_name, playlist) {
 
         if(cList.scroll_timer) {
             var row_top_y = this.y - (cList.scroll_delta * cList.scroll_direction);
-        }; else {
+        } else {
             var row_top_y = this.y;
         };
         var width = 0;
@@ -2131,7 +2131,7 @@ oList = function(object_name, playlist) {
             // test if scrollbar displayed or not for the items width to draw
             if(this.totalRows <= this.totalRowVisible || !properties.showscrollbar) {
                 width = this.w;
-            }; else {
+            } else {
                 width = this.w - cScrollBar.width;
             };
             this.items[i].draw(gr, this.x, row_top_y, width, item_h);
@@ -2140,7 +2140,7 @@ oList = function(object_name, playlist) {
 
         if(g_dragndrop_drop_forbidden) {
             gr.FillsolidRect(this.x, this.y, this.w, this.h, RGBA(0,0,0,100));
-        }; else {
+        } else {
             if(g_dragndrop_status && g_dragndrop_bottom) {
                 var rowId = fin - 1;
                 var item_height_row = (this.items[rowId].type == 0 ? 1 : this.items[rowId].heightInRow);
@@ -2164,15 +2164,15 @@ oList = function(object_name, playlist) {
                 if (this.selY - this.selDeltaRows*cTrack.height <= mouse_y) {
                     gr.FillSolidRect(this.selX, (this.selY - this.selDeltaRows*cTrack.height), mouse_x - this.selX, mouse_y - (this.selY - this.selDeltaRows*cTrack.height), rectSelColor & 0x33ffffff);
                     gr.DrawRect(this.selX, (this.selY - this.selDeltaRows*cTrack.height), mouse_x - this.selX - 1, mouse_y - (this.selY - this.selDeltaRows*cTrack.height) - 1, 1.0, rectSelColor & 0x66ffffff);
-                }; else {
+                } else {
                     gr.FillSolidRect(this.selX, mouse_y, mouse_x - this.selX, this.selY - mouse_y - this.selDeltaRows*cTrack.height, rectSelColor & 0x33ffffff);
                     gr.DrawRect(this.selX, mouse_y, mouse_x - this.selX - 1, this.selY - mouse_y - this.selDeltaRows*cTrack.height - 1, 1.0, rectSelColor & 0x66ffffff);
                 };
-            }; else {
+            } else {
                 if (this.selY - this.selDeltaRows*cTrack.height <= mouse_y) {
                     gr.FillSolidRect(mouse_x, (this.selY - this.selDeltaRows*cTrack.height), this.selX - mouse_x, mouse_y - (this.selY - this.selDeltaRows*cTrack.height), rectSelColor & 0x33ffffff);
                     gr.DrawRect(mouse_x, (this.selY - this.selDeltaRows*cTrack.height), this.selX - mouse_x - 1, mouse_y - (this.selY - this.selDeltaRows*cTrack.height) - 1, 1.0, rectSelColor & 0x66ffffff);
-                }; else {
+                } else {
                     gr.FillSolidRect(mouse_x, mouse_y, this.selX - mouse_x, this.selY - mouse_y - this.selDeltaRows*cTrack.height, rectSelColor & 0x33ffffff);
                     gr.DrawRect(mouse_x, mouse_y, this.selX - mouse_x - 1, this.selY - mouse_y - this.selDeltaRows*cTrack.height - 1, 1.0, rectSelColor & 0x66ffffff);
                 };
@@ -2260,7 +2260,7 @@ oList = function(object_name, playlist) {
                             g_dragndrop_rowId = trackId;
                         };
                     };
-                }; else {
+                } else {
                     g_dragndrop_bottom = true;
                     g_dragndrop_trackId = 0;
                     g_dragndrop_rowId = 0;
@@ -2290,7 +2290,7 @@ oList = function(object_name, playlist) {
                                                 cPlaylistManager.hscroll_timer = false;
                                             };
                                             full_repaint();
-                                        }; else {
+                                        } else {
                                             full_repaint();
                                             p.playlistManager.woffset -= cPlaylistManager.step;
                                             if(p.playlistManager.woffset <= 0) {
@@ -2336,7 +2336,7 @@ oList = function(object_name, playlist) {
                                                 };
                                             }, 5);
                                         };
-                                    }; else if(p.playlistManager.offset < p.playlistManager.rowTotal - p.playlistManager.totalRows && y > p.playlistManager.y + area_h - inner_padding) {
+                                    } else if(p.playlistManager.offset < p.playlistManager.rowTotal - p.playlistManager.totalRows && y > p.playlistManager.y + area_h - inner_padding) {
                                         if(p.playlistManager.scrollbarWidth > 0 && !cPlaylistManager.vscroll_timer_loop) {
                                             cPlaylistManager.vscroll_timer_loop = window.SetInterval(function(){
                                                 //
@@ -2363,7 +2363,7 @@ oList = function(object_name, playlist) {
                                                 };
                                             }, 5);
                                         };
-                                    }; else {
+                                    } else {
                                         if(cPlaylistManager.vscroll_timer) {
                                             window.ClearInterval(cPlaylistManager.vscroll_timer_loop);
                                             cPlaylistManager.vscroll_timer_loop = false;
@@ -2379,7 +2379,7 @@ oList = function(object_name, playlist) {
                                             }, 50);
                                         };
                                     };
-                                }; else {
+                                } else {
                                     if(cPlaylistManager.vscroll_timer_loop) {
                                         window.ClearInterval(cPlaylistManager.vscroll_timer_loop);
                                         cPlaylistManager.vscroll_timer_loop = false;
@@ -2387,14 +2387,14 @@ oList = function(object_name, playlist) {
                                 };
                             };
                         };
-                    }; else {
+                    } else {
                         // kill timers
                         if(cPlaylistManager.vscroll_timer_loop) {
                             window.ClearInterval(cPlaylistManager.vscroll_timer_loop);
                             cPlaylistManager.vscroll_timer_loop = false;
                         };
                     };
-                }; else if(!this.item_clicked) {
+                } else if(!this.item_clicked) {
                     // if draw Selection Rect from an empty area, repaint on mouse move to show the rect
                     full_repaint();
                 };
@@ -2428,10 +2428,10 @@ oList = function(object_name, playlist) {
             chr = albumartist.substring(0,1);
             if(first_chr.charCodeAt(first_chr) > chr.charCodeAt(chr)) {
                 gstart = Math.floor(this.count / 2);
-            }; else {
+            } else {
                 gstart = 0;
             };
-        }; else {
+        } else {
             gstart = 0;
         };
 
@@ -2474,7 +2474,7 @@ oList = function(object_name, playlist) {
                 };
             };
 
-        }; else {
+        } else {
 
             // 1st search on tf_group_key of current group by pattern
             var format_str = "";
@@ -2508,7 +2508,7 @@ oList = function(object_name, playlist) {
             plman.SetPlaylistSelectionSingle(this.playlist, this.focusedTrackId, true);
             plman.SetPlaylistFocusItem(this.playlist, this.focusedTrackId);
             this.showFocusedItem();
-        }; else { // not found on "album artist" TAG, new search on "artist" TAG
+        } else { // not found on "album artist" TAG, new search on "artist" TAG
             cList.inc_search_noresult = true;
             full_repaint();
         };
@@ -2565,7 +2565,7 @@ oList = function(object_name, playlist) {
         var ret = _menu.TrackPopupMenu(x, y);
         if(ret > 2 && ret < 800) {
             Context.ExecuteByID(ret - 3);
-        }; else if(ret<3) {
+        } else if(ret<3) {
             switch (ret) {
             case 1:
                 for(var i = 0; i < p.settings.pages.length; i++) {
@@ -2579,7 +2579,7 @@ oList = function(object_name, playlist) {
                 plman.ActivePlaylist = isQueuePlaylistPresent();
                 break;
             };
-        }; else {
+        } else {
             switch (true) {
             case (ret==1010):
                 plman.UndoBackup(this.playlist);

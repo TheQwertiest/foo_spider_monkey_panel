@@ -40,7 +40,7 @@ function settings_checkboxes_action(id, status, parentId) {
                     window.SetProperty("SYSTEM.Media Library Playlist", status);
                     if(status) {
                         checkMediaLibrayPlaylist();
-                    }; else {
+                    } else {
                         if(plman.GetPlaylistName(0) == "Media Library") {
                             plman.RemovePlaylist(0);
                         };
@@ -51,7 +51,7 @@ function settings_checkboxes_action(id, status, parentId) {
                     window.SetProperty("CUSTOM Historic Playlist enabled", status);
                     if(status) {
                         addToHistoricPlaylist(null);
-                    }; else {
+                    } else {
                         var total = plman.PlaylistCount;
                         for (var i=0; i < total; i++) {
                             if(plman.GetPlaylistName(i) == "Historic") {
@@ -105,7 +105,7 @@ function settings_checkboxes_action(id, status, parentId) {
                             p.headerBar.columns[k].w = Math.abs(p.headerBar.w * p.headerBar.columns[k].percent / 100000);
                         };
                         p.headerBar.saveColumns();
-                    }; else {
+                    } else {
                         // check if it's not the last column visible, otherwise, we coundn't hide it!
                         var nbvis = 0;
                         fin = p.headerBar.columns.length;
@@ -150,7 +150,7 @@ function settings_checkboxes_action(id, status, parentId) {
                             cover.column = true;
                             cGroup.count_minimum = Math.ceil( (p.headerBar.columns[idx].w) / cTrack.height);
                             if(cGroup.count_minimum < cGroup.default_count_minimum) cGroup.count_minimum = cGroup.default_count_minimum;
-                        }; else {
+                        } else {
                             cover.column = false;
                             cGroup.count_minimum = cGroup.default_count_minimum;
                         };
@@ -158,7 +158,7 @@ function settings_checkboxes_action(id, status, parentId) {
                         g_image_cache = new image_cache;
                         CollectGarbage();
                         update_playlist(properties.collapseGroupsByDefault);
-                    };  else {
+                    } else {
                         full_repaint();
                     };
                     break;
@@ -169,7 +169,7 @@ function settings_checkboxes_action(id, status, parentId) {
                 case 16:
                     if(status) {
                         p.list.groupby[p.settings.pages[parentId].elements[0].selectedId].showCover = "1";
-                    }; else {
+                    } else {
                         p.list.groupby[p.settings.pages[parentId].elements[0].selectedId].showCover = "0";
                     };
                     p.list.saveGroupBy();
@@ -177,7 +177,7 @@ function settings_checkboxes_action(id, status, parentId) {
                 case 17:
                     if(status) {
                         p.list.groupby[p.settings.pages[parentId].elements[0].selectedId].autoCollapse = "1";
-                    }; else {
+                    } else {
                         p.list.groupby[p.settings.pages[parentId].elements[0].selectedId].autoCollapse = "0";
                     };
                     p.list.saveGroupBy();
@@ -192,7 +192,7 @@ function settings_checkboxes_action(id, status, parentId) {
                     // refresh wallpaper
                     if(fb.IsPlaying) {
                         p.wallpaperImg = setWallpaperImg(properties.wallpaperpath, fb.GetNowPlaying());
-                    }; else {
+                    } else {
                         p.wallpaperImg = null;
                     };
                     break;
@@ -202,7 +202,7 @@ function settings_checkboxes_action(id, status, parentId) {
                     // refresh wallpaper
                     if(fb.IsPlaying) {
                         p.wallpaperImg = setWallpaperImg(properties.wallpaperpath, fb.GetNowPlaying());
-                    }; else {
+                    } else {
                         p.wallpaperImg = null;
                     };
                     break;
@@ -529,7 +529,7 @@ function settings_radioboxes_action(id, status, parentId) {
             // set wallpaper
             if(fb.IsPlaying) {
                 p.wallpaperImg = setWallpaperImg(properties.wallpaperpath, fb.GetNowPlaying());
-            }; else {
+            } else {
                 p.wallpaperImg = null;
             };
             full_repaint();
@@ -582,7 +582,7 @@ function settings_listboxes_action(pageId, id, selectedId) {
                     };
                     // update checkbox status / selected column Id in the listbox
                     p.settings.pages[1].elements[0].status = (p.headerBar.columns[selectedId].percent > 0);
-                    }; catch(e) {
+                    } catch(e) {
                         fb.trace("WSH Error catched: settings_listboxes_action");
                     };
                     full_repaint();
@@ -726,7 +726,7 @@ function settings_listboxes_action(pageId, id, selectedId) {
                                 break;
                         };
 
-                    }; catch(e) {
+                    } catch(e) {
                         fb.trace("WSH Error catched: settings_listboxes_action");
                     };
                     full_repaint();
@@ -891,7 +891,7 @@ function settings_textboxes_action(pageId, elementId) {
                     // refresh wallpaper
                     if(fb.IsPlaying) {
                         p.wallpaperImg = setWallpaperImg(properties.wallpaperpath, fb.GetNowPlaying());
-                    }; else {
+                    } else {
                         p.wallpaperImg = null;
                     };
                 };
@@ -948,7 +948,7 @@ oCheckBox = function(id, x, y, label, linkedVariable, func, parentPageId) {
         // button
         if(this.status) {
             this.button = new button(this.checkbox_normal_on.Resize(button_zoomSize,button_zoomSize,7), this.checkbox_hover_on.Resize(button_zoomSize,button_zoomSize,7), this.checkbox_hover_on.Resize(button_zoomSize,button_zoomSize,7));
-        }; else {
+        } else {
             this.button = new button(this.checkbox_normal_off.Resize(button_zoomSize,button_zoomSize,7), this.checkbox_hover_off.Resize(button_zoomSize,button_zoomSize,7), this.checkbox_hover_off.Resize(button_zoomSize,button_zoomSize,7));
         };
     };
@@ -960,7 +960,7 @@ oCheckBox = function(id, x, y, label, linkedVariable, func, parentPageId) {
             var button_zoomSize = g_z16;
             if(this.status) {
                 this.button.update(this.checkbox_normal_on.Resize(button_zoomSize,button_zoomSize,7), this.checkbox_hover_on.Resize(button_zoomSize,button_zoomSize,7), this.checkbox_hover_on.Resize(button_zoomSize,button_zoomSize,7));
-            }; else {
+            } else {
                 this.button.update(this.checkbox_normal_off.Resize(button_zoomSize,button_zoomSize,7), this.checkbox_hover_off.Resize(button_zoomSize,button_zoomSize,7), this.checkbox_hover_off.Resize(button_zoomSize,button_zoomSize,7));
             };
             this.prevStatus = this.status;
@@ -1044,7 +1044,7 @@ oRadioButton = function(id, x, y, label, linkedVariable, func, parentPageId) {
         // button
         if(this.status) {
             this.button = new button(this.radiobt_normal_on.Resize(button_zoomSize,button_zoomSize,7), this.radiobt_hover_on.Resize(button_zoomSize,button_zoomSize,7), this.radiobt_hover_on.Resize(button_zoomSize,button_zoomSize,7));
-        }; else {
+        } else {
             this.button = new button(this.radiobt_normal_off.Resize(button_zoomSize,button_zoomSize,7), this.radiobt_hover_off.Resize(button_zoomSize,button_zoomSize,7), this.radiobt_hover_off.Resize(button_zoomSize,button_zoomSize,7));
         };
     };
@@ -1054,7 +1054,7 @@ oRadioButton = function(id, x, y, label, linkedVariable, func, parentPageId) {
         var button_zoomSize = g_z16;
         if(this.status) {
             this.button.update(this.radiobt_normal_on.Resize(button_zoomSize,button_zoomSize,7), this.radiobt_hover_on.Resize(button_zoomSize,button_zoomSize,7), this.radiobt_hover_on.Resize(button_zoomSize,button_zoomSize,7));
-        }; else {
+        } else {
             this.button.update(this.radiobt_normal_off.Resize(button_zoomSize,button_zoomSize,7), this.radiobt_hover_off.Resize(button_zoomSize,button_zoomSize,7), this.radiobt_hover_off.Resize(button_zoomSize,button_zoomSize,7));
         };
         this.ly = this.y - (p.settings.pages[this.parentPageId].offset * cSettings.rowHeight);
@@ -1179,7 +1179,7 @@ oTextBox = function(id, x, y, w, h, label, value, func, parentPageId) {
                     if(next_textbox_id < 0) {
                         next_textbox_id = first_textbox_id;
                     };
-                }; else {
+                } else {
                     // scan elements to find objectType = "TB" / TextBox
                     var first_textbox_id = -1;
                     var next_textbox_id = -1;
@@ -1218,7 +1218,7 @@ oTextBox = function(id, x, y, w, h, label, value, func, parentPageId) {
                     if(p.settings.pages[this.parentPageId].offset < 0) p.settings.pages[this.parentPageId].offset = 0;
                     p.settings.pages[this.parentPageId].scrollbar.reSet(p.settings.pages[this.parentPageId].total_rows, cSettings.rowHeight, p.settings.pages[this.parentPageId].offset);
                     full_repaint();
-                }; else if(next_ly > p.settings.pages[this.parentPageId].y + p.settings.pages[this.parentPageId].h - cSettings.rowHeight*3) {
+                } else if(next_ly > p.settings.pages[this.parentPageId].y + p.settings.pages[this.parentPageId].h - cSettings.rowHeight*3) {
                     var maxOffset = p.settings.pages[this.parentPageId].total_rows - p.settings.pages[this.parentPageId].totalRowsVis;
                     var d = Math.ceil((next_ly - (p.settings.pages[this.parentPageId].y + p.settings.pages[this.parentPageId].h) + cSettings.rowHeight*3) / cSettings.rowHeight);
                     p.settings.pages[this.parentPageId].offset += d;
@@ -1313,7 +1313,7 @@ oSlider = function(id, w, h, range, color_mode, value, parentPageId, parentWidge
             var cursor_color = (p.settings.colorWidgetFocusedId == this.parentWidgetId ? (p.settings.colorSliderFocusedId == this.id ? RGB(255,255,255) : RGB(180,180,180)) : RGB(180,180,180));
             gr.FillSolidRect(this.Zx+this.Zcx, this.Zcy, this.Zcw, this.Zch, cursor_color);
             gr.DrawRect(this.Zx+this.Zcx, this.Zcy, this.Zcw-1, this.Zch-1, 1.0, RGB(30,30,30));
-        }; else {
+        } else {
             var cursor_color = RGB(180,180,180);
             gr.FillSolidRect(this.Zx+0, this.Zcy, this.Zcw, this.Zch, cursor_color);
             gr.DrawRect(this.Zx+0, this.Zcy, this.Zcw-1, this.Zch-1, 1.0, RGB(30,30,30));
@@ -1342,7 +1342,7 @@ oSlider = function(id, w, h, range, color_mode, value, parentPageId, parentWidge
                         this.value = this.setValue(x);
                         this.Zcx = this.setCursorPos(this.value);
                         p.settings.pages[this.parentPageId].elements[this.parentWidgetId].repaint();
-                    }; else if(this.isHoverCursor(x, y)) {
+                    } else if(this.isHoverCursor(x, y)) {
                         this.drag = true;
                         this.dragX = x;
                     };
@@ -1529,7 +1529,7 @@ oWidget = function (id, x, y, w, h, label, color_id, func, parentPageId) {
             gr.FillSolidRect(cubx, cuby, cubw, cubh, RGB(this.sliders[0].value, this.sliders[1].value, this.sliders[2].value));
             gr.FillGradRect(cubx, cuby, cubw, cubh, 45, RGBA(0,0,0,20), RGBA(255,255,255,20), 1.0);
             gr.DrawRect(cubx, cuby, cubw-1, cubh-1, 1.0, p.settings.color1);
-        }; else {
+        } else {
             gr.FillSolidRect(cubx, cuby, cubw, cubh, RGB(250,250,250));
             gr.DrawRect(cubx, cuby, cubw-1, cubh-1, 1.0, RGB(255,50,50));
             gr.SetSmoothingMode(2);
@@ -1605,7 +1605,7 @@ oWidget = function (id, x, y, w, h, label, color_id, func, parentPageId) {
         };
         if(p.settings.color_updated) { // if a slider has been moved, color is to update
             this.updateColor();
-        }; else {
+        } else {
             // if click and not slider moved or clicked, slider focus to RESET
             if(event == "up") {
                 // reset slider focus
@@ -1669,7 +1669,7 @@ oListBox = function(id, object_name, x, y, w, h, row_height, label, arr, selecte
             var max_offset = this.total - this.totalRows;
             this.offset = rowId > max_offset ? max_offset : rowId;
             this.scrollbar.updateCursorPos(this.offset);
-        }; else {
+        } else {
             this.offset = 0;
         };
         eval(gfunc+"("+this.parentPageId+", "+this.id+", "+this.selectedId+")");
@@ -1683,7 +1683,7 @@ oListBox = function(id, object_name, x, y, w, h, row_height, label, arr, selecte
         this.scrollbar.reSet(this.total, this.rowHeight, this.offset);
         if(this.scrollbar.visible) {
             this.scrollbarWidth = this.scrollbar.w;
-        }; else {
+        } else {
             this.scrollbarWidth = 0;
         };
     };
@@ -1705,7 +1705,7 @@ oListBox = function(id, object_name, x, y, w, h, row_height, label, arr, selecte
         this.scrollbar.reSize(this.x + this.w - cScrollBar.width, this.ly, cScrollBar.width, this.h, this.arr.length, this.rowHeight, this.offset);
         if(this.scrollbar.visible) {
             this.scrollbarWidth = this.scrollbar.w;
-        }; else {
+        } else {
             this.scrollbarWidth = 0;
         };
     };
@@ -1719,7 +1719,7 @@ oListBox = function(id, object_name, x, y, w, h, row_height, label, arr, selecte
         this.scrollbar.reSet(this.total, this.rowHeight, this.offset);
         if(this.scrollbar.visible) {
             this.scrollbarWidth = this.scrollbar.w;
-        }; else {
+        } else {
             this.scrollbarWidth = 0;
         };
         
@@ -2145,7 +2145,7 @@ oPage = function(id, objectName, label, nbrows) {
         this.scrollbar.reSet(this.total_rows, cSettings.rowHeight, this.offset);
         if(this.scrollbar.visible) {
             this.scrollbarWidth = this.scrollbar.w;
-        }; else {
+        } else {
             this.scrollbarWidth = 0;
         };
         this.init();
@@ -2164,7 +2164,7 @@ oPage = function(id, objectName, label, nbrows) {
         this.scrollbar.reSize(p.settings.x + p.settings.w - cScrollBar.width, p.settings.y + cSettings.topBarHeight + cHeaderBar.height, cScrollBar.width, p.settings.h - cSettings.topBarHeight - cHeaderBar.height, this.total_rows, cSettings.rowHeight, this.offset);
         if(this.scrollbar.visible) {
             this.scrollbarWidth = this.scrollbar.w;
-        }; else {
+        } else {
             this.scrollbarWidth = 0;
         };
         this.init();
@@ -2199,7 +2199,7 @@ oPage = function(id, objectName, label, nbrows) {
                 var ny = Math.floor(cSettings.topBarHeight + rh * 2.1) - (this.offset * cSettings.rowHeight);
                 if(p.headerBar.columns.length < properties.max_columns) {
                     p.settings.newbutton.draw(gr, nx, ny, 255);
-                }; else {
+                } else {
                     gr.DrawImage(p.settings.newColumn_no, nx, ny, p.settings.newColumn_no.Width, p.settings.newColumn_no.Height, 0, 0, p.settings.newColumn_no.Width, p.settings.newColumn_no.Height, 0, 255);
                 };
                 // delete user column button
@@ -2210,7 +2210,7 @@ oPage = function(id, objectName, label, nbrows) {
                 var ref = p.headerBar.columns[idx].ref;
                 if(ref.substr(0,6) == "Custom") {
                     p.settings.delbutton.draw(gr, dx, dy, 255);
-                }; else {
+                } else {
                     gr.DrawImage(p.settings.delColumn_no, dx, dy, p.settings.delColumn_no.Width, p.settings.delColumn_no.Height, 0, 0, p.settings.delColumn_no.Width, p.settings.delColumn_no.Height, 0, 255);
                 };
                 break;
@@ -2221,7 +2221,7 @@ oPage = function(id, objectName, label, nbrows) {
                 var ny = Math.floor(cSettings.topBarHeight + rh * 2.1) - (this.offset * cSettings.rowHeight);
                 if(p.headerBar.columns.length < properties.max_columns) {
                     p.settings.newbuttonPattern.draw(gr, nx, ny, 255);
-                }; else {
+                } else {
                     gr.DrawImage(p.settings.newPattern_no, nx, ny, p.settings.newPattern_no.Width, p.settings.newPattern_no.Height, 0, 0, p.settings.newPattern_no.Width, p.settings.newPattern_no.Height, 0, 255);
                 };
                 // delete pattern button
@@ -2232,7 +2232,7 @@ oPage = function(id, objectName, label, nbrows) {
                 var ref = p.list.groupby[idx].ref;
                 if(ref.substr(0,6) == "Custom") {
                     p.settings.delbuttonPattern.draw(gr, dx, dy, 255);
-                }; else {
+                } else {
                     gr.DrawImage(p.settings.delPattern_no, dx, dy, p.settings.delPattern_no.Width, p.settings.delPattern_no.Height, 0, 0, p.settings.delPattern_no.Width, p.settings.delPattern_no.Height, 0, 255);
                 };
 
@@ -2356,7 +2356,7 @@ oPage = function(id, objectName, label, nbrows) {
                                 };
                                 p.headerBar.columns[k].w = Math.abs(p.headerBar.w * p.headerBar.columns[k].percent / 100000);
                             };
-                        }; else {
+                        } else {
                             // it's the last column visible, delete not possile for now !!!
                             return false;
                         };
@@ -2383,7 +2383,7 @@ oPage = function(id, objectName, label, nbrows) {
                     var new_idx = (idx == 0 ? 0 : idx - 1);
                     p.settings.pages[1].elements[0].showSelected(new_idx);
                     full_repaint();
-                }; else {
+                } else {
                     // we could not delete a native column!
                     return false;
                 };
@@ -2464,7 +2464,7 @@ oPage = function(id, objectName, label, nbrows) {
                         p.scrollbar.setCursor(p.list.totalRowVisible, p.list.totalRows, p.list.offset);
                     };
                     full_repaint();
-                }; else {
+                } else {
                     // we could not delete a native "Group By" pattern!
                     return false;
                 };

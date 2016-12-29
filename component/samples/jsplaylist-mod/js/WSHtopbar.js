@@ -38,7 +38,7 @@ oTopBar = function() {
             for(var m=0; m < p.list.groupby.length; m++) {
                 if(default_pattern_index > -1 && found) {
                     break;
-                }; else if(p.list.groupby[m].playlistFilter.length > 0) {
+                } else if(p.list.groupby[m].playlistFilter.length > 0) {
                     var arr_pl = p.list.groupby[m].playlistFilter.split(";");
                     for(var n=0; n < arr_pl.length; n++) {
                         if(default_pattern_index < 0 && arr_pl[n] == "*") {
@@ -55,9 +55,9 @@ oTopBar = function() {
         };
         if(found) {
             this.filter_type = 1;
-        }; else if (default_pattern_index > -1) {
+        } else if (default_pattern_index > -1) {
             this.filter_type = 2;
-        }; else {
+        } else {
             this.filter_type = 0;
         };
 
@@ -66,10 +66,10 @@ oTopBar = function() {
             this.playlist_total_seconds = this.calc_playlist_duration();
             if(this.playlist_total_seconds > 0) {
                 this.totalDurationText = utils.FormatDuration(this.playlist_total_seconds);
-            }; else {
+            } else {
                 this.totalDurationText = "";
             };
-        }; else {
+        } else {
             this.playlist_total_seconds = 0;
             this.totalDurationText = "";
         };
@@ -127,7 +127,7 @@ oTopBar = function() {
 			gr.SetTextRenderingHint(5);
 			if(this.totalDurationText.length > 0) {
 				gr.DrawString(this.playlist_count > 0 ? (this.playlist_count + (this.playlist_count > 1 ? " tracks. " : " track. ") + this.totalDurationText) : "empty playlist", gdi.Font("segoe ui", this.txt2Height, 0), g_color_normal_txt & 0x88ffffff, this.x + logoW + borderHeight, Math.ceil(cTopBar.height / 2) + 1 + borderHeight, this.w - logoW - 15, 32, lt_stringformat);
-			}; else {
+			} else {
 				gr.DrawString(this.playlist_count > 0 ? (this.playlist_count + (this.playlist_count > 1 ? " streams " : " stream ")) : "empty playlist", gdi.Font("segoe ui", this.txt2Height, 0), g_color_normal_txt & 0x88ffffff, this.x + logoW + cHeaderBar.borderWidth, Math.ceil(cTopBar.height / 2) + 1 + borderHeight, this.w - logoW - 15, 32, lt_stringformat);
 			};
 			// draw close button

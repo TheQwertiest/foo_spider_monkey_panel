@@ -352,7 +352,7 @@ function set_scroll_delta() {
                     full_repaint();
                 }, 30);
             };
-        }; else {
+        } else {
             cList.scroll_delta = cTrack.height;
         };
     };
@@ -444,7 +444,7 @@ function checkMediaLibrayPlaylist() {
         plman.CreateAutoPlaylist(total, "Media Library", "ALL", "%album artist% | $if(%album%,%date%,'9999') | %album% | %discnumber% | %tracknumber% | %title%", 0);
         // Move it to the top
         plman.MovePlaylist(total, 0);
-    }; else if(mediaLibraryIndex > 0) {
+    } else if(mediaLibraryIndex > 0) {
         // Always move it to the top
         plman.MovePlaylist(mediaLibraryIndex, 0);
     };
@@ -468,7 +468,7 @@ function togglePlaylistManager() {
                     full_repaint();
                 };
             }, 16);
-        }; else {
+        } else {
             p.playlistManager.refresh("", false, false);
             cPlaylistManager.hscroll_timer = window.SetInterval(function () {
                 p.playlistManager.woffset += cPlaylistManager.step;
@@ -480,7 +480,7 @@ function togglePlaylistManager() {
                     window.SetProperty("SYSTEM.PlaylistManager.Visible", cPlaylistManager.visible);
                     p.headerBar.button.update(p.headerBar.slide_close_normal, p.headerBar.slide_close_hover, p.headerBar.slide_close_down);
                     full_repaint();
-                }; else {
+                } else {
                     p.playlistManager.repaint();
                 };
             }, 16);
@@ -546,7 +546,7 @@ function on_get_album_art_done(metadb, art_id, image, image_path) {
         if(p.list.items[i].metadb) {
             if (cover.column) {
                 cover_metadb = p.list.handleList.Item(p.list.groups[p.list.items[i].group_index].start);
-            }; else {
+            } else {
                 cover_metadb = p.list.items[i].metadb;
             };
             if(cover_metadb.Compare(metadb)) {
@@ -613,18 +613,18 @@ image_cache = function () {
             if(!image) {
                 var pw = cw + cover.margin * 2;
                 var ph = ch + cover.margin * 2;
-            }; else {
+            } else {
                 if(image.Height>=image.Width) {
                     var ratio = image.Width / image.Height;
                     var pw = (cw + cover.margin * 2) * ratio;
                     var ph = ch + cover.margin * 2;
-                }; else {
+                } else {
                     var ratio = image.Height / image.Width;
                     var pw = cw + cover.margin * 2;
                     var ph = (ch + cover.margin * 2) * ratio;
                 };
             };
-        }; else {
+        } else {
             var pw = cw + cover.margin * 2;
             var ph = ch + cover.margin * 2;
         };
@@ -636,11 +636,11 @@ image_cache = function () {
                     //img = (cGroup.type == 1) ? images.noartist : images.nocover;
                     img = null;
                     cover.type = 0;
-                }; else {
+                } else {
                     cover.type = 1;
                 };
             };
-        }; else {
+        } else {
             img = images.stream;
             cover.type = 3;
         };
@@ -659,19 +659,19 @@ function FormatCover(image, w, h, reflect, rawBitmap) {
         var gb = new_img.GetGraphics();
         if(h > w) {
             gb.DrawImage(images.glass_reflect, Math.floor((h-w)/2)*-1 + 1, 1, h - 2, h - 2, 0, 0, images.glass_reflect.Width, images.glass_reflect.Height, 0, 150);
-        }; else {
+        } else {
             gb.DrawImage(images.glass_reflect, 1, Math.floor((w-h)/2)*-1 + 1, w - 2, w - 2, 0, 0, images.glass_reflect.Width, images.glass_reflect.Height, 0, 150);
         };
         new_img.ReleaseGraphics(gb);
         if(rawBitmap) {
             return new_img.CreateRawBitmap();
-        }; else {
+        } else {
             return new_img;
         };
-    }; else {
+    } else {
         if(rawBitmap) {
             return image.Resize(w, h, 2).CreateRawBitmap();
-        }; else {
+        } else {
             return image.Resize(w, h, 2);
         };
     };
@@ -708,9 +708,9 @@ function update_statistics() {
 
         if(p_count>=0 && p_counter=="?") {
             new_playcounter = Math.floor(p_count) + 1;
-        }; else if(p_counter=="?") {
+        } else if(p_counter=="?") {
             new_playcounter = 1;
-        }; else {
+        } else {
             new_playcounter = Math.floor(p_counter) + 1;
         };
         
@@ -719,7 +719,7 @@ function update_statistics() {
         // UPDATE TAGs
         if(firstplayed_ts!="?") {
             bool = cStats.handle.UpdateFileInfoSimple("LAST_PLAYED", timestamp, "PLAY_COUNTER", new_playcounter, "PLAY_COUNT", "");
-        }; else {
+        } else {
             bool = cStats.handle.UpdateFileInfoSimple("FIRST_PLAYED", timestamp, "LAST_PLAYED", timestamp, "PLAY_COUNTER", new_playcounter, "PLAY_COUNT", "");
         };
         cStats.waiting_for_writing = false;
@@ -744,7 +744,7 @@ function resize_panels(){
     // list row height
     if(cList.enableExtraLine) {
         cRow.playlist_h = cRow.default_playlist_h + cRow.extra_line_h;
-    }; else {
+    } else {
         cRow.playlist_h = cRow.default_playlist_h;
     };
     cTrack.height = zoom(cRow.playlist_h, g_dpi);
@@ -753,14 +753,14 @@ function resize_panels(){
     // topbar default height ?
     if(cTopBar.visible) {
         var topbar_h = cTopBar.height + cHeaderBar.borderWidth;
-    }; else {
+    } else {
         var topbar_h = 0;
     };
     
     if(cHeaderBar.locked) {
         var headerbar_h = cHeaderBar.height;
         p.headerBar.visible = true;
-    }; else {
+    } else {
         var headerbar_h = (topbar_h == 0) ? 0 : 1;
         p.headerBar.visible = false;
     };
@@ -783,7 +783,7 @@ function resize_panels(){
                 };
             };
             */
-        }; else {
+        } else {
             cPlaylistManager.visible = false;
             p.playlistManager.woffset = cPlaylistManager.width;
         };
@@ -816,7 +816,7 @@ function resize_panels(){
     p.playlistManager.setSize(ww, p.list.y, cPlaylistManager.width, p.list.h);
     if(cPlaylistManager.visible) {
         p.playlistManager.refresh("", false, false);
-    }; else {
+    } else {
         p.playlistManager.refresh("", true, true);
     };
 };
@@ -904,7 +904,7 @@ function on_init() {
                 var bigger_grp_height = (cGroup.default_expanded_height > cGroup.default_collapsed_height ? cGroup.default_expanded_height : cGroup.default_collapsed_height);
                 if(p.headerBar.columns[0].percent > 0) {
                     var cw = cover.margin + p.headerBar.columns[0].w;
-                }; else if(cover.show) {
+                } else if(cover.show) {
                     var cw = cover.margin + (cTrack.height * bigger_grp_height);
                 };
                 window.RepaintRect(p.list.x, p.list.y, cw, p.list.h);
@@ -922,7 +922,7 @@ function on_size() {
     if(g_instancetype == 0) { // CUI
         window.MinWidth = 360;
         window.MinHeight = 200;  
-    }; else if(g_instancetype == 1) { // DUI
+    } else if(g_instancetype == 1) { // DUI
         window.MinWidth = zoom(360, g_dpi);
         window.MinHeight = zoom(200, g_dpi);
     };
@@ -935,7 +935,7 @@ function on_size() {
     // set wallpaper
     if(fb.IsPlaying) {
         p.wallpaperImg = setWallpaperImg(properties.wallpaperpath, fb.GetNowPlaying());
-    }; else {
+    } else {
         p.wallpaperImg = null;
     };
     
@@ -945,7 +945,7 @@ function on_size() {
         cover.column = true;
         cGroup.count_minimum = Math.ceil( (p.headerBar.columns[0].w) / cTrack.height);
         if(cGroup.count_minimum < cGroup.default_count_minimum) cGroup.count_minimum = cGroup.default_count_minimum;
-    }; else {
+    } else {
         cover.column = false;
         cGroup.count_minimum = cGroup.default_count_minimum;
     };
@@ -980,7 +980,7 @@ function on_paint(gr) {
             if(fb.IsPlaying && p.wallpaperImg && properties.showwallpaper) {
                 gr.GdiDrawBitmap(p.wallpaperImg, 0, p.list.y, ww, wh-p.list.y, 0, p.list.y, p.wallpaperImg.Width, p.wallpaperImg.Height-p.list.y);
                 gr.FillSolidRect(0, p.list.y, ww, wh-p.list.y, g_color_normal_bg & RGBA(255,255,255,properties.wallpaperalpha));
-            }; else {
+            } else {
                 gr.FillSolidRect(0, p.list.y, ww, wh-p.list.y, g_color_normal_bg);
             };
 
@@ -994,7 +994,7 @@ function on_paint(gr) {
                     if(properties.showscrollbar && p.scrollbar && p.list.totalRows > 0 && (p.list.totalRows > p.list.totalRowVisible)) {
                         p.scrollbar.visible = true;
                         p.scrollbar.draw(gr);
-                    }; else {
+                    } else {
                         p.scrollbar.visible = false;
                     };
                     
@@ -1019,12 +1019,12 @@ function on_paint(gr) {
                         };
                     };
 
-                }; else {
+                } else {
                     
                     if(plman.PlaylistCount > 0) {
                         var text_top = plman.GetPlaylistName(plman.ActivePlaylist);
                         var text_bot = "This playlist is empty";
-                    }; else {
+                    } else {
                         var text_top = "JSPlaylist "+g_script_version+" coded by Br3tt - 2015";
                         var text_bot = "Create a playlist to start!";
                     };
@@ -1035,7 +1035,7 @@ function on_paint(gr) {
                         gr.DrawString("No Result for \""+search_text+"\"", gdi.Font(g_fname, g_fsize + 7, 0), g_color_normal_txt & 0x40ffffff, 0, 0 - zoom(20, g_dpi), ww, wh, cc_stringformat);
                         gr.DrawString(text_bot, gdi.Font(g_fname, g_fsize + 2, 0), g_color_normal_txt & 0x40ffffff, 0, 0 + zoom(20, g_dpi), ww, wh, cc_stringformat);
                         gr.FillGradRect(40, Math.floor(wh/2), ww-80, Math.floor(zoom(1, g_dpi)), 0, 0, g_color_normal_txt & 0x40ffffff, 0.5);
-                    }; else {
+                    } else {
                         // if empty playlist, display text info
                         gr.SetTextRenderingHint(3);
                         gr.DrawString(text_top, gdi.Font(g_fname, g_fsize + 7, 0), g_color_normal_txt & 0x40ffffff, 0, 0 - zoom(20, g_dpi), ww, wh, cc_stringformat);
@@ -1050,7 +1050,7 @@ function on_paint(gr) {
                 if(fb.IsPlaying && p.wallpaperImg && properties.showwallpaper) {
                     gr.GdiDrawBitmap(p.wallpaperImg, 0, 0, ww, p.list.y, 0, 0, p.wallpaperImg.Width, p.list.y);
                     gr.FillSolidRect(0, 0, ww, p.list.y, g_color_normal_bg & RGBA(255,255,255,properties.wallpaperalpha));
-                }; else {
+                } else {
                     gr.FillSolidRect(0, 0, ww, p.list.y, g_color_normal_bg);
                 };
             };
@@ -1073,7 +1073,7 @@ function on_paint(gr) {
                         var gap_h = zoom(5, g_dpi);
                         if(b == p.headerBar.borderDraggedId) {
                             var d = ((mouse_x / zoom(10, g_dpi)) - Math.floor(mouse_x / zoom(10, g_dpi))) * zoom(10, g_dpi); // give a value between [0;9]
-                        }; else {
+                        } else {
                             d = 5;
                         };
                         var ty = 0;
@@ -1086,13 +1086,13 @@ function on_paint(gr) {
                             }
                             if(b == p.headerBar.borderDraggedId) {
                                 gr.FillSolidRect(lg_x, ty, lg_w, th, g_color_normal_txt & 0x32ffffff);
-                            }; else {
+                            } else {
                                 gr.FillSolidRect(lg_x, ty, lg_w, th, g_color_normal_txt & 0x16ffffff);
                             };
                         };
                     };
                 };
-            }; else {
+            } else {
                 p.headerBar && p.headerBar.drawHiddenPanel(gr);
             };
             
@@ -1112,10 +1112,10 @@ function on_paint(gr) {
                 try {
                     gr.GdiDrawText(cList.search_string, cList.incsearch_font_big, RGB(0,0,0), p.list.tt_x + 1, p.list.tt_y + 1 , p.list.tt_w , p.list.tt_h, DT_CENTER | DT_NOPREFIX | DT_CALCRECT | DT_VCENTER);
                     gr.GdiDrawText(cList.search_string, cList.incsearch_font_big, cList.inc_search_noresult?RGB(255,70,70):RGB(250,250,250), p.list.tt_x, p.list.tt_y , p.list.tt_w , p.list.tt_h, DT_CENTER | DT_NOPREFIX | DT_CALCRECT | DT_VCENTER);
-                }; catch(e) {};
+                } catch(e) {};
             };
                   
-        }; else {
+        } else {
             // Settings...
             p.settings && p.settings.draw(gr);
         };
@@ -1162,7 +1162,7 @@ function on_mouse_lbtn_down(x, y) {
         if(cSettings.visible) {
             cTouch.down = true;
             cTouch.y_start = y;
-        }; else {
+        } else {
             if(p.list.isHoverObject(x, y) && !p.scrollbar.isHoverObject(x, y)) {
                 cTouch.down = true;
                 cTouch.y_start = y;
@@ -1175,7 +1175,7 @@ function on_mouse_lbtn_down(x, y) {
     // check settings
     if(cSettings.visible) {
         p.settings.on_mouse("down", x, y);
-    }; else {
+    } else {
         
         cover.previous_max_size = p.headerBar.columns[0].w;
         
@@ -1209,7 +1209,7 @@ function on_mouse_lbtn_down(x, y) {
                             }, 60);
                         }, 400);
                     };
-                }; else {
+                } else {
                     if(!p.list.buttonclicked && !cScrollBar.timerID1) {
                         p.list.buttonclicked = true;
                         p.list.scrollItems(-1, scrollstep);
@@ -1229,7 +1229,7 @@ function on_mouse_lbtn_down(x, y) {
                     };
                 };
             };
-        }; else {
+        } else {
             p.playlistManager.check("down", x, y);
         };
         
@@ -1247,7 +1247,7 @@ function on_mouse_lbtn_dblclk(x, y, mask) {
     // check settings
     if(cSettings.visible) {
         p.settings.on_mouse("dblclk", x, y);
-    }; else {
+    } else {
         // check list
         p.list.check("dblclk", x, y);
         // check headerbar
@@ -1261,7 +1261,7 @@ function on_mouse_lbtn_dblclk(x, y, mask) {
                     on_mouse_lbtn_down(x, y); // ...to have a scroll response on double clicking scrollbar area above or below the cursor!
                 };
             };
-        }; else {
+        } else {
             p.playlistManager.check("dblclk", x, y);
         };
     };
@@ -1272,7 +1272,7 @@ function on_mouse_lbtn_up(x, y) {
     // check settings
     if(cSettings.visible) {
         p.settings.on_mouse("up", x, y);
-    }; else {
+    } else {
         
         // scrollbar scrolls up and down RESET
         p.list.buttonclicked = false;
@@ -1289,7 +1289,7 @@ function on_mouse_lbtn_up(x, y) {
                 cover.max_w = (cGroup.default_collapsed_height > cGroup.default_expanded_height ? cGroup.default_collapsed_height * cTrack.height : cGroup.default_expanded_height * cTrack.height);
                 g_image_cache = new image_cache;
                 CollectGarbage();
-            }; else {
+            } else {
                 g_first_launch = false;
             };
             update_playlist(properties.collapseGroupsByDefault);
@@ -1321,7 +1321,7 @@ function on_mouse_lbtn_up(x, y) {
                             // on pointe sur le dernier item de la selection si on move vers le bas
                             var new_drag_pos = p.list.handleList.Find(p.list.metadblist_selection.item(nb_selected_items - 1));
                             var move_delta = dragndrop.drop_id - new_drag_pos;
-                        }; else {
+                        } else {
                             // on pointe sur le 1er item de la selection si on move vers le haut
                             var new_drag_pos = p.list.handleList.Find(p.list.metadblist_selection.item(0));
                             var move_delta = dragndrop.drop_id - new_drag_pos;
@@ -1330,7 +1330,7 @@ function on_mouse_lbtn_up(x, y) {
                         plman.UndoBackup(p.list.playlist);
                         plman.MovePlaylistSelection(p.list.playlist, move_delta);
                         
-                    }; else {
+                    } else {
 
                         // 1st: move selected item at the full end of the playlist to make then contigus
                         g_avoid_on_item_focus_change = true;
@@ -1343,7 +1343,7 @@ function on_mouse_lbtn_up(x, y) {
                         plman.SetPlaylistFocusItemByHandle(p.list.playlist, save_focus_handle);
                         if(dragndrop.drag_id > drop_id_new) {
                             var mdelta = p.list.count - nb_selected_items - drop_id_new;
-                        }; else {
+                        } else {
                             var mdelta = p.list.count - nb_selected_items - drop_id_new - 1;
                         };
                         plman.MovePlaylistSelection(p.list.playlist, mdelta * -1);
@@ -1390,7 +1390,7 @@ function on_mouse_rbtn_down(x, y) {
         // check settings
         if(cSettings.visible) {
             p.settings.on_mouse("right", x, y);
-        }; else {
+        } else {
             // check list
             p.list.check("right", x, y);
             // check topBar
@@ -1436,7 +1436,7 @@ function on_mouse_move(x, y) {
         }; 
         p.settings.on_mouse("move", x, y);
         
-    }; else {
+    } else {
 
         if(cTouch.down) {
             
@@ -1455,7 +1455,7 @@ function on_mouse_move(x, y) {
                 };
             };
             
-        }; else {
+        } else {
         
             // playlist manager (if visible)
             if(p.playlistManager.woffset > 0) {
@@ -1487,7 +1487,7 @@ function on_mouse_move(x, y) {
                     cover.column = true;
                     cGroup.count_minimum = Math.ceil( (p.headerBar.columns[0].w) / cTrack.height);
                     if(cGroup.count_minimum < cGroup.default_count_minimum) cGroup.count_minimum = cGroup.default_count_minimum;
-                }; else {
+                } else {
                     cover.column = false;
                     cGroup.count_minimum = cGroup.default_count_minimum;
                 };
@@ -1501,23 +1501,23 @@ function on_mouse_move(x, y) {
                             if( (p.playlistManager.ishover && p.playlistManager.hoverId == -1) || p.playlistManager.scrollbar.isHoverScrollbar) {
                                 if(!p.playlistManager.ishoverHeader) {
                                     window.SetCursor(IDC_NO);
-                                }; else {
+                                } else {
                                     window.SetCursor(IDC_HELP);
                                 };
-                            }; else {
+                            } else {
                                 if(p.playlistManager.ishover && (p.playlistManager.playlists[p.playlistManager.hoverId].isAutoPlaylist || p.playlistManager.playlists[p.playlistManager.hoverId].isReservedPlaylist || p.playlistManager.playlists[p.playlistManager.hoverId].idx == plman.ActivePlaylist)) {
                                     window.SetCursor(IDC_NO);
-                                }; else {
+                                } else {
                                     window.SetCursor(IDC_HELP);
                                 };
                             };
-                        }; else {
+                        } else {
                             window.SetCursor(IDC_ARROW);
                         };
-                    }; else {
+                    } else {
                         if(dragndrop.enabled && (dragndrop.drag_in || dragndrop.moved)) {
                             window.SetCursor(IDC_NO);
-                        }; else {
+                        } else {
                             window.SetCursor(IDC_ARROW);
                         };
                     };
@@ -1525,7 +1525,7 @@ function on_mouse_move(x, y) {
             if(cPlaylistManager.drag_moved) {
                 if(p.playlistManager.ishoverItem) {
                     window.SetCursor(IDC_HELP);
-                }; else {
+                } else {
                     window.SetCursor(IDC_NO);
                 };
             };
@@ -1545,10 +1545,10 @@ function on_mouse_move(x, y) {
                                     on_mouse_wheel(1);
                                 }, scroll_speed_ms);
                             };
-                        };  else {
+                        } else {
                             full_repaint();
                         };
-                    }; else if(y > p.list.y + p.list.h) {
+                    } else if(y > p.list.y + p.list.h) {
                         if(!p.list.buttonclicked) {
                             p.list.buttonclicked = true;
                             //
@@ -1559,10 +1559,10 @@ function on_mouse_move(x, y) {
                                     on_mouse_wheel(-1);
                                 }, scroll_speed_ms);
                             };
-                        }; else {
+                        } else {
                             full_repaint();
                         };
-                    }; else {
+                    } else {
                         cScrollBar.timerID1 && window.ClearInterval(cScrollBar.timerID1);
                         cScrollBar.timerID1 = false;
                         p.list.buttonclicked = false;
@@ -1574,7 +1574,7 @@ function on_mouse_move(x, y) {
                             }, 75);
                         };
                     };
-                }; else {
+                } else {
                     cScrollBar.timerID1 && window.ClearInterval(cScrollBar.timerID1);
                     cScrollBar.timerID1 = false;
                 };
@@ -1596,7 +1596,7 @@ function on_mouse_wheel(delta) {
         if(delta > 0) {
             g_forced_percent = (g_forced_percent < g_dpi_percent ? g_dpi_percent + zoomStep : g_forced_percent + zoomStep);
             if(g_forced_percent > 250) g_forced_percent = 250;
-        }; else {
+        } else {
             g_forced_percent -= zoomStep;
             if(g_forced_percent <= g_dpi_percent) g_forced_percent = 0;
         };
@@ -1605,7 +1605,7 @@ function on_mouse_wheel(delta) {
         adjustMetrics(1);
         resize_panels();
         full_repaint();
-    }; else {
+    } else {
         // check settings
         if(cSettings.visible) {
             p.settings.on_mouse("wheel", mouse_x, mouse_y, delta);
@@ -1618,7 +1618,7 @@ function on_mouse_wheel(delta) {
                 window.ClearTimeout(cSettings.wheel_timer);
                 cSettings.wheel_timer = false;
             }, 50);
-        }; else {
+        } else {
             
             // handle p.list Beam
             var limit_reached = false;
@@ -1631,7 +1631,7 @@ function on_mouse_wheel(delta) {
                         cList.beam_sens = 1;
                         limit_reached = true;
                     };
-                }; else { // scroll down requested
+                } else { // scroll down requested
                     if(p.list.offset >= maxOffset) {
                         // bottom beam to draw
                         p.list.beam = 2;
@@ -1648,7 +1648,7 @@ function on_mouse_wheel(delta) {
                                 if(p.list.beam_alpha >= 300) {
                                     cList.beam_sens = 2;
                                 };
-                            }; else {
+                            } else {
                                 p.list.beam_alpha = (p.list.beam_alpha >= 25 ? p.list.beam_alpha - 25 : 0);
                                 if(p.list.beam_alpha <= 0) {
                                     p.list.beam = 0;
@@ -1676,17 +1676,17 @@ function on_mouse_wheel(delta) {
                             var t = h - s + 1;
                             var r = Math.round(500 / h);
                             var scroll_speed_ms = ((t * r) < 10 ? 10 : (t * r));
-                        }; else if(g_dragndrop_y > p.list.y + p.list.h - cTrack.height) {
+                        } else if(g_dragndrop_y > p.list.y + p.list.h - cTrack.height) {
                             var s = Math.abs(g_dragndrop_y - (p.list.y + p.list.h - cTrack.height));
                             var h = Math.ceil(cTrack.height / 2);
                             if(s > h) s = h;
                             var t = h - s + 1;
                             var r = Math.round(500 / h);
                             var scroll_speed_ms = ((t * r) < 10 ? 10 : (t * r));
-                        }; else {
+                        } else {
                             scroll_speed_ms = 20;
                         };
-                    }; else {
+                    } else {
                         if(mouse_y < p.list.y) {
                             var s = Math.abs(mouse_y - p.list.y);
                             var h = Math.ceil(cTrack.height / 2);
@@ -1694,14 +1694,14 @@ function on_mouse_wheel(delta) {
                             var t = h - s + 1;
                             var r = Math.round(500 / h);
                             var scroll_speed_ms = ((t * r) < 10 ? 10 : (t * r));
-                        }; else if(mouse_y > p.list.y+p.list.h) {
+                        } else if(mouse_y > p.list.y+p.list.h) {
                             var s = Math.abs(mouse_y - (p.list.y+p.list.h));
                             var h = Math.ceil(cTrack.height / 2);
                             if(s > h) s = h;
                             var t = h - s + 1;
                             var r = Math.round(500 / h);
                             var scroll_speed_ms = ((t * r) < 10 ? 10 : (t * r));
-                        }; else {
+                        } else {
                             scroll_speed_ms = 20;
                         };
                     };
@@ -1714,7 +1714,7 @@ function on_mouse_wheel(delta) {
                         g_mouse_wheel_timer = false;
                     }, scroll_speed_ms);
                 };
-            }; else {
+            } else {
                 if(!dragndrop.moved) {
                     p.playlistManager.check("wheel", mouse_x, mouse_y, delta);
                 };
@@ -1828,10 +1828,10 @@ function on_playlists_changed() {
             if(cPlaylistManager.drag_droped) { // no reset of the scroll offset if playlist item moved by dragging
                 window.SetCursor(IDC_ARROW);
                 p.playlistManager.refresh("", false, false, false);
-            }; else {
+            } else {
                 p.playlistManager.refresh("", false, false);
             };
-        }; else {
+        } else {
             p.playlistManager.refresh("", true, true);
         };
         full_repaint();
@@ -1866,7 +1866,7 @@ function on_playlist_items_reordered(playlist_idx) {
             update_playlist(properties.collapseGroupsByDefault);
             p.headerBar.resetSortIndicators();
             full_repaint();
-        }; else {
+        } else {
             p.headerBar.columnDragged = 0;
         };
     };
@@ -1885,7 +1885,7 @@ function on_item_focus_change(playlist, from, to) {
         g_metadb = (fb.IsPlaying||fb.IsPaused)?fb.GetNowPlaying():plman.PlaylistItemCount(plman.ActivePlaylist)>0?fb.GetFocusItem():false;
         if(g_metadb) {
             on_metadb_changed();
-        }; else {
+        } else {
             g_path = "";
             g_track_type = "";
         };
@@ -1901,13 +1901,13 @@ function on_item_focus_change(playlist, from, to) {
                         p.list.updateGroupStatus(grpId);
                         p.list.setItems(true);
                         center_focus_item = p.list.isFocusedItemVisible();
-                    }; else {
+                    } else {
                         if((!center_focus_item && !p.list.drawRectSel) || (center_focus_item && to == 0)) {
                             p.list.setItems(true);
                         };
                     };
                 };
-            }; else {
+            } else {
                 if((!center_focus_item && !p.list.drawRectSel) || (center_focus_item && to == 0)) {
                     p.list.setItems(true);
                 };
@@ -1935,7 +1935,7 @@ function on_key_up(vkey) {
         for(var j=0; j < fin; j++) {
             p.settings.pages[p.settings.currentPageId].elements[j].on_key("up", vkey);
         };
-    }; else {
+    } else {
         
         // after a cover column resize, update cover image and empty rows to show the whole cover if low tracks count in group
         if(cover.resized == true) {
@@ -1966,7 +1966,7 @@ function on_key_down(vkey) {
         for(var j=0; j < fin; j++) {
             p.settings.pages[p.settings.currentPageId].elements[j].on_key("down", vkey);
         };
-    }; else {
+    } else {
         if(dragndrop.drag_in) return true;
         
         if(p.playlistManager.inputboxID >= 0) {
@@ -1983,11 +1983,11 @@ function on_key_down(vkey) {
                 default:
                     p.playlistManager.inputbox.on_key_down(vkey);
                 };
-            }; else {
+            } else {
                 p.playlistManager.inputbox.on_key_down(vkey);
             };
             
-        }; else {
+        } else {
         
             var act_pls = plman.ActivePlaylist;
             
@@ -2061,7 +2061,7 @@ function on_key_down(vkey) {
                         
                         if(p.list.focusedTrackId < 0) {
                             var old_grpId = 0;
-                        }; else {
+                        } else {
                             var old_grpId = p.list.getGroupIdfromTrackId(p.list.focusedTrackId);
                         };
                         new_focus_id = (p.list.focusedTrackId > 0) ? p.list.focusedTrackId - scrollstep : 0;
@@ -2081,7 +2081,7 @@ function on_key_down(vkey) {
                         if(p.list.groups[grpId].collapsed) {
                             if(properties.autocollapse) {
                                 new_focus_id = p.list.groups[grpId].start + p.list.groups[grpId].count - 1;
-                            }; else {
+                            } else {
                                 new_focus_id = p.list.groups[grpId].start;
                             };
                         };
@@ -2096,7 +2096,7 @@ function on_key_down(vkey) {
                                     p.list.scrollItems(1, scrollstep);
                                 }, 50);
                             }, 400);
-                        }; else {
+                        } else {
                             plman.SetPlaylistFocusItem(act_pls, new_focus_id);
                             plman.ClearPlaylistSelection(act_pls);
                             plman.SetPlaylistSelectionSingle(act_pls, new_focus_id, true);
@@ -2111,7 +2111,7 @@ function on_key_down(vkey) {
                                     if(p.list.groups[grpId].collapsed) {
                                         if(properties.autocollapse) {
                                             new_focus_id = p.list.groups[grpId].start + p.list.groups[grpId].count - 1;
-                                        }; else {
+                                        } else {
                                             new_focus_id = p.list.groups[grpId].start;
                                         };
                                     };
@@ -2131,7 +2131,7 @@ function on_key_down(vkey) {
                         
                         if(p.list.focusedTrackId < 0) {
                             var old_grpId = 0;
-                        }; else {
+                        } else {
                             var old_grpId = p.list.getGroupIdfromTrackId(p.list.focusedTrackId);
                         };
                         new_focus_id = (p.list.focusedTrackId < p.list.count - 1) ? p.list.focusedTrackId + 1 : p.list.count - 1;
@@ -2143,7 +2143,7 @@ function on_key_down(vkey) {
                                     var grpId = p.list.getGroupIdfromTrackId(new_focus_id);
                                 };
                             };
-                        };                       
+                        };
                         
                         //new_focus_id = (p.list.focusedTrackId < p.list.count - 1) ? p.list.focusedTrackId + 1 : p.list.count - 1;
                         // if new track focused id is in a collapsed group, set the last track of the group as the focused track (= group focused)
@@ -2151,7 +2151,7 @@ function on_key_down(vkey) {
                         if(p.list.groups[grpId].collapsed) {
                             if(properties.autocollapse) {
                                 new_focus_id = p.list.groups[grpId].start;
-                            }; else {
+                            } else {
                                 new_focus_id = p.list.groups[grpId].start + p.list.groups[grpId].count - 1;
                             };
                         };
@@ -2169,7 +2169,7 @@ function on_key_down(vkey) {
                                 if(p.list.groups[grpId].collapsed) {
                                     if(properties.autocollapse) {
                                         new_focus_id = p.list.groups[grpId].start;
-                                    }; else {
+                                    } else {
                                         new_focus_id = p.list.groups[grpId].start + p.list.groups[grpId].count - 1;
                                     };
                                 };
@@ -2198,7 +2198,7 @@ function on_key_down(vkey) {
                                     p.list.scrollItems(1, scrollstep);
                                 }, 60);
                             }, 400);
-                        }; else {
+                        } else {
                             plman.SetPlaylistFocusItem(act_pls, new_focus_id);
                             plman.ClearPlaylistSelection(act_pls);
                             plman.SetPlaylistSelectionSingle(act_pls, new_focus_id, true);
@@ -2245,7 +2245,7 @@ function on_key_down(vkey) {
                         var cmd = properties.defaultPlaylistItemAction;
                         if(cmd == "Play") {
                             plman.ExecutePlaylistDefaultAction(act_pls, p.list.focusedTrackId);
-                        }; else {
+                        } else {
                             fb.RunContextCommandWithMetadb(cmd, p.list.handleList.Item(p.list.focusedTrackId), 0);
                         };
                     };
@@ -2286,7 +2286,7 @@ function on_key_down(vkey) {
                                 plman.SetPlaylistSelectionSingle(act_pls, next_focus_id, true);
                             };
                             plman.RemoveItemsFromPlaybackQueue(affected_items);
-                        }; else {
+                        } else {
                             plman.RemovePlaylistSelection(act_pls, false);
                         };
                         plman.RemovePlaylistSelection(act_pls, false);
@@ -2294,7 +2294,7 @@ function on_key_down(vkey) {
                     };
                     break;
                 };
-            }; else {
+            } else {
                 switch(mask) {
                     case KMask.shift:
                         switch(vkey) {
@@ -2314,14 +2314,14 @@ function on_key_down(vkey) {
                                         plman.SetPlaylistSelectionSingle(act_pls, p.list.focusedTrackId, true);
                                         plman.SetPlaylistFocusItem(act_pls, p.list.focusedTrackId);
                                     };
-                                }; else if(p.list.SHIFT_count < 0) {
+                                } else if(p.list.SHIFT_count < 0) {
                                     if(p.list.focusedTrackId > 0) {
                                         p.list.SHIFT_count--;
                                         p.list.focusedTrackId--;
                                         plman.SetPlaylistSelectionSingle(act_pls, p.list.focusedTrackId, true);
                                         plman.SetPlaylistFocusItem(act_pls, p.list.focusedTrackId);
                                     };
-                                }; else {
+                                } else {
                                     plman.SetPlaylistSelectionSingle(act_pls, p.list.focusedTrackId, false);
                                     p.list.SHIFT_count--;
                                     p.list.focusedTrackId--;
@@ -2341,14 +2341,14 @@ function on_key_down(vkey) {
                                         plman.SetPlaylistSelectionSingle(act_pls, p.list.focusedTrackId, true);
                                         plman.SetPlaylistFocusItem(act_pls, p.list.focusedTrackId);
                                     };
-                                }; else if(p.list.SHIFT_count>0) {
+                                } else if(p.list.SHIFT_count>0) {
                                     if(p.list.focusedTrackId < p.list.count - 1) {
                                         p.list.SHIFT_count++;
                                         p.list.focusedTrackId++;
                                         plman.SetPlaylistSelectionSingle(act_pls, p.list.focusedTrackId, true);
                                         plman.SetPlaylistFocusItem(act_pls, p.list.focusedTrackId);
                                     };
-                                }; else {
+                                } else {
                                     plman.SetPlaylistSelectionSingle(act_pls, p.list.focusedTrackId, false);
                                     p.list.SHIFT_count++;
                                     p.list.focusedTrackId++;
@@ -2387,7 +2387,7 @@ function on_key_down(vkey) {
                                         plman.SetPlaylistSelectionSingle(act_pls, next_focus_id, true);
                                     };
                                     plman.RemoveItemsFromPlaybackQueue(affected_items);
-                                }; else {
+                                } else {
                                     plman.RemovePlaylistSelection(act_pls, false);
                                 };
 
@@ -2406,10 +2406,10 @@ function on_key_down(vkey) {
                                         plman.UndoBackup(plman.ActivePlaylist);
                                         if(p.list.count > 0) {
                                             plman.InsertPlaylistItems(plman.ActivePlaylist, p.list.focusedTrackId + 1, clipboard.selection);
-                                        }; else {
+                                        } else {
                                             plman.InsertPlaylistItems(plman.ActivePlaylist, 0, clipboard.selection);
                                         };
-                                    }; catch(e) {
+                                    } catch(e) {
                                         fb.trace("WSH Playlist WARNING: Clipboard can't be pasted, invalid clipboard content.");
                                     };
                                 };
@@ -2470,10 +2470,10 @@ function on_char(code) {
                 p.settings.pages[i].elements[j].on_char(code);
             };
         };
-    }; else {
+    } else {
         if(p.playlistManager.inputboxID >= 0) {
             p.playlistManager.inputbox.on_char(code);
-        }; else {
+        } else {
             if(p.list.count > 0) {
                 p.list.tt_x = ((p.list.w) / 2) - (((cList.search_string.length*zoom(13, g_dpi))+(zoom(10, g_dpi)*2)) / 2);
                 p.list.tt_y = p.list.y + Math.floor((p.list.h / 2) - zoom(30, g_dpi));
@@ -2597,13 +2597,13 @@ function on_playback_time(time) {
             if(total_seconds>=10) {
                 wsh_limit_stats = total_seconds - 5;
                 wsh_delay_stats = Math.floor(total_seconds / 2);
-            }; else {
+            } else {
                 wsh_limit_stats = total_seconds - 1;
                 wsh_delay_stats = 2;
             };
             if(wsh_delay_stats<0) wsh_delay_stats=0;
             
-        }; else if(wsh_time_elaps>0) {
+        } else if(wsh_time_elaps>0) {
             wsh_time_elaps++;
         };
                
@@ -2639,7 +2639,7 @@ function on_focus(is_focused) {
     if(!is_focused) {
         p.playlistManager.inputboxID = -1;
         full_repaint();
-    }; else {
+    } else {
 
     };
 };
@@ -2685,7 +2685,7 @@ function get_font() {
 	if (g_instancetype == 0) {
 		g_font = window.GetFontCUI(FontTypeCUI.items);
 		g_font_headers = window.GetFontCUI(FontTypeCUI.labels);
-	}; else if (g_instancetype == 1) {
+	} else if (g_instancetype == 1) {
 		g_font = window.GetFontDUI(FontTypeDUI.playlists);
 		g_font_headers = window.GetFontDUI(FontTypeDUI.tabs);
 	};
@@ -2695,7 +2695,7 @@ function get_font() {
         g_fname = g_font.Name;
         g_fsize = g_font.Size;
         g_fstyle = g_font.Style;
-    }; catch(e) {
+    } catch(e) {
         fb.trace("WSH report: Unable to use your default font. Using Segoe UI instead.");
         g_fname = "segoe ui";
         g_fsize = 12;
@@ -2719,7 +2719,7 @@ function get_font() {
     if(g_forced_percent) {
         g_fsize = Math.ceil(zoom(g_fsize, g_forced_percent));
         g_font = gdi.Font(g_fname, g_fsize, g_fstyle);
-    }; else if(font_error) {
+    } else if(font_error) {
         g_font = gdi.Font(g_fname, g_fsize, g_fstyle);
     };
     
@@ -2731,7 +2731,7 @@ function get_font() {
     if(g_font_guifx_found) {
         g_font_rating = gdi.Font("guifx v2 transports", Math.floor(zoom(17, g_dpi)), 0);
         g_font_mood = gdi.Font("guifx v2 transports", Math.floor(zoom(16, g_dpi)), 0);
-    }; else {
+    } else {
         g_font_rating = gdi.Font("wingdings 2", Math.floor(zoom(19, g_dpi)), 0);
         g_font_mood = gdi.Font("wingdings 2", Math.floor(zoom(24, g_dpi)), 1);
     };
@@ -2782,7 +2782,7 @@ function get_colors() {
             g_color_normal_bg = window.GetColorCUI(ColorTypeCUI.background);
             g_color_selected_bg = window.GetColorCUI(ColorTypeCUI.selection_background);
             g_color_highlight = window.GetColorCUI(ColorTypeCUI.active_item_frame);
-        }; else if (g_instancetype == 1) {
+        } else if (g_instancetype == 1) {
             g_color_normal_txt = window.GetColorDUI(ColorTypeDUI.text);
             g_color_selected_txt = window.GetColorDUI(ColorTypeDUI.selection);
             g_color_normal_bg = window.GetColorDUI(ColorTypeDUI.background);
@@ -2830,23 +2830,23 @@ function setWallpaperImg(path, metadb) {
     var fmt_path_arr = utils.Glob(fmt_path).toArray();
     if(fmt_path_arr.length > 0) {
         var final_path = fmt_path_arr[0];
-    }; else {
+    } else {
         var final_path = null;
     };
     
     if(metadb && properties.wallpapermode > -1) {
         var tmp_img = utils.GetAlbumArtV2(metadb, properties.wallpapermode);
-    }; else {
+    } else {
         if(final_path) {
             tmp_img = gdi.Image(final_path);
-        }; else {
+        } else {
             tmp_img = null;
         };
     };
     if(!tmp_img) {
         if(final_path) {
             tmp_img = gdi.Image(final_path);
-        }; else {
+        } else {
             tmp_img = null;
         };
     };
@@ -2939,7 +2939,7 @@ function FormatWallpaper(image, iw, ih, interpolation_mode, display_mode, angle,
                 wpp_img_info.y = 0;
                 break;
         };
-    }; else if(wpp_img_info.ratio < panel_ratio) {
+    } else if(wpp_img_info.ratio < panel_ratio) {
         wpp_img_info.orient = 2;
         // 2/3 : default image is in portrait mode
         switch(display_mode) {
@@ -2966,7 +2966,7 @@ function FormatWallpaper(image, iw, ih, interpolation_mode, display_mode, angle,
                 wpp_img_info.y = 0;
                 break;
         };
-    }; else {
+    } else {
         // 3/3 : default image is a square picture, ratio = 1
         wpp_img_info.w = iw;
         wpp_img_info.h = ih;
@@ -2990,7 +2990,7 @@ function FormatWallpaper(image, iw, ih, interpolation_mode, display_mode, angle,
 	CollectGarbage();
     if(rawBitmap) {
         return tmp_img.CreateRawBitmap();
-    }; else {
+    } else {
         return tmp_img;
     };
 };
@@ -3000,9 +3000,9 @@ function isQueuePlaylistActive() {
     var queue_pl_idx = isQueuePlaylistPresent();
     if(queue_pl_idx<0) {
         return false;
-    }; else if(plman.ActivePlaylist == queue_pl_idx) {
+    } else if(plman.ActivePlaylist == queue_pl_idx) {
         return true;
-    }; else {
+    } else {
         return false;
     };
 };
@@ -3011,7 +3011,7 @@ function isQueuePlaylistPresent() {
     for(var i = 0; i < plman.PlaylistCount; i++) {
         if(plman.GetPlaylistName(i) == "Queue Content") return i;
     };
-    return -1;    
+    return -1; 
 };
 
 function isTrackQueued(handle) {
@@ -3025,7 +3025,7 @@ function isTrackQueued(handle) {
             }
         };
         return -1;
-    }; else {
+    } else {
         return -1;
     };
 };
@@ -3035,7 +3035,7 @@ function SetPlaylistQueue() {
     var queue_pl_idx = isQueuePlaylistPresent();
     if(queue_pl_idx < 0) {
         return true;
-    }; else {
+    } else {
         var total_in_pls = plman.PlaylistItemCount(queue_pl_idx);
         if(total_in_pls > 0) {
             var affected_items = Array();
@@ -3063,7 +3063,7 @@ function ShowPlaylistQueue(focus_id) {
         plman.CreatePlaylist(total_pl, "Queue Content");
         queue_pl_idx = total_pl;
         plman.ActivePlaylist = queue_pl_idx;
-    }; else {
+    } else {
         plman.ActivePlaylist = queue_pl_idx;
         fb.ClearPlaylist();
     };
@@ -3097,7 +3097,7 @@ function CheckPlaylistQueue() {
     if(queue_pl_idx < 0) {
         plman.CreatePlaylist(total_pl, "Queue Content");
         queue_pl_idx = total_pl;
-    }; else {
+    } else {
         plman.RemovePlaylist(queue_pl_idx);
         plman.CreatePlaylist(queue_pl_idx, "Queue Content");
     };
@@ -3130,10 +3130,10 @@ function on_playback_queue_changed(origin) {
                 if(queue_pl_idx < 0) {
                     plman.CreatePlaylist(total_pl, "Queue Content");
                     queue_pl_idx = total_pl;
-                }; else {
+                } else {
                     if(current == queue_pl_idx) {
                         fb.ClearPlaylist();
-                    }; else {
+                    } else {
                         plman.RemovePlaylist(queue_pl_idx);
                         plman.CreatePlaylist(queue_pl_idx, "Queue Content");
                     };
@@ -3155,10 +3155,10 @@ function on_playback_queue_changed(origin) {
                 var queue_pl_idx = isQueuePlaylistPresent();
                 if(queue_pl_idx < 0) {
                     return false;
-                }; else {
+                } else {
                     if(current == queue_pl_idx) {
                         fb.ClearPlaylist();
-                    }; else {
+                    } else {
                         plman.RemovePlaylist(queue_pl_idx);
                         plman.CreatePlaylist(queue_pl_idx, "Queue Content"); 
                     };
@@ -3173,7 +3173,7 @@ function on_playback_queue_changed(origin) {
                         q_handlelist.Add(arr[i].Handle);
                     };
                     plman.InsertPlaylistItems(queue_pl_idx, 0, q_handlelist, false);
-                }; else { // remove queue playlist!
+                } else { // remove queue playlist!
                     plman.RemovePlaylist(queue_pl_idx);
                 };
                 break;
@@ -3184,12 +3184,12 @@ function on_playback_queue_changed(origin) {
                 var queue_pl_idx = isQueuePlaylistPresent();
                 if(queue_pl_idx < 0) {
                     return false;
-                }; else {
+                } else {
                     var queue_total = plman.GetPlaybackQueueCount();
                     if(queue_total > 0) {
                         if(current == queue_pl_idx) {
                             fb.ClearPlaylist();
-                        }; else {
+                        } else {
                             plman.RemovePlaylist(queue_pl_idx);
                             plman.CreatePlaylist(queue_pl_idx, "Queue Content"); 
                         };
@@ -3202,7 +3202,7 @@ function on_playback_queue_changed(origin) {
                             q_handlelist.Add(arr[i].Handle);
                         };
                         plman.InsertPlaylistItems(queue_pl_idx, 0, q_handlelist, false);
-                    }; else { // remove queue playlist!
+                    } else { // remove queue playlist!
                         plman.RemovePlaylist(queue_pl_idx);
                     };
                 };
@@ -3212,7 +3212,7 @@ function on_playback_queue_changed(origin) {
             if(isQueuePlaylistActive()) {
                 ShowPlaylistQueue(0);
                 full_repaint();
-            }; else {
+            } else {
                 SetPlaylistQueue();
                 //CheckPlaylistQueue();
             };
@@ -3279,7 +3279,7 @@ function on_drag_over(action, x, y, mask) {
     g_dragndrop_bottom = false;
     if(p.playlistManager.woffset == 0 || (cPlaylistManager.visible && x < p.playlistManager.x - p.playlistManager.woffset)) {
         p.list.check("drag_over", x, y);
-    }; else if(cPlaylistManager.visible && p.playlistManager.isHoverObject(x, y)) {
+    } else if(cPlaylistManager.visible && p.playlistManager.isHoverObject(x, y)) {
         g_dragndrop_hover_playlistManager = true;
         p.playlistManager.check("drag_over", x, y);
     };
@@ -3304,7 +3304,7 @@ function on_drag_over(action, x, y, mask) {
                                     dragndrop.timerID = window.SetTimeout(function() {
                                         if(p.playlistManager.woffset == 0 || (cPlaylistManager.visible && g_dragndrop_x < p.playlistManager.x - p.playlistManager.woffset)) {
                                             p.list.check("drag_over", g_dragndrop_x, g_dragndrop_y);
-                                        }; else if(cPlaylistManager.visible && p.playlistManager.isHoverObject(g_dragndrop_x, g_dragndrop_y)) {
+                                        } else if(cPlaylistManager.visible && p.playlistManager.isHoverObject(g_dragndrop_x, g_dragndrop_y)) {
                                             p.playlistManager.check("drag_over", g_dragndrop_x, g_dragndrop_y);
                                         };
                                         full_repaint();
@@ -3315,10 +3315,10 @@ function on_drag_over(action, x, y, mask) {
                             };
                         }, scroll_speed_ms);
                     };
-                };  else {
+                } else {
                     full_repaint();
                 };
-            }; else if(p.list.offset < p.list.totalRows - p.list.totalRowVisible && y > p.list.y + p.list.h - cTrack.height) {
+            } else if(p.list.offset < p.list.totalRows - p.list.totalRowVisible && y > p.list.y + p.list.h - cTrack.height) {
                 if(!p.list.buttonclicked) {
                     p.list.buttonclicked = true;
                     //
@@ -3335,7 +3335,7 @@ function on_drag_over(action, x, y, mask) {
                                     dragndrop.timerID = window.SetTimeout(function() {
                                         if(p.playlistManager.woffset == 0 || (cPlaylistManager.visible && g_dragndrop_x < p.playlistManager.x - p.playlistManager.woffset)) {
                                             p.list.check("drag_over", g_dragndrop_x, g_dragndrop_y);
-                                        }; else if(cPlaylistManager.visible && p.playlistManager.isHoverObject(g_dragndrop_x, g_dragndrop_y)) {
+                                        } else if(cPlaylistManager.visible && p.playlistManager.isHoverObject(g_dragndrop_x, g_dragndrop_y)) {
                                             //p.playlistManager.check("drag_over", g_dragndrop_x, g_dragndrop_y);
                                         };
                                         full_repaint();
@@ -3346,10 +3346,10 @@ function on_drag_over(action, x, y, mask) {
                             };
                         }, scroll_speed_ms);
                     };
-                }; else {
+                } else {
                     full_repaint();
                 };
-            }; else {
+            } else {
                 cScrollBar.timerID1 && window.ClearInterval(cScrollBar.timerID1);
                 cScrollBar.timerID1 = false;
                 p.list.buttonclicked = false;
@@ -3361,12 +3361,12 @@ function on_drag_over(action, x, y, mask) {
                     }, 75);
                 };
             };
-        }; else {
+        } else {
             cScrollBar.timerID1 && window.ClearInterval(cScrollBar.timerID1);
             cScrollBar.timerID1 = false;
         };
         
-    }; else if(cPlaylistManager.visible && p.playlistManager.isHoverObject(x, y)) {
+    } else if(cPlaylistManager.visible && p.playlistManager.isHoverObject(x, y)) {
         
         // vscroll playlist manager on dragging
         // ************************************
@@ -3399,7 +3399,7 @@ function on_drag_over(action, x, y, mask) {
                         };
                     }, 20);
                 };
-            }; else if(p.playlistManager.offset < p.playlistManager.rowTotal - p.playlistManager.totalRows && y > p.playlistManager.y + area_h - inner_padding) {
+            } else if(p.playlistManager.offset < p.playlistManager.rowTotal - p.playlistManager.totalRows && y > p.playlistManager.y + area_h - inner_padding) {
                 if(p.playlistManager.scrollbarWidth > 0 && !cPlaylistManager.vscroll_timer_loop) {
                     cPlaylistManager.vscroll_timer_loop = window.SetInterval(function(){
                         //
@@ -3425,7 +3425,7 @@ function on_drag_over(action, x, y, mask) {
                         };
                     }, 20);
                 };
-            }; else {
+            } else {
                 if(cPlaylistManager.vscroll_timer) {
                     window.ClearInterval(cPlaylistManager.vscroll_timer_loop);
                     cPlaylistManager.vscroll_timer_loop = false;
@@ -3441,7 +3441,7 @@ function on_drag_over(action, x, y, mask) {
                     }, 50);
                 };
             };
-        }; else {
+        } else {
             if(cPlaylistManager.vscroll_timer_loop) {
                 window.ClearInterval(cPlaylistManager.vscroll_timer_loop);
                 cPlaylistManager.vscroll_timer_loop = false;
@@ -3481,7 +3481,7 @@ function on_drag_drop(action, x, y, mask) {
             action.ToPlaylist();
             action.Playlist = plman.ActivePlaylist;
             action.ToSelect = true;
-        }; else {
+        } else {
             if(g_dragndrop_bottom) {
                 plman.ClearPlaylistSelection(plman.ActivePlaylist);
                 plman.UndoBackup(plman.ActivePlaylist);
@@ -3498,7 +3498,7 @@ function on_drag_drop(action, x, y, mask) {
                     window.ClearTimeout(g_dragndrop_timer);
                     g_dragndrop_timer = false;
                 },75);
-            }; else {
+            } else {
                 g_avoid_on_playlist_items_added = true;
                 g_avoid_on_playlist_items_reordered = true;
             
@@ -3524,7 +3524,7 @@ function on_drag_drop(action, x, y, mask) {
             };
         };
         
-    }; else if(cPlaylistManager.visible && p.playlistManager.isHoverObject(x, y)) {
+    } else if(cPlaylistManager.visible && p.playlistManager.isHoverObject(x, y)) {
         
         var drop_done = false;
         if(p.playlistManager.hoverId > -1 && p.playlistManager.hoverId < p.playlistManager.playlists.length && !p.playlistManager.playlists[p.playlistManager.hoverId].isAutoPlaylist && !p.playlistManager.playlists[p.playlistManager.hoverId].isReservedPlaylist) {
@@ -3533,7 +3533,7 @@ function on_drag_drop(action, x, y, mask) {
             action.ToPlaylist();
             action.Playlist = g_dragndrop_targetPlaylistId;
             action.ToSelect = true;
-        }; else if(p.playlistManager.ishoverHeader && g_dragndrop_targetPlaylistId < 0) {
+        } else if(p.playlistManager.ishoverHeader && g_dragndrop_targetPlaylistId < 0) {
             drop_done = true;
             var total_pl = plman.PlaylistCount;
             plman.CreatePlaylist(total_pl, "Dropped Items");

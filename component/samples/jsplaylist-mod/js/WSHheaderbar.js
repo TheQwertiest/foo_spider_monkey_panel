@@ -88,7 +88,7 @@ oHeaderBar = function() {
 		if(properties.themed) {
 			var color_txt = g_syscolor_button_txt;
             var color_bg = g_syscolor_button_bg;
-		}; else {
+		} else {
 			var color_txt = g_color_normal_txt;
             var color_bg = g_color_normal_bg;
 		};
@@ -143,7 +143,7 @@ oHeaderBar = function() {
 
         if(cPlaylistManager.visible) {
             this.button = new button(this.slide_close_normal, this.slide_close_hover, this.slide_close_down);
-        }; else {
+        } else {
             this.button = new button(this.slide_open_normal, this.slide_open_hover, this.slide_open_down);
         };
     };
@@ -183,7 +183,7 @@ oHeaderBar = function() {
                     // end <<
                 };
                 tmp = this.columns[i].x + this.columns[i].w;
-            }; else {
+            } else {
                 this.columns[i].x = tmp;
                 this.columns[i].y = this.y;
                 this.columns[i].w = 0;
@@ -225,10 +225,10 @@ oHeaderBar = function() {
                     // draw column header bg
                     if(this.columnRightClicked == j) {
                         gr.FillSolidRect(cx, cy, cw, this.h, g_color_normal_txt & 0x30ffffff);
-                    }; else { // normal box
+                    } else { // normal box
                         if(this.columnDragged == 1 && j == this.columnDraggedId) {
                             gr.FillSolidRect(cx, cy, cw, this.h, g_color_normal_txt & 0x30ffffff);
-                        }; else {
+                        } else {
                             gr.FillSolidRect(cx, cy, cw, this.h, g_color_normal_txt & 0x15ffffff);
                         };
                     };
@@ -242,7 +242,7 @@ oHeaderBar = function() {
                         };
                     };
                     gr.GdiDrawText(this.columns[j].label, gdi.Font(g_fname, this.txtHeight, 1), g_color_normal_txt, cx + (this.borderWidth*2), cy + 1, cw - (this.borderWidth*4) - 1, this.h, this.columns[j].DT_align | DT_VCENTER | DT_CALCRECT | DT_NOPREFIX | DT_END_ELLIPSIS);
-                }; else if(j == this.columnDraggedId && this.columnDragged == 2) {
+                } else if(j == this.columnDraggedId && this.columnDragged == 2) {
                     gr.FillGradRect(cx, cy, cw, this.h, 90, RGBA(0,0,0,60), 0, 1.0);
                 };
             };
@@ -263,10 +263,10 @@ oHeaderBar = function() {
                     // draw last column bg
                     if(this.columnRightClicked == j) {
                         gr.FillSolidRect(cx, cy, cw, this.h, g_color_normal_txt & 0x30ffffff);
-                    }; else { // normal box
+                    } else { // normal box
                         if(this.columnDragged == 1 && j == this.columnDraggedId) {
                             gr.FillSolidRect(cx, cy, cw, this.h, g_color_normal_txt & 0x30ffffff);
-                        }; else {
+                        } else {
                             gr.FillSolidRect(cx, cy, cw, this.h, g_color_normal_txt & 0x15ffffff);
                         };
                     };
@@ -280,7 +280,7 @@ oHeaderBar = function() {
                         };
                     };
                     gr.GdiDrawText(this.columns[j].label, gdi.Font(g_fname, this.txtHeight, 1), g_color_normal_txt, cx + (this.borderWidth*2), cy + 1, cw - (this.borderWidth*4) - 1, this.h, this.columns[j].DT_align | DT_VCENTER | DT_CALCRECT | DT_NOPREFIX | DT_END_ELLIPSIS);
-                }; else if(j == this.columnDraggedId && this.columnDragged == 2) {
+                } else if(j == this.columnDraggedId && this.columnDragged == 2) {
                     gr.FillGradRect(cx, cy, cw, this.h, 90, RGBA(0,0,0,70), 0, 1.0);
                 };
                 break;
@@ -447,7 +447,7 @@ oHeaderBar = function() {
                 };
             };
             
-        }; else {
+        } else {
             var fields = [];
             var tmp;
             // LOAD columns from Properties
@@ -548,7 +548,7 @@ oHeaderBar = function() {
                                         if(this.columns[i].tf != "null" || this.columns[i].sortOrder != "null") {
                                             this.columnDragged = 1;
                                             window.SetCursor(IDC_ARROW);
-                                        }; else {
+                                        } else {
                                             this.columnDragged = 2;
                                             window.SetCursor(IDC_SIZEALL);
                                         };
@@ -587,7 +587,7 @@ oHeaderBar = function() {
                             this.borderDragged = false;
                             this.borderDraggedId = -1;
                             this.on_mouse("move", x, y); // call "Move" to set mouse cursor if border hover
-                        }; else if(this.columnDragged > 0) {
+                        } else if(this.columnDragged > 0) {
                             if(this.columnDragged==1) {
                                 if(this.columnDraggedId == 0) {
                                     this.columns[0].on_mouse(event, x, y);
@@ -603,16 +603,16 @@ oHeaderBar = function() {
                                     plman.UndoBackup(plman.ActivePlaylist);
                                     if(this.columns[this.columnDraggedId].sortOrder != "null") {
                                         plman.SortByFormatV2(plman.ActivePlaylist, this.columns[this.columnDraggedId].sortOrder, this.sortedColumnDirection);
-                                    }; else {
+                                    } else {
                                         plman.SortByFormatV2(plman.ActivePlaylist, this.columns[this.columnDraggedId].tf, this.sortedColumnDirection);
                                     };
                                     update_playlist(properties.collapseGroupsByDefault);
-                                }; else {
+                                } else {
                                     this.columns[this.columnDraggedId].drag = false;
                                     this.columnDragged = 0;
                                     this.columnDragged_saved = 0;
                                 };
-                            }; else {
+                            } else {
                                 for(var i = 0; i < this.columns.length; i++) {
                                     this.columns[i].on_mouse(event, x, y);
                                 };
@@ -649,9 +649,9 @@ oHeaderBar = function() {
                         if(this.columnDragged < 1) {
                             if(this.borderHover || this.borderDragged) {
                                 window.SetCursor(IDC_SIZEWE);
-                            }; else if(p.playlistManager.inputbox) {
+                            } else if(p.playlistManager.inputbox) {
                                 if(!p.playlistManager.inputbox.ibeam_set) window.SetCursor(IDC_ARROW);
-                            }; else {
+                            } else {
                                 window.SetCursor(IDC_ARROW);
                             };
                         };
@@ -673,7 +673,7 @@ oHeaderBar = function() {
                                     };
                                 };
                             };
-                        }; else if(this.columnDraggedId != 0 && (this.columnDragged == 1 || this.columnDragged == 2)) {
+                        } else if(this.columnDraggedId != 0 && (this.columnDragged == 1 || this.columnDragged == 2)) {
                             this.columnDragged = 2;
                             window.SetCursor(IDC_SIZEALL);
                             for(var i = 1; i < this.columns.length; i++) {
@@ -686,7 +686,7 @@ oHeaderBar = function() {
                                             // move sortColumnId too !
                                             if(i == this.sortedColumnId) {
                                                 this.sortedColumnId = this.columnDraggedId;
-                                            }; else if(this.columnDraggedId == this.sortedColumnId) {
+                                            } else if(this.columnDraggedId == this.sortedColumnId) {
                                                 this.sortedColumnId = i;
                                             };
                                             this.columnDraggedId = i;
@@ -729,7 +729,7 @@ oHeaderBar = function() {
             for(var m=0; m < p.list.groupby.length; m++) {
                 if(default_pattern_index > -1 && found) {
                     break;
-                }; else if(p.list.groupby[m].playlistFilter.length > 0) {
+                } else if(p.list.groupby[m].playlistFilter.length > 0) {
                     var arr_pl = p.list.groupby[m].playlistFilter.split(";");
                     for(var n=0; n < arr_pl.length; n++) {
                         if(default_pattern_index < 0 && arr_pl[n] == "*") {
@@ -772,7 +772,7 @@ oHeaderBar = function() {
             };
             if(!found && default_pattern_index < 0) {
                 _patterns.CheckMenuRadioItem(groupByMenuIdx, groupByMenuIdx + totalGroupBy - 1, cGroup.pattern_idx + groupByMenuIdx);
-            }; else {
+            } else {
                 _patterns.CheckMenuRadioItem(groupByMenuIdx, groupByMenuIdx + totalGroupBy - 1, playlist_pattern_index + groupByMenuIdx);
             };
             
@@ -798,7 +798,7 @@ oHeaderBar = function() {
         for(var i = 0; i < this.columns.length; i++) {
             if(i == column_index) {
                 _columns.AppendMenuItem(MF_STRING, columnMenuIdx + i, "["+this.columns[i].label+"]");
-            }; else {
+            } else {
                 _columns.AppendMenuItem(MF_STRING, columnMenuIdx + i, this.columns[i].label);
             };
             _columns.CheckMenuItem(columnMenuIdx + i, this.columns[i].w > 0 ? 1 : 0);
@@ -851,7 +851,7 @@ oHeaderBar = function() {
             case (idx==18):
                 if(properties.showgroupheaders) {
                     properties.showgroupheaders = false;
-                }; else {
+                } else {
                     properties.showgroupheaders = true;
                 };
                 window.SetProperty("*GROUP: Show Group Headers", properties.showgroupheaders);
@@ -862,7 +862,7 @@ oHeaderBar = function() {
                     // disable autocollapse when there is no group!
                     properties.autocollapse = false;
                     window.SetProperty("SYSTEM.Auto-Collapse", properties.autocollapse);
-                }; else {
+                } else {
                     cGroup.collapsed_height = cGroup.default_collapsed_height;
                     cGroup.expanded_height = cGroup.default_expanded_height;
                 };
@@ -944,7 +944,7 @@ oHeaderBar = function() {
                         this.columns[k].w = Math.abs(this.w * this.columns[k].percent / 100000);
                     };
                     this.saveColumns();
-                }; else {
+                } else {
                     // check if it's not the last column visible, otherwise, we coundn't hide it!
                     var nbvis = 0;
                     for(var k = 0; k < this.columns.length; k++) {
@@ -988,7 +988,7 @@ oHeaderBar = function() {
                     cover.previous_max_size = this.columns[0].w;
                     g_image_cache = new image_cache;
                     CollectGarbage();
-                }; else {
+                } else {
                     cover.column = false;
                     cGroup.count_minimum = cGroup.default_count_minimum;
                 };

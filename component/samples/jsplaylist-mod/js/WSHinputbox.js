@@ -53,7 +53,7 @@ oInputbox = function (w, h, default_text, empty_text, textcolor, backcolor, bord
         this.y = y;
         if (this.edit) {
             var DT = DT_LEFT | DT_VCENTER | DT_SINGLELINE | DT_NOPREFIX | DT_CALCRECT;
-        }; else {
+        } else {
             var DT = DT_LEFT | DT_VCENTER | DT_SINGLELINE | DT_NOPREFIX | DT_CALCRECT | DT_END_ELLIPSIS;
         };
         // draw bg
@@ -76,16 +76,16 @@ oInputbox = function (w, h, default_text, empty_text, textcolor, backcolor, bord
             if(this.SelBegin<this.SelEnd) {
                 if(this.SelBegin<this.offset) {
                     var px1 = this.x;
-                }; else {
+                } else {
                     var px1 = this.x + this.GetCx(this.SelBegin);
                 };
                 var px1 = this.GetCx(this.SelBegin);
                 var px2 = this.GetCx(this.SelEnd);
                 this.text_selected = this.text.substring(this.SelBegin, this.SelEnd);
-            }; else {
+            } else {
                 if(this.SelEnd<this.offset) {
                     var px1 = this.x;
-                }; else {
+                } else {
                     var px1 = this.x - this.GetCx(this.SelBegin);
                 };
                 var px2 = this.GetCx(this.SelBegin);
@@ -94,10 +94,10 @@ oInputbox = function (w, h, default_text, empty_text, textcolor, backcolor, bord
             };
             if( (this.x + px1 + (px2-px1)) > this.x + this.w) {
                 gr.FillSolidRect(this.x+px1, this.y+2, this.w-px1, this.h-4, this.backselectioncolor & 0xaaffffff);
-            }; else {
+            } else {
                 gr.FillSolidRect(this.x+px1, this.y+2, px2-px1, this.h-4, this.backselectioncolor & 0xaaffffff);
             };
-        }; else {
+        } else {
             this.select = false;
             this.text_selected = "";
         };
@@ -105,7 +105,7 @@ oInputbox = function (w, h, default_text, empty_text, textcolor, backcolor, bord
         // draw text
         if(this.text.length>0) {
             gr.GdiDrawText(this.text.substr(this.offset), this.edit ? this.font : this.font, this.edit ? this.textcolor : blendColors(textcolor, backcolor, 0.5), this.x, this.y, this.w, this.h, DT);
-        }; else {
+        } else {
             gr.GdiDrawText(this.empty_text, this.font_italic, blendColors(textcolor, backcolor, 0.5), this.x, this.y, this.w, this.h, DT);
         };
         // draw cursor
@@ -129,7 +129,7 @@ oInputbox = function (w, h, default_text, empty_text, textcolor, backcolor, bord
     this.repaint = function () {
         if(g_parentObjectName=="this") {
             window.RepaintRect(this.x, this.y, this.w, this.h);
-        }; else {
+        } else {
             eval(g_parentObjectName+".repaint()");
         };
 		
@@ -144,7 +144,7 @@ oInputbox = function (w, h, default_text, empty_text, textcolor, backcolor, bord
     this.GetCx = function (pos) {
         if(pos >= this.offset) {
             var x = cInputbox.temp_gr.CalcTextWidth(this.text.substr(this.offset, pos - this.offset), this.font);
-        }; else {
+        } else {
             var x = 0;
         };
         return x;
@@ -168,7 +168,7 @@ oInputbox = function (w, h, default_text, empty_text, textcolor, backcolor, bord
             if (this.text.length == 0) {
                 this.text = this.default_text;
                 eval(gfunc);
-            }; else {
+            } else {
                 this.default_text = this.text;
                 eval(gfunc);
             };
@@ -180,7 +180,7 @@ oInputbox = function (w, h, default_text, empty_text, textcolor, backcolor, bord
                 cInputbox.cursor_state = true;
             };
             this.repaint();
-        }; else if(this.is_focused) {
+        } else if(this.is_focused) {
             if(!cInputbox.timer_cursor) {
                 this.resetCursorTimer();
             };
@@ -216,7 +216,7 @@ oInputbox = function (w, h, default_text, empty_text, textcolor, backcolor, bord
                     if(!cInputbox.timer_cursor) {
                         this.resetCursorTimer();
                     };
-                }; else {
+                } else {
                     this.edit = false;
 					this.select = false;
 					this.SelBegin = 0;
@@ -242,7 +242,7 @@ oInputbox = function (w, h, default_text, empty_text, textcolor, backcolor, bord
                             this.SelEnd = this.sBeginSel;
                         };
                     };
-                }; else {
+                } else {
                     this.dblclk = false;
                 };
 				this.drag = false;
@@ -270,7 +270,7 @@ oInputbox = function (w, h, default_text, empty_text, textcolor, backcolor, bord
                                     this.repaint();
                                 };
                             };
-                        }; else if(tmp>this.SelEnd) {
+                        } else if(tmp>this.SelEnd) {
                             if(tmp_x+this.x>this.x+this.w) {
                                 var len = (this.TWidth>this.w)?this.TWidth - this.w:0;
                                 if(len>0) {
@@ -280,7 +280,7 @@ oInputbox = function (w, h, default_text, empty_text, textcolor, backcolor, bord
                             };
                         };
                         this.SelEnd = tmp;
-                    }; else if(tmp>this.SelBegin) {
+                    } else if(tmp>this.SelBegin) {
                         if(tmp_x+this.x>this.x+this.w) {
                             var len = (this.TWidth>this.w)?this.TWidth - this.w:0;
                             if(len>0) {
@@ -296,7 +296,7 @@ oInputbox = function (w, h, default_text, empty_text, textcolor, backcolor, bord
                 // Set Mouse Cursor Style
 				if(this.hover || this.drag) {
 					window.SetCursor(IDC_IBEAM);
-				}; else if(this.ibeam_set) {
+				} else if(this.ibeam_set) {
 					window.SetCursor(IDC_ARROW);
 				};
 				this.ibeam_set = (this.hover || this.drag);
@@ -309,7 +309,7 @@ oInputbox = function (w, h, default_text, empty_text, textcolor, backcolor, bord
                     };
                     this.repaint();
                     this.show_context_menu(x, y);
-                }; else {
+                } else {
                     this.edit = false;
 					this.select = false;
 					this.SelBegin = 0;
@@ -377,16 +377,16 @@ oInputbox = function (w, h, default_text, empty_text, textcolor, backcolor, bord
                         
                         if(this.Cpos < this.text.length) {
                             this.text = this.text.slice(0, p1) + cInputbox.clipboard + this.text.slice(p2);
-                        }; else {
+                        } else {
                             this.text = this.text + cInputbox.clipboard;
                         };
                         this.Cpos += cInputbox.clipboard.length;
                         this.CalcText();
                         this.repaint();
-                    }; else {
+                    } else {
                         if(this.Cpos>0) { // cursor pos > 0
                             this.text = this.text.substring(0, this.Cpos) + cInputbox.clipboard + this.text.substring(this.Cpos, this.text.length);
-                        }; else {
+                        } else {
                             this.text = cInputbox.clipboard + this.text.substring(this.Cpos, this.text.length);
                         };
                         this.Cpos += cInputbox.clipboard.length;
@@ -427,16 +427,16 @@ oInputbox = function (w, h, default_text, empty_text, textcolor, backcolor, bord
                         if(this.text_selected.length == this.text.length) {
                             this.text = "";
                             this.Cpos = 0;
-                        }; else {
+                        } else {
                             if(this.SelBegin > 0) {
                                 this.text = this.text.substring(0, this.SelBegin) + this.text.substring(this.SelEnd, this.text.length);
                                 this.Cpos = this.SelBegin;
-                            }; else {
+                            } else {
                                 this.text = this.text.substring(this.SelEnd, this.text.length);
                                 this.Cpos = this.SelBegin;
                             };
                         };
-                    }; else {
+                    } else {
                         if(this.Cpos>0) {
                             this.text = this.text.substr(0, this.Cpos - 1) + this.text.substr(this.Cpos, this.text.length - this.Cpos);
                             if(this.offset > 0) {
@@ -463,16 +463,16 @@ oInputbox = function (w, h, default_text, empty_text, textcolor, backcolor, bord
                         if(this.text_selected.length == this.text.length) {
                             this.text = "";
                             this.Cpos = 0;
-                        }; else {
+                        } else {
                             if(this.SelBegin > 0) {
                                 this.text = this.text.substring(0, this.SelBegin) + this.text.substring(this.SelEnd, this.text.length);
                                 this.Cpos = this.SelBegin;
-                            }; else {
+                            } else {
                                 this.text = this.text.substring(this.SelEnd, this.text.length);
                                 this.Cpos = this.SelBegin;
                             };
                         };
-                    }; else {
+                    } else {
                         if(this.Cpos<this.text.length) {
                             this.text = this.text.substr(0, this.Cpos) + this.text.substr(this.Cpos + 1, this.text.length - this.Cpos - 1);
                             this.repaint();
@@ -491,7 +491,7 @@ oInputbox = function (w, h, default_text, empty_text, textcolor, backcolor, bord
     		case VK_RETURN:
     			if (this.edit && this.text.length>=0) {
                     eval(gfunc);
-    			}; else {
+    			} else {
 
     			};
     			break;
@@ -529,10 +529,10 @@ oInputbox = function (w, h, default_text, empty_text, textcolor, backcolor, bord
                         if(this.Cpos <= this.offset) {
                             this.offset--;
                             this.Cpos--;
-                        }; else {
+                        } else {
                             this.Cpos--;
                         };
-                    }; else {
+                    } else {
                         if (this.Cpos > 0) this.Cpos--;
                     };
                     this.SelBegin = this.Cpos;
@@ -552,7 +552,7 @@ oInputbox = function (w, h, default_text, empty_text, textcolor, backcolor, bord
     			break;
     		};
     		if (this.edit) this.repaint();
-    	}; else {
+    	} else {
             switch(mask) {
                 case KMask.shift:
                     if(vkey==VK_HOME) { // SHIFT + HOME
@@ -566,12 +566,12 @@ oInputbox = function (w, h, default_text, empty_text, textcolor, backcolor, bord
                                     this.select = true;
                                     this.Cpos = 0;
                                 };
-                            }; else {
+                            } else {
                                 if (this.Cpos > 0) {
                                     if(this.anchor<this.Cpos) {
                                         this.SelBegin = 0;
                                         this.SelEnd = this.anchor;
-                                    }; else if(this.anchor>this.Cpos){
+                                    } else if(this.anchor>this.Cpos){
                                         this.SelBegin = 0;
                                     };
                                     this.Cpos = 0;
@@ -593,11 +593,11 @@ oInputbox = function (w, h, default_text, empty_text, textcolor, backcolor, bord
                                     this.Cpos = this.text.length;
                                     this.select = true;
                                 };
-                            }; else {
+                            } else {
                                 if (this.Cpos < this.text.length) {
                                     if(this.anchor<this.Cpos) {
                                         this.SelEnd = this.text.length;
-                                    }; else if(this.anchor>this.Cpos){
+                                    } else if(this.anchor>this.Cpos){
                                         this.SelBegin = this.anchor;
                                         this.SelEnd = this.text.length;
                                     };
@@ -625,11 +625,11 @@ oInputbox = function (w, h, default_text, empty_text, textcolor, backcolor, bord
                                     this.select = true;
                                     this.Cpos--;
                                 };
-                            }; else {
+                            } else {
                                 if (this.Cpos > 0) {
                                     if(this.anchor<this.Cpos) {
                                         this.SelEnd--;
-                                    }; else if(this.anchor>this.Cpos){
+                                    } else if(this.anchor>this.Cpos){
                                         this.SelBegin--;
                                     };
                                     this.Cpos--;
@@ -655,11 +655,11 @@ oInputbox = function (w, h, default_text, empty_text, textcolor, backcolor, bord
                                     this.SelEnd = this.Cpos;
                                     this.select = true;
                                 };
-                            }; else {
+                            } else {
                                 if (this.Cpos < this.text.length) {
                                     if(this.anchor<this.Cpos) {
                                         this.SelEnd++;
-                                    }; else if(this.anchor>this.Cpos){
+                                    } else if(this.anchor>this.Cpos){
                                         this.SelBegin++;
                                     };
                                     this.Cpos++;
@@ -728,16 +728,16 @@ oInputbox = function (w, h, default_text, empty_text, textcolor, backcolor, bord
                                 this.SelEnd = this.SelBegin;
                                 if(this.Cpos < this.text.length) {
                                     this.text = this.text.slice(0, p1) + cInputbox.clipboard + this.text.slice(p2);
-                                }; else {
+                                } else {
                                     this.text = this.text + cInputbox.clipboard;
                                 };
                                 this.Cpos += cInputbox.clipboard.length;
                                 this.CalcText();
                                 this.repaint();
-                            }; else {
+                            } else {
                                 if(this.Cpos>0) { // cursor pos > 0
                                     this.text = this.text.substring(0, this.Cpos) + cInputbox.clipboard + this.text.substring(this.Cpos, this.text.length);
-                                }; else {
+                                } else {
                                     this.text = cInputbox.clipboard + this.text.substring(this.Cpos, this.text.length);
                                 };
                                 this.Cpos += cInputbox.clipboard.length;
@@ -781,13 +781,13 @@ oInputbox = function (w, h, default_text, empty_text, textcolor, backcolor, bord
                 this.text_selected = "";
                 this.Cpos = this.SelBegin;
                 this.SelEnd = this.SelBegin;
-    		}; else {
+    		} else {
     			var p1 = this.Cpos;
     			var p2 = (this.text.length - this.Cpos) * -1;
     		};
             if(this.Cpos < this.text.length) {
                 this.text = this.text.slice(0, p1) + String.fromCharCode(code) + this.text.slice(p2);
-            }; else {
+            } else {
                 this.text = this.text + String.fromCharCode(code);
             };
             this.Cpos++;
@@ -795,7 +795,7 @@ oInputbox = function (w, h, default_text, empty_text, textcolor, backcolor, bord
                 this.CalcText();
                 if(this.TWidth<=(this.w)) {
                     this.offset = 0;
-                }; else {
+                } else {
                     if(this.Cpos-this.offset<0) {
                         this.offset = this.offset>0 ? this.Cpos - 1 : 0;
                     };

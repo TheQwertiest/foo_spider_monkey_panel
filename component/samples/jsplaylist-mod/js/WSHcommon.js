@@ -519,7 +519,7 @@ function HSL2RGB(zH, zS, zL, result) {
        R = L * 255;         //RGB results from 0 to 255
        G = L * 255;
        B = L * 255;
-    }; else {
+    } else {
        if (L<0.5) var_2 = L * (1 + S);
        else var_2 = (L + S) - (S * L);
 
@@ -568,8 +568,7 @@ function RGB2HSL(RGB_colour) {
     if ( del_Max == 0 ) {           //This is a gray, no chroma...
        H = 0;                       //HSL results from 0 to 1
        S = 0;
-    };
-    else {                          //Chromatic data...
+    } else {                          //Chromatic data...
        if ( L < 0.5 ) S = del_Max / ( var_Max + var_Min );
        else           S = del_Max / ( 2 - var_Max - var_Min );
 
@@ -596,7 +595,7 @@ function DrawColoredText(gr, text, font, default_color, x, y, w, h, alignment, f
     var pos = text.indexOf(String.fromCharCode(3));
     if(pos < 0) { // no specific color
         gr.GdiDrawText(text, font, default_color, x, y, w, h, alignment | DT_CALCRECT | DT_VCENTER | DT_END_ELLIPSIS | DT_NOPREFIX);
-    }; else {
+    } else {
         var tab = text.split(String.fromCharCode(3));
         var fin = tab.length;
 
@@ -707,12 +706,12 @@ function get_system_dpi_percent() {
         tmp = Shell.RegRead("HKEY_CURRENT_USER\\Control Panel\\Desktop\\Win8DpiScaling");
         if(tmp==1) {
             tmp = Shell.RegRead("HKEY_CURRENT_USER\\Control Panel\\Desktop\\WindowMetrics\\AppliedDPI");
-        }; else {
+        } else {
             //tmp = 100;
             tmp = Shell.RegRead("HKEY_CURRENT_USER\\Control Panel\\Desktop\\WindowMetrics\\AppliedDPI");
             if(tmp < 100) tmp = 100;
         };
-    }; else {
+    } else {
         tmp = 100;
     };
     //tmp = Math.ceil(tmp/10)*10;
@@ -732,7 +731,7 @@ function get_system_scrollbar_height() {
 String.prototype.repeat = function(num) {
     if(num>=0 && num<=5) {
         var g = Math.round(num);
-    }; else {
+    } else {
         return "";
     };
     return new Array(g+1).join(this);
@@ -781,7 +780,7 @@ function RefreshBG() {
     if(fb.IsPlaying||fb.IsPaused) {
         fb.RunMainMenuCommand("Playback/Play or Pause");
         fb.RunMainMenuCommand("Playback/Play or Pause");
-    }; else {
+    } else {
         fb.RunMainMenuCommand("Playback/Play");
         fb.RunMainMenuCommand("Playback/Stop");
     };
