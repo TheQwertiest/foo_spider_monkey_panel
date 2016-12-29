@@ -2,7 +2,7 @@
 ```
 ADD: If your computer has IE9 or later installed, newer ECMAScript5 features
      are now available. Many thanks to TheQwertiest for discovering how to do this.
-CHG: The "JScript engine" option has been removed from the "Configuration" window.
+CHG: The "Script engine" option has been removed from the "Configuration" window.
      JScript9 is always used if available but will fall back if not.
 ADD: utils.version reports the component version. See docs\interfaces.txt.
 FIX: A previous window.RepaintRect bug with JScript9 reported by Wilb has now been fixed.
