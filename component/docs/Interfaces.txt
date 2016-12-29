@@ -573,7 +573,6 @@ interface IFbPlaylistManager {
 		// usable from the Edit menu.
 
 	Queue Methods:
-
 		plman.AddItemToPlaybackQueue(handle); (void)
 
 		plman.AddPlaylistItemToPlaybackQueue(playlistIndex, playlistItemIndex); (void)
@@ -612,6 +611,23 @@ interface IFbPlaylistManager {
 }
 
 interface IJSUtils {
+	Properties:
+		utils.Version (double) (read)
+		/* new in v1.2.0. returns a 4 digit number corresponding to the version
+		
+		v1.2.0 -> 1200
+		v1.2.1 -> 1210
+		
+		If you try and access this in older components where it doesn't exist, the script will
+		crash so you can do a check like this.
+		
+		if (!("Version" in utils)) {
+			fb.ShowPopupMessage("Current component version is less than v1.2.0. This script requires vX.X.X");
+		} else {
+			//check the actual version
+		}
+		*/
+
 	Methods:
 		utils.CheckComponent(name[, is_dll]); (boolean)
 		// is_dll: boolean, default false. if true, method checks filename as well as the internal name.

@@ -125,6 +125,7 @@ utils.MapString(text, lcid, flags)
 utils.PathWildcardMatch(pattern, str)
 utils.ReadINI(filename, section, key[, defaultval])
 utils.ReadTextFile(filename[, codepage])
+utils.Version
 utils.WriteINI(filename, section, key, val)
 
 window.ClearInterval(timerID)
