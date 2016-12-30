@@ -612,7 +612,7 @@ interface IFbPlaylistManager {
 
 interface IJSUtils {
 	Properties:
-		utils.Version (double) (read)
+		utils.Version (uint) (read)
 		/* new in v1.2.0. returns a 4 digit number corresponding to the version
 		
 		v1.2.0 -> 1200

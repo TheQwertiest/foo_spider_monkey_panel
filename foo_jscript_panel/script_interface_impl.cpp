@@ -3485,7 +3485,7 @@ STDMETHODIMP JSUtils::WriteINI(BSTR filename, BSTR section, BSTR key, VARIANT va
 	return S_OK;
 }
 
-STDMETHODIMP JSUtils::get_Version(double* v)
+STDMETHODIMP JSUtils::get_Version(UINT* v)
 {
 	TRACK_FUNCTION();
 
