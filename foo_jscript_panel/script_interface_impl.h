@@ -573,7 +573,7 @@ public:
 	STDMETHODIMP CheckFont(BSTR name, VARIANT_BOOL* p);
 	STDMETHODIMP FileTest(BSTR path, BSTR mode, VARIANT* p);
 	STDMETHODIMP FormatDuration(double p, BSTR* pp);
-	STDMETHODIMP FormatFileSize(double p, BSTR* pp);
+	STDMETHODIMP FormatFileSize(LONGLONG p, BSTR* pp);
 	STDMETHODIMP GetAlbumArtAsync(UINT window_id, IFbMetadbHandle* handle, int art_id, VARIANT_BOOL need_stub, VARIANT_BOOL only_embed, VARIANT_BOOL no_load, UINT* p);
 	STDMETHODIMP GetAlbumArtEmbedded(BSTR rawpath, int art_id, IGdiBitmap** pp);
 	STDMETHODIMP GetAlbumArtV2(IFbMetadbHandle* handle, int art_id, VARIANT_BOOL need_stub, IGdiBitmap** pp);

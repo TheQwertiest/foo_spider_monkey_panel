@@ -524,7 +524,7 @@ __interface IJSUtils: IDispatch
 	STDMETHOD(CheckFont)(BSTR name, [out, retval] VARIANT_BOOL* p);
 	STDMETHOD(FileTest)(BSTR path, BSTR mode, [out, retval] VARIANT* p);
 	STDMETHOD(FormatDuration)(double p, [out, retval] BSTR* pp);
-	STDMETHOD(FormatFileSize)(double p, [out, retval] BSTR* pp);
+	STDMETHOD(FormatFileSize)(LONGLONG p, [out, retval] BSTR* pp);
 	STDMETHOD(GetAlbumArtAsync)(UINT window_id, IFbMetadbHandle* handle, [defaultvalue(0)] int art_id, [defaultvalue(-1)] VARIANT_BOOL need_stub, [defaultvalue(0)] VARIANT_BOOL only_embed, [defaultvalue(0)] VARIANT_BOOL no_load, [out, retval] UINT* p);
 	STDMETHOD(GetAlbumArtEmbedded)(BSTR rawpath, [defaultvalue(0)] int art_id, [out, retval] IGdiBitmap** pp);
 	STDMETHOD(GetAlbumArtV2)(IFbMetadbHandle* handle, [defaultvalue(0)] int art_id, [defaultvalue(-1)] VARIANT_BOOL need_stub, [out, retval] IGdiBitmap** pp);

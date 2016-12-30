@@ -3221,7 +3221,7 @@ STDMETHODIMP JSUtils::FormatDuration(double p, BSTR* pp)
 	return S_OK;
 }
 
-STDMETHODIMP JSUtils::FormatFileSize(double p, BSTR* pp)
+STDMETHODIMP JSUtils::FormatFileSize(LONGLONG p, BSTR* pp)
 {
 	TRACK_FUNCTION();
 
