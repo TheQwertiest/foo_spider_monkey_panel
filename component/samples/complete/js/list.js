@@ -642,8 +642,7 @@ _.mixin({
 				}
 				break;
 			case this.mode == "musicbrainz": // links
-				var data = _.jsonParse(this.xmlhttp.responsetext);
-				_.save(JSON.stringify(data), f);
+				_.save(this.xmlhttp.responsetext, f);
 				this.reset();
 				break;
 			case this.mode == "lastfm_info":
