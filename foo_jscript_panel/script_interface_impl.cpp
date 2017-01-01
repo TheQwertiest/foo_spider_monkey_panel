@@ -865,8 +865,8 @@ STDMETHODIMP GdiGraphics::GdiDrawText(BSTR str, IGdiFont* font, VARIANT color, i
 	HFONT oldfont;
 	HDC dc = m_ptr->GetHDC();
 	RECT rc = {x, y, x + w, y + h};
-	DRAWTEXTPARAMS dpt = {sizeof(DRAWTEXTPARAMS), 4, 0, 0, -1};
-
+	DRAWTEXTPARAMS dpt = {sizeof(DRAWTEXTPARAMS), 4, 0, 0, 0};
+	
 	oldfont = SelectFont(dc, hFont);
 	SetTextColor(dc, helpers::convert_argb_to_colorref(ExtractColorFromVariant(color)));
 	SetBkMode(dc, TRANSPARENT);
@@ -917,7 +917,7 @@ STDMETHODIMP GdiGraphics::GdiDrawText(BSTR str, IGdiFont* font, VARIANT color, i
 		rc.top,
 		rc.right,
 		rc.bottom,
-		dpt.uiLengthDrawn
+		(int)dpt.uiLengthDrawn
 	};
 
 	helpers::com_array_writer<> helper;

@@ -92,9 +92,6 @@ STDMETHODIMP DataTransferObject::get_EffectAllowed(BSTR* outEffectAllowed)
 	case DROPEFFECT_LINK | DROPEFFECT_MOVE:
 		*outEffectAllowed = SysAllocString(L"linkMove");
 		break;
-	case ~0:
-		*outEffectAllowed = SysAllocString(L"all");
-		break;
 	case DROPEFFECT_NONE:
 	default:
 		*outEffectAllowed = SysAllocString(L"none");
@@ -117,7 +114,6 @@ STDMETHODIMP DataTransferObject::put_EffectAllowed(BSTR effectAllowed)
 		{L"copyLink", DROPEFFECT_COPY | DROPEFFECT_LINK},
 		{L"copyMove", DROPEFFECT_COPY | DROPEFFECT_MOVE},
 		{L"linkMove", DROPEFFECT_LINK | DROPEFFECT_MOVE},
-		{L"all", ~0},
 		{L"none", DROPEFFECT_NONE},
 	};
 
