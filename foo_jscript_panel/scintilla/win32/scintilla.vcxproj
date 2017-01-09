@@ -96,7 +96,4 @@
     <ClInclude Include="..\lexlib\*.h" />
     <ClInclude Include="..\win32\*.h" />
   </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="..\win32\ScintRes.rc" />
-  </ItemGroup>
 </Project>
