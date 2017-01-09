@@ -2,8 +2,8 @@
 
 // Remember to bump utils.version too
 #define JSP_VERSION_NUMBER "1.2.0"
-//#define JSP_WILL_NOT_EXPIRE
-#define JSP_VERSION_TEST "Beta 2"
+#define JSP_WILL_NOT_EXPIRE
+//#define JSP_VERSION_TEST "Beta 1"
 
 #ifdef JSP_VERSION_TEST
 #	define JSP_TESTING 1
