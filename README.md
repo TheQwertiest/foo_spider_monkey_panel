@@ -22,6 +22,8 @@ https://msdn.microsoft.com/library/ff974378.aspx#_ecmascript
 
 This requires you have IE9 installed. If you only have IE7/IE8, the standard `JScript` engine will be used.
 
+___
+
 [Requirements & Installation](https://github.com/19379/foo-jscript-panel/wiki/Requirements-&-Installation)
 
 [Changelog](https://github.com/19379/foo-jscript-panel/blob/master/CHANGELOG.md)
