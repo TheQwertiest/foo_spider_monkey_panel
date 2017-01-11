@@ -1,4 +1,4 @@
-##v1.2.0 Beta 1
+##v1.2.0
 ```
 ADD: If your computer has IE9 or later installed, newer ECMAScript5 features
      are now available. Many thanks to TheQwertiest for discovering how to do this.
