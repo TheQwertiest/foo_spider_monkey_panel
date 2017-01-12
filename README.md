@@ -20,7 +20,7 @@ Thanks to [TheQwertiest](https://github.com/TheQwertiest), `v.1.2.0` now support
 
 https://msdn.microsoft.com/library/ff974378.aspx#_ecmascript
 
-This requires you have IE9 installed. If you only have IE7/IE8, the standard `JScript` engine will be used.
+This requires you have at least IE9 installed. If you only have IE7/IE8, the standard `JScript` engine will be used.
 
 ___
 
