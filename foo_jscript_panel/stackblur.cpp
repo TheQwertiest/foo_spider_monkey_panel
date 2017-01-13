@@ -56,13 +56,13 @@ static unsigned char const stackblur_shr[255] =
 
 /// Stackblur algorithm body
 void stackblurJob(unsigned char* src, ///< input image data
-                  unsigned int w, ///< image width
-                  unsigned int h, ///< image height
-                  unsigned int radius, ///< blur intensity (should be in 2..254 range)
-                  int cores, ///< total number of working threads
-                  int core, ///< current thread number
-                  int step, ///< step of processing (1,2)
-                  unsigned char* stack ///< stack buffer
+	unsigned int w, ///< image width
+	unsigned int h, ///< image height
+	unsigned int radius, ///< blur intensity (should be in 2..254 range)
+	int cores, ///< total number of working threads
+	int core, ///< current thread number
+	int step, ///< step of processing (1,2)
+	unsigned char* stack ///< stack buffer
 )
 {
 	unsigned int x, y, xp, yp, i;
@@ -359,17 +359,17 @@ public:
 /// http://www.antigrain.com/__code/include/agg_blur.h.html
 /// This version works only with RGBA color
 void stackblur(unsigned char* src, ///< input image data
-               unsigned int w, ///< image width
-               unsigned int h, ///< image height
-               unsigned int radius, ///< blur intensity (should be in 2..254 range)
-               int cores = 1 ///< number of threads (1 - normal single thread)
+	unsigned int w, ///< image width
+	unsigned int h, ///< image height
+	unsigned int radius, ///< blur intensity (should be in 2..254 range)
+	int cores = 1 ///< number of threads (1 - normal single thread)
 )
 {
 	if (radius > 254) return;
 	if (radius < 2) return;
 
 	unsigned int div = (radius * 2) + 1;
-	unsigned char* stack = new unsigned char [div * 4 * cores];
+	unsigned char* stack = new unsigned char[div * 4 * cores];
 
 	if (cores == 1)
 	{
@@ -420,9 +420,9 @@ void stack_blur_filter(Gdiplus::Bitmap& img, int radius, int core/* = 1*/) throw
 	rect.Height = height;
 
 	if (img.LockBits(&rect,
-	                 Gdiplus::ImageLockModeRead | Gdiplus::ImageLockModeWrite,
-	                 PixelFormat32bppPARGB,
-	                 &bmpdata) == Gdiplus::Ok)
+		Gdiplus::ImageLockModeRead | Gdiplus::ImageLockModeWrite,
+		PixelFormat32bppPARGB,
+		&bmpdata) == Gdiplus::Ok)
 	{
 		if (radius > 254) radius = 254;
 		if (radius < 2) radius = 2;

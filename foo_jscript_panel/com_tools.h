@@ -86,7 +86,7 @@ protected:
 
 //-- IDispatch --
 template <class T>
-class MyIDispatchImpl: public T
+class MyIDispatchImpl : public T
 {
 protected:
 	static type_info_cache_holder g_type_info_cache_holder;
@@ -140,7 +140,7 @@ FOOGUIDDECL type_info_cache_holder MyIDispatchImpl<T>::g_type_info_cache_holder;
 
 //-- IDispatch impl -- [T] [IDispatch] [IUnknown]
 template <class T>
-class IDispatchImpl3: public MyIDispatchImpl<T>
+class IDispatchImpl3 : public MyIDispatchImpl<T>
 {
 	BEGIN_COM_QI_IMPL()
 		COM_QI_ENTRY_MULTI(IUnknown, IDispatch)
@@ -160,7 +160,7 @@ protected:
 
 //-- IDisposable impl -- [T] [IDisposable] [IDispatch] [IUnknown]
 template <class T>
-class IDisposableImpl4: public MyIDispatchImpl<T>
+class IDisposableImpl4 : public MyIDispatchImpl<T>
 {
 	BEGIN_COM_QI_IMPL()
 		COM_QI_ENTRY_MULTI(IUnknown, IDispatch)

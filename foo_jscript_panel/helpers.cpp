@@ -188,29 +188,29 @@ namespace helpers
 		switch (type)
 		{
 		case mainmenu_node::type_command:
+		{
+			if (match_menu_command(path, p_name, p_name_len))
 			{
-				if (match_menu_command(path, p_name, p_name_len))
-				{
-					node->execute(NULL);
-					return true;
-				}
+				node->execute(NULL);
+				return true;
 			}
-			break;
+		}
+		break;
 
 		case mainmenu_node::type_group:
+		{
+			if (!text.is_empty())
+				path.add_char('/');
+
+			for (t_size i = 0; i < node->get_children_count(); ++i)
 			{
-				if (!text.is_empty())
-					path.add_char('/');
+				mainmenu_node::ptr child = node->get_child(i);
 
-				for (t_size i = 0; i < node->get_children_count(); ++i)
-				{
-					mainmenu_node::ptr child = node->get_child(i);
-
-					if (execute_mainmenu_command_recur_v2(child, path, p_name, p_name_len))
-						return true;
-				}
+				if (execute_mainmenu_command_recur_v2(child, path, p_name, p_name_len))
+					return true;
 			}
-			break;
+		}
+		break;
 		}
 
 		return false;
@@ -338,25 +338,25 @@ namespace helpers
 			case 936: // gbk
 			case 949: // korean
 			case 950: // big5
+			{
+				// '¡¯', <= special char
+				// "ve" "d" "ll" "m" 't' 're'
+				bool fallback = true;
+				t_size index;
+				if (index = text.find_first("\x92") != pfc_infinite)
 				{
-					// '¡¯', <= special char
-					// "ve" "d" "ll" "m" 't' 're'
-					bool fallback = true;
-					t_size index;
-					if (index = text.find_first("\x92") != pfc_infinite)
+					if ((index < text.get_length() - 1) &&
+						(strchr("vldmtr ", text[index + 1])))
 					{
-						if ((index < text.get_length() - 1) &&
-							(strchr("vldmtr ", text[index + 1])))
-						{
-							codepage = encodings[0].nCodePage;
-							fallback = false;
-						}
+						codepage = encodings[0].nCodePage;
+						fallback = false;
 					}
-					if (fallback)
-						codepage = encodings[1].nCodePage;
-					found = true;
 				}
-				break;
+				if (fallback)
+					codepage = encodings[1].nCodePage;
+				found = true;
+			}
+			break;
 			}
 		}
 
@@ -376,7 +376,7 @@ namespace helpers
 
 		if (textWidth <= width || len <= 1)
 		{
-			wrapped_item item = {SysAllocStringLen(text, len), textWidth};
+			wrapped_item item = { SysAllocStringLen(text, len), textWidth };
 			out.add_item(item);
 		}
 		else
@@ -823,7 +823,7 @@ namespace helpers
 			return false;
 		}
 
-		const BYTE utf8_bom[] = {0xef, 0xbb, 0xbf};
+		const BYTE utf8_bom[] = { 0xef, 0xbb, 0xbf };
 		memcpy(pAddr, utf8_bom, 3);
 		memcpy(pAddr + 3, content.get_ptr(), content.get_length());
 

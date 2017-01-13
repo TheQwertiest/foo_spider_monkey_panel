@@ -142,17 +142,17 @@ void CDialogConf::OnExport()
 LRESULT CDialogConf::OnTools(WORD wNotifyCode, WORD wID, HWND hWndCtl)
 {
 	enum
-		{
-			kImport = 1,
-			kExport,
-			kResetDefault,
-			kResetCurrent,
-		};
+	{
+		kImport = 1,
+		kExport,
+		kResetDefault,
+		kResetCurrent,
+	};
 
 	HMENU menu = CreatePopupMenu();
 	int ret = 0;
 	int flags = TPM_RIGHTBUTTON | TPM_NONOTIFY | TPM_RETURNCMD;
-	RECT rc = {0};
+	RECT rc = { 0 };
 
 	AppendMenu(menu, MF_STRING, kImport, _T("&Import"));
 	AppendMenu(menu, MF_STRING, kExport, _T("E&xport"));
@@ -218,15 +218,15 @@ LRESULT CDialogConf::OnNotify(int idCtrl, LPNMHDR pnmh)
 	{
 		// dirty
 	case SCN_SAVEPOINTLEFT:
-		{
-			pfc::string8 caption = m_caption;
+	{
+		pfc::string8 caption = m_caption;
 
-			caption += " *";
-			uSetWindowText(m_hWnd, caption);
-		}
-		break;
+		caption += " *";
+		uSetWindowText(m_hWnd, caption);
+	}
+	break;
 
-		// not dirty
+	// not dirty
 	case SCN_SAVEPOINTREACHED:
 		uSetWindowText(m_hWnd, m_caption);
 		break;
@@ -253,27 +253,27 @@ bool CDialogConf::MatchShortcuts(unsigned vk)
 			return true;
 
 		case 'H':
+		{
+			if (!m_dlgreplace)
 			{
-				if (!m_dlgreplace)
-				{
-					m_dlgreplace = new CDialogReplace(GetDlgItem(IDC_EDIT));
+				m_dlgreplace = new CDialogReplace(GetDlgItem(IDC_EDIT));
 
-					if (!m_dlgreplace || !m_dlgreplace->Create(m_hWnd))
-						break;
-				}
-
-				m_dlgreplace->ShowWindow(SW_SHOW);
-				m_dlgreplace->SetFocus();
+				if (!m_dlgreplace || !m_dlgreplace->Create(m_hWnd))
+					break;
 			}
-			return true;
+
+			m_dlgreplace->ShowWindow(SW_SHOW);
+			m_dlgreplace->SetFocus();
+		}
+		return true;
 
 		case 'G':
-			{
-				modal_dialog_scope scope(m_hWnd);
-				CDialogGoto dlg(GetDlgItem(IDC_EDIT));
-				dlg.DoModal(m_hWnd);
-			}
-			return true;
+		{
+			modal_dialog_scope scope(m_hWnd);
+			CDialogGoto dlg(GetDlgItem(IDC_EDIT));
+			dlg.DoModal(m_hWnd);
+		}
+		return true;
 
 		case 'S':
 			Apply();

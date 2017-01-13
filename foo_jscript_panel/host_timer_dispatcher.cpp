@@ -44,7 +44,7 @@ void HostTimerDispatcher::invoke(UINT timerId)
 	VARIANTARG args[1];
 	args[0].vt = VT_I4;
 	args[0].lVal = timerId;
-	DISPPARAMS dispParams = {args, NULL, _countof(args), 0};
+	DISPPARAMS dispParams = { args, NULL, _countof(args), 0 };
 	pDisp->Invoke(DISPID_VALUE, IID_NULL, LOCALE_USER_DEFAULT, DISPATCH_METHOD, &dispParams, NULL, NULL, NULL);
 }
 

@@ -40,7 +40,7 @@ public:
 	LRESULT OnFlagCommand(WORD wNotifyCode, WORD wID, HWND hWndCtl);
 	LRESULT OnInitDialog(HWND hwndFocus, LPARAM lParam);
 	void OnFinalMessage(HWND hWnd);
-	
+
 private:
 	class CEditWithReturn : public CWindowImpl<CEditWithReturn, CEdit>
 	{

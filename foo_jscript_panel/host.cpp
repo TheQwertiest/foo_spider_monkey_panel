@@ -79,8 +79,8 @@ void HostComm::RefreshBackground(LPRECT lprcUpdate /*= NULL*/)
 
 	HDC dc_parent = GetDC(wnd_parent);
 	HDC hdc_bk = CreateCompatibleDC(dc_parent);
-	POINT pt = {0, 0};
-	RECT rect_child = {0, 0, m_width, m_height};
+	POINT pt = { 0, 0 };
+	RECT rect_child = { 0, 0, m_width, m_height };
 	RECT rect_parent;
 	HRGN rgn_child = NULL;
 
@@ -849,7 +849,7 @@ HRESULT ScriptHost::InitScriptEngine()
 	const DWORD classContext = CLSCTX_INPROC_SERVER | CLSCTX_INPROC_HANDLER;
 
 	static const CLSID jscript9clsid =
-		{0x16d51579, 0xa30b, 0x4c8b, {0xa2, 0x76, 0x0f, 0xf4, 0xdc, 0x41, 0xe7, 0x55}};
+	{ 0x16d51579, 0xa30b, 0x4c8b, {0xa2, 0x76, 0x0f, 0xf4, 0xdc, 0x41, 0xe7, 0x55} };
 
 	hr = m_script_engine.CreateInstance(jscript9clsid, NULL, classContext);
 
@@ -969,7 +969,7 @@ void ScriptHost::ReportError(IActiveScriptError* err)
 	DWORD ctx = 0;
 	ULONG line = 0;
 	LONG charpos = 0;
-	EXCEPINFO excep = {0};
+	EXCEPINFO excep = { 0 };
 	//WCHAR buf[512] = { 0 };
 	_bstr_t sourceline;
 	_bstr_t name;

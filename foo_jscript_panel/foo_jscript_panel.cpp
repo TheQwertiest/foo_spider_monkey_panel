@@ -12,7 +12,7 @@ ITypeLibPtr g_typelib;
 namespace
 {
 	DECLARE_COMPONENT_VERSION(
-		JSP_NAME,
+	JSP_NAME,
 		JSP_VERSION,
 		"JScript Panel v" JSP_VERSION " by marc2003\n"
 		"Based on WSH Panel Mod by T.P. Wang\n\n"
@@ -28,7 +28,7 @@ namespace
 		"Multi-threaded version by Victor Laskin\n\n"
 		"CPropertyList - A Property List control\n"
 		"Copyright (c) 2001-2003 Bjarke Viksoe"
-	);
+		);
 
 	//VALIDATE_COMPONENT_FILENAME(JSP_DLL_NAME);
 
@@ -102,47 +102,47 @@ namespace
 		switch (reason)
 		{
 		case DLL_PROCESS_ATTACH:
-			{
-				// Load TypeLib
-				TCHAR path[MAX_PATH + 4];
-				DWORD len = GetModuleFileName(ins, path, MAX_PATH);
+		{
+			// Load TypeLib
+			TCHAR path[MAX_PATH + 4];
+			DWORD len = GetModuleFileName(ins, path, MAX_PATH);
 
-				path[len] = 0;
+			path[len] = 0;
 
-				if (FAILED(OleInitialize(NULL)))
-					g_load_status |= E_OLE;
+			if (FAILED(OleInitialize(NULL)))
+				g_load_status |= E_OLE;
 
-				if (FAILED(LoadTypeLibEx(path, REGKIND_NONE, &g_typelib)))
-					g_load_status |= E_TYPELIB;
+			if (FAILED(LoadTypeLibEx(path, REGKIND_NONE, &g_typelib)))
+				g_load_status |= E_TYPELIB;
 
-				// Load Scintilla
-				if (!Scintilla_RegisterClasses(ins))
-					g_load_status |= E_SCINTILLA;
+			// Load Scintilla
+			if (!Scintilla_RegisterClasses(ins))
+				g_load_status |= E_SCINTILLA;
 
-				// Init GDI+
-				Gdiplus::GdiplusStartupInput gdip_input;
-				if (Gdiplus::GdiplusStartup(&g_gdip_token, &gdip_input, NULL) != Gdiplus::Ok)
-					g_load_status |= E_GDIPLUS;
+			// Init GDI+
+			Gdiplus::GdiplusStartupInput gdip_input;
+			if (Gdiplus::GdiplusStartup(&g_gdip_token, &gdip_input, NULL) != Gdiplus::Ok)
+				g_load_status |= E_GDIPLUS;
 
-				// WTL
-				_Module.Init(NULL, ins);
-			}
-			break;
+			// WTL
+			_Module.Init(NULL, ins);
+		}
+		break;
 
 		case DLL_PROCESS_DETACH:
-			{
-				// Term WTL
-				_Module.Term();
+		{
+			// Term WTL
+			_Module.Term();
 
-				// Shutdown GDI+
-				Gdiplus::GdiplusShutdown(g_gdip_token);
+			// Shutdown GDI+
+			Gdiplus::GdiplusShutdown(g_gdip_token);
 
-				// Free Scintilla resource
-				Scintilla_ReleaseResources();
+			// Free Scintilla resource
+			Scintilla_ReleaseResources();
 
-				OleUninitialize();
-			}
-			break;
+			OleUninitialize();
+		}
+		break;
 		}
 
 		return TRUE;

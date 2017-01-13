@@ -75,7 +75,7 @@ public:
 class GdiBitmap : public GdiObj<IGdiBitmap, Gdiplus::Bitmap>
 {
 protected:
-	GdiBitmap(Gdiplus::Bitmap* p): GdiObj<IGdiBitmap, Gdiplus::Bitmap>(p)
+	GdiBitmap(Gdiplus::Bitmap* p) : GdiObj<IGdiBitmap, Gdiplus::Bitmap>(p)
 	{
 	}
 
@@ -99,7 +99,7 @@ public:
 class GdiGraphics : public GdiObj<IGdiGraphics, Gdiplus::Graphics>
 {
 protected:
-	GdiGraphics(): GdiObj<IGdiGraphics, Gdiplus::Graphics>(NULL)
+	GdiGraphics() : GdiObj<IGdiGraphics, Gdiplus::Graphics>(NULL)
 	{
 	}
 
@@ -408,7 +408,7 @@ public:
 	STDMETHODIMP Init(BSTR root_name);
 };
 
-class FbProfiler: public IDispatchImpl3<IFbProfiler>
+class FbProfiler : public IDispatchImpl3<IFbProfiler>
 {
 protected:
 	pfc::string_simple m_name;

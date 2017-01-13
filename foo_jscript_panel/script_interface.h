@@ -1,7 +1,7 @@
 #pragma once
 #pragma warning(disable:4467)
 
-[module(name="foo_jscript_panel", version="1.8")];
+[module(name = "foo_jscript_panel", version = "1.8")];
 
 extern ITypeLibPtr g_typelib;
 
@@ -13,7 +13,7 @@ extern ITypeLibPtr g_typelib;
 	library_block,
 	uuid("2e0bae19-3afe-473a-a703-0feb2d714655")
 ]
-__interface IDisposable: IDispatch
+__interface IDisposable : IDispatch
 {
 	STDMETHOD(Dispose)();
 };
@@ -26,7 +26,7 @@ __interface IDisposable: IDispatch
 	library_block,
 	uuid("77e72064-1fb6-4754-a076-1dc517a6787b")
 ]
-__interface IGdiObj: IDisposable
+__interface IGdiObj : IDisposable
 {
 	[propget] STDMETHOD(_ptr)([out]void** pp);
 };
@@ -40,7 +40,7 @@ __interface IGdiObj: IDisposable
 	library_block,
 	uuid("6fa87441-9f53-4a3f-999a-19509e3c92d7")
 ]
-__interface IGdiFont: IGdiObj
+__interface IGdiFont : IGdiObj
 {
 	[propget] STDMETHOD(HFont)([out, retval] UINT* p);
 	[propget] STDMETHOD(Height)([out, retval] UINT* p);
@@ -56,7 +56,7 @@ __interface IGdiFont: IGdiObj
 	library_block,
 	uuid("22d1f519-5d6e-4d5c-80e3-8fde0d1b946b")
 ]
-__interface IGdiRawBitmap: IDisposable
+__interface IGdiRawBitmap : IDisposable
 {
 	[propget] STDMETHOD(Height)([out, retval] UINT* p);
 	[propget] STDMETHOD(Width)([out, retval] UINT* p);
@@ -70,7 +70,7 @@ __interface IGdiRawBitmap: IDisposable
 	library_block,
 	uuid("7efbd443-4f6f-4cb2-9eee-882b9b19cbf6")
 ]
-__interface IGdiBitmap: IGdiObj
+__interface IGdiBitmap : IGdiObj
 {
 	STDMETHOD(ApplyAlpha)(BYTE alpha, [out, retval] IGdiBitmap** pp);
 	STDMETHOD(ApplyMask)(IGdiBitmap* mask, [out, retval] VARIANT_BOOL* p);
@@ -113,7 +113,7 @@ __interface IMeasureStringInfo
 	library_block,
 	uuid("9d6e404f-5ba7-4470-88d5-eb5980dffc07")
 ]
-__interface IGdiGraphics: IGdiObj
+__interface IGdiGraphics : IGdiObj
 {
 	STDMETHOD(CalcTextHeight)(BSTR str, IGdiFont* font, [out, retval] UINT* p);
 	STDMETHOD(CalcTextWidth)(BSTR str, IGdiFont* font, [out, retval] UINT* p);
@@ -150,7 +150,7 @@ _COM_SMARTPTR_TYPEDEF(IGdiGraphics, __uuidof(IGdiGraphics));
 	library_block,
 	uuid("351e3e75-8f27-4afd-b7e0-5409cf8f4947")
 ]
-__interface IGdiUtils: IDispatch
+__interface IGdiUtils : IDispatch
 {
 	STDMETHOD(CreateImage)(int w, int h, [out, retval] IGdiBitmap** pp);
 	STDMETHOD(CreateStyleTextRender)([defaultvalue(0)] VARIANT_BOOL pngmode, [out, retval] __interface IStyleTextRender** pp);
@@ -169,7 +169,7 @@ _COM_SMARTPTR_TYPEDEF(IGdiUtils, __uuidof(IGdiUtils));
 	library_block,
 	uuid("50e12553-8908-4eca-8801-ead834cea6f0")
 ]
-__interface IStyleTextRender: IDisposable
+__interface IStyleTextRender : IDisposable
 {
 	STDMETHOD(DiffusedShadow)(VARIANT color, int thickness, int offset_x, int offset_y);
 	STDMETHOD(DoubleOutLineText)(int text_color, int outline_color1, int outline_color2, int outline_width1, int outline_width2);
@@ -193,7 +193,7 @@ __interface IStyleTextRender: IDisposable
 	library_block,
 	uuid("7c39dcf1-4e41-4a61-b06b-fb52107e4409")
 ]
-__interface IFbFileInfo: IDisposable
+__interface IFbFileInfo : IDisposable
 {
 	STDMETHOD(InfoFind)(BSTR name, [out, retval] UINT* p);
 	STDMETHOD(InfoName)(UINT idx, [out, retval] BSTR* pp);
@@ -219,7 +219,7 @@ __interface IFbFileInfo: IDisposable
 	library_block,
 	uuid("0e1980d3-916a-482e-af87-578bcb1a4a25")
 ]
-__interface IFbMetadbHandle: IDisposable
+__interface IFbMetadbHandle : IDisposable
 {
 	STDMETHOD(Compare)(IFbMetadbHandle* handle, [out, retval] VARIANT_BOOL* p);
 	STDMETHOD(GetFileInfo)([out, retval] IFbFileInfo** pp);
@@ -239,7 +239,7 @@ __interface IFbMetadbHandle: IDisposable
 	library_block,
 	uuid("64528708-ae09-49dd-8e8d-1417fe9a9f09")
 ]
-__interface IFbMetadbHandleList: IDisposable
+__interface IFbMetadbHandleList : IDisposable
 {
 	STDMETHOD(Add)(IFbMetadbHandle* handle, [out, retval] UINT* p);
 	STDMETHOD(AddRange)(IFbMetadbHandleList* handles);
@@ -275,7 +275,7 @@ __interface IFbMetadbHandleList: IDisposable
 	library_block,
 	uuid("998d8666-b446-4e92-8e8f-797d3cce4b7e")
 ]
-__interface IFbTitleFormat: IDisposable
+__interface IFbTitleFormat : IDisposable
 {
 	STDMETHOD(Eval)([defaultvalue(0)] VARIANT_BOOL force, [out, retval] BSTR* pp);
 	STDMETHOD(EvalWithMetadb)(IFbMetadbHandle* handle, [out, retval] BSTR* pp);
@@ -289,7 +289,7 @@ __interface IFbTitleFormat: IDisposable
 	library_block,
 	uuid("1e9f95ae-63be-49dc-a395-ee386e8eb202")
 ]
-__interface IMenuObj: IDisposable
+__interface IMenuObj : IDisposable
 {
 	STDMETHOD(AppendMenuItem)(UINT flags, UINT item_id, BSTR text);
 	STDMETHOD(AppendMenuSeparator)();
@@ -308,7 +308,7 @@ __interface IMenuObj: IDisposable
 	library_block,
 	uuid("0e1bc833-b9f8-44b1-8240-57fff04602ad")
 ]
-__interface IContextMenuManager: IDisposable
+__interface IContextMenuManager : IDisposable
 {
 	STDMETHOD(BuildMenu)(IMenuObj* p, int base_id, int max_id);
 	STDMETHOD(ExecuteByID)(UINT id, [out, retval] VARIANT_BOOL* p);
@@ -323,7 +323,7 @@ __interface IContextMenuManager: IDisposable
 	library_block,
 	uuid("4a357221-1b75-4379-8de7-6a865bbfad10")
 ]
-__interface IMainMenuManager: IDisposable
+__interface IMainMenuManager : IDisposable
 {
 	STDMETHOD(BuildMenu)(IMenuObj* p, int base_id, int count);
 	STDMETHOD(ExecuteByID)(UINT id, [out, retval] VARIANT_BOOL* p);
@@ -337,7 +337,7 @@ __interface IMainMenuManager: IDisposable
 	library_block,
 	uuid("2d7436ad-6527-4154-a3c7-361ab8b88f5c")
 ]
-__interface IFbProfiler: IDispatch
+__interface IFbProfiler : IDispatch
 {
 	STDMETHOD(Reset)();
 	STDMETHOD(Print)();
@@ -351,7 +351,7 @@ __interface IFbProfiler: IDispatch
 	library_block,
 	uuid("1f40f9e1-c0fb-4021-80de-37c4d0a26f45")
 ]
-__interface IFbUiSelectionHolder: IDisposable
+__interface IFbUiSelectionHolder : IDisposable
 {
 	STDMETHOD(SetPlaylistSelectionTracking)();
 	STDMETHOD(SetPlaylistTracking)();
@@ -366,7 +366,7 @@ __interface IFbUiSelectionHolder: IDisposable
 	library_block,
 	uuid("bae2e084-6545-4a17-9795-1496a4ee2741")
 ]
-__interface IFbUtils: IDispatch
+__interface IFbUtils : IDispatch
 {
 	STDMETHOD(AcquireUiSelectionHolder)([out, retval] IFbUiSelectionHolder** outHolder);
 	STDMETHOD(AddDirectory)();
@@ -434,7 +434,7 @@ _COM_SMARTPTR_TYPEDEF(IFbUtils, __uuidof(IFbUtils));
 	library_block,
 	uuid("8a14d6a2-4582-4398-a6af-2206f2dabbbe")
 ]
-__interface IThemeManager: IDisposable
+__interface IThemeManager : IDisposable
 {
 	STDMETHOD(DrawThemeBackground)(IGdiGraphics* gr, int x, int y, int w, int h, [defaultvalue(0)] int clip_x, [defaultvalue(0)] int clip_y, [defaultvalue(0)] int clip_w, [defaultvalue(0)] int clip_h);
 	STDMETHOD(IsThemePartDefined)(int partid, [defaultvalue(0)] int stateid, [out, retval] VARIANT_BOOL* p);
@@ -448,7 +448,7 @@ __interface IThemeManager: IDisposable
 	library_block,
 	uuid("91830eda-b5f2-4061-9923-7880192a2734")
 ]
-__interface IDropSourceAction: IDisposable
+__interface IDropSourceAction : IDisposable
 {
 	STDMETHOD(ToPlaylist)();
 	[propget] STDMETHOD(Parsable)([out, retval] VARIANT_BOOL* parsable);
@@ -466,7 +466,7 @@ __interface IDropSourceAction: IDisposable
 	library_block,
 	uuid("81e1f0c0-1dfe-4996-abd9-ba98dff69e4c")
 ]
-__interface IFbWindow: IDispatch
+__interface IFbWindow : IDispatch
 {
 	STDMETHOD(ClearInterval)(UINT intervalID);
 	STDMETHOD(ClearTimeout)(UINT timeoutID);
@@ -518,7 +518,7 @@ _COM_SMARTPTR_TYPEDEF(IFbWindow, __uuidof(IFbWindow));
 	library_block,
 	uuid("d53e81cd-0157-4cfe-a618-1F88d48dc0b7")
 ]
-__interface IJSUtils: IDispatch
+__interface IJSUtils : IDispatch
 {
 	STDMETHOD(CheckComponent)(BSTR name, [defaultvalue(-1)] VARIANT_BOOL is_dll, [out, retval] VARIANT_BOOL* p);
 	STDMETHOD(CheckFont)(BSTR name, [out, retval] VARIANT_BOOL* p);

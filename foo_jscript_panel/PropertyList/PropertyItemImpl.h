@@ -57,7 +57,7 @@ public:
 	}
 	virtual ~CProperty()
 	{
-		delete [] m_pszName;
+		delete[] m_pszName;
 	}
 	virtual void SetOwner(HWND hWnd, LPVOID /*pData*/)
 	{
@@ -222,84 +222,84 @@ protected:
 
 public:
 	CPropertyEditItem(LPCTSTR pstrName, LPARAM lParam) :
-	  CPropertyItem(pstrName, lParam),
-		  m_hwndEdit(NULL)
-	  {
-	  }
-	  CPropertyEditItem(LPCTSTR pstrName, CComVariant vValue, LPARAM lParam) :
-	  CPropertyItem(pstrName, lParam),
-		  m_hwndEdit(NULL)
-	  {
-		  m_val = vValue;
-	  }
-	  BYTE GetKind() const
-	  {
-		  return PROPKIND_EDIT;
-	  }
-	  HWND CreateInplaceControl(HWND hWnd, const RECT& rc)
-	  {
-		  // Get default text
-		  UINT cchMax = GetDisplayValueLength() + 1;
-		  CString text;
-		  int ret = GetDisplayValue(text.GetBuffer(cchMax), cchMax);
-		  text.ReleaseBuffer();
+		CPropertyItem(pstrName, lParam),
+		m_hwndEdit(NULL)
+	{
+	}
+	CPropertyEditItem(LPCTSTR pstrName, CComVariant vValue, LPARAM lParam) :
+		CPropertyItem(pstrName, lParam),
+		m_hwndEdit(NULL)
+	{
+		m_val = vValue;
+	}
+	BYTE GetKind() const
+	{
+		return PROPKIND_EDIT;
+	}
+	HWND CreateInplaceControl(HWND hWnd, const RECT& rc)
+	{
+		// Get default text
+		UINT cchMax = GetDisplayValueLength() + 1;
+		CString text;
+		int ret = GetDisplayValue(text.GetBuffer(cchMax), cchMax);
+		text.ReleaseBuffer();
 
-		  if (!ret) return NULL;
-		  // Create EDIT control
-		  CPropertyEditWindow* win = new CPropertyEditWindow();
-		  ATLASSERT(win);
-		  RECT rcWin = rc;
-		  m_hwndEdit = win->Create(hWnd, rcWin, text, WS_VISIBLE | WS_CHILD | ES_LEFT | ES_AUTOHSCROLL);
-		  ATLASSERT(::IsWindow(m_hwndEdit));
-		  // Simple hack to validate numbers
-		  switch (m_val.vt)
-		  {
-		  case VT_UI1:
-		  case VT_UI2:
-		  case VT_UI4:
-			  win->ModifyStyle(0, ES_NUMBER);
-			  break;
-		  }
-		  return m_hwndEdit;
-	  }
-	  BOOL SetValue(const VARIANT& value)
-	  {
-		  if (m_val.vt == VT_EMPTY) m_val = value;
-		  return SUCCEEDED(m_val.ChangeType(m_val.vt, &value));
-	  }
-	  BOOL SetValue(HWND hWnd)
-	  {
-		  ATLASSERT(::IsWindow(hWnd));
-		  int len = ::GetWindowTextLength(hWnd) + 1;
-		  CString text;
-		  int ret = ::GetWindowText(hWnd, text.GetBuffer(len), len);
-		  text.ReleaseBuffer();
+		if (!ret) return NULL;
+		// Create EDIT control
+		CPropertyEditWindow* win = new CPropertyEditWindow();
+		ATLASSERT(win);
+		RECT rcWin = rc;
+		m_hwndEdit = win->Create(hWnd, rcWin, text, WS_VISIBLE | WS_CHILD | ES_LEFT | ES_AUTOHSCROLL);
+		ATLASSERT(::IsWindow(m_hwndEdit));
+		// Simple hack to validate numbers
+		switch (m_val.vt)
+		{
+		case VT_UI1:
+		case VT_UI2:
+		case VT_UI4:
+			win->ModifyStyle(0, ES_NUMBER);
+			break;
+		}
+		return m_hwndEdit;
+	}
+	BOOL SetValue(const VARIANT& value)
+	{
+		if (m_val.vt == VT_EMPTY) m_val = value;
+		return SUCCEEDED(m_val.ChangeType(m_val.vt, &value));
+	}
+	BOOL SetValue(HWND hWnd)
+	{
+		ATLASSERT(::IsWindow(hWnd));
+		int len = ::GetWindowTextLength(hWnd) + 1;
+		CString text;
+		int ret = ::GetWindowText(hWnd, text.GetBuffer(len), len);
+		text.ReleaseBuffer();
 
-		  if (!ret)
-		  {
-			  // Bah, an empty string *and* an error causes the same return code!
-			  if (::GetLastError() != ERROR_SUCCESS)
-				  return FALSE;
-		  }
+		if (!ret)
+		{
+			// Bah, an empty string *and* an error causes the same return code!
+			if (::GetLastError() != ERROR_SUCCESS)
+				return FALSE;
+		}
 
-		  return SetValue(CComVariant(text));
-	  }
-	  BOOL Activate(UINT action, LPARAM /*lParam*/)
-	  {
-		  switch (action)
-		  {
-		  case PACT_TAB:
-		  case PACT_SPACE:
-		  case PACT_DBLCLICK:
-			  if (::IsWindow(m_hwndEdit))
-			  {
-				  ::SetFocus(m_hwndEdit);
-				  ::SendMessage(m_hwndEdit, EM_SETSEL, 0, -1);
-			  }
-			  break;
-		  }
-		  return TRUE;
-	  }
+		return SetValue(CComVariant(text));
+	}
+	BOOL Activate(UINT action, LPARAM /*lParam*/)
+	{
+		switch (action)
+		{
+		case PACT_TAB:
+		case PACT_SPACE:
+		case PACT_DBLCLICK:
+			if (::IsWindow(m_hwndEdit))
+			{
+				::SetFocus(m_hwndEdit);
+				::SendMessage(m_hwndEdit, EM_SETSEL, 0, -1);
+			}
+			break;
+		}
+		return TRUE;
+	}
 };
 
 /////////////////////////////////////////////////////////////////////////////
@@ -313,153 +313,153 @@ protected:
 
 public:
 	CPropertyListItem(LPCTSTR pstrName, LPARAM lParam) :
-	  CPropertyItem(pstrName, lParam),
-		  m_hwndCombo(NULL)
-	  {
-		  m_val = -1L;
-	  }
-	  CPropertyListItem(LPCTSTR pstrName, LPCTSTR* ppList, int iValue, LPARAM lParam) :
-	  CPropertyItem(pstrName, lParam),
-		  m_hwndCombo(NULL)
-	  {
-		  m_val = -1L;
-		  if (ppList != NULL)
-		  {
-			  SetList(ppList);
-			  SetValue(CComVariant(iValue));
-		  }
-	  }
-	  BYTE GetKind() const
-	  {
-		  return PROPKIND_LIST;
-	  }
-	  HWND CreateInplaceControl(HWND hWnd, const RECT& rc)
-	  {
-		  // Get default text
-		  UINT cchMax = GetDisplayValueLength() + 1;
-		  CString text;
-		  int ret = GetDisplayValue(text.GetBuffer(cchMax), cchMax);
-		  text.ReleaseBuffer();
+		CPropertyItem(pstrName, lParam),
+		m_hwndCombo(NULL)
+	{
+		m_val = -1L;
+	}
+	CPropertyListItem(LPCTSTR pstrName, LPCTSTR* ppList, int iValue, LPARAM lParam) :
+		CPropertyItem(pstrName, lParam),
+		m_hwndCombo(NULL)
+	{
+		m_val = -1L;
+		if (ppList != NULL)
+		{
+			SetList(ppList);
+			SetValue(CComVariant(iValue));
+		}
+	}
+	BYTE GetKind() const
+	{
+		return PROPKIND_LIST;
+	}
+	HWND CreateInplaceControl(HWND hWnd, const RECT& rc)
+	{
+		// Get default text
+		UINT cchMax = GetDisplayValueLength() + 1;
+		CString text;
+		int ret = GetDisplayValue(text.GetBuffer(cchMax), cchMax);
+		text.ReleaseBuffer();
 
-		  if (!ret) return NULL;
-		  // Create 'faked' DropDown control
-		  CPropertyListWindow* win = new CPropertyListWindow();
-		  ATLASSERT(win);
-		  RECT rcWin = rc;
-		  m_hwndCombo = win->Create(hWnd, rcWin, text);
-		  ATLASSERT(win->IsWindow());
-		  // Add to list
-		  USES_CONVERSION;
-		  for (int i = 0; i < m_arrList.GetSize(); ++i) win->AddItem(OLE2CT(m_arrList[i]));
-		  win->SelectItem(m_val.lVal);
-		  // Go...
-		  return *win;
-	  }
-	  BOOL Activate(UINT action, LPARAM /*lParam*/)
-	  {
-		  switch (action)
-		  {
-		  case PACT_SPACE:
-			  if (::IsWindow(m_hwndCombo))
-			  {
-				  // Fake button click...
-				  ::SendMessage(m_hwndCombo, WM_COMMAND, MAKEWPARAM(0, BN_CLICKED), 0);
-			  }
-			  break;
-		  case PACT_DBLCLICK:
-			  // Simulate neat VB control effect. DblClick cycles items in list.
-			  // Set value and recycle edit control
-			  if (IsEnabled())
-			  {
-				  CComVariant v = m_val.lVal + 1L;
-				  ::SendMessage(m_hWndOwner, WM_USER_PROP_CHANGEDPROPERTY, (WPARAM)(VARIANT*) &v, (LPARAM) this);
-			  }
-			  break;
-		  }
-		  return TRUE;
-	  }
-	  BOOL GetDisplayValue(LPTSTR pstr, UINT cchMax) const
-	  {
-		  ATLASSERT(m_val.vt == VT_I4);
-		  ATLASSERT(!::IsBadStringPtr(pstr, cchMax));
-		  *pstr = _T('\0');
-		  if (m_val.lVal < 0 || m_val.lVal >= m_arrList.GetSize()) return FALSE;
-		  USES_CONVERSION;
-		  ::lstrcpyn(pstr, OLE2CT(m_arrList[m_val.lVal]), cchMax) ;
-		  return TRUE;
-	  }
-	  UINT GetDisplayValueLength() const
-	  {
-		  ATLASSERT(m_val.vt == VT_I4);
-		  if (m_val.lVal < 0 || m_val.lVal >= m_arrList.GetSize()) return 0;
-		  BSTR bstr = m_arrList[m_val.lVal];
-		  USES_CONVERSION;
-		  return bstr == NULL ? 0 : ::lstrlen(OLE2CT(bstr));
-	  };
+		if (!ret) return NULL;
+		// Create 'faked' DropDown control
+		CPropertyListWindow* win = new CPropertyListWindow();
+		ATLASSERT(win);
+		RECT rcWin = rc;
+		m_hwndCombo = win->Create(hWnd, rcWin, text);
+		ATLASSERT(win->IsWindow());
+		// Add to list
+		USES_CONVERSION;
+		for (int i = 0; i < m_arrList.GetSize(); ++i) win->AddItem(OLE2CT(m_arrList[i]));
+		win->SelectItem(m_val.lVal);
+		// Go...
+		return *win;
+	}
+	BOOL Activate(UINT action, LPARAM /*lParam*/)
+	{
+		switch (action)
+		{
+		case PACT_SPACE:
+			if (::IsWindow(m_hwndCombo))
+			{
+				// Fake button click...
+				::SendMessage(m_hwndCombo, WM_COMMAND, MAKEWPARAM(0, BN_CLICKED), 0);
+			}
+			break;
+		case PACT_DBLCLICK:
+			// Simulate neat VB control effect. DblClick cycles items in list.
+			// Set value and recycle edit control
+			if (IsEnabled())
+			{
+				CComVariant v = m_val.lVal + 1L;
+				::SendMessage(m_hWndOwner, WM_USER_PROP_CHANGEDPROPERTY, (WPARAM)(VARIANT*)&v, (LPARAM) this);
+			}
+			break;
+		}
+		return TRUE;
+	}
+	BOOL GetDisplayValue(LPTSTR pstr, UINT cchMax) const
+	{
+		ATLASSERT(m_val.vt == VT_I4);
+		ATLASSERT(!::IsBadStringPtr(pstr, cchMax));
+		*pstr = _T('\0');
+		if (m_val.lVal < 0 || m_val.lVal >= m_arrList.GetSize()) return FALSE;
+		USES_CONVERSION;
+		::lstrcpyn(pstr, OLE2CT(m_arrList[m_val.lVal]), cchMax);
+		return TRUE;
+	}
+	UINT GetDisplayValueLength() const
+	{
+		ATLASSERT(m_val.vt == VT_I4);
+		if (m_val.lVal < 0 || m_val.lVal >= m_arrList.GetSize()) return 0;
+		BSTR bstr = m_arrList[m_val.lVal];
+		USES_CONVERSION;
+		return bstr == NULL ? 0 : ::lstrlen(OLE2CT(bstr));
+	};
 
-	  BOOL SetValue(const VARIANT& value)
-	  {
-		  switch (value.vt)
-		  {
-		  case VT_BSTR:
-			  {
-				  m_val = 0L;
-				  for (int i = 0; i < m_arrList.GetSize(); ++i)
-				  {
-					  if (::wcscmp(value.bstrVal, m_arrList[i]) == 0)
-					  {
-						  m_val = (long) i;
-						  return TRUE;
-					  }
-				  }
-				  return FALSE;
-			  }
-			  break;
-		  default:
-			  // Treat as index into list
-			  if (FAILED(m_val.ChangeType(VT_I4, &value))) return FALSE;
-			  if (m_val.lVal >= m_arrList.GetSize()) m_val.lVal = 0L;
-			  return TRUE;
-		  }
-	  }
-	  BOOL SetValue(HWND hWnd)
-	  {
-		  ATLASSERT(::IsWindow(hWnd));
-		  int len = ::GetWindowTextLength(hWnd) + 1;
-		  CString text;	  
-		  int ret = ::GetWindowText(hWnd, text.GetBuffer(len), len);
-		  text.ReleaseBuffer();
+	BOOL SetValue(const VARIANT& value)
+	{
+		switch (value.vt)
+		{
+		case VT_BSTR:
+		{
+			m_val = 0L;
+			for (int i = 0; i < m_arrList.GetSize(); ++i)
+			{
+				if (::wcscmp(value.bstrVal, m_arrList[i]) == 0)
+				{
+					m_val = (long)i;
+					return TRUE;
+				}
+			}
+			return FALSE;
+		}
+		break;
+		default:
+			// Treat as index into list
+			if (FAILED(m_val.ChangeType(VT_I4, &value))) return FALSE;
+			if (m_val.lVal >= m_arrList.GetSize()) m_val.lVal = 0L;
+			return TRUE;
+		}
+	}
+	BOOL SetValue(HWND hWnd)
+	{
+		ATLASSERT(::IsWindow(hWnd));
+		int len = ::GetWindowTextLength(hWnd) + 1;
+		CString text;
+		int ret = ::GetWindowText(hWnd, text.GetBuffer(len), len);
+		text.ReleaseBuffer();
 
-		  if (!ret)
-		  {
-			  if (::GetLastError() != ERROR_SUCCESS)
-			  {
-				  return FALSE;
-			  }
-		  }
+		if (!ret)
+		{
+			if (::GetLastError() != ERROR_SUCCESS)
+			{
+				return FALSE;
+			}
+		}
 
-		  return SetValue(CComVariant(text));
-	  }
-	  void SetList(LPCTSTR* ppList)
-	  {
-		  ATLASSERT(ppList);
-		  m_arrList.RemoveAll();
-		  while (*ppList != NULL)
-		  {
-			  CComBSTR bstr(*ppList);
-			  m_arrList.Add(bstr);
-			  ++ppList;
-		  }
-		  if (m_val.lVal < 0L) m_val = 0L;
-		  if (m_val.lVal >= (LONG) m_arrList.GetSize()) m_val = 0L;
-	  }
-	  void AddListItem(LPCTSTR pstrText)
-	  {
-		  ATLASSERT(!::IsBadStringPtr(pstrText, -1));
-		  CComBSTR bstr(pstrText);
-		  m_arrList.Add(bstr);
-		  if (m_val.lVal < 0L) m_val = 0L;
-	  }
+		return SetValue(CComVariant(text));
+	}
+	void SetList(LPCTSTR* ppList)
+	{
+		ATLASSERT(ppList);
+		m_arrList.RemoveAll();
+		while (*ppList != NULL)
+		{
+			CComBSTR bstr(*ppList);
+			m_arrList.Add(bstr);
+			++ppList;
+		}
+		if (m_val.lVal < 0L) m_val = 0L;
+		if (m_val.lVal >= (LONG)m_arrList.GetSize()) m_val = 0L;
+	}
+	void AddListItem(LPCTSTR pstrText)
+	{
+		ATLASSERT(!::IsBadStringPtr(pstrText, -1));
+		CComBSTR bstr(pstrText);
+		m_arrList.Add(bstr);
+		if (m_val.lVal < 0L) m_val = 0L;
+	}
 };
 
 

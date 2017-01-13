@@ -108,7 +108,7 @@ void ScriptCallbackInvoker::init(IDispatch* pActiveScriptRoot)
 HRESULT ScriptCallbackInvoker::invoke(int callbackId, VARIANTARG* argv /*= NULL*/, UINT argc /*= 0*/, VARIANT* ret /*= NULL*/)
 {
 	if (!m_activeScriptRoot) return E_POINTER;
-	DISPPARAMS param = {argv, NULL, argc, 0};
+	DISPPARAMS param = { argv, NULL, argc, 0 };
 	int dispId;
 	if (!m_callbackInvokerMap.query(callbackId, dispId)) return DISP_E_MEMBERNOTFOUND;
 	if (dispId == DISPID_UNKNOWN) return DISP_E_MEMBERNOTFOUND;

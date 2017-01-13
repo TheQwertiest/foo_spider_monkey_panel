@@ -99,7 +99,7 @@ public:
 	bool m_bColumnFixed;
 
 	CPropertyListImpl() :
-	m_hwndInplace(NULL),
+		m_hwndInplace(NULL),
 		m_iInplaceIndex(-1),
 		m_dwExtStyle(0UL),
 		m_iMiddle(0),
@@ -152,7 +152,7 @@ public:
 		prop->SetOwner(m_hWnd, NULL);
 		int nItem = TBase::AddString(prop->GetName());
 		if (nItem == LB_ERR) return NULL;
-		TBase::SetItemData(nItem, (DWORD_PTR) prop);
+		TBase::SetItemData(nItem, (DWORD_PTR)prop);
 		return prop;
 	}
 	BOOL DeleteItem(HPROPERTY prop)
@@ -162,14 +162,14 @@ public:
 		// Delete *visible* property!
 		int iIndex = FindProperty(prop);
 		if (iIndex == -1) return FALSE;
-		return TBase::DeleteString((UINT) iIndex) != LB_ERR;
+		return TBase::DeleteString((UINT)iIndex) != LB_ERR;
 	}
 	HPROPERTY GetProperty(int index) const
 	{
 		ATLASSERT(::IsWindow(m_hWnd));
 		ATLASSERT(index != -1);
 		IProperty* prop = reinterpret_cast<IProperty*>(TBase::GetItemData(index));
-		if (prop == (IProperty*) - 1) prop = NULL;
+		if (prop == (IProperty*)-1) prop = NULL;
 		return prop;
 	}
 	HPROPERTY FindProperty(LPCTSTR pstrName) const
@@ -229,7 +229,7 @@ public:
 		if (prop == NULL) return 0;
 		for (int i = 0; i < GetCount(); ++i)
 		{
-			if (TBase::GetItemData(i) == (DWORD_PTR) prop) return i;
+			if (TBase::GetItemData(i) == (DWORD_PTR)prop) return i;
 		}
 		return -1;
 	}
@@ -456,424 +456,424 @@ public:
 		MESSAGE_HANDLER(WM_LBUTTONUP, OnLButtonUp)
 		MESSAGE_HANDLER(WM_LBUTTONDBLCLK, OnDblClick)
 		MESSAGE_HANDLER(WM_SETTINGCHANGE, OnSettingChange)
-		MESSAGE_HANDLER(WM_SETCURSOR, OnSetCursor);
-		MESSAGE_HANDLER(WM_USER_PROP_NAVIGATE, OnNavigate);
-		MESSAGE_HANDLER(WM_USER_PROP_UPDATEPROPERTY, OnUpdateProperty);
-		MESSAGE_HANDLER(WM_USER_PROP_CANCELPROPERTY, OnCancelProperty);
-		MESSAGE_HANDLER(WM_USER_PROP_CHANGEDPROPERTY, OnChangedProperty);
+		MESSAGE_HANDLER(WM_SETCURSOR, OnSetCursor)
+		MESSAGE_HANDLER(WM_USER_PROP_NAVIGATE, OnNavigate)
+		MESSAGE_HANDLER(WM_USER_PROP_UPDATEPROPERTY, OnUpdateProperty)
+		MESSAGE_HANDLER(WM_USER_PROP_CANCELPROPERTY, OnCancelProperty)
+		MESSAGE_HANDLER(WM_USER_PROP_CHANGEDPROPERTY, OnChangedProperty)
 		REFLECTED_COMMAND_CODE_HANDLER(LBN_SELCHANGE, OnSelChange)
-			CHAIN_MSG_MAP_ALT(COwnerDraw<T>, 1)
-			DEFAULT_REFLECTION_HANDLER()
+		CHAIN_MSG_MAP_ALT(COwnerDraw<T>, 1)
+		DEFAULT_REFLECTION_HANDLER()
 	END_MSG_MAP()
 
 	LRESULT OnCreate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/)
+	{
+		LRESULT lRes = DefWindowProc(uMsg, wParam, lParam);
+		_Init();
+		return lRes;
+	}
+	LRESULT OnDestroy(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
+	{
+		// Make sure to delete editor and item-data memory
+		// FIX: Thanks to Ilya Markevich for spotting this memory leak
+		ResetContent();
+		bHandled = TRUE;
+		return 0;
+	}
+	LRESULT OnSize(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
+	{
+		// Size handler supplied by DJ (thank to this masked site reader)
+		_DestroyInplaceWindow();
+		// Calculate drag position
+		RECT rc = { 0 };
+		GetClientRect(&rc);
+		if (!m_bColumnFixed) m_iMiddle = (rc.right - rc.left) / 2;
+		m_iPrevious = 0;
+		BOOL bDummy = FALSE;
+		OnSelChange(0, 0, 0, bDummy);
+		//
+		bHandled = FALSE;
+		return 0;
+	}
+	LRESULT OnScroll(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
+	{
+		_DestroyInplaceWindow();
+		bHandled = FALSE;
+		return 0;
+	}
+	LRESULT OnKeyDown(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& bHandled)
+	{
+		switch (LOWORD(wParam))
 		{
-			LRESULT lRes = DefWindowProc(uMsg, wParam, lParam);
-			_Init();
-			return lRes;
-		}
-		LRESULT OnDestroy(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
+		case VK_TAB:
 		{
-			// Make sure to delete editor and item-data memory
-			// FIX: Thanks to Ilya Markevich for spotting this memory leak
-			ResetContent();
-			bHandled = TRUE;
-			return 0;
-		}
-		LRESULT OnSize(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
-		{
-			// Size handler supplied by DJ (thank to this masked site reader)
-			_DestroyInplaceWindow();
-			// Calculate drag position
-			RECT rc = { 0 };
-			GetClientRect(&rc);
-			if (!m_bColumnFixed) m_iMiddle = (rc.right - rc.left) / 2;
-			m_iPrevious = 0;
-			BOOL bDummy = FALSE;
-			OnSelChange(0, 0, 0, bDummy);
-			//
-			bHandled = FALSE;
-			return 0;
-		}
-		LRESULT OnScroll(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
-		{
-			_DestroyInplaceWindow();
-			bHandled = FALSE;
-			return 0;
-		}
-		LRESULT OnKeyDown(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& bHandled)
-		{
-			switch (LOWORD(wParam))
-			{
-			case VK_TAB:
-				{
-					int idx = GetCurSel();
-					if (idx != -1)
-					{
-						IProperty* prop = reinterpret_cast<IProperty*>(TBase::GetItemData(idx));
-						ATLASSERT(prop);
-						prop->Activate(PACT_TAB, 0);
-					}
-				}
-				break;
-			case VK_F2:
-			case VK_SPACE:
-				{
-					int idx = GetCurSel();
-					if (idx != -1)
-					{
-						IProperty* prop = reinterpret_cast<IProperty*>(TBase::GetItemData(idx));
-						ATLASSERT(prop);
-						if (idx != m_iInplaceIndex) _SpawnInplaceWindow(prop, idx);
-						if (prop->IsEnabled()) prop->Activate(PACT_SPACE, 0);
-					}
-				}
-				break;
-			}
-			bHandled = FALSE;
-			return 0;
-		}
-		LRESULT OnChar(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& bHandled)
-		{
-			// If the user is typeing stuff, we should spawn an editor right away
-			// and simulate the keypress in the editor-window...
-			if (wParam > _T(' '))
-			{
-				int idx = GetCurSel();
-				if (idx != -1)
-				{
-					IProperty* prop = reinterpret_cast<IProperty*>(TBase::GetItemData(idx));
-					ATLASSERT(prop);
-					if (prop->IsEnabled())
-					{
-						if (_SpawnInplaceWindow(prop, idx))
-						{
-							prop->Activate(PACT_SPACE, 0);
-							// Simulate typing in the inplace editor...
-							::SendMessage(m_hwndInplace, WM_CHAR, wParam, 1L);
-						}
-					}
-				}
-				return 0;
-			}
-			// Kill the nasty BEEP sound!
-			if (wParam == _T(' ')) return 0;
-			bHandled = FALSE;
-			return 0;
-		}
-		LRESULT OnLButtonDown(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/)
-		{
-			if (::GetFocus() != m_hWnd) SetFocus();
-
-			LRESULT lRes = DefWindowProc(uMsg, wParam, lParam);
-
-			// Should we do some column resize?
-			// NOTE: Apparently the ListBox control will internally do SetCapture() to
-			//       capture all mouse-movements.
-			m_iPrevious = 0;
-
-			if ((m_dwExtStyle & PLS_EX_NOCOLUMNRESIZE) == 0 &&
-				GET_X_LPARAM(lParam) == m_iMiddle)
-			{
-				m_iPrevious = GET_X_LPARAM(lParam);
-			}
-
 			int idx = GetCurSel();
 			if (idx != -1)
 			{
 				IProperty* prop = reinterpret_cast<IProperty*>(TBase::GetItemData(idx));
 				ATLASSERT(prop);
-				// Ask owner first
-				NMPROPERTYITEM nmh = { m_hWnd, UINT_PTR(GetDlgCtrlID()), PIN_CLICK, prop };
-				if (::SendMessage(GetParent(), WM_NOTIFY, nmh.hdr.idFrom, (LPARAM) &nmh) == 0)
-				{
-					if (prop->IsEnabled()) prop->Activate(PACT_CLICK, lParam);
-				}
+				prop->Activate(PACT_TAB, 0);
 			}
-			return lRes;
 		}
-		LRESULT OnLButtonUp(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& bHandled)
+		break;
+		case VK_F2:
+		case VK_SPACE:
 		{
-			int x = _GetDragPos(GET_X_LPARAM(lParam));
-			if (m_iPrevious > 0)
-			{
-				m_iMiddle += x - m_iPrevious;
-				Invalidate();
-			}
-			m_iPrevious = 0;
-			m_iPrevXGhostBar = 0;
-			bHandled = FALSE;
-			return 0;
-		}
-		LRESULT OnDblClick(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/)
-		{
-			LRESULT lRes = DefWindowProc(uMsg, wParam, lParam);
 			int idx = GetCurSel();
 			if (idx != -1)
 			{
 				IProperty* prop = reinterpret_cast<IProperty*>(TBase::GetItemData(idx));
 				ATLASSERT(prop);
-				// Ask owner first
-				NMPROPERTYITEM nmh = { m_hWnd, UINT_PTR(GetDlgCtrlID()), PIN_DBLCLICK, prop };
-				if (::SendMessage(GetParent(), WM_NOTIFY, nmh.hdr.idFrom, (LPARAM) &nmh) == 0)
-				{
-					// Send DblClick action
-					if (prop->IsEnabled()) prop->Activate(PACT_DBLCLICK, lParam);
-				}
+				if (idx != m_iInplaceIndex) _SpawnInplaceWindow(prop, idx);
+				if (prop->IsEnabled()) prop->Activate(PACT_SPACE, 0);
 			}
-			return lRes;
 		}
-		LRESULT OnMouseMove(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL &bHandled)
-		{
-			// Column resize code added by Remco Verhoef, thanks.
-			if (m_iPrevious > 0)
-			{
-				int x = _GetDragPos(GET_X_LPARAM(lParam));
-				if (m_iPrevXGhostBar != x)
-				{
-					if (m_iPrevXGhostBar) _DrawGhostBar(m_iPrevXGhostBar);
-					m_iPrevXGhostBar = x;
-					_DrawGhostBar(m_iPrevXGhostBar);
-				}
-				return 0;
-			}
-			bHandled = FALSE;
-			return 0;
+		break;
 		}
-		LRESULT OnSetCursor(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
+		bHandled = FALSE;
+		return 0;
+	}
+	LRESULT OnChar(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& bHandled)
+	{
+		// If the user is typeing stuff, we should spawn an editor right away
+		// and simulate the keypress in the editor-window...
+		if (wParam > _T(' '))
 		{
-			POINT pt = { 0 };
-			::GetCursorPos(&pt);
-			ScreenToClient(&pt);
-
-			if (pt.x == m_iMiddle)
-			{
-				::SetCursor(::LoadCursor(NULL, IDC_SIZEWE));
-				return FALSE;
-			}
-			bHandled = FALSE;
-			return 0;
-		}
-		LRESULT OnSettingChange(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
-		{
-			// Custom styles
-			m_di.dwExtStyle = m_dwExtStyle;
-			// Standard colors
-			m_di.clrText = ::GetSysColor(COLOR_WINDOWTEXT);
-			m_di.clrBack = ::GetSysColor(COLOR_WINDOW);
-			m_di.clrSelText = ::GetSysColor(COLOR_HIGHLIGHTTEXT);
-			m_di.clrSelBack = ::GetSysColor(COLOR_HIGHLIGHT);
-			m_di.clrDisabled = ::GetSysColor(COLOR_GRAYTEXT);
-			// Border
-			m_di.clrBorder = ::GetSysColor(COLOR_BTNFACE);
-			if (!m_BorderPen.IsNull()) m_BorderPen.DeleteObject();
-			m_di.Border = m_BorderPen.CreatePen(PS_SOLID, 1, m_di.clrBorder);
-			// Fonts
-			if (!m_TextFont.IsNull()) m_TextFont.DeleteObject();
-			if (!m_CategoryFont.IsNull()) m_CategoryFont.DeleteObject();
-			LOGFONT lf;
-			HFONT hFont = (HFONT)::SendMessage(GetParent(), WM_GETFONT, 0, 0);
-			if (hFont == NULL) hFont = AtlGetDefaultGuiFont();
-			::GetObject(hFont, sizeof(lf), &lf);
-			m_di.TextFont = m_TextFont.CreateFontIndirect(&lf);
-			SetFont(m_di.TextFont);
-			if ((m_dwExtStyle & PLS_EX_XPLOOK) == 0) lf.lfWeight += FW_BOLD;
-			m_di.CategoryFont = m_CategoryFont.CreateFontIndirect(&lf);
-			// Text metrics
-			CClientDC dc(m_hWnd);
-			HFONT hOldFont = dc.SelectFont(m_di.TextFont);
-			dc.GetTextMetrics(&m_di.tmText);
-			dc.SelectFont(hOldFont);
-			// Repaint
-			Invalidate();
-			return 0;
-		}
-
-		LRESULT OnNavigate(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /*bHandled*/)
-		{
-			switch (wParam)
-			{
-			case VK_UP:
-			case VK_DOWN:
-				{
-					SetCurSel(GetCurSel() + (wParam == VK_UP ? -1 : 1));
-					BOOL bDummy = FALSE;
-					OnSelChange(0, 0, NULL, bDummy);
-				}
-				break;
-			}
-			return 0;
-		}
-		LRESULT OnUpdateProperty(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& /*bHandled*/)
-		{
-			// Updates a property value using an active editor window.
-			// The editor window uses this message to update the attached property class.
-			HWND hWnd = reinterpret_cast<HWND>(lParam);
-			ATLASSERT(::IsWindow(hWnd));
-			if (!::IsWindow(hWnd) || m_iInplaceIndex == -1) return 0;
-			IProperty* prop = reinterpret_cast<IProperty*>(TBase::GetItemData(m_iInplaceIndex));
-			ATLASSERT(prop);
-			if (prop == NULL) return 0;
-			// Ask owner about change
-			NMPROPERTYITEM nmh = { m_hWnd, UINT_PTR(GetDlgCtrlID()), PIN_ITEMCHANGING, prop };
-			if (::SendMessage(GetParent(), WM_NOTIFY, nmh.hdr.idFrom, (LPARAM) &nmh) == 0)
-			{
-				// Set new value
-				if (!prop->SetValue(hWnd)) ::MessageBeep((UINT) - 1);
-				// Let owner know
-				nmh.hdr.code = PIN_ITEMCHANGED;
-				::SendMessage(GetParent(), WM_NOTIFY, nmh.hdr.idFrom, (LPARAM) &nmh);
-				// Repaint item
-				InvalidateItem(m_iInplaceIndex);
-			}
-			// Destroy inplace editor
-			_DestroyInplaceWindow();
-			return 0;
-		}
-		LRESULT OnCancelProperty(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& /*bHandled*/)
-		{
-			// Updates a property value using an active editor window.
-			// The editor window uses this message to update the attached property class.
-			HWND hWnd = reinterpret_cast<HWND>(lParam);
-			ATLASSERT(::IsWindow(hWnd));
-			if (!::IsWindow(hWnd) || m_iInplaceIndex == -1) return 0;
-			IProperty* prop = reinterpret_cast<IProperty*>(TBase::GetItemData(m_iInplaceIndex));
-			ATLASSERT(prop);
-			if (prop == NULL) return 0;
-			// Repaint item
-			InvalidateItem(m_iInplaceIndex);
-			// Destroy inplace editor
-			_DestroyInplaceWindow();
-			return 0;
-		}
-		LRESULT OnChangedProperty(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/)
-		{
-			// Updates a property value.
-			// A property class uses this message to make sure the corresponding editor window
-			// is updated as well.
-			IProperty* prop = reinterpret_cast<IProperty*>(lParam);
-			VARIANT* pVariant = reinterpret_cast<VARIANT*>(wParam);
-			ATLASSERT(prop && pVariant);
-			if (prop == NULL || pVariant == NULL) return 0;
-			// Ask owner about change
-			NMPROPERTYITEM nmh = { m_hWnd, UINT_PTR(GetDlgCtrlID()), PIN_ITEMCHANGING, prop };
-			if (::SendMessage(GetParent(), WM_NOTIFY, nmh.hdr.idFrom, (LPARAM) &nmh) == 0)
-			{
-				// Set new value
-				// NOTE: Do not call this from IProperty::SetValue(VARIANT*) = endless loop
-				if (!prop->SetValue(*pVariant)) ::MessageBeep((UINT) - 1);
-				// Let owner know
-				nmh.hdr.code = PIN_ITEMCHANGED;
-				::SendMessage(GetParent(), WM_NOTIFY, nmh.hdr.idFrom, (LPARAM) &nmh);
-			}
-			// Locate the updated property index
-			int idx = FindProperty(prop);
-			// Repaint item
-			InvalidateItem(idx);
-			// Recycle in-place control so it displays the new value
-			if (idx >= 0 && idx == m_iInplaceIndex) _SpawnInplaceWindow(prop, idx);
-			return 0;
-		}
-
-		LRESULT OnSelChange(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
-		{
-			// Remove drag-band
-			if (m_iPrevXGhostBar > 0) _DrawGhostBar(m_iPrevXGhostBar);
-			// No editor, please
-			_DestroyInplaceWindow();
-			// Activate item at once?
-			IProperty* prop = NULL;
 			int idx = GetCurSel();
 			if (idx != -1)
 			{
-				prop = reinterpret_cast<IProperty*>(TBase::GetItemData(idx));
+				IProperty* prop = reinterpret_cast<IProperty*>(TBase::GetItemData(idx));
 				ATLASSERT(prop);
 				if (prop->IsEnabled())
 				{
-					_SpawnInplaceWindow(prop, idx);
-					prop->Activate(PACT_ACTIVATE, 0);
-					if ((m_dwExtStyle & PLS_EX_SINGLECLICKEDIT) != 0)
+					if (_SpawnInplaceWindow(prop, idx))
 					{
-						if (prop->GetKind() == PROPKIND_EDIT) prop->Activate(PACT_DBLCLICK, 0);
+						prop->Activate(PACT_SPACE, 0);
+						// Simulate typing in the inplace editor...
+						::SendMessage(m_hwndInplace, WM_CHAR, wParam, 1L);
 					}
 				}
 			}
-			// Let owner know
-			NMPROPERTYITEM nmh = { m_hWnd, UINT_PTR(GetDlgCtrlID()), PIN_SELCHANGED, prop };
-			::SendMessage(GetParent(), WM_NOTIFY, nmh.hdr.idFrom, (LPARAM) &nmh);
-			// Redraw drag-band
-			if (m_iPrevXGhostBar > 0) _DrawGhostBar(m_iPrevXGhostBar);
 			return 0;
 		}
+		// Kill the nasty BEEP sound!
+		if (wParam == _T(' ')) return 0;
+		bHandled = FALSE;
+		return 0;
+	}
+	LRESULT OnLButtonDown(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/)
+	{
+		if (::GetFocus() != m_hWnd) SetFocus();
 
-		// Owner draw methods
-		void DeleteItem(LPDELETEITEMSTRUCT lpDIS)
+		LRESULT lRes = DefWindowProc(uMsg, wParam, lParam);
+
+		// Should we do some column resize?
+		// NOTE: Apparently the ListBox control will internally do SetCapture() to
+		//       capture all mouse-movements.
+		m_iPrevious = 0;
+
+		if ((m_dwExtStyle & PLS_EX_NOCOLUMNRESIZE) == 0 &&
+			GET_X_LPARAM(lParam) == m_iMiddle)
 		{
-			_DestroyInplaceWindow();
-			if (lpDIS->itemData != 0) delete reinterpret_cast<IProperty*>(lpDIS->itemData);
+			m_iPrevious = GET_X_LPARAM(lParam);
 		}
-		void MeasureItem(LPMEASUREITEMSTRUCT lpMIS)
-		{
-			lpMIS->itemHeight = m_di.tmText.tmHeight + 3;
-		}
-		void DrawItem(LPDRAWITEMSTRUCT lpDIS)
-		{
-			if (lpDIS->itemID == -1) return;  // If there are no list box items, skip this message.
 
-			CDCHandle dc(lpDIS->hDC);
-			RECT rc = lpDIS->rcItem;
-
-			IProperty* prop = reinterpret_cast<IProperty*>(lpDIS->itemData);
+		int idx = GetCurSel();
+		if (idx != -1)
+		{
+			IProperty* prop = reinterpret_cast<IProperty*>(TBase::GetItemData(idx));
 			ATLASSERT(prop);
-			BYTE kind = prop->GetKind();
-
-			// Customize item
-			PROPERTYDRAWINFO di = m_di;
-			di.hDC = dc;
-			di.state = lpDIS->itemState & ~ODS_DISABLED;
-			if (lpDIS->itemID == (UINT) m_iInplaceIndex) di.state |= ODS_COMBOBOXEDIT;
-
-			// Special style for removing selection when control hasn't got focus
-			if ((di.dwExtStyle & PLS_EX_SHOWSELALWAYS) == 0 && (::GetFocus() != m_hWnd))
+			// Ask owner first
+			NMPROPERTYITEM nmh = { m_hWnd, UINT_PTR(GetDlgCtrlID()), PIN_CLICK, prop };
+			if (::SendMessage(GetParent(), WM_NOTIFY, nmh.hdr.idFrom, (LPARAM)&nmh) == 0)
 			{
-				di.state &= ~ODS_SELECTED;
+				if (prop->IsEnabled()) prop->Activate(PACT_CLICK, lParam);
 			}
-
-			// Prepare drawing
-			HFONT hOldFont = dc.SelectFont(di.TextFont);
-
-			// Calculate rectangles for the two sides
-			RECT rcName = rc;
-			RECT rcValue = rc;
-			rcName.right = rc.left + m_iMiddle;
-			rcValue.left = rc.left + m_iMiddle + 1;
-
-			// Draw name
-			di.rcItem = rcName;
-			prop->DrawName(di);
-
-			// Draw value
-			// Thanks to Pascal Binggeli who suggested the Inplace-editor
-			// check below...
-			if ((int) lpDIS->itemID != m_iInplaceIndex)
-			{
-				di.rcItem = rcValue;
-				dc.FillSolidRect(&rcValue, di.clrBack);
-				if (!prop->IsEnabled()) di.state |= ODS_DISABLED;
-				prop->DrawValue(di);
-			}
-
-			// Paint borders
-			HPEN hOldPen = dc.SelectPen(di.Border);
-			dc.MoveTo(rc.left, rc.bottom - 1);
-			dc.LineTo(rc.right, rc.bottom - 1);
-			// Not painting middle border (thanks to Ludvig A Norin)
-			dc.MoveTo(rc.left + m_iMiddle, rc.top);
-			dc.LineTo(rc.left + m_iMiddle, rc.bottom - 1);
-			dc.SelectPen(hOldPen);
-
-			dc.SelectFont(hOldFont);
 		}
+		return lRes;
+	}
+	LRESULT OnLButtonUp(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& bHandled)
+	{
+		int x = _GetDragPos(GET_X_LPARAM(lParam));
+		if (m_iPrevious > 0)
+		{
+			m_iMiddle += x - m_iPrevious;
+			Invalidate();
+		}
+		m_iPrevious = 0;
+		m_iPrevXGhostBar = 0;
+		bHandled = FALSE;
+		return 0;
+	}
+	LRESULT OnDblClick(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/)
+	{
+		LRESULT lRes = DefWindowProc(uMsg, wParam, lParam);
+		int idx = GetCurSel();
+		if (idx != -1)
+		{
+			IProperty* prop = reinterpret_cast<IProperty*>(TBase::GetItemData(idx));
+			ATLASSERT(prop);
+			// Ask owner first
+			NMPROPERTYITEM nmh = { m_hWnd, UINT_PTR(GetDlgCtrlID()), PIN_DBLCLICK, prop };
+			if (::SendMessage(GetParent(), WM_NOTIFY, nmh.hdr.idFrom, (LPARAM)&nmh) == 0)
+			{
+				// Send DblClick action
+				if (prop->IsEnabled()) prop->Activate(PACT_DBLCLICK, lParam);
+			}
+		}
+		return lRes;
+	}
+	LRESULT OnMouseMove(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL &bHandled)
+	{
+		// Column resize code added by Remco Verhoef, thanks.
+		if (m_iPrevious > 0)
+		{
+			int x = _GetDragPos(GET_X_LPARAM(lParam));
+			if (m_iPrevXGhostBar != x)
+			{
+				if (m_iPrevXGhostBar) _DrawGhostBar(m_iPrevXGhostBar);
+				m_iPrevXGhostBar = x;
+				_DrawGhostBar(m_iPrevXGhostBar);
+			}
+			return 0;
+		}
+		bHandled = FALSE;
+		return 0;
+	}
+	LRESULT OnSetCursor(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
+	{
+		POINT pt = { 0 };
+		::GetCursorPos(&pt);
+		ScreenToClient(&pt);
+
+		if (pt.x == m_iMiddle)
+		{
+			::SetCursor(::LoadCursor(NULL, IDC_SIZEWE));
+			return FALSE;
+		}
+		bHandled = FALSE;
+		return 0;
+	}
+	LRESULT OnSettingChange(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
+	{
+		// Custom styles
+		m_di.dwExtStyle = m_dwExtStyle;
+		// Standard colors
+		m_di.clrText = ::GetSysColor(COLOR_WINDOWTEXT);
+		m_di.clrBack = ::GetSysColor(COLOR_WINDOW);
+		m_di.clrSelText = ::GetSysColor(COLOR_HIGHLIGHTTEXT);
+		m_di.clrSelBack = ::GetSysColor(COLOR_HIGHLIGHT);
+		m_di.clrDisabled = ::GetSysColor(COLOR_GRAYTEXT);
+		// Border
+		m_di.clrBorder = ::GetSysColor(COLOR_BTNFACE);
+		if (!m_BorderPen.IsNull()) m_BorderPen.DeleteObject();
+		m_di.Border = m_BorderPen.CreatePen(PS_SOLID, 1, m_di.clrBorder);
+		// Fonts
+		if (!m_TextFont.IsNull()) m_TextFont.DeleteObject();
+		if (!m_CategoryFont.IsNull()) m_CategoryFont.DeleteObject();
+		LOGFONT lf;
+		HFONT hFont = (HFONT)::SendMessage(GetParent(), WM_GETFONT, 0, 0);
+		if (hFont == NULL) hFont = AtlGetDefaultGuiFont();
+		::GetObject(hFont, sizeof(lf), &lf);
+		m_di.TextFont = m_TextFont.CreateFontIndirect(&lf);
+		SetFont(m_di.TextFont);
+		if ((m_dwExtStyle & PLS_EX_XPLOOK) == 0) lf.lfWeight += FW_BOLD;
+		m_di.CategoryFont = m_CategoryFont.CreateFontIndirect(&lf);
+		// Text metrics
+		CClientDC dc(m_hWnd);
+		HFONT hOldFont = dc.SelectFont(m_di.TextFont);
+		dc.GetTextMetrics(&m_di.tmText);
+		dc.SelectFont(hOldFont);
+		// Repaint
+		Invalidate();
+		return 0;
+	}
+
+	LRESULT OnNavigate(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /*bHandled*/)
+	{
+		switch (wParam)
+		{
+		case VK_UP:
+		case VK_DOWN:
+		{
+			SetCurSel(GetCurSel() + (wParam == VK_UP ? -1 : 1));
+			BOOL bDummy = FALSE;
+			OnSelChange(0, 0, NULL, bDummy);
+		}
+		break;
+		}
+		return 0;
+	}
+	LRESULT OnUpdateProperty(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& /*bHandled*/)
+	{
+		// Updates a property value using an active editor window.
+		// The editor window uses this message to update the attached property class.
+		HWND hWnd = reinterpret_cast<HWND>(lParam);
+		ATLASSERT(::IsWindow(hWnd));
+		if (!::IsWindow(hWnd) || m_iInplaceIndex == -1) return 0;
+		IProperty* prop = reinterpret_cast<IProperty*>(TBase::GetItemData(m_iInplaceIndex));
+		ATLASSERT(prop);
+		if (prop == NULL) return 0;
+		// Ask owner about change
+		NMPROPERTYITEM nmh = { m_hWnd, UINT_PTR(GetDlgCtrlID()), PIN_ITEMCHANGING, prop };
+		if (::SendMessage(GetParent(), WM_NOTIFY, nmh.hdr.idFrom, (LPARAM)&nmh) == 0)
+		{
+			// Set new value
+			if (!prop->SetValue(hWnd)) ::MessageBeep((UINT)-1);
+			// Let owner know
+			nmh.hdr.code = PIN_ITEMCHANGED;
+			::SendMessage(GetParent(), WM_NOTIFY, nmh.hdr.idFrom, (LPARAM)&nmh);
+			// Repaint item
+			InvalidateItem(m_iInplaceIndex);
+		}
+		// Destroy inplace editor
+		_DestroyInplaceWindow();
+		return 0;
+	}
+	LRESULT OnCancelProperty(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& /*bHandled*/)
+	{
+		// Updates a property value using an active editor window.
+		// The editor window uses this message to update the attached property class.
+		HWND hWnd = reinterpret_cast<HWND>(lParam);
+		ATLASSERT(::IsWindow(hWnd));
+		if (!::IsWindow(hWnd) || m_iInplaceIndex == -1) return 0;
+		IProperty* prop = reinterpret_cast<IProperty*>(TBase::GetItemData(m_iInplaceIndex));
+		ATLASSERT(prop);
+		if (prop == NULL) return 0;
+		// Repaint item
+		InvalidateItem(m_iInplaceIndex);
+		// Destroy inplace editor
+		_DestroyInplaceWindow();
+		return 0;
+	}
+	LRESULT OnChangedProperty(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/)
+	{
+		// Updates a property value.
+		// A property class uses this message to make sure the corresponding editor window
+		// is updated as well.
+		IProperty* prop = reinterpret_cast<IProperty*>(lParam);
+		VARIANT* pVariant = reinterpret_cast<VARIANT*>(wParam);
+		ATLASSERT(prop && pVariant);
+		if (prop == NULL || pVariant == NULL) return 0;
+		// Ask owner about change
+		NMPROPERTYITEM nmh = { m_hWnd, UINT_PTR(GetDlgCtrlID()), PIN_ITEMCHANGING, prop };
+		if (::SendMessage(GetParent(), WM_NOTIFY, nmh.hdr.idFrom, (LPARAM)&nmh) == 0)
+		{
+			// Set new value
+			// NOTE: Do not call this from IProperty::SetValue(VARIANT*) = endless loop
+			if (!prop->SetValue(*pVariant)) ::MessageBeep((UINT)-1);
+			// Let owner know
+			nmh.hdr.code = PIN_ITEMCHANGED;
+			::SendMessage(GetParent(), WM_NOTIFY, nmh.hdr.idFrom, (LPARAM)&nmh);
+		}
+		// Locate the updated property index
+		int idx = FindProperty(prop);
+		// Repaint item
+		InvalidateItem(idx);
+		// Recycle in-place control so it displays the new value
+		if (idx >= 0 && idx == m_iInplaceIndex) _SpawnInplaceWindow(prop, idx);
+		return 0;
+	}
+
+	LRESULT OnSelChange(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+	{
+		// Remove drag-band
+		if (m_iPrevXGhostBar > 0) _DrawGhostBar(m_iPrevXGhostBar);
+		// No editor, please
+		_DestroyInplaceWindow();
+		// Activate item at once?
+		IProperty* prop = NULL;
+		int idx = GetCurSel();
+		if (idx != -1)
+		{
+			prop = reinterpret_cast<IProperty*>(TBase::GetItemData(idx));
+			ATLASSERT(prop);
+			if (prop->IsEnabled())
+			{
+				_SpawnInplaceWindow(prop, idx);
+				prop->Activate(PACT_ACTIVATE, 0);
+				if ((m_dwExtStyle & PLS_EX_SINGLECLICKEDIT) != 0)
+				{
+					if (prop->GetKind() == PROPKIND_EDIT) prop->Activate(PACT_DBLCLICK, 0);
+				}
+			}
+		}
+		// Let owner know
+		NMPROPERTYITEM nmh = { m_hWnd, UINT_PTR(GetDlgCtrlID()), PIN_SELCHANGED, prop };
+		::SendMessage(GetParent(), WM_NOTIFY, nmh.hdr.idFrom, (LPARAM)&nmh);
+		// Redraw drag-band
+		if (m_iPrevXGhostBar > 0) _DrawGhostBar(m_iPrevXGhostBar);
+		return 0;
+	}
+
+	// Owner draw methods
+	void DeleteItem(LPDELETEITEMSTRUCT lpDIS)
+	{
+		_DestroyInplaceWindow();
+		if (lpDIS->itemData != 0) delete reinterpret_cast<IProperty*>(lpDIS->itemData);
+	}
+	void MeasureItem(LPMEASUREITEMSTRUCT lpMIS)
+	{
+		lpMIS->itemHeight = m_di.tmText.tmHeight + 3;
+	}
+	void DrawItem(LPDRAWITEMSTRUCT lpDIS)
+	{
+		if (lpDIS->itemID == -1) return;  // If there are no list box items, skip this message.
+
+		CDCHandle dc(lpDIS->hDC);
+		RECT rc = lpDIS->rcItem;
+
+		IProperty* prop = reinterpret_cast<IProperty*>(lpDIS->itemData);
+		ATLASSERT(prop);
+		BYTE kind = prop->GetKind();
+
+		// Customize item
+		PROPERTYDRAWINFO di = m_di;
+		di.hDC = dc;
+		di.state = lpDIS->itemState & ~ODS_DISABLED;
+		if (lpDIS->itemID == (UINT)m_iInplaceIndex) di.state |= ODS_COMBOBOXEDIT;
+
+		// Special style for removing selection when control hasn't got focus
+		if ((di.dwExtStyle & PLS_EX_SHOWSELALWAYS) == 0 && (::GetFocus() != m_hWnd))
+		{
+			di.state &= ~ODS_SELECTED;
+		}
+
+		// Prepare drawing
+		HFONT hOldFont = dc.SelectFont(di.TextFont);
+
+		// Calculate rectangles for the two sides
+		RECT rcName = rc;
+		RECT rcValue = rc;
+		rcName.right = rc.left + m_iMiddle;
+		rcValue.left = rc.left + m_iMiddle + 1;
+
+		// Draw name
+		di.rcItem = rcName;
+		prop->DrawName(di);
+
+		// Draw value
+		// Thanks to Pascal Binggeli who suggested the Inplace-editor
+		// check below...
+		if ((int)lpDIS->itemID != m_iInplaceIndex)
+		{
+			di.rcItem = rcValue;
+			dc.FillSolidRect(&rcValue, di.clrBack);
+			if (!prop->IsEnabled()) di.state |= ODS_DISABLED;
+			prop->DrawValue(di);
+		}
+
+		// Paint borders
+		HPEN hOldPen = dc.SelectPen(di.Border);
+		dc.MoveTo(rc.left, rc.bottom - 1);
+		dc.LineTo(rc.right, rc.bottom - 1);
+		// Not painting middle border (thanks to Ludvig A Norin)
+		dc.MoveTo(rc.left + m_iMiddle, rc.top);
+		dc.LineTo(rc.left + m_iMiddle, rc.bottom - 1);
+		dc.SelectPen(hOldPen);
+
+		dc.SelectFont(hOldFont);
+	}
 };
 
 

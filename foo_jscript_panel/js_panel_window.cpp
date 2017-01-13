@@ -182,20 +182,20 @@ LRESULT js_panel_window::on_message(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 	switch (msg)
 	{
 	case WM_CREATE:
-		{
-			RECT rect;
-			m_hwnd = hwnd;
-			m_hdc = GetDC(m_hwnd);
-			GetClientRect(m_hwnd, &rect);
-			m_width = rect.right - rect.left;
-			m_height = rect.bottom - rect.top;
-			create_context();
-			// Interfaces
-			m_gr_wrap.Attach(new com_object_impl_t<GdiGraphics>(), false);
-			panel_manager::instance().add_window(m_hwnd);
-			delay_loader::g_enqueue(new delay_script_init_action(m_hwnd));
-		}
-		return 0;
+	{
+		RECT rect;
+		m_hwnd = hwnd;
+		m_hdc = GetDC(m_hwnd);
+		GetClientRect(m_hwnd, &rect);
+		m_width = rect.right - rect.left;
+		m_height = rect.bottom - rect.top;
+		create_context();
+		// Interfaces
+		m_gr_wrap.Attach(new com_object_impl_t<GdiGraphics>(), false);
+		panel_manager::instance().add_window(m_hwnd);
+		delay_loader::g_enqueue(new delay_script_init_action(m_hwnd));
+	}
+	return 0;
 
 	case WM_DESTROY:
 		script_unload();
@@ -222,7 +222,7 @@ LRESULT js_panel_window::on_message(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 
 	case WM_ERASEBKGND:
 		if (get_pseudo_transparent())
-		PostMessage(m_hwnd, UWM_REFRESHBK, 0, 0);
+			PostMessage(m_hwnd, UWM_REFRESHBK, 0, 0);
 		return 1;
 
 	case UWM_REFRESHBK:
@@ -234,54 +234,54 @@ LRESULT js_panel_window::on_message(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 		return 0;
 
 	case WM_PAINT:
+	{
+		if (m_suppress_drawing)
+			break;
+
+		if (get_pseudo_transparent() && !m_paint_pending)
 		{
-			if (m_suppress_drawing)
-				break;
+			RECT rc;
 
-			if (get_pseudo_transparent() && !m_paint_pending)
-			{
-				RECT rc;
-
-				GetUpdateRect(m_hwnd, &rc, FALSE);
-				RefreshBackground(&rc);
-				return 0;
-			}
-
-			PAINTSTRUCT ps;
-			HDC dc = BeginPaint(m_hwnd, &ps);
-			on_paint(dc, &ps.rcPaint);
-			EndPaint(m_hwnd, &ps);
-			m_paint_pending = false;
+			GetUpdateRect(m_hwnd, &rc, FALSE);
+			RefreshBackground(&rc);
+			return 0;
 		}
-		return 0;
+
+		PAINTSTRUCT ps;
+		HDC dc = BeginPaint(m_hwnd, &ps);
+		on_paint(dc, &ps.rcPaint);
+		EndPaint(m_hwnd, &ps);
+		m_paint_pending = false;
+	}
+	return 0;
 
 	case UWM_SIZE:
 		on_size(m_width, m_height);
 		if (get_pseudo_transparent())
-		PostMessage(m_hwnd, UWM_REFRESHBK, 0, 0);
+			PostMessage(m_hwnd, UWM_REFRESHBK, 0, 0);
 		else
 			Repaint();
 		return 0;
 
 	case WM_SIZE:
-		{
-			RECT rect;
-			GetClientRect(m_hwnd, &rect);
-			on_size(rect.right - rect.left, rect.bottom - rect.top);
-			if (get_pseudo_transparent())
+	{
+		RECT rect;
+		GetClientRect(m_hwnd, &rect);
+		on_size(rect.right - rect.left, rect.bottom - rect.top);
+		if (get_pseudo_transparent())
 			PostMessage(m_hwnd, UWM_REFRESHBK, 0, 0);
-			else
-				Repaint();
-		}
-		return 0;
+		else
+			Repaint();
+	}
+	return 0;
 
 	case WM_GETMINMAXINFO:
-		{
-			LPMINMAXINFO pmmi = reinterpret_cast<LPMINMAXINFO>(lp);
-			memcpy(&pmmi->ptMaxTrackSize, &MaxSize(), sizeof(POINT));
-			memcpy(&pmmi->ptMinTrackSize, &MinSize(), sizeof(POINT));
-		}
-		return 0;
+	{
+		LPMINMAXINFO pmmi = reinterpret_cast<LPMINMAXINFO>(lp);
+		memcpy(&pmmi->ptMaxTrackSize, &MaxSize(), sizeof(POINT));
+		memcpy(&pmmi->ptMinTrackSize, &MinSize(), sizeof(POINT));
+	}
+	return 0;
 
 	case WM_GETDLGCODE:
 		return DlgCode();
@@ -330,70 +330,70 @@ LRESULT js_panel_window::on_message(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 
 	case WM_SYSKEYDOWN:
 	case WM_KEYDOWN:
-		{
-			VARIANTARG args[1];
+	{
+		VARIANTARG args[1];
 
-			args[0].vt = VT_UI4;
-			args[0].ulVal = (ULONG)wp;
-			script_invoke_v(CallbackIds::on_key_down, args, _countof(args));
-		}
-		return 0;
+		args[0].vt = VT_UI4;
+		args[0].ulVal = (ULONG)wp;
+		script_invoke_v(CallbackIds::on_key_down, args, _countof(args));
+	}
+	return 0;
 
 	case WM_KEYUP:
-		{
-			VARIANTARG args[1];
+	{
+		VARIANTARG args[1];
 
-			args[0].vt = VT_UI4;
-			args[0].ulVal = (ULONG)wp;
-			script_invoke_v(CallbackIds::on_key_up, args, _countof(args));
-		}
-		return 0;
+		args[0].vt = VT_UI4;
+		args[0].ulVal = (ULONG)wp;
+		script_invoke_v(CallbackIds::on_key_up, args, _countof(args));
+	}
+	return 0;
 
 	case WM_CHAR:
-		{
-			VARIANTARG args[1];
+	{
+		VARIANTARG args[1];
 
-			args[0].vt = VT_UI4;
-			args[0].ulVal = (ULONG)wp;
-			script_invoke_v(CallbackIds::on_char, args, _countof(args));
-		}
-		return 0;
+		args[0].vt = VT_UI4;
+		args[0].ulVal = (ULONG)wp;
+		script_invoke_v(CallbackIds::on_char, args, _countof(args));
+	}
+	return 0;
 
 	case WM_SETFOCUS:
-		{
-			PreserveSelection();
+	{
+		PreserveSelection();
 
-			VARIANTARG args[1];
+		VARIANTARG args[1];
 
-			args[0].vt = VT_BOOL;
-			args[0].boolVal = VARIANT_TRUE;
-			script_invoke_v(CallbackIds::on_focus, args, _countof(args));
-		}
-		break;
+		args[0].vt = VT_BOOL;
+		args[0].boolVal = VARIANT_TRUE;
+		script_invoke_v(CallbackIds::on_focus, args, _countof(args));
+	}
+	break;
 
 	case WM_KILLFOCUS:
-		{
-			m_selection_holder.release();
+	{
+		m_selection_holder.release();
 
-			VARIANTARG args[1];
+		VARIANTARG args[1];
 
-			args[0].vt = VT_BOOL;
-			args[0].boolVal = VARIANT_FALSE;
-			script_invoke_v(CallbackIds::on_focus, args, _countof(args));
-		}
-		break;
+		args[0].vt = VT_BOOL;
+		args[0].boolVal = VARIANT_FALSE;
+		script_invoke_v(CallbackIds::on_focus, args, _countof(args));
+	}
+	break;
 
 	case UWM_SCRIPT_ERROR:
-		{
-			const auto& tooltip_param = PanelTooltipParam();
-			if (tooltip_param && tooltip_param->tooltip_hwnd)
+	{
+		const auto& tooltip_param = PanelTooltipParam();
+		if (tooltip_param && tooltip_param->tooltip_hwnd)
 			SendMessage(tooltip_param->tooltip_hwnd, TTM_ACTIVATE, FALSE, 0);
 
-			Repaint();
-			m_script_host->Stop();
-			script_unload();
-		}
-		return 0;
+		Repaint();
+		m_script_host->Stop();
+		script_unload();
+	}
+	return 0;
 
 	case UWM_SCRIPT_DISABLED_BEFORE:
 		// Show error message
@@ -609,7 +609,7 @@ void js_panel_window::on_paint(HDC dc, LPRECT lpUpdateRect)
 		}
 		else
 		{
-			RECT rc = {0, 0, m_width, m_height};
+			RECT rc = { 0, 0, m_width, m_height };
 
 			FillRect(memdc, &rc, (HBRUSH)(COLOR_WINDOW + 1));
 		}
@@ -650,8 +650,8 @@ void js_panel_window::on_paint_user(HDC memdc, LPRECT lpUpdateRect)
 void js_panel_window::on_paint_error(HDC memdc)
 {
 	const TCHAR errmsg[] = _T("Aw, crashed :(");
-	RECT rc = {0, 0, m_width, m_height};
-	SIZE sz = {0};
+	RECT rc = { 0, 0, m_width, m_height };
+	SIZE sz = { 0 };
 
 	// Font chosing
 	HFONT newfont = CreateFont(
@@ -674,7 +674,7 @@ void js_panel_window::on_paint_error(HDC memdc)
 
 	// Font drawing
 	{
-		LOGBRUSH lbBack = {BS_SOLID, RGB(225, 60, 45), 0};
+		LOGBRUSH lbBack = { BS_SOLID, RGB(225, 60, 45), 0 };
 		HBRUSH hBack = CreateBrushIndirect(&lbBack);
 
 		FillRect(memdc, &rc, hBack);
@@ -820,23 +820,23 @@ bool js_panel_window::on_mouse_button_up(UINT msg, WPARAM wp, LPARAM lp)
 		break;
 
 	case WM_RBUTTONUP:
+	{
+		_variant_t result;
+
+		// Bypass the user code.
+		if (IsKeyPressed(VK_LSHIFT) && IsKeyPressed(VK_LWIN))
 		{
-			_variant_t result;
-
-			// Bypass the user code.
-			if (IsKeyPressed(VK_LSHIFT) && IsKeyPressed(VK_LWIN))
-			{
-				break;
-			}
-
-			if (SUCCEEDED(script_invoke_v(CallbackIds::on_mouse_rbtn_up, args, _countof(args), &result)))
-			{
-				result.ChangeType(VT_BOOL);
-				if (result.boolVal != VARIANT_FALSE)
-					ret = true;
-			}
+			break;
 		}
-		break;
+
+		if (SUCCEEDED(script_invoke_v(CallbackIds::on_mouse_rbtn_up, args, _countof(args), &result)))
+		{
+			result.ChangeType(VT_BOOL);
+			if (result.boolVal != VARIANT_FALSE)
+				ret = true;
+		}
+	}
+	break;
 	}
 
 	ReleaseCapture();
@@ -902,11 +902,11 @@ void js_panel_window::execute_context_menu_command(int id, int id_base)
 		update_script();
 		break;
 	case 2:
-		{
-			pfc::stringcvt::string_os_from_utf8 folder(helpers::get_fb2k_component_path());
-			ShellExecute(nullptr, _T("open"), folder, nullptr, nullptr, SW_SHOW);
-		}
-		break;
+	{
+		pfc::stringcvt::string_os_from_utf8 folder(helpers::get_fb2k_component_path());
+		ShellExecute(nullptr, _T("open"), folder, nullptr, nullptr, SW_SHOW);
+	}
+	break;
 	case 3:
 		show_property_popup(m_hwnd);
 		break;

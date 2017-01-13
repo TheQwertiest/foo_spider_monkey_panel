@@ -50,7 +50,7 @@ namespace helpers
 	{
 		if (!pdisp) return false;
 
-		DISPPARAMS params = {0};
+		DISPPARAMS params = { 0 };
 		_variant_t ret;
 
 		DISPID id_length;
@@ -76,7 +76,7 @@ namespace helpers
 		for (long i = m_lbound; i <= m_ubound; ++i)
 		{
 			DISPID dispid = 0;
-			DISPPARAMS params = {0};
+			DISPPARAMS params = { 0 };
 			wchar_t buf[33];
 			LPOLESTR name = buf;
 			_variant_t element;

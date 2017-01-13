@@ -2,8 +2,8 @@
 /** @file SString.h
  ** A simple string class.
  **/
-// Copyright 1998-2004 by Neil Hodgson <neilh@scintilla.org>
-// The License.txt file describes the conditions under which this software may be distributed.
+ // Copyright 1998-2004 by Neil Hodgson <neilh@scintilla.org>
+ // The License.txt file describes the conditions under which this software may be distributed.
 
 #ifndef SSTRING_H
 #define SSTRING_H
@@ -16,12 +16,13 @@
  * Base class from which the two other classes (SBuffer & SString)
  * are derived.
  */
-class SContainer {
+class SContainer
+{
 public:
 	/** Type of string lengths (sizes) and positions (indexes). */
 	typedef size_t lenpos_t;
 	/** Out of bounds value indicating that the string argument should be measured. */
-	enum { measure_length=0xffffffffU};
+	enum { measure_length = 0xffffffffU };
 
 protected:
 	char *s;				///< The C string
@@ -29,15 +30,19 @@ protected:
 
 	SContainer() : s(0), sSize(0) {}
 	~SContainer() {
-		delete []s;	// Suppose it was allocated using StringAllocate
+		delete[]s;	// Suppose it was allocated using StringAllocate
 		s = 0;
 		sSize = 0;
 	}
 	/** Size of buffer. */
-	lenpos_t size() const {
-		if (s) {
+	lenpos_t size() const
+	{
+		if (s)
+		{
 			return sSize;
-		} else {
+		}
+		else
+		{
 			return 0;
 		}
 	}
@@ -46,10 +51,14 @@ public:
 	 * Allocate uninitialized memory big enough to fit a string of the given length.
 	 * @return the pointer to the new string
 	 */
-	static char *StringAllocate(lenpos_t len) {
-		if (len != measure_length) {
+	static char *StringAllocate(lenpos_t len)
+	{
+		if (len != measure_length)
+		{
 			return new char[len + 1];
-		} else {
+		}
+		else
+		{
 			return 0;
 		}
 	}
@@ -59,21 +68,23 @@ public:
 	 * then copy the given string in the allocated memory.
 	 * @return the pointer to the new string
 	 */
-	static char *StringAllocate(
-		const char *s,			///< The string to duplicate
-		lenpos_t len=measure_length) {	///< The length of memory to allocate. Optional.
-			if (s == 0) {
-				return 0;
-			}
-			if (len == measure_length) {
-				len = strlen(s);
-			}
-			char *sNew = new char[len + 1];
-			if (sNew) {
-				memcpy(sNew, s, len);
-				sNew[len] = '\0';
-			}
-			return sNew;
+	static char *StringAllocate(const char *s, lenpos_t len = measure_length)
+	{
+		if (s == 0)
+		{
+			return 0;
+		}
+		if (len == measure_length)
+		{
+			len = strlen(s);
+		}
+		char *sNew = new char[len + 1];
+		if (sNew)
+		{
+			memcpy(sNew, s, len);
+			sNew[len] = '\0';
+		}
+		return sNew;
 	}
 };
 
@@ -89,29 +100,37 @@ public:
  * Note: we assume the buffer is filled by the API. If the length can be shorter,
  * we should set sLen to strlen(sb.ptr()) in related SString constructor and assignment.
  */
-class SBuffer : protected SContainer {
+class SBuffer : protected SContainer
+{
 public:
-	SBuffer(lenpos_t len) {
+	SBuffer(lenpos_t len)
+	{
 		s = StringAllocate(len);
-		if (s) {
+		if (s)
+		{
 			*s = '\0';
-		sSize = len;
-		} else {
+			sSize = len;
+		}
+		else
+		{
 			sSize = 0;
 		}
 	}
 private:
 	/// Copy constructor
 	// Here only to be on the safe size, user should avoid returning SBuffer values.
-	SBuffer(const SBuffer &source) : SContainer() {
+	SBuffer(const SBuffer &source) : SContainer()
+	{
 		s = StringAllocate(source.s, source.sSize);
 		sSize = (s) ? source.sSize : 0;
 	}
 	/// Default assignment operator
 	// Same here, shouldn't be used
-	SBuffer &operator=(const SBuffer &source) {
-		if (this != &source) {
-			delete []s;
+	SBuffer &operator=(const SBuffer &source)
+	{
+		if (this != &source)
+		{
+			delete[]s;
 			s = StringAllocate(source.s, source.sSize);
 			sSize = (s) ? source.sSize : 0;
 		}
@@ -119,16 +138,19 @@ private:
 	}
 public:
 	/** Provide direct read/write access to buffer. */
-	char *ptr() {
+	char *ptr()
+	{
 		return s;
 	}
 	/** Ownership of the buffer have been taken, so release it. */
-	void reset() {
+	void reset()
+	{
 		s = 0;
 		sSize = 0;
 	}
 	/** Size of buffer. */
-	lenpos_t size() const {
+	lenpos_t size() const
+	{
 		return SContainer::size();
 	}
 };
@@ -142,20 +164,25 @@ public:
  * May have embedded zeroes as a result of @a substitute, but relies too heavily on C string
  * functions to allow reliable manipulations of these strings, other than simple appends, etc.
  */
-class SString : protected SContainer {
+class SString : protected SContainer
+{
 	lenpos_t sLen;			///< The size of the string in s
 	lenpos_t sizeGrowth;	///< Minimum growth size when appending strings
 	enum { sizeGrowthDefault = 64 };
 
-	bool grow(lenpos_t lenNew) {
-		while (sizeGrowth * 6 < lenNew) {
+	bool grow(lenpos_t lenNew)
+	{
+		while (sizeGrowth * 6 < lenNew)
+		{
 			sizeGrowth *= 2;
 		}
 		char *sNew = new char[lenNew + sizeGrowth + 1];
-		if (sNew) {
-			if (s) {
+		if (sNew)
+		{
+			if (s)
+			{
 				memcpy(sNew, s, sLen);
-				delete []s;
+				delete[]s;
 			}
 			s = sNew;
 			s[sLen] = '\0';
@@ -163,27 +190,39 @@ class SString : protected SContainer {
 		}
 		return sNew != 0;
 	}
-	SString &assign(const char *sOther, lenpos_t sSize_=measure_length) {
-		if (!sOther) {
+	SString &assign(const char *sOther, lenpos_t sSize_ = measure_length)
+	{
+		if (!sOther)
+		{
 			sSize_ = 0;
-		} else if (sSize_ == measure_length) {
+		}
+		else if (sSize_ == measure_length)
+		{
 			sSize_ = strlen(sOther);
 		}
-		if (sSize > 0 && sSize_ <= sSize) {	// Does not allocate new buffer if the current is big enough
-			if (s) {
-				if (sSize_) {
+		if (sSize > 0 && sSize_ <= sSize)
+		{	// Does not allocate new buffer if the current is big enough
+			if (s)
+			{
+				if (sSize_)
+				{
 					memcpy(s, sOther, sSize_);
 				}
 				s[sSize_] = '\0';
 			}
 			sLen = sSize_;
-		} else {
-			delete []s;
+		}
+		else
+		{
+			delete[]s;
 			s = StringAllocate(sOther, sSize_);
-			if (s) {
+			if (s)
+			{
 				sSize = sSize_;	// Allow buffer bigger than real string, thus providing space to grow
 				sLen = sSize_;
-			} else {
+			}
+			else
+			{
 				sSize = sLen = 0;
 			}
 		}
@@ -192,32 +231,39 @@ class SString : protected SContainer {
 
 public:
 	SString() : sLen(0), sizeGrowth(sizeGrowthDefault) {}
-	SString(const SString &source) : SContainer(), sizeGrowth(sizeGrowthDefault) {
+	SString(const SString &source) : SContainer(), sizeGrowth(sizeGrowthDefault)
+	{
 		s = StringAllocate(source.s, source.sLen);
 		sSize = sLen = (s) ? source.sLen : 0;
 	}
-	SString(const char *s_) : sizeGrowth(sizeGrowthDefault) {
+	SString(const char *s_) : sizeGrowth(sizeGrowthDefault)
+	{
 		s = StringAllocate(s_);
 		sSize = sLen = (s) ? strlen(s) : 0;
 	}
-	SString(SBuffer &buf) : sizeGrowth(sizeGrowthDefault) {
+	SString(SBuffer &buf) : sizeGrowth(sizeGrowthDefault)
+	{
 		s = buf.ptr();
 		sSize = sLen = buf.size();
 		// Consumes the given buffer!
 		buf.reset();
 	}
-	SString(const char *s_, lenpos_t first, lenpos_t last) : sizeGrowth(sizeGrowthDefault) {
+	SString(const char *s_, lenpos_t first, lenpos_t last) : sizeGrowth(sizeGrowthDefault)
+	{
 		// note: expects the "last" argument to point one beyond the range end (a la STL iterators)
 		s = StringAllocate(s_ + first, last - first);
 		sSize = sLen = (s) ? last - first : 0;
 	}
 	SString(int i);
 	SString(double d, int precision);
-	~SString() {
+	~SString()
+	{
 		sLen = 0;
 	}
-	void clear() {
-		if (s) {
+	void clear()
+	{
+		if (s)
+		{
 			*s = '\0';
 		}
 		sLen = 0;
@@ -227,65 +273,82 @@ public:
 		return SContainer::size();
 	}
 	/** Size of string in buffer. */
-	lenpos_t length() const {
+	lenpos_t length() const
+	{
 		return sLen;
 	}
 	/** Read access to a character of the string. */
-	char operator[](lenpos_t i) const {
+	char operator[](lenpos_t i) const
+	{
 		return (s && i < sSize) ? s[i] : '\0';
 	}
-	SString &operator=(const char *source) {
+	SString &operator=(const char *source)
+	{
 		return assign(source);
 	}
-	SString &operator=(const SString &source) {
-		if (this != &source) {
+	SString &operator=(const SString &source)
+	{
+		if (this != &source)
+		{
 			assign(source.s, source.sLen);
 		}
 		return *this;
 	}
 	bool operator==(const SString &sOther) const;
-	bool operator!=(const SString &sOther) const {
+	bool operator!=(const SString &sOther) const
+	{
 		return !operator==(sOther);
 	}
 	bool operator==(const char *sOther) const;
-	bool operator!=(const char *sOther) const {
+	bool operator!=(const char *sOther) const
+	{
 		return !operator==(sOther);
 	}
-	bool contains(char ch) const {
+	bool contains(char ch) const
+	{
 		return (s && *s) ? strchr(s, ch) != 0 : false;
 	}
-	void setsizegrowth(lenpos_t sizeGrowth_) {
+	void setsizegrowth(lenpos_t sizeGrowth_)
+	{
 		sizeGrowth = sizeGrowth_;
 	}
-	const char *c_str() const {
+	const char *c_str() const
+	{
 		return s ? s : "";
 	}
 	/** Give ownership of buffer to caller which must use delete[] to free buffer. */
-	char *detach() {
+	char *detach()
+	{
 		char *sRet = s;
 		s = 0;
 		sSize = 0;
 		sLen = 0;
 		return sRet;
 	}
-	SString substr(lenpos_t subPos, lenpos_t subLen=measure_length) const;
-	SString &lowercase(lenpos_t subPos = 0, lenpos_t subLen=measure_length);
-	SString &uppercase(lenpos_t subPos = 0, lenpos_t subLen=measure_length);
-	SString &append(const char *sOther, lenpos_t sLenOther=measure_length, char sep = '\0') {
-		if (!sOther) {
+	SString substr(lenpos_t subPos, lenpos_t subLen = measure_length) const;
+	SString &lowercase(lenpos_t subPos = 0, lenpos_t subLen = measure_length);
+	SString &uppercase(lenpos_t subPos = 0, lenpos_t subLen = measure_length);
+	SString &append(const char *sOther, lenpos_t sLenOther = measure_length, char sep = '\0')
+	{
+		if (!sOther)
+		{
 			return *this;
 		}
-		if (sLenOther == measure_length) {
+		if (sLenOther == measure_length)
+		{
 			sLenOther = strlen(sOther);
 		}
 		int lenSep = 0;
-		if (sLen && sep) {	// Only add a separator if not empty
+		if (sLen && sep)
+		{	// Only add a separator if not empty
 			lenSep = 1;
 		}
 		lenpos_t lenNew = sLen + sLenOther + lenSep;
 		// Conservative about growing the buffer: don't do it, unless really needed
-		if ((lenNew < sSize) || (grow(lenNew))) {
-			if (lenSep) {
+		if ((lenNew < sSize) || (grow(lenNew)))
+		{
+			if (lenSep)
+			{
 				s[sLen] = sep;
 				sLen++;
 			}
@@ -295,19 +358,23 @@ public:
 		}
 		return *this;
 	}
-	SString &operator+=(const char *sOther) {
+	SString &operator+=(const char *sOther)
+	{
 		return append(sOther, static_cast<lenpos_t>(measure_length));
 	}
-	SString &operator+=(const SString &sOther) {
+	SString &operator+=(const SString &sOther)
+	{
 		return append(sOther.s, sOther.sLen);
 	}
-	SString &operator+=(char ch) {
+	SString &operator+=(char ch)
+	{
 		return append(&ch, 1);
 	}
-	SString &appendwithseparator(const char *sOther, char sep) {
+	SString &appendwithseparator(const char *sOther, char sep)
+	{
 		return append(sOther, strlen(sOther), sep);
 	}
-	SString &insert(lenpos_t pos, const char *sOther, lenpos_t sLenOther=measure_length);
+	SString &insert(lenpos_t pos, const char *sOther, lenpos_t sLenOther = measure_length);
 
 	/**
 	 * Remove @a len characters from the @a pos position, included.
@@ -317,25 +384,30 @@ public:
 	 */
 	void remove(lenpos_t pos, lenpos_t len);
 
-	SString &change(lenpos_t pos, char ch) {
-		if (pos < sLen) {					// character changed must be in string bounds
+	SString &change(lenpos_t pos, char ch)
+	{
+		if (pos < sLen)
+		{
 			*(s + pos) = ch;
 		}
 		return *this;
 	}
 	/** Read an integral numeric value from the string. */
-	int value() const {
+	int value() const
+	{
 		return s ? atoi(s) : 0;
 	}
 	bool startswith(const char *prefix);
 	bool endswith(const char *suffix);
-	int search(const char *sFind, lenpos_t start=0) const;
-	bool contains(const char *sFind) const {
+	int search(const char *sFind, lenpos_t start = 0) const;
+	bool contains(const char *sFind) const
+	{
 		return search(sFind) >= 0;
 	}
 	int substitute(char chFind, char chReplace);
 	int substitute(const char *sFind, const char *sReplace);
-	int remove(const char *sFind) {
+	int remove(const char *sFind)
+	{
 		return substitute(sFind, "");
 	}
 };
@@ -349,7 +421,7 @@ public:
  */
 inline char *StringDup(
 	const char *s,			///< The string to duplicate
-	SContainer::lenpos_t len=SContainer::measure_length)	///< The length of memory to allocate. Optional.
+	SContainer::lenpos_t len = SContainer::measure_length)	///< The length of memory to allocate. Optional.
 {
 	return SContainer::StringAllocate(s, len);
 }

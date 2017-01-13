@@ -116,7 +116,7 @@ public:
 	{
 		LRESULT lRes = DefWindowProc(uMsg, wParam, lParam);
 		m_fCancel |= (GetModify() == FALSE);
-		::SendMessage(GetParent(), m_fCancel ? WM_USER_PROP_CANCELPROPERTY : WM_USER_PROP_UPDATEPROPERTY, 0, (LPARAM) m_hWnd);
+		::SendMessage(GetParent(), m_fCancel ? WM_USER_PROP_CANCELPROPERTY : WM_USER_PROP_UPDATEPROPERTY, 0, (LPARAM)m_hWnd);
 		return lRes;
 	}
 	LRESULT OnGetDlgCode(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/)
@@ -221,7 +221,7 @@ public:
 		case VK_RETURN:
 		case VK_ESCAPE:
 			// Announce the new value
-			::PostMessage(GetParent(), wParam == VK_RETURN ? WM_USER_PROP_UPDATEPROPERTY : WM_USER_PROP_CANCELPROPERTY, 0, (LPARAM) m_hWnd);
+			::PostMessage(GetParent(), wParam == VK_RETURN ? WM_USER_PROP_UPDATEPROPERTY : WM_USER_PROP_CANCELPROPERTY, 0, (LPARAM)m_hWnd);
 			::SetFocus(GetParent());
 			break;
 		case VK_TAB:
@@ -230,11 +230,11 @@ public:
 			return ::PostMessage(GetParent(), WM_USER_PROP_NAVIGATE, LOWORD(wParam), 0);
 		case VK_LEFT:
 			int lLow, lHigh;
-			SendMessage(EM_GETSEL, (WPARAM) &lLow, (LPARAM) &lHigh);
+			SendMessage(EM_GETSEL, (WPARAM)&lLow, (LPARAM)&lHigh);
 			if (lLow != lHigh || lLow != 0) break;
 			return ::PostMessage(GetParent(), WM_USER_PROP_NAVIGATE, LOWORD(wParam), 0);
 		case VK_RIGHT:
-			SendMessage(EM_GETSEL, (WPARAM) &lLow, (LPARAM) &lHigh);
+			SendMessage(EM_GETSEL, (WPARAM)&lLow, (LPARAM)&lHigh);
 			if (lLow != lHigh || lLow != GetWindowTextLength()) break;
 			return ::PostMessage(GetParent(), WM_USER_PROP_NAVIGATE, LOWORD(wParam), 0);
 		}
@@ -269,7 +269,7 @@ public:
 			m_wndButton.Click();
 			return 0;
 		case VK_ESCAPE:
-			::PostMessage(GetParent(), WM_USER_PROP_UPDATEPROPERTY, 0, (LPARAM) m_hWnd);
+			::PostMessage(GetParent(), WM_USER_PROP_UPDATEPROPERTY, 0, (LPARAM)m_hWnd);
 			return 0;
 		}
 		bHandled = FALSE;
@@ -355,7 +355,7 @@ public:
 		}
 		else
 		{
-			TCHAR szStr[] = {(TCHAR) wParam, _T('\0') };
+			TCHAR szStr[] = { (TCHAR)wParam, _T('\0') };
 			int idx = m_wndList.FindString(-1, szStr);
 			if (idx == LB_ERR) return 0;
 			m_wndList.SetCurSel(idx);
@@ -388,23 +388,23 @@ public:
 		switch (wParam)
 		{
 		case VK_RETURN:
+		{
+			int idx = m_wndList.GetCurSel();
+			if (idx >= 0)
 			{
-				int idx = m_wndList.GetCurSel();
-				if (idx >= 0)
-				{
-					// Copy text from list to item
-					CString text;
-					m_wndList.GetText(idx, text);
-					SetWindowText(text);
-					// Announce the new value
-					::SendMessage(GetParent(), WM_USER_PROP_UPDATEPROPERTY, 0, (LPARAM) m_hWnd);
-				}
+				// Copy text from list to item
+				CString text;
+				m_wndList.GetText(idx, text);
+				SetWindowText(text);
+				// Announce the new value
+				::SendMessage(GetParent(), WM_USER_PROP_UPDATEPROPERTY, 0, (LPARAM)m_hWnd);
 			}
-			::SetFocus(GetParent());
-			break;
+		}
+		::SetFocus(GetParent());
+		break;
 		case VK_ESCAPE:
 			// Announce the cancellation
-			::SendMessage(GetParent(), WM_USER_PROP_CANCELPROPERTY, 0, (LPARAM) m_hWnd);
+			::SendMessage(GetParent(), WM_USER_PROP_CANCELPROPERTY, 0, (LPARAM)m_hWnd);
 			::SetFocus(GetParent());
 			break;
 		}
@@ -429,7 +429,7 @@ public:
 	// Ownerdrawn button message handler
 	LRESULT OnDrawItem(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& /*bHandled*/)
 	{
-		LPDRAWITEMSTRUCT lpdis = (LPDRAWITEMSTRUCT) lParam;
+		LPDRAWITEMSTRUCT lpdis = (LPDRAWITEMSTRUCT)lParam;
 		if (m_wndButton != lpdis->hwndItem) return 0;
 
 		// Paint as dropdown button

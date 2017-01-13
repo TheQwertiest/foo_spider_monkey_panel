@@ -149,7 +149,7 @@ STDMETHODIMP FbPlaylistManager::DuplicatePlaylist(UINT from, BSTR name, UINT* ou
 	manager->playlist_get_all_items(from, contents);
 
 	if (!name || !*name)
-	// If no name specified, create a playlistIndex which will have the same name
+		// If no name specified, create a playlistIndex which will have the same name
 		manager->playlist_get_name(from, name_utf8);
 	else
 		name_utf8 = pfc::stringcvt::string_utf8_from_wide(name);

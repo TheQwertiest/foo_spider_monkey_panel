@@ -19,9 +19,9 @@ namespace
 void panel_manager::send_msg_to_all(UINT p_msg, WPARAM p_wp, LPARAM p_lp)
 {
 	m_hwnds.for_each([p_msg, p_wp, p_lp](const HWND& hWnd) -> void
-		{
-			SendMessage(hWnd, p_msg, p_wp, p_lp);
-		});
+	{
+		SendMessage(hWnd, p_msg, p_wp, p_lp);
+	});
 }
 
 void panel_manager::send_msg_to_others_pointer(HWND p_wnd_except, UINT p_msg, pfc::refcounted_object_root* p_param)
@@ -34,21 +34,21 @@ void panel_manager::send_msg_to_others_pointer(HWND p_wnd_except, UINT p_msg, pf
 	for (t_size i = 0; i < count - 1; ++i)
 		p_param->refcount_add_ref();
 
-	m_hwnds.for_each([p_msg, p_param, p_wnd_except] (const HWND& hWnd) -> void
+	m_hwnds.for_each([p_msg, p_param, p_wnd_except](const HWND& hWnd) -> void
+	{
+		if (hWnd != p_wnd_except)
 		{
-			if (hWnd != p_wnd_except)
-			{
-				SendMessage(hWnd, p_msg, reinterpret_cast<WPARAM>(p_param), 0);
-			}
-		});
+			SendMessage(hWnd, p_msg, reinterpret_cast<WPARAM>(p_param), 0);
+		}
+	});
 }
 
 void panel_manager::post_msg_to_all(UINT p_msg, WPARAM p_wp, LPARAM p_lp)
 {
-	m_hwnds.for_each([p_msg, p_wp, p_lp] (const HWND& hWnd) -> void
-		{
-			PostMessage(hWnd, p_msg, p_wp, p_lp);
-		});
+	m_hwnds.for_each([p_msg, p_wp, p_lp](const HWND& hWnd) -> void
+	{
+		PostMessage(hWnd, p_msg, p_wp, p_lp);
+	});
 }
 
 void panel_manager::post_msg_to_all_pointer(UINT p_msg, pfc::refcounted_object_root* p_param)
@@ -61,10 +61,10 @@ void panel_manager::post_msg_to_all_pointer(UINT p_msg, pfc::refcounted_object_r
 	for (t_size i = 0; i < count; ++i)
 		p_param->refcount_add_ref();
 
-	m_hwnds.for_each([p_msg, p_param] (const HWND& hWnd) -> void
-		{
-			PostMessage(hWnd, p_msg, reinterpret_cast<WPARAM>(p_param), 0);
-		});
+	m_hwnds.for_each([p_msg, p_param](const HWND& hWnd) -> void
+	{
+		PostMessage(hWnd, p_msg, reinterpret_cast<WPARAM>(p_param), 0);
+	});
 }
 
 t_size config_object_callback::get_watched_object_count()

@@ -29,7 +29,7 @@ void box_blur_filter::filter(Gdiplus::Bitmap& p_img)
 	int* pixels_in = NULL;
 	int* pixels_out = reinterpret_cast<int *>(
 		is_big_chunk ?
-			VirtualAlloc(NULL, count, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE) : malloc(count));
+		VirtualAlloc(NULL, count, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE) : malloc(count));
 
 	Gdiplus::BitmapData bmpdata;
 	Gdiplus::Rect rect;

@@ -93,9 +93,9 @@ LRESULT CDialogPref::OnPropNMDblClk(LPNMHDR pnmh)
 void CDialogPref::uGetItemText(int nItem, int nSubItem, pfc::string_base& out)
 {
 	enum
-		{
-			BUFFER_LEN = 1024
-		};
+	{
+		BUFFER_LEN = 1024
+	};
 	TCHAR buffer[BUFFER_LEN];
 
 	m_props.GetItemText(nItem, nSubItem, buffer, BUFFER_LEN);

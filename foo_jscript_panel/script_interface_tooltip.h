@@ -7,7 +7,7 @@
 	library_block,
 	uuid("4ff021ab-17bc-43de-9dbe-2d0edec1e095")
 ]
-__interface IFbTooltip: IDisposable
+__interface IFbTooltip : IDisposable
 {
 	STDMETHOD(Activate)();
 	STDMETHOD(Deactivate)();

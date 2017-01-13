@@ -207,13 +207,13 @@ bool script_preprocessor::scan_value(const wchar_t*& p, const wchar_t* pend)
 
 bool script_preprocessor::expand_var(pfc::array_t<wchar_t>& out)
 {
-	typedef pfc::string8_fast (*t_func)();
+	typedef pfc::string8_fast(*t_func)();
 
 	enum
-		{
-			KStateInNormal,
-			KStateInPercent,
-		};
+	{
+		KStateInNormal,
+		KStateInPercent,
+	};
 
 	struct
 	{

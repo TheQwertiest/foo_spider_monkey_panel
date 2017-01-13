@@ -89,7 +89,7 @@ STDMETHODIMP GdiFont::get_Name(LANGID langId, BSTR* outName)
 	if (!outName || !m_ptr) return E_POINTER;
 
 	Gdiplus::FontFamily fontFamily;
-	WCHAR name[LF_FACESIZE] = {0};
+	WCHAR name[LF_FACESIZE] = { 0 };
 	m_ptr->GetFamily(&fontFamily);
 	fontFamily.GetFamilyName(name, langId);
 	*outName = SysAllocString(name);
@@ -128,7 +128,7 @@ STDMETHODIMP GdiBitmap::ApplyAlpha(BYTE alpha, IGdiBitmap** pp)
 	Gdiplus::Bitmap* out = new Gdiplus::Bitmap(width, height, PixelFormat32bppPARGB);
 	Gdiplus::Graphics g(out);
 	Gdiplus::ImageAttributes ia;
-	Gdiplus::ColorMatrix cm = {0.0};
+	Gdiplus::ColorMatrix cm = { 0.0 };
 	Gdiplus::Rect rc;
 
 	cm.m[0][0] = cm.m[1][1] = cm.m[2][2] = cm.m[4][4] = 1.0;
@@ -163,7 +163,7 @@ STDMETHODIMP GdiBitmap::ApplyMask(IGdiBitmap* mask, VARIANT_BOOL* p)
 	}
 
 	Gdiplus::Rect rect(0, 0, m_ptr->GetWidth(), m_ptr->GetHeight());
-	Gdiplus::BitmapData bmpdata_mask = {0}, bmpdata_dst = {0};
+	Gdiplus::BitmapData bmpdata_mask = { 0 }, bmpdata_dst = { 0 };
 
 	if (bitmap_mask->LockBits(&rect, Gdiplus::ImageLockModeRead, PixelFormat32bppARGB, &bmpdata_mask) != Gdiplus::Ok)
 	{
@@ -299,9 +299,9 @@ STDMETHODIMP GdiBitmap::GetColorScheme(UINT count, VARIANT* outArray)
 		sort_vec.begin() + count,
 		sort_vec.end(),
 		[](const sort_vec_pair_t& a, const sort_vec_pair_t& b)
-		{
-			return a.second > b.second;
-		});
+	{
+		return a.second > b.second;
+	});
 
 	helpers::com_array_writer<> helper;
 	if (!helper.create(count))
@@ -549,7 +549,7 @@ STDMETHODIMP GdiGraphics::DrawImage(IGdiBitmap* image, float dstX, float dstY, f
 	if (alpha != (BYTE)~0)
 	{
 		Gdiplus::ImageAttributes ia;
-		Gdiplus::ColorMatrix cm = {0.0f};
+		Gdiplus::ColorMatrix cm = { 0.0f };
 
 		cm.m[0][0] = cm.m[1][1] = cm.m[2][2] = cm.m[4][4] = 1.0f;
 		cm.m[3][3] = static_cast<float>(alpha) / 255;
@@ -815,7 +815,7 @@ STDMETHODIMP GdiGraphics::GdiAlphaBlend(IGdiRawBitmap* bitmap, int dstX, int dst
 	if (!src_dc) return E_INVALIDARG;
 
 	HDC dc = m_ptr->GetHDC();
-	BLENDFUNCTION bf = {AC_SRC_OVER, 0, alpha, AC_SRC_ALPHA};
+	BLENDFUNCTION bf = { AC_SRC_OVER, 0, alpha, AC_SRC_ALPHA };
 
 	::GdiAlphaBlend(dc, dstX, dstY, dstW, dstH, src_dc, srcX, srcY, srcW, srcH, bf);
 	m_ptr->ReleaseHDC(dc);
@@ -864,9 +864,9 @@ STDMETHODIMP GdiGraphics::GdiDrawText(BSTR str, IGdiFont* font, VARIANT color, i
 
 	HFONT oldfont;
 	HDC dc = m_ptr->GetHDC();
-	RECT rc = {x, y, x + w, y + h};
-	DRAWTEXTPARAMS dpt = {sizeof(DRAWTEXTPARAMS), 4, 0, 0, 0};
-	
+	RECT rc = { x, y, x + w, y + h };
+	DRAWTEXTPARAMS dpt = { sizeof(DRAWTEXTPARAMS), 4, 0, 0, 0 };
+
 	oldfont = SelectFont(dc, hFont);
 	SetTextColor(dc, helpers::convert_argb_to_colorref(ExtractColorFromVariant(color)));
 	SetBkMode(dc, TRANSPARENT);
@@ -879,7 +879,7 @@ STDMETHODIMP GdiGraphics::GdiDrawText(BSTR str, IGdiFont* font, VARIANT color, i
 	// Well, magic :P
 	if (format & DT_CALCRECT)
 	{
-		RECT rc_calc = {0}, rc_old = {0};
+		RECT rc_calc = { 0 }, rc_old = { 0 };
 
 		memcpy(&rc_calc, &rc, sizeof(RECT));
 		memcpy(&rc_old, &rc, sizeof(RECT));
@@ -2678,7 +2678,7 @@ STDMETHODIMP FbUtils::ShowConsole()
 	TRACK_FUNCTION();
 
 	const GUID guid_main_show_console =
-		{0x5b652d25, 0xce44, 0x4737, {0x99, 0xbb, 0xa3, 0xcf, 0x2a, 0xeb, 0x35, 0xcc}};
+	{ 0x5b652d25, 0xce44, 0x4737, {0x99, 0xbb, 0xa3, 0xcf, 0x2a, 0xeb, 0x35, 0xcc} };
 
 	standard_commands::run_main(guid_main_show_console);
 	return S_OK;
@@ -2761,7 +2761,7 @@ STDMETHODIMP FbUtils::Trace(SAFEARRAY* p)
 			continue;
 
 		str.add_string(pfc::stringcvt::string_utf8_from_wide(var.bstrVal));
-		
+
 		if (i < nUBound)
 		{
 			str.add_byte(' ');
@@ -3026,7 +3026,7 @@ STDMETHODIMP MenuObj::TrackPopupMenu(int x, int y, UINT flags, UINT* item_id)
 	if (!m_hMenu) return E_POINTER;
 	if (!item_id) return E_POINTER;
 
-	POINT pt = {x, y};
+	POINT pt = { x, y };
 
 	// Only include specified flags
 	flags |= TPM_NONOTIFY | TPM_RETURNCMD | TPM_RIGHTBUTTON;
@@ -3086,8 +3086,8 @@ STDMETHODIMP JSUtils::CheckFont(BSTR name, VARIANT_BOOL* p)
 	if (!name) return E_INVALIDARG;
 	if (!p) return E_POINTER;
 
-	WCHAR family_name_eng[LF_FACESIZE] = {0};
-	WCHAR family_name_loc[LF_FACESIZE] = {0};
+	WCHAR family_name_eng[LF_FACESIZE] = { 0 };
+	WCHAR family_name_loc[LF_FACESIZE] = { 0 };
 	Gdiplus::InstalledFontCollection font_collection;
 	Gdiplus::FontFamily* font_families;
 	int count = font_collection.GetFamilyCount();
@@ -3113,7 +3113,7 @@ STDMETHODIMP JSUtils::CheckFont(BSTR name, VARIANT_BOOL* p)
 		}
 	}
 
-	delete [] font_families;
+	delete[] font_families;
 	return S_OK;
 }
 
@@ -3132,7 +3132,7 @@ STDMETHODIMP JSUtils::FileTest(BSTR path, BSTR mode, VARIANT* p)
 	else if (wcscmp(mode, L"s") == 0)
 	{
 		HANDLE fh = CreateFile(path, GENERIC_READ, FILE_SHARE_READ, 0, OPEN_EXISTING, 0, 0);
-		LARGE_INTEGER size = {0};
+		LARGE_INTEGER size = { 0 };
 
 		if (fh != INVALID_HANDLE_VALUE)
 		{
@@ -3153,7 +3153,7 @@ STDMETHODIMP JSUtils::FileTest(BSTR path, BSTR mode, VARIANT* p)
 	{
 		const wchar_t* fn = PathFindFileName(path);
 		const wchar_t* ext = PathFindExtension(fn);
-		wchar_t dir[MAX_PATH] = {0};
+		wchar_t dir[MAX_PATH] = { 0 };
 		helpers::com_array_writer<> helper;
 		_variant_t vars[3];
 
@@ -3350,8 +3350,7 @@ STDMETHODIMP JSUtils::Glob(BSTR pattern, UINT exc_mask, UINT inc_mask, VARIANT* 
 				fullpath.add_string(ff->GetFileName());
 				files.add_item(fullpath.get_ptr());
 			}
-		}
-		while (ff->FindNext());
+		} while (ff->FindNext());
 	}
 
 	delete ff;
@@ -3427,10 +3426,10 @@ STDMETHODIMP JSUtils::ReadINI(BSTR filename, BSTR section, BSTR key, VARIANT def
 	if (!pp) return E_POINTER;
 
 	enum
-		{
-			BUFFER_LEN = 255
-		};
-	TCHAR buff[BUFFER_LEN] = {0};
+	{
+		BUFFER_LEN = 255
+	};
+	TCHAR buff[BUFFER_LEN] = { 0 };
 
 	GetPrivateProfileString(section, key, NULL, buff, BUFFER_LEN, filename);
 
@@ -3694,8 +3693,8 @@ STDMETHODIMP ThemeManager::DrawThemeBackground(IGdiGraphics* gr, int x, int y, i
 	gr->get__ptr((void**)&graphics);
 	if (!graphics) return E_INVALIDARG;
 
-	RECT rc = {x, y, x + w, y + h};
-	RECT clip_rc = {clip_x, clip_y, clip_x + clip_w, clip_y + clip_h};
+	RECT rc = { x, y, x + w, y + h };
+	RECT clip_rc = { clip_x, clip_y, clip_x + clip_w, clip_y + clip_h };
 	LPCRECT pclip_rc = &clip_rc;
 	HDC dc = graphics->GetHDC();
 

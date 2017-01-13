@@ -7,9 +7,9 @@
 /* NOTE: Assume that date is following this format: "Jan 28 2010" */
 bool is_expired(const char * date)
 {
-	char s_month[4] = {0};
+	char s_month[4] = { 0 };
 	int month, day, year;
-	tm t = {0};
+	tm t = { 0 };
 	const char month_names[] = "JanFebMarAprMayJunJulAugSepOctNovDec";
 
 	sscanf_s(date, "%3s %2d %4d", s_month, _countof(s_month), &day, &year);
@@ -25,7 +25,7 @@ bool is_expired(const char * date)
 	time_t start = mktime(&t);
 	time_t end = time(NULL);
 
-// expire in ~15 days
+	// expire in ~15 days
 	const double secs = 15 * 60 * 60 * 24;
 	return (difftime(end, start) > secs);
 }

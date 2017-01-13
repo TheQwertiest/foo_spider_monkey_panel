@@ -54,7 +54,7 @@ public:
 		{
 			if (m_dropTargetHelper)
 			{
-				POINT point = {pt.x, pt.y};
+				POINT point = { pt.x, pt.y };
 				m_dropTargetHelper->DragEnter(m_hWnd, pDataObj, &point, *pdwEffect);
 			}
 
@@ -80,7 +80,7 @@ public:
 		{
 			if (m_dropTargetHelper)
 			{
-				POINT point = {pt.x, pt.y};
+				POINT point = { pt.x, pt.y };
 				m_dropTargetHelper->DragOver(&point, *pdwEffect);
 			}
 
@@ -132,7 +132,7 @@ public:
 		{
 			if (m_dropTargetHelper)
 			{
-				POINT point = {pt.x, pt.y};
+				POINT point = { pt.x, pt.y };
 				m_dropTargetHelper->Drop(pDataObj, &point, *pdwEffect);
 			}
 

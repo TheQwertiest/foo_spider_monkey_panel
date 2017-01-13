@@ -163,7 +163,7 @@ STDMETHODIMP FbTooltip::TrackPosition(int x, int y)
 {
 	TRACK_FUNCTION();
 
-	POINT pt = {x, y};
+	POINT pt = { x, y };
 	ClientToScreen(m_wndparent, &pt);
 	SendMessage(m_wndtooltip, TTM_TRACKPOSITION, 0, MAKELONG(pt.x, pt.y));
 	return S_OK;
