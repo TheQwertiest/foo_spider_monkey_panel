@@ -39,7 +39,8 @@ LRESULT CDialogConf::OnInitDialog(HWND hwndFocus, LPARAM lParam)
 
 	// Subclassing scintilla
 	m_editorctrl.SubclassWindow(GetDlgItem(IDC_EDIT));
-	m_editorctrl.SetLanguage();
+	m_editorctrl.SetJScript();
+	m_editorctrl.ReadAPI();
 
 	// Checkboxes
 	uButton_SetCheck(m_hWnd, IDC_CHECK_GRABFOCUS, m_parent->get_grab_focus());

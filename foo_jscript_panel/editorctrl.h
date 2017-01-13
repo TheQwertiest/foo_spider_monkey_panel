@@ -56,7 +56,6 @@ public:
 	void LoadProperties(const pfc::list_t<t_sci_prop_set> & data);
 	void SetContent(const char * text, bool clear_undo_buffer = false);
 	void RestoreDefaultStyle();
-	void SetLanguage();
 	void SetJScript();
 	void TrackWidth();
 	void SetAllStylesFromTable(const t_style_to_key_table table[]);

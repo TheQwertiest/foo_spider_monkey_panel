@@ -3,59 +3,36 @@
 #include "scintilla_prop_sets.h"
 #include "helpers.h"
 
-const t_style_to_key_table default_style_table[] =
-{
-	// Default
-	{STYLE_DEFAULT, "style.default"},
-	// Line number
-	{STYLE_LINENUMBER, "style.linenumber"},
-	// Bracelight
-	{STYLE_BRACELIGHT, "style.bracelight"},
-	// Bracebad
-	{STYLE_BRACEBAD, "style.bracebad"},
-	{-1, NULL},
-};
-
 const t_style_to_key_table js_style_table[] =
 {
+	// Default
+	{ STYLE_DEFAULT, "style.default" },
+	// Line number
+	{ STYLE_LINENUMBER, "style.linenumber" },
+	// Bracelight
+	{ STYLE_BRACELIGHT, "style.bracelight" },
+	// Bracebad
+	{ STYLE_BRACEBAD, "style.bracebad" },
 	// Comments
-	{SCE_C_COMMENT, "style.comment"},
-	{SCE_C_COMMENTLINE, "style.comment"},
-	{SCE_C_COMMENTDOC, "style.comment"},
-	{SCE_C_COMMENTLINEDOC, "style.comment"},
-	{SCE_C_COMMENTDOCKEYWORD, "style.comment"},
-	{SCE_C_COMMENTDOCKEYWORDERROR, "style.comment"},
+	{ SCE_C_COMMENT, "style.comment" },
+	{ SCE_C_COMMENTLINE, "style.comment" },
+	{ SCE_C_COMMENTDOC, "style.comment" },
+	{ SCE_C_COMMENTLINEDOC, "style.comment" },
+	{ SCE_C_COMMENTDOCKEYWORD, "style.comment" },
+	{ SCE_C_COMMENTDOCKEYWORDERROR, "style.comment" },
 	// Keywords
-	{SCE_C_WORD, "style.keyword"},
+	{ SCE_C_WORD, "style.keyword" },
 	// Indentifier
-	{SCE_C_IDENTIFIER, "style.indentifier"},
+	{ SCE_C_IDENTIFIER, "style.indentifier" },
 	// Numbers
-	{SCE_C_NUMBER, "style.number"},
+	{ SCE_C_NUMBER, "style.number" },
 	// String/Chars
-	{SCE_C_STRING, "style.string"},
-	{SCE_C_CHARACTER, "style.string"},
+	{ SCE_C_STRING, "style.string" },
+	{ SCE_C_CHARACTER, "style.string" },
 	// Operators
-	{SCE_C_OPERATOR, "style.operator"},
+	{ SCE_C_OPERATOR, "style.operator" },
 	//
-	{-1, NULL},
-};
-
-const t_style_to_key_table vbs_style_table[] =
-{
-	// Comments
-	{SCE_B_COMMENT, "style.comment"},
-	// Keywords
-	{SCE_B_KEYWORD, "style.keyword"},
-	// Indentifier
-	{SCE_B_IDENTIFIER, "style.indentifier"},
-	// Numbers
-	{SCE_B_NUMBER, "style.number"},
-	// String/Chars
-	{SCE_B_STRING, "style.string"},
-	// Operators
-	{SCE_B_OPERATOR, "style.operator"},
-	//
-	{-1, NULL},
+	{ -1, NULL },
 };
 
 static bool IsSymIncludes(const StyleAndWords & symbols, const SString value)
@@ -173,7 +150,7 @@ static t_size LengthWord(const char * word, char otherSeparator)
 	if (endWord > word)
 	{
 		endWord--;	// Back from the '(', otherSeparator, or '\0'
-		// Move backwards over any spaces
+					// Move backwards over any spaces
 
 		while ((endWord > word) && (IsASpace(*endWord)))
 		{
@@ -460,8 +437,7 @@ bool CScriptEditorCtrl::StartCallTip()
 			current--;
 			pos--;
 		}
-	}
-	while (current > 0 && !IsIdentifierChar(line[current - 1]));
+	} while (current > 0 && !IsIdentifierChar(line[current - 1]));
 
 	if (current <= 0)
 		return true;
@@ -772,7 +748,7 @@ bool CScriptEditorCtrl::FindBraceMatchPos(int &braceAtCaret, int &braceOpposite)
 		// No brace found so check other side
 		// Check to ensure not matching brace that is part of a multibyte character
 		char charAfter = GetCharAt(caretPos);
-		char styleAfter =GetStyleAt(caretPos) & mask;
+		char styleAfter = GetStyleAt(caretPos) & mask;
 
 		if (charAfter && IsBraceChar(charAfter))
 		{
@@ -931,7 +907,7 @@ void CScriptEditorCtrl::Init()
 	UsePopUp(true);
 
 	// Disable Ctrl + some char
-	const int ctrlcode[22] = {'Q', 'W', 'E', 'R', 'I', 'O', 'P', 'S', 'D', 'F',
+	const int ctrlcode[22] = { 'Q', 'W', 'E', 'R', 'I', 'O', 'P', 'S', 'D', 'F',
 		'G', 'H', 'J', 'K', 'L', 'B', 'N', 'M', 186, 187, 226
 	};
 
@@ -943,7 +919,7 @@ void CScriptEditorCtrl::Init()
 	// Disable Ctrl+Shift+some char
 	for (int i = 48; i < 122; ++i)
 	{
-		ClearCmdKey(MAKELONG(i, SCMOD_CTRL|SCMOD_SHIFT));
+		ClearCmdKey(MAKELONG(i, SCMOD_CTRL | SCMOD_SHIFT));
 	}
 
 	// Shortcut keys
@@ -1014,9 +990,6 @@ void CScriptEditorCtrl::RestoreDefaultStyle()
 	SetMarginWidthN(4, 0);
 	SetMarginTypeN(0, SC_MARGIN_NUMBER);
 
-	// Default styles
-	SetAllStylesFromTable(default_style_table);
-
 	// Additional styles
 	bool sel_fore, sel_back, line_back;
 	DWORD color;
@@ -1059,21 +1032,15 @@ void CScriptEditorCtrl::RestoreDefaultStyle()
 	SetCaretLineBackAlpha(GetPropertyInt("style.caret.line.back.alpha", SC_ALPHA_NOALPHA));
 }
 
-void CScriptEditorCtrl::SetLanguage()
-{
-	SetJScript();
-	ReadAPI();
-}
-
 void CScriptEditorCtrl::SetJScript()
 {
 	const char js_keywords[] = "abstract boolean break byte case catch char class const continue"
-							   " debugger default delete do double else enum export extends false final"
-							   " finally float for function goto if implements import in instanceof int"
-							   " interface long native new null package private protected public return"
-							   " short static super switch synchronized this throw throws transient true"
-							   " try typeof var void while with enum byvalue cast future generic inner"
-							   " operator outer rest var Array Math RegExp window fb gdi utils plman";
+		" debugger default delete do double else enum export extends false final"
+		" finally float for function goto if implements import in instanceof int"
+		" interface long native new null package private protected public return"
+		" short static super switch synchronized this throw throws transient true"
+		" try typeof var void while with enum byvalue cast future generic inner"
+		" operator outer rest var Array Math RegExp window fb gdi utils plman";
 
 	RestoreDefaultStyle();
 
@@ -1399,7 +1366,7 @@ LRESULT CScriptEditorCtrl::OnCharAdded(LPNMHDR pnmh)
 			else
 			{
 				AutomaticIndentation(ch);
-				
+
 				if (IsIdentifierChar(ch) || ch == '.')
 					StartAutoComplete();
 			}
