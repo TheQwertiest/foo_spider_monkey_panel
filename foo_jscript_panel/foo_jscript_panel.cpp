@@ -12,7 +12,7 @@ ITypeLibPtr g_typelib;
 namespace
 {
 	DECLARE_COMPONENT_VERSION(
-	JSP_NAME,
+		JSP_NAME,
 		JSP_VERSION,
 		"JScript Panel v" JSP_VERSION " by marc2003\n"
 		"Based on WSH Panel Mod by T.P. Wang\n\n"
@@ -28,7 +28,7 @@ namespace
 		"Multi-threaded version by Victor Laskin\n\n"
 		"CPropertyList - A Property List control\n"
 		"Copyright (c) 2001-2003 Bjarke Viksoe"
-		);
+	);
 
 	//VALIDATE_COMPONENT_FILENAME(JSP_DLL_NAME);
 
@@ -68,9 +68,10 @@ namespace
 
 			if (IS_EXPIRED(__DATE__))
 			{
-				err_msg = "This beta version is over two weeks old. Please check here for updates:\n\nhttps://github.com/19379/foo-jscript-panel/releases";
+				err_msg = "This beta version is over two weeks old. Please check here for updates:\n\nhttps://github.com/19379/foo-jscript-panel/releases\n\n";
 			}
-			else if (g_load_status != E_OK)
+			
+			if (g_load_status != E_OK)
 			{
 				err_msg = "This error message indicates that this component will not function properly:\n\n";
 
