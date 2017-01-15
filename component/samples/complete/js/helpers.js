@@ -101,9 +101,6 @@ return a.length-b.length;});for(var z=0;z<this.length;z++)
 this[z]=this[z].join("");}
 
 _.mixin({
-	amTidy : function (value) {
-		return _.tfe("$replace($lower($ascii(" + _.fbEscape(value) + ")), & ,, and ,)", true);
-	},
 	artistFolder : function (artist) {
 		var folder = folders.artists + _.fbSanitise(artist);
 		_.createFolder(folder);
