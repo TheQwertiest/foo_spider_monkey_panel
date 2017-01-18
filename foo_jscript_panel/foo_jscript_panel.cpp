@@ -30,7 +30,7 @@ namespace
 		"Copyright (c) 2001-2003 Bjarke Viksoe"
 	);
 
-	//VALIDATE_COMPONENT_FILENAME(JSP_DLL_NAME);
+	VALIDATE_COMPONENT_FILENAME(JSP_DLL_NAME);
 
 	// Is there anything not correctly loaded?
 	enum t_load_status_error
