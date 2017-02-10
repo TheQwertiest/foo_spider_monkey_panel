@@ -1,5 +1,6 @@
 // ==PREPROCESSOR==
 // @name "Thumbs"
+// @author "marc2003"
 // @import "%fb2k_component_path%samples\complete\js\lodash.min.js"
 // @import "%fb2k_component_path%samples\complete\js\helpers.js"
 // @import "%fb2k_component_path%samples\complete\js\panel.js"
