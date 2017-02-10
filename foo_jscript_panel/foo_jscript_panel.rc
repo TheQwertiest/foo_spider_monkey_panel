@@ -208,7 +208,7 @@ END
 
 1 TEXTINCLUDE
 BEGIN
-"..\\resource.h\0"
+"resource.h\0"
 END
 
 3 TEXTINCLUDE
@@ -228,7 +228,7 @@ END
 // SCRIPT
 //
 
-IDR_SCRIPT              SCRIPT                  "./default.js"
+IDR_SCRIPT              SCRIPT                  "default.js"
 #endif    // English (United States) resources
 /////////////////////////////////////////////////////////////////////////////
 
