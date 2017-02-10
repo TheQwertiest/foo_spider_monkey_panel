@@ -301,12 +301,12 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="res\default.js">
+    <None Include="default.js">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="res\resource.rc">
+    <ResourceCompile Include="foo_jscript_panel.rc">
       <Filter>Resource Files</Filter>
     </ResourceCompile>
   </ItemGroup>
