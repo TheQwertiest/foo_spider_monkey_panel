@@ -11,7 +11,10 @@ _.mixin({
 		
 		this.paint = function (gr) {
 			for (var i = 0; i < Math.min(this.rows, this.lines.length); i++) {
-				gr.GdiDrawText(this.lines[i + this.offset], this.fixed ? panel.fonts.fixed : panel.fonts.normal, panel.colours.text, this.x, (this.fixed ? _.floor(panel.row_height / 2) : 0) + 16 + this.y + (i * panel.row_height), this.w, panel.row_height, LEFT);
+				if (this.fixed)
+					gr.GdiDrawText(this.lines[i + this.offset], panel.fonts.fixed, panel.colours.text, this.x, _.floor(panel.row_height / 2) + 16 + this.y + (i * panel.row_height), this.w, panel.row_height, LEFT);
+				else
+					gr.GdiDrawText(this.lines[i + this.offset], panel.fonts.normal, panel.colours.text, this.x, 16 + this.y + (i * panel.row_height), this.w, panel.row_height, LEFT);
 			}
 			this.up_btn.paint(gr, panel.colours.text);
 			this.down_btn.paint(gr, panel.colours.text);
