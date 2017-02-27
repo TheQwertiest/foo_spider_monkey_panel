@@ -1,15 +1,15 @@
 v1.2.0
-ADD: If your computer has IE9 or later installed, newer ECMAScript5 features
-     are now available. Many thanks to TheQwertiest for discovering how to do this.
-CHG: The "Script engine" option has been removed from the "Configuration" window.
-     The newer Chakra engine is always used if available but will fall back to
-     JScript if not.
-ADD: utils.version reports the component version. See docs\interfaces.txt.
-CHG: Minor tweaks to Configuration window.
-FIX: Update jsplaylist-mod so it works with Chakra engine. Thanks to zeremy
-     for reporting
-FIX: A previous window.RepaintRect bug reported by Wilb has now been fixed.
-FIX: Zap a few more compiler warnings.
+- ADD: If your computer has IE9 or later installed, newer ECMAScript5 features
+       are now available. Many thanks to TheQwertiest for discovering how to do this.
+- CHG: The "Script engine" option has been removed from the "Configuration" window.
+       The newer Chakra engine is always used if available but will fall back to
+       JScript if not.
+- ADD: utils.version reports the component version. See docs\interfaces.txt.
+- CHG: Minor tweaks to Configuration window.
+- FIX: Update jsplaylist-mod so it works with Chakra engine. Thanks to zeremy
+       for reporting
+- FIX: A previous window.RepaintRect bug reported by Wilb has now been fixed.
+- FIX: Zap a few more compiler warnings.
 
 v1.1.7
 - FIX: Remove trailing space in "Console" when using fb.Trace.
