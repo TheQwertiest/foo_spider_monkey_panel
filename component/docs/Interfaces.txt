@@ -1276,11 +1276,11 @@ interface IFbMetadbHandleList {
 
 	Properties:
 		Count; (uint) (read)
-		// example: fb.trace(items.Count);
+		// example: fb.trace(handle_list.Count);
 		// 12
 
 		Item(idx); (IFbMetadbHandle) (read, write)
-		// example: fb.trace(fb.TitleFormat("%artist%").EvalWithMetadb(items.Item(0)));
+		// example: fb.trace(fb.TitleFormat("%artist%").EvalWithMetadb(handle_list.Item(0)));
 		// displays artist of first item in handle list
 
 	Methods:
@@ -1317,7 +1317,7 @@ interface IFbMetadbHandleList {
 		/*
 		example1: handle_list.Insert(0, fb.GetNowPlaying());
 		0 inserts at the start of the handle list.
-		example2: handle_list.Insert(items.Count, fb.GetNowPlaying());
+		example2: handle_list.Insert(handle_list.Count, fb.GetNowPlaying());
 		this inserts at the end of the handle list.
 		*/
 
