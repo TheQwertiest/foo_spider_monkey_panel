@@ -1370,7 +1370,7 @@ interface IFbMetadbHandleList {
 		as multivalue.
 
 		example:
-		handle.UpdateFileInfoSimple("ARTIST", "Enigma", "GENRE", "Downtempo;Ambient", "GENRE");
+		handle_list.UpdateFileInfoSimple("ARTIST", "Enigma", "GENRE", "Downtempo;Ambient", "GENRE");
 
 		GENRE will be treated as a multivalue field. So GENRE[0] = "Downtempo", GENRE[1] = "Ambient"
 		*/
