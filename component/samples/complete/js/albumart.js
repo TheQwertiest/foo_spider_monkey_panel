@@ -161,7 +161,7 @@ _.mixin({
 				_.explorer(this.path);
 				break;
 			case 2040:
-				_.browser("https://www.google.co.uk/search?tbm=isch&q=" + encodeURIComponent(panel.tf("%album artist%[ %album%]")));
+				_.run("https://www.google.co.uk/search?tbm=isch&q=" + encodeURIComponent(panel.tf("%album artist%[ %album%]")));
 				break;
 			}
 		}

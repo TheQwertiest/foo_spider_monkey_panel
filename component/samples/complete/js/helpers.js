@@ -114,9 +114,6 @@ _.mixin({
 		var b = _.round(c1[2] + f * (c2[2] - c1[2]));
 		return _.RGB(r, g, b);
 	},
-	browser : function (url) {
-		_.run(url);
-	},
 	button : function (x, y, w, h, img_src, fn, tiptext) {
 		this.paint = function (gr) {
 			this.img && _.drawImage(gr, this.img, this.x, this.y, this.w, this.h);
@@ -335,7 +332,7 @@ _.mixin({
 			window.ShowConfigure();
 			break;
 		default:
-			_.browser(ha_links[idx - 100][1]);
+			_.run(ha_links[idx - 100][1]);
 			break;
 		}
 		_.dispose(m1, s1, s2);

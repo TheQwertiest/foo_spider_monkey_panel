@@ -224,7 +224,7 @@ _.mixin({
 				break;
 			case x > this.x + this.text_x && x < this.x + this.text_x + Math.min(this.data[this.index].width, this.text_width):
 				if (this.data[this.index].url.indexOf("http") == 0) {
-					_.browser(this.data[this.index].url);
+					_.run(this.data[this.index].url);
 				} else {
 					plman.CreateAutoPlaylist(plman.PlaylistCount, this.data[this.index].name, this.data[this.index].url);
 					plman.ActivePlaylist = plman.PlaylistCount - 1;
