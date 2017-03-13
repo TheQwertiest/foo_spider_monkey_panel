@@ -28,7 +28,7 @@ _.mixin({
 				if (panel.metadb) {
 					_.tt(this.tiptext);
 					this.hover = true;
-					this.hrating = _.ceil((x - this.x) / this.h);
+					this.hrating = Math.ceil((x - this.x) / this.h);
 					window.RepaintRect(this.x, this.y, this.w, this.h);
 				}
 				return true;

@@ -27,7 +27,7 @@ var img = null;
 on_playback_new_track();
 
 buttons.update = function () {
-	var y = _.round((panel.h - 36) / 2);
+	var y = Math.round((panel.h - 36) / 2);
 	this.buttons.stop = new _.button(panel.w - 290, y, 36, 36, {normal : "mono\\appbar.control.stop.png"}, function () { fb.Stop(); }, "Stop");
 	this.buttons.previous = new _.button(panel.w - 254, y, 36, 36, {normal : "mono\\appbar.control.rewind.png"}, function () { fb.Prev(); }, "Previous");
 	this.buttons.play = new _.button(panel.w - 218, y, 36, 36, {normal : !fb.IsPlaying || fb.IsPaused ? "mono\\appbar.control.play.png" : "mono\\appbar.control.pause.png"}, function () { fb.PlayOrPause(); }, !fb.IsPlaying || fb.IsPaused ? "Play" : "Pause");

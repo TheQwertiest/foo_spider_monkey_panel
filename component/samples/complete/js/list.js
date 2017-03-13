@@ -3,8 +3,8 @@ _.mixin({
 		this.size = function () {
 			this.index = 0;
 			this.offset = 0;
-			this.rows = _.floor((this.h - 32) / panel.row_height);
-			this.up_btn.x = this.x + _.round((this.w - 16) / 2);
+			this.rows = Math.floor((this.h - 32) / panel.row_height);
+			this.up_btn.x = this.x + Math.round((this.w - 16) / 2);
 			this.down_btn.x = this.up_btn.x;
 			this.up_btn.y = this.y;
 			this.down_btn.y = this.y + this.h - 16;
@@ -34,12 +34,12 @@ _.mixin({
 					break;
 				case 1:
 					this.text_x = this.spacer_w + 5;
-					this.text_width = _.round(this.w / 2) + 30;
+					this.text_width = Math.round(this.w / 2) + 30;
 					var lastfm_charts_bar_x = this.x + this.text_x + this.text_width + 10;
 					var unit_width = (this.w - lastfm_charts_bar_x - 40) / this.data[0].playcount;
 					var bar_colour = _.splitRGB(this.lastfm_charts_colour);
 					for (var i = 0; i < Math.min(this.items, this.rows); i++) {
-						var bar_width = _.ceil(unit_width * this.data[i + this.offset].playcount);
+						var bar_width = Math.ceil(unit_width * this.data[i + this.offset].playcount);
 						gr.GdiDrawText(this.data[i + this.offset].rank + ".", panel.fonts.normal, panel.colours.highlight, this.x, this.y + 16 + (i * panel.row_height), this.text_x - 5, panel.row_height, RIGHT);
 						gr.GdiDrawText(this.data[i + this.offset].name, panel.fonts.normal, panel.colours.text, this.x + this.text_x, this.y + 16 + (i * panel.row_height), this.text_width, panel.row_height, LEFT);
 						gr.FillSolidRect(lastfm_charts_bar_x, this.y + 18 + (i * panel.row_height), bar_width, panel.row_height - 3, bar_colour);
@@ -64,7 +64,7 @@ _.mixin({
 					for (var i = 0; i < Math.min(this.items, this.rows); i++) {
 						var y = this.y + 16 + (i * panel.row_height);
 						if (this.mb_icons)
-							_.drawImage(gr, this.mb_images[this.data[i + this.offset].image], this.x, y + _.round((panel.row_height - 16) / 2), 16, 16);
+							_.drawImage(gr, this.mb_images[this.data[i + this.offset].image], this.x, y + Math.round((panel.row_height - 16) / 2), 16, 16);
 						gr.GdiDrawText(this.data[i + this.offset].name, panel.fonts.normal, panel.colours.text, this.x + this.text_x, y, this.text_width, panel.row_height, LEFT);
 					}
 					break;
@@ -147,7 +147,7 @@ _.mixin({
 		this.move = function (x, y) {
 			this.mx = x;
 			this.my = y;
-			this.index = _.floor((y - this.y - 16) / panel.row_height) + this.offset;
+			this.index = Math.floor((y - this.y - 16) / panel.row_height) + this.offset;
 			this.in_range = this.index >= this.offset && this.index < this.offset + Math.min(this.rows, this.items);
 			switch (true) {
 			case !this.trace(x, y):

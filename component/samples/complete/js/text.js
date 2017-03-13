@@ -1,8 +1,8 @@
 _.mixin({
 	text : function (mode, x, y, w, h) {
 		this.size = function () {
-			this.rows = _.floor((this.h - 32) / panel.row_height);
-			this.up_btn.x = this.x + _.round((this.w - 16) / 2);
+			this.rows = Math.floor((this.h - 32) / panel.row_height);
+			this.up_btn.x = this.x + Math.round((this.w - 16) / 2);
 			this.down_btn.x = this.up_btn.x;
 			this.up_btn.y = this.y;
 			this.down_btn.y = this.y + this.h - 16;
@@ -12,7 +12,7 @@ _.mixin({
 		this.paint = function (gr) {
 			for (var i = 0; i < Math.min(this.rows, this.lines.length); i++) {
 				if (this.fixed)
-					gr.GdiDrawText(this.lines[i + this.offset], panel.fonts.fixed, panel.colours.text, this.x, _.floor(panel.row_height / 2) + 16 + this.y + (i * panel.row_height), this.w, panel.row_height, LEFT);
+					gr.GdiDrawText(this.lines[i + this.offset], panel.fonts.fixed, panel.colours.text, this.x, Math.floor(panel.row_height / 2) + 16 + this.y + (i * panel.row_height), this.w, panel.row_height, LEFT);
 				else
 					gr.GdiDrawText(this.lines[i + this.offset], panel.fonts.normal, panel.colours.text, this.x, 16 + this.y + (i * panel.row_height), this.w, panel.row_height, LEFT);
 			}

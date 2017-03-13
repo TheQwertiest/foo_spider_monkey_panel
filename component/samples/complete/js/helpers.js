@@ -109,9 +109,9 @@ _.mixin({
 	blendColours : function (c1, c2, f) {
 		c1 = _.toRGB(c1);
 		c2 = _.toRGB(c2);
-		var r = _.round(c1[0] + f * (c2[0] - c1[0]));
-		var g = _.round(c1[1] + f * (c2[1] - c1[1]));
-		var b = _.round(c1[2] + f * (c2[2] - c1[2]));
+		var r = Math.round(c1[0] + f * (c2[0] - c1[0]));
+		var g = Math.round(c1[1] + f * (c2[1] - c1[1]));
+		var b = Math.round(c1[2] + f * (c2[2] - c1[2]));
 		return _.RGB(r, g, b);
 	},
 	button : function (x, y, w, h, img_src, fn, tiptext) {
@@ -220,13 +220,13 @@ _.mixin({
 		case image.crop_top:
 			if (img.Width / img.Height < src_w / src_h) {
 				var dst_w = img.Width;
-				var dst_h = _.round(src_h * img.Width / src_w);
+				var dst_h = Math.round(src_h * img.Width / src_w);
 				var dst_x = 0;
-				var dst_y = _.round((img.Height - dst_h) / (aspect == image.crop_top ? 4 : 2));
+				var dst_y = Math.round((img.Height - dst_h) / (aspect == image.crop_top ? 4 : 2));
 			} else {
-				var dst_w = _.round(src_w * img.Height / src_h);
+				var dst_w = Math.round(src_w * img.Height / src_h);
 				var dst_h = img.Height;
-				var dst_x = _.round((img.Width - dst_w) / 2);
+				var dst_x = Math.round((img.Width - dst_w) / 2);
 				var dst_y = 0;
 			}
 			break;
@@ -239,10 +239,10 @@ _.mixin({
 		case image.centre:
 		default:
 			var s = Math.min(src_w / img.Width, src_h / img.Height);
-			var w = _.floor(img.Width * s);
-			var h = _.floor(img.Height * s);
-			src_x += _.round((src_w - w) / 2);
-			src_y += _.round((src_h - h) / 2);
+			var w = Math.floor(img.Width * s);
+			var h = Math.floor(img.Height * s);
+			src_x += Math.round((src_w - w) / 2);
+			src_y += Math.round((src_h - h) / 2);
 			src_w = w;
 			src_h = h;
 			var dst_x = 0;

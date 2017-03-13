@@ -81,7 +81,7 @@ _.mixin({
 		}
 		
 		this.pos = function () {
-			return _.ceil(this.w * (this.drag ? this.drag_seek : fb.PlaybackTime / fb.PlaybackLength));
+			return Math.ceil(this.w * (this.drag ? this.drag_seek : fb.PlaybackTime / fb.PlaybackLength));
 		}
 		
 		this.interval_func = _.bind(function () {

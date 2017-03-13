@@ -17,11 +17,11 @@ _.mixin({
 				this.y = 0;
 				this.w = panel.w;
 				this.h = panel.h;
-				if (!this.nc && this.columns != _.floor(this.w / this.px))
+				if (!this.nc && this.columns != Math.floor(this.w / this.px))
 					this.nc = true;
-				this.rows = _.ceil(this.h / this.px);
-				this.columns = _.floor(this.w / this.px);
-				this.img_rows = _.ceil(this.images.length / this.columns);
+				this.rows = Math.ceil(this.h / this.px);
+				this.columns = Math.floor(this.w / this.px);
+				this.img_rows = Math.ceil(this.images.length / this.columns);
 				if (this.nc && this.images.length) {
 					this.nc = false;
 					_.dispose(this.img);
@@ -45,7 +45,7 @@ _.mixin({
 				this.y = 0;
 				this.w = this.px;
 				this.h = panel.h;
-				this.rows = _.ceil(this.h / this.px);
+				this.rows = Math.ceil(this.h / this.px);
 				if (this.nc && this.images.length) {
 					this.nc = false;
 					_.dispose(this.img);
@@ -65,7 +65,7 @@ _.mixin({
 				this.y = this.modes[this.mode] == "top" ? 0 : panel.h - this.px;
 				this.w = panel.w;
 				this.h = this.px;
-				this.columns = _.ceil(this.w / this.px);
+				this.columns = Math.ceil(this.w / this.px);
 				if (this.nc && this.images.length) {
 					this.nc = false;
 					_.dispose(this.img);
@@ -225,17 +225,17 @@ _.mixin({
 			case this.modes[this.mode] == "grid":
 				if (this.overlay)
 					return window.SetCursor(this.close_btn.move(x, y) ? IDC_HAND : IDC_ARROW);
-				var tmp = _.floor(x / this.px);
+				var tmp = Math.floor(x / this.px);
 				if (tmp < this.columns)
-					this.index = tmp + ((_.floor(y / this.px) + this.offset) * this.columns);
+					this.index = tmp + ((Math.floor(y / this.px) + this.offset) * this.columns);
 				break;
 			case this.modes[this.mode] == "left":
 			case this.modes[this.mode] == "right":
-				this.index = _.floor(y / this.px) + this.offset;
+				this.index = Math.floor(y / this.px) + this.offset;
 				break;
 			case this.modes[this.mode] == "top":
 			case this.modes[this.mode] == "bottom":
-				this.index = _.floor(x / this.px) + this.offset;
+				this.index = Math.floor(x / this.px) + this.offset;
 				break;
 			}
 			window.SetCursor(this.index < this.images.length ? IDC_HAND : IDC_ARROW);

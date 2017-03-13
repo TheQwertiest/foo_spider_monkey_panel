@@ -65,7 +65,7 @@ _.mixin({
 		}
 		
 		this.pos = function (type) {
-			return _.ceil((type == "h" ? this.h : this.w) * (Math.pow(10, fb.Volume / 50) - 0.01) / 0.99);
+			return Math.ceil((type == "h" ? this.h : this.w) * (Math.pow(10, fb.Volume / 50) - 0.01) / 0.99);
 		}
 		
 		this.x = x;

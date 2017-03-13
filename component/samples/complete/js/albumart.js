@@ -9,8 +9,8 @@ _.mixin({
 					var ratio = Math.min(this.w / this.case_img.Width, this.h / this.case_img.Height);
 					var nw = 488 * ratio;
 					var nh = 476 * ratio;
-					var nx = this.x + _.floor((this.w - (452 * ratio)) / 2);
-					var ny = this.y + _.floor((this.h - nh) / 2);
+					var nx = this.x + Math.floor((this.w - (452 * ratio)) / 2);
+					var ny = this.y + Math.floor((this.h - nh) / 2);
 					_.drawImage(gr, this.img, nx, ny, nw, nh, image.crop_top);
 				}
 				_.drawImage(gr, this.semi_img, this.x, this.y, this.w, this.h);
