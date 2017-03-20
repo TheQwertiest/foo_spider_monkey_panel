@@ -2667,7 +2667,7 @@ function on_playback_time(time) {
 			wsh_time_elaps++;
 		};
 
-		if (wsh_time_elaps >= wsh_delay_stats && played_seconds <= wsh_limit_stats) {
+		if (opt_stats && wsh_time_elaps >= wsh_delay_stats && played_seconds <= wsh_limit_stats) {
 			wsh_time_elaps = 0;
 			cStats.waiting_for_writing = true;
 			cStats.handle = g_metadb;
