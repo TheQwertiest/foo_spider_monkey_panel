@@ -1,4 +1,4 @@
-##v1.2.0
+## v1.2.0
 ```
 - ADD: If your computer has IE9 or later installed, newer ECMAScript5 features
        are now available. Many thanks to TheQwertiest for discovering how to do this.
@@ -13,7 +13,7 @@
 - FIX: Zap a few more compiler warnings.
 ```
 
-##v1.1.7
+## v1.1.7
 ```
 - FIX: Remove trailing space in "Console" when using fb.Trace.
 - FIX: Text Reader sample. Ensure "Open containing folder" works when specifiying
@@ -24,13 +24,13 @@
 - CHG: Remove "Delay load" from "Configuration" window.
 ```
 
-##v1.1.6.2
+## v1.1.6.2
 ```
 - FIX: plman.AddLocations: Original order of files in array is now maintained.
 - CHG: plman.AddLocations: Progress dialog stays hidden for short operations.
 ```
 
-##v1.1.6.1
+## v1.1.6.1
 ```
 - CHG: Minor changes to Console logging on startup.
 - ADD: The "complete" samples folder has 2 new scripts: "thumbs.txt" and "text reader.txt".
@@ -39,20 +39,20 @@
        the folder/file paths.
 ```
 
-##v1.1.6
+## v1.1.6
 ```
 - ADD: IGdiBitmap StackBlur method. See docs\interfaces.txt and
        samples\basic\StackBlur.txt.
 - CHG: Update ApplyMask sample.
 ```
 
-##v1.1.5.1
+## v1.1.5.1
 ```
 - ADD: Add "Open component folder" to default right click menu.
        This provides quick access to the docs and samples.
 ```
 
-##v1.1.5
+## v1.1.5
 ```
 - ADD: plman.IsPlaylistLocked(playlistIndex). See docs\interfaces.txt.
 - ADD: on_playlists_changed is now called when a playlist's lock
@@ -65,13 +65,13 @@
        with JScript Panel, this updated "mod" version has been created.
 ```
 
-##v1.1.4.1
+## v1.1.4.1
 
 ```
 - FIX: Prevent old tooltips lingering after script error.
 ```
 
-##v1.1.4
+## v1.1.4
 
 ```
 - FIX: main preferences keyboard shortcuts were never processed in columns UI
@@ -79,25 +79,25 @@
        https://github.com/19379/foo-jscript-panel/wiki/Keyboard-Shortcuts
 ```
 
-##v1.1.3
+## v1.1.3
 
 ```
 - ADD: IGdiBitmap SaveAs method.
 ```
 
-##v1.1.2
+## v1.1.2
 
 ```
 - FIX: Fix on_mouse_wheel not being called with certain trackpads.
 ```
 
-##v1.1.1
+## v1.1.1
 
 ```
 - ADD: New "on_mouse_wheel_h" callback for left/right scrolling. See docs\callbacks.txt.
 ```
 
-##v1.1.0
+## v1.1.0
 
 ```
 - CHG: GetQueryItems should be a "fb" method, not "plman".
@@ -105,19 +105,19 @@
 - CHG: Update Columns UI SDK to 6.5
 ```
 
-##v1.0.7
+## v1.0.7
 
 ```
 - ADD: fb.GetLibraryRelativePath(handle)
 ```
 
-##v1.0.6
+## v1.0.6
 
 ```
 - ADD: FbMetadbHandleList UpdateFileInfoSimple method.
 ```
 
-##v1.0.5
+## v1.0.5
 
 ```
 - CHG: Update Columns UI SDK to 6.4
@@ -126,13 +126,13 @@
 - CHG: Tidy up docs/samples.
 ```
 
-##v1.0.4
+## v1.0.4
 
 ```
 - ADD: utils.MapString(text, lcid, flags)
 ```
 
-##v1.0.3
+## v1.0.3
 
 ``` 
 - CHG: Revert previous Columns UI SDK update as I've just had foobar2000 crash.
@@ -143,7 +143,7 @@
        is roll back.
 ```
 
-##v1.0.2
+## v1.0.2
 
 ```
 - CHG: Update to latest Columns UI SDK.
@@ -151,14 +151,14 @@
        from sources and documentation!
 ```
 
-##v1.0.1
+## v1.0.1
 
 ```
 - CHG: Update default script so you know a blank panel
        is JScript Panel as opposed to WSH Panel Mod.
 ```
 
-##v1.0.0 (Compared to WSH Panel Mod 1.5.6)
+## v1.0.0 (Compared to WSH Panel Mod 1.5.6)
 
 ```
 - CHG: Given the name, it obviously doesn't support VBScript.
