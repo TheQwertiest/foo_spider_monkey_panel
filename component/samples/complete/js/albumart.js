@@ -11,7 +11,7 @@ _.mixin({
 					var nh = 476 * ratio;
 					var nx = this.x + Math.floor((this.w - (452 * ratio)) / 2);
 					var ny = this.y + Math.floor((this.h - nh) / 2);
-					_.drawImage(gr, this.img, nx, ny, nw, nh, image.crop_top);
+					_.drawImage(gr, this.img, nx, ny, nw, nh, this.aspect);
 				}
 				_.drawImage(gr, this.semi_img, this.x, this.y, this.w, this.h);
 				if (this.gloss)
@@ -106,14 +106,12 @@ _.mixin({
 			});
 			panel.m.CheckMenuRadioItem(2010, 2014, this.id + 2010);
 			panel.m.AppendMenuSeparator();
-			if (!this.cd) {
-				panel.m.AppendMenuItem(MF_STRING, 2020, "Crop (focus on centre)");
-				panel.m.AppendMenuItem(MF_STRING, 2021, "Crop (focus on top)");
-				panel.m.AppendMenuItem(MF_STRING, 2022, "Stretch");
-				panel.m.AppendMenuItem(MF_STRING, 2023, "Centre");
-				panel.m.CheckMenuRadioItem(2020, 2023, this.aspect + 2020);
-				panel.m.AppendMenuSeparator();
-			}
+			panel.m.AppendMenuItem(MF_STRING, 2020, "Crop (focus on centre)");
+			panel.m.AppendMenuItem(MF_STRING, 2021, "Crop (focus on top)");
+			panel.m.AppendMenuItem(MF_STRING, 2022, "Stretch");
+			panel.m.AppendMenuItem(MF_STRING, 2023, "Centre");
+			panel.m.CheckMenuRadioItem(2020, 2023, this.aspect + 2020);
+			panel.m.AppendMenuSeparator();
 			panel.m.AppendMenuItem(_.isFile(this.path) ? MF_STRING : MF_GRAYED, 2030, "Open containing folder");
 			panel.m.AppendMenuSeparator();
 			panel.m.AppendMenuItem(panel.metadb ? MF_STRING : MF_GRAYED, 2040, "Google image search");
