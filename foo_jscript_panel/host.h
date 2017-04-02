@@ -7,7 +7,6 @@
 #include "config.h"
 #include "user_message.h"
 #include "global_cfg.h"
-#include "IDropSourceImpl.h"
 #include "host_droptarget.h"
 #include "host_timer_dispatcher.h"
 #include "script_callback_invoker.h"

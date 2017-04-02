@@ -111,12 +111,6 @@
     <ClCompile Include="host_droptarget.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="script_interface_datatransfer_impl.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="script_interface_dragsource_impl.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="js_panel_window.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -243,21 +237,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="IDropTargetImpl.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="IDropSourceImpl.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="script_interface_datatransfer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="script_interface_datatransfer_impl.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="script_interface_dragsource.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="script_interface_dragsource_impl.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="js_panel_window_dui.h">

@@ -138,8 +138,6 @@ copy /Y "$(TargetPath)" "%component_path%\"</Command>
     <ClCompile Include="host_droptarget.cpp" />
     <ClCompile Include="host_timer_dispatcher.cpp" />
     <ClCompile Include="panel_manager.cpp" />
-    <ClCompile Include="script_interface_datatransfer_impl.cpp" />
-    <ClCompile Include="script_interface_dragsource_impl.cpp" />
     <ClCompile Include="script_interface_impl.cpp" />
     <ClCompile Include="script_interface_playlist_impl.cpp" />
     <ClCompile Include="script_interface_tooltip_impl.cpp" />
@@ -180,7 +178,6 @@ copy /Y "$(TargetPath)" "%component_path%\"</Command>
     <ClInclude Include="process_locations.h" />
     <ClInclude Include="script_callback_invoker.h" />
     <ClInclude Include="host_timer_dispatcher.h" />
-    <ClInclude Include="IDropSourceImpl.h" />
     <ClInclude Include="global_cfg.h" />
     <ClInclude Include="component_defines.h" />
     <ClInclude Include="host.h" />
@@ -192,10 +189,6 @@ copy /Y "$(TargetPath)" "%component_path%\"</Command>
     <ClInclude Include="panel_manager.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="script_interface.h" />
-    <ClInclude Include="script_interface_datatransfer.h" />
-    <ClInclude Include="script_interface_datatransfer_impl.h" />
-    <ClInclude Include="script_interface_dragsource.h" />
-    <ClInclude Include="script_interface_dragsource_impl.h" />
     <ClInclude Include="script_interface_impl.h" />
     <ClInclude Include="script_interface_playlist.h" />
     <ClInclude Include="script_interface_playlist_impl.h" />
