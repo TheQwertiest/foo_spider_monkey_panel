@@ -4,13 +4,6 @@
 #define WINVER _WIN32_WINNT_VISTA
 #define _WIN32_IE _WIN32_IE_IE70
 
-// Undefine to enable VLD
-#define NO_VISUAL_LEAK_DETECTOR
-
-#if defined(_DEBUG) && !defined(NO_VISUAL_LEAK_DETECTOR)
-#include <vld.h>
-#endif
-
 #include <tchar.h>
 #include <Windows.h>
 #include <GdiPlus.h>
@@ -29,7 +22,6 @@
 #define _WTL_NO_WTYPES
 #include <atlbase.h>
 #include <atlapp.h>
-
 #include <atlwin.h>
 #include <atlframe.h>
 #include <atldlgs.h>
