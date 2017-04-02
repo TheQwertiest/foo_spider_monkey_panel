@@ -147,53 +147,51 @@ _.mixin({
 		this.move = function (x, y) {
 			this.mx = x;
 			this.my = y;
-			this.index = Math.floor((y - this.y - 16) / panel.row_height) + this.offset;
-			this.in_range = this.index >= this.offset && this.index < this.offset + Math.min(this.rows, this.items);
-			switch (true) {
-			case !this.trace(x, y):
-			case this.mode == "autoplaylists" && this.editing:
-				window.SetCursor(IDC_ARROW);
-				this.leave();
-				return false;
-			case this.up_btn.move(x, y):
-			case this.down_btn.move(x, y):
-				break;
-			case !this.in_range:
-				window.SetCursor(IDC_ARROW);
-				this.leave();
-				break;
-			case this.mode == "autoplaylists":
+			window.SetCursor(IDC_ARROW);
+			if (this.trace(x, y)) {
+				this.index = Math.floor((y - this.y - 16) / panel.row_height) + this.offset;
+				this.in_range = this.index >= this.offset && this.index < this.offset + Math.min(this.rows, this.items);
 				switch (true) {
-				case x > this.x && x < this.x + Math.min(this.data[this.index].width, this.text_width):
-					window.SetCursor(IDC_HAND);
-					_.tt("Autoplaylist: " + this.data[this.index].name);
+				case this.up_btn.move(x, y):
+				case this.down_btn.move(x, y):
 					break;
-				case x > this.x + this.w - 20 && x < this.x + this.w:
-					window.SetCursor(IDC_HAND);
-					_.tt("Edit " + _.q(this.data[this.index].name));
-					break;
-				default:
-					window.SetCursor(IDC_ARROW);
-					_.tt("");
+				case this.mode == "autoplaylists" && this.editing:
+				case !this.in_range:
 					this.leave();
 					break;
+				case this.mode == "autoplaylists":
+					switch (true) {
+					case x > this.x && x < this.x + Math.min(this.data[this.index].width, this.text_width):
+						window.SetCursor(IDC_HAND);
+						_.tt("Autoplaylist: " + this.data[this.index].name);
+						break;
+					case x > this.x + this.w - 20 && x < this.x + this.w:
+						window.SetCursor(IDC_HAND);
+						_.tt("Edit " + _.q(this.data[this.index].name));
+						break;
+					default:
+						_.tt("");
+						this.leave();
+						break;
+					}
+					this.hover = true;
+					window.RepaintRect(this.x + this.w - 20, this.y, 20, this.h);
+					break;
+				case x > this.x + this.text_x && x < this.x + this.text_x + Math.min(this.data[this.index].width, this.text_width):
+					window.SetCursor(IDC_HAND);
+					if (this.data[this.index].url.indexOf("http") == 0)
+						_.tt(this.data[this.index].url);
+					else
+						_.tt("Autoplaylist: " + this.data[this.index].url);
+					break;
+				default:
+					_.tt("");
+					break;
 				}
-				this.hover = true;
-				window.RepaintRect(this.x + this.w - 20, this.y, 20, this.h);
-				break;
-			case x > this.x + this.text_x && x < this.x + this.text_x + Math.min(this.data[this.index].width, this.text_width):
-				window.SetCursor(IDC_HAND);
-				if (this.data[this.index].url.indexOf("http") == 0)
-					_.tt(this.data[this.index].url);
-				else
-					_.tt("Autoplaylist: " + this.data[this.index].url);
-				break;
-			default:
-				window.SetCursor(IDC_ARROW);
-				_.tt("");
-				break;
+				return true;
+			} else {
+				return false;
 			}
-			return true;
 		}
 		
 		this.leave = function () {
@@ -204,34 +202,32 @@ _.mixin({
 		}
 		
 		this.lbtn_up = function (x, y) {
-			switch (true) {
-			case !this.trace(x, y):
-				return false;
-			case this.mode == "autoplaylists" && this.editing:
-			case this.up_btn.lbtn_up(x, y):
-			case this.down_btn.lbtn_up(x, y):
-			case !this.in_range:
-				break;
-			case this.mode == "autoplaylists":
+			if (this.trace(x, y)) {
 				switch (true) {
-				case x > this.x && x < this.x + Math.min(this.data[this.index].width, this.text_width):
-					this.run_query(this.data[this.index].name, this.data[this.index].query, this.data[this.index].sort, this.data[this.index].forced);
+				case this.up_btn.lbtn_up(x, y):
+				case this.down_btn.lbtn_up(x, y):
+				case this.mode == "autoplaylists" && this.editing:
+				case !this.in_range:
 					break;
-				case x > this.x + this.w - 20 && x < this.x + this.w:
-					this.edit(x, y);
+				case this.mode == "autoplaylists":
+					if (this.x && x < this.x + Math.min(this.data[this.index].width, this.text_width))
+						this.run_query(this.data[this.index].name, this.data[this.index].query, this.data[this.index].sort, this.data[this.index].forced);
+					else if (x > this.x + this.w - 20 && x < this.x + this.w)
+						this.edit(x, y);
+					break;
+				case x > this.x + this.text_x && x < this.x + this.text_x + Math.min(this.data[this.index].width, this.text_width):
+					if (this.data[this.index].url.indexOf("http") == 0) {
+						_.run(this.data[this.index].url);
+					} else {
+						plman.CreateAutoPlaylist(plman.PlaylistCount, this.data[this.index].name, this.data[this.index].url);
+						plman.ActivePlaylist = plman.PlaylistCount - 1;
+					}
 					break;
 				}
-				break;
-			case x > this.x + this.text_x && x < this.x + this.text_x + Math.min(this.data[this.index].width, this.text_width):
-				if (this.data[this.index].url.indexOf("http") == 0) {
-					_.run(this.data[this.index].url);
-				} else {
-					plman.CreateAutoPlaylist(plman.PlaylistCount, this.data[this.index].name, this.data[this.index].url);
-					plman.ActivePlaylist = plman.PlaylistCount - 1;
-				}
-				break;
+				return true;
+			} else {
+				return false;
 			}
-			return true;
 		}
 		
 		this.rbtn_up = function (x, y) {

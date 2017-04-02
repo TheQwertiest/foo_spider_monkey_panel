@@ -68,18 +68,14 @@ _.mixin({
 		this.move = function (x, y) {
 			this.mx = x;
 			this.my = y;
-			switch (true) {
-			case !this.trace(x, y):
-				window.SetCursor(IDC_ARROW);
+			window.SetCursor(IDC_ARROW);
+			if (this.trace(x, y)) {
+				this.up_btn.move(x, y);
+				this.down_btn.move(x, y);
+				return true;
+			} else {
 				return false;
-			case this.up_btn.move(x, y):
-			case this.down_btn.move(x, y):
-				break;
-			default:
-				window.SetCursor(IDC_ARROW);
-				break;
 			}
-			return true;
 		}
 		
 		this.lbtn_up = function (x, y) {

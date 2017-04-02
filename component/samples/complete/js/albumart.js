@@ -34,9 +34,9 @@ _.mixin({
 		
 		this.get_album_art_done = function (p) {
 			this.path = p;
-			if (this.img && panel.metadb && _.isFile(this.path)) {
+			if (this.img && _.isFile(this.path)) {
 				this.tooltip = "Original dimensions: " + this.img.Width + "x" + this.img.Height + "px\nPath: " + this.path;
-				if (this.path != panel.metadb.Path)
+				if (panel.metadb && panel.metadb.Path != this.path)
 					this.tooltip += "\nSize: " + utils.FormatFileSize(fso.GetFile(this.path).Size);
 			}
 		}
@@ -78,17 +78,15 @@ _.mixin({
 		}
 		
 		this.lbtn_dblclk = function (x, y) {
-			switch (true) {
-			case !this.trace(x, y):
+			if (this.trace(x, y)) {
+				if (panel.metadb && panel.metadb.Path == this.path)
+					_.explorer(this.path);
+				else if (_.isFile(this.path))
+					_.run(this.path);
+				return true;
+			} else {
 				return false;
-			case panel.metadb && this.path == panel.metadb.Path:
-				_.explorer(this.path);
-				break;
-			case _.isFile(this.path):
-				_.run(this.path);
-				break;
 			}
-			return true;
 		}
 		
 		this.rbtn_up = function (x, y) {
@@ -159,7 +157,7 @@ _.mixin({
 				_.explorer(this.path);
 				break;
 			case 2040:
-				_.run("https://www.google.co.uk/search?tbm=isch&q=" + encodeURIComponent(panel.tf("%album artist%[ %album%]")));
+				_.run("https://www.google.com/search?tbm=isch&q=" + encodeURIComponent(panel.tf("%album artist%[ %album%]")));
 				break;
 			}
 		}
