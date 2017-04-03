@@ -102,9 +102,6 @@
     <ClCompile Include="script_interface_playlist_impl.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="script_interface_tooltip_impl.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="panel_manager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -222,12 +219,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="script_interface_playlist_impl.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="script_interface_tooltip.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="script_interface_tooltip_impl.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="panel_manager.h">
