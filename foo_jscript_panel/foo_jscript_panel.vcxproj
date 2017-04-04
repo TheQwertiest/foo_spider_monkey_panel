@@ -139,7 +139,6 @@ copy /Y "$(TargetPath)" "%component_path%\"</Command>
     <ClCompile Include="host_timer_dispatcher.cpp" />
     <ClCompile Include="panel_manager.cpp" />
     <ClCompile Include="script_interface_impl.cpp" />
-    <ClCompile Include="script_interface_playlist_impl.cpp" />
     <ClCompile Include="script_preprocessor.cpp" />
     <ClCompile Include="stackblur.cpp" />
     <ClCompile Include="stdafx.cpp">
@@ -189,8 +188,6 @@ copy /Y "$(TargetPath)" "%component_path%\"</Command>
     <ClInclude Include="resource.h" />
     <ClInclude Include="script_interface.h" />
     <ClInclude Include="script_interface_impl.h" />
-    <ClInclude Include="script_interface_playlist.h" />
-    <ClInclude Include="script_interface_playlist_impl.h" />
     <ClInclude Include="script_preprocessor.h" />
     <ClInclude Include="SString.h" />
     <ClInclude Include="stackblur.h" />

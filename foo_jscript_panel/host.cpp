@@ -30,44 +30,36 @@ HostComm::~HostComm()
 {
 }
 
+void HostComm::ClearIntervalOrTimeout(UINT timerId)
+{
+	m_host_timer_dispatcher.kill(timerId);
+}
+
+IGdiBitmap* HostComm::GetBackgroundImage()
+{
+	Gdiplus::Bitmap* bitmap = NULL;
+	IGdiBitmap* ret = NULL;
+
+	if (get_pseudo_transparent())
+	{
+		bitmap = Gdiplus::Bitmap::FromHBITMAP(m_gr_bmp_bk, NULL);
+
+		if (!helpers::ensure_gdiplus_object(bitmap))
+		{
+			if (bitmap) delete bitmap;
+			bitmap = NULL;
+		}
+	}
+
+	if (bitmap) ret = new com_object_impl_t<GdiBitmap>(bitmap);
+
+	return ret;
+}
+
 void HostComm::Redraw()
 {
 	m_paint_pending = false;
 	RedrawWindow(m_hwnd, NULL, NULL, RDW_INVALIDATE | RDW_UPDATENOW);
-}
-
-void HostComm::Repaint(bool force /*= false*/)
-{
-	m_paint_pending = true;
-
-	if (force)
-	{
-		RedrawWindow(m_hwnd, NULL, NULL, RDW_INVALIDATE | RDW_UPDATENOW);
-	}
-	else
-	{
-		InvalidateRect(m_hwnd, NULL, FALSE);
-	}
-}
-
-void HostComm::RepaintRect(LONG x, LONG y, LONG w, LONG h, bool force /*= false*/)
-{
-	RECT rc;
-	rc.left = x;
-	rc.top = y;
-	rc.right = x + w;
-	rc.bottom = y + h;
-
-	m_paint_pending = true;
-
-	if (force)
-	{
-		RedrawWindow(m_hwnd, &rc, NULL, RDW_INVALIDATE | RDW_UPDATENOW);
-	}
-	else
-	{
-		InvalidateRect(m_hwnd, &rc, FALSE);
-	}
 }
 
 void HostComm::RefreshBackground(LPRECT lprcUpdate /*= NULL*/)
@@ -142,9 +134,38 @@ void HostComm::RefreshBackground(LPRECT lprcUpdate /*= NULL*/)
 	Repaint(true);
 }
 
-unsigned HostComm::SetTimeout(IDispatch* func, INT delay)
+void HostComm::Repaint(bool force /*= false*/)
 {
-	return m_host_timer_dispatcher.setTimeout(delay, func);
+	m_paint_pending = true;
+
+	if (force)
+	{
+		RedrawWindow(m_hwnd, NULL, NULL, RDW_INVALIDATE | RDW_UPDATENOW);
+	}
+	else
+	{
+		InvalidateRect(m_hwnd, NULL, FALSE);
+	}
+}
+
+void HostComm::RepaintRect(LONG x, LONG y, LONG w, LONG h, bool force /*= false*/)
+{
+	RECT rc;
+	rc.left = x;
+	rc.top = y;
+	rc.right = x + w;
+	rc.bottom = y + h;
+
+	m_paint_pending = true;
+
+	if (force)
+	{
+		RedrawWindow(m_hwnd, &rc, NULL, RDW_INVALIDATE | RDW_UPDATENOW);
+	}
+	else
+	{
+		InvalidateRect(m_hwnd, &rc, FALSE);
+	}
 }
 
 unsigned HostComm::SetInterval(IDispatch* func, INT delay)
@@ -152,489 +173,9 @@ unsigned HostComm::SetInterval(IDispatch* func, INT delay)
 	return m_host_timer_dispatcher.setInterval(delay, func);
 }
 
-void HostComm::ClearIntervalOrTimeout(UINT timerId)
+unsigned HostComm::SetTimeout(IDispatch* func, INT delay)
 {
-	m_host_timer_dispatcher.kill(timerId);
-}
-
-IGdiBitmap* HostComm::GetBackgroundImage()
-{
-	Gdiplus::Bitmap* bitmap = NULL;
-	IGdiBitmap* ret = NULL;
-
-	if (get_pseudo_transparent())
-	{
-		bitmap = Gdiplus::Bitmap::FromHBITMAP(m_gr_bmp_bk, NULL);
-
-		if (!helpers::ensure_gdiplus_object(bitmap))
-		{
-			if (bitmap) delete bitmap;
-			bitmap = NULL;
-		}
-	}
-
-	if (bitmap) ret = new com_object_impl_t<GdiBitmap>(bitmap);
-
-	return ret;
-}
-
-STDMETHODIMP FbWindow::get_ID(UINT* p)
-{
-	TRACK_FUNCTION();
-
-	if (!p) return E_POINTER;
-
-	*p = (UINT)m_host->GetHWND();
-	return S_OK;
-}
-
-STDMETHODIMP FbWindow::get_Width(INT* p)
-{
-	TRACK_FUNCTION();
-
-	if (!p) return E_POINTER;
-
-	*p = m_host->GetWidth();
-	return S_OK;
-}
-
-STDMETHODIMP FbWindow::get_Height(INT* p)
-{
-	TRACK_FUNCTION();
-
-	if (!p) return E_POINTER;
-
-	*p = m_host->GetHeight();
-	return S_OK;
-}
-
-STDMETHODIMP FbWindow::get_InstanceType(UINT* p)
-{
-	TRACK_FUNCTION();
-
-	if (!p) return E_POINTER;
-	*p = m_host->GetInstanceType();
-	return S_OK;
-}
-
-STDMETHODIMP FbWindow::get_MaxWidth(UINT* p)
-{
-	TRACK_FUNCTION();
-
-	if (!p) return E_POINTER;
-
-	*p = m_host->MaxSize().x;
-	return S_OK;
-}
-
-STDMETHODIMP FbWindow::put_MaxWidth(UINT width)
-{
-	TRACK_FUNCTION();
-
-	m_host->MaxSize().x = width;
-	PostMessage(m_host->GetHWND(), UWM_SIZELIMITECHANGED, 0, uie::size_limit_maximum_width);
-	return S_OK;
-}
-
-STDMETHODIMP FbWindow::get_MaxHeight(UINT* p)
-{
-	TRACK_FUNCTION();
-
-	if (!p) return E_POINTER;
-
-	*p = m_host->MaxSize().y;
-	return S_OK;
-}
-
-STDMETHODIMP FbWindow::put_MaxHeight(UINT height)
-{
-	TRACK_FUNCTION();
-
-	m_host->MaxSize().y = height;
-	PostMessage(m_host->GetHWND(), UWM_SIZELIMITECHANGED, 0, uie::size_limit_maximum_height);
-	return S_OK;
-}
-
-STDMETHODIMP FbWindow::get_MinWidth(UINT* p)
-{
-	TRACK_FUNCTION();
-
-	if (!p) return E_POINTER;
-
-	*p = m_host->MinSize().x;
-	return S_OK;
-}
-
-STDMETHODIMP FbWindow::put_MinWidth(UINT width)
-{
-	TRACK_FUNCTION();
-
-	m_host->MinSize().x = width;
-	PostMessage(m_host->GetHWND(), UWM_SIZELIMITECHANGED, 0, uie::size_limit_minimum_width);
-	return S_OK;
-}
-
-STDMETHODIMP FbWindow::get_MinHeight(UINT* p)
-{
-	TRACK_FUNCTION();
-
-	if (!p) return E_POINTER;
-
-	*p = m_host->MinSize().y;
-	return S_OK;
-}
-
-STDMETHODIMP FbWindow::put_MinHeight(UINT height)
-{
-	TRACK_FUNCTION();
-
-	m_host->MinSize().y = height;
-	PostMessage(m_host->GetHWND(), UWM_SIZELIMITECHANGED, 0, uie::size_limit_minimum_height);
-	return S_OK;
-}
-
-STDMETHODIMP FbWindow::get_DlgCode(UINT* p)
-{
-	TRACK_FUNCTION();
-
-	if (!p) return E_POINTER;
-
-	*p = m_host->DlgCode();
-	return S_OK;
-}
-
-STDMETHODIMP FbWindow::put_DlgCode(UINT code)
-{
-	TRACK_FUNCTION();
-
-	m_host->DlgCode() = code;
-	return S_OK;
-}
-
-STDMETHODIMP FbWindow::get_IsTransparent(VARIANT_BOOL* p)
-{
-	TRACK_FUNCTION();
-
-	if (!p) return E_POINTER;
-
-	*p = TO_VARIANT_BOOL(m_host->get_pseudo_transparent());
-	return S_OK;
-}
-
-STDMETHODIMP FbWindow::get_IsVisible(VARIANT_BOOL* p)
-{
-	TRACK_FUNCTION();
-
-	if (!p) return E_POINTER;
-
-	*p = TO_VARIANT_BOOL(IsWindowVisible(m_host->GetHWND()));
-	return S_OK;
-}
-
-STDMETHODIMP FbWindow::Repaint(VARIANT_BOOL force)
-{
-	TRACK_FUNCTION();
-
-	m_host->Repaint(force != FALSE);
-	return S_OK;
-}
-
-STDMETHODIMP FbWindow::RepaintRect(LONG x, LONG y, LONG w, LONG h, VARIANT_BOOL force)
-{
-	TRACK_FUNCTION();
-
-	m_host->RepaintRect(x, y, w, h, force != FALSE);
-	return S_OK;
-}
-
-STDMETHODIMP FbWindow::CreatePopupMenu(IMenuObj** pp)
-{
-	TRACK_FUNCTION();
-
-	if (!pp) return E_POINTER;
-
-	*pp = new com_object_impl_t<MenuObj>(m_host->GetHWND());
-	return S_OK;
-}
-
-STDMETHODIMP FbWindow::SetInterval(IDispatch* func, INT delay, UINT* outIntervalID)
-{
-	TRACK_FUNCTION();
-	if (!outIntervalID) return E_POINTER;
-	*outIntervalID = m_host->SetInterval(func, delay);
-	return S_OK;
-}
-
-STDMETHODIMP FbWindow::ClearInterval(UINT intervalID)
-{
-	TRACK_FUNCTION();
-	m_host->ClearIntervalOrTimeout(intervalID);
-	return S_OK;
-}
-
-STDMETHODIMP FbWindow::SetTimeout(IDispatch* func, INT delay, UINT* outTimeoutID)
-{
-	TRACK_FUNCTION();
-	*outTimeoutID = m_host->SetTimeout(func, delay);
-	return S_OK;
-}
-
-STDMETHODIMP FbWindow::ClearTimeout(UINT timeoutID)
-{
-	TRACK_FUNCTION();
-	m_host->ClearIntervalOrTimeout(timeoutID);
-	return S_OK;
-}
-
-STDMETHODIMP FbWindow::NotifyOthers(BSTR name, VARIANT info)
-{
-	TRACK_FUNCTION();
-
-	if (!name) return E_INVALIDARG;
-	if (info.vt & VT_BYREF) return E_INVALIDARG;
-
-	HRESULT hr = S_OK;
-	_variant_t var;
-
-	hr = VariantCopy(&var, &info);
-
-	if (FAILED(hr)) return hr;
-
-	simple_callback_data_2<_bstr_t, _variant_t>* notify_data
-		= new simple_callback_data_2<_bstr_t, _variant_t>(name, NULL);
-
-	notify_data->m_item2.Attach(var.Detach());
-
-	panel_manager::instance().send_msg_to_others_pointer(m_host->GetHWND(), CALLBACK_UWM_NOTIFY_DATA, notify_data);
-
-	return S_OK;
-}
-
-STDMETHODIMP FbWindow::CreateTooltip(BSTR name, float pxSize, INT style, IFbTooltip** pp)
-{
-	TRACK_FUNCTION();
-
-	if (!pp) return E_POINTER;
-
-	const auto& tooltip_param = m_host->PanelTooltipParam();
-	tooltip_param->font_name = name;
-	tooltip_param->font_size = pxSize;
-	tooltip_param->font_style = style;
-	*pp = new com_object_impl_t<FbTooltip>(m_host->GetHWND(), tooltip_param);
-	return S_OK;
-}
-
-STDMETHODIMP FbWindow::ShowConfigure()
-{
-	TRACK_FUNCTION();
-
-	PostMessage(m_host->GetHWND(), UWM_SHOWCONFIGURE, 0, 0);
-	return S_OK;
-}
-
-STDMETHODIMP FbWindow::ShowProperties()
-{
-	TRACK_FUNCTION();
-
-	PostMessage(m_host->GetHWND(), UWM_SHOWPROPERTIES, 0, 0);
-	return S_OK;
-}
-
-STDMETHODIMP FbWindow::GetProperty(BSTR name, VARIANT defaultval, VARIANT* p)
-{
-	TRACK_FUNCTION();
-
-	if (!name) return E_INVALIDARG;
-	if (!p) return E_POINTER;
-
-	HRESULT hr;
-	_variant_t var;
-	pfc::stringcvt::string_utf8_from_wide uname(name);
-
-	if (m_host->get_config_prop().get_config_item(uname, var))
-	{
-		hr = VariantCopy(p, &var);
-	}
-	else
-	{
-		m_host->get_config_prop().set_config_item(uname, defaultval);
-		hr = VariantCopy(p, &defaultval);
-	}
-
-	if (FAILED(hr))
-		p = NULL;
-
-	return S_OK;
-}
-
-STDMETHODIMP FbWindow::SetProperty(BSTR name, VARIANT val)
-{
-	TRACK_FUNCTION();
-
-	if (!name) return E_INVALIDARG;
-
-	m_host->get_config_prop().set_config_item(pfc::stringcvt::string_utf8_from_wide(name), val);
-	return S_OK;
-}
-
-STDMETHODIMP FbWindow::GetBackgroundImage(IGdiBitmap** pp)
-{
-	TRACK_FUNCTION();
-
-	if (!pp) return E_POINTER;
-
-	*pp = m_host->GetBackgroundImage();
-	return S_OK;
-}
-
-STDMETHODIMP FbWindow::SetCursor(UINT id)
-{
-	TRACK_FUNCTION();
-
-	::SetCursor(LoadCursor(NULL, MAKEINTRESOURCE(id)));
-	return S_OK;
-}
-
-STDMETHODIMP FbWindow::GetColorCUI(UINT type, BSTR guidstr, int* p)
-{
-	TRACK_FUNCTION();
-
-	if (!p) return E_POINTER;
-	if (!guidstr) return E_INVALIDARG;
-	if (m_host->GetInstanceType() != HostComm::KInstanceTypeCUI) return E_NOTIMPL;
-
-	GUID guid;
-
-	if (!*guidstr)
-	{
-		memcpy(&guid, &pfc::guid_null, sizeof(guid));
-	}
-	else
-	{
-		if (CLSIDFromString(guidstr, &guid) != NOERROR)
-		{
-			return E_INVALIDARG;
-		}
-	}
-
-	*p = m_host->GetColorCUI(type, guid);
-	return S_OK;
-}
-
-STDMETHODIMP FbWindow::GetFontCUI(UINT type, BSTR guidstr, IGdiFont** pp)
-{
-	TRACK_FUNCTION();
-
-	if (!pp) return E_POINTER;
-	if (!guidstr) return E_INVALIDARG;
-	if (m_host->GetInstanceType() != HostComm::KInstanceTypeCUI) return E_NOTIMPL;
-
-	GUID guid;
-
-	if (!*guidstr)
-	{
-		memcpy(&guid, &pfc::guid_null, sizeof(guid));
-	}
-	else
-	{
-		if (CLSIDFromString(guidstr, &guid) != NOERROR)
-		{
-			return E_INVALIDARG;
-		}
-	}
-
-	HFONT hFont = m_host->GetFontCUI(type, guid);
-
-	*pp = NULL;
-
-	if (hFont)
-	{
-		Gdiplus::Font* font = new Gdiplus::Font(m_host->GetHDC(), hFont);
-
-		if (!helpers::ensure_gdiplus_object(font))
-		{
-			if (font) delete font;
-			*pp = NULL;
-			return S_OK;
-		}
-
-		*pp = new com_object_impl_t<GdiFont>(font, hFont);
-	}
-
-	return S_OK;
-}
-
-STDMETHODIMP FbWindow::GetColorDUI(UINT type, int* p)
-{
-	TRACK_FUNCTION();
-
-	if (!p) return E_POINTER;
-	if (m_host->GetInstanceType() != HostComm::KInstanceTypeDUI) return E_NOTIMPL;
-
-	*p = m_host->GetColorDUI(type);
-	return S_OK;
-}
-
-STDMETHODIMP FbWindow::GetFontDUI(UINT type, IGdiFont** pp)
-{
-	TRACK_FUNCTION();
-
-	if (!pp) return E_POINTER;
-	if (m_host->GetInstanceType() != HostComm::KInstanceTypeDUI) return E_NOTIMPL;
-
-	HFONT hFont = m_host->GetFontDUI(type);
-	*pp = NULL;
-
-	if (hFont)
-	{
-		Gdiplus::Font* font = new Gdiplus::Font(m_host->GetHDC(), hFont);
-
-		if (!helpers::ensure_gdiplus_object(font))
-		{
-			if (font) delete font;
-			*pp = NULL;
-			return S_OK;
-		}
-
-		*pp = new com_object_impl_t<GdiFont>(font, hFont, false);
-	}
-
-	return S_OK;
-}
-
-STDMETHODIMP FbWindow::CreateThemeManager(BSTR classid, IThemeManager** pp)
-{
-	TRACK_FUNCTION();
-
-	if (!classid) return E_INVALIDARG;
-	if (!pp) return E_POINTER;
-
-	IThemeManager* ptheme = NULL;
-
-	try
-	{
-		ptheme = new com_object_impl_t<ThemeManager>(m_host->GetHWND(), classid);
-	}
-	catch (pfc::exception_invalid_params&)
-	{
-		if (ptheme)
-		{
-			ptheme->Dispose();
-			delete ptheme;
-			ptheme = NULL;
-		}
-	}
-
-	*pp = ptheme;
-	return S_OK;
-}
-
-STDMETHODIMP FbWindow::Reload()
-{
-	TRACK_FUNCTION();
-
-	PostMessage(m_host->GetHWND(), UWM_RELOAD, 0, 0);
-	return S_OK;
+	return m_host_timer_dispatcher.setTimeout(delay, func);
 }
 
 ScriptHost::ScriptHost(HostComm* host)
@@ -661,19 +202,12 @@ STDMETHODIMP_(ULONG) ScriptHost::AddRef()
 	return InterlockedIncrement(&m_dwRef);
 }
 
-STDMETHODIMP_(ULONG) ScriptHost::Release()
+STDMETHODIMP ScriptHost::EnableModeless(BOOL fEnable)
 {
-	ULONG n = InterlockedDecrement(&m_dwRef);
-
-	if (n == 0)
-	{
-		delete this;
-	}
-
-	return n;
+	return S_OK;
 }
 
-STDMETHODIMP ScriptHost::GetLCID(LCID* plcid)
+STDMETHODIMP ScriptHost::GetDocVersionString(BSTR* pstr)
 {
 	return E_NOTIMPL;
 }
@@ -724,28 +258,15 @@ STDMETHODIMP ScriptHost::GetItemInfo(LPCOLESTR name, DWORD mask, IUnknown** ppun
 	return TYPE_E_ELEMENTNOTFOUND;
 }
 
-STDMETHODIMP ScriptHost::GetDocVersionString(BSTR* pstr)
+STDMETHODIMP ScriptHost::GetLCID(LCID* plcid)
 {
 	return E_NOTIMPL;
 }
 
-STDMETHODIMP ScriptHost::OnScriptTerminate(const VARIANT* result, const EXCEPINFO* excep)
+STDMETHODIMP ScriptHost::GetWindow(HWND* phwnd)
 {
-	return E_NOTIMPL;
-}
+	*phwnd = m_host->GetHWND();
 
-STDMETHODIMP ScriptHost::OnStateChange(SCRIPTSTATE state)
-{
-	return E_NOTIMPL;
-}
-
-STDMETHODIMP ScriptHost::OnScriptError(IActiveScriptError* err)
-{
-	m_has_error = true;
-
-	if (!err) return E_POINTER;
-
-	ReportError(err);
 	return S_OK;
 }
 
@@ -760,16 +281,91 @@ STDMETHODIMP ScriptHost::OnLeaveScript()
 	return S_OK;
 }
 
-STDMETHODIMP ScriptHost::GetWindow(HWND* phwnd)
+STDMETHODIMP ScriptHost::OnScriptError(IActiveScriptError* err)
 {
-	*phwnd = m_host->GetHWND();
+	m_has_error = true;
 
+	if (!err) return E_POINTER;
+
+	ReportError(err);
 	return S_OK;
 }
 
-STDMETHODIMP ScriptHost::EnableModeless(BOOL fEnable)
+STDMETHODIMP ScriptHost::OnScriptTerminate(const VARIANT* result, const EXCEPINFO* excep)
 {
-	return S_OK;
+	return E_NOTIMPL;
+}
+
+STDMETHODIMP ScriptHost::OnStateChange(SCRIPTSTATE state)
+{
+	return E_NOTIMPL;
+}
+
+STDMETHODIMP_(ULONG) ScriptHost::Release()
+{
+	ULONG n = InterlockedDecrement(&m_dwRef);
+
+	if (n == 0)
+	{
+		delete this;
+	}
+
+	return n;
+}
+
+void ScriptHost::Finalize()
+{
+	InvokeCallback(CallbackIds::on_script_unload);
+
+	if (Ready())
+	{
+		// Call GC explicitly
+		IActiveScriptGarbageCollector* gc = NULL;
+		if (SUCCEEDED(m_script_engine->QueryInterface(IID_IActiveScriptGarbageCollector, (void**)&gc)))
+		{
+			gc->CollectGarbage(SCRIPTGCTYPE_EXHAUSTIVE);
+			gc->Release();
+		}
+
+		m_script_engine->SetScriptState(SCRIPTSTATE_DISCONNECTED);
+		m_script_engine->SetScriptState(SCRIPTSTATE_CLOSED);
+		m_script_engine->Close();
+		//m_script_engine->InterruptScriptThread(SCRIPTTHREADID_ALL, NULL, 0);
+		m_engine_inited = false;
+	}
+
+	m_contextToPathMap.remove_all();
+	m_callback_invoker.reset();
+
+	if (m_script_engine)
+	{
+		m_script_engine.Release();
+	}
+
+	if (m_script_root)
+	{
+		m_script_root.Release();
+	}
+}
+
+HRESULT ScriptHost::GenerateSourceContext(const wchar_t* path, const wchar_t* code, DWORD& source_context)
+{
+	pfc::stringcvt::string_wide_from_utf8_fast name, guidString;
+	HRESULT hr = S_OK;
+	t_size len = wcslen(code);
+
+	if (!path)
+	{
+		if (m_host->ScriptInfo().name.is_empty())
+			name.convert(pfc::print_guid(m_host->GetGUID()));
+		else
+			name.convert(m_host->ScriptInfo().name);
+
+		guidString.convert(pfc::print_guid(m_host->GetGUID()));
+	}
+
+	source_context = m_lastSourceContext++;
+	return hr;
 }
 
 HRESULT ScriptHost::Initialize()
@@ -823,33 +419,13 @@ HRESULT ScriptHost::Initialize()
 	return hr;
 }
 
-HRESULT ScriptHost::ProcessImportedScripts(script_preprocessor& preprocessor, IActiveScriptParsePtr& parser)
-{
-	// processing "@import"
-	script_preprocessor::t_script_list scripts;
-	HRESULT hr = preprocessor.process_import(m_host->ScriptInfo(), scripts);
-
-	for (t_size i = 0; i < scripts.get_count(); ++i)
-	{
-		DWORD source_context;
-
-		if (SUCCEEDED(hr)) hr = GenerateSourceContext(scripts[i].path.get_ptr(), scripts[i].code.get_ptr(), source_context);
-		if (FAILED(hr)) break;
-
-		m_contextToPathMap[source_context] = pfc::stringcvt::string_utf8_from_wide(scripts[i].path.get_ptr());
-		hr = parser->ParseScriptText(scripts[i].code.get_ptr(), NULL, NULL, NULL, source_context, 0, SCRIPTTEXT_HOSTMANAGESSOURCE | SCRIPTTEXT_ISVISIBLE, NULL, NULL);
-	}
-
-	return hr;
-}
-
 HRESULT ScriptHost::InitScriptEngine()
 {
 	HRESULT hr = E_FAIL;
 	const DWORD classContext = CLSCTX_INPROC_SERVER | CLSCTX_INPROC_HANDLER;
 
 	static const CLSID jscript9clsid =
-	{ 0x16d51579, 0xa30b, 0x4c8b, {0xa2, 0x76, 0x0f, 0xf4, 0xdc, 0x41, 0xe7, 0x55} };
+	{ 0x16d51579, 0xa30b, 0x4c8b,{ 0xa2, 0x76, 0x0f, 0xf4, 0xdc, 0x41, 0xe7, 0x55 } };
 
 	hr = m_script_engine.CreateInstance(jscript9clsid, NULL, classContext);
 
@@ -872,41 +448,6 @@ HRESULT ScriptHost::InitScriptEngine()
 	pActScriProp->Release();
 
 	return hr;
-}
-
-void ScriptHost::Finalize()
-{
-	InvokeCallback(CallbackIds::on_script_unload);
-
-	if (Ready())
-	{
-		// Call GC explicitly
-		IActiveScriptGarbageCollector* gc = NULL;
-		if (SUCCEEDED(m_script_engine->QueryInterface(IID_IActiveScriptGarbageCollector, (void**)&gc)))
-		{
-			gc->CollectGarbage(SCRIPTGCTYPE_EXHAUSTIVE);
-			gc->Release();
-		}
-
-		m_script_engine->SetScriptState(SCRIPTSTATE_DISCONNECTED);
-		m_script_engine->SetScriptState(SCRIPTSTATE_CLOSED);
-		m_script_engine->Close();
-		//m_script_engine->InterruptScriptThread(SCRIPTTHREADID_ALL, NULL, 0);
-		m_engine_inited = false;
-	}
-
-	m_contextToPathMap.remove_all();
-	m_callback_invoker.reset();
-
-	if (m_script_engine)
-	{
-		m_script_engine.Release();
-	}
-
-	if (m_script_root)
-	{
-		m_script_root.Release();
-	}
 }
 
 HRESULT ScriptHost::InvokeCallback(int callbackId, VARIANTARG* argv /*= NULL*/, UINT argc /*= 0*/, VARIANT* ret /*= NULL*/)
@@ -942,23 +483,23 @@ HRESULT ScriptHost::InvokeCallback(int callbackId, VARIANTARG* argv /*= NULL*/, 
 	return hr;
 }
 
-HRESULT ScriptHost::GenerateSourceContext(const wchar_t* path, const wchar_t* code, DWORD& source_context)
+HRESULT ScriptHost::ProcessImportedScripts(script_preprocessor& preprocessor, IActiveScriptParsePtr& parser)
 {
-	pfc::stringcvt::string_wide_from_utf8_fast name, guidString;
-	HRESULT hr = S_OK;
-	t_size len = wcslen(code);
+	// processing "@import"
+	script_preprocessor::t_script_list scripts;
+	HRESULT hr = preprocessor.process_import(m_host->ScriptInfo(), scripts);
 
-	if (!path)
+	for (t_size i = 0; i < scripts.get_count(); ++i)
 	{
-		if (m_host->ScriptInfo().name.is_empty())
-			name.convert(pfc::print_guid(m_host->GetGUID()));
-		else
-			name.convert(m_host->ScriptInfo().name);
+		DWORD source_context;
 
-		guidString.convert(pfc::print_guid(m_host->GetGUID()));
+		if (SUCCEEDED(hr)) hr = GenerateSourceContext(scripts[i].path.get_ptr(), scripts[i].code.get_ptr(), source_context);
+		if (FAILED(hr)) break;
+
+		m_contextToPathMap[source_context] = pfc::stringcvt::string_utf8_from_wide(scripts[i].path.get_ptr());
+		hr = parser->ParseScriptText(scripts[i].code.get_ptr(), NULL, NULL, NULL, source_context, 0, SCRIPTTEXT_HOSTMANAGESSOURCE | SCRIPTTEXT_ISVISIBLE, NULL, NULL);
 	}
 
-	source_context = m_lastSourceContext++;
 	return hr;
 }
 
@@ -1028,4 +569,464 @@ void ScriptHost::ReportError(IActiveScriptError* err)
 	popup_msg::g_show(formatter, JSP_NAME, popup_message::icon_error);
 	MessageBeep(MB_ICONASTERISK);
 	SendMessage(m_host->GetHWND(), UWM_SCRIPT_ERROR, 0, 0);
+}
+
+STDMETHODIMP FbWindow::ClearInterval(UINT intervalID)
+{
+	TRACK_FUNCTION();
+	m_host->ClearIntervalOrTimeout(intervalID);
+	return S_OK;
+}
+
+STDMETHODIMP FbWindow::ClearTimeout(UINT timeoutID)
+{
+	TRACK_FUNCTION();
+	m_host->ClearIntervalOrTimeout(timeoutID);
+	return S_OK;
+}
+
+STDMETHODIMP FbWindow::CreatePopupMenu(IMenuObj** pp)
+{
+	TRACK_FUNCTION();
+
+	if (!pp) return E_POINTER;
+
+	*pp = new com_object_impl_t<MenuObj>(m_host->GetHWND());
+	return S_OK;
+}
+
+STDMETHODIMP FbWindow::CreateThemeManager(BSTR classid, IThemeManager** pp)
+{
+	TRACK_FUNCTION();
+
+	if (!classid) return E_INVALIDARG;
+	if (!pp) return E_POINTER;
+
+	IThemeManager* ptheme = NULL;
+
+	try
+	{
+		ptheme = new com_object_impl_t<ThemeManager>(m_host->GetHWND(), classid);
+	}
+	catch (pfc::exception_invalid_params&)
+	{
+		if (ptheme)
+		{
+			ptheme->Dispose();
+			delete ptheme;
+			ptheme = NULL;
+		}
+	}
+
+	*pp = ptheme;
+	return S_OK;
+}
+
+STDMETHODIMP FbWindow::CreateTooltip(BSTR name, float pxSize, INT style, IFbTooltip** pp)
+{
+	TRACK_FUNCTION();
+
+	if (!pp) return E_POINTER;
+
+	const auto& tooltip_param = m_host->PanelTooltipParam();
+	tooltip_param->font_name = name;
+	tooltip_param->font_size = pxSize;
+	tooltip_param->font_style = style;
+	*pp = new com_object_impl_t<FbTooltip>(m_host->GetHWND(), tooltip_param);
+	return S_OK;
+}
+
+STDMETHODIMP FbWindow::GetBackgroundImage(IGdiBitmap** pp)
+{
+	TRACK_FUNCTION();
+
+	if (!pp) return E_POINTER;
+
+	*pp = m_host->GetBackgroundImage();
+	return S_OK;
+}
+
+STDMETHODIMP FbWindow::GetColorCUI(UINT type, BSTR guidstr, int* p)
+{
+	TRACK_FUNCTION();
+
+	if (!p) return E_POINTER;
+	if (!guidstr) return E_INVALIDARG;
+	if (m_host->GetInstanceType() != HostComm::KInstanceTypeCUI) return E_NOTIMPL;
+
+	GUID guid;
+
+	if (!*guidstr)
+	{
+		memcpy(&guid, &pfc::guid_null, sizeof(guid));
+	}
+	else
+	{
+		if (CLSIDFromString(guidstr, &guid) != NOERROR)
+		{
+			return E_INVALIDARG;
+		}
+	}
+
+	*p = m_host->GetColorCUI(type, guid);
+	return S_OK;
+}
+
+STDMETHODIMP FbWindow::GetColorDUI(UINT type, int* p)
+{
+	TRACK_FUNCTION();
+
+	if (!p) return E_POINTER;
+	if (m_host->GetInstanceType() != HostComm::KInstanceTypeDUI) return E_NOTIMPL;
+
+	*p = m_host->GetColorDUI(type);
+	return S_OK;
+}
+
+STDMETHODIMP FbWindow::GetFontCUI(UINT type, BSTR guidstr, IGdiFont** pp)
+{
+	TRACK_FUNCTION();
+
+	if (!pp) return E_POINTER;
+	if (!guidstr) return E_INVALIDARG;
+	if (m_host->GetInstanceType() != HostComm::KInstanceTypeCUI) return E_NOTIMPL;
+
+	GUID guid;
+
+	if (!*guidstr)
+	{
+		memcpy(&guid, &pfc::guid_null, sizeof(guid));
+	}
+	else
+	{
+		if (CLSIDFromString(guidstr, &guid) != NOERROR)
+		{
+			return E_INVALIDARG;
+		}
+	}
+
+	HFONT hFont = m_host->GetFontCUI(type, guid);
+
+	*pp = NULL;
+
+	if (hFont)
+	{
+		Gdiplus::Font* font = new Gdiplus::Font(m_host->GetHDC(), hFont);
+
+		if (!helpers::ensure_gdiplus_object(font))
+		{
+			if (font) delete font;
+			*pp = NULL;
+			return S_OK;
+		}
+
+		*pp = new com_object_impl_t<GdiFont>(font, hFont);
+	}
+
+	return S_OK;
+}
+
+STDMETHODIMP FbWindow::GetFontDUI(UINT type, IGdiFont** pp)
+{
+	TRACK_FUNCTION();
+
+	if (!pp) return E_POINTER;
+	if (m_host->GetInstanceType() != HostComm::KInstanceTypeDUI) return E_NOTIMPL;
+
+	HFONT hFont = m_host->GetFontDUI(type);
+	*pp = NULL;
+
+	if (hFont)
+	{
+		Gdiplus::Font* font = new Gdiplus::Font(m_host->GetHDC(), hFont);
+
+		if (!helpers::ensure_gdiplus_object(font))
+		{
+			if (font) delete font;
+			*pp = NULL;
+			return S_OK;
+		}
+
+		*pp = new com_object_impl_t<GdiFont>(font, hFont, false);
+	}
+
+	return S_OK;
+}
+
+STDMETHODIMP FbWindow::GetProperty(BSTR name, VARIANT defaultval, VARIANT* p)
+{
+	TRACK_FUNCTION();
+
+	if (!name) return E_INVALIDARG;
+	if (!p) return E_POINTER;
+
+	HRESULT hr;
+	_variant_t var;
+	pfc::stringcvt::string_utf8_from_wide uname(name);
+
+	if (m_host->get_config_prop().get_config_item(uname, var))
+	{
+		hr = VariantCopy(p, &var);
+	}
+	else
+	{
+		m_host->get_config_prop().set_config_item(uname, defaultval);
+		hr = VariantCopy(p, &defaultval);
+	}
+
+	if (FAILED(hr))
+		p = NULL;
+
+	return S_OK;
+}
+
+STDMETHODIMP FbWindow::NotifyOthers(BSTR name, VARIANT info)
+{
+	TRACK_FUNCTION();
+
+	if (!name) return E_INVALIDARG;
+	if (info.vt & VT_BYREF) return E_INVALIDARG;
+
+	HRESULT hr = S_OK;
+	_variant_t var;
+
+	hr = VariantCopy(&var, &info);
+
+	if (FAILED(hr)) return hr;
+
+	simple_callback_data_2<_bstr_t, _variant_t>* notify_data
+		= new simple_callback_data_2<_bstr_t, _variant_t>(name, NULL);
+
+	notify_data->m_item2.Attach(var.Detach());
+
+	panel_manager::instance().send_msg_to_others_pointer(m_host->GetHWND(), CALLBACK_UWM_NOTIFY_DATA, notify_data);
+
+	return S_OK;
+}
+
+STDMETHODIMP FbWindow::Reload()
+{
+	TRACK_FUNCTION();
+
+	PostMessage(m_host->GetHWND(), UWM_RELOAD, 0, 0);
+	return S_OK;
+}
+
+STDMETHODIMP FbWindow::Repaint(VARIANT_BOOL force)
+{
+	TRACK_FUNCTION();
+
+	m_host->Repaint(force != FALSE);
+	return S_OK;
+}
+
+STDMETHODIMP FbWindow::RepaintRect(LONG x, LONG y, LONG w, LONG h, VARIANT_BOOL force)
+{
+	TRACK_FUNCTION();
+
+	m_host->RepaintRect(x, y, w, h, force != FALSE);
+	return S_OK;
+}
+
+STDMETHODIMP FbWindow::SetCursor(UINT id)
+{
+	TRACK_FUNCTION();
+
+	::SetCursor(LoadCursor(NULL, MAKEINTRESOURCE(id)));
+	return S_OK;
+}
+
+STDMETHODIMP FbWindow::SetInterval(IDispatch* func, INT delay, UINT* outIntervalID)
+{
+	TRACK_FUNCTION();
+	if (!outIntervalID) return E_POINTER;
+	*outIntervalID = m_host->SetInterval(func, delay);
+	return S_OK;
+}
+
+STDMETHODIMP FbWindow::SetProperty(BSTR name, VARIANT val)
+{
+	TRACK_FUNCTION();
+
+	if (!name) return E_INVALIDARG;
+
+	m_host->get_config_prop().set_config_item(pfc::stringcvt::string_utf8_from_wide(name), val);
+	return S_OK;
+}
+
+STDMETHODIMP FbWindow::SetTimeout(IDispatch* func, INT delay, UINT* outTimeoutID)
+{
+	TRACK_FUNCTION();
+	*outTimeoutID = m_host->SetTimeout(func, delay);
+	return S_OK;
+}
+
+STDMETHODIMP FbWindow::ShowConfigure()
+{
+	TRACK_FUNCTION();
+
+	PostMessage(m_host->GetHWND(), UWM_SHOWCONFIGURE, 0, 0);
+	return S_OK;
+}
+
+STDMETHODIMP FbWindow::ShowProperties()
+{
+	TRACK_FUNCTION();
+
+	PostMessage(m_host->GetHWND(), UWM_SHOWPROPERTIES, 0, 0);
+	return S_OK;
+}
+
+STDMETHODIMP FbWindow::get_DlgCode(UINT* p)
+{
+	TRACK_FUNCTION();
+
+	if (!p) return E_POINTER;
+
+	*p = m_host->DlgCode();
+	return S_OK;
+}
+
+STDMETHODIMP FbWindow::get_Height(INT* p)
+{
+	TRACK_FUNCTION();
+
+	if (!p) return E_POINTER;
+
+	*p = m_host->GetHeight();
+	return S_OK;
+}
+
+STDMETHODIMP FbWindow::get_ID(UINT* p)
+{
+	TRACK_FUNCTION();
+
+	if (!p) return E_POINTER;
+
+	*p = (UINT)m_host->GetHWND();
+	return S_OK;
+}
+
+STDMETHODIMP FbWindow::get_InstanceType(UINT* p)
+{
+	TRACK_FUNCTION();
+
+	if (!p) return E_POINTER;
+	*p = m_host->GetInstanceType();
+	return S_OK;
+}
+
+STDMETHODIMP FbWindow::get_IsTransparent(VARIANT_BOOL* p)
+{
+	TRACK_FUNCTION();
+
+	if (!p) return E_POINTER;
+
+	*p = TO_VARIANT_BOOL(m_host->get_pseudo_transparent());
+	return S_OK;
+}
+
+STDMETHODIMP FbWindow::get_IsVisible(VARIANT_BOOL* p)
+{
+	TRACK_FUNCTION();
+
+	if (!p) return E_POINTER;
+
+	*p = TO_VARIANT_BOOL(IsWindowVisible(m_host->GetHWND()));
+	return S_OK;
+}
+
+STDMETHODIMP FbWindow::get_MaxHeight(UINT* p)
+{
+	TRACK_FUNCTION();
+
+	if (!p) return E_POINTER;
+
+	*p = m_host->MaxSize().y;
+	return S_OK;
+}
+
+STDMETHODIMP FbWindow::get_MaxWidth(UINT* p)
+{
+	TRACK_FUNCTION();
+
+	if (!p) return E_POINTER;
+
+	*p = m_host->MaxSize().x;
+	return S_OK;
+}
+
+STDMETHODIMP FbWindow::get_MinHeight(UINT* p)
+{
+	TRACK_FUNCTION();
+
+	if (!p) return E_POINTER;
+
+	*p = m_host->MinSize().y;
+	return S_OK;
+}
+
+STDMETHODIMP FbWindow::get_MinWidth(UINT* p)
+{
+	TRACK_FUNCTION();
+
+	if (!p) return E_POINTER;
+
+	*p = m_host->MinSize().x;
+	return S_OK;
+}
+
+STDMETHODIMP FbWindow::get_Width(INT* p)
+{
+	TRACK_FUNCTION();
+
+	if (!p) return E_POINTER;
+
+	*p = m_host->GetWidth();
+	return S_OK;
+}
+
+STDMETHODIMP FbWindow::put_DlgCode(UINT code)
+{
+	TRACK_FUNCTION();
+
+	m_host->DlgCode() = code;
+	return S_OK;
+}
+
+STDMETHODIMP FbWindow::put_MaxHeight(UINT height)
+{
+	TRACK_FUNCTION();
+
+	m_host->MaxSize().y = height;
+	PostMessage(m_host->GetHWND(), UWM_SIZELIMITECHANGED, 0, uie::size_limit_maximum_height);
+	return S_OK;
+}
+
+
+STDMETHODIMP FbWindow::put_MaxWidth(UINT width)
+{
+	TRACK_FUNCTION();
+
+	m_host->MaxSize().x = width;
+	PostMessage(m_host->GetHWND(), UWM_SIZELIMITECHANGED, 0, uie::size_limit_maximum_width);
+	return S_OK;
+}
+
+STDMETHODIMP FbWindow::put_MinHeight(UINT height)
+{
+	TRACK_FUNCTION();
+
+	m_host->MinSize().y = height;
+	PostMessage(m_host->GetHWND(), UWM_SIZELIMITECHANGED, 0, uie::size_limit_minimum_height);
+	return S_OK;
+}
+
+STDMETHODIMP FbWindow::put_MinWidth(UINT width)
+{
+	TRACK_FUNCTION();
+
+	m_host->MinSize().x = width;
+	PostMessage(m_host->GetHWND(), UWM_SIZELIMITECHANGED, 0, uie::size_limit_minimum_width);
+	return S_OK;
 }

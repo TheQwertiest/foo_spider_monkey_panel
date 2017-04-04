@@ -2,7 +2,6 @@
 
 #include "script_preprocessor.h"
 #include "script_interface_impl.h"
-#include "script_interface_playlist_impl.h"
 #include "config.h"
 #include "user_message.h"
 #include "global_cfg.h"
