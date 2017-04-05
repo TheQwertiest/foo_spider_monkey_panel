@@ -1,6 +1,5 @@
 #include "stdafx.h"
 #include "script_interface_impl.h"
-#include "process_locations.h"
 #include "helpers.h"
 #include "com_array.h"
 #include "boxblurfilter.h"
@@ -1005,7 +1004,7 @@ STDMETHODIMP FbPlaylistManager::AddLocations(UINT playlistIndex, VARIANT locatio
 		NULL,
 		NULL,
 		NULL,
-		new service_impl_t<js_process_locations>(playlistIndex, toSelect));
+		new service_impl_t<helpers::js_process_locations>(playlistIndex, toSelect));
 
 	return S_OK;
 }

@@ -173,7 +173,6 @@ copy /Y "$(TargetPath)" "%component_path%\"</Command>
     <ClInclude Include="dbgtrace.h" />
     <ClInclude Include="delay_loader.h" />
     <ClInclude Include="panel_tooltip_param.h" />
-    <ClInclude Include="process_locations.h" />
     <ClInclude Include="script_callback_invoker.h" />
     <ClInclude Include="host_timer_dispatcher.h" />
     <ClInclude Include="global_cfg.h" />

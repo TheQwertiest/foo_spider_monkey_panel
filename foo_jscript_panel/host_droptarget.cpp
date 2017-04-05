@@ -1,8 +1,8 @@
 #include "stdafx.h"
+#include "helpers.h"
 #include "host.h"
 #include "host_droptarget.h"
 #include "js_panel_window.h"
-#include "process_locations.h"
 
 HostDropTarget::HostDropTarget(js_panel_window* host)
 	: IDropTargetImpl(host->GetHWND())
@@ -75,7 +75,7 @@ HRESULT HostDropTarget::OnDrop(IDataObject* pDataObj, DWORD grfKeyState, POINTL 
 				pDataObj,
 				playlist_incoming_item_filter_v2::op_flag_delay_ui,
 				core_api::get_main_window(),
-				new service_impl_t<js_process_locations>(playlist, to_select));
+				new service_impl_t<helpers::js_process_locations>(playlist, to_select));
 			break;
 
 		case DropSourceAction::kActionModeFilenames:

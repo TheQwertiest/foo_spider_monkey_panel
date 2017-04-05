@@ -254,9 +254,6 @@
     <ClInclude Include="SString.h">
       <Filter>Header Files\Scintilla</Filter>
     </ClInclude>
-    <ClInclude Include="process_locations.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="stackblur.h">
       <Filter>Header Files\Misc</Filter>
     </ClInclude>
