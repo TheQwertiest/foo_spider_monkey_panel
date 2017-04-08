@@ -61,17 +61,18 @@ _.mixin({
 		}
 		
 		this.font_changed = function () {
+			var name;
 			var font = window.InstanceType ? window.GetFontDUI(0) : window.GetFontCUI(0);
 			if (font) {
-				this.fonts.name = font.Name;
+				name = font.Name;
 				_.dispose(font);
 			} else {
-				this.fonts.name = "Segoe UI";
-				console.log("Unable to use default font. Using " + this.fonts.name + " instead.");
+				name = "Segoe UI";
+				console.log("Unable to use default font. Using " + name + " instead.");
 			}
 			_.dispose(this.fonts.title, this.fonts.normal, this.fonts.fixed);
-			this.fonts.title = _.gdiFont(this.fonts.name, 12, 1);
-			this.fonts.normal = _.gdiFont(this.fonts.name, this.fonts.size);
+			this.fonts.title = _.gdiFont(name, 12, 1);
+			this.fonts.normal = _.gdiFont(name, this.fonts.size);
 			this.fonts.fixed = _.gdiFont("Lucida Console", this.fonts.size);
 			this.row_height = this.fonts.normal.Height;
 			_.forEach(this.list_objects, function (item) {
