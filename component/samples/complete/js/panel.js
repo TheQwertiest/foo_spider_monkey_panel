@@ -67,7 +67,7 @@ _.mixin({
 				_.dispose(font);
 			} else {
 				this.fonts.name = "Segoe UI";
-				this.console("Unable to use default font. Using " + this.fonts.name + " instead.");
+				console.log("Unable to use default font. Using " + this.fonts.name + " instead.");
 			}
 			_.dispose(this.fonts.title, this.fonts.normal, this.fonts.fixed);
 			this.fonts.title = _.gdiFont(this.fonts.name, 12, 1);
