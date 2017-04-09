@@ -963,15 +963,17 @@ _.mixin({
 						value : duration + " (" + samples + " samples)",
 						url : "%length% IS " + duration
 					});
+					var tmp = [];
 					for (var i = 0; i < f.InfoCount; i++) {
 						var name = f.InfoName(i);
 						var value = f.InfoValue(i);
-						this.data.push({
+						tmp.push({
 							name : name.toUpperCase(),
 							value : value,
 							url : "%__" + name.toLowerCase() + "% IS " + value
 						});
 					}
+					this.data.push.apply(this.data, _.sortByOrder(tmp, ["name"], ["asc"]));
 					this.add();
 				}
 				
