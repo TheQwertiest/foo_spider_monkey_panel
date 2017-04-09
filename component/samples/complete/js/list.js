@@ -973,7 +973,7 @@ _.mixin({
 							url : "%__" + name.toLowerCase() + "% IS " + value
 						});
 					}
-					this.data.push.apply(this.data, _.sortByOrder(tmp, ["name"], ["asc"]));
+					this.data.push.apply(this.data, _.sortByOrder(tmp, "name"));
 					this.add();
 				}
 				
