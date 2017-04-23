@@ -26,11 +26,9 @@ _.mixin({
 				if (this.filename == temp_filename)
 					return;
 				this.filename = temp_filename;
-				this.content = "";
 				if (_.isFolder(this.filename)) { // yes really!
-					var folder = this.filename + "\\";
-					this.content = _.open(_.getFiles(folder, this.exts)[0]);
-				} else if (_.isFile(this.filename)) {
+					this.content = _.open(_.first(_.getFiles(this.filename, this.exts)));
+				} else {
 					this.content = _.open(this.filename);
 				}
 				this.content = this.content.replace(/\t/g, "    ");
