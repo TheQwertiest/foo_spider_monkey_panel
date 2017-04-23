@@ -69,11 +69,11 @@ _.mixin({
 		
 		this.scrobbler = null;
 		this.ini_file = folders.settings + "lastfm.ini";
-		this.api_key = this.read_ini("api_key");
-		this.secret = this.read_ini("secret");
+		this.api_key = "1f078d9e59cb34909f7ed56d7fc64aba";
+		this.secret = "a8b4adc5de20242f585b12ef08a464a9";
 		this.username = this.read_ini("username");
 		this.sk = this.read_ini("sk");
-		this.ua = "foo_jscript_panel_lastfm";
+		this.ua = "foo_jscript_panel_lastfm2";
 		this.xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
 	}
 });
