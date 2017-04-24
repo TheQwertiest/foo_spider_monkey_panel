@@ -1,3 +1,9 @@
+## v1.2.0.1
+```
+- CHG: Minor code cleanups but no new component features for now.
+- ADD: Add Last.fm Similar Artists / Charts & Musicbrainz samples.
+```
+
 ## v1.2.0
 ```
 - ADD: If your computer has IE9 or later installed, newer ECMAScript5 features
