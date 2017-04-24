@@ -606,9 +606,6 @@ _.mixin({
 					case this.xmlhttp.status == 200:
 						this.success(f);
 						break;
-					case this.xmlhttp.status == 404 && this.mode == "lastfm_info" && this.lastfm_mode == 1:
-						console.log("Username not found.");
-						break;
 					case this.xmlhttp.status == 503 && this.mode == "musicbrainz" && this.attempt < 5:
 						window.SetTimeout(this.mb_retry, 1500);
 						break;
