@@ -133,21 +133,22 @@ function on_playback_starting(cmd, is_paused) {}
 function on_playback_stop(reason) {}
 // reason: 0 user, 1 eof, 2 starting_another.
 
-function on_playlist_stop_after_current_changed(state) {}
-// called when "stop after current" is enabled/disabled.
-// state: "stop after current" value, either true or false.
-
 function on_playback_time(time) {}
 // called every second, for time display.
 // time - float value, in sec.
 
-function on_playlist_items_added(playlistIndex) {}
 function on_playlist_item_ensure_visible(playlistIndex, item) {}
+
+function on_playlist_items_added(playlistIndex) {}
 function on_playlist_items_removed(playlistIndex, new_count) {}
 function on_playlist_items_reordered(playlistIndex) {}
 
 function on_playlist_items_selection_change() {}
 // workaround for some 3rd party playlist viewers not working with on_selection_changed()
+
+function on_playlist_stop_after_current_changed(state) {}
+// called when "stop after current" is enabled/disabled.
+// state: "stop after current" value, either true or false.
 
 function on_playlist_switch() {}
 
