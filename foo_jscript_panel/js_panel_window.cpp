@@ -1104,7 +1104,7 @@ void js_panel_window::on_playback_edited(WPARAM wp)
 	args[0].vt = VT_DISPATCH;
 	args[0].pdispVal = handle;
 
-	script_invoke_v(CallbackIds::on_playback_edited);
+	script_invoke_v(CallbackIds::on_playback_edited, args, _countof(args));
 
 	if (handle)
 	{
