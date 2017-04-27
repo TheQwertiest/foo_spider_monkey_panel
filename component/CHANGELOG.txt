@@ -1,3 +1,8 @@
+v1.2.0.2
+- FIX: Fix bug where the playing item handle was never sent to the
+       "on_playback_edited" callback even though the docs said it would.
+- FIX: Fix a few auto-complete typos in the Configuration Window.
+
 v1.2.0.1
 - CHG: Minor code cleanups but no new component features for now.
 - ADD: Add Last.fm Similar Artists / Charts & Musicbrainz samples.
@@ -163,6 +168,8 @@ v1.0.0 (Compared to WSH Panel Mod 1.5.6)
        callback.
        // @feature "v1.4"
        // @feature "watch-metadb"
+       Due to this change, "on_metadb_changed" will only receive a "handle list" and never a "handle"
+       as the first parameter.
 - ADD: fb.GetLibraryItems() returns a handle list of all items in library.
 - ADD: fb.IsLibraryEnabled() (boolean)
 - ADD: fb.ShowLibrarySearchUI(query) opens the Library>Search window
