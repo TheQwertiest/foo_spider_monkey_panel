@@ -166,13 +166,8 @@ function on_refresh_background_done() {}
 function on_script_unload() {}
 // This callback is not guaranteed to be called during unloading.
 
-function on_selection_changed(handle) {}
-/*
-called when selection changes based on "File>Preferences>Display>Selection viewers".
-handle may be undefined depending on which playlist viewer was used to update selection.
-if you need the handle, consider using something like this inside the callback:
-var handle = fb.GetSelection();
-*/
+function on_selection_changed() {}
+// called when selection changes based on "File>Preferences>Display>Selection viewers".
 
 function on_size() {}
 // called when panel is resized.

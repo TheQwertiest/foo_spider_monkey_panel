@@ -117,7 +117,7 @@ private:
 	void on_changed_sorted(WPARAM wp);
 
 	// ui_selection_callback
-	void on_selection_changed(WPARAM wp);
+	void on_selection_changed();
 
 	// playback queue callback
 	void on_playback_queue_changed(WPARAM wp);

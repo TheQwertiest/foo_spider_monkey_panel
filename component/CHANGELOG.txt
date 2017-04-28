@@ -1,7 +1,14 @@
-v1.2.0.2
+v1.2.1
 - FIX: Fix bug where the playing item handle was never sent to the
-       "on_playback_edited" callback even though the docs said it would.
-- FIX: Fix a few auto-complete typos in the Configuration Window.
+       "on_playback_edited" callback.
+- FIX: Tidy up docs and auto-complete hints for "on_metadb_changed"
+       and "on_selection_changed". Specifically, "on_metadb_changed" always
+       receives a "handle list" and never a "handle" as the first argument.
+       "on_metadb_changed" never receives a "handle" argument. This behaviour
+       is consistent with WSH panel mod having the "v1.4" @feature preprocessor set
+       as documented here:
+       https://github.com/timonwong/foo_uie_wsh_panel_mod/blob/f08ef53c7bb91509e15dcda5d34f98091576a501/docs/Callbacks.txt#L177
+       https://github.com/timonwong/foo_uie_wsh_panel_mod/blob/f08ef53c7bb91509e15dcda5d34f98091576a501/docs/Callbacks.txt#L209
 
 v1.2.0.1
 - CHG: Minor code cleanups but no new component features for now.

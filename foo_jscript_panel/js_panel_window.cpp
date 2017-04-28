@@ -460,7 +460,7 @@ LRESULT js_panel_window::on_message(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 		return 0;
 
 	case CALLBACK_UWM_ON_SELECTION_CHANGED:
-		on_selection_changed(wp);
+		on_selection_changed();
 		return 0;
 
 	case CALLBACK_UWM_ON_PLAYBACK_STARTING:
@@ -1244,14 +1244,11 @@ void js_panel_window::on_changed_sorted(WPARAM wp)
 		handles->Release();
 }
 
-void js_panel_window::on_selection_changed(WPARAM wp)
+void js_panel_window::on_selection_changed()
 {
 	TRACK_FUNCTION();
 
-	if (wp != 0)
-	{
-		script_invoke_v(CallbackIds::on_selection_changed);
-	}
+	script_invoke_v(CallbackIds::on_selection_changed);
 }
 
 void js_panel_window::on_playback_queue_changed(WPARAM wp)

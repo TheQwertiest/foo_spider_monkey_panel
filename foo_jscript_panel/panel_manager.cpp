@@ -124,17 +124,7 @@ void nonautoregister_callbacks::on_changed_sorted(metadb_handle_list_cref p_item
 
 void nonautoregister_callbacks::on_selection_changed(metadb_handle_list_cref p_selection)
 {
-	if (p_selection.get_count() > 0)
-	{
-		simple_callback_data<metadb_handle_ptr>* on_selection_changed_data
-			= new simple_callback_data<metadb_handle_ptr>(p_selection[0]);
-
-		panel_manager::instance().post_msg_to_all_pointer(CALLBACK_UWM_ON_SELECTION_CHANGED, on_selection_changed_data);
-	}
-	else
-	{
-		panel_manager::instance().post_msg_to_all(CALLBACK_UWM_ON_SELECTION_CHANGED);
-	}
+	panel_manager::instance().post_msg_to_all(CALLBACK_UWM_ON_SELECTION_CHANGED);
 }
 
 void my_play_callback::on_playback_starting(play_control::t_track_command cmd, bool paused)
