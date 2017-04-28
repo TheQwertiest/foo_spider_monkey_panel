@@ -5,7 +5,7 @@
 - FIX: Tidy up docs and auto-complete hints for "on_metadb_changed"
        and "on_selection_changed". Specifically, "on_metadb_changed" always
        receives a "handle list" and never a "handle" as the first argument.
-       "on_metadb_changed" never receives a "handle" argument. This behaviour
+       "on_selection_changed" never receives a "handle" argument. This behaviour
        is consistent with WSH panel mod having the "v1.4" @feature preprocessor set
        as documented here:
        https://git.io/v9cVw
@@ -234,7 +234,7 @@
        // @feature "v1.4"
        // @feature "watch-metadb"
        Due to this change, "on_metadb_changed" will only receive a "handle list" and never a "handle"
-       as the first parameter.
+       as the first parameter. Also, "on_selection_changed" won't receive a "handle" argument.
 - ADD: fb.GetLibraryItems() returns a handle list of all items in library.
 - ADD: fb.IsLibraryEnabled() (boolean)
 - ADD: fb.ShowLibrarySearchUI(query) opens the Library>Search window
