@@ -706,7 +706,6 @@ void js_panel_window::on_mouse_wheel(WPARAM wp)
 	TRACK_FUNCTION();
 
 	VARIANTARG args[3];
-
 	args[2].vt = VT_I4;
 	args[2].lVal = GET_WHEEL_DELTA_WPARAM(wp) > 0 ? 1 : -1;
 	args[1].vt = VT_I4;
@@ -721,7 +720,6 @@ void js_panel_window::on_mouse_wheel_h(WPARAM wp)
 	TRACK_FUNCTION();
 
 	VARIANTARG args[1];
-
 	args[0].vt = VT_I4;
 	args[0].lVal = GET_WHEEL_DELTA_WPARAM(wp) > 0 ? 1 : -1;
 	script_invoke_v(CallbackIds::on_mouse_wheel_h, args, _countof(args));
@@ -757,7 +755,6 @@ void js_panel_window::on_mouse_move(WPARAM wp, LPARAM lp)
 	}
 
 	VARIANTARG args[3];
-
 	args[0].vt = VT_I4;
 	args[0].lVal = wp;
 	args[1].vt = VT_I4;
@@ -772,7 +769,6 @@ void js_panel_window::on_mouse_button_dblclk(UINT msg, WPARAM wp, LPARAM lp)
 	TRACK_FUNCTION();
 
 	VARIANTARG args[3];
-
 	args[0].vt = VT_I4;
 	args[0].lVal = wp;
 	args[1].vt = VT_I4;
@@ -801,6 +797,7 @@ bool js_panel_window::on_mouse_button_up(UINT msg, WPARAM wp, LPARAM lp)
 	TRACK_FUNCTION();
 
 	bool ret = false;
+
 	VARIANTARG args[3];
 	args[0].vt = VT_I4;
 	args[0].lVal = wp;
@@ -853,7 +850,6 @@ void js_panel_window::on_mouse_button_down(UINT msg, WPARAM wp, LPARAM lp)
 	SetCapture(m_hwnd);
 
 	VARIANTARG args[3];
-
 	args[0].vt = VT_I4;
 	args[0].lVal = wp;
 	args[1].vt = VT_I4;
@@ -921,10 +917,9 @@ void js_panel_window::on_item_played(WPARAM wp)
 	TRACK_FUNCTION();
 
 	simple_callback_data_scope_releaser<simple_callback_data<metadb_handle_ptr>> data(wp);
-
 	FbMetadbHandle* handle = new com_object_impl_t<FbMetadbHandle>(data->m_item);
-	VARIANTARG args[1];
 
+	VARIANTARG args[1];
 	args[0].vt = VT_DISPATCH;
 	args[0].pdispVal = handle;
 	script_invoke_v(CallbackIds::on_item_played, args, _countof(args));
@@ -939,8 +934,8 @@ void js_panel_window::on_get_album_art_done(LPARAM lp)
 
 	using namespace helpers;
 	album_art_async::t_param* param = reinterpret_cast<album_art_async::t_param *>(lp);
-	VARIANTARG args[4];
 
+	VARIANTARG args[4];
 	args[0].vt = VT_BSTR;
 	args[0].bstrVal = SysAllocString(param->image_path);
 	args[1].vt = VT_DISPATCH;
@@ -958,8 +953,8 @@ void js_panel_window::on_load_image_done(LPARAM lp)
 
 	using namespace helpers;
 	load_image_async::t_param* param = reinterpret_cast<load_image_async::t_param *>(lp);
-	VARIANTARG args[3];
 
+	VARIANTARG args[3];
 	args[0].vt = VT_BSTR;
 	args[0].bstrVal = param->path;
 	args[1].vt = VT_DISPATCH;
@@ -974,7 +969,6 @@ void js_panel_window::on_playlist_stop_after_current_changed(WPARAM wp)
 	TRACK_FUNCTION();
 
 	VARIANTARG args[1];
-
 	args[0].vt = VT_BOOL;
 	args[0].boolVal = TO_VARIANT_BOOL(wp);
 	script_invoke_v(CallbackIds::on_playlist_stop_after_current_changed, args, _countof(args));
@@ -985,7 +979,6 @@ void js_panel_window::on_cursor_follow_playback_changed(WPARAM wp)
 	TRACK_FUNCTION();
 
 	VARIANTARG args[1];
-
 	args[0].vt = VT_BOOL;
 	args[0].boolVal = TO_VARIANT_BOOL(wp);
 	script_invoke_v(CallbackIds::on_cursor_follow_playback_changed, args, _countof(args));
@@ -996,7 +989,6 @@ void js_panel_window::on_playback_follow_cursor_changed(WPARAM wp)
 	TRACK_FUNCTION();
 
 	VARIANTARG args[1];
-
 	args[0].vt = VT_BOOL;
 	args[0].boolVal = TO_VARIANT_BOOL(wp);
 	script_invoke_v(CallbackIds::on_playback_follow_cursor_changed, args, _countof(args));
@@ -1006,9 +998,9 @@ void js_panel_window::on_notify_data(WPARAM wp)
 {
 	TRACK_FUNCTION();
 
-	VARIANTARG args[2];
 	simple_callback_data_scope_releaser<simple_callback_data_2<_bstr_t, _variant_t>> data(wp);
 
+	VARIANTARG args[2];
 	args[0] = data->m_item2;
 	args[1].vt = VT_BSTR;
 	args[1].bstrVal = data->m_item1;
@@ -1034,7 +1026,6 @@ void js_panel_window::on_playback_starting(play_control::t_track_command cmd, bo
 	TRACK_FUNCTION();
 
 	VARIANTARG args[2];
-
 	args[0].vt = VT_BOOL;
 	args[0].boolVal = TO_VARIANT_BOOL(paused);
 	args[1].vt = VT_I4;
@@ -1047,9 +1038,9 @@ void js_panel_window::on_playback_new_track(WPARAM wp)
 	TRACK_FUNCTION();
 
 	simple_callback_data_scope_releaser<simple_callback_data<metadb_handle_ptr>> data(wp);
-	VARIANTARG args[1];
 	FbMetadbHandle* handle = new com_object_impl_t<FbMetadbHandle>(data->m_item);
 
+	VARIANTARG args[1];
 	args[0].vt = VT_DISPATCH;
 	args[0].pdispVal = handle;
 	script_invoke_v(CallbackIds::on_playback_new_track, args, _countof(args));
@@ -1063,7 +1054,6 @@ void js_panel_window::on_playback_stop(play_control::t_stop_reason reason)
 	TRACK_FUNCTION();
 
 	VARIANTARG args[1];
-
 	args[0].vt = VT_I4;
 	args[0].lVal = reason;
 	script_invoke_v(CallbackIds::on_playback_stop, args, _countof(args));
@@ -1076,7 +1066,6 @@ void js_panel_window::on_playback_seek(WPARAM wp)
 	simple_callback_data_scope_releaser<simple_callback_data<double>> data(wp);
 
 	VARIANTARG args[1];
-
 	args[0].vt = VT_R8;
 	args[0].dblVal = data->m_item;
 	script_invoke_v(CallbackIds::on_playback_seek, args, _countof(args));
@@ -1087,7 +1076,6 @@ void js_panel_window::on_playback_pause(bool state)
 	TRACK_FUNCTION();
 
 	VARIANTARG args[1];
-
 	args[0].vt = VT_BOOL;
 	args[0].boolVal = TO_VARIANT_BOOL(state);
 	script_invoke_v(CallbackIds::on_playback_pause, args, _countof(args));
@@ -1099,17 +1087,14 @@ void js_panel_window::on_playback_edited(WPARAM wp)
 
 	simple_callback_data_scope_releaser<simple_callback_data<metadb_handle_ptr>> data(wp);
 	FbMetadbHandle* handle = new com_object_impl_t<FbMetadbHandle>(data->m_item);
-	VARIANTARG args[1];
 
+	VARIANTARG args[1];
 	args[0].vt = VT_DISPATCH;
 	args[0].pdispVal = handle;
-
 	script_invoke_v(CallbackIds::on_playback_edited, args, _countof(args));
 
 	if (handle)
-	{
 		handle->Release();
-	}
 }
 
 void js_panel_window::on_playback_dynamic_info()
@@ -1133,7 +1118,6 @@ void js_panel_window::on_playback_time(WPARAM wp)
 	simple_callback_data_scope_releaser<simple_callback_data<double>> data(wp);
 
 	VARIANTARG args[1];
-
 	args[0].vt = VT_R8;
 	args[0].dblVal = data->m_item;
 	script_invoke_v(CallbackIds::on_playback_time, args, _countof(args));
@@ -1146,7 +1130,6 @@ void js_panel_window::on_volume_change(WPARAM wp)
 	simple_callback_data_scope_releaser<simple_callback_data<float>> data(wp);
 
 	VARIANTARG args[1];
-
 	args[0].vt = VT_R4;
 	args[0].fltVal = data->m_item;
 	script_invoke_v(CallbackIds::on_volume_change, args, _countof(args));
@@ -1157,8 +1140,8 @@ void js_panel_window::on_item_focus_change(WPARAM wp)
 	TRACK_FUNCTION();
 
 	simple_callback_data_scope_releaser<simple_callback_data_3<t_size, t_size, t_size>> data(wp);
-	VARIANTARG args[3];
 
+	VARIANTARG args[3];
 	args[0].vt = VT_I4;
 	args[0].lVal = data->m_item3;
 	args[1].vt = VT_I4;
@@ -1173,7 +1156,6 @@ void js_panel_window::on_playback_order_changed(t_size p_new_index)
 	TRACK_FUNCTION();
 
 	VARIANTARG args[1];
-
 	args[0].vt = VT_I4;
 	args[0].lVal = p_new_index;
 	script_invoke_v(CallbackIds::on_playback_order_changed, args, _countof(args));
@@ -1249,19 +1231,17 @@ void js_panel_window::on_changed_sorted(WPARAM wp)
 	TRACK_FUNCTION();
 
 	simple_callback_data_scope_releaser<nonautoregister_callbacks::t_on_changed_sorted_data> data(wp);
+	FbMetadbHandleList* handles = new com_object_impl_t<FbMetadbHandleList>(data->m_items_sorted);
+
 	VARIANTARG args[2];
-	IDispatch* handle = NULL;
-
-	handle = new com_object_impl_t<FbMetadbHandleList>(data->m_items_sorted);
-
 	args[0].vt = VT_BOOL;
 	args[0].boolVal = TO_VARIANT_BOOL(data->m_fromhook);
 	args[1].vt = VT_DISPATCH;
-	args[1].pdispVal = handle;
+	args[1].pdispVal = handles;
 	script_invoke_v(CallbackIds::on_metadb_changed, args, _countof(args));
 
-	if (handle)
-		handle->Release();
+	if (handles)
+		handles->Release();
 }
 
 void js_panel_window::on_selection_changed(WPARAM wp)
