@@ -234,7 +234,7 @@
        // @feature "v1.4"
        // @feature "watch-metadb"
        Due to this change, "on_metadb_changed" will only receive a "handle list" and never a "handle"
-       as the first parameter. Also, "on_selection_changed" won't receive a "handle" argument.
+       as the first argument. Also, "on_selection_changed" won't receive a "handle" argument.
 - ADD: fb.GetLibraryItems() returns a handle list of all items in library.
 - ADD: fb.IsLibraryEnabled() (boolean)
 - ADD: fb.ShowLibrarySearchUI(query) opens the Library>Search window
