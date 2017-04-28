@@ -8,8 +8,8 @@
        "on_metadb_changed" never receives a "handle" argument. This behaviour
        is consistent with WSH panel mod having the "v1.4" @feature preprocessor set
        as documented here:
-       https://github.com/timonwong/foo_uie_wsh_panel_mod/blob/f08ef53c7bb91509e15dcda5d34f98091576a501/docs/Callbacks.txt#L177
-       https://github.com/timonwong/foo_uie_wsh_panel_mod/blob/f08ef53c7bb91509e15dcda5d34f98091576a501/docs/Callbacks.txt#L209
+       https://git.io/v9cVw
+       https://git.io/v9cVD
 ```
 
 ## v1.2.0.1
