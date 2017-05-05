@@ -1,3 +1,9 @@
+Array.prototype.srt=function(){for(var z=0,t;t=this[z];z++){this[z]=[];var x=0,y=-1,n=0,i,j;while(i=(j=t.charAt(x++)).charCodeAt(0)){var m=(i==46||(i>=48&&i<=57));if(m!==n){this[z][++y]="";n=m;}
+this[z][y]+=j;}}
+this.sort(function(a,b){for(var x=0,aa,bb;(aa=a[x])&&(bb=b[x]);x++){aa=aa.toLowerCase();bb=bb.toLowerCase();if(aa!==bb){var c=Number(aa),d=Number(bb);if(c==aa&&d==bb){return c-d;}else return(aa>bb)?1:-1;}}
+return a.length-b.length;});for(var z=0;z<this.length;z++)
+this[z]=this[z].join("");}
+
 var DT_LEFT = 0x00000000;
 var DT_CENTER = 0x00000001;
 var DT_RIGHT = 0x00000002;
@@ -93,12 +99,6 @@ var ha_links = [
 	["Wiki", "http://wiki.hydrogenaud.io/index.php?title=Foobar2000:Foobar2000"],
 	["Forums", "https://hydrogenaud.io/index.php/board,28.0.html"]
 ];
-
-Array.prototype.srt=function(){for(var z=0,t;t=this[z];z++){this[z]=[];var x=0,y=-1,n=0,i,j;while(i=(j=t.charAt(x++)).charCodeAt(0)){var m=(i==46||(i>=48&&i<=57));if(m!==n){this[z][++y]="";n=m;}
-this[z][y]+=j;}}
-this.sort(function(a,b){for(var x=0,aa,bb;(aa=a[x])&&(bb=b[x]);x++){aa=aa.toLowerCase();bb=bb.toLowerCase();if(aa!==bb){var c=Number(aa),d=Number(bb);if(c==aa&&d==bb){return c-d;}else return(aa>bb)?1:-1;}}
-return a.length-b.length;});for(var z=0;z<this.length;z++)
-this[z]=this[z].join("");}
 
 _.mixin({
 	artistFolder : function (artist) {
@@ -294,13 +294,12 @@ _.mixin({
 		return data;
 	},
 	getFiles : function (folder, exts, newest_first) {
-		exts = exts.toLowerCase();
 		var files = [];
 		if (_.isFolder(folder)) {
 			var e = new Enumerator(fso.GetFolder(folder).Files);
 			for (; !e.atEnd(); e.moveNext()) {
 				var path = e.item().Path;
-				if (exts.indexOf(path.split(".").pop().toLowerCase()) > -1)
+				if (exts.toLowerCase().indexOf(path.split(".").pop().toLowerCase()) > -1)
 					files.push(path);
 			}
 		}
@@ -314,17 +313,15 @@ _.mixin({
 		}
 	},
 	help : function (x, y, flags) {
-		var m1 = window.CreatePopupMenu();
-		var s1 = window.CreatePopupMenu();
-		var s2 = window.CreatePopupMenu();
+		var m = window.CreatePopupMenu();
 		_.forEach(ha_links, function (item, i) {
-			m1.AppendMenuItem(MF_STRING, i + 100, item[0]);
+			m.AppendMenuItem(MF_STRING, i + 100, item[0]);
 			if (i == 1)
-				m1.AppendMenuSeparator();
+				m.AppendMenuSeparator();
 		});
-		m1.AppendMenuSeparator();
-		m1.AppendMenuItem(MF_STRING, 1, "Configure...");
-		var idx = m1.TrackPopupMenu(x, y, flags);
+		m.AppendMenuSeparator();
+		m.AppendMenuItem(MF_STRING, 1, "Configure...");
+		var idx = m.TrackPopupMenu(x, y, flags);
 		switch (true) {
 		case idx == 0:
 			break;
@@ -335,7 +332,7 @@ _.mixin({
 			_.run(ha_links[idx - 100][1]);
 			break;
 		}
-		_.dispose(m1, s1, s2);
+		_.dispose(m);
 	},
 	img : function (value) {
 		if (_.isFile(value))
@@ -344,12 +341,11 @@ _.mixin({
 			return gdi.Image(folders.images + value);
 	},
 	input : function (prompt, title, value) {
-		var original = value;
-		prompt = prompt.replace(/"/g, _.q(" + Chr(34) + ")).replace(/\n/g, _.q(" + Chr(13) + "));
-		title = title.replace(/"/g, _.q(" + Chr(34) + "));
-		value = value.replace(/"/g, _.q(" + Chr(34) + "));
-		var temp_value = vb.eval("InputBox(" + _.q(prompt) + ", " + _.q(title) + ", " + _.q(value) + ")");
-		return _.isUndefined(temp_value) ? original : _.trim(temp_value);
+		var p = prompt.replace(/"/g, _.q(" + Chr(34) + ")).replace(/\n/g, _.q(" + Chr(13) + "));
+		var t = title.replace(/"/g, _.q(" + Chr(34) + "));
+		var v = value.replace(/"/g, _.q(" + Chr(34) + "));
+		var tmp = vb.eval("InputBox(" + _.q(p) + ", " + _.q(t) + ", " + _.q(v) + ")");
+		return _.isUndefined(tmp) ? value : _.trim(tmp);
 	},
 	isFile : function (file) {
 		return _.isString(file) ? fso.FileExists(file) : false;
@@ -551,16 +547,19 @@ _.mixin({
 		return fso.GetFile(file).ShortPath;
 	},
 	splitRGB : function (c) {
-		c = c.split("-");
-		return _.RGB(c[0], c[1], c[2]);
+		var tmp = c.split("-");
+		if (tmp.length == 4)
+			return _.RGBA(tmp[0], tmp[1], tmp[2], tmp[3]);
+		else
+			return _.RGB(tmp[0], tmp[1], tmp[2]);
 	},
 	stripTags : function (value) {
 		doc.open();
 		var div = doc.createElement("div");
 		div.innerHTML = value.toString().replace(/<[Pp][^>]*>/g, "").replace(/<\/[Pp]>/g, "<br>").replace(/\n/g, "<br>");
-		value = _.trim(div.innerText);
+		var tmp = _.trim(div.innerText);
 		doc.close();
-		return value;
+		return tmp;
 	},
 	tagged : function (value) {
 		return value != "" && value != "?";
@@ -590,8 +589,8 @@ _.mixin({
 		return str;
 	},
 	toRGB : function (a) {
-		a = a - 0xFF000000;
-		return [a >> 16, a >> 8 & 0xFF, a & 0xFF];
+		var b = a - 0xFF000000;
+		return [b >> 16, b >> 8 & 0xFF, b & 0xFF];
 	},
 	tt : function (value) {
 		if (tooltip.Text != value) {
