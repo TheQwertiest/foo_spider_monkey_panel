@@ -203,6 +203,8 @@ _.mixin({
 				return _.tf(t, this.metadb);
 		}
 		
+		window.DlgCode = DLGC_WANTALLKEYS;
+		console.pre = name + ": ";
 		this.name = name;
 		this.features = features || [];
 		this.w = 0;
@@ -221,7 +223,5 @@ _.mixin({
 		this.font_changed();
 		this.list_objects = []; // these will be populated automatically
 		this.text_objects = []; // and used inside font_changed
-		window.DlgCode = DLGC_WANTALLKEYS;
-		console.pre = this.name + ": ";
 	}
 });
