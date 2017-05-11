@@ -144,7 +144,7 @@ interface IFbUtils {
 		// returns all Media Library items as a handle list.
 		
 		fb.GetLibraryRelativePath(handle); (string)
-		/* 
+		/*
 		returns an empty string when used on track not in Media Library
 		
 		example:
@@ -265,7 +265,7 @@ interface IFbUtils {
 
 					Eval([force]);
 					/*
-					force: boolean, default false. if true, you can process text that doesn't contain 
+					force: boolean, default false. if true, you can process text that doesn't contain
 						   title formatting even when foobar2000 isn't playing. when playing, you
 						   should always get a result.
 					
@@ -659,7 +659,7 @@ interface IJSUtils {
 		utils.FormatFileSize(bytes) (string)
 		// example:
 		// fb.trace(utils.FormatFileSize(plman.GetPlaylistItems(plman.ActivePlaylist).CalcTotalSize()));
-		// 7.9 GB 
+		// 7.9 GB
 
 		utils.GetAlbumArtAsync(window_id, handle[, art_id][, need_stub][, only_embed][, no_load]); (uint)
 		/*
@@ -745,7 +745,7 @@ interface IFbWindow {
 		// to support both interfaces.
 
 		window.IsTransparent; (boolean) (read)
-		// depends on setting inside JScript Panel Configuration window. you generally use it to determine 
+		// depends on setting inside JScript Panel Configuration window. you generally use it to determine
 		// whether or not to draw a background.
 
 		window.IsVisible; (boolean) (read)
@@ -1350,7 +1350,7 @@ interface IFbMetadbHandleList {
 
 		RemoveAll(); (void)
 		/*
-		example: 
+		example:
 		handle_list.RemoveAll();
 		fb.trace(handle_list.Count);
 		0 - another way to get an empty handle list!

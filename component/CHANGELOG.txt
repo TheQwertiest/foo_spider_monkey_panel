@@ -117,7 +117,7 @@ v1.0.2
 - CHG: Update to latest Columns UI SDK.
 - CHG: Hopefully removed all traces of WSH Panel Mod
        from sources and documentation!
- 
+
 v1.0.1
 - CHG: Update default script so you know a blank panel
        is JScript Panel as opposed to WSH Panel Mod.
@@ -212,4 +212,3 @@ v1.0.0 (Compared to WSH Panel Mod 1.5.6)
        text at end of line.
 - FIX: IFbMetadbHandle FileSize now works with "JScript" engine. Previously,
        it only worked with "JScript9".
-       

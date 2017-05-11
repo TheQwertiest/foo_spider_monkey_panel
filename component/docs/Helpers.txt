@@ -77,7 +77,7 @@ function vol2pos(v){
      return (Math.pow(10, v / 50) - 0.01) / 0.99;
 }
 
-// pre-calculated colors 
+// pre-calculated colors
 Colors = {
 	AliceBlue			: 0xFFF0F8FF,
 	AntiqueWhite		 : 0xFFFAEBD7,

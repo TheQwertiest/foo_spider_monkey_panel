@@ -1,7 +1,7 @@
 Simply copy the text from any .txt file inside the various folders in to a panel's configuration dialog.
 
 The "basic" folder contains samples that may be referred to from interfaces.txt and callbacks.txt
-in the "docs" folder. 
+in the "docs" folder.
 
 The "complete" folder contains various samples that are more complex and have right click options, etc.
 Some scripts require the "Guifx v2 Transports.ttf" font which can be downloaded from

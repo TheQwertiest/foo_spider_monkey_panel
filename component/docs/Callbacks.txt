@@ -34,7 +34,7 @@ function on_item_focus_change(playlistIndex, from, to) {}
 // called when playlist focus has been changed
 
 function on_item_played(handle) {}
-// called when at least 60s of the track has been played or the track has reached 
+// called when at least 60s of the track has been played or the track has reached
 // its end after at least 1/3 of it has been played through.
 
 function on_key_down(vkey) {}
