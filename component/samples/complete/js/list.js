@@ -422,11 +422,12 @@ _.mixin({
 			this.spacer_w = _.textWidth("0000", panel.fonts.normal);
 			switch (this.mode) {
 			case "autoplaylists":
-				this.data = _(_.jsonParse(_.open(this.filename)))
-					.forEach(function (item) {
-						item.width = _.textWidth(item.name, panel.fonts.normal);
-					})
-					.value();
+				if (_.isFile(this.filename))
+					this.data = _(_.jsonParse(_.open(this.filename)))
+						.forEach(function (item) {
+							item.width = _.textWidth(item.name, panel.fonts.normal);
+						})
+						.value();
 				break;
 			case "lastfm_info":
 				this.filename = "";
