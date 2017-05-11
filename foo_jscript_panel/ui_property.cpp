@@ -76,7 +76,7 @@ void CDialogProperty::Apply()
 	LoadProperties();
 }
 
-void CDialogProperty::LoadProperties(bool reload /*= true*/)
+void CDialogProperty::LoadProperties(bool reload)
 {
 	m_properties.ResetContent();
 

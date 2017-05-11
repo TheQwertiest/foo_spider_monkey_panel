@@ -510,7 +510,7 @@ void CScriptEditorCtrl::ContinueCallTip()
 	CallTipSetHlt(startHighlight, endHighlight);
 }
 
-void CScriptEditorCtrl::FillFunctionDefinition(int pos /*= -1*/)
+void CScriptEditorCtrl::FillFunctionDefinition(int pos)
 {
 	if (pos > 0)
 	{
@@ -780,7 +780,7 @@ bool CScriptEditorCtrl::FindBraceMatchPos(int &braceAtCaret, int &braceOpposite)
 	return isInside;
 }
 
-const char * CScriptEditorCtrl::GetNearestWord(const char *wordStart, int searchLen, SString wordCharacters /*= NULL*/, int wordIndex /*= -1*/)
+const char * CScriptEditorCtrl::GetNearestWord(const char *wordStart, int searchLen, SString wordCharacters, int wordIndex)
 {
 	if (m_apis.get_count() == 0)
 		return false;
@@ -875,7 +875,7 @@ bool CScriptEditorCtrl::GetNearestWords(pfc::string_base & out, const char * wor
 	return status;
 }
 
-DWORD CScriptEditorCtrl::GetPropertyColor(const char * key, bool * key_exist /*= NULL*/)
+DWORD CScriptEditorCtrl::GetPropertyColor(const char * key, bool * key_exist)
 {
 	pfc::array_t<char> buff;
 	int len = GetPropertyExpanded(key, 0); // Get property len
@@ -964,7 +964,7 @@ void CScriptEditorCtrl::LoadProperties(const pfc::list_t<t_sci_prop_set> & data)
 	}
 }
 
-void CScriptEditorCtrl::SetContent(const char * text, bool clear_undo_buffer /*= false*/)
+void CScriptEditorCtrl::SetContent(const char * text, bool clear_undo_buffer)
 {
 	SetText(text);
 	ConvertEOLs(SC_EOL_CRLF);

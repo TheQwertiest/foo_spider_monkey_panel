@@ -25,7 +25,7 @@ BOOL CDialogPref::OnInitDialog(HWND hwndFocus, LPARAM lParam)
 	return TRUE; // set focus to default control
 }
 
-void CDialogPref::LoadProps(bool reset /*= false*/)
+void CDialogPref::LoadProps(bool reset)
 {
 	if (reset)
 		g_sci_prop_sets.reset();

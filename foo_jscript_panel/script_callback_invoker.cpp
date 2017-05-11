@@ -105,7 +105,7 @@ void ScriptCallbackInvoker::init(IDispatch* pActiveScriptRoot)
 	}
 }
 
-HRESULT ScriptCallbackInvoker::invoke(int callbackId, VARIANTARG* argv /*= NULL*/, UINT argc /*= 0*/, VARIANT* ret /*= NULL*/)
+HRESULT ScriptCallbackInvoker::invoke(int callbackId, VARIANTARG* argv, UINT argc, VARIANT* ret)
 {
 	if (!m_activeScriptRoot) return E_POINTER;
 	DISPPARAMS param = { argv, NULL, argc, 0 };

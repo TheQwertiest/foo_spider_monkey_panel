@@ -556,7 +556,7 @@ namespace helpers
 		return ret;
 	}
 
-	HRESULT get_album_art_v2(const metadb_handle_ptr& handle, IGdiBitmap** pp, int art_id, VARIANT_BOOL need_stub, VARIANT_BOOL no_load /*= VARIANT_FALSE*/, pfc::string_base* image_path_ptr /*= NULL*/)
+	HRESULT get_album_art_v2(const metadb_handle_ptr& handle, IGdiBitmap** pp, int art_id, VARIANT_BOOL need_stub, VARIANT_BOOL no_load, pfc::string_base* image_path_ptr)
 	{
 		if (handle.is_empty()) return E_INVALIDARG;
 		if (!pp) return E_POINTER;
@@ -833,7 +833,7 @@ namespace helpers
 		return true;
 	}
 
-	file_info_pairs_filter::file_info_pairs_filter(const metadb_handle_ptr& p_handle, const t_field_value_map& p_field_value_map, const char* p_multivalue_field /*= NULL*/)
+	file_info_pairs_filter::file_info_pairs_filter(const metadb_handle_ptr& p_handle, const t_field_value_map& p_field_value_map, const char* p_multivalue_field)
 		: m_handle(p_handle)
 		, m_field_value_map(p_field_value_map)
 	{

@@ -62,7 +62,7 @@ void HostComm::Redraw()
 	RedrawWindow(m_hwnd, NULL, NULL, RDW_INVALIDATE | RDW_UPDATENOW);
 }
 
-void HostComm::RefreshBackground(LPRECT lprcUpdate /*= NULL*/)
+void HostComm::RefreshBackground(LPRECT lprcUpdate)
 {
 	HWND wnd_parent = GetAncestor(m_hwnd, GA_PARENT);
 
@@ -134,7 +134,7 @@ void HostComm::RefreshBackground(LPRECT lprcUpdate /*= NULL*/)
 	Repaint(true);
 }
 
-void HostComm::Repaint(bool force /*= false*/)
+void HostComm::Repaint(bool force)
 {
 	m_paint_pending = true;
 
@@ -148,7 +148,7 @@ void HostComm::Repaint(bool force /*= false*/)
 	}
 }
 
-void HostComm::RepaintRect(LONG x, LONG y, LONG w, LONG h, bool force /*= false*/)
+void HostComm::RepaintRect(LONG x, LONG y, LONG w, LONG h, bool force)
 {
 	RECT rc;
 	rc.left = x;
@@ -450,7 +450,7 @@ HRESULT ScriptHost::InitScriptEngine()
 	return hr;
 }
 
-HRESULT ScriptHost::InvokeCallback(int callbackId, VARIANTARG* argv /*= NULL*/, UINT argc /*= 0*/, VARIANT* ret /*= NULL*/)
+HRESULT ScriptHost::InvokeCallback(int callbackId, VARIANTARG* argv, UINT argc, VARIANT* ret)
 {
 	if (HasError()) return E_FAIL;
 	if (!Ready()) return E_FAIL;

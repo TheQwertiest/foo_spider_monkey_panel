@@ -19,7 +19,7 @@ js_panel_window::~js_panel_window()
 	m_script_host->Release();
 }
 
-void js_panel_window::update_script(const char* code /*= NULL*/)
+void js_panel_window::update_script(const char* code)
 {
 	if (code)
 	{
