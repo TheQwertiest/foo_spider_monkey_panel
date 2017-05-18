@@ -132,7 +132,6 @@ copy /Y "$(TargetPath)" "%component_path%\"</Command>
     <ClCompile Include="foo_jscript_panel.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="global_cfg.cpp" />
     <ClCompile Include="host.cpp" />
     <ClCompile Include="script_callback_invoker.cpp" />
     <ClCompile Include="host_droptarget.cpp" />
@@ -175,7 +174,6 @@ copy /Y "$(TargetPath)" "%component_path%\"</Command>
     <ClInclude Include="panel_tooltip_param.h" />
     <ClInclude Include="script_callback_invoker.h" />
     <ClInclude Include="host_timer_dispatcher.h" />
-    <ClInclude Include="global_cfg.h" />
     <ClInclude Include="component_defines.h" />
     <ClInclude Include="host.h" />
     <ClInclude Include="IDropTargetImpl.h" />

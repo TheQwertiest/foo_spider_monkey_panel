@@ -62,29 +62,6 @@ LRESULT js_panel_window_cui::on_message(HWND hwnd, UINT msg, WPARAM wp, LPARAM l
 			static_api_ptr_t<columns_ui::fonts::manager>()->register_common_callback(this);
 			static_api_ptr_t<columns_ui::colours::manager>()->register_common_callback(this);
 		}
-		catch (exception_service_not_found&)
-		{
-			// Using in Default UI and dockable panels without Columns UI installed?
-			static bool g_reported = false;
-			const char warning[] = "Warning: At least one " JSP_NAME " instance is running in CUI containers "
-				"(dockable panels, Func UI, etc) without some services provided by the "
-				"Columns UI component (have not been installed or have a very old "
-				"version installed?).\n"
-				"Please download and install the latest version of Columns UI:\n"
-				"http://yuo.be/columns.php";
-
-			if (!g_cfg_cui_warning_reported)
-			{
-				popup_msg::g_show(pfc::string_formatter(warning) << "\n\n[This popup message will be shown only once]", JSP_NAME);
-
-				g_cfg_cui_warning_reported = true;
-			}
-			else if (!g_reported)
-			{
-				console::formatter() << "\n" JSP_NAME ": " << warning << "\n\n";
-				g_reported = true;
-			}
-		}
 		catch (...)
 		{
 		}

@@ -29,8 +29,3 @@ FOOGUIDDECL const GUID g_js_panel_window_dui_guid =
 extern const GUID g_guid_prop_sets;
 FOOGUIDDECL const GUID g_guid_prop_sets =
 { 0x7f6b71a1, 0x4f1a, 0x437d,{0x84, 0xcc, 0xd1, 0xad, 0xd6, 0x7a, 0xd9, 0x62} };
-
-// {FAEF770E-D8E7-43CF-A11D-87CBD52B3FFA}
-extern const GUID g_guid_cfg_cui_warning_reported;
-FOOGUIDDECL const GUID g_guid_cfg_cui_warning_reported =
-{ 0xfaef770e, 0xd8e7, 0x43cf,{0xa1, 0x1d, 0x87, 0xcb, 0xd5, 0x2b, 0x3f, 0xfa} };
