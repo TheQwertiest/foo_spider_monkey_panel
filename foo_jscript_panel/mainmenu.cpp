@@ -4,7 +4,7 @@
 
 static const GUID g_mainmenu_group_id = { 0x7b23ce27, 0x7d37, 0x4a1f,{ 0x80, 0x5b, 0xe5, 0x89, 0x19, 0x5b, 0xbd, 0xd0 } };
 
-static mainmenu_group_popup_factory g_mainmenu_group(g_mainmenu_group_id, mainmenu_groups::file, mainmenu_commands::sort_priority_dontcare, "JScript Panel");
+static mainmenu_group_popup_factory g_mainmenu_group(g_mainmenu_group_id, mainmenu_groups::file, mainmenu_commands::sort_priority_dontcare, JSP_NAME);
 
 class my_mainmenu_commands : public mainmenu_commands {
 public:
