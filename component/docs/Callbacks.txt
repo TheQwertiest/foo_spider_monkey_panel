@@ -69,10 +69,10 @@ Example:
 
 function on_main_menu(index) {
 	switch (index) {
-	case 1: // triggered when File>Jscript Panel>1 is run
+	case 1: // triggered when File>JScript Panel>1 is run
 		do_something();
 		break;
-	case 2: // triggered when File>Jscript Panel>2 is run
+	case 2: // triggered when File>JScript Panel>2 is run
 		do_something_else();
 		break;
 	}

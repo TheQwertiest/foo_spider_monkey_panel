@@ -72,6 +72,11 @@ public:
 	void execute(t_uint32 p_index, service_ptr_t<service_base> p_callback) {
 		panel_manager::instance().post_msg_to_all(CALLBACK_UWM_ON_MAIN_MENU, p_index + 1);
 	}
+	bool get_display(t_uint32 p_index, pfc::string_base & p_out, t_uint32 & p_flags) {
+		get_name(p_index, p_out);
+		p_flags = mainmenu_commands::flag_defaulthidden;
+		return true;
+	}
 };
 
 static mainmenu_commands_factory_t<my_mainmenu_commands> g_my_mainmenu_commands_factory;
