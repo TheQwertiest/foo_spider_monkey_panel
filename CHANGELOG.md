@@ -1,3 +1,11 @@
+## v1.2.2
+```
+- ADD: Add new "on_main_menu" callback. 10 main menu items have been created
+       meaning you can now bind them to global keyboard shortcuts, standard
+       toolbar buttons, etc and have them run your own custom code. See
+       docs\callbacks.txt
+```
+
 ## v1.2.1
 ```
 - FIX: Fix bug where the playing item handle was never sent to the
