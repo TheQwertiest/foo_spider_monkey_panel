@@ -56,6 +56,29 @@ function on_library_items_changed() {}
 function on_load_image_done(cookie, image) {}
 // called when thread created by gdi.LoadImageAsync() is done.
 
+function on_main_menu(index) {}
+/*
+On the main menu>File>JScript Panel, there are 10 menu items and whichever number
+is selected is sent as the "index" to this callback. Being main menu items now means you
+can bind them to global keyboard shortcuts, standard toolbar buttons, panel stack splitter
+buttons, etc. Remember to think carefully about where you use this code as you probably only
+want it to run once and so don't include it in common files and scripts where you might have
+multiple instances. Also, you should avoid sharing scripts containing this code so as not
+to conflict with what other users may already be using.
+Example:
+
+function on_main_menu(index) {
+	switch (index) {
+	case 1: // triggered when File>Jscript Panel>1 is run
+		do_something();
+		break;
+	case 2: // triggered when File>Jscript Panel>2 is run
+		do_something_else();
+		break;
+	}
+}
+*/
+
 function on_metadb_changed(handle_list, fromhook) {}
 // called when metadb contents change.
 // see samples\basic\Watch Metadb Change.txt
