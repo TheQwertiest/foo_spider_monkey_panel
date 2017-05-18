@@ -22,6 +22,7 @@ struct CallbackIds
 		on_library_items_changed,
 		on_library_items_removed,
 		on_load_image_done,
+		on_main_menu,
 		on_metadb_changed,
 		on_mouse_lbtn_dblclk,
 		on_mouse_lbtn_down,

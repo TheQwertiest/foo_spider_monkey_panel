@@ -121,4 +121,7 @@ private:
 
 	// playback queue callback
 	void on_playback_queue_changed(WPARAM wp);
+
+	// menu callback
+	void on_main_menu(WPARAM wp);
 };

@@ -554,6 +554,11 @@ LRESULT js_panel_window::on_message(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 	case CALLBACK_UWM_ON_LIBRARY_ITEMS_CHANGED:
 		on_library_items_changed();
 		return 0;
+
+	case CALLBACK_UWM_ON_MAIN_MENU:
+		on_main_menu(wp);
+		return 0;
+
 	}
 
 	return uDefWindowProc(hwnd, msg, wp, lp);
@@ -1281,3 +1286,14 @@ void js_panel_window::on_library_items_changed()
 
 	script_invoke_v(CallbackIds::on_library_items_changed);
 }
+
+void js_panel_window::on_main_menu(WPARAM wp)
+{
+	TRACK_FUNCTION();
+
+	VARIANTARG args[1];
+	args[0].vt = VT_I4;
+	args[0].lVal = wp;
+	script_invoke_v(CallbackIds::on_main_menu, args, _countof(args));
+}
+

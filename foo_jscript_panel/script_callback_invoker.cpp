@@ -31,6 +31,7 @@ static const IDToNameEntry g_idToNames[] =
 	DEFINE_ID_NAME_MAP_ENTRY(on_library_items_changed),
 	DEFINE_ID_NAME_MAP_ENTRY(on_library_items_removed),
 	DEFINE_ID_NAME_MAP_ENTRY(on_load_image_done),
+	DEFINE_ID_NAME_MAP_ENTRY(on_main_menu),
 	DEFINE_ID_NAME_MAP_ENTRY(on_metadb_changed),
 	DEFINE_ID_NAME_MAP_ENTRY(on_mouse_lbtn_dblclk),
 	DEFINE_ID_NAME_MAP_ENTRY(on_mouse_lbtn_down),

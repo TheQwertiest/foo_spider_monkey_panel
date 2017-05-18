@@ -133,6 +133,7 @@ copy /Y "$(TargetPath)" "%component_path%\"</Command>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="host.cpp" />
+    <ClCompile Include="mainmenu.cpp" />
     <ClCompile Include="script_callback_invoker.cpp" />
     <ClCompile Include="host_droptarget.cpp" />
     <ClCompile Include="host_timer_dispatcher.cpp" />
