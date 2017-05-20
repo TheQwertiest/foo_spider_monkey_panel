@@ -1,4 +1,4 @@
-﻿// ==PREPROCESSOR==
+// ==PREPROCESSOR==
 // @name "jsplaylist-mod"
 // @author "Br3tt aka Falstaff >> modded by marc2003"
 // @feature "dragdrop"

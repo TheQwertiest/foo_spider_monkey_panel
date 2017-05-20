@@ -1,4 +1,4 @@
-﻿// ==PREPROCESSOR==
+// ==PREPROCESSOR==
 // @name "LoadImageAsync"
 // @author "T.P Wang"
 // ==/PREPROCESSOR==

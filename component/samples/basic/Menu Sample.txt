@@ -1,4 +1,4 @@
-﻿// ==PREPROCESSOR==
+// ==PREPROCESSOR==
 // @name "Menu Sample"
 // @author "T.P Wang / marc2003"
 // @import "%fb2k_component_path%docs\flags.txt"
