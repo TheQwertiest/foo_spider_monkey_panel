@@ -47,6 +47,7 @@ public:
 		case cmd_eight: return guid_eight;
 		case cmd_nine: return guid_nine;
 		case cmd_ten: return guid_ten;
+		default: uBugCheck();
 		}
 	}
 	void get_name(t_uint32 p_index, pfc::string_base & p_out) {
@@ -61,6 +62,7 @@ public:
 		case cmd_eight: p_out = "8"; break;
 		case cmd_nine: p_out = "9"; break;
 		case cmd_ten: p_out = "10"; break;
+		default: uBugCheck();
 		}
 	}
 	bool get_description(t_uint32 p_index, pfc::string_base & p_out) {

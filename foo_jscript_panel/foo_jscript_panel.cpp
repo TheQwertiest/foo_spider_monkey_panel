@@ -14,7 +14,7 @@ namespace
 	DECLARE_COMPONENT_VERSION(
 		JSP_NAME,
 		JSP_VERSION,
-		"JScript Panel v" JSP_VERSION " by marc2003\n"
+		JSP_NAME " v" JSP_VERSION " by marc2003\n"
 		"Based on WSH Panel Mod by T.P. Wang\n\n"
 		"Build: " __TIME__ ", " __DATE__ "\n"
 		"Columns UI SDK Version: " UI_EXTENSION_VERSION "\n\n"
