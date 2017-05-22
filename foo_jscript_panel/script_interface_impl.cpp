@@ -726,34 +726,8 @@ STDMETHODIMP FbMetadbHandleList::MakeUnion(IFbMetadbHandleList* handles)
 	handles->get__ptr((void**)&handles_ptr);
 	if (!handles_ptr) return E_INVALIDARG;
 
-	metadb_handle_list_ref handles_ref = *handles_ptr;
-	metadb_handle_list result;
-	t_size walk1 = 0;
-	t_size walk2 = 0;
-	t_size last1 = m_handles.get_count();
-	t_size last2 = handles_ptr->get_count();
-
-	while (walk1 != last1 && walk2 != last2)
-	{
-		if (m_handles[walk1] < handles_ref[walk2])
-		{
-			result.add_item(m_handles[walk1]);
-			++walk1;
-		}
-		else if (handles_ref[walk2] < m_handles[walk1])
-		{
-			result.add_item(handles_ref[walk2]);
-			++walk2;
-		}
-		else
-		{
-			result.add_item(m_handles[walk1]);
-			++walk1;
-			++walk2;
-		}
-	}
-
-	m_handles = result;
+	m_handles.add_items(*handles_ptr);
+	m_handles.sort_by_pointer_remove_duplicates();
 	return S_OK;
 }
 
@@ -826,7 +800,7 @@ STDMETHODIMP FbMetadbHandleList::Sort()
 {
 	TRACK_FUNCTION();
 
-	metadb_handle_list_helper::sort_by_pointer_remove_duplicates(m_handles);
+	m_handles.sort_by_pointer_remove_duplicates();
 	return S_OK;
 }
 
