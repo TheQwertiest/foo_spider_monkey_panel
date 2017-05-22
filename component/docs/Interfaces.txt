@@ -1324,13 +1324,43 @@ interface IFbMetadbHandleList {
 		InsertRange(index, handle_list); (uint)
 
 		MakeDifference(handle_list); (void)
-		// must be sorted
+		/* must be sorted
+		example:
+		var one = plman.GetPlaylistItems(0);
+		one.Sort();
+		
+		var two = plman.GetPlaylistItems(1);
+		two.Sort();
+		
+		one.MakeDifference(two);
+		// "one" now only contains handles that were unique to "one". anything that also existed in "two" will have been removed.
+		*/
 
 		MakeIntersection(handle_list); (void)
-		// must be sorted
+		/* must be sorted
+		example:
+		var one = plman.GetPlaylistItems(0);
+		one.Sort();
+		
+		var two = plman.GetPlaylistItems(1);
+		two.Sort();
+		
+		one.MakeIntersection(two);
+		// "one" now only contains handles that were in BOTH "one" AND "two"
+		*/
 
 		MakeUnion(handle_list); (void)
-		// must be sorted
+		/* must be sorted
+		example:
+		var one = plman.GetPlaylistItems(0);
+		one.Sort();
+		
+		var two = plman.GetPlaylistItems(1);
+		two.Sort();
+		
+		one.MakeUnion(two);
+		// "one" now contains all handles from "one" AND "two" with any duplicates removed
+		*/
 
 		OrderByFormat(tfo, direction); (void)
 		/*
