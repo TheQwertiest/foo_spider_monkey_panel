@@ -560,6 +560,7 @@ STDMETHODIMP FbMetadbHandleList::AddRange(IFbMetadbHandleList* handles)
 	metadb_handle_list* handles_ptr = NULL;
 	handles->get__ptr((void**)&handles_ptr);
 	if (!handles_ptr) return E_INVALIDARG;
+
 	m_handles.add_items(*handles_ptr);
 	return S_OK;
 }
@@ -638,6 +639,7 @@ STDMETHODIMP FbMetadbHandleList::InsertRange(UINT index, IFbMetadbHandleList* ha
 	metadb_handle_list* handles_ptr = NULL;
 	handles->get__ptr((void**)&handles_ptr);
 	if (!handles_ptr) return E_INVALIDARG;
+
 	*outIndex = m_handles.insert_items(*handles_ptr, index);
 	return S_OK;
 }
@@ -1249,12 +1251,12 @@ STDMETHODIMP FbPlaylistManager::InsertPlaylistItems(UINT playlistIndex, UINT bas
 	if (!outSize) return E_POINTER;
 	if (!handles) return E_INVALIDARG;
 
-	metadb_handle_list* metadbHandles = NULL;
-	handles->get__ptr((void**)&metadbHandles);
-	if (!metadbHandles) return E_INVALIDARG;
+	metadb_handle_list* handles_ptr = NULL;
+	handles->get__ptr((void**)&handles_ptr);
+	if (!handles_ptr) return E_INVALIDARG;
 
 	bit_array_val selection(select == VARIANT_TRUE);
-	*outSize = static_api_ptr_t<playlist_manager>()->playlist_insert_items(playlistIndex, base, *metadbHandles, selection);
+	*outSize = static_api_ptr_t<playlist_manager>()->playlist_insert_items(playlistIndex, base, *handles_ptr, selection);
 	return S_OK;
 }
 
@@ -1265,11 +1267,11 @@ STDMETHODIMP FbPlaylistManager::InsertPlaylistItemsFilter(UINT playlistIndex, UI
 	if (!outSize) return E_POINTER;
 	if (!handles) return E_INVALIDARG;
 
-	metadb_handle_list* metadbHandles = NULL;
-	handles->get__ptr((void**)&metadbHandles);
-	if (!metadbHandles) return E_INVALIDARG;
+	metadb_handle_list* handles_ptr = NULL;
+	handles->get__ptr((void**)&handles_ptr);
+	if (!handles_ptr) return E_INVALIDARG;
 
-	*outSize = static_api_ptr_t<playlist_manager>()->playlist_insert_items_filter(playlistIndex, base, *metadbHandles, select == VARIANT_TRUE);
+	*outSize = static_api_ptr_t<playlist_manager>()->playlist_insert_items_filter(playlistIndex, base, *handles_ptr, select == VARIANT_TRUE);
 	return S_OK;
 }
 
@@ -2235,9 +2237,11 @@ STDMETHODIMP FbUiSelectionHolder::SetSelection(IFbMetadbHandleList* handles)
 
 	if (!handles) return E_INVALIDARG;
 
-	metadb_handle_list* ptrHandles = NULL;
-	handles->get__ptr((void**)&handles);
-	if (ptrHandles) m_holder->set_selection(*ptrHandles);
+	metadb_handle_list* handles_ptr = NULL;
+	handles->get__ptr((void**)&handles_ptr);
+	if (!handles_ptr) return E_INVALIDARG;
+
+	m_holder->set_selection(*handles_ptr);
 	return S_OK;
 }
 

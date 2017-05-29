@@ -278,7 +278,7 @@ interface IFbUtils {
 					// example: fb.trace(tfo.EvalWithMetadb(fb.GetFocusItem()));
 			}
 
-		fb.trace(message); (void)
+		fb.Trace(message); (void)
 
 		fb.VolumeDown(); (void)
 
