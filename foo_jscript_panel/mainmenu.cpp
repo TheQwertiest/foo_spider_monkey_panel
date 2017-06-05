@@ -50,7 +50,7 @@ public:
 		default: uBugCheck();
 		}
 	}
-	void get_name(t_uint32 p_index, pfc::string_base & p_out) {
+	void get_name(t_uint32 p_index, pfc::string_base& p_out) {
 		switch (p_index) {
 		case cmd_one: p_out = "1"; break;
 		case cmd_two: p_out = "2"; break;
@@ -65,7 +65,7 @@ public:
 		default: uBugCheck();
 		}
 	}
-	bool get_description(t_uint32 p_index, pfc::string_base & p_out) {
+	bool get_description(t_uint32 p_index, pfc::string_base& p_out) {
 		p_out = "Invoke on_main_menu()"; return true;
 	}
 	GUID get_parent() {
@@ -74,7 +74,7 @@ public:
 	void execute(t_uint32 p_index, service_ptr_t<service_base> p_callback) {
 		panel_manager::instance().post_msg_to_all(CALLBACK_UWM_ON_MAIN_MENU, p_index + 1);
 	}
-	bool get_display(t_uint32 p_index, pfc::string_base & p_out, t_uint32 & p_flags) {
+	bool get_display(t_uint32 p_index, pfc::string_base& p_out, t_uint32& p_flags) {
 		get_name(p_index, p_out);
 		p_flags = mainmenu_commands::flag_defaulthidden;
 		return true;
