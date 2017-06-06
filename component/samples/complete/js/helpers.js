@@ -215,6 +215,7 @@ _.mixin({
 	drawImage : function (gr, img, src_x, src_y, src_w, src_h, aspect, border, alpha) {
 		if (!img)
 			return [];
+		gr.SetInterpolationMode(7);
 		switch (aspect) {
 		case image.crop:
 		case image.crop_top:
@@ -229,12 +230,10 @@ _.mixin({
 				var dst_x = Math.round((img.Width - dst_w) / 2);
 				var dst_y = 0;
 			}
+			gr.DrawImage(img, src_x, src_y, src_w, src_h, dst_x + 3, dst_y + 3, dst_w - 6, dst_h - 6, 0, alpha || 255);
 			break;
 		case image.stretch:
-			var dst_x = 0;
-			var dst_y = 0;
-			var dst_w = img.Width;
-			var dst_h = img.Height;
+			gr.DrawImage(img, src_x, src_y, src_w, src_h, 0, 0, img.Width, img.Height, 0, alpha || 255);
 			break;
 		case image.centre:
 		default:
@@ -249,15 +248,10 @@ _.mixin({
 			var dst_y = 0;
 			var dst_w = img.Width;
 			var dst_h = img.Height;
+			gr.DrawImage(img, src_x, src_y, src_w, src_h, dst_x, dst_y, dst_w, dst_h, 0, alpha || 255);
 			break;
 		}
-		gr.SetInterpolationMode(7);
-		if (_.isUndefined(aspect))
-			gr.DrawImage(img, src_x, src_y, src_w, src_h, dst_x, dst_y, dst_w, dst_h, 0, alpha || 255);
-		else
-			gr.DrawImage(img, src_x, src_y, src_w, src_h, dst_x + 5, dst_y + 5, dst_w - 10, dst_h - 10, 0, alpha || 255);
-		if (border)
-			gr.DrawRect(src_x, src_y, src_w - 1, src_h - 1, 1, border);
+		border && gr.DrawRect(src_x, src_y, src_w - 1, src_h - 1, 1, border);
 		return [src_x, src_y, src_w, src_h];
 	},
 	drawOverlay : function (gr, x, y, w, h) {
