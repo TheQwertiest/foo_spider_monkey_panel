@@ -37,6 +37,7 @@ fb.PlaybackTime
 fb.Prev()
 fb.ProfilePath
 fb.Random()
+fb.ReplaygainMode
 fb.RunContextCommand(command[, flags])
 fb.RunContextCommandWithMetadb(command, handle_or_handle_list[, flags])
 fb.RunMainMenuCommand(command)

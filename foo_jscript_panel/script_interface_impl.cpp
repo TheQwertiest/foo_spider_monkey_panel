@@ -2923,10 +2923,24 @@ STDMETHODIMP FbUtils::put_ReplaygainMode(UINT p)
 {
 	TRACK_FUNCTION();
 	
-	t_replaygain_config rg;
-	static_api_ptr_t<replaygain_manager>()->get_core_settings(rg);
-	rg.m_source_mode = p;
-	static_api_ptr_t<replaygain_manager>()->set_core_settings(rg);
+	switch (p)
+	{
+	case 0:
+		standard_commands::main_rg_disable();
+		break;
+	case 1:
+		standard_commands::main_rg_set_track();
+		break;
+	case 2:
+		standard_commands::main_rg_set_album();
+		break;
+	case 3:
+		standard_commands::run_main(standard_commands::guid_main_rg_byorder);
+		break;
+	default:
+		return E_INVALIDARG;
+	}
+
 	return S_OK;
 }
 
