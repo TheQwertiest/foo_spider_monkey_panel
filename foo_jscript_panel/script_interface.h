@@ -427,11 +427,13 @@ __interface IFbUtils : IDispatch
 	[propget] STDMETHOD(PlaybackLength)([out, retval] double* p);
 	[propget] STDMETHOD(PlaybackTime)([out, retval] double* p);
 	[propget] STDMETHOD(ProfilePath)([out, retval] BSTR* pp);
+	[propget] STDMETHOD(ReplaygainMode)([out, retval] UINT *p);
 	[propget] STDMETHOD(StopAfterCurrent)([out, retval] VARIANT_BOOL* p);
 	[propget] STDMETHOD(Volume)([out, retval] float* p);
 	[propput] STDMETHOD(CursorFollowPlayback)(VARIANT_BOOL p);
 	[propput] STDMETHOD(PlaybackFollowCursor)(VARIANT_BOOL p);
 	[propput] STDMETHOD(PlaybackTime)(double time);
+	[propput] STDMETHOD(ReplaygainMode)(UINT p);
 	[propput] STDMETHOD(StopAfterCurrent)(VARIANT_BOOL p);
 	[propput] STDMETHOD(Volume)(float value);
 	[vararg] STDMETHOD(Trace)([satype(VARIANT)] SAFEARRAY* p);

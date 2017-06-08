@@ -541,11 +541,13 @@ public:
 	STDMETHODIMP get_PlaybackLength(double* p);
 	STDMETHODIMP get_PlaybackTime(double* p);
 	STDMETHODIMP get_ProfilePath(BSTR* pp);
+	STDMETHODIMP get_ReplaygainMode(UINT* p);
 	STDMETHODIMP get_StopAfterCurrent(VARIANT_BOOL* p);
 	STDMETHODIMP get_Volume(float* p);
 	STDMETHODIMP put_CursorFollowPlayback(VARIANT_BOOL p);
 	STDMETHODIMP put_PlaybackFollowCursor(VARIANT_BOOL p);
 	STDMETHODIMP put_PlaybackTime(double time);
+	STDMETHODIMP put_ReplaygainMode(UINT p);
 	STDMETHODIMP put_StopAfterCurrent(VARIANT_BOOL p);
 	STDMETHODIMP put_Volume(float value);
 };

@@ -2863,6 +2863,18 @@ STDMETHODIMP FbUtils::get_ProfilePath(BSTR* pp)
 	return S_OK;
 }
 
+STDMETHODIMP FbUtils::get_ReplaygainMode(UINT* p)
+{
+	TRACK_FUNCTION();
+
+	if (!p) return E_POINTER;
+
+	t_replaygain_config rg;
+	static_api_ptr_t<replaygain_manager>()->get_core_settings(rg);
+	*p = rg.m_source_mode;
+	return S_OK;
+}
+
 STDMETHODIMP FbUtils::get_StopAfterCurrent(VARIANT_BOOL* p)
 {
 	TRACK_FUNCTION();
@@ -2904,6 +2916,17 @@ STDMETHODIMP FbUtils::put_PlaybackTime(double time)
 	TRACK_FUNCTION();
 
 	static_api_ptr_t<playback_control>()->playback_seek(time);
+	return S_OK;
+}
+
+STDMETHODIMP FbUtils::put_ReplaygainMode(UINT p)
+{
+	TRACK_FUNCTION();
+	
+	t_replaygain_config rg;
+	static_api_ptr_t<replaygain_manager>()->get_core_settings(rg);
+	rg.m_source_mode = p;
+	static_api_ptr_t<replaygain_manager>()->set_core_settings(rg);
 	return S_OK;
 }
 
