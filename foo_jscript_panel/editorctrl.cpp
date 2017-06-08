@@ -1214,19 +1214,8 @@ void CScriptEditorCtrl::ReadAPI()
 {
 	m_apis.remove_all();
 
-	pfc::string8 propname;
+	pfc::string8 propname = "api.jscript";
 	pfc::array_t<char> propval;
-	int lexer = GetLexer();
-
-	switch (lexer)
-	{
-	case SCLEX_CPP:
-		propname = "api.jscript";
-		break;
-
-	default:
-		return;
-	}
 
 	int len = GetPropertyExpanded(propname, 0);
 	if (!len) return;
