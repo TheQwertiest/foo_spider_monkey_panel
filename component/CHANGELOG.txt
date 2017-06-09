@@ -1,5 +1,5 @@
 v1.2.3
-- ADD: Add fb.ReplaygainMode. Can be used to retreive or set the value. See
+- ADD: Add fb.ReplaygainMode. Can be used to retrieve or set the value. See
        docs\interfaces.txt
 - CHG: Hide JScript Panel main menu items. Given they're meant for binding to
        to keyboard shortcuts/standard buttons, there is no need for them to be
