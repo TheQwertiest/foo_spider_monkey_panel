@@ -1,3 +1,14 @@
+##v1.2.3
+```
+- ADD: Add fb.ReplaygainMode. Can be used to retreive or set the value. See
+       docs\interfaces.txt
+- CHG: Hide JScript Panel main menu items. Given they're meant for binding to
+       to keyboard shortcuts/standard buttons, there is no need for them to be
+       visible. Hold Shift if you really want to access them from the menu.
+- FIX: Fix MakeUnion handle list method and update docs with examples for 
+       MakeUnion, MakeDifference and MakeIntersection methods.
+```
+
 ## v1.2.2
 ```
 - ADD: Add new "on_main_menu" callback. 10 main menu items have been created
