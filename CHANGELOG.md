@@ -1,4 +1,4 @@
-##v1.2.3
+## v1.2.3
 ```
 - ADD: Add fb.ReplaygainMode. Can be used to retreive or set the value. See
        docs\interfaces.txt
