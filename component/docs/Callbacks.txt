@@ -9,7 +9,7 @@ function on_colors_changed() {}
 
 function on_cursor_follow_playback_changed(state) {}
 // called when "cursor follow playback" state is changed.
-// state: boolean. reflect current "cursor follow playback"  value.
+// state: boolean. reflect current "cursor follow playback" value.
 
 function on_drag_drop(action, x, y, mask) {}
 function on_drag_enter(action, x, y, mask) {}

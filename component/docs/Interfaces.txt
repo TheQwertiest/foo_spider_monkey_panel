@@ -238,7 +238,7 @@ interface IFbUtils {
 		0 default (depends on whether SHIFT key is pressed, flag_view_reduced or flag_view_full is selected)
 		4 flag_view_reduced
 		8 flag_view_full. this can be useful if you need to run context commands the user may have hidden
-		  using File>Preferences>Display>Context Menu
+		using File>Preferences>Display>Context Menu
 		example: fb.RunContextCommand("Properties");
 		*/
 

@@ -302,16 +302,16 @@ var FontTypeDUI = {
 
 /*
 SupportColorFlagCUI = {
-    text: 0x0,
-    selection_text: 0x2,
-    inactive_selection_text: 0x4,
-    background: 0x8,
-    selection_background: 0x10;
-    inactive_selection_background: 0x20,
-    active_item_frame: 0x40,
-    group_foreground: 0x80,
-    group_background: 0x100,
-    colour_flag_all: 0x1ff
+	text: 0x0,
+	selection_text: 0x2,
+	inactive_selection_text: 0x4,
+	background: 0x8,
+	selection_background: 0x10;
+	inactive_selection_background: 0x20,
+	active_item_frame: 0x40,
+	group_foreground: 0x80,
+	group_background: 0x100,
+	colour_flag_all: 0x1ff
 };
 
 === Colors ===

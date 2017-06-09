@@ -69,16 +69,16 @@ function StringFormat() {
 // 0 <= pos <= 1
 // return a value value: -100 <= vol <= 0
 function pos2vol(pos) {
-     return 50 * Math.log(0.99 * pos + 0.01) / Math.LN10;
+	 return 50 * Math.log(0.99 * pos + 0.01) / Math.LN10;
 }
 
 // Inverse function of pos2vol()
 function vol2pos(v){
-     return (Math.pow(10, v / 50) - 0.01) / 0.99;
+	 return (Math.pow(10, v / 50) - 0.01) / 0.99;
 }
 
 // pre-calculated colors
-Colors = {
+var Colors = {
 	AliceBlue			: 0xFFF0F8FF,
 	AntiqueWhite		 : 0xFFFAEBD7,
 	Aqua				 : 0xFF00FFFF,
