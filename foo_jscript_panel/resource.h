@@ -1,6 +1,11 @@
 //{{NO_DEPENDENCIES}}
 // Microsoft Visual C++ generated include file.
 //
+
+#ifndef IDC_STATIC
+#define IDC_STATIC -1
+#endif
+
 #define IDD_DIALOG_CONFIG               101
 #define IDR_SCRIPT                      102
 #define IDD_DIALOG_FIND                 103
