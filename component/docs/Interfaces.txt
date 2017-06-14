@@ -85,6 +85,43 @@ interface IFbUtils {
 					*/
 			}
 
+			/*
+			this is typically used to update the selection used by the default UI artwork panel
+			or any other panel that makes use of the preferences under
+			File>Preferences>Display>Selection viewers. Use in conjunction with the on_focus
+			callback (see callbacks.txt).
+
+			example1: (for playlist viewers)
+
+			var selection_holder = fb.AcquireUiSelectionHolder();
+			selection_holder.SetPlaylistSelectionTracking();
+
+			function on_focus(is_focused) {
+				if (is_focused) { //updates the selection when panel regains focus
+					selection_holder = fb.AcquireUiSelectionHolder();
+					selection_holder.SetPlaylistSelectionTracking();
+				}
+			}
+
+			example2: (for library viewers)
+
+			var selection_holder = fb.AcquireUiSelectionHolder();
+			var handle_list = null;
+
+			function on_mouse_lbtn_down(x, y) { //presumably going to select something here...
+				handle_list = ...;
+				selection_holder.SetSelection(handle_list); //must be a valid handle list
+			}
+
+			function on_focus(is_focused) {
+				if (is_focused) { //updates the selection when panel regains focus
+					selection_holder = fb.AcquireUiSelectionHolder();
+					if (handle_list && handle_list.Count)
+						selection_holder.SetSelection(handle_list); //must be a valid handle list
+				}
+			}
+			*/
+
 		fb.AddDirectory(); (void)
 
 		fb.AddFiles(); (void)
