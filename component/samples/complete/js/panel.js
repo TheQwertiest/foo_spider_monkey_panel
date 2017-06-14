@@ -142,7 +142,7 @@ _.mixin({
 			}
 			if (this.check_feature("metadb")) {
 				this.s3.AppendMenuItem(MF_STRING, 110, "Prefer now playing");
-				this.s3.AppendMenuItem(MF_STRING, 111, "Follow selected track");
+				this.s3.AppendMenuItem(MF_STRING, 111, "Follow selected track (playlist)");
 				this.s3.CheckMenuRadioItem(110, 111, this.selection + 110);
 				this.s3.AppendTo(this.m, MF_STRING, "Selection mode");
 				this.m.AppendMenuSeparator();
