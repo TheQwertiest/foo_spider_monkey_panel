@@ -5,10 +5,10 @@ var g_middle_click_timer = false;
 var g_queue_origin = -1;
 var g_textbox_tabbed = false;
 var g_leave = false;
-var g_focus = true;
 var g_init_on_size = false;
 var g_left_click_hold = false;
-var g_selHolder = null;
+var g_selHolder = fb.AcquireUiSelectionHolder();
+g_selHolder.SetPlaylistSelectionTracking();
 var g_repaint = 0;
 var g_seconds = 0;
 var g_1x1 = false;
@@ -1820,12 +1820,6 @@ function on_mouse_leave() {
 //=================================================// Callbacks
 
 function update_playlist(iscollapsed) {
-	if (g_selHolder)
-		g_selHolder.Dispose();
-	g_selHolder = fb.AcquireUiSelectionHolder();
-	// activate playlist selection tracking
-	g_selHolder.SetPlaylistSelectionTracking();
-
 	g_group_id_focused = 0;
 	p.list.updateHandleList(plman.ActivePlaylist, iscollapsed);
 
@@ -2688,24 +2682,16 @@ function on_playback_time(time) {
 function on_playback_order_changed(new_order_index) {};
 
 function on_focus(is_focused) {
-
-	g_focus = is_focused;
-
 	if (p.playlistManager.inputboxID >= 0) {
 		p.playlistManager.inputbox.on_focus(is_focused);
 	};
-	if (!is_focused) {
+	if (is_focused) {
+		g_selHolder = fb.AcquireUiSelectionHolder();
+		g_selHolder.SetPlaylistSelectionTracking();
+	} else {
 		p.playlistManager.inputboxID = -1;
 		full_repaint();
-	} else {};
-};
-
-function on_notify_data(name, info) {
-	switch (name) {
-	case "xxx":
-
-		break;
-	};
+	}
 };
 
 //=================================================// Colour + Font + Images Callbacks
