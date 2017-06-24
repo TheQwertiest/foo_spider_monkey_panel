@@ -122,7 +122,7 @@ function on_mouse_rbtn_up(x, y) {
 		c.ExecuteByID(idx - 1);
 		break;
 	}
-	_.dispose(m, s, c)
+	_.dispose(m, s, c);
 	return true;
 }
 
