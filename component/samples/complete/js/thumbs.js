@@ -142,12 +142,24 @@ _.mixin({
 		
 		this.metadb_changed = function () {
 			if (panel.metadb) {
-				var temp_folder = this.custom_folder_tf.replace("%profile%", fb.ProfilePath);
-				temp_folder = temp_folder.indexOf(fb.ProfilePath) == 0 ? fb.ProfilePath + panel.tf(temp_folder.substring(fb.ProfilePath.length, temp_folder.length)) : panel.tf(temp_folder);
-				if (this.folder == temp_folder)
-					return;
-				this.folder = temp_folder;
+				switch (this.source) {
+				case 0: // custom folder
+					var temp_folder = this.custom_folder_tf.replace("%profile%", fb.ProfilePath);
+					temp_folder = temp_folder.indexOf(fb.ProfilePath) == 0 ? fb.ProfilePath + panel.tf(temp_folder.substring(fb.ProfilePath.length, temp_folder.length)) : panel.tf(temp_folder);
+					if (this.folder == temp_folder)
+						return;
+					this.folder = temp_folder;
+					break;
+				case 1: // last.fm
+					var temp_artist = panel.tf(DEFAULT_ARTIST);
+					if (this.artist == temp_artist)
+						return;
+					this.artist = temp_artist;
+					this.folder = _.artistFolder(this.artist);
+					break;
+				}
 			} else {
+				this.artist = "";
 				this.folder = "";
 			}
 			this.update();
@@ -265,8 +277,24 @@ _.mixin({
 		}
 		
 		this.rbtn_up = function (x, y) {
-			panel.m.AppendMenuItem(MF_STRING, 4040, "Refresh");
-			panel.m.AppendMenuItem(MF_STRING, 4041, "Set custom folder...");
+			panel.m.AppendMenuItem(MF_STRING, 4000, "Custom folder");
+			panel.m.AppendMenuItem(MF_STRING, 4001, "Last.fm artist art");
+			panel.m.CheckMenuRadioItem(4000, 4001, this.source + 4000);
+			panel.m.AppendMenuSeparator();
+			switch (this.source) {
+			case 0: // custom folder
+				panel.m.AppendMenuItem(MF_STRING, 4002, "Refresh");
+				panel.m.AppendMenuItem(MF_STRING, 4003, "Set custom folder...");
+				break;
+			case 1: // last.fm
+				panel.m.AppendMenuItem(panel.metadb ? MF_STRING : MF_GRAYED, 4004, "Download now");
+				_.forEach(this.download_limits, function (item) {
+					panel.s10.AppendMenuItem(MF_STRING, item + 4010, item);
+				});
+				panel.s10.CheckMenuRadioItem(_.first(this.download_limits) + 4010, _.last(this.download_limits) + 4010, this.download_limit + 4010);
+				panel.s10.AppendTo(panel.m, MF_STRING, "Limit");
+				break;
+			}
 			panel.m.AppendMenuSeparator();
 			if (!panel.text_objects.length && !panel.list_objects.length) {
 				_.forEach(this.modes, function (item, i) {
@@ -303,6 +331,11 @@ _.mixin({
 					panel.m.CheckMenuRadioItem(4520, 4523, this.aspect + 4520);
 					panel.m.AppendMenuSeparator();
 				}
+				if (this.source == 1 && this.images.length > 1) {
+					panel.m.AppendMenuItem(this.default_file == this.files[this.image] ? MF_GRAYED : MF_STRING, 4530, "Set as default");
+					panel.m.AppendMenuItem(MF_STRING, 4531, "Clear default");
+					panel.m.AppendMenuSeparator();
+				}
 				panel.m.AppendMenuItem(MF_STRING, 4511, "Open image");
 				panel.m.AppendMenuItem(MF_STRING, 4512, "Delete image");
 				panel.m.AppendMenuSeparator();
@@ -313,16 +346,36 @@ _.mixin({
 		
 		this.rbtn_up_done = function (idx) {
 			switch (idx) {
-			case 4040:
+			case 4000:
+			case 4001:
+				this.source = idx - 4000;
+				window.SetProperty("2K3.THUMBS.SOURCE", this.source);
+				this.artist = "";
+				this.folder = "";
+				panel.item_focus_change();
+				break;
+			case 4002:
 				this.update();
 				break;
-			case 4041:
+			case 4003:
 				this.custom_folder_tf = _.input("Enter title formatting or an absolute path to a folder.\n\n%profile% will resolve to your foobar2000 profile folder or the program folder if using portable mode.", panel.name, this.custom_folder_tf);
 				if (this.custom_folder_tf == "")
 					this.custom_folder_tf = "$directory_path(%path%)";
 				window.SetProperty("2K3.THUMBS.CUSTOM.FOLDER.TF", this.custom_folder_tf);
 				this.folder = "";
 				panel.item_focus_change();
+				break;
+			case 4004:
+				this.download();
+				break;
+			case 4011:
+			case 4013:
+			case 4015:
+			case 4020:
+			case 4025:
+			case 4030:
+				this.download_limit = idx - 4010;
+				window.SetProperty("2K3.THUMBS.DOWNLOAD.LIMIT", this.download_limit);
 				break;
 			case 4050:
 			case 4051:
@@ -410,6 +463,14 @@ _.mixin({
 			this.image = 0;
 			_.dispose.apply(null, this.images);
 			this.files = _.getFiles(this.folder, this.exts, this.sort == 1);
+			if (this.source == 1 && this.files.length > 1) {
+				this.default_file = this.folder + utils.ReadINI(this.ini_file, "Defaults", _.fbSanitise(this.artist));
+				var tmp = _.indexOf(this.files, this.default_file);
+				if (tmp > -1) {
+					this.files.splice(tmp, 1);
+					this.files.unshift(this.default_file);
+				}
+			}
 			this.images = _.map(this.files, _.img);
 			this.size(true);
 			window.Repaint();
@@ -420,9 +481,43 @@ _.mixin({
 			window.Repaint();
 		}
 		
+		this.set_default = function (t) {
+			utils.WriteINI(this.ini_file, "Defaults", _.fbSanitise(this.artist), t);
+			this.update();
+		}
+		
 		this.delete_image = function () {
 			_.recycleFile(this.files[this.image]);
 			this.update();
+		}
+		
+		this.download = function () {
+			if (!_.tagged(this.artist))
+				return;
+			var base = this.folder + _.fbSanitise(this.artist) + "_";
+			this.xmlhttp.open("GET", "https://www.last.fm/music/" + encodeURIComponent(this.artist) + "/+images", true);
+			this.xmlhttp.setRequestHeader("If-Modified-Since", "Thu, 01 Jan 1970 00:00:00 GMT");
+			this.xmlhttp.send();
+			this.xmlhttp.onreadystatechange = _.bind(function () {
+				if (this.xmlhttp.readyState == 4) {
+					if (this.xmlhttp.status == 200)
+						this.success(base);
+					else
+						console.log("HTTP error: " + this.xmlhttp.status);
+				}
+			}, this);
+		}
+		
+		this.success = function (base) {
+			_(_.getElementsByTagName(this.xmlhttp.responsetext, "img"))
+				.filter({className : "image-list-image"})
+				.take(this.download_limit)
+				.forEach(function (item) {
+					var url = item.src.replace("avatar170s/", "");
+					var filename = base + url.substring(url.lastIndexOf("/") + 1) + ".jpg";
+					_.runCmd("cscript //nologo " + _.q(this.vbs_file) + " " + _.q(url) + " " + _.q(filename), false);
+				}, this)
+				.value();
 		}
 		
 		this.interval_func = _.bind(function () {
@@ -433,28 +528,41 @@ _.mixin({
 					this.image = 0;
 				window.Repaint();
 			}
+			if (this.source == 0 && this.time % 3 == 0 && _.getFiles(this.folder, this.exts).length != this.files.length)
+				this.update();
 		}, this);
 		
+		_.createFolder(folders.data);
+		_.createFolder(folders.artists);
+		_.createFolder(folders.settings);
 		this.mx = 0;
 		this.my = 0;
 		this.files = [];
 		this.images = [];
 		this.modes = ["grid", "left", "right", "top", "bottom", "off"];
 		this.pxs = [75, 100, 150, 200, 250, 300];
+		this.download_limits = [1, 3, 5, 10, 15, 20];
 		this.mode = window.GetProperty("2K3.THUMBS.MODE", 4); // bottom
 		this.cycle = window.GetProperty("2K3.THUMBS.CYCLE", 0);
 		this.aspect = window.GetProperty("2K3.THUMBS.ASPECT", image.crop_top);
 		this.custom_folder_tf = window.GetProperty("2K3.THUMBS.CUSTOM.FOLDER.TF", "$directory_path(%path%)");
 		this.px = window.GetProperty("2K3.THUMBS.PX", 75);
 		this.sort = window.GetProperty("2K3.THUMBS.SORT", 0); // 0 a-z 1 newest first
+		this.source = window.GetProperty("2K3.THUMBS.SOURCE", 0); // 0 custom folder 1 last.fm
+		this.download_limit = window.GetProperty("2K3.THUMBS.DOWNLOAD.LIMIT", 10);
+		this.ini_file = folders.settings + "thumbs.ini";
+		this.vbs_file = fb.ProfilePath + "js_marc2003\\download.vbs";
 		this.exts = "jpg|jpeg|png|gif";
 		this.folder = "";
+		this.default_file = "";
+		this.artist = "";
 		this.img = null;
 		this.nc = false;
 		this.image = 0;
 		this.image_xywh = [];
 		this.index = 0;
 		this.time = 0;
+		this.xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
 		this.close_btn = new _.sb(guifx.close, 0, 0, 16, 16, _.bind(function () { return this.modes[this.mode] == "grid" && this.overlay; }, this), _.bind(function () { this.enable_overlay(false); }, this));
 		window.SetInterval(this.interval_func, 1000);
 	}
