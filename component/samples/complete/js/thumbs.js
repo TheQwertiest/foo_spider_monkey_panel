@@ -528,7 +528,7 @@ _.mixin({
 					this.image = 0;
 				window.Repaint();
 			}
-			if (this.source == 0 && this.time % 3 == 0 && _.getFiles(this.folder, this.exts).length != this.files.length)
+			if (this.source == 1 && this.time % 3 == 0 && _.getFiles(this.folder, this.exts).length != this.files.length)
 				this.update();
 		}, this);
 		
