@@ -551,7 +551,7 @@ _.mixin({
 		this.source = window.GetProperty("2K3.THUMBS.SOURCE", 0); // 0 custom folder 1 last.fm
 		this.download_limit = window.GetProperty("2K3.THUMBS.DOWNLOAD.LIMIT", 10);
 		this.ini_file = folders.settings + "thumbs.ini";
-		this.vbs_file = fb.ProfilePath + "js_marc2003\\download.vbs";
+		this.vbs_file = fb.ComponentPath + "samples\\complete\\vbs\\download.vbs";
 		this.exts = "jpg|jpeg|png|gif";
 		this.folder = "";
 		this.default_file = "";
