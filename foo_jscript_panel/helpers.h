@@ -253,43 +253,6 @@ namespace helpers
 		_bstr_t m_path;
 	};
 
-	// Taken from pfc::lores_timer
-	class mm_timer
-	{
-	public:
-		void start()
-		{
-			_start(timeGetTime());
-		}
-
-		double query() const
-		{
-			return _query(timeGetTime());
-		}
-
-		double query_reset()
-		{
-			t_uint32 time = timeGetTime();
-			double ret = _query(time);
-			_start(time);
-			return ret;
-		}
-
-	private:
-		void _start(t_uint32 p_time) { m_last_seen = m_start = p_time; }
-
-		double _query(t_uint32 p_time) const
-		{
-			t_uint64 time = p_time;
-			if (time < (m_last_seen & 0xFFFFFFFF)) time += 0x100000000;
-			m_last_seen = (m_last_seen & 0xFFFFFFFF00000000) + time;
-			return (double)(m_last_seen - m_start) / 1000.0;
-		}
-
-		t_uint64 m_start;
-		mutable t_uint64 m_last_seen;
-	};
-
 	class js_process_locations : public process_locations_notify
 	{
 	public:

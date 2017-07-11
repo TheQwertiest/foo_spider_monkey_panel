@@ -442,7 +442,7 @@ class FbProfiler : public IDispatchImpl3<IFbProfiler>
 {
 protected:
 	pfc::string_simple m_name;
-	helpers::mm_timer m_timer;
+	pfc::hires_timer m_timer;
 
 	FbProfiler(const char* p_name) : m_name(p_name) { m_timer.start(); }
 

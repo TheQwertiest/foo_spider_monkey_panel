@@ -36,7 +36,7 @@ bool js_panel_window::script_load()
 
 	m_host_timer_dispatcher.setWindow(m_hwnd);
 
-	helpers::mm_timer timer;
+	pfc::hires_timer timer;
 	bool result = true;
 	timer.start();
 
