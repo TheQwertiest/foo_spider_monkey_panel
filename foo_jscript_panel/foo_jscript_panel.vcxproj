@@ -54,8 +54,8 @@
     <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">AllRules.ruleset</CodeAnalysisRuleSet>
     <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
     <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
-    <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\wtl;scintilla\include;$(IncludePath)</IncludePath>
-    <IncludePath Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\wtl;scintilla\include;$(IncludePath)</IncludePath>
+    <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\wtl;..\scintilla\include;$(IncludePath)</IncludePath>
+    <IncludePath Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\wtl;..\scintilla\include;$(IncludePath)</IncludePath>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">foo_jscript_panel</TargetName>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">foo_jscript_panel</TargetName>
   </PropertyGroup>
@@ -239,7 +239,7 @@ copy /Y "$(TargetPath)" "%component_path%\"</Command>
       <Project>{e8091321-d79d-4575-86ef-064ea1a4a20d}</Project>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
-    <ProjectReference Include="scintilla\win32\scintilla.vcxproj">
+    <ProjectReference Include="..\scintilla\win32\scintilla.vcxproj">
       <Project>{641a7d58-c47d-4110-b800-e18e8a5d818f}</Project>
       <Private>true</Private>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
@@ -247,7 +247,7 @@ copy /Y "$(TargetPath)" "%component_path%\"</Command>
       <LinkLibraryDependencies>true</LinkLibraryDependencies>
       <UseLibraryDependencyInputs>false</UseLibraryDependencyInputs>
     </ProjectReference>
-    <ProjectReference Include="TextDesinger\TextDesigner.vcxproj">
+    <ProjectReference Include="..\TextDesinger\TextDesigner.vcxproj">
       <Project>{f21ce92f-240d-48fe-8b73-56a63d4536b0}</Project>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>

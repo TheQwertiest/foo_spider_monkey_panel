@@ -11,9 +11,9 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "foobar2000_component_client
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "columns_ui_sdk", "..\columns_ui-sdk\columns_ui-sdk.vcxproj", "{93EC0EDE-01CD-4FB0-B8E8-4F2A027E026E}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TextDesigner", "TextDesinger\TextDesigner.vcxproj", "{F21CE92F-240D-48FE-8B73-56A63D4536B0}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TextDesigner", "..\TextDesinger\TextDesigner.vcxproj", "{F21CE92F-240D-48FE-8B73-56A63D4536B0}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "scintilla", "scintilla\win32\scintilla.vcxproj", "{641A7D58-C47D-4110-B800-E18E8A5D818F}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "scintilla", "..\scintilla\win32\scintilla.vcxproj", "{641A7D58-C47D-4110-B800-E18E8A5D818F}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "foo_jscript_panel", "foo_jscript_panel.vcxproj", "{43DF6037-DBE4-4468-9A50-4311495F3C86}"
 EndProject

@@ -94,7 +94,7 @@ public:
 		::SendMessage(m_hWnd, SCI_SETREADONLY, bReadOnly, 0L);
 	}
 
-	int GetTextRange(TextRange & trRange) const
+	int GetTextRange(Sci_TextRange & trRange) const
 	{
 		ATLASSERT(::IsWindow(m_hWnd));
 		return ::SendMessage(m_hWnd, SCI_GETTEXTRANGE, 0, (LPARAM)&trRange);
@@ -154,7 +154,7 @@ public:
 		return ::SendMessage(m_hWnd, SCI_GETSTYLEAT, nPosition, 0L);
 	}
 
-	int GetStyledText(TextRange & trRange) const
+	int GetStyledText(Sci_TextRange & trRange) const
 	{
 		ATLASSERT(::IsWindow(m_hWnd));
 		return ::SendMessage(m_hWnd, SCI_GETSTYLEDTEXT, 0, (LPARAM)&trRange);
@@ -162,7 +162,7 @@ public:
 
 	int GetStyledText(LPSTR szText, long nFirst, long nLast) const
 	{
-		TextRange trRange = { { nFirst,nLast },szText };
+		Sci_TextRange trRange = { { nFirst,nLast },szText };
 		return GetStyledText(trRange);
 	}
 
@@ -182,7 +182,7 @@ public:
 	/** @name Searching */
 	//@{
 
-	int FindText(int nFlags, TextToFind& ttfText) const
+	int FindText(int nFlags, Sci_TextToFind& ttfText) const
 	{
 		ATLASSERT(::IsWindow(m_hWnd));
 		return ::SendMessage(m_hWnd, SCI_FINDTEXT, nFlags, (LPARAM)&ttfText);
