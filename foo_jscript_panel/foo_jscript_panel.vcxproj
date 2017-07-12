@@ -164,10 +164,10 @@ copy /Y "$(TargetPath)" "%component_path%\"</Command>
     <ClCompile Include="js_panel_window_dui.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="PropertyList\PropertyItem.h" />
-    <ClInclude Include="PropertyList\PropertyItemEditors.h" />
-    <ClInclude Include="PropertyList\PropertyItemImpl.h" />
-    <ClInclude Include="PropertyList\PropertyList.h" />
+    <ClInclude Include="..\PropertyList\PropertyItem.h" />
+    <ClInclude Include="..\PropertyList\PropertyItemEditors.h" />
+    <ClInclude Include="..\PropertyList\PropertyItemImpl.h" />
+    <ClInclude Include="..\PropertyList\PropertyList.h" />
     <ClInclude Include="com_tools.h" />
     <ClInclude Include="config.h" />
     <ClInclude Include="dbgtrace.h" />
