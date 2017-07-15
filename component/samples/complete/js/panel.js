@@ -79,9 +79,7 @@ _.mixin({
 				item.size();
 				item.update();
 			});
-			_.forEach(this.text_objects, function (item) {
-				item.size();
-			});
+			_.invoke(this.text_objects, "size");
 		}
 		
 		this.size = function () {

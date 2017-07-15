@@ -149,9 +149,7 @@ _.mixin({
 	},
 	buttons : function () {
 		this.paint = function (gr) {
-			_.forEach(this.buttons, function (item) {
-				item.paint(gr);
-			});
+			_.invoke(this.buttons, "paint", gr);
 		}
 		
 		this.move = function (x, y) {
