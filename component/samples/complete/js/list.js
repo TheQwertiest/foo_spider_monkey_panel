@@ -871,6 +871,11 @@ _.mixin({
 				this.mb_icons = window.GetProperty("2K3.LIST.MUSICBRAINZ.SHOW.ICONS", true);
 				this.mb_id = "";
 				this.mb_images = {
+					"muzikum.eu" : _.img("mb\\muzikum.png"),
+					"open.spotify.com" : _.img("mb\\spotify.png"),
+					"imvdb.com" : _.img("mb\\imvdb.png"),
+					"itunes.apple.com" : _.img("mb\\itunes.png"),
+					"genius.com" : _.img("mb\\genius.png"),
 					"wikipedia.org" : _.img("mb\\wikipedia.png"),
 					"wikidata.org" : _.img("mb\\wikidata.png"),
 					"youtube.com" : _.img("mb\\youtube.png"),
