@@ -304,6 +304,34 @@ _.mixin({
 			return files;
 		}
 	},
+	hacks : function () {
+		this.disable = function () {
+			this.uih.MainMenuState = this.MainMenuState.Show;
+			this.uih.FrameStyle = this.FrameStyle.Default;
+			this.uih.StatusBarState = true;
+		}
+		
+		this.enable = function () {
+			this.uih.MainMenuState = this.MainMenuState.Hide;
+			this.uih.FrameStyle = this.FrameStyle.NoBorder;
+			this.uih.StatusBarState = false;
+		}
+		
+		this.set_caption = function (x, y, w, h) {
+			this.uih.SetPseudoCaption(x, y, w, h);
+		}
+		
+		this.MainMenuState = { Show : 0, Hide : 1, Auto : 2 };
+		this.FrameStyle = { Default : 0, SmallCaption : 1, NoCaption : 2, NoBorder : 3 };
+		this.MoveStyle = { Default : 0, Middle : 1, Left : 2, Both : 3 };
+		
+		this.uih = new ActiveXObject("UIHacks");
+		this.uih.MoveStyle = this.MoveStyle.Default;
+		this.uih.DisableSizing = false;
+		this.uih.BlockMaximize = false;
+		this.uih.MinSize = false;
+		this.uih.MaxSize = false;
+	},
 	help : function (x, y, flags) {
 		var m = window.CreatePopupMenu();
 		_.forEach(ha_links, function (item, i) {
