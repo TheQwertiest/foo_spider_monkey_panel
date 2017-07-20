@@ -1,4 +1,4 @@
-component/foo_jscript_panel.dll
+foo_jscript_panel/foo_jscript_panel.dll
 *.idl
 
 # Created by https://www.gitignore.io/api/visualstudio

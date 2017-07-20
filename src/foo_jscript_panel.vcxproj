@@ -84,7 +84,7 @@
       <TargetMachine>MachineX86</TargetMachine>
     </Link>
     <PostBuildEvent>
-      <Command>set component_path=$(SolutionDir)..\component
+      <Command>set component_path=$(SolutionDir)..\foo_jscript_panel
 mkdir "%component_path%"
 copy /Y "$(TargetPath)" "%component_path%\"</Command>
     </PostBuildEvent>
@@ -121,7 +121,7 @@ copy /Y "$(TargetPath)" "%component_path%\"</Command>
       <TargetMachine>MachineX86</TargetMachine>
     </Link>
     <PostBuildEvent>
-      <Command>set component_path=$(SolutionDir)..\component
+      <Command>set component_path=$(SolutionDir)..\foo_jscript_panel
 mkdir "%component_path%"
 copy /Y "$(TargetPath)" "%component_path%\"</Command>
     </PostBuildEvent>
