@@ -251,6 +251,11 @@ _.mixin({
 				panel.m.AppendMenuItem(MF_STRING, 3101, "User Charts");
 				panel.m.CheckMenuRadioItem(3100, 3101, this.lastfm_mode + 3100);
 				panel.m.AppendMenuSeparator();
+				panel.s10.AppendMenuItem(MF_STRING, 3102, "Open Last.fm website");
+				panel.s10.AppendMenuItem(MF_STRING, 3103, "Autoplaylist");
+				panel.s10.CheckMenuRadioItem(3102, 3103, this.lastfm_link + 3102);
+				panel.s10.AppendTo(panel.m, this.lastfm_mode == 0 || this.lastfm_charts_method == 0 ? MF_STRING : MF_GRAYED, "Links");
+				panel.m.AppendMenuSeparator();
 				if (this.lastfm_mode == 1) {
 					_.forEach(this.lastfm_charts_methods, function (item, i) {
 						panel.m.AppendMenuItem(MF_STRING, i + 3120, _.capitalize(item.display));
@@ -327,6 +332,13 @@ _.mixin({
 				if (this.lastfm_mode == 0)
 					this.reset();
 				else
+					this.update();
+				break;
+			case 3102:
+			case 3103:
+				this.lastfm_link = idx - 3102;
+				window.SetProperty("2K3.LIST.LASTFM.LINK", this.lastfm_link);
+				if (this.data.length)
 					this.update();
 				break;
 			case 3120:
@@ -448,9 +460,9 @@ _.mixin({
 								return {
 									name : item.name,
 									width : _.textWidth(item.name, panel.fonts.normal),
-									url : item.url
+									url : this.lastfm_link == 0 ? item.url : "artist HAS " + item.name
 								};
-							})
+							}, this)
 							.value();
 						if (_.fileExpired(this.filename, ONE_DAY))
 							this.get();
@@ -463,11 +475,17 @@ _.mixin({
 					if (_.isFile(this.filename)) {
 						var data = _.get(_.jsonParse(_.open(this.filename)), this.lastfm_charts_methods[this.lastfm_charts_method].json, []);
 						for (var i = 0; i < data.length; i++) {
-							var name = this.lastfm_charts_method == 0 ? data[i].name : data[i].artist.name + " - " + data[i].name;
+							if (this.lastfm_charts_method == 0) {
+								var name = data[i].name;
+								var url = this.lastfm_link == 0 ? data[i].url : "artist HAS " + name;
+							} else {
+								var name = data[i].artist.name + " - " + data[i].name;
+								var url = data[i].url;
+							}
 							this.data[i] = {
 								name : name,
 								width : _.textWidth(name, panel.fonts.normal),
-								url : data[i].url,
+								url : url,
 								playcount : data[i].playcount,
 								rank : i > 0 && data[i].playcount == data[i - 1].playcount ? this.data[i - 1].rank : i + 1
 							};
@@ -833,6 +851,7 @@ _.mixin({
 				];
 				this.lastfm_charts_period = window.GetProperty("2K3.LIST.LASTFM.CHARTS.PERIOD", 0);
 				this.lastfm_charts_colour = window.GetProperty("2K3.LIST.LASTFM.CHARTS.COLOUR", "60-60-60");
+				this.lastfm_link = window.GetProperty("2K3.LIST.LASTFM.LINK", 0); // 0 last.fm website 1 autoplaylist
 				if (this.lastfm_mode == 1)
 					this.update();
 				break;
