@@ -210,10 +210,14 @@ _.mixin({
 				case !this.in_range:
 					break;
 				case this.mode == "autoplaylists":
-					if (this.x && x < this.x + Math.min(this.data[this.index].width, this.text_width))
+					switch (true) {
+					case x > this.x && x < this.x + Math.min(this.data[this.index].width, this.text_width):
 						this.run_query(this.data[this.index].name, this.data[this.index].query, this.data[this.index].sort, this.data[this.index].forced);
-					else if (x > this.x + this.w - 20 && x < this.x + this.w)
+						break;
+					case x > this.x + this.w - 20 && x < this.x + this.w:
 						this.edit(x, y);
+						break;
+					}
 					break;
 				case x > this.x + this.text_x && x < this.x + this.text_x + Math.min(this.data[this.index].width, this.text_width):
 					if (this.data[this.index].url.indexOf("http") == 0) {
