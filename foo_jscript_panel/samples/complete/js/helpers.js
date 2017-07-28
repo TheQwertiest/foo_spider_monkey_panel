@@ -1,115 +1,12 @@
-_.mixin({
-	scale : function (size) {
-		return size * DPI / 72;
-	}
-});
-
 Array.prototype.srt=function(){for(var z=0,t;t=this[z];z++){this[z]=[];var x=0,y=-1,n=true,i,j;while(i=(j=t.charAt(x++)).charCodeAt(0)){var m=(i==46||(i>=48&&i<=57));if(m!==n){this[z][++y]="";n=m;}
 this[z][y]+=j;}}
 this.sort(function(a,b){for(var x=0,aa,bb;(aa=a[x])&&(bb=b[x]);x++){aa=aa.toLowerCase();bb=bb.toLowerCase();if(aa!==bb){var c=Number(aa),d=Number(bb);if(c==aa&&d==bb){return c-d;}else return(aa>bb)?1:-1;}}
 return a.length-b.length;});for(var z=0;z<this.length;z++)
 this[z]=this[z].join("");}
 
-var doc = new ActiveXObject("htmlfile");
-var app = new ActiveXObject("Shell.Application");
-var WshShell = new ActiveXObject("WScript.Shell");
-var fso = new ActiveXObject("Scripting.FileSystemObject");
-var vb = new ActiveXObject("ScriptControl");
-vb.Language = "VBScript";
-
-var DT_LEFT = 0x00000000;
-var DT_CENTER = 0x00000001;
-var DT_RIGHT = 0x00000002;
-var DT_VCENTER = 0x00000004;
-var DT_WORDBREAK = 0x00000010;
-var DT_CALCRECT = 0x00000400;
-var DT_NOPREFIX = 0x00000800;
-var DT_END_ELLIPSIS = 0x00008000;
-
-var LEFT = DT_VCENTER | DT_END_ELLIPSIS | DT_CALCRECT | DT_NOPREFIX;
-var RIGHT = DT_VCENTER | DT_RIGHT | DT_END_ELLIPSIS | DT_CALCRECT | DT_NOPREFIX;
-var CENTRE = DT_VCENTER | DT_CENTER | DT_END_ELLIPSIS | DT_CALCRECT | DT_NOPREFIX;
-var SF_CENTRE = 285212672;
-
-var VK_ESCAPE = 0x1B;
-var VK_SHIFT = 0x10;
-var VK_LEFT = 0x25;
-var VK_UP = 0x26;
-var VK_RIGHT = 0x27;
-var VK_DOWN = 0x28;
-
-var MF_STRING = 0x00000000;
-var MF_GRAYED = 0x00000001;
-
-var IDC_ARROW = 32512;
-var IDC_HAND = 32649;
-
-var TPM_RIGHTALIGN = 0x0008;
-var TPM_BOTTOMALIGN = 0x0020;
-
-var DLGC_WANTALLKEYS = 0x0004;
-
-var ONE_DAY = 86400000;
-var ONE_WEEK = 604800000;
-
-var DEFAULT_ARTIST = "$meta(artist,0)";
-
-var DPI = WshShell.RegRead("HKCU\\Control Panel\\Desktop\\WindowMetrics\\AppliedDPI");
-
-var tooltip = window.CreateTooltip("Segoe UI", _.scale(12));
-tooltip.SetMaxWidth(800);
-
-var LM = _.scale(5);
-var TM = _.scale(16);
-
-var folders = {};
-folders.images = fb.ComponentPath + "samples\\complete\\images\\";
-folders.settings = fb.ProfilePath + "js_settings\\";
-folders.data = fb.ProfilePath + "js_data\\";
-folders.artists = folders.data + "artists\\";
-folders.lastfm = folders.data + "lastfm\\";
-
-var console = {
-	pre : "",
-	log : function (text) {
-		fb.trace(this.pre + text);
-	}
+function on_script_unload() {
+	_.tt("");
 }
-
-var guifx = {
-	font : "Guifx v2 Transports",
-	drop : "s",
-	up : ".",
-	down : ",",
-	close : "x",
-	star : "b"
-};
-
-var popup = {
-	ok : 0,
-	yes_no : 4,
-	yes : 6,
-	no : 7,
-	stop : 16,
-	question : 32,
-	info : 64
-};
-
-var image = {
-	crop : 0,
-	crop_top : 1,
-	stretch : 2,
-	centre : 3
-};
-
-var ha_links = [
-	["Title Formatting Reference", "http://wiki.hydrogenaud.io/index.php?title=Foobar2000:Title_Formatting_Reference"],
-	["Query Syntax", "http://wiki.hydrogenaud.io/index.php?title=Foobar2000:Query_syntax"],
-	["Homepage", "https://www.foobar2000.org/"],
-	["Components", "https://www.foobar2000.org/components"],
-	["Wiki", "http://wiki.hydrogenaud.io/index.php?title=Foobar2000:Foobar2000"],
-	["Forums", "https://hydrogenaud.io/index.php/board,28.0.html"]
-];
 
 _.mixin({
 	artistFolder : function (artist) {
@@ -569,10 +466,13 @@ _.mixin({
 		this.h = h;
 		this.v = v;
 		this.fn = fn;
-		this.guifx_font = _.gdiFont(guifx.font, this.h - 6, 0);
+		this.guifx_font = gdi.Font(guifx.font, this.h, 0);
 	},
 	setClipboardData : function (value) {
 		doc.parentWindow.clipboardData.setData("Text", value.toString());
+	},
+	scale : function (size) {
+		return size * DPI / 72;
 	},
 	shortPath : function (file) {
 		return fso.GetFile(file).ShortPath;
@@ -631,6 +531,102 @@ _.mixin({
 	}
 });
 
-function on_script_unload() {
-	_.tt("");
+var doc = new ActiveXObject("htmlfile");
+var app = new ActiveXObject("Shell.Application");
+var WshShell = new ActiveXObject("WScript.Shell");
+var fso = new ActiveXObject("Scripting.FileSystemObject");
+var vb = new ActiveXObject("ScriptControl");
+vb.Language = "VBScript";
+
+var DT_LEFT = 0x00000000;
+var DT_CENTER = 0x00000001;
+var DT_RIGHT = 0x00000002;
+var DT_VCENTER = 0x00000004;
+var DT_WORDBREAK = 0x00000010;
+var DT_CALCRECT = 0x00000400;
+var DT_NOPREFIX = 0x00000800;
+var DT_END_ELLIPSIS = 0x00008000;
+
+var LEFT = DT_VCENTER | DT_END_ELLIPSIS | DT_CALCRECT | DT_NOPREFIX;
+var RIGHT = DT_VCENTER | DT_RIGHT | DT_END_ELLIPSIS | DT_CALCRECT | DT_NOPREFIX;
+var CENTRE = DT_VCENTER | DT_CENTER | DT_END_ELLIPSIS | DT_CALCRECT | DT_NOPREFIX;
+var SF_CENTRE = 285212672;
+
+var VK_ESCAPE = 0x1B;
+var VK_SHIFT = 0x10;
+var VK_LEFT = 0x25;
+var VK_UP = 0x26;
+var VK_RIGHT = 0x27;
+var VK_DOWN = 0x28;
+
+var MF_STRING = 0x00000000;
+var MF_GRAYED = 0x00000001;
+
+var IDC_ARROW = 32512;
+var IDC_HAND = 32649;
+
+var TPM_RIGHTALIGN = 0x0008;
+var TPM_BOTTOMALIGN = 0x0020;
+
+var DLGC_WANTALLKEYS = 0x0004;
+
+var ONE_DAY = 86400000;
+var ONE_WEEK = 604800000;
+
+var DEFAULT_ARTIST = "$meta(artist,0)";
+
+var DPI = 192 //WshShell.RegRead("HKCU\\Control Panel\\Desktop\\WindowMetrics\\AppliedDPI");
+
+var LM = _.scale(5);
+var TM = _.scale(16);
+
+var tooltip = window.CreateTooltip("Segoe UI", _.scale(12));
+tooltip.SetMaxWidth(800);
+
+var folders = {};
+folders.images = fb.ComponentPath + "samples\\complete\\images\\";
+folders.settings = fb.ProfilePath + "js_settings\\";
+folders.data = fb.ProfilePath + "js_data\\";
+folders.artists = folders.data + "artists\\";
+folders.lastfm = folders.data + "lastfm\\";
+
+var console = {
+	pre : "",
+	log : function (text) {
+		fb.trace(this.pre + text);
+	}
 }
+
+var guifx = {
+	font : "Guifx v2 Transports",
+	up : ".",
+	down : ",",
+	close : "x",
+	star : "b"
+};
+
+var popup = {
+	ok : 0,
+	yes_no : 4,
+	yes : 6,
+	no : 7,
+	stop : 16,
+	question : 32,
+	info : 64
+};
+
+var image = {
+	crop : 0,
+	crop_top : 1,
+	stretch : 2,
+	centre : 3
+};
+
+var ha_links = [
+	["Title Formatting Reference", "http://wiki.hydrogenaud.io/index.php?title=Foobar2000:Title_Formatting_Reference"],
+	["Query Syntax", "http://wiki.hydrogenaud.io/index.php?title=Foobar2000:Query_syntax"],
+	["Homepage", "https://www.foobar2000.org/"],
+	["Components", "https://www.foobar2000.org/components"],
+	["Wiki", "http://wiki.hydrogenaud.io/index.php?title=Foobar2000:Foobar2000"],
+	["Forums", "https://hydrogenaud.io/index.php/board,28.0.html"]
+];

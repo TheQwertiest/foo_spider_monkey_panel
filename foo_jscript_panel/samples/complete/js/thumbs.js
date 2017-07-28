@@ -563,7 +563,7 @@ _.mixin({
 		this.index = 0;
 		this.time = 0;
 		this.xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
-		this.close_btn = new _.sb(guifx.close, 0, 0, 16, 16, _.bind(function () { return this.modes[this.mode] == "grid" && this.overlay; }, this), _.bind(function () { this.enable_overlay(false); }, this));
+		this.close_btn = new _.sb(guifx.close, 0, 0, _.scale(12), _.scale(12), _.bind(function () { return this.modes[this.mode] == "grid" && this.overlay; }, this), _.bind(function () { this.enable_overlay(false); }, this));
 		window.SetInterval(this.interval_func, 1000);
 	}
 });

@@ -8,7 +8,7 @@
 
 var panel = new _.panel("Playback Buttons", ["custom_background"]);
 var buttons = new _.buttons();
-var bs = 32;
+var bs = _.scale(24);
 
 buttons.update = function () {
 	this.buttons.stop = new _.button(0, 0, bs, bs, {normal : "buttons\\stop.png"}, function () { fb.Stop(); }, "Stop");

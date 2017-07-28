@@ -3,11 +3,11 @@ _.mixin({
 		this.size = function () {
 			this.index = 0;
 			this.offset = 0;
-			this.rows = Math.floor((this.h - 32) / panel.row_height);
-			this.up_btn.x = this.x + Math.round((this.w - 16) / 2);
+			this.rows = Math.floor((this.h - _.scale(24)) / panel.row_height);
+			this.up_btn.x = this.x + Math.round((this.w - _.scale(12)) / 2);
 			this.down_btn.x = this.up_btn.x;
 			this.up_btn.y = this.y;
-			this.down_btn.y = this.y + this.h - 16;
+			this.down_btn.y = this.y + this.h - _.scale(12);
 		}
 		
 		this.paint = function (gr) {
@@ -27,7 +27,7 @@ _.mixin({
 					this.text_x = 0;
 					this.text_width = this.w;
 					for (var i = 0; i < Math.min(this.items, this.rows); i++) {
-						gr.GdiDrawText(this.data[i + this.offset].name, panel.fonts.normal, panel.colours.text, this.x, this.y + 16 + (i * panel.row_height), this.text_width, panel.row_height, LEFT);
+						gr.GdiDrawText(this.data[i + this.offset].name, panel.fonts.normal, panel.colours.text, this.x, this.y + _.scale(12) + (i * panel.row_height), this.text_width, panel.row_height, LEFT);
 					}
 					break;
 				case 1:
@@ -38,8 +38,8 @@ _.mixin({
 					var bar_colour = _.splitRGB(this.lastfm_charts_colour);
 					for (var i = 0; i < Math.min(this.items, this.rows); i++) {
 						var bar_width = Math.ceil(unit_width * this.data[i + this.offset].playcount);
-						gr.GdiDrawText(this.data[i + this.offset].rank + ".", panel.fonts.normal, panel.colours.highlight, this.x, this.y + 16 + (i * panel.row_height), this.text_x - 5, panel.row_height, RIGHT);
-						gr.GdiDrawText(this.data[i + this.offset].name, panel.fonts.normal, panel.colours.text, this.x + this.text_x, this.y + 16 + (i * panel.row_height), this.text_width, panel.row_height, LEFT);
+						gr.GdiDrawText(this.data[i + this.offset].rank + ".", panel.fonts.normal, panel.colours.highlight, this.x, this.y + _.scale(12) + (i * panel.row_height), this.text_x - 5, panel.row_height, RIGHT);
+						gr.GdiDrawText(this.data[i + this.offset].name, panel.fonts.normal, panel.colours.text, this.x + this.text_x, this.y + _.scale(12) + (i * panel.row_height), this.text_width, panel.row_height, LEFT);
 						gr.FillSolidRect(lastfm_charts_bar_x, this.y + 18 + (i * panel.row_height), bar_width, panel.row_height - 3, bar_colour);
 						gr.GdiDrawText(_.formatNumber(this.data[i + this.offset].playcount, ","), panel.fonts.normal, panel.colours.text, lastfm_charts_bar_x + bar_width + 5, this.y + 16 + (i * panel.row_height), 60, panel.row_height, LEFT);
 					}
@@ -51,14 +51,14 @@ _.mixin({
 				case 0:
 					this.text_width = this.w - this.spacer_w - 10;
 					for (var i = 0; i < Math.min(this.items, this.rows); i++) {
-						gr.GdiDrawText(this.data[i + this.offset].name, panel.fonts.normal, this.data[i + this.offset].width == 0 ? panel.colours.highlight : panel.colours.text, this.x + this.text_x, this.y + 16 + (i * panel.row_height), this.text_width, panel.row_height, LEFT);
-						gr.GdiDrawText(this.data[i + this.offset].date, panel.fonts.normal, panel.colours.highlight, this.x, this.y + 16 + (i * panel.row_height), this.w, panel.row_height, RIGHT);
+						gr.GdiDrawText(this.data[i + this.offset].name, panel.fonts.normal, this.data[i + this.offset].width == 0 ? panel.colours.highlight : panel.colours.text, this.x + this.text_x, this.y + _.scale(12) + (i * panel.row_height), this.text_width, panel.row_height, LEFT);
+						gr.GdiDrawText(this.data[i + this.offset].date, panel.fonts.normal, panel.colours.highlight, this.x, this.y + _.scale(12) + (i * panel.row_height), this.w, panel.row_height, RIGHT);
 					}
 					break;
 				case 1:
-					this.text_width = this.w - this.text_x;
+					this.text_width = this.w;
 					for (var i = 0; i < Math.min(this.items, this.rows); i++) {
-						gr.GdiDrawText(this.data[i + this.offset].name, panel.fonts.normal, panel.colours.text, this.x + this.text_x, this.y + 16 + (i * panel.row_height), this.text_width, panel.row_height, LEFT);
+						gr.GdiDrawText(this.data[i + this.offset].name, panel.fonts.normal, panel.colours.text, this.x + this.text_x, this.y + _.scale(12) + (i * panel.row_height), this.text_width, panel.row_height, LEFT);
 					}
 					break;
 				}
@@ -66,14 +66,14 @@ _.mixin({
 			case "properties":
 				this.text_width = this.w - this.text_x;
 				for (var i = 0; i < Math.min(this.items, this.rows); i++) {
-					gr.GdiDrawText(this.data[i + this.offset].name, panel.fonts.normal, panel.colours.highlight, this.x, this.y + 16 + (i * panel.row_height), this.text_x - 10, panel.row_height, LEFT);
-					gr.GdiDrawText(this.data[i + this.offset].value, panel.fonts.normal, panel.colours.text, this.x + this.text_x, this.y + 16 + (i * panel.row_height), this.text_width, panel.row_height, LEFT);
+					gr.GdiDrawText(this.data[i + this.offset].name, panel.fonts.normal, panel.colours.highlight, this.x, this.y + _.scale(12) + (i * panel.row_height), this.text_x - 10, panel.row_height, LEFT);
+					gr.GdiDrawText(this.data[i + this.offset].value, panel.fonts.normal, panel.colours.text, this.x + this.text_x, this.y + _.scale(12) + (i * panel.row_height), this.text_width, panel.row_height, LEFT);
 				}
 				break;
 			default:
 				this.text_width = this.w;
 				for (var i = 0; i < Math.min(this.items, this.rows); i++) {
-					gr.GdiDrawText(this.data[i + this.offset].name, panel.fonts.normal, panel.colours.text, this.x, this.y + 16 + (i * panel.row_height), this.text_width, panel.row_height, LEFT);
+					gr.GdiDrawText(this.data[i + this.offset].name, panel.fonts.normal, panel.colours.text, this.x, this.y + _.scale(12) + (i * panel.row_height), this.text_width, panel.row_height, LEFT);
 				}
 				break;
 			}
@@ -142,7 +142,7 @@ _.mixin({
 			this.my = y;
 			window.SetCursor(IDC_ARROW);
 			if (this.trace(x, y)) {
-				this.index = Math.floor((y - this.y - 16) / panel.row_height) + this.offset;
+				this.index = Math.floor((y - this.y - _.scale(12)) / panel.row_height) + this.offset;
 				this.in_range = this.index >= this.offset && this.index < this.offset + Math.min(this.rows, this.items);
 				switch (true) {
 				case this.up_btn.move(x, y):
@@ -979,8 +979,8 @@ _.mixin({
 		this.spacer_w = 0;
 		this.artist = "";
 		this.filename = "";
-		this.up_btn = new _.sb(guifx.up, this.x, this.y, 16, 16, _.bind(function () { return this.offset > 0; }, this), _.bind(function () { this.wheel(1); }, this));
-		this.down_btn = new _.sb(guifx.down, this.x, this.y, 16, 16, _.bind(function () { return this.offset < this.items - this.rows; }, this), _.bind(function () { this.wheel(-1); }, this));
+		this.up_btn = new _.sb(guifx.up, this.x, this.y, _.scale(12), _.scale(12), _.bind(function () { return this.offset > 0; }, this), _.bind(function () { this.wheel(1); }, this));
+		this.down_btn = new _.sb(guifx.down, this.x, this.y, _.scale(12), _.scale(12), _.bind(function () { return this.offset < this.items - this.rows; }, this), _.bind(function () { this.wheel(-1); }, this));
 		this.xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
 		this.init();
 	}
