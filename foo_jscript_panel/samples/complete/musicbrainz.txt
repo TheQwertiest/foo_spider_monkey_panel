@@ -13,21 +13,21 @@
 // http://blog.guifx.com/2009/04/02/guifx-v2-transport-font/
 
 var panel = new _.panel("Musicbrainz", ["metadb"]);
-var list = new _.list("musicbrainz", 10, 24, 0, 0);
+var list = new _.list("musicbrainz", LM, TM, 0, 0);
 
 panel.item_focus_change();
 
 function on_size() {
 	panel.size();
-	list.w = panel.w - 20;
-	list.h = panel.h - 24;
+	list.w = panel.w - (LM * 2);
+	list.h = panel.h - TM;
 	list.size();
 }
 
 function on_paint(gr) {
 	panel.paint(gr);
-	gr.FillSolidRect(0, 0, panel.w, 24, panel.colours.header);
-	gr.GdiDrawText(list.header_text(), panel.fonts.title, panel.colours.highlight, 10, 0, panel.w - 20, 24, LEFT);
+	gr.FillSolidRect(0, 0, panel.w, TM, panel.colours.header);
+	gr.GdiDrawText(list.header_text(), panel.fonts.title, panel.colours.highlight, LM, 0, panel.w - (LM * 2), TM, LEFT);
 	list.paint(gr);
 }
 

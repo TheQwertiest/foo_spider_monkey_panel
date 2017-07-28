@@ -1,8 +1,21 @@
+_.mixin({
+	scale : function (size) {
+		return size * DPI / 72;
+	}
+});
+
 Array.prototype.srt=function(){for(var z=0,t;t=this[z];z++){this[z]=[];var x=0,y=-1,n=true,i,j;while(i=(j=t.charAt(x++)).charCodeAt(0)){var m=(i==46||(i>=48&&i<=57));if(m!==n){this[z][++y]="";n=m;}
 this[z][y]+=j;}}
 this.sort(function(a,b){for(var x=0,aa,bb;(aa=a[x])&&(bb=b[x]);x++){aa=aa.toLowerCase();bb=bb.toLowerCase();if(aa!==bb){var c=Number(aa),d=Number(bb);if(c==aa&&d==bb){return c-d;}else return(aa>bb)?1:-1;}}
 return a.length-b.length;});for(var z=0;z<this.length;z++)
 this[z]=this[z].join("");}
+
+var doc = new ActiveXObject("htmlfile");
+var app = new ActiveXObject("Shell.Application");
+var WshShell = new ActiveXObject("WScript.Shell");
+var fso = new ActiveXObject("Scripting.FileSystemObject");
+var vb = new ActiveXObject("ScriptControl");
+vb.Language = "VBScript";
 
 var DT_LEFT = 0x00000000;
 var DT_CENTER = 0x00000001;
@@ -41,15 +54,13 @@ var ONE_WEEK = 604800000;
 
 var DEFAULT_ARTIST = "$meta(artist,0)";
 
-var doc = new ActiveXObject("htmlfile");
-var app = new ActiveXObject("Shell.Application");
-var WshShell = new ActiveXObject("WScript.Shell");
-var fso = new ActiveXObject("Scripting.FileSystemObject");
-var vb = new ActiveXObject("ScriptControl");
-vb.Language = "VBScript";
+var DPI = WshShell.RegRead("HKCU\\Control Panel\\Desktop\\WindowMetrics\\AppliedDPI");
 
-var tooltip = window.CreateTooltip();
+var tooltip = window.CreateTooltip("Segoe UI", _.scale(12));
 tooltip.SetMaxWidth(800);
+
+var LM = _.scale(5);
+var TM = _.scale(16);
 
 var folders = {};
 folders.images = fb.ComponentPath + "samples\\complete\\images\\";
@@ -272,7 +283,7 @@ _.mixin({
 		return number.replace(/\B(?=(\d{3})+(?!\d))/g, separator);
 	},
 	gdiFont : function (name, size, style) {
-		return gdi.Font(name, size * 96 / 72, style);
+		return gdi.Font(name, _.scale(size), style);
 	},
 	getClipboardData : function () {
 		return doc.parentWindow.clipboardData.getData("Text");

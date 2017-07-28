@@ -8,21 +8,21 @@
 // ==/PREPROCESSOR==
 
 var panel = new _.panel("Text Reader", ["metadb"]);
-var text = new _.text("text_reader", 10, 24, 0, 0);
+var text = new _.text("text_reader", LM, TM, 0, 0);
 
 panel.item_focus_change();
 
 function on_size() {
 	panel.size();
-	text.w = panel.w - 20;
-	text.h = panel.h - 24;
+	text.w = panel.w - (LM * 2);
+	text.h = panel.h - TM;
 	text.size();
 }
 
 function on_paint(gr) {
 	panel.paint(gr);
-	gr.FillSolidRect(0, 0, panel.w, 24, panel.colours.header);
-	gr.GdiDrawText(text.header_text(), panel.fonts.title, panel.colours.highlight, 10, 0, panel.w - 20, 24, LEFT);
+	gr.FillSolidRect(0, 0, panel.w, TM, panel.colours.header);
+	gr.GdiDrawText(text.header_text(), panel.fonts.title, panel.colours.highlight, LM, 0, panel.w - (LM * 2), TM, LEFT);
 	text.paint(gr);
 }
 

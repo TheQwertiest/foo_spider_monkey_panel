@@ -11,19 +11,19 @@
 // http://blog.guifx.com/2009/04/02/guifx-v2-transport-font/
 
 var panel = new _.panel("Autoplaylists");
-var list = new _.list("autoplaylists", 10, 24, 0, 0);
+var list = new _.list("autoplaylists", LM, TM, 0, 0);
 
 function on_size() {
 	panel.size();
-	list.w = panel.w - 20;
-	list.h = panel.h - 24;
+	list.w = panel.w - (LM * 2);
+	list.h = panel.h - TM;
 	list.size();
 }
 
 function on_paint(gr) {
 	panel.paint(gr);
-	gr.FillSolidRect(0, 0, panel.w, 24, panel.colours.header);
-	gr.GdiDrawText(list.header_text(), panel.fonts.title, panel.colours.highlight, 10, 0, panel.w - 20, 24, LEFT);
+	gr.FillSolidRect(0, 0, panel.w, TM, panel.colours.header);
+	gr.GdiDrawText(list.header_text(), panel.fonts.title, panel.colours.highlight, LM, 0, panel.w - (LM * 2), TM, LEFT);
 	list.paint(gr);
 }
 
