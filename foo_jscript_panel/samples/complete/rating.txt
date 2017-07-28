@@ -11,7 +11,7 @@
 // http://blog.guifx.com/2009/04/02/guifx-v2-transport-font/
 
 var panel = new _.panel("Rating", ["metadb", "custom_background"]);
-var rating = new _.rating(0, 0, 28, _.RGB(128, 128, 128), _.RGB(255, 128, 0));
+var rating = new _.rating(0, 0, 24, _.RGB(128, 128, 128), _.RGB(255, 128, 0));
 
 panel.item_focus_change();
 

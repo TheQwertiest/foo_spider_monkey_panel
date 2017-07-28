@@ -58,14 +58,14 @@ _.mixin({
 		
 		this.x = x;
 		this.y = y;
-		this.h = h;
+		this.h = _.scale(h);
 		this.w = this.h * 5;
 		this.on = on;
 		this.off = off;
 		this.hover = false;
 		this.rating = 0;
 		this.hrating = 0;
-		this.guifx_font = _.gdiFont(guifx.font, this.h - 4, 0);
+		this.guifx_font = gdi.Font(guifx.font, this.h, 0);
 		this.tiptext_tf = "Rate \"%title%\" by \"%artist%\".";
 		if (!_.cc("foo_playcount"))
 			window.SetTimeout(function () {

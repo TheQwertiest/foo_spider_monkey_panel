@@ -34,14 +34,14 @@ _.mixin({
 					this.text_x = this.spacer_w + 5;
 					this.text_width = Math.round(this.w / 2) + 30;
 					var lastfm_charts_bar_x = this.x + this.text_x + this.text_width + 10;
-					var unit_width = (this.w - lastfm_charts_bar_x - 50) / this.data[0].playcount;
+					var unit_width = (this.w - lastfm_charts_bar_x - _.scale(50)) / this.data[0].playcount;
 					var bar_colour = _.splitRGB(this.lastfm_charts_colour);
 					for (var i = 0; i < Math.min(this.items, this.rows); i++) {
 						var bar_width = Math.ceil(unit_width * this.data[i + this.offset].playcount);
 						gr.GdiDrawText(this.data[i + this.offset].rank + ".", panel.fonts.normal, panel.colours.highlight, this.x, this.y + _.scale(12) + (i * panel.row_height), this.text_x - 5, panel.row_height, RIGHT);
 						gr.GdiDrawText(this.data[i + this.offset].name, panel.fonts.normal, panel.colours.text, this.x + this.text_x, this.y + _.scale(12) + (i * panel.row_height), this.text_width, panel.row_height, LEFT);
-						gr.FillSolidRect(lastfm_charts_bar_x, this.y + 18 + (i * panel.row_height), bar_width, panel.row_height - 3, bar_colour);
-						gr.GdiDrawText(_.formatNumber(this.data[i + this.offset].playcount, ","), panel.fonts.normal, panel.colours.text, lastfm_charts_bar_x + bar_width + 5, this.y + 16 + (i * panel.row_height), 60, panel.row_height, LEFT);
+						gr.FillSolidRect(lastfm_charts_bar_x, this.y + _.scale(13) + (i * panel.row_height), bar_width, panel.row_height - 3, bar_colour);
+						gr.GdiDrawText(_.formatNumber(this.data[i + this.offset].playcount, ","), panel.fonts.normal, panel.colours.text, lastfm_charts_bar_x + bar_width + 5, this.y + _.scale(12) + (i * panel.row_height), _.scale(60), panel.row_height, LEFT);
 					}
 					break;
 				}
@@ -156,10 +156,6 @@ _.mixin({
 					case x > this.x && x < this.x + Math.min(this.data[this.index].width, this.text_width):
 						window.SetCursor(IDC_HAND);
 						_.tt("Autoplaylist: " + this.data[this.index].name);
-						break;
-					case x > this.x + this.w - _.scale(16) && x < this.x + this.w:
-						window.SetCursor(IDC_HAND);
-						_.tt("Edit " + _.q(this.data[this.index].name));
 						break;
 					default:
 						_.tt("");
