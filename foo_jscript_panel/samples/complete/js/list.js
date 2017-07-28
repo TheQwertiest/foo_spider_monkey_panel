@@ -51,7 +51,6 @@ _.mixin({
 			case "musicbrainz":
 				switch (this.mb_mode) {
 				case 0:
-					this.text_x = 0;
 					this.text_width = this.w - this.spacer_w - 10;
 					for (var i = 0; i < Math.min(this.items, this.rows); i++) {
 						gr.GdiDrawText(this.data[i + this.offset].name, panel.fonts.normal, this.data[i + this.offset].width == 0 ? panel.colours.highlight : panel.colours.text, this.x + this.text_x, this.y + 16 + (i * panel.row_height), this.text_width, panel.row_height, LEFT);
@@ -59,13 +58,9 @@ _.mixin({
 					}
 					break;
 				case 1:
-					this.text_x = this.mb_icons ? 20 : 0;
 					this.text_width = this.w - this.text_x;
 					for (var i = 0; i < Math.min(this.items, this.rows); i++) {
-						var y = this.y + 16 + (i * panel.row_height);
-						if (this.mb_icons)
-							_.drawImage(gr, this.mb_images[this.data[i + this.offset].image], this.x, y + Math.round((panel.row_height - 16) / 2), 16, 16);
-						gr.GdiDrawText(this.data[i + this.offset].name, panel.fonts.normal, panel.colours.text, this.x + this.text_x, y, this.text_width, panel.row_height, LEFT);
+						gr.GdiDrawText(this.data[i + this.offset].name, panel.fonts.normal, panel.colours.text, this.x + this.text_x, this.y + 16 + (i * panel.row_height), this.text_width, panel.row_height, LEFT);
 					}
 					break;
 				}
@@ -286,11 +281,6 @@ _.mixin({
 					panel.m.AppendMenuItem(MF_GRAYED, 3203, "Artist MBID missing. Use Musicbrainz Picard or foo_musicbrainz to tag your files.");
 					panel.m.AppendMenuSeparator();
 				}
-				if (this.mb_mode == 1) {
-					panel.m.AppendMenuItem(MF_STRING, 3210, "Show icons");
-					panel.m.CheckMenuItem(3210, this.mb_icons);
-					panel.m.AppendMenuSeparator();
-				}
 				break;
 			case "properties":
 				panel.m.AppendMenuItem(MF_STRING, 3300, "Metadata");
@@ -378,11 +368,6 @@ _.mixin({
 				this.mb_mode = idx - 3200;
 				window.SetProperty("2K3.LIST.MUSICBRAINZ.MODE", this.mb_mode);
 				this.reset();
-				break;
-			case 3210:
-				this.mb_icons = !this.mb_icons;
-				window.SetProperty("2K3.LIST.MUSICBRAINZ.SHOW.ICONS", this.mb_icons);
-				window.RepaintRect(this.x, this.y, this.w, this.h);
 				break;
 			case 3300:
 				this.properties.meta = !this.properties.meta;
@@ -545,7 +530,15 @@ _.mixin({
 					if (_.isFile(this.filename)) {
 						var url = "https://musicbrainz.org/artist/" + this.mb_id;
 						this.data = _(_.get(_.jsonParse(_.open(this.filename)), "relations", []))
-							.map(this.mb_parse_urls)
+							.map(function (item) {
+								var url = decodeURIComponent(item.url.resource);
+								return {
+									name : url,
+									url : url,
+									width : _.textWidth(url, panel.fonts.normal),
+									image : image
+								};
+							})
 							.sortBy(function (item) {
 								return item.name.split("//")[1].replace("www.", "");
 							})
@@ -553,8 +546,7 @@ _.mixin({
 						this.data.unshift({
 							name : url,
 							url : url,
-							width : _.textWidth(url, panel.fonts.normal),
-							image : "musicbrainz"
+							width : _.textWidth(url, panel.fonts.normal)
 						});
 						if (_.fileExpired(this.filename, ONE_DAY))
 							this.get();
@@ -866,65 +858,11 @@ _.mixin({
 					this.get();
 				}, this),
 				
-				this.mb_parse_urls = _.bind(function (item) {
-					var url = decodeURIComponent(item.url.resource);
-					var image = "external";
-					if (item.type == "official homepage") {
-						image = "home";
-					} else {
-						_.forEach(this.mb_images, function (item, i) {
-							if (url.indexOf(i) > -1) {
-								image = i;
-								return false;
-							}
-						});
-					}
-					return {
-						name : url,
-						url : url,
-						width : _.textWidth(url, panel.fonts.normal),
-						image : image
-					};
-				}, this);
-				
 				_.createFolder(folders.data);
 				_.createFolder(folders.artists);
 				this.ua = "foo_jscript_panel_musicbrainz +https://github.com/19379";
 				this.mb_mode = window.GetProperty("2K3.LIST.MUSICBRAINZ.MODE", 0); // 0 releases 1 links
-				this.mb_icons = window.GetProperty("2K3.LIST.MUSICBRAINZ.SHOW.ICONS", true);
 				this.mb_id = "";
-				this.mb_images = {
-					"muzikum.eu" : _.img("mb\\muzikum.png"),
-					"open.spotify.com" : _.img("mb\\spotify.png"),
-					"imvdb.com" : _.img("mb\\imvdb.png"),
-					"itunes.apple.com" : _.img("mb\\itunes.png"),
-					"genius.com" : _.img("mb\\genius.png"),
-					"wikipedia.org" : _.img("mb\\wikipedia.png"),
-					"wikidata.org" : _.img("mb\\wikidata.png"),
-					"youtube.com" : _.img("mb\\youtube.png"),
-					"discogs.com" : _.img("mb\\discogs.png"),
-					"last.fm" : _.img("mb\\lastfm.png"),
-					"facebook.com" : _.img("mb\\facebook.png"),
-					"viaf.org" : _.img("mb\\viaf.png"),
-					"bbc.co.uk" : _.img("mb\\bbc.png"),
-					"twitter.com" : _.img("mb\\twitter.png"),
-					"allmusic.com" : _.img("mb\\allmusic.png"),
-					"soundcloud.com" : _.img("mb\\soundcloud.png"),
-					"myspace.com" : _.img("mb\\myspace.png"),
-					"imdb.com" : _.img("mb\\imdb.png"),
-					"plus.google.com" : _.img("mb\\google_plus.png"),
-					"lyrics.wikia.com" : _.img("mb\\lyrics_wikia.png"),
-					"flickr.com" : _.img("mb\\flickr.png"),
-					"secondhandsongs.com" : _.img("mb\\secondhandsongs.png"),
-					"vimeo.com" : _.img("mb\\vimeo.png"),
-					"rateyourmusic.com" : _.img("mb\\rateyourmusic.png"),
-					"instagram.com" : _.img("mb\\instagram.png"),
-					"tumblr.com" : _.img("mb\\tumblr.png"),
-					"decoda.com" : _.img("mb\\decoda.png"),
-					"home" : _.img("mb\\home.png"),
-					"external" : _.img("mb\\external.png"),
-					"musicbrainz" : _.img("mb\\musicbrainz.png")
-				};
 				break;
 			case "properties":
 				this.add_meta = function (f) {
