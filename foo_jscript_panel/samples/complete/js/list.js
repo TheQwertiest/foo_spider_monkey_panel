@@ -18,9 +18,7 @@ _.mixin({
 				gr.SetTextRenderingHint(4);
 				this.text_width = this.w - 30;
 				for (var i = 0; i < Math.min(this.items, this.rows); i++) {
-					gr.GdiDrawText(this.data[i + this.offset].name, panel.fonts.normal, panel.colours.text, this.x, this.y + 16 + (i * panel.row_height), this.text_width, panel.row_height, LEFT);
-					if (!this.editing && this.hover && this.index == i + this.offset)
-						gr.DrawString(guifx.drop, this.guifx_font, panel.colours.highlight, this.x + this.w - _.scale(16), this.y + 18 + (i * panel.row_height), panel.row_height, panel.row_height, SF_CENTRE);
+					gr.GdiDrawText(this.data[i + this.offset].name, panel.fonts.normal, panel.colours.text, this.x, this.y + _.scale(12) + (i * panel.row_height), this.text_width, panel.row_height, LEFT);
 				}
 				break;
 			case "lastfm_info":
@@ -152,7 +150,6 @@ _.mixin({
 					break;
 				case this.mode == "autoplaylists" && this.editing:
 				case !this.in_range:
-					this.leave();
 					break;
 				case this.mode == "autoplaylists":
 					switch (true) {
@@ -166,11 +163,8 @@ _.mixin({
 						break;
 					default:
 						_.tt("");
-						this.leave();
 						break;
 					}
-					this.hover = true;
-					window.RepaintRect(this.x + this.w - _.scale(16), this.y, _.scale(16), this.h);
 					break;
 				case x > this.x + this.text_x && x < this.x + this.text_x + Math.min(this.data[this.index].width, this.text_width):
 					window.SetCursor(IDC_HAND);
@@ -189,13 +183,6 @@ _.mixin({
 			}
 		}
 		
-		this.leave = function () {
-			if (this.mode == "autoplaylists" && this.hover) {
-				this.hover = false;
-				window.RepaintRect(this.x + this.w - _.scale(16), this.y, _.scale(16), this.h);
-			}
-		}
-		
 		this.lbtn_up = function (x, y) {
 			if (this.trace(x, y)) {
 				switch (true) {
@@ -205,14 +192,8 @@ _.mixin({
 				case !this.in_range:
 					break;
 				case this.mode == "autoplaylists":
-					switch (true) {
-					case x > this.x && x < this.x + Math.min(this.data[this.index].width, this.text_width):
-						this.run_query(this.data[this.index].name, this.data[this.index].query, this.data[this.index].sort, this.data[this.index].forced);
-						break;
-					case x > this.x + this.w - _.scale(16) && x < this.x + this.w:
+					if (x > this.x && x < this.x + Math.min(this.data[this.index].width, this.text_width))
 						this.edit(x, y);
-						break;
-					}
 					break;
 				case x > this.x + this.text_x && x < this.x + this.text_x + Math.min(this.data[this.index].width, this.text_width):
 					if (this.data[this.index].url.indexOf("http") == 0) {
@@ -729,33 +710,36 @@ _.mixin({
 					var z = this.index;
 					_.tt("");
 					var m = window.CreatePopupMenu();
-					m.AppendMenuItem(MF_STRING, 1, "Rename...");
-					m.AppendMenuItem(MF_STRING, 2, "Edit query...");
-					m.AppendMenuItem(MF_STRING, 3, "Edit sort pattern...");
-					m.AppendMenuItem(MF_STRING, 4, "Force Sort");
-					m.CheckMenuItem(4, this.data[z].forced);
+					m.AppendMenuItem(MF_STRING, 1, "Run query");
 					m.AppendMenuSeparator();
-					m.AppendMenuItem(MF_STRING, 5, "Delete");
+					m.AppendMenuItem(MF_STRING, 2, "Rename...");
+					m.AppendMenuItem(MF_STRING, 3, "Edit query...");
+					m.AppendMenuItem(MF_STRING, 4, "Edit sort pattern...");
+					m.AppendMenuItem(MF_STRING, 5, "Force Sort");
+					m.CheckMenuItem(5, this.data[z].forced);
+					m.AppendMenuSeparator();
+					m.AppendMenuItem(MF_STRING, 6, "Delete");
 					this.editing = true;
-					this.hover = false;
-					window.RepaintRect(this.x + this.w - 20, this.y, 20, this.h);
 					var idx = m.TrackPopupMenu(x, y);
 					switch (idx) {
 					case 1:
+						this.run_query(this.data[z].name, this.data[z].query, this.data[z].sort, this.data[z].forced);
+						break;
+					case 2:
 						var new_name = _.input("Rename autoplaylist", panel.name, this.data[z].name);
 						if (new_name == "" || new_name == this.data[z].name)
 							break;
 						this.data[z].name = new_name;
 						this.edit_done(z);
 						break;
-					case 2:
+					case 3:
 						var new_query = _.input("Enter autoplaylist query", panel.name, this.data[z].query);
 						if (new_query == "" || new_query == this.data[z].query)
 							break;
 						this.data[z].query = new_query;
 						this.edit_done(z);
 						break;
-					case 3:
+					case 4:
 						var new_sort = _.input("Enter sort pattern\n\n(optional)", panel.name, this.data[z].sort);
 						if (new_sort == this.data[z].sort)
 							break;
@@ -764,11 +748,11 @@ _.mixin({
 							this.data[z].forced = WshShell.popup("Force sort?", 0, panel.name, popup.question + popup.yes_no) == popup.yes;
 						this.edit_done(z);
 						break;
-					case 4:
+					case 5:
 						this.data[z].forced = !this.data[z].forced;
 						this.edit_done(z);
 						break;
-					case 5:
+					case 6:
 						this.deleted_items.unshift(this.data[z]);
 						this.data.splice(z, 1);
 						this.save();
@@ -796,10 +780,8 @@ _.mixin({
 				}
 				
 				_.createFolder(folders.settings);
-				this.hover = false;
 				this.editing = false;
 				this.deleted_items = [];
-				this.guifx_font = _.gdiFont(guifx.font, 12, 0);
 				this.filename = folders.settings + "autoplaylists.json";
 				this.update();
 				break;
