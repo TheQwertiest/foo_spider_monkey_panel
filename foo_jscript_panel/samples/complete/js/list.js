@@ -512,8 +512,7 @@ _.mixin({
 								return {
 									name : url,
 									url : url,
-									width : _.textWidth(url, panel.fonts.normal),
-									image : image
+									width : _.textWidth(url, panel.fonts.normal)
 								};
 							})
 							.sortBy(function (item) {
