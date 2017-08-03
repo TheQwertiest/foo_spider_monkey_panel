@@ -120,11 +120,10 @@ _.mixin({
 			// text 5000-5999
 			object && object.rbtn_up(x, y);
 			if (this.list_objects.length || this.text_objects.length) {
-				this.s1.AppendMenuItem(MF_STRING, 10, 10);
-				this.s1.AppendMenuItem(MF_STRING, 12, 12);
-				this.s1.AppendMenuItem(MF_STRING, 14, 14);
-				this.s1.AppendMenuItem(MF_STRING, 16, 16);
-				this.s1.CheckMenuRadioItem(10, 16, this.fonts.size);
+				_.forEach(this.fonts.sizes, function (item) {
+					this.s1.AppendMenuItem(MF_STRING, item, item);
+				}, this);
+				this.s1.CheckMenuRadioItem(_.first(this.fonts.sizes), _.last(this.fonts.sizes), this.fonts.size);
 				this.s1.AppendTo(this.m, MF_STRING, "Font size");
 				this.m.AppendMenuSeparator();
 			}
@@ -150,10 +149,7 @@ _.mixin({
 			switch (true) {
 			case idx == 0:
 				break;
-			case idx == 10:
-			case idx == 12:
-			case idx == 14:
-			case idx == 16:
+			case idx <= 20:
 				this.fonts.size = idx;
 				window.SetProperty("2K3.PANEL.FONTS.SIZE", this.fonts.size);
 				on_font_changed();
@@ -209,17 +205,18 @@ _.mixin({
 		this.h = 0;
 		this.metadb = fb.GetFocusItem();
 		this.metadb_func = typeof on_metadb_changed == "function";
-		this.colours = {};
-		this.fonts = {};
-		this.fonts.size = window.GetProperty("2K3.PANEL.FONTS.SIZE", 12);
 		this.selection = this.check_feature("metadb") ? window.GetProperty("2K3.PANEL.SELECTION", 0) : 0;
+		this.fonts = {};
+		this.fonts.sizes = [10, 12, 14, 16];
+		this.fonts.size = window.GetProperty("2K3.PANEL.FONTS.SIZE", 12);
+		this.colours = {};
 		if (this.check_feature("custom_background")) {
 			this.colours.mode = window.GetProperty("2K3.PANEL.COLOURS.MODE", 0);
 			this.colours.custom = window.GetProperty("2K3.PANEL.COLOURS.CUSTOM", "0-0-0");
 		}
-		this.colours_changed();
+		this.list_objects = [];
+		this.text_objects = [];
 		this.font_changed();
-		this.list_objects = []; // these will be populated automatically
-		this.text_objects = []; // and used inside font_changed
+		this.colours_changed();
 	}
 });
