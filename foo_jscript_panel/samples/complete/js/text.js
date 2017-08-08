@@ -279,7 +279,7 @@ _.mixin({
 			case "allmusic":
 				if (this.allmusic_url) {
 					this.allmusic_url = false;
-					var content = _(_.getElementsByTagName(this.xmlhttp.responsetext, "div"))
+					var content = _(_.getElementsByTagName(this.xmlhttp.responseText, "div"))
 						.filter({itemprop : "reviewBody"})
 						.map("innerText")
 						.stripTags()
@@ -291,7 +291,7 @@ _.mixin({
 				} else {
 					try {
 						this.allmusic_url = "";
-						_(_.getElementsByTagName(this.xmlhttp.responsetext, "li"))
+						_(_.getElementsByTagName(this.xmlhttp.responseText, "li"))
 							.filter({className : "album"})
 							.forEach(function (item) {
 								var divs = item.getElementsByTagName("div");
@@ -317,7 +317,7 @@ _.mixin({
 				}
 				break;
 			case "lastfm_bio":
-				_.save(this.xmlhttp.responsetext, f);
+				_.save(this.xmlhttp.responseText, f);
 				this.artist = "";
 				panel.item_focus_change();
 				break;

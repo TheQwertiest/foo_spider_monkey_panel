@@ -472,7 +472,7 @@ _.mixin({
 		doc.parentWindow.clipboardData.setData("Text", value.toString());
 	},
 	scale : function (size) {
-		return size * DPI / 72;
+		return Math.round(size * DPI / 72);
 	},
 	shortPath : function (file) {
 		return fso.GetFile(file).ShortPath;
@@ -597,7 +597,7 @@ folders.lastfm = folders.data + "lastfm\\";
 var console = {
 	pre : "",
 	log : function (text) {
-		fb.trace(this.pre + text);
+		fb.Trace(this.pre + text);
 	}
 }
 

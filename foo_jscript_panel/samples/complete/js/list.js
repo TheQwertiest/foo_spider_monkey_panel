@@ -602,7 +602,7 @@ _.mixin({
 						break;
 					default:
 						console.log("HTTP error: " + this.xmlhttp.status);
-						this.xmlhttp.responsetext && fb.trace(this.xmlhttp.responsetext);
+						this.xmlhttp.responseText && fb.Trace(this.xmlhttp.responseText);
 						break;
 					}
 				}
@@ -612,7 +612,7 @@ _.mixin({
 		this.success = function (f) {
 			switch (true) {
 			case this.mode == "musicbrainz" && this.mb_mode == 0: // releases
-				var data = _.jsonParse(this.xmlhttp.responsetext);
+				var data = _.jsonParse(this.xmlhttp.responseText);
 				var max_offset = Math.min(500, data["release-group-count"] || 0) - 100;
 				var rg = data["release-groups"] || [];
 				if (rg.length)
@@ -626,11 +626,11 @@ _.mixin({
 				}
 				break;
 			case this.mode == "musicbrainz": // links
-				_.save(this.xmlhttp.responsetext, f);
+				_.save(this.xmlhttp.responseText, f);
 				this.reset();
 				break;
 			case this.mode == "lastfm_info":
-				var data = _.jsonParse(this.xmlhttp.responsetext);
+				var data = _.jsonParse(this.xmlhttp.responseText);
 				if (data.error)
 					return console.log(data.message);
 				_.save(JSON.stringify(data), f);

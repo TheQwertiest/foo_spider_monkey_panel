@@ -57,7 +57,7 @@ _.mixin({
 			console.log("Submitting " + _.q(tags.artist + " - " + tags.title));
 			
 			if (this.show_data)
-				fb.trace(JSON.stringify(data, null, "    "));
+				fb.Trace(JSON.stringify(data, null, "    "));
 			
 			this.post(data);
 		}
@@ -70,12 +70,12 @@ _.mixin({
 				if (this.xmlhttp.readyState == 4) {
 					if (this.xmlhttp.status == 0) {
 						console.log("An unknown error occurred. A possible cause may be an invalid authorization token.");
-					} else if (this.xmlhttp.responsetext) {
-						var data = _.jsonParse(this.xmlhttp.responsetext);
+					} else if (this.xmlhttp.responseText) {
+						var data = _.jsonParse(this.xmlhttp.responseText);
 						if (data.status == "ok")
 							console.log("Listen submitted OK!");
 						else
-							console.log(this.xmlhttp.responsetext);
+							console.log(this.xmlhttp.responseText);
 					} else {
 						console.log("The server response was empty, status code: " + this.xmlhttp.status);
 					}

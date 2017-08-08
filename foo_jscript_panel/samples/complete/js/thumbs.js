@@ -304,17 +304,17 @@ _.mixin({
 				panel.s11.AppendMenuSeparator();
 				var flag = this.modes[this.mode] == "off" ? MF_GRAYED : MF_STRING;
 				_.forEach(this.pxs, function (item) {
-					panel.s11.AppendMenuItem(flag, item + 4100, item + "px");
+					panel.s11.AppendMenuItem(flag, item + 4000, item + "px");
 				});
-				panel.s11.CheckMenuRadioItem(_.first(this.pxs) + 4100, _.last(this.pxs) + 4100, this.px + 4100);
+				panel.s11.CheckMenuRadioItem(_.first(this.pxs) + 4000, _.last(this.pxs) + 4000, this.px + 4000);
 				panel.s11.AppendTo(panel.m, MF_STRING, "Thumbs");
 				panel.m.AppendMenuSeparator();
 			}
-			panel.s12.AppendMenuItem(MF_STRING, 4060, "Off");
-			panel.s12.AppendMenuItem(MF_STRING, 4065, "5 seconds");
-			panel.s12.AppendMenuItem(MF_STRING, 4070, "10 seconds");
-			panel.s12.AppendMenuItem(MF_STRING, 4080, "20 seconds");
-			panel.s12.CheckMenuRadioItem(4060, 4080, this.cycle + 4060);
+			panel.s12.AppendMenuItem(MF_STRING, 4400, "Off");
+			panel.s12.AppendMenuItem(MF_STRING, 4405, "5 seconds");
+			panel.s12.AppendMenuItem(MF_STRING, 4410, "10 seconds");
+			panel.s12.AppendMenuItem(MF_STRING, 4420, "20 seconds");
+			panel.s12.CheckMenuRadioItem(4400, 4420, this.cycle + 4400);
 			panel.s12.AppendTo(panel.m, MF_STRING, "Cycle");
 			panel.m.AppendMenuSeparator();
 			panel.s13.AppendMenuItem(MF_STRING, 4500, "A-Z");
@@ -324,23 +324,23 @@ _.mixin({
 			panel.m.AppendMenuSeparator();
 			if (this.image_xywh_trace(x, y)) {
 				if (this.modes[this.mode] != "grid") {
-					panel.m.AppendMenuItem(MF_STRING, 4520, "Crop (focus on centre)");
-					panel.m.AppendMenuItem(MF_STRING, 4521, "Crop (focus on top)");
-					panel.m.AppendMenuItem(MF_STRING, 4522, "Stretch");
-					panel.m.AppendMenuItem(MF_STRING, 4523, "Centre");
-					panel.m.CheckMenuRadioItem(4520, 4523, this.aspect + 4520);
+					panel.m.AppendMenuItem(MF_STRING, 4510, "Crop (focus on centre)");
+					panel.m.AppendMenuItem(MF_STRING, 4511, "Crop (focus on top)");
+					panel.m.AppendMenuItem(MF_STRING, 4512, "Stretch");
+					panel.m.AppendMenuItem(MF_STRING, 4513, "Centre");
+					panel.m.CheckMenuRadioItem(4510, 4513, this.aspect + 4510);
 					panel.m.AppendMenuSeparator();
 				}
 				if (this.source == 1 && this.images.length > 1) {
-					panel.m.AppendMenuItem(this.default_file == this.files[this.image] ? MF_GRAYED : MF_STRING, 4530, "Set as default");
-					panel.m.AppendMenuItem(MF_STRING, 4531, "Clear default");
+					panel.m.AppendMenuItem(this.default_file == this.files[this.image] ? MF_GRAYED : MF_STRING, 4520, "Set as default");
+					panel.m.AppendMenuItem(MF_STRING, 4521, "Clear default");
 					panel.m.AppendMenuSeparator();
 				}
-				panel.m.AppendMenuItem(MF_STRING, 4511, "Open image");
-				panel.m.AppendMenuItem(MF_STRING, 4512, "Delete image");
+				panel.m.AppendMenuItem(MF_STRING, 4530, "Open image");
+				panel.m.AppendMenuItem(MF_STRING, 4531, "Delete image");
 				panel.m.AppendMenuSeparator();
 			}
-			panel.m.AppendMenuItem(_.isFolder(this.folder) ? MF_STRING : MF_GRAYED, 4510, "Open containing folder");
+			panel.m.AppendMenuItem(_.isFolder(this.folder) ? MF_STRING : MF_GRAYED, 4540, "Open containing folder");
 			panel.m.AppendMenuSeparator();
 		}
 		
@@ -388,23 +388,23 @@ _.mixin({
 				this.size(true);
 				window.Repaint();
 				break;
-			case 4060:
-			case 4065:
-			case 4070:
-			case 4080:
-				this.cycle = idx - 4060;
-				window.SetProperty("2K3.THUMBS.CYCLE", this.cycle);
-				break;
-			case 4175:
+			case 4075:
+			case 4100:
+			case 4150:
 			case 4200:
 			case 4250:
 			case 4300:
-			case 4350:
-			case 4400:
-				this.px = idx - 4100;
+				this.px = idx - 4000;
 				window.SetProperty("2K3.THUMBS.PX", this.px);
 				this.size(true);
 				window.Repaint();
+				break;
+			case 4400:
+			case 4405:
+			case 4410:
+			case 4420:
+				this.cycle = idx - 4400;
+				window.SetProperty("2K3.THUMBS.CYCLE", this.cycle);
 				break;
 			case 4500:
 			case 4501:
@@ -414,30 +414,30 @@ _.mixin({
 					this.update();
 				break;
 			case 4510:
+			case 4511:
+			case 4512:
+			case 4513:
+				this.aspect = idx - 4510;
+				window.SetProperty("2K3.THUMBS.ASPECT", this.aspect);
+				window.Repaint();
+				break;
+			case 4520:
+				this.set_default(this.files[this.image].split("\\").pop());
+				break;
+			case 4521:
+				this.set_default("");
+				break;
+			case 4530:
+				_.run(this.files[this.image]);
+				break;
+			case 4531:
+				this.delete_image();
+				break;
+			case 4540:
 				if (this.files.length)
 					_.explorer(this.files[this.image]);
 				else
 					_.run(this.folder);
-				break;
-			case 4511:
-				_.run(this.files[this.image]);
-				break;
-			case 4512:
-				this.delete_image();
-				break;
-			case 4520:
-			case 4521:
-			case 4522:
-			case 4523:
-				this.aspect = idx - 4520;
-				window.SetProperty("2K3.THUMBS.ASPECT", this.aspect);
-				window.Repaint();
-				break;
-			case 4530:
-				this.set_default(this.files[this.image].split("\\").pop());
-				break;
-			case 4531:
-				this.set_default("");
 				break;
 			}
 		}
@@ -509,7 +509,7 @@ _.mixin({
 		}
 		
 		this.success = function (base) {
-			_(_.getElementsByTagName(this.xmlhttp.responsetext, "img"))
+			_(_.getElementsByTagName(this.xmlhttp.responseText, "img"))
 				.filter({className : "image-list-image"})
 				.take(this.download_limit)
 				.forEach(function (item) {
@@ -539,17 +539,17 @@ _.mixin({
 		this.my = 0;
 		this.files = [];
 		this.images = [];
-		this.modes = ["grid", "left", "right", "top", "bottom", "off"];
-		this.pxs = [75, 100, 150, 200, 250, 300];
-		this.download_limits = [1, 3, 5, 10, 15, 20];
-		this.mode = window.GetProperty("2K3.THUMBS.MODE", 4); // bottom
-		this.cycle = window.GetProperty("2K3.THUMBS.CYCLE", 0);
-		this.aspect = window.GetProperty("2K3.THUMBS.ASPECT", image.crop_top);
-		this.custom_folder_tf = window.GetProperty("2K3.THUMBS.CUSTOM.FOLDER.TF", "$directory_path(%path%)");
-		this.px = window.GetProperty("2K3.THUMBS.PX", 75);
-		this.sort = window.GetProperty("2K3.THUMBS.SORT", 0); // 0 a-z 1 newest first
 		this.source = window.GetProperty("2K3.THUMBS.SOURCE", 0); // 0 custom folder 1 last.fm
+		this.custom_folder_tf = window.GetProperty("2K3.THUMBS.CUSTOM.FOLDER.TF", "$directory_path(%path%)");
+		this.download_limits = [1, 3, 5, 10, 15, 20];
 		this.download_limit = window.GetProperty("2K3.THUMBS.DOWNLOAD.LIMIT", 10);
+		this.modes = ["grid", "left", "right", "top", "bottom", "off"];
+		this.mode = window.GetProperty("2K3.THUMBS.MODE", 4); // bottom
+		this.pxs = [75, 100, 150, 200, 250, 300];
+		this.px = window.GetProperty("2K3.THUMBS.PX", 75);
+		this.cycle = window.GetProperty("2K3.THUMBS.CYCLE", 0);
+		this.sort = window.GetProperty("2K3.THUMBS.SORT", 0); // 0 a-z 1 newest first
+		this.aspect = window.GetProperty("2K3.THUMBS.ASPECT", image.crop_top);
 		this.ini_file = folders.settings + "thumbs.ini";
 		this.vbs_file = fb.ComponentPath + "samples\\complete\\vbs\\download.vbs";
 		this.exts = "jpg|jpeg|png|gif";
