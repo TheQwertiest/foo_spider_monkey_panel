@@ -4526,7 +4526,7 @@ STDMETHODIMP JSUtils::get_Version(UINT* v)
 {
 	TRACK_FUNCTION();
 
-	*v = 1230;
+	*v = 1231;
 	return S_OK;
 }
 
