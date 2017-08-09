@@ -1,3 +1,13 @@
+## v1.2.3.1
+```
+- CHG: No component changes except a version bump. All changes are to samples.
+- ADD: Last.fm Bio, Allmusic, Listenbrainz samples. "Thumbs" can download images
+       from Last.fm again but only manually.
+- FIX: Most samples are now DPI aware so text/tooltips should increase inline
+       with other desktop elements. For existing users, each panel script should
+       be re-imported from the "samples\complete" folder.
+```
+
 ## v1.2.3
 ```
 - ADD: Add fb.ReplaygainMode. Can be used to retrieve or set the value. See

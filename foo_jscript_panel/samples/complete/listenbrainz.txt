@@ -7,6 +7,16 @@
 // @import "%fb2k_component_path%samples\complete\js\listenbrainz.js"
 // ==/PREPROCESSOR==
 
+/*
+https://listenbrainz.org/
+The button logo will remain grey and do nothing until your add
+your user token. Click the button to do this. When it changes
+to colour, "listens" are submitted after half the track has played
+or 4 minutes has passed, just like Last.fm. Currently there
+is no caching/retrying of failed "listens". I'll look at adding
+this soon. You can view all activity via the Console.
+*/
+
 var panel = new _.panel("Listenbrainz", ["custom_background"]);
 var buttons = new _.buttons();
 var listenbrainz = new _.listenbrainz(2, 2, 32);
