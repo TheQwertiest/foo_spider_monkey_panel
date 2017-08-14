@@ -5,16 +5,6 @@
 // @import "%fb2k_component_path%docs\helpers.txt"
 // ==/PREPROCESSOR==
 
-ButtonStates = {
-	normal: 0,
-	hover: 1,
-	down: 2,
-	hide: 3
-}
-
-var g_theme = window.CreateThemeManager("Button");
-var g_font = gdi.Font("Segoe UI", 12);
-
 function SimpleButton(x, y, w, h, text, fonClick, state) {
 	this.state = state ? state : ButtonStates.normal;
 	this.x = x;
@@ -67,32 +57,21 @@ function SimpleButton(x, y, w, h, text, fonClick, state) {
 }
 
 function drawAllButtons(gr) {
-	for (var i in $buttons) {
-		$buttons[i].draw(gr);
+	for (var i in buttons) {
+		buttons[i].draw(gr);
 	}
 }
 
 function chooseButton(x, y) {
-	for (var i in $buttons) {
-		if ($buttons[i].containXY(x, y) && $buttons[i].state != ButtonStates.hide) return $buttons[i];
+	for (var i in buttons) {
+		if (buttons[i].containXY(x, y) && buttons[i].state != ButtonStates.hide) return buttons[i];
 	}
 
 	return null;
 }
 
-$buttons = {
-	Console: new SimpleButton(5, 5, 80, 26, "Console", function () {
-		fb.ShowConsole();
-	}),
-	Configure: new SimpleButton(5, 40, 80, 26, "Configure", function () {
-		window.ShowConfigure();
-	})
-}
-
-var cur_btn = null;
-var g_down = false;
-
 function on_paint(gr) {
+	gr.FillSolidRect(0, 0, window.Width, window.Height, utils.GetSysColor(15));
 	drawAllButtons(gr);
 }
 
@@ -107,7 +86,7 @@ function on_mouse_move(x, y) {
 		window.Repaint();
 		return;
 	}
-		
+	
 	old && old.changeState(ButtonStates.normal);
 	cur_btn && cur_btn.changeState(ButtonStates.hover);
 	window.Repaint();
@@ -140,3 +119,24 @@ function on_mouse_lbtn_up(x, y) {
 		window.Repaint();
 	}
 }
+
+var cur_btn = null;
+var g_theme = window.CreateThemeManager("Button");
+var g_font = gdi.Font("Segoe UI", 12);
+var g_down = false;
+
+var ButtonStates = {
+	normal: 0,
+	hover: 1,
+	down: 2,
+	hide: 3
+}
+
+var buttons = {
+	Console: new SimpleButton(5, 5, 80, 26, "Console", function () {
+		fb.ShowConsole();
+	}),
+	Configure: new SimpleButton(5, 40, 80, 26, "Configure", function () {
+		window.ShowConfigure();
+	})
+};
