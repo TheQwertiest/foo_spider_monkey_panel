@@ -1,20 +1,20 @@
 _.mixin({
 	text : function (mode, x, y, w, h) {
 		this.size = function () {
-			this.rows = Math.floor((this.h - 32) / panel.row_height);
-			this.up_btn.x = this.x + Math.round((this.w - 16) / 2);
+			this.rows = Math.floor((this.h - _.scale(24)) / panel.row_height);
+			this.up_btn.x = this.x + Math.round((this.w - _.scale(12)) / 2);
 			this.down_btn.x = this.up_btn.x;
 			this.up_btn.y = this.y;
-			this.down_btn.y = this.y + this.h - 16;
+			this.down_btn.y = this.y + this.h - _.scale(12);
 			this.update();
 		}
 		
 		this.paint = function (gr) {
 			for (var i = 0; i < Math.min(this.rows, this.lines.length); i++) {
 				if (this.fixed)
-					gr.GdiDrawText(this.lines[i + this.offset], panel.fonts.fixed, panel.colours.text, this.x, Math.floor(panel.row_height / 2) + 16 + this.y + (i * panel.row_height), this.w, panel.row_height, LEFT);
+					gr.GdiDrawText(this.lines[i + this.offset], panel.fonts.fixed, panel.colours.text, this.x, this.y + _.scale(12) + (i * panel.row_height) + Math.floor(panel.row_height / 2), this.w, panel.row_height, LEFT);
 				else
-					gr.GdiDrawText(this.lines[i + this.offset], panel.fonts.normal, panel.colours.text, this.x, 16 + this.y + (i * panel.row_height), this.w, panel.row_height, LEFT);
+					gr.GdiDrawText(this.lines[i + this.offset], panel.fonts.normal, panel.colours.text, this.x, this.y + _.scale(12) + (i * panel.row_height), this.w, panel.row_height, LEFT);
 			}
 			this.up_btn.paint(gr, panel.colours.text);
 			this.down_btn.paint(gr, panel.colours.text);
@@ -378,8 +378,8 @@ _.mixin({
 		this.artist = "";
 		this.album = "";
 		this.filename = "";
-		this.up_btn = new _.sb(guifx.up, this.x, this.y, 16, 16, _.bind(function () { return this.offset > 0; }, this), _.bind(function () { this.wheel(1); }, this));
-		this.down_btn = new _.sb(guifx.down, this.x, this.y, 16, 16, _.bind(function () { return this.offset < this.lines.length - this.rows; }, this), _.bind(function () { this.wheel(-1); }, this));
+		this.up_btn = new _.sb(guifx.up, this.x, this.y, _.scale(12), _.scale(12), _.bind(function () { return this.offset > 0; }, this), _.bind(function () { this.wheel(1); }, this));
+		this.down_btn = new _.sb(guifx.down, this.x, this.y, _.scale(12), _.scale(12), _.bind(function () { return this.offset < this.lines.length - this.rows; }, this), _.bind(function () { this.wheel(-1); }, this));
 		this.xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
 		this.init();
 	}
