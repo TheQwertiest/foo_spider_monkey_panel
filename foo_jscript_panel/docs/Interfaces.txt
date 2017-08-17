@@ -188,25 +188,25 @@ interface IFbUtils {
 
 		fb.GetLibraryItems(); (IFbMetadbHandleList)
 		// returns all Media Library items as a handle list.
-		
+
 		fb.GetLibraryRelativePath(handle); (string)
 		/*
 		returns an empty string when used on track not in Media Library
-		
+
 		example:
 		the foobar2000 Media Library is configured to watch "D:\Music" and the
 		path of the now playing item is "D:\Music\Albums\Artist\Some Album\Some Song.flac"
-		
+
 		var handle = fb.GetNowPlaying();
 		fb.trace(fb.GetLibraryRelativePath(handle));
-		
+
 		outputs "Albums\Artist\Some Album\Some Song.flac"
-		
+
 		NOTE: If you intend to loop through a large handle list and you have no control over what is
 		happening in the background, consider using try/catch as errors may occur if the Media Library
 		settings/content changes.
 		*/
-		
+
 		fb.GetNowPlaying(); (IFbMetadbHandle)
 		// get handle of now playing item.
 
@@ -314,7 +314,7 @@ interface IFbUtils {
 					force: boolean, default false. if true, you can process text that doesn't contain
 						   title formatting even when foobar2000 isn't playing. when playing, you
 						   should always get a result.
-					
+
 					always use eval when you want dynamic info such as %playback_time%, %bitrate% etc.
 					EvalWithMetadb(fb.GetNowplaying()) will not give the results you want.
 					example: fb.trace(tfo.Eval());
@@ -660,13 +660,13 @@ interface IJSUtils {
 	Properties:
 		utils.Version (uint) (read)
 		/* new in v1.2.0. returns a 4 digit number corresponding to the version
-		
+
 		v1.2.0 -> 1200
 		v1.2.1 -> 1210
-		
+
 		If you try and access this in older components where it doesn't exist, the script will
 		crash so you can do a check like this.
-		
+
 		if (!("Version" in utils)) {
 			fb.ShowPopupMessage("Current component version is less than v1.2.0. This script requires vX.X.X");
 		} else {
@@ -962,7 +962,7 @@ interface IFbWindow {
 		window.SetCursor(id); (void)
 		/*
 		this would usually be used inside the on_mouse_move callback
-		
+
 		id: see flags.txt > Used in window.SetCursor()
 		use -1 if you want to hide the cursor.
 		*/
@@ -1194,7 +1194,7 @@ interface IGdiGraphics {
 						var temp = gr.MeasureString(text, font, 0, 0, window.Width, 10000, sf);
 						// if we want to calculate height, we must set the height to be far larger than what
 						// the text could possibly be.
-						
+
 						fb.trace(temp.Height); // 2761.2421875 // far larger than my panel height!
 						fb.trace(temp.Chars); // 7967
 					}
@@ -1374,10 +1374,10 @@ interface IFbMetadbHandleList {
 		example:
 		var one = plman.GetPlaylistItems(0);
 		one.Sort();
-		
+
 		var two = plman.GetPlaylistItems(1);
 		two.Sort();
-		
+
 		one.MakeDifference(two);
 		// "one" now only contains handles that were unique to "one". anything that also existed in "two" will have been removed.
 		*/
@@ -1387,10 +1387,10 @@ interface IFbMetadbHandleList {
 		example:
 		var one = plman.GetPlaylistItems(0);
 		one.Sort();
-		
+
 		var two = plman.GetPlaylistItems(1);
 		two.Sort();
-		
+
 		one.MakeIntersection(two);
 		// "one" now only contains handles that were in BOTH "one" AND "two"
 		*/
@@ -1400,10 +1400,10 @@ interface IFbMetadbHandleList {
 		example:
 		var one = plman.GetPlaylistItems(0);
 		one.Sort();
-		
+
 		var two = plman.GetPlaylistItems(1);
 		two.Sort();
-		
+
 		one.MakeUnion(two);
 		// "one" now contains all handles from "one" AND "two" with any duplicates removed
 		*/
@@ -1438,7 +1438,7 @@ interface IFbMetadbHandleList {
 
 		RemoveRange(from, num); (void)
 		// example: handle_list.RemoveRange(10, 20);
-		
+
 		UpdateFileInfoSimple(field1, value1 [, field2, value2 [,...] ] [, multivalue_fields]);
 		/*
 		if value is a empty string, field will be removed

@@ -118,7 +118,8 @@ _.mixin({
 			// album art 2000-2999
 			// list 3000-3999
 			// text 5000-5999
-			object && object.rbtn_up(x, y);
+			if (object)
+				object.rbtn_up(x, y);
 			if (this.list_objects.length || this.text_objects.length) {
 				_.forEach(this.fonts.sizes, function (item) {
 					this.s1.AppendMenuItem(MF_STRING, item, item);
@@ -176,7 +177,8 @@ _.mixin({
 				window.ShowConfigure();
 				break;
 			default:
-				object && object.rbtn_up_done(idx);
+				if (object)
+					object.rbtn_up_done(idx);
 				break;
 			}
 			_.dispose(this.m, this.s1, this.s2, this.s3, this.s10, this.s11, this.s12, this.s13);

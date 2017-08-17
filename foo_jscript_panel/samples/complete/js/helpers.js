@@ -24,7 +24,8 @@ _.mixin({
 	},
 	button : function (x, y, w, h, img_src, fn, tiptext) {
 		this.paint = function (gr) {
-			this.img && _.drawImage(gr, this.img, this.x, this.y, this.w, this.h);
+			if (this.img)
+				_.drawImage(gr, this.img, this.x, this.y, this.w, this.h);
 		}
 		
 		this.trace = function (x, y) {
@@ -32,7 +33,8 @@ _.mixin({
 		}
 		
 		this.lbtn_up = function (x, y) {
-			this.fn && this.fn(x, y);
+			if (this.fn)
+				this.fn(x, y);
 		}
 		
 		this.cs = function (s) {
@@ -115,7 +117,8 @@ _.mixin({
 	},
 	dispose : function () {
 		_.forEach(arguments, function (item) {
-			item && item.Dispose();
+			if (item)
+				item.Dispose();
 		});
 	},
 	drawImage : function (gr, img, src_x, src_y, src_w, src_h, aspect, border, alpha) {
@@ -157,7 +160,8 @@ _.mixin({
 			gr.DrawImage(img, src_x, src_y, src_w, src_h, dst_x, dst_y, dst_w, dst_h, 0, alpha || 255);
 			break;
 		}
-		border && gr.DrawRect(src_x, src_y, src_w - 1, src_h - 1, 1, border);
+		if (border)
+			gr.DrawRect(src_x, src_y, src_w - 1, src_h - 1, 1, border);
 		return [src_x, src_y, src_w, src_h];
 	},
 	drawOverlay : function (gr, x, y, w, h) {
@@ -452,7 +456,8 @@ _.mixin({
 		
 		this.lbtn_up = function (x, y) {
 			if (this.trace(x, y)) {
-				this.fn && this.fn(x, y);
+				if (this.fn)
+					this.fn(x, y);
 				return true;
 			} else {
 				return false;

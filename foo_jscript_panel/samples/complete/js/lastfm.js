@@ -4,7 +4,8 @@ _.mixin({
 			if (name == "2K3.NOTIFY.LASTFM") {
 				this.username = this.read_ini("username");
 				this.sk = this.read_ini("sk");
-				this.scrobbler && this.scrobbler.update_button();
+				if (this.scrobbler)
+					this.scrobbler.update_button();
 				_.forEach(panel.list_objects, function (item) {
 					if (item.mode == "lastfm_info" && item.lastfm_mode == 1)
 						item.update();

@@ -52,7 +52,8 @@ function on_paint(gr) {
 	buttons.paint(gr);
 	gr.FillSolidRect(seekbar.x, seekbar.y + _.scale(3), seekbar.w + 16, seekbar.h - _.scale(6), colours.seekbar_background);
 	if (fb.IsPlaying) {
-		img && _.drawImage(gr, img, 0, 0, panel.h, panel.h, image.centre);
+		if (img)
+			_.drawImage(gr, img, 0, 0, panel.h, panel.h, image.centre);
 		gr.GdiDrawText(_.tfe("%title%"), panel.fonts.title, colours.title, panel.h + 10, 0, seekbar.x - panel.h - _.scale(60), panel.h * 0.6, LEFT);
 		gr.GdiDrawText(_.tfe("%artist%"), panel.fonts.normal, colours.artist, panel.h + 10, panel.h * 0.3, seekbar.x - panel.h - _.scale(60), panel.h * 0.7, LEFT);
 		gr.SetSmoothingMode(4);
