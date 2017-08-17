@@ -15,18 +15,18 @@ _.mixin({
 		
 		this.listen = function () {
 			if (this.token.length != 36)
-				return console.log("Token not set.");
+				return console.log('Token not set.');
 			
 			if (this.in_library && !fb.IsMetadbInMediaLibrary(this.metadb))
-				return console.log("Skipping... Track not in Media Library.");
+				return console.log('Skipping... Track not in Media Library.');
 			
 			var tags = this.get_tags(this.metadb);
 			
 			if (!tags.artist || !tags.title)
-				return console.log("Artist/title tag missing. Not submitting.");
+				return console.log('Artist/title tag missing. Not submitting.');
 			
 			var data = {
-				listen_type : "single",
+				listen_type : 'single',
 				payload : [
 					{
 						listened_at : this.timestamp,
@@ -54,30 +54,30 @@ _.mixin({
 				]
 			};
 			
-			console.log("Submitting " + _.q(tags.artist + " - " + tags.title));
+			console.log('Submitting ' + _.q(tags.artist + ' - ' + tags.title));
 			
 			if (this.show_data)
-				fb.Trace(JSON.stringify(data, null, "    "));
+				fb.Trace(JSON.stringify(data, null, '    '));
 			
 			this.post(data);
 		}
 		
 		this.post = function (data) {
-			this.xmlhttp.open("POST", "https://api.listenbrainz.org/1/submit-listens", true);
-			this.xmlhttp.setRequestHeader("Authorization" , "Token " + this.token);
+			this.xmlhttp.open('POST', 'https://api.listenbrainz.org/1/submit-listens', true);
+			this.xmlhttp.setRequestHeader('Authorization' , 'Token ' + this.token);
 			this.xmlhttp.send(JSON.stringify(data));
 			this.xmlhttp.onreadystatechange = _.bind(function () {
 				if (this.xmlhttp.readyState == 4) {
 					if (this.xmlhttp.status == 0) {
-						console.log("An unknown error occurred. A possible cause may be an invalid authorization token.");
+						console.log('An unknown error occurred. A possible cause may be an invalid authorization token.');
 					} else if (this.xmlhttp.responseText) {
 						var data = _.jsonParse(this.xmlhttp.responseText);
-						if (data.status == "ok")
-							console.log("Listen submitted OK!");
+						if (data.status == 'ok')
+							console.log('Listen submitted OK!');
 						else
 							console.log(this.xmlhttp.responseText);
 					} else {
-						console.log("The server response was empty, status code: " + this.xmlhttp.status);
+						console.log('The server response was empty, status code: ' + this.xmlhttp.status);
 					}
 				}
 			}, this);
@@ -88,7 +88,7 @@ _.mixin({
 			var f = metadb.GetFileInfo();
 			for (var i = 0; i < f.MetaCount; i++) {
 				var name = f.MetaName(i).toLowerCase();
-				if (name == "genre" && !this.submit_genres)
+				if (name == 'genre' && !this.submit_genres)
 					continue;
 				
 				var key = this.mb_names[name] || name;
@@ -110,55 +110,55 @@ _.mixin({
 		this.options = function () {
 			var flag = this.token.length == 36 ? MF_STRING : MF_GRAYED;
 			var m = window.CreatePopupMenu();
-			m.AppendMenuItem(MF_STRING, 1, "Set token...");
+			m.AppendMenuItem(MF_STRING, 1, 'Set token...');
 			m.AppendMenuSeparator();
-			m.AppendMenuItem(MF_STRING, 2, "Set username...");
-			m.AppendMenuItem(this.username.length ? MF_STRING : MF_GRAYED, 3, "View profile");
+			m.AppendMenuItem(MF_STRING, 2, 'Set username...');
+			m.AppendMenuItem(this.username.length ? MF_STRING : MF_GRAYED, 3, 'View profile');
 			m.AppendMenuSeparator();
-			m.AppendMenuItem(flag, 4, "Show submission data in Console when sending");
+			m.AppendMenuItem(flag, 4, 'Show submission data in Console when sending');
 			m.CheckMenuItem(4, this.show_data);
-			m.AppendMenuItem(flag, 5, "Submit Media Library tracks only");
+			m.AppendMenuItem(flag, 5, 'Submit Media Library tracks only');
 			m.CheckMenuItem(5, this.in_library);
-			m.AppendMenuItem(flag, 6, "Submit genre tags");
+			m.AppendMenuItem(flag, 6, 'Submit genre tags');
 			m.CheckMenuItem(6, this.submit_genres);
 			var idx = m.TrackPopupMenu(this.x, this.y + this.size);
 			switch (idx) {
 			case 1:
-				var token = _.input("Enter your token\n\nhttps://listenbrainz.org/user/import", panel.name, this.token);
+				var token = _.input('Enter your token\n\nhttps://listenbrainz.org/user/import', panel.name, this.token);
 				if (token != this.token) {
 					this.token = token;
-					utils.WriteINI(this.ini_file, "Listenbrainz", "token", this.token);
+					utils.WriteINI(this.ini_file, 'Listenbrainz', 'token', this.token);
 					this.update_button();
 				}
 				break;
 			case 2:
-				var username = _.input("Enter your username.", panel.name, this.username);
+				var username = _.input('Enter your username.', panel.name, this.username);
 				if (username != this.username) {
 					this.username = username;
-					utils.WriteINI(this.ini_file, "Listenbrainz", "username", this.username);
+					utils.WriteINI(this.ini_file, 'Listenbrainz', 'username', this.username);
 				}
 				break;
 			case 3:
-				_.run("https://listenbrainz.org/user/" + this.username);
+				_.run('https://listenbrainz.org/user/' + this.username);
 				break;
 			case 4:
 				this.show_data = !this.show_data;
-				window.SetProperty("2K3.LISTENBRAINZ.SHOW.DATA", this.show_data);
+				window.SetProperty('2K3.LISTENBRAINZ.SHOW.DATA', this.show_data);
 				break;
 			case 5:
 				this.in_library = !this.in_library;
-				window.SetProperty("2K3.LISTENBRAINZ.IN.LIBRARY", this.in_library);
+				window.SetProperty('2K3.LISTENBRAINZ.IN.LIBRARY', this.in_library);
 				break;
 			case 6:
 				this.submit_genres = !this.submit_genres;
-				window.SetProperty("2K3.LISTENBRAINZ.SUBMIT.GENRES", this.submit_genres);
+				window.SetProperty('2K3.LISTENBRAINZ.SUBMIT.GENRES', this.submit_genres);
 				break;
 			}
 			m.Dispose();
 		}
 		
 		this.update_button = function () {
-			buttons.buttons.listenbrainz = new _.button(this.x, this.y, this.size, this.size, {normal : this.token.length == 36 ? "misc\\listenbrainz_active.png" : "misc\\listenbrainz_inactive.png"}, _.bind(function () { this.options(); }, this), "Listenbrainz Options");
+			buttons.buttons.listenbrainz = new _.button(this.x, this.y, this.size, this.size, {normal : this.token.length == 36 ? 'misc\\listenbrainz_active.png' : 'misc\\listenbrainz_inactive.png'}, _.bind(function () { this.options(); }, this), 'Listenbrainz Options');
 			window.RepaintRect(this.x, this.y, this.size, this.size);
 		}
 		
@@ -166,44 +166,44 @@ _.mixin({
 		this.x = x;
 		this.y = y;
 		this.size = size;
-		this.ini_file = folders.settings + "listenbrainz.ini";
-		this.token = utils.ReadINI(this.ini_file, "Listenbrainz", "token");
-		this.username = utils.ReadINI(this.ini_file, "Listenbrainz", "username");
-		this.show_data = window.GetProperty("2K3.LISTENBRAINZ.SHOW.DATA", false);
-		this.in_library = window.GetProperty("2K3.LISTENBRAINZ.IN.LIBRARY", false);
-		this.submit_genres = window.GetProperty("2K3.LISTENBRAINZ.SUBMIT.GENRES", true);
-		this.xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+		this.ini_file = folders.settings + 'listenbrainz.ini';
+		this.token = utils.ReadINI(this.ini_file, 'Listenbrainz', 'token');
+		this.username = utils.ReadINI(this.ini_file, 'Listenbrainz', 'username');
+		this.show_data = window.GetProperty('2K3.LISTENBRAINZ.SHOW.DATA', false);
+		this.in_library = window.GetProperty('2K3.LISTENBRAINZ.IN.LIBRARY', false);
+		this.submit_genres = window.GetProperty('2K3.LISTENBRAINZ.SUBMIT.GENRES', true);
+		this.xmlhttp = new ActiveXObject('Microsoft.XMLHTTP');
 		this.time_elapsed = 0;
 		this.target_time = 0;
 		this.timestamp = 0;
 		this.mb_names = {
-			"acoustid id" : "acoustid_id",
-			"acoustid fingerprint" : "acoustid_fingerprint",
-			"album artist" : "albumartist",
-			"albumartistsortorder" : "albumartistsort",
-			"albumsortorder" : "albumsort",
-			"artistsortorder" : "artistsort",
-			"artist webpage url" : "website",
-			"composersortorder" : "composersort",
-			"content group" : "grouping",
-			"copyright url" : "license",
-			"encoded by" : "encodedby",
-			"encoding settings" : "encodersettings",
-			"initial key" : "initialkey",
-			"itunescompilation" : "compilation",
-			"musicbrainz album artist id" : "musicbrainz_albumartistid",
-			"musicbrainz album id" : "musicbrainz_albumid",
-			"musicbrainz artist id" : "musicbrainz_artistid",
-			"musicbrainz disc id" : "musicbrainz_discid",
-			"musicbrainz release group id" : "musicbrainz_releasegroupid",
-			"musicbrainz release track id" : "musicbrainz_releasetrackid",
-			"musicbrainz trm id" : "musicbrainz_trmid",
-			"musicbrainz work id" : "musicbrainz_workid",
-			"musicip puid" : "musicip_puid",
-			"musicbrainz album release country" : "releasecountry",
-			"musicbrainz album status" : "releasestatus",
-			"musicbrainz album type" : "releasetype",
-			"titlesortorder" : "titlesort"
+			'acoustid id' : 'acoustid_id',
+			'acoustid fingerprint' : 'acoustid_fingerprint',
+			'album artist' : 'albumartist',
+			'albumartistsortorder' : 'albumartistsort',
+			'albumsortorder' : 'albumsort',
+			'artistsortorder' : 'artistsort',
+			'artist webpage url' : 'website',
+			'composersortorder' : 'composersort',
+			'content group' : 'grouping',
+			'copyright url' : 'license',
+			'encoded by' : 'encodedby',
+			'encoding settings' : 'encodersettings',
+			'initial key' : 'initialkey',
+			'itunescompilation' : 'compilation',
+			'musicbrainz album artist id' : 'musicbrainz_albumartistid',
+			'musicbrainz album id' : 'musicbrainz_albumid',
+			'musicbrainz artist id' : 'musicbrainz_artistid',
+			'musicbrainz disc id' : 'musicbrainz_discid',
+			'musicbrainz release group id' : 'musicbrainz_releasegroupid',
+			'musicbrainz release track id' : 'musicbrainz_releasetrackid',
+			'musicbrainz trm id' : 'musicbrainz_trmid',
+			'musicbrainz work id' : 'musicbrainz_workid',
+			'musicip puid' : 'musicip_puid',
+			'musicbrainz album release country' : 'releasecountry',
+			'musicbrainz album status' : 'releasestatus',
+			'musicbrainz album type' : 'releasetype',
+			'titlesortorder' : 'titlesort'
 		};
 		this.update_button();
 	}

@@ -24,12 +24,12 @@ _.mixin({
 		this.metadb_changed = function () {
 			_.dispose(this.img);
 			this.img = null;
-			this.tooltip = this.path = "";
+			this.tooltip = this.path = '';
 			if (panel.metadb) {
 				this.img = utils.GetAlbumArtV2(panel.metadb, this.id);
 				if (this.img) {
-					this.tooltip = "Original dimensions: " + this.img.Width + "x" + this.img.Height + "px";
-					if (panel.metadb.RawPath.indexOf("file") == 0)
+					this.tooltip = 'Original dimensions: ' + this.img.Width + 'x' + this.img.Height + 'px';
+					if (panel.metadb.RawPath.indexOf('file') == 0)
 						utils.GetAlbumArtAsync(window.ID, panel.metadb, this.id, true, false, true);
 				}
 			}
@@ -39,9 +39,9 @@ _.mixin({
 		this.get_album_art_done = function (p) {
 			this.path = p;
 			if (_.isFile(this.path)) {
-				this.tooltip += "\nPath: " + this.path;
+				this.tooltip += '\nPath: ' + this.path;
 				if (panel.metadb.Path != this.path)
-					this.tooltip += "\nSize: " + utils.FormatFileSize(fso.GetFile(this.path).Size);
+					this.tooltip += '\nSize: ' + utils.FormatFileSize(fso.GetFile(this.path).Size);
 			}
 		}
 		
@@ -56,8 +56,8 @@ _.mixin({
 					this.id = 4;
 				if (this.id > 4)
 					this.id = 0;
-				_.tt("");
-				window.SetProperty("2K3.ARTREADER.ID", this.id);
+				_.tt('');
+				window.SetProperty('2K3.ARTREADER.ID', this.id);
 				panel.item_focus_change();
 				return true;
 			} else {
@@ -75,7 +75,7 @@ _.mixin({
 				return true;
 			} else {
 				if (this.hover)
-					_.tt("");
+					_.tt('');
 				this.hover = false;
 				return false;
 			}
@@ -94,13 +94,13 @@ _.mixin({
 		}
 		
 		this.rbtn_up = function (x, y) {
-			panel.m.AppendMenuItem(MF_STRING, 2000, "Refresh");
+			panel.m.AppendMenuItem(MF_STRING, 2000, 'Refresh');
 			panel.m.AppendMenuSeparator();
-			panel.m.AppendMenuItem(MF_STRING, 2001, "CD Jewel Case");
+			panel.m.AppendMenuItem(MF_STRING, 2001, 'CD Jewel Case');
 			panel.m.CheckMenuItem(2001, this.cd);
-			panel.m.AppendMenuItem(this.cd ? MF_STRING : MF_GRAYED, 2002, "Gloss effect");
+			panel.m.AppendMenuItem(this.cd ? MF_STRING : MF_GRAYED, 2002, 'Gloss effect');
 			panel.m.CheckMenuItem(2002, this.gloss);
-			panel.m.AppendMenuItem(this.cd ? MF_STRING : MF_GRAYED, 2003, "Shadow effect");
+			panel.m.AppendMenuItem(this.cd ? MF_STRING : MF_GRAYED, 2003, 'Shadow effect');
 			panel.m.CheckMenuItem(2003, this.shadow);
 			panel.m.AppendMenuSeparator();
 			_.forEach(this.ids, function (item, i) {
@@ -108,15 +108,15 @@ _.mixin({
 			});
 			panel.m.CheckMenuRadioItem(2010, 2014, this.id + 2010);
 			panel.m.AppendMenuSeparator();
-			panel.m.AppendMenuItem(MF_STRING, 2020, "Crop (focus on centre)");
-			panel.m.AppendMenuItem(MF_STRING, 2021, "Crop (focus on top)");
-			panel.m.AppendMenuItem(MF_STRING, 2022, "Stretch");
-			panel.m.AppendMenuItem(MF_STRING, 2023, "Centre");
+			panel.m.AppendMenuItem(MF_STRING, 2020, 'Crop (focus on centre)');
+			panel.m.AppendMenuItem(MF_STRING, 2021, 'Crop (focus on top)');
+			panel.m.AppendMenuItem(MF_STRING, 2022, 'Stretch');
+			panel.m.AppendMenuItem(MF_STRING, 2023, 'Centre');
 			panel.m.CheckMenuRadioItem(2020, 2023, this.aspect + 2020);
 			panel.m.AppendMenuSeparator();
-			panel.m.AppendMenuItem(_.isFile(this.path) ? MF_STRING : MF_GRAYED, 2030, "Open containing folder");
+			panel.m.AppendMenuItem(_.isFile(this.path) ? MF_STRING : MF_GRAYED, 2030, 'Open containing folder');
 			panel.m.AppendMenuSeparator();
-			panel.m.AppendMenuItem(panel.metadb ? MF_STRING : MF_GRAYED, 2040, "Google image search");
+			panel.m.AppendMenuItem(panel.metadb ? MF_STRING : MF_GRAYED, 2040, 'Google image search');
 			panel.m.AppendMenuSeparator();
 		}
 		
@@ -127,17 +127,17 @@ _.mixin({
 				break;
 			case 2001:
 				this.cd = !this.cd;
-				window.SetProperty("2K3.ARTREADER.CD", this.cd);
+				window.SetProperty('2K3.ARTREADER.CD', this.cd);
 				window.Repaint();
 				break;
 			case 2002:
 				this.gloss = !this.gloss;
-				window.SetProperty("2K3.ARTREADER.GLOSS", this.gloss);
+				window.SetProperty('2K3.ARTREADER.GLOSS', this.gloss);
 				window.RepaintRect(this.x, this.y, this.w, this.h);
 				break;
 			case 2003:
 				this.shadow = !this.shadow;
-				window.SetProperty("2K3.ARTREADER.SHADOW", this.shadow);
+				window.SetProperty('2K3.ARTREADER.SHADOW', this.shadow);
 				window.RepaintRect(this.x, this.y, this.w, this.h);
 				break;
 			case 2010:
@@ -146,7 +146,7 @@ _.mixin({
 			case 2013:
 			case 2014:
 				this.id = idx - 2010;
-				window.SetProperty("2K3.ARTREADER.ID", this.id);
+				window.SetProperty('2K3.ARTREADER.ID', this.id);
 				panel.item_focus_change();
 				break;
 			case 2020:
@@ -154,14 +154,14 @@ _.mixin({
 			case 2022:
 			case 2023:
 				this.aspect = idx - 2020;
-				window.SetProperty("2K3.ARTREADER.ASPECT", this.aspect);
+				window.SetProperty('2K3.ARTREADER.ASPECT', this.aspect);
 				window.RepaintRect(this.x, this.y, this.w, this.h);
 				break;
 			case 2030:
 				_.explorer(this.path);
 				break;
 			case 2040:
-				_.run("https://www.google.com/search?tbm=isch&q=" + encodeURIComponent(panel.tf("%album artist%[ %album%]")));
+				_.run('https://www.google.com/search?tbm=isch&q=' + encodeURIComponent(panel.tf('%album artist%[ %album%]')));
 				break;
 			}
 		}
@@ -187,17 +187,17 @@ _.mixin({
 		this.h = h;
 		this.mx = 0;
 		this.my = 0;
-		this.tooltip = "";
-		this.ids = ["Front", "Back", "Disc", "Icon", "Artist"];
-		this.id = window.GetProperty("2K3.ARTREADER.ID", 0);
-		this.aspect = window.GetProperty("2K3.ARTREADER.ASPECT", image.crop);
-		this.cd = window.GetProperty("2K3.ARTREADER.CD", false);
-		this.shadow = window.GetProperty("2K3.ARTREADER.SHADOW", false);
-		this.gloss = window.GetProperty("2K3.ARTREADER.GLOSS", false);
-		this.shadow_img = _.img("cd\\shadow.png");
-		this.case_img = _.img("cd\\case.png");
-		this.semi_img = _.img("cd\\semi.png");
-		this.gloss_img = _.img("cd\\gloss.png");
+		this.tooltip = '';
+		this.ids = ['Front', 'Back', 'Disc', 'Icon', 'Artist'];
+		this.id = window.GetProperty('2K3.ARTREADER.ID', 0);
+		this.aspect = window.GetProperty('2K3.ARTREADER.ASPECT', image.crop);
+		this.cd = window.GetProperty('2K3.ARTREADER.CD', false);
+		this.shadow = window.GetProperty('2K3.ARTREADER.SHADOW', false);
+		this.gloss = window.GetProperty('2K3.ARTREADER.GLOSS', false);
+		this.shadow_img = _.img('cd\\shadow.png');
+		this.case_img = _.img('cd\\case.png');
+		this.semi_img = _.img('cd\\semi.png');
+		this.gloss_img = _.img('cd\\gloss.png');
 		this.img = null;
 		this.path = null;
 		this.hover = false;

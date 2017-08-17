@@ -5,14 +5,14 @@ _.mixin({
 			this.close_btn.x = panel.w - this.close_btn.w;
 			this.offset = 0;
 			switch (true) {
-			case panel.w < this.px || panel.h < this.px || this.modes[this.mode] == "off":
+			case panel.w < this.px || panel.h < this.px || this.modes[this.mode] == 'off':
 				this.nc = true;
 				_.dispose(this.img);
 				this.img = null;
 				this.w = 0;
 				this.h = 0;
 				break;
-			case this.modes[this.mode] == "grid":
+			case this.modes[this.mode] == 'grid':
 				this.x = 0;
 				this.y = 0;
 				this.w = panel.w;
@@ -39,9 +39,9 @@ _.mixin({
 					temp_gr = null;
 				}
 				break;
-			case this.modes[this.mode] == "left":
-			case this.modes[this.mode] == "right":
-				this.x = this.modes[this.mode] == "left" ? 0 : panel.w - this.px;
+			case this.modes[this.mode] == 'left':
+			case this.modes[this.mode] == 'right':
+				this.x = this.modes[this.mode] == 'left' ? 0 : panel.w - this.px;
 				this.y = 0;
 				this.w = this.px;
 				this.h = panel.h;
@@ -59,10 +59,10 @@ _.mixin({
 					temp_gr = null;
 				}
 				break;
-			case this.modes[this.mode] == "top":
-			case this.modes[this.mode] == "bottom":
+			case this.modes[this.mode] == 'top':
+			case this.modes[this.mode] == 'bottom':
 				this.x = 0;
-				this.y = this.modes[this.mode] == "top" ? 0 : panel.h - this.px;
+				this.y = this.modes[this.mode] == 'top' ? 0 : panel.h - this.px;
 				this.w = panel.w;
 				this.h = this.px;
 				this.columns = Math.ceil(this.w / this.px);
@@ -87,7 +87,7 @@ _.mixin({
 			case !this.images.length:
 				this.image_xywh = [];
 				break;
-			case this.modes[this.mode] == "off":
+			case this.modes[this.mode] == 'off':
 				if (this.aspect == image.centre)
 					this.image_xywh = _.drawImage(gr, this.images[this.image], 20, 20, panel.w - 40, panel.h - 40, this.aspect);
 				else
@@ -95,7 +95,7 @@ _.mixin({
 				break;
 			case !this.img:
 				break;
-			case this.modes[this.mode] == "grid":
+			case this.modes[this.mode] == 'grid':
 				gr.DrawImage(this.img, this.x, this.y, this.w, this.h, 0, this.offset * this.px, this.w, this.h);
 				if (this.overlay) {
 					_.drawOverlay(gr, this.x, this.y, this.w, this.h);
@@ -105,7 +105,7 @@ _.mixin({
 					this.image_xywh = [];
 				}
 				break;
-			case this.modes[this.mode] == "left":
+			case this.modes[this.mode] == 'left':
 				if (this.aspect == image.centre)
 					this.image_xywh = _.drawImage(gr, this.images[this.image], this.px + 20, 20, panel.w - this.px - 40, panel.h - 40, this.aspect);
 				else
@@ -113,7 +113,7 @@ _.mixin({
 				_.drawOverlay(gr, this.x, this.y, this.w, this.h);
 				gr.DrawImage(this.img, this.x, this.y, this.w, this.h, 0, this.offset * this.px, this.w, this.h);
 				break;
-			case this.modes[this.mode] == "right":
+			case this.modes[this.mode] == 'right':
 				if (this.aspect == image.centre)
 					this.image_xywh = _.drawImage(gr, this.images[this.image], 20, 20, panel.w - this.px - 40, panel.h - 40, this.aspect);
 				else
@@ -121,7 +121,7 @@ _.mixin({
 				_.drawOverlay(gr, this.x, this.y, this.w, this.h);
 				gr.DrawImage(this.img, this.x, this.y, this.w, this.h, 0, this.offset * this.px, this.w, this.h);
 				break;
-			case this.modes[this.mode] == "top":
+			case this.modes[this.mode] == 'top':
 				if (this.aspect == image.centre)
 					this.image_xywh = _.drawImage(gr, this.images[this.image], 20, this.px + 20, panel.w - 40, panel.h - this.px - 40, this.aspect);
 				else
@@ -129,7 +129,7 @@ _.mixin({
 				_.drawOverlay(gr, this.x, this.y, this.w, this.h);
 				gr.DrawImage(this.img, this.x, this.y, this.w, this.h, this.offset * this.px, 0, this.w, this.h);
 				break;
-			case this.modes[this.mode] == "bottom":
+			case this.modes[this.mode] == 'bottom':
 				if (this.aspect == image.centre)
 					this.image_xywh = _.drawImage(gr, this.images[this.image], 20, 20, panel.w - 40, panel.h - this.px - 40, this.aspect);
 				else
@@ -144,7 +144,7 @@ _.mixin({
 			if (panel.metadb) {
 				switch (this.source) {
 				case 0: // custom folder
-					var temp_folder = this.custom_folder_tf.replace("%profile%", fb.ProfilePath);
+					var temp_folder = this.custom_folder_tf.replace('%profile%', fb.ProfilePath);
 					temp_folder = temp_folder.indexOf(fb.ProfilePath) == 0 ? fb.ProfilePath + panel.tf(temp_folder.substring(fb.ProfilePath.length, temp_folder.length)) : panel.tf(temp_folder);
 					if (this.folder == temp_folder)
 						return;
@@ -159,8 +159,8 @@ _.mixin({
 					break;
 				}
 			} else {
-				this.artist = "";
-				this.folder = "";
+				this.artist = '';
+				this.folder = '';
 			}
 			this.update();
 		}
@@ -172,8 +172,8 @@ _.mixin({
 		this.image_xywh_trace = function (x, y) {
 			switch (true) {
 			case !this.images.length:
-			case this.modes[this.mode] == "grid" && !this.overlay:
-			case this.modes[this.mode] != "grid" && this.trace(x, y):
+			case this.modes[this.mode] == 'grid' && !this.overlay:
+			case this.modes[this.mode] != 'grid' && this.trace(x, y):
 				return false;
 			default:
 				return x > this.image_xywh[0] && x < this.image_xywh[0] + this.image_xywh[2] && y > this.image_xywh[1] && y < this.image_xywh[1] + this.image_xywh[3];
@@ -184,7 +184,7 @@ _.mixin({
 			var offset = this.offset - s;
 			switch (true) {
 			case !this.trace(this.mx, this.my):
-			case this.modes[this.mode] == "grid" && this.overlay:
+			case this.modes[this.mode] == 'grid' && this.overlay:
 				if (this.images.length < 2)
 					return;
 				this.image -= s;
@@ -194,7 +194,7 @@ _.mixin({
 					this.image = 0;
 				window.Repaint();
 				return;
-			case this.modes[this.mode] == "grid":
+			case this.modes[this.mode] == 'grid':
 				if (this.img_rows < this.rows)
 					return;
 				if (offset < 0)
@@ -202,8 +202,8 @@ _.mixin({
 				if (offset > this.img_rows - this.rows)
 					offset = this.img_rows - this.rows + 1;
 				break;
-			case this.modes[this.mode] == "left":
-			case this.modes[this.mode] == "right":
+			case this.modes[this.mode] == 'left':
+			case this.modes[this.mode] == 'right':
 				if (this.images.length < this.rows)
 					return;
 				if (offset < 0)
@@ -211,8 +211,8 @@ _.mixin({
 				if (offset + this.rows > this.images.length)
 					offset = this.images.length - this.rows + 1;
 				break;
-			case this.modes[this.mode] == "top":
-			case this.modes[this.mode] == "bottom":
+			case this.modes[this.mode] == 'top':
+			case this.modes[this.mode] == 'bottom':
 				if (this.images.length < this.columns)
 					return;
 				if (offset < 0)
@@ -234,19 +234,19 @@ _.mixin({
 			switch (true) {
 			case !this.trace(x, y):
 				break;
-			case this.modes[this.mode] == "grid":
+			case this.modes[this.mode] == 'grid':
 				if (this.overlay)
 					return window.SetCursor(this.close_btn.move(x, y) ? IDC_HAND : IDC_ARROW);
 				var tmp = Math.floor(x / this.px);
 				if (tmp < this.columns)
 					this.index = tmp + ((Math.floor(y / this.px) + this.offset) * this.columns);
 				break;
-			case this.modes[this.mode] == "left":
-			case this.modes[this.mode] == "right":
+			case this.modes[this.mode] == 'left':
+			case this.modes[this.mode] == 'right':
 				this.index = Math.floor(y / this.px) + this.offset;
 				break;
-			case this.modes[this.mode] == "top":
-			case this.modes[this.mode] == "bottom":
+			case this.modes[this.mode] == 'top':
+			case this.modes[this.mode] == 'bottom':
 				this.index = Math.floor(x / this.px) + this.offset;
 				break;
 			}
@@ -256,9 +256,9 @@ _.mixin({
 		this.lbtn_up = function (x, y) {
 			switch (true) {
 			case !this.trace(x, y):
-			case this.modes[this.mode] == "grid" && this.overlay && this.close_btn.lbtn_up(x, y):
+			case this.modes[this.mode] == 'grid' && this.overlay && this.close_btn.lbtn_up(x, y):
 				break;
-			case this.modes[this.mode] == "grid" && !this.overlay && this.index < this.images.length:
+			case this.modes[this.mode] == 'grid' && !this.overlay && this.index < this.images.length:
 				this.image = this.index;
 				this.enable_overlay(true);
 				break;
@@ -277,22 +277,22 @@ _.mixin({
 		}
 		
 		this.rbtn_up = function (x, y) {
-			panel.m.AppendMenuItem(MF_STRING, 4000, "Custom folder");
-			panel.m.AppendMenuItem(MF_STRING, 4001, "Last.fm artist art");
+			panel.m.AppendMenuItem(MF_STRING, 4000, 'Custom folder');
+			panel.m.AppendMenuItem(MF_STRING, 4001, 'Last.fm artist art');
 			panel.m.CheckMenuRadioItem(4000, 4001, this.source + 4000);
 			panel.m.AppendMenuSeparator();
 			switch (this.source) {
 			case 0: // custom folder
-				panel.m.AppendMenuItem(MF_STRING, 4002, "Refresh");
-				panel.m.AppendMenuItem(MF_STRING, 4003, "Set custom folder...");
+				panel.m.AppendMenuItem(MF_STRING, 4002, 'Refresh');
+				panel.m.AppendMenuItem(MF_STRING, 4003, 'Set custom folder...');
 				break;
 			case 1: // last.fm
-				panel.m.AppendMenuItem(panel.metadb ? MF_STRING : MF_GRAYED, 4004, "Download now");
+				panel.m.AppendMenuItem(panel.metadb ? MF_STRING : MF_GRAYED, 4004, 'Download now');
 				_.forEach(this.download_limits, function (item) {
 					panel.s10.AppendMenuItem(MF_STRING, item + 4010, item);
 				});
 				panel.s10.CheckMenuRadioItem(_.first(this.download_limits) + 4010, _.last(this.download_limits) + 4010, this.download_limit + 4010);
-				panel.s10.AppendTo(panel.m, MF_STRING, "Limit");
+				panel.s10.AppendTo(panel.m, MF_STRING, 'Limit');
 				break;
 			}
 			panel.m.AppendMenuSeparator();
@@ -302,45 +302,45 @@ _.mixin({
 				});
 				panel.s11.CheckMenuRadioItem(4050, 4055, this.mode + 4050);
 				panel.s11.AppendMenuSeparator();
-				var flag = this.modes[this.mode] == "off" ? MF_GRAYED : MF_STRING;
+				var flag = this.modes[this.mode] == 'off' ? MF_GRAYED : MF_STRING;
 				_.forEach(this.pxs, function (item) {
-					panel.s11.AppendMenuItem(flag, item + 4000, item + "px");
+					panel.s11.AppendMenuItem(flag, item + 4000, item + 'px');
 				});
 				panel.s11.CheckMenuRadioItem(_.first(this.pxs) + 4000, _.last(this.pxs) + 4000, this.px + 4000);
-				panel.s11.AppendTo(panel.m, MF_STRING, "Thumbs");
+				panel.s11.AppendTo(panel.m, MF_STRING, 'Thumbs');
 				panel.m.AppendMenuSeparator();
 			}
-			panel.s12.AppendMenuItem(MF_STRING, 4400, "Off");
-			panel.s12.AppendMenuItem(MF_STRING, 4405, "5 seconds");
-			panel.s12.AppendMenuItem(MF_STRING, 4410, "10 seconds");
-			panel.s12.AppendMenuItem(MF_STRING, 4420, "20 seconds");
+			panel.s12.AppendMenuItem(MF_STRING, 4400, 'Off');
+			panel.s12.AppendMenuItem(MF_STRING, 4405, '5 seconds');
+			panel.s12.AppendMenuItem(MF_STRING, 4410, '10 seconds');
+			panel.s12.AppendMenuItem(MF_STRING, 4420, '20 seconds');
 			panel.s12.CheckMenuRadioItem(4400, 4420, this.cycle + 4400);
-			panel.s12.AppendTo(panel.m, MF_STRING, "Cycle");
+			panel.s12.AppendTo(panel.m, MF_STRING, 'Cycle');
 			panel.m.AppendMenuSeparator();
-			panel.s13.AppendMenuItem(MF_STRING, 4500, "A-Z");
-			panel.s13.AppendMenuItem(MF_STRING, 4501, "Newest first");
+			panel.s13.AppendMenuItem(MF_STRING, 4500, 'A-Z');
+			panel.s13.AppendMenuItem(MF_STRING, 4501, 'Newest first');
 			panel.s13.CheckMenuRadioItem(4500, 4501, this.sort + 4500);
-			panel.s13.AppendTo(panel.m, MF_STRING, "Sort");
+			panel.s13.AppendTo(panel.m, MF_STRING, 'Sort');
 			panel.m.AppendMenuSeparator();
 			if (this.image_xywh_trace(x, y)) {
-				if (this.modes[this.mode] != "grid") {
-					panel.m.AppendMenuItem(MF_STRING, 4510, "Crop (focus on centre)");
-					panel.m.AppendMenuItem(MF_STRING, 4511, "Crop (focus on top)");
-					panel.m.AppendMenuItem(MF_STRING, 4512, "Stretch");
-					panel.m.AppendMenuItem(MF_STRING, 4513, "Centre");
+				if (this.modes[this.mode] != 'grid') {
+					panel.m.AppendMenuItem(MF_STRING, 4510, 'Crop (focus on centre)');
+					panel.m.AppendMenuItem(MF_STRING, 4511, 'Crop (focus on top)');
+					panel.m.AppendMenuItem(MF_STRING, 4512, 'Stretch');
+					panel.m.AppendMenuItem(MF_STRING, 4513, 'Centre');
 					panel.m.CheckMenuRadioItem(4510, 4513, this.aspect + 4510);
 					panel.m.AppendMenuSeparator();
 				}
 				if (this.source == 1 && this.images.length > 1) {
-					panel.m.AppendMenuItem(this.default_file == this.files[this.image] ? MF_GRAYED : MF_STRING, 4520, "Set as default");
-					panel.m.AppendMenuItem(MF_STRING, 4521, "Clear default");
+					panel.m.AppendMenuItem(this.default_file == this.files[this.image] ? MF_GRAYED : MF_STRING, 4520, 'Set as default');
+					panel.m.AppendMenuItem(MF_STRING, 4521, 'Clear default');
 					panel.m.AppendMenuSeparator();
 				}
-				panel.m.AppendMenuItem(MF_STRING, 4530, "Open image");
-				panel.m.AppendMenuItem(MF_STRING, 4531, "Delete image");
+				panel.m.AppendMenuItem(MF_STRING, 4530, 'Open image');
+				panel.m.AppendMenuItem(MF_STRING, 4531, 'Delete image');
 				panel.m.AppendMenuSeparator();
 			}
-			panel.m.AppendMenuItem(_.isFolder(this.folder) ? MF_STRING : MF_GRAYED, 4540, "Open containing folder");
+			panel.m.AppendMenuItem(_.isFolder(this.folder) ? MF_STRING : MF_GRAYED, 4540, 'Open containing folder');
 			panel.m.AppendMenuSeparator();
 		}
 		
@@ -349,20 +349,20 @@ _.mixin({
 			case 4000:
 			case 4001:
 				this.source = idx - 4000;
-				window.SetProperty("2K3.THUMBS.SOURCE", this.source);
-				this.artist = "";
-				this.folder = "";
+				window.SetProperty('2K3.THUMBS.SOURCE', this.source);
+				this.artist = '';
+				this.folder = '';
 				panel.item_focus_change();
 				break;
 			case 4002:
 				this.update();
 				break;
 			case 4003:
-				this.custom_folder_tf = _.input("Enter title formatting or an absolute path to a folder.\n\n%profile% will resolve to your foobar2000 profile folder or the program folder if using portable mode.", panel.name, this.custom_folder_tf);
-				if (this.custom_folder_tf == "")
-					this.custom_folder_tf = "$directory_path(%path%)";
-				window.SetProperty("2K3.THUMBS.CUSTOM.FOLDER.TF", this.custom_folder_tf);
-				this.folder = "";
+				this.custom_folder_tf = _.input('Enter title formatting or an absolute path to a folder.\n\n%profile% will resolve to your foobar2000 profile folder or the program folder if using portable mode.', panel.name, this.custom_folder_tf);
+				if (this.custom_folder_tf == '')
+					this.custom_folder_tf = '$directory_path(%path%)';
+				window.SetProperty('2K3.THUMBS.CUSTOM.FOLDER.TF', this.custom_folder_tf);
+				this.folder = '';
 				panel.item_focus_change();
 				break;
 			case 4004:
@@ -375,7 +375,7 @@ _.mixin({
 			case 4025:
 			case 4030:
 				this.download_limit = idx - 4010;
-				window.SetProperty("2K3.THUMBS.DOWNLOAD.LIMIT", this.download_limit);
+				window.SetProperty('2K3.THUMBS.DOWNLOAD.LIMIT', this.download_limit);
 				break;
 			case 4050:
 			case 4051:
@@ -384,7 +384,7 @@ _.mixin({
 			case 4054:
 			case 4055:
 				this.mode = idx - 4050;
-				window.SetProperty("2K3.THUMBS.MODE", this.mode);
+				window.SetProperty('2K3.THUMBS.MODE', this.mode);
 				this.size(true);
 				window.Repaint();
 				break;
@@ -395,7 +395,7 @@ _.mixin({
 			case 4250:
 			case 4300:
 				this.px = idx - 4000;
-				window.SetProperty("2K3.THUMBS.PX", this.px);
+				window.SetProperty('2K3.THUMBS.PX', this.px);
 				this.size(true);
 				window.Repaint();
 				break;
@@ -404,12 +404,12 @@ _.mixin({
 			case 4410:
 			case 4420:
 				this.cycle = idx - 4400;
-				window.SetProperty("2K3.THUMBS.CYCLE", this.cycle);
+				window.SetProperty('2K3.THUMBS.CYCLE', this.cycle);
 				break;
 			case 4500:
 			case 4501:
 				this.sort = idx - 4500;
-				window.SetProperty("2K3.THUMBS.SORT", this.sort);
+				window.SetProperty('2K3.THUMBS.SORT', this.sort);
 				if (this.images.length > 1)
 					this.update();
 				break;
@@ -418,14 +418,14 @@ _.mixin({
 			case 4512:
 			case 4513:
 				this.aspect = idx - 4510;
-				window.SetProperty("2K3.THUMBS.ASPECT", this.aspect);
+				window.SetProperty('2K3.THUMBS.ASPECT', this.aspect);
 				window.Repaint();
 				break;
 			case 4520:
-				this.set_default(this.files[this.image].split("\\").pop());
+				this.set_default(this.files[this.image].split('\\').pop());
 				break;
 			case 4521:
-				this.set_default("");
+				this.set_default('');
 				break;
 			case 4530:
 				_.run(this.files[this.image]);
@@ -445,7 +445,7 @@ _.mixin({
 		this.key_down = function (k) {
 			switch (k) {
 			case VK_ESCAPE:
-				if (this.modes[this.mode] == "grid" && this.overlay)
+				if (this.modes[this.mode] == 'grid' && this.overlay)
 					this.enable_overlay(false);
 				break;
 			case VK_LEFT:
@@ -464,7 +464,7 @@ _.mixin({
 			_.dispose.apply(null, this.images);
 			this.files = _.getFiles(this.folder, this.exts, this.sort == 1);
 			if (this.source == 1 && this.files.length > 1) {
-				this.default_file = this.folder + utils.ReadINI(this.ini_file, "Defaults", _.fbSanitise(this.artist));
+				this.default_file = this.folder + utils.ReadINI(this.ini_file, 'Defaults', _.fbSanitise(this.artist));
 				var tmp = _.indexOf(this.files, this.default_file);
 				if (tmp > -1) {
 					this.files.splice(tmp, 1);
@@ -482,7 +482,7 @@ _.mixin({
 		}
 		
 		this.set_default = function (t) {
-			utils.WriteINI(this.ini_file, "Defaults", _.fbSanitise(this.artist), t);
+			utils.WriteINI(this.ini_file, 'Defaults', _.fbSanitise(this.artist), t);
 			this.update();
 		}
 		
@@ -494,28 +494,28 @@ _.mixin({
 		this.download = function () {
 			if (!_.tagged(this.artist))
 				return;
-			var base = this.folder + _.fbSanitise(this.artist) + "_";
-			this.xmlhttp.open("GET", "https://www.last.fm/music/" + encodeURIComponent(this.artist) + "/+images", true);
-			this.xmlhttp.setRequestHeader("If-Modified-Since", "Thu, 01 Jan 1970 00:00:00 GMT");
+			var base = this.folder + _.fbSanitise(this.artist) + '_';
+			this.xmlhttp.open('GET', 'https://www.last.fm/music/' + encodeURIComponent(this.artist) + '/+images', true);
+			this.xmlhttp.setRequestHeader('If-Modified-Since', 'Thu, 01 Jan 1970 00:00:00 GMT');
 			this.xmlhttp.send();
 			this.xmlhttp.onreadystatechange = _.bind(function () {
 				if (this.xmlhttp.readyState == 4) {
 					if (this.xmlhttp.status == 200)
 						this.success(base);
 					else
-						console.log("HTTP error: " + this.xmlhttp.status);
+						console.log('HTTP error: ' + this.xmlhttp.status);
 				}
 			}, this);
 		}
 		
 		this.success = function (base) {
-			_(_.getElementsByTagName(this.xmlhttp.responseText, "img"))
-				.filter({className : "image-list-image"})
+			_(_.getElementsByTagName(this.xmlhttp.responseText, 'img'))
+				.filter({className : 'image-list-image'})
 				.take(this.download_limit)
 				.forEach(function (item) {
-					var url = item.src.replace("avatar170s/", "");
-					var filename = base + url.substring(url.lastIndexOf("/") + 1) + ".jpg";
-					_.runCmd("cscript //nologo " + _.q(this.vbs_file) + " " + _.q(url) + " " + _.q(filename), false);
+					var url = item.src.replace('avatar170s/', '');
+					var filename = base + url.substring(url.lastIndexOf('/') + 1) + '.jpg';
+					_.runCmd('cscript //nologo ' + _.q(this.vbs_file) + ' ' + _.q(url) + ' ' + _.q(filename), false);
 				}, this)
 				.value();
 		}
@@ -539,31 +539,31 @@ _.mixin({
 		this.my = 0;
 		this.files = [];
 		this.images = [];
-		this.source = window.GetProperty("2K3.THUMBS.SOURCE", 0); // 0 custom folder 1 last.fm
-		this.custom_folder_tf = window.GetProperty("2K3.THUMBS.CUSTOM.FOLDER.TF", "$directory_path(%path%)");
+		this.source = window.GetProperty('2K3.THUMBS.SOURCE', 0); // 0 custom folder 1 last.fm
+		this.custom_folder_tf = window.GetProperty('2K3.THUMBS.CUSTOM.FOLDER.TF', '$directory_path(%path%)');
 		this.download_limits = [1, 3, 5, 10, 15, 20];
-		this.download_limit = window.GetProperty("2K3.THUMBS.DOWNLOAD.LIMIT", 10);
-		this.modes = ["grid", "left", "right", "top", "bottom", "off"];
-		this.mode = window.GetProperty("2K3.THUMBS.MODE", 4); // bottom
+		this.download_limit = window.GetProperty('2K3.THUMBS.DOWNLOAD.LIMIT', 10);
+		this.modes = ['grid', 'left', 'right', 'top', 'bottom', 'off'];
+		this.mode = window.GetProperty('2K3.THUMBS.MODE', 4); // bottom
 		this.pxs = [75, 100, 150, 200, 250, 300];
-		this.px = window.GetProperty("2K3.THUMBS.PX", 75);
-		this.cycle = window.GetProperty("2K3.THUMBS.CYCLE", 0);
-		this.sort = window.GetProperty("2K3.THUMBS.SORT", 0); // 0 a-z 1 newest first
-		this.aspect = window.GetProperty("2K3.THUMBS.ASPECT", image.crop_top);
-		this.ini_file = folders.settings + "thumbs.ini";
-		this.vbs_file = fb.ComponentPath + "samples\\complete\\vbs\\download.vbs";
-		this.exts = "jpg|jpeg|png|gif";
-		this.folder = "";
-		this.default_file = "";
-		this.artist = "";
+		this.px = window.GetProperty('2K3.THUMBS.PX', 75);
+		this.cycle = window.GetProperty('2K3.THUMBS.CYCLE', 0);
+		this.sort = window.GetProperty('2K3.THUMBS.SORT', 0); // 0 a-z 1 newest first
+		this.aspect = window.GetProperty('2K3.THUMBS.ASPECT', image.crop_top);
+		this.ini_file = folders.settings + 'thumbs.ini';
+		this.vbs_file = fb.ComponentPath + 'samples\\complete\\vbs\\download.vbs';
+		this.exts = 'jpg|jpeg|png|gif';
+		this.folder = '';
+		this.default_file = '';
+		this.artist = '';
 		this.img = null;
 		this.nc = false;
 		this.image = 0;
 		this.image_xywh = [];
 		this.index = 0;
 		this.time = 0;
-		this.xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
-		this.close_btn = new _.sb(guifx.close, 0, 0, _.scale(12), _.scale(12), _.bind(function () { return this.modes[this.mode] == "grid" && this.overlay; }, this), _.bind(function () { this.enable_overlay(false); }, this));
+		this.xmlhttp = new ActiveXObject('Microsoft.XMLHTTP');
+		this.close_btn = new _.sb(guifx.close, 0, 0, _.scale(12), _.scale(12), _.bind(function () { return this.modes[this.mode] == 'grid' && this.overlay; }, this), _.bind(function () { this.enable_overlay(false); }, this));
 		window.SetInterval(this.interval_func, 1000);
 	}
 });

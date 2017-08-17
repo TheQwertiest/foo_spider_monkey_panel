@@ -12,7 +12,7 @@ _.mixin({
 		this.metadb_changed = function () {
 			if (panel.metadb) {
 				this.hover = false;
-				this.rating = _.tf("$if2(%rating%,0)", panel.metadb);
+				this.rating = _.tf('$if2(%rating%,0)', panel.metadb);
 				this.tiptext = _.tf(this.tiptext_tf, panel.metadb);
 				this.hrating = this.rating;
 			}
@@ -40,7 +40,7 @@ _.mixin({
 		
 		this.leave = function () {
 			if (this.hover) {
-				_.tt("");
+				_.tt('');
 				this.hover = false;
 				window.RepaintRect(this.x, this.y, this.w, this.h);
 			}
@@ -49,7 +49,7 @@ _.mixin({
 		this.lbtn_up = function (x, y) {
 			if (this.trace(x, y)) {
 				if (panel.metadb)
-					fb.RunContextCommandWithMetadb("Rating/" + (this.hrating == this.rating ? "<not set>" : this.hrating), panel.metadb, 8);
+					fb.RunContextCommandWithMetadb('Rating/' + (this.hrating == this.rating ? '<not set>' : this.hrating), panel.metadb, 8);
 				return true;
 			} else {
 				return false;
@@ -66,10 +66,10 @@ _.mixin({
 		this.rating = 0;
 		this.hrating = 0;
 		this.guifx_font = gdi.Font(guifx.font, this.h, 0);
-		this.tiptext_tf = "Rate \"%title%\" by \"%artist%\".";
-		if (!_.cc("foo_playcount"))
+		this.tiptext_tf = 'Rate "%title%" by "%artist%".';
+		if (!_.cc('foo_playcount'))
 			window.SetTimeout(function () {
-				WshShell.popup("This script requires foo_playcount.", 0, panel.name, popup.stop);
+				WshShell.popup('This script requires foo_playcount.', 0, panel.name, popup.stop);
 			}, 500);
 	}
 });

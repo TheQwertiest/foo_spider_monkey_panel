@@ -29,7 +29,7 @@ _.mixin({
 					fb.PlaybackTime += s * 60;
 					break;
 				}
-				_.tt("");
+				_.tt('');
 				return true;
 			} else {
 				return false;
@@ -51,7 +51,7 @@ _.mixin({
 				return true;
 			} else {
 				if (this.hover)
-					_.tt("");
+					_.tt('');
 				this.hover = false;
 				this.drag = false;
 				return false;

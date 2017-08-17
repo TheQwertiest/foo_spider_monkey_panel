@@ -43,7 +43,7 @@ _.mixin({
 				}
 				on_metadb_changed();
 				if (!this.metadb)
-					_.tt("");
+					_.tt('');
 			}
 		}
 		
@@ -67,19 +67,19 @@ _.mixin({
 				name = font.Name;
 				_.dispose(font);
 			} else {
-				name = "Segoe UI";
-				console.log("Unable to use default font. Using " + name + " instead.");
+				name = 'Segoe UI';
+				console.log('Unable to use default font. Using ' + name + ' instead.');
 			}
 			_.dispose(this.fonts.title, this.fonts.normal, this.fonts.fixed);
 			this.fonts.title = _.gdiFont(name, 12, 1);
 			this.fonts.normal = _.gdiFont(name, this.fonts.size);
-			this.fonts.fixed = _.gdiFont("Lucida Console", this.fonts.size);
+			this.fonts.fixed = _.gdiFont('Lucida Console', this.fonts.size);
 			this.row_height = this.fonts.normal.Height;
 			_.forEach(this.list_objects, function (item) {
 				item.size();
 				item.update();
 			});
-			_.invoke(this.text_objects, "size");
+			_.invoke(this.text_objects, 'size');
 		}
 		
 		this.size = function () {
@@ -91,7 +91,7 @@ _.mixin({
 			switch (true) {
 			case window.IsTransparent:
 				return;
-			case !this.check_feature("custom_background"):
+			case !this.check_feature('custom_background'):
 			case this.colours.mode == 0:
 				var col = this.colours.background;
 				break;
@@ -125,52 +125,52 @@ _.mixin({
 					this.s1.AppendMenuItem(MF_STRING, item, item);
 				}, this);
 				this.s1.CheckMenuRadioItem(_.first(this.fonts.sizes), _.last(this.fonts.sizes), this.fonts.size);
-				this.s1.AppendTo(this.m, MF_STRING, "Font size");
+				this.s1.AppendTo(this.m, MF_STRING, 'Font size');
 				this.m.AppendMenuSeparator();
 			}
-			if (this.check_feature("custom_background")) {
-				this.s2.AppendMenuItem(MF_STRING, 100, window.InstanceType ? "Use default UI setting" : "Use columns UI setting");
-				this.s2.AppendMenuItem(MF_STRING, 101, "Splitter");
-				this.s2.AppendMenuItem(MF_STRING, 102, "Custom");
+			if (this.check_feature('custom_background')) {
+				this.s2.AppendMenuItem(MF_STRING, 100, window.InstanceType ? 'Use default UI setting' : 'Use columns UI setting');
+				this.s2.AppendMenuItem(MF_STRING, 101, 'Splitter');
+				this.s2.AppendMenuItem(MF_STRING, 102, 'Custom');
 				this.s2.CheckMenuRadioItem(100, 102, this.colours.mode + 100);
 				this.s2.AppendMenuSeparator();
-				this.s2.AppendMenuItem(this.colours.mode == 2 ? MF_STRING : MF_GRAYED, 103, "Set custom colour...");
-				this.s2.AppendTo(this.m, window.IsTransparent ? MF_GRAYED : MF_STRING, "Background");
+				this.s2.AppendMenuItem(this.colours.mode == 2 ? MF_STRING : MF_GRAYED, 103, 'Set custom colour...');
+				this.s2.AppendTo(this.m, window.IsTransparent ? MF_GRAYED : MF_STRING, 'Background');
 				this.m.AppendMenuSeparator();
 			}
-			if (this.check_feature("metadb")) {
-				this.s3.AppendMenuItem(MF_STRING, 110, "Prefer now playing");
-				this.s3.AppendMenuItem(MF_STRING, 111, "Follow selected track (playlist)");
+			if (this.check_feature('metadb')) {
+				this.s3.AppendMenuItem(MF_STRING, 110, 'Prefer now playing');
+				this.s3.AppendMenuItem(MF_STRING, 111, 'Follow selected track (playlist)');
 				this.s3.CheckMenuRadioItem(110, 111, this.selection + 110);
-				this.s3.AppendTo(this.m, MF_STRING, "Selection mode");
+				this.s3.AppendTo(this.m, MF_STRING, 'Selection mode');
 				this.m.AppendMenuSeparator();
 			}
-			this.m.AppendMenuItem(MF_STRING, 120, "Configure...");
+			this.m.AppendMenuItem(MF_STRING, 120, 'Configure...');
 			var idx = this.m.TrackPopupMenu(x, y);
 			switch (true) {
 			case idx == 0:
 				break;
 			case idx <= 20:
 				this.fonts.size = idx;
-				window.SetProperty("2K3.PANEL.FONTS.SIZE", this.fonts.size);
+				window.SetProperty('2K3.PANEL.FONTS.SIZE', this.fonts.size);
 				on_font_changed();
 				break;
 			case idx == 100:
 			case idx == 101:
 			case idx == 102:
 				this.colours.mode = idx - 100;
-				window.SetProperty("2K3.PANEL.COLOURS.MODE", this.colours.mode);
+				window.SetProperty('2K3.PANEL.COLOURS.MODE', this.colours.mode);
 				window.Repaint();
 				break;
 			case idx == 103:
-				this.colours.custom = _.input("Enter a custom colour for the background. Uses RGB. Example usage:\n\n234-211-74", this.name, this.colours.custom);
-				window.SetProperty("2K3.PANEL.COLOURS.CUSTOM", this.colours.custom);
+				this.colours.custom = _.input('Enter a custom colour for the background. Uses RGB. Example usage:\n\n234-211-74', this.name, this.colours.custom);
+				window.SetProperty('2K3.PANEL.COLOURS.CUSTOM', this.colours.custom);
 				window.Repaint();
 				break;
 			case idx == 110:
 			case idx == 111:
 				this.selection = idx - 110;
-				window.SetProperty("2K3.PANEL.SELECTION", this.selection);
+				window.SetProperty('2K3.PANEL.SELECTION', this.selection);
 				this.item_focus_change();
 				break;
 			case idx == 120:
@@ -191,30 +191,30 @@ _.mixin({
 		
 		this.tf = function (t) {
 			if (!this.metadb)
-				return "";
-			var path = _.tf("$if2(%__@%,%path%)", this.metadb);
-			if (fb.IsPlaying && (path.indexOf("http") == 0 || path.indexOf("mms") == 0))
+				return '';
+			var path = _.tf('$if2(%__@%,%path%)', this.metadb);
+			if (fb.IsPlaying && (path.indexOf('http') == 0 || path.indexOf('mms') == 0))
 				return _.tfe(t);
 			else
 				return _.tf(t, this.metadb);
 		}
 		
 		window.DlgCode = DLGC_WANTALLKEYS;
-		console.pre = name + ": ";
+		console.pre = name + ': ';
 		this.name = name;
 		this.features = features || [];
 		this.w = 0;
 		this.h = 0;
 		this.metadb = fb.GetFocusItem();
-		this.metadb_func = typeof on_metadb_changed == "function";
-		this.selection = this.check_feature("metadb") ? window.GetProperty("2K3.PANEL.SELECTION", 0) : 0;
+		this.metadb_func = typeof on_metadb_changed == 'function';
+		this.selection = this.check_feature('metadb') ? window.GetProperty('2K3.PANEL.SELECTION', 0) : 0;
 		this.fonts = {};
 		this.fonts.sizes = [10, 12, 14, 16];
-		this.fonts.size = window.GetProperty("2K3.PANEL.FONTS.SIZE", 12);
+		this.fonts.size = window.GetProperty('2K3.PANEL.FONTS.SIZE', 12);
 		this.colours = {};
-		if (this.check_feature("custom_background")) {
-			this.colours.mode = window.GetProperty("2K3.PANEL.COLOURS.MODE", 0);
-			this.colours.custom = window.GetProperty("2K3.PANEL.COLOURS.CUSTOM", "0-0-0");
+		if (this.check_feature('custom_background')) {
+			this.colours.mode = window.GetProperty('2K3.PANEL.COLOURS.MODE', 0);
+			this.colours.custom = window.GetProperty('2K3.PANEL.COLOURS.CUSTOM', '0-0-0');
 		}
 		this.list_objects = [];
 		this.text_objects = [];

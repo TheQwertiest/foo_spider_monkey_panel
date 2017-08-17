@@ -1,18 +1,18 @@
-Array.prototype.srt=function(){for(var z=0,t;t=this[z];z++){this[z]=[];var x=0,y=-1,n=true,i,j;while(i=(j=t.charAt(x++)).charCodeAt(0)){var m=(i==46||(i>=48&&i<=57));if(m!==n){this[z][++y]="";n=m;}
+Array.prototype.srt=function(){for(var z=0,t;t=this[z];z++){this[z]=[];var x=0,y=-1,n=true,i,j;while(i=(j=t.charAt(x++)).charCodeAt(0)){var m=(i==46||(i>=48&&i<=57));if(m!==n){this[z][++y]='';n=m;}
 this[z][y]+=j;}}
 this.sort(function(a,b){for(var x=0,aa,bb;(aa=a[x])&&(bb=b[x]);x++){aa=aa.toLowerCase();bb=bb.toLowerCase();if(aa!==bb){var c=Number(aa),d=Number(bb);if(c==aa&&d==bb){return c-d;}else return(aa>bb)?1:-1;}}
 return a.length-b.length;});for(var z=0;z<this.length;z++)
-this[z]=this[z].join("");}
+this[z]=this[z].join('');}
 
 function on_script_unload() {
-	_.tt("");
+	_.tt('');
 }
 
 _.mixin({
 	artistFolder : function (artist) {
 		var folder = folders.artists + _.fbSanitise(artist);
 		_.createFolder(folder);
-		return fso.GetFolder(folder) + "\\";
+		return fso.GetFolder(folder) + '\\';
 	},
 	blendColours : function (c1, c2, f) {
 		c1 = _.toRGB(c1);
@@ -38,7 +38,7 @@ _.mixin({
 		}
 		
 		this.cs = function (s) {
-			if (s == "hover") {
+			if (s == 'hover') {
 				this.img = this.img_hover;
 				_.tt(this.tiptext);
 			} else {
@@ -53,13 +53,13 @@ _.mixin({
 		this.h = h;
 		this.fn = fn;
 		this.tiptext = tiptext;
-		this.img_normal = typeof img_src.normal == "string" ? _.img(img_src.normal) : img_src.normal;
-		this.img_hover = img_src.hover ? (typeof img_src.hover == "string" ? _.img(img_src.hover) : img_src.hover) : this.img_normal;
+		this.img_normal = typeof img_src.normal == 'string' ? _.img(img_src.normal) : img_src.normal;
+		this.img_hover = img_src.hover ? (typeof img_src.hover == 'string' ? _.img(img_src.hover) : img_src.hover) : this.img_normal;
 		this.img = this.img_normal;
 	},
 	buttons : function () {
 		this.paint = function (gr) {
-			_.invoke(this.buttons, "paint", gr);
+			_.invoke(this.buttons, 'paint', gr);
 		}
 		
 		this.move = function (x, y) {
@@ -71,19 +71,19 @@ _.mixin({
 			if (this.btn == temp_btn)
 				return this.btn;
 			if (this.btn)
-				this.buttons[this.btn].cs("normal");
+				this.buttons[this.btn].cs('normal');
 			if (temp_btn)
-				this.buttons[temp_btn].cs("hover");
+				this.buttons[temp_btn].cs('hover');
 			else
-				_.tt("");
+				_.tt('');
 			this.btn = temp_btn;
 			return this.btn;
 		}
 		
 		this.leave = function () {
 			if (this.btn) {
-				_.tt("");
-				this.buttons[this.btn].cs("normal");
+				_.tt('');
+				this.buttons[this.btn].cs('normal');
 			}
 			this.btn = null;
 		}
@@ -169,13 +169,13 @@ _.mixin({
 	},
 	explorer : function (file) {
 		if (_.isFile(file))
-			WshShell.Run("explorer /select," + _.q(file));
+			WshShell.Run('explorer /select,' + _.q(file));
 	},
 	fbEscape : function (value) {
 		return value.replace(/'/g, "''").replace(/[\(\)\[\],$]/g, "'$&'");
 	},
 	fbSanitise : function (value) {
-		return value.replace(/[\/\\|:]/g, "-").replace(/\*/g, "x").replace(/"/g, "''").replace(/[<>]/g, "_").replace(/\?/g, "").replace(/(?! )\s/g, "");
+		return value.replace(/[\/\\|:]/g, '-').replace(/\*/g, 'x').replace(/"/g, "''").replace(/[<>]/g, '_').replace(/\?/g, '').replace(/(?! )\s/g, '');
 	},
 	fileExpired : function (file, period) {
 		return _.now() - _.lastModified(file) > period;
@@ -187,11 +187,11 @@ _.mixin({
 		return gdi.Font(name, _.scale(size), style);
 	},
 	getClipboardData : function () {
-		return doc.parentWindow.clipboardData.getData("Text");
+		return doc.parentWindow.clipboardData.getData('Text');
 	},
 	getElementsByTagName : function (value, tag) {
 		doc.open();
-		var div = doc.createElement("div");
+		var div = doc.createElement('div');
 		div.innerHTML = value;
 		var data = div.getElementsByTagName(tag);
 		doc.close();
@@ -203,14 +203,14 @@ _.mixin({
 			var e = new Enumerator(fso.GetFolder(folder).Files);
 			for (; !e.atEnd(); e.moveNext()) {
 				var path = e.item().Path;
-				if (exts.toLowerCase().indexOf(path.split(".").pop().toLowerCase()) > -1)
+				if (exts.toLowerCase().indexOf(path.split('.').pop().toLowerCase()) > -1)
 					files.push(path);
 			}
 		}
 		if (newest_first) {
 			return _.sortByOrder(files, function (item) {
 				return _.lastModified(item);
-			}, "desc");
+			}, 'desc');
 		} else {
 			files.srt();
 			return files;
@@ -237,7 +237,7 @@ _.mixin({
 		this.FrameStyle = { Default : 0, SmallCaption : 1, NoCaption : 2, NoBorder : 3 };
 		this.MoveStyle = { Default : 0, Middle : 1, Left : 2, Both : 3 };
 		
-		this.uih = new ActiveXObject("UIHacks");
+		this.uih = new ActiveXObject('UIHacks');
 		this.uih.MoveStyle = this.MoveStyle.Default;
 		this.uih.DisableSizing = false;
 		this.uih.BlockMaximize = false;
@@ -252,7 +252,7 @@ _.mixin({
 				m.AppendMenuSeparator();
 		});
 		m.AppendMenuSeparator();
-		m.AppendMenuItem(MF_STRING, 1, "Configure...");
+		m.AppendMenuItem(MF_STRING, 1, 'Configure...');
 		var idx = m.TrackPopupMenu(x, y, flags);
 		switch (true) {
 		case idx == 0:
@@ -273,10 +273,10 @@ _.mixin({
 			return gdi.Image(folders.images + value);
 	},
 	input : function (prompt, title, value) {
-		var p = prompt.replace(/"/g, _.q(" + Chr(34) + ")).replace(/\n/g, _.q(" + Chr(13) + "));
-		var t = title.replace(/"/g, _.q(" + Chr(34) + "));
-		var v = value.replace(/"/g, _.q(" + Chr(34) + "));
-		var tmp = vb.eval("InputBox(" + _.q(p) + ", " + _.q(t) + ", " + _.q(v) + ")");
+		var p = prompt.replace(/"/g, _.q(' + Chr(34) + ')).replace(/\n/g, _.q(' + Chr(13) + '));
+		var t = title.replace(/"/g, _.q(' + Chr(34) + '));
+		var v = value.replace(/"/g, _.q(' + Chr(34) + '));
+		var tmp = vb.eval('InputBox(' + _.q(p) + ', ' + _.q(t) + ', ' + _.q(v) + ')');
 		return _.isUndefined(tmp) ? value : _.trim(tmp);
 	},
 	isFile : function (file) {
@@ -290,7 +290,7 @@ _.mixin({
 			var data = JSON.parse(value);
 			return data;
 		} catch (e) {
-			console.log("JSON.parse error: " + value);
+			console.log('JSON.parse error: ' + value);
 			return [];
 		}
 	},
@@ -301,7 +301,7 @@ _.mixin({
 		var temp_bmp = gdi.CreateImage(1, 1);
 		var temp_gr = temp_bmp.GetGraphics();
 		var result = [];
-		_.forEach(value.split("\n"), function (paragraph) {
+		_.forEach(value.split('\n'), function (paragraph) {
 			var lines = _.filter(temp_gr.EstimateLineWrap(paragraph, font, width).toArray(), function (item, i) {
 				return i % 2 == 0;
 			});
@@ -331,34 +331,34 @@ _.mixin({
 		var mm4 = fb.CreateMainMenuManager();
 		var mm5 = fb.CreateMainMenuManager();
 		var mm6 = fb.CreateMainMenuManager();
-		mm1.Init("File");
-		mm2.Init("Edit");
-		mm3.Init("View");
-		mm4.Init("Playback");
-		mm5.Init("Library");
-		mm6.Init("Help");
+		mm1.Init('File');
+		mm2.Init('Edit');
+		mm3.Init('View');
+		mm4.Init('Playback');
+		mm5.Init('Library');
+		mm6.Init('Help');
 		mm1.BuildMenu(s1, 1000, 999);
 		mm2.BuildMenu(s2, 2000, 999);
 		mm3.BuildMenu(s3, 3000, 999);
 		mm4.BuildMenu(s4, 4000, 999);
 		mm5.BuildMenu(s5, 5000, 999);
 		mm6.BuildMenu(s6, 6000, 999);
-		s1.AppendTo(m1, MF_STRING, "File");
-		s2.AppendTo(m1, MF_STRING, "Edit");
-		s3.AppendTo(m1, MF_STRING, "View");
-		s4.AppendTo(m1, MF_STRING, "Playback");
-		s5.AppendTo(m1, MF_STRING, "Library");
-		s6.AppendTo(m1, MF_STRING, "Help");
-		if (_.cc("foo_ui_hacks") && _.cc("foo_ui_columns")) {
+		s1.AppendTo(m1, MF_STRING, 'File');
+		s2.AppendTo(m1, MF_STRING, 'Edit');
+		s3.AppendTo(m1, MF_STRING, 'View');
+		s4.AppendTo(m1, MF_STRING, 'Playback');
+		s5.AppendTo(m1, MF_STRING, 'Library');
+		s6.AppendTo(m1, MF_STRING, 'Help');
+		if (_.cc('foo_ui_hacks') && _.cc('foo_ui_columns')) {
 			m1.AppendMenuSeparator();
-			m1.AppendMenuItem(MF_STRING, 1, "Switch UI");
+			m1.AppendMenuItem(MF_STRING, 1, 'Switch UI');
 		}
 		var idx = m1.TrackPopupMenu(x, y, flags);
 		switch (true) {
 		case idx == 0:
 			break;
 		case idx == 1:
-			fb.RunMainMenuCommand("View/Switch to UI/" + (window.InstanceType ? "Columns UI" : "Default User Interface"));
+			fb.RunMainMenuCommand('View/Switch to UI/' + (window.InstanceType ? 'Columns UI' : 'Default User Interface'));
 			break;
 		case idx < 2000:
 			mm1.ExecuteByID(idx - 1000);
@@ -397,7 +397,7 @@ _.mixin({
 		return utils.ReadTextFile(file);
 	},
 	q : function (value) {
-		return "\"" + value + "\"";
+		return '"' + value + '"';
 	},
 	recycleFile : function (file) {
 		if (_.isFile(file))
@@ -411,7 +411,7 @@ _.mixin({
 	},
 	run : function () {
 		try {
-			WshShell.Run(_.map(arguments, _.q).join(" "));
+			WshShell.Run(_.map(arguments, _.q).join(' '));
 			return true;
 		} catch (e) {
 			return false;
@@ -474,7 +474,7 @@ _.mixin({
 		this.guifx_font = gdi.Font(guifx.font, this.h, 0);
 	},
 	setClipboardData : function (value) {
-		doc.parentWindow.clipboardData.setData("Text", value.toString());
+		doc.parentWindow.clipboardData.setData('Text', value.toString());
 	},
 	scale : function (size) {
 		return Math.round(size * DPI / 72);
@@ -483,7 +483,7 @@ _.mixin({
 		return fso.GetFile(file).ShortPath;
 	},
 	splitRGB : function (c) {
-		var tmp = c.split("-");
+		var tmp = c.split('-');
 		if (tmp.length == 4)
 			return _.RGBA(tmp[0], tmp[1], tmp[2], tmp[3]);
 		else
@@ -491,14 +491,14 @@ _.mixin({
 	},
 	stripTags : function (value) {
 		doc.open();
-		var div = doc.createElement("div");
-		div.innerHTML = value.toString().replace(/<[Pp][^>]*>/g, "").replace(/<\/[Pp]>/g, "<br>").replace(/\n/g, "<br>");
+		var div = doc.createElement('div');
+		div.innerHTML = value.toString().replace(/<[Pp][^>]*>/g, '').replace(/<\/[Pp]>/g, '<br>').replace(/\n/g, '<br>');
 		var tmp = _.trim(div.innerText);
 		doc.close();
 		return tmp;
 	},
 	tagged : function (value) {
-		return value != "" && value != "?";
+		return value != '' && value != '?';
 	},
 	textWidth : function (value, font) {
 		var temp_bmp = gdi.CreateImage(1, 1);
@@ -512,7 +512,7 @@ _.mixin({
 	},
 	tf : function (t, metadb) {
 		if (!metadb)
-			return "";
+			return '';
 		var tfo = fb.TitleFormat(t);
 		var str = tfo.EvalWithMetadb(metadb);
 		_.dispose(tfo);
@@ -536,12 +536,12 @@ _.mixin({
 	}
 });
 
-var doc = new ActiveXObject("htmlfile");
-var app = new ActiveXObject("Shell.Application");
-var WshShell = new ActiveXObject("WScript.Shell");
-var fso = new ActiveXObject("Scripting.FileSystemObject");
-var vb = new ActiveXObject("ScriptControl");
-vb.Language = "VBScript";
+var doc = new ActiveXObject('htmlfile');
+var app = new ActiveXObject('Shell.Application');
+var WshShell = new ActiveXObject('WScript.Shell');
+var fso = new ActiveXObject('Scripting.FileSystemObject');
+var vb = new ActiveXObject('ScriptControl');
+vb.Language = 'VBScript';
 
 var DT_LEFT = 0x00000000;
 var DT_CENTER = 0x00000001;
@@ -578,10 +578,10 @@ var DLGC_WANTALLKEYS = 0x0004;
 var ONE_DAY = 86400000;
 var ONE_WEEK = 604800000;
 
-var DEFAULT_ARTIST = "$meta(artist,0)";
+var DEFAULT_ARTIST = '$meta(artist,0)';
 
 try {
-	var DPI = WshShell.RegRead("HKCU\\Control Panel\\Desktop\\WindowMetrics\\AppliedDPI");
+	var DPI = WshShell.RegRead('HKCU\\Control Panel\\Desktop\\WindowMetrics\\AppliedDPI');
 } catch (e) {
 	var DPI = 96;
 }
@@ -589,29 +589,29 @@ try {
 var LM = _.scale(5);
 var TM = _.scale(16);
 
-var tooltip = window.CreateTooltip("Segoe UI", _.scale(12));
+var tooltip = window.CreateTooltip('Segoe UI', _.scale(12));
 tooltip.SetMaxWidth(1200);
 
 var folders = {};
-folders.images = fb.ComponentPath + "samples\\complete\\images\\";
-folders.settings = fb.ProfilePath + "js_settings\\";
-folders.data = fb.ProfilePath + "js_data\\";
-folders.artists = folders.data + "artists\\";
-folders.lastfm = folders.data + "lastfm\\";
+folders.images = fb.ComponentPath + 'samples\\complete\\images\\';
+folders.settings = fb.ProfilePath + 'js_settings\\';
+folders.data = fb.ProfilePath + 'js_data\\';
+folders.artists = folders.data + 'artists\\';
+folders.lastfm = folders.data + 'lastfm\\';
 
 var console = {
-	pre : "",
+	pre : '',
 	log : function (text) {
 		fb.Trace(this.pre + text);
 	}
 }
 
 var guifx = {
-	font : "Guifx v2 Transports",
-	up : ".",
-	down : ",",
-	close : "x",
-	star : "b"
+	font : 'Guifx v2 Transports',
+	up : '.',
+	down : ',',
+	close : 'x',
+	star : 'b'
 };
 
 var popup = {
@@ -632,10 +632,10 @@ var image = {
 };
 
 var ha_links = [
-	["Title Formatting Reference", "http://wiki.hydrogenaud.io/index.php?title=Foobar2000:Title_Formatting_Reference"],
-	["Query Syntax", "http://wiki.hydrogenaud.io/index.php?title=Foobar2000:Query_syntax"],
-	["Homepage", "https://www.foobar2000.org/"],
-	["Components", "https://www.foobar2000.org/components"],
-	["Wiki", "http://wiki.hydrogenaud.io/index.php?title=Foobar2000:Foobar2000"],
-	["Forums", "https://hydrogenaud.io/index.php/board,28.0.html"]
+	['Title Formatting Reference', 'http://wiki.hydrogenaud.io/index.php?title=Foobar2000:Title_Formatting_Reference'],
+	['Query Syntax', 'http://wiki.hydrogenaud.io/index.php?title=Foobar2000:Query_syntax'],
+	['Homepage', 'https://www.foobar2000.org/'],
+	['Components', 'https://www.foobar2000.org/components'],
+	['Wiki', 'http://wiki.hydrogenaud.io/index.php?title=Foobar2000:Foobar2000'],
+	['Forums', 'https://hydrogenaud.io/index.php/board,28.0.html']
 ];

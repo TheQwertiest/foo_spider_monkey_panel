@@ -15,7 +15,7 @@ _.mixin({
 					fb.VolumeUp();
 				else
 					fb.VolumeDown();
-				_.tt("");
+				_.tt('');
 				return true;
 			} else {
 				return false;
@@ -29,14 +29,14 @@ _.mixin({
 				x -= this.x;
 				var pos = x < 0 ? 0 : x > this.w ? 1 : x / this.w;
 				this.drag_vol = 50 * Math.log(0.99 * pos + 0.01) / Math.LN10;
-				_.tt(this.drag_vol.toFixed(2) + " dB");
+				_.tt(this.drag_vol.toFixed(2) + ' dB');
 				if (this.drag)
 					fb.Volume = this.drag_vol;
 				this.hover = true;
 				return true;
 			} else {
 				if (this.hover)
-					_.tt("");
+					_.tt('');
 				this.hover = false;
 				this.drag = false;
 				return false;
@@ -65,7 +65,7 @@ _.mixin({
 		}
 		
 		this.pos = function (type) {
-			return Math.ceil((type == "h" ? this.h : this.w) * (Math.pow(10, fb.Volume / 50) - 0.01) / 0.99);
+			return Math.ceil((type == 'h' ? this.h : this.w) * (Math.pow(10, fb.Volume / 50) - 0.01) / 0.99);
 		}
 		
 		this.x = x;
