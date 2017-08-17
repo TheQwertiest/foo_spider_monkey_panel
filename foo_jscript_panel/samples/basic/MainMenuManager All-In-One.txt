@@ -11,7 +11,7 @@ var b = new buttons();
 
 // button is defined in docs\helpers.txt
 // arguments are x, y, w, h, {normal image, hover image is optional}, function, tooltip
-b.buttons.menu = new button(5, 5, 32, 32, {normal : fb.ComponentPath + "samples\\basic\\images\\cog.png"}, function () { menu(); }, "Menu");
+b.buttons.menu = new button(5, 5, 32, 32, {normal : fb.ComponentPath + 'samples\\basic\\images\\cog.png'}, function () { menu(); }, 'Menu');
 
 function on_paint(gr) {
 	b.paint(gr);
@@ -50,21 +50,21 @@ function menu() {
 	var menuman6 = fb.CreateMainMenuManager();
 	
 	// MF_STRING is defined in docs\flags.txt
-	child1.AppendTo(basemenu, MF_STRING, "File");
-	child2.AppendTo(basemenu, MF_STRING, "Edit");
-	child3.AppendTo(basemenu, MF_STRING, "View");
-	child4.AppendTo(basemenu, MF_STRING, "Playback");
-	child5.AppendTo(basemenu, MF_STRING, "Library");
-	child6.AppendTo(basemenu, MF_STRING, "Help");
+	child1.AppendTo(basemenu, MF_STRING, 'File');
+	child2.AppendTo(basemenu, MF_STRING, 'Edit');
+	child3.AppendTo(basemenu, MF_STRING, 'View');
+	child4.AppendTo(basemenu, MF_STRING, 'Playback');
+	child5.AppendTo(basemenu, MF_STRING, 'Library');
+	child6.AppendTo(basemenu, MF_STRING, 'Help');
 	basemenu.AppendMenuSeparator();
-	child7.AppendTo(basemenu, MF_STRING, "Now Playing");
+	child7.AppendTo(basemenu, MF_STRING, 'Now Playing');
 	
-	menuman1.Init("file");
-	menuman2.Init("edit");
-	menuman3.Init("View");
-	menuman4.Init("playback");
-	menuman5.Init("library");
-	menuman6.Init("help");
+	menuman1.Init('file');
+	menuman2.Init('edit');
+	menuman3.Init('View');
+	menuman4.Init('playback');
+	menuman5.Init('library');
+	menuman6.Init('help');
 	
 	menuman1.BuildMenu(child1, 1, 200);
 	menuman2.BuildMenu(child2, 201, 200);

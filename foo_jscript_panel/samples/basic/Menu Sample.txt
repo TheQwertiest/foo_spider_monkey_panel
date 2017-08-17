@@ -12,9 +12,9 @@ function on_mouse_lbtn_down(x, y) {
 	
 	// MF_STRING is defined in docs\flags.txt
 	// start index at 1, NOT 0
-	_basemenu.AppendMenuItem(MF_STRING, 1, "item1");
-	_basemenu.AppendMenuItem(MF_STRING, 2, "item2");
-	_child.AppendTo(_basemenu, MF_STRING, "Now Playing");
+	_basemenu.AppendMenuItem(MF_STRING, 1, 'item1');
+	_basemenu.AppendMenuItem(MF_STRING, 2, 'item2');
+	_child.AppendTo(_basemenu, MF_STRING, 'Now Playing');
 	
 	_context.InitNowPlaying();
 	_context.BuildMenu(_child, 3, -1);
@@ -25,10 +25,10 @@ function on_mouse_lbtn_down(x, y) {
 		case 0: //user dismissed menu by clicking elsewhere. that's why you can't use 0 when building menu items
 			break;
 		case 1:
-			fb.ShowPopupMessage("You have chose item1.");
+			fb.ShowPopupMessage('You have chose item1.');
 			break;
 		case 2:
-			fb.ShowPopupMessage("Ok, item2 is clicked");
+			fb.ShowPopupMessage('OK, item2 is clicked.');
 			break;
 		default:
 			_context.ExecuteByID(idx - 3);

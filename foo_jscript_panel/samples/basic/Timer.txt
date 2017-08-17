@@ -12,7 +12,7 @@ var g_count = 0;
 var g_timer1_ID, g_timer2_ID;
 
 function print_to_console(msg) {
-	fb.trace("Timer test:", msg);
+	fb.trace('Timer test:', msg);
 }
 
 function on_mouse_lbtn_up() {
@@ -22,13 +22,13 @@ function on_mouse_lbtn_up() {
 		g_timer1_ID = window.SetTimeout(function() {
 			// Print and show console
 			fb.ShowConsole();
-			print_to_console("g_timer1: Show console now.");
+			print_to_console('g_timer1: Show console now.');
 		}, 2000);
 		
 		// 500ms - periodic, happens every 500 ms
 		g_timer2_ID = window.SetInterval(function() {
 			g_count++;
-			print_to_console("g_timer2: " + g_count + " time(s).");
+			print_to_console('g_timer2: ' + g_count + ' time(s).');
 		}, 500);
 		
 		g_timer_started = true;
@@ -38,6 +38,6 @@ function on_mouse_lbtn_up() {
 		window.ClearInterval(g_timer1_ID);
 		g_timer_started = false;
 		g_count = 0;
-		print_to_console("Timers killed.");
+		print_to_console('Timers killed.');
 	}
 }

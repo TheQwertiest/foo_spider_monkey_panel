@@ -8,7 +8,7 @@
 var g_tooltip = window.CreateTooltip();
 var g_down = false;
 
-var g_font = gdi.Font("Segoe UI", 14, 1);
+var g_font = gdi.Font('Segoe UI', 14, 1);
 
 var btn_down = null;
 var cur_btn = null;
@@ -116,29 +116,29 @@ function on_size() {
 	var buttonY = 5;
 
 	SampleButtons = {
-		stop: new SampleButton(5, buttonY, 70, 30, "Stop", function() {
+		stop: new SampleButton(5, buttonY, 70, 30, 'Stop', function() {
 			fb.Stop();
 		},
-		"Stop"),
-		prev: new SampleButton(80, buttonY, 70, 30, "Previous", function() {
+		'Stop'),
+		prev: new SampleButton(80, buttonY, 70, 30, 'Previous', function() {
 			fb.Prev();
 		},
-		"Previous"),
-		play: new SampleButton(155, buttonY, 70, 30, "Play", function() {
+		'Previous'),
+		play: new SampleButton(155, buttonY, 70, 30, 'Play', function() {
 			fb.Play();
 		},
-		"Play"),
-		pause: new SampleButton(230, buttonY, 70, 30, "Pause", function() {
+		'Play'),
+		pause: new SampleButton(230, buttonY, 70, 30, 'Pause', function() {
 			fb.Pause();
 		},
-		"Pause"),
-		next: new SampleButton(305, buttonY, 70, 30, "Next", function() {
+		'Pause'),
+		next: new SampleButton(305, buttonY, 70, 30, 'Next', function() {
 			fb.Next();
 		},
-		"Next"),
-		rand: new SampleButton(380, buttonY, 70, 30, "Random", function() {
+		'Next'),
+		rand: new SampleButton(380, buttonY, 70, 30, 'Random', function() {
 			fb.Random();
 		},
-		"Random")
+		'Random')
 	};
 }

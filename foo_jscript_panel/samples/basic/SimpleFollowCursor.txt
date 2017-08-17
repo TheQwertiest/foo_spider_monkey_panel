@@ -5,8 +5,8 @@
 // ==/PREPROCESSOR==
 
 var handle = fb.GetFocusItem();
-var font = gdi.Font("Segoe UI", 14, 0);
-var tfo = fb.TitleFormat("%title%[ - %artist%]");
+var font = gdi.Font('Segoe UI', 14, 0);
+var tfo = fb.TitleFormat('%title%[ - %artist%]');
 
 function on_item_focus_change() {
 	handle = fb.GetFocusItem();

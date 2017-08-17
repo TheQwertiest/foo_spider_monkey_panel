@@ -6,9 +6,9 @@
 // @import "%fb2k_component_path%samples\complete\js\panel.js"
 // ==/PREPROCESSOR==
 
-var panel = new _.panel("Menu Button", ["custom_background"]);
+var panel = new _.panel('Menu Button', ['custom_background']);
 var buttons = new _.buttons();
-buttons.buttons.menu = new _.button(0, 0, 36, 36, {normal : "misc\\foobar2000.png"}, function () { _.menu(0, 36); }, "Menu");
+buttons.buttons.menu = new _.button(0, 0, 36, 36, {normal : 'misc\\foobar2000.png'}, function () { _.menu(0, 36); }, 'Menu');
 
 function on_size() {
 	panel.size();

@@ -5,7 +5,7 @@
 // @import "%fb2k_component_path%docs\helpers.txt"
 // ==/PREPROCESSOR==
 
-var g_font = gdi.Font("Segoe UI", 12, 0);
+var g_font = gdi.Font('Segoe UI', 12, 0);
 var g_drag = 0;
 var ww = 0, wh = 0;
 
@@ -18,7 +18,7 @@ function on_paint(gr) {
 	var volume = fb.Volume;
 	// vol2pos function is defined in docs\helpers.txt
 	var pos = ww * vol2pos(volume);
-	var txt = volume.toFixed(2) + "dB";
+	var txt = volume.toFixed(2) + 'dB';
 	// RGB function is defined in docs\helpers.txt
 	gr.FillGradRect(0, 0, pos, wh, 90, RGB(240, 240, 240), RGB(100, 230, 100));
 	gr.FillGradRect(pos, 0, ww - pos, wh, 90, RGB(240, 240, 240), RGB(190, 190, 190));

@@ -5,8 +5,8 @@
 // @import "%fb2k_component_path%docs\helpers.txt"
 // ==/PREPROCESSOR==
 
-var g_img = gdi.Image(fb.ComponentPath + "samples\\basic\\images\\post.jpg");
-var font = gdi.Font("Segoe UI", 16, 1);
+var g_img = gdi.Image(fb.ComponentPath + 'samples\\basic\\images\\post.jpg');
+var font = gdi.Font('Segoe UI', 16, 1);
 var ww = 0, wh = 0;
 var applied = false;
 
@@ -30,7 +30,7 @@ function on_paint(gr) {
 	}
 	if (!applied) {
 		gr.FillSolidRect(0, 0, ww, 24, RGB(0, 0, 0));
-		gr.GdiDrawText("Double click panel to apply mask", font, RGB(255, 255, 255), 0, 0, ww, 24, DT_CENTER);
+		gr.GdiDrawText('Double click panel to apply mask', font, RGB(255, 255, 255), 0, 0, ww, 24, DT_CENTER);
 	}
 }
 
@@ -40,7 +40,7 @@ function on_mouse_lbtn_dblclk() {
 }
 
 function apply() {
-	var g_img_mask = gdi.Image(fb.ComponentPath + "samples\\basic\\images\\mask.png");
+	var g_img_mask = gdi.Image(fb.ComponentPath + 'samples\\basic\\images\\mask.png');
 	// mask *MUST* be the same size as g_img
 	var mask = g_img_mask.Resize(g_img.Width, g_img.Height);
 	// Apply mask image to g_img

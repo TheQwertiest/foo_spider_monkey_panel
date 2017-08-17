@@ -8,9 +8,9 @@
 // @import "%fb2k_component_path%samples\complete\js\text.js"
 // ==/PREPROCESSOR==
 
-var panel = new _.panel("Last.fm Bio", ["metadb"]);
+var panel = new _.panel('Last.fm Bio', ['metadb']);
 var lastfm = new _.lastfm();
-var text = new _.text("lastfm_bio", LM, TM, 0, 0);
+var text = new _.text('lastfm_bio', LM, TM, 0, 0);
 
 panel.item_focus_change();
 

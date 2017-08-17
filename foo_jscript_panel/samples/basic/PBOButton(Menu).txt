@@ -8,15 +8,15 @@
 var tooltip = window.CreateTooltip();
 // buttons is defined in docs\helpers.txt
 var b = new buttons();
-var PBOArray = ["Default", "Repeat (Playlist)", "Repeat (Track)", "Random", "Shuffle (tracks)", "Shuffle (albums)", "Shuffle (folders)"];
+var PBOArray = ['Default', 'Repeat (Playlist)', 'Repeat (Track)', 'Random', 'Shuffle (tracks)', 'Shuffle (albums)', 'Shuffle (folders)'];
 on_playback_order_changed();
 
 function on_playback_order_changed() {
 	// button is defined in docs\helpers.txt
 	// arguments are x, y, w, h, {normal image, hover image is optional}, function, tooltip
-	b.buttons.pbo = new button(5, 5, 18, 9, {normal : fb.ComponentPath + "samples\\basic\\images\\" + PBOArray[plman.PlaybackOrder] + ".png"}, function () {
+	b.buttons.pbo = new button(5, 5, 18, 9, {normal : fb.ComponentPath + 'samples\\basic\\images\\' + PBOArray[plman.PlaybackOrder] + '.png'}, function () {
 		pbo_menu();
-	}, "Playback Order");
+	}, 'Playback Order');
 	window.RepaintRect(b.buttons.pbo.x, b.buttons.pbo.y, b.buttons.pbo.w, b.buttons.pbo.h);
 }
 

@@ -5,7 +5,7 @@
 // ==/PREPROCESSOR==
 
 var tooltip = window.CreateTooltip();
-var g_theme = window.CreateThemeManager("PROGRESS");
+var g_theme = window.CreateThemeManager('PROGRESS');
 // seekbar is defined inside docs\helpers.txt
 // 4 arguments are x, y, w, h
 // y and w are dynamic based on panel size so we set those inside on_size function

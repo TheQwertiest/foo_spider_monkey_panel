@@ -121,8 +121,8 @@ function on_mouse_lbtn_up(x, y) {
 }
 
 var cur_btn = null;
-var g_theme = window.CreateThemeManager("Button");
-var g_font = gdi.Font("Segoe UI", 12);
+var g_theme = window.CreateThemeManager('Button');
+var g_font = gdi.Font('Segoe UI', 12);
 var g_down = false;
 
 var ButtonStates = {
@@ -133,10 +133,10 @@ var ButtonStates = {
 }
 
 var buttons = {
-	Console: new SimpleButton(5, 5, 80, 26, "Console", function () {
+	Console: new SimpleButton(5, 5, 80, 26, 'Console', function () {
 		fb.ShowConsole();
 	}),
-	Configure: new SimpleButton(5, 40, 80, 26, "Configure", function () {
+	Configure: new SimpleButton(5, 40, 80, 26, 'Configure', function () {
 		window.ShowConfigure();
 	})
 };

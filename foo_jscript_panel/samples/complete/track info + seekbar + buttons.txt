@@ -20,7 +20,7 @@ var colours = {
 
 //////////////////////////////////////////////////////////////
 
-var panel = new _.panel("track info + seekbar + buttons");
+var panel = new _.panel('track info + seekbar + buttons');
 var seekbar = new _.seekbar(0, 0, 0, 0);
 var buttons = new _.buttons();
 var img = null;
@@ -29,13 +29,13 @@ on_playback_new_track();
 
 buttons.update = function () {
 	var y = Math.round((panel.h - bs) / 2);
-	this.buttons.stop = new _.button(panel.w - LM - (bs * 7), y, bs, bs, {normal : "mono\\appbar.control.stop.png"}, function () { fb.Stop(); }, "Stop");
-	this.buttons.previous = new _.button(panel.w - LM - (bs * 6), y, bs, bs, {normal : "mono\\appbar.control.rewind.png"}, function () { fb.Prev(); }, "Previous");
-	this.buttons.play = new _.button(panel.w - LM - (bs * 5), y, bs, bs, {normal : !fb.IsPlaying || fb.IsPaused ? "mono\\appbar.control.play.png" : "mono\\appbar.control.pause.png"}, function () { fb.PlayOrPause(); }, !fb.IsPlaying || fb.IsPaused ? "Play" : "Pause");
-	this.buttons.next = new _.button(panel.w - LM - (bs * 4), y, bs, bs, {normal : "mono\\appbar.control.fastforward.png"}, function () { fb.Next(); }, "Next");
-	this.buttons.console = new _.button(panel.w - LM - (bs * 3), y, bs, bs, {normal : "mono\\appbar.console.png"}, function () { fb.ShowConsole(); }, "Console");
-	this.buttons.search = new _.button(panel.w - LM - (bs * 2), y, bs, bs, {normal : "mono\\appbar.magnify.png"}, function () { fb.RunMainMenuCommand("Library/Search"); }, "Library Search");
-	this.buttons.preferences = new _.button(panel.w - LM - bs, y, bs, bs, {normal : "mono\\appbar.settings.png"}, function () { fb.ShowPreferences(); }, "Preferences");
+	this.buttons.stop = new _.button(panel.w - LM - (bs * 7), y, bs, bs, {normal : 'mono\\appbar.control.stop.png'}, function () { fb.Stop(); }, 'Stop');
+	this.buttons.previous = new _.button(panel.w - LM - (bs * 6), y, bs, bs, {normal : 'mono\\appbar.control.rewind.png'}, function () { fb.Prev(); }, 'Previous');
+	this.buttons.play = new _.button(panel.w - LM - (bs * 5), y, bs, bs, {normal : !fb.IsPlaying || fb.IsPaused ? 'mono\\appbar.control.play.png' : 'mono\\appbar.control.pause.png'}, function () { fb.PlayOrPause(); }, !fb.IsPlaying || fb.IsPaused ? 'Play' : 'Pause');
+	this.buttons.next = new _.button(panel.w - LM - (bs * 4), y, bs, bs, {normal : 'mono\\appbar.control.fastforward.png'}, function () { fb.Next(); }, 'Next');
+	this.buttons.console = new _.button(panel.w - LM - (bs * 3), y, bs, bs, {normal : 'mono\\appbar.console.png'}, function () { fb.ShowConsole(); }, 'Console');
+	this.buttons.search = new _.button(panel.w - LM - (bs * 2), y, bs, bs, {normal : 'mono\\appbar.magnify.png'}, function () { fb.RunMainMenuCommand('Library/Search'); }, 'Library Search');
+	this.buttons.preferences = new _.button(panel.w - LM - bs, y, bs, bs, {normal : 'mono\\appbar.settings.png'}, function () { fb.ShowPreferences(); }, 'Preferences');
 }
 
 function on_size() {
@@ -54,16 +54,16 @@ function on_paint(gr) {
 	if (fb.IsPlaying) {
 		if (img)
 			_.drawImage(gr, img, 0, 0, panel.h, panel.h, image.centre);
-		gr.GdiDrawText(_.tfe("%title%"), panel.fonts.title, colours.title, panel.h + 10, 0, seekbar.x - panel.h - _.scale(60), panel.h * 0.6, LEFT);
-		gr.GdiDrawText(_.tfe("%artist%"), panel.fonts.normal, colours.artist, panel.h + 10, panel.h * 0.3, seekbar.x - panel.h - _.scale(60), panel.h * 0.7, LEFT);
+		gr.GdiDrawText(_.tfe('%title%'), panel.fonts.title, colours.title, panel.h + 10, 0, seekbar.x - panel.h - _.scale(60), panel.h * 0.6, LEFT);
+		gr.GdiDrawText(_.tfe('%artist%'), panel.fonts.normal, colours.artist, panel.h + 10, panel.h * 0.3, seekbar.x - panel.h - _.scale(60), panel.h * 0.7, LEFT);
 		gr.SetSmoothingMode(4);
 		if (fb.PlaybackLength > 0) {
 			var pos = seekbar.pos();
 			gr.FillSolidRect(seekbar.x, seekbar.y + _.scale(3), pos + 10, seekbar.h - _.scale(6), colours.seekbar_progress);
 			gr.FillRoundRect(seekbar.x + pos, seekbar.y, _.scale(12), _.scale(12), _.scale(6), _.scale(6), colours.seekbar_progress);
 			gr.FillRoundRect(seekbar.x + pos + _.scale(2), seekbar.y + _.scale(2), _.scale(8), _.scale(8), _.scale(4), _.scale(4), colours.seekbar_knob);
-			gr.GdiDrawText(_.tfe("%playback_time%  "), panel.fonts.normal, colours.time, seekbar.x - _.scale(45), 0, _.scale(45), panel.h, RIGHT);
-			gr.GdiDrawText(_.tfe("  %length%"), panel.fonts.normal, colours.time, seekbar.x + seekbar.w + 16, 0, _.scale(45), panel.h, LEFT);
+			gr.GdiDrawText(_.tfe('%playback_time%  '), panel.fonts.normal, colours.time, seekbar.x - _.scale(45), 0, _.scale(45), panel.h, RIGHT);
+			gr.GdiDrawText(_.tfe('  %length%'), panel.fonts.normal, colours.time, seekbar.x + seekbar.w + 16, 0, _.scale(45), panel.h, LEFT);
 		}
 	}
 }
@@ -128,7 +128,7 @@ function on_mouse_lbtn_up(x, y) {
 		return;
 	if (seekbar.lbtn_up(x, y))
 		return;
-	fb.RunMainMenuCommand("View/Show now playing in playlist");
+	fb.RunMainMenuCommand('View/Show now playing in playlist');
 }
 
 function on_mouse_rbtn_up(x, y) {

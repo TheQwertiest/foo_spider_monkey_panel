@@ -5,4 +5,4 @@
 // ==/PREPROCESSOR==
 
 //check samples\basic\js\includeme.js for print_to_console function
-print_to_console("Hello world!");
+print_to_console('Hello world!');

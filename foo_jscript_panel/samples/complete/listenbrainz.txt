@@ -17,7 +17,7 @@ is no caching/retrying of failed "listens". I'll look at adding
 this soon. You can view all activity via the Console.
 */
 
-var panel = new _.panel("Listenbrainz", ["custom_background"]);
+var panel = new _.panel('Listenbrainz', ['custom_background']);
 var buttons = new _.buttons();
 var listenbrainz = new _.listenbrainz(2, 2, 32);
 

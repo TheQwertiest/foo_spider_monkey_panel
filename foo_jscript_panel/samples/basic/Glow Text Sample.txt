@@ -4,7 +4,7 @@
 // @import "%fb2k_component_path%docs\helpers.txt"
 // ==/PREPROCESSOR==
 
-var g_font = gdi.Font("Segoe UI", 22, 1);
+var g_font = gdi.Font('Segoe UI', 22, 1);
 var g_drag = false;
 var g_textrender = gdi.CreateStyleTextRender();
 // RGB function is defined in docs\helpers.txt
@@ -22,5 +22,5 @@ function on_paint(gr) {
 	// Clear previous shadow setting
 	g_textrender.EnableShadow(true);
 	g_textrender.ResetShadow();
-	g_textrender.RenderStringRect(gr, "Glow Text Sample", g_font, 0, 0, ww, wh, 0x11005000);
+	g_textrender.RenderStringRect(gr, 'Glow Text Sample', g_font, 0, 0, ww, wh, 0x11005000);
 }

@@ -4,7 +4,7 @@
 // ==/PREPROCESSOR==
 
 // Get a list of jpg files from a folder
-var g_image_list = utils.Glob("c:\\windows\\web\\wallpaper\\*.jpg").toArray();
+var g_image_list = utils.Glob('c:\\windows\\web\\wallpaper\\*.jpg').toArray();
 var ww = 0, wh = 0;
 var g_img = null;
 var g_valid_tid = 0;

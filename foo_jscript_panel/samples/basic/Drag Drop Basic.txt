@@ -28,7 +28,7 @@ function on_drag_leave() {
 
 // Here we create a new playlist for hosting the dropped objects.
 function on_drag_drop(action) {
-	var playlist_name = "Dropped Items";
+	var playlist_name = 'Dropped Items';
 	var idx = -1;
 	
 	// Find the playlist first.
