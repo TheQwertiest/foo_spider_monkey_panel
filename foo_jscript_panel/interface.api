@@ -5,7 +5,6 @@ fb.AddDirectory()
 fb.AddFiles()
 fb.ClearPlaylist()
 fb.ComponentPath
-fb.CreateAutoPlaylist(idx, name, query[, sort, flags])
 fb.CreateContextMenuManager()
 fb.CreateMainMenuManager()
 fb.CreateProfiler([name])
@@ -18,9 +17,8 @@ fb.GetLibraryRelativePath(handle);
 fb.GetNowPlaying()
 fb.GetQueryItems(handle_list, query)
 fb.GetSelection()
-fb.GetSelectionType()
 fb.GetSelections([flags])
-fb.IsAutoPlaylist(idx)
+fb.GetSelectionType()
 fb.IsLibraryEnabled();
 fb.IsMetadbInMediaLibrary(handle)
 fb.IsPaused
@@ -32,7 +30,6 @@ fb.Play()
 fb.PlayOrPause()
 fb.PlaybackFollowCursor
 fb.PlaybackLength
-fb.PlaybackOrder
 fb.PlaybackTime
 fb.Prev()
 fb.ProfilePath
@@ -42,7 +39,6 @@ fb.RunContextCommand(command[, flags])
 fb.RunContextCommandWithMetadb(command, handle_or_handle_list[, flags])
 fb.RunMainMenuCommand(command)
 fb.SavePlaylist()
-fb.ShowAutoPlaylistUI(idx)
 fb.ShowConsole()
 fb.ShowLibrarySearchUI(query);
 fb.ShowPopupMessage(msg[, title, iconid])
@@ -63,8 +59,8 @@ gdi.Image(path)
 gdi.LoadImageAsync(window_id, path)
 
 plman.ActivePlaylist
-plman.AddLocations(playlistIndex, paths[, select])
 plman.AddItemToPlaybackQueue(handle)
+plman.AddLocations(playlistIndex, paths[, select])
 plman.AddPlaylistItemToPlaybackQueue(playlistIndex, playlistItemIndex)
 plman.ClearPlaylist(playlistIndex)
 plman.ClearPlaylistSelection(playlistIndex)
@@ -106,6 +102,7 @@ plman.SetPlaylistFocusItem(playlistIndex, itemIndex)
 plman.SetPlaylistFocusItemByHandle(playlistIndex, itemHandle)
 plman.SetPlaylistSelection(playlistIndex, affectedItems, state)
 plman.SetPlaylistSelectionSingle(playlistIndex, itemIndex, state)
+plman.ShowAutoPlaylistUI(playlistIndex)
 plman.SortByFormat(playlistIndex, pattern[, selOnly])
 plman.SortByFormatV2(playlistIndex, pattern[, direction])
 plman.UndoBackup(playlistIndex);
