@@ -193,16 +193,17 @@ _.mixin({
 			'itunescompilation' : 'compilation',
 			'musicbrainz album artist id' : 'musicbrainz_albumartistid',
 			'musicbrainz album id' : 'musicbrainz_albumid',
+			'musicbrainz album release country' : 'releasecountry',
+			'musicbrainz album status' : 'releasestatus',
+			'musicbrainz album type' : 'releasetype',
 			'musicbrainz artist id' : 'musicbrainz_artistid',
 			'musicbrainz disc id' : 'musicbrainz_discid',
 			'musicbrainz release group id' : 'musicbrainz_releasegroupid',
 			'musicbrainz release track id' : 'musicbrainz_releasetrackid',
+			'musicbrainz track id' : 'musicbrainz_trackid',
 			'musicbrainz trm id' : 'musicbrainz_trmid',
 			'musicbrainz work id' : 'musicbrainz_workid',
 			'musicip puid' : 'musicip_puid',
-			'musicbrainz album release country' : 'releasecountry',
-			'musicbrainz album status' : 'releasestatus',
-			'musicbrainz album type' : 'releasetype',
 			'titlesortorder' : 'titlesort'
 		};
 		this.update_button();
