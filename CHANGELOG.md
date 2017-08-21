@@ -1,3 +1,10 @@
+## v1.2.3.2
+```
+- CHG: No component changes except a version bump.
+- FIX: Listenbrainz. Fix "musicbrainz track id" not being submitted from
+       m4a files.
+```
+
 ## v1.2.3.1
 ```
 - CHG: No component changes except a version bump. All changes are to samples.
