@@ -36,6 +36,7 @@ _.mixin({
 								artist_mbids : _.isString(tags.musicbrainz_artistid) ? [tags.musicbrainz_artistid] : tags.musicbrainz_artistid,
 								date : tags.date,
 								discnumber : tags.discnumber,
+								isrc : tags.isrc,
 								recording_mbid : tags.musicbrainz_trackid,
 								release_group_mbid : tags.musicbrainz_releasegroupid,
 								release_mbid : tags.musicbrainz_albumid,
