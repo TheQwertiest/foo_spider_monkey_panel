@@ -16,8 +16,8 @@ function on_size() {
 }
 
 function on_paint(gr) {
-	gr.SetSmoothingMode(2);
 	gr.FillSolidRect(volume.x, volume.y, volume.w, volume.h, volume.c1);
+	gr.SetSmoothingMode(2);
 	var points = [volume.x, volume.y + volume.h, volume.x + volume.pos(), volume.y + volume.h, volume.x + volume.pos(), volume.y + volume.h - volume.pos('h')];
 	gr.FillPolygon(volume.c2, 1, points);
 }
