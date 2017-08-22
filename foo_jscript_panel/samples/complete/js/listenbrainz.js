@@ -113,7 +113,9 @@ _.mixin({
 				
 				var num = f.MetaValueCount(i);
 				if (num == 1) {
-					tmp[key] = f.MetaValue(i, 0);
+					var value = f.MetaValue(i, 0);
+					// if Picard has written multiple MBIDs as a string, use the first one
+					tmp[key] = key.indexOf('musicbrainz') == 0 && value.length > 36 ? value.substring(0, 36) : value;
 				} else {
 					tmp[key] = [];
 					for (var j = 0; j < num; j++) {
