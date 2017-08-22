@@ -68,19 +68,37 @@ _.mixin({
 			this.xmlhttp.send(JSON.stringify(data));
 			this.xmlhttp.onreadystatechange = _.bind(function () {
 				if (this.xmlhttp.readyState == 4) {
-					if (this.xmlhttp.status == 0) {
-						console.log('An unknown error occurred. A possible cause may be an invalid authorization token.');
-					} else if (this.xmlhttp.responseText) {
-						var data = _.jsonParse(this.xmlhttp.responseText);
-						if (data.status == 'ok')
+					if (this.xmlhttp.responseText) {
+						var response = _.jsonParse(this.xmlhttp.responseText);
+						if (response.status == 'ok') {
 							console.log('Listen submitted OK!');
-						else
+						} else if (response.code && response.error) {
+							console.log('Error code: ' + response.code);
+							console.log('Error message: ' + response.error);
+							if (response.code == 400) {
+								console.log('Not caching data with a 400 response as it will get rejected again.');
+							} else {
+								this.cache(data);
+							}
+						} else {
 							console.log(this.xmlhttp.responseText);
+							this.cache(data);
+						}
 					} else {
 						console.log('The server response was empty, status code: ' + this.xmlhttp.status);
+						if (this.xmlhttp.status == 0)
+							console.log("A possible cause of this may be an invalid authorization token.");
+						this.cache(data);
 					}
 				}
 			}, this);
+		}
+		
+		this.cache = function (data) {
+			var tmp = _.jsonParse(_.open(this.cache_file));
+			tmp.push(data.payload[0]);
+			console.log('Cache contains ' + tmp.length + ' listen(s).');
+			_.save(JSON.stringify(tmp), this.cache_file)
 		}
 		
 		this.get_tags = function (metadb) {
@@ -108,6 +126,7 @@ _.mixin({
 		}
 		
 		this.options = function () {
+			var tmp = _.jsonParse(_.open(this.cache_file));
 			var flag = this.token.length == 36 ? MF_STRING : MF_GRAYED;
 			var m = window.CreatePopupMenu();
 			m.AppendMenuItem(MF_STRING, 1, 'Set token...');
@@ -121,6 +140,8 @@ _.mixin({
 			m.CheckMenuItem(5, this.in_library);
 			m.AppendMenuItem(flag, 6, 'Submit genre tags');
 			m.CheckMenuItem(6, this.submit_genres);
+			m.AppendMenuSeparator();
+			m.AppendMenuItem(MF_GRAYED, 7, 'Cache contains ' + tmp.length + ' listen(s).');
 			var idx = m.TrackPopupMenu(this.x, this.y + this.size);
 			switch (idx) {
 			case 1:
@@ -162,10 +183,12 @@ _.mixin({
 			window.RepaintRect(this.x, this.y, this.size, this.size);
 		}
 		
+		_.createFolder(folders.data);
 		_.createFolder(folders.settings);
 		this.x = x;
 		this.y = y;
 		this.size = size;
+		this.cache_file = folders.data + 'listenbrainz.json';
 		this.ini_file = folders.settings + 'listenbrainz.ini';
 		this.token = utils.ReadINI(this.ini_file, 'Listenbrainz', 'token');
 		this.username = utils.ReadINI(this.ini_file, 'Listenbrainz', 'username');

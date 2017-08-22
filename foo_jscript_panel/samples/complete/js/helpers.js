@@ -290,7 +290,6 @@ _.mixin({
 			var data = JSON.parse(value);
 			return data;
 		} catch (e) {
-			console.log('JSON.parse error: ' + value);
 			return [];
 		}
 	},
