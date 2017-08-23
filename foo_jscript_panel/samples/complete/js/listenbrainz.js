@@ -75,11 +75,14 @@ _.mixin({
 						var response = _.jsonParse(this.xmlhttp.responseText);
 						if (response.status == 'ok') {
 							console.log('Listen submitted OK!');
+							// now would be a good time to retry any listens in the cache
+							if (this.open_cache().length)
+								this.retry();
 						} else if (response.code && response.error) {
 							console.log('Error code: ' + response.code);
 							console.log('Error message: ' + response.error);
 							if (response.code == 400) {
-								console.log('Not caching data with a 400 response as it will get rejected again.');
+								console.log('Not caching listen with a 400 response as it is malformed and will get rejected again.');
 							} else {
 								this.cache(data);
 							}
@@ -90,22 +93,58 @@ _.mixin({
 					} else {
 						console.log('The server response was empty, status code: ' + this.xmlhttp.status);
 						if (this.xmlhttp.status == 0)
-							console.log("A possible cause of this may be an invalid authorization token.");
+							console.log('A possible cause of this may be an invalid authorization token.');
 						this.cache(data);
 					}
 				}
 			}, this);
 		}
 		
+		this.retry = function () {
+			if (this.cache_is_bad)
+				return;
+			var tmp = this.open_cache();
+			var data = {
+				listen_type : 'import',
+				payload : _.take(tmp, this.max_listens)
+			}
+			this.xmlhttp.open('POST', 'https://api.listenbrainz.org/1/submit-listens', true);
+			this.xmlhttp.setRequestHeader('Authorization' , 'Token ' + this.token);
+			this.xmlhttp.send(JSON.stringify(data));
+			this.xmlhttp.onreadystatechange = _.bind(function () {
+				if (this.xmlhttp.readyState == 4) {
+					if (this.xmlhttp.responseText) {
+						var response = _.jsonParse(this.xmlhttp.responseText);
+						if (response.status == 'ok') {
+							console.log(data.payload.length + ' cached listens submitted OK!');
+							_.save(JSON.stringify(_.drop(this.open_cache(), this.max_listens)), this.cache_file);
+							if (this.open_cache().length) {
+								window.SetTimeout(_.bind(function () {
+									this.retry();
+								}, this), 1000);
+							} else {
+								console.log('Cache is now clear!');
+							}
+						} else if (response.code == 400) {
+							if (response.error)
+								console.log(response.error);
+							console.log('Cannot retry submitting cache until bad entry is fixed/removed. Check forum links for help and report the error.')
+							this.cache_is_bad = true;
+						}
+					}
+				}
+			}, this);
+		}
+
 		this.cache = function (data) {
-			var tmp = _.jsonParse(_.open(this.cache_file));
+			var tmp = this.open_cache();
 			tmp.unshift(data.payload[0]);
 			console.log('Cache contains ' + tmp.length + ' listen(s).');
 			_.save(JSON.stringify(tmp), this.cache_file)
 		}
 		
-		this.cache_count = function () {
-			return _.jsonParse(_.open(this.cache_file)).length;
+		this.open_cache = function () {
+			return _.jsonParse(_.open(this.cache_file));
 		}
 		
 		this.get_tags = function (metadb) {
@@ -150,7 +189,7 @@ _.mixin({
 			m.AppendMenuItem(flag, 6, 'Submit genre tags');
 			m.CheckMenuItem(6, this.submit_genres);
 			m.AppendMenuSeparator();
-			m.AppendMenuItem(MF_GRAYED, 7, 'Cache contains ' + this.cache_count() + ' listen(s).');
+			m.AppendMenuItem(MF_GRAYED, 7, 'Cache contains ' + this.open_cache().length + ' listen(s).');
 			var idx = m.TrackPopupMenu(this.x, this.y + this.size);
 			switch (idx) {
 			case 1:
@@ -197,6 +236,7 @@ _.mixin({
 		this.x = x;
 		this.y = y;
 		this.size = size;
+		this.cache_is_bad = false;
 		this.cache_file = folders.data + 'listenbrainz.json';
 		this.ini_file = folders.settings + 'listenbrainz.ini';
 		this.token = utils.ReadINI(this.ini_file, 'Listenbrainz', 'token');
@@ -208,6 +248,7 @@ _.mixin({
 		this.time_elapsed = 0;
 		this.target_time = 0;
 		this.timestamp = 0;
+		this.max_listens = 50;
 		this.re = /^[0-9a-f]{8}-[0-9a-f]{4}-[345][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/
 		this.mb_names = {
 			'acoustid id' : 'acoustid_id',
