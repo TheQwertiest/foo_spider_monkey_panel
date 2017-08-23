@@ -10,17 +10,17 @@ _.mixin({
 		this.playback_time = function () {
 			this.time_elapsed++;
 			if (this.time_elapsed == this.target_time)
-				this.listen();
+				this.listen(this.metadb);
 		}
 		
-		this.listen = function () {
+		this.listen = function (metadb) {
 			if (this.token.length != 36)
 				return console.log('Token not set.');
 			
-			if (this.in_library && !fb.IsMetadbInMediaLibrary(this.metadb))
+			if (this.in_library && !fb.IsMetadbInMediaLibrary(metadb))
 				return console.log('Skipping... Track not in Media Library.');
 			
-			var tags = this.get_tags(this.metadb);
+			var tags = this.get_tags(metadb);
 			
 			if (!tags.artist || !tags.title)
 				return console.log('Artist/title tag missing. Not submitting.');
