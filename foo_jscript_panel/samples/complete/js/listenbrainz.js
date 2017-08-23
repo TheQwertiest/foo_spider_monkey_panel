@@ -155,7 +155,7 @@ _.mixin({
 				if (name == 'genre' && !this.submit_genres)
 					continue;
 				
-				var key = this.mb_names[name] || name;
+				var key = this.mapping[name] || name;
 				
 				tmp[key] = [];
 				for (var j = 0; j < f.MetaValueCount(i); j++) {
@@ -250,7 +250,7 @@ _.mixin({
 		this.timestamp = 0;
 		this.max_listens = 50;
 		this.re = /^[0-9a-f]{8}-[0-9a-f]{4}-[345][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/
-		this.mb_names = {
+		this.mapping = {
 			'acoustid id' : 'acoustid_id',
 			'acoustid fingerprint' : 'acoustid_fingerprint',
 			'album artist' : 'albumartist',
