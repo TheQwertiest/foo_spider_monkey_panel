@@ -527,6 +527,9 @@ _.mixin({
 		var b = a - 0xFF000000;
 		return [b >> 16, b >> 8 & 0xFF, b & 0xFF];
 	},
+	ts : function () {
+		return Math.floor(_.now() / 1000);
+	},
 	tt : function (value) {
 		if (tooltip.Text != value) {
 			tooltip.Text = value;

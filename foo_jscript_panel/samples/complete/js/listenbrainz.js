@@ -3,7 +3,7 @@ _.mixin({
 		this.playback_new_track = function () {
 			this.metadb = fb.GetNowPlaying();
 			this.time_elapsed = 0;
-			this.timestamp = Math.floor(_.now() / 1000);
+			this.timestamp = _.ts();
 			this.target_time = Math.min(Math.ceil(fb.PlaybackLength / 2), 240); //half the track length or 4 minutes, whichever is lower - same as Last.fm
 		}
 		
@@ -32,24 +32,26 @@ _.mixin({
 						listened_at : this.timestamp,
 						track_metadata : {
 							additional_info : {
-								albumartist : tags.albumartist,
-								artist_mbids : _.isString(tags.musicbrainz_artistid) ? [tags.musicbrainz_artistid] : tags.musicbrainz_artistid,
-								date : tags.date,
-								discnumber : tags.discnumber,
-								isrc : tags.isrc,
-								recording_mbid : tags.musicbrainz_trackid,
-								release_group_mbid : tags.musicbrainz_releasegroupid,
-								release_mbid : tags.musicbrainz_albumid,
-								tags : _.isString(tags.genre) ? [tags.genre] : tags.genre,
-								totaldiscs : tags.totaldiscs,
-								totaltracks: tags.totaltracks,
-								track_mbid : tags.musicbrainz_releasetrackid,
-								tracknumber : tags.tracknumber,
-								work_mbids : _.isString(tags.musicbrainz_workid) ? [tags.musicbrainz_workid] : tags.musicbrainz_workid
+								// must be arrays
+								artist_mbids : tags.musicbrainz_artistid,
+								tags : _.take(tags.genre, 10), // API docs says 50 is supported but that's bonkers!
+								work_mbids : tags.musicbrainz_workid,
+								// must be strings
+								albumartist : _.first(tags.albumartist),
+								date : _.first(tags.date),
+								discnumber : _.first(tags.discnumber),
+								isrc : _.first(tags.isrc),
+								recording_mbid : _.first(tags.musicbrainz_trackid),
+								release_group_mbid : _.first(tags.musicbrainz_releasegroupid),
+								release_mbid : _.first(tags.musicbrainz_albumid),
+								totaldiscs : _.first(tags.totaldiscs),
+								totaltracks: _.first(tags.totaltracks),
+								track_mbid : _.first(tags.musicbrainz_releasetrackid),
+								tracknumber : _.first(tags.tracknumber)
 							},
-							artist_name : _.isString(tags.artist) ? tags.artist : tags.artist[0],
-							release_name : tags.album,
-							track_name : tags.title
+							artist_name : _.first(tags.artist),
+							release_name : _.first(tags.album),
+							track_name : _.first(tags.title)
 						}
 					}
 				]
@@ -97,9 +99,13 @@ _.mixin({
 		
 		this.cache = function (data) {
 			var tmp = _.jsonParse(_.open(this.cache_file));
-			tmp.push(data.payload[0]);
+			tmp.unshift(data.payload[0]);
 			console.log('Cache contains ' + tmp.length + ' listen(s).');
 			_.save(JSON.stringify(tmp), this.cache_file)
+		}
+		
+		this.cache_count = function () {
+			return _.jsonParse(_.open(this.cache_file)).length;
 		}
 		
 		this.get_tags = function (metadb) {
@@ -112,15 +118,16 @@ _.mixin({
 				
 				var key = this.mb_names[name] || name;
 				
-				var num = f.MetaValueCount(i);
-				if (num == 1) {
-					var value = f.MetaValue(i, 0);
-					// if Picard has written multiple MBIDs as a string, use the first one
-					tmp[key] = key.indexOf('musicbrainz') == 0 && value.length > 36 ? value.substring(0, 36) : value;
-				} else {
-					tmp[key] = [];
-					for (var j = 0; j < num; j++) {
-						tmp[key].push(f.MetaValue(i, j));
+				tmp[key] = [];
+				for (var j = 0; j < f.MetaValueCount(i); j++) {
+					var value = f.MetaValue(i, j);
+					if (key.indexOf('musicbrainz') == 0) {
+						// if Picard has written multiple MBIDs as a string, use the first one
+						value = value.substring(0, 36);
+						if (this.re.test(value))
+							tmp[key].push(value);
+					} else {
+						tmp[key].push(value);
 					}
 				}
 			}
@@ -129,7 +136,6 @@ _.mixin({
 		}
 		
 		this.options = function () {
-			var tmp = _.jsonParse(_.open(this.cache_file));
 			var flag = this.token.length == 36 ? MF_STRING : MF_GRAYED;
 			var m = window.CreatePopupMenu();
 			m.AppendMenuItem(MF_STRING, 1, 'Set token...');
@@ -144,7 +150,7 @@ _.mixin({
 			m.AppendMenuItem(flag, 6, 'Submit genre tags');
 			m.CheckMenuItem(6, this.submit_genres);
 			m.AppendMenuSeparator();
-			m.AppendMenuItem(MF_GRAYED, 7, 'Cache contains ' + tmp.length + ' listen(s).');
+			m.AppendMenuItem(MF_GRAYED, 7, 'Cache contains ' + this.cache_count() + ' listen(s).');
 			var idx = m.TrackPopupMenu(this.x, this.y + this.size);
 			switch (idx) {
 			case 1:
@@ -202,6 +208,7 @@ _.mixin({
 		this.time_elapsed = 0;
 		this.target_time = 0;
 		this.timestamp = 0;
+		this.re = /^[0-9a-f]{8}-[0-9a-f]{4}-[345][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/
 		this.mb_names = {
 			'acoustid id' : 'acoustid_id',
 			'acoustid fingerprint' : 'acoustid_fingerprint',
