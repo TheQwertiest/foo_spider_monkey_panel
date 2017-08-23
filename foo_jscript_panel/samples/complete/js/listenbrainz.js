@@ -34,7 +34,7 @@ _.mixin({
 							additional_info : {
 								// must be arrays
 								artist_mbids : tags.musicbrainz_artistid,
-								tags : _.take(tags.genre, 10), // API docs says 50 is supported but that's bonkers!
+								tags : _.map(_.take(tags.genre, 50), function (item) { return item.substring(0, 64); }), // as per API DOCS!!
 								work_mbids : tags.musicbrainz_workid,
 								// must be strings
 								albumartist : _.first(tags.albumartist),
