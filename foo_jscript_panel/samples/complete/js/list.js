@@ -633,7 +633,10 @@ _.mixin({
 				var data = _.jsonParse(this.xmlhttp.responseText);
 				if (data.error)
 					return console.log(data.message);
-				_.save(JSON.stringify(data), f);
+				// last.fm playing up again so don't overwrite cached data with nothing
+				if (this.lastfm_mode == 0 && _.get(data, 'similarartists.artist', []).length == 0)
+					return;
+				_.save(this.xmlhttp.responseText, f);
 				if (this.lastfm_mode == 0)
 					this.reset();
 				else
