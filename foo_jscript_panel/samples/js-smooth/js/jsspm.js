@@ -2685,41 +2685,18 @@ function on_focus(is_focused) {
 	};
 };
 
-//=================================================// Custom functions
-function match(input, str) {
-	var temp = "";
-	input = input.toLowerCase();
-	for (var j in str) {
-		if (input.indexOf(str[j]) < 0)
-			return false;
-	};
-	return true;
-};
+function check_scroll(scroll___) {
+	if (scroll___ < 0)
+		scroll___ = 0;
+	var g1 = brw.h - (brw.totalRowsVis * ppt.rowHeight);
+	//var scroll_step = Math.ceil(ppt.rowHeight / ppt.scroll_divider);
+	//var g2 = Math.floor(g1 / scroll_step) * scroll_step;
 
-function check_playlist(name) {
-	var pl_name = "",
-	pl_idx = -1;
-	for (var i = 0; i < plman.PlaylistCount; i++) {
-		pl_name = plman.GetPlaylistName(i);
-		if (pl_name == name) {
-			pl_idx = i;
-			break;
-		};
+	var end_limit = (brw.rowsCount * ppt.rowHeight) - (brw.totalRowsVis * ppt.rowHeight) - g1;
+	if (scroll___ != 0 && scroll___ > end_limit) {
+		scroll___ = end_limit;
 	};
-	return pl_idx;
-};
-
-function process_string(str) {
-	str_ = [];
-	str = str.toLowerCase();
-	while (str != (temp = str.replace("  ", " ")))
-		str = temp;
-	var str = str.split(" ").sort();
-	for (var i in str) {
-		if (str[i] != "")
-			str_[str_.length] = str[i];
-	};
-	return str_;
+	return scroll___;
 };
 
 function checkMediaLibrayPlaylist() {
@@ -2750,182 +2727,6 @@ function checkMediaLibrayPlaylist() {
 	};
 
 	g_avoid_on_playlists_changed = false;
-};
-
-function check_scroll(scroll___) {
-	if (scroll___ < 0)
-		scroll___ = 0;
-	var g1 = brw.h - (brw.totalRowsVis * ppt.rowHeight);
-	//var scroll_step = Math.ceil(ppt.rowHeight / ppt.scroll_divider);
-	//var g2 = Math.floor(g1 / scroll_step) * scroll_step;
-
-	var end_limit = (brw.rowsCount * ppt.rowHeight) - (brw.totalRowsVis * ppt.rowHeight) - g1;
-	if (scroll___ != 0 && scroll___ > end_limit) {
-		scroll___ = end_limit;
-	};
-	return scroll___;
-};
-
-// ===================================================== // Wallpaper
-function setWallpaperImg(path, metadb) {
-
-	var fmt_path = fb.TitleFormat(path).Eval(true);
-	var fmt_path_arr = utils.Glob(fmt_path).toArray();
-	if (fmt_path_arr.length > 0) {
-		var final_path = fmt_path_arr[0];
-	} else {
-		var final_path = null;
-	};
-
-	if (metadb && ppt.wallpapermode == 0) {
-		var tmp_img = utils.GetAlbumArtV2(metadb, ppt.wallpapermode);
-	} else {
-		if (final_path) {
-			tmp_img = gdi.Image(final_path);
-		} else {
-			tmp_img = null;
-		};
-	};
-	if (!tmp_img) {
-		if (final_path) {
-			tmp_img = gdi.Image(final_path);
-		} else {
-			tmp_img = null;
-		};
-	};
-
-	g_wallpaperImg = null;
-	var img = FormatWallpaper(tmp_img, ww, wh, 2, 0, 0, "", true);
-	return img;
-};
-
-function draw_blurred_image(image, ix, iy, iw, ih, bx, by, bw, bh, blur_value, overlay_color) {
-	var blurValue = blur_value;
-	var imgA = image.Resize(iw * blurValue / 100, ih * blurValue / 100, 2);
-	var imgB = imgA.resize(iw, ih, 2);
-
-	var bbox = gdi.CreateImage(bw, bh);
-	// Get graphics interface like "gr" in on_paint
-	var gb = bbox.GetGraphics();
-	var offset = 90 - blurValue;
-	gb.DrawImage(imgB, 0 - offset, 0 - (ih - bh) - offset, iw + offset * 2, ih + offset * 2, 0, 0, imgB.Width, imgB.Height, 0, 255);
-	bbox.ReleaseGraphics(gb);
-
-	var newImg = gdi.CreateImage(iw, ih);
-	var gb = newImg.GetGraphics();
-
-	if (ix != bx || iy != by || iw != bw || ih != bh) {
-		gb.DrawImage(image, ix, iy, iw, ih, 0, 0, image.Width, image.Height, 0, 255);
-		gb.FillSolidRect(bx, by, bw, bh, 0xffffffff);
-	};
-	gb.DrawImage(bbox, bx, by, bw, bh, 0, 0, bbox.Width, bbox.Height, 0, 255);
-
-	// overlay
-	if (overlay_color != null) {
-		gb.FillSolidRect(bx, by, bw, bh, overlay_color);
-	};
-
-	// top border of blur area
-	if (ix != bx || iy != by || iw != bw || ih != bh) {
-		gb.FillSolidRect(bx, by, bw, 1, 0x22ffffff);
-		gb.FillSolidRect(bx, by - 1, bw, 1, 0x22000000);
-	};
-	newImg.ReleaseGraphics(gb);
-
-	return newImg;
-};
-
-function FormatWallpaper(image, iw, ih, interpolation_mode, display_mode, angle, txt, rawBitmap) {
-	if (!image || !iw || !ih)
-		return image;
-	var i,
-	j;
-
-	var panel_ratio = iw / ih;
-	wpp_img_info.ratio = image.Width / image.Height;
-	wpp_img_info.orient = 0;
-
-	if (wpp_img_info.ratio > panel_ratio) {
-		wpp_img_info.orient = 1;
-		// 1/3 : default image is in landscape mode
-		switch (display_mode) {
-		case 0: // Filling
-			//wpp_img_info.w = iw * wpp_img_info.ratio / panel_ratio;
-			wpp_img_info.w = ih * wpp_img_info.ratio;
-			wpp_img_info.h = ih;
-			wpp_img_info.cut = wpp_img_info.w - iw;
-			wpp_img_info.x = 0 - (wpp_img_info.cut / 2);
-			wpp_img_info.y = 0;
-			break;
-		case 1: // Adjust
-			wpp_img_info.w = iw;
-			wpp_img_info.h = ih / wpp_img_info.ratio * panel_ratio;
-			wpp_img_info.cut = ih - wpp_img_info.h;
-			wpp_img_info.x = 0;
-			wpp_img_info.y = wpp_img_info.cut / 2;
-			break;
-		case 2: // Stretch
-			wpp_img_info.w = iw;
-			wpp_img_info.h = ih;
-			wpp_img_info.cut = 0;
-			wpp_img_info.x = 0;
-			wpp_img_info.y = 0;
-			break;
-		};
-	} else if (wpp_img_info.ratio < panel_ratio) {
-		wpp_img_info.orient = 2;
-		// 2/3 : default image is in portrait mode
-		switch (display_mode) {
-		case 0: // Filling
-			wpp_img_info.w = iw;
-			//wpp_img_info.h = ih / wpp_img_info.ratio * panel_ratio;
-			wpp_img_info.h = iw / wpp_img_info.ratio;
-			wpp_img_info.cut = wpp_img_info.h - ih;
-			wpp_img_info.x = 0;
-			wpp_img_info.y = 0 - (wpp_img_info.cut / 4);
-			break;
-		case 1: // Adjust
-			wpp_img_info.h = ih;
-			wpp_img_info.w = iw * wpp_img_info.ratio / panel_ratio;
-			wpp_img_info.cut = iw - wpp_img_info.w;
-			wpp_img_info.y = 0;
-			wpp_img_info.x = wpp_img_info.cut / 2;
-			break;
-		case 2: // Stretch
-			wpp_img_info.w = iw;
-			wpp_img_info.h = ih;
-			wpp_img_info.cut = 0;
-			wpp_img_info.x = 0;
-			wpp_img_info.y = 0;
-			break;
-		};
-	} else {
-		// 3/3 : default image is a square picture, ratio = 1
-		wpp_img_info.w = iw;
-		wpp_img_info.h = ih;
-		wpp_img_info.cut = 0;
-		wpp_img_info.x = 0;
-		wpp_img_info.y = 0;
-	};
-
-	var tmp_img = gdi.CreateImage(iw, ih);
-	var gp = tmp_img.GetGraphics();
-	gp.SetInterpolationMode(interpolation_mode);
-	gp.DrawImage(image, wpp_img_info.x, wpp_img_info.y, wpp_img_info.w, wpp_img_info.h, 0, 0, image.Width, image.Height, angle, 255);
-	tmp_img.ReleaseGraphics(gp);
-
-	// blur it!
-	if (ppt.wallpaperblurred) {
-		var blur_factor = ppt.wallpaperblurvalue; // [1-90]
-		tmp_img = draw_blurred_image(tmp_img, 0, 0, tmp_img.Width, tmp_img.Height, 0, 0, tmp_img.Width, tmp_img.Height, blur_factor, 0x00ffffff);
-	};
-
-	CollectGarbage();
-	if (rawBitmap) {
-		return tmp_img.CreateRawBitmap();
-	} else {
-		return tmp_img;
-	};
 };
 
 function g_sendResponse() {

@@ -60,7 +60,7 @@ _.mixin({
 			console.log('Submitting ' + _.q(tags.artist + ' - ' + tags.title));
 			
 			if (this.show_data)
-				fb.Trace(JSON.stringify(data, null, '    '));
+				fb.Trace(JSON.stringify(data, null, 4));
 			
 			this.post(data);
 		}
