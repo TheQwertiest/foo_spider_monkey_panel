@@ -285,6 +285,10 @@ _.mixin({
 	isFolder : function (folder) {
 		return _.isString(folder) ? fso.FolderExists(folder) : false;
 	},
+	isUUID : function (value) {
+		var re = /^[0-9a-f]{8}-[0-9a-f]{4}-[345][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/
+		return re.test(value);
+	},
 	jsonParse : function (value) {
 		try {
 			var data = JSON.parse(value);

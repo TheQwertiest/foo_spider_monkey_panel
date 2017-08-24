@@ -14,7 +14,7 @@ _.mixin({
 		}
 		
 		this.listen = function (metadb) {
-			if (this.token.length != 36)
+			if (_.isUUID(this.token))
 				return console.log('Token not set.');
 			
 			if (this.in_library && !fb.IsMetadbInMediaLibrary(metadb))
@@ -163,7 +163,7 @@ _.mixin({
 					if (key.indexOf('musicbrainz') == 0) {
 						// if Picard has written multiple MBIDs as a string, use the first one
 						value = value.substring(0, 36);
-						if (this.re.test(value))
+						if (_.isUUID(value))
 							tmp[key].push(value);
 					} else {
 						tmp[key].push(value);
@@ -227,7 +227,7 @@ _.mixin({
 		}
 		
 		this.update_button = function () {
-			buttons.buttons.listenbrainz = new _.button(this.x, this.y, this.size, this.size, {normal : this.token.length == 36 ? 'misc\\listenbrainz_active.png' : 'misc\\listenbrainz_inactive.png'}, _.bind(function () { this.options(); }, this), 'Listenbrainz Options');
+			buttons.buttons.listenbrainz = new _.button(this.x, this.y, this.size, this.size, {normal : _.isUUID(this.token) ? 'misc\\listenbrainz_active.png' : 'misc\\listenbrainz_inactive.png'}, _.bind(function () { this.options(); }, this), 'Listenbrainz Options');
 			window.RepaintRect(this.x, this.y, this.size, this.size);
 		}
 		
@@ -249,7 +249,6 @@ _.mixin({
 		this.target_time = 0;
 		this.timestamp = 0;
 		this.max_listens = 50;
-		this.re = /^[0-9a-f]{8}-[0-9a-f]{4}-[345][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/
 		this.mapping = {
 			'acoustid id' : 'acoustid_id',
 			'acoustid fingerprint' : 'acoustid_fingerprint',

@@ -851,36 +851,40 @@ _.mixin({
 						var num = f.MetaValueCount(i);
 						for (var j = 0; j < num; j++) {
 							var value = f.MetaValue(i, j).replace(/\s{2,}/g, ' ');
-							switch (name.toUpperCase()) {
-							case 'MUSICBRAINZ_ARTISTID':
-							case 'MUSICBRAINZ_ALBUMARTISTID':
-							case 'MUSICBRAINZ ARTIST ID':
-							case 'MUSICBRAINZ ALBUM ARTIST ID':
-								var url = 'https://musicbrainz.org/artist/' + value;
-								break;
-							case 'MUSICBRAINZ_ALBUMID':
-							case 'MUSICBRAINZ ALBUM ID':
-								var url = 'https://musicbrainz.org/release/' + value;
-								break;
-							case 'MUSICBRAINZ_RELEASEGROUPID':
-							case 'MUSICBRAINZ RELEASE GROUP ID':
-								var url = 'https://musicbrainz.org/release-group/' + value;
-								break;
-							case 'MUSICBRAINZ_RELEASETRACKID':
-							case 'MUSICBRAINZ RELEASE TRACK ID':
-								var url = 'https://musicbrainz.org/track/' + value;
-								break;
-							case 'MUSICBRAINZ_TRACKID':
-							case 'MUSICBRAINZ TRACK ID':
-								var url = 'https://musicbrainz.org/recording/' + value;
-								break;
-							case 'MUSICBRAINZ_WORKID':
-							case 'MUSICBRAINZ WORK ID':
-								var url = 'https://musicbrainz.org/work/' + value;
-								break;
-							default:
+							if (_.isUUID(value)) {
+								switch (name.toUpperCase()) {
+								case 'MUSICBRAINZ_ARTISTID':
+								case 'MUSICBRAINZ_ALBUMARTISTID':
+								case 'MUSICBRAINZ ARTIST ID':
+								case 'MUSICBRAINZ ALBUM ARTIST ID':
+									var url = 'https://musicbrainz.org/artist/' + value;
+									break;
+								case 'MUSICBRAINZ_ALBUMID':
+								case 'MUSICBRAINZ ALBUM ID':
+									var url = 'https://musicbrainz.org/release/' + value;
+									break;
+								case 'MUSICBRAINZ_RELEASEGROUPID':
+								case 'MUSICBRAINZ RELEASE GROUP ID':
+									var url = 'https://musicbrainz.org/release-group/' + value;
+									break;
+								case 'MUSICBRAINZ_RELEASETRACKID':
+								case 'MUSICBRAINZ RELEASE TRACK ID':
+									var url = 'https://musicbrainz.org/track/' + value;
+									break;
+								case 'MUSICBRAINZ_TRACKID':
+								case 'MUSICBRAINZ TRACK ID':
+									var url = 'https://musicbrainz.org/recording/' + value;
+									break;
+								case 'MUSICBRAINZ_WORKID':
+								case 'MUSICBRAINZ WORK ID':
+									var url = 'https://musicbrainz.org/work/' + value;
+									break;
+								default:
+									var url = name.toLowerCase() + (num == 1 ? ' IS ' : ' HAS ') + value;
+									break;
+								}
+							} else {
 								var url = name.toLowerCase() + (num == 1 ? ' IS ' : ' HAS ') + value;
-								break;
 							}
 							this.data.push({
 								name : j == 0 ? name.toUpperCase() : '',
