@@ -1,7 +1,7 @@
 #pragma once
 
 // Remember to bump utils.version too
-#define JSP_VERSION_NUMBER "1.2.3.2"
+#define JSP_VERSION_NUMBER "1.2.3.3"
 #define JSP_WILL_NOT_EXPIRE
 //#define JSP_VERSION_TEST "Beta 1"
 

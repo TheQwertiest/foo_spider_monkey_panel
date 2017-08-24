@@ -24,7 +24,10 @@ Note that any listens that trigger a code 400 error from the listenbrainz server
 are malformed and cannot be retried. Report any of these errors so I can update
 the script to handle them better.
 
-More details here: https://community.metabrainz.org/t/submit-your-listens-with-foobar2000/324704
+More details/help available here: https://community.metabrainz.org/t/submit-your-listens-with-foobar2000/324704
+
+Please note that your token will be stored inside a plain text .ini file inside
+%appdata%\foobar2000\js_settings\listenbrainz.ini (or inside the program folder itself if in portable mode)
 */
 
 var panel = new _.panel('Listenbrainz', ['custom_background']);

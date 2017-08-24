@@ -22,7 +22,6 @@ _.mixin({
 			this.xmlhttp.send(data);
 			this.xmlhttp.onreadystatechange = _.bind(function () {
 				if (this.xmlhttp.readyState == 4) {
-					// don't check for http status 200 since new last.fm site went live
 					var data = _.jsonParse(this.xmlhttp.responseText);
 					if (data.error) {
 						WshShell.popup(data.message, 0, panel.name, popup.stop);

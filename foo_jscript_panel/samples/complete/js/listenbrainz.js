@@ -15,7 +15,7 @@ _.mixin({
 		
 		this.listen = function (metadb) {
 			if (!_.isUUID(this.token))
-				return console.log('Token not set.');
+				return console.log('Token invalid/not set.');
 			
 			if (this.in_library && !fb.IsMetadbInMediaLibrary(metadb))
 				return console.log('Skipping... Track not in Media Library.');
@@ -82,7 +82,7 @@ _.mixin({
 							console.log('Error code: ' + response.code);
 							console.log('Error message: ' + response.error);
 							if (response.code == 400) {
-								console.log('Not caching listen with a 400 response as it is malformed and will get rejected again.');
+								console.log('Not caching listen with a 400 response as it is malformed and will get rejected again. See note in main script about reporting errors.');
 							} else {
 								this.cache(data);
 							}
@@ -128,7 +128,7 @@ _.mixin({
 						} else if (response.code == 400) {
 							if (response.error)
 								console.log(response.error);
-							console.log('Cannot retry submitting cache until bad entry is fixed/removed. Check forum links for help and report the error.')
+							console.log('Cannot retry submitting cache until bad entry is fixed/removed. See note in main script about reporting errors.')
 							this.cache_is_bad = true;
 						}
 					}
