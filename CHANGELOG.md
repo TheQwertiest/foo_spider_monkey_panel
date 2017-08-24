@@ -5,7 +5,7 @@
 - CHG: Listenbrainz now has caching/retry support. It's my first attempt
        at this so please report any issues! I also need reports of any
        code 400 errors from the server as the script will need updating
-       before these tracks can be tried again.
+       before these tracks can be submitted successfully.
 - ADD: Br3tt's JS Smooth scripts are now bundled with the component and the
        separate repository has been nuked.
 ```
