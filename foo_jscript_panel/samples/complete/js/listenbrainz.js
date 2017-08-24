@@ -14,7 +14,7 @@ _.mixin({
 		}
 		
 		this.listen = function (metadb) {
-			if (_.isUUID(this.token))
+			if (!_.isUUID(this.token))
 				return console.log('Token not set.');
 			
 			if (this.in_library && !fb.IsMetadbInMediaLibrary(metadb))
