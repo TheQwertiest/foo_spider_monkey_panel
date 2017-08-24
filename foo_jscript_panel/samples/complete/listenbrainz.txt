@@ -12,19 +12,30 @@ https://listenbrainz.org/
 The button logo will remain grey and do nothing until your add
 your user token. Click the button to do this. When it changes
 to colour, "listens" are submitted after half the track has played
-or 4 minutes has passed, just like Last.fm. Currently there
-is no caching/retrying of failed "listens". I'll look at adding
-this soon. You can view all activity via the Console.
+or 4 minutes has passed, just like Last.fm. Clicking the button will
+also reveal a few other options.
+
+If listenbrainz is down or there are other connectivity issues,
+the script will cache any failed listens and try again the next time
+a listen is succesful. This happens automatically and cannot be triggered
+manually. Look out for all activity in the foobar2000 console via the View menu.
+
+Note that any listens that trigger a code 400 error from the listenbrainz server
+are malformed and cannot be retried. Report any of these errors so I can update
+the script to handle them better.
 
 More details here: https://community.metabrainz.org/t/submit-your-listens-with-foobar2000/324704
 */
 
 var panel = new _.panel('Listenbrainz', ['custom_background']);
 var buttons = new _.buttons();
-var listenbrainz = new _.listenbrainz(2, 2, 32);
+var listenbrainz = new _.listenbrainz(2, 2, 32); // x, y, size
 
 function on_size() {
 	panel.size();
+	// if you want the button to float towards the right hand side or bottom of the panel, uncomment the following and edit accordingly
+	// buttons.buttons.listenbrainz.x = panel.w - listenbrainz.size;
+	// buttons.buttons.listenbrainz.y = panel.h - listenbrainz.size;
 }
 
 function on_paint(gr) {
