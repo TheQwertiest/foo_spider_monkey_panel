@@ -27,21 +27,21 @@ _.mixin({
 			this.tooltip = this.path = '';
 			if (panel.metadb) {
 				this.img = utils.GetAlbumArtV2(panel.metadb, this.id);
-				if (this.img) {
-					this.tooltip = 'Original dimensions: ' + this.img.Width + 'x' + this.img.Height + 'px';
-					if (panel.metadb.RawPath.indexOf('file') == 0)
-						utils.GetAlbumArtAsync(window.ID, panel.metadb, this.id, true, false, true);
-				}
+				if (this.img && panel.metadb.RawPath.indexOf('file') == 0)
+					utils.GetAlbumArtAsync(window.ID, panel.metadb, this.id, true, false, true);
 			}
 			window.Repaint();
 		}
 		
 		this.get_album_art_done = function (p) {
 			this.path = p;
-			if (_.isFile(this.path)) {
-				this.tooltip += '\nPath: ' + this.path;
-				if (panel.metadb.Path != this.path)
-					this.tooltip += '\nSize: ' + utils.FormatFileSize(fso.GetFile(this.path).Size);
+			if (this.img) {
+				this.tooltip = 'Original dimensions: ' + this.img.Width + 'x' + this.img.Height + 'px';
+				if (_.isFile(this.path)) {
+					this.tooltip += '\nPath: ' + this.path;
+					if (panel.metadb.Path != this.path)
+						this.tooltip += '\nSize: ' + utils.FormatFileSize(fso.GetFile(this.path).Size);
+				}
 			}
 		}
 		
