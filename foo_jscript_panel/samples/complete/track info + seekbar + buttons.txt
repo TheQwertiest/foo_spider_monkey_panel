@@ -40,8 +40,8 @@ buttons.update = function () {
 
 function on_size() {
 	panel.size();
-	seekbar.x = panel.h + _.scale(225);
-	seekbar.w = panel.w - panel.h - _.scale(525);
+	seekbar.x = Math.round(panel.w * 0.22);
+	seekbar.w = panel.w - seekbar.x - _.scale(264);
 	seekbar.h = _.scale(12);
 	seekbar.y = (panel.h - seekbar.h) / 2;
 	buttons.update();
@@ -50,22 +50,22 @@ function on_size() {
 function on_paint(gr) {
 	gr.FillSolidRect(0, 0, panel.w, panel.h, colours.background);
 	buttons.paint(gr);
-	gr.FillSolidRect(seekbar.x, seekbar.y + _.scale(3), seekbar.w + 16, seekbar.h - _.scale(6), colours.seekbar_background);
+	gr.FillSolidRect(seekbar.x, seekbar.y, seekbar.w + _.scale(6), seekbar.h, colours.seekbar_background);
 	if (fb.IsPlaying) {
 		if (img)
 			_.drawImage(gr, img, 0, 0, panel.h, panel.h, image.centre);
 		gr.GdiDrawText(_.tfe('%title%'), panel.fonts.title, colours.title, panel.h + 10, 0, seekbar.x - panel.h - _.scale(60), panel.h * 0.6, LEFT);
 		gr.GdiDrawText(_.tfe('%artist%'), panel.fonts.normal, colours.artist, panel.h + 10, panel.h * 0.3, seekbar.x - panel.h - _.scale(60), panel.h * 0.7, LEFT);
-		gr.SetSmoothingMode(4);
+		gr.SetSmoothingMode(2);
 		if (fb.PlaybackLength > 0) {
 			var pos = seekbar.pos();
-			gr.FillSolidRect(seekbar.x, seekbar.y + _.scale(3), pos + 10, seekbar.h - _.scale(6), colours.seekbar_progress);
-			gr.FillRoundRect(seekbar.x + pos, seekbar.y, _.scale(12), _.scale(12), _.scale(6), _.scale(6), colours.seekbar_progress);
-			gr.FillRoundRect(seekbar.x + pos + _.scale(2), seekbar.y + _.scale(2), _.scale(8), _.scale(8), _.scale(4), _.scale(4), colours.seekbar_knob);
+			gr.FillSolidRect(seekbar.x, seekbar.y, pos, seekbar.h, colours.seekbar_progress);
+			gr.FillSolidRect(seekbar.x + pos, seekbar.y, _.scale(6), seekbar.h, colours.seekbar_knob);
 			gr.GdiDrawText(_.tfe('%playback_time%  '), panel.fonts.normal, colours.time, seekbar.x - _.scale(45), 0, _.scale(45), panel.h, RIGHT);
-			gr.GdiDrawText(_.tfe('  %length%'), panel.fonts.normal, colours.time, seekbar.x + seekbar.w + 16, 0, _.scale(45), panel.h, LEFT);
+			gr.GdiDrawText(_.tfe('  %length%'), panel.fonts.normal, colours.time, seekbar.x + seekbar.w + _.scale(6), 0, _.scale(45), panel.h, LEFT);
 		}
 	}
+	gr.DrawRect(seekbar.x, seekbar.y, seekbar.w + _.scale(6), seekbar.h, 1, colours.seekbar_progress);
 }
 
 function on_playback_new_track() {

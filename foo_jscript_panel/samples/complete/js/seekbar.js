@@ -1,7 +1,7 @@
 _.mixin({
 	seekbar : function (x, y, w, h) {
 		this.playback_seek = function () {
-			window.RepaintRect(this.x - 100, this.y, this.w + 200, this.h);
+			window.RepaintRect(this.x - _.scale(75), this.y - _.scale(10), this.w + _.scale(150), this.h + _.scale(20));
 		}
 		
 		this.playback_stop = function () {
