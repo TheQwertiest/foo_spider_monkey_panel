@@ -297,6 +297,9 @@ _.mixin({
 			return [];
 		}
 	},
+	jsonParseFile : function (filename) {
+		return _.jsonParse(_.open(filename));
+	},
 	lastModified : function (file) {
 		return Date.parse(fso.Getfile(file).DateLastModified);
 	},

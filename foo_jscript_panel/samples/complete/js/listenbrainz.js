@@ -146,7 +146,7 @@ _.mixin({
 		}
 		
 		this.open_cache = function () {
-			return _.jsonParse(_.open(this.cache_file));
+			return _.jsonParseFile(this.cache_file);
 		}
 		
 		this.get_tags = function (metadb) {

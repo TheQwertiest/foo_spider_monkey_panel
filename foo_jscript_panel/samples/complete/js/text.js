@@ -50,7 +50,7 @@ _.mixin({
 					this.content = '';
 					this.filename = _.artistFolder(this.artist) + 'lastfm.artist.getInfo.' + this.bio_langs[this.bio_lang] + '.json';
 					if (_.isFile(this.filename)) {
-						this.content = _.stripTags(_.get(_.jsonParse(_.open(this.filename)), 'artist.bio.content', '')).replace('Read more on Last.fm. User-contributed text is available under the Creative Commons By-SA License; additional terms may apply.', '');
+						this.content = _.stripTags(_.get(_.jsonParseFile(this.filename), 'artist.bio.content', '')).replace('Read more on Last.fm. User-contributed text is available under the Creative Commons By-SA License; additional terms may apply.', '');
 						if (_.fileExpired(this.filename, ONE_DAY))
 							this.get();
 					} else {

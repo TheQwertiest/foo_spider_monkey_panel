@@ -401,7 +401,7 @@ _.mixin({
 			switch (this.mode) {
 			case 'autoplaylists':
 				if (_.isFile(this.filename))
-					this.data = _(_.jsonParse(_.open(this.filename)))
+					this.data = _(_.jsonParseFile(this.filename))
 						.forEach(function (item) {
 							item.width = _.textWidth(item.name, panel.fonts.normal);
 						})
@@ -421,7 +421,7 @@ _.mixin({
 				case 0:
 					this.filename = _.artistFolder(this.artist) + 'lastfm.artist.getSimilar.json';
 					if (_.isFile(this.filename)) {
-						this.data = _(_.get(_.jsonParse(_.open(this.filename)), 'similarartists.artist', []))
+						this.data = _(_.get(_.jsonParseFile(this.filename), 'similarartists.artist', []))
 							.map(function (item) {
 								return {
 									name : item.name,
@@ -439,7 +439,7 @@ _.mixin({
 				case 1:
 					this.filename = folders.lastfm + lastfm.username + '.' + this.lastfm_charts_methods[this.lastfm_charts_method].method + '.' + this.lastfm_charts_periods[this.lastfm_charts_period].period + '.json';
 					if (_.isFile(this.filename)) {
-						var data = _.get(_.jsonParse(_.open(this.filename)), this.lastfm_charts_methods[this.lastfm_charts_method].json, []);
+						var data = _.get(_.jsonParseFile(this.filename), this.lastfm_charts_methods[this.lastfm_charts_method].json, []);
 						for (var i = 0; i < data.length; i++) {
 							if (this.lastfm_charts_method == 0) {
 								var name = data[i].name;
@@ -471,7 +471,7 @@ _.mixin({
 					this.attempt = 1;
 					this.filename = _.artistFolder(this.artist) + 'musicbrainz.releases.' + this.mb_id + '.json';
 					if (_.isFile(this.filename)) {
-						var data = _(_.jsonParse(_.open(this.filename)))
+						var data = _(_.jsonParseFile(this.filename))
 							.sortByOrder(['first-release-date', 'title'], ['desc', 'asc'])
 							.map(function (item) {
 								return {
@@ -506,7 +506,7 @@ _.mixin({
 					this.filename = _.artistFolder(this.artist) + 'musicbrainz.links.' + this.mb_id + '.json';
 					if (_.isFile(this.filename)) {
 						var url = 'https://musicbrainz.org/artist/' + this.mb_id;
-						this.data = _(_.get(_.jsonParse(_.open(this.filename)), 'relations', []))
+						this.data = _(_.get(_.jsonParseFile(this.filename), 'relations', []))
 							.map(function (item) {
 								var url = decodeURIComponent(item.url.resource);
 								return {
