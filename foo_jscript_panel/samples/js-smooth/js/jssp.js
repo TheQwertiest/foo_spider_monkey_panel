@@ -2892,9 +2892,9 @@ oBrowser = function (name) {
 		} else {
 			switch (ret) {
 			case 1010:
-				if (fso.FileExists(fb.ProfilePath + "js_br3tt\\cache\\imgcache\\" + crc)) {
+				if (fso.FileExists(fb.ProfilePath + "js_smooth_cache\\" + crc)) {
 					try {
-						fso.DeleteFile(fb.ProfilePath + "js_br3tt\\cache\\imgcache\\" + crc);
+						fso.DeleteFile(fb.ProfilePath + "js_smooth_cache\\" + crc);
 					} catch (e) {
 						fb.trace("WSH Panel Error: Image cache [" + crc + "] can't be deleted on disk, file in use, try later or reload panel.");
 					};

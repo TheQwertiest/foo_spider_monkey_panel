@@ -32,14 +32,10 @@ a jscript for the component "JScript Panel" v1.0.0 or better
 [/Requirements]
 
 [Installation]
- * copy folder "js_br3tt" into your foobar2000 Profile folder (it contains the "jssb" subfolder)
  * import/paste the main script into a "JScript Panel" instance of your foobar2000 layout (DUI or CUI)
- * Important: for any update of my scripts, replace the whole folder "js_br3tt\jssb\" each time
-   and Clear the panel properties (hold SHIFT key + Right-click > Properties > "Clear" button > "OK" button)
 [/Installation]
 
 [Tips]
- * for the GENRE column mode, images have to be stored in js_br3tt\jssb\images\genres\ folder 
  * for the ARTIST column mode, to make the disk cache working, artist images path have to be set in window Properties (SHIFT + right click > Properties)
  * Hold SHIFT key + right click to display Configure script and panel Properties entries
  * Always use Jscript9 engine for better performances (choice is to be made when you open the "Configure..." window from a JScript Panel instance (right click)

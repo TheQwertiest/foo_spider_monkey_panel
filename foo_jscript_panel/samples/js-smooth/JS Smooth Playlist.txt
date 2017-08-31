@@ -36,10 +36,7 @@ a jscript for the component "JScript Panel" v1.0.0 or better
 [/Options]
 
 [Installation]
- * copy folder "js_br3tt" into your foobar2000 Profile folder (it contains the "jssp" subfolder)
  * import/paste the main script into a "JScript Panel" instance of your foobar2000 layout (DUI or CUI)
- * Important: for any update of my scripts, replace the whole folder "js_br3tt\jssp\" each time
-   and Clear the panel properties (hold SHIFT key + Right-click > Properties > "Clear" button > "OK" button)
 [/Installation]
 
 [Tips]
