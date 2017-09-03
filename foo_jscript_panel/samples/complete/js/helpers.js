@@ -10,9 +10,15 @@ function on_script_unload() {
 
 _.mixin({
 	artistFolder : function (artist) {
-		var folder = folders.artists + _.fbSanitise(artist);
-		_.createFolder(folder);
-		return fso.GetFolder(folder) + '\\';
+		var a = _.fbSanitise(artist);
+		var folder = folders.artists + a;
+		if (_.isFolder(folder)) {
+			return fso.GetFolder(folder) + '\\';
+		} else {
+			folder = folders.artists + _.trunc(a, 64);
+			_.createFolder(folder);
+			return fso.GetFolder(folder) + '\\';
+		}
 	},
 	blendColours : function (c1, c2, f) {
 		c1 = _.toRGB(c1);
@@ -297,8 +303,8 @@ _.mixin({
 			return [];
 		}
 	},
-	jsonParseFile : function (filename) {
-		return _.jsonParse(_.open(filename));
+	jsonParseFile : function (file) {
+		return _.jsonParse(_.open(file));
 	},
 	lastModified : function (file) {
 		return Date.parse(fso.Getfile(file).DateLastModified);
@@ -431,6 +437,8 @@ _.mixin({
 	},
 	save : function (value, file) {
 		try {
+			if (!_.isFolder(utils.FileTest(file, 'split').toArray()[0]))
+				return false;
 			var ts = fso.OpenTextFile(file, 2, true, -1);
 			ts.WriteLine(value);
 			ts.Close();
