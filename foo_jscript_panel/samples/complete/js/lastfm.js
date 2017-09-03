@@ -13,9 +13,21 @@ _.mixin({
 			}
 		}
 		
-		this.auth = function () {
-			var api_sig = md5('api_key' + this.api_key + 'methodauth.getMobileSessionpassword' + this.password + 'username' + this.username + this.secret);
-			var data = 'format=json&password=' + this.password + '&username=' + this.username + '&method=auth.getMobileSession&api_key=' + this.api_key + '&api_sig=' + api_sig;
+		this.auth = function (method) {
+			switch (method) {
+			case 'auth.getToken':
+				this.update_sk('');
+				this.token = '';
+				var api_sig = md5('api_key' + this.api_key + 'method' + method + this.secret);
+				var data = 'format=json&method=' + method + '&api_key=' + this.api_key + '&api_sig=' + api_sig;
+				break;
+			case 'auth.getSession':
+				var api_sig = md5('api_key' + this.api_key + 'method' + method + 'token' + this.token + this.secret);
+				var data = 'format=json&method=' + method + '&api_key=' + this.api_key + '&api_sig=' + api_sig + '&token=' + this.token;
+				break;
+			default:
+				return;
+			}
 			this.xmlhttp.open('POST', 'https://ws.audioscrobbler.com/2.0/', true);
 			this.xmlhttp.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
 			this.xmlhttp.setRequestHeader('User-Agent', this.ua);
@@ -25,11 +37,13 @@ _.mixin({
 					var data = _.jsonParse(this.xmlhttp.responseText);
 					if (data.error) {
 						WshShell.popup(data.message, 0, panel.name, popup.stop);
-					} else if (data.session && data.session.key.length == 32) {
-						this.write_ini('sk', data.session.key);
-						window.NotifyOthers('2K3.NOTIFY.LASTFM', 'update');
-						this.notify_data('2K3.NOTIFY.LASTFM', 'update');
-						WshShell.popup('Your password was verified successfully. It will not be saved anywhere.', 0, panel.name, popup.info);
+					} else if (data.token) {
+						this.token = data.token;
+						_.run('https://last.fm/api/auth/?api_key=' + this.api_key + '&token=' + this.token);
+						if (WshShell.popup('If you granted permission successfully, click Yes to continue.', 0, panel.name, popup.question + popup.yes_no) == popup.yes)
+							this.auth('auth.getSession');
+					} else if (data.session && data.session.key) {
+						this.update_sk(data.session.key);
 					}
 				}
 			}, this);
@@ -39,19 +53,7 @@ _.mixin({
 			var username = _.input('Enter your Last.fm username', panel.name, this.username);
 			if (username != this.username) {
 				this.write_ini('username', username);
-				this.write_ini('sk', '');
-				window.NotifyOthers('2K3.NOTIFY.LASTFM', 'update');
-				this.notify_data('2K3.NOTIFY.LASTFM', 'update');
-			}
-		}
-		
-		this.update_password = function () {
-			this.password = _.input('Enter your Last.fm password', panel.name, '');
-			if (this.password.length) {
-				this.write_ini('sk', '');
-				window.NotifyOthers('2K3.NOTIFY.LASTFM', 'update');
-				this.notify_data('2K3.NOTIFY.LASTFM', 'update');
-				this.auth();
+				this.update_sk('');
 			}
 		}
 		
@@ -65,6 +67,12 @@ _.mixin({
 		
 		this.write_ini = function (k, v) {
 			utils.WriteINI(this.ini_file, 'Last.fm', k, v);
+		}
+		
+		this.update_sk = function (sk) {
+			this.write_ini('sk', sk);
+			window.NotifyOthers('2K3.NOTIFY.LASTFM', 'update');
+			this.notify_data('2K3.NOTIFY.LASTFM', 'update');
 		}
 		
 		this.scrobbler = null;
