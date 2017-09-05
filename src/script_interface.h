@@ -684,8 +684,9 @@ _COM_SMARTPTR_TYPEDEF(IFbPlaylistRecyclerManager, __uuidof(IFbPlaylistRecyclerMa
 ]
 __interface IWSHUtils : IDispatch
 {
-	STDMETHOD(GetWND)(BSTR class_name, [out, retval]__interface IWindow** pp);
-	STDMETHOD(CreateWND)(UINT window_id, [out, retval]__interface IWindow** pp);
+	STDMETHOD(GetWndByClass)(BSTR class_name, [out, retval]__interface IWindow** pp);
+	STDMETHOD(GetWndByHandle)(UINT window_id, [out, retval]__interface IWindow** pp);
+	STDMETHOD(CloseWnd)(IWindow* wnd);
 	STDMETHOD(ReleaseCapture)();
 };
 _COM_SMARTPTR_TYPEDEF(IWSHUtils, __uuidof(IWSHUtils));
@@ -707,7 +708,8 @@ _COM_SMARTPTR_TYPEDEF(IWSHUtils, __uuidof(IWSHUtils));
 ]
 __interface IWindow
 {
-	[propget] STDMETHOD(_ptr)([out]void** pp);
+	[propget] STDMETHOD(ID)([out, retval]UINT* pp);
+	[propget] STDMETHOD(ClassName)([out, retval]BSTR* className);
 	[propget] STDMETHOD(Left)([out, retval]INT* p);
 	[propget] STDMETHOD(Top)([out, retval]INT* p);
 	[propget] STDMETHOD(Width)([out, retval]INT* p);
@@ -723,7 +725,8 @@ __interface IWindow
 	[propput] STDMETHOD(ExStyle)(INT style);
 	[propput] STDMETHOD(Caption)(BSTR title);
 
-	STDMETHOD(GetChild)(BSTR class_name, UINT index, [out, retval] IWindow** pp);
+	STDMETHOD(GetChild)(BSTR caption, BSTR class_name, UINT index, [out, retval] IWindow** pp);
+	STDMETHOD(GetChildWithSameProcess)(IWindow* searchWnd, BSTR caption, BSTR class_name, [out, retval] IWindow** pp);
 	STDMETHOD(GetAncestor)([defaultvalue(1)]UINT flag, [out, retval] IWindow** pp);
 	STDMETHOD(SetParent)(IWindow* p);
 	STDMETHOD(SendMsg)(UINT msg, INT wp, INT lp);
