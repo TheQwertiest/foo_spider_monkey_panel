@@ -684,8 +684,9 @@ protected:
 
 public:
 	///PLUS VERSION
-	STDMETHODIMP GetWND(BSTR class_name, IWindow** pp);
-	STDMETHODIMP CreateWND(UINT window_id, IWindow** pp);
+	STDMETHODIMP GetWndByClass(BSTR class_name, IWindow** pp);
+	STDMETHODIMP GetWndByHandle(UINT window_id, IWindow** pp);
+	STDMETHODIMP CloseWnd(IWindow* wnd);
 	STDMETHODIMP ReleaseCapture();
 };
 
@@ -705,7 +706,8 @@ protected:
 	}
 
 public:
-	STDMETHODIMP get__ptr(void** pp);
+	STDMETHODIMP get_ID(UINT* pp);
+	STDMETHODIMP get_ClassName(BSTR* className);
 	STDMETHODIMP get_Left(INT* p);
 	STDMETHODIMP get_Top(INT* p);
 	STDMETHODIMP get_Width(INT* p);
@@ -721,7 +723,8 @@ public:
 	STDMETHODIMP put_ExStyle(INT s);
 	STDMETHODIMP put_Caption(BSTR title);
 
-	STDMETHODIMP GetChild(BSTR class_name, UINT index, IWindow** pp);
+	STDMETHODIMP GetChild(BSTR caption, BSTR class_name, UINT index, IWindow** pp);
+	STDMETHODIMP GetChildWithSameProcess(IWindow* searchWnd, BSTR caption, BSTR class_name, IWindow** pp);
 	STDMETHODIMP GetAncestor(UINT flag, IWindow** pp);
 	STDMETHODIMP SetParent(IWindow* p);
 	STDMETHODIMP SendMsg(UINT msg, INT wp, INT lp);
@@ -735,14 +738,4 @@ public:
 	STDMETHODIMP HideCaret(void);
 	STDMETHODIMP CreateCaret(INT width, INT height);
 	STDMETHODIMP DestroyCaret(void);
-private:
-	struct t_param
-	{
-		HWND hwnd;
-		LPTSTR cls_name;
-		LPTSTR caption;
-		UINT index;
-	};
-
-	static BOOL CALLBACK EnumChildProc(HWND hwnd, LPARAM lParam);
 };
