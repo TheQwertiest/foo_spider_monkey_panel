@@ -534,6 +534,7 @@ __interface IJSUtils : IDispatch
 {
 	STDMETHOD(CheckComponent)(BSTR name, [defaultvalue(-1)] VARIANT_BOOL is_dll, [out, retval] VARIANT_BOOL* p);
 	STDMETHOD(CheckFont)(BSTR name, [out, retval] VARIANT_BOOL* p);
+	STDMETHOD(ColorPicker)(UINT window_id, int default_color, [out, retval] int* out_color);
 	STDMETHOD(FileTest)(BSTR path, BSTR mode, [out, retval] VARIANT* p);
 	STDMETHOD(FormatDuration)(double p, [out, retval] BSTR* pp);
 	STDMETHOD(FormatFileSize)(LONGLONG p, [out, retval] BSTR* pp);

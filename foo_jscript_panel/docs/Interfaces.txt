@@ -682,6 +682,10 @@ interface IJSUtils {
 		utils.CheckFont(name); (boolean)
 		// name: can be either in English or the localised name in your OS.
 
+		utils.ColorPicker(window_id, default_colour); (int)
+		// example:
+		// var colour = utils.ColorPicker(window.ID, RGB(255, 0, 0)); // see docs\helpers.txt for RGB function
+
 		utils.FileTest(path, mode); (VARIANT)
 		/*
 		mode:

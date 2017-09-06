@@ -603,6 +603,7 @@ protected:
 public:
 	STDMETHODIMP CheckComponent(BSTR name, VARIANT_BOOL is_dll, VARIANT_BOOL* p);
 	STDMETHODIMP CheckFont(BSTR name, VARIANT_BOOL* p);
+	STDMETHODIMP ColorPicker(UINT window_id, int default_color, int* out_color);
 	STDMETHODIMP FileTest(BSTR path, BSTR mode, VARIANT* p);
 	STDMETHODIMP FormatDuration(double p, BSTR* pp);
 	STDMETHODIMP FormatFileSize(LONGLONG p, BSTR* pp);

@@ -4155,6 +4155,22 @@ STDMETHODIMP JSUtils::CheckFont(BSTR name, VARIANT_BOOL* p)
 	return S_OK;
 }
 
+STDMETHODIMP JSUtils::ColorPicker(UINT window_id, int default_color, int* out_color)
+{
+	TRACK_FUNCTION();
+
+	if (!window_id || !default_color) return E_INVALIDARG;
+	if (!out_color) return E_POINTER;
+
+	COLORREF COLOR = helpers::convert_argb_to_colorref(default_color);
+	COLORREF COLORS[16] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+	uChooseColor(&COLOR, (HWND)window_id, &COLORS[0]);
+		
+	*out_color = helpers::convert_colorref_to_argb(COLOR);
+
+	return S_OK;
+}
+
 STDMETHODIMP JSUtils::FileTest(BSTR path, BSTR mode, VARIANT* p)
 {
 	TRACK_FUNCTION();
