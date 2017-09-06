@@ -1,3 +1,11 @@
+## v1.2.4
+```
+- ADD: Add utils.ColorPicker which is a popup dialog for selecting colours.
+       See docs\interfaces.txt, samples\basic\Color Picker.txt
+- FIX: Fix various bugs in samples\complete folder.
+- CHG: Listenbrainz sample now has an on/off toggle on the menu.
+```
+
 ## v1.2.3.3
 ```
 - CHG: No component changes except a version bump.
