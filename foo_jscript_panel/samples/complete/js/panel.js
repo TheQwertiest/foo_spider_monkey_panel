@@ -99,7 +99,7 @@ _.mixin({
 				var col = utils.GetSysColor(15);
 				break;
 			case this.colours.mode == 2:
-				var col = _.splitRGB(this.colours.custom);
+				var col = this.colours.custom_background;
 				break;
 			}
 			gr.FillSolidRect(0, 0, this.w, this.h, col);
@@ -163,8 +163,8 @@ _.mixin({
 				window.Repaint();
 				break;
 			case idx == 103:
-				this.colours.custom = _.input('Enter a custom colour for the background. Uses RGB. Example usage:\n\n234-211-74', this.name, this.colours.custom);
-				window.SetProperty('2K3.PANEL.COLOURS.CUSTOM', this.colours.custom);
+				this.colours.custom_background = utils.ColorPicker(window.ID, this.colours.custom_background);
+				window.SetProperty('2K3.PANEL.COLOURS.CUSTOM.BACKGROUND', this.colours.custom_background);
 				window.Repaint();
 				break;
 			case idx == 110:
@@ -214,7 +214,7 @@ _.mixin({
 		this.colours = {};
 		if (this.check_feature('custom_background')) {
 			this.colours.mode = window.GetProperty('2K3.PANEL.COLOURS.MODE', 0);
-			this.colours.custom = window.GetProperty('2K3.PANEL.COLOURS.CUSTOM', '0-0-0');
+			this.colours.custom_background = window.GetProperty('2K3.PANEL.COLOURS.CUSTOM.BACKGROUND', _.RGB(0, 0, 0));
 		}
 		this.list_objects = [];
 		this.text_objects = [];

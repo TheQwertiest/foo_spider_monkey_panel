@@ -5,9 +5,7 @@
 // @import "%fb2k_component_path%samples\complete\js\helpers.js"
 // ==/PREPROCESSOR==
 
-var left_text_tf = '%playback_time%[ / %length%] :: %__bitrate% kbps %codec% [%codec_profile% ][%__tool% ][%__tagtype% ]';
-var bg = _.RGB(240, 240, 240);
-var text_colour = _.RGB(0, 0, 0);
+var left_text_tf = '%__bitrate% kbps %codec% [%codec_profile% ][%__tool% ][%__tagtype% ]';
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -16,6 +14,10 @@ var show_count = window.GetProperty('2K3.STATUS.SHOW.COUNT', true);
 var show_duration = window.GetProperty('2K3.STATUS.SHOW.DURATION', true);
 var show_size = window.GetProperty('2K3.STATUS.SHOW.SIZE', true);
 var show_volume = window.GetProperty('2K3.STATUS.SHOW.VOLUME', true);
+var colours = {
+	background : window.GetProperty('2K3.STATUS.BACKGROUND', _.RGB(240, 240, 240)),
+	text : window.GetProperty('2K3.STATUS.TEXT', _.RGB(0, 0, 0))
+}
 var font = _.gdiFont('Segoe UI', 11);
 var ww = 0;
 var wh = 0;
@@ -29,13 +31,13 @@ function on_size() {
 }
 
 function on_paint(gr) {
-	gr.FillSolidRect(0, 0, ww, wh, bg);
+	gr.FillSolidRect(0, 0, ww, wh, colours.background);
 	if (fb.IsPlaying)
-		gr.GdiDrawText(_.tfe(left_text_tf), font, text_colour, 5, -1, ww - right_text_width - (show_volume ? 180: 50), font.Height, LEFT);
+		gr.GdiDrawText(_.tfe(left_text_tf), font, colours.text, 5, -1, ww - right_text_width - (show_volume ? 180: 50), font.Height, LEFT);
 	if (plman.ActivePlaylist < plman.PlaylistCount)
-		gr.GdiDrawText(right_text, font, text_colour, 0, -1, ww - (show_volume ? 130 : 5), font.Height, RIGHT);
+		gr.GdiDrawText(right_text, font, colours.text, 0, -1, ww - (show_volume ? 130 : 5), font.Height, RIGHT);
 	if (show_volume)
-		gr.GdiDrawText(fb.Volume.toFixed(2) + ' dB', font, text_colour, 0, -1, ww - 5, font.Height, RIGHT);
+		gr.GdiDrawText(fb.Volume.toFixed(2) + ' dB', font, colours.text, 0, -1, ww - 5, font.Height, RIGHT);
 }
 
 function on_playback_time() {
@@ -67,6 +69,7 @@ function on_mouse_rbtn_up(x, y) {
 	var m = window.CreatePopupMenu();
 	var s = window.CreatePopupMenu();
 	var c = fb.CreateContextMenuManager();
+	var col = window.CreatePopupMenu();
 	if (fb.IsPlaying) {
 		c.InitNowPlaying();
 		c.BuildMenu(s, 1, -1);
@@ -84,6 +87,10 @@ function on_mouse_rbtn_up(x, y) {
 	m.AppendMenuSeparator();
 	m.AppendMenuItem(MF_STRING, 10004, 'Show volume');
 	m.CheckMenuItem(10004, show_volume);
+	m.AppendMenuSeparator();
+	col.AppendMenuItem(MF_STRING, 1005, 'Background...');
+	col.AppendMenuItem(MF_STRING, 1006, 'Text...');
+	col.AppendTo(m, MF_STRING, 'Colours');
 	m.AppendMenuSeparator();
 	m.AppendMenuItem(MF_STRING, 10010, 'Configure...');
 	var idx = m.TrackPopupMenu(x, y);
@@ -115,6 +122,16 @@ function on_mouse_rbtn_up(x, y) {
 		window.SetProperty('2K3.STATUS.SHOW.VOLUME', show_volume);
 		window.Repaint();
 		break;
+	case 1005:
+		colours.background = utils.ColorPicker(window.ID, colours.background);
+		window.SetProperty('2K3.STATUS.BACKGROUND', colours.background);
+		window.Repaint();
+		break;
+	case 1006:
+		colours.text = utils.ColorPicker(window.ID, colours.text);
+		window.SetProperty('2K3.STATUS.TEXT', colours.text);
+		window.Repaint();
+		break;
 	case 10010:
 		window.ShowConfigure();
 		break;
@@ -122,7 +139,7 @@ function on_mouse_rbtn_up(x, y) {
 		c.ExecuteByID(idx - 1);
 		break;
 	}
-	_.dispose(m, s, c);
+	_.dispose(m, s, c, col);
 	return true;
 }
 

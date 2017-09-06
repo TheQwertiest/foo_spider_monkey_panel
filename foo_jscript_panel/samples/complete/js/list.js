@@ -35,12 +35,11 @@ _.mixin({
 					this.text_width = Math.round(this.w / 2) + 30;
 					var lastfm_charts_bar_x = this.x + this.text_x + this.text_width + 10;
 					var unit_width = (this.w - lastfm_charts_bar_x - _.scale(50)) / this.data[0].playcount;
-					var bar_colour = _.splitRGB(this.lastfm_charts_colour);
 					for (var i = 0; i < Math.min(this.items, this.rows); i++) {
 						var bar_width = Math.ceil(unit_width * this.data[i + this.offset].playcount);
 						gr.GdiDrawText(this.data[i + this.offset].rank + '.', panel.fonts.normal, panel.colours.highlight, this.x, this.y + _.scale(12) + (i * panel.row_height), this.text_x - 5, panel.row_height, RIGHT);
 						gr.GdiDrawText(this.data[i + this.offset].name, panel.fonts.normal, panel.colours.text, this.x + this.text_x, this.y + _.scale(12) + (i * panel.row_height), this.text_width, panel.row_height, LEFT);
-						gr.FillSolidRect(lastfm_charts_bar_x, this.y + _.scale(13) + (i * panel.row_height), bar_width, panel.row_height - 3, bar_colour);
+						gr.FillSolidRect(lastfm_charts_bar_x, this.y + _.scale(13) + (i * panel.row_height), bar_width, panel.row_height - 3, this.lastfm_charts_bar_colour);
 						gr.GdiDrawText(_.formatNumber(this.data[i + this.offset].playcount, ','), panel.fonts.normal, panel.colours.text, lastfm_charts_bar_x + bar_width + 5, this.y + _.scale(12) + (i * panel.row_height), _.scale(60), panel.row_height, LEFT);
 					}
 					break;
@@ -330,8 +329,8 @@ _.mixin({
 				this.update();
 				break;
 			case 3140:
-				this.lastfm_charts_colour = _.input('Enter a custom colour for the bars. Uses RGB. Example usage:\n\n72-127-221', panel.name, this.lastfm_charts_colour);
-				window.SetProperty('2K3.LIST.LASTFM.CHARTS.COLOUR', this.lastfm_charts_colour);
+				this.lastfm_charts_bar_colour = utils.ColorPicker(window.ID, this.lastfm_charts_bar_colour);
+				window.SetProperty('2K3.LIST.LASTFM.CHARTS.BAR.COLOUR', this.lastfm_charts_bar_colour);
 				window.Repaint();
 				break;
 			case 3150:
@@ -826,7 +825,7 @@ _.mixin({
 					}
 				];
 				this.lastfm_charts_period = window.GetProperty('2K3.LIST.LASTFM.CHARTS.PERIOD', 0);
-				this.lastfm_charts_colour = window.GetProperty('2K3.LIST.LASTFM.CHARTS.COLOUR', '60-60-60');
+				this.lastfm_charts_bar_colour = window.GetProperty('2K3.LIST.LASTFM.CHARTS.BAR.COLOUR', _.RGB(60, 60, 60));
 				this.lastfm_link = window.GetProperty('2K3.LIST.LASTFM.LINK', 0); // 0 last.fm website 1 autoplaylist
 				if (this.lastfm_mode == 1)
 					this.update();
