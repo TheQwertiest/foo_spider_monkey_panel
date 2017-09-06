@@ -1301,8 +1301,8 @@ interface IFbMetadbHandle {
 
 		UpdateFileInfoSimple(field1, value1 [, field2, value2 [,...] ] [, multivalue_fields]);
 		/*
-		if value is a empty string, field will be removed
-		multivalue_fields is a semicolon-separated list containing field names which need to be treated
+		if value is an empty string, field will be removed
+		multivalue_fields is a semicolon separated list containing field names which need to be treated
 		as multivalue.
 
 		example:
@@ -1441,8 +1441,8 @@ interface IFbMetadbHandleList {
 
 		UpdateFileInfoSimple(field1, value1 [, field2, value2 [,...] ] [, multivalue_fields]);
 		/*
-		if value is a empty string, field will be removed
-		multivalue_fields is a semicolon-separated list containing field names which need to be treated
+		if value is an empty string, field will be removed
+		multivalue_fields is a semicolon separated list containing field names which need to be treated
 		as multivalue.
 
 		example:
