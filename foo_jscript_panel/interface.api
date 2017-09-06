@@ -109,6 +109,7 @@ plman.UndoBackup(playlistIndex);
 
 utils.CheckComponent(name[, is_dll])
 utils.CheckFont(name)
+utils.ColorPicker(window_id, default_colour)
 utils.FileTest(path, mode)
 utils.FormatDuration(seconds)
 utils.FormatFileSize(bytes)

@@ -683,6 +683,7 @@ interface IJSUtils {
 		// name: can be either in English or the localised name in your OS.
 
 		utils.ColorPicker(window_id, default_colour); (int)
+		// uses a windows popup dialog to assign a colour to a variable
 		// example:
 		// var colour = utils.ColorPicker(window.ID, RGB(255, 0, 0)); // see docs\helpers.txt for RGB function
 

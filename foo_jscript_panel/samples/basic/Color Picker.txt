@@ -1,0 +1,26 @@
+// ==PREPROCESSOR==
+// @import "%fb2k_component_path%docs\helpers.txt"
+// ==/PREPROCESSOR==
+
+var tooltip = window.CreateTooltip();
+var colour = RGB(255, 0, 0);
+
+function on_paint(gr) {
+	gr.FillSolidRect(0, 0, window.Width, window.Height, colour);
+}
+
+function on_mouse_lbtn_up() {
+	colour = utils.ColorPicker(window.ID, colour);
+	window.Repaint();
+}
+
+function on_mouse_move() {
+	tt("Click to change colour");
+}
+
+function tt(message) {
+	if (message != tooltip.Text) {
+		tooltip.Text = message;
+		tooltip.Activate();
+	}
+}
