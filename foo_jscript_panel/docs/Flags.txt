@@ -65,8 +65,6 @@ var MK_CONTROL  = 0x0008; // The CTRL key is down.
 var MK_MBUTTON  = 0x0010;
 var MK_XBUTTON1 = 0x0020;
 var MK_XBUTTON2 = 0x0040;
-var MK_SHIFT = 0x0004;
-var MK_CONTROL = 0x0008;
 
 // Used in window.SetCursor()
 var IDC_ARROW = 32512;

@@ -38,9 +38,9 @@ _.mixin({
 			return x > this.x && x < this.x + this.w && y > this.y && y < this.y + this.h;
 		}
 		
-		this.lbtn_up = function (x, y) {
+		this.lbtn_up = function (x, y, mask) {
 			if (this.fn)
-				this.fn(x, y);
+				this.fn(x, y, mask);
 		}
 		
 		this.cs = function (s) {
@@ -94,9 +94,9 @@ _.mixin({
 			this.btn = null;
 		}
 		
-		this.lbtn_up = function (x, y) {
+		this.lbtn_up = function (x, y, mask) {
 			if (this.btn) {
-				this.buttons[this.btn].lbtn_up(x, y);
+				this.buttons[this.btn].lbtn_up(x, y, mask);
 				return true;
 			} else {
 				return false;

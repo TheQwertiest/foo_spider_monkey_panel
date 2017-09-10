@@ -8,7 +8,7 @@
 
 var panel = new _.panel('Menu Button', ['custom_background']);
 var buttons = new _.buttons();
-buttons.buttons.menu = new _.button(0, 0, 36, 36, {normal : 'misc\\foobar2000.png'}, function () { _.menu(0, 36); }, 'Menu');
+buttons.buttons.menu = new _.button(0, 0, 36, 36, {normal : 'misc\\foobar2000.png'}, function (x, y, mask) { _.menu(0, 36); }, 'Menu');
 
 function on_size() {
 	panel.size();
@@ -27,8 +27,8 @@ function on_mouse_leave() {
 	buttons.leave();
 }
 
-function on_mouse_lbtn_up(x, y) {
-	buttons.lbtn_up(x, y);
+function on_mouse_lbtn_up(x, y, mask) {
+	buttons.lbtn_up(x, y, mask);
 }
 
 function on_mouse_rbtn_up(x, y) {
