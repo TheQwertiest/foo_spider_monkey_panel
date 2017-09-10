@@ -715,7 +715,10 @@ _.mixin({
 					m.AppendMenuItem(MF_STRING, 5, 'Force Sort');
 					m.CheckMenuItem(5, this.data[z].forced);
 					m.AppendMenuSeparator();
-					m.AppendMenuItem(MF_STRING, 6, 'Delete');
+					m.AppendMenuItem(z > 0 ? MF_STRING : MF_GRAYED, 6, 'Move up');
+					m.AppendMenuItem(z < this.data.length - 1 ? MF_STRING : MF_GRAYED, 7, 'Move down');
+					m.AppendMenuSeparator();
+					m.AppendMenuItem(MF_STRING, 8, 'Delete');
 					this.editing = true;
 					var idx = m.TrackPopupMenu(x, y);
 					switch (idx) {
@@ -750,6 +753,13 @@ _.mixin({
 						this.edit_done(z);
 						break;
 					case 6:
+					case 7:
+						var tmp = this.data[z];
+						this.data.splice(z, 1);
+						this.data.splice(idx == 6 ? z - 1 : z + 1, 0, tmp);
+						this.save();
+						break;
+					case 8:
 						this.deleted_items.unshift(this.data[z]);
 						this.data.splice(z, 1);
 						this.save();
