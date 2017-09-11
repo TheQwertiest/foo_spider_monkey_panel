@@ -328,6 +328,7 @@ public:
 	STDMETHODIMP RemoveRange(UINT from, UINT count);
 	STDMETHODIMP Sort();
 	STDMETHODIMP UpdateFileInfoSimple(SAFEARRAY* p);
+	STDMETHODIMP UpdateFileInfoFromJSON(BSTR str);
 	STDMETHODIMP get_Count(UINT* p);
 	STDMETHODIMP get_Item(UINT index, IFbMetadbHandle** pp);
 	STDMETHODIMP get__ptr(void** pp);

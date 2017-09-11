@@ -273,6 +273,7 @@ __interface IFbMetadbHandleList : IDisposable
 	STDMETHOD(RemoveById)(UINT index);
 	STDMETHOD(RemoveRange)(UINT from, UINT count);
 	STDMETHOD(Sort)();
+	STDMETHOD(UpdateFileInfoFromJSON)(BSTR str);
 	[propget] STDMETHOD(Count)([out, retval] UINT* p);
 	[propget] STDMETHOD(Item)(UINT index, [out, retval] IFbMetadbHandle** pp);
 	[propget] STDMETHOD(_ptr)([out, retval] void** pp);

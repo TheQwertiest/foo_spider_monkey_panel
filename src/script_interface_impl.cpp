@@ -6,11 +6,20 @@
 #include "stackblur.h"
 #include "popup_msg.h"
 #include "dbgtrace.h"
+#include "json.hpp"
 #include "../TextDesinger/OutlineText.h"
 #include "../TextDesinger/PngOutlineText.h"
 #include <map>
 #include <vector>
 #include <algorithm>
+
+using json = nlohmann::json;
+
+pfc::string8 iterator_to_string8(json::iterator j)
+{
+	std::string value = j.value().type() == json::value_t::string ? j.value().get<std::string>() : j.value().dump();
+	return value.c_str();
+}
 
 // Helper functions
 // -1: not a valid metadb interface
@@ -883,6 +892,73 @@ STDMETHODIMP FbMetadbHandleList::UpdateFileInfoSimple(SAFEARRAY* p)
 
 		helpers::file_info_pairs_filter* item_filters = new service_impl_t<helpers::file_info_pairs_filter>(m_handles[i], field_value_map, umultival);
 		item_filters->apply_filter(m_handles[i], p_stats, info[i]);
+	}
+
+	io->update_info_async_simple(
+		m_handles,
+		pfc::ptr_list_const_array_t<const file_info, file_info_impl *>(info.get_ptr(), info.get_count()),
+		core_api::get_main_window(), metadb_io_v2::op_flag_delay_ui, NULL
+	);
+
+	return S_OK;
+}
+
+STDMETHODIMP FbMetadbHandleList::UpdateFileInfoFromJSON(BSTR str)
+{
+	TRACK_FUNCTION();
+
+	if (m_handles.get_count() == 0) return E_POINTER;
+	if (!str) return E_INVALIDARG;
+
+	json arr;
+
+	try
+	{
+		pfc::stringcvt::string_utf8_from_wide js(str);
+		arr = json::parse(js.get_ptr());
+		if (!arr.is_array() || arr.size() != m_handles.get_count())
+			return E_INVALIDARG;
+	}
+	catch (...)
+	{
+		return E_INVALIDARG;
+	}
+
+	static_api_ptr_t<metadb_io_v2> io;
+	pfc::list_t<file_info_impl> info;
+	info.set_size(m_handles.get_count());
+	metadb_handle_ptr item;
+	t_filestats p_stats = filestats_invalid;
+
+	for (t_size i = 0; i < m_handles.get_count(); i++)
+	{
+		json obj = arr[i];
+		if (!obj.is_object()) continue;
+		item = m_handles.get_item(i);
+		item->get_info(info[i]);
+
+		for (json::iterator it = obj.begin(); it != obj.end(); ++it)
+		{
+			std::string key = it.key();
+			info[i].meta_remove_field(key.c_str());
+
+			if (it.value().is_array())
+			{
+				for (json::iterator ita = it.value().begin(); ita != it.value().end(); ++ita)
+				{
+					pfc::string8 value = iterator_to_string8(ita);
+
+					if (!value.is_empty())
+						info[i].meta_add(key.c_str(), value);
+				}
+			}
+			else
+			{
+				pfc::string8 value = iterator_to_string8(it);
+				if (!value.is_empty())
+					info[i].meta_set(key.c_str(), value);
+			}
+		}
 	}
 
 	io->update_info_async_simple(
