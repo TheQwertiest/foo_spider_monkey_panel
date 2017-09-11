@@ -2365,6 +2365,18 @@ STDMETHODIMP FbUtils::CreateContextMenuManager(IContextMenuManager** pp)
 	return S_OK;
 }
 
+STDMETHODIMP FbUtils::CreateHandleList(IFbMetadbHandleList** pp)
+{
+	TRACK_FUNCTION();
+
+	if (!pp) return E_POINTER;
+
+	metadb_handle_list items;
+	*pp = new com_object_impl_t<FbMetadbHandleList>(items);
+
+	return S_OK;
+}
+
 STDMETHODIMP FbUtils::CreateMainMenuManager(IMainMenuManager** pp)
 {
 	TRACK_FUNCTION();

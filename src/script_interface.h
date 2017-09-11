@@ -386,6 +386,7 @@ __interface IFbUtils : IDispatch
 	STDMETHOD(AddFiles)();
 	STDMETHOD(ClearPlaylist)();
 	STDMETHOD(CreateContextMenuManager)([out, retval] IContextMenuManager** pp);
+	STDMETHOD(CreateHandleList)([out, retval] IFbMetadbHandleList** pp);
 	STDMETHOD(CreateMainMenuManager)([out, retval] IMainMenuManager** pp);
 	STDMETHOD(CreateProfiler)([defaultvalue("")] BSTR name, [out, retval] IFbProfiler** pp);
 	STDMETHOD(Exit)();
