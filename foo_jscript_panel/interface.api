@@ -6,6 +6,7 @@ fb.AddFiles()
 fb.ClearPlaylist()
 fb.ComponentPath
 fb.CreateContextMenuManager()
+fb.CreateHandleList()
 fb.CreateMainMenuManager()
 fb.CreateProfiler([name])
 fb.CursorFollowPlayback

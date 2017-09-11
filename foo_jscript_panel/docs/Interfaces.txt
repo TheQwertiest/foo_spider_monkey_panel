@@ -147,6 +147,9 @@ interface IFbUtils {
 					InitNowPlaying(); (void)
 			}
 
+		fb.CreateHandleList(); (IFbMetadbHandleList)
+		// returns an empty handle list
+		
 		fb.CreateMainMenuManager(); (IMainMenuManager)
 
 			interface IMainMenuManager {
@@ -1303,18 +1306,6 @@ interface IFbMetadbHandle {
 
 					MetaValueCount(idx);
 			}
-
-		UpdateFileInfoSimple(field1, value1 [, field2, value2 [,...] ] [, multivalue_fields]);
-		/*
-		if value is an empty string, field will be removed
-		multivalue_fields is a semicolon separated list containing field names which need to be treated
-		as multivalue.
-
-		example:
-		handle.UpdateFileInfoSimple("ARTIST", "Enigma", "GENRE", "Downtempo;Ambient", "GENRE");
-
-		GENRE will be treated as a multivalue field. So GENRE[0] = "Downtempo", GENRE[1] = "Ambient"
-		*/
 }
 
 interface IFbMetadbHandleList {
@@ -1444,17 +1435,8 @@ interface IFbMetadbHandleList {
 		RemoveRange(from, num); (void)
 		// example: handle_list.RemoveRange(10, 20);
 
-		UpdateFileInfoSimple(field1, value1 [, field2, value2 [,...] ] [, multivalue_fields]);
-		/*
-		if value is an empty string, field will be removed
-		multivalue_fields is a semicolon separated list containing field names which need to be treated
-		as multivalue.
-
-		example:
-		handle_list.UpdateFileInfoSimple("ARTIST", "Enigma", "GENRE", "Downtempo;Ambient", "GENRE");
-
-		GENRE will be treated as a multivalue field. So GENRE[0] = "Downtempo", GENRE[1] = "Ambient"
-		*/
+		UpdateFileInfoFromJSON(str); (void)
+		// see https://github.com/19379/foo-jscript-panel/wiki/Breaking-Changes#v130
 }
 
 interface IDropTargetAction {
