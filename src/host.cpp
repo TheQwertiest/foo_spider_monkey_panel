@@ -431,11 +431,7 @@ HRESULT ScriptHost::InitScriptEngine()
 
 	if (FAILED(hr))
 	{
-		hr = m_script_engine.CreateInstance("jscript", NULL, classContext);
-	}
-
-	if (FAILED(hr))
-	{
+		console::formatter() << JSP_NAME << ": This component requires your system has IE9 or later installed.";
 		return hr;
 	}
 
