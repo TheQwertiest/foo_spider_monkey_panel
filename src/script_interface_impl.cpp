@@ -876,7 +876,7 @@ STDMETHODIMP FbMetadbHandleList::UpdateFileInfoSimple(SAFEARRAY* p)
 	metadb_handle_ptr item;
 	t_filestats p_stats = filestats_invalid;
 
-	for (int i = 0; i < (int)m_handles.get_count(); i++)
+	for (t_size i = 0; i < m_handles.get_count(); i++)
 	{
 		item = m_handles.get_item(i);
 		item->get_info(info[i]);
@@ -909,7 +909,6 @@ STDMETHODIMP FbMetadbHandleList::get_Item(UINT index, IFbMetadbHandle** pp)
 	TRACK_FUNCTION();
 
 	if (!pp) return E_POINTER;
-	if (index >= m_handles.get_size()) return E_INVALIDARG;
 	if (index >= m_handles.get_count()) return E_INVALIDARG;
 
 	*pp = new com_object_impl_t<FbMetadbHandle>(m_handles.get_item_ref(index));
@@ -930,7 +929,7 @@ STDMETHODIMP FbMetadbHandleList::put_Item(UINT index, IFbMetadbHandle* handle)
 {
 	TRACK_FUNCTION();
 
-	if (index >= m_handles.get_size()) return E_INVALIDARG;
+	if (index >= m_handles.get_count()) return E_INVALIDARG;
 	if (!handle) return E_INVALIDARG;
 
 	metadb_handle* ptr = NULL;
@@ -2424,7 +2423,7 @@ STDMETHODIMP FbUtils::GetQueryItems(IFbMetadbHandleList* items, BSTR query, IFbM
 	}
 
 	pfc::array_t<bool> mask;
-	mask.set_size(dst_list.get_size());
+	mask.set_size(dst_list.get_count());
 	filter->test_multi(dst_list, mask.get_ptr());
 	dst_list.filter_mask(mask.get_ptr());
 
