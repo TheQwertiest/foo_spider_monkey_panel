@@ -157,22 +157,6 @@ namespace helpers
 	// Always save as UTF8 BOM
 	bool write_file(const char* path, const pfc::string_base& content);
 
-	class file_info_pairs_filter : public file_info_filter
-	{
-	public:
-		typedef pfc::map_t<pfc::string_simple, pfc::string_simple, file_info::field_name_comparator> t_field_value_map;
-
-	private:
-		metadb_handle_ptr m_handle;
-		t_field_value_map m_field_value_map;
-		pfc::string_list_impl m_multivalue_fields;
-
-	public:
-		file_info_pairs_filter(const metadb_handle_ptr& p_handle, const t_field_value_map& p_field_value_map, const char* p_multivalue_field = NULL);
-
-		bool apply_filter(metadb_handle_ptr p_location, t_filestats p_stats, file_info& p_info);
-	};
-
 	class album_art_async : public simple_thread_task
 	{
 	public:

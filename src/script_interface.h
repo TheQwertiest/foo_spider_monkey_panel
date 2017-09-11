@@ -241,7 +241,6 @@ __interface IFbMetadbHandle : IDisposable
 	[propget] STDMETHOD(RawPath)([out, retval] BSTR* pp);
 	[propget] STDMETHOD(SubSong)([out, retval] UINT* p);
 	[propget] STDMETHOD(_ptr)([out]void** pp);
-	[vararg] STDMETHOD(UpdateFileInfoSimple)([satype(VARIANT)] SAFEARRAY* p);
 };
 
 [
@@ -278,7 +277,6 @@ __interface IFbMetadbHandleList : IDisposable
 	[propget] STDMETHOD(Item)(UINT index, [out, retval] IFbMetadbHandle** pp);
 	[propget] STDMETHOD(_ptr)([out, retval] void** pp);
 	[propput] STDMETHOD(Item)(UINT index, IFbMetadbHandle* handle);
-	[vararg] STDMETHOD(UpdateFileInfoSimple)([satype(VARIANT)] SAFEARRAY* p);
 };
 
 [
