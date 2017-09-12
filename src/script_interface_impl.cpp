@@ -743,17 +743,32 @@ STDMETHODIMP FbMetadbHandleList::UpdateFileInfoFromJSON(BSTR str)
 {
 	TRACK_FUNCTION();
 
-	if (m_handles.get_count() == 0) return E_POINTER;
+	t_size count = m_handles.get_count();
+
+	if (count == 0) return E_POINTER;
 	if (!str) return E_INVALIDARG;
 
-	json arr;
+	json o;
+	bool is_array;
 
 	try
 	{
 		pfc::stringcvt::string_utf8_from_wide js(str);
-		arr = json::parse(js.get_ptr());
-		if (!arr.is_array() || arr.size() != m_handles.get_count())
+		o = json::parse(js.get_ptr());
+		if (o.is_array())
+		{
+			if (o.size() != count) return E_INVALIDARG;
+			is_array = true;
+		}
+		else if (o.is_object())
+		{
+			if (o.size() == 0) return E_INVALIDARG;
+			is_array = false;
+		}
+		else
+		{
 			return E_INVALIDARG;
+		}
 	}
 	catch (...)
 	{
@@ -761,11 +776,11 @@ STDMETHODIMP FbMetadbHandleList::UpdateFileInfoFromJSON(BSTR str)
 	}
 
 	pfc::list_t<file_info_impl> info;
-	info.set_size(m_handles.get_count());
+	info.set_size(count);
 	
-	for (t_size i = 0; i < m_handles.get_count(); i++)
+	for (t_size i = 0; i < count; i++)
 	{
-		json obj = arr[i];
+		json obj = is_array ? o[i] : o;
 		if (!obj.is_object() || obj.size() == 0) return E_INVALIDARG;
 
 		metadb_handle_ptr item = m_handles.get_item(i);
