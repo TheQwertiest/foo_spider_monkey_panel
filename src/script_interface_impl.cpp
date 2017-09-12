@@ -760,23 +760,24 @@ STDMETHODIMP FbMetadbHandleList::UpdateFileInfoFromJSON(BSTR str)
 		return E_INVALIDARG;
 	}
 
-	static_api_ptr_t<metadb_io_v2> io;
 	pfc::list_t<file_info_impl> info;
 	info.set_size(m_handles.get_count());
-	metadb_handle_ptr item;
-	t_filestats p_stats = filestats_invalid;
-
+	
 	for (t_size i = 0; i < m_handles.get_count(); i++)
 	{
 		json obj = arr[i];
-		if (!obj.is_object()) continue;
-		item = m_handles.get_item(i);
+		if (!obj.is_object() || obj.size() == 0) return E_INVALIDARG;
+
+		metadb_handle_ptr item = m_handles.get_item(i);
 		item->get_info(info[i]);
 
 		for (json::iterator it = obj.begin(); it != obj.end(); ++it)
 		{
 			std::string key = it.key();
-			info[i].meta_remove_field(key.c_str());
+			pfc::string8 key8 = key.c_str();
+			if (key8.is_empty()) return E_INVALIDARG;
+
+			info[i].meta_remove_field(key8);
 
 			if (it.value().is_array())
 			{
@@ -785,22 +786,24 @@ STDMETHODIMP FbMetadbHandleList::UpdateFileInfoFromJSON(BSTR str)
 					pfc::string8 value = iterator_to_string8(ita);
 
 					if (!value.is_empty())
-						info[i].meta_add(key.c_str(), value);
+						info[i].meta_add(key8, value);
 				}
 			}
 			else
 			{
 				pfc::string8 value = iterator_to_string8(it);
 				if (!value.is_empty())
-					info[i].meta_set(key.c_str(), value);
+					info[i].meta_set(key8, value);
 			}
 		}
 	}
 
-	io->update_info_async_simple(
+	static_api_ptr_t<metadb_io_v2>()->update_info_async_simple(
 		m_handles,
 		pfc::ptr_list_const_array_t<const file_info, file_info_impl *>(info.get_ptr(), info.get_count()),
-		core_api::get_main_window(), metadb_io_v2::op_flag_delay_ui, NULL
+		core_api::get_main_window(),
+		metadb_io_v2::op_flag_delay_ui,
+		NULL
 	);
 
 	return S_OK;
