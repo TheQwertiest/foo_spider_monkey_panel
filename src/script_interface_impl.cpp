@@ -6,11 +6,20 @@
 #include "stackblur.h"
 #include "popup_msg.h"
 #include "dbgtrace.h"
+#include "json.hpp"
 #include "../TextDesinger/OutlineText.h"
 #include "../TextDesinger/PngOutlineText.h"
 #include <map>
 #include <vector>
 #include <algorithm>
+
+using json = nlohmann::json;
+
+pfc::string8 iterator_to_string8(json::iterator j)
+{
+	std::string value = j.value().type() == json::value_t::string ? j.value().get<std::string>() : j.value().dump();
+	return value.c_str();
+}
 
 // Helper functions
 // -1: not a valid metadb interface
@@ -395,82 +404,6 @@ STDMETHODIMP FbMetadbHandle::GetFileInfo(IFbFileInfo** pp)
 	return S_OK;
 }
 
-STDMETHODIMP FbMetadbHandle::UpdateFileInfoSimple(SAFEARRAY* p)
-{
-	TRACK_FUNCTION();
-
-	if (m_handle.is_empty()) return E_POINTER;
-	if (!p) return E_INVALIDARG;
-
-	helpers::file_info_pairs_filter::t_field_value_map field_value_map;
-	pfc::stringcvt::string_utf8_from_wide ufield, uvalue, umultival;
-	HRESULT hr;
-	LONG nLBound = 0, nUBound = -1;
-	LONG nCount;
-
-	if (FAILED(hr = SafeArrayGetLBound(p, 1, &nLBound)))
-		return hr;
-
-	if (FAILED(hr = SafeArrayGetUBound(p, 1, &nUBound)))
-		return hr;
-
-	nCount = nUBound - nLBound + 1;
-
-	if (nCount < 2)
-		return DISP_E_BADPARAMCOUNT;
-
-	// Enum every two elems
-	for (LONG i = nLBound; i < nUBound; i += 2)
-	{
-		_variant_t var_field, var_value;
-		LONG n1 = i;
-		LONG n2 = i + 1;
-
-		if (FAILED(hr = SafeArrayGetElement(p, &n1, &var_field)))
-			return hr;
-
-		if (FAILED(hr = SafeArrayGetElement(p, &n2, &var_value)))
-			return hr;
-
-		if (FAILED(hr = VariantChangeType(&var_field, &var_field, 0, VT_BSTR)))
-			return hr;
-
-		if (FAILED(hr = VariantChangeType(&var_value, &var_value, 0, VT_BSTR)))
-			return hr;
-
-		ufield.convert(var_field.bstrVal);
-		uvalue.convert(var_value.bstrVal);
-
-		field_value_map[ufield] = uvalue;
-	}
-
-	// Get multivalue fields
-	if (nCount % 2 != 0)
-	{
-		_variant_t var_multival;
-		LONG n = nUBound;
-
-		if (FAILED(hr = SafeArrayGetElement(p, &n, &var_multival)))
-			return hr;
-
-		if (FAILED(hr = VariantChangeType(&var_multival, &var_multival, 0, VT_BSTR)))
-			return hr;
-
-		umultival.convert(var_multival.bstrVal);
-	}
-
-	static_api_ptr_t<metadb_io_v2> io;
-
-	io->update_info_async(
-		pfc::list_single_ref_t<metadb_handle_ptr>(m_handle),
-		new service_impl_t<helpers::file_info_pairs_filter>(m_handle, field_value_map, umultival),
-		core_api::get_main_window(),
-		metadb_io_v2::op_flag_delay_ui,
-		NULL);
-
-	return S_OK;
-}
-
 STDMETHODIMP FbMetadbHandle::get_FileSize(LONGLONG* p)
 {
 	TRACK_FUNCTION();
@@ -806,89 +739,86 @@ STDMETHODIMP FbMetadbHandleList::Sort()
 	return S_OK;
 }
 
-STDMETHODIMP FbMetadbHandleList::UpdateFileInfoSimple(SAFEARRAY* p)
+STDMETHODIMP FbMetadbHandleList::UpdateFileInfoFromJSON(BSTR str)
 {
 	TRACK_FUNCTION();
 
-	if (m_handles.get_count() == 0) return E_POINTER;
-	if (!p) return E_INVALIDARG;
+	t_size count = m_handles.get_count();
 
-	helpers::file_info_pairs_filter::t_field_value_map field_value_map;
-	pfc::stringcvt::string_utf8_from_wide ufield, uvalue, umultival;
-	HRESULT hr;
-	LONG nLBound = 0, nUBound = -1;
-	LONG nCount;
+	if (count == 0) return E_POINTER;
+	if (!str) return E_INVALIDARG;
 
-	if (FAILED(hr = SafeArrayGetLBound(p, 1, &nLBound)))
-		return hr;
+	json o;
+	bool is_array;
 
-	if (FAILED(hr = SafeArrayGetUBound(p, 1, &nUBound)))
-		return hr;
-
-	nCount = nUBound - nLBound + 1;
-
-	if (nCount < 2)
-		return DISP_E_BADPARAMCOUNT;
-
-	// Enum every two elems
-	for (LONG i = nLBound; i < nUBound; i += 2)
+	try
 	{
-		_variant_t var_field, var_value;
-		LONG n1 = i;
-		LONG n2 = i + 1;
-
-		if (FAILED(hr = SafeArrayGetElement(p, &n1, &var_field)))
-			return hr;
-
-		if (FAILED(hr = SafeArrayGetElement(p, &n2, &var_value)))
-			return hr;
-
-		if (FAILED(hr = VariantChangeType(&var_field, &var_field, 0, VT_BSTR)))
-			return hr;
-
-		if (FAILED(hr = VariantChangeType(&var_value, &var_value, 0, VT_BSTR)))
-			return hr;
-
-		ufield.convert(var_field.bstrVal);
-		uvalue.convert(var_value.bstrVal);
-
-		field_value_map[ufield] = uvalue;
+		pfc::stringcvt::string_utf8_from_wide js(str);
+		o = json::parse(js.get_ptr());
+		if (o.is_array())
+		{
+			if (o.size() != count) return E_INVALIDARG;
+			is_array = true;
+		}
+		else if (o.is_object())
+		{
+			if (o.size() == 0) return E_INVALIDARG;
+			is_array = false;
+		}
+		else
+		{
+			return E_INVALIDARG;
+		}
+	}
+	catch (...)
+	{
+		return E_INVALIDARG;
 	}
 
-	// Get multivalue fields
-	if (nCount % 2 != 0)
-	{
-		_variant_t var_multival;
-		LONG n = nUBound;
-
-		if (FAILED(hr = SafeArrayGetElement(p, &n, &var_multival)))
-			return hr;
-
-		if (FAILED(hr = VariantChangeType(&var_multival, &var_multival, 0, VT_BSTR)))
-			return hr;
-
-		umultival.convert(var_multival.bstrVal);
-	}
-
-	static_api_ptr_t<metadb_io_v2> io;
 	pfc::list_t<file_info_impl> info;
-	info.set_size(m_handles.get_count());
-	metadb_handle_ptr item;
-	t_filestats p_stats = filestats_invalid;
-
-	for (t_size i = 0; i < m_handles.get_count(); i++)
+	info.set_size(count);
+	
+	for (t_size i = 0; i < count; i++)
 	{
-		item = m_handles.get_item(i);
+		json obj = is_array ? o[i] : o;
+		if (!obj.is_object() || obj.size() == 0) return E_INVALIDARG;
+
+		metadb_handle_ptr item = m_handles.get_item(i);
 		item->get_info(info[i]);
 
-		helpers::file_info_pairs_filter* item_filters = new service_impl_t<helpers::file_info_pairs_filter>(m_handles[i], field_value_map, umultival);
-		item_filters->apply_filter(m_handles[i], p_stats, info[i]);
+		for (json::iterator it = obj.begin(); it != obj.end(); ++it)
+		{
+			std::string key = it.key();
+			pfc::string8 key8 = key.c_str();
+			if (key8.is_empty()) return E_INVALIDARG;
+
+			info[i].meta_remove_field(key8);
+
+			if (it.value().is_array())
+			{
+				for (json::iterator ita = it.value().begin(); ita != it.value().end(); ++ita)
+				{
+					pfc::string8 value = iterator_to_string8(ita);
+
+					if (!value.is_empty())
+						info[i].meta_add(key8, value);
+				}
+			}
+			else
+			{
+				pfc::string8 value = iterator_to_string8(it);
+				if (!value.is_empty())
+					info[i].meta_set(key8, value);
+			}
+		}
 	}
 
-	io->update_info_async_simple(
+	static_api_ptr_t<metadb_io_v2>()->update_info_async_simple(
 		m_handles,
 		pfc::ptr_list_const_array_t<const file_info, file_info_impl *>(info.get_ptr(), info.get_count()),
-		core_api::get_main_window(), metadb_io_v2::op_flag_delay_ui, NULL
+		core_api::get_main_window(),
+		metadb_io_v2::op_flag_delay_ui,
+		NULL
 	);
 
 	return S_OK;
@@ -2286,6 +2216,18 @@ STDMETHODIMP FbUtils::CreateContextMenuManager(IContextMenuManager** pp)
 	if (!pp) return E_POINTER;
 
 	*pp = new com_object_impl_t<ContextMenuManager>();
+	return S_OK;
+}
+
+STDMETHODIMP FbUtils::CreateHandleList(IFbMetadbHandleList** pp)
+{
+	TRACK_FUNCTION();
+
+	if (!pp) return E_POINTER;
+
+	metadb_handle_list items;
+	*pp = new com_object_impl_t<FbMetadbHandleList>(items);
+
 	return S_OK;
 }
 
@@ -4541,7 +4483,7 @@ STDMETHODIMP JSUtils::get_Version(UINT* v)
 {
 	TRACK_FUNCTION();
 
-	*v = 1240;
+	*v = 1300;
 	return S_OK;
 }
 

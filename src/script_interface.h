@@ -241,7 +241,6 @@ __interface IFbMetadbHandle : IDisposable
 	[propget] STDMETHOD(RawPath)([out, retval] BSTR* pp);
 	[propget] STDMETHOD(SubSong)([out, retval] UINT* p);
 	[propget] STDMETHOD(_ptr)([out]void** pp);
-	[vararg] STDMETHOD(UpdateFileInfoSimple)([satype(VARIANT)] SAFEARRAY* p);
 };
 
 [
@@ -273,11 +272,11 @@ __interface IFbMetadbHandleList : IDisposable
 	STDMETHOD(RemoveById)(UINT index);
 	STDMETHOD(RemoveRange)(UINT from, UINT count);
 	STDMETHOD(Sort)();
+	STDMETHOD(UpdateFileInfoFromJSON)(BSTR str);
 	[propget] STDMETHOD(Count)([out, retval] UINT* p);
 	[propget] STDMETHOD(Item)(UINT index, [out, retval] IFbMetadbHandle** pp);
 	[propget] STDMETHOD(_ptr)([out, retval] void** pp);
 	[propput] STDMETHOD(Item)(UINT index, IFbMetadbHandle* handle);
-	[vararg] STDMETHOD(UpdateFileInfoSimple)([satype(VARIANT)] SAFEARRAY* p);
 };
 
 [
@@ -385,6 +384,7 @@ __interface IFbUtils : IDispatch
 	STDMETHOD(AddFiles)();
 	STDMETHOD(ClearPlaylist)();
 	STDMETHOD(CreateContextMenuManager)([out, retval] IContextMenuManager** pp);
+	STDMETHOD(CreateHandleList)([out, retval] IFbMetadbHandleList** pp);
 	STDMETHOD(CreateMainMenuManager)([out, retval] IMainMenuManager** pp);
 	STDMETHOD(CreateProfiler)([defaultvalue("")] BSTR name, [out, retval] IFbProfiler** pp);
 	STDMETHOD(Exit)();

@@ -279,7 +279,6 @@ protected:
 public:
 	STDMETHODIMP Compare(IFbMetadbHandle* handle, VARIANT_BOOL* p);
 	STDMETHODIMP GetFileInfo(IFbFileInfo** pp);
-	STDMETHODIMP UpdateFileInfoSimple(SAFEARRAY* p);
 	STDMETHODIMP get_FileSize(LONGLONG* p);
 	STDMETHODIMP get_Length(double* p);
 	STDMETHODIMP get_Path(BSTR* pp);
@@ -327,7 +326,7 @@ public:
 	STDMETHODIMP RemoveById(UINT index);
 	STDMETHODIMP RemoveRange(UINT from, UINT count);
 	STDMETHODIMP Sort();
-	STDMETHODIMP UpdateFileInfoSimple(SAFEARRAY* p);
+	STDMETHODIMP UpdateFileInfoFromJSON(BSTR str);
 	STDMETHODIMP get_Count(UINT* p);
 	STDMETHODIMP get_Item(UINT index, IFbMetadbHandle** pp);
 	STDMETHODIMP get__ptr(void** pp);
@@ -498,6 +497,7 @@ public:
 	STDMETHODIMP AddFiles();
 	STDMETHODIMP ClearPlaylist();
 	STDMETHODIMP CreateContextMenuManager(IContextMenuManager** pp);
+	STDMETHODIMP CreateHandleList(IFbMetadbHandleList** pp);
 	STDMETHODIMP CreateMainMenuManager(IMainMenuManager** pp);
 	STDMETHODIMP CreateProfiler(BSTR name, IFbProfiler** pp);
 	STDMETHODIMP Exit();

@@ -833,69 +833,6 @@ namespace helpers
 		return true;
 	}
 
-	file_info_pairs_filter::file_info_pairs_filter(const metadb_handle_ptr& p_handle, const t_field_value_map& p_field_value_map, const char* p_multivalue_field)
-		: m_handle(p_handle)
-		, m_field_value_map(p_field_value_map)
-	{
-		if (p_multivalue_field)
-		{
-			// to upper first
-			string_upper multivalue_field_upper(p_multivalue_field);
-
-			pfc::splitStringByChar(m_multivalue_fields, multivalue_field_upper, ';');
-		}
-	}
-
-	bool file_info_pairs_filter::apply_filter(metadb_handle_ptr p_location, t_filestats p_stats, file_info& p_info)
-	{
-		if (p_location == m_handle)
-		{
-			for (t_field_value_map::const_iterator iter = m_field_value_map.first(); iter.is_valid(); ++iter)
-			{
-				if (iter->m_key.is_empty())
-					continue;
-
-				p_info.meta_remove_field(iter->m_key);
-
-				if (iter->m_value.is_empty())
-					continue;
-
-				bool is_multival = false;
-
-				for (t_size idx = 0; idx < m_multivalue_fields.get_count(); ++idx)
-				{
-					if (_stricmp(m_multivalue_fields.get_item(idx), iter->m_key.get_ptr()) == 0)
-					{
-						is_multival = true;
-						break;
-					}
-				}
-
-				if (is_multival)
-				{
-					pfc::string_list_impl valuelist;
-
-					// Split values with ';'
-					pfc::splitStringByChar(valuelist, iter->m_value, ';');
-
-					for (t_size i = 0; i < valuelist.get_count(); ++i)
-					{
-						p_info.meta_add(iter->m_key, valuelist[i]);
-					}
-				}
-				else
-				{
-					// Not a multivalue field
-					p_info.meta_set(iter->m_key, iter->m_value);
-				}
-			}
-
-			return true;
-		}
-
-		return false;
-	}
-
 	void album_art_async::run()
 	{
 		pfc::string8_fast image_path;
