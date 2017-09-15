@@ -1,3 +1,16 @@
+## v1.3.0 Alpha 1
+```
+- CHG: Support for IE7/IE8/WINE users has been dropped. Your computer
+       must have IE9 or later installed.
+- CHG: The "UpdateFileInfoSimple" handle and handle list methods are
+       now gone.
+- ADD: A new "UpdateFileInfoFromJSON" method has been added. See
+       https://github.com/19379/foo-jscript-panel/wiki/Breaking-Changes#v130
+       If anyone needs help with this, just ask.
+- ADD: You can now create an empty handle list with fb.CreateHandleList()
+       See docs\interfaces.txt
+```
+
 ## v1.2.4
 ```
 - ADD: Add utils.ColorPicker which is a popup dialog for selecting colours.
