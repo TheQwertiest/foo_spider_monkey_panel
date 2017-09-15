@@ -1,4 +1,4 @@
-v1.3.0 Alpha 1
+v1.3.0 Beta 1
 - CHG: Support for IE7/IE8/WINE users has been dropped. Your computer
        must have IE9 or later installed.
 - CHG: The "UpdateFileInfoSimple" handle and handle list methods are
