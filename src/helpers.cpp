@@ -38,7 +38,7 @@ namespace helpers
 		return hBitmap;
 	}
 
-	int GetEncoderClsid(const WCHAR* format, CLSID* pClsid)
+	int get_encoder_clsid(const WCHAR* format, CLSID* pClsid)
 	{
 		int ret = -1;
 

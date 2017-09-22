@@ -2,16 +2,51 @@
 
 #include "thread_pool.h"
 #include "script_interface.h"
+#include "json.hpp"
 
 #define TO_VARIANT_BOOL(v) ((v) ? (VARIANT_TRUE) : (VARIANT_FALSE))
+
+using json = nlohmann::json;
 
 namespace helpers
 {
 	HBITMAP create_hbitmap_from_gdiplus_bitmap(Gdiplus::Bitmap* bitmap_ptr);
-	int GetEncoderClsid(const WCHAR* format, CLSID* pClsid);
+	int get_encoder_clsid(const WCHAR* format, CLSID* pClsid);
 	bool execute_context_command_by_name(const char* p_name, metadb_handle_list_cref p_handles, unsigned flags);
 	bool execute_mainmenu_command_by_name(const char* p_name);
 	unsigned detect_charset(const char* fileName);
+
+	inline pfc::string8 iterator_to_string8(json::iterator j)
+	{
+		std::string value = j.value().type() == json::value_t::string ? j.value().get<std::string>() : j.value().dump();
+		return value.c_str();
+	}
+
+	inline int get_metadb_from_variant(const VARIANT& obj, IDispatch** ppuk)
+	{
+		if (obj.vt != VT_DISPATCH || !obj.pdispVal)
+			return -1;
+
+		IDispatch* temp = NULL;
+
+		if (SUCCEEDED(obj.pdispVal->QueryInterface(__uuidof(IFbMetadbHandle), (void**)&temp)))
+		{
+			*ppuk = temp;
+			return 0;
+		}
+		else if (SUCCEEDED(obj.pdispVal->QueryInterface(__uuidof(IFbMetadbHandleList), (void**)&temp)))
+		{
+			*ppuk = temp;
+			return 1;
+		}
+
+		return -1;
+	}
+
+	inline unsigned get_color_from_variant(VARIANT v)
+	{
+		return (v.vt == VT_R8) ? static_cast<unsigned>(v.dblVal) : v.lVal;
+	}
 
 	inline int get_text_width(HDC hdc, LPCTSTR text, int len)
 	{
