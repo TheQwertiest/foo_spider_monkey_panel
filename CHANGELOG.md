@@ -1,4 +1,4 @@
-## v1.3.0 Beta 1
+## v1.3.0
 ```
 - CHG: Support for IE7/IE8/WINE users has been dropped. Your computer
        must have IE9 or later installed.
