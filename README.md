@@ -16,11 +16,17 @@ All scripts are written in Javascript but the component provides means to do the
 
 ## Update 09/01/2017
 
-Thanks to [TheQwertiest](https://github.com/TheQwertiest), `v.1.2.0` now supports the `Chakra` engine. This means newer ECMAScript5 features are now available. They are documented here:
+Thanks to [TheQwertiest](https://github.com/TheQwertiest), `v.1.2.0` now supports the `Chakra` engine. This means
+newer ECMAScript5 features are now available. They are documented here:
 
 https://msdn.microsoft.com/library/ff974378.aspx#_ecmascript
 
 This requires you have at least IE9 installed. If you only have IE7/IE8, the standard `JScript` engine will be used.
+
+## Update 22/09/2017
+
+As of `v1.3.0`, IE9 or later is now a requirement. Any scripts that had polyfills for ES5 features such
+as `String.prototype.trim` can now have them removed.
 
 ___
 
