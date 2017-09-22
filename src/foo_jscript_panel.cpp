@@ -17,17 +17,7 @@ namespace
 		JSP_NAME " v" JSP_VERSION " by marc2003\n"
 		"Based on WSH Panel Mod by T.P. Wang\n\n"
 		"Build: " __TIME__ ", " __DATE__ "\n"
-		"Columns UI SDK Version: " UI_EXTENSION_VERSION "\n\n"
-		"Scintilla and SciTE\n"
-		"Copyright (c) 1998-2003 by Neil Hodgson\n\n"
-		"Text Designer Outline Text Library\n"
-		"Copyright (c) 2009 Wong Shao Voon\n\n"
-		"BoxBlurFilter\n"
-		"Copyright (c) 2006 Jerry Huxtable\n\n"
-		"StackBlur Algorithm by Mario Klingemann\n"
-		"Multi-threaded version by Victor Laskin\n\n"
-		"CPropertyList - A Property List control\n"
-		"Copyright (c) 2001-2003 Bjarke Viksoe"
+		"Columns UI SDK Version: " UI_EXTENSION_VERSION
 	);
 
 	VALIDATE_COMPONENT_FILENAME(JSP_DLL_NAME);
