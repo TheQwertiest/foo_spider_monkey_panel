@@ -1237,7 +1237,7 @@ interface IFbMetadbHandle {
 
 		SubSong; (int) (read)
 
-		FileSize; (LONGLONG) (read) // requires IE9 or later
+		FileSize; (LONGLONG) (read)
 
 		Length; (double) (read)
 
@@ -1342,7 +1342,7 @@ interface IFbMetadbHandleList {
 		// returns total in seconds.
 		// consider using utils.FormatDuration() on the result.
 
-		CalcTotalSize(); (LONGLONG) // requires IE9 or later
+		CalcTotalSize(); (LONGLONG)
 		// return total in bytes.
 		// consider using utils.FormatFileSize() on the result.
 
