@@ -424,8 +424,7 @@ HRESULT ScriptHost::InitScriptEngine()
 	HRESULT hr = E_FAIL;
 	const DWORD classContext = CLSCTX_INPROC_SERVER | CLSCTX_INPROC_HANDLER;
 
-	static const CLSID jscript9clsid =
-	{ 0x16d51579, 0xa30b, 0x4c8b,{ 0xa2, 0x76, 0x0f, 0xf4, 0xdc, 0x41, 0xe7, 0x55 } };
+	static const CLSID jscript9clsid = { 0x16d51579, 0xa30b, 0x4c8b,{ 0xa2, 0x76, 0x0f, 0xf4, 0xdc, 0x41, 0xe7, 0x55 } };
 
 	hr = m_script_engine.CreateInstance(jscript9clsid, NULL, classContext);
 
@@ -439,7 +438,7 @@ HRESULT ScriptHost::InitScriptEngine()
 	m_script_engine->QueryInterface(IID_IActiveScriptProperty, (void**)&pActScriProp);
 	VARIANT scriptLangVersion;
 	scriptLangVersion.vt = VT_I4;
-	scriptLangVersion.lVal = 3;
+	scriptLangVersion.lVal = SCRIPTLANGUAGEVERSION_5_8 + 1; // adding 1 enables the Chakra javascript engine, thanks to github.com/TheQwertiest
 	pActScriProp->SetProperty(SCRIPTPROP_INVOKEVERSIONING, NULL, &scriptLangVersion);
 	pActScriProp->Release();
 
