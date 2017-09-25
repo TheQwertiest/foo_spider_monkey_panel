@@ -87,14 +87,12 @@
     <ClCompile Include="..\lexers\LexCPP.cxx" />
     <ClCompile Include="..\lexlib\*.cxx" />
     <ClCompile Include="..\src\*.cxx" />
-    <ClCompile Include="..\win32\HanjaDic.cxx" />
-    <ClCompile Include="..\win32\PlatWin.cxx" />
-    <ClCompile Include="..\win32\ScintillaWin.cxx" />
+    <ClCompile Include="..\win32\*.cxx" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\*.h" />
-    <ClInclude Include="..\src\*.h" />
     <ClInclude Include="..\lexlib\*.h" />
+    <ClInclude Include="..\src\*.h" />
     <ClInclude Include="..\win32\*.h" />
   </ItemGroup>
 </Project>
