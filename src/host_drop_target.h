@@ -1,6 +1,6 @@
 #pragma once
 
-#include "IDropTargetImpl.h"
+#include "drop_target_impl.h"
 #include "script_interface_impl.h"
 
 class js_panel_window;

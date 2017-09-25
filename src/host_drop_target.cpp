@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "helpers.h"
 #include "host.h"
-#include "host_droptarget.h"
+#include "host_drop_target.h"
 #include "js_panel_window.h"
 
 HostDropTarget::HostDropTarget(js_panel_window* host)

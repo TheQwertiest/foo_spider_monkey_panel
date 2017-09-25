@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "js_panel_window.h"
 #include "host.h"
-#include "host_droptarget.h"
+#include "host_drop_target.h"
 #include "ui_conf.h"
 #include "ui_property.h"
 #include "panel_manager.h"

@@ -135,7 +135,7 @@ copy /Y "$(TargetPath)" "%component_path%\"</Command>
     <ClCompile Include="host.cpp" />
     <ClCompile Include="mainmenu.cpp" />
     <ClCompile Include="script_callback_invoker.cpp" />
-    <ClCompile Include="host_droptarget.cpp" />
+    <ClCompile Include="host_drop_target.cpp" />
     <ClCompile Include="host_timer_dispatcher.cpp" />
     <ClCompile Include="panel_manager.cpp" />
     <ClCompile Include="script_interface_impl.cpp" />
@@ -178,8 +178,8 @@ copy /Y "$(TargetPath)" "%component_path%\"</Command>
     <ClInclude Include="host_timer_dispatcher.h" />
     <ClInclude Include="component_defines.h" />
     <ClInclude Include="host.h" />
-    <ClInclude Include="IDropTargetImpl.h" />
-    <ClInclude Include="host_droptarget.h" />
+    <ClInclude Include="drop_target_impl.h" />
+    <ClInclude Include="host_drop_target.h" />
     <ClInclude Include="js_panel_window.h" />
     <ClInclude Include="js_panel_window_dui.h" />
     <ClInclude Include="js_panel_window_cui.h" />
