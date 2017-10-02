@@ -466,15 +466,8 @@ oPlaylistManager = function (name) {
 		this.playlists.splice(0, this.playlists.length);
 		this.total_playlists = plman.PlaylistCount;
 		var rowId = 0;
-		var isAutoPl = false;
-		var isReserved = false;
-		var plname = null;
 		for (var idx = 0; idx < this.total_playlists; idx++) {
-			plname = plman.GetPlaylistName(idx);
-			isAutoPl = plman.IsAutoPlaylist(idx);
-			isReserved = (plname == "Queue Content" || plname == "Historic");
-
-			if (!isAutoPl && !isReserved) {
+			if (!plman.IsAutoPlaylist(idx)) {
 				if (idx == plman.ActivePlaylist) {
 					if (!exclude_active) {
 						this.playlists.push(new oPlaylist(idx, rowId));

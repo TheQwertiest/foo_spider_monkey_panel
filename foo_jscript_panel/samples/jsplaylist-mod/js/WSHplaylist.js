@@ -1113,9 +1113,7 @@ oItem = function (playlist, row_index, type, handle, track_index, group_index, t
 						p.list.selectGroupTracks(this.group_index, true);
 						p.list.SHIFT_start_id = null;
 					};
-					if (!utils.IsKeyPressed(VK_SHIFT)) {
-						p.list.contextMenu(x, y, this.track_index, this.row_index);
-					};
+					p.list.contextMenu(x, y, this.track_index, this.row_index);
 				} else { // track
 					if (this.rating_hover) {}
 					else if (this.mood_hover) {}
@@ -1126,9 +1124,7 @@ oItem = function (playlist, row_index, type, handle, track_index, group_index, t
 							plman.ClearPlaylistSelection(p.list.playlist);
 							plman.SetPlaylistSelectionSingle(p.list.playlist, this.track_index, true);
 						};
-						if (!utils.IsKeyPressed(VK_SHIFT)) {
-							p.list.contextMenu(x, y, this.track_index, this.row_index);
-						};
+						p.list.contextMenu(x, y, this.track_index, this.row_index);
 					};
 				};
 			};
@@ -2594,54 +2590,52 @@ oList = function (object_name, playlist) {
 		};
 
 		var ret = _menu.TrackPopupMenu(x, y);
-		if (ret > 2 && ret < 800) {
+		switch (true) {
+		case ret == 0:
+			break;
+		case ret == 1:
+			for (var i = 0; i < p.settings.pages.length; i++) {
+				p.settings.pages[i].reSet();
+			};
+			p.settings.currentPageId = 0;
+			cSettings.visible = true;
+			full_repaint();
+			break;
+		case ret == 2:
+			plman.ActivePlaylist = isQueuePlaylistPresent();
+			break;
+		case ret < 800:
 			Context.ExecuteByID(ret - 3);
-		} else if (ret < 3) {
-			switch (ret) {
-			case 1:
-				for (var i = 0; i < p.settings.pages.length; i++) {
-					p.settings.pages[i].reSet();
-				};
-				p.settings.currentPageId = 0;
-				cSettings.visible = true;
+			break;
+		case ret == 1010:
+			plman.UndoBackup(this.playlist);
+			plman.RemovePlaylistSelection(this.playlist, true);
+			break;
+		case ret == 1011:
+			plman.UndoBackup(this.playlist);
+			plman.RemovePlaylistSelection(this.playlist, false);
+			break;
+		case ret == 4000:
+			fb.RunMainMenuCommand("File/New playlist");
+			plman.InsertPlaylistItems(plman.PlaylistCount - 1, 0, this.metadblist_selection, false);
+			break;
+		case ret > 2000 && ret < 4000:
+			var insert_index = plman.PlaylistItemCount(ret - 2001);
+			plman.UndoBackup(ret - 2001);
+			plman.InsertPlaylistItems((ret - 2001), insert_index, this.metadblist_selection, false);
+			if (cPlaylistManager.visible)
 				full_repaint();
-				break;
-			case 2:
-				plman.ActivePlaylist = isQueuePlaylistPresent();
-				break;
-			};
-		} else {
-			switch (true) {
-			case (ret == 1010):
-				plman.UndoBackup(this.playlist);
-				plman.RemovePlaylistSelection(this.playlist, true);
-				break;
-			case (ret == 1011):
-				plman.UndoBackup(this.playlist);
-				plman.RemovePlaylistSelection(this.playlist, false);
-				break;
-			case (ret == 4000):
-				fb.RunMainMenuCommand("File/New playlist");
-				plman.InsertPlaylistItems(plman.PlaylistCount - 1, 0, this.metadblist_selection, false);
-				break;
-			case (ret > 2000 && ret < 4000):
-				var insert_index = plman.PlaylistItemCount(ret - 2001);
-				plman.UndoBackup(ret - 2001);
-				plman.InsertPlaylistItems((ret - 2001), insert_index, this.metadblist_selection, false);
-				if (cPlaylistManager.visible)
-					full_repaint();
-				break;
-			case (ret > 4000 && ret < 6000):
-				plman.ActivePlaylist = ret - 4001;
-				plman.UndoBackup(plman.ActivePlaylist);
-				fb.ClearPlaylist();
-				plman.InsertPlaylistItems(plman.ActivePlaylist, 0, this.metadblist_selection, false);
-				plman.SetPlaylistSelectionSingle(plman.ActivePlaylist, 0, true);
-				plman.ExecutePlaylistDefaultAction(plman.ActivePlaylist, 0);
-				if (cPlaylistManager.visible)
-					full_repaint();
-				break;
-			};
+			break;
+		case ret > 4000 && ret < 6000:
+			plman.ActivePlaylist = ret - 4001;
+			plman.UndoBackup(plman.ActivePlaylist);
+			fb.ClearPlaylist();
+			plman.InsertPlaylistItems(plman.ActivePlaylist, 0, this.metadblist_selection, false);
+			plman.SetPlaylistSelectionSingle(plman.ActivePlaylist, 0, true);
+			plman.ExecutePlaylistDefaultAction(plman.ActivePlaylist, 0);
+			if (cPlaylistManager.visible)
+				full_repaint();
+			break;
 		};
 		_child01.Dispose();
 		_child02.Dispose();

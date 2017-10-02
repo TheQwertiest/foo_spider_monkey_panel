@@ -2340,9 +2340,8 @@ function on_key_down(vkey) {
 							plman.RemoveItemsFromPlaybackQueue(affected_items);
 						} else {
 							plman.RemovePlaylistSelection(act_pls, false);
+							plman.SetPlaylistSelectionSingle(act_pls, plman.GetPlaylistFocusItemIndex(act_pls), true);
 						};
-						plman.RemovePlaylistSelection(act_pls, false);
-						plman.SetPlaylistSelectionSingle(act_pls, plman.GetPlaylistFocusItemIndex(act_pls), true);
 					};
 					break;
 				};
@@ -2442,10 +2441,8 @@ function on_key_down(vkey) {
 								plman.RemoveItemsFromPlaybackQueue(affected_items);
 							} else {
 								plman.RemovePlaylistSelection(act_pls, false);
+								plman.SetPlaylistSelectionSingle(act_pls, plman.GetPlaylistFocusItemIndex(act_pls), true);
 							};
-
-							plman.RemovePlaylistSelection(act_pls, false);
-							plman.SetPlaylistSelectionSingle(act_pls, plman.GetPlaylistFocusItemIndex(act_pls), true);
 						};
 					};
 					if (vkey == 67) { // CTRL+C
