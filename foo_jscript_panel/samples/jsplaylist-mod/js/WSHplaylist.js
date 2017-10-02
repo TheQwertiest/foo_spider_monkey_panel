@@ -395,7 +395,7 @@ oItem = function (playlist, row_index, type, handle, track_index, group_index, t
 				cover.h = 0;
 			};
 			if (this.empty_row_index == 0) {
-				this.queue_idx = isTrackQueued(this.metadb);
+				this.queue_idx = plman.FindPlaybackQueueItemIndex(this.metadb, this.playlist, this.track_index) + 1;
 				this.normalTextColor = false;
 				if (fb.IsPlaying && plman.PlayingPlaylist == this.playlist && this.track_index == p.list.nowplaying.PlaylistItemIndex) {
 					// playing track bg

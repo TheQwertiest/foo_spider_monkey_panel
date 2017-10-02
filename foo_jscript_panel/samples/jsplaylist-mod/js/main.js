@@ -3056,22 +3056,6 @@ function isQueuePlaylistPresent() {
 	return -1;
 };
 
-function isTrackQueued(handle) {
-	var queue_total = plman.GetPlaybackQueueCount();
-	if (queue_total > 0) {
-		var vbarr = plman.GetPlaybackQueueContents();
-		var arr = vbarr.toArray();
-		for (var j = 0; j < queue_total; j++) {
-			if (handle.Compare(arr[j].Handle)) {
-				return j + 1;
-			}
-		};
-		return -1;
-	} else {
-		return -1;
-	};
-};
-
 function SetPlaylistQueue() {
 	var total_pl = plman.PlaylistCount;
 	var queue_pl_idx = isQueuePlaylistPresent();
