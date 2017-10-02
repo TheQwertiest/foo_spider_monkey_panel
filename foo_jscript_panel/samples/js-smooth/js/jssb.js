@@ -3797,9 +3797,6 @@ function on_key_down(vkey) {
 
 		if (mask == KMask.none) {
 			switch (vkey) {
-			case VK_F2:
-
-				break;
 			case VK_F3:
 				brw.showNowPlaying();
 				break;
@@ -3816,11 +3813,6 @@ function on_key_down(vkey) {
 					brw.groups[i].cover_type = null;
 				};
 				brw.repaint();
-				break;
-			case VK_F6:
-
-				break;
-			case VK_TAB:
 				break;
 			case VK_BACK:
 				if (cList.search_string.length > 0) {
@@ -3875,9 +3867,6 @@ function on_key_down(vkey) {
 					reset_cover_timers();
 				};
 				break;
-			case VK_RETURN:
-				// play/enqueue focused item
-				break;
 			case VK_END:
 				if (brw.rowsCount > 0) {};
 				break;
@@ -3891,17 +3880,6 @@ function on_key_down(vkey) {
 		} else {
 			switch (mask) {
 			case KMask.shift:
-				switch (vkey) {
-				case VK_SHIFT: // SHIFT key alone
-
-					break;
-				case VK_UP: // SHIFT + KEY UP
-
-					break;
-				case VK_DOWN: // SHIFT + KEY DOWN
-
-					break;
-				};
 				break;
 			case KMask.ctrl:
 				if (vkey == 66) { // CTRL+B

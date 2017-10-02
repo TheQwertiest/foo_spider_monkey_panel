@@ -33,7 +33,6 @@ ppt = {
 	wallpaperblurvalue: 1.05,
 	wallpapermode: window.GetProperty("_SYSTEM: Wallpaper Mode", 0),
 	wallpaperpath: window.GetProperty("_PROPERTY: Default Wallpaper Path", ".\\user-components\\foo_jscript_panel\\samples\\js-smooth\\images\\default.png"),
-	defaultPlaylistItemAction: window.GetProperty("_PROPERTY: Default Playlist Action", "Play"), //"Add to playback queue"
 	extra_font_size: window.GetProperty("_SYSTEM: Extra font size value", 0),
 	showFilterBox: window.GetProperty("_PROPERTY: Enable Playlist Filterbox in Top Bar", true),
 	doubleRowText: window.GetProperty("_PROPERTY: Double Row Text Info", true),
@@ -4271,15 +4270,7 @@ function on_key_down(vkey) {
 				};
 				break;
 			case VK_RETURN:
-				// play/enqueue focused item
-				//if(!isQueuePlaylistActive()) {
-				var cmd = ppt.defaultPlaylistItemAction;
-				if (cmd == "Play") {
-					plman.ExecutePlaylistDefaultAction(act_pls, g_focus_id);
-				} else {
-					fb.RunContextCommandWithMetadb(cmd, brw.list.Item(g_focus_id), 0);
-				};
-				//};
+				plman.ExecutePlaylistDefaultAction(act_pls, g_focus_id);
 				break;
 			case VK_END:
 				if (brw.rowsCount > 0) {
