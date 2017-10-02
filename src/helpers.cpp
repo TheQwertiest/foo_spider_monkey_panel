@@ -865,14 +865,14 @@ namespace helpers
 		IGdiBitmap* bitmap = NULL;
 		Gdiplus::Bitmap* img = new Gdiplus::Bitmap(m_path, PixelFormat32bppPARGB);
 
-		if (!helpers::ensure_gdiplus_object(img))
+		if (helpers::ensure_gdiplus_object(img))
 		{
-			if (img) delete img;
-			img = NULL;
+			bitmap = new com_object_impl_t<GdiBitmap>(img);
 		}
 		else
 		{
-			bitmap = new com_object_impl_t<GdiBitmap>(img);
+			if (img) delete img;
+			img = NULL;
 		}
 
 		t_param param(reinterpret_cast<unsigned>(this), bitmap, m_path);

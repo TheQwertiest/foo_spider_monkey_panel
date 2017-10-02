@@ -12,6 +12,19 @@
 #include <vector>
 #include <algorithm>
 
+ContextMenuManager::ContextMenuManager()
+{
+}
+
+ContextMenuManager::~ContextMenuManager()
+{
+}
+
+void ContextMenuManager::FinalRelease()
+{
+	m_cm.release();
+}
+
 STDMETHODIMP ContextMenuManager::BuildMenu(IMenuObj* p, int base_id, int max_id)
 {
 	TRACK_FUNCTION();
@@ -82,6 +95,20 @@ STDMETHODIMP ContextMenuManager::InitNowPlaying()
 	return S_OK;
 }
 
+
+DropSourceAction::DropSourceAction()
+{
+	Reset();
+}
+
+DropSourceAction::~DropSourceAction()
+{
+}
+
+void DropSourceAction::FinalRelease()
+{
+}
+
 STDMETHODIMP DropSourceAction::ToPlaylist()
 {
 	TRACK_FUNCTION();
@@ -140,6 +167,23 @@ STDMETHODIMP DropSourceAction::put_ToSelect(VARIANT_BOOL select)
 	TRACK_FUNCTION();
 	m_to_select = (select == VARIANT_TRUE);
 	return S_OK;
+}
+
+FbFileInfo::FbFileInfo(file_info_impl* p_info_ptr) : m_info_ptr(p_info_ptr)
+{
+}
+
+FbFileInfo::~FbFileInfo()
+{
+}
+
+void FbFileInfo::FinalRelease()
+{
+	if (m_info_ptr)
+	{
+		delete m_info_ptr;
+		m_info_ptr = NULL;
+	}
 }
 
 STDMETHODIMP FbFileInfo::InfoFind(BSTR name, UINT* p)
@@ -333,6 +377,23 @@ STDMETHODIMP FbFileInfo::get__ptr(void** pp)
 	return S_OK;
 }
 
+FbMetadbHandle::FbMetadbHandle(const metadb_handle_ptr& src) : m_handle(src)
+{
+}
+
+FbMetadbHandle::FbMetadbHandle(metadb_handle* src) : m_handle(src)
+{
+}
+
+FbMetadbHandle::~FbMetadbHandle()
+{
+}
+
+void FbMetadbHandle::FinalRelease()
+{
+	m_handle.release();
+}
+
 STDMETHODIMP FbMetadbHandle::Compare(IFbMetadbHandle* handle, VARIANT_BOOL* p)
 {
 	TRACK_FUNCTION();
@@ -430,6 +491,19 @@ STDMETHODIMP FbMetadbHandle::get__ptr(void** pp)
 
 	*pp = m_handle.get_ptr();
 	return S_OK;
+}
+
+FbMetadbHandleList::FbMetadbHandleList(metadb_handle_list_cref handles) : m_handles(handles)
+{
+}
+
+FbMetadbHandleList::~FbMetadbHandleList()
+{
+}
+
+void FbMetadbHandleList::FinalRelease()
+{
+	m_handles.remove_all();
 }
 
 STDMETHODIMP FbMetadbHandleList::Add(IFbMetadbHandle* handle, UINT* p)
@@ -828,15 +902,19 @@ STDMETHODIMP FbMetadbHandleList::put_Item(UINT index, IFbMetadbHandle* handle)
 	return S_OK;
 }
 
+FbPlaylistManager::FbPlaylistManager() : m_fbPlaylistRecyclerManager(NULL)
+{
+}
+
 STDMETHODIMP FbPlaylistManager::AddItemToPlaybackQueue(IFbMetadbHandle* handle)
 {
 	TRACK_FUNCTION();
 
-	metadb_handle* ptrHandle = NULL;
-	handle->get__ptr((void**)&ptrHandle);
-	if (!ptrHandle) return E_INVALIDARG;
+	metadb_handle* ptr = NULL;
+	handle->get__ptr((void**)&ptr);
+	if (!ptr) return E_INVALIDARG;
 
-	static_api_ptr_t<playlist_manager>()->queue_add_item(ptrHandle);
+	static_api_ptr_t<playlist_manager>()->queue_add_item(ptr);
 	return S_OK;
 }
 
@@ -943,15 +1021,17 @@ STDMETHODIMP FbPlaylistManager::CreatePlaylist(UINT playlistIndex, BSTR name, UI
 	if (!name) return E_INVALIDARG;
 	if (!outPlaylistIndex) return E_POINTER;
 
+	static_api_ptr_t<playlist_manager> api;
+
 	if (*name)
 	{
 		pfc::stringcvt::string_utf8_from_wide uname(name);
 
-		*outPlaylistIndex = static_api_ptr_t<playlist_manager>()->create_playlist(uname, uname.length(), playlistIndex);
+		*outPlaylistIndex = api->create_playlist(uname, uname.length(), playlistIndex);
 	}
 	else
 	{
-		*outPlaylistIndex = static_api_ptr_t<playlist_manager>()->create_playlist_autoname(playlistIndex);
+		*outPlaylistIndex = api->create_playlist_autoname(playlistIndex);
 	}
 
 	return S_OK;
@@ -1010,11 +1090,11 @@ STDMETHODIMP FbPlaylistManager::FindPlaybackQueueItemIndex(IFbMetadbHandle* hand
 	if (!outIndex) return E_POINTER;
 	if (!handle) return E_INVALIDARG;
 
-	metadb_handle* ptrHandle = NULL;
-	handle->get__ptr((void**)&ptrHandle);
+	metadb_handle* ptr = NULL;
+	handle->get__ptr((void**)&ptr);
 
 	t_playback_queue_item item;
-	item.m_handle = ptrHandle;
+	item.m_handle = ptr;
 	item.m_playlist = playlistIndex;
 	item.m_item = playlistItemIndex;
 	*outIndex = static_api_ptr_t<playlist_manager>()->queue_find_index(item);
@@ -1218,8 +1298,8 @@ STDMETHODIMP FbPlaylistManager::MovePlaylist(UINT from, UINT to, VARIANT_BOOL* o
 
 	if (!outSuccess) return E_POINTER;
 
-	static_api_ptr_t<playlist_manager> pm;
-	order_helper order(pm->get_playlist_count());
+	static_api_ptr_t<playlist_manager> api;
+	order_helper order(api->get_playlist_count());
 
 	if ((from >= order.get_count()) || (to >= order.get_count()))
 	{
@@ -1236,7 +1316,7 @@ STDMETHODIMP FbPlaylistManager::MovePlaylist(UINT from, UINT to, VARIANT_BOOL* o
 
 	order[to] = from;
 
-	*outSuccess = TO_VARIANT_BOOL(pm->reorder(order.get_ptr(), order.get_count()));
+	*outSuccess = TO_VARIANT_BOOL(api->reorder(order.get_ptr(), order.get_count()));
 	return S_OK;
 }
 
@@ -1262,13 +1342,15 @@ STDMETHODIMP FbPlaylistManager::RemoveItemsFromPlaybackQueue(VARIANT affectedIte
 
 	unsigned bitArrayCount;
 	bool empty;
-	static_api_ptr_t<playlist_manager> plm;
+	static_api_ptr_t<playlist_manager> api;
 	bit_array_bittable affected;
-	bitArrayCount = plm->queue_get_count();
+	bitArrayCount = api->queue_get_count();
 	if (!helpers::com_array_to_bitarray::convert(affectedItems, bitArrayCount, affected, empty)) return E_INVALIDARG;
-	if (empty) return S_OK;
-
-	plm->queue_remove_mask(affected);
+	if (!empty)
+	{
+		api->queue_remove_mask(affected);
+	}
+	
 	return S_OK;
 }
 
@@ -1319,14 +1401,14 @@ STDMETHODIMP FbPlaylistManager::SetPlaylistFocusItem(UINT playlistIndex, UINT it
 	return S_OK;
 }
 
-STDMETHODIMP FbPlaylistManager::SetPlaylistFocusItemByHandle(UINT playlistIndex, IFbMetadbHandle* item)
+STDMETHODIMP FbPlaylistManager::SetPlaylistFocusItemByHandle(UINT playlistIndex, IFbMetadbHandle* handle)
 {
 	TRACK_FUNCTION();
 
-	if (!item) return E_INVALIDARG;
+	if (!handle) return E_INVALIDARG;
 
 	metadb_handle* ptr = NULL;
-	item->get__ptr((void**)&ptr);
+	handle->get__ptr((void**)&ptr);
 
 	static_api_ptr_t<playlist_manager>()->playlist_set_focus_by_handle(playlistIndex, ptr);
 	return S_OK;
@@ -1338,14 +1420,16 @@ STDMETHODIMP FbPlaylistManager::SetPlaylistSelection(UINT playlistIndex, VARIANT
 
 	unsigned bitArrayCount;
 	bool empty;
-	static_api_ptr_t<playlist_manager> plm;
+	static_api_ptr_t<playlist_manager> api;
 	bit_array_bittable affected;
-	bitArrayCount = plm->playlist_get_item_count(playlistIndex);
+	bitArrayCount = api->playlist_get_item_count(playlistIndex);
 	if (!helpers::com_array_to_bitarray::convert(affectedItems, bitArrayCount, affected, empty)) return E_INVALIDARG;
-	if (empty) return S_OK;
-
-	bit_array_val status(state == VARIANT_TRUE);
-	static_api_ptr_t<playlist_manager>()->playlist_set_selection(playlistIndex, affected, status);
+	if (!empty)
+	{
+		bit_array_val status(state == VARIANT_TRUE);
+		api->playlist_set_selection(playlistIndex, affected, status);
+	}
+	
 	return S_OK;
 }
 
@@ -1526,10 +1610,10 @@ STDMETHODIMP FbPlaylistManager::put_ActivePlaylist(UINT playlistIndex)
 {
 	TRACK_FUNCTION();
 
-	static_api_ptr_t<playlist_manager> pm;
-	t_size index = (playlistIndex < pm->get_playlist_count()) ? playlistIndex : pfc::infinite_size;
+	static_api_ptr_t<playlist_manager> api;
+	t_size index = (playlistIndex < api->get_playlist_count()) ? playlistIndex : pfc::infinite_size;
 
-	pm->set_active_playlist(index);
+	api->set_active_playlist(index);
 	return S_OK;
 }
 
@@ -1545,11 +1629,15 @@ STDMETHODIMP FbPlaylistManager::put_PlayingPlaylist(UINT playlistIndex)
 {
 	TRACK_FUNCTION();
 
-	static_api_ptr_t<playlist_manager> pm;
-	t_size index = (playlistIndex < pm->get_playlist_count()) ? playlistIndex : pfc::infinite_size;
+	static_api_ptr_t<playlist_manager> api;
+	t_size index = (playlistIndex < api->get_playlist_count()) ? playlistIndex : pfc::infinite_size;
 
-	pm->set_playing_playlist(index);
+	api->set_playing_playlist(index);
 	return S_OK;
+}
+
+FbPlaybackQueueItem::FbPlaybackQueueItem()
+{
 }
 
 FbPlaybackQueueItem::FbPlaybackQueueItem(const t_playback_queue_item& playbackQueueItem)
@@ -1629,10 +1717,10 @@ STDMETHODIMP FbPlaybackQueueItem::put_Handle(IFbMetadbHandle* handle)
 	TRACK_FUNCTION();
 
 	if (!handle) return E_INVALIDARG;
-	metadb_handle* ptrHandle = NULL;
-	handle->get__ptr((void**)&ptrHandle);
+	metadb_handle* ptr = NULL;
+	handle->get__ptr((void**)&ptr);
 
-	m_playback_queue_item.m_handle = ptrHandle;
+	m_playback_queue_item.m_handle = ptr;
 	return S_OK;
 }
 
@@ -1650,6 +1738,13 @@ STDMETHODIMP FbPlaybackQueueItem::put_PlaylistItemIndex(UINT itemIndex)
 
 	m_playback_queue_item.m_item = itemIndex;
 	return S_OK;
+}
+
+FbPlayingItemLocation::FbPlayingItemLocation(bool isValid, t_size playlistIndex, t_size itemIndex)
+	: m_isValid(isValid)
+	, m_playlistIndex(playlistIndex)
+	, m_itemIndex(itemIndex)
+{
 }
 
 STDMETHODIMP FbPlayingItemLocation::get_IsValid(VARIANT_BOOL* outIsValid)
@@ -1713,9 +1808,10 @@ STDMETHODIMP FbPlaylistRecyclerManager::Purge(VARIANT affectedItems)
 		bit_array_bittable mask;
 		bitArrayCount = plm->recycler_get_count();
 		if (!helpers::com_array_to_bitarray::convert(affectedItems, bitArrayCount, mask, empty)) return E_INVALIDARG;
-		if (empty) return S_OK;
-
-		plm->recycler_purge(mask);
+		if (!empty)
+		{
+			plm->recycler_purge(mask);
+		}
 	}
 	catch (pfc::exception_invalid_params&)
 	{
@@ -1857,6 +1953,15 @@ STDMETHODIMP FbPlaylistRecyclerManager::get_Name(UINT index, BSTR* outName)
 	return S_OK;
 }
 
+FbProfiler::FbProfiler(const char* p_name) : m_name(p_name)
+{
+	m_timer.start();
+}
+
+FbProfiler::~FbProfiler()
+{
+}
+
 STDMETHODIMP FbProfiler::Print()
 {
 	TRACK_FUNCTION();
@@ -1883,6 +1988,21 @@ STDMETHODIMP FbProfiler::get_Time(INT* p)
 	return S_OK;
 }
 
+FbTitleFormat::FbTitleFormat(BSTR expr)
+{
+	pfc::stringcvt::string_utf8_from_wide utf8 = expr;
+	static_api_ptr_t<titleformat_compiler>()->compile_safe(m_obj, utf8);
+}
+
+FbTitleFormat::~FbTitleFormat()
+{
+}
+
+void FbTitleFormat::FinalRelease()
+{
+	m_obj.release();
+}
+
 STDMETHODIMP FbTitleFormat::Eval(VARIANT_BOOL force, BSTR* pp)
 {
 	TRACK_FUNCTION();
@@ -1898,10 +2018,8 @@ STDMETHODIMP FbTitleFormat::Eval(VARIANT_BOOL force, BSTR* pp)
 
 		if (!metadb::g_get_random_handle(handle))
 		{
-			static_api_ptr_t<metadb> m;
-
 			// HACK: A fake file handle should be okay
-			m->handle_create(handle, make_playable_location("file://C:\\________.ogg", 0));
+			 static_api_ptr_t<metadb>()->handle_create(handle, make_playable_location("file://C:\\________.ogg", 0));
 		}
 
 		handle->format_title(NULL, text, m_obj, NULL);
@@ -1992,6 +2110,10 @@ FbTooltip::FbTooltip(HWND p_wndparent, const panel_tooltip_param_ptr& p_param_pt
 	m_panel_tooltip_param_ptr->tooltip_hwnd = m_wndtooltip;
 	m_panel_tooltip_param_ptr->tooltip_size.cx = -1;
 	m_panel_tooltip_param_ptr->tooltip_size.cy = -1;
+}
+
+FbTooltip::~FbTooltip()
+{
 }
 
 void FbTooltip::FinalRelease()
@@ -2104,6 +2226,19 @@ STDMETHODIMP FbTooltip::TrackPosition(int x, int y)
 	return S_OK;
 }
 
+FbUiSelectionHolder::FbUiSelectionHolder(const ui_selection_holder::ptr& holder) : m_holder(holder)
+{
+}
+
+FbUiSelectionHolder::~FbUiSelectionHolder()
+{
+}
+
+void FbUiSelectionHolder::FinalRelease()
+{
+	m_holder.release();
+}
+
 STDMETHODIMP FbUiSelectionHolder::SetPlaylistSelectionTracking()
 {
 	TRACK_FUNCTION();
@@ -2132,6 +2267,14 @@ STDMETHODIMP FbUiSelectionHolder::SetSelection(IFbMetadbHandleList* handles)
 
 	m_holder->set_selection(*handles_ptr);
 	return S_OK;
+}
+
+FbUtils::FbUtils()
+{
+}
+
+FbUtils::~FbUtils()
+{
 }
 
 STDMETHODIMP FbUtils::AcquireUiSelectionHolder(IFbUiSelectionHolder** outHolder)
@@ -2227,13 +2370,14 @@ STDMETHODIMP FbUtils::GetFocusItem(VARIANT_BOOL force, IFbMetadbHandle** pp)
 	if (!pp) return E_POINTER;
 
 	metadb_handle_ptr metadb;
+	static_api_ptr_t<playlist_manager> api;
 
 	try
 	{
-		static_api_ptr_t<playlist_manager>()->activeplaylist_get_focus_item_handle(metadb);
+		api->activeplaylist_get_focus_item_handle(metadb);
 		if (force && metadb.is_empty())
 		{
-			static_api_ptr_t<playlist_manager>()->activeplaylist_get_item_handle(metadb, 0);
+			api->activeplaylist_get_item_handle(metadb, 0);
 		}
 		if (metadb.is_empty())
 		{
@@ -2273,9 +2417,8 @@ STDMETHODIMP FbUtils::GetLibraryRelativePath(IFbMetadbHandle* handle, BSTR* p)
 	handle->get__ptr((void**)&ptr);
 
 	pfc::string8_fast temp;
-	static_api_ptr_t<library_manager> api;
 
-	if (!api->get_relative_path(ptr, temp)) temp = "";
+	if (!static_api_ptr_t<library_manager>()->get_relative_path(ptr, temp)) temp = "";
 	*p = SysAllocString(pfc::stringcvt::string_wide_from_utf8_fast(temp));
 	return S_OK;
 }
@@ -2312,12 +2455,11 @@ STDMETHODIMP FbUtils::GetQueryItems(IFbMetadbHandleList* items, BSTR query, IFbM
 	dst_list = *srclist_ptr;
 	pfc::stringcvt::string_utf8_from_wide query8(query);
 
-	static_api_ptr_t<search_filter_manager_v2> api;
 	search_filter_v2::ptr filter;
 
 	try
 	{
-		filter = api->create_ex(query8, new service_impl_t<completion_notify_dummy>(), search_filter_manager_v2::KFlagSuppressNotify);
+		filter = static_api_ptr_t<search_filter_manager_v2>()->create_ex(query8, new service_impl_t<completion_notify_dummy>(), search_filter_manager_v2::KFlagSuppressNotify);
 	}
 	catch (...)
 	{
@@ -2551,8 +2693,7 @@ STDMETHODIMP FbUtils::ShowConsole()
 {
 	TRACK_FUNCTION();
 
-	const GUID guid_main_show_console =
-	{ 0x5b652d25, 0xce44, 0x4737, {0x99, 0xbb, 0xa3, 0xcf, 0x2a, 0xeb, 0x35, 0xcc} };
+	const GUID guid_main_show_console = { 0x5b652d25, 0xce44, 0x4737, {0x99, 0xbb, 0xa3, 0xcf, 0x2a, 0xeb, 0x35, 0xcc} };
 
 	standard_commands::run_main(guid_main_show_console);
 	return S_OK;
@@ -2861,6 +3002,10 @@ STDMETHODIMP FbUtils::put_Volume(float value)
 	return S_OK;
 }
 
+GdiBitmap::GdiBitmap(Gdiplus::Bitmap* p) : GdiObj<IGdiBitmap, Gdiplus::Bitmap>(p)
+{
+}
+
 STDMETHODIMP GdiBitmap::ApplyAlpha(BYTE alpha, IGdiBitmap** pp)
 {
 	TRACK_FUNCTION();
@@ -2972,15 +3117,16 @@ STDMETHODIMP GdiBitmap::Clone(float x, float y, float w, float h, IGdiBitmap** p
 	if (!m_ptr) return E_POINTER;
 
 	Gdiplus::Bitmap* img = m_ptr->Clone(x, y, w, h, PixelFormat32bppPARGB);
-
-	if (!helpers::ensure_gdiplus_object(img))
+	if (helpers::ensure_gdiplus_object(img))
+	{
+		*pp = new com_object_impl_t<GdiBitmap>(img);
+	}
+	else
 	{
 		if (img) delete img;
 		*pp = NULL;
-		return S_OK;
 	}
 
-	*pp = new com_object_impl_t<GdiBitmap>(img);
 	return S_OK;
 }
 
@@ -3186,6 +3332,10 @@ GdiFont::GdiFont(Gdiplus::Font* p, HFONT hFont, bool managed) : GdiObj<IGdiFont,
 {
 }
 
+GdiFont:: ~GdiFont()
+{
+}
+
 void GdiFont::FinalRelease()
 {
 	if (m_hFont && m_managed)
@@ -3253,6 +3403,10 @@ STDMETHODIMP GdiFont::get_Style(INT* outStyle)
 
 	*outStyle = m_ptr->GetStyle();
 	return S_OK;
+}
+
+GdiGraphics::GdiGraphics() : GdiObj<IGdiGraphics, Gdiplus::Graphics>(NULL)
+{
 }
 
 void GdiGraphics::GetRoundRectPath(Gdiplus::GraphicsPath& gp, Gdiplus::RectF& rect, float arc_width, float arc_height)
@@ -3841,6 +3995,26 @@ GdiRawBitmap::GdiRawBitmap(Gdiplus::Bitmap* p_bmp)
 	m_hbmpold = SelectBitmap(m_hdc, m_hbmp);
 }
 
+GdiRawBitmap::~GdiRawBitmap()
+{
+}
+
+void GdiRawBitmap::FinalRelease()
+{
+	if (m_hdc)
+	{
+		SelectBitmap(m_hdc, m_hbmpold);
+		DeleteDC(m_hdc);
+		m_hdc = NULL;
+	}
+
+	if (m_hbmp)
+	{
+		DeleteBitmap(m_hbmp);
+		m_hbmp = NULL;
+	}
+}
+
 STDMETHODIMP GdiRawBitmap::get_Height(UINT* p)
 {
 	TRACK_FUNCTION();
@@ -3871,6 +4045,14 @@ STDMETHODIMP GdiRawBitmap::get__Handle(HDC* p)
 	return S_OK;
 }
 
+GdiUtils::GdiUtils()
+{
+}
+
+GdiUtils::~GdiUtils()
+{
+}
+
 STDMETHODIMP GdiUtils::CreateImage(int w, int h, IGdiBitmap** pp)
 {
 	TRACK_FUNCTION();
@@ -3878,15 +4060,16 @@ STDMETHODIMP GdiUtils::CreateImage(int w, int h, IGdiBitmap** pp)
 	if (!pp) return E_POINTER;
 
 	Gdiplus::Bitmap* img = new Gdiplus::Bitmap(w, h, PixelFormat32bppPARGB);
-
-	if (!helpers::ensure_gdiplus_object(img))
+	if (helpers::ensure_gdiplus_object(img))
+	{
+		*pp = new com_object_impl_t<GdiBitmap>(img);
+	}
+	else
 	{
 		if (img) delete img;
 		*pp = NULL;
-		return S_OK;
 	}
 
-	*pp = new com_object_impl_t<GdiBitmap>(img);
 	return S_OK;
 }
 
@@ -3908,32 +4091,33 @@ STDMETHODIMP GdiUtils::Font(BSTR name, float pxSize, int style, IGdiFont** pp)
 	if (!pp) return E_POINTER;
 
 	Gdiplus::Font* font = new Gdiplus::Font(name, pxSize, style, Gdiplus::UnitPixel);
-
-	if (!helpers::ensure_gdiplus_object(font))
+	if (helpers::ensure_gdiplus_object(font))
+	{
+		// Generate HFONT
+		// The benefit of replacing Gdiplus::Font::GetLogFontW is that you can get it work with CCF/OpenType fonts.
+		HFONT hFont = CreateFont(
+			-(int)pxSize,
+			0,
+			0,
+			0,
+			(style & Gdiplus::FontStyleBold) ? FW_BOLD : FW_NORMAL,
+			(style & Gdiplus::FontStyleItalic) ? TRUE : FALSE,
+			(style & Gdiplus::FontStyleUnderline) ? TRUE : FALSE,
+			(style & Gdiplus::FontStyleStrikeout) ? TRUE : FALSE,
+			DEFAULT_CHARSET,
+			OUT_DEFAULT_PRECIS,
+			CLIP_DEFAULT_PRECIS,
+			DEFAULT_QUALITY,
+			DEFAULT_PITCH | FF_DONTCARE,
+			name);
+		*pp = new com_object_impl_t<GdiFont>(font, hFont);
+	}
+	else
 	{
 		if (font) delete font;
 		*pp = NULL;
-		return S_OK;
 	}
 
-	// Generate HFONT
-	// The benefit of replacing Gdiplus::Font::GetLogFontW is that you can get it work with CCF/OpenType fonts.
-	HFONT hFont = CreateFont(
-		-(int)pxSize,
-		0,
-		0,
-		0,
-		(style & Gdiplus::FontStyleBold) ? FW_BOLD : FW_NORMAL,
-		(style & Gdiplus::FontStyleItalic) ? TRUE : FALSE,
-		(style & Gdiplus::FontStyleUnderline) ? TRUE : FALSE,
-		(style & Gdiplus::FontStyleStrikeout) ? TRUE : FALSE,
-		DEFAULT_CHARSET,
-		OUT_DEFAULT_PRECIS,
-		CLIP_DEFAULT_PRECIS,
-		DEFAULT_QUALITY,
-		DEFAULT_PITCH | FF_DONTCARE,
-		name);
-	*pp = new com_object_impl_t<GdiFont>(font, hFont);
 	return S_OK;
 }
 
@@ -3948,16 +4132,19 @@ STDMETHODIMP GdiUtils::Image(BSTR path, IGdiBitmap** pp)
 	// Since using Gdiplus::Bitmap(path) will result locking file, so use IStream instead to prevent it.
 	IStreamPtr pStream;
 	HRESULT hr = SHCreateStreamOnFileEx(path, STGM_READ | STGM_SHARE_DENY_WRITE, GENERIC_READ, FALSE, NULL, &pStream);
-	if (FAILED(hr)) return S_OK;
-	Gdiplus::Bitmap* img = new Gdiplus::Bitmap(pStream, PixelFormat32bppPARGB);
-
-	if (!helpers::ensure_gdiplus_object(img))
+	if (SUCCEEDED(hr))
 	{
-		if (img) delete img;
-		return S_OK;
+		Gdiplus::Bitmap* img = new Gdiplus::Bitmap(pStream, PixelFormat32bppPARGB);
+		if (helpers::ensure_gdiplus_object(img))
+		{
+			*pp = new com_object_impl_t<GdiBitmap>(img);
+		}
+		else
+		{
+			if (img) delete img;	
+		}
 	}
-
-	*pp = new com_object_impl_t<GdiBitmap>(img);
+	
 	return S_OK;
 }
 
@@ -3985,6 +4172,14 @@ STDMETHODIMP GdiUtils::LoadImageAsync(UINT window_id, BSTR path, UINT* p)
 
 	*p = cookie;
 	return S_OK;
+}
+
+JSUtils::JSUtils()
+{
+}
+
+JSUtils::~JSUtils()
+{
 }
 
 STDMETHODIMP JSUtils::CheckComponent(BSTR name, VARIANT_BOOL is_dll, VARIANT_BOOL* p)
@@ -4447,6 +4642,19 @@ STDMETHODIMP JSUtils::get_Version(UINT* v)
 	return S_OK;
 }
 
+MainMenuManager::MainMenuManager()
+{
+}
+
+MainMenuManager::~MainMenuManager()
+{
+}
+
+void MainMenuManager::FinalRelease()
+{
+	m_mm.release();
+}
+
 STDMETHODIMP MainMenuManager::BuildMenu(IMenuObj* p, int base_id, int count)
 {
 	TRACK_FUNCTION();
@@ -4520,6 +4728,20 @@ STDMETHODIMP MainMenuManager::Init(BSTR root_name)
 	return E_INVALIDARG;
 }
 
+MeasureStringInfo::MeasureStringInfo(float x, float y, float w, float h, int l, int c)
+	: m_x(x)
+	, m_y(y)
+	, m_w(w)
+	, m_h(h)
+	, m_l(l)
+	, m_c(c)
+{
+}
+
+MeasureStringInfo::~MeasureStringInfo()
+{
+}
+
 STDMETHODIMP MeasureStringInfo::get_chars(int* p)
 {
 	TRACK_FUNCTION();
@@ -4578,6 +4800,24 @@ STDMETHODIMP MeasureStringInfo::get_y(float* p)
 
 	*p = m_y;
 	return S_OK;
+}
+
+MenuObj::MenuObj(HWND wnd_parent) : m_wnd_parent(wnd_parent), m_has_detached(false)
+{
+	m_hMenu = ::CreatePopupMenu();
+}
+
+MenuObj::~MenuObj()
+{
+}
+
+void MenuObj::FinalRelease()
+{
+	if (!m_has_detached && m_hMenu && IsMenu(m_hMenu))
+	{
+		DestroyMenu(m_hMenu);
+		m_hMenu = NULL;
+	}
 }
 
 STDMETHODIMP MenuObj::AppendMenuItem(UINT flags, UINT item_id, BSTR text)
@@ -4684,6 +4924,10 @@ StyleTextRender::StyleTextRender(bool pngmode) : m_pOutLineText(NULL), m_pngmode
 		m_pOutLineText = new TextDesign::OutlineText;
 	else
 		m_pOutLineText = new TextDesign::PngOutlineText;
+}
+
+StyleTextRender::~StyleTextRender()
+{
 }
 
 void StyleTextRender::FinalRelease()
@@ -4866,6 +5110,26 @@ STDMETHODIMP StyleTextRender::Shadow(VARIANT color, int thickness, int offset_x,
 	if (!m_pOutLineText) return E_POINTER;
 	m_pOutLineText->Shadow(helpers::get_color_from_variant(color), thickness, Gdiplus::Point(offset_x, offset_y));
 	return S_OK;
+}
+
+ThemeManager::ThemeManager(HWND hwnd, BSTR classlist) : m_theme(NULL), m_partid(0), m_stateid(0)
+{
+	m_theme = OpenThemeData(hwnd, classlist);
+
+	if (!m_theme) throw pfc::exception_invalid_params();
+}
+
+ThemeManager::~ThemeManager()
+{
+}
+
+void ThemeManager::FinalRelease()
+{
+	if (m_theme)
+	{
+		CloseThemeData(m_theme);
+		m_theme = NULL;
+	}
 }
 
 STDMETHODIMP ThemeManager::DrawThemeBackground(IGdiGraphics* gr, int x, int y, int w, int h, int clip_x, int clip_y, int clip_w, int clip_h)

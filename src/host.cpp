@@ -43,15 +43,16 @@ IGdiBitmap* HostComm::GetBackgroundImage()
 	if (get_pseudo_transparent())
 	{
 		bitmap = Gdiplus::Bitmap::FromHBITMAP(m_gr_bmp_bk, NULL);
-
-		if (!helpers::ensure_gdiplus_object(bitmap))
+		if (helpers::ensure_gdiplus_object(bitmap))
+		{
+			ret = new com_object_impl_t<GdiBitmap>(bitmap);
+		}
+		else
 		{
 			if (bitmap) delete bitmap;
 			bitmap = NULL;
 		}
 	}
-
-	if (bitmap) ret = new com_object_impl_t<GdiBitmap>(bitmap);
 
 	return ret;
 }
@@ -707,15 +708,15 @@ STDMETHODIMP FbWindow::GetFontCUI(UINT type, BSTR guidstr, IGdiFont** pp)
 	if (hFont)
 	{
 		Gdiplus::Font* font = new Gdiplus::Font(m_host->GetHDC(), hFont);
-
-		if (!helpers::ensure_gdiplus_object(font))
+		if (helpers::ensure_gdiplus_object(font))
+		{
+			*pp = new com_object_impl_t<GdiFont>(font, hFont);
+		}
+		else
 		{
 			if (font) delete font;
 			*pp = NULL;
-			return S_OK;
 		}
-
-		*pp = new com_object_impl_t<GdiFont>(font, hFont);
 	}
 
 	return S_OK;
@@ -734,15 +735,15 @@ STDMETHODIMP FbWindow::GetFontDUI(UINT type, IGdiFont** pp)
 	if (hFont)
 	{
 		Gdiplus::Font* font = new Gdiplus::Font(m_host->GetHDC(), hFont);
-
-		if (!helpers::ensure_gdiplus_object(font))
+		if (helpers::ensure_gdiplus_object(font))
+		{
+			*pp = new com_object_impl_t<GdiFont>(font, hFont, false);
+		}
+		else
 		{
 			if (font) delete font;
 			*pp = NULL;
-			return S_OK;
 		}
-
-		*pp = new com_object_impl_t<GdiFont>(font, hFont, false);
 	}
 
 	return S_OK;
