@@ -250,7 +250,7 @@ _.mixin({
 				} else {
 					if (!_.tagged(this.artist) || !_.tagged(this.album))
 						return;
-					var url = 'http://www.allmusic.com/search/albums/' + encodeURIComponent(this.album + (this.artist.toLowerCase() == 'various artists' ? '' : ' ' + this.artist));
+					var url = 'https://www.allmusic.com/search/albums/' + encodeURIComponent(this.album + (this.artist.toLowerCase() == 'various artists' ? '' : ' ' + this.artist));
 				}
 				break;
 			case 'lastfm_bio':
