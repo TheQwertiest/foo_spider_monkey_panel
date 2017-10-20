@@ -15,12 +15,6 @@ function on_mouse_lbtn_up() {
 }
 
 function on_mouse_move() {
+	// tt function is defined in docs\helpers.txt
 	tt("Click to change colour");
-}
-
-function tt(message) {
-	if (message != tooltip.Text) {
-		tooltip.Text = message;
-		tooltip.Activate();
-	}
 }

@@ -8,7 +8,7 @@ with `Javascript` rather than the `C++` required by the [foobar2000 SDK](https:/
 
 Under the hood, it uses `Windows Script host` so this means it is
 limited to `ECMAScript5` only and won't ever be updated to use
-anything more modern. It is possible to use ActiveX objects
+anything more modern. It is possible to use `ActiveX` objects
 like `FileSystemObject` and `XMLHttpRequest` to work with the local
 file system, access the internet, etc.
 
@@ -32,7 +32,7 @@ Here are just some of the features provided by the component...
 
 ## Update 22/09/2017
 
-As of `v1.3.0`, Internet Explorer 9 or later is now a requirement. Thanks to the
+As of `v1.3.0`, `Internet Explorer 9` or later is now a requirement. Thanks to the
 [TheQwertiest](https://github.com/TheQwertiest), newer `ECMAScript5` features
 are now available. They are documented here:
 

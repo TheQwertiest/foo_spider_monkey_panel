@@ -13,17 +13,16 @@ _.mixin({
 			}
 		}
 		
-		this.auth = function (method) {
+		this.auth = function (method, token) {
 			switch (method) {
 			case 'auth.getToken':
 				this.update_sk('');
-				this.token = '';
 				var api_sig = md5('api_key' + this.api_key + 'method' + method + this.secret);
 				var data = 'format=json&method=' + method + '&api_key=' + this.api_key + '&api_sig=' + api_sig;
 				break;
 			case 'auth.getSession':
-				var api_sig = md5('api_key' + this.api_key + 'method' + method + 'token' + this.token + this.secret);
-				var data = 'format=json&method=' + method + '&api_key=' + this.api_key + '&api_sig=' + api_sig + '&token=' + this.token;
+				var api_sig = md5('api_key' + this.api_key + 'method' + method + 'token' + token + this.secret);
+				var data = 'format=json&method=' + method + '&api_key=' + this.api_key + '&api_sig=' + api_sig + '&token=' + token;
 				break;
 			default:
 				return;
@@ -38,10 +37,9 @@ _.mixin({
 					if (data.error) {
 						WshShell.popup(data.message, 0, panel.name, popup.stop);
 					} else if (data.token) {
-						this.token = data.token;
-						_.run('https://last.fm/api/auth/?api_key=' + this.api_key + '&token=' + this.token);
+						_.run('https://last.fm/api/auth/?api_key=' + this.api_key + '&token=' + data.token);
 						if (WshShell.popup('If you granted permission successfully, click Yes to continue.', 0, panel.name, popup.question + popup.yes_no) == popup.yes)
-							this.auth('auth.getSession');
+							this.auth('auth.getSession', data.token);
 					} else if (data.session && data.session.key) {
 						this.update_sk(data.session.key);
 					}
