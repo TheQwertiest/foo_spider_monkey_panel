@@ -158,7 +158,6 @@ copy /Y "$(TargetPath)" "%component_path%\"</Command>
     <ClCompile Include="thread_pool.cpp" />
     <ClCompile Include="editorctrl.cpp" />
     <ClCompile Include="scintilla_prop_sets.cpp" />
-    <ClCompile Include="version.cpp" />
     <ClCompile Include="js_panel_window.cpp" />
     <ClCompile Include="js_panel_window_cui.cpp" />
     <ClCompile Include="js_panel_window_dui.cpp" />

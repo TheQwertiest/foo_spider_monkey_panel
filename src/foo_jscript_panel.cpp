@@ -55,11 +55,6 @@ namespace
 		{
 			// Check and show error message
 			pfc::string8 err_msg;
-
-			if (IS_EXPIRED(__DATE__))
-			{
-				err_msg = "This beta version is over two weeks old. Please check here for updates:\n\nhttps://github.com/19379/foo-jscript-panel/releases\n\n";
-			}
 			
 			if (g_load_status != E_OK)
 			{
