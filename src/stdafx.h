@@ -18,19 +18,15 @@
 #include <uxtheme.h>
 
 // ATL/WTL
-#define _WTL_USE_CSTRING
-#define _WTL_NO_WTYPES
-#include <atlbase.h>
+#include <atlstr.h>
 #include <atlapp.h>
 #include <atlwin.h>
 #include <atlframe.h>
 #include <atldlgs.h>
 #include <atlctrls.h>
-#include <atlctrlx.h>
 #include <atlddx.h>
 #include <atlcrack.h>
 #include <atltheme.h>
-#include <atlmisc.h>
 
 // Other controls
 #define STATIC_BUILD 1
