@@ -245,7 +245,7 @@ _.mixin({
 					panel.m.AppendMenuItem(MF_STRING, 3140, 'Bar colour...');
 					panel.m.AppendMenuSeparator();
 				}
-				panel.m.AppendMenuItem(lastfm.api_key.length == 32 ? MF_STRING : MF_GRAYED, 3150, 'Last.fm username...');
+				panel.m.AppendMenuItem(MF_STRING, 3150, 'Last.fm username...');
 				panel.m.AppendMenuSeparator();
 				break;
 			case 'musicbrainz':
@@ -408,10 +408,6 @@ _.mixin({
 				break;
 			case 'lastfm_info':
 				this.filename = '';
-				if (lastfm.api_key.length != 32) {
-					console.log('Last.fm API KEY not set.');
-					break;
-				}
 				if (this.lastfm_mode == 1 && !lastfm.username.length) {
 					console.log('Last.fm Username not set.');
 					break;
