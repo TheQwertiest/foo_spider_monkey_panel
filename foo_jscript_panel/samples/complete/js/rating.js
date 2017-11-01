@@ -48,8 +48,9 @@ _.mixin({
 		
 		this.lbtn_up = function (x, y) {
 			if (this.trace(x, y)) {
-				if (panel.metadb)
+				if (panel.metadb) {
 					fb.RunContextCommandWithMetadb('Rating/' + (this.hrating == this.rating ? '<not set>' : this.hrating), panel.metadb, 8);
+				}
 				return true;
 			} else {
 				return false;
@@ -67,9 +68,10 @@ _.mixin({
 		this.hrating = 0;
 		this.guifx_font = gdi.Font(guifx.font, this.h, 0);
 		this.tiptext_tf = 'Rate "%title%" by "%artist%".';
-		if (!_.cc('foo_playcount'))
+		if (!_.cc('foo_playcount')) {
 			window.SetTimeout(function () {
 				WshShell.popup('This script requires foo_playcount.', 0, panel.name, popup.stop);
 			}, 500);
+		}
 	}
 });

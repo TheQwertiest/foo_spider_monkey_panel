@@ -21,8 +21,9 @@ function on_playback_dynamic_info_track() {
 }
 
 function on_playback_stop(reason) {
-	if (reason != 2)
+	if (reason != 2) {
 		panel.item_focus_change();
+	}
 }
 
 function on_item_focus_change() {
@@ -42,8 +43,9 @@ _.mixin({
 					break;
 				}
 				on_metadb_changed();
-				if (!this.metadb)
+				if (!this.metadb) {
 					_.tt('');
+				}
 			}
 		}
 		
@@ -118,8 +120,9 @@ _.mixin({
 			// album art 2000-2999
 			// list 3000-3999
 			// text 5000-5999
-			if (object)
+			if (object) {
 				object.rbtn_up(x, y);
+			}
 			if (this.list_objects.length || this.text_objects.length) {
 				_.forEach(this.fonts.sizes, function (item) {
 					this.s1.AppendMenuItem(MF_STRING, item, item);
@@ -177,8 +180,9 @@ _.mixin({
 				window.ShowConfigure();
 				break;
 			default:
-				if (object)
+				if (object) {
 					object.rbtn_up_done(idx);
+				}
 				break;
 			}
 			_.dispose(this.m, this.s1, this.s2, this.s3, this.s10, this.s11, this.s12, this.s13);
@@ -190,13 +194,15 @@ _.mixin({
 		}
 		
 		this.tf = function (t) {
-			if (!this.metadb)
+			if (!this.metadb) {
 				return '';
+			}
 			var path = _.tf('$if2(%__@%,%path%)', this.metadb);
-			if (fb.IsPlaying && (path.indexOf('http') == 0 || path.indexOf('mms') == 0))
+			if (fb.IsPlaying && (path.indexOf('http') == 0 || path.indexOf('mms') == 0)) {
 				return _.tfe(t);
-			else
+			} else {
 				return _.tf(t, this.metadb);
+			}
 		}
 		
 		window.DlgCode = DLGC_WANTALLKEYS;

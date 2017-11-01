@@ -52,8 +52,9 @@ function on_paint(gr) {
 	buttons.paint(gr);
 	gr.FillSolidRect(seekbar.x, seekbar.y, seekbar.w + _.scale(6), seekbar.h, colours.seekbar_background);
 	if (fb.IsPlaying) {
-		if (img)
+		if (img) {
 			_.drawImage(gr, img, 0, 0, panel.h, panel.h, image.centre);
+		}
 		gr.GdiDrawText(_.tfe('%title%'), panel.fonts.title, colours.title, panel.h + 10, 0, seekbar.x - panel.h - _.scale(60), panel.h * 0.6, LEFT);
 		gr.GdiDrawText(_.tfe('%artist%'), panel.fonts.normal, colours.artist, panel.h + 10, panel.h * 0.3, seekbar.x - panel.h - _.scale(60), panel.h * 0.7, LEFT);
 		gr.SetSmoothingMode(2);
@@ -70,8 +71,9 @@ function on_paint(gr) {
 
 function on_playback_new_track() {
 	var metadb = fb.GetNowPlaying();
-	if (!metadb)
+	if (!metadb) {
 		return;
+	}
 	_.dispose(img);
 	img = utils.GetAlbumArtV2(metadb, 0);
 	window.Repaint();
@@ -101,17 +103,20 @@ function on_playback_starting() {
 }
 
 function on_mouse_wheel(s) {
-	if (seekbar.wheel(s))
+	if (seekbar.wheel(s)) {
 		return;
-	if (s == 1)
+	}
+	if (s == 1) {
 		fb.VolumeUp();
-	else
+	} else {
 		fb.VolumeDown();
+	}
 }
 
 function on_mouse_move(x, y) {
-	if (buttons.move(x, y))
+	if (buttons.move(x, y)) {
 		return;
+	}
 	seekbar.move(x, y);
 }
 
@@ -124,10 +129,12 @@ function on_mouse_lbtn_down(x, y) {
 }
 
 function on_mouse_lbtn_up(x, y) {
-	if (buttons.lbtn_up(x, y))
+	if (buttons.lbtn_up(x, y)) {
 		return;
-	if (seekbar.lbtn_up(x, y))
+	}
+	if (seekbar.lbtn_up(x, y)) {
 		return;
+	}
 	fb.RunMainMenuCommand('View/Show now playing in playlist');
 }
 

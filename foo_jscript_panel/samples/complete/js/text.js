@@ -11,10 +11,11 @@ _.mixin({
 		
 		this.paint = function (gr) {
 			for (var i = 0; i < Math.min(this.rows, this.lines.length); i++) {
-				if (this.fixed)
+				if (this.fixed) {
 					gr.GdiDrawText(this.lines[i + this.offset], panel.fonts.fixed, panel.colours.text, this.x, this.y + _.scale(12) + (i * panel.row_height) + Math.floor(panel.row_height / 2), this.w, panel.row_height, LEFT);
-				else
+				} else {
 					gr.GdiDrawText(this.lines[i + this.offset], panel.fonts.normal, panel.colours.text, this.x, this.y + _.scale(12) + (i * panel.row_height), this.w, panel.row_height, LEFT);
+				}
 			}
 			this.up_btn.paint(gr, panel.colours.text);
 			this.down_btn.paint(gr, panel.colours.text);
@@ -26,8 +27,9 @@ _.mixin({
 				case 'allmusic':
 					var temp_artist = panel.tf('%album artist%');
 					var temp_album = panel.tf('%album%');
-					if (this.artist == temp_artist && this.album == temp_album)
+					if (this.artist == temp_artist && this.album == temp_album) {
 						return;
+					}
 					this.artist = temp_artist;
 					this.album = temp_album;
 					this.filename = _.artistFolder(this.artist) + 'allmusic.' + _.fbSanitise(this.album) + '.txt';
@@ -36,31 +38,35 @@ _.mixin({
 					if (_.isFile(this.filename)) {
 						this.content = _.trim(_.open(this.filename));
 						// content is static so only check for updates if no review found previously
-						if (!this.content.length && _.fileExpired(this.filename, ONE_DAY))
+						if (!this.content.length && _.fileExpired(this.filename, ONE_DAY)) {
 							this.get();
+						}
 					} else {
 						this.get();
 					}
 					break;
 				case 'lastfm_bio':
 					var temp_artist = panel.tf(DEFAULT_ARTIST);
-					if (this.artist == temp_artist)
+					if (this.artist == temp_artist) {
 						return;
+					}
 					this.artist = temp_artist;
 					this.content = '';
 					this.filename = _.artistFolder(this.artist) + 'lastfm.artist.getInfo.' + this.bio_langs[this.bio_lang] + '.json';
 					if (_.isFile(this.filename)) {
 						this.content = _.stripTags(_.get(_.jsonParseFile(this.filename), 'artist.bio.content', '')).replace('Read more on Last.fm. User-contributed text is available under the Creative Commons By-SA License; additional terms may apply.', '');
-						if (_.fileExpired(this.filename, ONE_DAY))
+						if (_.fileExpired(this.filename, ONE_DAY)) {
 							this.get();
+						}
 					} else {
 						this.get();
 					}
 					break;
 				case 'text_reader':
 					var temp_filename = panel.tf(this.filename_tf);
-					if (this.filename == temp_filename)
+					if (this.filename == temp_filename) {
 						return;
+					}
 					this.filename = temp_filename;
 					if (_.isFolder(this.filename)) { // yes really!
 						this.content = _.open(_.first(_.getFiles(this.filename, this.exts)));
@@ -87,10 +93,12 @@ _.mixin({
 			if (this.trace(this.mx, this.my)) {
 				if (this.lines.length > this.rows) {
 					var offset = this.offset - (s * 3);
-					if (offset < 0)
+					if (offset < 0) {
 						offset = 0;
-					if (offset + this.rows > this.lines.length)
+					}
+					if (offset + this.rows > this.lines.length) {
 						offset = this.lines.length - this.rows;
+					}
 					if (this.offset != offset) {
 						this.offset = offset;
 						window.RepaintRect(this.x, this.y, this.w, this.h);
@@ -205,10 +213,11 @@ _.mixin({
 				window.RepaintRect(this.x, this.y, this.w, this.h);
 				break;
 			case 5999:
-				if (_.isFile(this.filename))
+				if (_.isFile(this.filename)) {
 					_.explorer(this.filename);
-				else
+				} else {
 					_.run(this.filename);
+				}
 				break;
 			}
 		}
@@ -248,14 +257,16 @@ _.mixin({
 				if (this.allmusic_url) {
 					var url = this.allmusic_url;
 				} else {
-					if (!_.tagged(this.artist) || !_.tagged(this.album))
+					if (!_.tagged(this.artist) || !_.tagged(this.album)) {
 						return;
+					}
 					var url = 'https://www.allmusic.com/search/albums/' + encodeURIComponent(this.album + (this.artist.toLowerCase() == 'various artists' ? '' : ' ' + this.artist));
 				}
 				break;
 			case 'lastfm_bio':
-				if (!_.tagged(this.artist))
+				if (!_.tagged(this.artist)) {
 					return;
+				}
 				var url = lastfm.get_base_url() + '&method=artist.getInfo&autocorrect=1&lang=' + this.bio_langs[this.bio_lang] + '&artist=' + encodeURIComponent(this.artist);
 				break;
 			default:
@@ -266,10 +277,11 @@ _.mixin({
 			this.xmlhttp.send();
 			this.xmlhttp.onreadystatechange = _.bind(function () {
 				if (this.xmlhttp.readyState == 4) {
-					if (this.xmlhttp.status == 200)
+					if (this.xmlhttp.status == 200) {
 						this.success(f);
-					else
+					} else {
 						console.log('HTTP error: ' + this.xmlhttp.status);
+					}
 				}
 			}, this);
 		}

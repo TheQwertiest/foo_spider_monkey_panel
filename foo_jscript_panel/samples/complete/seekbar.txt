@@ -17,8 +17,9 @@ function on_size() {
 
 function on_paint(gr) {
 	gr.FillSolidRect(seekbar.x, seekbar.y, seekbar.w, seekbar.h, seekbar.c1);
-	if (fb.IsPlaying && fb.PlaybackLength > 0)
+	if (fb.IsPlaying && fb.PlaybackLength > 0) {
 		gr.FillSolidRect(seekbar.x, seekbar.y, seekbar.pos(), seekbar.h, seekbar.c2);
+	}
 }
 
 function on_playback_seek() {

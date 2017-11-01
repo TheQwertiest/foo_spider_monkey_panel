@@ -30,8 +30,9 @@ _.mixin({
 	},
 	button : function (x, y, w, h, img_src, fn, tiptext) {
 		this.paint = function (gr) {
-			if (this.img)
+			if (this.img) {
 				_.drawImage(gr, this.img, this.x, this.y, this.w, this.h);
+			}
 		}
 		
 		this.trace = function (x, y) {
@@ -39,8 +40,9 @@ _.mixin({
 		}
 		
 		this.lbtn_up = function (x, y, mask) {
-			if (this.fn)
+			if (this.fn) {
 				this.fn(x, y, mask);
+			}
 		}
 		
 		this.cs = function (s) {
@@ -71,17 +73,21 @@ _.mixin({
 		this.move = function (x, y) {
 			var temp_btn = null;
 			_.forEach(this.buttons, function (item, i) {
-				if (item.trace(x, y))
+				if (item.trace(x, y)) {
 					temp_btn = i;
+				}
 			});
-			if (this.btn == temp_btn)
+			if (this.btn == temp_btn) {
 				return this.btn;
-			if (this.btn)
+			}
+			if (this.btn) {
 				this.buttons[this.btn].cs('normal');
-			if (temp_btn)
+			}
+			if (temp_btn) {
 				this.buttons[temp_btn].cs('hover');
-			else
+			} else {
 				_.tt('');
+			}
 			this.btn = temp_btn;
 			return this.btn;
 		}
@@ -110,8 +116,9 @@ _.mixin({
 		return utils.CheckComponent(name, true);
 	},
 	createFolder : function (folder) {
-		if (!_.isFolder(folder))
+		if (!_.isFolder(folder)) {
 			fso.CreateFolder(folder);
+		}
 	},
 	deleteFile : function (file) {
 		if (_.isFile(file)) {
@@ -123,13 +130,15 @@ _.mixin({
 	},
 	dispose : function () {
 		_.forEach(arguments, function (item) {
-			if (item)
+			if (item) {
 				item.Dispose();
+			}
 		});
 	},
 	drawImage : function (gr, img, src_x, src_y, src_w, src_h, aspect, border, alpha) {
-		if (!img)
+		if (!img) {
 			return [];
+		}
 		gr.SetInterpolationMode(7);
 		switch (aspect) {
 		case image.crop:
@@ -166,16 +175,18 @@ _.mixin({
 			gr.DrawImage(img, src_x, src_y, src_w, src_h, dst_x, dst_y, dst_w, dst_h, 0, alpha || 255);
 			break;
 		}
-		if (border)
+		if (border) {
 			gr.DrawRect(src_x, src_y, src_w - 1, src_h - 1, 1, border);
+		}
 		return [src_x, src_y, src_w, src_h];
 	},
 	drawOverlay : function (gr, x, y, w, h) {
 		gr.FillGradRect(x, y, w, h, 90, _.RGBA(0, 0, 0, 230), _.RGBA(0, 0, 0, 200));
 	},
 	explorer : function (file) {
-		if (_.isFile(file))
+		if (_.isFile(file)) {
 			WshShell.Run('explorer /select,' + _.q(file));
+		}
 	},
 	fbEscape : function (value) {
 		return value.replace(/'/g, "''").replace(/[\(\)\[\],$]/g, "'$&'");
@@ -209,8 +220,9 @@ _.mixin({
 			var e = new Enumerator(fso.GetFolder(folder).Files);
 			for (; !e.atEnd(); e.moveNext()) {
 				var path = e.item().Path;
-				if (exts.toLowerCase().indexOf(path.split('.').pop().toLowerCase()) > -1)
+				if (exts.toLowerCase().indexOf(path.split('.').pop().toLowerCase()) > -1) {
 					files.push(path);
+				}
 			}
 		}
 		if (newest_first) {
@@ -254,8 +266,9 @@ _.mixin({
 		var m = window.CreatePopupMenu();
 		_.forEach(ha_links, function (item, i) {
 			m.AppendMenuItem(MF_STRING, i + 100, item[0]);
-			if (i == 1)
+			if (i == 1) {
 				m.AppendMenuSeparator();
+			}
 		});
 		m.AppendMenuSeparator();
 		m.AppendMenuItem(MF_STRING, 1, 'Configure...');
@@ -273,10 +286,11 @@ _.mixin({
 		_.dispose(m);
 	},
 	img : function (value) {
-		if (_.isFile(value))
+		if (_.isFile(value)) {
 			return gdi.Image(value);
-		else
+		} else {
 			return gdi.Image(folders.images + value);
+		}
 	},
 	input : function (prompt, title, value) {
 		var p = prompt.replace(/"/g, _.q(' + Chr(34) + ')).replace(/\n/g, _.q(' + Chr(13) + '));
@@ -412,8 +426,9 @@ _.mixin({
 		return '"' + value + '"';
 	},
 	recycleFile : function (file) {
-		if (_.isFile(file))
+		if (_.isFile(file)) {
 			app.Namespace(10).MoveHere(file);
+		}
 	},
 	RGB : function (r, g, b) {
 		return 0xFF000000 | r << 16 | g << 8 | b;
@@ -437,8 +452,9 @@ _.mixin({
 	},
 	save : function (value, file) {
 		try {
-			if (!_.isFolder(utils.FileTest(file, 'split').toArray()[0]))
+			if (!_.isFolder(utils.FileTest(file, 'split').toArray()[0])) {
 				return false;
+			}
 			var ts = fso.OpenTextFile(file, 2, true, -1);
 			ts.WriteLine(value);
 			ts.Close();
@@ -450,8 +466,9 @@ _.mixin({
 	sb : function (t, x, y, w, h, v, fn) {
 		this.paint = function (gr, colour) {
 			gr.SetTextRenderingHint(4);
-			if (this.v())
+			if (this.v()) {
 				gr.DrawString(this.t, this.guifx_font, colour, this.x, this.y, this.w, this.h, SF_CENTRE);
+			}
 		}
 		
 		this.trace = function (x, y) {
@@ -470,8 +487,9 @@ _.mixin({
 		
 		this.lbtn_up = function (x, y) {
 			if (this.trace(x, y)) {
-				if (this.fn)
+				if (this.fn) {
 					this.fn(x, y);
+				}
 				return true;
 			} else {
 				return false;
@@ -498,10 +516,11 @@ _.mixin({
 	},
 	splitRGB : function (c) {
 		var tmp = c.split('-');
-		if (tmp.length == 4)
+		if (tmp.length == 4) {
 			return _.RGBA(tmp[0], tmp[1], tmp[2], tmp[3]);
-		else
+		} else {
 			return _.RGB(tmp[0], tmp[1], tmp[2]);
+		}
 	},
 	stripTags : function (value) {
 		doc.open();
@@ -525,8 +544,9 @@ _.mixin({
 		return width;
 	},
 	tf : function (t, metadb) {
-		if (!metadb)
+		if (!metadb) {
 			return '';
+		}
 		var tfo = fb.TitleFormat(t);
 		var str = tfo.EvalWithMetadb(metadb);
 		_.dispose(tfo);
@@ -597,11 +617,7 @@ var ONE_WEEK = 604800000;
 
 var DEFAULT_ARTIST = '$meta(artist,0)';
 
-try {
-	var DPI = WshShell.RegRead('HKCU\\Control Panel\\Desktop\\WindowMetrics\\AppliedDPI');
-} catch (e) {
-	var DPI = 96;
-}
+var DPI = WshShell.RegRead('HKCU\\Control Panel\\Desktop\\WindowMetrics\\AppliedDPI');
 
 var LM = _.scale(5);
 var TM = _.scale(16);

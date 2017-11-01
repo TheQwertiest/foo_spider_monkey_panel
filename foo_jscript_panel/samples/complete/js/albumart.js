@@ -2,8 +2,9 @@ _.mixin({
 	albumart : function (x, y, w, h) {
 		this.paint = function (gr) {
 			if (this.cd) {
-				if (this.shadow)
+				if (this.shadow) {
 					_.drawImage(gr, this.shadow_img, this.x, this.y, this.w, this.h);
+				}
 				_.drawImage(gr, this.case_img, this.x, this.y, this.w, this.h);
 				if (this.img) {
 					var ratio = Math.min(this.w / this.case_img.Width, this.h / this.case_img.Height);
@@ -14,8 +15,9 @@ _.mixin({
 					_.drawImage(gr, this.img, nx, ny, nw, nh, this.aspect);
 				}
 				_.drawImage(gr, this.semi_img, this.x, this.y, this.w, this.h);
-				if (this.gloss)
+				if (this.gloss) {
 					_.drawImage(gr, this.gloss_img, this.x, this.y, this.w, this.h);
+				}
 			} else if (this.img) {
 				_.drawImage(gr, this.img, this.x, this.y, this.w, this.h, this.aspect);
 			}
@@ -27,8 +29,9 @@ _.mixin({
 			this.tooltip = this.path = '';
 			if (panel.metadb) {
 				this.img = utils.GetAlbumArtV2(panel.metadb, this.id);
-				if (this.img && panel.metadb.RawPath.indexOf('file') == 0)
+				if (this.img && panel.metadb.RawPath.indexOf('file') == 0) {
 					utils.GetAlbumArtAsync(window.ID, panel.metadb, this.id, true, false, true);
+				}
 			}
 			window.Repaint();
 		}
@@ -39,8 +42,9 @@ _.mixin({
 				this.tooltip = 'Original dimensions: ' + this.img.Width + 'x' + this.img.Height + 'px';
 				if (_.isFile(this.path)) {
 					this.tooltip += '\nPath: ' + this.path;
-					if (panel.metadb.Path != this.path)
+					if (panel.metadb.Path != this.path) {
 						this.tooltip += '\nSize: ' + utils.FormatFileSize(fso.GetFile(this.path).Size);
+					}
 				}
 			}
 		}
@@ -52,10 +56,12 @@ _.mixin({
 		this.wheel = function (s) {
 			if (this.trace(this.mx, this.my)) {
 				this.id -= s;
-				if (this.id < 0)
+				if (this.id < 0) {
 					this.id = 4;
-				if (this.id > 4)
+				}
+				if (this.id > 4) {
 					this.id = 0;
+				}
 				_.tt('');
 				window.SetProperty('2K3.ARTREADER.ID', this.id);
 				panel.item_focus_change();
@@ -69,13 +75,15 @@ _.mixin({
 			this.mx = x;
 			this.my = y;
 			if (this.trace(x, y)) {
-				if (this.img)
+				if (this.img) {
 					_.tt(this.tooltip);
+				}
 				this.hover = true;
 				return true;
 			} else {
-				if (this.hover)
+				if (this.hover) {
 					_.tt('');
+				}
 				this.hover = false;
 				return false;
 			}
@@ -83,10 +91,11 @@ _.mixin({
 		
 		this.lbtn_dblclk = function (x, y) {
 			if (this.trace(x, y)) {
-				if (panel.metadb && panel.metadb.Path == this.path)
+				if (panel.metadb && panel.metadb.Path == this.path) {
 					_.explorer(this.path);
-				else if (_.isFile(this.path))
+				} else if (_.isFile(this.path)) {
 					_.run(this.path);
+				}
 				return true;
 			} else {
 				return false;

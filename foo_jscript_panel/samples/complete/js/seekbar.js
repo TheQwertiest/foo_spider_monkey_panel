@@ -44,14 +44,16 @@ _.mixin({
 					x -= this.x;
 					this.drag_seek = x < 0 ? 0 : x > this.w ? 1 : x / this.w;
 					_.tt(utils.FormatDuration(fb.PlaybackLength * this.drag_seek));
-					if (this.drag)
+					if (this.drag) {
 						this.playback_seek();
+					}
 				}
 				this.hover = true;
 				return true;
 			} else {
-				if (this.hover)
+				if (this.hover) {
 					_.tt('');
+				}
 				this.hover = false;
 				this.drag = false;
 				return false;
@@ -60,8 +62,9 @@ _.mixin({
 		
 		this.lbtn_down = function (x, y) {
 			if (this.trace(x, y)) {
-				if (fb.IsPlaying && fb.PlaybackLength > 0)
+				if (fb.IsPlaying && fb.PlaybackLength > 0) {
 					this.drag = true;
+				}
 				return true;
 			} else {
 				return false;
@@ -85,8 +88,9 @@ _.mixin({
 		}
 		
 		this.interval_func = _.bind(function () {
-			if (fb.IsPlaying && !fb.IsPaused && fb.PlaybackLength > 0)
+			if (fb.IsPlaying && !fb.IsPaused && fb.PlaybackLength > 0) {
 				this.playback_seek();
+			}
 		}, this);
 		
 		this.x = x;

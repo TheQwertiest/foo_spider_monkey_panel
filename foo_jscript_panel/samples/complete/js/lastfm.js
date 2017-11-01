@@ -4,11 +4,13 @@ _.mixin({
 			if (name == '2K3.NOTIFY.LASTFM') {
 				this.username = this.read_ini('username');
 				this.sk = this.read_ini('sk');
-				if (this.scrobbler)
+				if (this.scrobbler) {
 					this.scrobbler.update_button();
+				}
 				_.forEach(panel.list_objects, function (item) {
-					if (item.mode == 'lastfm_info' && item.lastfm_mode == 1)
+					if (item.mode == 'lastfm_info' && item.lastfm_mode == 1) {
 						item.update();
+					}
 				});
 			}
 		}
@@ -38,8 +40,9 @@ _.mixin({
 						WshShell.popup(data.message, 0, panel.name, popup.stop);
 					} else if (data.token) {
 						_.run('https://last.fm/api/auth/?api_key=' + this.api_key + '&token=' + data.token);
-						if (WshShell.popup('If you granted permission successfully, click Yes to continue.', 0, panel.name, popup.question + popup.yes_no) == popup.yes)
+						if (WshShell.popup('If you granted permission successfully, click Yes to continue.', 0, panel.name, popup.question + popup.yes_no) == popup.yes) {
 							this.auth('auth.getSession', data.token);
+						}
 					} else if (data.session && data.session.key) {
 						this.update_sk(data.session.key);
 					}

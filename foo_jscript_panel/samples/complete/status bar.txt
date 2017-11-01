@@ -5,7 +5,7 @@
 // @import "%fb2k_component_path%samples\complete\js\helpers.js"
 // ==/PREPROCESSOR==
 
-var left_text_tf = '%__bitrate% kbps %codec% [%codec_profile% ][%__tool% ][%__tagtype% ]';
+var left_text_tf = '%playback_time%[ / %length%] :: %__bitrate% kbps %codec% [%codec_profile% ][%__tool% ][%__tagtype% ]';
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -32,12 +32,15 @@ function on_size() {
 
 function on_paint(gr) {
 	gr.FillSolidRect(0, 0, ww, wh, colours.background);
-	if (fb.IsPlaying)
+	if (fb.IsPlaying) {
 		gr.GdiDrawText(_.tfe(left_text_tf), font, colours.text, 5, -1, ww - right_text_width - (show_volume ? 180: 50), font.Height, LEFT);
-	if (plman.ActivePlaylist < plman.PlaylistCount)
+	}
+	if (plman.ActivePlaylist < plman.PlaylistCount) {
 		gr.GdiDrawText(right_text, font, colours.text, 0, -1, ww - (show_volume ? 130 : 5), font.Height, RIGHT);
-	if (show_volume)
+	}
+	if (show_volume) {
 		gr.GdiDrawText(fb.Volume.toFixed(2) + ' dB', font, colours.text, 0, -1, ww - 5, font.Height, RIGHT);
+	}
 }
 
 function on_playback_time() {
@@ -53,12 +56,14 @@ function on_volume_change() {
 }
 
 function on_mouse_wheel(s) {
-	if (!show_volume)
+	if (!show_volume) {
 		return;
-	if (s == 1)
+	}
+	if (s == 1) {
 		fb.VolumeUp();
-	else
+	} else {
 		fb.VolumeDown();
+	}
 }
 
 function on_mouse_lbtn_dblclk() {
@@ -144,18 +149,21 @@ function on_mouse_rbtn_up(x, y) {
 }
 
 function on_playlist_items_added(p) {
-	if (p == plman.ActivePlaylist)
+	if (p == plman.ActivePlaylist) {
 		refresh();
+	}
 }
 
 function on_playlist_items_removed(p) {
-	if (p == plman.ActivePlaylist)
+	if (p == plman.ActivePlaylist) {
 		refresh();
+	}
 }
 
 function on_playlists_changed() {
-	if (show_name)
+	if (show_name) {
 		refresh();
+	}
 }
 
 function on_playlist_switch() {
@@ -166,14 +174,18 @@ function refresh() {
 	var items = plman.GetPlaylistItems(plman.ActivePlaylist);
 	var count = items.Count;
 	var tmp = [];
-	if (show_name)
+	if (show_name) {
 		tmp.push(plman.GetPlaylistName(plman.ActivePlaylist));
-	if (show_count)
+	}
+	if (show_count) {
 		tmp.push(count + (count == 1 ? ' track' : ' tracks'));
-	if (show_duration)
+	}
+	if (show_duration) {
 		tmp.push(utils.FormatDuration(items.CalcTotalDuration()));
-	if (show_size)
+	}
+	if (show_size) {
 		tmp.push(utils.FormatFileSize(items.CalcTotalSize()));
+	}
 	right_text = tmp.join(' :: ');
 	right_text_width = _.textWidth(right_text, font);
 	window.Repaint();

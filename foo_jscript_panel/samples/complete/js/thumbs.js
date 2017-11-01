@@ -17,8 +17,9 @@ _.mixin({
 				this.y = 0;
 				this.w = panel.w;
 				this.h = panel.h;
-				if (!this.nc && this.columns != Math.floor(this.w / this.px))
+				if (!this.nc && this.columns != Math.floor(this.w / this.px)) {
 					this.nc = true;
+				}
 				this.rows = Math.ceil(this.h / this.px);
 				this.columns = Math.floor(this.w / this.px);
 				this.img_rows = Math.ceil(this.images.length / this.columns);
@@ -88,10 +89,11 @@ _.mixin({
 				this.image_xywh = [];
 				break;
 			case this.modes[this.mode] == 'off':
-				if (this.aspect == image.centre)
+				if (this.aspect == image.centre) {
 					this.image_xywh = _.drawImage(gr, this.images[this.image], 20, 20, panel.w - 40, panel.h - 40, this.aspect);
-				else
+				} else {
 					this.image_xywh = _.drawImage(gr, this.images[this.image], 0, 0, panel.w, panel.h, this.aspect);
+				}
 				break;
 			case !this.img:
 				break;
@@ -106,34 +108,38 @@ _.mixin({
 				}
 				break;
 			case this.modes[this.mode] == 'left':
-				if (this.aspect == image.centre)
+				if (this.aspect == image.centre) {
 					this.image_xywh = _.drawImage(gr, this.images[this.image], this.px + 20, 20, panel.w - this.px - 40, panel.h - 40, this.aspect);
-				else
+				} else {
 					this.image_xywh = _.drawImage(gr, this.images[this.image], 0, 0, panel.w, panel.h, this.aspect);
+				}
 				_.drawOverlay(gr, this.x, this.y, this.w, this.h);
 				gr.DrawImage(this.img, this.x, this.y, this.w, this.h, 0, this.offset * this.px, this.w, this.h);
 				break;
 			case this.modes[this.mode] == 'right':
-				if (this.aspect == image.centre)
+				if (this.aspect == image.centre) {
 					this.image_xywh = _.drawImage(gr, this.images[this.image], 20, 20, panel.w - this.px - 40, panel.h - 40, this.aspect);
-				else
+				} else {
 					this.image_xywh = _.drawImage(gr, this.images[this.image], 0, 0, panel.w, panel.h, this.aspect);
+				}
 				_.drawOverlay(gr, this.x, this.y, this.w, this.h);
 				gr.DrawImage(this.img, this.x, this.y, this.w, this.h, 0, this.offset * this.px, this.w, this.h);
 				break;
 			case this.modes[this.mode] == 'top':
-				if (this.aspect == image.centre)
+				if (this.aspect == image.centre) {
 					this.image_xywh = _.drawImage(gr, this.images[this.image], 20, this.px + 20, panel.w - 40, panel.h - this.px - 40, this.aspect);
-				else
+				} else {
 					this.image_xywh = _.drawImage(gr, this.images[this.image], 0, 0, panel.w, panel.h, this.aspect);
+				}
 				_.drawOverlay(gr, this.x, this.y, this.w, this.h);
 				gr.DrawImage(this.img, this.x, this.y, this.w, this.h, this.offset * this.px, 0, this.w, this.h);
 				break;
 			case this.modes[this.mode] == 'bottom':
-				if (this.aspect == image.centre)
+				if (this.aspect == image.centre) {
 					this.image_xywh = _.drawImage(gr, this.images[this.image], 20, 20, panel.w - 40, panel.h - this.px - 40, this.aspect);
-				else
+				} else {
 					this.image_xywh = _.drawImage(gr, this.images[this.image], 0, 0, panel.w, panel.h, this.aspect);
+				}
 				_.drawOverlay(gr, this.x, this.y, this.w, this.h);
 				gr.DrawImage(this.img, this.x, this.y, this.w, this.h, this.offset * this.px, 0, this.w, this.h);
 				break;
@@ -146,14 +152,16 @@ _.mixin({
 				case 0: // custom folder
 					var temp_folder = this.custom_folder_tf.replace('%profile%', fb.ProfilePath);
 					temp_folder = temp_folder.indexOf(fb.ProfilePath) == 0 ? fb.ProfilePath + panel.tf(temp_folder.substring(fb.ProfilePath.length, temp_folder.length)) : panel.tf(temp_folder);
-					if (this.folder == temp_folder)
+					if (this.folder == temp_folder) {
 						return;
+					}
 					this.folder = temp_folder;
 					break;
 				case 1: // last.fm
 					var temp_artist = panel.tf(DEFAULT_ARTIST);
-					if (this.artist == temp_artist)
+					if (this.artist == temp_artist) {
 						return;
+					}
 					this.artist = temp_artist;
 					this.folder = _.artistFolder(this.artist);
 					break;
@@ -185,40 +193,52 @@ _.mixin({
 			switch (true) {
 			case !this.trace(this.mx, this.my):
 			case this.modes[this.mode] == 'grid' && this.overlay:
-				if (this.images.length < 2)
+				if (this.images.length < 2) {
 					return;
+				}
 				this.image -= s;
-				if (this.image < 0)
+				if (this.image < 0) {
 					this.image = this.images.length - 1;
-				if (this.image >= this.images.length)
+				}
+				if (this.image >= this.images.length) {
 					this.image = 0;
+				}
 				window.Repaint();
 				return;
 			case this.modes[this.mode] == 'grid':
-				if (this.img_rows < this.rows)
+				if (this.img_rows < this.rows) {
 					return;
-				if (offset < 0)
+				}
+				if (offset < 0) {
 					offset = 0;
-				if (offset > this.img_rows - this.rows)
+				}
+				if (offset > this.img_rows - this.rows) {
 					offset = this.img_rows - this.rows + 1;
+				}
 				break;
 			case this.modes[this.mode] == 'left':
 			case this.modes[this.mode] == 'right':
-				if (this.images.length < this.rows)
+				if (this.images.length < this.rows) {
 					return;
-				if (offset < 0)
+				}
+				if (offset < 0) {
 					offset = 0;
-				if (offset + this.rows > this.images.length)
+				}
+				if (offset + this.rows > this.images.length) {
 					offset = this.images.length - this.rows + 1;
+				}
 				break;
 			case this.modes[this.mode] == 'top':
 			case this.modes[this.mode] == 'bottom':
-				if (this.images.length < this.columns)
+				if (this.images.length < this.columns) {
 					return;
-				if (offset < 0)
+				}
+				if (offset < 0) {
 					offset = 0;
-				if (offset + this.columns > this.images.length)
+				}
+				if (offset + this.columns > this.images.length) {
 					offset = this.images.length - this.columns + 1;
+				}
 				break;
 			}
 			if (this.offset != offset) {
@@ -235,11 +255,13 @@ _.mixin({
 			case !this.trace(x, y):
 				break;
 			case this.modes[this.mode] == 'grid':
-				if (this.overlay)
+				if (this.overlay) {
 					return window.SetCursor(this.close_btn.move(x, y) ? IDC_HAND : IDC_ARROW);
+				}
 				var tmp = Math.floor(x / this.px);
-				if (tmp < this.columns)
+				if (tmp < this.columns) {
 					this.index = tmp + ((Math.floor(y / this.px) + this.offset) * this.columns);
+				}
 				break;
 			case this.modes[this.mode] == 'left':
 			case this.modes[this.mode] == 'right':
@@ -272,8 +294,9 @@ _.mixin({
 		}
 		
 		this.lbtn_dblclk = function (x, y) {
-			if (this.image_xywh_trace(x, y))
+			if (this.image_xywh_trace(x, y)) {
 				_.run(this.files[this.image]);
+			}
 		}
 		
 		this.rbtn_up = function (x, y) {
@@ -359,8 +382,9 @@ _.mixin({
 				break;
 			case 4003:
 				this.custom_folder_tf = _.input('Enter title formatting or an absolute path to a folder.\n\n%profile% will resolve to your foobar2000 profile folder or the program folder if using portable mode.', panel.name, this.custom_folder_tf);
-				if (this.custom_folder_tf == '')
+				if (this.custom_folder_tf == '') {
 					this.custom_folder_tf = '$directory_path(%path%)';
+				}
 				window.SetProperty('2K3.THUMBS.CUSTOM.FOLDER.TF', this.custom_folder_tf);
 				this.folder = '';
 				panel.item_focus_change();
@@ -410,8 +434,9 @@ _.mixin({
 			case 4501:
 				this.sort = idx - 4500;
 				window.SetProperty('2K3.THUMBS.SORT', this.sort);
-				if (this.images.length > 1)
+				if (this.images.length > 1) {
 					this.update();
+				}
 				break;
 			case 4510:
 			case 4511:
@@ -434,10 +459,11 @@ _.mixin({
 				this.delete_image();
 				break;
 			case 4540:
-				if (this.files.length)
+				if (this.files.length) {
 					_.explorer(this.files[this.image]);
-				else
+				} else {
 					_.run(this.folder);
+				}
 				break;
 			}
 		}
@@ -445,8 +471,9 @@ _.mixin({
 		this.key_down = function (k) {
 			switch (k) {
 			case VK_ESCAPE:
-				if (this.modes[this.mode] == 'grid' && this.overlay)
+				if (this.modes[this.mode] == 'grid' && this.overlay) {
 					this.enable_overlay(false);
+				}
 				break;
 			case VK_LEFT:
 			case VK_UP:
@@ -492,18 +519,20 @@ _.mixin({
 		}
 		
 		this.download = function () {
-			if (!_.tagged(this.artist))
+			if (!_.tagged(this.artist)) {
 				return;
+			}
 			var base = this.folder + _.fbSanitise(this.artist) + '_';
 			this.xmlhttp.open('GET', 'https://www.last.fm/music/' + encodeURIComponent(this.artist) + '/+images', true);
 			this.xmlhttp.setRequestHeader('If-Modified-Since', 'Thu, 01 Jan 1970 00:00:00 GMT');
 			this.xmlhttp.send();
 			this.xmlhttp.onreadystatechange = _.bind(function () {
 				if (this.xmlhttp.readyState == 4) {
-					if (this.xmlhttp.status == 200)
+					if (this.xmlhttp.status == 200) {
 						this.success(base);
-					else
+					} else {
 						console.log('HTTP error: ' + this.xmlhttp.status);
+					}
 				}
 			}, this);
 		}
@@ -524,12 +553,14 @@ _.mixin({
 			this.time++;
 			if (this.cycle > 0 && this.images.length > 1 && this.time % this.cycle == 0) {
 				this.image++;
-				if (this.image == this.images.length)
+				if (this.image == this.images.length) {
 					this.image = 0;
+				}
 				window.Repaint();
 			}
-			if (this.source == 1 && this.time % 3 == 0 && _.getFiles(this.folder, this.exts).length != this.files.length)
+			if (this.source == 1 && this.time % 3 == 0 && _.getFiles(this.folder, this.exts).length != this.files.length) {
 				this.update();
+			}
 		}, this);
 		
 		_.createFolder(folders.data);

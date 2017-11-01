@@ -11,8 +11,9 @@ _.mixin({
 		}
 		
 		this.paint = function (gr) {
-			if (this.items == 0)
+			if (this.items == 0) {
 				return;
+			}
 			switch (this.mode) {
 			case 'autoplaylists':
 				gr.SetTextRenderingHint(4);
@@ -97,16 +98,18 @@ _.mixin({
 			case this.mode == 'musicbrainz':
 				var temp_artist = panel.tf(DEFAULT_ARTIST);
 				var temp_id = panel.tf('$if3($meta(musicbrainz_artistid,0),$meta(musicbrainz artist id,0),)');
-				if (this.artist == temp_artist && this.mb_id == temp_id)
+				if (this.artist == temp_artist && this.mb_id == temp_id) {
 					return;
+				}
 				this.artist = temp_artist;
 				this.mb_id = temp_id;
 				this.update();
 				break;
 			default:
 				var temp_artist = panel.tf(DEFAULT_ARTIST);
-				if (this.artist == temp_artist)
+				if (this.artist == temp_artist) {
 					return;
+				}
 				this.artist = temp_artist;
 				this.update();
 				break;
@@ -121,10 +124,12 @@ _.mixin({
 			if (this.trace(this.mx, this.my)) {
 				if (this.items > this.rows) {
 					var offset = this.offset - (s * 3);
-					if (offset < 0)
+					if (offset < 0) {
 						offset = 0;
-					if (offset + this.rows > this.items)
+					}
+					if (offset + this.rows > this.items) {
 						offset = this.items - this.rows;
+					}
 					if (this.offset != offset) {
 						this.offset = offset;
 						window.RepaintRect(this.x, this.y, this.w, this.h);
@@ -163,10 +168,11 @@ _.mixin({
 					break;
 				case x > this.x + this.text_x && x < this.x + this.text_x + Math.min(this.data[this.index].width, this.text_width):
 					window.SetCursor(IDC_HAND);
-					if (this.data[this.index].url.indexOf('http') == 0)
+					if (this.data[this.index].url.indexOf('http') == 0) {
 						_.tt(this.data[this.index].url);
-					else
+					} else {
 						_.tt('Autoplaylist: ' + this.data[this.index].url);
+					}
 					break;
 				default:
 					_.tt('');
@@ -187,8 +193,9 @@ _.mixin({
 				case !this.in_range:
 					break;
 				case this.mode == 'autoplaylists':
-					if (x > this.x && x < this.x + Math.min(this.data[this.index].width, this.text_width))
+					if (x > this.x && x < this.x + Math.min(this.data[this.index].width, this.text_width)) {
 						this.edit(x, y);
+					}
 					break;
 				case x > this.x + this.text_x && x < this.x + this.text_x + Math.min(this.data[this.index].width, this.text_width):
 					if (this.data[this.index].url.indexOf('http') == 0) {
@@ -299,17 +306,19 @@ _.mixin({
 			case 3101:
 				this.lastfm_mode = idx - 3100;
 				window.SetProperty('2K3.LIST.LASTFM.MODE', this.lastfm_mode);
-				if (this.lastfm_mode == 0)
+				if (this.lastfm_mode == 0) {
 					this.reset();
-				else
+				} else {
 					this.update();
+				}
 				break;
 			case 3102:
 			case 3103:
 				this.lastfm_link = idx - 3102;
 				window.SetProperty('2K3.LIST.LASTFM.LINK', this.lastfm_link);
-				if (this.data.length)
+				if (this.data.length) {
 					this.update();
+				}
 				break;
 			case 3120:
 			case 3121:
@@ -399,12 +408,13 @@ _.mixin({
 			this.spacer_w = _.textWidth('0000', panel.fonts.normal);
 			switch (this.mode) {
 			case 'autoplaylists':
-				if (_.isFile(this.filename))
+				if (_.isFile(this.filename)) {
 					this.data = _(_.jsonParseFile(this.filename))
 						.forEach(function (item) {
 							item.width = _.textWidth(item.name, panel.fonts.normal);
 						})
 						.value();
+				}
 				break;
 			case 'lastfm_info':
 				this.filename = '';
@@ -425,8 +435,9 @@ _.mixin({
 								};
 							}, this)
 							.value();
-						if (_.fileExpired(this.filename, ONE_DAY))
+						if (_.fileExpired(this.filename, ONE_DAY)) {
 							this.get();
+						}
 					} else {
 						this.get();
 					}
@@ -451,8 +462,9 @@ _.mixin({
 								rank : i > 0 && data[i].playcount == data[i - 1].playcount ? this.data[i - 1].rank : i + 1
 							};
 						}
-						if (_.fileExpired(this.filename, ONE_DAY))
+						if (_.fileExpired(this.filename, ONE_DAY)) {
 							this.get();
+						}
 					} else {
 						this.get();
 					}
@@ -492,8 +504,9 @@ _.mixin({
 							}, this);
 						}, this);
 						this.data.pop();
-						if (_.fileExpired(this.filename, ONE_DAY))
+						if (_.fileExpired(this.filename, ONE_DAY)) {
 							this.get();
+						}
 					} else {
 						this.get();
 					}
@@ -519,8 +532,9 @@ _.mixin({
 							url : url,
 							width : _.textWidth(url, panel.fonts.normal)
 						});
-						if (_.fileExpired(this.filename, ONE_DAY))
+						if (_.fileExpired(this.filename, ONE_DAY)) {
 							this.get();
+						}
 					} else {
 						this.get();
 					}
@@ -530,18 +544,24 @@ _.mixin({
 				this.text_x = 0;
 				this.filename = panel.metadb.Path;
 				var fileinfo = panel.metadb.GetFileInfo();
-				if (this.properties.meta)
+				if (this.properties.meta) {
 					this.add_meta(fileinfo);
-				if (this.properties.location)
+				}
+				if (this.properties.location) {
 					this.add_location();
-				if (this.properties.tech)
+				}
+				if (this.properties.tech) {
 					this.add_tech(fileinfo);
-				if (_.cc('foo_customdb') && this.properties.customdb)
+				}
+				if (_.cc('foo_customdb') && this.properties.customdb) {
 					this.add_customdb();
-				if (_.cc('foo_playcount') && this.properties.playcount)
+				}
+				if (_.cc('foo_playcount') && this.properties.playcount) {
 					this.add_playcount();
-				if (this.properties.rg)
+				}
+				if (this.properties.rg) {
 					this.add_rg();
+				}
 				this.data.pop();
 				_.forEach(this.data, function (item) {
 					item.width = _.textWidth(item.value, panel.fonts.normal);
@@ -562,8 +582,9 @@ _.mixin({
 			case 'lastfm_info':
 				switch (this.lastfm_mode) {
 				case 0:
-					if (!_.tagged(this.artist))
+					if (!_.tagged(this.artist)) {
 						return;
+					}
 					var url = lastfm.get_base_url() + '&limit=100&method=artist.getSimilar&artist=' + encodeURIComponent(this.artist);
 					break;
 				case 1:
@@ -572,12 +593,14 @@ _.mixin({
 				}
 				break;
 			case 'musicbrainz':
-				if (this.mb_id.length != 36)
+				if (this.mb_id.length != 36) {
 					return console.log('Invalid/missing MBID');
-				if (this.mb_mode == 0)
+				}
+				if (this.mb_mode == 0) {
 					var url = 'https://beta.musicbrainz.org/ws/2/release-group?fmt=json&limit=100&offset=' + this.mb_offset + '&artist=' + this.mb_id;
-				else
+				} else {
 					var url = 'https://beta.musicbrainz.org/ws/2/artist/' + this.mb_id + '?fmt=json&inc=url-rels';
+				}
 				break;
 			default:
 				return;
@@ -610,8 +633,9 @@ _.mixin({
 				var data = _.jsonParse(this.xmlhttp.responseText);
 				var max_offset = Math.min(500, data['release-group-count'] || 0) - 100;
 				var rg = data['release-groups'] || [];
-				if (rg.length)
+				if (rg.length) {
 					this.mb_data.push.apply(this.mb_data, rg);
+				}
 				if (this.mb_offset < max_offset) {
 					this.mb_offset += 100;
 					this.get();
@@ -626,16 +650,19 @@ _.mixin({
 				break;
 			case this.mode == 'lastfm_info':
 				var data = _.jsonParse(this.xmlhttp.responseText);
-				if (data.error)
+				if (data.error) {
 					return console.log(data.message);
+				}
 				// last.fm playing up again so don't overwrite cached data with nothing
-				if (this.lastfm_mode == 0 && _.get(data, 'similarartists.artist', []).length == 0)
+				if (this.lastfm_mode == 0 && _.get(data, 'similarartists.artist', []).length == 0) {
 					return;
+				}
 				_.save(this.xmlhttp.responseText, f);
-				if (this.lastfm_mode == 0)
+				if (this.lastfm_mode == 0) {
 					this.reset();
-				else
+				} else {
 					this.update();
+				}
 				break;
 			}
 		}
@@ -678,15 +705,18 @@ _.mixin({
 				}
 				
 				this.add = function () {
-					if (this.editing)
+					if (this.editing) {
 						return;
+					}
 					this.editing = true;
 					var new_name = _.input('Enter autoplaylist name', panel.name, '');
-					if (new_name == '')
+					if (new_name == '') {
 						return this.editing = false;
+					}
 					var new_query = _.input('Enter autoplaylist query', panel.name, '');
-					if (new_query == '')
+					if (new_query == '') {
 						return this.editing = false;
+					}
 					var new_sort = _.input('Enter sort pattern\n\n(optional)', panel.name, '');
 					var new_forced = (new_sort.length ? WshShell.popup('Force sort?', 0, panel.name, popup.question + popup.yes_no) : popup.no) == popup.yes;
 					this.data.push({
@@ -723,26 +753,27 @@ _.mixin({
 						break;
 					case 2:
 						var new_name = _.input('Rename autoplaylist', panel.name, this.data[z].name);
-						if (new_name == '' || new_name == this.data[z].name)
-							break;
-						this.data[z].name = new_name;
-						this.edit_done(z);
+						if (new_name.length && new_name != this.data[z].name) {
+							this.data[z].name = new_name;
+							this.edit_done(z);
+						}
 						break;
 					case 3:
 						var new_query = _.input('Enter autoplaylist query', panel.name, this.data[z].query);
-						if (new_query == '' || new_query == this.data[z].query)
-							break;
-						this.data[z].query = new_query;
-						this.edit_done(z);
+						if (new_query.length && new_query != this.data[z].query) {
+							this.data[z].query = new_query;
+							this.edit_done(z);
+						}
 						break;
 					case 4:
 						var new_sort = _.input('Enter sort pattern\n\n(optional)', panel.name, this.data[z].sort);
-						if (new_sort == this.data[z].sort)
-							break;
-						this.data[z].sort = new_sort;
-						if (new_sort.length)
-							this.data[z].forced = WshShell.popup('Force sort?', 0, panel.name, popup.question + popup.yes_no) == popup.yes;
-						this.edit_done(z);
+						if (new_sort != this.data[z].sort) {
+							this.data[z].sort = new_sort;
+							if (new_sort.length) {
+								this.data[z].forced = WshShell.popup('Force sort?', 0, panel.name, popup.question + popup.yes_no) == popup.yes;
+							}
+							this.edit_done(z);
+						}
 						break;
 					case 5:
 						this.data[z].forced = !this.data[z].forced;
@@ -773,10 +804,11 @@ _.mixin({
 				this.run_query = function (n, q, s, f) {
 					var i = 0;
 					while (i < plman.PlaylistCount) {
-						if (plman.GetPlaylistName(i) == n)
+						if (plman.GetPlaylistName(i) == n) {
 							plman.RemovePlaylist(i);
-						else
+						} else {
 							i++;
+						}
 					}
 					plman.CreateAutoPlaylist(plman.PlaylistCount, n, q, s, f);
 					plman.ActivePlaylist = plman.PlaylistCount - 1;
@@ -833,8 +865,9 @@ _.mixin({
 				this.lastfm_charts_period = window.GetProperty('2K3.LIST.LASTFM.CHARTS.PERIOD', 0);
 				this.lastfm_charts_bar_colour = window.GetProperty('2K3.LIST.LASTFM.CHARTS.BAR.COLOUR', _.RGB(60, 60, 60));
 				this.lastfm_link = window.GetProperty('2K3.LIST.LASTFM.LINK', 0); // 0 last.fm website 1 autoplaylist
-				if (this.lastfm_mode == 1)
+				if (this.lastfm_mode == 1) {
 					this.update();
+				}
 				break;
 			case 'musicbrainz':
 				this.mb_retry = _.bind(function () {

@@ -11,10 +11,11 @@ _.mixin({
 		
 		this.wheel = function (s) {
 			if (this.trace(this.mx, this.my)) {
-				if (s == 1)
+				if (s == 1) {
 					fb.VolumeUp();
-				else
+				} else {
 					fb.VolumeDown();
+				}
 				_.tt('');
 				return true;
 			} else {
@@ -30,13 +31,15 @@ _.mixin({
 				var pos = x < 0 ? 0 : x > this.w ? 1 : x / this.w;
 				this.drag_vol = 50 * Math.log(0.99 * pos + 0.01) / Math.LN10;
 				_.tt(this.drag_vol.toFixed(2) + ' dB');
-				if (this.drag)
+				if (this.drag) {
 					fb.Volume = this.drag_vol;
+				}
 				this.hover = true;
 				return true;
 			} else {
-				if (this.hover)
+				if (this.hover) {
 					_.tt('');
+				}
 				this.hover = false;
 				this.drag = false;
 				return false;
