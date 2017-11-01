@@ -8,25 +8,40 @@ _.mixin({
 		}
 		
 		this.playback_time = function () {
+			if (!this.metadb) {
+				return;
+			}
 			this.time_elapsed++;
-			if (this.enabled && this.time_elapsed == this.target_time)
-				this.listen(this.metadb);
+			if (this.time_elapsed == 3) {
+				this.listen(this.metadb, 'playing_now');
+			}
+			if (this.enabled && this.time_elapsed == this.target_time) {
+				this.listen(this.metadb, 'single');
+			}
 		}
 		
-		this.listen = function (metadb) {
-			if (!_.isUUID(this.token))
+		this.listen = function (metadb, listen_type) {
+			if (!_.isUUID(this.token)) {
 				return console.log('Token invalid/not set.');
+			}
 			
-			if (this.in_library && !fb.IsMetadbInMediaLibrary(metadb))
-				return console.log('Skipping... Track not in Media Library.');
+			if (this.in_library && !fb.IsMetadbInMediaLibrary(metadb)) {
+				if (listen_type == 'single') {
+					console.log('Skipping... Track not in Media Library.');	
+				}
+				return;
+			}
 			
 			var tags = this.get_tags(metadb);
 			
-			if (!tags.artist || !tags.title)
-				return console.log('Artist/title tag missing. Not submitting.');
+			if (!tags.artist || !tags.title) {
+				if (listen_type == 'single') {
+					console.log('Artist/title tag missing. Not submitting.');
+				}
+				return;
+			}
 			
 			var payload = {
-				listened_at : this.timestamp,
 				track_metadata : {
 					additional_info : {
 						// must be arrays
@@ -51,30 +66,37 @@ _.mixin({
 				}
 			};
 			
-			if (this.submit_genres && tags.genre)
-				payload.track_metadata.additional_info.tags = _(tags.genre)
-					.take(50)
-					.map(function (item) {
-						return item.substring(0, 64);
-					})
-					.value();
-					
-			console.log('Submitting ' + _.q(tags.artist + ' - ' + tags.title));
+			if (listen_type == 'single') {
+				payload.listened_at = this.timestamp;
+				
+				if (this.submit_genres && tags.genre) {
+					payload.track_metadata.additional_info.tags = _(tags.genre)
+						.take(50)
+						.map(function (item) {
+							return item.substring(0, 64);
+						})
+						.value();
+				}
+						
+				console.log('Submitting ' + _.q(tags.artist + ' - ' + tags.title));
+				
+				if (this.show_data) {
+					fb.Trace(JSON.stringify(payload, null, 4));
+				}
+			}
 			
-			if (this.show_data)
-				fb.Trace(JSON.stringify(payload, null, 4));
-			
-			this.post('single', [payload]);
+			this.post([payload], listen_type);
 		}
 		
 		this.retry = function () {
-			if (this.cache_is_bad)
+			if (this.cache_is_bad) {
 				return;
+			}
 			var payload = _.take(this.open_cache(), this.max_listens);
-			this.post('import', payload);
+			this.post(payload, 'import');
 		}
 		
-		this.post = function (listen_type, payload) {
+		this.post = function (payload, listen_type) {
 			var data = {
 				listen_type : listen_type,
 				payload : payload
@@ -85,14 +107,23 @@ _.mixin({
 			this.xmlhttp.onreadystatechange = _.bind(function () {
 				if (this.xmlhttp.readyState == 4) {
 					switch (listen_type) {
+					case 'playing_now':
+						if (this.xmlhttp.responseText) {
+							var response = _.jsonParse(this.xmlhttp.responseText);
+							if (response.status == 'ok') {
+								console.log('Playing now notification updated OK!');
+							}
+						}
+						break;
 					case 'single':
 						if (this.xmlhttp.responseText) {
 							var response = _.jsonParse(this.xmlhttp.responseText);
 							if (response.status == 'ok') {
 								console.log('Listen submitted OK!');
 								// now would be a good time to retry any listens in the cache
-								if (this.open_cache().length)
+								if (this.open_cache().length) {
 									this.retry();
+								}
 							} else if (response.code && response.error) {
 								console.log('Error code: ' + response.code);
 								console.log('Error message: ' + response.error);
@@ -107,8 +138,9 @@ _.mixin({
 							}
 						} else {
 							console.log('The server response was empty, status code: ' + this.xmlhttp.status);
-							if (this.xmlhttp.status == 0)
+							if (this.xmlhttp.status == 0) {
 								console.log('A possible cause of this may be an invalid authorization token.');
+							}
 							this.cache(data);
 						}
 						break;
@@ -126,9 +158,10 @@ _.mixin({
 									console.log('Cache is now clear!');
 								}
 							} else if (response.code == 400) {
-								if (response.error)
+								if (response.error) {
 									console.log(response.error);
-								console.log('Cannot retry submitting cache until bad entry is fixed/removed. See note in main script about reporting errors.')
+								}
+								console.log('Cannot retry submitting cache until bad entry is fixed/removed. See note in main script about reporting errors.');
 								this.cache_is_bad = true;
 							}
 						}
@@ -142,7 +175,7 @@ _.mixin({
 			var tmp = this.open_cache();
 			tmp.unshift(data.payload[0]);
 			console.log('Cache contains ' + tmp.length + ' listen(s).');
-			_.save(JSON.stringify(tmp), this.cache_file)
+			_.save(JSON.stringify(tmp), this.cache_file);
 		}
 		
 		this.open_cache = function () {
@@ -161,8 +194,9 @@ _.mixin({
 					if (key.indexOf('musicbrainz') == 0) {
 						// if Picard has written multiple MBIDs as a string, use the first one
 						value = value.substring(0, 36);
-						if (_.isUUID(value))
+						if (_.isUUID(value)) {
 							tmp[key].push(value);
+						}
 					} else {
 						tmp[key].push(value);
 					}
