@@ -234,18 +234,6 @@ STDMETHODIMP FbFileInfo::InfoValue(UINT idx, BSTR* pp)
 	return S_OK;
 }
 
-STDMETHODIMP FbFileInfo::MetaAdd(BSTR name, BSTR value, UINT* p)
-{
-	TRACK_FUNCTION();
-
-	if (!m_info_ptr) return E_POINTER;
-	if (!name || !value) return E_INVALIDARG;
-
-	*p = m_info_ptr->meta_add(pfc::stringcvt::string_utf8_from_wide(name), pfc::stringcvt::string_utf8_from_wide(value));
-
-	return S_OK;
-}
-
 STDMETHODIMP FbFileInfo::MetaFind(BSTR name, UINT* p)
 {
 	TRACK_FUNCTION();
@@ -255,21 +243,6 @@ STDMETHODIMP FbFileInfo::MetaFind(BSTR name, UINT* p)
 	if (!p) return E_POINTER;
 
 	*p = m_info_ptr->meta_find(pfc::stringcvt::string_utf8_from_wide(name));
-	return S_OK;
-}
-
-STDMETHODIMP FbFileInfo::MetaInsertValue(UINT idx, UINT vidx, BSTR value)
-{
-	TRACK_FUNCTION();
-
-	if (!m_info_ptr) return E_POINTER;
-	if (!value) return E_INVALIDARG;
-
-	if (idx < m_info_ptr->meta_get_count() && vidx < m_info_ptr->meta_enum_value_count(idx))
-	{
-		m_info_ptr->meta_insert_value(idx, vidx, pfc::stringcvt::string_utf8_from_wide(value));
-	}
-
 	return S_OK;
 }
 
@@ -288,31 +261,6 @@ STDMETHODIMP FbFileInfo::MetaName(UINT idx, BSTR* pp)
 		*pp = SysAllocString(ucs);
 	}
 
-	return S_OK;
-}
-
-STDMETHODIMP FbFileInfo::MetaRemoveField(BSTR name)
-{
-	TRACK_FUNCTION();
-
-	if (!m_info_ptr) return E_POINTER;
-	if (!name) return E_INVALIDARG;
-
-	m_info_ptr->meta_remove_field(pfc::stringcvt::string_utf8_from_wide(name));
-	return S_OK;
-}
-
-STDMETHODIMP FbFileInfo::MetaSet(BSTR name, BSTR value)
-{
-	TRACK_FUNCTION();
-
-	if (!m_info_ptr) return E_POINTER;
-	if (!name || !value) return E_INVALIDARG;
-
-	pfc::string8_fast uname = pfc::stringcvt::string_utf8_from_wide(name);
-	pfc::string8_fast uvalue = pfc::stringcvt::string_utf8_from_wide(value);
-
-	m_info_ptr->meta_set(uname, uvalue);
 	return S_OK;
 }
 

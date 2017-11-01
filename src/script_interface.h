@@ -211,12 +211,8 @@ __interface IFbFileInfo : IDisposable
 	STDMETHOD(InfoFind)(BSTR name, [out, retval] UINT* p);
 	STDMETHOD(InfoName)(UINT idx, [out, retval] BSTR* pp);
 	STDMETHOD(InfoValue)(UINT idx, [out, retval] BSTR* pp);
-	STDMETHOD(MetaAdd)(BSTR name, BSTR value, [out, retval] UINT* p);
 	STDMETHOD(MetaFind)(BSTR name, [out, retval] UINT* p);
-	STDMETHOD(MetaInsertValue)(UINT idx, UINT vidx, BSTR value);
 	STDMETHOD(MetaName)(UINT idx, [out, retval] BSTR* pp);
-	STDMETHOD(MetaRemoveField)(BSTR name);
-	STDMETHOD(MetaSet)(BSTR name, BSTR value);
 	STDMETHOD(MetaValue)(UINT idx, UINT vidx, [out, retval] BSTR* pp);
 	STDMETHOD(MetaValueCount)(UINT idx, [out, retval] UINT* p);
 	[propget] STDMETHOD(InfoCount)([out, retval] UINT* p);

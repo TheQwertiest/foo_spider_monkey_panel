@@ -1281,15 +1281,14 @@ interface IFbMetadbHandle {
 
 					InfoValue(idx);
 
-					MetaAdd(name, value);
-
 					MetaFind(name);
 					// returns idx
 
-					MetaInsertValue(idx, vidx, value);
-
 					MetaName(idx);
 					/*
+					the case of the tag name returned can be different depending on tag type
+					so using toLowerCase() or toUpperCase() on the result is recommended
+					
 					example:
 					var text = "";
 					for (var i = 0; i < f.MetaCount; i++) {
@@ -1297,10 +1296,6 @@ interface IFbMetadbHandle {
 					}
 					fb.trace(text); // ALBUM ARTIST DATE ...
 					*/
-
-					MetaRemoveField(name);
-
-					MetaSet(name, value);
 
 					MetaValue(idx, vidx);
 

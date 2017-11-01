@@ -125,12 +125,8 @@ public:
 	STDMETHODIMP InfoFind(BSTR name, UINT* p);
 	STDMETHODIMP InfoName(UINT idx, BSTR* pp);
 	STDMETHODIMP InfoValue(UINT idx, BSTR* pp);
-	STDMETHODIMP MetaAdd(BSTR name, BSTR value, UINT* p);
 	STDMETHODIMP MetaFind(BSTR name, UINT* p);
-	STDMETHODIMP MetaInsertValue(UINT idx, UINT vidx, BSTR value);
 	STDMETHODIMP MetaName(UINT idx, BSTR* pp);
-	STDMETHODIMP MetaRemoveField(BSTR name);
-	STDMETHODIMP MetaSet(BSTR name, BSTR value);
 	STDMETHODIMP MetaValue(UINT idx, UINT vidx, BSTR* pp);
 	STDMETHODIMP MetaValueCount(UINT idx, UINT* p);
 	STDMETHODIMP get_InfoCount(UINT* p);
