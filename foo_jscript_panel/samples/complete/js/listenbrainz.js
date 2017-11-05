@@ -4,18 +4,18 @@ _.mixin({
 			this.metadb = fb.GetNowPlaying();
 			this.time_elapsed = 0;
 			this.timestamp = _.ts();
-			this.target_time = Math.min(Math.ceil(fb.PlaybackLength / 2), 240); //half the track length or 4 minutes, whichever is lower - same as Last.fm
+			this.target_time = this.enabled ? Math.min(Math.ceil(fb.PlaybackLength / 2), 240) : -1;
 		}
 		
 		this.playback_time = function () {
-			if (!this.metadb) {
+			this.time_elapsed++;
+			if (!this.enabled || !this.metadb) {
 				return;
 			}
-			this.time_elapsed++;
 			if (this.time_elapsed == 3) {
 				this.listen(this.metadb, 'playing_now');
 			}
-			if (this.enabled && this.time_elapsed == this.target_time) {
+			if (this.time_elapsed == this.target_time) {
 				this.listen(this.metadb, 'single');
 			}
 		}
