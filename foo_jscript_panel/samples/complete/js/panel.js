@@ -141,7 +141,7 @@ _.mixin({
 				this.s2.AppendTo(this.m, window.IsTransparent ? MF_GRAYED : MF_STRING, 'Background');
 				this.m.AppendMenuSeparator();
 			}
-			if (this.check_feature('metadb')) {
+			if (this.metadb_func) {
 				this.s3.AppendMenuItem(MF_STRING, 110, 'Prefer now playing');
 				this.s3.AppendMenuItem(MF_STRING, 111, 'Follow selected track (playlist)');
 				this.s3.CheckMenuRadioItem(110, 111, this.selection + 110);
@@ -213,11 +213,13 @@ _.mixin({
 		this.h = 0;
 		this.metadb = fb.GetFocusItem();
 		this.metadb_func = typeof on_metadb_changed == 'function';
-		this.selection = this.check_feature('metadb') ? window.GetProperty('2K3.PANEL.SELECTION', 0) : 0;
 		this.fonts = {};
 		this.fonts.sizes = [10, 12, 14, 16];
 		this.fonts.size = window.GetProperty('2K3.PANEL.FONTS.SIZE', 12);
 		this.colours = {};
+		if (this.metadb_func) {
+			this.selection = window.GetProperty('2K3.PANEL.SELECTION', 0);
+		}
 		if (this.check_feature('custom_background')) {
 			this.colours.mode = window.GetProperty('2K3.PANEL.COLOURS.MODE', 0);
 			this.colours.custom_background = window.GetProperty('2K3.PANEL.COLOURS.CUSTOM.BACKGROUND', _.RGB(0, 0, 0));
