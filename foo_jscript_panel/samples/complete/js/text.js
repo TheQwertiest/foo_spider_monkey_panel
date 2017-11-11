@@ -11,7 +11,7 @@ _.mixin({
 		
 		this.paint = function (gr) {
 			for (var i = 0; i < Math.min(this.rows, this.lines.length); i++) {
-				if (this.fixed) {
+				if (this.mode == 'text_reader' && this.properties.fixed.value) {
 					gr.GdiDrawText(this.lines[i + this.offset], panel.fonts.fixed, panel.colours.text, this.x, this.y + _.scale(12) + (i * panel.row_height) + Math.floor(panel.row_height / 2), this.w, panel.row_height, LEFT);
 				} else {
 					gr.GdiDrawText(this.lines[i + this.offset], panel.fonts.normal, panel.colours.text, this.x, this.y + _.scale(12) + (i * panel.row_height), this.w, panel.row_height, LEFT);
@@ -52,7 +52,7 @@ _.mixin({
 					}
 					this.artist = temp_artist;
 					this.content = '';
-					this.filename = _.artistFolder(this.artist) + 'lastfm.artist.getInfo.' + this.bio_langs[this.bio_lang] + '.json';
+					this.filename = _.artistFolder(this.artist) + 'lastfm.artist.getInfo.' + this.langs[this.properties.lang.value] + '.json';
 					if (_.isFile(this.filename)) {
 						this.content = _.stripTags(_.get(_.jsonParseFile(this.filename), 'artist.bio.content', '')).replace('Read more on Last.fm. User-contributed text is available under the Creative Commons By-SA License; additional terms may apply.', '');
 						if (_.fileExpired(this.filename, ONE_DAY)) {
@@ -63,7 +63,7 @@ _.mixin({
 					}
 					break;
 				case 'text_reader':
-					var temp_filename = panel.tf(this.filename_tf);
+					var temp_filename = panel.tf(this.properties.filename_tf.value);
 					if (this.filename == temp_filename) {
 						return;
 					}
@@ -143,10 +143,10 @@ _.mixin({
 			case 'lastfm_bio':
 				panel.m.AppendMenuItem(panel.metadb ? MF_STRING : MF_GRAYED, 5100, 'Force update');
 				panel.m.AppendMenuSeparator();
-				_.forEach(this.bio_langs, function (item, i) {
+				_.forEach(this.langs, function (item, i) {
 					panel.s10.AppendMenuItem(MF_STRING, i + 5110, item);
 				});
-				panel.s10.CheckMenuRadioItem(5110, 5121, this.bio_lang + 5110);
+				panel.s10.CheckMenuRadioItem(5110, 5121, this.properties.lang.value + 5110);
 				panel.s10.AppendTo(panel.m, MF_STRING, 'Last.fm language');
 				panel.m.AppendMenuSeparator();
 				break;
@@ -157,7 +157,7 @@ _.mixin({
 				panel.m.AppendMenuItem(MF_STRING, 5220, 'Custom path...');
 				panel.m.AppendMenuSeparator();
 				panel.m.AppendMenuItem(MF_STRING, 5230, 'Fixed width font');
-				panel.m.CheckMenuItem(5230, this.fixed);
+				panel.m.CheckMenuItem(5230, this.properties.fixed.value);
 				panel.m.AppendMenuSeparator();
 				break;
 			}
@@ -187,8 +187,7 @@ _.mixin({
 			case 5119:
 			case 5120:
 			case 5121:
-				this.bio_lang = idx - 5110;
-				window.SetProperty('2K3.TEXT.BIO.LANG', this.bio_lang);
+				this.properties.lang.value = idx - 5110;
 				this.artist = '';
 				panel.item_focus_change();
 				break;
@@ -197,18 +196,15 @@ _.mixin({
 				panel.item_focus_change();
 				break;
 			case 5210:
-				this.title_tf = _.input('You can use full title formatting here.', panel.name, this.title_tf);
-				window.SetProperty('2K3.TEXT.TITLE.TF', this.title_tf);
+				this.properties.title_tf.value = _.input('You can use full title formatting here.', panel.name, this.properties.title_tf.value);
 				window.Repaint();
 				break;
 			case 5220:
-				this.filename_tf = _.input('Use title formatting to specify a path to a text file. eg: $directory_path(%path%)\\info.txt\n\nIf you prefer, you can specify just the path to a folder and the first txt or log file will be used.', panel.name, this.filename_tf);
-				window.SetProperty('2K3.TEXT.FILENAME.TF', this.filename_tf);
+				this.properties.filename_tf.value = _.input('Use title formatting to specify a path to a text file. eg: $directory_path(%path%)\\info.txt\n\nIf you prefer, you can specify just the path to a folder and the first txt or log file will be used.', panel.name, this.properties.filename_tf.value);
 				panel.item_focus_change();
 				break;
 			case 5230:
-				this.fixed = !this.fixed;
-				window.SetProperty('2K3.TEXT.FONTS.FIXED', this.fixed);
+				this.properties.fixed.toggle();
 				this.update();
 				window.RepaintRect(this.x, this.y, this.w, this.h);
 				break;
@@ -241,7 +237,7 @@ _.mixin({
 			case this.w < 100 || !this.content.length:
 				this.lines = [];
 				break;
-			case this.fixed:
+			case this.mode == 'text_reader' && this.properties.fixed.value:
 				this.lines = this.content.split('\n');
 				break;
 			default:
@@ -267,7 +263,7 @@ _.mixin({
 				if (!_.tagged(this.artist)) {
 					return;
 				}
-				var url = lastfm.get_base_url() + '&method=artist.getInfo&autocorrect=1&lang=' + this.bio_langs[this.bio_lang] + '&artist=' + encodeURIComponent(this.artist);
+				var url = lastfm.get_base_url() + '&method=artist.getInfo&autocorrect=1&lang=' + this.langs[this.properties.lang.value] + '&artist=' + encodeURIComponent(this.artist);
 				break;
 			default:
 				return;
@@ -343,7 +339,7 @@ _.mixin({
 			case 'lastfm_bio':
 				return this.artist;
 			case 'text_reader':
-				return panel.tf(this.title_tf);
+				return panel.tf(this.properties.title_tf.value);
 			}
 		}
 		
@@ -364,13 +360,13 @@ _.mixin({
 			case 'lastfm_bio':
 				_.createFolder(folders.data);
 				_.createFolder(folders.artists);
-				this.bio_langs = ['en', 'de', 'es', 'fr', 'it', 'ja', 'pl', 'pt', 'ru', 'sv', 'tr', 'zh'];
-				this.bio_lang = window.GetProperty('2K3.TEXT.BIO.LANG', 0);
+				this.langs = ['en', 'de', 'es', 'fr', 'it', 'ja', 'pl', 'pt', 'ru', 'sv', 'tr', 'zh'];
+				this.properties.lang = new _.p('2K3.TEXT.BIO.LANG', 0);
 				break;
 			case 'text_reader':
-				this.filename_tf = window.GetProperty('2K3.TEXT.FILENAME.TF', '$directory_path(%path%)');
-				this.title_tf = window.GetProperty('2K3.TEXT.TITLE.TF', '$directory_path(%path%)');
-				this.fixed = window.GetProperty('2K3.TEXT.FONTS.FIXED', true);
+				this.properties.filename_tf = new _.p('2K3.TEXT.FILENAME.TF', '$directory_path(%path%)');
+				this.properties.title_tf = new _.p('2K3.TEXT.TITLE.TF', '$directory_path(%path%)');
+				this.properties.fixed = new _.p('2K3.TEXT.FONTS.FIXED', true);
 				this.exts = 'txt|log';
 				break;
 			}
@@ -385,7 +381,6 @@ _.mixin({
 		this.mx = 0;
 		this.my = 0;
 		this.offset = 0;
-		this.fixed = false;
 		this.content = '';
 		this.artist = '';
 		this.album = '';
@@ -393,6 +388,7 @@ _.mixin({
 		this.up_btn = new _.sb(guifx.up, this.x, this.y, _.scale(12), _.scale(12), _.bind(function () { return this.offset > 0; }, this), _.bind(function () { this.wheel(1); }, this));
 		this.down_btn = new _.sb(guifx.down, this.x, this.y, _.scale(12), _.scale(12), _.bind(function () { return this.offset < this.lines.length - this.rows; }, this), _.bind(function () { this.wheel(-1); }, this));
 		this.xmlhttp = new ActiveXObject('Microsoft.XMLHTTP');
+		this.properties = {};
 		this.init();
 	}
 });

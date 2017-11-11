@@ -9,14 +9,14 @@ var left_text_tf = '%playback_time%[ / %length%] :: %__bitrate% kbps %codec% [%c
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-var show_name = window.GetProperty('2K3.STATUS.SHOW.NAME', true);
-var show_count = window.GetProperty('2K3.STATUS.SHOW.COUNT', true);
-var show_duration = window.GetProperty('2K3.STATUS.SHOW.DURATION', true);
-var show_size = window.GetProperty('2K3.STATUS.SHOW.SIZE', true);
-var show_volume = window.GetProperty('2K3.STATUS.SHOW.VOLUME', true);
-var colours = {
-	background : window.GetProperty('2K3.STATUS.BACKGROUND', _.RGB(240, 240, 240)),
-	text : window.GetProperty('2K3.STATUS.TEXT', _.RGB(0, 0, 0))
+var properties = {
+	name : new _.p('2K3.STATUS.SHOW.NAME', true),
+	count : new _.p('2K3.STATUS.SHOW.COUNT', true),
+	duration : new _.p('2K3.STATUS.SHOW.DURATION', true),
+	size : new _.p('2K3.STATUS.SHOW.SIZE', true),
+	volume : new _.p('2K3.STATUS.SHOW.VOLUME', true),
+	background : new _.p('2K3.STATUS.BACKGROUND', _.RGB(240, 240, 240)),
+	text : new _.p('2K3.STATUS.TEXT', _.RGB(0, 0, 0))
 }
 var font = _.gdiFont('Segoe UI', 11);
 var ww = 0;
@@ -31,15 +31,15 @@ function on_size() {
 }
 
 function on_paint(gr) {
-	gr.FillSolidRect(0, 0, ww, wh, colours.background);
+	gr.FillSolidRect(0, 0, ww, wh, properties.background.value);
 	if (fb.IsPlaying) {
-		gr.GdiDrawText(_.tfe(left_text_tf), font, colours.text, 5, -1, ww - right_text_width - (show_volume ? 180: 50), font.Height, LEFT);
+		gr.GdiDrawText(_.tfe(left_text_tf), font, properties.text.value, 5, -1, ww - right_text_width - (properties.volume.value ? 180: 50), font.Height, LEFT);
 	}
 	if (plman.ActivePlaylist < plman.PlaylistCount) {
-		gr.GdiDrawText(right_text, font, colours.text, 0, -1, ww - (show_volume ? 130 : 5), font.Height, RIGHT);
+		gr.GdiDrawText(right_text, font, properties.text.value, 0, -1, ww - (properties.volume.value ? 130 : 5), font.Height, RIGHT);
 	}
-	if (show_volume) {
-		gr.GdiDrawText(fb.Volume.toFixed(2) + ' dB', font, colours.text, 0, -1, ww - 5, font.Height, RIGHT);
+	if (properties.volume.value) {
+		gr.GdiDrawText(fb.Volume.toFixed(2) + ' dB', font, properties.text.value, 0, -1, ww - 5, font.Height, RIGHT);
 	}
 }
 
@@ -56,7 +56,7 @@ function on_volume_change() {
 }
 
 function on_mouse_wheel(s) {
-	if (!show_volume) {
+	if (!properties.volume.value) {
 		return;
 	}
 	if (s == 1) {
@@ -82,16 +82,16 @@ function on_mouse_rbtn_up(x, y) {
 		m.AppendMenuSeparator();
 	}
 	m.AppendMenuItem(MF_STRING, 10000, 'Show playlist name');
-	m.CheckMenuItem(10000, show_name);
+	m.CheckMenuItem(10000, properties.name.value);
 	m.AppendMenuItem(MF_STRING, 10001, 'Show playlist item count');
-	m.CheckMenuItem(10001, show_count);
+	m.CheckMenuItem(10001, properties.count.value);
 	m.AppendMenuItem(MF_STRING, 10002, 'Show playlist duration');
-	m.CheckMenuItem(10002, show_duration);
+	m.CheckMenuItem(10002, properties.duration.value);
 	m.AppendMenuItem(MF_STRING, 10003, 'Show playlist size');
-	m.CheckMenuItem(10003, show_size);
+	m.CheckMenuItem(10003, properties.size.value);
 	m.AppendMenuSeparator();
 	m.AppendMenuItem(MF_STRING, 10004, 'Show volume');
-	m.CheckMenuItem(10004, show_volume);
+	m.CheckMenuItem(10004, properties.volume.value);
 	m.AppendMenuSeparator();
 	col.AppendMenuItem(MF_STRING, 1005, 'Background...');
 	col.AppendMenuItem(MF_STRING, 1006, 'Text...');
@@ -103,38 +103,31 @@ function on_mouse_rbtn_up(x, y) {
 	case 0:
 		break;
 	case 10000:
-		show_name = !show_name;
-		window.SetProperty('2K3.STATUS.SHOW.NAME', show_name);
+		properties.name.toggle();
 		refresh();
 		break;
 	case 10001:
-		show_count = !show_count;
-		window.SetProperty('2K3.STATUS.SHOW.COUNT', show_count);
+		properties.count.toggle();
 		refresh();
 		break;
 	case 10002:
-		show_duration = !show_duration;
-		window.SetProperty('2K3.STATUS.SHOW.DURATION', show_duration);
+		properties.duration.toggle();
 		refresh();
 		break;
 	case 10003:
-		show_size = !show_size;
-		window.SetProperty('2K3.STATUS.SHOW.SIZE', show_size);
+		properties.size.toggle();
 		refresh();
 		break;
 	case 10004:
-		show_volume = !show_volume;
-		window.SetProperty('2K3.STATUS.SHOW.VOLUME', show_volume);
+		properties.volume.toggle();
 		window.Repaint();
 		break;
 	case 1005:
-		colours.background = utils.ColorPicker(window.ID, colours.background);
-		window.SetProperty('2K3.STATUS.BACKGROUND', colours.background);
+		properties.background.value = utils.ColorPicker(window.ID, properties.background.value);
 		window.Repaint();
 		break;
 	case 1006:
-		colours.text = utils.ColorPicker(window.ID, colours.text);
-		window.SetProperty('2K3.STATUS.TEXT', colours.text);
+		properties.text.value = utils.ColorPicker(window.ID, properties.text.value);
 		window.Repaint();
 		break;
 	case 10010:
@@ -161,7 +154,7 @@ function on_playlist_items_removed(p) {
 }
 
 function on_playlists_changed() {
-	if (show_name) {
+	if (properties.name.value) {
 		refresh();
 	}
 }
@@ -174,16 +167,16 @@ function refresh() {
 	var items = plman.GetPlaylistItems(plman.ActivePlaylist);
 	var count = items.Count;
 	var tmp = [];
-	if (show_name) {
+	if (properties.name.value) {
 		tmp.push(plman.GetPlaylistName(plman.ActivePlaylist));
 	}
-	if (show_count) {
+	if (properties.count.value) {
 		tmp.push(count + (count == 1 ? ' track' : ' tracks'));
 	}
-	if (show_duration) {
+	if (properties.duration.value) {
 		tmp.push(utils.FormatDuration(items.CalcTotalDuration()));
 	}
-	if (show_size) {
+	if (properties.size.value) {
 		tmp.push(utils.FormatFileSize(items.CalcTotalSize()));
 	}
 	right_text = tmp.join(' :: ');

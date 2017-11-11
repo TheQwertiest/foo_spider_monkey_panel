@@ -5,34 +5,34 @@ _.mixin({
 			this.close_btn.x = panel.w - this.close_btn.w;
 			this.offset = 0;
 			switch (true) {
-			case panel.w < this.px || panel.h < this.px || this.modes[this.mode] == 'off':
+			case panel.w < this.properties.px.value || panel.h < this.properties.px.value || this.properties.mode.value == 5: // off
 				this.nc = true;
 				_.dispose(this.img);
 				this.img = null;
 				this.w = 0;
 				this.h = 0;
 				break;
-			case this.modes[this.mode] == 'grid':
+			case this.properties.mode.value == 0: // grid
 				this.x = 0;
 				this.y = 0;
 				this.w = panel.w;
 				this.h = panel.h;
-				if (!this.nc && this.columns != Math.floor(this.w / this.px)) {
+				if (!this.nc && this.columns != Math.floor(this.w / this.properties.px.value)) {
 					this.nc = true;
 				}
-				this.rows = Math.ceil(this.h / this.px);
-				this.columns = Math.floor(this.w / this.px);
+				this.rows = Math.ceil(this.h / this.properties.px.value);
+				this.columns = Math.floor(this.w / this.properties.px.value);
 				this.img_rows = Math.ceil(this.images.length / this.columns);
 				if (this.nc && this.images.length) {
 					this.nc = false;
 					_.dispose(this.img);
 					this.img = null;
-					this.img = gdi.CreateImage(Math.min(this.columns, this.images.length) * this.px, this.img_rows * this.px);
+					this.img = gdi.CreateImage(Math.min(this.columns, this.images.length) * this.properties.px.value, this.img_rows * this.properties.px.value);
 					var temp_gr = this.img.GetGraphics();
 					var ci = 0;
 					for (var row = 0; row < this.img_rows; row++) {
 						for (var col = 0; col < this.columns; col++) {
-							_.drawImage(temp_gr, this.images[ci], col * this.px, row * this.px, this.px, this.px, image.crop_top);
+							_.drawImage(temp_gr, this.images[ci], col * this.properties.px.value, row * this.properties.px.value, this.properties.px.value, this.properties.px.value, image.crop_top);
 							ci++;
 						};
 					};
@@ -40,41 +40,41 @@ _.mixin({
 					temp_gr = null;
 				}
 				break;
-			case this.modes[this.mode] == 'left':
-			case this.modes[this.mode] == 'right':
-				this.x = this.modes[this.mode] == 'left' ? 0 : panel.w - this.px;
+			case this.properties.mode.value == 1: // left
+			case this.properties.mode.value == 2: // right
+				this.x = this.properties.mode.value == 1 ? 0 : panel.w - this.properties.px.value;
 				this.y = 0;
-				this.w = this.px;
+				this.w = this.properties.px.value;
 				this.h = panel.h;
-				this.rows = Math.ceil(this.h / this.px);
+				this.rows = Math.ceil(this.h / this.properties.px.value);
 				if (this.nc && this.images.length) {
 					this.nc = false;
 					_.dispose(this.img);
 					this.img = null;
-					this.img = gdi.CreateImage(this.px, this.px * this.images.length);
+					this.img = gdi.CreateImage(this.properties.px.value, this.properties.px.value * this.images.length);
 					var temp_gr = this.img.GetGraphics();
 					_.forEach(this.images, function (item, i) {
-						_.drawImage(temp_gr, item, 0, i * this.px, this.px, this.px, image.crop_top);
+						_.drawImage(temp_gr, item, 0, i * this.properties.px.value, this.properties.px.value, this.properties.px.value, image.crop_top);
 					}, this);
 					this.img.ReleaseGraphics(temp_gr);
 					temp_gr = null;
 				}
 				break;
-			case this.modes[this.mode] == 'top':
-			case this.modes[this.mode] == 'bottom':
+			case this.properties.mode.value == 3: // top
+			case this.properties.mode.value == 4: // bottom
 				this.x = 0;
-				this.y = this.modes[this.mode] == 'top' ? 0 : panel.h - this.px;
+				this.y = this.properties.mode.value == 3 ? 0 : panel.h - this.properties.px.value;
 				this.w = panel.w;
-				this.h = this.px;
-				this.columns = Math.ceil(this.w / this.px);
+				this.h = this.properties.px.value;
+				this.columns = Math.ceil(this.w / this.properties.px.value);
 				if (this.nc && this.images.length) {
 					this.nc = false;
 					_.dispose(this.img);
 					this.img = null;
-					this.img = gdi.CreateImage(this.px * this.images.length, this.px);
+					this.img = gdi.CreateImage(this.properties.px.value * this.images.length, this.properties.px.value);
 					var temp_gr = this.img.GetGraphics();
 					_.forEach(this.images, function (item, i) {
-						_.drawImage(temp_gr, item, i * this.px, 0, this.px, this.px, image.crop_top);
+						_.drawImage(temp_gr, item, i * this.properties.px.value, 0, this.properties.px.value, this.properties.px.value, image.crop_top);
 					}, this);
 					this.img.ReleaseGraphics(temp_gr);
 					temp_gr = null;
@@ -88,17 +88,17 @@ _.mixin({
 			case !this.images.length:
 				this.image_xywh = [];
 				break;
-			case this.modes[this.mode] == 'off':
-				if (this.aspect == image.centre) {
-					this.image_xywh = _.drawImage(gr, this.images[this.image], 20, 20, panel.w - 40, panel.h - 40, this.aspect);
+			case this.properties.mode.value == 5: // off
+				if (this.properties.aspect.value == image.centre) {
+					this.image_xywh = _.drawImage(gr, this.images[this.image], 20, 20, panel.w - 40, panel.h - 40, this.properties.aspect.value);
 				} else {
-					this.image_xywh = _.drawImage(gr, this.images[this.image], 0, 0, panel.w, panel.h, this.aspect);
+					this.image_xywh = _.drawImage(gr, this.images[this.image], 0, 0, panel.w, panel.h, this.properties.aspect.value);
 				}
 				break;
 			case !this.img:
 				break;
-			case this.modes[this.mode] == 'grid':
-				gr.DrawImage(this.img, this.x, this.y, this.w, this.h, 0, this.offset * this.px, this.w, this.h);
+			case this.properties.mode.value == 0: // grid
+				gr.DrawImage(this.img, this.x, this.y, this.w, this.h, 0, this.offset * this.properties.px.value, this.w, this.h);
 				if (this.overlay) {
 					_.drawOverlay(gr, this.x, this.y, this.w, this.h);
 					this.image_xywh = _.drawImage(gr, this.images[this.image], 20, 20, panel.w - 40, panel.h - 40, image.centre);
@@ -107,50 +107,50 @@ _.mixin({
 					this.image_xywh = [];
 				}
 				break;
-			case this.modes[this.mode] == 'left':
-				if (this.aspect == image.centre) {
-					this.image_xywh = _.drawImage(gr, this.images[this.image], this.px + 20, 20, panel.w - this.px - 40, panel.h - 40, this.aspect);
+			case this.properties.mode.value == 1: // left
+				if (this.properties.aspect.value == image.centre) {
+					this.image_xywh = _.drawImage(gr, this.images[this.image], this.properties.px.value + 20, 20, panel.w - this.properties.px.value - 40, panel.h - 40, this.properties.aspect.value);
 				} else {
-					this.image_xywh = _.drawImage(gr, this.images[this.image], 0, 0, panel.w, panel.h, this.aspect);
+					this.image_xywh = _.drawImage(gr, this.images[this.image], 0, 0, panel.w, panel.h, this.properties.aspect.value);
 				}
 				_.drawOverlay(gr, this.x, this.y, this.w, this.h);
-				gr.DrawImage(this.img, this.x, this.y, this.w, this.h, 0, this.offset * this.px, this.w, this.h);
+				gr.DrawImage(this.img, this.x, this.y, this.w, this.h, 0, this.offset * this.properties.px.value, this.w, this.h);
 				break;
-			case this.modes[this.mode] == 'right':
-				if (this.aspect == image.centre) {
-					this.image_xywh = _.drawImage(gr, this.images[this.image], 20, 20, panel.w - this.px - 40, panel.h - 40, this.aspect);
+			case this.properties.mode.value == 2: // right
+				if (this.properties.aspect.value == image.centre) {
+					this.image_xywh = _.drawImage(gr, this.images[this.image], 20, 20, panel.w - this.properties.px.value - 40, panel.h - 40, this.properties.aspect.value);
 				} else {
-					this.image_xywh = _.drawImage(gr, this.images[this.image], 0, 0, panel.w, panel.h, this.aspect);
+					this.image_xywh = _.drawImage(gr, this.images[this.image], 0, 0, panel.w, panel.h, this.properties.aspect.value);
 				}
 				_.drawOverlay(gr, this.x, this.y, this.w, this.h);
-				gr.DrawImage(this.img, this.x, this.y, this.w, this.h, 0, this.offset * this.px, this.w, this.h);
+				gr.DrawImage(this.img, this.x, this.y, this.w, this.h, 0, this.offset * this.properties.px.value, this.w, this.h);
 				break;
-			case this.modes[this.mode] == 'top':
-				if (this.aspect == image.centre) {
-					this.image_xywh = _.drawImage(gr, this.images[this.image], 20, this.px + 20, panel.w - 40, panel.h - this.px - 40, this.aspect);
+			case this.properties.mode.value == 3: // top
+				if (this.properties.aspect.value == image.centre) {
+					this.image_xywh = _.drawImage(gr, this.images[this.image], 20, this.properties.px.value + 20, panel.w - 40, panel.h - this.properties.px.value - 40, this.properties.aspect.value);
 				} else {
-					this.image_xywh = _.drawImage(gr, this.images[this.image], 0, 0, panel.w, panel.h, this.aspect);
+					this.image_xywh = _.drawImage(gr, this.images[this.image], 0, 0, panel.w, panel.h, this.properties.aspect.value);
 				}
 				_.drawOverlay(gr, this.x, this.y, this.w, this.h);
-				gr.DrawImage(this.img, this.x, this.y, this.w, this.h, this.offset * this.px, 0, this.w, this.h);
+				gr.DrawImage(this.img, this.x, this.y, this.w, this.h, this.offset * this.properties.px.value, 0, this.w, this.h);
 				break;
-			case this.modes[this.mode] == 'bottom':
-				if (this.aspect == image.centre) {
-					this.image_xywh = _.drawImage(gr, this.images[this.image], 20, 20, panel.w - 40, panel.h - this.px - 40, this.aspect);
+			case this.properties.mode.value == 4: // bottom
+				if (this.properties.aspect.value == image.centre) {
+					this.image_xywh = _.drawImage(gr, this.images[this.image], 20, 20, panel.w - 40, panel.h - this.properties.px.value - 40, this.properties.aspect.value);
 				} else {
-					this.image_xywh = _.drawImage(gr, this.images[this.image], 0, 0, panel.w, panel.h, this.aspect);
+					this.image_xywh = _.drawImage(gr, this.images[this.image], 0, 0, panel.w, panel.h, this.properties.aspect.value);
 				}
 				_.drawOverlay(gr, this.x, this.y, this.w, this.h);
-				gr.DrawImage(this.img, this.x, this.y, this.w, this.h, this.offset * this.px, 0, this.w, this.h);
+				gr.DrawImage(this.img, this.x, this.y, this.w, this.h, this.offset * this.properties.px.value, 0, this.w, this.h);
 				break;
 			}
 		}
 		
 		this.metadb_changed = function () {
 			if (panel.metadb) {
-				switch (this.source) {
+				switch (this.properties.source.value) {
 				case 0: // custom folder
-					var temp_folder = this.custom_folder_tf.replace('%profile%', fb.ProfilePath);
+					var temp_folder = this.properties.tf.value.replace('%profile%', fb.ProfilePath);
 					temp_folder = temp_folder.indexOf(fb.ProfilePath) == 0 ? fb.ProfilePath + panel.tf(temp_folder.substring(fb.ProfilePath.length, temp_folder.length)) : panel.tf(temp_folder);
 					if (this.folder == temp_folder) {
 						return;
@@ -180,8 +180,8 @@ _.mixin({
 		this.image_xywh_trace = function (x, y) {
 			switch (true) {
 			case !this.images.length:
-			case this.modes[this.mode] == 'grid' && !this.overlay:
-			case this.modes[this.mode] != 'grid' && this.trace(x, y):
+			case this.properties.mode.value == 0 && !this.overlay: // grid
+			case this.properties.mode.value != 0 && this.trace(x, y): // not grid
 				return false;
 			default:
 				return x > this.image_xywh[0] && x < this.image_xywh[0] + this.image_xywh[2] && y > this.image_xywh[1] && y < this.image_xywh[1] + this.image_xywh[3];
@@ -192,7 +192,7 @@ _.mixin({
 			var offset = this.offset - s;
 			switch (true) {
 			case !this.trace(this.mx, this.my):
-			case this.modes[this.mode] == 'grid' && this.overlay:
+			case this.properties.mode.value == 0 && this.overlay: // grid
 				if (this.images.length < 2) {
 					return;
 				}
@@ -205,7 +205,7 @@ _.mixin({
 				}
 				window.Repaint();
 				return;
-			case this.modes[this.mode] == 'grid':
+			case this.properties.mode.value == 0: // grid
 				if (this.img_rows < this.rows) {
 					return;
 				}
@@ -216,8 +216,8 @@ _.mixin({
 					offset = this.img_rows - this.rows + 1;
 				}
 				break;
-			case this.modes[this.mode] == 'left':
-			case this.modes[this.mode] == 'right':
+			case this.properties.mode.value == 1: // left
+			case this.properties.mode.value == 2: // right
 				if (this.images.length < this.rows) {
 					return;
 				}
@@ -228,8 +228,8 @@ _.mixin({
 					offset = this.images.length - this.rows + 1;
 				}
 				break;
-			case this.modes[this.mode] == 'top':
-			case this.modes[this.mode] == 'bottom':
+			case this.properties.mode.value == 3: // top
+			case this.properties.mode.value == 4: // bottom
 				if (this.images.length < this.columns) {
 					return;
 				}
@@ -254,22 +254,22 @@ _.mixin({
 			switch (true) {
 			case !this.trace(x, y):
 				break;
-			case this.modes[this.mode] == 'grid':
+			case this.properties.mode.value == 0: // grid
 				if (this.overlay) {
 					return window.SetCursor(this.close_btn.move(x, y) ? IDC_HAND : IDC_ARROW);
 				}
-				var tmp = Math.floor(x / this.px);
+				var tmp = Math.floor(x / this.properties.px.value);
 				if (tmp < this.columns) {
-					this.index = tmp + ((Math.floor(y / this.px) + this.offset) * this.columns);
+					this.index = tmp + ((Math.floor(y / this.properties.px.value) + this.offset) * this.columns);
 				}
 				break;
-			case this.modes[this.mode] == 'left':
-			case this.modes[this.mode] == 'right':
-				this.index = Math.floor(y / this.px) + this.offset;
+			case this.properties.mode.value == 1: // left
+			case this.properties.mode.value == 2: // right
+				this.index = Math.floor(y / this.properties.px.value) + this.offset;
 				break;
-			case this.modes[this.mode] == 'top':
-			case this.modes[this.mode] == 'bottom':
-				this.index = Math.floor(x / this.px) + this.offset;
+			case this.properties.mode.value == 3: // top
+			case this.properties.mode.value == 4: // bottom
+				this.index = Math.floor(x / this.properties.px.value) + this.offset;
 				break;
 			}
 			window.SetCursor(this.index < this.images.length ? IDC_HAND : IDC_ARROW);
@@ -278,9 +278,9 @@ _.mixin({
 		this.lbtn_up = function (x, y) {
 			switch (true) {
 			case !this.trace(x, y):
-			case this.modes[this.mode] == 'grid' && this.overlay && this.close_btn.lbtn_up(x, y):
+			case this.properties.mode.value == 0 && this.overlay && this.close_btn.lbtn_up(x, y):
 				break;
-			case this.modes[this.mode] == 'grid' && !this.overlay && this.index < this.images.length:
+			case this.properties.mode.value == 0 && !this.overlay && this.index < this.images.length:
 				this.image = this.index;
 				this.enable_overlay(true);
 				break;
@@ -302,19 +302,19 @@ _.mixin({
 		this.rbtn_up = function (x, y) {
 			panel.m.AppendMenuItem(MF_STRING, 4000, 'Custom folder');
 			panel.m.AppendMenuItem(MF_STRING, 4001, 'Last.fm artist art');
-			panel.m.CheckMenuRadioItem(4000, 4001, this.source + 4000);
+			panel.m.CheckMenuRadioItem(4000, 4001, this.properties.source.value + 4000);
 			panel.m.AppendMenuSeparator();
-			switch (this.source) {
+			switch (this.properties.source.value) {
 			case 0: // custom folder
 				panel.m.AppendMenuItem(MF_STRING, 4002, 'Refresh');
 				panel.m.AppendMenuItem(MF_STRING, 4003, 'Set custom folder...');
 				break;
 			case 1: // last.fm
 				panel.m.AppendMenuItem(panel.metadb ? MF_STRING : MF_GRAYED, 4004, 'Download now');
-				_.forEach(this.download_limits, function (item) {
+				_.forEach(this.limits, function (item) {
 					panel.s10.AppendMenuItem(MF_STRING, item + 4010, item);
 				});
-				panel.s10.CheckMenuRadioItem(_.first(this.download_limits) + 4010, _.last(this.download_limits) + 4010, this.download_limit + 4010);
+				panel.s10.CheckMenuRadioItem(_.first(this.limits) + 4010, _.last(this.limits) + 4010, this.properties.limit.value + 4010);
 				panel.s10.AppendTo(panel.m, MF_STRING, 'Limit');
 				break;
 			}
@@ -323,13 +323,13 @@ _.mixin({
 				_.forEach(this.modes, function (item, i) {
 					panel.s11.AppendMenuItem(MF_STRING, i + 4050, _.capitalize(item));
 				});
-				panel.s11.CheckMenuRadioItem(4050, 4055, this.mode + 4050);
+				panel.s11.CheckMenuRadioItem(4050, 4055, this.properties.mode.value + 4050);
 				panel.s11.AppendMenuSeparator();
-				var flag = this.modes[this.mode] == 'off' ? MF_GRAYED : MF_STRING;
+				var flag = this.properties.mode.value == 5 ? MF_GRAYED : MF_STRING; // off
 				_.forEach(this.pxs, function (item) {
 					panel.s11.AppendMenuItem(flag, item + 4000, item + 'px');
 				});
-				panel.s11.CheckMenuRadioItem(_.first(this.pxs) + 4000, _.last(this.pxs) + 4000, this.px + 4000);
+				panel.s11.CheckMenuRadioItem(_.first(this.pxs) + 4000, _.last(this.pxs) + 4000, this.properties.px.value + 4000);
 				panel.s11.AppendTo(panel.m, MF_STRING, 'Thumbs');
 				panel.m.AppendMenuSeparator();
 			}
@@ -337,24 +337,24 @@ _.mixin({
 			panel.s12.AppendMenuItem(MF_STRING, 4405, '5 seconds');
 			panel.s12.AppendMenuItem(MF_STRING, 4410, '10 seconds');
 			panel.s12.AppendMenuItem(MF_STRING, 4420, '20 seconds');
-			panel.s12.CheckMenuRadioItem(4400, 4420, this.cycle + 4400);
+			panel.s12.CheckMenuRadioItem(4400, 4420, this.properties.cycle.value + 4400);
 			panel.s12.AppendTo(panel.m, MF_STRING, 'Cycle');
 			panel.m.AppendMenuSeparator();
 			panel.s13.AppendMenuItem(MF_STRING, 4500, 'A-Z');
 			panel.s13.AppendMenuItem(MF_STRING, 4501, 'Newest first');
-			panel.s13.CheckMenuRadioItem(4500, 4501, this.sort + 4500);
+			panel.s13.CheckMenuRadioItem(4500, 4501, this.properties.sort.value + 4500);
 			panel.s13.AppendTo(panel.m, MF_STRING, 'Sort');
 			panel.m.AppendMenuSeparator();
 			if (this.image_xywh_trace(x, y)) {
-				if (this.modes[this.mode] != 'grid') {
+				if (this.properties.mode.value != 0) {
 					panel.m.AppendMenuItem(MF_STRING, 4510, 'Crop (focus on centre)');
 					panel.m.AppendMenuItem(MF_STRING, 4511, 'Crop (focus on top)');
 					panel.m.AppendMenuItem(MF_STRING, 4512, 'Stretch');
 					panel.m.AppendMenuItem(MF_STRING, 4513, 'Centre');
-					panel.m.CheckMenuRadioItem(4510, 4513, this.aspect + 4510);
+					panel.m.CheckMenuRadioItem(4510, 4513, this.properties.aspect.value + 4510);
 					panel.m.AppendMenuSeparator();
 				}
-				if (this.source == 1 && this.images.length > 1) {
+				if (this.properties.source.value == 1 && this.images.length > 1) {
 					panel.m.AppendMenuItem(this.default_file == this.files[this.image] ? MF_GRAYED : MF_STRING, 4520, 'Set as default');
 					panel.m.AppendMenuItem(MF_STRING, 4521, 'Clear default');
 					panel.m.AppendMenuSeparator();
@@ -371,8 +371,7 @@ _.mixin({
 			switch (idx) {
 			case 4000:
 			case 4001:
-				this.source = idx - 4000;
-				window.SetProperty('2K3.THUMBS.SOURCE', this.source);
+				this.properties.source.value = idx - 4000;
 				this.artist = '';
 				this.folder = '';
 				panel.item_focus_change();
@@ -381,11 +380,7 @@ _.mixin({
 				this.update();
 				break;
 			case 4003:
-				this.custom_folder_tf = _.input('Enter title formatting or an absolute path to a folder.\n\n%profile% will resolve to your foobar2000 profile folder or the program folder if using portable mode.', panel.name, this.custom_folder_tf);
-				if (this.custom_folder_tf == '') {
-					this.custom_folder_tf = '$directory_path(%path%)';
-				}
-				window.SetProperty('2K3.THUMBS.CUSTOM.FOLDER.TF', this.custom_folder_tf);
+				this.properties.tf.value = _.input('Enter title formatting or an absolute path to a folder.\n\n%profile% will resolve to your foobar2000 profile folder or the program folder if using portable mode.', panel.name, this.properties.tf.value) || '$directory_path(%path%)';
 				this.folder = '';
 				panel.item_focus_change();
 				break;
@@ -398,8 +393,7 @@ _.mixin({
 			case 4020:
 			case 4025:
 			case 4030:
-				this.download_limit = idx - 4010;
-				window.SetProperty('2K3.THUMBS.DOWNLOAD.LIMIT', this.download_limit);
+				this.properties.limit.value = idx - 4010;
 				break;
 			case 4050:
 			case 4051:
@@ -407,8 +401,7 @@ _.mixin({
 			case 4053:
 			case 4054:
 			case 4055:
-				this.mode = idx - 4050;
-				window.SetProperty('2K3.THUMBS.MODE', this.mode);
+				this.properties.mode.value = idx - 4050;
 				this.size(true);
 				window.Repaint();
 				break;
@@ -418,8 +411,7 @@ _.mixin({
 			case 4200:
 			case 4250:
 			case 4300:
-				this.px = idx - 4000;
-				window.SetProperty('2K3.THUMBS.PX', this.px);
+				this.properties.px.value = idx - 4000;
 				this.size(true);
 				window.Repaint();
 				break;
@@ -427,13 +419,11 @@ _.mixin({
 			case 4405:
 			case 4410:
 			case 4420:
-				this.cycle = idx - 4400;
-				window.SetProperty('2K3.THUMBS.CYCLE', this.cycle);
+				this.properties.cycle.value = idx - 4400;
 				break;
 			case 4500:
 			case 4501:
-				this.sort = idx - 4500;
-				window.SetProperty('2K3.THUMBS.SORT', this.sort);
+				this.properties.sort.value = idx - 4500;
 				if (this.images.length > 1) {
 					this.update();
 				}
@@ -442,8 +432,7 @@ _.mixin({
 			case 4511:
 			case 4512:
 			case 4513:
-				this.aspect = idx - 4510;
-				window.SetProperty('2K3.THUMBS.ASPECT', this.aspect);
+				this.properties.aspect.value = idx - 4510;
 				window.Repaint();
 				break;
 			case 4520:
@@ -471,7 +460,7 @@ _.mixin({
 		this.key_down = function (k) {
 			switch (k) {
 			case VK_ESCAPE:
-				if (this.modes[this.mode] == 'grid' && this.overlay) {
+				if (this.properties.mode.value == 0 && this.overlay) { // grid
 					this.enable_overlay(false);
 				}
 				break;
@@ -489,8 +478,8 @@ _.mixin({
 		this.update = function () {
 			this.image = 0;
 			_.dispose.apply(null, this.images);
-			this.files = _.getFiles(this.folder, this.exts, this.sort == 1);
-			if (this.source == 1 && this.files.length > 1) {
+			this.files = _.getFiles(this.folder, this.exts, this.properties.sort.value == 1);
+			if (this.properties.source.value == 1 && this.files.length > 1) {
 				this.default_file = this.folder + utils.ReadINI(this.ini_file, 'Defaults', _.fbSanitise(this.artist));
 				var tmp = _.indexOf(this.files, this.default_file);
 				if (tmp > -1) {
@@ -540,7 +529,7 @@ _.mixin({
 		this.success = function (base) {
 			_(_.getElementsByTagName(this.xmlhttp.responseText, 'img'))
 				.filter({className : 'image-list-image'})
-				.take(this.download_limit)
+				.take(this.properties.limit.value)
 				.forEach(function (item) {
 					var url = item.src.replace('avatar170s/', '');
 					var filename = base + url.substring(url.lastIndexOf('/') + 1) + '.jpg';
@@ -551,14 +540,14 @@ _.mixin({
 		
 		this.interval_func = _.bind(function () {
 			this.time++;
-			if (this.cycle > 0 && this.images.length > 1 && this.time % this.cycle == 0) {
+			if (this.properties.cycle.value > 0 && this.images.length > 1 && this.time % this.properties.cycle.value == 0) {
 				this.image++;
 				if (this.image == this.images.length) {
 					this.image = 0;
 				}
 				window.Repaint();
 			}
-			if (this.source == 1 && this.time % 3 == 0 && _.getFiles(this.folder, this.exts).length != this.files.length) {
+			if (this.properties.source.value == 1 && this.time % 3 == 0 && _.getFiles(this.folder, this.exts).length != this.files.length) {
 				this.update();
 			}
 		}, this);
@@ -570,17 +559,9 @@ _.mixin({
 		this.my = 0;
 		this.files = [];
 		this.images = [];
-		this.source = window.GetProperty('2K3.THUMBS.SOURCE', 0); // 0 custom folder 1 last.fm
-		this.custom_folder_tf = window.GetProperty('2K3.THUMBS.CUSTOM.FOLDER.TF', '$directory_path(%path%)');
-		this.download_limits = [1, 3, 5, 10, 15, 20];
-		this.download_limit = window.GetProperty('2K3.THUMBS.DOWNLOAD.LIMIT', 10);
+		this.limits = [1, 3, 5, 10, 15, 20];
 		this.modes = ['grid', 'left', 'right', 'top', 'bottom', 'off'];
-		this.mode = window.GetProperty('2K3.THUMBS.MODE', 4); // bottom
 		this.pxs = [75, 100, 150, 200, 250, 300];
-		this.px = window.GetProperty('2K3.THUMBS.PX', 75);
-		this.cycle = window.GetProperty('2K3.THUMBS.CYCLE', 0);
-		this.sort = window.GetProperty('2K3.THUMBS.SORT', 0); // 0 a-z 1 newest first
-		this.aspect = window.GetProperty('2K3.THUMBS.ASPECT', image.crop_top);
 		this.ini_file = folders.settings + 'thumbs.ini';
 		this.vbs_file = fb.ComponentPath + 'samples\\complete\\vbs\\download.vbs';
 		this.exts = 'jpg|jpeg|png|gif';
@@ -594,7 +575,17 @@ _.mixin({
 		this.index = 0;
 		this.time = 0;
 		this.xmlhttp = new ActiveXObject('Microsoft.XMLHTTP');
-		this.close_btn = new _.sb(guifx.close, 0, 0, _.scale(12), _.scale(12), _.bind(function () { return this.modes[this.mode] == 'grid' && this.overlay; }, this), _.bind(function () { this.enable_overlay(false); }, this));
+		this.properties = {
+			mode : new _.p('2K3.THUMBS.MODE', 4), // 0 grid 1 left 2 right 3 top 4 bottom 5 off
+			source : new _.p('2K3.THUMBS.SOURCE', 0), // 0 custom folder 1 last.fm
+			tf : new _.p('2K3.THUMBS.CUSTOM.FOLDER.TF', '$directory_path(%path%)'),
+			limit : new _.p('2K3.THUMBS.DOWNLOAD.LIMIT', 10),
+			px : new _.p('2K3.THUMBS.PX', 75),
+			cycle : new _.p('2K3.THUMBS.CYCLE', 0),
+			sort : new _.p('2K3.THUMBS.SORT', 0), // 0 a-z 1 newest first
+			aspect : new _.p('2K3.THUMBS.ASPECT', image.crop_top)
+		};
+		this.close_btn = new _.sb(guifx.close, 0, 0, _.scale(12), _.scale(12), _.bind(function () { return this.properties.mode.value == 0 && this.overlay; }, this), _.bind(function () { this.enable_overlay(false); }, this));
 		window.SetInterval(this.interval_func, 1000);
 	}
 });

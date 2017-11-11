@@ -8,7 +8,7 @@ _.mixin({
 					this.scrobbler.update_button();
 				}
 				_.forEach(panel.list_objects, function (item) {
-					if (item.mode == 'lastfm_info' && item.lastfm_mode == 1) {
+					if (item.mode == 'lastfm_info' && item.properties.mode.value == 1) {
 						item.update();
 					}
 				});

@@ -4,12 +4,12 @@ _.mixin({
 			this.metadb = fb.GetNowPlaying();
 			this.time_elapsed = 0;
 			this.timestamp = _.ts();
-			this.target_time = this.enabled ? Math.min(Math.ceil(fb.PlaybackLength / 2), 240) : -1;
+			this.target_time = this.properties.enabled.value ? Math.min(Math.ceil(fb.PlaybackLength / 2), 240) : -1;
 		}
 		
 		this.playback_time = function () {
 			this.time_elapsed++;
-			if (!this.enabled || !this.metadb) {
+			if (!this.properties.enabled.value || !this.metadb) {
 				return;
 			}
 			if (this.time_elapsed == 3) {
@@ -25,7 +25,7 @@ _.mixin({
 				return console.log('Token invalid/not set.');
 			}
 			
-			if (this.in_library && !fb.IsMetadbInMediaLibrary(metadb)) {
+			if (this.properties.library.value && !fb.IsMetadbInMediaLibrary(metadb)) {
 				if (listen_type == 'single') {
 					console.log('Skipping... Track not in Media Library.');	
 				}
@@ -69,7 +69,7 @@ _.mixin({
 			if (listen_type == 'single') {
 				payload.listened_at = this.timestamp;
 				
-				if (this.submit_genres && tags.genre) {
+				if (this.properties.genres.value && tags.genre) {
 					payload.track_metadata.additional_info.tags = _(tags.genre)
 						.take(50)
 						.map(function (item) {
@@ -80,7 +80,7 @@ _.mixin({
 						
 				console.log('Submitting ' + _.q(tags.artist + ' - ' + tags.title));
 				
-				if (this.show_data) {
+				if (this.properties.show.value) {
 					fb.Trace(JSON.stringify(payload, null, 4));
 				}
 			}
@@ -207,22 +207,22 @@ _.mixin({
 		}
 		
 		this.options = function () {
-			var flag = this.token.length == 36 ? MF_STRING : MF_GRAYED;
+			var flag = _.isUUID(this.token) && this.properties.enabled.value ? MF_STRING : MF_GRAYED;
 			var m = window.CreatePopupMenu();
 			m.AppendMenuItem(MF_STRING, 1, 'Set token...');
 			m.AppendMenuSeparator();
 			m.AppendMenuItem(MF_STRING, 2, 'Set username...');
 			m.AppendMenuItem(this.username.length ? MF_STRING : MF_GRAYED, 3, 'View profile');
 			m.AppendMenuSeparator();
-			m.AppendMenuItem(flag, 4, 'Enabled');
-			m.CheckMenuItem(4, this.enabled);
+			m.AppendMenuItem(MF_STRING, 4, 'Enabled');
+			m.CheckMenuItem(4, this.properties.enabled.value);
 			m.AppendMenuSeparator();
 			m.AppendMenuItem(flag, 5, 'Show submission data in Console when sending');
-			m.CheckMenuItem(5, this.show_data);
+			m.CheckMenuItem(5, this.properties.show.value);
 			m.AppendMenuItem(flag, 6, 'Submit Media Library tracks only');
-			m.CheckMenuItem(6, this.in_library);
+			m.CheckMenuItem(6, this.properties.library.value);
 			m.AppendMenuItem(flag, 7, 'Submit genre tags');
-			m.CheckMenuItem(7, this.submit_genres);
+			m.CheckMenuItem(7, this.properties.genres.value);
 			m.AppendMenuSeparator();
 			m.AppendMenuItem(MF_GRAYED, 8, 'Cache contains ' + this.open_cache().length + ' listen(s).');
 			var idx = m.TrackPopupMenu(this.x, this.y + this.size);
@@ -246,28 +246,24 @@ _.mixin({
 				_.run('https://listenbrainz.org/user/' + this.username);
 				break;
 			case 4:
-				this.enabled = !this.enabled;
-				window.SetProperty('2K3.LISTENBRAINZ.ENABLED', this.enabled);
+				this.properties.enabled.toggle();
 				this.update_button();
 				break;
 			case 5:
-				this.show_data = !this.show_data;
-				window.SetProperty('2K3.LISTENBRAINZ.SHOW.DATA', this.show_data);
+				this.properties.show.toggle();
 				break;
 			case 6:
-				this.in_library = !this.in_library;
-				window.SetProperty('2K3.LISTENBRAINZ.IN.LIBRARY', this.in_library);
+				this.properties.library.toggle();
 				break;
 			case 7:
-				this.submit_genres = !this.submit_genres;
-				window.SetProperty('2K3.LISTENBRAINZ.SUBMIT.GENRES', this.submit_genres);
+				this.properties.genres.toggle();
 				break;
 			}
 			m.Dispose();
 		}
 		
 		this.update_button = function () {
-			buttons.buttons.listenbrainz = new _.button(this.x, this.y, this.size, this.size, {normal : this.enabled && _.isUUID(this.token) ? 'misc\\listenbrainz_active.png' : 'misc\\listenbrainz_inactive.png'}, _.bind(function () { this.options(); }, this), 'Listenbrainz Options');
+			buttons.buttons.listenbrainz = new _.button(this.x, this.y, this.size, this.size, {normal : this.properties.enabled.value && _.isUUID(this.token) ? 'misc\\listenbrainz_active.png' : 'misc\\listenbrainz_inactive.png'}, _.bind(function () { this.options(); }, this), 'Listenbrainz Options');
 			window.RepaintRect(this.x, this.y, this.size, this.size);
 		}
 		
@@ -281,10 +277,6 @@ _.mixin({
 		this.ini_file = folders.settings + 'listenbrainz.ini';
 		this.token = utils.ReadINI(this.ini_file, 'Listenbrainz', 'token');
 		this.username = utils.ReadINI(this.ini_file, 'Listenbrainz', 'username');
-		this.show_data = window.GetProperty('2K3.LISTENBRAINZ.SHOW.DATA', false);
-		this.in_library = window.GetProperty('2K3.LISTENBRAINZ.IN.LIBRARY', false);
-		this.submit_genres = window.GetProperty('2K3.LISTENBRAINZ.SUBMIT.GENRES', true);
-		this.enabled = window.GetProperty('2K3.LISTENBRAINZ.ENABLED', true);
 		this.xmlhttp = new ActiveXObject('Microsoft.XMLHTTP');
 		this.time_elapsed = 0;
 		this.target_time = 0;
@@ -319,6 +311,12 @@ _.mixin({
 			'musicbrainz work id' : 'musicbrainz_workid',
 			'musicip puid' : 'musicip_puid',
 			'titlesortorder' : 'titlesort'
+		};
+		this.properties = {
+			enabled : new _.p('2K3.LISTENBRAINZ.ENABLED', true),
+			library : new _.p('2K3.LISTENBRAINZ.IN.LIBRARY', false),
+			show : new _.p('2K3.LISTENBRAINZ.SHOW.DATA', false),
+			genres : new _.p('2K3.LISTENBRAINZ.SUBMIT.GENRES', true)
 		};
 		this.update_button();
 	}

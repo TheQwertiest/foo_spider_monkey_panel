@@ -656,7 +656,7 @@ var console = {
 	log : function (text) {
 		fb.Trace(this.pre + text);
 	}
-}
+};
 
 var guifx = {
 	font : 'Guifx v2 Transports',

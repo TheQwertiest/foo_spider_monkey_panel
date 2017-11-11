@@ -1,8 +1,8 @@
 _.mixin({
 	albumart : function (x, y, w, h) {
 		this.paint = function (gr) {
-			if (this.cd) {
-				if (this.shadow) {
+			if (this.properties.cd.value) {
+				if (this.properties.shadow.value) {
 					_.drawImage(gr, this.shadow_img, this.x, this.y, this.w, this.h);
 				}
 				_.drawImage(gr, this.case_img, this.x, this.y, this.w, this.h);
@@ -12,14 +12,14 @@ _.mixin({
 					var nh = 476 * ratio;
 					var nx = this.x + Math.floor((this.w - (452 * ratio)) / 2);
 					var ny = this.y + Math.floor((this.h - nh) / 2);
-					_.drawImage(gr, this.img, nx, ny, nw, nh, this.aspect);
+					_.drawImage(gr, this.img, nx, ny, nw, nh, this.properties.aspect.value);
 				}
 				_.drawImage(gr, this.semi_img, this.x, this.y, this.w, this.h);
-				if (this.gloss) {
+				if (this.properties.gloss.value) {
 					_.drawImage(gr, this.gloss_img, this.x, this.y, this.w, this.h);
 				}
 			} else if (this.img) {
-				_.drawImage(gr, this.img, this.x, this.y, this.w, this.h, this.aspect);
+				_.drawImage(gr, this.img, this.x, this.y, this.w, this.h, this.properties.aspect.value);
 			}
 		}
 		
@@ -28,9 +28,9 @@ _.mixin({
 			this.img = null;
 			this.tooltip = this.path = '';
 			if (panel.metadb) {
-				this.img = utils.GetAlbumArtV2(panel.metadb, this.id);
+				this.img = utils.GetAlbumArtV2(panel.metadb, this.properties.id.value);
 				if (this.img && panel.metadb.RawPath.indexOf('file') == 0) {
-					utils.GetAlbumArtAsync(window.ID, panel.metadb, this.id, true, false, true);
+					utils.GetAlbumArtAsync(window.ID, panel.metadb, this.properties.id.value, true, false, true);
 				}
 			}
 			window.Repaint();
@@ -55,15 +55,15 @@ _.mixin({
 		
 		this.wheel = function (s) {
 			if (this.trace(this.mx, this.my)) {
-				this.id -= s;
-				if (this.id < 0) {
-					this.id = 4;
+				var id = this.properties.id.value - s;
+				if (id < 0) {
+					id = 4;
 				}
-				if (this.id > 4) {
-					this.id = 0;
+				if (id > 4) {
+					id = 0;
 				}
+				this.properties.id.value = id;
 				_.tt('');
-				window.SetProperty('2K3.ARTREADER.ID', this.id);
 				panel.item_focus_change();
 				return true;
 			} else {
@@ -106,22 +106,22 @@ _.mixin({
 			panel.m.AppendMenuItem(MF_STRING, 2000, 'Refresh');
 			panel.m.AppendMenuSeparator();
 			panel.m.AppendMenuItem(MF_STRING, 2001, 'CD Jewel Case');
-			panel.m.CheckMenuItem(2001, this.cd);
-			panel.m.AppendMenuItem(this.cd ? MF_STRING : MF_GRAYED, 2002, 'Gloss effect');
-			panel.m.CheckMenuItem(2002, this.gloss);
-			panel.m.AppendMenuItem(this.cd ? MF_STRING : MF_GRAYED, 2003, 'Shadow effect');
-			panel.m.CheckMenuItem(2003, this.shadow);
+			panel.m.CheckMenuItem(2001, this.properties.cd.value);
+			panel.m.AppendMenuItem(this.properties.cd.value ? MF_STRING : MF_GRAYED, 2002, 'Gloss effect');
+			panel.m.CheckMenuItem(2002, this.properties.gloss.value);
+			panel.m.AppendMenuItem(this.properties.cd.value ? MF_STRING : MF_GRAYED, 2003, 'Shadow effect');
+			panel.m.CheckMenuItem(2003, this.properties.shadow.value);
 			panel.m.AppendMenuSeparator();
 			_.forEach(this.ids, function (item, i) {
 				panel.m.AppendMenuItem(MF_STRING, i + 2010, item);
 			});
-			panel.m.CheckMenuRadioItem(2010, 2014, this.id + 2010);
+			panel.m.CheckMenuRadioItem(2010, 2014, this.properties.id.value + 2010);
 			panel.m.AppendMenuSeparator();
 			panel.m.AppendMenuItem(MF_STRING, 2020, 'Crop (focus on centre)');
 			panel.m.AppendMenuItem(MF_STRING, 2021, 'Crop (focus on top)');
 			panel.m.AppendMenuItem(MF_STRING, 2022, 'Stretch');
 			panel.m.AppendMenuItem(MF_STRING, 2023, 'Centre');
-			panel.m.CheckMenuRadioItem(2020, 2023, this.aspect + 2020);
+			panel.m.CheckMenuRadioItem(2020, 2023, this.properties.aspect.value + 2020);
 			panel.m.AppendMenuSeparator();
 			panel.m.AppendMenuItem(_.isFile(this.path) ? MF_STRING : MF_GRAYED, 2030, 'Open containing folder');
 			panel.m.AppendMenuSeparator();
@@ -135,18 +135,15 @@ _.mixin({
 				panel.item_focus_change();
 				break;
 			case 2001:
-				this.cd = !this.cd;
-				window.SetProperty('2K3.ARTREADER.CD', this.cd);
+				this.properties.cd.toggle();
 				window.Repaint();
 				break;
 			case 2002:
-				this.gloss = !this.gloss;
-				window.SetProperty('2K3.ARTREADER.GLOSS', this.gloss);
+				this.properties.gloss.toggle();
 				window.RepaintRect(this.x, this.y, this.w, this.h);
 				break;
 			case 2003:
-				this.shadow = !this.shadow;
-				window.SetProperty('2K3.ARTREADER.SHADOW', this.shadow);
+				this.properties.shadow.toggle();
 				window.RepaintRect(this.x, this.y, this.w, this.h);
 				break;
 			case 2010:
@@ -154,16 +151,14 @@ _.mixin({
 			case 2012:
 			case 2013:
 			case 2014:
-				this.id = idx - 2010;
-				window.SetProperty('2K3.ARTREADER.ID', this.id);
+				this.properties.id.value = idx - 2010;
 				panel.item_focus_change();
 				break;
 			case 2020:
 			case 2021:
 			case 2022:
 			case 2023:
-				this.aspect = idx - 2020;
-				window.SetProperty('2K3.ARTREADER.ASPECT', this.aspect);
+				this.properties.aspect.value = idx - 2020;
 				window.RepaintRect(this.x, this.y, this.w, this.h);
 				break;
 			case 2030:
@@ -198,11 +193,6 @@ _.mixin({
 		this.my = 0;
 		this.tooltip = '';
 		this.ids = ['Front', 'Back', 'Disc', 'Icon', 'Artist'];
-		this.id = window.GetProperty('2K3.ARTREADER.ID', 0);
-		this.aspect = window.GetProperty('2K3.ARTREADER.ASPECT', image.crop);
-		this.cd = window.GetProperty('2K3.ARTREADER.CD', false);
-		this.shadow = window.GetProperty('2K3.ARTREADER.SHADOW', false);
-		this.gloss = window.GetProperty('2K3.ARTREADER.GLOSS', false);
 		this.shadow_img = _.img('cd\\shadow.png');
 		this.case_img = _.img('cd\\case.png');
 		this.semi_img = _.img('cd\\semi.png');
@@ -210,5 +200,12 @@ _.mixin({
 		this.img = null;
 		this.path = null;
 		this.hover = false;
+		this.properties = {
+			aspect : new _.p('2K3.ARTREADER.ASPECT', image.crop),
+			gloss : new _.p('2K3.ARTREADER.GLOSS', false),
+			cd : new _.p('2K3.ARTREADER.CD', false),
+			id : new _.p('2K3.ARTREADER.ID', 0),
+			shadow : new _.p('2K3.ARTREADER.SHADOW', false)
+		};
 	}
 });

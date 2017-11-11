@@ -23,7 +23,7 @@ _.mixin({
 				}
 				break;
 			case 'lastfm_info':
-				switch (this.lastfm_mode) {
+				switch (this.properties.mode.value) {
 				case 0:
 					this.text_x = 0;
 					this.text_width = this.w;
@@ -40,14 +40,14 @@ _.mixin({
 						var bar_width = Math.ceil(unit_width * this.data[i + this.offset].playcount);
 						gr.GdiDrawText(this.data[i + this.offset].rank + '.', panel.fonts.normal, panel.colours.highlight, this.x, this.y + _.scale(12) + (i * panel.row_height), this.text_x - 5, panel.row_height, RIGHT);
 						gr.GdiDrawText(this.data[i + this.offset].name, panel.fonts.normal, panel.colours.text, this.x + this.text_x, this.y + _.scale(12) + (i * panel.row_height), this.text_width, panel.row_height, LEFT);
-						gr.FillSolidRect(lastfm_charts_bar_x, this.y + _.scale(13) + (i * panel.row_height), bar_width, panel.row_height - 3, this.lastfm_charts_bar_colour);
+						gr.FillSolidRect(lastfm_charts_bar_x, this.y + _.scale(13) + (i * panel.row_height), bar_width, panel.row_height - 3, this.properties.colour.value);
 						gr.GdiDrawText(_.formatNumber(this.data[i + this.offset].playcount, ','), panel.fonts.normal, panel.colours.text, lastfm_charts_bar_x + bar_width + 5, this.y + _.scale(12) + (i * panel.row_height), _.scale(60), panel.row_height, LEFT);
 					}
 					break;
 				}
 				break;
 			case 'musicbrainz':
-				switch (this.mb_mode) {
+				switch (this.properties.mode.value) {
 				case 0:
 					this.text_width = this.w - this.spacer_w - 10;
 					for (var i = 0; i < Math.min(this.items, this.rows); i++) {
@@ -84,7 +84,7 @@ _.mixin({
 		this.metadb_changed = function () {
 			switch (true) {
 			case this.mode == 'autoplaylists':
-			case this.mode == 'lastfm_info' && this.lastfm_mode == 1:
+			case this.mode == 'lastfm_info' && this.properties.mode.value == 1:
 				break;
 			case !panel.metadb:
 				this.artist = '';
@@ -231,23 +231,23 @@ _.mixin({
 			case 'lastfm_info':
 				panel.m.AppendMenuItem(MF_STRING, 3100, 'Similar artists');
 				panel.m.AppendMenuItem(MF_STRING, 3101, 'User Charts');
-				panel.m.CheckMenuRadioItem(3100, 3101, this.lastfm_mode + 3100);
+				panel.m.CheckMenuRadioItem(3100, 3101, this.properties.mode.value + 3100);
 				panel.m.AppendMenuSeparator();
 				panel.s10.AppendMenuItem(MF_STRING, 3102, 'Open Last.fm website');
 				panel.s10.AppendMenuItem(MF_STRING, 3103, 'Autoplaylist');
-				panel.s10.CheckMenuRadioItem(3102, 3103, this.lastfm_link + 3102);
-				panel.s10.AppendTo(panel.m, this.lastfm_mode == 0 || this.lastfm_charts_method == 0 ? MF_STRING : MF_GRAYED, 'Links');
+				panel.s10.CheckMenuRadioItem(3102, 3103, this.properties.link.value + 3102);
+				panel.s10.AppendTo(panel.m, this.properties.mode.value == 0 || this.properties.method.value == 0 ? MF_STRING : MF_GRAYED, 'Links');
 				panel.m.AppendMenuSeparator();
-				if (this.lastfm_mode == 1) {
-					_.forEach(this.lastfm_charts_methods, function (item, i) {
+				if (this.properties.mode.value == 1) {
+					_.forEach(this.methods, function (item, i) {
 						panel.m.AppendMenuItem(MF_STRING, i + 3120, _.capitalize(item.display));
 					});
-					panel.m.CheckMenuRadioItem(3120, 3122, this.lastfm_charts_method + 3120);
+					panel.m.CheckMenuRadioItem(3120, 3122, this.properties.method.value + 3120);
 					panel.m.AppendMenuSeparator();
-					_.forEach(this.lastfm_charts_periods, function (item, i) {
+					_.forEach(this.periods, function (item, i) {
 						panel.m.AppendMenuItem(MF_STRING, i + 3130, _.capitalize(item.display));
 					});
-					panel.m.CheckMenuRadioItem(3130, 3135, this.lastfm_charts_period + 3130);
+					panel.m.CheckMenuRadioItem(3130, 3135, this.properties.period.value + 3130);
 					panel.m.AppendMenuSeparator();
 					panel.m.AppendMenuItem(MF_STRING, 3140, 'Bar colour...');
 					panel.m.AppendMenuSeparator();
@@ -258,7 +258,7 @@ _.mixin({
 			case 'musicbrainz':
 				panel.m.AppendMenuItem(MF_STRING, 3200, 'Releases');
 				panel.m.AppendMenuItem(MF_STRING, 3201, 'Links');
-				panel.m.CheckMenuRadioItem(3200, 3201, this.mb_mode + 3200);
+				panel.m.CheckMenuRadioItem(3200, 3201, this.properties.mode.value + 3200);
 				panel.m.AppendMenuSeparator();
 				if (this.mb_id.length != 36) {
 					panel.m.AppendMenuItem(MF_GRAYED, 3203, 'Artist MBID missing. Use Musicbrainz Picard or foo_musicbrainz to tag your files.');
@@ -267,17 +267,17 @@ _.mixin({
 				break;
 			case 'properties':
 				panel.m.AppendMenuItem(MF_STRING, 3300, 'Metadata');
-				panel.m.CheckMenuItem(3300, this.properties.meta);
+				panel.m.CheckMenuItem(3300, this.properties.meta.value);
 				panel.m.AppendMenuItem(MF_STRING, 3301, 'Location');
-				panel.m.CheckMenuItem(3301, this.properties.location);
+				panel.m.CheckMenuItem(3301, this.properties.location.value);
 				panel.m.AppendMenuItem(MF_STRING, 3302, 'Tech Info');
-				panel.m.CheckMenuItem(3302, this.properties.tech);
+				panel.m.CheckMenuItem(3302, this.properties.tech.value);
 				panel.m.AppendMenuItem(_.cc('foo_customdb') ? MF_STRING : MF_GRAYED, 3303, 'Last.fm Playcount (foo_customdb)');
-				panel.m.CheckMenuItem(3303, this.properties.customdb);
+				panel.m.CheckMenuItem(3303, this.properties.customdb.value);
 				panel.m.AppendMenuItem(_.cc('foo_playcount') ? MF_STRING : MF_GRAYED, 3304, 'Playback Statistics (foo_playcount)');
-				panel.m.CheckMenuItem(3304, this.properties.playcount);
+				panel.m.CheckMenuItem(3304, this.properties.playcount.value);
 				panel.m.AppendMenuItem(MF_STRING, 3305, 'Replaygain');
-				panel.m.CheckMenuItem(3305, this.properties.rg);
+				panel.m.CheckMenuItem(3305, this.properties.rg.value);
 				panel.m.AppendMenuSeparator();
 				break;
 			}
@@ -303,19 +303,16 @@ _.mixin({
 				this.save();
 				break;
 			case 3100:
+				this.properties.mode.value = 0;
+				this.reset();
+				break;
 			case 3101:
-				this.lastfm_mode = idx - 3100;
-				window.SetProperty('2K3.LIST.LASTFM.MODE', this.lastfm_mode);
-				if (this.lastfm_mode == 0) {
-					this.reset();
-				} else {
-					this.update();
-				}
+				this.properties.mode.value = 1;
+				this.update();
 				break;
 			case 3102:
 			case 3103:
-				this.lastfm_link = idx - 3102;
-				window.SetProperty('2K3.LIST.LASTFM.LINK', this.lastfm_link);
+				this.properties.link.value = idx - 3102;
 				if (this.data.length) {
 					this.update();
 				}
@@ -323,8 +320,7 @@ _.mixin({
 			case 3120:
 			case 3121:
 			case 3122:
-				this.lastfm_charts_method = idx - 3120;
-				window.SetProperty('2K3.LIST.LASTFM.CHARTS.METHOD', this.lastfm_charts_method);
+				this.properties.method.value = idx - 3120;
 				this.update();
 				break;
 			case 3130:
@@ -333,13 +329,11 @@ _.mixin({
 			case 3133:
 			case 3134:
 			case 3135:
-				this.lastfm_charts_period = idx - 3130;
-				window.SetProperty('2K3.LIST.LASTFM.CHARTS.PERIOD', this.lastfm_charts_period);
+				this.properties.period.value = idx - 3130;
 				this.update();
 				break;
 			case 3140:
-				this.lastfm_charts_bar_colour = utils.ColorPicker(window.ID, this.lastfm_charts_bar_colour);
-				window.SetProperty('2K3.LIST.LASTFM.CHARTS.BAR.COLOUR', this.lastfm_charts_bar_colour);
+				this.properties.colour.value = utils.ColorPicker(window.ID, this.properties.colour.value);
 				window.Repaint();
 				break;
 			case 3150:
@@ -350,38 +344,31 @@ _.mixin({
 				break;
 			case 3200:
 			case 3201:
-				this.mb_mode = idx - 3200;
-				window.SetProperty('2K3.LIST.MUSICBRAINZ.MODE', this.mb_mode);
+				this.properties.mode.value = idx - 3200;
 				this.reset();
 				break;
 			case 3300:
-				this.properties.meta = !this.properties.meta;
-				window.SetProperty('2K3.LIST.PROPERTIES.META', this.properties.meta);
+				this.properties.meta.toggle();
 				panel.item_focus_change();
 				break;
 			case 3301:
-				this.properties.location = !this.properties.location;
-				window.SetProperty('2K3.LIST.PROPERTIES.LOCATION', this.properties.location);
+				this.properties.location.toggle();
 				panel.item_focus_change();
 				break;
 			case 3302:
-				this.properties.tech = !this.properties.tech;
-				window.SetProperty('2K3.LIST.PROPERTIES.TECH', this.properties.tech);
+				this.properties.tech.toggle();
 				panel.item_focus_change();
 				break;
 			case 3303:
-				this.properties.customdb = !this.properties.customdb;
-				window.SetProperty('2K3.LIST.PROPERTIES.CUSTOMDB', this.properties.customdb);
+				this.properties.customdb.toggle();
 				panel.item_focus_change();
 				break;
 			case 3304:
-				this.properties.playcount = !this.properties.playcount;
-				window.SetProperty('2K3.LIST.PROPERTIES.PLAYCOUNT', this.properties.playcount);
+				this.properties.playcount.toggle();
 				panel.item_focus_change();
 				break;
 			case 3305:
-				this.properties.rg = !this.properties.rg;
-				window.SetProperty('2K3.LIST.PROPERTIES.RG', this.properties.rg);
+				this.properties.rg.toggle();
 				panel.item_focus_change();
 				break;
 			case 3999:
@@ -418,11 +405,7 @@ _.mixin({
 				break;
 			case 'lastfm_info':
 				this.filename = '';
-				if (this.lastfm_mode == 1 && !lastfm.username.length) {
-					console.log('Last.fm Username not set.');
-					break;
-				}
-				switch (this.lastfm_mode) {
+				switch (this.properties.mode.value) {
 				case 0:
 					this.filename = _.artistFolder(this.artist) + 'lastfm.artist.getSimilar.json';
 					if (_.isFile(this.filename)) {
@@ -431,7 +414,7 @@ _.mixin({
 								return {
 									name : item.name,
 									width : _.textWidth(item.name, panel.fonts.normal),
-									url : this.lastfm_link == 0 ? item.url : 'artist HAS ' + item.name
+									url : this.properties.link.value == 0 ? item.url : 'artist HAS ' + item.name
 								};
 							}, this)
 							.value();
@@ -443,13 +426,17 @@ _.mixin({
 					}
 					break;
 				case 1:
-					this.filename = folders.lastfm + lastfm.username + '.' + this.lastfm_charts_methods[this.lastfm_charts_method].method + '.' + this.lastfm_charts_periods[this.lastfm_charts_period].period + '.json';
+					if (!lastfm.username.length) {
+						console.log('Last.fm username not set.');
+						break;
+					}
+					this.filename = folders.lastfm + lastfm.username + '.' + this.methods[this.properties.method.value].method + '.' + this.periods[this.properties.period.value].period + '.json';
 					if (_.isFile(this.filename)) {
-						var data = _.get(_.jsonParseFile(this.filename), this.lastfm_charts_methods[this.lastfm_charts_method].json, []);
+						var data = _.get(_.jsonParseFile(this.filename), this.methods[this.properties.method.value].json, []);
 						for (var i = 0; i < data.length; i++) {
-							if (this.lastfm_charts_method == 0) {
+							if (this.properties.method.value == 0) {
 								var name = data[i].name;
-								var url = this.lastfm_link == 0 ? data[i].url : 'artist HAS ' + name;
+								var url = this.properties.link.value == 0 ? data[i].url : 'artist HAS ' + name;
 							} else {
 								var name = data[i].artist.name + ' - ' + data[i].name;
 								var url = data[i].url;
@@ -472,7 +459,7 @@ _.mixin({
 				}
 				break;
 			case 'musicbrainz':
-				if (this.mb_mode == 0) {
+				if (this.properties.mode.value == 0) {
 					this.mb_data = [];
 					this.mb_offset = 0;
 					this.attempt = 1;
@@ -544,22 +531,22 @@ _.mixin({
 				this.text_x = 0;
 				this.filename = panel.metadb.Path;
 				var fileinfo = panel.metadb.GetFileInfo();
-				if (this.properties.meta) {
+				if (this.properties.meta.value) {
 					this.add_meta(fileinfo);
 				}
-				if (this.properties.location) {
+				if (this.properties.location.value) {
 					this.add_location();
 				}
-				if (this.properties.tech) {
+				if (this.properties.tech.value) {
 					this.add_tech(fileinfo);
 				}
-				if (_.cc('foo_customdb') && this.properties.customdb) {
+				if (_.cc('foo_customdb') && this.properties.customdb.value) {
 					this.add_customdb();
 				}
-				if (_.cc('foo_playcount') && this.properties.playcount) {
+				if (_.cc('foo_playcount') && this.properties.playcount.value) {
 					this.add_playcount();
 				}
-				if (this.properties.rg) {
+				if (this.properties.rg.value) {
 					this.add_rg();
 				}
 				this.data.pop();
@@ -580,7 +567,7 @@ _.mixin({
 			var f = this.filename;
 			switch (this.mode) {
 			case 'lastfm_info':
-				switch (this.lastfm_mode) {
+				switch (this.properties.mode.value) {
 				case 0:
 					if (!_.tagged(this.artist)) {
 						return;
@@ -588,7 +575,7 @@ _.mixin({
 					var url = lastfm.get_base_url() + '&limit=100&method=artist.getSimilar&artist=' + encodeURIComponent(this.artist);
 					break;
 				case 1:
-					var url = lastfm.get_base_url() + '&limit=100&method=' + this.lastfm_charts_methods[this.lastfm_charts_method].method + '&period=' + this.lastfm_charts_periods[this.lastfm_charts_period].period + '&user=' + lastfm.username;
+					var url = lastfm.get_base_url() + '&limit=100&method=' + this.methods[this.properties.method.value].method + '&period=' + this.periods[this.properties.period.value].period + '&user=' + lastfm.username;
 					break;
 				}
 				break;
@@ -596,7 +583,7 @@ _.mixin({
 				if (this.mb_id.length != 36) {
 					return console.log('Invalid/missing MBID');
 				}
-				if (this.mb_mode == 0) {
+				if (this.properties.mode.value == 0) {
 					var url = 'https://beta.musicbrainz.org/ws/2/release-group?fmt=json&limit=100&offset=' + this.mb_offset + '&artist=' + this.mb_id;
 				} else {
 					var url = 'https://beta.musicbrainz.org/ws/2/artist/' + this.mb_id + '?fmt=json&inc=url-rels';
@@ -629,7 +616,7 @@ _.mixin({
 		
 		this.success = function (f) {
 			switch (true) {
-			case this.mode == 'musicbrainz' && this.mb_mode == 0: // releases
+			case this.mode == 'musicbrainz' && this.properties.mode.value == 0: // releases
 				var data = _.jsonParse(this.xmlhttp.responseText);
 				var max_offset = Math.min(500, data['release-group-count'] || 0) - 100;
 				var rg = data['release-groups'] || [];
@@ -653,14 +640,15 @@ _.mixin({
 				if (data.error) {
 					return console.log(data.message);
 				}
-				// last.fm playing up again so don't overwrite cached data with nothing
-				if (this.lastfm_mode == 0 && _.get(data, 'similarartists.artist', []).length == 0) {
-					return;
-				}
-				_.save(this.xmlhttp.responseText, f);
-				if (this.lastfm_mode == 0) {
+				if (this.properties.mode.value == 0) {
+					// last.fm playing up again so don't overwrite cached data with nothing
+					if (_.get(data, 'similarartists.artist', []).length == 0) {
+						return;
+					}
+					_.save(this.xmlhttp.responseText, f);
 					this.reset();
 				} else {
+					_.save(this.xmlhttp.responseText, f);
 					this.update();
 				}
 				break;
@@ -672,14 +660,14 @@ _.mixin({
 			case 'autoplaylists':
 				return 'Autoplaylists';
 			case 'lastfm_info':
-				switch (this.lastfm_mode) {
+				switch (this.properties.mode.value) {
 				case 0:
 					return this.artist + ': similar artists';
 				case 1:
-					return lastfm.username + ': ' + this.lastfm_charts_periods[this.lastfm_charts_period].display + ' ' + this.lastfm_charts_methods[this.lastfm_charts_method].display + ' charts';
+					return lastfm.username + ': ' + this.periods[this.properties.period.value].display + ' ' + this.methods[this.properties.method.value].display + ' charts';
 				}
 			case 'musicbrainz':
-				return this.artist + ': ' + (this.mb_mode == 0 ? 'releases' : 'links');
+				return this.artist + ': ' + (this.properties.mode.value == 0 ? 'releases' : 'links');
 			case 'properties':
 				return panel.tf('%artist% - %title%');
 			}
@@ -826,8 +814,7 @@ _.mixin({
 				_.createFolder(folders.artists);
 				_.createFolder(folders.settings);
 				this.ua = lastfm.ua;
-				this.lastfm_mode = window.GetProperty('2K3.LIST.LASTFM.MODE', 0); // 0 similar artists 1 charts
-				this.lastfm_charts_methods = [{
+				this.methods = [{
 						method : 'user.getTopArtists',
 						json : 'topartists.artist',
 						display : 'artist'
@@ -841,8 +828,7 @@ _.mixin({
 						display : 'track'
 					}
 				];
-				this.lastfm_charts_method = window.GetProperty('2K3.LIST.LASTFM.CHARTS.METHOD', 0);
-				this.lastfm_charts_periods = [{
+				this.periods = [{
 						period : 'overall',
 						display : 'overall'
 					}, {
@@ -862,10 +848,14 @@ _.mixin({
 						display : '12 month'
 					}
 				];
-				this.lastfm_charts_period = window.GetProperty('2K3.LIST.LASTFM.CHARTS.PERIOD', 0);
-				this.lastfm_charts_bar_colour = window.GetProperty('2K3.LIST.LASTFM.CHARTS.BAR.COLOUR', _.RGB(60, 60, 60));
-				this.lastfm_link = window.GetProperty('2K3.LIST.LASTFM.LINK', 0); // 0 last.fm website 1 autoplaylist
-				if (this.lastfm_mode == 1) {
+				this.properties = {
+					mode : new _.p('2K3.LIST.LASTFM.MODE', 0), // 0 similar artists 1 charts
+					method : new _.p('2K3.LIST.LASTFM.CHARTS.METHOD', 0),
+					period : new _.p('2K3.LIST.LASTFM.CHARTS.PERIOD', 0),
+					colour : new _.p('2K3.LIST.LASTFM.CHARTS.BAR.COLOUR', _.RGB(60, 60, 60)),
+					link : new _.p('2K3.LIST.LASTFM.LINK', 0) // 0 last.fm website 1 autoplaylist
+				};
+				if (this.properties.mode.value == 1) {
 					this.update();
 				}
 				break;
@@ -879,8 +869,10 @@ _.mixin({
 				_.createFolder(folders.data);
 				_.createFolder(folders.artists);
 				this.ua = 'foo_jscript_panel_musicbrainz +https://github.com/19379';
-				this.mb_mode = window.GetProperty('2K3.LIST.MUSICBRAINZ.MODE', 0); // 0 releases 1 links
 				this.mb_id = '';
+				this.properties = {
+					mode : new _.p('2K3.LIST.MUSICBRAINZ.MODE', 0) // 0 releases 1 links
+				};
 				break;
 			case 'properties':
 				this.add_meta = function (f) {
@@ -1001,12 +993,12 @@ _.mixin({
 				}
 				
 				this.properties = {
-					meta : window.GetProperty('2K3.LIST.PROPERTIES.META', true),
-					location : window.GetProperty('2K3.LIST.PROPERTIES.LOCATION', true),
-					tech : window.GetProperty('2K3.LIST.PROPERTIES.TECH', true),
-					customdb : window.GetProperty('2K3.LIST.PROPERTIES.CUSTOMDB', true),
-					playcount : window.GetProperty('2K3.LIST.PROPERTIES.PLAYCOUNT', true),
-					rg : window.GetProperty('2K3.LIST.PROPERTIES.RG', true)
+					meta : new _.p('2K3.LIST.PROPERTIES.META', true),
+					location : new _.p('2K3.LIST.PROPERTIES.LOCATION', true),
+					tech : new _.p('2K3.LIST.PROPERTIES.TECH', true),
+					customdb : new _.p('2K3.LIST.PROPERTIES.CUSTOMDB', true),
+					playcount : new _.p('2K3.LIST.PROPERTIES.PLAYCOUNT', true),
+					rg : new _.p('2K3.LIST.PROPERTIES.RG', true)
 				};
 				break;
 			}
