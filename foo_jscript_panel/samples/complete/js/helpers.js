@@ -422,6 +422,25 @@ _.mixin({
 	open : function (file) {
 		return utils.ReadTextFile(file);
 	},
+	p : function (a, b) {
+		Object.defineProperty(this, 'value', {
+			get : function () {
+				return this.b;
+			},
+			set : function (value) {
+				this.b = value;
+				window.SetProperty(this.a, this.b);
+			}
+		});
+		
+		this.toggle = function () {
+			this.b = !this.b;
+			window.SetProperty(this.a, this.b);
+		}
+		
+		this.a = a;
+		this.b = window.GetProperty(a, b);
+	},
 	q : function (value) {
 		return '"' + value + '"';
 	},
