@@ -191,7 +191,6 @@ STDMETHODIMP FbFileInfo::InfoFind(BSTR name, UINT* p)
 	TRACK_FUNCTION();
 
 	if (!m_info_ptr) return E_POINTER;
-	if (!name) return E_INVALIDARG;
 	if (!p) return E_POINTER;
 
 	*p = m_info_ptr->info_find(pfc::stringcvt::string_utf8_from_wide(name));
@@ -239,7 +238,6 @@ STDMETHODIMP FbFileInfo::MetaFind(BSTR name, UINT* p)
 	TRACK_FUNCTION();
 
 	if (!m_info_ptr) return E_POINTER;
-	if (!name) return E_POINTER;
 	if (!p) return E_POINTER;
 
 	*p = m_info_ptr->meta_find(pfc::stringcvt::string_utf8_from_wide(name));

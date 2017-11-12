@@ -1275,14 +1275,14 @@ interface IFbMetadbHandle {
 					// example: f.Dispose();
 
 					InfoFind(name);
-					// returns idx
+					// returns idx. if found the value will be lower than InfoCount
 
 					InfoName(idx);
 
 					InfoValue(idx);
 
 					MetaFind(name);
-					// returns idx
+					// returns idx. if found the value will lower than MetaCount
 
 					MetaName(idx);
 					/*
