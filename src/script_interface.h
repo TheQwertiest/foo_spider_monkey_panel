@@ -168,36 +168,12 @@ _COM_SMARTPTR_TYPEDEF(IGdiGraphics, __uuidof(IGdiGraphics));
 __interface IGdiUtils : IDispatch
 {
 	STDMETHOD(CreateImage)(int w, int h, [out, retval] IGdiBitmap** pp);
-	STDMETHOD(CreateStyleTextRender)([defaultvalue(0)] VARIANT_BOOL pngmode, [out, retval] __interface IStyleTextRender** pp);
 	STDMETHOD(Font)(BSTR name, float pxSize, [defaultvalue(0)] int style, [out, retval] IGdiFont** pp);
 	STDMETHOD(Image)(BSTR path, [out, retval] IGdiBitmap** pp);
 	STDMETHOD(LoadImageAsync)(UINT window_id, BSTR path, [out, retval] UINT* p);
 };
 
 _COM_SMARTPTR_TYPEDEF(IGdiUtils, __uuidof(IGdiUtils));
-
-[
-	object,
-	dual,
-	pointer_default(unique),
-	library_block,
-	uuid("50e12553-8908-4eca-8801-ead834cea6f0")
-]
-__interface IStyleTextRender : IDisposable
-{
-	STDMETHOD(DiffusedShadow)(VARIANT color, int thickness, int offset_x, int offset_y);
-	STDMETHOD(DoubleOutLineText)(int text_color, int outline_color1, int outline_color2, int outline_width1, int outline_width2);
-	STDMETHOD(EnableShadow)(VARIANT_BOOL enable);
-	STDMETHOD(GlowText)(int text_color, int glow_color, int glow_width);
-	STDMETHOD(OutLineText)(int text_color, int outline_color, int outline_width);
-	STDMETHOD(RenderStringPoint)(IGdiGraphics* g, BSTR str, IGdiFont* font, int x, int y, [defaultvalue(0)] int flags, [out, retval] VARIANT_BOOL* p);
-	STDMETHOD(RenderStringRect)(IGdiGraphics* g, BSTR str, IGdiFont* font, int x, int y, int w, int h, [defaultvalue(0)] int flags, [out, retval] VARIANT_BOOL* p);
-	STDMETHOD(ResetShadow)();
-	STDMETHOD(SetPngImage)(IGdiBitmap* img);
-	STDMETHOD(SetShadowBackgroundColor)(VARIANT color, int width, int height);
-	STDMETHOD(SetShadowBackgroundImage)(IGdiBitmap* img);
-	STDMETHOD(Shadow)(VARIANT color, int thickness, int offset_x, int offset_y);
-};
 
 [
 	object,

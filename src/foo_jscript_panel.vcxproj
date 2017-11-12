@@ -247,10 +247,6 @@ copy /Y "$(TargetPath)" "%component_path%\"</Command>
       <LinkLibraryDependencies>true</LinkLibraryDependencies>
       <UseLibraryDependencyInputs>false</UseLibraryDependencyInputs>
     </ProjectReference>
-    <ProjectReference Include="..\TextDesinger\TextDesigner.vcxproj">
-      <Project>{f21ce92f-240d-48fe-8b73-56a63d4536b0}</Project>
-      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

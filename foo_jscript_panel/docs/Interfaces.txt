@@ -340,39 +340,6 @@ interface IGdiUtils {
 	Methods:
 		gdi.CreateImage(w, h); (IGdiBitmap)
 
-		gdi.CreateStyleTextRender([pngmode]); (IStyleTextRender)
-		// pngmode: boolean, default false.
-		// see samples\basic\Glow Text Sample.txt
-
-			interface IStyleTextRender {
-				Methods:
-					// ---- outline mode ----
-					OutLineText(text_color, outline_color, outline_width);
-					DoubleOutLineText(text_color, outline_color1, outline_color2, outline_width1, outline_width2);
-					GlowText(text_color, glow_color, glow_width);
-
-					// ---- shadow ----
-					EnableShadow(enable);
-					ResetShadow();
-					// it's recommended to call ResetShadow() directly after EnableShadow()
-					Shadow(color, thickness, offset_x, offset_y);
-					// default shadow, used in solid shadow colour
-					DiffusedShadow(colour, thickness, offset_x, offset_y);
-					// soft shadow
-
-					// while using DiffusedShadow(), these two methods below are useful
-					SetShadowBackgroundColor(colour, width, height);
-					SetShadowBackgroundImage(img);
-
-					// ---- Render ----
-					// Not recommended if the flags contains something like "center". it won't
-					// work properly because of the lack of width and height information.
-					RenderStringPoint(g, str, font, x, y[, flags]);
-					RenderStringRect(g, str, font, x, y, w, h[, flags]);
-					SetPngImage(IGdiBitmap);
-					// Only in pngmode, the image should be a transparent image created by gdi.CreateImage().
-			}
-
 		gdi.Font(name, size px[, style]); (IGdiFont)
 		// size px: see helpers.txt > Point2Pixel function for conversions.
 		// style: default 0. see flags.txt > FontStyle

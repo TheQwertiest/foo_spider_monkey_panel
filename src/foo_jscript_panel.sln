@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.24720.0
+# Visual Studio 15
+VisualStudioVersion = 15.0.27004.2008
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "pfc", "..\pfc\pfc.vcxproj", "{EBFFFB4E-261D-44D3-B89C-957B31A0BF9C}"
 EndProject
@@ -10,8 +10,6 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "foobar2000_component_client", "..\foobar2000\foobar2000_component_client\foobar2000_component_client.vcxproj", "{71AD2674-065B-48F5-B8B0-E1F9D3892081}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "columns_ui_sdk", "..\columns_ui-sdk\columns_ui-sdk.vcxproj", "{93EC0EDE-01CD-4FB0-B8E8-4F2A027E026E}"
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TextDesigner", "..\TextDesinger\TextDesigner.vcxproj", "{F21CE92F-240D-48FE-8B73-56A63D4536B0}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "scintilla", "..\scintilla\win32\scintilla.vcxproj", "{641A7D58-C47D-4110-B800-E18E8A5D818F}"
 EndProject
@@ -35,27 +33,24 @@ Global
 		{71AD2674-065B-48F5-B8B0-E1F9D3892081}.Debug|Win32.Build.0 = Debug|Win32
 		{71AD2674-065B-48F5-B8B0-E1F9D3892081}.Release|Win32.ActiveCfg = Release|Win32
 		{71AD2674-065B-48F5-B8B0-E1F9D3892081}.Release|Win32.Build.0 = Release|Win32
-		{43DF6037-DBE4-4468-9A50-4311495F3C86}.Debug|Win32.ActiveCfg = Debug|Win32
-		{43DF6037-DBE4-4468-9A50-4311495F3C86}.Debug|Win32.Build.0 = Debug|Win32
-		{43DF6037-DBE4-4468-9A50-4311495F3C86}.Release|Win32.ActiveCfg = Release|Win32
-		{43DF6037-DBE4-4468-9A50-4311495F3C86}.Release|Win32.Build.0 = Release|Win32
 		{93EC0EDE-01CD-4FB0-B8E8-4F2A027E026E}.Debug|Win32.ActiveCfg = Debug|Win32
 		{93EC0EDE-01CD-4FB0-B8E8-4F2A027E026E}.Debug|Win32.Build.0 = Debug|Win32
 		{93EC0EDE-01CD-4FB0-B8E8-4F2A027E026E}.Release|Win32.ActiveCfg = Release|Win32
 		{93EC0EDE-01CD-4FB0-B8E8-4F2A027E026E}.Release|Win32.Build.0 = Release|Win32
-		{F21CE92F-240D-48FE-8B73-56A63D4536B0}.Debug|Win32.ActiveCfg = Debug|Win32
-		{F21CE92F-240D-48FE-8B73-56A63D4536B0}.Debug|Win32.Build.0 = Debug|Win32
-		{F21CE92F-240D-48FE-8B73-56A63D4536B0}.Release|Win32.ActiveCfg = Release|Win32
-		{F21CE92F-240D-48FE-8B73-56A63D4536B0}.Release|Win32.Build.0 = Release|Win32
 		{641A7D58-C47D-4110-B800-E18E8A5D818F}.Debug|Win32.ActiveCfg = Debug|Win32
 		{641A7D58-C47D-4110-B800-E18E8A5D818F}.Debug|Win32.Build.0 = Debug|Win32
 		{641A7D58-C47D-4110-B800-E18E8A5D818F}.Release|Win32.ActiveCfg = Release|Win32
 		{641A7D58-C47D-4110-B800-E18E8A5D818F}.Release|Win32.Build.0 = Release|Win32
+		{43DF6037-DBE4-4468-9A50-4311495F3C86}.Debug|Win32.ActiveCfg = Debug|Win32
+		{43DF6037-DBE4-4468-9A50-4311495F3C86}.Debug|Win32.Build.0 = Debug|Win32
+		{43DF6037-DBE4-4468-9A50-4311495F3C86}.Release|Win32.ActiveCfg = Release|Win32
+		{43DF6037-DBE4-4468-9A50-4311495F3C86}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionNewStyle = 1
+		SolutionGuid = {04D470B3-3881-4A19-A99F-5E04F5978FB4}
 	EndGlobalSection
 EndGlobal

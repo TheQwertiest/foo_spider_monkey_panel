@@ -543,7 +543,6 @@ protected:
 
 public:
 	STDMETHODIMP CreateImage(int w, int h, IGdiBitmap** pp);
-	STDMETHODIMP CreateStyleTextRender(VARIANT_BOOL pngmode, IStyleTextRender** pp);
 	STDMETHODIMP Font(BSTR name, float pxSize, int style, IGdiFont** pp);
 	STDMETHODIMP Image(BSTR path, IGdiBitmap** pp);
 	STDMETHODIMP LoadImageAsync(UINT window_id, BSTR path, UINT* p);
@@ -631,36 +630,6 @@ public:
 	STDMETHODIMP EnableMenuItem(UINT id_or_pos, UINT enable, VARIANT_BOOL bypos);
 	STDMETHODIMP TrackPopupMenu(int x, int y, UINT flags, UINT* item_id);
 	STDMETHODIMP get_ID(UINT* p);
-};
-
-namespace TextDesign
-{
-	class IOutlineText;
-}
-
-class StyleTextRender : public IDisposableImpl4<IStyleTextRender>
-{
-protected:
-	TextDesign::IOutlineText* m_pOutLineText;
-	bool m_pngmode;
-
-	StyleTextRender(bool pngmode);
-	virtual ~StyleTextRender();
-	virtual void FinalRelease();
-
-public:
-	STDMETHODIMP DiffusedShadow(VARIANT color, int thickness, int offset_x, int offset_y);
-	STDMETHODIMP DoubleOutLineText(int text_color, int outline_color1, int outline_color2, int outline_width1, int outline_width2);
-	STDMETHODIMP EnableShadow(VARIANT_BOOL enable);
-	STDMETHODIMP GlowText(int text_color, int glow_color, int glow_width);
-	STDMETHODIMP OutLineText(int text_color, int outline_color, int outline_width);
-	STDMETHODIMP RenderStringPoint(IGdiGraphics* g, BSTR str, IGdiFont* font, int x, int y, int flags, VARIANT_BOOL* p);
-	STDMETHODIMP RenderStringRect(IGdiGraphics* g, BSTR str, IGdiFont* font, int x, int y, int w, int h, int flags, VARIANT_BOOL* p);
-	STDMETHODIMP ResetShadow();
-	STDMETHODIMP SetPngImage(IGdiBitmap* img);
-	STDMETHODIMP SetShadowBackgroundColor(VARIANT color, int width, int height);
-	STDMETHODIMP SetShadowBackgroundImage(IGdiBitmap* img);
-	STDMETHODIMP Shadow(VARIANT color, int thickness, int offset_x, int offset_y);
 };
 
 class ThemeManager : public IDisposableImpl4<IThemeManager>
