@@ -11,7 +11,7 @@ _.mixin({
 		
 		this.paint = function (gr) {
 			for (var i = 0; i < Math.min(this.rows, this.lines.length); i++) {
-				if (this.mode == 'text_reader' && this.properties.fixed.value) {
+				if (this.mode == 'text_reader' && this.properties.fixed.enabled) {
 					gr.GdiDrawText(this.lines[i + this.offset], panel.fonts.fixed, panel.colours.text, this.x, this.y + _.scale(12) + (i * panel.row_height) + Math.floor(panel.row_height / 2), this.w, panel.row_height, LEFT);
 				} else {
 					gr.GdiDrawText(this.lines[i + this.offset], panel.fonts.normal, panel.colours.text, this.x, this.y + _.scale(12) + (i * panel.row_height), this.w, panel.row_height, LEFT);
@@ -157,7 +157,7 @@ _.mixin({
 				panel.m.AppendMenuItem(MF_STRING, 5220, 'Custom path...');
 				panel.m.AppendMenuSeparator();
 				panel.m.AppendMenuItem(MF_STRING, 5230, 'Fixed width font');
-				panel.m.CheckMenuItem(5230, this.properties.fixed.value);
+				panel.m.CheckMenuItem(5230, this.properties.fixed.enabled);
 				panel.m.AppendMenuSeparator();
 				break;
 			}
@@ -237,7 +237,7 @@ _.mixin({
 			case this.w < 100 || !this.content.length:
 				this.lines = [];
 				break;
-			case this.mode == 'text_reader' && this.properties.fixed.value:
+			case this.mode == 'text_reader' && this.properties.fixed.enabled:
 				this.lines = this.content.split('\n');
 				break;
 			default:

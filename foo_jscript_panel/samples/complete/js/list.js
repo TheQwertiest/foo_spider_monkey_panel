@@ -267,17 +267,17 @@ _.mixin({
 				break;
 			case 'properties':
 				panel.m.AppendMenuItem(MF_STRING, 3300, 'Metadata');
-				panel.m.CheckMenuItem(3300, this.properties.meta.value);
+				panel.m.CheckMenuItem(3300, this.properties.meta.enabled);
 				panel.m.AppendMenuItem(MF_STRING, 3301, 'Location');
-				panel.m.CheckMenuItem(3301, this.properties.location.value);
+				panel.m.CheckMenuItem(3301, this.properties.location.enabled);
 				panel.m.AppendMenuItem(MF_STRING, 3302, 'Tech Info');
-				panel.m.CheckMenuItem(3302, this.properties.tech.value);
+				panel.m.CheckMenuItem(3302, this.properties.tech.enabled);
 				panel.m.AppendMenuItem(_.cc('foo_customdb') ? MF_STRING : MF_GRAYED, 3303, 'Last.fm Playcount (foo_customdb)');
-				panel.m.CheckMenuItem(3303, this.properties.customdb.value);
+				panel.m.CheckMenuItem(3303, this.properties.customdb.enabled);
 				panel.m.AppendMenuItem(_.cc('foo_playcount') ? MF_STRING : MF_GRAYED, 3304, 'Playback Statistics (foo_playcount)');
-				panel.m.CheckMenuItem(3304, this.properties.playcount.value);
+				panel.m.CheckMenuItem(3304, this.properties.playcount.enabled);
 				panel.m.AppendMenuItem(MF_STRING, 3305, 'Replaygain');
-				panel.m.CheckMenuItem(3305, this.properties.rg.value);
+				panel.m.CheckMenuItem(3305, this.properties.rg.enabled);
 				panel.m.AppendMenuSeparator();
 				break;
 			}
@@ -531,22 +531,22 @@ _.mixin({
 				this.text_x = 0;
 				this.filename = panel.metadb.Path;
 				var fileinfo = panel.metadb.GetFileInfo();
-				if (this.properties.meta.value) {
+				if (this.properties.meta.enabled) {
 					this.add_meta(fileinfo);
 				}
-				if (this.properties.location.value) {
+				if (this.properties.location.enabled) {
 					this.add_location();
 				}
-				if (this.properties.tech.value) {
+				if (this.properties.tech.enabled) {
 					this.add_tech(fileinfo);
 				}
-				if (_.cc('foo_customdb') && this.properties.customdb.value) {
+				if (_.cc('foo_customdb') && this.properties.customdb.enabled) {
 					this.add_customdb();
 				}
-				if (_.cc('foo_playcount') && this.properties.playcount.value) {
+				if (_.cc('foo_playcount') && this.properties.playcount.enabled) {
 					this.add_playcount();
 				}
-				if (this.properties.rg.value) {
+				if (this.properties.rg.enabled) {
 					this.add_rg();
 				}
 				this.data.pop();

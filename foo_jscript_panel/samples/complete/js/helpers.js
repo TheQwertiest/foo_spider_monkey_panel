@@ -423,7 +423,7 @@ _.mixin({
 		return utils.ReadTextFile(file);
 	},
 	p : function (a, b) {
-		Object.defineProperty(this, 'value', {
+		Object.defineProperty(this, _.isBoolean(b) ? 'enabled' : 'value', {
 			get : function () {
 				return this.b;
 			},
@@ -499,7 +499,7 @@ _.mixin({
 				window.SetCursor(IDC_HAND);
 				return true;
 			} else {
-				window.SetCursor(IDC_ARROW);
+				//window.SetCursor(IDC_ARROW);
 				return false;
 			}
 		}

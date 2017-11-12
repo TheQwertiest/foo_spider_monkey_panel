@@ -33,12 +33,12 @@ function on_size() {
 function on_paint(gr) {
 	gr.FillSolidRect(0, 0, ww, wh, properties.background.value);
 	if (fb.IsPlaying) {
-		gr.GdiDrawText(_.tfe(left_text_tf), font, properties.text.value, 5, -1, ww - right_text_width - (properties.volume.value ? 180: 50), font.Height, LEFT);
+		gr.GdiDrawText(_.tfe(left_text_tf), font, properties.text.value, 5, -1, ww - right_text_width - (properties.volume.enabled ? 180: 50), font.Height, LEFT);
 	}
 	if (plman.ActivePlaylist < plman.PlaylistCount) {
-		gr.GdiDrawText(right_text, font, properties.text.value, 0, -1, ww - (properties.volume.value ? 130 : 5), font.Height, RIGHT);
+		gr.GdiDrawText(right_text, font, properties.text.value, 0, -1, ww - (properties.volume.enabled ? 130 : 5), font.Height, RIGHT);
 	}
-	if (properties.volume.value) {
+	if (properties.volume.enabled) {
 		gr.GdiDrawText(fb.Volume.toFixed(2) + ' dB', font, properties.text.value, 0, -1, ww - 5, font.Height, RIGHT);
 	}
 }
@@ -56,7 +56,7 @@ function on_volume_change() {
 }
 
 function on_mouse_wheel(s) {
-	if (!properties.volume.value) {
+	if (!properties.volume.enabled) {
 		return;
 	}
 	if (s == 1) {
@@ -82,16 +82,16 @@ function on_mouse_rbtn_up(x, y) {
 		m.AppendMenuSeparator();
 	}
 	m.AppendMenuItem(MF_STRING, 10000, 'Show playlist name');
-	m.CheckMenuItem(10000, properties.name.value);
+	m.CheckMenuItem(10000, properties.name.enabled);
 	m.AppendMenuItem(MF_STRING, 10001, 'Show playlist item count');
-	m.CheckMenuItem(10001, properties.count.value);
+	m.CheckMenuItem(10001, properties.count.enabled);
 	m.AppendMenuItem(MF_STRING, 10002, 'Show playlist duration');
-	m.CheckMenuItem(10002, properties.duration.value);
+	m.CheckMenuItem(10002, properties.duration.enabled);
 	m.AppendMenuItem(MF_STRING, 10003, 'Show playlist size');
-	m.CheckMenuItem(10003, properties.size.value);
+	m.CheckMenuItem(10003, properties.size.enabled);
 	m.AppendMenuSeparator();
 	m.AppendMenuItem(MF_STRING, 10004, 'Show volume');
-	m.CheckMenuItem(10004, properties.volume.value);
+	m.CheckMenuItem(10004, properties.volume.enabled);
 	m.AppendMenuSeparator();
 	col.AppendMenuItem(MF_STRING, 1005, 'Background...');
 	col.AppendMenuItem(MF_STRING, 1006, 'Text...');
@@ -154,7 +154,7 @@ function on_playlist_items_removed(p) {
 }
 
 function on_playlists_changed() {
-	if (properties.name.value) {
+	if (properties.name.enabled) {
 		refresh();
 	}
 }
@@ -167,16 +167,16 @@ function refresh() {
 	var items = plman.GetPlaylistItems(plman.ActivePlaylist);
 	var count = items.Count;
 	var tmp = [];
-	if (properties.name.value) {
+	if (properties.name.enabled) {
 		tmp.push(plman.GetPlaylistName(plman.ActivePlaylist));
 	}
-	if (properties.count.value) {
+	if (properties.count.enabled) {
 		tmp.push(count + (count == 1 ? ' track' : ' tracks'));
 	}
-	if (properties.duration.value) {
+	if (properties.duration.enabled) {
 		tmp.push(utils.FormatDuration(items.CalcTotalDuration()));
 	}
-	if (properties.size.value) {
+	if (properties.size.enabled) {
 		tmp.push(utils.FormatFileSize(items.CalcTotalSize()));
 	}
 	right_text = tmp.join(' :: ');

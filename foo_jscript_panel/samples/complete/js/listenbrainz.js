@@ -4,12 +4,12 @@ _.mixin({
 			this.metadb = fb.GetNowPlaying();
 			this.time_elapsed = 0;
 			this.timestamp = _.ts();
-			this.target_time = this.properties.enabled.value ? Math.min(Math.ceil(fb.PlaybackLength / 2), 240) : -1;
+			this.target_time = this.properties.listenbrainz.enabled ? Math.min(Math.ceil(fb.PlaybackLength / 2), 240) : -1;
 		}
 		
 		this.playback_time = function () {
 			this.time_elapsed++;
-			if (!this.properties.enabled.value || !this.metadb) {
+			if (!this.properties.listenbrainz.enabled || !this.metadb) {
 				return;
 			}
 			if (this.time_elapsed == 3) {
@@ -25,7 +25,7 @@ _.mixin({
 				return console.log('Token invalid/not set.');
 			}
 			
-			if (this.properties.library.value && !fb.IsMetadbInMediaLibrary(metadb)) {
+			if (this.properties.library.enabled && !fb.IsMetadbInMediaLibrary(metadb)) {
 				if (listen_type == 'single') {
 					console.log('Skipping... Track not in Media Library.');	
 				}
@@ -69,7 +69,7 @@ _.mixin({
 			if (listen_type == 'single') {
 				payload.listened_at = this.timestamp;
 				
-				if (this.properties.genres.value && tags.genre) {
+				if (this.properties.genres.enabled && tags.genre) {
 					payload.track_metadata.additional_info.tags = _(tags.genre)
 						.take(50)
 						.map(function (item) {
@@ -77,10 +77,10 @@ _.mixin({
 						})
 						.value();
 				}
-						
+				
 				console.log('Submitting ' + _.q(tags.artist + ' - ' + tags.title));
 				
-				if (this.properties.show.value) {
+				if (this.properties.show.enabled) {
 					fb.Trace(JSON.stringify(payload, null, 4));
 				}
 			}
@@ -207,7 +207,7 @@ _.mixin({
 		}
 		
 		this.options = function () {
-			var flag = _.isUUID(this.token) && this.properties.enabled.value ? MF_STRING : MF_GRAYED;
+			var flag = _.isUUID(this.token) && this.properties.listenbrainz.enabled ? MF_STRING : MF_GRAYED;
 			var m = window.CreatePopupMenu();
 			m.AppendMenuItem(MF_STRING, 1, 'Set token...');
 			m.AppendMenuSeparator();
@@ -215,14 +215,14 @@ _.mixin({
 			m.AppendMenuItem(this.username.length ? MF_STRING : MF_GRAYED, 3, 'View profile');
 			m.AppendMenuSeparator();
 			m.AppendMenuItem(MF_STRING, 4, 'Enabled');
-			m.CheckMenuItem(4, this.properties.enabled.value);
+			m.CheckMenuItem(4, this.properties.listenbrainz.enabled);
 			m.AppendMenuSeparator();
 			m.AppendMenuItem(flag, 5, 'Show submission data in Console when sending');
-			m.CheckMenuItem(5, this.properties.show.value);
+			m.CheckMenuItem(5, this.properties.show.enabled);
 			m.AppendMenuItem(flag, 6, 'Submit Media Library tracks only');
-			m.CheckMenuItem(6, this.properties.library.value);
+			m.CheckMenuItem(6, this.properties.library.enabled);
 			m.AppendMenuItem(flag, 7, 'Submit genre tags');
-			m.CheckMenuItem(7, this.properties.genres.value);
+			m.CheckMenuItem(7, this.properties.genres.enabled);
 			m.AppendMenuSeparator();
 			m.AppendMenuItem(MF_GRAYED, 8, 'Cache contains ' + this.open_cache().length + ' listen(s).');
 			var idx = m.TrackPopupMenu(this.x, this.y + this.size);
@@ -246,7 +246,7 @@ _.mixin({
 				_.run('https://listenbrainz.org/user/' + this.username);
 				break;
 			case 4:
-				this.properties.enabled.toggle();
+				this.properties.listenbrainz.toggle();
 				this.update_button();
 				break;
 			case 5:
@@ -263,7 +263,7 @@ _.mixin({
 		}
 		
 		this.update_button = function () {
-			buttons.buttons.listenbrainz = new _.button(this.x, this.y, this.size, this.size, {normal : this.properties.enabled.value && _.isUUID(this.token) ? 'misc\\listenbrainz_active.png' : 'misc\\listenbrainz_inactive.png'}, _.bind(function () { this.options(); }, this), 'Listenbrainz Options');
+			buttons.buttons.listenbrainz = new _.button(this.x, this.y, this.size, this.size, {normal : this.properties.listenbrainz.enabled && _.isUUID(this.token) ? 'misc\\listenbrainz_active.png' : 'misc\\listenbrainz_inactive.png'}, _.bind(function () { this.options(); }, this), 'Listenbrainz Options');
 			window.RepaintRect(this.x, this.y, this.size, this.size);
 		}
 		
@@ -313,7 +313,7 @@ _.mixin({
 			'titlesortorder' : 'titlesort'
 		};
 		this.properties = {
-			enabled : new _.p('2K3.LISTENBRAINZ.ENABLED', true),
+			listenbrainz : new _.p('2K3.LISTENBRAINZ.ENABLED', true),
 			library : new _.p('2K3.LISTENBRAINZ.IN.LIBRARY', false),
 			show : new _.p('2K3.LISTENBRAINZ.SHOW.DATA', false),
 			genres : new _.p('2K3.LISTENBRAINZ.SUBMIT.GENRES', true)

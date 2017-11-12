@@ -1,8 +1,8 @@
 _.mixin({
 	albumart : function (x, y, w, h) {
 		this.paint = function (gr) {
-			if (this.properties.cd.value) {
-				if (this.properties.shadow.value) {
+			if (this.properties.cd.enabled) {
+				if (this.properties.shadow.enabled) {
 					_.drawImage(gr, this.shadow_img, this.x, this.y, this.w, this.h);
 				}
 				_.drawImage(gr, this.case_img, this.x, this.y, this.w, this.h);
@@ -15,7 +15,7 @@ _.mixin({
 					_.drawImage(gr, this.img, nx, ny, nw, nh, this.properties.aspect.value);
 				}
 				_.drawImage(gr, this.semi_img, this.x, this.y, this.w, this.h);
-				if (this.properties.gloss.value) {
+				if (this.properties.gloss.enabled) {
 					_.drawImage(gr, this.gloss_img, this.x, this.y, this.w, this.h);
 				}
 			} else if (this.img) {
@@ -106,11 +106,11 @@ _.mixin({
 			panel.m.AppendMenuItem(MF_STRING, 2000, 'Refresh');
 			panel.m.AppendMenuSeparator();
 			panel.m.AppendMenuItem(MF_STRING, 2001, 'CD Jewel Case');
-			panel.m.CheckMenuItem(2001, this.properties.cd.value);
-			panel.m.AppendMenuItem(this.properties.cd.value ? MF_STRING : MF_GRAYED, 2002, 'Gloss effect');
-			panel.m.CheckMenuItem(2002, this.properties.gloss.value);
-			panel.m.AppendMenuItem(this.properties.cd.value ? MF_STRING : MF_GRAYED, 2003, 'Shadow effect');
-			panel.m.CheckMenuItem(2003, this.properties.shadow.value);
+			panel.m.CheckMenuItem(2001, this.properties.cd.enabled);
+			panel.m.AppendMenuItem(this.properties.cd.enabled ? MF_STRING : MF_GRAYED, 2002, 'Gloss effect');
+			panel.m.CheckMenuItem(2002, this.properties.gloss.enabled);
+			panel.m.AppendMenuItem(this.properties.cd.enabled ? MF_STRING : MF_GRAYED, 2003, 'Shadow effect');
+			panel.m.CheckMenuItem(2003, this.properties.shadow.enabled);
 			panel.m.AppendMenuSeparator();
 			_.forEach(this.ids, function (item, i) {
 				panel.m.AppendMenuItem(MF_STRING, i + 2010, item);
