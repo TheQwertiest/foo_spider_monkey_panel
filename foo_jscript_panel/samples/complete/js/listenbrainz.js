@@ -9,14 +9,16 @@ _.mixin({
 		
 		this.playback_time = function () {
 			this.time_elapsed++;
-			if (!this.properties.listenbrainz.enabled || !this.metadb) {
-				return;
-			}
-			if (this.time_elapsed == 3) {
+			switch (true) {
+			case !this.metadb:
+			case !this.properties.listenbrainz.enabled:
+				break;
+			case this.time_elapsed == 3:
 				this.listen(this.metadb, 'playing_now');
-			}
-			if (this.time_elapsed == this.target_time) {
+				break;
+			case this.time_elapsed == this.target_time:
 				this.listen(this.metadb, 'single');
+				break;
 			}
 		}
 		
