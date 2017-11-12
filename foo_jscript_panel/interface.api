@@ -54,7 +54,6 @@ fb.VolumeMute()
 fb.VolumeUp()
 
 gdi.CreateImage(w, h)
-gdi.CreateStyleTextRender([pngmode])
 gdi.Font(name, size_px[, style])
 gdi.Image(path)
 gdi.LoadImageAsync(window_id, path)
