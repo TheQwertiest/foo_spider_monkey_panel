@@ -595,7 +595,6 @@ STDMETHODIMP FbWindow::CreateThemeManager(BSTR classid, IThemeManager** pp)
 {
 	TRACK_FUNCTION();
 
-	if (!classid) return E_INVALIDARG;
 	if (!pp) return E_POINTER;
 
 	IThemeManager* ptheme = NULL;
@@ -647,7 +646,6 @@ STDMETHODIMP FbWindow::GetColorCUI(UINT type, BSTR guidstr, int* p)
 	TRACK_FUNCTION();
 
 	if (!p) return E_POINTER;
-	if (!guidstr) return E_INVALIDARG;
 	if (m_host->GetInstanceType() != HostComm::KInstanceTypeCUI) return E_NOTIMPL;
 
 	GUID guid;
@@ -684,7 +682,6 @@ STDMETHODIMP FbWindow::GetFontCUI(UINT type, BSTR guidstr, IGdiFont** pp)
 	TRACK_FUNCTION();
 
 	if (!pp) return E_POINTER;
-	if (!guidstr) return E_INVALIDARG;
 	if (m_host->GetInstanceType() != HostComm::KInstanceTypeCUI) return E_NOTIMPL;
 
 	GUID guid;
@@ -753,7 +750,6 @@ STDMETHODIMP FbWindow::GetProperty(BSTR name, VARIANT defaultval, VARIANT* p)
 {
 	TRACK_FUNCTION();
 
-	if (!name) return E_INVALIDARG;
 	if (!p) return E_POINTER;
 
 	HRESULT hr;
@@ -780,7 +776,6 @@ STDMETHODIMP FbWindow::NotifyOthers(BSTR name, VARIANT info)
 {
 	TRACK_FUNCTION();
 
-	if (!name) return E_INVALIDARG;
 	if (info.vt & VT_BYREF) return E_INVALIDARG;
 
 	HRESULT hr = S_OK;
@@ -843,8 +838,6 @@ STDMETHODIMP FbWindow::SetInterval(IDispatch* func, INT delay, UINT* outInterval
 STDMETHODIMP FbWindow::SetProperty(BSTR name, VARIANT val)
 {
 	TRACK_FUNCTION();
-
-	if (!name) return E_INVALIDARG;
 
 	m_host->get_config_prop().set_config_item(pfc::stringcvt::string_utf8_from_wide(name), val);
 	return S_OK;

@@ -3493,7 +3493,6 @@ STDMETHODIMP GdiGraphics::EstimateLineWrap(BSTR str, IGdiFont* font, int max_wid
 
 	HFONT hFont = NULL;
 	font->get_HFont((UINT *)&hFont);
-	if (!hFont) return E_INVALIDARG;
 	HFONT oldfont;
 	HDC dc = m_ptr->GetHDC();
 	pfc::list_t<helpers::wrapped_item> result;

@@ -558,8 +558,7 @@ namespace helpers
 
 	HRESULT get_album_art_v2(const metadb_handle_ptr& handle, IGdiBitmap** pp, int art_id, VARIANT_BOOL need_stub, VARIANT_BOOL no_load, pfc::string_base* image_path_ptr)
 	{
-		if (handle.is_empty()) return E_INVALIDARG;
-		if (!pp) return E_POINTER;
+		if (handle.is_empty() || !pp) return E_POINTER;
 
 		GUID what = helpers::convert_artid_to_guid(art_id);
 		abort_callback_dummy abort;
@@ -597,7 +596,6 @@ namespace helpers
 
 	HRESULT get_album_art_embedded(BSTR rawpath, IGdiBitmap** pp, int art_id)
 	{
-		if (!rawpath) return E_INVALIDARG;
 		if (!pp) return E_POINTER;
 
 		service_enum_t<album_art_extractor> e;
