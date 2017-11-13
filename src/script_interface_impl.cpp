@@ -51,29 +51,29 @@ STDMETHODIMP ContextMenuManager::InitContext(VARIANT handle)
 {
 	TRACK_FUNCTION();
 
-	IDispatchPtr handle_s = NULL;
-	int try_result = helpers::get_metadb_from_variant(handle, &handle_s);
-
-	if (try_result < 0 || !handle_s) return E_INVALIDARG;
+	if (handle.vt != VT_DISPATCH || !handle.pdispVal) return E_INVALIDARG;
 
 	metadb_handle_list handle_list;
+	IDispatch* temp = NULL;
+	IDispatchPtr handle_s = NULL;
 	void* ptr = NULL;
 
-	switch (try_result)
+	if (SUCCEEDED(handle.pdispVal->QueryInterface(__uuidof(IFbMetadbHandle), (void**)&temp)))
 	{
-	case 0:
+		handle_s = temp;
 		reinterpret_cast<IFbMetadbHandle *>(handle_s.GetInterfacePtr())->get__ptr(&ptr);
 		if (!ptr) return E_INVALIDARG;
 		handle_list = pfc::list_single_ref_t<metadb_handle_ptr>(reinterpret_cast<metadb_handle *>(ptr));
-		break;
-
-	case 1:
+	}
+	else if (SUCCEEDED(handle.pdispVal->QueryInterface(__uuidof(IFbMetadbHandleList), (void**)&temp)))
+	{
+		handle_s = temp;
 		reinterpret_cast<IFbMetadbHandleList *>(handle_s.GetInterfacePtr())->get__ptr(&ptr);
 		if (!ptr) return E_INVALIDARG;
 		handle_list = *reinterpret_cast<metadb_handle_list *>(ptr);
-		break;
-
-	default:
+	}
+	else
+	{
 		return E_INVALIDARG;
 	}
 
@@ -2523,34 +2523,33 @@ STDMETHODIMP FbUtils::RunContextCommandWithMetadb(BSTR command, VARIANT handle, 
 	TRACK_FUNCTION();
 
 	if (!p) return E_POINTER;
+	if (handle.vt != VT_DISPATCH || !handle.pdispVal) return E_INVALIDARG;
 
-	IDispatchPtr handle_s = NULL;
-	int try_result = helpers::get_metadb_from_variant(handle, &handle_s);
-
-	if (try_result < 0 || !handle_s) return E_INVALIDARG;
-
-	pfc::stringcvt::string_utf8_from_wide name(command);
 	metadb_handle_list handle_list;
+	IDispatch* temp = NULL;
+	IDispatchPtr handle_s = NULL;
 	void* ptr = NULL;
 
-	switch (try_result)
+	if (SUCCEEDED(handle.pdispVal->QueryInterface(__uuidof(IFbMetadbHandle), (void**)&temp)))
 	{
-	case 0:
+		handle_s = temp;
 		reinterpret_cast<IFbMetadbHandle *>(handle_s.GetInterfacePtr())->get__ptr(&ptr);
 		if (!ptr) return E_INVALIDARG;
 		handle_list = pfc::list_single_ref_t<metadb_handle_ptr>(reinterpret_cast<metadb_handle *>(ptr));
-		break;
-
-	case 1:
+	}
+	else if (SUCCEEDED(handle.pdispVal->QueryInterface(__uuidof(IFbMetadbHandleList), (void**)&temp)))
+	{
+		handle_s = temp;
 		reinterpret_cast<IFbMetadbHandleList *>(handle_s.GetInterfacePtr())->get__ptr(&ptr);
 		if (!ptr) return E_INVALIDARG;
 		handle_list = *reinterpret_cast<metadb_handle_list *>(ptr);
-		break;
-
-	default:
+	}
+	else
+	{
 		return E_INVALIDARG;
 	}
 
+	pfc::stringcvt::string_utf8_from_wide name(command);
 	*p = TO_VARIANT_BOOL(helpers::execute_context_command_by_name_SEH(name, handle_list, flags));
 	return S_OK;
 }

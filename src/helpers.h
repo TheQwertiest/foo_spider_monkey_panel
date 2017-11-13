@@ -22,27 +22,6 @@ namespace helpers
 		return value.c_str();
 	}
 
-	inline int get_metadb_from_variant(const VARIANT& obj, IDispatch** ppuk)
-	{
-		if (obj.vt != VT_DISPATCH || !obj.pdispVal)
-			return -1;
-
-		IDispatch* temp = NULL;
-
-		if (SUCCEEDED(obj.pdispVal->QueryInterface(__uuidof(IFbMetadbHandle), (void**)&temp)))
-		{
-			*ppuk = temp;
-			return 0;
-		}
-		else if (SUCCEEDED(obj.pdispVal->QueryInterface(__uuidof(IFbMetadbHandleList), (void**)&temp)))
-		{
-			*ppuk = temp;
-			return 1;
-		}
-
-		return -1;
-	}
-
 	inline unsigned get_color_from_variant(VARIANT v)
 	{
 		return (v.vt == VT_R8) ? static_cast<unsigned>(v.dblVal) : v.lVal;
