@@ -560,7 +560,7 @@ __interface IFbPlaylistManager : IDispatch
 	STDMETHOD(InsertPlaylistItemsFilter)(UINT playlistIndex, UINT base, IFbMetadbHandleList* handles, [defaultvalue(0)] VARIANT_BOOL select, [out, retval] UINT* outSize);
 	STDMETHOD(IsAutoPlaylist)(UINT idx, [out, retval] VARIANT_BOOL* p);
 	STDMETHOD(IsPlaybackQueueActive)([out, retval] VARIANT_BOOL* outIsActive);
-	STDMETHOD(IsPlaylistItemSelected)(UINT playlistIndex, UINT playlistItemIndex, [out, retval] UINT* outSelected);
+	STDMETHOD(IsPlaylistItemSelected)(UINT playlistIndex, UINT playlistItemIndex, [out, retval] VARIANT_BOOL* outSelected);
 	STDMETHOD(IsPlaylistLocked)(UINT playlistIndex, [out, retval] VARIANT_BOOL* p);
 	STDMETHOD(MovePlaylist)(UINT from, UINT to, [out, retval] VARIANT_BOOL* outSuccess);
 	STDMETHOD(MovePlaylistSelection)(UINT playlistIndex, int delta);

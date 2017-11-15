@@ -1187,7 +1187,7 @@ STDMETHODIMP FbPlaylistManager::IsPlaybackQueueActive(VARIANT_BOOL* outIsActive)
 	return S_OK;
 }
 
-STDMETHODIMP FbPlaylistManager::IsPlaylistItemSelected(UINT playlistIndex, UINT playlistItemIndex, UINT* outSelected)
+STDMETHODIMP FbPlaylistManager::IsPlaylistItemSelected(UINT playlistIndex, UINT playlistItemIndex, VARIANT_BOOL* outSelected)
 {
 	TRACK_FUNCTION();
 

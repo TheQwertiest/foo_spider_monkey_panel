@@ -222,7 +222,7 @@ public:
 	STDMETHODIMP InsertPlaylistItemsFilter(UINT playlistIndex, UINT base, IFbMetadbHandleList* handles, VARIANT_BOOL select, UINT* outSize);
 	STDMETHODIMP IsAutoPlaylist(UINT idx, VARIANT_BOOL* p);
 	STDMETHODIMP IsPlaybackQueueActive(VARIANT_BOOL* outIsActive);
-	STDMETHODIMP IsPlaylistItemSelected(UINT playlistIndex, UINT playlistItemIndex, UINT* outSelected);
+	STDMETHODIMP IsPlaylistItemSelected(UINT playlistIndex, UINT playlistItemIndex, VARIANT_BOOL* outSelected);
 	STDMETHODIMP IsPlaylistLocked(UINT playlistIndex, VARIANT_BOOL* p);
 	STDMETHODIMP MovePlaylist(UINT from, UINT to, VARIANT_BOOL* outSuccess);
 	STDMETHODIMP MovePlaylistSelection(UINT playlistIndex, int delta);
