@@ -23,15 +23,13 @@ _.mixin({
 				}
 				break;
 			case 'lastfm_info':
-				switch (this.properties.mode.value) {
-				case 0:
+				if (this.properties.mode.value == 0) {
 					this.text_x = 0;
 					this.text_width = this.w;
 					for (var i = 0; i < Math.min(this.items, this.rows); i++) {
 						gr.GdiDrawText(this.data[i + this.offset].name, panel.fonts.normal, panel.colours.text, this.x, this.y + _.scale(12) + (i * panel.row_height), this.text_width, panel.row_height, LEFT);
 					}
-					break;
-				case 1:
+				} else {
 					this.text_x = this.spacer_w + 5;
 					this.text_width = Math.round(this.w / 2) + 30;
 					var lastfm_charts_bar_x = this.x + this.text_x + this.text_width + 10;
@@ -43,24 +41,20 @@ _.mixin({
 						gr.FillSolidRect(lastfm_charts_bar_x, this.y + _.scale(13) + (i * panel.row_height), bar_width, panel.row_height - 3, this.properties.colour.value);
 						gr.GdiDrawText(_.formatNumber(this.data[i + this.offset].playcount, ','), panel.fonts.normal, panel.colours.text, lastfm_charts_bar_x + bar_width + 5, this.y + _.scale(12) + (i * panel.row_height), _.scale(60), panel.row_height, LEFT);
 					}
-					break;
 				}
 				break;
 			case 'musicbrainz':
-				switch (this.properties.mode.value) {
-				case 0:
+				if (this.properties.mode.value == 0) {
 					this.text_width = this.w - this.spacer_w - 10;
 					for (var i = 0; i < Math.min(this.items, this.rows); i++) {
 						gr.GdiDrawText(this.data[i + this.offset].name, panel.fonts.normal, this.data[i + this.offset].width == 0 ? panel.colours.highlight : panel.colours.text, this.x + this.text_x, this.y + _.scale(12) + (i * panel.row_height), this.text_width, panel.row_height, LEFT);
 						gr.GdiDrawText(this.data[i + this.offset].date, panel.fonts.normal, panel.colours.highlight, this.x, this.y + _.scale(12) + (i * panel.row_height), this.w, panel.row_height, RIGHT);
 					}
-					break;
-				case 1:
+				} else {
 					this.text_width = this.w;
 					for (var i = 0; i < Math.min(this.items, this.rows); i++) {
 						gr.GdiDrawText(this.data[i + this.offset].name, panel.fonts.normal, panel.colours.text, this.x + this.text_x, this.y + _.scale(12) + (i * panel.row_height), this.text_width, panel.row_height, LEFT);
 					}
-					break;
 				}
 				break;
 			case 'properties':
@@ -260,7 +254,7 @@ _.mixin({
 				panel.m.AppendMenuItem(MF_STRING, 3201, 'Links');
 				panel.m.CheckMenuRadioItem(3200, 3201, this.properties.mode.value + 3200);
 				panel.m.AppendMenuSeparator();
-				if (this.mb_id.length != 36) {
+				if (!_.isUUID(this.mb_id)) {
 					panel.m.AppendMenuItem(MF_GRAYED, 3203, 'Artist MBID missing. Use Musicbrainz Picard or foo_musicbrainz to tag your files.');
 					panel.m.AppendMenuSeparator();
 				}
@@ -405,8 +399,7 @@ _.mixin({
 				break;
 			case 'lastfm_info':
 				this.filename = '';
-				switch (this.properties.mode.value) {
-				case 0:
+				if (this.properties.mode.value == 0) {
 					this.filename = _.artistFolder(this.artist) + 'lastfm.artist.getSimilar.json';
 					if (_.isFile(this.filename)) {
 						this.data = _(_.get(_.jsonParseFile(this.filename), 'similarartists.artist', []))
@@ -424,8 +417,7 @@ _.mixin({
 					} else {
 						this.get();
 					}
-					break;
-				case 1:
+				} else {
 					if (!lastfm.username.length) {
 						console.log('Last.fm username not set.');
 						break;
@@ -455,7 +447,6 @@ _.mixin({
 					} else {
 						this.get();
 					}
-					break;
 				}
 				break;
 			case 'musicbrainz':
@@ -567,20 +558,18 @@ _.mixin({
 			var f = this.filename;
 			switch (this.mode) {
 			case 'lastfm_info':
-				switch (this.properties.mode.value) {
-				case 0:
+				if (this.properties.mode.value == 0) {
 					if (!_.tagged(this.artist)) {
 						return;
 					}
 					var url = lastfm.get_base_url() + '&limit=100&method=artist.getSimilar&artist=' + encodeURIComponent(this.artist);
-					break;
-				case 1:
+				} else {
 					var url = lastfm.get_base_url() + '&limit=100&method=' + this.methods[this.properties.method.value].method + '&period=' + this.periods[this.properties.period.value].period + '&user=' + lastfm.username;
 					break;
 				}
 				break;
 			case 'musicbrainz':
-				if (this.mb_id.length != 36) {
+				if (!_.isUUID(this.mb_id)) {
 					return console.log('Invalid/missing MBID');
 				}
 				if (this.properties.mode.value == 0) {
@@ -660,12 +649,7 @@ _.mixin({
 			case 'autoplaylists':
 				return 'Autoplaylists';
 			case 'lastfm_info':
-				switch (this.properties.mode.value) {
-				case 0:
-					return this.artist + ': similar artists';
-				case 1:
-					return lastfm.username + ': ' + this.periods[this.properties.period.value].display + ' ' + this.methods[this.properties.method.value].display + ' charts';
-				}
+				return this.properties.mode.value == 0 ? this.artist + ': similar artists' : lastfm.username + ': ' + this.periods[this.properties.period.value].display + ' ' + this.methods[this.properties.method.value].display + ' charts';
 			case 'musicbrainz':
 				return this.artist + ': ' + (this.properties.mode.value == 0 ? 'releases' : 'links');
 			case 'properties':

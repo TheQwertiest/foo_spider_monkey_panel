@@ -34,13 +34,10 @@ _.mixin({
 	panel : function (name, features) {
 		this.item_focus_change = function () {
 			if (this.metadb_func) {
-				switch (this.selection.value) {
-				case 0:
+				if (this.selection.value == 0) {
 					this.metadb = fb.IsPlaying ? fb.GetNowPlaying() : fb.GetFocusItem();
-					break;
-				case 1:
+				} else {
 					this.metadb = fb.GetFocusItem();
-					break;
 				}
 				on_metadb_changed();
 				if (!this.metadb) {
@@ -77,10 +74,8 @@ _.mixin({
 			this.fonts.normal = _.gdiFont(name, this.fonts.size.value);
 			this.fonts.fixed = _.gdiFont('Lucida Console', this.fonts.size.value);
 			this.row_height = this.fonts.normal.Height;
-			_.forEach(this.list_objects, function (item) {
-				item.size();
-				item.update();
-			});
+			_.invoke(this.list_objects, 'size');
+			_.invoke(this.list_objects, 'update');
 			_.invoke(this.text_objects, 'size');
 		}
 		

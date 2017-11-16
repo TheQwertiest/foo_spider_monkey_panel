@@ -148,23 +148,20 @@ _.mixin({
 		
 		this.metadb_changed = function () {
 			if (panel.metadb) {
-				switch (this.properties.source.value) {
-				case 0: // custom folder
+				if (this.properties.source.value == 0) { // custom folder
 					var temp_folder = this.properties.tf.value.replace('%profile%', fb.ProfilePath);
 					temp_folder = temp_folder.indexOf(fb.ProfilePath) == 0 ? fb.ProfilePath + panel.tf(temp_folder.substring(fb.ProfilePath.length, temp_folder.length)) : panel.tf(temp_folder);
 					if (this.folder == temp_folder) {
 						return;
 					}
 					this.folder = temp_folder;
-					break;
-				case 1: // last.fm
+				} else { // last.fm
 					var temp_artist = panel.tf(DEFAULT_ARTIST);
 					if (this.artist == temp_artist) {
 						return;
 					}
 					this.artist = temp_artist;
 					this.folder = _.artistFolder(this.artist);
-					break;
 				}
 			} else {
 				this.artist = '';
@@ -304,19 +301,16 @@ _.mixin({
 			panel.m.AppendMenuItem(MF_STRING, 4001, 'Last.fm artist art');
 			panel.m.CheckMenuRadioItem(4000, 4001, this.properties.source.value + 4000);
 			panel.m.AppendMenuSeparator();
-			switch (this.properties.source.value) {
-			case 0: // custom folder
+			if (this.properties.source.value == 0) { // custom folder
 				panel.m.AppendMenuItem(MF_STRING, 4002, 'Refresh');
 				panel.m.AppendMenuItem(MF_STRING, 4003, 'Set custom folder...');
-				break;
-			case 1: // last.fm
+			} else { // last.fm
 				panel.m.AppendMenuItem(panel.metadb ? MF_STRING : MF_GRAYED, 4004, 'Download now');
 				_.forEach(this.limits, function (item) {
 					panel.s10.AppendMenuItem(MF_STRING, item + 4010, item);
 				});
 				panel.s10.CheckMenuRadioItem(_.first(this.limits) + 4010, _.last(this.limits) + 4010, this.properties.limit.value + 4010);
 				panel.s10.AppendTo(panel.m, MF_STRING, 'Limit');
-				break;
 			}
 			panel.m.AppendMenuSeparator();
 			if (!panel.text_objects.length && !panel.list_objects.length) {
