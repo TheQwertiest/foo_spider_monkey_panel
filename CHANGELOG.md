@@ -1,3 +1,21 @@
+## v1.3.1
+```
+- FIX: Fixed a bug where plman.ShowAutoPlaylistUI didn't always return the correct
+       boolean value. But given you should check with plman.IsAutoPlaylist first,
+       most won't notice!
+- CHG: plman.MovePlaylistSelection now returns a boolean value to indicate success
+       or failure.
+- CHG: Update docs for consistency with actual component behaviour. No doubt there
+       is more I'll need to revisit in future!
+- CHG: On failure, these now return -1
+       FbFileInfo MetaFind
+       FbFileInfo InfoFind
+       plman.ActivePlaylist
+       plman.PlayingPlaylist
+       This could potentially break some existing scripts. See
+       https://github.com/19379/foo-jscript-panel/wiki/Breaking-Changes#v131
+```
+
 ## v1.3.0
 ```
 - CHG: Support for IE7/IE8/WINE users has been dropped. Your computer
