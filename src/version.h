@@ -1,8 +1,8 @@
 #pragma once
 
 // Remember to bump utils.version too
-#define JSP_VERSION_NUMBER "1.3.0"
-//#define JSP_VERSION_TEST "Beta 1"
+#define JSP_VERSION_NUMBER "1.3.1"
+#define JSP_VERSION_TEST "Beta 1"
 
 #ifdef JSP_VERSION_TEST
 #	define JSP_VERSION_TEST_PREFIX " "
