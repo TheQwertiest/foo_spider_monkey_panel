@@ -28,7 +28,7 @@ __interface IFbTooltip : IDisposable
 {
 	STDMETHOD(Activate)();
 	STDMETHOD(Deactivate)();
-	STDMETHOD(GetDelayTime)(int type, [out, retval] INT* p);
+	STDMETHOD(GetDelayTime)(int type, [out, retval] int* p);
 	STDMETHOD(SetDelayTime)(int type, int time);
 	STDMETHOD(SetMaxWidth)(int width);
 	STDMETHOD(TrackPosition)(int x, int y);
@@ -96,7 +96,7 @@ __interface IGdiBitmap : IGdiObj
 	STDMETHOD(GetColorScheme)(UINT count, [out, retval] VARIANT* outArray);
 	STDMETHOD(GetGraphics)([out, retval] __interface IGdiGraphics** pp);
 	STDMETHOD(ReleaseGraphics)(__interface IGdiGraphics* p);
-	STDMETHOD(Resize)(UINT w, UINT h, [range(Gdiplus::InterpolationModeInvalid, Gdiplus::InterpolationModeHighQualityBicubic), defaultvalue(0)] INT interpolationMode, [out, retval] IGdiBitmap** pp);
+	STDMETHOD(Resize)(UINT w, UINT h, [range(Gdiplus::InterpolationModeInvalid, Gdiplus::InterpolationModeHighQualityBicubic), defaultvalue(0)] int interpolationMode, [out, retval] IGdiBitmap** pp);
 	STDMETHOD(RotateFlip)([range(Gdiplus::RotateNoneFlipNone, Gdiplus::Rotate270FlipX)] UINT mode);
 	STDMETHOD(SaveAs)(BSTR path, [defaultvalue("image/png")] BSTR format, [out, retval] VARIANT_BOOL* p);
 	STDMETHOD(StackBlur)([range(0, 255)] int radius);
@@ -142,7 +142,7 @@ __interface IGdiGraphics : IGdiObj
 	STDMETHOD(EstimateLineWrap)(BSTR str, IGdiFont* font, int max_width, [out, retval] VARIANT* p);
 	STDMETHOD(FillEllipse)(float x, float y, float w, float h, VARIANT color);
 	STDMETHOD(FillGradRect)(float x, float y, float w, float h, float angle, VARIANT color1, VARIANT color2, [defaultvalue(1)] float focus);
-	STDMETHOD(FillPolygon)(VARIANT color, [range(0, 1)] INT fillmode, VARIANT points);
+	STDMETHOD(FillPolygon)(VARIANT color, [range(0, 1)] int fillmode, VARIANT points);
 	STDMETHOD(FillRoundRect)(float x, float y, float w, float h, float arc_width, float arc_height, VARIANT color);
 	STDMETHOD(FillSolidRect)(float x, float y, float w, float h, VARIANT color);
 	STDMETHOD(GdiAlphaBlend)(IGdiRawBitmap* bitmap, int dstX, int dstY, int dstW, int dstH, int srcX, int srcY, int srcW, int srcH, [defaultvalue(255)] BYTE alpha);
@@ -547,23 +547,23 @@ __interface IFbPlaylistManager : IDispatch
 	STDMETHOD(DuplicatePlaylist)(UINT from, BSTR name, [out, retval] UINT* outPlaylistIndex);
 	STDMETHOD(EnsurePlaylistItemVisible)(UINT playlistIndex, UINT itemIndex);
 	STDMETHOD(ExecutePlaylistDefaultAction)(UINT playlistIndex, UINT playlistItemIndex, [out, retval] VARIANT_BOOL* outSuccess);
-	STDMETHOD(FindPlaybackQueueItemIndex)(IFbMetadbHandle* handle, UINT playlistIndex, UINT playlistItemIndex, [out, retval] INT* outIndex);
+	STDMETHOD(FindPlaybackQueueItemIndex)(IFbMetadbHandle* handle, UINT playlistIndex, UINT playlistItemIndex, [out, retval] int* outIndex);
 	STDMETHOD(FlushPlaybackQueue)();
 	STDMETHOD(GetPlaybackQueueContents)([out, retval] VARIANT* outContents);
 	STDMETHOD(GetPlaybackQueueCount)([out, retval] UINT* outCount);
 	STDMETHOD(GetPlayingItemLocation)([out, retval] __interface IFbPlayingItemLocation** outPlayingLocation);
-	STDMETHOD(GetPlaylistFocusItemIndex)(UINT playlistIndex, [out, retval] INT* outPlaylistItemIndex);
+	STDMETHOD(GetPlaylistFocusItemIndex)(UINT playlistIndex, [out, retval] int* outPlaylistItemIndex);
 	STDMETHOD(GetPlaylistItems)(UINT playlistIndex, [out, retval] IFbMetadbHandleList** outItems);
 	STDMETHOD(GetPlaylistName)(UINT playlistIndex, [out, retval] BSTR* outName);
 	STDMETHOD(GetPlaylistSelectedItems)(UINT playlistIndex, [out, retval] IFbMetadbHandleList** outItems);
-	STDMETHOD(InsertPlaylistItems)(UINT playlistIndex, UINT base, IFbMetadbHandleList* handles, [defaultvalue(0)] VARIANT_BOOL select, [out, retval] UINT* outSize);
-	STDMETHOD(InsertPlaylistItemsFilter)(UINT playlistIndex, UINT base, IFbMetadbHandleList* handles, [defaultvalue(0)] VARIANT_BOOL select, [out, retval] UINT* outSize);
+	STDMETHOD(InsertPlaylistItems)(UINT playlistIndex, UINT base, IFbMetadbHandleList* handles, [defaultvalue(0)] VARIANT_BOOL select);
+	STDMETHOD(InsertPlaylistItemsFilter)(UINT playlistIndex, UINT base, IFbMetadbHandleList* handles, [defaultvalue(0)] VARIANT_BOOL select);
 	STDMETHOD(IsAutoPlaylist)(UINT idx, [out, retval] VARIANT_BOOL* p);
 	STDMETHOD(IsPlaybackQueueActive)([out, retval] VARIANT_BOOL* outIsActive);
 	STDMETHOD(IsPlaylistItemSelected)(UINT playlistIndex, UINT playlistItemIndex, [out, retval] VARIANT_BOOL* outSelected);
 	STDMETHOD(IsPlaylistLocked)(UINT playlistIndex, [out, retval] VARIANT_BOOL* p);
 	STDMETHOD(MovePlaylist)(UINT from, UINT to, [out, retval] VARIANT_BOOL* outSuccess);
-	STDMETHOD(MovePlaylistSelection)(UINT playlistIndex, int delta);
+	STDMETHOD(MovePlaylistSelection)(UINT playlistIndex, int delta, [out, retval] VARIANT_BOOL* outSuccess);
 	STDMETHOD(RemoveItemFromPlaybackQueue)(UINT index);
 	STDMETHOD(RemoveItemsFromPlaybackQueue)(VARIANT affectedItems);
 	STDMETHOD(RemovePlaylist)(UINT playlistIndex, [out, retval] VARIANT_BOOL* outSuccess);
@@ -576,7 +576,7 @@ __interface IFbPlaylistManager : IDispatch
 	STDMETHOD(SetPlaylistSelectionSingle)(UINT playlistIndex, UINT itemIndex, VARIANT_BOOL state);
 	STDMETHOD(ShowAutoPlaylistUI)(UINT idx, [out, retval] VARIANT_BOOL* p);
 	STDMETHOD(SortByFormat)(UINT playlistIndex, BSTR pattern, [defaultvalue(0)] VARIANT_BOOL selOnly, [out, retval] VARIANT_BOOL* outSuccess);
-	STDMETHOD(SortByFormatV2)(UINT playlistIndex, BSTR pattern, [defaultvalue(1)] INT direction, [out, retval] VARIANT_BOOL* outSuccess);
+	STDMETHOD(SortByFormatV2)(UINT playlistIndex, BSTR pattern, [defaultvalue(1)] int direction, [out, retval] VARIANT_BOOL* outSuccess);
 	STDMETHOD(UndoBackup)(UINT playlistIndex);
 	STDMETHOD(UndoRestore)(UINT playlistIndex);
 	[propget] STDMETHOD(ActivePlaylist)([out, retval] int* outPlaylistIndex);
