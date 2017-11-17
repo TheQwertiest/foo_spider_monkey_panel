@@ -7,12 +7,22 @@ v1.3.1
 - CHG: Update docs for consistency with actual component behaviour. No doubt there
        is more I'll need to revisit in future!
 - CHG: On failure, these now return -1
-       FbFileInfo MetaFind
-       FbFileInfo InfoFind
+       IFbFileInfo InfoFind
+       IFbFileInfo MetaFind
+       IFbMetadbHandleList BSearch
+       IFbMetadbHandleList Find
        plman.ActivePlaylist
+       plman.CreateAutoPlaylist
        plman.PlayingPlaylist
        This could potentially break some existing scripts. See
        https://github.com/19379/foo-jscript-panel/wiki/Breaking-Changes#v131
+- CHG: Remove the whole IStyleTextRender interface. Anything that uses
+       gdi.CreateStyleTextRender or was based on "glow text sample.txt"
+       will no longer work
+- CHG: Remove these IFbPlaylistRecyclerManager properties/methods:
+       Id
+       FindById
+       RestoreById
 
 v1.3.0
 - CHG: Support for IE7/IE8/WINE users has been dropped. Your computer
