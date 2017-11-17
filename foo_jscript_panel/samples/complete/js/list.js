@@ -227,9 +227,9 @@ _.mixin({
 				panel.m.AppendMenuItem(MF_STRING, 3101, 'User Charts');
 				panel.m.CheckMenuRadioItem(3100, 3101, this.properties.mode.value + 3100);
 				panel.m.AppendMenuSeparator();
-				panel.s10.AppendMenuItem(MF_STRING, 3102, 'Open Last.fm website');
-				panel.s10.AppendMenuItem(MF_STRING, 3103, 'Autoplaylist');
-				panel.s10.CheckMenuRadioItem(3102, 3103, this.properties.link.value + 3102);
+				panel.s10.AppendMenuItem(MF_STRING, 3110, 'Open Last.fm website');
+				panel.s10.AppendMenuItem(MF_STRING, 3111, 'Autoplaylist');
+				panel.s10.CheckMenuRadioItem(3110, 3111, this.properties.link.value + 3110);
 				panel.s10.AppendTo(panel.m, this.properties.mode.value == 0 || this.properties.method.value == 0 ? MF_STRING : MF_GRAYED, 'Links');
 				panel.m.AppendMenuSeparator();
 				if (this.properties.mode.value == 1) {
@@ -292,8 +292,9 @@ _.mixin({
 			case 3015:
 			case 3016:
 			case 3017:
-				this.data.push(this.deleted_items[idx - 3010]);
-				this.deleted_items.splice(idx - 3010, 1);
+				var item = idx - 3010;
+				this.data.push(this.deleted_items[item]);
+				this.deleted_items.splice(item, 1);
 				this.save();
 				break;
 			case 3100:
@@ -304,9 +305,9 @@ _.mixin({
 				this.properties.mode.value = 1;
 				this.update();
 				break;
-			case 3102:
-			case 3103:
-				this.properties.link.value = idx - 3102;
+			case 3110:
+			case 3111:
+				this.properties.link.value = idx - 3110;
 				if (this.data.length) {
 					this.update();
 				}
@@ -332,9 +333,6 @@ _.mixin({
 				break;
 			case 3150:
 				lastfm.update_username();
-				break;
-			case 3151:
-				lastfm.update_password();
 				break;
 			case 3200:
 			case 3201:
@@ -565,7 +563,6 @@ _.mixin({
 					var url = lastfm.get_base_url() + '&limit=100&method=artist.getSimilar&artist=' + encodeURIComponent(this.artist);
 				} else {
 					var url = lastfm.get_base_url() + '&limit=100&method=' + this.methods[this.properties.method.value].method + '&period=' + this.periods[this.properties.period.value].period + '&user=' + lastfm.username;
-					break;
 				}
 				break;
 			case 'musicbrainz':
@@ -907,8 +904,9 @@ _.mixin({
 							});
 						}
 					}
-					if (this.data.length) // only add blank line if there is some metadata
+					if (this.data.length) { // only add blank line if there is some metadata
 						this.add();
+					}
 				}
 				
 				this.add_location = function () {
