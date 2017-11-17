@@ -1355,7 +1355,7 @@ STDMETHODIMP FbPlaylistManager::ShowAutoPlaylistUI(UINT idx, VARIANT_BOOL* p)
 {
 	TRACK_FUNCTION();
 
-	*p = VARIANT_TRUE;
+	*p = VARIANT_FALSE;
 	static_api_ptr_t<autoplaylist_manager> manager;
 
 	try
@@ -1364,11 +1364,11 @@ STDMETHODIMP FbPlaylistManager::ShowAutoPlaylistUI(UINT idx, VARIANT_BOOL* p)
 		{
 			autoplaylist_client_ptr client = manager->query_client(idx);
 			client->show_ui(idx);
+			*p = VARIANT_TRUE;
 		}
 	}
 	catch (...)
 	{
-		*p = VARIANT_FALSE;
 	}
 
 	return S_OK;
