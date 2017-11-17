@@ -184,10 +184,10 @@ _COM_SMARTPTR_TYPEDEF(IGdiUtils, __uuidof(IGdiUtils));
 ]
 __interface IFbFileInfo : IDisposable
 {
-	STDMETHOD(InfoFind)(BSTR name, [out, retval] UINT* p);
+	STDMETHOD(InfoFind)(BSTR name, [out, retval] int* p);
 	STDMETHOD(InfoName)(UINT idx, [out, retval] BSTR* pp);
 	STDMETHOD(InfoValue)(UINT idx, [out, retval] BSTR* pp);
-	STDMETHOD(MetaFind)(BSTR name, [out, retval] UINT* p);
+	STDMETHOD(MetaFind)(BSTR name, [out, retval] int* p);
 	STDMETHOD(MetaName)(UINT idx, [out, retval] BSTR* pp);
 	STDMETHOD(MetaValue)(UINT idx, UINT vidx, [out, retval] BSTR* pp);
 	STDMETHOD(MetaValueCount)(UINT idx, [out, retval] UINT* p);
@@ -579,15 +579,15 @@ __interface IFbPlaylistManager : IDispatch
 	STDMETHOD(SortByFormatV2)(UINT playlistIndex, BSTR pattern, [defaultvalue(1)] INT direction, [out, retval] VARIANT_BOOL* outSuccess);
 	STDMETHOD(UndoBackup)(UINT playlistIndex);
 	STDMETHOD(UndoRestore)(UINT playlistIndex);
-	[propget] STDMETHOD(ActivePlaylist)([out, retval] UINT* outPlaylistIndex);
+	[propget] STDMETHOD(ActivePlaylist)([out, retval] int* outPlaylistIndex);
 	[propget] STDMETHOD(PlaybackOrder)([out, retval] UINT* outOrder);
-	[propget] STDMETHOD(PlayingPlaylist)([out, retval] UINT* outPlaylistIndex);
+	[propget] STDMETHOD(PlayingPlaylist)([out, retval] int* outPlaylistIndex);
 	[propget] STDMETHOD(PlaylistCount)([out, retval] UINT* outCount);
 	[propget] STDMETHOD(PlaylistItemCount)(UINT playlistIndex, [out, retval] UINT* outCount);
 	[propget] STDMETHOD(PlaylistRecyclerManager)([out, retval] __interface IFbPlaylistRecyclerManager** outRecyclerManager);
-	[propput] STDMETHOD(ActivePlaylist)(UINT playlistIndex);
+	[propput] STDMETHOD(ActivePlaylist)(int playlistIndex);
 	[propput] STDMETHOD(PlaybackOrder)(UINT order);
-	[propput] STDMETHOD(PlayingPlaylist)(UINT playlistIndex);
+	[propput] STDMETHOD(PlayingPlaylist)(int playlistIndex);
 };
 
 _COM_SMARTPTR_TYPEDEF(IFbPlaylistManager, __uuidof(IFbPlaylistManager));

@@ -122,10 +122,10 @@ protected:
 	virtual void FinalRelease();
 
 public:
-	STDMETHODIMP InfoFind(BSTR name, UINT* p);
+	STDMETHODIMP InfoFind(BSTR name, int* p);
 	STDMETHODIMP InfoName(UINT idx, BSTR* pp);
 	STDMETHODIMP InfoValue(UINT idx, BSTR* pp);
-	STDMETHODIMP MetaFind(BSTR name, UINT* p);
+	STDMETHODIMP MetaFind(BSTR name, int* p);
 	STDMETHODIMP MetaName(UINT idx, BSTR* pp);
 	STDMETHODIMP MetaValue(UINT idx, UINT vidx, BSTR* pp);
 	STDMETHODIMP MetaValueCount(UINT idx, UINT* p);
@@ -241,15 +241,15 @@ public:
 	STDMETHODIMP SortByFormatV2(UINT playlistIndex, BSTR pattern, INT direction, VARIANT_BOOL* outSuccess);
 	STDMETHODIMP UndoBackup(UINT playlistIndex);
 	STDMETHODIMP UndoRestore(UINT playlistIndex);
-	STDMETHODIMP get_ActivePlaylist(UINT* outPlaylistIndex);
+	STDMETHODIMP get_ActivePlaylist(int* outPlaylistIndex);
 	STDMETHODIMP get_PlaybackOrder(UINT* outOrder);
-	STDMETHODIMP get_PlayingPlaylist(UINT* outPlaylistIndex);
+	STDMETHODIMP get_PlayingPlaylist(int* outPlaylistIndex);
 	STDMETHODIMP get_PlaylistCount(UINT* outCount);
 	STDMETHODIMP get_PlaylistItemCount(UINT playlistIndex, UINT* outCount);
 	STDMETHODIMP get_PlaylistRecyclerManager(__interface IFbPlaylistRecyclerManager** outRecyclerManager);
-	STDMETHODIMP put_ActivePlaylist(UINT playlistIndex);
+	STDMETHODIMP put_ActivePlaylist(int playlistIndex);
 	STDMETHODIMP put_PlaybackOrder(UINT order);
-	STDMETHODIMP put_PlayingPlaylist(UINT playlistIndex);
+	STDMETHODIMP put_PlayingPlaylist(int playlistIndex);
 
 private:
 	IFbPlaylistRecyclerManagerPtr m_fbPlaylistRecyclerManager;

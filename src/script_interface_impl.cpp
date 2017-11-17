@@ -182,7 +182,7 @@ void FbFileInfo::FinalRelease()
 	}
 }
 
-STDMETHODIMP FbFileInfo::InfoFind(BSTR name, UINT* p)
+STDMETHODIMP FbFileInfo::InfoFind(BSTR name, int* p)
 {
 	TRACK_FUNCTION();
 
@@ -226,7 +226,7 @@ STDMETHODIMP FbFileInfo::InfoValue(UINT idx, BSTR* pp)
 	return S_OK;
 }
 
-STDMETHODIMP FbFileInfo::MetaFind(BSTR name, UINT* p)
+STDMETHODIMP FbFileInfo::MetaFind(BSTR name, int* p)
 {
 	TRACK_FUNCTION();
 
@@ -1442,7 +1442,7 @@ STDMETHODIMP FbPlaylistManager::UndoRestore(UINT playlistIndex)
 	return S_OK;
 }
 
-STDMETHODIMP FbPlaylistManager::get_ActivePlaylist(UINT* outPlaylistIndex)
+STDMETHODIMP FbPlaylistManager::get_ActivePlaylist(int* outPlaylistIndex)
 {
 	TRACK_FUNCTION();
 
@@ -1462,7 +1462,7 @@ STDMETHODIMP FbPlaylistManager::get_PlaybackOrder(UINT* p)
 	return S_OK;
 }
 
-STDMETHODIMP FbPlaylistManager::get_PlayingPlaylist(UINT* outPlaylistIndex)
+STDMETHODIMP FbPlaylistManager::get_PlayingPlaylist(int* outPlaylistIndex)
 {
 	TRACK_FUNCTION();
 
@@ -1514,12 +1514,12 @@ STDMETHODIMP FbPlaylistManager::get_PlaylistRecyclerManager(__interface IFbPlayl
 	return S_OK;
 }
 
-STDMETHODIMP FbPlaylistManager::put_ActivePlaylist(UINT playlistIndex)
+STDMETHODIMP FbPlaylistManager::put_ActivePlaylist(int playlistIndex)
 {
 	TRACK_FUNCTION();
 
 	static_api_ptr_t<playlist_manager> api;
-	t_size index = (playlistIndex < api->get_playlist_count()) ? playlistIndex : pfc::infinite_size;
+	t_size index = playlistIndex > -1 ? playlistIndex : pfc::infinite_size;
 	api->set_active_playlist(index);
 	return S_OK;
 }
@@ -1532,12 +1532,12 @@ STDMETHODIMP FbPlaylistManager::put_PlaybackOrder(UINT p)
 	return S_OK;
 }
 
-STDMETHODIMP FbPlaylistManager::put_PlayingPlaylist(UINT playlistIndex)
+STDMETHODIMP FbPlaylistManager::put_PlayingPlaylist(int playlistIndex)
 {
 	TRACK_FUNCTION();
 
 	static_api_ptr_t<playlist_manager> api;
-	t_size index = (playlistIndex < api->get_playlist_count()) ? playlistIndex : pfc::infinite_size;
+	t_size index = playlistIndex > -1 ? playlistIndex : pfc::infinite_size;
 	api->set_playing_playlist(index);
 	return S_OK;
 }
