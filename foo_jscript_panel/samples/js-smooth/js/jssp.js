@@ -4543,9 +4543,6 @@ function on_playlists_changed() {
 	if (g_avoid_on_playlists_changed)
 		return;
 
-	if (plman.ActivePlaylist < 0 || plman.ActivePlaylist > plman.PlaylistCount - 1) {
-		plman.ActivePlaylist = 0;
-	};
 	if (pman.drop_done) {
 		plman.ActivePlaylist = g_active_playlist;
 	} else {

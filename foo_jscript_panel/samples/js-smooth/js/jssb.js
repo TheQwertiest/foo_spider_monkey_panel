@@ -4010,10 +4010,6 @@ function on_library_items_changed() {
 function on_playlists_changed() {
 
 	//g_avoid_on_playlist_switch = true;
-
-	if (plman.ActivePlaylist < 0 || plman.ActivePlaylist > plman.PlaylistCount - 1) {
-		plman.ActivePlaylist = 0;
-	};
 	if (g_active_playlist != plman.ActivePlaylist) {
 		g_active_playlist = plman.ActivePlaylist;
 	};

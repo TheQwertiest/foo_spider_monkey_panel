@@ -35,7 +35,7 @@ function on_paint(gr) {
 	if (fb.IsPlaying) {
 		gr.GdiDrawText(_.tfe(left_text_tf), font, properties.text.value, 5, -1, ww - right_text_width - (properties.volume.enabled ? 180: 50), font.Height, LEFT);
 	}
-	if (plman.ActivePlaylist < plman.PlaylistCount) {
+	if (plman.ActivePlaylist > -1 && plman.ActivePlaylist < plman.PlaylistCount) {
 		gr.GdiDrawText(right_text, font, properties.text.value, 0, -1, ww - (properties.volume.enabled ? 130 : 5), font.Height, RIGHT);
 	}
 	if (properties.volume.enabled) {

@@ -1846,10 +1846,6 @@ function on_playlists_changed() {
 		if (cPlaylistManager.mediaLibraryPlaylist)
 			checkMediaLibrayPlaylist();
 
-		if (plman.ActivePlaylist < 0 || plman.ActivePlaylist > plman.PlaylistCount - 1) {
-			plman.ActivePlaylist = 0;
-		};
-
 		// close timers if dragging tracks is running
 		if (dragndrop.drag_in || dragndrop.moved) {
 			if (dragndrop.timerID) {
