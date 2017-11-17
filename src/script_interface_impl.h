@@ -294,13 +294,10 @@ public:
 class FbPlaylistRecyclerManager : public IDispatchImpl3<IFbPlaylistRecyclerManager>
 {
 public:
-	STDMETHODIMP FindById(UINT id, UINT* outId);
 	STDMETHODIMP Purge(VARIANT affectedItems);
 	STDMETHODIMP Restore(UINT index);
-	STDMETHODIMP RestoreById(UINT id);
 	STDMETHODIMP get_Content(UINT index, IFbMetadbHandleList** outContent);
 	STDMETHODIMP get_Count(UINT* outCount);
-	STDMETHODIMP get_Id(UINT index, UINT* outId);
 	STDMETHODIMP get_Name(UINT index, BSTR* outName);
 };
 

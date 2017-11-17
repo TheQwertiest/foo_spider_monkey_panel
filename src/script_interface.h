@@ -634,13 +634,10 @@ __interface IFbPlayingItemLocation : IDispatch
 ]
 __interface IFbPlaylistRecyclerManager : IDispatch
 {
-	STDMETHOD(FindById)(UINT id, [out, retval] UINT* outId);
 	STDMETHOD(Purge)(VARIANT affectedItems);
 	STDMETHOD(Restore)(UINT index);
-	STDMETHOD(RestoreById)(UINT id);
 	[propget] STDMETHOD(Content)(UINT index, [out, retval] IFbMetadbHandleList** outContent);
 	[propget] STDMETHOD(Count)([out, retval] UINT* outCount);
-	[propget] STDMETHOD(Id)(UINT index, UINT* outId);
 	[propget] STDMETHOD(Name)(UINT index, [out, retval] BSTR* outName);
 };
 
