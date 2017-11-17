@@ -436,15 +436,13 @@ void FbMetadbHandleList::FinalRelease()
 	m_handles.remove_all();
 }
 
-STDMETHODIMP FbMetadbHandleList::Add(IFbMetadbHandle* handle, UINT* p)
+STDMETHODIMP FbMetadbHandleList::Add(IFbMetadbHandle* handle)
 {
 	TRACK_FUNCTION();
 
-	if (!p) return E_POINTER;
-
 	metadb_handle* ptr = NULL;
 	handle->get__ptr((void**)&ptr);
-	*p = m_handles.add_item(ptr);
+	m_handles.add_item(ptr);
 	return S_OK;
 }
 
@@ -458,7 +456,7 @@ STDMETHODIMP FbMetadbHandleList::AddRange(IFbMetadbHandleList* handles)
 	return S_OK;
 }
 
-STDMETHODIMP FbMetadbHandleList::BSearch(IFbMetadbHandle* handle, UINT* p)
+STDMETHODIMP FbMetadbHandleList::BSearch(IFbMetadbHandle* handle, int* p)
 {
 	TRACK_FUNCTION();
 
@@ -500,7 +498,7 @@ STDMETHODIMP FbMetadbHandleList::Clone(IFbMetadbHandleList** pp)
 	return S_OK;
 }
 
-STDMETHODIMP FbMetadbHandleList::Find(IFbMetadbHandle* handle, UINT* p)
+STDMETHODIMP FbMetadbHandleList::Find(IFbMetadbHandle* handle, int* p)
 {
 	TRACK_FUNCTION();
 
@@ -512,27 +510,23 @@ STDMETHODIMP FbMetadbHandleList::Find(IFbMetadbHandle* handle, UINT* p)
 	return S_OK;
 }
 
-STDMETHODIMP FbMetadbHandleList::Insert(UINT index, IFbMetadbHandle* handle, UINT* outIndex)
+STDMETHODIMP FbMetadbHandleList::Insert(UINT index, IFbMetadbHandle* handle)
 {
 	TRACK_FUNCTION();
-
-	if (!outIndex) return E_POINTER;
 
 	metadb_handle* ptr = NULL;
 	handle->get__ptr((void**)&ptr);
-	*outIndex = m_handles.insert_item(ptr, index);
+	m_handles.insert_item(ptr, index);
 	return S_OK;
 }
 
-STDMETHODIMP FbMetadbHandleList::InsertRange(UINT index, IFbMetadbHandleList* handles, UINT* outIndex)
+STDMETHODIMP FbMetadbHandleList::InsertRange(UINT index, IFbMetadbHandleList* handles)
 {
 	TRACK_FUNCTION();
 
-	if (!outIndex) return E_POINTER;
-
 	metadb_handle_list* handles_ptr = NULL;
 	handles->get__ptr((void**)&handles_ptr);
-	*outIndex = m_handles.insert_items(*handles_ptr, index);
+	m_handles.insert_items(*handles_ptr, index);
 	return S_OK;
 }
 
@@ -902,7 +896,7 @@ STDMETHODIMP FbPlaylistManager::ClearPlaylistSelection(UINT playlistIndex)
 	return S_OK;
 }
 
-STDMETHODIMP FbPlaylistManager::CreateAutoPlaylist(UINT idx, BSTR name, BSTR query, BSTR sort, UINT flags, UINT* p)
+STDMETHODIMP FbPlaylistManager::CreateAutoPlaylist(UINT idx, BSTR name, BSTR query, BSTR sort, UINT flags, int* p)
 {
 	TRACK_FUNCTION();
 
@@ -971,20 +965,24 @@ STDMETHODIMP FbPlaylistManager::DuplicatePlaylist(UINT from, BSTR name, UINT* ou
 	metadb_handle_list contents;
 	pfc::string8_fast name_utf8;
 
-	if (from >= manager->get_playlist_count()) return E_INVALIDARG;
+	if (from < manager->get_playlist_count())
+	{
+		manager->playlist_get_all_items(from, contents);
 
-	manager->playlist_get_all_items(from, contents);
+		if (!name || !*name)
+			manager->playlist_get_name(from, name_utf8);
+		else
+			name_utf8 = pfc::stringcvt::string_utf8_from_wide(name);
 
-	if (!name || !*name)
-		manager->playlist_get_name(from, name_utf8);
+		stream_reader_dummy dummy_reader;
+		abort_callback_dummy dummy_callback;
+		*outPlaylistIndex = manager->create_playlist_ex(name_utf8.get_ptr(), name_utf8.get_length(), from + 1, contents, &dummy_reader, dummy_callback);
+		return S_OK;
+	}
 	else
-		name_utf8 = pfc::stringcvt::string_utf8_from_wide(name);
-
-	stream_reader_dummy dummy_reader;
-	abort_callback_dummy dummy_callback;
-	t_size idx = manager->create_playlist_ex(name_utf8.get_ptr(), name_utf8.get_length(), from + 1, contents, &dummy_reader, dummy_callback);
-	*outPlaylistIndex = idx;
-	return S_OK;
+	{
+		return E_INVALIDARG;
+	}
 }
 
 STDMETHODIMP FbPlaylistManager::EnsurePlaylistItemVisible(UINT playlistIndex, UINT itemIndex)

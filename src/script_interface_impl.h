@@ -165,15 +165,15 @@ protected:
 	virtual void FinalRelease();
 
 public:
-	STDMETHODIMP Add(IFbMetadbHandle* handle, UINT* p);
+	STDMETHODIMP Add(IFbMetadbHandle* handle);
 	STDMETHODIMP AddRange(IFbMetadbHandleList* handles);
-	STDMETHODIMP BSearch(IFbMetadbHandle* handle, UINT* p);
+	STDMETHODIMP BSearch(IFbMetadbHandle* handle, int* p);
 	STDMETHODIMP CalcTotalDuration(double* p);
 	STDMETHODIMP CalcTotalSize(LONGLONG* p);
 	STDMETHODIMP Clone(IFbMetadbHandleList** pp);
-	STDMETHODIMP Find(IFbMetadbHandle* handle, UINT* p);
-	STDMETHODIMP Insert(UINT index, IFbMetadbHandle* handle, UINT* outIndex);
-	STDMETHODIMP InsertRange(UINT index, IFbMetadbHandleList* handles, UINT* outIndex);
+	STDMETHODIMP Find(IFbMetadbHandle* handle, int* p);
+	STDMETHODIMP Insert(UINT index, IFbMetadbHandle* handle);
+	STDMETHODIMP InsertRange(UINT index, IFbMetadbHandleList* handles);
 	STDMETHODIMP MakeDifference(IFbMetadbHandleList* handles);
 	STDMETHODIMP MakeIntersection(IFbMetadbHandleList* handles);
 	STDMETHODIMP MakeUnion(IFbMetadbHandleList* handles);
@@ -203,7 +203,7 @@ public:
 	STDMETHODIMP AddPlaylistItemToPlaybackQueue(UINT playlistIndex, UINT playlistItemIndex);
 	STDMETHODIMP ClearPlaylist(UINT playlistIndex);
 	STDMETHODIMP ClearPlaylistSelection(UINT playlistIndex);
-	STDMETHODIMP CreateAutoPlaylist(UINT idx, BSTR name, BSTR query, BSTR sort, UINT flags, UINT* p);
+	STDMETHODIMP CreateAutoPlaylist(UINT idx, BSTR name, BSTR query, BSTR sort, UINT flags, int* p);
 	STDMETHODIMP CreatePlaybackQueueItem(IFbPlaybackQueueItem** outPlaybackQueueItem);
 	STDMETHODIMP CreatePlaylist(UINT playlistIndex, BSTR name, UINT* outPlaylistIndex);
 	STDMETHODIMP DuplicatePlaylist(UINT from, BSTR name, UINT* outPlaylistIndex);

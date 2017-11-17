@@ -224,15 +224,15 @@ __interface IFbMetadbHandle : IDisposable
 ]
 __interface IFbMetadbHandleList : IDisposable
 {
-	STDMETHOD(Add)(IFbMetadbHandle* handle, [out, retval] UINT* p);
+	STDMETHOD(Add)(IFbMetadbHandle* handle);
 	STDMETHOD(AddRange)(IFbMetadbHandleList* handles);
-	STDMETHOD(BSearch)(IFbMetadbHandle* handle, [out, retval] UINT* p);
+	STDMETHOD(BSearch)(IFbMetadbHandle* handle, [out, retval] int* p);
 	STDMETHOD(CalcTotalDuration)([out, retval] double* p);
 	STDMETHOD(CalcTotalSize)([out, retval] LONGLONG* p);
 	STDMETHOD(Clone)([out, retval] IFbMetadbHandleList** pp);
-	STDMETHOD(Find)(IFbMetadbHandle* handle, [out, retval] UINT* p);
-	STDMETHOD(Insert)(UINT index, IFbMetadbHandle* handle, [out, retval] UINT* outIndex);
-	STDMETHOD(InsertRange)(UINT index, IFbMetadbHandleList* handles, [out, retval] UINT* outIndex);
+	STDMETHOD(Find)(IFbMetadbHandle* handle, [out, retval] int* p);
+	STDMETHOD(Insert)(UINT index, IFbMetadbHandle* handle);
+	STDMETHOD(InsertRange)(UINT index, IFbMetadbHandleList* handles);
 	STDMETHOD(MakeDifference)(IFbMetadbHandleList* handles);
 	STDMETHOD(MakeIntersection)(IFbMetadbHandleList* handles);
 	STDMETHOD(MakeUnion)(IFbMetadbHandleList* handles);
@@ -541,7 +541,7 @@ __interface IFbPlaylistManager : IDispatch
 	STDMETHOD(AddPlaylistItemToPlaybackQueue)(UINT playlistIndex, UINT playlistItemIndex);
 	STDMETHOD(ClearPlaylist)(UINT playlistIndex);
 	STDMETHOD(ClearPlaylistSelection)(UINT playlistIndex);
-	STDMETHOD(CreateAutoPlaylist)(UINT idx, BSTR name, BSTR query, [defaultvalue("")] BSTR sort, [defaultvalue(0)] UINT flags, [out, retval] UINT* p);
+	STDMETHOD(CreateAutoPlaylist)(UINT idx, BSTR name, BSTR query, [defaultvalue("")] BSTR sort, [defaultvalue(0)] UINT flags, [out, retval] int* p);
 	STDMETHOD(CreatePlaybackQueueItem)([out, retval] __interface IFbPlaybackQueueItem** outPlaybackQueueItem);
 	STDMETHOD(CreatePlaylist)(UINT playlistIndex, BSTR name, [out, retval] UINT* outPlaylistIndex);
 	STDMETHOD(DuplicatePlaylist)(UINT from, BSTR name, [out, retval] UINT* outPlaylistIndex);
