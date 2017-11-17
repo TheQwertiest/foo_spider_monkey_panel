@@ -430,16 +430,12 @@ interface IFbPlaylistManager {
 					Count; (uint) (read)
 					Name(index); (string) (read)
 					Content(index); (IFbMetadbHandleList) (read)
-					Id(index); (uint) (read)
 
 				Methods:
-					FindById(id); (uint)
 					Purge(affectedItems); (void)
 					// affectedItems: array like [1, 3, 5]
 
 					Restore(index); (void)
-					RestoreById(id); (void)
-					// returns the index
 			}
 
 	Methods:
@@ -467,12 +463,13 @@ interface IFbPlaylistManager {
 		plman.ClearPlaylistSelection(plman.ActivePlaylist);
 		*/
 
-		plman.CreateAutoPlaylist(playlistIndex, name, query[, sort][, flags]); (uint)
+		plman.CreateAutoPlaylist(playlistIndex, name, query[, sort][, flags]); (int)
 		/*
 		name: a name for the new Autplaylist
 		query: a valid query
 		sort: default "". title formatting pattern.
 		flags: default 0, use 1 to force sort
+		returns -1 on failure
 		*/
 
 		plman.CreatePlaylist(playlistIndex, name); (uint)
@@ -1408,14 +1405,14 @@ interface IFbMetadbHandle {
 					*/
 
 					InfoFind(name); (int)
-					// returns -1 if name not found
+					// returns -1 on failure
 
 					InfoName(idx); (string)
 
 					InfoValue(idx); (string)
 
 					MetaFind(name); (int)
-					// returns -1 if name not found
+					// returns -1 on failure
 
 					MetaName(idx); (string)
 					/*
@@ -1460,7 +1457,7 @@ interface IFbMetadbHandleList {
 		Sort(); (void)
 		// sort and remove duplicates
 
-		Add(handle); (uint)
+		Add(handle); (void)
 		/*
 		example: 
 		handle_list.Add(fb.GetNowPlaying());
@@ -1472,8 +1469,11 @@ interface IFbMetadbHandleList {
 		handle_list.Add(fb.GetLibraryItems());
 		*/
 		
-		BSearch(handle); (uint)
-		// must be sorted, faster than Find()
+		BSearch(handle); (int)
+		/*
+		must be sorted, faster than Find()
+		returns - 1 on failure
+		*/
 
 		CalcTotalDuration(); (double)
 		// returns total in seconds. consider using utils.FormatDuration() on the result.
@@ -1493,10 +1493,13 @@ interface IFbMetadbHandleList {
 		handle_list.Dispose();
 		*/
 
-		Find(handle); (uint)
-		// if sorted, use BSearch instead
+		Find(handle); (int)
+		/*
+		if sorted, use BSearch instead
+		returns -1 on failure
+		*/
 
-		Insert(index, handle); (uint)
+		Insert(index, handle); (void)
 		/*
 		example1:
 		handle_list.Insert(0, fb.GetNowPlaying());
@@ -1506,7 +1509,7 @@ interface IFbMetadbHandleList {
 		this inserts at the end of the handle list.
 		*/
 
-		InsertRange(index, handle_list); (uint)
+		InsertRange(index, handle_list); (void)
 
 		MakeDifference(handle_list); (void)
 		/*
