@@ -1454,9 +1454,6 @@ interface IFbMetadbHandleList {
 		*/
 
 	Methods:
-		Sort(); (void)
-		// sort and remove duplicates
-
 		Add(handle); (void)
 		/*
 		example: 
@@ -1582,6 +1579,9 @@ interface IFbMetadbHandleList {
 		example:
 		handle_list.RemoveRange(10, 20);
 		*/
+
+		Sort(); (void)
+		// remove duplicates and optimise for other handle list operations
 
 		UpdateFileInfoFromJSON(str); (void)
 		// see https://github.com/19379/foo-jscript-panel/wiki/Breaking-Changes#v130

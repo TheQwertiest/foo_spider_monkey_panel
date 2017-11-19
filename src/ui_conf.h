@@ -8,7 +8,6 @@ class js_panel_window;
 class CDialogFind;
 class CDialogReplace;
 
-//-----
 class CDialogConf
 	: public CDialogImpl<CDialogConf>
 	, public CDialogResize<CDialogConf>
