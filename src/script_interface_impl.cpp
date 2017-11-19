@@ -1692,13 +1692,9 @@ STDMETHODIMP FbPlaylistRecyclerManager::Purge(VARIANT affectedItems)
 			plm->recycler_purge(mask);
 		}
 	}
-	catch (pfc::exception_invalid_params&)
-	{
-		return E_INVALIDARG;
-	}
 	catch (...)
 	{
-		return E_FAIL;
+		return E_INVALIDARG;
 	}
 
 	return S_OK;
@@ -1712,13 +1708,9 @@ STDMETHODIMP FbPlaylistRecyclerManager::Restore(UINT index)
 	{
 		static_api_ptr_t<playlist_manager_v3>()->recycler_restore(index);
 	}
-	catch (pfc::exception_invalid_params&)
-	{
-		return E_INVALIDARG;
-	}
 	catch (...)
 	{
-		return E_FAIL;
+		return E_INVALIDARG;
 	}
 
 	return S_OK;
@@ -1736,13 +1728,9 @@ STDMETHODIMP FbPlaylistRecyclerManager::get_Content(UINT index, IFbMetadbHandleL
 		static_api_ptr_t<playlist_manager_v3>()->recycler_get_content(index, handles);
 		*outContent = new com_object_impl_t<FbMetadbHandleList>(handles);
 	}
-	catch (pfc::exception_invalid_params&)
-	{
-		return E_INVALIDARG;
-	}
 	catch (...)
 	{
-		return E_FAIL;
+		return E_INVALIDARG;
 	}
 
 	return S_OK;
@@ -1754,15 +1742,7 @@ STDMETHODIMP FbPlaylistRecyclerManager::get_Count(UINT* outCount)
 
 	if (!outCount) return E_POINTER;
 
-	try
-	{
-		*outCount = static_api_ptr_t<playlist_manager_v3>()->recycler_get_count();
-	}
-	catch (...)
-	{
-		return E_FAIL;
-	}
-
+	*outCount = static_api_ptr_t<playlist_manager_v3>()->recycler_get_count();
 	return S_OK;
 }
 
@@ -1778,13 +1758,9 @@ STDMETHODIMP FbPlaylistRecyclerManager::get_Name(UINT index, BSTR* outName)
 		static_api_ptr_t<playlist_manager_v3>()->recycler_get_name(index, name);
 		*outName = SysAllocString(pfc::stringcvt::string_wide_from_utf8_fast(name));
 	}
-	catch (pfc::exception_invalid_params&)
-	{
-		return E_INVALIDARG;
-	}
 	catch (...)
 	{
-		return E_FAIL;
+		return E_INVALIDARG;
 	}
 
 	return S_OK;
