@@ -267,7 +267,6 @@ STDMETHODIMP ScriptHost::GetLCID(LCID* plcid)
 STDMETHODIMP ScriptHost::GetWindow(HWND* phwnd)
 {
 	*phwnd = m_host->GetHWND();
-
 	return S_OK;
 }
 
@@ -570,6 +569,7 @@ void ScriptHost::ReportError(IActiveScriptError* err)
 STDMETHODIMP FbWindow::ClearInterval(UINT intervalID)
 {
 	TRACK_FUNCTION();
+
 	m_host->ClearIntervalOrTimeout(intervalID);
 	return S_OK;
 }
@@ -577,6 +577,7 @@ STDMETHODIMP FbWindow::ClearInterval(UINT intervalID)
 STDMETHODIMP FbWindow::ClearTimeout(UINT timeoutID)
 {
 	TRACK_FUNCTION();
+
 	m_host->ClearIntervalOrTimeout(timeoutID);
 	return S_OK;
 }
@@ -830,7 +831,9 @@ STDMETHODIMP FbWindow::SetCursor(UINT id)
 STDMETHODIMP FbWindow::SetInterval(IDispatch* func, INT delay, UINT* outIntervalID)
 {
 	TRACK_FUNCTION();
+
 	if (!outIntervalID) return E_POINTER;
+
 	*outIntervalID = m_host->SetInterval(func, delay);
 	return S_OK;
 }
@@ -846,6 +849,9 @@ STDMETHODIMP FbWindow::SetProperty(BSTR name, VARIANT val)
 STDMETHODIMP FbWindow::SetTimeout(IDispatch* func, INT delay, UINT* outTimeoutID)
 {
 	TRACK_FUNCTION();
+
+	if (!outTimeoutID) return E_POINTER;
+
 	*outTimeoutID = m_host->SetTimeout(func, delay);
 	return S_OK;
 }
@@ -901,6 +907,7 @@ STDMETHODIMP FbWindow::get_InstanceType(UINT* p)
 	TRACK_FUNCTION();
 
 	if (!p) return E_POINTER;
+
 	*p = m_host->GetInstanceType();
 	return S_OK;
 }
