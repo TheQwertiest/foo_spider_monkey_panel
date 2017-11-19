@@ -45,23 +45,6 @@ _.mixin({
 			
 			var payload = {
 				track_metadata : {
-					additional_info : {
-						// must be arrays
-						artist_mbids : tags.musicbrainz_artistid,
-						work_mbids : tags.musicbrainz_workid,
-						// must be strings
-						albumartist : _.first(tags.albumartist),
-						date : _.first(tags.date),
-						discnumber : _.first(tags.discnumber),
-						isrc : _.first(tags.isrc),
-						recording_mbid : _.first(tags.musicbrainz_trackid),
-						release_group_mbid : _.first(tags.musicbrainz_releasegroupid),
-						release_mbid : _.first(tags.musicbrainz_albumid),
-						totaldiscs : _.first(tags.totaldiscs),
-						totaltracks: _.first(tags.totaltracks),
-						track_mbid : _.first(tags.musicbrainz_releasetrackid),
-						tracknumber : _.first(tags.tracknumber)
-					},
 					artist_name : _.first(tags.artist),
 					release_name : _.first(tags.album),
 					track_name : _.first(tags.title)
@@ -70,6 +53,24 @@ _.mixin({
 			
 			if (listen_type == 'single') {
 				payload.listened_at = this.timestamp;
+				
+				payload.track_metadata.additional_info = {
+					// must be arrays
+					artist_mbids : tags.musicbrainz_artistid,
+					work_mbids : tags.musicbrainz_workid,
+					// must be strings
+					albumartist : _.first(tags.albumartist),
+					date : _.first(tags.date),
+					discnumber : _.first(tags.discnumber),
+					isrc : _.first(tags.isrc),
+					recording_mbid : _.first(tags.musicbrainz_trackid),
+					release_group_mbid : _.first(tags.musicbrainz_releasegroupid),
+					release_mbid : _.first(tags.musicbrainz_albumid),
+					totaldiscs : _.first(tags.totaldiscs),
+					totaltracks: _.first(tags.totaltracks),
+					track_mbid : _.first(tags.musicbrainz_releasetrackid),
+					tracknumber : _.first(tags.tracknumber)
+				};
 				
 				if (this.properties.genres.enabled && tags.genre) {
 					payload.track_metadata.additional_info.tags = _(tags.genre)
