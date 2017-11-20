@@ -2537,7 +2537,7 @@ STDMETHODIMP FbUtils::TitleFormat(BSTR expression, IFbTitleFormat** pp)
 
 STDMETHODIMP FbUtils::Trace(SAFEARRAY* p)
 {
-	TRACK_FUNCTION()
+	TRACK_FUNCTION();
 
 	pfc::string8_fast str;
 	LONG nLBound = 0, nUBound = -1;
