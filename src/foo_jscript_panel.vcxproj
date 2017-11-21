@@ -140,7 +140,6 @@ copy /Y "$(TargetPath)" "%component_path%\"</Command>
     <ClCompile Include="panel_manager.cpp" />
     <ClCompile Include="script_interface_impl.cpp" />
     <ClCompile Include="script_preprocessor.cpp" />
-    <ClCompile Include="stackblur.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
@@ -152,7 +151,6 @@ copy /Y "$(TargetPath)" "%component_path%\"</Command>
     <ClCompile Include="ui_pref.cpp" />
     <ClCompile Include="ui_property.cpp" />
     <ClCompile Include="ui_replace.cpp" />
-    <ClCompile Include="boxblurfilter.cpp" />
     <ClCompile Include="com_array.cpp" />
     <ClCompile Include="helpers.cpp" />
     <ClCompile Include="thread_pool.cpp" />

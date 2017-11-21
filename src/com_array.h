@@ -2,8 +2,6 @@
 
 namespace helpers
 {
-	// 1D
-	// VBArray remains, convert JScript array to VBArray
 	class com_array_reader
 	{
 	public:
@@ -83,7 +81,6 @@ namespace helpers
 		long m_lbound, m_ubound;
 	};
 
-	// 1D
 	template <bool managed = false>
 	class com_array_writer
 	{
@@ -153,9 +150,7 @@ namespace helpers
 			helpers::com_array_reader arrayReader;
 			empty = false;
 
-			// cannot convert, just fail
 			if (!arrayReader.convert(&items)) return false;
-			// no items
 			if (arrayReader.get_count() == 0)
 			{
 				empty = true;
