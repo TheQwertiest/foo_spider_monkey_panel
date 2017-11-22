@@ -3,7 +3,6 @@
 #include "helpers.h"
 #include "panel_manager.h"
 #include "popup_msg.h"
-#include "dbgtrace.h"
 
 HostComm::HostComm()
 	: m_hwnd(NULL)
@@ -460,19 +459,16 @@ HRESULT ScriptHost::InvokeCallback(int callbackId, VARIANTARG* argv, UINT argc, 
 	{
 		pfc::print_guid guid(m_host->get_config_guid());
 		console::printf(JSP_NAME " (%s): Unhandled C++ Exception: \"%s\", will crash now...", m_host->ScriptInfo().build_info_string().get_ptr(), e.what());
-		PRINT_DISPATCH_TRACK_MESSAGE_AND_BREAK();
 	}
 	catch (_com_error& e)
 	{
 		pfc::print_guid guid(m_host->get_config_guid());
 		console::printf(JSP_NAME " (%s): Unhandled COM Error: \"%s\", will crash now...", m_host->ScriptInfo().build_info_string().get_ptr(), pfc::stringcvt::string_utf8_from_wide(e.ErrorMessage()).get_ptr());
-		PRINT_DISPATCH_TRACK_MESSAGE_AND_BREAK();
 	}
 	catch (...)
 	{
 		pfc::print_guid guid(m_host->get_config_guid());
 		console::printf(JSP_NAME " (%s): Unhandled Unknown Exception, will crash now...", m_host->ScriptInfo().build_info_string().get_ptr());
-		PRINT_DISPATCH_TRACK_MESSAGE_AND_BREAK();
 	}
 
 	return hr;
@@ -568,24 +564,18 @@ void ScriptHost::ReportError(IActiveScriptError* err)
 
 STDMETHODIMP FbWindow::ClearInterval(UINT intervalID)
 {
-	TRACK_FUNCTION();
-
 	m_host->ClearIntervalOrTimeout(intervalID);
 	return S_OK;
 }
 
 STDMETHODIMP FbWindow::ClearTimeout(UINT timeoutID)
 {
-	TRACK_FUNCTION();
-
 	m_host->ClearIntervalOrTimeout(timeoutID);
 	return S_OK;
 }
 
 STDMETHODIMP FbWindow::CreatePopupMenu(IMenuObj** pp)
 {
-	TRACK_FUNCTION();
-
 	if (!pp) return E_POINTER;
 
 	*pp = new com_object_impl_t<MenuObj>(m_host->GetHWND());
@@ -594,8 +584,6 @@ STDMETHODIMP FbWindow::CreatePopupMenu(IMenuObj** pp)
 
 STDMETHODIMP FbWindow::CreateThemeManager(BSTR classid, IThemeManager** pp)
 {
-	TRACK_FUNCTION();
-
 	if (!pp) return E_POINTER;
 
 	IThemeManager* ptheme = NULL;
@@ -620,8 +608,6 @@ STDMETHODIMP FbWindow::CreateThemeManager(BSTR classid, IThemeManager** pp)
 
 STDMETHODIMP FbWindow::CreateTooltip(BSTR name, float pxSize, INT style, IFbTooltip** pp)
 {
-	TRACK_FUNCTION();
-
 	if (!pp) return E_POINTER;
 
 	const auto& tooltip_param = m_host->PanelTooltipParam();
@@ -634,8 +620,6 @@ STDMETHODIMP FbWindow::CreateTooltip(BSTR name, float pxSize, INT style, IFbTool
 
 STDMETHODIMP FbWindow::GetBackgroundImage(IGdiBitmap** pp)
 {
-	TRACK_FUNCTION();
-
 	if (!pp) return E_POINTER;
 
 	*pp = m_host->GetBackgroundImage();
@@ -644,8 +628,6 @@ STDMETHODIMP FbWindow::GetBackgroundImage(IGdiBitmap** pp)
 
 STDMETHODIMP FbWindow::GetColorCUI(UINT type, BSTR guidstr, int* p)
 {
-	TRACK_FUNCTION();
-
 	if (!p) return E_POINTER;
 	if (m_host->GetInstanceType() != HostComm::KInstanceTypeCUI) return E_NOTIMPL;
 
@@ -669,8 +651,6 @@ STDMETHODIMP FbWindow::GetColorCUI(UINT type, BSTR guidstr, int* p)
 
 STDMETHODIMP FbWindow::GetColorDUI(UINT type, int* p)
 {
-	TRACK_FUNCTION();
-
 	if (!p) return E_POINTER;
 	if (m_host->GetInstanceType() != HostComm::KInstanceTypeDUI) return E_NOTIMPL;
 
@@ -680,8 +660,6 @@ STDMETHODIMP FbWindow::GetColorDUI(UINT type, int* p)
 
 STDMETHODIMP FbWindow::GetFontCUI(UINT type, BSTR guidstr, IGdiFont** pp)
 {
-	TRACK_FUNCTION();
-
 	if (!pp) return E_POINTER;
 	if (m_host->GetInstanceType() != HostComm::KInstanceTypeCUI) return E_NOTIMPL;
 
@@ -722,8 +700,6 @@ STDMETHODIMP FbWindow::GetFontCUI(UINT type, BSTR guidstr, IGdiFont** pp)
 
 STDMETHODIMP FbWindow::GetFontDUI(UINT type, IGdiFont** pp)
 {
-	TRACK_FUNCTION();
-
 	if (!pp) return E_POINTER;
 	if (m_host->GetInstanceType() != HostComm::KInstanceTypeDUI) return E_NOTIMPL;
 
@@ -749,8 +725,6 @@ STDMETHODIMP FbWindow::GetFontDUI(UINT type, IGdiFont** pp)
 
 STDMETHODIMP FbWindow::GetProperty(BSTR name, VARIANT defaultval, VARIANT* p)
 {
-	TRACK_FUNCTION();
-
 	if (!p) return E_POINTER;
 
 	HRESULT hr;
@@ -775,8 +749,6 @@ STDMETHODIMP FbWindow::GetProperty(BSTR name, VARIANT defaultval, VARIANT* p)
 
 STDMETHODIMP FbWindow::NotifyOthers(BSTR name, VARIANT info)
 {
-	TRACK_FUNCTION();
-
 	if (info.vt & VT_BYREF) return E_INVALIDARG;
 
 	HRESULT hr = S_OK;
@@ -798,40 +770,30 @@ STDMETHODIMP FbWindow::NotifyOthers(BSTR name, VARIANT info)
 
 STDMETHODIMP FbWindow::Reload()
 {
-	TRACK_FUNCTION();
-
 	PostMessage(m_host->GetHWND(), UWM_RELOAD, 0, 0);
 	return S_OK;
 }
 
 STDMETHODIMP FbWindow::Repaint(VARIANT_BOOL force)
 {
-	TRACK_FUNCTION();
-
 	m_host->Repaint(force != FALSE);
 	return S_OK;
 }
 
 STDMETHODIMP FbWindow::RepaintRect(LONG x, LONG y, LONG w, LONG h, VARIANT_BOOL force)
 {
-	TRACK_FUNCTION();
-
 	m_host->RepaintRect(x, y, w, h, force != FALSE);
 	return S_OK;
 }
 
 STDMETHODIMP FbWindow::SetCursor(UINT id)
 {
-	TRACK_FUNCTION();
-
 	::SetCursor(LoadCursor(NULL, MAKEINTRESOURCE(id)));
 	return S_OK;
 }
 
 STDMETHODIMP FbWindow::SetInterval(IDispatch* func, INT delay, UINT* outIntervalID)
 {
-	TRACK_FUNCTION();
-
 	if (!outIntervalID) return E_POINTER;
 
 	*outIntervalID = m_host->SetInterval(func, delay);
@@ -840,16 +802,12 @@ STDMETHODIMP FbWindow::SetInterval(IDispatch* func, INT delay, UINT* outInterval
 
 STDMETHODIMP FbWindow::SetProperty(BSTR name, VARIANT val)
 {
-	TRACK_FUNCTION();
-
 	m_host->get_config_prop().set_config_item(pfc::stringcvt::string_utf8_from_wide(name), val);
 	return S_OK;
 }
 
 STDMETHODIMP FbWindow::SetTimeout(IDispatch* func, INT delay, UINT* outTimeoutID)
 {
-	TRACK_FUNCTION();
-
 	if (!outTimeoutID) return E_POINTER;
 
 	*outTimeoutID = m_host->SetTimeout(func, delay);
@@ -858,24 +816,18 @@ STDMETHODIMP FbWindow::SetTimeout(IDispatch* func, INT delay, UINT* outTimeoutID
 
 STDMETHODIMP FbWindow::ShowConfigure()
 {
-	TRACK_FUNCTION();
-
 	PostMessage(m_host->GetHWND(), UWM_SHOWCONFIGURE, 0, 0);
 	return S_OK;
 }
 
 STDMETHODIMP FbWindow::ShowProperties()
 {
-	TRACK_FUNCTION();
-
 	PostMessage(m_host->GetHWND(), UWM_SHOWPROPERTIES, 0, 0);
 	return S_OK;
 }
 
 STDMETHODIMP FbWindow::get_DlgCode(UINT* p)
 {
-	TRACK_FUNCTION();
-
 	if (!p) return E_POINTER;
 
 	*p = m_host->DlgCode();
@@ -884,8 +836,6 @@ STDMETHODIMP FbWindow::get_DlgCode(UINT* p)
 
 STDMETHODIMP FbWindow::get_Height(INT* p)
 {
-	TRACK_FUNCTION();
-
 	if (!p) return E_POINTER;
 
 	*p = m_host->GetHeight();
@@ -894,8 +844,6 @@ STDMETHODIMP FbWindow::get_Height(INT* p)
 
 STDMETHODIMP FbWindow::get_ID(UINT* p)
 {
-	TRACK_FUNCTION();
-
 	if (!p) return E_POINTER;
 
 	*p = (UINT)m_host->GetHWND();
@@ -904,8 +852,6 @@ STDMETHODIMP FbWindow::get_ID(UINT* p)
 
 STDMETHODIMP FbWindow::get_InstanceType(UINT* p)
 {
-	TRACK_FUNCTION();
-
 	if (!p) return E_POINTER;
 
 	*p = m_host->GetInstanceType();
@@ -914,8 +860,6 @@ STDMETHODIMP FbWindow::get_InstanceType(UINT* p)
 
 STDMETHODIMP FbWindow::get_IsTransparent(VARIANT_BOOL* p)
 {
-	TRACK_FUNCTION();
-
 	if (!p) return E_POINTER;
 
 	*p = TO_VARIANT_BOOL(m_host->get_pseudo_transparent());
@@ -924,8 +868,6 @@ STDMETHODIMP FbWindow::get_IsTransparent(VARIANT_BOOL* p)
 
 STDMETHODIMP FbWindow::get_IsVisible(VARIANT_BOOL* p)
 {
-	TRACK_FUNCTION();
-
 	if (!p) return E_POINTER;
 
 	*p = TO_VARIANT_BOOL(IsWindowVisible(m_host->GetHWND()));
@@ -934,8 +876,6 @@ STDMETHODIMP FbWindow::get_IsVisible(VARIANT_BOOL* p)
 
 STDMETHODIMP FbWindow::get_MaxHeight(UINT* p)
 {
-	TRACK_FUNCTION();
-
 	if (!p) return E_POINTER;
 
 	*p = m_host->MaxSize().y;
@@ -944,8 +884,6 @@ STDMETHODIMP FbWindow::get_MaxHeight(UINT* p)
 
 STDMETHODIMP FbWindow::get_MaxWidth(UINT* p)
 {
-	TRACK_FUNCTION();
-
 	if (!p) return E_POINTER;
 
 	*p = m_host->MaxSize().x;
@@ -954,8 +892,6 @@ STDMETHODIMP FbWindow::get_MaxWidth(UINT* p)
 
 STDMETHODIMP FbWindow::get_MinHeight(UINT* p)
 {
-	TRACK_FUNCTION();
-
 	if (!p) return E_POINTER;
 
 	*p = m_host->MinSize().y;
@@ -964,8 +900,6 @@ STDMETHODIMP FbWindow::get_MinHeight(UINT* p)
 
 STDMETHODIMP FbWindow::get_MinWidth(UINT* p)
 {
-	TRACK_FUNCTION();
-
 	if (!p) return E_POINTER;
 
 	*p = m_host->MinSize().x;
@@ -974,8 +908,6 @@ STDMETHODIMP FbWindow::get_MinWidth(UINT* p)
 
 STDMETHODIMP FbWindow::get_Width(INT* p)
 {
-	TRACK_FUNCTION();
-
 	if (!p) return E_POINTER;
 
 	*p = m_host->GetWidth();
@@ -984,16 +916,12 @@ STDMETHODIMP FbWindow::get_Width(INT* p)
 
 STDMETHODIMP FbWindow::put_DlgCode(UINT code)
 {
-	TRACK_FUNCTION();
-
 	m_host->DlgCode() = code;
 	return S_OK;
 }
 
 STDMETHODIMP FbWindow::put_MaxHeight(UINT height)
 {
-	TRACK_FUNCTION();
-
 	m_host->MaxSize().y = height;
 	PostMessage(m_host->GetHWND(), UWM_SIZELIMITECHANGED, 0, uie::size_limit_maximum_height);
 	return S_OK;
@@ -1002,8 +930,6 @@ STDMETHODIMP FbWindow::put_MaxHeight(UINT height)
 
 STDMETHODIMP FbWindow::put_MaxWidth(UINT width)
 {
-	TRACK_FUNCTION();
-
 	m_host->MaxSize().x = width;
 	PostMessage(m_host->GetHWND(), UWM_SIZELIMITECHANGED, 0, uie::size_limit_maximum_width);
 	return S_OK;
@@ -1011,8 +937,6 @@ STDMETHODIMP FbWindow::put_MaxWidth(UINT width)
 
 STDMETHODIMP FbWindow::put_MinHeight(UINT height)
 {
-	TRACK_FUNCTION();
-
 	m_host->MinSize().y = height;
 	PostMessage(m_host->GetHWND(), UWM_SIZELIMITECHANGED, 0, uie::size_limit_minimum_height);
 	return S_OK;
@@ -1020,8 +944,6 @@ STDMETHODIMP FbWindow::put_MinHeight(UINT height)
 
 STDMETHODIMP FbWindow::put_MinWidth(UINT width)
 {
-	TRACK_FUNCTION();
-
 	m_host->MinSize().x = width;
 	PostMessage(m_host->GetHWND(), UWM_SIZELIMITECHANGED, 0, uie::size_limit_minimum_width);
 	return S_OK;

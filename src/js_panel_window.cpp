@@ -32,8 +32,6 @@ void js_panel_window::update_script(const char* code)
 
 bool js_panel_window::script_load()
 {
-	TRACK_FUNCTION();
-
 	m_host_timer_dispatcher.setWindow(m_hwnd);
 
 	pfc::hires_timer timer;
@@ -177,8 +175,6 @@ bool js_panel_window::show_property_popup(HWND parent)
 
 LRESULT js_panel_window::on_message(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 {
-	//TRACK_CALL_TEXT_FORMAT("uie_win::on_message(hwnd=0x%x,msg=%u,wp=%d,lp=%d)", m_hwnd, msg, wp, lp);
-
 	switch (msg)
 	{
 	case WM_CREATE:
@@ -566,8 +562,6 @@ LRESULT js_panel_window::on_message(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 
 void js_panel_window::on_size(int w, int h)
 {
-	TRACK_FUNCTION();
-
 	m_width = w;
 	m_height = h;
 
@@ -579,8 +573,6 @@ void js_panel_window::on_size(int w, int h)
 
 void js_panel_window::on_paint(HDC dc, LPRECT lpUpdateRect)
 {
-	TRACK_FUNCTION();
-
 	if (!dc || !lpUpdateRect || !m_gr_bmp || !m_gr_wrap)
 		return;
 
@@ -708,8 +700,6 @@ void js_panel_window::on_context_menu(int x, int y)
 
 void js_panel_window::on_mouse_wheel(WPARAM wp)
 {
-	TRACK_FUNCTION();
-
 	VARIANTARG args[3];
 	args[2].vt = VT_I4;
 	args[2].lVal = GET_WHEEL_DELTA_WPARAM(wp) > 0 ? 1 : -1;
@@ -722,8 +712,6 @@ void js_panel_window::on_mouse_wheel(WPARAM wp)
 
 void js_panel_window::on_mouse_wheel_h(WPARAM wp)
 {
-	TRACK_FUNCTION();
-
 	VARIANTARG args[1];
 	args[0].vt = VT_I4;
 	args[0].lVal = GET_WHEEL_DELTA_WPARAM(wp) > 0 ? 1 : -1;
@@ -732,8 +720,6 @@ void js_panel_window::on_mouse_wheel_h(WPARAM wp)
 
 void js_panel_window::on_mouse_leave()
 {
-	TRACK_FUNCTION();
-
 	m_is_mouse_tracked = false;
 
 	script_invoke_v(CallbackIds::on_mouse_leave);
@@ -743,8 +729,6 @@ void js_panel_window::on_mouse_leave()
 
 void js_panel_window::on_mouse_move(WPARAM wp, LPARAM lp)
 {
-	TRACK_FUNCTION();
-
 	if (!m_is_mouse_tracked)
 	{
 		TRACKMOUSEEVENT tme;
@@ -771,8 +755,6 @@ void js_panel_window::on_mouse_move(WPARAM wp, LPARAM lp)
 
 void js_panel_window::on_mouse_button_dblclk(UINT msg, WPARAM wp, LPARAM lp)
 {
-	TRACK_FUNCTION();
-
 	VARIANTARG args[3];
 	args[0].vt = VT_I4;
 	args[0].lVal = wp;
@@ -799,8 +781,6 @@ void js_panel_window::on_mouse_button_dblclk(UINT msg, WPARAM wp, LPARAM lp)
 
 bool js_panel_window::on_mouse_button_up(UINT msg, WPARAM wp, LPARAM lp)
 {
-	TRACK_FUNCTION();
-
 	bool ret = false;
 
 	VARIANTARG args[3];
@@ -847,8 +827,6 @@ bool js_panel_window::on_mouse_button_up(UINT msg, WPARAM wp, LPARAM lp)
 
 void js_panel_window::on_mouse_button_down(UINT msg, WPARAM wp, LPARAM lp)
 {
-	TRACK_FUNCTION();
-
 	if (get_grab_focus())
 		SetFocus(m_hwnd);
 
@@ -880,8 +858,6 @@ void js_panel_window::on_mouse_button_down(UINT msg, WPARAM wp, LPARAM lp)
 
 void js_panel_window::on_refresh_background_done()
 {
-	TRACK_FUNCTION();
-
 	script_invoke_v(CallbackIds::on_refresh_background_done);
 }
 
@@ -919,8 +895,6 @@ void js_panel_window::execute_context_menu_command(int id, int id_base)
 
 void js_panel_window::on_item_played(WPARAM wp)
 {
-	TRACK_FUNCTION();
-
 	simple_callback_data_scope_releaser<simple_callback_data<metadb_handle_ptr>> data(wp);
 	FbMetadbHandle* handle = new com_object_impl_t<FbMetadbHandle>(data->m_item);
 
@@ -935,8 +909,6 @@ void js_panel_window::on_item_played(WPARAM wp)
 
 void js_panel_window::on_get_album_art_done(LPARAM lp)
 {
-	TRACK_FUNCTION();
-
 	using namespace helpers;
 	album_art_async::t_param* param = reinterpret_cast<album_art_async::t_param *>(lp);
 
@@ -954,8 +926,6 @@ void js_panel_window::on_get_album_art_done(LPARAM lp)
 
 void js_panel_window::on_load_image_done(LPARAM lp)
 {
-	TRACK_FUNCTION();
-
 	using namespace helpers;
 	load_image_async::t_param* param = reinterpret_cast<load_image_async::t_param *>(lp);
 
@@ -971,8 +941,6 @@ void js_panel_window::on_load_image_done(LPARAM lp)
 
 void js_panel_window::on_playlist_stop_after_current_changed(WPARAM wp)
 {
-	TRACK_FUNCTION();
-
 	VARIANTARG args[1];
 	args[0].vt = VT_BOOL;
 	args[0].boolVal = TO_VARIANT_BOOL(wp);
@@ -981,8 +949,6 @@ void js_panel_window::on_playlist_stop_after_current_changed(WPARAM wp)
 
 void js_panel_window::on_cursor_follow_playback_changed(WPARAM wp)
 {
-	TRACK_FUNCTION();
-
 	VARIANTARG args[1];
 	args[0].vt = VT_BOOL;
 	args[0].boolVal = TO_VARIANT_BOOL(wp);
@@ -991,8 +957,6 @@ void js_panel_window::on_cursor_follow_playback_changed(WPARAM wp)
 
 void js_panel_window::on_playback_follow_cursor_changed(WPARAM wp)
 {
-	TRACK_FUNCTION();
-
 	VARIANTARG args[1];
 	args[0].vt = VT_BOOL;
 	args[0].boolVal = TO_VARIANT_BOOL(wp);
@@ -1001,8 +965,6 @@ void js_panel_window::on_playback_follow_cursor_changed(WPARAM wp)
 
 void js_panel_window::on_notify_data(WPARAM wp)
 {
-	TRACK_FUNCTION();
-
 	simple_callback_data_scope_releaser<simple_callback_data_2<_bstr_t, _variant_t>> data(wp);
 
 	VARIANTARG args[2];
@@ -1014,22 +976,16 @@ void js_panel_window::on_notify_data(WPARAM wp)
 
 void js_panel_window::on_font_changed()
 {
-	TRACK_FUNCTION();
-
 	script_invoke_v(CallbackIds::on_font_changed);
 }
 
 void js_panel_window::on_colors_changed()
 {
-	TRACK_FUNCTION();
-
 	script_invoke_v(CallbackIds::on_colors_changed);
 }
 
 void js_panel_window::on_playback_starting(play_control::t_track_command cmd, bool paused)
 {
-	TRACK_FUNCTION();
-
 	VARIANTARG args[2];
 	args[0].vt = VT_BOOL;
 	args[0].boolVal = TO_VARIANT_BOOL(paused);
@@ -1040,8 +996,6 @@ void js_panel_window::on_playback_starting(play_control::t_track_command cmd, bo
 
 void js_panel_window::on_playback_new_track(WPARAM wp)
 {
-	TRACK_FUNCTION();
-
 	simple_callback_data_scope_releaser<simple_callback_data<metadb_handle_ptr>> data(wp);
 	FbMetadbHandle* handle = new com_object_impl_t<FbMetadbHandle>(data->m_item);
 
@@ -1056,8 +1010,6 @@ void js_panel_window::on_playback_new_track(WPARAM wp)
 
 void js_panel_window::on_playback_stop(play_control::t_stop_reason reason)
 {
-	TRACK_FUNCTION();
-
 	VARIANTARG args[1];
 	args[0].vt = VT_I4;
 	args[0].lVal = reason;
@@ -1066,8 +1018,6 @@ void js_panel_window::on_playback_stop(play_control::t_stop_reason reason)
 
 void js_panel_window::on_playback_seek(WPARAM wp)
 {
-	TRACK_FUNCTION();
-
 	simple_callback_data_scope_releaser<simple_callback_data<double>> data(wp);
 
 	VARIANTARG args[1];
@@ -1078,8 +1028,6 @@ void js_panel_window::on_playback_seek(WPARAM wp)
 
 void js_panel_window::on_playback_pause(bool state)
 {
-	TRACK_FUNCTION();
-
 	VARIANTARG args[1];
 	args[0].vt = VT_BOOL;
 	args[0].boolVal = TO_VARIANT_BOOL(state);
@@ -1088,8 +1036,6 @@ void js_panel_window::on_playback_pause(bool state)
 
 void js_panel_window::on_playback_edited(WPARAM wp)
 {
-	TRACK_FUNCTION();
-
 	simple_callback_data_scope_releaser<simple_callback_data<metadb_handle_ptr>> data(wp);
 	FbMetadbHandle* handle = new com_object_impl_t<FbMetadbHandle>(data->m_item);
 
@@ -1104,22 +1050,16 @@ void js_panel_window::on_playback_edited(WPARAM wp)
 
 void js_panel_window::on_playback_dynamic_info()
 {
-	TRACK_FUNCTION();
-
 	script_invoke_v(CallbackIds::on_playback_dynamic_info);
 }
 
 void js_panel_window::on_playback_dynamic_info_track()
 {
-	TRACK_FUNCTION();
-
 	script_invoke_v(CallbackIds::on_playback_dynamic_info_track);
 }
 
 void js_panel_window::on_playback_time(WPARAM wp)
 {
-	TRACK_FUNCTION();
-
 	simple_callback_data_scope_releaser<simple_callback_data<double>> data(wp);
 
 	VARIANTARG args[1];
@@ -1130,8 +1070,6 @@ void js_panel_window::on_playback_time(WPARAM wp)
 
 void js_panel_window::on_volume_change(WPARAM wp)
 {
-	TRACK_FUNCTION();
-
 	simple_callback_data_scope_releaser<simple_callback_data<float>> data(wp);
 
 	VARIANTARG args[1];
@@ -1142,8 +1080,6 @@ void js_panel_window::on_volume_change(WPARAM wp)
 
 void js_panel_window::on_item_focus_change(WPARAM wp)
 {
-	TRACK_FUNCTION();
-
 	simple_callback_data_scope_releaser<simple_callback_data_3<t_size, t_size, t_size>> data(wp);
 
 	VARIANTARG args[3];
@@ -1158,8 +1094,6 @@ void js_panel_window::on_item_focus_change(WPARAM wp)
 
 void js_panel_window::on_playback_order_changed(t_size p_new_index)
 {
-	TRACK_FUNCTION();
-
 	VARIANTARG args[1];
 	args[0].vt = VT_I4;
 	args[0].lVal = p_new_index;
@@ -1168,22 +1102,16 @@ void js_panel_window::on_playback_order_changed(t_size p_new_index)
 
 void js_panel_window::on_playlist_switch()
 {
-	TRACK_FUNCTION();
-
 	script_invoke_v(CallbackIds::on_playlist_switch);
 }
 
 void js_panel_window::on_playlists_changed()
 {
-	TRACK_FUNCTION();
-
 	script_invoke_v(CallbackIds::on_playlists_changed);
 }
 
 void js_panel_window::on_playlist_items_added(WPARAM wp)
 {
-	TRACK_FUNCTION();
-
 	VARIANTARG args[1];
 	args[0].vt = VT_UI4;
 	args[0].ulVal = wp;
@@ -1192,8 +1120,6 @@ void js_panel_window::on_playlist_items_added(WPARAM wp)
 
 void js_panel_window::on_playlist_items_reordered(WPARAM wp)
 {
-	TRACK_FUNCTION();
-
 	VARIANTARG args[1];
 	args[0].vt = VT_UI4;
 	args[0].ulVal = wp;
@@ -1202,8 +1128,6 @@ void js_panel_window::on_playlist_items_reordered(WPARAM wp)
 
 void js_panel_window::on_playlist_items_removed(WPARAM wp, LPARAM lp)
 {
-	TRACK_FUNCTION();
-
 	VARIANTARG args[2];
 	args[0].vt = VT_UI4;
 	args[0].ulVal = lp;
@@ -1214,15 +1138,11 @@ void js_panel_window::on_playlist_items_removed(WPARAM wp, LPARAM lp)
 
 void js_panel_window::on_playlist_items_selection_change()
 {
-	TRACK_FUNCTION();
-
 	script_invoke_v(CallbackIds::on_playlist_items_selection_change);
 }
 
 void js_panel_window::on_playlist_item_ensure_visible(WPARAM wp, LPARAM lp)
 {
-	TRACK_FUNCTION();
-
 	VARIANTARG args[2];
 	args[0].vt = VT_UI4;
 	args[0].ulVal = lp;
@@ -1233,8 +1153,6 @@ void js_panel_window::on_playlist_item_ensure_visible(WPARAM wp, LPARAM lp)
 
 void js_panel_window::on_changed_sorted(WPARAM wp)
 {
-	TRACK_FUNCTION();
-
 	simple_callback_data_scope_releaser<nonautoregister_callbacks::t_on_changed_sorted_data> data(wp);
 	FbMetadbHandleList* handles = new com_object_impl_t<FbMetadbHandleList>(data->m_items_sorted);
 
@@ -1251,15 +1169,11 @@ void js_panel_window::on_changed_sorted(WPARAM wp)
 
 void js_panel_window::on_selection_changed()
 {
-	TRACK_FUNCTION();
-
 	script_invoke_v(CallbackIds::on_selection_changed);
 }
 
 void js_panel_window::on_playback_queue_changed(WPARAM wp)
 {
-	TRACK_FUNCTION();
-
 	VARIANTARG args[1];
 	args[0].vt = VT_I4;
 	args[0].lVal = wp;
@@ -1268,29 +1182,21 @@ void js_panel_window::on_playback_queue_changed(WPARAM wp)
 
 void js_panel_window::on_library_items_added()
 {
-	TRACK_FUNCTION();
-
 	script_invoke_v(CallbackIds::on_library_items_added);
 }
 
 void js_panel_window::on_library_items_removed()
 {
-	TRACK_FUNCTION();
-
 	script_invoke_v(CallbackIds::on_library_items_removed);
 }
 
 void js_panel_window::on_library_items_changed()
 {
-	TRACK_FUNCTION();
-
 	script_invoke_v(CallbackIds::on_library_items_changed);
 }
 
 void js_panel_window::on_main_menu(WPARAM wp)
 {
-	TRACK_FUNCTION();
-
 	VARIANTARG args[1];
 	args[0].vt = VT_I4;
 	args[0].lVal = wp;

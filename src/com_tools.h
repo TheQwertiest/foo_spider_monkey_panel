@@ -1,7 +1,5 @@
 #pragma once
 
-#include "dbgtrace.h"
-
 //-- IUnknown ---
 #define BEGIN_COM_QI_IMPL() \
 	public:\
@@ -129,7 +127,6 @@ public:
 	STDMETHOD(Invoke)(DISPID dispid, REFIID riid, LCID lcid, WORD flag, DISPPARAMS* params, VARIANT* result, EXCEPINFO* excep, unsigned int* err)
 	{
 		if (g_type_info_cache_holder.empty()) return E_UNEXPECTED;
-		TRACK_THIS_DISPATCH_CALL(g_type_info_cache_holder.get_ptr(), dispid, flag);
 		return g_type_info_cache_holder.Invoke(this, dispid, flag, params, result, excep, err);
 	}
 };

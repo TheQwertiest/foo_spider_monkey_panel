@@ -96,8 +96,6 @@ HRESULT HostDropTarget::OnDrop(IDataObject* pDataObj, DWORD grfKeyState, POINTL 
 
 void HostDropTarget::on_drag_enter(unsigned keyState, POINTL& pt, IDropSourceAction* action)
 {
-	TRACK_FUNCTION();
-
 	VARIANTARG args[4];
 	args[0].vt = VT_I4;
 	args[0].lVal = keyState;
@@ -112,15 +110,11 @@ void HostDropTarget::on_drag_enter(unsigned keyState, POINTL& pt, IDropSourceAct
 
 void HostDropTarget::on_drag_leave()
 {
-	TRACK_FUNCTION();
-
 	m_host->script_invoke_v(CallbackIds::on_drag_leave);
 }
 
 void HostDropTarget::on_drag_over(unsigned keyState, POINTL& pt, IDropSourceAction* action)
 {
-	TRACK_FUNCTION();
-
 	VARIANTARG args[4];
 	args[0].vt = VT_I4;
 	args[0].lVal = keyState;
@@ -135,8 +129,6 @@ void HostDropTarget::on_drag_over(unsigned keyState, POINTL& pt, IDropSourceActi
 
 void HostDropTarget::on_drag_drop(unsigned keyState, POINTL& pt, IDropSourceAction* action)
 {
-	TRACK_FUNCTION();
-
 	VARIANTARG args[4];
 	args[0].vt = VT_I4;
 	args[0].lVal = keyState;

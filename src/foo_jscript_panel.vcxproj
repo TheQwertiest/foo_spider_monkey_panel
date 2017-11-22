@@ -167,7 +167,6 @@ copy /Y "$(TargetPath)" "%component_path%\"</Command>
     <ClInclude Include="..\PropertyList\PropertyList.h" />
     <ClInclude Include="com_tools.h" />
     <ClInclude Include="config.h" />
-    <ClInclude Include="dbgtrace.h" />
     <ClInclude Include="delay_loader.h" />
     <ClInclude Include="json.hpp" />
     <ClInclude Include="panel_tooltip_param.h" />

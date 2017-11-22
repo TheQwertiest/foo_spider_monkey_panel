@@ -110,9 +110,6 @@
     <ClInclude Include="config.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="dbgtrace.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="host.h">
       <Filter>Header Files</Filter>
     </ClInclude>
