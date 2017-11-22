@@ -8,7 +8,8 @@ static mainmenu_group_popup_factory g_mainmenu_group(g_mainmenu_group_id, mainme
 
 class my_mainmenu_commands : public mainmenu_commands {
 public:
-	enum {
+	enum
+	{
 		cmd_one = 0,
 		cmd_two,
 		cmd_three,

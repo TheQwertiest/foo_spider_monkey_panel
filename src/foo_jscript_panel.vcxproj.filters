@@ -96,14 +96,14 @@
     <ClCompile Include="helpers.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="editorctrl.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="scintilla_prop_sets.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="host_drop_target.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="editorctrl.cpp">
+      <Filter>Source Files\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="scintilla_prop_sets.cpp">
+      <Filter>Source Files\UI</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -215,23 +215,23 @@
     <ClInclude Include="stackblur.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="editorctrl.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="scintilla_prop_sets.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="SString.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="wtlscintilla.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="drop_target_impl.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="host_drop_target.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SString.h">
+      <Filter>Header Files\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="wtlscintilla.h">
+      <Filter>Header Files\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="editorctrl.h">
+      <Filter>Header Files\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="scintilla_prop_sets.h">
+      <Filter>Header Files\UI</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
