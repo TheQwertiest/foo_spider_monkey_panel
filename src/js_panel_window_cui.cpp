@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "js_panel_window.h"
 #include "js_panel_window_cui.h"
-#include "popup_msg.h"
 
 // CUI panel instance
 static uie::window_factory<js_panel_window_cui> g_js_panel_wndow_cui;
