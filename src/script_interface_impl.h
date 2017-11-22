@@ -97,10 +97,22 @@ public:
 		m_parsable = false;
 	}
 
-	t_action_mode& Mode() { return m_action_mode; }
-	bool& Parsable() { return m_parsable; }
-	int& Playlist() { return m_playlist_idx; }
-	bool& ToSelect() { return m_to_select; }
+	t_action_mode& Mode()
+	{
+		return m_action_mode;
+	}
+	bool& Parsable()
+	{
+		return m_parsable;
+	}
+	int& Playlist()
+	{
+		return m_playlist_idx;
+	}
+	bool& ToSelect()
+	{
+		return m_to_select;
+	}
 
 	STDMETHODIMP ToPlaylist();
 	STDMETHODIMP get_Mode(int* mode);

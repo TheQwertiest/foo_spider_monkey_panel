@@ -15,10 +15,14 @@ public:
 		if (!callback)
 			return;
 
-		if (!g_ready())
-			callbacks_.add_item(callback);
-		else
+		if (g_ready())
+		{
 			callback->execute();
+		}
+		else
+		{
+			callbacks_.add_item(callback);
+		}
 	}
 
 	static void g_set_ready()

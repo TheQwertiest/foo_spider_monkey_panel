@@ -10,7 +10,10 @@ public:
 		set_configuration(cfg);
 	}
 
-	virtual ~js_panel_window_dui() { t_parent::destroy(); }
+	virtual ~js_panel_window_dui()
+	{
+		t_parent::destroy();
+	}
 
 	void initialize_window(HWND parent);
 
@@ -31,22 +34,39 @@ public:
 
 	virtual void notify(const GUID& p_what, t_size p_param1, const void* p_param2, t_size p_param2size);
 
-	virtual bool edit_mode_context_menu_test(const POINT& p_point, bool p_fromkeyboard) { return true; }
-	virtual void edit_mode_context_menu_build(const POINT& p_point, bool p_fromkeyboard, HMENU p_menu, unsigned p_id_base) { build_context_menu(p_menu, p_point.x, p_point.y, p_id_base); }
-	virtual void edit_mode_context_menu_command(const POINT& p_point, bool p_fromkeyboard, unsigned p_id, unsigned p_id_base) { execute_context_menu_command(p_id, p_id_base); }
-	//virtual bool edit_mode_context_menu_get_focus_point(POINT & p_point) {return true;}
-	virtual bool edit_mode_context_menu_get_description(unsigned p_id, unsigned p_id_base, pfc::string_base& p_out) { return false; }
-
+	virtual bool edit_mode_context_menu_test(const POINT& p_point, bool p_fromkeyboard)
+	{
+		return true;
+	}
+	virtual void edit_mode_context_menu_build(const POINT& p_point, bool p_fromkeyboard, HMENU p_menu, unsigned p_id_base)
+	{
+		build_context_menu(p_menu, p_point.x, p_point.y, p_id_base);
+	}
+	virtual void edit_mode_context_menu_command(const POINT& p_point, bool p_fromkeyboard, unsigned p_id, unsigned p_id_base)
+	{
+		execute_context_menu_command(p_id, p_id_base);
+	}
+	virtual bool edit_mode_context_menu_get_description(unsigned p_id, unsigned p_id_base, pfc::string_base& p_out)
+	{
+		return false;
+	}
 	virtual LRESULT on_message(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp);
-
-	// HostComm
-	virtual DWORD GetColorCUI(unsigned type, const GUID& guid) { return 0; }
-	virtual HFONT GetFontCUI(unsigned type, const GUID& guid) { return NULL; }
+	virtual DWORD GetColorCUI(unsigned type, const GUID& guid)
+	{
+		return 0;
+	}
+	virtual HFONT GetFontCUI(unsigned type, const GUID& guid)
+	{
+		return NULL;
+	}
 	virtual DWORD GetColorDUI(unsigned type);
 	virtual HFONT GetFontDUI(unsigned type);
 
 private:
-	void notify_is_edit_mode_changed_(bool enabled) { m_is_edit_mode = enabled; }
+	void notify_is_edit_mode_changed_(bool enabled)
+	{
+		m_is_edit_mode = enabled;
+	}
 	virtual void notify_size_limit_changed_(LPARAM lp);
 	typedef js_panel_window t_parent;
 	ui_element_instance_callback::ptr m_callback;

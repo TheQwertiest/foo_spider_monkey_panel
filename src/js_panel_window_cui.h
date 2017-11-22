@@ -36,8 +36,14 @@ protected:
 	// HostComm
 	virtual DWORD GetColorCUI(unsigned type, const GUID& guid);
 	virtual HFONT GetFontCUI(unsigned type, const GUID& guid);
-	virtual DWORD GetColorDUI(unsigned type) { return 0; }
-	virtual HFONT GetFontDUI(unsigned type) { return NULL; }
+	virtual DWORD GetColorDUI(unsigned type)
+	{
+		return 0;
+	}
+	virtual HFONT GetFontDUI(unsigned type)
+	{
+		return NULL;
+	}
 
 private:
 	virtual void notify_size_limit_changed_(LPARAM lp);

@@ -45,19 +45,55 @@ public:
 		KInstanceTypeDUI,
 	};
 
-	GUID GetGUID() { return get_config_guid(); }
 	IGdiBitmap* GetBackgroundImage();
-	HDC GetHDC() { return m_hdc; }
-	HWND GetHWND() { return m_hwnd; }
-	INT GetHeight() { return m_height; }
-	INT GetWidth() { return m_width; }
-	POINT& MaxSize() { return m_max_size; }
-	POINT& MinSize() { return m_min_size; }
-	UINT& DlgCode() { return m_dlg_code; }
-	UINT GetInstanceType() { return m_instance_type; }
-	panel_tooltip_param_ptr& PanelTooltipParam() { return m_panel_tooltip_param_ptr; }
-	t_script_info& ScriptInfo() { return m_script_info; }
-	void PreserveSelection() { m_selection_holder = static_api_ptr_t<ui_selection_manager>()->acquire(); }
+	GUID GetGUID()
+	{
+		return get_config_guid();
+	}
+	HDC GetHDC()
+	{
+		return m_hdc;
+	}
+	HWND GetHWND()
+	{
+		return m_hwnd;
+	}
+	INT GetHeight()
+	{
+		return m_height;
+	}
+	INT GetWidth()
+	{
+		return m_width;
+	}
+	POINT& MaxSize()
+	{
+		return m_max_size;
+	}
+	POINT& MinSize()
+	{
+		return m_min_size;
+	}
+	UINT& DlgCode()
+	{
+		return m_dlg_code;
+	}
+	UINT GetInstanceType()
+	{
+		return m_instance_type;
+	}
+	panel_tooltip_param_ptr& PanelTooltipParam()
+	{
+		return m_panel_tooltip_param_ptr;
+	}
+	t_script_info& ScriptInfo()
+	{
+		return m_script_info;
+	}
+	void PreserveSelection()
+	{
+		m_selection_holder = static_api_ptr_t<ui_selection_manager>()->acquire();
+	}
 	unsigned SetInterval(IDispatch* func, INT delay);
 	unsigned SetTimeout(IDispatch* func, INT delay);
 	virtual DWORD GetColorCUI(unsigned type, const GUID& guid) = 0;
@@ -151,9 +187,14 @@ public:
 	HRESULT Initialize();
 	HRESULT InvokeCallback(int callbackId, VARIANTARG* argv = NULL, UINT argc = 0, VARIANT* ret = NULL);
 	HRESULT ProcessImportedScripts(script_preprocessor& preprocessor, IActiveScriptParsePtr& parser);
-	bool HasError() { return m_has_error; }
-	bool Ready() { return m_engine_inited && m_script_engine; }
-
+	bool HasError()
+	{
+		return m_has_error;
+	}
+	bool Ready()
+	{
+		return m_engine_inited && m_script_engine;
+	}
 	void Stop()
 	{
 		m_engine_inited = false;

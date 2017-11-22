@@ -263,17 +263,14 @@ namespace helpers
 		{
 			bit_array_true selection_them;
 			bit_array_false selection_none;
-			bit_array* select_ptr = &selection_them;
+			bit_array* select_ptr = &selection_none;
 			static_api_ptr_t<playlist_manager> api;
-			t_size playlist;
+			t_size playlist = m_playlist_idx == -1 ? api->get_active_playlist() : m_playlist_idx;
 
-			if (m_playlist_idx == -1)
-				playlist = api->get_active_playlist();
-			else
-				playlist = m_playlist_idx;
-
-			if (!m_to_select)
-				select_ptr = &selection_none;
+			if (m_to_select)
+			{
+				select_ptr = &selection_them;
+			}
 
 			if (playlist != pfc_infinite && playlist < api->get_playlist_count())
 			{

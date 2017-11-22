@@ -573,8 +573,7 @@ void js_panel_window::on_size(int w, int h)
 
 void js_panel_window::on_paint(HDC dc, LPRECT lpUpdateRect)
 {
-	if (!dc || !lpUpdateRect || !m_gr_bmp || !m_gr_wrap)
-		return;
+	if (!dc || !lpUpdateRect || !m_gr_bmp || !m_gr_wrap) return;
 
 	HDC memdc = CreateCompatibleDC(dc);
 	HBITMAP oldbmp = SelectBitmap(memdc, m_gr_bmp);

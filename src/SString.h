@@ -28,8 +28,11 @@ protected:
 	char *s;				///< The C string
 	lenpos_t sSize;			///< The size of the buffer, less 1: ie. the maximum size of the string
 
-	SContainer() : s(0), sSize(0) {}
-	~SContainer() {
+	SContainer() : s(0), sSize(0)
+	{
+	}
+	~SContainer()
+	{
 		delete[]s;	// Suppose it was allocated using StringAllocate
 		s = 0;
 		sSize = 0;
@@ -230,7 +233,9 @@ class SString : protected SContainer
 	}
 
 public:
-	SString() : sLen(0), sizeGrowth(sizeGrowthDefault) {}
+	SString() : sLen(0), sizeGrowth(sizeGrowthDefault)
+	{
+	}
 	SString(const SString &source) : SContainer(), sizeGrowth(sizeGrowthDefault)
 	{
 		s = StringAllocate(source.s, source.sLen);

@@ -7,10 +7,18 @@ template <typename TImpl>
 class my_ui_element_impl : public ui_element
 {
 public:
-	GUID get_guid() { return TImpl::g_get_guid(); }
-	GUID get_subclass() { return TImpl::g_get_subclass(); }
-	void get_name(pfc::string_base& out) { TImpl::g_get_name(out); }
-
+	GUID get_guid()
+	{
+		return TImpl::g_get_guid();
+	}
+	GUID get_subclass()
+	{
+		return TImpl::g_get_subclass();
+	}
+	void get_name(pfc::string_base& out)
+	{
+		TImpl::g_get_name(out);
+	}
 	ui_element_instance::ptr instantiate(HWND parent, ui_element_config::ptr cfg, ui_element_instance_callback::ptr callback)
 	{
 		PFC_ASSERT(cfg->get_guid() == get_guid());
@@ -18,10 +26,14 @@ public:
 		item->initialize_window(parent);
 		return item;
 	}
-
-	ui_element_config::ptr get_default_configuration() { return TImpl::g_get_default_configuration(); }
-	ui_element_children_enumerator_ptr enumerate_children(ui_element_config::ptr cfg) { return NULL; }
-
+	ui_element_config::ptr get_default_configuration()
+	{
+		return TImpl::g_get_default_configuration();
+	}
+	ui_element_children_enumerator_ptr enumerate_children(ui_element_config::ptr cfg)
+	{
+		return NULL;
+	}
 	bool get_description(pfc::string_base& out)
 	{
 		out = TImpl::g_get_description();

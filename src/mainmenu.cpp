@@ -21,10 +21,12 @@ public:
 		cmd_ten,
 		cmd_total
 	};
-	t_uint32 get_command_count() {
+	t_uint32 get_command_count()
+	{
 		return cmd_total;
 	}
-	GUID get_command(t_uint32 p_index) {
+	GUID get_command(t_uint32 p_index)
+	{
 		static const GUID guid_one = { 0xf56e5f2d, 0xf1a1, 0x4f54,{ 0x97, 0xf5, 0xe7, 0xc4, 0xbe, 0x47, 0x1a, 0xb3 } };
 		static const GUID guid_two = { 0xc3bda2f5, 0xf011, 0x4f54,{ 0x99, 0xa, 0x77, 0xf9, 0xef, 0x27, 0xf1, 0xb } };
 		static const GUID guid_three = { 0x9c610f78, 0x2eb7, 0x43b6,{ 0x89, 0x6d, 0x86, 0x9b, 0xd4, 0xec, 0xb9, 0xeb } };
@@ -36,7 +38,8 @@ public:
 		static const GUID guid_nine = { 0xca840da4, 0xfc99, 0x44bc,{ 0x90, 0x71, 0xd2, 0xb0, 0x2b, 0x26, 0xd4, 0x35 } };
 		static const GUID guid_ten = { 0xab05eee8, 0xbadc, 0x49ba,{ 0x80, 0x27, 0x84, 0x72, 0xa8, 0xbd, 0x49, 0xdb } };
 
-		switch (p_index) {
+		switch (p_index)
+		{
 		case cmd_one: return guid_one;
 		case cmd_two: return guid_two;
 		case cmd_three: return guid_three;
@@ -50,8 +53,10 @@ public:
 		default: uBugCheck();
 		}
 	}
-	void get_name(t_uint32 p_index, pfc::string_base& p_out) {
-		switch (p_index) {
+	void get_name(t_uint32 p_index, pfc::string_base& p_out)
+	{
+		switch (p_index)
+		{
 		case cmd_one: p_out = "1"; break;
 		case cmd_two: p_out = "2"; break;
 		case cmd_three: p_out = "3"; break;
@@ -65,16 +70,21 @@ public:
 		default: uBugCheck();
 		}
 	}
-	bool get_description(t_uint32 p_index, pfc::string_base& p_out) {
-		p_out = "Invoke on_main_menu()"; return true;
+	bool get_description(t_uint32 p_index, pfc::string_base& p_out)
+	{
+		p_out = "Invoke on_main_menu()";
+		return true;
 	}
-	GUID get_parent() {
+	GUID get_parent()
+	{
 		return g_mainmenu_group_id;
 	}
-	void execute(t_uint32 p_index, service_ptr_t<service_base> p_callback) {
+	void execute(t_uint32 p_index, service_ptr_t<service_base> p_callback)
+	{
 		panel_manager::instance().post_msg_to_all(CALLBACK_UWM_ON_MAIN_MENU, p_index + 1);
 	}
-	bool get_display(t_uint32 p_index, pfc::string_base& p_out, t_uint32& p_flags) {
+	bool get_display(t_uint32 p_index, pfc::string_base& p_out, t_uint32& p_flags)
+	{
 		get_name(p_index, p_out);
 		p_flags = mainmenu_commands::flag_defaulthidden;
 		return true;

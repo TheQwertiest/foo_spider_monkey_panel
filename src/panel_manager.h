@@ -13,7 +13,6 @@ public:
 	{
 		return sm_instance;
 	}
-
 	void add_window(HWND p_wnd)
 	{
 		if (m_hwnds.find_item(p_wnd) == pfc_infinite)
@@ -21,19 +20,22 @@ public:
 			m_hwnds.add_item(p_wnd);
 		}
 	}
-
 	void remove_window(HWND p_wnd)
 	{
 		m_hwnds.remove_item(p_wnd);
 	}
-
 	t_size get_count()
 	{
 		return m_hwnds.get_count();
 	}
-
-	void post_msg_to_all(UINT p_msg) { post_msg_to_all(p_msg, 0, 0); }
-	void post_msg_to_all(UINT p_msg, WPARAM p_wp) { post_msg_to_all(p_msg, p_wp, 0); }
+	void post_msg_to_all(UINT p_msg)
+	{
+		post_msg_to_all(p_msg, 0, 0);
+	}
+	void post_msg_to_all(UINT p_msg, WPARAM p_wp)
+	{
+		post_msg_to_all(p_msg, p_wp, 0);
+	}
 	void post_msg_to_all(UINT p_msg, WPARAM p_wp, LPARAM p_lp);
 	void post_msg_to_all_pointer(UINT p_msg, pfc::refcounted_object_root* p_param);
 	void send_msg_to_all(UINT p_msg, WPARAM p_wp, LPARAM p_lp);
@@ -166,7 +168,10 @@ class my_play_callback : public play_callback_static
 {
 public:
 	// flag_on_playback_all doesn't contain flag_on_volume_change!
-	virtual unsigned get_flags() { return flag_on_playback_all | flag_on_volume_change; }
+	virtual unsigned get_flags()
+	{
+		return flag_on_playback_all | flag_on_volume_change;
+	}
 
 	virtual void on_playback_dynamic_info(const file_info& info);
 	virtual void on_playback_dynamic_info_track(const file_info& info);

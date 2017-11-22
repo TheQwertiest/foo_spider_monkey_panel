@@ -22,7 +22,9 @@ LRESULT CDialogConf::OnInitDialog(HWND hwndFocus, LPARAM lParam)
 		m_parent->get_windowplacement().length = sizeof(WINDOWPLACEMENT);
 
 		if (!GetWindowPlacement(&m_parent->get_windowplacement()))
+		{
 			memset(&m_parent->get_windowplacement(), 0, sizeof(WINDOWPLACEMENT));
+		}
 	}
 	else
 	{
@@ -259,7 +261,9 @@ bool CDialogConf::MatchShortcuts(unsigned vk)
 				m_dlgreplace = new CDialogReplace(GetDlgItem(IDC_EDIT));
 
 				if (!m_dlgreplace || !m_dlgreplace->Create(m_hWnd))
+				{
 					break;
+				}
 			}
 
 			m_dlgreplace->ShowWindow(SW_SHOW);

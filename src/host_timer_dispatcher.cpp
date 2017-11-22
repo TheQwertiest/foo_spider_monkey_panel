@@ -72,6 +72,11 @@ void HostTimerDispatcher::reset()
 	m_timerDispatchMap.remove_all();
 }
 
+void HostTimerDispatcher::setWindow(HWND hWnd)
+{
+	m_hWnd = hWnd;
+}
+
 void HostTimerDispatcher::addTimerMap(unsigned timerID, IDispatch* pDisp)
 {
 	PFC_ASSERT(pDisp != NULL);

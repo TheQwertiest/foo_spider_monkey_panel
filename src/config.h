@@ -38,7 +38,10 @@ public:
 
 	static bool g_is_allowed_type(VARTYPE p_vt);
 
-	t_map& get_val() { return m_map; }
+	t_map& get_val()
+	{
+		return m_map;
+	}
 	// p_out should be inited or cleared.
 	bool get_config_item(const char* p_key, VARIANT& p_out);
 	void set_config_item(const char* p_key, const VARIANT& p_val);

@@ -28,10 +28,15 @@ HRESULT HostDropTarget::OnDragEnter(IDataObject* pDataObj, DWORD grfKeyState, PO
 	ScreenToClient(m_hWnd, reinterpret_cast<LPPOINT>(&pt));
 	on_drag_enter(grfKeyState, pt, m_action);
 
-	if (!m_action->Parsable())
-		*pdwEffect = DROPEFFECT_NONE;
-	else
+	if (m_action->Parsable())
+	{
 		*pdwEffect = m_effect;
+	}
+	else
+	{
+		*pdwEffect = DROPEFFECT_NONE;
+	}
+		
 	return S_OK;
 }
 
@@ -48,10 +53,14 @@ HRESULT HostDropTarget::OnDragOver(DWORD grfKeyState, POINTL pt, DWORD* pdwEffec
 	ScreenToClient(m_hWnd, reinterpret_cast<LPPOINT>(&pt));
 	on_drag_over(grfKeyState, pt, m_action);
 
-	if (!m_action->Parsable())
-		*pdwEffect = DROPEFFECT_NONE;
-	else
+	if (m_action->Parsable())
+	{
 		*pdwEffect = m_effect;
+	}
+	else
+	{
+		*pdwEffect = DROPEFFECT_NONE;
+	}
 
 	return S_OK;
 }
@@ -68,28 +77,20 @@ HRESULT HostDropTarget::OnDrop(IDataObject* pDataObj, DWORD grfKeyState, POINTL 
 
 	if (m_action->Parsable())
 	{
-		switch (m_action->Mode())
+		if (m_action->Mode() == DropSourceAction::kActionModePlaylist)
 		{
-		case DropSourceAction::kActionModePlaylist:
 			static_api_ptr_t<playlist_incoming_item_filter_v2>()->process_dropped_files_async(
 				pDataObj,
 				playlist_incoming_item_filter_v2::op_flag_delay_ui,
 				core_api::get_main_window(),
 				new service_impl_t<helpers::js_process_locations>(playlist, to_select));
-			break;
-
-		case DropSourceAction::kActionModeFilenames:
-			break;
-
-		default:
-			break;
 		}
-	}
-
-	if (!m_action->Parsable())
-		*pdwEffect = DROPEFFECT_NONE;
-	else
 		*pdwEffect = m_effect;
+	}
+	else
+	{
+		*pdwEffect = DROPEFFECT_NONE;
+	}
 
 	return S_OK;
 }

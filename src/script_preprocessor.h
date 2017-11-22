@@ -49,12 +49,22 @@ struct t_script_info
 		pfc::string8 ret;
 
 		if (!name.is_empty())
+		{
 			ret << name;
+		}
 		else
+		{
 			ret << "{" << pfc::print_guid(m_guid_ref) << "}";
+		}
 
-		if (!version.is_empty()) ret << " v" << version;
-		if (!author.is_empty()) ret << " by " << author;
+		if (!version.is_empty())
+		{
+			ret << " v" << version;
+		}
+		if (!author.is_empty())
+		{
+			ret << " by " << author;
+		}
 
 		return ret;
 	}

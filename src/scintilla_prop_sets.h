@@ -56,8 +56,14 @@ public:
 		init_data(p_default);
 	}
 
-	inline t_sci_prop_set_list & val() { return m_data; }
-	inline const t_sci_prop_set_list & val() const { return m_data; }
+	inline t_sci_prop_set_list & val()
+	{
+		return m_data;
+	}
+	inline const t_sci_prop_set_list & val() const
+	{
+		return m_data;
+	}
 
 	void get_data_raw(stream_writer * p_stream, abort_callback & p_abort);
 	void set_data_raw(stream_reader * p_stream, t_size p_sizehint, abort_callback & p_abort);

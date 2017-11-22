@@ -87,8 +87,7 @@ ScriptCallbackInvoker::~ScriptCallbackInvoker()
 void ScriptCallbackInvoker::init(IDispatch* pActiveScriptRoot)
 {
 	reset();
-	if (!pActiveScriptRoot)
-		return;
+	if (!pActiveScriptRoot) return;
 
 	m_activeScriptRoot = pActiveScriptRoot;
 	int count = _countof(g_idToNames);

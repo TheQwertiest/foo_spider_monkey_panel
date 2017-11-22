@@ -11,7 +11,7 @@ public:
 	void invoke(UINT timerId);
 	void kill(unsigned timerID);
 	void reset();
-	void setWindow(HWND hWnd) { m_hWnd = hWnd; }
+	void setWindow(HWND hWnd);
 
 private:
 	void addTimerMap(unsigned timerID, IDispatch* pDisp);

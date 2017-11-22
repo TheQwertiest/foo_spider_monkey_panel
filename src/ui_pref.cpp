@@ -62,7 +62,10 @@ LRESULT CDialogPref::OnPropNMDblClk(LPNMHDR pnmh)
 		uGetItemText(pniv->iItem, 1, val);
 
 		modal_dialog_scope scope;
-		if (!scope.can_create()) return false;
+		if (!scope.can_create())
+		{
+			return false;
+		}
 		scope.initialize(m_hWnd);
 
 		CNameValueEdit dlg(key, val);

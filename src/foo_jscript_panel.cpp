@@ -61,20 +61,27 @@ namespace
 				err_msg += "This error message indicates that this component will not function properly:\n\n";
 
 				if (g_load_status & E_OLE)
+				{
 					err_msg += "OLE: Initialize OLE Failed.\n\n";
-
+				}
 				if (g_load_status & E_TYPELIB)
+				{
 					err_msg += "Type Library: Load TypeLib Failed.\n\n";
-
+				}
 				if (g_load_status & E_SCINTILLA)
+				{
 					err_msg += "Scintilla: Load Scintilla Failed.\n\n";
-
+				}
 				if (g_load_status & E_GDIPLUS)
+				{
 					err_msg += "Gdiplus: Load Gdiplus Failed.\n\n";
+				}
 			}
 
 			if (!err_msg.is_empty())
+			{
 				popup_msg::g_show(err_msg, JSP_NAME, popup_message::icon_error);
+			}
 		}
 	};
 
@@ -96,21 +103,22 @@ namespace
 			path[len] = 0;
 
 			if (FAILED(OleInitialize(NULL)))
+			{
 				g_load_status |= E_OLE;
-
+			}
 			if (FAILED(LoadTypeLibEx(path, REGKIND_NONE, &g_typelib)))
+			{
 				g_load_status |= E_TYPELIB;
-
-			// Load Scintilla
+			}
 			if (!Scintilla_RegisterClasses(ins))
+			{
 				g_load_status |= E_SCINTILLA;
-
-			// Init GDI+
+			}
 			Gdiplus::GdiplusStartupInput gdip_input;
 			if (Gdiplus::GdiplusStartup(&g_gdip_token, &gdip_input, NULL) != Gdiplus::Ok)
+			{
 				g_load_status |= E_GDIPLUS;
-
-			// WTL
+			}
 			_Module.Init(NULL, ins);
 		}
 		break;

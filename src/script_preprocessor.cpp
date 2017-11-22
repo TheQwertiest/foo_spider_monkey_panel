@@ -6,7 +6,10 @@ HRESULT script_preprocessor::process_import(const t_script_info& info, t_script_
 {
 	HRESULT hr = S_OK;
 
-	if (!m_is_ok) return hr;
+	if (!m_is_ok)
+	{
+		return hr;
+	}
 
 	pfc::string_formatter pre;
 	pre << "Error: " << JSP_NAME " (" << info.build_info_string() << ")";
@@ -45,7 +48,10 @@ bool script_preprocessor::process_script_info(t_script_info& info)
 	bool ret = false;
 
 	info.clear();
-	if (!m_is_ok) return ret;
+	if (!m_is_ok)
+	{
+		return ret;
+	}
 
 	for (t_size i = 0; i < m_directive_value_list.get_count(); ++i)
 	{
@@ -308,14 +314,20 @@ bool script_preprocessor::extract_preprocessor_block(const wchar_t* script, int&
 	block_begin = 0;
 	block_end = 0;
 
-	if (!script) return false;
+	if (!script)
+	{
+		return false;
+	}
 
 	const wchar_t preprocessor_begin[] = L"==PREPROCESSOR==";
 	const wchar_t preprocessor_end[] = L"==/PREPROCESSOR==";
 
 	const wchar_t* pblock_begin = wcsstr(script, preprocessor_begin);
 
-	if (!pblock_begin) return false;
+	if (!pblock_begin)
+	{
+		return false;
+	}
 
 	pblock_begin += _countof(preprocessor_begin) - 1;
 
@@ -325,7 +337,10 @@ bool script_preprocessor::extract_preprocessor_block(const wchar_t* script, int&
 
 	const wchar_t* pblock_end = wcsstr(pblock_begin, preprocessor_end);
 
-	if (!pblock_end) return false;
+	if (!pblock_end)
+	{
+		return false;
+	}
 
 	// to prev line
 	while ((pblock_end > script) && (*pblock_end != '\n'))

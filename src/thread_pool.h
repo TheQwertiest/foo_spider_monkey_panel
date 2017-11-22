@@ -53,7 +53,10 @@ public:
 	{
 	}
 
-	virtual ~simple_thread_worker() { waitTillDone(); }
+	virtual ~simple_thread_worker()
+	{
+		waitTillDone();
+	}
 	virtual void threadProc();
 
 private:
