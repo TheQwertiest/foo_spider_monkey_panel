@@ -24,9 +24,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="config.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="foo_jscript_panel.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -105,11 +102,11 @@
     <ClCompile Include="scintilla_prop_sets.cpp">
       <Filter>Source Files\UI</Filter>
     </ClCompile>
+    <ClCompile Include="config.cpp">
+      <Filter>Source Files\UI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="config.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="host.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -231,6 +228,9 @@
       <Filter>Header Files\UI</Filter>
     </ClInclude>
     <ClInclude Include="scintilla_prop_sets.h">
+      <Filter>Header Files\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="config.h">
       <Filter>Header Files\UI</Filter>
     </ClInclude>
   </ItemGroup>
