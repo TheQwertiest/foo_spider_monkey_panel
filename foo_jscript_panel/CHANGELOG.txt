@@ -1,11 +1,12 @@
 v1.3.1
+- FIX: Fixed a bug where plman.IsPlaylistItemSelected didn't return a proper boolean
+       value. Thanks to TheQwertiest for reporting.
 - FIX: Fixed a bug where plman.ShowAutoPlaylistUI didn't always return the correct
-       boolean value. But given you should check with plman.IsAutoPlaylist first,
-       most won't notice!
+       boolean value.
 - CHG: plman.MovePlaylistSelection now returns a boolean value to indicate success
        or failure.
-- CHG: Update docs for consistency with actual component behaviour. No doubt there
-       is more I'll need to revisit in future!
+- CHG: Update docs for consistency with actual component behaviour. Some methods
+       which returned useless values have been updated to return nothing.
 - CHG: On failure, these now return -1
        IFbFileInfo InfoFind
        IFbFileInfo MetaFind
