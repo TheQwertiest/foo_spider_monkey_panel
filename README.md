@@ -6,11 +6,10 @@ audio player. It is based on [WSH Panel Mod](https://code.google.com/archive/p/f
 It allows the creation of customisable panels that can be written
 with `Javascript` rather than the `C++` required by the [foobar2000 SDK](https://www.foobar2000.org/SDK).
 
-Under the hood, it uses `Windows Script host` so this means it is
-limited to `ECMAScript5` only and won't ever be updated to use
-anything more modern. It is possible to use `ActiveX` objects
-like `FileSystemObject` and `XMLHttpRequest` to work with the local
-file system, access the internet, etc.
+Under the hood, it uses `Windows Script host` so the latest language support it has is
+`ECMAScript5`. It won't ever be updated to use anything more modern. It is possible to
+use `ActiveX` objects like `FileSystemObject` and `XMLHttpRequest` to work with the
+local file system, access the internet, etc.
 
 Here are just some of the features provided by the component...
 
