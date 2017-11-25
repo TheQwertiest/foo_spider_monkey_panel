@@ -652,9 +652,7 @@ namespace helpers
 			return false;
 		}
 
-		DWORD dwFileSize;
-		dwFileSize = GetFileSize(hFile, NULL);
-
+		DWORD dwFileSize = GetFileSize(hFile, NULL);
 		LPCBYTE pAddr = (LPCBYTE)MapViewOfFile(hFileMapping, FILE_MAP_READ, 0, 0, 0);
 
 		if (pAddr == NULL)
@@ -672,12 +670,11 @@ namespace helpers
 			return false;
 		}
 
-		// Okay, now it's time to read
 		bool status = false;
 
 		if (dwFileSize > 3)
 		{
-			// UTF16 LE
+			// UTF16 LE?
 			if (pAddr[0] == 0xFF && pAddr[1] == 0xFE)
 			{
 				const wchar_t* pSource = (const wchar_t *)(pAddr + 2);
@@ -697,10 +694,20 @@ namespace helpers
 			}
 		}
 
-		// ANSI?
 		if (!status)
 		{
-			content = pfc::stringcvt::string_utf8_from_ansi((const char *)pAddr, dwFileSize);
+			const char* pSource = (const char *)(pAddr);
+			t_size pSourceSize = dwFileSize;
+
+			UINT tmp = detect_charset(path);
+			if (tmp == CP_UTF8)
+			{
+				content.set_string(pSource, pSourceSize);
+			}
+			else
+			{
+				content = pfc::stringcvt::string_utf8_from_ansi(pSource, pSourceSize);
+			}
 			status = true;
 		}
 
@@ -728,7 +735,6 @@ namespace helpers
 		}
 
 		DWORD dwFileSize = GetFileSize(hFile, NULL);
-
 		LPCBYTE pAddr = (LPCBYTE)MapViewOfFile(hFileMapping, FILE_MAP_READ, 0, 0, 0);
 
 		if (pAddr == NULL)
@@ -746,7 +752,6 @@ namespace helpers
 			return false;
 		}
 
-		// Okay, now it's time to read
 		bool status = false;
 
 		if (dwFileSize > 3)
