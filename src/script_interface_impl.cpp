@@ -3814,7 +3814,7 @@ STDMETHODIMP JSUtils::get_Version(UINT* v)
 {
 	if (!v) return E_POINTER;
 
-	*v = 1310;
+	*v = 1320;
 	return S_OK;
 }
 
