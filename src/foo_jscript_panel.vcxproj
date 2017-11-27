@@ -168,7 +168,6 @@ copy /Y "$(TargetPath)" "%component_path%\"</Command>
     <ClInclude Include="config.h" />
     <ClInclude Include="delay_loader.h" />
     <ClInclude Include="json.hpp" />
-    <ClInclude Include="panel_tooltip_param.h" />
     <ClInclude Include="script_callback_invoker.h" />
     <ClInclude Include="host_timer_dispatcher.h" />
     <ClInclude Include="component_defines.h" />

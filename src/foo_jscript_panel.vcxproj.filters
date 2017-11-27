@@ -173,9 +173,6 @@
     <ClInclude Include="script_callback_invoker.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="panel_tooltip_param.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\PropertyList\PropertyItem.h">
       <Filter>Header Files\PropertyList</Filter>
     </ClInclude>

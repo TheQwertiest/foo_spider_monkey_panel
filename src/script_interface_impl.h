@@ -2,7 +2,6 @@
 
 #include "script_interface.h"
 #include "com_tools.h"
-#include "panel_tooltip_param.h"
 #include "helpers.h"
 
 template <class T, class T2>
@@ -342,6 +341,21 @@ public:
 	STDMETHODIMP EvalWithMetadb(IFbMetadbHandle* handle, BSTR* pp);
 	STDMETHODIMP get__ptr(void** pp);
 };
+
+struct panel_tooltip_param
+{
+	HWND tooltip_hwnd;
+	SIZE tooltip_size;
+	BSTR font_name;
+	float font_size;
+	INT font_style;
+
+	panel_tooltip_param() : tooltip_hwnd(0)
+	{
+	}
+};
+
+typedef std::shared_ptr<panel_tooltip_param> panel_tooltip_param_ptr;
 
 class FbTooltip : public IDisposableImpl4<IFbTooltip>
 {
