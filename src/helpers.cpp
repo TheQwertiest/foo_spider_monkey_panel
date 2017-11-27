@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "helpers.h"
 #include "script_interface_impl.h"
-#include "host.h"
 #include "user_message.h"
 
 #include <MLang.h>

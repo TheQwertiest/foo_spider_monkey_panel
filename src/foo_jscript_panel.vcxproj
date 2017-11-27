@@ -151,7 +151,6 @@ copy /Y "$(TargetPath)" "%component_path%\"</Command>
     <ClCompile Include="ui_pref.cpp" />
     <ClCompile Include="ui_property.cpp" />
     <ClCompile Include="ui_replace.cpp" />
-    <ClCompile Include="com_array.cpp" />
     <ClCompile Include="helpers.cpp" />
     <ClCompile Include="thread_pool.cpp" />
     <ClCompile Include="editorctrl.cpp" />
@@ -209,7 +208,6 @@ copy /Y "$(TargetPath)" "%component_path%\"</Command>
     <ClInclude Include="scintilla_prop_sets.h" />
     <ClInclude Include="wtlscintilla.h" />
     <ClInclude Include="boxblurfilter.h" />
-    <ClInclude Include="com_array.h" />
     <ClInclude Include="helpers.h" />
     <ClInclude Include="popup_msg.h" />
     <ClInclude Include="thread_pool.h" />

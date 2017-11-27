@@ -2,9 +2,8 @@
 
 #include "config.h"
 #include "resource.h"
+#include "js_panel_window.h"
 #include "../PropertyList/PropertyList.h"
-
-class js_panel_window;
 
 class CDialogProperty
 	: public CDialogImpl<CDialogProperty>

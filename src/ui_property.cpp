@@ -1,13 +1,5 @@
 #include "stdafx.h"
-#include "js_panel_window.h"
 #include "ui_property.h"
-
-// Some macros defined by windowsx.h should be removed
-#ifdef _INC_WINDOWSX
-#undef SubclassWindow
-#endif
-
-#include "../PropertyList/PropertyList.h"
 
 LRESULT CDialogProperty::OnInitDialog(HWND hwndFocus, LPARAM lParam)
 {

@@ -1,7 +1,5 @@
 #include "stdafx.h"
 #include "script_interface_impl.h"
-#include "helpers.h"
-#include "com_array.h"
 #include "boxblurfilter.h"
 #include "stackblur.h"
 #include "popup_msg.h"

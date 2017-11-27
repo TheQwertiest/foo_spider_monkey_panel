@@ -286,4 +286,250 @@ namespace helpers
 		bool m_to_select;
 		int m_playlist_idx;
 	};
+
+	class com_array_reader
+	{
+	public:
+		com_array_reader() : m_psa(NULL)
+		{
+			reset();
+		}
+
+		com_array_reader(VARIANT* pVarSrc) : m_psa(NULL)
+		{
+			convert(pVarSrc);
+		}
+
+		~com_array_reader()
+		{
+			reset();
+		}
+
+		SAFEARRAY* get_ptr()
+		{
+			return m_psa;
+		}
+
+		long get_lbound()
+		{
+			return m_lbound;
+		}
+
+		long get_ubound()
+		{
+			return m_ubound;
+		}
+
+		int get_count()
+		{
+			return get_ubound() - get_lbound() + 1;
+		}
+
+		bool get_item(long idx, VARIANT& dest)
+		{
+			if (!m_psa || idx < m_lbound || idx > m_ubound) return false;
+
+			return SUCCEEDED(SafeArrayGetElement(m_psa, &idx, &dest));
+		}
+
+		VARIANT operator[](long idx)
+		{
+			_variant_t var;
+
+			if (!get_item(idx, var))
+			{
+				throw std::out_of_range("Out of range");
+			}
+
+			return var;
+		}
+
+		bool convert(VARIANT* pVarSrc)
+		{
+			reset();
+
+			if (!pVarSrc) return false;
+
+			if ((pVarSrc->vt & VT_ARRAY) && pVarSrc->parray)
+			{
+				return (SUCCEEDED(SafeArrayCopy(pVarSrc->parray, &m_psa)));
+			}
+			else if ((pVarSrc->vt & VT_TYPEMASK) == VT_DISPATCH)
+			{
+				IDispatch* pdisp = pVarSrc->pdispVal;
+
+				if (pVarSrc->vt & VT_BYREF)
+				{
+					pdisp = *(pVarSrc->ppdispVal);
+				}
+
+				if (pdisp)
+				{
+					return convert_jsarray(pdisp);
+				}
+			}
+
+			return false;
+		}
+
+		void reset()
+		{
+			m_ubound = -1;
+			m_lbound = 0;
+
+			if (m_psa)
+			{
+				SafeArrayDestroy(m_psa);
+				m_psa = NULL;
+			}
+		}
+
+	private:
+		bool convert_jsarray(IDispatch* pdisp)
+		{
+			if (!pdisp) return false;
+
+			DISPPARAMS params = { 0 };
+			_variant_t ret;
+
+			DISPID id_length;
+			LPOLESTR slength = L"length";
+
+			if (FAILED(pdisp->GetIDsOfNames(IID_NULL, &slength, 1, LOCALE_USER_DEFAULT, &id_length)))
+				return false;
+
+			if (FAILED(pdisp->Invoke(id_length, IID_NULL, LOCALE_USER_DEFAULT, DISPATCH_PROPERTYGET, &params, &ret, NULL, NULL)))
+				return false;
+
+			if (FAILED(VariantChangeType(&ret, &ret, 0, VT_I4)))
+				return false;
+
+			m_lbound = 0;
+			m_ubound = ret.lVal - 1;
+
+			SAFEARRAY* psa = SafeArrayCreateVector(VT_VARIANT, 0, get_count());
+
+			if (!psa) goto cleanup_and_return;
+
+			for (long i = m_lbound; i <= m_ubound; ++i)
+			{
+				DISPID dispid = 0;
+				DISPPARAMS params = { 0 };
+				wchar_t buf[33];
+				LPOLESTR name = buf;
+				_variant_t element;
+				HRESULT hr = S_OK;
+
+				_itow_s(i, buf, 10);
+
+				if (SUCCEEDED(hr)) hr = pdisp->GetIDsOfNames(IID_NULL, &name, 1, LOCALE_USER_DEFAULT, &dispid);
+				if (SUCCEEDED(hr)) hr = pdisp->Invoke(dispid, IID_NULL, LOCALE_USER_DEFAULT, DISPATCH_PROPERTYGET, &params, &element, NULL, NULL);
+
+				if (FAILED(hr)) goto cleanup_and_return;
+				if (FAILED(SafeArrayPutElement(psa, &i, &element))) goto cleanup_and_return;
+			}
+
+			m_psa = psa;
+			return true;
+
+		cleanup_and_return:
+			reset();
+			SafeArrayDestroy(psa);
+			return false;
+		}
+
+		SAFEARRAY* m_psa;
+		long m_lbound, m_ubound;
+	};
+
+	template <bool managed = false>
+	class com_array_writer
+	{
+	public:
+		com_array_writer() : m_psa(NULL)
+		{
+			reset();
+		}
+
+		~com_array_writer()
+		{
+			if (managed)
+			{
+				reset();
+			}
+		}
+
+		SAFEARRAY* get_ptr()
+		{
+			return m_psa;
+		}
+
+		long get_count()
+		{
+			return m_count;
+		}
+
+		bool create(long count)
+		{
+			reset();
+
+			m_psa = SafeArrayCreateVector(VT_VARIANT, 0, count);
+			m_count = count;
+			return (m_psa != NULL);
+		}
+
+		HRESULT put(long idx, VARIANT& pVar)
+		{
+			if (idx >= m_count) return E_INVALIDARG;
+			if (!m_psa) return E_POINTER;
+
+			HRESULT hr = SafeArrayPutElement(m_psa, &idx, &pVar);
+			return hr;
+		}
+
+		void reset()
+		{
+			m_count = 0;
+
+			if (m_psa)
+			{
+				SafeArrayDestroy(m_psa);
+				m_psa = NULL;
+			}
+		}
+
+	private:
+		SAFEARRAY* m_psa;
+		long m_count;
+	};
+
+	class com_array_to_bitarray
+	{
+	public:
+		static bool convert(VARIANT items, unsigned bitArrayCount, bit_array_bittable& out, bool& empty)
+		{
+			helpers::com_array_reader arrayReader;
+			empty = false;
+
+			if (!arrayReader.convert(&items)) return false;
+			if (arrayReader.get_count() == 0)
+			{
+				empty = true;
+				out.resize(0);
+				return true;
+			}
+
+			out.resize(bitArrayCount);
+
+			for (int i = arrayReader.get_lbound(); i < arrayReader.get_count(); ++i)
+			{
+				_variant_t index;
+				arrayReader.get_item(i, index);
+				if (FAILED(VariantChangeType(&index, &index, 0, VT_I4))) return false;
+				out.set(index.lVal, true);
+			}
+
+			return true;
+		}
+	};
 }
