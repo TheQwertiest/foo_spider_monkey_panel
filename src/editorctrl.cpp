@@ -94,6 +94,31 @@ static bool IsIdentifierChar(int ch)
 	return __iswcsym(ch);
 }
 
+static int int_from_hex_digit(int ch)
+{
+	if ((ch >= '0') && (ch <= '9'))
+	{
+		return ch - '0';
+	}
+	else if (ch >= 'A' && ch <= 'F')
+	{
+		return ch - 'A' + 10;
+	}
+	else if (ch >= 'a' && ch <= 'f')
+	{
+		return ch - 'a' + 10;
+	}
+	else
+	{
+		return 0;
+	}
+}
+
+static int int_from_hex_byte(const char* hex_byte)
+{
+	return (int_from_hex_digit(hex_byte[0]) << 4) | (int_from_hex_digit(hex_byte[1]));
+}
+
 struct StringComparePartialNC
 {
 	StringComparePartialNC(t_size len_) : len(len_)
@@ -167,9 +192,9 @@ static DWORD ParseHex(const char * hex)
 	if (pfc::strlen_max(hex, 8) == 8)
 		return 0;
 
-	int r = helpers::int_from_hex_byte(hex + 1);
-	int g = helpers::int_from_hex_byte(hex + 3);
-	int b = helpers::int_from_hex_byte(hex + 5);
+	int r = int_from_hex_byte(hex + 1);
+	int g = int_from_hex_byte(hex + 3);
+	int b = int_from_hex_byte(hex + 5);
 
 	return RGB(r, g, b);
 }

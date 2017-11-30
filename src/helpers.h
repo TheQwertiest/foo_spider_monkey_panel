@@ -10,11 +10,25 @@ using json = nlohmann::json;
 
 namespace helpers
 {
-	HBITMAP create_hbitmap_from_gdiplus_bitmap(Gdiplus::Bitmap* bitmap_ptr);
-	int get_encoder_clsid(const WCHAR* format, CLSID* pClsid);
+	struct wrapped_item
+	{
+		BSTR text;
+		int width;
+	};
+
 	bool execute_context_command_by_name(const char* p_name, metadb_handle_list_cref p_handles, unsigned flags);
 	bool execute_mainmenu_command_by_name(const char* p_name);
 	unsigned detect_charset(const char* fileName);
+	bool read_file(const char* path, pfc::string_base& content);
+	bool read_file_wide(unsigned codepage, const wchar_t* path, pfc::array_t<wchar_t>& content);
+	bool write_file(const char* path, const pfc::string_base& content);
+	extern void estimate_line_wrap(HDC hdc, const wchar_t* text, int len, int width, pfc::list_t<wrapped_item>& out);
+	const GUID convert_artid_to_guid(int art_id);
+	bool read_album_art_into_bitmap(const album_art_data_ptr& data, Gdiplus::Bitmap** bitmap);
+	HRESULT get_album_art_v2(const metadb_handle_ptr& handle, IGdiBitmap** pp, int art_id, VARIANT_BOOL need_stub, VARIANT_BOOL no_load = VARIANT_FALSE, pfc::string_base* image_path_ptr = NULL);
+	HRESULT get_album_art_embedded(BSTR rawpath, IGdiBitmap** pp, int art_id);
+	HBITMAP create_hbitmap_from_gdiplus_bitmap(Gdiplus::Bitmap* bitmap_ptr);
+	int get_encoder_clsid(const WCHAR* format, CLSID* pClsid);
 
 	inline pfc::string8 iterator_to_string8(json::iterator j)
 	{
@@ -64,14 +78,6 @@ namespace helpers
 		return currentAlphaNum == 0 || iswalnum(next) == 0;
 	}
 
-	struct wrapped_item
-	{
-		BSTR text;
-		int width;
-	};
-
-	extern void estimate_line_wrap(HDC hdc, const wchar_t* text, int len, int width, pfc::list_t<wrapped_item>& out);
-
 	__declspec(noinline) static bool execute_context_command_by_name_SEH(const char* p_name, metadb_handle_list_cref p_handles, unsigned flags)
 	{
 		bool ret = false;
@@ -119,20 +125,11 @@ namespace helpers
 			0xff000000;
 	}
 
-	int int_from_hex_digit(int ch);
-	int int_from_hex_byte(const char* hex_byte);
-
 	template <class T>
 	bool ensure_gdiplus_object(T* obj)
 	{
 		return ((obj) && (obj->GetLastStatus() == Gdiplus::Ok));
 	}
-
-	const GUID convert_artid_to_guid(int art_id);
-	// bitmap must be NULL
-	bool read_album_art_into_bitmap(const album_art_data_ptr& data, Gdiplus::Bitmap** bitmap);
-	HRESULT get_album_art_v2(const metadb_handle_ptr& handle, IGdiBitmap** pp, int art_id, VARIANT_BOOL need_stub, VARIANT_BOOL no_load = VARIANT_FALSE, pfc::string_base* image_path_ptr = NULL);
-	HRESULT get_album_art_embedded(BSTR rawpath, IGdiBitmap** pp, int art_id);
 
 	static pfc::string8_fast get_fb2k_path()
 	{
@@ -164,12 +161,6 @@ namespace helpers
 
 		return path;
 	}
-
-	// File r/w
-	bool read_file(const char* path, pfc::string_base& content);
-	bool read_file_wide(unsigned codepage, const wchar_t* path, pfc::array_t<wchar_t>& content);
-	// Always save as UTF8 BOM
-	bool write_file(const char* path, const pfc::string_base& content);
 
 	class album_art_async : public simple_thread_task
 	{
