@@ -1,5 +1,6 @@
-function on_always_top_changed(state) {}
-// called when "Always On Top" status changes from using the menu, Alt +A, fb.AlwaysOnTop, etc
+function on_always_on_top_changed(state) {}
+// called when "Always On Top" state changes from using the menu, Alt + A, fb.AlwaysOnTop, etc
+// state: boolean.
 
 function on_char(code) {}
 // code: UTF16 encoded char.
