@@ -427,6 +427,10 @@ LRESULT js_panel_window::on_message(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 		on_playback_follow_cursor_changed(wp);
 		return 0;
 
+	case CALLBACK_UWM_ALWAYS_ON_TOP:
+		on_always_on_top_changed(wp);
+		return 0;
+
 	case CALLBACK_UWM_NOTIFY_DATA:
 		on_notify_data(wp);
 		return 0;
@@ -960,6 +964,14 @@ void js_panel_window::on_playback_follow_cursor_changed(WPARAM wp)
 	args[0].vt = VT_BOOL;
 	args[0].boolVal = TO_VARIANT_BOOL(wp);
 	script_invoke_v(CallbackIds::on_playback_follow_cursor_changed, args, _countof(args));
+}
+
+void js_panel_window::on_always_on_top_changed(WPARAM wp)
+{
+	VARIANTARG args[1];
+	args[0].vt = VT_BOOL;
+	args[0].boolVal = TO_VARIANT_BOOL(wp);
+	script_invoke_v(CallbackIds::on_always_on_top_changed, args, _countof(args));
 }
 
 void js_panel_window::on_notify_data(WPARAM wp)

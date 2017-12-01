@@ -80,6 +80,7 @@ private:
 	void on_playlist_stop_after_current_changed(WPARAM wp);
 	void on_cursor_follow_playback_changed(WPARAM wp);
 	void on_playback_follow_cursor_changed(WPARAM wp);
+	void on_always_on_top_changed(WPARAM wp);
 	void on_notify_data(WPARAM wp);
 
 	void on_font_changed();

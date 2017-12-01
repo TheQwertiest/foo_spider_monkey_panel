@@ -444,6 +444,7 @@ public:
 	STDMETHODIMP VolumeDown();
 	STDMETHODIMP VolumeMute();
 	STDMETHODIMP VolumeUp();
+	STDMETHODIMP get_AlwaysOnTop(VARIANT_BOOL* p);
 	STDMETHODIMP get_ComponentPath(BSTR* pp);
 	STDMETHODIMP get_CursorFollowPlayback(VARIANT_BOOL* p);
 	STDMETHODIMP get_FoobarPath(BSTR* pp);
@@ -456,6 +457,7 @@ public:
 	STDMETHODIMP get_ReplaygainMode(UINT* p);
 	STDMETHODIMP get_StopAfterCurrent(VARIANT_BOOL* p);
 	STDMETHODIMP get_Volume(float* p);
+	STDMETHODIMP put_AlwaysOnTop(VARIANT_BOOL p);
 	STDMETHODIMP put_CursorFollowPlayback(VARIANT_BOOL p);
 	STDMETHODIMP put_PlaybackFollowCursor(VARIANT_BOOL p);
 	STDMETHODIMP put_PlaybackTime(double time);

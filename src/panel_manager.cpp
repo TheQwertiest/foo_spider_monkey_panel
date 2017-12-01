@@ -69,7 +69,7 @@ void panel_manager::post_msg_to_all_pointer(UINT p_msg, pfc::refcounted_object_r
 
 t_size config_object_callback::get_watched_object_count()
 {
-	return 3;
+	return 4;
 }
 
 GUID config_object_callback::get_watched_object(t_size p_index)
@@ -84,6 +84,9 @@ GUID config_object_callback::get_watched_object(t_size p_index)
 
 	case 2:
 		return standard_config_objects::bool_playback_follows_cursor;
+
+	case 3:
+		return standard_config_objects::bool_ui_always_on_top;
 	}
 
 	return pfc::guid_null;
@@ -101,24 +104,23 @@ void config_object_callback::on_watched_object_changed(const service_ptr_t<confi
 		msg = CALLBACK_UWM_PLAYLIST_STOP_AFTER_CURRENT;
 	else if (guid == standard_config_objects::bool_cursor_follows_playback)
 		msg = CALLBACK_UWM_CURSOR_FOLLOW_PLAYBACK;
-	else
+	else if (guid == standard_config_objects::bool_playback_follows_cursor)
 		msg = CALLBACK_UWM_PLAYBACK_FOLLOW_CURSOR;
+	else if (guid == standard_config_objects::bool_ui_always_on_top)
+		msg = CALLBACK_UWM_ALWAYS_ON_TOP;
 
 	panel_manager::instance().post_msg_to_all(msg, TO_VARIANT_BOOL(boolval));
 }
 
 void playback_stat_callback::on_item_played(metadb_handle_ptr p_item)
 {
-	simple_callback_data<metadb_handle_ptr>* on_item_played_data
-		= new simple_callback_data<metadb_handle_ptr>(p_item);
-
+	simple_callback_data<metadb_handle_ptr>* on_item_played_data = new simple_callback_data<metadb_handle_ptr>(p_item);
 	panel_manager::instance().post_msg_to_all_pointer(CALLBACK_UWM_ON_ITEM_PLAYED, on_item_played_data);
 }
 
 void nonautoregister_callbacks::on_changed_sorted(metadb_handle_list_cref p_items_sorted, bool p_fromhook)
 {
 	t_on_changed_sorted_data* on_changed_sorted_data = new t_on_changed_sorted_data(p_items_sorted, p_fromhook);
-
 	panel_manager::instance().post_msg_to_all_pointer(CALLBACK_UWM_ON_CHANGED_SORTED, on_changed_sorted_data);
 }
 
@@ -135,7 +137,6 @@ void my_play_callback::on_playback_starting(play_control::t_track_command cmd, b
 void my_play_callback::on_playback_new_track(metadb_handle_ptr track)
 {
 	simple_callback_data<metadb_handle_ptr>* on_playback_new_track_data = new simple_callback_data<metadb_handle_ptr>(track);
-
 	panel_manager::instance().post_msg_to_all_pointer(CALLBACK_UWM_ON_PLAYBACK_NEW_TRACK, on_playback_new_track_data);
 }
 
@@ -148,7 +149,6 @@ void my_play_callback::on_playback_seek(double time)
 {
 	// sizeof(double) >= sizeof(WPARAM)
 	simple_callback_data<double>* on_playback_seek_data = new simple_callback_data<double>(time);
-
 	panel_manager::instance().post_msg_to_all_pointer(CALLBACK_UWM_ON_PLAYBACK_SEEK, on_playback_seek_data);
 }
 
@@ -160,7 +160,6 @@ void my_play_callback::on_playback_pause(bool state)
 void my_play_callback::on_playback_edited(metadb_handle_ptr track)
 {
 	simple_callback_data<metadb_handle_ptr>* on_playback_edited_data = new simple_callback_data<metadb_handle_ptr>(track);
-
 	panel_manager::instance().post_msg_to_all_pointer(CALLBACK_UWM_ON_PLAYBACK_EDITED, on_playback_edited_data);
 }
 
@@ -178,7 +177,6 @@ void my_play_callback::on_playback_time(double time)
 {
 	// sizeof(double) >= sizeof(WPARAM)
 	simple_callback_data<double>* on_playback_time_data = new simple_callback_data<double>(time);
-
 	panel_manager::instance().post_msg_to_all_pointer(CALLBACK_UWM_ON_PLAYBACK_TIME, on_playback_time_data);
 }
 
@@ -186,14 +184,12 @@ void my_play_callback::on_volume_change(float newval)
 {
 	// though sizeof(float) == sizeof(int), cast of IEEE754 is dangerous, always.
 	simple_callback_data<float>* on_volume_change_data = new simple_callback_data<float>(newval);
-
 	panel_manager::instance().post_msg_to_all_pointer(CALLBACK_UWM_ON_VOLUME_CHANGE, on_volume_change_data);
 }
 
 void my_playlist_callback::on_item_focus_change(t_size p_playlist, t_size p_from, t_size p_to)
 {
-	simple_callback_data_3<t_size, t_size, t_size>* on_item_focus_change_data =
-		new simple_callback_data_3<t_size, t_size, t_size>(p_playlist, p_from, p_to);
+	simple_callback_data_3<t_size, t_size, t_size>* on_item_focus_change_data = new simple_callback_data_3<t_size, t_size, t_size>(p_playlist, p_from, p_to);
 	panel_manager::instance().post_msg_to_all_pointer(CALLBACK_UWM_ON_ITEM_FOCUS_CHANGE, on_item_focus_change_data);
 }
 

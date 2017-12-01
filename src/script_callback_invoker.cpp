@@ -13,6 +13,7 @@ struct IDToNameEntry
 
 static const IDToNameEntry g_idToNames[] =
 {
+	DEFINE_ID_NAME_MAP_ENTRY(on_always_on_top_changed),
 	DEFINE_ID_NAME_MAP_ENTRY(on_char),
 	DEFINE_ID_NAME_MAP_ENTRY(on_colors_changed),
 	DEFINE_ID_NAME_MAP_ENTRY(on_cursor_follow_playback_changed),

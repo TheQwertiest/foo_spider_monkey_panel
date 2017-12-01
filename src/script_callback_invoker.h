@@ -4,6 +4,7 @@ struct CallbackIds
 {
 	enum
 	{
+		on_always_on_top_changed,
 		on_char,
 		on_colors_changed,
 		on_cursor_follow_playback_changed,

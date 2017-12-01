@@ -3,6 +3,7 @@
 fb.AcquireUiSelectionHolder()
 fb.AddDirectory()
 fb.AddFiles()
+fb.AlwaysOnTop
 fb.ClearPlaylist()
 fb.ComponentPath
 fb.CreateContextMenuManager()

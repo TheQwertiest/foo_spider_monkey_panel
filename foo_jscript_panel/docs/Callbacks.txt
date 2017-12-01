@@ -1,3 +1,6 @@
+function on_always_top_changed(state) {}
+// called when "Always On Top" status changes from using the menu, Alt +A, fb.AlwaysOnTop, etc
+
 function on_char(code) {}
 // code: UTF16 encoded char.
 // in order to use this callback, use window.DlgCode(DLGC_WANTCHARS);

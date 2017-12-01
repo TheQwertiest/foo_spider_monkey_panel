@@ -15,6 +15,12 @@ fb.GetLibraryItems();
 
 interface IFbUtils {
 	Properties:
+		fb.AlwaysOnTop; (boolean) (read, write)
+		/*
+		example:
+		fb.AlwaysOnTop = !fb.AlwaysOnTop; // toggles the current value.
+		*/
+		
 		fb.ComponentPath; (string) (read)
 		/* 
 		example:

@@ -390,6 +390,7 @@ __interface IFbUtils : IDispatch
 	STDMETHOD(VolumeDown)();
 	STDMETHOD(VolumeMute)();
 	STDMETHOD(VolumeUp)();
+	[propget] STDMETHOD(AlwaysOnTop)([out, retval] VARIANT_BOOL* p);
 	[propget] STDMETHOD(ComponentPath)([out, retval] BSTR* pp);
 	[propget] STDMETHOD(CursorFollowPlayback)([out, retval] VARIANT_BOOL* p);
 	[propget] STDMETHOD(FoobarPath)([out, retval] BSTR* pp);
@@ -402,6 +403,7 @@ __interface IFbUtils : IDispatch
 	[propget] STDMETHOD(ReplaygainMode)([out, retval] UINT *p);
 	[propget] STDMETHOD(StopAfterCurrent)([out, retval] VARIANT_BOOL* p);
 	[propget] STDMETHOD(Volume)([out, retval] float* p);
+	[propput] STDMETHOD(AlwaysOnTop)(VARIANT_BOOL p);
 	[propput] STDMETHOD(CursorFollowPlayback)(VARIANT_BOOL p);
 	[propput] STDMETHOD(PlaybackFollowCursor)(VARIANT_BOOL p);
 	[propput] STDMETHOD(PlaybackTime)(double time);

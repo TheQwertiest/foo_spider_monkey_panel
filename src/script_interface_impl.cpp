@@ -2247,6 +2247,14 @@ STDMETHODIMP FbUtils::VolumeUp()
 	return S_OK;
 }
 
+STDMETHODIMP FbUtils::get_AlwaysOnTop(VARIANT_BOOL* p)
+{
+	if (!p) return E_POINTER;
+
+	*p = TO_VARIANT_BOOL(config_object::g_get_data_bool_simple(standard_config_objects::bool_ui_always_on_top, false));
+	return S_OK;
+}
+
 STDMETHODIMP FbUtils::get_ComponentPath(BSTR* pp)
 {
 	if (!pp) return E_POINTER;
@@ -2346,6 +2354,12 @@ STDMETHODIMP FbUtils::get_Volume(float* p)
 	if (!p) return E_POINTER;
 
 	*p = static_api_ptr_t<playback_control>()->get_volume();
+	return S_OK;
+}
+
+STDMETHODIMP FbUtils::put_AlwaysOnTop(VARIANT_BOOL p)
+{
+	config_object::g_set_data_bool(standard_config_objects::bool_ui_always_on_top, (p != VARIANT_FALSE));
 	return S_OK;
 }
 
