@@ -186,6 +186,7 @@ gr.SetSmoothingMode(mode)
 gr.SetTextRenderingHint(mode)
 
 # Callbacks
+on_always_on_top_changed(state)
 on_char(code)
 on_colors_changed()
 on_cursor_follow_playback_changed(state)
