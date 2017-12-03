@@ -1,3 +1,10 @@
+## v1.3.2.1
+```
+- ADD: Add fb.AlwaysOnTop property. Can be used to read or write the setting. A
+       new "on_always_on_top_changed" callback has been added to detect when it
+       changes via any other means such as using the menu, keyboard shortcuts, etc.
+```
+
 ## v1.3.2
 ```
 - FIX: Improved handling of utf8 files without BOM. This affects files loaded
