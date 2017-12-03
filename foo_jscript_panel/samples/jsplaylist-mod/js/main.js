@@ -441,28 +441,18 @@ function addToHistoricPlaylist(handle) {
 
 function checkMediaLibrayPlaylist() {
 	g_avoid_on_playlists_changed = true;
-
-	// check if library playlist is present
-	var isMediaLibraryFound = false;
+	var idx = -1;
 	var total = plman.PlaylistCount;
-	for (var i = 0; i < total; i++) {
+	for (var i = 0; i < plman.PlaylistCount; i++) {
 		if (plman.GetPlaylistName(i) == "Media Library") {
-			var mediaLibraryIndex = i;
-			isMediaLibraryFound = true;
+			idx = i;
 			break;
 		};
 	};
-	if (!isMediaLibraryFound) {
-		// create Media Library playlist
-		// > sort: sort string expression.
-		// > flags: 1 - always sort.
-		// > boolean CreateAutoPlaylist(idx, name, query, sort = "", flags = 0);
-		plman.CreateAutoPlaylist(total, "Media Library", "ALL", "%album artist% | $if(%album%,%date%,'9999') | %album% | %discnumber% | %tracknumber% | %title%", 0);
-		// Move it to the top
-		plman.MovePlaylist(total, 0);
-	} else if (mediaLibraryIndex > 0) {
-		// Always move it to the top
-		plman.MovePlaylist(mediaLibraryIndex, 0);
+	if (idx == -1) {
+		plman.CreateAutoPlaylist(0, "Media Library", "ALL", "%album artist% | $if(%album%,%date%,'9999') | %album% | %discnumber% | %tracknumber% | %title%", 0);
+	} else if (idx > 0) {
+		plman.MovePlaylist(idx, 0);
 	};
 
 	g_avoid_on_playlists_changed = false;

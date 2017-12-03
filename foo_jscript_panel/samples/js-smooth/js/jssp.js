@@ -4736,36 +4736,6 @@ function check_scroll(scroll___) {
 	return scroll___;
 };
 
-function checkMediaLibrayPlaylist() {
-	g_avoid_on_playlists_changed = true;
-
-	// check if library playlist is present
-	var isMediaLibraryFound = false;
-	var total = plman.PlaylistCount;
-	for (var i = 0; i < total; i++) {
-		if (plman.GetPlaylistName(i) == "Media Library") {
-			var mediaLibraryIndex = i;
-			isMediaLibraryFound = true;
-			break;
-		};
-	};
-	if (!isMediaLibraryFound) {
-		// create Media Library playlist (sort forced)
-		// > sort: sort string expression.
-		// > flags: 1 - always sort.
-		// > boolean CreateAutoPlaylist(idx, name, query, sort = "", flags = 0);
-		plman.CreateAutoPlaylist(total, "Media Library", "%path% PRESENT", "%album artist% | $if(%album%,%date%,'9999') | %album% | %discnumber% | %tracknumber% | %title%", 1);
-		//plman.CreateAutoPlaylist(total, "Media Library", "%album% PRESENT", "%album artist% | %date% | %album% | %discnumber% | %tracknumber% | %title%", 1);
-		// Move it to the top
-		plman.MovePlaylist(total, 0);
-	} else if (mediaLibraryIndex > 0) {
-		// Always move it to the top
-		plman.MovePlaylist(mediaLibraryIndex, 0);
-	};
-
-	g_avoid_on_playlists_changed = false;
-};
-
 function getFocusId(playlistIndex) {
 	return plman.GetPlaylistFocusItemIndex(playlistIndex);
 };

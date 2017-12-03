@@ -60,7 +60,7 @@ oPlaylistManager = function (obj_name) {
 			plman.MovePlaylist(old_idx, i);
 		};
 		if (cPlaylistManager.mediaLibraryPlaylist) {
-			plman.MovePlaylist(this.getPlaylistIdx("Media Library", 0), 0);
+			checkMediaLibrayPlaylist();
 		}
 		cPlaylistManager.sortPlaylists_timer && window.ClearTimeout(cPlaylistManager.sortPlaylists_timer);
 		cPlaylistManager.sortPlaylists_timer = window.SetTimeout(function () {
