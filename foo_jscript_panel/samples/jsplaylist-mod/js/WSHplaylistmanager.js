@@ -40,11 +40,9 @@ oPlaylistManager = function (obj_name) {
 		return (obj_a.name.toLowerCase() < obj_b.name.toLowerCase() ? 1 : -1);
 	};
 
-	this.getPlaylistIdx = function (plname) {
-		var t = plman.PlaylistCount;
-		var s = (cPlaylistManager.mediaLibraryPlaylist ? 1 : 0);
-		for (var i = s; i < t; i++) {
-			if (plname == plman.GetPlaylistName(i)) {
+	this.getPlaylistIdx = function (name, start) {
+		for (var i = start; i < plman.PlaylistCount; i++) {
+			if (name == plman.GetPlaylistName(i)) {
 				return i;
 			};
 		};
@@ -53,25 +51,17 @@ oPlaylistManager = function (obj_name) {
 
 	this.sortPlaylists = function (direction) {
 		var old_idx;
-		if (cPlaylistManager.mediaLibraryPlaylist) {
-			var tmp = this.playlists.slice(1, this.playlists.length);
-		} else {
-			var tmp = this.playlists.slice(0, this.playlists.length);
-		};
-		// sort the playlists tmp array
-		if (direction > 0) {
-			tmp.sort(this.sortNameAsc);
-		} else {
-			tmp.sort(this.sortNameDesc);
-		};
+		var tmp = this.playlists.slice(0, this.playlists.length);
+		tmp.sort(direction > 0 ? this.sortNameAsc : this.sortNameDesc);
 
 		g_avoid_on_playlists_changed = true;
-		var s = (cPlaylistManager.mediaLibraryPlaylist ? 1 : 0);
 		for (var i = 0; i < tmp.length; i++) {
-			old_idx = this.getPlaylistIdx(tmp[i].name);
-			g_avoid = true;
-			plman.MovePlaylist(old_idx, i + s);
+			old_idx = this.getPlaylistIdx(tmp[i].name, i);
+			plman.MovePlaylist(old_idx, i);
 		};
+		if (cPlaylistManager.mediaLibraryPlaylist) {
+			plman.MovePlaylist(this.getPlaylistIdx("Media Library", 0), 0);
+		}
 		cPlaylistManager.sortPlaylists_timer && window.ClearTimeout(cPlaylistManager.sortPlaylists_timer);
 		cPlaylistManager.sortPlaylists_timer = window.SetTimeout(function () {
 				g_avoid_on_playlists_changed = false;
