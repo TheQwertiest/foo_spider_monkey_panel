@@ -10,6 +10,25 @@ co-exist with the original release of JScript Panel.
 #define JSP_WINDOW_CLASS_NAME "uie_jscript_panel_class"
 #define JSP_DLL_NAME "foo_jscript_panel.dll"
 
+// Remember to bump utils.version too
+#define JSP_VERSION_NUMBER "1.3.2.1"
+//#define JSP_VERSION_TEST "Beta 1"
+
+#ifdef JSP_VERSION_TEST
+#	define JSP_VERSION_TEST_PREFIX " "
+#else
+#	define JSP_VERSION_TEST ""
+#	define JSP_VERSION_TEST_PREFIX ""
+#endif
+
+#if defined(DEBUG) || defined(_DEBUG)
+#	define JSP_VERSION_DEBUG_SUFFIX " (Debug)"
+#else
+#	define JSP_VERSION_DEBUG_SUFFIX ""
+#endif
+
+#define JSP_VERSION JSP_VERSION_NUMBER JSP_VERSION_TEST_PREFIX JSP_VERSION_TEST JSP_VERSION_DEBUG_SUFFIX
+
 // {19681D48-D90E-4CB6-BB06-695F4257BE23}
 extern const GUID g_ui_pref_window_guid;
 FOOGUIDDECL const GUID g_ui_pref_window_guid =

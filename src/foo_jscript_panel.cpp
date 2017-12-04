@@ -4,7 +4,6 @@
 #include "popup_msg.h"
 #include "panel_manager.h"
 #include "user_message.h"
-#include "version.h"
 
 // Script TypeLib
 ITypeLibPtr g_typelib;

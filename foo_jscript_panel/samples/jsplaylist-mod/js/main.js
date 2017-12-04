@@ -442,7 +442,6 @@ function addToHistoricPlaylist(handle) {
 function checkMediaLibrayPlaylist() {
 	g_avoid_on_playlists_changed = true;
 	var idx = -1;
-	var total = plman.PlaylistCount;
 	for (var i = 0; i < plman.PlaylistCount; i++) {
 		if (plman.GetPlaylistName(i) == "Media Library") {
 			idx = i;

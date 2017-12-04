@@ -186,16 +186,6 @@ copy /Y "$(TargetPath)" "%component_path%\"</Command>
     <ClInclude Include="stackblur.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="user_message.h" />
-    <CustomBuild Include="version.h">
-      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Performing Custom Build Step</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-      </Command>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(Outputs)</Outputs>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Performing Custom Build Step</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-      </Command>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(Outputs)</Outputs>
-    </CustomBuild>
     <ClInclude Include="ui_conf.h" />
     <ClInclude Include="ui_find.h" />
     <ClInclude Include="ui_goto.h" />

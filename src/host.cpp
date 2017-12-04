@@ -526,7 +526,7 @@ void ScriptHost::ReportError(IActiveScriptError* err)
 
 	using namespace pfc::stringcvt;
 	pfc::string_formatter formatter;
-	formatter << JSP_NAME << " (" << m_host->ScriptInfo().build_info_string().get_ptr() << ")\n";
+	formatter << JSP_NAME << " v" << JSP_VERSION << " (" << m_host->ScriptInfo().build_info_string().get_ptr() << ")\n";
 
 	if (excep.bstrSource && excep.bstrDescription)
 	{
