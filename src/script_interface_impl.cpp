@@ -80,7 +80,6 @@ STDMETHODIMP ContextMenuManager::InitNowPlaying()
 	return S_OK;
 }
 
-
 DropSourceAction::DropSourceAction()
 {
 	Reset();
@@ -1204,7 +1203,6 @@ STDMETHODIMP FbPlaylistManager::SortByFormat(UINT playlistIndex, BSTR pattern, V
 		string_conv.convert(pattern);
 		pattern_ptr = string_conv.get_ptr();
 	}
-
 
 	*outSuccess = TO_VARIANT_BOOL(static_api_ptr_t<playlist_manager>()->playlist_sort_by_format(playlistIndex, pattern_ptr, selOnly == VARIANT_TRUE));
 	return S_OK;

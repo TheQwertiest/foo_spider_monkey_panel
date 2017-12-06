@@ -28,7 +28,6 @@
 		} \
 	private:
 
-
 class name_to_id_cache
 {
 public:
@@ -133,7 +132,6 @@ public:
 
 template <class T>
 FOOGUIDDECL type_info_cache_holder MyIDispatchImpl<T>::g_type_info_cache_holder;
-
 
 //-- IDispatch impl -- [T] [IDispatch] [IUnknown]
 template <class T>

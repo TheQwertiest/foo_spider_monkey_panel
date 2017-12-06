@@ -27,7 +27,6 @@ const t_prop_set_init_table prop_sets_init_table[] =
 
 cfg_sci_prop_sets g_sci_prop_sets(g_guid_prop_sets, prop_sets_init_table);
 
-
 void cfg_sci_prop_sets::get_data_raw(stream_writer * p_stream, abort_callback & p_abort)
 {
 	try
@@ -102,7 +101,6 @@ void cfg_sci_prop_sets::import_from_file(const char * filename)
 	t_string_chain_list lines;
 	pfc::string8_fast text, key;
 	t_str_to_str_map data_map;
-
 
 	// First read whole content in a string
 	helpers::read_file(filename, text);

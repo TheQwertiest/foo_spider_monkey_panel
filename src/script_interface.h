@@ -157,7 +157,6 @@ __interface IGdiGraphics : IGdiObj
 
 _COM_SMARTPTR_TYPEDEF(IGdiGraphics, __uuidof(IGdiGraphics));
 
-
 [
 	object,
 	dual,
@@ -340,7 +339,6 @@ __interface IFbUiSelectionHolder : IDisposable
 	STDMETHOD(SetPlaylistTracking)();
 	STDMETHOD(SetSelection)(IFbMetadbHandleList* handles);
 };
-
 
 [
 	object,

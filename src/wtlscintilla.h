@@ -1226,7 +1226,6 @@ public:
 		::SendMessage(m_hWnd, SCI_SETCODEPAGE, nCodePage, 0L);
 	}
 
-
 	void GrabFocus()
 	{
 		ATLASSERT(::IsWindow(m_hWnd));
@@ -1751,7 +1750,6 @@ public:
 		ATLASSERT(::IsWindow(m_hWnd));
 		::SendMessage(m_hWnd, SCI_CLEARALLCMDKEYS, 0, 0);
 	}
-
 
 	//@}
 	/** @name Popup Edit Menu */

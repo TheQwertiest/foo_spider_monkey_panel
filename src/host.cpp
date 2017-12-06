@@ -927,7 +927,6 @@ STDMETHODIMP FbWindow::put_MaxHeight(UINT height)
 	return S_OK;
 }
 
-
 STDMETHODIMP FbWindow::put_MaxWidth(UINT width)
 {
 	m_host->MaxSize().x = width;

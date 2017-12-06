@@ -90,7 +90,6 @@ void stackblurJob(unsigned char* src, ///< input image data
 	unsigned int mul_sum = stackblur_mul[radius];
 	unsigned char shr_sum = stackblur_shr[radius];
 
-
 	if (step == 1)
 	{
 		int minY = core * h / cores;
@@ -121,7 +120,6 @@ void stackblurJob(unsigned char* src, ///< input image data
 				sum_out_a += src_ptr[3];
 			}
 
-
 			for (i = 1; i <= radius; i++)
 			{
 				if (i <= wm) src_ptr += 4;
@@ -139,7 +137,6 @@ void stackblurJob(unsigned char* src, ///< input image data
 				sum_in_b += src_ptr[2];
 				sum_in_a += src_ptr[3];
 			}
-
 
 			sp = radius;
 			xp = radius;

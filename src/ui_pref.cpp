@@ -8,7 +8,6 @@ namespace
 	preferences_page_factory_t<js_preferences_page_impl> g_pref;
 }
 
-
 BOOL CDialogPref::OnInitDialog(HWND hwndFocus, LPARAM lParam)
 {
 	DoDataExchange();
