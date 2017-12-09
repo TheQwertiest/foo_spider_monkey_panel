@@ -42,4 +42,3 @@ For more information, please refer to <http://unlicense.org/>
 [StackBlur](https://github.com/19379/foo-jscript-panel/blob/master/foo_jscript_panel/licenses/StackBlur.txt)
 
 [WTL](https://github.com/19379/foo-jscript-panel/blob/master/foo_jscript_panel/licenses/WTL.txt)
-

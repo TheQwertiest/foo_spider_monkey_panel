@@ -7,7 +7,7 @@ static uie::window_factory<js_panel_window_cui> g_js_panel_wndow_cui;
 
 const GUID& js_panel_window_cui::get_extension_guid() const
 {
-	return g_js_panel_window_extension_guid;
+	return g_js_panel_window_cui_guid;
 }
 
 void js_panel_window_cui::get_name(pfc::string_base& out) const
