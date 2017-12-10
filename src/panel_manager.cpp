@@ -3,7 +3,6 @@
 #include "helpers.h"
 #include "user_message.h"
 
-
 namespace
 {
 	initquit_factory_t<nonautoregister_callbacks> g_nonautoregister_callbacks;
@@ -128,7 +127,6 @@ void my_library_callback::on_items_removed(const pfc::list_base_const_t<metadb_h
 
 unsigned my_play_callback_static::get_flags()
 {
-	// flag_on_playback_all doesn't contain flag_on_volume_change!
 	return flag_on_playback_all | flag_on_volume_change;
 }
 
@@ -161,7 +159,6 @@ void my_play_callback_static::on_playback_pause(bool state)
 
 void my_play_callback_static::on_playback_seek(double time)
 {
-	// sizeof(double) >= sizeof(WPARAM)
 	simple_callback_data<double>* on_playback_seek_data = new simple_callback_data<double>(time);
 	panel_manager::instance().post_msg_to_all_pointer(CALLBACK_UWM_ON_PLAYBACK_SEEK, on_playback_seek_data);
 }
@@ -178,14 +175,12 @@ void my_play_callback_static::on_playback_stop(play_control::t_stop_reason reaso
 
 void my_play_callback_static::on_playback_time(double time)
 {
-	// sizeof(double) >= sizeof(WPARAM)
 	simple_callback_data<double>* on_playback_time_data = new simple_callback_data<double>(time);
 	panel_manager::instance().post_msg_to_all_pointer(CALLBACK_UWM_ON_PLAYBACK_TIME, on_playback_time_data);
 }
 
 void my_play_callback_static::on_volume_change(float newval)
 {
-	// though sizeof(float) == sizeof(int), cast of IEEE754 is dangerous, always.
 	simple_callback_data<float>* on_volume_change_data = new simple_callback_data<float>(newval);
 	panel_manager::instance().post_msg_to_all_pointer(CALLBACK_UWM_ON_VOLUME_CHANGE, on_volume_change_data);
 }
@@ -291,38 +286,34 @@ void my_playlist_callback_static::on_playback_order_changed(t_size p_new_index)
 
 void my_playlist_callback_static::on_playlist_activate(t_size p_old, t_size p_new)
 {
-	// redirect
 	if (p_old != p_new)
+	{
 		on_playlist_switch();
+	}
 }
 
 void my_playlist_callback_static::on_playlist_created(t_size p_index, const char* p_name, t_size p_name_len)
 {
-	// redirect
 	on_playlists_changed();
 }
 
 void my_playlist_callback_static::on_playlist_locked(t_size p_playlist, bool p_locked)
 {
-	// redirect
 	on_playlists_changed();
 }
 
 void my_playlist_callback_static::on_playlist_renamed(t_size p_index, const char* p_new_name, t_size p_new_name_len)
 {
-	// redirect
 	on_playlists_changed();
 }
 
 void my_playlist_callback_static::on_playlists_removed(const bit_array& p_mask, t_size p_old_count, t_size p_new_count)
 {
-	// redirect
 	on_playlists_changed();
 }
 
 void my_playlist_callback_static::on_playlists_reorder(const t_size* p_order, t_size p_count)
 {
-	// redirect
 	on_playlists_changed();
 }
 

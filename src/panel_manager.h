@@ -1,30 +1,5 @@
 #pragma once
 
-class panel_manager
-{
-public:
-	panel_manager()
-	{
-	}
-
-	static panel_manager& instance();
-	t_size get_count();
-	void add_window(HWND p_wnd);
-	void post_msg_to_all(UINT p_msg);
-	void post_msg_to_all(UINT p_msg, WPARAM p_wp);
-	void post_msg_to_all(UINT p_msg, WPARAM p_wp, LPARAM p_lp);
-	void post_msg_to_all_pointer(UINT p_msg, pfc::refcounted_object_root* p_param);
-	void remove_window(HWND p_wnd);
-	void send_msg_to_all(UINT p_msg, WPARAM p_wp, LPARAM p_lp);
-	void send_msg_to_others_pointer(HWND p_wnd_except, UINT p_msg, pfc::refcounted_object_root* p_param);
-
-private:
-	pfc::list_t<HWND> m_hwnds;
-	static panel_manager sm_instance;
-
-	PFC_CLASS_NOT_COPYABLE_EX(panel_manager)
-};
-
 template <typename T> struct simple_callback_data : public pfc::refcounted_object_root
 {
 	T m_item;
@@ -50,10 +25,7 @@ template <typename T1, typename T2, typename T3> struct simple_callback_data_3 :
 	T2 m_item2;
 	T3 m_item3;
 
-	simple_callback_data_3(const T1& p_item1, const T2& p_item2, const T3& p_item3)
-		: m_item1(p_item1)
-		, m_item2(p_item2)
-		, m_item3(p_item3)
+	simple_callback_data_3(const T1& p_item1, const T2& p_item2, const T3& p_item3) : m_item1(p_item1), m_item2(p_item2), m_item3(p_item3)
 	{
 	}
 };
@@ -83,7 +55,32 @@ public:
 	}
 
 private:
-	T* m_data;
+	T * m_data;
+};
+
+class panel_manager
+{
+public:
+	panel_manager()
+	{
+	}
+
+	static panel_manager& instance();
+	t_size get_count();
+	void add_window(HWND p_wnd);
+	void post_msg_to_all(UINT p_msg);
+	void post_msg_to_all(UINT p_msg, WPARAM p_wp);
+	void post_msg_to_all(UINT p_msg, WPARAM p_wp, LPARAM p_lp);
+	void post_msg_to_all_pointer(UINT p_msg, pfc::refcounted_object_root* p_param);
+	void remove_window(HWND p_wnd);
+	void send_msg_to_all(UINT p_msg, WPARAM p_wp, LPARAM p_lp);
+	void send_msg_to_others_pointer(HWND p_wnd_except, UINT p_msg, pfc::refcounted_object_root* p_param);
+
+private:
+	pfc::list_t<HWND> m_hwnds;
+	static panel_manager sm_instance;
+
+	PFC_CLASS_NOT_COPYABLE_EX(panel_manager)
 };
 
 class nonautoregister_callbacks : public initquit, public metadb_io_callback_dynamic, public ui_selection_callback
@@ -94,9 +91,7 @@ public:
 		metadb_handle_list m_items_sorted;
 		bool m_fromhook;
 
-		t_on_changed_sorted_data(metadb_handle_list_cref p_items_sorted, bool p_fromhook)
-			: m_items_sorted(p_items_sorted)
-			, m_fromhook(p_fromhook)
+		t_on_changed_sorted_data(metadb_handle_list_cref p_items_sorted, bool p_fromhook) : m_items_sorted(p_items_sorted), m_fromhook(p_fromhook)
 		{
 		}
 	};
