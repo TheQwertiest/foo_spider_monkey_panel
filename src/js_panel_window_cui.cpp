@@ -5,44 +5,77 @@
 // CUI panel instance
 static uie::window_factory<js_panel_window_cui> g_js_panel_wndow_cui;
 
-const GUID& js_panel_window_cui::get_extension_guid() const
+DWORD js_panel_window_cui::GetColorCUI(unsigned type, const GUID& guid)
 {
-	return g_js_panel_window_cui_guid;
+	if (type <= columns_ui::colours::colour_active_item_frame)
+	{
+		columns_ui::colours::helper helper(guid);
+
+		return helpers::convert_colorref_to_argb(
+			helper.get_colour((columns_ui::colours::colour_identifier_t)type));
+	}
+
+	return 0;
 }
 
-void js_panel_window_cui::get_name(pfc::string_base& out) const
+DWORD js_panel_window_cui::GetColorDUI(unsigned type)
 {
-	out = JSP_NAME;
+	return 0;
 }
 
-void js_panel_window_cui::get_category(pfc::string_base& out) const
+HFONT js_panel_window_cui::GetFontCUI(unsigned type, const GUID& guid)
 {
-	out = "Panels";
+	if (guid == pfc::guid_null)
+	{
+		if (type <= columns_ui::fonts::font_type_labels)
+		{
+			try
+			{
+				return static_api_ptr_t<columns_ui::fonts::manager>()->get_font((columns_ui::fonts::font_type_t)type);
+			}
+			catch (exception_service_not_found&)
+			{
+				return uCreateIconFont();
+			}
+		}
+	}
+	else
+	{
+		columns_ui::fonts::helper helper(guid);
+		return helper.get_font();
+	}
+
+	return NULL;
 }
 
-unsigned js_panel_window_cui::get_type() const
+HFONT js_panel_window_cui::GetFontDUI(unsigned type)
 {
-	return uie::type_toolbar | uie::type_panel;
+	return NULL;
 }
 
-void js_panel_window_cui::set_config(stream_reader* reader, t_size size, abort_callback& abort)
+HWND js_panel_window_cui::create_or_transfer_window(HWND parent, const uie::window_host_ptr& host, const ui_helpers::window_position_t& p_position)
 {
-	load_config(reader, size, abort);
+	if (m_host.is_valid())
+	{
+		ShowWindow(m_hwnd, SW_HIDE);
+		SetParent(m_hwnd, parent);
+		m_host->relinquish_ownership(m_hwnd);
+		m_host = host;
+
+		SetWindowPos(m_hwnd, NULL, p_position.x, p_position.y, p_position.cx, p_position.cy, SWP_NOZORDER);
+	}
+	else
+	{
+		m_host = host; //store interface to host
+		create(parent, this, p_position);
+	}
+
+	return get_wnd();
 }
 
-void js_panel_window_cui::get_config(stream_writer* writer, abort_callback& abort) const
+HWND js_panel_window_cui::get_wnd() const
 {
-	save_config(writer, abort);
-}
-
-bool js_panel_window_cui::have_config_popup() const
-{
-	return true;
-}
-
-bool js_panel_window_cui::show_config_popup(HWND parent)
-{
-	return show_configure_popup(parent);
+	return t_parent::get_wnd();
 }
 
 LRESULT js_panel_window_cui::on_message(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
@@ -85,39 +118,55 @@ LRESULT js_panel_window_cui::on_message(HWND hwnd, UINT msg, WPARAM wp, LPARAM l
 	return t_parent::on_message(hwnd, msg, wp, lp);
 }
 
-HWND js_panel_window_cui::create_or_transfer_window(HWND parent, const uie::window_host_ptr& host, const ui_helpers::window_position_t& p_position)
+bool js_panel_window_cui::have_config_popup() const
 {
-	if (m_host.is_valid())
-	{
-		ShowWindow(m_hwnd, SW_HIDE);
-		SetParent(m_hwnd, parent);
-		m_host->relinquish_ownership(m_hwnd);
-		m_host = host;
-
-		SetWindowPos(m_hwnd, NULL, p_position.x, p_position.y, p_position.cx, p_position.cy, SWP_NOZORDER);
-	}
-	else
-	{
-		m_host = host; //store interface to host
-		create(parent, this, p_position);
-	}
-
-	return get_wnd();
+	return true;
 }
 
-void js_panel_window_cui::notify_size_limit_changed_(LPARAM lp)
+bool js_panel_window_cui::is_available(const uie::window_host_ptr& p) const
 {
-	get_host()->on_size_limit_change(m_hwnd, lp);
+	return true;
 }
 
-void js_panel_window_cui::on_font_changed(t_size mask) const
+bool js_panel_window_cui::show_config_popup(HWND parent)
 {
-	PostMessage(m_hwnd, CALLBACK_UWM_FONT_CHANGED, 0, 0);
+	return show_configure_popup(parent);
 }
 
-void js_panel_window_cui::on_colour_changed(t_size mask) const
+const GUID& js_panel_window_cui::get_extension_guid() const
 {
-	PostMessage(m_hwnd, CALLBACK_UWM_COLORS_CHANGED, 0, 0);
+	return g_js_panel_window_cui_guid;
+}
+
+const uie::window_host_ptr& js_panel_window_cui::get_host() const
+{
+	return m_host;
+}
+
+unsigned js_panel_window_cui::get_type() const
+{
+	return uie::type_toolbar | uie::type_panel;
+}
+
+void js_panel_window_cui::destroy_window()
+{
+	destroy();
+	m_host.release();
+}
+
+void js_panel_window_cui::get_category(pfc::string_base& out) const
+{
+	out = "Panels";
+}
+
+void js_panel_window_cui::get_config(stream_writer* writer, abort_callback& abort) const
+{
+	save_config(writer, abort);
+}
+
+void js_panel_window_cui::get_name(pfc::string_base& out) const
+{
+	out = JSP_NAME;
 }
 
 void js_panel_window_cui::on_bool_changed(t_size mask) const
@@ -125,40 +174,22 @@ void js_panel_window_cui::on_bool_changed(t_size mask) const
 	// TODO: may be implemented one day
 }
 
-DWORD js_panel_window_cui::GetColorCUI(unsigned type, const GUID& guid)
+void js_panel_window_cui::on_colour_changed(t_size mask) const
 {
-	if (type <= columns_ui::colours::colour_active_item_frame)
-	{
-		columns_ui::colours::helper helper(guid);
-
-		return helpers::convert_colorref_to_argb(
-			helper.get_colour((columns_ui::colours::colour_identifier_t)type));
-	}
-
-	return 0;
+	PostMessage(m_hwnd, CALLBACK_UWM_COLORS_CHANGED, 0, 0);
 }
 
-HFONT js_panel_window_cui::GetFontCUI(unsigned type, const GUID& guid)
+void js_panel_window_cui::on_font_changed(t_size mask) const
 {
-	if (guid == pfc::guid_null)
-	{
-		if (type <= columns_ui::fonts::font_type_labels)
-		{
-			try
-			{
-				return static_api_ptr_t<columns_ui::fonts::manager>()->get_font((columns_ui::fonts::font_type_t)type);
-			}
-			catch (exception_service_not_found&)
-			{
-				return uCreateIconFont();
-			}
-		}
-	}
-	else
-	{
-		columns_ui::fonts::helper helper(guid);
-		return helper.get_font();
-	}
+	PostMessage(m_hwnd, CALLBACK_UWM_FONT_CHANGED, 0, 0);
+}
 
-	return NULL;
+void js_panel_window_cui::set_config(stream_reader* reader, t_size size, abort_callback& abort)
+{
+	load_config(reader, size, abort);
+}
+
+void js_panel_window_cui::notify_size_limit_changed_(LPARAM lp)
+{
+	get_host()->on_size_limit_change(m_hwnd, lp);
 }

@@ -54,28 +54,31 @@ private:
 // DUI panel instance
 static service_factory_t<my_ui_element_impl<js_panel_window_dui>> g_js_panel_wndow_dui;
 
-void js_panel_window_dui::initialize_window(HWND parent)
+js_panel_window_dui::js_panel_window_dui(ui_element_config::ptr cfg, ui_element_instance_callback::ptr callback) : m_callback(callback)
 {
-	create(parent);
+	m_instance_type = KInstanceTypeDUI;
+	m_is_edit_mode = m_callback->is_edit_mode_enabled();
+	set_configuration(cfg);
 }
 
-HWND js_panel_window_dui::get_wnd()
+js_panel_window_dui::~js_panel_window_dui()
 {
-	return t_parent::get_wnd();
+	t_parent::destroy();
 }
 
-void js_panel_window_dui::set_configuration(ui_element_config::ptr data)
+GUID js_panel_window_dui::g_get_guid()
 {
-	ui_element_config_parser parser(data);
-	abort_callback_dummy abort;
+	return g_js_panel_window_dui_guid;
+}
 
-	load_config(&parser.m_stream, parser.get_remaining(), abort);
+GUID js_panel_window_dui::g_get_subclass()
+{
+	return ui_element_subclass_utility;
+}
 
-	// FIX: If window already created, DUI won't destroy it and create it again.
-	if (m_hwnd)
-	{
-		update_script();
-	}
+pfc::string8 js_panel_window_dui::g_get_description()
+{
+	return "Customisable panel with JScript scripting support.";
 }
 
 ui_element_config::ptr js_panel_window_dui::g_get_default_configuration()
@@ -89,28 +92,31 @@ ui_element_config::ptr js_panel_window_dui::g_get_default_configuration()
 	return builder.finish(g_get_guid());
 }
 
-ui_element_config::ptr js_panel_window_dui::get_configuration()
-{
-	ui_element_config_builder builder;
-	abort_callback_dummy abort;
-
-	save_config(&builder.m_stream, abort);
-	return builder.finish(g_get_guid());
-}
-
 void js_panel_window_dui::g_get_name(pfc::string_base& out)
 {
 	out = JSP_NAME;
 }
 
-pfc::string8 js_panel_window_dui::g_get_description()
+DWORD js_panel_window_dui::GetColorCUI(unsigned type, const GUID& guid)
 {
-	return "Customisable panel with JScript scripting support.";
+	return 0;
 }
 
-GUID js_panel_window_dui::g_get_guid()
+DWORD js_panel_window_dui::GetColorDUI(unsigned type)
 {
-	return g_js_panel_window_dui_guid;
+	const GUID* guids[] = {
+		&ui_color_text,
+		&ui_color_background,
+		&ui_color_highlight,
+		&ui_color_selection,
+	};
+
+	if (type < _countof(guids))
+	{
+		return helpers::convert_colorref_to_argb(m_callback->query_std_color(*guids[type]));
+	}
+
+	return 0;
 }
 
 GUID js_panel_window_dui::get_guid()
@@ -118,30 +124,38 @@ GUID js_panel_window_dui::get_guid()
 	return g_get_guid();
 }
 
-GUID js_panel_window_dui::g_get_subclass()
-{
-	return ui_element_subclass_utility;
-}
-
 GUID js_panel_window_dui::get_subclass()
 {
 	return g_get_subclass();
 }
 
-void js_panel_window_dui::notify(const GUID& p_what, t_size p_param1, const void* p_param2, t_size p_param2size)
+HFONT js_panel_window_dui::GetFontCUI(unsigned type, const GUID& guid)
 {
-	if (p_what == ui_element_notify_edit_mode_changed)
+	return NULL;
+}
+
+HFONT js_panel_window_dui::GetFontDUI(unsigned type)
+{
+	const GUID* guids[] = {
+		&ui_font_default,
+		&ui_font_tabs,
+		&ui_font_lists,
+		&ui_font_playlists,
+		&ui_font_statusbar,
+		&ui_font_console,
+	};
+
+	if (type < _countof(guids))
 	{
-		notify_is_edit_mode_changed_(m_callback->is_edit_mode_enabled());
+		return m_callback->query_font_ex(*guids[type]);
 	}
-	else if (p_what == ui_element_notify_font_changed)
-	{
-		PostMessage(m_hwnd, CALLBACK_UWM_FONT_CHANGED, 0, 0);
-	}
-	else if (p_what == ui_element_notify_colors_changed)
-	{
-		PostMessage(m_hwnd, CALLBACK_UWM_COLORS_CHANGED, 0, 0);
-	}
+
+	return NULL;
+}
+
+HWND js_panel_window_dui::get_wnd()
+{
+	return t_parent::get_wnd();
 }
 
 LRESULT js_panel_window_dui::on_message(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
@@ -164,43 +178,76 @@ LRESULT js_panel_window_dui::on_message(HWND hwnd, UINT msg, WPARAM wp, LPARAM l
 	return t_parent::on_message(hwnd, msg, wp, lp);
 }
 
+bool js_panel_window_dui::edit_mode_context_menu_get_description(unsigned p_id, unsigned p_id_base, pfc::string_base& p_out)
+{
+	return false;
+}
+
+bool js_panel_window_dui::edit_mode_context_menu_test(const POINT& p_point, bool p_fromkeyboard)
+{
+	return true;
+}
+
+ui_element_config::ptr js_panel_window_dui::get_configuration()
+{
+	ui_element_config_builder builder;
+	abort_callback_dummy abort;
+
+	save_config(&builder.m_stream, abort);
+	return builder.finish(g_get_guid());
+}
+
+void js_panel_window_dui::edit_mode_context_menu_build(const POINT& p_point, bool p_fromkeyboard, HMENU p_menu, unsigned p_id_base)
+{
+	build_context_menu(p_menu, p_point.x, p_point.y, p_id_base);
+}
+
+void js_panel_window_dui::edit_mode_context_menu_command(const POINT& p_point, bool p_fromkeyboard, unsigned p_id, unsigned p_id_base)
+{
+	execute_context_menu_command(p_id, p_id_base);
+}
+
+void js_panel_window_dui::notify(const GUID& p_what, t_size p_param1, const void* p_param2, t_size p_param2size)
+{
+	if (p_what == ui_element_notify_edit_mode_changed)
+	{
+		notify_is_edit_mode_changed_(m_callback->is_edit_mode_enabled());
+	}
+	else if (p_what == ui_element_notify_font_changed)
+	{
+		PostMessage(m_hwnd, CALLBACK_UWM_FONT_CHANGED, 0, 0);
+	}
+	else if (p_what == ui_element_notify_colors_changed)
+	{
+		PostMessage(m_hwnd, CALLBACK_UWM_COLORS_CHANGED, 0, 0);
+	}
+}
+
+void js_panel_window_dui::set_configuration(ui_element_config::ptr data)
+{
+	ui_element_config_parser parser(data);
+	abort_callback_dummy abort;
+
+	load_config(&parser.m_stream, parser.get_remaining(), abort);
+
+	// FIX: If window already created, DUI won't destroy it and create it again.
+	if (m_hwnd)
+	{
+		update_script();
+	}
+}
+
+void js_panel_window_dui::initialize_window(HWND parent)
+{
+	create(parent);
+}
+
 void js_panel_window_dui::notify_size_limit_changed_(LPARAM lp)
 {
 	m_callback->on_min_max_info_change();
 }
 
-DWORD js_panel_window_dui::GetColorDUI(unsigned type)
+void js_panel_window_dui::notify_is_edit_mode_changed_(bool enabled)
 {
-	const GUID* guids[] = {
-		&ui_color_text,
-		&ui_color_background,
-		&ui_color_highlight,
-		&ui_color_selection,
-	};
-
-	if (type < _countof(guids))
-	{
-		return helpers::convert_colorref_to_argb(m_callback->query_std_color(*guids[type]));
-	}
-
-	return 0;
-}
-
-HFONT js_panel_window_dui::GetFontDUI(unsigned type)
-{
-	const GUID* guids[] = {
-		&ui_font_default,
-		&ui_font_tabs,
-		&ui_font_lists,
-		&ui_font_playlists,
-		&ui_font_statusbar,
-		&ui_font_console,
-	};
-
-	if (type < _countof(guids))
-	{
-		return m_callback->query_font_ex(*guids[type]);
-	}
-
-	return NULL;
+	m_is_edit_mode = enabled;
 }
