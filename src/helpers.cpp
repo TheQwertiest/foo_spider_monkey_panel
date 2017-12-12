@@ -276,7 +276,7 @@ namespace helpers
 			case 949: // korean
 			case 950: // big5
 			{
-				// '¡¯', <= special char
+				// 'o', <= special char
 				// "ve" "d" "ll" "m" 't' 're'
 				bool fallback = true;
 				t_size index;
