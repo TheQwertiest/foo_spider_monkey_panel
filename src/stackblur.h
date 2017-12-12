@@ -1,5 +1,4 @@
 #pragma once
-#include "stdafx.h"
 
 /*
 The Stack Blur Algorithm was invented by Mario Klingemann,

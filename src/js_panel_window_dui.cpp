@@ -3,8 +3,7 @@
 #include "js_panel_window_dui.h"
 
 // Just because I don't want to include the helpers
-template <typename TImpl>
-class my_ui_element_impl : public ui_element
+template <typename TImpl> class my_ui_element_impl : public ui_element
 {
 public:
 	GUID get_guid()
@@ -44,8 +43,7 @@ private:
 	class ui_element_instance_impl_helper : public TImpl
 	{
 	public:
-		ui_element_instance_impl_helper(ui_element_config::ptr cfg, ui_element_instance_callback::ptr callback)
-			: TImpl(cfg, callback)
+		ui_element_instance_impl_helper(ui_element_config::ptr cfg, ui_element_instance_callback::ptr callback) : TImpl(cfg, callback)
 		{
 		}
 	};

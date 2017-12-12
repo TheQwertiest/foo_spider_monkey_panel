@@ -1,5 +1,4 @@
 #pragma once
-#include "stdafx.h"
 
 /*
 Copyright 2006 Jerry Huxtable
@@ -150,8 +149,7 @@ public:
 		return (color >> BLUE_SHIFT) & 0xff;
 	}
 
-	template <typename T>
-	static T clamp(T x, T l, T r)
+	template <typename T> static T clamp(T x, T l, T r)
 	{
 		return (x < l) ? l : ((x > r) ? r : x);
 	}

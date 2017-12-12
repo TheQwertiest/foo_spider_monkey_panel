@@ -125,8 +125,7 @@ namespace helpers
 			0xff000000;
 	}
 
-	template <class T>
-	bool ensure_gdiplus_object(T* obj)
+	template <class T> bool ensure_gdiplus_object(T* obj)
 	{
 		return ((obj) && (obj->GetLastStatus() == Gdiplus::Ok));
 	}
@@ -172,8 +171,7 @@ namespace helpers
 			IGdiBitmap* bitmap;
 			pfc::stringcvt::string_wide_from_utf8 image_path;
 
-			t_param(IFbMetadbHandle* p_handle, int p_art_id, IGdiBitmap* p_bitmap, const char* p_image_path)
-				: handle(p_handle), art_id(p_art_id), bitmap(p_bitmap), image_path(p_image_path)
+			t_param(IFbMetadbHandle* p_handle, int p_art_id, IGdiBitmap* p_bitmap, const char* p_image_path) : handle(p_handle), art_id(p_art_id), bitmap(p_bitmap), image_path(p_image_path)
 			{
 			}
 
@@ -187,13 +185,7 @@ namespace helpers
 			}
 		};
 
-		album_art_async(HWND notify_hwnd, metadb_handle* handle, int art_id, VARIANT_BOOL need_stub, VARIANT_BOOL only_embed, VARIANT_BOOL no_load)
-			: m_notify_hwnd(notify_hwnd)
-			, m_handle(handle)
-			, m_art_id(art_id)
-			, m_need_stub(need_stub)
-			, m_only_embed(only_embed)
-			, m_no_load(no_load)
+		album_art_async(HWND notify_hwnd, metadb_handle* handle, int art_id, VARIANT_BOOL need_stub, VARIANT_BOOL only_embed, VARIANT_BOOL no_load) : m_notify_hwnd(notify_hwnd), m_handle(handle), m_art_id(art_id), m_need_stub(need_stub), m_only_embed(only_embed), m_no_load(no_load)
 		{
 			if (m_handle.is_valid())
 				m_rawpath = pfc::stringcvt::string_wide_from_utf8(m_handle->get_path());
@@ -219,8 +211,7 @@ namespace helpers
 			IGdiBitmap* bitmap;
 			_bstr_t path;
 
-			t_param(int p_cookie, IGdiBitmap* p_bitmap, BSTR p_path)
-				: cookie(p_cookie), bitmap(p_bitmap), path(p_path)
+			t_param(int p_cookie, IGdiBitmap* p_bitmap, BSTR p_path) : cookie(p_cookie), bitmap(p_bitmap), path(p_path)
 			{
 			}
 
@@ -231,8 +222,7 @@ namespace helpers
 			}
 		};
 
-		load_image_async(HWND notify_wnd, BSTR path)
-			: m_notify_hwnd(notify_wnd), m_path(path)
+		load_image_async(HWND notify_wnd, BSTR path) : m_notify_hwnd(notify_wnd), m_path(path)
 		{
 		}
 
@@ -245,8 +235,7 @@ namespace helpers
 	class js_process_locations : public process_locations_notify
 	{
 	public:
-		js_process_locations(int playlist_idx, bool to_select)
-			: m_playlist_idx(playlist_idx), m_to_select(to_select)
+		js_process_locations(int playlist_idx, bool to_select) : m_playlist_idx(playlist_idx), m_to_select(to_select)
 		{
 		}
 
@@ -433,8 +422,7 @@ namespace helpers
 		long m_lbound, m_ubound;
 	};
 
-	template <bool managed = false>
-	class com_array_writer
+	template <bool managed = false> class com_array_writer
 	{
 	public:
 		com_array_writer() : m_psa(NULL)

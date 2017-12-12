@@ -5,9 +5,7 @@
 #include "js_panel_window.h"
 #include "../PropertyList/PropertyList.h"
 
-class CDialogProperty
-	: public CDialogImpl<CDialogProperty>
-	, public CDialogResize<CDialogProperty>
+class CDialogProperty : public CDialogImpl<CDialogProperty>, public CDialogResize<CDialogProperty>
 {
 public:
 	CDialogProperty(js_panel_window* p_parent) : m_parent(p_parent)

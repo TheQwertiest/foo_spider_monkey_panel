@@ -82,8 +82,7 @@ protected:
 };
 
 //-- IDispatch --
-template <class T>
-class MyIDispatchImpl : public T
+template <class T> class MyIDispatchImpl : public T
 {
 protected:
 	static type_info_cache_holder g_type_info_cache_holder;
@@ -130,12 +129,10 @@ public:
 	}
 };
 
-template <class T>
-FOOGUIDDECL type_info_cache_holder MyIDispatchImpl<T>::g_type_info_cache_holder;
+template <class T> FOOGUIDDECL type_info_cache_holder MyIDispatchImpl<T>::g_type_info_cache_holder;
 
 //-- IDispatch impl -- [T] [IDispatch] [IUnknown]
-template <class T>
-class IDispatchImpl3 : public MyIDispatchImpl<T>
+template <class T> class IDispatchImpl3 : public MyIDispatchImpl<T>
 {
 	BEGIN_COM_QI_IMPL()
 		COM_QI_ENTRY_MULTI(IUnknown, IDispatch)
@@ -154,8 +151,7 @@ protected:
 };
 
 //-- IDisposable impl -- [T] [IDisposable] [IDispatch] [IUnknown]
-template <class T>
-class IDisposableImpl4 : public MyIDispatchImpl<T>
+template <class T> class IDisposableImpl4 : public MyIDispatchImpl<T>
 {
 	BEGIN_COM_QI_IMPL()
 		COM_QI_ENTRY_MULTI(IUnknown, IDispatch)
@@ -181,8 +177,7 @@ public:
 	}
 };
 
-template <typename _Base, bool _AddRef = true>
-class com_object_impl_t : public _Base
+template <typename _Base, bool _AddRef = true> class com_object_impl_t : public _Base
 {
 public:
 	STDMETHODIMP_(ULONG) AddRef()
@@ -228,8 +223,7 @@ private:
 	}
 };
 
-template <class T>
-class com_object_singleton_t
+template <class T> class com_object_singleton_t
 {
 public:
 	static T* instance()
@@ -254,8 +248,6 @@ private:
 	PFC_CLASS_NOT_COPYABLE_EX(com_object_singleton_t)
 };
 
-template <class T>
-FOOGUIDDECL IDispatchPtr com_object_singleton_t<T>::_instance;
+template <class T> FOOGUIDDECL IDispatchPtr com_object_singleton_t<T>::_instance;
 
-template <class T>
-FOOGUIDDECL critical_section com_object_singleton_t<T>::_cs;
+template <class T> FOOGUIDDECL critical_section com_object_singleton_t<T>::_cs;

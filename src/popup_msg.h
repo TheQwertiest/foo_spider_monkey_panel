@@ -7,8 +7,7 @@ class popup_msg
 public:
 	struct action : delay_loader_action
 	{
-		action(const char* p_msg, const char* p_title, popup_message::t_icon p_icon)
-			: msg_(p_msg), title_(p_title), icon_(p_icon)
+		action(const char* p_msg, const char* p_title, popup_message::t_icon p_icon) : msg_(p_msg), title_(p_title), icon_(p_icon)
 		{
 		}
 

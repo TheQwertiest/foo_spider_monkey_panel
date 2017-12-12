@@ -1415,10 +1415,7 @@ STDMETHODIMP FbPlaybackQueueItem::put_PlaylistItemIndex(UINT itemIndex)
 	return S_OK;
 }
 
-FbPlayingItemLocation::FbPlayingItemLocation(bool isValid, t_size playlistIndex, t_size itemIndex)
-	: m_isValid(isValid)
-	, m_playlistIndex(playlistIndex)
-	, m_itemIndex(itemIndex)
+FbPlayingItemLocation::FbPlayingItemLocation(bool isValid, t_size playlistIndex, t_size itemIndex) : m_isValid(isValid), m_playlistIndex(playlistIndex), m_itemIndex(itemIndex)
 {
 }
 
@@ -1614,10 +1611,7 @@ STDMETHODIMP FbTitleFormat::get__ptr(void** pp)
 	return S_OK;
 }
 
-FbTooltip::FbTooltip(HWND p_wndparent, const panel_tooltip_param_ptr& p_param_ptr)
-	: m_wndparent(p_wndparent)
-	, m_panel_tooltip_param_ptr(p_param_ptr)
-	, m_tip_buffer(SysAllocString(PFC_WIDESTRING(JSP_NAME)))
+FbTooltip::FbTooltip(HWND p_wndparent, const panel_tooltip_param_ptr& p_param_ptr) : m_wndparent(p_wndparent), m_panel_tooltip_param_ptr(p_param_ptr), m_tip_buffer(SysAllocString(PFC_WIDESTRING(JSP_NAME)))
 {
 	m_wndtooltip = CreateWindowEx(
 		WS_EX_TOPMOST,
@@ -3903,13 +3897,7 @@ STDMETHODIMP MainMenuManager::Init(BSTR root_name)
 	return E_INVALIDARG;
 }
 
-MeasureStringInfo::MeasureStringInfo(float x, float y, float w, float h, int l, int c)
-	: m_x(x)
-	, m_y(y)
-	, m_w(w)
-	, m_h(h)
-	, m_l(l)
-	, m_c(c)
+MeasureStringInfo::MeasureStringInfo(float x, float y, float w, float h, int l, int c) : m_x(x), m_y(y), m_w(w), m_h(h), m_l(l), m_c(c)
 {
 }
 

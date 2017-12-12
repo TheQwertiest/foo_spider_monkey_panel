@@ -38,8 +38,7 @@ Gilad Novik (Web: http://gilad.gsetup.com,Email: gilad@gsetup.com)
 
 #include <Scintilla.h>
 
-template< class T, class TBase = CWindow, class TWinTraits = CControlWinTraits >
-class CScintillaImpl : public CWindowImpl< T, TBase, TWinTraits >
+template< class T, class TBase = CWindow, class TWinTraits = CControlWinTraits > class CScintillaImpl : public CWindowImpl< T, TBase, TWinTraits >
 {
 public:
 	DECLARE_WND_SUPERCLASS(NULL, TBase::GetWndClassName())

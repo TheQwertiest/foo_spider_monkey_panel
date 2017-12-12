@@ -2,9 +2,7 @@
 
 #include "resource.h"
 
-class CDialogReplace
-	: public CDialogImpl<CDialogReplace>
-	, public CDialogResize<CDialogReplace>
+class CDialogReplace : public CDialogImpl<CDialogReplace>, public CDialogResize<CDialogReplace>
 {
 public:
 	CDialogReplace(HWND p_hedit) : m_hedit(p_hedit), m_flags(0), m_havefound(false)

@@ -4,8 +4,7 @@
 #include "com_tools.h"
 #include "helpers.h"
 
-template <class T, class T2>
-class GdiObj : public MyIDispatchImpl<T>
+template <class T, class T2> class GdiObj : public MyIDispatchImpl<T>
 {
 	BEGIN_COM_QI_IMPL()
 		COM_QI_ENTRY_MULTI(IUnknown, IDispatch)

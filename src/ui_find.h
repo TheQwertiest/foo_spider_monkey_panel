@@ -2,9 +2,7 @@
 
 #include "resource.h"
 
-class CDialogFind
-	: public CDialogImpl<CDialogFind>
-	, public CDialogResize<CDialogFind>
+class CDialogFind : public CDialogImpl<CDialogFind>, public CDialogResize<CDialogFind>
 {
 public:
 	CDialogFind(HWND p_hedit) : m_hedit(p_hedit), m_flags(0)

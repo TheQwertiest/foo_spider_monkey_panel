@@ -4,11 +4,7 @@
 #include "host_drop_target.h"
 #include "js_panel_window.h"
 
-HostDropTarget::HostDropTarget(js_panel_window* host)
-	: IDropTargetImpl(host->GetHWND())
-	, m_host(host)
-	, m_effect(DROPEFFECT_NONE)
-	, m_action(new com_object_impl_t<DropSourceAction, true>())
+HostDropTarget::HostDropTarget(js_panel_window* host) : IDropTargetImpl(host->GetHWND()), m_host(host), m_effect(DROPEFFECT_NONE), m_action(new com_object_impl_t<DropSourceAction, true>())
 {
 }
 
