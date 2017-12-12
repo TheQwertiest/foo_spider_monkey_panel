@@ -1,6 +1,5 @@
 #include "stdafx.h"
 #include "host.h"
-#include "helpers.h"
 #include "panel_manager.h"
 #include "popup_msg.h"
 

@@ -4,8 +4,6 @@
 #include "script_interface.h"
 #include "json.hpp"
 
-#define TO_VARIANT_BOOL(v) ((v) ? (VARIANT_TRUE) : (VARIANT_FALSE))
-
 using json = nlohmann::json;
 
 namespace helpers

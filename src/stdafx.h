@@ -4,6 +4,8 @@
 #define WINVER _WIN32_WINNT_VISTA
 #define _WIN32_IE _WIN32_IE_IE70
 
+#define TO_VARIANT_BOOL(v) ((v) ? (VARIANT_TRUE) : (VARIANT_FALSE))
+
 #include <tchar.h>
 #include <Windows.h>
 #include <GdiPlus.h>
