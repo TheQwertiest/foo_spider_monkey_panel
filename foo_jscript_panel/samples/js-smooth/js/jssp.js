@@ -2505,18 +2505,19 @@ oBrowser = function (name) {
 										var bool = fb.RunContextCommandWithMetadb("Rating/<not set>", this.rows[this.activeRow].metadb);
 									};
 								} else {
+									var handles = fb.CreateHandleList();
+									handles.Add(this.rows[this.activeRow].metadb);
 									// Rate to file
 									if (l_rating != this.rows[this.activeRow].rating) {
-										if (this.rows[this.activeRow].metadb) {
-											this.rows[this.activeRow].rating = l_rating;
-											window.Repaint();
-											var bool = this.rows[this.activeRow].metadb.UpdateFileInfoSimple("RATING", l_rating);
-										};
+										this.rows[this.activeRow].rating = l_rating;
+										window.Repaint();
+										handles.UpdateFileInfoFromJSON(JSON.stringify({"RATING" : l_rating}));
 									} else {
 										this.rows[this.activeRow].rating = 0;
 										window.Repaint();
-										var bool = this.rows[this.activeRow].metadb.UpdateFileInfoSimple("RATING", "");
+										handles.UpdateFileInfoFromJSON(JSON.stringify({"RATING" : l_rating}));
 									};
+									handles.Dispose();
 								};
 							};
 						} else {

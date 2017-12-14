@@ -1056,31 +1056,31 @@ oItem = function (playlist, row_index, type, handle, track_index, group_index, t
 									this.rating = 0;
 								};
 							} else {
-								// Rate to file
+								var handles = fb.CreateHandleList();
+								handles.Add(this.metadb);
 								if (this.l_rating != this.rating) {
-									if (this.metadb) {
-										var bool = this.metadb.UpdateFileInfoSimple("RATING", this.l_rating);
-										this.rating = this.l_rating;
-									};
+									handles.UpdateFileInfoFromJSON(JSON.stringify({"RATING" : this.l_rating}));
+									this.rating = this.l_rating;
 								} else {
-									var bool = this.metadb.UpdateFileInfoSimple("RATING", "");
+									handles.UpdateFileInfoFromJSON(JSON.stringify({"RATING" : ""}));
 									this.rating = 0;
 								};
+								handles.Dispose();
 							};
 						};
 					} else if (this.mood_hover) {
 						// Mood
 						if (this.tracktype < 2) {
-							// tag to file
+							var handles = fb.CreateHandleList();
+							handles.Add(this.metadb);
 							if (this.l_mood != this.mood) {
-								if (this.metadb) {
-									var bool = this.metadb.UpdateFileInfoSimple("MOOD", getTimestamp());
-									this.mood = this.l_mood;
-								};
+								handles.UpdateFileInfoFromJSON(JSON.stringify({"MOOD" : getTimestamp()}));
+								this.mood = this.l_mood;
 							} else {
-								var bool = this.metadb.UpdateFileInfoSimple("MOOD", "");
+								handles.UpdateFileInfoFromJSON(JSON.stringify({"MOOD" : ""}));
 								this.mood = 0;
 							};
+							handles.Dispose();
 						};
 					} else if (!cTouch.down) {
 						if (!p.list.drawRectSel && plman.IsPlaylistItemSelected(p.list.playlist, this.track_index)) {

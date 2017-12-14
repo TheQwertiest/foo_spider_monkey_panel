@@ -738,12 +738,20 @@ function update_statistics() {
 
 		var firstplayed_ts = first_played.EvalWithMetadb(cStats.handle);
 
-		// UPDATE TAGs
-		if (firstplayed_ts != "?") {
-			bool = cStats.handle.UpdateFileInfoSimple("LAST_PLAYED", timestamp, "PLAY_COUNTER", new_playcounter, "PLAY_COUNT", "");
-		} else {
-			bool = cStats.handle.UpdateFileInfoSimple("FIRST_PLAYED", timestamp, "LAST_PLAYED", timestamp, "PLAY_COUNTER", new_playcounter, "PLAY_COUNT", "");
+		var handles = fb.CreateHandleList();
+		handles.Add(cStats.handle);
+		
+		var obj = {
+			"LAST_PLAYED" : timestamp,
+			"PLAYCOUNTER" : new_playcounter,
+			"PLAY_COUNT" : ""
 		};
+		
+		if (firstplayed_ts == "?") {
+			obj["FIRST_PLAYED"] = timestamp;
+		}
+		handles.UpdateFileInfoFromJSON(JSON.stringify(obj));
+		handles.Dispose();
 		cStats.waiting_for_writing = false;
 		// report to console
 		fb.trace("--- WSH Statistics ---");
