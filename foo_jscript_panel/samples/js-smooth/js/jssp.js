@@ -2515,7 +2515,7 @@ oBrowser = function (name) {
 									} else {
 										this.rows[this.activeRow].rating = 0;
 										window.Repaint();
-										handles.UpdateFileInfoFromJSON(JSON.stringify({"RATING" : l_rating}));
+										handles.UpdateFileInfoFromJSON(JSON.stringify({"RATING" : ""}));
 									};
 									handles.Dispose();
 								};
