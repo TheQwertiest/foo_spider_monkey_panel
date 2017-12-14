@@ -184,6 +184,7 @@ copy /Y "$(TargetPath)" "%component_path%\"</Command>
     <ClInclude Include="script_preprocessor.h" />
     <ClInclude Include="SString.h" />
     <ClInclude Include="stackblur.h" />
+    <ClInclude Include="stats.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="user_message.h" />
     <ClInclude Include="ui_conf.h" />

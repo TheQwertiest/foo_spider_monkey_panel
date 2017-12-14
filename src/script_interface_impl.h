@@ -157,6 +157,8 @@ protected:
 public:
 	STDMETHODIMP Compare(IFbMetadbHandle* handle, VARIANT_BOOL* p);
 	STDMETHODIMP GetFileInfo(IFbFileInfo** pp);
+	STDMETHODIMP SetLoved(UINT loved);
+	STDMETHODIMP SetPlaycount(UINT playcount);
 	STDMETHODIMP get_FileSize(LONGLONG* p);
 	STDMETHODIMP get_Length(double* p);
 	STDMETHODIMP get_Path(BSTR* pp);

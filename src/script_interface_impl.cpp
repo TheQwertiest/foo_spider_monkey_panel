@@ -3,6 +3,7 @@
 #include "boxblurfilter.h"
 #include "stackblur.h"
 #include "popup_msg.h"
+#include "stats.h"
 #include <map>
 #include <vector>
 #include <algorithm>
@@ -316,6 +317,30 @@ STDMETHODIMP FbMetadbHandle::GetFileInfo(IFbFileInfo** pp)
 
 	m_handle->get_info(*info_ptr);
 	*pp = new com_object_impl_t<FbFileInfo>(info_ptr);
+	return S_OK;
+}
+
+STDMETHODIMP FbMetadbHandle::SetLoved(UINT loved)
+{
+	if (m_handle.is_empty()) return E_POINTER;
+
+	metadb_index_hash hash;
+	if (stats::g_client->hashHandle(m_handle, hash))
+	{
+		stats::set_loved(hash, loved);
+	}
+	return S_OK;
+}
+
+STDMETHODIMP FbMetadbHandle::SetPlaycount(UINT playcount)
+{
+	if (m_handle.is_empty()) return E_POINTER;
+
+	metadb_index_hash hash;
+	if (stats::g_client->hashHandle(m_handle, hash))
+	{
+		stats::set_playcount(hash, playcount);
+	}
 	return S_OK;
 }
 
