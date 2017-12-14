@@ -266,12 +266,10 @@ _.mixin({
 				panel.m.CheckMenuItem(3301, this.properties.location.enabled);
 				panel.m.AppendMenuItem(MF_STRING, 3302, 'Tech Info');
 				panel.m.CheckMenuItem(3302, this.properties.tech.enabled);
-				panel.m.AppendMenuItem(_.cc('foo_customdb') ? MF_STRING : MF_GRAYED, 3303, 'Last.fm Playcount (foo_customdb)');
-				panel.m.CheckMenuItem(3303, this.properties.customdb.enabled);
-				panel.m.AppendMenuItem(_.cc('foo_playcount') ? MF_STRING : MF_GRAYED, 3304, 'Playback Statistics (foo_playcount)');
-				panel.m.CheckMenuItem(3304, this.properties.playcount.enabled);
-				panel.m.AppendMenuItem(MF_STRING, 3305, 'Replaygain');
-				panel.m.CheckMenuItem(3305, this.properties.rg.enabled);
+				panel.m.AppendMenuItem(_.cc('foo_playcount') ? MF_STRING : MF_GRAYED, 3303, 'Playback Statistics (foo_playcount)');
+				panel.m.CheckMenuItem(3303, this.properties.playcount.enabled);
+				panel.m.AppendMenuItem(MF_STRING, 3304, 'Replaygain');
+				panel.m.CheckMenuItem(3304, this.properties.rg.enabled);
 				panel.m.AppendMenuSeparator();
 				break;
 			}
@@ -352,14 +350,10 @@ _.mixin({
 				panel.item_focus_change();
 				break;
 			case 3303:
-				this.properties.customdb.toggle();
-				panel.item_focus_change();
-				break;
-			case 3304:
 				this.properties.playcount.toggle();
 				panel.item_focus_change();
 				break;
-			case 3305:
+			case 3304:
 				this.properties.rg.toggle();
 				panel.item_focus_change();
 				break;
@@ -529,8 +523,8 @@ _.mixin({
 				if (this.properties.tech.enabled) {
 					this.add_tech(fileinfo);
 				}
-				if (_.cc('foo_customdb') && this.properties.customdb.enabled) {
-					this.add_customdb();
+				if (this.custom_fields) {
+					this.add_custom();
 				}
 				if (_.cc('foo_playcount') && this.properties.playcount.enabled) {
 					this.add_playcount();
@@ -570,9 +564,9 @@ _.mixin({
 					return console.log('Invalid/missing MBID');
 				}
 				if (this.properties.mode.value == 0) {
-					var url = 'https://beta.musicbrainz.org/ws/2/release-group?fmt=json&limit=100&offset=' + this.mb_offset + '&artist=' + this.mb_id;
+					var url = 'https://musicbrainz.org/ws/2/release-group?fmt=json&limit=100&offset=' + this.mb_offset + '&artist=' + this.mb_id;
 				} else {
-					var url = 'https://beta.musicbrainz.org/ws/2/artist/' + this.mb_id + '?fmt=json&inc=url-rels';
+					var url = 'https://musicbrainz.org/ws/2/artist/' + this.mb_id + '?fmt=json&inc=url-rels';
 				}
 				break;
 			default:
@@ -945,8 +939,8 @@ _.mixin({
 					this.add();
 				}
 				
-				this.add_customdb = function () {
-					this.add(['LASTFM_PLAYCOUNT_DB', 'LASTFM_LOVED_DB']);
+				this.add_custom = function () {
+					this.add(this.custom_fields);
 					this.add();
 				}
 				
@@ -978,7 +972,6 @@ _.mixin({
 					meta : new _.p('2K3.LIST.PROPERTIES.META', true),
 					location : new _.p('2K3.LIST.PROPERTIES.LOCATION', true),
 					tech : new _.p('2K3.LIST.PROPERTIES.TECH', true),
-					customdb : new _.p('2K3.LIST.PROPERTIES.CUSTOMDB', true),
 					playcount : new _.p('2K3.LIST.PROPERTIES.PLAYCOUNT', true),
 					rg : new _.p('2K3.LIST.PROPERTIES.RG', true)
 				};
