@@ -637,6 +637,14 @@ void ScriptHost::Stop()
 	if (m_script_engine) m_script_engine->SetScriptState(SCRIPTSTATE_DISCONNECTED);
 }
 
+FbWindow::FbWindow(HostComm* p) : m_host(p)
+{
+}
+
+FbWindow::~FbWindow()
+{
+}
+
 STDMETHODIMP FbWindow::ClearInterval(UINT intervalID)
 {
 	m_host->ClearIntervalOrTimeout(intervalID);

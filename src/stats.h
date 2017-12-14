@@ -151,25 +151,20 @@ namespace stats
 				}
 			}
 
-			pfc::string8 total = "N/A";
-
-			static_api_ptr_t<metadb_index_manager> api; // reuse object in a loop
-			size_t count = 0;
-			uint64_t accum = 0;
+			static_api_ptr_t<metadb_index_manager> api;
+			uint64_t total = 0;
 			for (auto i = hashes.first(); i.is_valid(); ++i)
 			{
-				auto r = get_playcount(*i, api);
-				if (r != stats_invalid)
+				auto p = get_playcount(*i, api);
+				if (p != stats_invalid)
 				{
-					++count;
-					accum += r;
+					total += p;
 				}
 			}
 
-			if (count > 0)
+			if (total > 0)
 			{
-				total = pfc::format_uint(accum);
-				p_out.set_property(strPropertiesGroup, 0, "Playcount", total);
+				p_out.set_property(strPropertiesGroup, 0, "Playcount", pfc::format_uint(total));
 			}
 		}
 
@@ -183,8 +178,6 @@ namespace stats
 
 		bool is_our_tech_info(const char * p_name)
 		{
-			// If we do stuff with tech infos read from the file itself (see file_info::info_* methods), signal whether this field belongs to us
-			// We don't do any of this, hence false
 			return false;
 		}
 

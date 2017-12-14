@@ -130,13 +130,8 @@ private:
 class FbWindow : public IDispatchImpl3<IFbWindow>
 {
 protected:
-	FbWindow(HostComm* p) : m_host(p)
-	{
-	}
-
-	virtual ~FbWindow()
-	{
-	}
+	FbWindow(HostComm* p);
+	virtual ~FbWindow();
 
 public:
 	STDMETHODIMP ClearInterval(UINT intervalID);
