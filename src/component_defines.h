@@ -11,7 +11,7 @@ co-exist with the original release of JScript Panel.
 #define JSP_DLL_NAME "foo_jscript_panel.dll"
 
 // Remember to bump utils.version too
-#define JSP_VERSION_NUMBER "1.3.2.1"
+#define JSP_VERSION_NUMBER "1.3.2.2"
 //#define JSP_VERSION_TEST "Beta 1"
 
 #ifdef JSP_VERSION_TEST

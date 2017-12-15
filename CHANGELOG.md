@@ -1,3 +1,10 @@
+## v1.3.2.2
+```
+- ADD: Component now reports version on script error.
+- FIX: JSplaylist/JS Smooth playlist have been unable to tag files since v1.3.0
+       when foo_playcount was missing.
+```
+
 ## v1.3.2.1
 ```
 - ADD: Add fb.AlwaysOnTop property. Can be used to read or write the setting. A
