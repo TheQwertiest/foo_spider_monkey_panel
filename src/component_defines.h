@@ -14,6 +14,9 @@ co-exist with the original release of JScript Panel.
 #define JSP_VERSION_NUMBER "1.3.2.2"
 //#define JSP_VERSION_TEST "Beta 1"
 
+// Remember to comment out when compiling for release
+#define JSP_STATS
+
 #ifdef JSP_VERSION_TEST
 #	define JSP_VERSION_TEST_PREFIX " "
 #else

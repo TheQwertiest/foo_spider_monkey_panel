@@ -3,7 +3,9 @@
 #include "boxblurfilter.h"
 #include "stackblur.h"
 #include "popup_msg.h"
+#ifdef JSP_STATS
 #include "stats.h"
+#endif
 #include <map>
 #include <vector>
 #include <algorithm>
@@ -320,6 +322,7 @@ STDMETHODIMP FbMetadbHandle::GetFileInfo(IFbFileInfo** pp)
 	return S_OK;
 }
 
+#ifdef JSP_STATS
 STDMETHODIMP FbMetadbHandle::SetLoved(UINT loved)
 {
 	if (m_handle.is_empty()) return E_POINTER;
@@ -343,6 +346,7 @@ STDMETHODIMP FbMetadbHandle::SetPlaycount(UINT playcount)
 	}
 	return S_OK;
 }
+#endif
 
 STDMETHODIMP FbMetadbHandle::get_FileSize(LONGLONG* p)
 {
