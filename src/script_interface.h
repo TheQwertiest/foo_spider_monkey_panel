@@ -486,6 +486,7 @@ __interface IFbWindow : IDispatch
 	[propget] STDMETHOD(MaxWidth)([out, retval] UINT* p);
 	[propget] STDMETHOD(MinHeight)([out, retval] UINT* p);
 	[propget] STDMETHOD(MinWidth)([out, retval] UINT* p);
+	[propget] STDMETHOD(Name)([out, retval] BSTR* p);
 	[propget] STDMETHOD(Width)([out, retval] INT* p);
 	[propput] STDMETHOD(DlgCode)(UINT code);
 	[propput] STDMETHOD(MaxHeight)(UINT height);

@@ -70,7 +70,7 @@ _.mixin({
 		this.tiptext_tf = 'Rate "%title%" by "%artist%".';
 		if (!_.cc('foo_playcount')) {
 			window.SetTimeout(function () {
-				WshShell.popup('This script requires foo_playcount.', 0, panel.name, popup.stop);
+				WshShell.popup('This script requires foo_playcount.', 0, window.Name, popup.stop);
 			}, 500);
 		}
 	}

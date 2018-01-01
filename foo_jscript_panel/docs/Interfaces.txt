@@ -868,6 +868,9 @@ interface IFbWindow {
 		window.MinWidth; (int) (read, write)
 		// The previous 4 methods can be used to lock the panel size. Do not use if panels are contained within Panel Stack Splitter (Columns UI component).
 
+		window.Name (string) (read)
+		// Returns the @name set in the preprocessor section. If that isn't present, the GUID of the panel is returned.
+
 		window.Width; (int) (read)
 
 	Methods:

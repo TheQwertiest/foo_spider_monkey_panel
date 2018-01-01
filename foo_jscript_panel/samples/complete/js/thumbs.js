@@ -374,7 +374,7 @@ _.mixin({
 				this.update();
 				break;
 			case 4003:
-				this.properties.tf.value = _.input('Enter title formatting or an absolute path to a folder.\n\n%profile% will resolve to your foobar2000 profile folder or the program folder if using portable mode.', panel.name, this.properties.tf.value) || '$directory_path(%path%)';
+				this.properties.tf.value = _.input('Enter title formatting or an absolute path to a folder.\n\n%profile% will resolve to your foobar2000 profile folder or the program folder if using portable mode.', window.Name, this.properties.tf.value) || '$directory_path(%path%)';
 				this.folder = '';
 				panel.item_focus_change();
 				break;

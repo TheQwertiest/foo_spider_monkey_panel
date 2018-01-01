@@ -672,16 +672,16 @@ _.mixin({
 						return;
 					}
 					this.editing = true;
-					var new_name = _.input('Enter autoplaylist name', panel.name, '');
+					var new_name = _.input('Enter autoplaylist name', window.Name, '');
 					if (new_name == '') {
 						return this.editing = false;
 					}
-					var new_query = _.input('Enter autoplaylist query', panel.name, '');
+					var new_query = _.input('Enter autoplaylist query', window.Name, '');
 					if (new_query == '') {
 						return this.editing = false;
 					}
-					var new_sort = _.input('Enter sort pattern\n\n(optional)', panel.name, '');
-					var new_forced = (new_sort.length ? WshShell.popup('Force sort?', 0, panel.name, popup.question + popup.yes_no) : popup.no) == popup.yes;
+					var new_sort = _.input('Enter sort pattern\n\n(optional)', window.Name, '');
+					var new_forced = (new_sort.length ? WshShell.popup('Force sort?', 0, window.Name, popup.question + popup.yes_no) : popup.no) == popup.yes;
 					this.data.push({
 						name : new_name,
 						query : new_query,
@@ -715,25 +715,25 @@ _.mixin({
 						this.run_query(this.data[z].name, this.data[z].query, this.data[z].sort, this.data[z].forced);
 						break;
 					case 2:
-						var new_name = _.input('Rename autoplaylist', panel.name, this.data[z].name);
+						var new_name = _.input('Rename autoplaylist', window.Name, this.data[z].name);
 						if (new_name.length && new_name != this.data[z].name) {
 							this.data[z].name = new_name;
 							this.edit_done(z);
 						}
 						break;
 					case 3:
-						var new_query = _.input('Enter autoplaylist query', panel.name, this.data[z].query);
+						var new_query = _.input('Enter autoplaylist query', window.Name, this.data[z].query);
 						if (new_query.length && new_query != this.data[z].query) {
 							this.data[z].query = new_query;
 							this.edit_done(z);
 						}
 						break;
 					case 4:
-						var new_sort = _.input('Enter sort pattern\n\n(optional)', panel.name, this.data[z].sort);
+						var new_sort = _.input('Enter sort pattern\n\n(optional)', window.Name, this.data[z].sort);
 						if (new_sort != this.data[z].sort) {
 							this.data[z].sort = new_sort;
 							if (new_sort.length) {
-								this.data[z].forced = WshShell.popup('Force sort?', 0, panel.name, popup.question + popup.yes_no) == popup.yes;
+								this.data[z].forced = WshShell.popup('Force sort?', 0, window.Name, popup.question + popup.yes_no) == popup.yes;
 							}
 							this.edit_done(z);
 						}

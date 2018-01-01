@@ -147,6 +147,7 @@ window.MaxHeight
 window.MaxWidth
 window.MinHeight
 window.MinWidth
+window.Name
 window.NotifyOthers(name, info)
 window.Reload()
 window.Repaint([force])

@@ -37,10 +37,10 @@ _.mixin({
 				if (this.xmlhttp.readyState == 4) {
 					var data = _.jsonParse(this.xmlhttp.responseText);
 					if (data.error) {
-						WshShell.popup(data.message, 0, panel.name, popup.stop);
+						WshShell.popup(data.message, 0, window.Name, popup.stop);
 					} else if (data.token) {
 						_.run('https://last.fm/api/auth/?api_key=' + this.api_key + '&token=' + data.token);
-						if (WshShell.popup('If you granted permission successfully, click Yes to continue.', 0, panel.name, popup.question + popup.yes_no) == popup.yes) {
+						if (WshShell.popup('If you granted permission successfully, click Yes to continue.', 0, window.Name, popup.question + popup.yes_no) == popup.yes) {
 							this.auth('auth.getSession', data.token);
 						}
 					} else if (data.session && data.session.key) {
@@ -51,7 +51,7 @@ _.mixin({
 		}
 		
 		this.update_username = function () {
-			var username = _.input('Enter your Last.fm username', panel.name, this.username);
+			var username = _.input('Enter your Last.fm username', window.Name, this.username);
 			if (username != this.username) {
 				this.write_ini('username', username);
 				this.update_sk('');

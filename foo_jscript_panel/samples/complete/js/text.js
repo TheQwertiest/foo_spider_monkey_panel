@@ -196,11 +196,11 @@ _.mixin({
 				panel.item_focus_change();
 				break;
 			case 5210:
-				this.properties.title_tf.value = _.input('You can use full title formatting here.', panel.name, this.properties.title_tf.value);
+				this.properties.title_tf.value = _.input('You can use full title formatting here.', window.Name, this.properties.title_tf.value);
 				window.Repaint();
 				break;
 			case 5220:
-				this.properties.filename_tf.value = _.input('Use title formatting to specify a path to a text file. eg: $directory_path(%path%)\\info.txt\n\nIf you prefer, you can specify just the path to a folder and the first txt or log file will be used.', panel.name, this.properties.filename_tf.value);
+				this.properties.filename_tf.value = _.input('Use title formatting to specify a path to a text file. eg: $directory_path(%path%)\\info.txt\n\nIf you prefer, you can specify just the path to a folder and the first txt or log file will be used.', window.Name, this.properties.filename_tf.value);
 				panel.item_focus_change();
 				break;
 			case 5230:

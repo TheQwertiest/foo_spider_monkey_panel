@@ -197,7 +197,6 @@ _.mixin({
 		}
 		
 		window.DlgCode = DLGC_WANTALLKEYS;
-		this.name = name;
 		this.features = features || [];
 		this.fonts = {};
 		this.colours = {};

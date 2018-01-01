@@ -967,6 +967,20 @@ STDMETHODIMP FbWindow::get_MinWidth(UINT* p)
 	return S_OK;
 }
 
+STDMETHODIMP FbWindow::get_Name(BSTR* p)
+{
+	if (!p) return E_POINTER;
+	
+	pfc::string8_fast name = m_host->ScriptInfo().name;
+	if (name.is_empty())
+	{
+		name = pfc::print_guid(m_host->GetGUID());
+	}
+
+	*p = SysAllocString(pfc::stringcvt::string_wide_from_utf8_fast(name));
+	return S_OK;
+}
+
 STDMETHODIMP FbWindow::get_Width(INT* p)
 {
 	if (!p) return E_POINTER;

@@ -164,6 +164,7 @@ public:
 	STDMETHODIMP get_MaxWidth(UINT* p);
 	STDMETHODIMP get_MinHeight(UINT* p);
 	STDMETHODIMP get_MinWidth(UINT* p);
+	STDMETHODIMP get_Name(BSTR* p);
 	STDMETHODIMP get_Width(INT* p);
 	STDMETHODIMP put_DlgCode(UINT code);
 	STDMETHODIMP put_MaxHeight(UINT height);

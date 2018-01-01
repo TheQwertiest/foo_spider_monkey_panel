@@ -24,6 +24,7 @@ v2.0.0-Beta1
 - ADD: Enable Windows XP support. Also, support for Vista/7/WINE with IE7/IE8 has
        been restored. ES5 features are still supported for those with IE9 or later.
 - ADD: Add utils.WriteTextFile. Always creates a UTF8-BOM file.
+- ADD: Add window.Name property. See docs\interfaces.txt.
 
 v1.3.2.2
 - ADD: Component now reports version on script error.
