@@ -2,8 +2,15 @@ v2.0.0-Beta1
 - CHG: The component is now dynamically linked. Requires Visual C++ 2017
        32bit redist if not using foobar2000 v1.4.
 - CHG: fb.Trace has been removed and replaced with a native console.log method.
+       It takes multiple arguments as before.
 - CHG: All callbacks/methods with "Color" in the name have been renamed
        with "Colour". This will break most scripts!
+       on_colors_changed -> on_colours_changed
+       utils.ColorPicker -> utils.ColourPicker
+       utils.GetSysColor -> utils.GetSysColour
+       window.GetColorCUI -> window.GetColourCUI
+       window.GetColorDUI -> window.GetColourDUI
+       IGdiBitmap GetColorScheme -> GetColourScheme
 - CHG: The IFbPlaybackQueueItem interface and plman.CreatePlaybackQueueItem
        method have been removed.
 - CHG: plman.GetPlaybackQueueContents has been replaced with plman.GetPlaybackQueueHandles
