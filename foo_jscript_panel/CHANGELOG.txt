@@ -21,18 +21,18 @@ v2.0.0-Beta1
        been removed.
 - CHG: The IGdiBitmap BoxBlur method has been removed. Try StackBlur instead.
 - CHG: IContextMenuManager InitContext only accepts a handle list as an argument.
-- ADD: Enable Windows XP support. Also, support for Vista/7/WINE with IE7/IE8 has
+- NEW: Enable Windows XP support. Also, support for Vista/7/WINE with IE7/IE8 has
        been restored. ES5 features are still supported for those with IE9 or later.
-- ADD: Add utils.WriteTextFile. Always creates a UTF8-BOM file.
-- ADD: Add window.Name property. See docs\interfaces.txt.
+- NEW: Add utils.WriteTextFile. Always creates a UTF8-BOM file.
+- NEW: Add window.Name property. See docs\interfaces.txt.
 
 v1.3.2.2
-- ADD: Component now reports version on script error.
+- NEW: Component now reports version on script error.
 - FIX: JSplaylist/JS Smooth playlist have been unable to tag files since v1.3.0
        when foo_playcount was missing.
 
 v1.3.2.1
-- ADD: Add fb.AlwaysOnTop property. Can be used to read or write the setting. A
+- NEW: Add fb.AlwaysOnTop property. Can be used to read or write the setting. A
        new "on_always_on_top_changed" callback has been added to detect when it
        changes via any other means such as using the menu, keyboard shortcuts, etc.
 
@@ -71,13 +71,13 @@ v1.3.0
        must have IE9 or later installed.
 - CHG: The "UpdateFileInfoSimple" handle and handle list methods are
        now gone.
-- ADD: A new "UpdateFileInfoFromJSON" method has been added.
+- NEW: A new "UpdateFileInfoFromJSON" method has been added.
        If anyone needs help with this, just ask.
-- ADD: You can now create an empty handle list with fb.CreateHandleList()
+- NEW: You can now create an empty handle list with fb.CreateHandleList()
        See docs\interfaces.txt
 
 v1.2.4
-- ADD: Add utils.ColorPicker which is a popup dialog for selecting colours.
+- NEW: Add utils.ColorPicker which is a popup dialog for selecting colours.
        See docs\interfaces.txt, samples\basic\Color Picker.txt
 - FIX: Fix various bugs in samples\complete folder.
 - CHG: Listenbrainz sample now has an on/off toggle on the menu.
@@ -89,7 +89,7 @@ v1.2.3.3
        at this so please report any issues! I also need reports of any
        code 400 errors from the server as the script will need updating
        before these tracks can be submitted successfully.
-- ADD: Br3tt's JS Smooth scripts are now bundled with the component and the
+- NEW: Br3tt's JS Smooth scripts are now bundled with the component and the
        separate repository has been nuked.
 
 v1.2.3.2
@@ -99,14 +99,14 @@ v1.2.3.2
 
 v1.2.3.1
 - CHG: No component changes except a version bump. All changes are to samples.
-- ADD: Last.fm Bio, Allmusic, Listenbrainz samples. "Thumbs" can download images
+- NEW: Last.fm Bio, Allmusic, Listenbrainz samples. "Thumbs" can download images
        from Last.fm again but only manually.
 - FIX: Most samples are now DPI aware so text/tooltips should increase inline
        with other desktop elements. For existing users, each panel script should
        be re-imported from the "samples\complete" folder.
 
 v1.2.3
-- ADD: Add fb.ReplaygainMode. Can be used to retrieve or set the value. See
+- NEW: Add fb.ReplaygainMode. Can be used to retrieve or set the value. See
        docs\interfaces.txt
 - CHG: Hide JScript Panel main menu items. Given they're meant for binding to
        to keyboard shortcuts/standard buttons, there is no need for them to be
@@ -115,7 +115,7 @@ v1.2.3
        MakeUnion, MakeDifference and MakeIntersection methods.
 
 v1.2.2
-- ADD: Add new "on_main_menu" callback. 10 main menu items have been created
+- NEW: Add new "on_main_menu" callback. 10 main menu items have been created
        meaning you can now bind them to global keyboard shortcuts, standard
        toolbar buttons, etc and have them run your own custom code. See
        docs\callbacks.txt
@@ -134,15 +134,15 @@ v1.2.1
 
 v1.2.0.1
 - CHG: Minor code cleanups but no new component features for now.
-- ADD: Add Last.fm Similar Artists / Charts & Musicbrainz samples.
+- NEW: Add Last.fm Similar Artists / Charts & Musicbrainz samples.
 
 v1.2.0
-- ADD: If your computer has IE9 or later installed, newer ECMAScript5 features
+- NEW: If your computer has IE9 or later installed, newer ECMAScript5 features
        are now available. Many thanks to TheQwertiest for discovering how to do this.
 - CHG: The "Script engine" option has been removed from the "Configuration" window.
        The newer Chakra engine is always used if available but will fall back to
        JScript if not.
-- ADD: utils.version reports the component version. See docs\interfaces.txt.
+- NEW: utils.version reports the component version. See docs\interfaces.txt.
 - CHG: Minor tweaks to Configuration window.
 - FIX: Update jsplaylist-mod so it works with Chakra engine. Thanks to zeremy
        for reporting
@@ -164,30 +164,30 @@ v1.1.6.2
 
 v1.1.6.1
 - CHG: Minor changes to Console logging on startup.
-- ADD: The "complete" samples folder has 2 new scripts: "thumbs.txt" and "text reader.txt".
+- NEW: The "complete" samples folder has 2 new scripts: "thumbs.txt" and "text reader.txt".
        Thumbs allows the display/cycling of multiple images in a given folder. Text reader
        displays the contents of any plain text file. Title formatting can be used to specify
        the folder/file paths.
 
 v1.1.6
-- ADD: IGdiBitmap StackBlur method. See docs\interfaces.txt and
+- NEW: IGdiBitmap StackBlur method. See docs\interfaces.txt and
        samples\basic\StackBlur.txt.
 - CHG: Update ApplyMask sample.
 
 v1.1.5.1
-- ADD: Add "Open component folder" to default right click menu.
+- NEW: Add "Open component folder" to default right click menu.
        This provides quick access to the docs and samples.
 
 
 v1.1.5
-- ADD: plman.IsPlaylistLocked(playlistIndex). See docs\interfaces.txt.
-- ADD: on_playlists_changed is now called when a playlist's lock
+- NEW: plman.IsPlaylistLocked(playlistIndex). See docs\interfaces.txt.
+- NEW: on_playlists_changed is now called when a playlist's lock
        status changes through the use of components such as foo_utils or
        foo_playlist_attributes. See docs\callbacks.txt
 - CHG: Existing samples moved in to new "basic" subfolder.
-- ADD: Add new "complete" samples folder containing some more feature complete
+- NEW: Add new "complete" samples folder containing some more feature complete
        samples.
-- ADD: Add "jsplaylist-mod". Since Br3tt's excellent JSplaylist doesn't work
+- NEW: Add "jsplaylist-mod". Since Br3tt's excellent JSplaylist doesn't work
        with JScript Panel, this updated "mod" version has been created.
 
 v1.1.4.1
@@ -198,13 +198,13 @@ v1.1.4
        when JScript Panel had focus.
 
 v1.1.3
-- ADD: IGdiBitmap SaveAs method.
+- NEW: IGdiBitmap SaveAs method.
 
 v1.1.2
 - FIX: Fix on_mouse_wheel not being called with certain trackpads.
 
 v1.1.1
-- ADD: New "on_mouse_wheel_h" callback for left/right scrolling. See docs\callbacks.txt.
+- NEW: New "on_mouse_wheel_h" callback for left/right scrolling. See docs\callbacks.txt.
 
 v1.1.0
 - CHG: GetQueryItems should be a "fb" method, not "plman".
@@ -212,10 +212,10 @@ v1.1.0
 - CHG: Update Columns UI SDK to 6.5
 
 v1.0.7
-- ADD: fb.GetLibraryRelativePath(handle)
+- NEW: fb.GetLibraryRelativePath(handle)
 
 v1.0.6
-- ADD: FbMetadbHandleList UpdateFileInfoSimple method.
+- NEW: FbMetadbHandleList UpdateFileInfoSimple method.
 
 v1.0.5
 - CHG: Update Columns UI SDK to 6.4
@@ -224,7 +224,7 @@ v1.0.5
 - CHG: Tidy up docs/samples.
 
 v1.0.4
-- ADD: utils.MapString(text, lcid, flags)
+- NEW: utils.MapString(text, lcid, flags)
 
 v1.0.3
 - CHG: Revert previous Columns UI SDK update as I've just had foobar2000 crash.
@@ -298,36 +298,36 @@ v1.0.0 (Compared to WSH Panel Mod 1.5.6)
        // @feature "watch-metadb"
        Due to this change, "on_metadb_changed" will only receive a "handle list" and never a "handle"
        as the first argument. Also, "on_selection_changed" won't receive a "handle" argument.
-- ADD: fb.GetLibraryItems() returns a handle list of all items in library.
-- ADD: fb.IsLibraryEnabled() (boolean)
-- ADD: fb.ShowLibrarySearchUI(query) opens the Library>Search window
+- NEW: fb.GetLibraryItems() returns a handle list of all items in library.
+- NEW: fb.IsLibraryEnabled() (boolean)
+- NEW: fb.ShowLibrarySearchUI(query) opens the Library>Search window
        populated with the query you set.
-- ADD: on_library_items_added() callback.
-- ADD: on_library_items_removed() callback.
-- ADD: on_library_items_changed() callback.
-- ADD: plman.AddLocations(playlistIndex, paths[, select])
+- NEW: on_library_items_added() callback.
+- NEW: on_library_items_removed() callback.
+- NEW: on_library_items_changed() callback.
+- NEW: plman.AddLocations(playlistIndex, paths[, select])
        paths: an array of file paths and/or URLs
        select: false if omitted.
-- ADD: plman.ClearPlaylist(playlistIndex). Use to clear a specified playlist. fb.ClearPlaylist still exists
+- NEW: plman.ClearPlaylist(playlistIndex). Use to clear a specified playlist. fb.ClearPlaylist still exists
        because it is just a shortcut to the Edit menu command which clears the active playlist.
-- ADD: plman.GetQueryItems(source_handlelist, query) returns an unsorted
+- NEW: plman.GetQueryItems(source_handlelist, query) returns an unsorted
        handle list. Consider using OrderByFormat, etc on the result.
-- ADD: plman.UndoBackup(playlistIndex). If you call this before
+- NEW: plman.UndoBackup(playlistIndex). If you call this before
        adding/removing/reordering playlist items, you will be able to use
        the undo/redo commands on the Edit menu.
-- ADD: CalcTotalDuration() handle list method. returns the total in seconds.
-- ADD: CalcTotalSize() handle list method. returns the total in bytes.
-- ADD: utils.FormatDuration(seconds). returns a string like "3wk 2d 1:30:21"
-- ADD: utils.FormatFileSize(bytes). returns a string like "7.9 GB"
-- ADD: window.CreateToolTip now takes optional font name, font size (px) and
+- NEW: CalcTotalDuration() handle list method. returns the total in seconds.
+- NEW: CalcTotalSize() handle list method. returns the total in bytes.
+- NEW: utils.FormatDuration(seconds). returns a string like "3wk 2d 1:30:21"
+- NEW: utils.FormatFileSize(bytes). returns a string like "7.9 GB"
+- NEW: window.CreateToolTip now takes optional font name, font size (px) and
        style arguments. eg window.CreateToolTip("Segoe UI", 32, 1);
        Defaults of "Segoe UI", 12 and 0 are used if omitted. See docs\flags.txt
        for valid style values.
-- ADD: Default right click menu now has a "Reload" script option. This
+- NEW: Default right click menu now has a "Reload" script option. This
        saves opening/closing the dialog when working on external files. In
        addition, a new window.Reload method has been added so you can force a panel
        reload with your own menus, buttons, etc.
-- ADD: Script errors are now displayed in a popup window in addition to
+- NEW: Script errors are now displayed in a popup window in addition to
        the Console like it was previously.
 - FIX: EstimateLineWrap no longer leaves stray punctuation when wrapping
        text at end of line.
