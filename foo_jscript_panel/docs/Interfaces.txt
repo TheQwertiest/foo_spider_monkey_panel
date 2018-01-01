@@ -94,7 +94,7 @@ interface IFbUtils {
 			This is typically used to update the selection used by the default UI artwork panel
 			or any other panel that makes use of the preferences under
 			File>Preferences>Display>Selection viewers. Use in conjunction with the on_focus
-			callback (see callbacks.txt).
+			callback. See callbacks.txt.
 
 			Example1: (for playlist viewers)
 
@@ -139,6 +139,8 @@ interface IFbUtils {
 		fb.CreateContextMenuManager(); (IContextMenuManager)
 
 			interface IContextMenuManager {
+				// See samples\basic\MainMenuManager All-In-One, samples\basic\Menu Sample.txt
+
 				Methods:
 					BuildMenu(IMenuObj, base_id, max_id); (void)
 
@@ -157,6 +159,8 @@ interface IFbUtils {
 		fb.CreateMainMenuManager(); (IMainMenuManager)
 
 			interface IMainMenuManager {
+				// See samples\basic\MainMenuManager All-In-One, samples\basic\Menu Sample.txt
+
 				Methods:
 					BuildMenu(IMenuObj, base_id, count); (void)
 
@@ -310,7 +314,7 @@ interface IFbUtils {
 		fb.ShowPopupMessage(msg[, title][, iconid]); (void)
 		/*
 		title: default "JScript Panel"
-		iconid: default 0 see flags.txt > IconId
+		iconid: default 0. See flags.txt > IconId
 		*/
 
 		fb.ShowPreferences(); (void)
@@ -360,15 +364,18 @@ interface IGdiUtils {
 
 		gdi.Font(name, size_px[, style]); (IGdiFont)
 		/*
-		size_px: see helpers.txt > Point2Pixel function for conversions.
-		style: default 0. see flags.txt > FontStyle
+		size_px: See helpers.txt > Point2Pixel function for conversions.
+		style: default 0. See flags.txt > FontStyle
 		*/
 
 		gdi.Image(path); (IGdiBitmap)
 		// Example: var img = "e:\\images folder\\my_image.png";
 
 		gdi.LoadImageAsync(window_id, path); (uint)
-		// window_id: window.ID
+		/*
+		window_id: window.ID
+		Returns a unqiue id.
+		*/
 }
 
 interface IFbPlaylistManager {
@@ -710,7 +717,8 @@ interface IJSUtils {
 		Spawns a windows popup dialog to let you choose a colour.
 		window_id: window.ID
 		Example:
-		var colour = utils.ColourPicker(window.ID, RGB(255, 0, 0)); // see docs\helpers.txt for RGB function
+		var colour = utils.ColourPicker(window.ID, RGB(255, 0, 0));
+		See docs\helpers.txt for RGB function.
 		*/
 
 		utils.FileTest(path, mode); (VARIANT)
@@ -748,23 +756,27 @@ interface IJSUtils {
 		utils.GetAlbumArtAsync(window_id, handle[, art_id][, need_stub][, only_embed][, no_load]); (uint)
 		/*
 		window_id: window.ID
-		art_id: default 0. see flags.txt > AlbumArtId
+		art_id: default 0. See flags.txt > AlbumArtId
 		need_stub: boolean, default true
 		only_embed: boolean, default false
-		no_load: boolean, default false. if true, "image" parameter will be null in on_get_album_art_done callback.
+		no_load: boolean, default false. If true, "image" parameter will be null in on_get_album_art_done callback.
+		See samples\basic\GetAlbumArtAsync.txt
 		*/
 
 		utils.GetAlbumArtEmbedded(rawpath[, art_id]); (IGdiBitmap)
 		/*
-		art_id: default 0. see flags.txt > AlbumArtId
+		art_id: default 0.
+		See flags.txt > AlbumArtId
 		Example:
 		var img = utils.GetAlbumArtEmbedded(fb.GetNowPlaying().RawPath, 0);
 		*/
 
 		utils.GetAlbumArtV2(handle[, art_id][, need_stub]); (IGdiBitmap)
 		/*
-		art_id: default 0. see flags.txt > AlbumArtId
+		art_id: default 0.
+		See flags.txt > AlbumArtId
 		need stub: boolean, default true.
+		See samples\basic\GetAlbumArtV2.txt
 		*/
 
 		utils.GetSysColour(index); (uint)
@@ -782,7 +794,8 @@ interface IJSUtils {
 
 		utils.Glob(pattern[, exc_mask][, inc_mask]); (VBArray)
 		/*
-		exc_mask: default FILE_ATTRIBUTE_DIRECTORY, see flags.txt > Used in utils.Glob()
+		exc_mask: default FILE_ATTRIBUTE_DIRECTORY
+		See flags.txt > Used in utils.Glob()
 		inc_mask: default 0xffffffff
 		Returns a VBArray so you need to use .toArray() on the result.
 		Example:
@@ -802,7 +815,7 @@ interface IJSUtils {
 
 		utils.ReadTextFile(filename[,codepage]); (string)
 		/*
-		codepage: default 0 see codepages.txt
+		codepage: default 0. See codepages.txt
 		If codepage is 0, text file can be UTF16-BOM, UTF8-BOM or ANSI.
 		Example:
 		var text = utils.ReadTextFile("E:\\some text file.txt");
@@ -868,26 +881,33 @@ interface IFbWindow {
 		window.MinWidth; (int) (read, write)
 		// The previous 4 methods can be used to lock the panel size. Do not use if panels are contained within Panel Stack Splitter (Columns UI component).
 
-		window.Name (string) (read)
-		// Returns the @name set in the preprocessor section. If that isn't present, the GUID of the panel is returned.
-
+		window.Name; (string) (read)
+		/*
+		Returns the @name set in the preprocessor section. See preprocessors.txt
+		If that isn't present, the GUID of the panel is returned.
+		*/
+		
 		window.Width; (int) (read)
 
 	Methods:
 		window.ClearInterval(timerID); (void)
 		window.ClearTimeout(timerID); (void)
-		window.CreatePopupMenu(); (IMenuObj)
 		window.SetInterval(func, delay); (uint)
 		window.SetTimeout(func, delay); (uint)
+		// See samples\basic\Timer.txt
+
+		window.CreatePopupMenu(); (IMenuObj)
 
 			interface IMenuObj {
+				// See samples\basic\MainMenuManager All-In-One, samples\basic\Menu Sample.txt
+
 				Properties:
 					ID; (uint) (read)
 
 				Methods:
 					AppendMenuItem(flags, item_id, text); (void)
 					/*
-					flags: see flags.txt > Used in AppendMenuItem()
+					flags: See flags.txt > Used in AppendMenuItem()
 					item_id: integer greater than 0. Each menu item needs a unique id.
 					*/
 
@@ -920,7 +940,10 @@ interface IFbWindow {
 			}
 
 		window.CreateThemeManager(class_list); (IThemeManager)
-		// class_list: http://msdn.microsoft.com/en-us/library/bb773210%28VS.85%29.aspx
+		/*
+		class_list: http://msdn.microsoft.com/en-us/library/bb773210%28VS.85%29.aspx
+		See samples\basic\SimpleThemedButton.txt
+		*/
 
 			interface IThemeManager {
 				Methods:
@@ -936,7 +959,7 @@ interface IFbWindow {
 		/*
 		font_name: default "Segoe UI"
 		font_size_px: default 12
-		font_style: default 0, see flags.txt > FontStyle
+		font_style: default 0. See flags.txt > FontStyle
 		*/
 
 			interface IFbTooltip {
@@ -993,8 +1016,10 @@ interface IFbWindow {
 		window.GetFontCUI(type[, client_guid]); (IGdiFont)
 		window.GetFontDUI(type); (IGdiFont)
 		/*
-		type: see flags.txt > Used in window.GetFontXXX()
-		client_guid: default "". See flags.txt > Used in GetFontCUI() as client_guid.
+		type:
+		See flags.txt > Used in window.GetFontXXX()
+		client_guid: default "".
+		See flags.txt > Used in GetFontCUI() as client_guid.
 		This returns null if the component was unable to determine your font.
 		To avoid errors when trying to use the font or access its properties, you
 		should use code something like this...
@@ -1029,7 +1054,7 @@ interface IFbWindow {
 
 		window.SetCursor(id); (void)
 		/*
-		id: see flags.txt > Used in window.SetCursor()
+		id: See flags.txt > Used in window.SetCursor()
 		This would usually be used inside the on_mouse_move callback. Use -1 if you want to hide the cursor.
 		*/
 
@@ -1058,7 +1083,8 @@ interface IFbWindow {
 interface IGdiFont {
 	/*
 	This will be used in the examples below:
-	var my_font = window.GetFontDUI(0); // see flags.txt > FontTypeDUI
+	var my_font = window.GetFontDUI(0);
+	See flags.txt > FontTypeDUI
 	*/
 
 	Properties:
@@ -1105,7 +1131,7 @@ interface IGdiBitmap {
 		// alpha: 0-255
 
 		ApplyMask(img); (boolean)
-		// changes will be saved in the current bitmap
+		// Changes will be saved in the current bitmap. See samples\basic\Apply Mask.txt
 
 		Clone(x, y, w, h); (IGdiBitmap)
 
@@ -1154,7 +1180,7 @@ interface IGdiBitmap {
 		*/
 
 		StackBlur(radius); (void)
-		// radius: valid values 2-254
+		// radius: Valid values 2-254. See samples\basic\StackBlur (image).txt, samples\basic\StackBlur (text).txt
 }
 
 interface IGdiGraphics {
@@ -1229,7 +1255,7 @@ interface IGdiGraphics {
 
 		gr.GdiDrawText(str, IGdiFont, colour, x, y, w, h[, format]); (VBArray)
 		/*
-		format: default 0. see flags.txt > DT_*
+		format: default 0. See flags.txt > DT_*
 
 		Returns a VBArray so you need to use .toArray() on the result.
 		index | meaning
@@ -1540,6 +1566,8 @@ interface IFbMetadbHandleList {
 }
 
 interface IDropTargetAction {
+	// See samples\basic\Drag Drop Basic.txt
+
 	Properties:
 		Parsable; (boolean) (read, write)
 
