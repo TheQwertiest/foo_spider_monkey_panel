@@ -1,0 +1,45 @@
+// ==PREPROCESSOR==
+// @name "Rating"
+// @author "marc2003"
+// @import "%fb2k_component_path%samples\complete\js\lodash.min.js"
+// @import "%fb2k_component_path%samples\complete\js\helpers.js"
+// @import "%fb2k_component_path%samples\complete\js\panel.js"
+// @import "%fb2k_component_path%samples\complete\js\rating.js"
+// ==/PREPROCESSOR==
+
+// Requires the "Guifx v2 Transports.ttf" font which can be downloaded from
+// http://blog.guifx.com/2009/04/02/guifx-v2-transport-font/
+
+var panel = new _.panel('Rating', ['custom_background']);
+var rating = new _.rating(0, 0, 24, _.RGB(128, 128, 128), _.RGB(255, 128, 0));
+
+panel.item_focus_change();
+
+function on_size() {
+	panel.size();
+}
+
+function on_paint(gr) {
+	panel.paint(gr);
+	rating.paint(gr);
+}
+
+function on_metadb_changed() {
+	rating.metadb_changed();
+}
+
+function on_mouse_move(x, y) {
+	rating.move(x, y);
+}
+
+function on_mouse_leave() {
+	rating.leave();
+}
+
+function on_mouse_lbtn_up(x, y) {
+	rating.lbtn_up(x, y);
+}
+
+function on_mouse_rbtn_up(x, y) {
+	return panel.rbtn_up(x, y);
+}

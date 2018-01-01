@@ -1,0 +1,52 @@
+// ==PREPROCESSOR==
+// @name "ApplyMask"
+// @author "T.P Wang / marc2003"
+// @import "%fb2k_component_path%docs\flags.txt"
+// @import "%fb2k_component_path%docs\helpers.txt"
+// ==/PREPROCESSOR==
+
+var g_img = gdi.Image(fb.ComponentPath + 'samples\\basic\\images\\post.jpg');
+var font = gdi.Font('Segoe UI', 16, 1);
+var ww = 0, wh = 0;
+var applied = false;
+
+function on_size() {
+	ww = window.Width;
+	wh = window.Height;
+}
+
+function on_paint(gr) {
+	if (g_img) {
+		// Keep aspect ratio
+		var scale_w = ww / g_img.Width;
+		var scale_h = wh / g_img.Height;
+		var scale = Math.min(scale_w, scale_h);
+		var pos_x = 0, pos_y = 0;
+		if (scale_w < scale_h)
+			pos_y = (wh - g_img.height * scale) / 2;
+		else if (scale_w > scale_h)
+			pos_x = (ww - g_img.Width * scale) / 2;
+		gr.DrawImage(g_img, pos_x, pos_y, g_img.Width * scale, g_img.Height * scale, 0, 0, g_img.Width, g_img.Height);
+	}
+	if (!applied) {
+		gr.FillSolidRect(0, 0, ww, 24, RGB(0, 0, 0));
+		gr.GdiDrawText('Double click panel to apply mask', font, RGB(255, 255, 255), 0, 0, ww, 24, DT_CENTER);
+	}
+}
+
+function on_mouse_lbtn_dblclk() {
+	if (!applied)
+		apply();
+}
+
+function apply() {
+	var g_img_mask = gdi.Image(fb.ComponentPath + 'samples\\basic\\images\\mask.png');
+	// mask *MUST* be the same size as g_img
+	var mask = g_img_mask.Resize(g_img.Width, g_img.Height);
+	// Apply mask image to g_img
+	g_img.ApplyMask(mask);
+	// Dispose() method is used to free unused resource
+	mask.Dispose();
+	applied = true;
+	window.Repaint();
+}
