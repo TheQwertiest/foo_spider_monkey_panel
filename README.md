@@ -23,7 +23,7 @@ Here are just some of the features provided by the component...
 * Ability to create custom buttons/menus.
 * Capture keystrokes/mouse movement/clicks.
 * Callbacks can be used to trigger code based on foobar2000 events .
-  See [callbacks.txt](https://raw.githubusercontent.com/19379/foo-jscript-panel/master/foo_jscript_panel/docs/Callbacks.txt).
+  See [callbacks.txt](https://raw.githubusercontent.com/marc2k3/foo_jscript_panel/master/foo_jscript_panel/docs/Callbacks.txt).
 * Read/write file tags.
 * Complete manipulation of playlists.
 * Media Library display/sorting/filtering
