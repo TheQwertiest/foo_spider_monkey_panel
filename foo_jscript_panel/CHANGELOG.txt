@@ -1,4 +1,4 @@
-v2.0.0-Beta1
+v2.0.0-Beta2
 - CHG: The component is now dynamically linked. Requires Visual C++ 2017
        32bit redist if not using foobar2000 v1.4.
 - CHG: fb.Trace has been removed and replaced with a native console.log method.
@@ -21,6 +21,9 @@ v2.0.0-Beta1
        been removed.
 - CHG: The IGdiBitmap BoxBlur method has been removed. Try StackBlur instead.
 - CHG: IContextMenuManager InitContext only accepts a handle list as an argument.
+- CHG: Anyone who has a "js_settings" folder in their foobar2000 profile folder
+       from using my previous samples should move the contents in to the "js_data"
+       folder. Typically, this would be autoplaylists.json, thumbs.ini, listenbrainz.ini.
 - NEW: Enable Windows XP support. Also, support for Vista/7/WINE with IE7/IE8 has
        been restored. ES5 features are still supported for those with IE9 or later.
 - NEW: Add utils.WriteTextFile. Always creates a UTF8-BOM file.
