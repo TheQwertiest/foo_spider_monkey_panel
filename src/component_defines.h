@@ -4,9 +4,6 @@
 #define JSP_WINDOW_CLASS_NAME "foo_jscript_panel_class"
 #define JSP_DLL_NAME "foo_jscript_panel.dll"
 
-// Remember to comment out when compiling for release
-#define JSP_STATS
-
 // Remember to bump utils.version too
 #define JSP_VERSION_NUMBER "2.0.0"
 #define JSP_VERSION_TEST "-Beta1"
