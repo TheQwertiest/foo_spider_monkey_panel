@@ -24,7 +24,7 @@
 
 [Requirements]
  * foobar2000 v1.4 or later >> https://www.foobar2000.org
- * Windows version is no longer important. Even XP is supported.
+ * Windows Vista or later.
  * JScript Panel v2.0.0 or later >> https://github.com/marc2k3/foo_jscript_panel
 
 [Installation]
