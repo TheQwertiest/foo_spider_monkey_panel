@@ -51,24 +51,30 @@ LRESULT CDialogConf::OnInitDialog(HWND hwndFocus, LPARAM lParam)
 	}
 	else
 	{
-		uComboBox_SelectString(combo_engine, "JScript");
 		GetDlgItem(IDC_COMBO_ENGINE).EnableWindow(false);
 	}
 
-	// Edge Style
-	HWND combo_edge = GetDlgItem(IDC_COMBO_EDGE);
-	ComboBox_AddString(combo_edge, _T("None"));
-	ComboBox_AddString(combo_edge, _T("Sunken"));
-	ComboBox_AddString(combo_edge, _T("Grey"));
-	ComboBox_SetCurSel(combo_edge, m_parent->get_edge_style());
-	
-	// Pseudo Transparent
 	if (m_parent->GetInstanceType() == HostComm::KInstanceTypeCUI)
 	{
+		// Edge Style
+		HWND combo_edge = GetDlgItem(IDC_COMBO_EDGE);
+		ComboBox_AddString(combo_edge, _T("None"));
+		ComboBox_AddString(combo_edge, _T("Sunken"));
+		ComboBox_AddString(combo_edge, _T("Grey"));
+		ComboBox_SetCurSel(combo_edge, m_parent->get_edge_style());
+
+		// Pseudo Transparent
 		uButton_SetCheck(m_hWnd, IDC_CHECK_PSEUDO_TRANSPARENT, m_parent->get_pseudo_transparent());
 	}
 	else
 	{
+		// Disable these items in Default UI
+
+		// Edge Style
+		HWND combo_edge = GetDlgItem(IDC_COMBO_EDGE);
+		GetDlgItem(IDC_COMBO_EDGE).EnableWindow(false);
+
+		// Pseudo
 		uButton_SetCheck(m_hWnd, IDC_CHECK_PSEUDO_TRANSPARENT, false);
 		GetDlgItem(IDC_CHECK_PSEUDO_TRANSPARENT).EnableWindow(false);
 	}
