@@ -18,5 +18,12 @@ The "js-smooth" folder contains Br3tt's "JS Smooth Playlist", "JS Smooth Browser
 later. For previous users, the cache folder location has changed so you may delete the old "js_br3tt"
 folder.
 
-IMPORTANT: Remember that any future component installation will overwrite all files in this directory
+REQUIREMENTS:
+Although the component has been updated to run on any version of Windows supported by foobar2000 itself,
+some scripts have their own.
+All scripts in the "complete" folder require a system with IE9 or later.
+All scripts in the "js-smooth" require a system running Vista or later (IE version doesn't matter).
+
+IMPORTANT:
+Remember that any future component installation will overwrite all files in this directory
 so store new files/edits elsewhere.

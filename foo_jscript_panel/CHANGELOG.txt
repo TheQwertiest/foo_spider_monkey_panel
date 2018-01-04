@@ -15,7 +15,7 @@ v2.0.0-Beta2
        method have been removed.
 - CHG: plman.GetPlaybackQueueContents has been replaced with plman.GetPlaybackQueueHandles
        which returns a handle list. You can check the Count property so there is no longer
-       any need for plman.GetPlaybackQueueCount() and plman.IsPlaybackQueueActive()
+       any need for plman.GetPlaybackQueueCount and plman.IsPlaybackQueueActive
        which have been removed.
 - CHG: on_refresh_background_done and window.GetBackgroundImage have both
        been removed.
