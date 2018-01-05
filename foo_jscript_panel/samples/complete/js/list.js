@@ -296,16 +296,16 @@ _.mixin({
 				this.save();
 				break;
 			case 3100:
-				this.properties.mode.value = 0;
+				this.properties.mode.set(0);
 				this.reset();
 				break;
 			case 3101:
-				this.properties.mode.value = 1;
+				this.properties.mode.set(1);
 				this.update();
 				break;
 			case 3110:
 			case 3111:
-				this.properties.link.value = idx - 3110;
+				this.properties.link.set(idx - 3110);
 				if (this.data.length) {
 					this.update();
 				}
@@ -313,7 +313,7 @@ _.mixin({
 			case 3120:
 			case 3121:
 			case 3122:
-				this.properties.method.value = idx - 3120;
+				this.properties.method.set(idx - 3120);
 				this.update();
 				break;
 			case 3130:
@@ -322,11 +322,11 @@ _.mixin({
 			case 3133:
 			case 3134:
 			case 3135:
-				this.properties.period.value = idx - 3130;
+				this.properties.period.set(idx - 3130);
 				this.update();
 				break;
 			case 3140:
-				this.properties.colour.value = utils.ColourPicker(window.ID, this.properties.colour.value);
+				this.properties.colour.set(utils.ColourPicker(window.ID, this.properties.colour.value));
 				window.Repaint();
 				break;
 			case 3150:
@@ -334,7 +334,7 @@ _.mixin({
 				break;
 			case 3200:
 			case 3201:
-				this.properties.mode.value = idx - 3200;
+				this.properties.mode.set(idx - 3200);
 				this.reset();
 				break;
 			case 3300:

@@ -365,7 +365,7 @@ _.mixin({
 			switch (idx) {
 			case 4000:
 			case 4001:
-				this.properties.source.value = idx - 4000;
+				this.properties.source.set(idx - 4000);
 				this.artist = '';
 				this.folder = '';
 				panel.item_focus_change();
@@ -374,7 +374,7 @@ _.mixin({
 				this.update();
 				break;
 			case 4003:
-				this.properties.tf.value = _.input('Enter title formatting or an absolute path to a folder.\n\n%profile% will resolve to your foobar2000 profile folder or the program folder if using portable mode.', window.Name, this.properties.tf.value) || '$directory_path(%path%)';
+				this.properties.tf.set(_.input('Enter title formatting or an absolute path to a folder.\n\n%profile% will resolve to your foobar2000 profile folder or the program folder if using portable mode.', window.Name, this.properties.tf.value) || '$directory_path(%path%)');
 				this.folder = '';
 				panel.item_focus_change();
 				break;
@@ -387,7 +387,7 @@ _.mixin({
 			case 4020:
 			case 4025:
 			case 4030:
-				this.properties.limit.value = idx - 4010;
+				this.properties.limit.set(idx - 4010);
 				break;
 			case 4050:
 			case 4051:
@@ -395,7 +395,7 @@ _.mixin({
 			case 4053:
 			case 4054:
 			case 4055:
-				this.properties.mode.value = idx - 4050;
+				this.properties.mode.set(idx - 4050);
 				this.size(true);
 				window.Repaint();
 				break;
@@ -405,7 +405,7 @@ _.mixin({
 			case 4200:
 			case 4250:
 			case 4300:
-				this.properties.px.value = idx - 4000;
+				this.properties.px.set(idx - 4000);
 				this.size(true);
 				window.Repaint();
 				break;
@@ -413,11 +413,11 @@ _.mixin({
 			case 4405:
 			case 4410:
 			case 4420:
-				this.properties.cycle.value = idx - 4400;
+				this.properties.cycle.set(idx - 4400);
 				break;
 			case 4500:
 			case 4501:
-				this.properties.sort.value = idx - 4500;
+				this.properties.sort.set(idx - 4500);
 				if (this.images.length > 1) {
 					this.update();
 				}
@@ -426,7 +426,7 @@ _.mixin({
 			case 4511:
 			case 4512:
 			case 4513:
-				this.properties.aspect.value = idx - 4510;
+				this.properties.aspect.set(idx - 4510);
 				window.Repaint();
 				break;
 			case 4520:

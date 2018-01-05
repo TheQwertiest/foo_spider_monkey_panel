@@ -5,9 +5,9 @@ _.mixin({
 				if (this.properties.shadow.enabled) {
 					_.drawImage(gr, this.images.shadow, this.x, this.y, this.w, this.h);
 				}
-				_.drawImage(gr, this.images.case, this.x, this.y, this.w, this.h);
+				_.drawImage(gr, this.images.case_, this.x, this.y, this.w, this.h);
 				if (this.img) {
-					var ratio = Math.min(this.w / this.images.case.Width, this.h / this.images.case.Height);
+					var ratio = Math.min(this.w / this.images.case_.Width, this.h / this.images.case_.Height);
 					var nw = 488 * ratio;
 					var nh = 476 * ratio;
 					var nx = this.x + Math.floor((this.w - (452 * ratio)) / 2);
@@ -62,7 +62,7 @@ _.mixin({
 				if (id > 4) {
 					id = 0;
 				}
-				this.properties.id.value = id;
+				this.properties.id.set(id);
 				_.tt('');
 				panel.item_focus_change();
 				return true;
@@ -151,14 +151,14 @@ _.mixin({
 			case 2012:
 			case 2013:
 			case 2014:
-				this.properties.id.value = idx - 2010;
+				this.properties.id.set(idx - 2010);
 				panel.item_focus_change();
 				break;
 			case 2020:
 			case 2021:
 			case 2022:
 			case 2023:
-				this.properties.aspect.value = idx - 2020;
+				this.properties.aspect.set(idx - 2020);
 				window.RepaintRect(this.x, this.y, this.w, this.h);
 				break;
 			case 2030:
@@ -198,7 +198,7 @@ _.mixin({
 		this.ids = ['Front', 'Back', 'Disc', 'Icon', 'Artist'];
 		this.images = {
 			shadow : _.img('cd\\shadow.png'),
-			case : _.img('cd\\case.png'),
+			case_ : _.img('cd\\case.png'),
 			semi : _.img('cd\\semi.png'),
 			gloss : _.img('cd\\gloss.png')
 		};

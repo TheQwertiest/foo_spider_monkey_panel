@@ -149,22 +149,22 @@ _.mixin({
 			case idx == 0:
 				break;
 			case idx <= 20:
-				this.fonts.size.value = idx;
+				this.fonts.size.set(idx);
 				on_font_changed();
 				break;
 			case idx == 100:
 			case idx == 101:
 			case idx == 102:
-				this.colours.mode.value = idx - 100;
+				this.colours.mode.set(idx - 100);
 				window.Repaint();
 				break;
 			case idx == 103:
-				this.colours.custom_background.value = utils.ColourPicker(window.ID, this.colours.custom_background.value);
+				this.colours.custom_background.set(utils.ColourPicker(window.ID, this.colours.custom_background.value));
 				window.Repaint();
 				break;
 			case idx == 110:
 			case idx == 111:
-				this.selection.value = idx - 110;
+				this.selection.set(idx - 110);
 				this.item_focus_change();
 				break;
 			case idx == 120:

@@ -21,8 +21,13 @@ folder.
 REQUIREMENTS:
 Although the component has been updated to run on any version of Windows supported by foobar2000 itself,
 some scripts have their own.
-All scripts in the "complete" folder require a system with IE9 or later.
+All scripts in the "basic" folder and "jsplaylist-mod" should work fine on any system.
 All scripts in the "js-smooth" require a system running Vista or later (IE version doesn't matter).
+All scripts in the "complete" folder should work with 2 exceptions. 
+"Listenbrainz" requires any version of Windows with IE9 or later installed. It also works under WINE
+following the guide on the github wiki.
+"Thumbs" can display existing images on any system but requires Windows with at least
+IE9 to download new ones.
 
 IMPORTANT:
 Remember that any future component installation will overwrite all files in this directory

@@ -1,7 +1,3 @@
-if (!("now" in Date)) {
-	fb.ShowPopupMessage("This script requires a system with IE9 or later installed. Also, the 'Script Engine' must be set to 'Chakra' in the 'Configuration Window'.");
-}
-
 Array.prototype.srt=function(){for(var z=0,t;t=this[z];z++){this[z]=[];var x=0,y=-1,n=true,i,j;while(i=(j=t.charAt(x++)).charCodeAt(0)){var m=(i==46||(i>=48&&i<=57));if(m!==n){this[z][++y]='';n=m;}
 this[z][y]+=j;}}
 this.sort(function(a,b){for(var x=0,aa,bb;(aa=a[x])&&(bb=b[x]);x++){aa=aa.toLowerCase();bb=bb.toLowerCase();if(aa!==bb){var c=Number(aa),d=Number(bb);if(c==aa&&d==bb){return c-d;}else return(aa>bb)?1:-1;}}
@@ -301,7 +297,7 @@ _.mixin({
 		var t = title.replace(/"/g, _.q(' + Chr(34) + '));
 		var v = value.replace(/"/g, _.q(' + Chr(34) + '));
 		var tmp = vb.eval('InputBox(' + _.q(p) + ', ' + _.q(t) + ', ' + _.q(v) + ')');
-		return _.isString(tmp) ? tmp.trim() : value;
+		return _.isString(tmp) ? _.trim(tmp) : value;
 	},
 	isFile : function (file) {
 		return _.isString(file) ? fso.FileExists(file) : false;
@@ -422,24 +418,23 @@ _.mixin({
 	open : function (file) {
 		return utils.ReadTextFile(file);
 	},
-	p : function (a, b) {
-		Object.defineProperty(this, _.isBoolean(b) ? 'enabled' : 'value', {
-			get : function () {
-				return this.b;
-			},
-			set : function (value) {
-				this.b = value;
-				window.SetProperty(this.a, this.b);
-			}
-		});
-		
-		this.toggle = function () {
-			this.b = !this.b;
-			window.SetProperty(this.a, this.b);
+	p : function (property, default_) {
+		this.set = function (value) {
+			this.value = value;
+			window.SetProperty(this.property, this.value);
 		}
 		
-		this.a = a;
-		this.b = window.GetProperty(a, b);
+		this.toggle = function () {
+			this.enabled = !this.enabled;
+			window.SetProperty(this.property, this.enabled);
+		}
+		
+		this.property = property;
+		if (_.isBoolean(default_)) {
+			this.enabled = window.GetProperty(this.property, default_);
+		} else {
+			this.value = window.GetProperty(this.property, default_);
+		}
 	},
 	q : function (value) {
 		return '"' + value + '"';
@@ -540,7 +535,7 @@ _.mixin({
 		doc.open();
 		var div = doc.createElement('div');
 		div.innerHTML = value.toString().replace(/<[Pp][^>]*>/g, '').replace(/<\/[Pp]>/g, '<br>').replace(/\n/g, '<br>');
-		var tmp = div.innerText.trim();
+		var tmp = _.trim(div.innerText);
 		doc.close();
 		return tmp;
 	},
@@ -631,7 +626,11 @@ var ONE_WEEK = 604800000;
 
 var DEFAULT_ARTIST = '$meta(artist,0)';
 
-var DPI = WshShell.RegRead('HKCU\\Control Panel\\Desktop\\WindowMetrics\\AppliedDPI');
+try {
+	var DPI = WshShell.RegRead('HKCU\\Control Panel\\Desktop\\WindowMetrics\\AppliedDPI');
+} catch (e) {
+	var DPI = 96;
+}
 
 var LM = _.scale(5);
 var TM = _.scale(20);
