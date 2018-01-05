@@ -11,8 +11,7 @@ Under the hood, it uses `Windows Script host`. It is possible to use `ActiveX` o
 `FileSystemObject` and `XMLHttpRequest` to work with the local file system, access the internet, etc.
 
 If your system has IE9 or later installed, you'll have access to `ECMAScript5` features. You'll
-need to make sure the 'Chakra' script engine is selected in the configuration window. As of
-`v2`, Windows XP is now supported and support for Vista/7/WINE with IE7/IE8 has been restored.
+need to make sure the `Chakra` script engine is selected in the [Configuration Window](https://github.com/marc2k3/foo_jscript_panel/wiki/Configuration-Window). As of `v2`, Windows XP is now supported and support for Vista/7/WINE with IE7/IE8 has been restored.
 
 Here are just some of the features provided by the component...
 
