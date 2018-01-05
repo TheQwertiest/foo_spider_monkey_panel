@@ -1,4 +1,4 @@
-v2.0.0-Beta2
+v2.0.0-Beta3
 - CHG: The component is now dynamically linked. Requires Visual C++ 2017
        32bit redist if not using foobar2000 v1.4.
 - CHG: fb.Trace has been removed and replaced with a native console.log method.
