@@ -29,6 +29,12 @@ v2.0.0-Beta2
 - NEW: Add utils.WriteTextFile. Always creates a UTF8-BOM file.
 - NEW: Add window.Name property. See docs\interfaces.txt.
 
+See the following pages for full details:
+https://github.com/marc2k3/foo_jscript_panel/wiki/Breaking-Changes
+https://github.com/marc2k3/foo_jscript_panel/wiki/Configuration-Window
+https://github.com/marc2k3/foo_jscript_panel/wiki/WINE
+https://github.com/marc2k3/foo_jscript_panel/tree/master/foo_jscript_panel/samples
+
 v1.3.2.2
 - NEW: Component now reports version on script error.
 - FIX: JSplaylist/JS Smooth playlist have been unable to tag files since v1.3.0
