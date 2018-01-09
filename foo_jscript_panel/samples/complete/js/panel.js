@@ -31,7 +31,7 @@ function on_item_focus_change() {
 }
 
 _.mixin({
-	panel : function (name, features) {
+	panel : function () {
 		this.item_focus_change = function () {
 			if (this.metadb_func) {
 				if (this.selection.value == 0) {
@@ -88,7 +88,7 @@ _.mixin({
 			switch (true) {
 			case window.IsTransparent:
 				return;
-			case !this.check_feature('custom_background'):
+			case !this.custom_background:
 			case this.colours.mode.value == 0:
 				var col = this.colours.background;
 				break;
@@ -126,7 +126,7 @@ _.mixin({
 				this.s1.AppendTo(this.m, MF_STRING, 'Font size');
 				this.m.AppendMenuSeparator();
 			}
-			if (this.check_feature('custom_background')) {
+			if (this.custom_background) {
 				this.s2.AppendMenuItem(MF_STRING, 100, window.InstanceType ? 'Use default UI setting' : 'Use columns UI setting');
 				this.s2.AppendMenuItem(MF_STRING, 101, 'Splitter');
 				this.s2.AppendMenuItem(MF_STRING, 102, 'Custom');
@@ -180,10 +180,6 @@ _.mixin({
 			return true;
 		}
 		
-		this.check_feature = function (f) {
-			return _.includes(this.features, f);
-		}
-		
 		this.tf = function (t) {
 			if (!this.metadb) {
 				return '';
@@ -197,7 +193,6 @@ _.mixin({
 		}
 		
 		window.DlgCode = DLGC_WANTALLKEYS;
-		this.features = features || [];
 		this.fonts = {};
 		this.colours = {};
 		this.w = 0;
@@ -209,9 +204,16 @@ _.mixin({
 		if (this.metadb_func) {
 			this.selection = new _.p('2K3.PANEL.SELECTION', 0);
 		}
-		if (this.check_feature('custom_background')) {
-			this.colours.mode = new _.p('2K3.PANEL.COLOURS.MODE', 0);
-			this.colours.custom_background = new _.p('2K3.PANEL.COLOURS.CUSTOM.BACKGROUND', _.RGB(0, 0, 0));
+		switch (true) {
+			case arguments.length == 2 && _.indexOf(arguments[1], 'custom_background') > -1:
+			case arguments[0] == 'custom_background':
+				this.custom_background = true;
+				this.colours.mode = new _.p('2K3.PANEL.COLOURS.MODE', 0);
+				this.colours.custom_background = new _.p('2K3.PANEL.COLOURS.CUSTOM.BACKGROUND', _.RGB(0, 0, 0));
+				break;
+			default:
+				this.custom_background = false;
+				break;
 		}
 		this.list_objects = [];
 		this.text_objects = [];

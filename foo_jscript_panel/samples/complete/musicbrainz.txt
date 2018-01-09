@@ -12,7 +12,7 @@
 // Requires the "Guifx v2 Transports.ttf" font which can be downloaded from
 // http://blog.guifx.com/2009/04/02/guifx-v2-transport-font/
 
-var panel = new _.panel('Musicbrainz');
+var panel = new _.panel();
 var list = new _.list('musicbrainz', LM, TM, 0, 0);
 
 panel.item_focus_change();

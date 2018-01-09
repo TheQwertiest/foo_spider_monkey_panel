@@ -7,7 +7,7 @@
 // @import "%fb2k_component_path%samples\complete\js\albumart.js"
 // ==/PREPROCESSOR==
 
-var panel = new _.panel('Album Art', ['custom_background']);
+var panel = new _.panel('custom_background');
 var albumart = new _.albumart(0, 0, 0, 0);
 
 panel.item_focus_change();

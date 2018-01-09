@@ -1,5 +1,5 @@
 // ==PREPROCESSOR==
-// @name "Last.fm Similar Artists / User Charts"
+// @name "Last.fm Similar Artists + User Charts"
 // @author "marc2003"
 // @import "%fb2k_component_path%samples\complete\js\lodash.min.js"
 // @import "%fb2k_component_path%samples\complete\js\helpers.js"
@@ -11,7 +11,7 @@
 // Requires the "Guifx v2 Transports.ttf" font which can be downloaded from
 // http://blog.guifx.com/2009/04/02/guifx-v2-transport-font/
 
-var panel = new _.panel('Last.fm Similar Artists / User Charts');
+var panel = new _.panel();
 var lastfm = new _.lastfm();
 var list = new _.list('lastfm_info', LM, TM, 0, 0);
 

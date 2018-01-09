@@ -1,5 +1,5 @@
 // ==PREPROCESSOR==
-// @name "Allmusic review"
+// @name "Allmusic Review"
 // @author "marc2003"
 // @import "%fb2k_component_path%samples\complete\js\lodash.min.js"
 // @import "%fb2k_component_path%samples\complete\js\helpers.js"
@@ -7,7 +7,7 @@
 // @import "%fb2k_component_path%samples\complete\js\text.js"
 // ==/PREPROCESSOR==
 
-var panel = new _.panel('Allmusic review');
+var panel = new _.panel();
 var text = new _.text('allmusic', LM, TM, 0, 0);
 
 panel.item_focus_change();

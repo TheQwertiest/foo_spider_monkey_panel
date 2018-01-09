@@ -1,5 +1,5 @@
 // ==PREPROCESSOR==
-// @name "track info + seekbar + buttons"
+// @name "Track Info + Seekbar + Buttons"
 // @author "marc2003"
 // @import "%fb2k_component_path%samples\complete\js\lodash.min.js"
 // @import "%fb2k_component_path%samples\complete\js\helpers.js"
@@ -20,7 +20,7 @@ var colours = {
 
 //////////////////////////////////////////////////////////////
 
-var panel = new _.panel('track info + seekbar + buttons');
+var panel = new _.panel();
 var seekbar = new _.seekbar(0, 0, 0, 0);
 var buttons = new _.buttons();
 var img = null;

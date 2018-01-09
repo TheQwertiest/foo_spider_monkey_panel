@@ -7,7 +7,7 @@
 // @import "%fb2k_component_path%samples\complete\js\listenbrainz.js"
 // ==/PREPROCESSOR==
 
-var panel = new _.panel('Listenbrainz', ['custom_background']);
+var panel = new _.panel('custom_background');
 var buttons = new _.buttons();
 var listenbrainz = new _.listenbrainz(2, 2, 16);
 
