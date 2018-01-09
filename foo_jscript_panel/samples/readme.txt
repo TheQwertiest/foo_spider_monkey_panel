@@ -4,7 +4,7 @@ The "basic" folder contains samples that may be referred to from interfaces.txt 
 in the "docs" folder.
 
 The "complete" folder contains various samples that are more complex and have right click options, etc.
-Some scripts require the "Guifx v2 Transports.ttf" font which can be downloaded from
+You should install the "Guifx v2 Transports.ttf" font which can be downloaded from
 http://blog.guifx.com/2009/04/02/guifx-v2-transport-font/
 
 The "jsplaylist-mod" folder contains an updated version of Br3tt's excellent JSPlaylist. It was originally
