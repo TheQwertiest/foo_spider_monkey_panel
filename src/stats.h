@@ -3,22 +3,16 @@
 namespace stats
 {
 	static const GUID guid_js_panel_index = { 0x835f0b63, 0xd96c, 0x447b,{ 0x9c, 0xcb, 0x71, 0x4f, 0xa8, 0x30, 0x49, 0x11 } };
-	static const char strPinTo[] = "%artist% - %title%";
+	static const char pinTo[] = "$lower(%artist% - %title%)";
 	static const t_filetimestamp retentionPeriod = system_time_periods::week * 4;
-
-	static titleformat_object::ptr makeKeyObj(const char * pinTo)
-	{
-		titleformat_object::ptr obj;
-		static_api_ptr_t<titleformat_compiler>()->compile_force(obj, pinTo);
-		return obj;
-	}
 
 	class metadb_index_client_impl : public metadb_index_client
 	{
 	public:
 		metadb_index_hash transform(const file_info & info, const playable_location & location)
 		{
-			static auto obj = makeKeyObj(strPinTo);
+			titleformat_object::ptr obj;
+			static_api_ptr_t<titleformat_compiler>()->compile_force(obj, pinTo);
 			pfc::string_formatter str;
 			obj->run_simple(location, &info, str);
 			return static_api_ptr_t<hasher_md5>()->process_single_string(str).xorHalve();
