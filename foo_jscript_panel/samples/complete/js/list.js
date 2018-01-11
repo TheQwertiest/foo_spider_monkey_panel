@@ -411,7 +411,7 @@ _.mixin({
 					}
 				} else {
 					if (!lastfm.username.length) {
-						console.log('Last.fm username not set.');
+						console.log(N, 'Last.fm username not set.');
 						break;
 					}
 					this.filename = folders.lastfm + lastfm.username + '.' + this.methods[this.properties.method.value].method + '.' + this.periods[this.properties.period.value].period + '.json';
@@ -561,7 +561,7 @@ _.mixin({
 				break;
 			case 'musicbrainz':
 				if (!_.isUUID(this.mb_id)) {
-					return console.log('Invalid/missing MBID');
+					return console.log(N, 'Invalid/missing MBID');
 				}
 				if (this.properties.mode.value == 0) {
 					var url = 'https://musicbrainz.org/ws/2/release-group?fmt=json&limit=100&offset=' + this.mb_offset + '&artist=' + this.mb_id;
@@ -586,7 +586,7 @@ _.mixin({
 						window.SetTimeout(this.mb_retry, 1500);
 						break;
 					default:
-						console.log('HTTP error: ' + this.xmlhttp.status);
+						console.log(N, 'HTTP error:', this.xmlhttp.status);
 						this.xmlhttp.responseText && console.log(this.xmlhttp.responseText);
 						break;
 					}
@@ -618,7 +618,7 @@ _.mixin({
 			case this.mode == 'lastfm_info':
 				var data = _.jsonParse(this.xmlhttp.responseText);
 				if (data.error) {
-					return console.log(data.message);
+					return console.log(N, data.message);
 				}
 				if (this.properties.mode.value == 0) {
 					// last.fm playing up again so don't overwrite cached data with nothing
@@ -835,7 +835,7 @@ _.mixin({
 				break;
 			case 'musicbrainz':
 				this.mb_retry = _.bind(function () {
-					console.log('Retrying...');
+					console.log(N, 'Retrying...');
 					this.attempt++;
 					this.get();
 				}, this),

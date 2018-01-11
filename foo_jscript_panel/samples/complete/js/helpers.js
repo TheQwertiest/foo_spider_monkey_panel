@@ -625,6 +625,7 @@ var ONE_DAY = 86400000;
 var ONE_WEEK = 604800000;
 
 var DEFAULT_ARTIST = '$meta(artist,0)';
+var N = window.Name + ':';
 
 try {
 	var DPI = WshShell.RegRead('HKCU\\Control Panel\\Desktop\\WindowMetrics\\AppliedDPI');
