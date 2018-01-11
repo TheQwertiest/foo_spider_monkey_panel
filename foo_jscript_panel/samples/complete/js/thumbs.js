@@ -514,7 +514,7 @@ _.mixin({
 					if (this.xmlhttp.status == 200) {
 						this.success(base);
 					} else {
-						console.log(N, 'HTTP error: ' + this.xmlhttp.status);
+						console.log(N, 'HTTP error:', this.xmlhttp.status);
 					}
 				}
 			}, this);

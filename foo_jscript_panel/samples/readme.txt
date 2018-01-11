@@ -1,9 +1,22 @@
+REQUIREMENTS:
+Although the component has been updated to run on any version of Windows supported by foobar2000 itself,
+some scripts have their own.
+All scripts in the "basic" folder and "jsplaylist-mod" should work fine on any system.
+All scripts in the "js-smooth" require a system running Vista or later (IE version doesn't matter).
+All scripts in the "complete" folder should work on any system with IE8 or later installed. There are
+two exceptions: 
+"Listenbrainz" requires any version of Windows with IE9 or later installed. It also works under WINE
+following the guide on the github wiki.
+"Thumbs" can display existing images on any system but requires Windows with at least
+IE9 to download new ones.
+
+USAGE:
 Simply copy the text from any .txt file inside the various folders in to a panel's configuration dialog.
 
-The "basic" folder contains samples that may be referred to from interfaces.txt and callbacks.txt
-in the "docs" folder.
+The "basic" folder contains some very simple samples that are referred to from "interfaces.txt" and
+"callbacks.txt" in the "docs" folder.
 
-The "complete" folder contains various samples that are more complex and have right click options, etc.
+The "complete" folder contains various samples which are feature complete and have right click options, etc.
 You should install the "Guifx v2 Transports.ttf" font which can be downloaded from
 http://blog.guifx.com/2009/04/02/guifx-v2-transport-font/
 
@@ -17,18 +30,6 @@ The "js-smooth" folder contains Br3tt's "JS Smooth Playlist", "JS Smooth Browser
 "JS Smooth Playlist Manager" scripts, all updated to be compatible with JScript Panel v2 and
 later. For previous users, the cache folder location has changed so you may delete the old "js_br3tt"
 folder.
-
-REQUIREMENTS:
-Although the component has been updated to run on any version of Windows supported by foobar2000 itself,
-some scripts have their own.
-All scripts in the "basic" folder and "jsplaylist-mod" should work fine on any system.
-All scripts in the "js-smooth" require a system running Vista or later (IE version doesn't matter).
-All scripts in the "complete" folder should work on any system with IE8 or later installed. There are
-two exceptions: 
-"Listenbrainz" requires any version of Windows with IE9 or later installed. It also works under WINE
-following the guide on the github wiki.
-"Thumbs" can display existing images on any system but requires Windows with at least
-IE9 to download new ones.
 
 IMPORTANT:
 Remember that any future component installation will overwrite all files in this directory
