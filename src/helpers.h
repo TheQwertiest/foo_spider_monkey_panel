@@ -161,10 +161,10 @@ namespace helpers
 
 		void on_completion(const pfc::list_base_const_t<metadb_handle_ptr>& p_items)
 		{
-			bit_array_true selection_them;
-			bit_array_false selection_none;
-			bit_array* select_ptr = &selection_none;
-			static_api_ptr_t<playlist_manager> api;
+			pfc::bit_array_true selection_them;
+			pfc::bit_array_false selection_none;
+			pfc::bit_array* select_ptr = &selection_none;
+			auto api = playlist_manager::get();
 			t_size playlist = m_playlist_idx == -1 ? api->get_active_playlist() : m_playlist_idx;
 
 			if (m_to_select)
@@ -405,7 +405,7 @@ namespace helpers
 	class com_array_to_bitarray
 	{
 	public:
-		static bool convert(VARIANT items, unsigned bitArrayCount, bit_array_bittable& out, bool& empty)
+		static bool convert(VARIANT items, unsigned bitArrayCount, pfc::bit_array_bittable& out, bool& empty)
 		{
 			helpers::com_array_reader arrayReader;
 			empty = false;

@@ -100,7 +100,7 @@ void HostComm::ClearIntervalOrTimeout(UINT timerId)
 
 void HostComm::PreserveSelection()
 {
-	m_selection_holder = static_api_ptr_t<ui_selection_manager>()->acquire();
+	m_selection_holder = ui_selection_manager::get()->acquire();
 }
 
 void HostComm::Redraw()

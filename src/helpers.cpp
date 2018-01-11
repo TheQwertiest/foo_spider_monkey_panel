@@ -124,7 +124,7 @@ namespace helpers
 
 		GUID what = helpers::convert_artid_to_guid(art_id);
 		abort_callback_dummy abort;
-		static_api_ptr_t<album_art_manager_v2> aamv2;
+		auto aamv2 = album_art_manager_v2::get();
 		album_art_extractor_instance_v2::ptr aaeiv2;
 		IGdiBitmap* ret = NULL;
 

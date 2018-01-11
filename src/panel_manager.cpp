@@ -258,12 +258,12 @@ void my_playlist_callback_static::on_item_focus_change(t_size p_playlist, t_size
 	panel_manager::instance().post_msg_to_all_pointer(CALLBACK_UWM_ON_ITEM_FOCUS_CHANGE, on_item_focus_change_data);
 }
 
-void my_playlist_callback_static::on_items_added(t_size p_playlist, t_size p_start, const pfc::list_base_const_t<metadb_handle_ptr>& p_data, const bit_array& p_selection)
+void my_playlist_callback_static::on_items_added(t_size p_playlist, t_size p_start, const pfc::list_base_const_t<metadb_handle_ptr>& p_data, const pfc::bit_array& p_selection)
 {
 	panel_manager::instance().post_msg_to_all(CALLBACK_UWM_ON_PLAYLIST_ITEMS_ADDED, p_playlist);
 }
 
-void my_playlist_callback_static::on_items_removed(t_size p_playlist, const bit_array& p_mask, t_size p_old_count, t_size p_new_count)
+void my_playlist_callback_static::on_items_removed(t_size p_playlist, const pfc::bit_array& p_mask, t_size p_old_count, t_size p_new_count)
 {
 	panel_manager::instance().post_msg_to_all(CALLBACK_UWM_ON_PLAYLIST_ITEMS_REMOVED, p_playlist, p_new_count);
 }
@@ -273,7 +273,7 @@ void my_playlist_callback_static::on_items_reordered(t_size p_playlist, const t_
 	panel_manager::instance().post_msg_to_all(CALLBACK_UWM_ON_PLAYLIST_ITEMS_REORDERED, p_playlist);
 }
 
-void my_playlist_callback_static::on_items_selection_change(t_size p_playlist, const bit_array& p_affected, const bit_array& p_state)
+void my_playlist_callback_static::on_items_selection_change(t_size p_playlist, const pfc::bit_array& p_affected, const pfc::bit_array& p_state)
 {
 	panel_manager::instance().post_msg_to_all(CALLBACK_UWM_ON_PLAYLIST_ITEMS_SELECTION_CHANGE);
 }
@@ -306,7 +306,7 @@ void my_playlist_callback_static::on_playlist_renamed(t_size p_index, const char
 	on_playlists_changed();
 }
 
-void my_playlist_callback_static::on_playlists_removed(const bit_array& p_mask, t_size p_old_count, t_size p_new_count)
+void my_playlist_callback_static::on_playlists_removed(const pfc::bit_array& p_mask, t_size p_old_count, t_size p_new_count)
 {
 	on_playlists_changed();
 }
