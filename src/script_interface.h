@@ -205,6 +205,8 @@ __interface IFbMetadbHandle : IDisposable
 {
 	STDMETHOD(Compare)(IFbMetadbHandle* handle, [out, retval] VARIANT_BOOL* p);
 	STDMETHOD(GetFileInfo)([out, retval] IFbFileInfo** pp);
+	STDMETHOD(SetFirstPlayed)(BSTR first_played);
+	STDMETHOD(SetLastPlayed)(BSTR last_played);
 	STDMETHOD(SetLoved)(UINT loved);
 	STDMETHOD(SetPlaycount)(UINT playcount);
 	[propget] STDMETHOD(FileSize)([out, retval] LONGLONG* p);

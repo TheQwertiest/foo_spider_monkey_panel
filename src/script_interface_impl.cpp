@@ -294,6 +294,34 @@ STDMETHODIMP FbMetadbHandle::GetFileInfo(IFbFileInfo** pp)
 	return S_OK;
 }
 
+STDMETHODIMP FbMetadbHandle::SetFirstPlayed(BSTR first_played)
+{
+	if (m_handle.is_empty()) return E_POINTER;
+
+	metadb_index_hash hash;
+	if (stats::g_client->hashHandle(m_handle, hash))
+	{
+		stats::fields tmp = stats::get(hash);
+		tmp.first_played = pfc::stringcvt::string_utf8_from_wide(first_played);
+		stats::set(hash, tmp);
+	}
+	return S_OK;
+}
+
+STDMETHODIMP FbMetadbHandle::SetLastPlayed(BSTR last_played)
+{
+	if (m_handle.is_empty()) return E_POINTER;
+
+	metadb_index_hash hash;
+	if (stats::g_client->hashHandle(m_handle, hash))
+	{
+		stats::fields tmp = stats::get(hash);
+		tmp.last_played = pfc::stringcvt::string_utf8_from_wide(last_played);
+		stats::set(hash, tmp);
+	}
+	return S_OK;
+}
+
 STDMETHODIMP FbMetadbHandle::SetLoved(UINT loved)
 {
 	if (m_handle.is_empty()) return E_POINTER;
@@ -301,7 +329,9 @@ STDMETHODIMP FbMetadbHandle::SetLoved(UINT loved)
 	metadb_index_hash hash;
 	if (stats::g_client->hashHandle(m_handle, hash))
 	{
-		stats::set_loved(hash, loved);
+		stats::fields tmp = stats::get(hash);
+		tmp.loved = loved;
+		stats::set(hash, tmp);
 	}
 	return S_OK;
 }
@@ -313,7 +343,9 @@ STDMETHODIMP FbMetadbHandle::SetPlaycount(UINT playcount)
 	metadb_index_hash hash;
 	if (stats::g_client->hashHandle(m_handle, hash))
 	{
-		stats::set_playcount(hash, playcount);
+		stats::fields tmp = stats::get(hash);
+		tmp.playcount = playcount;
+		stats::set(hash, tmp);
 	}
 	return S_OK;
 }
