@@ -1340,6 +1340,13 @@ interface IFbMetadbHandle {
 		Length; (double) (read)
 
 	Methods:
+		ClearStats(); (void)
+		SetPlayCount(playcount); (void)
+		SetLoved(loved); (void)
+		SetFirstPlayed(first_played); (void)
+		SetLastPlayed(last_played); (void)
+		// See https://github.com/marc2k3/foo_jscript_panel/wiki/Playback-Stats
+
 		Compare(handle); (boolean)
 		/*
 		Compare two IFbMetadbHandle instances, pointer only.
@@ -1566,6 +1573,7 @@ interface IFbMetadbHandleList {
 		// Remove duplicates and optimise for other handle list operations
 
 		UpdateFileInfoFromJSON(str); (void)
+		// See https://github.com/marc2k3/foo_jscript_panel/wiki/Breaking-Changes#v130
 }
 
 interface IDropTargetAction {
