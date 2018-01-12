@@ -184,7 +184,7 @@ namespace stats
 				{
 					fields tmp = get(hash);
 					p_out.set_property(JSP_NAME, 0, "Playcount", pfc::format_uint(tmp.playcount));
-					p_out.set_property(JSP_NAME, 1, "Loved", tmp.playcount == stats_invalid ? "No" : "Yes");
+					p_out.set_property(JSP_NAME, 1, "Loved", tmp.loved == stats_invalid ? "No" : "Yes");
 					p_out.set_property(JSP_NAME, 2, "First Played", tmp.first_played);
 					p_out.set_property(JSP_NAME, 3, "Last Played", tmp.last_played);
 				}
