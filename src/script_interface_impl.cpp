@@ -266,6 +266,19 @@ void FbMetadbHandle::FinalRelease()
 	m_handle.release();
 }
 
+STDMETHODIMP FbMetadbHandle::ClearStats()
+{
+	if (m_handle.is_empty()) return E_POINTER;
+
+	metadb_index_hash hash;
+	if (stats::g_client->hashHandle(m_handle, hash))
+	{
+		stats::fields tmp;
+		stats::set(hash, tmp);
+	}
+	return S_OK;
+}
+
 STDMETHODIMP FbMetadbHandle::Compare(IFbMetadbHandle* handle, VARIANT_BOOL* p)
 {
 	if (m_handle.is_empty() || !p) return E_POINTER;

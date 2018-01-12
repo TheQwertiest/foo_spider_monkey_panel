@@ -155,6 +155,7 @@ protected:
 	virtual void FinalRelease();
 
 public:
+	STDMETHODIMP ClearStats();
 	STDMETHODIMP Compare(IFbMetadbHandle* handle, VARIANT_BOOL* p);
 	STDMETHODIMP GetFileInfo(IFbFileInfo** pp);
 	STDMETHODIMP SetFirstPlayed(BSTR first_played);

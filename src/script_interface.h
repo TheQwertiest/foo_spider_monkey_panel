@@ -203,6 +203,7 @@ __interface IFbFileInfo : IDisposable
 ]
 __interface IFbMetadbHandle : IDisposable
 {
+	STDMETHOD(ClearStats)();
 	STDMETHOD(Compare)(IFbMetadbHandle* handle, [out, retval] VARIANT_BOOL* p);
 	STDMETHOD(GetFileInfo)([out, retval] IFbFileInfo** pp);
 	STDMETHOD(SetFirstPlayed)(BSTR first_played);

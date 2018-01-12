@@ -188,6 +188,11 @@ _.mixin({
 			WshShell.Run('explorer /select,' + _.q(file));
 		}
 	},
+	fbDate : function (ts) {
+		// ES5 only
+		var tmp = new Date(ts * 1000).toISOString();
+		return tmp.substring(0, 10) + ' ' + tmp.substring(11, 19);
+	},
 	fbEscape : function (value) {
 		return value.replace(/'/g, "''").replace(/[\(\)\[\],$]/g, "'$&'");
 	},
