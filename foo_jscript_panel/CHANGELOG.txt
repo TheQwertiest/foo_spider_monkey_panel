@@ -1,6 +1,5 @@
-v2.0.0-Beta3
-- CHG: The component is now dynamically linked. Requires Visual C++ 2017
-       32bit redist if not using foobar2000 v1.4.
+v2.0.0-Beta4
+- CHG: Requires foobar2000 v1.4. It will not load with anything earlier.
 - CHG: fb.Trace has been removed and replaced with a native console.log method.
        It takes multiple arguments as before.
 - CHG: All callbacks/methods with "Color" in the name have been renamed
@@ -28,12 +27,14 @@ v2.0.0-Beta3
        been restored. ES5 features are still supported for those with IE9 or later.
 - NEW: Add utils.WriteTextFile. Always creates a UTF8-BOM file.
 - NEW: Add window.Name property. See docs\interfaces.txt.
+- NEW: Add a custom "Playback Stats" backend and "handle" methods for writing values.
 
 See the following pages for full details:
 https://github.com/marc2k3/foo_jscript_panel/wiki/Breaking-Changes
 https://github.com/marc2k3/foo_jscript_panel/wiki/Configuration-Window
 https://github.com/marc2k3/foo_jscript_panel/wiki/WINE
 https://github.com/marc2k3/foo_jscript_panel/tree/master/foo_jscript_panel/samples
+https://github.com/marc2k3/foo_jscript_panel/wiki/Playback-Stats
 
 v1.3.2.2
 - NEW: Component now reports version on script error.
