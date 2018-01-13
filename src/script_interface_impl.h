@@ -162,6 +162,7 @@ public:
 	STDMETHODIMP SetLastPlayed(BSTR last_played);
 	STDMETHODIMP SetLoved(UINT loved);
 	STDMETHODIMP SetPlaycount(UINT playcount);
+	STDMETHODIMP SetRating(UINT rating);
 	STDMETHODIMP get_FileSize(LONGLONG* p);
 	STDMETHODIMP get_Length(double* p);
 	STDMETHODIMP get_Path(BSTR* pp);

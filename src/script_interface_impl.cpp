@@ -363,6 +363,20 @@ STDMETHODIMP FbMetadbHandle::SetPlaycount(UINT playcount)
 	return S_OK;
 }
 
+STDMETHODIMP FbMetadbHandle::SetRating(UINT rating)
+{
+	if (m_handle.is_empty()) return E_POINTER;
+
+	metadb_index_hash hash;
+	if (stats::g_client->hashHandle(m_handle, hash))
+	{
+		stats::fields tmp = stats::get(hash);
+		tmp.rating = rating;
+		stats::set(hash, tmp);
+	}
+	return S_OK;
+}
+
 STDMETHODIMP FbMetadbHandle::get_FileSize(LONGLONG* p)
 {
 	if (m_handle.is_empty() || !p) return E_POINTER;

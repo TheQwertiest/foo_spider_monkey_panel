@@ -210,6 +210,7 @@ __interface IFbMetadbHandle : IDisposable
 	STDMETHOD(SetLastPlayed)(BSTR last_played);
 	STDMETHOD(SetLoved)(UINT loved);
 	STDMETHOD(SetPlaycount)(UINT playcount);
+	STDMETHOD(SetRating)(UINT rating);
 	[propget] STDMETHOD(FileSize)([out, retval] LONGLONG* p);
 	[propget] STDMETHOD(Length)([out, retval] double* p);
 	[propget] STDMETHOD(Path)([out, retval] BSTR* pp);

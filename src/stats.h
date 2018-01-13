@@ -68,6 +68,7 @@ namespace stats
 		stats_t loved = stats_invalid;
 		pfc::string8 first_played;
 		pfc::string8 last_played;
+		stats_t rating = stats_invalid;
 	};
 
 	static fields get(metadb_index_hash hash)
@@ -82,6 +83,10 @@ namespace stats
 				reader >> ret.loved;
 				reader >> ret.first_played;
 				reader >> ret.last_played;
+				if (reader.get_remaining() > 0) // check needed here for compatibility with previous version
+				{
+					reader >> ret.rating;
+				}
 				return ret;
 			}
 			catch (exception_io_data)
@@ -98,6 +103,7 @@ namespace stats
 		writer << f.loved;
 		writer << f.first_played;
 		writer << f.last_played;
+		writer << f.rating;
 		theAPI()->set_user_data(guid_js_panel_index, hash, writer.m_buffer.get_ptr(), writer.m_buffer.get_size());
 		theAPI()->dispatch_refresh(guid_js_panel_index, hash);
 	}
@@ -107,7 +113,7 @@ namespace stats
 	public:
 		t_uint32 get_field_count()
 		{
-			return 4;
+			return 5;
 		}
 		void get_field_name(t_uint32 index, pfc::string_base & out)
 		{
@@ -124,6 +130,9 @@ namespace stats
 				break;
 			case 3:
 				out = "jsp_last_played";
+				break;
+			case 4:
+				out = "jsp_rating";
 				break;
 			}
 		}
@@ -163,6 +172,13 @@ namespace stats
 					out->write(titleformat_inputtypes::meta, value);
 					return true;
 				}
+			case 4:
+				{
+					stats_t value = tmp.rating;
+					if (value == stats_invalid) return false;
+					out->write_int(titleformat_inputtypes::meta, value);
+					return true;
+				}
 			}
 			return false;
 		}
@@ -185,6 +201,7 @@ namespace stats
 					p_out.set_property(JSP_NAME, 1, "Loved", pfc::format_uint(tmp.loved));
 					p_out.set_property(JSP_NAME, 2, "First Played", tmp.first_played);
 					p_out.set_property(JSP_NAME, 3, "Last Played", tmp.last_played);
+					p_out.set_property(JSP_NAME, 4, "Rating", pfc::format_uint(tmp.rating));
 				}
 			}
 			else
