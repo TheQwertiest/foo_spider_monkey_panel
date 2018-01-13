@@ -592,7 +592,19 @@ interface IFbPlaylistManager {
 		plman.RenamePlaylist(playlistIndex, name); (boolean)
 
 		plman.SetActivePlaylistContext(); (void)
-		// Workaround so you can run fb.RunMainMenuCommand() on the Edit menu when the playlist doesn't have focus.
+		/*
+		Workaround so you can use the Edit menu or run fb.RunMainMenuCommand("Edit/Something...")
+		when your panel has focus and a dedicated playlist viewer doesn't.
+		Example:
+
+		plman.SetActivePlaylistContext(); // once on startup
+
+		function on_focus(is_focused) {
+			if (is_focused) {
+				plman.SetActivePlaylistContext(); // when the panel gets focus but not on every click
+			}
+		}
+		*/
 
 		plman.SetPlaylistFocusItem(playlistIndex, playlistItemIndex); (void)
 		/*

@@ -3306,6 +3306,7 @@ var g_rating_updated = false;
 var g_rating_rowId = -1;
 
 function on_init() {
+	plman.SetActivePlaylistContext();
 	window.DlgCode = DLGC_WANTALLKEYS;
 
 	get_font();
@@ -4596,13 +4597,7 @@ function on_item_focus_change(playlist, from, to) {
 	g_focus_id = to;
 
 	if (!g_avoid_on_item_focus_change) {
-
-		plman.SetActivePlaylistContext();
-
 		if (playlist == g_active_playlist) {
-			//
-			plman.SetActivePlaylistContext();
-
 			// Autocollapse handle
 			if (ppt.autocollapse) { // && !center_focus_item
 				if (from > -1 && from < brw.list.Count) {
@@ -4702,6 +4697,7 @@ function on_playlist_items_selection_change() {
 
 function on_focus(is_focused) {
 	if (is_focused) {
+		plman.SetActivePlaylistContext();
 		g_selHolder = fb.AcquireUiSelectionHolder();
 		g_selHolder.SetPlaylistSelectionTracking();	
 	} else {

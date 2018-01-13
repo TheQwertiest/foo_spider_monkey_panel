@@ -851,6 +851,7 @@ function resize_panels() {
 
 //=================================================// Init
 function on_init() {
+	plman.SetActivePlaylistContext();
 	// check properties
 	if (!properties.showgroupheaders) {
 		cGroup.collapsed_height = 0;
@@ -1909,7 +1910,6 @@ function on_item_focus_change(playlist, from, to) {
 		};
 		if (playlist == p.list.playlist) {
 			p.list.focusedTrackId = to;
-			plman.SetActivePlaylistContext();
 			var center_focus_item = p.list.isFocusedItemVisible();
 
 			if (properties.autocollapse) { // && !center_focus_item
@@ -2602,6 +2602,7 @@ function on_focus(is_focused) {
 		p.playlistManager.inputbox.on_focus(is_focused);
 	};
 	if (is_focused) {
+		plman.SetActivePlaylistContext();
 		g_selHolder = fb.AcquireUiSelectionHolder();
 		g_selHolder.SetPlaylistSelectionTracking();
 	} else {
