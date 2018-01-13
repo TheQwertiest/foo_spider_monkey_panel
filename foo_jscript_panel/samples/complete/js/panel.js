@@ -115,6 +115,7 @@ _.mixin({
 			// album art 2000-2999
 			// list 3000-3999
 			// text 5000-5999
+			// rating 6000-6999
 			if (object) {
 				object.rbtn_up(x, y);
 			}
