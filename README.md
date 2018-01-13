@@ -10,8 +10,8 @@ with `Javascript` rather than the `C++` required by the [foobar2000 SDK](https:/
 Under the hood, it uses `Windows Script host`. It is possible to use `ActiveX` objects like
 `FileSystemObject` and `XMLHttpRequest` to work with the local file system, access the internet, etc.
 
-If your system has IE9 or later installed, you'll have access to `ECMAScript5` features. You'll
-need to make sure the `Chakra` script engine is selected in the [Configuration Window](https://github.com/marc2k3/foo_jscript_panel/wiki/Configuration-Window). As of `v2`, Windows XP is now supported and support for Vista/7/WINE with IE7/IE8 has been restored.
+If your system has `IE9` or later installed, you'll have access to `ECMAScript5` features. You'll
+need to make sure the `Chakra` script engine is selected in the [Configuration Window](https://github.com/marc2k3/foo_jscript_panel/wiki/Configuration-Window). As of `v2`, `Windows XP` is now supported and support for `Vista/7/WINE` with `IE7/IE8` has been restored.
 
 Here are just some of the features provided by the component...
 
@@ -21,7 +21,7 @@ Here are just some of the features provided by the component...
 * Executing main/context menu commands.
 * Ability to create custom buttons/menus.
 * Capture keystrokes/mouse movement/clicks.
-* Callbacks can be used to trigger code based on foobar2000 events .
+* Callbacks can be used to trigger code based on `foobar2000` events .
   See [callbacks.txt](https://raw.githubusercontent.com/marc2k3/foo_jscript_panel/master/foo_jscript_panel/docs/Callbacks.txt).
 * Read/write file tags.
 * Complete manipulation of playlists.
