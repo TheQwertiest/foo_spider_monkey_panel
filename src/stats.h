@@ -12,10 +12,10 @@ namespace stats
 		metadb_index_hash transform(const file_info & info, const playable_location & location)
 		{
 			titleformat_object::ptr obj;
-			static_api_ptr_t<titleformat_compiler>()->compile_force(obj, pinTo);
+			titleformat_compiler::get()->compile_force(obj, pinTo);
 			pfc::string_formatter str;
 			obj->run_simple(location, &info, str);
-			return static_api_ptr_t<hasher_md5>()->process_single_string(str).xorHalve();
+			return hasher_md5::get()->process_single_string(str).xorHalve();
 		}
 	};
 	static metadb_index_client_impl * g_client = new service_impl_single_t<metadb_index_client_impl>;
@@ -174,9 +174,7 @@ namespace stats
 	public:
 		void enumerate_properties(metadb_handle_list_cref p_tracks, track_property_callback & p_out)
 		{
-			static_api_ptr_t<metadb_index_manager> api;
 			const size_t trackCount = p_tracks.get_count();
-
 			if (trackCount == 1)
 			{
 				metadb_index_hash hash;

@@ -1129,7 +1129,7 @@ STDMETHODIMP FbPlaylistManager::RenamePlaylist(UINT playlistIndex, BSTR name, VA
 
 STDMETHODIMP FbPlaylistManager::SetActivePlaylistContext()
 {
-	static_api_ptr_t<ui_edit_context_manager>()->set_context_active_playlist();
+	ui_edit_context_manager::get()->set_context_active_playlist();
 	return S_OK;
 }
 
