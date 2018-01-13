@@ -60,7 +60,7 @@ _.mixin({
 		this.rbtn_up = function (x, y) {
 			_.forEach(this.modes, function (item, i) {
 				panel.s10.AppendMenuItem(i == 1 && !this.foo_playcount ? MF_GRAYED : MF_STRING, i + 6000, item);
-			});
+			}, this);
 			panel.s10.CheckMenuRadioItem(6000, 6003, this.properties.mode.value + 6000);
 			panel.s10.AppendTo(panel.m, MF_STRING, 'Mode');
 			panel.m.AppendMenuItem(this.properties.mode.value == 2 ? MF_STRING : MF_GRAYED, 6004, 'Tag name');
@@ -96,8 +96,12 @@ _.mixin({
 			switch (this.properties.mode.value) {
 			case 1: // foo_playcount
 				return _.tf('$if2(%rating%,0)', panel.metadb);
-			case 2: // file tag, must use meta incase foo_playcount is present and user has tag named "rating"
-				return _.tf('$if2($meta(' + this.properties.tag.value + '),0)', panel.metadb);
+			case 2: // file tag
+				var f = panel.metadb.GetFileInfo();
+				var idx = f.MetaFind(this.properties.tag.value);
+				var ret = idx > -1 ? f.MetaValue(idx, 0) : 0;
+				f.Dispose();
+				return ret;
 			case 3: // JScript Panel db
 				return _.tf('$if2(%jsp_rating%,0)', panel.metadb);
 			default:
@@ -152,7 +156,7 @@ _.mixin({
 				this.properties.mode.set(0);
 			}
 			if (this.properties.mode.value == 0) {
-				fb.ShowPopupMessage('This script has now been updated and supports 3 different modes.\n\nAs before, you can use foo_playcount which is limited to 5 stars.\n\nThe 2nd option is writing to your file tags. You can choose the tag name and a new scale via the right click menu.\n\nLastly, a new "Playback Stats" database has been built into JScript Panel. This uses %jsp_rating% which can be accessed via title formatting in all other components/search dialogs. This also supports a custom scale.\n\nAll options are available on the right click menu. If you do not the new options when right clicking, make sure you have the latest "rating.txt" imported from the "samples\\complete" folder.', window.Name);
+				fb.ShowPopupMessage('This script has now been updated and supports 3 different modes.\n\nAs before, you can use foo_playcount which is limited to 5 stars.\n\nThe 2nd option is writing to your file tags. You can choose the tag name and a new scale via the right click menu.\n\nLastly, a new "Playback Stats" database has been built into JScript Panel. This uses %jsp_rating% which can be accessed via title formatting in all other components/search dialogs. This also supports a custom scale.\n\nAll options are available on the right click menu. If you do not see the new options when right clicking, make sure you have the latest "rating.txt" imported from the "samples\\complete" folder.', window.Name);
 			}
 		}, this), 500);
 	}
