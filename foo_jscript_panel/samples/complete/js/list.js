@@ -918,7 +918,7 @@ _.mixin({
 				
 				this.add_tech = function (f) {
 					var duration = utils.FormatDuration(Math.max(0, panel.metadb.Length));
-					var samples = _.formatNumber(_.tf('%length_samples%', panel.metadb), ' ');
+					var samples = _.formatNumber(panel.tf('%length_samples%'), ' ');
 					this.data.push({
 						name : 'DURATION',
 						value : duration + ' (' + samples + ' samples)',

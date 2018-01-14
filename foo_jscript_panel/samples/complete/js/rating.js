@@ -95,7 +95,7 @@ _.mixin({
 		this.get_rating = function () {
 			switch (this.properties.mode.value) {
 			case 1: // foo_playcount
-				return _.tf('$if2(%rating%,0)', panel.metadb);
+				return panel.tf('$if2(%rating%,0)');
 			case 2: // file tag
 				var f = panel.metadb.GetFileInfo();
 				var idx = f.MetaFind(this.properties.tag.value);
@@ -103,7 +103,7 @@ _.mixin({
 				f.Dispose();
 				return ret;
 			case 3: // JScript Panel db
-				return _.tf('$if2(%jsp_rating%,0)', panel.metadb);
+				return panel.tf('$if2(%jsp_rating%,0)');
 			default:
 				return 0;
 			}

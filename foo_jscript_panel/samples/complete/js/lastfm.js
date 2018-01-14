@@ -1,7 +1,8 @@
 _.mixin({
 	lastfm : function () {
 		this.notify_data = function (name, data) {
-			if (name == '2K3.NOTIFY.LASTFM') {
+			switch (name) {
+			case '2K3.NOTIFY.LASTFM':
 				this.username = this.read_ini('username');
 				this.sk = this.read_ini('sk');
 				if (this.scrobbler) {
@@ -12,10 +13,14 @@ _.mixin({
 						item.update();
 					}
 				});
+				break;
+			case '2K3.NOTIFY.LOVE':
+				this.post(_.tf('%JSP_LOVED%', data) == 1 ? 'track.unlove' : 'track.love', null, data);
+				break;
 			}
 		}
 		
-		this.auth = function (method, token) {
+		this.post = function (method, token, metadb) {
 			switch (method) {
 			case 'auth.getToken':
 				this.update_sk('');
@@ -26,6 +31,25 @@ _.mixin({
 				var api_sig = md5('api_key' + this.api_key + 'method' + method + 'token' + token + this.secret);
 				var data = 'format=json&method=' + method + '&api_key=' + this.api_key + '&api_sig=' + api_sig + '&token=' + token;
 				break;
+			case 'track.love':
+			case 'track.unlove':
+				switch (true) {
+				case !this.username.length:
+					return console.log(N, 'Last.fm username not set.');
+				case this.sk.length != 32:
+					return console.log(N, 'This script has not been authorised.');
+				}
+				var artist = _.tf('%artist%', metadb);
+				var track = _.tf('%title%', metadb);
+				if (!_.tagged(artist) || !_.tagged(track)) {
+					return;
+				}
+				console.log(N, 'Attempting to ' + (method == 'track.love' ? 'love ' : 'unlove ') + _.q(track) + ' by ' + _.q(artist));
+				console.log(N, 'Contacting Last.fm....');
+				var api_sig = md5('api_key' + this.api_key + 'artist' + artist + 'method' + method + 'sk' + this.sk + 'track' + track + this.secret);
+				// can't use format=json because Last.fm API is broken for this method
+				var data = 'method=' + method + '&api_key=' + this.api_key + '&api_sig=' + api_sig + '&sk=' + this.sk + '&artist=' + encodeURIComponent(artist) + '&track=' + encodeURIComponent(track);
+				break;
 			default:
 				return;
 			}
@@ -35,19 +59,47 @@ _.mixin({
 			this.xmlhttp.send(data);
 			this.xmlhttp.onreadystatechange = _.bind(function () {
 				if (this.xmlhttp.readyState == 4) {
-					var data = _.jsonParse(this.xmlhttp.responseText);
-					if (data.error) {
-						WshShell.popup(data.message, 0, window.Name, popup.stop);
-					} else if (data.token) {
-						_.run('https://last.fm/api/auth/?api_key=' + this.api_key + '&token=' + data.token);
-						if (WshShell.popup('If you granted permission successfully, click Yes to continue.', 0, window.Name, popup.question + popup.yes_no) == popup.yes) {
-							this.auth('auth.getSession', data.token);
-						}
-					} else if (data.session && data.session.key) {
-						this.update_sk(data.session.key);
-					}
+					this.done(method, metadb);
 				}
 			}, this);
+		}
+		
+		this.done = function (method, metadb) {
+			switch (method) {
+			case 'track.love':
+				if (this.xmlhttp.responseText.indexOf('ok') > -1) {
+					console.log(N, 'Track loved successfully.');
+					metadb.SetLoved(1);
+					return;
+				}
+				break;
+			case 'track.unlove':
+				if (this.xmlhttp.responseText.indexOf('ok') > -1) {
+					console.log(N, 'Track unloved successfully.');
+					metadb.SetLoved(0);
+					return;
+				}
+				break;
+			case 'auth.getToken':
+				var data = _.jsonParse(this.xmlhttp.responseText);
+				if (data.token) {
+					_.run('https://last.fm/api/auth/?api_key=' + this.api_key + '&token=' + data.token);
+					if (WshShell.popup('If you granted permission successfully, click Yes to continue.', 0, window.Name, popup.question + popup.yes_no) == popup.yes) {
+						this.post('auth.getSession', data.token);
+					}
+					return;
+				}
+				break;
+			case 'auth.getSession':
+				var data = _.jsonParse(this.xmlhttp.responseText);
+				if (data.session && data.session.key) {
+					this.update_sk(data.session.key);
+					return;
+				}
+				break;
+			}
+			// display response text/error if we get here, any success returned early
+			console.log(N, this.xmlhttp.responseText);
 		}
 		
 		this.update_username = function () {
@@ -77,6 +129,7 @@ _.mixin({
 		}
 		
 		this.scrobbler = null;
+		_.createFolder(folders.data);
 		this.ini_file = folders.data + 'lastfm.ini';
 		this.api_key = '1f078d9e59cb34909f7ed56d7fc64aba';
 		this.secret = 'a8b4adc5de20242f585b12ef08a464a9';
