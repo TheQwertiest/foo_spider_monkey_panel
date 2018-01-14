@@ -315,8 +315,12 @@ STDMETHODIMP FbMetadbHandle::SetFirstPlayed(BSTR first_played)
 	if (stats::g_client->hashHandle(m_handle, hash))
 	{
 		stats::fields tmp = stats::get(hash);
-		tmp.first_played = pfc::stringcvt::string_utf8_from_wide(first_played);
-		stats::set(hash, tmp);
+		pfc::string8 fp = pfc::stringcvt::string_utf8_from_wide(first_played);
+		if (!tmp.first_played.equals(fp))
+		{
+			tmp.first_played = fp;
+			stats::set(hash, tmp);
+		}
 	}
 	return S_OK;
 }
@@ -329,8 +333,12 @@ STDMETHODIMP FbMetadbHandle::SetLastPlayed(BSTR last_played)
 	if (stats::g_client->hashHandle(m_handle, hash))
 	{
 		stats::fields tmp = stats::get(hash);
-		tmp.last_played = pfc::stringcvt::string_utf8_from_wide(last_played);
-		stats::set(hash, tmp);
+		pfc::string8 lp = pfc::stringcvt::string_utf8_from_wide(last_played);
+		if (!tmp.last_played.equals(lp))
+		{
+			tmp.last_played = lp;
+			stats::set(hash, tmp);
+		}
 	}
 	return S_OK;
 }
@@ -343,8 +351,11 @@ STDMETHODIMP FbMetadbHandle::SetLoved(UINT loved)
 	if (stats::g_client->hashHandle(m_handle, hash))
 	{
 		stats::fields tmp = stats::get(hash);
-		tmp.loved = loved;
-		stats::set(hash, tmp);
+		if (tmp.loved != loved)
+		{
+			tmp.loved = loved;
+			stats::set(hash, tmp);
+		}
 	}
 	return S_OK;
 }
@@ -357,8 +368,11 @@ STDMETHODIMP FbMetadbHandle::SetPlaycount(UINT playcount)
 	if (stats::g_client->hashHandle(m_handle, hash))
 	{
 		stats::fields tmp = stats::get(hash);
-		tmp.playcount = playcount;
-		stats::set(hash, tmp);
+		if (tmp.playcount != playcount)
+		{
+			tmp.playcount = playcount;
+			stats::set(hash, tmp);
+		}
 	}
 	return S_OK;
 }
@@ -371,8 +385,11 @@ STDMETHODIMP FbMetadbHandle::SetRating(UINT rating)
 	if (stats::g_client->hashHandle(m_handle, hash))
 	{
 		stats::fields tmp = stats::get(hash);
-		tmp.rating = rating;
-		stats::set(hash, tmp);
+		if (tmp.rating != rating)
+		{
+			tmp.rating = rating;
+			stats::set(hash, tmp);
+		}
 	}
 	return S_OK;
 }
