@@ -112,10 +112,7 @@ _.mixin({
 			this.s12 = window.CreatePopupMenu();
 			this.s13 = window.CreatePopupMenu();
 			// panel 1-999
-			// album art 2000-2999
-			// list 3000-3999
-			// text 5000-5999
-			// rating 6000-6999
+			// object 1000+
 			if (object) {
 				object.rbtn_up(x, y);
 			}
@@ -171,7 +168,7 @@ _.mixin({
 			case idx == 120:
 				window.ShowConfigure();
 				break;
-			default:
+			case idx > 999:
 				if (object) {
 					object.rbtn_up_done(idx);
 				}

@@ -297,151 +297,151 @@ _.mixin({
 		}
 		
 		this.rbtn_up = function (x, y) {
-			panel.m.AppendMenuItem(MF_STRING, 4000, 'Custom folder');
-			panel.m.AppendMenuItem(MF_STRING, 4001, 'Last.fm artist art');
-			panel.m.CheckMenuRadioItem(4000, 4001, this.properties.source.value + 4000);
+			panel.m.AppendMenuItem(MF_STRING, 1000, 'Custom folder');
+			panel.m.AppendMenuItem(MF_STRING, 1001, 'Last.fm artist art');
+			panel.m.CheckMenuRadioItem(1000, 1001, this.properties.source.value + 1000);
 			panel.m.AppendMenuSeparator();
 			if (this.properties.source.value == 0) { // custom folder
-				panel.m.AppendMenuItem(MF_STRING, 4002, 'Refresh');
-				panel.m.AppendMenuItem(MF_STRING, 4003, 'Set custom folder...');
+				panel.m.AppendMenuItem(MF_STRING, 1002, 'Refresh');
+				panel.m.AppendMenuItem(MF_STRING, 1003, 'Set custom folder...');
 			} else { // last.fm
-				panel.m.AppendMenuItem(panel.metadb ? MF_STRING : MF_GRAYED, 4004, 'Download now');
+				panel.m.AppendMenuItem(panel.metadb ? MF_STRING : MF_GRAYED, 1004, 'Download now');
 				_.forEach(this.limits, function (item) {
-					panel.s10.AppendMenuItem(MF_STRING, item + 4010, item);
+					panel.s10.AppendMenuItem(MF_STRING, item + 1010, item);
 				});
-				panel.s10.CheckMenuRadioItem(_.first(this.limits) + 4010, _.last(this.limits) + 4010, this.properties.limit.value + 4010);
+				panel.s10.CheckMenuRadioItem(_.first(this.limits) + 1010, _.last(this.limits) + 1010, this.properties.limit.value + 1010);
 				panel.s10.AppendTo(panel.m, MF_STRING, 'Limit');
 			}
 			panel.m.AppendMenuSeparator();
 			if (!panel.text_objects.length && !panel.list_objects.length) {
 				_.forEach(this.modes, function (item, i) {
-					panel.s11.AppendMenuItem(MF_STRING, i + 4050, _.capitalize(item));
+					panel.s11.AppendMenuItem(MF_STRING, i + 1050, _.capitalize(item));
 				});
-				panel.s11.CheckMenuRadioItem(4050, 4055, this.properties.mode.value + 4050);
+				panel.s11.CheckMenuRadioItem(1050, 1055, this.properties.mode.value + 1050);
 				panel.s11.AppendMenuSeparator();
 				var flag = this.properties.mode.value == 5 ? MF_GRAYED : MF_STRING; // off
 				_.forEach(this.pxs, function (item) {
-					panel.s11.AppendMenuItem(flag, item + 4000, item + 'px');
+					panel.s11.AppendMenuItem(flag, item + 1000, item + 'px');
 				});
-				panel.s11.CheckMenuRadioItem(_.first(this.pxs) + 4000, _.last(this.pxs) + 4000, this.properties.px.value + 4000);
+				panel.s11.CheckMenuRadioItem(_.first(this.pxs) + 1000, _.last(this.pxs) + 1000, this.properties.px.value + 1000);
 				panel.s11.AppendTo(panel.m, MF_STRING, 'Thumbs');
 				panel.m.AppendMenuSeparator();
 			}
-			panel.s12.AppendMenuItem(MF_STRING, 4400, 'Off');
-			panel.s12.AppendMenuItem(MF_STRING, 4405, '5 seconds');
-			panel.s12.AppendMenuItem(MF_STRING, 4410, '10 seconds');
-			panel.s12.AppendMenuItem(MF_STRING, 4420, '20 seconds');
-			panel.s12.CheckMenuRadioItem(4400, 4420, this.properties.cycle.value + 4400);
+			panel.s12.AppendMenuItem(MF_STRING, 1400, 'Off');
+			panel.s12.AppendMenuItem(MF_STRING, 1405, '5 seconds');
+			panel.s12.AppendMenuItem(MF_STRING, 1410, '10 seconds');
+			panel.s12.AppendMenuItem(MF_STRING, 1420, '20 seconds');
+			panel.s12.CheckMenuRadioItem(1400, 1420, this.properties.cycle.value + 1400);
 			panel.s12.AppendTo(panel.m, MF_STRING, 'Cycle');
 			panel.m.AppendMenuSeparator();
-			panel.s13.AppendMenuItem(MF_STRING, 4500, 'A-Z');
-			panel.s13.AppendMenuItem(MF_STRING, 4501, 'Newest first');
-			panel.s13.CheckMenuRadioItem(4500, 4501, this.properties.sort.value + 4500);
+			panel.s13.AppendMenuItem(MF_STRING, 1500, 'A-Z');
+			panel.s13.AppendMenuItem(MF_STRING, 1501, 'Newest first');
+			panel.s13.CheckMenuRadioItem(1500, 1501, this.properties.sort.value + 1500);
 			panel.s13.AppendTo(panel.m, MF_STRING, 'Sort');
 			panel.m.AppendMenuSeparator();
 			if (this.image_xywh_trace(x, y)) {
 				if (this.properties.mode.value != 0) {
-					panel.m.AppendMenuItem(MF_STRING, 4510, 'Crop (focus on centre)');
-					panel.m.AppendMenuItem(MF_STRING, 4511, 'Crop (focus on top)');
-					panel.m.AppendMenuItem(MF_STRING, 4512, 'Stretch');
-					panel.m.AppendMenuItem(MF_STRING, 4513, 'Centre');
-					panel.m.CheckMenuRadioItem(4510, 4513, this.properties.aspect.value + 4510);
+					panel.m.AppendMenuItem(MF_STRING, 1510, 'Crop (focus on centre)');
+					panel.m.AppendMenuItem(MF_STRING, 1511, 'Crop (focus on top)');
+					panel.m.AppendMenuItem(MF_STRING, 1512, 'Stretch');
+					panel.m.AppendMenuItem(MF_STRING, 1513, 'Centre');
+					panel.m.CheckMenuRadioItem(1510, 1513, this.properties.aspect.value + 1510);
 					panel.m.AppendMenuSeparator();
 				}
 				if (this.properties.source.value == 1 && this.images.length > 1) {
-					panel.m.AppendMenuItem(this.default_file == this.files[this.image] ? MF_GRAYED : MF_STRING, 4520, 'Set as default');
-					panel.m.AppendMenuItem(MF_STRING, 4521, 'Clear default');
+					panel.m.AppendMenuItem(this.default_file == this.files[this.image] ? MF_GRAYED : MF_STRING, 1520, 'Set as default');
+					panel.m.AppendMenuItem(MF_STRING, 1521, 'Clear default');
 					panel.m.AppendMenuSeparator();
 				}
-				panel.m.AppendMenuItem(MF_STRING, 4530, 'Open image');
-				panel.m.AppendMenuItem(MF_STRING, 4531, 'Delete image');
+				panel.m.AppendMenuItem(MF_STRING, 1530, 'Open image');
+				panel.m.AppendMenuItem(MF_STRING, 531, 'Delete image');
 				panel.m.AppendMenuSeparator();
 			}
-			panel.m.AppendMenuItem(_.isFolder(this.folder) ? MF_STRING : MF_GRAYED, 4540, 'Open containing folder');
+			panel.m.AppendMenuItem(_.isFolder(this.folder) ? MF_STRING : MF_GRAYED, 1540, 'Open containing folder');
 			panel.m.AppendMenuSeparator();
 		}
 		
 		this.rbtn_up_done = function (idx) {
 			switch (idx) {
-			case 4000:
-			case 4001:
-				this.properties.source.set(idx - 4000);
+			case 1000:
+			case 1001:
+				this.properties.source.set(idx - 1000);
 				this.artist = '';
 				this.folder = '';
 				panel.item_focus_change();
 				break;
-			case 4002:
+			case 1002:
 				this.update();
 				break;
-			case 4003:
+			case 1003:
 				this.properties.tf.set(_.input('Enter title formatting or an absolute path to a folder.\n\n%profile% will resolve to your foobar2000 profile folder or the program folder if using portable mode.', window.Name, this.properties.tf.value) || '$directory_path(%path%)');
 				this.folder = '';
 				panel.item_focus_change();
 				break;
-			case 4004:
+			case 1004:
 				this.download();
 				break;
-			case 4011:
-			case 4013:
-			case 4015:
-			case 4020:
-			case 4025:
-			case 4030:
-				this.properties.limit.set(idx - 4010);
+			case 1011:
+			case 1013:
+			case 1015:
+			case 1020:
+			case 1025:
+			case 1030:
+				this.properties.limit.set(idx - 1010);
 				break;
-			case 4050:
-			case 4051:
-			case 4052:
-			case 4053:
-			case 4054:
-			case 4055:
-				this.properties.mode.set(idx - 4050);
+			case 1050:
+			case 1051:
+			case 1052:
+			case 1053:
+			case 1054:
+			case 1055:
+				this.properties.mode.set(idx - 1050);
 				this.size(true);
 				window.Repaint();
 				break;
-			case 4075:
-			case 4100:
-			case 4150:
-			case 4200:
-			case 4250:
-			case 4300:
-				this.properties.px.set(idx - 4000);
+			case 1075:
+			case 1100:
+			case 1150:
+			case 1200:
+			case 1250:
+			case 1300:
+				this.properties.px.set(idx - 1000);
 				this.size(true);
 				window.Repaint();
 				break;
-			case 4400:
-			case 4405:
-			case 4410:
-			case 4420:
-				this.properties.cycle.set(idx - 4400);
+			case 1400:
+			case 1405:
+			case 1410:
+			case 1420:
+				this.properties.cycle.set(idx - 1400);
 				break;
-			case 4500:
-			case 4501:
-				this.properties.sort.set(idx - 4500);
+			case 1500:
+			case 1501:
+				this.properties.sort.set(idx - 1500);
 				if (this.images.length > 1) {
 					this.update();
 				}
 				break;
-			case 4510:
-			case 4511:
-			case 4512:
-			case 4513:
-				this.properties.aspect.set(idx - 4510);
+			case 1510:
+			case 1511:
+			case 1512:
+			case 1513:
+				this.properties.aspect.set(idx - 1510);
 				window.Repaint();
 				break;
-			case 4520:
+			case 1520:
 				this.set_default(this.files[this.image].split('\\').pop());
 				break;
-			case 4521:
+			case 1521:
 				this.set_default('');
 				break;
-			case 4530:
+			case 1530:
 				_.run(this.files[this.image]);
 				break;
-			case 4531:
+			case 1531:
 				this.delete_image();
 				break;
-			case 4540:
+			case 1540:
 				if (this.files.length) {
 					_.explorer(this.files[this.image]);
 				} else {

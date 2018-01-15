@@ -103,68 +103,68 @@ _.mixin({
 		}
 		
 		this.rbtn_up = function (x, y) {
-			panel.m.AppendMenuItem(MF_STRING, 2000, 'Refresh');
+			panel.m.AppendMenuItem(MF_STRING, 1000, 'Refresh');
 			panel.m.AppendMenuSeparator();
-			panel.m.AppendMenuItem(MF_STRING, 2001, 'CD Jewel Case');
-			panel.m.CheckMenuItem(2001, this.properties.cd.enabled);
-			panel.m.AppendMenuItem(this.properties.cd.enabled ? MF_STRING : MF_GRAYED, 2002, 'Gloss effect');
-			panel.m.CheckMenuItem(2002, this.properties.gloss.enabled);
-			panel.m.AppendMenuItem(this.properties.cd.enabled ? MF_STRING : MF_GRAYED, 2003, 'Shadow effect');
-			panel.m.CheckMenuItem(2003, this.properties.shadow.enabled);
+			panel.m.AppendMenuItem(MF_STRING, 1001, 'CD Jewel Case');
+			panel.m.CheckMenuItem(1001, this.properties.cd.enabled);
+			panel.m.AppendMenuItem(this.properties.cd.enabled ? MF_STRING : MF_GRAYED, 1002, 'Gloss effect');
+			panel.m.CheckMenuItem(1002, this.properties.gloss.enabled);
+			panel.m.AppendMenuItem(this.properties.cd.enabled ? MF_STRING : MF_GRAYED, 1003, 'Shadow effect');
+			panel.m.CheckMenuItem(1003, this.properties.shadow.enabled);
 			panel.m.AppendMenuSeparator();
 			_.forEach(this.ids, function (item, i) {
-				panel.m.AppendMenuItem(MF_STRING, i + 2010, item);
+				panel.m.AppendMenuItem(MF_STRING, i + 1010, item);
 			});
-			panel.m.CheckMenuRadioItem(2010, 2014, this.properties.id.value + 2010);
+			panel.m.CheckMenuRadioItem(1010, 1014, this.properties.id.value + 1010);
 			panel.m.AppendMenuSeparator();
-			panel.m.AppendMenuItem(MF_STRING, 2020, 'Crop (focus on centre)');
-			panel.m.AppendMenuItem(MF_STRING, 2021, 'Crop (focus on top)');
-			panel.m.AppendMenuItem(MF_STRING, 2022, 'Stretch');
-			panel.m.AppendMenuItem(MF_STRING, 2023, 'Centre');
-			panel.m.CheckMenuRadioItem(2020, 2023, this.properties.aspect.value + 2020);
+			panel.m.AppendMenuItem(MF_STRING, 1020, 'Crop (focus on centre)');
+			panel.m.AppendMenuItem(MF_STRING, 1021, 'Crop (focus on top)');
+			panel.m.AppendMenuItem(MF_STRING, 1022, 'Stretch');
+			panel.m.AppendMenuItem(MF_STRING, 1023, 'Centre');
+			panel.m.CheckMenuRadioItem(1020, 1023, this.properties.aspect.value + 1020);
 			panel.m.AppendMenuSeparator();
-			panel.m.AppendMenuItem(_.isFile(this.path) ? MF_STRING : MF_GRAYED, 2030, 'Open containing folder');
+			panel.m.AppendMenuItem(_.isFile(this.path) ? MF_STRING : MF_GRAYED, 1030, 'Open containing folder');
 			panel.m.AppendMenuSeparator();
-			panel.m.AppendMenuItem(panel.metadb ? MF_STRING : MF_GRAYED, 2040, 'Google image search');
+			panel.m.AppendMenuItem(panel.metadb ? MF_STRING : MF_GRAYED, 1040, 'Google image search');
 			panel.m.AppendMenuSeparator();
 		}
 		
 		this.rbtn_up_done = function (idx) {
 			switch (idx) {
-			case 2000:
+			case 1000:
 				panel.item_focus_change();
 				break;
-			case 2001:
+			case 1001:
 				this.properties.cd.toggle();
 				window.Repaint();
 				break;
-			case 2002:
+			case 1002:
 				this.properties.gloss.toggle();
 				window.RepaintRect(this.x, this.y, this.w, this.h);
 				break;
-			case 2003:
+			case 1003:
 				this.properties.shadow.toggle();
 				window.RepaintRect(this.x, this.y, this.w, this.h);
 				break;
-			case 2010:
-			case 2011:
-			case 2012:
-			case 2013:
-			case 2014:
-				this.properties.id.set(idx - 2010);
+			case 1010:
+			case 1011:
+			case 1012:
+			case 1013:
+			case 1014:
+				this.properties.id.set(idx - 1010);
 				panel.item_focus_change();
 				break;
-			case 2020:
-			case 2021:
-			case 2022:
-			case 2023:
-				this.properties.aspect.set(idx - 2020);
+			case 1020:
+			case 1021:
+			case 1022:
+			case 1023:
+				this.properties.aspect.set(idx - 1020);
 				window.RepaintRect(this.x, this.y, this.w, this.h);
 				break;
-			case 2030:
+			case 1030:
 				_.explorer(this.path);
 				break;
-			case 2040:
+			case 1040:
 				_.run('https://www.google.com/search?tbm=isch&q=' + encodeURIComponent(panel.tf('%album artist%[ %album%]')));
 				break;
 			}

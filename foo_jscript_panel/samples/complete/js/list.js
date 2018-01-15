@@ -209,13 +209,13 @@ _.mixin({
 		this.rbtn_up = function (x, y) {
 			switch (this.mode) {
 			case 'autoplaylists':
-				panel.m.AppendMenuItem(this.editing ? MF_GRAYED: MF_STRING, 3000, 'Add new autoplaylist...');
+				panel.m.AppendMenuItem(this.editing ? MF_GRAYED: MF_STRING, 1000, 'Add new autoplaylist...');
 				panel.m.AppendMenuSeparator();
 				if (this.deleted_items.length) {
 					_(this.deleted_items)
 						.take(8)
 						.forEach(function (item, i) {
-							panel.s10.AppendMenuItem(MF_STRING, i + 3010, item.name);
+							panel.s10.AppendMenuItem(MF_STRING, i + 1010, item.name);
 						})
 						.value();
 					panel.s10.AppendTo(panel.m, MF_STRING, 'Restore');
@@ -223,141 +223,141 @@ _.mixin({
 				}
 				break;
 			case 'lastfm_info':
-				panel.m.AppendMenuItem(MF_STRING, 3100, 'Similar artists');
-				panel.m.AppendMenuItem(MF_STRING, 3101, 'User Charts');
-				panel.m.CheckMenuRadioItem(3100, 3101, this.properties.mode.value + 3100);
+				panel.m.AppendMenuItem(MF_STRING, 1100, 'Similar artists');
+				panel.m.AppendMenuItem(MF_STRING, 1101, 'User Charts');
+				panel.m.CheckMenuRadioItem(1100, 1101, this.properties.mode.value + 1100);
 				panel.m.AppendMenuSeparator();
-				panel.s10.AppendMenuItem(MF_STRING, 3110, 'Open Last.fm website');
-				panel.s10.AppendMenuItem(MF_STRING, 3111, 'Autoplaylist');
-				panel.s10.CheckMenuRadioItem(3110, 3111, this.properties.link.value + 3110);
+				panel.s10.AppendMenuItem(MF_STRING, 1110, 'Open Last.fm website');
+				panel.s10.AppendMenuItem(MF_STRING, 1111, 'Autoplaylist');
+				panel.s10.CheckMenuRadioItem(1110, 1111, this.properties.link.value + 1110);
 				panel.s10.AppendTo(panel.m, this.properties.mode.value == 0 || this.properties.method.value == 0 ? MF_STRING : MF_GRAYED, 'Links');
 				panel.m.AppendMenuSeparator();
 				if (this.properties.mode.value == 1) {
 					_.forEach(this.methods, function (item, i) {
-						panel.m.AppendMenuItem(MF_STRING, i + 3120, _.capitalize(item.display));
+						panel.m.AppendMenuItem(MF_STRING, i + 1120, _.capitalize(item.display));
 					});
-					panel.m.CheckMenuRadioItem(3120, 3122, this.properties.method.value + 3120);
+					panel.m.CheckMenuRadioItem(1120, 1122, this.properties.method.value + 1120);
 					panel.m.AppendMenuSeparator();
 					_.forEach(this.periods, function (item, i) {
-						panel.m.AppendMenuItem(MF_STRING, i + 3130, _.capitalize(item.display));
+						panel.m.AppendMenuItem(MF_STRING, i + 1130, _.capitalize(item.display));
 					});
-					panel.m.CheckMenuRadioItem(3130, 3135, this.properties.period.value + 3130);
+					panel.m.CheckMenuRadioItem(1130, 1135, this.properties.period.value + 1130);
 					panel.m.AppendMenuSeparator();
-					panel.m.AppendMenuItem(MF_STRING, 3140, 'Bar colour...');
+					panel.m.AppendMenuItem(MF_STRING, 1140, 'Bar colour...');
 					panel.m.AppendMenuSeparator();
 				}
-				panel.m.AppendMenuItem(MF_STRING, 3150, 'Last.fm username...');
+				panel.m.AppendMenuItem(MF_STRING, 1150, 'Last.fm username...');
 				panel.m.AppendMenuSeparator();
 				break;
 			case 'musicbrainz':
-				panel.m.AppendMenuItem(MF_STRING, 3200, 'Releases');
-				panel.m.AppendMenuItem(MF_STRING, 3201, 'Links');
-				panel.m.CheckMenuRadioItem(3200, 3201, this.properties.mode.value + 3200);
+				panel.m.AppendMenuItem(MF_STRING, 1200, 'Releases');
+				panel.m.AppendMenuItem(MF_STRING, 1201, 'Links');
+				panel.m.CheckMenuRadioItem(1200, 1201, this.properties.mode.value + 1200);
 				panel.m.AppendMenuSeparator();
 				if (!_.isUUID(this.mb_id)) {
-					panel.m.AppendMenuItem(MF_GRAYED, 3203, 'Artist MBID missing. Use Musicbrainz Picard or foo_musicbrainz to tag your files.');
+					panel.m.AppendMenuItem(MF_GRAYED, 1203, 'Artist MBID missing. Use Musicbrainz Picard or foo_musicbrainz to tag your files.');
 					panel.m.AppendMenuSeparator();
 				}
 				break;
 			case 'properties':
-				panel.m.AppendMenuItem(MF_STRING, 3300, 'Metadata');
-				panel.m.CheckMenuItem(3300, this.properties.meta.enabled);
-				panel.m.AppendMenuItem(MF_STRING, 3301, 'Location');
-				panel.m.CheckMenuItem(3301, this.properties.location.enabled);
-				panel.m.AppendMenuItem(MF_STRING, 3302, 'Tech Info');
-				panel.m.CheckMenuItem(3302, this.properties.tech.enabled);
-				panel.m.AppendMenuItem(_.cc('foo_playcount') ? MF_STRING : MF_GRAYED, 3303, 'Playback Statistics (foo_playcount)');
-				panel.m.CheckMenuItem(3303, this.properties.playcount.enabled);
-				panel.m.AppendMenuItem(MF_STRING, 3304, 'Replaygain');
-				panel.m.CheckMenuItem(3304, this.properties.rg.enabled);
+				panel.m.AppendMenuItem(MF_STRING, 1300, 'Metadata');
+				panel.m.CheckMenuItem(1300, this.properties.meta.enabled);
+				panel.m.AppendMenuItem(MF_STRING, 1301, 'Location');
+				panel.m.CheckMenuItem(1301, this.properties.location.enabled);
+				panel.m.AppendMenuItem(MF_STRING, 1302, 'Tech Info');
+				panel.m.CheckMenuItem(1302, this.properties.tech.enabled);
+				panel.m.AppendMenuItem(_.cc('foo_playcount') ? MF_STRING : MF_GRAYED, 1303, 'Playback Statistics (foo_playcount)');
+				panel.m.CheckMenuItem(1303, this.properties.playcount.enabled);
+				panel.m.AppendMenuItem(MF_STRING, 1304, 'Replaygain');
+				panel.m.CheckMenuItem(1304, this.properties.rg.enabled);
 				panel.m.AppendMenuSeparator();
 				break;
 			}
-			panel.m.AppendMenuItem(_.isFile(this.filename) ? MF_STRING : MF_GRAYED, 3999, 'Open containing folder');
+			panel.m.AppendMenuItem(_.isFile(this.filename) ? MF_STRING : MF_GRAYED, 1999, 'Open containing folder');
 			panel.m.AppendMenuSeparator();
 		}
 		
 		this.rbtn_up_done = function (idx) {
 			switch (idx) {
-			case 3000:
+			case 1000:
 				this.add();
 				break;
-			case 3010:
-			case 3011:
-			case 3012:
-			case 3013:
-			case 3014:
-			case 3015:
-			case 3016:
-			case 3017:
-				var item = idx - 3010;
+			case 1010:
+			case 1011:
+			case 1012:
+			case 1013:
+			case 1014:
+			case 1015:
+			case 1016:
+			case 1017:
+				var item = idx - 1010;
 				this.data.push(this.deleted_items[item]);
 				this.deleted_items.splice(item, 1);
 				this.save();
 				break;
-			case 3100:
+			case 1100:
 				this.properties.mode.set(0);
 				this.reset();
 				break;
-			case 3101:
+			case 1101:
 				this.properties.mode.set(1);
 				this.update();
 				break;
-			case 3110:
-			case 3111:
-				this.properties.link.set(idx - 3110);
+			case 1110:
+			case 1111:
+				this.properties.link.set(idx - 1110);
 				if (this.data.length) {
 					this.update();
 				}
 				break;
-			case 3120:
-			case 3121:
-			case 3122:
-				this.properties.method.set(idx - 3120);
+			case 1120:
+			case 1121:
+			case 1122:
+				this.properties.method.set(idx - 1120);
 				this.update();
 				break;
-			case 3130:
-			case 3131:
-			case 3132:
-			case 3133:
-			case 3134:
-			case 3135:
-				this.properties.period.set(idx - 3130);
+			case 1130:
+			case 1131:
+			case 1132:
+			case 1133:
+			case 1134:
+			case 1135:
+				this.properties.period.set(idx - 1130);
 				this.update();
 				break;
-			case 3140:
+			case 1140:
 				this.properties.colour.set(utils.ColourPicker(window.ID, this.properties.colour.value));
 				window.Repaint();
 				break;
-			case 3150:
+			case 1150:
 				lastfm.update_username();
 				break;
-			case 3200:
-			case 3201:
-				this.properties.mode.set(idx - 3200);
+			case 1200:
+			case 1201:
+				this.properties.mode.set(idx - 1200);
 				this.reset();
 				break;
-			case 3300:
+			case 1300:
 				this.properties.meta.toggle();
 				panel.item_focus_change();
 				break;
-			case 3301:
+			case 1301:
 				this.properties.location.toggle();
 				panel.item_focus_change();
 				break;
-			case 3302:
+			case 1302:
 				this.properties.tech.toggle();
 				panel.item_focus_change();
 				break;
-			case 3303:
+			case 1303:
 				this.properties.playcount.toggle();
 				panel.item_focus_change();
 				break;
-			case 3304:
+			case 1304:
 				this.properties.rg.toggle();
 				panel.item_focus_change();
 				break;
-			case 3999:
+			case 1999:
 				_.explorer(this.filename);
 				break;
 			}
@@ -721,7 +721,7 @@ _.mixin({
 							this.edit_done(z);
 						}
 						break;
-					case 3:
+					case 1:
 						var new_query = _.input('Enter autoplaylist query', window.Name, this.data[z].query);
 						if (new_query.length && new_query != this.data[z].query) {
 							this.data[z].query = new_query;

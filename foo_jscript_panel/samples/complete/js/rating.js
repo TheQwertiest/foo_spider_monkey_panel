@@ -59,29 +59,29 @@ _.mixin({
 		
 		this.rbtn_up = function (x, y) {
 			_.forEach(this.modes, function (item, i) {
-				panel.s10.AppendMenuItem(i == 1 && !this.foo_playcount ? MF_GRAYED : MF_STRING, i + 6000, item);
+				panel.s10.AppendMenuItem(i == 1 && !this.foo_playcount ? MF_GRAYED : MF_STRING, i + 1000, item);
 			}, this);
-			panel.s10.CheckMenuRadioItem(6000, 6003, this.properties.mode.value + 6000);
+			panel.s10.CheckMenuRadioItem(1000, 1003, this.properties.mode.value + 1000);
 			panel.s10.AppendTo(panel.m, MF_STRING, 'Mode');
-			panel.m.AppendMenuItem(this.properties.mode.value == 2 ? MF_STRING : MF_GRAYED, 6004, 'Tag name');
-			panel.m.AppendMenuItem(this.properties.mode.value > 1 ? MF_STRING : MF_GRAYED, 6005, 'Max value...');
+			panel.m.AppendMenuItem(this.properties.mode.value == 2 ? MF_STRING : MF_GRAYED, 1004, 'Tag name');
+			panel.m.AppendMenuItem(this.properties.mode.value > 1 ? MF_STRING : MF_GRAYED, 1005, 'Max value...');
 			panel.m.AppendMenuSeparator();
 		}
 		
 		this.rbtn_up_done = function (idx) {
 			switch (true) {
-			case idx <= 6003:
-				this.properties.mode.set(idx - 6000);
+			case idx <= 1003:
+				this.properties.mode.set(idx - 1000);
 				break;
-			case idx == 6004:
-				var tmp = _.input('Enter a custom tag name. Do not use %%.', window.Name, this.properties.tag.value);
+			case idx == 1004:
+				var tmp = _.input('Enter a custom tag name. Do not use %%. Defaults to "rating" if left blank.', window.Name, this.properties.tag.value);
 				if (tmp == '') {
 					tmp = 'rating';
 				}
 				this.properties.tag.set(tmp);
 				break;
-			case idx == 6005:
-				var tmp = _.input('Enter a maximum value.', window.Name, this.properties.max.value);
+			case idx == 1005:
+				var tmp = _.input('Enter a maximum value. Defaults to "5" if left blank.', window.Name, this.properties.max.value);
 				if (tmp == '') {
 					tmp = 5;
 				}
