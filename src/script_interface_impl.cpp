@@ -315,7 +315,7 @@ STDMETHODIMP FbMetadbHandle::SetFirstPlayed(BSTR first_played)
 	if (stats::g_client->hashHandle(m_handle, hash))
 	{
 		stats::fields tmp = stats::get(hash);
-		pfc::string8 fp = pfc::stringcvt::string_utf8_from_wide(first_played);
+		pfc::stringcvt::string_utf8_from_wide fp(first_played);
 		if (!tmp.first_played.equals(fp))
 		{
 			tmp.first_played = fp;
@@ -333,7 +333,7 @@ STDMETHODIMP FbMetadbHandle::SetLastPlayed(BSTR last_played)
 	if (stats::g_client->hashHandle(m_handle, hash))
 	{
 		stats::fields tmp = stats::get(hash);
-		pfc::string8 lp = pfc::stringcvt::string_utf8_from_wide(last_played);
+		pfc::stringcvt::string_utf8_from_wide lp(last_played);
 		if (!tmp.last_played.equals(lp))
 		{
 			tmp.last_played = lp;

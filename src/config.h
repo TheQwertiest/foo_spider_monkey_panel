@@ -13,7 +13,7 @@ enum t_edge_style : char
 	GREY_EDGE,
 };
 
-inline LONG edge_style_from_config(t_edge_style edge_style)
+inline DWORD edge_style_from_config(t_edge_style edge_style)
 {
 	switch (edge_style)
 	{

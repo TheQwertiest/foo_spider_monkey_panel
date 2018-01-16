@@ -127,6 +127,8 @@ namespace ui_extension
 	typedef service_ptr_t<class playlist_window> playlist_window_ptr;
 
 	typedef pfc::refcounted_object_ptr_t<class menu_node_t> menu_node_ptr;
+
+	static const window_ptr window_ptr_null = window_ptr();
 }
 
 #include "menu.h"

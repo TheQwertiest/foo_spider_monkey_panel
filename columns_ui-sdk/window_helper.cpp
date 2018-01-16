@@ -94,7 +94,7 @@ namespace ui_helpers
 		{
 			LPVOID * create_params = reinterpret_cast<LPVOID *>(((CREATESTRUCT *)(lp))->lpCreateParams);
 			p_this = reinterpret_cast<container_window *>(create_params[0]); //retrieve pointer to class
-			SetWindowLongPtr(wnd, GWL_USERDATA, (LPARAM)p_this);//store it for future use
+			SetWindowLongPtr(wnd, GWLP_USERDATA, (LPARAM)p_this);//store it for future use
 			if (p_this)
 			{
 				p_this->get_class_data().refcount++;
@@ -103,7 +103,7 @@ namespace ui_helpers
 
 		}
 		else
-			p_this = reinterpret_cast<container_window*>(GetWindowLongPtr(wnd,GWL_USERDATA));//if isnt wm_nccreate, retrieve pointer to class
+			p_this = reinterpret_cast<container_window*>(GetWindowLongPtr(wnd, GWLP_USERDATA));//if isnt wm_nccreate, retrieve pointer to class
 
 		if (msg == WM_NCDESTROY)
 		{
@@ -111,7 +111,7 @@ namespace ui_helpers
 			{
 				p_this->get_class_data().refcount--;
 				p_this->wnd_host = NULL;
-				SetWindowLongPtr(wnd, GWL_USERDATA, (LPARAM)NULL);
+				SetWindowLongPtr(wnd, GWLP_USERDATA, (LPARAM)NULL);
 			}
 		}
 

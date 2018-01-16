@@ -126,6 +126,57 @@ namespace ui_extension
 		*/
 		virtual void get_menu_items (menu_hook_t & p_hook) {};
 
+		/**
+		* \brief Helper function, set instance configuration data from raw pointer.
+		*
+		* \see set_config
+		*
+		* \throw Throws pfc::exception on failure
+		*
+		* \param [in]	p_data			Pointer to configuration data
+		* \param [in]	p_size			Size of data 
+		* \param [in]	p_abort			Signals abort of operation
+		*/
+		void set_config_from_ptr(const void * p_data, t_size p_size, abort_callback & p_abort);
+
+		/**
+		* \brief Helper function. Import instance configuration data from a raw pointer.
+		*
+		* \see import_config.
+		*
+		* \throw Throws pfc::exception on failure
+		*
+		* \param [in]	p_data			Pointer to configuration data
+		* \param [in]	p_size			Size of data in stream
+		* \param [in]	p_abort			Signals abort of operation
+		*/
+		void import_config_from_ptr(const void * p_reader, t_size p_size, abort_callback & p_abort);
+
+		/**
+		* \brief Helper function, writes instance configuration data to an array
+		*
+		* \see get_config
+		*
+		* \throw Throws pfc::exception on failure
+		*
+		* \param [out]	p_data			Array receiving configuration data
+		* \param [in]	p_abort			Signals abort of operation
+		* \param [in]	b_reset			Indicates whether the contents of the array should first be cleared
+		*/
+		void get_config_to_array(pfc::array_t<uint8_t> & p_data, abort_callback & p_abort, bool b_reset = false) const;
+
+		/**
+		* \brief Helper function, exports instance configuration data to an array
+		*
+		* \see export_config
+		*
+		* \throw Throws pfc::exception on failure
+		*
+		* \param [out]	p_data			Array receiving exported configuration data
+		* \param [in]	p_abort			Signals abort of operation
+		* \param [in]	b_reset			Indicates whether the contents of the array should first be cleared
+		*/
+		void export_config_to_array(pfc::array_t<uint8_t> & p_data, abort_callback & p_abort, bool b_reset = false) const;
 	};
 };
 

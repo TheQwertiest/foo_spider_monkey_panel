@@ -228,8 +228,8 @@ class NOVTABLE button_v2 : public button
 {
 public:
 	enum handle_type_t {
-		handle_type_bitmap = 0, /**HBITMAP */
-		handle_type_icon = 1, /**HICON */
+		handle_type_bitmap = 0, /**< HBITMAP */
+		handle_type_icon = 1, /**< HICON */
 	};
 	/**
 	* \brief Get a handle to a image of the menu item.

@@ -6,9 +6,9 @@ class param_utf16_from_utf8 : public pfc::stringcvt::string_wide_from_utf8
 	WORD low_word;
 public:
 	param_utf16_from_utf8(const char * p) : 
-		is_null(p==0), 
-		low_word( HIWORD((DWORD)p)==0 ? LOWORD((DWORD)p) : 0),
-		pfc::stringcvt::string_wide_from_utf8( p && HIWORD((DWORD)p)!=0 ?p:"") 
+		pfc::stringcvt::string_wide_from_utf8( p && HIWORD((DWORD)p)!=0 ?p:""), 
+		is_null(p==0),
+		low_word( HIWORD((DWORD)p)==0 ? LOWORD((DWORD)p) : 0) 
 		{}
 	inline operator const WCHAR *()
 	{
@@ -27,9 +27,9 @@ class param_ansi_from_utf8 : public pfc::stringcvt::string_ansi_from_utf8
 	WORD low_word;
 public:
 	param_ansi_from_utf8(const char * p) : 
-		is_null(p==0), 
-		low_word( HIWORD((DWORD)p)==0 ? LOWORD((DWORD)p) : 0),
-		pfc::stringcvt::string_ansi_from_utf8( p && HIWORD((DWORD)p)!=0 ?p:"") 
+		pfc::stringcvt::string_ansi_from_utf8( p && HIWORD((DWORD)p)!=0 ?p:""), 
+		is_null(p==0),
+		low_word( HIWORD((DWORD)p)==0 ? LOWORD((DWORD)p) : 0) 
 		{}
 	inline operator const char *()
 	{

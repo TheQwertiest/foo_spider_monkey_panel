@@ -20,6 +20,10 @@ const GUID uie::window_host_ex::class_guid =
 const GUID uie::menu_window::class_guid = 
 { 0xa2a21b5f, 0x6280, 0x47bf, { 0x85, 0x6f, 0xc5, 0xf2, 0xc1, 0x29, 0xc3, 0xea } };
 
+// {BD12FBA8-0F6E-45C8-9B38-D7421513A1EA}
+const GUID uie::menu_window_v2::class_guid =
+{ 0xbd12fba8, 0xf6e, 0x45c8,{ 0x9b, 0x38, 0xd7, 0x42, 0x15, 0x13, 0xa1, 0xea } };
+
 // {F84C1030-4407-496c-B09A-14E5EC5CA1C3}
 const GUID uie::window::class_guid =
 { 0xf84c1030, 0x4407, 0x496c, { 0xb0, 0x9a, 0x14, 0xe5, 0xec, 0x5c, 0xa1, 0xc3 } };
@@ -102,6 +106,30 @@ HWND uie::window::g_on_tab(HWND wnd_focus)
 	}
 	return rv;
 };
+
+void uie::extension_base::set_config_from_ptr(const void * p_data, t_size p_size, abort_callback & p_abort)
+{
+	stream_reader_memblock_ref reader(p_data, p_size);
+	return set_config(&reader, p_size, p_abort);
+}
+
+void uie::extension_base::import_config_from_ptr(const void * p_data, t_size p_size, abort_callback & p_abort)
+{
+	stream_reader_memblock_ref reader(p_data, p_size);
+	return import_config(&reader, p_size, p_abort);
+}
+
+void uie::extension_base::get_config_to_array(pfc::array_t<uint8_t> & p_data, abort_callback & p_abort, bool b_reset) const
+{
+	stream_writer_memblock_ref writer(p_data, b_reset);
+	get_config(&writer, p_abort);
+}
+
+void uie::extension_base::export_config_to_array(pfc::array_t<uint8_t> & p_data, abort_callback & p_abort, bool b_reset) const
+{
+	stream_writer_memblock_ref writer(p_data, b_reset);
+	export_config(&writer, p_abort);
+}
 
 void uie::window_info_list_simple::get_name_by_guid (const GUID & in, pfc::string_base & out)
 {
@@ -244,8 +272,8 @@ void uie::menu_hook_impl::add_node (const uie::menu_node_ptr & p_node)
 {
 	m_nodes.add_item(p_node);
 }
-unsigned uie::menu_hook_impl::get_children_count() const {return m_nodes.get_count();}
-void uie::menu_hook_impl::get_child(unsigned p_index, menu_node_ptr & p_out) const {p_out = m_nodes[p_index];}
+t_size uie::menu_hook_impl::get_children_count() const {return m_nodes.get_count();}
+void uie::menu_hook_impl::get_child(t_size p_index, menu_node_ptr & p_out) const {p_out = m_nodes[p_index];}
 uie::menu_node_t::type_t uie::menu_hook_impl::get_type() const {return type_popup;};
 
 bool uie::menu_hook_impl::get_display_data(pfc::string_base & p_out,unsigned & p_displayflags) const {return false;};
@@ -327,6 +355,9 @@ const GUID splitter_window::bool_use_custom_title =
 const GUID splitter_window::string_custom_title = 
 { 0x3b4deda5, 0x493d, 0x4c5c, { 0xb5, 0x2c, 0x3, 0x6d, 0xe4, 0xcf, 0x43, 0xd9 } };
 
+// {443EEA36-E5F0-4ADD-BA0E-F31726B0BC45}
+const GUID splitter_window::size_and_dpi =
+{ 0x443eea36, 0xe5f0, 0x4add,{ 0xba, 0xe, 0xf3, 0x17, 0x26, 0xb0, 0xbc, 0x45 } };
 
 };
 
@@ -356,7 +387,8 @@ void uie::splitter_item_t::set(const splitter_item_t & p_source)
 		set_panel_guid(p_source.get_panel_guid());
 
 		p_source.get_panel_config(&temp);
-		set_panel_config(&stream_reader_memblock_ref(temp.m_data.get_ptr(), temp.m_data.get_size()), temp.m_data.get_size());
+		stream_reader_memblock_ref p_reader(temp.m_data.get_ptr(), temp.m_data.get_size());
+		set_panel_config(&p_reader, temp.m_data.get_size());
 	}
 }
 

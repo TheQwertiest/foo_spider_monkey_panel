@@ -24,11 +24,11 @@
 	return my_class_data
 
 #define __implement_get_class_data_ex(class_name,window_title,want_transparent_background,extra_wnd_bytes,styles,stylesex,classstyles) \
-	static ui_helpers::container_window::class_data my_class_data= {class_name, window_title, 0, false, want_transparent_background,extra_wnd_bytes,styles,stylesex, classstyles, true, true, true, IDC_ARROW};	\
+	static ui_helpers::container_window::class_data my_class_data= {class_name, window_title, 0, false, want_transparent_background, extra_wnd_bytes, styles, stylesex, classstyles, true, true, true, IDC_ARROW};	\
 	return my_class_data
 
 #define __implement_get_class_data_ex2(class_name,window_title,want_transparent_background, forward_system_setting_change,extra_wnd_bytes,styles,stylesex,classstyles,cursor) \
-	static ui_helpers::container_window::class_data my_class_data= {class_name, window_title, 0, false, want_transparent_background,extra_wnd_bytes,styles,stylesex, classstyles, forward_system_setting_change, forward_system_setting_change, forward_system_setting_change, cursor};	\
+	static ui_helpers::container_window::class_data my_class_data= {class_name, window_title, 0, false, want_transparent_background, extra_wnd_bytes, styles, stylesex, classstyles, forward_system_setting_change, forward_system_setting_change, forward_system_setting_change, cursor};	\
 	return my_class_data
 namespace ui_helpers {
 
@@ -48,9 +48,9 @@ namespace ui_helpers {
 			bool class_registered;
 			bool want_transparent_background;
 			int extra_wnd_bytes;
-			long styles;
-			long ex_styles;
-			long class_styles;
+			DWORD styles;
+			DWORD ex_styles;
+			UINT class_styles;
 			bool forward_system_settings_change;
 			bool forward_system_colours_change;
 			bool forward_system_time_change;
@@ -165,19 +165,21 @@ namespace ui_extension{
 			else
 			{
 				p_host = host; //store interface to host
-				create(parent, get_create_param(), p_position);
+				this->create(parent, get_create_param(), p_position);
 			}
 
 			return W::get_wnd();
 		}
-		virtual void destroy_window() {destroy();p_host.release();}
+		virtual void destroy_window()
+		{
+			this->destroy();
+			p_host.release();
+		}
 
-		virtual bool is_available(const window_host_ptr & p)const {return true;}
-		const window_host_ptr & get_host() const {return p_host;}
-		virtual HWND get_wnd()const{return container_window::get_wnd();}
+		virtual bool is_available(const window_host_ptr& p) const {return true;}
+		const window_host_ptr& get_host() const {return p_host;}
+		virtual HWND get_wnd() const {return W::get_wnd();}
 
-		//override me
-		virtual void set_config(stream_reader * p_reader){};
 		virtual LPVOID get_create_param() {return this;} //lpCreateParams in CREATESTRUCT struct in WM_NCCREATE/WM_CREATE is a pointer to an array of LPVOIDs. This is the second LPVOID in the array.
 	};
 
@@ -187,6 +189,11 @@ namespace ui_extension{
 
 typedef container_ui_extension_t<ui_helpers::container_window, ui_extension::window> container_ui_extension;
 typedef container_ui_extension_t<ui_helpers::container_window,ui_extension::menu_window> container_menu_ui_extension;
+
+#if _MSC_VER >= 1800
+template <class base_window_class = uie::window>
+using containter_uie_window_t = container_ui_extension_t<ui_helpers::container_window, base_window_class>;
+#endif
 
 };
 

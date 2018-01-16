@@ -17,7 +17,7 @@ namespace ui_extension
 	{
 	public:
 		/** State of the menu item */
-		enum state_t
+		enum state_t : unsigned
 		{
 			state_checked = (1<<0),
 			state_disabled = (1<<1),
@@ -121,6 +121,42 @@ namespace ui_extension
 		}
 		void get_child(t_size index, menu_node_ptr & p_out) const {}
 	};
+
+#if _MSC_VER >= 1800
+    /**
+     * \brief Helper class to instantiate simple command menu nodes.
+     */
+    class simple_command_menu_node : public menu_node_command_t {
+    public:
+        simple_command_menu_node(
+            const char* display_name, const char* description, uint32_t display_flags, 
+            std::function<void()> on_execute
+        )
+            : m_display_name{display_name}, m_description{description}, 
+            m_display_flags{display_flags}, m_on_execute{on_execute} {}
+
+        bool get_display_data(pfc::string_base& p_out, unsigned& p_displayflags) const override
+        {
+            p_out = m_display_name;
+            p_displayflags = m_display_flags;
+            return true;
+        }
+        bool get_description(pfc::string_base& p_out) const override
+        {
+            p_out = m_description;
+            return m_description.length();
+        }
+        void execute() override
+        {
+            m_on_execute();
+        }
+    private:
+        pfc::string_simple m_display_name;
+        pfc::string_simple m_description;
+        uint32_t m_display_flags;
+        std::function<void()> m_on_execute;
+    };
+#endif
 
 	/** \brief Class that collects menu_node_t objects */
 	class NOVTABLE menu_hook_t
