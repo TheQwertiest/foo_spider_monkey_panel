@@ -75,8 +75,9 @@ _.mixin({
 			this.xmlhttp.setRequestHeader('If-Modified-Since', 'Thu, 01 Jan 1970 00:00:00 GMT');
 			this.xmlhttp.send();
 			this.xmlhttp.onreadystatechange = _.bind(function () {
-				if (this.xmlhttp.readyState == 4)
+				if (this.xmlhttp.readyState == 4) {
 					this.done('user.getLovedTracks');
+				}
 			}, this);
 		}
 		
@@ -104,8 +105,8 @@ _.mixin({
 					this.page++;
 					this.get_loved_tracks(this.page);
 				} else {
-					console.log(N, this.loved_tracks.length, 'loved tracks were found on Last.fm');
-					var tfo = fb.TitleFormat('$lower(%artist% - %title%)')
+					console.log(N, this.loved_tracks.length, 'loved tracks were found on Last.fm.');
+					var tfo = fb.TitleFormat('$lower(%artist% - %title%)');
 					var items = fb.GetLibraryItems();
 					items.OrderByFormat(tfo, 1);
 					var yay = 0;
@@ -115,14 +116,20 @@ _.mixin({
 						var current = tfo.EvalWithMetadb(m);
 						if (last != current) {
 							last = current;
-							if (_.includes(this.loved_tracks, current)) {
+							var idx = _.indexOf(this.loved_tracks, current);
+							if (idx > -1) {
+								this.loved_tracks.splice(idx, 1);
 								m.SetLoved(1);
 								yay++;
 							}
 						}
 						m.Dispose();
 					}
-					console.log(N, yay, 'library tracks matched and updated. %JSP_LOVED% now has the value of 1 in any other component/search dialog.')
+					console.log(N, yay, 'library tracks matched and updated. %JSP_LOVED% now has the value of 1 in any other component/search dialog.');
+					if (this.loved_tracks.length) {
+						console.log(N, 'The following tracks were not matched:');
+						console.log(JSON.stringify(this.loved_tracks, null, 4));
+					}
 				}
 				return;
 			case 'track.love':
