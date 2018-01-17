@@ -306,6 +306,18 @@ STDMETHODIMP FbMetadbHandle::GetFileInfo(IFbFileInfo** pp)
 	return S_OK;
 }
 
+STDMETHODIMP FbMetadbHandle::RefreshStats()
+{
+	if (m_handle.is_empty()) return E_POINTER;
+
+	metadb_index_hash hash;
+	if (stats::g_client->hashHandle(m_handle, hash))
+	{
+		stats::theAPI()->dispatch_refresh(stats::guid_js_panel_index, hash);
+	}
+	return S_OK;
+}
+
 STDMETHODIMP FbMetadbHandle::SetFirstPlayed(BSTR first_played)
 {
 	if (m_handle.is_empty()) return E_POINTER;

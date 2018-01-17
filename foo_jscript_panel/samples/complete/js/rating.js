@@ -124,11 +124,8 @@ _.mixin({
 				handles.Dispose();
 				break;
 			case 3: // JScript Panel db
-				var handles = fb.CreateHandleList();
-				handles.Add(panel.metadb);
 				panel.metadb.SetRating(this.hrating == this.rating ? 0 : this.hrating);
-				handles.RefreshStats();
-				handles.Dispose();
+				panel.metadb.RefreshStats();
 				break;
 			}
 		}

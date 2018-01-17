@@ -206,6 +206,7 @@ __interface IFbMetadbHandle : IDisposable
 	STDMETHOD(ClearStats)();
 	STDMETHOD(Compare)(IFbMetadbHandle* handle, [out, retval] VARIANT_BOOL* p);
 	STDMETHOD(GetFileInfo)([out, retval] IFbFileInfo** pp);
+	STDMETHOD(RefreshStats)();
 	STDMETHOD(SetFirstPlayed)(BSTR first_played);
 	STDMETHOD(SetLastPlayed)(BSTR last_played);
 	STDMETHOD(SetLoved)(UINT loved);

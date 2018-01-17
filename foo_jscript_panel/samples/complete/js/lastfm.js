@@ -137,6 +137,7 @@ _.mixin({
 				if (this.xmlhttp.responseText.indexOf('ok') > -1) {
 					console.log(N, 'Track loved successfully.');
 					metadb.SetLoved(1);
+					metadb.RefreshStats();
 					return;
 				}
 				break;
@@ -144,6 +145,7 @@ _.mixin({
 				if (this.xmlhttp.responseText.indexOf('ok') > -1) {
 					console.log(N, 'Track unloved successfully.');
 					metadb.SetLoved(0);
+					metadb.RefreshStats();
 					return;
 				}
 				break;
