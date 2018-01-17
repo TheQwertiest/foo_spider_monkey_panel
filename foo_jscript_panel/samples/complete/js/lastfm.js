@@ -99,37 +99,35 @@ _.mixin({
 						var title = item.name.toLowerCase();
 						this.loved_tracks.push(artist + ' - ' + title);
 					}, this);
-					console.log(N, 'Loved tracks: completed page', + this.page, 'of ', this.pages);
+					console.log('Loved tracks: completed page', + this.page, 'of ', this.pages);
 				}
 				if (this.page < this.pages) {
 					this.page++;
 					this.get_loved_tracks(this.page);
 				} else {
-					console.log(N, this.loved_tracks.length, 'loved tracks were found on Last.fm.');
+					console.log(this.loved_tracks.length, 'loved tracks were found on Last.fm.');
 					var tfo = fb.TitleFormat('$lower(%artist% - %title%)');
 					var items = fb.GetLibraryItems();
 					items.OrderByFormat(tfo, 1);
-					var yay = 0;
-					var last = '';
+					var count = 0;
 					for (var i = 0; i < items.Count; i++) {
 						var m = items.Item(i);
 						var current = tfo.EvalWithMetadb(m);
-						if (last != current) {
-							last = current;
-							var idx = _.indexOf(this.loved_tracks, current);
-							if (idx > -1) {
-								this.loved_tracks.splice(idx, 1);
-								m.SetLoved(1);
-								yay++;
-							}
+						var idx = _.indexOf(this.loved_tracks, current);
+						if (idx > -1) {
+							this.loved_tracks.splice(idx, 1);
+							m.SetLoved(1);
+							count++;
 						}
 						m.Dispose();
 					}
-					console.log(N, yay, 'library tracks matched and updated. %JSP_LOVED% now has the value of 1 in any other component/search dialog.');
+					console.log(count, 'library tracks matched and updated. Duplicates are not counted.');
+					console.log('For those updated tracks, %JSP_LOVED% now has the value of 1 in all components/search dialogs.');
 					if (this.loved_tracks.length) {
-						console.log(N, 'The following tracks were not matched:');
+						console.log('The following tracks were not matched:');
 						console.log(JSON.stringify(this.loved_tracks, null, 4));
 					}
+					tfo.Dispose();
 				}
 				return;
 			case 'track.love':
