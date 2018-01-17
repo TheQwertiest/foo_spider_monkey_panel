@@ -196,6 +196,7 @@ public:
 	STDMETHODIMP OrderByFormat(__interface IFbTitleFormat* script, int direction);
 	STDMETHODIMP OrderByPath();
 	STDMETHODIMP OrderByRelativePath();
+	STDMETHODIMP RefreshStats();
 	STDMETHODIMP Remove(IFbMetadbHandle* handle);
 	STDMETHODIMP RemoveAll();
 	STDMETHODIMP RemoveById(UINT index);

@@ -109,6 +109,7 @@ _.mixin({
 					var tfo = fb.TitleFormat('$lower(%artist% - %title%)');
 					var items = fb.GetLibraryItems();
 					items.OrderByFormat(tfo, 1);
+					var items_to_refresh = fb.CreateHandleList();
 					var count = 0;
 					for (var i = 0; i < items.Count; i++) {
 						var m = items.Item(i);
@@ -117,17 +118,19 @@ _.mixin({
 						if (idx > -1) {
 							this.loved_tracks.splice(idx, 1);
 							m.SetLoved(1);
+							items_to_refresh.Add(m);
 							count++;
 						}
 						m.Dispose();
 					}
+					items_to_refresh.RefreshStats();
 					console.log(count, 'library tracks matched and updated. Duplicates are not counted.');
 					console.log('For those updated tracks, %JSP_LOVED% now has the value of 1 in all components/search dialogs.');
 					if (this.loved_tracks.length) {
 						console.log('The following tracks were not matched:');
 						console.log(JSON.stringify(this.loved_tracks, null, 4));
 					}
-					tfo.Dispose();
+					_.dispose(tfo, items, items_to_refresh);
 				}
 				return;
 			case 'track.love':

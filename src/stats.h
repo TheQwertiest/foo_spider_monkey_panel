@@ -105,7 +105,6 @@ namespace stats
 		writer << f.last_played;
 		writer << f.rating;
 		theAPI()->set_user_data(guid_js_panel_index, hash, writer.m_buffer.get_ptr(), writer.m_buffer.get_size());
-		theAPI()->dispatch_refresh(guid_js_panel_index, hash);
 	}
 
 	class metadb_display_field_provider_impl : public metadb_display_field_provider

@@ -243,6 +243,7 @@ __interface IFbMetadbHandleList : IDisposable
 	STDMETHOD(OrderByFormat)(__interface IFbTitleFormat* script, int direction);
 	STDMETHOD(OrderByPath)();
 	STDMETHOD(OrderByRelativePath)();
+	STDMETHOD(RefreshStats)();
 	STDMETHOD(Remove)(IFbMetadbHandle* handle);
 	STDMETHOD(RemoveAll)();
 	STDMETHOD(RemoveById)(UINT index);

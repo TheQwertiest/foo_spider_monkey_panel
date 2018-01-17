@@ -628,6 +628,26 @@ STDMETHODIMP FbMetadbHandleList::OrderByRelativePath()
 	return S_OK;
 }
 
+STDMETHODIMP FbMetadbHandleList::RefreshStats()
+{
+	const t_size count = m_handles.get_count();
+	pfc::avltree_t<metadb_index_hash> tmp;
+	for (t_size i = 0; i < count; ++i)
+	{
+		metadb_index_hash hash;
+		if (stats::g_client->hashHandle(m_handles[i], hash)) {
+			tmp += hash;
+		}
+	}
+	pfc::list_t<metadb_index_hash> hashes;
+	for (auto iter = tmp.first(); iter.is_valid(); ++iter) {
+		const metadb_index_hash hash = *iter;
+		hashes += hash;
+	}
+	stats::theAPI()->dispatch_refresh(stats::guid_js_panel_index, hashes);
+	return S_OK;
+}
+
 STDMETHODIMP FbMetadbHandleList::Remove(IFbMetadbHandle* handle)
 {
 	metadb_handle* ptr = NULL;
@@ -1245,7 +1265,7 @@ STDMETHODIMP FbPlaylistManager::SortByFormatV2(UINT playlistIndex, BSTR pattern,
 	pfc::stringcvt::string_utf8_from_wide spec(pattern);
 	service_ptr_t<titleformat_object> script;
 	metadb_handle_list metadb_handles;
-	pfc::array_t<size_t> order;
+	pfc::array_t<t_size> order;
 
 	if (titleformat_compiler::get()->compile(script, spec))
 	{
