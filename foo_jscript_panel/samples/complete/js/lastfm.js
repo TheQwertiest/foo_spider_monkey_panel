@@ -64,8 +64,67 @@ _.mixin({
 			}, this);
 		}
 		
+		this.get_loved_tracks = function (p) {
+			if (!this.username.length) {
+				return console.log(N, 'Last.fm Username not set.');
+			}
+			this.page = p;
+			var url = this.get_base_url() + '&method=user.getLovedTracks&limit=200&user=' + this.username + '&page=' + this.page;
+			this.xmlhttp.open('GET', url, true);
+			this.xmlhttp.setRequestHeader('User-Agent', this.ua);
+			this.xmlhttp.setRequestHeader('If-Modified-Since', 'Thu, 01 Jan 1970 00:00:00 GMT');
+			this.xmlhttp.send();
+			this.xmlhttp.onreadystatechange = _.bind(function () {
+				if (this.xmlhttp.readyState == 4)
+					this.done('user.getLovedTracks');
+			}, this);
+		}
+		
 		this.done = function (method, metadb) {
 			switch (method) {
+			case 'user.getLovedTracks':
+				var data = _.jsonParse(this.xmlhttp.responseText);
+				if (this.page == 1) {
+					if (data.error) {
+						return console.log(N, 'Last.fm server error:', data.message);
+					}
+					this.loved_tracks = [];
+					this.pages = _.get(data, 'lovedtracks["@attr"].totalPages', 0);
+				}
+				data = _.get(data, 'lovedtracks.track', []);
+				if (data.length) {
+					_.forEach(data, function (item) {
+						var artist = item.artist.name.toLowerCase();
+						var title = item.name.toLowerCase();
+						this.loved_tracks.push(artist + ' - ' + title);
+					}, this);
+					console.log(N, 'Loved tracks: completed page', + this.page, 'of ', this.pages);
+				}
+				if (this.page < this.pages) {
+					this.page++;
+					this.get_loved_tracks(this.page);
+				} else {
+					console.log(N, this.loved_tracks.length, 'loved tracks were found on Last.fm');
+					var tfo = fb.TitleFormat('$lower(%artist% - %title%)')
+					var items = fb.GetLibraryItems();
+					items.OrderByFormat(tfo, 1);
+					var yay = 0;
+					var last = '';
+					for (var i = 0; i < items.Count; i++) {
+						var m = items.Item(i);
+						var current = tfo.EvalWithMetadb(m);
+						if (last != current) {
+							last = current;
+							if (_.includes(this.loved_tracks, current)) {
+								m.SetLoved(1);
+								yay++;
+							}
+						}
+						m.Dispose();
+					}
+					console.log(N, yay, 'library tracks matched and updated. %JSP_LOVED% now has the value of 1 in any other component/search dialog.')
+				}
+				return;
 			case 'track.love':
 				if (this.xmlhttp.responseText.indexOf('ok') > -1) {
 					console.log(N, 'Track loved successfully.');
@@ -99,7 +158,7 @@ _.mixin({
 				break;
 			}
 			// display response text/error if we get here, any success returned early
-			console.log(N, this.xmlhttp.responseText);
+			console.log(N, this.xmlhttp.responseText || this.xmlhttp.status);
 		}
 		
 		this.update_username = function () {
