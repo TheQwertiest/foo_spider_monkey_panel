@@ -1,7 +1,7 @@
 #This file is used for text auto-completion in the Configuration window
 
 Object()
-Object(mixed value) value: The initial value of the Boolean object. 
+Object(mixed value) value: The initial value of the Boolean object.
 Object.toSource() Returns an object literal representing the specified object; you can use this value to create a new object.
 Object.toString() Returns a string representing the specified object.
 Object.valueOf() Returns the primitive value of the specified object.
@@ -26,7 +26,7 @@ Array.join(separator) Joins all elements of an array into a string.
 Array.splice(begin[,end]) Extracts a section of an array and returns a new array.
 Array.prototype
 
-Boolean(mixed value) value: The initial value of the Boolean object. 
+Boolean(mixed value) value: The initial value of the Boolean object.
 Boolean.prototype
 
 Date()
@@ -77,7 +77,7 @@ Date.toLocaleDateString() Returns the "date" portion of the Date as a string, us
 Date.toLocaleTimeString() Returns the "time" portion of the Date as a string, using the current locale's conventions.
 Date.toString() Returns a string representing the specified Date object. Overrides the Object.toString method.
 Date.toUTCString() Converts a date to a string, using the universal time convention.
-Date.valueOf() Returns the primitive value of a Date object. Overrides the Object.valueOf method. 
+Date.valueOf() Returns the primitive value of a Date object. Overrides the Object.valueOf method.
 Date.prototype
 
 Error
@@ -88,7 +88,7 @@ Function()
 Function([arg1[, arg2[, ... argN]],] functionBody)
 Function.toSource() Returns an object literal representing the specified Function object; you can use this value to create a new object. Overrides the Object.toSource method.
 Function.toString() Returns a string representing the specified Function object. Overrides the Object.toString method.
-Function.valueOf() Returns the primitive value of a Function object. Overrides the Object.valueOf method. 
+Function.valueOf() Returns the primitive value of a Function object. Overrides the Object.valueOf method.
 Function.apply(thisArg[, argArray]) Allows you to apply a method of another object in the context of a different object (the calling object).
 Function.call(thisArg[, arg1[, arg2[, ...]]]) Allows you to call (execute) a method of another object in the context of a different object (the calling object).
 Function.prototype
@@ -120,7 +120,7 @@ Math.random() Returns a pseudo-random number between 0 and 1.
 Math.round(x) Returns the value of a number rounded to the nearest integer.
 Math.sin(x) Returns the sine of a number.
 Math.sqrt(x) Returns the square root of a number.
-Math.tan(x) Returns the tangent of a number. 
+Math.tan(x) Returns the tangent of a number.
 
 Number
 Number(value)
@@ -132,7 +132,7 @@ Number.prototype
 Number.NaN
 
 RegExp
-RegExp("pattern"[, "flags"]) 
+RegExp("pattern"[, "flags"])
 RegExp.prototype
 RegExp.exec(str) Executes a search for a match in a specified string. Returns a result array, or null.
 RegExp.test(str) Executes the search for a match between a regular expression and a specified string. Returns true or false.

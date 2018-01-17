@@ -33,7 +33,6 @@
 [Tips]
  * for the ARTIST column mode, to make the disk cache working, artist images path have to be set in window Properties (SHIFT + right click > Properties)
  * Hold SHIFT key + right click to display Configure script and panel Properties entries
- * Always use Jscript9 engine for better performances (choice is to be made when you open the "Configure..." window from a JScript Panel instance (right click)
  * Change colors and fonts in foobar2000 Preferences > DefaultUI or ColumsUI
  * Some minor settings can be changed in window Properties (SHIFT + right click > Properties), use it carefully
  * Use Keyboard for "jumping" to an artist/genre in the library view (incremental search feature like in ELPlaylist)
@@ -41,7 +40,7 @@
  * CTRL+T to toggle the columns toolbar
  * CTRL+B to toggle the scrollbar
  * Hold CTRL + Mouse Wheel to scale elements (useful for 'retina' screens)
- * Hold SHIFT + Mouse Wheel to scale group header and so the cover art size 
+ * Hold SHIFT + Mouse Wheel to scale group header and so the cover art size
  * F3 key to show now playing track (if present in library and not filtered)
  * F5 key to refresh covers
  * ... etc

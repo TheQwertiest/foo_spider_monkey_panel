@@ -83,7 +83,7 @@ namespace stats
 				reader >> ret.loved;
 				reader >> ret.first_played;
 				reader >> ret.last_played;
-				if (reader.get_remaining() > 0) // check needed here for compatibility with previous version
+				if (reader.get_remaining() > 0) // check needed here for compatibility with v2 Beta4
 				{
 					reader >> ret.rating;
 				}

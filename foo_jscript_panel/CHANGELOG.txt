@@ -121,7 +121,7 @@ v1.2.3
 - CHG: Hide JScript Panel main menu items. Given they're meant for binding to
        to keyboard shortcuts/standard buttons, there is no need for them to be
        visible. Hold Shift if you really want to access them from the menu.
-- FIX: Fix MakeUnion handle list method and update docs with examples for 
+- FIX: Fix MakeUnion handle list method and update docs with examples for
        MakeUnion, MakeDifference and MakeIntersection methods.
 
 v1.2.2

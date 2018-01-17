@@ -206,14 +206,14 @@ namespace ui_helpers
 		{
 			LPVOID * create_params = reinterpret_cast<LPVOID *>(((CREATESTRUCT *)(lp))->lpCreateParams);
 			p_this = reinterpret_cast<container_window_v2_t<TBase>*>(create_params[0]); //retrieve pointer to class
-			SetWindowLongPtr(wnd, GWL_USERDATA, (LPARAM)p_this);//store it for future use
+			SetWindowLongPtr(wnd, GWLP_USERDATA, (LPARAM)p_this);//store it for future use
 
 		}
 		else
-			p_this = reinterpret_cast<container_window_v2_t<TBase>*>(GetWindowLongPtr(wnd,GWL_USERDATA));//if isnt wm_nccreate, retrieve pointer to class
+			p_this = reinterpret_cast<container_window_v2_t<TBase>*>(GetWindowLongPtr(wnd,GWLP_USERDATA));//if isnt wm_nccreate, retrieve pointer to class
 
 		if (msg == WM_NCDESTROY)
-			SetWindowLongPtr(wnd, GWL_USERDATA, (LPARAM)NULL);
+			SetWindowLongPtr(wnd, GWLP_USERDATA, (LPARAM)NULL);
 
 		return p_this ? p_this->__on_message(wnd, msg, wp, lp) : uDefWindowProc(wnd, msg, wp, lp);
 	}

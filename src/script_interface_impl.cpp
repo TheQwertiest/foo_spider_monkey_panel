@@ -273,8 +273,7 @@ STDMETHODIMP FbMetadbHandle::ClearStats()
 	metadb_index_hash hash;
 	if (stats::g_client->hashHandle(m_handle, hash))
 	{
-		stats::fields tmp;
-		stats::set(hash, tmp);
+		stats::set(hash, stats::fields());
 	}
 	return S_OK;
 }

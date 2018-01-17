@@ -4,7 +4,7 @@ some scripts have their own.
 All scripts in the "basic" folder and "jsplaylist-mod" should work fine on any system.
 All scripts in the "js-smooth" require a system running Vista or later (IE version doesn't matter).
 All scripts in the "complete" folder should work on any system with IE8 or later installed. There are
-two exceptions: 
+two exceptions:
 "Listenbrainz" requires any version of Windows with IE9 or later installed. It also works under WINE
 following the guide on the github wiki.
 "Thumbs" can display existing images on any system but requires Windows with at least
