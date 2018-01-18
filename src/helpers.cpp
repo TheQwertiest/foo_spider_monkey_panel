@@ -932,7 +932,7 @@ namespace helpers
 			handle = new com_object_impl_t<FbMetadbHandle>(m_handle);
 		}
 
-		t_param param(handle, m_art_id, bitmap, file_path_display(image_path));
+		t_param param(handle, m_art_id, bitmap, image_path.is_empty() ? "" : file_path_display(image_path));
 
 		SendMessage(m_notify_hwnd, CALLBACK_UWM_GETALBUMARTASYNCDONE, 0, (LPARAM)&param);
 	}
