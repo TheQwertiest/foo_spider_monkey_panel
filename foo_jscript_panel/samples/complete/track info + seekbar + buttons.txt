@@ -7,8 +7,8 @@
 // @import "%fb2k_component_path%samples\complete\js\seekbar.js"
 // ==/PREPROCESSOR==
 
-//note the buttons are white and you'd have to edit the images to change them...
 var colours = {
+	buttons : _.RGB(255, 255, 255),
 	background : _.RGB(30, 30, 30),
 	title : _.RGB(255, 255, 255),
 	artist : _.RGB(240, 240, 240),
@@ -29,19 +29,19 @@ on_playback_new_track(fb.GetNowPlaying());
 
 buttons.update = function () {
 	var y = Math.round((panel.h - bs) / 2);
-	this.buttons.stop = new _.button(panel.w - LM - (bs * 7), y, bs, bs, {normal : 'mono\\appbar.control.stop.png'}, function () { fb.Stop(); }, 'Stop');
-	this.buttons.previous = new _.button(panel.w - LM - (bs * 6), y, bs, bs, {normal : 'mono\\appbar.control.rewind.png'}, function () { fb.Prev(); }, 'Previous');
-	this.buttons.play = new _.button(panel.w - LM - (bs * 5), y, bs, bs, {normal : !fb.IsPlaying || fb.IsPaused ? 'mono\\appbar.control.play.png' : 'mono\\appbar.control.pause.png'}, function () { fb.PlayOrPause(); }, !fb.IsPlaying || fb.IsPaused ? 'Play' : 'Pause');
-	this.buttons.next = new _.button(panel.w - LM - (bs * 4), y, bs, bs, {normal : 'mono\\appbar.control.fastforward.png'}, function () { fb.Next(); }, 'Next');
-	this.buttons.console = new _.button(panel.w - LM - (bs * 3), y, bs, bs, {normal : 'mono\\appbar.console.png'}, function () { fb.ShowConsole(); }, 'Console');
-	this.buttons.search = new _.button(panel.w - LM - (bs * 2), y, bs, bs, {normal : 'mono\\appbar.magnify.png'}, function () { fb.RunMainMenuCommand('Library/Search'); }, 'Library Search');
-	this.buttons.preferences = new _.button(panel.w - LM - bs, y, bs, bs, {normal : 'mono\\appbar.settings.png'}, function () { fb.ShowPreferences(); }, 'Preferences');
+	this.buttons.stop = new _.button(panel.w - LM - (bs * 8), y, bs, bs, {normal : _.chrToImg(chars.stop, colours.buttons)}, function () { fb.Stop(); }, 'Stop');
+	this.buttons.previous = new _.button(panel.w - LM - (bs * 7), y, bs, bs, {normal : _.chrToImg(chars.prev, colours.buttons)}, function () { fb.Prev(); }, 'Previous');
+	this.buttons.play = new _.button(panel.w - LM - (bs * 6), y, bs, bs, {normal : !fb.IsPlaying || fb.IsPaused ? _.chrToImg(chars.play, colours.buttons) : _.chrToImg(chars.pause, colours.buttons)}, function () { fb.PlayOrPause(); }, !fb.IsPlaying || fb.IsPaused ? 'Play' : 'Pause');
+	this.buttons.next = new _.button(panel.w - LM - (bs * 5), y, bs, bs, {normal : _.chrToImg(chars.next, colours.buttons)}, function () { fb.Next(); }, 'Next');
+	this.buttons.console = new _.button(panel.w - LM - (bs * 3), y, bs, bs, {normal : _.chrToImg(chars.console, colours.buttons)}, function () { fb.ShowConsole(); }, 'Console');
+	this.buttons.search = new _.button(panel.w - LM - (bs * 2), y, bs, bs, {normal : _.chrToImg(chars.search, colours.buttons)}, function () { fb.RunMainMenuCommand('Library/Search'); }, 'Library Search');
+	this.buttons.preferences = new _.button(panel.w - LM - bs, y, bs, bs, {normal : _.chrToImg(chars.preferences, colours.buttons)}, function () { fb.ShowPreferences(); }, 'Preferences');
 }
 
 function on_size() {
 	panel.size();
 	seekbar.x = Math.round(panel.w * 0.22);
-	seekbar.w = panel.w - seekbar.x - _.scale(264);
+	seekbar.w = panel.w - seekbar.x - _.scale(280);
 	seekbar.h = _.scale(12);
 	seekbar.y = (panel.h - seekbar.h) / 2;
 	buttons.update();

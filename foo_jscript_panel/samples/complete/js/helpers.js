@@ -116,7 +116,7 @@ _.mixin({
 		return utils.CheckComponent(name, true);
 	},
 	chrToImg : function (chr, colour) {
-		var font = gdi.Font('FontAwesome', 72);
+		var font = gdi.Font('FontAwesome', 64);
 		var temp_bmp = gdi.CreateImage(96, 96);
 		var temp_gr = temp_bmp.GetGraphics();
 		temp_gr.SetTextRenderingHint(4);
@@ -669,7 +669,15 @@ var chars = {
 	rating_on : '\uF005',
 	rating_off : '\uF006',
 	heart_on : '\uF004',
-	heart_off : '\uF08A'
+	heart_off : '\uF08A',
+	prev : '\uF049',
+	next : '\uF050',
+	play : '\uF04B',
+	pause : '\uF04C',
+	stop : '\uF04D',
+	preferences : '\uF013',
+	search : '\uF002',
+	console : '\uF120'
 }
 
 var popup = {
