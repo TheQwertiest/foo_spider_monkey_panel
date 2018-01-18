@@ -677,7 +677,12 @@ var chars = {
 	stop : '\uF04D',
 	preferences : '\uF013',
 	search : '\uF002',
-	console : '\uF120'
+	console : '\uF120',
+	info : '\uF05A',
+	audioscrobbler : '\uF202',
+	minus : '\uF068',
+	music : '\uF001',
+	menu : '\uF0C9'
 }
 
 var popup = {
