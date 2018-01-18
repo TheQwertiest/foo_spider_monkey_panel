@@ -116,7 +116,7 @@ _.mixin({
 		return utils.CheckComponent(name, true);
 	},
 	chrToImg : function (chr, colour) {
-		var font = gdi.Font('FontAwesome', 64);
+		var font = gdi.Font('FontAwesome', 48);
 		var temp_bmp = gdi.CreateImage(96, 96);
 		var temp_gr = temp_bmp.GetGraphics();
 		temp_gr.SetTextRenderingHint(4);
@@ -683,7 +683,7 @@ var chars = {
 	minus : '\uF068',
 	music : '\uF001',
 	menu : '\uF0C9'
-}
+};
 
 var popup = {
 	ok : 0,

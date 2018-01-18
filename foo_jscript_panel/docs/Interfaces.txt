@@ -1352,11 +1352,13 @@ interface IFbMetadbHandle {
 		Length; (double) (read)
 
 	Methods:
-		ClearStats(); (void)
 		SetPlayCount(playcount); (void)
 		SetLoved(loved); (void)
 		SetFirstPlayed(first_played); (void)
 		SetLastPlayed(last_played); (void)
+		SetRating(rating); (void)
+		ClearStats(); (void)
+		RefreshStats(); (void)
 		// See https://github.com/marc2k3/foo_jscript_panel/wiki/Playback-Stats
 
 		Compare(handle); (boolean)
@@ -1564,6 +1566,9 @@ interface IFbMetadbHandleList {
 		OrderByPath(); (void)
 
 		OrderByRelativePath(); (void)
+
+		RefreshStats(); (void)
+		// See https://github.com/marc2k3/foo_jscript_panel/wiki/Playback-Stats
 
 		Remove(handle); (void)
 
