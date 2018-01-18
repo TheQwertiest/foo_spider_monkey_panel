@@ -115,6 +115,17 @@ _.mixin({
 	cc : function (name) {
 		return utils.CheckComponent(name, true);
 	},
+	chrToImg : function (chr, colour) {
+		var font = gdi.Font('FontAwesome', 72);
+		var temp_bmp = gdi.CreateImage(96, 96);
+		var temp_gr = temp_bmp.GetGraphics();
+		temp_gr.SetTextRenderingHint(4);
+		temp_gr.DrawString(chr, font, colour, 0, 0, 96, 96, SF_CENTRE);
+		temp_bmp.ReleaseGraphics(temp_gr);
+		temp_gr = null;
+		font.Dispose();
+		return temp_bmp;
+	},
 	createFolder : function (folder) {
 		if (!_.isFolder(folder)) {
 			fso.CreateFolder(folder);
@@ -481,7 +492,7 @@ _.mixin({
 		this.paint = function (gr, colour) {
 			gr.SetTextRenderingHint(4);
 			if (this.v()) {
-				gr.DrawString(this.t, this.guifx_font, colour, this.x, this.y, this.w, this.h, SF_CENTRE);
+				gr.DrawString(this.t, this.font, colour, this.x, this.y, this.w, this.h, SF_CENTRE);
 			}
 		}
 		
@@ -517,7 +528,7 @@ _.mixin({
 		this.h = h;
 		this.v = v;
 		this.fn = fn;
-		this.guifx_font = gdi.Font(guifx.font, this.h, 0);
+		this.font = gdi.Font('FontAwesome', this.h);
 	},
 	setClipboardData : function (value) {
 		doc.parentWindow.clipboardData.setData('Text', value.toString());
@@ -651,13 +662,15 @@ folders.data = fb.ProfilePath + 'js_data\\';
 folders.artists = folders.data + 'artists\\';
 folders.lastfm = folders.data + 'lastfm\\';
 
-var guifx = {
-	font : 'Guifx v2 Transports',
-	up : '.',
-	down : ',',
-	close : 'x',
-	star : 'b'
-};
+var chars = {
+	up : '\uF077',
+	down : '\uF078',
+	close : '\uF00D',
+	rating_on : '\uF005',
+	rating_off : '\uF006',
+	heart_on : '\uF004',
+	heart_off : '\uF08A'
+}
 
 var popup = {
 	ok : 0,

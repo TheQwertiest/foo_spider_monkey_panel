@@ -385,8 +385,8 @@ _.mixin({
 		this.artist = '';
 		this.album = '';
 		this.filename = '';
-		this.up_btn = new _.sb(guifx.up, this.x, this.y, _.scale(12), _.scale(12), _.bind(function () { return this.offset > 0; }, this), _.bind(function () { this.wheel(1); }, this));
-		this.down_btn = new _.sb(guifx.down, this.x, this.y, _.scale(12), _.scale(12), _.bind(function () { return this.offset < this.lines.length - this.rows; }, this), _.bind(function () { this.wheel(-1); }, this));
+		this.up_btn = new _.sb(chars.up, this.x, this.y, _.scale(12), _.scale(12), _.bind(function () { return this.offset > 0; }, this), _.bind(function () { this.wheel(1); }, this));
+		this.down_btn = new _.sb(chars.down, this.x, this.y, _.scale(12), _.scale(12), _.bind(function () { return this.offset < this.lines.length - this.rows; }, this), _.bind(function () { this.wheel(-1); }, this));
 		this.xmlhttp = new ActiveXObject('Microsoft.XMLHTTP');
 		this.properties = {};
 		this.init();

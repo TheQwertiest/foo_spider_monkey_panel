@@ -578,7 +578,7 @@ _.mixin({
 			sort : new _.p('2K3.THUMBS.SORT', 0), // 0 a-z 1 newest first
 			aspect : new _.p('2K3.THUMBS.ASPECT', image.crop_top)
 		};
-		this.close_btn = new _.sb(guifx.close, 0, 0, _.scale(12), _.scale(12), _.bind(function () { return this.properties.mode.value == 0 && this.overlay; }, this), _.bind(function () { this.enable_overlay(false); }, this));
+		this.close_btn = new _.sb(chars.close, 0, 0, _.scale(12), _.scale(12), _.bind(function () { return this.properties.mode.value == 0 && this.overlay; }, this), _.bind(function () { this.enable_overlay(false); }, this));
 		window.SetInterval(this.interval_func, 1000);
 	}
 });

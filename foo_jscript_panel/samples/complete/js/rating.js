@@ -1,10 +1,10 @@
 _.mixin({
-	rating : function (x, y, h, off, on) {
+	rating : function (x, y, h, colour) {
 		this.paint = function (gr) {
 			if (panel.metadb) {
 				gr.SetTextRenderingHint(4);
 				for (var i = 0; i < this.get_max(); i++) {
-					gr.DrawString(guifx.star, this.guifx_font, i + 1 > (this.hover ? this.hrating : this.rating) ? this.off : this.on, this.x + (i * this.h), this.y, this.h, this.h, SF_CENTRE);
+					gr.DrawString(i + 1 > (this.hover ? this.hrating : this.rating) ? chars.rating_off : chars.rating_on, this.font, this.colour, this.x + (i * this.h), this.y, this.h, this.h, SF_CENTRE);
 				}
 			}
 		}
@@ -102,7 +102,7 @@ _.mixin({
 				var ret = idx > -1 ? f.MetaValue(idx, 0) : 0;
 				f.Dispose();
 				return ret;
-			case 3: // JScript Panel db
+			case 3: // JScript Panel DB
 				return panel.tf('$if2(%jsp_rating%,0)');
 			default:
 				return 0;
@@ -135,7 +135,7 @@ _.mixin({
 		}
 		
 		this.properties = {
-			mode : new _.p('2K3.RATING.MODE', 0), // 0 unset 1 foo_playcount 2 file tag 3 JScript Panel db
+			mode : new _.p('2K3.RATING.MODE', 0), // 0 not set 1 foo_playcount 2 file tag 3 JScript Panel db
 			max : new _.p('2K3.RATING.MAX', 5), // only use for file tag/JScript Panel db mode
 			tag: new _.p('2K3.RATING.TAG', 'rating')
 		};
@@ -143,14 +143,13 @@ _.mixin({
 		this.y = y;
 		this.h = _.scale(h);
 		this.w = this.h * this.get_max();
-		this.on = on;
-		this.off = off;
+		this.colour = colour;
 		this.hover = false;
 		this.rating = 0;
 		this.hrating = 0;
-		this.guifx_font = gdi.Font(guifx.font, this.h, 0);
+		this.font = gdi.Font('FontAwesome', this.h - 2);
 		this.tiptext_tf = 'Rate "%title%" by "%artist%".';
-		this.modes = ['Unset', 'foo_playcount', 'File Tag', 'JScript Panel DB'];
+		this.modes = ['Not Set', 'foo_playcount', 'File Tag', 'JScript Panel DB'];
 		this.foo_playcount = _.cc('foo_playcount');
 		window.SetTimeout(_.bind(function () {
 			if (this.properties.mode.value == 1 && !this.foo_playcount) { // if mode is set to 1 (foo_playcount) but component is missing, reset to 0.

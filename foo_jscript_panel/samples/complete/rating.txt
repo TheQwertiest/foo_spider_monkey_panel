@@ -8,7 +8,7 @@
 // ==/PREPROCESSOR==
 
 var panel = new _.panel('custom_background');
-var rating = new _.rating(0, 0, 24, _.RGB(128, 128, 128), _.RGB(255, 128, 0));
+var rating = new _.rating(0, 0, 24, _.RGB(255, 128, 0)); // x, y, height, colour
 
 panel.item_focus_change();
 
