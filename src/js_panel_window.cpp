@@ -412,7 +412,7 @@ LRESULT js_panel_window::on_message(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 		return 0;
 
 	case UWM_TIMER:
-		m_host_timer_dispatcher.invoke(wp);
+		HostTimerDispatcher::Get().onInvokeMessage(wp);
 		return 0;
 	}
 
@@ -473,8 +473,6 @@ void js_panel_window::execute_context_menu_command(int id, int id_base)
 
 bool js_panel_window::script_load()
 {
-	m_host_timer_dispatcher.setWindow(m_hwnd);
-
 	pfc::hires_timer timer;
 	bool result = true;
 	timer.start();
@@ -1204,6 +1202,6 @@ void js_panel_window::script_unload()
 		m_is_droptarget_registered = false;
 	}
 
-	m_host_timer_dispatcher.reset();
+	HostTimerDispatcher::Get().onPanelUnload(m_hwnd);
 	m_selection_holder.release();
 }

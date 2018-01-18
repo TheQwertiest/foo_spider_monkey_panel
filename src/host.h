@@ -24,7 +24,6 @@ protected:
 	HBITMAP m_gr_bmp_bk;
 	HDC m_hdc;
 	HWND m_hwnd;
-	HostTimerDispatcher m_host_timer_dispatcher;
 	INT m_height;
 	INT m_width;
 	POINT m_max_size;

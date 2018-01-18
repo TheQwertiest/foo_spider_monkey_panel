@@ -85,17 +85,17 @@ t_script_info& HostComm::ScriptInfo()
 
 unsigned HostComm::SetInterval(IDispatch* func, INT delay)
 {
-	return m_host_timer_dispatcher.setInterval(delay, func);
+	return HostTimerDispatcher::Get().setInterval(m_hwnd, delay, func);
 }
 
 unsigned HostComm::SetTimeout(IDispatch* func, INT delay)
 {
-	return m_host_timer_dispatcher.setTimeout(delay, func);
+	return HostTimerDispatcher::Get().setTimeout(m_hwnd, delay, func);
 }
 
 void HostComm::ClearIntervalOrTimeout(UINT timerId)
 {
-	m_host_timer_dispatcher.kill(timerId);
+	HostTimerDispatcher::Get().killTimer(timerId);
 }
 
 void HostComm::PreserveSelection()
