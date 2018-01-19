@@ -5,8 +5,9 @@ _.mixin({
 			case '2K3.NOTIFY.LASTFM':
 				this.username = this.read_ini('username');
 				this.sk = this.read_ini('sk');
-				if (this.scrobbler) {
-					this.scrobbler.update_button();
+				if (typeof buttons == 'object' && typeof buttons.update == 'function') {
+					buttons.update();
+					window.Repaint();
 				}
 				_.forEach(panel.list_objects, function (item) {
 					if (item.mode == 'lastfm_info' && item.properties.mode.value == 1) {
@@ -105,6 +106,7 @@ _.mixin({
 					this.page++;
 					this.get_loved_tracks(this.page);
 				} else {
+					fb.ShowConsole();
 					console.log(this.loved_tracks.length, 'loved tracks were found on Last.fm.');
 					var tfo = fb.TitleFormat('$lower(%artist% - %title%)');
 					var items = fb.GetLibraryItems();
@@ -125,7 +127,9 @@ _.mixin({
 					console.log('For those updated tracks, %JSP_LOVED% now has the value of 1 in all components/search dialogs.');
 					if (this.loved_tracks.length) {
 						console.log('The following tracks were not matched:');
-						console.log(JSON.stringify(this.loved_tracks, null, 4));
+						_.forEach(this.loved_tracks, function (item) {
+							console.log(item);
+						});
 					}
 					items_to_refresh.RefreshStats();
 					_.dispose(tfo, items, items_to_refresh);
@@ -195,7 +199,6 @@ _.mixin({
 			this.notify_data('2K3.NOTIFY.LASTFM', 'update');
 		}
 		
-		this.scrobbler = null;
 		_.createFolder(folders.data);
 		this.ini_file = folders.data + 'lastfm.ini';
 		this.api_key = '1f078d9e59cb34909f7ed56d7fc64aba';
