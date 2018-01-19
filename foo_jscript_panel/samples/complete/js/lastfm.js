@@ -87,6 +87,7 @@ _.mixin({
 			case 'user.getLovedTracks':
 				var data = _.jsonParse(this.xmlhttp.responseText);
 				if (this.page == 1) {
+					fb.ShowConsole();
 					if (data.error) {
 						return console.log(N, 'Last.fm server error:', data.message);
 					}
@@ -106,7 +107,6 @@ _.mixin({
 					this.page++;
 					this.get_loved_tracks(this.page);
 				} else {
-					fb.ShowConsole();
 					console.log(this.loved_tracks.length, 'loved tracks were found on Last.fm.');
 					var tfo = fb.TitleFormat('$lower(%artist% - %title%)');
 					var items = fb.GetLibraryItems();

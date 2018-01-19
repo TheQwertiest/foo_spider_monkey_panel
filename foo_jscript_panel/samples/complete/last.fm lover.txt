@@ -49,6 +49,10 @@ buttons.update = function () {
 	this.buttons.lover = new _.button(0, 0, 36, 36, {normal : n, hover : h}, func, tooltip);
 }
 
+function on_notify_data(name, data) {
+	lastfm.notify_data(name, data);
+}
+
 function on_size() {
 	panel.size();
 	buttons.update();
