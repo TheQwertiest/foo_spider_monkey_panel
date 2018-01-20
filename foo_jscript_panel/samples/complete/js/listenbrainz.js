@@ -155,7 +155,7 @@ _.mixin({
 							var response = _.jsonParse(this.xmlhttp.responseText);
 							if (response.status == 'ok') {
 								console.log(N, data.payload.length, 'cached listen(s) submitted OK!');
-								_.save(JSON.stringify(_.drop(this.open_cache(), this.max_listens)), this.cache_file);
+								_.save(this.cache_file, JSON.stringify(_.drop(this.open_cache(), this.max_listens)));
 								if (this.open_cache().length) {
 									window.SetTimeout(_.bind(function () {
 										this.retry();
