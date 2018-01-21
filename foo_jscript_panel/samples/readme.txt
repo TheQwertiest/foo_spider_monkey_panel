@@ -4,11 +4,12 @@ some scripts have their own.
 All scripts in the "basic" folder and "jsplaylist-mod" should work fine on any system.
 All scripts in the "js-smooth" require a system running Vista or later (IE version doesn't matter).
 All scripts in the "complete" folder should work on any system with IE8 or later installed. There are
-two exceptions:
+three exceptions:
 "Listenbrainz" requires any version of Windows with IE9 or later installed. It also works under WINE
 following the guide on the github wiki.
 "Thumbs" can display existing images on any system but requires Windows with at least
-IE9 to download new ones. Downloading does not work on WINE.
+IE9 to download new ones. Downloading does not work on XP/WINE.
+"Last.fm Lover" doesn't work on XP/WINE. Requires any version of Windows with IE9 or later.
 
 USAGE:
 Simply copy the text from any .txt file inside the various folders in to a panel's configuration dialog.
