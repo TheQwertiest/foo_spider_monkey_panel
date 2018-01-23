@@ -116,14 +116,13 @@ _.mixin({
 		return utils.CheckComponent(name, true);
 	},
 	chrToImg : function (chr, colour) {
-		var font = gdi.Font('FontAwesome', 48);
-		var temp_bmp = gdi.CreateImage(96, 96);
+		var size = 96;
+		var temp_bmp = gdi.CreateImage(size, size);
 		var temp_gr = temp_bmp.GetGraphics();
 		temp_gr.SetTextRenderingHint(4);
-		temp_gr.DrawString(chr, font, colour, 0, 0, 96, 96, SF_CENTRE);
+		temp_gr.DrawString(chr, fontawesome, colour, 0, 0, size, size, SF_CENTRE);
 		temp_bmp.ReleaseGraphics(temp_gr);
 		temp_gr = null;
-		font.Dispose();
 		return temp_bmp;
 	},
 	createFolder : function (folder) {
@@ -662,6 +661,7 @@ folders.data = fb.ProfilePath + 'js_data\\';
 folders.artists = folders.data + 'artists\\';
 folders.lastfm = folders.data + 'lastfm\\';
 
+var fontawesome = gdi.Font('FontAwesome', 48);
 var chars = {
 	up : '\uF077',
 	down : '\uF078',
