@@ -354,7 +354,7 @@ _.mixin({
 					panel.m.AppendMenuSeparator();
 				}
 				panel.m.AppendMenuItem(MF_STRING, 1530, 'Open image');
-				panel.m.AppendMenuItem(MF_STRING, 531, 'Delete image');
+				panel.m.AppendMenuItem(MF_STRING, 1531, 'Delete image');
 				panel.m.AppendMenuSeparator();
 			}
 			panel.m.AppendMenuItem(_.isFolder(this.folder) ? MF_STRING : MF_GRAYED, 1540, 'Open containing folder');
@@ -439,7 +439,8 @@ _.mixin({
 				_.run(this.files[this.image]);
 				break;
 			case 1531:
-				this.delete_image();
+				_.recycleFile(this.files[this.image]);
+				this.update();
 				break;
 			case 1540:
 				if (this.files.length) {
@@ -493,11 +494,6 @@ _.mixin({
 		
 		this.set_default = function (t) {
 			utils.WriteINI(this.ini_file, 'Defaults', _.fbSanitise(this.artist), t);
-			this.update();
-		}
-		
-		this.delete_image = function () {
-			_.recycleFile(this.files[this.image]);
 			this.update();
 		}
 		
