@@ -1,16 +1,17 @@
-v2.0.1-Beta1
-- FIX: The timer mechanism behind window.SetInterval and window.SetTimeout
-       has been completely rewritten by TheQwertiest. Previously, it was
-       limited to 16 instances and then it would fail causing random buggy
-       behaviour in some advanced scripts.
-- FIX: Fix ListenBrainz not clearing its cache after a successful submission.
-       Thanks to zeremy for reporting.
+v2.0.1
 - NEW: Add "Last.fm Lover" sample. Imports all loved tracks from Last.fm
        in to the new JScript Panel "Playback Stats" database. All loved
        tracks will have the value of %JSP_LOVED% set to 1 which is available
        in all components/search. You can then love/unlove tracks by clicking
        the heart icon. Obviously this requires a Last.fm account. Use the right
        click menu to set your username and authorise the script.
+- FIX: The timer mechanism behind window.SetInterval and window.SetTimeout
+       has been completely rewritten by TheQwertiest. Previously, it was
+       limited to 16 instances and then it would fail causing random buggy
+       behaviour in some advanced scripts.
+- FIX: Fix ListenBrainz not clearing its cache after a successful submission.
+       Thanks to zeremy for reporting.
+- FIX: Fix "Thumbs" sample not deleting images.
 
 v2.0.0
 - CHG: Requires foobar2000 v1.4. It will not load with anything earlier.
