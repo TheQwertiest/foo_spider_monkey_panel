@@ -573,20 +573,23 @@ void ScriptHost::ReportError(IActiveScriptError* err)
 	}
 
 	if (FAILED(err->GetExceptionInfo(&excep)))
+	{
 		return;
+	}
 
 	// Do a deferred fill-in if necessary
 	if (excep.pfnDeferredFillIn)
+	{
 		(*excep.pfnDeferredFillIn)(&excep);
+	}
 
-	using namespace pfc::stringcvt;
 	pfc::string_formatter formatter;
-	formatter << JSP_NAME << " v" << JSP_VERSION << " (" << m_host->ScriptInfo().build_info_string().get_ptr() << ")\n";
+	formatter << "Error: " JSP_NAME " v" JSP_VERSION " (" << m_host->ScriptInfo().build_info_string().get_ptr() << ")\n";
 
 	if (excep.bstrSource && excep.bstrDescription)
 	{
-		formatter << string_utf8_from_wide(excep.bstrSource) << ":\n";
-		formatter << string_utf8_from_wide(excep.bstrDescription) << "\n";
+		formatter << pfc::stringcvt::string_utf8_from_wide(excep.bstrSource) << ":\n";
+		formatter << pfc::stringcvt::string_utf8_from_wide(excep.bstrDescription) << "\n";
 	}
 	else
 	{
@@ -604,14 +607,14 @@ void ScriptHost::ReportError(IActiveScriptError* err)
 	}
 
 	formatter << "Line: " << (t_uint32)(line + 1) << ", Col: " << (t_uint32)(charpos + 1) << "\n";
-	formatter << string_utf8_from_wide(sourceline);
+	formatter << pfc::stringcvt::string_utf8_from_wide(sourceline);
 	if (name.length() > 0) formatter << "\nAt: " << name;
 
 	if (excep.bstrSource) SysFreeString(excep.bstrSource);
 	if (excep.bstrDescription) SysFreeString(excep.bstrDescription);
 	if (excep.bstrHelpFile) SysFreeString(excep.bstrHelpFile);
 
-	console::error(formatter);
+	FB2K_console_formatter() << formatter;
 	popup_msg::g_show(formatter, JSP_NAME, popup_message::icon_error);
 	MessageBeep(MB_ICONASTERISK);
 	SendMessage(m_host->GetHWND(), UWM_SCRIPT_ERROR, 0, 0);
@@ -819,8 +822,7 @@ STDMETHODIMP FbWindow::NotifyOthers(BSTR name, VARIANT info)
 
 	if (FAILED(hr)) return hr;
 
-	simple_callback_data_2<_bstr_t, _variant_t>* notify_data
-		= new simple_callback_data_2<_bstr_t, _variant_t>(name, NULL);
+	simple_callback_data_2<_bstr_t, _variant_t>* notify_data = new simple_callback_data_2<_bstr_t, _variant_t>(name, NULL);
 
 	notify_data->m_item2.Attach(var.Detach());
 

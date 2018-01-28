@@ -1274,7 +1274,7 @@ void CScriptEditorCtrl::ReadAPI()
 		}
 		else
 		{
-			console::formatter() << JSP_NAME ": Warning: Could not load file " << api_filename;
+			FB2K_console_formatter() << "Warning: " JSP_NAME " v" JSP_VERSION ": Could not load file " << api_filename;
 		}
 
 		api_filename += strlen(api_filename) + 1;

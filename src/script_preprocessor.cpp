@@ -11,8 +11,8 @@ HRESULT script_preprocessor::process_import(const t_script_info& info, t_script_
 		return hr;
 	}
 
-	pfc::string_formatter pre;
-	pre << "Error: " << JSP_NAME " (" << info.build_info_string() << ")";
+	pfc::string_formatter pre, error_text;
+	pre << "Error: " JSP_NAME " v" JSP_VERSION " (" << info.build_info_string() << ")";
 
 	for (t_size i = 0; i < m_directive_value_list.get_count(); ++i)
 	{
@@ -35,9 +35,14 @@ HRESULT script_preprocessor::process_import(const t_script_info& info, t_script_
 			}
 			else
 			{
-				console::formatter() << pre << "\nFailed to load: " << pfc::stringcvt::string_utf8_from_wide(val.value.get_ptr());
+				error_text << "\nFailed to load: " << pfc::stringcvt::string_utf8_from_wide(val.value.get_ptr());
 			}
 		}
+	}
+	
+	if (!error_text.is_empty())
+	{
+		FB2K_console_formatter() << pre << error_text;
 	}
 
 	return hr;

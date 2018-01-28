@@ -521,7 +521,7 @@ bool js_panel_window::script_load()
 		SendMessage(m_hwnd, UWM_SIZE, 0, 0);
 
 		// Show init message
-		console::formatter() << JSP_NAME " ("
+		FB2K_console_formatter() << JSP_NAME " v" JSP_VERSION " ("
 			<< ScriptInfo().build_info_string()
 			<< "): initialised in "
 			<< (int)(timer.query() * 1000)

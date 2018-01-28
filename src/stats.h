@@ -43,7 +43,7 @@ namespace stats
 				catch (std::exception const & e)
 				{
 					api->remove(guid_js_panel_index);
-					FB2K_console_formatter() << JSP_NAME << " stats: Critical initialisation failure: " << e;
+					FB2K_console_formatter() << JSP_NAME " stats: Critical initialisation failure: " << e;
 					return;
 				}
 				api->dispatch_global_refresh();

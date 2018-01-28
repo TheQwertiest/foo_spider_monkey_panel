@@ -1511,7 +1511,7 @@ FbProfiler::~FbProfiler()
 
 STDMETHODIMP FbProfiler::Print()
 {
-	console::formatter() << JSP_NAME ": FbProfiler (" << m_name << "): " << (int)(m_timer.query() * 1000) << " ms";
+	FB2K_console_formatter() << JSP_NAME " v" JSP_VERSION ": FbProfiler (" << m_name << "): " << (int)(m_timer.query() * 1000) << " ms";
 	return S_OK;
 }
 

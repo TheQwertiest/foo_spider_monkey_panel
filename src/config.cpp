@@ -301,7 +301,7 @@ void js_panel_vars::load_config(stream_reader* reader, t_size size, abort_callba
 		catch (std::exception&)
 		{
 			reset_config();
-			console::complain(JSP_NAME, "Error: Configuration has been corrupted. All settings have been reset.");
+			FB2K_console_formatter() << "Error: " JSP_NAME " v" JSP_VERSION " Configuration has been corrupted. All settings have been reset.";
 		}
 	}
 }
