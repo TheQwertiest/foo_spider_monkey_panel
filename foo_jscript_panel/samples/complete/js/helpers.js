@@ -308,8 +308,8 @@ _.mixin({
 		}
 	},
 	input : function (prompt, title, value) {
-		var p = prompt.replace(/"/g, _.q(' + Chr(34) + ')).replace(/\n/g, _.q(' + Chr(13) + '));
-		var t = title.replace(/"/g, _.q(' + Chr(34) + '));
+		var p = prompt.toString().replace(/"/g, _.q(' + Chr(34) + ')).replace(/\n/g, _.q(' + Chr(13) + '));
+		var t = title.toString().replace(/"/g, _.q(' + Chr(34) + '));
 		var v = value.toString().replace(/"/g, _.q(' + Chr(34) + '));
 		var tmp = vb.eval('InputBox(' + _.q(p) + ', ' + _.q(t) + ', ' + _.q(v) + ')');
 		return _.isString(tmp) ? _.trim(tmp) : value;

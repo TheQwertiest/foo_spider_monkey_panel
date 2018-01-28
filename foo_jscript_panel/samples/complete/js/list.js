@@ -564,7 +564,7 @@ _.mixin({
 				var items = plman.GetPlaybackQueueHandles();
 				for (var i = 0; i < items.Count; i++) {
 					this.data.push({
-						name : fb.TitleFormat(this.properties.tf.value).EvalWithMetadb(items.Item(i))
+						name : _.tf(this.properties.tf.value, items.Item(i))
 					});
 				}
 				_.dispose(items);

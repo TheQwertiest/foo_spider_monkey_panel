@@ -3,7 +3,8 @@
 #include "js_panel_window_dui.h"
 
 // Just because I don't want to include the helpers
-template <typename TImpl> class my_ui_element_impl : public ui_element
+template <typename TImpl>
+class my_ui_element_impl : public ui_element
 {
 public:
 	GUID get_guid()

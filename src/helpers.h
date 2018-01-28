@@ -44,7 +44,8 @@ namespace helpers
 	void estimate_line_wrap(HDC hdc, const wchar_t* text, int len, int width, pfc::list_t<wrapped_item>& out);
 	void estimate_line_wrap_recur(HDC hdc, const wchar_t* text, int len, int width, pfc::list_t<wrapped_item>& out);
 
-	template <class T> bool ensure_gdiplus_object(T* obj)
+	template <class T>
+	bool ensure_gdiplus_object(T* obj)
 	{
 		return ((obj) && (obj->GetLastStatus() == Gdiplus::Ok));
 	}
@@ -342,7 +343,8 @@ namespace helpers
 		long m_lbound, m_ubound;
 	};
 
-	template <bool managed = false> class com_array_writer
+	template <bool managed = false>
+	class com_array_writer
 	{
 	public:
 		com_array_writer() : m_psa(NULL)

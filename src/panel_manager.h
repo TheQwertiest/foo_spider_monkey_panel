@@ -1,6 +1,7 @@
 #pragma once
 
-template <typename T> struct simple_callback_data : public pfc::refcounted_object_root
+template <typename T>
+struct simple_callback_data : public pfc::refcounted_object_root
 {
 	T m_item;
 
@@ -9,7 +10,8 @@ template <typename T> struct simple_callback_data : public pfc::refcounted_objec
 	}
 };
 
-template <typename T1, typename T2> struct simple_callback_data_2 : public pfc::refcounted_object_root
+template <typename T1, typename T2>
+struct simple_callback_data_2 : public pfc::refcounted_object_root
 {
 	T1 m_item1;
 	T2 m_item2;
@@ -19,7 +21,8 @@ template <typename T1, typename T2> struct simple_callback_data_2 : public pfc::
 	}
 };
 
-template <typename T1, typename T2, typename T3> struct simple_callback_data_3 : public pfc::refcounted_object_root
+template <typename T1, typename T2, typename T3>
+struct simple_callback_data_3 : public pfc::refcounted_object_root
 {
 	T1 m_item1;
 	T2 m_item2;
@@ -31,15 +34,18 @@ template <typename T1, typename T2, typename T3> struct simple_callback_data_3 :
 };
 
 // Only used in message handler
-template <class T> class simple_callback_data_scope_releaser
+template <class T>
+class simple_callback_data_scope_releaser
 {
 public:
-	template <class TParam>	simple_callback_data_scope_releaser(TParam p_data)
+	template <class TParam>
+	simple_callback_data_scope_releaser(TParam p_data)
 	{
 		m_data = reinterpret_cast<T *>(p_data);
 	}
 
-	template <class TParam>	simple_callback_data_scope_releaser(TParam* p_data)
+	template <class TParam>
+	simple_callback_data_scope_releaser(TParam* p_data)
 	{
 		m_data = reinterpret_cast<T *>(p_data);
 	}
