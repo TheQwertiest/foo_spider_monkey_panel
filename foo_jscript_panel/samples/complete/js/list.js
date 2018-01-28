@@ -280,9 +280,15 @@ _.mixin({
 				panel.m.CheckMenuItem(1304, this.properties.rg.enabled);
 				panel.m.AppendMenuSeparator();
 				break;
+			case 'queue_viewer':
+				panel.m.AppendMenuItem(MF_STRING, 1400, 'Item display title formatting...');
+				panel.m.AppendMenuItem(this.data.length ? MF_STRING : MF_GRAYED, 1401, 'Flush playback queue');
+				panel.m.AppendMenuSeparator();
 			}
-			panel.m.AppendMenuItem(_.isFile(this.filename) ? MF_STRING : MF_GRAYED, 1999, 'Open containing folder');
-			panel.m.AppendMenuSeparator();
+			if (this.mode != 'queue_viewer') {
+				panel.m.AppendMenuItem(_.isFile(this.filename) ? MF_STRING : MF_GRAYED, 1999, 'Open containing folder');
+				panel.m.AppendMenuSeparator();
+			}
 		}
 		
 		this.rbtn_up_done = function (idx) {
@@ -314,9 +320,7 @@ _.mixin({
 			case 1110:
 			case 1111:
 				this.properties.link.set(idx - 1110);
-				if (this.data.length) {
-					this.update();
-				}
+				this.update();
 				break;
 			case 1120:
 			case 1121:
@@ -364,6 +368,17 @@ _.mixin({
 			case 1304:
 				this.properties.rg.toggle();
 				panel.item_focus_change();
+				break;
+			case 1400:
+				var tmp = _.input('Enter title formatting', window.Name, this.properties.tf.value);
+				if (tmp == '') {
+					tmp = '%artist% - %title%';
+				}
+				this.properties.tf.set(tmp);
+				this.update();
+				break;
+			case 1401:
+				plman.FlushPlaybackQueue();
 				break;
 			case 1999:
 				_.explorer(this.filename);
@@ -551,7 +566,7 @@ _.mixin({
 				var items = plman.GetPlaybackQueueHandles();
 				for (var i = 0; i < items.Count; i++) {
 					this.data.push({
-						name : fb.TitleFormat('%artist% - %title%').EvalWithMetadb(items.Item(i))
+						name : fb.TitleFormat(this.properties.tf.value).EvalWithMetadb(items.Item(i))
 					});
 				}
 				_.dispose(items);
@@ -995,6 +1010,9 @@ _.mixin({
 				};
 				break;
 			case 'queue_viewer':
+				this.properties = {
+					tf : new _.p('2K3.LIST.QUEUE.TF', '%artist% - %title%')
+				};
 				this.update();
 				break;
 			}
