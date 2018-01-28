@@ -1,5 +1,11 @@
 _.mixin({
 	list : function (mode, x, y, w, h) {
+		this.playback_queue_changed = function () {
+			if (this.mode == 'queue_viewer') {
+				this.update();
+			}
+		}
+		
 		this.size = function () {
 			this.index = 0;
 			this.offset = 0;
@@ -64,6 +70,7 @@ _.mixin({
 					gr.GdiDrawText(this.data[i + this.offset].value, panel.fonts.normal, panel.colours.text, this.x + this.text_x, this.y + _.scale(12) + (i * panel.row_height), this.text_width, panel.row_height, LEFT);
 				}
 				break;
+			case 'queue_viewer':
 			default:
 				this.text_width = this.w;
 				for (var i = 0; i < Math.min(this.items, this.rows); i++) {
@@ -79,6 +86,7 @@ _.mixin({
 			switch (true) {
 			case this.mode == 'autoplaylists':
 			case this.mode == 'lastfm_info' && this.properties.mode.value == 1:
+			case this.mode == 'queue_viewer':
 				break;
 			case !panel.metadb:
 				this.artist = '';
@@ -539,6 +547,15 @@ _.mixin({
 				}, this);
 				_.dispose(fileinfo);
 				break;
+			case 'queue_viewer':
+				var items = plman.GetPlaybackQueueHandles();
+				for (var i = 0; i < items.Count; i++) {
+					this.data.push({
+						name : fb.TitleFormat('%artist% - %title%').EvalWithMetadb(items.Item(i))
+					});
+				}
+				_.dispose(items);
+				break;
 			}
 			this.items = this.data.length;
 			this.offset = 0;
@@ -645,6 +662,8 @@ _.mixin({
 				return this.artist + ': ' + (this.properties.mode.value == 0 ? 'releases' : 'links');
 			case 'properties':
 				return panel.tf('%artist% - %title%');
+			case 'queue_viewer':
+				return 'Queue Viewer';
 			}
 		}
 		
@@ -974,6 +993,9 @@ _.mixin({
 					playcount : new _.p('2K3.LIST.PROPERTIES.PLAYCOUNT', true),
 					rg : new _.p('2K3.LIST.PROPERTIES.RG', true)
 				};
+				break;
+			case 'queue_viewer':
+				this.update();
 				break;
 			}
 		}
