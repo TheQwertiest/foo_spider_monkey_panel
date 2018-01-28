@@ -445,10 +445,11 @@ _.mixin({
 		}
 		
 		this.property = property;
-		if (_.isBoolean(default_)) {
-			this.enabled = window.GetProperty(this.property, default_);
+		this.default_ = default_;
+		if (_.isBoolean(this.default_)) {
+			this.enabled = window.GetProperty(this.property, this.default_);
 		} else {
-			this.value = window.GetProperty(this.property, default_);
+			this.value = window.GetProperty(this.property, this.default_);
 		}
 	},
 	q : function (value) {

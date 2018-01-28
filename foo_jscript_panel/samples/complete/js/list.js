@@ -284,6 +284,7 @@ _.mixin({
 				panel.m.AppendMenuItem(MF_STRING, 1400, 'Item display title formatting...');
 				panel.m.AppendMenuItem(this.data.length ? MF_STRING : MF_GRAYED, 1401, 'Flush playback queue');
 				panel.m.AppendMenuSeparator();
+				break;
 			}
 			if (this.mode != 'queue_viewer') {
 				panel.m.AppendMenuItem(_.isFile(this.filename) ? MF_STRING : MF_GRAYED, 1999, 'Open containing folder');
@@ -371,10 +372,7 @@ _.mixin({
 				break;
 			case 1400:
 				var tmp = _.input('Enter title formatting', window.Name, this.properties.tf.value);
-				if (tmp == '') {
-					tmp = '%artist% - %title%';
-				}
-				this.properties.tf.set(tmp);
+				this.properties.tf.set(tmp || this.properties.tf.default_);
 				this.update();
 				break;
 			case 1401:

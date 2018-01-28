@@ -75,17 +75,11 @@ _.mixin({
 				break;
 			case idx == 1004:
 				var tmp = _.input('Enter a custom tag name. Do not use %%. Defaults to "rating" if left blank.', window.Name, this.properties.tag.value);
-				if (tmp == '') {
-					tmp = 'rating';
-				}
-				this.properties.tag.set(tmp);
+				this.properties.tag.set(tmp || this.properties.tag.default_);
 				break;
 			case idx == 1005:
 				var tmp = _.input('Enter a maximum value. Defaults to "5" if left blank.', window.Name, this.properties.max.value);
-				if (tmp == '') {
-					tmp = 5;
-				}
-				this.properties.max.set(tmp);
+				this.properties.max.set(tmp || this.properties.max.default_);
 				break;
 			}
 			this.w = this.h * this.get_max();
