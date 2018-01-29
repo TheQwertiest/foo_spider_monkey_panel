@@ -1,3 +1,10 @@
+v2.0.1.1
+- CHG: Add usage notes to "Rating" and "Last.fm Lover" samples. "Rating" can
+       now tag files or use the JScript Panel "Playback Stats" database in
+       addition to using "foo_playcount" like it did before.
+- ADD: A "Queue Viewer" script has been added to the "samples\complete" folder.
+       It has a couple of basic options on the right click menu.
+
 v2.0.1
 - NEW: Add "Last.fm Lover" sample. Imports all loved tracks from Last.fm
        in to the new JScript Panel "Playback Stats" database. All loved

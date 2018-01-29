@@ -7,7 +7,17 @@
 // @import "%fb2k_component_path%samples\complete\js\lastfm.js"
 // ==/PREPROCESSOR==
 
-// See the changelog for basic usage instructions.
+/*
+This script makes use of the JScript Panel "Playback Stats" database to import
+and store loved tracks from Last.fm. Each loved track will have the value of
+%jsp_loved% set to 1. You can access this through all other components/search -
+it works in the same way as "foo_playcount" - all values are stored in a database
+file and no files are tagged. Each record is bound to "%artist% - %title%" so
+common tracks across different albums will share the same loved status. Right click
+the heart iocn to set your Last.fm username and authorise the script through your
+browser. You can then import all your loved tracks and then use the heart icon
+to love/unlove tracks.
+*/
 
 var loved = _.chrToImg(chars.heart_on, _.RGB(255, 0, 0));
 var unloved = _.chrToImg(chars.heart_off, _.RGB(255, 0, 0));
