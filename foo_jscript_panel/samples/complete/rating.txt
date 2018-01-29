@@ -7,6 +7,13 @@
 // @import "%fb2k_component_path%samples\complete\js\rating.js"
 // ==/PREPROCESSOR==
 
+/*
+Now supports 3 modes:
+1) foo_playcount, limited to 5 stars, access via %rating%
+2) file tags, configurable max limit, access via custom tag. Use right click menu to set.
+3) JScript Panel "Playback stats" database, configurable max limit, access via %jsp_rating%. Bound to "%artist% - %title%" so common tracks across different albums will share the rating.
+*/
+
 var panel = new _.panel('custom_background');
 var rating = new _.rating(0, 0, 24, _.RGB(255, 128, 0)); // x, y, height, colour
 
