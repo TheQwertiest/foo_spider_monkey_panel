@@ -647,12 +647,14 @@ STDMETHODIMP FbMetadbHandleList::RefreshStats()
 	for (t_size i = 0; i < count; ++i)
 	{
 		metadb_index_hash hash;
-		if (stats::g_client->hashHandle(m_handles[i], hash)) {
+		if (stats::g_client->hashHandle(m_handles[i], hash))
+		{
 			tmp += hash;
 		}
 	}
 	pfc::list_t<metadb_index_hash> hashes;
-	for (auto iter = tmp.first(); iter.is_valid(); ++iter) {
+	for (auto iter = tmp.first(); iter.is_valid(); ++iter)
+	{
 		const metadb_index_hash hash = *iter;
 		hashes += hash;
 	}

@@ -60,7 +60,8 @@ void HostTimerDispatcher::onPanelUnload(HWND hWnd)
 		std::lock_guard<std::mutex> lock(m_timerMutex);
 		for each (const auto& elem in m_timerMap)
 		{
-			if (elem.second->GetHwnd() == hWnd) {
+			if (elem.second->GetHwnd() == hWnd)
+			{
 				timersToDelete.push_back(elem.first);
 			}
 		}

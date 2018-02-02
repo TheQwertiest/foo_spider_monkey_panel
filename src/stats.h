@@ -21,7 +21,8 @@ namespace stats
 	static metadb_index_client_impl * g_client = new service_impl_single_t<metadb_index_client_impl>;
 
 	static metadb_index_manager::ptr g_cachedAPI;
-	static metadb_index_manager::ptr theAPI() {
+	static metadb_index_manager::ptr theAPI()
+	{
 		auto ret = g_cachedAPI;
 		if (ret.is_empty()) ret = metadb_index_manager::get();
 		return ret;
@@ -52,9 +53,11 @@ namespace stats
 	};
 	static service_factory_single_t<init_stage_callback_impl> g_init_stage_callback_impl;
 
-	class initquit_impl : public initquit {
+	class initquit_impl : public initquit
+	{
 	public:
-		void on_quit() {
+		void on_quit()
+		{
 			g_cachedAPI.release();
 		}
 	};
@@ -75,8 +78,10 @@ namespace stats
 	{
 		mem_block_container_impl temp;
 		theAPI()->get_user_data(guid_js_panel_index, hash, temp);
-		if (temp.get_size() > 0) {
-			try {
+		if (temp.get_size() > 0)
+		{
+			try
+			{
 				stream_reader_formatter_simple_ref<false> reader(temp.get_ptr(), temp.get_size());
 				fields ret;
 				reader >> ret.playcount;

@@ -274,7 +274,8 @@ public:
 		sLen = 0;
 	}
 	/** Size of buffer. */
-	lenpos_t size() const {
+	lenpos_t size() const
+	{
 		return SContainer::size();
 	}
 	/** Size of string in buffer. */
