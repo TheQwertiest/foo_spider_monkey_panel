@@ -887,6 +887,11 @@ oItem = function (playlist, row_index, type, handle, track_index, group_index, t
 								dragndrop.x = x;
 								dragndrop.y = y;
 								dragndrop.drag_id = this.track_index;
+								dragndrop.timerID = window.SetTimeout(function () {
+									dragndrop.drag_in = true;
+									dragndrop.timerID && window.ClearTimeout(dragndrop.timerID);
+									dragndrop.timerID = false;
+								}, 250);
 							};
 						};
 						if (this.obj && properties.autocollapse) {
@@ -921,9 +926,19 @@ oItem = function (playlist, row_index, type, handle, track_index, group_index, t
 									if (p.list.metadblist_selection.Count == 1 || (p.list.metadblist_selection.Count > 1 && p.list.metadblist_selection.Count == contigus_count)) {
 										dragndrop.contigus_sel = true;
 										dragndrop.drag_id = this.track_index;
+										dragndrop.timerID = window.SetTimeout(function () {
+											dragndrop.drag_in = true;
+											dragndrop.timerID && window.ClearTimeout(dragndrop.timerID);
+											dragndrop.timerID = false;
+										}, 250);
 									} else if (p.list.metadblist_selection.Count > 1) {
 										dragndrop.contigus_sel = false;
 										dragndrop.drag_id = this.track_index;
+										dragndrop.timerID = window.SetTimeout(function () {
+											dragndrop.drag_in = true;
+											dragndrop.timerID && window.ClearTimeout(dragndrop.timerID);
+											dragndrop.timerID = false;
+										}, 250);
 									};
 								};
 								if (utils.IsKeyPressed(VK_SHIFT)) {
