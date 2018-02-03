@@ -4154,7 +4154,6 @@ function on_notify_data(name, info) {
 };
 
 function save_image_to_cache(metadb, albumIndex) {
-	var tran = false;
 	switch (ppt.tagMode) {
 	case 1:
 		var path = ppt.tf_path.EvalWithMetadb(metadb);
@@ -4169,16 +4168,9 @@ function save_image_to_cache(metadb, albumIndex) {
 	};
 
 	if (path_) {
-		//var crc = processpath(path);
-		//var crc = ppt.tf_crc.EvalWithMetadb(metadb);
 		var crc = brw.groups[albumIndex].cachekey;
-	} else {
-		return false;
-	};
-
-	var comm = "wscript //E:jscript \"" + fb.ProfilePath + "js_smooth_cache\\LoadIMG.js\" \""
-		 + fb.ProfilePath + "\" \"" + path_ + "\" \"" + crc + "\" \"" + tran + "\"";
-	WshShell.Run(comm, false, false);
+		resize(path_, crc);
+	}
 };
 
 on_load();

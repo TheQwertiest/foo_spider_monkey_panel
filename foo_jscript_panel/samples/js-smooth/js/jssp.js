@@ -4751,20 +4751,12 @@ function on_notify_data(name, info) {
 };
 
 function save_image_to_cache(metadb, albumIndex) {
-	var tran = false;
 	var path = ppt.tf_path.EvalWithMetadb(metadb);
 	var path_ = getpath_(path);
 	if (path_) {
-		//var crc = processpath(path);
-		//var crc = ppt.tf_crc.EvalWithMetadb(metadb);
 		var crc = brw.groups[albumIndex].cachekey;
-	} else {
-		return false;
-	};
-
-	var comm = "wscript //E:jscript \"" + fb.ProfilePath + "js_smooth_cache\\LoadIMG.js\" \""
-		 + fb.ProfilePath + "\" \"" + path_ + "\" \"" + crc + "\" \"" + tran + "\"";
-	WshShell.Run(comm, false, false);
+		resize(path_, crc);
+	}
 };
 
 on_load();
