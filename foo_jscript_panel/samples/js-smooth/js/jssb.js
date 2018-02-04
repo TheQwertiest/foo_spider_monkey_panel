@@ -368,9 +368,9 @@ image_cache = function () {
 						brw.groups[albumId].save_requested = true;
 						save_image_to_cache(metadb, albumId);
 						timers.saveCover = window.SetTimeout(function () {
-								window.ClearTimeout(timers.saveCover);
-								timers.saveCover = false;
-							}, 100);
+							window.ClearTimeout(timers.saveCover);
+							timers.saveCover = false;
+						}, 50);
 					};
 				};
 			};
