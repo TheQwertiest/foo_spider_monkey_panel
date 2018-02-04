@@ -1011,6 +1011,9 @@ function on_load() {
 
 function resize(source, crc) {
 	var img = gdi.Image(source);
+	if (!img) {
+		return;
+	}
 	var s = Math.min(200 / img.Width, 200 / img.Height);
 	var w = Math.floor(img.Width * s);
 	var h = Math.floor(img.Height * s);
