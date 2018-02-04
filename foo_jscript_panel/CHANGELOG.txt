@@ -1,3 +1,7 @@
+v2.0.1.2
+- FIX: As part of the v2 update, I accidentally broke the ability to drag
+       tracks within jsplaylist-mod. This has now been fixed.
+
 v2.0.1.1
 - CHG: Add usage notes to "Rating" and "Last.fm Lover" samples. "Rating" can
        now tag files or use the JScript Panel "Playback Stats" database in
