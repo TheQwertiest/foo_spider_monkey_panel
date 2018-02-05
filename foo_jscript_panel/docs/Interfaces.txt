@@ -856,6 +856,10 @@ interface IJSUtils {
 		The parent folder must already exist and the resulting file will be UTF8-BOM.
 		Example:
 		utils.WriteTextFile("z:\\test.txt", "test");
+		
+		IMPORTANT: Do not use this to write js/vbs files that you intend to run
+		"on the fly" with cscript.exe/wscript.exe. It is not compatible with files
+		that contain a BOM. Look at using FileSystemObject OpenTextFile instead.
 		*/
 }
 
