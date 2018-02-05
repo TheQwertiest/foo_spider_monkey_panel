@@ -3811,7 +3811,7 @@ STDMETHODIMP JSUtils::get_Version(UINT* v)
 {
 	if (!v) return E_POINTER;
 
-	*v = 2012;
+	*v = 2020;
 	return S_OK;
 }
 

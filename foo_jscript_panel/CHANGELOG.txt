@@ -1,3 +1,9 @@
+v2.0.2
+- FIX: Fix random component crash caused by utils.WriteTextFile.
+- FIX: Fix JS-Smooth script image caching feature choking on some images.
+       The breakage was introduced by me in v2.0.1.2 as I attempted
+       to update some old code. Thanks to always.beta for reporting.
+
 v2.0.1.2
 - FIX: As part of the v2 update, I accidentally broke the ability to drag
        tracks within jsplaylist-mod. This has now been fixed.
