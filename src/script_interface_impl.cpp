@@ -3794,15 +3794,15 @@ STDMETHODIMP JSUtils::WriteTextFile(BSTR filename, BSTR content, VARIANT_BOOL* p
 {
 	if (!p) return E_POINTER;
 
-	try
+	if (filename == nullptr || content == nullptr)
+	{
+		*p = VARIANT_FALSE;
+	}
+	else
 	{
 		pfc::string8_fast filename8 = pfc::stringcvt::string_utf8_from_wide(filename);
 		pfc::string8_fast content8 = pfc::stringcvt::string_utf8_from_wide(content);
 		*p = TO_VARIANT_BOOL(helpers::write_file(filename8, content8));
-	}
-	catch (...)
-	{
-		*p = VARIANT_FALSE;
 	}
 	return S_OK;
 }
