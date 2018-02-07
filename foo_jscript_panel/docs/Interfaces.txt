@@ -715,7 +715,7 @@ interface IJSUtils {
 	Methods:
 		utils.CheckComponent(name[, is_dll]); (boolean)
 		/*
-		is_dll: boolean, default false.
+		is_dll: boolean, default true.
 		If true, method checks filename as well as the internal name.
 		Example:
 		console.log(utils.CheckComponent("foo_playcount", true));
@@ -850,16 +850,16 @@ interface IJSUtils {
 		Example:
 		utils.WriteINI("e:\\my_file.ini", "Last.fm", "username", "Bob");
 		*/
-		
-		utils.WriteTextFile(filename, content); (boolean)
+
+		utils.WriteTextFile(filename, content[, write_bom]); (boolean)
 		/*
-		The parent folder must already exist and the resulting file will be UTF8-BOM.
+		write_bom: boolean, default true
+		The parent folder must already exist.
+
 		Example:
-		utils.WriteTextFile("z:\\test.txt", "test");
-		
-		IMPORTANT: Do not use this to write js/vbs files that you intend to run
-		"on the fly" with cscript.exe/wscript.exe. It is not compatible with files
-		that contain a BOM. Look at using FileSystemObject OpenTextFile instead.
+		utils.WriteTextFile("z:\\1.txt", "test"); // write_bom missing but defaults to true, resulting file is UTF8-BOM
+		utils.WriteTextFile("z:\\2.txt", "test", true); // resulting file is UTF8-BOM
+		utils.WriteTextFile("z:\\3.txt", "test", false); // resulting file is UTF8 without BOM
 		*/
 }
 

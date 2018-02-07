@@ -108,7 +108,7 @@ STDMETHODIMP DropSourceAction::get_ToSelect(VARIANT_BOOL* select)
 
 STDMETHODIMP DropSourceAction::put_Parsable(VARIANT_BOOL parsable)
 {
-	m_parsable = parsable == VARIANT_TRUE;
+	m_parsable = parsable != VARIANT_FALSE;
 	return S_OK;
 }
 
@@ -120,7 +120,7 @@ STDMETHODIMP DropSourceAction::put_Playlist(int id)
 
 STDMETHODIMP DropSourceAction::put_ToSelect(VARIANT_BOOL select)
 {
-	m_to_select = (select == VARIANT_TRUE);
+	m_to_select = select != VARIANT_FALSE;
 	return S_OK;
 }
 
@@ -842,7 +842,7 @@ STDMETHODIMP FbPlaylistManager::AddItemToPlaybackQueue(IFbMetadbHandle* handle)
 
 STDMETHODIMP FbPlaylistManager::AddLocations(UINT playlistIndex, VARIANT locations, VARIANT_BOOL select)
 {
-	bool toSelect = (select == VARIANT_TRUE);
+	bool toSelect = select != VARIANT_FALSE;
 	helpers::com_array_reader helper;
 
 	if (!helper.convert(&locations)) return E_INVALIDARG;
@@ -1066,7 +1066,7 @@ STDMETHODIMP FbPlaylistManager::InsertPlaylistItems(UINT playlistIndex, UINT bas
 {
 	metadb_handle_list* handles_ptr = NULL;
 	handles->get__ptr((void**)&handles_ptr);
-	pfc::bit_array_val selection(select == VARIANT_TRUE);
+	pfc::bit_array_val selection(select != VARIANT_FALSE);
 	playlist_manager::get()->playlist_insert_items(playlistIndex, base, *handles_ptr, selection);
 	return S_OK;
 }
@@ -1075,7 +1075,7 @@ STDMETHODIMP FbPlaylistManager::InsertPlaylistItemsFilter(UINT playlistIndex, UI
 {
 	metadb_handle_list* handles_ptr = NULL;
 	handles->get__ptr((void**)&handles_ptr);
-	playlist_manager::get()->playlist_insert_items_filter(playlistIndex, base, *handles_ptr, select == VARIANT_TRUE);
+	playlist_manager::get()->playlist_insert_items_filter(playlistIndex, base, *handles_ptr, select != VARIANT_FALSE);
 	return S_OK;
 }
 
@@ -1178,7 +1178,7 @@ STDMETHODIMP FbPlaylistManager::RemovePlaylist(UINT playlistIndex, VARIANT_BOOL*
 
 STDMETHODIMP FbPlaylistManager::RemovePlaylistSelection(UINT playlistIndex, VARIANT_BOOL crop)
 {
-	playlist_manager::get()->playlist_remove_selection(playlistIndex, crop == VARIANT_TRUE);
+	playlist_manager::get()->playlist_remove_selection(playlistIndex, crop != VARIANT_FALSE);
 	return S_OK;
 }
 
@@ -1221,7 +1221,7 @@ STDMETHODIMP FbPlaylistManager::SetPlaylistSelection(UINT playlistIndex, VARIANT
 	if (!helpers::com_array_to_bitarray::convert(affectedItems, bitArrayCount, affected, empty)) return E_INVALIDARG;
 	if (!empty)
 	{
-		pfc::bit_array_val status(state == VARIANT_TRUE);
+		pfc::bit_array_val status(state != VARIANT_FALSE);
 		api->playlist_set_selection(playlistIndex, affected, status);
 	}
 	
@@ -1230,7 +1230,7 @@ STDMETHODIMP FbPlaylistManager::SetPlaylistSelection(UINT playlistIndex, VARIANT
 
 STDMETHODIMP FbPlaylistManager::SetPlaylistSelectionSingle(UINT playlistIndex, UINT itemIndex, VARIANT_BOOL state)
 {
-	playlist_manager::get()->playlist_set_selection_single(playlistIndex, itemIndex, state == VARIANT_TRUE);
+	playlist_manager::get()->playlist_set_selection_single(playlistIndex, itemIndex, state != VARIANT_FALSE);
 	return S_OK;
 }
 
@@ -1268,7 +1268,7 @@ STDMETHODIMP FbPlaylistManager::SortByFormat(UINT playlistIndex, BSTR pattern, V
 		pattern_ptr = string_conv.get_ptr();
 	}
 
-	*outSuccess = TO_VARIANT_BOOL(playlist_manager::get()->playlist_sort_by_format(playlistIndex, pattern_ptr, selOnly == VARIANT_TRUE));
+	*outSuccess = TO_VARIANT_BOOL(playlist_manager::get()->playlist_sort_by_format(playlistIndex, pattern_ptr, selOnly != VARIANT_FALSE));
 	return S_OK;
 }
 
@@ -3790,7 +3790,7 @@ STDMETHODIMP JSUtils::WriteINI(BSTR filename, BSTR section, BSTR key, VARIANT va
 	return S_OK;
 }
 
-STDMETHODIMP JSUtils::WriteTextFile(BSTR filename, BSTR content, VARIANT_BOOL* p)
+STDMETHODIMP JSUtils::WriteTextFile(BSTR filename, BSTR content, VARIANT_BOOL write_bom, VARIANT_BOOL* p)
 {
 	if (!p) return E_POINTER;
 
@@ -3802,7 +3802,7 @@ STDMETHODIMP JSUtils::WriteTextFile(BSTR filename, BSTR content, VARIANT_BOOL* p
 	{
 		pfc::string8_fast filename8 = pfc::stringcvt::string_utf8_from_wide(filename);
 		pfc::string8_fast content8 = pfc::stringcvt::string_utf8_from_wide(content);
-		*p = TO_VARIANT_BOOL(helpers::write_file(filename8, content8));
+		*p = TO_VARIANT_BOOL(helpers::write_file(filename8, content8, write_bom != VARIANT_FALSE));
 	}
 	return S_OK;
 }

@@ -542,7 +542,7 @@ __interface IJSUtils : IDispatch
 	STDMETHOD(ReadINI)(BSTR filename, BSTR section, BSTR key, [optional] VARIANT defaultval, [out, retval] BSTR* pp);
 	STDMETHOD(ReadTextFile)(BSTR filename, [defaultvalue(0)] UINT codepage, [out, retval] BSTR* pp);
 	STDMETHOD(WriteINI)(BSTR filename, BSTR section, BSTR key, VARIANT val, [out, retval] VARIANT_BOOL* p);
-	STDMETHOD(WriteTextFile)(BSTR filename, BSTR content, [out, retval] VARIANT_BOOL* p);
+	STDMETHOD(WriteTextFile)(BSTR filename, BSTR content, [defaultvalue(-1)] VARIANT_BOOL write_bom, [out, retval] VARIANT_BOOL* p);
 	[propget] STDMETHOD(Version)([out, retval] UINT* v);
 };
 

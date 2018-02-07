@@ -569,8 +569,9 @@ namespace helpers
 		return status;
 	}
 
-	bool write_file(const char* path, const pfc::string_base& content)
+	bool write_file(const char* path, const pfc::string_base& content, bool write_bom)
 	{
+		int offset = write_bom ? 3 : 0;
 		HANDLE hFile = uCreateFile(path, GENERIC_READ | GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
 
 		if (hFile == INVALID_HANDLE_VALUE)
@@ -578,7 +579,7 @@ namespace helpers
 			return false;
 		}
 
-		HANDLE hFileMapping = uCreateFileMapping(hFile, NULL, PAGE_READWRITE, 0, content.get_length() + 3, NULL);
+		HANDLE hFileMapping = uCreateFileMapping(hFile, NULL, PAGE_READWRITE, 0, content.get_length() + offset, NULL);
 
 		if (hFileMapping == NULL)
 		{
@@ -595,9 +596,12 @@ namespace helpers
 			return false;
 		}
 
-		const BYTE utf8_bom[] = { 0xef, 0xbb, 0xbf };
-		memcpy(pAddr, utf8_bom, 3);
-		memcpy(pAddr + 3, content.get_ptr(), content.get_length());
+		if (write_bom)
+		{
+			const BYTE utf8_bom[] = { 0xef, 0xbb, 0xbf };
+			memcpy(pAddr, utf8_bom, 3);
+		}
+		memcpy(pAddr + offset, content.get_ptr(), content.get_length());
 
 		UnmapViewOfFile(pAddr);
 		CloseHandle(hFileMapping);

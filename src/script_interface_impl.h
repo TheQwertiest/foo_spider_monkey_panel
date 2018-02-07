@@ -590,7 +590,7 @@ public:
 	STDMETHODIMP ReadINI(BSTR filename, BSTR section, BSTR key, VARIANT defaultval, BSTR* pp);
 	STDMETHODIMP ReadTextFile(BSTR filename, UINT codepage, BSTR* pp);
 	STDMETHODIMP WriteINI(BSTR filename, BSTR section, BSTR key, VARIANT val, VARIANT_BOOL* p);
-	STDMETHODIMP WriteTextFile(BSTR filename, BSTR content, VARIANT_BOOL* p);
+	STDMETHODIMP WriteTextFile(BSTR filename, BSTR content, VARIANT_BOOL write_bom, VARIANT_BOOL* p);
 	STDMETHODIMP get_Version(UINT* v);
 };
 
