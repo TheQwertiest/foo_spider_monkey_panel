@@ -434,7 +434,7 @@ interface IFbPlaylistManager {
 		plman.AddLocations(playlistIndex, paths[, select]); (void)
 		/*
 		paths: An array of files/URLs
-		select: boolean, default false
+		select: boolean, default false.
 		Example:
 		plman.AddLocations(plman.ActivePlaylist, ["e:\\1.mp3"]);
 		This operation is asynchronous and may take some time to complete if it's a large array.
@@ -769,8 +769,8 @@ interface IJSUtils {
 		/*
 		window_id: window.ID
 		art_id: default 0. See flags.txt > AlbumArtId
-		need_stub: boolean, default true
-		only_embed: boolean, default false
+		need_stub: boolean, default true.
+		only_embed: boolean, default false.
 		no_load: boolean, default false. If true, "image" parameter will be null in on_get_album_art_done callback.
 		See samples\basic\GetAlbumArtAsync.txt
 		*/
@@ -853,7 +853,7 @@ interface IJSUtils {
 
 		utils.WriteTextFile(filename, content[, write_bom]); (boolean)
 		/*
-		write_bom: boolean, default true
+		write_bom: boolean, default true.
 		The parent folder must already exist.
 
 		Example:
@@ -948,7 +948,7 @@ interface IFbWindow {
 					EnableMenuItem(id_or_pos, enable[, bypos]); (void)
 					/*
 					enable: boolean.
-					bypos: boolean, default false
+					bypos: boolean, default false.
 					*/
 
 					TrackPopupMenu(x, y[, flags]); (int)
@@ -1058,11 +1058,11 @@ interface IFbWindow {
 		// reload panel
 
 		window.Repaint([force]); (void)
-		// force: boolean, default false
+		// force: boolean, default false.
 
 		window.RepaintRect(x, y, w, h[, force]); (void)
 		/*
-		force: boolean, default false
+		force: boolean, default false.
 
 		Use this instead of window.Repaint on frequently updated areas
 		such as time, bitrate, seekbar, etc.
