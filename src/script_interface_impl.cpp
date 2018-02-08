@@ -3997,11 +3997,11 @@ STDMETHODIMP MenuObj::CheckMenuItem(UINT item_id, VARIANT_BOOL check)
 	return S_OK;
 }
 
-STDMETHODIMP MenuObj::CheckMenuRadioItem(UINT first, UINT last, UINT check)
+STDMETHODIMP MenuObj::CheckMenuRadioItem(UINT first, UINT last, UINT selected)
 {
 	if (!m_hMenu) return E_POINTER;
 
-	::CheckMenuRadioItem(m_hMenu, first, last, check, MF_BYCOMMAND);
+	::CheckMenuRadioItem(m_hMenu, first, last, selected, MF_BYCOMMAND);
 	return S_OK;
 }
 
