@@ -1,7 +1,6 @@
 #pragma once
 
 #include "host.h"
-#include "delay_loader.h"
 
 class js_panel_window : public HostComm, public ui_helpers::container_window
 {

@@ -419,7 +419,7 @@ public:
 	STDMETHODIMP SavePlaylist();
 	STDMETHODIMP ShowConsole();
 	STDMETHODIMP ShowLibrarySearchUI(BSTR query);
-	STDMETHODIMP ShowPopupMessage(BSTR msg, BSTR title, int iconid);
+	STDMETHODIMP ShowPopupMessage(BSTR msg, BSTR title);
 	STDMETHODIMP ShowPreferences();
 	STDMETHODIMP Stop();
 	STDMETHODIMP TitleFormat(BSTR expression, IFbTitleFormat** pp);

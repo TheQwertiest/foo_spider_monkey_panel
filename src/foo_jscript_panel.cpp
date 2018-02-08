@@ -1,6 +1,5 @@
 #include "stdafx.h"
 #include "thread_pool.h"
-#include "delay_loader.h"
 #include "popup_msg.h"
 #include "panel_manager.h"
 #include "user_message.h"
@@ -79,7 +78,7 @@ namespace
 
 			if (!err_msg.is_empty())
 			{
-				popup_msg::g_show(err_msg, JSP_NAME, popup_message::icon_error);
+				popup_msg::g_show(err_msg, JSP_NAME);
 			}
 		}
 	};

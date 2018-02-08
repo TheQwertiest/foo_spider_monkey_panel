@@ -388,7 +388,7 @@ __interface IFbUtils : IDispatch
 	STDMETHOD(SavePlaylist)();
 	STDMETHOD(ShowConsole)();
 	STDMETHOD(ShowLibrarySearchUI)(BSTR query);
-	STDMETHOD(ShowPopupMessage)(BSTR msg, [defaultvalue(JSP_NAME)] BSTR title, [defaultvalue(0), range(0, 2)] int iconid);
+	STDMETHOD(ShowPopupMessage)(BSTR msg, [defaultvalue(JSP_NAME)] BSTR title);
 	STDMETHOD(ShowPreferences)();
 	STDMETHOD(Stop)();
 	STDMETHOD(TitleFormat)(BSTR expression, [out, retval] IFbTitleFormat** pp);

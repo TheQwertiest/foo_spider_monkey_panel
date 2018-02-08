@@ -364,15 +364,11 @@ LRESULT js_panel_window::on_message(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 		return 0;
 
 	case UWM_SCRIPT_DISABLED_BEFORE:
-		// Show error message
-		popup_msg::g_show(
-			pfc::string_formatter()
-			<< "Panel ("
-			<< ScriptInfo().build_info_string()
-			<< "): Refuse to load script due to critical error last run,"
-			<< " please check your script and apply it again.",
-			JSP_NAME,
-			popup_message::icon_error);
+		{
+			pfc::string_formatter formatter;
+			formatter << "Panel (" << ScriptInfo().build_info_string() << "): Refuse to load script due to critical error last run, please check your script and apply it again.",
+			popup_msg::g_show(formatter, JSP_NAME);
+		}
 		return 0;
 
 	case UWM_SCRIPT_ERROR:

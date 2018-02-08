@@ -2132,9 +2132,9 @@ STDMETHODIMP FbUtils::ShowLibrarySearchUI(BSTR query)
 	return S_OK;
 }
 
-STDMETHODIMP FbUtils::ShowPopupMessage(BSTR msg, BSTR title, int iconid)
+STDMETHODIMP FbUtils::ShowPopupMessage(BSTR msg, BSTR title)
 {
-	popup_msg::g_show(pfc::stringcvt::string_utf8_from_wide(msg), pfc::stringcvt::string_utf8_from_wide(title), (popup_message::t_icon)iconid);
+	popup_msg::g_show(pfc::stringcvt::string_utf8_from_wide(msg), pfc::stringcvt::string_utf8_from_wide(title));
 	return S_OK;
 }
 
