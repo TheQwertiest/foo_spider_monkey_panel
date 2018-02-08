@@ -1307,12 +1307,6 @@ STDMETHODIMP FbPlaylistManager::UndoBackup(UINT playlistIndex)
 	return S_OK;
 }
 
-STDMETHODIMP FbPlaylistManager::UndoRestore(UINT playlistIndex)
-{
-	playlist_manager::get()->playlist_undo_restore(playlistIndex);
-	return S_OK;
-}
-
 STDMETHODIMP FbPlaylistManager::get_ActivePlaylist(int* outPlaylistIndex)
 {
 	if (!outPlaylistIndex) return E_POINTER;

@@ -256,13 +256,6 @@ var AlbumArtId = {
 	artist: 4
 };
 
-// Used in fb.ShowPopupMessage()
-var IconId = {
-	information: 0,
-	error: 1,
-	query: 2
-};
-
 // Used in window.GetColourCUI()
 var ColourTypeCUI = {
 	text: 0,
