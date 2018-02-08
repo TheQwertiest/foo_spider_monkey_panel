@@ -283,9 +283,8 @@ __interface IMenuObj : IDisposable
 	STDMETHOD(AppendMenuItem)(UINT flags, UINT item_id, BSTR text);
 	STDMETHOD(AppendMenuSeparator)();
 	STDMETHOD(AppendTo)(IMenuObj* parent, UINT flags, BSTR text);
-	STDMETHOD(CheckMenuItem)(UINT id_or_pos, VARIANT_BOOL check, [defaultvalue(0)] VARIANT_BOOL bypos);
-	STDMETHOD(CheckMenuRadioItem)(UINT first, UINT last, UINT check, [defaultvalue(0)] VARIANT_BOOL bypos);
-	STDMETHOD(EnableMenuItem)(UINT id_or_pos, UINT enable, [defaultvalue(0)] VARIANT_BOOL bypos);
+	STDMETHOD(CheckMenuItem)(UINT item_id, VARIANT_BOOL check);
+	STDMETHOD(CheckMenuRadioItem)(UINT first, UINT last, UINT selected);
 	STDMETHOD(TrackPopupMenu)(int x, int y, [defaultvalue(0)] UINT flags, [out, retval] UINT* item_id);
 	[propget] STDMETHOD(ID)([out, retval] UINT* p);
 };

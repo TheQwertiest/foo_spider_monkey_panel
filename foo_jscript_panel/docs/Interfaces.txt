@@ -930,25 +930,12 @@ interface IFbWindow {
 
 					AppendTo(parentMenu, flags, text); (void)
 
-					CheckMenuItem(id_or_pos, check[, bypos]); (void)
-					/*
-					check: boolean.
-					bypos: boolean, default false.
-					*/
+					CheckMenuItem(item_id, check); (void)
+					// check: boolean.
 
-					CheckMenuRadioItem(first, last, check[, bypos]); (void)
-					/*
-					check: boolean.
-					bypos: boolean, default false.
-					*/
+					CheckMenuRadioItem(first_item_id, last_item_id, selected_item_id); (void)
 
 					Dispose(); (void)
-
-					EnableMenuItem(id_or_pos, enable[, bypos]); (void)
-					/*
-					enable: boolean.
-					bypos: boolean, default false.
-					*/
 
 					TrackPopupMenu(x, y[, flags]); (int)
 					// flags: default 0. See flags.txt > Used in TrackPopupMenu()

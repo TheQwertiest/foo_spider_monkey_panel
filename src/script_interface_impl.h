@@ -642,9 +642,8 @@ public:
 	STDMETHODIMP AppendMenuItem(UINT flags, UINT item_id, BSTR text);
 	STDMETHODIMP AppendMenuSeparator();
 	STDMETHODIMP AppendTo(IMenuObj* parent, UINT flags, BSTR text);
-	STDMETHODIMP CheckMenuItem(UINT id_or_pos, VARIANT_BOOL check, VARIANT_BOOL bypos);
-	STDMETHODIMP CheckMenuRadioItem(UINT first, UINT last, UINT check, VARIANT_BOOL bypos);
-	STDMETHODIMP EnableMenuItem(UINT id_or_pos, UINT enable, VARIANT_BOOL bypos);
+	STDMETHODIMP CheckMenuItem(UINT item_id, VARIANT_BOOL check);
+	STDMETHODIMP CheckMenuRadioItem(UINT first, UINT last, UINT selected);
 	STDMETHODIMP TrackPopupMenu(int x, int y, UINT flags, UINT* item_id);
 	STDMETHODIMP get_ID(UINT* p);
 };

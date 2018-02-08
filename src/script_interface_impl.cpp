@@ -3988,35 +3988,20 @@ STDMETHODIMP MenuObj::AppendTo(IMenuObj* parent, UINT flags, BSTR text)
 	return S_OK;
 }
 
-STDMETHODIMP MenuObj::CheckMenuItem(UINT id_or_pos, VARIANT_BOOL check, VARIANT_BOOL bypos)
+STDMETHODIMP MenuObj::CheckMenuItem(UINT item_id, VARIANT_BOOL check)
 {
 	if (!m_hMenu) return E_POINTER;
 
-	UINT ucheck = bypos ? MF_BYPOSITION : MF_BYCOMMAND;
-	if (check)
-	{
-		ucheck = MF_CHECKED;
-	}
-	::CheckMenuItem(m_hMenu, id_or_pos, ucheck);
+	bool checked = check != VARIANT_FALSE;
+	::CheckMenuItem(m_hMenu, item_id, checked ? MF_CHECKED : MF_UNCHECKED);
 	return S_OK;
 }
 
-STDMETHODIMP MenuObj::CheckMenuRadioItem(UINT first, UINT last, UINT check, VARIANT_BOOL bypos)
+STDMETHODIMP MenuObj::CheckMenuRadioItem(UINT first, UINT last, UINT check)
 {
 	if (!m_hMenu) return E_POINTER;
 
-	::CheckMenuRadioItem(m_hMenu, first, last, check, bypos ? MF_BYPOSITION : MF_BYCOMMAND);
-	return S_OK;
-}
-
-STDMETHODIMP MenuObj::EnableMenuItem(UINT id_or_pos, UINT enable, VARIANT_BOOL bypos)
-{
-	if (!m_hMenu) return E_POINTER;
-
-	enable &= ~(MF_BYPOSITION | MF_BYCOMMAND);
-	enable |= bypos ? MF_BYPOSITION : MF_BYCOMMAND;
-
-	::EnableMenuItem(m_hMenu, id_or_pos, enable);
+	::CheckMenuRadioItem(m_hMenu, first, last, check, MF_BYCOMMAND);
 	return S_OK;
 }
 
