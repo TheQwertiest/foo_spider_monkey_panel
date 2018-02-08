@@ -95,10 +95,10 @@ __interface IGdiBitmap : IGdiObj
 	STDMETHOD(GetColourScheme)(UINT count, [out, retval] VARIANT* outArray);
 	STDMETHOD(GetGraphics)([out, retval] __interface IGdiGraphics** pp);
 	STDMETHOD(ReleaseGraphics)(__interface IGdiGraphics* p);
-	STDMETHOD(Resize)(UINT w, UINT h, [range(Gdiplus::InterpolationModeInvalid, Gdiplus::InterpolationModeHighQualityBicubic), defaultvalue(0)] int interpolationMode, [out, retval] IGdiBitmap** pp);
-	STDMETHOD(RotateFlip)([range(Gdiplus::RotateNoneFlipNone, Gdiplus::Rotate270FlipX)] UINT mode);
+	STDMETHOD(Resize)(UINT w, UINT h, [defaultvalue(0)] int interpolationMode, [out, retval] IGdiBitmap** pp);
+	STDMETHOD(RotateFlip)(UINT mode);
 	STDMETHOD(SaveAs)(BSTR path, [defaultvalue("image/png")] BSTR format, [out, retval] VARIANT_BOOL* p);
-	STDMETHOD(StackBlur)([range(0, 255)] int radius);
+	STDMETHOD(StackBlur)(int radius);
 	[propget] STDMETHOD(Height)([out, retval] UINT* p);
 	[propget] STDMETHOD(Width)([out, retval] UINT* p);
 };
@@ -141,16 +141,16 @@ __interface IGdiGraphics : IGdiObj
 	STDMETHOD(EstimateLineWrap)(BSTR str, IGdiFont* font, int max_width, [out, retval] VARIANT* p);
 	STDMETHOD(FillEllipse)(float x, float y, float w, float h, VARIANT colour);
 	STDMETHOD(FillGradRect)(float x, float y, float w, float h, float angle, VARIANT colour1, VARIANT colour2, [defaultvalue(1)] float focus);
-	STDMETHOD(FillPolygon)(VARIANT colour, [range(0, 1)] int fillmode, VARIANT points);
+	STDMETHOD(FillPolygon)(VARIANT colour, int fillmode, VARIANT points);
 	STDMETHOD(FillRoundRect)(float x, float y, float w, float h, float arc_width, float arc_height, VARIANT colour);
 	STDMETHOD(FillSolidRect)(float x, float y, float w, float h, VARIANT colour);
 	STDMETHOD(GdiAlphaBlend)(IGdiRawBitmap* bitmap, int dstX, int dstY, int dstW, int dstH, int srcX, int srcY, int srcW, int srcH, [defaultvalue(255)] BYTE alpha);
 	STDMETHOD(GdiDrawBitmap)(IGdiRawBitmap* bitmap, int dstX, int dstY, int dstW, int dstH, int srcX, int srcY, int srcW, int srcH);
 	STDMETHOD(GdiDrawText)(BSTR str, IGdiFont* font, VARIANT colour, int x, int y, int w, int h, [defaultvalue(0)] int format, [out, retval] VARIANT* p);
 	STDMETHOD(MeasureString)(BSTR str, IGdiFont* font, float x, float y, float w, float h, [defaultvalue(0)] int flags, [out, retval] IMeasureStringInfo** pp);
-	STDMETHOD(SetInterpolationMode)([range(Gdiplus::InterpolationModeInvalid, Gdiplus::InterpolationModeHighQualityBicubic)] int mode);
-	STDMETHOD(SetSmoothingMode)([range(Gdiplus::SmoothingModeInvalid, Gdiplus::SmoothingModeAntiAlias)] int mode);
-	STDMETHOD(SetTextRenderingHint)([range(Gdiplus::TextRenderingHintSystemDefault, Gdiplus::TextRenderingHintClearTypeGridFit)] UINT mode);
+	STDMETHOD(SetInterpolationMode)(int mode);
+	STDMETHOD(SetSmoothingMode)(int mode);
+	STDMETHOD(SetTextRenderingHint)(UINT mode);
 	[propput] STDMETHOD(_ptr)(void* p);
 };
 
