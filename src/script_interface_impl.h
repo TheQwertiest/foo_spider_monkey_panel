@@ -637,7 +637,6 @@ protected:
 	virtual ~MenuObj();
 	virtual void FinalRelease();
 
-
 public:
 	STDMETHODIMP AppendMenuItem(UINT flags, UINT item_id, BSTR text);
 	STDMETHODIMP AppendMenuSeparator();

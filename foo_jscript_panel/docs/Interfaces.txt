@@ -912,13 +912,9 @@ interface IFbWindow {
 		// See samples\basic\Timer.txt
 
 		window.CreatePopupMenu(); (IMenuObj)
+		// See samples\basic\MainMenuManager All-In-One, samples\basic\Menu Sample.txt
 
 			interface IMenuObj {
-				// See samples\basic\MainMenuManager All-In-One, samples\basic\Menu Sample.txt
-
-				Properties:
-					ID; (uint) (read)
-
 				Methods:
 					AppendMenuItem(flags, item_id, text); (void)
 					/*
