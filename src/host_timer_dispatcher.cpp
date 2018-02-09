@@ -2,8 +2,6 @@
 #include "host_timer_dispatcher.h"
 #include "user_message.h"
 
-
-
 HostTimerDispatcher::HostTimerDispatcher() 
 {
 	m_curTimerId = 1;

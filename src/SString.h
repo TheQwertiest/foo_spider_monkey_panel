@@ -91,7 +91,6 @@ public:
 	}
 };
 
-
 /**
  * @brief A string buffer class.
  *
@@ -157,7 +156,6 @@ public:
 		return SContainer::size();
 	}
 };
-
 
 /**
  * @brief A simple string class.
@@ -417,7 +415,6 @@ public:
 		return substitute(sFind, "");
 	}
 };
-
 
 /**
  * Duplicate a C string.

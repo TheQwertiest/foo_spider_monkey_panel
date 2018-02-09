@@ -615,7 +615,6 @@ void js_panel_window::on_context_menu(int x, int y)
 	DestroyMenu(menu);
 }
 
-
 void js_panel_window::on_cursor_follow_playback_changed(WPARAM wp)
 {
 	VARIANTARG args[1];
@@ -628,7 +627,6 @@ void js_panel_window::on_font_changed()
 {
 	script_invoke_v(CallbackIds::on_font_changed);
 }
-
 
 void js_panel_window::on_get_album_art_done(LPARAM lp)
 {
