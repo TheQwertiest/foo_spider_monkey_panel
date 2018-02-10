@@ -11,13 +11,13 @@ interface IFbUtils {
 		Example:
 		fb.AlwaysOnTop = !fb.AlwaysOnTop; // Toggles the current value.
 		*/
-		
+
 		fb.ComponentPath; (string) (read)
 		/*
 		Example:
 		console.log(fb.ComponentPath); // C:\Users\User\AppData\Roaming\foobar2000\user-components\foo_jscript_panel\
 		*/
-		
+
 		fb.CursorFollowPlayback; (boolean) (read, write)
 
 		fb.FoobarPath; (string) (read)
@@ -132,42 +132,31 @@ interface IFbUtils {
 		fb.AddFiles(); (void)
 
 		fb.ClearPlaylist(); (void)
-		/*
-		Clears active playlist. If you wish to clear a specific playlist, use plman.ClearPlaylist(playlistIndex).
-		*/
+		// Clears active playlist. If you wish to clear a specific playlist, use plman.ClearPlaylist(playlistIndex).
 
 		fb.CreateContextMenuManager(); (IContextMenuManager)
+		// See samples\basic\MainMenuManager All-In-One, samples\basic\Menu Sample.txt
 
 			interface IContextMenuManager {
-				// See samples\basic\MainMenuManager All-In-One, samples\basic\Menu Sample.txt
-
 				Methods:
 					BuildMenu(IMenuObj, base_id, max_id); (void)
-
 					Dispose(); (void)
-
 					ExecuteByID(id); (boolean)
-
 					InitContext(handle_list); (void)
-
 					InitNowPlaying(); (void)
 			}
 
 		fb.CreateHandleList(); (IFbMetadbHandleList)
 		// Returns an empty handle list.
-		
+
 		fb.CreateMainMenuManager(); (IMainMenuManager)
+		// See samples\basic\MainMenuManager All-In-One, samples\basic\Menu Sample.txt
 
 			interface IMainMenuManager {
-				// See samples\basic\MainMenuManager All-In-One, samples\basic\Menu Sample.txt
-
 				Methods:
 					BuildMenu(IMenuObj, base_id, count); (void)
-
 					Dispose(); (void)
-
 					ExecuteByID(id); (boolean)
-
 					Init(root_name); (void)
 			}
 
@@ -305,7 +294,7 @@ interface IFbUtils {
 		Example:
 		fb.RunMainMenuCommand("File/Add Location...");
 		*/
-		
+
 		fb.SavePlaylist(); (void)
 
 		fb.ShowConsole(); (void)
@@ -314,9 +303,7 @@ interface IFbUtils {
 		// Opens the Library>Search window populated with the query you set.
 
 		fb.ShowPopupMessage(message[, title]); (void)
-		/*
-		title: default "JScript Panel"
-		*/
+		// title: default "JScript Panel"
 
 		fb.ShowPreferences(); (void)
 
@@ -519,7 +506,7 @@ interface IFbPlaylistManager {
 		Example:
 		var handle_list = plman.GetPlaylistItems(plman.PlayingPlaylist);
 		*/
-		
+
 		plman.GetPlaylistName(playlistIndex); (string)
 		/*
 		Example:
@@ -739,16 +726,21 @@ interface IJSUtils {
 		mode:
 		"chardet"
 		Guess the charset of a file and return the codepage. It may not be accurate and returns 0 if an error occurred.
+
 		"e"
-		Tf path exists, return true
+		If file path exists, return true.
+
 		"s"
-		Retrieve file size, in bytes
+		Retrieve file size, in bytes.
+
 		"d"
-		If path is a directory, return true
+		If path is a directory, return true.
+
 		"split"
 		Returns a VBArray so you need to use .toArray() on the result.
+
 		Example:
-		var arr = utils.FileTest("D:\\Somdir\\Somefile.txt", "split").toArray();
+		var arr = utils.FileTest("D:\\Somedir\\Somefile.txt", "split").toArray();
 		arr[0] <= "D:\\Somedir\\" (always includes backslash at the end)
 		arr[1] <= "Somefile"
 		arr[2] <= ".txt"
@@ -879,7 +871,7 @@ interface IFbWindow {
 		Returns 0 if using Columns UI, 1 if using default UI.
 		You need this to determine which GetFontXXX and GetColourXXX methods to use, assuming you want to support both interfaces.
 		*/
-		
+
 		window.IsTransparent; (boolean) (read)
 		/*
 		Depends on setting inside JScript Panel Configuration window. You generally use it to determine
@@ -901,7 +893,7 @@ interface IFbWindow {
 		Returns the @name set in the preprocessor section. See preprocessors.txt
 		If that isn't present, the GUID of the panel is returned.
 		*/
-		
+
 		window.Width; (int) (read)
 
 	Methods:
@@ -1408,7 +1400,7 @@ interface IFbMetadbHandle {
 					/*
 					The case of the tag name returned can be different depending on tag type
 					so using toLowerCase() or toUpperCase() on the result is recommended
-					
+
 					Example:
 					for (var i = 0; i < f.MetaCount; i++) {
 						console.log(f.MetaName(i).toUpperCase());
@@ -1455,7 +1447,7 @@ interface IFbMetadbHandleList {
 		Example:
 		handle_list.Add(fb.GetLibraryItems());
 		*/
-		
+
 		BSearch(handle); (int)
 		/*
 		Must be sorted, faster than Find()
