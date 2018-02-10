@@ -86,7 +86,7 @@ function on_mouse_rbtn_up(x, y) {
 	var col = window.CreatePopupMenu();
 	if (fb.IsPlaying) {
 		c.InitNowPlaying();
-		c.BuildMenu(s, 1, -1);
+		c.BuildMenu(s, 1);
 		s.AppendTo(m, MF_STRING, 'Now playing');
 		m.AppendMenuSeparator();
 	}

@@ -2557,7 +2557,7 @@ oList = function (object_name, playlist) {
 
 		_menu.AppendMenuItem(MF_STRING, 1, "Panel Settings...");
 		_menu.AppendMenuSeparator();
-		Context.BuildMenu(_menu, 3, -1);
+		Context.BuildMenu(_menu, 3);
 
 		_child01.AppendTo(_menu, MF_STRING, "Selection...");
 		_child01.AppendMenuItem(plman.IsAutoPlaylist(this.playlist) ? MF_DISABLED | MF_GRAYED : MF_STRING, 1010, "Crop");

@@ -2768,7 +2768,7 @@ oBrowser = function (name) {
 
 		_menu.AppendMenuItem(MF_STRING, 1, "Settings...");
 		_menu.AppendMenuSeparator();
-		Context.BuildMenu(_menu, 2, -1);
+		Context.BuildMenu(_menu, 2);
 
 		_child01.AppendTo(_menu, MF_STRING, "Selection...");
 

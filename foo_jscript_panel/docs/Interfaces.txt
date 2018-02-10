@@ -139,7 +139,8 @@ interface IFbUtils {
 
 			interface IContextMenuManager {
 				Methods:
-					BuildMenu(IMenuObj, base_id, max_id); (void)
+					BuildMenu(IMenuObj, base_id[, max_id]); (void)
+					// max_id: optional as of v2.0.4. Default -1.
 					Dispose(); (void)
 					ExecuteByID(id); (boolean)
 					InitContext(handle_list); (void)

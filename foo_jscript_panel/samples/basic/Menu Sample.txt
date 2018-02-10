@@ -16,7 +16,7 @@ function on_mouse_lbtn_down(x, y) {
 	_child.AppendTo(_basemenu, MF_STRING, 'Now Playing');
 	
 	_context.InitNowPlaying();
-	_context.BuildMenu(_child, 3, -1);
+	_context.BuildMenu(_child, 3);
 	
 	idx = _basemenu.TrackPopupMenu(x, y);
 	

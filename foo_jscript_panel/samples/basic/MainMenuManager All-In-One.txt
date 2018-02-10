@@ -62,7 +62,7 @@ function menu() {
 	menuman6.BuildMenu(child6, 1201, 100);
 	
 	contextman.InitNowPlaying();
-	contextman.BuildMenu(child7, 1301, -1);
+	contextman.BuildMenu(child7, 1301);
 	ret = basemenu.TrackPopupMenu(0, 0);
 
 	switch (true) {
