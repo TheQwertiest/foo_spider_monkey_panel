@@ -193,7 +193,7 @@ LRESULT js_panel_window::on_message(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 
 	case WM_SETFOCUS:
 		{
-			PreserveSelection();
+			m_selection_holder = ui_selection_manager::get()->acquire();
 
 			VARIANTARG args[1];
 

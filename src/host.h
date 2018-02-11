@@ -62,7 +62,6 @@ public:
 	virtual HFONT GetFontCUI(unsigned type, const GUID& guid) = 0;
 	virtual HFONT GetFontDUI(unsigned type) = 0;
 	void ClearIntervalOrTimeout(UINT timerId);
-	void PreserveSelection();
 	void Redraw();
 	void RefreshBackground(LPRECT lprcUpdate = NULL);
 	void Repaint(bool force = false);

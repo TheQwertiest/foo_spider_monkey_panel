@@ -98,11 +98,6 @@ void HostComm::ClearIntervalOrTimeout(UINT timerId)
 	HostTimerDispatcher::Get().killTimer(timerId);
 }
 
-void HostComm::PreserveSelection()
-{
-	m_selection_holder = ui_selection_manager::get()->acquire();
-}
-
 void HostComm::Redraw()
 {
 	m_paint_pending = false;

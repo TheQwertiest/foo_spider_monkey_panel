@@ -103,7 +103,6 @@ interface IFbUtils {
 
 			function on_focus(is_focused) {
 				if (is_focused) { //updates the selection when panel regains focus
-					selection_holder = fb.AcquireUiSelectionHolder();
 					selection_holder.SetPlaylistSelectionTracking();
 				}
 			}
@@ -113,14 +112,13 @@ interface IFbUtils {
 			var selection_holder = fb.AcquireUiSelectionHolder();
 			var handle_list = null;
 
-			function on_mouse_lbtn_down(x, y) { //presumably going to select something here...
+			function on_mouse_lbtn_up(x, y) { //presumably going to select something here...
 				handle_list = ...;
 				selection_holder.SetSelection(handle_list); //must be a valid handle list
 			}
 
 			function on_focus(is_focused) {
 				if (is_focused) { //updates the selection when panel regains focus
-					selection_holder = fb.AcquireUiSelectionHolder();
 					if (handle_list && handle_list.Count)
 						selection_holder.SetSelection(handle_list); //must be a valid handle list
 				}

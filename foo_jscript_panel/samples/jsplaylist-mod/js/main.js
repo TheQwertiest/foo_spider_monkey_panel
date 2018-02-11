@@ -2603,7 +2603,6 @@ function on_focus(is_focused) {
 	};
 	if (is_focused) {
 		plman.SetActivePlaylistContext();
-		g_selHolder = fb.AcquireUiSelectionHolder();
 		g_selHolder.SetPlaylistSelectionTracking();
 	} else {
 		p.playlistManager.inputboxID = -1;
