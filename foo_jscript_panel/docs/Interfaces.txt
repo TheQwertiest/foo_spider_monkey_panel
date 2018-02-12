@@ -468,6 +468,14 @@ interface IFbPlaylistManager {
 
 		plman.EnsurePlaylistItemVisible(playlistIndex, playlistItemIndex); (void)
 
+		plman.FindOrCreatePlaylist(name, unlocked); (int)
+		/*
+		Returns playlistIndex of named playlist or creates new one if not found.
+		unlocked: boolean. If true, locked playlists are ignored when looking for existing playlists.
+		If false, the playlistIndex of any playlist with the matching name will be returned.
+		If a new playlist is created, the playlistIndex of that will be returned.
+		*/
+
 		plman.ExecutePlaylistDefaultAction(playlistIndex, playlistItemIndex); (boolean)
 		// Starts playback by executing default doubleclick/enter action unless overridden by a lock to do something else.
 

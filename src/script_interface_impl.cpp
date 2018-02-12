@@ -977,6 +977,24 @@ STDMETHODIMP FbPlaylistManager::ExecutePlaylistDefaultAction(UINT playlistIndex,
 	return S_OK;
 }
 
+STDMETHODIMP FbPlaylistManager::FindOrCreatePlaylist(BSTR name, VARIANT_BOOL unlocked, int* p)
+{
+	if (!p) return E_POINTER;
+
+	bool un = unlocked != VARIANT_FALSE;
+
+	if (un)
+	{
+		*p = playlist_manager::get()->find_or_create_playlist_unlocked(pfc::stringcvt::string_utf8_from_wide(name));
+	}
+	else
+	{
+		*p = playlist_manager::get()->find_or_create_playlist(pfc::stringcvt::string_utf8_from_wide(name));
+	}
+	return S_OK;
+}
+
+
 STDMETHODIMP FbPlaylistManager::FindPlaybackQueueItemIndex(IFbMetadbHandle* handle, UINT playlistIndex, UINT playlistItemIndex, int* outIndex)
 {
 	if (!outIndex) return E_POINTER;
