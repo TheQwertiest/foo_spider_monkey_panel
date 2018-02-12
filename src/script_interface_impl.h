@@ -228,6 +228,7 @@ public:
 	STDMETHODIMP EnsurePlaylistItemVisible(UINT playlistIndex, UINT itemIndex);
 	STDMETHODIMP ExecutePlaylistDefaultAction(UINT playlistIndex, UINT playlistItemIndex, VARIANT_BOOL* outSuccess);
 	STDMETHODIMP FindPlaybackQueueItemIndex(IFbMetadbHandle* handle, UINT playlistIndex, UINT playlistItemIndex, int* outIndex);
+	STDMETHODIMP FindPlaylist(BSTR name, int* p);
 	STDMETHODIMP FlushPlaybackQueue();
 	STDMETHODIMP GetPlaybackQueueHandles(IFbMetadbHandleList** outItems);
 	STDMETHODIMP GetPlayingItemLocation(IFbPlayingItemLocation** outPlayingLocation);

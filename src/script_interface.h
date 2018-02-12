@@ -567,6 +567,7 @@ __interface IFbPlaylistManager : IDispatch
 	STDMETHOD(EnsurePlaylistItemVisible)(UINT playlistIndex, UINT itemIndex);
 	STDMETHOD(ExecutePlaylistDefaultAction)(UINT playlistIndex, UINT playlistItemIndex, [out, retval] VARIANT_BOOL* outSuccess);
 	STDMETHOD(FindPlaybackQueueItemIndex)(IFbMetadbHandle* handle, UINT playlistIndex, UINT playlistItemIndex, [out, retval] int* outIndex);
+	STDMETHOD(FindPlaylist)(BSTR name, [out, retval] int* p);
 	STDMETHOD(FlushPlaybackQueue)();
 	STDMETHOD(GetPlaybackQueueHandles)([out, retval] IFbMetadbHandleList** outItems);
 	STDMETHOD(GetPlayingItemLocation)([out, retval] __interface IFbPlayingItemLocation** outPlayingLocation);

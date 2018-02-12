@@ -992,6 +992,14 @@ STDMETHODIMP FbPlaylistManager::FindPlaybackQueueItemIndex(IFbMetadbHandle* hand
 	return S_OK;
 }
 
+STDMETHODIMP FbPlaylistManager::FindPlaylist(BSTR name, int* p)
+{
+	if (!p) return E_POINTER;
+
+	*p = playlist_manager::get()->find_playlist(pfc::stringcvt::string_utf8_from_wide(name));
+	return S_OK;
+}
+
 STDMETHODIMP FbPlaylistManager::FlushPlaybackQueue()
 {
 	playlist_manager::get()->queue_flush();
