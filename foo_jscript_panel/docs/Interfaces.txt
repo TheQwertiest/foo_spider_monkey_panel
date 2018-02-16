@@ -9,7 +9,8 @@ interface IFbUtils {
 		fb.AlwaysOnTop; (boolean) (read, write)
 		/*
 		Example:
-		fb.AlwaysOnTop = !fb.AlwaysOnTop; // Toggles the current value.
+		fb.AlwaysOnTop = !fb.AlwaysOnTop;
+		Toggles the current value.
 		*/
 
 		fb.ComponentPath; (string) (read)
@@ -39,7 +40,8 @@ interface IFbUtils {
 		fb.PlaybackTime; (double) (read, write)
 		/*
 		Example:
-		fb.PlaybackTime = 60; // Jumps to the 1 minute mark.
+		fb.PlaybackTime = 60;
+		Jumps to the 1 minute mark.
 		*/
 
 		fb.ProfilePath; (string) (read)
@@ -49,19 +51,21 @@ interface IFbUtils {
 		0 None
 		1 Track
 		2 Album
-		3 Track/Album by Playback Order (only available in foobar2000 v1.3.8 and above)
+		3 Track/Album by Playback Order
 		*/
 
 		fb.StopAfterCurrent; (boolean) (read, write)
 		/*
 		Example:
-		fb.StopAfterCurrent = !fb.StopAfterCurrent; // Toggles the current value.
+		fb.StopAfterCurrent = !fb.StopAfterCurrent;
+		Toggles the current value.
 		*/
 
 		fb.Volume; (float) (read, write);
 		/*
 		Example:
-		fb.Volume = 0; // Sets the volume to max. -100 is the minimum.
+		fb.Volume = 0;
+		Sets the volume to max. -100 is the minimum.
 		*/
 
 	Methods:
@@ -102,7 +106,8 @@ interface IFbUtils {
 			selection_holder.SetPlaylistSelectionTracking();
 
 			function on_focus(is_focused) {
-				if (is_focused) { //updates the selection when panel regains focus
+				if (is_focused) {
+					// Updates the selection when panel regains focus
 					selection_holder.SetPlaylistSelectionTracking();
 				}
 			}
@@ -112,15 +117,18 @@ interface IFbUtils {
 			var selection_holder = fb.AcquireUiSelectionHolder();
 			var handle_list = null;
 
-			function on_mouse_lbtn_up(x, y) { //presumably going to select something here...
+			function on_mouse_lbtn_up(x, y) {
+				// Presumably going to select something here...
 				handle_list = ...;
-				selection_holder.SetSelection(handle_list); //must be a valid handle list
+				selection_holder.SetSelection(handle_list);
 			}
 
 			function on_focus(is_focused) {
-				if (is_focused) { //updates the selection when panel regains focus
-					if (handle_list && handle_list.Count)
-						selection_holder.SetSelection(handle_list); //must be a valid handle list
+				if (is_focused) {
+					// Updates the selection when panel regains focus
+					if (handle_list && handle_list.Count) {
+						selection_holder.SetSelection(handle_list);
+					}
 				}
 			}
 			*/
@@ -175,8 +183,8 @@ interface IFbUtils {
 				Example:
 				var test = fb.CreateProfiler("test");
 				// do something time consuming
-				console.log(test.Time); //outputs bare time in ms like "789"
-				test.Print(); // outputs component name/version/assigned name like "JScript Panel v2.0.2: FbProfiler (test): 789 ms"
+				console.log(test.Time); // Outputs time in ms like "789"
+				test.Print(); // Outputs component name/version/assigned name like "JScript Panel v2.0.2: FbProfiler (test): 789 ms"
 				*/
 
 		fb.Exit(); (void)
@@ -356,7 +364,10 @@ interface IGdiUtils {
 		*/
 
 		gdi.Image(path); (IGdiBitmap)
-		// Example: var img = "e:\\images folder\\my_image.png";
+		/*
+		Example: var img = gdi.Image("e:\\images folder\\my_image.png");
+		Returns null if path doesn't exist/image fails to load.
+		*/
 
 		gdi.LoadImageAsync(window_id, path); (uint)
 		/*
@@ -389,7 +400,7 @@ interface IFbPlaylistManager {
 		plman.PlayingPlaylist; (int) (read, write)
 		/*
 		Example:
-		console.log(plman.PlayingPlaylist); // Returns -1 if there is no playing playlist
+		console.log(plman.PlayingPlaylist); // Returns -1 if there is no playing playlist.
 		*/
 
 		plman.PlaylistCount; (uint) (read)
@@ -509,8 +520,8 @@ interface IFbPlaylistManager {
 		plman.GetPlaylistFocusItemIndex(playlistIndex); (int)
 		/*
 		Example:
-		var focus_item_index = plman.GetPlaylistFocusItemIndex(plman.ActivePlaylist); // 0 first item
-		Returns -1 if nothing is selected
+		var focus_item_index = plman.GetPlaylistFocusItemIndex(plman.ActivePlaylist); // 0 would be the first item.
+		Returns -1 if nothing is selected.
 		*/
 
 		plman.GetPlaylistItems(playlistIndex); (IFbMetadbHandleList)
@@ -549,9 +560,7 @@ interface IFbPlaylistManager {
 		*/
 
 		plman.InsertPlaylistItemsFilter(playlistIndex, base, handle_list[, select]); (void)
-		/*
-		Same as above except any duplicates contained in handle_list are removed.
-		*/
+		// Same as above except any duplicates contained in handle_list are removed.
 
 		plman.IsAutoPlaylist(playlistIndex); (boolean)
 
@@ -601,7 +610,7 @@ interface IFbPlaylistManager {
 
 		function on_focus(is_focused) {
 			if (is_focused) {
-				plman.SetActivePlaylistContext(); // when the panel gets focus but not on every click
+				plman.SetActivePlaylistContext(); // When the panel gets focus but not on every click.
 			}
 		}
 		*/
@@ -616,7 +625,7 @@ interface IFbPlaylistManager {
 		/*
 		Example:
 		var ap = plman.ActivePlaylist;
-		var handle = plman.GetPlaylistItems(ap).Item(1); //2nd item in playlist
+		var handle = plman.GetPlaylistItems(ap).Item(1); // 2nd item in playlist
 		plman.SetPlaylistFocusItemByHandle(ap, handle);
 		*/
 
@@ -626,7 +635,7 @@ interface IFbPlaylistManager {
 		state: boolean.
 		Example:
 		plman.SetPlaylistSelection(plman.ActivePlaylist, [0, 2, 4], true);
-		Selects tracks first, third and fifth tracks in playlist. This does not affect other selected items.
+		Selects first, third and fifth tracks in playlist. This does not affect other selected items.
 		*/
 
 		plman.SetPlaylistSelectionSingle(playlistIndex, playlistItemIndex, state); (void)

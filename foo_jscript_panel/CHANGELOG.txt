@@ -1,3 +1,10 @@
+v2.0.4
+- NEW: New plman.FindPlaylist and plman.FindOrCreatePlaylist methods have been addded.
+- CHG: on_library_items_added, on_library_items_changed, on_library_items_removed
+       now return a handle list of affected items. See docs\callbacks.txt.
+- CHG: Various doc tidy up/fixes. Some plman methods have been updated to return
+       -1 on failure. See docs\interfaces.txt, docs\callbacks.txt.
+
 v2.0.3
 - CHG: utils.WriteTextFile now takes an optional "write_bom" argument. It
        defaults to true if omitted. If "false", then the resulting file
@@ -172,8 +179,8 @@ v1.2.3
 v1.2.2
 - NEW: Add new "on_main_menu" callback. 10 main menu items have been created
        meaning you can now bind them to global keyboard shortcuts, standard
-       toolbar buttons, etc and have them run your own custom code. See
-       docs\callbacks.txt
+       toolbar buttons, etc and have them run your own custom code.
+       See docs\callbacks.txt
 
 v1.2.1
 - FIX: Fix bug where the playing item handle was never sent to the
@@ -238,7 +245,7 @@ v1.1.5
 - NEW: plman.IsPlaylistLocked(playlistIndex). See docs\interfaces.txt.
 - NEW: on_playlists_changed is now called when a playlist's lock
        status changes through the use of components such as foo_utils or
-       foo_playlist_attributes. See docs\callbacks.txt
+       foo_playlist_attributes. See docs\callbacks.txt.
 - CHG: Existing samples moved in to new "basic" subfolder.
 - NEW: Add new "complete" samples folder containing some more feature complete
        samples.
