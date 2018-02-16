@@ -561,14 +561,14 @@ __interface IFbPlaylistManager : IDispatch
 	STDMETHOD(AddPlaylistItemToPlaybackQueue)(UINT playlistIndex, UINT playlistItemIndex);
 	STDMETHOD(ClearPlaylist)(UINT playlistIndex);
 	STDMETHOD(ClearPlaylistSelection)(UINT playlistIndex);
-	STDMETHOD(CreateAutoPlaylist)(UINT idx, BSTR name, BSTR query, [defaultvalue("")] BSTR sort, [defaultvalue(0)] UINT flags, [out, retval] int* p);
-	STDMETHOD(CreatePlaylist)(UINT playlistIndex, BSTR name, [out, retval] UINT* outPlaylistIndex);
+	STDMETHOD(CreateAutoPlaylist)(UINT playlistIndex, BSTR name, BSTR query, [defaultvalue("")] BSTR sort, [defaultvalue(0)] UINT flags, [out, retval] int* outPlaylistIndex);
+	STDMETHOD(CreatePlaylist)(UINT playlistIndex, BSTR name, [out, retval] int* outPlaylistIndex);
 	STDMETHOD(DuplicatePlaylist)(UINT from, BSTR name, [out, retval] UINT* outPlaylistIndex);
 	STDMETHOD(EnsurePlaylistItemVisible)(UINT playlistIndex, UINT itemIndex);
 	STDMETHOD(ExecutePlaylistDefaultAction)(UINT playlistIndex, UINT playlistItemIndex, [out, retval] VARIANT_BOOL* outSuccess);
-	STDMETHOD(FindOrCreatePlaylist)(BSTR name, VARIANT_BOOL unlocked, [out, retval] int* p);
+	STDMETHOD(FindOrCreatePlaylist)(BSTR name, VARIANT_BOOL unlocked, [out, retval] int* outPlaylistIndex);
 	STDMETHOD(FindPlaybackQueueItemIndex)(IFbMetadbHandle* handle, UINT playlistIndex, UINT playlistItemIndex, [out, retval] int* outIndex);
-	STDMETHOD(FindPlaylist)(BSTR name, [out, retval] int* p);
+	STDMETHOD(FindPlaylist)(BSTR name, [out, retval] int* outPlaylistIndex);
 	STDMETHOD(FlushPlaybackQueue)();
 	STDMETHOD(GetPlaybackQueueHandles)([out, retval] IFbMetadbHandleList** outItems);
 	STDMETHOD(GetPlayingItemLocation)([out, retval] __interface IFbPlayingItemLocation** outPlayingLocation);
@@ -620,8 +620,8 @@ _COM_SMARTPTR_TYPEDEF(IFbPlaylistManager, __uuidof(IFbPlaylistManager));
 __interface IFbPlayingItemLocation : IDispatch
 {
 	[propget] STDMETHOD(IsValid)([out, retval] VARIANT_BOOL* outIsValid);
-	[propget] STDMETHOD(PlaylistIndex)([out, retval] UINT* outPlaylistIndex);
-	[propget] STDMETHOD(PlaylistItemIndex)([out, retval] UINT* outPlaylistItemIndex);
+	[propget] STDMETHOD(PlaylistIndex)([out, retval] int* outPlaylistIndex);
+	[propget] STDMETHOD(PlaylistItemIndex)([out, retval] int* outPlaylistItemIndex);
 };
 
 [

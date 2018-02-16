@@ -890,46 +890,49 @@ STDMETHODIMP FbPlaylistManager::ClearPlaylistSelection(UINT playlistIndex)
 	return S_OK;
 }
 
-STDMETHODIMP FbPlaylistManager::CreateAutoPlaylist(UINT idx, BSTR name, BSTR query, BSTR sort, UINT flags, int* p)
+STDMETHODIMP FbPlaylistManager::CreateAutoPlaylist(UINT playlistIndex, BSTR name, BSTR query, BSTR sort, UINT flags, int* outPlaylistIndex)
 {
-	if (!p) return E_POINTER;
+	if (!outPlaylistIndex) return E_POINTER;
 
-	UINT pos = 0;
-	HRESULT hr = CreatePlaylist(idx, name, &pos);
+	pfc::stringcvt::string_utf8_from_wide uquery(query);
+	pfc::stringcvt::string_utf8_from_wide usort(sort);
 
-	if (FAILED(hr)) return hr;
-
-	pfc::stringcvt::string_utf8_from_wide wquery(query);
-	pfc::stringcvt::string_utf8_from_wide wsort(sort);
-
-	try
+	int pos;
+	CreatePlaylist(playlistIndex, name, &pos);
+	if (pos == pfc_infinite)
 	{
-		*p = pos;
-		autoplaylist_manager::get()->add_client_simple(wquery, wsort, pos, flags);
+		*outPlaylistIndex = pos;
 	}
-	catch (...)
+	else
 	{
-		*p = pfc_infinite;
+		try
+		{
+			autoplaylist_manager::get()->add_client_simple(uquery, usort, pos, flags);
+			*outPlaylistIndex = pos;
+		}
+		catch (...)
+		{
+			playlist_manager::get()->remove_playlist(pos);
+			*outPlaylistIndex = pfc_infinite;
+		}
 	}
-
 	return S_OK;
 }
 
-STDMETHODIMP FbPlaylistManager::CreatePlaylist(UINT playlistIndex, BSTR name, UINT* outPlaylistIndex)
+STDMETHODIMP FbPlaylistManager::CreatePlaylist(UINT playlistIndex, BSTR name, int* outPlaylistIndex)
 {
 	if (!outPlaylistIndex) return E_POINTER;
 
 	auto api = playlist_manager::get();
+	pfc::stringcvt::string_utf8_from_wide uname(name);
 
-	if (*name)
+	if (uname.is_empty())
 	{
-		pfc::stringcvt::string_utf8_from_wide uname(name);
-
-		*outPlaylistIndex = api->create_playlist(uname, uname.length(), playlistIndex);
+		*outPlaylistIndex = api->create_playlist_autoname(playlistIndex);
 	}
 	else
 	{
-		*outPlaylistIndex = api->create_playlist_autoname(playlistIndex);
+		*outPlaylistIndex = api->create_playlist(uname, uname.length(), playlistIndex);
 	}
 
 	return S_OK;
@@ -977,23 +980,24 @@ STDMETHODIMP FbPlaylistManager::ExecutePlaylistDefaultAction(UINT playlistIndex,
 	return S_OK;
 }
 
-STDMETHODIMP FbPlaylistManager::FindOrCreatePlaylist(BSTR name, VARIANT_BOOL unlocked, int* p)
+STDMETHODIMP FbPlaylistManager::FindOrCreatePlaylist(BSTR name, VARIANT_BOOL unlocked, int* outPlaylistIndex)
 {
-	if (!p) return E_POINTER;
+	if (!outPlaylistIndex) return E_POINTER;
 
+	auto api = playlist_manager::get();
+	pfc::stringcvt::string_utf8_from_wide uname(name);
 	bool un = unlocked != VARIANT_FALSE;
 
 	if (un)
 	{
-		*p = playlist_manager::get()->find_or_create_playlist_unlocked(pfc::stringcvt::string_utf8_from_wide(name));
+		*outPlaylistIndex = api->find_or_create_playlist_unlocked(uname);
 	}
 	else
 	{
-		*p = playlist_manager::get()->find_or_create_playlist(pfc::stringcvt::string_utf8_from_wide(name));
+		*outPlaylistIndex = api->find_or_create_playlist(uname);
 	}
 	return S_OK;
 }
-
 
 STDMETHODIMP FbPlaylistManager::FindPlaybackQueueItemIndex(IFbMetadbHandle* handle, UINT playlistIndex, UINT playlistItemIndex, int* outIndex)
 {
@@ -1010,11 +1014,11 @@ STDMETHODIMP FbPlaylistManager::FindPlaybackQueueItemIndex(IFbMetadbHandle* hand
 	return S_OK;
 }
 
-STDMETHODIMP FbPlaylistManager::FindPlaylist(BSTR name, int* p)
+STDMETHODIMP FbPlaylistManager::FindPlaylist(BSTR name, int* outPlaylistIndex)
 {
-	if (!p) return E_POINTER;
+	if (!outPlaylistIndex) return E_POINTER;
 
-	*p = playlist_manager::get()->find_playlist(pfc::stringcvt::string_utf8_from_wide(name));
+	*outPlaylistIndex = playlist_manager::get()->find_playlist(pfc::stringcvt::string_utf8_from_wide(name));
 	return S_OK;
 }
 
@@ -1425,7 +1429,7 @@ STDMETHODIMP FbPlayingItemLocation::get_IsValid(VARIANT_BOOL* outIsValid)
 	return S_OK;
 }
 
-STDMETHODIMP FbPlayingItemLocation::get_PlaylistIndex(UINT* outPlaylistIndex)
+STDMETHODIMP FbPlayingItemLocation::get_PlaylistIndex(int* outPlaylistIndex)
 {
 	if (!outPlaylistIndex) return E_POINTER;
 
@@ -1433,7 +1437,7 @@ STDMETHODIMP FbPlayingItemLocation::get_PlaylistIndex(UINT* outPlaylistIndex)
 	return S_OK;
 }
 
-STDMETHODIMP FbPlayingItemLocation::get_PlaylistItemIndex(UINT* outPlaylistItemIndex)
+STDMETHODIMP FbPlayingItemLocation::get_PlaylistItemIndex(int* outPlaylistItemIndex)
 {
 	if (!outPlaylistItemIndex) return E_POINTER;
 

@@ -361,7 +361,7 @@ interface IGdiUtils {
 		gdi.LoadImageAsync(window_id, path); (uint)
 		/*
 		window_id: window.ID
-		Returns a unqiue id.
+		Returns a unique id.
 		*/
 }
 
@@ -444,19 +444,20 @@ interface IFbPlaylistManager {
 		name: a name for the new Autplaylist
 		query: a valid query
 		sort: default "". title formatting pattern.
-		flags: default 0, use 1 to force sort
-		Returns -1 on failure
+		flags: default 0, use 1 to force sort.
+		Returns -1 on failure.
 		*/
 
-		plman.CreatePlaylist(playlistIndex, name); (uint)
+		plman.CreatePlaylist(playlistIndex, name); (int)
 		/*
 		Example1:
 		plman.CreatePlaylist(0, "");
 		Creates a new playlist first in the list and it will be named "New playlist"
-		Numbers will be appended to the end for each new un-named playlist
+		Numbers will be appended to the end for each new un-named playlist.
 		Example2:
 		plman.CreatePlaylist(plman.PlaylistCount, "my favourites");
 		This will be added at the end of the current playlists.
+		Returns -1 on failure.
 		*/
 
 		plman.DuplicatePlaylist(playlistIndex, name); (uint)
@@ -474,6 +475,7 @@ interface IFbPlaylistManager {
 		unlocked: boolean. If true, locked playlists are ignored when looking for existing playlists.
 		If false, the playlistIndex of any playlist with the matching name will be returned.
 		If a new playlist is created, the playlistIndex of that will be returned.
+		Returns -1 on failure.
 		*/
 
 		plman.ExecutePlaylistDefaultAction(playlistIndex, playlistItemIndex); (boolean)
@@ -491,8 +493,8 @@ interface IFbPlaylistManager {
 			interface IFbPlayingItemLocation {
 				Properties:
 					IsValid; (boolean) (read)
-					PlaylistIndex; (uint) (read)
-					PlaylistItemIndex; (uint) (read)
+					PlaylistIndex; (int) (read)
+					PlaylistItemIndex; (int) (read)
 			}
 
 			/*
@@ -669,7 +671,7 @@ interface IFbPlaylistManager {
 		plman.AddPlaylistItemToPlaybackQueue(playlistIndex, playlistItemIndex); (void)
 
 		plman.FindPlaybackQueueItemIndex(handle, playlistIndex, playlistItemIndex); (int)
-		// returns -1 on failure
+		// Returns -1 on failure.
 
 		plman.FlushPlaybackQueue(); (void)
 
@@ -1397,14 +1399,14 @@ interface IFbMetadbHandle {
 					*/
 
 					InfoFind(name); (int)
-					// Returns -1 on failure
+					// Returns -1 on failure.
 
 					InfoName(idx); (string)
 
 					InfoValue(idx); (string)
 
 					MetaFind(name); (int)
-					// Returns -1 on failure
+					// Returns -1 on failure.
 
 					MetaName(idx); (string)
 					/*
@@ -1488,7 +1490,7 @@ interface IFbMetadbHandleList {
 		Find(handle); (int)
 		/*
 		If sorted, use BSearch instead
-		Returns -1 on failure
+		Returns -1 on failure.
 		*/
 
 		Insert(index, handle); (void)
