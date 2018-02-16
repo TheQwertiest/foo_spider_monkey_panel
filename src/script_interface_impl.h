@@ -254,7 +254,7 @@ public:
 	STDMETHODIMP SetPlaylistFocusItemByHandle(UINT playlistIndex, IFbMetadbHandle* handle);
 	STDMETHODIMP SetPlaylistSelection(UINT playlistIndex, VARIANT affectedItems, VARIANT_BOOL state);
 	STDMETHODIMP SetPlaylistSelectionSingle(UINT playlistIndex, UINT itemIndex, VARIANT_BOOL state);
-	STDMETHODIMP ShowAutoPlaylistUI(UINT idx, VARIANT_BOOL* p);
+	STDMETHODIMP ShowAutoPlaylistUI(UINT idx, VARIANT_BOOL* outSuccess);
 	STDMETHODIMP SortByFormat(UINT playlistIndex, BSTR pattern, VARIANT_BOOL selOnly, VARIANT_BOOL* outSuccess);
 	STDMETHODIMP SortByFormatV2(UINT playlistIndex, BSTR pattern, int direction, VARIANT_BOOL* outSuccess);
 	STDMETHODIMP UndoBackup(UINT playlistIndex);

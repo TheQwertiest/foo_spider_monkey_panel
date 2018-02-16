@@ -651,14 +651,15 @@ interface IFbPlaylistManager {
 		plman.SortByFormat(playlistIndex, pattern[, selected_items_only]); (boolean)
 		/*
 		playlistIndex: index of playlist to alter.
-		pattern: title formatting pattern to sort by. set to "" to randomise the order of items.
+		pattern: title formatting pattern to sort by. Set to "" to randomise the order of items.
 		selected_items_only: boolean, default false.
 		Returns true on success, false on failure (playlist locked etc).
 		*/
 
 		plman.SortByFormatV2(playlistIndex, pattern[, direction]); (boolean)
 		/*
-		pattern: title formatting pattern
+		playlistIndex: index of playlist to alter.
+		pattern: title formatting pattern to sort by.
 		direction: default 1 (ascending), -1 (descending).
 		*/
 

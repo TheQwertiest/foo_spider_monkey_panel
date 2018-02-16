@@ -711,8 +711,8 @@ STDMETHODIMP FbMetadbHandleList::UpdateFileInfoFromJSON(BSTR str)
 
 	try
 	{
-		pfc::stringcvt::string_utf8_from_wide js(str);
-		o = json::parse(js.get_ptr());
+		pfc::stringcvt::string_utf8_from_wide ustr(str);
+		o = json::parse(ustr.get_ptr());
 		if (o.is_array())
 		{
 			if (o.size() != count) return E_INVALIDARG;
@@ -942,22 +942,22 @@ STDMETHODIMP FbPlaylistManager::DuplicatePlaylist(UINT from, BSTR name, UINT* ou
 {
 	if (!outPlaylistIndex) return E_POINTER;
 
-	auto manager = playlist_manager_v4::get();
-	metadb_handle_list contents;
-	pfc::string8_fast name_utf8;
-
-	if (from < manager->get_playlist_count())
+	auto api = playlist_manager_v4::get();
+	
+	if (from < api->get_playlist_count())
 	{
-		manager->playlist_get_all_items(from, contents);
+		metadb_handle_list contents;
+		api->playlist_get_all_items(from, contents);
 
-		if (!name || !*name)
-			manager->playlist_get_name(from, name_utf8);
-		else
-			name_utf8 = pfc::stringcvt::string_utf8_from_wide(name);
+		pfc::string8_fast uname = pfc::stringcvt::string_utf8_from_wide(name);
+		if (uname.is_empty())
+		{
+			api->playlist_get_name(from, uname);
+		}
 
 		stream_reader_dummy dummy_reader;
 		abort_callback_dummy dummy_callback;
-		*outPlaylistIndex = manager->create_playlist_ex(name_utf8.get_ptr(), name_utf8.get_length(), from + 1, contents, &dummy_reader, dummy_callback);
+		*outPlaylistIndex = api->create_playlist_ex(uname.get_ptr(), uname.get_length(), from + 1, contents, &dummy_reader, dummy_callback);
 		return S_OK;
 	}
 	else
@@ -1113,15 +1113,7 @@ STDMETHODIMP FbPlaylistManager::IsAutoPlaylist(UINT idx, VARIANT_BOOL* p)
 {
 	if (!p) return E_POINTER;
 
-	try
-	{
-		*p = TO_VARIANT_BOOL(autoplaylist_manager::get()->is_client_present(idx));
-	}
-	catch (...)
-	{
-		*p = VARIANT_FALSE;
-	}
-
+	*p = TO_VARIANT_BOOL(autoplaylist_manager::get()->is_client_present(idx));
 	return S_OK;
 }
 
@@ -1264,18 +1256,20 @@ STDMETHODIMP FbPlaylistManager::SetPlaylistSelectionSingle(UINT playlistIndex, U
 	return S_OK;
 }
 
-STDMETHODIMP FbPlaylistManager::ShowAutoPlaylistUI(UINT idx, VARIANT_BOOL* p)
+STDMETHODIMP FbPlaylistManager::ShowAutoPlaylistUI(UINT idx, VARIANT_BOOL* outSuccess)
 {
-	*p = VARIANT_FALSE;
-	auto manager = autoplaylist_manager::get();
+	if (!outSuccess) return E_POINTER;
 
+	*outSuccess = VARIANT_FALSE;
+	
 	try
 	{
-		if (manager->is_client_present(idx))
+		auto api = autoplaylist_manager::get();
+		if (api->is_client_present(idx))
 		{
-			autoplaylist_client_ptr client = manager->query_client(idx);
+			autoplaylist_client_ptr client = api->query_client(idx);
 			client->show_ui(idx);
-			*p = VARIANT_TRUE;
+			*outSuccess = VARIANT_TRUE;
 		}
 	}
 	catch (...)
@@ -1289,16 +1283,8 @@ STDMETHODIMP FbPlaylistManager::SortByFormat(UINT playlistIndex, BSTR pattern, V
 {
 	if (!outSuccess) return E_POINTER;
 
-	pfc::stringcvt::string_utf8_from_wide string_conv;
-	const char* pattern_ptr = NULL;
-
-	if (*pattern)
-	{
-		string_conv.convert(pattern);
-		pattern_ptr = string_conv.get_ptr();
-	}
-
-	*outSuccess = TO_VARIANT_BOOL(playlist_manager::get()->playlist_sort_by_format(playlistIndex, pattern_ptr, selOnly != VARIANT_FALSE));
+	pfc::stringcvt::string_utf8_from_wide upattern(pattern);
+	*outSuccess = TO_VARIANT_BOOL(playlist_manager::get()->playlist_sort_by_format(playlistIndex, upattern.is_empty() ? nullptr : upattern.get_ptr(), selOnly != VARIANT_FALSE));
 	return S_OK;
 }
 
@@ -1306,28 +1292,16 @@ STDMETHODIMP FbPlaylistManager::SortByFormatV2(UINT playlistIndex, BSTR pattern,
 {
 	if (!outSuccess) return E_POINTER;
 
-	pfc::stringcvt::string_utf8_from_wide spec(pattern);
+	pfc::stringcvt::string_utf8_from_wide upattern(pattern);
 	service_ptr_t<titleformat_object> script;
-	metadb_handle_list metadb_handles;
+	titleformat_compiler::get()->compile_safe(script, upattern);
+	auto api = playlist_manager::get();
+	metadb_handle_list handles;
+	api->playlist_get_all_items(playlistIndex, handles);
 	pfc::array_t<t_size> order;
-
-	if (titleformat_compiler::get()->compile(script, spec))
-	{
-		auto api = playlist_manager::get();
-
-		// Get metadb_handle_list for playlist specified.
-		api->playlist_get_all_items(playlistIndex, metadb_handles);
-		order.set_count(metadb_handles.get_count());
-		// Reorder metadb handles
-		metadb_handle_list_helper::sort_by_format_get_order(metadb_handles, order.get_ptr(), script, NULL, direction);
-		// Reorder the playlist
-		*outSuccess = TO_VARIANT_BOOL(api->playlist_reorder_items(playlistIndex, order.get_ptr(), order.get_count()));
-	}
-	else
-	{
-		*outSuccess = VARIANT_FALSE;
-	}
-
+	order.set_count(handles.get_count());
+	metadb_handle_list_helper::sort_by_format_get_order(handles, order.get_ptr(), script, NULL, direction);
+	*outSuccess = TO_VARIANT_BOOL(api->playlist_reorder_items(playlistIndex, order.get_ptr(), order.get_count()));
 	return S_OK;
 }
 
@@ -1557,8 +1531,8 @@ STDMETHODIMP FbProfiler::get_Time(INT* p)
 
 FbTitleFormat::FbTitleFormat(BSTR expr)
 {
-	pfc::stringcvt::string_utf8_from_wide utf8 = expr;
-	titleformat_compiler::get()->compile_safe(m_obj, utf8);
+	pfc::stringcvt::string_utf8_from_wide uexpr(expr);
+	titleformat_compiler::get()->compile_safe(m_obj, uexpr);
 }
 
 FbTitleFormat::~FbTitleFormat()
@@ -1949,11 +1923,11 @@ STDMETHODIMP FbUtils::GetQueryItems(IFbMetadbHandleList* items, BSTR query, IFbM
 
 	items->get__ptr((void**)&srclist_ptr);
 	dst_list = *srclist_ptr;
-	pfc::stringcvt::string_utf8_from_wide query8(query);
+	pfc::stringcvt::string_utf8_from_wide uquery(query);
 
 	try
 	{
-		filter = search_filter_manager_v2::get()->create_ex(query8, new service_impl_t<completion_notify_dummy>(), search_filter_manager_v2::KFlagSuppressNotify);
+		filter = search_filter_manager_v2::get()->create_ex(uquery, new service_impl_t<completion_notify_dummy>(), search_filter_manager_v2::KFlagSuppressNotify);
 	}
 	catch (...)
 	{
@@ -2092,8 +2066,8 @@ STDMETHODIMP FbUtils::RunContextCommand(BSTR command, UINT flags, VARIANT_BOOL* 
 {
 	if (!p) return E_POINTER;
 
-	pfc::stringcvt::string_utf8_from_wide name(command);
-	*p = TO_VARIANT_BOOL(helpers::execute_context_command_by_name_SEH(name, metadb_handle_list(), flags));
+	pfc::stringcvt::string_utf8_from_wide ucommand(command);
+	*p = TO_VARIANT_BOOL(helpers::execute_context_command_by_name_SEH(ucommand, metadb_handle_list(), flags));
 	return S_OK;
 }
 
@@ -2126,8 +2100,8 @@ STDMETHODIMP FbUtils::RunContextCommandWithMetadb(BSTR command, VARIANT handle, 
 		return E_INVALIDARG;
 	}
 
-	pfc::stringcvt::string_utf8_from_wide name(command);
-	*p = TO_VARIANT_BOOL(helpers::execute_context_command_by_name_SEH(name, handle_list, flags));
+	pfc::stringcvt::string_utf8_from_wide ucommand(command);
+	*p = TO_VARIANT_BOOL(helpers::execute_context_command_by_name_SEH(ucommand, handle_list, flags));
 	return S_OK;
 }
 
@@ -2135,8 +2109,8 @@ STDMETHODIMP FbUtils::RunMainMenuCommand(BSTR command, VARIANT_BOOL* p)
 {
 	if (!p) return E_POINTER;
 
-	pfc::stringcvt::string_utf8_from_wide name(command);
-	*p = TO_VARIANT_BOOL(helpers::execute_mainmenu_command_by_name_SEH(name));
+	pfc::stringcvt::string_utf8_from_wide ucommand(command);
+	*p = TO_VARIANT_BOOL(helpers::execute_mainmenu_command_by_name_SEH(ucommand));
 	return S_OK;
 }
 
@@ -2157,8 +2131,8 @@ STDMETHODIMP FbUtils::ShowLibrarySearchUI(BSTR query)
 {
 	if (!query) return E_INVALIDARG;
 
-	pfc::stringcvt::string_utf8_from_wide wquery(query);
-	library_search_ui::get()->show(wquery);
+	pfc::stringcvt::string_utf8_from_wide uquery(query);
+	library_search_ui::get()->show(uquery);
 	return S_OK;
 }
 
