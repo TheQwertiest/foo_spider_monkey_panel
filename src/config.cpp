@@ -121,7 +121,7 @@ void prop_kv_config::g_load(t_map& data, stream_reader* reader, abort_callback& 
 			data[key] = val;
 		}
 	}
-	catch (std::exception&)
+	catch (...)
 	{
 	}
 }
@@ -186,7 +186,7 @@ void prop_kv_config::g_save(const t_map& data, stream_writer* writer, abort_call
 			}
 		}
 	}
-	catch (std::exception&)
+	catch (...)
 	{
 	}
 }
@@ -298,7 +298,7 @@ void js_panel_vars::load_config(stream_reader* reader, t_size size, abort_callba
 			reader->read_string(m_script_code, abort);
 			reader->read_object_t(m_pseudo_transparent, abort);
 		}
-		catch (std::exception&)
+		catch (...)
 		{
 			reset_config();
 			FB2K_console_formatter() << "Error: " JSP_NAME " v" JSP_VERSION " Configuration has been corrupted. All settings have been reset.";
@@ -337,7 +337,7 @@ void js_panel_vars::save_config(stream_writer* writer, abort_callback& abort) co
 		writer->write_string(m_script_code, abort);
 		writer->write_object_t(m_pseudo_transparent, abort);
 	}
-	catch (std::exception&)
+	catch (...)
 	{
 	}
 }

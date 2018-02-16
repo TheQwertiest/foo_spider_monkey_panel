@@ -659,7 +659,7 @@ STDMETHODIMP FbWindow::CreateThemeManager(BSTR classid, IThemeManager** pp)
 	{
 		ptheme = new com_object_impl_t<ThemeManager>(m_host->GetHWND(), classid);
 	}
-	catch (pfc::exception_invalid_params&)
+	catch (...)
 	{
 		if (ptheme)
 		{

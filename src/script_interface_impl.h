@@ -418,6 +418,7 @@ public:
 	STDMETHODIMP RunContextCommand(BSTR command, UINT flags, VARIANT_BOOL* p);
 	STDMETHODIMP RunContextCommandWithMetadb(BSTR command, VARIANT handle, UINT flags, VARIANT_BOOL* p);
 	STDMETHODIMP RunMainMenuCommand(BSTR command, VARIANT_BOOL* p);
+	STDMETHODIMP SaveIndex();
 	STDMETHODIMP SavePlaylist();
 	STDMETHODIMP ShowConsole();
 	STDMETHODIMP ShowLibrarySearchUI(BSTR query);

@@ -108,7 +108,7 @@ namespace helpers
 						break;
 					}
 				}
-				catch (std::exception&)
+				catch (...)
 				{
 				}
 			}
@@ -134,7 +134,7 @@ namespace helpers
 
 			ret = query_album_art(aaeiv2, what, no_load, image_path_ptr);
 		}
-		catch (std::exception&)
+		catch (...)
 		{
 			if (need_stub)
 			{
@@ -143,10 +143,9 @@ namespace helpers
 				try
 				{
 					album_art_data_ptr data = aaeiv2_stub->query(what, abort);
-
 					ret = query_album_art(aaeiv2_stub, what, no_load, image_path_ptr);
 				}
-				catch (std::exception&)
+				catch (...)
 				{
 				}
 			}

@@ -142,16 +142,12 @@ LRESULT CDialogProperty::OnImportBnClicked(WORD wNotifyCode, WORD wID, HWND hWnd
 		{
 			filesystem::g_open_read(io, filename, abort);
 			prop_kv_config::g_load(m_dup_prop_map, io.get_ptr(), abort);
+			LoadProperties(false);
 		}
-		catch (std::exception&)
+		catch (...)
 		{
-			return 0;
 		}
-
-		// Refresh display
-		LoadProperties(false);
 	}
-
 	return 0;
 }
 
@@ -169,10 +165,9 @@ LRESULT CDialogProperty::OnExportBnClicked(WORD wNotifyCode, WORD wID, HWND hWnd
 			filesystem::g_open_write_new(io, path, abort);
 			prop_kv_config::g_save(m_dup_prop_map, io.get_ptr(), abort);
 		}
-		catch (std::exception&)
+		catch (...)
 		{
 		}
 	}
-
 	return 0;
 }

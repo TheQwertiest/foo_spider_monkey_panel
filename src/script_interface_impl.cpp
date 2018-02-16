@@ -1862,7 +1862,7 @@ STDMETHODIMP FbUtils::GetFocusItem(VARIANT_BOOL force, IFbMetadbHandle** pp)
 			return S_OK;
 		}
 	}
-	catch (std::exception&)
+	catch (...)
 	{
 	}
 
@@ -2111,6 +2111,19 @@ STDMETHODIMP FbUtils::RunMainMenuCommand(BSTR command, VARIANT_BOOL* p)
 
 	pfc::stringcvt::string_utf8_from_wide ucommand(command);
 	*p = TO_VARIANT_BOOL(helpers::execute_mainmenu_command_by_name_SEH(ucommand));
+	return S_OK;
+}
+
+STDMETHODIMP FbUtils::SaveIndex()
+{
+	try
+	{
+		stats::theAPI()->save_index_data(stats::guid_js_panel_index);
+	}
+	catch (...)
+	{
+		FB2K_console_formatter() << JSP_NAME " v" JSP_VERSION ": Save index fail.";
+	}
 	return S_OK;
 }
 
@@ -3336,7 +3349,7 @@ STDMETHODIMP GdiUtils::LoadImageAsync(UINT window_id, BSTR path, UINT* p)
 		else
 			delete task;
 	}
-	catch (std::exception&)
+	catch (...)
 	{
 	}
 
@@ -3596,7 +3609,7 @@ STDMETHODIMP JSUtils::GetAlbumArtAsync(UINT window_id, IFbMetadbHandle* handle, 
 			else
 				delete task;
 		}
-		catch (std::exception&)
+		catch (...)
 		{
 			cookie = 0;
 		}

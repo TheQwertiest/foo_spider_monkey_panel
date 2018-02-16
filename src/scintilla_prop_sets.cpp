@@ -32,16 +32,14 @@ void cfg_sci_prop_sets::get_data_raw(stream_writer * p_stream, abort_callback & 
 	try
 	{
 		p_stream->write_lendian_t(m_data.get_count(), p_abort);
-
 		for (t_size i = 0; i < m_data.get_count(); ++i)
 		{
 			p_stream->write_string(m_data[i].key, p_abort);
 			p_stream->write_string(m_data[i].val, p_abort);
 		}
 	}
-	catch (std::exception &)
+	catch (...)
 	{
-
 	}
 }
 
@@ -54,22 +52,19 @@ void cfg_sci_prop_sets::set_data_raw(stream_reader * p_stream, t_size p_sizehint
 	try
 	{
 		p_stream->read_lendian_t(count, p_abort);
-
 		for (t_size i = 0; i < count; ++i)
 		{
 			p_stream->read_string(key, p_abort);
 			p_stream->read_string(val, p_abort);
-
 			data_map[key] = val;
 		}
 	}
-	catch (std::exception &)
+	catch (...)
 	{
 		// Load default
 		init_data(prop_sets_init_table);
 		return;
 	}
-
 	merge_data(data_map);
 }
 
