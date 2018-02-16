@@ -256,15 +256,15 @@ LRESULT js_panel_window::on_message(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 		return 0;
 
 	case CALLBACK_UWM_ON_LIBRARY_ITEMS_ADDED:
-		on_library_items_added();
+		on_library_items_added(wp);
 		return 0;
 
 	case CALLBACK_UWM_ON_LIBRARY_ITEMS_CHANGED:
-		on_library_items_changed();
+		on_library_items_changed(wp);
 		return 0;
 
 	case CALLBACK_UWM_ON_LIBRARY_ITEMS_REMOVED:
-		on_library_items_removed();
+		on_library_items_removed(wp);
 		return 0;
 
 	case CALLBACK_UWM_ON_MAIN_MENU:
@@ -688,19 +688,46 @@ void js_panel_window::on_load_image_done(LPARAM lp)
 	script_invoke_v(CallbackIds::on_load_image_done, args, _countof(args));
 }
 
-void js_panel_window::on_library_items_added()
+void js_panel_window::on_library_items_added(WPARAM wp)
 {
-	script_invoke_v(CallbackIds::on_library_items_added);
+	simple_callback_data_scope_releaser<my_library_callback::t_on_library_data> data(wp);
+	FbMetadbHandleList* handles = new com_object_impl_t<FbMetadbHandleList>(data->m_items);
+
+	VARIANTARG args[1];
+	args[0].vt = VT_DISPATCH;
+	args[0].pdispVal = handles;
+	script_invoke_v(CallbackIds::on_library_items_added, args, _countof(args));
+
+	if (handles)
+		handles->Release();
 }
 
-void js_panel_window::on_library_items_changed()
+void js_panel_window::on_library_items_changed(WPARAM wp)
 {
-	script_invoke_v(CallbackIds::on_library_items_changed);
+	simple_callback_data_scope_releaser<my_library_callback::t_on_library_data> data(wp);
+	FbMetadbHandleList* handles = new com_object_impl_t<FbMetadbHandleList>(data->m_items);
+
+	VARIANTARG args[1];
+	args[0].vt = VT_DISPATCH;
+	args[0].pdispVal = handles;
+	script_invoke_v(CallbackIds::on_library_items_changed, args, _countof(args));
+
+	if (handles)
+		handles->Release();
 }
 
-void js_panel_window::on_library_items_removed()
+void js_panel_window::on_library_items_removed(WPARAM wp)
 {
-	script_invoke_v(CallbackIds::on_library_items_removed);
+	simple_callback_data_scope_releaser<my_library_callback::t_on_library_data> data(wp);
+	FbMetadbHandleList* handles = new com_object_impl_t<FbMetadbHandleList>(data->m_items);
+
+	VARIANTARG args[1];
+	args[0].vt = VT_DISPATCH;
+	args[0].pdispVal = handles;
+	script_invoke_v(CallbackIds::on_library_items_removed, args, _countof(args));
+
+	if (handles)
+		handles->Release();
 }
 
 void js_panel_window::on_main_menu(WPARAM wp)

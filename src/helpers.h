@@ -160,7 +160,7 @@ namespace helpers
 		{
 		}
 
-		void on_completion(const pfc::list_base_const_t<metadb_handle_ptr>& p_items)
+		void on_completion(metadb_handle_list_cref p_items)
 		{
 			pfc::bit_array_true selection_them;
 			pfc::bit_array_false selection_none;

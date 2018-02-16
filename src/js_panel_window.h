@@ -39,9 +39,9 @@ private:
 	void on_get_album_art_done(LPARAM lp);
 	void on_item_focus_change(WPARAM wp);
 	void on_item_played(WPARAM wp);
-	void on_library_items_added();
-	void on_library_items_changed();
-	void on_library_items_removed();
+	void on_library_items_added(WPARAM wp);
+	void on_library_items_changed(WPARAM wp);
+	void on_library_items_removed(WPARAM wp);
 	void on_load_image_done(LPARAM lp);
 	void on_main_menu(WPARAM wp);
 	void on_mouse_button_dblclk(UINT msg, WPARAM wp, LPARAM lp);

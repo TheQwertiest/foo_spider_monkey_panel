@@ -121,9 +121,18 @@ public:
 class my_library_callback : public library_callback
 {
 public:
-	virtual void on_items_added(const pfc::list_base_const_t<metadb_handle_ptr>& p_data);
-	virtual void on_items_modified(const pfc::list_base_const_t<metadb_handle_ptr>& p_data);
-	virtual void on_items_removed(const pfc::list_base_const_t<metadb_handle_ptr>& p_data);
+	struct t_on_library_data : public pfc::refcounted_object_root
+	{
+		metadb_handle_list m_items;
+
+		t_on_library_data(metadb_handle_list_cref p_items) : m_items(p_items)
+		{
+		}
+	};
+
+	virtual void on_items_added(metadb_handle_list_cref p_data);
+	virtual void on_items_modified(metadb_handle_list_cref p_data);
+	virtual void on_items_removed(metadb_handle_list_cref p_data);
 };
 
 class my_play_callback_static : public play_callback_static
@@ -175,7 +184,7 @@ public:
 	virtual unsigned get_flags();
 	virtual void on_item_ensure_visible(t_size p_playlist, t_size p_idx);
 	virtual void on_item_focus_change(t_size p_playlist, t_size p_from, t_size p_to);
-	virtual void on_items_added(t_size p_playlist, t_size p_start, const pfc::list_base_const_t<metadb_handle_ptr>& p_data, const pfc::bit_array& p_selection);
+	virtual void on_items_added(t_size p_playlist, t_size p_start, metadb_handle_list_cref p_data, const pfc::bit_array& p_selection);
 	virtual void on_items_removed(t_size p_playlist, const pfc::bit_array& p_mask, t_size p_old_count, t_size p_new_count);
 	virtual void on_items_reordered(t_size p_playlist, const t_size* p_order, t_size p_count);
 	virtual void on_items_selection_change(t_size p_playlist, const pfc::bit_array& p_affected, const pfc::bit_array& p_state);

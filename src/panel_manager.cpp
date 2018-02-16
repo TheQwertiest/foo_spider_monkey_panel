@@ -109,19 +109,22 @@ void nonautoregister_callbacks::on_selection_changed(metadb_handle_list_cref p_s
 	panel_manager::instance().post_msg_to_all(CALLBACK_UWM_ON_SELECTION_CHANGED);
 }
 
-void my_library_callback::on_items_added(const pfc::list_base_const_t<metadb_handle_ptr>& p_data)
+void my_library_callback::on_items_added(metadb_handle_list_cref p_data)
 {
-	panel_manager::instance().post_msg_to_all(CALLBACK_UWM_ON_LIBRARY_ITEMS_ADDED);
+	t_on_library_data* on_items_added_data = new t_on_library_data(p_data);
+	panel_manager::instance().post_msg_to_all_pointer(CALLBACK_UWM_ON_LIBRARY_ITEMS_ADDED, on_items_added_data);
 }
 
-void my_library_callback::on_items_modified(const pfc::list_base_const_t<metadb_handle_ptr>& p_data)
+void my_library_callback::on_items_modified(metadb_handle_list_cref p_data)
 {
-	panel_manager::instance().post_msg_to_all(CALLBACK_UWM_ON_LIBRARY_ITEMS_CHANGED);
+	t_on_library_data* on_items_modified_data = new t_on_library_data(p_data);
+	panel_manager::instance().post_msg_to_all_pointer(CALLBACK_UWM_ON_LIBRARY_ITEMS_CHANGED, on_items_modified_data);
 }
 
-void my_library_callback::on_items_removed(const pfc::list_base_const_t<metadb_handle_ptr>& p_data)
+void my_library_callback::on_items_removed(metadb_handle_list_cref p_data)
 {
-	panel_manager::instance().post_msg_to_all(CALLBACK_UWM_ON_LIBRARY_ITEMS_REMOVED);
+	t_on_library_data* on_items_removed_data = new t_on_library_data(p_data);
+	panel_manager::instance().post_msg_to_all_pointer(CALLBACK_UWM_ON_LIBRARY_ITEMS_REMOVED, on_items_removed_data);
 }
 
 unsigned my_play_callback_static::get_flags()
@@ -258,7 +261,7 @@ void my_playlist_callback_static::on_item_focus_change(t_size p_playlist, t_size
 	panel_manager::instance().post_msg_to_all_pointer(CALLBACK_UWM_ON_ITEM_FOCUS_CHANGE, on_item_focus_change_data);
 }
 
-void my_playlist_callback_static::on_items_added(t_size p_playlist, t_size p_start, const pfc::list_base_const_t<metadb_handle_ptr>& p_data, const pfc::bit_array& p_selection)
+void my_playlist_callback_static::on_items_added(t_size p_playlist, t_size p_start, metadb_handle_list_cref p_data, const pfc::bit_array& p_selection)
 {
 	panel_manager::instance().post_msg_to_all(CALLBACK_UWM_ON_PLAYLIST_ITEMS_ADDED, p_playlist);
 }
