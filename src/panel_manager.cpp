@@ -100,7 +100,7 @@ void panel_manager::send_msg_to_others_pointer(HWND p_wnd_except, UINT p_msg, pf
 
 void nonautoregister_callbacks::on_changed_sorted(metadb_handle_list_cref p_items_sorted, bool p_fromhook)
 {
-	t_on_changed_sorted_data* on_changed_sorted_data = new t_on_changed_sorted_data(p_items_sorted, p_fromhook);
+	t_on_data* on_changed_sorted_data = new t_on_data(p_items_sorted, p_fromhook);
 	panel_manager::instance().post_msg_to_all_pointer(CALLBACK_UWM_ON_CHANGED_SORTED, on_changed_sorted_data);
 }
 
@@ -111,19 +111,19 @@ void nonautoregister_callbacks::on_selection_changed(metadb_handle_list_cref p_s
 
 void my_library_callback::on_items_added(metadb_handle_list_cref p_data)
 {
-	t_on_library_data* on_items_added_data = new t_on_library_data(p_data);
+	t_on_data* on_items_added_data = new t_on_data(p_data, false);
 	panel_manager::instance().post_msg_to_all_pointer(CALLBACK_UWM_ON_LIBRARY_ITEMS_ADDED, on_items_added_data);
 }
 
 void my_library_callback::on_items_modified(metadb_handle_list_cref p_data)
 {
-	t_on_library_data* on_items_modified_data = new t_on_library_data(p_data);
+	t_on_data* on_items_modified_data = new t_on_data(p_data, false);
 	panel_manager::instance().post_msg_to_all_pointer(CALLBACK_UWM_ON_LIBRARY_ITEMS_CHANGED, on_items_modified_data);
 }
 
 void my_library_callback::on_items_removed(metadb_handle_list_cref p_data)
 {
-	t_on_library_data* on_items_removed_data = new t_on_library_data(p_data);
+	t_on_data* on_items_removed_data = new t_on_data(p_data, false);
 	panel_manager::instance().post_msg_to_all_pointer(CALLBACK_UWM_ON_LIBRARY_ITEMS_REMOVED, on_items_removed_data);
 }
 

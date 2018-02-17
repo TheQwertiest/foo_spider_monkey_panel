@@ -584,8 +584,8 @@ void js_panel_window::on_always_on_top_changed(WPARAM wp)
 
 void js_panel_window::on_changed_sorted(WPARAM wp)
 {
-	simple_callback_data_scope_releaser<nonautoregister_callbacks::t_on_changed_sorted_data> data(wp);
-	FbMetadbHandleList* handles = new com_object_impl_t<FbMetadbHandleList>(data->m_items_sorted);
+	simple_callback_data_scope_releaser<t_on_data> data(wp);
+	FbMetadbHandleList* handles = new com_object_impl_t<FbMetadbHandleList>(data->m_items);
 
 	VARIANTARG args[2];
 	args[0].vt = VT_BOOL;
@@ -690,7 +690,7 @@ void js_panel_window::on_load_image_done(LPARAM lp)
 
 void js_panel_window::on_library_items_added(WPARAM wp)
 {
-	simple_callback_data_scope_releaser<my_library_callback::t_on_library_data> data(wp);
+	simple_callback_data_scope_releaser<t_on_data> data(wp);
 	FbMetadbHandleList* handles = new com_object_impl_t<FbMetadbHandleList>(data->m_items);
 
 	VARIANTARG args[1];
@@ -704,7 +704,7 @@ void js_panel_window::on_library_items_added(WPARAM wp)
 
 void js_panel_window::on_library_items_changed(WPARAM wp)
 {
-	simple_callback_data_scope_releaser<my_library_callback::t_on_library_data> data(wp);
+	simple_callback_data_scope_releaser<t_on_data> data(wp);
 	FbMetadbHandleList* handles = new com_object_impl_t<FbMetadbHandleList>(data->m_items);
 
 	VARIANTARG args[1];
@@ -718,7 +718,7 @@ void js_panel_window::on_library_items_changed(WPARAM wp)
 
 void js_panel_window::on_library_items_removed(WPARAM wp)
 {
-	simple_callback_data_scope_releaser<my_library_callback::t_on_library_data> data(wp);
+	simple_callback_data_scope_releaser<t_on_data> data(wp);
 	FbMetadbHandleList* handles = new com_object_impl_t<FbMetadbHandleList>(data->m_items);
 
 	VARIANTARG args[1];

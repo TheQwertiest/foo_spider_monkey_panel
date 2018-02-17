@@ -64,6 +64,16 @@ private:
 	T * m_data;
 };
 
+struct t_on_data : public pfc::refcounted_object_root
+{
+	metadb_handle_list m_items;
+	bool m_fromhook;
+
+	t_on_data(metadb_handle_list_cref p_items, bool p_fromhook) : m_items(p_items), m_fromhook(p_fromhook)
+	{
+	}
+};
+
 class panel_manager
 {
 public:
@@ -92,16 +102,6 @@ private:
 class nonautoregister_callbacks : public initquit, public metadb_io_callback_dynamic, public ui_selection_callback
 {
 public:
-	struct t_on_changed_sorted_data : public pfc::refcounted_object_root
-	{
-		metadb_handle_list m_items_sorted;
-		bool m_fromhook;
-
-		t_on_changed_sorted_data(metadb_handle_list_cref p_items_sorted, bool p_fromhook) : m_items_sorted(p_items_sorted), m_fromhook(p_fromhook)
-		{
-		}
-	};
-
 	virtual void on_init()
 	{
 		metadb_io_v3::get()->register_callback(this);
@@ -121,15 +121,6 @@ public:
 class my_library_callback : public library_callback
 {
 public:
-	struct t_on_library_data : public pfc::refcounted_object_root
-	{
-		metadb_handle_list m_items;
-
-		t_on_library_data(metadb_handle_list_cref p_items) : m_items(p_items)
-		{
-		}
-	};
-
 	virtual void on_items_added(metadb_handle_list_cref p_data);
 	virtual void on_items_modified(metadb_handle_list_cref p_data);
 	virtual void on_items_removed(metadb_handle_list_cref p_data);
