@@ -16,13 +16,10 @@ function on_size() {
 
 function on_paint(gr) {
 	var volume = fb.Volume;
-	// vol2pos function is defined in docs\helpers.txt
 	var pos = ww * vol2pos(volume);
 	var txt = volume.toFixed(2) + 'dB';
-	// RGB function is defined in docs\helpers.txt
 	gr.FillGradRect(0, 0, pos, wh, 90, RGB(240, 240, 240), RGB(100, 230, 100));
 	gr.FillGradRect(pos, 0, ww - pos, wh, 90, RGB(240, 240, 240), RGB(190, 190, 190));
-	// DT_* are defined in docs\flags.txt
 	gr.GdiDrawText(txt, g_font, RGB(64, 64, 128), 0, 0, ww, wh, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
 	gr.DrawRect(0, 0, ww - 1, wh - 1, 1.0, RGB(150, 150, 150));
 }
@@ -39,7 +36,6 @@ function on_mouse_lbtn_up(x, y) {
 function on_mouse_move(x, y) {
 	if (g_drag) {
 		var pos = x < 0 ? 0 : x > ww ? 1 : x / ww;
-		// pos2vol function is defined in docs\helpers.txt
 		fb.Volume = pos2vol(pos);
 	}
 }

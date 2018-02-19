@@ -1,12 +1,10 @@
 // ==PREPROCESSOR==
 // @name "Drag Drop Basic"
 // @author "T.P Wang"
-// Add feature below to enable drag and drop support
 // @feature "dragdrop"
 // @import "%fb2k_component_path%docs\helpers.txt"
 // ==/PREPROCESSOR==
 
-// RGB function is defined in docs\helpers.txt
 var color_background = RGB(255, 255, 255);
 var color_background2 = RGB(193, 219, 252);
 var dragging = false;

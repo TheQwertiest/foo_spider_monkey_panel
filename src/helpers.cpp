@@ -7,78 +7,155 @@
 
 namespace helpers
 {
-	static void build_mainmenu_group_map(pfc::map_t<GUID, mainmenu_group::ptr>& p_group_guid_text_map)
+	COLORREF convert_argb_to_colorref(DWORD argb)
 	{
-		service_enum_t<mainmenu_group> e;
-		service_ptr_t<mainmenu_group> ptr;
+		return RGB(argb >> RED_SHIFT, argb >> GREEN_SHIFT, argb >> BLUE_SHIFT);
+	}
+
+	DWORD convert_colorref_to_argb(DWORD color)
+	{
+		// COLORREF : 0x00bbggrr
+		// ARGB : 0xaarrggbb
+		return (GetRValue(color) << RED_SHIFT) |
+			(GetGValue(color) << GREEN_SHIFT) |
+			(GetBValue(color) << BLUE_SHIFT) |
+			0xff000000;
+	}
+
+	IGdiBitmap* query_album_art(album_art_extractor_instance_v2::ptr extractor, GUID& what, VARIANT_BOOL no_load, pfc::string_base* image_path_ptr)
+	{
+		abort_callback_dummy abort;
+		album_art_data_ptr data = extractor->query(what, abort);
+		Gdiplus::Bitmap* bitmap = NULL;
+		IGdiBitmap* ret = NULL;
+
+		if (!no_load && helpers::read_album_art_into_bitmap(data, &bitmap))
+		{
+			ret = new com_object_impl_t<GdiBitmap>(bitmap);
+		}
+
+		if (image_path_ptr && (no_load || ret))
+		{
+			album_art_path_list::ptr pathlist = extractor->query_paths(what, abort);
+
+			if (pathlist->get_count() > 0)
+			{
+				image_path_ptr->set_string(pathlist->get_path(0));
+			}
+		}
+
+		return ret;
+	}
+
+	HBITMAP create_hbitmap_from_gdiplus_bitmap(Gdiplus::Bitmap* bitmap_ptr)
+	{
+		BITMAP bm;
+		Gdiplus::Rect rect;
+		Gdiplus::BitmapData bmpdata;
+		HBITMAP hBitmap;
+
+		rect.X = rect.Y = 0;
+		rect.Width = bitmap_ptr->GetWidth();
+		rect.Height = bitmap_ptr->GetHeight();
+
+		if (bitmap_ptr->LockBits(&rect, Gdiplus::ImageLockModeRead, PixelFormat32bppPARGB, &bmpdata) != Gdiplus::Ok)
+		{
+			// Error
+			return NULL;
+		}
+
+		bm.bmType = 0;
+		bm.bmWidth = bmpdata.Width;
+		bm.bmHeight = bmpdata.Height;
+		bm.bmWidthBytes = bmpdata.Stride;
+		bm.bmPlanes = 1;
+		bm.bmBitsPixel = 32;
+		bm.bmBits = bmpdata.Scan0;
+
+		hBitmap = CreateBitmapIndirect(&bm);
+		bitmap_ptr->UnlockBits(&bmpdata);
+		return hBitmap;
+	}
+
+	HRESULT get_album_art_embedded(BSTR rawpath, IGdiBitmap** pp, int art_id)
+	{
+		if (!pp) return E_POINTER;
+
+		service_enum_t<album_art_extractor> e;
+		service_ptr_t<album_art_extractor> ptr;
+		pfc::stringcvt::string_utf8_from_wide urawpath(rawpath);
+		pfc::string_extension ext(urawpath);
+		abort_callback_dummy abort;
+		IGdiBitmap* ret = NULL;
 
 		while (e.next(ptr))
 		{
-			GUID guid = ptr->get_guid();
-			p_group_guid_text_map.find_or_add(guid) = ptr;
-		}
-	}
-
-	static bool match_menu_command(const pfc::string_base& path, const char* command, t_size command_len = ~0)
-	{
-		if (command_len == ~0)
-			command_len = strlen(command);
-
-		if (command_len == path.get_length())
-		{
-			if (_stricmp(command, path) == 0)
-				return true;
-		}
-		else if (command_len < path.get_length())
-		{
-			if ((path[path.get_length() - command_len - 1] == '/') &&
-				(_stricmp(path.get_ptr() + path.get_length() - command_len, command) == 0))
-				return true;
-		}
-
-		return false;
-	}
-
-	static bool find_context_command_recur(const char* p_command, pfc::string_base& p_path, contextmenu_node* p_parent, contextmenu_node*& p_out)
-	{
-		if (p_parent != NULL && p_parent->get_type() == contextmenu_item_node::TYPE_POPUP)
-		{
-			for (t_size child_id = 0; child_id < p_parent->get_num_children(); ++child_id)
+			if (ptr->is_our_path(urawpath, ext))
 			{
-				pfc::string8_fast path;
-				contextmenu_node* child = p_parent->get_child(child_id);
+				album_art_extractor_instance_ptr aaep;
+				GUID what = helpers::convert_artid_to_guid(art_id);
 
-				if (child)
+				try
 				{
-					path = p_path;
-					path += child->get_name();
+					aaep = ptr->open(NULL, urawpath, abort);
 
-					switch (child->get_type())
+					Gdiplus::Bitmap* bitmap = NULL;
+					album_art_data_ptr data = aaep->query(what, abort);
+
+					if (helpers::read_album_art_into_bitmap(data, &bitmap))
 					{
-					case contextmenu_item_node::TYPE_POPUP:
-						path += "/";
-
-						if (find_context_command_recur(p_command, path, child, p_out))
-							return true;
-
-						break;
-
-					case contextmenu_item_node::TYPE_COMMAND:
-						if (match_menu_command(path, p_command))
-						{
-							p_out = child;
-							return true;
-						}
+						ret = new com_object_impl_t<GdiBitmap>(bitmap);
 						break;
 					}
+				}
+				catch (...)
+				{
 				}
 			}
 		}
 
-		return false;
+		*pp = ret;
+		return S_OK;
 	}
 
-	extern bool execute_context_command_by_name(const char* p_name, metadb_handle_list_cref p_handles, unsigned flags)
+	HRESULT get_album_art_v2(const metadb_handle_ptr& handle, IGdiBitmap** pp, int art_id, VARIANT_BOOL need_stub, VARIANT_BOOL no_load, pfc::string_base* image_path_ptr)
+	{
+		if (handle.is_empty() || !pp) return E_POINTER;
+
+		GUID what = helpers::convert_artid_to_guid(art_id);
+		abort_callback_dummy abort;
+		auto aamv2 = album_art_manager_v2::get();
+		album_art_extractor_instance_v2::ptr aaeiv2;
+		IGdiBitmap* ret = NULL;
+
+		try
+		{
+			aaeiv2 = aamv2->open(pfc::list_single_ref_t<metadb_handle_ptr>(handle), pfc::list_single_ref_t<GUID>(what), abort);
+
+			ret = query_album_art(aaeiv2, what, no_load, image_path_ptr);
+		}
+		catch (...)
+		{
+			if (need_stub)
+			{
+				album_art_extractor_instance_v2::ptr aaeiv2_stub = aamv2->open_stub(abort);
+
+				try
+				{
+					album_art_data_ptr data = aaeiv2_stub->query(what, abort);
+					ret = query_album_art(aaeiv2_stub, what, no_load, image_path_ptr);
+				}
+				catch (...)
+				{
+				}
+			}
+		}
+
+		*pp = ret;
+		return S_OK;
+	}
+
+	bool execute_context_command_by_name(const char* p_name, metadb_handle_list_cref p_handles, unsigned flags)
 	{
 		contextmenu_node* node = NULL;
 
@@ -104,50 +181,6 @@ namespace helpers
 		{
 			node->execute();
 			return true;
-		}
-
-		return false;
-	}
-
-	static bool execute_mainmenu_command_recur_v2(mainmenu_node::ptr node, pfc::string8_fast path, const char* p_name, t_size p_name_len)
-	{
-		pfc::string8_fast text;
-		t_uint32 flags;
-		t_uint32 type = node->get_type();
-
-		if (type != mainmenu_node::type_separator)
-		{
-			node->get_display(text, flags);
-			if (!text.is_empty())
-				path.add_string(text);
-		}
-
-		switch (type)
-		{
-		case mainmenu_node::type_command:
-		{
-			if (match_menu_command(path, p_name, p_name_len))
-			{
-				node->execute(NULL);
-				return true;
-			}
-		}
-		break;
-
-		case mainmenu_node::type_group:
-		{
-			if (!text.is_empty())
-				path.add_char('/');
-
-			for (t_size i = 0; i < node->get_children_count(); ++i)
-			{
-				mainmenu_node::ptr child = node->get_child(i);
-
-				if (execute_mainmenu_command_recur_v2(child, path, p_name, p_name_len))
-					return true;
-			}
-		}
-		break;
 		}
 
 		return false;
@@ -224,86 +257,143 @@ namespace helpers
 		return false;
 	}
 
-	unsigned detect_charset(const char* fileName)
+	bool execute_mainmenu_command_recur_v2(mainmenu_node::ptr node, pfc::string8_fast path, const char* p_name, t_size p_name_len)
 	{
-		_COM_SMARTPTR_TYPEDEF(IMultiLanguage2, IID_IMultiLanguage2);
-		IMultiLanguage2Ptr lang;
-		HRESULT hr;
-
-		hr = lang.CreateInstance(CLSID_CMultiLanguage, NULL, CLSCTX_INPROC_SERVER);
-		// mlang is not working...
-		if (FAILED(hr)) return 0;
-
-		const int maxEncodings = 2;
-		int encodingCount = maxEncodings;
-		DetectEncodingInfo encodings[maxEncodings];
 		pfc::string8_fast text;
-		int textSize = 0;
+		t_uint32 flags;
+		t_uint32 type = node->get_type();
 
-		try
+		if (type != mainmenu_node::type_separator)
 		{
-			file_ptr io;
-			abort_callback_dummy dummy;
-			filesystem::g_open_read(io, fileName, dummy);
-			io->read_string_raw(text, dummy);
-			textSize = text.get_length();
-		}
-		catch (...)
-		{
-			return 0;
+			node->get_display(text, flags);
+			if (!text.is_empty())
+				path.add_string(text);
 		}
 
-		hr = lang->DetectInputCodepage(MLDETECTCP_NONE, 0, const_cast<char *>(text.get_ptr()), &textSize, encodings, &encodingCount);
-
-		if (FAILED(hr)) return 0;
-
-		unsigned codepage = 0;
-		bool found = false;
-
-		// MLang fine tunes
-		if (encodingCount == 2 && encodings[0].nCodePage == 1252)
+		switch (type)
 		{
-			switch (encodings[1].nCodePage)
+		case mainmenu_node::type_command:
+		{
+			if (match_menu_command(path, p_name, p_name_len))
 			{
-			case 850:
-			case 65001:
-				found = true;
-				codepage = 65001;
-				break;
-				// DBCS
-			case 932: // shift-jis
-			case 936: // gbk
-			case 949: // korean
-			case 950: // big5
+				node->execute(NULL);
+				return true;
+			}
+		}
+		break;
+
+		case mainmenu_node::type_group:
+		{
+			if (!text.is_empty())
+				path.add_char('/');
+
+			for (t_size i = 0; i < node->get_children_count(); ++i)
 			{
-				// 'o', <= special char
-				// "ve" "d" "ll" "m" 't' 're'
-				bool fallback = true;
-				t_size index;
-				if (index = text.find_first("\x92") != pfc_infinite)
+				mainmenu_node::ptr child = node->get_child(i);
+
+				if (execute_mainmenu_command_recur_v2(child, path, p_name, p_name_len))
+					return true;
+			}
+		}
+		break;
+		}
+
+		return false;
+	}
+
+	bool find_context_command_recur(const char* p_command, pfc::string_base& p_path, contextmenu_node* p_parent, contextmenu_node*& p_out)
+	{
+		if (p_parent != NULL && p_parent->get_type() == contextmenu_item_node::TYPE_POPUP)
+		{
+			for (t_size child_id = 0; child_id < p_parent->get_num_children(); ++child_id)
+			{
+				pfc::string8_fast path;
+				contextmenu_node* child = p_parent->get_child(child_id);
+
+				if (child)
 				{
-					if ((index < text.get_length() - 1) &&
-						(strchr("vldmtr ", text[index + 1])))
+					path = p_path;
+					path += child->get_name();
+
+					switch (child->get_type())
 					{
-						codepage = encodings[0].nCodePage;
-						fallback = false;
+					case contextmenu_item_node::TYPE_POPUP:
+						path += "/";
+
+						if (find_context_command_recur(p_command, path, child, p_out))
+							return true;
+
+						break;
+
+					case contextmenu_item_node::TYPE_COMMAND:
+						if (match_menu_command(path, p_command))
+						{
+							p_out = child;
+							return true;
+						}
+						break;
 					}
 				}
-				if (fallback)
-					codepage = encodings[1].nCodePage;
-				found = true;
-			}
-			break;
 			}
 		}
 
-		if (!found)
-			codepage = encodings[0].nCodePage;
-		// ASCII?
-		if (codepage == 20127)
-			codepage = 0;
+		return false;
+	}
 
-		return codepage;
+	bool match_menu_command(const pfc::string_base& path, const char* command, t_size command_len)
+	{
+		if (command_len == ~0)
+			command_len = strlen(command);
+
+		if (command_len == path.get_length())
+		{
+			if (_stricmp(command, path) == 0)
+				return true;
+		}
+		else if (command_len < path.get_length())
+		{
+			if ((path[path.get_length() - command_len - 1] == '/') &&
+				(_stricmp(path.get_ptr() + path.get_length() - command_len, command) == 0))
+				return true;
+		}
+
+		return false;
+	}
+
+	bool read_album_art_into_bitmap(const album_art_data_ptr& data, Gdiplus::Bitmap** bitmap)
+	{
+		*bitmap = NULL;
+
+		if (!data.is_valid())
+			return false;
+
+		// Using IStream
+		IStreamPtr is;
+		Gdiplus::Bitmap* bmp = NULL;
+		bool ret = true;
+		HRESULT hr = CreateStreamOnHGlobal(NULL, TRUE, &is);
+
+		if (SUCCEEDED(hr) && bitmap && is)
+		{
+			ULONG bytes_written = 0;
+
+			hr = is->Write(data->get_ptr(), data->get_size(), &bytes_written);
+
+			if (SUCCEEDED(hr) && bytes_written == data->get_size())
+			{
+				bmp = new Gdiplus::Bitmap(is, PixelFormat32bppPARGB);
+
+				if (!ensure_gdiplus_object(bmp))
+				{
+					ret = false;
+					if (bmp) delete bmp;
+					bmp = NULL;
+				}
+			}
+		}
+
+		*bitmap = bmp;
+		return ret;
 	}
 
 	bool read_file(const char* path, pfc::string_base& content)
@@ -478,8 +568,9 @@ namespace helpers
 		return status;
 	}
 
-	bool write_file(const char* path, const pfc::string_base& content)
+	bool write_file(const char* path, const pfc::string_base& content, bool write_bom)
 	{
+		int offset = write_bom ? 3 : 0;
 		HANDLE hFile = uCreateFile(path, GENERIC_READ | GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
 
 		if (hFile == INVALID_HANDLE_VALUE)
@@ -487,7 +578,7 @@ namespace helpers
 			return false;
 		}
 
-		HANDLE hFileMapping = uCreateFileMapping(hFile, NULL, PAGE_READWRITE, 0, content.get_length() + 3, NULL);
+		HANDLE hFileMapping = uCreateFileMapping(hFile, NULL, PAGE_READWRITE, 0, content.get_length() + offset, NULL);
 
 		if (hFileMapping == NULL)
 		{
@@ -504,14 +595,264 @@ namespace helpers
 			return false;
 		}
 
-		const BYTE utf8_bom[] = { 0xef, 0xbb, 0xbf };
-		memcpy(pAddr, utf8_bom, 3);
-		memcpy(pAddr + 3, content.get_ptr(), content.get_length());
+		if (write_bom)
+		{
+			const BYTE utf8_bom[] = { 0xef, 0xbb, 0xbf };
+			memcpy(pAddr, utf8_bom, 3);
+		}
+		memcpy(pAddr + offset, content.get_ptr(), content.get_length());
 
 		UnmapViewOfFile(pAddr);
 		CloseHandle(hFileMapping);
 		CloseHandle(hFile);
 		return true;
+	}
+
+	const GUID convert_artid_to_guid(int art_id)
+	{
+		const GUID* guids[] = {
+			&album_art_ids::cover_front,
+			&album_art_ids::cover_back,
+			&album_art_ids::disc,
+			&album_art_ids::icon,
+			&album_art_ids::artist,
+		};
+
+		if (0 <= art_id && art_id < _countof(guids))
+		{
+			return *guids[art_id];
+		}
+		else
+		{
+			return *guids[0];
+		}
+	}
+
+	int get_encoder_clsid(const WCHAR* format, CLSID* pClsid)
+	{
+		int ret = -1;
+
+		UINT num = 0;
+		UINT size = 0;
+
+		Gdiplus::ImageCodecInfo* pImageCodecInfo = NULL;
+
+		Gdiplus::GetImageEncodersSize(&num, &size);
+		if (size == 0) return ret;
+
+		pImageCodecInfo = (Gdiplus::ImageCodecInfo*)(malloc((size_t)size));
+		if (pImageCodecInfo == NULL) return ret;
+
+		Gdiplus::GetImageEncoders(num, size, pImageCodecInfo);
+
+		for (UINT j = 0; j < num; ++j)
+		{
+			if (wcscmp(pImageCodecInfo[j].MimeType, format) == 0)
+			{
+				*pClsid = pImageCodecInfo[j].Clsid;
+				ret = j;
+				break;
+			}
+		}
+
+		free(pImageCodecInfo);
+		return ret;
+	}
+
+	int get_text_height(HDC hdc, const wchar_t* text, int len)
+	{
+		SIZE size;
+		GetTextExtentPoint32(hdc, text, len, &size);
+		return size.cy;
+	}
+
+	int get_text_width(HDC hdc, LPCTSTR text, int len)
+	{
+		SIZE size;
+
+		GetTextExtentPoint32(hdc, text, len, &size);
+		return size.cx;
+	}
+
+	int is_wrap_char(wchar_t current, wchar_t next)
+	{
+		if (iswpunct(current))
+			return false;
+
+		if (next == '\0')
+			return true;
+
+		if (iswspace(current))
+			return true;
+
+		int currentAlphaNum = iswalnum(current);
+
+		if (currentAlphaNum)
+		{
+			if (iswpunct(next))
+				return false;
+		}
+
+		return currentAlphaNum == 0 || iswalnum(next) == 0;
+	}
+
+	pfc::string8 iterator_to_string8(json::iterator j)
+	{
+		std::string value = j.value().type() == json::value_t::string ? j.value().get<std::string>() : j.value().dump();
+		return value.c_str();
+	}
+
+	pfc::string8_fast get_fb2k_component_path()
+	{
+		pfc::string8_fast path;
+
+		uGetModuleFileName(core_api::get_my_instance(), path);
+		path = pfc::string_directory(path);
+		path.add_char('\\');
+		return path;
+	}
+
+	pfc::string8_fast get_fb2k_path()
+	{
+		pfc::string8_fast path;
+
+		uGetModuleFileName(NULL, path);
+		path = pfc::string_directory(path);
+		path.add_string("\\");
+
+		return path;
+	}
+
+	pfc::string8_fast get_profile_path()
+	{
+		pfc::string8_fast path;
+
+		path = file_path_display(core_api::get_profile_path());
+		path.fix_dir_separator('\\');
+
+		return path;
+	}
+
+	unsigned detect_charset(const char* fileName)
+	{
+		_COM_SMARTPTR_TYPEDEF(IMultiLanguage2, IID_IMultiLanguage2);
+		IMultiLanguage2Ptr lang;
+		HRESULT hr;
+
+		hr = lang.CreateInstance(CLSID_CMultiLanguage, NULL, CLSCTX_INPROC_SERVER);
+		// mlang is not working...
+		if (FAILED(hr)) return 0;
+
+		const int maxEncodings = 2;
+		int encodingCount = maxEncodings;
+		DetectEncodingInfo encodings[maxEncodings];
+		pfc::string8_fast text;
+		int textSize = 0;
+
+		try
+		{
+			file_ptr io;
+			abort_callback_dummy dummy;
+			filesystem::g_open_read(io, fileName, dummy);
+			io->read_string_raw(text, dummy);
+			textSize = text.get_length();
+		}
+		catch (...)
+		{
+			return 0;
+		}
+
+		hr = lang->DetectInputCodepage(MLDETECTCP_NONE, 0, const_cast<char *>(text.get_ptr()), &textSize, encodings, &encodingCount);
+
+		if (FAILED(hr)) return 0;
+
+		unsigned codepage = 0;
+		bool found = false;
+
+		// MLang fine tunes
+		if (encodingCount == 2 && encodings[0].nCodePage == 1252)
+		{
+			switch (encodings[1].nCodePage)
+			{
+			case 850:
+			case 65001:
+				found = true;
+				codepage = 65001;
+				break;
+				// DBCS
+			case 932: // shift-jis
+			case 936: // gbk
+			case 949: // korean
+			case 950: // big5
+			{
+				// '¡¯', <= special char
+				// "ve" "d" "ll" "m" 't' 're'
+				bool fallback = true;
+				t_size index;
+				if (index = text.find_first("\x92") != pfc_infinite)
+				{
+					if ((index < text.get_length() - 1) &&
+						(strchr("vldmtr ", text[index + 1])))
+					{
+						codepage = encodings[0].nCodePage;
+						fallback = false;
+					}
+				}
+				if (fallback)
+					codepage = encodings[1].nCodePage;
+				found = true;
+			}
+			break;
+			}
+		}
+
+		if (!found)
+			codepage = encodings[0].nCodePage;
+		// ASCII?
+		if (codepage == 20127)
+			codepage = 0;
+
+		return codepage;
+	}
+
+	unsigned get_colour_from_variant(VARIANT v)
+	{
+		return (v.vt == VT_R8) ? static_cast<unsigned>(v.dblVal) : v.lVal;
+	}
+
+	void build_mainmenu_group_map(pfc::map_t<GUID, mainmenu_group::ptr>& p_group_guid_text_map)
+	{
+		service_enum_t<mainmenu_group> e;
+		service_ptr_t<mainmenu_group> ptr;
+
+		while (e.next(ptr))
+		{
+			GUID guid = ptr->get_guid();
+			p_group_guid_text_map.find_or_add(guid) = ptr;
+		}
+	}
+
+	void estimate_line_wrap(HDC hdc, const wchar_t* text, int len, int width, pfc::list_t<wrapped_item>& out)
+	{
+		for (;;)
+		{
+			const wchar_t* next = wcschr(text, '\n');
+			if (next == NULL)
+			{
+				estimate_line_wrap_recur(hdc, text, wcslen(text), width, out);
+				break;
+			}
+
+			const wchar_t* walk = next;
+
+			while (walk > text && walk[-1] == '\r')
+			{
+				--walk;
+			}
+
+			estimate_line_wrap_recur(hdc, text, walk - text, width, out);
+			text = next + 1;
+		}
 	}
 
 	void estimate_line_wrap_recur(HDC hdc, const wchar_t* text, int len, int width, pfc::list_t<wrapped_item>& out)
@@ -572,189 +913,6 @@ namespace helpers
 		}
 	}
 
-	extern void estimate_line_wrap(HDC hdc, const wchar_t* text, int len, int width, pfc::list_t<wrapped_item>& out)
-	{
-		for (;;)
-		{
-			const wchar_t* next = wcschr(text, '\n');
-			if (next == NULL)
-			{
-				estimate_line_wrap_recur(hdc, text, wcslen(text), width, out);
-				break;
-			}
-
-			const wchar_t* walk = next;
-
-			while (walk > text && walk[-1] == '\r')
-			{
-				--walk;
-			}
-
-			estimate_line_wrap_recur(hdc, text, walk - text, width, out);
-			text = next + 1;
-		}
-	}
-
-	const GUID convert_artid_to_guid(int art_id)
-	{
-		const GUID* guids[] = {
-			&album_art_ids::cover_front,
-			&album_art_ids::cover_back,
-			&album_art_ids::disc,
-			&album_art_ids::icon,
-			&album_art_ids::artist,
-		};
-
-		if (0 <= art_id && art_id < _countof(guids))
-		{
-			return *guids[art_id];
-		}
-		else
-		{
-			return *guids[0];
-		}
-	}
-
-	bool read_album_art_into_bitmap(const album_art_data_ptr& data, Gdiplus::Bitmap** bitmap)
-	{
-		*bitmap = NULL;
-
-		if (!data.is_valid())
-			return false;
-
-		// Using IStream
-		IStreamPtr is;
-		Gdiplus::Bitmap* bmp = NULL;
-		bool ret = true;
-		HRESULT hr = CreateStreamOnHGlobal(NULL, TRUE, &is);
-
-		if (SUCCEEDED(hr) && bitmap && is)
-		{
-			ULONG bytes_written = 0;
-
-			hr = is->Write(data->get_ptr(), data->get_size(), &bytes_written);
-
-			if (SUCCEEDED(hr) && bytes_written == data->get_size())
-			{
-				bmp = new Gdiplus::Bitmap(is, PixelFormat32bppPARGB);
-
-				if (!ensure_gdiplus_object(bmp))
-				{
-					ret = false;
-					if (bmp) delete bmp;
-					bmp = NULL;
-				}
-			}
-		}
-
-		*bitmap = bmp;
-		return ret;
-	}
-
-	IGdiBitmap* query_album_art(album_art_extractor_instance_v2::ptr extractor, GUID& what, VARIANT_BOOL no_load = VARIANT_FALSE, pfc::string_base* image_path_ptr = NULL)
-	{
-		abort_callback_dummy abort;
-		album_art_data_ptr data = extractor->query(what, abort);
-		Gdiplus::Bitmap* bitmap = NULL;
-		IGdiBitmap* ret = NULL;
-
-		if (!no_load && helpers::read_album_art_into_bitmap(data, &bitmap))
-		{
-			ret = new com_object_impl_t<GdiBitmap>(bitmap);
-		}
-
-		if (image_path_ptr && (no_load || ret))
-		{
-			album_art_path_list::ptr pathlist = extractor->query_paths(what, abort);
-
-			if (pathlist->get_count() > 0)
-			{
-				image_path_ptr->set_string(pathlist->get_path(0));
-			}
-		}
-
-		return ret;
-	}
-
-	HRESULT get_album_art_v2(const metadb_handle_ptr& handle, IGdiBitmap** pp, int art_id, VARIANT_BOOL need_stub, VARIANT_BOOL no_load, pfc::string_base* image_path_ptr)
-	{
-		if (handle.is_empty() || !pp) return E_POINTER;
-
-		GUID what = helpers::convert_artid_to_guid(art_id);
-		abort_callback_dummy abort;
-		static_api_ptr_t<album_art_manager_v2> aamv2;
-		album_art_extractor_instance_v2::ptr aaeiv2;
-		IGdiBitmap* ret = NULL;
-
-		try
-		{
-			aaeiv2 = aamv2->open(pfc::list_single_ref_t<metadb_handle_ptr>(handle), pfc::list_single_ref_t<GUID>(what), abort);
-
-			ret = query_album_art(aaeiv2, what, no_load, image_path_ptr);
-		}
-		catch (std::exception&)
-		{
-			if (need_stub)
-			{
-				album_art_extractor_instance_v2::ptr aaeiv2_stub = aamv2->open_stub(abort);
-
-				try
-				{
-					album_art_data_ptr data = aaeiv2_stub->query(what, abort);
-
-					ret = query_album_art(aaeiv2_stub, what, no_load, image_path_ptr);
-				}
-				catch (std::exception&)
-				{
-				}
-			}
-		}
-
-		*pp = ret;
-		return S_OK;
-	}
-
-	HRESULT get_album_art_embedded(BSTR rawpath, IGdiBitmap** pp, int art_id)
-	{
-		if (!pp) return E_POINTER;
-
-		service_enum_t<album_art_extractor> e;
-		service_ptr_t<album_art_extractor> ptr;
-		pfc::stringcvt::string_utf8_from_wide urawpath(rawpath);
-		pfc::string_extension ext(urawpath);
-		abort_callback_dummy abort;
-		IGdiBitmap* ret = NULL;
-
-		while (e.next(ptr))
-		{
-			if (ptr->is_our_path(urawpath, ext))
-			{
-				album_art_extractor_instance_ptr aaep;
-				GUID what = helpers::convert_artid_to_guid(art_id);
-
-				try
-				{
-					aaep = ptr->open(NULL, urawpath, abort);
-
-					Gdiplus::Bitmap* bitmap = NULL;
-					album_art_data_ptr data = aaep->query(what, abort);
-
-					if (helpers::read_album_art_into_bitmap(data, &bitmap))
-					{
-						ret = new com_object_impl_t<GdiBitmap>(bitmap);
-						break;
-					}
-				}
-				catch (std::exception&)
-				{
-				}
-			}
-		}
-
-		*pp = ret;
-		return S_OK;
-	}
-
 	void album_art_async::run()
 	{
 		pfc::string8_fast image_path;
@@ -777,7 +935,7 @@ namespace helpers
 			handle = new com_object_impl_t<FbMetadbHandle>(m_handle);
 		}
 
-		t_param param(handle, m_art_id, bitmap, file_path_display(image_path));
+		t_param param(handle, m_art_id, bitmap, image_path.is_empty() ? "" : file_path_display(image_path));
 
 		SendMessage(m_notify_hwnd, CALLBACK_UWM_GETALBUMARTASYNCDONE, 0, (LPARAM)&param);
 	}
@@ -800,66 +958,5 @@ namespace helpers
 		t_param param(reinterpret_cast<unsigned>(this), bitmap, m_path);
 
 		SendMessage(m_notify_hwnd, CALLBACK_UWM_LOADIMAGEASYNCDONE, 0, (LPARAM)&param);
-	}
-
-	HBITMAP create_hbitmap_from_gdiplus_bitmap(Gdiplus::Bitmap* bitmap_ptr)
-	{
-		BITMAP bm;
-		Gdiplus::Rect rect;
-		Gdiplus::BitmapData bmpdata;
-		HBITMAP hBitmap;
-
-		rect.X = rect.Y = 0;
-		rect.Width = bitmap_ptr->GetWidth();
-		rect.Height = bitmap_ptr->GetHeight();
-
-		if (bitmap_ptr->LockBits(&rect, Gdiplus::ImageLockModeRead, PixelFormat32bppPARGB, &bmpdata) != Gdiplus::Ok)
-		{
-			// Error
-			return NULL;
-		}
-
-		bm.bmType = 0;
-		bm.bmWidth = bmpdata.Width;
-		bm.bmHeight = bmpdata.Height;
-		bm.bmWidthBytes = bmpdata.Stride;
-		bm.bmPlanes = 1;
-		bm.bmBitsPixel = 32;
-		bm.bmBits = bmpdata.Scan0;
-
-		hBitmap = CreateBitmapIndirect(&bm);
-		bitmap_ptr->UnlockBits(&bmpdata);
-		return hBitmap;
-	}
-
-	int get_encoder_clsid(const WCHAR* format, CLSID* pClsid)
-	{
-		int ret = -1;
-
-		UINT num = 0;
-		UINT size = 0;
-
-		Gdiplus::ImageCodecInfo* pImageCodecInfo = NULL;
-
-		Gdiplus::GetImageEncodersSize(&num, &size);
-		if (size == 0) return ret;
-
-		pImageCodecInfo = (Gdiplus::ImageCodecInfo*)(malloc((size_t)size));
-		if (pImageCodecInfo == NULL) return ret;
-
-		Gdiplus::GetImageEncoders(num, size, pImageCodecInfo);
-
-		for (UINT j = 0; j < num; ++j)
-		{
-			if (wcscmp(pImageCodecInfo[j].MimeType, format) == 0)
-			{
-				*pClsid = pImageCodecInfo[j].Clsid;
-				ret = j;
-				break;
-			}
-		}
-
-		free(pImageCodecInfo);
-		return ret;
 	}
 }

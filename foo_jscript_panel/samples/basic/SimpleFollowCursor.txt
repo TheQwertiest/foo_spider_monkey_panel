@@ -21,8 +21,6 @@ function on_playlist_switch() {
 
 function on_paint(gr) {
 	if (handle) {
-		// RGB function is defined in docs\helpers.txt
-		// DT_* are defined in docs\flags.txt
 		gr.gdiDrawText(tfo.EvalWithMetadb(handle), font, RGB(0, 0, 0), 0, 0, window.Width, window.Height, DT_VCENTER | DT_CENTER | DT_END_ELLIPSIS | DT_CALCRECT | DT_NOPREFIX);
 	}
 }

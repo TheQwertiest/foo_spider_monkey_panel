@@ -15,7 +15,7 @@ static const IDToNameEntry g_idToNames[] =
 {
 	DEFINE_ID_NAME_MAP_ENTRY(on_always_on_top_changed),
 	DEFINE_ID_NAME_MAP_ENTRY(on_char),
-	DEFINE_ID_NAME_MAP_ENTRY(on_colors_changed),
+	DEFINE_ID_NAME_MAP_ENTRY(on_colours_changed),
 	DEFINE_ID_NAME_MAP_ENTRY(on_cursor_follow_playback_changed),
 	DEFINE_ID_NAME_MAP_ENTRY(on_drag_drop),
 	DEFINE_ID_NAME_MAP_ENTRY(on_drag_enter),
@@ -69,7 +69,6 @@ static const IDToNameEntry g_idToNames[] =
 	DEFINE_ID_NAME_MAP_ENTRY(on_playlist_stop_after_current_changed),
 	DEFINE_ID_NAME_MAP_ENTRY(on_playlist_switch),
 	DEFINE_ID_NAME_MAP_ENTRY(on_playlists_changed),
-	DEFINE_ID_NAME_MAP_ENTRY(on_refresh_background_done),
 	DEFINE_ID_NAME_MAP_ENTRY(on_script_unload),
 	DEFINE_ID_NAME_MAP_ENTRY(on_selection_changed),
 	DEFINE_ID_NAME_MAP_ENTRY(on_size),

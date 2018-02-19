@@ -8,7 +8,7 @@
 // @import "%fb2k_component_path%samples\complete\js\text.js"
 // ==/PREPROCESSOR==
 
-var panel = new _.panel('Last.fm Bio');
+var panel = new _.panel();
 var lastfm = new _.lastfm();
 var text = new _.text('lastfm_bio', LM, TM, 0, 0);
 
@@ -23,8 +23,8 @@ function on_size() {
 
 function on_paint(gr) {
 	panel.paint(gr);
-	gr.FillSolidRect(0, 0, panel.w, TM, panel.colours.header);
 	gr.GdiDrawText(text.header_text(), panel.fonts.title, panel.colours.highlight, LM, 0, panel.w - (LM * 2), TM, LEFT);
+	gr.DrawLine(text.x, text.y + 1, text.x + text.w, text.y + 1, 1, panel.colours.highlight);
 	text.paint(gr);
 }
 

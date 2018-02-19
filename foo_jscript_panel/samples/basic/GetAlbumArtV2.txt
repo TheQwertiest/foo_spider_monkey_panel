@@ -5,12 +5,12 @@
 // @import "%fb2k_component_path%docs\helpers.txt"
 // ==/PREPROCESSOR==
 
+// Nothing will show until you start playing a new track
+
 var g_img = null;
 var ww = 0, wh = 0;
-on_playback_new_track();
 
 function on_paint(gr) {
-	// RGB function is defined in docs\helpers.txt
 	gr.FillSolidRect(0, 0, ww, wh, RGB(255, 255, 255));
 	if (g_img) {
 		// Keep aspect ratio
@@ -31,13 +31,11 @@ function on_size() {
 	wh = window.Height;
 }
 
-function on_playback_new_track() {
-	var handle = fb.GetNowPlaying();
-	if (!handle)
+function on_playback_new_track(metadb) {
+	if (!metadb)
 		return;
 	if (g_img)
 		g_img.Dispose();
-	// AlbumArtId.front is defined in docs\flags.txt
-	g_img = utils.GetAlbumArtV2(handle, AlbumArtId.front);
+	g_img = utils.GetAlbumArtV2(metadb, AlbumArtId.front);
 	window.Repaint();
 }

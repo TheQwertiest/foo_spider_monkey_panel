@@ -13,7 +13,7 @@ var g_font = gdi.Font('Segoe UI', 14, 1);
 var btn_down = null;
 var cur_btn = null;
 
-var ww, hh;
+var ww, wh;
 
 function SampleButton(x, y, w, h, caption, func, tiptext) {
 	// 'Constructor' stuff
@@ -104,14 +104,13 @@ function on_mouse_lbtn_up(x, y) {
 function on_paint(gr) {
 	gr.SetTextRenderingHint(5); // clear type
 	gr.SetSmoothingMode(4); // Anti-Alias
-	// RGBA function is defined in docs\helpers.txt
-	gr.FillGradRect(0, 0, ww, 63, 90, RGBA(151, 180, 202, 128), RGBA(0, 0, 0, 0));
+	gr.FillSolidRect(0, 0, ww, wh, utils.GetSysColour(15));
 	buttonsDraw(gr);
 }
 
 function on_size() {
 	ww = window.Width;
-	hh = window.Height;
+	wh = window.Height;
 
 	var buttonY = 5;
 

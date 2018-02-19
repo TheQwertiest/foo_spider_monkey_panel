@@ -46,8 +46,6 @@ function SimpleButton(x, y, w, h, text, fonClick, state) {
 		}
 
 		g_theme.DrawThemeBackground(gr, this.x, this.y, this.w, this.h);
-		// RGB function is defined in docs\helpers.txt
-		// DT_* are defined in docs\flags.txt
 		gr.GdiDrawText(this.text, g_font, RGB(0,0,0), this.x, this.y, this.w, this.h, DT_CENTER| DT_VCENTER | DT_CALCRECT | DT_NOPREFIX);
 	}
 
@@ -71,7 +69,7 @@ function chooseButton(x, y) {
 }
 
 function on_paint(gr) {
-	gr.FillSolidRect(0, 0, window.Width, window.Height, utils.GetSysColor(15));
+	gr.FillSolidRect(0, 0, window.Width, window.Height, utils.GetSysColour(15));
 	drawAllButtons(gr);
 }
 

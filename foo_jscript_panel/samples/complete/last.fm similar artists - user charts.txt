@@ -1,5 +1,5 @@
 // ==PREPROCESSOR==
-// @name "Last.fm Similar Artists / User Charts"
+// @name "Last.fm Similar Artists + User Charts"
 // @author "marc2003"
 // @import "%fb2k_component_path%samples\complete\js\lodash.min.js"
 // @import "%fb2k_component_path%samples\complete\js\helpers.js"
@@ -8,10 +8,7 @@
 // @import "%fb2k_component_path%samples\complete\js\lastfm.js"
 // ==/PREPROCESSOR==
 
-// Requires the "Guifx v2 Transports.ttf" font which can be downloaded from
-// http://blog.guifx.com/2009/04/02/guifx-v2-transport-font/
-
-var panel = new _.panel('Last.fm Similar Artists / User Charts');
+var panel = new _.panel();
 var lastfm = new _.lastfm();
 var list = new _.list('lastfm_info', LM, TM, 0, 0);
 
@@ -30,8 +27,8 @@ function on_size() {
 
 function on_paint(gr) {
 	panel.paint(gr);
-	gr.FillSolidRect(0, 0, panel.w, TM, panel.colours.header);
 	gr.GdiDrawText(list.header_text(), panel.fonts.title, panel.colours.highlight, LM, 0, panel.w - (LM * 2), TM, LEFT);
+	gr.DrawLine(list.x, list.y + 1, list.x + list.w, list.y + 1, 1, panel.colours.highlight);
 	list.paint(gr);
 }
 

@@ -5,28 +5,16 @@
 // @import "%fb2k_component_path%docs\helpers.txt"
 // ==/PREPROCESSOR==
 
-var tooltip = window.CreateTooltip();
-// buttons is defined in docs\helpers.txt
-var b = new buttons();
-
-// button is defined in docs\helpers.txt
-// arguments are x, y, w, h, {normal image, hover image is optional}, function, tooltip
-b.buttons.menu = new button(5, 5, 32, 32, {normal : fb.ComponentPath + 'samples\\basic\\images\\cog.png'}, function () { menu(); }, 'Menu');
+var img = gdi.Image(fb.ComponentPath + 'samples\\basic\\images\\cog.png');
 
 function on_paint(gr) {
-	b.paint(gr);
-}
-
-function on_mouse_move(x, y) {
-	b.move(x, y);
+	gr.DrawImage(img, 0, 0, img.Width, img.Height, 0, 0, img.Width, img.Height);
 }
 
 function on_mouse_lbtn_up(x, y) {
-	b.lbtn_up(x, y);
-}
-
-function on_mouse_leave(x, y) {
-	b.leave();
+	if (x > 0 && x < img.Width && y > 0 && y < img.Height) {
+		menu();
+	}
 }
 
 function menu() {
@@ -74,8 +62,8 @@ function menu() {
 	menuman6.BuildMenu(child6, 1201, 100);
 	
 	contextman.InitNowPlaying();
-	contextman.BuildMenu(child7, 1301, -1);
-	ret = basemenu.TrackPopupMenu(b.buttons.menu.x, b.buttons.menu.y);
+	contextman.BuildMenu(child7, 1301);
+	ret = basemenu.TrackPopupMenu(0, 0);
 
 	switch (true) {
 	case(ret >= 1 && ret < 201):

@@ -2,7 +2,6 @@ var g_script_version = "mod";
 var g_LDT = DT_LEFT | DT_VCENTER | DT_CALCRECT | DT_NOPREFIX | DT_END_ELLIPSIS;
 var g_middle_clicked = false;
 var g_middle_click_timer = false;
-var g_queue_origin = -1;
 var g_textbox_tabbed = false;
 var g_leave = false;
 var g_init_on_size = false;
@@ -318,7 +317,6 @@ cList = {
 	scroll_div: 2,
 	borderWidth: Math.ceil(cRow.headerBar_h * g_dpi / 100 / 14),
 	beam_timer: false,
-	addToQueue_timer: false,
 	enableExtraLine: window.GetProperty("SYSTEM.Enable Extra Line", true)
 };
 
@@ -754,8 +752,8 @@ function update_statistics() {
 		handles.Dispose();
 		cStats.waiting_for_writing = false;
 		// report to console
-		fb.trace("--- WSH Statistics ---");
-		fb.trace("--- Track updated: \"" + cStats.handle.Path + "\"");
+		console.log("--- WSH Statistics ---");
+		console.log("--- Track updated: \"" + cStats.handle.Path + "\"");
 	};
 };
 
@@ -853,10 +851,7 @@ function resize_panels() {
 
 //=================================================// Init
 function on_init() {
-	// clear queue and queue playlist
-	plman.FlushPlaybackQueue();
-	ClearQueuePlaylist();
-
+	plman.SetActivePlaylistContext();
 	// check properties
 	if (!properties.showgroupheaders) {
 		cGroup.collapsed_height = 0;
@@ -1155,26 +1150,6 @@ function on_paint(gr) {
 			p.settings && p.settings.draw(gr);
 		};
 	};
-
-	// Draw dragged items and collapsable playlist manager panel
-	/*
-	var dragDeltaX = Math.abs(mouse_x - dragndrop.x);
-	var dragDeltaY = Math.abs(mouse_y - dragndrop.y);
-	if(dragndrop.moved && (dragDeltaX > 5 || dragDeltaY > 5)) {
-	var dragIcon_w = 16;
-	var dragIcon_h = 16;
-	var linew = 1;
-	gr.FillSolidRect(mouse_x - Math.round(dragIcon_w/2), mouse_y - Math.round(dragIcon_w/2), dragIcon_w, dragIcon_w, RGB(0,0,0));
-	gr.FillSolidRect(mouse_x - Math.round(dragIcon_w/2) + linew, mouse_y - Math.round(dragIcon_w/2) + linew, dragIcon_w-linew*2, dragIcon_w-linew*2, RGB(255,255,255));
-	gr.FillSolidRect(mouse_x - Math.round(dragIcon_w/2) - 04, mouse_y - Math.round(dragIcon_w/2) - 04, dragIcon_w, dragIcon_w, RGB(0,0,0));
-	gr.FillSolidRect(mouse_x - Math.round(dragIcon_w/2) + linew - 04, mouse_y - Math.round(dragIcon_w/2) + linew - 04, dragIcon_w-linew*2, dragIcon_w-linew*2, RGB(255,255,255));
-	};
-	 */
-
-	//g_repaint++;
-	//var d2 = new Date();
-	//var t2 = d2.getSeconds()*1000 + d2.getMilliseconds();
-	//fb.trace(d2+"_"+t2+" /repaint Done # "+g_repaint);
 
 	if (properties.showDPI) {
 		gr.FillSolidRect(ww - 33, 5, 30, 15, g_color_normal_bg);
@@ -1935,7 +1910,6 @@ function on_item_focus_change(playlist, from, to) {
 		};
 		if (playlist == p.list.playlist) {
 			p.list.focusedTrackId = to;
-			plman.SetActivePlaylistContext();
 			var center_focus_item = p.list.isFocusedItemVisible();
 
 			if (properties.autocollapse) { // && !center_focus_item
@@ -2284,14 +2258,11 @@ function on_key_down(vkey) {
 					};
 					break;
 				case VK_RETURN:
-					// play/enqueue focused item
-					if (!isQueuePlaylistActive()) {
-						var cmd = properties.defaultPlaylistItemAction;
-						if (cmd == "Play") {
-							plman.ExecutePlaylistDefaultAction(act_pls, p.list.focusedTrackId);
-						} else {
-							fb.RunContextCommandWithMetadb(cmd, p.list.handleList.Item(p.list.focusedTrackId), 0);
-						};
+					var cmd = properties.defaultPlaylistItemAction;
+					if (cmd == "Play") {
+						plman.ExecutePlaylistDefaultAction(act_pls, p.list.focusedTrackId);
+					} else {
+						fb.RunContextCommandWithMetadb(cmd, p.list.handleList.Item(p.list.focusedTrackId), 0);
 					};
 					break;
 				case VK_END:
@@ -2311,30 +2282,8 @@ function on_key_down(vkey) {
 				case VK_DELETE:
 					if (!plman.IsAutoPlaylist(act_pls)) {
 						plman.UndoBackup(act_pls);
-						if (isQueuePlaylistActive()) {
-							var affected_items = Array();
-							var first_focus_id = null;
-							var next_focus_id = null;
-							for (var k = 0; k < p.list.count; k++) {
-								if (plman.IsPlaylistItemSelected(act_pls, k)) {
-									affected_items.push(k);
-									if (first_focus_id == null)
-										fist_focus_id = k;
-									next_focus_id = k + 1;
-								};
-							};
-							if (next_focus_id >= p.list.count) {
-								next_focus_id = first_focus_id;
-							};
-							if (next_focus_id != null) {
-								plman.SetPlaylistFocusItem(act_pls, next_focus_id);
-								plman.SetPlaylistSelectionSingle(act_pls, next_focus_id, true);
-							};
-							plman.RemoveItemsFromPlaybackQueue(affected_items);
-						} else {
-							plman.RemovePlaylistSelection(act_pls, false);
-							plman.SetPlaylistSelectionSingle(act_pls, plman.GetPlaylistFocusItemIndex(act_pls), true);
-						};
+						plman.RemovePlaylistSelection(act_pls, false);
+						plman.SetPlaylistSelectionSingle(act_pls, plman.GetPlaylistFocusItemIndex(act_pls), true);
 					};
 					break;
 				};
@@ -2411,31 +2360,8 @@ function on_key_down(vkey) {
 						if (!plman.IsAutoPlaylist(act_pls)) {
 							plman.UndoBackup(act_pls);
 							clipboard.selection = plman.GetPlaylistSelectedItems(plman.ActivePlaylist);
-
-							if (isQueuePlaylistActive()) {
-								var affected_items = Array();
-								var first_focus_id = null;
-								var next_focus_id = null;
-								for (var k = 0; k < p.list.count; k++) {
-									if (plman.IsPlaylistItemSelected(act_pls, k)) {
-										affected_items.push(k);
-										if (first_focus_id == null)
-											fist_focus_id = k;
-										next_focus_id = k + 1;
-									};
-								};
-								if (next_focus_id >= p.list.count) {
-									next_focus_id = first_focus_id;
-								};
-								if (next_focus_id != null) {
-									plman.SetPlaylistFocusItem(act_pls, next_focus_id);
-									plman.SetPlaylistSelectionSingle(act_pls, next_focus_id, true);
-								};
-								plman.RemoveItemsFromPlaybackQueue(affected_items);
-							} else {
-								plman.RemovePlaylistSelection(act_pls, false);
-								plman.SetPlaylistSelectionSingle(act_pls, plman.GetPlaylistFocusItemIndex(act_pls), true);
-							};
+							plman.RemovePlaylistSelection(act_pls, false);
+							plman.SetPlaylistSelectionSingle(act_pls, plman.GetPlaylistFocusItemIndex(act_pls), true);
 						};
 					};
 					if (vkey == 67) { // CTRL+C
@@ -2453,7 +2379,7 @@ function on_key_down(vkey) {
 										plman.InsertPlaylistItems(plman.ActivePlaylist, 0, clipboard.selection);
 									};
 								} catch (e) {
-									fb.trace("WSH Playlist WARNING: Clipboard can't be pasted, invalid clipboard content.");
+									console.log("WSH Playlist WARNING: Clipboard can't be pasted, invalid clipboard content.");
 								};
 							};
 						};
@@ -2656,8 +2582,8 @@ function on_playback_time(time) {
 			cStats.waiting_for_writing = true;
 			cStats.handle = g_metadb;
 			// report to console
-			fb.trace("--- WSH Statistics ---");
-			fb.trace("--- Queued for track: \"" + cStats.handle.Path + "\"");
+			console.log("--- WSH Statistics ---");
+			console.log("--- Queued for track: \"" + cStats.handle.Path + "\"");
 		};
 	};
 
@@ -2676,7 +2602,7 @@ function on_focus(is_focused) {
 		p.playlistManager.inputbox.on_focus(is_focused);
 	};
 	if (is_focused) {
-		g_selHolder = fb.AcquireUiSelectionHolder();
+		plman.SetActivePlaylistContext();
 		g_selHolder.SetPlaylistSelectionTracking();
 	} else {
 		p.playlistManager.inputboxID = -1;
@@ -2690,7 +2616,7 @@ function on_font_changed() {
 	full_repaint();
 };
 
-function on_colors_changed() {
+function on_colours_changed() {
 	get_colors();
 	get_images();
 	p.topBar.setButtons();
@@ -2728,7 +2654,7 @@ function get_font() {
 		g_fsize = g_font.Size;
 		g_fstyle = g_font.Style;
 	} catch (e) {
-		fb.trace("WSH report: Unable to use your default font. Using Segoe UI instead.");
+		console.log("WSH report: Unable to use your default font. Using Segoe UI instead.");
 		g_fname = "segoe ui";
 		g_fsize = 12;
 		g_fstyle = 0;
@@ -2783,10 +2709,10 @@ function get_font() {
 function get_colors() {
 	var arr;
 	// get some system colors
-	g_syscolor_window_bg = utils.GetSysColor(COLOR_WINDOW);
-	g_syscolor_highlight = utils.GetSysColor(COLOR_HIGHLIGHT);
-	g_syscolor_button_bg = utils.GetSysColor(COLOR_BTNFACE);
-	g_syscolor_button_txt = utils.GetSysColor(COLOR_BTNTEXT);
+	g_syscolor_window_bg = utils.GetSysColour(COLOR_WINDOW);
+	g_syscolor_highlight = utils.GetSysColour(COLOR_HIGHLIGHT);
+	g_syscolor_button_bg = utils.GetSysColour(COLOR_BTNFACE);
+	g_syscolor_button_txt = utils.GetSysColour(COLOR_BTNTEXT);
 
 	arr = window.GetProperty("SYSTEM.COLOR TEXT NORMAL", "180-180-180").split("-");
 	g_color_selected_txt = window.GetProperty("SYSTEM.COLOR TEXT SELECTED", "200-210-255");
@@ -2809,17 +2735,17 @@ function get_colors() {
 	if (!properties.enableCustomColors) {
 		// get UI colors set in UI Preferences if no custom color set
 		if (g_instancetype == 0) {
-			g_color_normal_txt = window.GetColorCUI(ColorTypeCUI.text);
-			g_color_selected_txt = window.GetColorCUI(ColorTypeCUI.selection_text);
-			g_color_normal_bg = window.GetColorCUI(ColorTypeCUI.background);
-			g_color_selected_bg = window.GetColorCUI(ColorTypeCUI.selection_background);
-			g_color_highlight = window.GetColorCUI(ColorTypeCUI.active_item_frame);
+			g_color_normal_txt = window.GetColourCUI(ColorTypeCUI.text);
+			g_color_selected_txt = window.GetColourCUI(ColorTypeCUI.selection_text);
+			g_color_normal_bg = window.GetColourCUI(ColorTypeCUI.background);
+			g_color_selected_bg = window.GetColourCUI(ColorTypeCUI.selection_background);
+			g_color_highlight = window.GetColourCUI(ColorTypeCUI.active_item_frame);
 		} else if (g_instancetype == 1) {
-			g_color_normal_txt = window.GetColorDUI(ColorTypeDUI.text);
-			g_color_selected_txt = window.GetColorDUI(ColorTypeDUI.selection);
-			g_color_normal_bg = window.GetColorDUI(ColorTypeDUI.background);
+			g_color_normal_txt = window.GetColourDUI(ColorTypeDUI.text);
+			g_color_selected_txt = window.GetColourDUI(ColorTypeDUI.selection);
+			g_color_normal_bg = window.GetColourDUI(ColorTypeDUI.background);
 			g_color_selected_bg = g_color_selected_txt;
-			g_color_highlight = window.GetColorDUI(ColorTypeDUI.highlight);
+			g_color_highlight = window.GetColourDUI(ColorTypeDUI.highlight);
 		};
 	};
 
@@ -3030,223 +2956,8 @@ function FormatWallpaper(image, iw, ih, interpolation_mode, display_mode, angle,
 };
 
 //=================================================// Queue Playlist features
-function isQueuePlaylistActive() {
-	var queue_pl_idx = isQueuePlaylistPresent();
-	if (queue_pl_idx < 0) {
-		return false;
-	} else if (plman.ActivePlaylist == queue_pl_idx) {
-		return true;
-	} else {
-		return false;
-	};
-};
-
-function isQueuePlaylistPresent() {
-	for (var i = 0; i < plman.PlaylistCount; i++) {
-		if (plman.GetPlaylistName(i) == "Queue Content")
-			return i;
-	};
-	return -1;
-};
-
-function SetPlaylistQueue() {
-	var total_pl = plman.PlaylistCount;
-	var queue_pl_idx = isQueuePlaylistPresent();
-	if (queue_pl_idx < 0) {
-		return true;
-	} else {
-		var total_in_pls = plman.PlaylistItemCount(queue_pl_idx);
-		if (total_in_pls > 0) {
-			var affected_items = Array();
-			for (var i = 0; i < total_in_pls; i++) {
-				affected_items.push(i);
-			};
-			plman.SetPlaylistSelection(queue_pl_idx, affected_items, true);
-			plman.RemovePlaylistSelection(queue_pl_idx);
-		};
-	};
-	var queue_total = plman.GetPlaybackQueueCount();
-	var vbarr = plman.GetPlaybackQueueContents();
-	var arr = vbarr.toArray();
-	var q_handlelist = plman.GetPlaylistSelectedItems(-1);
-	for (var j = 0; j < queue_total; j++) {
-		q_handlelist.Add(arr[j].Handle);
-	};
-	plman.InsertPlaylistItems(queue_pl_idx, j, q_handlelist, false);
-};
-
-function ShowPlaylistQueue(focus_id) {
-	var total_pl = plman.PlaylistCount;
-	var queue_pl_idx = isQueuePlaylistPresent();
-	if (queue_pl_idx < 0) {
-		plman.CreatePlaylist(total_pl, "Queue Content");
-		queue_pl_idx = total_pl;
-		plman.ActivePlaylist = queue_pl_idx;
-	} else {
-		plman.ActivePlaylist = queue_pl_idx;
-		fb.ClearPlaylist();
-	};
-	var queue_total = plman.GetPlaybackQueueCount();
-	var vbarr = plman.GetPlaybackQueueContents();
-	var arr = vbarr.toArray();
-	var q_handlelist = plman.GetPlaylistSelectedItems(-1);
-	for (var i = 0; i < queue_total; i++) {
-		q_handlelist.Add(arr[i].Handle);
-	};
-	plman.InsertPlaylistItems(queue_pl_idx, i, q_handlelist, false);
-	plman.SetPlaylistFocusItem(queue_pl_idx, 0);
-};
-
-function ClearQueuePlaylist() {
-	var current_pl = plman.ActivePlaylist;
-	var total_pl = plman.PlaylistCount;
-	var queue_pl_idx = isQueuePlaylistPresent();
-	if (queue_pl_idx >= 0) {
-		plman.ActivePlaylist = queue_pl_idx;
-		plman.RemovePlaylist(queue_pl_idx);
-		//fb.ClearPlaylist();
-		plman.ActivePlaylist = current_pl < plman.PlaylistCount ? current_pl : current_pl - 1;
-	};
-};
-
-function CheckPlaylistQueue() {
-	var current = plman.ActivePlaylist;
-	var total_pl = plman.PlaylistCount;
-	var queue_pl_idx = isQueuePlaylistPresent();
-	if (queue_pl_idx < 0) {
-		plman.CreatePlaylist(total_pl, "Queue Content");
-		queue_pl_idx = total_pl;
-	} else {
-		plman.RemovePlaylist(queue_pl_idx);
-		plman.CreatePlaylist(queue_pl_idx, "Queue Content");
-	};
-	var queue_total = plman.GetPlaybackQueueCount();
-	var vbarr = plman.GetPlaybackQueueContents();
-	var arr = vbarr.toArray();
-	var q_handlelist = plman.GetPlaylistSelectedItems(-1);
-	for (var i = 0; i < queue_total; i++) {
-		q_handlelist.Add(arr[i].Handle);
-	};
-	plman.InsertPlaylistItems(queue_pl_idx, i, q_handlelist, false);
-	plman.SetPlaylistFocusItem(queue_pl_idx, 0);
-};
-
 function on_playback_queue_changed(origin) {
-	g_queue_origin = origin;
-
-	if (!cList.addToQueue_timer) {
-
-		g_avoid_on_playlists_changed = true;
-		g_avoid_on_playlist_items_added = true;
-		g_avoid_on_playlist_items_removed = true;
-
-		switch (g_queue_origin) {
-		case 0: // changed_user_added
-			// Prepare/Clear Queue playlist
-			var current = plman.ActivePlaylist;
-			var total_pl = plman.PlaylistCount;
-			var queue_pl_idx = isQueuePlaylistPresent();
-			if (queue_pl_idx < 0) {
-				plman.CreatePlaylist(total_pl, "Queue Content");
-				queue_pl_idx = total_pl;
-			} else {
-				if (current == queue_pl_idx) {
-					fb.ClearPlaylist();
-				} else {
-					plman.RemovePlaylist(queue_pl_idx);
-					plman.CreatePlaylist(queue_pl_idx, "Queue Content");
-				};
-			};
-			// fill it
-			var queue_total = plman.GetPlaybackQueueCount();
-			var vbarr = plman.GetPlaybackQueueContents();
-			var arr = vbarr.toArray();
-			var q_handlelist = plman.GetPlaylistSelectedItems(-1);
-			for (var i = 0; i < queue_total; i++) {
-				q_handlelist.Add(arr[i].Handle);
-			};
-			plman.InsertPlaylistItems(queue_pl_idx, 0, q_handlelist, false);
-			break;
-		case 1: // changed_user_removed
-			// clear Queue playlist
-			var current = plman.ActivePlaylist;
-			var total_pl = plman.PlaylistCount;
-			var queue_pl_idx = isQueuePlaylistPresent();
-			if (queue_pl_idx < 0) {
-				return false;
-			} else {
-				if (current == queue_pl_idx) {
-					fb.ClearPlaylist();
-				} else {
-					plman.RemovePlaylist(queue_pl_idx);
-					plman.CreatePlaylist(queue_pl_idx, "Queue Content");
-				};
-			};
-			// fill it
-			var queue_total = plman.GetPlaybackQueueCount();
-			if (queue_total > 0) {
-				var vbarr = plman.GetPlaybackQueueContents();
-				var arr = vbarr.toArray();
-				var q_handlelist = plman.GetPlaylistSelectedItems(-1);
-				for (var i = 0; i < queue_total; i++) {
-					q_handlelist.Add(arr[i].Handle);
-				};
-				plman.InsertPlaylistItems(queue_pl_idx, 0, q_handlelist, false);
-			} else { // remove queue playlist!
-				plman.RemovePlaylist(queue_pl_idx);
-			};
-			break;
-		case 2: // changed_playback_advance
-			// clear Queue playlist
-			var current = plman.ActivePlaylist;
-			var total_pl = plman.PlaylistCount;
-			var queue_pl_idx = isQueuePlaylistPresent();
-			if (queue_pl_idx < 0) {
-				return false;
-			} else {
-				var queue_total = plman.GetPlaybackQueueCount();
-				if (queue_total > 0) {
-					if (current == queue_pl_idx) {
-						fb.ClearPlaylist();
-					} else {
-						plman.RemovePlaylist(queue_pl_idx);
-						plman.CreatePlaylist(queue_pl_idx, "Queue Content");
-					};
-					// fill it
-					var queue_total = plman.GetPlaybackQueueCount();
-					var vbarr = plman.GetPlaybackQueueContents();
-					var arr = vbarr.toArray();
-					var q_handlelist = plman.GetPlaylistSelectedItems(-1);
-					for (var i = 0; i < queue_total; i++) {
-						q_handlelist.Add(arr[i].Handle);
-					};
-					plman.InsertPlaylistItems(queue_pl_idx, 0, q_handlelist, false);
-				} else { // remove queue playlist!
-					plman.RemovePlaylist(queue_pl_idx);
-				};
-			};
-			break;
-		};
-
-		if (isQueuePlaylistActive()) {
-			ShowPlaylistQueue(0);
-			full_repaint();
-		} else {
-			SetPlaylistQueue();
-			//CheckPlaylistQueue();
-		};
-
-		g_avoid_on_playlists_changed = false;
-		g_avoid_on_playlist_items_added = false;
-		g_avoid_on_playlist_items_removed = false;
-
-		cList.addToQueue_timer = window.SetTimeout(function () {
-				window.ClearTimeout(cList.addToQueue_timer);
-				cList.addToQueue_timer = false;
-			}, 250);
-
-	};
-
+	full_repaint();
 };
 
 //=================================================// Drag'n'Drop Callbacks
@@ -3591,7 +3302,6 @@ function on_script_unload() {
 	g_timer1 = false;
 	g_timer2 && window.ClearInterval(g_timer2);
 	g_timer2 = false;
-	ClearQueuePlaylist();
 	// update statisitics if required (closing foobar2000 on track's playing without stoping the track)
 	update_statistics();
 };

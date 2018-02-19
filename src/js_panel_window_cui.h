@@ -3,8 +3,8 @@
 class js_panel_window_cui : public js_panel_window, public uie::window, public columns_ui::fonts::common_callback, public columns_ui::colours::common_callback
 {
 protected:
-	virtual DWORD GetColorCUI(unsigned type, const GUID& guid);
-	virtual DWORD GetColorDUI(unsigned type);
+	virtual DWORD GetColourCUI(unsigned type, const GUID& guid);
+	virtual DWORD GetColourDUI(unsigned type);
 	virtual HFONT GetFontCUI(unsigned type, const GUID& guid);
 	virtual HFONT GetFontDUI(unsigned type);
 	virtual HWND create_or_transfer_window(HWND parent, const uie::window_host_ptr& host, const ui_helpers::window_position_t& p_position);

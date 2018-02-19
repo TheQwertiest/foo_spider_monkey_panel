@@ -115,6 +115,16 @@ _.mixin({
 	cc : function (name) {
 		return utils.CheckComponent(name, true);
 	},
+	chrToImg : function (chr, colour) {
+		var size = 96;
+		var temp_bmp = gdi.CreateImage(size, size);
+		var temp_gr = temp_bmp.GetGraphics();
+		temp_gr.SetTextRenderingHint(4);
+		temp_gr.DrawString(chr, fontawesome, colour, 0, 0, size, size, SF_CENTRE);
+		temp_bmp.ReleaseGraphics(temp_gr);
+		temp_gr = null;
+		return temp_bmp;
+	},
 	createFolder : function (folder) {
 		if (!_.isFolder(folder)) {
 			fso.CreateFolder(folder);
@@ -187,6 +197,11 @@ _.mixin({
 		if (_.isFile(file)) {
 			WshShell.Run('explorer /select,' + _.q(file));
 		}
+	},
+	fbDate : function (ts) {
+		// ES5 only
+		var tmp = new Date(ts * 1000).toISOString();
+		return tmp.substring(0, 10) + ' ' + tmp.substring(11, 19);
 	},
 	fbEscape : function (value) {
 		return value.replace(/'/g, "''").replace(/[\(\)\[\],$]/g, "'$&'");
@@ -293,11 +308,11 @@ _.mixin({
 		}
 	},
 	input : function (prompt, title, value) {
-		var p = prompt.replace(/"/g, _.q(' + Chr(34) + ')).replace(/\n/g, _.q(' + Chr(13) + '));
-		var t = title.replace(/"/g, _.q(' + Chr(34) + '));
-		var v = value.replace(/"/g, _.q(' + Chr(34) + '));
+		var p = prompt.toString().replace(/"/g, _.q(' + Chr(34) + ')).replace(/\n/g, _.q(' + Chr(13) + '));
+		var t = title.toString().replace(/"/g, _.q(' + Chr(34) + '));
+		var v = value.toString().replace(/"/g, _.q(' + Chr(34) + '));
 		var tmp = vb.eval('InputBox(' + _.q(p) + ', ' + _.q(t) + ', ' + _.q(v) + ')');
-		return _.isString(tmp) ? tmp.trim() : value;
+		return _.isString(tmp) ? _.trim(tmp) : value;
 	},
 	isFile : function (file) {
 		return _.isString(file) ? fso.FileExists(file) : false;
@@ -375,10 +390,6 @@ _.mixin({
 		s4.AppendTo(m1, MF_STRING, 'Playback');
 		s5.AppendTo(m1, MF_STRING, 'Library');
 		s6.AppendTo(m1, MF_STRING, 'Help');
-		if (_.cc('foo_ui_hacks') && _.cc('foo_ui_columns')) {
-			m1.AppendMenuSeparator();
-			m1.AppendMenuItem(MF_STRING, 1, 'Switch UI');
-		}
 		var idx = m1.TrackPopupMenu(x, y, flags);
 		switch (true) {
 		case idx == 0:
@@ -422,24 +433,24 @@ _.mixin({
 	open : function (file) {
 		return utils.ReadTextFile(file);
 	},
-	p : function (a, b) {
-		Object.defineProperty(this, _.isBoolean(b) ? 'enabled' : 'value', {
-			get : function () {
-				return this.b;
-			},
-			set : function (value) {
-				this.b = value;
-				window.SetProperty(this.a, this.b);
-			}
-		});
-		
-		this.toggle = function () {
-			this.b = !this.b;
-			window.SetProperty(this.a, this.b);
+	p : function (property, default_) {
+		this.set = function (value) {
+			this.value = value;
+			window.SetProperty(this.property, this.value);
 		}
 		
-		this.a = a;
-		this.b = window.GetProperty(a, b);
+		this.toggle = function () {
+			this.enabled = !this.enabled;
+			window.SetProperty(this.property, this.enabled);
+		}
+		
+		this.property = property;
+		this.default_ = default_;
+		if (_.isBoolean(this.default_)) {
+			this.enabled = window.GetProperty(this.property, this.default_);
+		} else {
+			this.value = window.GetProperty(this.property, this.default_);
+		}
 	},
 	q : function (value) {
 		return '"' + value + '"';
@@ -469,24 +480,19 @@ _.mixin({
 		} catch (e) {
 		}
 	},
-	save : function (value, file) {
-		try {
-			if (!_.isFolder(utils.FileTest(file, 'split').toArray()[0])) {
-				return false;
-			}
-			var ts = fso.OpenTextFile(file, 2, true, -1);
-			ts.WriteLine(value);
-			ts.Close();
-			return true;
-		} catch (e) {
-			return false;
+	save : function (file, value) {
+		if (!_.isFolder(utils.FileTest(file, 'split').toArray()[0])) {
+			return;
+		}
+		if (!utils.WriteTextFile(file, value)) {
+			console.log('Error saving to ' + file);
 		}
 	},
 	sb : function (t, x, y, w, h, v, fn) {
 		this.paint = function (gr, colour) {
 			gr.SetTextRenderingHint(4);
 			if (this.v()) {
-				gr.DrawString(this.t, this.guifx_font, colour, this.x, this.y, this.w, this.h, SF_CENTRE);
+				gr.DrawString(this.t, this.font, colour, this.x, this.y, this.w, this.h, SF_CENTRE);
 			}
 		}
 		
@@ -522,7 +528,7 @@ _.mixin({
 		this.h = h;
 		this.v = v;
 		this.fn = fn;
-		this.guifx_font = gdi.Font(guifx.font, this.h, 0);
+		this.font = gdi.Font('FontAwesome', this.h);
 	},
 	setClipboardData : function (value) {
 		doc.parentWindow.clipboardData.setData('Text', value.toString());
@@ -545,7 +551,7 @@ _.mixin({
 		doc.open();
 		var div = doc.createElement('div');
 		div.innerHTML = value.toString().replace(/<[Pp][^>]*>/g, '').replace(/<\/[Pp]>/g, '<br>').replace(/\n/g, '<br>');
-		var tmp = div.innerText.trim();
+		var tmp = _.trim(div.innerText);
 		doc.close();
 		return tmp;
 	},
@@ -635,35 +641,49 @@ var ONE_DAY = 86400000;
 var ONE_WEEK = 604800000;
 
 var DEFAULT_ARTIST = '$meta(artist,0)';
+var N = window.Name + ':';
 
-var DPI = WshShell.RegRead('HKCU\\Control Panel\\Desktop\\WindowMetrics\\AppliedDPI');
+try {
+	var DPI = WshShell.RegRead('HKCU\\Control Panel\\Desktop\\WindowMetrics\\AppliedDPI');
+} catch (e) {
+	var DPI = 96;
+}
 
 var LM = _.scale(5);
-var TM = _.scale(16);
+var TM = _.scale(20);
 
 var tooltip = window.CreateTooltip('Segoe UI', _.scale(12));
 tooltip.SetMaxWidth(1200);
 
 var folders = {};
-folders.images = fb.ComponentPath + 'samples\\complete\\images\\';
-folders.settings = fb.ProfilePath + 'js_settings\\';
+folders.home = fb.ComponentPath + 'samples\\complete\\';
+folders.images = folders.home + 'images\\';
 folders.data = fb.ProfilePath + 'js_data\\';
 folders.artists = folders.data + 'artists\\';
 folders.lastfm = folders.data + 'lastfm\\';
 
-var console = {
-	pre : '',
-	log : function (text) {
-		fb.Trace(this.pre + text);
-	}
-};
-
-var guifx = {
-	font : 'Guifx v2 Transports',
-	up : '.',
-	down : ',',
-	close : 'x',
-	star : 'b'
+var fontawesome = gdi.Font('FontAwesome', 48);
+var chars = {
+	up : '\uF077',
+	down : '\uF078',
+	close : '\uF00D',
+	rating_on : '\uF005',
+	rating_off : '\uF006',
+	heart_on : '\uF004',
+	heart_off : '\uF08A',
+	prev : '\uF049',
+	next : '\uF050',
+	play : '\uF04B',
+	pause : '\uF04C',
+	stop : '\uF04D',
+	preferences : '\uF013',
+	search : '\uF002',
+	console : '\uF120',
+	info : '\uF05A',
+	audioscrobbler : '\uF202',
+	minus : '\uF068',
+	music : '\uF001',
+	menu : '\uF0C9'
 };
 
 var popup = {

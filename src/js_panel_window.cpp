@@ -22,10 +22,11 @@ HRESULT js_panel_window::script_invoke_v(int callbackId, VARIANTARG* argv, UINT 
 	return m_script_host->InvokeCallback(callbackId, argv, argc, ret);
 }
 
-void js_panel_window::update_script(const char* code)
+void js_panel_window::update_script(const char* name, const char* code)
 {
-	if (code)
+	if (name && code)
 	{
+		get_script_engine() = name;
 		get_script_code() = code;
 	}
 
@@ -49,7 +50,7 @@ LRESULT js_panel_window::on_message(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 		// Interfaces
 		m_gr_wrap.Attach(new com_object_impl_t<GdiGraphics>(), false);
 		panel_manager::instance().add_window(m_hwnd);
-		delay_loader::g_enqueue(new delay_script_init_action(m_hwnd));
+		script_load();
 	}
 	return 0;
 
@@ -192,7 +193,7 @@ LRESULT js_panel_window::on_message(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 
 	case WM_SETFOCUS:
 		{
-			PreserveSelection();
+			m_selection_holder = ui_selection_manager::get()->acquire();
 
 			VARIANTARG args[1];
 
@@ -218,8 +219,8 @@ LRESULT js_panel_window::on_message(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 		on_always_on_top_changed(wp);
 		return 0;
 
-	case CALLBACK_UWM_COLORS_CHANGED:
-		on_colors_changed();
+	case CALLBACK_UWM_COLOURS_CHANGED:
+		on_colours_changed();
 		return 0;
 
 	case CALLBACK_UWM_CURSOR_FOLLOW_PLAYBACK:
@@ -255,15 +256,15 @@ LRESULT js_panel_window::on_message(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 		return 0;
 
 	case CALLBACK_UWM_ON_LIBRARY_ITEMS_ADDED:
-		on_library_items_added();
+		on_library_items_added(wp);
 		return 0;
 
 	case CALLBACK_UWM_ON_LIBRARY_ITEMS_CHANGED:
-		on_library_items_changed();
+		on_library_items_changed(wp);
 		return 0;
 
 	case CALLBACK_UWM_ON_LIBRARY_ITEMS_REMOVED:
-		on_library_items_removed();
+		on_library_items_removed(wp);
 		return 0;
 
 	case CALLBACK_UWM_ON_MAIN_MENU:
@@ -363,15 +364,11 @@ LRESULT js_panel_window::on_message(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 		return 0;
 
 	case UWM_SCRIPT_DISABLED_BEFORE:
-		// Show error message
-		popup_msg::g_show(
-			pfc::string_formatter()
-			<< "Panel ("
-			<< ScriptInfo().build_info_string()
-			<< "): Refuse to load script due to critical error last run,"
-			<< " please check your script and apply it again.",
-			JSP_NAME,
-			popup_message::icon_error);
+		{
+			pfc::string_formatter formatter;
+			formatter << "Panel (" << ScriptInfo().build_info_string() << "): Refuse to load script due to critical error last run, please check your script and apply it again.",
+			popup_msg::g_show(formatter, JSP_NAME);
+		}
 		return 0;
 
 	case UWM_SCRIPT_ERROR:
@@ -386,20 +383,12 @@ LRESULT js_panel_window::on_message(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 		}
 		return 0;
 
-	case UWM_SCRIPT_INIT:
-		script_load();
-		return 0;
-
 	case UWM_SCRIPT_TERM:
 		script_unload();
 		return 0;
 
 	case UWM_REFRESHBK:
 		Redraw();
-		return 0;
-
-	case UWM_REFRESHBKDONE:
-		on_refresh_background_done();
 		return 0;
 
 	case UWM_SHOWCONFIGURE:
@@ -419,7 +408,7 @@ LRESULT js_panel_window::on_message(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 		return 0;
 
 	case UWM_TIMER:
-		m_host_timer_dispatcher.invoke(wp);
+		HostTimerDispatcher::Get().onInvokeMessage(wp);
 		return 0;
 	}
 
@@ -480,8 +469,6 @@ void js_panel_window::execute_context_menu_command(int id, int id_base)
 
 bool js_panel_window::script_load()
 {
-	m_host_timer_dispatcher.setWindow(m_hwnd);
-
 	pfc::hires_timer timer;
 	bool result = true;
 	timer.start();
@@ -530,7 +517,7 @@ bool js_panel_window::script_load()
 		SendMessage(m_hwnd, UWM_SIZE, 0, 0);
 
 		// Show init message
-		console::formatter() << JSP_NAME " ("
+		FB2K_console_formatter() << JSP_NAME " v" JSP_VERSION " ("
 			<< ScriptInfo().build_info_string()
 			<< "): initialised in "
 			<< (int)(timer.query() * 1000)
@@ -597,8 +584,8 @@ void js_panel_window::on_always_on_top_changed(WPARAM wp)
 
 void js_panel_window::on_changed_sorted(WPARAM wp)
 {
-	simple_callback_data_scope_releaser<nonautoregister_callbacks::t_on_changed_sorted_data> data(wp);
-	FbMetadbHandleList* handles = new com_object_impl_t<FbMetadbHandleList>(data->m_items_sorted);
+	simple_callback_data_scope_releaser<t_on_data> data(wp);
+	FbMetadbHandleList* handles = new com_object_impl_t<FbMetadbHandleList>(data->m_items);
 
 	VARIANTARG args[2];
 	args[0].vt = VT_BOOL;
@@ -611,9 +598,9 @@ void js_panel_window::on_changed_sorted(WPARAM wp)
 		handles->Release();
 }
 
-void js_panel_window::on_colors_changed()
+void js_panel_window::on_colours_changed()
 {
-	script_invoke_v(CallbackIds::on_colors_changed);
+	script_invoke_v(CallbackIds::on_colours_changed);
 }
 
 void js_panel_window::on_context_menu(int x, int y)
@@ -628,7 +615,6 @@ void js_panel_window::on_context_menu(int x, int y)
 	DestroyMenu(menu);
 }
 
-
 void js_panel_window::on_cursor_follow_playback_changed(WPARAM wp)
 {
 	VARIANTARG args[1];
@@ -641,7 +627,6 @@ void js_panel_window::on_font_changed()
 {
 	script_invoke_v(CallbackIds::on_font_changed);
 }
-
 
 void js_panel_window::on_get_album_art_done(LPARAM lp)
 {
@@ -703,19 +688,46 @@ void js_panel_window::on_load_image_done(LPARAM lp)
 	script_invoke_v(CallbackIds::on_load_image_done, args, _countof(args));
 }
 
-void js_panel_window::on_library_items_added()
+void js_panel_window::on_library_items_added(WPARAM wp)
 {
-	script_invoke_v(CallbackIds::on_library_items_added);
+	simple_callback_data_scope_releaser<t_on_data> data(wp);
+	FbMetadbHandleList* handles = new com_object_impl_t<FbMetadbHandleList>(data->m_items);
+
+	VARIANTARG args[1];
+	args[0].vt = VT_DISPATCH;
+	args[0].pdispVal = handles;
+	script_invoke_v(CallbackIds::on_library_items_added, args, _countof(args));
+
+	if (handles)
+		handles->Release();
 }
 
-void js_panel_window::on_library_items_changed()
+void js_panel_window::on_library_items_changed(WPARAM wp)
 {
-	script_invoke_v(CallbackIds::on_library_items_changed);
+	simple_callback_data_scope_releaser<t_on_data> data(wp);
+	FbMetadbHandleList* handles = new com_object_impl_t<FbMetadbHandleList>(data->m_items);
+
+	VARIANTARG args[1];
+	args[0].vt = VT_DISPATCH;
+	args[0].pdispVal = handles;
+	script_invoke_v(CallbackIds::on_library_items_changed, args, _countof(args));
+
+	if (handles)
+		handles->Release();
 }
 
-void js_panel_window::on_library_items_removed()
+void js_panel_window::on_library_items_removed(WPARAM wp)
 {
-	script_invoke_v(CallbackIds::on_library_items_removed);
+	simple_callback_data_scope_releaser<t_on_data> data(wp);
+	FbMetadbHandleList* handles = new com_object_impl_t<FbMetadbHandleList>(data->m_items);
+
+	VARIANTARG args[1];
+	args[0].vt = VT_DISPATCH;
+	args[0].pdispVal = handles;
+	script_invoke_v(CallbackIds::on_library_items_removed, args, _countof(args));
+
+	if (handles)
+		handles->Release();
 }
 
 void js_panel_window::on_main_menu(WPARAM wp)
@@ -1175,11 +1187,6 @@ void js_panel_window::on_playlists_changed()
 	script_invoke_v(CallbackIds::on_playlists_changed);
 }
 
-void js_panel_window::on_refresh_background_done()
-{
-	script_invoke_v(CallbackIds::on_refresh_background_done);
-}
-
 void js_panel_window::on_selection_changed()
 {
 	script_invoke_v(CallbackIds::on_selection_changed);
@@ -1216,6 +1223,6 @@ void js_panel_window::script_unload()
 		m_is_droptarget_registered = false;
 	}
 
-	m_host_timer_dispatcher.reset();
+	HostTimerDispatcher::Get().onPanelUnload(m_hwnd);
 	m_selection_holder.release();
 }

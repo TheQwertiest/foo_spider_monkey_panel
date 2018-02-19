@@ -137,78 +137,78 @@ _.mixin({
 			switch (this.mode) {
 			case 'allmusic':
 				this.cb = _.getClipboardData();
-				panel.m.AppendMenuItem(panel.metadb && _.isString(this.cb) && _.tagged(this.artist) && _.tagged(this.album) ? MF_STRING : MF_GRAYED, 5000, 'Paste text from clipboard');
+				panel.m.AppendMenuItem(panel.metadb && _.isString(this.cb) && _.tagged(this.artist) && _.tagged(this.album) ? MF_STRING : MF_GRAYED, 1000, 'Paste text from clipboard');
 				panel.m.AppendMenuSeparator();
 				break;
 			case 'lastfm_bio':
-				panel.m.AppendMenuItem(panel.metadb ? MF_STRING : MF_GRAYED, 5100, 'Force update');
+				panel.m.AppendMenuItem(panel.metadb ? MF_STRING : MF_GRAYED, 1100, 'Force update');
 				panel.m.AppendMenuSeparator();
 				_.forEach(this.langs, function (item, i) {
-					panel.s10.AppendMenuItem(MF_STRING, i + 5110, item);
+					panel.s10.AppendMenuItem(MF_STRING, i + 1110, item);
 				});
-				panel.s10.CheckMenuRadioItem(5110, 5121, this.properties.lang.value + 5110);
+				panel.s10.CheckMenuRadioItem(1110, 1121, this.properties.lang.value + 1110);
 				panel.s10.AppendTo(panel.m, MF_STRING, 'Last.fm language');
 				panel.m.AppendMenuSeparator();
 				break;
 			case 'text_reader':
-				panel.m.AppendMenuItem(MF_STRING, 5200, 'Refresh');
+				panel.m.AppendMenuItem(MF_STRING, 1200, 'Refresh');
 				panel.m.AppendMenuSeparator();
-				panel.m.AppendMenuItem(MF_STRING, 5210, 'Custom title...');
-				panel.m.AppendMenuItem(MF_STRING, 5220, 'Custom path...');
+				panel.m.AppendMenuItem(MF_STRING, 1210, 'Custom title...');
+				panel.m.AppendMenuItem(MF_STRING, 1220, 'Custom path...');
 				panel.m.AppendMenuSeparator();
-				panel.m.AppendMenuItem(MF_STRING, 5230, 'Fixed width font');
-				panel.m.CheckMenuItem(5230, this.properties.fixed.enabled);
+				panel.m.AppendMenuItem(MF_STRING, 1230, 'Fixed width font');
+				panel.m.CheckMenuItem(1230, this.properties.fixed.enabled);
 				panel.m.AppendMenuSeparator();
 				break;
 			}
-			panel.m.AppendMenuItem(_.isFile(this.filename) || _.isFolder(this.filename) ? MF_STRING : MF_GRAYED, 5999, 'Open containing folder');
+			panel.m.AppendMenuItem(_.isFile(this.filename) || _.isFolder(this.filename) ? MF_STRING : MF_GRAYED, 1999, 'Open containing folder');
 			panel.m.AppendMenuSeparator();
 		}
 		
 		this.rbtn_up_done = function (idx) {
 			switch (idx) {
-			case 5000:
-				_.save(this.cb, this.filename);
+			case 1000:
+				_.save(this.filename, this.cb);
 				this.artist = '';
 				panel.item_focus_change();
 				break;
-			case 5100:
+			case 1100:
 				this.get();
 				break;
-			case 5110:
-			case 5111:
-			case 5112:
-			case 5113:
-			case 5114:
-			case 5115:
-			case 5116:
-			case 5117:
-			case 5118:
-			case 5119:
-			case 5120:
-			case 5121:
-				this.properties.lang.value = idx - 5110;
+			case 1110:
+			case 1111:
+			case 1112:
+			case 1113:
+			case 1114:
+			case 1115:
+			case 1116:
+			case 1117:
+			case 1118:
+			case 1119:
+			case 1120:
+			case 1121:
+				this.properties.lang.set(idx - 1110);
 				this.artist = '';
 				panel.item_focus_change();
 				break;
-			case 5200:
+			case 1200:
 				this.filename = '';
 				panel.item_focus_change();
 				break;
-			case 5210:
-				this.properties.title_tf.value = _.input('You can use full title formatting here.', panel.name, this.properties.title_tf.value);
+			case 1210:
+				this.properties.title_tf.set(_.input('You can use full title formatting here.', window.Name, this.properties.title_tf.value));
 				window.Repaint();
 				break;
-			case 5220:
-				this.properties.filename_tf.value = _.input('Use title formatting to specify a path to a text file. eg: $directory_path(%path%)\\info.txt\n\nIf you prefer, you can specify just the path to a folder and the first txt or log file will be used.', panel.name, this.properties.filename_tf.value);
+			case 1220:
+				this.properties.filename_tf.set(_.input('Use title formatting to specify a path to a text file. eg: $directory_path(%path%)\\info.txt\n\nIf you prefer, you can specify just the path to a folder and the first txt or log file will be used.', window.Name, this.properties.filename_tf.value));
 				panel.item_focus_change();
 				break;
-			case 5230:
+			case 1230:
 				this.properties.fixed.toggle();
 				this.update();
 				window.RepaintRect(this.x, this.y, this.w, this.h);
 				break;
-			case 5999:
+			case 1999:
 				if (_.isFile(this.filename)) {
 					_.explorer(this.filename);
 				} else {
@@ -276,7 +276,7 @@ _.mixin({
 					if (this.xmlhttp.status == 200) {
 						this.success(f);
 					} else {
-						console.log('HTTP error: ' + this.xmlhttp.status);
+						console.log(N, 'HTTP error:', this.xmlhttp.status);
 					}
 				}
 			}, this);
@@ -292,8 +292,8 @@ _.mixin({
 						.map('innerText')
 						.stripTags()
 						.value();
-					console.log(content.length ? 'A review was found and saved.' : 'No review was found on the page for this album.');
-					_.save(content, f);
+					console.log(N, content.length ? 'A review was found and saved.' : 'No review was found on the page for this album.');
+					_.save(f, content);
 					this.artist = '';
 					panel.item_focus_change();
 				} else {
@@ -313,19 +313,19 @@ _.mixin({
 							}, this)
 							.value();
 						if (this.allmusic_url.length) {
-							console.log('A page was found for ' + _.q(this.album) + '. Now checking for review...');
+							console.log(N, 'A page was found for ' + _.q(this.album) + '. Now checking for review...');
 							this.get();
 						} else {
-							console.log('Could not match artist/album on the Allmusic website.');
-							_.save('', f);
+							console.log(N, 'Could not match artist/album on the Allmusic website.');
+							_.save(f, '');
 						}
 					} catch (e) {
-						console.log('Could not parse Allmusic server response.');
+						console.log(N, 'Could not parse Allmusic server response.');
 					}
 				}
 				break;
 			case 'lastfm_bio':
-				_.save(this.xmlhttp.responseText, f);
+				_.save(f, this.xmlhttp.responseText);
 				this.artist = '';
 				panel.item_focus_change();
 				break;
@@ -385,8 +385,8 @@ _.mixin({
 		this.artist = '';
 		this.album = '';
 		this.filename = '';
-		this.up_btn = new _.sb(guifx.up, this.x, this.y, _.scale(12), _.scale(12), _.bind(function () { return this.offset > 0; }, this), _.bind(function () { this.wheel(1); }, this));
-		this.down_btn = new _.sb(guifx.down, this.x, this.y, _.scale(12), _.scale(12), _.bind(function () { return this.offset < this.lines.length - this.rows; }, this), _.bind(function () { this.wheel(-1); }, this));
+		this.up_btn = new _.sb(chars.up, this.x, this.y, _.scale(12), _.scale(12), _.bind(function () { return this.offset > 0; }, this), _.bind(function () { this.wheel(1); }, this));
+		this.down_btn = new _.sb(chars.down, this.x, this.y, _.scale(12), _.scale(12), _.bind(function () { return this.offset < this.lines.length - this.rows; }, this), _.bind(function () { this.wheel(-1); }, this));
 		this.xmlhttp = new ActiveXObject('Microsoft.XMLHTTP');
 		this.properties = {};
 		this.init();

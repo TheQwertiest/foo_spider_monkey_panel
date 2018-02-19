@@ -1,15 +1,13 @@
 // ==PREPROCESSOR==
 // @name "JS Smooth Browser"
-// @version "20151114-1630-340"
-// @author "Br3tt aka Falstaff >> http://br3tt.deviantart.com"
+// @version "2018-mod"
+// @author "Br3tt aka Falstaff"
 // @import "%fb2k_component_path%samples\js-smooth\js\JScommon.js"
 // @import "%fb2k_component_path%samples\js-smooth\js\JSinputbox.js"
 // @import "%fb2k_component_path%samples\js-smooth\js\jssb.js"
 // ==/PREPROCESSOR==
 
 /*
-a jscript for the component "JScript Panel" v1.0.0 or better
-
 [Features]
  * 2 sources possible: library or active playlist (initialy designed as a library browser)
  * 3 columns modes available: albums, artists, genres
@@ -23,22 +21,18 @@ a jscript for the component "JScript Panel" v1.0.0 or better
  * Windows scaling compliant (you can adjust zoom size in real time with CTRL+mousewheel)
  * Custom Panel Colors (in Properties window)
  * ... and more!
-[/Features]
 
 [Requirements]
- * Windows Vista, 7, 8 or 10
- * foobar2000 v1.3 or better >> http://www.foobar2000.org
- * component "JScript Panel" 1.0.0 or better >> https://github.com/19379/foo-jscript-panel/releases
-[/Requirements]
+ * foobar2000 v1.4 or later >> https://www.foobar2000.org
+ * Windows Vista or later.
+ * JScript Panel v2.0.0 or later >> https://github.com/marc2k3/foo_jscript_panel
 
 [Installation]
- * import/paste the main script into a "JScript Panel" instance of your foobar2000 layout (DUI or CUI)
-[/Installation]
+ * import/paste the main JSPlaylist script into a JScript Panel instance of your foobar2000 layout (DUI or CUI)
 
 [Tips]
  * for the ARTIST column mode, to make the disk cache working, artist images path have to be set in window Properties (SHIFT + right click > Properties)
  * Hold SHIFT key + right click to display Configure script and panel Properties entries
- * Always use Jscript9 engine for better performances (choice is to be made when you open the "Configure..." window from a JScript Panel instance (right click)
  * Change colors and fonts in foobar2000 Preferences > DefaultUI or ColumsUI
  * Some minor settings can be changed in window Properties (SHIFT + right click > Properties), use it carefully
  * Use Keyboard for "jumping" to an artist/genre in the library view (incremental search feature like in ELPlaylist)
@@ -46,9 +40,8 @@ a jscript for the component "JScript Panel" v1.0.0 or better
  * CTRL+T to toggle the columns toolbar
  * CTRL+B to toggle the scrollbar
  * Hold CTRL + Mouse Wheel to scale elements (useful for 'retina' screens)
- * Hold SHIFT + Mouse Wheel to scale group header and so the cover art size 
+ * Hold SHIFT + Mouse Wheel to scale group header and so the cover art size
  * F3 key to show now playing track (if present in library and not filtered)
  * F5 key to refresh covers
  * ... etc
-[/Tips]
 */

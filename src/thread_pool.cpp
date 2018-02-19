@@ -211,6 +211,5 @@ void simple_thread_pool::remove_worker_(simple_thread_worker* worker)
 	if (num_workers_ == 0)
 		SetEvent(empty_worker_);
 
-	static_api_ptr_t<main_thread_callback_manager>()->add_callback(
-		new service_impl_t<simple_thread_worker_remover>(worker));
+	main_thread_callback_manager::get()->add_callback(new service_impl_t<simple_thread_worker_remover>(worker));
 }

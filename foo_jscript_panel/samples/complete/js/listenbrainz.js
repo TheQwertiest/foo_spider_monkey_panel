@@ -1,7 +1,10 @@
 _.mixin({
 	listenbrainz : function (x, y, size) {
-		this.playback_new_track = function () {
-			this.metadb = fb.GetNowPlaying();
+		this.playback_new_track = function (metadb) {
+			if (!metadb) {
+				return;
+			}
+			this.metadb = metadb;
 			this.time_elapsed = 0;
 			this.timestamp = _.ts();
 			this.target_time = this.properties.listenbrainz.enabled ? Math.min(Math.ceil(fb.PlaybackLength / 2), 240) : -1;
@@ -24,12 +27,12 @@ _.mixin({
 		
 		this.listen = function (metadb, listen_type) {
 			if (!_.isUUID(this.token)) {
-				return console.log('Token invalid/not set.');
+				return console.log(N, 'Token invalid/not set.');
 			}
 			
 			if (this.properties.library.enabled && !fb.IsMetadbInMediaLibrary(metadb)) {
 				if (listen_type == 'single') {
-					console.log('Skipping... Track not in Media Library.');	
+					console.log(N, 'Skipping... Track not in Media Library.');	
 				}
 				return;
 			}
@@ -38,7 +41,7 @@ _.mixin({
 			
 			if (!tags.artist || !tags.title) {
 				if (listen_type == 'single') {
-					console.log('Artist/title tag missing. Not submitting.');
+					console.log(N, 'Artist/title tag missing. Not submitting.');
 				}
 				return;
 			}
@@ -81,10 +84,10 @@ _.mixin({
 						.value();
 				}
 				
-				console.log('Submitting ' + _.q(tags.artist + ' - ' + tags.title));
+				console.log(N, 'Submitting', _.q(tags.title), 'by', _.q(tags.artist));
 				
 				if (this.properties.show.enabled) {
-					fb.Trace(JSON.stringify(payload, null, 4));
+					console.log(JSON.stringify(payload, null, 4));
 				}
 			}
 			
@@ -114,7 +117,7 @@ _.mixin({
 						if (this.xmlhttp.responseText) {
 							var response = _.jsonParse(this.xmlhttp.responseText);
 							if (response.status == 'ok') {
-								console.log('Playing now notification updated OK!');
+								console.log(N, 'Playing now notification updated OK!');
 							}
 						}
 						break;
@@ -122,27 +125,27 @@ _.mixin({
 						if (this.xmlhttp.responseText) {
 							var response = _.jsonParse(this.xmlhttp.responseText);
 							if (response.status == 'ok') {
-								console.log('Listen submitted OK!');
+								console.log(N, 'Listen submitted OK!');
 								// now would be a good time to retry any listens in the cache
 								if (this.open_cache().length) {
 									this.retry();
 								}
 							} else if (response.code && response.error) {
-								console.log('Error code: ' + response.code);
-								console.log('Error message: ' + response.error);
+								console.log(N, 'Error code:', response.code);
+								console.log(N, 'Error message:', response.error);
 								if (response.code == 400) {
-									console.log('Not caching listen with a 400 response as it is malformed and will get rejected again. See note in main script about reporting errors.');
+									console.log(N, 'Not caching listen with a 400 response as it is malformed and will get rejected again. See note in main script about reporting errors.');
 								} else {
 									this.cache(data);
 								}
 							} else {
-								console.log(this.xmlhttp.responseText);
+								console.log(N, this.xmlhttp.responseText);
 								this.cache(data);
 							}
 						} else {
-							console.log('The server response was empty, status code: ' + this.xmlhttp.status);
+							console.log(N, 'The server response was empty, status code:', this.xmlhttp.status);
 							if (this.xmlhttp.status == 0) {
-								console.log('A possible cause of this may be an invalid authorization token.');
+								console.log(N, 'A possible cause of this may be an invalid authorization token.');
 							}
 							this.cache(data);
 						}
@@ -151,20 +154,20 @@ _.mixin({
 						if (this.xmlhttp.responseText) {
 							var response = _.jsonParse(this.xmlhttp.responseText);
 							if (response.status == 'ok') {
-								console.log(data.payload.length + ' cached listen(s) submitted OK!');
-								_.save(JSON.stringify(_.drop(this.open_cache(), this.max_listens)), this.cache_file);
+								console.log(N, data.payload.length, 'cached listen(s) submitted OK!');
+								_.save(this.cache_file, JSON.stringify(_.drop(this.open_cache(), this.max_listens)));
 								if (this.open_cache().length) {
 									window.SetTimeout(_.bind(function () {
 										this.retry();
 									}, this), 1000);
 								} else {
-									console.log('Cache is now clear!');
+									console.log(N, 'Cache is now clear!');
 								}
 							} else if (response.code == 400) {
 								if (response.error) {
-									console.log(response.error);
+									console.log(N, response.error);
 								}
-								console.log('Cannot retry submitting cache until bad entry is fixed/removed. See note in main script about reporting errors.');
+								console.log(N, 'Cannot retry submitting cache until bad entry is fixed/removed. See note in main script about reporting errors.');
 								this.cache_is_bad = true;
 							}
 						}
@@ -176,9 +179,9 @@ _.mixin({
 		
 		this.cache = function (data) {
 			var tmp = this.open_cache();
-			tmp.unshift(data.payload[0]);
-			console.log('Cache contains ' + tmp.length + ' listen(s).');
-			_.save(JSON.stringify(tmp), this.cache_file);
+			tmp.push(data.payload[0]);
+			console.log(N, 'Cache contains', tmp.length, 'listen(s).');
+			_.save(this.cache_file, JSON.stringify(tmp));
 		}
 		
 		this.open_cache = function () {
@@ -231,7 +234,7 @@ _.mixin({
 			var idx = m.TrackPopupMenu(this.x, this.y + this.size);
 			switch (idx) {
 			case 1:
-				var token = _.input('Enter your token\n\nhttps://listenbrainz.org/user/import', panel.name, this.token);
+				var token = _.input('Enter your token\n\nhttps://listenbrainz.org/user/import', window.Name, this.token);
 				if (token != this.token) {
 					this.token = token;
 					utils.WriteINI(this.ini_file, 'Listenbrainz', 'token', this.token);
@@ -239,7 +242,7 @@ _.mixin({
 				}
 				break;
 			case 2:
-				var username = _.input('Enter your username.', panel.name, this.username);
+				var username = _.input('Enter your username.', window.Name, this.username);
 				if (username != this.username) {
 					this.username = username;
 					utils.WriteINI(this.ini_file, 'Listenbrainz', 'username', this.username);
@@ -271,13 +274,12 @@ _.mixin({
 		}
 		
 		_.createFolder(folders.data);
-		_.createFolder(folders.settings);
 		this.x = x;
 		this.y = y;
 		this.size = size;
 		this.cache_is_bad = false;
 		this.cache_file = folders.data + 'listenbrainz.json';
-		this.ini_file = folders.settings + 'listenbrainz.ini';
+		this.ini_file = folders.data + 'listenbrainz.ini';
 		this.token = utils.ReadINI(this.ini_file, 'Listenbrainz', 'token');
 		this.username = utils.ReadINI(this.ini_file, 'Listenbrainz', 'username');
 		this.xmlhttp = new ActiveXObject('Microsoft.XMLHTTP');

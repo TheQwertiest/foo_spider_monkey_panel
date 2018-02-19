@@ -14,66 +14,40 @@ namespace helpers
 		int width;
 	};
 
+	COLORREF convert_argb_to_colorref(DWORD argb);
+	DWORD convert_colorref_to_argb(DWORD color);
+	IGdiBitmap* query_album_art(album_art_extractor_instance_v2::ptr extractor, GUID& what, VARIANT_BOOL no_load = VARIANT_FALSE, pfc::string_base* image_path_ptr = NULL);
+	HBITMAP create_hbitmap_from_gdiplus_bitmap(Gdiplus::Bitmap* bitmap_ptr);
+	HRESULT get_album_art_embedded(BSTR rawpath, IGdiBitmap** pp, int art_id);
+	HRESULT get_album_art_v2(const metadb_handle_ptr& handle, IGdiBitmap** pp, int art_id, VARIANT_BOOL need_stub, VARIANT_BOOL no_load = VARIANT_FALSE, pfc::string_base* image_path_ptr = NULL);
 	bool execute_context_command_by_name(const char* p_name, metadb_handle_list_cref p_handles, unsigned flags);
 	bool execute_mainmenu_command_by_name(const char* p_name);
-	unsigned detect_charset(const char* fileName);
+	bool execute_mainmenu_command_recur_v2(mainmenu_node::ptr node, pfc::string8_fast path, const char* p_name, t_size p_name_len);
+	bool find_context_command_recur(const char* p_command, pfc::string_base& p_path, contextmenu_node* p_parent, contextmenu_node*& p_out);
+	bool match_menu_command(const pfc::string_base& path, const char* command, t_size command_len = ~0);
+	bool read_album_art_into_bitmap(const album_art_data_ptr& data, Gdiplus::Bitmap** bitmap);
 	bool read_file(const char* path, pfc::string_base& content);
 	bool read_file_wide(unsigned codepage, const wchar_t* path, pfc::array_t<wchar_t>& content);
-	bool write_file(const char* path, const pfc::string_base& content);
-	extern void estimate_line_wrap(HDC hdc, const wchar_t* text, int len, int width, pfc::list_t<wrapped_item>& out);
+	bool write_file(const char* path, const pfc::string_base& content, bool write_bom = true);
 	const GUID convert_artid_to_guid(int art_id);
-	bool read_album_art_into_bitmap(const album_art_data_ptr& data, Gdiplus::Bitmap** bitmap);
-	HRESULT get_album_art_v2(const metadb_handle_ptr& handle, IGdiBitmap** pp, int art_id, VARIANT_BOOL need_stub, VARIANT_BOOL no_load = VARIANT_FALSE, pfc::string_base* image_path_ptr = NULL);
-	HRESULT get_album_art_embedded(BSTR rawpath, IGdiBitmap** pp, int art_id);
-	HBITMAP create_hbitmap_from_gdiplus_bitmap(Gdiplus::Bitmap* bitmap_ptr);
 	int get_encoder_clsid(const WCHAR* format, CLSID* pClsid);
+	int get_text_height(HDC hdc, const wchar_t* text, int len);
+	int get_text_width(HDC hdc, LPCTSTR text, int len);
+	int is_wrap_char(wchar_t current, wchar_t next);
+	pfc::string8 iterator_to_string8(json::iterator j);
+	pfc::string8_fast get_fb2k_component_path();
+	pfc::string8_fast get_fb2k_path();
+	pfc::string8_fast get_profile_path();
+	unsigned detect_charset(const char* fileName);
+	unsigned get_colour_from_variant(VARIANT v);
+	void build_mainmenu_group_map(pfc::map_t<GUID, mainmenu_group::ptr>& p_group_guid_text_map);
+	void estimate_line_wrap(HDC hdc, const wchar_t* text, int len, int width, pfc::list_t<wrapped_item>& out);
+	void estimate_line_wrap_recur(HDC hdc, const wchar_t* text, int len, int width, pfc::list_t<wrapped_item>& out);
 
-	inline pfc::string8 iterator_to_string8(json::iterator j)
+	template <class T>
+	bool ensure_gdiplus_object(T* obj)
 	{
-		std::string value = j.value().type() == json::value_t::string ? j.value().get<std::string>() : j.value().dump();
-		return value.c_str();
-	}
-
-	inline unsigned get_color_from_variant(VARIANT v)
-	{
-		return (v.vt == VT_R8) ? static_cast<unsigned>(v.dblVal) : v.lVal;
-	}
-
-	inline int get_text_width(HDC hdc, LPCTSTR text, int len)
-	{
-		SIZE size;
-
-		GetTextExtentPoint32(hdc, text, len, &size);
-		return size.cx;
-	}
-
-	inline int get_text_height(HDC hdc, const wchar_t* text, int len)
-	{
-		SIZE size;
-		GetTextExtentPoint32(hdc, text, len, &size);
-		return size.cy;
-	}
-
-	inline int is_wrap_char(wchar_t current, wchar_t next)
-	{
-		if (iswpunct(current))
-			return false;
-
-		if (next == '\0')
-			return true;
-
-		if (iswspace(current))
-			return true;
-
-		int currentAlphaNum = iswalnum(current);
-
-		if (currentAlphaNum)
-		{
-			if (iswpunct(next))
-				return false;
-		}
-
-		return currentAlphaNum == 0 || iswalnum(next) == 0;
+		return ((obj) && (obj->GetLastStatus() == Gdiplus::Ok));
 	}
 
 	__declspec(noinline) static bool execute_context_command_by_name_SEH(const char* p_name, metadb_handle_list_cref p_handles, unsigned flags)
@@ -106,57 +80,6 @@ namespace helpers
 		}
 
 		return ret;
-	}
-
-	inline COLORREF convert_argb_to_colorref(DWORD argb)
-	{
-		return RGB(argb >> RED_SHIFT, argb >> GREEN_SHIFT, argb >> BLUE_SHIFT);
-	}
-
-	inline DWORD convert_colorref_to_argb(DWORD color)
-	{
-		// COLORREF : 0x00bbggrr
-		// ARGB : 0xaarrggbb
-		return (GetRValue(color) << RED_SHIFT) |
-			(GetGValue(color) << GREEN_SHIFT) |
-			(GetBValue(color) << BLUE_SHIFT) |
-			0xff000000;
-	}
-
-	template <class T> bool ensure_gdiplus_object(T* obj)
-	{
-		return ((obj) && (obj->GetLastStatus() == Gdiplus::Ok));
-	}
-
-	static pfc::string8_fast get_fb2k_path()
-	{
-		pfc::string8_fast path;
-
-		uGetModuleFileName(NULL, path);
-		path = pfc::string_directory(path);
-		path.add_string("\\");
-
-		return path;
-	}
-
-	static pfc::string8_fast get_fb2k_component_path()
-	{
-		pfc::string8_fast path;
-
-		uGetModuleFileName(core_api::get_my_instance(), path);
-		path = pfc::string_directory(path);
-		path.add_char('\\');
-		return path;
-	}
-
-	static pfc::string8_fast get_profile_path()
-	{
-		pfc::string8_fast path;
-
-		path = file_path_display(core_api::get_profile_path());
-		path.fix_dir_separator('\\');
-
-		return path;
 	}
 
 	class album_art_async : public simple_thread_task
@@ -237,12 +160,12 @@ namespace helpers
 		{
 		}
 
-		void on_completion(const pfc::list_base_const_t<metadb_handle_ptr>& p_items)
+		void on_completion(metadb_handle_list_cref p_items)
 		{
-			bit_array_true selection_them;
-			bit_array_false selection_none;
-			bit_array* select_ptr = &selection_none;
-			static_api_ptr_t<playlist_manager> api;
+			pfc::bit_array_true selection_them;
+			pfc::bit_array_false selection_none;
+			pfc::bit_array* select_ptr = &selection_none;
+			auto api = playlist_manager::get();
 			t_size playlist = m_playlist_idx == -1 ? api->get_active_playlist() : m_playlist_idx;
 
 			if (m_to_select)
@@ -420,7 +343,8 @@ namespace helpers
 		long m_lbound, m_ubound;
 	};
 
-	template <bool managed = false> class com_array_writer
+	template <bool managed = false>
+	class com_array_writer
 	{
 	public:
 		com_array_writer() : m_psa(NULL)
@@ -483,7 +407,7 @@ namespace helpers
 	class com_array_to_bitarray
 	{
 	public:
-		static bool convert(VARIANT items, unsigned bitArrayCount, bit_array_bittable& out, bool& empty)
+		static bool convert(VARIANT items, unsigned bitArrayCount, pfc::bit_array_bittable& out, bool& empty)
 		{
 			helpers::com_array_reader arrayReader;
 			empty = false;

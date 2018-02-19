@@ -31,6 +31,8 @@ namespace foobar2000_io
 	PFC_DECLARE_EXCEPTION(exception_io_data_truncation,		exception_io_data,"Unsupported format or corrupted file");
 	//! Unsupported format (a subclass of "unsupported format or corrupted file" exception).
 	PFC_DECLARE_EXCEPTION(exception_io_unsupported_format,	exception_io_data,"Unsupported file format");
+	//! Decode error - subsong index out of expected range
+	PFC_DECLARE_EXCEPTION(exception_io_bad_subsong_index,	exception_io_data,"Unexpected subsong index");
 	//! Object is remote, while specific operation is supported only for local objects.
 	PFC_DECLARE_EXCEPTION(exception_io_object_is_remote,	exception_io,"This operation is not supported on remote objects");
 	//! Sharing violation.
@@ -155,6 +157,8 @@ namespace foobar2000_io
 			}
 			out.set_size(done);
 		}
+
+		uint8_t read_byte( abort_callback & abort );
 	protected:
 		stream_reader() {}
 		~stream_reader() {}
@@ -426,6 +430,7 @@ namespace foobar2000_io
 
 		static bool g_get_interface(service_ptr_t<filesystem> & p_out,const char * path);//path is AFTER get_canonical_path
 		static filesystem::ptr g_get_interface(const char * path);// throws exception_io_no_handler_for_path on failure
+		static filesystem::ptr get( const char * path ) { return g_get_interface(path); } // shortened
 		static bool g_is_remote(const char * p_path);//path is AFTER get_canonical_path
 		static bool g_is_recognized_and_remote(const char * p_path);//path is AFTER get_canonical_path
 		static bool g_is_remote_safe(const char * p_path) {return g_is_recognized_and_remote(p_path);}
@@ -660,21 +665,37 @@ namespace foobar2000_io
 
 	template<typename T>
 	pfc::string getPathDisplay(const T& source) {
+		const char * c = pfc::stringToPtr(source);
+		if ( *c == 0 ) return c;
 		pfc::string_formatter temp;
-		filesystem::g_get_display_path(pfc::stringToPtr(source),temp);
+		filesystem::g_get_display_path(c,temp);
 		return temp.toString();
 	}
 	template<typename T>
 	pfc::string getPathCanonical(const T& source) {
+		const char * c = pfc::stringToPtr(source);
+		if ( *c == 0 ) return c;
 		pfc::string_formatter temp;
-		filesystem::g_get_canonical_path(pfc::stringToPtr(source),temp);
+		filesystem::g_get_canonical_path(c,temp);
 		return temp.toString();
 	}
 
 
 	bool matchContentType(const char * fullString, const char * ourType);
 	bool matchProtocol(const char * fullString, const char * protocolName);
+	const char * afterProtocol( const char * fullString );
 	void substituteProtocol(pfc::string_base & out, const char * fullString, const char * protocolName);
+    
+    bool matchContentType_MP3( const char * fullString);
+    bool matchContentType_MP4( const char * fullString);
+    bool matchContentType_Ogg( const char * fullString);
+    bool matchContentType_Opus( const char * fullString);
+    bool matchContentType_FLAC( const char * fullString);
+    bool matchContentType_WavPack( const char * fullString);
+    bool matchContentType_WAV( const char * fullString);
+    bool matchContentType_Musepack( const char * fullString);
+    const char * extensionFromContentType( const char * contentType );
+	const char * contentTypeFromExtension( const char * ext );
 
 	void purgeOldFiles(const char * directory, t_filetimestamp period, abort_callback & abort);
 }

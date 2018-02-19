@@ -47,12 +47,6 @@ private:
 class js_preferences_page_impl : public preferences_page_v3
 {
 public:
-	bool get_help_url(pfc::string_base& p_out)
-	{
-		p_out = "https://github.com/19379/foo-jscript-panel/wiki/Editor-Properties";
-		return true;
-	}
-
 	const char* get_name()
 	{
 		return JSP_NAME;

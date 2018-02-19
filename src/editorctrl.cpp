@@ -1065,7 +1065,7 @@ void CScriptEditorCtrl::SetJScript()
 		" interface long native new null package private protected public return"
 		" short static super switch synchronized this throw throws transient true"
 		" try typeof var void while with enum byvalue cast future generic inner"
-		" operator outer rest Array Math RegExp window fb gdi utils plman";
+		" operator outer rest Array Math RegExp window fb gdi utils plman console";
 
 	RestoreDefaultStyle();
 
@@ -1274,7 +1274,7 @@ void CScriptEditorCtrl::ReadAPI()
 		}
 		else
 		{
-			console::formatter() << JSP_NAME ": Warning: Could not load file " << api_filename;
+			FB2K_console_formatter() << "Warning: " JSP_NAME " v" JSP_VERSION ": Could not load file " << api_filename;
 		}
 
 		api_filename += strlen(api_filename) + 1;

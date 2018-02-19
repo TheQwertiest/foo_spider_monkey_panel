@@ -584,7 +584,7 @@ function settings_listboxes_action(pageId, id, selectedId) {
 				// update checkbox status / selected column Id in the listbox
 				p.settings.pages[1].elements[0].status = (p.headerBar.columns[selectedId].percent > 0);
 			} catch (e) {
-				fb.trace("WSH Error catched: settings_listboxes_action");
+				console.log("WSH Error catched: settings_listboxes_action");
 			};
 			full_repaint();
 			break;
@@ -728,7 +728,7 @@ function settings_listboxes_action(pageId, id, selectedId) {
 				};
 
 			} catch (e) {
-				fb.trace("WSH Error catched: settings_listboxes_action");
+				console.log("WSH Error catched: settings_listboxes_action");
 			};
 			full_repaint();
 			break;

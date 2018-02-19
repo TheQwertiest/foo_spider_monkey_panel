@@ -6,7 +6,7 @@ struct CallbackIds
 	{
 		on_always_on_top_changed,
 		on_char,
-		on_colors_changed,
+		on_colours_changed,
 		on_cursor_follow_playback_changed,
 		on_drag_drop,
 		on_drag_enter,
@@ -60,7 +60,6 @@ struct CallbackIds
 		on_playlist_stop_after_current_changed,
 		on_playlist_switch,
 		on_playlists_changed,
-		on_refresh_background_done,
 		on_script_unload,
 		on_selection_changed,
 		on_size,

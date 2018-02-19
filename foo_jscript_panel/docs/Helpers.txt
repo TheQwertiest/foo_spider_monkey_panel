@@ -11,36 +11,36 @@ function RGB(r, g, b) {
 	return (0xff000000 | (r << 16) | (g << 8) | (b));
 }
 
-function getAlpha(color) {
-	return ((color >> 24) & 0xff);
+function getAlpha(colour) {
+	return ((colour >> 24) & 0xff);
 }
 
-function getRed(color) {
-	return ((color >> 16) & 0xff);
+function getRed(colour) {
+	return ((colour >> 16) & 0xff);
 }
 
-function getGreen(color) {
-	return ((color >> 8) & 0xff);
+function getGreen(colour) {
+	return ((colour >> 8) & 0xff);
 }
 
-function getBlue(color) {
-	return (color & 0xff);
+function getBlue(colour) {
+	return (colour & 0xff);
 }
 
-function setAlpha(color, a) {
-	return ((color & 0x00ffffff) | (a << 24));
+function setAlpha(colour, a) {
+	return ((colour & 0x00ffffff) | (a << 24));
 }
 
-function setRed(color, r) {
-	return ((color & 0xff00ffff) | (r << 16));
+function setRed(colour, r) {
+	return ((colour & 0xff00ffff) | (r << 16));
 }
 
-function setGreen(color, g) {
-	return ((color & 0xffff00ff) | (g << 8));
+function setGreen(colour, g) {
+	return ((colour & 0xffff00ff) | (g << 8));
 }
 
-function setBlue(color, b) {
-	return ((color & 0xffffff00) | b);
+function setBlue(colour, b) {
+	return ((colour & 0xffffff00) | b);
 }
 
 // Helper function for DrawString() and MeasureString()
@@ -77,8 +77,8 @@ function vol2pos(v){
 	 return (Math.pow(10, v / 50) - 0.01) / 0.99;
 }
 
-// pre-calculated colors
-var Colors = {
+// pre-calculated colours
+var colours = {
 	AliceBlue			: 0xFFF0F8FF,
 	AntiqueWhite		 : 0xFFFAEBD7,
 	Aqua				 : 0xFF00FFFF,
@@ -221,190 +221,3 @@ var Colors = {
 	Yellow			   : 0xFFFFFF00,
 	YellowGreen		  : 0xFF9ACD32
 };
-
-function button(x, y, w, h, img_src, fn, tiptext) {
-	this.paint = function (gr) {
-		this.img && gr.DrawImage(this.img, this.x, this.y, this.w, this.h, 0, 0, this.img.Width, this.img.Height);
-	}
-	
-	this.trace = function (x, y) {
-		return x > this.x && x < this.x + this.w && y > this.y && y < this.y + this.h;
-	}
-	
-	this.lbtn_up = function (x, y) {
-		this.fn && this.fn(x, y);
-	}
-	
-	this.cs = function (s) {
-		if (s == "hover") {
-			this.img = this.img_hover;
-			tt(this.tiptext);
-		} else {
-			this.img = this.img_normal;
-		}
-		window.RepaintRect(this.x, this.y, this.w, this.h);
-	}
-	
-	this.x = x;
-	this.y = y;
-	this.w = w;
-	this.h = h;
-	this.fn = fn;
-	this.tiptext = tiptext;
-	this.img_normal = gdi.Image(img_src.normal);
-	this.img_hover = img_src.hover ? gdi.Image(img_src.hover) : this.img_normal;
-	this.img = this.img_normal;
-}
-
-function buttons() {
-	this.paint = function (gr) {
-		for (var i in this.buttons) {
-			this.buttons[i].paint(gr);
-		}
-	}
-	
-	this.move = function (x, y) {
-		var temp_btn = null;
-		for (var i in this.buttons) {
-			if (this.buttons[i].trace(x, y))
-				temp_btn = i;
-		}
-		if (this.btn == temp_btn)
-			return this.btn;
-		if (this.btn)
-			this.buttons[this.btn].cs("normal");
-		if (temp_btn)
-			this.buttons[temp_btn].cs("hover");
-		else
-			tt("");
-		this.btn = temp_btn;
-		return this.btn;
-	}
-	
-	this.leave = function () {
-		if (this.btn) {
-			tt("");
-			this.buttons[this.btn].cs("normal");
-		}
-		this.btn = null;
-	}
-	
-	this.lbtn_up = function (x, y) {
-		if (this.btn) {
-			this.buttons[this.btn].lbtn_up(x, y);
-			return true;
-		} else {
-			return false;
-		}
-	}
-	
-	this.buttons = {};
-	this.btn = null;
-}
-
-function seekbar(x, y, w, h) {
-	this.playback_seek = function () {
-		window.RepaintRect(this.x - 100, this.y, this.w + 200, this.h);
-	}
-	
-	this.playback_stop = function () {
-		this.playback_seek();
-	}
-	
-	this.trace = function (x, y) {
-		var m = this.drag ? 200 : 0;
-		return x > this.x - m && x < this.x + this.w + m && y > this.y - m && y < this.y + this.h + m;
-	}
-	
-	this.wheel = function (s) {
-		if (this.trace(this.mx, this.my)) {
-			switch (true) {
-			case !fb.IsPlaying:
-			case fb.PlaybackLength <= 0:
-				break;
-			case fb.PlaybackLength < 60:
-				fb.PlaybackTime += s * 5;
-				break;
-			case fb.PlaybackLength < 600:
-				fb.PlaybackTime += s * 10;
-				break;
-			default:
-				fb.PlaybackTime += s * 60;
-				break;
-			}
-			tt("");
-			return true;
-		} else {
-			return false;
-		}
-	}
-	
-	this.move = function (x, y) {
-		this.mx = x;
-		this.my = y;
-		if (this.trace(x, y)) {
-			if (fb.IsPlaying && fb.PlaybackLength > 0) {
-				x -= this.x;
-				this.drag_seek = x < 0 ? 0 : x > this.w ? 1 : x / this.w;
-				tt(utils.FormatDuration(fb.PlaybackLength * this.drag_seek));
-				if (this.drag)
-					this.playback_seek();
-			}
-			this.hover = true;
-			return true;
-		} else {
-			if (this.hover)
-				tt("");
-			this.hover = false;
-			this.drag = false;
-			return false;
-		}
-	}
-	
-	this.lbtn_down = function (x, y) {
-		if (this.trace(x, y)) {
-			if (fb.IsPlaying && fb.PlaybackLength > 0)
-				this.drag = true;
-			return true;
-		} else {
-			return false;
-		}
-	}
-	
-	this.lbtn_up = function (x, y) {
-		if (this.trace(x, y)) {
-			if (this.drag) {
-				this.drag = false;
-				fb.PlaybackTime = fb.PlaybackLength * this.drag_seek;
-			}
-			return true;
-		} else {
-			return false;
-		}
-	}
-	
-	this.pos = function () {
-		return Math.ceil(this.w * (this.drag ? this.drag_seek : fb.PlaybackTime / fb.PlaybackLength));
-	}
-	
-	this.x = x;
-	this.y = y;
-	this.w = w;
-	this.h = h;
-	this.mx = 0;
-	this.my = 0;
-	this.hover = false;
-	this.drag = false;
-	this.drag_seek = 0;
-	window.SetInterval(function () {
-		if (fb.IsPlaying && !fb.IsPaused && fb.PlaybackLength > 0)
-			on_playback_seek();
-	}, 150);
-}
-
-function tt(value) {
-	if (tooltip.Text != value) {
-		tooltip.Text = value;
-		tooltip.Activate();
-	}
-}

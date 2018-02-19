@@ -1,4 +1,6 @@
 #pragma once
+#pragma warning(push)
+#pragma warning(disable: 4018 4244)
 
 /*
 The Stack Blur Algorithm was invented by Mario Klingemann,
@@ -414,3 +416,5 @@ void stack_blur_filter(Gdiplus::Bitmap& img, int radius, int core/* = 1*/) throw
 		img.UnlockBits(&bmpdata);
 	}
 }
+
+#pragma warning(pop)

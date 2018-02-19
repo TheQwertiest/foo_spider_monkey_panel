@@ -5,20 +5,19 @@
 // CUI panel instance
 static uie::window_factory<js_panel_window_cui> g_js_panel_wndow_cui;
 
-DWORD js_panel_window_cui::GetColorCUI(unsigned type, const GUID& guid)
+DWORD js_panel_window_cui::GetColourCUI(unsigned type, const GUID& guid)
 {
 	if (type <= columns_ui::colours::colour_active_item_frame)
 	{
 		columns_ui::colours::helper helper(guid);
 
-		return helpers::convert_colorref_to_argb(
-			helper.get_colour((columns_ui::colours::colour_identifier_t)type));
+		return helpers::convert_colorref_to_argb(helper.get_colour((columns_ui::colours::colour_identifier_t)type));
 	}
 
 	return 0;
 }
 
-DWORD js_panel_window_cui::GetColorDUI(unsigned type)
+DWORD js_panel_window_cui::GetColourDUI(unsigned type)
 {
 	return 0;
 }
@@ -176,7 +175,7 @@ void js_panel_window_cui::on_bool_changed(t_size mask) const
 
 void js_panel_window_cui::on_colour_changed(t_size mask) const
 {
-	PostMessage(m_hwnd, CALLBACK_UWM_COLORS_CHANGED, 0, 0);
+	PostMessage(m_hwnd, CALLBACK_UWM_COLOURS_CHANGED, 0, 0);
 }
 
 void js_panel_window_cui::on_font_changed(t_size mask) const

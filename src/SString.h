@@ -91,7 +91,6 @@ public:
 	}
 };
 
-
 /**
  * @brief A string buffer class.
  *
@@ -157,7 +156,6 @@ public:
 		return SContainer::size();
 	}
 };
-
 
 /**
  * @brief A simple string class.
@@ -274,7 +272,8 @@ public:
 		sLen = 0;
 	}
 	/** Size of buffer. */
-	lenpos_t size() const {
+	lenpos_t size() const
+	{
 		return SContainer::size();
 	}
 	/** Size of string in buffer. */
@@ -416,7 +415,6 @@ public:
 		return substitute(sFind, "");
 	}
 };
-
 
 /**
  * Duplicate a C string.

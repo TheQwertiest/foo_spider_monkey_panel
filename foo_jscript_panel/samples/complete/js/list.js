@@ -1,5 +1,11 @@
 _.mixin({
 	list : function (mode, x, y, w, h) {
+		this.playback_queue_changed = function () {
+			if (this.mode == 'queue_viewer') {
+				this.update();
+			}
+		}
+		
 		this.size = function () {
 			this.index = 0;
 			this.offset = 0;
@@ -64,6 +70,7 @@ _.mixin({
 					gr.GdiDrawText(this.data[i + this.offset].value, panel.fonts.normal, panel.colours.text, this.x + this.text_x, this.y + _.scale(12) + (i * panel.row_height), this.text_width, panel.row_height, LEFT);
 				}
 				break;
+			case 'queue_viewer':
 			default:
 				this.text_width = this.w;
 				for (var i = 0; i < Math.min(this.items, this.rows); i++) {
@@ -79,6 +86,7 @@ _.mixin({
 			switch (true) {
 			case this.mode == 'autoplaylists':
 			case this.mode == 'lastfm_info' && this.properties.mode.value == 1:
+			case this.mode == 'queue_viewer':
 				break;
 			case !panel.metadb:
 				this.artist = '';
@@ -209,13 +217,13 @@ _.mixin({
 		this.rbtn_up = function (x, y) {
 			switch (this.mode) {
 			case 'autoplaylists':
-				panel.m.AppendMenuItem(this.editing ? MF_GRAYED: MF_STRING, 3000, 'Add new autoplaylist...');
+				panel.m.AppendMenuItem(this.editing ? MF_GRAYED: MF_STRING, 1000, 'Add new autoplaylist...');
 				panel.m.AppendMenuSeparator();
 				if (this.deleted_items.length) {
 					_(this.deleted_items)
 						.take(8)
 						.forEach(function (item, i) {
-							panel.s10.AppendMenuItem(MF_STRING, i + 3010, item.name);
+							panel.s10.AppendMenuItem(MF_STRING, i + 1010, item.name);
 						})
 						.value();
 					panel.s10.AppendTo(panel.m, MF_STRING, 'Restore');
@@ -223,141 +231,154 @@ _.mixin({
 				}
 				break;
 			case 'lastfm_info':
-				panel.m.AppendMenuItem(MF_STRING, 3100, 'Similar artists');
-				panel.m.AppendMenuItem(MF_STRING, 3101, 'User Charts');
-				panel.m.CheckMenuRadioItem(3100, 3101, this.properties.mode.value + 3100);
+				panel.m.AppendMenuItem(MF_STRING, 1100, 'Similar artists');
+				panel.m.AppendMenuItem(MF_STRING, 1101, 'User Charts');
+				panel.m.CheckMenuRadioItem(1100, 1101, this.properties.mode.value + 1100);
 				panel.m.AppendMenuSeparator();
-				panel.s10.AppendMenuItem(MF_STRING, 3110, 'Open Last.fm website');
-				panel.s10.AppendMenuItem(MF_STRING, 3111, 'Autoplaylist');
-				panel.s10.CheckMenuRadioItem(3110, 3111, this.properties.link.value + 3110);
+				panel.s10.AppendMenuItem(MF_STRING, 1110, 'Open Last.fm website');
+				panel.s10.AppendMenuItem(MF_STRING, 1111, 'Autoplaylist');
+				panel.s10.CheckMenuRadioItem(1110, 1111, this.properties.link.value + 1110);
 				panel.s10.AppendTo(panel.m, this.properties.mode.value == 0 || this.properties.method.value == 0 ? MF_STRING : MF_GRAYED, 'Links');
 				panel.m.AppendMenuSeparator();
 				if (this.properties.mode.value == 1) {
 					_.forEach(this.methods, function (item, i) {
-						panel.m.AppendMenuItem(MF_STRING, i + 3120, _.capitalize(item.display));
+						panel.m.AppendMenuItem(MF_STRING, i + 1120, _.capitalize(item.display));
 					});
-					panel.m.CheckMenuRadioItem(3120, 3122, this.properties.method.value + 3120);
+					panel.m.CheckMenuRadioItem(1120, 1122, this.properties.method.value + 1120);
 					panel.m.AppendMenuSeparator();
 					_.forEach(this.periods, function (item, i) {
-						panel.m.AppendMenuItem(MF_STRING, i + 3130, _.capitalize(item.display));
+						panel.m.AppendMenuItem(MF_STRING, i + 1130, _.capitalize(item.display));
 					});
-					panel.m.CheckMenuRadioItem(3130, 3135, this.properties.period.value + 3130);
+					panel.m.CheckMenuRadioItem(1130, 1135, this.properties.period.value + 1130);
 					panel.m.AppendMenuSeparator();
-					panel.m.AppendMenuItem(MF_STRING, 3140, 'Bar colour...');
+					panel.m.AppendMenuItem(MF_STRING, 1140, 'Bar colour...');
 					panel.m.AppendMenuSeparator();
 				}
-				panel.m.AppendMenuItem(MF_STRING, 3150, 'Last.fm username...');
+				panel.m.AppendMenuItem(MF_STRING, 1150, 'Last.fm username...');
 				panel.m.AppendMenuSeparator();
 				break;
 			case 'musicbrainz':
-				panel.m.AppendMenuItem(MF_STRING, 3200, 'Releases');
-				panel.m.AppendMenuItem(MF_STRING, 3201, 'Links');
-				panel.m.CheckMenuRadioItem(3200, 3201, this.properties.mode.value + 3200);
+				panel.m.AppendMenuItem(MF_STRING, 1200, 'Releases');
+				panel.m.AppendMenuItem(MF_STRING, 1201, 'Links');
+				panel.m.CheckMenuRadioItem(1200, 1201, this.properties.mode.value + 1200);
 				panel.m.AppendMenuSeparator();
 				if (!_.isUUID(this.mb_id)) {
-					panel.m.AppendMenuItem(MF_GRAYED, 3203, 'Artist MBID missing. Use Musicbrainz Picard or foo_musicbrainz to tag your files.');
+					panel.m.AppendMenuItem(MF_GRAYED, 1203, 'Artist MBID missing. Use Musicbrainz Picard or foo_musicbrainz to tag your files.');
 					panel.m.AppendMenuSeparator();
 				}
 				break;
 			case 'properties':
-				panel.m.AppendMenuItem(MF_STRING, 3300, 'Metadata');
-				panel.m.CheckMenuItem(3300, this.properties.meta.enabled);
-				panel.m.AppendMenuItem(MF_STRING, 3301, 'Location');
-				panel.m.CheckMenuItem(3301, this.properties.location.enabled);
-				panel.m.AppendMenuItem(MF_STRING, 3302, 'Tech Info');
-				panel.m.CheckMenuItem(3302, this.properties.tech.enabled);
-				panel.m.AppendMenuItem(_.cc('foo_playcount') ? MF_STRING : MF_GRAYED, 3303, 'Playback Statistics (foo_playcount)');
-				panel.m.CheckMenuItem(3303, this.properties.playcount.enabled);
-				panel.m.AppendMenuItem(MF_STRING, 3304, 'Replaygain');
-				panel.m.CheckMenuItem(3304, this.properties.rg.enabled);
+				panel.m.AppendMenuItem(MF_STRING, 1300, 'Metadata');
+				panel.m.CheckMenuItem(1300, this.properties.meta.enabled);
+				panel.m.AppendMenuItem(MF_STRING, 1301, 'Location');
+				panel.m.CheckMenuItem(1301, this.properties.location.enabled);
+				panel.m.AppendMenuItem(MF_STRING, 1302, 'Tech Info');
+				panel.m.CheckMenuItem(1302, this.properties.tech.enabled);
+				panel.m.AppendMenuItem(_.cc('foo_playcount') ? MF_STRING : MF_GRAYED, 1303, 'Playback Statistics (foo_playcount)');
+				panel.m.CheckMenuItem(1303, this.properties.playcount.enabled);
+				panel.m.AppendMenuItem(MF_STRING, 1304, 'Replaygain');
+				panel.m.CheckMenuItem(1304, this.properties.rg.enabled);
+				panel.m.AppendMenuSeparator();
+				break;
+			case 'queue_viewer':
+				panel.m.AppendMenuItem(MF_STRING, 1400, 'Item display title formatting...');
+				panel.m.AppendMenuItem(this.data.length ? MF_STRING : MF_GRAYED, 1401, 'Flush playback queue');
 				panel.m.AppendMenuSeparator();
 				break;
 			}
-			panel.m.AppendMenuItem(_.isFile(this.filename) ? MF_STRING : MF_GRAYED, 3999, 'Open containing folder');
-			panel.m.AppendMenuSeparator();
+			if (this.mode != 'queue_viewer') {
+				panel.m.AppendMenuItem(_.isFile(this.filename) ? MF_STRING : MF_GRAYED, 1999, 'Open containing folder');
+				panel.m.AppendMenuSeparator();
+			}
 		}
 		
 		this.rbtn_up_done = function (idx) {
 			switch (idx) {
-			case 3000:
+			case 1000:
 				this.add();
 				break;
-			case 3010:
-			case 3011:
-			case 3012:
-			case 3013:
-			case 3014:
-			case 3015:
-			case 3016:
-			case 3017:
-				var item = idx - 3010;
+			case 1010:
+			case 1011:
+			case 1012:
+			case 1013:
+			case 1014:
+			case 1015:
+			case 1016:
+			case 1017:
+				var item = idx - 1010;
 				this.data.push(this.deleted_items[item]);
 				this.deleted_items.splice(item, 1);
 				this.save();
 				break;
-			case 3100:
-				this.properties.mode.value = 0;
+			case 1100:
+				this.properties.mode.set(0);
 				this.reset();
 				break;
-			case 3101:
-				this.properties.mode.value = 1;
+			case 1101:
+				this.properties.mode.set(1);
 				this.update();
 				break;
-			case 3110:
-			case 3111:
-				this.properties.link.value = idx - 3110;
-				if (this.data.length) {
-					this.update();
-				}
-				break;
-			case 3120:
-			case 3121:
-			case 3122:
-				this.properties.method.value = idx - 3120;
+			case 1110:
+			case 1111:
+				this.properties.link.set(idx - 1110);
 				this.update();
 				break;
-			case 3130:
-			case 3131:
-			case 3132:
-			case 3133:
-			case 3134:
-			case 3135:
-				this.properties.period.value = idx - 3130;
+			case 1120:
+			case 1121:
+			case 1122:
+				this.properties.method.set(idx - 1120);
 				this.update();
 				break;
-			case 3140:
-				this.properties.colour.value = utils.ColorPicker(window.ID, this.properties.colour.value);
+			case 1130:
+			case 1131:
+			case 1132:
+			case 1133:
+			case 1134:
+			case 1135:
+				this.properties.period.set(idx - 1130);
+				this.update();
+				break;
+			case 1140:
+				this.properties.colour.set(utils.ColourPicker(window.ID, this.properties.colour.value));
 				window.Repaint();
 				break;
-			case 3150:
+			case 1150:
 				lastfm.update_username();
 				break;
-			case 3200:
-			case 3201:
-				this.properties.mode.value = idx - 3200;
+			case 1200:
+			case 1201:
+				this.properties.mode.set(idx - 1200);
 				this.reset();
 				break;
-			case 3300:
+			case 1300:
 				this.properties.meta.toggle();
 				panel.item_focus_change();
 				break;
-			case 3301:
+			case 1301:
 				this.properties.location.toggle();
 				panel.item_focus_change();
 				break;
-			case 3302:
+			case 1302:
 				this.properties.tech.toggle();
 				panel.item_focus_change();
 				break;
-			case 3303:
+			case 1303:
 				this.properties.playcount.toggle();
 				panel.item_focus_change();
 				break;
-			case 3304:
+			case 1304:
 				this.properties.rg.toggle();
 				panel.item_focus_change();
 				break;
-			case 3999:
+			case 1400:
+				var tmp = _.input('Enter title formatting', window.Name, this.properties.tf.value);
+				this.properties.tf.set(tmp || this.properties.tf.default_);
+				this.update();
+				break;
+			case 1401:
+				plman.FlushPlaybackQueue();
+				break;
+			case 1999:
 				_.explorer(this.filename);
 				break;
 			}
@@ -411,7 +432,7 @@ _.mixin({
 					}
 				} else {
 					if (!lastfm.username.length) {
-						console.log('Last.fm username not set.');
+						console.log(N, 'Last.fm username not set.');
 						break;
 					}
 					this.filename = folders.lastfm + lastfm.username + '.' + this.methods[this.properties.method.value].method + '.' + this.periods[this.properties.period.value].period + '.json';
@@ -539,6 +560,15 @@ _.mixin({
 				}, this);
 				_.dispose(fileinfo);
 				break;
+			case 'queue_viewer':
+				var items = plman.GetPlaybackQueueHandles();
+				for (var i = 0; i < items.Count; i++) {
+					this.data.push({
+						name : _.tf(this.properties.tf.value, items.Item(i))
+					});
+				}
+				_.dispose(items);
+				break;
 			}
 			this.items = this.data.length;
 			this.offset = 0;
@@ -561,7 +591,7 @@ _.mixin({
 				break;
 			case 'musicbrainz':
 				if (!_.isUUID(this.mb_id)) {
-					return console.log('Invalid/missing MBID');
+					return console.log(N, 'Invalid/missing MBID');
 				}
 				if (this.properties.mode.value == 0) {
 					var url = 'https://musicbrainz.org/ws/2/release-group?fmt=json&limit=100&offset=' + this.mb_offset + '&artist=' + this.mb_id;
@@ -586,8 +616,8 @@ _.mixin({
 						window.SetTimeout(this.mb_retry, 1500);
 						break;
 					default:
-						console.log('HTTP error: ' + this.xmlhttp.status);
-						this.xmlhttp.responseText && fb.Trace(this.xmlhttp.responseText);
+						console.log(N, 'HTTP error:', this.xmlhttp.status);
+						this.xmlhttp.responseText && console.log(this.xmlhttp.responseText);
 						break;
 					}
 				}
@@ -607,28 +637,28 @@ _.mixin({
 					this.mb_offset += 100;
 					this.get();
 				} else {
-					_.save(JSON.stringify(this.mb_data), f);
+					_.save(f, JSON.stringify(this.mb_data));
 					this.reset();
 				}
 				break;
 			case this.mode == 'musicbrainz': // links
-				_.save(this.xmlhttp.responseText, f);
+				_.save(f, this.xmlhttp.responseText);
 				this.reset();
 				break;
 			case this.mode == 'lastfm_info':
 				var data = _.jsonParse(this.xmlhttp.responseText);
 				if (data.error) {
-					return console.log(data.message);
+					return console.log(N, data.message);
 				}
 				if (this.properties.mode.value == 0) {
 					// last.fm playing up again so don't overwrite cached data with nothing
 					if (_.get(data, 'similarartists.artist', []).length == 0) {
 						return;
 					}
-					_.save(this.xmlhttp.responseText, f);
+					_.save(f, this.xmlhttp.responseText);
 					this.reset();
 				} else {
-					_.save(this.xmlhttp.responseText, f);
+					_.save(f, this.xmlhttp.responseText);
 					this.update();
 				}
 				break;
@@ -645,6 +675,8 @@ _.mixin({
 				return this.artist + ': ' + (this.properties.mode.value == 0 ? 'releases' : 'links');
 			case 'properties':
 				return panel.tf('%artist% - %title%');
+			case 'queue_viewer':
+				return 'Queue Viewer';
 			}
 		}
 		
@@ -659,7 +691,7 @@ _.mixin({
 			switch (this.mode) {
 			case 'autoplaylists':
 				this.save = function () {
-					_.save(JSON.stringify(this.data, this.replacer), this.filename);
+					_.save(this.filename, JSON.stringify(this.data, this.replacer));
 					this.update();
 				}
 				
@@ -672,16 +704,16 @@ _.mixin({
 						return;
 					}
 					this.editing = true;
-					var new_name = _.input('Enter autoplaylist name', panel.name, '');
+					var new_name = _.input('Enter autoplaylist name', window.Name, '');
 					if (new_name == '') {
 						return this.editing = false;
 					}
-					var new_query = _.input('Enter autoplaylist query', panel.name, '');
+					var new_query = _.input('Enter autoplaylist query', window.Name, '');
 					if (new_query == '') {
 						return this.editing = false;
 					}
-					var new_sort = _.input('Enter sort pattern\n\n(optional)', panel.name, '');
-					var new_forced = (new_sort.length ? WshShell.popup('Force sort?', 0, panel.name, popup.question + popup.yes_no) : popup.no) == popup.yes;
+					var new_sort = _.input('Enter sort pattern\n\n(optional)', window.Name, '');
+					var new_forced = (new_sort.length ? WshShell.popup('Force sort?', 0, window.Name, popup.question + popup.yes_no) : popup.no) == popup.yes;
 					this.data.push({
 						name : new_name,
 						query : new_query,
@@ -715,25 +747,25 @@ _.mixin({
 						this.run_query(this.data[z].name, this.data[z].query, this.data[z].sort, this.data[z].forced);
 						break;
 					case 2:
-						var new_name = _.input('Rename autoplaylist', panel.name, this.data[z].name);
+						var new_name = _.input('Rename autoplaylist', window.Name, this.data[z].name);
 						if (new_name.length && new_name != this.data[z].name) {
 							this.data[z].name = new_name;
 							this.edit_done(z);
 						}
 						break;
-					case 3:
-						var new_query = _.input('Enter autoplaylist query', panel.name, this.data[z].query);
+					case 1:
+						var new_query = _.input('Enter autoplaylist query', window.Name, this.data[z].query);
 						if (new_query.length && new_query != this.data[z].query) {
 							this.data[z].query = new_query;
 							this.edit_done(z);
 						}
 						break;
 					case 4:
-						var new_sort = _.input('Enter sort pattern\n\n(optional)', panel.name, this.data[z].sort);
+						var new_sort = _.input('Enter sort pattern\n\n(optional)', window.Name, this.data[z].sort);
 						if (new_sort != this.data[z].sort) {
 							this.data[z].sort = new_sort;
 							if (new_sort.length) {
-								this.data[z].forced = WshShell.popup('Force sort?', 0, panel.name, popup.question + popup.yes_no) == popup.yes;
+								this.data[z].forced = WshShell.popup('Force sort?', 0, window.Name, popup.question + popup.yes_no) == popup.yes;
 							}
 							this.edit_done(z);
 						}
@@ -777,17 +809,16 @@ _.mixin({
 					plman.ActivePlaylist = plman.PlaylistCount - 1;
 				}
 				
-				_.createFolder(folders.settings);
+				_.createFolder(folders.data);
 				this.editing = false;
 				this.deleted_items = [];
-				this.filename = folders.settings + 'autoplaylists.json';
+				this.filename = folders.data + 'autoplaylists.json';
 				this.update();
 				break;
 			case 'lastfm_info':
 				_.createFolder(folders.data);
-				_.createFolder(folders.lastfm);
 				_.createFolder(folders.artists);
-				_.createFolder(folders.settings);
+				_.createFolder(folders.lastfm);
 				this.ua = lastfm.ua;
 				this.methods = [{
 						method : 'user.getTopArtists',
@@ -836,14 +867,14 @@ _.mixin({
 				break;
 			case 'musicbrainz':
 				this.mb_retry = _.bind(function () {
-					console.log('Retrying...');
+					console.log(N, 'Retrying...');
 					this.attempt++;
 					this.get();
 				}, this),
 				
 				_.createFolder(folders.data);
 				_.createFolder(folders.artists);
-				this.ua = 'foo_jscript_panel_musicbrainz +https://github.com/19379';
+				this.ua = 'foo_jscript_panel_musicbrainz +https://github.com/marc2k3';
 				this.mb_id = '';
 				this.properties = {
 					mode : new _.p('2K3.LIST.MUSICBRAINZ.MODE', 0) // 0 releases 1 links
@@ -919,7 +950,7 @@ _.mixin({
 				
 				this.add_tech = function (f) {
 					var duration = utils.FormatDuration(Math.max(0, panel.metadb.Length));
-					var samples = _.formatNumber(_.tf('%length_samples%', panel.metadb), ' ');
+					var samples = _.formatNumber(panel.tf('%length_samples%'), ' ');
 					this.data.push({
 						name : 'DURATION',
 						value : duration + ' (' + samples + ' samples)',
@@ -976,6 +1007,12 @@ _.mixin({
 					rg : new _.p('2K3.LIST.PROPERTIES.RG', true)
 				};
 				break;
+			case 'queue_viewer':
+				this.properties = {
+					tf : new _.p('2K3.LIST.QUEUE.TF', '%artist% - %title%')
+				};
+				this.update();
+				break;
 			}
 		}
 		
@@ -994,8 +1031,8 @@ _.mixin({
 		this.spacer_w = 0;
 		this.artist = '';
 		this.filename = '';
-		this.up_btn = new _.sb(guifx.up, this.x, this.y, _.scale(12), _.scale(12), _.bind(function () { return this.offset > 0; }, this), _.bind(function () { this.wheel(1); }, this));
-		this.down_btn = new _.sb(guifx.down, this.x, this.y, _.scale(12), _.scale(12), _.bind(function () { return this.offset < this.items - this.rows; }, this), _.bind(function () { this.wheel(-1); }, this));
+		this.up_btn = new _.sb(chars.up, this.x, this.y, _.scale(12), _.scale(12), _.bind(function () { return this.offset > 0; }, this), _.bind(function () { this.wheel(1); }, this));
+		this.down_btn = new _.sb(chars.down, this.x, this.y, _.scale(12), _.scale(12), _.bind(function () { return this.offset < this.items - this.rows; }, this), _.bind(function () { this.wheel(-1); }, this));
 		this.xmlhttp = new ActiveXObject('Microsoft.XMLHTTP');
 		this.init();
 	}

@@ -13,7 +13,7 @@ oPlaylist = function (idx, rowId, isAutoPl, parent, filter_type, filter_idx) {
 	this.bt_remove = new button(parent.bt_remove_normal, parent.bt_remove_hover, parent.bt_remove_down);
 	// set a forced "autoplaylist" status to the playlist if it's a special/reserved playlist for the panel
 	if (!isAutoPl) {
-		if (this.name == "Queue Content" || this.name == "Historic") {
+		if (this.name == "Historic") {
 			this.isReservedPlaylist = true;
 		};
 	};
@@ -194,7 +194,7 @@ oPlaylistManager = function (obj_name) {
 		for (var idx = 0; idx < this.total; idx++) {
 			plname = plman.GetPlaylistName(idx);
 			isAutoPl = plman.IsAutoPlaylist(idx);
-			isReserved = (plname == "Queue Content" || plname == "Historic");
+			isReserved = plname == "Historic";
 
 			// is playlist Filtered for groupBy Patterns
 			var found = false;

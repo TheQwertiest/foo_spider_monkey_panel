@@ -1,7 +1,6 @@
 #pragma once
 
 #include "host.h"
-#include "delay_loader.h"
 
 class js_panel_window : public HostComm, public ui_helpers::container_window
 {
@@ -9,7 +8,7 @@ public:
 	js_panel_window();
 	virtual ~js_panel_window();
 	HRESULT script_invoke_v(int callbackId, VARIANTARG* argv = NULL, UINT argc = 0, VARIANT* ret = NULL);
-	void update_script(const char* code = NULL);
+	void update_script(const char* name = NULL, const char* code = NULL);
 
 protected:
 	LRESULT on_message(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp);
@@ -20,22 +19,6 @@ protected:
 	void execute_context_menu_command(int id, int id_base);
 
 private:
-	class delay_script_init_action : public delay_loader_action
-	{
-	public:
-		delay_script_init_action(HWND wnd) : wnd_(wnd)
-		{
-		}
-
-		virtual void execute()
-		{
-			SendMessage(wnd_, UWM_SCRIPT_INIT, 0, 0);
-		}
-
-	private:
-		HWND wnd_;
-	};
-
 	CComPtr<IDropTargetImpl> m_drop_target;
 	IGdiGraphicsPtr m_gr_wrap;
 	ScriptHost* m_script_host;
@@ -49,16 +32,16 @@ private:
 	void delete_context();
 	void on_always_on_top_changed(WPARAM wp);
 	void on_changed_sorted(WPARAM wp);
-	void on_colors_changed();
+	void on_colours_changed();
 	void on_context_menu(int x, int y);
 	void on_cursor_follow_playback_changed(WPARAM wp);
 	void on_font_changed();
 	void on_get_album_art_done(LPARAM lp);
 	void on_item_focus_change(WPARAM wp);
 	void on_item_played(WPARAM wp);
-	void on_library_items_added();
-	void on_library_items_changed();
-	void on_library_items_removed();
+	void on_library_items_added(WPARAM wp);
+	void on_library_items_changed(WPARAM wp);
+	void on_library_items_removed(WPARAM wp);
 	void on_load_image_done(LPARAM lp);
 	void on_main_menu(WPARAM wp);
 	void on_mouse_button_dblclk(UINT msg, WPARAM wp, LPARAM lp);
@@ -91,7 +74,6 @@ private:
 	void on_playlist_stop_after_current_changed(WPARAM wp);
 	void on_playlist_switch();
 	void on_playlists_changed();
-	void on_refresh_background_done();
 	void on_selection_changed();
 	void on_size(int w, int h);
 	void on_volume_change(WPARAM wp);

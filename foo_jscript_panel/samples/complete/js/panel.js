@@ -1,4 +1,4 @@
-function on_colors_changed() {
+function on_colours_changed() {
 	panel.colours_changed();
 	window.Repaint();
 }
@@ -31,7 +31,7 @@ function on_item_focus_change() {
 }
 
 _.mixin({
-	panel : function (name, features) {
+	panel : function () {
 		this.item_focus_change = function () {
 			if (this.metadb_func) {
 				if (this.selection.value == 0) {
@@ -48,12 +48,12 @@ _.mixin({
 		
 		this.colours_changed = function () {
 			if (window.InstanceType) {
-				this.colours.background = window.GetColorDUI(1);
-				this.colours.text = window.GetColorDUI(0);
-				this.colours.highlight = window.GetColorDUI(2);
+				this.colours.background = window.GetColourDUI(1);
+				this.colours.text = window.GetColourDUI(0);
+				this.colours.highlight = window.GetColourDUI(2);
 			} else {
-				this.colours.background = window.GetColorCUI(3);
-				this.colours.text = window.GetColorCUI(0);
+				this.colours.background = window.GetColourCUI(3);
+				this.colours.text = window.GetColourCUI(0);
 				this.colours.highlight = _.blendColours(this.colours.text, this.colours.background, 0.4);
 			}
 			this.colours.header = this.colours.highlight & 0x45FFFFFF;
@@ -67,7 +67,7 @@ _.mixin({
 				_.dispose(font);
 			} else {
 				name = 'Segoe UI';
-				console.log('Unable to use default font. Using ' + name + ' instead.');
+				console.log(N, 'Unable to use default font. Using', name, 'instead.');
 			}
 			_.dispose(this.fonts.title, this.fonts.normal, this.fonts.fixed);
 			this.fonts.title = _.gdiFont(name, 12, 1);
@@ -88,12 +88,12 @@ _.mixin({
 			switch (true) {
 			case window.IsTransparent:
 				return;
-			case !this.check_feature('custom_background'):
+			case !this.custom_background:
 			case this.colours.mode.value == 0:
 				var col = this.colours.background;
 				break;
 			case this.colours.mode.value == 1:
-				var col = utils.GetSysColor(15);
+				var col = utils.GetSysColour(15);
 				break;
 			case this.colours.mode.value == 2:
 				var col = this.colours.custom_background.value;
@@ -112,9 +112,7 @@ _.mixin({
 			this.s12 = window.CreatePopupMenu();
 			this.s13 = window.CreatePopupMenu();
 			// panel 1-999
-			// album art 2000-2999
-			// list 3000-3999
-			// text 5000-5999
+			// object 1000+
 			if (object) {
 				object.rbtn_up(x, y);
 			}
@@ -126,7 +124,7 @@ _.mixin({
 				this.s1.AppendTo(this.m, MF_STRING, 'Font size');
 				this.m.AppendMenuSeparator();
 			}
-			if (this.check_feature('custom_background')) {
+			if (this.custom_background) {
 				this.s2.AppendMenuItem(MF_STRING, 100, window.InstanceType ? 'Use default UI setting' : 'Use columns UI setting');
 				this.s2.AppendMenuItem(MF_STRING, 101, 'Splitter');
 				this.s2.AppendMenuItem(MF_STRING, 102, 'Custom');
@@ -149,28 +147,28 @@ _.mixin({
 			case idx == 0:
 				break;
 			case idx <= 20:
-				this.fonts.size.value = idx;
+				this.fonts.size.set(idx);
 				on_font_changed();
 				break;
 			case idx == 100:
 			case idx == 101:
 			case idx == 102:
-				this.colours.mode.value = idx - 100;
+				this.colours.mode.set(idx - 100);
 				window.Repaint();
 				break;
 			case idx == 103:
-				this.colours.custom_background.value = utils.ColorPicker(window.ID, this.colours.custom_background.value);
+				this.colours.custom_background.set(utils.ColourPicker(window.ID, this.colours.custom_background.value));
 				window.Repaint();
 				break;
 			case idx == 110:
 			case idx == 111:
-				this.selection.value = idx - 110;
+				this.selection.set(idx - 110);
 				this.item_focus_change();
 				break;
 			case idx == 120:
 				window.ShowConfigure();
 				break;
-			default:
+			case idx > 999:
 				if (object) {
 					object.rbtn_up_done(idx);
 				}
@@ -178,10 +176,6 @@ _.mixin({
 			}
 			_.dispose(this.m, this.s1, this.s2, this.s3, this.s10, this.s11, this.s12, this.s13);
 			return true;
-		}
-		
-		this.check_feature = function (f) {
-			return _.includes(this.features, f);
 		}
 		
 		this.tf = function (t) {
@@ -197,9 +191,6 @@ _.mixin({
 		}
 		
 		window.DlgCode = DLGC_WANTALLKEYS;
-		console.pre = name + ': ';
-		this.name = name;
-		this.features = features || [];
 		this.fonts = {};
 		this.colours = {};
 		this.w = 0;
@@ -211,9 +202,16 @@ _.mixin({
 		if (this.metadb_func) {
 			this.selection = new _.p('2K3.PANEL.SELECTION', 0);
 		}
-		if (this.check_feature('custom_background')) {
-			this.colours.mode = new _.p('2K3.PANEL.COLOURS.MODE', 0);
-			this.colours.custom_background = new _.p('2K3.PANEL.COLOURS.CUSTOM.BACKGROUND', _.RGB(0, 0, 0));
+		switch (true) {
+			case arguments.length == 2 && _.indexOf(arguments[1], 'custom_background') > -1:
+			case arguments[0] == 'custom_background':
+				this.custom_background = true;
+				this.colours.mode = new _.p('2K3.PANEL.COLOURS.MODE', 0);
+				this.colours.custom_background = new _.p('2K3.PANEL.COLOURS.CUSTOM.BACKGROUND', _.RGB(0, 0, 0));
+				break;
+			default:
+				this.custom_background = false;
+				break;
 		}
 		this.list_objects = [];
 		this.text_objects = [];

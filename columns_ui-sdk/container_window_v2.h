@@ -14,7 +14,7 @@ namespace ui_helpers
 		container_window_v2_t(const container_window_v2_t<TBase> & p_source) {};
 
 	public:
-		enum 
+		enum : uint32_t
 		{
 			flag_forward_system_settings_change = (1<<0),
 			flag_forward_system_colours_change = (1<<1),
@@ -83,7 +83,7 @@ namespace ui_helpers
 		typedef pfc::refcounted_object_ptr_t<window_class> ptr;
 		static int g_compare_by_value(const ptr & p1, const GUID & p2) {return pfc::compare_t(p1->m_guid, p2);}
 
-		window_class(const GUID & p_guid, WNDPROC wndproc, t_uint32 class_styles, LPWSTR cursor, HBRUSH br_back, t_uint32 extra_wnd_bytes) : m_guid(p_guid), m_refcount(1) 
+		window_class(const GUID & p_guid, WNDPROC wndproc, t_uint32 class_styles, LPWSTR cursor, HBRUSH br_back, t_uint32 extra_wnd_bytes) : m_refcount(1), m_guid(p_guid) 
 		{
 			print_guid_wide wstr(m_guid);
 
@@ -206,14 +206,14 @@ namespace ui_helpers
 		{
 			LPVOID * create_params = reinterpret_cast<LPVOID *>(((CREATESTRUCT *)(lp))->lpCreateParams);
 			p_this = reinterpret_cast<container_window_v2_t<TBase>*>(create_params[0]); //retrieve pointer to class
-			SetWindowLongPtr(wnd, GWL_USERDATA, (LPARAM)p_this);//store it for future use
+			SetWindowLongPtr(wnd, GWLP_USERDATA, (LPARAM)p_this);//store it for future use
 
 		}
 		else
-			p_this = reinterpret_cast<container_window_v2_t<TBase>*>(GetWindowLongPtr(wnd,GWL_USERDATA));//if isnt wm_nccreate, retrieve pointer to class
+			p_this = reinterpret_cast<container_window_v2_t<TBase>*>(GetWindowLongPtr(wnd,GWLP_USERDATA));//if isnt wm_nccreate, retrieve pointer to class
 
 		if (msg == WM_NCDESTROY)
-			SetWindowLongPtr(wnd, GWL_USERDATA, (LPARAM)NULL);
+			SetWindowLongPtr(wnd, GWLP_USERDATA, (LPARAM)NULL);
 
 		return p_this ? p_this->__on_message(wnd, msg, wp, lp) : uDefWindowProc(wnd, msg, wp, lp);
 	}
@@ -322,12 +322,12 @@ namespace ui_extension{
 			else
 			{
 				m_host = host; //store interface to host
-				create(parent, get_create_param(), p_position);
+				this->create(parent, get_create_param(), p_position);
 			}
 
 			return W::get_wnd();
 		}
-		virtual void destroy_window() {destroy();m_host.release();}
+		virtual void destroy_window() {this->destroy();m_host.release();}
 
 		virtual bool is_available(const window_host_ptr & p)const {return true;}
 		const window_host_ptr & get_host() const {return m_host;}

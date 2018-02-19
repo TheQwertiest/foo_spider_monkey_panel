@@ -1,5 +1,5 @@
 // ==PREPROCESSOR==
-// @name "Allmusic review"
+// @name "Allmusic Review"
 // @author "marc2003"
 // @import "%fb2k_component_path%samples\complete\js\lodash.min.js"
 // @import "%fb2k_component_path%samples\complete\js\helpers.js"
@@ -7,7 +7,7 @@
 // @import "%fb2k_component_path%samples\complete\js\text.js"
 // ==/PREPROCESSOR==
 
-var panel = new _.panel('Allmusic review');
+var panel = new _.panel();
 var text = new _.text('allmusic', LM, TM, 0, 0);
 
 panel.item_focus_change();
@@ -21,8 +21,8 @@ function on_size() {
 
 function on_paint(gr) {
 	panel.paint(gr);
-	gr.FillSolidRect(0, 0, panel.w, TM, panel.colours.header);
 	gr.GdiDrawText(text.header_text(), panel.fonts.title, panel.colours.highlight, LM, 0, panel.w - (LM * 2), TM, LEFT);
+	gr.DrawLine(text.x, text.y + 1, text.x + text.w, text.y + 1, 1, panel.colours.highlight);
 	text.paint(gr);
 }
 

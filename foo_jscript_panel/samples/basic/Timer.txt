@@ -1,18 +1,18 @@
-// This sample create two timers
-// Click the window to start the timer, and see the result after the console is showed.
-// Click the window again to kill all timers.
-
 // ==PREPROCESSOR==
 // @name "Timer"
 // @author "T.P Wang"
 // ==/PREPROCESSOR==
+
+// This sample create two timers
+// Click the window to start the timer, and see the result after the console is shown.
+// Click the window again to kill all timers.
 
 var g_timer_started = false;
 var g_count = 0;
 var g_timer1_ID, g_timer2_ID;
 
 function print_to_console(msg) {
-	fb.trace('Timer test:', msg);
+	console.log('Timer test:', msg);
 }
 
 function on_mouse_lbtn_up() {

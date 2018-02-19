@@ -256,15 +256,8 @@ var AlbumArtId = {
 	artist: 4
 };
 
-// Used in fb.ShowPopupMessage()
-var IconId = {
-	information: 0,
-	error: 1,
-	query: 2
-};
-
-// Used in window.GetColorCUI()
-var ColorTypeCUI = {
+// Used in window.GetColourCUI()
+var ColourTypeCUI = {
 	text: 0,
 	selection_text: 1,
 	inactive_selection_text: 2,
@@ -280,8 +273,8 @@ var FontTypeCUI = {
 	labels: 1
 };
 
-// Used in window.GetColorDUI()
-var ColorTypeDUI = {
+// Used in window.GetColourDUI()
+var ColourTypeDUI = {
 	text: 0,
 	background: 1,
 	highlight: 2,
@@ -299,7 +292,7 @@ var FontTypeDUI = {
 };
 
 /*
-SupportColorFlagCUI = {
+SupportColourFlagCUI = {
 	text: 0x0,
 	selection_text: 0x2,
 	inactive_selection_text: 0x4,
@@ -312,8 +305,8 @@ SupportColorFlagCUI = {
 	colour_flag_all: 0x1ff
 };
 
-=== Colors ===
-Used in GetColorCUI() as client_guid
+=== Colours ===
+Used in GetColourCUI() as client_guid
 NG Playlist: "{C882D3AC-C014-44DF-9C7E-2DADF37645A0}" Support Bits: 0x000001ff
 Columns Playlist: "{0CF29D60-1262-4F55-A6E1-BC4AE6579D19}" Support Bits: 0x000001ff
 Item Details: "{4E20CEED-42F6-4743-8EB3-610454457E19}" Support Bits: 0x00000009

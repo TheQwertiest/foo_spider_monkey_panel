@@ -27,11 +27,13 @@ namespace ui_extension
 
 		virtual const window_ptr & get_window_ptr()const=0;
 
+		virtual bool query(const GUID & p_guid) const {return false;}
+		virtual ~splitter_item_t() {};
+
 		template <typename t_class>
 		bool query(const t_class * & p_out) const
 		{
-			if (query(t_class::get_class_guid()))
-			{
+			if (query(t_class::get_class_guid())) {
 				p_out = static_cast<const t_class*>(this);
 				return true;
 			}
@@ -41,16 +43,23 @@ namespace ui_extension
 		template <typename t_class>
 		bool query(t_class * & p_out)
 		{
-			if (query(t_class::get_class_guid()))
-			{
+			if (query(t_class::get_class_guid())) {
 				p_out = static_cast<t_class*>(this);
 				return true;
 			}
 			return false;
 		}
 
-		virtual bool query(const GUID & p_guid) const {return false;}
-		virtual ~splitter_item_t() {};
+		void get_panel_config_to_array(pfc::array_t<uint8_t> & p_data, bool reset = false) const
+		{
+			stream_writer_memblock_ref writer(p_data, reset);
+			get_panel_config(&writer);
+		}
+		void set_panel_config_from_ptr(const void * p_data, t_size p_size)
+		{
+			stream_reader_memblock_ref reader(p_data, p_size);
+			return set_panel_config(&reader, p_size);
+		}
 
 		void set(const splitter_item_t & p_source);
 		splitter_item_t & operator = (const splitter_item_t & p_source)
@@ -110,12 +119,12 @@ namespace ui_extension
 	class splitter_item_full_t : public splitter_item_t
 	{
 	public:
-		unsigned m_caption_orientation;
+		uint32_t m_caption_orientation;
 		bool m_locked;
 		bool m_hidden;
 		bool m_autohide;
 		bool m_show_caption;
-		unsigned m_size;
+		uint32_t m_size;
 		bool m_show_toggle_area;
 		bool m_custom_title;
 
@@ -133,7 +142,24 @@ namespace ui_extension
 		virtual bool query(const GUID & p_guid) const {return (p_guid == get_class_guid()) != 0;}
 	};
 
-	class splitter_item_full_impl_t : public splitter_item_simple<splitter_item_full_t>
+	class splitter_item_full_v2_t : public splitter_item_full_t {
+	public:
+		uint32_t m_size_v2;
+		uint32_t m_size_v2_dpi;
+
+		static const GUID & get_class_guid()
+		{
+			// {4C0BAD6E-A0BE-4F57-981B-F94EBBEE57EF}
+			static const GUID rv =
+			{ 0x4c0bad6e, 0xa0be, 0x4f57,{ 0x98, 0x1b, 0xf9, 0x4e, 0xbb, 0xee, 0x57, 0xef } };
+			return rv;
+		}
+
+		virtual bool query(const GUID & p_guid) const { return p_guid == get_class_guid() || splitter_item_full_t::query(p_guid); }
+	};
+
+	template<class TBase>
+	class splitter_item_full_impl_base_t : public splitter_item_simple<TBase>
 	{
 		pfc::string8 m_title;
 	public:
@@ -146,6 +172,10 @@ namespace ui_extension
 			m_title.set_string(p_title, length);
 		}
 	};
+
+	typedef splitter_item_full_impl_base_t<splitter_item_full_t> splitter_item_full_impl_t;
+	typedef splitter_item_full_impl_base_t<splitter_item_full_v2_t> splitter_item_full_v2_impl_t;
+
 	class stream_writer_fixedbuffer : public stream_writer {
 	public:
 		void write(const void * p_buffer,t_size p_bytes,abort_callback & p_abort) {
@@ -162,7 +192,19 @@ namespace ui_extension
 		t_size & m_bytes_read;
 	};
 
-	class splitter_callback;
+#ifndef USER_DEFAULT_SCREEN_DPI
+#define CUI_SDK_DEFAULT_DPI 96
+#else
+#define CUI_SDK_DEFAULT_DPI USER_DEFAULT_SCREEN_DPI
+#endif
+
+	struct size_and_dpi {
+		uint32_t size;
+		uint32_t dpi;
+
+		size_and_dpi() : size(0), dpi(CUI_SDK_DEFAULT_DPI) {}
+		size_and_dpi(uint32_t size_, uint32_t dpi_ = CUI_SDK_DEFAULT_DPI) : size(size_), dpi(dpi_) {}
+	};
 
 	/**
 	* \brief Subclass of ui_extension::window, specifically for splitters.
@@ -182,6 +224,7 @@ namespace ui_extension
 		static const GUID uint32_size;
 		static const GUID bool_use_custom_title;
 		static const GUID string_custom_title;
+		static const GUID size_and_dpi;
 
 		/**
 		* \brief Get config item supported
@@ -209,7 +252,8 @@ namespace ui_extension
 
 		bool get_config_item(t_size index, const GUID & p_type, stream_writer * p_out) const
 		{
-			return get_config_item(index, p_type, p_out, abort_callback_impl());
+			abort_callback_dummy p_abort;
+			return get_config_item(index, p_type, p_out, p_abort);
 		}
 		virtual bool set_config_item(t_size index, const GUID & p_type, stream_reader * p_source, abort_callback & p_abort)
 		{
@@ -218,18 +262,21 @@ namespace ui_extension
 		template <typename class_t>
 		bool set_config_item_t(t_size index, const GUID & p_type, const class_t & p_val, abort_callback & p_abort)
 		{
-			return set_config_item(index, p_type, &stream_reader_memblock_ref(&p_val, sizeof(class_t)), p_abort);
+			stream_reader_memblock_ref reader(&p_val, sizeof(class_t));
+			return set_config_item(index, p_type, &reader, p_abort);
 		};
 
 		template <class T> bool get_config_item(t_size p_index, const GUID & p_type, T & p_out, abort_callback & p_abort) const
 		{
 			t_size written;
-			return get_config_item(p_index, p_type, &stream_writer_fixedbuffer(&p_out, sizeof(T), written), p_abort);
+			stream_writer_fixedbuffer writer(&p_out, sizeof(T), written);
+			return get_config_item(p_index, p_type, &writer, p_abort);
 		}
 
 		template <class T> bool get_config_item(t_size p_index, const GUID & p_type, T & p_out) const
 		{
-			return get_config_item(p_index, p_type, p_out, abort_callback_impl());
+			abort_callback_dummy abort_callback;
+			return get_config_item(p_index, p_type, p_out, abort_callback);
 		}
 		/** This method may be called on both active and inactive (i.e. no window) instances */
 		virtual void insert_panel(t_size index, const splitter_item_t * p_item)=0;
@@ -241,9 +288,9 @@ namespace ui_extension
 		virtual t_size get_maximum_panel_count()const{return pfc_infinite;};
 
 		/** Reserved for future use */
-		virtual void register_callback(splitter_callback * p_callback){};
+		virtual void register_callback(class splitter_callback * p_callback){};
 		/** Reserved for future use */
-		virtual void deregister_callback(splitter_callback * p_callback){};
+		virtual void deregister_callback(class splitter_callback * p_callback){};
 	protected:
 		/**
 		* Return value needs deleting!! Use pfc::ptrholder_t
@@ -281,7 +328,7 @@ namespace ui_extension
 		inline bool move_down(t_size p_index)
 		{
 			t_size count = get_panel_count();
-			if (p_index >= 0 && p_index < (count-1))
+			if (p_index < (count-1))
 			{
 				swap_items(p_index, p_index+1);
 				return true;
@@ -316,6 +363,11 @@ namespace ui_extension
 					return;
 				}
 			}
+		}
+		bool set_config_item(t_size index, const GUID & p_type, const void * p_data, t_size p_size, abort_callback & p_abort)
+		{
+			stream_reader_memblock_ref reader(p_data, p_size);
+			return set_config_item(index, p_type, &reader, p_abort);
 		}
 
 		FB2K_MAKE_SERVICE_INTERFACE(splitter_window, window);

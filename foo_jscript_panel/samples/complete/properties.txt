@@ -7,11 +7,11 @@
 // @import "%fb2k_component_path%samples\complete\js\list.js"
 // ==/PREPROCESSOR==
 
-// Requires the "Guifx v2 Transports.ttf" font which can be downloaded from
-// http://blog.guifx.com/2009/04/02/guifx-v2-transport-font/
-
-var panel = new _.panel('Properties');
+var panel = new _.panel();
 var list = new _.list('properties', LM, TM, 0, 0);
+
+// uncomment if you want to display data from the JScript Panel database documented here: https://github.com/marc2k3/foo_jscript_panel/wiki/Playback-Stats
+// list.custom_fields = ['JSP_PLAYCOUNT', 'JSP_LOVED', 'JSP_FIRST_PLAYED', 'JSP_LAST_PLAYED', 'JSP_RATING'];
 
 panel.item_focus_change();
 
@@ -24,8 +24,8 @@ function on_size() {
 
 function on_paint(gr) {
 	panel.paint(gr);
-	gr.FillSolidRect(0, 0, panel.w, TM, panel.colours.header);
 	gr.GdiDrawText(list.header_text(), panel.fonts.title, panel.colours.highlight, LM, 0, panel.w - (LM * 2), TM, LEFT);
+	gr.DrawLine(list.x, list.y + 1, list.x + list.w, list.y + 1, 1, panel.colours.highlight);
 	list.paint(gr);
 }
 

@@ -95,6 +95,11 @@ namespace columns_ui
 		const GUID guid_global_variables = 
 		{ 0x493d419a, 0xcbb3, 0x4b8a, { 0x8f, 0xb8, 0x28, 0xde, 0x2a, 0xe2, 0xf3, 0x6f } };
 	}
+	namespace config_objects {
+		// {3A0EF00A-D538-4470-9A18-DCF822CC9673}
+		const GUID guid_bool_locked_panel_resizing_allowed =
+		{ 0x3a0ef00a, 0xd538, 0x4470,{ 0x9a, 0x18, 0xdc, 0xf8, 0x22, 0xcc, 0x96, 0x73 } };
+	}
 	// {28992DF0-1EE2-4e06-AC86-BF4F266E2E56}
 	const GUID control::class_guid = 
 	{ 0x28992df0, 0x1ee2, 0x4e06, { 0xac, 0x86, 0xbf, 0x4f, 0x26, 0x6e, 0x2e, 0x56 } };
@@ -118,6 +123,18 @@ namespace columns_ui
 	// {3FBCC2B0-978E-406f-A446-4677E0D4C58E}
 	const GUID fonts::client::class_guid =
 	{ 0x3fbcc2b0, 0x978e, 0x406f, { 0xa4, 0x46, 0x46, 0x77, 0xe0, 0xd4, 0xc5, 0x8e } };
+
+	void cui::fcl::dataset::get_data_to_array(pfc::array_t<uint8_t> & p_data, t_uint32 type, t_export_feedback & feedback, abort_callback & p_abort, bool b_reset) const
+	{
+		stream_writer_memblock_ref writer(p_data, b_reset);
+		get_data(&writer, type, feedback, p_abort);
+	}
+
+	void cui::fcl::dataset::set_data_from_ptr(const void * p_data, t_size size, t_uint32 type, t_import_feedback & feedback, abort_callback & p_abort)
+	{
+		stream_reader_memblock_ref reader(p_data, size);
+		return set_data(&reader, size, type, feedback, p_abort);
+	}
 
 	bool fonts::client::create_by_guid (const GUID & p_guid, client::ptr & p_out)
 	{

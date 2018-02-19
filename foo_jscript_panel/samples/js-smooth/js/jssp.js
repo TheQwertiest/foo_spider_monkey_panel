@@ -1,6 +1,3 @@
-if (!("FormatDuration" in utils))
-	fb.ShowPopupMessage("This script requires the component JScript Panel v1.0.0 or higher.\n\nhttps://github.com/19379/foo-jscript-panel/releases");
-
 ppt = {
 	tf_artist: fb.TitleFormat("%artist%"),
 	tf_albumartist: fb.TitleFormat("%album artist%"),
@@ -355,9 +352,9 @@ image_cache = function () {
 				brw.groups[albumId].save_requested = true;
 				save_image_to_cache(metadb, albumId);
 				timers.saveCover = window.SetTimeout(function () {
-						window.ClearTimeout(timers.saveCover);
-						timers.saveCover = false;
-					}, 100);
+					window.ClearTimeout(timers.saveCover);
+					timers.saveCover = false;
+				}, 50);
 			};
 		};
 
@@ -1597,12 +1594,6 @@ oBrowser = function (name) {
 		};
 
 		this.rowsCount = r;
-
-		/*
-		var d2 = new Date();
-		var t2 = d2.getSeconds()*1000 + d2.getMilliseconds();
-		fb.trace("setlist delay = "+Math.round(t2 - t1));
-		 */
 	};
 
 	this.showNowPlaying = function () {
@@ -2378,7 +2369,7 @@ oBrowser = function (name) {
 				try {
 					gr.gdiDrawText(boxText, gdi.Font(g_fname, g_fsize - 2, 1), blendColors(g_color_normal_txt, g_color_normal_bg, 0.4), tx, 0, tw, ppt.headerBarHeight - 1, DT_RIGHT | DT_VCENTER | DT_CALCRECT | DT_NOPREFIX | DT_END_ELLIPSIS);
 				} catch (e) {
-					fb.trace(">> debug: cScrollBar.width=" + cScrollBar.width + " /boxText=" + boxText + " /ppt.headerBarHeight=" + ppt.headerBarHeight + " /g_fsize=" + g_fsize);
+					console.log(">> debug: cScrollBar.width=" + cScrollBar.width + " /boxText=" + boxText + " /ppt.headerBarHeight=" + ppt.headerBarHeight + " /g_fsize=" + g_fsize);
 				};
 			};
 		};
@@ -2849,7 +2840,7 @@ oBrowser = function (name) {
 
 		_menu.AppendMenuItem(MF_STRING, 1, "Settings...");
 		_menu.AppendMenuSeparator();
-		Context.BuildMenu(_menu, 2, -1);
+		Context.BuildMenu(_menu, 2);
 
 		_child01.AppendTo(_menu, MF_STRING, "Selection...");
 		if (brw.activeRow > -1) {
@@ -2889,7 +2880,7 @@ oBrowser = function (name) {
 					try {
 						fso.DeleteFile(fb.ProfilePath + "js_smooth_cache\\" + crc);
 					} catch (e) {
-						fb.trace("WSH Panel Error: Image cache [" + crc + "] can't be deleted on disk, file in use, try later or reload panel.");
+						console.log("WSH Panel Error: Image cache [" + crc + "] can't be deleted on disk, file in use, try later or reload panel.");
 					};
 				};
 				this.groups[albumIndex].tid = -1;
@@ -3202,11 +3193,6 @@ var g_radio_title = "loading live tag ...";
 var g_radio_artist = "";
 
 var fso = new ActiveXObject("Scripting.FileSystemObject");
-var Img = new ActiveXObject("WIA.ImageFile.1");
-var IP = new ActiveXObject("WIA.ImageProcess.1");
-IP.Filters.Add(IP.FilterInfos("Scale").FilterID); //ID = 1
-IP.Filters.Add(IP.FilterInfos("Crop").FilterID); //ID = 2
-IP.Filters.Add(IP.FilterInfos("Convert").FilterID); //ID = 3
 var WshShell = new ActiveXObject("WScript.Shell");
 var htmlfile = new ActiveXObject('htmlfile');
 var list_img = [];
@@ -3320,6 +3306,7 @@ var g_rating_updated = false;
 var g_rating_rowId = -1;
 
 function on_init() {
+	plman.SetActivePlaylistContext();
 	window.DlgCode = DLGC_WANTALLKEYS;
 
 	get_font();
@@ -3800,7 +3787,7 @@ function get_font() {
 		g_fsize = default_font.Size;
 		g_fstyle = default_font.Style;
 	} catch (e) {
-		fb.trace("WSH Panel Error: Unable to use the default font. Using Arial font instead.");
+		console.log("WSH Panel Error: Unable to use the default font. Using Arial font instead.");
 		g_fname = "arial";
 		g_fsize = 12;
 		g_fstyle = 0;
@@ -3834,10 +3821,10 @@ function get_font() {
 function get_colors() {
 	var arr;
 	// get some system colors
-	g_syscolor_window_bg = utils.GetSysColor(COLOR_WINDOW);
-	g_syscolor_highlight = utils.GetSysColor(COLOR_HIGHLIGHT);
-	g_syscolor_button_bg = utils.GetSysColor(COLOR_BTNFACE);
-	g_syscolor_button_txt = utils.GetSysColor(COLOR_BTNTEXT);
+	g_syscolor_window_bg = utils.GetSysColour(COLOR_WINDOW);
+	g_syscolor_highlight = utils.GetSysColour(COLOR_HIGHLIGHT);
+	g_syscolor_button_bg = utils.GetSysColour(COLOR_BTNFACE);
+	g_syscolor_button_txt = utils.GetSysColour(COLOR_BTNTEXT);
 
 	arr = window.GetProperty("CUSTOM COLOR TEXT NORMAL", "180-180-180").split("-");
 	g_color_normal_txt = RGB(arr[0], arr[1], arr[2]);
@@ -3854,17 +3841,17 @@ function get_colors() {
 	if (!ppt.enableCustomColors) {
 		// get UI colors set in UI Preferences if no custom color set
 		if (g_instancetype == 0) {
-			g_color_normal_txt = window.GetColorCUI(ColorTypeCUI.text);
-			g_color_selected_txt = window.GetColorCUI(ColorTypeCUI.selection_text);
-			g_color_normal_bg = window.GetColorCUI(ColorTypeCUI.background);
-			g_color_selected_bg = window.GetColorCUI(ColorTypeCUI.selection_background);
-			g_color_highlight = window.GetColorCUI(ColorTypeCUI.active_item_frame);
+			g_color_normal_txt = window.GetColourCUI(ColorTypeCUI.text);
+			g_color_selected_txt = window.GetColourCUI(ColorTypeCUI.selection_text);
+			g_color_normal_bg = window.GetColourCUI(ColorTypeCUI.background);
+			g_color_selected_bg = window.GetColourCUI(ColorTypeCUI.selection_background);
+			g_color_highlight = window.GetColourCUI(ColorTypeCUI.active_item_frame);
 		} else if (g_instancetype == 1) {
-			g_color_normal_txt = window.GetColorDUI(ColorTypeDUI.text);
-			g_color_selected_txt = window.GetColorDUI(ColorTypeDUI.selection);
-			g_color_normal_bg = window.GetColorDUI(ColorTypeDUI.background);
+			g_color_normal_txt = window.GetColourDUI(ColorTypeDUI.text);
+			g_color_selected_txt = window.GetColourDUI(ColorTypeDUI.selection);
+			g_color_normal_bg = window.GetColourDUI(ColorTypeDUI.background);
 			g_color_selected_bg = g_color_selected_txt;
-			g_color_highlight = window.GetColorDUI(ColorTypeDUI.highlight);
+			g_color_highlight = window.GetColourDUI(ColorTypeDUI.highlight);
 		};
 	};
 };
@@ -3875,7 +3862,7 @@ function on_font_changed() {
 	brw.repaint();
 };
 
-function on_colors_changed() {
+function on_colours_changed() {
 	get_colors();
 	get_images();
 	if (brw)
@@ -4397,7 +4384,7 @@ function on_key_down(vkey) {
 									plman.InsertPlaylistItems(g_active_playlist, 0, clipboard.selection);
 								};
 							} catch (e) {
-								fb.trace("WSH Panel Error: Clipboard can't be pasted, invalid clipboard content.");
+								console.log("WSH Panel Error: Clipboard can't be pasted, invalid clipboard content.");
 							};
 						};
 					};
@@ -4610,13 +4597,7 @@ function on_item_focus_change(playlist, from, to) {
 	g_focus_id = to;
 
 	if (!g_avoid_on_item_focus_change) {
-
-		plman.SetActivePlaylistContext();
-
 		if (playlist == g_active_playlist) {
-			//
-			plman.SetActivePlaylistContext();
-
 			// Autocollapse handle
 			if (ppt.autocollapse) { // && !center_focus_item
 				if (from > -1 && from < brw.list.Count) {
@@ -4716,7 +4697,7 @@ function on_playlist_items_selection_change() {
 
 function on_focus(is_focused) {
 	if (is_focused) {
-		g_selHolder = fb.AcquireUiSelectionHolder();
+		plman.SetActivePlaylistContext();
 		g_selHolder.SetPlaylistSelectionTracking();	
 	} else {
 		brw.repaint();
@@ -4769,20 +4750,12 @@ function on_notify_data(name, info) {
 };
 
 function save_image_to_cache(metadb, albumIndex) {
-	var tran = false;
 	var path = ppt.tf_path.EvalWithMetadb(metadb);
 	var path_ = getpath_(path);
 	if (path_) {
-		//var crc = processpath(path);
-		//var crc = ppt.tf_crc.EvalWithMetadb(metadb);
 		var crc = brw.groups[albumIndex].cachekey;
-	} else {
-		return false;
-	};
-
-	var comm = "wscript //E:jscript \"" + fb.ProfilePath + "js_smooth_cache\\LoadIMG.js\" \""
-		 + fb.ProfilePath + "\" \"" + path_ + "\" \"" + crc + "\" \"" + tran + "\"";
-	WshShell.Run(comm, false, false);
+		resize(path_, crc);
+	}
 };
 
 on_load();

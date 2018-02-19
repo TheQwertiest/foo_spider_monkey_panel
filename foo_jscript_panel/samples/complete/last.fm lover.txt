@@ -1,0 +1,129 @@
+// ==PREPROCESSOR==
+// @name "Last.fm Lover"
+// @author "marc2003"
+// @import "%fb2k_component_path%samples\complete\js\lodash.min.js"
+// @import "%fb2k_component_path%samples\complete\js\helpers.js"
+// @import "%fb2k_component_path%samples\complete\js\panel.js"
+// @import "%fb2k_component_path%samples\complete\js\lastfm.js"
+// ==/PREPROCESSOR==
+
+/*
+This script makes use of the JScript Panel "Playback Stats" database to import
+and store loved tracks from Last.fm. Each loved track will have the value of
+%jsp_loved% set to 1. You can access this through all other components/search -
+it works in the same way as "foo_playcount" - all values are stored in a database
+file and no files are tagged. Each record is bound to "%artist% - %title%" so
+common tracks across different albums will share the same loved status. Right click
+the heart iocn to set your Last.fm username and authorise the script through your
+browser. You can then import all your loved tracks and then use the heart icon
+to love/unlove tracks.
+*/
+
+var loved = _.chrToImg(chars.heart_on, _.RGB(255, 0, 0));
+var unloved = _.chrToImg(chars.heart_off, _.RGB(255, 0, 0));
+var info = _.chrToImg(chars.info, _.RGB(255, 0, 0));
+
+var panel = new _.panel('custom_background');
+var buttons = new _.buttons();
+var lastfm = new _.lastfm();
+
+buttons.update = function () {
+	switch (true) {
+	case lastfm.username.length == 0 || lastfm.sk.length != 32:
+		var n = info;
+		var h = info;
+		var func = null;
+		var tooltip = 'Right click to set your Last.fm username and authorise.';
+		break;
+	case !panel.metadb:
+		var n = info;
+		var h = info;
+		var func = null;
+		var tooltip = 'No selection';
+		break;
+	case _.parseInt(panel.tf('%JSP_LOVED%')) == 1:
+		var n = loved;
+		var h = unloved;
+		var func = function () {
+			lastfm.post('track.unlove', null, panel.metadb);
+		}
+		var tooltip = panel.tf('Unlove "%title%" by "%artist%"');
+		break;
+	default:
+		var n = unloved;
+		var h = loved;
+		var func = function () {
+			lastfm.post('track.love', null, panel.metadb);
+		}
+		var tooltip = panel.tf('Love "%title%" by "%artist%"');
+		break;
+	}
+	this.buttons.lover = new _.button(0, 0, 36, 36, {normal : n, hover : h}, func, tooltip);
+}
+
+function on_notify_data(name, data) {
+	lastfm.notify_data(name, data);
+}
+
+function on_size() {
+	panel.size();
+	buttons.update();
+}
+
+function on_paint(gr) {
+	panel.paint(gr);
+	buttons.paint(gr);
+}
+
+function on_metadb_changed() {
+	buttons.update();
+	window.Repaint();
+}
+
+function on_mouse_move(x, y) {
+	buttons.move(x, y);
+}
+
+function on_mouse_leave() {
+	buttons.leave();
+}
+
+function on_mouse_lbtn_up(x, y) {
+	buttons.lbtn_up(x, y);
+}
+
+function on_mouse_rbtn_up(x, y) {
+	if (buttons.buttons.lover.trace(x, y)) {
+		var m = window.CreatePopupMenu();
+		m.AppendMenuItem(MF_STRING, 1, "Set and authorise your Last.fm username");
+		m.AppendMenuItem(lastfm.sk.length == 32 ? MF_STRING : MF_GRAYED, 2, 'Bulk import Last.fm loved tracks');
+		m.AppendMenuSeparator();
+		m.AppendMenuItem(MF_STRING, 3, 'Show loved tracks');
+		m.AppendMenuSeparator();
+		m.AppendMenuItem(MF_STRING, 4, 'Configure...');
+		var idx = m.TrackPopupMenu(x, y);
+		switch (idx) {
+		case 1:
+			lastfm.update_username();
+			if (lastfm.username.length) {
+				lastfm.post('auth.getToken');
+			}
+			buttons.update();
+			window.Repaint();
+			break;
+		case 2:
+			lastfm.get_loved_tracks(1);
+			break;
+		case 3:
+			fb.ShowLibrarySearchUI('%JSP_LOVED% IS 1');
+			break;
+		case 4:
+			window.ShowConfigure();
+			break;
+		}
+		m.Dispose();
+	} else {
+		panel.rbtn_up(x, y);
+	}
+	return true;
+}

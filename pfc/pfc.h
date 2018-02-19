@@ -19,6 +19,10 @@
 
 #define PFC_DLL_EXPORT
 
+// Suppress this line when using PFC outside classic foobar2000
+// When enabled, certain shared.dll methods are referenced
+#define PFC_FOOBAR2000_CLASSIC
+
 #ifdef _WINDOWS
 
 #ifndef STRICT
@@ -173,6 +177,7 @@ namespace pfc {
 #include "ptr_list.h"
 #include "string_base.h"
 #include "string_list.h"
+#include "lockless.h"
 #include "ref_counter.h"
 #include "iterators.h"
 #include "avltree.h"

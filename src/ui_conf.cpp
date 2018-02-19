@@ -6,8 +6,6 @@
 #include "ui_replace.h"
 #include "helpers.h"
 
-using namespace pfc::stringcvt;
-
 LRESULT CDialogConf::OnInitDialog(HWND hwndFocus, LPARAM lParam)
 {
 	// Get caption text
@@ -31,33 +29,58 @@ LRESULT CDialogConf::OnInitDialog(HWND hwndFocus, LPARAM lParam)
 		SetWindowPlacement(&m_parent->get_windowplacement());
 	}
 
-	// Edge Style
-	HWND combo_edge_style = GetDlgItem(IDC_EDGE_STYLE);
-
-	ComboBox_AddString(combo_edge_style, _T("None"));
-	ComboBox_AddString(combo_edge_style, _T("Sunken"));
-	ComboBox_AddString(combo_edge_style, _T("Grey"));
-	ComboBox_SetCurSel(combo_edge_style, m_parent->get_edge_style());
-
-	// Subclassing scintilla
-	m_editorctrl.SubclassWindow(GetDlgItem(IDC_EDIT));
-	m_editorctrl.SetJScript();
-	m_editorctrl.ReadAPI();
-
-	// Checkboxes
-	uButton_SetCheck(m_hWnd, IDC_CHECK_GRABFOCUS, m_parent->get_grab_focus());
-	uButton_SetCheck(m_hWnd, IDC_CHECK_PSEUDO_TRANSPARENT, m_parent->get_pseudo_transparent());
-
 	// GUID Text
 	pfc::string8 guid_text = "GUID: ";
 	guid_text += pfc::print_guid(m_parent->get_config_guid());
 	uSetWindowText(GetDlgItem(IDC_STATIC_GUID), guid_text);
 
-	// Script
+	// Edit Control
+	m_editorctrl.SubclassWindow(GetDlgItem(IDC_EDIT));
+	m_editorctrl.SetJScript();
+	m_editorctrl.ReadAPI();
 	m_editorctrl.SetContent(m_parent->get_script_code(), true);
-
-	// Set save point
 	m_editorctrl.SetSavePoint();
+
+	// Script Engine
+	HWND combo_engine = GetDlgItem(IDC_COMBO_ENGINE);
+	ComboBox_AddString(combo_engine, _T("Chakra"));
+	ComboBox_AddString(combo_engine, _T("JScript"));
+	if (IsWindowsVistaOrGreater())
+	{
+		uComboBox_SelectString(combo_engine, m_parent->get_script_engine());
+	}
+	else
+	{
+		GetDlgItem(IDC_COMBO_ENGINE).EnableWindow(false);
+	}
+
+	if (m_parent->GetInstanceType() == HostComm::KInstanceTypeCUI)
+	{
+		// Edge Style
+		HWND combo_edge = GetDlgItem(IDC_COMBO_EDGE);
+		ComboBox_AddString(combo_edge, _T("None"));
+		ComboBox_AddString(combo_edge, _T("Sunken"));
+		ComboBox_AddString(combo_edge, _T("Grey"));
+		ComboBox_SetCurSel(combo_edge, m_parent->get_edge_style());
+
+		// Pseudo Transparent
+		uButton_SetCheck(m_hWnd, IDC_CHECK_PSEUDO_TRANSPARENT, m_parent->get_pseudo_transparent());
+	}
+	else
+	{
+		// Disable these items in Default UI
+
+		// Edge Style
+		HWND combo_edge = GetDlgItem(IDC_COMBO_EDGE);
+		GetDlgItem(IDC_COMBO_EDGE).EnableWindow(false);
+
+		// Pseudo
+		uButton_SetCheck(m_hWnd, IDC_CHECK_PSEUDO_TRANSPARENT, false);
+		GetDlgItem(IDC_CHECK_PSEUDO_TRANSPARENT).EnableWindow(false);
+	}
+
+	// Grab Focus
+	uButton_SetCheck(m_hWnd, IDC_CHECK_GRABFOCUS, m_parent->get_grab_focus());
 
 	return TRUE; // set focus to default control
 }
@@ -101,6 +124,8 @@ LRESULT CDialogConf::OnCloseCmd(WORD wNotifyCode, WORD wID, HWND hWndCtl)
 
 void CDialogConf::OnResetDefault()
 {
+	HWND combo = GetDlgItem(IDC_COMBO_ENGINE);
+	uComboBox_SelectString(combo, "Chakra");
 	pfc::string8 code;
 	js_panel_vars::get_default_script_code(code);
 	m_editorctrl.SetContent(code);
@@ -108,6 +133,8 @@ void CDialogConf::OnResetDefault()
 
 void CDialogConf::OnResetCurrent()
 {
+	HWND combo = GetDlgItem(IDC_COMBO_ENGINE);
+	uComboBox_SelectString(combo, m_parent->get_script_engine());
 	m_editorctrl.SetContent(m_parent->get_script_code());
 }
 
@@ -191,19 +218,22 @@ LRESULT CDialogConf::OnTools(WORD wNotifyCode, WORD wID, HWND hWndCtl)
 
 void CDialogConf::Apply()
 {
+	pfc::string8 name;
 	pfc::array_t<char> code;
 	int len = 0;
 
+	// Get engine name
+	uGetWindowText(GetDlgItem(IDC_COMBO_ENGINE), name);
 	// Get script text
 	len = m_editorctrl.GetTextLength();
 	code.set_size(len + 1);
 	m_editorctrl.GetText(code.get_ptr(), len + 1);
 
-	m_parent->get_edge_style() = static_cast<t_edge_style>(ComboBox_GetCurSel(GetDlgItem(IDC_EDGE_STYLE)));
+	m_parent->get_edge_style() = static_cast<t_edge_style>(ComboBox_GetCurSel(GetDlgItem(IDC_COMBO_EDGE)));
 	m_parent->get_disabled_before() = false;
 	m_parent->get_grab_focus() = uButton_GetCheck(m_hWnd, IDC_CHECK_GRABFOCUS);
 	m_parent->get_pseudo_transparent() = uButton_GetCheck(m_hWnd, IDC_CHECK_PSEUDO_TRANSPARENT);
-	m_parent->update_script(code.get_ptr());
+	m_parent->update_script(name, code.get_ptr());
 
 	// Wndow position
 	GetWindowPlacement(&m_parent->get_windowplacement());

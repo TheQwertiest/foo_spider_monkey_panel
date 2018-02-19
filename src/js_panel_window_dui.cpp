@@ -3,7 +3,8 @@
 #include "js_panel_window_dui.h"
 
 // Just because I don't want to include the helpers
-template <typename TImpl> class my_ui_element_impl : public ui_element
+template <typename TImpl>
+class my_ui_element_impl : public ui_element
 {
 public:
 	GUID get_guid()
@@ -95,12 +96,12 @@ void js_panel_window_dui::g_get_name(pfc::string_base& out)
 	out = JSP_NAME;
 }
 
-DWORD js_panel_window_dui::GetColorCUI(unsigned type, const GUID& guid)
+DWORD js_panel_window_dui::GetColourCUI(unsigned type, const GUID& guid)
 {
 	return 0;
 }
 
-DWORD js_panel_window_dui::GetColorDUI(unsigned type)
+DWORD js_panel_window_dui::GetColourDUI(unsigned type)
 {
 	const GUID* guids[] = {
 		&ui_color_text,
@@ -217,7 +218,7 @@ void js_panel_window_dui::notify(const GUID& p_what, t_size p_param1, const void
 	}
 	else if (p_what == ui_element_notify_colors_changed)
 	{
-		PostMessage(m_hwnd, CALLBACK_UWM_COLORS_CHANGED, 0, 0);
+		PostMessage(m_hwnd, CALLBACK_UWM_COLOURS_CHANGED, 0, 0);
 	}
 }
 

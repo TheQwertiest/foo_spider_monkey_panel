@@ -6,7 +6,7 @@
 // @import "%fb2k_component_path%samples\complete\js\panel.js"
 // ==/PREPROCESSOR==
 
-var panel = new _.panel('Playback Buttons', ['custom_background']);
+var panel = new _.panel('custom_background');
 var buttons = new _.buttons();
 var bs = _.scale(24);
 

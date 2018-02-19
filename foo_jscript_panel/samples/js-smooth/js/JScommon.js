@@ -1,3 +1,6 @@
+if (!("Version" in utils) || utils.Version < 2000)
+	fb.ShowPopupMessage("This script requires the component JScript Panel v2.0.0 or later.\n\nhttps://github.com/marc2k3/foo_jscript_panel");
+
 // *****************************************************************************************************************************************
 // Common functions & flags by Br3tt aka Falstaff (c)2013-2015
 // *****************************************************************************************************************************************
@@ -1002,62 +1005,22 @@ WindowState = {
 };
 
 function on_load() {
-	if (!fso.FileExists(fb.ProfilePath + "js_smooth_cache\\LoadIMG.js")) {
-		var data = "var fso = new ActiveXObject(\"Scripting.FileSystemObject\");\r\n"
-			 + "var Img = new ActiveXObject(\"WIA.ImageFile.1\");\r\n"
-			 + "var IP = new ActiveXObject(\"WIA.ImageProcess.1\");\r\n"
-			 + "IP.Filters.Add(IP.FilterInfos(\"Scale\").FilterID);//ID = 1\r\n"
-			 + "IP.Filters.Add(IP.FilterInfos(\"Crop\").FilterID);//ID = 2\r\n"
-			 + "IP.Filters.Add(IP.FilterInfos(\"Convert\").FilterID);//ID = 3\r\n"
-			 + "function resize_image(path,crc,tranparent)\r\n"
-			 + "{\r\n"
-			 + "    var ratio = 1;\r\n"
-			 + "    var cachesize = 200;\r\n"
-			 + "    var img_w = cachesize, img_h = cachesize, cr_x = 0, cr_y = 0;\r\n"
-			 + "    try{\r\n"
-			 + "    Img.LoadFile(path);\r\n"
-			 + "    }catch(err){\r\n"
-			 + "		return false;\r\n"
-			 + "    }\r\n"
-			 + "if(Img.Height >= Img.Width) {\r\n"
-			 + "    ratio = Img.Width / Img.Height;\r\n"
-			 + "    img_w = img_w * ratio;\r\n"
-			 + "    cr_x = (img_h - img_w)/2;\r\n"
-			 + "} else {\r\n"
-			 + "    ratio = Img.Height / Img.Width;\r\n"
-			 + "    img_h = img_h * ratio;\r\n"
-			 + "    cr_y = (img_w - img_h)/2;\r\n"
-			 + "}\r\n"
-			 + "    IP.Filters(1).Properties(\"MaximumWidth\") = img_w;\r\n"
-			 + "    IP.Filters(1).Properties(\"MaximumHeight\") = img_h;\r\n"
-			 + "    if(tranparent == \"true\"){\r\n"
-			 + "        IP.Filters(3).Properties(\"FormatID\").Value = '{B96B3CAF-0728-11D3-9D7B-0000F81EF32E}';\r\n"
-			 + "    }else{\r\n"
-			 + "        IP.Filters(3).Properties(\"FormatID\").Value = '{B96B3CAE-0728-11D3-9D7B-0000F81EF32E}';\r\n"
-			 + "        IP.Filters(3).Properties(\"Quality\").Value = 95; \r\n"
-			 + "    }\r\n"
-			 + "    //IP.Filters(2).Properties(\"Left\") = cr_x;\r\n"
-			 + "    //IP.Filters(2).Properties(\"Top\") = cr_y;\r\n"
-			 + "    //IP.Filters(2).Properties(\"Right\") = cr_x;\r\n"
-			 + "    //IP.Filters(2).Properties(\"Bottom\") = cr_y;\r\n"
-			 + "    Img = IP.Apply(Img);\r\n"
-			 + "    try{\r\n"
-			 + "        if(fso.FileExists(WScript.arguments(0) + \"\\\\js_smooth_cache\\\\\" + crc))\r\n"
-			 + "            fso.DeleteFile(WScript.arguments(0)+ \"\\\\js_smooth_cache\\\\\" + crc);\r\n"
-			 + "        Img.SaveFile(WScript.arguments(0) + \"\\\\js_smooth_cache\\\\\" + crc);\r\n"
-			 + "    }catch(err){\r\n"
-			 + "		return false;\r\n"
-			 + "    }\r\n"
-			 + "	return true;\r\n"
-			 + "}\r\n"
-			 + "resize_image(WScript.arguments(1),WScript.arguments(2),WScript.arguments(3));";
-		if (!fso.FolderExists(fb.ProfilePath + "js_smooth_cache"))
-			fso.CreateFolder(fb.ProfilePath + "js_smooth_cache");
-		var file = fso.CreateTextFile(fb.ProfilePath + "js_smooth_cache\\LoadIMG.js", true, 65001);
-		file.WriteLine(data);
-		file.Close();
-	};
+	if (!fso.FolderExists(fb.ProfilePath + "js_smooth_cache"))
+		fso.CreateFolder(fb.ProfilePath + "js_smooth_cache");
 };
+
+function resize(source, crc) {
+	var img = gdi.Image(source);
+	if (!img) {
+		return;
+	}
+	var s = Math.min(200 / img.Width, 200 / img.Height);
+	var w = Math.floor(img.Width * s);
+	var h = Math.floor(img.Height * s);
+	img = img.Resize(w, h, 2);
+	img.SaveAs(fb.ProfilePath + 'js_smooth_cache\\' + crc, "image/jpeg");
+	img.Dispose();
+}
 
 function getpath(path) {
 	var img_path = "";

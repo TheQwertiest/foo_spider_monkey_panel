@@ -48,12 +48,6 @@
     <ClCompile Include="ui_goto.cpp">
       <Filter>Source Files\UI</Filter>
     </ClCompile>
-    <ClCompile Include="ui_name_value_edit.cpp">
-      <Filter>Source Files\UI</Filter>
-    </ClCompile>
-    <ClCompile Include="ui_pref.cpp">
-      <Filter>Source Files\UI</Filter>
-    </ClCompile>
     <ClCompile Include="ui_property.cpp">
       <Filter>Source Files\UI</Filter>
     </ClCompile>
@@ -102,6 +96,12 @@
     <ClCompile Include="config.cpp">
       <Filter>Source Files\UI</Filter>
     </ClCompile>
+    <ClCompile Include="ui_name_value_edit.cpp">
+      <Filter>Source Files\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="ui_pref.cpp">
+      <Filter>Source Files\UI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="host.h">
@@ -134,12 +134,6 @@
     <ClInclude Include="ui_goto.h">
       <Filter>Header Files\UI</Filter>
     </ClInclude>
-    <ClInclude Include="ui_name_value_edit.h">
-      <Filter>Header Files\UI</Filter>
-    </ClInclude>
-    <ClInclude Include="ui_pref.h">
-      <Filter>Header Files\UI</Filter>
-    </ClInclude>
     <ClInclude Include="ui_property.h">
       <Filter>Header Files\UI</Filter>
     </ClInclude>
@@ -150,9 +144,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="thread_pool.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="component_defines.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="panel_manager.h">
@@ -188,12 +179,6 @@
     <ClInclude Include="json.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="boxblurfilter.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="delay_loader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="helpers.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -225,6 +210,15 @@
       <Filter>Header Files\UI</Filter>
     </ClInclude>
     <ClInclude Include="stats.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ui_name_value_edit.h">
+      <Filter>Header Files\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="ui_pref.h">
+      <Filter>Header Files\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="component_defines.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -7,11 +7,15 @@
 // @import "%fb2k_component_path%samples\complete\js\rating.js"
 // ==/PREPROCESSOR==
 
-// Requires the "Guifx v2 Transports.ttf" font which can be downloaded from
-// http://blog.guifx.com/2009/04/02/guifx-v2-transport-font/
+/*
+Now supports 3 modes:
+1) foo_playcount, limited to 5 stars, access via %rating%
+2) file tags, configurable max limit, access via custom tag. Use right click menu to set.
+3) JScript Panel "Playback stats" database, configurable max limit, access via %jsp_rating%. Bound to "%artist% - %title%" so common tracks across different albums will share the rating.
+*/
 
-var panel = new _.panel('Rating', ['custom_background']);
-var rating = new _.rating(0, 0, 24, _.RGB(128, 128, 128), _.RGB(255, 128, 0));
+var panel = new _.panel('custom_background');
+var rating = new _.rating(0, 0, 24, _.RGB(255, 128, 0)); // x, y, height, colour
 
 panel.item_focus_change();
 
@@ -41,5 +45,5 @@ function on_mouse_lbtn_up(x, y) {
 }
 
 function on_mouse_rbtn_up(x, y) {
-	return panel.rbtn_up(x, y);
+	return panel.rbtn_up(x, y, rating);
 }

@@ -169,7 +169,7 @@ namespace columns_ui
 			virtual const GUID & get_client_guid() const = 0;
 			virtual void get_name (pfc::string_base & p_out) const = 0;
 
-			virtual t_size get_supported_colours() const {return cui::colours::colour_flag_all & ~ cui::colours::colour_flag_group_foreground|cui::colours::colour_flag_group_background;}; //bit-mask
+			virtual t_size get_supported_colours() const {return cui::colours::colour_flag_all & ~(cui::colours::colour_flag_group_foreground|cui::colours::colour_flag_group_background);} //bit-mask
 			virtual t_size get_supported_bools() const = 0; //bit-mask
 			/** Indicates whether you are Theme API aware and can draw selected items using Theme API */
 			virtual bool get_themes_supported() const = 0;
@@ -298,7 +298,7 @@ namespace columns_ui
 			FB2K_MAKE_SERVICE_INTERFACE_ENTRYPOINT(client);
 
 		public:
-			static bool create_by_guid (const GUID & p_guid, class ptr & p_out);
+			static bool create_by_guid (const GUID & p_guid, ptr & p_out);
 		};
 	};
 };

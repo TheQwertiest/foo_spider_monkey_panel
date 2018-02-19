@@ -1,0 +1,20 @@
+// ==PREPROCESSOR==
+// @name "ColourPicker"
+// @author "marc2003"
+// @import "%fb2k_component_path%docs\flags.txt"
+// @import "%fb2k_component_path%docs\helpers.txt"
+// ==/PREPROCESSOR==
+
+var colour = RGB(255, 0, 0);
+var font = gdi.Font('Segoe UI', 16, 1);
+
+function on_paint(gr) {
+	gr.FillSolidRect(0, 0, window.Width, window.Height, colour);
+	gr.FillSolidRect(0, 0, window.Width, 24, RGB(0, 0, 0));
+	gr.GdiDrawText('Click to open ColorPicker', font, RGB(255, 255, 255), 0, 0, window.Width, 24, DT_CENTER);
+}
+
+function on_mouse_lbtn_up() {
+	colour = utils.ColourPicker(window.ID, colour);
+	window.Repaint();
+}

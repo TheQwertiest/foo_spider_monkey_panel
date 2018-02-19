@@ -100,7 +100,7 @@ void panel_manager::send_msg_to_others_pointer(HWND p_wnd_except, UINT p_msg, pf
 
 void nonautoregister_callbacks::on_changed_sorted(metadb_handle_list_cref p_items_sorted, bool p_fromhook)
 {
-	t_on_changed_sorted_data* on_changed_sorted_data = new t_on_changed_sorted_data(p_items_sorted, p_fromhook);
+	t_on_data* on_changed_sorted_data = new t_on_data(p_items_sorted, p_fromhook);
 	panel_manager::instance().post_msg_to_all_pointer(CALLBACK_UWM_ON_CHANGED_SORTED, on_changed_sorted_data);
 }
 
@@ -109,19 +109,22 @@ void nonautoregister_callbacks::on_selection_changed(metadb_handle_list_cref p_s
 	panel_manager::instance().post_msg_to_all(CALLBACK_UWM_ON_SELECTION_CHANGED);
 }
 
-void my_library_callback::on_items_added(const pfc::list_base_const_t<metadb_handle_ptr>& p_data)
+void my_library_callback::on_items_added(metadb_handle_list_cref p_data)
 {
-	panel_manager::instance().post_msg_to_all(CALLBACK_UWM_ON_LIBRARY_ITEMS_ADDED);
+	t_on_data* on_items_added_data = new t_on_data(p_data, false);
+	panel_manager::instance().post_msg_to_all_pointer(CALLBACK_UWM_ON_LIBRARY_ITEMS_ADDED, on_items_added_data);
 }
 
-void my_library_callback::on_items_modified(const pfc::list_base_const_t<metadb_handle_ptr>& p_data)
+void my_library_callback::on_items_modified(metadb_handle_list_cref p_data)
 {
-	panel_manager::instance().post_msg_to_all(CALLBACK_UWM_ON_LIBRARY_ITEMS_CHANGED);
+	t_on_data* on_items_modified_data = new t_on_data(p_data, false);
+	panel_manager::instance().post_msg_to_all_pointer(CALLBACK_UWM_ON_LIBRARY_ITEMS_CHANGED, on_items_modified_data);
 }
 
-void my_library_callback::on_items_removed(const pfc::list_base_const_t<metadb_handle_ptr>& p_data)
+void my_library_callback::on_items_removed(metadb_handle_list_cref p_data)
 {
-	panel_manager::instance().post_msg_to_all(CALLBACK_UWM_ON_LIBRARY_ITEMS_REMOVED);
+	t_on_data* on_items_removed_data = new t_on_data(p_data, false);
+	panel_manager::instance().post_msg_to_all_pointer(CALLBACK_UWM_ON_LIBRARY_ITEMS_REMOVED, on_items_removed_data);
 }
 
 unsigned my_play_callback_static::get_flags()
@@ -258,12 +261,12 @@ void my_playlist_callback_static::on_item_focus_change(t_size p_playlist, t_size
 	panel_manager::instance().post_msg_to_all_pointer(CALLBACK_UWM_ON_ITEM_FOCUS_CHANGE, on_item_focus_change_data);
 }
 
-void my_playlist_callback_static::on_items_added(t_size p_playlist, t_size p_start, const pfc::list_base_const_t<metadb_handle_ptr>& p_data, const bit_array& p_selection)
+void my_playlist_callback_static::on_items_added(t_size p_playlist, t_size p_start, metadb_handle_list_cref p_data, const pfc::bit_array& p_selection)
 {
 	panel_manager::instance().post_msg_to_all(CALLBACK_UWM_ON_PLAYLIST_ITEMS_ADDED, p_playlist);
 }
 
-void my_playlist_callback_static::on_items_removed(t_size p_playlist, const bit_array& p_mask, t_size p_old_count, t_size p_new_count)
+void my_playlist_callback_static::on_items_removed(t_size p_playlist, const pfc::bit_array& p_mask, t_size p_old_count, t_size p_new_count)
 {
 	panel_manager::instance().post_msg_to_all(CALLBACK_UWM_ON_PLAYLIST_ITEMS_REMOVED, p_playlist, p_new_count);
 }
@@ -273,7 +276,7 @@ void my_playlist_callback_static::on_items_reordered(t_size p_playlist, const t_
 	panel_manager::instance().post_msg_to_all(CALLBACK_UWM_ON_PLAYLIST_ITEMS_REORDERED, p_playlist);
 }
 
-void my_playlist_callback_static::on_items_selection_change(t_size p_playlist, const bit_array& p_affected, const bit_array& p_state)
+void my_playlist_callback_static::on_items_selection_change(t_size p_playlist, const pfc::bit_array& p_affected, const pfc::bit_array& p_state)
 {
 	panel_manager::instance().post_msg_to_all(CALLBACK_UWM_ON_PLAYLIST_ITEMS_SELECTION_CHANGE);
 }
@@ -306,7 +309,7 @@ void my_playlist_callback_static::on_playlist_renamed(t_size p_index, const char
 	on_playlists_changed();
 }
 
-void my_playlist_callback_static::on_playlists_removed(const bit_array& p_mask, t_size p_old_count, t_size p_new_count)
+void my_playlist_callback_static::on_playlists_removed(const pfc::bit_array& p_mask, t_size p_old_count, t_size p_new_count)
 {
 	on_playlists_changed();
 }

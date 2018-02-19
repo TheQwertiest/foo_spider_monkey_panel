@@ -43,28 +43,6 @@ HWND HostComm::GetHWND()
 	return m_hwnd;
 }
 
-IGdiBitmap* HostComm::GetBackgroundImage()
-{
-	Gdiplus::Bitmap* bitmap = NULL;
-	IGdiBitmap* ret = NULL;
-
-	if (get_pseudo_transparent())
-	{
-		bitmap = Gdiplus::Bitmap::FromHBITMAP(m_gr_bmp_bk, NULL);
-		if (helpers::ensure_gdiplus_object(bitmap))
-		{
-			ret = new com_object_impl_t<GdiBitmap>(bitmap);
-		}
-		else
-		{
-			if (bitmap) delete bitmap;
-			bitmap = NULL;
-		}
-	}
-
-	return ret;
-}
-
 INT HostComm::GetHeight()
 {
 	return m_height;
@@ -107,22 +85,17 @@ t_script_info& HostComm::ScriptInfo()
 
 unsigned HostComm::SetInterval(IDispatch* func, INT delay)
 {
-	return m_host_timer_dispatcher.setInterval(delay, func);
+	return HostTimerDispatcher::Get().setInterval(m_hwnd, delay, func);
 }
 
 unsigned HostComm::SetTimeout(IDispatch* func, INT delay)
 {
-	return m_host_timer_dispatcher.setTimeout(delay, func);
+	return HostTimerDispatcher::Get().setTimeout(m_hwnd, delay, func);
 }
 
 void HostComm::ClearIntervalOrTimeout(UINT timerId)
 {
-	m_host_timer_dispatcher.kill(timerId);
-}
-
-void HostComm::PreserveSelection()
-{
-	m_selection_holder = static_api_ptr_t<ui_selection_manager>()->acquire();
+	HostTimerDispatcher::Get().killTimer(timerId);
 }
 
 void HostComm::Redraw()
@@ -198,7 +171,6 @@ void HostComm::RefreshBackground(LPRECT lprcUpdate)
 	DeleteRgn(rgn_child);
 	SetWindowRgn(m_hwnd, NULL, FALSE);
 	m_suppress_drawing = false;
-	SendMessage(m_hwnd, UWM_REFRESHBKDONE, 0, 0);
 	if (get_edge_style()) SendMessage(m_hwnd, WM_NCPAINT, 1, 0);
 	Repaint(true);
 }
@@ -244,6 +216,7 @@ ScriptHost::ScriptHost(HostComm* host)
 	, m_fb2k(com_object_singleton_t<FbUtils>::instance())
 	, m_utils(com_object_singleton_t<JSUtils>::instance())
 	, m_playlistman(com_object_singleton_t<FbPlaylistManager>::instance())
+	, m_console(com_object_singleton_t<JSConsole>::instance())
 	, m_dwStartTime(0)
 	, m_dwRef(1)
 	, m_engine_inited(false)
@@ -286,28 +259,32 @@ HRESULT ScriptHost::GenerateSourceContext(const wchar_t* path, const wchar_t* co
 	return hr;
 }
 
-HRESULT ScriptHost::InitScriptEngine()
+HRESULT ScriptHost::InitScriptEngineByName(const wchar_t* engineName)
 {
 	HRESULT hr = E_FAIL;
 	const DWORD classContext = CLSCTX_INPROC_SERVER | CLSCTX_INPROC_HANDLER;
 
-	static const CLSID jscript9clsid = { 0x16d51579, 0xa30b, 0x4c8b,{ 0xa2, 0x76, 0x0f, 0xf4, 0xdc, 0x41, 0xe7, 0x55 } };
-
-	hr = m_script_engine.CreateInstance(jscript9clsid, NULL, classContext);
-
+	if (IsWindowsVistaOrGreater() && wcscmp(engineName, L"Chakra") == 0)
+	{
+		static const CLSID jscript9clsid = { 0x16d51579, 0xa30b, 0x4c8b,{ 0xa2, 0x76, 0x0f, 0xf4, 0xdc, 0x41, 0xe7, 0x55 } };
+		hr = m_script_engine.CreateInstance(jscript9clsid, NULL, classContext);
+	}
+	
 	if (FAILED(hr))
 	{
-		console::formatter() << JSP_NAME << ": This component requires your system has IE9 or later installed.";
-		return hr;
+		hr = m_script_engine.CreateInstance("jscript", NULL, classContext);
 	}
 
-	IActiveScriptProperty* pActScriProp = NULL;
-	m_script_engine->QueryInterface(IID_IActiveScriptProperty, (void**)&pActScriProp);
-	VARIANT scriptLangVersion;
-	scriptLangVersion.vt = VT_I4;
-	scriptLangVersion.lVal = SCRIPTLANGUAGEVERSION_5_8 + 1; // adding 1 enables the Chakra javascript engine, thanks to github.com/TheQwertiest
-	pActScriProp->SetProperty(SCRIPTPROP_INVOKEVERSIONING, NULL, &scriptLangVersion);
-	pActScriProp->Release();
+	if (SUCCEEDED(hr))
+	{
+		IActiveScriptProperty* pActScriProp = NULL;
+		m_script_engine->QueryInterface(IID_IActiveScriptProperty, (void**)&pActScriProp);
+		VARIANT scriptLangVersion;
+		scriptLangVersion.vt = VT_I4;
+		scriptLangVersion.lVal = SCRIPTLANGUAGEVERSION_5_8 + 1;
+		pActScriProp->SetProperty(SCRIPTPROP_INVOKEVERSIONING, NULL, &scriptLangVersion);
+		pActScriProp->Release();
+	}
 
 	return hr;
 }
@@ -320,12 +297,12 @@ HRESULT ScriptHost::Initialize()
 
 	HRESULT hr = S_OK;
 	IActiveScriptParsePtr parser;
+	pfc::stringcvt::string_wide_from_utf8_fast wname(m_host->get_script_engine());
 	pfc::stringcvt::string_wide_from_utf8_fast wcode(m_host->get_script_code());
-	// Load preprocessor module
 	script_preprocessor preprocessor(wcode.get_ptr());
 	preprocessor.process_script_info(m_host->ScriptInfo());
 
-	hr = InitScriptEngine();
+	hr = InitScriptEngineByName(wname);
 
 	if (SUCCEEDED(hr)) hr = m_script_engine->SetScriptSite(this);
 	if (SUCCEEDED(hr)) hr = m_script_engine->QueryInterface(&parser);
@@ -336,18 +313,16 @@ HRESULT ScriptHost::Initialize()
 	if (SUCCEEDED(hr)) hr = m_script_engine->AddNamedItem(L"fb", SCRIPTITEM_ISVISIBLE);
 	if (SUCCEEDED(hr)) hr = m_script_engine->AddNamedItem(L"utils", SCRIPTITEM_ISVISIBLE);
 	if (SUCCEEDED(hr)) hr = m_script_engine->AddNamedItem(L"plman", SCRIPTITEM_ISVISIBLE);
+	if (SUCCEEDED(hr)) hr = m_script_engine->AddNamedItem(L"console", SCRIPTITEM_ISVISIBLE);
 	if (SUCCEEDED(hr)) hr = m_script_engine->SetScriptState(SCRIPTSTATE_CONNECTED);
 	if (SUCCEEDED(hr)) hr = m_script_engine->GetScriptDispatch(NULL, &m_script_root);
-	// Parse imported scripts
 	if (SUCCEEDED(hr)) hr = ProcessImportedScripts(preprocessor, parser);
 
-	// Parse main script
 	DWORD source_context = 0;
 	if (SUCCEEDED(hr)) hr = GenerateSourceContext(NULL, wcode, source_context);
 	m_contextToPathMap[source_context] = "<main>";
 
-	if (SUCCEEDED(hr))
-		hr = parser->ParseScriptText(wcode.get_ptr(), NULL, NULL, NULL, source_context, 0, SCRIPTTEXT_HOSTMANAGESSOURCE | SCRIPTTEXT_ISVISIBLE, NULL, NULL);
+	if (SUCCEEDED(hr)) hr = parser->ParseScriptText(wcode.get_ptr(), NULL, NULL, NULL, source_context, 0, SCRIPTTEXT_HOSTMANAGESSOURCE | SCRIPTTEXT_ISVISIBLE, NULL, NULL);
 
 	if (SUCCEEDED(hr))
 	{
@@ -461,6 +436,12 @@ STDMETHODIMP ScriptHost::GetItemInfo(LPCOLESTR name, DWORD mask, IUnknown** ppun
 		else if (wcscmp(name, L"plman") == 0)
 		{
 			(*ppunk) = m_playlistman;
+			(*ppunk)->AddRef();
+			return S_OK;
+		}
+		else if (wcscmp(name, L"console") == 0)
+		{
+			(*ppunk) = m_console;
 			(*ppunk)->AddRef();
 			return S_OK;
 		}
@@ -587,20 +568,23 @@ void ScriptHost::ReportError(IActiveScriptError* err)
 	}
 
 	if (FAILED(err->GetExceptionInfo(&excep)))
+	{
 		return;
+	}
 
 	// Do a deferred fill-in if necessary
 	if (excep.pfnDeferredFillIn)
+	{
 		(*excep.pfnDeferredFillIn)(&excep);
+	}
 
-	using namespace pfc::stringcvt;
 	pfc::string_formatter formatter;
-	formatter << JSP_NAME << " v" << JSP_VERSION << " (" << m_host->ScriptInfo().build_info_string().get_ptr() << ")\n";
+	formatter << "Error: " JSP_NAME " v" JSP_VERSION " (" << m_host->ScriptInfo().build_info_string().get_ptr() << ")\n";
 
 	if (excep.bstrSource && excep.bstrDescription)
 	{
-		formatter << string_utf8_from_wide(excep.bstrSource) << ":\n";
-		formatter << string_utf8_from_wide(excep.bstrDescription) << "\n";
+		formatter << pfc::stringcvt::string_utf8_from_wide(excep.bstrSource) << ":\n";
+		formatter << pfc::stringcvt::string_utf8_from_wide(excep.bstrDescription) << "\n";
 	}
 	else
 	{
@@ -618,15 +602,15 @@ void ScriptHost::ReportError(IActiveScriptError* err)
 	}
 
 	formatter << "Line: " << (t_uint32)(line + 1) << ", Col: " << (t_uint32)(charpos + 1) << "\n";
-	formatter << string_utf8_from_wide(sourceline);
+	formatter << pfc::stringcvt::string_utf8_from_wide(sourceline);
 	if (name.length() > 0) formatter << "\nAt: " << name;
 
 	if (excep.bstrSource) SysFreeString(excep.bstrSource);
 	if (excep.bstrDescription) SysFreeString(excep.bstrDescription);
 	if (excep.bstrHelpFile) SysFreeString(excep.bstrHelpFile);
 
-	console::error(formatter);
-	popup_msg::g_show(formatter, JSP_NAME, popup_message::icon_error);
+	FB2K_console_formatter() << formatter;
+	popup_msg::g_show(formatter, JSP_NAME);
 	MessageBeep(MB_ICONASTERISK);
 	SendMessage(m_host->GetHWND(), UWM_SCRIPT_ERROR, 0, 0);
 }
@@ -675,7 +659,7 @@ STDMETHODIMP FbWindow::CreateThemeManager(BSTR classid, IThemeManager** pp)
 	{
 		ptheme = new com_object_impl_t<ThemeManager>(m_host->GetHWND(), classid);
 	}
-	catch (pfc::exception_invalid_params&)
+	catch (...)
 	{
 		if (ptheme)
 		{
@@ -701,15 +685,7 @@ STDMETHODIMP FbWindow::CreateTooltip(BSTR name, float pxSize, INT style, IFbTool
 	return S_OK;
 }
 
-STDMETHODIMP FbWindow::GetBackgroundImage(IGdiBitmap** pp)
-{
-	if (!pp) return E_POINTER;
-
-	*pp = m_host->GetBackgroundImage();
-	return S_OK;
-}
-
-STDMETHODIMP FbWindow::GetColorCUI(UINT type, BSTR guidstr, int* p)
+STDMETHODIMP FbWindow::GetColourCUI(UINT type, BSTR guidstr, int* p)
 {
 	if (!p) return E_POINTER;
 	if (m_host->GetInstanceType() != HostComm::KInstanceTypeCUI) return E_NOTIMPL;
@@ -728,16 +704,16 @@ STDMETHODIMP FbWindow::GetColorCUI(UINT type, BSTR guidstr, int* p)
 		}
 	}
 
-	*p = m_host->GetColorCUI(type, guid);
+	*p = m_host->GetColourCUI(type, guid);
 	return S_OK;
 }
 
-STDMETHODIMP FbWindow::GetColorDUI(UINT type, int* p)
+STDMETHODIMP FbWindow::GetColourDUI(UINT type, int* p)
 {
 	if (!p) return E_POINTER;
 	if (m_host->GetInstanceType() != HostComm::KInstanceTypeDUI) return E_NOTIMPL;
 
-	*p = m_host->GetColorDUI(type);
+	*p = m_host->GetColourDUI(type);
 	return S_OK;
 }
 
@@ -841,8 +817,7 @@ STDMETHODIMP FbWindow::NotifyOthers(BSTR name, VARIANT info)
 
 	if (FAILED(hr)) return hr;
 
-	simple_callback_data_2<_bstr_t, _variant_t>* notify_data
-		= new simple_callback_data_2<_bstr_t, _variant_t>(name, NULL);
+	simple_callback_data_2<_bstr_t, _variant_t>* notify_data = new simple_callback_data_2<_bstr_t, _variant_t>(name, NULL);
 
 	notify_data->m_item2.Attach(var.Detach());
 
@@ -986,6 +961,20 @@ STDMETHODIMP FbWindow::get_MinWidth(UINT* p)
 	if (!p) return E_POINTER;
 
 	*p = m_host->MinSize().x;
+	return S_OK;
+}
+
+STDMETHODIMP FbWindow::get_Name(BSTR* p)
+{
+	if (!p) return E_POINTER;
+	
+	pfc::string8_fast name = m_host->ScriptInfo().name;
+	if (name.is_empty())
+	{
+		name = pfc::print_guid(m_host->GetGUID());
+	}
+
+	*p = SysAllocString(pfc::stringcvt::string_wide_from_utf8_fast(name));
 	return S_OK;
 }
 
