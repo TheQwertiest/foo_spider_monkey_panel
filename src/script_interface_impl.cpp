@@ -153,30 +153,24 @@ STDMETHODIMP FbFileInfo::InfoName(UINT idx, BSTR* pp)
 {
 	if (!m_info_ptr || !pp) return E_POINTER;
 
-	*pp = NULL;
-
 	if (idx < m_info_ptr->info_get_count())
 	{
-		pfc::stringcvt::string_wide_from_utf8_fast ucs = m_info_ptr->info_enum_name(idx);
-		*pp = SysAllocString(ucs);
+		*pp = SysAllocString(pfc::stringcvt::string_wide_from_utf8_fast(m_info_ptr->info_enum_name(idx)));
+		return S_OK;
 	}
-
-	return S_OK;
+	return E_INVALIDARG;
 }
 
 STDMETHODIMP FbFileInfo::InfoValue(UINT idx, BSTR* pp)
 {
 	if (!m_info_ptr || !pp) return E_POINTER;
 
-	*pp = NULL;
-
 	if (idx < m_info_ptr->info_get_count())
 	{
-		pfc::stringcvt::string_wide_from_utf8_fast ucs = m_info_ptr->info_enum_value(idx);
-		*pp = SysAllocString(ucs);
+		*pp = SysAllocString(pfc::stringcvt::string_wide_from_utf8_fast(m_info_ptr->info_enum_value(idx)));
+		return S_OK;
 	}
-
-	return S_OK;
+	return E_INVALIDARG;
 }
 
 STDMETHODIMP FbFileInfo::MetaFind(BSTR name, int* p)
@@ -191,15 +185,12 @@ STDMETHODIMP FbFileInfo::MetaName(UINT idx, BSTR* pp)
 {
 	if (!m_info_ptr || !pp) return E_POINTER;
 
-	*pp = NULL;
-
 	if (idx < m_info_ptr->meta_get_count())
 	{
-		pfc::stringcvt::string_wide_from_utf8_fast ucs = m_info_ptr->meta_enum_name(idx);
-		*pp = SysAllocString(ucs);
+		*pp = SysAllocString(pfc::stringcvt::string_wide_from_utf8_fast(m_info_ptr->meta_enum_name(idx)));
+		return S_OK;
 	}
-
-	return S_OK;
+	return E_INVALIDARG;
 }
 
 STDMETHODIMP FbFileInfo::MetaValue(UINT idx, UINT vidx, BSTR* pp)
@@ -210,26 +201,29 @@ STDMETHODIMP FbFileInfo::MetaValue(UINT idx, UINT vidx, BSTR* pp)
 
 	if (idx < m_info_ptr->meta_get_count() && vidx < m_info_ptr->meta_enum_value_count(idx))
 	{
-		pfc::stringcvt::string_wide_from_utf8_fast ucs = m_info_ptr->meta_enum_value(idx, vidx);
-		*pp = SysAllocString(ucs);
+		*pp = SysAllocString(pfc::stringcvt::string_wide_from_utf8_fast(m_info_ptr->meta_enum_value(idx, vidx)));
+		return S_OK;
 	}
-
-	return S_OK;
+	return E_INVALIDARG;
 }
 
 STDMETHODIMP FbFileInfo::MetaValueCount(UINT idx, UINT* p)
 {
 	if (!m_info_ptr || !p) return E_POINTER;
 
-	*p = (UINT)m_info_ptr->meta_enum_value_count(idx);
-	return S_OK;
+	if (idx < m_info_ptr->meta_get_count())
+	{
+		*p = m_info_ptr->meta_enum_value_count(idx);
+		return S_OK;
+	}
+	return E_INVALIDARG;
 }
 
 STDMETHODIMP FbFileInfo::get_InfoCount(UINT* p)
 {
 	if (!m_info_ptr || !p) return E_POINTER;
 
-	*p = (UINT)m_info_ptr->info_get_count();
+	*p = m_info_ptr->info_get_count();
 	return S_OK;
 }
 
@@ -237,7 +231,7 @@ STDMETHODIMP FbFileInfo::get_MetaCount(UINT* p)
 {
 	if (!m_info_ptr || !p) return E_POINTER;
 
-	*p = (UINT)m_info_ptr->meta_get_count();
+	*p = m_info_ptr->meta_get_count();
 	return S_OK;
 }
 
