@@ -194,7 +194,7 @@ namespace stats
 	public:
 		void enumerate_properties(metadb_handle_list_cref p_tracks, track_property_callback & p_out)
 		{
-			const size_t trackCount = p_tracks.get_count();
+			const t_size trackCount = p_tracks.get_count();
 			if (trackCount == 1)
 			{
 				metadb_index_hash hash;
@@ -212,7 +212,7 @@ namespace stats
 			{
 				pfc::avltree_t<metadb_index_hash> hashes;
 
-				for (size_t trackWalk = 0; trackWalk < trackCount; ++trackWalk)
+				for (t_size trackWalk = 0; trackWalk < trackCount; ++trackWalk)
 				{
 					metadb_index_hash hash;
 					if (g_client->hashHandle(p_tracks[trackWalk], hash))

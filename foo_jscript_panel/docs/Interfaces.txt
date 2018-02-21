@@ -27,6 +27,8 @@ interface IFbUtils {
 
 		fb.IsPlaying; (boolean) (read)
 
+		fb.PlaybackFollowCursor; (boolean) (read, write)
+
 		fb.PlaybackLength; (double) (read)
 		/*
 		example1:
@@ -34,8 +36,6 @@ interface IFbUtils {
 		example2:
 		console.log(Math.round(fb.PlaybackLength)); // 323
 		*/
-
-		fb.PlaybackFollowCursor; (boolean) (read, write)
 
 		fb.PlaybackTime; (double) (read, write)
 		/*
