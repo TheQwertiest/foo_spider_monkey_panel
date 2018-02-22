@@ -493,7 +493,7 @@ interface IFbPlaylistManager {
 		// Starts playback by executing default doubleclick/enter action unless overridden by a lock to do something else.
 
 		plman.FindPlaylist(name); (int)
-		// Case insensitive. Returns playlistIndex or -1 on failure. 
+		// Case insensitive. Returns playlistIndex or -1 on failure.
 
 		plman.GetPlayingItemLocation(); (IFbPlayingItemLocation)
 		/*
