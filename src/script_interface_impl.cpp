@@ -2491,13 +2491,13 @@ STDMETHODIMP GdiBitmap::GetColourScheme(UINT count, VARIANT* outArray)
 		unsigned b = (color) & 0xff;
 
 		// Round colors
-		r = (r + 15) & 0xffffffe0;
-		g = (g + 15) & 0xffffffe0;
-		b = (b + 15) & 0xffffffe0;
+		r = (r + 16) & 0xffffffe0;
+		g = (g + 16) & 0xffffffe0;
+		b = (b + 16) & 0xffffffe0;
 
-		if (r > 0xff) r = 0xf0;
-		if (g > 0xff) g = 0xf0;
-		if (b > 0xff) b = 0xf0;
+		if (r > 0xff) r = 0xff;
+		if (g > 0xff) g = 0xff;
+		if (b > 0xff) b = 0xff;
 
 		++color_counters[Gdiplus::Color::MakeARGB(0xff, r, g, b)];
 	}
@@ -2507,7 +2507,6 @@ STDMETHODIMP GdiBitmap::GetColourScheme(UINT count, VARIANT* outArray)
 	// Sorting
 	typedef std::pair<unsigned, int> sort_vec_pair_t;
 	std::vector<sort_vec_pair_t> sort_vec(color_counters.begin(), color_counters.end());
-	color_counters.clear();
 	count = min(count, sort_vec.size());
 	std::partial_sort(
 		sort_vec.begin(),
