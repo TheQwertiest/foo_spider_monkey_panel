@@ -553,6 +553,21 @@ _COM_SMARTPTR_TYPEDEF(IJSUtils, __uuidof(IJSUtils));
 	dual,
 	pointer_default(unique),
 	library_block,
+	uuid("e6d4354c-9a79-4062-b4d7-714b13539500")
+]
+__interface IFbPlaybackQueueItem : IDisposable
+{
+	[propget] STDMETHOD(Handle)([out, retval] IFbMetadbHandle** outHandle);
+	[propget] STDMETHOD(PlaylistIndex)([out, retval] UINT* outPlaylistIndex);
+	[propget] STDMETHOD(PlaylistItemIndex)([out, retval] UINT* outItemIndex);
+	[propget] STDMETHOD(_ptr)([out, retval] void** pp);
+};
+
+[
+	object,
+	dual,
+	pointer_default(unique),
+	library_block,
 	uuid("84212840-c0c5-4625-8fc4-2cc20e4bbcc8")
 ]
 __interface IFbPlaylistManager : IDispatch
@@ -571,6 +586,7 @@ __interface IFbPlaylistManager : IDispatch
 	STDMETHOD(FindPlaybackQueueItemIndex)(IFbMetadbHandle* handle, UINT playlistIndex, UINT playlistItemIndex, [out, retval] int* outIndex);
 	STDMETHOD(FindPlaylist)(BSTR name, [out, retval] int* outPlaylistIndex);
 	STDMETHOD(FlushPlaybackQueue)();
+	STDMETHOD(GetPlaybackQueueContents)([out, retval] VARIANT* outContents);
 	STDMETHOD(GetPlaybackQueueHandles)([out, retval] IFbMetadbHandleList** outItems);
 	STDMETHOD(GetPlayingItemLocation)([out, retval] __interface IFbPlayingItemLocation** outPlayingLocation);
 	STDMETHOD(GetPlaylistFocusItemIndex)(UINT playlistIndex, [out, retval] int* outPlaylistItemIndex);

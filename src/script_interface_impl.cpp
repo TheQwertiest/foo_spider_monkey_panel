@@ -822,6 +822,88 @@ STDMETHODIMP FbMetadbHandleList::put_Item(UINT index, IFbMetadbHandle* handle)
 	}
 }
 
+FbPlaybackQueueItem::FbPlaybackQueueItem()
+{
+}
+
+FbPlaybackQueueItem::FbPlaybackQueueItem(const t_playback_queue_item& playbackQueueItem)
+{
+	m_playback_queue_item.m_handle = playbackQueueItem.m_handle;
+	m_playback_queue_item.m_playlist = playbackQueueItem.m_playlist;
+	m_playback_queue_item.m_item = playbackQueueItem.m_item;
+}
+
+FbPlaybackQueueItem::~FbPlaybackQueueItem()
+{
+}
+
+void FbPlaybackQueueItem::FinalRelease()
+{
+	m_playback_queue_item.m_handle.release();
+	m_playback_queue_item.m_playlist = 0;
+	m_playback_queue_item.m_item = 0;
+}
+
+STDMETHODIMP FbPlaybackQueueItem::get_Handle(IFbMetadbHandle** outHandle)
+{
+	if (!outHandle) return E_POINTER;
+
+	*outHandle = new com_object_impl_t<FbMetadbHandle>(m_playback_queue_item.m_handle);
+	return S_OK;
+}
+
+STDMETHODIMP FbPlaybackQueueItem::get_PlaylistIndex(UINT* outPlaylistIndex)
+{
+	if (!outPlaylistIndex) return E_POINTER;
+
+	*outPlaylistIndex = m_playback_queue_item.m_playlist;
+	return S_OK;
+}
+
+STDMETHODIMP FbPlaybackQueueItem::get_PlaylistItemIndex(UINT* outItemIndex)
+{
+	if (!outItemIndex) return E_POINTER;
+
+	*outItemIndex = m_playback_queue_item.m_item;
+	return S_OK;
+}
+
+STDMETHODIMP FbPlaybackQueueItem::get__ptr(void** pp)
+{
+	if (!pp) return E_POINTER;
+
+	*pp = &m_playback_queue_item;
+	return S_OK;
+}
+
+FbPlayingItemLocation::FbPlayingItemLocation(bool isValid, t_size playlistIndex, t_size itemIndex) : m_isValid(isValid), m_playlistIndex(playlistIndex), m_itemIndex(itemIndex)
+{
+}
+
+STDMETHODIMP FbPlayingItemLocation::get_IsValid(VARIANT_BOOL* outIsValid)
+{
+	if (!outIsValid) return E_POINTER;
+
+	*outIsValid = TO_VARIANT_BOOL(m_isValid);
+	return S_OK;
+}
+
+STDMETHODIMP FbPlayingItemLocation::get_PlaylistIndex(int* outPlaylistIndex)
+{
+	if (!outPlaylistIndex) return E_POINTER;
+
+	*outPlaylistIndex = m_playlistIndex;
+	return S_OK;
+}
+
+STDMETHODIMP FbPlayingItemLocation::get_PlaylistItemIndex(int* outPlaylistItemIndex)
+{
+	if (!outPlaylistItemIndex) return E_POINTER;
+
+	*outPlaylistItemIndex = m_itemIndex;
+	return S_OK;
+}
+
 FbPlaylistManager::FbPlaylistManager() : m_fbPlaylistRecyclerManager(NULL)
 {
 }
@@ -1019,6 +1101,34 @@ STDMETHODIMP FbPlaylistManager::FindPlaylist(BSTR name, int* outPlaylistIndex)
 STDMETHODIMP FbPlaylistManager::FlushPlaybackQueue()
 {
 	playlist_manager::get()->queue_flush();
+	return S_OK;
+}
+
+STDMETHODIMP FbPlaylistManager::GetPlaybackQueueContents(VARIANT* outContents)
+{
+	if (!outContents) return E_POINTER;
+
+	pfc::list_t<t_playback_queue_item> contents;
+	playlist_manager::get()->queue_get_contents(contents);
+	t_size count = contents.get_count();
+	helpers::com_array_writer<> helper;
+	if (!helper.create(count)) return E_OUTOFMEMORY;
+
+	for (t_size i = 0; i < count; ++i)
+	{
+		_variant_t var;
+		var.vt = VT_DISPATCH;
+		var.pdispVal = new com_object_impl_t<FbPlaybackQueueItem>(contents[i]);
+
+		if (FAILED(helper.put(i, var)))
+		{
+			helper.reset();
+			return E_OUTOFMEMORY;
+		}
+	}
+
+	outContents->vt = VT_ARRAY | VT_VARIANT;
+	outContents->parray = helper.get_ptr();
 	return S_OK;
 }
 
@@ -1382,34 +1492,6 @@ STDMETHODIMP FbPlaylistManager::put_PlayingPlaylist(int playlistIndex)
 {
 	t_size index = playlistIndex > -1 ? playlistIndex : pfc::infinite_size;
 	playlist_manager::get()->set_playing_playlist(index);
-	return S_OK;
-}
-
-FbPlayingItemLocation::FbPlayingItemLocation(bool isValid, t_size playlistIndex, t_size itemIndex) : m_isValid(isValid), m_playlistIndex(playlistIndex), m_itemIndex(itemIndex)
-{
-}
-
-STDMETHODIMP FbPlayingItemLocation::get_IsValid(VARIANT_BOOL* outIsValid)
-{
-	if (!outIsValid) return E_POINTER;
-
-	*outIsValid = TO_VARIANT_BOOL(m_isValid);
-	return S_OK;
-}
-
-STDMETHODIMP FbPlayingItemLocation::get_PlaylistIndex(int* outPlaylistIndex)
-{
-	if (!outPlaylistIndex) return E_POINTER;
-
-	*outPlaylistIndex = m_playlistIndex;
-	return S_OK;
-}
-
-STDMETHODIMP FbPlayingItemLocation::get_PlaylistItemIndex(int* outPlaylistItemIndex)
-{
-	if (!outPlaylistItemIndex) return E_POINTER;
-
-	*outPlaylistItemIndex = m_itemIndex;
 	return S_OK;
 }
 
@@ -3110,8 +3192,7 @@ STDMETHODIMP GdiGraphics::GdiDrawText(BSTR str, IGdiFont* font, VARIANT colour, 
 
 	helpers::com_array_writer<> helper;
 
-	if (!helper.create(_countof(elements)))
-		return E_OUTOFMEMORY;
+	if (!helper.create(_countof(elements))) return E_OUTOFMEMORY;
 
 	for (long i = 0; i < helper.get_count(); ++i)
 	{

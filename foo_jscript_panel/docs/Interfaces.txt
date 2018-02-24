@@ -685,6 +685,22 @@ interface IFbPlaylistManager {
 
 		plman.FlushPlaybackQueue(); (void)
 
+		plman.GetPlaybackQueueContents(); (VBArray)
+		/*
+		Returns a VBArray so you need to use .toArray() on the result.
+		Each item of the array is an instance of IFbPlaybackQueueItem.
+		*/
+
+			interface IFbPlaybackQueueItem {
+				Properties:
+					Handle; (IFbMetadbHandle) (read)
+					PlaylistIndex; (uint) (read)
+					PlaylistItemIndex; (uint) (read)
+
+				Methods:
+					Dispose(); (void)
+			}
+
 		plman.GetPlaybackQueueHandles(); ((IFbMetadbHandleList))
 		/*
 		var handles = plman.GetPlaybackQueueHandles();

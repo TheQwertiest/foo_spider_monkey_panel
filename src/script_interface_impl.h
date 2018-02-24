@@ -211,6 +211,23 @@ public:
 	STDMETHODIMP put_Item(UINT index, IFbMetadbHandle* handle);
 };
 
+class FbPlaybackQueueItem : public IDisposableImpl4<IFbPlaybackQueueItem>
+{
+protected:
+	t_playback_queue_item m_playback_queue_item;
+
+	FbPlaybackQueueItem();
+	FbPlaybackQueueItem(const t_playback_queue_item& playbackQueueItem);
+	virtual ~FbPlaybackQueueItem();
+	virtual void FinalRelease();
+
+public:
+	STDMETHODIMP get_Handle(IFbMetadbHandle** outHandle);
+	STDMETHODIMP get_PlaylistIndex(UINT* outPlaylistIndex);
+	STDMETHODIMP get_PlaylistItemIndex(UINT* outItemIndex);
+	STDMETHODIMP get__ptr(void** pp);
+};
+
 class FbPlaylistManager : public IDispatchImpl3<IFbPlaylistManager>
 {
 protected:
@@ -231,6 +248,7 @@ public:
 	STDMETHODIMP FindPlaybackQueueItemIndex(IFbMetadbHandle* handle, UINT playlistIndex, UINT playlistItemIndex, int* outIndex);
 	STDMETHODIMP FindPlaylist(BSTR name, int* outPlaylistIndex);
 	STDMETHODIMP FlushPlaybackQueue();
+	STDMETHODIMP GetPlaybackQueueContents(VARIANT* outContents);
 	STDMETHODIMP GetPlaybackQueueHandles(IFbMetadbHandleList** outItems);
 	STDMETHODIMP GetPlayingItemLocation(IFbPlayingItemLocation** outPlayingLocation);
 	STDMETHODIMP GetPlaylistFocusItemIndex(UINT playlistIndex, int* outPlaylistItemIndex);
