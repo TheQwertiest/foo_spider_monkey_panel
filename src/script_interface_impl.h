@@ -223,8 +223,8 @@ protected:
 
 public:
 	STDMETHODIMP get_Handle(IFbMetadbHandle** outHandle);
-	STDMETHODIMP get_PlaylistIndex(UINT* outPlaylistIndex);
-	STDMETHODIMP get_PlaylistItemIndex(UINT* outItemIndex);
+	STDMETHODIMP get_PlaylistIndex(int* outPlaylistIndex);
+	STDMETHODIMP get_PlaylistItemIndex(int* outItemIndex);
 	STDMETHODIMP get__ptr(void** pp);
 };
 

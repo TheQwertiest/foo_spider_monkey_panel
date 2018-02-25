@@ -558,8 +558,8 @@ _COM_SMARTPTR_TYPEDEF(IJSUtils, __uuidof(IJSUtils));
 __interface IFbPlaybackQueueItem : IDisposable
 {
 	[propget] STDMETHOD(Handle)([out, retval] IFbMetadbHandle** outHandle);
-	[propget] STDMETHOD(PlaylistIndex)([out, retval] UINT* outPlaylistIndex);
-	[propget] STDMETHOD(PlaylistItemIndex)([out, retval] UINT* outItemIndex);
+	[propget] STDMETHOD(PlaylistIndex)([out, retval] int* outPlaylistIndex);
+	[propget] STDMETHOD(PlaylistItemIndex)([out, retval] int* outItemIndex);
 	[propget] STDMETHOD(_ptr)([out, retval] void** pp);
 };
 
