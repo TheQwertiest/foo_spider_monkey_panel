@@ -323,9 +323,9 @@ interface IFbUtils {
 				*/
 
 				Methods:
-					Dispose();
+					Dispose(); (void)
 
-					Eval([force]);
+					Eval([force]); (string)
 					/*
 					force: boolean, default false.
 					If true, you can process text that doesn't contain
@@ -338,10 +338,20 @@ interface IFbUtils {
 					console.log(tfo.Eval());
 					*/
 
-					EvalWithMetadb(handle);
+					EvalWithMetadb(handle); (string)
 					/*
 					Example:
 					console.log(tfo.EvalWithMetadb(fb.GetFocusItem()));
+					*/
+
+					EvalWithMetadbs(handle_list); (VBArray)
+					/*
+					Returns a VBArray so you need to use .toArray() on the result.
+
+					Example:
+					var items = fb.GetLibraryItems();
+					var artists = tfo.EvalWithMetadbs(items).toArray(); 
+					console.log(items.Count === artists.length); // should always be true!
 					*/
 			}
 

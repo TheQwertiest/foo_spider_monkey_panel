@@ -1,4 +1,6 @@
 v2.0.5-pre
+- NEW: Add IFbTitleFormat EvalWithMetadbs method that takes a handle list as an argument.
+       Returns a VBArray. See docs\interfaces.txt.
 - FIX: The OrderByRelativePath handle list method now takes subsong index in to account.
        Thanks to WilB for reporting.
 - CHG: plman.GetPlaybackQueueContents has been restored after being removed in the v2 cleanse.

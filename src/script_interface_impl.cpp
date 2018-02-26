@@ -1652,6 +1652,41 @@ STDMETHODIMP FbTitleFormat::EvalWithMetadb(IFbMetadbHandle* handle, BSTR* pp)
 	return S_OK;
 }
 
+STDMETHODIMP FbTitleFormat::EvalWithMetadbs(IFbMetadbHandleList* handles, VARIANT* pp)
+{
+	if (m_obj.is_empty() || !pp) return E_POINTER;
+
+	metadb_handle_list* handles_ptr = NULL;
+	handles->get__ptr((void**)&handles_ptr);
+
+	metadb_handle_list_ref handles_ref = *handles_ptr;
+	t_size count = handles_ref.get_count();
+
+	helpers::com_array_writer<> helper;
+	if (!helper.create(count)) return E_OUTOFMEMORY;
+
+	for (t_size i = 0; i < count; ++i)
+	{
+		pfc::string8_fast text;
+		handles_ref[i]->format_title(NULL, text, m_obj, NULL);
+
+		_variant_t var;
+		var.vt = VT_BSTR;
+		var.bstrVal = SysAllocString(pfc::stringcvt::string_wide_from_utf8_fast(text.get_ptr()));
+
+		if (FAILED(helper.put(i, var)))
+		{
+			// deep destroy
+			helper.reset();
+			return E_OUTOFMEMORY;
+		}
+	}
+
+	pp->vt = VT_ARRAY | VT_VARIANT;
+	pp->parray = helper.get_ptr();
+	return S_OK;
+}
+
 STDMETHODIMP FbTitleFormat::get__ptr(void** pp)
 {
 	if (!pp) return E_POINTER;
