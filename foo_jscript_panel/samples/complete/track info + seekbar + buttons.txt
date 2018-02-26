@@ -18,6 +18,13 @@ var colours = {
 	seekbar_knob : _.RGB(196, 30, 35)
 };
 
+var tfo = {
+	artist : fb.TitleFormat('%artist%'),
+	title : fb.TitleFormat('%title%'),
+	playback_time : fb.TitleFormat('%playback_time%  '),
+	length : fb.TitleFormat('  %length%')
+};
+
 //////////////////////////////////////////////////////////////
 
 var panel = new _.panel();
@@ -55,15 +62,15 @@ function on_paint(gr) {
 		if (img) {
 			_.drawImage(gr, img, 0, 0, panel.h, panel.h, image.centre);
 		}
-		gr.GdiDrawText(_.tfe('%title%'), panel.fonts.title, colours.title, panel.h + 10, 0, seekbar.x - panel.h - _.scale(60), panel.h * 0.6, LEFT);
-		gr.GdiDrawText(_.tfe('%artist%'), panel.fonts.normal, colours.artist, panel.h + 10, panel.h * 0.3, seekbar.x - panel.h - _.scale(60), panel.h * 0.7, LEFT);
+		gr.GdiDrawText(tfo.title.Eval(), panel.fonts.title, colours.title, panel.h + 10, 0, seekbar.x - panel.h - _.scale(60), panel.h * 0.6, LEFT);
+		gr.GdiDrawText(tfo.artist.Eval(), panel.fonts.normal, colours.artist, panel.h + 10, panel.h * 0.3, seekbar.x - panel.h - _.scale(60), panel.h * 0.7, LEFT);
 		gr.SetSmoothingMode(2);
 		if (fb.PlaybackLength > 0) {
 			var pos = seekbar.pos();
 			gr.FillSolidRect(seekbar.x, seekbar.y, pos, seekbar.h, colours.seekbar_progress);
 			gr.FillSolidRect(seekbar.x + pos, seekbar.y, _.scale(6), seekbar.h, colours.seekbar_knob);
-			gr.GdiDrawText(_.tfe('%playback_time%  '), panel.fonts.normal, colours.time, seekbar.x - _.scale(45), 0, _.scale(45), panel.h, RIGHT);
-			gr.GdiDrawText(_.tfe('  %length%'), panel.fonts.normal, colours.time, seekbar.x + seekbar.w + _.scale(6), 0, _.scale(45), panel.h, LEFT);
+			gr.GdiDrawText(tfo.playback_time.Eval(), panel.fonts.normal, colours.time, seekbar.x - _.scale(45), 0, _.scale(45), panel.h, RIGHT);
+			gr.GdiDrawText(tfo.length.Eval(), panel.fonts.normal, colours.time, seekbar.x + seekbar.w + _.scale(6), 0, _.scale(45), panel.h, LEFT);
 		}
 	}
 	gr.DrawRect(seekbar.x, seekbar.y, seekbar.w + _.scale(6), seekbar.h, 1, colours.seekbar_progress);

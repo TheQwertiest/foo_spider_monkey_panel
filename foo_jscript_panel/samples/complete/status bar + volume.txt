@@ -6,7 +6,7 @@
 // @import "%fb2k_component_path%samples\complete\js\volume.js"
 // ==/PREPROCESSOR==
 
-var left_text_tf = '%__bitrate% kbps %codec% [%codec_profile% ][%__tool% ][%__tagtype% ]';
+var tfo = fb.TitleFormat('%__bitrate% kbps %codec% [%codec_profile% ][%__tool% ][%__tagtype% ]');
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -17,7 +17,7 @@ var properties = {
 	size : new _.p('2K3.STATUS.SHOW.SIZE', true),
 	background : new _.p('2K3.STATUS.BACKGROUND', _.RGB(240, 240, 240)),
 	text : new _.p('2K3.STATUS.TEXT', _.RGB(0, 0, 0))
-}
+};
 var font = _.gdiFont('Segoe UI', 11);
 var ww = 0;
 var wh = 0;
@@ -37,7 +37,7 @@ function on_size() {
 function on_paint(gr) {
 	gr.FillSolidRect(0, 0, ww, wh, properties.background.value);
 	if (fb.IsPlaying) {
-		gr.GdiDrawText(_.tfe(left_text_tf), font, properties.text.value, 5, -1, ww - right_text_width - 300, font.Height, LEFT);
+		gr.GdiDrawText(tfo.Eval(), font, properties.text.value, 5, -1, ww - right_text_width - 300, font.Height, LEFT);
 	}
 	if (plman.ActivePlaylist > -1 && plman.ActivePlaylist < plman.PlaylistCount) {
 		gr.GdiDrawText(right_text, font, properties.text.value, 0, -1, ww - 250, font.Height, RIGHT);

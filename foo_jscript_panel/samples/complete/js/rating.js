@@ -14,7 +14,7 @@ _.mixin({
 				this.hover = false;
 				this.rating = this.get_rating();
 				this.hrating = this.rating;
-				this.tiptext = this.properties.mode.value == 0 ? 'Choose a mode first.' : _.tf(this.tiptext_tf, panel.metadb);
+				this.tiptext = this.properties.mode.value == 0 ? 'Choose a mode first.' : this.tfo.EvalWithMetadb(panel.metadb);
 			}
 			window.Repaint();
 		}
@@ -142,7 +142,7 @@ _.mixin({
 		this.rating = 0;
 		this.hrating = 0;
 		this.font = gdi.Font('FontAwesome', this.h - 2);
-		this.tiptext_tf = 'Rate "%title%" by "%artist%".';
+		this.tfo = fb.TitleFormat('Rate "%title%" by "%artist%".');
 		this.modes = ['Not Set', 'foo_playcount', 'File Tag', 'JScript Panel DB'];
 		this.foo_playcount = _.cc('foo_playcount');
 		window.SetTimeout(_.bind(function () {

@@ -16,7 +16,9 @@ _.mixin({
 				});
 				break;
 			case '2K3.NOTIFY.LOVE':
-				this.post(_.tf('%JSP_LOVED%', data) == 1 ? 'track.unlove' : 'track.love', null, data);
+				if (typeof buttons == 'object' && typeof buttons.update == 'function') { // make sure this only fires from scrobbler/lover scripts
+					this.post(this.tfo.loved.EvalWithMetadb(data) == 1 ? 'track.unlove' : 'track.love', null, data);
+				}
 				break;
 			}
 		}
@@ -40,8 +42,8 @@ _.mixin({
 				case this.sk.length != 32:
 					return console.log(N, 'This script has not been authorised.');
 				}
-				var artist = _.tf('%artist%', metadb);
-				var track = _.tf('%title%', metadb);
+				var artist = this.tfo.artist.EvalWithMetadb(metadb);
+				var track = this.tfo.title.EvalWithMetadb(metadb);
 				if (!_.tagged(artist) || !_.tagged(track)) {
 					return;
 				}
@@ -198,6 +200,15 @@ _.mixin({
 			window.NotifyOthers('2K3.NOTIFY.LASTFM', 'update');
 			this.notify_data('2K3.NOTIFY.LASTFM', 'update');
 		}
+		
+		this.tfo = {
+			artist : fb.TitleFormat('%artist%'),
+			title : fb.TitleFormat('%title%'),
+			album : fb.TitleFormat('[%album%]'),
+			loved : fb.TitleFormat('$if2(%JSP_LOVED%,0)'),
+			playcount : fb.TitleFormat('$if2(%JSP_PLAYCOUNT%,0)'),
+			first_played : fb.TitleFormat('%JSP_FIRST_PLAYED%')
+		};
 		
 		_.createFolder(folders.data);
 		this.ini_file = folders.data + 'lastfm.ini';
