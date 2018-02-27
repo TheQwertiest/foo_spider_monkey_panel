@@ -4,8 +4,8 @@ v2.0.5-pre
 - FIX: The OrderByRelativePath handle list method now takes subsong index in to account.
        Thanks to WilB for reporting.
 - CHG: plman.GetPlaybackQueueContents has been restored after being removed in the v2 cleanse.
-       It's the best way to indicate queue indexes in a custom playlist viewer. Note that each
-       IFbPlaybackQueueItem is read-only. See docs\interfacex.txt.
+       It's the only way to determine if a single playlist item has been queued more than once.
+       Note that each IFbPlaybackQueueItem is read-only. See docs\interfacex.txt
 
 v2.0.4
 - NEW: New plman.FindPlaylist and plman.FindOrCreatePlaylist methods have been addded.

@@ -187,7 +187,7 @@ _.mixin({
 			}
 			var path = this.tfo['$if2(%__@%,%path%)'].EvalWithMetadb(this.metadb);
 			if (fb.IsPlaying && (path.indexOf('http') == 0 || path.indexOf('mms') == 0)) {
-				return this.tfo[t].Eval()
+				return this.tfo[t].Eval();
 			} else {
 				return this.tfo[t].EvalWithMetadb(this.metadb);
 			}
