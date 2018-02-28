@@ -101,7 +101,7 @@ public:
 			m_dwExtendedStyle = (m_dwExtendedStyle & ~dwMask) | (dwExtendedStyle & dwMask);
 		// cache scroll flags
 		T* pT = static_cast<T*>(this);
-		pT;   // avoid level 4 warning
+		(void)pT;   // avoid level 4 warning
 		m_uScrollFlags = pT->uSCROLL_FLAGS | (IsScrollingChildren() ? SW_SCROLLCHILDREN : 0) | (IsErasingBackground() ? SW_ERASE : 0);
 		m_uScrollFlags |= (IsSmoothScroll() ? SW_SMOOTHSCROLL : 0);
 		return dwPrevStyle;
@@ -2063,7 +2063,7 @@ public:
 	void ScrollToView(HWND hWnd)   // client window coordinates
 	{
 		T* pT = static_cast<T*>(this);
-		pT;   // avoid level 4 warning
+		(void)pT;   // avoid level 4 warning
 		ATLASSERT(::IsWindow(pT->m_hWnd));
 		ATLASSERT(m_wndClient.IsWindow());
 
