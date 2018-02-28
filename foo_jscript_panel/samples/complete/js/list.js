@@ -564,11 +564,11 @@ _.mixin({
 				break;
 			case 'queue_viewer':
 				var items = plman.GetPlaybackQueueHandles();
-				for (var i = 0; i < items.Count; i++) {
-					this.data.push({
-						name : this.tfo.EvalWithMetadb(items.Item(i))
-					});
-				}
+				this.data = _.map(this.tfo.EvalWithMetadbs(items).toArray(), function (item) {
+					return {
+						name : item
+					};
+				});
 				_.dispose(items);
 				break;
 			}
