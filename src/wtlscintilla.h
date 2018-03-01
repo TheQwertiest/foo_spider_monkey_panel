@@ -36,8 +36,6 @@ Gilad Novik (Web: http://gilad.gsetup.com,Email: gilad@gsetup.com)
 
 #pragma once
 
-#include <Scintilla.h>
-
 template <class T, class TBase = CWindow, class TWinTraits = CControlWinTraits>
 class CScintillaImpl : public CWindowImpl<T, TBase, TWinTraits>
 {
