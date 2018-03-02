@@ -614,6 +614,7 @@ __interface IFbPlaylistManager : IDispatch
 	STDMETHOD(ShowAutoPlaylistUI)(UINT idx, [out, retval] VARIANT_BOOL* outSuccess);
 	STDMETHOD(SortByFormat)(UINT playlistIndex, BSTR pattern, [defaultvalue(0)] VARIANT_BOOL selOnly, [out, retval] VARIANT_BOOL* outSuccess);
 	STDMETHOD(SortByFormatV2)(UINT playlistIndex, BSTR pattern, [defaultvalue(1)] int direction, [out, retval] VARIANT_BOOL* outSuccess);
+	STDMETHOD(SortPlaylistsByName)([defaultvalue(1)] int direction);
 	STDMETHOD(UndoBackup)(UINT playlistIndex);
 	[propget] STDMETHOD(ActivePlaylist)([out, retval] int* outPlaylistIndex);
 	[propget] STDMETHOD(PlaybackOrder)([out, retval] UINT* outOrder);

@@ -8,6 +8,11 @@ using json = nlohmann::json;
 
 namespace helpers
 {
+	struct custom_sort_data {
+		wchar_t * text;
+		t_size index;
+	};
+
 	struct wrapped_item
 	{
 		BSTR text;
@@ -43,11 +48,19 @@ namespace helpers
 	void build_mainmenu_group_map(pfc::map_t<GUID, mainmenu_group::ptr>& p_group_guid_text_map);
 	void estimate_line_wrap(HDC hdc, const wchar_t* text, int len, int width, pfc::list_t<wrapped_item>& out);
 	void estimate_line_wrap_recur(HDC hdc, const wchar_t* text, int len, int width, pfc::list_t<wrapped_item>& out);
+	wchar_t * make_sort_string(const char * in);
 
 	template <class T>
 	bool ensure_gdiplus_object(T* obj)
 	{
 		return ((obj) && (obj->GetLastStatus() == Gdiplus::Ok));
+	}
+
+	template<int direction>
+	static int custom_sort_compare(const custom_sort_data & elem1, const custom_sort_data & elem2) {
+		int ret = direction * StrCmpLogicalW(elem1.text, elem2.text);
+		if (ret == 0) ret = pfc::sgn_t((t_ssize)elem1.index - (t_ssize)elem2.index);
+		return ret;
 	}
 
 	__declspec(noinline) static bool execute_context_command_by_name_SEH(const char* p_name, metadb_handle_list_cref p_handles, unsigned flags)

@@ -1406,6 +1406,40 @@ STDMETHODIMP FbPlaylistManager::SortByFormatV2(UINT playlistIndex, BSTR pattern,
 	return S_OK;
 }
 
+STDMETHODIMP FbPlaylistManager::SortPlaylistsByName(int direction)
+{
+	auto api = playlist_manager::get();
+	t_size count = api->get_playlist_count();
+	t_size i;
+
+	pfc::array_t<t_size> order;
+	order.set_size(count);
+
+	pfc::array_t <helpers::custom_sort_data> data;
+	data.set_size(count);
+
+	pfc::string8_fastalloc temp;
+	temp.prealloc(512);
+
+	for (i = 0; i < count; ++i)
+	{
+		api->playlist_get_name(i, temp);
+		data[i].index = i;
+		data[i].text = helpers::make_sort_string(temp);
+	}
+
+	pfc::sort_t(data, direction > 0 ? helpers::custom_sort_compare<1> : helpers::custom_sort_compare<-1>, count);
+
+	for (i = 0; i < count; ++i)
+	{
+		order[i] = data[i].index;
+		delete[] data[i].text;
+	}
+
+	api->reorder(order.get_ptr(), order.get_count());
+	return S_OK;
+}
+
 STDMETHODIMP FbPlaylistManager::UndoBackup(UINT playlistIndex)
 {
 	playlist_manager::get()->playlist_undo_backup(playlistIndex);

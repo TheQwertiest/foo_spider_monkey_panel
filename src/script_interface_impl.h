@@ -275,6 +275,7 @@ public:
 	STDMETHODIMP ShowAutoPlaylistUI(UINT idx, VARIANT_BOOL* outSuccess);
 	STDMETHODIMP SortByFormat(UINT playlistIndex, BSTR pattern, VARIANT_BOOL selOnly, VARIANT_BOOL* outSuccess);
 	STDMETHODIMP SortByFormatV2(UINT playlistIndex, BSTR pattern, int direction, VARIANT_BOOL* outSuccess);
+	STDMETHODIMP SortPlaylistsByName(int direction);
 	STDMETHODIMP UndoBackup(UINT playlistIndex);
 	STDMETHODIMP get_ActivePlaylist(int* outPlaylistIndex);
 	STDMETHODIMP get_PlaybackOrder(UINT* outOrder);

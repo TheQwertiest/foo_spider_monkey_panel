@@ -107,6 +107,7 @@ plman.SetPlaylistSelectionSingle(playlistIndex, playlistItemIndex, state)
 plman.ShowAutoPlaylistUI(playlistIndex)
 plman.SortByFormat(playlistIndex, pattern[, selOnly])
 plman.SortByFormatV2(playlistIndex, pattern[, direction])
+plman.SortPlaylistsByName([direction])
 plman.UndoBackup(playlistIndex)
 
 utils.CheckComponent(name[, is_dll])

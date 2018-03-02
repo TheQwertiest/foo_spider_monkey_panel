@@ -683,6 +683,9 @@ interface IFbPlaylistManager {
 		direction: default 1 (ascending), -1 (descending).
 		*/
 
+		plman.SortPlaylistsByName([direction]) (void)
+		// direction: default 1 (ascending), -1 (descending).
+
 		plman.UndoBackup(playlistIndex); (void)
 		// Call before using other plman methods that add/remove/reorder playlist items so a history will be available from the Edit menu.
 
