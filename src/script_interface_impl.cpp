@@ -1415,7 +1415,7 @@ STDMETHODIMP FbPlaylistManager::SortPlaylistsByName(int direction)
 	pfc::array_t<t_size> order;
 	order.set_size(count);
 
-	pfc::array_t <helpers::custom_sort_data> data;
+	pfc::array_t<helpers::custom_sort_data> data;
 	data.set_size(count);
 
 	pfc::string8_fastalloc temp;
@@ -3959,7 +3959,7 @@ STDMETHODIMP JSUtils::get_Version(UINT* v)
 {
 	if (!v) return E_POINTER;
 
-	*v = 2040;
+	*v = 2050;
 	return S_OK;
 }
 

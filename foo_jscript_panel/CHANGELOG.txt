@@ -1,4 +1,4 @@
-v2.0.5-pre
+v2.0.5
 - NEW: Add IFbTitleFormat EvalWithMetadbs method that takes a handle list as an argument.
        Returns a VBArray. See docs\interfaces.txt.
 - NEW: plman.SortPlaylistsByName. See docs\interfaces.txt.
@@ -7,6 +7,7 @@ v2.0.5-pre
 - CHG: plman.GetPlaybackQueueContents has been restored after being removed in the v2 cleanse.
        It's the only way to determine if a single playlist item has been queued more than once.
        Note that each IFbPlaybackQueueItem is read-only. See docs\interfaces.txt
+- CHG: The "Properties" dialog size and layout have been tweaked.
 
 v2.0.4
 - NEW: New plman.FindPlaylist and plman.FindOrCreatePlaylist methods have been addded.
