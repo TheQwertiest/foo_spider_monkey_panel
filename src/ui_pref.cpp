@@ -16,9 +16,9 @@ BOOL CDialogPref::OnInitDialog(HWND hwndFocus, LPARAM lParam)
 
 	m_props.SetExtendedListViewStyle(LVS_EX_FULLROWSELECT | LVS_EX_DOUBLEBUFFER);
 	m_props.AddColumn(_T("Name"), 0);
-	m_props.SetColumnWidth(0, 140);
+	m_props.SetColumnWidth(0, 150);
 	m_props.AddColumn(_T("Value"), 1);
-	m_props.SetColumnWidth(1, 260);
+	m_props.SetColumnWidth(1, 310);
 	LoadProps();
 
 	return TRUE; // set focus to default control
