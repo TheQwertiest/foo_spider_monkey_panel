@@ -1,7 +1,7 @@
 ppt = {
 	tf_artist: fb.TitleFormat("%artist%"),
 	tf_albumartist: fb.TitleFormat("%album artist%"),
-	tf_groupkey: fb.TitleFormat("$if2(%album artist%,$if(%length%,'?',%title%)) ^^ $if2(%album%,$if(%length%,'?',%path%)) ^^ %discnumber% ## [%artist%] ^^ %title% ^^ [%genre%] ^^ [%date%]"),
+	tf_groupkey: fb.TitleFormat(window.GetProperty("_PROPERTY: tf_groupkey", "$if2(%album artist%,$if(%length%,'?',%title%)) ^^ $if2(%album%,$if(%length%,'?',%path%)) ^^ %discnumber% ## [%artist%] ^^ %title% ^^ [%genre%] ^^ [%date%]")),
 	tf_track: fb.TitleFormat("%tracknumber% ^^ [%length%] ^^ $if2(%rating%,0) ^^ %mood%"),
 	tf_path: fb.TitleFormat("$directory_path(%path%)\\"),
 	tf_crc: fb.TitleFormat("$crc32(%path%)"),
