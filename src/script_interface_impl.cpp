@@ -729,7 +729,7 @@ STDMETHODIMP FbMetadbHandleList::UpdateFileInfoFromJSON(BSTR str)
 
 	pfc::list_t<file_info_impl> info;
 	info.set_size(count);
-	
+
 	for (t_size i = 0; i < count; i++)
 	{
 		json obj = is_array ? o[i] : o;
@@ -923,7 +923,7 @@ STDMETHODIMP FbPlaylistManager::AddLocations(UINT playlistIndex, VARIANT locatio
 
 	pfc::string_list_impl locations2;
 
-	for (long i = 0; i < static_cast<long>(helper.get_count()); ++i)
+	for (int i = 0; i < helper.get_count(); ++i)
 	{
 		_variant_t varUrl;
 
@@ -1016,7 +1016,7 @@ STDMETHODIMP FbPlaylistManager::DuplicatePlaylist(UINT from, BSTR name, UINT* ou
 	if (!outPlaylistIndex) return E_POINTER;
 
 	auto api = playlist_manager_v4::get();
-	
+
 	if (from < api->get_playlist_count())
 	{
 		metadb_handle_list contents;
@@ -1287,7 +1287,7 @@ STDMETHODIMP FbPlaylistManager::RemoveItemsFromPlaybackQueue(VARIANT affectedIte
 	{
 		api->queue_remove_mask(affected);
 	}
-	
+
 	return S_OK;
 }
 
@@ -1347,7 +1347,7 @@ STDMETHODIMP FbPlaylistManager::SetPlaylistSelection(UINT playlistIndex, VARIANT
 		pfc::bit_array_val status(state != VARIANT_FALSE);
 		api->playlist_set_selection(playlistIndex, affected, status);
 	}
-	
+
 	return S_OK;
 }
 
@@ -1362,7 +1362,7 @@ STDMETHODIMP FbPlaylistManager::ShowAutoPlaylistUI(UINT idx, VARIANT_BOOL* outSu
 	if (!outSuccess) return E_POINTER;
 
 	*outSuccess = VARIANT_FALSE;
-	
+
 	try
 	{
 		auto api = autoplaylist_manager::get();
@@ -3464,10 +3464,10 @@ STDMETHODIMP GdiUtils::Image(BSTR path, IGdiBitmap** pp)
 		}
 		else
 		{
-			if (img) delete img;	
+			if (img) delete img;
 		}
 	}
-	
+
 	return S_OK;
 }
 

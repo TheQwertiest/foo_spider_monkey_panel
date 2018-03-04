@@ -31,7 +31,7 @@ HRESULT HostDropTarget::OnDragEnter(IDataObject* pDataObj, DWORD grfKeyState, PO
 	{
 		*pdwEffect = DROPEFFECT_NONE;
 	}
-		
+
 	return S_OK;
 }
 

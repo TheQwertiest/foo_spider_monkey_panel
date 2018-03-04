@@ -53,7 +53,7 @@ namespace
 		{
 			// Check and show error message
 			pfc::string8 err_msg;
-			
+
 			if (g_load_status != E_OK)
 			{
 				err_msg += "This error message indicates that this component will not function properly:\n\n";

@@ -269,7 +269,7 @@ HRESULT ScriptHost::InitScriptEngineByName(const wchar_t* engineName)
 		static const CLSID jscript9clsid = { 0x16d51579, 0xa30b, 0x4c8b,{ 0xa2, 0x76, 0x0f, 0xf4, 0xdc, 0x41, 0xe7, 0x55 } };
 		hr = m_script_engine.CreateInstance(jscript9clsid, NULL, classContext);
 	}
-	
+
 	if (FAILED(hr))
 	{
 		hr = m_script_engine.CreateInstance("jscript", NULL, classContext);
@@ -967,7 +967,7 @@ STDMETHODIMP FbWindow::get_MinWidth(UINT* p)
 STDMETHODIMP FbWindow::get_Name(BSTR* p)
 {
 	if (!p) return E_POINTER;
-	
+
 	pfc::string8_fast name = m_host->ScriptInfo().name;
 	if (name.is_empty())
 	{

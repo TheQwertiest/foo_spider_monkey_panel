@@ -9,7 +9,7 @@ namespace stats
 	class metadb_index_client_impl : public metadb_index_client
 	{
 	public:
-		metadb_index_hash transform(const file_info & info, const playable_location & location)
+		metadb_index_hash transform(const file_info& info, const playable_location& location)
 		{
 			titleformat_object::ptr obj;
 			titleformat_compiler::get()->compile_force(obj, pinTo);
@@ -18,7 +18,7 @@ namespace stats
 			return hasher_md5::get()->process_single_string(str).xorHalve();
 		}
 	};
-	static metadb_index_client_impl * g_client = new service_impl_single_t<metadb_index_client_impl>;
+	static metadb_index_client_impl* g_client = new service_impl_single_t<metadb_index_client_impl>;
 
 	static metadb_index_manager::ptr g_cachedAPI;
 	static metadb_index_manager::ptr theAPI()
@@ -41,7 +41,7 @@ namespace stats
 				{
 					api->add(g_client, guid_js_panel_index, retentionPeriod);
 				}
-				catch (std::exception const & e)
+				catch (std::exception const& e)
 				{
 					api->remove(guid_js_panel_index);
 					FB2K_console_formatter() << JSP_NAME " stats: Critical initialisation failure: " << e;
@@ -119,7 +119,7 @@ namespace stats
 		{
 			return 5;
 		}
-		void get_field_name(t_uint32 index, pfc::string_base & out)
+		void get_field_name(t_uint32 index, pfc::string_base& out)
 		{
 			switch (index)
 			{
@@ -140,7 +140,7 @@ namespace stats
 				break;
 			}
 		}
-		bool process_field(t_uint32 index, metadb_handle * handle, titleformat_text_out * out)
+		bool process_field(t_uint32 index, metadb_handle* handle, titleformat_text_out* out)
 		{
 			metadb_index_hash hash;
 			if (!g_client->hashHandle(handle, hash)) return false;
@@ -192,7 +192,7 @@ namespace stats
 	class track_property_provider_impl : public track_property_provider_v2
 	{
 	public:
-		void enumerate_properties(metadb_handle_list_cref p_tracks, track_property_callback & p_out)
+		void enumerate_properties(metadb_handle_list_cref p_tracks, track_property_callback& p_out)
 		{
 			const t_size trackCount = p_tracks.get_count();
 			if (trackCount == 1)
@@ -234,7 +234,7 @@ namespace stats
 			}
 		}
 
-		void enumerate_properties_v2(metadb_handle_list_cref p_tracks, track_property_callback_v2 & p_out)
+		void enumerate_properties_v2(metadb_handle_list_cref p_tracks, track_property_callback_v2& p_out)
 		{
 			if (p_out.is_group_wanted(JSP_NAME))
 			{
@@ -242,7 +242,7 @@ namespace stats
 			}
 		}
 
-		bool is_our_tech_info(const char * p_name)
+		bool is_our_tech_info(const char* p_name)
 		{
 			return false;
 		}

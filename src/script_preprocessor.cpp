@@ -39,7 +39,7 @@ HRESULT script_preprocessor::process_import(const t_script_info& info, t_script_
 			}
 		}
 	}
-	
+
 	if (!error_text.is_empty())
 	{
 		FB2K_console_formatter() << pre << error_text;
