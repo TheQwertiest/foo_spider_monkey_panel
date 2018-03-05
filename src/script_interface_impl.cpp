@@ -2017,9 +2017,9 @@ STDMETHODIMP FbUtils::GetClipboardItems(UINT window_id, IFbMetadbHandleList** pp
 	if (SUCCEEDED(hr))
 	{
 		dropped_files_data_impl data;
-
 		bool native;
 		DWORD drop_effect = DROPEFFECT_COPY;
+
 		hr = ole->check_dataobject(pDO, drop_effect, native);
 		if (SUCCEEDED(hr))
 		{

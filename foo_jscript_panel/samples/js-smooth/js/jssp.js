@@ -3242,9 +3242,6 @@ var g_metadb = null;
 var g_selHolder = fb.AcquireUiSelectionHolder();
 g_selHolder.SetPlaylistSelectionTracking();
 var foo_playcount = utils.CheckComponent("foo_playcount", true);
-clipboard = {
-	selection: null
-};
 // wallpaper infos
 var wpp_img_info = {
 	orient: 0,
@@ -4145,8 +4142,6 @@ function on_key_down(vkey) {
 			g_filterbox.on_key("down", vkey);
 		};
 
-		var act_pls = g_active_playlist;
-
 		if (mask == KMask.none) {
 			switch (vkey) {
 			case VK_F2:
@@ -4260,7 +4255,7 @@ function on_key_down(vkey) {
 				};
 				break;
 			case VK_RETURN:
-				plman.ExecutePlaylistDefaultAction(act_pls, g_focus_id);
+				plman.ExecutePlaylistDefaultAction(g_active_playlist, g_focus_id);
 				break;
 			case VK_END:
 				if (brw.rowsCount > 0) {
@@ -4268,24 +4263,24 @@ function on_key_down(vkey) {
 					//var new_focus_id = brw.rows[last_1st_group_row].playlistTrackId;
 
 					var new_focus_id = brw.rows[brw.rows.length - 1].playlistTrackId;
-					plman.SetPlaylistFocusItem(act_pls, new_focus_id);
-					plman.ClearPlaylistSelection(act_pls);
-					plman.SetPlaylistSelectionSingle(act_pls, new_focus_id, true);
+					plman.SetPlaylistFocusItem(g_active_playlist, new_focus_id);
+					plman.ClearPlaylistSelection(g_active_playlist);
+					plman.SetPlaylistSelectionSingle(g_active_playlist, new_focus_id, true);
 				};
 				break;
 			case VK_HOME:
 				if (brw.rowsCount > 0) {
 					var new_focus_id = brw.rows[0].playlistTrackId;
-					plman.ClearPlaylistSelection(act_pls);
-					plman.SetPlaylistSelectionSingle(act_pls, new_focus_id, true);
-					plman.SetPlaylistFocusItem(act_pls, new_focus_id);
+					plman.ClearPlaylistSelection(g_active_playlist);
+					plman.SetPlaylistSelectionSingle(g_active_playlist, new_focus_id, true);
+					plman.SetPlaylistFocusItem(g_active_playlist, new_focus_id);
 				};
 				break;
 			case VK_DELETE:
-				if (!plman.IsAutoPlaylist(act_pls)) {
-					plman.RemovePlaylistSelection(act_pls, false);
-					plman.RemovePlaylistSelection(act_pls, false);
-					plman.SetPlaylistSelectionSingle(act_pls, plman.GetPlaylistFocusItemIndex(act_pls), true);
+				if (!plman.IsAutoPlaylist(g_active_playlist)) {
+					plman.RemovePlaylistSelection(g_active_playlist, false);
+					plman.RemovePlaylistSelection(g_active_playlist, false);
+					plman.SetPlaylistSelectionSingle(g_active_playlist, plman.GetPlaylistFocusItemIndex(g_active_playlist), true);
 				};
 				break;
 			};
@@ -4301,26 +4296,26 @@ function on_key_down(vkey) {
 						if (brw.SHIFT_start_id == null) {
 							brw.SHIFT_start_id = g_focus_id;
 						};
-						plman.ClearPlaylistSelection(act_pls);
-						plman.SetPlaylistSelectionSingle(act_pls, g_focus_id, true);
+						plman.ClearPlaylistSelection(g_active_playlist);
+						plman.SetPlaylistSelectionSingle(g_active_playlist, g_focus_id, true);
 						if (g_focus_id > 0) {
 							brw.SHIFT_count--;
 							g_focus_id--;
-							plman.SetPlaylistSelectionSingle(act_pls, g_focus_id, true);
-							plman.SetPlaylistFocusItem(act_pls, g_focus_id);
+							plman.SetPlaylistSelectionSingle(g_active_playlist, g_focus_id, true);
+							plman.SetPlaylistFocusItem(g_active_playlist, g_focus_id);
 						};
 					} else if (brw.SHIFT_count < 0) {
 						if (g_focus_id > 0) {
 							brw.SHIFT_count--;
 							g_focus_id--;
-							plman.SetPlaylistSelectionSingle(act_pls, g_focus_id, true);
-							plman.SetPlaylistFocusItem(act_pls, g_focus_id);
+							plman.SetPlaylistSelectionSingle(g_active_playlist, g_focus_id, true);
+							plman.SetPlaylistFocusItem(g_active_playlist, g_focus_id);
 						};
 					} else {
-						plman.SetPlaylistSelectionSingle(act_pls, g_focus_id, false);
+						plman.SetPlaylistSelectionSingle(g_active_playlist, g_focus_id, false);
 						brw.SHIFT_count--;
 						g_focus_id--;
-						plman.SetPlaylistFocusItem(act_pls, g_focus_id);
+						plman.SetPlaylistFocusItem(g_active_playlist, g_focus_id);
 					};
 					break;
 				case VK_DOWN: // SHIFT + KEY DOWN
@@ -4328,26 +4323,26 @@ function on_key_down(vkey) {
 						if (brw.SHIFT_start_id == null) {
 							brw.SHIFT_start_id = g_focus_id;
 						};
-						plman.ClearPlaylistSelection(act_pls);
-						plman.SetPlaylistSelectionSingle(act_pls, g_focus_id, true);
+						plman.ClearPlaylistSelection(g_active_playlist);
+						plman.SetPlaylistSelectionSingle(g_active_playlist, g_focus_id, true);
 						if (g_focus_id < brw.list.Count - 1) {
 							brw.SHIFT_count++;
 							g_focus_id++;
-							plman.SetPlaylistSelectionSingle(act_pls, g_focus_id, true);
-							plman.SetPlaylistFocusItem(act_pls, g_focus_id);
+							plman.SetPlaylistSelectionSingle(g_active_playlist, g_focus_id, true);
+							plman.SetPlaylistFocusItem(g_active_playlist, g_focus_id);
 						};
 					} else if (brw.SHIFT_count > 0) {
 						if (g_focus_id < brw.list.Count - 1) {
 							brw.SHIFT_count++;
 							g_focus_id++;
-							plman.SetPlaylistSelectionSingle(act_pls, g_focus_id, true);
-							plman.SetPlaylistFocusItem(act_pls, g_focus_id);
+							plman.SetPlaylistSelectionSingle(g_active_playlist, g_focus_id, true);
+							plman.SetPlaylistFocusItem(g_active_playlist, g_focus_id);
 						};
 					} else {
-						plman.SetPlaylistSelectionSingle(act_pls, g_focus_id, false);
+						plman.SetPlaylistSelectionSingle(g_active_playlist, g_focus_id, false);
 						brw.SHIFT_count++;
 						g_focus_id++;
-						plman.SetPlaylistFocusItem(act_pls, g_focus_id);
+						plman.SetPlaylistFocusItem(g_active_playlist, g_focus_id);
 					};
 					break;
 				};
@@ -4365,31 +4360,25 @@ function on_key_down(vkey) {
 					brw.repaint();
 				};
 				if (vkey == 88) { // CTRL+X
-					if (!plman.IsAutoPlaylist(act_pls)) {
-						clipboard.selection = plman.GetPlaylistSelectedItems(plman.ActivePlaylist);
-						plman.RemovePlaylistSelection(act_pls, false);
-						plman.RemovePlaylistSelection(act_pls, false);
-						plman.SetPlaylistSelectionSingle(act_pls, plman.GetPlaylistFocusItemIndex(act_pls), true);
+					if (!plman.IsPlaylistLocked(g_active_playlist)) {
+						var items = plman.GetPlaylistSelectedItems(g_active_playlist);
+						if (fb.CopyHandleListToClipboard(items)) {
+							plman.RemovePlaylistSelection(g_active_playlist);
+						}
+						items.Dispose();
 					};
 				};
 				if (vkey == 67) { // CTRL+C
-					clipboard.selection = plman.GetPlaylistSelectedItems(g_active_playlist);
+					var items = plman.GetPlaylistSelectedItems(g_active_playlist);
+					fb.CopyHandleListToClipboard(items);
+					items.Dispose();
 				};
 				if (vkey == 86) { // CTRL+V
-					// insert the clipboard selection (handles) after the current position in the active playlist
-					if (clipboard.selection) {
-						if (clipboard.selection.Count > 0) {
-							try {
-								if (brw.list.Count > 0) {
-									plman.InsertPlaylistItems(g_active_playlist, g_focus_id + 1, clipboard.selection);
-								} else {
-									plman.InsertPlaylistItems(g_active_playlist, 0, clipboard.selection);
-								};
-							} catch (e) {
-								console.log("WSH Panel Error: Clipboard can't be pasted, invalid clipboard content.");
-							};
-						};
-					};
+					var items = fb.GetClipboardItems(window.ID);
+					if (items.Count > 0 && !plman.IsPlaylistLocked(g_active_playlist)) {
+						plman.InsertPlaylistItems(g_active_playlist, g_focus_id + 1, items, false);
+					}
+					items.Dispose();
 				};
 				if (vkey == 84) { // CTRL+T
 					ppt.showHeaderBar = !ppt.showHeaderBar;
@@ -4433,7 +4422,6 @@ function on_key_down(vkey) {
 				break;
 			};
 		};
-
 	};
 };
 
