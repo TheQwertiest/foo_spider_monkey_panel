@@ -63,7 +63,6 @@ public:
 
 	GUID& get_config_guid();
 	WINDOWPLACEMENT& get_windowplacement();
-	bool& get_disabled_before();
 	bool& get_grab_focus();
 	bool& get_pseudo_transparent();
 	const bool& get_pseudo_transparent() const;
@@ -84,7 +83,6 @@ private:
 	pfc::string8 m_script_engine_str;
 	pfc::string8 m_script_code;
 	t_edge_style m_edge_style;
-	bool m_disabled_before;
 	bool m_grab_focus;
 	bool m_pseudo_transparent;
 };

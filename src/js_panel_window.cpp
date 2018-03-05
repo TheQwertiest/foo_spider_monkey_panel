@@ -363,14 +363,6 @@ LRESULT js_panel_window::on_message(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 		update_script();
 		return 0;
 
-	case UWM_SCRIPT_DISABLED_BEFORE:
-		{
-			pfc::string_formatter formatter;
-			formatter << "Panel (" << ScriptInfo().build_info_string() << "): Refuse to load script due to critical error last run, please check your script and apply it again.",
-			popup_msg::g_show(formatter, JSP_NAME);
-		}
-		return 0;
-
 	case UWM_SCRIPT_ERROR:
 		{
 			const auto& tooltip_param = PanelTooltipParam();
@@ -483,12 +475,6 @@ bool js_panel_window::script_load()
 	m_min_size.x = 0;
 	m_min_size.x = 0;
 	PostMessage(m_hwnd, UWM_SIZELIMITECHANGED, 0, uie::size_limit_all);
-
-	if (get_disabled_before())
-	{
-		PostMessage(m_hwnd, UWM_SCRIPT_DISABLED_BEFORE, 0, 0);
-		return false;
-	}
 
 	HRESULT hr = m_script_host->Initialize();
 	if (FAILED(hr))
