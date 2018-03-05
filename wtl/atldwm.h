@@ -478,7 +478,7 @@ public:
 	void Init()
 	{
 		T* pT = static_cast<T*>(this);
-		pT;   // avoid level 4 warning
+		(void)pT;   // avoid level 4 warning
 		this->SetThemeClassList(pT->GetThemeName());
 		if(this->m_lpstrThemeClassList != NULL)
 			this->OpenThemeData();

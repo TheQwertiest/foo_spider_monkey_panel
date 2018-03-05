@@ -153,30 +153,24 @@ STDMETHODIMP FbFileInfo::InfoName(UINT idx, BSTR* pp)
 {
 	if (!m_info_ptr || !pp) return E_POINTER;
 
-	*pp = NULL;
-
 	if (idx < m_info_ptr->info_get_count())
 	{
-		pfc::stringcvt::string_wide_from_utf8_fast ucs = m_info_ptr->info_enum_name(idx);
-		*pp = SysAllocString(ucs);
+		*pp = SysAllocString(pfc::stringcvt::string_wide_from_utf8_fast(m_info_ptr->info_enum_name(idx)));
+		return S_OK;
 	}
-
-	return S_OK;
+	return E_INVALIDARG;
 }
 
 STDMETHODIMP FbFileInfo::InfoValue(UINT idx, BSTR* pp)
 {
 	if (!m_info_ptr || !pp) return E_POINTER;
 
-	*pp = NULL;
-
 	if (idx < m_info_ptr->info_get_count())
 	{
-		pfc::stringcvt::string_wide_from_utf8_fast ucs = m_info_ptr->info_enum_value(idx);
-		*pp = SysAllocString(ucs);
+		*pp = SysAllocString(pfc::stringcvt::string_wide_from_utf8_fast(m_info_ptr->info_enum_value(idx)));
+		return S_OK;
 	}
-
-	return S_OK;
+	return E_INVALIDARG;
 }
 
 STDMETHODIMP FbFileInfo::MetaFind(BSTR name, int* p)
@@ -191,15 +185,12 @@ STDMETHODIMP FbFileInfo::MetaName(UINT idx, BSTR* pp)
 {
 	if (!m_info_ptr || !pp) return E_POINTER;
 
-	*pp = NULL;
-
 	if (idx < m_info_ptr->meta_get_count())
 	{
-		pfc::stringcvt::string_wide_from_utf8_fast ucs = m_info_ptr->meta_enum_name(idx);
-		*pp = SysAllocString(ucs);
+		*pp = SysAllocString(pfc::stringcvt::string_wide_from_utf8_fast(m_info_ptr->meta_enum_name(idx)));
+		return S_OK;
 	}
-
-	return S_OK;
+	return E_INVALIDARG;
 }
 
 STDMETHODIMP FbFileInfo::MetaValue(UINT idx, UINT vidx, BSTR* pp)
@@ -210,26 +201,29 @@ STDMETHODIMP FbFileInfo::MetaValue(UINT idx, UINT vidx, BSTR* pp)
 
 	if (idx < m_info_ptr->meta_get_count() && vidx < m_info_ptr->meta_enum_value_count(idx))
 	{
-		pfc::stringcvt::string_wide_from_utf8_fast ucs = m_info_ptr->meta_enum_value(idx, vidx);
-		*pp = SysAllocString(ucs);
+		*pp = SysAllocString(pfc::stringcvt::string_wide_from_utf8_fast(m_info_ptr->meta_enum_value(idx, vidx)));
+		return S_OK;
 	}
-
-	return S_OK;
+	return E_INVALIDARG;
 }
 
 STDMETHODIMP FbFileInfo::MetaValueCount(UINT idx, UINT* p)
 {
 	if (!m_info_ptr || !p) return E_POINTER;
 
-	*p = (UINT)m_info_ptr->meta_enum_value_count(idx);
-	return S_OK;
+	if (idx < m_info_ptr->meta_get_count())
+	{
+		*p = m_info_ptr->meta_enum_value_count(idx);
+		return S_OK;
+	}
+	return E_INVALIDARG;
 }
 
 STDMETHODIMP FbFileInfo::get_InfoCount(UINT* p)
 {
 	if (!m_info_ptr || !p) return E_POINTER;
 
-	*p = (UINT)m_info_ptr->info_get_count();
+	*p = m_info_ptr->info_get_count();
 	return S_OK;
 }
 
@@ -237,7 +231,7 @@ STDMETHODIMP FbFileInfo::get_MetaCount(UINT* p)
 {
 	if (!m_info_ptr || !p) return E_POINTER;
 
-	*p = (UINT)m_info_ptr->meta_get_count();
+	*p = m_info_ptr->meta_get_count();
 	return S_OK;
 }
 
@@ -828,6 +822,88 @@ STDMETHODIMP FbMetadbHandleList::put_Item(UINT index, IFbMetadbHandle* handle)
 	}
 }
 
+FbPlaybackQueueItem::FbPlaybackQueueItem()
+{
+}
+
+FbPlaybackQueueItem::FbPlaybackQueueItem(const t_playback_queue_item& playbackQueueItem)
+{
+	m_playback_queue_item.m_handle = playbackQueueItem.m_handle;
+	m_playback_queue_item.m_playlist = playbackQueueItem.m_playlist;
+	m_playback_queue_item.m_item = playbackQueueItem.m_item;
+}
+
+FbPlaybackQueueItem::~FbPlaybackQueueItem()
+{
+}
+
+void FbPlaybackQueueItem::FinalRelease()
+{
+	m_playback_queue_item.m_handle.release();
+	m_playback_queue_item.m_playlist = 0;
+	m_playback_queue_item.m_item = 0;
+}
+
+STDMETHODIMP FbPlaybackQueueItem::get_Handle(IFbMetadbHandle** outHandle)
+{
+	if (!outHandle) return E_POINTER;
+
+	*outHandle = new com_object_impl_t<FbMetadbHandle>(m_playback_queue_item.m_handle);
+	return S_OK;
+}
+
+STDMETHODIMP FbPlaybackQueueItem::get_PlaylistIndex(int* outPlaylistIndex)
+{
+	if (!outPlaylistIndex) return E_POINTER;
+
+	*outPlaylistIndex = m_playback_queue_item.m_playlist;
+	return S_OK;
+}
+
+STDMETHODIMP FbPlaybackQueueItem::get_PlaylistItemIndex(int* outItemIndex)
+{
+	if (!outItemIndex) return E_POINTER;
+
+	*outItemIndex = m_playback_queue_item.m_item;
+	return S_OK;
+}
+
+STDMETHODIMP FbPlaybackQueueItem::get__ptr(void** pp)
+{
+	if (!pp) return E_POINTER;
+
+	*pp = &m_playback_queue_item;
+	return S_OK;
+}
+
+FbPlayingItemLocation::FbPlayingItemLocation(bool isValid, t_size playlistIndex, t_size itemIndex) : m_isValid(isValid), m_playlistIndex(playlistIndex), m_itemIndex(itemIndex)
+{
+}
+
+STDMETHODIMP FbPlayingItemLocation::get_IsValid(VARIANT_BOOL* outIsValid)
+{
+	if (!outIsValid) return E_POINTER;
+
+	*outIsValid = TO_VARIANT_BOOL(m_isValid);
+	return S_OK;
+}
+
+STDMETHODIMP FbPlayingItemLocation::get_PlaylistIndex(int* outPlaylistIndex)
+{
+	if (!outPlaylistIndex) return E_POINTER;
+
+	*outPlaylistIndex = m_playlistIndex;
+	return S_OK;
+}
+
+STDMETHODIMP FbPlayingItemLocation::get_PlaylistItemIndex(int* outPlaylistItemIndex)
+{
+	if (!outPlaylistItemIndex) return E_POINTER;
+
+	*outPlaylistItemIndex = m_itemIndex;
+	return S_OK;
+}
+
 FbPlaylistManager::FbPlaylistManager() : m_fbPlaylistRecyclerManager(NULL)
 {
 }
@@ -842,11 +918,10 @@ STDMETHODIMP FbPlaylistManager::AddItemToPlaybackQueue(IFbMetadbHandle* handle)
 
 STDMETHODIMP FbPlaylistManager::AddLocations(UINT playlistIndex, VARIANT locations, VARIANT_BOOL select)
 {
-	bool toSelect = select != VARIANT_FALSE;
 	helpers::com_array_reader helper;
-
 	if (!helper.convert(&locations)) return E_INVALIDARG;
-	pfc::list_t<pfc::string8> locations2;
+
+	pfc::string_list_impl locations2;
 
 	for (long i = 0; i < static_cast<long>(helper.get_count()); ++i)
 	{
@@ -859,15 +934,13 @@ STDMETHODIMP FbPlaylistManager::AddLocations(UINT playlistIndex, VARIANT locatio
 		locations2.add_item(pfc::string8(pfc::stringcvt::string_utf8_from_wide(varUrl.bstrVal)));
 	}
 
-	pfc::list_const_array_t<const char*, pfc::list_t<pfc::string8>> locations3(locations2, locations2.get_count());
-
 	playlist_incoming_item_filter_v2::get()->process_locations_async(
-		locations3,
+		locations2,
 		playlist_incoming_item_filter_v2::op_flag_no_filter | playlist_incoming_item_filter_v2::op_flag_delay_ui,
 		NULL,
 		NULL,
 		NULL,
-		new service_impl_t<helpers::js_process_locations>(playlistIndex, toSelect));
+		new service_impl_t<helpers::js_process_locations>(playlistIndex, select != VARIANT_FALSE));
 
 	return S_OK;
 }
@@ -986,9 +1059,8 @@ STDMETHODIMP FbPlaylistManager::FindOrCreatePlaylist(BSTR name, VARIANT_BOOL unl
 
 	auto api = playlist_manager::get();
 	pfc::stringcvt::string_utf8_from_wide uname(name);
-	bool un = unlocked != VARIANT_FALSE;
 
-	if (un)
+	if (unlocked != VARIANT_FALSE)
 	{
 		*outPlaylistIndex = api->find_or_create_playlist_unlocked(uname);
 	}
@@ -1028,14 +1100,43 @@ STDMETHODIMP FbPlaylistManager::FlushPlaybackQueue()
 	return S_OK;
 }
 
+STDMETHODIMP FbPlaylistManager::GetPlaybackQueueContents(VARIANT* outContents)
+{
+	if (!outContents) return E_POINTER;
+
+	pfc::list_t<t_playback_queue_item> contents;
+	playlist_manager::get()->queue_get_contents(contents);
+	t_size count = contents.get_count();
+	helpers::com_array_writer<> helper;
+	if (!helper.create(count)) return E_OUTOFMEMORY;
+
+	for (t_size i = 0; i < count; ++i)
+	{
+		_variant_t var;
+		var.vt = VT_DISPATCH;
+		var.pdispVal = new com_object_impl_t<FbPlaybackQueueItem>(contents[i]);
+
+		if (FAILED(helper.put(i, var)))
+		{
+			helper.reset();
+			return E_OUTOFMEMORY;
+		}
+	}
+
+	outContents->vt = VT_ARRAY | VT_VARIANT;
+	outContents->parray = helper.get_ptr();
+	return S_OK;
+}
+
 STDMETHODIMP FbPlaylistManager::GetPlaybackQueueHandles(IFbMetadbHandleList** outItems)
 {
 	if (!outItems) return E_POINTER;
 
-	metadb_handle_list items;
 	pfc::list_t<t_playback_queue_item> contents;
 	playlist_manager::get()->queue_get_contents(contents);
-	for (t_size i = 0; i < contents.get_count(); ++i)
+	t_size count = contents.get_count();
+	metadb_handle_list items;
+	for (t_size i = 0; i < count; ++i)
 	{
 		items.add_item(contents[i].m_handle);
 	}
@@ -1305,6 +1406,40 @@ STDMETHODIMP FbPlaylistManager::SortByFormatV2(UINT playlistIndex, BSTR pattern,
 	return S_OK;
 }
 
+STDMETHODIMP FbPlaylistManager::SortPlaylistsByName(int direction)
+{
+	auto api = playlist_manager::get();
+	t_size count = api->get_playlist_count();
+	t_size i;
+
+	pfc::array_t<t_size> order;
+	order.set_size(count);
+
+	pfc::array_t<helpers::custom_sort_data> data;
+	data.set_size(count);
+
+	pfc::string8_fastalloc temp;
+	temp.prealloc(512);
+
+	for (i = 0; i < count; ++i)
+	{
+		api->playlist_get_name(i, temp);
+		data[i].index = i;
+		data[i].text = helpers::make_sort_string(temp);
+	}
+
+	pfc::sort_t(data, direction > 0 ? helpers::custom_sort_compare<1> : helpers::custom_sort_compare<-1>, count);
+
+	for (i = 0; i < count; ++i)
+	{
+		order[i] = data[i].index;
+		delete[] data[i].text;
+	}
+
+	api->reorder(order.get_ptr(), order.get_count());
+	return S_OK;
+}
+
 STDMETHODIMP FbPlaylistManager::UndoBackup(UINT playlistIndex)
 {
 	playlist_manager::get()->playlist_undo_backup(playlistIndex);
@@ -1388,34 +1523,6 @@ STDMETHODIMP FbPlaylistManager::put_PlayingPlaylist(int playlistIndex)
 {
 	t_size index = playlistIndex > -1 ? playlistIndex : pfc::infinite_size;
 	playlist_manager::get()->set_playing_playlist(index);
-	return S_OK;
-}
-
-FbPlayingItemLocation::FbPlayingItemLocation(bool isValid, t_size playlistIndex, t_size itemIndex) : m_isValid(isValid), m_playlistIndex(playlistIndex), m_itemIndex(itemIndex)
-{
-}
-
-STDMETHODIMP FbPlayingItemLocation::get_IsValid(VARIANT_BOOL* outIsValid)
-{
-	if (!outIsValid) return E_POINTER;
-
-	*outIsValid = TO_VARIANT_BOOL(m_isValid);
-	return S_OK;
-}
-
-STDMETHODIMP FbPlayingItemLocation::get_PlaylistIndex(int* outPlaylistIndex)
-{
-	if (!outPlaylistIndex) return E_POINTER;
-
-	*outPlaylistIndex = m_playlistIndex;
-	return S_OK;
-}
-
-STDMETHODIMP FbPlayingItemLocation::get_PlaylistItemIndex(int* outPlaylistItemIndex)
-{
-	if (!outPlaylistItemIndex) return E_POINTER;
-
-	*outPlaylistItemIndex = m_itemIndex;
 	return S_OK;
 }
 
@@ -1576,6 +1683,41 @@ STDMETHODIMP FbTitleFormat::EvalWithMetadb(IFbMetadbHandle* handle, BSTR* pp)
 	pfc::string8_fast text;
 	ptr->format_title(NULL, text, m_obj, NULL);
 	*pp = SysAllocString(pfc::stringcvt::string_wide_from_utf8_fast(text));
+	return S_OK;
+}
+
+STDMETHODIMP FbTitleFormat::EvalWithMetadbs(IFbMetadbHandleList* handles, VARIANT* pp)
+{
+	if (m_obj.is_empty() || !pp) return E_POINTER;
+
+	metadb_handle_list* handles_ptr = NULL;
+	handles->get__ptr((void**)&handles_ptr);
+
+	metadb_handle_list_ref handles_ref = *handles_ptr;
+	t_size count = handles_ref.get_count();
+
+	helpers::com_array_writer<> helper;
+	if (!helper.create(count)) return E_OUTOFMEMORY;
+
+	for (t_size i = 0; i < count; ++i)
+	{
+		pfc::string8_fast text;
+		handles_ref[i]->format_title(NULL, text, m_obj, NULL);
+
+		_variant_t var;
+		var.vt = VT_BSTR;
+		var.bstrVal = SysAllocString(pfc::stringcvt::string_wide_from_utf8_fast(text.get_ptr()));
+
+		if (FAILED(helper.put(i, var)))
+		{
+			// deep destroy
+			helper.reset();
+			return E_OUTOFMEMORY;
+		}
+	}
+
+	pp->vt = VT_ARRAY | VT_VARIANT;
+	pp->parray = helper.get_ptr();
 	return S_OK;
 }
 
@@ -2305,19 +2447,19 @@ STDMETHODIMP FbUtils::get_Volume(float* p)
 
 STDMETHODIMP FbUtils::put_AlwaysOnTop(VARIANT_BOOL p)
 {
-	config_object::g_set_data_bool(standard_config_objects::bool_ui_always_on_top, (p != VARIANT_FALSE));
+	config_object::g_set_data_bool(standard_config_objects::bool_ui_always_on_top, p != VARIANT_FALSE);
 	return S_OK;
 }
 
 STDMETHODIMP FbUtils::put_CursorFollowPlayback(VARIANT_BOOL p)
 {
-	config_object::g_set_data_bool(standard_config_objects::bool_cursor_follows_playback, (p != VARIANT_FALSE));
+	config_object::g_set_data_bool(standard_config_objects::bool_cursor_follows_playback, p != VARIANT_FALSE);
 	return S_OK;
 }
 
 STDMETHODIMP FbUtils::put_PlaybackFollowCursor(VARIANT_BOOL p)
 {
-	config_object::g_set_data_bool(standard_config_objects::bool_playback_follows_cursor, (p != VARIANT_FALSE));
+	config_object::g_set_data_bool(standard_config_objects::bool_playback_follows_cursor, p != VARIANT_FALSE);
 	return S_OK;
 }
 
@@ -2497,13 +2639,13 @@ STDMETHODIMP GdiBitmap::GetColourScheme(UINT count, VARIANT* outArray)
 		unsigned b = (color) & 0xff;
 
 		// Round colors
-		r = (r + 15) & 0xffffffe0;
-		g = (g + 15) & 0xffffffe0;
-		b = (b + 15) & 0xffffffe0;
+		r = (r + 16) & 0xffffffe0;
+		g = (g + 16) & 0xffffffe0;
+		b = (b + 16) & 0xffffffe0;
 
-		if (r > 0xff) r = 0xf0;
-		if (g > 0xff) g = 0xf0;
-		if (b > 0xff) b = 0xf0;
+		if (r > 0xff) r = 0xff;
+		if (g > 0xff) g = 0xff;
+		if (b > 0xff) b = 0xff;
 
 		++color_counters[Gdiplus::Color::MakeARGB(0xff, r, g, b)];
 	}
@@ -2513,7 +2655,6 @@ STDMETHODIMP GdiBitmap::GetColourScheme(UINT count, VARIANT* outArray)
 	// Sorting
 	typedef std::pair<unsigned, int> sort_vec_pair_t;
 	std::vector<sort_vec_pair_t> sort_vec(color_counters.begin(), color_counters.end());
-	color_counters.clear();
 	count = min(count, sort_vec.size());
 	std::partial_sort(
 		sort_vec.begin(),
@@ -2827,13 +2968,11 @@ STDMETHODIMP GdiGraphics::DrawPolygon(VARIANT colour, float line_width, VARIANT 
 {
 	if (!m_ptr) return E_POINTER;
 
-	Gdiplus::SolidBrush br(helpers::get_colour_from_variant(colour));
 	helpers::com_array_reader helper;
-	pfc::array_t<Gdiplus::PointF> point_array;
-
 	if (!helper.convert(&points)) return E_INVALIDARG;
 	if ((helper.get_count() % 2) != 0) return E_INVALIDARG;
 
+	pfc::array_t<Gdiplus::PointF> point_array;
 	point_array.set_count(helper.get_count() >> 1);
 
 	for (long i = 0; i < static_cast<long>(point_array.get_count()); ++i)
@@ -2964,13 +3103,11 @@ STDMETHODIMP GdiGraphics::FillPolygon(VARIANT colour, int fillmode, VARIANT poin
 {
 	if (!m_ptr) return E_POINTER;
 
-	Gdiplus::SolidBrush br(helpers::get_colour_from_variant(colour));
 	helpers::com_array_reader helper;
-	pfc::array_t<Gdiplus::PointF> point_array;
-
 	if (!helper.convert(&points)) return E_INVALIDARG;
 	if ((helper.get_count() % 2) != 0) return E_INVALIDARG;
 
+	pfc::array_t<Gdiplus::PointF> point_array;
 	point_array.set_count(helper.get_count() >> 1);
 
 	for (long i = 0; i < static_cast<long>(point_array.get_count()); ++i)
@@ -2987,6 +3124,7 @@ STDMETHODIMP GdiGraphics::FillPolygon(VARIANT colour, int fillmode, VARIANT poin
 		point_array[i].Y = varY.fltVal;
 	}
 
+	Gdiplus::SolidBrush br(helpers::get_colour_from_variant(colour));
 	m_ptr->FillPolygon(&br, point_array.get_ptr(), point_array.get_count(), (Gdiplus::FillMode)fillmode);
 	return S_OK;
 }
@@ -3117,8 +3255,7 @@ STDMETHODIMP GdiGraphics::GdiDrawText(BSTR str, IGdiFont* font, VARIANT colour, 
 
 	helpers::com_array_writer<> helper;
 
-	if (!helper.create(_countof(elements)))
-		return E_OUTOFMEMORY;
+	if (!helper.create(_countof(elements))) return E_OUTOFMEMORY;
 
 	for (long i = 0; i < helper.get_count(); ++i)
 	{
@@ -3736,7 +3873,7 @@ STDMETHODIMP JSUtils::MapString(BSTR str, UINT lcid, UINT flags, BSTR* pp)
 	wchar_t* dst = new wchar_t[r];
 	r = ::LCMapStringW(lcid, flags, str, wcslen(str) + 1, dst, r);
 	if (r) *pp = SysAllocString(dst);
-	delete dst;
+	delete[] dst;
 	return S_OK;
 }
 
@@ -3822,7 +3959,7 @@ STDMETHODIMP JSUtils::get_Version(UINT* v)
 {
 	if (!v) return E_POINTER;
 
-	*v = 2040;
+	*v = 2050;
 	return S_OK;
 }
 
@@ -3978,7 +4115,6 @@ void MenuObj::FinalRelease()
 STDMETHODIMP MenuObj::AppendMenuItem(UINT flags, UINT item_id, BSTR text)
 {
 	if (!m_hMenu) return E_POINTER;
-	if ((flags & MF_STRING) && !text) return E_INVALIDARG;
 	if (flags & MF_POPUP) return E_INVALIDARG;
 
 	::AppendMenu(m_hMenu, flags, item_id, text);
@@ -4009,8 +4145,7 @@ STDMETHODIMP MenuObj::CheckMenuItem(UINT item_id, VARIANT_BOOL check)
 {
 	if (!m_hMenu) return E_POINTER;
 
-	bool checked = check != VARIANT_FALSE;
-	::CheckMenuItem(m_hMenu, item_id, checked ? MF_CHECKED : MF_UNCHECKED);
+	::CheckMenuItem(m_hMenu, item_id, check != VARIANT_FALSE ? MF_CHECKED : MF_UNCHECKED);
 	return S_OK;
 }
 

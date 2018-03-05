@@ -1098,7 +1098,17 @@ template <bool t_bVertical = true>
 class CSplitterWindowT : public CSplitterWindowImpl<CSplitterWindowT<t_bVertical> >
 {
 public:
-	DECLARE_WND_CLASS_EX(_T("WTL_SplitterWindow"), CS_DBLCLKS, COLOR_WINDOW)
+	// This is instead of DECLARE_WND_CLASS_EX(_T("WTL_SplitterWindow"), CS_DBLCLKS, COLOR_WINDOW)
+	static ATL::CWndClassInfo& GetWndClassInfo()
+	{
+		static ATL::CWndClassInfo wc = 
+		{
+			{ sizeof(WNDCLASSEX), CS_DBLCLKS, ATL::CWindowImplBase::StartWindowProc,
+			  0, 0, NULL, NULL, NULL, (HBRUSH)(COLOR_WINDOW + 1), NULL, _T("WTL_SplitterWindow"), NULL },
+			NULL, NULL, IDC_ARROW, TRUE, 0, _T("")
+		};
+		return wc;
+	}
 
 	CSplitterWindowT() : CSplitterWindowImpl<CSplitterWindowT<t_bVertical> >(t_bVertical)
 	{ }

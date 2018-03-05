@@ -2,7 +2,6 @@
 
 #include <OleIdl.h>
 #include <ShlObj.h>
-#include <comdef.h>
 
 _COM_SMARTPTR_TYPEDEF(IDropTargetHelper, IID_IDropTargetHelper);
 

@@ -278,31 +278,31 @@ public:
 	CCommandBarCtrlImpl() : 
 			m_hMenu(NULL), 
 			m_hImageList(NULL), 
-			m_wndParent(this, 1), 
+			m_dwExtendedStyle(CBR_EX_TRANSPARENT | CBR_EX_SHAREMENU | CBR_EX_TRACKALWAYS),
+			m_wndParent(this, 1),
 			m_bMenuActive(false), 
 			m_bAttachedMenu(false), 
-			m_nPopBtn(-1), 
-			m_nNextPopBtn(-1), 
-			m_bPopupItem(false),
 			m_bImagesVisible(true),
-			m_bSkipMsg(false),
-			m_uSysKey(0),
-			m_hWndFocus(NULL),
+			m_bPopupItem(false),
 			m_bContextMenu(false),
 			m_bEscapePressed(false),
-			m_clrMask(RGB(192, 192, 192)),
-			m_dwExtendedStyle(CBR_EX_TRANSPARENT | CBR_EX_SHAREMENU | CBR_EX_TRACKALWAYS),
+			m_bSkipMsg(false),
 			m_bParentActive(true),
 			m_bFlatMenus(false),
 			m_bUseKeyboardCues(false),
 			m_bShowKeyboardCues(false),
 			m_bAllowKeyboardCues(true),
 			m_bKeyboardInput(false),
-			m_cxExtraSpacing(0),
 			m_bAlphaImages(false),
 			m_bLayoutRTL(false),
 			m_bSkipPostDown(false),
-			m_bVistaMenus(false)
+			m_bVistaMenus(false),
+			m_nPopBtn(-1),
+			m_nNextPopBtn(-1), 
+			m_clrMask(RGB(192, 192, 192)),
+			m_uSysKey(0),
+			m_hWndFocus(NULL),
+			m_cxExtraSpacing(0)
 	{
 		SetImageSize(16, 15);   // default
  	}
@@ -510,7 +510,7 @@ public:
 			int nItems = ::GetMenuItemCount(m_hMenu);
 
 			T* pT = static_cast<T*>(this);
-			pT;   // avoid level 4 warning
+			(void)pT;   // avoid level 4 warning
 			TCHAR szString[pT->_nMaxMenuItemTextLength] = { 0 };
 			for(int i = 0; i < nItems; i++)
 			{
@@ -988,7 +988,7 @@ public:
 					pData->hMsgHook = hMsgHook;
 					pData->dwUsage = 1;
 					BOOL bRet = this->s_pmapMsgHook->Add(dwThreadID, pData);
-					bRet;
+					(void)bRet;   // avoid level 4 warning
 					ATLASSERT(bRet);
 				}
 			}
@@ -1272,7 +1272,7 @@ public:
 			ATLASSERT(menuPopup.m_hMenu != NULL);
 
 			T* pT = static_cast<T*>(this);
-			pT;   // avoid level 4 warning
+			(void)pT;   // avoid level 4 warning
 			TCHAR szString[pT->_nMaxMenuItemTextLength] = { 0 };
 			BOOL bRet = FALSE;
 			for(int i = 0; i < menuPopup.GetMenuItemCount(); i++)
@@ -1935,7 +1935,7 @@ public:
 		if(!m_bAllowKeyboardCues)
 			m_bAllowKeyboardCues = true;
 		bHandled = FALSE;
-		wParam;
+		(void)wParam;   // avoid level 4 warning
 #ifdef _CMDBAR_EXTRA_TRACE
 		ATLTRACE2(atlTraceUI, 0, _T("CmdBar - Hook WM_SYSKEYUP (0x%2.2X)\n"), wParam);
 #endif
@@ -3694,7 +3694,7 @@ public:
 		m_wndMDIClient.DefWindowProc(uMsg, NULL, lParam);
 		HMENU hOldMenu = this->GetMenu();
 		BOOL bRet = this->AttachMenu((HMENU)wParam);
-		bRet;   // avoid level 4 warning
+		(void)bRet;   // avoid level 4 warning
 		ATLASSERT(bRet);
 
 		T* pT = static_cast<T*>(this);

@@ -1028,7 +1028,7 @@ public:
 	                         const PROPVARIANT* ppropvarCurrentValue, PROPVARIANT* /*ppropvarNewValue*/)
 	{
 		ATLASSERT(nCmdID == TCtrl::GetID());
-		nCmdID;   // avoid level 4 warning
+		(void)nCmdID;   // avoid level 4 warning
 
 		HRESULT hr = E_NOTIMPL;
 		switch (k_(key))
@@ -1389,7 +1389,7 @@ public:
 	                          IUISimplePropertySet* /*pCommandExecutionProperties*/)
 	{
 		ATLASSERT (nCmdID == this->GetID());
-		nCmdID; // avoid level4 warning
+		(void)nCmdID; // avoid level4 warning
 
 		if (key == NULL) // gallery button pressed
 		{
@@ -1536,7 +1536,7 @@ public:
 	                          IUISimplePropertySet* /*pCommandExecutionProperties*/)
 	{
 		ATLASSERT (nCmdID == this->GetID());
-		nCmdID;   // avoid level 4 warning
+		(void)nCmdID;   // avoid level 4 warning
 		
 		HRESULT hr = S_OK;
 		if (key == NULL) // gallery button pressed
@@ -1622,9 +1622,9 @@ public:
 	                          IUISimplePropertySet* /*pCommandExecutionProperties*/)
 	{
 		ATLASSERT(nCmdID == this->GetID());
-		nCmdID;   // avoid level 4 warning
+		(void)nCmdID;   // avoid level 4 warning
 		ATLASSERT(verb == UI_EXECUTIONVERB_EXECUTE);
-		verb;   // avoid level 4 warning
+		(void)verb;   // avoid level 4 warning
 		ATLASSERT((key) && (k_(*key) == k_SelectedItem));
 		ATLASSERT(ppropvarValue);
 
@@ -1659,9 +1659,9 @@ public:
 	                          IUISimplePropertySet* pCommandExecutionProperties)
 	{
 		ATLASSERT (nCmdID == this->GetID());
-		nCmdID;   // avoid level 4 warning
+		(void)nCmdID;   // avoid level 4 warning
 		ATLASSERT ((key) && (k_(*key) == k_FontProperties));
-		key;   // avoid level 4 warning
+		(void)key;   // avoid level 4 warning
 
 		HRESULT hr = E_INVALIDARG;
 		switch (verb)
@@ -1797,9 +1797,9 @@ public:
 	                          IUISimplePropertySet* pCommandExecutionProperties)
 	{
 		ATLASSERT (nCmdID == this->GetID());
-		nCmdID;   // avoid level 4 warning
+		(void)nCmdID;   // avoid level 4 warning
 		ATLASSERT (key && (k_(*key) == k_ColorType));
-		key;   // avoid level 4 warning
+		(void)key;   // avoid level 4 warning
 		ATLASSERT (ppropvarValue);
 
 		HRESULT hr = PropVariantToUInt32(*ppropvarValue, &m_colorType);
@@ -2029,11 +2029,11 @@ public:
 	                          IUISimplePropertySet* /*pCommandExecutionProperties*/)
 	{
 		ATLASSERT (nCmdID == this->GetID());
-		nCmdID;   // avoid level 4 warning
+		(void)nCmdID;   // avoid level 4 warning
 		ATLASSERT (key && (k_(*key) == k_DecimalValue));
-		key;   // avoid level 4 warning
+		(void)key;   // avoid level 4 warning
 		ATLASSERT (verb == UI_EXECUTIONVERB_EXECUTE);
-		verb;   // avoid level 4 warning
+		(void)verb;   // avoid level 4 warning
 
 		DECIMAL decVal;
 
@@ -2903,7 +2903,7 @@ public:
 		}
 
 		ATLASSERT(verb == UI_EXECUTIONVERB_EXECUTE);
-		verb;   // avoid level 4 warning
+		(void)verb;   // avoid level 4 warning
 
 		static_cast<T*>(this)->OnRibbonCommandExecute(nCmdID);
 		
@@ -3198,7 +3198,7 @@ public:
 		}
 		__if_not_exists(T::m_CmdBar)
 		{
-			bUse;   // avoid level 4 warning
+			(void)bUse;   // avoid level 4 warning
 			return false;
 		}
 	}
@@ -3364,7 +3364,7 @@ public:
 		}
 		__if_not_exists (T::m_CmdBar)
 		{
-			nCmdID;   // avoid level 4 warning
+			(void)nCmdID;   // avoid level 4 warning
 			return NULL;
 		}
 	}

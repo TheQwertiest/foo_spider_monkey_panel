@@ -7,11 +7,11 @@ static uie::window_factory<js_panel_window_cui> g_js_panel_wndow_cui;
 
 DWORD js_panel_window_cui::GetColourCUI(unsigned type, const GUID& guid)
 {
-	if (type <= columns_ui::colours::colour_active_item_frame)
+	if (type <= cui::colours::colour_active_item_frame)
 	{
-		columns_ui::colours::helper helper(guid);
+		cui::colours::helper helper(guid);
 
-		return helpers::convert_colorref_to_argb(helper.get_colour((columns_ui::colours::colour_identifier_t)type));
+		return helpers::convert_colorref_to_argb(helper.get_colour((cui::colours::colour_identifier_t)type));
 	}
 
 	return 0;
@@ -26,11 +26,11 @@ HFONT js_panel_window_cui::GetFontCUI(unsigned type, const GUID& guid)
 {
 	if (guid == pfc::guid_null)
 	{
-		if (type <= columns_ui::fonts::font_type_labels)
+		if (type <= cui::fonts::font_type_labels)
 		{
 			try
 			{
-				return static_api_ptr_t<columns_ui::fonts::manager>()->get_font((columns_ui::fonts::font_type_t)type);
+				return static_api_ptr_t<cui::fonts::manager>()->get_font((cui::fonts::font_type_t)type);
 			}
 			catch (exception_service_not_found&)
 			{
@@ -40,7 +40,7 @@ HFONT js_panel_window_cui::GetFontCUI(unsigned type, const GUID& guid)
 	}
 	else
 	{
-		columns_ui::fonts::helper helper(guid);
+		cui::fonts::helper helper(guid);
 		return helper.get_font();
 	}
 
@@ -90,8 +90,8 @@ LRESULT js_panel_window_cui::on_message(HWND hwnd, UINT msg, WPARAM wp, LPARAM l
 	case WM_CREATE:
 		try
 		{
-			static_api_ptr_t<columns_ui::fonts::manager>()->register_common_callback(this);
-			static_api_ptr_t<columns_ui::colours::manager>()->register_common_callback(this);
+			static_api_ptr_t<cui::fonts::manager>()->register_common_callback(this);
+			static_api_ptr_t<cui::colours::manager>()->register_common_callback(this);
 		}
 		catch (...)
 		{
@@ -101,8 +101,8 @@ LRESULT js_panel_window_cui::on_message(HWND hwnd, UINT msg, WPARAM wp, LPARAM l
 	case WM_DESTROY:
 		try
 		{
-			static_api_ptr_t<columns_ui::fonts::manager>()->deregister_common_callback(this);
-			static_api_ptr_t<columns_ui::colours::manager>()->deregister_common_callback(this);
+			static_api_ptr_t<cui::fonts::manager>()->deregister_common_callback(this);
+			static_api_ptr_t<cui::colours::manager>()->deregister_common_callback(this);
 		}
 		catch (...)
 		{

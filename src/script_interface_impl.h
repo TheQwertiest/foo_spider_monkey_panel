@@ -211,6 +211,23 @@ public:
 	STDMETHODIMP put_Item(UINT index, IFbMetadbHandle* handle);
 };
 
+class FbPlaybackQueueItem : public IDisposableImpl4<IFbPlaybackQueueItem>
+{
+protected:
+	t_playback_queue_item m_playback_queue_item;
+
+	FbPlaybackQueueItem();
+	FbPlaybackQueueItem(const t_playback_queue_item& playbackQueueItem);
+	virtual ~FbPlaybackQueueItem();
+	virtual void FinalRelease();
+
+public:
+	STDMETHODIMP get_Handle(IFbMetadbHandle** outHandle);
+	STDMETHODIMP get_PlaylistIndex(int* outPlaylistIndex);
+	STDMETHODIMP get_PlaylistItemIndex(int* outItemIndex);
+	STDMETHODIMP get__ptr(void** pp);
+};
+
 class FbPlaylistManager : public IDispatchImpl3<IFbPlaylistManager>
 {
 protected:
@@ -231,6 +248,7 @@ public:
 	STDMETHODIMP FindPlaybackQueueItemIndex(IFbMetadbHandle* handle, UINT playlistIndex, UINT playlistItemIndex, int* outIndex);
 	STDMETHODIMP FindPlaylist(BSTR name, int* outPlaylistIndex);
 	STDMETHODIMP FlushPlaybackQueue();
+	STDMETHODIMP GetPlaybackQueueContents(VARIANT* outContents);
 	STDMETHODIMP GetPlaybackQueueHandles(IFbMetadbHandleList** outItems);
 	STDMETHODIMP GetPlayingItemLocation(IFbPlayingItemLocation** outPlayingLocation);
 	STDMETHODIMP GetPlaylistFocusItemIndex(UINT playlistIndex, int* outPlaylistItemIndex);
@@ -257,6 +275,7 @@ public:
 	STDMETHODIMP ShowAutoPlaylistUI(UINT idx, VARIANT_BOOL* outSuccess);
 	STDMETHODIMP SortByFormat(UINT playlistIndex, BSTR pattern, VARIANT_BOOL selOnly, VARIANT_BOOL* outSuccess);
 	STDMETHODIMP SortByFormatV2(UINT playlistIndex, BSTR pattern, int direction, VARIANT_BOOL* outSuccess);
+	STDMETHODIMP SortPlaylistsByName(int direction);
 	STDMETHODIMP UndoBackup(UINT playlistIndex);
 	STDMETHODIMP get_ActivePlaylist(int* outPlaylistIndex);
 	STDMETHODIMP get_PlaybackOrder(UINT* outOrder);
@@ -324,6 +343,7 @@ protected:
 public:
 	STDMETHODIMP Eval(VARIANT_BOOL force, BSTR* pp);
 	STDMETHODIMP EvalWithMetadb(IFbMetadbHandle* handle, BSTR* pp);
+	STDMETHODIMP EvalWithMetadbs(IFbMetadbHandleList* handles, VARIANT* pp);
 	STDMETHODIMP get__ptr(void** pp);
 };
 

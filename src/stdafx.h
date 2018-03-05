@@ -6,18 +6,12 @@
 
 #define TO_VARIANT_BOOL(v) ((v) ? (VARIANT_TRUE) : (VARIANT_FALSE))
 
-#include <tchar.h>
 #include <Windows.h>
 #include <GdiPlus.h>
 #include <ActivScp.h>
 #include <activdbg.h>
-#include <ShellApi.h>
-#include <CommCtrl.h>
 #include <ComDef.h>
-#include <ComDefSp.h>
-#include <ObjSafe.h>
 #include <StrSafe.h>
-#include <uxtheme.h>
 
 // ATL/WTL
 #include <atlstr.h>

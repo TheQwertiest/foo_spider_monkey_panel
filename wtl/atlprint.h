@@ -819,7 +819,7 @@ public:
 	enum { m_cxOffset = 10, m_cyOffset = 10 };
 
 // Constructor
-	CPrintPreviewWindowImpl() : m_nMaxPage(0), m_nMinPage(0)
+	CPrintPreviewWindowImpl() : m_nMinPage(0), m_nMaxPage(0)
 	{ }
 
 // Operations
@@ -890,7 +890,7 @@ public:
 		this->GetClientRect(&rcClient);
 		RECT rcArea = rcClient;
 		T* pT = static_cast<T*>(this);
-		pT;   // avoid level 4 warning
+		(void)pT;   // avoid level 4 warning
 		::InflateRect(&rcArea, -pT->m_cxOffset, -pT->m_cyOffset);
 		if (rcArea.left > rcArea.right)
 			rcArea.right = rcArea.left;
@@ -1051,7 +1051,7 @@ public:
 		this->GetClientRect(&rcClient);
 		RECT rcArea = rcClient;
 		T* pT = static_cast<T*>(this);
-		pT;   // avoid level 4 warning
+		(void)pT;   // avoid level 4 warning
 		::InflateRect(&rcArea, -pT->m_cxOffset, -pT->m_cyOffset);
 		if (rcArea.left > rcArea.right)
 			rcArea.right = rcArea.left;

@@ -12,27 +12,27 @@ _.mixin({
 		
 		this.playback_time = function () {
 			this.time_elapsed++;
-			switch (true) {
-			case !this.metadb:
-			case !this.properties.listenbrainz.enabled:
-				break;
-			case this.time_elapsed == 3:
+			if (this.time_elapsed == 3) {
 				this.listen(this.metadb, 'playing_now');
-				break;
-			case this.time_elapsed == this.target_time:
+			} else if (this.time_elapsed == this.target_time) {
 				this.listen(this.metadb, 'single');
-				break;
 			}
 		}
 		
 		this.listen = function (metadb, listen_type) {
+			if (!metadb || !this.properties.listenbrainz.enabled) {
+				return;
+			}
+			
+			var single = listen_type == 'single';
+			
 			if (!_.isUUID(this.token)) {
 				return console.log(N, 'Token invalid/not set.');
 			}
 			
 			if (this.properties.library.enabled && !fb.IsMetadbInMediaLibrary(metadb)) {
-				if (listen_type == 'single') {
-					console.log(N, 'Skipping... Track not in Media Library.');	
+				if (single) {
+					console.log(N, 'Skipping... Track not in Media Library.');
 				}
 				return;
 			}
@@ -40,7 +40,7 @@ _.mixin({
 			var tags = this.get_tags(metadb);
 			
 			if (!tags.artist || !tags.title) {
-				if (listen_type == 'single') {
+				if (single) {
 					console.log(N, 'Artist/title tag missing. Not submitting.');
 				}
 				return;
@@ -54,7 +54,7 @@ _.mixin({
 				}
 			};
 			
-			if (listen_type == 'single') {
+			if (single) {
 				payload.listened_at = this.timestamp;
 				
 				payload.track_metadata.additional_info = {

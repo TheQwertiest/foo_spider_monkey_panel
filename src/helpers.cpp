@@ -913,6 +913,13 @@ namespace helpers
 		}
 	}
 
+	wchar_t * make_sort_string(const char * in) {
+		wchar_t * out = new wchar_t[pfc::stringcvt::estimate_utf8_to_wide(in) + 1];
+		out[0] = ' ';//StrCmpLogicalW bug workaround.
+		pfc::stringcvt::convert_utf8_to_wide_unchecked(out + 1, in);
+		return out;
+	}
+
 	void album_art_async::run()
 	{
 		pfc::string8_fast image_path;

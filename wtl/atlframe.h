@@ -2422,7 +2422,7 @@ public:
 	CUpdateUI()
 	{
 		T* pT = static_cast<T*>(this);
-		pT;
+		(void)pT;   // avoid level 4 warning
 		const _AtlUpdateUIMap* pMap = pT->GetUpdateUIMap();
 		m_pUIMap = pMap;
 		ATLASSERT(m_pUIMap != NULL);
@@ -2468,7 +2468,7 @@ public:
 	CDynamicUpdateUI()
 	{
 		T* pT = static_cast<T*>(this);
-		pT;
+		(void)pT;   // avoid level 4 warning
 		const _AtlUpdateUIMap* pMap = pT->GetUpdateUIMap();
 		ATLASSERT(pMap != NULL);
 

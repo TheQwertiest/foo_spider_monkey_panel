@@ -182,11 +182,14 @@ _.mixin({
 			if (!this.metadb) {
 				return '';
 			}
-			var path = _.tf('$if2(%__@%,%path%)', this.metadb);
+			if (!this.tfo[t]) {
+				this.tfo[t] = fb.TitleFormat(t);
+			}
+			var path = this.tfo['$if2(%__@%,%path%)'].EvalWithMetadb(this.metadb);
 			if (fb.IsPlaying && (path.indexOf('http') == 0 || path.indexOf('mms') == 0)) {
-				return _.tfe(t);
+				return this.tfo[t].Eval();
 			} else {
-				return _.tf(t, this.metadb);
+				return this.tfo[t].EvalWithMetadb(this.metadb);
 			}
 		}
 		
@@ -215,6 +218,9 @@ _.mixin({
 		}
 		this.list_objects = [];
 		this.text_objects = [];
+		this.tfo = {
+			'$if2(%__@%,%path%)' : fb.TitleFormat('$if2(%__@%,%path%)')
+		};
 		this.font_changed();
 		this.colours_changed();
 	}

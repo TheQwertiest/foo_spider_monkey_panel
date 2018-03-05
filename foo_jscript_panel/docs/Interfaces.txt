@@ -27,6 +27,8 @@ interface IFbUtils {
 
 		fb.IsPlaying; (boolean) (read)
 
+		fb.PlaybackFollowCursor; (boolean) (read, write)
+
 		fb.PlaybackLength; (double) (read)
 		/*
 		example1:
@@ -34,8 +36,6 @@ interface IFbUtils {
 		example2:
 		console.log(Math.round(fb.PlaybackLength)); // 323
 		*/
-
-		fb.PlaybackFollowCursor; (boolean) (read, write)
 
 		fb.PlaybackTime; (double) (read, write)
 		/*
@@ -323,10 +323,9 @@ interface IFbUtils {
 				*/
 
 				Methods:
-					Dispose();
-					// Example: tfo.Dispose();
+					Dispose(); (void)
 
-					Eval([force]);
+					Eval([force]); (string)
 					/*
 					force: boolean, default false.
 					If true, you can process text that doesn't contain
@@ -339,10 +338,20 @@ interface IFbUtils {
 					console.log(tfo.Eval());
 					*/
 
-					EvalWithMetadb(handle);
+					EvalWithMetadb(handle); (string)
 					/*
 					Example:
 					console.log(tfo.EvalWithMetadb(fb.GetFocusItem()));
+					*/
+
+					EvalWithMetadbs(handle_list); (VBArray)
+					/*
+					Returns a VBArray so you need to use .toArray() on the result.
+
+					Example:
+					var items = fb.GetLibraryItems();
+					var artists = tfo.EvalWithMetadbs(items).toArray(); 
+					console.log(items.Count === artists.length); // should always be true!
 					*/
 			}
 
@@ -365,7 +374,8 @@ interface IGdiUtils {
 
 		gdi.Image(path); (IGdiBitmap)
 		/*
-		Example: var img = gdi.Image("e:\\images folder\\my_image.png");
+		Example:
+		var img = gdi.Image("e:\\images folder\\my_image.png");
 		Returns null if path doesn't exist/image fails to load.
 		*/
 
@@ -493,7 +503,7 @@ interface IFbPlaylistManager {
 		// Starts playback by executing default doubleclick/enter action unless overridden by a lock to do something else.
 
 		plman.FindPlaylist(name); (int)
-		// Case insensitive. Returns playlistIndex or -1 on failure. 
+		// Case insensitive. Returns playlistIndex or -1 on failure.
 
 		plman.GetPlayingItemLocation(); (IFbPlayingItemLocation)
 		/*
@@ -653,7 +663,8 @@ interface IFbPlaylistManager {
 		plman.ShowAutoPlaylistUI(playlistIndex); (boolean)
 		/*
 		Shows popup window letting you edit certain Autoplaylist properties.
-		Example: fb.ShowAutoPlaylistUI(plman.ActivePlaylist);
+		Example:
+		fb.ShowAutoPlaylistUI(plman.ActivePlaylist);
 		Before using, check if your playlist is an Autoplaylist by using plman.IsAutoPlaylist(...);
 		*/
 
@@ -672,6 +683,9 @@ interface IFbPlaylistManager {
 		direction: default 1 (ascending), -1 (descending).
 		*/
 
+		plman.SortPlaylistsByName([direction]) (void)
+		// direction: default 1 (ascending), -1 (descending).
+
 		plman.UndoBackup(playlistIndex); (void)
 		// Call before using other plman methods that add/remove/reorder playlist items so a history will be available from the Edit menu.
 
@@ -685,11 +699,36 @@ interface IFbPlaylistManager {
 
 		plman.FlushPlaybackQueue(); (void)
 
+		plman.GetPlaybackQueueContents(); (VBArray)
+		/*
+		Returns a VBArray so you need to use .toArray() on the result.
+		Each item of the array is an instance of IFbPlaybackQueueItem.
+		
+		Example:
+		var contents = plman.GetPlaybackQueueContents().toArray();
+		if (contents.length) {
+			// access properties of first item
+			console.log(contents[0].PlaylistIndex, contents[0].PlaylistItemIndex);
+		}
+		*/
+
+			interface IFbPlaybackQueueItem {
+				Properties:
+					Handle; (IFbMetadbHandle) (read)
+					PlaylistIndex; (int) (read)
+					PlaylistItemIndex; (int) (read)
+					// indexes will be -1 for items not added from a playlist.
+
+				Methods:
+					Dispose(); (void)
+			}
+
 		plman.GetPlaybackQueueHandles(); ((IFbMetadbHandleList))
 		/*
+		Example:
 		var handles = plman.GetPlaybackQueueHandles();
 		if (handles.Count > 0) {
-			// removes the need for plman.GetPlaybackQueueCount() and plman.IsPlaybackQueueActive()
+			// use "Count" to determine if Playback Queue is active.
 		}
 		*/
 
@@ -807,7 +846,8 @@ interface IJSUtils {
 		utils.GetSysColour(index); (uint)
 		/*
 		index: http://msdn.microsoft.com/en-us/library/ms724371%28VS.85%29.aspx
-		Example: var splitter_colour = utils.GetSysColour(15);
+		Example:
+		var splitter_colour = utils.GetSysColour(15);
 		Returns 0 if failed.
 		*/
 
@@ -1570,6 +1610,7 @@ interface IFbMetadbHandleList {
 		OrderByPath(); (void)
 
 		OrderByRelativePath(); (void)
+		// This method should only be used on a handle list containing items that are monitored as part of the Media Library.
 
 		RefreshStats(); (void)
 		// See https://github.com/marc2k3/foo_jscript_panel/wiki/Playback-Stats

@@ -1027,9 +1027,9 @@ oBrowser = function (name) {
 							};
 
 							if (fb.IsPlaying && i == plman.PlayingPlaylist) {
-								var font = gdi.Font(g_fname, g_fsize, 1);
+								var font = g_font_bold;
 							} else {
-								var font = gdi.Font(g_fname, g_fsize, 0);
+								var font = g_font;
 							};
 
 							// fields
@@ -1086,7 +1086,7 @@ oBrowser = function (name) {
 				var tx = cFilterBox.x + cFilterBox.w + Math.round(22 * g_zoom_percent / 100) + 5;
 				var tw = this.w - tx + (cScrollBar.enabled ? cScrollBar.width : 0);
 				try {
-					gr.gdiDrawText(boxText, gdi.Font(g_fname, g_fsize - 2, 1), blendColors(g_color_normal_txt, g_color_normal_bg, 0.3), tx, 0, tw, ppt.headerBarHeight - 1, DT_RIGHT | DT_VCENTER | DT_CALCRECT | DT_NOPREFIX | DT_END_ELLIPSIS);
+					gr.gdiDrawText(boxText, g_font_box, blendColors(g_color_normal_txt, g_color_normal_bg, 0.3), tx, 0, tw, ppt.headerBarHeight - 1, DT_RIGHT | DT_VCENTER | DT_CALCRECT | DT_NOPREFIX | DT_END_ELLIPSIS);
 				} catch (e) {
 					console.log(">> debug: cScrollBar.width=" + cScrollBar.width + " /boxText=" + boxText + " /ppt.headerBarHeight=" + ppt.headerBarHeight + " /g_fsize=" + g_fsize);
 				};
@@ -2259,7 +2259,9 @@ function get_font() {
 
 	// adjust font size if extra zoom activated
 	g_fsize += ppt.extra_font_size;
-	g_font = gdi.Font(g_fname, g_fsize, g_fstyle);
+	g_font = gdi.Font(g_fname, g_fsize, 0);
+	g_font_bold = gdi.Font(g_fname, g_fsize, 1);
+	g_font_box = gdi.Font(g_fname, g_fsize - 2, 1);
 
 	g_zoom_percent = Math.floor(g_fsize / 12 * 100);
 

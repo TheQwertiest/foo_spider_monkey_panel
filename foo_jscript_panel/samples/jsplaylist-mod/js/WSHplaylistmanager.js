@@ -33,43 +33,6 @@ oPlaylistManager = function (obj_name) {
 	this.inputbox = null;
 	this.inputboxID = -1;
 
-	this.sortNameAsc = function (obj_a, obj_b) {
-		return (obj_a.name.toLowerCase() > obj_b.name.toLowerCase() ? 1 : -1);
-	};
-	this.sortNameDesc = function (obj_a, obj_b) {
-		return (obj_a.name.toLowerCase() < obj_b.name.toLowerCase() ? 1 : -1);
-	};
-
-	this.getPlaylistIdx = function (name, start) {
-		for (var i = start; i < plman.PlaylistCount; i++) {
-			if (name == plman.GetPlaylistName(i)) {
-				return i;
-			};
-		};
-		return -1;
-	};
-
-	this.sortPlaylists = function (direction) {
-		var old_idx;
-		var tmp = this.playlists.slice(0, this.playlists.length);
-		tmp.sort(direction > 0 ? this.sortNameAsc : this.sortNameDesc);
-
-		g_avoid_on_playlists_changed = true;
-		for (var i = 0; i < tmp.length; i++) {
-			old_idx = this.getPlaylistIdx(tmp[i].name, i);
-			plman.MovePlaylist(old_idx, i);
-		};
-		if (cPlaylistManager.mediaLibraryPlaylist) {
-			checkMediaLibrayPlaylist();
-		}
-		cPlaylistManager.sortPlaylists_timer && window.ClearTimeout(cPlaylistManager.sortPlaylists_timer);
-		cPlaylistManager.sortPlaylists_timer = window.SetTimeout(function () {
-				g_avoid_on_playlists_changed = false;
-				window.ClearTimeout(cPlaylistManager.sortPlaylists_timer);
-				cPlaylistManager.sortPlaylists_timer = false;
-			}, 25);
-	};
-
 	this.setButtons = function () {
 		var color_txt = g_color_normal_txt;
 		var color_bg = g_color_normal_bg;
@@ -628,12 +591,12 @@ oPlaylistManager = function (obj_name) {
 					};
 				} else {
 					if (this.sortAz_button.checkstate(event, x, y) == ButtonStates.hover) {
-						this.sortPlaylists(1);
+						plman.SortPlaylistsByName(1);
 						this.refresh("", false, false, false);
 						full_repaint();
 					};
 					if (this.sortZa_button.checkstate(event, x, y) == ButtonStates.hover) {
-						this.sortPlaylists(-1);
+						plman.SortPlaylistsByName(-1);
 						this.refresh("", false, false, false);
 						full_repaint();
 					} else {

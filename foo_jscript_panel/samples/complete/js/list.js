@@ -373,6 +373,8 @@ _.mixin({
 			case 1400:
 				var tmp = _.input('Enter title formatting', window.Name, this.properties.tf.value);
 				this.properties.tf.set(tmp || this.properties.tf.default_);
+				_.dispose(this.tfo);
+				this.tfo = fb.TitleFormat(this.properties.tf.value);
 				this.update();
 				break;
 			case 1401:
@@ -562,11 +564,11 @@ _.mixin({
 				break;
 			case 'queue_viewer':
 				var items = plman.GetPlaybackQueueHandles();
-				for (var i = 0; i < items.Count; i++) {
-					this.data.push({
-						name : _.tf(this.properties.tf.value, items.Item(i))
-					});
-				}
+				this.data = _.map(this.tfo.EvalWithMetadbs(items).toArray(), function (item) {
+					return {
+						name : item
+					};
+				});
 				_.dispose(items);
 				break;
 			}
@@ -1011,6 +1013,7 @@ _.mixin({
 				this.properties = {
 					tf : new _.p('2K3.LIST.QUEUE.TF', '%artist% - %title%')
 				};
+				this.tfo = fb.TitleFormat(this.properties.tf.value);
 				this.update();
 				break;
 			}

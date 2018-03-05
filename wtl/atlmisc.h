@@ -113,7 +113,7 @@ public:
 	int m_cchMaxItemLen;
 
 // Constructor
-	CRecentDocumentListBase() : m_hMenu(NULL), m_nMaxEntries(4), m_cchMaxItemLen(-1)
+	CRecentDocumentListBase() : m_nMaxEntries(4), m_hMenu(NULL), m_cchMaxItemLen(-1)
 	{
 		// These ASSERTs verify values of the template arguments
 		ATLASSERT(t_cchItemLen > m_cchMaxItemLen_Min);
@@ -133,7 +133,7 @@ public:
 		if((m_hMenu == NULL) || (::GetMenuString(m_hMenu, t_nFirstID, m_szNoEntries, t_cchItemLen, MF_BYCOMMAND) == 0))
 		{
 			T* pT = static_cast<T*>(this);
-			pT;   // avoid level 4 warning
+			(void)pT;   // avoid level 4 warning
 			ATL::Checked::tcsncpy_s(m_szNoEntries, _countof(m_szNoEntries), pT->GetMRUEmptyText(), _TRUNCATE);
 		}
 	}
@@ -309,7 +309,7 @@ public:
 	BOOL WriteToRegistry(LPCTSTR lpstrRegKey)
 	{
 		T* pT = static_cast<T*>(this);
-		pT;   // avoid level 4 warning
+		(void)pT;   // avoid level 4 warning
 		ATL::CRegKey rkParent;
 		ATL::CRegKey rk;
 
@@ -394,9 +394,9 @@ public:
 				{
 					TCHAR szBuff[t_cchItemLen] = { 0 };
 					T* pT = static_cast<T*>(this);
-					pT;   // avoid level 4 warning
+					(void)pT;   // avoid level 4 warning
 					bool bRet = pT->CompactDocumentName(szBuff, m_arrDocs[nSize - 1 - nItem].szDocName, m_cchMaxItemLen);
-					bRet;   // avoid level 4 warning
+					(void)bRet;   // avoid level 4 warning
 					ATLASSERT(bRet);
 					_stprintf_s(szItemText, t_cchItemLen + 6, _T("&%i %s"), nItem + 1, szBuff);
 				}
@@ -460,10 +460,10 @@ class CFindFile
 {
 public:
 // Data members
+	HANDLE m_hFind;
 	WIN32_FIND_DATA m_fd;
 	TCHAR m_lpszRoot[MAX_PATH];
 	TCHAR m_chDirSeparator;
-	HANDLE m_hFind;
 	BOOL m_bFound;
 
 // Constructor/destructor
@@ -877,7 +877,8 @@ inline bool _IsDBCSTrailByte(LPCTSTR lpstr, int nChar)
 	}
 	return ((nChar > 0) && (((nChar - i) & 1) != 0));
 #else // _UNICODE
-	lpstr; nChar;
+	(void)lpstr;   // avoid level 4 warning
+	(void)nChar;   // avoid level 4 warning
 	return false;
 #endif // _UNICODE
 }

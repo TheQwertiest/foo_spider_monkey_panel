@@ -5572,7 +5572,7 @@ public:
 #endif
 		ATLASSERT(::IsWindow(this->m_hWnd));
 		BOOL bRet = (BOOL)::SendMessage(this->m_hWnd, TB_GETITEMDROPDOWNRECT, nIndex, (LPARAM)lpRect);
-		bRet;   // avoid level 4 warning
+		(void)bRet;   // avoid level 4 warning
 		ATLASSERT(bRet != FALSE);
 	}
 #endif // (_WIN32_WINNT >= 0x0600)
@@ -7833,7 +7833,7 @@ public:
 
 		DWORD dwMode = 0;
 		BOOL bRet = (BOOL)::SendMessage(this->m_hWnd, EM_GETELLIPSISMODE, 0, (LPARAM)&dwMode);
-		bRet;   // avoid level 4 warning
+		(void)bRet;   // avoid level 4 warning
 		ATLASSERT(bRet != FALSE);
 
 		return dwMode;
@@ -8038,7 +8038,7 @@ public:
 
 	LRESULT OnDragListNotify(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 	{
-		uMsg;   // avoid level 4 warning
+		(void)uMsg;   // avoid level 4 warning
 		ATLASSERT(uMsg == CDragListBox::GetDragListMessage());
 		T* pT = static_cast<T*>(this);
 		LPDRAGLISTINFO lpDragListInfo = (LPDRAGLISTINFO)lParam;

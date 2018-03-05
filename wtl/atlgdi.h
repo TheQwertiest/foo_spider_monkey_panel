@@ -3250,7 +3250,7 @@ public:
 	PIXELFORMATDESCRIPTOR m_pfd;
 
 // Constructor/destructor
-	CEnhMetaFileInfo(HENHMETAFILE hEMF) : m_pBits(NULL), m_pDesc(NULL), m_hEMF(hEMF)
+	CEnhMetaFileInfo(HENHMETAFILE hEMF) : m_hEMF(hEMF), m_pBits(NULL), m_pDesc(NULL)
 	{ }
 
 	~CEnhMetaFileInfo()
