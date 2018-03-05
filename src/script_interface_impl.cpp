@@ -1938,6 +1938,24 @@ STDMETHODIMP FbUtils::AddFiles()
 	return S_OK;
 }
 
+STDMETHODIMP FbUtils::CopyHandleListToClipboard(IFbMetadbHandleList* handles, VARIANT_BOOL* outSuccess)
+{
+	metadb_handle_list* handles_ptr = NULL;
+	handles->get__ptr((void**)&handles_ptr);
+
+	auto api = ole_interaction::get();
+	pfc::com_ptr_t<IDataObject> pDO = api->create_dataobject(*handles_ptr);
+	if (SUCCEEDED(OleSetClipboard(pDO.get_ptr())))
+	{
+		*outSuccess = VARIANT_TRUE;
+	}
+	else
+	{
+		*outSuccess = VARIANT_FALSE;
+	}
+	return S_OK;
+}
+
 STDMETHODIMP FbUtils::ClearPlaylist()
 {
 	standard_commands::main_clear_playlist();

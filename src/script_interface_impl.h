@@ -413,6 +413,7 @@ public:
 	STDMETHODIMP AddDirectory();
 	STDMETHODIMP AddFiles();
 	STDMETHODIMP ClearPlaylist();
+	STDMETHODIMP CopyHandleListToClipboard(IFbMetadbHandleList* handles, VARIANT_BOOL* outSuccess);
 	STDMETHODIMP CreateContextMenuManager(IContextMenuManager** pp);
 	STDMETHODIMP CreateHandleList(IFbMetadbHandleList** pp);
 	STDMETHODIMP CreateMainMenuManager(IMainMenuManager** pp);

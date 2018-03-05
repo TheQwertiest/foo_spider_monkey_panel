@@ -137,6 +137,27 @@ interface IFbUtils {
 
 		fb.AddFiles(); (void)
 
+		fb.CopyHandleListToClipboard(handle_list); (boolean)
+		/*
+		Items can then be pasted in other playlist viewers or in Windows Explorer as files.
+
+		Example1: (copy playlist items)
+		var items = plman.GetPlaylistSelectedItems(plman.ActivePlaylist);
+		fb.CopyHandleListToClipboard(items);
+		items.Dispose();
+
+		Example2: (cut playlist items)
+		var ap = plman.ActivePlaylist;
+		if (!plman.IsPlaylistLocked(ap)) {
+			var items = plman.GetPlaylistSelectedItems(ap);
+			if (fb.CopyHandleListToClipboard(items)) {
+				plman.UndoBackup(ap);
+				plman.RemovePlaylistSelection(ap);
+			}
+			items.Dispose();
+		};
+		*/
+
 		fb.ClearPlaylist(); (void)
 		// Clears active playlist. If you wish to clear a specific playlist, use plman.ClearPlaylist(playlistIndex).
 
@@ -703,7 +724,7 @@ interface IFbPlaylistManager {
 		/*
 		Returns a VBArray so you need to use .toArray() on the result.
 		Each item of the array is an instance of IFbPlaybackQueueItem.
-		
+
 		Example:
 		var contents = plman.GetPlaybackQueueContents().toArray();
 		if (contents.length) {

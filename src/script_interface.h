@@ -360,6 +360,7 @@ __interface IFbUtils : IDispatch
 	STDMETHOD(AddDirectory)();
 	STDMETHOD(AddFiles)();
 	STDMETHOD(ClearPlaylist)();
+	STDMETHOD(CopyHandleListToClipboard)(IFbMetadbHandleList* handles, [out, retval] VARIANT_BOOL* outSuccess);
 	STDMETHOD(CreateContextMenuManager)([out, retval] IContextMenuManager** pp);
 	STDMETHOD(CreateHandleList)([out, retval] IFbMetadbHandleList** pp);
 	STDMETHOD(CreateMainMenuManager)([out, retval] IMainMenuManager** pp);
