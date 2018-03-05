@@ -419,6 +419,7 @@ public:
 	STDMETHODIMP CreateMainMenuManager(IMainMenuManager** pp);
 	STDMETHODIMP CreateProfiler(BSTR name, IFbProfiler** pp);
 	STDMETHODIMP Exit();
+	STDMETHODIMP GetClipboardItems(UINT window_id, IFbMetadbHandleList** pp);
 	STDMETHODIMP GetFocusItem(VARIANT_BOOL force, IFbMetadbHandle** pp);
 	STDMETHODIMP GetLibraryItems(IFbMetadbHandleList** outItems);
 	STDMETHODIMP GetLibraryRelativePath(IFbMetadbHandle* handle, BSTR* p);

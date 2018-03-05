@@ -15,6 +15,7 @@ fb.CreateProfiler([name])
 fb.CursorFollowPlayback
 fb.Exit()
 fb.FoobarPath
+fb.GetClipboardItems(window_id)
 fb.GetFocusItem([force])
 fb.GetLibraryItems()
 fb.GetLibraryRelativePath(handle)

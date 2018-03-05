@@ -210,6 +210,19 @@ interface IFbUtils {
 
 		fb.Exit(); (void)
 
+		fb.GetClipboardItems(window_id); (IFbMetadbHandleList)
+		/*
+		Clipboard items can be handles copied to the clipboard in other components, from fb.CopyHandleListToClipboard or a file selection
+		from Windows Explorer etc.
+		
+		Example:
+		var items = fb.GetClipboardItems(window.ID);
+		if (items.Count > 0) {
+			var ap = plman.ActivePlaylist;
+			plman.InsertPlaylistItems(ap, plman.PlaylistItemCount(ap), items);
+		}
+		*/
+		
 		fb.GetFocusItem([force]); (IFbMetadbHandle)
 		/*
 		force: boolean, default true.

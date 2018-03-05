@@ -1940,6 +1940,8 @@ STDMETHODIMP FbUtils::AddFiles()
 
 STDMETHODIMP FbUtils::CopyHandleListToClipboard(IFbMetadbHandleList* handles, VARIANT_BOOL* outSuccess)
 {
+	if (!outSuccess) return E_POINTER;
+
 	metadb_handle_list* handles_ptr = NULL;
 	handles->get__ptr((void**)&handles_ptr);
 
@@ -1999,6 +2001,37 @@ STDMETHODIMP FbUtils::CreateProfiler(BSTR name, IFbProfiler** pp)
 STDMETHODIMP FbUtils::Exit()
 {
 	standard_commands::main_exit();
+	return S_OK;
+}
+
+STDMETHODIMP FbUtils::GetClipboardItems(UINT window_id, IFbMetadbHandleList** pp)
+{
+	if (!pp) return E_POINTER;
+
+	auto api = playlist_manager::get();
+	auto ole = ole_interaction::get();
+	pfc::com_ptr_t<IDataObject> pDO;
+	metadb_handle_list items;
+
+	HRESULT hr = OleGetClipboard(pDO.receive_ptr());
+	if (SUCCEEDED(hr))
+	{
+		dropped_files_data_impl data;
+
+		bool native;
+		DWORD drop_effect = DROPEFFECT_COPY;
+		hr = ole->check_dataobject(pDO, drop_effect, native);
+		if (SUCCEEDED(hr))
+		{
+			hr = ole->parse_dataobject(pDO, data);
+			if (SUCCEEDED(hr))
+			{
+				data.to_handles(items, native, (HWND)window_id);
+			}
+		}
+	}
+
+	*pp = new com_object_impl_t<FbMetadbHandleList>(items);
 	return S_OK;
 }
 
