@@ -137,6 +137,9 @@ interface IFbUtils {
 
 		fb.AddFiles(); (void)
 
+		fb.ClearPlaylist(); (void)
+		// Clears active playlist. If you wish to clear a specific playlist, use plman.ClearPlaylist(playlistIndex).
+
 		fb.CopyHandleListToClipboard(handle_list); (boolean)
 		/*
 		Items can then be pasted in other playlist viewers or in Windows Explorer as files.
@@ -157,9 +160,6 @@ interface IFbUtils {
 			items.Dispose();
 		};
 		*/
-
-		fb.ClearPlaylist(); (void)
-		// Clears active playlist. If you wish to clear a specific playlist, use plman.ClearPlaylist(playlistIndex).
 
 		fb.CreateContextMenuManager(); (IContextMenuManager)
 		// See samples\basic\MainMenuManager All-In-One, samples\basic\Menu Sample.txt

@@ -1938,10 +1938,17 @@ STDMETHODIMP FbUtils::AddFiles()
 	return S_OK;
 }
 
+STDMETHODIMP FbUtils::ClearPlaylist()
+{
+	standard_commands::main_clear_playlist();
+	return S_OK;
+}
+
 STDMETHODIMP FbUtils::CopyHandleListToClipboard(IFbMetadbHandleList* handles, VARIANT_BOOL* outSuccess)
 {
 	if (!outSuccess) return E_POINTER;
 
+	*outSuccess = VARIANT_FALSE;
 	metadb_handle_list* handles_ptr = NULL;
 	handles->get__ptr((void**)&handles_ptr);
 
@@ -1951,16 +1958,6 @@ STDMETHODIMP FbUtils::CopyHandleListToClipboard(IFbMetadbHandleList* handles, VA
 	{
 		*outSuccess = VARIANT_TRUE;
 	}
-	else
-	{
-		*outSuccess = VARIANT_FALSE;
-	}
-	return S_OK;
-}
-
-STDMETHODIMP FbUtils::ClearPlaylist()
-{
-	standard_commands::main_clear_playlist();
 	return S_OK;
 }
 

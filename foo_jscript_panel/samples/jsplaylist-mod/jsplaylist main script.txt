@@ -33,7 +33,7 @@
 [Requirements]
  * foobar2000 v1.4 or later >> https://www.foobar2000.org
  * Windows version is no longer important. Even XP is supported.
- * JScript Panel v2.0.0 or later >> https://github.com/marc2k3/foo_jscript_panel
+ * JScript Panel v2.0.6 or later >> https://github.com/marc2k3/foo_jscript_panel
  * Fonts: Guifx v2 Transports, WingDings 2 & WingDings 3.
 
 [Installation]
@@ -50,6 +50,7 @@
  * TAB key or Middle Click to toggle the Playlist Manager
  * CTRL+T to toggle the columns toolbar
  * CTRL+I to toggle the top Info panel
+ * CTRL+C, CTRL+X, CTRL+V to copy/cut/paste using the Windows Clipboard. Clipboard contents can now be pasted in Windows Explorer.
  * Hold CTRL + Mouse Wheel to scale elements (useful for 'retina' screens)
  * F2 key to rename active playlist in playlist manager panel
  * F5 key to refresh covers

@@ -8,6 +8,7 @@ fb.AddFiles()
 fb.AlwaysOnTop
 fb.ClearPlaylist()
 fb.ComponentPath
+fb.CopyHandleListToClipboard()
 fb.CreateContextMenuManager()
 fb.CreateHandleList()
 fb.CreateMainMenuManager()
