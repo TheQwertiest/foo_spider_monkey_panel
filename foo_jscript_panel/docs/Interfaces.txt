@@ -158,7 +158,7 @@ interface IFbUtils {
 				plman.RemovePlaylistSelection(ap);
 			}
 			items.Dispose();
-		};
+		}
 		*/
 
 		fb.CreateContextMenuManager(); (IContextMenuManager)

@@ -25,7 +25,7 @@
 [Requirements]
  * foobar2000 v1.4 or later >> https://www.foobar2000.org
  * Windows Vista or later.
- * JScript Panel v2.0.6 or later >> https://github.com/marc2k3/foo_jscript_panel
+ * JScript Panel v2.0.0 or later >> https://github.com/marc2k3/foo_jscript_panel
 
 [Installation]
  * import/paste the main JSPlaylist script into a JScript Panel instance of your foobar2000 layout (DUI or CUI)
@@ -41,7 +41,6 @@
  * Right Click on items for contextual menu for the selection
  * CTRL+T to toggle the columns toolbar
  * CTRL+B to toggle the scrollbar
- * CTRL+C, CTRL+X, CTRL+V to copy/cut/paste using the Windows Clipboard. Clipboard contents can now be pasted in Windows Explorer.
  * Hold CTRL + Mouse Wheel to scale elements (useful for 'retina' screens)
  * Hold SHIFT + Mouse Wheel to scale group header and so the cover art size
  * F3 key to show now playing track

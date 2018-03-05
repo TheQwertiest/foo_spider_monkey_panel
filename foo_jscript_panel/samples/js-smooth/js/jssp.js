@@ -4359,27 +4359,6 @@ function on_key_down(vkey) {
 					get_metrics();
 					brw.repaint();
 				};
-				if (vkey == 88) { // CTRL+X
-					if (!plman.IsPlaylistLocked(g_active_playlist)) {
-						var items = plman.GetPlaylistSelectedItems(g_active_playlist);
-						if (fb.CopyHandleListToClipboard(items)) {
-							plman.RemovePlaylistSelection(g_active_playlist);
-						}
-						items.Dispose();
-					};
-				};
-				if (vkey == 67) { // CTRL+C
-					var items = plman.GetPlaylistSelectedItems(g_active_playlist);
-					fb.CopyHandleListToClipboard(items);
-					items.Dispose();
-				};
-				if (vkey == 86) { // CTRL+V
-					var items = fb.GetClipboardItems(window.ID);
-					if (items.Count > 0 && !plman.IsPlaylistLocked(g_active_playlist)) {
-						plman.InsertPlaylistItems(g_active_playlist, g_focus_id + 1, items, false);
-					}
-					items.Dispose();
-				};
 				if (vkey == 84) { // CTRL+T
 					ppt.showHeaderBar = !ppt.showHeaderBar;
 					window.SetProperty("_DISPLAY: Show Top Bar", ppt.showHeaderBar);
