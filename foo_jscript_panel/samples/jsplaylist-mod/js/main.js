@@ -2364,12 +2364,12 @@ function on_key_down(vkey) {
 						items.Dispose();
 					};
 					if (vkey == 86) { // CTRL+V
-						var items = fb.GetClipboardItems(window.ID);
-						if (items.Count > 0 && !plman.IsPlaylistLocked(act_pls)) {
+						if (!plman.IsPlaylistLocked(act_pls) && fb.CheckClipboardContents(window.ID)) {
+							var items = fb.GetClipboardContents(window.ID);
 							plman.UndoBackup(act_pls);
 							plman.InsertPlaylistItems(act_pls, p.list.focusedTrackId + 1, items, false);
+							items.Dispose();
 						}
-						items.Dispose();
 					};
 					if (vkey == 73) { // CTRL+I
 						cTopBar.visible = !cTopBar.visible;
