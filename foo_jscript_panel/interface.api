@@ -6,6 +6,7 @@ fb.AcquireUiSelectionHolder()
 fb.AddDirectory()
 fb.AddFiles()
 fb.AlwaysOnTop
+fb.CheckClipboardContents(window_id)
 fb.ClearPlaylist()
 fb.ComponentPath
 fb.CopyHandleListToClipboard()
@@ -16,7 +17,7 @@ fb.CreateProfiler([name])
 fb.CursorFollowPlayback
 fb.Exit()
 fb.FoobarPath
-fb.GetClipboardItems(window_id)
+fb.GetClipboardContents(window_id)
 fb.GetFocusItem([force])
 fb.GetLibraryItems()
 fb.GetLibraryRelativePath(handle)
