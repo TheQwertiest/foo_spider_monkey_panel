@@ -2547,7 +2547,6 @@ oList = function (object_name, playlist) {
 
 	this.contextMenu = function (x, y, id, row_id) {
 		var items = plman.GetPlaylistSelectedItems(this.playlist);
-		var toPaste = fb.GetClipboardItems(window.ID);
 		var flag = plman.IsPlaylistLocked(this.playlist) ? MF_GRAYED : MF_STRING;
 		
 		var _menu = window.CreatePopupMenu();
@@ -2561,7 +2560,7 @@ oList = function (object_name, playlist) {
 		_menu.AppendMenuSeparator();
 		_menu.AppendMenuItem(flag, 1003, "Cut");
 		_menu.AppendMenuItem(MF_STRING, 1004, "Copy");
-		_menu.AppendMenuItem(!plman.IsPlaylistLocked(this.playlist) && toPaste.Count > 0 ? MF_STRING : MF_GRAYED, 1005, "Paste");
+		_menu.AppendMenuItem(!plman.IsPlaylistLocked(this.playlist) && fb.CheckClipboardItems(window.ID) ? MF_STRING : MF_GRAYED, 1005, "Paste");
 		_menu.AppendMenuSeparator();
 		_context.BuildMenu(_menu, 1);
 		var idx = _menu.TrackPopupMenu(x, y);
@@ -2600,13 +2599,12 @@ oList = function (object_name, playlist) {
 				base++;
 			}
 			plman.UndoBackup(this.playlist);
-			plman.InsertPlaylistItems(this.playlist, base, toPaste);
+			plman.InsertPlaylistItems(this.playlist, base, fb.GetClipboardItems(window.ID));
 			break;
 		default:
 			_context.ExecuteByID(idx - 1);
 			break;
 		}
-		toPaste.Dispose();
 		items.Dispose();
 		_context.Dispose();
 		_menu.Dispose();

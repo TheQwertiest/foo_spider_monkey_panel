@@ -1938,6 +1938,23 @@ STDMETHODIMP FbUtils::AddFiles()
 	return S_OK;
 }
 
+STDMETHODIMP FbUtils::CheckClipboardContents(UINT window_id, VARIANT_BOOL* outSuccess)
+{
+	if (!outSuccess) return E_POINTER;
+
+	*outSuccess = VARIANT_FALSE;
+	pfc::com_ptr_t<IDataObject> pDO;
+	HRESULT hr = OleGetClipboard(pDO.receive_ptr());
+	if (SUCCEEDED(hr))
+	{
+		bool native;
+		DWORD drop_effect = DROPEFFECT_COPY;
+		hr = ole_interaction::get()->check_dataobject(pDO, drop_effect, native);
+		*outSuccess = TO_VARIANT_BOOL(SUCCEEDED(hr));
+	}
+	return S_OK;
+}
+
 STDMETHODIMP FbUtils::ClearPlaylist()
 {
 	standard_commands::main_clear_playlist();
@@ -2001,26 +2018,24 @@ STDMETHODIMP FbUtils::Exit()
 	return S_OK;
 }
 
-STDMETHODIMP FbUtils::GetClipboardItems(UINT window_id, IFbMetadbHandleList** pp)
+STDMETHODIMP FbUtils::GetClipboardContents(UINT window_id, IFbMetadbHandleList** pp)
 {
 	if (!pp) return E_POINTER;
 
-	auto api = playlist_manager::get();
-	auto ole = ole_interaction::get();
+	auto api = ole_interaction::get();
 	pfc::com_ptr_t<IDataObject> pDO;
 	metadb_handle_list items;
 
 	HRESULT hr = OleGetClipboard(pDO.receive_ptr());
 	if (SUCCEEDED(hr))
 	{
-		dropped_files_data_impl data;
-		bool native;
 		DWORD drop_effect = DROPEFFECT_COPY;
-
-		hr = ole->check_dataobject(pDO, drop_effect, native);
+		bool native;
+		hr = api->check_dataobject(pDO, drop_effect, native);
 		if (SUCCEEDED(hr))
 		{
-			hr = ole->parse_dataobject(pDO, data);
+			dropped_files_data_impl data;
+			hr = api->parse_dataobject(pDO, data);
 			if (SUCCEEDED(hr))
 			{
 				data.to_handles(items, native, (HWND)window_id);

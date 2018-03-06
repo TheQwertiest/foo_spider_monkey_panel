@@ -359,6 +359,7 @@ __interface IFbUtils : IDispatch
 	STDMETHOD(AcquireUiSelectionHolder)([out, retval] IFbUiSelectionHolder** outHolder);
 	STDMETHOD(AddDirectory)();
 	STDMETHOD(AddFiles)();
+	STDMETHOD(CheckClipboardContents)(UINT window_id, [out, retval] VARIANT_BOOL* outSuccess);
 	STDMETHOD(ClearPlaylist)();
 	STDMETHOD(CopyHandleListToClipboard)(IFbMetadbHandleList* handles, [out, retval] VARIANT_BOOL* outSuccess);
 	STDMETHOD(CreateContextMenuManager)([out, retval] IContextMenuManager** pp);
@@ -366,7 +367,7 @@ __interface IFbUtils : IDispatch
 	STDMETHOD(CreateMainMenuManager)([out, retval] IMainMenuManager** pp);
 	STDMETHOD(CreateProfiler)([defaultvalue("")] BSTR name, [out, retval] IFbProfiler** pp);
 	STDMETHOD(Exit)();
-	STDMETHOD(GetClipboardItems)(UINT window_id, [out, retval] IFbMetadbHandleList** pp);
+	STDMETHOD(GetClipboardContents)(UINT window_id, [out, retval] IFbMetadbHandleList** pp);
 	STDMETHOD(GetFocusItem)([defaultvalue(-1)] VARIANT_BOOL force, [out, retval] IFbMetadbHandle** pp);
 	STDMETHOD(GetLibraryItems)([out, retval] IFbMetadbHandleList** outItems);
 	STDMETHOD(GetLibraryRelativePath)(IFbMetadbHandle* handle, [out, retval] BSTR* p);

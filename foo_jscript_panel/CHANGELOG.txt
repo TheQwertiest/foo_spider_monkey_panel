@@ -1,8 +1,9 @@
 v2.0.6-pre
-- NEW: Add fb.CopyHandleListToClipboard method. Items can be pasted in other components
+- NEW: Add fb.CopyHandleListToClipboard method. Contents can then be pasted in other components
        or as files in Windows Explorer. See docs\interfaces.txt.
-- NEW: Add fb.GetClipboardItems. Items can be handles copied to the clipboard in other
-       components or a file selection from Windows Explorer. See docs\interfaces.txt.
+- NEW: Add fb.CheckClipboardContents / fb.GetClipboardContents. Contents can be handles
+       copied to the clipboard in other components or a file selection from Windows
+       Explorer. See docs\interfaces.txt.
 - CHG: jsplaylist-mod has been updated for full clipboard functionality with updated
        context menu items and keyboard shortcut support (CTRL+C, CTRL+X and CTRL+V).
 

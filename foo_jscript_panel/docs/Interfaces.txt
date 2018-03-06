@@ -137,6 +137,12 @@ interface IFbUtils {
 
 		fb.AddFiles(); (void)
 
+		fb.CheckClipboardContents(); (boolean)
+		/*
+		Checks Clipboard contents are handles or a file selection from Windows Explorer. Use in conjunction
+		with fb.GetClipboardContents().
+		*/
+
 		fb.ClearPlaylist(); (void)
 		// Clears active playlist. If you wish to clear a specific playlist, use plman.ClearPlaylist(playlistIndex).
 
@@ -210,16 +216,17 @@ interface IFbUtils {
 
 		fb.Exit(); (void)
 
-		fb.GetClipboardItems(window_id); (IFbMetadbHandleList)
+		fb.GetClipboardContents(window_id); (IFbMetadbHandleList)
 		/*
-		Clipboard items can be handles copied to the clipboard in other components, from fb.CopyHandleListToClipboard or a file selection
+		Clipboard contents can be handles copied to the clipboard in other components, from fb.CopyHandleListToClipboard or a file selection
 		from Windows Explorer etc.
 		
 		Example:
-		var items = fb.GetClipboardItems(window.ID);
-		if (items.Count > 0) {
+		if (fb.CheckClipboardContents()) {
+			var items = fb.GetClipboardContents(window.ID);
 			var ap = plman.ActivePlaylist;
 			plman.InsertPlaylistItems(ap, plman.PlaylistItemCount(ap), items);
+			items.Dispose();
 		}
 		*/
 		

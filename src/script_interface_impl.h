@@ -412,6 +412,7 @@ public:
 	STDMETHODIMP AcquireUiSelectionHolder(IFbUiSelectionHolder** outHolder);
 	STDMETHODIMP AddDirectory();
 	STDMETHODIMP AddFiles();
+	STDMETHODIMP CheckClipboardContents(UINT window_id, VARIANT_BOOL* outSuccess);
 	STDMETHODIMP ClearPlaylist();
 	STDMETHODIMP CopyHandleListToClipboard(IFbMetadbHandleList* handles, VARIANT_BOOL* outSuccess);
 	STDMETHODIMP CreateContextMenuManager(IContextMenuManager** pp);
@@ -419,7 +420,7 @@ public:
 	STDMETHODIMP CreateMainMenuManager(IMainMenuManager** pp);
 	STDMETHODIMP CreateProfiler(BSTR name, IFbProfiler** pp);
 	STDMETHODIMP Exit();
-	STDMETHODIMP GetClipboardItems(UINT window_id, IFbMetadbHandleList** pp);
+	STDMETHODIMP GetClipboardContents(UINT window_id, IFbMetadbHandleList** pp);
 	STDMETHODIMP GetFocusItem(VARIANT_BOOL force, IFbMetadbHandle** pp);
 	STDMETHODIMP GetLibraryItems(IFbMetadbHandleList** outItems);
 	STDMETHODIMP GetLibraryRelativePath(IFbMetadbHandle* handle, BSTR* p);
