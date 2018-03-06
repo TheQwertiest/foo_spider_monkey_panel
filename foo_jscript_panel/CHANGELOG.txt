@@ -1,4 +1,4 @@
-v2.0.6-pre
+v2.0.6
 - NEW: Add fb.CopyHandleListToClipboard method. Contents can then be pasted in other components
        or as files in Windows Explorer. See docs\interfaces.txt.
 - NEW: Add fb.CheckClipboardContents / fb.GetClipboardContents. Contents can be handles
