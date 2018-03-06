@@ -59,7 +59,7 @@ private:
 	void on_playback_edited(WPARAM wp);
 	void on_playback_follow_cursor_changed(WPARAM wp);
 	void on_playback_new_track(WPARAM wp);
-	void on_playback_order_changed(t_size p_new_index);
+	void on_playback_order_changed(WPARAM wp);
 	void on_playback_pause(bool state);
 	void on_playback_queue_changed(WPARAM wp);
 	void on_playback_seek(WPARAM wp);
@@ -74,6 +74,7 @@ private:
 	void on_playlist_stop_after_current_changed(WPARAM wp);
 	void on_playlist_switch();
 	void on_playlists_changed();
+	void on_replaygain_mode_changed(WPARAM wp);
 	void on_selection_changed();
 	void on_size(int w, int h);
 	void on_volume_change(WPARAM wp);

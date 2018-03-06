@@ -99,23 +99,26 @@ private:
 	PFC_CLASS_NOT_COPYABLE_EX(panel_manager)
 };
 
-class nonautoregister_callbacks : public initquit, public metadb_io_callback_dynamic, public ui_selection_callback
+class nonautoregister_callbacks : public initquit, public metadb_io_callback_dynamic, public ui_selection_callback, public replaygain_core_settings_notify
 {
 public:
 	virtual void on_init()
 	{
 		metadb_io_v3::get()->register_callback(this);
+		replaygain_manager_v2::get()->add_notify(this);
 		ui_selection_manager_v2::get()->register_callback(this, 0);
 	}
 
 	virtual void on_quit()
 	{
 		ui_selection_manager_v2::get()->unregister_callback(this);
+		replaygain_manager_v2::get()->remove_notify(this);
 		metadb_io_v3::get()->unregister_callback(this);
 	}
 
 	virtual void on_changed_sorted(metadb_handle_list_cref p_items_sorted, bool p_fromhook);
 	virtual void on_selection_changed(metadb_handle_list_cref p_selection);
+	virtual void on_changed(t_replaygain_config const& cfg);
 };
 
 class my_library_callback : public library_callback

@@ -197,6 +197,15 @@ Called when:
 -a playlist's lock status changes through the use of components such as foo_utils or foo_playlist_attributes.
 */
 
+function on_replaygain_mode_changed(new_mode) {}
+/*
+new_mode:
+0 None
+1 Track
+2 Album
+3 Track/Album by Playback Order
+*/
+
 function on_script_unload() {}
 // This callback is not guaranteed to be called during unloading.
 

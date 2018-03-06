@@ -288,7 +288,7 @@ LRESULT js_panel_window::on_message(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 		return 0;
 
 	case CALLBACK_UWM_ON_PLAYBACK_ORDER_CHANGED:
-		on_playback_order_changed((t_size)wp);
+		on_playback_order_changed(wp);
 		return 0;
 
 	case CALLBACK_UWM_ON_PLAYBACK_PAUSE:
@@ -341,6 +341,10 @@ LRESULT js_panel_window::on_message(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 
 	case CALLBACK_UWM_ON_PLAYLIST_SWITCH:
 		on_playlist_switch();
+		return 0;
+
+	case CALLBACK_UWM_ON_REPLAYGAIN_MODE_CHANGED:
+		on_replaygain_mode_changed(wp);
 		return 0;
 
 	case CALLBACK_UWM_ON_SELECTION_CHANGED:
@@ -1037,11 +1041,11 @@ void js_panel_window::on_playback_new_track(WPARAM wp)
 		handle->Release();
 }
 
-void js_panel_window::on_playback_order_changed(t_size p_new_index)
+void js_panel_window::on_playback_order_changed(WPARAM wp)
 {
 	VARIANTARG args[1];
 	args[0].vt = VT_I4;
-	args[0].lVal = p_new_index;
+	args[0].lVal = wp;
 	script_invoke_v(CallbackIds::on_playback_order_changed, args, _countof(args));
 }
 
@@ -1156,6 +1160,14 @@ void js_panel_window::on_playlist_switch()
 void js_panel_window::on_playlists_changed()
 {
 	script_invoke_v(CallbackIds::on_playlists_changed);
+}
+
+void js_panel_window::on_replaygain_mode_changed(WPARAM wp)
+{
+	VARIANTARG args[1];
+	args[0].vt = VT_I4;
+	args[0].lVal = wp;
+	script_invoke_v(CallbackIds::on_replaygain_mode_changed, args, _countof(args));
 }
 
 void js_panel_window::on_selection_changed()

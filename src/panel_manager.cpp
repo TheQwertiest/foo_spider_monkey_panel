@@ -109,6 +109,11 @@ void nonautoregister_callbacks::on_selection_changed(metadb_handle_list_cref p_s
 	panel_manager::instance().post_msg_to_all(CALLBACK_UWM_ON_SELECTION_CHANGED);
 }
 
+void nonautoregister_callbacks::on_changed(t_replaygain_config const& cfg)
+{
+	panel_manager::instance().post_msg_to_all(CALLBACK_UWM_ON_REPLAYGAIN_MODE_CHANGED, (WPARAM)cfg.m_source_mode);
+}
+
 void my_library_callback::on_items_added(metadb_handle_list_cref p_data)
 {
 	t_on_data* on_items_added_data = new t_on_data(p_data, false);
