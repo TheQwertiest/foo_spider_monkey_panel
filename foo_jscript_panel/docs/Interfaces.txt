@@ -220,16 +220,23 @@ interface IFbUtils {
 		/*
 		Clipboard contents can be handles copied to the clipboard in other components, from fb.CopyHandleListToClipboard or a file selection
 		from Windows Explorer etc.
-		
+
 		Example:
-		if (fb.CheckClipboardContents()) {
-			var items = fb.GetClipboardContents(window.ID);
+		function on_mouse_rbtn_up(x, y) {
 			var ap = plman.ActivePlaylist;
-			plman.InsertPlaylistItems(ap, plman.PlaylistItemCount(ap), items);
-			items.Dispose();
+			var menu = window.CreatePopupMenu();
+			menu.AppendMenuItem(!plman.IsPlaylistLocked(ap) && fb.CheckClipboardContents() ? MF_STRING : MF_GRAYED, 1, "Paste"); // assume MF_* are already defined
+			var idx = menu.TrackPopupMenu(x, y);
+			if (idx == 1) {
+				var items = fb.GetClipboardContents(window.ID);
+				plman.InsertPlaylistItems(ap, plman.PlaylistItemCount(ap), items);
+				items.Dispose();
+			}
+			menu.Dispose();
+			return true;
 		}
 		*/
-		
+
 		fb.GetFocusItem([force]); (IFbMetadbHandle)
 		/*
 		force: boolean, default true.
