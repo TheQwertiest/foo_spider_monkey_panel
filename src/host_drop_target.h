@@ -28,9 +28,9 @@ public:
 	void on_drag_drop(unsigned keyState, POINTL& pt, IDropSourceAction* action);
 
 private:
-	DWORD m_effect;
 	js_panel_window* m_host;
 	DropSourceAction* m_action;
+	DWORD m_fb2kAllowedEffect;
 
 	BEGIN_COM_QI_IMPL()
 		COM_QI_ENTRY_MULTI(IUnknown, IDropTarget)

@@ -3,6 +3,7 @@
 #include "stackblur.h"
 #include "popup_msg.h"
 #include "stats.h"
+#include "drop_source_impl.h"
 #include <map>
 #include <vector>
 #include <algorithm>
@@ -68,26 +69,26 @@ void DropSourceAction::FinalRelease()
 {
 }
 
-STDMETHODIMP DropSourceAction::ToPlaylist()
+void DropSourceAction::Reset()
 {
-	m_action_mode = kActionModePlaylist;
-	return S_OK;
+	m_playlist_idx = -1;
+	m_to_select = true;
+	m_effect = DROPEFFECT_NONE;
 }
 
-STDMETHODIMP DropSourceAction::get_Mode(int* mode)
+int& DropSourceAction::Playlist()
 {
-	if (!mode) return E_POINTER;
-
-	*mode = m_action_mode;
-	return S_OK;
+	return m_playlist_idx;
 }
 
-STDMETHODIMP DropSourceAction::get_Parsable(VARIANT_BOOL* parsable)
+bool& DropSourceAction::ToSelect()
 {
-	if (!parsable) return E_POINTER;
+	return m_to_select;
+}
 
-	*parsable = TO_VARIANT_BOOL(m_parsable);
-	return S_OK;
+DWORD& DropSourceAction::Effect()
+{
+	return m_effect;
 }
 
 STDMETHODIMP DropSourceAction::get_Playlist(int* id)
@@ -106,12 +107,6 @@ STDMETHODIMP DropSourceAction::get_ToSelect(VARIANT_BOOL* select)
 	return S_OK;
 }
 
-STDMETHODIMP DropSourceAction::put_Parsable(VARIANT_BOOL parsable)
-{
-	m_parsable = parsable != VARIANT_FALSE;
-	return S_OK;
-}
-
 STDMETHODIMP DropSourceAction::put_Playlist(int id)
 {
 	m_playlist_idx = id;
@@ -121,6 +116,20 @@ STDMETHODIMP DropSourceAction::put_Playlist(int id)
 STDMETHODIMP DropSourceAction::put_ToSelect(VARIANT_BOOL select)
 {
 	m_to_select = select != VARIANT_FALSE;
+	return S_OK;
+}
+
+STDMETHODIMP DropSourceAction::get_Effect(UINT* effect)
+{
+	if (!effect) return E_POINTER;
+
+	*effect = (UINT)m_effect;
+	return S_OK;
+}
+
+STDMETHODIMP DropSourceAction::put_Effect(UINT effect)
+{     
+	m_effect = (UINT)effect;
 	return S_OK;
 }
 
@@ -2009,6 +2018,30 @@ STDMETHODIMP FbUtils::CreateProfiler(BSTR name, IFbProfiler** pp)
 	if (!pp) return E_POINTER;
 
 	*pp = new com_object_impl_t<FbProfiler>(pfc::stringcvt::string_utf8_from_wide(name));
+	return S_OK;
+}
+
+STDMETHODIMP FbUtils::DoDragDrop(IFbMetadbHandleList* items, UINT okEffects, UINT* p)
+{
+	if (!p) return E_POINTER;
+
+	metadb_handle_list* handles_ptr = NULL;
+	items->get__ptr((void**)&handles_ptr);
+
+	if (!handles_ptr->get_count() || DROPEFFECT_NONE == okEffects)
+	{
+		*p = DROPEFFECT_NONE;
+		return S_OK;
+	}
+
+	auto api = ole_interaction::get();
+	pfc::com_ptr_t<IDataObject> pDO = ole_interaction::get()->create_dataobject(*handles_ptr);
+	pfc::com_ptr_t<IDropSourceImpl> pIDropSource = new IDropSourceImpl();
+
+	DWORD returnEffect;
+	DWORD retCode = SHDoDragDrop(NULL, pDO.get_ptr(), pIDropSource.get_ptr(), okEffects, &returnEffect);
+
+	*p = (DRAGDROP_S_CANCEL == retCode) ? DROPEFFECT_NONE : returnEffect;
 	return S_OK;
 }
 

@@ -366,6 +366,7 @@ __interface IFbUtils : IDispatch
 	STDMETHOD(CreateHandleList)([out, retval] IFbMetadbHandleList** pp);
 	STDMETHOD(CreateMainMenuManager)([out, retval] IMainMenuManager** pp);
 	STDMETHOD(CreateProfiler)([defaultvalue("")] BSTR name, [out, retval] IFbProfiler** pp);
+	STDMETHOD(DoDragDrop)(IFbMetadbHandleList* items, UINT okEffects, [out, retval] UINT* p);
 	STDMETHOD(Exit)();
 	STDMETHOD(GetClipboardContents)(UINT window_id, [out, retval] IFbMetadbHandleList** pp);
 	STDMETHOD(GetFocusItem)([defaultvalue(-1)] VARIANT_BOOL force, [out, retval] IFbMetadbHandle** pp);
@@ -446,13 +447,13 @@ __interface IThemeManager : IDisposable
 ]
 __interface IDropSourceAction : IDisposable
 {
-	STDMETHOD(ToPlaylist)();
-	[propget] STDMETHOD(Parsable)([out, retval] VARIANT_BOOL* parsable);
 	[propget] STDMETHOD(Playlist)([out, retval] int* id);
-	[propget] STDMETHOD(ToSelect)([out, retval] VARIANT_BOOL* to_select);
-	[propput] STDMETHOD(Parsable)(VARIANT_BOOL parsable);
+	[propget] STDMETHOD(ToSelect)([out, retval] VARIANT_BOOL* to_select);	
 	[propput] STDMETHOD(Playlist)(int id);
 	[propput] STDMETHOD(ToSelect)(VARIANT_BOOL to_select);
+
+	[propget] STDMETHOD(Effect)([out, retval] UINT* effect);
+	[propput] STDMETHOD(Effect)(UINT effect);
 };
 
 [

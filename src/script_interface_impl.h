@@ -68,59 +68,30 @@ public:
 
 class DropSourceAction : public IDisposableImpl4<IDropSourceAction>
 {
-public:
-	enum t_action_mode
-	{
-		kActionModeNone = 0,
-		kActionModePlaylist,
-		kActionModeFilenames,
-	};
-
 protected:
 	// -1 means active playlist
 	int m_playlist_idx;
-	t_action_mode m_action_mode;
 	bool m_to_select;
-	bool m_parsable;
+	DWORD m_effect;
 
 	DropSourceAction();
 	virtual ~DropSourceAction();
 	virtual void FinalRelease();
 
 public:
-	void Reset()
-	{
-		m_playlist_idx = -1;
-		m_to_select = true;
-		m_action_mode = kActionModeNone;
-		m_parsable = false;
-	}
+	void Reset();
 
-	t_action_mode& Mode()
-	{
-		return m_action_mode;
-	}
-	bool& Parsable()
-	{
-		return m_parsable;
-	}
-	int& Playlist()
-	{
-		return m_playlist_idx;
-	}
-	bool& ToSelect()
-	{
-		return m_to_select;
-	}
+	int& Playlist();
+	bool& ToSelect();
+	DWORD& Effect();
 
-	STDMETHODIMP ToPlaylist();
-	STDMETHODIMP get_Mode(int* mode);
-	STDMETHODIMP get_Parsable(VARIANT_BOOL* parsable);
 	STDMETHODIMP get_Playlist(int* id);
 	STDMETHODIMP get_ToSelect(VARIANT_BOOL* to_select);
-	STDMETHODIMP put_Parsable(VARIANT_BOOL parsable);
 	STDMETHODIMP put_Playlist(int id);
 	STDMETHODIMP put_ToSelect(VARIANT_BOOL to_select);
+
+	STDMETHODIMP get_Effect(UINT* effect);
+	STDMETHODIMP put_Effect(UINT effect);
 };
 
 class FbFileInfo : public IDisposableImpl4<IFbFileInfo>
@@ -419,6 +390,7 @@ public:
 	STDMETHODIMP CreateHandleList(IFbMetadbHandleList** pp);
 	STDMETHODIMP CreateMainMenuManager(IMainMenuManager** pp);
 	STDMETHODIMP CreateProfiler(BSTR name, IFbProfiler** pp);
+	STDMETHODIMP DoDragDrop(IFbMetadbHandleList* items, UINT okEffects, UINT* p);
 	STDMETHODIMP Exit();
 	STDMETHODIMP GetClipboardContents(UINT window_id, IFbMetadbHandleList** pp);
 	STDMETHODIMP GetFocusItem(VARIANT_BOOL force, IFbMetadbHandle** pp);
