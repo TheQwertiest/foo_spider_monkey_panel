@@ -7,11 +7,11 @@
 class HostTimer;
 class HostTimerTask;
 
-/* 
+/*
 @brief Handles JS requests for setInterval, setTimeout, clearInterval, clearTimeout.
 @details
 Everything happens inside of the main thread except for:
-- Timer procs: timer proc is called from a worker thread, but JS callback 
+- Timer procs: timer proc is called from a worker thread, but JS callback
   handling is given back to main thread through window messaging.
 - Timer destruction: a separate 'killer' thread handles this.
 

@@ -2,7 +2,7 @@
 #include "host_timer_dispatcher.h"
 #include "user_message.h"
 
-HostTimerDispatcher::HostTimerDispatcher() 
+HostTimerDispatcher::HostTimerDispatcher()
 {
 	m_curTimerId = 1;
 	m_hTimerQueue = CreateTimerQueue();

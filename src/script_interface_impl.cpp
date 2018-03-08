@@ -129,7 +129,7 @@ STDMETHODIMP DropSourceAction::get_Effect(UINT* effect)
 
 STDMETHODIMP DropSourceAction::put_Effect(UINT effect)
 {     
-	m_effect = (UINT)effect;
+	m_effect = (DWORD)effect;
 	return S_OK;
 }
 
@@ -2028,7 +2028,7 @@ STDMETHODIMP FbUtils::DoDragDrop(IFbMetadbHandleList* items, UINT okEffects, UIN
 	metadb_handle_list* handles_ptr = NULL;
 	items->get__ptr((void**)&handles_ptr);
 
-	if (!handles_ptr->get_count() || DROPEFFECT_NONE == okEffects)
+	if (!handles_ptr->get_count() || okEffects == DROPEFFECT_NONE)
 	{
 		*p = DROPEFFECT_NONE;
 		return S_OK;

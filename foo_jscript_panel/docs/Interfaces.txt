@@ -1593,10 +1593,7 @@ interface IFbMetadbHandleList {
 
 		Insert(index, handle); (void)
 		/*
-		Example1:
-		handle_list.Insert(0, fb.GetNowPlaying());
-		0 inserts at the start of the handle list.
-		Example2:
+		Example:
 		handle_list.Insert(handle_list.Count, fb.GetNowPlaying());
 		This inserts at the end of the handle list.
 		*/
@@ -1605,7 +1602,8 @@ interface IFbMetadbHandleList {
 
 		MakeDifference(handle_list); (void)
 		/*
-		Must be sorted
+		Must be sorted.
+
 		Example:
 		var one = plman.GetPlaylistItems(0);
 		one.Sort();
@@ -1619,7 +1617,8 @@ interface IFbMetadbHandleList {
 
 		MakeIntersection(handle_list); (void)
 		/*
-		Must be sorted
+		Must be sorted.
+
 		Example:
 		var one = plman.GetPlaylistItems(0);
 		one.Sort();
@@ -1633,7 +1632,8 @@ interface IFbMetadbHandleList {
 
 		MakeUnion(handle_list); (void)
 		/*
-		Must be sorted
+		Must be sorted.
+
 		Example:
 		var one = plman.GetPlaylistItems(0);
 		one.Sort();
@@ -1649,6 +1649,7 @@ interface IFbMetadbHandleList {
 		/*
 		tfo: an instance of IFbTitleFormat.
 		direction: integer, ascending while > 0.
+
 		Example:
 		var handle_list = fb.GetLibraryItems();
 		var tfo = fb.TitleFormat("%album artist%|%date%|%album%|%discnumber%|%tracknumber%");
@@ -1690,13 +1691,8 @@ interface IDropTargetAction {
 	// See samples\basic\Drag Drop Basic.txt
 
 	Properties:
-		Parsable; (boolean) (read, write)
-
 		Playlist; (read, write)
 		// default: -1, active playlist
 
 		ToSelect; (boolean) (read, write)
-
-	Methods:
-		ToPlaylist(); (void)
 }

@@ -73,8 +73,7 @@ HRESULT HostDropTarget::OnDrop(IDataObject* pDataObj, DWORD grfKeyState, POINTL 
 	ScreenToClient(m_hWnd, reinterpret_cast<LPPOINT>(&pt));
 	on_drag_drop(grfKeyState, pt, m_action);
 
-	if (DROPEFFECT_NONE == *pdwEffect 
-		|| DROPEFFECT_NONE == m_action->Effect())
+	if (*pdwEffect ==DROPEFFECT_NONE || m_action->Effect() == DROPEFFECT_NONE)
 	{
 		*pdwEffect = DROPEFFECT_NONE;
 		return S_OK;
@@ -89,9 +88,9 @@ HRESULT HostDropTarget::OnDrop(IDataObject* pDataObj, DWORD grfKeyState, POINTL 
 		int playlist = m_action->Playlist();
 		bool to_select = m_action->ToSelect();
 
-		droppedData.to_handles_async_ex(playlist_incoming_item_filter_v2::op_flag_delay_ui, 
-								   core_api::get_main_window(), 
-								   new service_impl_t<helpers::js_process_locations>(playlist, to_select));
+		droppedData.to_handles_async_ex(playlist_incoming_item_filter_v2::op_flag_delay_ui,
+			core_api::get_main_window(),
+			new service_impl_t<helpers::js_process_locations>(playlist, to_select));
 	}
 
 	*pdwEffect = m_action->Effect();
