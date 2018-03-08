@@ -19,12 +19,10 @@ HRESULT HostDropTarget::OnDragEnter(IDataObject* pDataObj, DWORD grfKeyState, PO
 {
 	if (!pdwEffect) return E_POINTER;
 
-	m_action->Reset();     
-
-	auto api = ole_interaction::get();
+	m_action->Reset();
 	bool native;     	
 
-	HRESULT hr = api->check_dataobject(pDataObj, m_fb2kAllowedEffect, native);
+	HRESULT hr = ole_interaction::get()->check_dataobject(pDataObj, m_fb2kAllowedEffect, native);
 	if (!SUCCEEDED(hr)) 
 	{
 		m_fb2kAllowedEffect = DROPEFFECT_NONE;
@@ -73,24 +71,23 @@ HRESULT HostDropTarget::OnDrop(IDataObject* pDataObj, DWORD grfKeyState, POINTL 
 	ScreenToClient(m_hWnd, reinterpret_cast<LPPOINT>(&pt));
 	on_drag_drop(grfKeyState, pt, m_action);
 
-	if (*pdwEffect ==DROPEFFECT_NONE || m_action->Effect() == DROPEFFECT_NONE)
+	if (*pdwEffect == DROPEFFECT_NONE || m_action->Effect() == DROPEFFECT_NONE)
 	{
 		*pdwEffect = DROPEFFECT_NONE;
 		return S_OK;
 	}
 
-	auto api = ole_interaction::get();
-
 	dropped_files_data_impl droppedData;
-	HRESULT hr = api->parse_dataobject(pDataObj, droppedData);
+	HRESULT hr = ole_interaction::get()->parse_dataobject(pDataObj, droppedData);
 	if (SUCCEEDED(hr))
 	{
 		int playlist = m_action->Playlist();
+		UINT base = m_action->Base();
 		bool to_select = m_action->ToSelect();
 
 		droppedData.to_handles_async_ex(playlist_incoming_item_filter_v2::op_flag_delay_ui,
 			core_api::get_main_window(),
-			new service_impl_t<helpers::js_process_locations>(playlist, to_select));
+			new service_impl_t<helpers::js_process_locations>(playlist, base, to_select));
 	}
 
 	*pdwEffect = m_action->Effect();

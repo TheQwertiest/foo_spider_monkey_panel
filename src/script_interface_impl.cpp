@@ -72,8 +72,14 @@ void DropSourceAction::FinalRelease()
 void DropSourceAction::Reset()
 {
 	m_playlist_idx = -1;
+	m_base = 0;
 	m_to_select = true;
 	m_effect = DROPEFFECT_NONE;
+}
+
+UINT& DropSourceAction::Base()
+{
+	return m_base;
 }
 
 int& DropSourceAction::Playlist()
@@ -96,6 +102,12 @@ STDMETHODIMP DropSourceAction::get_Effect(UINT* effect)
 	if (!effect) return E_POINTER;
 
 	*effect = m_effect;
+	return S_OK;
+}
+
+STDMETHODIMP DropSourceAction::put_Base(UINT base)
+{
+	m_base = base;
 	return S_OK;
 }
 
@@ -911,6 +923,8 @@ STDMETHODIMP FbPlaylistManager::AddItemToPlaybackQueue(IFbMetadbHandle* handle)
 
 STDMETHODIMP FbPlaylistManager::AddLocations(UINT playlistIndex, VARIANT locations, VARIANT_BOOL select)
 {
+	t_size base = playlist_manager::get()->playlist_get_item_count(playlistIndex);
+
 	helpers::com_array_reader helper;
 	if (!helper.convert(&locations)) return E_INVALIDARG;
 
@@ -933,7 +947,7 @@ STDMETHODIMP FbPlaylistManager::AddLocations(UINT playlistIndex, VARIANT locatio
 		NULL,
 		NULL,
 		NULL,
-		new service_impl_t<helpers::js_process_locations>(playlistIndex, select != VARIANT_FALSE));
+		new service_impl_t<helpers::js_process_locations>(playlistIndex, base, select != VARIANT_FALSE));
 
 	return S_OK;
 }
@@ -1962,8 +1976,7 @@ STDMETHODIMP FbUtils::CopyHandleListToClipboard(IFbMetadbHandleList* handles, VA
 	metadb_handle_list* handles_ptr = NULL;
 	handles->get__ptr((void**)&handles_ptr);
 
-	auto api = ole_interaction::get();
-	pfc::com_ptr_t<IDataObject> pDO = api->create_dataobject(*handles_ptr);
+	pfc::com_ptr_t<IDataObject> pDO = ole_interaction::get()->create_dataobject(*handles_ptr);
 	if (SUCCEEDED(OleSetClipboard(pDO.get_ptr())))
 	{
 		*outSuccess = VARIANT_TRUE;
@@ -2018,7 +2031,6 @@ STDMETHODIMP FbUtils::DoDragDrop(IFbMetadbHandleList* items, UINT okEffects, UIN
 		return S_OK;
 	}
 
-	auto api = ole_interaction::get();
 	pfc::com_ptr_t<IDataObject> pDO = ole_interaction::get()->create_dataobject(*handles_ptr);
 	pfc::com_ptr_t<IDropSourceImpl> pIDropSource = new IDropSourceImpl();
 

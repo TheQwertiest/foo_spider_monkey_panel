@@ -71,6 +71,7 @@ class DropSourceAction : public IDisposableImpl4<IDropSourceAction>
 protected:
 	// -1 means active playlist
 	int m_playlist_idx;
+	UINT m_base;
 	bool m_to_select;
 	DWORD m_effect;
 
@@ -81,17 +82,16 @@ protected:
 public:
 	void Reset();
 
+	UINT& Base();
 	int& Playlist();
 	bool& ToSelect();
 	DWORD& Effect();
 
-	STDMETHODIMP get_Playlist(int* id);
-	STDMETHODIMP get_ToSelect(VARIANT_BOOL* to_select);
+	STDMETHODIMP get_Effect(UINT* effect);
+	STDMETHODIMP put_Base(UINT base);
+	STDMETHODIMP put_Effect(UINT effect);
 	STDMETHODIMP put_Playlist(int id);
 	STDMETHODIMP put_ToSelect(VARIANT_BOOL to_select);
-
-	STDMETHODIMP get_Effect(UINT* effect);
-	STDMETHODIMP put_Effect(UINT effect);
 };
 
 class FbFileInfo : public IDisposableImpl4<IFbFileInfo>

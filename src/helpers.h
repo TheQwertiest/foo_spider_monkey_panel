@@ -169,26 +169,19 @@ namespace helpers
 	class js_process_locations : public process_locations_notify
 	{
 	public:
-		js_process_locations(int playlist_idx, bool to_select) : m_playlist_idx(playlist_idx), m_to_select(to_select)
+		js_process_locations(int playlist_idx, UINT base, bool to_select) : m_playlist_idx(playlist_idx), m_base(base), m_to_select(to_select)
 		{
 		}
 
 		void on_completion(metadb_handle_list_cref p_items)
 		{
-			pfc::bit_array_true selection_them;
-			pfc::bit_array_false selection_none;
-			pfc::bit_array* select_ptr = &selection_none;
+			pfc::bit_array_val selection(m_to_select);
 			auto api = playlist_manager::get();
 			t_size playlist = m_playlist_idx == -1 ? api->get_active_playlist() : m_playlist_idx;
 
-			if (m_to_select)
+			if (playlist != pfc_infinite && playlist < api->get_playlist_count() && !api->playlist_lock_is_present(playlist))
 			{
-				select_ptr = &selection_them;
-			}
-
-			if (playlist != pfc_infinite && playlist < api->get_playlist_count())
-			{
-				api->playlist_add_items(playlist, p_items, *select_ptr);
+				api->playlist_insert_items(playlist, m_base, p_items, selection);
 			}
 		}
 
@@ -199,6 +192,7 @@ namespace helpers
 	private:
 		bool m_to_select;
 		int m_playlist_idx;
+		UINT m_base;
 	};
 
 	class com_array_reader
