@@ -1691,8 +1691,10 @@ interface IDropTargetAction {
 	// See samples\basic\Drag Drop Basic.txt
 
 	Properties:
-		Playlist; (read, write)
+		Effect (read, write)
+
+		Playlist; (write)
 		// default: -1, active playlist
 
-		ToSelect; (boolean) (read, write)
+		ToSelect; (boolean) (write)
 }

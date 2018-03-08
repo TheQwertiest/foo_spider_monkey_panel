@@ -91,19 +91,17 @@ DWORD& DropSourceAction::Effect()
 	return m_effect;
 }
 
-STDMETHODIMP DropSourceAction::get_Playlist(int* id)
+STDMETHODIMP DropSourceAction::get_Effect(UINT* effect)
 {
-	if (!id) return E_POINTER;
+	if (!effect) return E_POINTER;
 
-	*id = m_playlist_idx;
+	*effect = m_effect;
 	return S_OK;
 }
 
-STDMETHODIMP DropSourceAction::get_ToSelect(VARIANT_BOOL* select)
-{
-	if (!select) return E_POINTER;
-
-	*select = TO_VARIANT_BOOL(m_to_select);
+STDMETHODIMP DropSourceAction::put_Effect(UINT effect)
+{     
+	m_effect = effect;
 	return S_OK;
 }
 
@@ -116,20 +114,6 @@ STDMETHODIMP DropSourceAction::put_Playlist(int id)
 STDMETHODIMP DropSourceAction::put_ToSelect(VARIANT_BOOL select)
 {
 	m_to_select = select != VARIANT_FALSE;
-	return S_OK;
-}
-
-STDMETHODIMP DropSourceAction::get_Effect(UINT* effect)
-{
-	if (!effect) return E_POINTER;
-
-	*effect = (UINT)m_effect;
-	return S_OK;
-}
-
-STDMETHODIMP DropSourceAction::put_Effect(UINT effect)
-{     
-	m_effect = (DWORD)effect;
 	return S_OK;
 }
 
@@ -2041,7 +2025,7 @@ STDMETHODIMP FbUtils::DoDragDrop(IFbMetadbHandleList* items, UINT okEffects, UIN
 	DWORD returnEffect;
 	DWORD retCode = SHDoDragDrop(NULL, pDO.get_ptr(), pIDropSource.get_ptr(), okEffects, &returnEffect);
 
-	*p = (DRAGDROP_S_CANCEL == retCode) ? DROPEFFECT_NONE : returnEffect;
+	*p = retCode == DRAGDROP_S_CANCEL ? DROPEFFECT_NONE : returnEffect;
 	return S_OK;
 }
 

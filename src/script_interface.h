@@ -447,13 +447,10 @@ __interface IThemeManager : IDisposable
 ]
 __interface IDropSourceAction : IDisposable
 {
-	[propget] STDMETHOD(Playlist)([out, retval] int* id);
-	[propget] STDMETHOD(ToSelect)([out, retval] VARIANT_BOOL* to_select);	
-	[propput] STDMETHOD(Playlist)(int id);
-	[propput] STDMETHOD(ToSelect)(VARIANT_BOOL to_select);
-
 	[propget] STDMETHOD(Effect)([out, retval] UINT* effect);
 	[propput] STDMETHOD(Effect)(UINT effect);
+	[propput] STDMETHOD(Playlist)(int id);
+	[propput] STDMETHOD(ToSelect)(VARIANT_BOOL to_select);
 };
 
 [

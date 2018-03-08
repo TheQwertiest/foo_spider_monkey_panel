@@ -5,7 +5,6 @@
 #include <OleIdl.h>
 #include <ShlObj.h>
 
-
 class IDropSourceImpl : public IDropSource
 {
 public:
