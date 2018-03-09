@@ -1686,15 +1686,3 @@ interface IFbMetadbHandleList {
 		UpdateFileInfoFromJSON(str); (void)
 		// See https://github.com/marc2k3/foo_jscript_panel/wiki/Breaking-Changes#v130
 }
-
-interface IDropTargetAction {
-	// See samples\basic\Drag Drop Basic.txt
-
-	Properties:
-		Base; (write)
-		Effect; (read, write)
-		Playlist; (write)
-		// default: -1, active playlist
-
-		ToSelect; (boolean) (write)
-}
