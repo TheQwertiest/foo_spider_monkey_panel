@@ -494,6 +494,10 @@ interface IFbPlaylistManager {
 		Example:
 		plman.AddLocations(plman.ActivePlaylist, ["e:\\1.mp3"]);
 		This operation is asynchronous and may take some time to complete if it's a large array.
+		Any code in your script directly after this line will run immediately without waiting for
+		the job to finish.
+		If select is true, the active playlist will be set to the playlistIndex, the items will
+		be selected and focus will be set to the first new item.
 		*/
 
 		plman.ClearPlaylist(playlistIndex); (void)
