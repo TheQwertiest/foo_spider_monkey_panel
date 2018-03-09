@@ -182,6 +182,11 @@ namespace helpers
 			if (playlist != pfc_infinite && playlist < api->get_playlist_count() && !api->playlist_lock_is_present(playlist))
 			{
 				api->playlist_insert_items(playlist, m_base, p_items, selection);
+				if (m_to_select)
+				{
+					api->set_active_playlist(playlist);
+					api->playlist_set_focus_item(playlist, m_base);
+				}
 			}
 		}
 
