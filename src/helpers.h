@@ -179,7 +179,7 @@ namespace helpers
 			auto api = playlist_manager::get();
 			t_size playlist = m_playlist_idx == -1 ? api->get_active_playlist() : m_playlist_idx;
 
-			if (playlist != pfc_infinite && playlist < api->get_playlist_count() && !api->playlist_lock_is_present(playlist))
+			if (playlist < api->get_playlist_count() && !api->playlist_lock_is_present(playlist))
 			{
 				api->playlist_insert_items(playlist, m_base, p_items, selection);
 				if (m_to_select)
