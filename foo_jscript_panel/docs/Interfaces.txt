@@ -137,7 +137,7 @@ interface IFbUtils {
 
 		fb.AddFiles(); (void)
 
-		fb.CheckClipboardContents(); (boolean)
+		fb.CheckClipboardContents(window_id); (boolean)
 		/*
 		Checks Clipboard contents are handles or a file selection from Windows Explorer. Use in conjunction
 		with fb.GetClipboardContents().
@@ -225,7 +225,7 @@ interface IFbUtils {
 		function on_mouse_rbtn_up(x, y) {
 			var ap = plman.ActivePlaylist;
 			var menu = window.CreatePopupMenu();
-			menu.AppendMenuItem(!plman.IsPlaylistLocked(ap) && fb.CheckClipboardContents() ? MF_STRING : MF_GRAYED, 1, "Paste"); // assume MF_* are already defined
+			menu.AppendMenuItem(!plman.IsPlaylistLocked(ap) && fb.CheckClipboardContents(window.ID) ? MF_STRING : MF_GRAYED, 1, "Paste"); // assume MF_* are already defined
 			var idx = menu.TrackPopupMenu(x, y);
 			if (idx == 1) {
 				var items = fb.GetClipboardContents(window.ID);
