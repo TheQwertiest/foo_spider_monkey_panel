@@ -2035,9 +2035,10 @@ STDMETHODIMP FbUtils::DoDragDrop(IFbMetadbHandleList* items, UINT okEffects, UIN
 	pfc::com_ptr_t<IDropSourceImpl> pIDropSource = new IDropSourceImpl();
 
 	DWORD returnEffect;
-	DWORD retCode = SHDoDragDrop(NULL, pDO.get_ptr(), pIDropSource.get_ptr(), okEffects, &returnEffect);
+	HRESULT hr = SHDoDragDrop(NULL, pDO.get_ptr(), pIDropSource.get_ptr(), okEffects, &returnEffect);
+	pDO->Release();
 
-	*p = retCode == DRAGDROP_S_CANCEL ? DROPEFFECT_NONE : returnEffect;
+	*p = hr == DRAGDROP_S_CANCEL ? DROPEFFECT_NONE : returnEffect;
 	return S_OK;
 }
 
