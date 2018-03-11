@@ -366,14 +366,14 @@ __interface IFbUtils : IDispatch
 	STDMETHOD(CreateHandleList)([out, retval] IFbMetadbHandleList** pp);
 	STDMETHOD(CreateMainMenuManager)([out, retval] IMainMenuManager** pp);
 	STDMETHOD(CreateProfiler)([defaultvalue("")] BSTR name, [out, retval] IFbProfiler** pp);
-	STDMETHOD(DoDragDrop)(IFbMetadbHandleList* items, UINT okEffects, [out, retval] UINT* p);
+	STDMETHOD(DoDragDrop)(IFbMetadbHandleList* handles, UINT okEffects, [out, retval] UINT* p);
 	STDMETHOD(Exit)();
 	STDMETHOD(GetClipboardContents)(UINT window_id, [out, retval] IFbMetadbHandleList** pp);
 	STDMETHOD(GetFocusItem)([defaultvalue(-1)] VARIANT_BOOL force, [out, retval] IFbMetadbHandle** pp);
 	STDMETHOD(GetLibraryItems)([out, retval] IFbMetadbHandleList** outItems);
 	STDMETHOD(GetLibraryRelativePath)(IFbMetadbHandle* handle, [out, retval] BSTR* p);
 	STDMETHOD(GetNowPlaying)([out, retval] IFbMetadbHandle** pp);
-	STDMETHOD(GetQueryItems)(IFbMetadbHandleList* items, BSTR query, [out, retval] IFbMetadbHandleList** pp);
+	STDMETHOD(GetQueryItems)(IFbMetadbHandleList* handles, BSTR query, [out, retval] IFbMetadbHandleList** pp);
 	STDMETHOD(GetSelection)([out, retval] IFbMetadbHandle** pp);
 	STDMETHOD(GetSelectionType)([out, retval] UINT* p);
 	STDMETHOD(GetSelections)([defaultvalue(0)] UINT flags, [out, retval] IFbMetadbHandleList** pp);

@@ -2018,12 +2018,12 @@ STDMETHODIMP FbUtils::CreateProfiler(BSTR name, IFbProfiler** pp)
 	return S_OK;
 }
 
-STDMETHODIMP FbUtils::DoDragDrop(IFbMetadbHandleList* items, UINT okEffects, UINT* p)
+STDMETHODIMP FbUtils::DoDragDrop(IFbMetadbHandleList* handles, UINT okEffects, UINT* p)
 {
 	if (!p) return E_POINTER;
 
 	metadb_handle_list* handles_ptr = NULL;
-	items->get__ptr((void**)&handles_ptr);
+	handles->get__ptr((void**)&handles_ptr);
 
 	if (!handles_ptr->get_count() || okEffects == DROPEFFECT_NONE)
 	{
@@ -2148,15 +2148,15 @@ STDMETHODIMP FbUtils::GetNowPlaying(IFbMetadbHandle** pp)
 	return S_OK;
 }
 
-STDMETHODIMP FbUtils::GetQueryItems(IFbMetadbHandleList* items, BSTR query, IFbMetadbHandleList** pp)
+STDMETHODIMP FbUtils::GetQueryItems(IFbMetadbHandleList* handles, BSTR query, IFbMetadbHandleList** pp)
 {
 	if (!pp) return E_POINTER;
 
-	metadb_handle_list *srclist_ptr, dst_list;
+	metadb_handle_list* handles_ptr, dst_list;
 	search_filter_v2::ptr filter;
 
-	items->get__ptr((void**)&srclist_ptr);
-	dst_list = *srclist_ptr;
+	handles->get__ptr((void**)&handles_ptr);
+	dst_list = *handles_ptr;
 	pfc::stringcvt::string_utf8_from_wide uquery(query);
 
 	try

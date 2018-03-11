@@ -390,14 +390,14 @@ public:
 	STDMETHODIMP CreateHandleList(IFbMetadbHandleList** pp);
 	STDMETHODIMP CreateMainMenuManager(IMainMenuManager** pp);
 	STDMETHODIMP CreateProfiler(BSTR name, IFbProfiler** pp);
-	STDMETHODIMP DoDragDrop(IFbMetadbHandleList* items, UINT okEffects, UINT* p);
+	STDMETHODIMP DoDragDrop(IFbMetadbHandleList* handles, UINT okEffects, UINT* p);
 	STDMETHODIMP Exit();
 	STDMETHODIMP GetClipboardContents(UINT window_id, IFbMetadbHandleList** pp);
 	STDMETHODIMP GetFocusItem(VARIANT_BOOL force, IFbMetadbHandle** pp);
 	STDMETHODIMP GetLibraryItems(IFbMetadbHandleList** outItems);
 	STDMETHODIMP GetLibraryRelativePath(IFbMetadbHandle* handle, BSTR* p);
 	STDMETHODIMP GetNowPlaying(IFbMetadbHandle** pp);
-	STDMETHODIMP GetQueryItems(IFbMetadbHandleList* items, BSTR query, IFbMetadbHandleList** pp);
+	STDMETHODIMP GetQueryItems(IFbMetadbHandleList* handles, BSTR query, IFbMetadbHandleList** pp);
 	STDMETHODIMP GetSelection(IFbMetadbHandle** pp);
 	STDMETHODIMP GetSelectionType(UINT* p);
 	STDMETHODIMP GetSelections(UINT flags, IFbMetadbHandleList** pp);
