@@ -214,6 +214,9 @@ interface IFbUtils {
 				test.Print(); // Outputs component name/version/assigned name like "JScript Panel v2.0.2: FbProfiler (test): 789 ms"
 				*/
 
+		fb.DoDragDrop(handle_list, effect); (uint);
+		// See https://github.com/marc2k3/foo_jscript_panel/wiki/Drag-and-Drop
+
 		fb.Exit(); (void)
 
 		fb.GetClipboardContents(window_id); (IFbMetadbHandleList)

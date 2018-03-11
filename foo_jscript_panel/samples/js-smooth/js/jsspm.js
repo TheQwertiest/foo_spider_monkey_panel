@@ -1302,23 +1302,9 @@ oBrowser = function (name) {
 			};
 			break;
 		case "drag_over":
-			if (this.rows.length > 0) {
-				if (y > brw.y) {
-					if (this.activeRow > -1) {
-						if (this.rows[this.activeRow].isAutoPlaylist) {
-							g_dragndrop_targetPlaylistId = -1;
-						} else {
-							g_dragndrop_targetPlaylistId = this.activeRow;
-						};
-					} else {
-						g_dragndrop_targetPlaylistId = -1;
-					};
-				};
-			} else {
-				g_dragndrop_bottom = true;
-				g_dragndrop_trackId = 0;
-				g_dragndrop_rowId = 0;
-			};
+			if (this.rows.length > 0 && this.activeRow > -1) {
+				g_dragndrop_targetPlaylistId = this.activeRow;
+			}
 			break;
 		};
 	};
@@ -1773,10 +1759,6 @@ var g_font_wingdings2_found = utils.CheckFont("wingdings 2");
 
 // drag'n drop from windows system
 var g_dragndrop_status = false;
-var g_dragndrop_x = -1;
-var g_dragndrop_y = -1;
-var g_dragndrop_trackId = -1;
-var g_dragndrop_rowId = -1;
 var g_dragndrop_targetPlaylistId = -1;
 //
 var ww = 0, wh = 0;
@@ -2710,70 +2692,64 @@ function g_sendResponse() {
 	brw.populate(true);
 	if (brw.selectedRow < 0 || brw.selectedRow > brw.rowsCount - 1)
 		brw.selectedRow = 0;
-};
-
-function on_notify_data(name, info) {
-	switch (name) {
-	case "test":
-
-		break;
-	};
-};
+}
 
 //=================================================// Drag'n'Drop Callbacks
 function on_drag_enter() {
 	g_dragndrop_status = true;
-};
+}
 
 function on_drag_leave() {
 	g_dragndrop_status = false;
-	g_dragndrop_trackId = -1;
-	g_dragndrop_rowId = -1;
 	g_dragndrop_targetPlaylistId = -1;
 	brw.buttonclicked = false;
 	cScrollBar.timerID && window.ClearInterval(cScrollBar.timerID);
 	cScrollBar.timerID = false;
 	brw.repaint();
-};
+}
 
 function on_drag_over(action, x, y, mask) {
-
-	if (x == g_dragndrop_x && y == g_dragndrop_y)
-		return true;
-
-	g_dragndrop_trackId = -1;
-	g_dragndrop_rowId = -1;
-	g_dragndrop_targetPlaylistId = -1;
-	g_dragndrop_bottom = false;
-
-	brw.on_mouse("drag_over", x, y);
+	if (y < brw.y) {
+		action.Effect = 0;
+	} else {
+		g_dragndrop_targetPlaylistId = -1;
+		brw.on_mouse("drag_over", x, y);
+		if (g_dragndrop_targetPlaylistId == -1) {
+			// blank area, drop to new playlist
+			action.Effect = 1;
+		} else {
+			action.Effect = plman.IsPlaylistLocked(g_dragndrop_targetPlaylistId) ? 0 : 1;
+		}
+	}
 	brw.repaint();
-
-	g_dragndrop_x = x;
-	g_dragndrop_y = y;
-};
+}
 
 function on_drag_drop(action, x, y, mask) {
-
-	if (y > brw.y) {
+	if (y < brw.y) {
+		action.Effect = 0;
+	} else {
 		var drop_done = false;
-		if (brw.activeRow > -1) {
-			drop_done = true;
-			if (g_dragndrop_targetPlaylistId > -1) {
-				action.ToPlaylist();
-				action.Playlist = g_dragndrop_targetPlaylistId;
-				action.ToSelect = true;
-			};
-		} else {
+		if (g_dragndrop_targetPlaylistId == -1) {
+			// blank area, drop to new playlist
 			drop_done = true;
 			var total_pl = plman.PlaylistCount;
 			plman.CreatePlaylist(total_pl, "Dropped Items");
-			action.ToPlaylist();
 			action.Playlist = total_pl;
-			action.ToSelect = true;
-		};
+			action.Base = plman.PlaylistItemCount(total_pl);
+			action.ToSelect = plman.PlaylistCount == 1; // switch to and set focus if only playlist
+			action.Effect = 1;
+		} else if (plman.IsPlaylistLocked(g_dragndrop_targetPlaylistId)) {
+			// mouse over an existing playlist but can't drop there
+			action.Effect = 0;
+		} else {
+			// drop to an existing playlist
+			drop_done = true;
+			action.Playlist = g_dragndrop_targetPlaylistId;
+			action.Base = plman.PlaylistItemCount(g_dragndrop_targetPlaylistId);
+			action.ToSelect = false;
+			action.Effect = 1;
+		}
 		if (drop_done) {
-			// create a timer to blink the playlist item where tracks have been droped!
 			if (!blink.timer) {
 				blink.x = x;
 				blink.y = y;
@@ -2781,18 +2757,18 @@ function on_drag_drop(action, x, y, mask) {
 				blink.id = brw.activeRow;
 				blink.counter = 0;
 				blink.timer = window.SetInterval(function () {
-						blink.counter++;
-						if (blink.counter > 5) {
-							blink.timer && window.ClearInterval(blink.timer);
-							blink.timer = false;
-							blink.counter = -1;
-							blink.id = null;
-						};
-						brw.repaint();
-					}, 125);
-			};
-		};
-	};
+					blink.counter++;
+					if (blink.counter > 5) {
+						blink.timer && window.ClearInterval(blink.timer);
+						blink.timer = false;
+						blink.counter = -1;
+						blink.id = null;
+					};
+					brw.repaint();
+				}, 125);
+			}
+		}
+	}
 	g_dragndrop_status = false;
 	brw.repaint();
-};
+}

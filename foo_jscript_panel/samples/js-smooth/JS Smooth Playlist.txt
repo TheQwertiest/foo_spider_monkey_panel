@@ -25,7 +25,7 @@
 [Requirements]
  * foobar2000 v1.4 or later >> https://www.foobar2000.org
  * Windows Vista or later.
- * JScript Panel v2.0.0 or later >> https://github.com/marc2k3/foo_jscript_panel
+ * JScript Panel v2.1.0 or later >> https://github.com/marc2k3/foo_jscript_panel
 
 [Installation]
  * import/paste the main JSPlaylist script into a JScript Panel instance of your foobar2000 layout (DUI or CUI)
