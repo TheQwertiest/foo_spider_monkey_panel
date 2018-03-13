@@ -1,4 +1,4 @@
-var g_script_version = "mod";
+var g_script_version = "2.1.0";
 var g_LDT = DT_LEFT | DT_VCENTER | DT_CALCRECT | DT_NOPREFIX | DT_END_ELLIPSIS;
 var g_middle_clicked = false;
 var g_middle_click_timer = false;
@@ -2951,344 +2951,44 @@ function on_playback_queue_changed(origin) {
 var g_dragndrop_hover_playlistManager = false;
 
 function on_drag_enter() {
-	g_dragndrop_status = true;
-	g_dragndrop_drop_forbidden = false;
+
 };
 
 function on_drag_leave() {
-	g_dragndrop_status = false;
-	g_dragndrop_hover_playlistManager = false;
-	g_dragndrop_trackId = -1;
-	g_dragndrop_rowId = -1;
-	g_dragndrop_targetPlaylistId = -1;
-	p.list.buttonclicked = false;
-	cScrollBar.timerID1 && window.ClearInterval(cScrollBar.timerID1);
-	cScrollBar.timerID1 = false;
-	if (g_dragndrop_drop_forbidden) {
-		g_dragndrop_drop_forbidden = false;
-		full_repaint();
-	};
+
 };
 
 function on_drag_over(action, x, y, mask) {
-
-	if (x == g_dragndrop_x && y == g_dragndrop_y)
-		return true;
-
-	if (g_dragndrop_hover_playlistManager) {
-		g_dragndrop_hover_playlistManager = false;
-		full_repaint();
-	};
-
-	if (plman.IsAutoPlaylist(plman.ActivePlaylist)) {
-		g_dragndrop_drop_forbidden = true;
-		full_repaint();
-		if (p.playlistManager.woffset == 0 || (cPlaylistManager.visible && x < p.playlistManager.x - p.playlistManager.woffset)) {
-			return true;
-		};
-	};
-
-	g_dragndrop_trackId = -1;
-	g_dragndrop_rowId = -1;
-	g_dragndrop_targetPlaylistId = -1;
-	g_dragndrop_bottom = false;
-	if (p.playlistManager.woffset == 0 || (cPlaylistManager.visible && x < p.playlistManager.x - p.playlistManager.woffset)) {
-		p.list.check("drag_over", x, y);
-	} else if (cPlaylistManager.visible && p.playlistManager.isHoverObject(x, y)) {
-		g_dragndrop_hover_playlistManager = true;
-		p.playlistManager.check("drag_over", x, y);
-	};
-
-	if (p.playlistManager.woffset == 0 || (cPlaylistManager.visible && x < p.playlistManager.x - p.playlistManager.woffset)) {
-		// scroll if required
-		if (p.playlistManager.woffset == 0 || (cPlaylistManager.visible && x < p.playlistManager.x - p.playlistManager.woffset)) {
-			if (p.list.offset > 0 && y < p.list.y + cTrack.height) {
-				if (!p.list.buttonclicked) {
-					p.list.buttonclicked = true;
-					//
-					var scroll_speed_ms = 5;
-					//
-					if (!cScrollBar.timerID1) {
-						cScrollBar.timerID1 = window.SetInterval(function () {
-								on_mouse_wheel(1);
-								if (p.list.offset <= 0) {
-									window.ClearInterval(cScrollBar.timerID1);
-									cScrollBar.timerID1 = false;
-									p.list.buttonclicked = false;
-									if (!dragndrop.timerID) {
-										dragndrop.timerID = window.SetTimeout(function () {
-												if (p.playlistManager.woffset == 0 || (cPlaylistManager.visible && g_dragndrop_x < p.playlistManager.x - p.playlistManager.woffset)) {
-													p.list.check("drag_over", g_dragndrop_x, g_dragndrop_y);
-												} else if (cPlaylistManager.visible && p.playlistManager.isHoverObject(g_dragndrop_x, g_dragndrop_y)) {
-													p.playlistManager.check("drag_over", g_dragndrop_x, g_dragndrop_y);
-												};
-												full_repaint();
-												dragndrop.timerID && window.ClearTimeout(dragndrop.timerID);
-												dragndrop.timerID = false;
-											}, 75);
-									};
-								};
-							}, scroll_speed_ms);
-					};
-				} else {
-					full_repaint();
-				};
-			} else if (p.list.offset < p.list.totalRows - p.list.totalRowVisible && y > p.list.y + p.list.h - cTrack.height) {
-				if (!p.list.buttonclicked) {
-					p.list.buttonclicked = true;
-					//
-					var scroll_speed_ms = 5;
-					//
-					if (!cScrollBar.timerID1) {
-						cScrollBar.timerID1 = window.SetInterval(function () {
-								on_mouse_wheel(-1);
-								if (p.list.offset >= p.list.totalRows - p.list.totalRowVisible) {
-									window.ClearInterval(cScrollBar.timerID1);
-									cScrollBar.timerID1 = false;
-									p.list.buttonclicked = false;
-									if (!dragndrop.timerID) {
-										dragndrop.timerID = window.SetTimeout(function () {
-												if (p.playlistManager.woffset == 0 || (cPlaylistManager.visible && g_dragndrop_x < p.playlistManager.x - p.playlistManager.woffset)) {
-													p.list.check("drag_over", g_dragndrop_x, g_dragndrop_y);
-												} else if (cPlaylistManager.visible && p.playlistManager.isHoverObject(g_dragndrop_x, g_dragndrop_y)) {
-													//p.playlistManager.check("drag_over", g_dragndrop_x, g_dragndrop_y);
-												};
-												full_repaint();
-												dragndrop.timerID && window.ClearTimeout(dragndrop.timerID);
-												dragndrop.timerID = false;
-											}, 75);
-									};
-								};
-							}, scroll_speed_ms);
-					};
-				} else {
-					full_repaint();
-				};
-			} else {
-				cScrollBar.timerID1 && window.ClearInterval(cScrollBar.timerID1);
-				cScrollBar.timerID1 = false;
-				p.list.buttonclicked = false;
-				if (!dragndrop.timerID) {
-					dragndrop.timerID = window.SetTimeout(function () {
-							full_repaint();
-							dragndrop.timerID && window.ClearTimeout(dragndrop.timerID);
-							dragndrop.timerID = false;
-						}, 75);
-				};
-			};
-		} else {
-			cScrollBar.timerID1 && window.ClearInterval(cScrollBar.timerID1);
-			cScrollBar.timerID1 = false;
-		};
-
-	} else if (cPlaylistManager.visible && p.playlistManager.isHoverObject(x, y)) {
-
-		// vscroll playlist manager on dragging
-		// ************************************
-		var inner_padding = 0;
-		var area_h = p.playlistManager.h - (cPlaylistManager.showStatusBar ? cPlaylistManager.statusBarHeight : 0);
-		if (x > p.playlistManager.x - p.playlistManager.woffset && x < p.playlistManager.x - p.playlistManager.woffset + p.playlistManager.w) {
-			if (p.playlistManager.offset > 0 && y < p.playlistManager.y + cPlaylistManager.rowHeight + inner_padding) {
-				if (p.playlistManager.scrollbarWidth > 0 && !cPlaylistManager.vscroll_timer_loop) {
-					cPlaylistManager.vscroll_timer_loop = window.SetInterval(function () {
-							//
-							var s = Math.abs(g_dragndrop_y - (p.playlistManager.y + cPlaylistManager.rowHeight));
-							var h = Math.ceil(cPlaylistManager.rowHeight / 2);
-							if (s > h)
-								s = h;
-							var t = h - s + 1;
-							var r = Math.round(500 / h);
-							var scroll_speed_ms = ((t * r) < 10 ? 10 : (t * r));
-							//
-							if (!cPlaylistManager.vscroll_timer) {
-								cPlaylistManager.vscroll_timer = window.SetTimeout(function () {
-										p.playlistManager.offset = p.playlistManager.offset > 0 ? p.playlistManager.offset - 1 : 0;
-										p.playlistManager.scrollbar.reSet(p.playlistManager.rowTotal, cPlaylistManager.rowHeight, p.playlistManager.offset);
-										full_repaint();
-										if (p.playlistManager.offset == 0 || p.playlistManager.woffset < cPlaylistManager.width) { // kill interval timer!
-											window.ClearTimeout(cPlaylistManager.vscroll_timer_loop);
-											cPlaylistManager.vscroll_timer_loop = false;
-										};
-										window.ClearTimeout(cPlaylistManager.vscroll_timer);
-										cPlaylistManager.vscroll_timer = false;
-									}, scroll_speed_ms);
-							};
-						}, 20);
-				};
-			} else if (p.playlistManager.offset < p.playlistManager.rowTotal - p.playlistManager.totalRows && y > p.playlistManager.y + area_h - inner_padding) {
-				if (p.playlistManager.scrollbarWidth > 0 && !cPlaylistManager.vscroll_timer_loop) {
-					cPlaylistManager.vscroll_timer_loop = window.SetInterval(function () {
-							//
-							var s = Math.abs(g_dragndrop_y - (p.playlistManager.y + area_h));
-							var h = Math.ceil(cPlaylistManager.rowHeight / 2);
-							if (s > h)
-								s = h;
-							var t = h - s + 1;
-							var r = Math.round(500 / h);
-							var scroll_speed_ms = ((t * r) < 10 ? 10 : (t * r));
-							//
-							if (!cPlaylistManager.vscroll_timer) {
-								cPlaylistManager.vscroll_timer = window.SetTimeout(function () {
-										p.playlistManager.offset = p.playlistManager.offset < p.playlistManager.rowTotal - p.playlistManager.totalRows ? p.playlistManager.offset + 1 : p.playlistManager.rowTotal - p.playlistManager.totalRows;
-										p.playlistManager.scrollbar.reSet(p.playlistManager.rowTotal, cPlaylistManager.rowHeight, p.playlistManager.offset);
-										full_repaint();
-										if (p.playlistManager.offset == p.playlistManager.rowTotal - p.playlistManager.totalRows || p.playlistManager.woffset < cPlaylistManager.width) { // kill interval timer!
-											window.ClearTimeout(cPlaylistManager.vscroll_timer_loop);
-											cPlaylistManager.vscroll_timer_loop = false;
-										};
-										window.ClearTimeout(cPlaylistManager.vscroll_timer);
-										cPlaylistManager.vscroll_timer = false;
-									}, scroll_speed_ms);
-							};
-						}, 20);
-				};
-			} else {
-				if (cPlaylistManager.vscroll_timer) {
-					window.ClearInterval(cPlaylistManager.vscroll_timer_loop);
-					cPlaylistManager.vscroll_timer_loop = false;
-				};
-				if (!cPlaylistManager.drag_move_timer) {
-					cPlaylistManager.drag_move_timer = window.SetTimeout(function () {
-							if (p.playlistManager.hoverId != p.playlistManager.hoverId_previous) {
-								full_repaint();
-								p.playlistManager.hoverId_previous = p.playlistManager.hoverId;
-							};
-							window.ClearInterval(cPlaylistManager.drag_move_timer);
-							cPlaylistManager.drag_move_timer = false;
-						}, 50);
-				};
-			};
-		} else {
-			if (cPlaylistManager.vscroll_timer_loop) {
-				window.ClearInterval(cPlaylistManager.vscroll_timer_loop);
-				cPlaylistManager.vscroll_timer_loop = false;
-			};
-		};
-
-	};
-
-	full_repaint();
-
-	g_dragndrop_x = x;
-	g_dragndrop_y = y;
-};
+	if (y < p.list.y || (cPlaylistManager.visible && p.playlistManager.isHoverObject(x, y)) || plman.IsPlaylistLocked(plman.ActivePlaylist)) {
+		action.Effect = 0;
+	} else {
+		action.Effect = 1;
+	}
+}
 
 function on_drag_drop(action, x, y, mask) {
-
-	if (p.playlistManager.woffset == 0 || (cPlaylistManager.visible && x < p.playlistManager.x - p.playlistManager.woffset)) {
-
-		if (plman.IsAutoPlaylist(plman.ActivePlaylist)) {
-			g_dragndrop_drop_forbidden = false;
-			g_dragndrop_hover_playlistManager = false;
-			full_repaint();
-			return true;
-		};
-
-		g_dragndrop_total_before = p.list.count;
-		p.list.buttonclicked = false;
-		cScrollBar.timerID1 && window.ClearInterval(cScrollBar.timerID1);
-		cScrollBar.timerID1 = false;
-		g_dragndrop_status = false;
-
-		// We are going to process the dropped items to a playlist
-		var total_pl = plman.PlaylistCount;
-		if (total_pl < 1) {
-			plman.CreatePlaylist(0, "Dropped Items");
-			plman.ActivePlaylist = 0;
-			action.ToPlaylist();
-			action.Playlist = plman.ActivePlaylist;
-			action.ToSelect = true;
+	if (y < p.list.y || (cPlaylistManager.visible && p.playlistManager.isHoverObject(x, y)) || plman.IsPlaylistLocked(plman.ActivePlaylist)) {
+		action.Effect = 0;
+	} else {
+		var count = plman.PlaylistCount;
+		if (count == 0 || plman.ActivePlaylist == -1) {
+			plman.CreatePlaylist(count, "Dropped Items");
+			action.Playlist = count;
+			action.Base = 0;
 		} else {
-			if (g_dragndrop_bottom) {
-				plman.ClearPlaylistSelection(plman.ActivePlaylist);
-				plman.UndoBackup(plman.ActivePlaylist);
-				action.ToPlaylist();
-				action.Playlist = plman.ActivePlaylist;
-				action.ToSelect = true;
-				g_dragndrop_timer && window.ClearTimeout(g_dragndrop_timer);
-				g_dragndrop_timer = window.SetTimeout(function () {
-						plman.SetPlaylistFocusItem(plman.ActivePlaylist, g_dragndrop_total_before);
-						p.list.showFocusedItem();
-						//full_repaint();
-						g_dragndrop_trackId = -1;
-						g_dragndrop_rowId = -1;
-						window.ClearTimeout(g_dragndrop_timer);
-						g_dragndrop_timer = false;
-					}, 75);
-			} else {
-				g_avoid_on_playlist_items_added = true;
-				g_avoid_on_playlist_items_reordered = true;
-
-				plman.ClearPlaylistSelection(plman.ActivePlaylist);
-				plman.UndoBackup(plman.ActivePlaylist);
-				action.ToPlaylist();
-				action.Playlist = plman.ActivePlaylist; ;
-				action.ToSelect = true;
-
-				g_dragndrop_timer && window.ClearTimeout(g_dragndrop_timer);
-				g_dragndrop_timer = window.SetTimeout(function () {
-						var delta = (g_dragndrop_total_before - g_dragndrop_trackId) * -1;
-						plman.MovePlaylistSelection(plman.ActivePlaylist, delta);
-						plman.SetPlaylistFocusItem(plman.ActivePlaylist, g_dragndrop_trackId);
-						p.list.showFocusedItem();
-						g_dragndrop_trackId = -1;
-						g_dragndrop_rowId = -1;
-						g_avoid_on_playlist_items_added = false;
-						g_avoid_on_playlist_items_reordered = false;
-						window.ClearTimeout(g_dragndrop_timer);
-						g_dragndrop_timer = false;
-					}, 75);
-			};
-		};
-
-	} else if (cPlaylistManager.visible && p.playlistManager.isHoverObject(x, y)) {
-
-		var drop_done = false;
-		if (p.playlistManager.hoverId > -1 && p.playlistManager.hoverId < p.playlistManager.playlists.length && !p.playlistManager.playlists[p.playlistManager.hoverId].isAutoPlaylist && !p.playlistManager.playlists[p.playlistManager.hoverId].isReservedPlaylist) {
-			drop_done = true;
-			plman.UndoBackup(g_dragndrop_targetPlaylistId);
-			action.ToPlaylist();
-			action.Playlist = g_dragndrop_targetPlaylistId;
-			action.ToSelect = true;
-		} else if (p.playlistManager.ishoverHeader && g_dragndrop_targetPlaylistId < 0) {
-			drop_done = true;
-			var total_pl = plman.PlaylistCount;
-			plman.CreatePlaylist(total_pl, "Dropped Items");
-			action.ToPlaylist();
-			action.Playlist = total_pl;
-			action.ToSelect = true;
-		};
-		if (drop_done) {
-			// create a timer to blink the playlist item where tracks have been droped!
-			if (!cPlaylistManager.blink_timer) {
-				cPlaylistManager.blink_x = x;
-				cPlaylistManager.blink_y = y;
-				cPlaylistManager.blink_totaltracks = 1;
-				cPlaylistManager.blink_id = p.playlistManager.hoverId;
-				cPlaylistManager.blink_counter = 0;
-				cPlaylistManager.blink_timer = window.SetInterval(function () {
-						cPlaylistManager.blink_counter++;
-						if (cPlaylistManager.blink_counter > (cPlaylistManager.visible ? 5 : 10)) {
-							window.ClearInterval(cPlaylistManager.blink_timer);
-							cPlaylistManager.blink_timer = false;
-							cPlaylistManager.blink_counter = -1;
-							cPlaylistManager.blink_id = null;
-						};
-						full_repaint();
-					}, 125);
-			};
-		};
-	};
-	g_dragndrop_drop_forbidden = false;
-	g_dragndrop_hover_playlistManager = false;
-	full_repaint();
-};
+			plman.ClearPlaylistSelection(plman.ActivePlaylist);
+			action.Playlist = plman.ActivePlaylist;
+			action.Base = plman.PlaylistItemCount(plman.ActivePlaylist);
+		}
+		action.ToSelect = true;
+		action.Effect = 1;
+	}
+}
 
 function on_script_unload() {
 	g_timer1 && window.ClearInterval(g_timer1);
 	g_timer1 = false;
 	g_timer2 && window.ClearInterval(g_timer2);
 	g_timer2 = false;
-	// update statisitics if required (closing foobar2000 on track's playing without stoping the track)
 	update_statistics();
-};
+}

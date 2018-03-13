@@ -15,6 +15,7 @@ fb.CreateHandleList()
 fb.CreateMainMenuManager()
 fb.CreateProfiler([name])
 fb.CursorFollowPlayback
+fb.DoDragDrop(handle_list, effect)
 fb.Exit()
 fb.FoobarPath
 fb.GetClipboardContents(window_id)
