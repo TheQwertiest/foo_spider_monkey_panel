@@ -5,7 +5,7 @@
 #define JSP_DLL_NAME "foo_jscript_panel.dll"
 
 // Remember to bump utils.version too
-#define JSP_VERSION_NUMBER "2.0.6"
+#define JSP_VERSION_NUMBER "2.1.0"
 #define JSP_VERSION_TEST ""
 
 #ifdef _DEBUG
