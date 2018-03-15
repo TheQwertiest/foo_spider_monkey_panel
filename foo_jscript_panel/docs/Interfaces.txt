@@ -137,8 +137,35 @@ interface IFbUtils {
 
 		fb.AddFiles(); (void)
 
+		fb.CheckClipboardContents(window_id); (boolean)
+		/*
+		Checks Clipboard contents are handles or a file selection from Windows Explorer. Use in conjunction
+		with fb.GetClipboardContents().
+		*/
+
 		fb.ClearPlaylist(); (void)
 		// Clears active playlist. If you wish to clear a specific playlist, use plman.ClearPlaylist(playlistIndex).
+
+		fb.CopyHandleListToClipboard(handle_list); (boolean)
+		/*
+		Items can then be pasted in other playlist viewers or in Windows Explorer as files.
+
+		Example1: (copy playlist items)
+		var items = plman.GetPlaylistSelectedItems(plman.ActivePlaylist);
+		fb.CopyHandleListToClipboard(items);
+		items.Dispose();
+
+		Example2: (cut playlist items)
+		var ap = plman.ActivePlaylist;
+		if (!plman.IsPlaylistLocked(ap)) {
+			var items = plman.GetPlaylistSelectedItems(ap);
+			if (fb.CopyHandleListToClipboard(items)) {
+				plman.UndoBackup(ap);
+				plman.RemovePlaylistSelection(ap);
+			}
+			items.Dispose();
+		}
+		*/
 
 		fb.CreateContextMenuManager(); (IContextMenuManager)
 		// See samples\basic\MainMenuManager All-In-One, samples\basic\Menu Sample.txt
@@ -187,7 +214,31 @@ interface IFbUtils {
 				test.Print(); // Outputs component name/version/assigned name like "JScript Panel v2.0.2: FbProfiler (test): 789 ms"
 				*/
 
+		fb.DoDragDrop(handle_list, effect); (uint);
+		// See https://github.com/marc2k3/foo_jscript_panel/wiki/Drag-and-Drop
+
 		fb.Exit(); (void)
+
+		fb.GetClipboardContents(window_id); (IFbMetadbHandleList)
+		/*
+		Clipboard contents can be handles copied to the clipboard in other components, from fb.CopyHandleListToClipboard or a file selection
+		from Windows Explorer etc.
+
+		Example:
+		function on_mouse_rbtn_up(x, y) {
+			var ap = plman.ActivePlaylist;
+			var menu = window.CreatePopupMenu();
+			menu.AppendMenuItem(!plman.IsPlaylistLocked(ap) && fb.CheckClipboardContents(window.ID) ? MF_STRING : MF_GRAYED, 1, "Paste"); // assume MF_* are already defined
+			var idx = menu.TrackPopupMenu(x, y);
+			if (idx == 1) {
+				var items = fb.GetClipboardContents(window.ID);
+				plman.InsertPlaylistItems(ap, plman.PlaylistItemCount(ap), items);
+				items.Dispose();
+			}
+			menu.Dispose();
+			return true;
+		}
+		*/
 
 		fb.GetFocusItem([force]); (IFbMetadbHandle)
 		/*
@@ -446,6 +497,10 @@ interface IFbPlaylistManager {
 		Example:
 		plman.AddLocations(plman.ActivePlaylist, ["e:\\1.mp3"]);
 		This operation is asynchronous and may take some time to complete if it's a large array.
+		Any code in your script directly after this line will run immediately without waiting for
+		the job to finish.
+		If select is true, the active playlist will be set to the playlistIndex, the items will
+		be selected and focus will be set to the first new item.
 		*/
 
 		plman.ClearPlaylist(playlistIndex); (void)
@@ -703,7 +758,7 @@ interface IFbPlaylistManager {
 		/*
 		Returns a VBArray so you need to use .toArray() on the result.
 		Each item of the array is an instance of IFbPlaybackQueueItem.
-		
+
 		Example:
 		var contents = plman.GetPlaybackQueueContents().toArray();
 		if (contents.length) {
@@ -1545,10 +1600,7 @@ interface IFbMetadbHandleList {
 
 		Insert(index, handle); (void)
 		/*
-		Example1:
-		handle_list.Insert(0, fb.GetNowPlaying());
-		0 inserts at the start of the handle list.
-		Example2:
+		Example:
 		handle_list.Insert(handle_list.Count, fb.GetNowPlaying());
 		This inserts at the end of the handle list.
 		*/
@@ -1557,7 +1609,8 @@ interface IFbMetadbHandleList {
 
 		MakeDifference(handle_list); (void)
 		/*
-		Must be sorted
+		Must be sorted.
+
 		Example:
 		var one = plman.GetPlaylistItems(0);
 		one.Sort();
@@ -1571,7 +1624,8 @@ interface IFbMetadbHandleList {
 
 		MakeIntersection(handle_list); (void)
 		/*
-		Must be sorted
+		Must be sorted.
+
 		Example:
 		var one = plman.GetPlaylistItems(0);
 		one.Sort();
@@ -1585,7 +1639,8 @@ interface IFbMetadbHandleList {
 
 		MakeUnion(handle_list); (void)
 		/*
-		Must be sorted
+		Must be sorted.
+
 		Example:
 		var one = plman.GetPlaylistItems(0);
 		one.Sort();
@@ -1601,6 +1656,7 @@ interface IFbMetadbHandleList {
 		/*
 		tfo: an instance of IFbTitleFormat.
 		direction: integer, ascending while > 0.
+
 		Example:
 		var handle_list = fb.GetLibraryItems();
 		var tfo = fb.TitleFormat("%album artist%|%date%|%album%|%discnumber%|%tracknumber%");
@@ -1636,19 +1692,4 @@ interface IFbMetadbHandleList {
 
 		UpdateFileInfoFromJSON(str); (void)
 		// See https://github.com/marc2k3/foo_jscript_panel/wiki/Breaking-Changes#v130
-}
-
-interface IDropTargetAction {
-	// See samples\basic\Drag Drop Basic.txt
-
-	Properties:
-		Parsable; (boolean) (read, write)
-
-		Playlist; (read, write)
-		// default: -1, active playlist
-
-		ToSelect; (boolean) (read, write)
-
-	Methods:
-		ToPlaylist(); (void)
 }

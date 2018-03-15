@@ -288,7 +288,7 @@ LRESULT js_panel_window::on_message(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 		return 0;
 
 	case CALLBACK_UWM_ON_PLAYBACK_ORDER_CHANGED:
-		on_playback_order_changed((t_size)wp);
+		on_playback_order_changed(wp);
 		return 0;
 
 	case CALLBACK_UWM_ON_PLAYBACK_PAUSE:
@@ -343,6 +343,10 @@ LRESULT js_panel_window::on_message(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 		on_playlist_switch();
 		return 0;
 
+	case CALLBACK_UWM_ON_REPLAYGAIN_MODE_CHANGED:
+		on_replaygain_mode_changed(wp);
+		return 0;
+
 	case CALLBACK_UWM_ON_SELECTION_CHANGED:
 		on_selection_changed();
 		return 0;
@@ -361,14 +365,6 @@ LRESULT js_panel_window::on_message(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 
 	case UWM_RELOAD:
 		update_script();
-		return 0;
-
-	case UWM_SCRIPT_DISABLED_BEFORE:
-		{
-			pfc::string_formatter formatter;
-			formatter << "Panel (" << ScriptInfo().build_info_string() << "): Refuse to load script due to critical error last run, please check your script and apply it again.",
-			popup_msg::g_show(formatter, JSP_NAME);
-		}
 		return 0;
 
 	case UWM_SCRIPT_ERROR:
@@ -470,61 +466,38 @@ void js_panel_window::execute_context_menu_command(int id, int id_base)
 bool js_panel_window::script_load()
 {
 	pfc::hires_timer timer;
-	bool result = true;
 	timer.start();
 
-	// Set window edge
-	{
-		DWORD extstyle = GetWindowLongPtr(m_hwnd, GWL_EXSTYLE);
-
-		// Exclude all edge style
-		extstyle &= ~WS_EX_CLIENTEDGE & ~WS_EX_STATICEDGE;
-		extstyle |= edge_style_from_config(get_edge_style());
-		SetWindowLongPtr(m_hwnd, GWL_EXSTYLE, extstyle);
-		SetWindowPos(m_hwnd, NULL, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
-	}
-
-	// Set something to default
+	DWORD extstyle = GetWindowLongPtr(m_hwnd, GWL_EXSTYLE);
+	extstyle &= ~WS_EX_CLIENTEDGE & ~WS_EX_STATICEDGE;
+	extstyle |= edge_style_from_config(get_edge_style());
+	SetWindowLongPtr(m_hwnd, GWL_EXSTYLE, extstyle);
+	SetWindowPos(m_hwnd, NULL, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
+	
 	m_max_size.x = INT_MAX;
 	m_max_size.y = INT_MAX;
 	m_min_size.x = 0;
 	m_min_size.x = 0;
 	PostMessage(m_hwnd, UWM_SIZELIMITECHANGED, 0, uie::size_limit_all);
 
-	if (get_disabled_before())
+	HRESULT hr = m_script_host->Initialize();
+	if (FAILED(hr))
 	{
-		PostMessage(m_hwnd, UWM_SCRIPT_DISABLED_BEFORE, 0, 0);
 		return false;
 	}
 
-	HRESULT hr = m_script_host->Initialize();
-
-	if (FAILED(hr))
+	if (ScriptInfo().feature_mask & t_script_info::kFeatureDragDrop)
 	{
-		result = false;
-	}
-	else
-	{
-		if (ScriptInfo().feature_mask & t_script_info::kFeatureDragDrop)
-		{
-			// Ole Drag and Drop support
-			m_drop_target.Attach(new com_object_impl_t<HostDropTarget>(this));
-			m_drop_target->RegisterDragDrop();
-			m_is_droptarget_registered = true;
-		}
-
-		// HACK: Script update will not call on_size, so invoke it explicitly
-		SendMessage(m_hwnd, UWM_SIZE, 0, 0);
-
-		// Show init message
-		FB2K_console_formatter() << JSP_NAME " v" JSP_VERSION " ("
-			<< ScriptInfo().build_info_string()
-			<< "): initialised in "
-			<< (int)(timer.query() * 1000)
-			<< " ms";
+		m_drop_target.Attach(new com_object_impl_t<HostDropTarget>(this));
+		m_drop_target->RegisterDragDrop();
+		m_is_droptarget_registered = true;
 	}
 
-	return result;
+	// HACK: Script update will not call on_size, so invoke it explicitly
+	SendMessage(m_hwnd, UWM_SIZE, 0, 0);
+
+	FB2K_console_formatter() << JSP_NAME " v" JSP_VERSION " (" << ScriptInfo().build_info_string() << "): initialised in " << (int)(timer.query() * 1000) << " ms";
+	return true;
 }
 
 ui_helpers::container_window::class_data& js_panel_window::get_class_data() const
@@ -549,7 +522,9 @@ ui_helpers::container_window::class_data& js_panel_window::get_class_data() cons
 void js_panel_window::create_context()
 {
 	if (m_gr_bmp || m_gr_bmp_bk)
+	{
 		delete_context();
+	}
 
 	m_gr_bmp = CreateCompatibleBitmap(m_hdc, m_width, m_height);
 
@@ -1066,11 +1041,11 @@ void js_panel_window::on_playback_new_track(WPARAM wp)
 		handle->Release();
 }
 
-void js_panel_window::on_playback_order_changed(t_size p_new_index)
+void js_panel_window::on_playback_order_changed(WPARAM wp)
 {
 	VARIANTARG args[1];
 	args[0].vt = VT_I4;
-	args[0].lVal = p_new_index;
+	args[0].lVal = wp;
 	script_invoke_v(CallbackIds::on_playback_order_changed, args, _countof(args));
 }
 
@@ -1185,6 +1160,14 @@ void js_panel_window::on_playlist_switch()
 void js_panel_window::on_playlists_changed()
 {
 	script_invoke_v(CallbackIds::on_playlists_changed);
+}
+
+void js_panel_window::on_replaygain_mode_changed(WPARAM wp)
+{
+	VARIANTARG args[1];
+	args[0].vt = VT_I4;
+	args[0].lVal = wp;
+	script_invoke_v(CallbackIds::on_replaygain_mode_changed, args, _countof(args));
 }
 
 void js_panel_window::on_selection_changed()

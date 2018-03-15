@@ -4,12 +4,13 @@
 
 namespace
 {
-	initquit_factory_t<nonautoregister_callbacks> g_nonautoregister_callbacks;
+	initquit_factory_t<my_initquit> g_my_initquit;
 	library_callback_factory_t<my_library_callback> g_my_library_callback;
 	play_callback_static_factory_t<my_play_callback_static> g_my_play_callback_static;
 	play_callback_static_factory_t<my_playback_queue_callback> g_my_playback_queue_callback;
 	playback_statistics_collector_factory_t<my_playback_statistics_collector> g_my_playback_statistics_collector;
 	service_factory_single_t<my_config_object_notify> g_my_config_object_notify;
+	service_factory_single_t<my_metadb_io_callback> g_my_metadb_io_callback;
 	service_factory_single_t<my_playlist_callback_static> g_my_playlist_callback_static;
 }
 
@@ -98,15 +99,14 @@ void panel_manager::send_msg_to_others_pointer(HWND p_wnd_except, UINT p_msg, pf
 	});
 }
 
-void nonautoregister_callbacks::on_changed_sorted(metadb_handle_list_cref p_items_sorted, bool p_fromhook)
-{
-	t_on_data* on_changed_sorted_data = new t_on_data(p_items_sorted, p_fromhook);
-	panel_manager::instance().post_msg_to_all_pointer(CALLBACK_UWM_ON_CHANGED_SORTED, on_changed_sorted_data);
-}
-
-void nonautoregister_callbacks::on_selection_changed(metadb_handle_list_cref p_selection)
+void my_initquit::on_selection_changed(metadb_handle_list_cref p_selection)
 {
 	panel_manager::instance().post_msg_to_all(CALLBACK_UWM_ON_SELECTION_CHANGED);
+}
+
+void my_initquit::on_changed(t_replaygain_config const& cfg)
+{
+	panel_manager::instance().post_msg_to_all(CALLBACK_UWM_ON_REPLAYGAIN_MODE_CHANGED, (WPARAM)cfg.m_source_mode);
 }
 
 void my_library_callback::on_items_added(metadb_handle_list_cref p_data)
@@ -125,6 +125,12 @@ void my_library_callback::on_items_removed(metadb_handle_list_cref p_data)
 {
 	t_on_data* on_items_removed_data = new t_on_data(p_data, false);
 	panel_manager::instance().post_msg_to_all_pointer(CALLBACK_UWM_ON_LIBRARY_ITEMS_REMOVED, on_items_removed_data);
+}
+
+void my_metadb_io_callback::on_changed_sorted(metadb_handle_list_cref p_items_sorted, bool p_fromhook)
+{
+	t_on_data* on_changed_sorted_data = new t_on_data(p_items_sorted, p_fromhook);
+	panel_manager::instance().post_msg_to_all_pointer(CALLBACK_UWM_ON_CHANGED_SORTED, on_changed_sorted_data);
 }
 
 unsigned my_play_callback_static::get_flags()

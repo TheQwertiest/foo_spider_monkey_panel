@@ -221,6 +221,9 @@
     <ClInclude Include="component_defines.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="drop_source_impl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="default.js">

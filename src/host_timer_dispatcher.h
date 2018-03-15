@@ -7,11 +7,11 @@
 class HostTimer;
 class HostTimerTask;
 
-/* 
+/*
 @brief Handles JS requests for setInterval, setTimeout, clearInterval, clearTimeout.
 @details
 Everything happens inside of the main thread except for:
-- Timer procs: timer proc is called from a worker thread, but JS callback 
+- Timer procs: timer proc is called from a worker thread, but JS callback
   handling is given back to main thread through window messaging.
 - Timer destruction: a separate 'killer' thread handles this.
 
@@ -67,32 +67,26 @@ private: //thread
 
 private:
 	typedef std::map<unsigned, std::unique_ptr<HostTimer>> TimerMap;
-	typedef std::map<unsigned, std::unique_ptr<HostTimerTask>> TaskMap;	
-
-	std::mutex m_timerMutex;
+	typedef std::map<unsigned, std::unique_ptr<HostTimerTask>> TaskMap;
 
 	HANDLE m_hTimerQueue;
-	
-	TimerMap m_timerMap;
+	std::mutex m_timerMutex;
 	TaskMap m_taskMap;
-
+	TimerMap m_timerMap;
 	unsigned m_curTimerId;
 
 private: // thread
 	typedef struct
 	{
 		ThreadTaskId taskId;
-
 		HWND hWnd;
 		unsigned timerId;
 		HANDLE hTimer;
 	} ThreadTask;
 
 	std::thread* m_thread;
-
 	std::mutex m_threadTaskMutex;
 	std::list<ThreadTask> m_threadTaskList;
-
 	std::condition_variable m_cv;
 };
 
@@ -103,7 +97,7 @@ class HostTimerTask
 public:
 	/// @brief ctor
 	/// @details Adds reference to pDisp
-	HostTimerTask(IDispatch * pDisp, unsigned timerId);
+	HostTimerTask(IDispatch* pDisp, unsigned timerId);
 
 	/// @brief dtor
 	/// @details Removes reference from pDisp
@@ -122,7 +116,7 @@ public:
 	void invoke();
 
 private:
-	IDispatch * m_pDisp;
+	IDispatch* m_pDisp;
 
 	unsigned m_timerId;
 	unsigned m_refCount;
@@ -150,7 +144,7 @@ public:
 private:
 	HWND m_hWnd;
 
-	IDispatch * m_pDisp;
+	IDispatch* m_pDisp;
 	HANDLE m_hTimer;
 
 	unsigned m_id;

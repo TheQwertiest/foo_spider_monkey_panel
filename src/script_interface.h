@@ -359,17 +359,21 @@ __interface IFbUtils : IDispatch
 	STDMETHOD(AcquireUiSelectionHolder)([out, retval] IFbUiSelectionHolder** outHolder);
 	STDMETHOD(AddDirectory)();
 	STDMETHOD(AddFiles)();
+	STDMETHOD(CheckClipboardContents)(UINT window_id, [out, retval] VARIANT_BOOL* outSuccess);
 	STDMETHOD(ClearPlaylist)();
+	STDMETHOD(CopyHandleListToClipboard)(IFbMetadbHandleList* handles, [out, retval] VARIANT_BOOL* outSuccess);
 	STDMETHOD(CreateContextMenuManager)([out, retval] IContextMenuManager** pp);
 	STDMETHOD(CreateHandleList)([out, retval] IFbMetadbHandleList** pp);
 	STDMETHOD(CreateMainMenuManager)([out, retval] IMainMenuManager** pp);
 	STDMETHOD(CreateProfiler)([defaultvalue("")] BSTR name, [out, retval] IFbProfiler** pp);
+	STDMETHOD(DoDragDrop)(IFbMetadbHandleList* handles, UINT okEffects, [out, retval] UINT* p);
 	STDMETHOD(Exit)();
+	STDMETHOD(GetClipboardContents)(UINT window_id, [out, retval] IFbMetadbHandleList** pp);
 	STDMETHOD(GetFocusItem)([defaultvalue(-1)] VARIANT_BOOL force, [out, retval] IFbMetadbHandle** pp);
 	STDMETHOD(GetLibraryItems)([out, retval] IFbMetadbHandleList** outItems);
 	STDMETHOD(GetLibraryRelativePath)(IFbMetadbHandle* handle, [out, retval] BSTR* p);
 	STDMETHOD(GetNowPlaying)([out, retval] IFbMetadbHandle** pp);
-	STDMETHOD(GetQueryItems)(IFbMetadbHandleList* items, BSTR query, [out, retval] IFbMetadbHandleList** pp);
+	STDMETHOD(GetQueryItems)(IFbMetadbHandleList* handles, BSTR query, [out, retval] IFbMetadbHandleList** pp);
 	STDMETHOD(GetSelection)([out, retval] IFbMetadbHandle** pp);
 	STDMETHOD(GetSelectionType)([out, retval] UINT* p);
 	STDMETHOD(GetSelections)([defaultvalue(0)] UINT flags, [out, retval] IFbMetadbHandleList** pp);
@@ -443,11 +447,9 @@ __interface IThemeManager : IDisposable
 ]
 __interface IDropSourceAction : IDisposable
 {
-	STDMETHOD(ToPlaylist)();
-	[propget] STDMETHOD(Parsable)([out, retval] VARIANT_BOOL* parsable);
-	[propget] STDMETHOD(Playlist)([out, retval] int* id);
-	[propget] STDMETHOD(ToSelect)([out, retval] VARIANT_BOOL* to_select);
-	[propput] STDMETHOD(Parsable)(VARIANT_BOOL parsable);
+	[propget] STDMETHOD(Effect)([out, retval] UINT* effect);
+	[propput] STDMETHOD(Base)(UINT base);
+	[propput] STDMETHOD(Effect)(UINT effect);
 	[propput] STDMETHOD(Playlist)(int id);
 	[propput] STDMETHOD(ToSelect)(VARIANT_BOOL to_select);
 };

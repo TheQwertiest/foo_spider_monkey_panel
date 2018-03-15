@@ -2546,43 +2546,28 @@ oList = function (object_name, playlist) {
 	};
 
 	this.contextMenu = function (x, y, id, row_id) {
+		var items = plman.GetPlaylistSelectedItems(this.playlist);
+		var flag = plman.IsPlaylistLocked(this.playlist) ? MF_GRAYED : MF_STRING;
+		
 		var _menu = window.CreatePopupMenu();
-		var Context = fb.CreateContextMenuManager();
-		var _child01 = window.CreatePopupMenu();
-		var _child02 = window.CreatePopupMenu();
-		var _child03 = window.CreatePopupMenu();
-
-		this.metadblist_selection = plman.GetPlaylistSelectedItems(this.playlist);
-		Context.InitContext(this.metadblist_selection);
-
-		_menu.AppendMenuItem(MF_STRING, 1, "Panel Settings...");
+		var _context = fb.CreateContextMenuManager();
+		
+		_context.InitContext(items);
+		_menu.AppendMenuItem(MF_STRING, 1000, "Panel Settings...");
 		_menu.AppendMenuSeparator();
-		Context.BuildMenu(_menu, 3);
-
-		_child01.AppendTo(_menu, MF_STRING, "Selection...");
-		_child01.AppendMenuItem(plman.IsAutoPlaylist(this.playlist) ? MF_DISABLED | MF_GRAYED : MF_STRING, 1010, "Crop");
-		_child01.AppendMenuItem(plman.IsAutoPlaylist(this.playlist) ? MF_DISABLED | MF_GRAYED : MF_STRING, 1011, "Remove");
-		_child02.AppendTo(_child01, MF_STRING, "Add to...");
-		_child03.AppendTo(_child01, MF_STRING, "Send to...");
-		_child03.AppendMenuItem(MF_STRING, 4000, "a New playlist...");
-
-		var pl_count = plman.PlaylistCount;
-
-		if (plman.PlaylistCount > 1) {
-			_child03.AppendMenuItem(MF_SEPARATOR, 0, "");
-		};
-		for (var i = 0; i < pl_count; i++) {
-			if (i != this.playlist && !plman.IsAutoPlaylist(i)) {
-				_child02.AppendMenuItem(MF_STRING, 2001 + i, plman.GetPlaylistName(i));
-				_child03.AppendMenuItem(MF_STRING, 4001 + i, plman.GetPlaylistName(i));
-			};
-		};
-
-		var ret = _menu.TrackPopupMenu(x, y);
-		switch (true) {
-		case ret == 0:
+		_menu.AppendMenuItem(flag, 1001, "Crop");
+		_menu.AppendMenuItem(flag, 1002, "Remove");
+		_menu.AppendMenuSeparator();
+		_menu.AppendMenuItem(flag, 1003, "Cut");
+		_menu.AppendMenuItem(MF_STRING, 1004, "Copy");
+		_menu.AppendMenuItem(!plman.IsPlaylistLocked(this.playlist) && fb.CheckClipboardContents(window.ID) ? MF_STRING : MF_GRAYED, 1005, "Paste");
+		_menu.AppendMenuSeparator();
+		_context.BuildMenu(_menu, 1);
+		var idx = _menu.TrackPopupMenu(x, y);
+		switch (idx) {
+		case 0:
 			break;
-		case ret == 1:
+		case 1000:
 			for (var i = 0; i < p.settings.pages.length; i++) {
 				p.settings.pages[i].reSet();
 			};
@@ -2590,41 +2575,38 @@ oList = function (object_name, playlist) {
 			cSettings.visible = true;
 			full_repaint();
 			break;
-		case ret < 800:
-			Context.ExecuteByID(ret - 3);
-			break;
-		case ret == 1010:
+		case 1001:
 			plman.UndoBackup(this.playlist);
 			plman.RemovePlaylistSelection(this.playlist, true);
 			break;
-		case ret == 1011:
+		case 1002:
 			plman.UndoBackup(this.playlist);
-			plman.RemovePlaylistSelection(this.playlist, false);
+			plman.RemovePlaylistSelection(this.playlist);
 			break;
-		case ret == 4000:
-			fb.RunMainMenuCommand("File/New playlist");
-			plman.InsertPlaylistItems(plman.PlaylistCount - 1, 0, this.metadblist_selection, false);
+		case 1003:
+			fb.CopyHandleListToClipboard(items);
+			plman.UndoBackup(this.playlist);
+			plman.RemovePlaylistSelection(this.playlist);
 			break;
-		case ret > 2000 && ret < 4000:
-			var insert_index = plman.PlaylistItemCount(ret - 2001);
-			plman.UndoBackup(ret - 2001);
-			plman.InsertPlaylistItems((ret - 2001), insert_index, this.metadblist_selection, false);
-			if (cPlaylistManager.visible)
-				full_repaint();
+		case 1004:
+			fb.CopyHandleListToClipboard(items);
 			break;
-		case ret > 4000 && ret < 6000:
-			plman.ActivePlaylist = ret - 4001;
-			plman.UndoBackup(plman.ActivePlaylist);
-			fb.ClearPlaylist();
-			plman.InsertPlaylistItems(plman.ActivePlaylist, 0, this.metadblist_selection, false);
-			plman.SetPlaylistSelectionSingle(plman.ActivePlaylist, 0, true);
-			plman.ExecutePlaylistDefaultAction(plman.ActivePlaylist, 0);
-			if (cPlaylistManager.visible)
-				full_repaint();
+		case 1005:
+			var base = plman.GetPlaylistFocusItemIndex(this.playlist);
+			if (base == -1) {
+				base = plman.PlaylistItemCount(this.playlist);
+			} else {
+				base++;
+			}
+			plman.UndoBackup(this.playlist);
+			plman.InsertPlaylistItems(this.playlist, base, fb.GetClipboardContents(window.ID));
 			break;
-		};
-		_child01.Dispose();
-		_child02.Dispose();
+		default:
+			_context.ExecuteByID(idx - 1);
+			break;
+		}
+		items.Dispose();
+		_context.Dispose();
 		_menu.Dispose();
 		return true;
 	};

@@ -20,7 +20,7 @@ will be expanded while parsing.
 
 FEATURE
 @feature "dragdrop"
-Enable drag drop callbacks.
+Enable drag drop callbacks. See https://github.com/marc2k3/foo_jscript_panel/wiki/Drag-and-Drop
 
 NAME
 @name "name"

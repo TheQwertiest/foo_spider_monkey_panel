@@ -223,11 +223,6 @@ WINDOWPLACEMENT& js_panel_vars::get_windowplacement()
 	return m_wndpl;
 }
 
-bool& js_panel_vars::get_disabled_before()
-{
-	return m_disabled_before;
-}
-
 bool& js_panel_vars::get_grab_focus()
 {
 	return m_grab_focus;
@@ -287,11 +282,11 @@ void js_panel_vars::load_config(stream_reader* reader, t_size size, abort_callba
 		try
 		{
 			reader->read_object_t(ver, abort);
-			reader->skip_object(sizeof(false), abort); // HACK: skip over old "delay load" preference
+			reader->skip_object(sizeof(false), abort); // HACK: skip over "delay load"
 			reader->read_object_t(m_config_guid, abort);
 			reader->read_object(&m_edge_style, sizeof(m_edge_style), abort);
 			m_config_prop.load(reader, abort);
-			reader->read_object_t(m_disabled_before, abort);
+			reader->skip_object(sizeof(false), abort); // HACK: skip over "disable before"
 			reader->read_object_t(m_grab_focus, abort);
 			reader->read_object(&m_wndpl, sizeof(m_wndpl), abort);
 			reader->read_string(m_script_engine_str, abort);
@@ -313,7 +308,6 @@ void js_panel_vars::reset_config()
 	m_pseudo_transparent = false;
 	m_wndpl.length = 0;
 	m_grab_focus = true;
-	m_disabled_before = false;
 	m_edge_style = NO_EDGE;
 	CoCreateGuid(&m_config_guid);
 }
@@ -326,11 +320,11 @@ void js_panel_vars::save_config(stream_writer* writer, abort_callback& abort) co
 	{
 		// Write version
 		writer->write_object_t(VERSION_CURRENT, abort);
-		writer->write_object_t(false, abort); // HACK: write this in place of old "delay load" preference
+		writer->write_object_t(false, abort); // HACK: write this in place of "delay load"
 		writer->write_object_t(m_config_guid, abort);
 		writer->write_object(&m_edge_style, sizeof(m_edge_style), abort);
 		m_config_prop.save(writer, abort);
-		writer->write_object_t(m_disabled_before, abort);
+		writer->write_object_t(false, abort); // HACK: write this in place of "disable before"
 		writer->write_object_t(m_grab_focus, abort);
 		writer->write_object(&m_wndpl, sizeof(m_wndpl), abort);
 		writer->write_string(m_script_engine_str, abort);

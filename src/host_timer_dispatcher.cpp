@@ -2,7 +2,7 @@
 #include "host_timer_dispatcher.h"
 #include "user_message.h"
 
-HostTimerDispatcher::HostTimerDispatcher() 
+HostTimerDispatcher::HostTimerDispatcher()
 {
 	m_curTimerId = 1;
 	m_hTimerQueue = CreateTimerQueue();
@@ -40,7 +40,7 @@ void HostTimerDispatcher::killTimer(unsigned timerId)
 		if (m_timerMap.end() != timerIter)
 		{
 			timerIter->second->stop();
-		}		
+		}
 	}
 
 	auto taskIter = m_taskMap.find(timerId);
@@ -196,14 +196,12 @@ void HostTimerDispatcher::threadMain()
 		{
 			DeleteTimerQueueTimer(m_hTimerQueue, threadTask.hTimer, INVALID_HANDLE_VALUE);
 			onTimerExpire(threadTask.timerId);
-			
 			break;
 		}
 		case shutdownTask:
 		{
 			DeleteTimerQueueEx(m_hTimerQueue, INVALID_HANDLE_VALUE);
 			m_hTimerQueue = NULL;
-
 			return;
 		}
 		default:
@@ -215,7 +213,7 @@ void HostTimerDispatcher::threadMain()
 	}
 }
 
-HostTimerTask::HostTimerTask(IDispatch * pDisp, unsigned timerId)
+HostTimerTask::HostTimerTask(IDispatch* pDisp, unsigned timerId)
 {
 	m_pDisp = pDisp;
 	m_timerId = timerId;

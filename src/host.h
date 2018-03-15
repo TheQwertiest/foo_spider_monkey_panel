@@ -171,5 +171,5 @@ public:
 	STDMETHODIMP put_MinWidth(UINT width);
 
 private:
-	HostComm * m_host;
+	HostComm* m_host;
 };

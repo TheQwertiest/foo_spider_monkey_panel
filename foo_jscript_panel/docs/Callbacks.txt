@@ -19,8 +19,7 @@ function on_drag_drop(action, x, y, mask) {}
 function on_drag_enter(action, x, y, mask) {}
 function on_drag_leave() {}
 function on_drag_over(action, x, y, mask) {}
-// For on_drag_* callbacks, @feature "dragdrop" must be set in the preprocessor section.
-// See preprocessors.txt for more details.
+// See https://github.com/marc2k3/foo_jscript_panel/wiki/Drag-and-Drop
 
 function on_focus(is_focused) {}
 // Called when the panel gets/loses focus.
@@ -195,6 +194,15 @@ function on_playlists_changed() {}
 Called when:
 -playlists are added/removed/reordered/renamed.
 -a playlist's lock status changes through the use of components such as foo_utils or foo_playlist_attributes.
+*/
+
+function on_replaygain_mode_changed(new_mode) {}
+/*
+new_mode:
+0 None
+1 Track
+2 Album
+3 Track/Album by Playback Order
 */
 
 function on_script_unload() {}

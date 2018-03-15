@@ -1,4 +1,4 @@
-// Use with GdiDrawText() 
+// Use with GdiDrawText()
 var DT_CENTER = 0x00000001;
 var DT_VCENTER = 0x00000004;
 var DT_WORDBREAK = 0x00000010;

@@ -60,6 +60,7 @@ struct CallbackIds
 		on_playlist_stop_after_current_changed,
 		on_playlist_switch,
 		on_playlists_changed,
+		on_replaygain_mode_changed,
 		on_script_unload,
 		on_selection_changed,
 		on_size,

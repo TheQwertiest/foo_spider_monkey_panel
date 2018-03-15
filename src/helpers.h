@@ -9,7 +9,7 @@ using json = nlohmann::json;
 namespace helpers
 {
 	struct custom_sort_data {
-		wchar_t * text;
+		wchar_t* text;
 		t_size index;
 	};
 
@@ -48,7 +48,7 @@ namespace helpers
 	void build_mainmenu_group_map(pfc::map_t<GUID, mainmenu_group::ptr>& p_group_guid_text_map);
 	void estimate_line_wrap(HDC hdc, const wchar_t* text, int len, int width, pfc::list_t<wrapped_item>& out);
 	void estimate_line_wrap_recur(HDC hdc, const wchar_t* text, int len, int width, pfc::list_t<wrapped_item>& out);
-	wchar_t * make_sort_string(const char * in);
+	wchar_t* make_sort_string(const char* in);
 
 	template <class T>
 	bool ensure_gdiplus_object(T* obj)
@@ -57,7 +57,7 @@ namespace helpers
 	}
 
 	template<int direction>
-	static int custom_sort_compare(const custom_sort_data & elem1, const custom_sort_data & elem2) {
+	static int custom_sort_compare(const custom_sort_data& elem1, const custom_sort_data& elem2) {
 		int ret = direction * StrCmpLogicalW(elem1.text, elem2.text);
 		if (ret == 0) ret = pfc::sgn_t((t_ssize)elem1.index - (t_ssize)elem2.index);
 		return ret;
@@ -169,26 +169,24 @@ namespace helpers
 	class js_process_locations : public process_locations_notify
 	{
 	public:
-		js_process_locations(int playlist_idx, bool to_select) : m_playlist_idx(playlist_idx), m_to_select(to_select)
+		js_process_locations(int playlist_idx, UINT base, bool to_select) : m_playlist_idx(playlist_idx), m_base(base), m_to_select(to_select)
 		{
 		}
 
 		void on_completion(metadb_handle_list_cref p_items)
 		{
-			pfc::bit_array_true selection_them;
-			pfc::bit_array_false selection_none;
-			pfc::bit_array* select_ptr = &selection_none;
+			pfc::bit_array_val selection(m_to_select);
 			auto api = playlist_manager::get();
 			t_size playlist = m_playlist_idx == -1 ? api->get_active_playlist() : m_playlist_idx;
 
-			if (m_to_select)
+			if (playlist < api->get_playlist_count() && !api->playlist_lock_is_present(playlist))
 			{
-				select_ptr = &selection_them;
-			}
-
-			if (playlist != pfc_infinite && playlist < api->get_playlist_count())
-			{
-				api->playlist_add_items(playlist, p_items, *select_ptr);
+				api->playlist_insert_items(playlist, m_base, p_items, selection);
+				if (m_to_select)
+				{
+					api->set_active_playlist(playlist);
+					api->playlist_set_focus_item(playlist, m_base);
+				}
 			}
 		}
 
@@ -199,6 +197,7 @@ namespace helpers
 	private:
 		bool m_to_select;
 		int m_playlist_idx;
+		UINT m_base;
 	};
 
 	class com_array_reader

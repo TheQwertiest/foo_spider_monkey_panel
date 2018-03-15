@@ -1,3 +1,26 @@
+v2.1.0
+- CHG: Requires foobar2000 v1.4 Beta 8 or later.
+- CHG: The drag/drop functionality has been completely rewritten by TheQwertiest.
+       This will break all existing scripts which allow dragging in files from external
+       sources. The ability to drag handle lists from JScript Panel to other panels
+       has been added. The included playlist samples have been updated so they're
+       compatible but they do not make use of the new functionality.
+- NEW: A new on_replaygain_mode_changed callback has been added. See docs\callbacks.txt.
+- CHG: The behaviour of plman.AddLocations with the "select" argument set to "true" has 
+       been slightly modified. See docs\interfaces.txt.
+
+https://github.com/marc2k3/foo_jscript_panel/wiki/Drag-and-Drop
+https://github.com/marc2k3/foo_jscript_panel/wiki/Breaking-Changes
+
+v2.0.6
+- NEW: Add fb.CopyHandleListToClipboard method. Contents can then be pasted in other components
+       or as files in Windows Explorer. See docs\interfaces.txt.
+- NEW: Add fb.CheckClipboardContents / fb.GetClipboardContents. Contents can be handles
+       copied to the clipboard in other components or a file selection from Windows
+       Explorer. See docs\interfaces.txt.
+- CHG: jsplaylist-mod has been updated for full clipboard functionality with updated
+       context menu items and keyboard shortcut support (CTRL+C, CTRL+X and CTRL+V).
+
 v2.0.5
 - NEW: Add IFbTitleFormat EvalWithMetadbs method that takes a handle list as an argument.
        Returns a VBArray. See docs\interfaces.txt.

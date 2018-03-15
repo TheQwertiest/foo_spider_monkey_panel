@@ -3,6 +3,7 @@
 #include "stackblur.h"
 #include "popup_msg.h"
 #include "stats.h"
+#include "drop_source_impl.h"
 #include <map>
 #include <vector>
 #include <algorithm>
@@ -68,47 +69,51 @@ void DropSourceAction::FinalRelease()
 {
 }
 
-STDMETHODIMP DropSourceAction::ToPlaylist()
+void DropSourceAction::Reset()
 {
-	m_action_mode = kActionModePlaylist;
+	m_playlist_idx = -1;
+	m_base = 0;
+	m_to_select = true;
+	m_effect = DROPEFFECT_NONE;
+}
+
+UINT& DropSourceAction::Base()
+{
+	return m_base;
+}
+
+int& DropSourceAction::Playlist()
+{
+	return m_playlist_idx;
+}
+
+bool& DropSourceAction::ToSelect()
+{
+	return m_to_select;
+}
+
+DWORD& DropSourceAction::Effect()
+{
+	return m_effect;
+}
+
+STDMETHODIMP DropSourceAction::get_Effect(UINT* effect)
+{
+	if (!effect) return E_POINTER;
+
+	*effect = m_effect;
 	return S_OK;
 }
 
-STDMETHODIMP DropSourceAction::get_Mode(int* mode)
+STDMETHODIMP DropSourceAction::put_Base(UINT base)
 {
-	if (!mode) return E_POINTER;
-
-	*mode = m_action_mode;
+	m_base = base;
 	return S_OK;
 }
 
-STDMETHODIMP DropSourceAction::get_Parsable(VARIANT_BOOL* parsable)
-{
-	if (!parsable) return E_POINTER;
-
-	*parsable = TO_VARIANT_BOOL(m_parsable);
-	return S_OK;
-}
-
-STDMETHODIMP DropSourceAction::get_Playlist(int* id)
-{
-	if (!id) return E_POINTER;
-
-	*id = m_playlist_idx;
-	return S_OK;
-}
-
-STDMETHODIMP DropSourceAction::get_ToSelect(VARIANT_BOOL* select)
-{
-	if (!select) return E_POINTER;
-
-	*select = TO_VARIANT_BOOL(m_to_select);
-	return S_OK;
-}
-
-STDMETHODIMP DropSourceAction::put_Parsable(VARIANT_BOOL parsable)
-{
-	m_parsable = parsable != VARIANT_FALSE;
+STDMETHODIMP DropSourceAction::put_Effect(UINT effect)
+{     
+	m_effect = effect;
 	return S_OK;
 }
 
@@ -729,7 +734,7 @@ STDMETHODIMP FbMetadbHandleList::UpdateFileInfoFromJSON(BSTR str)
 
 	pfc::list_t<file_info_impl> info;
 	info.set_size(count);
-	
+
 	for (t_size i = 0; i < count; i++)
 	{
 		json obj = is_array ? o[i] : o;
@@ -918,12 +923,14 @@ STDMETHODIMP FbPlaylistManager::AddItemToPlaybackQueue(IFbMetadbHandle* handle)
 
 STDMETHODIMP FbPlaylistManager::AddLocations(UINT playlistIndex, VARIANT locations, VARIANT_BOOL select)
 {
+	t_size base = playlist_manager::get()->playlist_get_item_count(playlistIndex);
+
 	helpers::com_array_reader helper;
 	if (!helper.convert(&locations)) return E_INVALIDARG;
 
 	pfc::string_list_impl locations2;
 
-	for (long i = 0; i < static_cast<long>(helper.get_count()); ++i)
+	for (int i = 0; i < helper.get_count(); ++i)
 	{
 		_variant_t varUrl;
 
@@ -940,7 +947,7 @@ STDMETHODIMP FbPlaylistManager::AddLocations(UINT playlistIndex, VARIANT locatio
 		NULL,
 		NULL,
 		NULL,
-		new service_impl_t<helpers::js_process_locations>(playlistIndex, select != VARIANT_FALSE));
+		new service_impl_t<helpers::js_process_locations>(playlistIndex, base, select != VARIANT_FALSE));
 
 	return S_OK;
 }
@@ -1016,7 +1023,7 @@ STDMETHODIMP FbPlaylistManager::DuplicatePlaylist(UINT from, BSTR name, UINT* ou
 	if (!outPlaylistIndex) return E_POINTER;
 
 	auto api = playlist_manager_v4::get();
-	
+
 	if (from < api->get_playlist_count())
 	{
 		metadb_handle_list contents;
@@ -1287,7 +1294,7 @@ STDMETHODIMP FbPlaylistManager::RemoveItemsFromPlaybackQueue(VARIANT affectedIte
 	{
 		api->queue_remove_mask(affected);
 	}
-	
+
 	return S_OK;
 }
 
@@ -1347,7 +1354,7 @@ STDMETHODIMP FbPlaylistManager::SetPlaylistSelection(UINT playlistIndex, VARIANT
 		pfc::bit_array_val status(state != VARIANT_FALSE);
 		api->playlist_set_selection(playlistIndex, affected, status);
 	}
-	
+
 	return S_OK;
 }
 
@@ -1362,7 +1369,7 @@ STDMETHODIMP FbPlaylistManager::ShowAutoPlaylistUI(UINT idx, VARIANT_BOOL* outSu
 	if (!outSuccess) return E_POINTER;
 
 	*outSuccess = VARIANT_FALSE;
-	
+
 	try
 	{
 		auto api = autoplaylist_manager::get();
@@ -1938,9 +1945,42 @@ STDMETHODIMP FbUtils::AddFiles()
 	return S_OK;
 }
 
+STDMETHODIMP FbUtils::CheckClipboardContents(UINT window_id, VARIANT_BOOL* outSuccess)
+{
+	if (!outSuccess) return E_POINTER;
+
+	*outSuccess = VARIANT_FALSE;
+	pfc::com_ptr_t<IDataObject> pDO;
+	HRESULT hr = OleGetClipboard(pDO.receive_ptr());
+	if (SUCCEEDED(hr))
+	{
+		bool native;
+		DWORD drop_effect = DROPEFFECT_COPY;
+		hr = ole_interaction::get()->check_dataobject(pDO, drop_effect, native);
+		*outSuccess = TO_VARIANT_BOOL(SUCCEEDED(hr));
+	}
+	return S_OK;
+}
+
 STDMETHODIMP FbUtils::ClearPlaylist()
 {
 	standard_commands::main_clear_playlist();
+	return S_OK;
+}
+
+STDMETHODIMP FbUtils::CopyHandleListToClipboard(IFbMetadbHandleList* handles, VARIANT_BOOL* outSuccess)
+{
+	if (!outSuccess) return E_POINTER;
+
+	*outSuccess = VARIANT_FALSE;
+	metadb_handle_list* handles_ptr = NULL;
+	handles->get__ptr((void**)&handles_ptr);
+
+	pfc::com_ptr_t<IDataObject> pDO = ole_interaction::get()->create_dataobject(*handles_ptr);
+	if (SUCCEEDED(OleSetClipboard(pDO.get_ptr())))
+	{
+		*outSuccess = VARIANT_TRUE;
+	}
 	return S_OK;
 }
 
@@ -1978,9 +2018,61 @@ STDMETHODIMP FbUtils::CreateProfiler(BSTR name, IFbProfiler** pp)
 	return S_OK;
 }
 
+STDMETHODIMP FbUtils::DoDragDrop(IFbMetadbHandleList* handles, UINT okEffects, UINT* p)
+{
+	if (!p) return E_POINTER;
+
+	metadb_handle_list* handles_ptr = NULL;
+	handles->get__ptr((void**)&handles_ptr);
+
+	if (!handles_ptr->get_count() || okEffects == DROPEFFECT_NONE)
+	{
+		*p = DROPEFFECT_NONE;
+		return S_OK;
+	}
+
+	pfc::com_ptr_t<IDataObject> pDO = ole_interaction::get()->create_dataobject(*handles_ptr);
+	pfc::com_ptr_t<IDropSourceImpl> pIDropSource = new IDropSourceImpl();
+
+	DWORD returnEffect;
+	HRESULT hr = SHDoDragDrop(NULL, pDO.get_ptr(), pIDropSource.get_ptr(), okEffects, &returnEffect);
+
+	*p = hr == DRAGDROP_S_CANCEL ? DROPEFFECT_NONE : returnEffect;
+	return S_OK;
+}
+
 STDMETHODIMP FbUtils::Exit()
 {
 	standard_commands::main_exit();
+	return S_OK;
+}
+
+STDMETHODIMP FbUtils::GetClipboardContents(UINT window_id, IFbMetadbHandleList** pp)
+{
+	if (!pp) return E_POINTER;
+
+	auto api = ole_interaction::get();
+	pfc::com_ptr_t<IDataObject> pDO;
+	metadb_handle_list items;
+
+	HRESULT hr = OleGetClipboard(pDO.receive_ptr());
+	if (SUCCEEDED(hr))
+	{
+		DWORD drop_effect = DROPEFFECT_COPY;
+		bool native;
+		hr = api->check_dataobject(pDO, drop_effect, native);
+		if (SUCCEEDED(hr))
+		{
+			dropped_files_data_impl data;
+			hr = api->parse_dataobject(pDO, data);
+			if (SUCCEEDED(hr))
+			{
+				data.to_handles(items, native, (HWND)window_id);
+			}
+		}
+	}
+
+	*pp = new com_object_impl_t<FbMetadbHandleList>(items);
 	return S_OK;
 }
 
@@ -2056,15 +2148,15 @@ STDMETHODIMP FbUtils::GetNowPlaying(IFbMetadbHandle** pp)
 	return S_OK;
 }
 
-STDMETHODIMP FbUtils::GetQueryItems(IFbMetadbHandleList* items, BSTR query, IFbMetadbHandleList** pp)
+STDMETHODIMP FbUtils::GetQueryItems(IFbMetadbHandleList* handles, BSTR query, IFbMetadbHandleList** pp)
 {
 	if (!pp) return E_POINTER;
 
-	metadb_handle_list *srclist_ptr, dst_list;
+	metadb_handle_list* handles_ptr, dst_list;
 	search_filter_v2::ptr filter;
 
-	items->get__ptr((void**)&srclist_ptr);
-	dst_list = *srclist_ptr;
+	handles->get__ptr((void**)&handles_ptr);
+	dst_list = *handles_ptr;
 	pfc::stringcvt::string_utf8_from_wide uquery(query);
 
 	try
@@ -3464,10 +3556,10 @@ STDMETHODIMP GdiUtils::Image(BSTR path, IGdiBitmap** pp)
 		}
 		else
 		{
-			if (img) delete img;	
+			if (img) delete img;
 		}
 	}
-	
+
 	return S_OK;
 }
 
@@ -3959,7 +4051,7 @@ STDMETHODIMP JSUtils::get_Version(UINT* v)
 {
 	if (!v) return E_POINTER;
 
-	*v = 2050;
+	*v = 2100;
 	return S_OK;
 }
 
