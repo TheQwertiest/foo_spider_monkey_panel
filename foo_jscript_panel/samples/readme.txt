@@ -19,7 +19,7 @@ The "basic" folder contains some very simple samples that are referred to from "
 
 The "complete" folder contains various samples which are feature complete and have right click options, etc.
 As of "v2", these scripts now require FontAwesome. Just the .ttf file needs to be installed.
-https://github.com/FortAwesome/Font-Awesome/blob/master/fonts/fontawesome-webfont.ttf?raw=true
+https://github.com/FortAwesome/Font-Awesome/blob/fa-4/fonts/fontawesome-webfont.ttf?raw=true
 
 The "jsplaylist-mod" folder contains an updated version of Br3tt's excellent JSPlaylist. It was originally
 written for WSH panel mod but due to changes in JScript Panel, this mod was created.
