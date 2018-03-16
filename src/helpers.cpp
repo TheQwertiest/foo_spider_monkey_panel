@@ -753,9 +753,9 @@ namespace helpers
 		try
 		{
 			file_ptr io;
-			abort_callback_dummy dummy;
-			filesystem::g_open_read(io, fileName, dummy);
-			io->read_string_raw(text, dummy);
+			abort_callback_dummy abort;
+			filesystem::g_open_read(io, fileName, abort);
+			io->read_string_raw(text, abort);
 			textSize = text.get_length();
 		}
 		catch (...)

@@ -1036,8 +1036,7 @@ STDMETHODIMP FbPlaylistManager::DuplicatePlaylist(UINT from, BSTR name, UINT* ou
 		}
 
 		stream_reader_dummy dummy_reader;
-		abort_callback_dummy dummy_callback;
-		*outPlaylistIndex = api->create_playlist_ex(uname.get_ptr(), uname.get_length(), from + 1, contents, &dummy_reader, dummy_callback);
+		*outPlaylistIndex = api->create_playlist_ex(uname.get_ptr(), uname.get_length(), from + 1, contents, &dummy_reader, abort_callback_dummy());
 		return S_OK;
 	}
 	else
@@ -3647,7 +3646,7 @@ STDMETHODIMP JSUtils::CheckComponent(BSTR name, VARIANT_BOOL is_dll, VARIANT_BOO
 
 	service_enum_t<componentversion> e;
 	componentversion::ptr ptr;
-	pfc::string8_fast uname = pfc::stringcvt::string_utf8_from_wide(name);
+	pfc::stringcvt::string_utf8_from_wide uname(name);
 	pfc::string8_fast temp;
 
 	*p = VARIANT_FALSE;
@@ -3655,11 +3654,15 @@ STDMETHODIMP JSUtils::CheckComponent(BSTR name, VARIANT_BOOL is_dll, VARIANT_BOO
 	while (e.next(ptr))
 	{
 		if (is_dll)
+		{
 			ptr->get_file_name(temp);
+		}
 		else
+		{
 			ptr->get_component_name(temp);
+		}
 
-		if (!_stricmp(temp, uname))
+		if (_stricmp(temp, uname) == 0)
 		{
 			*p = VARIANT_TRUE;
 			break;
