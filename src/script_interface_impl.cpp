@@ -1400,15 +1400,19 @@ STDMETHODIMP FbPlaylistManager::SortByFormatV2(UINT playlistIndex, BSTR pattern,
 {
 	if (!outSuccess) return E_POINTER;
 
-	pfc::stringcvt::string_utf8_from_wide upattern(pattern);
-	service_ptr_t<titleformat_object> script;
-	titleformat_compiler::get()->compile_safe(script, upattern);
 	auto api = playlist_manager::get();
 	metadb_handle_list handles;
 	api->playlist_get_all_items(playlistIndex, handles);
+
 	pfc::array_t<t_size> order;
 	order.set_count(handles.get_count());
+
+	titleformat_object::ptr script;
+	pfc::stringcvt::string_utf8_from_wide upattern(pattern);
+	titleformat_compiler::get()->compile_safe(script, upattern);
+
 	metadb_handle_list_helper::sort_by_format_get_order(handles, order.get_ptr(), script, NULL, direction);
+
 	*outSuccess = TO_VARIANT_BOOL(api->playlist_reorder_items(playlistIndex, order.get_ptr(), order.get_count()));
 	return S_OK;
 }
@@ -3642,7 +3646,7 @@ STDMETHODIMP JSUtils::CheckComponent(BSTR name, VARIANT_BOOL is_dll, VARIANT_BOO
 	if (!p) return E_POINTER;
 
 	service_enum_t<componentversion> e;
-	service_ptr_t<componentversion> ptr;
+	componentversion::ptr ptr;
 	pfc::string8_fast uname = pfc::stringcvt::string_utf8_from_wide(name);
 	pfc::string8_fast temp;
 

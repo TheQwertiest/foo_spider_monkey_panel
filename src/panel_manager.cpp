@@ -229,7 +229,7 @@ t_size my_config_object_notify::get_watched_object_count()
 	return 4;
 }
 
-void my_config_object_notify::on_watched_object_changed(const service_ptr_t<config_object>& p_object)
+void my_config_object_notify::on_watched_object_changed(const config_object::ptr& p_object)
 {
 	GUID guid = p_object->get_guid();
 	bool boolval = false;
