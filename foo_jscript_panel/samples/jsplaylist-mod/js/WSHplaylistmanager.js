@@ -604,9 +604,7 @@ oPlaylistManager = function (obj_name) {
 						var deb = (cPlaylistManager.mediaLibraryPlaylist ? 1 : 0);
 						for (var pl = deb; pl < this.playlists.length; pl++) {
 							if (this.playlists[pl].bt_remove.checkstate(event, x, y) == ButtonStates.hover) {
-								if (pl == plman.ActivePlaylist)
-									plman.ActivePlaylist = pl - 1;
-								plman.RemovePlaylist(pl);
+								plman.RemovePlaylistSwitch(pl);
 								if (this.offset > 0 && this.offset >= this.playlists.length - Math.floor((this.h - (cPlaylistManager.showStatusBar ? cPlaylistManager.statusBarHeight : 0)) / cPlaylistManager.rowHeight)) {
 									this.offset--;
 									this.refresh("", false, false, false);
@@ -846,13 +844,7 @@ oPlaylistManager = function (obj_name) {
 			break;
 		case (idx == 101):
 			var total = plman.PlaylistCount;
-			g_avoid_on_playlists_changed = true;
-			plman.CreatePlaylist(total, "");
-			var new_label = plman.GetPlaylistName(total);
-			plman.RemovePlaylist(total);
-			g_avoid_on_playlists_changed = false;
-
-			plman.CreateAutoPlaylist(total, new_label, "", "", 0);
+			plman.CreateAutoPlaylist(total, "", "", "", 0);
 			if (id == 0 && cPlaylistManager.mediaLibraryPlaylist) {
 				plman.MovePlaylist(total, id + 1);
 				plman.ActivePlaylist = id + 1;
@@ -903,8 +895,7 @@ oPlaylistManager = function (obj_name) {
 			plman.ActivePlaylist = id;
 			break;
 		case (idx == 8):
-			plman.ActivePlaylist = id - 1;
-			plman.RemovePlaylist(id);
+			plman.RemovePlaylistSwitch(id);
 			if (this.offset > 0 && this.offset >= this.playlists.length - Math.floor((this.h - (cPlaylistManager.showStatusBar ? cPlaylistManager.statusBarHeight : 0)) / cPlaylistManager.rowHeight)) {
 				this.offset--;
 				this.refresh("", false, false, false);

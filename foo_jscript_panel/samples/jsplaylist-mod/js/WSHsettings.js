@@ -19,7 +19,7 @@ function settings_checkboxes_action(id, status, parentId) {
 			window.SetProperty("SYSTEM.HeaderBar.Locked", status);
 			if (!cHeaderBar.locked) {
 				p.headerBar.visible = false;
-			};
+			}
 			resize_panels();
 			full_repaint();
 			break;
@@ -40,11 +40,12 @@ function settings_checkboxes_action(id, status, parentId) {
 			window.SetProperty("SYSTEM.Media Library Playlist", status);
 			if (status) {
 				checkMediaLibrayPlaylist();
+				plman.ActivePlaylist = 0;
 			} else {
 				if (plman.GetPlaylistName(0) == "Media Library") {
-					plman.RemovePlaylist(0);
-				};
-			};
+					plman.RemovePlaylistSwitch(0);
+				}
+			}
 			break;
 		case 5:
 			eval(p.settings.pages[parentId].elements[id].linkedVariable + " = " + status);
@@ -52,14 +53,11 @@ function settings_checkboxes_action(id, status, parentId) {
 			if (status) {
 				addToHistoricPlaylist(null);
 			} else {
-				var total = plman.PlaylistCount;
-				for (var i = 0; i < total; i++) {
-					if (plman.GetPlaylistName(i) == "Historic") {
-						plman.RemovePlaylist(i);
-						break;
-					};
-				};
-			};
+				var idx = plman.FindPlaylist("Historic");
+				if (idx > -1) {
+					plman.RemovePlaylistSwitch(idx);
+				}
+			}
 		case 6:
 			eval(p.settings.pages[parentId].elements[id].linkedVariable + " = " + status);
 			window.SetProperty("CUSTOM.Enable Statistics (write to file)", status);

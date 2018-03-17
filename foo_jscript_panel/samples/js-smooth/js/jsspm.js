@@ -1467,12 +1467,7 @@ oBrowser = function (name) {
 			break;
 		case (idx == 101):
 			var total = plman.PlaylistCount;
-			g_avoid_on_playlists_changed = true;
-			plman.CreatePlaylist(total, "");
-			var new_label = plman.GetPlaylistName(total);
-			plman.RemovePlaylist(total);
-			g_avoid_on_playlists_changed = false;
-			plman.CreateAutoPlaylist(total, new_label, "enter your query here", "", 0);
+			plman.CreateAutoPlaylist(total, "", "enter your query here", "", 0);
 			plman.MovePlaylist(total, pl_idx);
 			plman.ActivePlaylist = pl_idx;
 			plman.ShowAutoPlaylistUI(pl_idx);
@@ -1542,32 +1537,7 @@ oBrowser = function (name) {
 			plman.ActivePlaylist = pl_idx;
 			break;
 		case (idx == 8):
-			if (brw.rowsCount > 0) {
-				if (!this.delete_pending && !timers.deletePlaylist) {
-					this.delete_pending = true;
-					timers.deletePlaylist = window.SetTimeout(function () {
-							timers.deletePlaylist && window.ClearTimeout(timers.deletePlaylist);
-							timers.deletePlaylist = false;
-						}, 150);
-					//
-					var updateActivePlaylist = (this.selectedRow == plman.ActivePlaylist);
-					var id = this.selectedRow;
-					var row = this.getRowIdFromIdx(id);
-					plman.RemovePlaylist(id);
-					if (row < this.rowsCount - 1) {
-						this.selectedRow = id;
-					} else if (row > 0) {
-						this.selectedRow = id - 1;
-					};
-					if (updateActivePlaylist) {
-						if (row < this.rowsCount - 1) {
-							plman.ActivePlaylist = id;
-						} else if (row > 0) {
-							plman.ActivePlaylist = id - 1;
-						};
-					};
-				};
-			};
+			plman.RemovePlaylistSwitch(pl_idx);
 			break;
 		case (idx == 200):
 			var total = plman.PlaylistCount;
@@ -2488,35 +2458,7 @@ function on_key_down(vkey) {
 					};
 					break;
 				case VK_DELETE:
-					if (!brw.delete_pending && !timers.deletePlaylist) {
-						if (g_filterbox.inputbox && g_filterbox.inputbox.edit)
-							return;
-						if (brw.selectedRow > -1 && brw.selectedRow < brw.rowsCount && brw.rowsCount > 0) {
-							//
-							brw.delete_pending = true;
-							timers.deletePlaylist = window.SetTimeout(function () {
-									timers.deletePlaylist && window.ClearTimeout(timers.deletePlaylist);
-									timers.deletePlaylist = false;
-								}, 150);
-							//
-							var updateActivePlaylist = (brw.selectedRow == plman.ActivePlaylist);
-							var id = brw.selectedRow;
-							var row = brw.getRowIdFromIdx(id);
-							plman.RemovePlaylist(id);
-							if (row < brw.rowsCount - 1) {
-								brw.selectedRow = id;
-							} else if (row > 0) {
-								brw.selectedRow = id - 1;
-							};
-							if (updateActivePlaylist) {
-								if (row < brw.rowsCount - 1) {
-									plman.ActivePlaylist = id;
-								} else if (row > 0) {
-									plman.ActivePlaylist = id - 1;
-								};
-							};
-						};
-					};
+					plman.RemovePlaylistSwitch(brw.selectedRow);
 					break;
 				};
 			} else {

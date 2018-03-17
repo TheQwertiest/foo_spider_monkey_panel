@@ -404,33 +404,14 @@ function inputboxPlaylistManager_activate() {
 
 function addToHistoricPlaylist(handle) {
 
-	if (plman.GetPlaylistName(plman.PlayingPlaylist) == "Historic")
+	if (handle == null || plman.GetPlaylistName(plman.PlayingPlaylist) == "Historic")
 		return;
 
 	g_avoid_on_playlists_changed = true;
-
-	// check if historic playlist is present
-	var isHistoricPlaylistFound = false;
-	var total = plman.PlaylistCount;
-	for (var i = 0; i < total; i++) {
-		if (plman.GetPlaylistName(i) == "Historic") {
-			var historicIndex = i;
-			isHistoricPlaylistFound = true;
-			break;
-		};
-	};
-	if (!isHistoricPlaylistFound) {
-		// create Historic playlist
-		var historicIndex = total;
-		plman.CreatePlaylist(historicIndex, "Historic");
-	};
-
-	if (handle != null) {
-		var handles = plman.GetPlaylistSelectedItems(-1);
-		handles.Add(handle);
-		plman.InsertPlaylistItems(historicIndex, plman.PlaylistItemCount(historicIndex), handles, false);
-	};
-
+	var historicIndex = plman.FindOrCreatePlaylist("Historic", true);
+	var handles = fb.CreateHandleList();
+	handles.Add(handle);
+	plman.InsertPlaylistItems(historicIndex, plman.PlaylistItemCount(historicIndex), handles, false);
 	g_avoid_on_playlists_changed = false;
 
 	if (cPlaylistManager.visible)
@@ -439,13 +420,7 @@ function addToHistoricPlaylist(handle) {
 
 function checkMediaLibrayPlaylist() {
 	g_avoid_on_playlists_changed = true;
-	var idx = -1;
-	for (var i = 0; i < plman.PlaylistCount; i++) {
-		if (plman.GetPlaylistName(i) == "Media Library") {
-			idx = i;
-			break;
-		};
-	};
+	var idx = plman.FindPlaylist("Media Library");
 	if (idx == -1) {
 		plman.CreateAutoPlaylist(0, "Media Library", "ALL", "%album artist% | $if(%album%,%date%,'9999') | %album% | %discnumber% | %tracknumber% | %title%", 0);
 	} else if (idx > 0) {
