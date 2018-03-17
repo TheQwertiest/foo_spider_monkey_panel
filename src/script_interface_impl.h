@@ -237,6 +237,7 @@ public:
 	STDMETHODIMP RemoveItemsFromPlaybackQueue(VARIANT affectedItems);
 	STDMETHODIMP RemovePlaylist(UINT playlistIndex, VARIANT_BOOL* outSuccess);
 	STDMETHODIMP RemovePlaylistSelection(UINT playlistIndex, VARIANT_BOOL crop);
+	STDMETHODIMP RemovePlaylistSwitch(UINT playlistIndex, VARIANT_BOOL* outSuccess);
 	STDMETHODIMP RenamePlaylist(UINT playlistIndex, BSTR name, VARIANT_BOOL* outSuccess);
 	STDMETHODIMP SetActivePlaylistContext();
 	STDMETHODIMP SetPlaylistFocusItem(UINT playlistIndex, UINT itemIndex);

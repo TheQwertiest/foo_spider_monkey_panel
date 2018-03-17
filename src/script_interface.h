@@ -607,6 +607,7 @@ __interface IFbPlaylistManager : IDispatch
 	STDMETHOD(RemoveItemsFromPlaybackQueue)(VARIANT affectedItems);
 	STDMETHOD(RemovePlaylist)(UINT playlistIndex, [out, retval] VARIANT_BOOL* outSuccess);
 	STDMETHOD(RemovePlaylistSelection)(UINT playlistIndex, [defaultvalue(0)] VARIANT_BOOL crop);
+	STDMETHOD(RemovePlaylistSwitch)(UINT playlistIndex, [out, retval] VARIANT_BOOL* outSuccess);
 	STDMETHOD(RenamePlaylist)(UINT playlistIndex, BSTR name, [out, retval] VARIANT_BOOL* outSuccess);
 	STDMETHOD(SetActivePlaylistContext)();
 	STDMETHOD(SetPlaylistFocusItem)(UINT playlistIndex, UINT itemIndex);

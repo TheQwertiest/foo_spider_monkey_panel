@@ -1311,6 +1311,14 @@ STDMETHODIMP FbPlaylistManager::RemovePlaylistSelection(UINT playlistIndex, VARI
 	return S_OK;
 }
 
+STDMETHODIMP FbPlaylistManager::RemovePlaylistSwitch(UINT playlistIndex, VARIANT_BOOL* outSuccess)
+{
+	if (!outSuccess) return E_POINTER;
+
+	*outSuccess = TO_VARIANT_BOOL(playlist_manager::get()->remove_playlist_switch(playlistIndex));
+	return S_OK;
+}
+
 STDMETHODIMP FbPlaylistManager::RenamePlaylist(UINT playlistIndex, BSTR name, VARIANT_BOOL* outSuccess)
 {
 	if (!outSuccess) return E_POINTER;
