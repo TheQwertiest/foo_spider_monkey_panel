@@ -38,6 +38,7 @@ void panel_manager::post_msg_to_all(UINT p_msg)
 {
 	post_msg_to_all(p_msg, 0, 0);
 }
+
 void panel_manager::post_msg_to_all(UINT p_msg, WPARAM p_wp)
 {
 	post_msg_to_all(p_msg, p_wp, 0);
@@ -248,6 +249,7 @@ void my_config_object_notify::on_watched_object_changed(const config_object::ptr
 
 	panel_manager::instance().post_msg_to_all(msg, TO_VARIANT_BOOL(boolval));
 }
+
 unsigned my_playlist_callback_static::get_flags()
 {
 	return flag_on_item_focus_change | flag_on_items_added | flag_on_items_removed |

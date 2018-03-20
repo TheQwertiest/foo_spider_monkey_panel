@@ -1,3 +1,10 @@
+v2.1.1-pre
+- NEW: Add plman.RemovePlaylistSwitch method. Unlike plman.RemovePlaylist, this
+       automatically sets another playlist as active if removing the active playlist.
+       See docs\interfaces.txt.
+- FIX: Update "JS Smooth Playlist Manager" and "JSPlaylist" to make use of the above
+       method which should fix some previous buggy behaviour whem removing playlists.
+
 v2.1.0
 - CHG: Requires foobar2000 v1.4 Beta 8 or later.
 - CHG: The drag/drop functionality has been completely rewritten by TheQwertiest.
@@ -18,7 +25,7 @@ v2.0.6
 - NEW: Add fb.CheckClipboardContents / fb.GetClipboardContents. Contents can be handles
        copied to the clipboard in other components or a file selection from Windows
        Explorer. See docs\interfaces.txt.
-- CHG: jsplaylist-mod has been updated for full clipboard functionality with updated
+- CHG: "JSPlaylist" has been updated for full clipboard functionality with updated
        context menu items and keyboard shortcut support (CTRL+C, CTRL+X and CTRL+V).
 
 v2.0.5
@@ -50,13 +57,13 @@ https://github.com/marc2k3/foo_jscript_panel/wiki/Breaking-Changes
 
 v2.0.2
 - FIX: Fix random component crash caused by utils.WriteTextFile.
-- FIX: Fix JS-Smooth script image caching feature choking on some images.
+- FIX: Fix "JS-Smooth" script image caching feature choking on some images.
        The breakage was introduced by me in v2.0.1.2 as I attempted
        to update some old code. Thanks to always.beta for reporting.
 
 v2.0.1.2
 - FIX: As part of the v2 update, I accidentally broke the ability to drag
-       tracks within jsplaylist-mod. This has now been fixed.
+       tracks within "JSPlaylist". This has now been fixed.
 
 v2.0.1.1
 - CHG: Add usage notes to "Rating" and "Last.fm Lover" samples. "Rating" can
@@ -124,7 +131,7 @@ https://github.com/marc2k3/foo_jscript_panel/wiki/Playback-Stats
 
 v1.3.2.2
 - NEW: Component now reports version on script error.
-- FIX: JSplaylist/JS Smooth playlist have been unable to tag files since v1.3.0
+- FIX: "JSPlaylist"/"JS Smooth Playlist" have been unable to tag files since v1.3.0
        when foo_playcount was missing.
 
 v1.3.2.1
@@ -240,7 +247,7 @@ v1.2.0
        JScript if not.
 - NEW: utils.version reports the component version. See docs\interfaces.txt.
 - CHG: Minor tweaks to Configuration window.
-- FIX: Update jsplaylist-mod so it works with Chakra engine. Thanks to zeremy
+- FIX: Update "JSPlaylist" so it works with Chakra engine. Thanks to zeremy
        for reporting
 - FIX: A previous window.RepaintRect bug reported by Wilb has now been fixed.
 - FIX: Zap a few more compiler warnings.
@@ -283,8 +290,7 @@ v1.1.5
 - CHG: Existing samples moved in to new "basic" subfolder.
 - NEW: Add new "complete" samples folder containing some more feature complete
        samples.
-- NEW: Add "jsplaylist-mod". Since Br3tt's excellent JSplaylist doesn't work
-       with JScript Panel, this updated "mod" version has been created.
+- NEW: Add updated "JSPlaylist" for JScript Panel.
 
 v1.1.4.1
 - FIX: Prevent old tooltips lingering after script error.
