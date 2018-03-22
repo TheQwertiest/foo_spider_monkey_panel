@@ -32,7 +32,7 @@ The "jsplaylist-mod" folder contains an updated version of Br3tt's excellent JSP
 written for WSH panel mod but due to changes in JScript Panel, this mod was created.
 
 The "js-smooth" folder contains Br3tt's "JS Smooth Playlist", "JS Smooth Browser" and
-"JS Smooth Playlist Manager" scripts, all updated to be compatible with JScript Panel v2.1.1 and
+"JS Smooth Playlist Manager" scripts, all updated to be compatible with JScript Panel v2.1.0.1 and
 later.
 
 IMPORTANT:
