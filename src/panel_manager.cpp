@@ -252,10 +252,10 @@ void my_config_object_notify::on_watched_object_changed(const config_object::ptr
 
 unsigned my_playlist_callback_static::get_flags()
 {
-	return flag_on_item_focus_change | flag_on_items_added | flag_on_items_removed |
-		flag_on_items_reordered | flag_on_items_selection_change | flag_on_playback_order_changed |
-		flag_on_playlist_activate | flag_on_playlist_created | flag_on_playlist_locked |
-		flag_on_playlist_renamed | flag_on_playlists_removed | flag_on_playlists_reorder;
+	return flag_on_items_added | flag_on_items_reordered | flag_on_items_removed |
+		flag_on_items_selection_change | flag_on_item_focus_change | flag_on_item_ensure_visible |
+		flag_on_playlist_activate | flag_on_playlist_created | flag_on_playlists_reorder |
+		flag_on_playlists_removed | flag_on_playlist_renamed | flag_on_playback_order_changed | flag_on_playlist_locked;
 }
 
 void my_playlist_callback_static::on_item_ensure_visible(t_size p_playlist, t_size p_idx)

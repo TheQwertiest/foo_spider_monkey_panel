@@ -112,7 +112,7 @@ STDMETHODIMP DropSourceAction::put_Base(UINT base)
 }
 
 STDMETHODIMP DropSourceAction::put_Effect(UINT effect)
-{     
+{
 	m_effect = effect;
 	return S_OK;
 }
@@ -1698,8 +1698,10 @@ STDMETHODIMP FbTitleFormat::EvalWithMetadb(IFbMetadbHandle* handle, BSTR* pp)
 
 	metadb_handle* ptr = NULL;
 	handle->get__ptr((void**)&ptr);
+
 	pfc::string8_fast text;
 	ptr->format_title(NULL, text, m_obj, NULL);
+
 	*pp = SysAllocString(pfc::stringcvt::string_wide_from_utf8_fast(text));
 	return S_OK;
 }
@@ -1847,7 +1849,7 @@ STDMETHODIMP FbTooltip::put_TrackActivate(VARIANT_BOOL activate)
 		m_ti.uFlags &= ~(TTF_TRACK | TTF_ABSOLUTE);
 	}
 
-	SendMessage(m_wndtooltip, TTM_TRACKACTIVATE, activate ? TRUE : FALSE, (LPARAM)&m_ti);
+	SendMessage(m_wndtooltip, TTM_TRACKACTIVATE, activate != VARIANT_FALSE ? TRUE : FALSE, (LPARAM)&m_ti);
 	return S_OK;
 }
 
@@ -2097,7 +2099,7 @@ STDMETHODIMP FbUtils::GetFocusItem(VARIANT_BOOL force, IFbMetadbHandle** pp)
 	try
 	{
 		api->activeplaylist_get_focus_item_handle(metadb);
-		if (force && metadb.is_empty())
+		if (metadb.is_empty() && force != VARIANT_FALSE)
 		{
 			api->activeplaylist_get_item_handle(metadb, 0);
 		}
@@ -3661,7 +3663,7 @@ STDMETHODIMP JSUtils::CheckComponent(BSTR name, VARIANT_BOOL is_dll, VARIANT_BOO
 
 	while (e.next(ptr))
 	{
-		if (is_dll)
+		if (is_dll != VARIANT_FALSE)
 		{
 			ptr->get_file_name(temp);
 		}
@@ -3846,7 +3848,7 @@ STDMETHODIMP JSUtils::GetAlbumArtAsync(UINT window_id, IFbMetadbHandle* handle, 
 	{
 		try
 		{
-			helpers::album_art_async* task = new helpers::album_art_async((HWND)window_id, ptr, art_id, need_stub, only_embed, no_load);
+			helpers::album_art_async* task = new helpers::album_art_async((HWND)window_id, ptr, art_id, need_stub != VARIANT_FALSE, only_embed != VARIANT_FALSE, no_load != VARIANT_FALSE);
 
 			if (simple_thread_pool::instance().enqueue(task))
 				cookie = reinterpret_cast<unsigned>(task);
@@ -3880,7 +3882,7 @@ STDMETHODIMP JSUtils::GetAlbumArtV2(IFbMetadbHandle* handle, int art_id, VARIANT
 
 	metadb_handle* ptr = NULL;
 	handle->get__ptr((void**)&ptr);
-	return helpers::get_album_art_v2(ptr, pp, art_id, need_stub);
+	return helpers::get_album_art_v2(ptr, pp, art_id, need_stub != VARIANT_FALSE);
 }
 
 STDMETHODIMP JSUtils::GetSysColour(UINT index, int* p)
