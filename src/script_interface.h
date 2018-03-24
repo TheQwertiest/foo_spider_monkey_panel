@@ -583,7 +583,7 @@ __interface IFbPlaylistManager : IDispatch
 	STDMETHOD(CreateAutoPlaylist)(UINT playlistIndex, BSTR name, BSTR query, [defaultvalue("")] BSTR sort, [defaultvalue(0)] UINT flags, [out, retval] int* outPlaylistIndex);
 	STDMETHOD(CreatePlaylist)(UINT playlistIndex, BSTR name, [out, retval] int* outPlaylistIndex);
 	STDMETHOD(DuplicatePlaylist)(UINT from, BSTR name, [out, retval] UINT* outPlaylistIndex);
-	STDMETHOD(EnsurePlaylistItemVisible)(UINT playlistIndex, UINT itemIndex);
+	STDMETHOD(EnsurePlaylistItemVisible)(UINT playlistIndex, UINT playlistItemIndex);
 	STDMETHOD(ExecutePlaylistDefaultAction)(UINT playlistIndex, UINT playlistItemIndex, [out, retval] VARIANT_BOOL* outSuccess);
 	STDMETHOD(FindOrCreatePlaylist)(BSTR name, VARIANT_BOOL unlocked, [out, retval] int* outPlaylistIndex);
 	STDMETHOD(FindPlaybackQueueItemIndex)(IFbMetadbHandle* handle, UINT playlistIndex, UINT playlistItemIndex, [out, retval] int* outIndex);
@@ -598,7 +598,7 @@ __interface IFbPlaylistManager : IDispatch
 	STDMETHOD(GetPlaylistSelectedItems)(UINT playlistIndex, [out, retval] IFbMetadbHandleList** outItems);
 	STDMETHOD(InsertPlaylistItems)(UINT playlistIndex, UINT base, IFbMetadbHandleList* handles, [defaultvalue(0)] VARIANT_BOOL select);
 	STDMETHOD(InsertPlaylistItemsFilter)(UINT playlistIndex, UINT base, IFbMetadbHandleList* handles, [defaultvalue(0)] VARIANT_BOOL select);
-	STDMETHOD(IsAutoPlaylist)(UINT idx, [out, retval] VARIANT_BOOL* p);
+	STDMETHOD(IsAutoPlaylist)(UINT playlistIndex, [out, retval] VARIANT_BOOL* p);
 	STDMETHOD(IsPlaylistItemSelected)(UINT playlistIndex, UINT playlistItemIndex, [out, retval] VARIANT_BOOL* outSelected);
 	STDMETHOD(IsPlaylistLocked)(UINT playlistIndex, [out, retval] VARIANT_BOOL* p);
 	STDMETHOD(MovePlaylist)(UINT from, UINT to, [out, retval] VARIANT_BOOL* outSuccess);
@@ -610,11 +610,11 @@ __interface IFbPlaylistManager : IDispatch
 	STDMETHOD(RemovePlaylistSwitch)(UINT playlistIndex, [out, retval] VARIANT_BOOL* outSuccess);
 	STDMETHOD(RenamePlaylist)(UINT playlistIndex, BSTR name, [out, retval] VARIANT_BOOL* outSuccess);
 	STDMETHOD(SetActivePlaylistContext)();
-	STDMETHOD(SetPlaylistFocusItem)(UINT playlistIndex, UINT itemIndex);
+	STDMETHOD(SetPlaylistFocusItem)(UINT playlistIndex, UINT playlistItemIndex);
 	STDMETHOD(SetPlaylistFocusItemByHandle)(UINT playlistIndex, IFbMetadbHandle* handle);
 	STDMETHOD(SetPlaylistSelection)(UINT playlistIndex, VARIANT affectedItems, VARIANT_BOOL state);
-	STDMETHOD(SetPlaylistSelectionSingle)(UINT playlistIndex, UINT itemIndex, VARIANT_BOOL state);
-	STDMETHOD(ShowAutoPlaylistUI)(UINT idx, [out, retval] VARIANT_BOOL* outSuccess);
+	STDMETHOD(SetPlaylistSelectionSingle)(UINT playlistIndex, UINT playlistItemIndex, VARIANT_BOOL state);
+	STDMETHOD(ShowAutoPlaylistUI)(UINT playlistIndex, [out, retval] VARIANT_BOOL* outSuccess);
 	STDMETHOD(SortByFormat)(UINT playlistIndex, BSTR pattern, [defaultvalue(0)] VARIANT_BOOL selOnly, [out, retval] VARIANT_BOOL* outSuccess);
 	STDMETHOD(SortByFormatV2)(UINT playlistIndex, BSTR pattern, [defaultvalue(1)] int direction, [out, retval] VARIANT_BOOL* outSuccess);
 	STDMETHOD(SortPlaylistsByName)([defaultvalue(1)] int direction);
