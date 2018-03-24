@@ -1,3 +1,7 @@
+v2.1.0.2
+- FIX: Fix crash when supplying plman.IsAutoPlaylist/plman.IsPlaylistLocked with
+       an invalid playlistIndex.
+
 v2.1.0.1
 - NEW: Add plman.RemovePlaylistSwitch method. Unlike plman.RemovePlaylist, this
        automatically sets another playlist as active if removing the active playlist.
