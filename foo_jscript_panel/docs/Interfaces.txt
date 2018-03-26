@@ -651,6 +651,11 @@ interface IFbPlaylistManager {
 		*/
 
 		plman.RemovePlaylist(playlistIndex); (boolean)
+		/*
+		Removes the specified playlist.
+		Note that if removing the active playlist, no playlist will be active after using this. You'll
+		need to set it manually or use plman.RemovePlaylistSwitch instead.
+		*/
 
 		plman.RemovePlaylistSelection(playlistIndex[, crop]); (void)
 		/*
@@ -661,6 +666,12 @@ interface IFbPlaylistManager {
 		Example2:
 		plman.RemovePlaylistSelection(plman.ActivePlaylist, true);
 		Removes items that are NOT selected.
+		*/
+
+		plman.RemovePlaylistSwitch(playlistIndex); (boolean)
+		/*
+		Removes the specified playlist.
+		This automatically sets another playlist as active if removing the active playlist.
 		*/
 
 		plman.RenamePlaylist(playlistIndex, name); (boolean)

@@ -165,7 +165,7 @@ class my_config_object_notify : public config_object_notify
 public:
 	virtual GUID get_watched_object(t_size p_index);
 	virtual t_size get_watched_object_count();
-	virtual void on_watched_object_changed(const service_ptr_t<config_object>& p_object);
+	virtual void on_watched_object_changed(const config_object::ptr& p_object);
 };
 
 class my_playlist_callback_static : public playlist_callback_static

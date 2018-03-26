@@ -22,17 +22,6 @@
  * Custom Panel Colors (in Properties window)
  * ... and more!
 
-[Requirements]
- * foobar2000 v1.4 or later >> https://www.foobar2000.org
- * Windows Vista or later.
- * JScript Panel v2.1.0 or later >> https://github.com/marc2k3/foo_jscript_panel
-
-[Installation]
- * import/paste the main JSPlaylist script into a JScript Panel instance of your foobar2000 layout (DUI or CUI)
-
-[Optional]
- * Font guifx v2 transports, to get better stars for rating >> http://blog.guifx.com/2009/04/02/guifx-v2-transport-font/
-
 [Tips]
  * Hold SHIFT key + right click to display Configure script and panel Properties entries
  * Change colors and fonts in foobar2000 Preferences > DefaultUI or ColumsUI

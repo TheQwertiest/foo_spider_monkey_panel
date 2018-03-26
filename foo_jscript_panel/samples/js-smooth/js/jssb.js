@@ -1737,11 +1737,11 @@ oBrowser = function (name) {
 		t = 0;
 		var arr = [];
 		var tr = [];
-		var pl = plman.GetPlaylistItems(-1);
+		var pl = fb.CreateHandleList();
 		var total = this.list.Count;
 		var t_all = 0;
 		var tr_all = [];
-		var pl_all = plman.GetPlaylistItems(-1);
+		var pl_all = fb.CreateHandleList();
 		var e = [];
 
 		var d1 = new Date();

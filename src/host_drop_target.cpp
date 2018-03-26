@@ -3,7 +3,7 @@
 #include "host_drop_target.h"
 #include "js_panel_window.h"
 
-HostDropTarget::HostDropTarget(js_panel_window* host) 
+HostDropTarget::HostDropTarget(js_panel_window* host)
 	: IDropTargetImpl(host->GetHWND())
 	, m_host(host)
 	, m_action(new com_object_impl_t<DropSourceAction, true>())
@@ -20,10 +20,10 @@ HRESULT HostDropTarget::OnDragEnter(IDataObject* pDataObj, DWORD grfKeyState, PO
 	if (!pdwEffect) return E_POINTER;
 
 	m_action->Reset();
-	bool native;     	
+	bool native;
 
 	HRESULT hr = ole_interaction::get()->check_dataobject(pDataObj, m_fb2kAllowedEffect, native);
-	if (!SUCCEEDED(hr)) 
+	if (!SUCCEEDED(hr))
 	{
 		m_fb2kAllowedEffect = DROPEFFECT_NONE;
 	}

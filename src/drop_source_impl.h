@@ -53,7 +53,7 @@ public:
 			delete this;
 		}
 		return rv;
-	 }
+	}
 
 private:
 	long m_refCount;

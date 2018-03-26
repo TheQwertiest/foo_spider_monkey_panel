@@ -38,6 +38,7 @@ void panel_manager::post_msg_to_all(UINT p_msg)
 {
 	post_msg_to_all(p_msg, 0, 0);
 }
+
 void panel_manager::post_msg_to_all(UINT p_msg, WPARAM p_wp)
 {
 	post_msg_to_all(p_msg, p_wp, 0);
@@ -229,7 +230,7 @@ t_size my_config_object_notify::get_watched_object_count()
 	return 4;
 }
 
-void my_config_object_notify::on_watched_object_changed(const service_ptr_t<config_object>& p_object)
+void my_config_object_notify::on_watched_object_changed(const config_object::ptr& p_object)
 {
 	GUID guid = p_object->get_guid();
 	bool boolval = false;
@@ -248,12 +249,13 @@ void my_config_object_notify::on_watched_object_changed(const service_ptr_t<conf
 
 	panel_manager::instance().post_msg_to_all(msg, TO_VARIANT_BOOL(boolval));
 }
+
 unsigned my_playlist_callback_static::get_flags()
 {
-	return flag_on_item_focus_change | flag_on_items_added | flag_on_items_removed |
-		flag_on_items_reordered | flag_on_items_selection_change | flag_on_playback_order_changed |
-		flag_on_playlist_activate | flag_on_playlist_created | flag_on_playlist_locked |
-		flag_on_playlist_renamed | flag_on_playlists_removed | flag_on_playlists_reorder;
+	return flag_on_items_added | flag_on_items_reordered | flag_on_items_removed |
+		flag_on_items_selection_change | flag_on_item_focus_change | flag_on_item_ensure_visible |
+		flag_on_playlist_activate | flag_on_playlist_created | flag_on_playlists_reorder |
+		flag_on_playlists_removed | flag_on_playlist_renamed | flag_on_playback_order_changed | flag_on_playlist_locked;
 }
 
 void my_playlist_callback_static::on_item_ensure_visible(t_size p_playlist, t_size p_idx)

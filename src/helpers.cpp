@@ -82,7 +82,7 @@ namespace helpers
 		if (!pp) return E_POINTER;
 
 		service_enum_t<album_art_extractor> e;
-		service_ptr_t<album_art_extractor> ptr;
+		album_art_extractor::ptr ptr;
 		pfc::stringcvt::string_utf8_from_wide urawpath(rawpath);
 		pfc::string_extension ext(urawpath);
 		abort_callback_dummy abort;
@@ -159,7 +159,7 @@ namespace helpers
 	{
 		contextmenu_node* node = NULL;
 
-		service_ptr_t<contextmenu_manager> cm;
+		contextmenu_manager::ptr cm;
 		pfc::string8_fast dummy("");
 		contextmenu_manager::g_create(cm);
 
@@ -194,7 +194,7 @@ namespace helpers
 
 		// Second, generate a list of all mainmenu commands
 		service_enum_t<mainmenu_commands> e;
-		service_ptr_t<mainmenu_commands> ptr;
+		mainmenu_commands::ptr ptr;
 		t_size name_len = strlen(p_name);
 
 		while (e.next(ptr))
@@ -753,9 +753,9 @@ namespace helpers
 		try
 		{
 			file_ptr io;
-			abort_callback_dummy dummy;
-			filesystem::g_open_read(io, fileName, dummy);
-			io->read_string_raw(text, dummy);
+			abort_callback_dummy abort;
+			filesystem::g_open_read(io, fileName, abort);
+			io->read_string_raw(text, abort);
 			textSize = text.get_length();
 		}
 		catch (...)
@@ -824,7 +824,7 @@ namespace helpers
 	void build_mainmenu_group_map(pfc::map_t<GUID, mainmenu_group::ptr>& p_group_guid_text_map)
 	{
 		service_enum_t<mainmenu_group> e;
-		service_ptr_t<mainmenu_group> ptr;
+		mainmenu_group::ptr ptr;
 
 		while (e.next(ptr))
 		{
