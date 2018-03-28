@@ -200,11 +200,12 @@ _.mixin({
 	},
 	fbDate : function (t) {
 		if (typeof t == 'number') {
+			t -= new Date().getTimezoneOffset() * 60;
 			var tmp = new Date(t * 1000).toISOString(); // ES5 only
 			return tmp.substring(0, 10) + ' ' + tmp.substring(11, 19);
 		} else {
 			var tmp = new Date(t.substring(0, 10) + "T" + t.substring(11, 19) + "Z");
-			return Date.parse(tmp) / 1000;
+			return (Date.parse(tmp) / 1000) + (new Date().getTimezoneOffset() * 60);
 		}
 	},
 	fbEscape : function (value) {
