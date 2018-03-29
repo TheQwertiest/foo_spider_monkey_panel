@@ -2536,7 +2536,7 @@ STDMETHODIMP FbUtils::get_StopAfterCurrent(VARIANT_BOOL* p)
 {
 	if (!p) return E_POINTER;
 
-	*p = playback_control::get()->get_stop_after_current();
+	*p = TO_VARIANT_BOOL(playback_control::get()->get_stop_after_current());
 	return S_OK;
 }
 
@@ -2726,8 +2726,7 @@ STDMETHODIMP GdiBitmap::GetColourScheme(UINT count, VARIANT* outArray)
 	Gdiplus::BitmapData bmpdata;
 	Gdiplus::Rect rect(0, 0, m_ptr->GetWidth(), m_ptr->GetHeight());
 
-	if (m_ptr->LockBits(&rect, Gdiplus::ImageLockModeRead, PixelFormat32bppARGB, &bmpdata) != Gdiplus::Ok)
-		return E_POINTER;
+	if (m_ptr->LockBits(&rect, Gdiplus::ImageLockModeRead, PixelFormat32bppARGB, &bmpdata) != Gdiplus::Ok) return E_POINTER;
 
 	std::map<unsigned, int> color_counters;
 	const unsigned colors_length = bmpdata.Width * bmpdata.Height;
@@ -2834,7 +2833,7 @@ STDMETHODIMP GdiBitmap::RotateFlip(UINT mode)
 
 STDMETHODIMP GdiBitmap::SaveAs(BSTR path, BSTR format, VARIANT_BOOL* p)
 {
-	if (!p || !m_ptr) return E_POINTER;
+	if (!m_ptr || !p) return E_POINTER;
 
 	CLSID clsid_encoder;
 	int ret = helpers::get_encoder_clsid(format, &clsid_encoder);
