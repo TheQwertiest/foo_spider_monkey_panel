@@ -421,6 +421,7 @@ interface IGdiUtils {
 		/*
 		size_px: See helpers.txt > Point2Pixel function for conversions.
 		style: default 0. See flags.txt > FontStyle
+		Returns null if font not present.
 		*/
 
 		gdi.Image(path); (IGdiBitmap)
@@ -837,7 +838,11 @@ interface IJSUtils {
 		*/
 
 		utils.CheckFont(name); (boolean)
-		// name: Can be either in English or the localised name in your OS.
+		/* 
+		name: Can be either in English or the localised name in your OS.
+		This only checks for fonts that are actually installed. It cannot detect fonts
+		loaded by foo_ui_hacks and always returns false. However, gdi.Font can load those fonts.
+		*/
 
 		utils.ColourPicker(window_id, default_colour); (int)
 		/*
