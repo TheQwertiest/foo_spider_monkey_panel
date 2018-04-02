@@ -841,7 +841,7 @@ interface IJSUtils {
 		/* 
 		name: Can be either in English or the localised name in your OS.
 		This only checks for fonts that are actually installed. It cannot detect fonts
-		loaded by foo_ui_hacks and always returns false. However, gdi.Font can load those fonts.
+		loaded by foo_ui_hacks and always returns false. However, gdi.Font can use those fonts.
 		*/
 
 		utils.ColourPicker(window_id, default_colour); (int)
