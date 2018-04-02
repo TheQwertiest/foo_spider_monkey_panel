@@ -22,14 +22,14 @@ namespace helpers
 			0xff000000;
 	}
 
-	IGdiBitmap* query_album_art(album_art_extractor_instance_v2::ptr extractor, GUID& what, VARIANT_BOOL no_load, pfc::string_base* image_path_ptr)
+	IGdiBitmap* query_album_art(album_art_extractor_instance_v2::ptr extractor, GUID& what, bool no_load, pfc::string_base* image_path_ptr)
 	{
 		abort_callback_dummy abort;
 		album_art_data_ptr data = extractor->query(what, abort);
 		Gdiplus::Bitmap* bitmap = NULL;
 		IGdiBitmap* ret = NULL;
 
-		if (!no_load && helpers::read_album_art_into_bitmap(data, &bitmap))
+		if (!no_load && read_album_art_into_bitmap(data, &bitmap))
 		{
 			ret = new com_object_impl_t<GdiBitmap>(bitmap);
 		}
@@ -93,7 +93,7 @@ namespace helpers
 			if (ptr->is_our_path(urawpath, ext))
 			{
 				album_art_extractor_instance_ptr aaep;
-				GUID what = helpers::convert_artid_to_guid(art_id);
+				GUID what = convert_artid_to_guid(art_id);
 
 				try
 				{
@@ -102,7 +102,7 @@ namespace helpers
 					Gdiplus::Bitmap* bitmap = NULL;
 					album_art_data_ptr data = aaep->query(what, abort);
 
-					if (helpers::read_album_art_into_bitmap(data, &bitmap))
+					if (read_album_art_into_bitmap(data, &bitmap))
 					{
 						ret = new com_object_impl_t<GdiBitmap>(bitmap);
 						break;
@@ -118,11 +118,11 @@ namespace helpers
 		return S_OK;
 	}
 
-	HRESULT get_album_art_v2(const metadb_handle_ptr& handle, IGdiBitmap** pp, int art_id, VARIANT_BOOL need_stub, VARIANT_BOOL no_load, pfc::string_base* image_path_ptr)
+	HRESULT get_album_art_v2(const metadb_handle_ptr& handle, IGdiBitmap** pp, int art_id, bool need_stub, bool no_load, pfc::string_base* image_path_ptr)
 	{
 		if (handle.is_empty() || !pp) return E_POINTER;
 
-		GUID what = helpers::convert_artid_to_guid(art_id);
+		GUID what = convert_artid_to_guid(art_id);
 		abort_callback_dummy abort;
 		auto aamv2 = album_art_manager_v2::get();
 		album_art_extractor_instance_v2::ptr aaeiv2;
@@ -953,7 +953,7 @@ namespace helpers
 		IGdiBitmap* bitmap = NULL;
 		Gdiplus::Bitmap* img = new Gdiplus::Bitmap(m_path, PixelFormat32bppPARGB);
 
-		if (helpers::ensure_gdiplus_object(img))
+		if (ensure_gdiplus_object(img))
 		{
 			bitmap = new com_object_impl_t<GdiBitmap>(img);
 		}
