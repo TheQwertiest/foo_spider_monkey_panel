@@ -419,20 +419,18 @@ namespace helpers
 	class com_array_to_bitarray
 	{
 	public:
-		static bool convert(VARIANT items, unsigned bitArrayCount, pfc::bit_array_bittable& out, bool& empty)
+		static bool convert(VARIANT items, pfc::bit_array_bittable& out, bool& ok)
 		{
 			com_array_reader arrayReader;
-			empty = false;
+			ok = true;
 
 			if (!arrayReader.convert(&items)) return false;
 			if (arrayReader.get_count() == 0)
 			{
-				empty = true;
+				ok = false;
 				out.resize(0);
 				return true;
 			}
-
-			out.resize(bitArrayCount);
 
 			for (int i = arrayReader.get_lbound(); i < arrayReader.get_count(); ++i)
 			{

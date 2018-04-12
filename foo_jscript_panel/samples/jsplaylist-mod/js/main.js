@@ -2937,7 +2937,7 @@ function on_drag_over(action, x, y, mask) {
 	switch (true) {
 	case y < p.list.y:
 	case cPlaylistManager.visible && p.playlistManager.isHoverObject(x, y):
-	case plman.ActivePlaylist > - 1 && plman.IsPlaylistLocked(plman.ActivePlaylist):
+	case plman.ActivePlaylist > -1 && plman.IsPlaylistLocked(plman.ActivePlaylist):
 		action.Effect = 0;
 		break;
 	default:
@@ -2950,7 +2950,7 @@ function on_drag_drop(action, x, y, mask) {
 	switch (true) {
 	case y < p.list.y:
 	case cPlaylistManager.visible && p.playlistManager.isHoverObject(x, y):
-	case plman.ActivePlaylist > - 1 && plman.IsPlaylistLocked(plman.ActivePlaylist):
+	case plman.ActivePlaylist > -1 && plman.IsPlaylistLocked(plman.ActivePlaylist):
 		action.Effect = 0;
 		break;
 	default:

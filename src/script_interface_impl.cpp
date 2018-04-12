@@ -1294,17 +1294,14 @@ STDMETHODIMP FbPlaylistManager::RemoveItemFromPlaybackQueue(UINT index)
 
 STDMETHODIMP FbPlaylistManager::RemoveItemsFromPlaybackQueue(VARIANT affectedItems)
 {
-	unsigned bitArrayCount;
-	bool empty;
 	auto api = playlist_manager::get();
-	pfc::bit_array_bittable affected;
-	bitArrayCount = api->queue_get_count();
-	if (!helpers::com_array_to_bitarray::convert(affectedItems, bitArrayCount, affected, empty)) return E_INVALIDARG;
-	if (!empty)
+	pfc::bit_array_bittable affected(api->queue_get_count());
+	bool ok;
+	if (!helpers::com_array_to_bitarray::convert(affectedItems, affected, ok)) return E_INVALIDARG;
+	if (ok)
 	{
 		api->queue_remove_mask(affected);
 	}
-
 	return S_OK;
 }
 
@@ -1361,18 +1358,15 @@ STDMETHODIMP FbPlaylistManager::SetPlaylistFocusItemByHandle(UINT playlistIndex,
 
 STDMETHODIMP FbPlaylistManager::SetPlaylistSelection(UINT playlistIndex, VARIANT affectedItems, VARIANT_BOOL state)
 {
-	unsigned bitArrayCount;
-	bool empty;
 	auto api = playlist_manager::get();
-	pfc::bit_array_bittable affected;
-	bitArrayCount = api->playlist_get_item_count(playlistIndex);
-	if (!helpers::com_array_to_bitarray::convert(affectedItems, bitArrayCount, affected, empty)) return E_INVALIDARG;
-	if (!empty)
+	pfc::bit_array_bittable affected(api->playlist_get_item_count(playlistIndex));
+	bool ok;
+	if (!helpers::com_array_to_bitarray::convert(affectedItems, affected, ok)) return E_INVALIDARG;
+	if (ok)
 	{
 		pfc::bit_array_val status(state != VARIANT_FALSE);
 		api->playlist_set_selection(playlistIndex, affected, status);
 	}
-
 	return S_OK;
 }
 
@@ -1546,15 +1540,13 @@ STDMETHODIMP FbPlaylistRecyclerManager::Purge(VARIANT affectedItems)
 {
 	try
 	{
-		unsigned bitArrayCount;
-		bool empty;
-		auto plm = playlist_manager_v3::get();
-		pfc::bit_array_bittable mask;
-		bitArrayCount = plm->recycler_get_count();
-		if (!helpers::com_array_to_bitarray::convert(affectedItems, bitArrayCount, mask, empty)) return E_INVALIDARG;
-		if (!empty)
+		auto api = playlist_manager_v3::get();
+		pfc::bit_array_bittable affected(api->recycler_get_count());
+		bool ok;
+		if (!helpers::com_array_to_bitarray::convert(affectedItems, affected, ok)) return E_INVALIDARG;
+		if (ok)
 		{
-			plm->recycler_purge(mask);
+			api->recycler_purge(affected);
 		}
 	}
 	catch (...)
