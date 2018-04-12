@@ -865,11 +865,11 @@ STDMETHODIMP FbPlaybackQueueItem::get_PlaylistIndex(int* outPlaylistIndex)
 	return S_OK;
 }
 
-STDMETHODIMP FbPlaybackQueueItem::get_PlaylistItemIndex(int* outItemIndex)
+STDMETHODIMP FbPlaybackQueueItem::get_PlaylistItemIndex(int* outPlaylistItemIndex)
 {
-	if (!outItemIndex) return E_POINTER;
+	if (!outPlaylistItemIndex) return E_POINTER;
 
-	*outItemIndex = m_playback_queue_item.m_item;
+	*outPlaylistItemIndex = m_playback_queue_item.m_item;
 	return S_OK;
 }
 
@@ -1278,6 +1278,14 @@ STDMETHODIMP FbPlaylistManager::MovePlaylistSelection(UINT playlistIndex, int de
 	return S_OK;
 }
 
+STDMETHODIMP FbPlaylistManager::PlaylistItemCount(UINT playlistIndex, UINT* outCount)
+{
+	if (!outCount) return E_POINTER;
+
+	*outCount = playlist_manager::get()->playlist_get_item_count(playlistIndex);
+	return S_OK;
+}
+
 STDMETHODIMP FbPlaylistManager::RemoveItemFromPlaybackQueue(UINT index)
 {
 	playlist_manager::get()->queue_remove_mask(pfc::bit_array_one(index));
@@ -1491,14 +1499,6 @@ STDMETHODIMP FbPlaylistManager::get_PlaylistCount(UINT* outCount)
 	if (!outCount) return E_POINTER;
 
 	*outCount = playlist_manager::get()->get_playlist_count();
-	return S_OK;
-}
-
-STDMETHODIMP FbPlaylistManager::get_PlaylistItemCount(UINT playlistIndex, UINT* outCount)
-{
-	if (!outCount) return E_POINTER;
-
-	*outCount = playlist_manager::get()->playlist_get_item_count(playlistIndex);
 	return S_OK;
 }
 

@@ -467,12 +467,6 @@ interface IFbPlaylistManager {
 
 		plman.PlaylistCount; (uint) (read)
 
-		plman.PlaylistItemCount(playlistIndex); (uint) (read)
-		/*
-		Example:
-		console.log(plman.PlaylistItemCount(plman.PlayingPlaylist)); // 12
-		*/
-
 		plman.PlaylistRecyclerManager; (IFbPlaylistRecyclerManager) (read)
 
 			interface PlaylistRecyclerManager {
@@ -649,6 +643,12 @@ interface IFbPlaylistManager {
 		Example:
 		plman.MovePlaylistSelection(plman.ActivePlaylist, plman.PlaylistItemCount(plman.ActivePlaylist));
 		Moves selected items to end of playlist.
+		*/
+
+		plman.PlaylistItemCount(playlistIndex); (uint)
+		/*
+		Example:
+		console.log(plman.PlaylistItemCount(plman.PlayingPlaylist)); // 12
 		*/
 
 		plman.RemovePlaylist(playlistIndex); (boolean)

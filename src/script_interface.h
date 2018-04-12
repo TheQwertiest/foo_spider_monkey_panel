@@ -562,7 +562,7 @@ __interface IFbPlaybackQueueItem : IDisposable
 {
 	[propget] STDMETHOD(Handle)([out, retval] IFbMetadbHandle** outHandle);
 	[propget] STDMETHOD(PlaylistIndex)([out, retval] int* outPlaylistIndex);
-	[propget] STDMETHOD(PlaylistItemIndex)([out, retval] int* outItemIndex);
+	[propget] STDMETHOD(PlaylistItemIndex)([out, retval] int* outPlaylistItemIndex);
 	[propget] STDMETHOD(_ptr)([out, retval] void** pp);
 };
 
@@ -603,6 +603,7 @@ __interface IFbPlaylistManager : IDispatch
 	STDMETHOD(IsPlaylistLocked)(UINT playlistIndex, [out, retval] VARIANT_BOOL* p);
 	STDMETHOD(MovePlaylist)(UINT from, UINT to, [out, retval] VARIANT_BOOL* outSuccess);
 	STDMETHOD(MovePlaylistSelection)(UINT playlistIndex, int delta, [out, retval] VARIANT_BOOL* outSuccess);
+	STDMETHOD(PlaylistItemCount)(UINT playlistIndex, [out, retval] UINT* outCount);
 	STDMETHOD(RemoveItemFromPlaybackQueue)(UINT index);
 	STDMETHOD(RemoveItemsFromPlaybackQueue)(VARIANT affectedItems);
 	STDMETHOD(RemovePlaylist)(UINT playlistIndex, [out, retval] VARIANT_BOOL* outSuccess);
@@ -623,7 +624,6 @@ __interface IFbPlaylistManager : IDispatch
 	[propget] STDMETHOD(PlaybackOrder)([out, retval] UINT* outOrder);
 	[propget] STDMETHOD(PlayingPlaylist)([out, retval] int* outPlaylistIndex);
 	[propget] STDMETHOD(PlaylistCount)([out, retval] UINT* outCount);
-	[propget] STDMETHOD(PlaylistItemCount)(UINT playlistIndex, [out, retval] UINT* outCount);
 	[propget] STDMETHOD(PlaylistRecyclerManager)([out, retval] __interface IFbPlaylistRecyclerManager** outRecyclerManager);
 	[propput] STDMETHOD(ActivePlaylist)(int playlistIndex);
 	[propput] STDMETHOD(PlaybackOrder)(UINT order);

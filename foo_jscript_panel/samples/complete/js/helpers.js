@@ -400,9 +400,6 @@ _.mixin({
 		switch (true) {
 		case idx == 0:
 			break;
-		case idx == 1:
-			fb.RunMainMenuCommand('View/Switch to UI/' + (window.InstanceType ? 'Columns UI' : 'Default User Interface'));
-			break;
 		case idx < 2000:
 			mm1.ExecuteByID(idx - 1000);
 			break;
