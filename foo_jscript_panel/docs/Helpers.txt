@@ -11,6 +11,11 @@ function RGB(r, g, b) {
 	return (0xff000000 | (r << 16) | (g << 8) | (b));
 }
 
+function toRGB(col) { // returns an array like [192, 0, 0]
+	var a = col - 0xFF000000;
+	return [a >> 16, a >> 8 & 0xFF, a & 0xFF];
+}
+
 function getAlpha(colour) {
 	return ((colour >> 24) & 0xff);
 }

@@ -2934,17 +2934,26 @@ function on_drag_leave() {
 };
 
 function on_drag_over(action, x, y, mask) {
-	if (y < p.list.y || (cPlaylistManager.visible && p.playlistManager.isHoverObject(x, y)) || plman.IsPlaylistLocked(plman.ActivePlaylist)) {
+	switch (true) {
+	case y < p.list.y:
+	case cPlaylistManager.visible && p.playlistManager.isHoverObject(x, y):
+	case plman.ActivePlaylist > -1 && plman.IsPlaylistLocked(plman.ActivePlaylist):
 		action.Effect = 0;
-	} else {
+		break;
+	default:
 		action.Effect = 1;
+		break;
 	}
 }
 
 function on_drag_drop(action, x, y, mask) {
-	if (y < p.list.y || (cPlaylistManager.visible && p.playlistManager.isHoverObject(x, y)) || plman.IsPlaylistLocked(plman.ActivePlaylist)) {
+	switch (true) {
+	case y < p.list.y:
+	case cPlaylistManager.visible && p.playlistManager.isHoverObject(x, y):
+	case plman.ActivePlaylist > -1 && plman.IsPlaylistLocked(plman.ActivePlaylist):
 		action.Effect = 0;
-	} else {
+		break;
+	default:
 		var count = plman.PlaylistCount;
 		if (count == 0 || plman.ActivePlaylist == -1) {
 			plman.CreatePlaylist(count, "Dropped Items");
@@ -2957,6 +2966,7 @@ function on_drag_drop(action, x, y, mask) {
 		}
 		action.ToSelect = true;
 		action.Effect = 1;
+		break;
 	}
 }
 

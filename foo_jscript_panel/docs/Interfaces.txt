@@ -31,9 +31,10 @@ interface IFbUtils {
 
 		fb.PlaybackLength; (double) (read)
 		/*
-		example1:
+		Example1:
 		console.log(fb.PlaybackLength); // 322.843414966166
-		example2:
+
+		Example2:
 		console.log(Math.round(fb.PlaybackLength)); // 323
 		*/
 
@@ -272,6 +273,7 @@ interface IFbUtils {
 		/*
 		Example1:
 		var a = fb.GetQueryItems(plman.GetPlaylistItems(plman.ActivePlaylist), "rating IS 5");
+
 		Example2:
 		var b = fb.GetQueryItems(fb.GetLibraryItems(), "rating IS 5");
 		Results are unsorted.
@@ -339,6 +341,7 @@ interface IFbUtils {
 		4 flag_view_reduced
 		8 flag_view_full. This can be useful if you need to run context commands the user may have hidden
 		using File>Preferences>Display>Context Menu
+
 		Example:
 		fb.RunContextCommand("Properties");
 		*/
@@ -421,6 +424,7 @@ interface IGdiUtils {
 		/*
 		size_px: See helpers.txt > Point2Pixel function for conversions.
 		style: default 0. See flags.txt > FontStyle
+		Returns null if font not present.
 		*/
 
 		gdi.Image(path); (IGdiBitmap)
@@ -443,6 +447,7 @@ interface IFbPlaylistManager {
 		/*
 		Example1:
 		console.log(plman.ActivePlaylist); // Returns -1 if there is no active playlist.
+
 		Example2:
 		plman.ActivePlaylist = 1; // Switches to 2nd playlist.
 		*/
@@ -466,12 +471,6 @@ interface IFbPlaylistManager {
 
 		plman.PlaylistCount; (uint) (read)
 
-		plman.PlaylistItemCount(playlistIndex); (uint) (read)
-		/*
-		Example:
-		console.log(plman.PlaylistItemCount(plman.PlayingPlaylist)); // 12
-		*/
-
 		plman.PlaylistRecyclerManager; (IFbPlaylistRecyclerManager) (read)
 
 			interface PlaylistRecyclerManager {
@@ -494,6 +493,7 @@ interface IFbPlaylistManager {
 		/*
 		paths: An array of files/URLs
 		select: boolean, default false.
+
 		Example:
 		plman.AddLocations(plman.ActivePlaylist, ["e:\\1.mp3"]);
 		This operation is asynchronous and may take some time to complete if it's a large array.
@@ -530,6 +530,7 @@ interface IFbPlaylistManager {
 		plman.CreatePlaylist(0, "");
 		Creates a new playlist first in the list and it will be named "New playlist"
 		Numbers will be appended to the end for each new un-named playlist.
+
 		Example2:
 		plman.CreatePlaylist(plman.PlaylistCount, "my favourites");
 		This will be added at the end of the current playlists.
@@ -613,12 +614,12 @@ interface IFbPlaylistManager {
 		handle_list: items to insert
 		select: boolean, default false.
 
-		example1:
+		Example1:
 		var ap = plman.ActivePlaylist;
 		plman.InsertPlaylistItems(ap, 0, fb.GetLibraryItems());
 		Adds all library tracks to beginning of playlist.
 
-		example2:
+		Example2:
 		var ap = plman.ActivePlaylist;
 		plman.InsertPlaylistItems(ap, plman.PlaylistItemCount(ap), fb.GetLibraryItems());
 		Adds all library tracks to end of playlist.
@@ -650,6 +651,12 @@ interface IFbPlaylistManager {
 		Moves selected items to end of playlist.
 		*/
 
+		plman.PlaylistItemCount(playlistIndex); (uint)
+		/*
+		Example:
+		console.log(plman.PlaylistItemCount(plman.PlayingPlaylist)); // 12
+		*/
+
 		plman.RemovePlaylist(playlistIndex); (boolean)
 		/*
 		Removes the specified playlist.
@@ -660,9 +667,11 @@ interface IFbPlaylistManager {
 		plman.RemovePlaylistSelection(playlistIndex[, crop]); (void)
 		/*
 		crop: boolean, default false.
+
 		Example1:
 		plman.RemovePlaylistSelection(plman.ActivePlaylist);
 		Removes selected items from playlist.
+
 		Example2:
 		plman.RemovePlaylistSelection(plman.ActivePlaylist, true);
 		Removes items that are NOT selected.
@@ -717,9 +726,11 @@ interface IFbPlaylistManager {
 		plman.SetPlaylistSelectionSingle(playlistIndex, playlistItemIndex, state); (void)
 		/*
 		state: boolean
+
 		Example1:
 		plman.SetPlaylistSelectionSingle(plman.ActivePlaylist, 0, false);
 		Deselects first playlist item. Only works when it is already selected!
+
 		Example2:
 		var ap = plman.ActivePlaylist;
 		plman.SetPlaylistSelectionSingle(ap, plman.PlaylistItemCount(ap) - 1, true);
@@ -729,6 +740,7 @@ interface IFbPlaylistManager {
 		plman.ShowAutoPlaylistUI(playlistIndex); (boolean)
 		/*
 		Shows popup window letting you edit certain Autoplaylist properties.
+
 		Example:
 		fb.ShowAutoPlaylistUI(plman.ActivePlaylist);
 		Before using, check if your playlist is an Autoplaylist by using plman.IsAutoPlaylist(...);
@@ -812,7 +824,8 @@ interface IJSConsole {
 interface IJSUtils {
 	Properties:
 		utils.Version (uint) (read)
-		/* new in v1.2.0. returns a 4 digit number corresponding to the version
+		/*
+		New in v1.2.0. Returns a 4 digit number corresponding to the version.
 
 		v1.2.0 -> 1200
 		v1.2.1 -> 1210
@@ -823,7 +836,7 @@ interface IJSUtils {
 		if (!("Version" in utils)) {
 			fb.ShowPopupMessage("Current component version is less than v1.2.0. This script requires vX.X.X");
 		} else {
-			//check the actual version
+			// Check the actual version.
 		}
 		*/
 
@@ -832,17 +845,23 @@ interface IJSUtils {
 		/*
 		is_dll: boolean, default true.
 		If true, method checks filename as well as the internal name.
+
 		Example:
 		console.log(utils.CheckComponent("foo_playcount", true));
 		*/
 
 		utils.CheckFont(name); (boolean)
-		// name: Can be either in English or the localised name in your OS.
+		/*
+		name: Can be either in English or the localised name in your OS.
+		This only checks for fonts that are actually installed. It cannot detect fonts
+		loaded by foo_ui_hacks and always returns false. However, gdi.Font can use those fonts.
+		*/
 
 		utils.ColourPicker(window_id, default_colour); (int)
 		/*
 		Spawns a windows popup dialog to let you choose a colour.
 		window_id: window.ID
+
 		Example:
 		var colour = utils.ColourPicker(window.ID, RGB(255, 0, 0));
 		See docs\helpers.txt for RGB function.
@@ -898,6 +917,7 @@ interface IJSUtils {
 		utils.GetAlbumArtEmbedded(rawpath[, art_id]); (IGdiBitmap)
 		/*
 		art_id: default 0. See flags.txt > AlbumArtId
+
 		Example:
 		var img = utils.GetAlbumArtEmbedded(fb.GetNowPlaying().RawPath, 0);
 		*/
@@ -912,6 +932,7 @@ interface IJSUtils {
 		utils.GetSysColour(index); (uint)
 		/*
 		index: http://msdn.microsoft.com/en-us/library/ms724371%28VS.85%29.aspx
+
 		Example:
 		var splitter_colour = utils.GetSysColour(15);
 		Returns 0 if failed.
@@ -929,6 +950,7 @@ interface IJSUtils {
 		See flags.txt > Used in utils.Glob()
 		inc_mask: default 0xffffffff
 		Returns a VBArray so you need to use .toArray() on the result.
+
 		Example:
 		var arr = utils.Glob("C:\\*.*").toArray();
 		*/
@@ -944,10 +966,11 @@ interface IJSUtils {
 		utils.PathWildcardMatch(pattern, str); (boolean)
 		// Using Microsoft MS-DOS wildcards match type. eg "*.txt", "abc?.tx?"
 
-		utils.ReadTextFile(filename[,codepage]); (string)
+		utils.ReadTextFile(filename[, codepage]); (string)
 		/*
 		codepage: default 0. See codepages.txt
 		If codepage is 0, text file can be UTF16-BOM, UTF8-BOM or ANSI.
+
 		Example:
 		var text = utils.ReadTextFile("E:\\some text file.txt");
 		*/
@@ -960,6 +983,7 @@ interface IJSUtils {
 		key=val
 
 		This only returns up to 255 characters per value.
+
 		Example:
 		var username = utils.ReadINI("e:\\my_file.ini", "Last.fm", "username");
 		*/
@@ -987,6 +1011,7 @@ interface IFbWindow {
 		window.DlgCode(); (int) (read, write)
 		/*
 		See flags.txt > With window.DlgCode
+
 		Example:
 		window.DlgCode(DLGC_WANTALLKEYS);
 		*/
@@ -1103,6 +1128,7 @@ interface IFbWindow {
 					Activate(); (void)
 					/*
 					Only do this when text has changed otherwise it will flicker
+
 					Example:
 					var text = "...";
 					if (tooltip.Text != text) {
@@ -1122,6 +1148,7 @@ interface IFbWindow {
 					SetMaxWidth(width); (void)
 					/*
 					Use if you want multi-line tooltips.
+
 					Example:
 					tooltip.SetMaxWidth(800);
 					tooltip.Text = "Line1\nLine2";
@@ -1273,6 +1300,25 @@ interface IGdiBitmap {
 
 		GetColourScheme(max_count); (VBArray)
 		// Returns a VBArray so you need to use .toArray() on the result.
+
+		GetColourSchemeJSON(max_count); (string)
+		/*
+		Returns a JSON array in string form so you need to call JSON.parse() on the result.
+		Each entry in the array is an object which contains colour and frequency values.
+		Uses a different method for calculating colours than GetColourScheme.
+		Image is automatically resized during processing for performance reasons so there's no
+		need to resize before calling the method.
+
+		Example:
+		img = ... // use utils.GetAlbumArtV2 / gdi.Image / etc
+		colours = JSON.parse(img.GetColourSchemeJSON(5));
+		console.log(colours[0].col); // -4194304
+		console.log(colours[0].freq); // 0.34
+
+		console.log(toRGB(colours[0].col)); // [192, 0, 0]
+
+		See docs\helpers.txt for "toRGB" function.
+		*/
 
 		GetGraphics();
 		// Don't forget to use ReleaseGraphics() after operations on IGdiGraphics interface is done.
@@ -1474,6 +1520,7 @@ interface IFbMetadbHandle {
 		Compare(handle); (boolean)
 		/*
 		Compare two IFbMetadbHandle instances, pointer only.
+
 		Example:
 		handle.Compare(handle2);
 		If you want to compare them physically, use the "RawPath" property.

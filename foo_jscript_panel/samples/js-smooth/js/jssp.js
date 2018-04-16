@@ -4733,7 +4733,7 @@ function on_drag_leave() {
 }
 
 function on_drag_over(action, x, y, mask) {
-	if (y < brw.y || plman.IsPlaylistLocked(plman.Activeplaylist)) {
+	if (y < brw.y || (plman.ActivePlaylist > -1 && plman.IsPlaylistLocked(plman.Activeplaylist))) {
 		action.Effect = 0;
 	} else {
 		action.Effect = 1;
@@ -4741,7 +4741,7 @@ function on_drag_over(action, x, y, mask) {
 };
 
 function on_drag_drop(action, x, y, mask) {
-	if (y < brw.y || plman.IsPlaylistLocked(plman.Activeplaylist)) {
+	if (y < brw.y || (plman.ActivePlaylist > -1 && plman.IsPlaylistLocked(plman.Activeplaylist))) {
 		action.Effect = 0;
 	} else {
 		var count = plman.PlaylistCount;

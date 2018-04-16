@@ -274,8 +274,8 @@ _.mixin({
 				panel.m.CheckMenuItem(1301, this.properties.location.enabled);
 				panel.m.AppendMenuItem(MF_STRING, 1302, 'Tech Info');
 				panel.m.CheckMenuItem(1302, this.properties.tech.enabled);
-				panel.m.AppendMenuItem(_.cc('foo_playcount') ? MF_STRING : MF_GRAYED, 1303, 'Playback Statistics (foo_playcount)');
-				panel.m.CheckMenuItem(1303, this.properties.playcount.enabled);
+				panel.m.AppendMenuItem(this.foo_playcount ? MF_STRING : MF_GRAYED, 1303, 'Playback Statistics (foo_playcount)');
+				panel.m.CheckMenuItem(1303, this.foo_playcount && this.properties.playcount.enabled);
 				panel.m.AppendMenuItem(MF_STRING, 1304, 'Replaygain');
 				panel.m.CheckMenuItem(1304, this.properties.rg.enabled);
 				panel.m.AppendMenuSeparator();
@@ -549,7 +549,7 @@ _.mixin({
 				if (this.custom_fields) {
 					this.add_custom();
 				}
-				if (_.cc('foo_playcount') && this.properties.playcount.enabled) {
+				if (this.foo_playcount && this.properties.playcount.enabled) {
 					this.add_playcount();
 				}
 				if (this.properties.rg.enabled) {
@@ -1008,6 +1008,8 @@ _.mixin({
 					playcount : new _.p('2K3.LIST.PROPERTIES.PLAYCOUNT', true),
 					rg : new _.p('2K3.LIST.PROPERTIES.RG', true)
 				};
+				
+				this.foo_playcount = _.cc('foo_playcount');
 				break;
 			case 'queue_viewer':
 				this.properties = {

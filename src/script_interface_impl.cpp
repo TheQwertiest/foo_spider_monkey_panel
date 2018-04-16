@@ -4,6 +4,7 @@
 #include "popup_msg.h"
 #include "stats.h"
 #include "drop_source_impl.h"
+#include "kmeans.h"
 #include <map>
 #include <vector>
 #include <algorithm>
@@ -865,11 +866,11 @@ STDMETHODIMP FbPlaybackQueueItem::get_PlaylistIndex(int* outPlaylistIndex)
 	return S_OK;
 }
 
-STDMETHODIMP FbPlaybackQueueItem::get_PlaylistItemIndex(int* outItemIndex)
+STDMETHODIMP FbPlaybackQueueItem::get_PlaylistItemIndex(int* outPlaylistItemIndex)
 {
-	if (!outItemIndex) return E_POINTER;
+	if (!outPlaylistItemIndex) return E_POINTER;
 
-	*outItemIndex = m_playback_queue_item.m_item;
+	*outPlaylistItemIndex = m_playback_queue_item.m_item;
 	return S_OK;
 }
 
@@ -1278,6 +1279,14 @@ STDMETHODIMP FbPlaylistManager::MovePlaylistSelection(UINT playlistIndex, int de
 	return S_OK;
 }
 
+STDMETHODIMP FbPlaylistManager::PlaylistItemCount(UINT playlistIndex, UINT* outCount)
+{
+	if (!outCount) return E_POINTER;
+
+	*outCount = playlist_manager::get()->playlist_get_item_count(playlistIndex);
+	return S_OK;
+}
+
 STDMETHODIMP FbPlaylistManager::RemoveItemFromPlaybackQueue(UINT index)
 {
 	playlist_manager::get()->queue_remove_mask(pfc::bit_array_one(index));
@@ -1286,17 +1295,14 @@ STDMETHODIMP FbPlaylistManager::RemoveItemFromPlaybackQueue(UINT index)
 
 STDMETHODIMP FbPlaylistManager::RemoveItemsFromPlaybackQueue(VARIANT affectedItems)
 {
-	unsigned bitArrayCount;
-	bool empty;
 	auto api = playlist_manager::get();
-	pfc::bit_array_bittable affected;
-	bitArrayCount = api->queue_get_count();
-	if (!helpers::com_array_to_bitarray::convert(affectedItems, bitArrayCount, affected, empty)) return E_INVALIDARG;
-	if (!empty)
+	pfc::bit_array_bittable affected(api->queue_get_count());
+	bool ok;
+	if (!helpers::com_array_to_bitarray::convert(affectedItems, affected, ok)) return E_INVALIDARG;
+	if (ok)
 	{
 		api->queue_remove_mask(affected);
 	}
-
 	return S_OK;
 }
 
@@ -1353,18 +1359,15 @@ STDMETHODIMP FbPlaylistManager::SetPlaylistFocusItemByHandle(UINT playlistIndex,
 
 STDMETHODIMP FbPlaylistManager::SetPlaylistSelection(UINT playlistIndex, VARIANT affectedItems, VARIANT_BOOL state)
 {
-	unsigned bitArrayCount;
-	bool empty;
 	auto api = playlist_manager::get();
-	pfc::bit_array_bittable affected;
-	bitArrayCount = api->playlist_get_item_count(playlistIndex);
-	if (!helpers::com_array_to_bitarray::convert(affectedItems, bitArrayCount, affected, empty)) return E_INVALIDARG;
-	if (!empty)
+	pfc::bit_array_bittable affected(api->playlist_get_item_count(playlistIndex));
+	bool ok;
+	if (!helpers::com_array_to_bitarray::convert(affectedItems, affected, ok)) return E_INVALIDARG;
+	if (ok)
 	{
 		pfc::bit_array_val status(state != VARIANT_FALSE);
 		api->playlist_set_selection(playlistIndex, affected, status);
 	}
-
 	return S_OK;
 }
 
@@ -1494,14 +1497,6 @@ STDMETHODIMP FbPlaylistManager::get_PlaylistCount(UINT* outCount)
 	return S_OK;
 }
 
-STDMETHODIMP FbPlaylistManager::get_PlaylistItemCount(UINT playlistIndex, UINT* outCount)
-{
-	if (!outCount) return E_POINTER;
-
-	*outCount = playlist_manager::get()->playlist_get_item_count(playlistIndex);
-	return S_OK;
-}
-
 STDMETHODIMP FbPlaylistManager::get_PlaylistRecyclerManager(__interface IFbPlaylistRecyclerManager** outRecyclerManagerManager)
 {
 	try
@@ -1546,15 +1541,13 @@ STDMETHODIMP FbPlaylistRecyclerManager::Purge(VARIANT affectedItems)
 {
 	try
 	{
-		unsigned bitArrayCount;
-		bool empty;
-		auto plm = playlist_manager_v3::get();
-		pfc::bit_array_bittable mask;
-		bitArrayCount = plm->recycler_get_count();
-		if (!helpers::com_array_to_bitarray::convert(affectedItems, bitArrayCount, mask, empty)) return E_INVALIDARG;
-		if (!empty)
+		auto api = playlist_manager_v3::get();
+		pfc::bit_array_bittable affected(api->recycler_get_count());
+		bool ok;
+		if (!helpers::com_array_to_bitarray::convert(affectedItems, affected, ok)) return E_INVALIDARG;
+		if (ok)
 		{
-			plm->recycler_purge(mask);
+			api->recycler_purge(affected);
 		}
 	}
 	catch (...)
@@ -2536,7 +2529,7 @@ STDMETHODIMP FbUtils::get_StopAfterCurrent(VARIANT_BOOL* p)
 {
 	if (!p) return E_POINTER;
 
-	*p = playback_control::get()->get_stop_after_current();
+	*p = TO_VARIANT_BOOL(playback_control::get()->get_stop_after_current());
 	return S_OK;
 }
 
@@ -2726,8 +2719,7 @@ STDMETHODIMP GdiBitmap::GetColourScheme(UINT count, VARIANT* outArray)
 	Gdiplus::BitmapData bmpdata;
 	Gdiplus::Rect rect(0, 0, m_ptr->GetWidth(), m_ptr->GetHeight());
 
-	if (m_ptr->LockBits(&rect, Gdiplus::ImageLockModeRead, PixelFormat32bppARGB, &bmpdata) != Gdiplus::Ok)
-		return E_POINTER;
+	if (m_ptr->LockBits(&rect, Gdiplus::ImageLockModeRead, PixelFormat32bppARGB, &bmpdata) != Gdiplus::Ok) return E_POINTER;
 
 	std::map<unsigned, int> color_counters;
 	const unsigned colors_length = bmpdata.Width * bmpdata.Height;
@@ -2789,6 +2781,95 @@ STDMETHODIMP GdiBitmap::GetColourScheme(UINT count, VARIANT* outArray)
 	return S_OK;
 }
 
+STDMETHODIMP GdiBitmap::GetColourSchemeJSON(UINT count, BSTR* outJson)
+{
+	if (!m_ptr || !outJson) return E_POINTER;
+
+	Gdiplus::BitmapData bmpdata;
+	
+	// rescaled image will have max of ~48k pixels
+	int w = min(m_ptr->GetWidth(), 220), h = min(m_ptr->GetHeight(), 220);
+
+	Gdiplus::Bitmap* bitmap = new Gdiplus::Bitmap(w, h, PixelFormat32bppPARGB);
+	Gdiplus::Graphics g(bitmap);
+	Gdiplus::Rect rect(0, 0, w, h);
+	g.SetInterpolationMode((Gdiplus::InterpolationMode)6); // InterpolationModeHighQualityBilinear
+	g.DrawImage(m_ptr, 0, 0, w, h);	// scale image down
+
+	if (bitmap->LockBits(&rect, Gdiplus::ImageLockModeRead, PixelFormat32bppARGB, &bmpdata) != Gdiplus::Ok)
+		return E_POINTER;
+
+	std::map<unsigned, int> colour_counters;
+	const unsigned colours_length = bmpdata.Width * bmpdata.Height;
+	const t_uint32* colours = (const t_uint32 *)bmpdata.Scan0;
+
+	// reduce color set to pass to k-means by rounding colour components to multiples of 8
+	for (unsigned i = 0; i < colours_length; i++)
+	{		
+		unsigned int r = (colours[i] >> 16) & 0xff;
+		unsigned int g = (colours[i] >> 8) & 0xff;
+		unsigned int b = (colours[i] & 0xff);
+
+		// round colours
+		r = (r + 4) & 0xfffffff8;
+		g = (g + 4) & 0xfffffff8;
+		b = (b + 4) & 0xfffffff8;
+
+		if (r > 255) r = 0xff;
+		if (g > 255) g = 0xff;
+		if (b > 255) b = 0xff;
+
+		++colour_counters[r << 16 | g << 8 | b];
+	}
+	bitmap->UnlockBits(&bmpdata);
+
+	std::map<unsigned, int>::iterator it;
+	std::vector<Point> points;
+	int idx = 0;
+
+	for (it = colour_counters.begin(); it != colour_counters.end(); it++, idx++)
+	{
+		unsigned int r = (it->first >> 16) & 0xff;
+		unsigned int g = (it->first >> 8) & 0xff;
+		unsigned int b = (it->first & 0xff);
+
+		std::vector<unsigned int> values = { r, g, b };
+		Point p(idx, values, it->second);
+		points.push_back(p);
+	}
+
+	KMeans kmeans(count, colour_counters.size(), 12);	// 12 iterations max
+	std::vector<Cluster> clusters = kmeans.run(points);
+
+	pfc::string8_fast temp_json;
+
+	// sort by largest clusters
+	std::sort(
+		clusters.begin(),
+		clusters.end(),
+		[](Cluster& a, Cluster& b) {
+		return a.getTotalPoints() > b.getTotalPoints();
+	});
+
+	temp_json << "[";
+	unsigned outCount = min(count, colour_counters.size());
+	for (unsigned i = 0; i < outCount; ++i)
+	{
+		double frequency = clusters[i].getTotalPoints() / (double)colours_length;
+		int colour = 0xff000000 | (int)clusters[i].getCentralValue(0) << 16 | 
+								  (int)clusters[i].getCentralValue(1) << 8 | 
+								  (int)clusters[i].getCentralValue(2);
+		temp_json << "{\"col\": " << colour << ", \"freq\": " << frequency << "}";
+		if (i + 1 < outCount)
+		{
+			temp_json << ", ";
+		}
+	}
+	temp_json << "]";
+	*outJson = SysAllocString(pfc::stringcvt::string_wide_from_utf8(temp_json));
+	return S_OK;
+}
+
 STDMETHODIMP GdiBitmap::GetGraphics(IGdiGraphics** pp)
 {
 	if (!m_ptr || !pp) return E_POINTER;
@@ -2834,7 +2915,7 @@ STDMETHODIMP GdiBitmap::RotateFlip(UINT mode)
 
 STDMETHODIMP GdiBitmap::SaveAs(BSTR path, BSTR format, VARIANT_BOOL* p)
 {
-	if (!p || !m_ptr) return E_POINTER;
+	if (!m_ptr || !p) return E_POINTER;
 
 	CLSID clsid_encoder;
 	int ret = helpers::get_encoder_clsid(format, &clsid_encoder);
@@ -3887,19 +3968,17 @@ STDMETHODIMP JSUtils::GetSysColour(UINT index, int* p)
 {
 	if (!p) return E_POINTER;
 
-	int ret = ::GetSysColor(index);
-
-	if (!ret)
+	if (::GetSysColorBrush(index) == NULL)
 	{
-		if (!::GetSysColorBrush(index))
-		{
-			// invalid
-			*p = 0;
-			return S_OK;
-		}
+		// invalid index
+		*p = 0;
+	}
+	else
+	{
+		int col = ::GetSysColor(index);
+		*p = helpers::convert_colorref_to_argb(col);
 	}
 
-	*p = helpers::convert_colorref_to_argb(ret);
 	return S_OK;
 }
 
@@ -4066,7 +4145,7 @@ STDMETHODIMP JSUtils::get_Version(UINT* v)
 {
 	if (!v) return E_POINTER;
 
-	*v = 2102;
+	*v = 2110;
 	return S_OK;
 }
 

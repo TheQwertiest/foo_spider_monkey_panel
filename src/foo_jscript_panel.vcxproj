@@ -169,6 +169,7 @@ copy /Y "$(TargetDir)$(TargetName).pdb" "%component_path%\"</Command>
     <ClInclude Include="..\PropertyList\PropertyItemImpl.h" />
     <ClInclude Include="..\PropertyList\PropertyList.h" />
     <ClInclude Include="drop_source_impl.h" />
+    <ClInclude Include="kmeans.h" />
     <ClInclude Include="SString.h" />
     <ClInclude Include="com_tools.h" />
     <ClInclude Include="component_defines.h" />

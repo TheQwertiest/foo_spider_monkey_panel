@@ -21,10 +21,10 @@ namespace helpers
 
 	COLORREF convert_argb_to_colorref(DWORD argb);
 	DWORD convert_colorref_to_argb(DWORD color);
-	IGdiBitmap* query_album_art(album_art_extractor_instance_v2::ptr extractor, GUID& what, VARIANT_BOOL no_load = VARIANT_FALSE, pfc::string_base* image_path_ptr = NULL);
+	IGdiBitmap* query_album_art(album_art_extractor_instance_v2::ptr extractor, GUID& what, bool no_load = false, pfc::string_base* image_path_ptr = NULL);
 	HBITMAP create_hbitmap_from_gdiplus_bitmap(Gdiplus::Bitmap* bitmap_ptr);
 	HRESULT get_album_art_embedded(BSTR rawpath, IGdiBitmap** pp, int art_id);
-	HRESULT get_album_art_v2(const metadb_handle_ptr& handle, IGdiBitmap** pp, int art_id, VARIANT_BOOL need_stub, VARIANT_BOOL no_load = VARIANT_FALSE, pfc::string_base* image_path_ptr = NULL);
+	HRESULT get_album_art_v2(const metadb_handle_ptr& handle, IGdiBitmap** pp, int art_id, bool need_stub, bool no_load = false, pfc::string_base* image_path_ptr = NULL);
 	bool execute_context_command_by_name(const char* p_name, metadb_handle_list_cref p_handles, unsigned flags);
 	bool execute_mainmenu_command_by_name(const char* p_name);
 	bool execute_mainmenu_command_recur_v2(mainmenu_node::ptr node, pfc::string8_fast path, const char* p_name, t_size p_name_len);
@@ -119,7 +119,7 @@ namespace helpers
 			}
 		};
 
-		album_art_async(HWND notify_hwnd, metadb_handle* handle, int art_id, VARIANT_BOOL need_stub, VARIANT_BOOL only_embed, VARIANT_BOOL no_load) : m_notify_hwnd(notify_hwnd), m_handle(handle), m_art_id(art_id), m_need_stub(need_stub), m_only_embed(only_embed), m_no_load(no_load)
+		album_art_async(HWND notify_hwnd, metadb_handle* handle, int art_id, bool need_stub, bool only_embed, bool no_load) : m_notify_hwnd(notify_hwnd), m_handle(handle), m_art_id(art_id), m_need_stub(need_stub), m_only_embed(only_embed), m_no_load(no_load)
 		{
 			if (m_handle.is_valid())
 				m_rawpath = pfc::stringcvt::string_wide_from_utf8(m_handle->get_path());
@@ -130,9 +130,9 @@ namespace helpers
 		metadb_handle_ptr m_handle;
 		_bstr_t m_rawpath;
 		int m_art_id;
-		VARIANT_BOOL m_need_stub;
-		VARIANT_BOOL m_only_embed;
-		VARIANT_BOOL m_no_load;
+		bool m_need_stub;
+		bool m_only_embed;
+		bool m_no_load;
 		HWND m_notify_hwnd;
 	};
 
@@ -419,20 +419,18 @@ namespace helpers
 	class com_array_to_bitarray
 	{
 	public:
-		static bool convert(VARIANT items, unsigned bitArrayCount, pfc::bit_array_bittable& out, bool& empty)
+		static bool convert(VARIANT items, pfc::bit_array_bittable& out, bool& ok)
 		{
-			helpers::com_array_reader arrayReader;
-			empty = false;
+			com_array_reader arrayReader;
+			ok = true;
 
 			if (!arrayReader.convert(&items)) return false;
 			if (arrayReader.get_count() == 0)
 			{
-				empty = true;
+				ok = false;
 				out.resize(0);
 				return true;
 			}
-
-			out.resize(bitArrayCount);
 
 			for (int i = arrayReader.get_lbound(); i < arrayReader.get_count(); ++i)
 			{

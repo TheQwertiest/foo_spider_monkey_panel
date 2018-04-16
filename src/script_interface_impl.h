@@ -195,7 +195,7 @@ protected:
 public:
 	STDMETHODIMP get_Handle(IFbMetadbHandle** outHandle);
 	STDMETHODIMP get_PlaylistIndex(int* outPlaylistIndex);
-	STDMETHODIMP get_PlaylistItemIndex(int* outItemIndex);
+	STDMETHODIMP get_PlaylistItemIndex(int* outPlaylistItemIndex);
 	STDMETHODIMP get__ptr(void** pp);
 };
 
@@ -233,6 +233,7 @@ public:
 	STDMETHODIMP IsPlaylistLocked(UINT playlistIndex, VARIANT_BOOL* p);
 	STDMETHODIMP MovePlaylist(UINT from, UINT to, VARIANT_BOOL* outSuccess);
 	STDMETHODIMP MovePlaylistSelection(UINT playlistIndex, int delta, VARIANT_BOOL* outSuccess);
+	STDMETHODIMP PlaylistItemCount(UINT playlistIndex, UINT* outCount);
 	STDMETHODIMP RemoveItemFromPlaybackQueue(UINT index);
 	STDMETHODIMP RemoveItemsFromPlaybackQueue(VARIANT affectedItems);
 	STDMETHODIMP RemovePlaylist(UINT playlistIndex, VARIANT_BOOL* outSuccess);
@@ -253,7 +254,6 @@ public:
 	STDMETHODIMP get_PlaybackOrder(UINT* outOrder);
 	STDMETHODIMP get_PlayingPlaylist(int* outPlaylistIndex);
 	STDMETHODIMP get_PlaylistCount(UINT* outCount);
-	STDMETHODIMP get_PlaylistItemCount(UINT playlistIndex, UINT* outCount);
 	STDMETHODIMP get_PlaylistRecyclerManager(__interface IFbPlaylistRecyclerManager** outRecyclerManager);
 	STDMETHODIMP put_ActivePlaylist(int playlistIndex);
 	STDMETHODIMP put_PlaybackOrder(UINT order);
@@ -458,6 +458,7 @@ public:
 	STDMETHODIMP Clone(float x, float y, float w, float h, IGdiBitmap** pp);
 	STDMETHODIMP CreateRawBitmap(IGdiRawBitmap** pp);
 	STDMETHODIMP GetColourScheme(UINT count, VARIANT* outArray);
+	STDMETHODIMP GetColourSchemeJSON(UINT count, BSTR* outJson);
 	STDMETHODIMP GetGraphics(IGdiGraphics** pp);
 	STDMETHODIMP ReleaseGraphics(IGdiGraphics* p);
 	STDMETHODIMP Resize(UINT w, UINT h, int interpolationMode, IGdiBitmap** pp);

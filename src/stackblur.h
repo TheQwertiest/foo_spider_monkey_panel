@@ -373,7 +373,9 @@ void stackblur(unsigned char* src, ///< input image data
 		}
 
 		for (int i = 0; i < cores; i++)
+		{
 			workers[i]->waitTillDone();
+		}
 
 		for (int i = 0; i < cores; i++)
 		{
@@ -393,7 +395,7 @@ void stackblur(unsigned char* src, ///< input image data
 	delete[] stack;
 }
 
-void stack_blur_filter(Gdiplus::Bitmap& img, int radius, int core/* = 1*/) throw()
+void stack_blur_filter(Gdiplus::Bitmap& img, int radius, int core) throw()
 {
 	int width = img.GetWidth();
 	int height = img.GetHeight();
@@ -405,10 +407,7 @@ void stack_blur_filter(Gdiplus::Bitmap& img, int radius, int core/* = 1*/) throw
 	rect.Width = width;
 	rect.Height = height;
 
-	if (img.LockBits(&rect,
-		Gdiplus::ImageLockModeRead | Gdiplus::ImageLockModeWrite,
-		PixelFormat32bppPARGB,
-		&bmpdata) == Gdiplus::Ok)
+	if (img.LockBits(&rect, Gdiplus::ImageLockModeRead | Gdiplus::ImageLockModeWrite, PixelFormat32bppPARGB, &bmpdata) == Gdiplus::Ok)
 	{
 		if (radius > 254) radius = 254;
 		if (radius < 2) radius = 2;

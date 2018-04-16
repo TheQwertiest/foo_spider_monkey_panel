@@ -199,12 +199,14 @@ _.mixin({
 		}
 	},
 	fbDate : function (t) {
+		var offset = new Date().getTimezoneOffset() * 60;
 		if (typeof t == 'number') {
+			t -= offset;
 			var tmp = new Date(t * 1000).toISOString(); // ES5 only
 			return tmp.substring(0, 10) + ' ' + tmp.substring(11, 19);
 		} else {
 			var tmp = new Date(t.substring(0, 10) + "T" + t.substring(11, 19) + "Z");
-			return Date.parse(tmp) / 1000;
+			return (Date.parse(tmp) / 1000) + offset;
 		}
 	},
 	fbEscape : function (value) {
@@ -397,9 +399,6 @@ _.mixin({
 		var idx = m1.TrackPopupMenu(x, y, flags);
 		switch (true) {
 		case idx == 0:
-			break;
-		case idx == 1:
-			fb.RunMainMenuCommand('View/Switch to UI/' + (window.InstanceType ? 'Columns UI' : 'Default User Interface'));
 			break;
 		case idx < 2000:
 			mm1.ExecuteByID(idx - 1000);

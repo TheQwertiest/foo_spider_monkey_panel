@@ -224,6 +224,9 @@
     <ClInclude Include="drop_source_impl.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="kmeans.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="default.js">
