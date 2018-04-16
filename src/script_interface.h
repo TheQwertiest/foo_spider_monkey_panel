@@ -93,6 +93,7 @@ __interface IGdiBitmap : IGdiObj
 	STDMETHOD(Clone)(float x, float y, float w, float h, [out, retval] IGdiBitmap** pp);
 	STDMETHOD(CreateRawBitmap)([out, retval] IGdiRawBitmap** pp);
 	STDMETHOD(GetColourScheme)(UINT count, [out, retval] VARIANT* outArray);
+	STDMETHOD(GetColourSchemeJSON)(UINT count, [out, retval] BSTR* outJson);
 	STDMETHOD(GetGraphics)([out, retval] __interface IGdiGraphics** pp);
 	STDMETHOD(ReleaseGraphics)(__interface IGdiGraphics* p);
 	STDMETHOD(Resize)(UINT w, UINT h, [defaultvalue(0)] int interpolationMode, [out, retval] IGdiBitmap** pp);

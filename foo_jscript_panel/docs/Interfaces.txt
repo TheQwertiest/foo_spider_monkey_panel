@@ -1298,6 +1298,19 @@ interface IGdiBitmap {
 		GetColourScheme(max_count); (VBArray)
 		// Returns a VBArray so you need to use .toArray() on the result.
 
+		GetColourSchemeJSON(max_count); (string)
+		/* Returns a JSON array in string form so you need to call JSON.parse() on the result.
+		Each entry in the array is an object which contains colour and frequency values.
+		Uses a different method for calculating colour scheme than GetColourScheme.
+		Image is automatically resized during processing for performance reasons, so there's no
+		need to resize before calling the method.
+		Example:
+		img = ... // use utils.GetAlbumArtV2 / gdi.Image / etc
+		colours = JSON.parse(img.GetColourSchemeJSON(5));
+		console.log(colours[0].col);	// 0xffc00000 => rgb(192,0,0)
+		console.log(colours[0].freq);	// 0.34
+		*/
+
 		GetGraphics();
 		// Don't forget to use ReleaseGraphics() after operations on IGdiGraphics interface is done.
 

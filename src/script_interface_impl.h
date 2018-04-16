@@ -458,6 +458,7 @@ public:
 	STDMETHODIMP Clone(float x, float y, float w, float h, IGdiBitmap** pp);
 	STDMETHODIMP CreateRawBitmap(IGdiRawBitmap** pp);
 	STDMETHODIMP GetColourScheme(UINT count, VARIANT* outArray);
+	STDMETHODIMP GetColourSchemeJSON(UINT count, BSTR* outJson);
 	STDMETHODIMP GetGraphics(IGdiGraphics** pp);
 	STDMETHODIMP ReleaseGraphics(IGdiGraphics* p);
 	STDMETHODIMP Resize(UINT w, UINT h, int interpolationMode, IGdiBitmap** pp);
