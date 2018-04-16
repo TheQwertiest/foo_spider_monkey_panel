@@ -824,7 +824,8 @@ interface IJSConsole {
 interface IJSUtils {
 	Properties:
 		utils.Version (uint) (read)
-		/* new in v1.2.0. returns a 4 digit number corresponding to the version
+		/*
+		New in v1.2.0. Returns a 4 digit number corresponding to the version.
 
 		v1.2.0 -> 1200
 		v1.2.1 -> 1210
@@ -835,7 +836,7 @@ interface IJSUtils {
 		if (!("Version" in utils)) {
 			fb.ShowPopupMessage("Current component version is less than v1.2.0. This script requires vX.X.X");
 		} else {
-			//check the actual version
+			// Check the actual version.
 		}
 		*/
 
@@ -844,12 +845,13 @@ interface IJSUtils {
 		/*
 		is_dll: boolean, default true.
 		If true, method checks filename as well as the internal name.
+
 		Example:
 		console.log(utils.CheckComponent("foo_playcount", true));
 		*/
 
 		utils.CheckFont(name); (boolean)
-		/* 
+		/*
 		name: Can be either in English or the localised name in your OS.
 		This only checks for fonts that are actually installed. It cannot detect fonts
 		loaded by foo_ui_hacks and always returns false. However, gdi.Font can use those fonts.
@@ -859,6 +861,7 @@ interface IJSUtils {
 		/*
 		Spawns a windows popup dialog to let you choose a colour.
 		window_id: window.ID
+
 		Example:
 		var colour = utils.ColourPicker(window.ID, RGB(255, 0, 0));
 		See docs\helpers.txt for RGB function.
@@ -1299,16 +1302,22 @@ interface IGdiBitmap {
 		// Returns a VBArray so you need to use .toArray() on the result.
 
 		GetColourSchemeJSON(max_count); (string)
-		/* Returns a JSON array in string form so you need to call JSON.parse() on the result.
+		/*
+		Returns a JSON array in string form so you need to call JSON.parse() on the result.
 		Each entry in the array is an object which contains colour and frequency values.
-		Uses a different method for calculating colour scheme than GetColourScheme.
-		Image is automatically resized during processing for performance reasons, so there's no
+		Uses a different method for calculating colours than GetColourScheme.
+		Image is automatically resized during processing for performance reasons so there's no
 		need to resize before calling the method.
+
 		Example:
 		img = ... // use utils.GetAlbumArtV2 / gdi.Image / etc
 		colours = JSON.parse(img.GetColourSchemeJSON(5));
-		console.log(colours[0].col);	// 0xffc00000 => rgb(192,0,0)
-		console.log(colours[0].freq);	// 0.34
+		console.log(colours[0].col); // -4194304
+		console.log(colours[0].freq); // 0.34
+
+		console.log(toRGB(colours[0].col)); // [192, 0, 0]
+
+		See docs\helpers.txt for "toRGB" function.
 		*/
 
 		GetGraphics();
