@@ -1,3 +1,8 @@
+v2.1.2
+- CHG: foobar2000 v1.3 is now supported. v1.3 users must make sure they have the
+       Visual C++ 2017 redist installed: https://aka.ms/vs/15/release/vc_redist.x86.exe
+       Full details here: https://github.com/marc2k3/foo_jscript_panel/wiki/Installation
+
 v2.1.1
 - NEW: A new IGdiBitmap GetColourSchemeJSON method has been added. See docs\interfaces.txt.
        Thanks to github.com/kbuffington for the contribution.
