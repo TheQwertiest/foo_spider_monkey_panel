@@ -1,5 +1,5 @@
 v2.1.1
-- ADD: A new IGdiBitmap GetColourSchemeJSON method has been added. See docs\interfaces.txt.
+- NEW: A new IGdiBitmap GetColourSchemeJSON method has been added. See docs\interfaces.txt.
        Thanks to github.com/kbuffington for the contribution.
 - FIX: Fix script error when dragging items on to JSPlaylist / JS Smooth Playlist with no
        active playlist.
