@@ -198,6 +198,7 @@ Called when:
 
 function on_replaygain_mode_changed(new_mode) {}
 /*
+This callback is only available in foobar2000 v1.4 and later.
 new_mode:
 0 None
 1 Track
