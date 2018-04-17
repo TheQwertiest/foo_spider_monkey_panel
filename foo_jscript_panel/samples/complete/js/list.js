@@ -21,13 +21,6 @@ _.mixin({
 				return;
 			}
 			switch (this.mode) {
-			case 'autoplaylists':
-				gr.SetTextRenderingHint(4);
-				this.text_width = this.w - 30;
-				for (var i = 0; i < Math.min(this.items, this.rows); i++) {
-					gr.GdiDrawText(this.data[i + this.offset].name, panel.fonts.normal, panel.colours.text, this.x, this.y + _.scale(12) + (i * panel.row_height), this.text_width, panel.row_height, LEFT);
-				}
-				break;
 			case 'lastfm_info':
 				if (this.properties.mode.value == 0) {
 					this.text_x = 0;
@@ -53,13 +46,13 @@ _.mixin({
 				if (this.properties.mode.value == 0) {
 					this.text_width = this.w - this.spacer_w - 10;
 					for (var i = 0; i < Math.min(this.items, this.rows); i++) {
-						gr.GdiDrawText(this.data[i + this.offset].name, panel.fonts.normal, this.data[i + this.offset].width == 0 ? panel.colours.highlight : panel.colours.text, this.x + this.text_x, this.y + _.scale(12) + (i * panel.row_height), this.text_width, panel.row_height, LEFT);
+						gr.GdiDrawText(this.data[i + this.offset].name, panel.fonts.normal, this.data[i + this.offset].width == 0 ? panel.colours.highlight : panel.colours.text, this.x, this.y + _.scale(12) + (i * panel.row_height), this.text_width, panel.row_height, LEFT);
 						gr.GdiDrawText(this.data[i + this.offset].date, panel.fonts.normal, panel.colours.highlight, this.x, this.y + _.scale(12) + (i * panel.row_height), this.w, panel.row_height, RIGHT);
 					}
 				} else {
 					this.text_width = this.w;
 					for (var i = 0; i < Math.min(this.items, this.rows); i++) {
-						gr.GdiDrawText(this.data[i + this.offset].name, panel.fonts.normal, panel.colours.text, this.x + this.text_x, this.y + _.scale(12) + (i * panel.row_height), this.text_width, panel.row_height, LEFT);
+						gr.GdiDrawText(this.data[i + this.offset].name, panel.fonts.normal, panel.colours.text, this.x, this.y + _.scale(12) + (i * panel.row_height), this.text_width, panel.row_height, LEFT);
 					}
 				}
 				break;
@@ -70,6 +63,7 @@ _.mixin({
 					gr.GdiDrawText(this.data[i + this.offset].value, panel.fonts.normal, panel.colours.text, this.x + this.text_x, this.y + _.scale(12) + (i * panel.row_height), this.text_width, panel.row_height, LEFT);
 				}
 				break;
+			case 'autoplaylists':
 			case 'queue_viewer':
 			default:
 				this.text_width = this.w;
