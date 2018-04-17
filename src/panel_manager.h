@@ -104,18 +104,30 @@ class my_initquit : public initquit, public ui_selection_callback, public replay
 public:
 	virtual void on_init()
 	{
-		replaygain_manager_v2::get()->add_notify(this);
+		if (rg_check())
+		{
+			replaygain_manager_v2::get()->add_notify(this);
+		}
 		ui_selection_manager_v2::get()->register_callback(this, 0);
 	}
 
 	virtual void on_quit()
 	{
-		replaygain_manager_v2::get()->remove_notify(this);
+		if (rg_check())
+		{
+			replaygain_manager_v2::get()->remove_notify(this);
+		}
 		ui_selection_manager_v2::get()->unregister_callback(this);
 	}
 
 	virtual void on_changed(t_replaygain_config const& cfg);
 	virtual void on_selection_changed(metadb_handle_list_cref p_selection);
+
+private:
+	bool rg_check()
+	{
+		return static_api_test_t<replaygain_manager_v2>();
+	}
 };
 
 class my_library_callback : public library_callback
