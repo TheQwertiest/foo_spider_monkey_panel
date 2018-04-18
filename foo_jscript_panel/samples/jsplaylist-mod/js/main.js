@@ -1375,32 +1375,28 @@ function on_mouse_lbtn_up(x, y) {
 	g_left_click_hold = false;
 };
 
-function on_mouse_rbtn_down(x, y) {
-	if (!g_left_click_hold) {
-		// check settings
-		if (cSettings.visible) {
-			p.settings.on_mouse("right", x, y);
-		} else {
-			// check list
-			p.list.check("right", x, y);
-			// check topBar
-			if (cTopBar.visible)
-				p.topBar.check("right", x, y);
-			// check headerbar
-			if (p.headerBar.visible)
-				p.headerBar.on_mouse("right", x, y);
-			// playlist manager
-			if (p.playlistManager.ishoverItem || p.playlistManager.ishoverHeader) {
-				p.playlistManager.check("right", x, y);
-			};
+function on_mouse_rbtn_up(x, y) {
+	if (utils.IsKeyPressed(VK_SHIFT)) {
+		return false;
+	};
+	
+	if (cSettings.visible) {
+		p.settings.on_mouse("right", x, y);
+	} else {
+		// check list
+		p.list.check("right", x, y);
+		// check topBar
+		if (cTopBar.visible)
+			p.topBar.check("right", x, y);
+		// check headerbar
+		if (p.headerBar.visible)
+			p.headerBar.on_mouse("right", x, y);
+		// playlist manager
+		if (p.playlistManager.ishoverItem || p.playlistManager.ishoverHeader) {
+			p.playlistManager.check("right", x, y);
 		};
 	};
-};
-
-function on_mouse_rbtn_up(x, y) {
-	if (!utils.IsKeyPressed(VK_SHIFT)) {
-		return true;
-	};
+	return true;
 };
 
 function on_mouse_move(x, y) {

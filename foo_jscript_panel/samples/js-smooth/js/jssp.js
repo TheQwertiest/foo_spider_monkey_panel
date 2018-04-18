@@ -887,7 +887,7 @@ oFilterBox = function () {
 		case "lbtn_dblclk":
 			this.inputbox.check("dblclk", x, y);
 			break;
-		case "rbtn_down":
+		case "rbtn_up":
 			this.inputbox.check("right", x, y);
 			break;
 		case "move":
@@ -2906,7 +2906,6 @@ oBrowser = function (name) {
 		_child01.Dispose();
 		_child02.Dispose();
 		_menu.Dispose();
-		g_rbtn_click = false;
 		return true;
 	};
 
@@ -3055,7 +3054,6 @@ oBrowser = function (name) {
 		_menu2.Dispose();
 		_menu1.Dispose();
 		_menu.Dispose();
-		g_rbtn_click = false;
 		return true;
 	};
 
@@ -3275,7 +3273,6 @@ var g_avoid_on_playlist_items_removed_callbacks_on_sendItemToPlaylist = false;
 var g_avoid_on_playlist_items_reordered = false;
 // mouse actions
 var g_lbtn_click = false;
-var g_rbtn_click = false;
 //
 var g_total_duration_text = "";
 var g_first_populate_done = false;
@@ -3388,7 +3385,6 @@ function on_paint(gr) {
 
 function on_mouse_lbtn_down(x, y) {
 	g_lbtn_click = true;
-	g_rbtn_click = false;
 
 	// stop inertia
 	if (cTouch.timer) {
@@ -3495,29 +3491,22 @@ function on_mouse_lbtn_dblclk(x, y, mask) {
 	};
 };
 
-function on_mouse_rbtn_down(x, y, mask) {
-	g_rbtn_click = true;
-
-	if (!utils.IsKeyPressed(VK_SHIFT)) {
-		// inputBox
-		if (ppt.showHeaderBar && ppt.showFilterBox && g_filterbox.inputbox.visible) {
-			g_filterbox.on_mouse("rbtn_down", x, y);
-		};
-
-		if (pman.state == 1) {
-			pman.on_mouse("right", x, y);
-		};
-
-		brw.on_mouse("right", x, y);
-	};
-};
-
 function on_mouse_rbtn_up(x, y) {
-	g_rbtn_click = false;
-
-	if (!utils.IsKeyPressed(VK_SHIFT)) {
-		return;
+	if (utils.IsKeyPressed(VK_SHIFT)) {
+		return false;
 	};
+
+	// inputBox
+	if (ppt.showHeaderBar && ppt.showFilterBox && g_filterbox.inputbox.visible) {
+		g_filterbox.on_mouse("rbtn_up", x, y);
+	};
+
+	if (pman.state == 1) {
+		pman.on_mouse("right", x, y);
+	};
+
+	brw.on_mouse("right", x, y);
+	return true;
 };
 
 function on_mouse_move(x, y) {
@@ -4587,29 +4576,28 @@ function on_item_focus_change(playlist, from, to) {
 				};
 			};
 
-			if (!g_rbtn_click) { // if new focused track not totally visible, we scroll to show it centered in the panel
-				g_focus_row = brw.getOffsetFocusItem(g_focus_id);
-				if (g_focus_row < scroll / ppt.rowHeight || g_focus_row > scroll / ppt.rowHeight + brw.totalRowsVis - 0.1) {
-					var old = scroll;
-					scroll = (g_focus_row - Math.floor(brw.totalRowsVis / 2)) * ppt.rowHeight;
-					scroll = check_scroll(scroll);
-					if (!ppt.enableFullScrollEffectOnFocusChange) {
-						if (Math.abs(scroll - scroll_) > ppt.rowHeight * 5) {
-							if (scroll_ > scroll) {
-								scroll_ = scroll + ppt.rowHeight * 5;
-							} else {
-								scroll_ = scroll - ppt.rowHeight * 5;
-							};
+			// if new focused track not totally visible, we scroll to show it centered in the panel
+			g_focus_row = brw.getOffsetFocusItem(g_focus_id);
+			if (g_focus_row < scroll / ppt.rowHeight || g_focus_row > scroll / ppt.rowHeight + brw.totalRowsVis - 0.1) {
+				var old = scroll;
+				scroll = (g_focus_row - Math.floor(brw.totalRowsVis / 2)) * ppt.rowHeight;
+				scroll = check_scroll(scroll);
+				if (!ppt.enableFullScrollEffectOnFocusChange) {
+					if (Math.abs(scroll - scroll_) > ppt.rowHeight * 5) {
+						if (scroll_ > scroll) {
+							scroll_ = scroll + ppt.rowHeight * 5;
+						} else {
+							scroll_ = scroll - ppt.rowHeight * 5;
 						};
 					};
-					/*
-					if(!ppt.enableFullScrollEffectOnFocusChange && !ppt.autocollapse) {
-					scroll_ = scroll + ppt.rowHeight * 5 * (from <= to ? -1 : 1);
-					scroll_ = check_scroll(scroll_);
-					};
-					 */
-					brw.scrollbar.updateScrollbar();
 				};
+				/*
+				if(!ppt.enableFullScrollEffectOnFocusChange && !ppt.autocollapse) {
+				scroll_ = scroll + ppt.rowHeight * 5 * (from <= to ? -1 : 1);
+				scroll_ = check_scroll(scroll_);
+				};
+				 */
+				brw.scrollbar.updateScrollbar();
 			};
 
 			brw.metadblist_selection = plman.GetPlaylistSelectedItems(g_active_playlist);
