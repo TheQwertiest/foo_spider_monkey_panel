@@ -33,6 +33,7 @@ namespace helpers
 	bool read_album_art_into_bitmap(const album_art_data_ptr& data, Gdiplus::Bitmap** bitmap);
 	bool read_file(const char* path, pfc::string_base& content);
 	bool read_file_wide(unsigned codepage, const wchar_t* path, pfc::array_t<wchar_t>& content);
+	bool supports_chakra();
 	bool write_file(const char* path, const pfc::string_base& content, bool write_bom = true);
 	const GUID convert_artid_to_guid(int art_id);
 	int get_encoder_clsid(const WCHAR* format, CLSID* pClsid);

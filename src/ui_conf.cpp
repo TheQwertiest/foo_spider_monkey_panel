@@ -45,7 +45,8 @@ LRESULT CDialogConf::OnInitDialog(HWND hwndFocus, LPARAM lParam)
 	HWND combo_engine = GetDlgItem(IDC_COMBO_ENGINE);
 	ComboBox_AddString(combo_engine, _T("Chakra"));
 	ComboBox_AddString(combo_engine, _T("JScript"));
-	if (IsWindowsVistaOrGreater())
+
+	if (helpers::supports_chakra())
 	{
 		uComboBox_SelectString(combo_engine, m_parent->get_script_engine());
 	}
@@ -60,9 +61,10 @@ LRESULT CDialogConf::OnInitDialog(HWND hwndFocus, LPARAM lParam)
 	ComboBox_AddString(combo_edge, _T("None"));
 	ComboBox_AddString(combo_edge, _T("Sunken"));
 	ComboBox_AddString(combo_edge, _T("Grey"));
+
 	if (core_version_info_v2::get()->test_version(1, 4, 0, 0) && m_parent->GetInstanceType() == HostComm::KInstanceTypeDUI)
 	{
-		// disbale in default UI fb2k v1.4 and above
+		// disable in default UI fb2k v1.4 and above
 		ComboBox_SetCurSel(combo_edge, 0);
 		GetDlgItem(IDC_COMBO_EDGE).EnableWindow(false);
 	}

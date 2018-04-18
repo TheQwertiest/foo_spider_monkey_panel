@@ -264,7 +264,7 @@ HRESULT ScriptHost::InitScriptEngineByName(const wchar_t* engineName)
 	HRESULT hr = E_FAIL;
 	const DWORD classContext = CLSCTX_INPROC_SERVER | CLSCTX_INPROC_HANDLER;
 
-	if (IsWindowsVistaOrGreater() && wcscmp(engineName, L"Chakra") == 0)
+	if (helpers::supports_chakra() && wcscmp(engineName, L"Chakra") == 0)
 	{
 		static const CLSID jscript9clsid = { 0x16d51579, 0xa30b, 0x4c8b,{ 0xa2, 0x76, 0x0f, 0xf4, 0xdc, 0x41, 0xe7, 0x55 } };
 		hr = m_script_engine.CreateInstance(jscript9clsid, NULL, classContext);

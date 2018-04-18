@@ -568,6 +568,12 @@ namespace helpers
 		return status;
 	}
 
+	bool supports_chakra()
+	{
+		HKEY hKey;
+		return RegOpenKeyExW(HKEY_CLASSES_ROOT, L"CLSID\\{16d51579-a30b-4c8b-a276-0ff4dc41e755}", 0, KEY_READ, &hKey) == ERROR_SUCCESS;
+	}
+
 	bool write_file(const char* path, const pfc::string_base& content, bool write_bom)
 	{
 		int offset = write_bom ? 3 : 0;
