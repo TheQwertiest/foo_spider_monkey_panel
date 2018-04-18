@@ -2653,9 +2653,7 @@ oBrowser = function (name) {
 						plman.SetPlaylistFocusItem(g_active_playlist, playlistTrackId);
 						this.SHIFT_start_id = null;
 					};
-					if (!utils.IsKeyPressed(VK_SHIFT)) {
-						this.context_menu(x, y, this.track_index, this.row_index);
-					};
+					this.context_menu(x, y, this.track_index, this.row_index);
 					break;
 				case (rowType == 0): // ----------------> track row
 					var playlistTrackId = this.rows[this.activeRow].playlistTrackId;
@@ -2664,9 +2662,7 @@ oBrowser = function (name) {
 						plman.SetPlaylistSelectionSingle(g_active_playlist, playlistTrackId, true);
 						plman.SetPlaylistFocusItem(g_active_playlist, playlistTrackId);
 					};
-					if (!utils.IsKeyPressed(VK_SHIFT)) {
-						this.context_menu(x, y, playlistTrackId, this.activeRow);
-					};
+					this.context_menu(x, y, playlistTrackId, this.activeRow);
 					break;
 				case (rowType == 99): // ----------------> extra empty row
 
@@ -3492,10 +3488,6 @@ function on_mouse_lbtn_dblclk(x, y, mask) {
 };
 
 function on_mouse_rbtn_up(x, y) {
-	if (utils.IsKeyPressed(VK_SHIFT)) {
-		return false;
-	};
-
 	// inputBox
 	if (ppt.showHeaderBar && ppt.showFilterBox && g_filterbox.inputbox.visible) {
 		g_filterbox.on_mouse("rbtn_up", x, y);

@@ -1376,10 +1376,6 @@ function on_mouse_lbtn_up(x, y) {
 };
 
 function on_mouse_rbtn_up(x, y) {
-	if (utils.IsKeyPressed(VK_SHIFT)) {
-		return false;
-	};
-	
 	if (cSettings.visible) {
 		p.settings.on_mouse("right", x, y);
 	} else {

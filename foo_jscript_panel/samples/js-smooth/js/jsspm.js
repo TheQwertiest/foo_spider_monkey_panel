@@ -1970,10 +1970,6 @@ function on_mouse_lbtn_dblclk(x, y, mask) {
 };
 
 function on_mouse_rbtn_up(x, y) {
-	if (utils.IsKeyPressed(VK_SHIFT)) {
-		return false;
-	};
-	
 	// inputBox
 	if (ppt.showHeaderBar && ppt.showFilterBox && g_filterbox.inputbox.visible) {
 		g_filterbox.on_mouse("rbtn_up", x, y);
