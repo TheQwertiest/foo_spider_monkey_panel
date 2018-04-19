@@ -142,7 +142,7 @@ void stackblurJob(unsigned char* src, ///< input image data
 			sp = radius;
 			xp = radius;
 			if (xp > wm) xp = wm;
-			src_ptr = src + 4 * (xp + y * w); //   img.pix_ptr(xp, y);
+			src_ptr = src + 4 * (xp + y * w); // img.pix_ptr(xp, y);
 			dst_ptr = src + y * w4; // img.pix_ptr(0, y);
 			for (x = 0; x < w; x++)
 			{

@@ -2795,7 +2795,7 @@ STDMETHODIMP GdiBitmap::GetColourSchemeJSON(UINT count, BSTR* outJson)
 	Gdiplus::Graphics g(bitmap);
 	Gdiplus::Rect rect(0, 0, w, h);
 	g.SetInterpolationMode((Gdiplus::InterpolationMode)6); // InterpolationModeHighQualityBilinear
-	g.DrawImage(m_ptr, 0, 0, w, h);	// scale image down
+	g.DrawImage(m_ptr, 0, 0, w, h); // scale image down
 
 	if (bitmap->LockBits(&rect, Gdiplus::ImageLockModeRead, PixelFormat32bppARGB, &bmpdata) != Gdiplus::Ok)
 		return E_POINTER;
@@ -2839,10 +2839,8 @@ STDMETHODIMP GdiBitmap::GetColourSchemeJSON(UINT count, BSTR* outJson)
 		points.push_back(p);
 	}
 
-	KMeans kmeans(count, colour_counters.size(), 12);	// 12 iterations max
+	KMeans kmeans(count, colour_counters.size(), 12); // 12 iterations max
 	std::vector<Cluster> clusters = kmeans.run(points);
-
-	pfc::string8_fast temp_json;
 
 	// sort by largest clusters
 	std::sort(
@@ -2852,22 +2850,20 @@ STDMETHODIMP GdiBitmap::GetColourSchemeJSON(UINT count, BSTR* outJson)
 		return a.getTotalPoints() > b.getTotalPoints();
 	});
 
-	temp_json << "[";
-	unsigned outCount = min(count, colour_counters.size());
-	for (unsigned i = 0; i < outCount; ++i)
+	json j;
+	t_size outCount = min(count, colour_counters.size());
+	for (t_size i = 0; i < outCount; ++i)
 	{
+		int colour = 0xff000000 | (int)clusters[i].getCentralValue(0) << 16 | (int)clusters[i].getCentralValue(1) << 8 | (int)clusters[i].getCentralValue(2);
 		double frequency = clusters[i].getTotalPoints() / (double)colours_length;
-		int colour = 0xff000000 | (int)clusters[i].getCentralValue(0) << 16 | 
-								  (int)clusters[i].getCentralValue(1) << 8 | 
-								  (int)clusters[i].getCentralValue(2);
-		temp_json << "{\"col\": " << colour << ", \"freq\": " << frequency << "}";
-		if (i + 1 < outCount)
-		{
-			temp_json << ", ";
-		}
+
+		j.push_back({
+			{ "col", colour },
+			{ "freq", frequency }
+		});
 	}
-	temp_json << "]";
-	*outJson = SysAllocString(pfc::stringcvt::string_wide_from_utf8(temp_json));
+	std::string s = j.dump();
+	*outJson = SysAllocString(pfc::stringcvt::string_wide_from_utf8(s.c_str()));
 	return S_OK;
 }
 

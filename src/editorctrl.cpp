@@ -174,8 +174,9 @@ static t_size LengthWord(const char * word, char otherSeparator)
 	// Drop any space characters.
 	if (endWord > word)
 	{
-		endWord--;	// Back from the '(', otherSeparator, or '\0'
-					// Move backwards over any spaces
+		endWord--;
+		// Back from the '(', otherSeparator, or '\0'
+		// Move backwards over any spaces
 
 		while ((endWord > word) && (IsASpace(*endWord)))
 		{
