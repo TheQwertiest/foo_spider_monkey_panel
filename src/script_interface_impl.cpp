@@ -2585,6 +2585,7 @@ STDMETHODIMP FbUtils::put_ReplaygainMode(UINT p)
 		return E_INVALIDARG;
 	}
 
+	playback_control_v3::get()->restart();
 	return S_OK;
 }
 
