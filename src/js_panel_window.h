@@ -51,6 +51,7 @@ private:
 	void on_mouse_wheel(WPARAM wp);
 	void on_mouse_wheel_h(WPARAM wp);
 	void on_notify_data(WPARAM wp);
+	void on_output_device_changed();
 	void on_paint(HDC dc, LPRECT lpUpdateRect);
 	void on_paint_error(HDC memdc);
 	void on_paint_user(HDC memdc, LPRECT lpUpdateRect);

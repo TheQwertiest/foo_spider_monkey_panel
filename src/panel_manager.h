@@ -99,7 +99,7 @@ private:
 	PFC_CLASS_NOT_COPYABLE_EX(panel_manager)
 };
 
-class my_initquit : public initquit, public ui_selection_callback, public replaygain_core_settings_notify
+class my_initquit : public initquit, public ui_selection_callback, public replaygain_core_settings_notify, public output_config_change_callback
 {
 public:
 	virtual void on_init()
@@ -107,6 +107,7 @@ public:
 		if (rg_check())
 		{
 			replaygain_manager_v2::get()->add_notify(this);
+			output_manager_v2::get()->addCallback(this);
 		}
 		ui_selection_manager_v2::get()->register_callback(this, 0);
 	}
@@ -116,12 +117,14 @@ public:
 		if (rg_check())
 		{
 			replaygain_manager_v2::get()->remove_notify(this);
+			output_manager_v2::get()->removeCallback(this);
 		}
 		ui_selection_manager_v2::get()->unregister_callback(this);
 	}
 
 	virtual void on_changed(t_replaygain_config const& cfg);
 	virtual void on_selection_changed(metadb_handle_list_cref p_selection);
+	virtual void outputConfigChanged();
 
 private:
 	bool rg_check()

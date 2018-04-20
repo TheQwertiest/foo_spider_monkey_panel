@@ -39,6 +39,7 @@ struct CallbackIds
 		on_mouse_wheel,
 		on_mouse_wheel_h,
 		on_notify_data,
+		on_output_device_changed,
 		on_paint,
 		on_playback_dynamic_info,
 		on_playback_dynamic_info_track,

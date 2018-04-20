@@ -271,6 +271,10 @@ LRESULT js_panel_window::on_message(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 		on_main_menu(wp);
 		return 0;
 
+	case CALLBACK_UWM_ON_OUTPUT_DEVICE_CHANGED:
+		on_output_device_changed();
+		return 0;
+
 	case CALLBACK_UWM_ON_PLAYBACK_DYNAMIC_INFO:
 		on_playback_dynamic_info();
 		return 0;
@@ -880,6 +884,11 @@ void js_panel_window::on_notify_data(WPARAM wp)
 	args[1].vt = VT_BSTR;
 	args[1].bstrVal = data->m_item1;
 	script_invoke_v(CallbackIds::on_notify_data, args, _countof(args));
+}
+
+void js_panel_window::on_output_device_changed()
+{
+	script_invoke_v(CallbackIds::on_output_device_changed);
 }
 
 void js_panel_window::on_paint(HDC dc, LPRECT lpUpdateRect)
