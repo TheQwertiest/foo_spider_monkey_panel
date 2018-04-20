@@ -2163,10 +2163,14 @@ STDMETHODIMP FbUtils::GetOutputDevices(BSTR* p)
 	api->getCoreConfig(config);
 
 	api->listDevices([&j, &config](pfc::string8&& name, auto&& output_id, auto&& device_id) {
+		std::string name_string = name.get_ptr();
+		std::string output_string = pfc::print_guid(output_id).get_ptr();
+		std::string device_string = pfc::print_guid(device_id).get_ptr();
+
 		j.push_back({
-			{ "name", name.get_ptr() },
-			{ "output_id", pfc::print_guid(output_id).get_ptr() },
-			{ "device_id", pfc::print_guid(device_id).get_ptr() },
+			{ "name", name_string },
+			{ "output_id", "{" + output_string + "}" },
+			{ "device_id", "{" + device_string + "}" },
 			{ "active", config.m_output == output_id && config.m_device == device_id }
 		});
 	});
