@@ -2152,6 +2152,30 @@ STDMETHODIMP FbUtils::GetNowPlaying(IFbMetadbHandle** pp)
 	return S_OK;
 }
 
+STDMETHODIMP FbUtils::GetOutputDevices(BSTR* p)
+{
+	if (!p) return E_POINTER;
+	if (!static_api_test_t<output_manager_v2>()) return E_NOTIMPL;
+
+	json j;
+	auto api = output_manager_v2::get();
+	outputCoreConfig_t config;
+	api->getCoreConfig(config);
+
+	api->listDevices([&j, &config](pfc::string8&& name, auto&& output_id, auto&& device_id) {
+		j.push_back({
+			{ "name", name.get_ptr() },
+			{ "output_id", pfc::print_guid(output_id).get_ptr() },
+			{ "device_id", pfc::print_guid(device_id).get_ptr() },
+			{ "active", config.m_output == output_id && config.m_device == device_id }
+		});
+	});
+
+	std::string s = j.dump();
+	*p = SysAllocString(pfc::stringcvt::string_wide_from_utf8_fast(s.c_str()));
+	return S_OK;
+}
+
 STDMETHODIMP FbUtils::GetQueryItems(IFbMetadbHandleList* handles, BSTR query, IFbMetadbHandleList** pp)
 {
 	if (!pp) return E_POINTER;

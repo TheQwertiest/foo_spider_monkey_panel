@@ -398,6 +398,7 @@ public:
 	STDMETHODIMP GetLibraryItems(IFbMetadbHandleList** outItems);
 	STDMETHODIMP GetLibraryRelativePath(IFbMetadbHandle* handle, BSTR* p);
 	STDMETHODIMP GetNowPlaying(IFbMetadbHandle** pp);
+	STDMETHODIMP GetOutputDevices(BSTR* p);
 	STDMETHODIMP GetQueryItems(IFbMetadbHandleList* handles, BSTR query, IFbMetadbHandleList** pp);
 	STDMETHODIMP GetSelection(IFbMetadbHandle** pp);
 	STDMETHODIMP GetSelectionType(UINT* p);
