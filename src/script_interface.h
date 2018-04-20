@@ -393,6 +393,7 @@ __interface IFbUtils : IDispatch
 	STDMETHOD(RunMainMenuCommand)(BSTR command, [out, retval] VARIANT_BOOL* p);
 	STDMETHOD(SaveIndex)();
 	STDMETHOD(SavePlaylist)();
+	STDMETHOD(SetOutputDevice)(BSTR output, BSTR device);
 	STDMETHOD(ShowConsole)();
 	STDMETHOD(ShowLibrarySearchUI)(BSTR query);
 	STDMETHOD(ShowPopupMessage)(BSTR msg, [defaultvalue(JSP_NAME)] BSTR title);

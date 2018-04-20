@@ -2399,6 +2399,19 @@ STDMETHODIMP FbUtils::SavePlaylist()
 	return S_OK;
 }
 
+STDMETHODIMP FbUtils::SetOutputDevice(BSTR output, BSTR device)
+{
+	if (!static_api_test_t<output_manager_v2>()) return E_NOTIMPL;
+
+	GUID output_id, device_id;
+
+	if (CLSIDFromString(output, &output_id) == NOERROR && CLSIDFromString(device, &device_id) == NOERROR)
+	{
+		output_manager_v2::get()->setCoreConfigDevice(output_id, device_id);
+	}
+	return S_OK;
+}
+
 STDMETHODIMP FbUtils::ShowConsole()
 {
 	const GUID guid_main_show_console = { 0x5b652d25, 0xce44, 0x4737, {0x99, 0xbb, 0xa3, 0xcf, 0x2a, 0xeb, 0x35, 0xcc} };

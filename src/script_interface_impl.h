@@ -417,6 +417,7 @@ public:
 	STDMETHODIMP RunMainMenuCommand(BSTR command, VARIANT_BOOL* p);
 	STDMETHODIMP SaveIndex();
 	STDMETHODIMP SavePlaylist();
+	STDMETHODIMP SetOutputDevice(BSTR output, BSTR device);
 	STDMETHODIMP ShowConsole();
 	STDMETHODIMP ShowLibrarySearchUI(BSTR query);
 	STDMETHODIMP ShowPopupMessage(BSTR msg, BSTR title);
