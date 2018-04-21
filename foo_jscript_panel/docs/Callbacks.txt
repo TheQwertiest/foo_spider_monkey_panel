@@ -118,6 +118,7 @@ function on_notify_data(name, info) {}
 // Called in other panels after window.NotifyOthers(name, info) is executed
 
 function on_output_device_changed() {}
+// This callback is only available in foobar2000 v1.4 and later.
 // Called when output device changes. Use fb.GetOutputDevices to retrieve settings.
 
 function on_paint(gr) {}
