@@ -215,36 +215,24 @@ LRESULT js_panel_window::on_message(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 		}
 		break;
 
-	case CALLBACK_UWM_ALWAYS_ON_TOP:
+	case CALLBACK_UWM_ON_ALWAYS_ON_TOP_CHANGED:
 		on_always_on_top_changed(wp);
 		return 0;
 
-	case CALLBACK_UWM_COLOURS_CHANGED:
+	case CALLBACK_UWM_ON_COLOURS_CHANGED:
 		on_colours_changed();
 		return 0;
 
-	case CALLBACK_UWM_CURSOR_FOLLOW_PLAYBACK:
+	case CALLBACK_UWM_ON_CURSOR_FOLLOW_PLAYBACK_CHANGED:
 		on_cursor_follow_playback_changed(wp);
 		return 0;
 
-	case CALLBACK_UWM_FONT_CHANGED:
+	case CALLBACK_UWM_ON_FONT_CHANGED:
 		on_font_changed();
 		return 0;
 
-	case CALLBACK_UWM_GETALBUMARTASYNCDONE:
+	case CALLBACK_UWM_ON_GET_ALBUM_ART_DONE:
 		on_get_album_art_done(lp);
-		return 0;
-
-	case CALLBACK_UWM_LOADIMAGEASYNCDONE:
-		on_load_image_done(lp);
-		return 0;
-
-	case CALLBACK_UWM_NOTIFY_DATA:
-		on_notify_data(wp);
-		return 0;
-
-	case CALLBACK_UWM_ON_CHANGED_SORTED:
-		on_changed_sorted(wp);
 		return 0;
 
 	case CALLBACK_UWM_ON_ITEM_FOCUS_CHANGE:
@@ -267,8 +255,21 @@ LRESULT js_panel_window::on_message(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 		on_library_items_removed(wp);
 		return 0;
 
+	case CALLBACK_UWM_ON_LOAD_IMAGE_DONE:
+		on_load_image_done(lp);
+		return 0;
+
+
 	case CALLBACK_UWM_ON_MAIN_MENU:
 		on_main_menu(wp);
+		return 0;
+
+	case CALLBACK_UWM_ON_METADB_CHANGED:
+		on_metadb_changed(wp);
+		return 0;
+
+	case CALLBACK_UWM_ON_NOTIFY_DATA:
+		on_notify_data(wp);
 		return 0;
 
 	case CALLBACK_UWM_ON_OUTPUT_DEVICE_CHANGED:
@@ -285,6 +286,10 @@ LRESULT js_panel_window::on_message(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 
 	case CALLBACK_UWM_ON_PLAYBACK_EDITED:
 		on_playback_edited(wp);
+		return 0;
+
+	case CALLBACK_UWM_ON_PLAYBACK_FOLLOW_CURSOR_CHANGED:
+		on_playback_follow_cursor_changed(wp);
 		return 0;
 
 	case CALLBACK_UWM_ON_PLAYBACK_NEW_TRACK:
@@ -319,8 +324,8 @@ LRESULT js_panel_window::on_message(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 		on_playback_time(wp);
 		return 0;
 
-	case CALLBACK_UWM_ON_PLAYLISTS_CHANGED:
-		on_playlists_changed();
+	case CALLBACK_UWM_ON_PLAYLIST_ITEM_ENSURE_VISIBLE:
+		on_playlist_item_ensure_visible(wp, lp);
 		return 0;
 
 	case CALLBACK_UWM_ON_PLAYLIST_ITEMS_ADDED:
@@ -339,12 +344,16 @@ LRESULT js_panel_window::on_message(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 		on_playlist_items_selection_change();
 		return 0;
 
-	case CALLBACK_UWM_ON_PLAYLIST_ITEM_ENSURE_VISIBLE:
-		on_playlist_item_ensure_visible(wp, lp);
+	case CALLBACK_UWM_ON_PLAYLIST_STOP_AFTER_CURRENT_CHANGED:
+		on_playlist_stop_after_current_changed(wp);
 		return 0;
 
 	case CALLBACK_UWM_ON_PLAYLIST_SWITCH:
 		on_playlist_switch();
+		return 0;
+
+	case CALLBACK_UWM_ON_PLAYLISTS_CHANGED:
+		on_playlists_changed();
 		return 0;
 
 	case CALLBACK_UWM_ON_REPLAYGAIN_MODE_CHANGED:
@@ -359,12 +368,8 @@ LRESULT js_panel_window::on_message(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 		on_volume_change(wp);
 		return 0;
 
-	case CALLBACK_UWM_PLAYBACK_FOLLOW_CURSOR:
-		on_playback_follow_cursor_changed(wp);
-		return 0;
-
-	case CALLBACK_UWM_PLAYLIST_STOP_AFTER_CURRENT:
-		on_playlist_stop_after_current_changed(wp);
+	case UWM_REFRESHBK:
+		Redraw();
 		return 0;
 
 	case UWM_RELOAD:
@@ -385,10 +390,6 @@ LRESULT js_panel_window::on_message(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 
 	case UWM_SCRIPT_TERM:
 		script_unload();
-		return 0;
-
-	case UWM_REFRESHBK:
-		Redraw();
 		return 0;
 
 	case UWM_SHOWCONFIGURE:
@@ -561,22 +562,6 @@ void js_panel_window::on_always_on_top_changed(WPARAM wp)
 	script_invoke_v(CallbackIds::on_always_on_top_changed, args, _countof(args));
 }
 
-void js_panel_window::on_changed_sorted(WPARAM wp)
-{
-	simple_callback_data_scope_releaser<t_on_data> data(wp);
-	FbMetadbHandleList* handles = new com_object_impl_t<FbMetadbHandleList>(data->m_items);
-
-	VARIANTARG args[2];
-	args[0].vt = VT_BOOL;
-	args[0].boolVal = TO_VARIANT_BOOL(data->m_fromhook);
-	args[1].vt = VT_DISPATCH;
-	args[1].pdispVal = handles;
-	script_invoke_v(CallbackIds::on_metadb_changed, args, _countof(args));
-
-	if (handles)
-		handles->Release();
-}
-
 void js_panel_window::on_colours_changed()
 {
 	script_invoke_v(CallbackIds::on_colours_changed);
@@ -715,6 +700,22 @@ void js_panel_window::on_main_menu(WPARAM wp)
 	args[0].vt = VT_I4;
 	args[0].lVal = wp;
 	script_invoke_v(CallbackIds::on_main_menu, args, _countof(args));
+}
+
+void js_panel_window::on_metadb_changed(WPARAM wp)
+{
+	simple_callback_data_scope_releaser<t_on_data> data(wp);
+	FbMetadbHandleList* handles = new com_object_impl_t<FbMetadbHandleList>(data->m_items);
+
+	VARIANTARG args[2];
+	args[0].vt = VT_BOOL;
+	args[0].boolVal = TO_VARIANT_BOOL(data->m_fromhook);
+	args[1].vt = VT_DISPATCH;
+	args[1].pdispVal = handles;
+	script_invoke_v(CallbackIds::on_metadb_changed, args, _countof(args));
+
+	if (handles)
+		handles->Release();
 }
 
 void js_panel_window::on_mouse_button_dblclk(UINT msg, WPARAM wp, LPARAM lp)

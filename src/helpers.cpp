@@ -957,7 +957,7 @@ namespace helpers
 
 		t_param param(handle, m_art_id, bitmap, image_path.is_empty() ? "" : file_path_display(image_path));
 
-		SendMessage(m_notify_hwnd, CALLBACK_UWM_GETALBUMARTASYNCDONE, 0, (LPARAM)&param);
+		SendMessage(m_notify_hwnd, CALLBACK_UWM_ON_GET_ALBUM_ART_DONE, 0, (LPARAM)&param);
 	}
 
 	void load_image_async::run()
@@ -977,6 +977,6 @@ namespace helpers
 
 		t_param param(reinterpret_cast<unsigned>(this), bitmap, m_path);
 
-		SendMessage(m_notify_hwnd, CALLBACK_UWM_LOADIMAGEASYNCDONE, 0, (LPARAM)&param);
+		SendMessage(m_notify_hwnd, CALLBACK_UWM_ON_LOAD_IMAGE_DONE, 0, (LPARAM)&param);
 	}
 }

@@ -212,11 +212,11 @@ void js_panel_window_dui::notify(const GUID& p_what, t_size p_param1, const void
 	}
 	else if (p_what == ui_element_notify_font_changed)
 	{
-		PostMessage(m_hwnd, CALLBACK_UWM_FONT_CHANGED, 0, 0);
+		PostMessage(m_hwnd, CALLBACK_UWM_ON_FONT_CHANGED, 0, 0);
 	}
 	else if (p_what == ui_element_notify_colors_changed)
 	{
-		PostMessage(m_hwnd, CALLBACK_UWM_COLOURS_CHANGED, 0, 0);
+		PostMessage(m_hwnd, CALLBACK_UWM_ON_COLOURS_CHANGED, 0, 0);
 	}
 }
 

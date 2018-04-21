@@ -31,7 +31,6 @@ private:
 	void create_context();
 	void delete_context();
 	void on_always_on_top_changed(WPARAM wp);
-	void on_changed_sorted(WPARAM wp);
 	void on_colours_changed();
 	void on_context_menu(int x, int y);
 	void on_cursor_follow_playback_changed(WPARAM wp);
@@ -44,6 +43,7 @@ private:
 	void on_library_items_removed(WPARAM wp);
 	void on_load_image_done(LPARAM lp);
 	void on_main_menu(WPARAM wp);
+	void on_metadb_changed(WPARAM wp);
 	void on_mouse_button_dblclk(UINT msg, WPARAM wp, LPARAM lp);
 	void on_mouse_button_down(UINT msg, WPARAM wp, LPARAM lp);
 	void on_mouse_leave();

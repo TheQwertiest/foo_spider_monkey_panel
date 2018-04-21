@@ -821,7 +821,7 @@ STDMETHODIMP FbWindow::NotifyOthers(BSTR name, VARIANT info)
 
 	notify_data->m_item2.Attach(var.Detach());
 
-	panel_manager::instance().send_msg_to_others_pointer(m_host->GetHWND(), CALLBACK_UWM_NOTIFY_DATA, notify_data);
+	panel_manager::instance().send_msg_to_others_pointer(m_host->GetHWND(), CALLBACK_UWM_ON_NOTIFY_DATA, notify_data);
 
 	return S_OK;
 }
