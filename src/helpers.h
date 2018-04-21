@@ -58,7 +58,8 @@ namespace helpers
 	}
 
 	template<int direction>
-	static int custom_sort_compare(const custom_sort_data& elem1, const custom_sort_data& elem2) {
+	static int custom_sort_compare(const custom_sort_data& elem1, const custom_sort_data& elem2)
+	{
 		int ret = direction * StrCmpLogicalW(elem1.text, elem2.text);
 		if (ret == 0) ret = pfc::sgn_t((t_ssize)elem1.index - (t_ssize)elem2.index);
 		return ret;

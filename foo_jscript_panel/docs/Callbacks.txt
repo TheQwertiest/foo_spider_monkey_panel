@@ -117,6 +117,9 @@ function on_mouse_wheel_h(step) {}
 function on_notify_data(name, info) {}
 // Called in other panels after window.NotifyOthers(name, info) is executed
 
+function on_output_device_changed() {}
+// Called when output device changes. Use fb.GetOutputDevices to retrieve settings.
+
 function on_paint(gr) {}
 // Called when window is ready to draw.
 // See interfaces.txt for all the methods used with gr.
