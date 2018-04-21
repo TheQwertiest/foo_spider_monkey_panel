@@ -2155,7 +2155,7 @@ STDMETHODIMP FbUtils::GetNowPlaying(IFbMetadbHandle** pp)
 STDMETHODIMP FbUtils::GetOutputDevices(BSTR* p)
 {
 	if (!p) return E_POINTER;
-	if (!static_api_test_t<output_manager_v2>()) return E_NOTIMPL;
+	if (!helpers::is14()) return E_NOTIMPL;
 
 	json j;
 	auto api = output_manager_v2::get();
@@ -2401,7 +2401,7 @@ STDMETHODIMP FbUtils::SavePlaylist()
 
 STDMETHODIMP FbUtils::SetOutputDevice(BSTR output, BSTR device)
 {
-	if (!static_api_test_t<output_manager_v2>()) return E_NOTIMPL;
+	if (!helpers::is14()) return E_NOTIMPL;
 
 	GUID output_id, device_id;
 

@@ -29,6 +29,7 @@ namespace helpers
 	bool execute_mainmenu_command_by_name(const char* p_name);
 	bool execute_mainmenu_command_recur_v2(mainmenu_node::ptr node, pfc::string8_fast path, const char* p_name, t_size p_name_len);
 	bool find_context_command_recur(const char* p_command, pfc::string_base& p_path, contextmenu_node* p_parent, contextmenu_node*& p_out);
+	bool is14();
 	bool match_menu_command(const pfc::string_base& path, const char* command, t_size command_len = ~0);
 	bool read_album_art_into_bitmap(const album_art_data_ptr& data, Gdiplus::Bitmap** bitmap);
 	bool read_file(const char* path, pfc::string_base& content);

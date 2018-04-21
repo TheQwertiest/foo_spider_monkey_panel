@@ -1,4 +1,5 @@
 #pragma once
+#include "helpers.h"
 
 template <typename T>
 struct simple_callback_data : public pfc::refcounted_object_root
@@ -104,7 +105,7 @@ class my_initquit : public initquit, public ui_selection_callback, public replay
 public:
 	virtual void on_init()
 	{
-		if (rg_check())
+		if (helpers::is14())
 		{
 			replaygain_manager_v2::get()->add_notify(this);
 			output_manager_v2::get()->addCallback(this);
@@ -114,7 +115,7 @@ public:
 
 	virtual void on_quit()
 	{
-		if (rg_check())
+		if (helpers::is14())
 		{
 			replaygain_manager_v2::get()->remove_notify(this);
 			output_manager_v2::get()->removeCallback(this);
@@ -125,12 +126,6 @@ public:
 	virtual void on_changed(t_replaygain_config const& cfg);
 	virtual void on_selection_changed(metadb_handle_list_cref p_selection);
 	virtual void outputConfigChanged();
-
-private:
-	bool rg_check()
-	{
-		return static_api_test_t<replaygain_manager_v2>();
-	}
 };
 
 class my_library_callback : public library_callback
