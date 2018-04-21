@@ -259,7 +259,6 @@ LRESULT js_panel_window::on_message(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 		on_load_image_done(lp);
 		return 0;
 
-
 	case CALLBACK_UWM_ON_MAIN_MENU:
 		on_main_menu(wp);
 		return 0;

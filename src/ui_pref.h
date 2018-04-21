@@ -54,7 +54,7 @@ public:
 
 	GUID get_guid()
 	{
-		return g_ui_pref_window_guid;
+		return g_guid_jsp_ui_pref;
 	}
 
 	GUID get_parent_guid()

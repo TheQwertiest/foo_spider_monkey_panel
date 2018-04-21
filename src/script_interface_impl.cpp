@@ -313,7 +313,7 @@ STDMETHODIMP FbMetadbHandle::RefreshStats()
 	metadb_index_hash hash;
 	if (stats::g_client->hashHandle(m_handle, hash))
 	{
-		stats::theAPI()->dispatch_refresh(stats::guid_js_panel_index, hash);
+		stats::theAPI()->dispatch_refresh(g_guid_jsp_metadb_index, hash);
 	}
 	return S_OK;
 }
@@ -658,7 +658,7 @@ STDMETHODIMP FbMetadbHandleList::RefreshStats()
 		const metadb_index_hash hash = *iter;
 		hashes += hash;
 	}
-	stats::theAPI()->dispatch_refresh(stats::guid_js_panel_index, hashes);
+	stats::theAPI()->dispatch_refresh(g_guid_jsp_metadb_index, hashes);
 	return S_OK;
 }
 
@@ -2384,7 +2384,7 @@ STDMETHODIMP FbUtils::SaveIndex()
 {
 	try
 	{
-		stats::theAPI()->save_index_data(stats::guid_js_panel_index);
+		stats::theAPI()->save_index_data(g_guid_jsp_metadb_index);
 	}
 	catch (...)
 	{

@@ -2,7 +2,6 @@
 
 namespace stats
 {
-	static const GUID guid_js_panel_index = { 0x835f0b63, 0xd96c, 0x447b,{ 0x9c, 0xcb, 0x71, 0x4f, 0xa8, 0x30, 0x49, 0x11 } };
 	static const char pinTo[] = "$lower(%artist% - %title%)";
 	static const t_filetimestamp retentionPeriod = system_time_periods::week * 4;
 
@@ -39,11 +38,11 @@ namespace stats
 				g_cachedAPI = api;
 				try
 				{
-					api->add(g_client, guid_js_panel_index, retentionPeriod);
+					api->add(g_client, g_guid_jsp_metadb_index, retentionPeriod);
 				}
 				catch (std::exception const& e)
 				{
-					api->remove(guid_js_panel_index);
+					api->remove(g_guid_jsp_metadb_index);
 					FB2K_console_formatter() << JSP_NAME " stats: Critical initialisation failure: " << e;
 					return;
 				}
@@ -77,7 +76,7 @@ namespace stats
 	static fields get(metadb_index_hash hash)
 	{
 		mem_block_container_impl temp;
-		theAPI()->get_user_data(guid_js_panel_index, hash, temp);
+		theAPI()->get_user_data(g_guid_jsp_metadb_index, hash, temp);
 		if (temp.get_size() > 0)
 		{
 			try
@@ -109,7 +108,7 @@ namespace stats
 		writer << f.first_played;
 		writer << f.last_played;
 		writer << f.rating;
-		theAPI()->set_user_data(guid_js_panel_index, hash, writer.m_buffer.get_ptr(), writer.m_buffer.get_size());
+		theAPI()->set_user_data(g_guid_jsp_metadb_index, hash, writer.m_buffer.get_ptr(), writer.m_buffer.get_size());
 	}
 
 	class metadb_display_field_provider_impl : public metadb_display_field_provider

@@ -134,7 +134,7 @@ bool js_panel_window_cui::show_config_popup(HWND parent)
 
 const GUID& js_panel_window_cui::get_extension_guid() const
 {
-	return g_js_panel_window_cui_guid;
+	return g_guid_jsp_window_cui;
 }
 
 const uie::window_host_ptr& js_panel_window_cui::get_host() const
