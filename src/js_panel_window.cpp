@@ -391,11 +391,11 @@ LRESULT js_panel_window::on_message(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 		script_unload();
 		return 0;
 
-	case UWM_SHOWCONFIGURE:
+	case UWM_SHOW_CONFIGURE:
 		show_configure_popup(m_hwnd);
 		return 0;
 
-	case UWM_SHOWPROPERTIES:
+	case UWM_SHOW_PROPERTIES:
 		show_property_popup(m_hwnd);
 		return 0;
 
@@ -482,7 +482,7 @@ bool js_panel_window::script_load()
 	m_max_size.y = INT_MAX;
 	m_min_size.x = 0;
 	m_min_size.x = 0;
-	PostMessage(m_hwnd, UWM_SIZELIMITECHANGED, 0, uie::size_limit_all);
+	PostMessage(m_hwnd, UWM_SIZE_LIMIT_CHANGED, 0, uie::size_limit_all);
 
 	HRESULT hr = m_script_host->Initialize();
 	if (FAILED(hr))

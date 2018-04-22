@@ -366,7 +366,7 @@ LRESULT CDialogConf::OnUwmFindTextChanged(UINT uMsg, WPARAM wParam, LPARAM lPara
 
 bool CDialogConf::FindNext(HWND hWnd, HWND hWndEdit, unsigned flags, const char* which)
 {
-	::SendMessage(::GetAncestor(hWndEdit, GA_PARENT), UWM_FINDTEXTCHANGED, flags, reinterpret_cast<LPARAM>(which));
+	::SendMessage(::GetAncestor(hWndEdit, GA_PARENT), UWM_FIND_TEXT_CHANGED, flags, reinterpret_cast<LPARAM>(which));
 
 	SendMessage(hWndEdit, SCI_CHARRIGHT, 0, 0);
 	SendMessage(hWndEdit, SCI_SEARCHANCHOR, 0, 0);
@@ -376,7 +376,7 @@ bool CDialogConf::FindNext(HWND hWnd, HWND hWndEdit, unsigned flags, const char*
 
 bool CDialogConf::FindPrevious(HWND hWnd, HWND hWndEdit, unsigned flags, const char* which)
 {
-	::SendMessage(::GetAncestor(hWndEdit, GA_PARENT), UWM_FINDTEXTCHANGED, flags, reinterpret_cast<LPARAM>(which));
+	::SendMessage(::GetAncestor(hWndEdit, GA_PARENT), UWM_FIND_TEXT_CHANGED, flags, reinterpret_cast<LPARAM>(which));
 
 	SendMessage(hWndEdit, SCI_SEARCHANCHOR, 0, 0);
 	int pos = ::SendMessage(hWndEdit, SCI_SEARCHPREV, flags, reinterpret_cast<LPARAM>(which));

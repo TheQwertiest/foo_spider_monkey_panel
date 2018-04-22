@@ -15,7 +15,7 @@ protected:
 	bool show_configure_popup(HWND parent);
 	bool show_property_popup(HWND parent);
 	static void build_context_menu(HMENU menu, int x, int y, int id_base);
-	virtual void notify_size_limit_changed_(LPARAM lp) = 0;
+	virtual void notify_size_limit_changed(LPARAM lp) = 0;
 	void execute_context_menu_command(int id, int id_base);
 
 private:

@@ -874,13 +874,13 @@ STDMETHODIMP FbWindow::SetTimeout(IDispatch* func, INT delay, UINT* outTimeoutID
 
 STDMETHODIMP FbWindow::ShowConfigure()
 {
-	PostMessage(m_host->GetHWND(), UWM_SHOWCONFIGURE, 0, 0);
+	PostMessage(m_host->GetHWND(), UWM_SHOW_CONFIGURE, 0, 0);
 	return S_OK;
 }
 
 STDMETHODIMP FbWindow::ShowProperties()
 {
-	PostMessage(m_host->GetHWND(), UWM_SHOWPROPERTIES, 0, 0);
+	PostMessage(m_host->GetHWND(), UWM_SHOW_PROPERTIES, 0, 0);
 	return S_OK;
 }
 
@@ -995,27 +995,27 @@ STDMETHODIMP FbWindow::put_DlgCode(UINT code)
 STDMETHODIMP FbWindow::put_MaxHeight(UINT height)
 {
 	m_host->MaxSize().y = height;
-	PostMessage(m_host->GetHWND(), UWM_SIZELIMITECHANGED, 0, uie::size_limit_maximum_height);
+	PostMessage(m_host->GetHWND(), UWM_SIZE_LIMIT_CHANGED, 0, uie::size_limit_maximum_height);
 	return S_OK;
 }
 
 STDMETHODIMP FbWindow::put_MaxWidth(UINT width)
 {
 	m_host->MaxSize().x = width;
-	PostMessage(m_host->GetHWND(), UWM_SIZELIMITECHANGED, 0, uie::size_limit_maximum_width);
+	PostMessage(m_host->GetHWND(), UWM_SIZE_LIMIT_CHANGED, 0, uie::size_limit_maximum_width);
 	return S_OK;
 }
 
 STDMETHODIMP FbWindow::put_MinHeight(UINT height)
 {
 	m_host->MinSize().y = height;
-	PostMessage(m_host->GetHWND(), UWM_SIZELIMITECHANGED, 0, uie::size_limit_minimum_height);
+	PostMessage(m_host->GetHWND(), UWM_SIZE_LIMIT_CHANGED, 0, uie::size_limit_minimum_height);
 	return S_OK;
 }
 
 STDMETHODIMP FbWindow::put_MinWidth(UINT width)
 {
 	m_host->MinSize().x = width;
-	PostMessage(m_host->GetHWND(), UWM_SIZELIMITECHANGED, 0, uie::size_limit_minimum_width);
+	PostMessage(m_host->GetHWND(), UWM_SIZE_LIMIT_CHANGED, 0, uie::size_limit_minimum_width);
 	return S_OK;
 }

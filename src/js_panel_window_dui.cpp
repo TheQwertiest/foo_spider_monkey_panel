@@ -168,8 +168,8 @@ LRESULT js_panel_window_dui::on_message(HWND hwnd, UINT msg, WPARAM wp, LPARAM l
 			return DefWindowProc(hwnd, msg, wp, lp);
 		break;
 
-	case UWM_SIZELIMITECHANGED:
-		notify_size_limit_changed_(lp);
+	case UWM_SIZE_LIMIT_CHANGED:
+		notify_size_limit_changed(lp);
 		return 0;
 	}
 
@@ -208,7 +208,7 @@ void js_panel_window_dui::notify(const GUID& p_what, t_size p_param1, const void
 {
 	if (p_what == ui_element_notify_edit_mode_changed)
 	{
-		notify_is_edit_mode_changed_(m_callback->is_edit_mode_enabled());
+		notify_is_edit_mode_changed(m_callback->is_edit_mode_enabled());
 	}
 	else if (p_what == ui_element_notify_font_changed)
 	{
@@ -238,12 +238,12 @@ void js_panel_window_dui::initialize_window(HWND parent)
 	create(parent);
 }
 
-void js_panel_window_dui::notify_size_limit_changed_(LPARAM lp)
+void js_panel_window_dui::notify_size_limit_changed(LPARAM lp)
 {
 	m_callback->on_min_max_info_change();
 }
 
-void js_panel_window_dui::notify_is_edit_mode_changed_(bool enabled)
+void js_panel_window_dui::notify_is_edit_mode_changed(bool enabled)
 {
 	m_is_edit_mode = enabled;
 }
