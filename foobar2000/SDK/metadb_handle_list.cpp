@@ -176,7 +176,6 @@ void metadb_handle_list_helper::sort_by_relative_path_get_order(metadb_handle_li
 		metadb_handle_ptr item;
 		p_list.get_item_ex(item,n);
 		if (!api->get_relative_path(item,temp)) temp = "";
-		temp << item->get_subsong_index();
 		data[n].index = n;
 		data[n].text = makeSortString(temp);
 		//data[n].subsong = item->get_subsong_index();

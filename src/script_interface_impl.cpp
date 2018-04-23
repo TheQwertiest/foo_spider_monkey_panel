@@ -636,7 +636,38 @@ STDMETHODIMP FbMetadbHandleList::OrderByPath()
 
 STDMETHODIMP FbMetadbHandleList::OrderByRelativePath()
 {
-	m_handles.sort_by_relative_path();
+	// lifted from metadb_handle_list.cpp - adds subsong index for better sorting. github issue #16
+	auto api = library_manager::get();
+	t_size i, count = m_handles.get_count();
+
+	pfc::array_t<t_size> order;
+	order.set_size(count);
+
+	pfc::array_t<helpers::custom_sort_data> data;
+	data.set_size(count);
+
+	pfc::string8_fastalloc temp;
+	temp.prealloc(512);
+
+	for (i = 0; i < count; ++i)
+	{
+		metadb_handle_ptr item;
+		m_handles.get_item_ex(item, i);
+		if (!api->get_relative_path(item, temp)) temp = "";
+		temp << item->get_subsong_index();
+		data[i].index = i;
+		data[i].text = helpers::make_sort_string(temp);
+	}
+
+	pfc::sort_t(data, helpers::custom_sort_compare<1>, count);
+
+	for (i = 0; i < count; ++i)
+	{
+		order[i] = data[i].index;
+		delete[] data[i].text;
+	}
+
+	m_handles.reorder(order.get_ptr());
 	return S_OK;
 }
 
@@ -1428,8 +1459,7 @@ STDMETHODIMP FbPlaylistManager::SortByFormatV2(UINT playlistIndex, BSTR pattern,
 STDMETHODIMP FbPlaylistManager::SortPlaylistsByName(int direction)
 {
 	auto api = playlist_manager::get();
-	t_size count = api->get_playlist_count();
-	t_size i;
+	t_size i, count = api->get_playlist_count();
 
 	pfc::array_t<t_size> order;
 	order.set_size(count);
