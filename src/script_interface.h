@@ -377,8 +377,8 @@ __interface IFbUtils : IDispatch
 	STDMETHOD(GetOutputDevices)([out, retval] BSTR* p);
 	STDMETHOD(GetQueryItems)(IFbMetadbHandleList* handles, BSTR query, [out, retval] IFbMetadbHandleList** pp);
 	STDMETHOD(GetSelection)([out, retval] IFbMetadbHandle** pp);
-	STDMETHOD(GetSelectionType)([out, retval] UINT* p);
 	STDMETHOD(GetSelections)([defaultvalue(0)] UINT flags, [out, retval] IFbMetadbHandleList** pp);
+	STDMETHOD(GetSelectionType)([out, retval] UINT* p);
 	STDMETHOD(IsLibraryEnabled)([out, retval] VARIANT_BOOL* p);
 	STDMETHOD(IsMetadbInMediaLibrary)(IFbMetadbHandle* handle, [out, retval] VARIANT_BOOL* p);
 	STDMETHOD(LoadPlaylist)();

@@ -2259,6 +2259,16 @@ STDMETHODIMP FbUtils::GetSelection(IFbMetadbHandle** pp)
 	return S_OK;
 }
 
+STDMETHODIMP FbUtils::GetSelections(UINT flags, IFbMetadbHandleList** pp)
+{
+	if (!pp) return E_POINTER;
+
+	metadb_handle_list items;
+	ui_selection_manager_v2::get()->get_selection(items, flags);
+	*pp = new com_object_impl_t<FbMetadbHandleList>(items);
+	return S_OK;
+}
+
 STDMETHODIMP FbUtils::GetSelectionType(UINT* p)
 {
 	if (!p) return E_POINTER;
@@ -2285,16 +2295,6 @@ STDMETHODIMP FbUtils::GetSelectionType(UINT* p)
 		}
 	}
 
-	return S_OK;
-}
-
-STDMETHODIMP FbUtils::GetSelections(UINT flags, IFbMetadbHandleList** pp)
-{
-	if (!pp) return E_POINTER;
-
-	metadb_handle_list items;
-	ui_selection_manager_v2::get()->get_selection(items, flags);
-	*pp = new com_object_impl_t<FbMetadbHandleList>(items);
 	return S_OK;
 }
 
