@@ -640,9 +640,6 @@ STDMETHODIMP FbMetadbHandleList::OrderByRelativePath()
 	auto api = library_manager::get();
 	t_size i, count = m_handles.get_count();
 
-	pfc::array_t<t_size> order;
-	order.set_size(count);
-
 	pfc::array_t<helpers::custom_sort_data> data;
 	data.set_size(count);
 
@@ -660,6 +657,7 @@ STDMETHODIMP FbMetadbHandleList::OrderByRelativePath()
 	}
 
 	pfc::sort_t(data, helpers::custom_sort_compare<1>, count);
+	order_helper order(count);
 
 	for (i = 0; i < count; ++i)
 	{
@@ -1461,9 +1459,6 @@ STDMETHODIMP FbPlaylistManager::SortPlaylistsByName(int direction)
 	auto api = playlist_manager::get();
 	t_size i, count = api->get_playlist_count();
 
-	pfc::array_t<t_size> order;
-	order.set_size(count);
-
 	pfc::array_t<helpers::custom_sort_data> data;
 	data.set_size(count);
 
@@ -1478,6 +1473,7 @@ STDMETHODIMP FbPlaylistManager::SortPlaylistsByName(int direction)
 	}
 
 	pfc::sort_t(data, direction > 0 ? helpers::custom_sort_compare<1> : helpers::custom_sort_compare<-1>, count);
+	order_helper order(count);
 
 	for (i = 0; i < count; ++i)
 	{
