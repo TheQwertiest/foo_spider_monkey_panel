@@ -3549,7 +3549,7 @@ STDMETHODIMP GdiGraphics::MeasureString(BSTR str, IGdiFont* font, float x, float
 	return S_OK;
 }
 
-STDMETHODIMP GdiGraphics::SetInterpolationMode(INT mode)
+STDMETHODIMP GdiGraphics::SetInterpolationMode(int mode)
 {
 	if (!m_ptr) return E_POINTER;
 
@@ -3557,7 +3557,7 @@ STDMETHODIMP GdiGraphics::SetInterpolationMode(INT mode)
 	return S_OK;
 }
 
-STDMETHODIMP GdiGraphics::SetSmoothingMode(INT mode)
+STDMETHODIMP GdiGraphics::SetSmoothingMode(int mode)
 {
 	if (!m_ptr) return E_POINTER;
 

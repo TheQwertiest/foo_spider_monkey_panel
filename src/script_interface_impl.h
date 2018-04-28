@@ -325,7 +325,7 @@ struct panel_tooltip_param
 	SIZE tooltip_size;
 	BSTR font_name;
 	float font_size;
-	INT font_style;
+	int font_style;
 
 	panel_tooltip_param() : tooltip_hwnd(0)
 	{
@@ -520,8 +520,8 @@ public:
 	STDMETHODIMP GdiDrawBitmap(IGdiRawBitmap* bitmap, int dstX, int dstY, int dstW, int dstH, int srcX, int srcY, int srcW, int srcH);
 	STDMETHODIMP GdiDrawText(BSTR str, IGdiFont* font, VARIANT colour, int x, int y, int w, int h, int format, VARIANT* p);
 	STDMETHODIMP MeasureString(BSTR str, IGdiFont* font, float x, float y, float w, float h, int flags, IMeasureStringInfo** pp);
-	STDMETHODIMP SetInterpolationMode(INT mode);
-	STDMETHODIMP SetSmoothingMode(INT mode);
+	STDMETHODIMP SetInterpolationMode(int mode);
+	STDMETHODIMP SetSmoothingMode(int mode);
 	STDMETHODIMP SetTextRenderingHint(UINT mode);
 	STDMETHODIMP put__ptr(void* p);
 };

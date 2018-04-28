@@ -470,7 +470,7 @@ __interface IFbWindow : IDispatch
 	STDMETHOD(ClearTimeout)(UINT timeoutID);
 	STDMETHOD(CreatePopupMenu)([out, retval] IMenuObj** pp);
 	STDMETHOD(CreateThemeManager)(BSTR classid, [out, retval] IThemeManager** pp);
-	STDMETHOD(CreateTooltip)([defaultvalue("Segoe UI")] BSTR name, [defaultvalue(12)] float pxSize, [defaultvalue(0)] INT style, [out, retval] __interface IFbTooltip** pp);
+	STDMETHOD(CreateTooltip)([defaultvalue("Segoe UI")] BSTR name, [defaultvalue(12)] float pxSize, [defaultvalue(0)] int style, [out, retval] __interface IFbTooltip** pp);
 	STDMETHOD(GetColourCUI)(UINT type, [defaultvalue("")] BSTR guidstr, [out, retval] int* p);
 	STDMETHOD(GetColourDUI)(UINT type, [out, retval] int* p);
 	STDMETHOD(GetFontCUI)(UINT type, [defaultvalue("")] BSTR guidstr, [out, retval] IGdiFont** pp);
@@ -481,9 +481,9 @@ __interface IFbWindow : IDispatch
 	STDMETHOD(Repaint)([defaultvalue(0)] VARIANT_BOOL force);
 	STDMETHOD(RepaintRect)(LONG x, LONG y, LONG w, LONG h, [defaultvalue(0)] VARIANT_BOOL force);
 	STDMETHOD(SetCursor)(UINT id);
-	STDMETHOD(SetInterval)(IDispatch* func, INT delay, [out, retval] UINT* outIntervalID);
+	STDMETHOD(SetInterval)(IDispatch* func, int delay, [out, retval] UINT* outIntervalID);
 	STDMETHOD(SetProperty)(BSTR name, VARIANT val);
-	STDMETHOD(SetTimeout)(IDispatch* func, INT delay, [out, retval] UINT* outTimeoutID);
+	STDMETHOD(SetTimeout)(IDispatch* func, int delay, [out, retval] UINT* outTimeoutID);
 	STDMETHOD(ShowConfigure)();
 	STDMETHOD(ShowProperties)();
 	[propget] STDMETHOD(DlgCode)([out, retval] UINT* p);

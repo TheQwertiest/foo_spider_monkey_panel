@@ -83,12 +83,12 @@ t_script_info& HostComm::ScriptInfo()
 	return m_script_info;
 }
 
-unsigned HostComm::SetInterval(IDispatch* func, INT delay)
+unsigned HostComm::SetInterval(IDispatch* func, int delay)
 {
 	return HostTimerDispatcher::Get().setInterval(m_hwnd, delay, func);
 }
 
-unsigned HostComm::SetTimeout(IDispatch* func, INT delay)
+unsigned HostComm::SetTimeout(IDispatch* func, int delay)
 {
 	return HostTimerDispatcher::Get().setTimeout(m_hwnd, delay, func);
 }
@@ -673,7 +673,7 @@ STDMETHODIMP FbWindow::CreateThemeManager(BSTR classid, IThemeManager** pp)
 	return S_OK;
 }
 
-STDMETHODIMP FbWindow::CreateTooltip(BSTR name, float pxSize, INT style, IFbTooltip** pp)
+STDMETHODIMP FbWindow::CreateTooltip(BSTR name, float pxSize, int style, IFbTooltip** pp)
 {
 	if (!pp) return E_POINTER;
 
@@ -850,7 +850,7 @@ STDMETHODIMP FbWindow::SetCursor(UINT id)
 	return S_OK;
 }
 
-STDMETHODIMP FbWindow::SetInterval(IDispatch* func, INT delay, UINT* outIntervalID)
+STDMETHODIMP FbWindow::SetInterval(IDispatch* func, int delay, UINT* outIntervalID)
 {
 	if (!outIntervalID) return E_POINTER;
 
@@ -864,7 +864,7 @@ STDMETHODIMP FbWindow::SetProperty(BSTR name, VARIANT val)
 	return S_OK;
 }
 
-STDMETHODIMP FbWindow::SetTimeout(IDispatch* func, INT delay, UINT* outTimeoutID)
+STDMETHODIMP FbWindow::SetTimeout(IDispatch* func, int delay, UINT* outTimeoutID)
 {
 	if (!outTimeoutID) return E_POINTER;
 
