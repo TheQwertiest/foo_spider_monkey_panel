@@ -82,7 +82,7 @@ HRESULT HostDropTarget::OnDrop(IDataObject* pDataObj, DWORD grfKeyState, POINTL 
 	if (SUCCEEDED(hr))
 	{
 		int playlist = m_action->Playlist();
-		UINT base = m_action->Base();
+		t_size base = m_action->Base();
 		bool to_select = m_action->ToSelect();
 
 		droppedData.to_handles_async_ex(playlist_incoming_item_filter_v2::op_flag_delay_ui,

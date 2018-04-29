@@ -62,7 +62,7 @@ __interface IGdiFont : IGdiObj
 	[propget] STDMETHOD(Height)([out, retval] UINT* p);
 	[propget] STDMETHOD(Name)([defaultvalue(LANG_NEUTRAL)] LANGID langId, [out, retval] BSTR* outName);
 	[propget] STDMETHOD(Size)([out, retval] float* outSize);
-	[propget] STDMETHOD(Style)([out, retval] INT* outStyle);
+	[propget] STDMETHOD(Style)([out, retval] int* outStyle);
 };
 
 [
@@ -331,7 +331,7 @@ __interface IFbProfiler : IDispatch
 {
 	STDMETHOD(Reset)();
 	STDMETHOD(Print)();
-	[propget] STDMETHOD(Time)([out, retval] INT* p);
+	[propget] STDMETHOD(Time)([out, retval] int* p);
 };
 
 [
@@ -487,7 +487,7 @@ __interface IFbWindow : IDispatch
 	STDMETHOD(ShowConfigure)();
 	STDMETHOD(ShowProperties)();
 	[propget] STDMETHOD(DlgCode)([out, retval] UINT* p);
-	[propget] STDMETHOD(Height)([out, retval] INT* p);
+	[propget] STDMETHOD(Height)([out, retval] int* p);
 	[propget] STDMETHOD(ID)([out, retval] UINT* p);
 	[propget] STDMETHOD(InstanceType)([out, retval] UINT* p);
 	[propget] STDMETHOD(IsTransparent)([out, retval] VARIANT_BOOL* p);
@@ -497,7 +497,7 @@ __interface IFbWindow : IDispatch
 	[propget] STDMETHOD(MinHeight)([out, retval] UINT* p);
 	[propget] STDMETHOD(MinWidth)([out, retval] UINT* p);
 	[propget] STDMETHOD(Name)([out, retval] BSTR* p);
-	[propget] STDMETHOD(Width)([out, retval] INT* p);
+	[propget] STDMETHOD(Width)([out, retval] int* p);
 	[propput] STDMETHOD(DlgCode)(UINT code);
 	[propput] STDMETHOD(MaxHeight)(UINT height);
 	[propput] STDMETHOD(MaxWidth)(UINT width);

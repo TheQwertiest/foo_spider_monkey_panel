@@ -71,7 +71,7 @@ class DropSourceAction : public IDisposableImpl4<IDropSourceAction>
 protected:
 	// -1 means active playlist
 	int m_playlist_idx;
-	UINT m_base;
+	t_size m_base;
 	bool m_to_select;
 	DWORD m_effect;
 
@@ -82,7 +82,7 @@ protected:
 public:
 	void Reset();
 
-	UINT& Base();
+	t_size& Base();
 	int& Playlist();
 	bool& ToSelect();
 	DWORD& Effect();
@@ -529,7 +529,7 @@ public:
 class GdiRawBitmap : public IDisposableImpl4<IGdiRawBitmap>
 {
 protected:
-	UINT m_width, m_height;
+	t_size m_width, m_height;
 	HDC m_hdc;
 	HBITMAP m_hbmp, m_hbmpold;
 

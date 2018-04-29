@@ -26,7 +26,7 @@ STDMETHODIMP ContextMenuManager::BuildMenu(IMenuObj* p, int base_id, int max_id)
 {
 	if (m_cm.is_empty()) return E_POINTER;
 
-	UINT menuid;
+	t_size menuid;
 	p->get_ID(&menuid);
 	contextmenu_node* parent = m_cm->get_root();
 	m_cm->win32_build_menu((HMENU)menuid, parent, base_id, max_id);
@@ -2676,8 +2676,8 @@ STDMETHODIMP GdiBitmap::ApplyAlpha(BYTE alpha, IGdiBitmap** pp)
 {
 	if (!m_ptr || !pp) return E_POINTER;
 
-	UINT width = m_ptr->GetWidth();
-	UINT height = m_ptr->GetHeight();
+	t_size width = m_ptr->GetWidth();
+	t_size height = m_ptr->GetHeight();
 	Gdiplus::Bitmap* out = new Gdiplus::Bitmap(width, height, PixelFormat32bppPARGB);
 	Gdiplus::Graphics g(out);
 	Gdiplus::ImageAttributes ia;
@@ -2831,7 +2831,7 @@ STDMETHODIMP GdiBitmap::GetColourScheme(UINT count, VARIANT* outArray)
 	helpers::com_array_writer<> helper;
 	if (!helper.create(count)) return E_OUTOFMEMORY;
 
-	for (long i = 0; i < helper.get_count(); ++i)
+	for (LONG i = 0; i < helper.get_count(); ++i)
 	{
 		_variant_t var;
 		var.vt = VT_UI4;
@@ -2873,7 +2873,7 @@ STDMETHODIMP GdiBitmap::GetColourSchemeJSON(UINT count, BSTR* outJson)
 
 	// reduce color set to pass to k-means by rounding colour components to multiples of 8
 	for (unsigned i = 0; i < colours_length; i++)
-	{		
+	{
 		unsigned int r = (colours[i] >> 16) & 0xff;
 		unsigned int g = (colours[i] >> 8) & 0xff;
 		unsigned int b = (colours[i] & 0xff);
@@ -3223,7 +3223,7 @@ STDMETHODIMP GdiGraphics::DrawPolygon(VARIANT colour, float line_width, VARIANT 
 	pfc::array_t<Gdiplus::PointF> point_array;
 	point_array.set_count(helper.get_count() >> 1);
 
-	for (long i = 0; i < static_cast<long>(point_array.get_count()); ++i)
+	for (LONG i = 0; i < static_cast<LONG>(point_array.get_count()); ++i)
 	{
 		_variant_t varX, varY;
 
@@ -3309,7 +3309,7 @@ STDMETHODIMP GdiGraphics::EstimateLineWrap(BSTR str, IGdiFont* font, int max_wid
 		return E_OUTOFMEMORY;
 	}
 
-	for (long i = 0; i < helper.get_count() / 2; ++i)
+	for (LONG i = 0; i < helper.get_count() / 2; ++i)
 	{
 		_variant_t var1, var2;
 
@@ -3358,7 +3358,7 @@ STDMETHODIMP GdiGraphics::FillPolygon(VARIANT colour, int fillmode, VARIANT poin
 	pfc::array_t<Gdiplus::PointF> point_array;
 	point_array.set_count(helper.get_count() >> 1);
 
-	for (long i = 0; i < static_cast<long>(point_array.get_count()); ++i)
+	for (LONG i = 0; i < static_cast<LONG>(point_array.get_count()); ++i)
 	{
 		_variant_t varX, varY;
 
@@ -3505,7 +3505,7 @@ STDMETHODIMP GdiGraphics::GdiDrawText(BSTR str, IGdiFont* font, VARIANT colour, 
 
 	if (!helper.create(_countof(elements))) return E_OUTOFMEMORY;
 
-	for (long i = 0; i < helper.get_count(); ++i)
+	for (LONG i = 0; i < helper.get_count(); ++i)
 	{
 		_variant_t var;
 		var.vt = VT_I4;
@@ -3934,7 +3934,7 @@ STDMETHODIMP JSUtils::FileTest(BSTR path, BSTR mode, VARIANT* p)
 			vars[0].bstrVal = SysAllocString(dir);
 		}
 
-		for (long i = 0; i < helper.get_count(); ++i)
+		for (LONG i = 0; i < helper.get_count(); ++i)
 		{
 			if (FAILED(helper.put(i, vars[i])))
 			{
@@ -4087,7 +4087,7 @@ STDMETHODIMP JSUtils::Glob(BSTR pattern, UINT exc_mask, UINT inc_mask, VARIANT* 
 
 	if (!helper.create(files.get_count())) return E_OUTOFMEMORY;
 
-	for (long i = 0; i < helper.get_count(); ++i)
+	for (LONG i = 0; i < helper.get_count(); ++i)
 	{
 		_variant_t var;
 		var.vt = VT_BSTR;
@@ -4230,7 +4230,7 @@ STDMETHODIMP MainMenuManager::BuildMenu(IMenuObj* p, int base_id, int count)
 {
 	if (m_mm.is_empty()) return E_POINTER;
 
-	UINT menuid;
+	t_size menuid;
 	p->get_ID(&menuid);
 
 	// HACK: workaround for foo_menu_addons

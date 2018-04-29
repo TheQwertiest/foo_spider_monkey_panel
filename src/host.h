@@ -26,8 +26,6 @@ protected:
 	HWND m_hwnd;
 	POINT m_max_size;
 	POINT m_min_size;
-	UINT m_accuracy;
-	UINT m_dlg_code;
 	bool m_paint_pending;
 	bool m_suppress_drawing;
 	int m_height;
@@ -35,6 +33,8 @@ protected:
 	int m_width;
 	panel_tooltip_param_ptr m_panel_tooltip_param_ptr;
 	t_script_info m_script_info;
+	t_size m_accuracy;
+	t_size m_dlg_code;
 	ui_selection_holder::ptr m_selection_holder;
 
 public:
@@ -49,14 +49,14 @@ public:
 	HWND GetHWND();
 	POINT& MaxSize();
 	POINT& MinSize();
-	UINT& DlgCode();
-	UINT GetInstanceType();
 	int GetHeight();
 	int GetWidth();
 	panel_tooltip_param_ptr& PanelTooltipParam();
 	t_script_info& ScriptInfo();
 	unsigned SetInterval(IDispatch* func, int delay);
 	unsigned SetTimeout(IDispatch* func, int delay);
+	t_size& DlgCode();
+	t_size GetInstanceType();
 	virtual DWORD GetColourCUI(unsigned type, const GUID& guid) = 0;
 	virtual DWORD GetColourDUI(unsigned type) = 0;
 	virtual HFONT GetFontCUI(unsigned type, const GUID& guid) = 0;

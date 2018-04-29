@@ -185,7 +185,7 @@ public:
 		// choose K distinct values for the centers of the clusters
 		int index_point = 0;
 		for (int i = 0; i < K; i++) {
-			index_point = (int)(i * total_points / K);	// colours are already distinct so we can't have duplicate centers
+			index_point = (int)(i * total_points / K); // colours are already distinct so we can't have duplicate centers
 			points[index_point].setCluster(i);
 			Cluster cluster(i, points[index_point]);
 			clusters.push_back(cluster);

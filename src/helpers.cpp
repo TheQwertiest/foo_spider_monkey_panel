@@ -465,7 +465,7 @@ namespace helpers
 			const char* pSource = (const char *)(pAddr);
 			t_size pSourceSize = dwFileSize;
 
-			UINT tmp = detect_charset(path);
+			t_size tmp = detect_charset(path);
 			if (tmp == CP_UTF8)
 			{
 				content.set_string(pSource, pSourceSize);
@@ -551,7 +551,7 @@ namespace helpers
 			const char* pSource = (const char *)(pAddr);
 			t_size pSourceSize = dwFileSize;
 
-			UINT tmp = detect_charset(pfc::stringcvt::string_utf8_from_wide(path));
+			t_size tmp = detect_charset(pfc::stringcvt::string_utf8_from_wide(path));
 			if (tmp == CP_UTF8)
 			{
 				const t_size size = pfc::stringcvt::estimate_utf8_to_wide_quick(pSource, pSourceSize);
@@ -643,8 +643,8 @@ namespace helpers
 	{
 		int ret = -1;
 
-		UINT num = 0;
-		UINT size = 0;
+		t_size num = 0;
+		t_size size = 0;
 
 		Gdiplus::ImageCodecInfo* pImageCodecInfo = NULL;
 
@@ -745,7 +745,7 @@ namespace helpers
 		return path;
 	}
 
-	unsigned detect_charset(const char* fileName)
+	t_size detect_charset(const char* fileName)
 	{
 		_COM_SMARTPTR_TYPEDEF(IMultiLanguage2, IID_IMultiLanguage2);
 		IMultiLanguage2Ptr lang;
@@ -827,7 +827,7 @@ namespace helpers
 		return codepage;
 	}
 
-	unsigned get_colour_from_variant(VARIANT v)
+	t_size get_colour_from_variant(VARIANT v)
 	{
 		return (v.vt == VT_R8) ? static_cast<unsigned>(v.dblVal) : v.lVal;
 	}
