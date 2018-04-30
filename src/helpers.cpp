@@ -874,7 +874,11 @@ namespace helpers
 
 		if (textWidth <= width || len <= 1)
 		{
-			wrapped_item item = { SysAllocStringLen(text, len), textWidth };
+			wrapped_item item =
+			{
+				SysAllocStringLen(text, len),
+				textWidth
+			};
 			out.add_item(item);
 		}
 		else
@@ -914,7 +918,6 @@ namespace helpers
 					SysAllocStringLen(text, textLength),
 					get_text_width(hdc, text, textLength)
 				};
-
 				out.add_item(item);
 			}
 

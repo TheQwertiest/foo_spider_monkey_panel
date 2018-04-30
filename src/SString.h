@@ -25,15 +25,15 @@ public:
 	enum { measure_length = 0xffffffffU };
 
 protected:
-	char *s;				///< The C string
-	lenpos_t sSize;			///< The size of the buffer, less 1: ie. the maximum size of the string
+	char *s; ///< The C string
+	lenpos_t sSize; ///< The size of the buffer, less 1: ie. the maximum size of the string
 
 	SContainer() : s(0), sSize(0)
 	{
 	}
 	~SContainer()
 	{
-		delete[]s;	// Suppose it was allocated using StringAllocate
+		delete[]s; // Suppose it was allocated using StringAllocate
 		s = 0;
 		sSize = 0;
 	}
@@ -167,8 +167,8 @@ public:
  */
 class SString : protected SContainer
 {
-	lenpos_t sLen;			///< The size of the string in s
-	lenpos_t sizeGrowth;	///< Minimum growth size when appending strings
+	lenpos_t sLen; ///< The size of the string in s
+	lenpos_t sizeGrowth; ///< Minimum growth size when appending strings
 	enum { sizeGrowthDefault = 64 };
 
 	bool grow(lenpos_t lenNew)
@@ -201,8 +201,8 @@ class SString : protected SContainer
 		{
 			sSize_ = strlen(sOther);
 		}
-		if (sSize > 0 && sSize_ <= sSize)
-		{	// Does not allocate new buffer if the current is big enough
+		if (sSize > 0 && sSize_ <= sSize) // Does not allocate new buffer if the current is big enough
+		{
 			if (s)
 			{
 				if (sSize_)
@@ -219,7 +219,7 @@ class SString : protected SContainer
 			s = StringAllocate(sOther, sSize_);
 			if (s)
 			{
-				sSize = sSize_;	// Allow buffer bigger than real string, thus providing space to grow
+				sSize = sSize_; // Allow buffer bigger than real string, thus providing space to grow
 				sLen = sSize_;
 			}
 			else
@@ -343,8 +343,8 @@ public:
 			sLenOther = strlen(sOther);
 		}
 		int lenSep = 0;
-		if (sLen && sep)
-		{	// Only add a separator if not empty
+		if (sLen && sep) // Only add a separator if not empty
+		{
 			lenSep = 1;
 		}
 		lenpos_t lenNew = sLen + sLenOther + lenSep;
@@ -423,8 +423,8 @@ public:
  * @return the pointer to the new string
  */
 inline char *StringDup(
-	const char *s,			///< The string to duplicate
-	SContainer::lenpos_t len = SContainer::measure_length)	///< The length of memory to allocate. Optional.
+	const char *s, ///< The string to duplicate
+	SContainer::lenpos_t len = SContainer::measure_length) ///< The length of memory to allocate. Optional.
 {
 	return SContainer::StringAllocate(s, len);
 }

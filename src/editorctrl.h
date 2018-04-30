@@ -9,10 +9,10 @@
 
 enum IndentationStatus
 {
-	isNone,		// no effect on indentation
-	isBlockStart,	// indentation block begin such as "{" or VB "function"
-	isBlockEnd,	// indentation end indicator such as "}" or VB "end"
-	isKeyWordStart	// Keywords that cause indentation
+	isNone, // no effect on indentation
+	isBlockStart, // indentation block begin such as "{" or VB "function"
+	isBlockEnd, // indentation end indicator such as "}" or VB "end"
+	isKeyWordStart // Keywords that cause indentation
 };
 
 struct StyleAndWords

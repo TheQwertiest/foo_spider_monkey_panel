@@ -8,7 +8,8 @@ using json = nlohmann::json;
 
 namespace helpers
 {
-	struct custom_sort_data {
+	struct custom_sort_data
+	{
 		wchar_t* text;
 		t_size index;
 	};

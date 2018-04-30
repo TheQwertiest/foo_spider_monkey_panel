@@ -28,8 +28,8 @@ HRESULT HostDropTarget::OnDragEnter(IDataObject* pDataObj, DWORD grfKeyState, PO
 		m_fb2kAllowedEffect = DROPEFFECT_NONE;
 	}
 	else if (native && (DROPEFFECT_MOVE & *pdwEffect))
-	{// Remove check_dataobject move suppression for intra fb2k interactions
-		m_fb2kAllowedEffect |= DROPEFFECT_MOVE;
+	{
+		m_fb2kAllowedEffect |= DROPEFFECT_MOVE; // Remove check_dataobject move suppression for intra fb2k interactions
 	}
 
 	m_action->Effect() = *pdwEffect & m_fb2kAllowedEffect;
@@ -38,7 +38,6 @@ HRESULT HostDropTarget::OnDragEnter(IDataObject* pDataObj, DWORD grfKeyState, PO
 	on_drag_enter(grfKeyState, pt, m_action);
 
 	*pdwEffect = m_action->Effect();
-		
 	return S_OK;
 }
 
