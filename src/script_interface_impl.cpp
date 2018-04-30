@@ -3001,8 +3001,7 @@ STDMETHODIMP GdiBitmap::StackBlur(int radius)
 {
 	if (!m_ptr) return E_POINTER;
 
-	t_size threads = pfc::getOptimalWorkerThreadCount();
-	stack_blur_filter(*m_ptr, radius, threads);
+	stack_blur_filter(*m_ptr, radius);
 	return S_OK;
 }
 
