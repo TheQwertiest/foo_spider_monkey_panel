@@ -2153,22 +2153,18 @@ oList = function (object_name, playlist) {
 			row_top_y += item_h - (this.items[i].groupRowDelta * cTrack.height);
 		};
 
-		if (g_dragndrop_drop_forbidden) {
-			gr.FillsolidRect(this.x, this.y, this.w, this.h, RGBA(0, 0, 0, 100));
-		} else {
-			if (g_dragndrop_status && g_dragndrop_bottom) {
-				var rowId = fin - 1;
-				var item_height_row = (this.items[rowId].type == 0 ? 1 : this.items[rowId].heightInRow);
-				var item_height = item_height_row * cTrack.height;
-				var limit = this.items[rowId].y + item_height;
-				var rx = this.items[rowId].x;
-				var ry = this.items[rowId].y;
-				var rw = this.items[rowId].w;
+		if (g_dragndrop_status && g_dragndrop_bottom) {
+			var rowId = fin - 1;
+			var item_height_row = (this.items[rowId].type == 0 ? 1 : this.items[rowId].heightInRow);
+			var item_height = item_height_row * cTrack.height;
+			var limit = this.items[rowId].y + item_height;
+			var rx = this.items[rowId].x;
+			var ry = this.items[rowId].y;
+			var rw = this.items[rowId].w;
 
-				gr.FillSolidRect(rx + cover.w * 0, ry + item_height - Math.floor(cList.borderWidth / 2), rw - cover.w, cList.borderWidth, g_color_selected_bg);
-				gr.FillSolidRect(rx + cover.w * 0, ry + item_height - Math.floor(cList.borderWidth / 2) - 4 * cList.borderWidth, cList.borderWidth, 9 * cList.borderWidth, g_color_selected_bg);
-				gr.FillSolidRect(rx + rw - cList.borderWidth, ry + item_height - Math.floor(cList.borderWidth / 2) - 4 * cList.borderWidth, cList.borderWidth, 9 * cList.borderWidth, g_color_selected_bg);
-			};
+			gr.FillSolidRect(rx + cover.w * 0, ry + item_height - Math.floor(cList.borderWidth / 2), rw - cover.w, cList.borderWidth, g_color_selected_bg);
+			gr.FillSolidRect(rx + cover.w * 0, ry + item_height - Math.floor(cList.borderWidth / 2) - 4 * cList.borderWidth, cList.borderWidth, 9 * cList.borderWidth, g_color_selected_bg);
+			gr.FillSolidRect(rx + rw - cList.borderWidth, ry + item_height - Math.floor(cList.borderWidth / 2) - 4 * cList.borderWidth, cList.borderWidth, 9 * cList.borderWidth, g_color_selected_bg);
 		};
 
 		// Draw rect selection

@@ -25,7 +25,6 @@ var g_dragndrop_trackId = -1;
 var g_dragndrop_rowId = -1;
 var g_dragndrop_targetPlaylistId = -1;
 var g_dragndrop_total_before = 0;
-var g_dragndrop_drop_forbidden = false;
 // font vars
 var g_fname, g_fsize, g_fstyle;
 var g_font = null;
@@ -2918,49 +2917,96 @@ function on_playback_queue_changed(origin) {
 var g_dragndrop_hover_playlistManager = false;
 
 function on_drag_enter() {
-
+	g_dragndrop_status = true;
 };
 
 function on_drag_leave() {
-
+	g_dragndrop_status = false;
+	g_dragndrop_hover_playlistManager = false;
+	g_dragndrop_trackId = -1;
+	g_dragndrop_rowId = -1;
+	g_dragndrop_targetPlaylistId = -1;
+	p.list.buttonclicked = false;
+	cScrollBar.timerID1 && window.ClearInterval(cScrollBar.timerID1);
+	cScrollBar.timerID1 = false;
 };
 
 function on_drag_over(action, x, y, mask) {
-	switch (true) {
-	case y < p.list.y:
-	case cPlaylistManager.visible && p.playlistManager.isHoverObject(x, y):
-	case plman.ActivePlaylist > -1 && plman.IsPlaylistLocked(plman.ActivePlaylist):
+	g_dragndrop_hover_playlistManager = false;
+	if (y < p.list.y) {
 		action.Effect = 0;
-		break;
-	default:
-		action.Effect = 1;
-		break;
+	} else if (cPlaylistManager.visible && p.playlistManager.isHoverObject(x, y)) {
+		g_dragndrop_hover_playlistManager = true;
+		p.playlistManager.check("drag_over", x, y);
+		if (g_dragndrop_targetPlaylistId == -1) {
+			action.Effect = p.playlistManager.ishoverHeader ? 1 : 0;
+		} else if (plman.IsPlaylistLocked(g_dragndrop_targetPlaylistId)) {
+			action.Effect = 0;
+		} else {
+			action.Effect = 1;
+		}
+	} else {
+		g_dragndrop_trackId = -1;
+		g_dragndrop_rowId = -1;
+		g_dragndrop_bottom = false;
+		p.list.check("drag_over", x, y);
+		action.Effect = plman.ActivePlaylist > -1 && plman.IsPlaylistLocked(plman.ActivePlaylist) ? 0 : 1;
 	}
-}
+	full_repaint();
+};
 
 function on_drag_drop(action, x, y, mask) {
-	switch (true) {
-	case y < p.list.y:
-	case cPlaylistManager.visible && p.playlistManager.isHoverObject(x, y):
-	case plman.ActivePlaylist > -1 && plman.IsPlaylistLocked(plman.ActivePlaylist):
+	if (y < p.list.y) {
 		action.Effect = 0;
-		break;
-	default:
-		var count = plman.PlaylistCount;
-		if (count == 0 || plman.ActivePlaylist == -1) {
+	} else if (cPlaylistManager.visible && p.playlistManager.isHoverObject(x, y)) {
+		if (g_dragndrop_targetPlaylistId == -1) {
+			if (p.playlistManager.ishoverHeader) {
+				var count = plman.PlaylistCount;
+				plman.CreatePlaylist(count, "Dropped Items");
+				action.Playlist = count;
+				action.Base = 0;
+				action.ToSelect = true;
+				action.Effect = 1;
+			} else {
+				action.Effect = 0;
+			}
+		} else if (plman.IsPlaylistLocked(g_dragndrop_targetPlaylistId)) {
+			action.Effect = 0;
+		} else {
+			plman.ClearPlaylistSelection(g_dragndrop_targetPlaylistId);
+			plman.UndoBackup(g_dragndrop_targetPlaylistId);
+			action.Playlist = g_dragndrop_targetPlaylistId;
+			action.Base = plman.PlaylistItemCount(g_dragndrop_targetPlaylistId);
+			action.ToSelect = false;
+			action.Effect = 1;
+		}
+	} else {
+		if (plman.ActivePlaylist > -1 && plman.IsPlaylistLocked(plman.ActivePlaylist)) {
+			action.Effect = 0;
+		} else if (plman.PlaylistCount == 0 || plman.ActivePlaylist == -1) {
+			var count = plman.PlaylistCount;
 			plman.CreatePlaylist(count, "Dropped Items");
 			action.Playlist = count;
 			action.Base = 0;
+			action.ToSelect = true;
+			action.Effect = 1;
 		} else {
 			plman.ClearPlaylistSelection(plman.ActivePlaylist);
+			plman.UndoBackup(plman.ActivePlaylist);
 			action.Playlist = plman.ActivePlaylist;
-			action.Base = plman.PlaylistItemCount(plman.ActivePlaylist);
+			action.Base = g_dragndrop_bottom ? plman.PlaylistItemCount(plman.ActivePlaylist) : g_dragndrop_trackId;
+			action.ToSelect = true;
+			action.Effect = 1;
 		}
-		action.ToSelect = true;
-		action.Effect = 1;
-		break;
+		
 	}
-}
+	g_dragndrop_hover_playlistManager = false;
+	g_dragndrop_targetPlaylistId = -1;
+	g_dragndrop_trackId = -1;
+	g_dragndrop_rowId = -1;
+	g_dragndrop_bottom = false;
+	full_repaint();
+};
 
 function on_script_unload() {
 	g_timer1 && window.ClearInterval(g_timer1);
@@ -2968,4 +3014,4 @@ function on_script_unload() {
 	g_timer2 && window.ClearInterval(g_timer2);
 	g_timer2 = false;
 	update_statistics();
-}
+};
