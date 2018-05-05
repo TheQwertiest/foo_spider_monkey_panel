@@ -520,6 +520,33 @@ STDMETHODIMP FbMetadbHandleList::Clone(IFbMetadbHandleList** pp)
 	return S_OK;
 }
 
+STDMETHODIMP FbMetadbHandleList::Convert(VARIANT* p)
+{
+	if (!p) return E_POINTER;
+
+	t_size count = m_handles.get_count();
+	helpers::com_array_writer<> helper;
+	if (!helper.create(count)) return E_OUTOFMEMORY;
+
+	for (t_size i = 0; i < count; ++i)
+	{
+		_variant_t var;
+		var.vt = VT_DISPATCH;
+		var.pdispVal = new com_object_impl_t<FbMetadbHandle>(m_handles[i]);
+
+		if (FAILED(helper.put(i, var)))
+		{
+			helper.reset();
+			return E_OUTOFMEMORY;
+		}
+	}
+
+	p->vt = VT_ARRAY | VT_VARIANT;
+	p->parray = helper.get_ptr();
+	return S_OK;
+
+}
+
 STDMETHODIMP FbMetadbHandleList::Find(IFbMetadbHandle* handle, int* p)
 {
 	if (!p) return E_POINTER;

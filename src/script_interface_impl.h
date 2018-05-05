@@ -160,6 +160,7 @@ public:
 	STDMETHODIMP CalcTotalDuration(double* p);
 	STDMETHODIMP CalcTotalSize(LONGLONG* p);
 	STDMETHODIMP Clone(IFbMetadbHandleList** pp);
+	STDMETHODIMP Convert(VARIANT* p);
 	STDMETHODIMP Find(IFbMetadbHandle* handle, int* p);
 	STDMETHODIMP Insert(UINT index, IFbMetadbHandle* handle);
 	STDMETHODIMP InsertRange(UINT index, IFbMetadbHandleList* handles);
