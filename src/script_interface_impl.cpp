@@ -1018,7 +1018,7 @@ STDMETHODIMP FbPlaylistManager::AddLocations(UINT playlistIndex, VARIANT locatio
 
 	pfc::string_list_impl locations2;
 
-	for (int i = 0; i < helper.get_count(); ++i)
+	for (LONG i = 0; i < helper.get_count(); ++i)
 	{
 		_variant_t varUrl;
 		helper.get_item(i, varUrl);

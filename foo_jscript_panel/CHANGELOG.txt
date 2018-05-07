@@ -60,7 +60,7 @@ v2.0.5
 - NEW: Add IFbTitleFormat EvalWithMetadbs method that takes a handle list as an argument.
        Returns a VBArray. See docs\interfaces.txt.
 - NEW: plman.SortPlaylistsByName. See docs\interfaces.txt.
-- FIX: The OrderByRelativePath handle list method now takes subsong index in to account.
+- FIX: The FbMetadbHandleList OrderByRelativePath method now takes subsong index in to account.
        Thanks to WilB for reporting.
 - CHG: plman.GetPlaybackQueueContents has been restored after being removed in the v2 cleanse.
        It's the only way to determine if a single playlist item has been queued more than once.
@@ -242,7 +242,7 @@ v1.2.3
 - CHG: Hide JScript Panel main menu items. Given they're meant for binding to
        to keyboard shortcuts/standard buttons, there is no need for them to be
        visible. Hold Shift if you really want to access them from the menu.
-- FIX: Fix MakeUnion handle list method and update docs with examples for
+- FIX: Fix FbMetadbHandleList MakeUnion method and update docs with examples for
        MakeUnion, MakeDifference and MakeIntersection methods.
 
 v1.2.2
@@ -255,13 +255,7 @@ v1.2.1
 - FIX: Fix bug where the playing item handle was never sent to the
        "on_playback_edited" callback even though the docs said it would.
 - FIX: Tidy up docs and auto-complete hints for "on_metadb_changed"
-       and "on_selection_changed". Specifically, "on_metadb_changed" always
-       receives a "handle list" and never a "handle" as the first argument.
-       "on_selection_changed" never receives a "handle" argument. This behaviour
-       is consistent with WSH panel mod having the "v1.4" @feature preprocessor set
-       as documented here:
-       https://git.io/v9cVw
-       https://git.io/v9cVD
+       and "on_selection_changed".
 
 v1.2.0.1
 - CHG: Minor code cleanups but no new component features for now.
