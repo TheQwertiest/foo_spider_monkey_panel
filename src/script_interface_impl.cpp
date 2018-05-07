@@ -554,6 +554,8 @@ STDMETHODIMP FbMetadbHandleList::Find(IFbMetadbHandle* handle, int* p)
 
 STDMETHODIMP FbMetadbHandleList::GetLibraryRelativePaths(VARIANT* p)
 {
+	if (!p) return E_POINTER;
+
 	auto api = library_manager::get();
 	t_size i, count = m_handles.get_count();
 

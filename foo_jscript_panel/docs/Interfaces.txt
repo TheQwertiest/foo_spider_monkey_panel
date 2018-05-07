@@ -315,7 +315,7 @@ interface IFbUtils {
 		As you can see, only one of the items in the array has "active"
 		set to true so that is the device you'd want to display the name of
 		or mark as selected in a menu.
-		
+
 		To actually change device, you'll need the device_id and output_id
 		and use them with fb.SetOutputDevice. 
 
@@ -325,7 +325,7 @@ interface IFbUtils {
 		// Assuming same list from above, switch output to the last device.
 		fb.SetOutputDevice(arr[4].output_id, arr[4].device_id);
 		*/
-		
+
 		fb.GetQueryItems(handle_list, query); (IFbMetadbHandleList)
 		/*
 		Example1:
@@ -1707,6 +1707,20 @@ interface IFbMetadbHandleList {
 		var handle_list2 = handle_list.Clone();
 		*/
 
+		Convert(); (VBArray)
+		/*
+		Returns a VBArray so you need to use .toArray() on the result.
+
+		It has been noticed by other users that looping through an array of handles rather
+		than a handle list may be faster under some circumstances.
+
+		Example:
+		var playlist_items_array = plman.GetPlaylistItems(plman.ActivePlaylist).Convert().toArray();
+		for (var i = 0; i < playlist_items_array.length; i++) {
+			// do something with playlist_items_array[i] which is your handle
+		}
+		*/
+
 		Dispose(); (void)
 		/*
 		Example:
@@ -1717,6 +1731,17 @@ interface IFbMetadbHandleList {
 		/*
 		If sorted, use BSearch instead
 		Returns -1 on failure.
+		*/
+
+		GetLibraryRelativePaths(); (VBArray)
+		/*
+		Returns a VBArray so you need to use .toArray() on the result.
+		Should be faster than looping a handle list with fb.GetLibraryRelativePath(handle).
+
+		Example:
+		var items = fb.GetLibraryItems();
+		items.OrderByRelativePath();
+		var relative_paths = items.GetRelativePaths().toArray();
 		*/
 
 		Insert(index, handle); (void)
