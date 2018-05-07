@@ -425,9 +425,7 @@ STDMETHODIMP FbMetadbHandle::get_Path(BSTR* pp)
 {
 	if (m_handle.is_empty() || !pp) return E_POINTER;
 
-	pfc::stringcvt::string_wide_from_utf8_fast ucs = file_path_display(m_handle->get_path());
-
-	*pp = SysAllocString(ucs);
+	*pp = SysAllocString(pfc::stringcvt::string_wide_from_utf8_fast(file_path_display(m_handle->get_path())));
 	return S_OK;
 }
 
@@ -435,9 +433,7 @@ STDMETHODIMP FbMetadbHandle::get_RawPath(BSTR* pp)
 {
 	if (m_handle.is_empty() || !pp) return E_POINTER;
 
-	pfc::stringcvt::string_wide_from_utf8_fast ucs = m_handle->get_path();
-
-	*pp = SysAllocString(ucs);
+	*pp = SysAllocString(pfc::stringcvt::string_wide_from_utf8_fast(m_handle->get_path()));
 	return S_OK;
 }
 
@@ -544,7 +540,6 @@ STDMETHODIMP FbMetadbHandleList::Convert(VARIANT* p)
 	p->vt = VT_ARRAY | VT_VARIANT;
 	p->parray = helper.get_ptr();
 	return S_OK;
-
 }
 
 STDMETHODIMP FbMetadbHandleList::Find(IFbMetadbHandle* handle, int* p)
@@ -554,6 +549,40 @@ STDMETHODIMP FbMetadbHandleList::Find(IFbMetadbHandle* handle, int* p)
 	metadb_handle* ptr = NULL;
 	handle->get__ptr((void**)&ptr);
 	*p = m_handles.find_item(ptr);
+	return S_OK;
+}
+
+STDMETHODIMP FbMetadbHandleList::GetLibraryRelativePaths(VARIANT* p)
+{
+	auto api = library_manager::get();
+	t_size i, count = m_handles.get_count();
+
+	helpers::com_array_writer<> helper;
+	if (!helper.create(count)) return E_OUTOFMEMORY;
+
+	pfc::string8_fastalloc temp;
+	temp.prealloc(512);
+
+	for (i = 0; i < count; ++i)
+	{
+		metadb_handle_ptr item;
+		m_handles.get_item_ex(item, i);
+		if (!api->get_relative_path(item, temp)) temp = "";
+
+		_variant_t var;
+		var.vt = VT_BSTR;
+		var.bstrVal = SysAllocString(pfc::stringcvt::string_wide_from_utf8_fast(temp.get_ptr()));
+
+		if (FAILED(helper.put(i, var)))
+		{
+			// deep destroy
+			helper.reset();
+			return E_OUTOFMEMORY;
+		}
+	}
+
+	p->vt = VT_ARRAY | VT_VARIANT;
+	p->parray = helper.get_ptr();
 	return S_OK;
 }
 
@@ -990,11 +1019,8 @@ STDMETHODIMP FbPlaylistManager::AddLocations(UINT playlistIndex, VARIANT locatio
 	for (int i = 0; i < helper.get_count(); ++i)
 	{
 		_variant_t varUrl;
-
 		helper.get_item(i, varUrl);
-
 		if (FAILED(VariantChangeType(&varUrl, &varUrl, 0, VT_BSTR))) return E_INVALIDARG;
-
 		locations2.add_item(pfc::string8(pfc::stringcvt::string_utf8_from_wide(varUrl.bstrVal)));
 	}
 
@@ -1726,7 +1752,7 @@ STDMETHODIMP FbTitleFormat::Eval(VARIANT_BOOL force, BSTR* pp)
 		if (!metadb::g_get_random_handle(handle))
 		{
 			// HACK: A fake file handle should be okay
-			 metadb::get()->handle_create(handle, make_playable_location("file://C:\\________.ogg", 0));
+			metadb::get()->handle_create(handle, make_playable_location("file://C:\\________.ogg", 0));
 		}
 
 		handle->format_title(NULL, text, m_obj, NULL);
@@ -2055,7 +2081,6 @@ STDMETHODIMP FbUtils::CreateHandleList(IFbMetadbHandleList** pp)
 
 	metadb_handle_list items;
 	*pp = new com_object_impl_t<FbMetadbHandleList>(items);
-
 	return S_OK;
 }
 
@@ -2467,7 +2492,7 @@ STDMETHODIMP FbUtils::SetOutputDevice(BSTR output, BSTR device)
 
 STDMETHODIMP FbUtils::ShowConsole()
 {
-	const GUID guid_main_show_console = { 0x5b652d25, 0xce44, 0x4737, {0x99, 0xbb, 0xa3, 0xcf, 0x2a, 0xeb, 0x35, 0xcc} };
+	const GUID guid_main_show_console = { 0x5b652d25, 0xce44, 0x4737,{ 0x99, 0xbb, 0xa3, 0xcf, 0x2a, 0xeb, 0x35, 0xcc } };
 	standard_commands::run_main(guid_main_show_console);
 	return S_OK;
 }
@@ -2881,7 +2906,7 @@ STDMETHODIMP GdiBitmap::GetColourSchemeJSON(UINT count, BSTR* outJson)
 	if (!m_ptr || !outJson) return E_POINTER;
 
 	Gdiplus::BitmapData bmpdata;
-	
+
 	// rescaled image will have max of ~48k pixels
 	int w = min(m_ptr->GetWidth(), 220), h = min(m_ptr->GetHeight(), 220);
 

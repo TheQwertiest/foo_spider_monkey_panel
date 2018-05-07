@@ -238,6 +238,7 @@ __interface IFbMetadbHandleList : IDisposable
 	STDMETHOD(Clone)([out, retval] IFbMetadbHandleList** pp);
 	STDMETHOD(Convert)([out, retval] VARIANT* p);
 	STDMETHOD(Find)(IFbMetadbHandle* handle, [out, retval] int* p);
+	STDMETHOD(GetLibraryRelativePaths)([out, retval] VARIANT* p);
 	STDMETHOD(Insert)(UINT index, IFbMetadbHandle* handle);
 	STDMETHOD(InsertRange)(UINT index, IFbMetadbHandleList* handles);
 	STDMETHOD(MakeDifference)(IFbMetadbHandleList* handles);

@@ -162,6 +162,7 @@ public:
 	STDMETHODIMP Clone(IFbMetadbHandleList** pp);
 	STDMETHODIMP Convert(VARIANT* p);
 	STDMETHODIMP Find(IFbMetadbHandle* handle, int* p);
+	STDMETHODIMP GetLibraryRelativePaths(VARIANT* p);
 	STDMETHODIMP Insert(UINT index, IFbMetadbHandle* handle);
 	STDMETHODIMP InsertRange(UINT index, IFbMetadbHandleList* handles);
 	STDMETHODIMP MakeDifference(IFbMetadbHandleList* handles);
