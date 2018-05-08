@@ -1741,7 +1741,7 @@ interface IFbMetadbHandleList {
 		Example:
 		var items = fb.GetLibraryItems();
 		items.OrderByRelativePath();
-		var relative_paths = items.GetRelativePaths().toArray();
+		var relative_paths = items.GetLibraryRelativePaths().toArray();
 		*/
 
 		Insert(index, handle); (void)
