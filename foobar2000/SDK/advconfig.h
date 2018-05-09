@@ -248,8 +248,8 @@ public:
 	advconfig_integer_factory_(const char * p_name,const GUID & p_guid,const GUID & p_parent,double p_priority,t_uint64 p_initialstate,t_uint64 p_min,t_uint64 p_max, t_uint32 p_prefFlags = 0) 
 		: service_factory_single_t<advconfig_entry_integer_impl_<int_t_> >(p_name,p_guid,p_parent,p_priority,p_initialstate,p_min,p_max,p_prefFlags) {}
 
-	int_t get() const {return get_static_instance().get_state_int();}
-	void set(int_t val) {get_static_instance().set_state_int(val);}
+	int_t get() const {return this->get_static_instance().get_state_int();}
+	void set(int_t val) {this->get_static_instance().set_state_int(val);}
 
 	operator int_t() const {return get();}
 	int_t operator=(int_t val) {set(val); return val;}
