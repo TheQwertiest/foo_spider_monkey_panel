@@ -3128,7 +3128,7 @@ public:
 		ATLASSERT((dwType == LVS_ICON) || (dwType == LVS_SMALLICON) || (dwType == LVS_LIST) || (dwType == LVS_REPORT));
 		DWORD dwOldType = GetViewType();
 		if(dwType != dwOldType)
-			ModifyStyle(LVS_TYPEMASK, (dwType & LVS_TYPEMASK));
+			this->ModifyStyle(LVS_TYPEMASK, (dwType & LVS_TYPEMASK));
 		return dwOldType;
 	}
 
@@ -7977,7 +7977,7 @@ public:
 			DWORD dwStyle = 0, DWORD dwExStyle = 0,
 			ATL::_U_MENUorID MenuOrID = 0U, LPVOID lpCreateParam = NULL)
 	{
-		HWND hWnd = TBase::Create(GetWndClassName(), hWndParent, rect.m_lpRect, szWindowName, dwStyle, dwExStyle, MenuOrID.m_hMenu, lpCreateParam);
+		HWND hWnd = TBase::Create(TBase::GetWndClassName(), hWndParent, rect.m_lpRect, szWindowName, dwStyle, dwExStyle, MenuOrID.m_hMenu, lpCreateParam);
 		if(hWnd != NULL)
 			MakeDragList();
 		return hWnd;
@@ -8000,7 +8000,7 @@ public:
 	void DrawInsert(int nItem)
 	{
 		ATLASSERT(::IsWindow(this->m_hWnd));
-		::DrawInsert(GetParent(), this->m_hWnd, nItem);
+		::DrawInsert(this->GetParent(), this->m_hWnd, nItem);
 	}
 
 	static UINT GetDragListMessage()

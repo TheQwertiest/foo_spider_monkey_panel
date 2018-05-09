@@ -1061,7 +1061,7 @@ public:
 			T* pT = static_cast<T*>(this);
 			pT->Init();
 
-			SetSplitterRect();
+			this->SetSplitterRect();
 		}
 
 		return bRet;

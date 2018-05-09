@@ -445,7 +445,7 @@ public:
 	{
 		ATLASSERT(m_hWnd == NULL);
 		ATLASSERT(::IsWindow(hWnd));
-		BOOL bRet = SubclassWindow(hWnd);
+		BOOL bRet = this->SubclassWindow(hWnd);
 		if(bRet)
 		{
 			m_bAttachedMenu = true;
@@ -1416,7 +1416,7 @@ public:
 
 	LRESULT OnWindowPosChanging(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/)
 	{
-		LRESULT lRet = DefWindowProc(uMsg, wParam, lParam);
+		LRESULT lRet = this->DefWindowProc(uMsg, wParam, lParam);
 
 		LPWINDOWPOS lpWP = (LPWINDOWPOS)lParam;
 		int cyMin = ::GetSystemMetrics(SM_CYMENU);

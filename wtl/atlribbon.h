@@ -807,7 +807,7 @@ public:
 		m_hbm[k_(key) - k_LargeImage].Attach(hbm);
 
 		return bUpdate ?
-			GetWndRibbon().InvalidateProperty(GetID(), key) :
+			this->GetWndRibbon().InvalidateProperty(this->GetID(), key) :
 			S_OK;
 	}
 
@@ -1088,7 +1088,7 @@ public:
 
 		m_asText[uItem] = sText;
 
-		return bUpdate ? InvalidateItems() : S_OK;
+		return bUpdate ? this->InvalidateItems() : S_OK;
 	}
 
 	UINT GetSelected()
@@ -1173,7 +1173,7 @@ public:
 
 		m_aBitmap[uIndex] = hbm;
 
-		return bUpdate ? InvalidateItems() : S_OK;
+		return bUpdate ? this->InvalidateItems() : S_OK;
 	}
 
 // Implementation
@@ -1493,7 +1493,7 @@ public:
 		m_uSelected = uItem;
 
 		return bUpdate ? 
-			GetWndRibbon().SetProperty(GetID(), UI_PKEY_SelectedItem, uItem) : 
+			this->GetWndRibbon().SetProperty(this->GetID(), UI_PKEY_SelectedItem, uItem) :
 			S_OK;
 	}
 
@@ -1729,20 +1729,20 @@ public:
 		if (m_colorType != UI_SWATCHCOLORTYPE_RGB)
 			SetColorType(UI_SWATCHCOLORTYPE_RGB, bUpdate);
 		m_color = color;
-		return bUpdate ? SetProperty(UI_PKEY_Color, color) : S_OK;
+		return bUpdate ? this->SetProperty(UI_PKEY_Color, color) : S_OK;
 	}
 
 	HRESULT SetColorType(UI_SWATCHCOLORTYPE type, bool bUpdate = false)
 	{
 		m_colorType = type;
-		return bUpdate ? SetProperty(UI_PKEY_ColorType, type) : S_OK;
+		return bUpdate ? this->SetProperty(UI_PKEY_ColorType, type) : S_OK;
 	}
 
 	HRESULT SetColorLabel(REFPROPERTYKEY key, LPCWSTR sLabel, bool bUpdate = false)
 	{
 		ATLASSERT((k_(key) >= k_ThemeColorsCategoryLabel) && (k_(key) <= k_MoreColorsLabel));
 		m_sLabels[k_(key) - k_ThemeColorsCategoryLabel] = sLabel;
-		return bUpdate ? SetProperty(key, sLabel) : S_OK;
+		return bUpdate ? this->SetProperty(key, sLabel) : S_OK;
 	}
 
 	HRESULT SetColorArray(REFPROPERTYKEY key, COLORREF* pColor, bool bUpdate = false)
@@ -1957,7 +1957,7 @@ public:
 		}
 
 		return bUpdate ?
-			GetWndRibbon().InvalidateProperty(GetID(), key) :
+			this->GetWndRibbon().InvalidateProperty(this->GetID(), key) :
 			S_OK;
 	}
 
@@ -1974,11 +1974,11 @@ public:
 			{
 				DECIMAL decVal;
 				InitDecimal(val, &decVal);
-				return SetProperty(key, &decVal);
+				return this->SetProperty(key, &decVal);
 			}
 			else
 			{
-				return GetWndRibbon().InvalidateProperty(GetID(), key);
+				return this->GetWndRibbon().InvalidateProperty(this->GetID(), key);
 			}
 		}
 		else
@@ -3208,14 +3208,14 @@ public:
 		if (!RunTimeHelper::IsRibbonUIAvailable())
 			return false;
 
-		ATLASSERT(GetIUIFrameworkPtr());
+		ATLASSERT(this->GetIUIFrameworkPtr());
 
-		if (IsRibbonUI() == bShow)
+		if (this->IsRibbonUI() == bShow)
 			return bShow;
 
-		bool bVisible = (IsWindowVisible() != FALSE);
+		bool bVisible = (this->IsWindowVisible() != FALSE);
 		if(bVisible && !bShow)
-			SetRedraw(FALSE);
+			this->SetRedraw(FALSE);
 
 		if (bShow && ::IsWindow(m_hWndToolBar))
 		{
@@ -3225,7 +3225,7 @@ public:
 
 		m_bWin7Fix = !bShow;
 
-		HRESULT hr = bShow ? CreateRibbon(sResName) : DestroyRibbon();
+		HRESULT hr = bShow ? this->CreateRibbon(sResName) : this->DestroyRibbon();
 
 		m_bWin7Fix = SUCCEEDED(hr) && !bShow;
 
@@ -3238,15 +3238,15 @@ public:
 			}
 			else if (bShow)
 			{
-				PostMessage(WM_SIZE); 
-				SetRibbonModes(imodes);
+				this->PostMessage(WM_SIZE);
+				this->SetRibbonModes(imodes);
 			}
 		}
 
 		if(bVisible && !bShow)
 		{
-			SetRedraw(TRUE);
-			RedrawWindow(NULL, NULL, RDW_FRAME | RDW_ERASE | RDW_INVALIDATE | RDW_UPDATENOW | RDW_ALLCHILDREN);
+			this->SetRedraw(TRUE);
+			this->RedrawWindow(NULL, NULL, RDW_FRAME | RDW_ERASE | RDW_INVALIDATE | RDW_UPDATENOW | RDW_ALLCHILDREN);
 		}
 
 		return SUCCEEDED(hr) ? bShow : !bShow;
