@@ -770,10 +770,7 @@ STDMETHODIMP FbMetadbHandleList::RemoveById(UINT index)
 		m_handles.remove_by_idx(index);
 		return S_OK;
 	}
-	else
-	{
-		return E_INVALIDARG;
-	}
+	return E_INVALIDARG;
 }
 
 STDMETHODIMP FbMetadbHandleList::RemoveRange(UINT from, UINT count)
@@ -885,11 +882,7 @@ STDMETHODIMP FbMetadbHandleList::get_Item(UINT index, IFbMetadbHandle** pp)
 		*pp = new com_object_impl_t<FbMetadbHandle>(m_handles.get_item_ref(index));
 		return S_OK;
 	}
-	else
-	{
-		return E_INVALIDARG;
-	}
-
+	return E_INVALIDARG;
 }
 
 STDMETHODIMP FbMetadbHandleList::get__ptr(void** pp)
@@ -909,10 +902,7 @@ STDMETHODIMP FbMetadbHandleList::put_Item(UINT index, IFbMetadbHandle* handle)
 		m_handles.replace_item(index, ptr);
 		return S_OK;
 	}
-	else
-	{
-		return E_INVALIDARG;
-	}
+	return E_INVALIDARG;
 }
 
 FbPlaybackQueueItem::FbPlaybackQueueItem()
@@ -1099,7 +1089,6 @@ STDMETHODIMP FbPlaylistManager::CreatePlaylist(UINT playlistIndex, BSTR name, in
 	{
 		*outPlaylistIndex = api->create_playlist(uname, uname.length(), playlistIndex);
 	}
-
 	return S_OK;
 }
 
@@ -1124,10 +1113,7 @@ STDMETHODIMP FbPlaylistManager::DuplicatePlaylist(UINT from, BSTR name, UINT* ou
 		*outPlaylistIndex = api->create_playlist_ex(uname.get_ptr(), uname.get_length(), from + 1, contents, &dummy_reader, abort_callback_dummy());
 		return S_OK;
 	}
-	else
-	{
-		return E_INVALIDARG;
-	}
+	return E_INVALIDARG;
 }
 
 STDMETHODIMP FbPlaylistManager::EnsurePlaylistItemVisible(UINT playlistIndex, UINT playlistItemIndex)
@@ -1635,7 +1621,6 @@ STDMETHODIMP FbPlaylistRecyclerManager::Purge(VARIANT affectedItems)
 	{
 		return E_INVALIDARG;
 	}
-
 	return S_OK;
 }
 
@@ -1649,7 +1634,6 @@ STDMETHODIMP FbPlaylistRecyclerManager::Restore(UINT index)
 	{
 		return E_INVALIDARG;
 	}
-
 	return S_OK;
 }
 
@@ -1667,7 +1651,6 @@ STDMETHODIMP FbPlaylistRecyclerManager::get_Content(UINT index, IFbMetadbHandleL
 	{
 		return E_INVALIDARG;
 	}
-
 	return S_OK;
 }
 
@@ -1693,7 +1676,6 @@ STDMETHODIMP FbPlaylistRecyclerManager::get_Name(UINT index, BSTR* outName)
 	{
 		return E_INVALIDARG;
 	}
-
 	return S_OK;
 }
 
@@ -4008,7 +3990,6 @@ STDMETHODIMP JSUtils::FileTest(BSTR path, BSTR mode, VARIANT* p)
 	{
 		return E_INVALIDARG;
 	}
-
 	return S_OK;
 }
 
@@ -4337,7 +4318,6 @@ STDMETHODIMP MainMenuManager::Init(BSTR root_name)
 			return S_OK;
 		}
 	}
-
 	return E_INVALIDARG;
 }
 
