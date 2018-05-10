@@ -261,9 +261,8 @@ interface IFbUtils {
 		var handle = fb.GetNowPlaying();
 		console.log(fb.GetLibraryRelativePath(handle)); // Albums\Artist\Some Album\Some Song.flac
 
-		NOTE: If you intend to loop through a large handle list and you have no control over what is
-		happening in the background, consider using try/catch as errors may occur if the Media Library
-		settings/content changes.
+		NOTE: Do not use this while looping a handle list. Use IFbMetadbHandleList GetLibraryRelativePaths
+		instead.
 		*/
 
 		fb.GetNowPlaying(); (IFbMetadbHandle)
@@ -1736,7 +1735,10 @@ interface IFbMetadbHandleList {
 		GetLibraryRelativePaths(); (VBArray)
 		/*
 		Returns a VBArray so you need to use .toArray() on the result.
-		Should be faster than looping a handle list with fb.GetLibraryRelativePath(handle).
+
+		See fb.GetLibraryRelativePath for a description of the action that 
+		gets performed on each handle. This should be faster than looping
+		a handle list manually and using the aforementioned method.
 
 		Example:
 		var items = fb.GetLibraryItems();
