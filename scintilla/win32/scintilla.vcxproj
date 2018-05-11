@@ -71,6 +71,7 @@
       <StringPooling>true</StringPooling>
       <AdditionalIncludeDirectories>$(ProjectDir)..\include;$(ProjectDir)..\lexlib;$(ProjectDir)..\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ConformanceMode>true</ConformanceMode>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
