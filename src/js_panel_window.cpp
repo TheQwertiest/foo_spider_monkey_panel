@@ -227,6 +227,10 @@ LRESULT js_panel_window::on_message(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 		on_cursor_follow_playback_changed(wp);
 		return 0;
 
+	case CALLBACK_UWM_ON_DSP_PRESET_CHANGED:
+		on_dsp_preset_changed();
+		return 0;
+
 	case CALLBACK_UWM_ON_FONT_CHANGED:
 		on_font_changed();
 		return 0;
@@ -584,6 +588,11 @@ void js_panel_window::on_cursor_follow_playback_changed(WPARAM wp)
 	args[0].vt = VT_BOOL;
 	args[0].boolVal = TO_VARIANT_BOOL(wp);
 	script_invoke_v(CallbackIds::on_cursor_follow_playback_changed, args, _countof(args));
+}
+
+void js_panel_window::on_dsp_preset_changed()
+{
+	script_invoke_v(CallbackIds::on_dsp_preset_changed);
 }
 
 void js_panel_window::on_font_changed()

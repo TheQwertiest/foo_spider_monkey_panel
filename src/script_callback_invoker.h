@@ -12,6 +12,7 @@ struct CallbackIds
 		on_drag_enter,
 		on_drag_leave,
 		on_drag_over,
+		on_dsp_preset_changed,
 		on_focus,
 		on_font_changed,
 		on_get_album_art_done,

@@ -21,6 +21,10 @@ function on_drag_leave() {}
 function on_drag_over(action, x, y, mask) {}
 // See https://github.com/marc2k3/foo_jscript_panel/wiki/Drag-and-Drop
 
+function on_dsp_preset_changed() {}
+// Called when DSP preset changes.
+// Does not get called when presets are added or removed.
+
 function on_focus(is_focused) {}
 // Called when the panel gets/loses focus.
 // is_focused: boolean.

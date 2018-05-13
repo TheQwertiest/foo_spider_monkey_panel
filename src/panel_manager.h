@@ -100,6 +100,12 @@ private:
 	PFC_CLASS_NOT_COPYABLE_EX(panel_manager)
 };
 
+class my_dsp_config_callback : public dsp_config_callback
+{
+public:
+	virtual void on_core_settings_change(const dsp_chain_config& p_newdata);
+};
+
 class my_initquit : public initquit, public ui_selection_callback, public replaygain_core_settings_notify, public output_config_change_callback
 {
 public:

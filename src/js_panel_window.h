@@ -34,6 +34,7 @@ private:
 	void on_colours_changed();
 	void on_context_menu(int x, int y);
 	void on_cursor_follow_playback_changed(WPARAM wp);
+	void on_dsp_preset_changed();
 	void on_font_changed();
 	void on_get_album_art_done(LPARAM lp);
 	void on_item_focus_change(WPARAM wp);

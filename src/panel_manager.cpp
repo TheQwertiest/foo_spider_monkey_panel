@@ -10,6 +10,7 @@ namespace
 	play_callback_static_factory_t<my_playback_queue_callback> g_my_playback_queue_callback;
 	playback_statistics_collector_factory_t<my_playback_statistics_collector> g_my_playback_statistics_collector;
 	service_factory_single_t<my_config_object_notify> g_my_config_object_notify;
+	service_factory_single_t<my_dsp_config_callback> g_my_dsp_config_callback;
 	service_factory_single_t<my_metadb_io_callback> g_my_metadb_io_callback;
 	service_factory_single_t<my_playlist_callback_static> g_my_playlist_callback_static;
 }
@@ -98,6 +99,11 @@ void panel_manager::send_msg_to_others_pointer(HWND p_wnd_except, UINT p_msg, pf
 			SendMessage(hWnd, p_msg, reinterpret_cast<WPARAM>(p_param), 0);
 		}
 	});
+}
+
+void my_dsp_config_callback::on_core_settings_change(const dsp_chain_config& p_newdata)
+{
+	panel_manager::instance().post_msg_to_all(CALLBACK_UWM_ON_DSP_PRESET_CHANGED);
 }
 
 void my_initquit::on_selection_changed(metadb_handle_list_cref p_selection)
