@@ -1,4 +1,6 @@
-v2.1.4-dev
+v2.1.4
+- NEW: Add on_dsp_preset_changed callback. See docs\callbacks.txt.
+- NEW: Add fb.GetDSPPresets and fb.SetDSPPreset methods. See docs\interfaces.txt.
 - NEW: Add FbMetadbHandleList GetLibraryRelativePaths method. See docs\interfaces.txt.
 - NEW: Add FbMetadbHandleList Convert method which converts a handle list to an array
        of handles. See docs\interfaces.txt.
