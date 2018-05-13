@@ -241,6 +241,43 @@ interface IFbUtils {
 		}
 		*/
 
+		fb.GetDSPPresets() (string)
+		/*
+		foobar2000 v1.4 and above only. Throws a script error on v1.3.
+		Returns a JSON array in string form so you need to use JSON.parse() on the result.
+
+		Example1:
+		var str = fb.GetDSPPresets();
+		var arr = JSON.parse(str);
+		console.log(arr.length); // number of presets
+		console.log(JSON.stringify(arr, null, 4)); // using JSON.stringify here for displaying the output below
+
+		[
+			{
+				"active": true,
+				"name": "two"
+			},
+			{
+				"active": false,
+				"name": "three"
+			}
+		]
+
+		Example2:
+		var active_name = "";
+		var str = fb.GetDSPPresets();
+		var arr = JSON.parse(str);
+		for (var i = 0; i < arr.length; i++) {
+			if (arr[i].active) {
+				active_name = arr[i].name;
+			}
+		}
+		console.log(active_name);
+
+		Simply use the array index to change preset using fb.SetDSPPreset(idx);
+		fb.SetDSPPreset(1); // changes to the 2nd entry in the example above
+		*/
+
 		fb.GetFocusItem([force]); (IFbMetadbHandle)
 		/*
 		force: boolean, default true.
@@ -276,7 +313,8 @@ interface IFbUtils {
 		Example:
 		var str = fb.GetOutputDevices();
 		var arr = JSON.parse(str);
-		console.log(JSON.stringify(arr, null, 4));
+		console.log(arr.length); // number of devices
+		console.log(JSON.stringify(arr, null, 4)); // using JSON.stringify here for displaying the output below
 
 		[
 			{
@@ -411,6 +449,12 @@ interface IFbUtils {
 		*/
 
 		fb.SavePlaylist(); (void)
+
+		fb.SetDSPPreset(idx); (void)
+		/*
+		foobar2000 v1.4 and above only. Throws a script error on v1.3.
+		See fb.GetDSPPresets()
+		*/
 
 		fb.SetOutputDevice(output, device); (void)
 		/*

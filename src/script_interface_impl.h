@@ -396,6 +396,7 @@ public:
 	STDMETHODIMP DoDragDrop(IFbMetadbHandleList* handles, UINT okEffects, UINT* p);
 	STDMETHODIMP Exit();
 	STDMETHODIMP GetClipboardContents(UINT window_id, IFbMetadbHandleList** pp);
+	STDMETHODIMP GetDSPPresets(BSTR* p);
 	STDMETHODIMP GetFocusItem(VARIANT_BOOL force, IFbMetadbHandle** pp);
 	STDMETHODIMP GetLibraryItems(IFbMetadbHandleList** outItems);
 	STDMETHODIMP GetLibraryRelativePath(IFbMetadbHandle* handle, BSTR* p);
@@ -419,6 +420,7 @@ public:
 	STDMETHODIMP RunMainMenuCommand(BSTR command, VARIANT_BOOL* p);
 	STDMETHODIMP SaveIndex();
 	STDMETHODIMP SavePlaylist();
+	STDMETHODIMP SetDSPPreset(UINT idx);
 	STDMETHODIMP SetOutputDevice(BSTR output, BSTR device);
 	STDMETHODIMP ShowConsole();
 	STDMETHODIMP ShowLibrarySearchUI(BSTR query);

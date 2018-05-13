@@ -372,6 +372,7 @@ __interface IFbUtils : IDispatch
 	STDMETHOD(DoDragDrop)(IFbMetadbHandleList* handles, UINT okEffects, [out, retval] UINT* p);
 	STDMETHOD(Exit)();
 	STDMETHOD(GetClipboardContents)(UINT window_id, [out, retval] IFbMetadbHandleList** pp);
+	STDMETHOD(GetDSPPresets)([out, retval] BSTR* p);
 	STDMETHOD(GetFocusItem)([defaultvalue(-1)] VARIANT_BOOL force, [out, retval] IFbMetadbHandle** pp);
 	STDMETHOD(GetLibraryItems)([out, retval] IFbMetadbHandleList** outItems);
 	STDMETHOD(GetLibraryRelativePath)(IFbMetadbHandle* handle, [out, retval] BSTR* p);
@@ -395,6 +396,7 @@ __interface IFbUtils : IDispatch
 	STDMETHOD(RunMainMenuCommand)(BSTR command, [out, retval] VARIANT_BOOL* p);
 	STDMETHOD(SaveIndex)();
 	STDMETHOD(SavePlaylist)();
+	STDMETHOD(SetDSPPreset)(UINT idx);
 	STDMETHOD(SetOutputDevice)(BSTR output, BSTR device);
 	STDMETHOD(ShowConsole)();
 	STDMETHOD(ShowLibrarySearchUI)(BSTR query);

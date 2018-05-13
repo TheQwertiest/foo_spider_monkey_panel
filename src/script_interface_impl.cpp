@@ -2142,6 +2142,31 @@ STDMETHODIMP FbUtils::GetClipboardContents(UINT window_id, IFbMetadbHandleList**
 	return S_OK;
 }
 
+STDMETHODIMP FbUtils::GetDSPPresets(BSTR* p)
+{
+	if (!p) return E_POINTER;
+	if (!helpers::is14()) return E_NOTIMPL;
+
+	json j;
+	auto api = dsp_config_manager_v2::get();
+	t_size count = api->get_preset_count();
+	pfc::string8 name;
+
+	for (t_size i = 0; i < count; ++i)
+	{
+		api->get_preset_name(i, name);
+
+		j.push_back({
+			{ "active", api->get_selected_preset() == i },
+			{ "name",  name.get_ptr() }
+		});
+	}
+
+	std::string s = j.dump();
+	*p = SysAllocString(pfc::stringcvt::string_wide_from_utf8_fast(s.c_str()));
+	return S_OK;
+}
+
 STDMETHODIMP FbUtils::GetFocusItem(VARIANT_BOOL force, IFbMetadbHandle** pp)
 {
 	if (!pp) return E_POINTER;
@@ -2200,15 +2225,12 @@ STDMETHODIMP FbUtils::GetNowPlaying(IFbMetadbHandle** pp)
 {
 	if (!pp) return E_POINTER;
 
+	*pp = NULL;
 	metadb_handle_ptr metadb;
 
 	if (playback_control::get()->get_now_playing(metadb))
 	{
 		*pp = new com_object_impl_t<FbMetadbHandle>(metadb);
-	}
-	else
-	{
-		*pp = NULL;
 	}
 
 	return S_OK;
@@ -2459,6 +2481,20 @@ STDMETHODIMP FbUtils::SavePlaylist()
 {
 	standard_commands::main_save_playlist();
 	return S_OK;
+}
+
+STDMETHODIMP FbUtils::SetDSPPreset(UINT idx)
+{
+	if (!helpers::is14()) return E_NOTIMPL;
+
+	auto api = dsp_config_manager_v2::get();
+	t_size count = api->get_preset_count();
+
+	if (idx >= 0 && idx < count) {
+		api->select_preset(idx);
+		return S_OK;
+	}
+	return E_INVALIDARG;
 }
 
 STDMETHODIMP FbUtils::SetOutputDevice(BSTR output, BSTR device)
