@@ -2147,7 +2147,7 @@ STDMETHODIMP FbUtils::GetDSPPresets(BSTR* p)
 	if (!p) return E_POINTER;
 	if (!helpers::is14()) return E_NOTIMPL;
 
-	json j;
+	json j = json::array();
 	auto api = dsp_config_manager_v2::get();
 	t_size count = api->get_preset_count();
 	pfc::string8 name;
