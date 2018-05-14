@@ -1259,13 +1259,13 @@ public:
 		ccs.hWindowMenu = hWindowMenu;
 		ccs.idFirstChild = nFirstChildID;
 
-		if((GetStyle() & (WS_HSCROLL | WS_VSCROLL)) != 0)
+		if((this->GetStyle() & (WS_HSCROLL | WS_VSCROLL)) != 0)
 		{
 			// parent MDI frame's scroll styles move to the MDICLIENT
-			dwStyle |= (GetStyle() & (WS_HSCROLL | WS_VSCROLL));
+			dwStyle |= (this->GetStyle() & (WS_HSCROLL | WS_VSCROLL));
 
 			// fast way to turn off the scrollbar bits (without a resize)
-			ModifyStyle(WS_HSCROLL | WS_VSCROLL, 0, SWP_NOREDRAW | SWP_FRAMECHANGED);
+			this->ModifyStyle(WS_HSCROLL | WS_VSCROLL, 0, SWP_NOREDRAW | SWP_FRAMECHANGED);
 		}
 
 		// Create MDICLIENT window
@@ -1397,7 +1397,7 @@ public:
 				MDIMaximize(hWnd);
 			wndParent.SetRedraw(TRUE);
 			wndParent.RedrawWindow(NULL, NULL, RDW_INVALIDATE | RDW_ALLCHILDREN);
-			::SetFocus(GetMDIFrame());   // focus will be set back to this window
+			::SetFocus(this->GetMDIFrame());   // focus will be set back to this window
 		}
 		else if((hWnd != NULL) && ::IsWindowVisible(m_hWnd) && !::IsChild(hWnd, ::GetFocus()))
 		{

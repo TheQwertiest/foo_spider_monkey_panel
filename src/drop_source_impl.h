@@ -56,7 +56,7 @@ public:
 	}
 
 private:
-	long m_refCount;
+	LONG m_refCount;
 	DWORD m_dwLastEffect;
 
 	BEGIN_COM_QI_IMPL()

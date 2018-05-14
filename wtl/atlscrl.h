@@ -1962,7 +1962,7 @@ public:
 	CScrollContainerImpl() : m_bAutoSizeClient(true), m_bDrawEdgeIfEmpty(false)
 	{
 		// Set CScrollWindowImpl extended style
-		SetScrollExtendedStyle(SCRL_SCROLLCHILDREN);
+		this->SetScrollExtendedStyle(SCRL_SCROLLCHILDREN);
 	}
 
 // Attributes
@@ -1978,8 +1978,8 @@ public:
 		HWND hWndOldClient = m_wndClient;
 		m_wndClient = hWndClient;
 
-		SetRedraw(FALSE);
-		SetScrollSize(1, 1, FALSE);
+		this->SetRedraw(FALSE);
+		this->SetScrollSize(1, 1, FALSE);
 
 		if(m_wndClient.m_hWnd != NULL)
 		{
@@ -1997,8 +1997,8 @@ public:
 			pT->UpdateLayout();
 		}
 
-		SetRedraw(TRUE);
-		RedrawWindow(NULL, NULL, RDW_INVALIDATE | RDW_FRAME | RDW_UPDATENOW | RDW_ALLCHILDREN);
+		this->SetRedraw(TRUE);
+		this->RedrawWindow(NULL, NULL, RDW_INVALIDATE | RDW_FRAME | RDW_UPDATENOW | RDW_ALLCHILDREN);
 
 		return hWndOldClient;
 	}

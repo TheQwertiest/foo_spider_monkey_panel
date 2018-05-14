@@ -71,7 +71,7 @@ class DropSourceAction : public IDisposableImpl4<IDropSourceAction>
 protected:
 	// -1 means active playlist
 	int m_playlist_idx;
-	UINT m_base;
+	t_size m_base;
 	bool m_to_select;
 	DWORD m_effect;
 
@@ -82,7 +82,7 @@ protected:
 public:
 	void Reset();
 
-	UINT& Base();
+	t_size& Base();
 	int& Playlist();
 	bool& ToSelect();
 	DWORD& Effect();
@@ -160,7 +160,9 @@ public:
 	STDMETHODIMP CalcTotalDuration(double* p);
 	STDMETHODIMP CalcTotalSize(LONGLONG* p);
 	STDMETHODIMP Clone(IFbMetadbHandleList** pp);
+	STDMETHODIMP Convert(VARIANT* p);
 	STDMETHODIMP Find(IFbMetadbHandle* handle, int* p);
+	STDMETHODIMP GetLibraryRelativePaths(VARIANT* p);
 	STDMETHODIMP Insert(UINT index, IFbMetadbHandle* handle);
 	STDMETHODIMP InsertRange(UINT index, IFbMetadbHandleList* handles);
 	STDMETHODIMP MakeDifference(IFbMetadbHandleList* handles);
@@ -325,7 +327,7 @@ struct panel_tooltip_param
 	SIZE tooltip_size;
 	BSTR font_name;
 	float font_size;
-	INT font_style;
+	int font_style;
 
 	panel_tooltip_param() : tooltip_hwnd(0)
 	{
@@ -394,14 +396,16 @@ public:
 	STDMETHODIMP DoDragDrop(IFbMetadbHandleList* handles, UINT okEffects, UINT* p);
 	STDMETHODIMP Exit();
 	STDMETHODIMP GetClipboardContents(UINT window_id, IFbMetadbHandleList** pp);
+	STDMETHODIMP GetDSPPresets(BSTR* p);
 	STDMETHODIMP GetFocusItem(VARIANT_BOOL force, IFbMetadbHandle** pp);
 	STDMETHODIMP GetLibraryItems(IFbMetadbHandleList** outItems);
 	STDMETHODIMP GetLibraryRelativePath(IFbMetadbHandle* handle, BSTR* p);
 	STDMETHODIMP GetNowPlaying(IFbMetadbHandle** pp);
+	STDMETHODIMP GetOutputDevices(BSTR* p);
 	STDMETHODIMP GetQueryItems(IFbMetadbHandleList* handles, BSTR query, IFbMetadbHandleList** pp);
 	STDMETHODIMP GetSelection(IFbMetadbHandle** pp);
-	STDMETHODIMP GetSelectionType(UINT* p);
 	STDMETHODIMP GetSelections(UINT flags, IFbMetadbHandleList** pp);
+	STDMETHODIMP GetSelectionType(UINT* p);
 	STDMETHODIMP IsLibraryEnabled(VARIANT_BOOL* p);
 	STDMETHODIMP IsMetadbInMediaLibrary(IFbMetadbHandle* handle, VARIANT_BOOL* p);
 	STDMETHODIMP LoadPlaylist();
@@ -416,6 +420,8 @@ public:
 	STDMETHODIMP RunMainMenuCommand(BSTR command, VARIANT_BOOL* p);
 	STDMETHODIMP SaveIndex();
 	STDMETHODIMP SavePlaylist();
+	STDMETHODIMP SetDSPPreset(UINT idx);
+	STDMETHODIMP SetOutputDevice(BSTR output, BSTR device);
 	STDMETHODIMP ShowConsole();
 	STDMETHODIMP ShowLibrarySearchUI(BSTR query);
 	STDMETHODIMP ShowPopupMessage(BSTR msg, BSTR title);
@@ -518,8 +524,8 @@ public:
 	STDMETHODIMP GdiDrawBitmap(IGdiRawBitmap* bitmap, int dstX, int dstY, int dstW, int dstH, int srcX, int srcY, int srcW, int srcH);
 	STDMETHODIMP GdiDrawText(BSTR str, IGdiFont* font, VARIANT colour, int x, int y, int w, int h, int format, VARIANT* p);
 	STDMETHODIMP MeasureString(BSTR str, IGdiFont* font, float x, float y, float w, float h, int flags, IMeasureStringInfo** pp);
-	STDMETHODIMP SetInterpolationMode(INT mode);
-	STDMETHODIMP SetSmoothingMode(INT mode);
+	STDMETHODIMP SetInterpolationMode(int mode);
+	STDMETHODIMP SetSmoothingMode(int mode);
 	STDMETHODIMP SetTextRenderingHint(UINT mode);
 	STDMETHODIMP put__ptr(void* p);
 };
@@ -527,7 +533,7 @@ public:
 class GdiRawBitmap : public IDisposableImpl4<IGdiRawBitmap>
 {
 protected:
-	UINT m_width, m_height;
+	t_size m_width, m_height;
 	HDC m_hdc;
 	HBITMAP m_hbmp, m_hbmpold;
 

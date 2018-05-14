@@ -8,7 +8,8 @@ using json = nlohmann::json;
 
 namespace helpers
 {
-	struct custom_sort_data {
+	struct custom_sort_data
+	{
 		wchar_t* text;
 		t_size index;
 	};
@@ -29,10 +30,12 @@ namespace helpers
 	bool execute_mainmenu_command_by_name(const char* p_name);
 	bool execute_mainmenu_command_recur_v2(mainmenu_node::ptr node, pfc::string8_fast path, const char* p_name, t_size p_name_len);
 	bool find_context_command_recur(const char* p_command, pfc::string_base& p_path, contextmenu_node* p_parent, contextmenu_node*& p_out);
+	bool is14();
 	bool match_menu_command(const pfc::string_base& path, const char* command, t_size command_len = ~0);
 	bool read_album_art_into_bitmap(const album_art_data_ptr& data, Gdiplus::Bitmap** bitmap);
 	bool read_file(const char* path, pfc::string_base& content);
 	bool read_file_wide(unsigned codepage, const wchar_t* path, pfc::array_t<wchar_t>& content);
+	bool supports_chakra();
 	bool write_file(const char* path, const pfc::string_base& content, bool write_bom = true);
 	const GUID convert_artid_to_guid(int art_id);
 	int get_encoder_clsid(const WCHAR* format, CLSID* pClsid);
@@ -43,8 +46,8 @@ namespace helpers
 	pfc::string8_fast get_fb2k_component_path();
 	pfc::string8_fast get_fb2k_path();
 	pfc::string8_fast get_profile_path();
-	unsigned detect_charset(const char* fileName);
-	unsigned get_colour_from_variant(VARIANT v);
+	t_size detect_charset(const char* fileName);
+	t_size get_colour_from_variant(VARIANT v);
 	void build_mainmenu_group_map(pfc::map_t<GUID, mainmenu_group::ptr>& p_group_guid_text_map);
 	void estimate_line_wrap(HDC hdc, const wchar_t* text, int len, int width, pfc::list_t<wrapped_item>& out);
 	void estimate_line_wrap_recur(HDC hdc, const wchar_t* text, int len, int width, pfc::list_t<wrapped_item>& out);
@@ -57,7 +60,8 @@ namespace helpers
 	}
 
 	template<int direction>
-	static int custom_sort_compare(const custom_sort_data& elem1, const custom_sort_data& elem2) {
+	static int custom_sort_compare(const custom_sort_data& elem1, const custom_sort_data& elem2)
+	{
 		int ret = direction * StrCmpLogicalW(elem1.text, elem2.text);
 		if (ret == 0) ret = pfc::sgn_t((t_ssize)elem1.index - (t_ssize)elem2.index);
 		return ret;
@@ -197,7 +201,7 @@ namespace helpers
 	private:
 		bool m_to_select;
 		int m_playlist_idx;
-		UINT m_base;
+		t_size m_base;
 	};
 
 	class com_array_reader
@@ -223,12 +227,12 @@ namespace helpers
 			return m_psa;
 		}
 
-		long get_lbound()
+		LONG get_lbound()
 		{
 			return m_lbound;
 		}
 
-		long get_ubound()
+		LONG get_ubound()
 		{
 			return m_ubound;
 		}
@@ -238,14 +242,14 @@ namespace helpers
 			return get_ubound() - get_lbound() + 1;
 		}
 
-		bool get_item(long idx, VARIANT& dest)
+		bool get_item(LONG idx, VARIANT& dest)
 		{
 			if (!m_psa || idx < m_lbound || idx > m_ubound) return false;
 
 			return SUCCEEDED(SafeArrayGetElement(m_psa, &idx, &dest));
 		}
 
-		VARIANT operator[](long idx)
+		VARIANT operator[](LONG idx)
 		{
 			_variant_t var;
 
@@ -324,10 +328,10 @@ namespace helpers
 
 			if (!psa) goto cleanup_and_return;
 
-			for (long i = m_lbound; i <= m_ubound; ++i)
+			for (LONG i = m_lbound; i <= m_ubound; ++i)
 			{
 				DISPID dispid = 0;
-				DISPPARAMS params = { 0 };
+				params = { 0 };
 				wchar_t buf[33];
 				LPOLESTR name = buf;
 				_variant_t element;
@@ -352,7 +356,7 @@ namespace helpers
 		}
 
 		SAFEARRAY* m_psa;
-		long m_lbound, m_ubound;
+		LONG m_lbound, m_ubound;
 	};
 
 	template <bool managed = false>
@@ -377,12 +381,12 @@ namespace helpers
 			return m_psa;
 		}
 
-		long get_count()
+		LONG get_count()
 		{
 			return m_count;
 		}
 
-		bool create(long count)
+		bool create(LONG count)
 		{
 			reset();
 
@@ -391,7 +395,7 @@ namespace helpers
 			return (m_psa != NULL);
 		}
 
-		HRESULT put(long idx, VARIANT& pVar)
+		HRESULT put(LONG idx, VARIANT& pVar)
 		{
 			if (idx >= m_count) return E_INVALIDARG;
 			if (!m_psa) return E_POINTER;
@@ -413,7 +417,7 @@ namespace helpers
 
 	private:
 		SAFEARRAY* m_psa;
-		long m_count;
+		LONG m_count;
 	};
 
 	class com_array_to_bitarray

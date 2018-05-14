@@ -10,6 +10,7 @@ namespace
 	play_callback_static_factory_t<my_playback_queue_callback> g_my_playback_queue_callback;
 	playback_statistics_collector_factory_t<my_playback_statistics_collector> g_my_playback_statistics_collector;
 	service_factory_single_t<my_config_object_notify> g_my_config_object_notify;
+	service_factory_single_t<my_dsp_config_callback> g_my_dsp_config_callback;
 	service_factory_single_t<my_metadb_io_callback> g_my_metadb_io_callback;
 	service_factory_single_t<my_playlist_callback_static> g_my_playlist_callback_static;
 }
@@ -100,6 +101,11 @@ void panel_manager::send_msg_to_others_pointer(HWND p_wnd_except, UINT p_msg, pf
 	});
 }
 
+void my_dsp_config_callback::on_core_settings_change(const dsp_chain_config& p_newdata)
+{
+	panel_manager::instance().post_msg_to_all(CALLBACK_UWM_ON_DSP_PRESET_CHANGED);
+}
+
 void my_initquit::on_selection_changed(metadb_handle_list_cref p_selection)
 {
 	panel_manager::instance().post_msg_to_all(CALLBACK_UWM_ON_SELECTION_CHANGED);
@@ -108,6 +114,11 @@ void my_initquit::on_selection_changed(metadb_handle_list_cref p_selection)
 void my_initquit::on_changed(t_replaygain_config const& cfg)
 {
 	panel_manager::instance().post_msg_to_all(CALLBACK_UWM_ON_REPLAYGAIN_MODE_CHANGED, (WPARAM)cfg.m_source_mode);
+}
+
+void my_initquit::outputConfigChanged()
+{
+	panel_manager::instance().post_msg_to_all(CALLBACK_UWM_ON_OUTPUT_DEVICE_CHANGED);
 }
 
 void my_library_callback::on_items_added(metadb_handle_list_cref p_data)
@@ -131,7 +142,7 @@ void my_library_callback::on_items_removed(metadb_handle_list_cref p_data)
 void my_metadb_io_callback::on_changed_sorted(metadb_handle_list_cref p_items_sorted, bool p_fromhook)
 {
 	t_on_data* on_changed_sorted_data = new t_on_data(p_items_sorted, p_fromhook);
-	panel_manager::instance().post_msg_to_all_pointer(CALLBACK_UWM_ON_CHANGED_SORTED, on_changed_sorted_data);
+	panel_manager::instance().post_msg_to_all_pointer(CALLBACK_UWM_ON_METADB_CHANGED, on_changed_sorted_data);
 }
 
 unsigned my_play_callback_static::get_flags()
@@ -239,13 +250,13 @@ void my_config_object_notify::on_watched_object_changed(const config_object::ptr
 	p_object->get_data_bool(boolval);
 
 	if (guid == standard_config_objects::bool_playlist_stop_after_current)
-		msg = CALLBACK_UWM_PLAYLIST_STOP_AFTER_CURRENT;
+		msg = CALLBACK_UWM_ON_PLAYLIST_STOP_AFTER_CURRENT_CHANGED;
 	else if (guid == standard_config_objects::bool_cursor_follows_playback)
-		msg = CALLBACK_UWM_CURSOR_FOLLOW_PLAYBACK;
+		msg = CALLBACK_UWM_ON_CURSOR_FOLLOW_PLAYBACK_CHANGED;
 	else if (guid == standard_config_objects::bool_playback_follows_cursor)
-		msg = CALLBACK_UWM_PLAYBACK_FOLLOW_CURSOR;
+		msg = CALLBACK_UWM_ON_PLAYBACK_FOLLOW_CURSOR_CHANGED;
 	else if (guid == standard_config_objects::bool_ui_always_on_top)
-		msg = CALLBACK_UWM_ALWAYS_ON_TOP;
+		msg = CALLBACK_UWM_ON_ALWAYS_ON_TOP_CHANGED;
 
 	panel_manager::instance().post_msg_to_all(msg, TO_VARIANT_BOOL(boolval));
 }

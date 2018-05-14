@@ -16,10 +16,8 @@ LRESULT CDialogGoto::OnCloseCmd(WORD wNotifyCode, WORD wID, HWND hWndCtl)
 	if (wID == IDOK)
 	{
 		pfc::string8 text;
-		unsigned i = 0;
-
 		uGetWindowText(GetDlgItem(IDC_EDIT_LINENUMBER), text);
-		i = pfc::atoui_ex(text.get_ptr(), text.length()) - 1;
+		unsigned i = pfc::atoui_ex(text.get_ptr(), text.length()) - 1;
 		SendMessage(m_hedit, SCI_GOTOLINE, i, 0);
 	}
 

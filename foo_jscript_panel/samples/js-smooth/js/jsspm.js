@@ -248,7 +248,7 @@ oFilterBox = function () {
 		case "lbtn_dblclk":
 			this.inputbox.check("dblclk", x, y);
 			break;
-		case "rbtn_down":
+		case "rbtn_up":
 			this.inputbox.check("right", x, y);
 			break;
 		case "move":
@@ -1613,7 +1613,6 @@ oBrowser = function (name) {
 		_autoplaylist.Dispose();
 		_newplaylist.Dispose();
 		_menu.Dispose();
-		g_rbtn_click = false;
 		brw.repaint();
 		return true;
 	};
@@ -1691,7 +1690,6 @@ oBrowser = function (name) {
 		_menu2.Dispose();
 		_menu1.Dispose();
 		_menu.Dispose();
-		g_rbtn_click = false;
 		return true;
 	};
 };
@@ -1773,9 +1771,6 @@ var g_avoid_on_playlist_items_added = false;
 var g_avoid_on_playlist_items_removed = false;
 var g_avoid_on_playlist_items_removed_callbacks_on_sendItemToPlaylist = false;
 var g_avoid_on_playlist_items_reordered = false;
-// mouse actions
-var g_lbtn_click = false;
-var g_rbtn_click = false;
 //
 var g_first_populate_done = false;
 var g_first_populate_launched = false;
@@ -1875,9 +1870,6 @@ function on_paint(gr) {
 };
 
 function on_mouse_lbtn_down(x, y) {
-	g_lbtn_click = true;
-	g_rbtn_click = false;
-
 	// stop inertia
 	if (cTouch.timer) {
 		window.ClearInterval(cTouch.timer);
@@ -1965,8 +1957,6 @@ function on_mouse_lbtn_up(x, y) {
 				}, 75);
 		};
 	};
-
-	g_lbtn_click = false;
 };
 
 function on_mouse_lbtn_dblclk(x, y, mask) {
@@ -1979,25 +1969,14 @@ function on_mouse_lbtn_dblclk(x, y, mask) {
 	};
 };
 
-function on_mouse_rbtn_down(x, y, mask) {
-	g_rbtn_click = true;
-
-	if (!utils.IsKeyPressed(VK_SHIFT)) {
-		// inputBox
-		if (ppt.showHeaderBar && ppt.showFilterBox && g_filterbox.inputbox.visible) {
-			g_filterbox.on_mouse("rbtn_down", x, y);
-		};
-
-		brw.on_mouse("right", x, y);
-	};
-};
-
 function on_mouse_rbtn_up(x, y) {
-	g_rbtn_click = false;
-
-	if (!utils.IsKeyPressed(VK_SHIFT)) {
-		return;
+	// inputBox
+	if (ppt.showHeaderBar && ppt.showFilterBox && g_filterbox.inputbox.visible) {
+		g_filterbox.on_mouse("rbtn_up", x, y);
 	};
+
+	brw.on_mouse("right", x, y);
+	return true;
 };
 
 function on_mouse_move(x, y) {

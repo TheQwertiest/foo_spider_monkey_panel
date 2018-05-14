@@ -33,6 +33,8 @@
 #define _NO_SYS_GUID_OPERATOR_EQ_	//fix retarded warning with operator== on GUID returning int
 #endif
 
+// WinSock2.h *before* Windows.h or else VS2017 15.3 breaks
+#include <WinSock2.h>
 #include <windows.h>
 
 #if !defined(PFC_WINDOWS_STORE_APP) && !defined(PFC_WINDOWS_DESKTOP_APP)

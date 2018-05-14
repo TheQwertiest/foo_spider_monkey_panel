@@ -340,6 +340,11 @@ namespace helpers
 		return false;
 	}
 
+	bool is14()
+	{
+		return core_version_info_v2::get()->test_version(1, 4, 0, 0);
+	}
+
 	bool match_menu_command(const pfc::string_base& path, const char* command, t_size command_len)
 	{
 		if (command_len == ~0)
@@ -460,7 +465,7 @@ namespace helpers
 			const char* pSource = (const char *)(pAddr);
 			t_size pSourceSize = dwFileSize;
 
-			UINT tmp = detect_charset(path);
+			t_size tmp = detect_charset(path);
 			if (tmp == CP_UTF8)
 			{
 				content.set_string(pSource, pSourceSize);
@@ -546,7 +551,7 @@ namespace helpers
 			const char* pSource = (const char *)(pAddr);
 			t_size pSourceSize = dwFileSize;
 
-			UINT tmp = detect_charset(pfc::stringcvt::string_utf8_from_wide(path));
+			t_size tmp = detect_charset(pfc::stringcvt::string_utf8_from_wide(path));
 			if (tmp == CP_UTF8)
 			{
 				const t_size size = pfc::stringcvt::estimate_utf8_to_wide_quick(pSource, pSourceSize);
@@ -566,6 +571,12 @@ namespace helpers
 		CloseHandle(hFileMapping);
 		CloseHandle(hFile);
 		return status;
+	}
+
+	bool supports_chakra()
+	{
+		HKEY hKey;
+		return RegOpenKeyExW(HKEY_CLASSES_ROOT, L"CLSID\\{16d51579-a30b-4c8b-a276-0ff4dc41e755}", 0, KEY_READ, &hKey) == ERROR_SUCCESS;
 	}
 
 	bool write_file(const char* path, const pfc::string_base& content, bool write_bom)
@@ -632,8 +643,8 @@ namespace helpers
 	{
 		int ret = -1;
 
-		UINT num = 0;
-		UINT size = 0;
+		t_size num = 0;
+		t_size size = 0;
 
 		Gdiplus::ImageCodecInfo* pImageCodecInfo = NULL;
 
@@ -734,7 +745,7 @@ namespace helpers
 		return path;
 	}
 
-	unsigned detect_charset(const char* fileName)
+	t_size detect_charset(const char* fileName)
 	{
 		_COM_SMARTPTR_TYPEDEF(IMultiLanguage2, IID_IMultiLanguage2);
 		IMultiLanguage2Ptr lang;
@@ -816,7 +827,7 @@ namespace helpers
 		return codepage;
 	}
 
-	unsigned get_colour_from_variant(VARIANT v)
+	t_size get_colour_from_variant(VARIANT v)
 	{
 		return (v.vt == VT_R8) ? static_cast<unsigned>(v.dblVal) : v.lVal;
 	}
@@ -863,7 +874,11 @@ namespace helpers
 
 		if (textWidth <= width || len <= 1)
 		{
-			wrapped_item item = { SysAllocStringLen(text, len), textWidth };
+			wrapped_item item =
+			{
+				SysAllocStringLen(text, len),
+				textWidth
+			};
 			out.add_item(item);
 		}
 		else
@@ -903,7 +918,6 @@ namespace helpers
 					SysAllocStringLen(text, textLength),
 					get_text_width(hdc, text, textLength)
 				};
-
 				out.add_item(item);
 			}
 
@@ -914,7 +928,8 @@ namespace helpers
 		}
 	}
 
-	wchar_t* make_sort_string(const char* in) {
+	wchar_t* make_sort_string(const char* in)
+	{
 		wchar_t* out = new wchar_t[pfc::stringcvt::estimate_utf8_to_wide(in) + 1];
 		out[0] = ' ';//StrCmpLogicalW bug workaround.
 		pfc::stringcvt::convert_utf8_to_wide_unchecked(out + 1, in);
@@ -945,7 +960,7 @@ namespace helpers
 
 		t_param param(handle, m_art_id, bitmap, image_path.is_empty() ? "" : file_path_display(image_path));
 
-		SendMessage(m_notify_hwnd, CALLBACK_UWM_GETALBUMARTASYNCDONE, 0, (LPARAM)&param);
+		SendMessage(m_notify_hwnd, CALLBACK_UWM_ON_GET_ALBUM_ART_DONE, 0, (LPARAM)&param);
 	}
 
 	void load_image_async::run()
@@ -965,6 +980,6 @@ namespace helpers
 
 		t_param param(reinterpret_cast<unsigned>(this), bitmap, m_path);
 
-		SendMessage(m_notify_hwnd, CALLBACK_UWM_LOADIMAGEASYNCDONE, 0, (LPARAM)&param);
+		SendMessage(m_notify_hwnd, CALLBACK_UWM_ON_LOAD_IMAGE_DONE, 0, (LPARAM)&param);
 	}
 }

@@ -83,12 +83,12 @@ t_script_info& HostComm::ScriptInfo()
 	return m_script_info;
 }
 
-unsigned HostComm::SetInterval(IDispatch* func, INT delay)
+unsigned HostComm::SetInterval(IDispatch* func, int delay)
 {
 	return HostTimerDispatcher::Get().setInterval(m_hwnd, delay, func);
 }
 
-unsigned HostComm::SetTimeout(IDispatch* func, INT delay)
+unsigned HostComm::SetTimeout(IDispatch* func, int delay)
 {
 	return HostTimerDispatcher::Get().setTimeout(m_hwnd, delay, func);
 }
@@ -264,7 +264,7 @@ HRESULT ScriptHost::InitScriptEngineByName(const wchar_t* engineName)
 	HRESULT hr = E_FAIL;
 	const DWORD classContext = CLSCTX_INPROC_SERVER | CLSCTX_INPROC_HANDLER;
 
-	if (IsWindowsVistaOrGreater() && wcscmp(engineName, L"Chakra") == 0)
+	if (helpers::supports_chakra() && wcscmp(engineName, L"Chakra") == 0)
 	{
 		static const CLSID jscript9clsid = { 0x16d51579, 0xa30b, 0x4c8b,{ 0xa2, 0x76, 0x0f, 0xf4, 0xdc, 0x41, 0xe7, 0x55 } };
 		hr = m_script_engine.CreateInstance(jscript9clsid, NULL, classContext);
@@ -673,7 +673,7 @@ STDMETHODIMP FbWindow::CreateThemeManager(BSTR classid, IThemeManager** pp)
 	return S_OK;
 }
 
-STDMETHODIMP FbWindow::CreateTooltip(BSTR name, float pxSize, INT style, IFbTooltip** pp)
+STDMETHODIMP FbWindow::CreateTooltip(BSTR name, float pxSize, int style, IFbTooltip** pp)
 {
 	if (!pp) return E_POINTER;
 
@@ -821,7 +821,7 @@ STDMETHODIMP FbWindow::NotifyOthers(BSTR name, VARIANT info)
 
 	notify_data->m_item2.Attach(var.Detach());
 
-	panel_manager::instance().send_msg_to_others_pointer(m_host->GetHWND(), CALLBACK_UWM_NOTIFY_DATA, notify_data);
+	panel_manager::instance().send_msg_to_others_pointer(m_host->GetHWND(), CALLBACK_UWM_ON_NOTIFY_DATA, notify_data);
 
 	return S_OK;
 }
@@ -850,7 +850,7 @@ STDMETHODIMP FbWindow::SetCursor(UINT id)
 	return S_OK;
 }
 
-STDMETHODIMP FbWindow::SetInterval(IDispatch* func, INT delay, UINT* outIntervalID)
+STDMETHODIMP FbWindow::SetInterval(IDispatch* func, int delay, UINT* outIntervalID)
 {
 	if (!outIntervalID) return E_POINTER;
 
@@ -864,7 +864,7 @@ STDMETHODIMP FbWindow::SetProperty(BSTR name, VARIANT val)
 	return S_OK;
 }
 
-STDMETHODIMP FbWindow::SetTimeout(IDispatch* func, INT delay, UINT* outTimeoutID)
+STDMETHODIMP FbWindow::SetTimeout(IDispatch* func, int delay, UINT* outTimeoutID)
 {
 	if (!outTimeoutID) return E_POINTER;
 
@@ -874,13 +874,13 @@ STDMETHODIMP FbWindow::SetTimeout(IDispatch* func, INT delay, UINT* outTimeoutID
 
 STDMETHODIMP FbWindow::ShowConfigure()
 {
-	PostMessage(m_host->GetHWND(), UWM_SHOWCONFIGURE, 0, 0);
+	PostMessage(m_host->GetHWND(), UWM_SHOW_CONFIGURE, 0, 0);
 	return S_OK;
 }
 
 STDMETHODIMP FbWindow::ShowProperties()
 {
-	PostMessage(m_host->GetHWND(), UWM_SHOWPROPERTIES, 0, 0);
+	PostMessage(m_host->GetHWND(), UWM_SHOW_PROPERTIES, 0, 0);
 	return S_OK;
 }
 
@@ -995,27 +995,27 @@ STDMETHODIMP FbWindow::put_DlgCode(UINT code)
 STDMETHODIMP FbWindow::put_MaxHeight(UINT height)
 {
 	m_host->MaxSize().y = height;
-	PostMessage(m_host->GetHWND(), UWM_SIZELIMITECHANGED, 0, uie::size_limit_maximum_height);
+	PostMessage(m_host->GetHWND(), UWM_SIZE_LIMIT_CHANGED, 0, uie::size_limit_maximum_height);
 	return S_OK;
 }
 
 STDMETHODIMP FbWindow::put_MaxWidth(UINT width)
 {
 	m_host->MaxSize().x = width;
-	PostMessage(m_host->GetHWND(), UWM_SIZELIMITECHANGED, 0, uie::size_limit_maximum_width);
+	PostMessage(m_host->GetHWND(), UWM_SIZE_LIMIT_CHANGED, 0, uie::size_limit_maximum_width);
 	return S_OK;
 }
 
 STDMETHODIMP FbWindow::put_MinHeight(UINT height)
 {
 	m_host->MinSize().y = height;
-	PostMessage(m_host->GetHWND(), UWM_SIZELIMITECHANGED, 0, uie::size_limit_minimum_height);
+	PostMessage(m_host->GetHWND(), UWM_SIZE_LIMIT_CHANGED, 0, uie::size_limit_minimum_height);
 	return S_OK;
 }
 
 STDMETHODIMP FbWindow::put_MinWidth(UINT width)
 {
 	m_host->MinSize().x = width;
-	PostMessage(m_host->GetHWND(), UWM_SIZELIMITECHANGED, 0, uie::size_limit_minimum_width);
+	PostMessage(m_host->GetHWND(), UWM_SIZE_LIMIT_CHANGED, 0, uie::size_limit_minimum_width);
 	return S_OK;
 }

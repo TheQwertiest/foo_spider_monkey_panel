@@ -1,4 +1,5 @@
 #pragma once
+#include "helpers.h"
 
 template <typename T>
 struct simple_callback_data : public pfc::refcounted_object_root
@@ -99,23 +100,38 @@ private:
 	PFC_CLASS_NOT_COPYABLE_EX(panel_manager)
 };
 
-class my_initquit : public initquit, public ui_selection_callback, public replaygain_core_settings_notify
+class my_dsp_config_callback : public dsp_config_callback
+{
+public:
+	virtual void on_core_settings_change(const dsp_chain_config& p_newdata);
+};
+
+class my_initquit : public initquit, public ui_selection_callback, public replaygain_core_settings_notify, public output_config_change_callback
 {
 public:
 	virtual void on_init()
 	{
-		replaygain_manager_v2::get()->add_notify(this);
+		if (helpers::is14())
+		{
+			replaygain_manager_v2::get()->add_notify(this);
+			output_manager_v2::get()->addCallback(this);
+		}
 		ui_selection_manager_v2::get()->register_callback(this, 0);
 	}
 
 	virtual void on_quit()
 	{
-		replaygain_manager_v2::get()->remove_notify(this);
+		if (helpers::is14())
+		{
+			replaygain_manager_v2::get()->remove_notify(this);
+			output_manager_v2::get()->removeCallback(this);
+		}
 		ui_selection_manager_v2::get()->unregister_callback(this);
 	}
 
 	virtual void on_changed(t_replaygain_config const& cfg);
 	virtual void on_selection_changed(metadb_handle_list_cref p_selection);
+	virtual void outputConfigChanged();
 };
 
 class my_library_callback : public library_callback

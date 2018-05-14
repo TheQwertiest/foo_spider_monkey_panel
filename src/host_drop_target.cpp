@@ -28,8 +28,8 @@ HRESULT HostDropTarget::OnDragEnter(IDataObject* pDataObj, DWORD grfKeyState, PO
 		m_fb2kAllowedEffect = DROPEFFECT_NONE;
 	}
 	else if (native && (DROPEFFECT_MOVE & *pdwEffect))
-	{// Remove check_dataobject move suppression for intra fb2k interactions
-		m_fb2kAllowedEffect |= DROPEFFECT_MOVE;
+	{
+		m_fb2kAllowedEffect |= DROPEFFECT_MOVE; // Remove check_dataobject move suppression for intra fb2k interactions
 	}
 
 	m_action->Effect() = *pdwEffect & m_fb2kAllowedEffect;
@@ -38,7 +38,6 @@ HRESULT HostDropTarget::OnDragEnter(IDataObject* pDataObj, DWORD grfKeyState, PO
 	on_drag_enter(grfKeyState, pt, m_action);
 
 	*pdwEffect = m_action->Effect();
-		
 	return S_OK;
 }
 
@@ -82,7 +81,7 @@ HRESULT HostDropTarget::OnDrop(IDataObject* pDataObj, DWORD grfKeyState, POINTL 
 	if (SUCCEEDED(hr))
 	{
 		int playlist = m_action->Playlist();
-		UINT base = m_action->Base();
+		t_size base = m_action->Base();
 		bool to_select = m_action->ToSelect();
 
 		droppedData.to_handles_async_ex(playlist_incoming_item_filter_v2::op_flag_delay_ui,

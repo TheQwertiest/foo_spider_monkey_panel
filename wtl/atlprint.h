@@ -836,7 +836,7 @@ public:
 		if (m_nCurPage == m_nMaxPage)
 			return false;
 		SetPage(m_nCurPage + 1);
-		Invalidate();
+		this->Invalidate();
 		return true;
 	}
 
@@ -847,7 +847,7 @@ public:
 		if (m_nCurPage == 0)
 			return false;
 		SetPage(m_nCurPage - 1);
-		Invalidate();
+		this->Invalidate();
 		return true;
 	}
 

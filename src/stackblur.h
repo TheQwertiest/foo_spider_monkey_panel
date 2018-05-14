@@ -142,7 +142,7 @@ void stackblurJob(unsigned char* src, ///< input image data
 			sp = radius;
 			xp = radius;
 			if (xp > wm) xp = wm;
-			src_ptr = src + 4 * (xp + y * w); //   img.pix_ptr(xp, y);
+			src_ptr = src + 4 * (xp + y * w); // img.pix_ptr(xp, y);
 			dst_ptr = src + y * w4; // img.pix_ptr(0, y);
 			for (x = 0; x < w; x++)
 			{
@@ -347,13 +347,13 @@ public:
 void stackblur(unsigned char* src, ///< input image data
 	unsigned int w, ///< image width
 	unsigned int h, ///< image height
-	unsigned int radius, ///< blur intensity (should be in 2..254 range)
-	int cores = 1 ///< number of threads (1 - normal single thread)
+	unsigned int radius ///< blur intensity (should be in 2..254 range)
 )
 {
 	if (radius > 254) return;
 	if (radius < 2) return;
 
+	unsigned int cores = max(1, pfc::getOptimalWorkerThreadCount());
 	unsigned int div = (radius * 2) + 1;
 	unsigned char* stack = new unsigned char[div * 4 * cores];
 
@@ -395,7 +395,7 @@ void stackblur(unsigned char* src, ///< input image data
 	delete[] stack;
 }
 
-void stack_blur_filter(Gdiplus::Bitmap& img, int radius, int core) throw()
+void stack_blur_filter(Gdiplus::Bitmap& img, int radius) throw()
 {
 	int width = img.GetWidth();
 	int height = img.GetHeight();
@@ -411,7 +411,7 @@ void stack_blur_filter(Gdiplus::Bitmap& img, int radius, int core) throw()
 	{
 		if (radius > 254) radius = 254;
 		if (radius < 2) radius = 2;
-		stackblur((unsigned char*)bmpdata.Scan0, width, height, radius, core);
+		stackblur((unsigned char*)bmpdata.Scan0, width, height, radius);
 		img.UnlockBits(&bmpdata);
 	}
 }

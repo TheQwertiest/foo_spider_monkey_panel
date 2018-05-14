@@ -52,7 +52,7 @@ interface IFbUtils {
 		0 None
 		1 Track
 		2 Album
-		3 Track/Album by Playback Order
+		3 Track/Album by Playback Order // only available in foobar2000 v1.3.8 and later
 		*/
 
 		fb.StopAfterCurrent; (boolean) (read, write)
@@ -241,6 +241,43 @@ interface IFbUtils {
 		}
 		*/
 
+		fb.GetDSPPresets() (string)
+		/*
+		foobar2000 v1.4 and above only. Throws a script error on v1.3.
+		Returns a JSON array in string form so you need to use JSON.parse() on the result.
+
+		Example1:
+		var str = fb.GetDSPPresets();
+		var arr = JSON.parse(str);
+		console.log(arr.length); // number of presets
+		console.log(JSON.stringify(arr, null, 4)); // using JSON.stringify here for displaying the output below
+
+		[
+			{
+				"active": true,
+				"name": "two"
+			},
+			{
+				"active": false,
+				"name": "three"
+			}
+		]
+
+		Example2:
+		var active_name = "";
+		var str = fb.GetDSPPresets();
+		var arr = JSON.parse(str);
+		for (var i = 0; i < arr.length; i++) {
+			if (arr[i].active) {
+				active_name = arr[i].name;
+			}
+		}
+		console.log(active_name);
+
+		Simply use the array index to change preset using fb.SetDSPPreset(idx);
+		fb.SetDSPPreset(1); // changes to the 2nd entry in the example above
+		*/
+
 		fb.GetFocusItem([force]); (IFbMetadbHandle)
 		/*
 		force: boolean, default true.
@@ -261,13 +298,70 @@ interface IFbUtils {
 		var handle = fb.GetNowPlaying();
 		console.log(fb.GetLibraryRelativePath(handle)); // Albums\Artist\Some Album\Some Song.flac
 
-		NOTE: If you intend to loop through a large handle list and you have no control over what is
-		happening in the background, consider using try/catch as errors may occur if the Media Library
-		settings/content changes.
+		NOTE: Do not use this while looping a handle list. Use IFbMetadbHandleList GetLibraryRelativePaths
+		instead.
 		*/
 
 		fb.GetNowPlaying(); (IFbMetadbHandle)
 		// Get handle of now playing item.
+
+		fb.GetOutputDevices(); (string)
+		/*
+		foobar2000 v1.4 and above only. Throws a script error on v1.3.
+		Returns a JSON array in string form so you need to use JSON.parse() on the result.
+
+		Example:
+		var str = fb.GetOutputDevices();
+		var arr = JSON.parse(str);
+		console.log(arr.length); // number of devices
+		console.log(JSON.stringify(arr, null, 4)); // using JSON.stringify here for displaying the output below
+
+		[
+			{
+				"active": false,
+				"device_id": "{5243F9AD-C84F-4723-8194-0788FC021BCC}",
+				"name": "Null Output",
+				"output_id": "{EEEB07DE-C2C8-44C2-985C-C85856D96DA1}"
+			},
+			{
+				"active": true,
+				"device_id": "{00000000-0000-0000-0000-000000000000}",
+				"name": "Primary Sound Driver",
+				"output_id": "{D41D2423-FBB0-4635-B233-7054F79814AB}"
+			},
+			{
+				"active": false,
+				"device_id": "{1C4EC038-97DB-48E7-9C9A-05FDED46847B}",
+				"name": "Speakers (Sound Blaster Z)",
+				"output_id": "{D41D2423-FBB0-4635-B233-7054F79814AB}"
+			},
+			{
+				"active": false,
+				"device_id": "{41B86272-3D6C-4A5A-8907-4FE7EBE39E7E}",
+				"name": "SPDIF-Out (Sound Blaster Z)",
+				"output_id": "{D41D2423-FBB0-4635-B233-7054F79814AB}"
+			},
+			{
+				"active": false,
+				"device_id": "{9CDC0FAE-2870-4AFA-8287-E86099D69076}",
+				"name": "3 - BenQ BL3200 (AMD High Definition Audio Device)",
+				"output_id": "{D41D2423-FBB0-4635-B233-7054F79814AB}"
+			}
+		]
+
+		As you can see, only one of the items in the array has "active"
+		set to true so that is the device you'd want to display the name of
+		or mark as selected in a menu.
+
+		To actually change device, you'll need the device_id and output_id
+		and use them with fb.SetOutputDevice. 
+
+		Example:
+		var str = fb.GetOutputDevices();
+		var arr = JSON.parse(str);
+		// Assuming same list from above, switch output to the last device.
+		fb.SetOutputDevice(arr[4].output_id, arr[4].device_id);
+		*/
 
 		fb.GetQueryItems(handle_list, query); (IFbMetadbHandleList)
 		/*
@@ -327,8 +421,6 @@ interface IFbUtils {
 
 		fb.PlayOrPause(); (void)
 
-		fb.Stop(); (void)
-
 		fb.Prev(); (void)
 
 		fb.Random(); (void)
@@ -358,6 +450,18 @@ interface IFbUtils {
 
 		fb.SavePlaylist(); (void)
 
+		fb.SetDSPPreset(idx); (void)
+		/*
+		foobar2000 v1.4 and above only. Throws a script error on v1.3.
+		See fb.GetDSPPresets()
+		*/
+
+		fb.SetOutputDevice(output, device); (void)
+		/*
+		foobar2000 v1.4 and above only. Throws a script error on v1.3.
+		See fb.GetOutputDevices()
+		*/
+
 		fb.ShowConsole(); (void)
 
 		fb.ShowLibrarySearchUI(query); (void)
@@ -367,6 +471,8 @@ interface IFbUtils {
 		// title: default "JScript Panel"
 
 		fb.ShowPreferences(); (void)
+
+		fb.Stop(); (void)
 
 		fb.TitleFormat(expression); (IFbTitleFormat)
 
@@ -1303,7 +1409,7 @@ interface IGdiBitmap {
 
 		GetColourSchemeJSON(max_count); (string)
 		/*
-		Returns a JSON array in string form so you need to call JSON.parse() on the result.
+		Returns a JSON array in string form so you need to use JSON.parse() on the result.
 		Each entry in the array is an object which contains colour and frequency values.
 		Uses a different method for calculating colours than GetColourScheme.
 		Image is automatically resized during processing for performance reasons so there's no
@@ -1644,6 +1750,20 @@ interface IFbMetadbHandleList {
 		var handle_list2 = handle_list.Clone();
 		*/
 
+		Convert(); (VBArray)
+		/*
+		Returns a VBArray so you need to use .toArray() on the result.
+
+		It has been noticed by other users that looping through an array of handles rather
+		than a handle list may be faster under some circumstances.
+
+		Example:
+		var playlist_items_array = plman.GetPlaylistItems(plman.ActivePlaylist).Convert().toArray();
+		for (var i = 0; i < playlist_items_array.length; i++) {
+			// do something with playlist_items_array[i] which is your handle
+		}
+		*/
+
 		Dispose(); (void)
 		/*
 		Example:
@@ -1654,6 +1774,20 @@ interface IFbMetadbHandleList {
 		/*
 		If sorted, use BSearch instead
 		Returns -1 on failure.
+		*/
+
+		GetLibraryRelativePaths(); (VBArray)
+		/*
+		Returns a VBArray so you need to use .toArray() on the result.
+
+		See fb.GetLibraryRelativePath for a description of the action that 
+		gets performed on each handle. This should be faster than looping
+		a handle list manually and using the aforementioned method.
+
+		Example:
+		var items = fb.GetLibraryItems();
+		items.OrderByRelativePath();
+		var relative_paths = items.GetLibraryRelativePaths().toArray();
 		*/
 
 		Insert(index, handle); (void)

@@ -1,5 +1,5 @@
 // ==PREPROCESSOR==
-// @name "jsplaylist-mod"
+// @name "JSPlaylist"
 // @version "2018-mod"
 // @author "Br3tt aka Falstaff"
 // @feature "dragdrop"

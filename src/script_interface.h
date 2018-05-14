@@ -62,7 +62,7 @@ __interface IGdiFont : IGdiObj
 	[propget] STDMETHOD(Height)([out, retval] UINT* p);
 	[propget] STDMETHOD(Name)([defaultvalue(LANG_NEUTRAL)] LANGID langId, [out, retval] BSTR* outName);
 	[propget] STDMETHOD(Size)([out, retval] float* outSize);
-	[propget] STDMETHOD(Style)([out, retval] INT* outStyle);
+	[propget] STDMETHOD(Style)([out, retval] int* outStyle);
 };
 
 [
@@ -236,7 +236,9 @@ __interface IFbMetadbHandleList : IDisposable
 	STDMETHOD(CalcTotalDuration)([out, retval] double* p);
 	STDMETHOD(CalcTotalSize)([out, retval] LONGLONG* p);
 	STDMETHOD(Clone)([out, retval] IFbMetadbHandleList** pp);
+	STDMETHOD(Convert)([out, retval] VARIANT* p);
 	STDMETHOD(Find)(IFbMetadbHandle* handle, [out, retval] int* p);
+	STDMETHOD(GetLibraryRelativePaths)([out, retval] VARIANT* p);
 	STDMETHOD(Insert)(UINT index, IFbMetadbHandle* handle);
 	STDMETHOD(InsertRange)(UINT index, IFbMetadbHandleList* handles);
 	STDMETHOD(MakeDifference)(IFbMetadbHandleList* handles);
@@ -331,7 +333,7 @@ __interface IFbProfiler : IDispatch
 {
 	STDMETHOD(Reset)();
 	STDMETHOD(Print)();
-	[propget] STDMETHOD(Time)([out, retval] INT* p);
+	[propget] STDMETHOD(Time)([out, retval] int* p);
 };
 
 [
@@ -370,14 +372,16 @@ __interface IFbUtils : IDispatch
 	STDMETHOD(DoDragDrop)(IFbMetadbHandleList* handles, UINT okEffects, [out, retval] UINT* p);
 	STDMETHOD(Exit)();
 	STDMETHOD(GetClipboardContents)(UINT window_id, [out, retval] IFbMetadbHandleList** pp);
+	STDMETHOD(GetDSPPresets)([out, retval] BSTR* p);
 	STDMETHOD(GetFocusItem)([defaultvalue(-1)] VARIANT_BOOL force, [out, retval] IFbMetadbHandle** pp);
 	STDMETHOD(GetLibraryItems)([out, retval] IFbMetadbHandleList** outItems);
 	STDMETHOD(GetLibraryRelativePath)(IFbMetadbHandle* handle, [out, retval] BSTR* p);
 	STDMETHOD(GetNowPlaying)([out, retval] IFbMetadbHandle** pp);
+	STDMETHOD(GetOutputDevices)([out, retval] BSTR* p);
 	STDMETHOD(GetQueryItems)(IFbMetadbHandleList* handles, BSTR query, [out, retval] IFbMetadbHandleList** pp);
 	STDMETHOD(GetSelection)([out, retval] IFbMetadbHandle** pp);
-	STDMETHOD(GetSelectionType)([out, retval] UINT* p);
 	STDMETHOD(GetSelections)([defaultvalue(0)] UINT flags, [out, retval] IFbMetadbHandleList** pp);
+	STDMETHOD(GetSelectionType)([out, retval] UINT* p);
 	STDMETHOD(IsLibraryEnabled)([out, retval] VARIANT_BOOL* p);
 	STDMETHOD(IsMetadbInMediaLibrary)(IFbMetadbHandle* handle, [out, retval] VARIANT_BOOL* p);
 	STDMETHOD(LoadPlaylist)();
@@ -392,6 +396,8 @@ __interface IFbUtils : IDispatch
 	STDMETHOD(RunMainMenuCommand)(BSTR command, [out, retval] VARIANT_BOOL* p);
 	STDMETHOD(SaveIndex)();
 	STDMETHOD(SavePlaylist)();
+	STDMETHOD(SetDSPPreset)(UINT idx);
+	STDMETHOD(SetOutputDevice)(BSTR output, BSTR device);
 	STDMETHOD(ShowConsole)();
 	STDMETHOD(ShowLibrarySearchUI)(BSTR query);
 	STDMETHOD(ShowPopupMessage)(BSTR msg, [defaultvalue(JSP_NAME)] BSTR title);
@@ -468,7 +474,7 @@ __interface IFbWindow : IDispatch
 	STDMETHOD(ClearTimeout)(UINT timeoutID);
 	STDMETHOD(CreatePopupMenu)([out, retval] IMenuObj** pp);
 	STDMETHOD(CreateThemeManager)(BSTR classid, [out, retval] IThemeManager** pp);
-	STDMETHOD(CreateTooltip)([defaultvalue("Segoe UI")] BSTR name, [defaultvalue(12)] float pxSize, [defaultvalue(0)] INT style, [out, retval] __interface IFbTooltip** pp);
+	STDMETHOD(CreateTooltip)([defaultvalue("Segoe UI")] BSTR name, [defaultvalue(12)] float pxSize, [defaultvalue(0)] int style, [out, retval] __interface IFbTooltip** pp);
 	STDMETHOD(GetColourCUI)(UINT type, [defaultvalue("")] BSTR guidstr, [out, retval] int* p);
 	STDMETHOD(GetColourDUI)(UINT type, [out, retval] int* p);
 	STDMETHOD(GetFontCUI)(UINT type, [defaultvalue("")] BSTR guidstr, [out, retval] IGdiFont** pp);
@@ -479,13 +485,13 @@ __interface IFbWindow : IDispatch
 	STDMETHOD(Repaint)([defaultvalue(0)] VARIANT_BOOL force);
 	STDMETHOD(RepaintRect)(LONG x, LONG y, LONG w, LONG h, [defaultvalue(0)] VARIANT_BOOL force);
 	STDMETHOD(SetCursor)(UINT id);
-	STDMETHOD(SetInterval)(IDispatch* func, INT delay, [out, retval] UINT* outIntervalID);
+	STDMETHOD(SetInterval)(IDispatch* func, int delay, [out, retval] UINT* outIntervalID);
 	STDMETHOD(SetProperty)(BSTR name, VARIANT val);
-	STDMETHOD(SetTimeout)(IDispatch* func, INT delay, [out, retval] UINT* outTimeoutID);
+	STDMETHOD(SetTimeout)(IDispatch* func, int delay, [out, retval] UINT* outTimeoutID);
 	STDMETHOD(ShowConfigure)();
 	STDMETHOD(ShowProperties)();
 	[propget] STDMETHOD(DlgCode)([out, retval] UINT* p);
-	[propget] STDMETHOD(Height)([out, retval] INT* p);
+	[propget] STDMETHOD(Height)([out, retval] int* p);
 	[propget] STDMETHOD(ID)([out, retval] UINT* p);
 	[propget] STDMETHOD(InstanceType)([out, retval] UINT* p);
 	[propget] STDMETHOD(IsTransparent)([out, retval] VARIANT_BOOL* p);
@@ -495,7 +501,7 @@ __interface IFbWindow : IDispatch
 	[propget] STDMETHOD(MinHeight)([out, retval] UINT* p);
 	[propget] STDMETHOD(MinWidth)([out, retval] UINT* p);
 	[propget] STDMETHOD(Name)([out, retval] BSTR* p);
-	[propget] STDMETHOD(Width)([out, retval] INT* p);
+	[propget] STDMETHOD(Width)([out, retval] int* p);
 	[propput] STDMETHOD(DlgCode)(UINT code);
 	[propput] STDMETHOD(MaxHeight)(UINT height);
 	[propput] STDMETHOD(MaxWidth)(UINT width);

@@ -45,36 +45,41 @@ LRESULT CDialogConf::OnInitDialog(HWND hwndFocus, LPARAM lParam)
 	HWND combo_engine = GetDlgItem(IDC_COMBO_ENGINE);
 	ComboBox_AddString(combo_engine, _T("Chakra"));
 	ComboBox_AddString(combo_engine, _T("JScript"));
-	if (IsWindowsVistaOrGreater())
+
+	if (helpers::supports_chakra())
 	{
 		uComboBox_SelectString(combo_engine, m_parent->get_script_engine());
 	}
 	else
 	{
+		uComboBox_SelectString(combo_engine, "JScript");
 		GetDlgItem(IDC_COMBO_ENGINE).EnableWindow(false);
 	}
 
+	// Edge Style
+	HWND combo_edge = GetDlgItem(IDC_COMBO_EDGE);
+	ComboBox_AddString(combo_edge, _T("None"));
+	ComboBox_AddString(combo_edge, _T("Sunken"));
+	ComboBox_AddString(combo_edge, _T("Grey"));
+
+	if (helpers::is14() && m_parent->GetInstanceType() == HostComm::KInstanceTypeDUI)
+	{
+		// disable in default UI fb2k v1.4 and above
+		ComboBox_SetCurSel(combo_edge, 0);
+		GetDlgItem(IDC_COMBO_EDGE).EnableWindow(false);
+	}
+	else
+	{
+		ComboBox_SetCurSel(combo_edge, m_parent->get_edge_style());
+	}
+
+	// Pseudo Transparent
 	if (m_parent->GetInstanceType() == HostComm::KInstanceTypeCUI)
 	{
-		// Edge Style
-		HWND combo_edge = GetDlgItem(IDC_COMBO_EDGE);
-		ComboBox_AddString(combo_edge, _T("None"));
-		ComboBox_AddString(combo_edge, _T("Sunken"));
-		ComboBox_AddString(combo_edge, _T("Grey"));
-		ComboBox_SetCurSel(combo_edge, m_parent->get_edge_style());
-
-		// Pseudo Transparent
 		uButton_SetCheck(m_hWnd, IDC_CHECK_PSEUDO_TRANSPARENT, m_parent->get_pseudo_transparent());
 	}
 	else
 	{
-		// Disable these items in Default UI
-
-		// Edge Style
-		HWND combo_edge = GetDlgItem(IDC_COMBO_EDGE);
-		GetDlgItem(IDC_COMBO_EDGE).EnableWindow(false);
-
-		// Pseudo
 		uButton_SetCheck(m_hWnd, IDC_CHECK_PSEUDO_TRANSPARENT, false);
 		GetDlgItem(IDC_CHECK_PSEUDO_TRANSPARENT).EnableWindow(false);
 	}
@@ -361,7 +366,7 @@ LRESULT CDialogConf::OnUwmFindTextChanged(UINT uMsg, WPARAM wParam, LPARAM lPara
 
 bool CDialogConf::FindNext(HWND hWnd, HWND hWndEdit, unsigned flags, const char* which)
 {
-	::SendMessage(::GetAncestor(hWndEdit, GA_PARENT), UWM_FINDTEXTCHANGED, flags, reinterpret_cast<LPARAM>(which));
+	::SendMessage(::GetAncestor(hWndEdit, GA_PARENT), UWM_FIND_TEXT_CHANGED, flags, reinterpret_cast<LPARAM>(which));
 
 	SendMessage(hWndEdit, SCI_CHARRIGHT, 0, 0);
 	SendMessage(hWndEdit, SCI_SEARCHANCHOR, 0, 0);
@@ -371,7 +376,7 @@ bool CDialogConf::FindNext(HWND hWnd, HWND hWndEdit, unsigned flags, const char*
 
 bool CDialogConf::FindPrevious(HWND hWnd, HWND hWndEdit, unsigned flags, const char* which)
 {
-	::SendMessage(::GetAncestor(hWndEdit, GA_PARENT), UWM_FINDTEXTCHANGED, flags, reinterpret_cast<LPARAM>(which));
+	::SendMessage(::GetAncestor(hWndEdit, GA_PARENT), UWM_FIND_TEXT_CHANGED, flags, reinterpret_cast<LPARAM>(which));
 
 	SendMessage(hWndEdit, SCI_SEARCHANCHOR, 0, 0);
 	int pos = ::SendMessage(hWndEdit, SCI_SEARCHPREV, flags, reinterpret_cast<LPARAM>(which));

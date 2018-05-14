@@ -88,7 +88,7 @@ void prop_kv_config::g_load(t_map& data, stream_reader* reader, abort_callback& 
 			case VT_R4:
 			case VT_INT:
 			case VT_UINT:
-				cbRead = sizeof(long);
+				cbRead = sizeof(LONG);
 				break;
 
 			case VT_I8:
@@ -160,7 +160,7 @@ void prop_kv_config::g_save(const t_map& data, stream_writer* writer, abort_call
 			case VT_R4:
 			case VT_INT:
 			case VT_UINT:
-				cbWrite = sizeof(long);
+				cbWrite = sizeof(LONG);
 				break;
 
 			case VT_I8:

@@ -20,58 +20,36 @@ _.mixin({
 			if (this.items == 0) {
 				return;
 			}
-			switch (this.mode) {
-			case 'autoplaylists':
-				gr.SetTextRenderingHint(4);
-				this.text_width = this.w - 30;
+			switch (true) {
+			case this.mode == 'lastfm_info' && this.properties.mode.value == 1: // charts
+				this.text_x = this.spacer_w + 5;
+				this.text_width = Math.round(this.w / 2) + 30;
+				var lastfm_charts_bar_x = this.x + this.text_x + this.text_width + 10;
+				var unit_width = (this.w - lastfm_charts_bar_x - _.scale(50)) / this.data[0].playcount;
 				for (var i = 0; i < Math.min(this.items, this.rows); i++) {
-					gr.GdiDrawText(this.data[i + this.offset].name, panel.fonts.normal, panel.colours.text, this.x, this.y + _.scale(12) + (i * panel.row_height), this.text_width, panel.row_height, LEFT);
+					var bar_width = Math.ceil(unit_width * this.data[i + this.offset].playcount);
+					gr.GdiDrawText(this.data[i + this.offset].rank + '.', panel.fonts.normal, panel.colours.highlight, this.x, this.y + _.scale(12) + (i * panel.row_height), this.text_x - 5, panel.row_height, RIGHT);
+					gr.GdiDrawText(this.data[i + this.offset].name, panel.fonts.normal, panel.colours.text, this.x + this.text_x, this.y + _.scale(12) + (i * panel.row_height), this.text_width, panel.row_height, LEFT);
+					gr.FillSolidRect(lastfm_charts_bar_x, this.y + _.scale(13) + (i * panel.row_height), bar_width, panel.row_height - 3, this.properties.colour.value);
+					gr.GdiDrawText(_.formatNumber(this.data[i + this.offset].playcount, ','), panel.fonts.normal, panel.colours.text, lastfm_charts_bar_x + bar_width + 5, this.y + _.scale(12) + (i * panel.row_height), _.scale(60), panel.row_height, LEFT);
 				}
 				break;
-			case 'lastfm_info':
-				if (this.properties.mode.value == 0) {
-					this.text_x = 0;
-					this.text_width = this.w;
-					for (var i = 0; i < Math.min(this.items, this.rows); i++) {
-						gr.GdiDrawText(this.data[i + this.offset].name, panel.fonts.normal, panel.colours.text, this.x, this.y + _.scale(12) + (i * panel.row_height), this.text_width, panel.row_height, LEFT);
-					}
-				} else {
-					this.text_x = this.spacer_w + 5;
-					this.text_width = Math.round(this.w / 2) + 30;
-					var lastfm_charts_bar_x = this.x + this.text_x + this.text_width + 10;
-					var unit_width = (this.w - lastfm_charts_bar_x - _.scale(50)) / this.data[0].playcount;
-					for (var i = 0; i < Math.min(this.items, this.rows); i++) {
-						var bar_width = Math.ceil(unit_width * this.data[i + this.offset].playcount);
-						gr.GdiDrawText(this.data[i + this.offset].rank + '.', panel.fonts.normal, panel.colours.highlight, this.x, this.y + _.scale(12) + (i * panel.row_height), this.text_x - 5, panel.row_height, RIGHT);
-						gr.GdiDrawText(this.data[i + this.offset].name, panel.fonts.normal, panel.colours.text, this.x + this.text_x, this.y + _.scale(12) + (i * panel.row_height), this.text_width, panel.row_height, LEFT);
-						gr.FillSolidRect(lastfm_charts_bar_x, this.y + _.scale(13) + (i * panel.row_height), bar_width, panel.row_height - 3, this.properties.colour.value);
-						gr.GdiDrawText(_.formatNumber(this.data[i + this.offset].playcount, ','), panel.fonts.normal, panel.colours.text, lastfm_charts_bar_x + bar_width + 5, this.y + _.scale(12) + (i * panel.row_height), _.scale(60), panel.row_height, LEFT);
-					}
+			case this.mode == 'musicbrainz' && this.properties.mode.value == 0: // releases
+				this.text_width = this.w - this.spacer_w - 10;
+				for (var i = 0; i < Math.min(this.items, this.rows); i++) {
+					gr.GdiDrawText(this.data[i + this.offset].name, panel.fonts.normal, this.data[i + this.offset].width == 0 ? panel.colours.highlight : panel.colours.text, this.x, this.y + _.scale(12) + (i * panel.row_height), this.text_width, panel.row_height, LEFT);
+					gr.GdiDrawText(this.data[i + this.offset].date, panel.fonts.normal, panel.colours.highlight, this.x, this.y + _.scale(12) + (i * panel.row_height), this.w, panel.row_height, RIGHT);
 				}
 				break;
-			case 'musicbrainz':
-				if (this.properties.mode.value == 0) {
-					this.text_width = this.w - this.spacer_w - 10;
-					for (var i = 0; i < Math.min(this.items, this.rows); i++) {
-						gr.GdiDrawText(this.data[i + this.offset].name, panel.fonts.normal, this.data[i + this.offset].width == 0 ? panel.colours.highlight : panel.colours.text, this.x + this.text_x, this.y + _.scale(12) + (i * panel.row_height), this.text_width, panel.row_height, LEFT);
-						gr.GdiDrawText(this.data[i + this.offset].date, panel.fonts.normal, panel.colours.highlight, this.x, this.y + _.scale(12) + (i * panel.row_height), this.w, panel.row_height, RIGHT);
-					}
-				} else {
-					this.text_width = this.w;
-					for (var i = 0; i < Math.min(this.items, this.rows); i++) {
-						gr.GdiDrawText(this.data[i + this.offset].name, panel.fonts.normal, panel.colours.text, this.x + this.text_x, this.y + _.scale(12) + (i * panel.row_height), this.text_width, panel.row_height, LEFT);
-					}
-				}
-				break;
-			case 'properties':
+			case this.mode == 'properties':
 				this.text_width = this.w - this.text_x;
 				for (var i = 0; i < Math.min(this.items, this.rows); i++) {
 					gr.GdiDrawText(this.data[i + this.offset].name, panel.fonts.normal, panel.colours.highlight, this.x, this.y + _.scale(12) + (i * panel.row_height), this.text_x - 10, panel.row_height, LEFT);
 					gr.GdiDrawText(this.data[i + this.offset].value, panel.fonts.normal, panel.colours.text, this.x + this.text_x, this.y + _.scale(12) + (i * panel.row_height), this.text_width, panel.row_height, LEFT);
 				}
 				break;
-			case 'queue_viewer':
-			default:
+			default: // autoplaylists / last.fm similar artists / musicbrainz links / queue viewer
+				this.text_x = 0;
 				this.text_width = this.w;
 				for (var i = 0; i < Math.min(this.items, this.rows); i++) {
 					gr.GdiDrawText(this.data[i + this.offset].name, panel.fonts.normal, panel.colours.text, this.x, this.y + _.scale(12) + (i * panel.row_height), this.text_width, panel.row_height, LEFT);

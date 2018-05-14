@@ -21,6 +21,11 @@ function on_drag_leave() {}
 function on_drag_over(action, x, y, mask) {}
 // See https://github.com/marc2k3/foo_jscript_panel/wiki/Drag-and-Drop
 
+function on_dsp_preset_changed() {}
+// This callback is only available in foobar2000 v1.4 and later.
+// Called when DSP preset changes.
+// Does not get called when presets are added or removed.
+
 function on_focus(is_focused) {}
 // Called when the panel gets/loses focus.
 // is_focused: boolean.
@@ -117,6 +122,10 @@ function on_mouse_wheel_h(step) {}
 function on_notify_data(name, info) {}
 // Called in other panels after window.NotifyOthers(name, info) is executed
 
+function on_output_device_changed() {}
+// This callback is only available in foobar2000 v1.4 and later.
+// Called when output device changes. Use fb.GetOutputDevices to retrieve settings.
+
 function on_paint(gr) {}
 // Called when window is ready to draw.
 // See interfaces.txt for all the methods used with gr.
@@ -198,6 +207,7 @@ Called when:
 
 function on_replaygain_mode_changed(new_mode) {}
 /*
+This callback is only available in foobar2000 v1.4 and later.
 new_mode:
 0 None
 1 Track

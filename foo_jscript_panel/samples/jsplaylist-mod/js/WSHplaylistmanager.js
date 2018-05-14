@@ -663,21 +663,7 @@ oPlaylistManager = function (obj_name) {
 			cPlaylistManager.drag_y = -1;
 			break;
 		case "drag_over":
-			if (this.total > 0) {
-				if (!this.ishoverHeader) {
-					if (this.hoverId > -1) {
-						g_dragndrop_targetPlaylistId = this.hoverId;
-					} else if (y > this.playlists[this.rowTotal - 1].y + cPlaylistManager.rowHeight && y < this.playlists[this.rowTotal - 1].y + cPlaylistManager.rowHeight * 2) {
-						g_dragndrop_targetPlaylistId = this.rowTotal;
-					} else {
-						g_dragndrop_targetPlaylistId = -1;
-					};
-				};
-			} else {
-				g_dragndrop_bottom = true;
-				g_dragndrop_trackId = 0;
-				g_dragndrop_rowId = 0;
-			};
+			g_dragndrop_targetPlaylistId = this.hoverId;
 			break;
 		case "move":
 			if (!dragndrop.moved && !cPlaylistManager.drag_clicked) {

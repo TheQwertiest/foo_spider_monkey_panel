@@ -15,7 +15,7 @@ protected:
 	bool show_configure_popup(HWND parent);
 	bool show_property_popup(HWND parent);
 	static void build_context_menu(HMENU menu, int x, int y, int id_base);
-	virtual void notify_size_limit_changed_(LPARAM lp) = 0;
+	virtual void notify_size_limit_changed(LPARAM lp) = 0;
 	void execute_context_menu_command(int id, int id_base);
 
 private:
@@ -31,10 +31,10 @@ private:
 	void create_context();
 	void delete_context();
 	void on_always_on_top_changed(WPARAM wp);
-	void on_changed_sorted(WPARAM wp);
 	void on_colours_changed();
 	void on_context_menu(int x, int y);
 	void on_cursor_follow_playback_changed(WPARAM wp);
+	void on_dsp_preset_changed();
 	void on_font_changed();
 	void on_get_album_art_done(LPARAM lp);
 	void on_item_focus_change(WPARAM wp);
@@ -44,6 +44,7 @@ private:
 	void on_library_items_removed(WPARAM wp);
 	void on_load_image_done(LPARAM lp);
 	void on_main_menu(WPARAM wp);
+	void on_metadb_changed(WPARAM wp);
 	void on_mouse_button_dblclk(UINT msg, WPARAM wp, LPARAM lp);
 	void on_mouse_button_down(UINT msg, WPARAM wp, LPARAM lp);
 	void on_mouse_leave();
@@ -51,6 +52,7 @@ private:
 	void on_mouse_wheel(WPARAM wp);
 	void on_mouse_wheel_h(WPARAM wp);
 	void on_notify_data(WPARAM wp);
+	void on_output_device_changed();
 	void on_paint(HDC dc, LPRECT lpUpdateRect);
 	void on_paint_error(HDC memdc);
 	void on_paint_user(HDC memdc, LPRECT lpUpdateRect);

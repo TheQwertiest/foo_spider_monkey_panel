@@ -174,8 +174,9 @@ static t_size LengthWord(const char * word, char otherSeparator)
 	// Drop any space characters.
 	if (endWord > word)
 	{
-		endWord--;	// Back from the '(', otherSeparator, or '\0'
-					// Move backwards over any spaces
+		endWord--;
+		// Back from the '(', otherSeparator, or '\0'
+		// Move backwards over any spaces
 
 		while ((endWord > word) && (IsASpace(*endWord)))
 		{
@@ -334,8 +335,7 @@ IndentationStatus CScriptEditorCtrl::GetIndentState(int line)
 	// C like language indentation defined by braces and keywords
 	IndentationStatus indentState = isNone;
 	SString controlWords[20];
-	unsigned int parts = GetLinePartsInStyle(line, m_StatementIndent.styleNumber,
-		-1, controlWords, _countof(controlWords));
+	unsigned int parts = GetLinePartsInStyle(line, m_StatementIndent.styleNumber, -1, controlWords, _countof(controlWords));
 	unsigned int i;
 
 	for (i = 0; i < parts; i++)
@@ -344,8 +344,7 @@ IndentationStatus CScriptEditorCtrl::GetIndentState(int line)
 			indentState = isKeyWordStart;
 	}
 
-	parts = GetLinePartsInStyle(line, m_StatementEnd.styleNumber,
-		-1, controlWords, _countof(controlWords));
+	parts = GetLinePartsInStyle(line, m_StatementEnd.styleNumber, -1, controlWords, _countof(controlWords));
 
 	for (i = 0; i < parts; i++)
 	{
@@ -355,8 +354,7 @@ IndentationStatus CScriptEditorCtrl::GetIndentState(int line)
 	// Braces override keywords
 	SString controlStrings[20];
 
-	parts = GetLinePartsInStyle(line, m_BlockEnd.styleNumber,
-		-1, controlStrings, _countof(controlStrings));
+	parts = GetLinePartsInStyle(line, m_BlockEnd.styleNumber, -1, controlStrings, _countof(controlStrings));
 
 	for (unsigned int j = 0; j < parts; j++)
 	{
@@ -764,8 +762,6 @@ bool CScriptEditorCtrl::FindBraceMatchPos(int &braceAtCaret, int &braceOpposite)
 	}
 
 	bool colonMode = false;
-	long lexLanguage = GetLexer();
-
 	bool isAfter = true;
 
 	if (lengthDoc > 0 && (braceAtCaret < 0) && (caretPos < lengthDoc))

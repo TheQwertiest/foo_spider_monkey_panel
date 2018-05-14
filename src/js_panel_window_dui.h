@@ -32,6 +32,6 @@ private:
 	bool m_is_edit_mode;
 	typedef js_panel_window t_parent;
 	ui_element_instance_callback::ptr m_callback;
-	virtual void notify_size_limit_changed_(LPARAM lp);
-	void notify_is_edit_mode_changed_(bool enabled);
+	virtual void notify_size_limit_changed(LPARAM lp);
+	void notify_is_edit_mode_changed(bool enabled);
 };
