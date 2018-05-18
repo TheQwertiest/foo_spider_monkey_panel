@@ -617,13 +617,15 @@ _.mixin({
 					this.mb_offset += 100;
 					this.get();
 				} else {
-					_.save(f, JSON.stringify(this.mb_data));
-					this.reset();
+					if (_.save(f, JSON.stringify(this.mb_data))) {
+						this.reset();
+					}
 				}
 				break;
 			case this.mode == 'musicbrainz': // links
-				_.save(f, this.xmlhttp.responseText);
-				this.reset();
+				if (_.save(f, this.xmlhttp.responseText)) {
+					this.reset();
+				}
 				break;
 			case this.mode == 'lastfm_info':
 				var data = _.jsonParse(this.xmlhttp.responseText);
@@ -635,11 +637,13 @@ _.mixin({
 					if (_.get(data, 'similarartists.artist', []).length == 0) {
 						return;
 					}
-					_.save(f, this.xmlhttp.responseText);
-					this.reset();
+					if (_.save(f, this.xmlhttp.responseText)) {
+						this.reset();
+					}
 				} else {
-					_.save(f, this.xmlhttp.responseText);
-					this.update();
+					if (_.save(f, this.xmlhttp.responseText)) {
+						this.update();
+					}
 				}
 				break;
 			}

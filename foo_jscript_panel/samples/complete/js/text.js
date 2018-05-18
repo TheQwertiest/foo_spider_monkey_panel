@@ -293,9 +293,10 @@ _.mixin({
 						.stripTags()
 						.value();
 					console.log(N, content.length ? 'A review was found and saved.' : 'No review was found on the page for this album.');
-					_.save(f, content);
-					this.artist = '';
-					panel.item_focus_change();
+					if (_.save(f, content)) {
+						this.artist = '';
+						panel.item_focus_change();
+					}
 				} else {
 					try {
 						this.allmusic_url = '';
@@ -325,9 +326,10 @@ _.mixin({
 				}
 				break;
 			case 'lastfm_bio':
-				_.save(f, this.xmlhttp.responseText);
-				this.artist = '';
-				panel.item_focus_change();
+				if (_.save(f, this.xmlhttp.responseText)) {
+					this.artist = '';
+					panel.item_focus_change();
+				}
 				break;
 			}
 		}

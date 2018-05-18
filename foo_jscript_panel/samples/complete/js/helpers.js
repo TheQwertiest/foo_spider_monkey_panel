@@ -484,12 +484,13 @@ _.mixin({
 		}
 	},
 	save : function (file, value) {
-		if (!_.isFolder(utils.FileTest(file, 'split').toArray()[0])) {
-			return;
+		if (_.isFolder(utils.FileTest(file, 'split').toArray()[0])) {
+			if (utils.WriteTextFile(file, value)) {
+				return true;
+			}
 		}
-		if (!utils.WriteTextFile(file, value)) {
-			console.log('Error saving to ' + file);
-		}
+		console.log('Error saving to ' + file);
+		return false;
 	},
 	sb : function (t, x, y, w, h, v, fn) {
 		this.paint = function (gr, colour) {
