@@ -60,6 +60,7 @@
       <TreatSpecificWarningsAsErrors>4715</TreatSpecificWarningsAsErrors>
       <EnableEnhancedInstructionSet>NoExtensions</EnableEnhancedInstructionSet>
       <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -87,6 +88,7 @@
       <OmitFramePointers>true</OmitFramePointers>
       <ConformanceMode>true</ConformanceMode>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
