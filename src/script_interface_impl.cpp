@@ -2241,7 +2241,7 @@ STDMETHODIMP FbUtils::GetOutputDevices(BSTR* p)
 	if (!p) return E_POINTER;
 	if (!static_api_test_t<output_manager_v2>()) return E_NOTIMPL;
 
-	json j;
+	json j = json::array();
 	auto api = output_manager_v2::get();
 	outputCoreConfig_t config;
 	api->getCoreConfig(config);
@@ -2989,7 +2989,7 @@ STDMETHODIMP GdiBitmap::GetColourSchemeJSON(UINT count, BSTR* outJson)
 		return a.getTotalPoints() > b.getTotalPoints();
 	});
 
-	json j;
+	json j = json::array();
 	t_size outCount = min(count, colour_counters.size());
 	for (t_size i = 0; i < outCount; ++i)
 	{
