@@ -111,9 +111,12 @@ class my_initquit : public initquit, public ui_selection_callback, public replay
 public:
 	virtual void on_init()
 	{
-		if (helpers::is14())
+		if (static_api_test_t<replaygain_manager_v2>())
 		{
 			replaygain_manager_v2::get()->add_notify(this);
+		}
+		if (static_api_test_t<output_manager_v2>())
+		{
 			output_manager_v2::get()->addCallback(this);
 		}
 		ui_selection_manager_v2::get()->register_callback(this, 0);
@@ -121,9 +124,12 @@ public:
 
 	virtual void on_quit()
 	{
-		if (helpers::is14())
+		if (static_api_test_t<replaygain_manager_v2>())
 		{
 			replaygain_manager_v2::get()->remove_notify(this);
+		}
+		if (static_api_test_t<output_manager_v2>())
+		{
 			output_manager_v2::get()->removeCallback(this);
 		}
 		ui_selection_manager_v2::get()->unregister_callback(this);

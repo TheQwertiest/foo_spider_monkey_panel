@@ -62,7 +62,7 @@ LRESULT CDialogConf::OnInitDialog(HWND hwndFocus, LPARAM lParam)
 	ComboBox_AddString(combo_edge, _T("Sunken"));
 	ComboBox_AddString(combo_edge, _T("Grey"));
 
-	if (helpers::is14() && m_parent->GetInstanceType() == HostComm::KInstanceTypeDUI)
+	if (core_version_info_v2::get()->test_version(1, 4, 0, 0) && m_parent->GetInstanceType() == HostComm::KInstanceTypeDUI)
 	{
 		// disable in default UI fb2k v1.4 and above
 		ComboBox_SetCurSel(combo_edge, 0);
