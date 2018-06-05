@@ -301,8 +301,8 @@ cover = {
 
 cList = {
 	search_string: "",
-	incsearch_font: gdi.Font("lucida console", zoom(9, g_dpi), 0),
-	incsearch_font_big: gdi.Font("lucida console", zoom(20, g_dpi), 1),
+	incsearch_font: gdi_font("lucida console", zoom(9, g_dpi), 0),
+	incsearch_font_big: gdi_font("lucida console", zoom(20, g_dpi), 1),
 	inc_search_noresult: false,
 	clear_incsearch_timer: false,
 	incsearch_timer: false,
@@ -490,8 +490,8 @@ function adjustMetrics(origin) {
 	get_font();
 	p.playlistManager.setButtons();
 	p.playlistManager.refresh("", false, false, false);
-	cList.incsearch_font = gdi.Font("lucida console", zoom(9, g_dpi), 0);
-	cList.incsearch_font_big = gdi.Font("lucida console", zoom(20, g_dpi), 1);
+	cList.incsearch_font = gdi_font("lucida console", zoom(9, g_dpi), 0);
+	cList.incsearch_font_big = gdi_font("lucida console", zoom(20, g_dpi), 1);
 	cList.borderWidth = Math.ceil(cRow.headerBar_h * g_dpi / 100 / 14);
 
 	//
@@ -1036,14 +1036,14 @@ function on_paint(gr) {
 					if (text_top.substr(0, 8) == "Search [") {
 						gr.SetTextRenderingHint(3);
 						var search_text = text_top.substr(8, text_top.length - 9);
-						gr.DrawString("No Result for \"" + search_text + "\"", gdi.Font(g_fname, g_fsize + 7, 0), g_color_normal_txt & 0x40ffffff, 0, 0 - zoom(20, g_dpi), ww, wh, cc_stringformat);
-						gr.DrawString(text_bot, gdi.Font(g_fname, g_fsize + 2, 0), g_color_normal_txt & 0x40ffffff, 0, 0 + zoom(20, g_dpi), ww, wh, cc_stringformat);
+						gr.DrawString("No Result for \"" + search_text + "\"", gdi_font(g_fname, g_fsize + 7, 0), g_color_normal_txt & 0x40ffffff, 0, 0 - zoom(20, g_dpi), ww, wh, cc_stringformat);
+						gr.DrawString(text_bot, gdi_font(g_fname, g_fsize + 2, 0), g_color_normal_txt & 0x40ffffff, 0, 0 + zoom(20, g_dpi), ww, wh, cc_stringformat);
 						gr.FillGradRect(40, Math.floor(wh / 2), ww - 80, Math.floor(zoom(1, g_dpi)), 0, 0, g_color_normal_txt & 0x40ffffff, 0.5);
 					} else {
 						// if empty playlist, display text info
 						gr.SetTextRenderingHint(3);
-						gr.DrawString(text_top, gdi.Font(g_fname, g_fsize + 7, 0), g_color_normal_txt & 0x40ffffff, 0, 0 - zoom(20, g_dpi), ww, wh, cc_stringformat);
-						gr.DrawString(text_bot, gdi.Font(g_fname, g_fsize + 2, 0), g_color_normal_txt & 0x40ffffff, 0, 0 + zoom(20, g_dpi), ww, wh, cc_stringformat);
+						gr.DrawString(text_top, gdi_font(g_fname, g_fsize + 7, 0), g_color_normal_txt & 0x40ffffff, 0, 0 - zoom(20, g_dpi), ww, wh, cc_stringformat);
+						gr.DrawString(text_bot, gdi_font(g_fname, g_fsize + 2, 0), g_color_normal_txt & 0x40ffffff, 0, 0 + zoom(20, g_dpi), ww, wh, cc_stringformat);
 						gr.FillGradRect(40, Math.floor(wh / 2), ww - 80, Math.floor(zoom(1, g_dpi)), 0, 0, g_color_normal_txt & 0x40ffffff, 0.5);
 					};
 				};
@@ -1127,7 +1127,7 @@ function on_paint(gr) {
 
 	if (properties.showDPI) {
 		gr.FillSolidRect(ww - 33, 5, 30, 15, g_color_normal_bg);
-		gr.gdiDrawText(g_dpi, gdi.Font("segoe ui", 15, 1), RGB(75, 255, 75), 0, 2, ww - 5, wh - 5, DT_RIGHT | DT_TOP);
+		gr.gdiDrawText(g_dpi, gdi_font("segoe ui", 15, 1), RGB(75, 255, 75), 0, 2, ww - 5, wh - 5, DT_RIGHT | DT_TOP);
 	};
 
 	// tweaks to fix bug in timer/memory/repaint handle in WSH Panel Mod v1.5.6
@@ -2629,33 +2629,33 @@ function get_font() {
 
 	if (g_forced_percent) {
 		g_fsize = Math.ceil(zoom(g_fsize, g_forced_percent));
-		g_font = gdi.Font(g_fname, g_fsize, g_fstyle);
+		g_font = gdi_font(g_fname, g_fsize, g_fstyle);
 	} else if (font_error) {
-		g_font = gdi.Font(g_fname, g_fsize, g_fstyle);
+		g_font = gdi_font(g_fname, g_fsize, g_fstyle);
 	};
 
-	g_font_playicon = gdi.Font("wingdings 3", Math.floor(zoom(17, g_dpi)), 0);
-	g_font_pauseicon = gdi.Font("wingdings", Math.floor(zoom(17, g_dpi)), 0);
-	g_font_checkbox = gdi.Font("wingdings 2", Math.floor(zoom(18, g_dpi)), 0);
-	g_font_queue_idx = gdi.Font("tahoma", Math.floor(zoom(11, g_dpi)), 1);
+	g_font_playicon = gdi_font("wingdings 3", Math.floor(zoom(17, g_dpi)), 0);
+	g_font_pauseicon = gdi_font("wingdings", Math.floor(zoom(17, g_dpi)), 0);
+	g_font_checkbox = gdi_font("wingdings 2", Math.floor(zoom(18, g_dpi)), 0);
+	g_font_queue_idx = gdi_font("tahoma", Math.floor(zoom(11, g_dpi)), 1);
 
 	if (g_font_guifx_found) {
-		g_font_rating = gdi.Font("guifx v2 transports", Math.floor(zoom(17, g_dpi)), 0);
-		g_font_mood = gdi.Font("guifx v2 transports", Math.floor(zoom(16, g_dpi)), 0);
+		g_font_rating = gdi_font("guifx v2 transports", Math.floor(zoom(17, g_dpi)), 0);
+		g_font_mood = gdi_font("guifx v2 transports", Math.floor(zoom(16, g_dpi)), 0);
 	} else {
-		g_font_rating = gdi.Font("wingdings 2", Math.floor(zoom(19, g_dpi)), 0);
-		g_font_mood = gdi.Font("wingdings 2", Math.floor(zoom(24, g_dpi)), 1);
+		g_font_rating = gdi_font("wingdings 2", Math.floor(zoom(19, g_dpi)), 0);
+		g_font_mood = gdi_font("wingdings 2", Math.floor(zoom(24, g_dpi)), 1);
 	};
-	g_font_wd1 = gdi.Font("wingdings", Math.floor(zoom(19, g_dpi)), 0);
-	g_font_wd2 = gdi.Font("wingdings 2", Math.floor(zoom(19, g_dpi)), 0);
-	g_font_wd3 = gdi.Font("wingdings 3", Math.floor(zoom(19, g_dpi)), 0);
-	g_font_wd3_headerBar = gdi.Font("wingdings 3", Math.floor(zoom(12, g_dpi)), 0);
-	g_font_wd3_scrollBar = gdi.Font("wingdings 3", Math.floor(zoom(10, g_dpi)), 0);
+	g_font_wd1 = gdi_font("wingdings", Math.floor(zoom(19, g_dpi)), 0);
+	g_font_wd2 = gdi_font("wingdings 2", Math.floor(zoom(19, g_dpi)), 0);
+	g_font_wd3 = gdi_font("wingdings 3", Math.floor(zoom(19, g_dpi)), 0);
+	g_font_wd3_headerBar = gdi_font("wingdings 3", Math.floor(zoom(12, g_dpi)), 0);
+	g_font_wd3_scrollBar = gdi_font("wingdings 3", Math.floor(zoom(10, g_dpi)), 0);
 
 	// group font
-	g_font_group1 = gdi.Font(g_fname, g_fsize + 4, 0);
-	g_font_group1_bold = gdi.Font(g_fname, g_fsize + 3, 1);
-	g_font_group2 = gdi.Font(g_fname, g_fsize + 2, 0);
+	g_font_group1 = gdi_font(g_fname, g_fsize + 4, 0);
+	g_font_group1_bold = gdi_font(g_fname, g_fsize + 3, 1);
+	g_font_group2 = gdi_font(g_fname, g_fsize + 2, 0);
 
 };
 
@@ -2713,7 +2713,7 @@ function get_colors() {
 
 function get_images() {
 	var gb;
-	var gui_font = gdi.Font("guifx v2 transports", 15, 0);
+	var gui_font = gdi_font("guifx v2 transports", 15, 0);
 
 	images.glass_reflect = draw_glass_reflect(400, 400);
 

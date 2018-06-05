@@ -880,3 +880,12 @@ WindowState = {
 	Minimized: 1,
 	Maximized: 2
 };
+
+var fonts = {};
+function gdi_font(name, size, style) {
+	var key = name.toLowerCase() + "_" + size + "_" + (style || 0);
+	if (!fonts[key]) {
+		fonts[key] = gdi.Font(name, size, style || 0);
+	}
+	return fonts[key];
+}
