@@ -43,7 +43,7 @@ v2.1.0
        has been added. The included playlist samples have been updated so they're
        compatible but they do not make use of the new functionality.
 - NEW: A new on_replaygain_mode_changed callback has been added. See docs\callbacks.txt.
-- CHG: The behaviour of plman.AddLocations with the "select" argument set to "true" has 
+- CHG: The behaviour of plman.AddLocations with the "select" argument set to "true" has
        been slightly modified. See docs\interfaces.txt.
 
 https://github.com/marc2k3/foo_jscript_panel/wiki/Drag-and-Drop

@@ -354,7 +354,7 @@ interface IFbUtils {
 		or mark as selected in a menu.
 
 		To actually change device, you'll need the device_id and output_id
-		and use them with fb.SetOutputDevice. 
+		and use them with fb.SetOutputDevice.
 
 		Example:
 		var str = fb.GetOutputDevices();
@@ -510,7 +510,7 @@ interface IFbUtils {
 
 					Example:
 					var items = fb.GetLibraryItems();
-					var artists = tfo.EvalWithMetadbs(items).toArray(); 
+					var artists = tfo.EvalWithMetadbs(items).toArray();
 					console.log(items.Count === artists.length); // should always be true!
 					*/
 			}
@@ -530,7 +530,7 @@ interface IGdiUtils {
 		/*
 		size_px: See helpers.txt > Point2Pixel function for conversions.
 		style: default 0. See flags.txt > FontStyle
-		Returns null if font not present.
+		Returns null if font not present. Avoid using inside on_paint.
 		*/
 
 		gdi.Image(path); (IGdiBitmap)
@@ -766,7 +766,7 @@ interface IFbPlaylistManager {
 		plman.RemovePlaylist(playlistIndex); (boolean)
 		/*
 		Removes the specified playlist.
-		Note that if removing the active playlist, no playlist will be active after using this. You'll
+		NOTE: If removing the active playlist, no playlist will be active after using this. You'll
 		need to set it manually or use plman.RemovePlaylistSwitch instead.
 		*/
 
@@ -1780,7 +1780,7 @@ interface IFbMetadbHandleList {
 		/*
 		Returns a VBArray so you need to use .toArray() on the result.
 
-		See fb.GetLibraryRelativePath for a description of the action that 
+		See fb.GetLibraryRelativePath for a description of the action that
 		gets performed on each handle. This should be faster than looping
 		a handle list manually and using the aforementioned method.
 

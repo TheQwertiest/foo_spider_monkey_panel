@@ -231,7 +231,7 @@ oInputbox = function (w, h, default_text, empty_text, textcolor, backcolor, bord
 				cInputbox.timer_cursor = false;
 				cInputbox.cursor_state = true;
 				};
-				 */
+				*/
 			};
 			this.repaint();
 			break;

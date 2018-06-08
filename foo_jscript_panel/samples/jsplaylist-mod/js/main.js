@@ -784,7 +784,7 @@ function resize_panels() {
 			}, 150);
 			};
 			};
-			 */
+			*/
 		} else {
 			cPlaylistManager.visible = false;
 			p.playlistManager.woffset = cPlaylistManager.width;
@@ -2468,7 +2468,7 @@ function on_playback_new_track(metadb) {
 	};
 	};
 	};
-	 */
+	*/
 
 	full_repaint();
 };

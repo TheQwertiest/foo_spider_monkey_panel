@@ -1870,7 +1870,7 @@ oBrowser = function (name) {
 			if(TFsorting.length > 0) {
 			this.list.OrderByFormat(fb.TitleFormat(TFsorting), 1);
 			};
-			 */
+			*/
 		};
 
 		this.init_groups();
@@ -2908,7 +2908,7 @@ oBrowser = function (name) {
 				ppt.lineHeightMin = 44;
 				window.SetProperty("SYSTEM Minimal Line Height", ppt.lineHeightMin);
 				};
-				 */
+				*/
 				break;
 			case 2:
 				ppt.albumArtId = 4;

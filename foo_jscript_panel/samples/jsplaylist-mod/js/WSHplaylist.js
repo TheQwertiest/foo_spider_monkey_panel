@@ -474,13 +474,13 @@ oItem = function (playlist, row_index, type, handle, track_index, group_index, t
 				} else {
 				gr.FillSolidRect(this.x + cover.w, this.y, this.w - cover.w, this.h, RGBA(255,255,255,5));
 				};
-				 */
+				*/
 				// if last empty track of the group, draw group length info
 				/*
 				if (cGroup.extra_rows > 0 && this.track_index_in_group == p.list.groups[this.group_index].count) {
 				gr.gdiDrawText("Total Group Length = " + TimeFromSeconds(Math.round(p.list.groups[this.group_index].total_time_length)), gdi_font("Arial", 10, 0), g_color_normal_txt, this.x, this.y, this.w - 010, this.h, DT_RIGHT | DT_TOP | DT_VCENTER | DT_CALCRECT | DT_NOPREFIX | DT_SINGLELINE | DT_END_ELLIPSIS);
 				};
-				 */
+				*/
 			};
 
 			// now playing track
@@ -1003,7 +1003,7 @@ oItem = function (playlist, row_index, type, handle, track_index, group_index, t
 						p.list.updateGroupsOnCollapse(this.group_index);
 						};
 						};
-						 */
+						*/
 					} else {
 						if (this.obj) {
 							if (this.obj.collapsed) {

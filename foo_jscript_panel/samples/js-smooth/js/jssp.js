@@ -1527,7 +1527,7 @@ oBrowser = function (name) {
 		/*
 		var d1 = new Date();
 		var t1 = d1.getSeconds()*1000 + d1.getMilliseconds();
-		 */
+		*/
 
 		var end = this.groups.length;
 		for (i = 0; i < end; i++) {
@@ -1634,7 +1634,7 @@ oBrowser = function (name) {
 		scroll_ = scroll + ppt.rowHeight * 5 * (g_focus_id_prev <= g_focus_id ? -1 : 1);
 		scroll_ = check_scroll(scroll_);
 		};
-		 */
+		*/
 		this.scrollbar.updateScrollbar();
 		//};
 	};
@@ -4588,7 +4588,7 @@ function on_item_focus_change(playlist, from, to) {
 				scroll_ = scroll + ppt.rowHeight * 5 * (from <= to ? -1 : 1);
 				scroll_ = check_scroll(scroll_);
 				};
-				 */
+				*/
 				brw.scrollbar.updateScrollbar();
 			};
 
