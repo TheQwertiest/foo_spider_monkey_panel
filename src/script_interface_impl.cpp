@@ -1690,7 +1690,7 @@ FbProfiler::~FbProfiler()
 
 STDMETHODIMP FbProfiler::Print()
 {
-	FB2K_console_formatter() << JSP_NAME " v" JSP_VERSION ": FbProfiler (" << m_name << "): " << (int)(m_timer.query() * 1000) << " ms";
+	FB2K_console_formatter() << JSP_NAME_VERSION ": FbProfiler (" << m_name << "): " << (int)(m_timer.query() * 1000) << " ms";
 	return S_OK;
 }
 
@@ -2472,7 +2472,7 @@ STDMETHODIMP FbUtils::SaveIndex()
 	}
 	catch (...)
 	{
-		FB2K_console_formatter() << JSP_NAME " v" JSP_VERSION ": Save index fail.";
+		FB2K_console_formatter() << JSP_NAME_VERSION ": Save index fail.";
 	}
 	return S_OK;
 }

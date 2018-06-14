@@ -12,7 +12,7 @@ HRESULT script_preprocessor::process_import(const t_script_info& info, t_script_
 	}
 
 	pfc::string_formatter pre, error_text;
-	pre << "Error: " JSP_NAME " v" JSP_VERSION " (" << info.build_info_string() << ")";
+	pre << "Error: " JSP_NAME_VERSION " (" << info.build_info_string() << ")";
 
 	for (t_size i = 0; i < m_directive_value_list.get_count(); ++i)
 	{

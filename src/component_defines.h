@@ -1,7 +1,6 @@
 #pragma once
 
 #define JSP_NAME "JScript Panel"
-#define JSP_WINDOW_CLASS_NAME "foo_jscript_panel_class"
 #define JSP_DLL_NAME "foo_jscript_panel.dll"
 
 // Remember to bump utils.version too
@@ -15,6 +14,7 @@
 #endif
 
 #define JSP_VERSION JSP_VERSION_NUMBER JSP_VERSION_TEST JSP_VERSION_DEBUG_SUFFIX
+#define JSP_NAME_VERSION JSP_NAME " v" JSP_VERSION
 
 constexpr GUID g_guid_jsp_ui_pref = { 0x19681d48, 0xd90e, 0x4cb6,{ 0xbb, 0x6, 0x69, 0x5f, 0x42, 0x57, 0xbe, 0x23 } };
 constexpr GUID g_guid_jsp_window_cui = { 0x19646267, 0x86fc, 0x4676,{ 0xa9, 0x8a, 0x49, 0x27, 0x38, 0x52, 0xb0, 0x88 } };

@@ -504,7 +504,7 @@ bool js_panel_window::script_load()
 	// HACK: Script update will not call on_size, so invoke it explicitly
 	SendMessage(m_hwnd, UWM_SIZE, 0, 0);
 
-	FB2K_console_formatter() << JSP_NAME " v" JSP_VERSION " (" << ScriptInfo().build_info_string() << "): initialised in " << (int)(timer.query() * 1000) << " ms";
+	FB2K_console_formatter() << JSP_NAME_VERSION " (" << ScriptInfo().build_info_string() << "): initialised in " << (int)(timer.query() * 1000) << " ms";
 	return true;
 }
 
@@ -512,7 +512,7 @@ ui_helpers::container_window::class_data& js_panel_window::get_class_data() cons
 {
 	static class_data my_class_data =
 	{
-		_T(JSP_WINDOW_CLASS_NAME),
+		_T(JSP_NAME " Class"),
 		_T(""),
 		0,
 		false,
