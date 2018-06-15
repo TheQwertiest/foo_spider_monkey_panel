@@ -4073,7 +4073,7 @@ function on_item_focus_change(playlist_idx, from, to) {
 
 };
 
-function on_metadb_changed(metadb_or_metadbs, fromhook) {
+function on_metadb_changed() {
 	// rebuild list
 	if (ppt.sourceMode == 1) {
 		if (filter_text.length > 0) {

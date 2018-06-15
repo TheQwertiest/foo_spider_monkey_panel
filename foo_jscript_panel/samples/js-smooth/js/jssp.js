@@ -4599,7 +4599,7 @@ function on_item_focus_change(playlist, from, to) {
 	};
 };
 
-function on_metadb_changed(metadb_or_metadbs, fromhook) {
+function on_metadb_changed(handles) {
 	if (!brw.list)
 		return;
 
@@ -4613,7 +4613,7 @@ function on_metadb_changed(metadb_or_metadbs, fromhook) {
 		};
 		window.Repaint();
 	} else {
-		if (!(metadb_or_metadbs.Count == 1 && metadb_or_metadbs.Item(0).Length < 0)) {
+		if (!(handles.Count == 1 && handles.Item(0).Length < 0)) {
 			if (filter_text.length > 0) {
 				g_focus_id = 0;
 				brw.populate(is_first_populate = true);

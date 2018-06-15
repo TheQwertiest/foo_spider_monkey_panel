@@ -1901,7 +1901,7 @@ function on_item_focus_change(playlist, from, to) {
 	};
 };
 
-function on_metadb_changed(metadb_or_metadbs, fromhook) {
+function on_metadb_changed() {
 	if (g_metadb) {
 		g_path = tf_path.EvalWithMetadb(g_metadb);
 		g_track_type = TrackType(g_path);
