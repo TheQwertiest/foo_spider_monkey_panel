@@ -1817,12 +1817,12 @@ public: \
 		} \
 	}
 
-// void OnWTSSessionChange(WPARAM nStatusCode, PWTSSESSION_NOTIFICATION nSessionID)
+// void OnWTSSessionChange(WPARAM nStatusCode, DWORD dwSessionID)
 #define MSG_WM_WTSSESSION_CHANGE(func) \
 	if (uMsg == WM_WTSSESSION_CHANGE) \
 	{ \
 		this->SetMsgHandled(TRUE); \
-		func(wParam, (PWTSSESSION_NOTIFICATION)lParam); \
+		func(wParam, (DWORD)lParam); \
 		lResult = 0; \
 		if(this->IsMsgHandled()) \
 			return TRUE; \

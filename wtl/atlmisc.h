@@ -462,12 +462,12 @@ public:
 // Data members
 	HANDLE m_hFind;
 	WIN32_FIND_DATA m_fd;
-	TCHAR m_lpszRoot[MAX_PATH];
-	TCHAR m_chDirSeparator;
+	LPTSTR m_lpszRoot;
+	const TCHAR m_chDirSeparator;
 	BOOL m_bFound;
 
 // Constructor/destructor
-	CFindFile() : m_hFind(NULL), m_chDirSeparator(_T('\\')), m_bFound(FALSE)
+	CFindFile() : m_hFind(NULL), m_lpszRoot(NULL), m_chDirSeparator(_T('\\')), m_bFound(FALSE)
 	{ }
 
 	~CFindFile()
@@ -516,7 +516,7 @@ public:
 		if(nLen == 0)
 			return FALSE;
 
-		bool bAddSep = ((m_lpszRoot[nLen - 1] != _T('\\')) && (m_lpszRoot[nLen - 1] !=_T('/')));
+		bool bAddSep = (m_lpszRoot[nLen - 1] != m_chDirSeparator);
 
 		if((lstrlen(m_lpszRoot) + (bAddSep ?  1 : 0)) >= cchLength)
 			return FALSE;
@@ -559,16 +559,14 @@ public:
 	{
 		ATLASSERT(m_hFind != NULL);
 
-		TCHAR szBuff[MAX_PATH] = { 0 };
-		if(!GetFilePath(szBuff, MAX_PATH))
-			return FALSE;
 		LPCTSTR lpstrFileURLPrefix = _T("file://");
-		if(lstrlen(szBuff) + lstrlen(lpstrFileURLPrefix) >= cchLength)
+		const int cchPrefix = lstrlen(lpstrFileURLPrefix);
+		if(cchPrefix >= cchLength)
 			return FALSE;
-		ATL::Checked::tcscpy_s(lpstrFileURL, cchLength, lpstrFileURLPrefix);
-		ATL::Checked::tcscat_s(lpstrFileURL, cchLength, szBuff);
 
-		return TRUE;
+		ATL::Checked::tcscpy_s(lpstrFileURL, cchLength, lpstrFileURLPrefix);
+
+		return GetFilePath(&lpstrFileURL[cchPrefix], cchLength - cchPrefix);
 	}
 
 	BOOL GetRoot(LPTSTR lpstrRoot, int cchLength) const
@@ -604,7 +602,7 @@ public:
 		if(nLen == 0)
 			return strResult;
 
-		if((strResult[nLen - 1] != _T('\\')) && (strResult[nLen - 1] != _T('/')))
+		if(strResult[nLen - 1] != m_chDirSeparator)
 			strResult += m_chDirSeparator;
 		strResult += GetFileName();
 		return strResult;
@@ -748,28 +746,41 @@ public:
 	}
 
 // Operations
-	BOOL FindFile(LPCTSTR pstrName = NULL)
+	BOOL FindFile(LPCTSTR pstrName = NULL, bool bAutoLongPath = false)
 	{
 		Close();
 
 		if(pstrName == NULL)
-		{
 			pstrName = _T("*.*");
-		}
-		else if(lstrlen(pstrName) >= MAX_PATH)
+
+		if(bAutoLongPath && (lstrlen(pstrName) >= MAX_PATH))
 		{
-			ATLASSERT(FALSE);
-			return FALSE;
+			LPCTSTR lpstrPrefix = _T("\\\\?\\");
+			int cchLongPath = lstrlen(lpstrPrefix) + lstrlen(pstrName) + 1;
+			ATL::CTempBuffer<TCHAR, _WTL_STACK_ALLOC_THRESHOLD> buff;
+			LPTSTR lpstrLongPath = buff.Allocate(cchLongPath);
+			if(lpstrLongPath != NULL)
+			{
+				ATL::Checked::tcscpy_s(lpstrLongPath, cchLongPath, lpstrPrefix);
+				ATL::Checked::tcscat_s(lpstrLongPath, cchLongPath, pstrName);
+				m_hFind = ::FindFirstFile(lpstrLongPath, &m_fd);
+			}
 		}
-
-		ATL::Checked::tcscpy_s(m_fd.cFileName, _countof(m_fd.cFileName), pstrName);
-
-		m_hFind = ::FindFirstFile(pstrName, &m_fd);
+		else
+		{
+			m_hFind = ::FindFirstFile(pstrName, &m_fd);
+		}
 
 		if(m_hFind == INVALID_HANDLE_VALUE)
 			return FALSE;
 
-		bool bFullPath = (::GetFullPathName(pstrName, MAX_PATH, m_lpszRoot, NULL) != 0);
+		int cchRoot = ::GetFullPathName(pstrName, 0, NULL, NULL);
+		if(cchRoot > 0)
+			ATLTRY(m_lpszRoot = new TCHAR[cchRoot]);
+		if(m_lpszRoot == NULL)
+			return FALSE;
+
+		bool bFullPath = (::GetFullPathName(pstrName, cchRoot, m_lpszRoot, NULL) != 0);
 
 		// passed name isn't a valid path but was found by the API
 		ATLASSERT(bFullPath);
@@ -781,24 +792,10 @@ public:
 		}
 		else
 		{
-			// find the last forward or backward whack
-			LPTSTR pstrBack  = _tcsrchr(m_lpszRoot, _T('\\'));
-			LPTSTR pstrFront = _tcsrchr(m_lpszRoot, _T('/'));
-
-			if((pstrFront != NULL) || (pstrBack != NULL))
-			{
-				if(pstrFront == NULL)
-					pstrFront = m_lpszRoot;
-				if(pstrBack == NULL)
-					pstrBack = m_lpszRoot;
-
-				// from the start to the last whack is the root
-
-				if(pstrFront >= pstrBack)
-					*pstrFront = _T('\0');
-				else
-					*pstrBack = _T('\0');
-			}
+			// find the last separator
+			LPTSTR pstrSep  = _tcsrchr(m_lpszRoot, m_chDirSeparator);
+			if(pstrSep != NULL)
+				*pstrSep = _T('\0');
 		}
 
 		m_bFound = TRUE;
@@ -824,6 +821,9 @@ public:
 	void Close()
 	{
 		m_bFound = FALSE;
+
+		delete [] m_lpszRoot;
+		m_lpszRoot = NULL;
 
 		if((m_hFind != NULL) && (m_hFind != INVALID_HANDLE_VALUE))
 		{
