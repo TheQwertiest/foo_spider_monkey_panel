@@ -88,13 +88,11 @@ function on_main_menu(index) {
 }
 */
 
-function on_metadb_changed(handle_list, fromhook) {}
+function on_metadb_changed(handle_list) {}
 /*
-Called when metadb contents change.
+Called when metadb contents change - this can be tag updates or database changes
+from foo_playcount, etc.
 handle_list: affected items.
-fromhook: boolean, true if notification is not from tag update but a component that provides
-tag-like data from a database. foo_playcount and the "RefreshStats" handle/handle list
-methods built in to JScript Panel are just 2 examples.
 */
 
 function on_mouse_lbtn_dblclk(x, y, mask) {}

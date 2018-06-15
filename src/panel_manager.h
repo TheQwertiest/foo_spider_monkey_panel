@@ -34,6 +34,15 @@ struct simple_callback_data_3 : public pfc::refcounted_object_root
 	}
 };
 
+struct metadb_callback_data : public pfc::refcounted_object_root
+{
+	metadb_handle_list m_items;
+
+	metadb_callback_data(metadb_handle_list_cref p_items) : m_items(p_items)
+	{
+	}
+};
+
 // Only used in message handler
 template <class T>
 class simple_callback_data_scope_releaser
@@ -63,16 +72,6 @@ public:
 
 private:
 	T * m_data;
-};
-
-struct t_on_data : public pfc::refcounted_object_root
-{
-	metadb_handle_list m_items;
-	bool m_fromhook;
-
-	t_on_data(metadb_handle_list_cref p_items, bool p_fromhook) : m_items(p_items), m_fromhook(p_fromhook)
-	{
-	}
 };
 
 class panel_manager
