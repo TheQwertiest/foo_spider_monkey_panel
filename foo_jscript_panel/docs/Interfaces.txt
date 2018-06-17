@@ -1061,6 +1061,20 @@ interface IJSUtils {
 		var arr = utils.Glob("C:\\*.*").toArray();
 		*/
 
+		utils.InputBox(window_id, prompt, caption[, defaultval]) (string)
+		/*
+		window_id: window.ID
+		prompt: string
+		caption: string
+		defaultval: string, optional
+
+		Example:
+		var username = utils.InputBox(window.ID, "Enter your username", "JScript Panel");
+
+		If you cancel the dialog, "defaultval" will be returned - or an empty string if
+		you didn't supply one.
+		*/
+
 		utils.IsKeyPressed(vkey); (boolean)
 		/*
 		vkey: http://msdn.microsoft.com/en-us/library/ms927178.aspx

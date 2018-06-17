@@ -546,6 +546,7 @@ __interface IJSUtils : IDispatch
 	STDMETHOD(GetSysColour)(UINT index, [out, retval] int* p);
 	STDMETHOD(GetSystemMetrics)(UINT index, [out, retval] int* p);
 	STDMETHOD(Glob)(BSTR pattern, [defaultvalue(FILE_ATTRIBUTE_DIRECTORY)] UINT exc_mask, [defaultvalue(0xffffffff)] UINT inc_mask, [out, retval] VARIANT* p);
+	STDMETHOD(InputBox)(UINT window_id, BSTR prompt, BSTR caption, [defaultvalue("")] BSTR def, [out, retval] BSTR* out);
 	STDMETHOD(IsKeyPressed)(UINT vkey, [out, retval] VARIANT_BOOL* p);
 	STDMETHOD(MapString)(BSTR str, UINT lcid, UINT flags, [out, retval] BSTR* pp);
 	STDMETHOD(PathWildcardMatch)(BSTR pattern, BSTR str, [out, retval] VARIANT_BOOL* p);

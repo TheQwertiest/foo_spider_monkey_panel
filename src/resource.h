@@ -14,7 +14,8 @@
 #define IDD_DIALOG_PREFERENCE           107
 #define IDD_DIALOG_NAME_VALUE           108
 #define IDD_DIALOG_PROPERTIES           109
-#define IDAPPLY                         110
+#define IDD_DIALOG_INPUT                110
+#define IDAPPLY                         111
 
 #define IDC_STATIC_GUID                 1000
 #define IDC_EDIT                        1001
@@ -52,6 +53,9 @@
 
 #define IDC_EDIT_NAME                   1060
 #define IDC_EDIT_VALUE                  1061
+
+#define IDC_INPUT_PROMPT                1070
+#define IDC_INPUT_VALUE                 1071
 
 // Next default values for new objects
 #ifdef APSTUDIO_INVOKED

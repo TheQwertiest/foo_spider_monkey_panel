@@ -589,6 +589,7 @@ public:
 	STDMETHODIMP GetSysColour(UINT index, int* p);
 	STDMETHODIMP GetSystemMetrics(UINT index, int* p);
 	STDMETHODIMP Glob(BSTR pattern, UINT exc_mask, UINT inc_mask, VARIANT* p);
+	STDMETHODIMP InputBox(UINT window_id, BSTR prompt, BSTR caption, BSTR def, BSTR* out);
 	STDMETHODIMP IsKeyPressed(UINT vkey, VARIANT_BOOL* p);
 	STDMETHODIMP MapString(BSTR str, UINT lcid, UINT flags, BSTR* pp);
 	STDMETHODIMP PathWildcardMatch(BSTR pattern, BSTR str, VARIANT_BOOL* p);

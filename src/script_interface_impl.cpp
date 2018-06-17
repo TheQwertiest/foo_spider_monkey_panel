@@ -5,6 +5,7 @@
 #include "stats.h"
 #include "drop_source_impl.h"
 #include "kmeans.h"
+#include "ui_input_box.h"
 #include <map>
 #include <vector>
 #include <algorithm>
@@ -4173,6 +4174,31 @@ STDMETHODIMP JSUtils::Glob(BSTR pattern, UINT exc_mask, UINT inc_mask, VARIANT* 
 
 	p->vt = VT_ARRAY | VT_VARIANT;
 	p->parray = helper.get_ptr();
+	return S_OK;
+}
+
+STDMETHODIMP JSUtils::InputBox(UINT window_id, BSTR prompt, BSTR caption, BSTR def, BSTR* out)
+{
+	if (!out) return E_POINTER;
+
+	*out = SysAllocString(def);
+
+	modal_dialog_scope scope;
+	if (scope.can_create())
+	{
+		pfc::stringcvt::string_utf8_from_wide uprompt(prompt);
+		pfc::stringcvt::string_utf8_from_wide ucaption(caption);
+		pfc::stringcvt::string_utf8_from_wide udef(def);
+
+		scope.initialize(HWND(window_id));
+		CInputBox dlg(uprompt, ucaption, udef);
+		if (dlg.DoModal(HWND(window_id)) == IDOK)
+		{
+			pfc::string8 val;
+			dlg.GetValue(val);
+			*out = SysAllocString(pfc::stringcvt::string_wide_from_utf8_fast(val));
+		}
+	}
 	return S_OK;
 }
 
