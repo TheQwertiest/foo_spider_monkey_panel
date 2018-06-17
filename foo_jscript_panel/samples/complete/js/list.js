@@ -367,7 +367,7 @@ _.mixin({
 				panel.item_focus_change();
 				break;
 			case 1400:
-				var tmp = _.input('Enter title formatting', window.Name, this.properties.tf.value);
+				var tmp = utils.InputBox(window.ID, 'Enter title formatting', window.Name, this.properties.tf.value);
 				this.properties.tf.set(tmp || this.properties.tf.default_);
 				_.dispose(this.tfo);
 				this.tfo = fb.TitleFormat(this.properties.tf.value);
@@ -744,15 +744,15 @@ _.mixin({
 						return;
 					}
 					this.editing = true;
-					var new_name = _.input('Enter autoplaylist name', window.Name, '');
+					var new_name = utils.InputBox(window.ID, 'Enter autoplaylist name', window.Name, '');
 					if (new_name == '') {
 						return this.editing = false;
 					}
-					var new_query = _.input('Enter autoplaylist query', window.Name, '');
+					var new_query = utils.InputBox(window.ID, 'Enter autoplaylist query', window.Name, '');
 					if (new_query == '') {
 						return this.editing = false;
 					}
-					var new_sort = _.input('Enter sort pattern\n\n(optional)', window.Name, '');
+					var new_sort = utils.InputBox(window.ID, 'Enter sort pattern\n\n(optional)', window.Name, '');
 					var new_forced = (new_sort.length ? WshShell.popup('Force sort?', 0, window.Name, popup.question + popup.yes_no) : popup.no) == popup.yes;
 					this.data.push({
 						name : new_name,
@@ -787,21 +787,21 @@ _.mixin({
 						this.run_query(this.data[z].name, this.data[z].query, this.data[z].sort, this.data[z].forced);
 						break;
 					case 2:
-						var new_name = _.input('Rename autoplaylist', window.Name, this.data[z].name);
+						var new_name = utils.InputBox(window.ID, 'Rename autoplaylist', window.Name, this.data[z].name);
 						if (new_name.length && new_name != this.data[z].name) {
 							this.data[z].name = new_name;
 							this.edit_done(z);
 						}
 						break;
 					case 1:
-						var new_query = _.input('Enter autoplaylist query', window.Name, this.data[z].query);
+						var new_query = utils.InputBox(window.ID, 'Enter autoplaylist query', window.Name, this.data[z].query);
 						if (new_query.length && new_query != this.data[z].query) {
 							this.data[z].query = new_query;
 							this.edit_done(z);
 						}
 						break;
 					case 4:
-						var new_sort = _.input('Enter sort pattern\n\n(optional)', window.Name, this.data[z].sort);
+						var new_sort = utils.InputBox(window.ID, 'Enter sort pattern\n\n(optional)', window.Name, this.data[z].sort);
 						if (new_sort != this.data[z].sort) {
 							this.data[z].sort = new_sort;
 							if (new_sort.length) {

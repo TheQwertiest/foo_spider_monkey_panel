@@ -176,7 +176,7 @@ _.mixin({
 		}
 		
 		this.update_username = function () {
-			var username = _.input('Enter your Last.fm username', window.Name, this.username);
+			var username = utils.InputBox(window.ID, 'Enter your Last.fm username', window.Name, this.username);
 			if (username != this.username) {
 				this.write_ini('username', username);
 				this.update_sk('');

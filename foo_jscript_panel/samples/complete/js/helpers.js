@@ -313,13 +313,6 @@ _.mixin({
 			return gdi.Image(folders.images + value);
 		}
 	},
-	input : function (prompt, title, value) {
-		var p = prompt.toString().replace(/"/g, _.q(' + Chr(34) + ')).replace(/\n/g, _.q(' + Chr(13) + '));
-		var t = title.toString().replace(/"/g, _.q(' + Chr(34) + '));
-		var v = value.toString().replace(/"/g, _.q(' + Chr(34) + '));
-		var tmp = vb.eval('InputBox(' + _.q(p) + ', ' + _.q(t) + ', ' + _.q(v) + ')');
-		return _.isString(tmp) ? _.trim(tmp) : value;
-	},
 	isFile : function (file) {
 		return _.isString(file) ? fso.FileExists(file) : false;
 	},
@@ -604,8 +597,6 @@ var doc = new ActiveXObject('htmlfile');
 var app = new ActiveXObject('Shell.Application');
 var WshShell = new ActiveXObject('WScript.Shell');
 var fso = new ActiveXObject('Scripting.FileSystemObject');
-var vb = new ActiveXObject('ScriptControl');
-vb.Language = 'VBScript';
 
 var DT_LEFT = 0x00000000;
 var DT_CENTER = 0x00000001;
