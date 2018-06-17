@@ -744,15 +744,15 @@ _.mixin({
 						return;
 					}
 					this.editing = true;
-					var new_name = utils.InputBox(window.ID, 'Enter autoplaylist name', window.Name, '');
-					if (new_name == '') {
+					var new_name = utils.InputBox(window.ID, 'Enter autoplaylist name', window.Name);
+					if (!new_name.length) {
 						return this.editing = false;
 					}
-					var new_query = utils.InputBox(window.ID, 'Enter autoplaylist query', window.Name, '');
-					if (new_query == '') {
+					var new_query = utils.InputBox(window.ID, 'Enter autoplaylist query', window.Name);
+					if (!new_query.length) {
 						return this.editing = false;
 					}
-					var new_sort = utils.InputBox(window.ID, 'Enter sort pattern\n\n(optional)', window.Name, '');
+					var new_sort = utils.InputBox(window.ID, 'Enter sort pattern\n\n(optional)', window.Name);
 					var new_forced = (new_sort.length ? WshShell.popup('Force sort?', 0, window.Name, popup.question + popup.yes_no) : popup.no) == popup.yes;
 					this.data.push({
 						name : new_name,
