@@ -1,3 +1,10 @@
+v2.1.5
+- NEW: Add utils.InputBox method. See docs\interfaces.txt.
+- CHG: Update samples in "complete" folder with above method - input is no longer
+       truncated at 254 characters.
+- CHG: Remove "fromhook" argument from "on_metadb_changed" callback. From now on, it
+       will always be "undefined".
+
 v2.1.4
 - NEW: Add on_dsp_preset_changed callback. See docs\callbacks.txt.
 - NEW: Add fb.GetDSPPresets and fb.SetDSPPreset methods. See docs\interfaces.txt.
