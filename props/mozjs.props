@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ImportGroup Label="PropertySheets">
+  </ImportGroup>
+  <PropertyGroup>
+    <_PropertySheetDisplayName>pfc</_PropertySheetDisplayName>
+  </PropertyGroup>
+  <PropertyGroup Label="UserMacros">
+    <MozJsDirectory>$(MainDir)mozjs\</MozJsDirectory>
+    <MozJsBinDirectory>$(MozJsDirectory)bin\</MozJsBinDirectory>
+    <MozJsLibDirectory>$(MozJsDirectory)lib\</MozJsLibDirectory>
+    <MozJsIncludeDirectory>$(MozJsDirectory)include\</MozJsIncludeDirectory>
+  </PropertyGroup>
+  <PropertyGroup>
+    <IncludePath>$(MozJsIncludeDirectory);$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <Link>
+      <AdditionalLibraryDirectories>$(MozJsLibDirectory);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>mozglue.lib;mozjs-52.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup />
+</Project>
