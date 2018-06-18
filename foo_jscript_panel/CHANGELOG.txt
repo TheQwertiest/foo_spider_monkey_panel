@@ -1,3 +1,6 @@
+v2.1.5.1
+- FIX: Fix incorrect spelling on the "Cancel" button in utils.InputBox.
+
 v2.1.5
 - NEW: Add utils.InputBox method. See docs\interfaces.txt.
 - FIX: Update samples in "complete" folder with above method - input is no longer
