@@ -33,8 +33,8 @@ public:
 
 	LRESULT OnCancel(WORD wNotifyCode, WORD wID, HWND hWndCtl);
 	LRESULT OnEditFindWhatEnChange(WORD wNotifyCode, WORD wID, HWND hWndCtl);
-	LRESULT OnFindUp(WORD wNotifyCode, WORD wID, HWND hWndCtl);
 	LRESULT OnFindDown(WORD wNotifyCode, WORD wID, HWND hWndCtl);
+	LRESULT OnFindUp(WORD wNotifyCode, WORD wID, HWND hWndCtl);
 	LRESULT OnFlagCommand(WORD wNotifyCode, WORD wID, HWND hWndCtl);
 	LRESULT OnInitDialog(HWND hwndFocus, LPARAM lParam);
 	void OnFinalMessage(HWND hWnd);
@@ -45,16 +45,16 @@ private:
 	public:
 		typedef CWindowImpl<CEditWithReturn, CEdit> parent;
 
+		BEGIN_MSG_MAP(CEditWithReturn)
+			MESSAGE_HANDLER(WM_CHAR, OnChar)
+			MESSAGE_HANDLER(WM_KEYDOWN, OnKeyDown)
+		END_MSG_MAP()
+
 		BOOL SubclassWindow(HWND hWnd, HWND hParent)
 		{
 			m_parent = hParent;
 			return parent::SubclassWindow(hWnd);
 		}
-
-		BEGIN_MSG_MAP(CEditWithReturn)
-			MESSAGE_HANDLER(WM_CHAR, OnChar)
-			MESSAGE_HANDLER(WM_KEYDOWN, OnKeyDown)
-		END_MSG_MAP()
 
 		LRESULT OnChar(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 		{

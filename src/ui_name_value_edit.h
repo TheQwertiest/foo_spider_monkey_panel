@@ -21,11 +21,7 @@ public:
 
 	LRESULT OnInitDialog(HWND hwndFocus, LPARAM lParam);
 	LRESULT OnCommand(UINT codeNotify, int id, HWND hwndCtl);
-
-	void GetValue(pfc::string_base& p_value)
-	{
-		p_value = m_value;
-	}
+	void GetValue(pfc::string_base& p_value);
 
 private:
 	pfc::string_simple m_name;

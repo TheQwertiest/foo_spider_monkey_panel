@@ -1,18 +1,12 @@
 #include "stdafx.h"
 #include "ui_property.h"
 
-LRESULT CDialogProperty::OnInitDialog(HWND hwndFocus, LPARAM lParam)
+LRESULT CDialogProperty::OnClearallBnClicked(WORD wNotifyCode, WORD wID, HWND hWndCtl)
 {
-	DlgResize_Init();
+	m_dup_prop_map.remove_all();
+	m_properties.ResetContent();
 
-	// Subclassing
-	m_properties.SubclassWindow(GetDlgItem(IDC_LIST_PROPERTIES));
-	m_properties.ModifyStyle(0, LBS_SORT | LBS_HASSTRINGS);
-	m_properties.SetExtendedListStyle(PLS_EX_SORTED | PLS_EX_XPLOOK);
-
-	LoadProperties();
-
-	return TRUE; // set focus to default control
+	return 0;
 }
 
 LRESULT CDialogProperty::OnCloseCmd(WORD wNotifyCode, WORD wID, HWND hWndCtl)
@@ -32,6 +26,79 @@ LRESULT CDialogProperty::OnCloseCmd(WORD wNotifyCode, WORD wID, HWND hWndCtl)
 	return 0;
 }
 
+LRESULT CDialogProperty::OnDelBnClicked(WORD wNotifyCode, WORD wID, HWND hWndCtl)
+{
+	int idx = m_properties.GetCurSel();
+
+	if (idx >= 0)
+	{
+		HPROPERTY hproperty = m_properties.GetProperty(idx);
+		pfc::stringcvt::string_utf8_from_os uname = hproperty->GetName();
+
+		m_properties.DeleteItem(hproperty);
+		m_dup_prop_map.remove(uname);
+	}
+
+	return 0;
+}
+
+LRESULT CDialogProperty::OnExportBnClicked(WORD wNotifyCode, WORD wID, HWND hWndCtl)
+{
+	pfc::string8 path;
+
+	if (uGetOpenFileName(m_hWnd, "Property files|*.wsp", 0, "wsp", "Save as", NULL, path, TRUE))
+	{
+		file_ptr io;
+		abort_callback_dummy abort;
+
+		try
+		{
+			filesystem::g_open_write_new(io, path, abort);
+			prop_kv_config::g_save(m_dup_prop_map, io.get_ptr(), abort);
+		}
+		catch (...)
+		{
+		}
+	}
+	return 0;
+}
+
+LRESULT CDialogProperty::OnImportBnClicked(WORD wNotifyCode, WORD wID, HWND hWndCtl)
+{
+	pfc::string8 filename;
+
+	if (uGetOpenFileName(m_hWnd, "Property files|*.wsp|All files|*.*", 0, "wsp", "Import from", NULL, filename, FALSE))
+	{
+		file_ptr io;
+		abort_callback_dummy abort;
+
+		try
+		{
+			filesystem::g_open_read(io, filename, abort);
+			prop_kv_config::g_load(m_dup_prop_map, io.get_ptr(), abort);
+			LoadProperties(false);
+		}
+		catch (...)
+		{
+		}
+	}
+	return 0;
+}
+
+LRESULT CDialogProperty::OnInitDialog(HWND hwndFocus, LPARAM lParam)
+{
+	DlgResize_Init();
+
+	// Subclassing
+	m_properties.SubclassWindow(GetDlgItem(IDC_LIST_PROPERTIES));
+	m_properties.ModifyStyle(0, LBS_SORT | LBS_HASSTRINGS);
+	m_properties.SetExtendedListStyle(PLS_EX_SORTED | PLS_EX_XPLOOK);
+
+	LoadProperties();
+
+	return TRUE; // set focus to default control
+}
+
 LRESULT CDialogProperty::OnPinItemChanged(LPNMHDR pnmh)
 {
 	LPNMPROPERTYITEM pnpi = (LPNMPROPERTYITEM)pnmh;
@@ -48,14 +115,6 @@ LRESULT CDialogProperty::OnPinItemChanged(LPNMHDR pnmh)
 			val.ChangeType(val.vt, &var);
 		}
 	}
-
-	return 0;
-}
-
-LRESULT CDialogProperty::OnClearallBnClicked(WORD wNotifyCode, WORD wID, HWND hWndCtl)
-{
-	m_dup_prop_map.remove_all();
-	m_properties.ResetContent();
 
 	return 0;
 }
@@ -111,63 +170,4 @@ void CDialogProperty::LoadProperties(bool reload)
 
 		m_properties.AddItem(hProp);
 	}
-}
-
-LRESULT CDialogProperty::OnDelBnClicked(WORD wNotifyCode, WORD wID, HWND hWndCtl)
-{
-	int idx = m_properties.GetCurSel();
-
-	if (idx >= 0)
-	{
-		HPROPERTY hproperty = m_properties.GetProperty(idx);
-		pfc::stringcvt::string_utf8_from_os uname = hproperty->GetName();
-
-		m_properties.DeleteItem(hproperty);
-		m_dup_prop_map.remove(uname);
-	}
-
-	return 0;
-}
-
-LRESULT CDialogProperty::OnImportBnClicked(WORD wNotifyCode, WORD wID, HWND hWndCtl)
-{
-	pfc::string8 filename;
-
-	if (uGetOpenFileName(m_hWnd, "Property files|*.wsp|All files|*.*", 0, "wsp", "Import from", NULL, filename, FALSE))
-	{
-		file_ptr io;
-		abort_callback_dummy abort;
-
-		try
-		{
-			filesystem::g_open_read(io, filename, abort);
-			prop_kv_config::g_load(m_dup_prop_map, io.get_ptr(), abort);
-			LoadProperties(false);
-		}
-		catch (...)
-		{
-		}
-	}
-	return 0;
-}
-
-LRESULT CDialogProperty::OnExportBnClicked(WORD wNotifyCode, WORD wID, HWND hWndCtl)
-{
-	pfc::string8 path;
-
-	if (uGetOpenFileName(m_hWnd, "Property files|*.wsp", 0, "wsp", "Save as", NULL, path, TRUE))
-	{
-		file_ptr io;
-		abort_callback_dummy abort;
-
-		try
-		{
-			filesystem::g_open_write_new(io, path, abort);
-			prop_kv_config::g_save(m_dup_prop_map, io.get_ptr(), abort);
-		}
-		catch (...)
-		{
-		}
-	}
-	return 0;
 }

@@ -2,18 +2,40 @@
 #include "ui_replace.h"
 #include "ui_conf.h"
 
-LRESULT CDialogReplace::OnFindNext(WORD wNotifyCode, WORD wID, HWND hWndCtl)
+CHARRANGE CDialogReplace::GetSelection()
 {
-	if (m_text.is_empty())
-		return 0;
+	CHARRANGE cr;
 
-	m_havefound = CDialogConf::FindNext(m_hWnd, m_hedit, m_flags, m_text.get_ptr());
+	cr.cpMin = SendMessage(m_hedit, SCI_GETSELECTIONSTART, 0, 0);
+	cr.cpMax = SendMessage(m_hedit, SCI_GETSELECTIONEND, 0, 0);
+	return cr;
+}
+
+LRESULT CDialogReplace::OnCancel(WORD wNotifyCode, WORD wID, HWND hWndCtl)
+{
+	//DestroyWindow();
+	ShowWindow(SW_HIDE);
 	return 0;
 }
 
 LRESULT CDialogReplace::OnEditFindWhatEnChange(WORD wNotifyCode, WORD wID, HWND hWndCtl)
 {
 	uGetWindowText(GetDlgItem(IDC_EDIT_FINDWHAT), m_text);
+	return 0;
+}
+
+LRESULT CDialogReplace::OnEditReplaceEnChange(WORD wNotifyCode, WORD wID, HWND hWndCtl)
+{
+	uGetWindowText(GetDlgItem(IDC_EDIT_REPLACE), m_reptext);
+	return 0;
+}
+
+LRESULT CDialogReplace::OnFindNext(WORD wNotifyCode, WORD wID, HWND hWndCtl)
+{
+	if (m_text.is_empty())
+		return 0;
+
+	m_havefound = CDialogConf::FindNext(m_hWnd, m_hedit, m_flags, m_text.get_ptr());
 	return 0;
 }
 
@@ -49,19 +71,6 @@ LRESULT CDialogReplace::OnFlagCommand(WORD wNotifyCode, WORD wID, HWND hWndCtl)
 	return 0;
 }
 
-LRESULT CDialogReplace::OnCancel(WORD wNotifyCode, WORD wID, HWND hWndCtl)
-{
-	//DestroyWindow();
-	ShowWindow(SW_HIDE);
-	return 0;
-}
-
-void CDialogReplace::OnFinalMessage(HWND hWnd)
-{
-	modeless_dialog_manager::g_remove(m_hWnd);
-	delete this;
-}
-
 LRESULT CDialogReplace::OnInitDialog(HWND hwndFocus, LPARAM lParam)
 {
 	modeless_dialog_manager::g_add(m_hWnd);
@@ -69,12 +78,6 @@ LRESULT CDialogReplace::OnInitDialog(HWND hwndFocus, LPARAM lParam)
 	m_replace.SubclassWindow(GetDlgItem(IDC_EDIT_FINDWHAT), m_hWnd);
 	m_find.SubclassWindow(GetDlgItem(IDC_EDIT_REPLACE), m_hWnd);
 	return TRUE; // set focus to default control
-}
-
-LRESULT CDialogReplace::OnEditReplaceEnChange(WORD wNotifyCode, WORD wID, HWND hWndCtl)
-{
-	uGetWindowText(GetDlgItem(IDC_EDIT_REPLACE), m_reptext);
-	return 0;
 }
 
 LRESULT CDialogReplace::OnReplace(WORD wNotifyCode, WORD wID, HWND hWndCtl)
@@ -127,11 +130,8 @@ LRESULT CDialogReplace::OnReplaceall(WORD wNotifyCode, WORD wID, HWND hWndCtl)
 	return 0;
 }
 
-CHARRANGE CDialogReplace::GetSelection()
+void CDialogReplace::OnFinalMessage(HWND hWnd)
 {
-	CHARRANGE cr;
-
-	cr.cpMin = SendMessage(m_hedit, SCI_GETSELECTIONSTART, 0, 0);
-	cr.cpMax = SendMessage(m_hedit, SCI_GETSELECTIONEND, 0, 0);
-	return cr;
+	modeless_dialog_manager::g_remove(m_hWnd);
+	delete this;
 }
