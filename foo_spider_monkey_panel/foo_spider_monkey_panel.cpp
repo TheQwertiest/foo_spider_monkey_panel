@@ -4,6 +4,8 @@
 #include "panel_manager.h"
 #include "user_message.h"
 
+#include <mozjs/js/Initialization.h>
+
 // Script TypeLib
 ITypeLibPtr g_typelib;
 
@@ -118,23 +120,26 @@ namespace
 				g_load_status |= E_GDIPLUS;
 			}
 			_Module.Init(NULL, ins);
+
+               JS_Init();
 		}
 		break;
+          case DLL_PROCESS_DETACH:
+          {
+               JS_ShutDown();
 
-		case DLL_PROCESS_DETACH:
-		{
-			// Term WTL
-			_Module.Term();
+               // Term WTL
+               _Module.Term();
 
-			// Shutdown GDI+
-			Gdiplus::GdiplusShutdown(g_gdip_token);
+               // Shutdown GDI+
+               Gdiplus::GdiplusShutdown( g_gdip_token );
 
-			// Free Scintilla resource
-			Scintilla_ReleaseResources();
+               // Free Scintilla resource
+               Scintilla_ReleaseResources();
 
-			OleUninitialize();
-		}
-		break;
+               OleUninitialize();
+          }
+          break;
 		}
 
 		return TRUE;

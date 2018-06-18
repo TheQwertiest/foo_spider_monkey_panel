@@ -371,7 +371,7 @@ public:
 			// Resize list to fit all items (but not more than 140 pixels)
 			const int MAX_HEIGHT = 140;
 			int cy = m_wndList.GetCount() * m_wndList.GetItemHeight(0);
-			m_cyList = min(MAX_HEIGHT, cy + (::GetSystemMetrics(SM_CYBORDER) * 2));
+			m_cyList = std::min(MAX_HEIGHT, cy + (::GetSystemMetrics(SM_CYBORDER) * 2));
 		}
 		// Move the dropdown under the item
 		RECT rcWin = { 0 };

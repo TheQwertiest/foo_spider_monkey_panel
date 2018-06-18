@@ -8,6 +8,8 @@
 #include "host_timer_dispatcher.h"
 #include "script_callback_invoker.h"
 
+#include <mozjs/jsapi.h>
+
 // Smart pointers for Active Scripting
 _COM_SMARTPTR_TYPEDEF(IActiveScriptParse, IID_IActiveScriptParse);
 _COM_SMARTPTR_TYPEDEF(IProcessDebugManager, IID_IProcessDebugManager);
@@ -101,6 +103,8 @@ public:
 	void Stop();
 
 private:
+     JSContext* m_js_ctx;
+
 	DWORD m_lastSourceContext;
 	HostComm* m_host;
 	IActiveScriptPtr m_script_engine;
