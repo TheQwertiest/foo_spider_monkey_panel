@@ -45,7 +45,7 @@
 #define IDC_BUTTON_EXPORT               163
 
 //ui_property
-#define IDD_DIALOG_PROPERTY		        170
+#define IDD_DIALOG_PROPERTY             170
 #define IDC_DEL                         171
 #define IDC_CLEARALL                    172
 #define IDC_IMPORT                      173
