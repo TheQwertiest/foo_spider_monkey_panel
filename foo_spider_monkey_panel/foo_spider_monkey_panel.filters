@@ -24,7 +24,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="foo_jscript_panel.cpp">
+    <ClCompile Include="foo_spider_monkey_panel.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="host.cpp">
@@ -234,7 +234,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="foo_jscript_panel.rc">
+    <ResourceCompile Include="foo_spider_monkey_panel.rc">
       <Filter>Resource Files</Filter>
     </ResourceCompile>
   </ItemGroup>

@@ -17,7 +17,7 @@
   <ItemDefinitionGroup>
     <Link>
       <AdditionalLibraryDirectories>$(MozJsLibDirectory);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>mozglue.lib;mozjs-52.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>mozjs-52.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup />

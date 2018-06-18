@@ -13,7 +13,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "columns_ui_sdk", "..\column
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "scintilla", "..\scintilla\win32\scintilla.vcxproj", "{641A7D58-C47D-4110-B800-E18E8A5D818F}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "foo_jscript_panel", "foo_jscript_panel.vcxproj", "{43DF6037-DBE4-4468-9A50-4311495F3C86}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "foo_spider_monkey_panel", "..\foo_spider_monkey_panel\foo_spider_monkey_panel.vcxproj", "{43DF6037-DBE4-4468-9A50-4311495F3C86}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

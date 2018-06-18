@@ -1,5 +1,5 @@
-foo_jscript_panel/foo_jscript_panel.dll
-*.idl
+# SpiderMonkey internals
+mozjs
 
 # Created by https://www.gitignore.io/api/visualstudio
 
@@ -17,6 +17,9 @@ foo_jscript_panel/foo_jscript_panel.dll
 *.userprefs
 
 # Build results
+foo_jscript_panel/foo_jscript_panel.dll
+*.idl
+_result
 [Dd]ebug/
 [Dd]ebugPublic/
 [Rr]elease/
