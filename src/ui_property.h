@@ -42,7 +42,7 @@ public:
 
 	enum
 	{
-		IDD = IDD_DIALOG_PROPERTIES
+		IDD = IDD_DIALOG_PROPERTY
 	};
 
 	LRESULT OnClearallBnClicked(WORD wNotifyCode, WORD wID, HWND hWndCtl);

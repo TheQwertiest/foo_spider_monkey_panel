@@ -6,6 +6,43 @@
 #include "ui_replace.h"
 #include "helpers.h"
 
+LRESULT CDialogConf::OnCloseCmd(WORD wNotifyCode, WORD wID, HWND hWndCtl)
+{
+	switch (wID)
+	{
+	case IDOK:
+		Apply();
+		EndDialog(IDOK);
+		break;
+
+	case IDAPPLY:
+		Apply();
+		break;
+
+	case IDCANCEL:
+		if (m_editorctrl.GetModify())
+		{
+			// Prompt?
+			int ret = uMessageBox(m_hWnd, "Do you want to apply your changes?", m_caption, MB_ICONWARNING | MB_SETFOREGROUND | MB_YESNOCANCEL);
+
+			switch (ret)
+			{
+			case IDYES:
+				Apply();
+				EndDialog(IDOK);
+				break;
+
+			case IDCANCEL:
+				return 0;
+			}
+		}
+
+		EndDialog(IDCANCEL);
+	}
+
+	return 0;
+}
+
 LRESULT CDialogConf::OnInitDialog(HWND hwndFocus, LPARAM lParam)
 {
 	// Get caption text
@@ -90,87 +127,30 @@ LRESULT CDialogConf::OnInitDialog(HWND hwndFocus, LPARAM lParam)
 	return TRUE; // set focus to default control
 }
 
-LRESULT CDialogConf::OnCloseCmd(WORD wNotifyCode, WORD wID, HWND hWndCtl)
+LRESULT CDialogConf::OnNotify(int idCtrl, LPNMHDR pnmh)
 {
-	switch (wID)
+	SCNotification* notification = (SCNotification *)pnmh;
+
+	switch (pnmh->code)
 	{
-	case IDOK:
-		Apply();
-		EndDialog(IDOK);
+		// dirty
+	case SCN_SAVEPOINTLEFT:
+	{
+		pfc::string8 caption = m_caption;
+
+		caption += " *";
+		uSetWindowText(m_hWnd, caption);
+	}
+	break;
+
+	// not dirty
+	case SCN_SAVEPOINTREACHED:
+		uSetWindowText(m_hWnd, m_caption);
 		break;
-
-	case IDAPPLY:
-		Apply();
-		break;
-
-	case IDCANCEL:
-		if (m_editorctrl.GetModify())
-		{
-			// Prompt?
-			int ret = uMessageBox(m_hWnd, "Do you want to apply your changes?", m_caption, MB_ICONWARNING | MB_SETFOREGROUND | MB_YESNOCANCEL);
-
-			switch (ret)
-			{
-			case IDYES:
-				Apply();
-				EndDialog(IDOK);
-				break;
-
-			case IDCANCEL:
-				return 0;
-			}
-		}
-
-		EndDialog(IDCANCEL);
 	}
 
+	SetMsgHandled(FALSE);
 	return 0;
-}
-
-void CDialogConf::OnResetDefault()
-{
-	HWND combo = GetDlgItem(IDC_COMBO_ENGINE);
-	uComboBox_SelectString(combo, "Chakra");
-	pfc::string8 code;
-	js_panel_vars::get_default_script_code(code);
-	m_editorctrl.SetContent(code);
-}
-
-void CDialogConf::OnResetCurrent()
-{
-	HWND combo = GetDlgItem(IDC_COMBO_ENGINE);
-	uComboBox_SelectString(combo, m_parent->get_script_engine());
-	m_editorctrl.SetContent(m_parent->get_script_code());
-}
-
-void CDialogConf::OnImport()
-{
-	pfc::string8 filename;
-
-	if (uGetOpenFileName(m_hWnd, "Text files|*.txt|JScript files|*.js|All files|*.*", 0, "txt", "Import from", NULL, filename, FALSE))
-	{
-		// Open file
-		pfc::string8_fast text;
-
-		helpers::read_file(filename, text);
-		m_editorctrl.SetContent(text);
-	}
-}
-
-void CDialogConf::OnExport()
-{
-	pfc::string8 filename;
-
-	if (uGetOpenFileName(m_hWnd, "Text files|*.txt|All files|*.*", 0, "txt", "Save as", NULL, filename, TRUE))
-	{
-		int len = m_editorctrl.GetTextLength();
-		pfc::string8_fast text;
-
-		m_editorctrl.GetText(text.lock_buffer(len), len + 1);
-		text.unlock_buffer();
-
-		helpers::write_file(filename, text);
-	}
 }
 
 LRESULT CDialogConf::OnTools(WORD wNotifyCode, WORD wID, HWND hWndCtl)
@@ -221,54 +201,15 @@ LRESULT CDialogConf::OnTools(WORD wNotifyCode, WORD wID, HWND hWndCtl)
 	return 0;
 }
 
-void CDialogConf::Apply()
+LRESULT CDialogConf::OnUwmKeyDown(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 {
-	pfc::string8 name;
-	pfc::array_t<char> code;
-	int len = 0;
-
-	// Get engine name
-	uGetWindowText(GetDlgItem(IDC_COMBO_ENGINE), name);
-	// Get script text
-	len = m_editorctrl.GetTextLength();
-	code.set_size(len + 1);
-	m_editorctrl.GetText(code.get_ptr(), len + 1);
-
-	m_parent->get_edge_style() = static_cast<t_edge_style>(ComboBox_GetCurSel(GetDlgItem(IDC_COMBO_EDGE)));
-	m_parent->get_grab_focus() = uButton_GetCheck(m_hWnd, IDC_CHECK_GRABFOCUS);
-	m_parent->get_pseudo_transparent() = uButton_GetCheck(m_hWnd, IDC_CHECK_PSEUDO_TRANSPARENT);
-	m_parent->update_script(name, code.get_ptr());
-
-	// Wndow position
-	GetWindowPlacement(&m_parent->get_windowplacement());
-
-	// Save point
-	m_editorctrl.SetSavePoint();
+	return MatchShortcuts(wParam);
 }
 
-LRESULT CDialogConf::OnNotify(int idCtrl, LPNMHDR pnmh)
+LRESULT CDialogConf::OnUwmFindTextChanged(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 {
-	SCNotification* notification = (SCNotification *)pnmh;
-
-	switch (pnmh->code)
-	{
-		// dirty
-	case SCN_SAVEPOINTLEFT:
-	{
-		pfc::string8 caption = m_caption;
-
-		caption += " *";
-		uSetWindowText(m_hWnd, caption);
-	}
-	break;
-
-	// not dirty
-	case SCN_SAVEPOINTREACHED:
-		uSetWindowText(m_hWnd, m_caption);
-		break;
-	}
-
-	SetMsgHandled(FALSE);
+	m_lastFlags = wParam;
+	m_lastSearchText = reinterpret_cast<const char*>(lParam);
 	return 0;
 }
 
@@ -352,18 +293,6 @@ bool CDialogConf::MatchShortcuts(unsigned vk)
 	return false;
 }
 
-LRESULT CDialogConf::OnUwmKeyDown(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
-{
-	return MatchShortcuts(wParam);
-}
-
-LRESULT CDialogConf::OnUwmFindTextChanged(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
-{
-	m_lastFlags = wParam;
-	m_lastSearchText = reinterpret_cast<const char*>(lParam);
-	return 0;
-}
-
 bool CDialogConf::FindNext(HWND hWnd, HWND hWndEdit, unsigned flags, const char* which)
 {
 	::SendMessage(::GetAncestor(hWndEdit, GA_PARENT), UWM_FIND_TEXT_CHANGED, flags, reinterpret_cast<LPARAM>(which));
@@ -397,6 +326,77 @@ bool CDialogConf::FindResult(HWND hWnd, HWND hWndEdit, int pos, const char* whic
 	buff += "\"";
 	uMessageBox(hWnd, buff.get_ptr(), JSP_NAME, MB_ICONINFORMATION | MB_SETFOREGROUND);
 	return false;
+}
+
+void CDialogConf::Apply()
+{
+	pfc::string8 name;
+	pfc::array_t<char> code;
+	int len = 0;
+
+	// Get engine name
+	uGetWindowText(GetDlgItem(IDC_COMBO_ENGINE), name);
+	// Get script text
+	len = m_editorctrl.GetTextLength();
+	code.set_size(len + 1);
+	m_editorctrl.GetText(code.get_ptr(), len + 1);
+
+	m_parent->get_edge_style() = static_cast<t_edge_style>(ComboBox_GetCurSel(GetDlgItem(IDC_COMBO_EDGE)));
+	m_parent->get_grab_focus() = uButton_GetCheck(m_hWnd, IDC_CHECK_GRABFOCUS);
+	m_parent->get_pseudo_transparent() = uButton_GetCheck(m_hWnd, IDC_CHECK_PSEUDO_TRANSPARENT);
+	m_parent->update_script(name, code.get_ptr());
+
+	// Wndow position
+	GetWindowPlacement(&m_parent->get_windowplacement());
+
+	// Save point
+	m_editorctrl.SetSavePoint();
+}
+
+void CDialogConf::OnExport()
+{
+	pfc::string8 filename;
+
+	if (uGetOpenFileName(m_hWnd, "Text files|*.txt|All files|*.*", 0, "txt", "Save as", NULL, filename, TRUE))
+	{
+		int len = m_editorctrl.GetTextLength();
+		pfc::string8_fast text;
+
+		m_editorctrl.GetText(text.lock_buffer(len), len + 1);
+		text.unlock_buffer();
+
+		helpers::write_file(filename, text);
+	}
+}
+
+void CDialogConf::OnImport()
+{
+	pfc::string8 filename;
+
+	if (uGetOpenFileName(m_hWnd, "Text files|*.txt|JScript files|*.js|All files|*.*", 0, "txt", "Import from", NULL, filename, FALSE))
+	{
+		// Open file
+		pfc::string8_fast text;
+
+		helpers::read_file(filename, text);
+		m_editorctrl.SetContent(text);
+	}
+}
+
+void CDialogConf::OnResetCurrent()
+{
+	HWND combo = GetDlgItem(IDC_COMBO_ENGINE);
+	uComboBox_SelectString(combo, m_parent->get_script_engine());
+	m_editorctrl.SetContent(m_parent->get_script_code());
+}
+
+void CDialogConf::OnResetDefault()
+{
+	HWND combo = GetDlgItem(IDC_COMBO_ENGINE);
+	uComboBox_SelectString(combo, "Chakra");
+	pfc::string8 code;
+	js_panel_vars::get_default_script_code(code);
+	m_editorctrl.SetContent(code);
 }
 
 void CDialogConf::OpenFindDialog()

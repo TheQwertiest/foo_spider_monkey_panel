@@ -16,7 +16,7 @@ public:
 
 	enum
 	{
-		IDD = IDD_DIALOG_NAME_VALUE
+		IDD = IDD_DIALOG_NAME_VALUE_EDIT
 	};
 
 	LRESULT OnInitDialog(HWND hwndFocus, LPARAM lParam);

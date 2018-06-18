@@ -22,7 +22,7 @@ public:
 
 	enum
 	{
-		IDD = IDD_DIALOG_PREFERENCE
+		IDD = IDD_DIALOG_PREF
 	};
 
 	BOOL OnInitDialog(HWND hwndFocus, LPARAM lParam);

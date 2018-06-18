@@ -6,63 +6,62 @@
 #define IDC_STATIC -1
 #endif
 
-#define IDR_SCRIPT                      101
-#define IDD_DIALOG_CONFIG               102
-#define IDD_DIALOG_FIND                 103
-#define IDD_DIALOG_GOTO                 104
-#define IDD_DIALOG_REPLACE              105
-#define IDD_DIALOG_PREFERENCE           107
-#define IDD_DIALOG_NAME_VALUE           108
-#define IDD_DIALOG_PROPERTIES           109
-#define IDD_DIALOG_INPUT                110
-#define IDAPPLY                         111
+#define IDR_SCRIPT                      100
+#define IDAPPLY                         101
 
-#define IDC_STATIC_GUID                 1000
-#define IDC_EDIT                        1001
-#define IDC_TOOLS                       1002
-#define IDC_STATIC_ENGINE               1003
-#define IDC_COMBO_ENGINE                1004
-#define IDC_STATIC_EDGE                 1005
-#define IDC_COMBO_EDGE                  1006
-#define IDC_CHECK_PSEUDO_TRANSPARENT    1007
-#define IDC_CHECK_GRABFOCUS             1008
+//ui_conf
+#define IDD_DIALOG_CONF                 110
+#define IDC_STATIC_GUID                 111
+#define IDC_EDIT                        112
+#define IDC_TOOLS                       113
+#define IDC_STATIC_ENGINE               114
+#define IDC_COMBO_ENGINE                115
+#define IDC_STATIC_EDGE                 116
+#define IDC_COMBO_EDGE                  117
+#define IDC_CHECK_PSEUDO_TRANSPARENT    118
+#define IDC_CHECK_GRABFOCUS             119
 
-#define IDC_DEL                         1010
-#define IDC_CLEARALL                    1011
-#define IDC_IMPORT                      1012
-#define IDC_EXPORT                      1013
-#define IDC_LIST_PROPERTIES             1014
+//ui_find
+#define IDD_DIALOG_FIND                 120
 
-#define IDC_EDIT_FINDWHAT               1020
-#define IDC_EDIT_REPLACE                1021
-#define IDC_CHECK_MATCHCASE             1022
-#define IDC_CHECK_WHOLEWORD             1023
-#define IDC_CHECK_WORDSTART             1024
-#define IDC_CHECK_REGEXP                1025
-#define IDC_FINDDOWN                    1026
-#define IDC_FINDUP                      1027
-#define IDC_FINDNEXT                    1028
-#define IDC_REPLACE                     1029
-#define IDC_REPLACEALL                  1030
+//ui_goto
+#define IDD_DIALOG_GOTO                 130
+#define IDC_EDIT_LINENUMBER             131
 
-#define IDC_EDIT_LINENUMBER             1040
+//ui_input_box
+#define IDD_DIALOG_INPUT                140
+#define IDC_INPUT_PROMPT                141
+#define IDC_INPUT_VALUE                 142
 
-#define IDC_LIST_EDITOR_PROP            1050
-#define IDC_BUTTON_IMPORT               1051
-#define IDC_BUTTON_EXPORT               1052
+//ui_name_value_edit
+#define IDD_DIALOG_NAME_VALUE_EDIT      150
+#define IDC_EDIT_NAME                   151
+#define IDC_EDIT_VALUE                  152
 
-#define IDC_EDIT_NAME                   1060
-#define IDC_EDIT_VALUE                  1061
+//ui_pref
+#define IDD_DIALOG_PREF                 160
+#define IDC_LIST_EDITOR_PROP            161
+#define IDC_BUTTON_IMPORT               162
+#define IDC_BUTTON_EXPORT               163
 
-#define IDC_INPUT_PROMPT                1070
-#define IDC_INPUT_VALUE                 1071
+//ui_property
+#define IDD_DIALOG_PROPERTY		        170
+#define IDC_DEL                         171
+#define IDC_CLEARALL                    172
+#define IDC_IMPORT                      173
+#define IDC_EXPORT                      174
+#define IDC_LIST_PROPERTIES             175
 
-// Next default values for new objects
-#ifdef APSTUDIO_INVOKED
-#ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        110
-#define _APS_NEXT_COMMAND_VALUE         40012
-#define _APS_NEXT_CONTROL_VALUE         1040
-#define _APS_NEXT_SYMED_VALUE           101
-#endif
-#endif
+//ui_replace
+#define IDD_DIALOG_REPLACE              180
+#define IDC_EDIT_FINDWHAT               181
+#define IDC_EDIT_REPLACE                182
+#define IDC_CHECK_MATCHCASE             183
+#define IDC_CHECK_WHOLEWORD             184
+#define IDC_CHECK_WORDSTART             185
+#define IDC_CHECK_REGEXP                186
+#define IDC_FINDDOWN                    187
+#define IDC_FINDUP                      188
+#define IDC_FINDNEXT                    189
+#define IDC_REPLACE                     190
+#define IDC_REPLACEALL                  191

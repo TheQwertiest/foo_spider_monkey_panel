@@ -49,7 +49,7 @@ public:
 
 	enum
 	{
-		IDD = IDD_DIALOG_CONFIG
+		IDD = IDD_DIALOG_CONF
 	};
 
 	LRESULT OnCloseCmd(WORD wNotifyCode, WORD wID, HWND hWndCtl);
@@ -70,11 +70,11 @@ public:
 	void OpenFindDialog();
 
 private:
-	CScriptEditorCtrl m_editorctrl;
 	CDialogFind* m_dlgfind;
 	CDialogReplace* m_dlgreplace;
+	CScriptEditorCtrl m_editorctrl;
 	js_panel_window* m_parent;
 	pfc::string8 m_caption;
-	unsigned int m_lastFlags;
 	pfc::string8 m_lastSearchText;
+	unsigned int m_lastFlags;
 };
