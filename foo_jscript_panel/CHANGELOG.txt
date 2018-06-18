@@ -4,6 +4,8 @@ v2.1.5
        truncated at 254 characters.
 - CHG: Remove "fromhook" argument from "on_metadb_changed" callback. From now on, it
        will always be "undefined".
+- FIX: Ensure JSPlaylist doesn't load the same font more than once. Previously it
+       was using gdi.Font inside on_paint which is bad practice.
 
 v2.1.4
 - NEW: Add on_dsp_preset_changed callback. See docs\callbacks.txt.
