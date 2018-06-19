@@ -2943,7 +2943,7 @@ STDMETHODIMP GdiBitmap::GetColourSchemeJSON(UINT count, BSTR* outJson)
 	Gdiplus::BitmapData bmpdata;
 
 	// rescaled image will have max of ~48k pixels
-	int w = min(m_ptr->GetWidth(), 220), h = min(m_ptr->GetHeight(), 220);
+	int w = min(m_ptr->GetWidth(), static_cast<UINT>( 220 )), h = min(m_ptr->GetHeight(), static_cast<UINT>( 220 ) );
 
 	Gdiplus::Bitmap* bitmap = new Gdiplus::Bitmap(w, h, PixelFormat32bppPARGB);
 	Gdiplus::Graphics g(bitmap);

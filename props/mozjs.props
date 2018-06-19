@@ -7,9 +7,11 @@
   </PropertyGroup>
   <PropertyGroup Label="UserMacros">
     <MozJsDirectory>$(MainDir)mozjs\</MozJsDirectory>
-    <MozJsBinDirectory>$(MozJsDirectory)bin\</MozJsBinDirectory>
-    <MozJsLibDirectory>$(MozJsDirectory)lib\</MozJsLibDirectory>
+    <MozJsBinDirectory>$(MozJsDirectory)$(Configuration)\bin\</MozJsBinDirectory>
+    <MozJsLibDirectory>$(MozJsDirectory)$(Configuration)\lib\</MozJsLibDirectory>
     <MozJsIncludeDirectory>$(MozJsDirectory)include\</MozJsIncludeDirectory>
+    <MozJsDependenciesDynamic>mozjs-60.lib</MozJsDependenciesDynamic>
+    <MozJsDependenciesStatic>js_static.lib;nspr4.lib;plc4.lib;plds4.lib;kernel32.lib;user32.lib;gdi32.lib;winmm.lib;wsock32.lib;advapi32.lib;mozglue.lib</MozJsDependenciesStatic>
   </PropertyGroup>
   <PropertyGroup>
     <IncludePath>$(MozJsIncludeDirectory);$(IncludePath)</IncludePath>
@@ -17,7 +19,7 @@
   <ItemDefinitionGroup>
     <Link>
       <AdditionalLibraryDirectories>$(MozJsLibDirectory);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>mozjs-52.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(MozJsDependenciesDynamic);%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup />

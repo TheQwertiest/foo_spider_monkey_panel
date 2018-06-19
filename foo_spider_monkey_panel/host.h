@@ -8,13 +8,13 @@
 #include "host_timer_dispatcher.h"
 #include "script_callback_invoker.h"
 
-#include <mozjs/jsapi.h>
-
 // Smart pointers for Active Scripting
 _COM_SMARTPTR_TYPEDEF(IActiveScriptParse, IID_IActiveScriptParse);
 _COM_SMARTPTR_TYPEDEF(IProcessDebugManager, IID_IProcessDebugManager);
 _COM_SMARTPTR_TYPEDEF(IDebugDocumentHelper, IID_IDebugDocumentHelper);
 _COM_SMARTPTR_TYPEDEF(IDebugApplication, IID_IDebugApplication);
+
+struct JSContext;
 
 class HostComm : public js_panel_vars
 {

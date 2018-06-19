@@ -1,7 +1,11 @@
 #include "stdafx.h"
+
+#include <mozjs/jsapi.h>
+
 #include "host.h"
 #include "panel_manager.h"
 #include "popup_msg.h"
+
 
 static JSClassOps global_ops = {
 	nullptr,
@@ -14,8 +18,7 @@ static JSClassOps global_ops = {
 	nullptr,
 	nullptr,
 	nullptr,
-	nullptr,
-	JS_GlobalObjectTraceHook
+     nullptr
 };
 
 /* The class of the global object. */
@@ -318,6 +321,13 @@ HRESULT ScriptHost::Initialize()
 	HRESULT hr = S_OK;
 
 	Finalize();
+
+     static bool isInitialized = false;
+     if ( !isInitialized )
+     {// Address of JS_GlobalObjectTraceHook is initialized only after mozjs is loaded      
+          global_ops.trace = JS_GlobalObjectTraceHook;
+          isInitialized = true;
+     }
 
      JSContext* pJsCtx = JS_NewContext( 8L * 1024 * 1024 );
      if ( !pJsCtx )

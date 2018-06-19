@@ -37,7 +37,7 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="$(SolutionDir)\..\props\BuildEnvCommon.props" />
     <Import Project="$(SolutionDir)\..\props\BuildEnvCpp.props" />
-    <Import Project="$(SolutionDir)\..\props\StaticRuntime.props" />
+    <Import Project="$(SolutionDir)\..\props\DynamicRuntime.props" />
     <Import Project="$(SolutionDir)\..\props\foobar2000_sdk.props" />
     <Import Project="$(SolutionDir)\..\props\pfc.props" />
     <Import Project="$(SolutionDir)\..\props\mozjs.props" />
@@ -62,10 +62,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <PreBuildEvent>
-      <Command>
-      </Command>
-    </PreBuildEvent>
     <ClCompile>
       <PreprocessorDefinitions>_WINDOWS;_USRDLL;_CRT_SECURE_NO_WARNINGS;_CRT_NON_CONFORMING_SWPRINTFS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
