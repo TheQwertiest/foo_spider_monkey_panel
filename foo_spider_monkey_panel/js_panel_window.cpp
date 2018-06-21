@@ -475,9 +475,19 @@ void js_panel_window::execute_context_menu_command(int id, int id_base)
 
 bool js_panel_window::script_load()
 {
+     bool bRet;
      mozjs::JsEngine& jsEnv = mozjs::JsEngine::GetInstance();
-     jsEnv.CreateGlobalObject( jsGlobalObject_ );
-     jsEnv.ExecuteScript( jsGlobalObject_, get_script_code().c_str() );
+     bRet = jsEnv.CreateGlobalObject( jsGlobalObject_ );
+     if (!bRet)
+     {
+          return false;
+     }
+
+     bRet = jsEnv.ExecuteScript( jsGlobalObject_, get_script_code().c_str() );
+     if ( !bRet )
+     {
+          return false;
+     }
 
 	pfc::hires_timer timer;
 	timer.start();

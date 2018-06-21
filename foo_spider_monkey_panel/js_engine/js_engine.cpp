@@ -1,71 +1,12 @@
 #include <stdafx.h>
 
 #include "js_engine.h"
+#include "js_global_object.h"
 
 #include <js/Conversions.h>
 
-// TODO: add error checking
-
-namespace
-{
-
-static JSClassOps globalOps = {
-     nullptr,
-     nullptr,
-     nullptr,
-     nullptr,
-     nullptr,
-     nullptr,
-     nullptr,
-     nullptr,
-     nullptr,
-     nullptr,
-     nullptr
-};
-
-static JSClass globalClass = {
-     "global",
-     JSCLASS_GLOBAL_FLAGS,
-     &globalOps
-};
-
-static bool
-Log( JSContext* cx, unsigned argc, JS::Value* vp )
-{
-     JS::CallArgs args = JS::CallArgsFromVp( argc, vp );
-
-     std::string outputString;
-
-     for ( unsigned i = 0; i < args.length(); i++ )
-     {
-          JS::RootedString str( cx, JS::ToString( cx, args[i] ) );
-          if ( !str )
-          {
-               return false;
-          }
-
-          char* bytes = JS_EncodeStringToUTF8( cx, str );
-          if ( !bytes )
-          {
-               return false;
-          }
-
-          outputString += bytes;
-
-          JS_free( cx, bytes );
-     }
-
-     args.rval().setUndefined();
-
-     console::printf( outputString.c_str() );
-     return true;
-}
-
-static const JSFunctionSpec console_functions[] = {
-     JS_FN( "log", Log, 0, 0 ),
-     JS_FS_END
-};
-}
+// TODO: think about moving context creation somewhere above 
+// to avoid it's recreation when working with single panel
 
 namespace mozjs
 {
@@ -74,7 +15,6 @@ JsEngine::JsEngine()
      : pJsCtx_( nullptr )   
      , globalObjectCount_(0)
 {
-     globalOps.trace = JS_GlobalObjectTraceHook;
 }
 
 JsEngine::~JsEngine()
@@ -82,7 +22,7 @@ JsEngine::~JsEngine()
      Finalize();
 }
 
-void JsEngine::Initialize()
+bool JsEngine::Initialize()
 {
      Finalize();
 
@@ -90,7 +30,7 @@ void JsEngine::Initialize()
      JSContext* pJsCtx = JS_NewContext( 1024L * 1024 * 1024 );
      if ( !pJsCtx )
      {
-          return;
+          return false;
      }
 
      std::unique_ptr<JSContext, void( *)( JSContext * )> autoJsCtx(
@@ -103,10 +43,12 @@ void JsEngine::Initialize()
 
      if ( !JS::InitSelfHostedCode( pJsCtx ) )
      {
-          return;
+          return false;
      }
 
      pJsCtx_ = autoJsCtx.release();
+
+     return true;
 }
 
 void JsEngine::Finalize()
@@ -118,7 +60,7 @@ void JsEngine::Finalize()
      }
 }
 
-void JsEngine::ExecuteScript( JS::HandleObject globalObject, std::string_view scriptCode )
+bool JsEngine::ExecuteScript( JS::HandleObject globalObject, std::string_view scriptCode )
 {
      JSAutoRequest ar( pJsCtx_ );
      JS::RootedValue rval( pJsCtx_ );
@@ -134,9 +76,11 @@ void JsEngine::ExecuteScript( JS::HandleObject globalObject, std::string_view sc
           {
                JS_ClearPendingException( pJsCtx_ );
                console::printf( JSP_NAME " Evaluate faul =(\n" );
-               return;
+               return false;;
           }
      }
+
+     return true;
 }
 
 JsEngine& JsEngine::GetInstance()
@@ -145,43 +89,26 @@ JsEngine& JsEngine::GetInstance()
      return jsEnv;
 }
 
-void JsEngine::CreateGlobalObject( JS::PersistentRootedObject& globalObject )
+bool JsEngine::CreateGlobalObject( JS::PersistentRootedObject& globalObject )
 {
      if ( !globalObjectCount_ )
      {
-          Initialize();
-     }
-
-     JSAutoRequest ar( pJsCtx_ );
-     JS::CompartmentOptions options;  
-     JS::RootedObject glob( pJsCtx_, 
-                            JS_NewGlobalObject( pJsCtx_, &globalClass, nullptr, JS::DontFireOnNewGlobalHook, options ) );
-     if ( !glob )
-     {
-          return;
-     }
-
-     {
-          JSAutoCompartment ac( pJsCtx_, glob );
-
-          if ( !JS_InitStandardClasses( pJsCtx_, glob ) )
+          if ( !Initialize() )
           {
-               return;
+               return false;
           }
-
-          JS::RootedObject consoleObj( pJsCtx_, JS_NewPlainObject( pJsCtx_ ) );
-          if ( !consoleObj
-               || !JS_DefineFunctions( pJsCtx_, consoleObj, console_functions )
-               || !JS_DefineProperty( pJsCtx_, glob, "console", consoleObj, 0 ) )
-          {
-               return;
-          }
-
-          JS_FireOnNewGlobalObject( pJsCtx_, glob );
      }
 
-     globalObject.init( pJsCtx_, glob );
+     JS::RootedObject newGlobal( pJsCtx_, mozjs::CreateGlobalObject( pJsCtx_ ) );
+     if ( !newGlobal )
+     {
+          return false;
+     }
+
+     globalObject.init( pJsCtx_, newGlobal );
      ++globalObjectCount_;
+
+     return true;
 }
 
 void JsEngine::DestroyGlobalObject( JS::PersistentRootedObject& globalObject )
@@ -190,6 +117,8 @@ void JsEngine::DestroyGlobalObject( JS::PersistentRootedObject& globalObject )
      {
           return;
      }
+
+     assert( globalObjectCount_ > 0 );
 
      globalObject.reset();
      --globalObjectCount_;

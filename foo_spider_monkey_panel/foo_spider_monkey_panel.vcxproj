@@ -101,7 +101,9 @@
     <ClCompile Include="host.cpp" />
     <ClCompile Include="host_drop_target.cpp" />
     <ClCompile Include="host_timer_dispatcher.cpp" />
+    <ClCompile Include="js_engine\js_console.cpp" />
     <ClCompile Include="js_engine\js_engine.cpp" />
+    <ClCompile Include="js_engine\js_global_object.cpp" />
     <ClCompile Include="js_panel_window.cpp" />
     <ClCompile Include="js_panel_window_cui.cpp" />
     <ClCompile Include="js_panel_window_dui.cpp" />
@@ -130,7 +132,9 @@
     <ClInclude Include="..\PropertyList\PropertyItemImpl.h" />
     <ClInclude Include="..\PropertyList\PropertyList.h" />
     <ClInclude Include="drop_source_impl.h" />
+    <ClInclude Include="js_engine\js_console.h" />
     <ClInclude Include="js_engine\js_engine.h" />
+    <ClInclude Include="js_engine\js_global_object.h" />
     <ClInclude Include="kmeans.h" />
     <ClInclude Include="SString.h" />
     <ClInclude Include="com_tools.h" />

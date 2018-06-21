@@ -30,6 +30,12 @@
     <ClCompile Include="js_engine\js_engine.cpp">
       <Filter>js_engine</Filter>
     </ClCompile>
+    <ClCompile Include="js_engine\js_global_object.cpp">
+      <Filter>js_engine</Filter>
+    </ClCompile>
+    <ClCompile Include="js_engine\js_console.cpp">
+      <Filter>js_engine</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\PropertyList\PropertyItem.h" />
@@ -74,6 +80,12 @@
     <ClInclude Include="user_message.h" />
     <ClInclude Include="wtlscintilla.h" />
     <ClInclude Include="js_engine\js_engine.h">
+      <Filter>js_engine</Filter>
+    </ClInclude>
+    <ClInclude Include="js_engine\js_global_object.h">
+      <Filter>js_engine</Filter>
+    </ClInclude>
+    <ClInclude Include="js_engine\js_console.h">
       <Filter>js_engine</Filter>
     </ClInclude>
   </ItemGroup>
