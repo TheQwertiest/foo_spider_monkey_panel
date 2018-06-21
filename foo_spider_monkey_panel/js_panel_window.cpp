@@ -1221,11 +1221,10 @@ void js_panel_window::on_size( int w, int h )
     if (jsGlobalObject_)
     {
         mozjs::JsEngine::GetInstance().
-            InvokeCallback<std::nullptr_t>
-            ( jsGlobalObject_,
-              "on_size",
-              static_cast<uint32_t>(w),
-              static_cast<uint32_t>(h) );
+            InvokeCallback( jsGlobalObject_,
+                            "on_size",
+                            static_cast<uint32_t>(w),
+                            static_cast<uint32_t>(h) );
     }
 }
 
