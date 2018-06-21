@@ -1,5 +1,10 @@
 #pragma once
 
+#pragma warning( push )  
+#pragma warning( disable : 4251 )  
+#include <mozjs/jsapi.h>
+#pragma warning( pop )  
+
 #include "host.h"
 
 class js_panel_window : public HostComm, public ui_helpers::container_window
@@ -19,6 +24,8 @@ protected:
 	void execute_context_menu_command(int id, int id_base);
 
 private:
+     JS::PersistentRootedObject jsGlobalObject_;
+
 	CComPtr<IDropTargetImpl> m_drop_target;
 	IGdiGraphicsPtr m_gr_wrap;
 	ScriptHost* m_script_host;

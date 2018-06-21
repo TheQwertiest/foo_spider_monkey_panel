@@ -1,0 +1,91 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="com_tools.cpp" />
+    <ClCompile Include="config.cpp" />
+    <ClCompile Include="editorctrl.cpp" />
+    <ClCompile Include="foo_spider_monkey_panel.cpp" />
+    <ClCompile Include="helpers.cpp" />
+    <ClCompile Include="host.cpp" />
+    <ClCompile Include="host_drop_target.cpp" />
+    <ClCompile Include="host_timer_dispatcher.cpp" />
+    <ClCompile Include="js_panel_window.cpp" />
+    <ClCompile Include="js_panel_window_cui.cpp" />
+    <ClCompile Include="js_panel_window_dui.cpp" />
+    <ClCompile Include="mainmenu.cpp" />
+    <ClCompile Include="panel_manager.cpp" />
+    <ClCompile Include="scintilla_prop_sets.cpp" />
+    <ClCompile Include="script_callback_invoker.cpp" />
+    <ClCompile Include="script_interface_impl.cpp" />
+    <ClCompile Include="script_preprocessor.cpp" />
+    <ClCompile Include="stdafx.cpp" />
+    <ClCompile Include="thread_pool.cpp" />
+    <ClCompile Include="ui_conf.cpp" />
+    <ClCompile Include="ui_find.cpp" />
+    <ClCompile Include="ui_goto.cpp" />
+    <ClCompile Include="ui_name_value_edit.cpp" />
+    <ClCompile Include="ui_pref.cpp" />
+    <ClCompile Include="ui_property.cpp" />
+    <ClCompile Include="ui_replace.cpp" />
+    <ClCompile Include="js_engine\js_engine.cpp">
+      <Filter>js_engine</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\PropertyList\PropertyItem.h" />
+    <ClInclude Include="..\PropertyList\PropertyItemEditors.h" />
+    <ClInclude Include="..\PropertyList\PropertyItemImpl.h" />
+    <ClInclude Include="..\PropertyList\PropertyList.h" />
+    <ClInclude Include="drop_source_impl.h" />
+    <ClInclude Include="kmeans.h" />
+    <ClInclude Include="SString.h" />
+    <ClInclude Include="com_tools.h" />
+    <ClInclude Include="component_defines.h" />
+    <ClInclude Include="config.h" />
+    <ClInclude Include="drop_target_impl.h" />
+    <ClInclude Include="editorctrl.h" />
+    <ClInclude Include="helpers.h" />
+    <ClInclude Include="host.h" />
+    <ClInclude Include="host_drop_target.h" />
+    <ClInclude Include="host_timer_dispatcher.h" />
+    <ClInclude Include="js_panel_window.h" />
+    <ClInclude Include="js_panel_window_cui.h" />
+    <ClInclude Include="js_panel_window_dui.h" />
+    <ClInclude Include="json.hpp" />
+    <ClInclude Include="panel_manager.h" />
+    <ClInclude Include="popup_msg.h" />
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="scintilla_prop_sets.h" />
+    <ClInclude Include="script_callback_invoker.h" />
+    <ClInclude Include="script_interface.h" />
+    <ClInclude Include="script_interface_impl.h" />
+    <ClInclude Include="script_preprocessor.h" />
+    <ClInclude Include="stackblur.h" />
+    <ClInclude Include="stats.h" />
+    <ClInclude Include="stdafx.h" />
+    <ClInclude Include="thread_pool.h" />
+    <ClInclude Include="ui_conf.h" />
+    <ClInclude Include="ui_find.h" />
+    <ClInclude Include="ui_goto.h" />
+    <ClInclude Include="ui_name_value_edit.h" />
+    <ClInclude Include="ui_pref.h" />
+    <ClInclude Include="ui_property.h" />
+    <ClInclude Include="ui_replace.h" />
+    <ClInclude Include="user_message.h" />
+    <ClInclude Include="wtlscintilla.h" />
+    <ClInclude Include="js_engine\js_engine.h">
+      <Filter>js_engine</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="foo_spider_monkey_panel.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="default.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="js_engine">
+      <UniqueIdentifier>{82fda107-c970-4ad4-9ad2-b6aae7fddd6d}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

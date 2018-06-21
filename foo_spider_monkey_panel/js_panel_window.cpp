@@ -5,6 +5,8 @@
 #include "panel_manager.h"
 #include "popup_msg.h"
 
+#include "js_engine/js_engine.h"
+
 js_panel_window::js_panel_window() :
 	m_script_host(new ScriptHost(this)),
 	m_is_mouse_tracked(false),
@@ -473,6 +475,10 @@ void js_panel_window::execute_context_menu_command(int id, int id_base)
 
 bool js_panel_window::script_load()
 {
+     mozjs::JsEngine& jsEnv = mozjs::JsEngine::GetInstance();
+     jsEnv.CreateGlobalObject( jsGlobalObject_ );
+     jsEnv.ExecuteScript( jsGlobalObject_ );
+
 	pfc::hires_timer timer;
 	timer.start();
 
@@ -1226,4 +1232,6 @@ void js_panel_window::script_unload()
 
 	HostTimerDispatcher::Get().onPanelUnload(m_hwnd);
 	m_selection_holder.release();
+
+     mozjs::JsEngine::GetInstance().DestroyGlobalObject( jsGlobalObject_ );
 }

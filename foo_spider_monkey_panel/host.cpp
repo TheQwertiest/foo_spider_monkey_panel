@@ -1,32 +1,8 @@
 #include "stdafx.h"
 
-#include <mozjs/jsapi.h>
-
 #include "host.h"
 #include "panel_manager.h"
 #include "popup_msg.h"
-
-
-static JSClassOps global_ops = {
-	nullptr,
-	nullptr,
-	nullptr,
-	nullptr,
-	nullptr,
-	nullptr,
-	nullptr,
-	nullptr,
-	nullptr,
-	nullptr,
-     nullptr
-};
-
-/* The class of the global object. */
-static JSClass global_class = {
-	"global",
-	JSCLASS_GLOBAL_FLAGS,
-	&global_ops
-};
 
 HostComm::HostComm()
 	: m_hwnd(NULL)
@@ -236,7 +212,6 @@ void HostComm::RepaintRect(LONG x, LONG y, LONG w, LONG h, bool force)
 
 ScriptHost::ScriptHost(HostComm* host)
 	: m_host(host)
-     , m_js_ctx( nullptr )
 	, m_window(new com_object_impl_t<FbWindow, false>(host))
 	, m_gdi(com_object_singleton_t<GdiUtils>::instance())
 	, m_fb2k(com_object_singleton_t<FbUtils>::instance())
@@ -321,70 +296,6 @@ HRESULT ScriptHost::Initialize()
 	HRESULT hr = S_OK;
 
 	Finalize();
-
-     static bool isInitialized = false;
-     if ( !isInitialized )
-     {// Address of JS_GlobalObjectTraceHook is initialized only after mozjs is loaded      
-          global_ops.trace = JS_GlobalObjectTraceHook;
-          isInitialized = true;
-     }
-
-     JSContext* pJsCtx = JS_NewContext( 8L * 1024 * 1024 );
-     if ( !pJsCtx )
-     {
-          return 1;
-     }
-
-     std::unique_ptr<JSContext, void( *)( JSContext * )> autoJsCtx(
-          pJsCtx,
-          []( JSContext* pCtx )
-          {
-               JS_DestroyContext( pCtx );
-          }
-     );
-    
-	if ( !JS::InitSelfHostedCode( pJsCtx ) )
-     {
-          return 1;
-     }
-
-	{ // Scope for our various stack objects (JSAutoRequest, RootedObject), so they all go
-	  // out of scope before we JS_DestroyContext.
-
-		JSAutoRequest ar( pJsCtx ); // In practice, you would want to exit this any
-						    // time you're spinning the event loop
-
-		JS::CompartmentOptions options;
-		JS::RootedObject global( pJsCtx, JS_NewGlobalObject( pJsCtx, &global_class, nullptr, JS::FireOnNewGlobalHook, options ) );
-          if ( !global )
-          {
-               return 1;
-          }
-
-		JS::RootedValue rval( pJsCtx );
-
-		{ // Scope for JSAutoCompartment
-			JSAutoCompartment ac( pJsCtx, global );
-			JS_InitStandardClasses( pJsCtx, global );
-
-			const char *script = "'hello'+'world, it is '+new Date()";
-			const char *filename = "noname";
-			int lineno = 1;
-			JS::CompileOptions opts( pJsCtx );
-			opts.setFileAndLine( filename, lineno );
-			bool ok = JS::Evaluate( pJsCtx, opts, script, strlen( script ), &rval );
-               if ( !ok )
-               {
-                    console::printf( JSP_NAME " Evaluate faul =(\n" );
-                    return 1;
-               }
-		}
-
-		JSString *str = rval.toString();
-          console::printf( JSP_NAME " (%s)\n", JS_EncodeString( pJsCtx, str ) );		
-	}
-
-     m_js_ctx = autoJsCtx.release();
 
 	m_has_error = false;
 
@@ -610,12 +521,6 @@ STDMETHODIMP_(ULONG) ScriptHost::Release()
 
 void ScriptHost::Finalize()
 {
-     if ( m_js_ctx )
-     {
-          JS_DestroyContext( m_js_ctx );
-          m_js_ctx = NULL;
-     }
-
 	InvokeCallback(CallbackIds::on_script_unload);
 
 	if (Ready())
