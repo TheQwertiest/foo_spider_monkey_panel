@@ -277,7 +277,7 @@ bool script_preprocessor::expand_var(pfc::array_t<wchar_t>& out)
 					{
 						t_size expand_which_size = wcslen(expand_table[i].which);
 
-						if (wcsncmp(pready + 1, expand_table[i].which, max(count, expand_which_size)) == 0)
+						if (wcsncmp(pready + 1, expand_table[i].which, std::max(count, expand_which_size)) == 0)
 						{
 							pfc::stringcvt::string_wide_from_utf8_fast expanded(expand_table[i].func());
 							t_size expanded_count = expanded.length();

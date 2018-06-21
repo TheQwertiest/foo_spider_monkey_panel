@@ -410,7 +410,7 @@ bool CScriptEditorCtrl::RangeIsAllWhitespace(int start, int end)
 	if (start < 0)
 		start = 0;
 
-	end = min(end, GetLength());
+	end = std::min(end, GetLength());
 
 	for (int i = start; i < end; i++)
 	{
@@ -1309,7 +1309,7 @@ LRESULT CScriptEditorCtrl::OnUpdateUI(LPNMHDR pnmn)
 		int columnAtCaret = GetColumn(braceAtCaret);
 		int columnOpposite = GetColumn(braceOpposite);
 
-		SetHighlightGuide(min(columnAtCaret, columnOpposite));
+		SetHighlightGuide( std::min(columnAtCaret, columnOpposite));
 	}
 
 	return 0;

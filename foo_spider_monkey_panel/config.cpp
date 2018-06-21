@@ -191,12 +191,12 @@ void prop_kv_config::g_save(const t_map& data, stream_writer* writer, abort_call
 	}
 }
 
-void prop_kv_config::load(stream_reader* reader, abort_callback& abort)
+void prop_kv_config::load(stream_reader* reader, abort_callback& abort) throw( )
 {
 	g_load(m_map, reader, abort);
 }
 
-void prop_kv_config::save(stream_writer* writer, abort_callback& abort) const
+void prop_kv_config::save(stream_writer* writer, abort_callback& abort) const throw( )
 {
 	g_save(m_map, writer, abort);
 }

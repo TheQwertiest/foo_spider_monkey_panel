@@ -4,7 +4,7 @@
 #include "panel_manager.h"
 #include "user_message.h"
 
-#include <mozjs/js/Initialization.h>
+#include <js/Initialization.h>
 
 // Script TypeLib
 ITypeLibPtr g_typelib;

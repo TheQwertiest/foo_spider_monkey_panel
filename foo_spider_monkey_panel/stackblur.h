@@ -353,7 +353,7 @@ void stackblur(unsigned char* src, ///< input image data
 	if (radius > 254) return;
 	if (radius < 2) return;
 
-	unsigned int cores = max(static_cast<t_size>(1), pfc::getOptimalWorkerThreadCount());
+	unsigned int cores = std::max(static_cast<t_size>(1), pfc::getOptimalWorkerThreadCount());
 	unsigned int div = (radius * 2) + 1;
 	unsigned char* stack = new unsigned char[div * 4 * cores];
 

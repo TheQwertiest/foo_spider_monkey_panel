@@ -477,7 +477,7 @@ bool js_panel_window::script_load()
 {
      mozjs::JsEngine& jsEnv = mozjs::JsEngine::GetInstance();
      jsEnv.CreateGlobalObject( jsGlobalObject_ );
-     jsEnv.ExecuteScript( jsGlobalObject_ );
+     jsEnv.ExecuteScript( jsGlobalObject_, get_script_code().c_str() );
 
 	pfc::hires_timer timer;
 	timer.start();

@@ -173,7 +173,7 @@ private:
 
 public:
 	KMeans(int K, int total_points, int max_iterations) {
-		this->K = min(max(K, 14), total_points);
+		this->K = std::min( std::max(K, 14), total_points);
 		this->total_points = total_points;
 		this->colour_components = NUM_COLOUR_COMPONENTS;
 		this->max_iterations = max_iterations;

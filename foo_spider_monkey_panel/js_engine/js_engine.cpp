@@ -2,6 +2,8 @@
 
 #include "js_engine.h"
 
+#include <js/Conversions.h>
+
 // TODO: add error checking
 
 namespace
@@ -27,6 +29,42 @@ static JSClass globalClass = {
      &globalOps
 };
 
+static bool
+Log( JSContext* cx, unsigned argc, JS::Value* vp )
+{
+     JS::CallArgs args = JS::CallArgsFromVp( argc, vp );
+
+     std::string outputString;
+
+     for ( unsigned i = 0; i < args.length(); i++ )
+     {
+          JS::RootedString str( cx, JS::ToString( cx, args[i] ) );
+          if ( !str )
+          {
+               return false;
+          }
+
+          char* bytes = JS_EncodeStringToUTF8( cx, str );
+          if ( !bytes )
+          {
+               return false;
+          }
+
+          outputString += bytes;
+
+          JS_free( cx, bytes );
+     }
+
+     args.rval().setUndefined();
+
+     console::printf( outputString.c_str() );
+     return true;
+}
+
+static const JSFunctionSpec console_functions[] = {
+     JS_FN( "log", Log, 0, 0 ),
+     JS_FS_END
+};
 }
 
 namespace mozjs
@@ -80,28 +118,25 @@ void JsEngine::Finalize()
      }
 }
 
-void JsEngine::ExecuteScript( JS::HandleObject globalObject )
+void JsEngine::ExecuteScript( JS::HandleObject globalObject, std::string_view scriptCode )
 {
      JSAutoRequest ar( pJsCtx_ );
      JS::RootedValue rval( pJsCtx_ );
      {
           JSAutoCompartment ac( pJsCtx_, globalObject );
-
-          const char *script = "'hello'+'world, it is '+new Date()";
+          
           const char *filename = "noname";
           int lineno = 1;
           JS::CompileOptions opts( pJsCtx_ );
           opts.setFileAndLine( filename, lineno );
-          bool ok = JS::Evaluate( pJsCtx_, opts, script, strlen( script ), &rval );
+          bool ok = JS::Evaluate( pJsCtx_, opts, scriptCode.data(), scriptCode.length(), &rval );
           if ( !ok )
           {
+               JS_ClearPendingException( pJsCtx_ );
                console::printf( JSP_NAME " Evaluate faul =(\n" );
                return;
           }
      }
-
-     JSString *str = rval.toString();
-     console::printf( JSP_NAME " (%s)\n", JS_EncodeString( pJsCtx_, str ) );
 }
 
 JsEngine& JsEngine::GetInstance()
@@ -130,6 +165,14 @@ void JsEngine::CreateGlobalObject( JS::PersistentRootedObject& globalObject )
           JSAutoCompartment ac( pJsCtx_, glob );
 
           if ( !JS_InitStandardClasses( pJsCtx_, glob ) )
+          {
+               return;
+          }
+
+          JS::RootedObject consoleObj( pJsCtx_, JS_NewPlainObject( pJsCtx_ ) );
+          if ( !consoleObj
+               || !JS_DefineFunctions( pJsCtx_, consoleObj, console_functions )
+               || !JS_DefineProperty( pJsCtx_, glob, "console", consoleObj, 0 ) )
           {
                return;
           }

@@ -1,8 +1,9 @@
 #pragma once
 
 #pragma warning( push )  
-#pragma warning( disable : 4251 )  
-#include <mozjs/jsapi.h>
+#pragma warning( disable : 4251 ) // dll interface warning
+#pragma warning( disable : 4996 ) // C++17 deprecation warning
+#include <jsapi.h>
 #pragma warning( pop )  
 
 #include "host.h"

@@ -2905,7 +2905,7 @@ STDMETHODIMP GdiBitmap::GetColourScheme(UINT count, VARIANT* outArray)
 	// Sorting
 	typedef std::pair<unsigned, int> sort_vec_pair_t;
 	std::vector<sort_vec_pair_t> sort_vec(color_counters.begin(), color_counters.end());
-	count = min(count, sort_vec.size());
+	count = std::min(count, sort_vec.size());
 	std::partial_sort(
 		sort_vec.begin(),
 		sort_vec.begin() + count,
@@ -2943,7 +2943,7 @@ STDMETHODIMP GdiBitmap::GetColourSchemeJSON(UINT count, BSTR* outJson)
 	Gdiplus::BitmapData bmpdata;
 
 	// rescaled image will have max of ~48k pixels
-	int w = min(m_ptr->GetWidth(), static_cast<UINT>( 220 )), h = min(m_ptr->GetHeight(), static_cast<UINT>( 220 ) );
+	int w = std::min(m_ptr->GetWidth(), static_cast<UINT>( 220 )), h = std::min(m_ptr->GetHeight(), static_cast<UINT>( 220 ) );
 
 	Gdiplus::Bitmap* bitmap = new Gdiplus::Bitmap(w, h, PixelFormat32bppPARGB);
 	Gdiplus::Graphics g(bitmap);
@@ -3005,7 +3005,7 @@ STDMETHODIMP GdiBitmap::GetColourSchemeJSON(UINT count, BSTR* outJson)
 	});
 
 	json j;
-	t_size outCount = min(count, colour_counters.size());
+	t_size outCount = std::min(count, colour_counters.size());
 	for (t_size i = 0; i < outCount; ++i)
 	{
 		int colour = 0xff000000 | (int)clusters[i].getCentralValue(0) << 16 | (int)clusters[i].getCentralValue(1) << 8 | (int)clusters[i].getCentralValue(2);

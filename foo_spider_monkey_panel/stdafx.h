@@ -6,11 +6,14 @@
 
 #define TO_VARIANT_BOOL(v) ((v) ? (VARIANT_TRUE) : (VARIANT_FALSE))
 
-// For min max conflicts
+// Fix std min max conflicts
 #define NOMINMAX
-
 #include <algorithm>
-using namespace std;
+namespace Gdiplus
+{
+using std::min;
+using std::max;
+};
 
 #include <WinSock2.h>
 #include <Windows.h>
