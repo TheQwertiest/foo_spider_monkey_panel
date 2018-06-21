@@ -8,174 +8,175 @@
 // TODO: think about moving context creation somewhere above 
 // to avoid it's recreation when working with single panel
 
+
 namespace mozjs
 {
 
 JsEngine::JsEngine()
-     : pJsCtx_( nullptr )   
-     , globalObjectCount_(0)
+    : pJsCtx_( nullptr )
+    , globalObjectCount_( 0 )
 {
 }
 
 JsEngine::~JsEngine()
 {
-     Finalize();
+    Finalize();
 }
 
 JsEngine& JsEngine::GetInstance()
 {
-     static JsEngine jsEnv;
-     return jsEnv;
+    static JsEngine jsEnv;
+    return jsEnv;
 }
 
 bool JsEngine::CreateGlobalObject( JS::PersistentRootedObject& globalObject )
 {
-     if ( !globalObjectCount_ )
-     {
-          if ( !Initialize() )
-          {
-               return false;
-          }
-     }
+    if (!globalObjectCount_)
+    {
+        if (!Initialize())
+        {
+            return false;
+        }
+    }
 
-     JS::RootedObject newGlobal( pJsCtx_, mozjs::CreateGlobalObject( pJsCtx_ ) );
-     if ( !newGlobal )
-     {
-          return false;
-     }
+    JS::RootedObject newGlobal( pJsCtx_, mozjs::CreateGlobalObject( pJsCtx_ ) );
+    if (!newGlobal)
+    {
+        return false;
+    }
 
-     globalObject.init( pJsCtx_, newGlobal );
-     ++globalObjectCount_;
+    globalObject.init( pJsCtx_, newGlobal );
+    ++globalObjectCount_;
 
-     return true;
+    return true;
 }
 
 void JsEngine::DestroyGlobalObject( JS::PersistentRootedObject& globalObject )
 {
-     if ( !globalObject.initialized() )
-     {
-          return;
-     }
+    if (!globalObject.initialized())
+    {
+        return;
+    }
 
-     assert( globalObjectCount_ > 0 );
+    assert( globalObjectCount_ > 0 );
 
-     globalObject.reset();
-     --globalObjectCount_;
+    globalObject.reset();
+    --globalObjectCount_;
 
-     if ( !globalObjectCount_ )
-     {
-          Finalize();
-     }
+    if (!globalObjectCount_)
+    {
+        Finalize();
+    }
 }
 
 bool JsEngine::ExecuteScript( JS::HandleObject globalObject, std::string_view scriptCode )
 {
-     assert( pJsCtx_ );
-     assert( !!globalObject );
+    assert( pJsCtx_ );
+    assert( !!globalObject );
 
-     JSAutoRequest ar( pJsCtx_ );
-     JSAutoCompartment ac( pJsCtx_, globalObject );
+    JSAutoRequest ar( pJsCtx_ );
+    JSAutoCompartment ac( pJsCtx_, globalObject );
 
-     const char *filename = "noname";
-     int lineno = 1;
-     JS::CompileOptions opts( pJsCtx_ );
-     opts.setFileAndLine( filename, lineno );
+    const char *filename = "noname";
+    int lineno = 1;
+    JS::CompileOptions opts( pJsCtx_ );
+    opts.setFileAndLine( filename, lineno );
 
-     JS::RootedValue rval( pJsCtx_ );
-     bool bRet = JS::Evaluate( pJsCtx_, opts, scriptCode.data(), scriptCode.length(), &rval );
-     if ( !bRet )
-     {
-          JS_ClearPendingException( pJsCtx_ );
-          console::printf( JSP_NAME "JS::Evaluate failed\n" );
-          return false;
-     }
+    JS::RootedValue rval( pJsCtx_ );
+    bool bRet = JS::Evaluate( pJsCtx_, opts, scriptCode.data(), scriptCode.length(), &rval );
+    if (!bRet)
+    {
+        JS_ClearPendingException( pJsCtx_ );
+        console::printf( JSP_NAME "JS::Evaluate failed\n" );
+        return false;
+    }
 
-     JS::AutoReportException
-
-     return true;
+    return true;
 }
 
-bool JsEngine::InbokeCallback( std::string_view functionName, JS::HandleObject globalObject,
-                               const JS::HandleValueArray& args, JS::MutableHandleValue rval )
+bool JsEngine::InvokeCallbackInternal( JS::HandleObject globalObject,
+                                       std::string_view functionName,
+                                       const JS::HandleValueArray& args,
+                                       JS::MutableHandleValue rval )
 {
-     assert( pJsCtx_ );
-     assert( !!globalObject );
-     assert( functionName.length() );
+    assert( pJsCtx_ );
+    assert( !!globalObject );
+    assert( functionName.length() );
 
-     JSAutoRequest ar( pJsCtx_ );
-     JSAutoCompartment ac( pJsCtx_, globalObject );
+    JSAutoRequest ar( pJsCtx_ );
+    JSAutoCompartment ac( pJsCtx_, globalObject );
 
-     JS::RootedValue funcValue( pJsCtx_ );
-     if ( !JS_GetProperty( pJsCtx_, globalObject, functionName.data(), &funcValue ) )
-     {
-          return false;
-     }
+    JS::RootedValue funcValue( pJsCtx_ );
+    if (!JS_GetProperty( pJsCtx_, globalObject, functionName.data(), &funcValue ))
+    {
+        return false;
+    }
 
-     if ( funcValue.isUndefined() )
-     {// not an error
-          return true;
-     }
+    if (funcValue.isUndefined())
+    {// not an error
+        return true;
+    }
 
-     JS::RootedFunction func( pJsCtx_, JS_ValueToFunction(pJsCtx_, funcValue ) );
-     if ( !func )
-     {
-          return false;
-     }
+    JS::RootedFunction func( pJsCtx_, JS_ValueToFunction( pJsCtx_, funcValue ) );
+    if (!func)
+    {
+        return false;
+    }
 
-     if ( !JS::Call( pJsCtx_, globalObject, func, args, rval ) )
-     {
-          JS_ClearPendingException( pJsCtx_ );
-          console::printf( JSP_NAME "JS::JS_Call failed\n" );
-          return false;
-     }
+    if (!JS::Call( pJsCtx_, globalObject, func, args, rval ))
+    {
+        JS_ClearPendingException( pJsCtx_ );
+        console::printf( JSP_NAME "JS::JS_Call failed\n" );
+        return false;
+    }
 
-     return true;
+    return true;
 }
 
 bool JsEngine::Initialize()
 {
-     Finalize();
+    Finalize();
 
-     // TODO: Fine tune heap settings 
-     JSContext* pJsCtx = JS_NewContext( 1024L * 1024 * 1024 );
-     if ( !pJsCtx )
-     {
-          return false;
-     }
+    // TODO: Fine tune heap settings 
+    JSContext* pJsCtx = JS_NewContext( 1024L * 1024 * 1024 );
+    if (!pJsCtx)
+    {
+        return false;
+    }
 
-     std::unique_ptr<JSContext, void( *)( JSContext * )> autoJsCtx(
-          pJsCtx,
-          []( JSContext* pCtx )
-          {
-               JS_DestroyContext( pCtx );
-          }
-     );
+    std::unique_ptr<JSContext, void( *)(JSContext *)> autoJsCtx(
+        pJsCtx,
+        []( JSContext* pCtx )
+    {
+        JS_DestroyContext( pCtx );
+    }
+    );
 
-     // TODO: JS::SetWarningReporter( pJsCtx_ )
+    // TODO: JS::SetWarningReporter( pJsCtx_ )
 
-     if ( !JS::InitSelfHostedCode( pJsCtx ) )
-     {
-          return false;
-     }
+    if (!JS::InitSelfHostedCode( pJsCtx ))
+    {
+        return false;
+    }
 
-     pJsCtx_ = autoJsCtx.release();
+    pJsCtx_ = autoJsCtx.release();
 
-     return true;
+    return true;
 }
 
 void JsEngine::Finalize()
 {
-     if ( pJsCtx_ )
-     {
-          JS_DestroyContext( pJsCtx_ );
-          pJsCtx_ = NULL;
-     }
+    if (pJsCtx_)
+    {
+        JS_DestroyContext( pJsCtx_ );
+        pJsCtx_ = NULL;
+    }
 }
 
 JSContext * JsEngine::GetJsContext() const
 {
-     assert( pJsCtx_ );
-     return pJsCtx_;
+    assert( pJsCtx_ );
+    return pJsCtx_;
 }
 
 }

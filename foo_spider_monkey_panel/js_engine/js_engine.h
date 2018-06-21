@@ -1,10 +1,8 @@
 #pragma once
 
-#pragma warning( push )  
-#pragma warning( disable : 4251 ) // dll interface warning
-#pragma warning( disable : 4996 ) // C++17 deprecation warning
-#include <jsapi.h>
-#pragma warning( pop )  
+#include "js_value_converter.h"
+
+#include <optional>
 
 namespace mozjs
 {
@@ -12,32 +10,77 @@ namespace mozjs
 class JsEngine final
 {
 public:
-     JsEngine();
-     ~JsEngine();
+    ~JsEngine();
 
-     static JsEngine& GetInstance();
+    static JsEngine& GetInstance();
 
 public:
-     JSContext * GetJsContext() const;
+    JSContext * GetJsContext() const;
 
-     bool CreateGlobalObject( JS::PersistentRootedObject& globalObject );
-     void DestroyGlobalObject( JS::PersistentRootedObject& globalObject );
+    bool CreateGlobalObject( JS::PersistentRootedObject& globalObject );
+    void DestroyGlobalObject( JS::PersistentRootedObject& globalObject );
 
-     bool ExecuteScript( JS::HandleObject globalObject, std::string_view scriptCode );
-     bool InbokeCallback( std::string_view functionName, JS::HandleObject globalObject, 
-                          const JS::HandleValueArray& args, JS::MutableHandleValue rval );
+    bool ExecuteScript( JS::HandleObject globalObject, std::string_view scriptCode );
+
+    template <typename ReturnType, typename... Args>
+    std::optional<ReturnType> InvokeCallback( JS::HandleObject globalObject,
+                                              std::string_view functionName,
+                                              Args&&... args )
+    {
+        JS::AutoValueArray<sizeof...(Args)> wrappedArgs( pJsCtx_ );
+        mozjs::WrapArguments( wrappedArgs, 0, args... );
+
+        JS::RootedValue retVal( pJsCtx_ );
+        if (!InvokeCallbackInternal( globalObject, functionName, wrappedArgs, &retVal ))
+        {
+            return std::nullopt;
+        }
+
+        ReturnType unwrappedRetVal;
+        if (mozjs::UnwrapValue( retVal, unwrappedRetVal ))
+        {
+            return std::nullopt;
+        }
+
+        return std::optional<ReturnType>{unwrappedRetVal};
+    }
+
+    template <typename ReturnType>
+    std::optional<ReturnType> InvokeCallback( JS::HandleObject globalObject,
+                                              std::string_view functionName )
+    {        
+        JS::RootedValue retVal( pJsCtx_ );
+        if (!InvokeCallbackInternal( globalObject, functionName, JS::HandleValueArray::empty(), &retVal ))
+        {
+            return std::nullopt;
+        }
+
+        ReturnType unwrappedRetVal;
+        if (mozjs::UnwrapValue( retVal, unwrappedRetVal ))
+        {
+            return std::nullopt;
+        }
+
+        return std::optional<ReturnType>{unwrappedRetVal};
+    }
 
 private:
-     JsEngine( const JsEngine& );
+    JsEngine();
+    JsEngine( const JsEngine& );
 
 private:
-     bool Initialize();
-     void Finalize();
+    bool Initialize();
+    void Finalize();
+
+    bool InvokeCallbackInternal( JS::HandleObject globalObject,
+                                 std::string_view functionName,
+                                 const JS::HandleValueArray& args,
+                                 JS::MutableHandleValue rval );
 
 private:
-     JSContext * pJsCtx_;
+    JSContext * pJsCtx_;
 
-     uint32_t globalObjectCount_;
+    uint32_t globalObjectCount_;
 };
 
 }

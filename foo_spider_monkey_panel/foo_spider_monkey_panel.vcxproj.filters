@@ -36,6 +36,9 @@
     <ClCompile Include="js_engine\js_console.cpp">
       <Filter>js_engine</Filter>
     </ClCompile>
+    <ClCompile Include="js_engine\js_value_converter.cpp">
+      <Filter>js_engine</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\PropertyList\PropertyItem.h" />
@@ -86,6 +89,9 @@
       <Filter>js_engine</Filter>
     </ClInclude>
     <ClInclude Include="js_engine\js_console.h">
+      <Filter>js_engine</Filter>
+    </ClInclude>
+    <ClInclude Include="js_engine\js_value_converter.h">
       <Filter>js_engine</Filter>
     </ClInclude>
   </ItemGroup>
