@@ -18,11 +18,14 @@ public:
      static JsEngine& GetInstance();
 
 public:
-     bool ExecuteScript( JS::HandleObject globalObject, std::string_view scriptCode );
-     bool InbokeCallback();
+     JSContext * GetJsContext() const;
 
      bool CreateGlobalObject( JS::PersistentRootedObject& globalObject );
      void DestroyGlobalObject( JS::PersistentRootedObject& globalObject );
+
+     bool ExecuteScript( JS::HandleObject globalObject, std::string_view scriptCode );
+     bool InbokeCallback( std::string_view functionName, JS::HandleObject globalObject, 
+                          const JS::HandleValueArray& args, JS::MutableHandleValue rval );
 
 private:
      JsEngine( const JsEngine& );

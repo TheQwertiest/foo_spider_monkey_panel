@@ -474,10 +474,9 @@ void js_panel_window::execute_context_menu_command(int id, int id_base)
 }
 
 bool js_panel_window::script_load()
-{
-     bool bRet;
+{      
      mozjs::JsEngine& jsEnv = mozjs::JsEngine::GetInstance();
-     bRet = jsEnv.CreateGlobalObject( jsGlobalObject_ );
+     bool bRet = jsEnv.CreateGlobalObject( jsGlobalObject_ );
      if (!bRet)
      {
           return false;
@@ -1218,6 +1217,18 @@ void js_panel_window::on_size(int w, int h)
 	create_context();
 
 	script_invoke_v(CallbackIds::on_size);
+
+     if ( jsGlobalObject_ )
+     {
+          mozjs::JsEngine& jsEnv = mozjs::JsEngine::GetInstance();
+
+          JS::AutoValueArray<2> args( jsEnv.GetJsContext() );
+          args[0].setInt32( w );
+          args[1].setInt32( h );
+
+          JS::RootedValue retVal( jsEnv.GetJsContext() );
+          jsEnv.InbokeCallback( "on_size", jsGlobalObject_, args, &retVal );
+     }
 }
 
 void js_panel_window::on_volume_change(WPARAM wp)
