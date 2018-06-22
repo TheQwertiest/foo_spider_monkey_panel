@@ -39,7 +39,7 @@
     <ClCompile Include="js_objects\gdi_graphics.cpp">
       <Filter>js_objects</Filter>
     </ClCompile>
-    <ClCompile Include="js_engine\js_value_wrapper.cpp">
+    <ClCompile Include="js_engine\js_value_converter.cpp">
       <Filter>js_engine</Filter>
     </ClCompile>
   </ItemGroup>
@@ -97,10 +97,10 @@
     <ClInclude Include="js_objects\gdi_graphics.h">
       <Filter>js_objects</Filter>
     </ClInclude>
-    <ClInclude Include="js_engine\js_value_wrapper.h">
+    <ClInclude Include="js_engine\js_native_invoker.h">
       <Filter>js_engine</Filter>
     </ClInclude>
-    <ClInclude Include="js_engine\js_native_invoker.h">
+    <ClInclude Include="js_engine\js_value_converter.h">
       <Filter>js_engine</Filter>
     </ClInclude>
   </ItemGroup>

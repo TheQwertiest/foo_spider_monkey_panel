@@ -29,10 +29,8 @@ auto JsToNativeValueTuple( const JS::CallArgs& jsArgs, FuncType&& func )
 template <typename BaseClass, typename FuncType, typename ... ArgTypes>
 bool InvokeNativeCallback( JSContext* cx, FuncType( BaseClass::*fnCallback )(ArgTypes ...), unsigned argc, JS::Value* vp )
 {
-    constexpr size_t argCount = std::integral_constant<unsigned, sizeof ...(ArgTypes)>{};
-    
     JS::CallArgs args = JS::CallArgsFromVp( argc, vp );        
-    if ( args.length() != argCount )
+    if ( args.length() != sizeof ...(ArgTypes) )
     {
         //JS_ReportErrorNumberASCII( cx, my_GetErrorMessage, nullptr,
         //args.length() < 1 ? JSSMSG_NOT_ENOUGH_ARGS : JSSMSG_TOO_MANY_ARGS,
@@ -42,7 +40,7 @@ bool InvokeNativeCallback( JSContext* cx, FuncType( BaseClass::*fnCallback )(Arg
 
     bool bRet = true;
     auto callbackArguments =
-        JsToNativeValueTuple<argCount, ArgTypes...>( args,
+        JsToNativeValueTuple<sizeof ...(ArgTypes), ArgTypes...>( args,
                                                      [&]( const JS::CallArgs& jsArgs, auto argTypeStruct, size_t index )
     {
         using ArgType = typename decltype(argTypeStruct)::type;
@@ -60,6 +58,8 @@ bool InvokeNativeCallback( JSContext* cx, FuncType( BaseClass::*fnCallback )(Arg
     {
         return false;
     }
+
+    args.rval().setUndefined();
 
     return std::apply( fnCallback, std::tuple_cat( std::make_tuple( baseClass ), callbackArguments ) );
 }
