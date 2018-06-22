@@ -1,6 +1,6 @@
 #include <stdafx.h>
 
-#include "js_value_converter.h"
+#include "js_value_wrapper.h"
 
 
 namespace mozjs

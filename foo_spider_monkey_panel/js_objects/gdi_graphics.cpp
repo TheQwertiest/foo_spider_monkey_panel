@@ -2,7 +2,8 @@
 
 #include "gdi_graphics.h"
 
-#include <js_engine/js_value_converter.h>
+#include <js_engine/js_value_wrapper.h>
+#include <js_engine/js_native_invoker.h>
 
 namespace
 {
@@ -31,37 +32,9 @@ static JSClass gdiGraphicsClass = {
 
 bool DrawRect( JSContext* cx, unsigned argc, JS::Value* vp )
 {
-    JS::CallArgs args = JS::CallArgsFromVp( argc, vp );
-
-    if ( args.length() != 6 )
-    {
-        //JS_ReportErrorNumberASCII( cx, my_GetErrorMessage, nullptr,
-                                   //args.length() < 1 ? JSSMSG_NOT_ENOUGH_ARGS : JSSMSG_TOO_MANY_ARGS,
-                                   //"evaluate" );
-        return false;
-    }
-
-    float x, y, w, h, line_width;
-    uint32_t colour;
-
-    if ( !UnwrapValue( args[0], x ) 
-         || !UnwrapValue( args[1], y ) 
-         || !UnwrapValue( args[2], w )
-         || !UnwrapValue( args[3], h ) 
-         || !UnwrapValue( args[4], line_width ) 
-         || !UnwrapValue( args[5], colour ) )
-    {
-        return false;
-    }
-
-    
-    auto pGdiGraphics = static_cast<JsGdiGraphics*>( JS_GetPrivate( args.thisv().toObjectOrNull() ) );
-    if ( !pGdiGraphics )
-    {
-        return false;
-    }
-
-    return pGdiGraphics->DrawRect(x, y, w, h, line_width, colour);
+    return InvokeNativeCallback<
+        JsGdiGraphics
+    >( cx, &JsGdiGraphics::DrawRect, argc, vp );
 }
 
 static const JSFunctionSpec gdiGraphicsFunctions[] = {

@@ -9,7 +9,6 @@
 namespace mozjs
 {
 
-
 bool WrapValue( JSContext * cx, JS::HandleObject inValue, JS::MutableHandleValue wrappedValue );
 
 template <typename InType>

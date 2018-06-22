@@ -102,7 +102,7 @@
     <ClCompile Include="js_engine\js_console.cpp" />
     <ClCompile Include="js_engine\js_engine.cpp" />
     <ClCompile Include="js_engine\js_global_object.cpp" />
-    <ClCompile Include="js_engine\js_value_converter.cpp" />
+    <ClCompile Include="js_engine\js_value_wrapper.cpp" />
     <ClCompile Include="js_objects\gdi_graphics.cpp" />
     <ClCompile Include="js_panel_window.cpp" />
     <ClCompile Include="js_panel_window_cui.cpp" />
@@ -135,7 +135,8 @@
     <ClInclude Include="js_engine\js_console.h" />
     <ClInclude Include="js_engine\js_engine.h" />
     <ClInclude Include="js_engine\js_global_object.h" />
-    <ClInclude Include="js_engine\js_value_converter.h" />
+    <ClInclude Include="js_engine\js_native_invoker.h" />
+    <ClInclude Include="js_engine\js_value_wrapper.h" />
     <ClInclude Include="js_objects\gdi_graphics.h" />
     <ClInclude Include="kmeans.h" />
     <ClInclude Include="SString.h" />
