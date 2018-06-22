@@ -487,10 +487,12 @@ bool js_panel_window::script_load()
 
     if ( !jsGraphicsObject_ )
     {
-        JSAutoRequest ar( jsEnv.GetJsContext() );
-        JSAutoCompartment ac( jsEnv.GetJsContext(), jsGlobalObject_ );
-        jsGraphicsObject_.init( jsEnv.GetJsContext(),
-                                mozjs::JsGdiGraphics::Create( jsEnv.GetJsContext(), jsGlobalObject_ ) );
+        // TODO: hide GetJsContext() and wrap jsGlobalObject_
+        jsGraphicsObject_.reset( mozjs::JsObjectWrapper<mozjs::JsGdiGraphics>::Create( jsEnv.GetJsContext(), jsGlobalObject_ ) );
+        if ( !jsGraphicsObject_ )
+        {
+            return false;
+        }
     }
 
     bRet = jsEnv.ExecuteScript( jsGlobalObject_, get_script_code().c_str() );
@@ -1047,7 +1049,7 @@ void js_panel_window::on_paint_user( HDC memdc, LPRECT lpUpdateRect )
         // SetClip() may improve performance slightly
         gr.SetClip( rect );
 
-        auto pGdiGraphics = static_cast<mozjs::JsGdiGraphics*>( JS_GetPrivate( jsGraphicsObject_ ) );
+        auto pGdiGraphics = jsGraphicsObject_->GetWrappedObject();
         if ( pGdiGraphics )
         {
             pGdiGraphics->SetGraphicsObject( &gr );
@@ -1055,7 +1057,7 @@ void js_panel_window::on_paint_user( HDC memdc, LPRECT lpUpdateRect )
             mozjs::JsEngine::GetInstance().
                 InvokeCallback( jsGlobalObject_,
                                 "on_paint",
-                                static_cast<JS::HandleObject>(jsGraphicsObject_) );
+                                jsGraphicsObject_->GetJsObject() );
 
             pGdiGraphics->SetGraphicsObject( NULL );
         }

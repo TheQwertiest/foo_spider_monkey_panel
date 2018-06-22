@@ -103,6 +103,9 @@
     <ClInclude Include="js_engine\js_value_converter.h">
       <Filter>js_engine</Filter>
     </ClInclude>
+    <ClInclude Include="js_objects\js_object_wrapper.h">
+      <Filter>js_objects</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="foo_spider_monkey_panel.rc" />

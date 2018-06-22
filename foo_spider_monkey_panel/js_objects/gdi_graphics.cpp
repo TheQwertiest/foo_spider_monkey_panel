@@ -83,27 +83,20 @@ JsGdiGraphics::~JsGdiGraphics()
 {
 }
 
-JSObject* JsGdiGraphics::Create( JSContext* cx, JS::HandleObject global )
+JSObject* JsGdiGraphics::Create( JSContext* cx )
 {
-    JSAutoRequest ar( cx );
-    JS::CompartmentOptions options;
     JS::RootedObject jsObj( cx,
                             JS_NewObject( cx, &gdiGraphicsClass ) );
     if ( !jsObj )
     {
         return nullptr;
     }
-
-    {
-        JSAutoCompartment ac( cx, global );
-
         if ( !JS_DefineFunctions( cx, jsObj, gdiGraphicsFunctions ) )
         {
             return nullptr;
         }
 
         JS_SetPrivate( jsObj, new JsGdiGraphics( cx ) );
-    }
 
     return jsObj;
 }

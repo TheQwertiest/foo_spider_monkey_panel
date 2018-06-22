@@ -7,6 +7,8 @@
 #pragma warning( pop )  
 
 #include "host.h"
+#include "js_objects/gdi_graphics.h"
+#include "js_objects/js_object_wrapper.h"
 
 class js_panel_window : public HostComm, public ui_helpers::container_window
 {
@@ -26,7 +28,7 @@ protected:
 
 private:
     JS::PersistentRootedObject jsGlobalObject_;
-    JS::PersistentRootedObject jsGraphicsObject_;
+    std::unique_ptr<mozjs::JsObjectWrapper<mozjs::JsGdiGraphics>> jsGraphicsObject_;
 
 	CComPtr<IDropTargetImpl> m_drop_target;
 	IGdiGraphicsPtr m_gr_wrap;

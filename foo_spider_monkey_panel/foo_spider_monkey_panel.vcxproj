@@ -138,6 +138,7 @@
     <ClInclude Include="js_engine\js_native_invoker.h" />
     <ClInclude Include="js_engine\js_value_converter.h" />
     <ClInclude Include="js_objects\gdi_graphics.h" />
+    <ClInclude Include="js_objects\js_object_wrapper.h" />
     <ClInclude Include="kmeans.h" />
     <ClInclude Include="SString.h" />
     <ClInclude Include="com_tools.h" />

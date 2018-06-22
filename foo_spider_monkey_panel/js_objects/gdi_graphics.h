@@ -14,7 +14,7 @@ class JsGdiGraphics
 public:
     ~JsGdiGraphics();
     
-    static JSObject* Create( JSContext* cx, JS::HandleObject global );
+    static JSObject* Create( JSContext* cx );
 
     void SetGraphicsObject( Gdiplus::Graphics* graphics );
 
