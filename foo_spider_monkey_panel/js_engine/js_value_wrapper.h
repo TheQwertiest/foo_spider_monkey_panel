@@ -9,52 +9,40 @@
 namespace mozjs
 {
 
-bool WrapValue( JSContext * cx, JS::HandleObject inValue, JS::MutableHandleValue wrappedValue );
+bool NativeToJsValue( JSContext * cx, JS::HandleObject inValue, JS::MutableHandleValue wrappedValue );
 
 template <typename InType>
-bool WrapValue( JSContext * cx, const InType& inValue, JS::MutableHandleValue wrappedValue );
+bool NativeToJsValue( JSContext * cx, const InType& inValue, JS::MutableHandleValue wrappedValue );
 
 template <>
-bool WrapValue<bool>( JSContext * cx, const bool& inValue, JS::MutableHandleValue wrappedValue );
+bool NativeToJsValue<bool>( JSContext * cx, const bool& inValue, JS::MutableHandleValue wrappedValue );
 
 template <>
-bool WrapValue<int32_t>( JSContext * cx, const int32_t& inValue, JS::MutableHandleValue wrappedValue );
+bool NativeToJsValue<int32_t>( JSContext * cx, const int32_t& inValue, JS::MutableHandleValue wrappedValue );
 
 template <>
-bool WrapValue<double>( JSContext * cx, const double& inValue, JS::MutableHandleValue wrappedValue );
+bool NativeToJsValue<double>( JSContext * cx, const double& inValue, JS::MutableHandleValue wrappedValue );
 
 template <>
-bool WrapValue<std::nullptr_t>( JSContext * cx, const std::nullptr_t& inValue, JS::MutableHandleValue wrappedValue );
+bool NativeToJsValue<std::nullptr_t>( JSContext * cx, const std::nullptr_t& inValue, JS::MutableHandleValue wrappedValue );
 
 template <typename ReturnType>
-bool UnwrapValue( const JS::HandleValue& jsValue, ReturnType& unwrappedValue );
+bool JsToNativeValue( const JS::HandleValue& jsValue, ReturnType& unwrappedValue );
 
 template <>
-bool UnwrapValue<bool>( const JS::HandleValue& jsValue, bool& unwrappedValue );
+bool JsToNativeValue<bool>( const JS::HandleValue& jsValue, bool& unwrappedValue );
 
 template <>
-bool UnwrapValue<int32_t>( const JS::HandleValue& jsValue, int32_t& unwrappedValue );
+bool JsToNativeValue<int32_t>( const JS::HandleValue& jsValue, int32_t& unwrappedValue );
 
 template <>
-bool UnwrapValue<float>( const JS::HandleValue& jsValue, float& unwrappedValue );
+bool JsToNativeValue<float>( const JS::HandleValue& jsValue, float& unwrappedValue );
 
 template <>
-bool UnwrapValue<double>( const JS::HandleValue& jsValue, double& unwrappedValue );
+bool JsToNativeValue<double>( const JS::HandleValue& jsValue, double& unwrappedValue );
 
 template <>
-bool UnwrapValue<std::nullptr_t>( const JS::HandleValue& jsValue, std::nullptr_t& unwrappedValue );
+bool JsToNativeValue<std::nullptr_t>( const JS::HandleValue& jsValue, std::nullptr_t& unwrappedValue );
 
-template <int ArgArraySize, typename ArgType, typename... Args>
-bool WrapArguments( JSContext * cx, JS::AutoValueArray<ArgArraySize>& wrappedArgs, uint8_t argIndex, ArgType arg, Args&&... args )
-{
-    return WrapValue( cx, arg, wrappedArgs[argIndex] )
-        && WrapArguments( cx, wrappedArgs, argIndex + 1, args... );
-}
-
-template <int ArgArraySize>
-bool WrapArguments( JSContext * cx, JS::AutoValueArray<ArgArraySize>& wrappedArgs, uint8_t argIndex )
-{
-    return true;
-}
 
 }

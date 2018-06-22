@@ -33,7 +33,7 @@ public:
         if constexpr ( sizeof...( Args ) > 0 )
         {
             JS::AutoValueArray<sizeof...( Args )> wrappedArgs( pJsCtx_ );
-            if ( !mozjs::WrapArguments( pJsCtx_, wrappedArgs, 0, args... ) )
+            if ( !NativeToJsArguments( pJsCtx_, wrappedArgs, 0, args... ) )
             {
                 return std::nullopt;
             }
@@ -52,7 +52,7 @@ public:
         }
 
         ReturnType unwrappedRetVal;
-        if ( !mozjs::UnwrapValue( retVal, unwrappedRetVal ) )
+        if ( !mozjs::JsToNativeValue( retVal, unwrappedRetVal ) )
         {
             return std::nullopt;
         }
@@ -62,7 +62,7 @@ public:
 
 private:
     JsEngine();
-    JsEngine( const JsEngine& );
+    JsEngine( const JsEngine& ) = delete;
 
 private:
     bool Initialize();
@@ -72,6 +72,24 @@ private:
                                  std::string_view functionName,
                                  const JS::HandleValueArray& args,
                                  JS::MutableHandleValue rval );
+
+
+    template <int ArgArraySize, typename ArgType, typename... Args>
+    bool NativeToJsArguments( JSContext * cx, 
+                              JS::AutoValueArray<ArgArraySize>& wrappedArgs, 
+                              uint8_t argIndex, ArgType arg, Args&&... args )
+    {
+        return NativeToJsValue( cx, arg, wrappedArgs[argIndex] )
+            && NativeToJsArguments( cx, wrappedArgs, argIndex + 1, args... );
+    }
+
+    template <int ArgArraySize>
+    bool NativeToJsArguments( JSContext * cx, 
+                              JS::AutoValueArray<ArgArraySize>& wrappedArgs, 
+                              uint8_t argIndex )
+    {
+        return true;
+    }
 
 private:
     JSContext * pJsCtx_;
