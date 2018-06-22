@@ -10,19 +10,19 @@ namespace mozjs
 {
 
 template <typename InType>
-void WrapValue( const InType& inValue, JS::MutableHandleValue wrappedValue );
+bool WrapValue( JSContext * cx, const InType& inValue, JS::MutableHandleValue wrappedValue );
 
 template <>
-void WrapValue<bool>( const bool& inValue, JS::MutableHandleValue wrappedValue );
+bool WrapValue<bool>( JSContext * cx, const bool& inValue, JS::MutableHandleValue wrappedValue );
 
 template <>
-void WrapValue<int32_t>( const int32_t& inValue, JS::MutableHandleValue wrappedValue );
+bool WrapValue<int32_t>( JSContext * cx, const int32_t& inValue, JS::MutableHandleValue wrappedValue );
 
 template <>
-void WrapValue<double>( const double& inValue, JS::MutableHandleValue wrappedValue );
+bool WrapValue<double>( JSContext * cx, const double& inValue, JS::MutableHandleValue wrappedValue );
 
 template <>
-void WrapValue<std::nullptr_t>( const std::nullptr_t& inValue, JS::MutableHandleValue wrappedValue );
+bool WrapValue<std::nullptr_t>( JSContext * cx, const std::nullptr_t& inValue, JS::MutableHandleValue wrappedValue );
 
 template <typename ReturnType>
 bool UnwrapValue( const JS::HandleValue& jsValue, ReturnType& unwrappedValue );
@@ -40,15 +40,16 @@ template <>
 bool UnwrapValue<std::nullptr_t>( const JS::HandleValue& jsValue, std::nullptr_t& unwrappedValue );
 
 template <int ArgArraySize, typename ArgType, typename... Args>
-void WrapArguments( JS::AutoValueArray<ArgArraySize>& wrappedArgs, uint8_t argIndex, ArgType arg, Args&&... args )
+bool WrapArguments( JSContext * cx, JS::AutoValueArray<ArgArraySize>& wrappedArgs, uint8_t argIndex, ArgType arg, Args&&... args )
 {
-    WrapValue( arg, wrappedArgs[argIndex] );
-    WrapArguments( wrappedArgs, argIndex + 1, args... );
+    return WrapValue( cx, arg, wrappedArgs[argIndex] )
+        && WrapArguments( cx, wrappedArgs, argIndex + 1, args... );
 }
 
 template <int ArgArraySize>
-void WrapArguments( JS::AutoValueArray<ArgArraySize>& wrappedArgs, uint8_t argIndex )
+bool WrapArguments( JSContext * cx, JS::AutoValueArray<ArgArraySize>& wrappedArgs, uint8_t argIndex )
 {
+    return true;
 }
 
 }

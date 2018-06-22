@@ -7,33 +7,51 @@ namespace mozjs
 {
 
 template <>
-void WrapValue<bool>( const bool& inValue, JS::MutableHandleValue wrappedValue )
+bool WrapValue<bool>( JSContext *, const bool& inValue, JS::MutableHandleValue wrappedValue )
 {
     wrappedValue.setBoolean( inValue );
+    return true;
 }
 
 template <>
-void WrapValue<int32_t>( const int32_t& inValue, JS::MutableHandleValue wrappedValue )
+bool WrapValue<int32_t>( JSContext *, const int32_t& inValue, JS::MutableHandleValue wrappedValue )
 {
     wrappedValue.setInt32( inValue );
+    return true;
 }
 
 template <>
-void WrapValue<uint32_t>( const uint32_t& inValue, JS::MutableHandleValue wrappedValue )
+bool WrapValue<uint32_t>( JSContext *, const uint32_t& inValue, JS::MutableHandleValue wrappedValue )
 {
     wrappedValue.setNumber( inValue );
+    return true;
 }
 
 template <>
-void WrapValue<double>( const double& inValue, JS::MutableHandleValue wrappedValue )
+bool WrapValue<double>( JSContext *, const double& inValue, JS::MutableHandleValue wrappedValue )
 {
     wrappedValue.setNumber( inValue );
+    return true;
 }
 
 template <>
-void WrapValue<std::nullptr_t>( const std::nullptr_t& inValue, JS::MutableHandleValue wrappedValue )
+bool WrapValue<std::string_view>( JSContext * cx, const std::string_view& inValue, JS::MutableHandleValue wrappedValue )
+{
+    JSString* jsString = JS_NewStringCopyZ( cx, inValue.data() );
+    if ( !jsString )
+    {
+        return false;
+    }
+
+    wrappedValue.setString( jsString );
+    return true;
+}
+
+template <>
+bool WrapValue<std::nullptr_t>( JSContext *, const std::nullptr_t& inValue, JS::MutableHandleValue wrappedValue )
 {
     wrappedValue.setUndefined();
+    return true;
 }
 
 template <>
@@ -51,7 +69,7 @@ bool UnwrapValue<int32_t>( const JS::HandleValue& jsValue, int32_t& unwrappedVal
 template <>
 bool UnwrapValue<uint32_t>( const JS::HandleValue& jsValue, uint32_t& unwrappedValue )
 {
-    return jsValue.isNumber() ? jsValue.toNumber() : false;
+    return jsValue.isNumber() ? static_cast<uint32_t>( jsValue.toNumber() ) : false;
 }
 
 template <>

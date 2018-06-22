@@ -175,6 +175,7 @@
     <ClInclude Include="wtlscintilla.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include=".editorconfig" />
     <None Include="default.js" />
   </ItemGroup>
   <ItemGroup>

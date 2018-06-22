@@ -28,6 +28,10 @@ static bool Log( JSContext* cx, unsigned argc, JS::Value* vp )
           }
 
           outputString += bytes;
+          if ( i < args.length() )
+          {
+              outputString += ' ';
+          }
 
           JS_free( cx, bytes );
      }

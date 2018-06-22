@@ -30,26 +30,29 @@ public:
     {
         JS::RootedValue retVal( pJsCtx_ );
 
-        if constexpr (sizeof...(Args) > 0)
+        if constexpr ( sizeof...( Args ) > 0 )
         {
-            JS::AutoValueArray<sizeof...(Args)> wrappedArgs( pJsCtx_ );
-            mozjs::WrapArguments( wrappedArgs, 0, args... );
+            JS::AutoValueArray<sizeof...( Args )> wrappedArgs( pJsCtx_ );
+            if ( !mozjs::WrapArguments( pJsCtx_, wrappedArgs, 0, args... ) )
+            {
+                return std::nullopt;
+            }
 
-            if (!InvokeCallbackInternal( globalObject, functionName, wrappedArgs, &retVal ))
+            if ( !InvokeCallbackInternal( globalObject, functionName, wrappedArgs, &retVal ) )
             {
                 return std::nullopt;
             }
         }
         else
         {
-            if (!InvokeCallbackInternal( globalObject, functionName, JS::HandleValueArray::empty(), &retVal ))
+            if ( !InvokeCallbackInternal( globalObject, functionName, JS::HandleValueArray::empty(), &retVal ) )
             {
                 return std::nullopt;
             }
         }
 
         ReturnType unwrappedRetVal;
-        if (mozjs::UnwrapValue( retVal, unwrappedRetVal ))
+        if ( !mozjs::UnwrapValue( retVal, unwrappedRetVal ) )
         {
             return std::nullopt;
         }
