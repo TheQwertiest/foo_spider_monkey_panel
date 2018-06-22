@@ -25,7 +25,8 @@ protected:
 	void execute_context_menu_command(int id, int id_base);
 
 private:
-     JS::PersistentRootedObject jsGlobalObject_;
+    JS::PersistentRootedObject jsGlobalObject_;
+    JS::PersistentRootedObject jsGraphicsObject_;
 
 	CComPtr<IDropTargetImpl> m_drop_target;
 	IGdiGraphicsPtr m_gr_wrap;

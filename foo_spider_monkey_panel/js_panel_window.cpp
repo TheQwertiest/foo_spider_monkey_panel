@@ -6,6 +6,7 @@
 #include "popup_msg.h"
 
 #include "js_engine/js_engine.h"
+#include "js_objects/gdi_graphics.h"
 
 js_panel_window::js_panel_window() :
     m_script_host( new ScriptHost( this ) ),
@@ -21,7 +22,8 @@ js_panel_window::~js_panel_window()
 
 HRESULT js_panel_window::script_invoke_v( int callbackId, VARIANTARG* argv, UINT argc, VARIANT* ret )
 {
-    return m_script_host->InvokeCallback( callbackId, argv, argc, ret );
+    return S_OK;
+    //return m_script_host->InvokeCallback( callbackId, argv, argc, ret );
 }
 
 void js_panel_window::update_script( const char* name, const char* code )
@@ -59,6 +61,7 @@ LRESULT js_panel_window::on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
     case WM_DESTROY:
         script_unload();
         panel_manager::instance().remove_window( m_hwnd );
+
         if (m_gr_wrap)
             m_gr_wrap.Release();
         delete_context();
@@ -480,6 +483,14 @@ bool js_panel_window::script_load()
     if (!bRet)
     {
         return false;
+    }
+
+    if ( !jsGraphicsObject_ )
+    {
+        JSAutoRequest ar( jsEnv.GetJsContext() );
+        JSAutoCompartment ac( jsEnv.GetJsContext(), jsGlobalObject_ );
+        jsGraphicsObject_.init( jsEnv.GetJsContext(),
+                                mozjs::JsGdiGraphics::Create( jsEnv.GetJsContext(), jsGlobalObject_ ) );
     }
 
     bRet = jsEnv.ExecuteScript( jsGlobalObject_, get_script_code().c_str() );
@@ -1026,6 +1037,29 @@ void js_panel_window::on_paint_user( HDC memdc, LPRECT lpUpdateRect )
 
         m_gr_wrap->put__ptr( NULL );
     }
+
+    if ( jsGlobalObject_ )
+    {
+        // Prepare graphics object to the script.
+        Gdiplus::Graphics gr( memdc );
+        Gdiplus::Rect rect( lpUpdateRect->left, lpUpdateRect->top, lpUpdateRect->right - lpUpdateRect->left, lpUpdateRect->bottom - lpUpdateRect->top );
+
+        // SetClip() may improve performance slightly
+        gr.SetClip( rect );
+
+        auto pGdiGraphics = static_cast<mozjs::JsGdiGraphics*>( JS_GetPrivate( jsGraphicsObject_ ) );
+        if ( pGdiGraphics )
+        {
+            pGdiGraphics->SetGraphicsObject( &gr );
+
+            mozjs::JsEngine::GetInstance().
+                InvokeCallback( jsGlobalObject_,
+                                "on_paint",
+                                static_cast<JS::HandleObject>(jsGraphicsObject_) );
+
+            pGdiGraphics->SetGraphicsObject( NULL );
+        }
+    }
 }
 
 void js_panel_window::on_playback_dynamic_info()
@@ -1251,5 +1285,6 @@ void js_panel_window::script_unload()
     HostTimerDispatcher::Get().onPanelUnload( m_hwnd );
     m_selection_holder.release();
 
+    jsGraphicsObject_.reset();
     mozjs::JsEngine::GetInstance().DestroyGlobalObject( jsGlobalObject_ );
 }

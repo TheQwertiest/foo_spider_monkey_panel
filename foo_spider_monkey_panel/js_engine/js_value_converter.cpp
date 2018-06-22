@@ -6,6 +6,12 @@
 namespace mozjs
 {
 
+bool WrapValue( JSContext * cx, JS::HandleObject inValue, JS::MutableHandleValue wrappedValue )
+{
+    wrappedValue.setObjectOrNull( inValue );
+    return true;
+}
+
 template <>
 bool WrapValue<bool>( JSContext *, const bool& inValue, JS::MutableHandleValue wrappedValue )
 {
@@ -57,25 +63,61 @@ bool WrapValue<std::nullptr_t>( JSContext *, const std::nullptr_t& inValue, JS::
 template <>
 bool UnwrapValue<bool>( const JS::HandleValue& jsValue, bool& unwrappedValue )
 {
-    return jsValue.isBoolean() ? jsValue.toBoolean() : false;
+    if ( !jsValue.isBoolean() )
+    {
+        return false;
+    }
+
+    unwrappedValue = jsValue.toBoolean();
+    return true;
 }
 
 template <>
 bool UnwrapValue<int32_t>( const JS::HandleValue& jsValue, int32_t& unwrappedValue )
 {
-    return jsValue.isInt32() ? jsValue.toInt32() : false;
+    if ( !jsValue.isInt32() )
+    {
+        return false;
+    }
+
+    unwrappedValue = jsValue.toInt32();
+    return true;
 }
 
 template <>
 bool UnwrapValue<uint32_t>( const JS::HandleValue& jsValue, uint32_t& unwrappedValue )
 {
-    return jsValue.isNumber() ? static_cast<uint32_t>( jsValue.toNumber() ) : false;
+    if ( !jsValue.isNumber() )
+    {
+        return false;
+    }
+
+    unwrappedValue = static_cast<uint32_t>( jsValue.toNumber() );
+    return true;
+}
+
+template <>
+bool UnwrapValue<float>( const JS::HandleValue& jsValue, float& unwrappedValue )
+{
+    if ( !jsValue.isNumber() )
+    {
+        return false;
+    }
+
+    unwrappedValue = static_cast<float>( jsValue.toNumber() );
+    return true;
 }
 
 template <>
 bool UnwrapValue<double>( const JS::HandleValue& jsValue, double& unwrappedValue )
 {
-    return jsValue.isNumber() ? jsValue.toNumber() : false;
+    if ( !jsValue.isNumber() )
+    {
+        return false;
+    }
+
+    unwrappedValue = jsValue.toNumber();
+    return true;
 }
 
 template <>

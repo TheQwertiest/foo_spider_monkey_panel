@@ -9,6 +9,9 @@
 namespace mozjs
 {
 
+
+bool WrapValue( JSContext * cx, JS::HandleObject inValue, JS::MutableHandleValue wrappedValue );
+
 template <typename InType>
 bool WrapValue( JSContext * cx, const InType& inValue, JS::MutableHandleValue wrappedValue );
 
@@ -32,6 +35,9 @@ bool UnwrapValue<bool>( const JS::HandleValue& jsValue, bool& unwrappedValue );
 
 template <>
 bool UnwrapValue<int32_t>( const JS::HandleValue& jsValue, int32_t& unwrappedValue );
+
+template <>
+bool UnwrapValue<float>( const JS::HandleValue& jsValue, float& unwrappedValue );
 
 template <>
 bool UnwrapValue<double>( const JS::HandleValue& jsValue, double& unwrappedValue );

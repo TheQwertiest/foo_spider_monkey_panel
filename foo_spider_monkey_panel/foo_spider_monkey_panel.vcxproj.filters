@@ -39,6 +39,9 @@
     <ClCompile Include="js_engine\js_value_converter.cpp">
       <Filter>js_engine</Filter>
     </ClCompile>
+    <ClCompile Include="js_objects\gdi_graphics.cpp">
+      <Filter>js_objects</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\PropertyList\PropertyItem.h" />
@@ -94,6 +97,9 @@
     <ClInclude Include="js_engine\js_value_converter.h">
       <Filter>js_engine</Filter>
     </ClInclude>
+    <ClInclude Include="js_objects\gdi_graphics.h">
+      <Filter>js_objects</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="foo_spider_monkey_panel.rc" />
@@ -105,6 +111,9 @@
   <ItemGroup>
     <Filter Include="js_engine">
       <UniqueIdentifier>{82fda107-c970-4ad4-9ad2-b6aae7fddd6d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="js_objects">
+      <UniqueIdentifier>{9297b4c3-f67b-4bf4-ac59-11c858ffe1ed}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

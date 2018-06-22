@@ -7,7 +7,7 @@
 namespace
 {
 
-static bool Log( JSContext* cx, unsigned argc, JS::Value* vp )
+bool Log( JSContext* cx, unsigned argc, JS::Value* vp )
 {
      JS::CallArgs args = JS::CallArgsFromVp( argc, vp );
 

@@ -19,7 +19,7 @@ public:
     JSContext * GetJsContext() const;
 
     bool CreateGlobalObject( JS::PersistentRootedObject& globalObject );
-    void DestroyGlobalObject( JS::PersistentRootedObject& globalObject );
+    void DestroyGlobalObject( JS::PersistentRootedObject& globalObject );    
 
     bool ExecuteScript( JS::HandleObject globalObject, std::string_view scriptCode );
 
