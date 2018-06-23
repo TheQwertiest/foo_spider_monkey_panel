@@ -26,8 +26,8 @@ protected:
 	virtual void notify_size_limit_changed(LPARAM lp) = 0;
 	void execute_context_menu_command(int id, int id_base);
 
-private:
-    JS::PersistentRootedObject jsGlobalObject_;
+private:    
+    std::unique_ptr<mozjs::JsObjectWrapper<mozjs::JsGlobalObject>> jsGlobalObject_;
     std::unique_ptr<mozjs::JsObjectWrapper<mozjs::JsGdiGraphics>> jsGraphicsObject_;
 
 	CComPtr<IDropTargetImpl> m_drop_target;

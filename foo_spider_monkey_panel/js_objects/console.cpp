@@ -1,6 +1,6 @@
 #include <stdafx.h>
 
-#include "js_console.h"
+#include "console.h"
 
 #include <js/Conversions.h>
 

@@ -1,7 +1,8 @@
 #include <stdafx.h>
 
 #include "js_engine.h"
-#include "js_global_object.h"
+#include "js_error_reporter.h"
+#include <js_objects/global_object.h>
 
 #include <js/Conversions.h>
 
@@ -14,7 +15,6 @@ namespace mozjs
 
 JsEngine::JsEngine()
     : pJsCtx_( nullptr )
-    , globalObjectCount_( 0 )
 {
 }
 
@@ -29,41 +29,24 @@ JsEngine& JsEngine::GetInstance()
     return jsEnv;
 }
 
-bool JsEngine::CreateGlobalObject( JS::PersistentRootedObject& globalObject )
+bool JsEngine::RegisterPanel(HWND hPanel)
 {
-    if (!globalObjectCount_)
+    if ( !registeredPanels_.size() )
     {
-        if (!Initialize())
+        if ( Initialize() )
         {
             return false;
         }
     }
 
-    JS::RootedObject newGlobal( pJsCtx_, mozjs::CreateGlobalObject( pJsCtx_ ) );
-    if (!newGlobal)
-    {
-        return false;
-    }
-
-    globalObject.init( pJsCtx_, newGlobal );
-    ++globalObjectCount_;
-
+    registeredPanels_.insert( hPanel );
     return true;
 }
 
-void JsEngine::DestroyGlobalObject( JS::PersistentRootedObject& globalObject )
+void JsEngine::UnregisterPanel( HWND hPanel )
 {
-    if (!globalObject.initialized())
-    {
-        return;
-    }
-
-    assert( globalObjectCount_ > 0 );
-
-    globalObject.reset();
-    --globalObjectCount_;
-
-    if (!globalObjectCount_)
+    registeredPanels_.erase( hPanel );
+    if ( !registeredPanels_.size() )
     {
         Finalize();
     }
@@ -83,10 +66,11 @@ bool JsEngine::ExecuteScript( JS::HandleObject globalObject, std::string_view sc
     opts.setFileAndLine( filename, lineno );
 
     JS::RootedValue rval( pJsCtx_ );
+    
+    AutoReportException are( pJsCtx_ );
     bool bRet = JS::Evaluate( pJsCtx_, opts, scriptCode.data(), scriptCode.length(), &rval );
-    if (!bRet)
+    if ( !bRet )
     {
-        JS_ClearPendingException( pJsCtx_ );
         console::printf( JSP_NAME "JS::Evaluate failed\n" );
         return false;
     }
@@ -123,9 +107,9 @@ bool JsEngine::InvokeCallbackInternal( JS::HandleObject globalObject,
         return false;
     }
 
+    AutoReportException are( pJsCtx_ );
     if (!JS::Call( pJsCtx_, globalObject, func, args, rval ))
-    {
-        JS_ClearPendingException( pJsCtx_ );
+    {        
         console::printf( JSP_NAME "JS::JS_Call failed\n" );
         return false;
     }

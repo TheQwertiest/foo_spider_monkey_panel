@@ -54,12 +54,16 @@ LRESULT js_panel_window::on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
         // Interfaces
         m_gr_wrap.Attach( new com_object_impl_t<GdiGraphics>(), false );
         panel_manager::instance().add_window( m_hwnd );
+        
+        mozjs::JsEngine::GetInstance().RegisterPanel( hwnd );
         script_load();
     }
     return 0;
 
     case WM_DESTROY:
         script_unload();
+        mozjs::JsEngine::GetInstance().UnregisterPanel( hwnd );
+
         panel_manager::instance().remove_window( m_hwnd );
 
         if (m_gr_wrap)
@@ -479,8 +483,8 @@ void js_panel_window::execute_context_menu_command( int id, int id_base )
 bool js_panel_window::script_load()
 {
     mozjs::JsEngine& jsEnv = mozjs::JsEngine::GetInstance();
-    bool bRet = jsEnv.CreateGlobalObject( jsGlobalObject_ );
-    if (!bRet)
+    jsGlobalObject_.reset( mozjs::JsObjectWrapper<mozjs::JsGlobalObject>::Create( jsEnv.GetJsContext(), m_hwnd ) );
+    if ( !jsGlobalObject_ )
     {
         return false;
     }
@@ -488,15 +492,14 @@ bool js_panel_window::script_load()
     if ( !jsGraphicsObject_ )
     {
         // TODO: hide GetJsContext() and wrap jsGlobalObject_
-        jsGraphicsObject_.reset( mozjs::JsObjectWrapper<mozjs::JsGdiGraphics>::Create( jsEnv.GetJsContext(), jsGlobalObject_ ) );
+        jsGraphicsObject_.reset( mozjs::JsObjectWrapper<mozjs::JsGdiGraphics>::Create( jsEnv.GetJsContext(), jsGlobalObject_->GetJsObject() ) );
         if ( !jsGraphicsObject_ )
         {
             return false;
         }
     }
-
-    bRet = jsEnv.ExecuteScript( jsGlobalObject_, get_script_code().c_str() );
-    if (!bRet)
+    
+    if (!jsEnv.ExecuteScript( jsGlobalObject_->GetJsObject(), get_script_code().c_str() ) )
     {
         return false;
     }
@@ -935,7 +938,7 @@ void js_panel_window::on_paint( HDC dc, LPRECT lpUpdateRect )
     HDC memdc = CreateCompatibleDC( dc );
     HBITMAP oldbmp = SelectBitmap( memdc, m_gr_bmp );
 
-    if (m_script_host->HasError())
+    if (m_script_host->HasError() || jsGlobalObject_->GetNativeObject()->HasFailed())
     {
         on_paint_error( memdc );
     }
@@ -1049,18 +1052,15 @@ void js_panel_window::on_paint_user( HDC memdc, LPRECT lpUpdateRect )
         // SetClip() may improve performance slightly
         gr.SetClip( rect );
 
-        auto pGdiGraphics = jsGraphicsObject_->GetWrappedObject();
-        if ( pGdiGraphics )
-        {
-            pGdiGraphics->SetGraphicsObject( &gr );
+        auto pGdiGraphics = jsGraphicsObject_->GetNativeObject();
+        pGdiGraphics->SetGraphicsObject( &gr );
 
-            mozjs::JsEngine::GetInstance().
-                InvokeCallback( jsGlobalObject_,
-                                "on_paint",
-                                jsGraphicsObject_->GetJsObject() );
+        mozjs::JsEngine::GetInstance().
+            InvokeCallback( jsGlobalObject_->GetJsObject(),
+                            "on_paint",
+                            jsGraphicsObject_->GetJsObject() );
 
-            pGdiGraphics->SetGraphicsObject( NULL );
-        }
+        pGdiGraphics->SetGraphicsObject( NULL );
     }
 }
 
@@ -1257,7 +1257,7 @@ void js_panel_window::on_size( int w, int h )
     if (jsGlobalObject_)
     {
         mozjs::JsEngine::GetInstance().
-            InvokeCallback( jsGlobalObject_,
+            InvokeCallback( jsGlobalObject_->GetJsObject(),
                             "on_size",
                             static_cast<uint32_t>(w),
                             static_cast<uint32_t>(h) );
@@ -1288,5 +1288,5 @@ void js_panel_window::script_unload()
     m_selection_holder.release();
 
     jsGraphicsObject_.reset();
-    mozjs::JsEngine::GetInstance().DestroyGlobalObject( jsGlobalObject_ );
+    jsGlobalObject_.reset();    
 }

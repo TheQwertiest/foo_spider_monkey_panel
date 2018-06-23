@@ -30,17 +30,20 @@
     <ClCompile Include="js_engine\js_engine.cpp">
       <Filter>js_engine</Filter>
     </ClCompile>
-    <ClCompile Include="js_engine\js_global_object.cpp">
-      <Filter>js_engine</Filter>
-    </ClCompile>
-    <ClCompile Include="js_engine\js_console.cpp">
-      <Filter>js_engine</Filter>
-    </ClCompile>
     <ClCompile Include="js_objects\gdi_graphics.cpp">
       <Filter>js_objects</Filter>
     </ClCompile>
     <ClCompile Include="js_engine\js_value_converter.cpp">
       <Filter>js_engine</Filter>
+    </ClCompile>
+    <ClCompile Include="js_engine\js_error_reporter.cpp">
+      <Filter>js_engine</Filter>
+    </ClCompile>
+    <ClCompile Include="js_objects\global_object.cpp">
+      <Filter>js_objects</Filter>
+    </ClCompile>
+    <ClCompile Include="js_objects\console.cpp">
+      <Filter>js_objects</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -88,12 +91,6 @@
     <ClInclude Include="js_engine\js_engine.h">
       <Filter>js_engine</Filter>
     </ClInclude>
-    <ClInclude Include="js_engine\js_global_object.h">
-      <Filter>js_engine</Filter>
-    </ClInclude>
-    <ClInclude Include="js_engine\js_console.h">
-      <Filter>js_engine</Filter>
-    </ClInclude>
     <ClInclude Include="js_objects\gdi_graphics.h">
       <Filter>js_objects</Filter>
     </ClInclude>
@@ -104,6 +101,15 @@
       <Filter>js_engine</Filter>
     </ClInclude>
     <ClInclude Include="js_objects\js_object_wrapper.h">
+      <Filter>js_objects</Filter>
+    </ClInclude>
+    <ClInclude Include="js_engine\js_error_reporter.h">
+      <Filter>js_engine</Filter>
+    </ClInclude>
+    <ClInclude Include="js_objects\global_object.h">
+      <Filter>js_objects</Filter>
+    </ClInclude>
+    <ClInclude Include="js_objects\console.h">
       <Filter>js_objects</Filter>
     </ClInclude>
   </ItemGroup>

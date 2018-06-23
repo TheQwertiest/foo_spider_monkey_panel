@@ -6,6 +6,7 @@
 #include <jsapi.h>
 #pragma warning( pop )  
 
+#include <js_objects/global_object.h>
 
 namespace mozjs
 {
@@ -17,8 +18,50 @@ public:
     ~JsObjectWrapper()
     {
         jsObject_.reset();
+    }   
+
+    template<
+        typename LocalMozjType = MozjsObjectType, 
+        typename = typename std::enable_if<std::is_same<LocalMozjType, JsGlobalObject>::value >::type, 
+        typename ... ArgTypes
+    >
+    static 
+        JsObjectWrapper* Create( JSContext* cx, ArgTypes&&... args )
+    {
+        JSAutoRequest ar( cx );
+
+        JS::RootedObject pJsObject( cx, MozjsObjectType::Create( cx, std::forward<ArgTypes>( args )... ) );
+        if ( !pJsObject )
+        {
+            return nullptr;
+        }
+
+        return CreateInternal( cx, pJsObject );
     }
 
+    template<
+        typename LocalMozjType = MozjsObjectType,
+        typename = typename std::enable_if<!std::is_same<LocalMozjType, JsGlobalObject>::value >::type,
+        typename ... ArgTypes
+    >
+    static JsObjectWrapper* Create( JSContext* cx, JS::HandleObject global, ArgTypes&&... args )
+    {
+        JSAutoRequest ar( cx );
+        JSAutoCompartment ac( cx, global );
+
+        JS::RootedObject pJsObject( cx, MozjsObjectType::Create( cx, std::forward<ArgTypes>( args )... ) );
+        if ( !pJsObject )
+        {
+            return nullptr;
+        }
+
+        return CreateInternal( cx, pJsObject );
+    }
+
+    template<
+        typename LocalMozjType = MozjsObjectType,
+        typename = typename std::enable_if<!std::is_same<LocalMozjType, JsGlobalObject>::value >::type        
+    >
     static JsObjectWrapper* Create( JSContext* cx, JS::HandleObject global )
     {
         JSAutoRequest ar( cx );
@@ -29,30 +72,51 @@ public:
         {
             return nullptr;
         }
-        
-        return new JsObjectWrapper( cx, pJsObject );
+
+        return CreateInternal( cx, pJsObject );
     }
 
-// TODO: add enable_if<MozjsObjectType::HasPrivate> somehow    
-    MozjsObjectType* GetWrappedObject()
+    explicit operator JS::HandleObject()
     {
-        return static_cast<MozjsObjectType *>(JS_GetPrivate( jsObject_ ));
+        return GetJsObject();
     }
-    
+   
     JS::HandleObject GetJsObject()
     {
         return jsObject_;
     }
 
+    MozjsObjectType * GetNativeObject()
+    {
+        assert( pNativeObject_ );
+        return pNativeObject_;
+    }
+
 private: 
-    JsObjectWrapper( JSContext* cx, JS::HandleObject jsObject )
+    JsObjectWrapper( JSContext* cx, JS::HandleObject jsObject, MozjsObjectType * pNativeObject )
     {
         jsObject_.init( cx, jsObject );
+        pNativeObject_ = pNativeObject;
     }
     JsObjectWrapper( const JsObjectWrapper & ) = delete;
 
+    static JsObjectWrapper* CreateInternal( JSContext* cx, JS::HandleObject jsObject )
+    {
+        MozjsObjectType * pNativeObject = NULL;
+        const JSClass * jsClass = JS_GetClass( jsObject );
+        if ( jsClass
+             && (jsClass->flags & JSCLASS_HAS_PRIVATE) )
+        {
+            pNativeObject = static_cast<MozjsObjectType *>(JS_GetPrivate( jsObject ));
+        }
+
+        return new JsObjectWrapper( cx, jsObject, pNativeObject );
+    }
+
+
 private:
     JS::PersistentRootedObject jsObject_;
+    MozjsObjectType * pNativeObject_;
 };
 
 }

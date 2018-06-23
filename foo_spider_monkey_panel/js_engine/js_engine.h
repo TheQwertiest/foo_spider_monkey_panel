@@ -1,8 +1,11 @@
 #pragma once
 
 #include "js_value_converter.h"
+#include <js_objects/js_object_wrapper.h>
+#include <js_objects/global_object.h>
 
 #include <optional>
+#include <set>
 
 
 namespace mozjs
@@ -18,8 +21,8 @@ public:
 public:
     JSContext * GetJsContext() const;
 
-    bool CreateGlobalObject( JS::PersistentRootedObject& globalObject );
-    void DestroyGlobalObject( JS::PersistentRootedObject& globalObject );    
+    bool RegisterPanel( HWND hPanel );
+    void UnregisterPanel( HWND hPanel );
 
     bool ExecuteScript( JS::HandleObject globalObject, std::string_view scriptCode );
 
@@ -94,7 +97,7 @@ private:
 private:
     JSContext * pJsCtx_;
 
-    uint32_t globalObjectCount_;
+    std::set<HWND> registeredPanels_;
 };
 
 }
