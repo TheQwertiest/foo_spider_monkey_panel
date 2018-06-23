@@ -13,6 +13,7 @@ js_panel_window::js_panel_window() :
     m_is_mouse_tracked( false ),
     m_is_droptarget_registered( false )
 {
+    jsEngineFailed_ = false;
 }
 
 js_panel_window::~js_panel_window()
@@ -36,6 +37,16 @@ void js_panel_window::update_script( const char* name, const char* code )
 
     script_unload();
     script_load();
+}
+
+void js_panel_window::JsEngineFail(std::string_view errorText)
+{
+    jsEngineFailed_ = true;
+
+    popup_msg::g_show( errorText.data(), JSP_NAME );
+    MessageBeep( MB_ICONASTERISK );
+
+    SendMessage( m_hwnd, UWM_SCRIPT_ERROR, 0, 0 );
 }
 
 LRESULT js_panel_window::on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
@@ -482,8 +493,9 @@ void js_panel_window::execute_context_menu_command( int id, int id_base )
 
 bool js_panel_window::script_load()
 {
+    jsEngineFailed_ = false;
     mozjs::JsEngine& jsEnv = mozjs::JsEngine::GetInstance();
-    jsGlobalObject_.reset( mozjs::JsObjectWrapper<mozjs::JsGlobalObject>::Create( jsEnv.GetJsContext(), m_hwnd ) );
+    jsGlobalObject_.reset( mozjs::JsObjectWrapper<mozjs::JsGlobalObject>::Create( jsEnv.GetJsContext(), *this ) );
     if ( !jsGlobalObject_ )
     {
         return false;
@@ -938,7 +950,7 @@ void js_panel_window::on_paint( HDC dc, LPRECT lpUpdateRect )
     HDC memdc = CreateCompatibleDC( dc );
     HBITMAP oldbmp = SelectBitmap( memdc, m_gr_bmp );
 
-    if (m_script_host->HasError() || jsGlobalObject_->GetNativeObject()->HasFailed())
+    if (m_script_host->HasError() || jsEngineFailed_ )
     {
         on_paint_error( memdc );
     }

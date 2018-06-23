@@ -18,6 +18,8 @@ public:
 	HRESULT script_invoke_v(int callbackId, VARIANTARG* argv = NULL, UINT argc = 0, VARIANT* ret = NULL);
 	void update_script(const char* name = NULL, const char* code = NULL);
 
+    void JsEngineFail( std::string_view errorText );
+
 protected:
 	LRESULT on_message(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp);
 	bool show_configure_popup(HWND parent);
@@ -29,6 +31,7 @@ protected:
 private:    
     std::unique_ptr<mozjs::JsObjectWrapper<mozjs::JsGlobalObject>> jsGlobalObject_;
     std::unique_ptr<mozjs::JsObjectWrapper<mozjs::JsGdiGraphics>> jsGraphicsObject_;
+    bool jsEngineFailed_;
 
 	CComPtr<IDropTargetImpl> m_drop_target;
 	IGdiGraphicsPtr m_gr_wrap;

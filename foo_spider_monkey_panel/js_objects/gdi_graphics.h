@@ -1,10 +1,10 @@
 #pragma once
 
-#pragma warning( push )  
-#pragma warning( disable : 4251 ) // dll interface warning
-#pragma warning( disable : 4996 ) // C++17 deprecation warning
-#include <jsapi.h>
-#pragma warning( pop )  
+#include <js_engine/js_error_codes.h>
+
+
+class JSObject;
+struct JSContext;
 
 namespace mozjs
 {
@@ -20,16 +20,16 @@ public:
 
 public: // TODO: Move to private
 
-    bool DrawEllipse( float x, float y, float w, float h, float line_width, uint32_t colour );
-    bool DrawLine( float x1, float y1, float x2, float y2, float line_width, uint32_t colour );
+    Mjs_Status DrawEllipse( float x, float y, float w, float h, float line_width, uint32_t colour );
+    Mjs_Status DrawLine( float x1, float y1, float x2, float y2, float line_width, uint32_t colour );
     
-    bool DrawRect( float x, float y, float w, float h, float line_width, uint32_t colour );
-    bool DrawRoundRect( float x, float y, float w, float h, float arc_width, float arc_height, float line_width, uint32_t colour );
-    bool FillEllipse( float x, float y, float w, float h, uint32_t colour );
-    bool FillGradRect( float x, float y, float w, float h, float angle, uint32_t colour1, uint32_t colour2, float focus );
+    Mjs_Status DrawRect( float x, float y, float w, float h, float line_width, uint32_t colour );
+    Mjs_Status DrawRoundRect( float x, float y, float w, float h, float arc_width, float arc_height, float line_width, uint32_t colour );
+    Mjs_Status FillEllipse( float x, float y, float w, float h, uint32_t colour );
+    Mjs_Status FillGradRect( float x, float y, float w, float h, float angle, uint32_t colour1, uint32_t colour2, float focus );
        
-    bool FillRoundRect( float x, float y, float w, float h, float arc_width, float arc_height, uint32_t colour );
-    bool FillSolidRect( float x, float y, float w, float h, uint32_t colour );
+    Mjs_Status FillRoundRect( float x, float y, float w, float h, float arc_width, float arc_height, uint32_t colour );
+    Mjs_Status FillSolidRect( float x, float y, float w, float h, uint32_t colour );
 
     //bool DrawPolygon( uint32_t colour, float line_width, VARIANT points );
     //bool FillPolygon( uint32_t colour, int fillmode, VARIANT points );

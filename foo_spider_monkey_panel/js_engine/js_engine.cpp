@@ -6,9 +6,6 @@
 
 #include <js/Conversions.h>
 
-// TODO: think about moving context creation somewhere above 
-// to avoid it's recreation when working with single panel
-
 
 namespace mozjs
 {
@@ -59,11 +56,9 @@ bool JsEngine::ExecuteScript( JS::HandleObject globalObject, std::string_view sc
 
     JSAutoRequest ar( pJsCtx_ );
     JSAutoCompartment ac( pJsCtx_, globalObject );
-
-    const char *filename = "noname";
-    int lineno = 1;
+    
     JS::CompileOptions opts( pJsCtx_ );
-    opts.setFileAndLine( filename, lineno );
+    opts.setFileAndLine( "main", 1 );
 
     JS::RootedValue rval( pJsCtx_ );
     

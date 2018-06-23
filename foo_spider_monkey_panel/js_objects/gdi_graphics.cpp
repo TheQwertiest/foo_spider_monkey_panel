@@ -4,11 +4,17 @@
 
 #include <js_engine/js_value_converter.h>
 #include <js_engine/js_native_invoker.h>
+#include <js_engine/js_error_reporter.h>
 
 #define MOZJS_DEFINE_JS_TO_NATIVE_CALLBACK(baseClass, functionName) \
     bool functionName( JSContext* cx, unsigned argc, JS::Value* vp )\
     {\
-        return InvokeNativeCallback( cx, &baseClass::functionName, argc, vp );\
+        Mjs_Status mjsRet = InvokeNativeCallback( cx, &baseClass::functionName, argc, vp );\
+        if (Mjs_Ok != mjsRet)\
+        {\
+            JS_ReportErrorASCII( cx, ErrorCodeToString( mjsRet ) );\
+        }\
+        return Mjs_Ok == mjsRet;\
     }
 
 #define IF_GDI_FAILED_RETURN(x,y) \
@@ -91,12 +97,13 @@ JSObject* JsGdiGraphics::Create( JSContext* cx )
     {
         return nullptr;
     }
-        if ( !JS_DefineFunctions( cx, jsObj, gdiGraphicsFunctions ) )
-        {
-            return nullptr;
-        }
 
-        JS_SetPrivate( jsObj, new JsGdiGraphics( cx ) );
+    if ( !JS_DefineFunctions( cx, jsObj, gdiGraphicsFunctions ) )
+    {
+        return nullptr;
+    }
+
+    JS_SetPrivate( jsObj, new JsGdiGraphics( cx ) );
 
     return jsObj;
 }
@@ -106,146 +113,146 @@ void JsGdiGraphics::SetGraphicsObject( Gdiplus::Graphics* graphics )
     graphics_ = graphics;
 }
 
-bool JsGdiGraphics::DrawEllipse( float x, float y, float w, float h, float line_width, uint32_t colour )
+Mjs_Status JsGdiGraphics::DrawEllipse( float x, float y, float w, float h, float line_width, uint32_t colour )
 {
     if ( !graphics_ )
     {
-        return false;
+        return Mjs_EngineInternalError;
     }
 
     Gdiplus::Pen pen( colour, line_width );
     Gdiplus::Status gdiRet = graphics_->DrawEllipse( &pen, x, y, w, h );
-    IF_GDI_FAILED_RETURN( gdiRet, false );
+    IF_GDI_FAILED_RETURN( gdiRet, Mjs_InternalError );
 
-    return true;
+    return Mjs_Ok;
 }
 
-bool JsGdiGraphics::DrawLine( float x1, float y1, float x2, float y2, float line_width, uint32_t colour )
+Mjs_Status JsGdiGraphics::DrawLine( float x1, float y1, float x2, float y2, float line_width, uint32_t colour )
 {
     if ( !graphics_ )
     {
-        return false;
+        return Mjs_EngineInternalError;
     }
 
     Gdiplus::Pen pen( colour, line_width );
     Gdiplus::Status gdiRet = graphics_->DrawLine( &pen, x1, y1, x2, y2 );
-    IF_GDI_FAILED_RETURN( gdiRet, false );
+    IF_GDI_FAILED_RETURN( gdiRet, Mjs_InternalError );
 
-    return true;
+    return Mjs_Ok;
 }
 
-bool JsGdiGraphics::DrawRect( float x, float y, float w, float h, float line_width, uint32_t colour )
+Mjs_Status JsGdiGraphics::DrawRect( float x, float y, float w, float h, float line_width, uint32_t colour )
 {
     if ( !graphics_ )
     {
-        return false;
+        return Mjs_EngineInternalError;
     }
 
     Gdiplus::Pen pen( colour, line_width );
     Gdiplus::Status gdiRet = graphics_->DrawRectangle( &pen, x, y, w, h );
-    IF_GDI_FAILED_RETURN( gdiRet, false );
+    IF_GDI_FAILED_RETURN( gdiRet, Mjs_InternalError );
 
-    return true;
+    return Mjs_Ok;
 }
 
-bool JsGdiGraphics::DrawRoundRect( float x, float y, float w, float h, float arc_width, float arc_height, float line_width, uint32_t colour )
+Mjs_Status JsGdiGraphics::DrawRoundRect( float x, float y, float w, float h, float arc_width, float arc_height, float line_width, uint32_t colour )
 {
     if ( !graphics_ )
     {
-        return false;
+        return Mjs_EngineInternalError;
     }
 
     if ( 2 * arc_width > w || 2 * arc_height > h )
     {
-        return false;
+        return Mjs_InvalidArgumentValue;
     }
 
     Gdiplus::Pen pen( colour, line_width );
     Gdiplus::GraphicsPath gp;
     Gdiplus::RectF rect( x, y, w, h );
     Gdiplus::Status gdiRet = (Gdiplus::Status)GetRoundRectPath( gp, rect, arc_width, arc_height );
-    IF_GDI_FAILED_RETURN( gdiRet, false );
+    IF_GDI_FAILED_RETURN( gdiRet, Mjs_InternalError );
 
     gdiRet = pen.SetStartCap( Gdiplus::LineCapRound );
-    IF_GDI_FAILED_RETURN( gdiRet, false );
+    IF_GDI_FAILED_RETURN( gdiRet, Mjs_InternalError );
 
     gdiRet = pen.SetEndCap( Gdiplus::LineCapRound );
-    IF_GDI_FAILED_RETURN( gdiRet, false );
+    IF_GDI_FAILED_RETURN( gdiRet, Mjs_InternalError );
 
     gdiRet = graphics_->DrawPath( &pen, &gp );
-    IF_GDI_FAILED_RETURN( gdiRet, false );
+    IF_GDI_FAILED_RETURN( gdiRet, Mjs_InternalError );
 
-    return true;
+    return Mjs_Ok;
 }
 
-bool JsGdiGraphics::FillEllipse( float x, float y, float w, float h, uint32_t colour )
+Mjs_Status JsGdiGraphics::FillEllipse( float x, float y, float w, float h, uint32_t colour )
 {
     if ( !graphics_ )
     {
-        return false;
+        return Mjs_EngineInternalError;
     }
 
     Gdiplus::SolidBrush br( colour );
     Gdiplus::Status gdiRet = graphics_->FillEllipse( &br, x, y, w, h );
-    IF_GDI_FAILED_RETURN( gdiRet, false );
+    IF_GDI_FAILED_RETURN( gdiRet, Mjs_InternalError );
 
-    return true;
+    return Mjs_Ok;
 }
 
-bool JsGdiGraphics::FillGradRect( float x, float y, float w, float h, float angle, uint32_t colour1, uint32_t colour2, float focus )
+Mjs_Status JsGdiGraphics::FillGradRect( float x, float y, float w, float h, float angle, uint32_t colour1, uint32_t colour2, float focus )
 {
     if ( !graphics_ )
     {
-        return false;
+        return Mjs_EngineInternalError;
     }
 
     Gdiplus::RectF rect( x, y, w, h );
     Gdiplus::LinearGradientBrush brush( rect, colour1, colour2, angle, TRUE );
     Gdiplus::Status gdiRet = brush.SetBlendTriangularShape( focus );
-    IF_GDI_FAILED_RETURN( gdiRet, false );
+    IF_GDI_FAILED_RETURN( gdiRet, Mjs_InternalError );
 
     gdiRet = graphics_->FillRectangle( &brush, rect );
-    IF_GDI_FAILED_RETURN( gdiRet, false );
+    IF_GDI_FAILED_RETURN( gdiRet, Mjs_InternalError );
 
-    return true;
+    return Mjs_Ok;
 }
 
-bool JsGdiGraphics::FillRoundRect( float x, float y, float w, float h, float arc_width, float arc_height, uint32_t colour )
+Mjs_Status JsGdiGraphics::FillRoundRect( float x, float y, float w, float h, float arc_width, float arc_height, uint32_t colour )
 {
     if ( !graphics_ )
     {
-        return false;
+        return Mjs_EngineInternalError;
     }
 
     if ( 2 * arc_width > w || 2 * arc_height > h )
     {
-        return false;
+        return Mjs_InvalidArgumentValue;
     }
 
     Gdiplus::SolidBrush br( colour );
     Gdiplus::GraphicsPath gp;
     Gdiplus::RectF rect( x, y, w, h );
     Gdiplus::Status gdiRet = (Gdiplus::Status)GetRoundRectPath( gp, rect, arc_width, arc_height );
-    IF_GDI_FAILED_RETURN( gdiRet, false );
+    IF_GDI_FAILED_RETURN( gdiRet, Mjs_InternalError );
 
     gdiRet = graphics_->FillPath( &br, &gp );
-    IF_GDI_FAILED_RETURN( gdiRet, false );
+    IF_GDI_FAILED_RETURN( gdiRet, Mjs_InternalError );
 
-    return true;
+    return Mjs_Ok;
 }
 
-bool JsGdiGraphics::FillSolidRect( float x, float y, float w, float h, uint32_t colour )
+Mjs_Status JsGdiGraphics::FillSolidRect( float x, float y, float w, float h, uint32_t colour )
 {
     if ( !graphics_ )
     {
-        return false;
+        return Mjs_EngineInternalError;
     }
 
     Gdiplus::SolidBrush brush( colour );
     Gdiplus::Status gdiRet = graphics_->FillRectangle( &brush, x, y, w, h );
-    IF_GDI_FAILED_RETURN( gdiRet, false );
+    IF_GDI_FAILED_RETURN( gdiRet, Mjs_InternalError );
 
-    return true;
+    return Mjs_Ok;
 }
 
 int JsGdiGraphics::GetRoundRectPath( Gdiplus::GraphicsPath& gp, Gdiplus::RectF& rect, float arc_width, float arc_height )

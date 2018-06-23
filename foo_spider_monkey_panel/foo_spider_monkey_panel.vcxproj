@@ -100,6 +100,7 @@
     <ClCompile Include="host_drop_target.cpp" />
     <ClCompile Include="host_timer_dispatcher.cpp" />
     <ClCompile Include="js_engine\js_engine.cpp" />
+    <ClCompile Include="js_engine\js_error_codes.cpp" />
     <ClCompile Include="js_engine\js_error_reporter.cpp" />
     <ClCompile Include="js_engine\js_value_converter.cpp" />
     <ClCompile Include="js_objects\console.cpp" />
@@ -134,6 +135,7 @@
     <ClInclude Include="..\PropertyList\PropertyList.h" />
     <ClInclude Include="drop_source_impl.h" />
     <ClInclude Include="js_engine\js_engine.h" />
+    <ClInclude Include="js_engine\js_error_codes.h" />
     <ClInclude Include="js_engine\js_error_reporter.h" />
     <ClInclude Include="js_engine\js_native_invoker.h" />
     <ClInclude Include="js_engine\js_value_converter.h" />

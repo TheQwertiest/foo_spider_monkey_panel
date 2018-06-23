@@ -45,6 +45,9 @@
     <ClCompile Include="js_objects\console.cpp">
       <Filter>js_objects</Filter>
     </ClCompile>
+    <ClCompile Include="js_engine\js_error_codes.cpp">
+      <Filter>js_engine</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\PropertyList\PropertyItem.h" />
@@ -111,6 +114,9 @@
     </ClInclude>
     <ClInclude Include="js_objects\console.h">
       <Filter>js_objects</Filter>
+    </ClInclude>
+    <ClInclude Include="js_engine\js_error_codes.h">
+      <Filter>js_engine</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

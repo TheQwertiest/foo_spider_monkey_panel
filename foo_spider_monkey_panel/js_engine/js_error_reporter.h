@@ -17,7 +17,7 @@ public:
 
 private: 
     static void PrintError();
-    static void PrintStack( JSContext* cx, JS::HandleValue exn );
+    static std::string GetStackTraceString( JSContext* cx, JS::HandleObject exn );
 
 private:
     JSContext * cx;

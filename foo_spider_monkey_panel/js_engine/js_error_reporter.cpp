@@ -6,6 +6,7 @@
 #include <popup_msg.h>
 #include <user_message.h>
 
+
 namespace mozjs
 {
 
@@ -41,9 +42,26 @@ AutoReportException::~AutoReportException()
         return;
     }
 
-    globalCtx->Fail();
-    // TODO: create auto reporter here
+    struct ScopedFail
+    {
+        ScopedFail( JSContext* pCx, JsGlobalObject * pGlobal )
+        {
+            pCx_ = pCx;
+            pGlobal_ = pGlobal;
+        }
+        ~ScopedFail()
+        {
+            FB2K_console_formatter() << errorText.c_str();
+            pGlobal_->Fail( errorText );
+            JS_ClearPendingException( pCx_ );
+        }
 
+        JSContext* pCx_;
+        JsGlobalObject * pGlobal_;
+        std::string errorText = "Script failed!";
+    };
+    ScopedFail scFail( cx, globalCtx );
+    
     JS::RootedObject excnObject( cx, excn.toObjectOrNull() );
     if ( !excnObject )
     {
@@ -60,45 +78,33 @@ AutoReportException::~AutoReportException()
 
     assert( !JSREPORT_IS_WARNING( report->flags ) );
 
-    std::string errorText = report->message().c_str();
+    // TODO: "Error: JScript Panel v2.1.3 (Top Panel)"
+    scFail.errorText = report->message().c_str();
     if ( report->filename )
-    {
-        
+    {        
+        scFail.errorText += "\n\n";
+        scFail.errorText += "File: ";
+        scFail.errorText += report->filename;
+        scFail.errorText += "\n";
+        scFail.errorText += "Line: ";
+        scFail.errorText += std::to_string( report->lineno );
+        scFail.errorText += ", Column: ";
+        scFail.errorText += std::to_string( report->column );
+        if ( report->linebufLength() )
+        {
+            scFail.errorText += "\n";
+            // <codecvt> is deprecated in C++17...
+            scFail.errorText += pfc::stringcvt::string_utf8_from_utf16( report->linebuf(), report->linebufLength() );
+        }
     }
 
-    /*
-
-    js::ErrorReport report( cx );
-    if ( !report.init( cx, exn, js::ErrorReport::WithSideEffects ) )
+    std::string stackTrace = GetStackTraceString( cx, excnObject );
+    if ( !stackTrace.empty() )
     {
-        fprintf( stderr, "out of memory initializing ErrorReport\n" );
-        fflush( stderr );
-        JS_ClearPendingException( cx );
-        return;
+        scFail.errorText += "\n\n";
+        scFail.errorText += "Stack trace:\n";
+        scFail.errorText += stackTrace;
     }
-
-    MOZ_ASSERT( !JSREPORT_IS_WARNING( report.report()->flags ) );
-
-    FILE* fp = ErrorFilePointer();
-    PrintError( cx, fp, report.toStringResult(), report.report(), reportWarnings );
-
-    {
-        JS::AutoSaveExceptionState savedExc( cx );
-        if ( !PrintStackTrace( cx, exn ) )
-            fputs( "(Unable to print stack trace)\n", fp );
-        savedExc.restore();
-    }
-
-    if ( report.report()->errorNumber == JSMSG_OUT_OF_MEMORY )
-        sc->exitCode = EXITCODE_OUT_OF_MEMORY;
-    else
-        sc->exitCode = EXITCODE_RUNTIME_ERROR;
-        */
-
-    JS_ClearPendingException( cx );
-
-    popup_msg::g_show( errorText.c_str(), JSP_NAME );
-    MessageBeep( MB_ICONASTERISK );
 }
 
 void AutoReportException::PrintError()
@@ -174,36 +180,32 @@ void AutoReportException::PrintError()
     */
 }
 
-void AutoReportException::PrintStack( JSContext* cx, JS::HandleValue exn )
+std::string AutoReportException::GetStackTraceString( JSContext* cx, JS::HandleObject exn )
 {
-    /*
-    if ( !exn.isObject() )
-        return;
-
-    JS::Maybe<JSAutoCompartment> ac;
-    JS::RootedObject exnObj( cx, &exn.toObject() );
-
-    // Ignore non-ErrorObject thrown by |throw| statement.
-    if ( !exnObj->is<JS::ErrorObject>() )
-        return;
-
     // Exceptions thrown while compiling top-level script have no stack.
-    JS::RootedObject stackObj( cx, exnObj->as<ErrorObject>().stack() );
+    JS::RootedObject stackObj( cx, JS::ExceptionStackOrNull( exn ) );
     if ( !stackObj )
-        return;
+    {
+        return std::string();
+    }
 
     JS::RootedString stackStr( cx );
     if ( !BuildStackString( cx, stackObj, &stackStr, 2 ) )
-        return;
+    {
+        return std::string();
+    }
 
-    JS::UniqueChars stack( JS_EncodeStringToUTF8( cx, stackStr ) );
-    if ( !stack )
-        return;
+    // JS::UniqueChars generates heap corruption exception in it's destructor
+    const char* encodedString = JS_EncodeStringToUTF8( cx, stackStr );
+    if ( !encodedString )
+    {
+        return std::string();
+    } 
 
-    FILE* fp = ErrorFilePointer();
-    fputs( "Stack:\n", fp );
-    fputs( stack.get(), fp );
-    */
+    std::string outString( encodedString );
+    JS_free( cx, (void*)encodedString );
+
+    return outString;
 }
 
 }

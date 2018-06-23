@@ -6,6 +6,7 @@
 #include <jsapi.h>
 #pragma warning( pop )  
 
+#include <js_engine/js_error_codes.h>
 
 namespace mozjs
 {
@@ -27,15 +28,12 @@ auto JsToNativeValueTuple( const JS::CallArgs& jsArgs, FuncType&& func )
 
 
 template <typename BaseClass, typename FuncType, typename ... ArgTypes>
-bool InvokeNativeCallback( JSContext* cx, FuncType( BaseClass::*fnCallback )(ArgTypes ...), unsigned argc, JS::Value* vp )
+Mjs_Status InvokeNativeCallback( JSContext* cx, FuncType( BaseClass::*fnCallback )(ArgTypes ...), unsigned argc, JS::Value* vp )
 {
     JS::CallArgs args = JS::CallArgsFromVp( argc, vp );        
     if ( args.length() != sizeof ...(ArgTypes) )
-    {
-        //JS_ReportErrorNumberASCII( cx, my_GetErrorMessage, nullptr,
-        //args.length() < 1 ? JSSMSG_NOT_ENOUGH_ARGS : JSSMSG_TOO_MANY_ARGS,
-        //"evaluate" );
-        return false;
+    {        
+        return Mjs_InvalidArgumentCount;
     }
 
     bool bRet = true;
@@ -50,13 +48,13 @@ bool InvokeNativeCallback( JSContext* cx, FuncType( BaseClass::*fnCallback )(Arg
     } );
     if (!bRet)
     {
-        return false;
+        return Mjs_InvalidArgumentType;
     }
     
     BaseClass* baseClass = static_cast<BaseClass*>( JS_GetPrivate( args.thisv().toObjectOrNull() ) );
     if ( !baseClass )
     {
-        return false;
+        return Mjs_InternalError;
     }
 
     args.rval().setUndefined();
