@@ -30,11 +30,12 @@ auto JsToNativeValueTuple( const JS::CallArgs& jsArgs, FuncType&& func )
 
 // Workarounds for MSVC bug (see below)
 template<typename ReturnType>
-constexpr inline bool NeedsToPrepare()
+constexpr inline bool NeedToPrepareNativeValue()
 {
     return std::is_pointer<std::tuple_element<1, ReturnType>::type>::value;
 }
 
+// TODO: handle optional arguments somehow...
 template <typename BaseClass, typename ReturnType, typename ... ArgTypes>
 Mjs_Status InvokeNativeCallback( JSContext* cx, ReturnType( BaseClass::*fnCallback )(ArgTypes ...), unsigned argc, JS::Value* vp )
 {
@@ -80,7 +81,7 @@ Mjs_Status InvokeNativeCallback( JSContext* cx, ReturnType( BaseClass::*fnCallba
 
     if constexpr(returnTupleSize == 2 )
     {
-        if constexpr(NeedsToPrepare<ReturnType>())
+        if constexpr(NeedToPrepareNativeValue<ReturnType>())
         {// bug in MSVC: evaluates std::tuple_element even in discarded constexpr branches.
          // can't use unique_ptr because of that as well...
             auto pRetObj( std::get<1>( retVal ) );

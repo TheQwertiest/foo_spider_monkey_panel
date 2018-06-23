@@ -9,6 +9,7 @@
 
 #include <helpers.h>
 
+// TODO: extract this macro and common object code somewhere
 
 #define MOZJS_DEFINE_JS_TO_NATIVE_CALLBACK(baseClass, functionName) \
     bool functionName( JSContext* cx, unsigned argc, JS::Value* vp )\
