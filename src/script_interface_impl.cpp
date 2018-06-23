@@ -3509,9 +3509,9 @@ STDMETHODIMP GdiGraphics::GdiDrawBitmap(IGdiRawBitmap* bitmap, int dstX, int dst
 	return S_OK;
 }
 
-STDMETHODIMP GdiGraphics::GdiDrawText(BSTR str, IGdiFont* font, VARIANT colour, int x, int y, int w, int h, int format, VARIANT* p)
+STDMETHODIMP GdiGraphics::GdiDrawText(BSTR str, IGdiFont* font, VARIANT colour, int x, int y, int w, int h, int format)
 {
-	if (!m_ptr || !p) return E_POINTER;
+	if (!m_ptr) return E_POINTER;
 
 	HFONT hFont = NULL;
 	font->get_HFont((UINT *)&hFont);
@@ -3554,44 +3554,8 @@ STDMETHODIMP GdiGraphics::GdiDrawText(BSTR str, IGdiFont* font, VARIANT colour, 
 	}
 
 	DrawTextEx(dc, str, -1, &rc, format, &dpt);
-
 	SelectFont(dc, oldfont);
 	m_ptr->ReleaseHDC(dc);
-
-	// Returns an VBArray:
-	//   [0] left   (DT_CALCRECT)
-	//   [1] top    (DT_CALCRECT)
-	//   [2] right  (DT_CALCRECT)
-	//   [3] bottom (DT_CALCRECT)
-	//   [4] characters drawn
-	const int elements[] =
-	{
-		rc.left,
-		rc.top,
-		rc.right,
-		rc.bottom,
-		(int)dpt.uiLengthDrawn
-	};
-
-	helpers::com_array_writer<> helper;
-
-	if (!helper.create(_countof(elements))) return E_OUTOFMEMORY;
-
-	for (LONG i = 0; i < helper.get_count(); ++i)
-	{
-		_variant_t var;
-		var.vt = VT_I4;
-		var.lVal = elements[i];
-
-		if (FAILED(helper.put(i, var)))
-		{
-			helper.reset();
-			return E_OUTOFMEMORY;
-		}
-	}
-
-	p->vt = VT_ARRAY | VT_VARIANT;
-	p->parray = helper.get_ptr();
 	return S_OK;
 }
 

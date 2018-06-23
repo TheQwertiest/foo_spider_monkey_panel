@@ -147,7 +147,7 @@ __interface IGdiGraphics : IGdiObj
 	STDMETHOD(FillSolidRect)(float x, float y, float w, float h, VARIANT colour);
 	STDMETHOD(GdiAlphaBlend)(IGdiRawBitmap* bitmap, int dstX, int dstY, int dstW, int dstH, int srcX, int srcY, int srcW, int srcH, [defaultvalue(255)] BYTE alpha);
 	STDMETHOD(GdiDrawBitmap)(IGdiRawBitmap* bitmap, int dstX, int dstY, int dstW, int dstH, int srcX, int srcY, int srcW, int srcH);
-	STDMETHOD(GdiDrawText)(BSTR str, IGdiFont* font, VARIANT colour, int x, int y, int w, int h, [defaultvalue(0)] int format, [out, retval] VARIANT* p);
+	STDMETHOD(GdiDrawText)(BSTR str, IGdiFont* font, VARIANT colour, int x, int y, int w, int h, [defaultvalue(0)] int format);
 	STDMETHOD(MeasureString)(BSTR str, IGdiFont* font, float x, float y, float w, float h, [defaultvalue(0)] int flags, [out, retval] IMeasureStringInfo** pp);
 	STDMETHOD(SetInterpolationMode)(int mode);
 	STDMETHOD(SetSmoothingMode)(int mode);

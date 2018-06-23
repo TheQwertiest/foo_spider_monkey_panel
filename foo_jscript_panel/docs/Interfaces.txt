@@ -1544,18 +1544,8 @@ interface IGdiGraphics {
 		gr.GdiDrawBitmap(IGdiRawBitmap, dstX, dstY, dstW, dstH, srcX, srcY, srcW, srcH); (void)
 		// Always faster than DrawImage, does not support alpha channel.
 
-		gr.GdiDrawText(str, IGdiFont, colour, x, y, w, h[, format]); (VBArray)
-		/*
-		format: default 0. See flags.txt > DT_*
-
-		Returns a VBArray so you need to use .toArray() on the result.
-		index | meaning
-		[0] left   (DT_CALCRECT)
-		[1] top    (DT_CALCRECT)
-		[2] right  (DT_CALCRECT)
-		[3] bottom (DT_CALCRECT)
-		[4] characters drawn
-		*/
+		gr.GdiDrawText(str, IGdiFont, colour, x, y, w, h[, format]); (void)
+		// format: default 0. See flags.txt > DT_*
 
 		gr.MeasureString(str, IGdiFont, x, y, w, h[, flags]); (IMeasureStringInfo)
 		// flags: default 0. See flags.txt > StringFormatFlags
