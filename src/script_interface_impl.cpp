@@ -522,7 +522,7 @@ STDMETHODIMP FbMetadbHandleList::Convert(VARIANT* p)
 	if (!p) return E_POINTER;
 
 	t_size count = m_handles.get_count();
-	helpers::com_array_writer<> helper;
+	helpers::com_array_writer helper;
 	if (!helper.create(count)) return E_OUTOFMEMORY;
 
 	for (t_size i = 0; i < count; ++i)
@@ -560,7 +560,7 @@ STDMETHODIMP FbMetadbHandleList::GetLibraryRelativePaths(VARIANT* p)
 	auto api = library_manager::get();
 	t_size i, count = m_handles.get_count();
 
-	helpers::com_array_writer<> helper;
+	helpers::com_array_writer helper;
 	if (!helper.create(count)) return E_OUTOFMEMORY;
 
 	pfc::string8_fastalloc temp;
@@ -1185,7 +1185,7 @@ STDMETHODIMP FbPlaylistManager::GetPlaybackQueueContents(VARIANT* outContents)
 	pfc::list_t<t_playback_queue_item> contents;
 	playlist_manager::get()->queue_get_contents(contents);
 	t_size count = contents.get_count();
-	helpers::com_array_writer<> helper;
+	helpers::com_array_writer helper;
 	if (!helper.create(count)) return E_OUTOFMEMORY;
 
 	for (t_size i = 0; i < count; ++i)
@@ -1771,7 +1771,7 @@ STDMETHODIMP FbTitleFormat::EvalWithMetadbs(IFbMetadbHandleList* handles, VARIAN
 	metadb_handle_list_ref handles_ref = *handles_ptr;
 	t_size count = handles_ref.get_count();
 
-	helpers::com_array_writer<> helper;
+	helpers::com_array_writer helper;
 	if (!helper.create(count)) return E_OUTOFMEMORY;
 
 	for (t_size i = 0; i < count; ++i)
@@ -2901,7 +2901,7 @@ STDMETHODIMP GdiBitmap::GetColourScheme(UINT count, VARIANT* outArray)
 		return a.second > b.second;
 	});
 
-	helpers::com_array_writer<> helper;
+	helpers::com_array_writer helper;
 	if (!helper.create(count)) return E_OUTOFMEMORY;
 
 	for (LONG i = 0; i < helper.get_count(); ++i)
@@ -3374,7 +3374,7 @@ STDMETHODIMP GdiGraphics::EstimateLineWrap(BSTR str, IGdiFont* font, int max_wid
 	SelectFont(dc, oldfont);
 	m_ptr->ReleaseHDC(dc);
 
-	helpers::com_array_writer<> helper;
+	helpers::com_array_writer helper;
 
 	if (!helper.create(result.get_count() * 2))
 	{
@@ -3941,7 +3941,7 @@ STDMETHODIMP JSUtils::FileTest(BSTR path, BSTR mode, VARIANT* p)
 		const wchar_t* fn = PathFindFileName(path);
 		const wchar_t* ext = PathFindExtension(fn);
 		wchar_t dir[MAX_PATH] = { 0 };
-		helpers::com_array_writer<> helper;
+		helpers::com_array_writer helper;
 		_variant_t vars[3];
 
 		if (!helper.create(_countof(vars))) return E_OUTOFMEMORY;
@@ -4118,7 +4118,7 @@ STDMETHODIMP JSUtils::Glob(BSTR pattern, UINT exc_mask, UINT inc_mask, VARIANT* 
 	delete ff;
 	ff = NULL;
 
-	helpers::com_array_writer<> helper;
+	helpers::com_array_writer helper;
 
 	if (!helper.create(files.get_count())) return E_OUTOFMEMORY;
 

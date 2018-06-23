@@ -358,7 +358,6 @@ namespace helpers
 		LONG m_lbound, m_ubound;
 	};
 
-	template <bool managed = false>
 	class com_array_writer
 	{
 	public:
@@ -369,10 +368,6 @@ namespace helpers
 
 		~com_array_writer()
 		{
-			if (managed)
-			{
-				reset();
-			}
 		}
 
 		SAFEARRAY* get_ptr()
