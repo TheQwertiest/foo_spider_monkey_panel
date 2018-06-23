@@ -113,7 +113,7 @@ void JsGdiGraphics::SetGraphicsObject( Gdiplus::Graphics* graphics )
     graphics_ = graphics;
 }
 
-Mjs_Status JsGdiGraphics::DrawEllipse( float x, float y, float w, float h, float line_width, uint32_t colour )
+std::tuple<Mjs_Status> JsGdiGraphics::DrawEllipse( float x, float y, float w, float h, float line_width, uint32_t colour )
 {
     if ( !graphics_ )
     {
@@ -127,7 +127,7 @@ Mjs_Status JsGdiGraphics::DrawEllipse( float x, float y, float w, float h, float
     return Mjs_Ok;
 }
 
-Mjs_Status JsGdiGraphics::DrawLine( float x1, float y1, float x2, float y2, float line_width, uint32_t colour )
+std::tuple<Mjs_Status> JsGdiGraphics::DrawLine( float x1, float y1, float x2, float y2, float line_width, uint32_t colour )
 {
     if ( !graphics_ )
     {
@@ -141,7 +141,7 @@ Mjs_Status JsGdiGraphics::DrawLine( float x1, float y1, float x2, float y2, floa
     return Mjs_Ok;
 }
 
-Mjs_Status JsGdiGraphics::DrawRect( float x, float y, float w, float h, float line_width, uint32_t colour )
+std::tuple<Mjs_Status> JsGdiGraphics::DrawRect( float x, float y, float w, float h, float line_width, uint32_t colour )
 {
     if ( !graphics_ )
     {
@@ -155,7 +155,7 @@ Mjs_Status JsGdiGraphics::DrawRect( float x, float y, float w, float h, float li
     return Mjs_Ok;
 }
 
-Mjs_Status JsGdiGraphics::DrawRoundRect( float x, float y, float w, float h, float arc_width, float arc_height, float line_width, uint32_t colour )
+std::tuple<Mjs_Status> JsGdiGraphics::DrawRoundRect( float x, float y, float w, float h, float arc_width, float arc_height, float line_width, uint32_t colour )
 {
     if ( !graphics_ )
     {
@@ -185,7 +185,7 @@ Mjs_Status JsGdiGraphics::DrawRoundRect( float x, float y, float w, float h, flo
     return Mjs_Ok;
 }
 
-Mjs_Status JsGdiGraphics::FillEllipse( float x, float y, float w, float h, uint32_t colour )
+std::tuple<Mjs_Status> JsGdiGraphics::FillEllipse( float x, float y, float w, float h, uint32_t colour )
 {
     if ( !graphics_ )
     {
@@ -199,7 +199,7 @@ Mjs_Status JsGdiGraphics::FillEllipse( float x, float y, float w, float h, uint3
     return Mjs_Ok;
 }
 
-Mjs_Status JsGdiGraphics::FillGradRect( float x, float y, float w, float h, float angle, uint32_t colour1, uint32_t colour2, float focus )
+std::tuple<Mjs_Status> JsGdiGraphics::FillGradRect( float x, float y, float w, float h, float angle, uint32_t colour1, uint32_t colour2, float focus )
 {
     if ( !graphics_ )
     {
@@ -217,7 +217,7 @@ Mjs_Status JsGdiGraphics::FillGradRect( float x, float y, float w, float h, floa
     return Mjs_Ok;
 }
 
-Mjs_Status JsGdiGraphics::FillRoundRect( float x, float y, float w, float h, float arc_width, float arc_height, uint32_t colour )
+std::tuple<Mjs_Status> JsGdiGraphics::FillRoundRect( float x, float y, float w, float h, float arc_width, float arc_height, uint32_t colour )
 {
     if ( !graphics_ )
     {
@@ -241,7 +241,7 @@ Mjs_Status JsGdiGraphics::FillRoundRect( float x, float y, float w, float h, flo
     return Mjs_Ok;
 }
 
-Mjs_Status JsGdiGraphics::FillSolidRect( float x, float y, float w, float h, uint32_t colour )
+std::tuple<Mjs_Status> JsGdiGraphics::FillSolidRect( float x, float y, float w, float h, uint32_t colour )
 {
     if ( !graphics_ )
     {

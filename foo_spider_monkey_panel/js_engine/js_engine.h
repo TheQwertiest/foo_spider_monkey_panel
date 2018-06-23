@@ -55,7 +55,7 @@ public:
         }
 
         ReturnType unwrappedRetVal;
-        if ( !mozjs::JsToNativeValue( retVal, unwrappedRetVal ) )
+        if ( !mozjs::JsToNativeValue( pJsCtx_, retVal, unwrappedRetVal ) )
         {
             return std::nullopt;
         }

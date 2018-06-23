@@ -61,7 +61,7 @@ bool NativeToJsValue<std::nullptr_t>( JSContext *, const std::nullptr_t& inValue
 }
 
 template <>
-bool JsToNativeValue<bool>( const JS::HandleValue& jsValue, bool& unwrappedValue )
+bool JsToNativeValue<bool>( JSContext * cx, const JS::HandleValue& jsValue, bool& unwrappedValue )
 {
     if ( !jsValue.isBoolean() )
     {
@@ -73,7 +73,7 @@ bool JsToNativeValue<bool>( const JS::HandleValue& jsValue, bool& unwrappedValue
 }
 
 template <>
-bool JsToNativeValue<int32_t>( const JS::HandleValue& jsValue, int32_t& unwrappedValue )
+bool JsToNativeValue<int32_t>( JSContext * cx, const JS::HandleValue& jsValue, int32_t& unwrappedValue )
 {
     if ( !jsValue.isInt32() )
     {
@@ -85,31 +85,31 @@ bool JsToNativeValue<int32_t>( const JS::HandleValue& jsValue, int32_t& unwrappe
 }
 
 template <>
-bool JsToNativeValue<uint32_t>( const JS::HandleValue& jsValue, uint32_t& unwrappedValue )
+bool JsToNativeValue<uint32_t>( JSContext * cx, const JS::HandleValue& jsValue, uint32_t& unwrappedValue )
 {
     if ( !jsValue.isNumber() )
     {
         return false;
     }
 
-    unwrappedValue = static_cast<uint32_t>( jsValue.toNumber() );
+    unwrappedValue = static_cast<uint32_t>(jsValue.toNumber());
     return true;
 }
 
 template <>
-bool JsToNativeValue<float>( const JS::HandleValue& jsValue, float& unwrappedValue )
+bool JsToNativeValue<float>( JSContext * cx, const JS::HandleValue& jsValue, float& unwrappedValue )
 {
     if ( !jsValue.isNumber() )
     {
         return false;
     }
 
-    unwrappedValue = static_cast<float>( jsValue.toNumber() );
+    unwrappedValue = static_cast<float>(jsValue.toNumber());
     return true;
 }
 
 template <>
-bool JsToNativeValue<double>( const JS::HandleValue& jsValue, double& unwrappedValue )
+bool JsToNativeValue<double>( JSContext * cx, const JS::HandleValue& jsValue, double& unwrappedValue )
 {
     if ( !jsValue.isNumber() )
     {
@@ -121,7 +121,24 @@ bool JsToNativeValue<double>( const JS::HandleValue& jsValue, double& unwrappedV
 }
 
 template <>
-bool JsToNativeValue<std::nullptr_t>( const JS::HandleValue& jsValue, std::nullptr_t& unwrappedValue )
+bool JsToNativeValue<std::string>( JSContext * cx, const JS::HandleValue& jsValue, std::string& unwrappedValue )
+{
+    if ( !jsValue.isString() )
+    {
+        return false;
+    }
+
+    JS::RootedString jsString( cx, jsValue.toString() );
+    const char* encodedString = JS_EncodeStringToUTF8( cx, jsString );
+
+    unwrappedValue = encodedString;
+
+    JS_free( cx, (void*)encodedString );
+    return true;
+}
+
+template <>
+bool JsToNativeValue<std::nullptr_t>( JSContext * cx, const JS::HandleValue& jsValue, std::nullptr_t& unwrappedValue )
 {
     return true;
 }

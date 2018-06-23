@@ -2,6 +2,8 @@
 
 #include "global_object.h"
 #include "console.h"
+#include "gdi_utils.h"
+
 #include <js_panel_window.h>
 
 namespace
@@ -70,6 +72,17 @@ JSObject* JsGlobalObject::Create( JSContext* cx, js_panel_window& parentPanel )
         }
 
         if ( !DefineConsole( cx, jsObj ) )
+        {
+            return nullptr;
+        }
+
+        JS::RootedObject gdiObj( cx, JsGdiUtils::Create(cx) );
+        if ( !gdiObj )
+        {
+            return nullptr;
+        }
+
+        if (!JS_DefineProperty( cx, jsObj, "gdi", gdiObj, 0 ) )
         {
             return nullptr;
         }

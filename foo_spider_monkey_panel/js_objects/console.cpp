@@ -38,7 +38,7 @@ bool Log( JSContext* cx, unsigned argc, JS::Value* vp )
 
      args.rval().setUndefined();
 
-     console::printf( outputString.c_str() );
+     console::info( outputString.c_str() );
      return true;
 }
 
