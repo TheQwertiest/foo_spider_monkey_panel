@@ -211,11 +211,6 @@ namespace helpers
 			reset();
 		}
 
-		com_array_reader(VARIANT* pVarSrc) : m_psa(NULL)
-		{
-			convert(pVarSrc);
-		}
-
 		~com_array_reader()
 		{
 			reset();
@@ -419,21 +414,21 @@ namespace helpers
 	public:
 		static bool convert(VARIANT items, pfc::bit_array_bittable& out, bool& ok)
 		{
-			com_array_reader arrayReader;
+			com_array_reader helper;
 			ok = true;
 
-			if (!arrayReader.convert(&items)) return false;
-			if (arrayReader.get_count() == 0)
+			if (!helper.convert(&items)) return false;
+			if (helper.get_count() == 0)
 			{
 				ok = false;
 				out.resize(0);
 				return true;
 			}
 
-			for (int i = arrayReader.get_lbound(); i < arrayReader.get_count(); ++i)
+			for (int i = helper.get_lbound(); i < helper.get_count(); ++i)
 			{
 				_variant_t index;
-				arrayReader.get_item(i, index);
+				helper.get_item(i, index);
 				if (FAILED(VariantChangeType(&index, &index, 0, VT_I4))) return false;
 				out.set(index.lVal, true);
 			}
