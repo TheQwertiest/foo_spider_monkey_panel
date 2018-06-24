@@ -54,6 +54,9 @@
     <ClCompile Include="js_objects\gdi_font.cpp">
       <Filter>js_objects</Filter>
     </ClCompile>
+    <ClCompile Include="js_objects\gdi_error.cpp">
+      <Filter>js_objects</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\PropertyList\PropertyItem.h" />
@@ -130,6 +133,9 @@
     <ClInclude Include="js_objects\gdi_font.h">
       <Filter>js_objects</Filter>
     </ClInclude>
+    <ClInclude Include="js_objects\gdi_error.h">
+      <Filter>js_objects</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="foo_spider_monkey_panel.rc" />
@@ -144,6 +150,9 @@
     </Filter>
     <Filter Include="js_objects">
       <UniqueIdentifier>{9297b4c3-f67b-4bf4-ac59-11c858ffe1ed}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="utils">
+      <UniqueIdentifier>{ec53acea-e62f-4dab-a310-6e7ad5b88ff9}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

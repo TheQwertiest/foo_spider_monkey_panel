@@ -5,6 +5,7 @@
 #include <js_objects/js_object_wrapper.h>
 
 #include <string>
+#include <optional>
 
 class JSObject;
 struct JSContext;
@@ -39,8 +40,8 @@ public:
 
 public: 
 
-    std::tuple<Mjs_Status, JsObjectWrapper<JsGdiFont>*> Font( std::wstring fontName, float pxSize, uint32_t style );
-    std::tuple<Mjs_Status, JsObjectWrapper<JsGdiFont>*> FontWithOpt( size_t optArgCount, std::wstring fontName, float pxSize, uint32_t style );
+    std::optional<JsObjectWrapper<JsGdiFont>*> Font( std::wstring fontName, float pxSize, uint32_t style );
+    std::optional<JsObjectWrapper<JsGdiFont>*> FontWithOpt( size_t optArgCount, std::wstring fontName, float pxSize, uint32_t style );
 
 private:
     JsGdiUtils( JSContext* cx );

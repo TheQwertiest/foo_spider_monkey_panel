@@ -10,23 +10,23 @@
 
 #include <type_traits>
 
-// TODO: replace Mjs status with JS_ReportErrorASCII
-
-#define MJS_STRINGIFY(x) #x
-
 #define MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT(baseClass, functionName, functionWithOptName, optArgCount) \
     bool functionName( JSContext* cx, unsigned argc, JS::Value* vp )\
     {\
-        Mjs_Status mjsRet = \
+        bool bRet = \
             InvokeNativeCallback<optArgCount>( cx, &baseClass::functionName, &baseClass::functionWithOptName, argc, vp );\
-        if (Mjs_Ok != mjsRet)\
+        if (!bRet)\
         {\
-            std::string errorText = MJS_STRINGIFY(functionName);\
-            errorText += " failed: ";\
-            errorText += ErrorCodeToString( mjsRet );\
-            JS_ReportErrorASCII( cx, errorText.c_str() );\
+            std::string innerErrorText(GetCurrentExceptionText(cx));\
+            if (!innerErrorText.empty())\
+            {\
+                std::string tmpString = ": \n";\
+                tmpString += innerErrorText;\
+                innerErrorText.swap( tmpString );\
+            }\
+            JS_ReportErrorASCII( cx, "'%s' failed%s", #functionName, innerErrorText.c_str() ); \
         }\
-        return Mjs_Ok == mjsRet;\
+        return bRet;\
     }
 
 #define MJS_DEFINE_JS_TO_NATIVE_FN(baseClass, functionName) \
@@ -50,15 +50,8 @@ auto JsToNativeValueTuple( const JS::CallArgs& jsArgs, FuncType&& func )
     return JsToNativeValueTupleImpl<ArgTypes...>( jsArgs, func, std::make_index_sequence<TupleSize>{} );
 }
 
-// Workarounds for MSVC bug (see below)
-template<typename ReturnType>
-constexpr inline bool NeedToPrepareNativeValue()
-{
-    return std::is_pointer<std::tuple_element<1, ReturnType>::type>::value;
-}
-
 template <size_t OptArgCount = 0, typename BaseClass, typename ReturnType, typename FuncOptTupe, typename ... ArgTypes>
-Mjs_Status InvokeNativeCallback( JSContext* cx, 
+bool InvokeNativeCallback( JSContext* cx, 
                                  ReturnType( BaseClass::*fn )(ArgTypes ...), 
                                  FuncOptTupe fnWithOpt,
                                  unsigned argc, JS::Value* vp )
@@ -68,12 +61,14 @@ Mjs_Status InvokeNativeCallback( JSContext* cx,
     if ( args.length() < (sizeof ...(ArgTypes) - OptArgCount)
          || args.length() > sizeof ...(ArgTypes) )
     {        
-        return Mjs_InvalidArgumentCount;
+        JS_ReportErrorASCII( cx, "Invalid number of arguments" );
+        return false;
     }
 
     // Parse arguments
 
     bool bRet = true;
+    size_t failedIdx = 0;
     auto callbackArguments =
         JsToNativeValueTuple<sizeof ...(ArgTypes), ArgTypes...>( 
             args,
@@ -83,13 +78,18 @@ Mjs_Status InvokeNativeCallback( JSContext* cx,
         ArgType nativeValue = ArgType();
         if ( index < jsArgs.length() )
         {
-            bRet &= JsToNativeValue( cx, jsArgs[index], nativeValue );
+            if ( !JsToNativeValue( cx, jsArgs[index], nativeValue ) )
+            {
+                failedIdx = index;
+                bRet = false;
+            }
         }
         return nativeValue;
     } );
     if (!bRet)
     {
-        return Mjs_InvalidArgumentType;
+        JS_ReportErrorASCII( cx, "Argument #%d is of wrong type", failedIdx );
+        return false;
     }
     
     // Call function
@@ -97,24 +97,24 @@ Mjs_Status InvokeNativeCallback( JSContext* cx,
     BaseClass* baseClass = static_cast<BaseClass*>( JS_GetPrivate( args.thisv().toObjectOrNull() ) );
     if ( !baseClass )
     {
-        return Mjs_InternalError;
+        JS_ReportErrorASCII( cx, "Internal error: JS_GetPrivate failed" );
+        return false;
     }
 
     ReturnType retVal = 
-        InvokeNativeCallback_Call<!!OptArgCount, ReturnType>( baseClass, fn, fnWithOpt, callbackArguments, sizeof ...(ArgTypes) - args.length());
-    Mjs_Status mjsRet = std::get<0>( retVal );
-    if ( Mjs_Ok != mjsRet )
-    {
-        return mjsRet;
+        InvokeNativeCallback_Call<!!OptArgCount, ReturnType>( baseClass, fn, fnWithOpt, callbackArguments, sizeof ...(ArgTypes) - args.length());    
+    if ( !retVal )
+    {        
+        return false;
     }
 
-    mjsRet = InvokeNativeCallback_SetReturnValue( cx, retVal, args.rval() );
-    if ( Mjs_Ok != mjsRet )
+    bRet = InvokeNativeCallback_SetReturnValue( cx, retVal.value(), args.rval() );
+    if ( !bRet )
     {
-        return mjsRet;
+        return false;
     }
 
-    return Mjs_Ok;
+    return true;
 }
 
 template <
@@ -137,37 +137,35 @@ ReturnType InvokeNativeCallback_Call( BaseClass* baseClass, FuncType fn, FuncOpt
     }
 }
 
-template <typename TupleType>
-Mjs_Status InvokeNativeCallback_SetReturnValue( JSContext* cx, const TupleType& returnedTuple, JS::MutableHandleValue jsReturnValue )
+template <typename ReturnType>
+bool InvokeNativeCallback_SetReturnValue( JSContext* cx, const ReturnType& returnedValue, JS::MutableHandleValue jsReturnValue )
 {  
-    constexpr size_t returnTupleSize = std::tuple_size<TupleType>::value;
-    static_assert(returnTupleSize <= 2, "Invalid size of returned tuple");
-
     jsReturnValue.setUndefined();
 
-    if constexpr(returnTupleSize == 2)
+    if constexpr(!std::is_same<ReturnType, nullptr_t>::value)
     {
-        if constexpr(NeedToPrepareNativeValue<TupleType>())
-        {// bug in MSVC: evaluates std::tuple_element even in discarded constexpr branches.
-         // can't use unique_ptr because of that as well...
-            auto pRetObj( std::get<1>( returnedTuple ) );
+        if constexpr(std::is_pointer<ReturnType>::value)
+        {
+            auto pRetObj( returnedValue );
             if ( !NativeToJsValue( cx, pRetObj->GetJsObject(), jsReturnValue ) )
             {
                 delete pRetObj;
-                return Mjs_InternalError;
+                JS_ReportErrorASCII( cx, "Internal error: failed to convert return value" );
+                return false;
             }
             delete pRetObj;
         }
         else
         {
-            if ( !NativeToJsValue( cx, std::get<1>( retVal ), jsReturnValue ) )
+            if ( !NativeToJsValue( cx, returnedValue, jsReturnValue ) )
             {
-                return Mjs_InternalError;
+                JS_ReportErrorASCII( cx, "Internal error: failed to convert return value" );
+                return false;
             }
         }
     }
 
-    return Mjs_Ok;
+    return true;
 }
 
 }

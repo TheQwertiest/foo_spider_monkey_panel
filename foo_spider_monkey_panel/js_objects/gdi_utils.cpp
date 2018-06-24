@@ -85,7 +85,7 @@ JSObject* JsGdiUtils::Create( JSContext* cx )
     return jsObj;
 }
 
-std::tuple<Mjs_Status, JsObjectWrapper<JsGdiFont>*>
+std::optional<JsObjectWrapper<JsGdiFont>*>
 JsGdiUtils::Font( std::wstring fontName, float pxSize, uint32_t style )
 {
     Gdiplus::Font* pGdiFont = new Gdiplus::Font( fontName.c_str(), pxSize, style, Gdiplus::UnitPixel );
@@ -96,7 +96,8 @@ JsGdiUtils::Font( std::wstring fontName, float pxSize, uint32_t style )
             delete pGdiFont;
         }
 
-        return { Mjs_InternalError, nullptr };
+        // Not an error: font not found
+        return std::optional< JsObjectWrapper<JsGdiFont>* >{nullptr};
     }
 
     // Generate HFONT
@@ -122,18 +123,20 @@ JsGdiUtils::Font( std::wstring fontName, float pxSize, uint32_t style )
     JsObjectWrapper<JsGdiFont>* pJsFont = JsObjectWrapper<JsGdiFont>::Create( pJsCtx_, global, pGdiFont, hFont );
     if ( !pJsFont )
     {
-        return { Mjs_InternalError, nullptr };
+        JS_ReportErrorASCII( pJsCtx_, "Internal error: failed to create wrapped JS object" );
+        return std::nullopt;
     }
 
-    return { Mjs_Ok, pJsFont };
+    return std::optional< JsObjectWrapper<JsGdiFont>* >{pJsFont};
 }
 
-std::tuple<mozjs::Mjs_Status, mozjs::JsObjectWrapper<mozjs::JsGdiFont>*>
+std::optional<JsObjectWrapper<JsGdiFont>*>
 JsGdiUtils::FontWithOpt( size_t optArgCount, std::wstring fontName, float pxSize, uint32_t style )
 {
     if ( optArgCount > 1 )
     {
-        return { Mjs_InvalidArgumentCount, nullptr };
+        JS_ReportErrorASCII( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
+        return std::nullopt;
     }
 
     if ( optArgCount == 1 )

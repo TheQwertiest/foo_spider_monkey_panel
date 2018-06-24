@@ -58,7 +58,7 @@ bool JsEngine::ExecuteScript( JS::HandleObject globalObject, std::string_view sc
     JSAutoCompartment ac( pJsCtx_, globalObject );
     
     JS::CompileOptions opts( pJsCtx_ );
-    opts.setFileAndLine( "main", 1 );
+    opts.setFileAndLine( "<main>", 1 );
 
     JS::RootedValue rval( pJsCtx_ );
     

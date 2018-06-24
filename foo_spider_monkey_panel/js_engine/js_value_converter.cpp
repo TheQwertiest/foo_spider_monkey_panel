@@ -3,6 +3,41 @@
 #include "js_value_converter.h"
 #include <js_objects/gdi_font.h>
 
+namespace
+{
+
+template <typename NativeObjectType>
+bool JsToNativeObject( JSContext * cx, const JS::HandleValue& jsValue, NativeObjectType*& unwrappedValue )
+{
+    if ( !jsValue.isObjectOrNull() )
+    {
+        return false;
+    }
+
+    JS::RootedObject jsObject( cx, jsValue.toObjectOrNull() );
+    if ( !jsObject )
+    {
+        unwrappedValue = NULL;
+        return true;
+    }
+
+    if ( !JS_InstanceOf( cx, jsObject, &NativeObjectType::GetClass(), nullptr ) )
+    {
+        return false;
+    }
+
+    auto pJsFont = static_cast<NativeObjectType *>(JS_GetPrivate( jsObject ));
+    if ( !pJsFont )
+    {
+        assert( 0 );
+        return false;
+    }
+
+    unwrappedValue = pJsFont;
+    return true;
+}
+
+}
 
 namespace mozjs
 {
@@ -160,32 +195,7 @@ bool JsToNativeValue<std::nullptr_t>( JSContext * cx, const JS::HandleValue& jsV
 template <>
 bool JsToNativeValue<JsGdiFont*>( JSContext * cx, const JS::HandleValue& jsValue, JsGdiFont*& unwrappedValue )
 {
-    if ( !jsValue.isObjectOrNull() )
-    {
-        return false;
-    }
-
-    JS::RootedObject jsObject( cx, jsValue.toObjectOrNull() );
-    if ( !jsObject )
-    {
-        unwrappedValue = NULL;
-        return true;
-    }
-
-    if ( !JS_InstanceOf( cx, jsObject, &JsGdiFont::GetClass(), nullptr ) )
-    {
-        return false;
-    }
-
-    auto pJsFont = static_cast<JsGdiFont *>(JS_GetPrivate( jsObject ));
-    if ( !pJsFont )
-    {
-        assert( 0 );
-        return false;
-    }
-
-    unwrappedValue = pJsFont;
-    return true;
+    return JsToNativeObject( cx, jsValue, unwrappedValue );
 }
 
 }

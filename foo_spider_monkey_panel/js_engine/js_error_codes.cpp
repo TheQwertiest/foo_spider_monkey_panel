@@ -2,41 +2,54 @@
 
 #include "js_error_codes.h"
 
+#pragma warning( push )  
+#pragma warning( disable : 4251 ) // dll interface warning
+#pragma warning( disable : 4996 ) // C++17 deprecation warning
+#include <jsapi.h>
+#include <jsfriendapi.h>
+#pragma warning( pop )  
+
+
 
 namespace mozjs
 {
 
-const char* ErrorCodeToString( Mjs_Status errorCode )
+std::string GetCurrentExceptionText( JSContext* cx )
 {
-    switch ( errorCode )
+    if ( !JS_IsExceptionPending( cx ) )
     {
-    case Mjs_Ok:
-    {
-        return "No error";
+        return std::string();
     }
-    case Mjs_InvalidArgumentType:
+
+    // Get exception object before printing and clearing exception.
+    JS::RootedValue excn( cx );
+    (void)JS_GetPendingException( cx, &excn );
+
+    JS::RootedObject global( cx, JS::CurrentGlobalOrNull( cx ) );
+    if ( !global )
     {
-        return "Argument has invalid type";
+        return std::string();
     }
-    case Mjs_InvalidArgumentCount:
+
+    JS::RootedObject excnObject( cx, excn.toObjectOrNull() );
+    if ( !excnObject )
     {
-        return "Invalid number of arguments";
+        return std::string();
     }
-    case Mjs_InvalidArgumentValue:
+
+    JSErrorReport* report = JS_ErrorFromException( cx, excnObject );
+    if ( !report )
     {
-        return "Invalid argument value";
+        return std::string();
     }
-    case Mjs_InternalError:
+
+    if ( JSMSG_USER_DEFINED_ERROR != report->errorNumber )
     {
-        return "Internal error";
+        return std::string();
     }
-    case Mjs_EngineInternalError:
-    {
-        return "Internal engine error";
-    }    
-    default:
-        return "";
-    }
+
+    JS_ClearPendingException( cx );
+    return report->message().c_str();
 }
 
 }
