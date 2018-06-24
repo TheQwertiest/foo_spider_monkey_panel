@@ -8,6 +8,8 @@
 #include <js_objects/gdi_font.h>
 #include <js_objects/gdi_error.h>
 
+#include <helpers.h>
+
 
 namespace
 {
@@ -34,8 +36,11 @@ static JSClass gdiGraphicsClass = {
     &gdiGraphicsOps
 };
 
+MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiGraphics, CalcTextHeight )
+MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiGraphics, CalcTextWidth )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiGraphics, DrawEllipse )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiGraphics, DrawLine )
+MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiGraphics, DrawPolygon )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiGraphics, DrawRect )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiGraphics, DrawRoundRect )
 MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsGdiGraphics, DrawString, DrawStringWithOpt, 1 )
@@ -43,10 +48,16 @@ MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiGraphics, FillEllipse )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiGraphics, FillGradRect )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiGraphics, FillRoundRect )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiGraphics, FillSolidRect )
+MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsGdiGraphics, SetInterpolationMode, SetInterpolationModeWithOpt, 1 )
+MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsGdiGraphics, SetSmoothingMode, SetSmoothingModeWithOpt, 1 )
+MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsGdiGraphics, SetTextRenderingHint, SetTextRenderingHintWithOpt, 1 )
 
 static const JSFunctionSpec gdiGraphicsFunctions[] = {
+    JS_FN( "CalcTextHeight", CalcTextHeight, 2, 0 ),
+    JS_FN( "CalcTextWidth", CalcTextWidth, 2, 0 ),
     JS_FN( "DrawEllipse", DrawEllipse, 6, 0 ),
     JS_FN( "DrawLine", DrawLine, 6, 0 ),
+    JS_FN( "DrawPolygon", DrawPolygon, 3, 0 ),
     JS_FN( "DrawRect", DrawRect, 6, 0 ),
     JS_FN( "DrawRoundRect", DrawRoundRect, 8, 0 ),
     JS_FN( "DrawString", DrawString, 8, 0 ),
@@ -54,6 +65,9 @@ static const JSFunctionSpec gdiGraphicsFunctions[] = {
     JS_FN( "FillGradRect", FillGradRect, 8, 0 ),
     JS_FN( "FillRoundRect", FillRoundRect, 7, 0 ),
     JS_FN( "FillSolidRect", FillSolidRect, 5, 0 ),
+    JS_FN( "SetInterpolationMode", SetInterpolationMode, 1, 0 ),
+    JS_FN( "SetSmoothingMode", SetSmoothingMode, 1, 0 ),
+    JS_FN( "SetTextRenderingHint", SetTextRenderingHint, 1, 0 ),
     JS_FS_END
 };
 
@@ -98,6 +112,60 @@ void JsGdiGraphics::SetGraphicsObject( Gdiplus::Graphics* graphics )
     graphics_ = graphics;
 }
 
+std::optional<uint32_t> 
+JsGdiGraphics::CalcTextHeight( std::wstring str, JsGdiFont* pJsFont )
+{
+    if ( !graphics_ )
+    {
+        JS_ReportErrorASCII( pJsCtx_, "Internal error: Gdiplus::Graphics object is null" );
+        return std::nullopt;
+    }
+
+    if ( !pJsFont )
+    {
+        JS_ReportErrorASCII( pJsCtx_, "Font object is null" );
+        return std::nullopt;
+    }
+
+    HFONT hFont = pJsFont->GetHFont();
+    HDC dc = graphics_->GetHDC();
+    HFONT oldfont = SelectFont( dc, hFont );
+
+    uint32_t textH = helpers::get_text_height( dc, str.c_str(), str.length() );
+
+    SelectFont( dc, oldfont );
+    graphics_->ReleaseHDC( dc );
+
+    return std::optional<uint32_t>{textH};
+}
+
+std::optional<uint32_t> 
+JsGdiGraphics::CalcTextWidth( std::wstring str, JsGdiFont* pJsFont )
+{
+    if ( !graphics_ )
+    {
+        JS_ReportErrorASCII( pJsCtx_, "Internal error: Gdiplus::Graphics object is null" );
+        return std::nullopt;
+    }
+
+    if ( !pJsFont )
+    {
+        JS_ReportErrorASCII( pJsCtx_, "Font object is null" );
+        return std::nullopt;
+    }
+
+    HFONT hFont = pJsFont->GetHFont();
+    HDC dc = graphics_->GetHDC();
+    HFONT oldfont = SelectFont( dc, hFont );
+
+    uint32_t textW = helpers::get_text_width( dc, str.c_str(), str.length() );
+
+    SelectFont( dc, oldfont );
+    graphics_->ReleaseHDC( dc );
+
+    return std::optional<uint32_t>{textW};
+}
+
 std::optional<std::nullptr_t>
 JsGdiGraphics::DrawEllipse( float x, float y, float w, float h, float line_width, uint32_t colour )
 {
@@ -126,6 +194,55 @@ JsGdiGraphics::DrawLine( float x1, float y1, float x2, float y2, float line_widt
     Gdiplus::Pen pen( colour, line_width );
     Gdiplus::Status gdiRet = graphics_->DrawLine( &pen, x1, y1, x2, y2 );
     IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, std::nullopt, DrawLine );
+
+    return std::optional<std::nullptr_t>{nullptr};
+}
+
+std::optional<std::nullptr_t> JsGdiGraphics::DrawPolygon( uint32_t colour, float line_width, std::vector<JsUnknownObjectWrapper> points )
+{
+    if ( !graphics_ )
+    {
+        JS_ReportErrorASCII( pJsCtx_, "Internal error: Gdiplus::Graphics object is null" );
+        return std::nullopt;
+    }
+
+    // Uncommon type: unpacking manually
+    std::vector<Gdiplus::PointF> pointArray;
+    JS::RootedValue jsX(pJsCtx_), jsY(pJsCtx_);
+    float x, y;    
+
+    for ( size_t i = 0; i < points.size(); ++i )
+    {
+        JS::HandleObject curElement( points[i].GetJsObject() );
+        if ( !JS_GetProperty( pJsCtx_, curElement, "x", &jsX ) )
+        {
+            JS_ReportErrorASCII( pJsCtx_, "Failed to get 'x' property of point" );
+            return std::nullopt;
+        }
+        if ( !JS_GetProperty( pJsCtx_, curElement, "y", &jsY ) )
+        {
+            JS_ReportErrorASCII( pJsCtx_, "Failed to get 'y' property of point" );
+            return std::nullopt;
+        }
+
+        if ( !JsToNativeValue( pJsCtx_, jsX, x ) )
+        {
+            JS_ReportErrorASCII( pJsCtx_, "'x' property of point is of wrong type" );
+            return std::nullopt;
+        }
+
+        if ( !JsToNativeValue( pJsCtx_, jsY, y ) )
+        {
+            JS_ReportErrorASCII( pJsCtx_, "'y' property of point is of wrong type" );
+            return std::nullopt;
+        }
+
+        pointArray.emplace_back( Gdiplus::PointF( x, y ) );
+    }
+
+    Gdiplus::Pen pen( colour, line_width );
+    Gdiplus::Status gdiRet = graphics_->DrawPolygon( &pen, pointArray.data(), pointArray.size() );
+    IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, std::nullopt, DrawPolygon );
 
     return std::optional<std::nullptr_t>{nullptr};
 }
@@ -325,6 +442,96 @@ JsGdiGraphics::FillSolidRect( float x, float y, float w, float h, uint32_t colou
     IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, std::nullopt, FillRectangle );
 
     return std::optional<std::nullptr_t>{nullptr};
+}
+
+std::optional<std::nullptr_t> JsGdiGraphics::SetInterpolationMode( uint32_t mode )
+{
+    if ( !graphics_ )
+    {
+        JS_ReportErrorASCII( pJsCtx_, "Internal error: Gdiplus::Graphics object is null" );
+        return std::nullopt;
+    }
+
+    Gdiplus::Status gdiRet = graphics_->SetInterpolationMode( (Gdiplus::InterpolationMode)mode );
+    IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, std::nullopt, SetInterpolationMode );
+
+    return std::optional<std::nullptr_t>{nullptr};
+}
+
+std::optional<std::nullptr_t> JsGdiGraphics::SetInterpolationModeWithOpt( size_t optArgCount, uint32_t mode )
+{
+    if ( optArgCount > 1 )
+    {
+        JS_ReportErrorASCII( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
+        return std::nullopt;
+    }
+
+    if ( optArgCount == 1 )
+    {
+        return SetInterpolationMode( 0 );
+    }
+
+    return SetInterpolationMode( mode );
+}
+
+std::optional<std::nullptr_t> JsGdiGraphics::SetSmoothingMode( uint32_t mode )
+{
+    if ( !graphics_ )
+    {
+        JS_ReportErrorASCII( pJsCtx_, "Internal error: Gdiplus::Graphics object is null" );
+        return std::nullopt;
+    }
+
+    Gdiplus::Status gdiRet = graphics_->SetSmoothingMode( (Gdiplus::SmoothingMode)mode );
+    IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, std::nullopt, SetSmoothingMode );
+
+    return std::optional<std::nullptr_t>{nullptr};
+}
+
+std::optional<std::nullptr_t> JsGdiGraphics::SetSmoothingModeWithOpt( size_t optArgCount, uint32_t mode )
+{
+    if ( optArgCount > 1 )
+    {
+        JS_ReportErrorASCII( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
+        return std::nullopt;
+    }
+
+    if ( optArgCount == 1 )
+    {
+        return SetSmoothingMode( 0 );
+    }
+
+    return SetSmoothingMode( mode );
+}
+
+std::optional<std::nullptr_t> JsGdiGraphics::SetTextRenderingHint( uint32_t mode )
+{
+    if ( !graphics_ )
+    {
+        JS_ReportErrorASCII( pJsCtx_, "Internal error: Gdiplus::Graphics object is null" );
+        return std::nullopt;
+    }
+
+    Gdiplus::Status gdiRet = graphics_->SetTextRenderingHint( (Gdiplus::TextRenderingHint)mode );
+    IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, std::nullopt, SetTextRenderingHint );
+
+    return std::optional<std::nullptr_t>{nullptr};
+}
+
+std::optional<std::nullptr_t> JsGdiGraphics::SetTextRenderingHintWithOpt( size_t optArgCount, uint32_t mode )
+{
+    if ( optArgCount > 1 )
+    {
+        JS_ReportErrorASCII( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
+        return std::nullopt;
+    }
+
+    if ( optArgCount == 1 )
+    {
+        return SetTextRenderingHint( 0 );
+    }
+
+    return SetTextRenderingHint( mode );
 }
 
 int JsGdiGraphics::GetRoundRectPath( Gdiplus::GraphicsPath& gp, Gdiplus::RectF& rect, float arc_width, float arc_height )

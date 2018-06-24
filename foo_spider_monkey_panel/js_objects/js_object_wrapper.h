@@ -119,4 +119,58 @@ private:
     MozjsObjectType * pNativeObject_;
 };
 
+
+class JsUnknownObjectWrapper final
+{
+public:
+    JsUnknownObjectWrapper( const JsUnknownObjectWrapper & rhv )
+        : pJsCtx_( rhv.pJsCtx_ )
+        , jsObject_( rhv.pJsCtx_, rhv.jsObject_ )
+    {
+    }
+
+    JsUnknownObjectWrapper( const JsUnknownObjectWrapper && rhv )
+        : pJsCtx_( rhv.pJsCtx_ )
+        , jsObject_( rhv.pJsCtx_, rhv.jsObject_ )
+    {
+    }
+
+    ~JsUnknownObjectWrapper()
+    {
+        jsObject_.reset();
+    }
+
+    static JsUnknownObjectWrapper* Create( JSContext* cx, JS::HandleObject jsObject )
+    {
+        return new JsUnknownObjectWrapper( cx, jsObject );
+    }
+
+    static JsUnknownObjectWrapper* Create( JSContext* cx, JSObject* pJsObject )
+    {
+        JS::RootedObject jsObject( cx, pJsObject );
+        return new JsUnknownObjectWrapper( cx, jsObject );
+    }
+
+    explicit operator JS::HandleObject()
+    {
+        return GetJsObject();
+    }
+
+    JS::HandleObject GetJsObject()
+    {
+        return jsObject_;
+    }
+
+private:
+    JsUnknownObjectWrapper( JSContext* cx, JS::HandleObject jsObject )
+        : pJsCtx_( cx )
+        , jsObject_( cx, jsObject )
+    {
+    }
+
+private:
+    JS::PersistentRootedObject jsObject_;
+    JSContext* pJsCtx_;
+};
+
 }

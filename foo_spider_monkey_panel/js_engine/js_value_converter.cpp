@@ -198,4 +198,68 @@ bool JsToNativeValue<JsGdiFont*>( JSContext * cx, const JS::HandleValue& jsValue
     return JsToNativeObject( cx, jsValue, unwrappedValue );
 }
 
+template <>
+bool JsToNativeValue<JSObject*>( JSContext * cx, const JS::HandleValue& jsValue, JSObject*& unwrappedValue )
+{    
+    if ( !jsValue.isObjectOrNull() )
+    {
+        return false;
+    }
+
+    JS::RootedObject jsObject( cx, jsValue.toObjectOrNull() );
+    if ( !jsObject )
+    {
+        unwrappedValue = NULL;
+        return true;
+    }
+
+    unwrappedValue = jsObject;
+    return true;
+}
+
+
+template <>
+bool JsToNativeValue( JSContext * cx, const JS::HandleValue& jsValue, std::vector<JsUnknownObjectWrapper>& unwrappedValue )
+{
+    if ( !jsValue.isObjectOrNull() )
+    {
+        return false;
+    }
+
+    JS::RootedObject jsObject( cx, jsValue.toObjectOrNull() );
+    if ( !jsObject )
+    {
+        return false;
+    }
+
+    bool is;
+    if ( !JS_IsArrayObject( cx, jsObject, &is ) )
+    {
+        return false;
+    }
+
+    uint32_t arraySize;
+    if ( !JS_GetArrayLength( cx, jsObject, &arraySize ) )
+    {
+        return false;
+    }
+
+
+    JS::RootedValue arrayElement(cx);
+    for ( uint32_t i = 0; i < arraySize; ++i )
+    {
+        if ( !JS_GetElement( cx, jsObject, i, &arrayElement ) )
+        {
+            return false;
+        }
+        if ( !arrayElement.isObjectOrNull() )
+        {
+            return false;
+        }
+        unwrappedValue.emplace_back( *JsUnknownObjectWrapper::Create( cx, arrayElement.toObjectOrNull() ) );
+    }
+
+    return true;
+}
+
 }

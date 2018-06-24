@@ -1,6 +1,8 @@
 #pragma once
 
 #include <js_engine/js_error_codes.h>
+#include <js_objects/js_object_wrapper.h>
+
 #include <optional>
 
 class JSObject;
@@ -25,10 +27,12 @@ public:
 
     void SetGraphicsObject( Gdiplus::Graphics* graphics );
 
-public: // TODO: Move to private
-
+public: 
+    std::optional<uint32_t>CalcTextHeight( std::wstring str, JsGdiFont* pJsFont );
+    std::optional<uint32_t>CalcTextWidth( std::wstring str, JsGdiFont* pJsFont );
     std::optional<std::nullptr_t> DrawEllipse( float x, float y, float w, float h, float line_width, uint32_t colour );
     std::optional<std::nullptr_t> DrawLine( float x1, float y1, float x2, float y2, float line_width, uint32_t colour );
+    std::optional<std::nullptr_t> DrawPolygon( uint32_t colour, float line_width, std::vector<JsUnknownObjectWrapper> points );
     std::optional<std::nullptr_t> DrawRect( float x, float y, float w, float h, float line_width, uint32_t colour );
     std::optional<std::nullptr_t> DrawRoundRect( float x, float y, float w, float h, float arc_width, float arc_height, float line_width, uint32_t colour );
     std::optional<std::nullptr_t> DrawString( std::wstring str, JsGdiFont* pJsFont, uint32_t colour, float x, float y, float w, float h, uint32_t flags );
@@ -37,12 +41,14 @@ public: // TODO: Move to private
     std::optional<std::nullptr_t> FillGradRect( float x, float y, float w, float h, float angle, uint32_t colour1, uint32_t colour2, float focus );       
     std::optional<std::nullptr_t> FillRoundRect( float x, float y, float w, float h, float arc_width, float arc_height, uint32_t colour );
     std::optional<std::nullptr_t> FillSolidRect( float x, float y, float w, float h, uint32_t colour );
+    std::optional<std::nullptr_t> SetInterpolationMode( uint32_t mode );
+    std::optional<std::nullptr_t> SetInterpolationModeWithOpt( size_t optArgCount, uint32_t mode );
+    std::optional<std::nullptr_t> SetSmoothingMode( uint32_t mode );
+    std::optional<std::nullptr_t> SetSmoothingModeWithOpt( size_t optArgCount, uint32_t mode );
+    std::optional<std::nullptr_t> SetTextRenderingHint( uint32_t mode );
+    std::optional<std::nullptr_t> SetTextRenderingHintWithOpt( size_t optArgCount, uint32_t mode );
 
-    //bool DrawPolygon( uint32_t colour, float line_width, VARIANT points );
-    //bool FillPolygon( uint32_t colour, int fillmode, VARIANT points );
-
-    //CalcTextHeight( BSTR str, IGdiFont* font, UINT* p );
-    //CalcTextWidth( BSTR str, IGdiFont* font, UINT* p );
+    //bool FillPolygon( uint32_t colour, int fillmode, VARIANT points );    
     
     //DrawImage( IGdiBitmap* image, float dstX, float dstY, float dstW, float dstH, float srcX, float srcY, float srcW, float srcH, float angle, BYTE alpha );
     
@@ -53,9 +59,7 @@ public: // TODO: Move to private
     //GdiDrawBitmap( IGdiRawBitmap* bitmap, int dstX, int dstY, int dstW, int dstH, int srcX, int srcY, int srcW, int srcH );
     //GdiDrawText( BSTR str, IGdiFont* font, VARIANT colour, int x, int y, int w, int h, int format, VARIANT* p );
     //MeasureString( BSTR str, IGdiFont* font, float x, float y, float w, float h, int flags, IMeasureStringInfo** pp );
-    //SetInterpolationMode( int mode );
-    //SetSmoothingMode( int mode );
-    //SetTextRenderingHint( UINT mode );
+    
 
 private:
     JsGdiGraphics( JSContext* cx );

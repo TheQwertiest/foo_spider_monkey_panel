@@ -7,15 +7,6 @@
 #include <js_engine/js_error_reporter.h>
 
 
-#define IF_GDI_FAILED_RETURN(x,y) \
-    do \
-    {\
-        if ( x > 0 )\
-        {\
-            return y;\
-        }\
-    } while(false)
-
 namespace
 {
 

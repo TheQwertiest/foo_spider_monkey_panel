@@ -6,6 +6,9 @@
 #include <jsapi.h>
 #pragma warning( pop )  
 
+#include <js_objects/js_object_wrapper.h>
+#include <vector>
+
 namespace mozjs
 {
 
@@ -57,5 +60,12 @@ bool JsToNativeValue<std::nullptr_t>( JSContext * cx,  const JS::HandleValue& js
 
 template <>
 bool JsToNativeValue<JsGdiFont*>( JSContext * cx, const JS::HandleValue& jsValue, JsGdiFont*& unwrappedValue );
+
+/// @details unwrappedValue is unrooted! Be careful when handling with it!
+template <>
+bool JsToNativeValue<JSObject*>( JSContext * cx, const JS::HandleValue& jsValue, JSObject*& unwrappedValue );
+
+template <>
+bool JsToNativeValue<std::vector<JsUnknownObjectWrapper>>( JSContext * cx, const JS::HandleValue& jsValue, std::vector<JsUnknownObjectWrapper>& unwrappedValue );
 
 }
