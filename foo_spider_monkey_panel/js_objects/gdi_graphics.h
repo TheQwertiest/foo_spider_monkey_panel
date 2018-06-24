@@ -14,6 +14,8 @@ class Graphics;
 namespace mozjs
 {
 
+class JsGdiFont;
+
 class JsGdiGraphics
 {
 public:
@@ -27,12 +29,12 @@ public: // TODO: Move to private
 
     std::tuple<Mjs_Status> DrawEllipse( float x, float y, float w, float h, float line_width, uint32_t colour );
     std::tuple<Mjs_Status> DrawLine( float x1, float y1, float x2, float y2, float line_width, uint32_t colour );
-    
     std::tuple<Mjs_Status> DrawRect( float x, float y, float w, float h, float line_width, uint32_t colour );
     std::tuple<Mjs_Status> DrawRoundRect( float x, float y, float w, float h, float arc_width, float arc_height, float line_width, uint32_t colour );
+    std::tuple<Mjs_Status> DrawString( std::wstring str, JsGdiFont* pJsFont, uint32_t colour, float x, float y, float w, float h, uint32_t flags );
+    std::tuple<Mjs_Status> DrawStringWithOpt( size_t optArgCount, std::wstring str, JsGdiFont* pJsFont, uint32_t colour, float x, float y, float w, float h, uint32_t flags );
     std::tuple<Mjs_Status> FillEllipse( float x, float y, float w, float h, uint32_t colour );
-    std::tuple<Mjs_Status> FillGradRect( float x, float y, float w, float h, float angle, uint32_t colour1, uint32_t colour2, float focus );
-       
+    std::tuple<Mjs_Status> FillGradRect( float x, float y, float w, float h, float angle, uint32_t colour1, uint32_t colour2, float focus );       
     std::tuple<Mjs_Status> FillRoundRect( float x, float y, float w, float h, float arc_width, float arc_height, uint32_t colour );
     std::tuple<Mjs_Status> FillSolidRect( float x, float y, float w, float h, uint32_t colour );
 
@@ -45,7 +47,6 @@ public: // TODO: Move to private
     //DrawImage( IGdiBitmap* image, float dstX, float dstY, float dstW, float dstH, float srcX, float srcY, float srcW, float srcH, float angle, BYTE alpha );
     
     
-    //DrawString( BSTR str, IGdiFont* font, VARIANT colour, float x, float y, float w, float h, int flags );
     //EstimateLineWrap( BSTR str, IGdiFont* font, int max_width, VARIANT* p );
     
     //GdiAlphaBlend( IGdiRawBitmap* bitmap, int dstX, int dstY, int dstW, int dstH, int srcX, int srcY, int srcW, int srcH, BYTE alpha );
@@ -55,7 +56,6 @@ public: // TODO: Move to private
     //SetInterpolationMode( int mode );
     //SetSmoothingMode( int mode );
     //SetTextRenderingHint( UINT mode );
-    //put__ptr( void* p );
 
 private:
     JsGdiGraphics( JSContext* cx );

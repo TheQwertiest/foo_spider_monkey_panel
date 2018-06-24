@@ -43,7 +43,7 @@ static JSClass gdiUtilsClass = {
     &gdiUtilsOps
 };
 
-MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsGdiUtils, Font, FontWithOptArg, 1 )
+MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsGdiUtils, Font, FontWithOpt, 1 )
 
 static const JSFunctionSpec gdiUtilsFunctions[] = {
     JS_FN( "Font", Font, 3, 0 ),
@@ -86,11 +86,9 @@ JSObject* JsGdiUtils::Create( JSContext* cx )
 }
 
 std::tuple<Mjs_Status, JsObjectWrapper<JsGdiFont>*>
-JsGdiUtils::Font( std::string fontName, float pxSize, int style )
+JsGdiUtils::Font( std::wstring fontName, float pxSize, uint32_t style )
 {
-    std::wstring wFontName( pfc::stringcvt::string_wide_from_utf8( fontName.c_str() ) );
-    // <codecvt> is deprecated in C++17...
-    Gdiplus::Font* pGdiFont = new Gdiplus::Font( wFontName.data(), pxSize, style, Gdiplus::UnitPixel );
+    Gdiplus::Font* pGdiFont = new Gdiplus::Font( fontName.c_str(), pxSize, style, Gdiplus::UnitPixel );
     if ( !helpers::ensure_gdiplus_object( pGdiFont ) )
     {
         if ( pGdiFont )
@@ -117,7 +115,7 @@ JsGdiUtils::Font( std::string fontName, float pxSize, int style )
         CLIP_DEFAULT_PRECIS,
         DEFAULT_QUALITY,
         DEFAULT_PITCH | FF_DONTCARE,
-        wFontName.data() );
+        fontName.c_str() );
 
     // TODO: think about removing CurrentGlobalOrNull
     JS::RootedObject global( pJsCtx_, JS::CurrentGlobalOrNull( pJsCtx_ ) );
@@ -131,14 +129,14 @@ JsGdiUtils::Font( std::string fontName, float pxSize, int style )
 }
 
 std::tuple<mozjs::Mjs_Status, mozjs::JsObjectWrapper<mozjs::JsGdiFont>*>
-JsGdiUtils::FontWithOptArg( size_t optionalArgumentCount, std::string fontName, float pxSize, int style )
+JsGdiUtils::FontWithOpt( size_t optArgCount, std::wstring fontName, float pxSize, uint32_t style )
 {
-    if ( optionalArgumentCount > 1 )
+    if ( optArgCount > 1 )
     {
         return { Mjs_InvalidArgumentCount, nullptr };
     }
 
-    if ( optionalArgumentCount == 1 )
+    if ( optArgCount == 1 )
     {
         return Font( fontName, pxSize, 0 );
     }

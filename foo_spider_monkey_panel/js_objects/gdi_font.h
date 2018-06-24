@@ -5,6 +5,7 @@
 
 class JSObject;
 struct JSContext;
+struct JSClass;
 
 namespace Gdi
 {
@@ -27,7 +28,6 @@ virtual ~GdiFont();
 virtual void FinalRelease();
 
 public:
-STDMETHODIMP get_HFont(UINT* p);
 STDMETHODIMP get_Height(UINT* p);
 STDMETHODIMP get_Name(LANGID langId, BSTR* outName);
 STDMETHODIMP get_Size(float* outSize);
@@ -43,7 +43,11 @@ public:
     
     static JSObject* Create( JSContext* cx, Gdiplus::Font* pGdiFont, HFONT hFont );
 
+    static const JSClass& GetClass();
+
 public: 
+    Gdiplus::Font* GetGdiFont() const;
+    HFONT GetHFont() const;
 
 private:
     JsGdiFont( JSContext* cx, Gdiplus::Font* pGdiFont, HFONT hFont );

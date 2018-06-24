@@ -39,8 +39,8 @@ public:
 
 public: 
 
-    std::tuple<Mjs_Status, JsObjectWrapper<JsGdiFont>*> Font( std::string fontName, float pxSize, int style );
-    std::tuple<Mjs_Status, JsObjectWrapper<JsGdiFont>*> FontWithOptArg( size_t optionalArgumentCount, std::string fontName, float pxSize, int style );
+    std::tuple<Mjs_Status, JsObjectWrapper<JsGdiFont>*> Font( std::wstring fontName, float pxSize, uint32_t style );
+    std::tuple<Mjs_Status, JsObjectWrapper<JsGdiFont>*> FontWithOpt( size_t optArgCount, std::wstring fontName, float pxSize, uint32_t style );
 
 private:
     JsGdiUtils( JSContext* cx );

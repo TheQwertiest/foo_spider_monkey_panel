@@ -5,6 +5,7 @@
 #include <js_engine/js_value_converter.h>
 #include <js_engine/js_native_invoker.h>
 #include <js_engine/js_error_reporter.h>
+#include <js_objects/gdi_font.h>
 
 
 #define IF_GDI_FAILED_RETURN(x,y) \
@@ -45,6 +46,7 @@ MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiGraphics, DrawEllipse )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiGraphics, DrawLine )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiGraphics, DrawRect )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiGraphics, DrawRoundRect )
+MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsGdiGraphics, DrawString, DrawStringWithOpt, 1 )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiGraphics, FillEllipse )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiGraphics, FillGradRect )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiGraphics, FillRoundRect )
@@ -55,6 +57,7 @@ static const JSFunctionSpec gdiGraphicsFunctions[] = {
     JS_FN( "DrawLine", DrawLine, 6, 0 ),
     JS_FN( "DrawRect", DrawRect, 6, 0 ),
     JS_FN( "DrawRoundRect", DrawRoundRect, 8, 0 ),
+    JS_FN( "DrawString", DrawString, 8, 0 ),
     JS_FN( "FillEllipse", FillEllipse, 5, 0 ),
     JS_FN( "FillGradRect", FillGradRect, 8, 0 ),
     JS_FN( "FillRoundRect", FillRoundRect, 7, 0 ),
@@ -173,6 +176,63 @@ std::tuple<Mjs_Status> JsGdiGraphics::DrawRoundRect( float x, float y, float w, 
     IF_GDI_FAILED_RETURN( gdiRet, Mjs_InternalError );
 
     return Mjs_Ok;
+}
+
+std::tuple<Mjs_Status> JsGdiGraphics::DrawString( std::wstring str, JsGdiFont* pJsFont, uint32_t colour, float x, float y, float w, float h, uint32_t flags )
+{
+    if ( !graphics_ )
+    {
+        return Mjs_EngineInternalError;
+    }
+
+    if ( !pJsFont )
+    {
+        return Mjs_InvalidArgumentValue;
+    }
+
+    Gdiplus::Font* pGdiFont = pJsFont->GetGdiFont();
+    if ( !pGdiFont )
+    {
+        return Mjs_InternalError;
+    }
+
+    Gdiplus::SolidBrush br( colour );
+    Gdiplus::StringFormat fmt( Gdiplus::StringFormat::GenericTypographic() );
+
+    if ( flags != 0 )
+    {
+        Gdiplus::Status gdiRet = fmt.SetAlignment( (Gdiplus::StringAlignment)((flags >> 28) & 0x3) ); //0xf0000000
+        IF_GDI_FAILED_RETURN( gdiRet, Mjs_InternalError );
+
+        gdiRet = fmt.SetLineAlignment( (Gdiplus::StringAlignment)((flags >> 24) & 0x3) ); //0x0f000000
+        IF_GDI_FAILED_RETURN( gdiRet, Mjs_InternalError );
+
+        gdiRet = fmt.SetTrimming( (Gdiplus::StringTrimming)((flags >> 20) & 0x7) ); //0x00f00000
+        IF_GDI_FAILED_RETURN( gdiRet, Mjs_InternalError );
+
+        gdiRet = fmt.SetFormatFlags( (Gdiplus::StringFormatFlags)(flags & 0x7FFF) ); //0x0000ffff
+        IF_GDI_FAILED_RETURN( gdiRet, Mjs_InternalError );
+    }
+
+    Gdiplus::Status gdiRet = graphics_->DrawString( str.c_str(), -1, pGdiFont, Gdiplus::RectF( x, y, w, h ), &fmt, &br );
+    IF_GDI_FAILED_RETURN( gdiRet, Mjs_InternalError );
+
+    return Mjs_Ok;
+}
+
+std::tuple<Mjs_Status> JsGdiGraphics::DrawStringWithOpt( size_t optArgCount, std::wstring str, JsGdiFont* pJsFont, uint32_t colour, float x, float y, float w, float h, uint32_t flags )
+{
+    if ( optArgCount > 1 )
+    {
+        return { Mjs_InvalidArgumentCount };
+    }
+
+    if ( optArgCount == 1 )
+    {
+        return DrawString( str, pJsFont, colour, x, y, w, h, 0);
+    }
+
+    return DrawString( str, pJsFont, colour, x, y, w, h, flags );
 }
 
 std::tuple<Mjs_Status> JsGdiGraphics::FillEllipse( float x, float y, float w, float h, uint32_t colour )

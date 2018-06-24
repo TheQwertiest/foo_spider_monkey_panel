@@ -82,4 +82,19 @@ JSObject* JsGdiFont::Create( JSContext* cx, Gdiplus::Font* pGdiFont, HFONT hFont
     return jsObj;
 }
 
+const JSClass& JsGdiFont::GetClass()
+{
+    return gdiFontClass;
+}
+
+Gdiplus::Font* JsGdiFont::GetGdiFont() const
+{
+    return gdiFont_.get();
+}
+
+HFONT JsGdiFont::GetHFont() const
+{
+    return hFont_;
+}
+
 }

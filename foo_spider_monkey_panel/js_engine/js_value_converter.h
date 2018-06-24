@@ -9,6 +9,8 @@
 namespace mozjs
 {
 
+class JsGdiFont;
+
 bool NativeToJsValue( JSContext * cx, JS::HandleObject inValue, JS::MutableHandleValue wrappedValue );
 
 template <typename InType>
@@ -48,6 +50,12 @@ template <>
 bool JsToNativeValue<std::string>( JSContext * cx,  const JS::HandleValue& jsValue, std::string& unwrappedValue );
 
 template <>
+bool JsToNativeValue<std::wstring>( JSContext * cx, const JS::HandleValue& jsValue, std::wstring& unwrappedValue );
+
+template <>
 bool JsToNativeValue<std::nullptr_t>( JSContext * cx,  const JS::HandleValue& jsValue, std::nullptr_t& unwrappedValue );
+
+template <>
+bool JsToNativeValue<JsGdiFont*>( JSContext * cx, const JS::HandleValue& jsValue, JsGdiFont*& unwrappedValue );
 
 }

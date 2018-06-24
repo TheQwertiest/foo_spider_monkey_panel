@@ -10,6 +10,10 @@
 
 #include <type_traits>
 
+// TODO: replace Mjs status with JS_ReportErrorASCII
+
+#define MJS_STRINGIFY(x) #x
+
 #define MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT(baseClass, functionName, functionWithOptName, optArgCount) \
     bool functionName( JSContext* cx, unsigned argc, JS::Value* vp )\
     {\
@@ -17,7 +21,10 @@
             InvokeNativeCallback<optArgCount>( cx, &baseClass::functionName, &baseClass::functionWithOptName, argc, vp );\
         if (Mjs_Ok != mjsRet)\
         {\
-            JS_ReportErrorASCII( cx, ErrorCodeToString( mjsRet ) );\
+            std::string errorText = MJS_STRINGIFY(functionName);\
+            errorText += " failed: ";\
+            errorText += ErrorCodeToString( mjsRet );\
+            JS_ReportErrorASCII( cx, errorText.c_str() );\
         }\
         return Mjs_Ok == mjsRet;\
     }
@@ -56,7 +63,8 @@ Mjs_Status InvokeNativeCallback( JSContext* cx,
                                  FuncOptTupe fnWithOpt,
                                  unsigned argc, JS::Value* vp )
 {
-    JS::CallArgs args = JS::CallArgsFromVp( argc, vp );        
+    JS::CallArgs args = JS::CallArgsFromVp( argc, vp );   
+
     if ( args.length() < (sizeof ...(ArgTypes) - OptArgCount)
          || args.length() > sizeof ...(ArgTypes) )
     {        
@@ -93,7 +101,7 @@ Mjs_Status InvokeNativeCallback( JSContext* cx,
     }
 
     ReturnType retVal = 
-        InvokeNativeCallback_Call<OptArgCount, ReturnType>( baseClass, fn, fnWithOpt, callbackArguments );
+        InvokeNativeCallback_Call<!!OptArgCount, ReturnType>( baseClass, fn, fnWithOpt, callbackArguments, sizeof ...(ArgTypes) - args.length());
     Mjs_Status mjsRet = std::get<0>( retVal );
     if ( Mjs_Ok != mjsRet )
     {
@@ -110,22 +118,22 @@ Mjs_Status InvokeNativeCallback( JSContext* cx,
 }
 
 template <
-    size_t OptArgCount = 0, 
+    bool HasOptArg, 
     typename ReturnType,
     typename BaseClass, 
     typename FuncType, 
     typename FuncOptType, 
     typename ArgTupleType 
 >
-ReturnType InvokeNativeCallback_Call( BaseClass* baseClass, FuncType fn, FuncOptType fnWithOpt, const ArgTupleType& argTuple )
+ReturnType InvokeNativeCallback_Call( BaseClass* baseClass, FuncType fn, FuncOptType fnWithOpt, const ArgTupleType& argTuple, size_t optArgCount )
 {
-    if constexpr(!OptArgCount)
+    if constexpr(!HasOptArg)
     {
         return std::apply( fn, std::tuple_cat( std::make_tuple( baseClass ), argTuple ) );
     }
     else
     {// Invoke callback with optional argument handler
-        return std::apply( fnWithOpt, std::tuple_cat( std::make_tuple( baseClass, OptArgCount ), argTuple ) );
+        return std::apply( fnWithOpt, std::tuple_cat( std::make_tuple( baseClass, optArgCount ), argTuple ) );
     }
 }
 

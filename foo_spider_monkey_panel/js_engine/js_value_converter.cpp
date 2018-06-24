@@ -1,6 +1,7 @@
 #include <stdafx.h>
 
 #include "js_value_converter.h"
+#include <js_objects/gdi_font.h>
 
 
 namespace mozjs
@@ -138,8 +139,52 @@ bool JsToNativeValue<std::string>( JSContext * cx, const JS::HandleValue& jsValu
 }
 
 template <>
+bool JsToNativeValue<std::wstring>( JSContext * cx, const JS::HandleValue& jsValue, std::wstring& unwrappedValue )
+{
+    std::string tmpString;
+    if ( !JsToNativeValue( cx, jsValue, tmpString ) )
+    {
+        return false;
+    }
+    // <codecvt> is deprecated in C++17...
+    unwrappedValue = pfc::stringcvt::string_wide_from_utf8( tmpString.c_str() );
+    return true;
+}
+
+template <>
 bool JsToNativeValue<std::nullptr_t>( JSContext * cx, const JS::HandleValue& jsValue, std::nullptr_t& unwrappedValue )
 {
+    return true;
+}
+
+template <>
+bool JsToNativeValue<JsGdiFont*>( JSContext * cx, const JS::HandleValue& jsValue, JsGdiFont*& unwrappedValue )
+{
+    if ( !jsValue.isObjectOrNull() )
+    {
+        return false;
+    }
+
+    JS::RootedObject jsObject( cx, jsValue.toObjectOrNull() );
+    if ( !jsObject )
+    {
+        unwrappedValue = NULL;
+        return true;
+    }
+
+    if ( !JS_InstanceOf( cx, jsObject, &JsGdiFont::GetClass(), nullptr ) )
+    {
+        return false;
+    }
+
+    auto pJsFont = static_cast<JsGdiFont *>(JS_GetPrivate( jsObject ));
+    if ( !pJsFont )
+    {
+        assert( 0 );
+        return false;
+    }
+
+    unwrappedValue = pJsFont;
     return true;
 }
 
