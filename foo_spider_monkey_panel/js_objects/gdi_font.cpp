@@ -6,16 +6,6 @@
 #include <js_engine/js_native_invoker.h>
 #include <js_engine/js_error_reporter.h>
 
-#define MOZJS_DEFINE_JS_TO_NATIVE_CALLBACK(baseClass, functionName) \
-    bool functionName( JSContext* cx, unsigned argc, JS::Value* vp )\
-    {\
-        Mjs_Status mjsRet = InvokeNativeCallback( cx, &baseClass::functionName, argc, vp );\
-        if (Mjs_Ok != mjsRet)\
-        {\
-            JS_ReportErrorASCII( cx, ErrorCodeToString( mjsRet ) );\
-        }\
-        return Mjs_Ok == mjsRet;\
-    }
 
 #define IF_GDI_FAILED_RETURN(x,y) \
     do \

@@ -9,19 +9,6 @@
 
 #include <helpers.h>
 
-// TODO: extract this macro and common object code somewhere
-
-#define MOZJS_DEFINE_JS_TO_NATIVE_CALLBACK(baseClass, functionName) \
-    bool functionName( JSContext* cx, unsigned argc, JS::Value* vp )\
-    {\
-        Mjs_Status mjsRet = InvokeNativeCallback( cx, &baseClass::functionName, argc, vp );\
-        if (Mjs_Ok != mjsRet)\
-        {\
-            JS_ReportErrorASCII( cx, ErrorCodeToString( mjsRet ) );\
-        }\
-        return Mjs_Ok == mjsRet;\
-    }
-
 #define IF_GDI_FAILED_RETURN(x,y) \
     do \
     {\
@@ -56,7 +43,7 @@ static JSClass gdiUtilsClass = {
     &gdiUtilsOps
 };
 
-MOZJS_DEFINE_JS_TO_NATIVE_CALLBACK( JsGdiUtils, Font )
+MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsGdiUtils, Font, FontWithOptArg, 1 )
 
 static const JSFunctionSpec gdiUtilsFunctions[] = {
     JS_FN( "Font", Font, 3, 0 ),
@@ -98,9 +85,10 @@ JSObject* JsGdiUtils::Create( JSContext* cx )
     return jsObj;
 }
 
-std::tuple<Mjs_Status, JsObjectWrapper<JsGdiFont>*> JsGdiUtils::Font( std::string fontName, float pxSize, int style )
+std::tuple<Mjs_Status, JsObjectWrapper<JsGdiFont>*>
+JsGdiUtils::Font( std::string fontName, float pxSize, int style )
 {
-    std::wstring wFontName (pfc::stringcvt::string_wide_from_utf8( fontName.c_str() ));
+    std::wstring wFontName( pfc::stringcvt::string_wide_from_utf8( fontName.c_str() ) );
     // <codecvt> is deprecated in C++17...
     Gdiplus::Font* pGdiFont = new Gdiplus::Font( wFontName.data(), pxSize, style, Gdiplus::UnitPixel );
     if ( !helpers::ensure_gdiplus_object( pGdiFont ) )
@@ -130,7 +118,7 @@ std::tuple<Mjs_Status, JsObjectWrapper<JsGdiFont>*> JsGdiUtils::Font( std::strin
         DEFAULT_QUALITY,
         DEFAULT_PITCH | FF_DONTCARE,
         wFontName.data() );
-    
+
     // TODO: think about removing CurrentGlobalOrNull
     JS::RootedObject global( pJsCtx_, JS::CurrentGlobalOrNull( pJsCtx_ ) );
     JsObjectWrapper<JsGdiFont>* pJsFont = JsObjectWrapper<JsGdiFont>::Create( pJsCtx_, global, pGdiFont, hFont );
@@ -140,6 +128,22 @@ std::tuple<Mjs_Status, JsObjectWrapper<JsGdiFont>*> JsGdiUtils::Font( std::strin
     }
 
     return { Mjs_Ok, pJsFont };
+}
+
+std::tuple<mozjs::Mjs_Status, mozjs::JsObjectWrapper<mozjs::JsGdiFont>*>
+JsGdiUtils::FontWithOptArg( size_t optionalArgumentCount, std::string fontName, float pxSize, int style )
+{
+    if ( optionalArgumentCount > 1 )
+    {
+        return { Mjs_InvalidArgumentCount, nullptr };
+    }
+
+    if ( optionalArgumentCount == 1 )
+    {
+        return Font( fontName, pxSize, 0 );
+    }
+
+    return Font( fontName, pxSize, style );
 }
 
 }

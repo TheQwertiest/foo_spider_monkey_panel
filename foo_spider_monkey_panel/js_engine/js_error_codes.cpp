@@ -35,7 +35,7 @@ const char* ErrorCodeToString( Mjs_Status errorCode )
         return "Internal engine error";
     }    
     default:
-        break;
+        return "";
     }
 }
 

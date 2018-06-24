@@ -6,7 +6,7 @@
 
 namespace
 {
-
+// TODO: wrap in a proper class
 bool Log( JSContext* cx, unsigned argc, JS::Value* vp )
 {
      JS::CallArgs args = JS::CallArgsFromVp( argc, vp );

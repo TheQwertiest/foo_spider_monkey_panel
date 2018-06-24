@@ -10,6 +10,21 @@
 
 #include <type_traits>
 
+#define MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT(baseClass, functionName, functionWithOptName, optArgCount) \
+    bool functionName( JSContext* cx, unsigned argc, JS::Value* vp )\
+    {\
+        Mjs_Status mjsRet = \
+            InvokeNativeCallback<optArgCount>( cx, &baseClass::functionName, &baseClass::functionWithOptName, argc, vp );\
+        if (Mjs_Ok != mjsRet)\
+        {\
+            JS_ReportErrorASCII( cx, ErrorCodeToString( mjsRet ) );\
+        }\
+        return Mjs_Ok == mjsRet;\
+    }
+
+#define MJS_DEFINE_JS_TO_NATIVE_FN(baseClass, functionName) \
+    MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT(baseClass, functionName, functionName, 0 )
+
 namespace mozjs
 {
 
@@ -35,24 +50,33 @@ constexpr inline bool NeedToPrepareNativeValue()
     return std::is_pointer<std::tuple_element<1, ReturnType>::type>::value;
 }
 
-// TODO: handle optional arguments somehow...
-template <typename BaseClass, typename ReturnType, typename ... ArgTypes>
-Mjs_Status InvokeNativeCallback( JSContext* cx, ReturnType( BaseClass::*fnCallback )(ArgTypes ...), unsigned argc, JS::Value* vp )
+template <size_t OptArgCount = 0, typename BaseClass, typename ReturnType, typename FuncOptTupe, typename ... ArgTypes>
+Mjs_Status InvokeNativeCallback( JSContext* cx, 
+                                 ReturnType( BaseClass::*fn )(ArgTypes ...), 
+                                 FuncOptTupe fnWithOpt,
+                                 unsigned argc, JS::Value* vp )
 {
     JS::CallArgs args = JS::CallArgsFromVp( argc, vp );        
-    if ( args.length() != sizeof ...(ArgTypes) )
+    if ( args.length() < (sizeof ...(ArgTypes) - OptArgCount)
+         || args.length() > sizeof ...(ArgTypes) )
     {        
         return Mjs_InvalidArgumentCount;
     }
 
+    // Parse arguments
+
     bool bRet = true;
     auto callbackArguments =
-        JsToNativeValueTuple<sizeof ...(ArgTypes), ArgTypes...>( args,
-                                                     [&]( const JS::CallArgs& jsArgs, auto argTypeStruct, size_t index )
+        JsToNativeValueTuple<sizeof ...(ArgTypes), ArgTypes...>( 
+            args,
+            [&]( const JS::CallArgs& jsArgs, auto argTypeStruct, size_t index )
     {
         using ArgType = typename decltype(argTypeStruct)::type;
-        ArgType nativeValue;
-        bRet &= JsToNativeValue( cx, jsArgs[index], nativeValue );
+        ArgType nativeValue = ArgType();
+        if ( index < jsArgs.length() )
+        {
+            bRet &= JsToNativeValue( cx, jsArgs[index], nativeValue );
+        }
         return nativeValue;
     } );
     if (!bRet)
@@ -60,32 +84,66 @@ Mjs_Status InvokeNativeCallback( JSContext* cx, ReturnType( BaseClass::*fnCallba
         return Mjs_InvalidArgumentType;
     }
     
+    // Call function
+
     BaseClass* baseClass = static_cast<BaseClass*>( JS_GetPrivate( args.thisv().toObjectOrNull() ) );
     if ( !baseClass )
     {
         return Mjs_InternalError;
     }
 
-    ReturnType retVal = std::apply( fnCallback, std::tuple_cat( std::make_tuple( baseClass ), callbackArguments ) );
+    ReturnType retVal = 
+        InvokeNativeCallback_Call<OptArgCount, ReturnType>( baseClass, fn, fnWithOpt, callbackArguments );
     Mjs_Status mjsRet = std::get<0>( retVal );
     if ( Mjs_Ok != mjsRet )
     {
         return mjsRet;
     }
 
-    args.rval().setUndefined();
+    mjsRet = InvokeNativeCallback_SetReturnValue( cx, retVal, args.rval() );
+    if ( Mjs_Ok != mjsRet )
+    {
+        return mjsRet;
+    }
 
-    constexpr size_t returnTupleSize = std::tuple_size<ReturnType>::value;
+    return Mjs_Ok;
+}
+
+template <
+    size_t OptArgCount = 0, 
+    typename ReturnType,
+    typename BaseClass, 
+    typename FuncType, 
+    typename FuncOptType, 
+    typename ArgTupleType 
+>
+ReturnType InvokeNativeCallback_Call( BaseClass* baseClass, FuncType fn, FuncOptType fnWithOpt, const ArgTupleType& argTuple )
+{
+    if constexpr(!OptArgCount)
+    {
+        return std::apply( fn, std::tuple_cat( std::make_tuple( baseClass ), argTuple ) );
+    }
+    else
+    {// Invoke callback with optional argument handler
+        return std::apply( fnWithOpt, std::tuple_cat( std::make_tuple( baseClass, OptArgCount ), argTuple ) );
+    }
+}
+
+template <typename TupleType>
+Mjs_Status InvokeNativeCallback_SetReturnValue( JSContext* cx, const TupleType& returnedTuple, JS::MutableHandleValue jsReturnValue )
+{  
+    constexpr size_t returnTupleSize = std::tuple_size<TupleType>::value;
     static_assert(returnTupleSize <= 2, "Invalid size of returned tuple");
 
+    jsReturnValue.setUndefined();
 
-    if constexpr(returnTupleSize == 2 )
+    if constexpr(returnTupleSize == 2)
     {
-        if constexpr(NeedToPrepareNativeValue<ReturnType>())
+        if constexpr(NeedToPrepareNativeValue<TupleType>())
         {// bug in MSVC: evaluates std::tuple_element even in discarded constexpr branches.
          // can't use unique_ptr because of that as well...
-            auto pRetObj( std::get<1>( retVal ) );
-            if ( !NativeToJsValue( cx, pRetObj->GetJsObject(), args.rval() ) )
+            auto pRetObj( std::get<1>( returnedTuple ) );
+            if ( !NativeToJsValue( cx, pRetObj->GetJsObject(), jsReturnValue ) )
             {
                 delete pRetObj;
                 return Mjs_InternalError;
@@ -94,11 +152,11 @@ Mjs_Status InvokeNativeCallback( JSContext* cx, ReturnType( BaseClass::*fnCallba
         }
         else
         {
-            if ( !NativeToJsValue( cx, std::get<1>( retVal ), args.rval() ) )
+            if ( !NativeToJsValue( cx, std::get<1>( retVal ), jsReturnValue ) )
             {
                 return Mjs_InternalError;
             }
-        }    
+        }
     }
 
     return Mjs_Ok;

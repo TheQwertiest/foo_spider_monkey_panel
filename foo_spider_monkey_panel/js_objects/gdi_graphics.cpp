@@ -6,16 +6,6 @@
 #include <js_engine/js_native_invoker.h>
 #include <js_engine/js_error_reporter.h>
 
-#define MOZJS_DEFINE_JS_TO_NATIVE_CALLBACK(baseClass, functionName) \
-    bool functionName( JSContext* cx, unsigned argc, JS::Value* vp )\
-    {\
-        Mjs_Status mjsRet = InvokeNativeCallback( cx, &baseClass::functionName, argc, vp );\
-        if (Mjs_Ok != mjsRet)\
-        {\
-            JS_ReportErrorASCII( cx, ErrorCodeToString( mjsRet ) );\
-        }\
-        return Mjs_Ok == mjsRet;\
-    }
 
 #define IF_GDI_FAILED_RETURN(x,y) \
     do \
@@ -51,14 +41,14 @@ static JSClass gdiGraphicsClass = {
     &gdiGraphicsOps
 };
 
-MOZJS_DEFINE_JS_TO_NATIVE_CALLBACK( JsGdiGraphics, DrawEllipse )
-MOZJS_DEFINE_JS_TO_NATIVE_CALLBACK( JsGdiGraphics, DrawLine )
-MOZJS_DEFINE_JS_TO_NATIVE_CALLBACK( JsGdiGraphics, DrawRect )
-MOZJS_DEFINE_JS_TO_NATIVE_CALLBACK( JsGdiGraphics, DrawRoundRect )
-MOZJS_DEFINE_JS_TO_NATIVE_CALLBACK( JsGdiGraphics, FillEllipse )
-MOZJS_DEFINE_JS_TO_NATIVE_CALLBACK( JsGdiGraphics, FillGradRect )
-MOZJS_DEFINE_JS_TO_NATIVE_CALLBACK( JsGdiGraphics, FillRoundRect )
-MOZJS_DEFINE_JS_TO_NATIVE_CALLBACK( JsGdiGraphics, FillSolidRect )
+MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiGraphics, DrawEllipse )
+MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiGraphics, DrawLine )
+MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiGraphics, DrawRect )
+MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiGraphics, DrawRoundRect )
+MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiGraphics, FillEllipse )
+MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiGraphics, FillGradRect )
+MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiGraphics, FillRoundRect )
+MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiGraphics, FillSolidRect )
 
 static const JSFunctionSpec gdiGraphicsFunctions[] = {
     JS_FN( "DrawEllipse", DrawEllipse, 6, 0 ),
