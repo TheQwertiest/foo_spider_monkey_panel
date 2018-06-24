@@ -29,7 +29,16 @@ template <>
 bool NativeToJsValue<double>( JSContext * cx, const double& inValue, JS::MutableHandleValue wrappedValue );
 
 template <>
+bool NativeToJsValue<float>( JSContext * cx, const float& inValue, JS::MutableHandleValue wrappedValue );
+
+template <>
 bool NativeToJsValue<std::string_view>( JSContext * cx, const std::string_view& inValue, JS::MutableHandleValue wrappedValue );
+
+template <>
+bool NativeToJsValue<std::wstring_view>( JSContext * cx, const std::wstring_view& inValue, JS::MutableHandleValue wrappedValue );
+
+template <>
+bool NativeToJsValue<std::wstring>( JSContext * cx, const std::wstring& inValue, JS::MutableHandleValue wrappedValue );
 
 template <>
 bool NativeToJsValue<std::nullptr_t>( JSContext * cx, const std::nullptr_t& inValue, JS::MutableHandleValue wrappedValue );

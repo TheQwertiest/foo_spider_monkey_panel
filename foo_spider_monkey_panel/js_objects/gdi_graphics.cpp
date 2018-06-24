@@ -46,6 +46,7 @@ MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiGraphics, DrawRoundRect )
 MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsGdiGraphics, DrawString, DrawStringWithOpt, 1 )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiGraphics, FillEllipse )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiGraphics, FillGradRect )
+MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiGraphics, FillPolygon )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiGraphics, FillRoundRect )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiGraphics, FillSolidRect )
 MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsGdiGraphics, SetInterpolationMode, SetInterpolationModeWithOpt, 1 )
@@ -63,6 +64,7 @@ static const JSFunctionSpec gdiGraphicsFunctions[] = {
     JS_FN( "DrawString", DrawString, 8, 0 ),
     JS_FN( "FillEllipse", FillEllipse, 5, 0 ),
     JS_FN( "FillGradRect", FillGradRect, 8, 0 ),
+    JS_FN( "FillPolygon", DrawPolygon, 3, 0 ),
     JS_FN( "FillRoundRect", FillRoundRect, 7, 0 ),
     JS_FN( "FillSolidRect", FillSolidRect, 5, 0 ),
     JS_FN( "SetInterpolationMode", SetInterpolationMode, 1, 0 ),
@@ -127,7 +129,7 @@ JsGdiGraphics::CalcTextHeight( std::wstring str, JsGdiFont* pJsFont )
         return std::nullopt;
     }
 
-    HFONT hFont = pJsFont->GetHFont();
+    HFONT hFont = pJsFont->HFont();
     HDC dc = graphics_->GetHDC();
     HFONT oldfont = SelectFont( dc, hFont );
 
@@ -154,7 +156,7 @@ JsGdiGraphics::CalcTextWidth( std::wstring str, JsGdiFont* pJsFont )
         return std::nullopt;
     }
 
-    HFONT hFont = pJsFont->GetHFont();
+    HFONT hFont = pJsFont->HFont();
     HDC dc = graphics_->GetHDC();
     HFONT oldfont = SelectFont( dc, hFont );
 
@@ -206,42 +208,21 @@ std::optional<std::nullptr_t> JsGdiGraphics::DrawPolygon( uint32_t colour, float
         return std::nullopt;
     }
 
-    // Uncommon type: unpacking manually
-    std::vector<Gdiplus::PointF> pointArray;
-    JS::RootedValue jsX(pJsCtx_), jsY(pJsCtx_);
-    float x, y;    
-
-    for ( size_t i = 0; i < points.size(); ++i )
+    if ( points.size() % 2 > 0 )
     {
-        JS::HandleObject curElement( points[i].GetJsObject() );
-        if ( !JS_GetProperty( pJsCtx_, curElement, "x", &jsX ) )
-        {
-            JS_ReportErrorASCII( pJsCtx_, "Failed to get 'x' property of point" );
-            return std::nullopt;
-        }
-        if ( !JS_GetProperty( pJsCtx_, curElement, "y", &jsY ) )
-        {
-            JS_ReportErrorASCII( pJsCtx_, "Failed to get 'y' property of point" );
-            return std::nullopt;
-        }
+        JS_ReportErrorASCII( pJsCtx_, "Points count must be multiple of two" );
+        return std::nullopt;
+    }
 
-        if ( !JsToNativeValue( pJsCtx_, jsX, x ) )
-        {
-            JS_ReportErrorASCII( pJsCtx_, "'x' property of point is of wrong type" );
-            return std::nullopt;
-        }
-
-        if ( !JsToNativeValue( pJsCtx_, jsY, y ) )
-        {
-            JS_ReportErrorASCII( pJsCtx_, "'y' property of point is of wrong type" );
-            return std::nullopt;
-        }
-
-        pointArray.emplace_back( Gdiplus::PointF( x, y ) );
+    // Uncommon type: unpacking manually
+    std::vector<Gdiplus::PointF> gdiPoints;
+    if ( !ParsePoints( points, gdiPoints ) )
+    {// Report in ParsePoints
+        return std::nullopt;
     }
 
     Gdiplus::Pen pen( colour, line_width );
-    Gdiplus::Status gdiRet = graphics_->DrawPolygon( &pen, pointArray.data(), pointArray.size() );
+    Gdiplus::Status gdiRet = graphics_->DrawPolygon( &pen, gdiPoints.data(), gdiPoints.size() );
     IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, std::nullopt, DrawPolygon );
 
     return std::optional<std::nullptr_t>{nullptr};
@@ -314,7 +295,7 @@ JsGdiGraphics::DrawString( std::wstring str, JsGdiFont* pJsFont, uint32_t colour
         return std::nullopt;
     }
 
-    Gdiplus::Font* pGdiFont = pJsFont->GetGdiFont();
+    Gdiplus::Font* pGdiFont = pJsFont->GdiFont();
     if ( !pGdiFont )
     {
         JS_ReportErrorASCII( pJsCtx_, "Internal error: GdiFont is null" );
@@ -394,6 +375,35 @@ JsGdiGraphics::FillGradRect( float x, float y, float w, float h, float angle, ui
 
     gdiRet = graphics_->FillRectangle( &brush, rect );
     IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, std::nullopt, FillRectangle );
+
+    return std::optional<std::nullptr_t>{nullptr};
+}
+
+std::optional<std::nullptr_t> 
+JsGdiGraphics::FillPolygon( uint32_t colour, uint32_t fillmode, std::vector<JsUnknownObjectWrapper> points )
+{
+    if ( !graphics_ )
+    {
+        JS_ReportErrorASCII( pJsCtx_, "Internal error: Gdiplus::Graphics object is null" );
+        return std::nullopt;
+    }
+
+    if ( points.size() % 2 > 0 )
+    {
+        JS_ReportErrorASCII( pJsCtx_, "Points count must be multiple of two" );
+        return std::nullopt;
+    }
+
+    // Uncommon type: unpacking manually
+    std::vector<Gdiplus::PointF> gdiPoints;
+    if ( !ParsePoints( points, gdiPoints ) )
+    {// Report in ParsePoints
+        return std::nullopt;
+    }
+
+    Gdiplus::SolidBrush br( colour );
+    Gdiplus::Status gdiRet = graphics_->FillPolygon( &br, gdiPoints.data(), gdiPoints.size(), (Gdiplus::FillMode)fillmode );
+    IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, std::nullopt, FillPolygon );
 
     return std::optional<std::nullptr_t>{nullptr};
 }
@@ -534,38 +544,77 @@ std::optional<std::nullptr_t> JsGdiGraphics::SetTextRenderingHintWithOpt( size_t
     return SetTextRenderingHint( mode );
 }
 
-int JsGdiGraphics::GetRoundRectPath( Gdiplus::GraphicsPath& gp, Gdiplus::RectF& rect, float arc_width, float arc_height )
+bool JsGdiGraphics::GetRoundRectPath( Gdiplus::GraphicsPath& gp, Gdiplus::RectF& rect, float arc_width, float arc_height )
 {
     float arc_dia_w = arc_width * 2;
     float arc_dia_h = arc_height * 2;
     Gdiplus::RectF corner( rect.X, rect.Y, arc_dia_w, arc_dia_h );
 
     Gdiplus::Status gdiRet = gp.Reset();
-    IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, gdiRet, Reset );
+    IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, false, Reset );
 
     // top left
     gdiRet = gp.AddArc( corner, 180, 90 );
-    IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, gdiRet, AddArc );
+    IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, false, AddArc );
 
     // top right
     corner.X += (rect.Width - arc_dia_w);
     gdiRet = gp.AddArc( corner, 270, 90 );
-    IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, gdiRet, AddArc );
+    IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, false, AddArc );
 
     // bottom right
     corner.Y += (rect.Height - arc_dia_h);
     gdiRet = gp.AddArc( corner, 0, 90 );
-    IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, gdiRet, AddArc );
+    IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, false, AddArc );
 
     // bottom left
     corner.X -= (rect.Width - arc_dia_w);
     gdiRet = gp.AddArc( corner, 90, 90 );
-    IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, gdiRet, AddArc );
+    IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, false, AddArc );
 
     gdiRet = gp.CloseFigure();
-    IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, gdiRet, CloseFigure );
+    IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, false, CloseFigure );
 
-    return Gdiplus::Ok;
+    return true;
+}
+
+bool JsGdiGraphics::ParsePoints( std::vector<JsUnknownObjectWrapper> jsPoints, std::vector<Gdiplus::PointF> &gdiPoints )
+{
+    gdiPoints.clear();
+
+    JS::RootedValue jsX( pJsCtx_ ), jsY( pJsCtx_ );
+    float x, y;
+
+    for ( size_t i = 0; i < jsPoints.size(); ++i )
+    {
+        JS::HandleObject curElement( jsPoints[i].GetJsObject() );
+        if ( !JS_GetProperty( pJsCtx_, curElement, "x", &jsX ) )
+        {
+            JS_ReportErrorASCII( pJsCtx_, "Failed to get 'x' property of point" );
+            return false;
+        }
+        if ( !JS_GetProperty( pJsCtx_, curElement, "y", &jsY ) )
+        {
+            JS_ReportErrorASCII( pJsCtx_, "Failed to get 'y' property of point" );
+            return false;
+        }
+
+        if ( !JsToNativeValue( pJsCtx_, jsX, x ) )
+        {
+            JS_ReportErrorASCII( pJsCtx_, "'x' property of point is of wrong type" );
+            return false;
+        }
+
+        if ( !JsToNativeValue( pJsCtx_, jsY, y ) )
+        {
+            JS_ReportErrorASCII( pJsCtx_, "'y' property of point is of wrong type" );
+            return false;
+        }
+
+        gdiPoints.emplace_back( Gdiplus::PointF( x, y ) );
+    }
+
+    return true;
 }
 
 }

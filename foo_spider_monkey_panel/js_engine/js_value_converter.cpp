@@ -77,6 +77,13 @@ bool NativeToJsValue<double>( JSContext *, const double& inValue, JS::MutableHan
 }
 
 template <>
+bool NativeToJsValue<float>( JSContext *, const float& inValue, JS::MutableHandleValue wrappedValue )
+{
+    wrappedValue.setNumber( inValue );
+    return true;
+}
+
+template <>
 bool NativeToJsValue<std::string_view>( JSContext * cx, const std::string_view& inValue, JS::MutableHandleValue wrappedValue )
 {
     JSString* jsString = JS_NewStringCopyZ( cx, inValue.data() );
@@ -88,6 +95,21 @@ bool NativeToJsValue<std::string_view>( JSContext * cx, const std::string_view& 
     wrappedValue.setString( jsString );
     return true;
 }
+
+template <>
+bool NativeToJsValue<std::wstring_view>( JSContext * cx, const std::wstring_view& inValue, JS::MutableHandleValue wrappedValue )
+{
+    // <codecvt> is deprecated in C++17...
+    std::string tmpString (pfc::stringcvt::string_utf8_from_wide( inValue.data() ));
+    return NativeToJsValue<std::string_view>( cx, tmpString, wrappedValue );
+}
+
+template <>
+bool NativeToJsValue<std::wstring>( JSContext * cx, const std::wstring& inValue, JS::MutableHandleValue wrappedValue )
+{
+    return NativeToJsValue<std::wstring_view>( cx, inValue, wrappedValue );
+}
+
 
 template <>
 bool NativeToJsValue<std::nullptr_t>( JSContext *, const std::nullptr_t& inValue, JS::MutableHandleValue wrappedValue )

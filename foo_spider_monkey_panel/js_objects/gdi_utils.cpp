@@ -112,7 +112,7 @@ JsGdiUtils::Font( std::wstring fontName, float pxSize, uint32_t style )
 
     // TODO: think about removing CurrentGlobalOrNull
     JS::RootedObject global( pJsCtx_, JS::CurrentGlobalOrNull( pJsCtx_ ) );
-    JsObjectWrapper<JsGdiFont>* pJsFont = JsObjectWrapper<JsGdiFont>::Create( pJsCtx_, global, pGdiFont, hFont );
+    JsObjectWrapper<JsGdiFont>* pJsFont = JsObjectWrapper<JsGdiFont>::Create( pJsCtx_, global, pGdiFont, hFont, true );
     if ( !pJsFont )
     {
         JS_ReportErrorASCII( pJsCtx_, "Internal error: failed to create wrapped JS object" );
