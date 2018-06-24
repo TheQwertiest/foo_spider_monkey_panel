@@ -16,7 +16,7 @@ namespace
 
 using namespace mozjs;
 
-static JSClassOps gdiGraphicsOps = {
+JSClassOps gdiGraphicsOps = {
     nullptr,
     nullptr,
     nullptr,
@@ -30,7 +30,7 @@ static JSClassOps gdiGraphicsOps = {
     nullptr
 };
 
-static JSClass gdiGraphicsClass = {
+JSClass gdiGraphicsClass = {
     "GdiGraphics",
     JSCLASS_HAS_PRIVATE,
     &gdiGraphicsOps
@@ -53,7 +53,7 @@ MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsGdiGraphics, SetInterpolationMode, SetInt
 MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsGdiGraphics, SetSmoothingMode, SetSmoothingModeWithOpt, 1 )
 MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsGdiGraphics, SetTextRenderingHint, SetTextRenderingHintWithOpt, 1 )
 
-static const JSFunctionSpec gdiGraphicsFunctions[] = {
+const JSFunctionSpec gdiGraphicsFunctions[] = {
     JS_FN( "CalcTextHeight", CalcTextHeight, 2, 0 ),
     JS_FN( "CalcTextWidth", CalcTextWidth, 2, 0 ),
     JS_FN( "DrawEllipse", DrawEllipse, 6, 0 ),

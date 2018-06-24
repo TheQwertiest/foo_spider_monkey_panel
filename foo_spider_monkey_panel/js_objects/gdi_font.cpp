@@ -13,7 +13,7 @@ namespace
 
 using namespace mozjs;
 
-static JSClassOps jsOps = {
+JSClassOps jsOps = {
     nullptr,
     nullptr,
     nullptr,
@@ -27,7 +27,7 @@ static JSClassOps jsOps = {
     nullptr
 };
 
-static JSClass jsClass = {
+JSClass jsClass = {
     "GdiFont",
     JSCLASS_HAS_PRIVATE,
     &jsOps
@@ -38,7 +38,7 @@ MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiFont, Name )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiFont, Size )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiFont, Style )
 
-static const JSPropertySpec jsProperties[] = {
+const JSPropertySpec jsProperties[] = {
     JS_PSG( "Height", Height, 0 ),
     JS_PSG( "Name", Name, 0 ),
     JS_PSG( "Size", Size, 0 ),
@@ -47,7 +47,7 @@ static const JSPropertySpec jsProperties[] = {
 };
 
 
-static const JSFunctionSpec jsFunctions[] = {
+const JSFunctionSpec jsFunctions[] = {
     JS_FS_END
 };
 

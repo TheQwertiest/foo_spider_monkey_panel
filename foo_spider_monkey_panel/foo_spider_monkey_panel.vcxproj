@@ -103,6 +103,7 @@
     <ClCompile Include="js_engine\js_error_codes.cpp" />
     <ClCompile Include="js_engine\js_error_reporter.cpp" />
     <ClCompile Include="js_engine\js_value_converter.cpp" />
+    <ClCompile Include="js_objects\active_x.cpp" />
     <ClCompile Include="js_objects\console.cpp" />
     <ClCompile Include="js_objects\gdi_error.cpp" />
     <ClCompile Include="js_objects\gdi_graphics.cpp" />
@@ -142,6 +143,7 @@
     <ClInclude Include="js_engine\js_error_reporter.h" />
     <ClInclude Include="js_engine\js_native_invoker.h" />
     <ClInclude Include="js_engine\js_value_converter.h" />
+    <ClInclude Include="js_objects\active_x.h" />
     <ClInclude Include="js_objects\console.h" />
     <ClInclude Include="js_objects\gdi_error.h" />
     <ClInclude Include="js_objects\gdi_graphics.h" />

@@ -15,6 +15,20 @@ namespace
 
 using namespace mozjs;
 
+// TODO: place finalize everywhere
+
+template<MozjsObjectType>
+void jsFinalize( JSFreeOp* fop, JSObject* obj )
+{
+    auto x = static_cast<MozjsObjectType*>(JS_GetPrivate( obj ));
+    if ( x )
+    {
+        delete x;
+        JS_SetPrivate( obj, nullptr );
+    }
+}
+
+
 static JSClassOps gdiUtilsOps = {
     nullptr,
     nullptr,
@@ -22,7 +36,7 @@ static JSClassOps gdiUtilsOps = {
     nullptr,
     nullptr,
     nullptr,
-    nullptr,
+    jsFinalize<JsGdiUtils>,
     nullptr,
     nullptr,
     nullptr,

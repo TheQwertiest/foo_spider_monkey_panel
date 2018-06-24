@@ -57,6 +57,9 @@
     <ClCompile Include="js_objects\gdi_error.cpp">
       <Filter>js_objects</Filter>
     </ClCompile>
+    <ClCompile Include="js_objects\active_x.cpp">
+      <Filter>js_objects</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\PropertyList\PropertyItem.h" />
@@ -134,6 +137,9 @@
       <Filter>js_objects</Filter>
     </ClInclude>
     <ClInclude Include="js_objects\gdi_error.h">
+      <Filter>js_objects</Filter>
+    </ClInclude>
+    <ClInclude Include="js_objects\active_x.h">
       <Filter>js_objects</Filter>
     </ClInclude>
   </ItemGroup>
