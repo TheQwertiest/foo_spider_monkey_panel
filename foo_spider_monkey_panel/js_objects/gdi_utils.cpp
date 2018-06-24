@@ -17,7 +17,7 @@ using namespace mozjs;
 
 // TODO: place finalize everywhere
 
-template<MozjsObjectType>
+template<typename MozjsObjectType>
 void jsFinalize( JSFreeOp* fop, JSObject* obj )
 {
     auto x = static_cast<MozjsObjectType*>(JS_GetPrivate( obj ));
