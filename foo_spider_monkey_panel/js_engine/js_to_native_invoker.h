@@ -35,24 +35,6 @@
 namespace mozjs
 {
 
-template <typename T>
-struct TypeWrapper
-{
-    using type = T;
-};
-
-template <typename... ArgTypes, typename FuncType, size_t... Indexes>
-auto JsToNativeValueTupleImpl( const JS::CallArgs& jsArgs, FuncType&& func, std::index_sequence<Indexes...> )
-{
-    return std::make_tuple( func( jsArgs, TypeWrapper<ArgTypes>{}, Indexes ) ... );
-}
-
-template <size_t TupleSize, typename... ArgTypes, typename FuncType>
-auto JsToNativeValueTuple( const JS::CallArgs& jsArgs, FuncType&& func )
-{
-    return JsToNativeValueTupleImpl<ArgTypes...>( jsArgs, func, std::make_index_sequence<TupleSize>{} );
-}
-
 template <size_t OptArgCount = 0, typename BaseClass, typename ReturnType, typename FuncOptType, typename ... ArgTypes>
 bool InvokeNativeCallback( JSContext* cx,
                            ReturnType( BaseClass::*fn )( ArgTypes ... ),
@@ -106,7 +88,7 @@ bool InvokeNativeCallback_Impl( JSContext* cx,
     bool bRet = true;
     size_t failedIdx = 0;
     auto callbackArguments =
-        JsToNativeValueTuple<maxArgCount, ArgTypes...>(
+        JsToNativeArguments<maxArgCount, ArgTypes...>(
             args,
             [&]( const JS::CallArgs& jsArgs, auto argTypeStruct, size_t index )
             {
@@ -180,6 +162,24 @@ bool InvokeNativeCallback_Impl( JSContext* cx,
     }
 
     return true;
+}
+
+template <typename T>
+struct TypeWrapper
+{
+    using type = T;
+};
+
+template <size_t TupleSize, typename... ArgTypes, typename FuncType>
+auto JsToNativeArguments( const JS::CallArgs& jsArgs, FuncType&& func )
+{
+    return JsToNativeArguments_Impl<ArgTypes...>( jsArgs, func, std::make_index_sequence<TupleSize>{} );
+}
+
+template <typename... ArgTypes, typename FuncType, size_t... Indexes>
+auto JsToNativeArguments_Impl( const JS::CallArgs& jsArgs, FuncType&& func, std::index_sequence<Indexes...> )
+{
+    return std::make_tuple( func( jsArgs, TypeWrapper<ArgTypes>{}, Indexes ) ... );
 }
 
 template <

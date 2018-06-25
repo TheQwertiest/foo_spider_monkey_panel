@@ -14,23 +14,6 @@
 namespace mozjs
 {
 
-template <int ArgArraySize, typename ArgType, typename... Args>
-bool NativeToJsArguments( JSContext * cx,
-                          JS::AutoValueArray<ArgArraySize>& wrappedArgs,
-                          uint8_t argIndex, ArgType arg, Args&&... args )
-{
-    return NativeToJsValue( cx, arg, wrappedArgs[argIndex] )
-        && NativeToJsArguments( cx, wrappedArgs, argIndex + 1, args... );
-}
-
-template <int ArgArraySize>
-bool NativeToJsArguments( JSContext * cx,
-                          JS::AutoValueArray<ArgArraySize>& wrappedArgs,
-                          uint8_t argIndex )
-{
-    return true;
-}
-
 template <typename ReturnType = std::nullptr_t, typename... Args>
 std::optional<ReturnType> InvokeJsCallback( JSContext* cx,
                                             JS::HandleObject globalObject,
@@ -70,6 +53,23 @@ std::optional<ReturnType> InvokeJsCallback( JSContext* cx,
     }
 
     return JsToNative<ReturnType>::Convert( cx, retVal );
+}
+
+template <int ArgArraySize, typename ArgType, typename... Args>
+bool NativeToJsArguments( JSContext * cx,
+                          JS::AutoValueArray<ArgArraySize>& wrappedArgs,
+                          uint8_t argIndex, ArgType arg, Args&&... args )
+{
+    return NativeToJsValue( cx, arg, wrappedArgs[argIndex] )
+        && NativeToJsArguments( cx, wrappedArgs, argIndex + 1, args... );
+}
+
+template <int ArgArraySize>
+bool NativeToJsArguments( JSContext * cx,
+                          JS::AutoValueArray<ArgArraySize>& wrappedArgs,
+                          uint8_t argIndex )
+{
+    return true;
 }
 
 bool InvokeJsCallback_Impl( JSContext* cx,
