@@ -1,10 +1,7 @@
 #include <stdafx.h>
 #include "js_engine.h"
 
-#include <js_objects/global_object.h>
 #include <js_utils/js_error_helper.h>
-
-#include <js/Conversions.h>
 
 
 namespace mozjs
@@ -67,45 +64,6 @@ bool JsEngine::ExecuteScript( JS::HandleObject globalObject, std::string_view sc
     if ( !bRet )
     {
         console::printf( JSP_NAME "JS::Evaluate failed\n" );
-        return false;
-    }
-
-    return true;
-}
-
-bool JsEngine::InvokeCallbackInternal( JS::HandleObject globalObject,
-                                       std::string_view functionName,
-                                       const JS::HandleValueArray& args,
-                                       JS::MutableHandleValue rval )
-{
-    assert( pJsCtx_ );
-    assert( !!globalObject );
-    assert( functionName.length() );
-
-    JSAutoRequest ar( pJsCtx_ );
-    JSAutoCompartment ac( pJsCtx_, globalObject );
-
-    JS::RootedValue funcValue( pJsCtx_ );
-    if (!JS_GetProperty( pJsCtx_, globalObject, functionName.data(), &funcValue ))
-    {
-        return false;
-    }
-
-    if (funcValue.isUndefined())
-    {// not an error
-        return true;
-    }
-
-    JS::RootedFunction func( pJsCtx_, JS_ValueToFunction( pJsCtx_, funcValue ) );
-    if (!func)
-    {
-        return false;
-    }
-
-    AutoReportException are( pJsCtx_ );
-    if (!JS::Call( pJsCtx_, globalObject, func, args, rval ))
-    {        
-        console::printf( JSP_NAME "JS::JS_Call failed\n" );
         return false;
     }
 

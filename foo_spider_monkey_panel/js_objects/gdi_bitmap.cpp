@@ -2,7 +2,7 @@
 #include "gdi_bitmap.h"
 
 #include <js_engine/js_value_converter.h>
-#include <js_engine/js_native_invoker.h>
+#include <js_engine/js_to_native_invoker.h>
 #include <js_objects/gdi_graphics.h>
 #include <js_objects/gdi_raw_bitmap.h>
 #include <js_utils/gdi_error_helper.h>

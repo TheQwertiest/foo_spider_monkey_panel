@@ -5,8 +5,10 @@
 #include "panel_manager.h"
 #include "popup_msg.h"
 
-#include "js_engine/js_engine.h"
-#include "js_objects/gdi_graphics.h"
+#include <js_engine/js_engine.h>
+#include <js_engine/native_to_js_invoker.h>
+#include <js_objects/gdi_graphics.h>
+
 
 js_panel_window::js_panel_window() :
     m_script_host( new ScriptHost( this ) ),
@@ -29,7 +31,7 @@ HRESULT js_panel_window::script_invoke_v( int callbackId, VARIANTARG* argv, UINT
 
 void js_panel_window::update_script( const char* name, const char* code )
 {
-    if (name && code)
+    if ( name && code )
     {
         get_script_engine() = name;
         get_script_code() = code;
@@ -39,7 +41,7 @@ void js_panel_window::update_script( const char* name, const char* code )
     script_load();
 }
 
-void js_panel_window::JsEngineFail(std::string_view errorText)
+void js_panel_window::JsEngineFail( std::string_view errorText )
 {
     jsEngineFailed_ = true;
 
@@ -51,7 +53,7 @@ void js_panel_window::JsEngineFail(std::string_view errorText)
 
 LRESULT js_panel_window::on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
 {
-    switch (msg)
+    switch ( msg )
     {
     case WM_CREATE:
     {
@@ -65,7 +67,7 @@ LRESULT js_panel_window::on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
         // Interfaces
         m_gr_wrap.Attach( new com_object_impl_t<GdiGraphics>(), false );
         panel_manager::instance().add_window( m_hwnd );
-        
+
         mozjs::JsEngine::GetInstance().RegisterPanel( hwnd );
         script_load();
     }
@@ -77,7 +79,7 @@ LRESULT js_panel_window::on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
 
         panel_manager::instance().remove_window( m_hwnd );
 
-        if (m_gr_wrap)
+        if ( m_gr_wrap )
             m_gr_wrap.Release();
         delete_context();
         ReleaseDC( m_hwnd, m_hdc );
@@ -89,16 +91,16 @@ LRESULT js_panel_window::on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
         return 0;
 
     case WM_ERASEBKGND:
-        if (get_pseudo_transparent())
+        if ( get_pseudo_transparent() )
             PostMessage( m_hwnd, UWM_REFRESHBK, 0, 0 );
         return 1;
 
     case WM_PAINT:
     {
-        if (m_suppress_drawing)
+        if ( m_suppress_drawing )
             break;
 
-        if (get_pseudo_transparent() && !m_paint_pending)
+        if ( get_pseudo_transparent() && !m_paint_pending )
         {
             RECT rc;
 
@@ -120,7 +122,7 @@ LRESULT js_panel_window::on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
         RECT rect;
         GetClientRect( m_hwnd, &rect );
         on_size( rect.right - rect.left, rect.bottom - rect.top );
-        if (get_pseudo_transparent())
+        if ( get_pseudo_transparent() )
             PostMessage( m_hwnd, UWM_REFRESHBK, 0, 0 );
         else
             Repaint();
@@ -129,7 +131,7 @@ LRESULT js_panel_window::on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
 
     case WM_GETMINMAXINFO:
     {
-        LPMINMAXINFO pmmi = reinterpret_cast<LPMINMAXINFO>(lp);
+        LPMINMAXINFO pmmi = reinterpret_cast<LPMINMAXINFO>( lp );
         memcpy( &pmmi->ptMaxTrackSize, &MaxSize(), sizeof( POINT ) );
         memcpy( &pmmi->ptMinTrackSize, &MinSize(), sizeof( POINT ) );
     }
@@ -147,7 +149,7 @@ LRESULT js_panel_window::on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
     case WM_LBUTTONUP:
     case WM_MBUTTONUP:
     case WM_RBUTTONUP:
-        if (on_mouse_button_up( msg, wp, lp ))
+        if ( on_mouse_button_up( msg, wp, lp ) )
             return 0;
         break;
 
@@ -336,11 +338,11 @@ LRESULT js_panel_window::on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
         return 0;
 
     case CALLBACK_UWM_ON_PLAYBACK_STARTING:
-        on_playback_starting( (playback_control::t_track_command)wp, lp != 0 );
+        on_playback_starting( ( playback_control::t_track_command )wp, lp != 0 );
         return 0;
 
     case CALLBACK_UWM_ON_PLAYBACK_STOP:
-        on_playback_stop( (playback_control::t_stop_reason)wp );
+        on_playback_stop( ( playback_control::t_stop_reason )wp );
         return 0;
 
     case CALLBACK_UWM_ON_PLAYBACK_TIME:
@@ -402,7 +404,7 @@ LRESULT js_panel_window::on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
     case UWM_SCRIPT_ERROR:
     {
         const auto& tooltip_param = PanelTooltipParam();
-        if (tooltip_param && tooltip_param->tooltip_hwnd)
+        if ( tooltip_param && tooltip_param->tooltip_hwnd )
             SendMessage( tooltip_param->tooltip_hwnd, TTM_ACTIVATE, FALSE, 0 );
 
         Repaint();
@@ -425,7 +427,7 @@ LRESULT js_panel_window::on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
 
     case UWM_SIZE:
         on_size( m_width, m_height );
-        if (get_pseudo_transparent())
+        if ( get_pseudo_transparent() )
             PostMessage( m_hwnd, UWM_REFRESHBK, 0, 0 );
         else
             Repaint();
@@ -442,21 +444,21 @@ LRESULT js_panel_window::on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
 bool js_panel_window::show_configure_popup( HWND parent )
 {
     modal_dialog_scope scope;
-    if (!scope.can_create()) return false;
+    if ( !scope.can_create() ) return false;
     scope.initialize( parent );
 
     CDialogConf dlg( this );
-    return (dlg.DoModal( parent ) == IDOK);
+    return ( dlg.DoModal( parent ) == IDOK );
 }
 
 bool js_panel_window::show_property_popup( HWND parent )
 {
     modal_dialog_scope scope;
-    if (!scope.can_create()) return false;
+    if ( !scope.can_create() ) return false;
     scope.initialize( parent );
 
     CDialogProperty dlg( this );
-    return (dlg.DoModal( parent ) == IDOK);
+    return ( dlg.DoModal( parent ) == IDOK );
 }
 
 void js_panel_window::build_context_menu( HMENU menu, int x, int y, int id_base )
@@ -471,7 +473,7 @@ void js_panel_window::build_context_menu( HMENU menu, int x, int y, int id_base 
 
 void js_panel_window::execute_context_menu_command( int id, int id_base )
 {
-    switch (id - id_base)
+    switch ( id - id_base )
     {
     case 1:
         update_script();
@@ -525,19 +527,19 @@ bool js_panel_window::script_load()
             return false;
         }
     }
-    
-    if (!jsEnv.ExecuteScript( jsGlobalObject_->GetJsObject(), get_script_code().c_str() ) )
-    {
-        return false;
-    }  
 
-    HRESULT hr = m_script_host->Initialize();
-    if (FAILED( hr ))
+    if ( !jsEnv.ExecuteScript( jsGlobalObject_->GetJsObject(), get_script_code().c_str() ) )
     {
         return false;
     }
 
-    if (ScriptInfo().feature_mask & t_script_info::kFeatureDragDrop)
+    HRESULT hr = m_script_host->Initialize();
+    if ( FAILED( hr ) )
+    {
+        return false;
+    }
+
+    if ( ScriptInfo().feature_mask & t_script_info::kFeatureDragDrop )
     {
         m_drop_target.Attach( new com_object_impl_t<HostDropTarget>( this ) );
         m_drop_target->RegisterDragDrop();
@@ -547,7 +549,7 @@ bool js_panel_window::script_load()
     // HACK: Script update will not call on_size, so invoke it explicitly
     SendMessage( m_hwnd, UWM_SIZE, 0, 0 );
 
-    FB2K_console_formatter() << JSP_NAME " v" JSP_VERSION " (" << ScriptInfo().build_info_string() << "): initialised in " << (int)(timer.query() * 1000) << " ms";
+    FB2K_console_formatter() << JSP_NAME " v" JSP_VERSION " (" << ScriptInfo().build_info_string() << "): initialised in " << (int)( timer.query() * 1000 ) << " ms";
     return true;
 }
 
@@ -572,14 +574,14 @@ ui_helpers::container_window::class_data& js_panel_window::get_class_data() cons
 
 void js_panel_window::create_context()
 {
-    if (m_gr_bmp || m_gr_bmp_bk)
+    if ( m_gr_bmp || m_gr_bmp_bk )
     {
         delete_context();
     }
 
     m_gr_bmp = CreateCompatibleBitmap( m_hdc, m_width, m_height );
 
-    if (get_pseudo_transparent())
+    if ( get_pseudo_transparent() )
     {
         m_gr_bmp_bk = CreateCompatibleBitmap( m_hdc, m_width, m_height );
     }
@@ -587,13 +589,13 @@ void js_panel_window::create_context()
 
 void js_panel_window::delete_context()
 {
-    if (m_gr_bmp)
+    if ( m_gr_bmp )
     {
         DeleteBitmap( m_gr_bmp );
         m_gr_bmp = NULL;
     }
 
-    if (m_gr_bmp_bk)
+    if ( m_gr_bmp_bk )
     {
         DeleteBitmap( m_gr_bmp_bk );
         m_gr_bmp_bk = NULL;
@@ -646,7 +648,7 @@ void js_panel_window::on_font_changed()
 void js_panel_window::on_get_album_art_done( LPARAM lp )
 {
     using namespace helpers;
-    album_art_async::t_param* param = reinterpret_cast<album_art_async::t_param *>(lp);
+    album_art_async::t_param* param = reinterpret_cast<album_art_async::t_param *>( lp );
 
     VARIANTARG args[4];
     args[0].vt = VT_BSTR;
@@ -684,14 +686,14 @@ void js_panel_window::on_item_played( WPARAM wp )
     args[0].pdispVal = handle;
     script_invoke_v( CallbackIds::on_item_played, args, _countof( args ) );
 
-    if (handle)
+    if ( handle )
         handle->Release();
 }
 
 void js_panel_window::on_load_image_done( LPARAM lp )
 {
     using namespace helpers;
-    load_image_async::t_param* param = reinterpret_cast<load_image_async::t_param *>(lp);
+    load_image_async::t_param* param = reinterpret_cast<load_image_async::t_param *>( lp );
 
     VARIANTARG args[3];
     args[0].vt = VT_BSTR;
@@ -713,7 +715,7 @@ void js_panel_window::on_library_items_added( WPARAM wp )
     args[0].pdispVal = handles;
     script_invoke_v( CallbackIds::on_library_items_added, args, _countof( args ) );
 
-    if (handles)
+    if ( handles )
         handles->Release();
 }
 
@@ -727,7 +729,7 @@ void js_panel_window::on_library_items_changed( WPARAM wp )
     args[0].pdispVal = handles;
     script_invoke_v( CallbackIds::on_library_items_changed, args, _countof( args ) );
 
-    if (handles)
+    if ( handles )
         handles->Release();
 }
 
@@ -741,7 +743,7 @@ void js_panel_window::on_library_items_removed( WPARAM wp )
     args[0].pdispVal = handles;
     script_invoke_v( CallbackIds::on_library_items_removed, args, _countof( args ) );
 
-    if (handles)
+    if ( handles )
         handles->Release();
 }
 
@@ -765,7 +767,7 @@ void js_panel_window::on_metadb_changed( WPARAM wp )
     args[1].pdispVal = handles;
     script_invoke_v( CallbackIds::on_metadb_changed, args, _countof( args ) );
 
-    if (handles)
+    if ( handles )
         handles->Release();
 }
 
@@ -779,7 +781,7 @@ void js_panel_window::on_mouse_button_dblclk( UINT msg, WPARAM wp, LPARAM lp )
     args[2].vt = VT_I4;
     args[2].lVal = GET_X_LPARAM( lp );
 
-    switch (msg)
+    switch ( msg )
     {
     case WM_LBUTTONDBLCLK:
         script_invoke_v( CallbackIds::on_mouse_lbtn_dblclk, args, _countof( args ) );
@@ -797,7 +799,7 @@ void js_panel_window::on_mouse_button_dblclk( UINT msg, WPARAM wp, LPARAM lp )
 
 void js_panel_window::on_mouse_button_down( UINT msg, WPARAM wp, LPARAM lp )
 {
-    if (get_grab_focus())
+    if ( get_grab_focus() )
         SetFocus( m_hwnd );
 
     SetCapture( m_hwnd );
@@ -810,7 +812,7 @@ void js_panel_window::on_mouse_button_down( UINT msg, WPARAM wp, LPARAM lp )
     args[2].vt = VT_I4;
     args[2].lVal = GET_X_LPARAM( lp );
 
-    switch (msg)
+    switch ( msg )
     {
     case WM_LBUTTONDOWN:
         script_invoke_v( CallbackIds::on_mouse_lbtn_down, args, _countof( args ) );
@@ -838,7 +840,7 @@ bool js_panel_window::on_mouse_button_up( UINT msg, WPARAM wp, LPARAM lp )
     args[2].vt = VT_I4;
     args[2].lVal = GET_X_LPARAM( lp );
 
-    switch (msg)
+    switch ( msg )
     {
     case WM_LBUTTONUP:
         script_invoke_v( CallbackIds::on_mouse_lbtn_up, args, _countof( args ) );
@@ -853,15 +855,15 @@ bool js_panel_window::on_mouse_button_up( UINT msg, WPARAM wp, LPARAM lp )
         _variant_t result;
 
         // Bypass the user code.
-        if (IsKeyPressed( VK_LSHIFT ) && IsKeyPressed( VK_LWIN ))
+        if ( IsKeyPressed( VK_LSHIFT ) && IsKeyPressed( VK_LWIN ) )
         {
             break;
         }
 
-        if (SUCCEEDED( script_invoke_v( CallbackIds::on_mouse_rbtn_up, args, _countof( args ), &result ) ))
+        if ( SUCCEEDED( script_invoke_v( CallbackIds::on_mouse_rbtn_up, args, _countof( args ), &result ) ) )
         {
             result.ChangeType( VT_BOOL );
-            if (result.boolVal != VARIANT_FALSE)
+            if ( result.boolVal != VARIANT_FALSE )
                 ret = true;
         }
     }
@@ -883,7 +885,7 @@ void js_panel_window::on_mouse_leave()
 
 void js_panel_window::on_mouse_move( WPARAM wp, LPARAM lp )
 {
-    if (!m_is_mouse_tracked)
+    if ( !m_is_mouse_tracked )
     {
         TRACKMOUSEEVENT tme;
 
@@ -945,18 +947,18 @@ void js_panel_window::on_output_device_changed()
 
 void js_panel_window::on_paint( HDC dc, LPRECT lpUpdateRect )
 {
-    if (!dc || !lpUpdateRect || !m_gr_bmp || !m_gr_wrap) return;
+    if ( !dc || !lpUpdateRect || !m_gr_bmp || !m_gr_wrap ) return;
 
     HDC memdc = CreateCompatibleDC( dc );
     HBITMAP oldbmp = SelectBitmap( memdc, m_gr_bmp );
 
-    if (m_script_host->HasError() || jsEngineFailed_ )
+    if ( m_script_host->HasError() || jsEngineFailed_ )
     {
         on_paint_error( memdc );
     }
     else
     {
-        if (get_pseudo_transparent())
+        if ( get_pseudo_transparent() )
         {
             HDC bkdc = CreateCompatibleDC( dc );
             HBITMAP bkoldbmp = SelectBitmap( bkdc, m_gr_bmp_bk );
@@ -979,7 +981,7 @@ void js_panel_window::on_paint( HDC dc, LPRECT lpUpdateRect )
         {
             RECT rc = { 0, 0, m_width, m_height };
 
-            FillRect( memdc, &rc, (HBRUSH)(COLOR_WINDOW + 1) );
+            FillRect( memdc, &rc, (HBRUSH)( COLOR_WINDOW + 1 ) );
         }
 
         on_paint_user( memdc, lpUpdateRect );
@@ -1033,7 +1035,7 @@ void js_panel_window::on_paint_error( HDC memdc )
 }
 void js_panel_window::on_paint_user( HDC memdc, LPRECT lpUpdateRect )
 {
-    if (m_script_host->Ready())
+    if ( m_script_host->Ready() )
     {
         // Prepare graphics object to the script.
         Gdiplus::Graphics gr( memdc );
@@ -1067,10 +1069,10 @@ void js_panel_window::on_paint_user( HDC memdc, LPRECT lpUpdateRect )
         auto pGdiGraphics = jsGraphicsObject_->GetNativeObject();
         pGdiGraphics->SetGraphicsObject( &gr );
 
-        mozjs::JsEngine::GetInstance().
-            InvokeCallback( jsGlobalObject_->GetJsObject(),
-                            "on_paint",
-                            jsGraphicsObject_->GetJsObject() );
+        mozjs::InvokeJsCallback( mozjs::JsEngine::GetInstance().GetJsContext(),
+                                 jsGlobalObject_->GetJsObject(),
+                                 "on_paint",
+                                 jsGraphicsObject_->GetJsObject() );
 
         pGdiGraphics->SetGraphicsObject( NULL );
     }
@@ -1096,7 +1098,7 @@ void js_panel_window::on_playback_edited( WPARAM wp )
     args[0].pdispVal = handle;
     script_invoke_v( CallbackIds::on_playback_edited, args, _countof( args ) );
 
-    if (handle)
+    if ( handle )
         handle->Release();
 }
 
@@ -1118,7 +1120,7 @@ void js_panel_window::on_playback_new_track( WPARAM wp )
     args[0].pdispVal = handle;
     script_invoke_v( CallbackIds::on_playback_new_track, args, _countof( args ) );
 
-    if (handle)
+    if ( handle )
         handle->Release();
 }
 
@@ -1266,13 +1268,13 @@ void js_panel_window::on_size( int w, int h )
 
     script_invoke_v( CallbackIds::on_size );
 
-    if (jsGlobalObject_)
+    if ( jsGlobalObject_ )
     {
-        mozjs::JsEngine::GetInstance().
-            InvokeCallback( jsGlobalObject_->GetJsObject(),
-                            "on_size",
-                            static_cast<uint32_t>(w),
-                            static_cast<uint32_t>(h) );
+        mozjs::InvokeJsCallback( mozjs::JsEngine::GetInstance().GetJsContext(),
+                                 jsGlobalObject_->GetJsObject(),
+                                 "on_size",
+                                 static_cast<uint32_t>( w ),
+                                 static_cast<uint32_t>( h ) );
     }
 }
 
@@ -1290,7 +1292,7 @@ void js_panel_window::script_unload()
 {
     m_script_host->Finalize();
 
-    if (m_is_droptarget_registered)
+    if ( m_is_droptarget_registered )
     {
         m_drop_target->RevokeDragDrop();
         m_is_droptarget_registered = false;
@@ -1300,5 +1302,5 @@ void js_panel_window::script_unload()
     m_selection_holder.release();
 
     jsGraphicsObject_.reset();
-    jsGlobalObject_.reset();    
+    jsGlobalObject_.reset();
 }

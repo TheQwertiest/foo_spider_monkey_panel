@@ -66,6 +66,9 @@
     <ClCompile Include="js_utils\js_object_helper.cpp">
       <Filter>js_utils</Filter>
     </ClCompile>
+    <ClCompile Include="js_engine\native_to_js_invoker.cpp">
+      <Filter>js_engine</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\PropertyList\PropertyItem.h" />
@@ -115,9 +118,6 @@
     <ClInclude Include="js_objects\gdi_graphics.h">
       <Filter>js_objects</Filter>
     </ClInclude>
-    <ClInclude Include="js_engine\js_native_invoker.h">
-      <Filter>js_engine</Filter>
-    </ClInclude>
     <ClInclude Include="js_engine\js_value_converter.h">
       <Filter>js_engine</Filter>
     </ClInclude>
@@ -153,6 +153,12 @@
     </ClInclude>
     <ClInclude Include="js_utils\js_object_helper.h">
       <Filter>js_utils</Filter>
+    </ClInclude>
+    <ClInclude Include="js_engine\js_to_native_invoker.h">
+      <Filter>js_engine</Filter>
+    </ClInclude>
+    <ClInclude Include="js_engine\native_to_js_invoker.h">
+      <Filter>js_engine</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

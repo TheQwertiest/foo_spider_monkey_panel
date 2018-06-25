@@ -36,23 +36,26 @@ namespace mozjs
 {
 
 template <typename T>
-struct TypeWrapper { using type = T; };
+struct TypeWrapper
+{
+    using type = T;
+};
 
 template <typename... ArgTypes, typename FuncType, size_t... Indexes>
 auto JsToNativeValueTupleImpl( const JS::CallArgs& jsArgs, FuncType&& func, std::index_sequence<Indexes...> )
 {
-    return std::make_tuple(func( jsArgs, TypeWrapper<ArgTypes>{}, Indexes ) ...);
+    return std::make_tuple( func( jsArgs, TypeWrapper<ArgTypes>{}, Indexes ) ... );
 }
 
 template <size_t TupleSize, typename... ArgTypes, typename FuncType>
 auto JsToNativeValueTuple( const JS::CallArgs& jsArgs, FuncType&& func )
-{    
+{
     return JsToNativeValueTupleImpl<ArgTypes...>( jsArgs, func, std::make_index_sequence<TupleSize>{} );
 }
 
 template <size_t OptArgCount = 0, typename BaseClass, typename ReturnType, typename FuncOptType, typename ... ArgTypes>
 bool InvokeNativeCallback( JSContext* cx,
-                           ReturnType( BaseClass::*fn )(ArgTypes ...),
+                           ReturnType( BaseClass::*fn )( ArgTypes ... ),
                            FuncOptType fnWithOpt,
                            unsigned argc, JS::Value* vp )
 {
@@ -67,17 +70,17 @@ bool InvokeNativeCallback( JSContext* cx,
 
 template <size_t OptArgCount = 0, typename BaseClass, typename ReturnType, typename FuncOptType, typename ... ArgTypes>
 bool InvokeNativeCallback( JSContext* cx,
-                           ReturnType( BaseClass::*fn )(ArgTypes ...) const,
+                           ReturnType( BaseClass::*fn )( ArgTypes ... ) const,
                            FuncOptType fnWithOpt,
                            unsigned argc, JS::Value* vp )
 {
     return InvokeNativeCallback_Impl<
-        OptArgCount, 
-        BaseClass, 
-        ReturnType, 
-        decltype( fn ), 
+        OptArgCount,
+        BaseClass,
+        ReturnType,
+        decltype( fn ),
         FuncOptType,
-        ArgTypes...> ( cx, fn, fnWithOpt, argc, vp );
+        ArgTypes...>( cx, fn, fnWithOpt, argc, vp );
 }
 
 
@@ -180,18 +183,18 @@ bool InvokeNativeCallback_Impl( JSContext* cx,
 }
 
 template <
-    bool HasOptArg, 
+    bool HasOptArg,
     typename ReturnType,
-    typename BaseClass, 
-    typename FuncType, 
-    typename FuncOptType, 
-    typename ArgTupleType 
+    typename BaseClass,
+    typename FuncType,
+    typename FuncOptType,
+    typename ArgTupleType
 >
-ReturnType InvokeNativeCallback_Call( BaseClass* baseClass, 
-                                      FuncType fn, FuncOptType fnWithOpt, 
+ReturnType InvokeNativeCallback_Call( BaseClass* baseClass,
+                                      FuncType fn, FuncOptType fnWithOpt,
                                       const ArgTupleType& argTuple, size_t optArgCount )
 {
-    if constexpr(!HasOptArg)
+    if constexpr( !HasOptArg )
     {
         return std::apply( fn, std::tuple_cat( std::make_tuple( baseClass ), argTuple ) );
     }
