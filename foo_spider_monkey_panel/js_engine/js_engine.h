@@ -1,7 +1,7 @@
 #pragma once
 
-#include "js_value_converter.h"
-#include <js_objects/js_object_wrapper.h>
+#include <js_engine/js_value_converter.h>
+#include <js_objects/js_persistent_object_wrapper.h>
 #include <js_objects/global_object.h>
 
 #include <optional>

@@ -36,29 +36,17 @@
     <ClCompile Include="js_engine\js_value_converter.cpp">
       <Filter>js_engine</Filter>
     </ClCompile>
-    <ClCompile Include="js_engine\js_error_reporter.cpp">
-      <Filter>js_engine</Filter>
-    </ClCompile>
     <ClCompile Include="js_objects\global_object.cpp">
       <Filter>js_objects</Filter>
     </ClCompile>
     <ClCompile Include="js_objects\console.cpp">
       <Filter>js_objects</Filter>
     </ClCompile>
-    <ClCompile Include="js_engine\js_error_codes.cpp">
-      <Filter>js_engine</Filter>
-    </ClCompile>
     <ClCompile Include="js_objects\gdi_utils.cpp">
       <Filter>js_objects</Filter>
     </ClCompile>
     <ClCompile Include="js_objects\gdi_font.cpp">
       <Filter>js_objects</Filter>
-    </ClCompile>
-    <ClCompile Include="js_objects\gdi_error.cpp">
-      <Filter>js_objects</Filter>
-    </ClCompile>
-    <ClCompile Include="js_utils\js_utils.cpp">
-      <Filter>js_utils</Filter>
     </ClCompile>
     <ClCompile Include="js_objects\gdi_bitmap.cpp">
       <Filter>js_objects</Filter>
@@ -68,6 +56,18 @@
     </ClCompile>
     <ClCompile Include="js_objects\gdi_raw_bitmap.cpp">
       <Filter>js_objects</Filter>
+    </ClCompile>
+    <ClCompile Include="js_utils\gdi_error_helper.cpp">
+      <Filter>js_utils</Filter>
+    </ClCompile>
+    <ClCompile Include="js_utils\js_error_helper_2.cpp">
+      <Filter>js_utils</Filter>
+    </ClCompile>
+    <ClCompile Include="js_utils\js_error_helper.cpp">
+      <Filter>js_utils</Filter>
+    </ClCompile>
+    <ClCompile Include="js_utils\js_object_helper.cpp">
+      <Filter>js_utils</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -124,32 +124,17 @@
     <ClInclude Include="js_engine\js_value_converter.h">
       <Filter>js_engine</Filter>
     </ClInclude>
-    <ClInclude Include="js_objects\js_object_wrapper.h">
-      <Filter>js_objects</Filter>
-    </ClInclude>
-    <ClInclude Include="js_engine\js_error_reporter.h">
-      <Filter>js_engine</Filter>
-    </ClInclude>
     <ClInclude Include="js_objects\global_object.h">
       <Filter>js_objects</Filter>
     </ClInclude>
     <ClInclude Include="js_objects\console.h">
       <Filter>js_objects</Filter>
     </ClInclude>
-    <ClInclude Include="js_engine\js_error_codes.h">
-      <Filter>js_engine</Filter>
-    </ClInclude>
     <ClInclude Include="js_objects\gdi_utils.h">
       <Filter>js_objects</Filter>
     </ClInclude>
     <ClInclude Include="js_objects\gdi_font.h">
       <Filter>js_objects</Filter>
-    </ClInclude>
-    <ClInclude Include="js_objects\gdi_error.h">
-      <Filter>js_objects</Filter>
-    </ClInclude>
-    <ClInclude Include="js_utils\js_utils.h">
-      <Filter>js_utils</Filter>
     </ClInclude>
     <ClInclude Include="js_objects\gdi_bitmap.h">
       <Filter>js_objects</Filter>
@@ -159,6 +144,21 @@
     </ClInclude>
     <ClInclude Include="js_objects\gdi_raw_bitmap.h">
       <Filter>js_objects</Filter>
+    </ClInclude>
+    <ClInclude Include="js_objects\js_persistent_object_wrapper.h">
+      <Filter>js_objects</Filter>
+    </ClInclude>
+    <ClInclude Include="js_utils\gdi_error_helper.h">
+      <Filter>js_utils</Filter>
+    </ClInclude>
+    <ClInclude Include="js_utils\js_error_helper.h">
+      <Filter>js_utils</Filter>
+    </ClInclude>
+    <ClInclude Include="js_utils\js_error_helper_2.h">
+      <Filter>js_utils</Filter>
+    </ClInclude>
+    <ClInclude Include="js_utils\js_object_helper.h">
+      <Filter>js_utils</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

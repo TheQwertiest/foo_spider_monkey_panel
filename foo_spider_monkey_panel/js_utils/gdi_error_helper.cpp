@@ -1,6 +1,5 @@
 #include <stdafx.h>
-
-#include "gdi_error.h"
+#include "gdi_error_helper.h"
 
 
 namespace mozjs

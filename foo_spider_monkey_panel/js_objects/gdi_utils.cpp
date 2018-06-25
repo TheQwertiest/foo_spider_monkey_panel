@@ -4,11 +4,11 @@
 
 #include <js_engine/js_value_converter.h>
 #include <js_engine/js_native_invoker.h>
-#include <js_engine/js_error_reporter.h>
-#include <js_objects/js_object_wrapper.h>
+#include <js_objects/js_persistent_object_wrapper.h>
 #include <js_objects/gdi_font.h>
 #include <js_objects/gdi_bitmap.h>
-#include <js_utils/js_utils.h>
+#include <js_utils/js_error_helper.h>
+#include <js_utils/js_object_helper.h>
 
 #include <helpers.h>
 

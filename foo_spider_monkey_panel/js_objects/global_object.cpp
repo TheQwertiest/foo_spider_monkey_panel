@@ -1,9 +1,9 @@
 #include <stdafx.h>
-
 #include "global_object.h"
-#include "console.h"
-#include "gdi_utils.h"
-#include <js_utils/js_utils.h>
+
+#include <js_objects/console.h>
+#include <js_objects/gdi_utils.h>
+#include <js_utils/js_object_helper.h>
 
 #include <js_panel_window.h>
 

@@ -1,12 +1,11 @@
 #include <stdafx.h>
-
 #include "gdi_raw_bitmap.h"
 
 #include <js_engine/js_value_converter.h>
 #include <js_engine/js_native_invoker.h>
-#include <js_engine/js_error_reporter.h>
-#include <js_objects/gdi_error.h>
-#include <js_utils/js_utils.h>
+#include <js_utils/gdi_error_helper.h>
+#include <js_utils/js_error_helper.h>
+#include <js_utils/js_object_helper.h>
 
 #include <helpers.h>
 
@@ -23,7 +22,7 @@ JSClassOps jsOps = {
     nullptr,
     nullptr,
     nullptr,
-    JsFinalizeOp<JsGdiUtils>,
+    JsFinalizeOp<JsGdiRawBitmap>,
     nullptr,
     nullptr,
     nullptr,

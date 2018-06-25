@@ -1,6 +1,5 @@
 #include <stdafx.h>
-
-#include "js_error_codes.h"
+#include "js_error_helper_2.h"
 
 #pragma warning( push )  
 #pragma warning( disable : 4251 ) // dll interface warning

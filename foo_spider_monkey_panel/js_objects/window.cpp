@@ -1,12 +1,11 @@
 #include <stdafx.h>
-
 #include "window.h"
 
 #include <js_engine/js_value_converter.h>
 #include <js_engine/js_native_invoker.h>
-#include <js_engine/js_error_reporter.h>
-#include <js_objects/gdi_error.h>
-#include <js_utils/js_utils.h>
+#include <js_utils/gdi_error_helper.h>
+#include <js_utils/js_error_helper.h>
+#include <js_utils/js_object_helper.h>
 
 
 namespace
@@ -21,7 +20,7 @@ JSClassOps jsOps = {
     nullptr,
     nullptr,
     nullptr,
-    JsFinalizeOp<JsGdiUtils>,
+    JsFinalizeOp<JsWindow>,
     nullptr,
     nullptr,
     nullptr,
@@ -75,7 +74,7 @@ JSObject* JsWindow::Create( JSContext* cx, js_panel_window& parentPanel )
         return nullptr;
     }
 
-    JS_SetPrivate( jsObj, new JsWindow( cx ) );
+    JS_SetPrivate( jsObj, new JsWindow( cx, parentPanel ) );
 
     return jsObj;
 }

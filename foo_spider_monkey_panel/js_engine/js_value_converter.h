@@ -6,10 +6,6 @@
 #include <jsapi.h>
 #pragma warning( pop )  
 
-#include <js_objects/js_object_wrapper.h>
-#include <vector>
-
-#include <js_objects/gdi_utils.h>
 
 namespace mozjs
 {

@@ -1,6 +1,6 @@
 #include <stdafx.h>
+#include "js_error_helper.h"
 
-#include "js_error_reporter.h"
 #include <js_objects/global_object.h>
 
 #include <popup_msg.h>

@@ -1,8 +1,8 @@
 #include <stdafx.h>
-
 #include "js_engine.h"
-#include "js_error_reporter.h"
+
 #include <js_objects/global_object.h>
+#include <js_utils/js_error_helper.h>
 
 #include <js/Conversions.h>
 
