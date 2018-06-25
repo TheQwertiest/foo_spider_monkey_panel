@@ -6,7 +6,7 @@
 #include <jsapi.h>
 #pragma warning( pop )  
 
-#include <js_utils/js_error_helper_2.h>
+#include <js_utils/js_error_helper.h>
 
 #include <type_traits>
 

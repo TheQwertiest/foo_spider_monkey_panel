@@ -4,6 +4,7 @@
 #pragma warning( disable : 4251 ) // dll interface warning
 #pragma warning( disable : 4996 ) // C++17 deprecation warning
 #include <jsapi.h>
+#include <jsfriendapi.h>
 #pragma warning( pop )  
 
 namespace mozjs
@@ -21,5 +22,7 @@ private:
 private:
     JSContext * cx;
 };
+
+std::string GetCurrentExceptionText( JSContext* cx );
 
 }

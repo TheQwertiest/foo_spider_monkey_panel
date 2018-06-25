@@ -60,9 +60,6 @@
     <ClCompile Include="js_utils\gdi_error_helper.cpp">
       <Filter>js_utils</Filter>
     </ClCompile>
-    <ClCompile Include="js_utils\js_error_helper_2.cpp">
-      <Filter>js_utils</Filter>
-    </ClCompile>
     <ClCompile Include="js_utils\js_error_helper.cpp">
       <Filter>js_utils</Filter>
     </ClCompile>
@@ -152,9 +149,6 @@
       <Filter>js_utils</Filter>
     </ClInclude>
     <ClInclude Include="js_utils\js_error_helper.h">
-      <Filter>js_utils</Filter>
-    </ClInclude>
-    <ClInclude Include="js_utils\js_error_helper_2.h">
       <Filter>js_utils</Filter>
     </ClInclude>
     <ClInclude Include="js_utils\js_object_helper.h">
