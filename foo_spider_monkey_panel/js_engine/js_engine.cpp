@@ -148,7 +148,7 @@ void JsEngine::Finalize()
     if (pJsCtx_)
     {
         JS_DestroyContext( pJsCtx_ );
-        pJsCtx_ = NULL;
+        pJsCtx_ = nullptr;
     }
 }
 

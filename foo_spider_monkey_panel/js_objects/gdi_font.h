@@ -6,7 +6,7 @@ class JSObject;
 struct JSContext;
 struct JSClass;
 
-namespace Gdi
+namespace Gdiplus
 {
 class Font;
 }
@@ -39,7 +39,7 @@ private:
 
 private:
     JSContext * pJsCtx_;
-    std::unique_ptr<Gdiplus::Font> gdiFont_;
+    std::unique_ptr<Gdiplus::Font> pGdi_;
     HFONT hFont_;
 };
 

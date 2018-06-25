@@ -21,7 +21,7 @@ JSClassOps jsOps = {
     nullptr,
     nullptr,
     nullptr,
-    nullptr,
+    JsFinalizeOp<JsGdiUtils>,
     nullptr,
     nullptr,
     nullptr,
@@ -60,7 +60,7 @@ namespace mozjs
 
 JsGdiFont::JsGdiFont( JSContext* cx, Gdiplus::Font* pGdiFont, HFONT hFont )
     : pJsCtx_( cx )
-    , gdiFont_( pGdiFont )
+    , pGdi_( pGdiFont )
     , hFont_( hFont )
 {
 }
@@ -97,7 +97,7 @@ const JSClass& JsGdiFont::GetClass()
 
 Gdiplus::Font* JsGdiFont::GdiFont() const
 {
-    return gdiFont_.get();
+    return pGdi_.get();
 }
 
 HFONT JsGdiFont::HFont() const
@@ -108,7 +108,7 @@ HFONT JsGdiFont::HFont() const
 std::optional<uint32_t>
 JsGdiFont::Height() const
 {
-    if ( !gdiFont_ )
+    if ( !pGdi_ )
     {
         JS_ReportErrorASCII( pJsCtx_, "Internal error: Gdiplus::Font object is null" );
         return std::nullopt;
@@ -117,13 +117,13 @@ JsGdiFont::Height() const
     Gdiplus::Bitmap img( 1, 1, PixelFormat32bppPARGB );
     Gdiplus::Graphics g( &img );
 
-    return static_cast<uint32_t>(gdiFont_->GetHeight( &g ));
+    return static_cast<uint32_t>(pGdi_->GetHeight( &g ));
 }
 
 std::optional<std::wstring>
 JsGdiFont::Name() const
 {
-    if ( !gdiFont_ )
+    if ( !pGdi_ )
     {
         JS_ReportErrorASCII( pJsCtx_, "Internal error: Gdiplus::Font object is null" );
         return std::nullopt;
@@ -131,7 +131,7 @@ JsGdiFont::Name() const
 
     Gdiplus::FontFamily fontFamily;
     WCHAR name[LF_FACESIZE] = { 0 };
-    Gdiplus::Status gdiRet = gdiFont_->GetFamily( &fontFamily );
+    Gdiplus::Status gdiRet = pGdi_->GetFamily( &fontFamily );
     IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, std::nullopt, GetFamily );
 
     gdiRet = fontFamily.GetFamilyName( name, LANG_NEUTRAL );
@@ -143,25 +143,25 @@ JsGdiFont::Name() const
 std::optional<float>
 JsGdiFont::Size() const
 {
-    if ( !gdiFont_ )
+    if ( !pGdi_ )
     {
         JS_ReportErrorASCII( pJsCtx_, "Internal error: Gdiplus::Font object is null" );
         return std::nullopt;
     }
 
-    return gdiFont_->GetSize();
+    return pGdi_->GetSize();
 }
 
 std::optional<uint32_t>
 JsGdiFont::Style() const
 {
-    if ( !gdiFont_ )
+    if ( !pGdi_ )
     {
         JS_ReportErrorASCII( pJsCtx_, "Internal error: Gdiplus::Font object is null" );
         return std::nullopt;
     }
 
-    return gdiFont_->GetStyle();
+    return pGdi_->GetStyle();
 }
 
 }

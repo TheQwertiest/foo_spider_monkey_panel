@@ -1,6 +1,5 @@
 #include "stdafx.h"
 #include "script_interface_impl.h"
-#include "stackblur.h"
 #include "popup_msg.h"
 #include "stats.h"
 #include "drop_source_impl.h"
@@ -3088,7 +3087,7 @@ STDMETHODIMP GdiBitmap::StackBlur(int radius)
 {
 	if (!m_ptr) return E_POINTER;
 
-	stack_blur_filter(*m_ptr, radius);
+	//stack_blur_filter(*m_ptr, radius);
 	return S_OK;
 }
 

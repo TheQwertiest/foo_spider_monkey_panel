@@ -7,6 +7,7 @@
 #include <js_engine/js_error_reporter.h>
 #include <js_objects/js_object_wrapper.h>
 #include <js_objects/gdi_font.h>
+#include <js_objects/gdi_bitmap.h>
 #include <js_utils/js_utils.h>
 
 #include <helpers.h>
@@ -32,14 +33,16 @@ JSClassOps jsOps = {
 };
 
 JSClass jsClass = {
-    "gdiUtils",
+    "GdiUtils",
     JSCLASS_HAS_PRIVATE | JSCLASS_FOREGROUND_FINALIZE,
     &jsOps
 };
 
+MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiUtils, CreateImage )
 MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsGdiUtils, Font, FontWithOpt, 1 )
 
 const JSFunctionSpec jsFunctions[] = {
+    JS_FN( "CreateImage", CreateImage, 2, 0 ),
     JS_FN( "Font", Font, 3, 0 ),
     JS_FS_END
 };
@@ -79,18 +82,38 @@ JSObject* JsGdiUtils::Create( JSContext* cx )
     return jsObj;
 }
 
+const JSClass& JsGdiUtils::GetClass()
+{
+    return jsClass;
+}
+
+std::optional<JSObject*>
+JsGdiUtils::CreateImage( uint32_t w, uint32_t h )
+{
+    std::unique_ptr<Gdiplus::Bitmap> img( new Gdiplus::Bitmap( w, h, PixelFormat32bppPARGB ) );
+    if ( !helpers::ensure_gdiplus_object( img.get() ) )
+    {
+        JS_ReportErrorASCII( pJsCtx_, "Bitmap creation failed" );
+        return std::nullopt;
+    }
+
+    JS::RootedObject jsObject( pJsCtx_, JsGdiBitmap::Create( pJsCtx_, img.get() ) );
+    if ( !jsObject )
+    {
+        JS_ReportErrorASCII( pJsCtx_, "Internal error: failed to create JS object" );
+        return std::nullopt;
+    }
+
+    img.release();
+    return jsObject;
+}
+
 std::optional<JSObject*>
 JsGdiUtils::Font( std::wstring fontName, float pxSize, uint32_t style )
 {
-    Gdiplus::Font* pGdiFont = new Gdiplus::Font( fontName.c_str(), pxSize, style, Gdiplus::UnitPixel );
-    if ( !helpers::ensure_gdiplus_object( pGdiFont ) )
-    {
-        if ( pGdiFont )
-        {
-            delete pGdiFont;
-        }
-
-        // Not an error: font not found
+    std::unique_ptr<Gdiplus::Font> pGdiFont( new Gdiplus::Font( fontName.c_str(), pxSize, style, Gdiplus::UnitPixel ) );
+    if ( !helpers::ensure_gdiplus_object( pGdiFont.get() ) )
+    {// Not an error: font not found
         return nullptr;
     }
 
@@ -101,10 +124,10 @@ JsGdiUtils::Font( std::wstring fontName, float pxSize, uint32_t style )
         0,
         0,
         0,
-        (style & Gdiplus::FontStyleBold) ? FW_BOLD : FW_NORMAL,
-        (style & Gdiplus::FontStyleItalic) ? TRUE : FALSE,
-        (style & Gdiplus::FontStyleUnderline) ? TRUE : FALSE,
-        (style & Gdiplus::FontStyleStrikeout) ? TRUE : FALSE,
+        ( style & Gdiplus::FontStyleBold ) ? FW_BOLD : FW_NORMAL,
+        ( style & Gdiplus::FontStyleItalic ) ? TRUE : FALSE,
+        ( style & Gdiplus::FontStyleUnderline ) ? TRUE : FALSE,
+        ( style & Gdiplus::FontStyleStrikeout ) ? TRUE : FALSE,
         DEFAULT_CHARSET,
         OUT_DEFAULT_PRECIS,
         CLIP_DEFAULT_PRECIS,
@@ -112,14 +135,17 @@ JsGdiUtils::Font( std::wstring fontName, float pxSize, uint32_t style )
         DEFAULT_PITCH | FF_DONTCARE,
         fontName.c_str() );
 
-    JSObject* pJsFont = JsGdiFont::Create( pJsCtx_, pGdiFont, hFont, true );
-    if ( !pJsFont )
+    JS::RootedObject jsRetObject( pJsCtx_, JsGdiFont::Create( pJsCtx_, pGdiFont.get(), hFont, true ) );
+    if ( !jsRetObject )
     {
+        DeleteObject( hFont );
+
         JS_ReportErrorASCII( pJsCtx_, "Internal error: failed to create JS object" );
         return std::nullopt;
     }
 
-    return pJsFont;
+    pGdiFont.release();
+    return jsRetObject;
 }
 
 std::optional<JSObject*>

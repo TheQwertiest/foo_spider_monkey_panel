@@ -16,7 +16,6 @@ public:
     ~AutoReportException();
 
 private: 
-    static void PrintError();
     static std::string GetStackTraceString( JSContext* cx, JS::HandleObject exn );
 
 private:

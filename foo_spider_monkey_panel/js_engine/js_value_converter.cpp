@@ -17,7 +17,7 @@ bool JsToNativeObject( JSContext * cx, const JS::HandleValue& jsValue, NativeObj
     JS::RootedObject jsObject( cx, jsValue.toObjectOrNull() );
     if ( !jsObject )
     {
-        unwrappedValue = NULL;
+        unwrappedValue = nullptr;
         return true;
     }
 
@@ -134,6 +134,15 @@ bool JsToNative<int32_t>::IsValid( JSContext * cx, const JS::HandleValue& jsValu
 int32_t JsToNative<int32_t>::Convert( JSContext * cx, const JS::HandleValue& jsValue )
 {
     return std::forward<int32_t>( jsValue.isInt32() );
+}
+
+bool JsToNative<uint8_t>::IsValid( JSContext * cx, const JS::HandleValue& jsValue )
+{
+    return jsValue.isNumber();
+}
+uint8_t JsToNative<uint8_t>::Convert( JSContext * cx, const JS::HandleValue& jsValue )
+{
+    return std::forward<uint8_t>( static_cast<uint8_t>( jsValue.toNumber() ) );
 }
 
 bool JsToNative<uint32_t>::IsValid( JSContext * cx, const JS::HandleValue& jsValue )

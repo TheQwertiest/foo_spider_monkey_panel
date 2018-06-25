@@ -82,7 +82,7 @@ namespace mozjs
 
 JsGdiGraphics::JsGdiGraphics( JSContext* cx )
     : pJsCtx_( cx )
-    , graphics_( NULL )
+    , pGdi_( nullptr )
 {
 }
 
@@ -110,50 +110,25 @@ JSObject* JsGdiGraphics::Create( JSContext* cx )
     return jsObj;
 }
 
+const JSClass& JsGdiGraphics::GetClass()
+{
+    return jsClass;
+}
+
+Gdiplus::Graphics* JsGdiGraphics::GetGraphicsObject() const
+{
+    return pGdi_;
+}
+
 void JsGdiGraphics::SetGraphicsObject( Gdiplus::Graphics* graphics )
 {
-    graphics_ = graphics;
+    pGdi_ = graphics;
 }
 
-std::optional<uint32_t> 
+std::optional<uint32_t>
 JsGdiGraphics::CalcTextHeight( std::wstring str, JS::HandleValue font )
 {
-    if ( !graphics_ )
-    {
-        JS_ReportErrorASCII( pJsCtx_, "Internal error: Gdiplus::Graphics object is null" );
-        return std::nullopt;
-    }
-
-    JS::RootedObject jsObject( pJsCtx_, GetJsObjectFromValue( pJsCtx_, font ) );
-    if (!jsObject)
-    {
-        JS_ReportErrorASCII( pJsCtx_, "font argument is not a JS object" );
-        return false;
-    }
-
-    JsGdiFont* pJsFont = GetNativeFromJsObject<JsGdiFont>( pJsCtx_, jsObject );
-    if ( !pJsFont )
-    {
-        JS_ReportErrorASCII( pJsCtx_, "font argument is not a GdiFont object" );
-        return false;
-    }
-
-    HFONT hFont = pJsFont->HFont();
-    HDC dc = graphics_->GetHDC();
-    HFONT oldfont = SelectFont( dc, hFont );
-
-    uint32_t textH = helpers::get_text_height( dc, str.c_str(), str.length() );
-
-    SelectFont( dc, oldfont );
-    graphics_->ReleaseHDC( dc );
-
-    return textH;
-}
-
-std::optional<uint32_t> 
-JsGdiGraphics::CalcTextWidth( std::wstring str, JS::HandleValue font )
-{
-    if ( !graphics_ )
+    if ( !pGdi_ )
     {
         JS_ReportErrorASCII( pJsCtx_, "Internal error: Gdiplus::Graphics object is null" );
         return std::nullopt;
@@ -163,24 +138,59 @@ JsGdiGraphics::CalcTextWidth( std::wstring str, JS::HandleValue font )
     if ( !jsObject )
     {
         JS_ReportErrorASCII( pJsCtx_, "font argument is not a JS object" );
-        return false;
+        return std::nullopt;
     }
 
     JsGdiFont* pJsFont = GetNativeFromJsObject<JsGdiFont>( pJsCtx_, jsObject );
     if ( !pJsFont )
     {
         JS_ReportErrorASCII( pJsCtx_, "font argument is not a GdiFont object" );
-        return false;
+        return std::nullopt;
     }
 
     HFONT hFont = pJsFont->HFont();
-    HDC dc = graphics_->GetHDC();
+    HDC dc = pGdi_->GetHDC();
+    HFONT oldfont = SelectFont( dc, hFont );
+
+    uint32_t textH = helpers::get_text_height( dc, str.c_str(), str.length() );
+
+    SelectFont( dc, oldfont );
+    pGdi_->ReleaseHDC( dc );
+
+    return textH;
+}
+
+std::optional<uint32_t>
+JsGdiGraphics::CalcTextWidth( std::wstring str, JS::HandleValue font )
+{
+    if ( !pGdi_ )
+    {
+        JS_ReportErrorASCII( pJsCtx_, "Internal error: Gdiplus::Graphics object is null" );
+        return std::nullopt;
+    }
+
+    JS::RootedObject jsObject( pJsCtx_, GetJsObjectFromValue( pJsCtx_, font ) );
+    if ( !jsObject )
+    {
+        JS_ReportErrorASCII( pJsCtx_, "font argument is not a JS object" );
+        return std::nullopt;
+    }
+
+    JsGdiFont* pJsFont = GetNativeFromJsObject<JsGdiFont>( pJsCtx_, jsObject );
+    if ( !pJsFont )
+    {
+        JS_ReportErrorASCII( pJsCtx_, "font argument is not a GdiFont object" );
+        return std::nullopt;
+    }
+
+    HFONT hFont = pJsFont->HFont();
+    HDC dc = pGdi_->GetHDC();
     HFONT oldfont = SelectFont( dc, hFont );
 
     uint32_t textW = helpers::get_text_width( dc, str.c_str(), str.length() );
 
     SelectFont( dc, oldfont );
-    graphics_->ReleaseHDC( dc );
+    pGdi_->ReleaseHDC( dc );
 
     return textW;
 }
@@ -188,14 +198,14 @@ JsGdiGraphics::CalcTextWidth( std::wstring str, JS::HandleValue font )
 std::optional<std::nullptr_t>
 JsGdiGraphics::DrawEllipse( float x, float y, float w, float h, float line_width, uint32_t colour )
 {
-    if ( !graphics_ )
+    if ( !pGdi_ )
     {
         JS_ReportErrorASCII( pJsCtx_, "Internal error: Gdiplus::Graphics object is null" );
         return std::nullopt;
     }
 
     Gdiplus::Pen pen( colour, line_width );
-    Gdiplus::Status gdiRet = graphics_->DrawEllipse( &pen, x, y, w, h );
+    Gdiplus::Status gdiRet = pGdi_->DrawEllipse( &pen, x, y, w, h );
     IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, std::nullopt, DrawEllipse );
 
     return nullptr;
@@ -204,14 +214,14 @@ JsGdiGraphics::DrawEllipse( float x, float y, float w, float h, float line_width
 std::optional<std::nullptr_t>
 JsGdiGraphics::DrawLine( float x1, float y1, float x2, float y2, float line_width, uint32_t colour )
 {
-    if ( !graphics_ )
+    if ( !pGdi_ )
     {
         JS_ReportErrorASCII( pJsCtx_, "Internal error: Gdiplus::Graphics object is null" );
         return std::nullopt;
     }
 
     Gdiplus::Pen pen( colour, line_width );
-    Gdiplus::Status gdiRet = graphics_->DrawLine( &pen, x1, y1, x2, y2 );
+    Gdiplus::Status gdiRet = pGdi_->DrawLine( &pen, x1, y1, x2, y2 );
     IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, std::nullopt, DrawLine );
 
     return nullptr;
@@ -219,7 +229,7 @@ JsGdiGraphics::DrawLine( float x1, float y1, float x2, float y2, float line_widt
 
 std::optional<std::nullptr_t> JsGdiGraphics::DrawPolygon( uint32_t colour, float line_width, JS::HandleValue points )
 {
-    if ( !graphics_ )
+    if ( !pGdi_ )
     {
         JS_ReportErrorASCII( pJsCtx_, "Internal error: Gdiplus::Graphics object is null" );
         return std::nullopt;
@@ -232,7 +242,7 @@ std::optional<std::nullptr_t> JsGdiGraphics::DrawPolygon( uint32_t colour, float
     }
 
     Gdiplus::Pen pen( colour, line_width );
-    Gdiplus::Status gdiRet = graphics_->DrawPolygon( &pen, gdiPoints.data(), gdiPoints.size() );
+    Gdiplus::Status gdiRet = pGdi_->DrawPolygon( &pen, gdiPoints.data(), gdiPoints.size() );
     IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, std::nullopt, DrawPolygon );
 
     return nullptr;
@@ -241,14 +251,14 @@ std::optional<std::nullptr_t> JsGdiGraphics::DrawPolygon( uint32_t colour, float
 std::optional<std::nullptr_t>
 JsGdiGraphics::DrawRect( float x, float y, float w, float h, float line_width, uint32_t colour )
 {
-    if ( !graphics_ )
+    if ( !pGdi_ )
     {
         JS_ReportErrorASCII( pJsCtx_, "Internal error: Gdiplus::Graphics object is null" );
         return std::nullopt;
     }
 
     Gdiplus::Pen pen( colour, line_width );
-    Gdiplus::Status gdiRet = graphics_->DrawRectangle( &pen, x, y, w, h );
+    Gdiplus::Status gdiRet = pGdi_->DrawRectangle( &pen, x, y, w, h );
     IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, std::nullopt, DrawRectangle );
 
     return nullptr;
@@ -257,7 +267,7 @@ JsGdiGraphics::DrawRect( float x, float y, float w, float h, float line_width, u
 std::optional<std::nullptr_t>
 JsGdiGraphics::DrawRoundRect( float x, float y, float w, float h, float arc_width, float arc_height, float line_width, uint32_t colour )
 {
-    if ( !graphics_ )
+    if ( !pGdi_ )
     {
         JS_ReportErrorASCII( pJsCtx_, "Internal error: Gdiplus::Graphics object is null" );
         return std::nullopt;
@@ -272,7 +282,7 @@ JsGdiGraphics::DrawRoundRect( float x, float y, float w, float h, float arc_widt
     Gdiplus::Pen pen( colour, line_width );
     Gdiplus::GraphicsPath gp;
     Gdiplus::RectF rect( x, y, w, h );
-    Gdiplus::Status gdiRet = (Gdiplus::Status)GetRoundRectPath( gp, rect, arc_width, arc_height );
+    Gdiplus::Status gdiRet = ( Gdiplus::Status )GetRoundRectPath( gp, rect, arc_width, arc_height );
     if ( gdiRet > 0 )
     {// Report in GetRoundRectPath
         return std::nullopt;
@@ -284,7 +294,7 @@ JsGdiGraphics::DrawRoundRect( float x, float y, float w, float h, float arc_widt
     gdiRet = pen.SetEndCap( Gdiplus::LineCapRound );
     IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, std::nullopt, SetEndCap );
 
-    gdiRet = graphics_->DrawPath( &pen, &gp );
+    gdiRet = pGdi_->DrawPath( &pen, &gp );
     IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, std::nullopt, DrawPath );
 
     return nullptr;
@@ -293,7 +303,7 @@ JsGdiGraphics::DrawRoundRect( float x, float y, float w, float h, float arc_widt
 std::optional<std::nullptr_t>
 JsGdiGraphics::DrawString( std::wstring str, JS::HandleValue font, uint32_t colour, float x, float y, float w, float h, uint32_t flags )
 {
-    if ( !graphics_ )
+    if ( !pGdi_ )
     {
         JS_ReportErrorASCII( pJsCtx_, "Internal error: Gdiplus::Graphics object is null" );
         return std::nullopt;
@@ -325,20 +335,20 @@ JsGdiGraphics::DrawString( std::wstring str, JS::HandleValue font, uint32_t colo
 
     if ( flags != 0 )
     {
-        Gdiplus::Status gdiRet = fmt.SetAlignment( (Gdiplus::StringAlignment)((flags >> 28) & 0x3) ); //0xf0000000
+        Gdiplus::Status gdiRet = fmt.SetAlignment( ( Gdiplus::StringAlignment )( ( flags >> 28 ) & 0x3 ) ); //0xf0000000
         IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, std::nullopt, SetAlignment );
 
-        gdiRet = fmt.SetLineAlignment( (Gdiplus::StringAlignment)((flags >> 24) & 0x3) ); //0x0f000000
+        gdiRet = fmt.SetLineAlignment( ( Gdiplus::StringAlignment )( ( flags >> 24 ) & 0x3 ) ); //0x0f000000
         IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, std::nullopt, SetLineAlignment );
 
-        gdiRet = fmt.SetTrimming( (Gdiplus::StringTrimming)((flags >> 20) & 0x7) ); //0x00f00000
+        gdiRet = fmt.SetTrimming( ( Gdiplus::StringTrimming )( ( flags >> 20 ) & 0x7 ) ); //0x00f00000
         IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, std::nullopt, SetTrimming );
 
-        gdiRet = fmt.SetFormatFlags( (Gdiplus::StringFormatFlags)(flags & 0x7FFF) ); //0x0000ffff
+        gdiRet = fmt.SetFormatFlags( ( Gdiplus::StringFormatFlags )( flags & 0x7FFF ) ); //0x0000ffff
         IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, std::nullopt, SetFormatFlags );
     }
 
-    Gdiplus::Status gdiRet = graphics_->DrawString( str.c_str(), -1, pGdiFont, Gdiplus::RectF( x, y, w, h ), &fmt, &br );
+    Gdiplus::Status gdiRet = pGdi_->DrawString( str.c_str(), -1, pGdiFont, Gdiplus::RectF( x, y, w, h ), &fmt, &br );
     IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, std::nullopt, DrawString );
 
     return nullptr;
@@ -355,7 +365,7 @@ JsGdiGraphics::DrawStringWithOpt( size_t optArgCount, std::wstring str, JS::Hand
 
     if ( optArgCount == 1 )
     {
-        return DrawString( str, font, colour, x, y, w, h, 0);
+        return DrawString( str, font, colour, x, y, w, h, 0 );
     }
 
     return DrawString( str, font, colour, x, y, w, h, flags );
@@ -364,14 +374,14 @@ JsGdiGraphics::DrawStringWithOpt( size_t optArgCount, std::wstring str, JS::Hand
 std::optional<std::nullptr_t>
 JsGdiGraphics::FillEllipse( float x, float y, float w, float h, uint32_t colour )
 {
-    if ( !graphics_ )
+    if ( !pGdi_ )
     {
         JS_ReportErrorASCII( pJsCtx_, "Internal error: Gdiplus::Graphics object is null" );
         return std::nullopt;
     }
 
     Gdiplus::SolidBrush br( colour );
-    Gdiplus::Status gdiRet = graphics_->FillEllipse( &br, x, y, w, h );
+    Gdiplus::Status gdiRet = pGdi_->FillEllipse( &br, x, y, w, h );
     IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, std::nullopt, FillEllipse );
 
     return nullptr;
@@ -380,7 +390,7 @@ JsGdiGraphics::FillEllipse( float x, float y, float w, float h, uint32_t colour 
 std::optional<std::nullptr_t>
 JsGdiGraphics::FillGradRect( float x, float y, float w, float h, float angle, uint32_t colour1, uint32_t colour2, float focus )
 {
-    if ( !graphics_ )
+    if ( !pGdi_ )
     {
         JS_ReportErrorASCII( pJsCtx_, "Internal error: Gdiplus::Graphics object is null" );
         return std::nullopt;
@@ -391,16 +401,16 @@ JsGdiGraphics::FillGradRect( float x, float y, float w, float h, float angle, ui
     Gdiplus::Status gdiRet = brush.SetBlendTriangularShape( focus );
     IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, std::nullopt, SetBlendTriangularShape );
 
-    gdiRet = graphics_->FillRectangle( &brush, rect );
+    gdiRet = pGdi_->FillRectangle( &brush, rect );
     IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, std::nullopt, FillRectangle );
 
     return nullptr;
 }
 
-std::optional<std::nullptr_t> 
+std::optional<std::nullptr_t>
 JsGdiGraphics::FillPolygon( uint32_t colour, uint32_t fillmode, JS::HandleValue points )
 {
-    if ( !graphics_ )
+    if ( !pGdi_ )
     {
         JS_ReportErrorASCII( pJsCtx_, "Internal error: Gdiplus::Graphics object is null" );
         return std::nullopt;
@@ -413,7 +423,7 @@ JsGdiGraphics::FillPolygon( uint32_t colour, uint32_t fillmode, JS::HandleValue 
     }
 
     Gdiplus::SolidBrush br( colour );
-    Gdiplus::Status gdiRet = graphics_->FillPolygon( &br, gdiPoints.data(), gdiPoints.size(), (Gdiplus::FillMode)fillmode );
+    Gdiplus::Status gdiRet = pGdi_->FillPolygon( &br, gdiPoints.data(), gdiPoints.size(), ( Gdiplus::FillMode )fillmode );
     IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, std::nullopt, FillPolygon );
 
     return nullptr;
@@ -422,7 +432,7 @@ JsGdiGraphics::FillPolygon( uint32_t colour, uint32_t fillmode, JS::HandleValue 
 std::optional<std::nullptr_t>
 JsGdiGraphics::FillRoundRect( float x, float y, float w, float h, float arc_width, float arc_height, uint32_t colour )
 {
-    if ( !graphics_ )
+    if ( !pGdi_ )
     {
         JS_ReportErrorASCII( pJsCtx_, "Internal error: Gdiplus::Graphics object is null" );
         return std::nullopt;
@@ -437,13 +447,13 @@ JsGdiGraphics::FillRoundRect( float x, float y, float w, float h, float arc_widt
     Gdiplus::SolidBrush br( colour );
     Gdiplus::GraphicsPath gp;
     Gdiplus::RectF rect( x, y, w, h );
-    Gdiplus::Status gdiRet = (Gdiplus::Status)GetRoundRectPath( gp, rect, arc_width, arc_height );
-    if ( gdiRet > 0)
+    Gdiplus::Status gdiRet = ( Gdiplus::Status )GetRoundRectPath( gp, rect, arc_width, arc_height );
+    if ( gdiRet > 0 )
     {// Report in GetRoundRectPath
         return std::nullopt;
     }
 
-    gdiRet = graphics_->FillPath( &br, &gp );
+    gdiRet = pGdi_->FillPath( &br, &gp );
     IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, std::nullopt, FillPath );
 
     return nullptr;
@@ -452,14 +462,14 @@ JsGdiGraphics::FillRoundRect( float x, float y, float w, float h, float arc_widt
 std::optional<std::nullptr_t>
 JsGdiGraphics::FillSolidRect( float x, float y, float w, float h, uint32_t colour )
 {
-    if ( !graphics_ )
+    if ( !pGdi_ )
     {
         JS_ReportErrorASCII( pJsCtx_, "Internal error: Gdiplus::Graphics object is null" );
         return std::nullopt;
     }
 
     Gdiplus::SolidBrush brush( colour );
-    Gdiplus::Status gdiRet = graphics_->FillRectangle( &brush, x, y, w, h );
+    Gdiplus::Status gdiRet = pGdi_->FillRectangle( &brush, x, y, w, h );
     IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, std::nullopt, FillRectangle );
 
     return nullptr;
@@ -467,13 +477,13 @@ JsGdiGraphics::FillSolidRect( float x, float y, float w, float h, uint32_t colou
 
 std::optional<std::nullptr_t> JsGdiGraphics::SetInterpolationMode( uint32_t mode )
 {
-    if ( !graphics_ )
+    if ( !pGdi_ )
     {
         JS_ReportErrorASCII( pJsCtx_, "Internal error: Gdiplus::Graphics object is null" );
         return std::nullopt;
     }
 
-    Gdiplus::Status gdiRet = graphics_->SetInterpolationMode( (Gdiplus::InterpolationMode)mode );
+    Gdiplus::Status gdiRet = pGdi_->SetInterpolationMode( ( Gdiplus::InterpolationMode )mode );
     IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, std::nullopt, SetInterpolationMode );
 
     return nullptr;
@@ -497,13 +507,13 @@ std::optional<std::nullptr_t> JsGdiGraphics::SetInterpolationModeWithOpt( size_t
 
 std::optional<std::nullptr_t> JsGdiGraphics::SetSmoothingMode( uint32_t mode )
 {
-    if ( !graphics_ )
+    if ( !pGdi_ )
     {
         JS_ReportErrorASCII( pJsCtx_, "Internal error: Gdiplus::Graphics object is null" );
         return std::nullopt;
     }
 
-    Gdiplus::Status gdiRet = graphics_->SetSmoothingMode( (Gdiplus::SmoothingMode)mode );
+    Gdiplus::Status gdiRet = pGdi_->SetSmoothingMode( ( Gdiplus::SmoothingMode )mode );
     IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, std::nullopt, SetSmoothingMode );
 
     return nullptr;
@@ -527,13 +537,13 @@ std::optional<std::nullptr_t> JsGdiGraphics::SetSmoothingModeWithOpt( size_t opt
 
 std::optional<std::nullptr_t> JsGdiGraphics::SetTextRenderingHint( uint32_t mode )
 {
-    if ( !graphics_ )
+    if ( !pGdi_ )
     {
         JS_ReportErrorASCII( pJsCtx_, "Internal error: Gdiplus::Graphics object is null" );
         return std::nullopt;
     }
 
-    Gdiplus::Status gdiRet = graphics_->SetTextRenderingHint( (Gdiplus::TextRenderingHint)mode );
+    Gdiplus::Status gdiRet = pGdi_->SetTextRenderingHint( ( Gdiplus::TextRenderingHint )mode );
     IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, std::nullopt, SetTextRenderingHint );
 
     return nullptr;
@@ -569,17 +579,17 @@ bool JsGdiGraphics::GetRoundRectPath( Gdiplus::GraphicsPath& gp, Gdiplus::RectF&
     IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, false, AddArc );
 
     // top right
-    corner.X += (rect.Width - arc_dia_w);
+    corner.X += ( rect.Width - arc_dia_w );
     gdiRet = gp.AddArc( corner, 270, 90 );
     IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, false, AddArc );
 
     // bottom right
-    corner.Y += (rect.Height - arc_dia_h);
+    corner.Y += ( rect.Height - arc_dia_h );
     gdiRet = gp.AddArc( corner, 0, 90 );
     IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, false, AddArc );
 
     // bottom left
-    corner.X -= (rect.Width - arc_dia_w);
+    corner.X -= ( rect.Width - arc_dia_w );
     gdiRet = gp.AddArc( corner, 90, 90 );
     IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, false, AddArc );
 
@@ -593,8 +603,8 @@ bool JsGdiGraphics::ParsePoints( JS::HandleValue jsValue, std::vector<Gdiplus::P
 {
     gdiPoints.clear();
 
-    JS::RootedObject jsObject( pJsCtx_, GetJsObjectFromValue(pJsCtx_, jsValue) );
-    if (!jsObject)
+    JS::RootedObject jsObject( pJsCtx_, GetJsObjectFromValue( pJsCtx_, jsValue ) );
+    if ( !jsObject )
     {
         JS_ReportErrorASCII( pJsCtx_, "Points argument is not a JS object" );
         return false;

@@ -5,6 +5,7 @@
 
 class JSObject;
 struct JSContext;
+struct JSClass;
 
 
 namespace mozjs
@@ -19,8 +20,6 @@ GdiUtils();
 virtual ~GdiUtils();
 
 public:
-STDMETHODIMP CreateImage(int w, int h, IGdiBitmap** pp);
-
 STDMETHODIMP Image(BSTR path, IGdiBitmap** pp);
 STDMETHODIMP LoadImageAsync(UINT window_id, BSTR path, UINT* p);
 };
@@ -34,7 +33,10 @@ public:
     
     static JSObject* Create( JSContext* cx );
 
+    static const JSClass& GetClass();
+
 public: 
+    std::optional<JSObject*> CreateImage( uint32_t w, uint32_t h );
     std::optional<JSObject*> Font( std::wstring fontName, float pxSize, uint32_t style );
     std::optional<JSObject*> FontWithOpt( size_t optArgCount, std::wstring fontName, float pxSize, uint32_t style );
 

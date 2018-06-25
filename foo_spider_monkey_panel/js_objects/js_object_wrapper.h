@@ -103,7 +103,7 @@ private:
 
     static JsPersistentObjectWrapper* CreateInternal( JSContext* cx, JS::HandleObject jsObject )
     {
-        MozjsObjectType * pNativeObject = NULL;
+        MozjsObjectType * pNativeObject = nullptr;
         const JSClass * jsClass = JS_GetClass( jsObject );
         if ( jsClass
              && (jsClass->flags & JSCLASS_HAS_PRIVATE) )

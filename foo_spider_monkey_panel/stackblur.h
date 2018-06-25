@@ -2,6 +2,8 @@
 #pragma warning(push)
 #pragma warning(disable: 4018 4244)
 
+// TODO: separate into .cpp
+
 /*
 The Stack Blur Algorithm was invented by Mario Klingemann,
 mario@quasimondo.com and described here:

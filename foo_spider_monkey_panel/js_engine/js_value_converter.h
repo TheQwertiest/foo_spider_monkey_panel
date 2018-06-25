@@ -82,6 +82,13 @@ struct JsToNative<int32_t>
 };
 
 template <>
+struct JsToNative<uint8_t>
+{
+    static bool IsValid( JSContext * cx, const JS::HandleValue& jsValue );
+    static uint8_t Convert( JSContext * cx, const JS::HandleValue& jsValue );
+};
+
+template <>
 struct JsToNative<uint32_t>
 {
     static bool IsValid( JSContext * cx, const JS::HandleValue& jsValue );

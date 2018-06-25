@@ -28,6 +28,10 @@ public:
 
     static JSObject* Create( JSContext* cx );
 
+    static const JSClass& GetClass();
+
+public:
+    Gdiplus::Graphics* GetGraphicsObject() const;
     void SetGraphicsObject( Gdiplus::Graphics* graphics );
 
 public:
@@ -72,7 +76,7 @@ private:
 
 private:
     JSContext * pJsCtx_;
-    Gdiplus::Graphics* graphics_;
+    Gdiplus::Graphics* pGdi_;
 };
 
 }

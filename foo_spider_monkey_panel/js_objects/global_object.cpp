@@ -29,7 +29,7 @@ JSClassOps jsOps = {
 // TODO: remove HWND and HAS_PRIVATE after creating Window class
 
 JSClass jsClass = {
-     "global",
+     "Global",
      JSCLASS_GLOBAL_FLAGS | JSCLASS_HAS_PRIVATE | JSCLASS_FOREGROUND_FINALIZE,
      &jsOps
 };
@@ -79,13 +79,13 @@ JSObject* JsGlobalObject::Create( JSContext* cx, js_panel_window& parentPanel )
             return nullptr;
         }
 
-        JS::RootedObject gdiObj( cx, JsGdiUtils::Create(cx) );
+        JS::RootedObject gdiObj( cx, JsGdiUtils::Create( cx ) );
         if ( !gdiObj )
         {
             return nullptr;
         }
 
-        if (!JS_DefineProperty( cx, jsObj, "gdi", gdiObj, 0 ) )
+        if ( !JS_DefineProperty( cx, jsObj, "gdi", gdiObj, 0 ) )
         {
             return nullptr;
         }
