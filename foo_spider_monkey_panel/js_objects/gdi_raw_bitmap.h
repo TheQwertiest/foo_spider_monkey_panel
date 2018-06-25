@@ -42,8 +42,8 @@ private:
     HDC hDc_;
     HBITMAP hBmp_;
     HBITMAP hBmpOld_;
-    t_size width_;
-    t_size height_;
+    uint32_t width_;
+    uint32_t height_;
 };
 
 }

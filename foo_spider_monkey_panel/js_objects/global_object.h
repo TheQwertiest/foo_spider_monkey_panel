@@ -2,6 +2,7 @@
 
 struct JSContext;
 class JSObject;
+
 class js_panel_window;
 
 namespace mozjs
