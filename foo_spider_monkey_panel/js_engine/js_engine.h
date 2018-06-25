@@ -54,13 +54,12 @@ public:
             }
         }
 
-        ReturnType unwrappedRetVal;
-        if ( !mozjs::JsToNativeValue( pJsCtx_, retVal, unwrappedRetVal ) )
+        if ( !JsToNative<ReturnType>::IsValid( pJsCtx_, retVal ) )
         {
             return std::nullopt;
         }
 
-        return std::optional<ReturnType>{unwrappedRetVal};
+        return std::optional<ReturnType>{JsToNative<ReturnType>::Convert( pJsCtx_, retVal )};
     }
 
 private:

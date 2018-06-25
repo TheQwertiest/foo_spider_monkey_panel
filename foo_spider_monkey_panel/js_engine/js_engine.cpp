@@ -30,7 +30,7 @@ bool JsEngine::RegisterPanel(HWND hPanel)
 {
     if ( !registeredPanels_.size() )
     {
-        if ( Initialize() )
+        if ( !Initialize() )
         {
             return false;
         }

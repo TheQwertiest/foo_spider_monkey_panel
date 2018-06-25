@@ -103,7 +103,6 @@
     <ClCompile Include="js_engine\js_error_codes.cpp" />
     <ClCompile Include="js_engine\js_error_reporter.cpp" />
     <ClCompile Include="js_engine\js_value_converter.cpp" />
-    <ClCompile Include="js_objects\active_x.cpp" />
     <ClCompile Include="js_objects\console.cpp" />
     <ClCompile Include="js_objects\gdi_error.cpp" />
     <ClCompile Include="js_objects\gdi_graphics.cpp" />
@@ -113,6 +112,7 @@
     <ClCompile Include="js_panel_window.cpp" />
     <ClCompile Include="js_panel_window_cui.cpp" />
     <ClCompile Include="js_panel_window_dui.cpp" />
+    <ClCompile Include="js_utils\js_utils.cpp" />
     <ClCompile Include="mainmenu.cpp" />
     <ClCompile Include="panel_manager.cpp" />
     <ClCompile Include="scintilla_prop_sets.cpp" />
@@ -143,7 +143,6 @@
     <ClInclude Include="js_engine\js_error_reporter.h" />
     <ClInclude Include="js_engine\js_native_invoker.h" />
     <ClInclude Include="js_engine\js_value_converter.h" />
-    <ClInclude Include="js_objects\active_x.h" />
     <ClInclude Include="js_objects\console.h" />
     <ClInclude Include="js_objects\gdi_error.h" />
     <ClInclude Include="js_objects\gdi_graphics.h" />
@@ -151,6 +150,7 @@
     <ClInclude Include="js_objects\gdi_font.h" />
     <ClInclude Include="js_objects\global_object.h" />
     <ClInclude Include="js_objects\js_object_wrapper.h" />
+    <ClInclude Include="js_utils\js_utils.h" />
     <ClInclude Include="kmeans.h" />
     <ClInclude Include="SString.h" />
     <ClInclude Include="com_tools.h" />

@@ -493,6 +493,21 @@ void js_panel_window::execute_context_menu_command( int id, int id_base )
 
 bool js_panel_window::script_load()
 {
+    pfc::hires_timer timer;
+    timer.start();
+
+    DWORD extstyle = GetWindowLongPtr( m_hwnd, GWL_EXSTYLE );
+    extstyle &= ~WS_EX_CLIENTEDGE & ~WS_EX_STATICEDGE;
+    extstyle |= edge_style_from_config( get_edge_style() );
+    SetWindowLongPtr( m_hwnd, GWL_EXSTYLE, extstyle );
+    SetWindowPos( m_hwnd, NULL, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED );
+
+    m_max_size.x = INT_MAX;
+    m_max_size.y = INT_MAX;
+    m_min_size.x = 0;
+    m_min_size.x = 0;
+    PostMessage( m_hwnd, UWM_SIZE_LIMIT_CHANGED, 0, uie::size_limit_all );
+
     jsEngineFailed_ = false;
     mozjs::JsEngine& jsEnv = mozjs::JsEngine::GetInstance();
     jsGlobalObject_.reset( mozjs::JsObjectWrapper<mozjs::JsGlobalObject>::Create( jsEnv.GetJsContext(), *this ) );
@@ -514,22 +529,7 @@ bool js_panel_window::script_load()
     if (!jsEnv.ExecuteScript( jsGlobalObject_->GetJsObject(), get_script_code().c_str() ) )
     {
         return false;
-    }
-
-    pfc::hires_timer timer;
-    timer.start();
-
-    DWORD extstyle = GetWindowLongPtr( m_hwnd, GWL_EXSTYLE );
-    extstyle &= ~WS_EX_CLIENTEDGE & ~WS_EX_STATICEDGE;
-    extstyle |= edge_style_from_config( get_edge_style() );
-    SetWindowLongPtr( m_hwnd, GWL_EXSTYLE, extstyle );
-    SetWindowPos( m_hwnd, NULL, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED );
-
-    m_max_size.x = INT_MAX;
-    m_max_size.y = INT_MAX;
-    m_min_size.x = 0;
-    m_min_size.x = 0;
-    PostMessage( m_hwnd, UWM_SIZE_LIMIT_CHANGED, 0, uie::size_limit_all );
+    }  
 
     HRESULT hr = m_script_host->Initialize();
     if (FAILED( hr ))

@@ -7,6 +7,7 @@
 #include <js_engine/js_error_reporter.h>
 #include <js_objects/gdi_font.h>
 #include <js_objects/gdi_error.h>
+#include <js_utils/js_utils.h>
 
 #include <helpers.h>
 
@@ -16,24 +17,24 @@ namespace
 
 using namespace mozjs;
 
-JSClassOps gdiGraphicsOps = {
+JSClassOps jsOps = {
     nullptr,
     nullptr,
     nullptr,
     nullptr,
     nullptr,
     nullptr,
-    nullptr,
+    JsFinalizeOp<JsGdiUtils>,
     nullptr,
     nullptr,
     nullptr,
     nullptr
 };
 
-JSClass gdiGraphicsClass = {
+JSClass jsClass = {
     "GdiGraphics",
-    JSCLASS_HAS_PRIVATE,
-    &gdiGraphicsOps
+    JSCLASS_HAS_PRIVATE | JSCLASS_FOREGROUND_FINALIZE,
+    &jsOps
 };
 
 MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiGraphics, CalcTextHeight )
@@ -53,7 +54,7 @@ MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsGdiGraphics, SetInterpolationMode, SetInt
 MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsGdiGraphics, SetSmoothingMode, SetSmoothingModeWithOpt, 1 )
 MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsGdiGraphics, SetTextRenderingHint, SetTextRenderingHintWithOpt, 1 )
 
-const JSFunctionSpec gdiGraphicsFunctions[] = {
+const JSFunctionSpec jsFunctions[] = {
     JS_FN( "CalcTextHeight", CalcTextHeight, 2, 0 ),
     JS_FN( "CalcTextWidth", CalcTextWidth, 2, 0 ),
     JS_FN( "DrawEllipse", DrawEllipse, 6, 0 ),
@@ -93,13 +94,13 @@ JsGdiGraphics::~JsGdiGraphics()
 JSObject* JsGdiGraphics::Create( JSContext* cx )
 {
     JS::RootedObject jsObj( cx,
-                            JS_NewObject( cx, &gdiGraphicsClass ) );
+                            JS_NewObject( cx, &jsClass ) );
     if ( !jsObj )
     {
         return nullptr;
     }
 
-    if ( !JS_DefineFunctions( cx, jsObj, gdiGraphicsFunctions ) )
+    if ( !JS_DefineFunctions( cx, jsObj, jsFunctions ) )
     {
         return nullptr;
     }
@@ -115,7 +116,7 @@ void JsGdiGraphics::SetGraphicsObject( Gdiplus::Graphics* graphics )
 }
 
 std::optional<uint32_t> 
-JsGdiGraphics::CalcTextHeight( std::wstring str, JsGdiFont* pJsFont )
+JsGdiGraphics::CalcTextHeight( std::wstring str, JS::HandleValue font )
 {
     if ( !graphics_ )
     {
@@ -123,10 +124,18 @@ JsGdiGraphics::CalcTextHeight( std::wstring str, JsGdiFont* pJsFont )
         return std::nullopt;
     }
 
+    JS::RootedObject jsObject( pJsCtx_, GetJsObjectFromValue( pJsCtx_, font ) );
+    if (!jsObject)
+    {
+        JS_ReportErrorASCII( pJsCtx_, "font argument is not a JS object" );
+        return false;
+    }
+
+    JsGdiFont* pJsFont = GetNativeFromJsObject<JsGdiFont>( pJsCtx_, jsObject );
     if ( !pJsFont )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Font object is null" );
-        return std::nullopt;
+        JS_ReportErrorASCII( pJsCtx_, "font argument is not a GdiFont object" );
+        return false;
     }
 
     HFONT hFont = pJsFont->HFont();
@@ -142,7 +151,7 @@ JsGdiGraphics::CalcTextHeight( std::wstring str, JsGdiFont* pJsFont )
 }
 
 std::optional<uint32_t> 
-JsGdiGraphics::CalcTextWidth( std::wstring str, JsGdiFont* pJsFont )
+JsGdiGraphics::CalcTextWidth( std::wstring str, JS::HandleValue font )
 {
     if ( !graphics_ )
     {
@@ -150,10 +159,18 @@ JsGdiGraphics::CalcTextWidth( std::wstring str, JsGdiFont* pJsFont )
         return std::nullopt;
     }
 
+    JS::RootedObject jsObject( pJsCtx_, GetJsObjectFromValue( pJsCtx_, font ) );
+    if ( !jsObject )
+    {
+        JS_ReportErrorASCII( pJsCtx_, "font argument is not a JS object" );
+        return false;
+    }
+
+    JsGdiFont* pJsFont = GetNativeFromJsObject<JsGdiFont>( pJsCtx_, jsObject );
     if ( !pJsFont )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Font object is null" );
-        return std::nullopt;
+        JS_ReportErrorASCII( pJsCtx_, "font argument is not a GdiFont object" );
+        return false;
     }
 
     HFONT hFont = pJsFont->HFont();
@@ -200,7 +217,7 @@ JsGdiGraphics::DrawLine( float x1, float y1, float x2, float y2, float line_widt
     return std::optional<std::nullptr_t>{nullptr};
 }
 
-std::optional<std::nullptr_t> JsGdiGraphics::DrawPolygon( uint32_t colour, float line_width, std::vector<JsUnknownObjectWrapper> points )
+std::optional<std::nullptr_t> JsGdiGraphics::DrawPolygon( uint32_t colour, float line_width, JS::HandleValue points )
 {
     if ( !graphics_ )
     {
@@ -208,13 +225,6 @@ std::optional<std::nullptr_t> JsGdiGraphics::DrawPolygon( uint32_t colour, float
         return std::nullopt;
     }
 
-    if ( points.size() % 2 > 0 )
-    {
-        JS_ReportErrorASCII( pJsCtx_, "Points count must be multiple of two" );
-        return std::nullopt;
-    }
-
-    // Uncommon type: unpacking manually
     std::vector<Gdiplus::PointF> gdiPoints;
     if ( !ParsePoints( points, gdiPoints ) )
     {// Report in ParsePoints
@@ -281,7 +291,7 @@ JsGdiGraphics::DrawRoundRect( float x, float y, float w, float h, float arc_widt
 }
 
 std::optional<std::nullptr_t>
-JsGdiGraphics::DrawString( std::wstring str, JsGdiFont* pJsFont, uint32_t colour, float x, float y, float w, float h, uint32_t flags )
+JsGdiGraphics::DrawString( std::wstring str, JS::HandleValue font, uint32_t colour, float x, float y, float w, float h, uint32_t flags )
 {
     if ( !graphics_ )
     {
@@ -289,9 +299,17 @@ JsGdiGraphics::DrawString( std::wstring str, JsGdiFont* pJsFont, uint32_t colour
         return std::nullopt;
     }
 
+    JS::RootedObject jsObject( pJsCtx_, GetJsObjectFromValue( pJsCtx_, font ) );
+    if ( !jsObject )
+    {
+        JS_ReportErrorASCII( pJsCtx_, "font argument is not a JS object" );
+        return std::nullopt;
+    }
+
+    JsGdiFont* pJsFont = GetNativeFromJsObject<JsGdiFont>( pJsCtx_, jsObject );
     if ( !pJsFont )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Font object is null" );
+        JS_ReportErrorASCII( pJsCtx_, "font argument is not a GdiFont object" );
         return std::nullopt;
     }
 
@@ -327,7 +345,7 @@ JsGdiGraphics::DrawString( std::wstring str, JsGdiFont* pJsFont, uint32_t colour
 }
 
 std::optional<std::nullptr_t>
-JsGdiGraphics::DrawStringWithOpt( size_t optArgCount, std::wstring str, JsGdiFont* pJsFont, uint32_t colour, float x, float y, float w, float h, uint32_t flags )
+JsGdiGraphics::DrawStringWithOpt( size_t optArgCount, std::wstring str, JS::HandleValue font, uint32_t colour, float x, float y, float w, float h, uint32_t flags )
 {
     if ( optArgCount > 1 )
     {
@@ -337,10 +355,10 @@ JsGdiGraphics::DrawStringWithOpt( size_t optArgCount, std::wstring str, JsGdiFon
 
     if ( optArgCount == 1 )
     {
-        return DrawString( str, pJsFont, colour, x, y, w, h, 0);
+        return DrawString( str, font, colour, x, y, w, h, 0);
     }
 
-    return DrawString( str, pJsFont, colour, x, y, w, h, flags );
+    return DrawString( str, font, colour, x, y, w, h, flags );
 }
 
 std::optional<std::nullptr_t>
@@ -380,7 +398,7 @@ JsGdiGraphics::FillGradRect( float x, float y, float w, float h, float angle, ui
 }
 
 std::optional<std::nullptr_t> 
-JsGdiGraphics::FillPolygon( uint32_t colour, uint32_t fillmode, std::vector<JsUnknownObjectWrapper> points )
+JsGdiGraphics::FillPolygon( uint32_t colour, uint32_t fillmode, JS::HandleValue points )
 {
     if ( !graphics_ )
     {
@@ -388,13 +406,6 @@ JsGdiGraphics::FillPolygon( uint32_t colour, uint32_t fillmode, std::vector<JsUn
         return std::nullopt;
     }
 
-    if ( points.size() % 2 > 0 )
-    {
-        JS_ReportErrorASCII( pJsCtx_, "Points count must be multiple of two" );
-        return std::nullopt;
-    }
-
-    // Uncommon type: unpacking manually
     std::vector<Gdiplus::PointF> gdiPoints;
     if ( !ParsePoints( points, gdiPoints ) )
     {// Report in ParsePoints
@@ -578,16 +589,54 @@ bool JsGdiGraphics::GetRoundRectPath( Gdiplus::GraphicsPath& gp, Gdiplus::RectF&
     return true;
 }
 
-bool JsGdiGraphics::ParsePoints( std::vector<JsUnknownObjectWrapper> jsPoints, std::vector<Gdiplus::PointF> &gdiPoints )
+bool JsGdiGraphics::ParsePoints( JS::HandleValue jsValue, std::vector<Gdiplus::PointF> &gdiPoints )
 {
     gdiPoints.clear();
 
-    JS::RootedValue jsX( pJsCtx_ ), jsY( pJsCtx_ );
-    float x, y;
-
-    for ( size_t i = 0; i < jsPoints.size(); ++i )
+    JS::RootedObject jsObject( pJsCtx_, GetJsObjectFromValue(pJsCtx_, jsValue) );
+    if (!jsObject)
     {
-        JS::HandleObject curElement( jsPoints[i].GetJsObject() );
+        JS_ReportErrorASCII( pJsCtx_, "Points argument is not a JS object" );
+        return false;
+    }
+
+    bool is;
+    if ( !JS_IsArrayObject( pJsCtx_, jsObject, &is ) )
+    {
+        JS_ReportErrorASCII( pJsCtx_, "Points argument is an array" );
+        return false;
+    }
+
+    uint32_t arraySize;
+    if ( !JS_GetArrayLength( pJsCtx_, jsObject, &arraySize ) )
+    {
+        JS_ReportErrorASCII( pJsCtx_, "Failed to get points argument array length" );
+        return false;
+    }
+
+    if ( arraySize % 2 > 0 )
+    {
+        JS_ReportErrorASCII( pJsCtx_, "Points count must be multiple of two" );
+        return false;
+    }
+
+    JS::RootedValue arrayElement( pJsCtx_ );
+    JS::RootedValue jsX( pJsCtx_ ), jsY( pJsCtx_ );
+    for ( uint32_t i = 0; i < arraySize; ++i )
+    {
+        if ( !JS_GetElement( pJsCtx_, jsObject, i, &arrayElement ) )
+        {
+            JS_ReportErrorASCII( pJsCtx_, "Failed to get points[%d]", i );
+            return false;
+        }
+
+        JS::RootedObject curElement( pJsCtx_, GetJsObjectFromValue( pJsCtx_, arrayElement ) );
+        if ( !curElement )
+        {
+            JS_ReportErrorASCII( pJsCtx_, "points[%d] is not an object", i );
+            return false;
+        }
+
         if ( !JS_GetProperty( pJsCtx_, curElement, "x", &jsX ) )
         {
             JS_ReportErrorASCII( pJsCtx_, "Failed to get 'x' property of point" );
@@ -599,19 +648,21 @@ bool JsGdiGraphics::ParsePoints( std::vector<JsUnknownObjectWrapper> jsPoints, s
             return false;
         }
 
-        if ( !JsToNativeValue( pJsCtx_, jsX, x ) )
+        if ( !JsToNative<float>::IsValid( pJsCtx_, jsX ) )
         {
             JS_ReportErrorASCII( pJsCtx_, "'x' property of point is of wrong type" );
             return false;
         }
-
-        if ( !JsToNativeValue( pJsCtx_, jsY, y ) )
+        if ( !JsToNative<float>::IsValid( pJsCtx_, jsX ) )
         {
             JS_ReportErrorASCII( pJsCtx_, "'y' property of point is of wrong type" );
             return false;
         }
 
-        gdiPoints.emplace_back( Gdiplus::PointF( x, y ) );
+        gdiPoints.emplace_back( Gdiplus::PointF(
+            JsToNative<float>::Convert( pJsCtx_, jsX ),
+            JsToNative<float>::Convert( pJsCtx_, jsY ) )
+        );
     }
 
     return true;

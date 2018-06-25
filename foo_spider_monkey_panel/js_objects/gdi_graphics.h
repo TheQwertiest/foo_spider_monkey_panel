@@ -28,18 +28,18 @@ public:
     void SetGraphicsObject( Gdiplus::Graphics* graphics );
 
 public:
-    std::optional<uint32_t> CalcTextHeight( std::wstring str, JsGdiFont* pJsFont );
-    std::optional<uint32_t> CalcTextWidth( std::wstring str, JsGdiFont* pJsFont );
+    std::optional<uint32_t> CalcTextHeight( std::wstring str, JS::HandleValue font );
+    std::optional<uint32_t> CalcTextWidth( std::wstring str, JS::HandleValue font );
     std::optional<std::nullptr_t> DrawEllipse( float x, float y, float w, float h, float line_width, uint32_t colour );
     std::optional<std::nullptr_t> DrawLine( float x1, float y1, float x2, float y2, float line_width, uint32_t colour );
-    std::optional<std::nullptr_t> DrawPolygon( uint32_t colour, float line_width, std::vector<JsUnknownObjectWrapper> points );
+    std::optional<std::nullptr_t> DrawPolygon( uint32_t colour, float line_width, JS::HandleValue points );
     std::optional<std::nullptr_t> DrawRect( float x, float y, float w, float h, float line_width, uint32_t colour );
     std::optional<std::nullptr_t> DrawRoundRect( float x, float y, float w, float h, float arc_width, float arc_height, float line_width, uint32_t colour );
-    std::optional<std::nullptr_t> DrawString( std::wstring str, JsGdiFont* pJsFont, uint32_t colour, float x, float y, float w, float h, uint32_t flags );
-    std::optional<std::nullptr_t> DrawStringWithOpt( size_t optArgCount, std::wstring str, JsGdiFont* pJsFont, uint32_t colour, float x, float y, float w, float h, uint32_t flags );
+    std::optional<std::nullptr_t> DrawString( std::wstring str, JS::HandleValue font, uint32_t colour, float x, float y, float w, float h, uint32_t flags );
+    std::optional<std::nullptr_t> DrawStringWithOpt( size_t optArgCount, std::wstring str, JS::HandleValue font, uint32_t colour, float x, float y, float w, float h, uint32_t flags );
     std::optional<std::nullptr_t> FillEllipse( float x, float y, float w, float h, uint32_t colour );
     std::optional<std::nullptr_t> FillGradRect( float x, float y, float w, float h, float angle, uint32_t colour1, uint32_t colour2, float focus );
-    std::optional<std::nullptr_t> FillPolygon( uint32_t colour, uint32_t fillmode, std::vector<JsUnknownObjectWrapper> points );
+    std::optional<std::nullptr_t> FillPolygon( uint32_t colour, uint32_t fillmode, JS::HandleValue points );
     std::optional<std::nullptr_t> FillRoundRect( float x, float y, float w, float h, float arc_width, float arc_height, uint32_t colour );
     std::optional<std::nullptr_t> FillSolidRect( float x, float y, float w, float h, uint32_t colour );
     std::optional<std::nullptr_t> SetInterpolationMode( uint32_t mode );
@@ -65,7 +65,7 @@ private:
     JsGdiGraphics( const JsGdiGraphics& ) = delete;
 
     bool GetRoundRectPath( Gdiplus::GraphicsPath& gp, Gdiplus::RectF& rect, float arc_width, float arc_height );
-    bool ParsePoints( std::vector<JsUnknownObjectWrapper> jsPoints, std::vector<Gdiplus::PointF> &gdiPoints );
+    bool ParsePoints( JS::HandleValue jsValue, std::vector<Gdiplus::PointF> &gdiPoints );
 
 private:
     JSContext * pJsCtx_;

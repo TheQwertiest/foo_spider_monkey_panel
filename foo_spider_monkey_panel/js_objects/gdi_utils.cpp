@@ -6,6 +6,7 @@
 #include <js_engine/js_native_invoker.h>
 #include <js_engine/js_error_reporter.h>
 #include <js_objects/js_object_wrapper.h>
+#include <js_utils/js_utils.h>
 
 #include <helpers.h>
 
@@ -15,43 +16,29 @@ namespace
 
 using namespace mozjs;
 
-// TODO: place finalize everywhere
-
-template<typename MozjsObjectType>
-void jsFinalize( JSFreeOp* fop, JSObject* obj )
-{
-    auto x = static_cast<MozjsObjectType*>(JS_GetPrivate( obj ));
-    if ( x )
-    {
-        delete x;
-        JS_SetPrivate( obj, nullptr );
-    }
-}
-
-
-static JSClassOps gdiUtilsOps = {
+JSClassOps jsOps = {
     nullptr,
     nullptr,
     nullptr,
     nullptr,
     nullptr,
     nullptr,
-    jsFinalize<JsGdiUtils>,
+    JsFinalizeOp<JsGdiUtils>,
     nullptr,
     nullptr,
     nullptr,
     nullptr
 };
 
-static JSClass gdiUtilsClass = {
+JSClass jsClass = {
     "gdiUtils",
-    JSCLASS_HAS_PRIVATE,
-    &gdiUtilsOps
+    JSCLASS_HAS_PRIVATE | JSCLASS_FOREGROUND_FINALIZE,
+    &jsOps
 };
 
 MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsGdiUtils, Font, FontWithOpt, 1 )
 
-static const JSFunctionSpec gdiUtilsFunctions[] = {
+const JSFunctionSpec jsFunctions[] = {
     JS_FN( "Font", Font, 3, 0 ),
     JS_FS_END
 };
@@ -75,13 +62,13 @@ JsGdiUtils::~JsGdiUtils()
 JSObject* JsGdiUtils::Create( JSContext* cx )
 {
     JS::RootedObject jsObj( cx,
-                            JS_NewObject( cx, &gdiUtilsClass ) );
+                            JS_NewObject( cx, &jsClass ) );
     if ( !jsObj )
     {
         return nullptr;
     }
 
-    if ( !JS_DefineFunctions( cx, jsObj, gdiUtilsFunctions ) )
+    if ( !JS_DefineFunctions( cx, jsObj, jsFunctions ) )
     {
         return nullptr;
     }

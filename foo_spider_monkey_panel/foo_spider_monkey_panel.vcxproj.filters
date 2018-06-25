@@ -57,8 +57,8 @@
     <ClCompile Include="js_objects\gdi_error.cpp">
       <Filter>js_objects</Filter>
     </ClCompile>
-    <ClCompile Include="js_objects\active_x.cpp">
-      <Filter>js_objects</Filter>
+    <ClCompile Include="js_utils\js_utils.cpp">
+      <Filter>js_utils</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -139,8 +139,8 @@
     <ClInclude Include="js_objects\gdi_error.h">
       <Filter>js_objects</Filter>
     </ClInclude>
-    <ClInclude Include="js_objects\active_x.h">
-      <Filter>js_objects</Filter>
+    <ClInclude Include="js_utils\js_utils.h">
+      <Filter>js_utils</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -157,7 +157,7 @@
     <Filter Include="js_objects">
       <UniqueIdentifier>{9297b4c3-f67b-4bf4-ac59-11c858ffe1ed}</UniqueIdentifier>
     </Filter>
-    <Filter Include="utils">
+    <Filter Include="js_utils">
       <UniqueIdentifier>{ec53acea-e62f-4dab-a310-6e7ad5b88ff9}</UniqueIdentifier>
     </Filter>
   </ItemGroup>

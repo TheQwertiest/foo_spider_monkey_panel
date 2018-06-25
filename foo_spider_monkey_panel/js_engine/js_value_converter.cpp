@@ -118,170 +118,90 @@ bool NativeToJsValue<std::nullptr_t>( JSContext *, const std::nullptr_t& inValue
     return true;
 }
 
-template <>
-bool JsToNativeValue<bool>( JSContext * cx, const JS::HandleValue& jsValue, bool& unwrappedValue )
+bool JsToNative<bool>::IsValid( JSContext * cx, const JS::HandleValue& jsValue )
 {
-    if ( !jsValue.isBoolean() )
-    {
-        return false;
-    }
-
-    unwrappedValue = jsValue.toBoolean();
-    return true;
+    return jsValue.isBoolean();
+}
+bool JsToNative<bool>::Convert( JSContext * cx, const JS::HandleValue& jsValue )
+{
+    return std::forward<bool>( jsValue.toBoolean() );
 }
 
-template <>
-bool JsToNativeValue<int32_t>( JSContext * cx, const JS::HandleValue& jsValue, int32_t& unwrappedValue )
+bool JsToNative<int32_t>::IsValid( JSContext * cx, const JS::HandleValue& jsValue )
 {
-    if ( !jsValue.isInt32() )
-    {
-        return false;
-    }
-
-    unwrappedValue = jsValue.toInt32();
-    return true;
+    return jsValue.isInt32();
+}
+int32_t JsToNative<int32_t>::Convert( JSContext * cx, const JS::HandleValue& jsValue )
+{
+    return std::forward<int32_t>( jsValue.isInt32() );
 }
 
-template <>
-bool JsToNativeValue<uint32_t>( JSContext * cx, const JS::HandleValue& jsValue, uint32_t& unwrappedValue )
+bool JsToNative<uint32_t>::IsValid( JSContext * cx, const JS::HandleValue& jsValue )
 {
-    if ( !jsValue.isNumber() )
-    {
-        return false;
-    }
-
-    unwrappedValue = static_cast<uint32_t>(jsValue.toNumber());
-    return true;
+    return jsValue.isNumber();
+}
+uint32_t JsToNative<uint32_t>::Convert( JSContext * cx, const JS::HandleValue& jsValue )
+{
+    return std::forward<uint32_t>( static_cast<uint32_t>( jsValue.toNumber() ) );
 }
 
-template <>
-bool JsToNativeValue<float>( JSContext * cx, const JS::HandleValue& jsValue, float& unwrappedValue )
+bool JsToNative<float>::IsValid( JSContext * cx, const JS::HandleValue& jsValue )
 {
-    if ( !jsValue.isNumber() )
-    {
-        return false;
-    }
-
-    unwrappedValue = static_cast<float>(jsValue.toNumber());
-    return true;
+    return jsValue.isNumber();
+}
+float JsToNative<float>::Convert( JSContext * cx, const JS::HandleValue& jsValue )
+{
+    return std::forward<float>( static_cast<float>( jsValue.toNumber() ) );
 }
 
-template <>
-bool JsToNativeValue<double>( JSContext * cx, const JS::HandleValue& jsValue, double& unwrappedValue )
+bool JsToNative<double>::IsValid( JSContext * cx, const JS::HandleValue& jsValue )
 {
-    if ( !jsValue.isNumber() )
-    {
-        return false;
-    }
-
-    unwrappedValue = jsValue.toNumber();
-    return true;
+    return jsValue.isNumber();
+}
+double JsToNative<double>::Convert( JSContext * cx, const JS::HandleValue& jsValue )
+{
+    return std::forward<double>( jsValue.toNumber() );
 }
 
-template <>
-bool JsToNativeValue<std::string>( JSContext * cx, const JS::HandleValue& jsValue, std::string& unwrappedValue )
+bool JsToNative<std::string>::IsValid( JSContext * cx, const JS::HandleValue& jsValue )
 {
-    if ( !jsValue.isString() )
-    {
-        return false;
-    }
-
+    return jsValue.isString();
+}
+std::string JsToNative<std::string>::Convert( JSContext * cx, const JS::HandleValue& jsValue )
+{
     JS::RootedString jsString( cx, jsValue.toString() );
-    const char* encodedString = JS_EncodeStringToUTF8( cx, jsString );
+    std::unique_ptr<
+        const char, std::function<void( const char* )>
+    > encodedString(
+        JS_EncodeStringToUTF8( cx, jsString ), 
+        [&]( const char* str )
+        {
+            JS_free( cx, (void*)str );;
+        }
+    );
 
-    unwrappedValue = encodedString;
-
-    JS_free( cx, (void*)encodedString );
-    return true;
+    return std::forward<std::string>( std::string( encodedString.get()) );
 }
 
-template <>
-bool JsToNativeValue<std::wstring>( JSContext * cx, const JS::HandleValue& jsValue, std::wstring& unwrappedValue )
+bool JsToNative<std::wstring>::IsValid( JSContext * cx, const JS::HandleValue& jsValue )
 {
-    std::string tmpString;
-    if ( !JsToNativeValue( cx, jsValue, tmpString ) )
-    {
-        return false;
-    }
+    return jsValue.isString();
+}
+std::wstring JsToNative<std::wstring>::Convert( JSContext * cx, const JS::HandleValue& jsValue )
+{
+    std::string tmpString( JsToNative<std::string>::Convert( cx, jsValue ) );
+
     // <codecvt> is deprecated in C++17...
-    unwrappedValue = pfc::stringcvt::string_wide_from_utf8( tmpString.c_str() );
-    return true;
+    return std::forward<std::wstring>( std::wstring( pfc::stringcvt::string_wide_from_utf8( tmpString.c_str() ) ) );
 }
 
-template <>
-bool JsToNativeValue<std::nullptr_t>( JSContext * cx, const JS::HandleValue& jsValue, std::nullptr_t& unwrappedValue )
+bool JsToNative<std::nullptr_t>::IsValid( JSContext * cx, const JS::HandleValue& jsValue )
 {
     return true;
 }
-
-template <>
-bool JsToNativeValue<JsGdiFont*>( JSContext * cx, const JS::HandleValue& jsValue, JsGdiFont*& unwrappedValue )
+std::nullptr_t JsToNative<std::nullptr_t>::Convert( JSContext * cx, const JS::HandleValue& jsValue )
 {
-    return JsToNativeObject( cx, jsValue, unwrappedValue );
-}
-
-template <>
-bool JsToNativeValue<JSObject*>( JSContext * cx, const JS::HandleValue& jsValue, JSObject*& unwrappedValue )
-{    
-    if ( !jsValue.isObjectOrNull() )
-    {
-        return false;
-    }
-
-    JS::RootedObject jsObject( cx, jsValue.toObjectOrNull() );
-    if ( !jsObject )
-    {
-        unwrappedValue = NULL;
-        return true;
-    }
-
-    unwrappedValue = jsObject;
-    return true;
-}
-
-
-template <>
-bool JsToNativeValue( JSContext * cx, const JS::HandleValue& jsValue, std::vector<JsUnknownObjectWrapper>& unwrappedValue )
-{
-    if ( !jsValue.isObjectOrNull() )
-    {
-        return false;
-    }
-
-    JS::RootedObject jsObject( cx, jsValue.toObjectOrNull() );
-    if ( !jsObject )
-    {
-        return false;
-    }
-
-    bool is;
-    if ( !JS_IsArrayObject( cx, jsObject, &is ) )
-    {
-        return false;
-    }
-
-    uint32_t arraySize;
-    if ( !JS_GetArrayLength( cx, jsObject, &arraySize ) )
-    {
-        return false;
-    }
-
-
-    JS::RootedValue arrayElement(cx);
-    for ( uint32_t i = 0; i < arraySize; ++i )
-    {
-        if ( !JS_GetElement( cx, jsObject, i, &arrayElement ) )
-        {
-            return false;
-        }
-        if ( !arrayElement.isObjectOrNull() )
-        {
-            return false;
-        }
-        unwrappedValue.emplace_back( *JsUnknownObjectWrapper::Create( cx, arrayElement.toObjectOrNull() ) );
-    }
-
-    return true;
+    return nullptr;
 }
 
 }

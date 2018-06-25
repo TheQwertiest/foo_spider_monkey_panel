@@ -39,7 +39,6 @@ public:
     static JSObject* Create( JSContext* cx );
 
 public: 
-
     std::optional<JsObjectWrapper<JsGdiFont>*> Font( std::wstring fontName, float pxSize, uint32_t style );
     std::optional<JsObjectWrapper<JsGdiFont>*> FontWithOpt( size_t optArgCount, std::wstring fontName, float pxSize, uint32_t style );
 

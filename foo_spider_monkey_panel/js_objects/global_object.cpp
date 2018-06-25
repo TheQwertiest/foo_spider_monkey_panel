@@ -3,32 +3,35 @@
 #include "global_object.h"
 #include "console.h"
 #include "gdi_utils.h"
+#include <js_utils/js_utils.h>
 
 #include <js_panel_window.h>
 
 namespace
 {
 
-static JSClassOps globalOps = {
-     nullptr,
-     nullptr,
-     nullptr,
-     nullptr,
-     nullptr,
-     nullptr,
-     nullptr,
-     nullptr,
-     nullptr,
-     nullptr,
-     nullptr
+using namespace mozjs;
+
+JSClassOps jsOps = {
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    JsFinalizeOp<JsGdiUtils>,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr
 };
 
 // TODO: remove HWND and HAS_PRIVATE after creating Window class
 
-static JSClass globalClass = {
+JSClass jsClass = {
      "global",
-     JSCLASS_GLOBAL_FLAGS | JSCLASS_HAS_PRIVATE,
-     &globalOps
+     JSCLASS_GLOBAL_FLAGS | JSCLASS_HAS_PRIVATE | JSCLASS_FOREGROUND_FINALIZE,
+     &jsOps
 };
 
 }
@@ -50,14 +53,14 @@ JsGlobalObject::~JsGlobalObject()
 
 JSObject* JsGlobalObject::Create( JSContext* cx, js_panel_window& parentPanel )
 {
-    if ( !globalOps.trace )
+    if ( !jsOps.trace )
     {// JS_GlobalObjectTraceHook address is only accessible after mozjs is loaded.      
-        globalOps.trace = JS_GlobalObjectTraceHook;
+        jsOps.trace = JS_GlobalObjectTraceHook;
     }
 
     JS::CompartmentOptions options;
     JS::RootedObject jsObj( cx,
-                            JS_NewGlobalObject( cx, &globalClass, nullptr, JS::DontFireOnNewGlobalHook, options ) );
+                            JS_NewGlobalObject( cx, &jsClass, nullptr, JS::DontFireOnNewGlobalHook, options ) );
     if ( !jsObj )
     {
         return nullptr;

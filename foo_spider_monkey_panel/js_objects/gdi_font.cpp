@@ -6,6 +6,7 @@
 #include <js_engine/js_native_invoker.h>
 #include <js_engine/js_error_reporter.h>
 #include <js_objects/gdi_error.h>
+#include <js_utils/js_utils.h>
 
 
 namespace
@@ -29,7 +30,7 @@ JSClassOps jsOps = {
 
 JSClass jsClass = {
     "GdiFont",
-    JSCLASS_HAS_PRIVATE,
+    JSCLASS_HAS_PRIVATE | JSCLASS_FOREGROUND_FINALIZE,
     &jsOps
 };
 
