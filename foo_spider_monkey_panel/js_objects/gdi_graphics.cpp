@@ -147,7 +147,7 @@ JsGdiGraphics::CalcTextHeight( std::wstring str, JS::HandleValue font )
     SelectFont( dc, oldfont );
     graphics_->ReleaseHDC( dc );
 
-    return std::optional<uint32_t>{textH};
+    return textH;
 }
 
 std::optional<uint32_t> 
@@ -182,7 +182,7 @@ JsGdiGraphics::CalcTextWidth( std::wstring str, JS::HandleValue font )
     SelectFont( dc, oldfont );
     graphics_->ReleaseHDC( dc );
 
-    return std::optional<uint32_t>{textW};
+    return textW;
 }
 
 std::optional<std::nullptr_t>
@@ -198,7 +198,7 @@ JsGdiGraphics::DrawEllipse( float x, float y, float w, float h, float line_width
     Gdiplus::Status gdiRet = graphics_->DrawEllipse( &pen, x, y, w, h );
     IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, std::nullopt, DrawEllipse );
 
-    return std::optional<std::nullptr_t>{nullptr};
+    return nullptr;
 }
 
 std::optional<std::nullptr_t>
@@ -214,7 +214,7 @@ JsGdiGraphics::DrawLine( float x1, float y1, float x2, float y2, float line_widt
     Gdiplus::Status gdiRet = graphics_->DrawLine( &pen, x1, y1, x2, y2 );
     IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, std::nullopt, DrawLine );
 
-    return std::optional<std::nullptr_t>{nullptr};
+    return nullptr;
 }
 
 std::optional<std::nullptr_t> JsGdiGraphics::DrawPolygon( uint32_t colour, float line_width, JS::HandleValue points )
@@ -235,7 +235,7 @@ std::optional<std::nullptr_t> JsGdiGraphics::DrawPolygon( uint32_t colour, float
     Gdiplus::Status gdiRet = graphics_->DrawPolygon( &pen, gdiPoints.data(), gdiPoints.size() );
     IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, std::nullopt, DrawPolygon );
 
-    return std::optional<std::nullptr_t>{nullptr};
+    return nullptr;
 }
 
 std::optional<std::nullptr_t>
@@ -251,7 +251,7 @@ JsGdiGraphics::DrawRect( float x, float y, float w, float h, float line_width, u
     Gdiplus::Status gdiRet = graphics_->DrawRectangle( &pen, x, y, w, h );
     IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, std::nullopt, DrawRectangle );
 
-    return std::optional<std::nullptr_t>{nullptr};
+    return nullptr;
 }
 
 std::optional<std::nullptr_t>
@@ -287,7 +287,7 @@ JsGdiGraphics::DrawRoundRect( float x, float y, float w, float h, float arc_widt
     gdiRet = graphics_->DrawPath( &pen, &gp );
     IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, std::nullopt, DrawPath );
 
-    return std::optional<std::nullptr_t>{nullptr};
+    return nullptr;
 }
 
 std::optional<std::nullptr_t>
@@ -341,7 +341,7 @@ JsGdiGraphics::DrawString( std::wstring str, JS::HandleValue font, uint32_t colo
     Gdiplus::Status gdiRet = graphics_->DrawString( str.c_str(), -1, pGdiFont, Gdiplus::RectF( x, y, w, h ), &fmt, &br );
     IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, std::nullopt, DrawString );
 
-    return std::optional<std::nullptr_t>{nullptr};
+    return nullptr;
 }
 
 std::optional<std::nullptr_t>
@@ -374,7 +374,7 @@ JsGdiGraphics::FillEllipse( float x, float y, float w, float h, uint32_t colour 
     Gdiplus::Status gdiRet = graphics_->FillEllipse( &br, x, y, w, h );
     IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, std::nullopt, FillEllipse );
 
-    return std::optional<std::nullptr_t>{nullptr};
+    return nullptr;
 }
 
 std::optional<std::nullptr_t>
@@ -394,7 +394,7 @@ JsGdiGraphics::FillGradRect( float x, float y, float w, float h, float angle, ui
     gdiRet = graphics_->FillRectangle( &brush, rect );
     IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, std::nullopt, FillRectangle );
 
-    return std::optional<std::nullptr_t>{nullptr};
+    return nullptr;
 }
 
 std::optional<std::nullptr_t> 
@@ -416,7 +416,7 @@ JsGdiGraphics::FillPolygon( uint32_t colour, uint32_t fillmode, JS::HandleValue 
     Gdiplus::Status gdiRet = graphics_->FillPolygon( &br, gdiPoints.data(), gdiPoints.size(), (Gdiplus::FillMode)fillmode );
     IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, std::nullopt, FillPolygon );
 
-    return std::optional<std::nullptr_t>{nullptr};
+    return nullptr;
 }
 
 std::optional<std::nullptr_t>
@@ -446,7 +446,7 @@ JsGdiGraphics::FillRoundRect( float x, float y, float w, float h, float arc_widt
     gdiRet = graphics_->FillPath( &br, &gp );
     IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, std::nullopt, FillPath );
 
-    return std::optional<std::nullptr_t>{nullptr};
+    return nullptr;
 }
 
 std::optional<std::nullptr_t>
@@ -462,7 +462,7 @@ JsGdiGraphics::FillSolidRect( float x, float y, float w, float h, uint32_t colou
     Gdiplus::Status gdiRet = graphics_->FillRectangle( &brush, x, y, w, h );
     IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, std::nullopt, FillRectangle );
 
-    return std::optional<std::nullptr_t>{nullptr};
+    return nullptr;
 }
 
 std::optional<std::nullptr_t> JsGdiGraphics::SetInterpolationMode( uint32_t mode )
@@ -476,7 +476,7 @@ std::optional<std::nullptr_t> JsGdiGraphics::SetInterpolationMode( uint32_t mode
     Gdiplus::Status gdiRet = graphics_->SetInterpolationMode( (Gdiplus::InterpolationMode)mode );
     IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, std::nullopt, SetInterpolationMode );
 
-    return std::optional<std::nullptr_t>{nullptr};
+    return nullptr;
 }
 
 std::optional<std::nullptr_t> JsGdiGraphics::SetInterpolationModeWithOpt( size_t optArgCount, uint32_t mode )
@@ -506,7 +506,7 @@ std::optional<std::nullptr_t> JsGdiGraphics::SetSmoothingMode( uint32_t mode )
     Gdiplus::Status gdiRet = graphics_->SetSmoothingMode( (Gdiplus::SmoothingMode)mode );
     IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, std::nullopt, SetSmoothingMode );
 
-    return std::optional<std::nullptr_t>{nullptr};
+    return nullptr;
 }
 
 std::optional<std::nullptr_t> JsGdiGraphics::SetSmoothingModeWithOpt( size_t optArgCount, uint32_t mode )
@@ -536,7 +536,7 @@ std::optional<std::nullptr_t> JsGdiGraphics::SetTextRenderingHint( uint32_t mode
     Gdiplus::Status gdiRet = graphics_->SetTextRenderingHint( (Gdiplus::TextRenderingHint)mode );
     IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, std::nullopt, SetTextRenderingHint );
 
-    return std::optional<std::nullptr_t>{nullptr};
+    return nullptr;
 }
 
 std::optional<std::nullptr_t> JsGdiGraphics::SetTextRenderingHintWithOpt( size_t optArgCount, uint32_t mode )

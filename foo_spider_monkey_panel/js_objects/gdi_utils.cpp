@@ -6,6 +6,7 @@
 #include <js_engine/js_native_invoker.h>
 #include <js_engine/js_error_reporter.h>
 #include <js_objects/js_object_wrapper.h>
+#include <js_objects/gdi_font.h>
 #include <js_utils/js_utils.h>
 
 #include <helpers.h>
@@ -78,7 +79,7 @@ JSObject* JsGdiUtils::Create( JSContext* cx )
     return jsObj;
 }
 
-std::optional<JsObjectWrapper<JsGdiFont>*>
+std::optional<JSObject*>
 JsGdiUtils::Font( std::wstring fontName, float pxSize, uint32_t style )
 {
     Gdiplus::Font* pGdiFont = new Gdiplus::Font( fontName.c_str(), pxSize, style, Gdiplus::UnitPixel );
@@ -90,7 +91,7 @@ JsGdiUtils::Font( std::wstring fontName, float pxSize, uint32_t style )
         }
 
         // Not an error: font not found
-        return std::optional< JsObjectWrapper<JsGdiFont>* >{nullptr};
+        return nullptr;
     }
 
     // Generate HFONT
@@ -111,19 +112,17 @@ JsGdiUtils::Font( std::wstring fontName, float pxSize, uint32_t style )
         DEFAULT_PITCH | FF_DONTCARE,
         fontName.c_str() );
 
-    // TODO: think about removing CurrentGlobalOrNull
-    JS::RootedObject global( pJsCtx_, JS::CurrentGlobalOrNull( pJsCtx_ ) );
-    JsObjectWrapper<JsGdiFont>* pJsFont = JsObjectWrapper<JsGdiFont>::Create( pJsCtx_, global, pGdiFont, hFont, true );
+    JSObject* pJsFont = JsGdiFont::Create( pJsCtx_, pGdiFont, hFont, true );
     if ( !pJsFont )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Internal error: failed to create wrapped JS object" );
+        JS_ReportErrorASCII( pJsCtx_, "Internal error: failed to create JS object" );
         return std::nullopt;
     }
 
-    return std::optional< JsObjectWrapper<JsGdiFont>* >{pJsFont};
+    return pJsFont;
 }
 
-std::optional<JsObjectWrapper<JsGdiFont>*>
+std::optional<JSObject*>
 JsGdiUtils::FontWithOpt( size_t optArgCount, std::wstring fontName, float pxSize, uint32_t style )
 {
     if ( optArgCount > 1 )

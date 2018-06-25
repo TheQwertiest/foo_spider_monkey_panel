@@ -1,9 +1,5 @@
 #pragma once
 
-#include <js_engine/js_error_codes.h>
-#include <js_objects/gdi_font.h>
-#include <js_objects/js_object_wrapper.h>
-
 #include <string>
 #include <optional>
 
@@ -39,8 +35,8 @@ public:
     static JSObject* Create( JSContext* cx );
 
 public: 
-    std::optional<JsObjectWrapper<JsGdiFont>*> Font( std::wstring fontName, float pxSize, uint32_t style );
-    std::optional<JsObjectWrapper<JsGdiFont>*> FontWithOpt( size_t optArgCount, std::wstring fontName, float pxSize, uint32_t style );
+    std::optional<JSObject*> Font( std::wstring fontName, float pxSize, uint32_t style );
+    std::optional<JSObject*> FontWithOpt( size_t optArgCount, std::wstring fontName, float pxSize, uint32_t style );
 
 private:
     JsGdiUtils( JSContext* cx );

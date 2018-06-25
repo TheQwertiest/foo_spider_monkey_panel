@@ -155,10 +155,25 @@ bool InvokeNativeCallback_Impl( JSContext* cx,
         return false;
     }
 
-    bRet = InvokeNativeCallback_SetReturnValue( cx, retVal.value(), args.rval() );
-    if ( !bRet )
+    // Return value
+
+    if constexpr( std::is_same<ReturnType::value_type, JSObject*>::value )
+    {// retVal.value() is a raw JS pointer! Be careful when editing this code!
+        args.rval().setObjectOrNull( retVal.value() );
+    }
+    else if constexpr( std::is_same<ReturnType::value_type, nullptr_t>::value )
     {
-        return false;
+        args.rval().setUndefined();
+    }
+    else
+    {
+        if ( !NativeToJsValue( cx, retVal.value(), args.rval() ) )
+        {
+            args.rval().setUndefined();
+
+            JS_ReportErrorASCII( cx, "Internal error: failed to convert return value" );
+            return false;
+        }
     }
 
     return true;
@@ -172,7 +187,9 @@ template <
     typename FuncOptType, 
     typename ArgTupleType 
 >
-ReturnType InvokeNativeCallback_Call( BaseClass* baseClass, FuncType fn, FuncOptType fnWithOpt, const ArgTupleType& argTuple, size_t optArgCount )
+ReturnType InvokeNativeCallback_Call( BaseClass* baseClass, 
+                                      FuncType fn, FuncOptType fnWithOpt, 
+                                      const ArgTupleType& argTuple, size_t optArgCount )
 {
     if constexpr(!HasOptArg)
     {
@@ -182,37 +199,6 @@ ReturnType InvokeNativeCallback_Call( BaseClass* baseClass, FuncType fn, FuncOpt
     {// Invoke callback with optional argument handler
         return std::apply( fnWithOpt, std::tuple_cat( std::make_tuple( baseClass, optArgCount ), argTuple ) );
     }
-}
-
-template <typename ReturnType>
-bool InvokeNativeCallback_SetReturnValue( JSContext* cx, const ReturnType& returnedValue, JS::MutableHandleValue jsReturnValue )
-{  
-    jsReturnValue.setUndefined();
-
-    if constexpr(!std::is_same<ReturnType, nullptr_t>::value)
-    {
-        if constexpr(std::is_pointer<ReturnType>::value)
-        {
-            auto pRetObj( returnedValue );
-            if ( !NativeToJsValue( cx, pRetObj->GetJsObject(), jsReturnValue ) )
-            {
-                delete pRetObj;
-                JS_ReportErrorASCII( cx, "Internal error: failed to convert return value" );
-                return false;
-            }
-            delete pRetObj;
-        }
-        else
-        {
-            if ( !NativeToJsValue( cx, returnedValue, jsReturnValue ) )
-            {
-                JS_ReportErrorASCII( cx, "Internal error: failed to convert return value" );
-                return false;
-            }
-        }
-    }
-
-    return true;
 }
 
 }

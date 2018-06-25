@@ -59,7 +59,7 @@ public:
             return std::nullopt;
         }
 
-        return std::optional<ReturnType>{JsToNative<ReturnType>::Convert( pJsCtx_, retVal )};
+        return JsToNative<ReturnType>::Convert( pJsCtx_, retVal );
     }
 
 private:

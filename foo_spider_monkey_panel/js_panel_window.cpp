@@ -510,7 +510,7 @@ bool js_panel_window::script_load()
 
     jsEngineFailed_ = false;
     mozjs::JsEngine& jsEnv = mozjs::JsEngine::GetInstance();
-    jsGlobalObject_.reset( mozjs::JsObjectWrapper<mozjs::JsGlobalObject>::Create( jsEnv.GetJsContext(), *this ) );
+    jsGlobalObject_.reset( mozjs::JsPersistentObjectWrapper<mozjs::JsGlobalObject>::Create( jsEnv.GetJsContext(), *this ) );
     if ( !jsGlobalObject_ )
     {
         return false;
@@ -519,7 +519,7 @@ bool js_panel_window::script_load()
     if ( !jsGraphicsObject_ )
     {
         // TODO: hide GetJsContext() and wrap jsGlobalObject_
-        jsGraphicsObject_.reset( mozjs::JsObjectWrapper<mozjs::JsGdiGraphics>::Create( jsEnv.GetJsContext(), jsGlobalObject_->GetJsObject() ) );
+        jsGraphicsObject_.reset( mozjs::JsPersistentObjectWrapper<mozjs::JsGdiGraphics>::Create( jsEnv.GetJsContext(), jsGlobalObject_->GetJsObject() ) );
         if ( !jsGraphicsObject_ )
         {
             return false;

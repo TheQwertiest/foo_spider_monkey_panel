@@ -117,7 +117,7 @@ JsGdiFont::Height() const
     Gdiplus::Bitmap img( 1, 1, PixelFormat32bppPARGB );
     Gdiplus::Graphics g( &img );
 
-    return std::optional<uint32_t>{static_cast<uint32_t>(gdiFont_->GetHeight( &g ))};
+    return static_cast<uint32_t>(gdiFont_->GetHeight( &g ));
 }
 
 std::optional<std::wstring>
@@ -137,7 +137,7 @@ JsGdiFont::Name() const
     gdiRet = fontFamily.GetFamilyName( name, LANG_NEUTRAL );
     IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, std::nullopt, GetFamilyName );
     
-    return std::optional<std::wstring>{name};
+    return std::wstring(name);
 }
 
 std::optional<float>
@@ -149,7 +149,7 @@ JsGdiFont::Size() const
         return std::nullopt;
     }
 
-    return std::optional<float>{gdiFont_->GetSize()};
+    return gdiFont_->GetSize();
 }
 
 std::optional<uint32_t>
@@ -161,7 +161,7 @@ JsGdiFont::Style() const
         return std::nullopt;
     }
 
-    return std::optional<uint32_t>{gdiFont_->GetStyle()};
+    return gdiFont_->GetStyle();
 }
 
 }

@@ -1,7 +1,10 @@
 #pragma once
 
-#include <js_engine/js_error_codes.h>
-#include <js_objects/js_object_wrapper.h>
+#pragma warning( push )  
+#pragma warning( disable : 4251 ) // dll interface warning
+#pragma warning( disable : 4996 ) // C++17 deprecation warning
+#include <jsapi.h>
+#pragma warning( pop )  
 
 #include <optional>
 

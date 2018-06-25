@@ -1,7 +1,5 @@
 #pragma once
 
-#include <js_engine/js_error_codes.h>
-
 #include <optional>
 
 class JSObject;

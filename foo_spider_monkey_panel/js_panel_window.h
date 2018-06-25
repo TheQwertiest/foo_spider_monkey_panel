@@ -29,8 +29,8 @@ protected:
 	void execute_context_menu_command(int id, int id_base);
 
 private:    
-    std::unique_ptr<mozjs::JsObjectWrapper<mozjs::JsGlobalObject>> jsGlobalObject_;
-    std::unique_ptr<mozjs::JsObjectWrapper<mozjs::JsGdiGraphics>> jsGraphicsObject_;
+    std::unique_ptr<mozjs::JsPersistentObjectWrapper<mozjs::JsGlobalObject>> jsGlobalObject_;
+    std::unique_ptr<mozjs::JsPersistentObjectWrapper<mozjs::JsGdiGraphics>> jsGraphicsObject_;
     bool jsEngineFailed_;
 
 	CComPtr<IDropTargetImpl> m_drop_target;
