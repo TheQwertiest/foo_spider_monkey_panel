@@ -72,6 +72,8 @@ JsGdiFont::~JsGdiFont()
 // TODO: implement isManaged
 JSObject* JsGdiFont::Create( JSContext* cx, Gdiplus::Font* pGdiFont, HFONT hFont, bool isManaged )
 {
+    assert( pGdiFont );
+
     JS::RootedObject jsObj( cx,
                             JS_NewObject( cx, &jsClass ) );
     if ( !jsObj )

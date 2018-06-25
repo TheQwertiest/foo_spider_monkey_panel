@@ -66,6 +66,9 @@
     <ClCompile Include="js_objects\window.cpp">
       <Filter>js_objects</Filter>
     </ClCompile>
+    <ClCompile Include="js_objects\gdi_raw_bitmap.cpp">
+      <Filter>js_objects</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\PropertyList\PropertyItem.h" />
@@ -152,6 +155,9 @@
       <Filter>js_objects</Filter>
     </ClInclude>
     <ClInclude Include="js_objects\window.h">
+      <Filter>js_objects</Filter>
+    </ClInclude>
+    <ClInclude Include="js_objects\gdi_raw_bitmap.h">
       <Filter>js_objects</Filter>
     </ClInclude>
   </ItemGroup>

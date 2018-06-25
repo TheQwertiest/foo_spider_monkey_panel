@@ -7,6 +7,7 @@
 #include <js_engine/js_error_reporter.h>
 #include <js_objects/gdi_error.h>
 #include <js_objects/gdi_graphics.h>
+#include <js_objects/gdi_raw_bitmap.h>
 #include <js_utils/js_utils.h>
 
 #include <stackblur.h>
@@ -43,6 +44,7 @@ MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiBitmap, Width )
 
 MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiBitmap, ApplyAlpha )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiBitmap, Clone )
+MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiBitmap, CreateRawBitmap )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiBitmap, GetGraphics )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiBitmap, ReleaseGraphics )
 MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsGdiBitmap, Resize, ResizeWithOpt, 1 )
@@ -60,6 +62,7 @@ const JSPropertySpec jsProperties[] = {
 const JSFunctionSpec jsFunctions[] = {
     JS_FN( "ApplyAlpha", ApplyAlpha, 1, 0 ),
     JS_FN( "Clone", Clone, 4, 0 ),
+    JS_FN( "CreateRawBitmap", CreateRawBitmap, 0, 0 ),
     JS_FN( "GetGraphics", GetGraphics, 0, 0 ),
     JS_FN( "ReleaseGraphics", ReleaseGraphics, 1, 0 ),
     JS_FN( "Resize", Resize, 3, 0 ),
@@ -87,6 +90,8 @@ JsGdiBitmap::~JsGdiBitmap()
 
 JSObject* JsGdiBitmap::Create( JSContext* cx, Gdiplus::Bitmap* pGdiBitmap )
 {
+    assert( pGdiBitmap );
+
     JS::RootedObject jsObj( cx,
                             JS_NewObject( cx, &jsClass ) );
     if ( !jsObj )
@@ -440,6 +445,25 @@ JsGdiBitmap::Clone( float x, float y, float w, float h )
     img.release();
     return jsObject;
 }
+
+std::optional<JSObject*> JsGdiBitmap::CreateRawBitmap()
+{
+    if ( !pGdi_ )
+    {
+        JS_ReportErrorASCII( pJsCtx_, "Internal error: Gdiplus::Bitmap object is null" );
+        return std::nullopt;
+    }
+
+    JS::RootedObject jsObject( pJsCtx_, JsGdiRawBitmap::Create( pJsCtx_, pGdi_.get() ) );
+    if ( !jsObject )
+    {
+        JS_ReportErrorASCII( pJsCtx_, "Internal error: failed to create JS object" );
+        return std::nullopt;
+    }
+
+    return jsObject;
+}
+
 /*
 std::optional<JSObject*>
 JsGdiBitmap::CreateRawBitmap()

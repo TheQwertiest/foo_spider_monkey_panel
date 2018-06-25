@@ -107,6 +107,7 @@
     <ClCompile Include="js_objects\gdi_bitmap.cpp" />
     <ClCompile Include="js_objects\gdi_error.cpp" />
     <ClCompile Include="js_objects\gdi_graphics.cpp" />
+    <ClCompile Include="js_objects\gdi_raw_bitmap.cpp" />
     <ClCompile Include="js_objects\gdi_utils.cpp" />
     <ClCompile Include="js_objects\gdi_font.cpp" />
     <ClCompile Include="js_objects\global_object.cpp" />
@@ -149,6 +150,7 @@
     <ClInclude Include="js_objects\gdi_bitmap.h" />
     <ClInclude Include="js_objects\gdi_error.h" />
     <ClInclude Include="js_objects\gdi_graphics.h" />
+    <ClInclude Include="js_objects\gdi_raw_bitmap.h" />
     <ClInclude Include="js_objects\gdi_utils.h" />
     <ClInclude Include="js_objects\gdi_font.h" />
     <ClInclude Include="js_objects\global_object.h" />

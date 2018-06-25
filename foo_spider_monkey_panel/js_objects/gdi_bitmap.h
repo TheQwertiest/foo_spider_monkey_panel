@@ -66,7 +66,7 @@ public: //methods
     std::optional<JSObject*> ApplyAlpha( uint8_t alpha );
     //std::optional<std::nullptr_t> ApplyMask( JS::HandleValue mask, VARIANT_BOOL* p );
     std::optional<JSObject*> Clone( float x, float y, float w, float h );
-    //std::optional<JSObject*> CreateRawBitmap();
+    std::optional<JSObject*> CreateRawBitmap();
     //std::optional<std::nullptr_t> GetColourScheme( uint32_t count, VARIANT* outArray );
     //std::optional<std::nullptr_t> GetColourSchemeJSON( uint32_t count, BSTR* outJson );
     std::optional<JSObject*> GetGraphics();
