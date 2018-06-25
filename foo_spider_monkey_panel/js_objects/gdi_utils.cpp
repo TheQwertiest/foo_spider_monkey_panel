@@ -2,7 +2,6 @@
 
 #include "gdi_utils.h"
 
-#include <js_engine/js_value_converter.h>
 #include <js_engine/js_to_native_invoker.h>
 #include <js_objects/js_persistent_object_wrapper.h>
 #include <js_objects/gdi_font.h>

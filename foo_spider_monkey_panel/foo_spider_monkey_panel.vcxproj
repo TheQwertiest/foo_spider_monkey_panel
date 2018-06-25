@@ -101,7 +101,8 @@
     <ClCompile Include="host_timer_dispatcher.cpp" />
     <ClCompile Include="js_engine\js_container.cpp" />
     <ClCompile Include="js_engine\js_engine.cpp" />
-    <ClCompile Include="js_engine\js_value_converter.cpp" />
+    <ClCompile Include="js_engine\js_to_native_converter.cpp" />
+    <ClCompile Include="js_engine\native_to_js_converter.cpp" />
     <ClCompile Include="js_engine\native_to_js_invoker.cpp" />
     <ClCompile Include="js_objects\console.cpp" />
     <ClCompile Include="js_objects\gdi_bitmap.cpp" />
@@ -143,8 +144,9 @@
     <ClInclude Include="drop_source_impl.h" />
     <ClInclude Include="js_engine\js_container.h" />
     <ClInclude Include="js_engine\js_engine.h" />
+    <ClInclude Include="js_engine\js_to_native_converter.h" />
     <ClInclude Include="js_engine\js_to_native_invoker.h" />
-    <ClInclude Include="js_engine\js_value_converter.h" />
+    <ClInclude Include="js_engine\native_to_js_converter.h" />
     <ClInclude Include="js_engine\native_to_js_invoker.h" />
     <ClInclude Include="js_objects\console.h" />
     <ClInclude Include="js_objects\gdi_bitmap.h" />

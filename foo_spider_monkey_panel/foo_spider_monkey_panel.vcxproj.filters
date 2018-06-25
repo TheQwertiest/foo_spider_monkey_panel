@@ -33,9 +33,6 @@
     <ClCompile Include="js_objects\gdi_graphics.cpp">
       <Filter>js_objects</Filter>
     </ClCompile>
-    <ClCompile Include="js_engine\js_value_converter.cpp">
-      <Filter>js_engine</Filter>
-    </ClCompile>
     <ClCompile Include="js_objects\global_object.cpp">
       <Filter>js_objects</Filter>
     </ClCompile>
@@ -67,6 +64,12 @@
       <Filter>js_engine</Filter>
     </ClCompile>
     <ClCompile Include="js_engine\js_container.cpp">
+      <Filter>js_engine</Filter>
+    </ClCompile>
+    <ClCompile Include="js_engine\native_to_js_converter.cpp">
+      <Filter>js_engine</Filter>
+    </ClCompile>
+    <ClCompile Include="js_engine\js_to_native_converter.cpp">
       <Filter>js_engine</Filter>
     </ClCompile>
   </ItemGroup>
@@ -118,9 +121,6 @@
     <ClInclude Include="js_objects\gdi_graphics.h">
       <Filter>js_objects</Filter>
     </ClInclude>
-    <ClInclude Include="js_engine\js_value_converter.h">
-      <Filter>js_engine</Filter>
-    </ClInclude>
     <ClInclude Include="js_objects\global_object.h">
       <Filter>js_objects</Filter>
     </ClInclude>
@@ -158,6 +158,12 @@
       <Filter>js_engine</Filter>
     </ClInclude>
     <ClInclude Include="js_engine\js_container.h">
+      <Filter>js_engine</Filter>
+    </ClInclude>
+    <ClInclude Include="js_engine\native_to_js_converter.h">
+      <Filter>js_engine</Filter>
+    </ClInclude>
+    <ClInclude Include="js_engine\js_to_native_converter.h">
       <Filter>js_engine</Filter>
     </ClInclude>
   </ItemGroup>
