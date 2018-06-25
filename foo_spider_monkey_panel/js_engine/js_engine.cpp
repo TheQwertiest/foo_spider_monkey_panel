@@ -1,6 +1,7 @@
 #include <stdafx.h>
 #include "js_engine.h"
 
+#include <js_engine/js_container.h>
 #include <js_utils/js_error_helper.h>
 
 
@@ -21,6 +22,12 @@ JsEngine& JsEngine::GetInstance()
 {
     static JsEngine jsEnv;
     return jsEnv;
+}
+
+JSContext * JsEngine::GetJsContext() const
+{
+    assert( pJsCtx_ );
+    return pJsCtx_;
 }
 
 bool JsEngine::RegisterPanel(HWND hPanel)
@@ -46,28 +53,10 @@ void JsEngine::UnregisterPanel( HWND hPanel )
     }
 }
 
-bool JsEngine::ExecuteScript( JS::HandleObject globalObject, std::string_view scriptCode )
+bool JsEngine::InitializeJsContainer( JsContainer& jsContainer, js_panel_window& parentPanel )
 {
     assert( pJsCtx_ );
-    assert( !!globalObject );
-
-    JSAutoRequest ar( pJsCtx_ );
-    JSAutoCompartment ac( pJsCtx_, globalObject );
-    
-    JS::CompileOptions opts( pJsCtx_ );
-    opts.setFileAndLine( "<main>", 1 );
-
-    JS::RootedValue rval( pJsCtx_ );
-    
-    AutoReportException are( pJsCtx_ );
-    bool bRet = JS::Evaluate( pJsCtx_, opts, scriptCode.data(), scriptCode.length(), &rval );
-    if ( !bRet )
-    {
-        console::printf( JSP_NAME "JS::Evaluate failed\n" );
-        return false;
-    }
-
-    return true;
+    return jsContainer.Initialize( pJsCtx_, parentPanel );
 }
 
 bool JsEngine::Initialize()
@@ -108,12 +97,6 @@ void JsEngine::Finalize()
         JS_DestroyContext( pJsCtx_ );
         pJsCtx_ = nullptr;
     }
-}
-
-JSContext * JsEngine::GetJsContext() const
-{
-    assert( pJsCtx_ );
-    return pJsCtx_;
 }
 
 }

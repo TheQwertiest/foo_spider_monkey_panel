@@ -165,11 +165,11 @@ float JsToNative<float>::Convert( JSContext * cx, const JS::HandleValue& jsValue
 
 bool JsToNative<double>::IsValid( JSContext * cx, const JS::HandleValue& jsValue )
 {
-    return jsValue.isNumber();
+    return jsValue.isDouble();
 }
 double JsToNative<double>::Convert( JSContext * cx, const JS::HandleValue& jsValue )
 {
-    return std::forward<double>( jsValue.toNumber() );
+    return std::forward<double>( jsValue.toDouble() );
 }
 
 bool JsToNative<std::string>::IsValid( JSContext * cx, const JS::HandleValue& jsValue )

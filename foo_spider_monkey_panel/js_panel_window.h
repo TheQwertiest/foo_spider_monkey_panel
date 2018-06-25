@@ -1,15 +1,8 @@
 #pragma once
 
-#pragma warning( push )  
-#pragma warning( disable : 4251 ) // dll interface warning
-#pragma warning( disable : 4996 ) // C++17 deprecation warning
-#include <jsapi.h>
-#pragma warning( pop )  
-
 #include "host.h"
 
-#include <js_objects/gdi_graphics.h>
-#include <js_objects/js_persistent_object_wrapper.h>
+#include <js_engine/js_container.h>
 
 class js_panel_window : public HostComm, public ui_helpers::container_window
 {
@@ -20,7 +13,6 @@ public:
     void update_script(const char* name = NULL, const char* code = NULL);
 
     void JsEngineFail( std::string_view errorText );
-
 protected:
     LRESULT on_message(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp);
     bool show_configure_popup(HWND parent);
@@ -30,9 +22,7 @@ protected:
     void execute_context_menu_command(int id, int id_base);
 
 private:    
-    std::unique_ptr<mozjs::JsPersistentObjectWrapper<mozjs::JsGlobalObject>> jsGlobalObject_;
-    std::unique_ptr<mozjs::JsPersistentObjectWrapper<mozjs::JsGdiGraphics>> jsGraphicsObject_;
-    bool jsEngineFailed_;
+    mozjs::JsContainer jsContainer_;    
 
     CComPtr<IDropTargetImpl> m_drop_target;
     IGdiGraphicsPtr m_gr_wrap;

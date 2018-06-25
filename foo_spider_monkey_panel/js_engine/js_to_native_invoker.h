@@ -115,7 +115,7 @@ bool InvokeNativeCallback_Impl( JSContext* cx,
                 if constexpr( std::is_same<ArgType, JS::HandleValue>::value )
                 {
                     if ( index >= jsArgs.length() )
-                    {// Unused value
+                    {// Dummy value
                         return jsArgs[0];
                     }
                     return jsArgs[index];
@@ -130,7 +130,8 @@ bool InvokeNativeCallback_Impl( JSContext* cx,
                     if ( !JsToNative<ArgType>::IsValid( cx, jsArgs[index] ) )
                     {
                         failedIdx = index;
-                        bRet = false;
+                        bRet = false;                        
+                        return ArgType();
                     }
 
                     return JsToNative<ArgType>::Convert( cx, jsArgs[index] );

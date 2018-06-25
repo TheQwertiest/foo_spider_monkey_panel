@@ -15,7 +15,6 @@ js_panel_window::js_panel_window() :
     m_is_mouse_tracked( false ),
     m_is_droptarget_registered( false )
 {
-    jsEngineFailed_ = false;
 }
 
 js_panel_window::~js_panel_window()
@@ -43,8 +42,6 @@ void js_panel_window::update_script( const char* name, const char* code )
 
 void js_panel_window::JsEngineFail( std::string_view errorText )
 {
-    jsEngineFailed_ = true;
-
     popup_msg::g_show( errorText.data(), JSP_NAME );
     MessageBeep( MB_ICONASTERISK );
 
@@ -510,25 +507,13 @@ bool js_panel_window::script_load()
     m_min_size.x = 0;
     PostMessage( m_hwnd, UWM_SIZE_LIMIT_CHANGED, 0, uie::size_limit_all );
 
-    jsEngineFailed_ = false;
     mozjs::JsEngine& jsEnv = mozjs::JsEngine::GetInstance();
-    jsGlobalObject_.reset( mozjs::JsPersistentObjectWrapper<mozjs::JsGlobalObject>::Create( jsEnv.GetJsContext(), *this ) );
-    if ( !jsGlobalObject_ )
+    if ( !jsEnv.InitializeJsContainer( jsContainer_, *this ) )
     {
         return false;
     }
 
-    if ( !jsGraphicsObject_ )
-    {
-        // TODO: hide GetJsContext() and wrap jsGlobalObject_
-        jsGraphicsObject_.reset( mozjs::JsPersistentObjectWrapper<mozjs::JsGdiGraphics>::Create( jsEnv.GetJsContext(), jsGlobalObject_->GetJsObject() ) );
-        if ( !jsGraphicsObject_ )
-        {
-            return false;
-        }
-    }
-
-    if ( !jsEnv.ExecuteScript( jsGlobalObject_->GetJsObject(), get_script_code().c_str() ) )
+    if ( !jsContainer_.ExecuteScript( get_script_code().c_str() ) )
     {
         return false;
     }
@@ -952,7 +937,7 @@ void js_panel_window::on_paint( HDC dc, LPRECT lpUpdateRect )
     HDC memdc = CreateCompatibleDC( dc );
     HBITMAP oldbmp = SelectBitmap( memdc, m_gr_bmp );
 
-    if ( m_script_host->HasError() || jsEngineFailed_ )
+    if ( m_script_host->HasError() || mozjs::JsContainer::Mjs_Failed == jsContainer_.GetStatus() )
     {
         on_paint_error( memdc );
     }
@@ -1057,7 +1042,7 @@ void js_panel_window::on_paint_user( HDC memdc, LPRECT lpUpdateRect )
         m_gr_wrap->put__ptr( NULL );
     }
 
-    if ( jsGlobalObject_ )
+    if ( mozjs::JsContainer::Mjs_Ready == jsContainer_.GetStatus() )
     {
         // Prepare graphics object to the script.
         Gdiplus::Graphics gr( memdc );
@@ -1066,15 +1051,11 @@ void js_panel_window::on_paint_user( HDC memdc, LPRECT lpUpdateRect )
         // SetClip() may improve performance slightly
         gr.SetClip( rect );
 
-        auto pGdiGraphics = jsGraphicsObject_->GetNativeObject();
-        pGdiGraphics->SetGraphicsObject( &gr );
-
-        mozjs::InvokeJsCallback( mozjs::JsEngine::GetInstance().GetJsContext(),
-                                 jsGlobalObject_->GetJsObject(),
-                                 "on_paint",
-                                 jsGraphicsObject_->GetJsObject() );
-
-        pGdiGraphics->SetGraphicsObject( NULL );
+        {
+            mozjs::JsContainer::GraphicsWrapper autoGraphics( jsContainer_, gr );
+            jsContainer_.InvokeJsCallback( "on_paint",
+                                            jsContainer_.GetGraphics() );
+        }
     }
 }
 
@@ -1268,13 +1249,11 @@ void js_panel_window::on_size( int w, int h )
 
     script_invoke_v( CallbackIds::on_size );
 
-    if ( jsGlobalObject_ )
+    if ( mozjs::JsContainer::Mjs_Ready == jsContainer_.GetStatus() )
     {
-        mozjs::InvokeJsCallback( mozjs::JsEngine::GetInstance().GetJsContext(),
-                                 jsGlobalObject_->GetJsObject(),
-                                 "on_size",
-                                 static_cast<uint32_t>( w ),
-                                 static_cast<uint32_t>( h ) );
+        jsContainer_.InvokeJsCallback( "on_size",
+                                        static_cast<uint32_t>(w),
+                                        static_cast<uint32_t>(h) );
     }
 }
 
@@ -1301,6 +1280,5 @@ void js_panel_window::script_unload()
     HostTimerDispatcher::Get().onPanelUnload( m_hwnd );
     m_selection_holder.release();
 
-    jsGraphicsObject_.reset();
-    jsGlobalObject_.reset();
+    jsContainer_.Finalize();
 }

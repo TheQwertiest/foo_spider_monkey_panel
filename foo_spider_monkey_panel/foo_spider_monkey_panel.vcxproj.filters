@@ -51,9 +51,6 @@
     <ClCompile Include="js_objects\gdi_bitmap.cpp">
       <Filter>js_objects</Filter>
     </ClCompile>
-    <ClCompile Include="js_objects\window.cpp">
-      <Filter>js_objects</Filter>
-    </ClCompile>
     <ClCompile Include="js_objects\gdi_raw_bitmap.cpp">
       <Filter>js_objects</Filter>
     </ClCompile>
@@ -67,6 +64,9 @@
       <Filter>js_utils</Filter>
     </ClCompile>
     <ClCompile Include="js_engine\native_to_js_invoker.cpp">
+      <Filter>js_engine</Filter>
+    </ClCompile>
+    <ClCompile Include="js_engine\js_container.cpp">
       <Filter>js_engine</Filter>
     </ClCompile>
   </ItemGroup>
@@ -136,9 +136,6 @@
     <ClInclude Include="js_objects\gdi_bitmap.h">
       <Filter>js_objects</Filter>
     </ClInclude>
-    <ClInclude Include="js_objects\window.h">
-      <Filter>js_objects</Filter>
-    </ClInclude>
     <ClInclude Include="js_objects\gdi_raw_bitmap.h">
       <Filter>js_objects</Filter>
     </ClInclude>
@@ -160,6 +157,9 @@
     <ClInclude Include="js_engine\native_to_js_invoker.h">
       <Filter>js_engine</Filter>
     </ClInclude>
+    <ClInclude Include="js_engine\js_container.h">
+      <Filter>js_engine</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="foo_spider_monkey_panel.rc" />
@@ -177,6 +177,9 @@
     </Filter>
     <Filter Include="js_utils">
       <UniqueIdentifier>{ec53acea-e62f-4dab-a310-6e7ad5b88ff9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="panel">
+      <UniqueIdentifier>{045ffeaf-5db4-457a-914a-ad3d1aa42f0d}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>
