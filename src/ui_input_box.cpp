@@ -10,6 +10,7 @@ LRESULT CInputBox::OnInitDialog(HWND hwndFocus, LPARAM lParam)
 	// Select all
 	SendDlgItemMessage(IDC_INPUT_VALUE, EM_SETSEL, 0, -1);
 	::SetFocus(GetDlgItem(IDC_INPUT_VALUE));
+	CenterWindow();
 
 	return FALSE;
 }
