@@ -4,6 +4,10 @@
 #include <js_engine/js_container.h>
 #include <js_utils/js_error_helper.h>
 
+#include <js_panel_window.h>
+
+// TODO: remove js_panel_window, may be replace with HWND
+
 
 namespace mozjs
 {
@@ -11,10 +15,17 @@ namespace mozjs
 JsEngine::JsEngine()
     : pJsCtx_( nullptr )
 {
+    isInitialized_ = false;
 }
 
 JsEngine::~JsEngine()
 {
+    // Attempt to cleanup, may result in crashes though, 
+    // since mozjs.dll might be unloaded at this time
+    for each ( auto elem in registeredPanels_ )
+    {
+        elem.second.get().Finalize();
+    }
     Finalize();
 }
 
@@ -30,7 +41,7 @@ JSContext * JsEngine::GetJsContext() const
     return pJsCtx_;
 }
 
-bool JsEngine::RegisterPanel(HWND hPanel)
+bool JsEngine::RegisterPanel( js_panel_window& parentPanel, JsContainer& jsContainer )
 {
     if ( !registeredPanels_.size() )
     {
@@ -40,28 +51,36 @@ bool JsEngine::RegisterPanel(HWND hPanel)
         }
     }
 
-    registeredPanels_.insert( hPanel );
+    if ( !jsContainer.Prepare( pJsCtx_, parentPanel ) )
+    {
+        return false;
+    }
+
+    registeredPanels_.insert_or_assign(parentPanel.GetHWND(), jsContainer);
     return true;
 }
 
-void JsEngine::UnregisterPanel( HWND hPanel )
+void JsEngine::UnregisterPanel( js_panel_window& parentPanel )
 {
-    registeredPanels_.erase( hPanel );
+    auto elem = registeredPanels_.find( parentPanel.GetHWND() );
+    if ( elem != registeredPanels_.end() )
+    {
+        elem->second.get().Finalize();
+        registeredPanels_.erase( elem );
+    }
+    
     if ( !registeredPanels_.size() )
     {
         Finalize();
     }
 }
 
-bool JsEngine::InitializeJsContainer( JsContainer& jsContainer, js_panel_window& parentPanel )
-{
-    assert( pJsCtx_ );
-    return jsContainer.Initialize( pJsCtx_, parentPanel );
-}
-
 bool JsEngine::Initialize()
 {
-    Finalize();
+    if ( isInitialized_ )
+    {
+        return true;
+    }
 
     // TODO: Fine tune heap settings 
     JSContext* pJsCtx = JS_NewContext( 1024L * 1024 * 1024 );
@@ -86,7 +105,7 @@ bool JsEngine::Initialize()
     }
 
     pJsCtx_ = autoJsCtx.release();
-
+    isInitialized_ = true;
     return true;
 }
 
@@ -97,6 +116,8 @@ void JsEngine::Finalize()
         JS_DestroyContext( pJsCtx_ );
         pJsCtx_ = nullptr;
     }
+
+    isInitialized_ = false;
 }
 
 }

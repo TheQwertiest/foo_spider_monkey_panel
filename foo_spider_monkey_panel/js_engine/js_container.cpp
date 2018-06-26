@@ -6,6 +6,8 @@
 #include <js_utils/js_error_helper.h>
 
 
+// TODO: remove js_panel_window
+
 namespace mozjs
 {
 
@@ -13,7 +15,7 @@ JsContainer::JsContainer()
 {
     pJsCtx_ = nullptr;
     nativeGraphics_ = NULL;
-    jsStatus_ = Mjs_NotInitialized;
+    jsStatus_ = Mjs_NotPrepared;
 }
 
 JsContainer::~JsContainer()
@@ -22,17 +24,28 @@ JsContainer::~JsContainer()
     pJsCtx_ = nullptr;
 }
 
-bool JsContainer::Initialize( JSContext *cx, js_panel_window& parentPanel )
+bool JsContainer::Prepare( JSContext *cx, js_panel_window& parentPanel )
 {
     assert( cx );
 
     pJsCtx_ = cx;
+    pParentPanel_ = &parentPanel;
+    jsStatus_ = Mjs_Prepared;
 
-    return Reinitialize( parentPanel );
+    return Initialize();
 }
 
-bool JsContainer::Reinitialize( js_panel_window& parentPanel )
+bool JsContainer::Initialize()
 {
+    assert( Mjs_NotPrepared != jsStatus_ );
+    assert( pJsCtx_ );
+    assert( pParentPanel_ );
+
+    if ( Mjs_Ready == jsStatus_ )
+    {
+        return true;
+    }
+
     if ( jsGlobal_.initialized() || jsGraphics_.initialized() )
     {
         jsGraphics_.reset();
@@ -41,7 +54,7 @@ bool JsContainer::Reinitialize( js_panel_window& parentPanel )
 
     JSAutoRequest ar( pJsCtx_ );
 
-    jsGlobal_.init( pJsCtx_, JsGlobalObject::Create( pJsCtx_, *this, parentPanel ) );
+    jsGlobal_.init( pJsCtx_, JsGlobalObject::Create( pJsCtx_, *this, *pParentPanel_ ) );
     if ( !jsGlobal_ )
     {
         return false;
@@ -65,10 +78,17 @@ bool JsContainer::Reinitialize( js_panel_window& parentPanel )
 
 void JsContainer::Finalize()
 {
-    if ( Mjs_Failed != jsStatus_ )
+    if ( Mjs_NotPrepared == jsStatus_ 
+         || Mjs_Prepared == jsStatus_ )
     {
-        jsStatus_ = Mjs_NotInitialized;
+        return;
     }
+
+    if ( Mjs_Failed != jsStatus_ )
+    {// Don't supress error: it should be cleared only on initialization
+        jsStatus_ = Mjs_Prepared;
+    }
+    
     nativeGraphics_ = nullptr;
     jsGraphics_.reset();
     jsGlobal_.reset();

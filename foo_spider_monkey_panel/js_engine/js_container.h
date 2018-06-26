@@ -32,12 +32,13 @@ public:
     enum JsStatus
     {
         Mjs_Ready,
-        Mjs_NotInitialized,
+        Mjs_Prepared,
+        Mjs_NotPrepared,
         Mjs_Failed
     };
 
 public:   
-    bool Reinitialize( js_panel_window& parentPanel );
+    bool Initialize();
     void Finalize();
 
     bool ExecuteScript( std::string_view scriptCode );
@@ -69,10 +70,12 @@ public:
 private:
     JsContainer( const JsContainer& ) = delete;
 
-    bool Initialize( JSContext *cx, js_panel_window& parentPanel );
+    bool Prepare( JSContext *cx, js_panel_window& parentPanel );
 
 private:
     JSContext * pJsCtx_;
+    js_panel_window* pParentPanel_;
+
     JS::PersistentRootedObject jsGlobal_;
     JS::PersistentRootedObject jsGraphics_;
     JsGdiGraphics* nativeGraphics_;

@@ -65,14 +65,14 @@ LRESULT js_panel_window::on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
         m_gr_wrap.Attach( new com_object_impl_t<GdiGraphics>(), false );
         panel_manager::instance().add_window( m_hwnd );
 
-        mozjs::JsEngine::GetInstance().RegisterPanel( hwnd );
+        mozjs::JsEngine::GetInstance().RegisterPanel( *this, jsContainer_ );
         script_load();
     }
     return 0;
 
     case WM_DESTROY:
         script_unload();
-        mozjs::JsEngine::GetInstance().UnregisterPanel( hwnd );
+        mozjs::JsEngine::GetInstance().UnregisterPanel( *this );
 
         panel_manager::instance().remove_window( m_hwnd );
 
@@ -507,12 +507,11 @@ bool js_panel_window::script_load()
     m_min_size.x = 0;
     PostMessage( m_hwnd, UWM_SIZE_LIMIT_CHANGED, 0, uie::size_limit_all );
 
-    mozjs::JsEngine& jsEnv = mozjs::JsEngine::GetInstance();
-    if ( !jsEnv.InitializeJsContainer( jsContainer_, *this ) )
+    if ( !jsContainer_.Initialize() )
     {
         return false;
     }
-
+    
     if ( !jsContainer_.ExecuteScript( get_script_code().c_str() ) )
     {
         return false;

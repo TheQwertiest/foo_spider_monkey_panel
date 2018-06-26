@@ -6,7 +6,8 @@
 #include <jsapi.h>
 #pragma warning( pop )  
 
-#include <set>
+#include <map>
+#include <functional>
 
 class js_panel_window;
 
@@ -25,10 +26,8 @@ public:
 public:
     JSContext * GetJsContext() const;
 
-    bool RegisterPanel( HWND hPanel );
-    void UnregisterPanel( HWND hPanel );
-
-    bool InitializeJsContainer( JsContainer& jsContainer, js_panel_window& parentPanel );
+    bool RegisterPanel( js_panel_window& parentPanel, JsContainer& jsContainer );
+    void UnregisterPanel( js_panel_window& parentPanel );
 
 private:
     JsEngine();
@@ -41,7 +40,9 @@ private:
 private:
     JSContext * pJsCtx_;
 
-    std::set<HWND> registeredPanels_;
+    bool isInitialized_;
+
+    std::map<HWND, std::reference_wrapper<JsContainer>> registeredPanels_;
 };
 
 }
