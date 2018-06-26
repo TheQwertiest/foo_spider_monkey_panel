@@ -8,7 +8,7 @@
 
 #include <oleauto.h>
 
-#include <vector>
+#include <map>
 
 //#define DEBUG
 //#define TRACE
@@ -38,18 +38,18 @@ public:
         PropInfo( const wchar_t* n ) : name( n ) { Get = Put = PutRef = false; }
     };
 
-    std::vector<std::shared_ptr<PropInfo>> Properties;
+    std::map<std::wstring, std::shared_ptr<PropInfo>> Properties;
 
     ActiveX();
     ActiveX( CLSID& clsid );
     ActiveX( IUnknown *obj, bool addref = false );
     ActiveX( IDispatch *obj, bool addref = false );
     ActiveX( VARIANTARG& var );
-    TIntList properties;
+    //TIntList properties;
 
     ~ActiveX();
 
-    PropInfo* Find( const wchar_t* name );
+    PropInfo* Find( std::wstring_view name );
 
     // bool Id(size_t x,DISPID &dispid);
 
@@ -59,5 +59,7 @@ public:
 
     //throws an xdb exception on error
     bool Invoke( DISPID dispid, JSContext* cx, unsigned argc, JS::Value* vp );
-    bool SetupMembers( JSContext* cx, JSObject* obj );
+    bool SetupMembers( JSContext* cx, JS::HandleObject obj );
 };
+
+JSObject* CreateActiveXProto( JSContext *cx, JS::HandleObject obj );

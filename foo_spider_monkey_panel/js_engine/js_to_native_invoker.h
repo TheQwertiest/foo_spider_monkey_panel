@@ -71,6 +71,7 @@ bool InvokeNativeCallback_Impl( JSContext* cx,
     constexpr size_t maxArgCount = sizeof ...( ArgTypes );
 
     JS::CallArgs args = JS::CallArgsFromVp( argc, vp );
+    args.rval().setUndefined();
 
     if ( args.length() < ( maxArgCount - OptArgCount )
          || args.length() > maxArgCount )
@@ -86,7 +87,7 @@ bool InvokeNativeCallback_Impl( JSContext* cx,
     auto callbackArguments =
         JsToNativeArguments<maxArgCount, ArgTypes...>(
             args,
-            [&]( const JS::CallArgs& jsArgs, auto argTypeStruct, size_t index )
+            [&bRet, &cx, &failedIdx]( const JS::CallArgs& jsArgs, auto argTypeStruct, size_t index )
             {
                 using ArgType = typename decltype( argTypeStruct )::type;
 

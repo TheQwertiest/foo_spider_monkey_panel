@@ -4,6 +4,7 @@
 #include <js_engine/js_container.h>
 #include <js_objects/console.h>
 #include <js_objects/gdi_utils.h>
+#include <js_objects/active_x.h>
 #include <js_utils/js_object_helper.h>
 
 #include <js_panel_window.h>
@@ -88,6 +89,12 @@ JSObject* JsGlobalObject::Create( JSContext* cx, JsContainer &parentContainer, j
         }
 
         if ( !JS_DefineProperty( cx, jsObj, "gdi", gdiObj, 0 ) )
+        {
+            return nullptr;
+        }
+
+        JS::RootedObject activeXproto( cx, CreateActiveXProto( cx, jsObj ) );
+        if ( !activeXproto )
         {
             return nullptr;
         }

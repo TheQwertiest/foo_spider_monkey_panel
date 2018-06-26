@@ -9,7 +9,7 @@ JSObject* GetJsObjectFromValue( JSContext* cx, JS::HandleValue jsValue )
 {
     if ( !jsValue.isObject() )
     {        
-        return false;
+        return nullptr;
     }
 
     return jsValue.toObjectOrNull();

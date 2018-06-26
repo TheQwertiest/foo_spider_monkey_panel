@@ -124,6 +124,9 @@
     <ClCompile Include="ui_replace.cpp">
       <Filter>uncategorized\ui</Filter>
     </ClCompile>
+    <ClCompile Include="js_objects\active_x.cpp">
+      <Filter>js_objects</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="js_engine\js_engine.h">
@@ -299,6 +302,9 @@
     </ClInclude>
     <ClInclude Include="..\PropertyList\PropertyList.h">
       <Filter>uncategorized\property_window</Filter>
+    </ClInclude>
+    <ClInclude Include="js_objects\active_x.h">
+      <Filter>js_objects</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

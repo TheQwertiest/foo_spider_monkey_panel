@@ -104,6 +104,7 @@
     <ClCompile Include="js_engine\js_to_native_converter.cpp" />
     <ClCompile Include="js_engine\native_to_js_converter.cpp" />
     <ClCompile Include="js_engine\native_to_js_invoker.cpp" />
+    <ClCompile Include="js_objects\active_x.cpp" />
     <ClCompile Include="js_objects\console.cpp" />
     <ClCompile Include="js_objects\gdi_bitmap.cpp" />
     <ClCompile Include="js_objects\gdi_graphics.cpp" />
@@ -148,6 +149,7 @@
     <ClInclude Include="js_engine\js_to_native_invoker.h" />
     <ClInclude Include="js_engine\native_to_js_converter.h" />
     <ClInclude Include="js_engine\native_to_js_invoker.h" />
+    <ClInclude Include="js_objects\active_x.h" />
     <ClInclude Include="js_objects\console.h" />
     <ClInclude Include="js_objects\gdi_bitmap.h" />
     <ClInclude Include="js_objects\gdi_graphics.h" />

@@ -14,6 +14,11 @@ JSObject* GetJsObjectFromValue( JSContext* cx, JS::HandleValue jsValue );
 template <typename NativeType>
 NativeType* GetNativeFromJsObject( JSContext* cx, JS::HandleObject jsObject )
 {
+    if ( !jsObject )
+    {
+        return nullptr;
+    }
+
     const JSClass * jsClass = JS_GetClass( jsObject );
     if ( !jsClass
          || !( jsClass->flags & JSCLASS_HAS_PRIVATE ) )

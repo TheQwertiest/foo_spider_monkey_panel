@@ -101,16 +101,23 @@ bool JsToNative<std::string>::IsValid( JSContext * cx, const JS::HandleValue& js
 }
 std::string JsToNative<std::string>::Convert( JSContext * cx, const JS::HandleValue& jsValue )
 {
-    JS::RootedString jsString( cx, jsValue.toString() );
+    // TODO: add error checking somewhere....
+    JS::RootedString jsString( cx, jsValue.toString() );    
     std::unique_ptr<
         const char, std::function<void( const char* )>
     > encodedString(
         JS_EncodeStringToUTF8( cx, jsString ), 
         [&]( const char* str )
         {
-            JS_free( cx, (void*)str );;
+            JS_free( cx, (void*)str );
         }
     );
+
+    if ( !encodedString )
+    {
+        JS_ReportOutOfMemory( cx );
+        return std::forward<std::string>( std::string() );
+    }    
 
     return std::forward<std::string>( std::string( encodedString.get()) );
 }
@@ -121,10 +128,14 @@ bool JsToNative<std::wstring>::IsValid( JSContext * cx, const JS::HandleValue& j
 }
 std::wstring JsToNative<std::wstring>::Convert( JSContext * cx, const JS::HandleValue& jsValue )
 {
-    std::string tmpString( JsToNative<std::string>::Convert( cx, jsValue ) );
+    mozilla::Range<char16_t> wCharStr;
+    if ( !JS_CopyStringChars( cx, wCharStr, jsValue.toString() ) )
+    {
+        JS_ReportOutOfMemory( cx );
+        return std::forward<std::wstring>( std::wstring() );
+    }
 
-    // <codecvt> is deprecated in C++17...
-    return std::forward<std::wstring>( std::wstring( pfc::stringcvt::string_wide_from_utf8( tmpString.c_str() ) ) );
+    return std::forward<std::wstring>( std::wstring((wchar_t*)wCharStr.begin().get(), wCharStr.length()) );
 }
 
 bool JsToNative<std::nullptr_t>::IsValid( JSContext * cx, const JS::HandleValue& jsValue )
