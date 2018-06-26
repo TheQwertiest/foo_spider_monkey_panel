@@ -128,14 +128,17 @@ bool JsToNative<std::wstring>::IsValid( JSContext * cx, const JS::HandleValue& j
 }
 std::wstring JsToNative<std::wstring>::Convert( JSContext * cx, const JS::HandleValue& jsValue )
 {
-    mozilla::Range<char16_t> wCharStr;
-    if ( !JS_CopyStringChars( cx, wCharStr, jsValue.toString() ) )
+    JS::RootedString rStr(cx, jsValue.toString() );
+    size_t strLen = JS_GetStringLength( rStr );
+    std::wstring wStr( strLen + 1, '\0' );
+    mozilla::Range<char16_t> wCharStr( (char16_t*) wStr.data(), strLen) ;
+    if ( !JS_CopyStringChars( cx, wCharStr, rStr ) )
     {
         JS_ReportOutOfMemory( cx );
         return std::forward<std::wstring>( std::wstring() );
     }
 
-    return std::forward<std::wstring>( std::wstring((wchar_t*)wCharStr.begin().get(), wCharStr.length()) );
+    return std::forward<std::wstring>( wStr.c_str() );
 }
 
 bool JsToNative<std::nullptr_t>::IsValid( JSContext * cx, const JS::HandleValue& jsValue )

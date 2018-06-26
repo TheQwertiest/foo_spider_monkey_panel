@@ -13,7 +13,7 @@
             InvokeNativeCallback<optArgCount>( cx, &baseClass::functionName, &baseClass::functionWithOptName, argc, vp );\
         if (!bRet)\
         {\
-            std::string innerErrorText(GetCurrentExceptionText(cx));\
+            std::string innerErrorText(mozjs::GetCurrentExceptionText(cx));\
             if (!innerErrorText.empty())\
             {\
                 std::string tmpString = ": \n";\
@@ -27,6 +27,24 @@
 
 #define MJS_DEFINE_JS_TO_NATIVE_FN(baseClass, functionName) \
     MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT(baseClass, functionName, functionName, 0 )
+
+#define MJS_WRAP_JS_TO_NATIVE_FN(functionName, functionImplName) \
+    bool functionName( JSContext* cx, unsigned argc, JS::Value* vp )\
+    {\
+        bool bRet = functionImplName(cx, argc, vp);\
+        if (!bRet)\
+        {\
+            std::string innerErrorText(mozjs::GetCurrentExceptionText(cx));\
+            if (!innerErrorText.empty())\
+            {\
+                std::string tmpString = ": \n";\
+                tmpString += innerErrorText;\
+                innerErrorText.swap( tmpString );\
+            }\
+            JS_ReportErrorASCII( cx, "'%s' failed%s", #functionName, innerErrorText.c_str() ); \
+        }\
+        return bRet;\
+    }
 
 namespace mozjs
 {

@@ -49,7 +49,7 @@ bool NativeToJsValue<float>( JSContext *, const float& inValue, JS::MutableHandl
 template <>
 bool NativeToJsValue<std::string_view>( JSContext * cx, const std::string_view& inValue, JS::MutableHandleValue wrappedValue )
 {
-    JS::RootedString jsString (JS_NewStringCopyZ( cx, inValue.data() ));
+    JS::RootedString jsString (cx, JS_NewStringCopyZ( cx, inValue.data() ));
     if ( !jsString )
     {
         return false;

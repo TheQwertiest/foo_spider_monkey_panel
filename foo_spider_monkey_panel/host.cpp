@@ -301,7 +301,7 @@ HRESULT ScriptHost::Initialize()
 
 	IActiveScriptParsePtr parser;
 	pfc::stringcvt::string_wide_from_utf8_fast wname(m_host->get_script_engine());
-	pfc::stringcvt::string_wide_from_utf8_fast wcode(m_host->get_script_code());
+	pfc::stringcvt::string_wide_from_utf8_fast wcode(/*m_host->get_script_code()*/"");
 	script_preprocessor preprocessor(wcode.get_ptr());
 	preprocessor.process_script_info(m_host->ScriptInfo());
 

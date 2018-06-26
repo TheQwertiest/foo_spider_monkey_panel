@@ -302,8 +302,6 @@ JsGdiGraphics::DrawRoundRect( float x, float y, float w, float h, float arc_widt
 std::optional<std::nullptr_t>
 JsGdiGraphics::DrawString( std::wstring str, JS::HandleValue font, uint32_t colour, float x, float y, float w, float h, uint32_t flags )
 {
-    auto azaza = std::make_tuple<JS::RootedObject>( JS::RootedObject(pJsCtx_,fn( font )) );
-
     if ( !pGdi_ )
     {
         JS_ReportErrorASCII( pJsCtx_, "Internal error: Gdiplus::Graphics object is null" );
