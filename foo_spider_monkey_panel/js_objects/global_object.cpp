@@ -1,6 +1,7 @@
 #include <stdafx.h>
 #include "global_object.h"
 
+#include <js_engine/js_container.h>
 #include <js_objects/console.h>
 #include <js_objects/gdi_utils.h>
 #include <js_utils/js_object_helper.h>
@@ -40,8 +41,9 @@ namespace mozjs
 {
 
 
-JsGlobalObject::JsGlobalObject( JSContext* cx, js_panel_window& parentPanel )
+JsGlobalObject::JsGlobalObject( JSContext* cx, JsContainer &parentContainer, js_panel_window& parentPanel )
     : pJsCtx_( cx )
+    , parentContainer_( parentContainer )
     , parentPanel_( parentPanel )
 {
 }
@@ -51,7 +53,7 @@ JsGlobalObject::~JsGlobalObject()
 {
 }
 
-JSObject* JsGlobalObject::Create( JSContext* cx, js_panel_window& parentPanel )
+JSObject* JsGlobalObject::Create( JSContext* cx, JsContainer &parentContainer, js_panel_window& parentPanel )
 {
     if ( !jsOps.trace )
     {// JS_GlobalObjectTraceHook address is only accessible after mozjs is loaded.      
@@ -90,7 +92,7 @@ JSObject* JsGlobalObject::Create( JSContext* cx, js_panel_window& parentPanel )
             return nullptr;
         }
 
-        JS_SetPrivate( jsObj, new JsGlobalObject( cx, parentPanel ) );
+        JS_SetPrivate( jsObj, new JsGlobalObject( cx, parentContainer, parentPanel ) );
 
         JS_FireOnNewGlobalObject( cx, jsObj );
     }
@@ -100,6 +102,7 @@ JSObject* JsGlobalObject::Create( JSContext* cx, js_panel_window& parentPanel )
 
 void JsGlobalObject::Fail( std::string_view errorText )
 {
+    parentContainer_.Fail();
     parentPanel_.JsEngineFail( errorText );
 }
 

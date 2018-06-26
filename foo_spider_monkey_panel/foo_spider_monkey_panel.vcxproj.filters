@@ -1,40 +1,11 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="com_tools.cpp" />
-    <ClCompile Include="config.cpp" />
-    <ClCompile Include="editorctrl.cpp" />
-    <ClCompile Include="foo_spider_monkey_panel.cpp" />
-    <ClCompile Include="helpers.cpp" />
-    <ClCompile Include="host.cpp" />
-    <ClCompile Include="host_drop_target.cpp" />
-    <ClCompile Include="host_timer_dispatcher.cpp" />
-    <ClCompile Include="js_panel_window.cpp" />
-    <ClCompile Include="js_panel_window_cui.cpp" />
-    <ClCompile Include="js_panel_window_dui.cpp" />
-    <ClCompile Include="mainmenu.cpp" />
-    <ClCompile Include="panel_manager.cpp" />
-    <ClCompile Include="scintilla_prop_sets.cpp" />
-    <ClCompile Include="script_callback_invoker.cpp" />
-    <ClCompile Include="script_interface_impl.cpp" />
-    <ClCompile Include="script_preprocessor.cpp" />
-    <ClCompile Include="stdafx.cpp" />
-    <ClCompile Include="thread_pool.cpp" />
-    <ClCompile Include="ui_conf.cpp" />
-    <ClCompile Include="ui_find.cpp" />
-    <ClCompile Include="ui_goto.cpp" />
-    <ClCompile Include="ui_name_value_edit.cpp" />
-    <ClCompile Include="ui_pref.cpp" />
-    <ClCompile Include="ui_property.cpp" />
-    <ClCompile Include="ui_replace.cpp" />
     <ClCompile Include="js_engine\js_engine.cpp">
       <Filter>js_engine</Filter>
     </ClCompile>
     <ClCompile Include="js_objects\gdi_graphics.cpp">
       <Filter>js_objects</Filter>
-    </ClCompile>
-    <ClCompile Include="js_engine\js_value_converter.cpp">
-      <Filter>js_engine</Filter>
     </ClCompile>
     <ClCompile Include="js_objects\global_object.cpp">
       <Filter>js_objects</Filter>
@@ -49,9 +20,6 @@
       <Filter>js_objects</Filter>
     </ClCompile>
     <ClCompile Include="js_objects\gdi_bitmap.cpp">
-      <Filter>js_objects</Filter>
-    </ClCompile>
-    <ClCompile Include="js_objects\window.cpp">
       <Filter>js_objects</Filter>
     </ClCompile>
     <ClCompile Include="js_objects\gdi_raw_bitmap.cpp">
@@ -69,57 +37,100 @@
     <ClCompile Include="js_engine\native_to_js_invoker.cpp">
       <Filter>js_engine</Filter>
     </ClCompile>
+    <ClCompile Include="js_engine\js_container.cpp">
+      <Filter>js_engine</Filter>
+    </ClCompile>
+    <ClCompile Include="js_engine\native_to_js_converter.cpp">
+      <Filter>js_engine</Filter>
+    </ClCompile>
+    <ClCompile Include="js_engine\js_to_native_converter.cpp">
+      <Filter>js_engine</Filter>
+    </ClCompile>
+    <ClCompile Include="com_tools.cpp">
+      <Filter>uncategorized</Filter>
+    </ClCompile>
+    <ClCompile Include="config.cpp">
+      <Filter>uncategorized</Filter>
+    </ClCompile>
+    <ClCompile Include="editorctrl.cpp">
+      <Filter>uncategorized</Filter>
+    </ClCompile>
+    <ClCompile Include="foo_spider_monkey_panel.cpp">
+      <Filter>uncategorized</Filter>
+    </ClCompile>
+    <ClCompile Include="helpers.cpp">
+      <Filter>uncategorized</Filter>
+    </ClCompile>
+    <ClCompile Include="host.cpp">
+      <Filter>uncategorized</Filter>
+    </ClCompile>
+    <ClCompile Include="host_drop_target.cpp">
+      <Filter>uncategorized</Filter>
+    </ClCompile>
+    <ClCompile Include="host_timer_dispatcher.cpp">
+      <Filter>uncategorized</Filter>
+    </ClCompile>
+    <ClCompile Include="js_panel_window.cpp">
+      <Filter>uncategorized</Filter>
+    </ClCompile>
+    <ClCompile Include="js_panel_window_cui.cpp">
+      <Filter>uncategorized</Filter>
+    </ClCompile>
+    <ClCompile Include="js_panel_window_dui.cpp">
+      <Filter>uncategorized</Filter>
+    </ClCompile>
+    <ClCompile Include="mainmenu.cpp">
+      <Filter>uncategorized</Filter>
+    </ClCompile>
+    <ClCompile Include="panel_manager.cpp">
+      <Filter>uncategorized</Filter>
+    </ClCompile>
+    <ClCompile Include="scintilla_prop_sets.cpp">
+      <Filter>uncategorized</Filter>
+    </ClCompile>
+    <ClCompile Include="script_callback_invoker.cpp">
+      <Filter>uncategorized</Filter>
+    </ClCompile>
+    <ClCompile Include="script_interface_impl.cpp">
+      <Filter>uncategorized</Filter>
+    </ClCompile>
+    <ClCompile Include="script_preprocessor.cpp">
+      <Filter>uncategorized</Filter>
+    </ClCompile>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>uncategorized</Filter>
+    </ClCompile>
+    <ClCompile Include="thread_pool.cpp">
+      <Filter>uncategorized</Filter>
+    </ClCompile>
+    <ClCompile Include="ui_conf.cpp">
+      <Filter>uncategorized\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="ui_find.cpp">
+      <Filter>uncategorized\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="ui_goto.cpp">
+      <Filter>uncategorized\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="ui_name_value_edit.cpp">
+      <Filter>uncategorized\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="ui_pref.cpp">
+      <Filter>uncategorized\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="ui_property.cpp">
+      <Filter>uncategorized\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="ui_replace.cpp">
+      <Filter>uncategorized\ui</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\PropertyList\PropertyItem.h" />
-    <ClInclude Include="..\PropertyList\PropertyItemEditors.h" />
-    <ClInclude Include="..\PropertyList\PropertyItemImpl.h" />
-    <ClInclude Include="..\PropertyList\PropertyList.h" />
-    <ClInclude Include="drop_source_impl.h" />
-    <ClInclude Include="kmeans.h" />
-    <ClInclude Include="SString.h" />
-    <ClInclude Include="com_tools.h" />
-    <ClInclude Include="component_defines.h" />
-    <ClInclude Include="config.h" />
-    <ClInclude Include="drop_target_impl.h" />
-    <ClInclude Include="editorctrl.h" />
-    <ClInclude Include="helpers.h" />
-    <ClInclude Include="host.h" />
-    <ClInclude Include="host_drop_target.h" />
-    <ClInclude Include="host_timer_dispatcher.h" />
-    <ClInclude Include="js_panel_window.h" />
-    <ClInclude Include="js_panel_window_cui.h" />
-    <ClInclude Include="js_panel_window_dui.h" />
-    <ClInclude Include="json.hpp" />
-    <ClInclude Include="panel_manager.h" />
-    <ClInclude Include="popup_msg.h" />
-    <ClInclude Include="resource.h" />
-    <ClInclude Include="scintilla_prop_sets.h" />
-    <ClInclude Include="script_callback_invoker.h" />
-    <ClInclude Include="script_interface.h" />
-    <ClInclude Include="script_interface_impl.h" />
-    <ClInclude Include="script_preprocessor.h" />
-    <ClInclude Include="stackblur.h" />
-    <ClInclude Include="stats.h" />
-    <ClInclude Include="stdafx.h" />
-    <ClInclude Include="thread_pool.h" />
-    <ClInclude Include="ui_conf.h" />
-    <ClInclude Include="ui_find.h" />
-    <ClInclude Include="ui_goto.h" />
-    <ClInclude Include="ui_name_value_edit.h" />
-    <ClInclude Include="ui_pref.h" />
-    <ClInclude Include="ui_property.h" />
-    <ClInclude Include="ui_replace.h" />
-    <ClInclude Include="user_message.h" />
-    <ClInclude Include="wtlscintilla.h" />
     <ClInclude Include="js_engine\js_engine.h">
       <Filter>js_engine</Filter>
     </ClInclude>
     <ClInclude Include="js_objects\gdi_graphics.h">
       <Filter>js_objects</Filter>
-    </ClInclude>
-    <ClInclude Include="js_engine\js_value_converter.h">
-      <Filter>js_engine</Filter>
     </ClInclude>
     <ClInclude Include="js_objects\global_object.h">
       <Filter>js_objects</Filter>
@@ -134,9 +145,6 @@
       <Filter>js_objects</Filter>
     </ClInclude>
     <ClInclude Include="js_objects\gdi_bitmap.h">
-      <Filter>js_objects</Filter>
-    </ClInclude>
-    <ClInclude Include="js_objects\window.h">
       <Filter>js_objects</Filter>
     </ClInclude>
     <ClInclude Include="js_objects\gdi_raw_bitmap.h">
@@ -160,13 +168,144 @@
     <ClInclude Include="js_engine\native_to_js_invoker.h">
       <Filter>js_engine</Filter>
     </ClInclude>
+    <ClInclude Include="js_engine\js_container.h">
+      <Filter>js_engine</Filter>
+    </ClInclude>
+    <ClInclude Include="js_engine\native_to_js_converter.h">
+      <Filter>js_engine</Filter>
+    </ClInclude>
+    <ClInclude Include="js_engine\js_to_native_converter.h">
+      <Filter>js_engine</Filter>
+    </ClInclude>
+    <ClInclude Include="com_tools.h">
+      <Filter>uncategorized</Filter>
+    </ClInclude>
+    <ClInclude Include="component_defines.h">
+      <Filter>uncategorized</Filter>
+    </ClInclude>
+    <ClInclude Include="config.h">
+      <Filter>uncategorized</Filter>
+    </ClInclude>
+    <ClInclude Include="drop_source_impl.h">
+      <Filter>uncategorized</Filter>
+    </ClInclude>
+    <ClInclude Include="drop_target_impl.h">
+      <Filter>uncategorized</Filter>
+    </ClInclude>
+    <ClInclude Include="editorctrl.h">
+      <Filter>uncategorized</Filter>
+    </ClInclude>
+    <ClInclude Include="helpers.h">
+      <Filter>uncategorized</Filter>
+    </ClInclude>
+    <ClInclude Include="host.h">
+      <Filter>uncategorized</Filter>
+    </ClInclude>
+    <ClInclude Include="host_drop_target.h">
+      <Filter>uncategorized</Filter>
+    </ClInclude>
+    <ClInclude Include="host_timer_dispatcher.h">
+      <Filter>uncategorized</Filter>
+    </ClInclude>
+    <ClInclude Include="js_panel_window.h">
+      <Filter>uncategorized</Filter>
+    </ClInclude>
+    <ClInclude Include="js_panel_window_cui.h">
+      <Filter>uncategorized</Filter>
+    </ClInclude>
+    <ClInclude Include="js_panel_window_dui.h">
+      <Filter>uncategorized</Filter>
+    </ClInclude>
+    <ClInclude Include="json.hpp">
+      <Filter>uncategorized</Filter>
+    </ClInclude>
+    <ClInclude Include="kmeans.h">
+      <Filter>uncategorized</Filter>
+    </ClInclude>
+    <ClInclude Include="panel_manager.h">
+      <Filter>uncategorized</Filter>
+    </ClInclude>
+    <ClInclude Include="popup_msg.h">
+      <Filter>uncategorized</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>uncategorized</Filter>
+    </ClInclude>
+    <ClInclude Include="scintilla_prop_sets.h">
+      <Filter>uncategorized</Filter>
+    </ClInclude>
+    <ClInclude Include="script_callback_invoker.h">
+      <Filter>uncategorized</Filter>
+    </ClInclude>
+    <ClInclude Include="script_interface.h">
+      <Filter>uncategorized</Filter>
+    </ClInclude>
+    <ClInclude Include="script_interface_impl.h">
+      <Filter>uncategorized</Filter>
+    </ClInclude>
+    <ClInclude Include="script_preprocessor.h">
+      <Filter>uncategorized</Filter>
+    </ClInclude>
+    <ClInclude Include="SString.h">
+      <Filter>uncategorized</Filter>
+    </ClInclude>
+    <ClInclude Include="stackblur.h">
+      <Filter>uncategorized</Filter>
+    </ClInclude>
+    <ClInclude Include="stats.h">
+      <Filter>uncategorized</Filter>
+    </ClInclude>
+    <ClInclude Include="stdafx.h">
+      <Filter>uncategorized</Filter>
+    </ClInclude>
+    <ClInclude Include="thread_pool.h">
+      <Filter>uncategorized</Filter>
+    </ClInclude>
+    <ClInclude Include="user_message.h">
+      <Filter>uncategorized</Filter>
+    </ClInclude>
+    <ClInclude Include="wtlscintilla.h">
+      <Filter>uncategorized</Filter>
+    </ClInclude>
+    <ClInclude Include="ui_conf.h">
+      <Filter>uncategorized\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="ui_find.h">
+      <Filter>uncategorized\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="ui_goto.h">
+      <Filter>uncategorized\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="ui_name_value_edit.h">
+      <Filter>uncategorized\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="ui_pref.h">
+      <Filter>uncategorized\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="ui_property.h">
+      <Filter>uncategorized\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="ui_replace.h">
+      <Filter>uncategorized\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\PropertyList\PropertyItem.h">
+      <Filter>uncategorized\property_window</Filter>
+    </ClInclude>
+    <ClInclude Include="..\PropertyList\PropertyItemEditors.h">
+      <Filter>uncategorized\property_window</Filter>
+    </ClInclude>
+    <ClInclude Include="..\PropertyList\PropertyItemImpl.h">
+      <Filter>uncategorized\property_window</Filter>
+    </ClInclude>
+    <ClInclude Include="..\PropertyList\PropertyList.h">
+      <Filter>uncategorized\property_window</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="foo_spider_monkey_panel.rc" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="default.js" />
     <None Include=".editorconfig" />
+    <None Include="default.js">
+      <Filter>uncategorized</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="js_engine">
@@ -178,5 +317,22 @@
     <Filter Include="js_utils">
       <UniqueIdentifier>{ec53acea-e62f-4dab-a310-6e7ad5b88ff9}</UniqueIdentifier>
     </Filter>
+    <Filter Include="panel">
+      <UniqueIdentifier>{045ffeaf-5db4-457a-914a-ad3d1aa42f0d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="uncategorized">
+      <UniqueIdentifier>{3b775acd-8e41-4e46-b8ac-2d5ebc0de307}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="uncategorized\ui">
+      <UniqueIdentifier>{6cdd963f-4f38-4310-b440-f96d5e5d2df5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="uncategorized\property_window">
+      <UniqueIdentifier>{829a0a84-1ed1-49ce-b6f6-3195f2a84050}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="foo_spider_monkey_panel.rc">
+      <Filter>uncategorized</Filter>
+    </ResourceCompile>
   </ItemGroup>
 </Project>

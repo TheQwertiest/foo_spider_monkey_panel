@@ -8,8 +8,12 @@
 
 #include <set>
 
+class js_panel_window;
+
 namespace mozjs
 {
+
+class JsContainer;
 
 class JsEngine final
 {
@@ -24,7 +28,7 @@ public:
     bool RegisterPanel( HWND hPanel );
     void UnregisterPanel( HWND hPanel );
 
-    bool ExecuteScript( JS::HandleObject globalObject, std::string_view scriptCode );
+    bool InitializeJsContainer( JsContainer& jsContainer, js_panel_window& parentPanel );
 
 private:
     JsEngine();
