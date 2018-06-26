@@ -793,7 +793,7 @@ _.mixin({
 							this.edit_done(z);
 						}
 						break;
-					case 1:
+					case 3:
 						var new_query = utils.InputBox(window.ID, 'Enter autoplaylist query', window.Name, this.data[z].query);
 						if (new_query.length && new_query != this.data[z].query) {
 							this.data[z].query = new_query;
