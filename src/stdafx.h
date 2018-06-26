@@ -14,10 +14,11 @@
 #include <ComDef.h>
 #include <StrSafe.h>
 
-// ATL/WTL
+// ATL
 #include <atlstr.h>
-#include <atlapp.h>
 #include <atlwin.h>
+// WTL
+#include <atlapp.h>
 #include <atlframe.h>
 #include <atldlgs.h>
 #include <atlctrls.h>
