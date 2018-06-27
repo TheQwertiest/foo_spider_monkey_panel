@@ -6,6 +6,9 @@
 #include <jsapi.h>
 #pragma warning( pop )  
 
+#include <shared_mutex>
+
+
 class js_panel_window;
 
 namespace mozjs
@@ -25,8 +28,9 @@ public:
 public:
     void Fail( std::string_view errorText);
 
-    void AddHeapToTrace( JS::Heap<JS::Value>* heapValue );
-    void RemoveHeapFromTrace( JS::Heap<JS::Value>* heapValue );
+    uint32_t JsGlobalObject::StoreToHeap( JS::HandleValue valueToStore );
+    JS::Heap<JS::Value>& GetFromHeap( uint32_t id );
+    void RemoveFromHeap( uint32_t id );
 
 private:
     JsGlobalObject( JSContext* cx, JsContainer &parentContainer, js_panel_window& parentPanel );
@@ -39,7 +43,20 @@ private:
     JsContainer &parentContainer_;
     js_panel_window& parentPanel_;
 
-    std::unordered_map<JS::Heap<JS::Value>*, JS::Heap<JS::Value>*> tracerMap_;
+    std::mutex tracerMapLock_;
+    uint32_t currentHeapId_;    
+    struct HeapElement
+    {
+        HeapElement( JS::HandleValue inValue )
+            : inUse( true )
+            , value( inValue )
+        {
+        }
+
+        bool inUse;
+        JS::Heap<JS::Value> value;
+    };
+    std::unordered_map<uint32_t, std::shared_ptr<HeapElement>> heapMap_;
 };
 
 }

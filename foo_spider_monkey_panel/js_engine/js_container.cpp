@@ -78,8 +78,7 @@ bool JsContainer::Initialize()
 
 void JsContainer::Finalize()
 {
-    if ( Mjs_NotPrepared == jsStatus_ 
-         || Mjs_Prepared == jsStatus_ )
+    if ( Mjs_NotPrepared == jsStatus_ )
     {
         return;
     }

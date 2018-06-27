@@ -55,29 +55,27 @@ protected:
         assert( cx );
 
         JS::RootedObject funcObject (cx, JS_GetFunctionObject( jsFunction ));
-        jsFuncValue_ = JS::ObjectValue( *funcObject );
+        JS::RootedValue funcValue( cx, JS::ObjectValue( *funcObject ));
 
         JS::RootedObject jsGlobal( cx, JS::CurrentGlobalOrNull( cx ) );
         assert( jsGlobal );
-        jsGlobalValue_ = JS::ObjectValue( *jsGlobal );
+        JS::RootedValue globalValue( cx, JS::ObjectValue( *jsGlobal ) );        
 
-        auto nativeGlobal = mozjs::GetNativeFromJsObject<mozjs::JsGlobalObject>( cx, jsGlobal );
-        nativeGlobal->AddHeapToTrace( &jsFuncValue_ );
-        nativeGlobal->AddHeapToTrace( &jsGlobalValue_ );
+        pNativeGlobal_ = mozjs::GetNativeFromJsObject<mozjs::JsGlobalObject>( cx, jsGlobal );
+        assert( pNativeGlobal_ );
+
+        funcId_ = pNativeGlobal_->StoreToHeap( funcValue );
+        globalId_ = pNativeGlobal_->StoreToHeap( globalValue );
     }
+    /// @details Might be called off main thread
     virtual ~WrappedJs()
-    {
+    {        
     }
-
+    /// @details Might be called off main thread
     virtual void FinalRelease()
     {
-        JSAutoRequest ar( pJsCtx_ );
-        JS::RootedObject jsGlobal( pJsCtx_, jsGlobalValue_.toObjectOrNull() );
-        JSAutoCompartment ac( pJsCtx_, jsGlobal );
-
-        auto nativeGlobal = mozjs::GetNativeFromJsObject<mozjs::JsGlobalObject>( pJsCtx_, jsGlobal );
-        nativeGlobal->RemoveHeapFromTrace( &jsGlobalValue_ );
-        nativeGlobal->RemoveHeapFromTrace( &jsFuncValue_ );
+        pNativeGlobal_->RemoveFromHeap( globalId_ );
+        pNativeGlobal_->RemoveFromHeap( funcId_ );
     }
 
     STDMETHODIMP ExecuteValue( VARIANT* Result )
@@ -88,10 +86,10 @@ protected:
         }
 
         JSAutoRequest ar( pJsCtx_ );
-        JS::RootedObject jsGlobal( pJsCtx_, jsGlobalValue_.toObjectOrNull() );
+        JS::RootedObject jsGlobal( pJsCtx_, pNativeGlobal_->GetFromHeap(globalId_).toObjectOrNull() );
         JSAutoCompartment ac( pJsCtx_, jsGlobal );
         
-        JS::RootedValue vFunc( pJsCtx_, jsFuncValue_ );
+        JS::RootedValue vFunc( pJsCtx_, pNativeGlobal_->GetFromHeap( funcId_ ) );
         JS::RootedFunction rFunc( pJsCtx_, JS_ValueToFunction( pJsCtx_, vFunc ) );
 
         JS::RootedValue retVal( pJsCtx_ );
@@ -113,9 +111,9 @@ protected:
 
 private:
     JSContext * pJsCtx_;
-    JS::Heap<JS::Value> jsFuncValue_;
-    JS::Heap<JS::Value> jsGlobalValue_;
-
+    uint32_t funcId_;
+    uint32_t globalId_;
+    mozjs::JsGlobalObject* pNativeGlobal_;
 };
 
 
@@ -694,17 +692,17 @@ bool VariantToJs( VARIANTARG& var, JSContext* cx, JS::MutableHandleValue rval )
         case VT_UNKNOWN:
         {
             if ( !FETCH( punkVal ) ) { rval.setNull(); break; }
-            ActiveX* x = new ActiveX( FETCH( punkVal ), true );
-            if ( !x->pUnknown_ && !x->pDispatch_ ) { delete x; return false; }
-            rval.setObjectOrNull( ActiveX_CreateObject( cx, x ) );
+            std::unique_ptr<ActiveX> x( new ActiveX( FETCH( pdispVal ), true ) );
+            if ( !x->pUnknown_ && !x->pDispatch_ ) { return false; }
+            rval.setObjectOrNull( ActiveX_CreateObject( cx, x.release() ) );
             break;
         }
         case VT_DISPATCH:
         {
             if ( !FETCH( pdispVal ) ) { rval.setNull(); break; }
-            ActiveX* x = new ActiveX( FETCH( pdispVal ), true );
-            if ( !x->pUnknown_ && !x->pDispatch_ ) { delete x; return false; }
-            rval.setObjectOrNull( ActiveX_CreateObject( cx, x ) );
+            std::unique_ptr<ActiveX> x (new ActiveX( FETCH( pdispVal ), true ));
+            if ( !x->pUnknown_ && !x->pDispatch_ ) { return false; }
+            rval.setObjectOrNull( ActiveX_CreateObject( cx, x.release() ) );
             break;
         }
         case VT_VARIANT: //traverse the indirection list?
@@ -719,8 +717,8 @@ bool VariantToJs( VARIANTARG& var, JSContext* cx, JS::MutableHandleValue rval )
         default:
             if ( type <= VT_CLSID )
             {
-                ActiveX* x = new ActiveX( var );
-                rval.setObjectOrNull( ActiveX_CreateObject( cx, x ) );
+                std::unique_ptr<ActiveX> x( new ActiveX( var ) );
+                rval.setObjectOrNull( ActiveX_CreateObject( cx, x.release() ) );
 
                 return true;
             }
@@ -1287,7 +1285,7 @@ ActiveX::ActiveX( CLSID& clsid )
     pTypeInfo_ = nullptr;
     memset( &variant_, 0, sizeof( variant_ ) );
 
-    hresult = CoCreateInstance( clsid, nullptr, CLSCTX_SERVER | CLSCTX_INPROC_HANDLER,
+    hresult = CoCreateInstance( clsid, nullptr, CLSCTX_INPROC_SERVER,
                                 IID_IUnknown, (void **)&pUnknown_ );
 
     if ( !SUCCEEDED( hresult ) ) 

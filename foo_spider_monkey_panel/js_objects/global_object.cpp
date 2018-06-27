@@ -23,11 +23,11 @@ JSClassOps jsOps = {
     nullptr,
     nullptr,
     nullptr,
-    JsFinalizeOp<JsGdiUtils>,
+    JsFinalizeOp<JsGlobalObject>,
     nullptr,
     nullptr,
     nullptr,
-    nullptr
+    nullptr // set in runtime to JS_GlobalObjectTraceHook
 };
 
 // TODO: remove HWND and HAS_PRIVATE after creating Window class
@@ -49,19 +49,9 @@ JsGlobalObject::JsGlobalObject( JSContext* cx, JsContainer &parentContainer, js_
     , parentContainer_( parentContainer )
     , parentPanel_( parentPanel )
 {
+    currentHeapId_ = 0;
 }
 
-
-void JsGlobalObject::TraceHeapValue( JSTracer *trc, void *data )
-{
-    assert( data );
-    auto globalObject = static_cast<JsGlobalObject*>( data );
-    
-    for each ( auto elem in globalObject->tracerMap_ )
-    {
-        JS::TraceEdge( trc, elem.first, "CustomHeap" );
-    }
-}
 
 JsGlobalObject::~JsGlobalObject()
 {
@@ -138,16 +128,55 @@ void JsGlobalObject::Fail( std::string_view errorText )
     parentPanel_.JsEngineFail( errorText );
 }
 
-void JsGlobalObject::AddHeapToTrace( JS::Heap<JS::Value>* heapValue )
+uint32_t JsGlobalObject::StoreToHeap( JS::HandleValue valueToStore )
 {
-    assert( tracerMap_.end() == tracerMap_.find( heapValue ) );
-    tracerMap_[heapValue] = heapValue;
+    std::lock_guard sl( tracerMapLock_ );
+
+    while( heapMap_.count( currentHeapId_ ))
+    {
+        ++currentHeapId_;
+    }
+
+    heapMap_[currentHeapId_] = std::make_shared<HeapElement>( valueToStore );
+    return currentHeapId_++;
 }
 
-void JsGlobalObject::RemoveHeapFromTrace( JS::Heap<JS::Value>* heapValue )
+JS::Heap<JS::Value>& JsGlobalObject::GetFromHeap( uint32_t id )
 {
-    assert( tracerMap_.end() != tracerMap_.find( heapValue ) );
-    tracerMap_.erase( heapValue );
+    std::lock_guard sl( tracerMapLock_ );
+
+    assert( heapMap_.count( id ) );
+    return heapMap_[id]->value;
+}
+
+void JsGlobalObject::RemoveFromHeap( uint32_t id )
+{
+    std::lock_guard sl( tracerMapLock_ );
+    
+    assert( heapMap_.count(id) );    
+    heapMap_[id]->inUse = false;    
+}
+
+void JsGlobalObject::TraceHeapValue( JSTracer *trc, void *data )
+{  
+    assert( data );
+    auto globalObject = static_cast<JsGlobalObject*>( data );
+
+    std::lock_guard sl( globalObject->tracerMapLock_ );
+    
+    auto& heapMap = globalObject->heapMap_;
+    for ( auto it = heapMap.begin(); it != heapMap.end();)
+    {
+        if ( !it->second->inUse )
+        {
+            it = heapMap.erase( it );
+        }
+        else
+        {
+            JS::TraceEdge( trc, &(it->second->value), "CustomHeap" );
+            it++;
+        }
+    }
 }
 
 }
