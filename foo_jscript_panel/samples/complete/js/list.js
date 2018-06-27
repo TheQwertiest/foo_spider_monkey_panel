@@ -146,7 +146,6 @@ _.mixin({
 				case this.up_btn.move(x, y):
 				case this.down_btn.move(x, y):
 					break;
-				case this.mode == 'autoplaylists' && this.editing:
 				case !this.in_range:
 					break;
 				case this.mode == 'autoplaylists':
@@ -183,7 +182,6 @@ _.mixin({
 				switch (true) {
 				case this.up_btn.lbtn_up(x, y):
 				case this.down_btn.lbtn_up(x, y):
-				case this.mode == 'autoplaylists' && this.editing:
 				case !this.in_range:
 					break;
 				case this.mode == 'autoplaylists':
@@ -209,7 +207,7 @@ _.mixin({
 		this.rbtn_up = function (x, y) {
 			switch (this.mode) {
 			case 'autoplaylists':
-				panel.m.AppendMenuItem(this.editing ? MF_GRAYED: MF_STRING, 1000, 'Add new autoplaylist...');
+				panel.m.AppendMenuItem(MF_STRING, 1000, 'Add new autoplaylist...');
 				panel.m.AppendMenuSeparator();
 				if (this.deleted_items.length) {
 					_(this.deleted_items)
@@ -740,17 +738,13 @@ _.mixin({
 				}
 				
 				this.add = function () {
-					if (this.editing) {
-						return;
-					}
-					this.editing = true;
 					var new_name = utils.InputBox(window.ID, 'Enter autoplaylist name', window.Name);
 					if (!new_name.length) {
-						return this.editing = false;
+						return;
 					}
 					var new_query = utils.InputBox(window.ID, 'Enter autoplaylist query', window.Name);
 					if (!new_query.length) {
-						return this.editing = false;
+						return;
 					}
 					var new_sort = utils.InputBox(window.ID, 'Enter sort pattern\n\n(optional)', window.Name);
 					var new_forced = (new_sort.length ? WshShell.popup('Force sort?', 0, window.Name, popup.question + popup.yes_no) : popup.no) == popup.yes;
@@ -761,7 +755,6 @@ _.mixin({
 						forced : new_forced
 					});
 					this.edit_done(this.data.length - 1);
-					this.editing = false;
 				}
 				
 				this.edit = function (x, y) {
@@ -780,7 +773,6 @@ _.mixin({
 					m.AppendMenuItem(z < this.data.length - 1 ? MF_STRING : MF_GRAYED, 7, 'Move down');
 					m.AppendMenuSeparator();
 					m.AppendMenuItem(MF_STRING, 8, 'Delete');
-					this.editing = true;
 					var idx = m.TrackPopupMenu(x, y);
 					switch (idx) {
 					case 1:
@@ -827,7 +819,6 @@ _.mixin({
 						this.save();
 						break;
 					}
-					this.editing = false;
 					_.dispose(m);
 				}
 				
@@ -850,7 +841,6 @@ _.mixin({
 				}
 				
 				_.createFolder(folders.data);
-				this.editing = false;
 				this.deleted_items = [];
 				this.filename = folders.data + 'autoplaylists.json';
 				this.update();
