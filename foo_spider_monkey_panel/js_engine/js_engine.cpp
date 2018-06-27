@@ -104,6 +104,10 @@ bool JsEngine::Initialize()
         return false;
     }
 
+#ifdef DEBUG
+    JS_SetGCZeal( pJsCtx, 2, 20 );
+#endif
+
     pJsCtx_ = autoJsCtx.release();
     isInitialized_ = true;
     return true;

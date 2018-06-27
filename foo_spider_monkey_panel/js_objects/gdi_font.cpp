@@ -57,8 +57,9 @@ namespace mozjs
 {
 
 
-JsGdiFont::JsGdiFont( JSContext* cx, Gdiplus::Font* pGdiFont, HFONT hFont )
+JsGdiFont::JsGdiFont( JSContext* cx, Gdiplus::Font* pGdiFont, HFONT hFont, bool isManaged )
     : pJsCtx_( cx )
+    , isManaged_( isManaged )
     , pGdi_( pGdiFont )
     , hFont_( hFont )
 {
@@ -67,8 +68,12 @@ JsGdiFont::JsGdiFont( JSContext* cx, Gdiplus::Font* pGdiFont, HFONT hFont )
 
 JsGdiFont::~JsGdiFont()
 {
+    if ( hFont_ && isManaged_ )
+    {
+        DeleteFont( hFont_ );
+    }    
 }
-// TODO: implement isManaged
+
 JSObject* JsGdiFont::Create( JSContext* cx, Gdiplus::Font* pGdiFont, HFONT hFont, bool isManaged )
 {
     assert( pGdiFont );
@@ -86,7 +91,7 @@ JSObject* JsGdiFont::Create( JSContext* cx, Gdiplus::Font* pGdiFont, HFONT hFont
         return nullptr;
     }
 
-    JS_SetPrivate( jsObj, new JsGdiFont( cx, pGdiFont, hFont ) );
+    JS_SetPrivate( jsObj, new JsGdiFont( cx, pGdiFont, hFont, isManaged ) );
 
     return jsObj;
 }

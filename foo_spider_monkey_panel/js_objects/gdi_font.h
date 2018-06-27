@@ -34,11 +34,12 @@ public: // props
     std::optional<uint32_t> Style() const;
 
 private:
-    JsGdiFont( JSContext* cx, Gdiplus::Font* pGdiFont, HFONT hFont );
+    JsGdiFont( JSContext* cx, Gdiplus::Font* pGdiFont, HFONT hFont, bool isManaged );
     JsGdiFont( const JsGdiFont& ) = delete;
 
 private:
     JSContext * pJsCtx_;
+    bool isManaged_;
     std::unique_ptr<Gdiplus::Font> pGdi_;
     HFONT hFont_;
 };

@@ -46,7 +46,7 @@ bool JsToVariant( VARIANTARG& arg, JSContext* cx, JS::HandleValue rval );
 
 /////////////////////////////////////////////////
 
-class WrappedJs: public IDisposableImpl4<IWrappedJs>
+class WrappedJs: public IDispatchImpl3<IWrappedJs>
 {
 protected:
     WrappedJs( JSContext * cx, JS::HandleFunction jsFunction )
@@ -67,8 +67,8 @@ protected:
     }
     virtual ~WrappedJs()
     {
-
     }
+
     virtual void FinalRelease()
     {
         JSAutoRequest ar( pJsCtx_ );

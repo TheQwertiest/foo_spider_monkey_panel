@@ -24,7 +24,7 @@ __interface IDisposable : IDispatch
     library_block,
     uuid( "0A72A7F4-024C-4DAB-92BE-5F6853294E44" )
 ]
-__interface IWrappedJs : IDisposable
+__interface IWrappedJs : IDispatch
 {
     [id( DISPID_VALUE )] STDMETHOD(ExecuteValue)( [out, retval] VARIANT* Result );
 };
