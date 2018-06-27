@@ -9,6 +9,8 @@
 
 #include <js_panel_window.h>
 
+#include <js/TracingAPI.h>
+
 namespace
 {
 
@@ -50,8 +52,20 @@ JsGlobalObject::JsGlobalObject( JSContext* cx, JsContainer &parentContainer, js_
 }
 
 
+void JsGlobalObject::TraceHeapValue( JSTracer *trc, void *data )
+{
+    assert( data );
+    auto globalObject = static_cast<JsGlobalObject*>( data );
+    
+    for each ( auto elem in globalObject->tracerMap_ )
+    {
+        JS::TraceEdge( trc, elem.first, "CustomHeap" );
+    }
+}
+
 JsGlobalObject::~JsGlobalObject()
 {
+    JS_RemoveExtraGCRootsTracer( pJsCtx_, JsGlobalObject::TraceHeapValue, this );
 }
 
 JSObject* JsGlobalObject::Create( JSContext* cx, JsContainer &parentContainer, js_panel_window& parentPanel )
@@ -99,7 +113,13 @@ JSObject* JsGlobalObject::Create( JSContext* cx, JsContainer &parentContainer, j
             return nullptr;
         }
 
-        JS_SetPrivate( jsObj, new JsGlobalObject( cx, parentContainer, parentPanel ) );
+        JsGlobalObject* pNative = new JsGlobalObject( cx, parentContainer, parentPanel );
+        JS_SetPrivate( jsObj, pNative );
+
+        if ( !JS_AddExtraGCRootsTracer( cx, JsGlobalObject::TraceHeapValue, pNative ) )
+        {
+            return nullptr;
+        }
 
         JS_FireOnNewGlobalObject( cx, jsObj );
     }
@@ -107,10 +127,27 @@ JSObject* JsGlobalObject::Create( JSContext* cx, JsContainer &parentContainer, j
     return jsObj;
 }
 
+const JSClass& JsGlobalObject::GetClass()
+{
+    return jsClass;
+}
+
 void JsGlobalObject::Fail( std::string_view errorText )
 {
     parentContainer_.Fail();
     parentPanel_.JsEngineFail( errorText );
+}
+
+void JsGlobalObject::AddHeapToTrace( JS::Heap<JS::Value>* heapValue )
+{
+    assert( tracerMap_.end() == tracerMap_.find( heapValue ) );
+    tracerMap_[heapValue] = heapValue;
+}
+
+void JsGlobalObject::RemoveHeapFromTrace( JS::Heap<JS::Value>* heapValue )
+{
+    assert( tracerMap_.end() != tracerMap_.find( heapValue ) );
+    tracerMap_.erase( heapValue );
 }
 
 }

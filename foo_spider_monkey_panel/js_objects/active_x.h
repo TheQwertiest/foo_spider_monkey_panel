@@ -24,10 +24,10 @@
 class ActiveX //takes ownership, calls Release() at the end
 {
 public:
-    IDispatch * dispatch;
-    IUnknown * unknown;
-    ITypeInfo * typeinfo;
-    VARIANT variant;
+    IDispatch * pDispatch_;
+    IUnknown * pUnknown_;
+    ITypeInfo * pTypeInfo_;
+    VARIANT variant_;
 
     struct PropInfo
     {
@@ -38,7 +38,7 @@ public:
         PropInfo( const wchar_t* n ) : name( n ) { Get = Put = PutRef = false; }
     };
 
-    std::map<std::wstring, std::shared_ptr<PropInfo>> Properties;
+    std::map<std::wstring, std::shared_ptr<PropInfo>> properties_;
 
     ActiveX();
     ActiveX( CLSID& clsid );

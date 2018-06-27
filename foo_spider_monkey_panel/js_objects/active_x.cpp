@@ -7,6 +7,10 @@
 #include <js_engine/js_to_native_converter.h>
 #include <js_engine/native_to_js_converter.h>
 #include <js_engine/js_to_native_invoker.h>
+#include <js_objects/global_object.h>
+
+#include <script_interface.h>
+#include <com_tools.h>
 
 #pragma warning( push )  
 #pragma warning( disable : 4251 ) // dll interface warning
@@ -20,6 +24,7 @@
 #include <string>
 
 // TODO: add VT_ARRAY <> JSArray and VT_DISPATCH <> JSFunction support
+// TODO: callbacks set on COM objects are not destroyed, memory leak fix
 
 //#define DEBUG
 //#define TRACE
@@ -34,7 +39,86 @@
 
 
 JSObject*
-ActiveX_Object( JSContext *cx, ActiveX* t );
+ActiveX_CreateObject( JSContext *cx, ActiveX* t );
+
+bool VariantToJs( VARIANTARG& var, JSContext* cx, JS::MutableHandleValue rval );
+bool JsToVariant( VARIANTARG& arg, JSContext* cx, JS::HandleValue rval );
+
+/////////////////////////////////////////////////
+
+class WrappedJs: public IDisposableImpl4<IWrappedJs>
+{
+protected:
+    WrappedJs( JSContext * cx, JS::HandleFunction jsFunction )
+        : pJsCtx_(cx)
+    {
+        assert( cx );
+
+        JS::RootedObject funcObject (cx, JS_GetFunctionObject( jsFunction ));
+        jsFuncValue_ = JS::ObjectValue( *funcObject );
+
+        JS::RootedObject jsGlobal( cx, JS::CurrentGlobalOrNull( cx ) );
+        assert( jsGlobal );
+        jsGlobalValue_ = JS::ObjectValue( *jsGlobal );
+
+        auto nativeGlobal = mozjs::GetNativeFromJsObject<mozjs::JsGlobalObject>( cx, jsGlobal );
+        nativeGlobal->AddHeapToTrace( &jsFuncValue_ );
+        nativeGlobal->AddHeapToTrace( &jsGlobalValue_ );
+    }
+    virtual ~WrappedJs()
+    {
+
+    }
+    virtual void FinalRelease()
+    {
+        JSAutoRequest ar( pJsCtx_ );
+        JS::RootedObject jsGlobal( pJsCtx_, jsGlobalValue_.toObjectOrNull() );
+        JSAutoCompartment ac( pJsCtx_, jsGlobal );
+
+        auto nativeGlobal = mozjs::GetNativeFromJsObject<mozjs::JsGlobalObject>( pJsCtx_, jsGlobal );
+        nativeGlobal->RemoveHeapFromTrace( &jsGlobalValue_ );
+        nativeGlobal->RemoveHeapFromTrace( &jsFuncValue_ );
+    }
+
+    STDMETHODIMP ExecuteValue( VARIANT* Result )
+    {
+        if ( !Result )
+        {
+            return E_POINTER;
+        }
+
+        JSAutoRequest ar( pJsCtx_ );
+        JS::RootedObject jsGlobal( pJsCtx_, jsGlobalValue_.toObjectOrNull() );
+        JSAutoCompartment ac( pJsCtx_, jsGlobal );
+        
+        JS::RootedValue vFunc( pJsCtx_, jsFuncValue_ );
+        JS::RootedFunction rFunc( pJsCtx_, JS_ValueToFunction( pJsCtx_, vFunc ) );
+
+        JS::RootedValue retVal( pJsCtx_ );
+        if ( !JS::Call( pJsCtx_, jsGlobal, rFunc, JS::HandleValueArray::empty(), &retVal ) )
+        {// TODO: set fail
+            JS_ClearPendingException( pJsCtx_ ); // can't forward exception inside ActiveX objects...
+            return E_FAIL;
+        }
+
+        if ( !JsToVariant( *Result, pJsCtx_, retVal ) )
+        {
+            Result->vt = VT_ERROR;
+            Result->scode = 0;
+            return E_FAIL;
+        }
+
+        return S_OK;
+    }
+
+private:
+    JSContext * pJsCtx_;
+    JS::Heap<JS::Value> jsFuncValue_;
+    JS::Heap<JS::Value> jsGlobalValue_;
+
+};
+
+
 
 namespace
 {
@@ -56,7 +140,7 @@ JSClassOps jsOps = {
 };
 
 JSClass ActiveX_Class = {
-    "ActiveX",
+    "ActiveXObject",
     JSCLASS_HAS_PRIVATE| JSCLASS_BACKGROUND_FINALIZE,
     &jsOps
 };
@@ -73,18 +157,31 @@ ActiveX_JSGet_Impl( JSContext* cx, unsigned argc, JS::Value* vp )
 
     JS::CallArgs args = JS::CallArgsFromVp( argc, vp );
 
-    if ( argc < 1 )
+    // TODO: dirty hack! Think of a way to replace it
+    JS::RootedString s( cx, JS_GetFunctionId( JS_ValueToFunction( cx, args.calleev() ) ) );
+    if ( !s )
     {
-        JS_ReportErrorASCII( cx, "ActiveX_JSGet error" );
-        return false;
-    }
-    if ( !args[0].isString() )
-    {
-        JS_ReportErrorASCII( cx, "ActiveX_JSGet error: argument 1 is not a string" );
+        JS_ReportErrorASCII( cx, "ActiveX_Exec error: No property name" );
         return false;
     }
 
-    std::wstring name = mozjs::JsToNative<std::wstring>::Convert( cx, args[0] );
+    size_t strLen = JS_GetStringLength( s );
+    std::wstring name( strLen + 1, '\0' );
+    mozilla::Range<char16_t> wCharStr( (char16_t*)name.data(), strLen );
+    if ( !JS_CopyStringChars( cx, wCharStr, s ) )
+    {
+        JS_ReportOutOfMemory( cx );
+        return false;
+    }
+
+    std::size_t fPos = name.find( L" " );
+    if ( fPos == std::string::npos )
+    {
+        std::string tmpStr = pfc::stringcvt::string_utf8_from_wide( name.c_str() );
+        JS_ReportErrorASCII( cx, "ActiveX_JSSet error: invalid command: %s", tmpStr.c_str() );
+        return false;
+    }
+    name = name.substr( fPos + 1 );
     
     /*
     GETENV;
@@ -118,7 +215,7 @@ ActiveX_JSGet_Impl( JSContext* cx, unsigned argc, JS::Value* vp )
     DISPID dispid = 0;
     if ( p && t->Id( p->name, dispid ) )
     {
-        return t->Get( dispid, cx, 0, vp );
+        return t->Get( dispid, cx, argc, vp );
     }
 
     return false;
@@ -138,6 +235,7 @@ ActiveX_JSSet_Impl( JSContext *cx, unsigned argc, JS::Value* vp )
     GETOBJ2( ActiveX, ActiveX, t );
     */
 
+    // TODO: dirty hack! Think of a way to replace it
     JS::RootedString s( cx, JS_GetFunctionId( JS_ValueToFunction( cx, args.calleev() ) ) );
     if ( !s )
     {
@@ -161,7 +259,7 @@ ActiveX_JSSet_Impl( JSContext *cx, unsigned argc, JS::Value* vp )
         JS_ReportErrorASCII( cx, "ActiveX_JSSet error: invalid command: %s", tmpStr.c_str() );
         return false;
     }
-    name = std::wstring( name.begin() + fPos + 1, name.end() );
+    name = name.substr( fPos + 1);    
 
     ActiveX* t = static_cast<ActiveX*>(JS_GetPrivate( args.thisv().toObjectOrNull() ));
     if ( !t )
@@ -177,7 +275,7 @@ ActiveX_JSSet_Impl( JSContext *cx, unsigned argc, JS::Value* vp )
     DISPID dispid = 0;
     if ( p && t->Id( p->name, dispid ) )
     {
-        return t->Set( dispid, cx, 0, vp, p->PutRef );
+        return t->Set( dispid, cx, argc, vp, p->PutRef );
     }
 
     return false;
@@ -190,31 +288,6 @@ const JSPropertySpec ActiveX_properties[] = {
 };
 */
 
-/*
-const JSFunctionSpec ActiveX_functions[] = {
-    JS_FN( "get", ActiveX_Get, 1, 0 ),
-    JS_FN( "set", ActiveX_Set, 2, 0 ),
-    JS_FN( "exec", ActiveX_Exec, 2, 0 ),
-    JS_FN( "at", ActiveX_Exec, 2, 0 ),
-    JS_FN( "as", ActiveX_as, 2, 0 ),
-    JS_FN( "close", ActiveX_Close, 0, 0 ),
-    JS_FN( "toString", ActiveX_ToString, 0, 0 ),
-    JS_FS_END
-};
-*/
-
-/*
-static JSFunctionSpec ActiveX_functions[] = {
-{ "get",     ActiveX_Get,      1 },
-{ "set",    ActiveX_Set, 2 },
-{ "exec",    ActiveX_Exec, 2 },
-{ "at",    ActiveX_Exec, 2 },
-{ "as",    ActiveX_as, 2 },
-{ "close",ActiveX_Close,0 },
-{ "toString",ActiveX_ToString,0 },
-{ 0 }
-};
-*/
 /*
 WRAP_HELP( ActiveX,
            "name(index)\nextract(index)\nextract(index,string)\nsize(index)\n"
@@ -272,10 +345,6 @@ bool ActiveX_Run_Impl( JSContext* cx, unsigned argc, JS::Value* vp )
     }
     return true;
 }
-
-MJS_WRAP_JS_TO_NATIVE_FN( ActiveX_JSGet, ActiveX_JSGet_Impl )
-MJS_WRAP_JS_TO_NATIVE_FN( ActiveX_JSSet, ActiveX_JSSet_Impl )
-MJS_WRAP_JS_TO_NATIVE_FN( ActiveX_Run, ActiveX_Run_Impl )
 
 // bool ActiveX_Exec( JSContext* cx, unsigned argc, JS::Value* vp )
 // {
@@ -349,9 +418,9 @@ MJS_WRAP_JS_TO_NATIVE_FN( ActiveX_Run, ActiveX_Run_Impl )
 //         return false;
 //     }
 // 
-//     if ( t->variant.vt )
+//     if ( t->variant_.vt )
 //     {
-//         JS::RootedString jsString( JS_NewStringCopyZ( cx, "variant" ) );
+//         JS::RootedString jsString( JS_NewStringCopyZ( cx, "variant_" ) );
 //         if ( !jsString )
 //         {
 //             return false;
@@ -496,18 +565,61 @@ MJS_WRAP_JS_TO_NATIVE_FN( ActiveX_Run, ActiveX_Run_Impl )
 //     if ( SUCCEEDED( hresult ) )
 //     {
 //         IUnknown * unk;
-//         hresult = t->unknown->QueryInterface( clsid, (void * *)&unk );
+//         hresult = t->pUnknown_->QueryInterface( clsid, (void * *)&unk );
 //         if ( SUCCEEDED( hresult ) ) RETOBJ( ActiveX_Object( cx, new ActiveX( unk ), true, nullptr ) );
 // 
 //     }
 //     RETOBJ( nullptr );
 // }
 // 
-// bool ActiveX_Close( JSContext* cx, unsigned argc, JS::Value* vp )
-// {    
-//     CLOSEPRIVATE( ActiveX, ActiveX );
-//     RETBOOL( true );
-// }
+bool ActiveX_Close_Impl( JSContext* cx, unsigned argc, JS::Value* vp )
+{    
+    JS::CallArgs args = JS::CallArgsFromVp( argc, vp );
+
+    ActiveX* t = static_cast<ActiveX*>( JS_GetPrivate( args.thisv().toObjectOrNull() ) );
+    if ( !t )
+    {
+        //JS_ReportErrorASCII( cx, "Internal error: JS_GetPrivate failed" );
+        return false;
+    }
+
+    /* t->Close();*/
+    return true;
+}
+/*
+const JSFunctionSpec ActiveX_functions[] = {
+    JS_FN( "get", ActiveX_Get, 1, 0 ),
+    JS_FN( "set", ActiveX_Set, 2, 0 ),
+    JS_FN( "exec", ActiveX_Exec, 2, 0 ),
+    JS_FN( "at", ActiveX_Exec, 2, 0 ),
+    JS_FN( "as", ActiveX_as, 2, 0 ),
+    JS_FN( "close", ActiveX_Close, 0, 0 ),
+    JS_FN( "toString", ActiveX_ToString, 0, 0 ),
+    JS_FS_END
+};
+*/
+
+
+MJS_WRAP_JS_TO_NATIVE_FN( ActiveX_JSGet, ActiveX_JSGet_Impl )
+MJS_WRAP_JS_TO_NATIVE_FN( ActiveX_JSSet, ActiveX_JSSet_Impl )
+MJS_WRAP_JS_TO_NATIVE_FN( ActiveX_Run, ActiveX_Run_Impl )
+MJS_WRAP_JS_TO_NATIVE_FN( ActiveX_Close, ActiveX_Close_Impl )
+
+static JSFunctionSpec ActiveX_functions[] = {
+    /*
+{ "get",     ActiveX_Get,      1 },
+{ "set",    ActiveX_Set, 2 },
+{ "exec",    ActiveX_Exec, 2 },
+{ "at",    ActiveX_Exec, 2 },
+{ "as",    ActiveX_as, 2 },
+*/
+{ "close",ActiveX_Close,0 },
+/*
+{ "toString",ActiveX_ToString,0 },
+*/
+{ 0 }
+};
+
 // 
 /*
 static JSFunctionSpec ActiveX_fnstatic[] = {
@@ -523,7 +635,7 @@ static JSFunctionSpec ActiveX_fnstatic[] = {
 
 #define FETCH(x) (ref? * (var.p ## x) : var.x)
 
-///RetrieveValue assumes that the caller will call VariantClear, so call AddRef on new objects
+/// VariantToJs assumes that the caller will call VariantClear, so call AddRef on new objects
 bool VariantToJs( VARIANTARG& var, JSContext* cx, JS::MutableHandleValue rval )
 {
     /*
@@ -583,16 +695,16 @@ bool VariantToJs( VARIANTARG& var, JSContext* cx, JS::MutableHandleValue rval )
         {
             if ( !FETCH( punkVal ) ) { rval.setNull(); break; }
             ActiveX* x = new ActiveX( FETCH( punkVal ), true );
-            if ( !x->unknown && !x->dispatch ) { delete x; return false; }
-            rval.setObjectOrNull( ActiveX_Object( cx, x ) );
+            if ( !x->pUnknown_ && !x->pDispatch_ ) { delete x; return false; }
+            rval.setObjectOrNull( ActiveX_CreateObject( cx, x ) );
             break;
         }
         case VT_DISPATCH:
         {
             if ( !FETCH( pdispVal ) ) { rval.setNull(); break; }
             ActiveX* x = new ActiveX( FETCH( pdispVal ), true );
-            if ( !x->unknown && !x->dispatch ) { delete x; return false; }
-            rval.setObjectOrNull( ActiveX_Object( cx, x ) );
+            if ( !x->pUnknown_ && !x->pDispatch_ ) { delete x; return false; }
+            rval.setObjectOrNull( ActiveX_CreateObject( cx, x ) );
             break;
         }
         case VT_VARIANT: //traverse the indirection list?
@@ -608,7 +720,7 @@ bool VariantToJs( VARIANTARG& var, JSContext* cx, JS::MutableHandleValue rval )
             if ( type <= VT_CLSID )
             {
                 ActiveX* x = new ActiveX( var );
-                rval.setObjectOrNull( ActiveX_Object( cx, x ) );
+                rval.setObjectOrNull( ActiveX_CreateObject( cx, x ) );
 
                 return true;
             }
@@ -634,23 +746,23 @@ void CheckReturn( JSContext* cx, JS::MutableHandleValue rval )
         if ( j0 && JS_InstanceOf( cx, j0, &ActiveX_Class, 0 ) )
         {
             ActiveX* x = static_cast<ActiveX*>( JS_GetPrivate( j0 ) );            
-            if ( x->unknown && !x->dispatch )
+            if ( x->pUnknown_ && !x->pDispatch_ )
             {
-                hresult = x->unknown->QueryInterface( IID_IDispatch, (void **)&x->dispatch );
+                hresult = x->pUnknown_->QueryInterface( IID_IDispatch, (void **)&x->pDispatch_ );
                 if ( SUCCEEDED( hresult ) )
                 {
                     x->SetupMembers( cx, j0 );
                 }
                 else
                 {
-                    x->dispatch = 0;
+                    x->pDispatch_ = 0;
                 }
             }
         }
     }
 }
 
-bool JsToVariant( VARIANTARG& arg, JSContext* cx, JS::MutableHandleValue rval )
+bool JsToVariant( VARIANTARG& arg, JSContext* cx, JS::HandleValue rval )
 {
     VariantInit( &arg );
     // arg.vt = VT_EMPTY;
@@ -669,36 +781,46 @@ bool JsToVariant( VARIANTARG& arg, JSContext* cx, JS::MutableHandleValue rval )
                 arg.vt = VT_EMPTY;
                 return false;
             }
-            if ( x->variant.vt != VT_EMPTY )
+            if ( x->variant_.vt != VT_EMPTY )
             {
                 //1.7.2.3
-                VariantCopyInd( &arg, &x->variant );
-                //VariantCopy(&arg,&x->variant);
+                VariantCopyInd( &arg, &x->variant_ );
+                //VariantCopy(&arg,&x->variant_);
                 //1.7.2.2 could address invalid memory if x is freed before arg
                 // arg.vt = VT_VARIANT | VT_BYREF;
-                // arg.pvarVal = &x->variant;
+                // arg.pvarVal = &x->variant_;
                 return true;
             }
-            if ( x->dispatch )
+            if ( x->pDispatch_ )
             {
                 arg.vt = VT_DISPATCH;
-                arg.pdispVal = x->dispatch;
-                x->dispatch->AddRef();
+                arg.pdispVal = x->pDispatch_;
+                x->pDispatch_->AddRef();
                 return true;
             }
-            else if ( x->unknown )
+            else if ( x->pUnknown_ )
             {
                 arg.vt = VT_UNKNOWN;
-                arg.punkVal = x->unknown;
-                x->unknown->AddRef();
+                arg.punkVal = x->pUnknown_;
+                x->pUnknown_->AddRef();
                 return true;
             }
             else
             {
                 arg.vt = VT_BYREF | VT_UNKNOWN;
-                arg.ppunkVal = &x->unknown;
+                arg.ppunkVal = &x->pUnknown_;
                 return true;
             }
+        }
+
+        if ( j0 && JS_ObjectIsFunction(cx, j0 ) )
+        {            
+            JS::RootedFunction func( cx, JS_ValueToFunction( cx, rval ) );
+            auto pWrappedJs = new com_object_impl_t<WrappedJs>( cx, func );
+
+            arg.vt = VT_DISPATCH;
+            arg.pdispVal = pWrappedJs;
+            return true;
         }
     }
     else if ( rval.isBoolean() )
@@ -865,11 +987,11 @@ WRAP( ActiveX, as )
     HRESULT hresult = LoadTypeLib( (WCHAR*)library, &typelib );
     if ( SUCCEEDED( hresult ) )
     {
-        IDispatch* d = Recast( t->unknown, typelib, (WCHAR*)name );
+        IDispatch* d = Recast( t->pUnknown_, typelib, (WCHAR*)name );
         if ( d )
         {
-            if ( t->dispatch ) t->dispatch->Release();
-            t->dispatch = d;
+            if ( t->dispatch ) t->pDispatch_->Release();
+            t->pDispatch_ = d;
             t->SetupMembers( cx, obj );
         }
 
@@ -881,91 +1003,89 @@ WRAP( ActiveX, as )
 }
 #endif
 
-/*
-char * DeflateString(const jschar*chars, size_t length)
-{
-    size_t i, size;
-    char *bytes;
-
-    size = (length + 1) * sizeof(char);
-    bytes = (char *) malloc(size);
-    if (!bytes) return nullptr;
-    for (i = 0; i < length; i++)
-        bytes[i] = (char) chars[i];
-    bytes[i] = 0;
-    return bytes;
-}
-*/
 void ReportActiveXError( HRESULT hresult, EXCEPINFO& exception, UINT& argerr, JSContext* cx )
 {
-    std::string errMsg = "ActiveX:";
-    //#define ReportError1(msg,arg)
-    // sprintf(errmsg,"ActiveX:  msg,arg);
-    // JS_ReportError(cx,STRING_TO_JSVAL(JS_NewStringCopyZ(cx,errmsg )));
-
-#define ReportError1(msg,arg) \
- {errMsg += msg; \
-  JS_ReportErrorASCII(cx,errMsg.c_str(), arg);}
-
-#define ReportError(msg) \
- {errMsg += msg; \
-  JS_ReportErrorASCII(cx,errMsg.c_str());}
-
-//  #define ReportError1(msg,arg) JS_ReportError(cx,"ActiveX: " msg,arg);
-//#define ReportError(msg) JS_ReportError(cx,"ActiveX: " msg);
-// JS_SetPendingException(cx,STRING_TO_JSVAL(JS_NewStringCopyZ(cx,errmsg )));
-
     switch ( hresult )
     {
-    case DISP_E_BADPARAMCOUNT: ReportError( "Wrong number of parameters" ); break;
-    case DISP_E_BADVARTYPE: ReportError1( "Bad variable type %d", argerr ); break;
+    case DISP_E_BADPARAMCOUNT: 
+    {
+        JS_ReportErrorASCII( cx, "ActiveX: Wrong number of parameters" );
+        break;
+    }
+    case DISP_E_BADVARTYPE: 
+    {
+        JS_ReportErrorASCII( cx, "ActiveX: Bad variable type %d", argerr );
+        break;
+    }
     case DISP_E_EXCEPTION:
     {
         if ( exception.bstrDescription )
         {
-            std::wstring w1( (wchar_t*)exception.bstrDescription, SysStringLen( exception.bstrDescription ) );
-            //                          TStr d(w1);
-
-            std::wstring w2( (wchar_t*)exception.bstrSource, SysStringLen( exception.bstrSource ) );
-            //                          TStr s(w2);
-            std::wstring w;
-            w.resize( w1.length() + w2.length() + 20 );
-            swprintf( w.data(), w.size(), L"ActiveX: (%s) %s", w2.c_str(), w1.c_str() );
-            //                          TStr err(w);
-            //                          printf("%s\n",(char*)err);
-
             // <codecvt> is deprecated in C++17...
-            std::string tmpStr( pfc::stringcvt::string_utf8_from_wide( w.c_str() ) );
+            std::string descriptionStr( pfc::stringcvt::string_utf8_from_wide( 
+                (wchar_t*)exception.bstrDescription, SysStringLen( exception.bstrDescription ) ) 
+            );
+            std::string sourceStr( pfc::stringcvt::string_utf8_from_wide( 
+                (wchar_t*)exception.bstrSource, SysStringLen( exception.bstrSource ) ) 
+            );
 
-            JS_ReportErrorASCII( cx, tmpStr.c_str() );
-            //                          char* err = DeflateString((jschar*)exception.bstrDescription,SysStringLen(exception.bstrDescription));
-            //                          ReportError(err);
-            //                          ReportError(cx,"%s",TStr("Activex: ",err));
-            //                          JS_ReportError(cx,"%s",(char*)TStr(err));
-            //                          free(err);
+            JS_ReportErrorASCII( cx, "ActiveX: (%s) %s", sourceStr.c_str(), descriptionStr.c_str() );
         }
         else
         {
-            ReportError1( "Error code %d", exception.scode );
+            JS_ReportErrorASCII( cx, "ActiveX: Error code %d", exception.scode );
         }
         SysFreeString( exception.bstrSource );
         SysFreeString( exception.bstrDescription );
         SysFreeString( exception.bstrHelpFile );
         break;
     }
-    case DISP_E_MEMBERNOTFOUND: ReportError( "Function not found" ); break;
-    case DISP_E_OVERFLOW: ReportError1( "Can not convert variable %d", argerr ); break;
-    case DISP_E_PARAMNOTFOUND: ReportError1( "Parameter %d not found", argerr ); break;
-    case DISP_E_TYPEMISMATCH: ReportError1( "Parameter %d type mismatch", argerr ); break;
-    case DISP_E_UNKNOWNINTERFACE: ReportError( "Unknown interface" ); break;
-    case DISP_E_UNKNOWNLCID: ReportError( "Unknown LCID" ); break;
-    case DISP_E_PARAMNOTOPTIONAL: ReportError1( "Parameter %d is required", argerr );
+    case DISP_E_MEMBERNOTFOUND: 
+    {
+        JS_ReportErrorASCII( cx, "ActiveX: Function not found" );
+        break;
+    }
+    case DISP_E_OVERFLOW:
+    {
+        JS_ReportErrorASCII( cx, "ActiveX: Can not convert variable %d", argerr );
+        break;
+    }
+    case DISP_E_PARAMNOTFOUND: 
+    {
+        JS_ReportErrorASCII( cx, "ActiveX: Parameter %d not found", argerr );
+        break;
+    }
+    case DISP_E_TYPEMISMATCH: 
+    {
+        JS_ReportErrorASCII( cx, "ActiveX: Parameter %d type mismatch", argerr );
+        break;
+    }
+    case DISP_E_UNKNOWNINTERFACE: 
+    {
+        JS_ReportErrorASCII( cx, "ActiveX: Unknown interface" );
+        break;
+    }
+    case DISP_E_UNKNOWNLCID: 
+    {
+        JS_ReportErrorASCII( cx, "ActiveX: Unknown LCID" );
+        break;
+    }
+    case DISP_E_PARAMNOTOPTIONAL: 
+    {
+        JS_ReportErrorASCII( cx, "ActiveX: Parameter %d is required", argerr );
+        break;
+    }
+    default:
+    {
+    }
     }
 }
 
 JSObject*
-ActiveX_Object( JSContext *cx, ActiveX* t)
+ActiveX_CreateObject( JSContext *cx, ActiveX* t)
 {
+    // TODO: add creation via prototype
+
     /*
     GETENV;
     ENTERNATIVE( cx );
@@ -1046,7 +1166,7 @@ bool ActiveX_Constructor( JSContext* cx, unsigned argc, JS::Value* vp )
         if ( SUCCEEDED( hresult ) && unk )
         {
             t.reset( new ActiveX( unk ) );
-            if ( !t->unknown )
+            if ( !t->pUnknown_ )
             {
                 std::string cStr = pfc::stringcvt::string_utf8_from_wide( name.c_str() );
                 JS_ReportErrorASCII( cx, "ActiveX error: Can't create ActiveX object: %s", cStr.c_str() );
@@ -1059,7 +1179,7 @@ bool ActiveX_Constructor( JSContext* cx, unsigned argc, JS::Value* vp )
     if ( !t )
     {
         t.reset( new ActiveX( clsid ) );
-        if ( !t->unknown )
+        if ( !t->pUnknown_ )
         {
             std::string cStr = pfc::stringcvt::string_utf8_from_wide( name.c_str() );
             JS_ReportErrorASCII( cx, "ActiveX error: Can't create ActiveX object: %s", cStr.c_str() );
@@ -1069,7 +1189,7 @@ bool ActiveX_Constructor( JSContext* cx, unsigned argc, JS::Value* vp )
     }
     if ( t )
     {
-        JS::RootedObject retObj( cx, ActiveX_Object( cx, t.get() ) );
+        JS::RootedObject retObj( cx, ActiveX_CreateObject( cx, t.get() ) );
         if ( !retObj )
         {
             return false;
@@ -1097,122 +1217,122 @@ JSObject* CreateActiveXProto( JSContext *cx, JS::HandleObject obj )
 
 ActiveX::ActiveX( VARIANTARG& var )
 {
-    unknown = nullptr;
-    typeinfo = nullptr;
-    dispatch = nullptr;
-    VariantInit( &variant );
-    VariantCopyInd( &variant, &var );
+    pUnknown_ = nullptr;
+    pTypeInfo_ = nullptr;
+    pDispatch_ = nullptr;
+    VariantInit( &variant_ );
+    VariantCopyInd( &variant_, &var );
 }
 
 ActiveX::ActiveX()
 {
-    unknown = nullptr;
-    typeinfo = nullptr;
-    dispatch = nullptr;
-    memset( &variant, 0, sizeof( variant ) );
+    pUnknown_ = nullptr;
+    pTypeInfo_ = nullptr;
+    pDispatch_ = nullptr;
+    memset( &variant_, 0, sizeof( variant_ ) );
 }
 
 ActiveX::ActiveX( IDispatch *obj, bool addref )
 {
-    unknown = nullptr;
-    typeinfo = nullptr;
-    memset( &variant, 0, sizeof( variant ) );
-    dispatch = obj;
+    pUnknown_ = nullptr;
+    pTypeInfo_ = nullptr;
+    memset( &variant_, 0, sizeof( variant_ ) );
+    pDispatch_ = obj;
 
-    if ( !dispatch )
+    if ( !pDispatch_ )
     {
         return;
     }
     if ( addref )
     {
-        dispatch->AddRef();
+        pDispatch_->AddRef();
     }
 }
 
 ActiveX::ActiveX( IUnknown* obj, bool addref )
 {
-    dispatch = nullptr;
-    typeinfo = nullptr;
-    memset( &variant, 0, sizeof( variant ) );
+    pDispatch_ = nullptr;
+    pTypeInfo_ = nullptr;
+    memset( &variant_, 0, sizeof( variant_ ) );
 
-    unknown = obj;
-    if ( !unknown )
+    pUnknown_ = obj;
+    if ( !pUnknown_ )
     {
         return;
     }
 
     if ( addref )
     {
-        unknown->AddRef();
+        pUnknown_->AddRef();
     }
 
     HRESULT hresult;
 
-    hresult = unknown->QueryInterface( IID_IDispatch, (void * *)&dispatch );
+    hresult = pUnknown_->QueryInterface( IID_IDispatch, (void * *)&pDispatch_ );
 
     if ( !SUCCEEDED( hresult ) )
     {
-        dispatch = 0;
+        pDispatch_ = 0;
     }
 
     // else  QueryInterface calls AddRef() for you
-      //  dispatch->AddRef();
+      //  pDispatch_->AddRef();
 }
 
 ActiveX::ActiveX( CLSID& clsid )
 {
     HRESULT hresult;
-    unknown = nullptr;
-    dispatch = nullptr;
-    typeinfo = nullptr;
-    memset( &variant, 0, sizeof( variant ) );
+    pUnknown_ = nullptr;
+    pDispatch_ = nullptr;
+    pTypeInfo_ = nullptr;
+    memset( &variant_, 0, sizeof( variant_ ) );
 
     hresult = CoCreateInstance( clsid, nullptr, CLSCTX_SERVER | CLSCTX_INPROC_HANDLER,
-                                IID_IUnknown, (void **)&unknown );
+                                IID_IUnknown, (void **)&pUnknown_ );
 
     if ( !SUCCEEDED( hresult ) ) 
     { 
-        unknown = 0; return;
+        pUnknown_ = 0; return;
     } //throw xdb("CoCreateInstance Failure");
 
-    hresult = unknown->QueryInterface( IID_IDispatch, (void * *)&dispatch );
+    hresult = pUnknown_->QueryInterface( IID_IDispatch, (void * *)&pDispatch_ );
 
 
     //maybe I don't know what to do with it, but it might get passed to
     //another COM function
     if ( !SUCCEEDED( hresult ) )
     {
-        dispatch = nullptr;
-        //unknown->Release();
-        //unknown=nullptr;
+        pDispatch_ = nullptr;
+        //pUnknown_->Release();
+        //pUnknown_=nullptr;
         //throw xdb("IDispatch interface not found");
     }
 }
 
 ActiveX::~ActiveX()
 {
-    if ( dispatch )
+    if ( pDispatch_ )
     {
-        dispatch->Release();
+        pDispatch_->Release();
     }
-    if ( unknown )
+    if ( pUnknown_ )
     {
-        unknown->Release();
+        pUnknown_->Release();
     }
-    if ( typeinfo )
+    if ( pTypeInfo_ )
     {
-        typeinfo->Release();
+        pTypeInfo_->Release();
     }
-    if ( variant.vt )
+    if ( variant_.vt )
     {
-        VariantClear( &variant );
+        VariantClear( &variant_ );
     }
     CoFreeUnusedLibraries();
 }
 
 bool ActiveX::Id( std::wstring_view name, DISPID& dispid )
 {
-    if ( !dispatch )
+    if ( !pDispatch_ )
     {
         return false;
     }
@@ -1226,11 +1346,11 @@ bool ActiveX::Id( std::wstring_view name, DISPID& dispid )
     }
 
     wchar_t* cname = const_cast<wchar_t*>(name.data());
-    hresult = dispatch->GetIDsOfNames( IID_NULL, &cname, 1, LOCALE_USER_DEFAULT, &dispid );
+    hresult = pDispatch_->GetIDsOfNames( IID_NULL, &cname, 1, LOCALE_USER_DEFAULT, &dispid );
 
     if ( !SUCCEEDED( hresult ) )
     {
-        hresult = dispatch->GetIDsOfNames( IID_NULL, &cname, 1, LOCALE_SYSTEM_DEFAULT, &dispid );
+        hresult = pDispatch_->GetIDsOfNames( IID_NULL, &cname, 1, LOCALE_SYSTEM_DEFAULT, &dispid );
 
     }
     return SUCCEEDED( hresult );
@@ -1238,7 +1358,7 @@ bool ActiveX::Id( std::wstring_view name, DISPID& dispid )
 
 bool ActiveX::Invoke( DISPID dispid, JSContext* cx, unsigned argc, JS::Value* vp )
 {
-    if ( !dispatch )
+    if ( !pDispatch_ )
     {
         return false;
     }
@@ -1270,7 +1390,7 @@ bool ActiveX::Invoke( DISPID dispid, JSContext* cx, unsigned argc, JS::Value* vp
     VariantInit( &VarResult );
 
     // don't use DispInvoke, because we don't know the TypeInfo
-    hresult = dispatch->Invoke(
+    hresult = pDispatch_->Invoke(
         dispid,
         IID_NULL,
         LOCALE_USER_DEFAULT,
@@ -1286,15 +1406,14 @@ bool ActiveX::Invoke( DISPID dispid, JSContext* cx, unsigned argc, JS::Value* vp
 
     if ( !SUCCEEDED( hresult ) )
     {
-        VariantClear( &VarResult );
-        callArgs.rval().setNull();
+        VariantClear( &VarResult );        
         ReportActiveXError( hresult, exception, argerr, cx );
         return false;
     }
 
     if ( !VariantToJs( VarResult, cx, callArgs.rval() ) )
     {
-        callArgs.rval().setNull();
+        callArgs.rval().setUndefined();
     }
 
     VariantClear( &VarResult );
@@ -1303,7 +1422,7 @@ bool ActiveX::Invoke( DISPID dispid, JSContext* cx, unsigned argc, JS::Value* vp
 
 bool ActiveX::Get( DISPID dispid, JSContext* cx, unsigned argc, JS::Value* vp, bool exceptions )
 {
-    if ( !dispatch )
+    if ( !pDispatch_ )
     {
         return false;
     }
@@ -1324,17 +1443,17 @@ bool ActiveX::Get( DISPID dispid, JSContext* cx, unsigned argc, JS::Value* vp, b
         dispparams.cArgs = argc;
         for ( size_t i = 0; i < argc; i++ )
         {
-            if ( !JsToVariant( args[argc - i - 1], cx, callArgs[i] ) )
+            if ( !JsToVariant( args[i], cx, callArgs[i] ) )
             {
-                args[argc - i - 1].vt = VT_ERROR;
-                args[argc - i - 1].scode = 0;
+                args[i].vt = VT_ERROR;
+                args[i].scode = 0;
             }
         }
     }
 
     VariantInit( &VarResult );
 
-    hresult = dispatch->Invoke(
+    hresult = pDispatch_->Invoke(
         dispid,
         IID_NULL,
         LOCALE_USER_DEFAULT,
@@ -1351,7 +1470,6 @@ bool ActiveX::Get( DISPID dispid, JSContext* cx, unsigned argc, JS::Value* vp, b
 
     if ( !SUCCEEDED( hresult ) )
     {
-        callArgs.rval().setNull();
         if ( exceptions )
         {
             ReportActiveXError( hresult, exception, argerr, cx );
@@ -1360,7 +1478,7 @@ bool ActiveX::Get( DISPID dispid, JSContext* cx, unsigned argc, JS::Value* vp, b
     }
     else if ( !VariantToJs( VarResult, cx, callArgs.rval() ) )
     {
-        callArgs.rval().setNull();
+        callArgs.rval().setUndefined();
     }
     VariantClear( &VarResult );
 
@@ -1369,25 +1487,27 @@ bool ActiveX::Get( DISPID dispid, JSContext* cx, unsigned argc, JS::Value* vp, b
 
 bool ActiveX::Set( DISPID dispid, JSContext* cx, unsigned argc, JS::Value* vp, bool byref )
 {
-    if ( !dispatch )
+    if ( !pDispatch_ )
     {
         return false;
     }
 
     JS::CallArgs callArgs = JS::CallArgsFromVp( argc, vp );
 
-    VARIANTARG * args = new VARIANTARG[argc + 1];
+    VARIANTARG * args = new VARIANTARG[argc];
     DISPID dispput = DISPID_PROPERTYPUT;
-    DISPPARAMS dispparams = { args,&dispput,argc + 1,1 };
+    DISPPARAMS dispparams = { args,&dispput,argc,1 };
     HRESULT hresult;
     EXCEPINFO exception = { 0 };
     UINT argerr = 0;
 
     //the set value
+    /*
     if ( !JsToVariant( args[0], cx, callArgs.rval() ) )
     {
         return false;
     }
+    */
 
     //the index values, in reverse order
     if ( argc )
@@ -1396,10 +1516,10 @@ bool ActiveX::Set( DISPID dispid, JSContext* cx, unsigned argc, JS::Value* vp, b
         //   dispparams.cArgs = argc+1;
         for ( size_t i = 0; i < argc; i++ )
         {
-            if ( !JsToVariant( args[argc - i], cx, callArgs[i] ) )
+            if ( !JsToVariant( args[i], cx, callArgs[i] ) )
             {
-                args[argc - i].vt = VT_ERROR;
-                args[argc - i].scode = 0;
+                args[i].vt = VT_ERROR;
+                args[i].scode = 0;
             }
         }
     }
@@ -1410,7 +1530,7 @@ bool ActiveX::Set( DISPID dispid, JSContext* cx, unsigned argc, JS::Value* vp, b
         flag = DISPATCH_PROPERTYPUTREF;
     }
 
-    hresult = dispatch->Invoke(
+    hresult = pDispatch_->Invoke(
         dispid,
         IID_NULL,
         LOCALE_USER_DEFAULT,
@@ -1436,8 +1556,8 @@ bool ActiveX::Set( DISPID dispid, JSContext* cx, unsigned argc, JS::Value* vp, b
 
 ActiveX::PropInfo* ActiveX::Find( std::wstring_view name )
 {
-    auto elem = Properties.find( name.data() );
-    if ( elem == Properties.end() )
+    auto elem = properties_.find( name.data() );
+    if ( elem == properties_.end() )
     {
         return nullptr;
     }
@@ -1448,11 +1568,11 @@ ActiveX::PropInfo* ActiveX::Find( std::wstring_view name )
 bool ActiveX::SetupMembers( JSContext* cx, JS::HandleObject obj )
 {
     HRESULT hresult;
-    if ( unknown && !dispatch )
+    if ( pUnknown_ && !pDispatch_ )
     {
-        hresult = unknown->QueryInterface( IID_IDispatch, (void * *)&dispatch );
+        hresult = pUnknown_->QueryInterface( IID_IDispatch, (void * *)&pDispatch_ );
     }
-    if ( !dispatch )
+    if ( !pDispatch_ )
     {
         return false;
     }
@@ -1464,29 +1584,29 @@ bool ActiveX::SetupMembers( JSContext* cx, JS::HandleObject obj )
     JS::RootedObject doc(cx, JS_NewPlainObject( cx ) );
     JS_DefineProperty( cx, obj, "members", doc, JSPROP_ENUMERATE );
 
-    if ( !typeinfo )
+    if ( !pTypeInfo_ )
     {
         unsigned ctinfo;
-        hresult = dispatch->GetTypeInfoCount( &ctinfo );
+        hresult = pDispatch_->GetTypeInfoCount( &ctinfo );
 
         if ( SUCCEEDED( hresult ) && ctinfo )
         {
-            dispatch->GetTypeInfo( 0, 0, &typeinfo );
+            pDispatch_->GetTypeInfo( 0, 0, &pTypeInfo_ );
         }
     }
 
-    if ( !typeinfo )
+    if ( !pTypeInfo_ )
     {
         return false;
     }
 
     size_t i;
     VARDESC * vardesc;
-    for ( i = 0; typeinfo->GetVarDesc( i, &vardesc ) == S_OK && i < 255; i++ )
+    for ( i = 0; pTypeInfo_->GetVarDesc( i, &vardesc ) == S_OK && i < 255; i++ )
     {
         BSTR name = nullptr;
         BSTR desc = nullptr;
-        if ( typeinfo->GetDocumentation( vardesc->memid, &name, &desc, nullptr, nullptr ) == S_OK )
+        if ( pTypeInfo_->GetDocumentation( vardesc->memid, &name, &desc, nullptr, nullptr ) == S_OK )
         {
             PropInfo * p = Find( (wchar_t*)name );
             if ( !p )
@@ -1494,7 +1614,7 @@ bool ActiveX::SetupMembers( JSContext* cx, JS::HandleObject obj )
                 p = new ActiveX::PropInfo( (wchar_t*)name );
             }
             p->Get = p->Put = true;
-            Properties[name] = std::shared_ptr<PropInfo>( p );
+            properties_[name] = std::shared_ptr<PropInfo>( p );
 
             //JS_DefineUCPropertyWithTinyId
             JS_DefineUCProperty( cx, obj, (char16_t*)name, SysStringLen( name ),
@@ -1517,16 +1637,16 @@ bool ActiveX::SetupMembers( JSContext* cx, JS::HandleObject obj )
             SysFreeString( name );
             SysFreeString( desc );
         }
-        typeinfo->ReleaseVarDesc( vardesc );
+        pTypeInfo_->ReleaseVarDesc( vardesc );
     }
 
     FUNCDESC * funcdesc;
-    for ( i = 0; typeinfo->GetFuncDesc( i, &funcdesc ) == S_OK; i++ )
+    for ( i = 0; pTypeInfo_->GetFuncDesc( i, &funcdesc ) == S_OK; i++ )
     {
         BSTR name = nullptr;
         BSTR desc = nullptr;
 
-        if ( typeinfo->GetDocumentation( funcdesc->memid, &name, &desc, nullptr, nullptr ) == S_OK )
+        if ( pTypeInfo_->GetDocumentation( funcdesc->memid, &name, &desc, nullptr, nullptr ) == S_OK )
         {
             //    char* fname = DeflateString((jschar*)name,SysStringLen(name));
 
@@ -1543,7 +1663,7 @@ bool ActiveX::SetupMembers( JSContext* cx, JS::HandleObject obj )
                 if ( !p )
                 {
                     p = new PropInfo( (wchar_t*)name );
-                    Properties[name] = std::shared_ptr<PropInfo>(p);
+                    properties_[name] = std::shared_ptr<PropInfo>(p);
                     JS_DefineUCProperty( cx, obj, (char16_t*)name,
                                                    SysStringLen( name ), ActiveX_JSGet, ActiveX_JSSet, JSPROP_ENUMERATE );
                 }
@@ -1576,11 +1696,12 @@ bool ActiveX::SetupMembers( JSContext* cx, JS::HandleObject obj )
             SysFreeString( name );
             SysFreeString( desc );
         }
-        typeinfo->ReleaseFuncDesc( funcdesc );
+        pTypeInfo_->ReleaseFuncDesc( funcdesc );
     }
 
     return true;
 }
+
 
 /*
 CoInitialize(nullptr);
