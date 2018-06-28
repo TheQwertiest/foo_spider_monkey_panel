@@ -117,7 +117,7 @@ private:
 
 private:
     JS::PersistentRootedObject jsObject_;
-    MozjsObjectType * pNativeObject_;
+    MozjsObjectType * pNativeObject_ = nullptr;
 };
 
 }

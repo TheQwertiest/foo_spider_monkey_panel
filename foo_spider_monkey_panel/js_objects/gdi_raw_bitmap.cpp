@@ -34,12 +34,12 @@ JSClass jsClass = {
     &jsOps
 };
 
-MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiRawBitmap, Height )
-MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiRawBitmap, Width )
+MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiRawBitmap, get_Height )
+MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiRawBitmap, get_Width )
 
 const JSPropertySpec jsProperties[] = {
-    JS_PSG( "Height", Height, 0 ),
-    JS_PSG( "Width", Width, 0 ),
+    JS_PSG( "Height", get_Height, 0 ),
+    JS_PSG( "Width",  get_Width, 0 ),
     JS_PS_END
 };
 
@@ -59,6 +59,7 @@ JsGdiRawBitmap::JsGdiRawBitmap( JSContext* cx, Gdiplus::Bitmap* p_bmp )
     width_ = p_bmp->GetWidth();
     height_ = p_bmp->GetHeight();
 
+    // TODO: move to create
     hDc_ = CreateCompatibleDC( nullptr );
     hBmp_ = helpers::create_hbitmap_from_gdiplus_bitmap( p_bmp );
     hBmpOld_ = SelectBitmap( hDc_, hBmp_ );
@@ -80,9 +81,13 @@ JsGdiRawBitmap::~JsGdiRawBitmap()
     }
 }
 
-JSObject* JsGdiRawBitmap::Create( JSContext* cx, Gdiplus::Bitmap* p_bmp )
+JSObject* JsGdiRawBitmap::Create( JSContext* cx, Gdiplus::Bitmap* pBmp )
 {
-    assert( p_bmp );
+    if ( !pBmp )
+    {
+        JS_ReportErrorASCII( cx, "Internal error: Gdiplus::Bitmap is null" );
+        return nullptr;
+    }
 
     JS::RootedObject jsObj( cx,
                             JS_NewObject( cx, &jsClass ) );
@@ -97,7 +102,7 @@ JSObject* JsGdiRawBitmap::Create( JSContext* cx, Gdiplus::Bitmap* p_bmp )
         return nullptr;
     }
 
-    JS_SetPrivate( jsObj, new JsGdiRawBitmap( cx, p_bmp ) );
+    JS_SetPrivate( jsObj, new JsGdiRawBitmap( cx, pBmp ) );
 
     return jsObj;
 }
@@ -107,25 +112,15 @@ const JSClass& JsGdiRawBitmap::GetClass()
     return jsClass;
 }
 
-std::optional<std::uint32_t> JsGdiRawBitmap::Height()
+std::optional<std::uint32_t> JsGdiRawBitmap::get_Height()
 {
-    if ( !hDc_ )
-    {
-        JS_ReportErrorASCII( pJsCtx_, "Internal error: HDC is null" );
-        return std::nullopt;
-    }
-
+    assert( hDc_ );
     return height_;
 }
 
-std::optional<std::uint32_t> JsGdiRawBitmap::Width()
+std::optional<std::uint32_t> JsGdiRawBitmap::get_Width()
 {
-    if ( !hDc_ )
-    {
-        JS_ReportErrorASCII( pJsCtx_, "Internal error: HDC is null" );
-        return std::nullopt;
-    }
-
+    assert( hDc_ );
     return width_;
 }
 

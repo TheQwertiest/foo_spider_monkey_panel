@@ -59,8 +59,8 @@ public:
     Gdiplus::Bitmap* GdiBitmap() const;
 
 public: // props
-    std::optional<std::uint32_t> Height();
-    std::optional<std::uint32_t> Width();
+    std::optional<std::uint32_t> get_Height();
+    std::optional<std::uint32_t> get_Width();
 
 public: //methods
     std::optional<JSObject*> ApplyAlpha( uint8_t alpha );
@@ -70,7 +70,7 @@ public: //methods
     //std::optional<std::nullptr_t> GetColourScheme( uint32_t count, VARIANT* outArray );
     //std::optional<std::nullptr_t> GetColourSchemeJSON( uint32_t count, BSTR* outJson );
     std::optional<JSObject*> GetGraphics();
-    std::optional<std::nullptr_t> ReleaseGraphics( JS::HandleValue p );
+    std::optional<std::nullptr_t> ReleaseGraphics( JS::HandleValue graphics );
     std::optional<JSObject*> Resize( uint32_t w, uint32_t h, uint32_t interpolationMode );
     std::optional<JSObject*> ResizeWithOpt( size_t optArgCount, uint32_t w, uint32_t h, uint32_t interpolationMode );
     std::optional<std::nullptr_t> RotateFlip( uint32_t mode );
@@ -82,7 +82,7 @@ private:
     JsGdiBitmap( const JsGdiBitmap& ) = delete;
 
 private:
-    JSContext * pJsCtx_;
+    JSContext * pJsCtx_ = nullptr;;
     std::unique_ptr<Gdiplus::Bitmap> pGdi_;
 };
 

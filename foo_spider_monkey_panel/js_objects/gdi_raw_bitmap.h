@@ -30,18 +30,18 @@ public:
     static const JSClass& GetClass();
 
 public: // props
-    std::optional<std::uint32_t> Height();
-    std::optional<std::uint32_t> Width();
+    std::optional<std::uint32_t> get_Height();
+    std::optional<std::uint32_t> get_Width();
 
 private:
     JsGdiRawBitmap( JSContext* cx, Gdiplus::Bitmap* p_bmp );
     JsGdiRawBitmap( const JsGdiRawBitmap& ) = delete;
 
 private:
-    JSContext * pJsCtx_;
-    HDC hDc_;
-    HBITMAP hBmp_;
-    HBITMAP hBmpOld_;
+    JSContext * pJsCtx_ = nullptr;;
+    HDC hDc_ = nullptr;;
+    HBITMAP hBmp_ = nullptr;;
+    HBITMAP hBmpOld_ = nullptr;;
     uint32_t width_;
     uint32_t height_;
 };

@@ -41,7 +41,7 @@ private:
     static void TraceHeapValue( JSTracer *trc, void *data );
 
 private:
-    JSContext * pJsCtx_;
+    JSContext * pJsCtx_ = nullptr;;
     JsContainer &parentContainer_;
     js_panel_window& parentPanel_;
 

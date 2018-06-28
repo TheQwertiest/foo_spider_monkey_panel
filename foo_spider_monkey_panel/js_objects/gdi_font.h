@@ -28,20 +28,20 @@ public:
     HFONT HFont() const;
 
 public: // props
-    std::optional<uint32_t> Height() const;
-    std::optional<std::wstring> Name() const;
-    std::optional<float> Size() const;
-    std::optional<uint32_t> Style() const;
+    std::optional<uint32_t> get_Height() const;
+    std::optional<std::wstring> get_Name() const;
+    std::optional<float> get_Size() const;
+    std::optional<uint32_t> get_Style() const;
 
 private:
     JsGdiFont( JSContext* cx, Gdiplus::Font* pGdiFont, HFONT hFont, bool isManaged );
     JsGdiFont( const JsGdiFont& ) = delete;
 
 private:
-    JSContext * pJsCtx_;
+    JSContext * pJsCtx_ = nullptr;;
     bool isManaged_;
     std::unique_ptr<Gdiplus::Font> pGdi_;
-    HFONT hFont_;
+    HFONT hFont_ = nullptr;
 };
 
 }

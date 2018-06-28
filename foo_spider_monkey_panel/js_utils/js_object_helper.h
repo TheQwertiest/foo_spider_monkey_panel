@@ -29,6 +29,13 @@ NativeType* GetNativeFromJsObject( JSContext* cx, JS::HandleObject jsObject )
     return static_cast<NativeType *>( JS_GetInstancePrivate( cx, jsObject, &NativeType::GetClass(), nullptr ) );
 }
 
+template <typename NativeType>
+NativeType* GetNativeFromJsValue( JSContext* cx, JS::HandleValue jsValue )
+{
+    JS::RootedObject jsObject( cx, GetJsObjectFromValue( cx, jsValue ) );
+    return GetNativeFromJsObject<NativeType>( cx, jsObject );
+}
+
 template<typename MozjsObjectType>
 void JsFinalizeOp( JSFreeOp* fop, JSObject* obj )
 {

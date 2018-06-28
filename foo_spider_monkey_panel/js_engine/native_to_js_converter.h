@@ -41,6 +41,9 @@ template <>
 bool NativeToJsValue<std::wstring_view>( JSContext * cx, const std::wstring_view& inValue, JS::MutableHandleValue wrappedValue );
 
 template <>
+bool NativeToJsValue<std::string>( JSContext * cx, const std::string& inValue, JS::MutableHandleValue wrappedValue );
+
+template <>
 bool NativeToJsValue<std::wstring>( JSContext * cx, const std::wstring& inValue, JS::MutableHandleValue wrappedValue );
 
 template <>

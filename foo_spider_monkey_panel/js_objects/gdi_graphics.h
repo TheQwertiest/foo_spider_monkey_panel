@@ -75,8 +75,8 @@ private:
     bool ParsePoints( JS::HandleValue jsValue, std::vector<Gdiplus::PointF> &gdiPoints );
 
 private:
-    JSContext * pJsCtx_;
-    Gdiplus::Graphics* pGdi_;
+    JSContext * pJsCtx_ = nullptr;
+    Gdiplus::Graphics* pGdi_ = nullptr;
 };
 
 }

@@ -127,6 +127,12 @@
     <ClCompile Include="js_objects\active_x.cpp">
       <Filter>js_objects</Filter>
     </ClCompile>
+    <ClCompile Include="js_objects\fb_metadb_handle.cpp">
+      <Filter>js_objects</Filter>
+    </ClCompile>
+    <ClCompile Include="js_objects\fb_metadb_handle_list.cpp">
+      <Filter>js_objects</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="js_engine\js_engine.h">
@@ -304,6 +310,12 @@
       <Filter>uncategorized\property_window</Filter>
     </ClInclude>
     <ClInclude Include="js_objects\active_x.h">
+      <Filter>js_objects</Filter>
+    </ClInclude>
+    <ClInclude Include="js_objects\fb_metadb_handle.h">
+      <Filter>js_objects</Filter>
+    </ClInclude>
+    <ClInclude Include="js_objects\fb_metadb_handle_list.h">
       <Filter>js_objects</Filter>
     </ClInclude>
   </ItemGroup>

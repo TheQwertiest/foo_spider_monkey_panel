@@ -33,16 +33,16 @@ JSClass jsClass = {
     &jsOps
 };
 
-MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiFont, Height )
-MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiFont, Name )
-MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiFont, Size )
-MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiFont, Style )
+MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiFont, get_Height )
+MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiFont, get_Name )
+MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiFont, get_Size )
+MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiFont, get_Style )
 
 const JSPropertySpec jsProperties[] = {
-    JS_PSG( "Height", Height, 0 ),
-    JS_PSG( "Name", Name, 0 ),
-    JS_PSG( "Size", Size, 0 ),
-    JS_PSG( "Style", Style, 0 ),
+    JS_PSG( "Height", get_Height, 0 ),
+    JS_PSG( "Name",   get_Name, 0 ),
+    JS_PSG( "Size",   get_Size, 0 ),
+    JS_PSG( "Style",  get_Style, 0 ),
     JS_PS_END
 };
 
@@ -76,7 +76,11 @@ JsGdiFont::~JsGdiFont()
 
 JSObject* JsGdiFont::Create( JSContext* cx, Gdiplus::Font* pGdiFont, HFONT hFont, bool isManaged )
 {
-    assert( pGdiFont );
+    if ( !pGdiFont )
+    {
+        JS_ReportErrorASCII( cx, "Internal error: Gdiplus::Font object is null" );
+        return nullptr;
+    }    
 
     JS::RootedObject jsObj( cx,
                             JS_NewObject( cx, &jsClass ) );
@@ -103,22 +107,20 @@ const JSClass& JsGdiFont::GetClass()
 
 Gdiplus::Font* JsGdiFont::GdiFont() const
 {
+    assert( pGdi_ );
     return pGdi_.get();
 }
 
 HFONT JsGdiFont::HFont() const
 {
+    assert( hFont_ );
     return hFont_;
 }
 
 std::optional<uint32_t>
-JsGdiFont::Height() const
+JsGdiFont::get_Height() const
 {
-    if ( !pGdi_ )
-    {
-        JS_ReportErrorASCII( pJsCtx_, "Internal error: Gdiplus::Font object is null" );
-        return std::nullopt;
-    }
+    assert( pGdi_ );
 
     Gdiplus::Bitmap img( 1, 1, PixelFormat32bppPARGB );
     Gdiplus::Graphics g( &img );
@@ -127,13 +129,9 @@ JsGdiFont::Height() const
 }
 
 std::optional<std::wstring>
-JsGdiFont::Name() const
+JsGdiFont::get_Name() const
 {
-    if ( !pGdi_ )
-    {
-        JS_ReportErrorASCII( pJsCtx_, "Internal error: Gdiplus::Font object is null" );
-        return std::nullopt;
-    }
+    assert( pGdi_ );
 
     Gdiplus::FontFamily fontFamily;
     WCHAR name[LF_FACESIZE] = { 0 };
@@ -147,26 +145,16 @@ JsGdiFont::Name() const
 }
 
 std::optional<float>
-JsGdiFont::Size() const
+JsGdiFont::get_Size() const
 {
-    if ( !pGdi_ )
-    {
-        JS_ReportErrorASCII( pJsCtx_, "Internal error: Gdiplus::Font object is null" );
-        return std::nullopt;
-    }
-
+    assert( pGdi_ );
     return pGdi_->GetSize();
 }
 
 std::optional<uint32_t>
-JsGdiFont::Style() const
+JsGdiFont::get_Style() const
 {
-    if ( !pGdi_ )
-    {
-        JS_ReportErrorASCII( pJsCtx_, "Internal error: Gdiplus::Font object is null" );
-        return std::nullopt;
-    }
-
+    assert( pGdi_ );
     return pGdi_->GetStyle();
 }
 

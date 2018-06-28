@@ -45,7 +45,7 @@ private:
     JsGdiUtils( const JsGdiUtils& ) = delete;
 
 private:
-    JSContext * pJsCtx_;
+    JSContext * pJsCtx_ = nullptr;;
 };
 
 }
