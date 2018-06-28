@@ -44,7 +44,6 @@ MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiGraphics, DrawPolygon )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiGraphics, DrawRect )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiGraphics, DrawRoundRect )
 MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsGdiGraphics, DrawString, DrawStringWithOpt, 1 )
-MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsGdiGraphics, DrawString2, DrawStringWithOpt2, 1 )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiGraphics, FillEllipse )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiGraphics, FillGradRect )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiGraphics, FillPolygon )
@@ -63,7 +62,6 @@ const JSFunctionSpec jsFunctions[] = {
     JS_FN( "DrawRect", DrawRect, 6, 0 ),
     JS_FN( "DrawRoundRect", DrawRoundRect, 8, 0 ),
     JS_FN( "DrawString", DrawString, 8, 0 ),
-    JS_FN( "DrawString2", DrawString2, 8, 0 ),
     JS_FN( "FillEllipse", FillEllipse, 5, 0 ),
     JS_FN( "FillGradRect", FillGradRect, 8, 0 ),
     JS_FN( "FillPolygon", DrawPolygon, 3, 0 ),
