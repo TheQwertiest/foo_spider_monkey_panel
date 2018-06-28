@@ -145,6 +145,7 @@
     <ClInclude Include="..\PropertyList\PropertyItemImpl.h" />
     <ClInclude Include="..\PropertyList\PropertyList.h" />
     <ClInclude Include="drop_source_impl.h" />
+    <ClInclude Include="js_engine\converter_utils.h" />
     <ClInclude Include="js_engine\js_container.h" />
     <ClInclude Include="js_engine\js_engine.h" />
     <ClInclude Include="js_engine\js_to_native_converter.h" />

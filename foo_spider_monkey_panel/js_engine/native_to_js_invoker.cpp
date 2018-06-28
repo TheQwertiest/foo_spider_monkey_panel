@@ -10,10 +10,10 @@
 namespace mozjs
 {
 bool InvokeJsCallback_Impl( JSContext* cx,
-                                    JS::HandleObject globalObject,
-                                    std::string_view functionName,
-                                    const JS::HandleValueArray& args,
-                                    JS::MutableHandleValue rval )
+                            JS::HandleObject globalObject,
+                            std::string_view functionName,
+                            const JS::HandleValueArray& args,
+                            JS::MutableHandleValue rval )
 {  
     JSAutoRequest ar( cx );
     JSAutoCompartment ac( cx, globalObject );

@@ -1134,7 +1134,7 @@ bool ActiveX_Constructor( JSContext* cx, unsigned argc, JS::Value* vp )
     //argc > 0 if clsid is valid
     CLSID clsid;
     HRESULT hresult;   
-    std::wstring name = argc ? mozjs::JsToNative<std::wstring>::Convert( cx, args[0] ) : std::wstring();
+    std::wstring name = argc ? mozjs::convert::to_native::ToValue<std::wstring>( cx, args[0] ) : std::wstring();
 
     if ( argc )
     {

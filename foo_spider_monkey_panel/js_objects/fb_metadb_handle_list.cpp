@@ -11,6 +11,8 @@
 #include <stats.h>
 
 
+// TODO: add constructor
+
 namespace
 {
 
@@ -86,7 +88,7 @@ const JSClass& JsFbMetadbHandleList::GetClass()
     return jsClass;
 }
 
-metadb_handle_list_cref JsFbMetadbHandleList::GetList() const
+metadb_handle_list_ref JsFbMetadbHandleList::GetList()
 {
     return metadbHandleList_;
 }

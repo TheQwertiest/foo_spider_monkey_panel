@@ -29,7 +29,7 @@ public:
 
     static const JSClass& GetClass();
 
-    static metadb_handle_list_cref GetList() const;
+    metadb_handle_list_ref GetList();
 
 public: // methods
     std::optional<std::nullptr_t> Add( JS::HandleValue handle );

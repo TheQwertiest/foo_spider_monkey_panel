@@ -44,6 +44,8 @@ public:
     std::optional<std::nullptr_t> DrawRoundRect( float x, float y, float w, float h, float arc_width, float arc_height, float line_width, uint32_t colour );
     std::optional<std::nullptr_t> DrawString( std::wstring str, JS::HandleValue font, uint32_t colour, float x, float y, float w, float h, uint32_t flags );
     std::optional<std::nullptr_t> DrawStringWithOpt( size_t optArgCount, std::wstring str, JS::HandleValue font, uint32_t colour, float x, float y, float w, float h, uint32_t flags );
+    std::optional<std::nullptr_t> DrawString2( std::wstring str, JsGdiFont* font, uint32_t colour, float x, float y, float w, float h, uint32_t flags );
+    std::optional<std::nullptr_t> DrawStringWithOpt2( size_t optArgCount, std::wstring str, JsGdiFont* font, uint32_t colour, float x, float y, float w, float h, uint32_t flags );
     std::optional<std::nullptr_t> FillEllipse( float x, float y, float w, float h, uint32_t colour );
     std::optional<std::nullptr_t> FillGradRect( float x, float y, float w, float h, float angle, uint32_t colour1, uint32_t colour2, float focus );
     std::optional<std::nullptr_t> FillPolygon( uint32_t colour, uint32_t fillmode, JS::HandleValue points );

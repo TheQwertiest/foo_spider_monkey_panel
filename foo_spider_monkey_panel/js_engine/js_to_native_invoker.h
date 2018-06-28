@@ -2,9 +2,12 @@
 
 #include <js_engine/js_to_native_converter.h>
 #include <js_engine/native_to_js_converter.h>
+#include <js_engine/converter_utils.h>
+#include <js_objects/global_object.h>
 #include <js_utils/js_error_helper.h>
 
 #include <type_traits>
+#include <vector>
 
 #define MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT(baseClass, functionName, functionWithOptName, optArgCount) \
     bool functionName( JSContext* cx, unsigned argc, JS::Value* vp )\
@@ -101,37 +104,70 @@ bool InvokeNativeCallback_Impl( JSContext* cx,
     // Parse arguments
 
     bool bRet = true;
-    size_t failedIdx = 0;
+    size_t failedIdx = 0;    
     auto callbackArguments =
         JsToNativeArguments<maxArgCount, ArgTypes...>(
             args,
-            [&bRet, &cx, &failedIdx]( const JS::CallArgs& jsArgs, auto argTypeStruct, size_t index )
+            [&cx, &bRet, &failedIdx]( const JS::CallArgs& jsArgs, auto argTypeStruct, size_t index )
             {
                 using ArgType = typename decltype( argTypeStruct )::type;
 
-                if constexpr( std::is_same<ArgType, JS::HandleValue>::value )
-                {
+                if constexpr( std::is_same_v<ArgType, JS::HandleValue> )
+                {// Skip conversion, pass through
                     if ( index >= jsArgs.length() )
                     {// Dummy value
                         return jsArgs[0];
                     }
                     return jsArgs[index];
                 }
-                else
+                else 
                 {
                     if ( index >= jsArgs.length() )
                     {
                         return ArgType();
                     }
 
-                    if ( !JsToNative<ArgType>::IsValid( cx, jsArgs[index] ) )
-                    {
-                        failedIdx = index;
-                        bRet = false;                        
-                        return ArgType();
-                    }
+                    auto& curArg = jsArgs[index];
 
-                    return JsToNative<ArgType>::Convert( cx, jsArgs[index] );
+                    if constexpr (convert::is_primitive_v<ArgType>)
+                    {// Construct and copy
+                        if ( !convert::to_native::IsValue<ArgType>( cx, curArg ) )
+                        {
+                            failedIdx = index;
+                            bRet = false;
+                            return ArgType();
+                        }
+
+                        return convert::to_native::ToValue<ArgType>( cx, curArg );
+                    }
+                    else if constexpr (std::is_pointer_v<ArgType>)
+                    {// Extract native pointer
+                        if ( !curArg.isObjectOrNull() )
+                        {
+                            failedIdx = index;
+                            bRet = false;
+                            return static_cast<ArgType>(nullptr);
+                        }
+
+                        JS::RootedObject jsObject( cx, curArg.toObjectOrNull() );
+                        if ( !jsObject )
+                        {// Not an error
+                            return static_cast<ArgType>(nullptr);
+                        }
+
+                        if ( !JS_InstanceOf( cx, jsObject, &std::remove_pointer_t<ArgType>::GetClass(), nullptr ) )
+                        {
+                            failedIdx = index;
+                            bRet = false;
+                            return static_cast<ArgType>(nullptr);
+                        }
+
+                        return static_cast<ArgType>(JS_GetPrivate( jsObject ));
+                    }
+                    else
+                    {
+                        static_assert(0, "Unsupported argument type");
+                    }
                 }
             } );
     if ( !bRet )
@@ -158,11 +194,11 @@ bool InvokeNativeCallback_Impl( JSContext* cx,
 
     // Return value
 
-    if constexpr( std::is_same<ReturnType::value_type, JSObject*>::value )
+    if constexpr( std::is_same_v<ReturnType::value_type, JSObject*> )
     {// retVal.value() is a raw JS pointer! Be careful when editing this code!
         args.rval().setObjectOrNull( retVal.value() );
     }
-    else if constexpr( std::is_same<ReturnType::value_type, nullptr_t>::value )
+    else if constexpr( std::is_same_v<ReturnType::value_type, nullptr_t> )
     {
         args.rval().setUndefined();
     }

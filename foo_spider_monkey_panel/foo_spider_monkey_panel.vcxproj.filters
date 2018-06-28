@@ -318,6 +318,9 @@
     <ClInclude Include="js_objects\fb_metadb_handle_list.h">
       <Filter>js_objects</Filter>
     </ClInclude>
+    <ClInclude Include="js_engine\converter_utils.h">
+      <Filter>js_engine</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include=".editorconfig" />

@@ -8,6 +8,8 @@
 #include <js_utils/js_object_helper.h>
 
 
+// TODO: add font caching
+
 namespace
 {
 

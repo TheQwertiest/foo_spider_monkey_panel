@@ -44,6 +44,7 @@ MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiGraphics, DrawPolygon )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiGraphics, DrawRect )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiGraphics, DrawRoundRect )
 MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsGdiGraphics, DrawString, DrawStringWithOpt, 1 )
+MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsGdiGraphics, DrawString2, DrawStringWithOpt2, 1 )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiGraphics, FillEllipse )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiGraphics, FillGradRect )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiGraphics, FillPolygon )
@@ -62,6 +63,7 @@ const JSFunctionSpec jsFunctions[] = {
     JS_FN( "DrawRect", DrawRect, 6, 0 ),
     JS_FN( "DrawRoundRect", DrawRoundRect, 8, 0 ),
     JS_FN( "DrawString", DrawString, 8, 0 ),
+    JS_FN( "DrawString2", DrawString2, 8, 0 ),
     JS_FN( "FillEllipse", FillEllipse, 5, 0 ),
     JS_FN( "FillGradRect", FillGradRect, 8, 0 ),
     JS_FN( "FillPolygon", DrawPolygon, 3, 0 ),
@@ -328,7 +330,7 @@ JsGdiGraphics::DrawString( std::wstring str, JS::HandleValue font, uint32_t colo
         JS_ReportErrorASCII( pJsCtx_, "Internal error: GdiFont is null" );
         return std::nullopt;
     }
-
+    return nullptr;
     Gdiplus::SolidBrush br( colour );
     Gdiplus::StringFormat fmt( Gdiplus::StringFormat::GenericTypographic() );
 
@@ -368,6 +370,69 @@ JsGdiGraphics::DrawStringWithOpt( size_t optArgCount, std::wstring str, JS::Hand
     }
 
     return DrawString( str, font, colour, x, y, w, h, flags );
+}
+
+std::optional<std::nullptr_t> 
+JsGdiGraphics::DrawString2( std::wstring str, JsGdiFont* font, uint32_t colour, float x, float y, float w, float h, uint32_t flags )
+{
+    if ( !pGdi_ )
+    {
+        JS_ReportErrorASCII( pJsCtx_, "Internal error: Gdiplus::Graphics object is null" );
+        return std::nullopt;
+    }
+
+    if ( !font )
+    {
+        JS_ReportErrorASCII( pJsCtx_, "Font argument is null" );
+        return std::nullopt;
+    }
+    return nullptr;
+    Gdiplus::Font* pGdiFont = font->GdiFont();
+    if ( !pGdiFont )
+    {
+        JS_ReportErrorASCII( pJsCtx_, "Internal error: GdiFont is null" );
+        return std::nullopt;
+    }
+
+    Gdiplus::SolidBrush br( colour );
+    Gdiplus::StringFormat fmt( Gdiplus::StringFormat::GenericTypographic() );
+
+    if ( flags != 0 )
+    {
+        Gdiplus::Status gdiRet = fmt.SetAlignment( (Gdiplus::StringAlignment)((flags >> 28) & 0x3) ); //0xf0000000
+        IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, std::nullopt, SetAlignment );
+
+        gdiRet = fmt.SetLineAlignment( (Gdiplus::StringAlignment)((flags >> 24) & 0x3) ); //0x0f000000
+        IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, std::nullopt, SetLineAlignment );
+
+        gdiRet = fmt.SetTrimming( (Gdiplus::StringTrimming)((flags >> 20) & 0x7) ); //0x00f00000
+        IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, std::nullopt, SetTrimming );
+
+        gdiRet = fmt.SetFormatFlags( (Gdiplus::StringFormatFlags)(flags & 0x7FFF) ); //0x0000ffff
+        IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, std::nullopt, SetFormatFlags );
+    }
+
+    Gdiplus::Status gdiRet = pGdi_->DrawString( str.c_str(), -1, pGdiFont, Gdiplus::RectF( x, y, w, h ), &fmt, &br );
+    IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, std::nullopt, DrawString );
+
+    return nullptr;
+}
+
+std::optional<std::nullptr_t> 
+JsGdiGraphics::DrawStringWithOpt2( size_t optArgCount, std::wstring str, JsGdiFont* font, uint32_t colour, float x, float y, float w, float h, uint32_t flags )
+{
+    if ( optArgCount > 1 )
+    {
+        JS_ReportErrorASCII( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
+        return std::nullopt;
+    }
+
+    if ( optArgCount == 1 )
+    {
+        return DrawString2( str, font, colour, x, y, w, h, 0 );
+    }
+
+    return DrawString2( str, font, colour, x, y, w, h, flags );
 }
 
 std::optional<std::nullptr_t>
@@ -657,20 +722,20 @@ bool JsGdiGraphics::ParsePoints( JS::HandleValue jsValue, std::vector<Gdiplus::P
             return false;
         }
 
-        if ( !JsToNative<float>::IsValid( pJsCtx_, jsX ) )
+        if ( !convert::to_native::IsValue<float>( pJsCtx_, jsX ) )
         {
             JS_ReportErrorASCII( pJsCtx_, "'x' property of point is of wrong type" );
             return false;
         }
-        if ( !JsToNative<float>::IsValid( pJsCtx_, jsX ) )
+        if ( !convert::to_native::IsValue<float>( pJsCtx_, jsX ) )
         {
             JS_ReportErrorASCII( pJsCtx_, "'y' property of point is of wrong type" );
             return false;
         }
 
         gdiPoints.emplace_back( Gdiplus::PointF(
-            JsToNative<float>::Convert( pJsCtx_, jsX ),
-            JsToNative<float>::Convert( pJsCtx_, jsY ) )
+            convert::to_native::ToValue<float>( pJsCtx_, jsX ),
+            convert::to_native::ToValue<float>( pJsCtx_, jsY ) )
         );
     }
 
