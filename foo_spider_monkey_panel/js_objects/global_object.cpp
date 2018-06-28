@@ -55,7 +55,7 @@ JsGlobalObject::JsGlobalObject( JSContext* cx, JsContainer &parentContainer, js_
 
 JsGlobalObject::~JsGlobalObject()
 {
-    JS_RemoveExtraGCRootsTracer( pJsCtx_, JsGlobalObject::TraceHeapValue, this );
+    RemoveHeapTracer();
 }
 
 JSObject* JsGlobalObject::Create( JSContext* cx, JsContainer &parentContainer, js_panel_window& parentPanel )
@@ -155,6 +155,11 @@ void JsGlobalObject::RemoveFromHeap( uint32_t id )
     
     assert( heapMap_.count(id) );    
     heapMap_[id]->inUse = false;    
+}
+
+void JsGlobalObject::RemoveHeapTracer()
+{
+    JS_RemoveExtraGCRootsTracer( pJsCtx_, JsGlobalObject::TraceHeapValue, this );
 }
 
 void JsGlobalObject::TraceHeapValue( JSTracer *trc, void *data )

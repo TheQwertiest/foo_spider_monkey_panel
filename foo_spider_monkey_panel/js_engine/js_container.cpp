@@ -13,9 +13,6 @@ namespace mozjs
 
 JsContainer::JsContainer()    
 {
-    pJsCtx_ = nullptr;
-    nativeGraphics_ = NULL;
-    jsStatus_ = Mjs_NotPrepared;
 }
 
 JsContainer::~JsContainer()
@@ -30,18 +27,18 @@ bool JsContainer::Prepare( JSContext *cx, js_panel_window& parentPanel )
 
     pJsCtx_ = cx;
     pParentPanel_ = &parentPanel;
-    jsStatus_ = Mjs_Prepared;
+    jsStatus_ = JsStatus::Prepared;
 
     return Initialize();
 }
 
 bool JsContainer::Initialize()
 {
-    assert( Mjs_NotPrepared != jsStatus_ );
+    assert( JsStatus::NotPrepared != jsStatus_ );
     assert( pJsCtx_ );
     assert( pParentPanel_ );
 
-    if ( Mjs_Ready == jsStatus_ )
+    if ( JsStatus::Ready == jsStatus_ )
     {
         return true;
     }
@@ -72,38 +69,43 @@ bool JsContainer::Initialize()
     nativeGraphics_ = static_cast<JsGdiGraphics*>(JS_GetPrivate( jsGraphics_ ));
     assert( nativeGraphics_ );
 
-    jsStatus_ = Mjs_Ready;
+    jsStatus_ = JsStatus::Ready;
     return true;
 }
 
 void JsContainer::Finalize()
 {
-    if ( Mjs_NotPrepared == jsStatus_ )
+    if ( JsStatus::NotPrepared == jsStatus_ )
     {
         return;
     }
 
-    if ( Mjs_Failed != jsStatus_ )
+    if ( JsStatus::Failed != jsStatus_ )
     {// Don't supress error: it should be cleared only on initialization
-        jsStatus_ = Mjs_Prepared;
+        jsStatus_ = JsStatus::Prepared;
     }
     
     nativeGraphics_ = nullptr;
     jsGraphics_.reset();
-    jsGlobal_.reset();
+    if ( jsGlobal_.initialized() )
+    {
+        auto nativeGlobal_ = static_cast<JsGlobalObject*>( JS_GetPrivate( jsGlobal_ ) );
+        nativeGlobal_->RemoveHeapTracer();
+        jsGlobal_.reset();
+    }  
 }
 
 void JsContainer::Fail()
 {
     Finalize();
-    jsStatus_ = Mjs_Failed;
+    jsStatus_ = JsStatus::Failed;
 }
 
 bool JsContainer::ExecuteScript( std::string_view scriptCode )
 {
     assert( pJsCtx_ );
     assert( jsGlobal_.initialized() );
-    assert( Mjs_Ready == jsStatus_ );
+    assert( JsStatus::Ready == jsStatus_ );
 
     JSAutoRequest ar( pJsCtx_ );
     JSAutoCompartment ac( pJsCtx_, jsGlobal_ );
@@ -136,8 +138,8 @@ JS::HandleObject JsContainer::GetGraphics() const
 
 JsContainer::GraphicsWrapper::GraphicsWrapper( JsContainer& parent, Gdiplus::Graphics& gr )
     :parent_( parent )
-{
-    assert( Mjs_Ready == parent_.jsStatus_ );
+{// TODO: remove this awkward wrapper
+    assert( JsStatus::Ready == parent_.jsStatus_ );
     assert( parent_.nativeGraphics_ );
 
     parent_.nativeGraphics_->SetGraphicsObject( &gr );
@@ -145,7 +147,7 @@ JsContainer::GraphicsWrapper::GraphicsWrapper( JsContainer& parent, Gdiplus::Gra
 
 JsContainer::GraphicsWrapper::~GraphicsWrapper()
 {
-    if ( Mjs_Ready == parent_.jsStatus_ )
+    if ( JsStatus::Ready == parent_.jsStatus_ )
     {
         parent_.nativeGraphics_->SetGraphicsObject( nullptr );
     }

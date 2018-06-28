@@ -22,6 +22,7 @@ class JsGdiGraphics;
 
 class JsContainer final
 {
+    // To access preparation call
     friend class JsEngine;
 
 public:
@@ -29,12 +30,12 @@ public:
     ~JsContainer();
 
 public:
-    enum JsStatus
+    enum class JsStatus
     {
-        Mjs_Ready,
-        Mjs_Prepared,
-        Mjs_NotPrepared,
-        Mjs_Failed
+        Ready,
+        Prepared,
+        NotPrepared,
+        Failed
     };
 
 public:   
@@ -47,7 +48,7 @@ public:
     std::optional<ReturnType> InvokeJsCallback( std::string_view functionName,
                                                 Args&&... args )
     {
-        assert( Mjs_Ready == jsStatus_ );
+        assert( JsStatus::Ready == jsStatus_ );
 
         return mozjs::InvokeJsCallback( pJsCtx_, jsGlobal_, functionName, args... );
     }    
@@ -73,14 +74,14 @@ private:
     bool Prepare( JSContext *cx, js_panel_window& parentPanel );
 
 private:
-    JSContext * pJsCtx_;
-    js_panel_window* pParentPanel_;
+    JSContext * pJsCtx_ = nullptr;
+    js_panel_window* pParentPanel_ = nullptr;
 
     JS::PersistentRootedObject jsGlobal_;
     JS::PersistentRootedObject jsGraphics_;
-    JsGdiGraphics* nativeGraphics_;
+    JsGdiGraphics* nativeGraphics_ = nullptr;
 
-    JsStatus jsStatus_;
+    JsStatus jsStatus_ = JsStatus::NotPrepared;
 };
 
 }

@@ -936,7 +936,7 @@ void js_panel_window::on_paint( HDC dc, LPRECT lpUpdateRect )
     HDC memdc = CreateCompatibleDC( dc );
     HBITMAP oldbmp = SelectBitmap( memdc, m_gr_bmp );
 
-    if ( m_script_host->HasError() || mozjs::JsContainer::Mjs_Failed == jsContainer_.GetStatus() )
+    if ( m_script_host->HasError() || mozjs::JsContainer::JsStatus::Failed == jsContainer_.GetStatus() )
     {
         on_paint_error( memdc );
     }
@@ -1041,7 +1041,7 @@ void js_panel_window::on_paint_user( HDC memdc, LPRECT lpUpdateRect )
         m_gr_wrap->put__ptr( NULL );
     }
 
-    if ( mozjs::JsContainer::Mjs_Ready == jsContainer_.GetStatus() )
+    if ( mozjs::JsContainer::JsStatus::Ready == jsContainer_.GetStatus() )
     {
         // Prepare graphics object to the script.
         Gdiplus::Graphics gr( memdc );
@@ -1248,7 +1248,7 @@ void js_panel_window::on_size( int w, int h )
 
     script_invoke_v( CallbackIds::on_size );
 
-    if ( mozjs::JsContainer::Mjs_Ready == jsContainer_.GetStatus() )
+    if ( mozjs::JsContainer::JsStatus::Ready == jsContainer_.GetStatus() )
     {
         jsContainer_.InvokeJsCallback( "on_size",
                                         static_cast<uint32_t>(w),

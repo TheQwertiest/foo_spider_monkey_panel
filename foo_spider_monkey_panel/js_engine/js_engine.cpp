@@ -12,6 +12,8 @@
 namespace mozjs
 {
 
+std::atomic<bool> JsEngine::isShuttingDown = false;
+
 JsEngine::JsEngine()
     : pJsCtx_( nullptr )
 {
@@ -21,11 +23,7 @@ JsEngine::JsEngine()
 JsEngine::~JsEngine()
 {
     // Attempt to cleanup, may result in crashes though, 
-    // since mozjs.dll might be unloaded at this time
-    for each ( auto elem in registeredPanels_ )
-    {
-        elem.second.get().Finalize();
-    }
+    // since mozjs.dll might be unloaded at this time    
     Finalize();
 }
 
@@ -117,11 +115,23 @@ void JsEngine::Finalize()
 {
     if (pJsCtx_)
     {
+        isShuttingDown = true;
+
+        for each ( auto elem in registeredPanels_ )
+        {
+            elem.second.get().Finalize();
+        }
+
         JS_DestroyContext( pJsCtx_ );
         pJsCtx_ = nullptr;
     }
 
     isInitialized_ = false;
+}
+
+bool JsEngine::IsShuttingDown()
+{
+    return isShuttingDown;
 }
 
 }

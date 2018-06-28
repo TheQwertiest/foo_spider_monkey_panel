@@ -32,6 +32,8 @@ public:
     JS::Heap<JS::Value>& GetFromHeap( uint32_t id );
     void RemoveFromHeap( uint32_t id );
 
+    void RemoveHeapTracer();
+
 private:
     JsGlobalObject( JSContext* cx, JsContainer &parentContainer, js_panel_window& parentPanel );
     JsGlobalObject( const JsGlobalObject& ) = delete;    

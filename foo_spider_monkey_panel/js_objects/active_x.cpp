@@ -3,11 +3,12 @@
 #include <stdafx.h>
 #include "active_x.h"
 
-#include <js_utils/js_object_helper.h>
+#include <js_engine/js_engine.h>
 #include <js_engine/js_to_native_converter.h>
 #include <js_engine/native_to_js_converter.h>
 #include <js_engine/js_to_native_invoker.h>
 #include <js_objects/global_object.h>
+#include <js_utils/js_object_helper.h>
 
 #include <script_interface.h>
 #include <com_tools.h>
@@ -74,8 +75,11 @@ protected:
     /// @details Might be called off main thread
     virtual void FinalRelease()
     {
-        pNativeGlobal_->RemoveFromHeap( globalId_ );
-        pNativeGlobal_->RemoveFromHeap( funcId_ );
+        if ( !mozjs::JsEngine::IsShuttingDown() )
+        {// most of the object handles might be invalid at global GC time
+            pNativeGlobal_->RemoveFromHeap( globalId_ );
+            pNativeGlobal_->RemoveFromHeap( funcId_ );
+        }
     }
 
     STDMETHODIMP ExecuteValue( VARIANT* Result )
