@@ -164,7 +164,6 @@
     <ClInclude Include="js_objects\gdi_utils.h" />
     <ClInclude Include="js_objects\gdi_font.h" />
     <ClInclude Include="js_objects\global_object.h" />
-    <ClInclude Include="js_objects\js_persistent_object_wrapper.h" />
     <ClInclude Include="js_utils\gdi_error_helper.h" />
     <ClInclude Include="js_utils\js_error_helper.h" />
     <ClInclude Include="js_utils\js_object_helper.h" />

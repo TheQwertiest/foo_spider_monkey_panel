@@ -117,7 +117,7 @@ std::wstring ToValue<std::wstring>( JSContext * cx, const JS::HandleValue& jsVal
         return std::forward<std::wstring>( std::wstring() );
     }
 
-    return std::forward<std::wstring>( wStr.c_str() );
+    return std::forward<std::wstring>( wStr );
 }
 
 template <>

@@ -49,7 +49,6 @@ public:
                                                 Args&&... args )
     {
         assert( JsStatus::Ready == jsStatus_ );
-
         return mozjs::InvokeJsCallback( pJsCtx_, jsGlobal_, functionName, args... );
     }    
 

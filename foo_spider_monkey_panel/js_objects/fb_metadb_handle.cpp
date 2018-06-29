@@ -215,7 +215,7 @@ JsFbMetadbHandle::SetFirstPlayed( std::string first_played )
         stats::fields tmp = stats::get( hash );
         if ( !tmp.first_played.equals( first_played.c_str() ) )
         {
-            tmp.first_played = first_played.c_str();
+            tmp.first_played.set_string_nc( first_played.c_str(), first_played.length() );
             stats::set( hash, tmp );
         }
     }
@@ -234,7 +234,7 @@ JsFbMetadbHandle::SetLastPlayed( std::string last_played )
         stats::fields tmp = stats::get( hash );
         if ( !tmp.last_played.equals( last_played.c_str() ) )
         {
-            tmp.last_played = last_played.c_str();
+            tmp.last_played.set_string_nc( last_played.c_str(), last_played.length() );
             stats::set( hash, tmp );
         }
     }

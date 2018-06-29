@@ -591,7 +591,7 @@ JsGdiGraphics::GdiDrawBitmap( JsGdiRawBitmap* bitmap,
     else
     {
         bRet = !!SetStretchBltMode( dc, HALFTONE );
-        bRet &= !!SetBrushOrgEx( dc, 0, 0, NULL );
+        bRet &= !!SetBrushOrgEx( dc, 0, 0, nullptr );
         bRet &= !!StretchBlt( dc, dstX, dstY, dstW, dstH, srcDc, srcX, srcY, srcW, srcH, SRCCOPY );
     }
     pGdi_->ReleaseHDC( dc );

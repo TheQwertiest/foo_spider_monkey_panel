@@ -473,7 +473,7 @@ JsFbMetadbHandleList::UpdateFileInfoFromJSON( std::string str )
         }
     }
     catch ( ... )
-    {// TODO: add eror handling
+    {// TODO: add error handling
         JS_ReportErrorASCII( pJsCtx_, "JSON parsing failed" );
         return std::nullopt;
     }
@@ -532,7 +532,7 @@ JsFbMetadbHandleList::UpdateFileInfoFromJSON( std::string str )
         pfc::ptr_list_const_array_t<const file_info, file_info_impl *>( info.get_ptr(), info.get_count() ),
         core_api::get_main_window(),
         metadb_io_v2::op_flag_delay_ui,
-        NULL
+        nullptr
     );
 
     return nullptr;

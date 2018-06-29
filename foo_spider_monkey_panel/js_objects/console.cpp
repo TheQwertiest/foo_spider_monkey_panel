@@ -7,6 +7,7 @@
 namespace
 {
 // TODO: wrap in a proper class
+// TODO: add printf-like formating as required by W3C 
 bool Log( JSContext* cx, unsigned argc, JS::Value* vp )
 {
      JS::CallArgs args = JS::CallArgsFromVp( argc, vp );

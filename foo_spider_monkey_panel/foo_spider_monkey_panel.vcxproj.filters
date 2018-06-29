@@ -162,9 +162,6 @@
     <ClInclude Include="js_objects\gdi_raw_bitmap.h">
       <Filter>js_objects</Filter>
     </ClInclude>
-    <ClInclude Include="js_objects\js_persistent_object_wrapper.h">
-      <Filter>js_objects</Filter>
-    </ClInclude>
     <ClInclude Include="js_utils\gdi_error_helper.h">
       <Filter>js_utils</Filter>
     </ClInclude>
