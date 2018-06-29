@@ -49,4 +49,7 @@ bool ToValue<std::wstring>( JSContext * cx, const std::wstring& inValue, JS::Mut
 template <>
 bool ToValue<std::nullptr_t>( JSContext * cx, const std::nullptr_t& inValue, JS::MutableHandleValue wrappedValue );
 
+template<>
+bool ToValue<metadb_handle_ptr>( JSContext * cx, const metadb_handle_ptr& inValue, JS::MutableHandleValue wrappedValue );
+
 }

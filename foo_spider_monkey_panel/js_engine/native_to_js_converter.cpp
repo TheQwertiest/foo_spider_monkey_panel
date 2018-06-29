@@ -1,6 +1,7 @@
 #include <stdafx.h>
 #include "native_to_js_converter.h"
 
+#include <js_objects/fb_metadb_handle.h>
 
 namespace mozjs::convert::to_js
 {
@@ -88,6 +89,19 @@ template <>
 bool ToValue<std::nullptr_t>( JSContext *, const std::nullptr_t& inValue, JS::MutableHandleValue wrappedValue )
 {
     wrappedValue.setUndefined();
+    return true;
+}
+
+template <>
+bool ToValue<metadb_handle_ptr>( JSContext * cx, const metadb_handle_ptr& inValue, JS::MutableHandleValue wrappedValue )
+{
+    JS::RootedObject jsObject( cx, JsFbMetadbHandle::Create( cx, inValue ) );
+    if ( !jsObject )
+    {
+        return false;
+    }
+
+    wrappedValue.setObjectOrNull( jsObject );
     return true;
 }
 

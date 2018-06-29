@@ -17,9 +17,6 @@
 //HRESULT CLSIDFromString(LPOLESTR lpsz,LPCLSID pclsid);
 //S_OK == StringFromCLSID(REFCLSID rclsid,LPOLESTR * ppsz);
 
-#ifndef DISPID_PROPERTYPUT
-#   define DISPID_PROPERTYPUT (-3)
-#endif
 
 class ActiveX //takes ownership, calls Release() at the end
 {

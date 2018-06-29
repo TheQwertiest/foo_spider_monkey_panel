@@ -1102,6 +1102,12 @@ void js_panel_window::on_playback_new_track( WPARAM wp )
 
     if ( handle )
         handle->Release();
+
+    if ( mozjs::JsContainer::JsStatus::Ready == jsContainer_.GetStatus() )
+    {
+        jsContainer_.InvokeJsCallback( "on_playback_new_track",
+                                       static_cast<metadb_handle_ptr&>( data->m_item ) );
+    }
 }
 
 void js_panel_window::on_playback_order_changed( WPARAM wp )

@@ -14,9 +14,7 @@ bool InvokeJsCallback_Impl( JSContext* cx,
                             std::string_view functionName,
                             const JS::HandleValueArray& args,
                             JS::MutableHandleValue rval )
-{  
-    JSAutoRequest ar( cx );
-    JSAutoCompartment ac( cx, globalObject );
+{      
     AutoReportException are( cx );
 
     JS::RootedValue funcValue( cx );

@@ -19,6 +19,9 @@ std::optional<ReturnType> InvokeJsCallback( JSContext* cx,
     assert( !!globalObject );
     assert( functionName.length() );
 
+    JSAutoRequest ar( cx );
+    JSAutoCompartment ac( cx, globalObject );
+
     JS::RootedValue retVal( cx );
 
     if constexpr ( sizeof...( Args ) > 0 )
