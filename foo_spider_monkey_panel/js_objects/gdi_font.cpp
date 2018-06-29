@@ -7,57 +7,46 @@
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
 
+#include <js_objects/object_factory.h>
+
 
 // TODO: add font caching
-
-namespace
-{
-
-using namespace mozjs;
-
-JSClassOps jsOps = {
-    nullptr,
-    nullptr,
-    nullptr,
-    nullptr,
-    nullptr,
-    nullptr,
-    JsFinalizeOp<JsGdiFont>,
-    nullptr,
-    nullptr,
-    nullptr,
-    nullptr
-};
-
-JSClass jsClass = {
-    "GdiFont",
-    JSCLASS_HAS_PRIVATE | JSCLASS_FOREGROUND_FINALIZE,
-    &jsOps
-};
-
-MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiFont, get_Height )
-MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiFont, get_Name )
-MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiFont, get_Size )
-MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiFont, get_Style )
-
-const JSPropertySpec jsProperties[] = {
-    JS_PSG( "Height", get_Height, 0 ),
-    JS_PSG( "Name",   get_Name, 0 ),
-    JS_PSG( "Size",   get_Size, 0 ),
-    JS_PSG( "Style",  get_Style, 0 ),
-    JS_PS_END
-};
-
-
-const JSFunctionSpec jsFunctions[] = {
-    JS_FS_END
-};
-
-}
 
 namespace mozjs
 {
 
+const char JsGdiFontInfo::className[] = "GdiFont";
+
+uint32_t JsGdiFontInfo::classFlags = 0;
+
+const JSFunctionSpec JsGdiFontInfo::functions[] = {
+    JS_FS_END
+};
+
+const JSPropertySpec JsGdiFontInfo::properties[] = {
+    JS_PSG( "Height", &get_Height, 0 ),
+    JS_PSG( "Name",   &get_Name, 0 ),
+    JS_PSG( "Size",   &get_Size, 0 ),
+    JS_PSG( "Style",  &get_Style, 0 ),
+    JS_PS_END
+};
+
+bool JsGdiFontInfo::ValidateCtorArguments( JSContext* cx, Gdiplus::Font* pGdiFont, HFONT hFont, bool isManaged )
+{
+    if ( !pGdiFont)
+    {
+        JS_ReportErrorASCII( cx, "Internal error: Gdiplus::Font object is null" );
+        return false;
+    }
+
+    if ( !hFont )
+    {
+        JS_ReportErrorASCII( cx, "Internal error: HFONT object is null" );
+        return false;
+    }
+
+    return true;
+}
 
 JsGdiFont::JsGdiFont( JSContext* cx, Gdiplus::Font* pGdiFont, HFONT hFont, bool isManaged )
     : pJsCtx_( cx )
@@ -67,44 +56,12 @@ JsGdiFont::JsGdiFont( JSContext* cx, Gdiplus::Font* pGdiFont, HFONT hFont, bool 
 {
 }
 
-
 JsGdiFont::~JsGdiFont()
 {
     if ( hFont_ && isManaged_ )
     {
         DeleteFont( hFont_ );
     }    
-}
-
-JSObject* JsGdiFont::Create( JSContext* cx, Gdiplus::Font* pGdiFont, HFONT hFont, bool isManaged )
-{
-    if ( !pGdiFont )
-    {
-        JS_ReportErrorASCII( cx, "Internal error: Gdiplus::Font object is null" );
-        return nullptr;
-    }    
-
-    JS::RootedObject jsObj( cx,
-                            JS_NewObject( cx, &jsClass ) );
-    if ( !jsObj )
-    {
-        return nullptr;
-    }
-
-    if ( !JS_DefineFunctions( cx, jsObj, jsFunctions )
-         || !JS_DefineProperties(cx, jsObj, jsProperties ) )
-    {
-        return nullptr;
-    }
-
-    JS_SetPrivate( jsObj, new JsGdiFont( cx, pGdiFont, hFont, isManaged ) );
-
-    return jsObj;
-}
-
-const JSClass& JsGdiFont::GetClass()
-{
-    return jsClass;
 }
 
 Gdiplus::Font* JsGdiFont::GdiFont() const

@@ -6,16 +6,37 @@
 #include <jsapi.h>
 #pragma warning( pop )  
 
+#include <js_utils/js_object_helper.h>
+
 #include <optional>
 
 namespace mozjs
 {
 
 template <typename T>
-class JsObjectFactoryBase
+class JsObjectFactory : public T
 {
+    using TT = typename T::ObjectType;
 public:
-    virtual ~JsObjectFactoryBase()
+    JsObjectFactory()
+        : ops_{ nullptr,
+                nullptr,
+                nullptr,
+                nullptr,
+                nullptr,
+                nullptr,
+                JsFinalizeOp<TT>,
+                nullptr,
+                nullptr,
+                nullptr,
+                nullptr }
+        , class_{ T::className,
+                  JSCLASS_HAS_PRIVATE | JSCLASS_FOREGROUND_FINALIZE | T::classFlags,
+                  &ops_ }
+    {
+    }
+
+    virtual ~JsObjectFactory()
     {
 
     }
@@ -23,7 +44,7 @@ public:
     template <typename ... ArgTypes>
     JSObject* Create( JSContext* cx, ArgTypes&& ... args )
     {
-        if ( !T::ValidateCtorArguments( arg... ) )
+        if ( !T::ValidateCtorArguments( cx, args... ) )
         {
             return nullptr;
         }
@@ -41,7 +62,7 @@ public:
             return nullptr;
         }
 
-        JS_SetPrivate( jsObj, new T( cx, args... ) );
+        JS_SetPrivate( jsObj, new TT( cx, args... ) );
 
         return jsObj;
     }
@@ -52,25 +73,8 @@ public:
     }
 
 private:
-    JsObjectFactoryBase()
-        : ops_( nullptr,
-                nullptr,
-                nullptr,
-                nullptr,
-                nullptr,
-                nullptr,
-                JsFinalizeOp<T>,
-                nullptr,
-                nullptr,
-                nullptr,
-                nullptr )
-        , class_( T::GetClassName(),
-                  JSCLASS_HAS_PRIVATE | JSCLASS_FOREGROUND_FINALIZE | T::GetClassFlags(),
-                  &ops_ )
-        ,
-    {
-    }
-    JsObjectFactoryBase( const JsObjectFactoryBase& ) = delete;
+    JsObjectFactory( const JsObjectFactory& ) = delete;
+    JsObjectFactory& operator=( const JsObjectFactory& ) = delete;
 
 private:
     JSClassOps ops_;

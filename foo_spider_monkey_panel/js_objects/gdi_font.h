@@ -1,10 +1,9 @@
 #pragma once
 
+#include <js_engine/js_to_native_invoker.h>
+
 #include <optional>
 
-class JSObject;
-struct JSContext;
-struct JSClass;
 
 namespace Gdiplus
 {
@@ -14,14 +13,18 @@ class Font;
 namespace mozjs
 {
 
+class JsGdiFontInfo;
+
 class JsGdiFont
 {
+    friend class JsGdiFontInfo;
+public:
+    using InfoType = typename JsGdiFontInfo;
+
 public:
     ~JsGdiFont();
     
-    static JSObject* Create( JSContext* cx, Gdiplus::Font* pGdiFont, HFONT hFont, bool isManaged );
-
-    static const JSClass& GetClass();
+    // static JSObject* Create( JSContext* cx, Gdiplus::Font* pGdiFont, HFONT hFont, bool isManaged );    
 
 public: 
     Gdiplus::Font* GdiFont() const;
@@ -42,6 +45,25 @@ private:
     bool isManaged_;
     std::unique_ptr<Gdiplus::Font> pGdi_;
     HFONT hFont_ = nullptr;
+};
+
+class JsGdiFontInfo
+{
+public:
+    using ObjectType = typename JsGdiFont;
+
+    static const char className[];
+    static uint32_t classFlags;
+    static const JSFunctionSpec functions[];
+    static const JSPropertySpec properties[];
+
+    static bool ValidateCtorArguments( JSContext* cx, Gdiplus::Font* pGdiFont, HFONT hFont, bool isManaged );
+
+public:
+    MJS_STATIC_WRAP_NATIVE_FN( JsGdiFont, get_Height );
+    MJS_STATIC_WRAP_NATIVE_FN( JsGdiFont, get_Name );
+    MJS_STATIC_WRAP_NATIVE_FN( JsGdiFont, get_Size );
+    MJS_STATIC_WRAP_NATIVE_FN( JsGdiFont, get_Style );
 };
 
 }
