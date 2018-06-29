@@ -49,7 +49,7 @@ bool ToValue<float>( JSContext *, const float& inValue, JS::MutableHandleValue w
 template <>
 bool ToValue<std::string_view>( JSContext * cx, const std::string_view& inValue, JS::MutableHandleValue wrappedValue )
 {
-    JS::RootedString jsString (cx, JS_NewStringCopyZ( cx, inValue.data() ));
+    JS::RootedString jsString (cx, JS_NewStringCopyN( cx, inValue.data(), inValue.length() ));
     if ( !jsString )
     {
         return false;
@@ -62,9 +62,14 @@ bool ToValue<std::string_view>( JSContext * cx, const std::string_view& inValue,
 template <>
 bool ToValue<std::wstring_view>( JSContext * cx, const std::wstring_view& inValue, JS::MutableHandleValue wrappedValue )
 {
-    // <codecvt> is deprecated in C++17...
-    std::string tmpString (pfc::stringcvt::string_utf8_from_wide( inValue.data() ));
-    return ToValue<std::string_view>( cx, tmpString, wrappedValue );
+    JS::RootedString jsString( cx, JS_NewUCStringCopyN( cx, reinterpret_cast<const char16_t*>(inValue.data()), inValue.length() ) );
+    if ( !jsString )
+    {
+        return false;
+    }
+
+    wrappedValue.setString( jsString );
+    return true;
 }
 
 template <>

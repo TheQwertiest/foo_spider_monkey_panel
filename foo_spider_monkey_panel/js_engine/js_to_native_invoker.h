@@ -115,15 +115,15 @@ bool InvokeNativeCallback_Impl( JSContext* cx,
                 if constexpr( std::is_same_v<ArgType, JS::HandleValue> )
                 {// Skip conversion, pass through
                     if ( index >= jsArgs.length() )
-                    {// Dummy value
-                        return jsArgs[0];
+                    {// Not an error: default value might be set in callback
+                        return jsArgs[0]; ///< Dummy value
                     }
                     return jsArgs[index];
                 }
                 else 
                 {
                     if ( index >= jsArgs.length() )
-                    {
+                    {// Not an error: default value might be set in callback
                         return ArgType();
                     }
 
@@ -149,20 +149,23 @@ bool InvokeNativeCallback_Impl( JSContext* cx,
                             return static_cast<ArgType>(nullptr);
                         }
 
-                        JS::RootedObject jsObject( cx, curArg.toObjectOrNull() );
-                        if ( !jsObject )
-                        {// Not an error
+                        if ( curArg.isNull() )
+                        {// Not an error: null might be a valid argument
                             return static_cast<ArgType>(nullptr);
                         }
 
-                        if ( !JS_InstanceOf( cx, jsObject, &std::remove_pointer_t<ArgType>::GetClass(), nullptr ) )
+                        JS::RootedObject jsObject( cx, &curArg.toObject() );
+                        ArgType pNative = static_cast<ArgType>(
+                            JS_GetInstancePrivate( cx, jsObject, &std::remove_pointer_t<ArgType>::GetClass(), nullptr )
+                        );
+                        if ( !pNative )
                         {
                             failedIdx = index;
                             bRet = false;
                             return static_cast<ArgType>(nullptr);
                         }
 
-                        return static_cast<ArgType>(JS_GetPrivate( jsObject ));
+                        return pNative;
                     }
                     else
                     {
@@ -206,8 +209,6 @@ bool InvokeNativeCallback_Impl( JSContext* cx,
     {
         if ( !convert::to_js::ToValue( cx, retVal.value(), args.rval() ) )
         {
-            args.rval().setUndefined();
-
             JS_ReportErrorASCII( cx, "Internal error: failed to convert return value" );
             return false;
         }

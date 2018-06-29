@@ -112,6 +112,11 @@ const JSClass& JsGdiRawBitmap::GetClass()
     return jsClass;
 }
 
+HDC JsGdiRawBitmap::GetHDC() const
+{
+    return hDc_;
+}
+
 std::optional<std::uint32_t> JsGdiRawBitmap::get_Height()
 {
     assert( hDc_ );

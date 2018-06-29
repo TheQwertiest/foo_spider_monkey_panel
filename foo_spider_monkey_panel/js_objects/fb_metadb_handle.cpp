@@ -3,6 +3,7 @@
 #include "fb_metadb_handle.h"
 
 #include <js_engine/js_to_native_invoker.h>
+#include <js_objects/fb_file_info.h>
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
 
@@ -122,18 +123,6 @@ metadb_handle_ptr& JsFbMetadbHandle::GetHandle()
 
 /*
 
-STDMETHODIMP FbMetadbHandle::GetFileInfo(IFbFileInfo** pp)
-{
-    if (metadbHandle_.is_empty() || !pp) return E_POINTER;
-
-    file_info_impl* info_ptr = new file_info_impl;
-
-    metadbHandle_->get_info(*info_ptr);
-    *pp = new com_object_impl_t<FbFileInfo>(info_ptr);
-    return nullptr;
-}
-
-
 STDMETHODIMP FbMetadbHandle::get_FileSize(LONGLONG* p)
 {
     if (metadbHandle_.is_empty() || !p) return E_POINTER;
@@ -176,6 +165,29 @@ JsFbMetadbHandle::Compare( JsFbMetadbHandle* handle )
     }
 
     return otherHandle == metadbHandle_;
+}
+
+std::optional<JSObject*> 
+JsFbMetadbHandle::GetFileInfo()
+{
+    assert( metadbHandle_.is_valid() );
+
+    std::unique_ptr<file_info_impl> pFileInfo(new file_info_impl);
+
+    if ( !metadbHandle_->get_info( *pFileInfo ) )
+    {// Not an error: info not loaded yet
+        return nullptr;
+    }
+
+    JS::RootedObject jsObject( pJsCtx_, JsFbFileInfo::Create( pJsCtx_, pFileInfo.get() ) );
+    if ( !jsObject )
+    {
+        JS_ReportErrorASCII( pJsCtx_, "Internal error: failed to create JS object" );
+        return std::nullopt;
+    }
+
+    pFileInfo.release();
+    return jsObject;
 }
 
 std::optional<std::nullptr_t> 

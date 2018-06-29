@@ -29,6 +29,8 @@ public:
 
     static const JSClass& GetClass();
 
+    HDC GetHDC() const;
+
 public: // props
     std::optional<std::uint32_t> get_Height();
     std::optional<std::uint32_t> get_Width();

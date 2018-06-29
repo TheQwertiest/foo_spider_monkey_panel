@@ -4,6 +4,8 @@
 
 #include <js_engine/js_to_native_invoker.h>
 #include <js_objects/gdi_font.h>
+#include <js_objects/gdi_bitmap.h>
+#include <js_objects/gdi_raw_bitmap.h>
 #include <js_utils/gdi_error_helper.h>
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
@@ -39,6 +41,7 @@ JSClass jsClass = {
 MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiGraphics, CalcTextHeight )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiGraphics, CalcTextWidth )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiGraphics, DrawEllipse )
+MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiGraphics, DrawImage )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiGraphics, DrawLine )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiGraphics, DrawPolygon )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiGraphics, DrawRect )
@@ -49,6 +52,8 @@ MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiGraphics, FillGradRect )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiGraphics, FillPolygon )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiGraphics, FillRoundRect )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiGraphics, FillSolidRect )
+MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiGraphics, GdiAlphaBlend )
+MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiGraphics, GdiDrawBitmap )
 MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsGdiGraphics, SetInterpolationMode, SetInterpolationModeWithOpt, 1 )
 MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsGdiGraphics, SetSmoothingMode, SetSmoothingModeWithOpt, 1 )
 MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsGdiGraphics, SetTextRenderingHint, SetTextRenderingHintWithOpt, 1 )
@@ -57,6 +62,7 @@ const JSFunctionSpec jsFunctions[] = {
     JS_FN( "CalcTextHeight", CalcTextHeight, 2, 0 ),
     JS_FN( "CalcTextWidth", CalcTextWidth, 2, 0 ),
     JS_FN( "DrawEllipse", DrawEllipse, 6, 0 ),
+    JS_FN( "DrawImage", DrawImage, 11, 0 ),
     JS_FN( "DrawLine", DrawLine, 6, 0 ),
     JS_FN( "DrawPolygon", DrawPolygon, 3, 0 ),
     JS_FN( "DrawRect", DrawRect, 6, 0 ),
@@ -67,6 +73,8 @@ const JSFunctionSpec jsFunctions[] = {
     JS_FN( "FillPolygon", DrawPolygon, 3, 0 ),
     JS_FN( "FillRoundRect", FillRoundRect, 7, 0 ),
     JS_FN( "FillSolidRect", FillSolidRect, 5, 0 ),
+    JS_FN( "GdiAlphaBlend", GdiAlphaBlend, 10, 0 ),
+    JS_FN( "GdiDrawBitmap", GdiDrawBitmap, 9, 0 ),
     JS_FN( "SetInterpolationMode", SetInterpolationMode, 1, 0 ),
     JS_FN( "SetSmoothingMode", SetSmoothingMode, 1, 0 ),
     JS_FN( "SetTextRenderingHint", SetTextRenderingHint, 1, 0 ),
@@ -190,6 +198,71 @@ JsGdiGraphics::DrawEllipse( float x, float y, float w, float h, float line_width
     Gdiplus::Pen pen( colour, line_width );
     Gdiplus::Status gdiRet = pGdi_->DrawEllipse( &pen, x, y, w, h );
     IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, std::nullopt, DrawEllipse );
+
+    return nullptr;
+}
+
+std::optional<std::nullptr_t> 
+JsGdiGraphics::DrawImage( JsGdiBitmap* image, 
+                          float dstX, float dstY, float dstW, float dstH, 
+                          float srcX, float srcY, float srcW, float srcH, 
+                          float angle, uint8_t alpha )
+{
+    if ( !pGdi_ )
+    {
+        JS_ReportErrorASCII( pJsCtx_, "Internal error: Gdiplus::Graphics object is null" );
+        return std::nullopt;
+    }
+
+    Gdiplus::Bitmap* img = image->GdiBitmap();
+    assert( img );
+    Gdiplus::Matrix oldMatrix;
+
+    Gdiplus::Status gdiRet;
+    if ( angle != 0.0 )
+    {
+        Gdiplus::Matrix m;
+        Gdiplus::RectF rect;
+        Gdiplus::PointF pt;
+
+        pt.X = dstX + dstW / 2;
+        pt.Y = dstY + dstH / 2;
+        
+        gdiRet = m.RotateAt( angle, pt );
+        IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, std::nullopt, RotateAt );
+
+        gdiRet = pGdi_->GetTransform( &oldMatrix );
+        IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, std::nullopt, GetTransform );
+
+        gdiRet = pGdi_->SetTransform( &m );
+        IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, std::nullopt, SetTransform );
+    }
+
+    if ( alpha < 255 )
+    {
+        Gdiplus::ImageAttributes ia;
+        Gdiplus::ColorMatrix cm = { 0.0f };
+
+        cm.m[0][0] = cm.m[1][1] = cm.m[2][2] = cm.m[4][4] = 1.0f;
+        cm.m[3][3] = static_cast<float>( alpha ) / 255;
+
+        gdiRet = ia.SetColorMatrix( &cm );
+        IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, std::nullopt, SetColorMatrix );
+
+        gdiRet = pGdi_->DrawImage( img, Gdiplus::RectF( dstX, dstY, dstW, dstH ), srcX, srcY, srcW, srcH, Gdiplus::UnitPixel, &ia );
+        IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, std::nullopt, DrawImage );
+    }
+    else
+    {
+        gdiRet = pGdi_->DrawImage( img, Gdiplus::RectF( dstX, dstY, dstW, dstH ), srcX, srcY, srcW, srcH, Gdiplus::UnitPixel );
+        IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, std::nullopt, DrawImage );
+    }
+
+    if ( angle != 0.0 )
+    {
+        gdiRet = pGdi_->SetTransform( &oldMatrix );
+        IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, std::nullopt, SetTransform );
+    }
 
     return nullptr;
 }
@@ -446,6 +519,87 @@ JsGdiGraphics::FillSolidRect( float x, float y, float w, float h, uint32_t colou
     Gdiplus::SolidBrush brush( colour );
     Gdiplus::Status gdiRet = pGdi_->FillRectangle( &brush, x, y, w, h );
     IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, std::nullopt, FillRectangle );
+
+    return nullptr;
+}
+
+std::optional<std::nullptr_t> 
+JsGdiGraphics::GdiAlphaBlend( JsGdiRawBitmap* bitmap, 
+                              int32_t dstX, int32_t dstY, uint32_t dstW, uint32_t dstH, 
+                              int32_t srcX, int32_t srcY, uint32_t srcW, uint32_t srcH, 
+                              uint8_t alpha )
+{
+    if ( !pGdi_ )
+    {
+        JS_ReportErrorASCII( pJsCtx_, "Internal error: Gdiplus::Graphics object is null" );
+        return std::nullopt;
+    }
+
+    if ( !bitmap )
+    {
+        JS_ReportErrorASCII( pJsCtx_, "bitmap argument is null" );
+        return std::nullopt;
+    }
+
+    HDC srcDc = bitmap->GetHDC();
+    assert( srcDc );
+
+    HDC dc = pGdi_->GetHDC();
+    assert( dc );
+
+    BLENDFUNCTION bf = { AC_SRC_OVER, 0, alpha, AC_SRC_ALPHA };
+
+    bool bRet = !!::GdiAlphaBlend( dc, dstX, dstY, dstW, dstH, srcDc, srcX, srcY, srcW, srcH, bf );
+    pGdi_->ReleaseHDC( dc );
+    if ( !bRet )
+    {
+        JS_ReportErrorASCII( pJsCtx_, "GDI error: 'GdiAlphaBlend' failed: 0x%X", GetLastError );
+        return std::nullopt;
+    }
+     
+    return nullptr;
+}
+
+std::optional<std::nullptr_t> 
+JsGdiGraphics::GdiDrawBitmap( JsGdiRawBitmap* bitmap, 
+                              int32_t dstX, int32_t dstY, uint32_t dstW, uint32_t dstH,
+                              int32_t srcX, int32_t srcY, uint32_t srcW, uint32_t srcH )
+{
+    if ( !pGdi_ )
+    {
+        JS_ReportErrorASCII( pJsCtx_, "Internal error: Gdiplus::Graphics object is null" );
+        return std::nullopt;
+    }
+
+    if ( !bitmap )
+    {
+        JS_ReportErrorASCII( pJsCtx_, "bitmap argument is null" );
+        return std::nullopt;
+    }
+
+    HDC srcDc = bitmap->GetHDC();
+    assert( srcDc );
+
+    HDC dc = pGdi_->GetHDC();
+    assert( dc );
+
+    bool bRet;
+    if ( dstW == srcW && dstH == srcH )
+    {
+        bRet = !!BitBlt( dc, dstX, dstY, dstW, dstH, srcDc, srcX, srcY, SRCCOPY );
+    }
+    else
+    {
+        bRet = !!SetStretchBltMode( dc, HALFTONE );
+        bRet &= !!SetBrushOrgEx( dc, 0, 0, NULL );
+        bRet &= !!StretchBlt( dc, dstX, dstY, dstW, dstH, srcDc, srcX, srcY, srcW, srcH, SRCCOPY );
+    }
+    pGdi_->ReleaseHDC( dc );
+    if ( !bRet )
+    {
+        JS_ReportErrorASCII( pJsCtx_, "GDI error: Blt methods failed" );
+        return std::nullopt;
+    }
 
     return nullptr;
 }

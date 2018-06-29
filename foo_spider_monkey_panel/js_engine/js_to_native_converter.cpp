@@ -110,7 +110,7 @@ std::wstring ToValue<std::wstring>( JSContext * cx, const JS::HandleValue& jsVal
     JS::RootedString rStr(cx, jsValue.toString() );
     size_t strLen = JS_GetStringLength( rStr );
     std::wstring wStr( strLen + 1, '\0' );
-    mozilla::Range<char16_t> wCharStr( (char16_t*) wStr.data(), strLen) ;
+    mozilla::Range<char16_t> wCharStr( reinterpret_cast<char16_t*>(wStr.data()), strLen) ;
     if ( !JS_CopyStringChars( cx, wCharStr, rStr ) )
     {
         JS_ReportOutOfMemory( cx );

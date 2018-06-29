@@ -20,6 +20,8 @@ namespace mozjs
 {
 
 class JsGdiFont;
+class JsGdiBitmap;
+class JsGdiRawBitmap;
 
 class JsGdiGraphics
 {
@@ -38,6 +40,7 @@ public:
     std::optional<uint32_t> CalcTextHeight( std::wstring str, JsGdiFont* font );
     std::optional<uint32_t> CalcTextWidth( std::wstring str, JsGdiFont* font );
     std::optional<std::nullptr_t> DrawEllipse( float x, float y, float w, float h, float line_width, uint32_t colour );
+    std::optional<std::nullptr_t> DrawImage( JsGdiBitmap* image, float dstX, float dstY, float dstW, float dstH, float srcX, float srcY, float srcW, float srcH, float angle, uint8_t alpha );
     std::optional<std::nullptr_t> DrawLine( float x1, float y1, float x2, float y2, float line_width, uint32_t colour );
     std::optional<std::nullptr_t> DrawPolygon( uint32_t colour, float line_width, JS::HandleValue points );
     std::optional<std::nullptr_t> DrawRect( float x, float y, float w, float h, float line_width, uint32_t colour );
@@ -49,6 +52,8 @@ public:
     std::optional<std::nullptr_t> FillPolygon( uint32_t colour, uint32_t fillmode, JS::HandleValue points );
     std::optional<std::nullptr_t> FillRoundRect( float x, float y, float w, float h, float arc_width, float arc_height, uint32_t colour );
     std::optional<std::nullptr_t> FillSolidRect( float x, float y, float w, float h, uint32_t colour );
+    std::optional<std::nullptr_t> GdiAlphaBlend( JsGdiRawBitmap* bitmap, int32_t dstX, int32_t dstY, uint32_t dstW, uint32_t dstH, int32_t srcX, int32_t srcY, uint32_t srcW, uint32_t srcH, uint8_t alpha );
+    std::optional<std::nullptr_t> GdiDrawBitmap( JsGdiRawBitmap* bitmap, int32_t dstX, int32_t dstY, uint32_t dstW, uint32_t dstH, int32_t srcX, int32_t srcY, uint32_t srcW, uint32_t srcH );
     std::optional<std::nullptr_t> SetInterpolationMode( uint32_t mode );
     std::optional<std::nullptr_t> SetInterpolationModeWithOpt( size_t optArgCount, uint32_t mode );
     std::optional<std::nullptr_t> SetSmoothingMode( uint32_t mode );
@@ -56,13 +61,7 @@ public:
     std::optional<std::nullptr_t> SetTextRenderingHint( uint32_t mode );
     std::optional<std::nullptr_t> SetTextRenderingHintWithOpt( size_t optArgCount, uint32_t mode );
 
-    //DrawImage( IGdiBitmap* image, float dstX, float dstY, float dstW, float dstH, float srcX, float srcY, float srcW, float srcH, float angle, BYTE alpha );
-
-
     //EstimateLineWrap( BSTR str, IGdiFont* font, int max_width, VARIANT* p );
-
-    //GdiAlphaBlend( IGdiRawBitmap* bitmap, int dstX, int dstY, int dstW, int dstH, int srcX, int srcY, int srcW, int srcH, BYTE alpha );
-    //GdiDrawBitmap( IGdiRawBitmap* bitmap, int dstX, int dstY, int dstW, int dstH, int srcX, int srcY, int srcW, int srcH );
     //GdiDrawText( BSTR str, IGdiFont* font, VARIANT colour, int x, int y, int w, int h, int format, VARIANT* p );
     //MeasureString( BSTR str, IGdiFont* font, float x, float y, float w, float h, int flags, IMeasureStringInfo** pp );
 

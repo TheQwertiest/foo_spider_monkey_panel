@@ -37,18 +37,8 @@ JSClass jsClass = {
     &jsOps
 };
 
-
-MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiBitmap, get_Height )
-MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiBitmap, get_Width )
-
-const JSPropertySpec jsProperties[] = {
-    JS_PSG( "Height", get_Height, 0 ),
-    JS_PSG( "Width",  get_Width, 0 ),
-    JS_PS_END
-};
-
-
 MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiBitmap, ApplyAlpha )
+MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiBitmap, ApplyMask )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiBitmap, Clone )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiBitmap, CreateRawBitmap )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiBitmap, GetGraphics )
@@ -59,6 +49,7 @@ MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiBitmap, StackBlur )
 
 const JSFunctionSpec jsFunctions[] = {
     JS_FN( "ApplyAlpha", ApplyAlpha, 1, 0 ),
+    JS_FN( "ApplyMask", ApplyMask, 1, 0 ),
     JS_FN( "Clone", Clone, 4, 0 ),
     JS_FN( "CreateRawBitmap", CreateRawBitmap, 0, 0 ),
     JS_FN( "GetGraphics", GetGraphics, 0, 0 ),
@@ -68,6 +59,16 @@ const JSFunctionSpec jsFunctions[] = {
     JS_FN( "StackBlur", StackBlur, 1, 0 ),
     JS_FS_END
 };
+
+MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiBitmap, get_Height )
+MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiBitmap, get_Width )
+
+const JSPropertySpec jsProperties[] = {
+    JS_PSG( "Height", get_Height, 0 ),
+    JS_PSG( "Width",  get_Width, 0 ),
+    JS_PS_END
+};
+
 
 }
 
@@ -124,62 +125,6 @@ Gdiplus::Bitmap* JsGdiBitmap::GdiBitmap() const
 }
 
 /*
-
-STDMETHODIMP GdiBitmap::ApplyMask(IGdiBitmap* mask, VARIANT_BOOL* p)
-{
-    if (!m_ptr || !p) return E_POINTER;
-
-    *p = VARIANT_FALSE;
-    Gdiplus::Bitmap* bitmap_mask = nullptr;
-    mask->get__ptr((void**)&bitmap_mask);
-
-    if (!bitmap_mask || bitmap_mask->GetHeight() != m_ptr->GetHeight() || bitmap_mask->GetWidth() != m_ptr->GetWidth())
-    {
-        return E_INVALIDARG;
-    }
-
-    Gdiplus::Rect rect(0, 0, m_ptr->GetWidth(), m_ptr->GetHeight());
-    Gdiplus::BitmapData bmpdata_mask = { 0 }, bmpdata_dst = { 0 };
-
-    if (bitmap_mask->LockBits(&rect, Gdiplus::ImageLockModeRead, PixelFormat32bppARGB, &bmpdata_mask) != Gdiplus::Ok)
-    {
-        return S_OK;
-    }
-
-    if (m_ptr->LockBits(&rect, Gdiplus::ImageLockModeRead | Gdiplus::ImageLockModeWrite, PixelFormat32bppARGB, &bmpdata_dst) != Gdiplus::Ok)
-    {
-        bitmap_mask->UnlockBits(&bmpdata_mask);
-        return S_OK;
-    }
-
-    const int width = rect.Width;
-    const int height = rect.Height;
-    const int size = width * height;
-    //const int size_threshold = 512;
-    t_uint32* p_mask = reinterpret_cast<t_uint32 *>(bmpdata_mask.Scan0);
-    t_uint32* p_dst = reinterpret_cast<t_uint32 *>(bmpdata_dst.Scan0);
-    const t_uint32* p_mask_end = p_mask + rect.Width * rect.Height;
-    t_uint32 alpha;
-
-    while (p_mask < p_mask_end)
-    {
-        // Method 1:
-        //alpha = (~*p_mask & 0xff) * (*p_dst >> 24) + 0x80;
-        //*p_dst = ((((alpha >> 8) + alpha) & 0xff00) << 16) | (*p_dst & 0xffffff);
-        // Method 2
-        alpha = (((~*p_mask & 0xff) * (*p_dst >> 24)) << 16) & 0xff000000;
-        *p_dst = alpha | (*p_dst & 0xffffff);
-
-        ++p_mask;
-        ++p_dst;
-    }
-
-    m_ptr->UnlockBits(&bmpdata_dst);
-    bitmap_mask->UnlockBits(&bmpdata_mask);
-
-    *p = VARIANT_TRUE;
-    return S_OK;
-}
 
 STDMETHODIMP GdiBitmap::GetColourScheme(UINT count, VARIANT* outArray)
 {
@@ -406,6 +351,71 @@ JsGdiBitmap::ApplyAlpha( uint8_t alpha )
 
     out.release();
     return jsObject;
+}
+
+std::optional<bool> 
+JsGdiBitmap::ApplyMask( JsGdiBitmap* mask )
+{
+    assert( pGdi_ );
+
+    if ( !mask )
+    {
+        JS_ReportErrorASCII( pJsCtx_, "mask argument is null" );
+        return std::nullopt;
+    }
+
+    Gdiplus::Bitmap* pBitmapMask = mask->GdiBitmap();
+    assert( pBitmapMask );
+
+    if ( pBitmapMask->GetHeight() != pGdi_->GetHeight() 
+         || pBitmapMask->GetWidth() != pGdi_->GetWidth() )
+    {
+        JS_ReportErrorASCII( pJsCtx_, "Mismatched dimensions" );
+        return std::nullopt;
+    }
+
+    Gdiplus::Rect rect( 0, 0, pGdi_->GetWidth(), pGdi_->GetHeight() );
+    Gdiplus::BitmapData maskBmpData = { 0 };
+    Gdiplus::BitmapData dstBmpData = { 0 };
+
+    Gdiplus::Status gdiRet = pBitmapMask->LockBits( &rect, Gdiplus::ImageLockModeRead, PixelFormat32bppARGB, &maskBmpData );
+    if ( Gdiplus::Ok != gdiRet )
+    {
+        return false;
+    }
+
+    gdiRet = pGdi_->LockBits( &rect, Gdiplus::ImageLockModeRead | Gdiplus::ImageLockModeWrite, PixelFormat32bppARGB, &dstBmpData );
+    if ( Gdiplus::Ok != gdiRet )
+    {
+        pBitmapMask->UnlockBits( &maskBmpData );
+        return false;
+    }
+
+    const int width = rect.Width;
+    const int height = rect.Height;
+    const int size = width * height;
+    //const int size_threshold = 512;
+    uint32_t* pMask = reinterpret_cast<uint32_t *>( maskBmpData.Scan0 );
+    uint32_t* pDst = reinterpret_cast<uint32_t *>( dstBmpData.Scan0 );
+    const uint32_t* pMaskEnd = pMask + rect.Width * rect.Height;
+
+    while ( pMask < pMaskEnd )
+    {
+        // Method 1:
+        // alpha = (~*p_mask & 0xff) * (*p_dst >> 24) + 0x80;
+        //*p_dst = ((((alpha >> 8) + alpha) & 0xff00) << 16) | (*p_dst & 0xffffff);
+        // Method 2
+        uint32_t alpha = ( ( ( ~*pMask & 0xff ) * ( *pDst >> 24 ) ) << 16 ) & 0xff000000;
+        *pDst = alpha | ( *pDst & 0xffffff );
+
+        ++pMask;
+        ++pDst;
+    }
+
+    pGdi_->UnlockBits( &dstBmpData );
+    pBitmapMask->UnlockBits( &maskBmpData );
+
+    return true;
 }
 
 std::optional<JSObject*>

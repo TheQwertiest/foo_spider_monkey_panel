@@ -38,7 +38,7 @@ private:
     JsGdiFont( const JsGdiFont& ) = delete;
 
 private:
-    JSContext * pJsCtx_ = nullptr;;
+    JSContext * pJsCtx_ = nullptr;
     bool isManaged_;
     std::unique_ptr<Gdiplus::Font> pGdi_;
     HFONT hFont_ = nullptr;

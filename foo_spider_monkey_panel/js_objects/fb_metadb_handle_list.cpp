@@ -33,7 +33,7 @@ JSClassOps jsOps = {
 };
 
 JSClass jsClass = {
-    "GdiFont",
+    "FbMetadbHandleList",
     JSCLASS_HAS_PRIVATE | JSCLASS_FOREGROUND_FINALIZE,
     &jsOps
 };

@@ -1,11 +1,5 @@
 #pragma once
 
-#pragma warning( push )  
-#pragma warning( disable : 4251 ) // dll interface warning
-#pragma warning( disable : 4996 ) // C++17 deprecation warning
-#include <jsapi.h>
-#pragma warning( pop )  
-
 #include <optional>
 
 class JSObject;
@@ -30,7 +24,7 @@ public:
 public: // methods
     std::optional<std::nullptr_t> ClearStats();
     std::optional<bool> Compare( JsFbMetadbHandle* handle );
-    //std::optional<std::nullptr_t> GetFileInfo( IFbFileInfo** pp );
+    std::optional<JSObject*> GetFileInfo();
     std::optional<std::nullptr_t> RefreshStats();
     std::optional<std::nullptr_t> SetFirstPlayed( std::string first_played );
     std::optional<std::nullptr_t> SetLastPlayed( std::string last_played );

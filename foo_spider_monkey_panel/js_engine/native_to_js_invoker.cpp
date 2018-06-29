@@ -17,28 +17,27 @@ bool InvokeJsCallback_Impl( JSContext* cx,
 {  
     JSAutoRequest ar( cx );
     JSAutoCompartment ac( cx, globalObject );
+    AutoReportException are( cx );
 
     JS::RootedValue funcValue( cx );
     if ( !JS_GetProperty( cx, globalObject, functionName.data(), &funcValue ) )
-    {
+    {// Reports
         return false;
     }
 
     if ( funcValue.isUndefined() )
-    {// Not an error
+    {// Not an error: user does not handle the callback
         return true;
     }
 
     JS::RootedFunction func( cx, JS_ValueToFunction( cx, funcValue ) );
     if ( !func )
-    {
+    {// Reports
         return false;
     }
 
-    AutoReportException are( cx );
     if ( !JS::Call( cx, globalObject, func, args, rval ) )
-    {
-        console::printf( JSP_NAME "JS::JS_Call failed\n" );
+    {// Reports
         return false;
     }
 
