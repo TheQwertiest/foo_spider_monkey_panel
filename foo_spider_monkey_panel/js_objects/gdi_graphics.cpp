@@ -125,7 +125,7 @@ void JsGdiGraphics::SetGraphicsObject( Gdiplus::Graphics* graphics )
 }
 
 std::optional<uint32_t>
-JsGdiGraphics::CalcTextHeight( std::wstring str, JS::HandleValue font )
+JsGdiGraphics::CalcTextHeight( std::wstring str, JsGdiFont* font )
 {
     if ( !pGdi_ )
     {
@@ -133,21 +133,13 @@ JsGdiGraphics::CalcTextHeight( std::wstring str, JS::HandleValue font )
         return std::nullopt;
     }
 
-    JS::RootedObject jsObject( pJsCtx_, GetJsObjectFromValue( pJsCtx_, font ) );
-    if ( !jsObject )
+    if ( !font )
     {
-        JS_ReportErrorASCII( pJsCtx_, "font argument is not a JS object" );
+        JS_ReportErrorASCII( pJsCtx_, "font argument is null" );
         return std::nullopt;
     }
 
-    JsGdiFont* pJsFont = GetNativeFromJsObject<JsGdiFont>( pJsCtx_, jsObject );
-    if ( !pJsFont )
-    {
-        JS_ReportErrorASCII( pJsCtx_, "font argument is not a GdiFont object" );
-        return std::nullopt;
-    }
-
-    HFONT hFont = pJsFont->HFont();
+    HFONT hFont = font->HFont();
     HDC dc = pGdi_->GetHDC();
     HFONT oldfont = SelectFont( dc, hFont );
 
@@ -160,7 +152,7 @@ JsGdiGraphics::CalcTextHeight( std::wstring str, JS::HandleValue font )
 }
 
 std::optional<uint32_t>
-JsGdiGraphics::CalcTextWidth( std::wstring str, JS::HandleValue font )
+JsGdiGraphics::CalcTextWidth( std::wstring str, JsGdiFont* font )
 {
     if ( !pGdi_ )
     {
@@ -168,21 +160,13 @@ JsGdiGraphics::CalcTextWidth( std::wstring str, JS::HandleValue font )
         return std::nullopt;
     }
 
-    JS::RootedObject jsObject( pJsCtx_, GetJsObjectFromValue( pJsCtx_, font ) );
-    if ( !jsObject )
+    if ( !font )
     {
-        JS_ReportErrorASCII( pJsCtx_, "font argument is not a JS object" );
+        JS_ReportErrorASCII( pJsCtx_, "font argument is null" );
         return std::nullopt;
     }
 
-    JsGdiFont* pJsFont = GetNativeFromJsObject<JsGdiFont>( pJsCtx_, jsObject );
-    if ( !pJsFont )
-    {
-        JS_ReportErrorASCII( pJsCtx_, "font argument is not a GdiFont object" );
-        return std::nullopt;
-    }
-
-    HFONT hFont = pJsFont->HFont();
+    HFONT hFont = font->HFont();
     HDC dc = pGdi_->GetHDC();
     HFONT oldfont = SelectFont( dc, hFont );
 

@@ -488,31 +488,17 @@ JsGdiBitmap::GetGraphics()
 }
 
 std::optional<std::nullptr_t>
-JsGdiBitmap::ReleaseGraphics( JS::HandleValue graphics )
+JsGdiBitmap::ReleaseGraphics( JsGdiGraphics* graphics )
 {
     assert( pGdi_ );
 
-    if ( graphics.isNull() )
+    if ( !graphics )
     {// Not an error
         return nullptr;
     }
 
-    JS::RootedObject jsObject( pJsCtx_, GetJsObjectFromValue( pJsCtx_, graphics ) );
-    if ( !jsObject )
-    {
-        JS_ReportErrorASCII( pJsCtx_, "argument is not a JS object" );
-        return std::nullopt;
-    }
-
-    JsGdiGraphics* pNativeObject = GetNativeFromJsObject<JsGdiGraphics>( pJsCtx_, jsObject );
-    if ( !pNativeObject )
-    {
-        JS_ReportErrorASCII( pJsCtx_, "argument is not a JsGdiGraphics object" );
-        return std::nullopt;
-    }
-
-    auto pGdiGraphics = pNativeObject->GetGraphicsObject();
-    pNativeObject->SetGraphicsObject( nullptr );
+    auto pGdiGraphics = graphics->GetGraphicsObject();
+    graphics->SetGraphicsObject( nullptr );
     if ( pGdiGraphics )
     {
         delete pGdiGraphics;

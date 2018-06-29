@@ -35,8 +35,8 @@ public:
     void SetGraphicsObject( Gdiplus::Graphics* graphics );
 
 public:
-    std::optional<uint32_t> CalcTextHeight( std::wstring str, JS::HandleValue font );
-    std::optional<uint32_t> CalcTextWidth( std::wstring str, JS::HandleValue font );
+    std::optional<uint32_t> CalcTextHeight( std::wstring str, JsGdiFont* font );
+    std::optional<uint32_t> CalcTextWidth( std::wstring str, JsGdiFont* font );
     std::optional<std::nullptr_t> DrawEllipse( float x, float y, float w, float h, float line_width, uint32_t colour );
     std::optional<std::nullptr_t> DrawLine( float x1, float y1, float x2, float y2, float line_width, uint32_t colour );
     std::optional<std::nullptr_t> DrawPolygon( uint32_t colour, float line_width, JS::HandleValue points );

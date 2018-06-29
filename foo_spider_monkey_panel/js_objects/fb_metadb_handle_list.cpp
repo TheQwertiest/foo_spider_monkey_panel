@@ -94,16 +94,15 @@ metadb_handle_list_ref JsFbMetadbHandleList::GetList()
 }
 
 std::optional<std::nullptr_t> 
-JsFbMetadbHandleList::Add( JS::HandleValue handle )
+JsFbMetadbHandleList::Add( JsFbMetadbHandle* handle )
 {
-    auto pNativeHandle = GetNativeFromJsValue<JsFbMetadbHandle>( pJsCtx_, handle );
-    if ( !pNativeHandle )
+    if ( !handle )
     {
-        JS_ReportErrorASCII( pJsCtx_, "handle argument is not a FbMetadbHandle object" );
+        JS_ReportErrorASCII( pJsCtx_, "handle argument is null" );
         return std::nullopt;
     }
 
-    metadb_handle_ptr fbHandle( pNativeHandle->GetHandle() );
+    metadb_handle_ptr fbHandle( handle->GetHandle() );
     if ( fbHandle.is_empty() )
     {
         JS_ReportErrorASCII( pJsCtx_, "Internal error: FbMetadbHandle does not contain valid handle" );
@@ -115,30 +114,28 @@ JsFbMetadbHandleList::Add( JS::HandleValue handle )
 }
 
 std::optional<std::nullptr_t> 
-JsFbMetadbHandleList::AddRange( JS::HandleValue handles )
+JsFbMetadbHandleList::AddRange( JsFbMetadbHandleList* handles )
 {
-    auto pNativeHandles = GetNativeFromJsValue<JsFbMetadbHandleList>( pJsCtx_, handles );
-    if ( !pNativeHandles )
+    if ( !handles )
     {
-        JS_ReportErrorASCII( pJsCtx_, "handle argument is not a FbMetadbHandleList object" );
+        JS_ReportErrorASCII( pJsCtx_, "handles argument is null" );
         return std::nullopt;
     }
     
-    metadbHandleList_.add_items( pNativeHandles->GetList() );
+    metadbHandleList_.add_items( handles->GetList() );
     return nullptr;
 }
 
 std::optional<int32_t> 
-JsFbMetadbHandleList::BSearch( JS::HandleValue handle )
+JsFbMetadbHandleList::BSearch( JsFbMetadbHandle* handle )
 {
-    auto pNativeHandle = GetNativeFromJsValue<JsFbMetadbHandle>( pJsCtx_, handle );
-    if ( !pNativeHandle )
+    if ( !handle )
     {
-        JS_ReportErrorASCII( pJsCtx_, "handle argument is not a FbMetadbHandle object" );
+        JS_ReportErrorASCII( pJsCtx_, "handle argument is null" );
         return std::nullopt;
     }
 
-    metadb_handle_ptr fbHandle( pNativeHandle->GetHandle() );
+    metadb_handle_ptr fbHandle( handle->GetHandle() );
     if ( fbHandle.is_empty() )
     {
         JS_ReportErrorASCII( pJsCtx_, "Internal error: FbMetadbHandle does not contain valid handle" );
@@ -168,16 +165,15 @@ JsFbMetadbHandleList::Clone()
 }
 
 std::optional<int32_t> 
-JsFbMetadbHandleList::Find( JS::HandleValue handle )
+JsFbMetadbHandleList::Find( JsFbMetadbHandle* handle )
 {
-    auto pNativeHandle = GetNativeFromJsValue<JsFbMetadbHandle>( pJsCtx_, handle );
-    if ( !pNativeHandle )
+    if ( !handle )
     {
-        JS_ReportErrorASCII( pJsCtx_, "handle argument is not a FbMetadbHandle object" );
+        JS_ReportErrorASCII( pJsCtx_, "handle argument is null" );
         return std::nullopt;
     }
 
-    metadb_handle_ptr fbHandle( pNativeHandle->GetHandle() );
+    metadb_handle_ptr fbHandle( handle->GetHandle() );
     if ( fbHandle.is_empty() )
     {
         JS_ReportErrorASCII( pJsCtx_, "Internal error: FbMetadbHandle does not contain valid handle" );
@@ -188,16 +184,15 @@ JsFbMetadbHandleList::Find( JS::HandleValue handle )
 }
 
 std::optional<std::nullptr_t> 
-JsFbMetadbHandleList::Insert( uint32_t index, JS::HandleValue handle )
+JsFbMetadbHandleList::Insert( uint32_t index, JsFbMetadbHandle* handle )
 {
-    auto pNativeHandle = GetNativeFromJsValue<JsFbMetadbHandle>( pJsCtx_, handle );
-    if ( !pNativeHandle )
+    if ( !handle )
     {
-        JS_ReportErrorASCII( pJsCtx_, "handle argument is not a FbMetadbHandle object" );
+        JS_ReportErrorASCII( pJsCtx_, "handle argument is null" );
         return std::nullopt;
     }
 
-    metadb_handle_ptr fbHandle( pNativeHandle->GetHandle() );
+    metadb_handle_ptr fbHandle( handle->GetHandle() );
     if ( fbHandle.is_empty() )
     {
         JS_ReportErrorASCII( pJsCtx_, "Internal error: FbMetadbHandle does not contain valid handle" );
@@ -209,30 +204,28 @@ JsFbMetadbHandleList::Insert( uint32_t index, JS::HandleValue handle )
 }
 
 std::optional<std::nullptr_t> 
-JsFbMetadbHandleList::InsertRange( uint32_t index, JS::HandleValue handles )
+JsFbMetadbHandleList::InsertRange( uint32_t index, JsFbMetadbHandleList* handles )
 {
-    auto pNativeHandles = GetNativeFromJsValue<JsFbMetadbHandleList>( pJsCtx_, handles );
-    if ( !pNativeHandles )
+    if ( !handles )
     {
-        JS_ReportErrorASCII( pJsCtx_, "handle argument is not a FbMetadbHandleList object" );
+        JS_ReportErrorASCII( pJsCtx_, "handles argument is null" );
         return std::nullopt;
     }
 
-    metadbHandleList_.insert_items( pNativeHandles->GetList(), index );
+    metadbHandleList_.insert_items( handles->GetList(), index );
     return nullptr;
 }
 
 std::optional<std::nullptr_t> 
-JsFbMetadbHandleList::MakeDifference( JS::HandleValue handles )
+JsFbMetadbHandleList::MakeDifference( JsFbMetadbHandleList* handles )
 {
-    auto pNativeHandles = GetNativeFromJsValue<JsFbMetadbHandleList>( pJsCtx_, handles );
-    if ( !pNativeHandles )
+    if ( !handles )
     {
-        JS_ReportErrorASCII( pJsCtx_, "handle argument is not a FbMetadbHandleList object" );
+        JS_ReportErrorASCII( pJsCtx_, "handles argument is null" );
         return std::nullopt;
     }
 
-    metadb_handle_list_ref fbHandles = pNativeHandles->GetList();
+    metadb_handle_list_ref fbHandles = handles->GetList();
     metadb_handle_list result;
     t_size walk1 = 0;
     t_size walk2 = 0;
@@ -262,16 +255,15 @@ JsFbMetadbHandleList::MakeDifference( JS::HandleValue handles )
 }
 
 std::optional<std::nullptr_t> 
-JsFbMetadbHandleList::MakeIntersection( JS::HandleValue handles )
+JsFbMetadbHandleList::MakeIntersection( JsFbMetadbHandleList* handles )
 {
-    auto pNativeHandles = GetNativeFromJsValue<JsFbMetadbHandleList>( pJsCtx_, handles );
-    if ( !pNativeHandles )
+    if ( !handles )
     {
-        JS_ReportErrorASCII( pJsCtx_, "handle argument is not a FbMetadbHandleList object" );
+        JS_ReportErrorASCII( pJsCtx_, "handles argument is null" );
         return std::nullopt;
     }
 
-    metadb_handle_list_ref fbHandles = pNativeHandles->GetList();
+    metadb_handle_list_ref fbHandles = handles->GetList();
     metadb_handle_list result;
     t_size walk1 = 0;
     t_size walk2 = 0;
@@ -301,16 +293,15 @@ JsFbMetadbHandleList::MakeIntersection( JS::HandleValue handles )
 }
 
 std::optional<std::nullptr_t> 
-JsFbMetadbHandleList::MakeUnion( JS::HandleValue handles )
+JsFbMetadbHandleList::MakeUnion( JsFbMetadbHandleList* handles )
 {
-    auto pNativeHandles = GetNativeFromJsValue<JsFbMetadbHandleList>( pJsCtx_, handles );
-    if ( !pNativeHandles )
+    if ( !handles )
     {
-        JS_ReportErrorASCII( pJsCtx_, "handle argument is not a FbMetadbHandleList object" );
+        JS_ReportErrorASCII( pJsCtx_, "handles argument is null" );
         return std::nullopt;
     }
 
-    metadbHandleList_.add_items( pNativeHandles->GetList() );
+    metadbHandleList_.add_items( handles->GetList() );
     metadbHandleList_.sort_by_pointer_remove_duplicates();
     return nullptr;
 }
@@ -389,16 +380,15 @@ JsFbMetadbHandleList::RefreshStats()
 }
 
 std::optional<std::nullptr_t> 
-JsFbMetadbHandleList::Remove( JS::HandleValue handle )
+JsFbMetadbHandleList::Remove( JsFbMetadbHandle* handle )
 {
-    auto pNativeHandle = GetNativeFromJsValue<JsFbMetadbHandle>( pJsCtx_, handle );
-    if ( !pNativeHandle )
+    if ( !handle )
     {
-        JS_ReportErrorASCII( pJsCtx_, "handle argument is not a FbMetadbHandle object" );
+        JS_ReportErrorASCII( pJsCtx_, "handle argument is null" );
         return std::nullopt;
     }
 
-    metadb_handle_ptr fbHandle( pNativeHandle->GetHandle() );
+    metadb_handle_ptr fbHandle( handle->GetHandle() );
     if ( fbHandle.is_empty() )
     {
         JS_ReportErrorASCII( pJsCtx_, "Internal error: FbMetadbHandle does not contain valid handle" );

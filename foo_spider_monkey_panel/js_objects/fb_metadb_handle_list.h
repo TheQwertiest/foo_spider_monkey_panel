@@ -20,6 +20,8 @@ class Font;
 namespace mozjs
 {
 
+class JsFbMetadbHandle;
+
 class JsFbMetadbHandleList
 {
 public:
@@ -32,25 +34,25 @@ public:
     metadb_handle_list_ref GetList();
 
 public: // methods
-    std::optional<std::nullptr_t> Add( JS::HandleValue handle );
-    std::optional<std::nullptr_t> AddRange( JS::HandleValue handles );
-    std::optional<int32_t> BSearch( JS::HandleValue handle );
+    std::optional<std::nullptr_t> Add( JsFbMetadbHandle* handle );
+    std::optional<std::nullptr_t> AddRange( JsFbMetadbHandleList* handles );
+    std::optional<int32_t> BSearch( JsFbMetadbHandle* handle );
     std::optional<double> CalcTotalDuration();
     //std::optional<std::nullptr_t> CalcTotalSize( LONGLONG* p );
     std::optional<JSObject*> Clone();
     //std::optional<std::nullptr_t> Convert( VARIANT* p );
-    std::optional<int32_t> Find( JS::HandleValue handle );
+    std::optional<int32_t> Find( JsFbMetadbHandle* handle );
     //std::optional<std::nullptr_t> GetLibraryRelativePaths( VARIANT* p );
-    std::optional<std::nullptr_t> Insert( uint32_t index, JS::HandleValue handle );
-    std::optional<std::nullptr_t> InsertRange( uint32_t index, JS::HandleValue handles );
-    std::optional<std::nullptr_t> MakeDifference( JS::HandleValue handles );
-    std::optional<std::nullptr_t> MakeIntersection( JS::HandleValue handles );
-    std::optional<std::nullptr_t> MakeUnion( JS::HandleValue handles );
+    std::optional<std::nullptr_t> Insert( uint32_t index, JsFbMetadbHandle* handle );
+    std::optional<std::nullptr_t> InsertRange( uint32_t index, JsFbMetadbHandleList* handles );
+    std::optional<std::nullptr_t> MakeDifference( JsFbMetadbHandleList* handles );
+    std::optional<std::nullptr_t> MakeIntersection( JsFbMetadbHandleList* handles );
+    std::optional<std::nullptr_t> MakeUnion( JsFbMetadbHandleList* handles );
     //std::optional<std::nullptr_t> OrderByFormat( __interface IFbTitleFormat* script, int direction );
     std::optional<std::nullptr_t> OrderByPath();
     std::optional<std::nullptr_t> OrderByRelativePath();
     std::optional<std::nullptr_t> RefreshStats();
-    std::optional<std::nullptr_t> Remove( JS::HandleValue handle );
+    std::optional<std::nullptr_t> Remove( JsFbMetadbHandle* handle );
     std::optional<std::nullptr_t> RemoveAll();
     std::optional<std::nullptr_t> RemoveById( uint32_t index );
     std::optional<std::nullptr_t> RemoveRange( uint32_t from, uint32_t count );

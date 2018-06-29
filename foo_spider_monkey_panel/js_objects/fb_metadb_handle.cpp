@@ -159,18 +159,17 @@ JsFbMetadbHandle::ClearStats()
 }
 
 std::optional<bool> 
-JsFbMetadbHandle::Compare( JS::HandleValue handle )
+JsFbMetadbHandle::Compare( JsFbMetadbHandle* handle )
 {
     assert( metadbHandle_.is_valid() );
 
-    auto pNativeHandle = GetNativeFromJsValue<JsFbMetadbHandle>( pJsCtx_, handle );
-    if ( !pNativeHandle )
+    if ( !handle )
     {
-        JS_ReportErrorASCII( pJsCtx_, "handle argument is not a FbMetadbHandle object" );
+        JS_ReportErrorASCII( pJsCtx_, "handle argument is null" );
         return std::nullopt;
     }
 
-    metadb_handle_ptr otherHandle (pNativeHandle->GetHandle());
+    metadb_handle_ptr otherHandle ( handle->GetHandle());
     if ( otherHandle.is_empty() )
     {
         return false;

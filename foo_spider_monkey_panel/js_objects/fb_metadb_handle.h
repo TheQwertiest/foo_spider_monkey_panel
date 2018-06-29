@@ -29,7 +29,7 @@ public:
 
 public: // methods
     std::optional<std::nullptr_t> ClearStats();
-    std::optional<bool> Compare( JS::HandleValue handle );
+    std::optional<bool> Compare( JsFbMetadbHandle* handle );
     //std::optional<std::nullptr_t> GetFileInfo( IFbFileInfo** pp );
     std::optional<std::nullptr_t> RefreshStats();
     std::optional<std::nullptr_t> SetFirstPlayed( std::string first_played );

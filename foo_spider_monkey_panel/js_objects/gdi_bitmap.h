@@ -21,6 +21,8 @@ class Bitmap;
 namespace mozjs
 {
 
+class JsGdiGraphics;
+
 /*
 class GdiBitmap : public GdiObj<IGdiBitmap, Gdiplus::Bitmap>
 {
@@ -70,7 +72,7 @@ public: //methods
     //std::optional<std::nullptr_t> GetColourScheme( uint32_t count, VARIANT* outArray );
     //std::optional<std::nullptr_t> GetColourSchemeJSON( uint32_t count, BSTR* outJson );
     std::optional<JSObject*> GetGraphics();
-    std::optional<std::nullptr_t> ReleaseGraphics( JS::HandleValue graphics );
+    std::optional<std::nullptr_t> ReleaseGraphics( JsGdiGraphics* graphics );
     std::optional<JSObject*> Resize( uint32_t w, uint32_t h, uint32_t interpolationMode );
     std::optional<JSObject*> ResizeWithOpt( size_t optArgCount, uint32_t w, uint32_t h, uint32_t interpolationMode );
     std::optional<std::nullptr_t> RotateFlip( uint32_t mode );
