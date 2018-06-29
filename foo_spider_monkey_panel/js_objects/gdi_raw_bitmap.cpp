@@ -34,8 +34,8 @@ JSClass jsClass = {
     &jsOps
 };
 
-MJS_WRAP_NATIVE_FN( JsGdiRawBitmap, get_Height )
-MJS_WRAP_NATIVE_FN( JsGdiRawBitmap, get_Width )
+MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiRawBitmap, get_Height )
+MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiRawBitmap, get_Width )
 
 const JSPropertySpec jsProperties[] = {
     JS_PSG( "Height", get_Height, 0 ),

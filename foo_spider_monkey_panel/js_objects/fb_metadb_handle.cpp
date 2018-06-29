@@ -34,10 +34,10 @@ JSClass jsClass = {
     &jsOps
 };
 
-MJS_WRAP_NATIVE_FN( JsFbMetadbHandle, get_Length )
-MJS_WRAP_NATIVE_FN( JsFbMetadbHandle, get_Path )
-MJS_WRAP_NATIVE_FN( JsFbMetadbHandle, get_RawPath )
-MJS_WRAP_NATIVE_FN( JsFbMetadbHandle, get_SubSong )
+MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandle, get_Length )
+MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandle, get_Path )
+MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandle, get_RawPath )
+MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandle, get_SubSong )
 
 const JSPropertySpec jsProperties[] = {
     JS_PSG( "Length",  get_Length, 0 ),
@@ -47,14 +47,14 @@ const JSPropertySpec jsProperties[] = {
     JS_PS_END
 };
 
-MJS_WRAP_NATIVE_FN( JsFbMetadbHandle, ClearStats )
-MJS_WRAP_NATIVE_FN( JsFbMetadbHandle, Compare )
-MJS_WRAP_NATIVE_FN( JsFbMetadbHandle, RefreshStats )
-MJS_WRAP_NATIVE_FN( JsFbMetadbHandle, SetFirstPlayed )
-MJS_WRAP_NATIVE_FN( JsFbMetadbHandle, SetLastPlayed )
-MJS_WRAP_NATIVE_FN( JsFbMetadbHandle, SetLoved )
-MJS_WRAP_NATIVE_FN( JsFbMetadbHandle, SetPlaycount )
-MJS_WRAP_NATIVE_FN( JsFbMetadbHandle, SetRating )
+MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandle, ClearStats )
+MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandle, Compare )
+MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandle, RefreshStats )
+MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandle, SetFirstPlayed )
+MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandle, SetLastPlayed )
+MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandle, SetLoved )
+MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandle, SetPlaycount )
+MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandle, SetRating )
 
 const JSFunctionSpec jsFunctions[] = {
     JS_FN( "ClearStats",    ClearStats, 0, 0 ),

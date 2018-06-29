@@ -37,15 +37,15 @@ JSClass jsClass = {
     &jsOps
 };
 
-MJS_WRAP_NATIVE_FN( JsGdiBitmap, ApplyAlpha )
-MJS_WRAP_NATIVE_FN( JsGdiBitmap, ApplyMask )
-MJS_WRAP_NATIVE_FN( JsGdiBitmap, Clone )
-MJS_WRAP_NATIVE_FN( JsGdiBitmap, CreateRawBitmap )
-MJS_WRAP_NATIVE_FN( JsGdiBitmap, GetGraphics )
-MJS_WRAP_NATIVE_FN( JsGdiBitmap, ReleaseGraphics )
-MJS_WRAP_NATIVE_FN_WITH_OPT( JsGdiBitmap, Resize, ResizeWithOpt, 1 )
-MJS_WRAP_NATIVE_FN( JsGdiBitmap, RotateFlip )
-MJS_WRAP_NATIVE_FN( JsGdiBitmap, StackBlur )
+MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiBitmap, ApplyAlpha )
+MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiBitmap, ApplyMask )
+MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiBitmap, Clone )
+MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiBitmap, CreateRawBitmap )
+MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiBitmap, GetGraphics )
+MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiBitmap, ReleaseGraphics )
+MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsGdiBitmap, Resize, ResizeWithOpt, 1 )
+MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiBitmap, RotateFlip )
+MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiBitmap, StackBlur )
 
 const JSFunctionSpec jsFunctions[] = {
     JS_FN( "ApplyAlpha", ApplyAlpha, 1, 0 ),
@@ -60,8 +60,8 @@ const JSFunctionSpec jsFunctions[] = {
     JS_FS_END
 };
 
-MJS_WRAP_NATIVE_FN( JsGdiBitmap, get_Height )
-MJS_WRAP_NATIVE_FN( JsGdiBitmap, get_Width )
+MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiBitmap, get_Height )
+MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiBitmap, get_Width )
 
 const JSPropertySpec jsProperties[] = {
     JS_PSG( "Height", get_Height, 0 ),

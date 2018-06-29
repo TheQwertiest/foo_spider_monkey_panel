@@ -106,7 +106,6 @@
     <ClCompile Include="js_engine\native_to_js_invoker.cpp" />
     <ClCompile Include="js_objects\active_x.cpp" />
     <ClCompile Include="js_objects\console.cpp" />
-    <ClCompile Include="js_objects\factory_holder.cpp" />
     <ClCompile Include="js_objects\fb_file_info.cpp" />
     <ClCompile Include="js_objects\fb_metadb_handle.cpp" />
     <ClCompile Include="js_objects\fb_metadb_handle_list.cpp" />
@@ -156,8 +155,6 @@
     <ClInclude Include="js_engine\native_to_js_invoker.h" />
     <ClInclude Include="js_objects\active_x.h" />
     <ClInclude Include="js_objects\console.h" />
-    <ClInclude Include="js_objects\factory_holder.h" />
-    <ClInclude Include="js_objects\object_factory.h" />
     <ClInclude Include="js_objects\fb_file_info.h" />
     <ClInclude Include="js_objects\fb_metadb_handle.h" />
     <ClInclude Include="js_objects\fb_metadb_handle_list.h" />

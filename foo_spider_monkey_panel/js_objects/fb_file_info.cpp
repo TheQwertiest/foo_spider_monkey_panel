@@ -32,13 +32,13 @@ JSClass jsClass = {
     &jsOps
 };
 
-MJS_WRAP_NATIVE_FN( JsFbFileInfo, InfoFind );
-MJS_WRAP_NATIVE_FN( JsFbFileInfo, InfoName );
-MJS_WRAP_NATIVE_FN( JsFbFileInfo, InfoValue );
-MJS_WRAP_NATIVE_FN( JsFbFileInfo, MetaFind );
-MJS_WRAP_NATIVE_FN( JsFbFileInfo, MetaName );
-MJS_WRAP_NATIVE_FN( JsFbFileInfo, MetaValue );
-MJS_WRAP_NATIVE_FN( JsFbFileInfo, MetaValueCount );
+MJS_DEFINE_JS_TO_NATIVE_FN( JsFbFileInfo, InfoFind );
+MJS_DEFINE_JS_TO_NATIVE_FN( JsFbFileInfo, InfoName );
+MJS_DEFINE_JS_TO_NATIVE_FN( JsFbFileInfo, InfoValue );
+MJS_DEFINE_JS_TO_NATIVE_FN( JsFbFileInfo, MetaFind );
+MJS_DEFINE_JS_TO_NATIVE_FN( JsFbFileInfo, MetaName );
+MJS_DEFINE_JS_TO_NATIVE_FN( JsFbFileInfo, MetaValue );
+MJS_DEFINE_JS_TO_NATIVE_FN( JsFbFileInfo, MetaValueCount );
 
 const JSFunctionSpec jsFunctions[] = {
     JS_FN( "InfoFind",       InfoFind      , 1, 0 ),
@@ -51,8 +51,8 @@ const JSFunctionSpec jsFunctions[] = {
     JS_FS_END
 };
 
-MJS_WRAP_NATIVE_FN( JsFbFileInfo, get_InfoCount );
-MJS_WRAP_NATIVE_FN( JsFbFileInfo, get_MetaCount );
+MJS_DEFINE_JS_TO_NATIVE_FN( JsFbFileInfo, get_InfoCount );
+MJS_DEFINE_JS_TO_NATIVE_FN( JsFbFileInfo, get_MetaCount );
 
 
 const JSPropertySpec jsProperties[] = {

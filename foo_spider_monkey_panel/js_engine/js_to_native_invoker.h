@@ -9,7 +9,7 @@
 #include <type_traits>
 #include <vector>
 
-#define MJS_WRAP_NATIVE_FN_WITH_OPT(baseClass, functionName, functionWithOptName, optArgCount) \
+#define MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT(baseClass, functionName, functionWithOptName, optArgCount) \
     bool functionName( JSContext* cx, unsigned argc, JS::Value* vp )\
     {\
         bool bRet = \
@@ -28,20 +28,13 @@
         return bRet;\
     }
 
-#define MJS_WRAP_NATIVE_FN(baseClass, functionName) \
-    MJS_WRAP_NATIVE_FN_WITH_OPT(baseClass, functionName, functionName, 0 )
+#define MJS_DEFINE_JS_TO_NATIVE_FN(baseClass, functionName) \
+    MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT(baseClass, functionName, functionName, 0 )
 
-#define MJS_STATIC_WRAP_NATIVE_FN_WITH_OPT(baseClass, functionName, functionWithOptName, optArgCount)  \
-    static MJS_WRAP_NATIVE_FN_WITH_OPT(baseClass, functionName, functionWithOptName, optArgCount )
-
-#define MJS_STATIC_WRAP_NATIVE_FN(baseClass, functionName) \
-    static MJS_WRAP_NATIVE_FN(baseClass, functionName )
-
-#define MJS_DEFINE_NATIVE_FN_WITH_OPT(infoClass, baseClass, functionName, functionWithOptName, optArgCount) \
-    bool infoClass::functionName( JSContext* cx, unsigned argc, JS::Value* vp )\
+#define MJS_WRAP_JS_TO_NATIVE_FN(functionName, functionImplName) \
+    bool functionName( JSContext* cx, unsigned argc, JS::Value* vp )\
     {\
-        bool bRet = \
-            InvokeNativeCallback<optArgCount>( cx, &baseClass::functionName, &baseClass::functionWithOptName, argc, vp );\
+        bool bRet = functionImplName(cx, argc, vp);\
         if (!bRet)\
         {\
             std::string innerErrorText(mozjs::GetCurrentExceptionText(cx));\

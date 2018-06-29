@@ -6,37 +6,16 @@
 #include <jsapi.h>
 #pragma warning( pop )  
 
-#include <js_utils/js_object_helper.h>
-
 #include <optional>
 
 namespace mozjs
 {
 
 template <typename T>
-class JsObjectFactory : public T
+class JsObjectFactoryBase
 {
-    using TT = typename T::ObjectType;
 public:
-    JsObjectFactory()
-        : ops_{ nullptr,
-                nullptr,
-                nullptr,
-                nullptr,
-                nullptr,
-                nullptr,
-                JsFinalizeOp<TT>,
-                nullptr,
-                nullptr,
-                nullptr,
-                nullptr }
-        , class_{ T::className,
-                  JSCLASS_HAS_PRIVATE | JSCLASS_FOREGROUND_FINALIZE | T::classFlags,
-                  &ops_ }
-    {
-    }
-
-    virtual ~JsObjectFactory()
+    virtual ~JsObjectFactoryBase()
     {
 
     }
@@ -44,7 +23,7 @@ public:
     template <typename ... ArgTypes>
     JSObject* Create( JSContext* cx, ArgTypes&& ... args )
     {
-        if ( !T::ValidateCtorArguments( cx, args... ) )
+        if ( !T::ValidateCtorArguments( arg... ) )
         {
             return nullptr;
         }
@@ -62,7 +41,7 @@ public:
             return nullptr;
         }
 
-        JS_SetPrivate( jsObj, new TT( cx, args... ) );
+        JS_SetPrivate( jsObj, new T( cx, args... ) );
 
         return jsObj;
     }
@@ -73,8 +52,25 @@ public:
     }
 
 private:
-    JsObjectFactory( const JsObjectFactory& ) = delete;
-    JsObjectFactory& operator=( const JsObjectFactory& ) = delete;
+    JsObjectFactoryBase()
+        : ops_( nullptr,
+                nullptr,
+                nullptr,
+                nullptr,
+                nullptr,
+                nullptr,
+                JsFinalizeOp<T>,
+                nullptr,
+                nullptr,
+                nullptr,
+                nullptr )
+        , class_( T::GetClassName(),
+                  JSCLASS_HAS_PRIVATE | JSCLASS_FOREGROUND_FINALIZE | T::GetClassFlags(),
+                  &ops_ )
+        ,
+    {
+    }
+    JsObjectFactoryBase( const JsObjectFactoryBase& ) = delete;
 
 private:
     JSClassOps ops_;

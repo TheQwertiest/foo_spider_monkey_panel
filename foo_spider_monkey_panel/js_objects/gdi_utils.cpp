@@ -5,7 +5,6 @@
 #include <js_engine/js_to_native_invoker.h>
 #include <js_objects/gdi_font.h>
 #include <js_objects/gdi_bitmap.h>
-#include <js_objects/factory_holder.h>
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
 
@@ -37,8 +36,8 @@ JSClass jsClass = {
     &jsOps
 };
 
-MJS_WRAP_NATIVE_FN( JsGdiUtils, CreateImage )
-MJS_WRAP_NATIVE_FN_WITH_OPT( JsGdiUtils, Font, FontWithOpt, 1 )
+MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiUtils, CreateImage )
+MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsGdiUtils, Font, FontWithOpt, 1 )
 
 const JSFunctionSpec jsFunctions[] = {
     JS_FN( "CreateImage", CreateImage, 2, 0 ),
@@ -134,7 +133,7 @@ JsGdiUtils::Font( std::wstring fontName, float pxSize, uint32_t style )
         DEFAULT_PITCH | FF_DONTCARE,
         fontName.c_str() );
 
-    JS::RootedObject jsRetObject( pJsCtx_, JsFactoryHolder::GetInstance().Factory<JsGdiFont>().Create( pJsCtx_, pGdiFont.get(), hFont, true ) );
+    JS::RootedObject jsRetObject( pJsCtx_, JsGdiFont::Create( pJsCtx_, pGdiFont.get(), hFont, true ) );
     if ( !jsRetObject )
     {
         DeleteObject( hFont );
