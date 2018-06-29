@@ -1061,18 +1061,25 @@ interface IJSUtils {
 		var arr = utils.Glob("C:\\*.*").toArray();
 		*/
 
-		utils.InputBox(window_id, prompt, caption[, defaultval]) (string)
+		utils.InputBox(window_id, prompt, caption[, defaultval][, error_on_cancel]) (string)
 		/*
 		window_id: window.ID
 		prompt: string
 		caption: string
 		defaultval: string, optional
+		error_on_cancel: boolean, default false. If set to true use try/catch like Example2.
 
-		Example:
-		var username = utils.InputBox(window.ID, "Enter your username", "JScript Panel");
+		Example1:
+		var username = utils.InputBox(window.ID, "Enter your username", "JScript Panel", "");
 
-		If you cancel the dialog, "defaultval" will be returned - or an empty string if
-		you didn't supply one.
+		With "error_on_cancel" not set (or set to false), cancelling the dialog will return "defaultval".
+
+		Example2:
+		try {
+			var username = utils.InputBox(window.ID, "Enter your username", "JScript Panel", "", true);
+		} catch(e) {
+			// we know user pressed Cancel, username will be undefined
+		}
 		*/
 
 		utils.IsKeyPressed(vkey); (boolean)

@@ -4141,7 +4141,7 @@ STDMETHODIMP JSUtils::Glob(BSTR pattern, UINT exc_mask, UINT inc_mask, VARIANT* 
 	return S_OK;
 }
 
-STDMETHODIMP JSUtils::InputBox(UINT window_id, BSTR prompt, BSTR caption, BSTR def, BSTR* out)
+STDMETHODIMP JSUtils::InputBox(UINT window_id, BSTR prompt, BSTR caption, BSTR def, VARIANT_BOOL error_on_cancel, BSTR* out)
 {
 	if (!out) return E_POINTER;
 
@@ -4156,11 +4156,16 @@ STDMETHODIMP JSUtils::InputBox(UINT window_id, BSTR prompt, BSTR caption, BSTR d
 
 		scope.initialize(HWND(window_id));
 		CInputBox dlg(uprompt, ucaption, udef);
-		if (dlg.DoModal(HWND(window_id)) == IDOK)
+		int status = dlg.DoModal(HWND(window_id));
+		if (status == IDOK)
 		{
 			pfc::string8 val;
 			dlg.GetValue(val);
 			*out = SysAllocString(pfc::stringcvt::string_wide_from_utf8_fast(val));
+		}
+		else if (status == IDCANCEL && error_on_cancel != VARIANT_FALSE)
+		{
+			return E_FAIL;
 		}
 	}
 	return S_OK;
