@@ -419,11 +419,8 @@ void stream_to_mem_block(
  * \subsection    step2        Helpers
  *
  * The prefered method of implementing the window class is to derive from
- * uie::container_ui_extension.
- * Single instance panels or dialog-based panels may wish to derive from
- * uie::window_base_t instead.
- *
- * Deriving directly from uie::window is generally not needed.
+ * uie::container_ui_extension (although this may not be suitable for 
+ * single-instance panels or dialog-based panels).
  *
  * \section        button_sec    Button APIs
  * \subsection    ss_buttons    APIs
