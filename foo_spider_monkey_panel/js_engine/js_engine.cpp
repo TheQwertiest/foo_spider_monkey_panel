@@ -12,8 +12,6 @@
 namespace mozjs
 {
 
-std::atomic<bool> JsEngine::isShuttingDown = false;
-
 JsEngine::JsEngine()
     : pJsCtx_( nullptr )
 {
@@ -115,8 +113,6 @@ void JsEngine::Finalize()
 {
     if (pJsCtx_)
     {
-        isShuttingDown = true;
-
         for each ( auto elem in registeredPanels_ )
         {
             elem.second.get().Finalize();
@@ -127,11 +123,6 @@ void JsEngine::Finalize()
     }
 
     isInitialized_ = false;
-}
-
-bool JsEngine::IsShuttingDown()
-{
-    return isShuttingDown;
 }
 
 }

@@ -55,7 +55,7 @@ bool NativeToJsArguments( JSContext * cx,
                           JS::AutoValueArray<ArgArraySize>& wrappedArgs,
                           uint8_t argIndex, ArgType arg, Args&&... args )
 {
-    return NativeToJsValue( cx, arg, wrappedArgs[argIndex] )
+    return convert::to_js::ToValue( cx, arg, wrappedArgs[argIndex] )
         && NativeToJsArguments( cx, wrappedArgs, argIndex + 1, args... );
 }
 

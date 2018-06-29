@@ -47,7 +47,9 @@ bool JsToVariant( VARIANTARG& arg, JSContext* cx, JS::HandleValue rval );
 
 /////////////////////////////////////////////////
 
-class WrappedJs: public IDispatchImpl3<IWrappedJs>
+class WrappedJs
+    : public IDispatchImpl3<IWrappedJs>
+    , public mozjs::IHeapUser
 {
 protected:
     WrappedJs( JSContext * cx, JS::HandleFunction jsFunction )
@@ -65,8 +67,10 @@ protected:
         pNativeGlobal_ = mozjs::GetNativeFromJsObject<mozjs::JsGlobalObject>( cx, jsGlobal );
         assert( pNativeGlobal_ );
 
+        pNativeGlobal_->RegisterHeapUser( this );
         funcId_ = pNativeGlobal_->StoreToHeap( funcValue );
         globalId_ = pNativeGlobal_->StoreToHeap( globalValue );
+        needsCleanup_ = true;
     }
     /// @details Might be called off main thread
     virtual ~WrappedJs()
@@ -74,12 +78,28 @@ protected:
     }
     /// @details Might be called off main thread
     virtual void FinalRelease()
-    {
-        if ( !mozjs::JsEngine::IsShuttingDown() )
-        {// most of the object handles might be invalid at global GC time
-            pNativeGlobal_->RemoveFromHeap( globalId_ );
-            pNativeGlobal_->RemoveFromHeap( funcId_ );
+    {// most of the JS object might be invalid at GC time,
+     // so we need to be extra careful
+        if ( !needsCleanup_ )
+        {
+            return;
         }
+
+        std::scoped_lock sl( cleanupLock_ );
+        if ( !needsCleanup_ )
+        {
+            return;
+        }
+
+        pNativeGlobal_->RemoveFromHeap( globalId_ );
+        pNativeGlobal_->RemoveFromHeap( funcId_ );
+        pNativeGlobal_->UnregisterHeapUser( this );
+    }
+
+    virtual void DisableHeapCleanup() override
+    {
+        std::scoped_lock sl( cleanupLock_ );
+        needsCleanup_ = false;
     }
 
     STDMETHODIMP ExecuteValue( VARIANT* Result )
@@ -91,6 +111,7 @@ protected:
 
         JSAutoRequest ar( pJsCtx_ );
         JS::RootedObject jsGlobal( pJsCtx_, pNativeGlobal_->GetFromHeap(globalId_).toObjectOrNull() );
+        assert( jsGlobal );
         JSAutoCompartment ac( pJsCtx_, jsGlobal );
         
         JS::RootedValue vFunc( pJsCtx_, pNativeGlobal_->GetFromHeap( funcId_ ) );
@@ -98,8 +119,8 @@ protected:
 
         JS::RootedValue retVal( pJsCtx_ );
         if ( !JS::Call( pJsCtx_, jsGlobal, rFunc, JS::HandleValueArray::empty(), &retVal ) )
-        {// TODO: set fail
-            JS_ClearPendingException( pJsCtx_ ); // can't forward exception inside ActiveX objects...
+        {// TODO: set fail somehow
+            JS_ClearPendingException( pJsCtx_ ); ///< can't forward exceptions inside ActiveX objects...
             return E_FAIL;
         }
 
@@ -114,10 +135,13 @@ protected:
     }
 
 private:
-    JSContext * pJsCtx_;
+    JSContext * pJsCtx_ = nullptr;
     uint32_t funcId_;
     uint32_t globalId_;
-    mozjs::JsGlobalObject* pNativeGlobal_;
+    mozjs::JsGlobalObject* pNativeGlobal_ = nullptr;
+
+    std::mutex cleanupLock_;
+    bool needsCleanup_ = false;
 };
 
 
@@ -1627,7 +1651,7 @@ bool ActiveX::SetupMembers( JSContext* cx, JS::HandleObject obj )
                 if ( desc && *desc )
                 {
                     std::wstring wStr( desc, SysStringLen( desc ) );
-                    mozjs::NativeToJsValue( cx, wStr, &d );
+                    mozjs::convert::to_js::ToValue( cx, wStr, &d );
                 }
                 else
                 {
@@ -1685,7 +1709,7 @@ bool ActiveX::SetupMembers( JSContext* cx, JS::HandleObject obj )
                 if ( desc && *desc)
                 {
                     std::wstring wStr( desc, SysStringLen( desc ) );
-                    mozjs::NativeToJsValue( cx, wStr, &d );
+                    mozjs::convert::to_js::ToValue( cx, wStr, &d );
                 }
                 else
                 {

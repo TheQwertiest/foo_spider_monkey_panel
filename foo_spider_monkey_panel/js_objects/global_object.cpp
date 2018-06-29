@@ -128,38 +128,63 @@ void JsGlobalObject::Fail( std::string_view errorText )
     parentPanel_.JsEngineFail( errorText );
 }
 
+void JsGlobalObject::RegisterHeapUser( IHeapUser* heapUser )
+{
+    std::scoped_lock sl( heapUsersLock_ );
+
+    assert( !heapUsers_.count( heapUser ) );
+    heapUsers_.emplace( heapUser, heapUser );
+}
+
+void JsGlobalObject::UnregisterHeapUser( IHeapUser* heapUser )
+{
+    std::scoped_lock sl( heapUsersLock_ );
+
+    assert( heapUsers_.count( heapUser ) );
+    heapUsers_.erase( heapUser );
+}
+
 uint32_t JsGlobalObject::StoreToHeap( JS::HandleValue valueToStore )
 {
-    std::lock_guard sl( tracerMapLock_ );
+    std::scoped_lock sl( heapElementsLock_ );
 
-    while( heapMap_.count( currentHeapId_ ))
+    while( heapElements_.count( currentHeapId_ ))
     {
         ++currentHeapId_;
     }
 
-    heapMap_[currentHeapId_] = std::make_shared<HeapElement>( valueToStore );
+    heapElements_[currentHeapId_] = std::make_shared<HeapElement>( valueToStore );
     return currentHeapId_++;
 }
 
 JS::Heap<JS::Value>& JsGlobalObject::GetFromHeap( uint32_t id )
 {
-    std::lock_guard sl( tracerMapLock_ );
+    std::scoped_lock sl( heapElementsLock_ );
 
-    assert( heapMap_.count( id ) );
-    return heapMap_[id]->value;
+    assert( heapElements_.count( id ) );
+    return heapElements_[id]->value;
 }
 
 void JsGlobalObject::RemoveFromHeap( uint32_t id )
 {
-    std::lock_guard sl( tracerMapLock_ );
+    std::scoped_lock sl( heapElementsLock_ );
     
-    assert( heapMap_.count(id) );    
-    heapMap_[id]->inUse = false;    
+    assert( heapElements_.count(id) );    
+    heapElements_[id]->inUse = false;    
 }
 
 void JsGlobalObject::RemoveHeapTracer()
 {
     JS_RemoveExtraGCRootsTracer( pJsCtx_, JsGlobalObject::TraceHeapValue, this );
+    
+    std::scoped_lock sl( heapUsersLock_ );
+
+    for each ( auto heapUser in heapUsers_ )
+    {
+        heapUser.second->DisableHeapCleanup();
+    }
+
+    heapUsers_.clear();
 }
 
 void JsGlobalObject::TraceHeapValue( JSTracer *trc, void *data )
@@ -167,9 +192,9 @@ void JsGlobalObject::TraceHeapValue( JSTracer *trc, void *data )
     assert( data );
     auto globalObject = static_cast<JsGlobalObject*>( data );
 
-    std::lock_guard sl( globalObject->tracerMapLock_ );
+    std::scoped_lock sl( globalObject->heapElementsLock_ );
     
-    auto& heapMap = globalObject->heapMap_;
+    auto& heapMap = globalObject->heapElements_;
     for ( auto it = heapMap.begin(); it != heapMap.end();)
     {
         if ( !it->second->inUse )

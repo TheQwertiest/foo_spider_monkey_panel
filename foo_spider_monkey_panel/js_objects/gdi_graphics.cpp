@@ -299,79 +299,8 @@ JsGdiGraphics::DrawRoundRect( float x, float y, float w, float h, float arc_widt
     return nullptr;
 }
 
-std::optional<std::nullptr_t>
-JsGdiGraphics::DrawString( std::wstring str, JS::HandleValue font, uint32_t colour, float x, float y, float w, float h, uint32_t flags )
-{
-    if ( !pGdi_ )
-    {
-        JS_ReportErrorASCII( pJsCtx_, "Internal error: Gdiplus::Graphics object is null" );
-        return std::nullopt;
-    }
-
-    JS::RootedObject jsObject( pJsCtx_, GetJsObjectFromValue( pJsCtx_, font ) );
-    if ( !jsObject )
-    {
-        JS_ReportErrorASCII( pJsCtx_, "font argument is not a JS object" );
-        return std::nullopt;
-    }
-
-    JsGdiFont* pJsFont = GetNativeFromJsObject<JsGdiFont>( pJsCtx_, jsObject );
-    if ( !pJsFont )
-    {
-        JS_ReportErrorASCII( pJsCtx_, "font argument is not a GdiFont object" );
-        return std::nullopt;
-    }
-
-    Gdiplus::Font* pGdiFont = pJsFont->GdiFont();
-    if ( !pGdiFont )
-    {
-        JS_ReportErrorASCII( pJsCtx_, "Internal error: GdiFont is null" );
-        return std::nullopt;
-    }
-    return nullptr;
-    Gdiplus::SolidBrush br( colour );
-    Gdiplus::StringFormat fmt( Gdiplus::StringFormat::GenericTypographic() );
-
-    if ( flags != 0 )
-    {
-        Gdiplus::Status gdiRet = fmt.SetAlignment( ( Gdiplus::StringAlignment )( ( flags >> 28 ) & 0x3 ) ); //0xf0000000
-        IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, std::nullopt, SetAlignment );
-
-        gdiRet = fmt.SetLineAlignment( ( Gdiplus::StringAlignment )( ( flags >> 24 ) & 0x3 ) ); //0x0f000000
-        IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, std::nullopt, SetLineAlignment );
-
-        gdiRet = fmt.SetTrimming( ( Gdiplus::StringTrimming )( ( flags >> 20 ) & 0x7 ) ); //0x00f00000
-        IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, std::nullopt, SetTrimming );
-
-        gdiRet = fmt.SetFormatFlags( ( Gdiplus::StringFormatFlags )( flags & 0x7FFF ) ); //0x0000ffff
-        IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, std::nullopt, SetFormatFlags );
-    }
-
-    Gdiplus::Status gdiRet = pGdi_->DrawString( str.c_str(), -1, pGdiFont, Gdiplus::RectF( x, y, w, h ), &fmt, &br );
-    IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, std::nullopt, DrawString );
-
-    return nullptr;
-}
-
-std::optional<std::nullptr_t>
-JsGdiGraphics::DrawStringWithOpt( size_t optArgCount, std::wstring str, JS::HandleValue font, uint32_t colour, float x, float y, float w, float h, uint32_t flags )
-{
-    if ( optArgCount > 1 )
-    {
-        JS_ReportErrorASCII( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
-        return std::nullopt;
-    }
-
-    if ( optArgCount == 1 )
-    {
-        return DrawString( str, font, colour, x, y, w, h, 0 );
-    }
-
-    return DrawString( str, font, colour, x, y, w, h, flags );
-}
-
 std::optional<std::nullptr_t> 
-JsGdiGraphics::DrawString2( std::wstring str, JsGdiFont* font, uint32_t colour, float x, float y, float w, float h, uint32_t flags )
+JsGdiGraphics::DrawString( std::wstring str, JsGdiFont* font, uint32_t colour, float x, float y, float w, float h, uint32_t flags )
 {
     if ( !pGdi_ )
     {
@@ -417,7 +346,7 @@ JsGdiGraphics::DrawString2( std::wstring str, JsGdiFont* font, uint32_t colour, 
 }
 
 std::optional<std::nullptr_t> 
-JsGdiGraphics::DrawStringWithOpt2( size_t optArgCount, std::wstring str, JsGdiFont* font, uint32_t colour, float x, float y, float w, float h, uint32_t flags )
+JsGdiGraphics::DrawStringWithOpt( size_t optArgCount, std::wstring str, JsGdiFont* font, uint32_t colour, float x, float y, float w, float h, uint32_t flags )
 {
     if ( optArgCount > 1 )
     {
@@ -427,10 +356,10 @@ JsGdiGraphics::DrawStringWithOpt2( size_t optArgCount, std::wstring str, JsGdiFo
 
     if ( optArgCount == 1 )
     {
-        return DrawString2( str, font, colour, x, y, w, h, 0 );
+        return DrawString( str, font, colour, x, y, w, h, 0 );
     }
 
-    return DrawString2( str, font, colour, x, y, w, h, flags );
+    return DrawString( str, font, colour, x, y, w, h, flags );
 }
 
 std::optional<std::nullptr_t>

@@ -14,6 +14,20 @@ class js_panel_window;
 namespace mozjs
 {
 
+class IHeapUser
+{
+public:
+    IHeapUser()
+    {
+
+    }
+    virtual ~IHeapUser()
+    {
+
+    }
+    virtual void DisableHeapCleanup() = 0;
+};
+
 class JsContainer;
 
 class JsGlobalObject
@@ -27,6 +41,9 @@ public:
 
 public:
     void Fail( std::string_view errorText);
+
+    void RegisterHeapUser( IHeapUser* heapUser );
+    void UnregisterHeapUser( IHeapUser* heapUser );
 
     uint32_t JsGlobalObject::StoreToHeap( JS::HandleValue valueToStore );
     JS::Heap<JS::Value>& GetFromHeap( uint32_t id );
@@ -44,8 +61,7 @@ private:
     JSContext * pJsCtx_ = nullptr;;
     JsContainer &parentContainer_;
     js_panel_window& parentPanel_;
-
-    std::mutex tracerMapLock_;
+    
     uint32_t currentHeapId_;    
     struct HeapElement
     {
@@ -58,7 +74,11 @@ private:
         bool inUse;
         JS::Heap<JS::Value> value;
     };
-    std::unordered_map<uint32_t, std::shared_ptr<HeapElement>> heapMap_;
+    std::mutex heapElementsLock_;
+    std::unordered_map<uint32_t, std::shared_ptr<HeapElement>> heapElements_;
+
+    std::mutex heapUsersLock_;
+    std::unordered_map<IHeapUser*, IHeapUser*> heapUsers_;
 };
 
 }

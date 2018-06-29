@@ -204,7 +204,7 @@ bool InvokeNativeCallback_Impl( JSContext* cx,
     }
     else
     {
-        if ( !NativeToJsValue( cx, retVal.value(), args.rval() ) )
+        if ( !convert::to_js::ToValue( cx, retVal.value(), args.rval() ) )
         {
             args.rval().setUndefined();
 

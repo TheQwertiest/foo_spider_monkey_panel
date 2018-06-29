@@ -28,9 +28,6 @@ public:
 
     bool RegisterPanel( js_panel_window& parentPanel, JsContainer& jsContainer );
     void UnregisterPanel( js_panel_window& parentPanel );
-    
-    // static, because it might be called from non js objects in other threads (e.g. COM objects)
-    static bool IsShuttingDown();
 
 private:
     JsEngine();
@@ -44,7 +41,6 @@ private:
     JSContext * pJsCtx_ = nullptr;
 
     bool isInitialized_ = false;
-    static std::atomic<bool> isShuttingDown;
 
     std::map<HWND, std::reference_wrapper<JsContainer>> registeredPanels_;
 };

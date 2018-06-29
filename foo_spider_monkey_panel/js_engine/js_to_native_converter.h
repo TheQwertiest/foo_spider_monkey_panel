@@ -68,4 +68,5 @@ template <>
 bool IsValue<std::nullptr_t>( JSContext * cx, const JS::HandleValue& jsValue );
 template <>
 std::nullptr_t ToValue<std::nullptr_t>( JSContext * cx, const JS::HandleValue& jsValue );
+
 }
