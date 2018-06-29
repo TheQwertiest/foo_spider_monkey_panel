@@ -1,3 +1,10 @@
+v2.1.5.2
+- CHG: utils.InputBox is now centred when you open it plus you can now
+       detect when the user presses Cancel. See docs\interfaces.txt.
+- FIX: Fix bug with Autoplaylists sample which prevent existing queries
+       from being edited.
+- CHG: gr.GdiDrawText no longer has any return value.
+
 v2.1.5.1
 - FIX: Fix incorrect spelling on the "Cancel" button in utils.InputBox.
 
