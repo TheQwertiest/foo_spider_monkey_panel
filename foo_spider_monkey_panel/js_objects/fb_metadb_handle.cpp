@@ -34,16 +34,18 @@ JSClass jsClass = {
     &jsOps
 };
 
+MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandle, get_FileSize )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandle, get_Length )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandle, get_Path )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandle, get_RawPath )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandle, get_SubSong )
 
 const JSPropertySpec jsProperties[] = {
-    JS_PSG( "Length",  get_Length, 0 ),
-    JS_PSG( "Path",    get_Path, 0 ),
-    JS_PSG( "RawPath", get_RawPath, 0 ),
-    JS_PSG( "SubSong", get_SubSong, 0 ),
+    JS_PSG( "FileSize", get_FileSize, 0 ),
+    JS_PSG( "Length",   get_Length, 0 ),
+    JS_PSG( "Path",     get_Path, 0 ),
+    JS_PSG( "RawPath",  get_RawPath, 0 ),
+    JS_PSG( "SubSong",  get_SubSong, 0 ),
     JS_PS_END
 };
 
@@ -120,18 +122,6 @@ metadb_handle_ptr& JsFbMetadbHandle::GetHandle()
 {
     return metadbHandle_;
 }
-
-/*
-
-STDMETHODIMP FbMetadbHandle::get_FileSize(LONGLONG* p)
-{
-    if (metadbHandle_.is_empty() || !p) return E_POINTER;
-
-    *p = metadbHandle_->get_filesize();
-    return nullptr;
-}
-
-*/
 
 std::optional<std::nullptr_t> 
 JsFbMetadbHandle::ClearStats()
@@ -297,6 +287,14 @@ JsFbMetadbHandle::SetRating( uint32_t rating )
     }
 
     return nullptr;
+}
+
+std::optional<std::uint64_t> 
+JsFbMetadbHandle::get_FileSize()
+{
+    assert( metadbHandle_.is_valid() );
+    return static_cast<uint64_t>(metadbHandle_->get_filesize());
+}
 }
 
 std::optional<double> 

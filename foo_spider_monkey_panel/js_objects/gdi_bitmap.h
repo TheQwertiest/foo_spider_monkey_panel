@@ -17,15 +17,6 @@ namespace mozjs
 
 class JsGdiGraphics;
 
-/*
-
-STDMETHODIMP GetColourScheme(UINT count, VARIANT* outArray);
-STDMETHODIMP GetColourSchemeJSON(UINT count, BSTR* outJson);
-STDMETHODIMP SaveAs(BSTR path, BSTR format, VARIANT_BOOL* p);
-};
-
-*/
-
 class JsGdiBitmap
 {
 public:

@@ -33,7 +33,7 @@ public: // methods
     std::optional<std::nullptr_t> SetRating( uint32_t rating );
 
 public: // props
-    //std::optional<std::nullptr_t> get_FileSize( LONGLONG* p );
+    std::optional<std::uint64_t> get_FileSize();
     std::optional<double> get_Length();
     std::optional<std::string> get_Path();
     std::optional<std::string> get_RawPath();

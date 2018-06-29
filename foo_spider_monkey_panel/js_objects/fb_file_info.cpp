@@ -57,8 +57,8 @@ MJS_DEFINE_JS_TO_NATIVE_FN( JsFbFileInfo, get_MetaCount );
 
 const JSPropertySpec jsProperties[] = {
     
-    JS_PSG( "get_InfoCount", get_InfoCount , 0 ),
-    JS_PSG( "get_MetaCount", get_MetaCount , 0 ),
+    JS_PSG( "InfoCount", get_InfoCount , 0 ),
+    JS_PSG( "MetaCount", get_MetaCount , 0 ),
     JS_PS_END
 };
 

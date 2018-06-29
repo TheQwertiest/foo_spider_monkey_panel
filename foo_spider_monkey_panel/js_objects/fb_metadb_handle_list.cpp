@@ -38,13 +38,67 @@ JSClass jsClass = {
     &jsOps
 };
 
-const JSPropertySpec jsProperties[] = {
-    JS_PS_END
-};
-
+MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandleList, Add );
+MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandleList, AddRange );
+MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandleList, BSearch );
+MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandleList, CalcTotalDuration );
+MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandleList, CalcTotalSize );
+MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandleList, Clone );
+//MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandleList, Convert );
+MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandleList, Find );
+//MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandleList, GetLibraryRelativePaths );
+MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandleList, Insert );
+MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandleList, InsertRange );
+MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandleList, MakeDifference );
+MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandleList, MakeIntersection );
+MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandleList, MakeUnion );
+//MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandleList, OrderByFormat );
+MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandleList, OrderByPath );
+MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandleList, OrderByRelativePath );
+MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandleList, RefreshStats );
+MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandleList, Remove );
+MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandleList, RemoveAll );
+MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandleList, RemoveById );
+MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandleList, RemoveRange );
+MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandleList, Sort );
+MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandleList, UpdateFileInfoFromJSON );
 
 const JSFunctionSpec jsFunctions[] = {
+    JS_FN( "Add"                    , Add                    , 1, 0 ),
+    JS_FN( "AddRange"               , AddRange               , 1, 0 ),
+    JS_FN( "BSearch"                , BSearch                , 1, 0 ),
+    JS_FN( "CalcTotalDuration"      , CalcTotalDuration      , 0, 0 ),
+    JS_FN( "CalcTotalSize"          , CalcTotalSize          , 0, 0 ),
+    JS_FN( "Clone"                  , Clone                  , 0, 0 ),
+    //JS_FN( "Convert"                , Convert                , 0, 0 ),
+    JS_FN( "Find"                   , Find                   , 1, 0 ),
+    //JS_FN( "GetLibraryRelativePaths", GetLibraryRelativePaths, 0, 0 ),
+    JS_FN( "Insert"                 , Insert                 , 2, 0 ),
+    JS_FN( "InsertRange"            , InsertRange            , 2, 0 ),
+    JS_FN( "MakeDifference"         , MakeDifference         , 1, 0 ),
+    JS_FN( "MakeIntersection"       , MakeIntersection       , 1, 0 ),
+    JS_FN( "MakeUnion"              , MakeUnion              , 1, 0 ),
+    //JS_FN( "OrderByFormat"          , OrderByFormat          , 0, 0 ),
+    JS_FN( "OrderByPath"            , OrderByPath            , 0, 0 ),
+    JS_FN( "OrderByRelativePath"    , OrderByRelativePath    , 0, 0 ),
+    JS_FN( "RefreshStats"           , RefreshStats           , 0, 0 ),
+    JS_FN( "Remove"                 , Remove                 , 1, 0 ),
+    JS_FN( "RemoveAll"              , RemoveAll              , 0, 0 ),
+    JS_FN( "RemoveById"             , RemoveById             , 1, 0 ),
+    JS_FN( "RemoveRange"            , RemoveRange            , 2, 0 ),
+    JS_FN( "Sort"                   , Sort                   , 0, 0 ),
+    JS_FN( "UpdateFileInfoFromJSON" , UpdateFileInfoFromJSON , 1, 0 ),
     JS_FS_END
+};
+
+MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandleList, get_Count );
+MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandleList, get_Item );
+MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandleList, put_Item );
+
+const JSPropertySpec jsProperties[] = {
+    JS_PSG( "Count", get_InfoCount, 0 ),
+    JS_PSGS( "Item", get_InfoCount, put_Item, 0 ),
+    JS_PS_END
 };
 
 }
@@ -149,6 +203,12 @@ std::optional<double>
 JsFbMetadbHandleList::CalcTotalDuration()
 {
     return metadbHandleList_.calc_total_duration();
+}
+
+std::optional<std::uint64_t> 
+JsFbMetadbHandleList::CalcTotalSize()
+{
+    return static_cast<uint64_t>(metadb_handle_list_helper::calc_total_size( metadbHandleList_, true ));
 }
 
 std::optional<JSObject*> 
@@ -565,7 +625,7 @@ JsFbMetadbHandleList::get_Item( uint32_t index )
 
 
 std::optional<std::nullptr_t> 
-JsFbMetadbHandleList::put_Item( uint32_t index, JS::HandleValue handle )
+JsFbMetadbHandleList::put_Item( uint32_t index, JsFbMetadbHandle* handle )
 {
     if ( index >= metadbHandleList_.get_count() )
     {
@@ -573,14 +633,13 @@ JsFbMetadbHandleList::put_Item( uint32_t index, JS::HandleValue handle )
         return std::nullopt;
     }
 
-    auto pNativeHandle = GetNativeFromJsValue<JsFbMetadbHandle>( pJsCtx_, handle );
-    if ( !pNativeHandle )
+    if ( !handle )
     {
-        JS_ReportErrorASCII( pJsCtx_, "handle argument is not a FbMetadbHandle object" );
+        JS_ReportErrorASCII( pJsCtx_, "handle argument is null" );
         return std::nullopt;
     }
 
-    metadb_handle_ptr fbHandle( pNativeHandle->GetHandle() );
+    metadb_handle_ptr fbHandle( handle->GetHandle() );
     if ( fbHandle.is_empty() )
     {
         JS_ReportErrorASCII( pJsCtx_, "Internal error: FbMetadbHandle does not contain valid handle" );

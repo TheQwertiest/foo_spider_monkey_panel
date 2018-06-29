@@ -14,12 +14,6 @@ class Bitmap;
 namespace mozjs
 {
 
-/*
-
-STDMETHODIMP get__Handle(HDC* p);
-
-*/
-
 class JsGdiRawBitmap
 {
 public:

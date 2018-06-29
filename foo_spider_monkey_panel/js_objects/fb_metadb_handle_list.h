@@ -32,7 +32,7 @@ public: // methods
     std::optional<std::nullptr_t> AddRange( JsFbMetadbHandleList* handles );
     std::optional<int32_t> BSearch( JsFbMetadbHandle* handle );
     std::optional<double> CalcTotalDuration();
-    //std::optional<std::nullptr_t> CalcTotalSize( LONGLONG* p );
+    std::optional<std::uint64_t> CalcTotalSize();
     std::optional<JSObject*> Clone();
     //std::optional<std::nullptr_t> Convert( VARIANT* p );
     std::optional<int32_t> Find( JsFbMetadbHandle* handle );
@@ -56,7 +56,7 @@ public: // methods
 public: // props
     std::optional<uint32_t> get_Count();
     std::optional<JSObject*> get_Item( uint32_t index );
-    std::optional<std::nullptr_t> put_Item( uint32_t index, JS::HandleValue handle );
+    std::optional<std::nullptr_t> put_Item( uint32_t index, JsFbMetadbHandle* handle );
     // TODO: add array methods
 
 private:
