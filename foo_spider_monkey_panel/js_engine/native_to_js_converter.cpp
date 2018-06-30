@@ -8,6 +8,8 @@ namespace mozjs::convert::to_js
 
 bool ToValue( JSContext * cx, JS::HandleObject inValue, JS::MutableHandleValue wrappedValue )
 {
+    (void)cx;
+    (void)inValue;
     wrappedValue.setObjectOrNull( inValue );
     return true;
 }

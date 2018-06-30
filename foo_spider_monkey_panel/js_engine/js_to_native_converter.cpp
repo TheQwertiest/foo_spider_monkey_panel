@@ -7,7 +7,7 @@ namespace mozjs::convert::to_native
 {
 
 template <>
-bool ToValue<bool>( JSContext * cx, const JS::HandleValue& jsValue, bool& isValid )
+bool ToValue<bool>( [[maybe_unused]]JSContext * cx, const JS::HandleValue& jsValue, bool& isValid )
 {
     isValid = true;
     return JS::ToBoolean( jsValue );
@@ -105,8 +105,9 @@ std::wstring ToValue<std::wstring>( JSContext * cx, const JS::HandleValue& jsVal
 }
 
 template <>
-std::nullptr_t ToValue<std::nullptr_t>( JSContext * cx, const JS::HandleValue& jsValue, bool& isValid )
+std::nullptr_t ToValue<std::nullptr_t>( [[maybe_unused]]JSContext * cx, [[maybe_unused]]const JS::HandleValue& jsValue, bool& isValid )
 {
+    isValid = true;
     return nullptr;
 }
 

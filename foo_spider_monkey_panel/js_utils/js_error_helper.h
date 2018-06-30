@@ -1,6 +1,7 @@
 #pragma once
 
 #pragma warning( push )  
+#pragma warning( disable : 4100 ) // unreferenced parameter
 #pragma warning( disable : 4251 ) // dll interface warning
 #pragma warning( disable : 4996 ) // C++17 deprecation warning
 #include <jsapi.h>

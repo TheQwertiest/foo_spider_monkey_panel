@@ -86,7 +86,8 @@ ui_element_config::ptr js_panel_window_dui::g_get_default_configuration()
 	js_panel_vars vars;
 
 	vars.reset_config();
-	vars.save_config(&builder.m_stream, abort_callback_dummy());
+    abort_callback_dummy dummy;
+	vars.save_config(&builder.m_stream, dummy );
 	return builder.finish(g_get_guid());
 }
 

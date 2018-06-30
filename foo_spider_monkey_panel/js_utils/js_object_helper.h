@@ -9,6 +9,8 @@
 namespace mozjs
 {
 
+// TODO: remove this shit
+
 JSObject* GetJsObjectFromValue( JSContext* cx, JS::HandleValue jsValue );
 
 template <typename NativeType>

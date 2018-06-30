@@ -65,9 +65,9 @@ bool NativeToJsArguments( JSContext * cx,
 }
 
 template <int ArgArraySize>
-bool NativeToJsArguments( JSContext * cx,
-                          JS::AutoValueArray<ArgArraySize>& wrappedArgs,
-                          uint8_t argIndex )
+bool NativeToJsArguments( [[maybe_unused]] JSContext * cx,
+                          [[maybe_unused]] JS::AutoValueArray<ArgArraySize>& wrappedArgs,
+                          [[maybe_unused]] uint8_t argIndex )
 {
     return true;
 }

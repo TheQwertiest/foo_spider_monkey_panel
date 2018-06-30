@@ -24,7 +24,7 @@ void type_info_cache_holder::init_from_typelib(ITypeLib* p_typeLib, const GUID& 
 	p_typeLib->GetTypeInfoOfGuid(guid, &m_type_info);
 }
 
-HRESULT type_info_cache_holder::GetTypeInfo(UINT iTInfo, LCID lcid, ITypeInfo** ppTInfo)
+HRESULT type_info_cache_holder::GetTypeInfo(UINT iTInfo, [[maybe_unused]]LCID lcid, ITypeInfo** ppTInfo)
 {
 	if (empty()) return E_UNEXPECTED;
 	if (!ppTInfo) return E_POINTER;

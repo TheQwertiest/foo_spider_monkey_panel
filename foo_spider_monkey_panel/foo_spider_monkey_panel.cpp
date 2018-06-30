@@ -88,7 +88,7 @@ namespace
 	initquit_factory_t<js_initquit> g_initquit;
 	CAppModule _Module;
 
-	extern "C" BOOL WINAPI DllMain(HINSTANCE ins, DWORD reason, LPVOID lp)
+	extern "C" BOOL WINAPI DllMain(HINSTANCE ins, DWORD reason, [[maybe_unused]]LPVOID lp)
 	{
 		static ULONG_PTR g_gdip_token;
 

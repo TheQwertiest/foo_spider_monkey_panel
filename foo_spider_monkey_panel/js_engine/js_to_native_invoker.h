@@ -251,10 +251,13 @@ ReturnType InvokeNativeCallback_Call( BaseClass* baseClass,
 {
     if constexpr( !HasOptArg )
     {
+        (void)fnWithOpt;
+        (void)optArgCount;
         return std::apply( fn, std::tuple_cat( std::make_tuple( baseClass ), argTuple ) );
     }
     else
     {// Invoke callback with optional argument handler
+        (void)fn;        
         return std::apply( fnWithOpt, std::tuple_cat( std::make_tuple( baseClass, optArgCount ), argTuple ) );
     }
 }

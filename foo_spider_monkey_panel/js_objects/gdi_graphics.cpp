@@ -371,7 +371,7 @@ JsGdiGraphics::DrawString( std::wstring str, JsGdiFont* font, uint32_t colour, f
         JS_ReportErrorASCII( pJsCtx_, "Font argument is null" );
         return std::nullopt;
     }
-    return nullptr;
+    
     Gdiplus::Font* pGdiFont = font->GdiFont();
     if ( !pGdiFont )
     {
