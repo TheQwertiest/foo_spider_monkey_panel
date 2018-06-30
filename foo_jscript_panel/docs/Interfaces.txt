@@ -1067,7 +1067,7 @@ interface IJSUtils {
 		prompt: string
 		caption: string
 		defaultval: string, optional
-		error_on_cancel: boolean, default false. If set to true use try/catch like Example2.
+		error_on_cancel: boolean, default false. If set to true, use try/catch like Example2.
 
 		Example1:
 		var username = utils.InputBox(window.ID, "Enter your username", "JScript Panel", "");
@@ -1075,10 +1075,15 @@ interface IJSUtils {
 		With "error_on_cancel" not set (or set to false), cancelling the dialog will return "defaultval".
 
 		Example2:
+		Using Example1, you can't tell if OK or Cancel was pressed if the return value is the same
+		as "defaultval". If you need to know, set "error_on_cancel" to true which throws a script error
+		when Cancel is pressed.
+
 		try {
 			var username = utils.InputBox(window.ID, "Enter your username", "JScript Panel", "", true);
+			// OK was pressed.
 		} catch(e) {
-			// we know user pressed Cancel, username will be undefined
+			// Dialog was closed by pressing Esc, Cancel or the Close button.
 		}
 		*/
 
@@ -1144,7 +1149,10 @@ interface IFbWindow {
 		*/
 
 		window.ID; (read) (int)
-		// Required in utils.ColourPicker, utils.GetAlbumArtAsync, utils.LoadImageAsync
+		/*
+		Required in fb.CheckClipboardContents, fb.GetClipboardContents, utils.ColourPicker, utils.GetAlbumArtAsync,
+		utils.InputBox, utils.LoadImageAsync, etc.
+		*/
 
 		window.InstanceType; (int)
 		/*
