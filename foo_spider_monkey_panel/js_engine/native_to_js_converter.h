@@ -29,6 +29,9 @@ template <>
 bool ToValue<uint32_t>( JSContext * cx, const uint32_t& inValue, JS::MutableHandleValue wrappedValue );
 
 template <>
+bool ToValue<uint64_t>( JSContext * cx, const uint64_t& inValue, JS::MutableHandleValue wrappedValue );
+
+template <>
 bool ToValue<double>( JSContext * cx, const double& inValue, JS::MutableHandleValue wrappedValue );
 
 template <>

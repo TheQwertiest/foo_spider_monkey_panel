@@ -136,9 +136,6 @@
     <ClCompile Include="js_objects\fb_file_info.cpp">
       <Filter>js_objects</Filter>
     </ClCompile>
-    <ClCompile Include="js_objects\_placeholder.cpp">
-      <Filter>js_objects</Filter>
-    </ClCompile>
     <ClCompile Include="js_objects\context_menu_manager.cpp">
       <Filter>js_objects</Filter>
     </ClCompile>
@@ -149,6 +146,9 @@
       <Filter>js_objects</Filter>
     </ClCompile>
     <ClCompile Include="js_objects\fb_playing_item_location.cpp">
+      <Filter>js_objects</Filter>
+    </ClCompile>
+    <ClCompile Include="js_objects\menu_object.cpp">
       <Filter>js_objects</Filter>
     </ClCompile>
   </ItemGroup>
@@ -395,6 +395,9 @@
     </ClInclude>
     <ClInclude Include="js_objects\_placeholder.h">
       <Filter>js_objects</Filter>
+    </ClInclude>
+    <ClInclude Include="js_utils\winapi_error_helper.h">
+      <Filter>js_utils</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

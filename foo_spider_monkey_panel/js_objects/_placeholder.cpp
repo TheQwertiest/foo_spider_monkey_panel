@@ -27,7 +27,7 @@ JSClassOps jsOps = {
 };
 
 JSClass jsClass = {
-    "GdiFont",
+    "Placeholder",
     JSCLASS_HAS_PRIVATE | JSCLASS_FOREGROUND_FINALIZE,
     &jsOps
 };
@@ -41,7 +41,7 @@ const JSPropertySpec jsProperties[] = {
 
 
 const JSFunctionSpec jsFunctions[] = {
-    JS_PSG( "Style",  get_Style, 2, 0 ),
+    JS_FN( "Style",  get_Style, 2, 0 ),
     JS_FS_END
 };
 

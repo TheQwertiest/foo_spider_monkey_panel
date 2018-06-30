@@ -9,6 +9,7 @@
 #include <js_utils/gdi_error_helper.h>
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
+#include <js_utils/winapi_error_helper.h>
 
 #include <helpers.h>
 
@@ -202,10 +203,10 @@ JsGdiGraphics::DrawEllipse( float x, float y, float w, float h, float line_width
     return nullptr;
 }
 
-std::optional<std::nullptr_t> 
-JsGdiGraphics::DrawImage( JsGdiBitmap* image, 
-                          float dstX, float dstY, float dstW, float dstH, 
-                          float srcX, float srcY, float srcW, float srcH, 
+std::optional<std::nullptr_t>
+JsGdiGraphics::DrawImage( JsGdiBitmap* image,
+                          float dstX, float dstY, float dstW, float dstH,
+                          float srcX, float srcY, float srcW, float srcH,
                           float angle, uint8_t alpha )
 {
     if ( !pGdi_ )
@@ -227,7 +228,7 @@ JsGdiGraphics::DrawImage( JsGdiBitmap* image,
 
         pt.X = dstX + dstW / 2;
         pt.Y = dstY + dstH / 2;
-        
+
         gdiRet = m.RotateAt( angle, pt );
         IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, std::nullopt, RotateAt );
 
@@ -244,7 +245,7 @@ JsGdiGraphics::DrawImage( JsGdiBitmap* image,
         Gdiplus::ColorMatrix cm = { 0.0f };
 
         cm.m[0][0] = cm.m[1][1] = cm.m[2][2] = cm.m[4][4] = 1.0f;
-        cm.m[3][3] = static_cast<float>( alpha ) / 255;
+        cm.m[3][3] = static_cast<float>(alpha) / 255;
 
         gdiRet = ia.SetColorMatrix( &cm );
         IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, std::nullopt, SetColorMatrix );
@@ -338,7 +339,7 @@ JsGdiGraphics::DrawRoundRect( float x, float y, float w, float h, float arc_widt
     Gdiplus::Pen pen( colour, line_width );
     Gdiplus::GraphicsPath gp;
     Gdiplus::RectF rect( x, y, w, h );
-    Gdiplus::Status gdiRet = ( Gdiplus::Status )GetRoundRectPath( gp, rect, arc_width, arc_height );
+    Gdiplus::Status gdiRet = (Gdiplus::Status)GetRoundRectPath( gp, rect, arc_width, arc_height );
     if ( gdiRet > 0 )
     {// Report in GetRoundRectPath
         return std::nullopt;
@@ -356,7 +357,7 @@ JsGdiGraphics::DrawRoundRect( float x, float y, float w, float h, float arc_widt
     return nullptr;
 }
 
-std::optional<std::nullptr_t> 
+std::optional<std::nullptr_t>
 JsGdiGraphics::DrawString( std::wstring str, JsGdiFont* font, uint32_t colour, float x, float y, float w, float h, uint32_t flags )
 {
     if ( !pGdi_ )
@@ -402,7 +403,7 @@ JsGdiGraphics::DrawString( std::wstring str, JsGdiFont* font, uint32_t colour, f
     return nullptr;
 }
 
-std::optional<std::nullptr_t> 
+std::optional<std::nullptr_t>
 JsGdiGraphics::DrawStringWithOpt( size_t optArgCount, std::wstring str, JsGdiFont* font, uint32_t colour, float x, float y, float w, float h, uint32_t flags )
 {
     if ( optArgCount > 1 )
@@ -471,7 +472,7 @@ JsGdiGraphics::FillPolygon( uint32_t colour, uint32_t fillmode, JS::HandleValue 
     }
 
     Gdiplus::SolidBrush br( colour );
-    Gdiplus::Status gdiRet = pGdi_->FillPolygon( &br, gdiPoints.data(), gdiPoints.size(), ( Gdiplus::FillMode )fillmode );
+    Gdiplus::Status gdiRet = pGdi_->FillPolygon( &br, gdiPoints.data(), gdiPoints.size(), (Gdiplus::FillMode)fillmode );
     IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, std::nullopt, FillPolygon );
 
     return nullptr;
@@ -495,7 +496,7 @@ JsGdiGraphics::FillRoundRect( float x, float y, float w, float h, float arc_widt
     Gdiplus::SolidBrush br( colour );
     Gdiplus::GraphicsPath gp;
     Gdiplus::RectF rect( x, y, w, h );
-    Gdiplus::Status gdiRet = ( Gdiplus::Status )GetRoundRectPath( gp, rect, arc_width, arc_height );
+    Gdiplus::Status gdiRet = (Gdiplus::Status)GetRoundRectPath( gp, rect, arc_width, arc_height );
     if ( gdiRet > 0 )
     {// Report in GetRoundRectPath
         return std::nullopt;
@@ -523,10 +524,10 @@ JsGdiGraphics::FillSolidRect( float x, float y, float w, float h, uint32_t colou
     return nullptr;
 }
 
-std::optional<std::nullptr_t> 
-JsGdiGraphics::GdiAlphaBlend( JsGdiRawBitmap* bitmap, 
-                              int32_t dstX, int32_t dstY, uint32_t dstW, uint32_t dstH, 
-                              int32_t srcX, int32_t srcY, uint32_t srcW, uint32_t srcH, 
+std::optional<std::nullptr_t>
+JsGdiGraphics::GdiAlphaBlend( JsGdiRawBitmap* bitmap,
+                              int32_t dstX, int32_t dstY, uint32_t dstW, uint32_t dstH,
+                              int32_t srcX, int32_t srcY, uint32_t srcW, uint32_t srcH,
                               uint8_t alpha )
 {
     if ( !pGdi_ )
@@ -549,19 +550,15 @@ JsGdiGraphics::GdiAlphaBlend( JsGdiRawBitmap* bitmap,
 
     BLENDFUNCTION bf = { AC_SRC_OVER, 0, alpha, AC_SRC_ALPHA };
 
-    bool bRet = !!::GdiAlphaBlend( dc, dstX, dstY, dstW, dstH, srcDc, srcX, srcY, srcW, srcH, bf );
+    BOOL bRet = ::GdiAlphaBlend( dc, dstX, dstY, dstW, dstH, srcDc, srcX, srcY, srcW, srcH, bf );
     pGdi_->ReleaseHDC( dc );
-    if ( !bRet )
-    {
-        JS_ReportErrorASCII( pJsCtx_, "GDI error: 'GdiAlphaBlend' failed: 0x%X", GetLastError );
-        return std::nullopt;
-    }
-     
+    IF_WINAPI_FAILED_RETURN_WITH_REPORT( pJsCtx_, bRet, std::nullopt, GdiAlphaBlend );
+
     return nullptr;
 }
 
-std::optional<std::nullptr_t> 
-JsGdiGraphics::GdiDrawBitmap( JsGdiRawBitmap* bitmap, 
+std::optional<std::nullptr_t>
+JsGdiGraphics::GdiDrawBitmap( JsGdiRawBitmap* bitmap,
                               int32_t dstX, int32_t dstY, uint32_t dstW, uint32_t dstH,
                               int32_t srcX, int32_t srcY, uint32_t srcW, uint32_t srcH )
 {
@@ -583,22 +580,43 @@ JsGdiGraphics::GdiDrawBitmap( JsGdiRawBitmap* bitmap,
     HDC dc = pGdi_->GetHDC();
     assert( dc );
 
-    bool bRet;
+    class ScopedHDC
+    {
+    public:
+        ScopedHDC( Gdiplus::Graphics* pGdi, HDC hDc )
+            : pGdi_( pGdi )
+            ,hDc_( hDc )
+        {
+
+        }
+        ~ScopedHDC()
+        {
+            pGdi_->ReleaseHDC( hDc_ );
+        }
+
+    private:
+        Gdiplus::Graphics* pGdi_;
+        HDC hDc_;
+    };
+
+    ScopedHDC shdc( pGdi_, dc );
+
+    BOOL bRet;
     if ( dstW == srcW && dstH == srcH )
     {
-        bRet = !!BitBlt( dc, dstX, dstY, dstW, dstH, srcDc, srcX, srcY, SRCCOPY );
+        bRet = BitBlt( dc, dstX, dstY, dstW, dstH, srcDc, srcX, srcY, SRCCOPY );
+        IF_WINAPI_FAILED_RETURN_WITH_REPORT( pJsCtx_, bRet, std::nullopt, BitBlt );
     }
     else
     {
-        bRet = !!SetStretchBltMode( dc, HALFTONE );
-        bRet &= !!SetBrushOrgEx( dc, 0, 0, nullptr );
-        bRet &= !!StretchBlt( dc, dstX, dstY, dstW, dstH, srcDc, srcX, srcY, srcW, srcH, SRCCOPY );
-    }
-    pGdi_->ReleaseHDC( dc );
-    if ( !bRet )
-    {
-        JS_ReportErrorASCII( pJsCtx_, "GDI error: Blt methods failed" );
-        return std::nullopt;
+        bRet = SetStretchBltMode( dc, HALFTONE );
+        IF_WINAPI_FAILED_RETURN_WITH_REPORT( pJsCtx_, bRet, std::nullopt, SetStretchBltMode );
+
+        bRet = SetBrushOrgEx( dc, 0, 0, nullptr );
+        IF_WINAPI_FAILED_RETURN_WITH_REPORT( pJsCtx_, bRet, std::nullopt, SetBrushOrgEx );
+
+        bRet = StretchBlt( dc, dstX, dstY, dstW, dstH, srcDc, srcX, srcY, srcW, srcH, SRCCOPY );
+        IF_WINAPI_FAILED_RETURN_WITH_REPORT( pJsCtx_, bRet, std::nullopt, StretchBlt );
     }
 
     return nullptr;
@@ -612,7 +630,7 @@ std::optional<std::nullptr_t> JsGdiGraphics::SetInterpolationMode( uint32_t mode
         return std::nullopt;
     }
 
-    Gdiplus::Status gdiRet = pGdi_->SetInterpolationMode( ( Gdiplus::InterpolationMode )mode );
+    Gdiplus::Status gdiRet = pGdi_->SetInterpolationMode( (Gdiplus::InterpolationMode)mode );
     IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, std::nullopt, SetInterpolationMode );
 
     return nullptr;
@@ -642,7 +660,7 @@ std::optional<std::nullptr_t> JsGdiGraphics::SetSmoothingMode( uint32_t mode )
         return std::nullopt;
     }
 
-    Gdiplus::Status gdiRet = pGdi_->SetSmoothingMode( ( Gdiplus::SmoothingMode )mode );
+    Gdiplus::Status gdiRet = pGdi_->SetSmoothingMode( (Gdiplus::SmoothingMode)mode );
     IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, std::nullopt, SetSmoothingMode );
 
     return nullptr;
@@ -672,7 +690,7 @@ std::optional<std::nullptr_t> JsGdiGraphics::SetTextRenderingHint( uint32_t mode
         return std::nullopt;
     }
 
-    Gdiplus::Status gdiRet = pGdi_->SetTextRenderingHint( ( Gdiplus::TextRenderingHint )mode );
+    Gdiplus::Status gdiRet = pGdi_->SetTextRenderingHint( (Gdiplus::TextRenderingHint)mode );
     IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, std::nullopt, SetTextRenderingHint );
 
     return nullptr;
@@ -708,17 +726,17 @@ bool JsGdiGraphics::GetRoundRectPath( Gdiplus::GraphicsPath& gp, Gdiplus::RectF&
     IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, false, AddArc );
 
     // top right
-    corner.X += ( rect.Width - arc_dia_w );
+    corner.X += (rect.Width - arc_dia_w);
     gdiRet = gp.AddArc( corner, 270, 90 );
     IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, false, AddArc );
 
     // bottom right
-    corner.Y += ( rect.Height - arc_dia_h );
+    corner.Y += (rect.Height - arc_dia_h);
     gdiRet = gp.AddArc( corner, 0, 90 );
     IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, false, AddArc );
 
     // bottom left
-    corner.X -= ( rect.Width - arc_dia_w );
+    corner.X -= (rect.Width - arc_dia_w);
     gdiRet = gp.AddArc( corner, 90, 90 );
     IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, false, AddArc );
 

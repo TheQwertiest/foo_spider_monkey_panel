@@ -119,7 +119,7 @@
     <ClCompile Include="js_objects\gdi_utils.cpp" />
     <ClCompile Include="js_objects\gdi_font.cpp" />
     <ClCompile Include="js_objects\global_object.cpp" />
-    <ClCompile Include="js_objects\_placeholder.cpp" />
+    <ClCompile Include="js_objects\menu_object.cpp" />
     <ClCompile Include="js_panel_window.cpp" />
     <ClCompile Include="js_panel_window_cui.cpp" />
     <ClCompile Include="js_panel_window_dui.cpp" />
@@ -191,6 +191,7 @@
     <ClInclude Include="js_utils\gdi_error_helper.h" />
     <ClInclude Include="js_utils\js_error_helper.h" />
     <ClInclude Include="js_utils\js_object_helper.h" />
+    <ClInclude Include="js_utils\winapi_error_helper.h" />
     <ClInclude Include="kmeans.h" />
     <ClInclude Include="SString.h" />
     <ClInclude Include="com_tools.h" />

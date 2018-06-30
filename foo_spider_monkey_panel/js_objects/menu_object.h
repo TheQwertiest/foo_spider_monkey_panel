@@ -9,28 +9,34 @@ struct JSClass;
 namespace mozjs
 {
 
-/*
-
-
-class MenuObj : public IDisposableImpl4<IMenuObj>
+class JsMenuObject
 {
-protected:
-HMENU m_hMenu;
-HWND m_wnd_parent;
-bool m_has_detached;
+public:
+    ~JsMenuObject();
 
-MenuObj(HWND wnd_parent);
-virtual ~MenuObj();
-virtual void FinalRelease();
+    static JSObject* Create( JSContext* cx, HWND hParentWnd );
+
+    static const JSClass& GetClass();
+
+    HMENU HMenu() const;
 
 public:
-STDMETHODIMP AppendMenuItem(UINT flags, UINT item_id, BSTR text);
-STDMETHODIMP AppendMenuSeparator();
-STDMETHODIMP AppendTo(IMenuObj* parent, UINT flags, BSTR text);
-STDMETHODIMP CheckMenuItem(UINT item_id, VARIANT_BOOL check);
-STDMETHODIMP CheckMenuRadioItem(UINT first, UINT last, UINT selected);
-STDMETHODIMP TrackPopupMenu(int x, int y, UINT flags, UINT* item_id);
-STDMETHODIMP get_ID(UINT* p);
+    std::optional<std::nullptr_t> AppendMenuItem( uint32_t flags, uint32_t item_id, std::wstring text );
+    std::optional<std::nullptr_t> AppendMenuSeparator();
+    std::optional<std::nullptr_t> AppendTo( JsMenuObject* parent, uint32_t flags, std::wstring text );
+    std::optional<std::nullptr_t> CheckMenuItem( uint32_t item_id, bool check );
+    std::optional<std::nullptr_t> CheckMenuRadioItem( uint32_t first, uint32_t last, uint32_t selected );
+    std::optional<std::uint32_t> TrackPopupMenu( int32_t x, int32_t y, uint32_t flags );
+
+private:
+    JsMenuObject( JSContext* cx, HWND hParentWnd );
+    JsMenuObject( const JsMenuObject& ) = delete;
+
+private:
+    JSContext * pJsCtx_ = nullptr;
+    HMENU hMenu_;
+    HWND hParentWnd_;
+    bool isDetached_ = false;
 };
-*/
+
 }

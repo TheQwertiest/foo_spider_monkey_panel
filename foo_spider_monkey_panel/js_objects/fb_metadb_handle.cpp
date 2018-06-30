@@ -299,7 +299,6 @@ JsFbMetadbHandle::get_FileSize()
     assert( metadbHandle_.is_valid() );
     return static_cast<uint64_t>(metadbHandle_->get_filesize());
 }
-}
 
 std::optional<double> 
 JsFbMetadbHandle::get_Length()

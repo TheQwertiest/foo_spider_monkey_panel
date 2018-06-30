@@ -34,7 +34,7 @@ bool IsValue<uint8_t>( JSContext * cx, const JS::HandleValue& jsValue )
 template <>
 uint8_t ToValue<uint8_t>( JSContext * cx, const JS::HandleValue& jsValue )
 {
-    return std::forward<uint8_t>( static_cast<uint8_t>( jsValue.toNumber() ) );
+    return std::forward<uint8_t>( static_cast<uint8_t>(jsValue.toNumber()) );
 }
 
 template <>
