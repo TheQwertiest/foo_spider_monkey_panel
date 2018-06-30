@@ -17,7 +17,7 @@ class JsThemeManager
 public:
     ~JsThemeManager();
 
-    static JSObject* Create( JSContext* cx, HWND hwnd, std::wstring classlist );
+    static JSObject* Create( JSContext* cx, HWND hwnd, const std::wstring& classlist );
 
     static const JSClass& GetClass();
 
@@ -28,7 +28,7 @@ public:
     std::optional<std::nullptr_t> SetPartID( int32_t partid );
 
 private:
-    JsThemeManager( JSContext* cx, HWND hwnd, std::wstring classlist );
+    JsThemeManager( JSContext* cx, HWND hwnd, const std::wstring& classlist );
     JsThemeManager( const JsThemeManager& ) = delete;
     JsThemeManager& operator=( const JsThemeManager& ) = delete;
 

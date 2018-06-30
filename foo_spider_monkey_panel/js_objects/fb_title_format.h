@@ -1,6 +1,7 @@
 #pragma once
 
 #include <optional>
+#include <string>
 
 class JSObject;
 struct JSContext;
@@ -9,23 +10,31 @@ struct JSClass;
 namespace mozjs
 {
 
-/*
+class JsFbMetadbHandle;
+class JsFbMetadbHandleList;
 
-
-class FbTitleFormat : public IDisposableImpl4<IFbTitleFormat>
+class JsFbTitleFormat
 {
-protected:
-titleformat_object::ptr m_obj;
+public:
+    ~JsFbTitleFormat();
 
-FbTitleFormat(BSTR expr);
-virtual ~FbTitleFormat();
-virtual void FinalRelease();
+    static JSObject* Create( JSContext* cx, const std::string& expr );
+
+    static const JSClass& GetClass();
 
 public:
-STDMETHODIMP Eval(VARIANT_BOOL force, BSTR* pp);
-STDMETHODIMP EvalWithMetadb(IFbMetadbHandle* handle, BSTR* pp);
-STDMETHODIMP EvalWithMetadbs(IFbMetadbHandleList* handles, VARIANT* pp);
-STDMETHODIMP get__ptr(void** pp);
+    std::optional<std::string> Eval( bool force );
+    std::optional<std::string> EvalWithMetadb( JsFbMetadbHandle* handle );
+    std::optional<std::string> EvalWithMetadbs( JsFbMetadbHandleList* handles );
+
+private:
+    JsFbTitleFormat( JSContext* cx, const std::string& expr );
+    JsFbTitleFormat( const JsFbTitleFormat& ) = delete;
+    JsFbTitleFormat& operator=( const JsFbTitleFormat& ) = delete;
+
+private:
+    JSContext * pJsCtx_ = nullptr;
+    titleformat_object::ptr titleFormatObject_;
 };
-*/
+
 }

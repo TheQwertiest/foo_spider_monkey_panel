@@ -9,10 +9,10 @@ struct JSClass;
 namespace mozjs
 {
 
-class JsPlayingItemLocation
+class JsFbPlayingItemLocation
 {
 public:
-    ~JsPlayingItemLocation();
+    ~JsFbPlayingItemLocation();
 
     static JSObject* Create( JSContext* cx, bool isValid, uint32_t playlistIndex, uint32_t playlistItemIndex );
 
@@ -24,9 +24,9 @@ public:
     std::optional<uint32_t> get_PlaylistItemIndex();
 
 private:
-    JsPlayingItemLocation( JSContext* cx, bool isValid, uint32_t playlistIndex, uint32_t playlistItemIndex );
-    JsPlayingItemLocation( const JsPlayingItemLocation& ) = delete;
-    JsPlayingItemLocation& operator=( const JsPlayingItemLocation& ) = delete;
+    JsFbPlayingItemLocation( JSContext* cx, bool isValid, uint32_t playlistIndex, uint32_t playlistItemIndex );
+    JsFbPlayingItemLocation( const JsFbPlayingItemLocation& ) = delete;
+    JsFbPlayingItemLocation& operator=( const JsFbPlayingItemLocation& ) = delete;
 
 private:
     JSContext * pJsCtx_ = nullptr;

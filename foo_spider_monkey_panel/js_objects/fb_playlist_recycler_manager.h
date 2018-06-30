@@ -1,6 +1,7 @@
 #pragma once
 
 #include <optional>
+#include <string>
 
 class JSObject;
 struct JSContext;
@@ -9,17 +10,31 @@ struct JSClass;
 namespace mozjs
 {
 
-/*
-
-class FbPlaylistRecyclerManager : public IDispatchImpl3<IFbPlaylistRecyclerManager>
+class JsFbPlaylistRecyclerManager
 {
 public:
-STDMETHODIMP Purge(VARIANT affectedItems);
-STDMETHODIMP Restore(UINT index);
-STDMETHODIMP get_Content(UINT index, IFbMetadbHandleList** outContent);
-STDMETHODIMP get_Count(UINT* outCount);
-STDMETHODIMP get_Name(UINT index, BSTR* outName);
+    ~JsFbPlaylistRecyclerManager();
+
+    static JSObject* Create( JSContext* cx );
+
+    static const JSClass& GetClass();
+
+public:
+    std::optional<std::nullptr_t> Purge( JS::HandleValue affectedItems );
+    std::optional<std::nullptr_t> Restore( uint32_t index );
+
+public:
+    std::optional<JSObject*> get_Content( uint32_t index );
+    std::optional<uint32_t> get_Count();
+    std::optional<std::nullptr_t> get_Name( uint32_t index, std::string outName );
+
+private:
+    JsFbPlaylistRecyclerManager( JSContext* cx );
+    JsFbPlaylistRecyclerManager( const JsFbPlaylistRecyclerManager& ) = delete;
+    JsFbPlaylistRecyclerManager& operator=( const JsFbPlaylistRecyclerManager& ) = delete;
+
+private:
+    JSContext * pJsCtx_ = nullptr;
 };
 
-*/
 }

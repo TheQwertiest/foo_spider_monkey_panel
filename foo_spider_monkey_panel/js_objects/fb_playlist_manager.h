@@ -1,6 +1,7 @@
 #pragma once
 
 #include <optional>
+#include <string>
 
 class JSObject;
 struct JSContext;
@@ -9,73 +10,85 @@ struct JSClass;
 namespace mozjs
 {
 
-/*
+class JsFbMetadbHandle;
+class JsFbMetadbHandleList;
+class JsFbPlayingItemLocation;
+class JsFbPlaylistRecyclerManager;
 
-
-class FbPlaylistManager : public IDispatchImpl3<IFbPlaylistManager>
+class JsFbPlaylistManager
 {
-protected:
-	FbPlaylistManager();
+public:
+    ~JsFbPlaylistManager();
+
+    static JSObject* Create( JSContext* cx );
+
+    static const JSClass& GetClass();
 
 public:
-	STDMETHODIMP AddItemToPlaybackQueue(IFbMetadbHandle* handle);
-	STDMETHODIMP AddLocations(UINT playlistIndex, VARIANT locations, VARIANT_BOOL select);
-	STDMETHODIMP AddPlaylistItemToPlaybackQueue(UINT playlistIndex, UINT playlistItemIndex);
-	STDMETHODIMP ClearPlaylist(UINT playlistIndex);
-	STDMETHODIMP ClearPlaylistSelection(UINT playlistIndex);
-	STDMETHODIMP CreateAutoPlaylist(UINT playlistIndex, BSTR name, BSTR query, BSTR sort, UINT flags, int* outPlaylistIndex);
-	STDMETHODIMP CreatePlaylist(UINT playlistIndex, BSTR name, int* outPlaylistIndex);
-	STDMETHODIMP DuplicatePlaylist(UINT from, BSTR name, UINT* outPlaylistIndex);
-	STDMETHODIMP EnsurePlaylistItemVisible(UINT playlistIndex, UINT playlistItemIndex);
-	STDMETHODIMP ExecutePlaylistDefaultAction(UINT playlistIndex, UINT playlistItemIndex, VARIANT_BOOL* outSuccess);
-	STDMETHODIMP FindOrCreatePlaylist(BSTR name, VARIANT_BOOL unlocked, int* outPlaylistIndex);
-	STDMETHODIMP FindPlaybackQueueItemIndex(IFbMetadbHandle* handle, UINT playlistIndex, UINT playlistItemIndex, int* outIndex);
-	STDMETHODIMP FindPlaylist(BSTR name, int* outPlaylistIndex);
-	STDMETHODIMP FlushPlaybackQueue();
-	STDMETHODIMP GetPlaybackQueueContents(VARIANT* outContents);
-	STDMETHODIMP GetPlaybackQueueHandles(IFbMetadbHandleList** outItems);
-	STDMETHODIMP GetPlayingItemLocation(IFbPlayingItemLocation** outPlayingLocation);
-	STDMETHODIMP GetPlaylistFocusItemIndex(UINT playlistIndex, int* outPlaylistItemIndex);
-	STDMETHODIMP GetPlaylistItems(UINT playlistIndex, IFbMetadbHandleList** outItems);
-	STDMETHODIMP GetPlaylistName(UINT playlistIndex, BSTR* outName);
-	STDMETHODIMP GetPlaylistSelectedItems(UINT playlistIndex, IFbMetadbHandleList** outItems);
-	STDMETHODIMP InsertPlaylistItems(UINT playlistIndex, UINT base, IFbMetadbHandleList* handles, VARIANT_BOOL select);
-	STDMETHODIMP InsertPlaylistItemsFilter(UINT playlistIndex, UINT base, IFbMetadbHandleList* handles, VARIANT_BOOL select);
-	STDMETHODIMP IsAutoPlaylist(UINT playlistIndex, VARIANT_BOOL* p);
-	STDMETHODIMP IsPlaylistItemSelected(UINT playlistIndex, UINT playlistItemIndex, VARIANT_BOOL* outSelected);
-	STDMETHODIMP IsPlaylistLocked(UINT playlistIndex, VARIANT_BOOL* p);
-	STDMETHODIMP MovePlaylist(UINT from, UINT to, VARIANT_BOOL* outSuccess);
-	STDMETHODIMP MovePlaylistSelection(UINT playlistIndex, int delta, VARIANT_BOOL* outSuccess);
-	STDMETHODIMP PlaylistItemCount(UINT playlistIndex, UINT* outCount);
-	STDMETHODIMP RemoveItemFromPlaybackQueue(UINT index);
-	STDMETHODIMP RemoveItemsFromPlaybackQueue(VARIANT affectedItems);
-	STDMETHODIMP RemovePlaylist(UINT playlistIndex, VARIANT_BOOL* outSuccess);
-	STDMETHODIMP RemovePlaylistSelection(UINT playlistIndex, VARIANT_BOOL crop);
-	STDMETHODIMP RemovePlaylistSwitch(UINT playlistIndex, VARIANT_BOOL* outSuccess);
-	STDMETHODIMP RenamePlaylist(UINT playlistIndex, BSTR name, VARIANT_BOOL* outSuccess);
-	STDMETHODIMP SetActivePlaylistContext();
-	STDMETHODIMP SetPlaylistFocusItem(UINT playlistIndex, UINT playlistItemIndex);
-	STDMETHODIMP SetPlaylistFocusItemByHandle(UINT playlistIndex, IFbMetadbHandle* handle);
-	STDMETHODIMP SetPlaylistSelection(UINT playlistIndex, VARIANT affectedItems, VARIANT_BOOL state);
-	STDMETHODIMP SetPlaylistSelectionSingle(UINT playlistIndex, UINT playlistItemIndex, VARIANT_BOOL state);
-	STDMETHODIMP ShowAutoPlaylistUI(UINT playlistIndex, VARIANT_BOOL* outSuccess);
-	STDMETHODIMP SortByFormat(UINT playlistIndex, BSTR pattern, VARIANT_BOOL selOnly, VARIANT_BOOL* outSuccess);
-	STDMETHODIMP SortByFormatV2(UINT playlistIndex, BSTR pattern, int direction, VARIANT_BOOL* outSuccess);
-	STDMETHODIMP SortPlaylistsByName(int direction);
-	STDMETHODIMP UndoBackup(UINT playlistIndex);
-	STDMETHODIMP get_ActivePlaylist(int* outPlaylistIndex);
-	STDMETHODIMP get_PlaybackOrder(UINT* outOrder);
-	STDMETHODIMP get_PlayingPlaylist(int* outPlaylistIndex);
-	STDMETHODIMP get_PlaylistCount(UINT* outCount);
-	STDMETHODIMP get_PlaylistRecyclerManager(__interface IFbPlaylistRecyclerManager** outRecyclerManager);
-	STDMETHODIMP put_ActivePlaylist(int playlistIndex);
-	STDMETHODIMP put_PlaybackOrder(UINT order);
-	STDMETHODIMP put_PlayingPlaylist(int playlistIndex);
+    std::optional<std::nullptr_t> AddItemToPlaybackQueue( JsFbMetadbHandle* handle );
+    //std::optional<std::nullptr_t> AddLocations( uint32_t playlistIndex, VARIANT locations, bool select );
+    std::optional<std::nullptr_t> AddPlaylistItemToPlaybackQueue( uint32_t playlistIndex, uint32_t playlistItemIndex );
+    std::optional<std::nullptr_t> ClearPlaylist( uint32_t playlistIndex );
+    std::optional<std::nullptr_t> ClearPlaylistSelection( uint32_t playlistIndex );
+    std::optional<int32_t> CreateAutoPlaylist( uint32_t playlistIndex, std::string name, std::string  query, std::string  sort, uint32_t flags );
+    std::optional<int32_t> CreatePlaylist( uint32_t playlistIndex, std::string name );
+    std::optional<uint32_t> DuplicatePlaylist( uint32_t from, std::string  name );
+    std::optional<std::nullptr_t> EnsurePlaylistItemVisible( uint32_t playlistIndex, uint32_t playlistItemIndex );
+    std::optional<bool> ExecutePlaylistDefaultAction( uint32_t playlistIndex, uint32_t playlistItemIndex );
+    std::optional<int32_t> FindOrCreatePlaylist( std::string name, bool unlocked );
+    std::optional<int32_t> FindPlaybackQueueItemIndex( JsFbMetadbHandle* handle, uint32_t playlistIndex, uint32_t playlistItemIndex );
+    std::optional<int32_t> FindPlaylist( std::string name );
+    std::optional<std::nullptr_t> FlushPlaybackQueue();
+    //std::optional<std::nullptr_t> GetPlaybackQueueContents( VARIANT* outContents );
+    std::optional<JSObject*> GetPlaybackQueueHandles();
+    std::optional<JSObject*> GetPlayingItemLocation();
+    std::optional<int32_t> GetPlaylistFocusItemIndex( uint32_t playlistIndex );
+    std::optional<JSObject*> GetPlaylistItems( uint32_t playlistIndex );
+    std::optional<std::string> GetPlaylistName( uint32_t playlistIndex );
+    std::optional<JSObject*> GetPlaylistSelectedItems( uint32_t playlistIndex );
+    std::optional<std::nullptr_t> InsertPlaylistItems( uint32_t playlistIndex, uint32_t base, JsFbMetadbHandleList* handles, bool select );
+    std::optional<std::nullptr_t> InsertPlaylistItemsFilter( uint32_t playlistIndex, uint32_t base, JsFbMetadbHandleList* handles, bool select );
+    std::optional<bool> IsAutoPlaylist( uint32_t playlistIndex );
+    std::optional<bool> IsPlaylistItemSelected( uint32_t playlistIndex, uint32_t playlistItemIndex );
+    std::optional<bool> IsPlaylistLocked( uint32_t playlistIndex );
+    std::optional<bool> MovePlaylist( uint32_t from, uint32_t to );
+    std::optional<bool> MovePlaylistSelection( uint32_t playlistIndex, int32_t delta );
+    std::optional<uint32_t> PlaylistItemCount( uint32_t playlistIndex );
+    std::optional<std::nullptr_t> RemoveItemFromPlaybackQueue( uint32_t index );
+    //std::optional<std::nullptr_t> RemoveItemsFromPlaybackQueue( VARIANT affectedItems );
+    std::optional<bool> RemovePlaylist( uint32_t playlistIndex );
+    std::optional<std::nullptr_t> RemovePlaylistSelection( uint32_t playlistIndex, bool crop );
+    std::optional<bool> RemovePlaylistSwitch( uint32_t playlistIndex );
+    std::optional<bool> RenamePlaylist( uint32_t playlistIndex, std::string name );
+    std::optional<std::nullptr_t> SetActivePlaylistContext();
+    std::optional<std::nullptr_t> SetPlaylistFocusItem( uint32_t playlistIndex, uint32_t playlistItemIndex );
+    std::optional<std::nullptr_t> SetPlaylistFocusItemByHandle( uint32_t playlistIndex, JsFbMetadbHandle* handle );
+    //std::optional<std::nullptr_t> SetPlaylistSelection( uint32_t playlistIndex, VARIANT affectedItems, bool state );
+    std::optional<std::nullptr_t> SetPlaylistSelectionSingle( uint32_t playlistIndex, uint32_t playlistItemIndex, bool state );
+    std::optional<bool> ShowAutoPlaylistUI( uint32_t playlistIndex );
+    std::optional<bool> SortByFormat( uint32_t playlistIndex, std::string pattern, bool selOnly );
+    std::optional<bool> SortByFormatV2( uint32_t playlistIndex, std::string pattern, int8_t direction );
+    std::optional<std::nullptr_t> SortPlaylistsByName( int8_t direction );
+    std::optional<std::nullptr_t> UndoBackup( uint32_t playlistIndex );
+
+public:
+    std::optional<int32_t> get_ActivePlaylist();
+    std::optional<uint32_t> get_PlaybackOrder();
+    std::optional<int32_t> get_PlayingPlaylist();
+    std::optional<uint32_t> get_PlaylistCount();
+    std::optional<JSObject*> get_PlaylistRecyclerManager();
+    std::optional<std::nullptr_t> put_ActivePlaylist( int32_t playlistIndex );
+    std::optional<std::nullptr_t> put_PlaybackOrder( uint32_t order );
+    std::optional<std::nullptr_t> put_PlayingPlaylist( int32_t playlistIndex );
 
 private:
-	IFbPlaylistRecyclerManagerPtr m_fbPlaylistRecyclerManager;
-};
+    JsFbPlaylistManager( JSContext* cx );
+    JsFbPlaylistManager( const JsFbPlaylistManager& ) = delete;
+    JsFbPlaylistManager& operator=( const JsFbPlaylistManager& ) = delete;
 
-*/
+private:
+    JSContext * pJsCtx_ = nullptr;
+    //JsFbPlaylistRecyclerManagerPtr m_fbPlaylistRecyclerManager;
+};
 
 }
