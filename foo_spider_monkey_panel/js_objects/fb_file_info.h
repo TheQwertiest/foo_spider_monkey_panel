@@ -35,8 +35,7 @@ public:
 private:
     JsFbFileInfo( JSContext* cx, file_info_impl* pFileInfo );
     JsFbFileInfo( const JsFbFileInfo& ) = delete;
-
-    // TODO: add nocopy inherit (with operator= delete as well)
+    JsFbFileInfo& operator=( const JsFbFileInfo& ) = delete;
 
 private:
     JSContext * pJsCtx_ = nullptr;

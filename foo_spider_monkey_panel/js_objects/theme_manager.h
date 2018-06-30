@@ -1,6 +1,7 @@
 #pragma once
 
 #include <optional>
+#include <string>
 
 class JSObject;
 struct JSContext;
@@ -9,24 +10,31 @@ struct JSClass;
 namespace mozjs
 {
 
-/*
+class JsGdiGraphics;
 
-
-class ThemeManager : public IDisposableImpl4<IThemeManager>
+class JsThemeManager
 {
-protected:
-HTHEME m_theme;
-int m_partid;
-int m_stateid;
+public:
+    ~JsThemeManager();
 
-ThemeManager(HWND hwnd, BSTR classlist);
-virtual ~ThemeManager();
-virtual void FinalRelease();
+    static JSObject* Create( JSContext* cx, HWND hwnd, std::wstring classlist );
+
+    static const JSClass& GetClass();
 
 public:
-STDMETHODIMP DrawThemeBackground(IGdiGraphics* gr, int x, int y, int w, int h, int clip_x, int clip_y, int clip_w, int clip_h);
-STDMETHODIMP IsThemePartDefined(int partid, int stateid, VARIANT_BOOL* p);
-STDMETHODIMP SetPartAndStateID(int partid, int stateid);
-};
-*/
+    std::optional<std::nullptr_t> DrawThemeBackground( JsGdiGraphics* gr, int32_t x, int32_t y, uint32_t w, uint32_t h, int32_t clip_x, int32_t clip_y, uint32_t clip_w, uint32_t clip_h );
+    // TODO: document changes for these two methods
+    std::optional<bool> IsThemePartDefined( int32_t partid );
+    std::optional<std::nullptr_t> SetPartID( int32_t partid );
+
+private:
+    JsThemeManager( JSContext* cx, HWND hwnd, std::wstring classlist );
+    JsThemeManager( const JsThemeManager& ) = delete;
+    JsThemeManager& operator=( const JsThemeManager& ) = delete;
+
+private:
+    JSContext * pJsCtx_ = nullptr;
+
+    HTHEME hTheme_;
+    int32_t partId_;    
 }

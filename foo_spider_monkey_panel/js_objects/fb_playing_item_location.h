@@ -26,6 +26,7 @@ public:
 private:
     JsPlayingItemLocation( JSContext* cx, bool isValid, uint32_t playlistIndex, uint32_t playlistItemIndex );
     JsPlayingItemLocation( const JsPlayingItemLocation& ) = delete;
+    JsPlayingItemLocation& operator=( const JsPlayingItemLocation& ) = delete;
 
 private:
     JSContext * pJsCtx_ = nullptr;

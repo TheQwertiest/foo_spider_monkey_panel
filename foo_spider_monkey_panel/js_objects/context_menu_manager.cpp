@@ -92,7 +92,7 @@ const JSClass& JsContextMenuManager::GetClass()
 }
 
 std::optional<std::nullptr_t> 
-JsContextMenuManager::BuildMenu( JsMenuObject* menuObject, int base_id, int max_id )
+JsContextMenuManager::BuildMenu( JsMenuObject* menuObject, int32_t base_id, int32_t max_id )
 {
     if ( !menuObject )
     {
@@ -100,28 +100,28 @@ JsContextMenuManager::BuildMenu( JsMenuObject* menuObject, int base_id, int max_
         return std::nullopt;
     }
 
-    if ( !cm_.is_empty() )
+    if ( !contextMenu_.is_empty() )
     {
         JS_ReportErrorASCII( pJsCtx_, "Context menu is not initialized" );
         return std::nullopt;
     }
 
     HMENU hMenu = menuObject->HMenu();
-    contextmenu_node* parent = cm_->get_root();
-    cm_->win32_build_menu( hMenu, parent, base_id, max_id );
+    contextmenu_node* parent = contextMenu_->get_root();
+    contextMenu_->win32_build_menu( hMenu, parent, base_id, max_id );
     return nullptr;
 }
 
 std::optional<bool> 
 JsContextMenuManager::ExecuteByID( uint32_t id )
 {
-    if ( !cm_.is_empty() )
+    if ( !contextMenu_.is_empty() )
     {
         JS_ReportErrorASCII( pJsCtx_, "Context menu is not initialized" );
         return std::nullopt;
     }
 
-    return cm_->execute_by_id( id );
+    return contextMenu_->execute_by_id( id );
 }
 
 std::optional<std::nullptr_t> 
@@ -134,16 +134,16 @@ JsContextMenuManager::InitContext( JsFbMetadbHandleList* handles )
     }
 
     metadb_handle_list_cref handles_ptr = handles->GetHandleList();
-    contextmenu_manager::g_create( cm_ );
-    cm_->init_context( handles_ptr, contextmenu_manager::flag_show_shortcuts );
+    contextmenu_manager::g_create( contextMenu_ );
+    contextMenu_->init_context( handles_ptr, contextmenu_manager::flag_show_shortcuts );
     return nullptr;
 }
 
 std::optional<std::nullptr_t> 
 JsContextMenuManager::InitNowPlaying()
 {
-    contextmenu_manager::g_create( cm_ );
-    cm_->init_context_now_playing( contextmenu_manager::flag_show_shortcuts );
+    contextmenu_manager::g_create( contextMenu_ );
+    contextMenu_->init_context_now_playing( contextmenu_manager::flag_show_shortcuts );
     return nullptr;
 }
 

@@ -62,6 +62,7 @@ public: // props
 private:
     JsFbMetadbHandleList( JSContext* cx, metadb_handle_list_cref handles );
     JsFbMetadbHandleList( const JsFbMetadbHandleList& ) = delete;
+    JsFbMetadbHandleList& operator=( const JsFbMetadbHandleList& ) = delete;
 
 private:
     JSContext * pJsCtx_ = nullptr;

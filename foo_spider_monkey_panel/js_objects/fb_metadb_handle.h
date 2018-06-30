@@ -42,6 +42,7 @@ public: // props
 private:
     JsFbMetadbHandle( JSContext* cx, const metadb_handle_ptr& handle );
     JsFbMetadbHandle( const JsFbMetadbHandle& ) = delete;
+    JsFbMetadbHandle& operator=( const JsFbMetadbHandle& ) = delete;
 
 private:
     JSContext * pJsCtx_ = nullptr;

@@ -35,6 +35,7 @@ public:
 private:
     JsDropSourceAction( JSContext* cx );
     JsDropSourceAction( const JsDropSourceAction& ) = delete;
+    JsDropSourceAction& operator=( const JsDropSourceAction& ) = delete;
 
 private:
     JSContext * pJsCtx_ = nullptr;

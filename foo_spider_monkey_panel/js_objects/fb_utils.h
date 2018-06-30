@@ -1,6 +1,13 @@
 #pragma once
 
+#pragma warning( push )  
+#pragma warning( disable : 4251 ) // dll interface warning
+#pragma warning( disable : 4996 ) // C++17 deprecation warning
+#include <jsapi.h>
+#pragma warning( pop )  
+
 #include <optional>
+#include <string>
 
 class JSObject;
 struct JSContext;
@@ -9,86 +16,100 @@ struct JSClass;
 namespace mozjs
 {
 
-/*
+class JsFbMetadbHandle;
+class JsFbMetadbHandleList;
 
-class FbUtils : public IDispatchImpl3<IFbUtils>
+class JsFbUtils
 {
-protected:
-FbUtils();
-virtual ~FbUtils();
+public:
+    ~JsFbUtils();
+
+    static JSObject* Create( JSContext* cx );
+
+    static const JSClass& GetClass();
 
 public:
-STDMETHODIMP AcquireUiSelectionHolder(IFbUiSelectionHolder** outHolder);
-STDMETHODIMP AddDirectory();
-STDMETHODIMP AddFiles();
-STDMETHODIMP CheckClipboardContents(UINT window_id, VARIANT_BOOL* outSuccess);
-STDMETHODIMP ClearPlaylist();
-STDMETHODIMP CopyHandleListToClipboard(IFbMetadbHandleList* handles, VARIANT_BOOL* outSuccess);
-STDMETHODIMP CreateContextMenuManager(IContextMenuManager** pp);
-STDMETHODIMP CreateHandleList(IFbMetadbHandleList** pp);
-STDMETHODIMP CreateMainMenuManager(IMainMenuManager** pp);
-STDMETHODIMP CreateProfiler(BSTR name, IFbProfiler** pp);
-STDMETHODIMP DoDragDrop(IFbMetadbHandleList* handles, UINT okEffects, UINT* p);
-STDMETHODIMP Exit();
-STDMETHODIMP GetClipboardContents(UINT window_id, IFbMetadbHandleList** pp);
-STDMETHODIMP GetDSPPresets(BSTR* p);
-STDMETHODIMP GetFocusItem(VARIANT_BOOL force, IFbMetadbHandle** pp);
-STDMETHODIMP GetLibraryItems(IFbMetadbHandleList** outItems);
-STDMETHODIMP GetLibraryRelativePath(IFbMetadbHandle* handle, BSTR* p);
-STDMETHODIMP GetNowPlaying(IFbMetadbHandle** pp);
-STDMETHODIMP GetOutputDevices(BSTR* p);
-STDMETHODIMP GetQueryItems(IFbMetadbHandleList* handles, BSTR query, IFbMetadbHandleList** pp);
-STDMETHODIMP GetSelection(IFbMetadbHandle** pp);
-STDMETHODIMP GetSelections(UINT flags, IFbMetadbHandleList** pp);
-STDMETHODIMP GetSelectionType(UINT* p);
-STDMETHODIMP IsLibraryEnabled(VARIANT_BOOL* p);
-STDMETHODIMP IsMainMenuCommandChecked(BSTR command, VARIANT_BOOL* p);
-STDMETHODIMP IsMetadbInMediaLibrary(IFbMetadbHandle* handle, VARIANT_BOOL* p);
-STDMETHODIMP LoadPlaylist();
-STDMETHODIMP Next();
-STDMETHODIMP Pause();
-STDMETHODIMP Play();
-STDMETHODIMP PlayOrPause();
-STDMETHODIMP Prev();
-STDMETHODIMP Random();
-STDMETHODIMP RunContextCommand(BSTR command, UINT flags, VARIANT_BOOL* p);
-STDMETHODIMP RunContextCommandWithMetadb(BSTR command, VARIANT handle, UINT flags, VARIANT_BOOL* p);
-STDMETHODIMP RunMainMenuCommand(BSTR command, VARIANT_BOOL* p);
-STDMETHODIMP SaveIndex();
-STDMETHODIMP SavePlaylist();
-STDMETHODIMP SetDSPPreset(UINT idx);
-STDMETHODIMP SetOutputDevice(BSTR output, BSTR device);
-STDMETHODIMP ShowConsole();
-STDMETHODIMP ShowLibrarySearchUI(BSTR query);
-STDMETHODIMP ShowPopupMessage(BSTR msg, BSTR title);
-STDMETHODIMP ShowPreferences();
-STDMETHODIMP Stop();
-STDMETHODIMP TitleFormat(BSTR expression, IFbTitleFormat** pp);
-STDMETHODIMP VolumeDown();
-STDMETHODIMP VolumeMute();
-STDMETHODIMP VolumeUp();
-STDMETHODIMP get_AlwaysOnTop(VARIANT_BOOL* p);
-STDMETHODIMP get_ComponentPath(BSTR* pp);
-STDMETHODIMP get_CursorFollowPlayback(VARIANT_BOOL* p);
-STDMETHODIMP get_FoobarPath(BSTR* pp);
-STDMETHODIMP get_IsPaused(VARIANT_BOOL* p);
-STDMETHODIMP get_IsPlaying(VARIANT_BOOL* p);
-STDMETHODIMP get_PlaybackFollowCursor(VARIANT_BOOL* p);
-STDMETHODIMP get_PlaybackLength(double* p);
-STDMETHODIMP get_PlaybackTime(double* p);
-STDMETHODIMP get_ProfilePath(BSTR* pp);
-STDMETHODIMP get_ReplaygainMode(UINT* p);
-STDMETHODIMP get_StopAfterCurrent(VARIANT_BOOL* p);
-STDMETHODIMP get_Volume(float* p);
-STDMETHODIMP put_AlwaysOnTop(VARIANT_BOOL p);
-STDMETHODIMP put_CursorFollowPlayback(VARIANT_BOOL p);
-STDMETHODIMP put_PlaybackFollowCursor(VARIANT_BOOL p);
-STDMETHODIMP put_PlaybackTime(double time);
-STDMETHODIMP put_ReplaygainMode(UINT p);
-STDMETHODIMP put_StopAfterCurrent(VARIANT_BOOL p);
-STDMETHODIMP put_Volume(float value);
+    std::optional<JSObject*> AcquireUiSelectionHolder();
+    std::optional<std::nullptr_t> AddDirectory();
+    std::optional<std::nullptr_t> AddFiles();
+    // TODO: document - removed parameter
+    std::optional<bool> CheckClipboardContents();
+    std::optional<std::nullptr_t> ClearPlaylist();
+    std::optional<bool> CopyHandleListToClipboard( JsFbMetadbHandleList* handles );
+    std::optional<JSObject*> CreateContextMenuManager();
+    // TODO: remove after adding array methods to JsFbMetadbHandleList
+    std::optional<JSObject*> CreateHandleList();
+    std::optional<JSObject*> CreateMainMenuManager();
+    std::optional<JSObject*> CreateProfiler( std::string name );
+    std::optional<uint32_t> DoDragDrop( JsFbMetadbHandleList* handles, uint32_t okEffects );
+    std::optional<std::nullptr_t> Exit();
+    std::optional<JSObject*> GetClipboardContents( uint64_t hWindow );
+    std::optional<std::string> GetDSPPresets();
+    std::optional<JSObject*> GetFocusItem( bool force );
+    std::optional<JSObject*> GetLibraryItems();
+    std::optional<std::string> GetLibraryRelativePath( JsFbMetadbHandle* handle );
+    std::optional<JSObject*> GetNowPlaying();
+    std::optional<std::string> GetOutputDevices();
+    std::optional<JSObject*> GetQueryItems( JsFbMetadbHandleList* handles, std::string query );
+    std::optional<JSObject*> GetSelection();
+    std::optional<JSObject*> GetSelections( uint32_t flags );
+    std::optional<uint32_t> GetSelectionType();
+    std::optional<bool> IsLibraryEnabled();
+    std::optional<bool> IsMainMenuCommandChecked( std::string command );
+    std::optional<bool> IsMetadbInMediaLibrary( JsFbMetadbHandle* handle );
+    std::optional<std::nullptr_t> LoadPlaylist();
+    std::optional<std::nullptr_t> Next();
+    std::optional<std::nullptr_t> Pause();
+    std::optional<std::nullptr_t> Play();
+    std::optional<std::nullptr_t> PlayOrPause();
+    std::optional<std::nullptr_t> Prev();
+    std::optional<std::nullptr_t> Random();
+    std::optional<bool> RunContextCommand( std::string command, uint32_t flags );
+    std::optional<bool> RunContextCommandWithMetadb( std::string command, JS::HandleValue handle, uint32_t flags );
+    std::optional<bool> RunMainMenuCommand( std::string command );
+    std::optional<std::nullptr_t> SaveIndex();
+    std::optional<std::nullptr_t> SavePlaylist();
+    std::optional<std::nullptr_t> SetDSPPreset( uint32_t idx );
+    std::optional<std::nullptr_t> SetOutputDevice( std::wstring output, std::wstring device );
+    std::optional<std::nullptr_t> ShowConsole();
+    std::optional<std::nullptr_t> ShowLibrarySearchUI( std::string query );
+    std::optional<std::nullptr_t> ShowPopupMessage( std::string msg, std::string title );
+    std::optional<std::nullptr_t> ShowPreferences();
+    std::optional<std::nullptr_t> Stop();
+    std::optional<JSObject*> TitleFormat( std::string expression );
+    std::optional<std::nullptr_t> VolumeDown();
+    std::optional<std::nullptr_t> VolumeMute();
+    std::optional<std::nullptr_t> VolumeUp();
+
+public:
+    std::optional<bool> get_AlwaysOnTop();
+    std::optional<std::string> get_ComponentPath();
+    std::optional<bool> get_CursorFollowPlayback();
+    std::optional<std::string> get_FoobarPath();
+    std::optional<bool> get_IsPaused();
+    std::optional<bool> get_IsPlaying();
+    std::optional<bool> get_PlaybackFollowCursor();
+    std::optional<double> get_PlaybackLength();
+    std::optional<double> get_PlaybackTime();
+    std::optional<std::string> get_ProfilePath();
+    std::optional<uint32_t> get_ReplaygainMode();
+    std::optional<bool> get_StopAfterCurrent();
+    std::optional<float> get_Volume();
+    std::optional<std::nullptr_t> put_AlwaysOnTop( bool p );
+    std::optional<std::nullptr_t> put_CursorFollowPlayback( bool p );
+    std::optional<std::nullptr_t> put_PlaybackFollowCursor( bool p );
+    std::optional<std::nullptr_t> put_PlaybackTime( double time );
+    std::optional<std::nullptr_t> put_ReplaygainMode( uint32_t p );
+    std::optional<std::nullptr_t> put_StopAfterCurrent( bool p );
+    std::optional<std::nullptr_t> put_Volume( float value );
+
+private:
+    JsFbUtils( JSContext* cx );
+    JsFbUtils( const JsFbUtils& ) = delete;
+    JsFbUtils& operator=( const JsFbUtils& ) = delete;
+
+private:
+    JSContext * pJsCtx_ = nullptr;
 };
 
-
-*/
 }

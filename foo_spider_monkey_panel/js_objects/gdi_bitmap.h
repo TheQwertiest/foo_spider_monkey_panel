@@ -51,6 +51,7 @@ public: // props
 private:
     JsGdiBitmap( JSContext* cx, Gdiplus::Bitmap* pGdiBitmap );
     JsGdiBitmap( const JsGdiBitmap& ) = delete;
+    JsGdiBitmap& operator=( const JsGdiBitmap& ) = delete;
 
 private:
     JSContext * pJsCtx_ = nullptr;;

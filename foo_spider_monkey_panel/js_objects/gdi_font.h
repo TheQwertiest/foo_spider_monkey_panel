@@ -36,6 +36,7 @@ public: // props
 private:
     JsGdiFont( JSContext* cx, Gdiplus::Font* pGdiFont, HFONT hFont, bool isManaged );
     JsGdiFont( const JsGdiFont& ) = delete;
+    JsGdiFont& operator=( const JsGdiFont& ) = delete;
 
 private:
     JSContext * pJsCtx_ = nullptr;

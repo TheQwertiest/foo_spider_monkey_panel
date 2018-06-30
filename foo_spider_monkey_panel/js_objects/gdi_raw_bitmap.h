@@ -32,6 +32,7 @@ public: // props
 private:
     JsGdiRawBitmap( JSContext* cx, Gdiplus::Bitmap* p_bmp );
     JsGdiRawBitmap( const JsGdiRawBitmap& ) = delete;
+    JsGdiRawBitmap& operator=( const JsGdiRawBitmap& ) = delete;
 
 private:
     JSContext * pJsCtx_ = nullptr;;

@@ -53,7 +53,8 @@ public:
 
 private:
     JsGlobalObject( JSContext* cx, JsContainer &parentContainer, js_panel_window& parentPanel );
-    JsGlobalObject( const JsGlobalObject& ) = delete;    
+    JsGlobalObject( const JsGlobalObject& ) = delete;   
+    JsGlobalObject& operator=( const JsGlobalObject& ) = delete;
 
     static void TraceHeapValue( JSTracer *trc, void *data );
 

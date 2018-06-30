@@ -31,6 +31,7 @@ public:
 private:
     JsMenuObject( JSContext* cx, HWND hParentWnd );
     JsMenuObject( const JsMenuObject& ) = delete;
+    JsMenuObject& operator=( const JsMenuObject& ) = delete;
 
 private:
     JSContext * pJsCtx_ = nullptr;

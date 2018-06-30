@@ -27,6 +27,7 @@ public:
 private:
     JsFbPlaybackQueueItem( JSContext* cx, const t_playback_queue_item& playbackQueueItem );
     JsFbPlaybackQueueItem( const JsFbPlaybackQueueItem& ) = delete;
+    JsFbPlaybackQueueItem& operator=( const JsFbPlaybackQueueItem& ) = delete;
 
 private:
     JSContext * pJsCtx_ = nullptr;

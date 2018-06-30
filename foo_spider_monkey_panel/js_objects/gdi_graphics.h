@@ -64,14 +64,10 @@ public:
     std::optional<std::nullptr_t> SetTextRenderingHint( uint32_t mode );
     std::optional<std::nullptr_t> SetTextRenderingHintWithOpt( size_t optArgCount, uint32_t mode );
 
-    
-    
-    
-
-
 private:
     JsGdiGraphics( JSContext* cx );
     JsGdiGraphics( const JsGdiGraphics& ) = delete;
+    JsGdiGraphics& operator=( const JsGdiGraphics& ) = delete;
 
     bool GetRoundRectPath( Gdiplus::GraphicsPath& gp, Gdiplus::RectF& rect, float arc_width, float arc_height );
     bool ParsePoints( JS::HandleValue jsValue, std::vector<Gdiplus::PointF> &gdiPoints );

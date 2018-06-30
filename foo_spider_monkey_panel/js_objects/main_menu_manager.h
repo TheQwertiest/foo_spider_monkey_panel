@@ -1,6 +1,7 @@
 #pragma once
 
 #include <optional>
+#include <string>
 
 class JSObject;
 struct JSContext;
@@ -9,21 +10,30 @@ struct JSClass;
 namespace mozjs
 {
 
-/*
+class JsMenuObject;
 
-class MainMenuManager : public IDisposableImpl4<IMainMenuManager>
+class JsMainMenuManager
 {
-protected:
-mainmenu_manager::ptr m_mm;
+public:
+    ~JsMainMenuManager();
 
-MainMenuManager();
-virtual ~MainMenuManager();
-virtual void FinalRelease();
+    static JSObject* Create( JSContext* cx );
+
+    static const JSClass& GetClass();
 
 public:
-STDMETHODIMP BuildMenu(IMenuObj* p, int base_id, int count);
-STDMETHODIMP ExecuteByID(UINT id, VARIANT_BOOL* p);
-STDMETHODIMP Init(BSTR root_name);
+    std::optional<std::nullptr_t> BuildMenu( JsMenuObject* p, int32_t base_id, int32_t count );
+    std::optional<bool> ExecuteByID( uint32_t id );
+    std::optional<std::nullptr_t> Init( std::string root_name );
+
+private:
+    JsMainMenuManager( JSContext* cx );
+    JsMainMenuManager( const JsMainMenuManager& ) = delete;
+    JsMainMenuManager& operator=( const JsMainMenuManager& ) = delete;
+
+private:
+    JSContext * pJsCtx_ = nullptr;
+    mainmenu_manager::ptr menuManager_;
 };
-*/
+
 }

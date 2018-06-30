@@ -70,6 +70,7 @@ public: // props
 private:
     JsWindow( JSContext* cx, js_panel_window& parentPanel );
     JsWindow( const JsWindow& ) = delete;
+    JsWindow& operator=( const JsWindow& ) = delete;
 
 private:
     JSContext * pJsCtx_;

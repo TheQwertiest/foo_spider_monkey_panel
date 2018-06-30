@@ -30,6 +30,7 @@ public:
 private:
     JsGdiUtils( JSContext* cx );
     JsGdiUtils( const JsGdiUtils& ) = delete;
+    JsGdiUtils& operator=( const JsGdiUtils& ) = delete;
 
 private:
     JSContext * pJsCtx_ = nullptr;;
