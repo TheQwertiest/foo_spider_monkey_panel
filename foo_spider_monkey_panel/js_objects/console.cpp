@@ -1,14 +1,14 @@
 #include <stdafx.h>
-
 #include "console.h"
 
-#include <js/Conversions.h>
+#include <js_engine/js_to_native_invoker.h>
+
 
 namespace
 {
 // TODO: wrap in a proper class
 // TODO: add printf-like formating as required by W3C 
-bool Log( JSContext* cx, unsigned argc, JS::Value* vp )
+bool LogImpl( JSContext* cx, unsigned argc, JS::Value* vp )
 {
      JS::CallArgs args = JS::CallArgsFromVp( argc, vp );
 
@@ -16,25 +16,11 @@ bool Log( JSContext* cx, unsigned argc, JS::Value* vp )
 
      for ( unsigned i = 0; i < args.length(); i++ )
      {
-          JS::RootedString str( cx, JS::ToString( cx, args[i] ) );
-          if ( !str )
-          {
-               return false;
-          }
-
-          char* bytes = JS_EncodeStringToUTF8( cx, str );
-          if ( !bytes )
-          {
-               return false;
-          }
-
-          outputString += bytes;
+          outputString += mozjs::convert::to_native::ToValue<std::string>(cx, args[i] );
           if ( i < args.length() )
           {
               outputString += ' ';
           }
-
-          JS_free( cx, bytes );
      }
 
      args.rval().setUndefined();
@@ -42,6 +28,8 @@ bool Log( JSContext* cx, unsigned argc, JS::Value* vp )
      console::info( outputString.c_str() );
      return true;
 }
+
+MJS_WRAP_JS_TO_NATIVE_FN(Log, LogImpl)
 
 static const JSFunctionSpec console_functions[] = {
      JS_FN( "log", Log, 0, 0 ),

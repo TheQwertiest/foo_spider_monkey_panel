@@ -4,6 +4,8 @@
 namespace mozjs::convert::to_native
 {
 
+// TODO: replace strict checks with JS::To*(cx, jsValue) methods
+
 template <>
 bool IsValue<bool>( JSContext * cx, const JS::HandleValue& jsValue )
 {

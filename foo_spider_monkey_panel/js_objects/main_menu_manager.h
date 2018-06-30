@@ -11,7 +11,6 @@ namespace mozjs
 
 /*
 
-
 class MainMenuManager : public IDisposableImpl4<IMainMenuManager>
 {
 protected:
