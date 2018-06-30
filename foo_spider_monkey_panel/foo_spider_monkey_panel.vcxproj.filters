@@ -136,6 +136,21 @@
     <ClCompile Include="js_objects\fb_file_info.cpp">
       <Filter>js_objects</Filter>
     </ClCompile>
+    <ClCompile Include="js_objects\_placeholder.cpp">
+      <Filter>js_objects</Filter>
+    </ClCompile>
+    <ClCompile Include="js_objects\context_menu_manager.cpp">
+      <Filter>js_objects</Filter>
+    </ClCompile>
+    <ClCompile Include="js_objects\drop_source_action.cpp">
+      <Filter>js_objects</Filter>
+    </ClCompile>
+    <ClCompile Include="js_objects\fb_playback_queue_item.cpp">
+      <Filter>js_objects</Filter>
+    </ClCompile>
+    <ClCompile Include="js_objects\fb_playing_item_location.cpp">
+      <Filter>js_objects</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="js_engine\js_engine.h">
@@ -376,6 +391,9 @@
       <Filter>js_objects</Filter>
     </ClInclude>
     <ClInclude Include="js_objects\measure_string_info.h">
+      <Filter>js_objects</Filter>
+    </ClInclude>
+    <ClInclude Include="js_objects\_placeholder.h">
       <Filter>js_objects</Filter>
     </ClInclude>
   </ItemGroup>

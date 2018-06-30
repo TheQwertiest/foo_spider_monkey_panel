@@ -8,25 +8,32 @@ struct JSClass;
 
 namespace mozjs
 {
-/*
 
-class ContextMenuManager : public IDisposableImpl4<IContextMenuManager>
+class JsMenuObject;
+class JsFbMetadbHandleList;
+
+class JsContextMenuManager
 {
-protected:
-	contextmenu_manager::ptr m_cm;
+public:
+    ~JsContextMenuManager();
 
-	ContextMenuManager();
-	virtual ~ContextMenuManager();
-	virtual void FinalRelease();
+    static JSObject* Create( JSContext* cx );
+
+    static const JSClass& GetClass();
 
 public:
-	STDMETHODIMP BuildMenu(IMenuObj* p, int base_id, int max_id);
-	STDMETHODIMP ExecuteByID(UINT id, VARIANT_BOOL* p);
-	STDMETHODIMP InitContext(IFbMetadbHandleList* handles);
-	STDMETHODIMP InitNowPlaying();
+    std::optional<std::nullptr_t> BuildMenu( JsMenuObject* menuObject, int base_id, int max_id );
+    std::optional<bool> ExecuteByID( uint32_t id );
+    std::optional<std::nullptr_t> InitContext( JsFbMetadbHandleList* handles );
+    std::optional<std::nullptr_t> InitNowPlaying();
+
+private:
+    JsContextMenuManager( JSContext* cx );
+    JsContextMenuManager( const JsContextMenuManager& ) = delete;
+
+private:
+    JSContext * pJsCtx_ = nullptr;
+    contextmenu_manager::ptr cm_;
 };
-
-*/
-
 
 }

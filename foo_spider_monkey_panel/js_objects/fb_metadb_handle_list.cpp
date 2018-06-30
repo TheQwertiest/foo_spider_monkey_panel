@@ -96,8 +96,8 @@ MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandleList, get_Item );
 MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandleList, put_Item );
 
 const JSPropertySpec jsProperties[] = {
-    JS_PSG( "Count", get_InfoCount, 0 ),
-    JS_PSGS( "Item", get_InfoCount, put_Item, 0 ),
+    JS_PSG( "Count", get_Count, 0 ),
+    JS_PSGS( "Item", get_Item, put_Item, 0 ),
     JS_PS_END
 };
 
@@ -142,7 +142,7 @@ const JSClass& JsFbMetadbHandleList::GetClass()
     return jsClass;
 }
 
-metadb_handle_list_ref JsFbMetadbHandleList::GetList()
+metadb_handle_list_cref JsFbMetadbHandleList::GetHandleList() const
 {
     return metadbHandleList_;
 }
@@ -176,7 +176,7 @@ JsFbMetadbHandleList::AddRange( JsFbMetadbHandleList* handles )
         return std::nullopt;
     }
     
-    metadbHandleList_.add_items( handles->GetList() );
+    metadbHandleList_.add_items( handles->GetHandleList() );
     return nullptr;
 }
 
@@ -272,7 +272,7 @@ JsFbMetadbHandleList::InsertRange( uint32_t index, JsFbMetadbHandleList* handles
         return std::nullopt;
     }
 
-    metadbHandleList_.insert_items( handles->GetList(), index );
+    metadbHandleList_.insert_items( handles->GetHandleList(), index );
     return nullptr;
 }
 
@@ -285,7 +285,7 @@ JsFbMetadbHandleList::MakeDifference( JsFbMetadbHandleList* handles )
         return std::nullopt;
     }
 
-    metadb_handle_list_ref fbHandles = handles->GetList();
+    metadb_handle_list_cref fbHandles = handles->GetHandleList();
     metadb_handle_list result;
     t_size walk1 = 0;
     t_size walk2 = 0;
@@ -323,7 +323,7 @@ JsFbMetadbHandleList::MakeIntersection( JsFbMetadbHandleList* handles )
         return std::nullopt;
     }
 
-    metadb_handle_list_ref fbHandles = handles->GetList();
+    metadb_handle_list_cref fbHandles = handles->GetHandleList();
     metadb_handle_list result;
     t_size walk1 = 0;
     t_size walk2 = 0;
@@ -361,7 +361,7 @@ JsFbMetadbHandleList::MakeUnion( JsFbMetadbHandleList* handles )
         return std::nullopt;
     }
 
-    metadbHandleList_.add_items( handles->GetList() );
+    metadbHandleList_.add_items( handles->GetHandleList() );
     metadbHandleList_.sort_by_pointer_remove_duplicates();
     return nullptr;
 }

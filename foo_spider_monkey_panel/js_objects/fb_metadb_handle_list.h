@@ -25,7 +25,7 @@ public:
 
     static const JSClass& GetClass();
 
-    metadb_handle_list_ref GetList();
+    metadb_handle_list_cref GetHandleList() const;
 
 public: // methods
     std::optional<std::nullptr_t> Add( JsFbMetadbHandle* handle );

@@ -9,38 +9,41 @@ struct JSClass;
 namespace mozjs
 {
 
-/*
-
-
-class DropSourceAction : public IDisposableImpl4<IDropSourceAction>
+class JsDropSourceAction
 {
-protected:
-	// -1 means active playlist
-	int m_playlist_idx;
-	t_size m_base;
-	bool m_to_select;
-	DWORD m_effect;
+public:
+    ~JsDropSourceAction();
 
-	DropSourceAction();
-	virtual ~DropSourceAction();
-	virtual void FinalRelease();
+    static JSObject* Create( JSContext* cx );
+
+    static const JSClass& GetClass();
+
+    void Reset();
+
+    uint32_t & Base();
+    int32_t& Playlist();
+    bool& ToSelect();
+    uint32_t& Effect();
 
 public:
-	void Reset();
+    std::optional<uint32_t> get_Effect();
+    std::optional<std::nullptr_t> put_Base( uint32_t base );
+    std::optional<std::nullptr_t> put_Effect( uint32_t effect );
+    std::optional<std::nullptr_t> put_Playlist( int32_t id );
+    std::optional<std::nullptr_t> put_ToSelect( bool to_select );
 
-	t_size& Base();
-	int& Playlist();
-	bool& ToSelect();
-	DWORD& Effect();
+private:
+    JsDropSourceAction( JSContext* cx );
+    JsDropSourceAction( const JsDropSourceAction& ) = delete;
 
-	STDMETHODIMP get_Effect(UINT* effect);
-	STDMETHODIMP put_Base(UINT base);
-	STDMETHODIMP put_Effect(UINT effect);
-	STDMETHODIMP put_Playlist(int id);
-	STDMETHODIMP put_ToSelect(VARIANT_BOOL to_select);
+private:
+    JSContext * pJsCtx_ = nullptr;
+
+    // -1 means active playlist
+    int32_t playlistIdx_;
+    uint32_t base_;
+    bool toSelect_;
+    uint32_t effect_;
 };
-
-
-*/
 
 }

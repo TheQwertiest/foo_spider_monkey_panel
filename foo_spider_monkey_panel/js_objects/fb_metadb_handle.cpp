@@ -34,6 +34,30 @@ JSClass jsClass = {
     &jsOps
 };
 
+MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandle, ClearStats )
+MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandle, Compare )
+MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandle, GetFileInfo )
+MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandle, RefreshStats )
+MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandle, SetFirstPlayed )
+MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandle, SetLastPlayed )
+MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandle, SetLoved )
+MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandle, SetPlaycount )
+MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandle, SetRating )
+
+const JSFunctionSpec jsFunctions[] = {
+    JS_FN( "ClearStats",    ClearStats, 0, 0 ),
+    JS_FN( "Compare",       Compare, 1, 0 ),
+    JS_FN( "GetFileInfo",   GetFileInfo, 0, 0 ),
+    JS_FN( "RefreshStats",  RefreshStats, 0, 0 ),
+    JS_FN( "SetFirstPlayed",SetFirstPlayed, 1, 0 ),
+    JS_FN( "SetLastPlayed", SetLastPlayed, 1, 0 ),
+    JS_FN( "SetLoved",      SetLoved, 1, 0 ),
+    JS_FN( "SetPlaycount",  SetPlaycount, 1, 0 ),
+    JS_FN( "SetRating",     SetRating, 1, 0 ),
+    JS_FS_END
+};
+
+
 MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandle, get_FileSize )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandle, get_Length )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandle, get_Path )
@@ -49,26 +73,6 @@ const JSPropertySpec jsProperties[] = {
     JS_PS_END
 };
 
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandle, ClearStats )
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandle, Compare )
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandle, RefreshStats )
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandle, SetFirstPlayed )
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandle, SetLastPlayed )
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandle, SetLoved )
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandle, SetPlaycount )
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandle, SetRating )
-
-const JSFunctionSpec jsFunctions[] = {
-    JS_FN( "ClearStats",    ClearStats, 0, 0 ),
-    JS_FN( "Compare",       Compare, 1, 0 ),
-    JS_FN( "RefreshStats",  RefreshStats, 0, 0 ),
-    JS_FN( "SetFirstPlayed",SetFirstPlayed, 1, 0 ),
-    JS_FN( "SetLastPlayed", SetLastPlayed, 1, 0 ),
-    JS_FN( "SetLoved",      SetLoved, 1, 0 ),
-    JS_FN( "SetPlaycount",  SetPlaycount, 1, 0 ),
-    JS_FN( "SetRating",     SetRating, 1, 0 ),
-    JS_FS_END
-};
 
 }
 

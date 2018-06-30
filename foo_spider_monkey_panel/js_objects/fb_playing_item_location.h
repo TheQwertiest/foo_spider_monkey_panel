@@ -9,23 +9,29 @@ struct JSClass;
 namespace mozjs
 {
 
-/*
-class FbPlayingItemLocation : public IDispatchImpl3<IFbPlayingItemLocation>
+class JsPlayingItemLocation
 {
-protected:
-bool m_isValid;
-t_size m_playlistIndex;
-t_size m_playlistItemIndex;
+public:
+    ~JsPlayingItemLocation();
 
-FbPlayingItemLocation(bool isValid, t_size playlistIndex, t_size playlistItemIndex);
+    static JSObject* Create( JSContext* cx, bool isValid, uint32_t playlistIndex, uint32_t playlistItemIndex );
+
+    static const JSClass& GetClass();
 
 public:
-STDMETHODIMP get_IsValid(VARIANT_BOOL* outIsValid);
-STDMETHODIMP get_PlaylistIndex(int* outPlaylistIndex);
-STDMETHODIMP get_PlaylistItemIndex(int* outPlaylistItemIndex);
+    std::optional<bool> get_IsValid();
+    std::optional<uint32_t> get_PlaylistIndex();
+    std::optional<uint32_t> get_PlaylistItemIndex();
+
+private:
+    JsPlayingItemLocation( JSContext* cx, bool isValid, uint32_t playlistIndex, uint32_t playlistItemIndex );
+    JsPlayingItemLocation( const JsPlayingItemLocation& ) = delete;
+
+private:
+    JSContext * pJsCtx_ = nullptr;
+    bool isValid_;
+    uint32_t playlistIndex_;
+    uint32_t playlistItemIndex_;
 };
-
-
-*/
 
 }

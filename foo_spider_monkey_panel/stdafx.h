@@ -17,7 +17,9 @@ using std::max;
 
 #include <WinSock2.h>
 #include <Windows.h>
-#include <GdiPlus.h>
+#pragma warning( push, 0 )
+#   include <GdiPlus.h>
+#pragma warning( pop ) 
 #include <ActivScp.h>
 #include <activdbg.h>
 #include <ComDef.h>
@@ -41,15 +43,22 @@ using std::max;
 #include <SciLexer.h>
 
 // foobar2000 SDK
-#include "../foobar2000/SDK/foobar2000.h"
+#pragma warning( push, 0 )
+#   include "../foobar2000/SDK/foobar2000.h"
+#pragma warning( pop ) 
+
 // Columns UI SDK
-#include "../columns_ui-sdk/ui_extension.h"
+#pragma warning( push, 0 )
+#   include "../columns_ui-sdk/ui_extension.h"
+#pragma warning( pop ) 
 
 // Mozilla SpiderMonkey
 #pragma warning( push )  
+#pragma warning( disable : 4100 ) // unused variable
 #pragma warning( disable : 4251 ) // dll interface warning
+#pragma warning( disable : 4324 ) // structure was padded due to alignment specifier
 #pragma warning( disable : 4996 ) // C++17 deprecation warning
-#include <jsapi.h>
+#   include <jsapi.h>
 #pragma warning( pop ) 
 
 // Some macros defined by windowsx.h should be removed

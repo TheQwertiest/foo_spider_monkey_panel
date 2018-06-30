@@ -11,6 +11,8 @@
 
 class js_panel_window;
 
+// TODO: raise wraning level to 4 or ALL with error on warning
+
 namespace mozjs
 {
 

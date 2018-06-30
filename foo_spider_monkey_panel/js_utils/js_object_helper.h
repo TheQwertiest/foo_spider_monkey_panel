@@ -37,7 +37,7 @@ NativeType* GetNativeFromJsValue( JSContext* cx, JS::HandleValue jsValue )
 }
 
 template<typename MozjsObjectType>
-void JsFinalizeOp( JSFreeOp* fop, JSObject* obj )
+void JsFinalizeOp( [[maybe_unused]] JSFreeOp* fop, JSObject* obj )
 {
     auto x = static_cast<MozjsObjectType*>( JS_GetPrivate( obj ) );
     if ( x )

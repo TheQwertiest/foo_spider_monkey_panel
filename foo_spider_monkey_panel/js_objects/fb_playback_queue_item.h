@@ -10,25 +10,27 @@ struct JSClass;
 namespace mozjs
 {
 
-/*
-
-
-class FbPlaybackQueueItem : public IDisposableImpl4<IFbPlaybackQueueItem>
+class JsFbPlaybackQueueItem
 {
-protected:
-	t_playback_queue_item m_playback_queue_item;
+public:
+    ~JsFbPlaybackQueueItem();
 
-	FbPlaybackQueueItem();
-	FbPlaybackQueueItem(const t_playback_queue_item& playbackQueueItem);
-	virtual ~FbPlaybackQueueItem();
-	virtual void FinalRelease();
+    static JSObject* Create( JSContext* cx, const t_playback_queue_item& playbackQueueItem );
+
+    static const JSClass& GetClass();
 
 public:
-	STDMETHODIMP get_Handle(IFbMetadbHandle** outHandle);
-	STDMETHODIMP get_PlaylistIndex(int* outPlaylistIndex);
-	STDMETHODIMP get_PlaylistItemIndex(int* outPlaylistItemIndex);
-	STDMETHODIMP get__ptr(void** pp);
+    std::optional<JSObject*> get_Handle();
+    std::optional<uint32_t> get_PlaylistIndex();
+    std::optional<uint32_t> get_PlaylistItemIndex();
+
+private:
+    JsFbPlaybackQueueItem( JSContext* cx, const t_playback_queue_item& playbackQueueItem );
+    JsFbPlaybackQueueItem( const JsFbPlaybackQueueItem& ) = delete;
+
+private:
+    JSContext * pJsCtx_ = nullptr;
+    t_playback_queue_item playbackQueueItem_;
 };
-*/
 
 }
