@@ -131,14 +131,16 @@ bool InvokeNativeCallback_Impl( JSContext* cx,
 
                     if constexpr (convert::is_primitive_v<ArgType>)
                     {// Construct and copy
-                        if ( !convert::to_native::IsValue<ArgType>( cx, curArg ) )
+                        bool isValid;
+                        ArgType nativeVal = convert::to_native::ToValue<ArgType>( cx, curArg, isValid );
+                        if ( !isValid )
                         {
                             failedIdx = index;
                             bRet = false;
                             return ArgType();
                         }
 
-                        return convert::to_native::ToValue<ArgType>( cx, curArg );
+                        return nativeVal;
                     }
                     else if constexpr (std::is_pointer_v<ArgType>)
                     {// Extract native pointer

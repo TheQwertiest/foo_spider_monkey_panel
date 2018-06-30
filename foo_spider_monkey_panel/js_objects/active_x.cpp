@@ -1158,7 +1158,13 @@ bool ActiveX_Constructor( JSContext* cx, unsigned argc, JS::Value* vp )
     //argc > 0 if clsid is valid
     CLSID clsid;
     HRESULT hresult;   
-    std::wstring name = argc ? mozjs::convert::to_native::ToValue<std::wstring>( cx, args[0] ) : std::wstring();
+    bool bRet = true;
+    std::wstring name = argc ? mozjs::convert::to_native::ToValue<std::wstring>( cx, args[0], bRet ) : std::wstring();
+    if ( !bRet )
+    {
+        JS_ReportErrorASCII( cx, "ActiveX error: failed to parse name" );
+        return false;
+    }
 
     if ( argc )
     {

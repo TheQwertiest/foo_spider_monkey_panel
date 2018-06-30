@@ -11,62 +11,38 @@ namespace mozjs::convert::to_native
 {
 
 template <typename ReturnType>
-bool IsValue( JSContext * cx, const JS::HandleValue& jsValue )
+ReturnType ToValue( JSContext * cx, const JS::HandleValue& jsValue, bool& isValid )
 {
     static_assert(0, "Unsupported type");
-    return false;
-}
-
-template <typename ReturnType>
-ReturnType ToValue( JSContext * cx, const JS::HandleValue& jsValue )
-{
-    static_assert(0, "Unsupported type");
+    isValid = false;
     return ReturnType();
 }
 
 template <>
-bool IsValue<bool>( JSContext * cx, const JS::HandleValue& jsValue );
-template <>
-bool ToValue<bool>( JSContext * cx, const JS::HandleValue& jsValue );
+bool ToValue<bool>( JSContext * cx, const JS::HandleValue& jsValue, bool& isValid );
 
 template <>
-bool IsValue<int32_t>( JSContext * cx, const JS::HandleValue& jsValue );
-template <>
-int32_t ToValue<int32_t>( JSContext * cx, const JS::HandleValue& jsValue );
+int32_t ToValue<int32_t>( JSContext * cx, const JS::HandleValue& jsValue, bool& isValid );
 
 template <>
-bool IsValue<uint8_t>( JSContext * cx, const JS::HandleValue& jsValue );
-template <>
-uint8_t ToValue<uint8_t>( JSContext * cx, const JS::HandleValue& jsValue );
+uint8_t ToValue<uint8_t>( JSContext * cx, const JS::HandleValue& jsValue, bool& isValid );
 
 template <>
-bool IsValue<uint32_t>( JSContext * cx, const JS::HandleValue& jsValue );
-template <>
-uint32_t ToValue<uint32_t>( JSContext * cx, const JS::HandleValue& jsValue );
+uint32_t ToValue<uint32_t>( JSContext * cx, const JS::HandleValue& jsValue, bool& isValid );
 
 template <>
-bool IsValue<float>( JSContext * cx, const JS::HandleValue& jsValue );
-template <>
-float ToValue<float>( JSContext * cx, const JS::HandleValue& jsValue );
+float ToValue<float>( JSContext * cx, const JS::HandleValue& jsValue, bool& isValid );
 
 template <>
-bool IsValue<double>( JSContext * cx, const JS::HandleValue& jsValue );
-template <>
-double ToValue<double>( JSContext * cx, const JS::HandleValue& jsValue );
+double ToValue<double>( JSContext * cx, const JS::HandleValue& jsValue, bool& isValid );
 
 template <>
-bool IsValue<std::string>( JSContext * cx, const JS::HandleValue& jsValue );
-template <>
-std::string ToValue<std::string>( JSContext * cx, const JS::HandleValue& jsValue );
+std::string ToValue<std::string>( JSContext * cx, const JS::HandleValue& jsValue, bool& isValid );
 
 template <>
-bool IsValue<std::wstring>( JSContext * cx, const JS::HandleValue& jsValue );
-template <>
-std::wstring ToValue<std::wstring>( JSContext * cx, const JS::HandleValue& jsValue );
+std::wstring ToValue<std::wstring>( JSContext * cx, const JS::HandleValue& jsValue, bool& isValid );
 
 template <>
-bool IsValue<std::nullptr_t>( JSContext * cx, const JS::HandleValue& jsValue );
-template <>
-std::nullptr_t ToValue<std::nullptr_t>( JSContext * cx, const JS::HandleValue& jsValue );
+std::nullptr_t ToValue<std::nullptr_t>( JSContext * cx, const JS::HandleValue& jsValue, bool& isValid );
 
 }

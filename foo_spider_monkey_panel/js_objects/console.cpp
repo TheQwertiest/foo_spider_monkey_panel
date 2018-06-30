@@ -16,15 +16,22 @@ bool LogImpl( JSContext* cx, unsigned argc, JS::Value* vp )
 
      for ( unsigned i = 0; i < args.length(); i++ )
      {
-          outputString += mozjs::convert::to_native::ToValue<std::string>(cx, args[i] );
-          if ( i < args.length() )
-          {
-              outputString += ' ';
-          }
+         bool bRet;
+         std::string parsedArg = mozjs::convert::to_native::ToValue<std::string>( cx, args[i], bRet );
+         if ( !bRet )
+         {
+             parsedArg = "__parsing_failed__";
+         }
+
+         outputString += parsedArg;
+         if ( i < args.length() )
+         {
+             outputString += ' ';
+         }
      }
 
      args.rval().setUndefined();
-
+        
      console::info( outputString.c_str() );
      return true;
 }

@@ -585,7 +585,7 @@ JsGdiGraphics::GdiDrawBitmap( JsGdiRawBitmap* bitmap,
     public:
         ScopedHDC( Gdiplus::Graphics* pGdi, HDC hDc )
             : pGdi_( pGdi )
-            ,hDc_( hDc )
+            , hDc_( hDc )
         {
 
         }
@@ -805,21 +805,22 @@ bool JsGdiGraphics::ParsePoints( JS::HandleValue jsValue, std::vector<Gdiplus::P
             return false;
         }
 
-        if ( !convert::to_native::IsValue<float>( pJsCtx_, jsX ) )
+        bool isValid;
+        float x = convert::to_native::ToValue<float>( pJsCtx_, jsX, isValid );
+        if ( !isValid )
         {
             JS_ReportErrorASCII( pJsCtx_, "'x' property of point is of wrong type" );
             return false;
         }
-        if ( !convert::to_native::IsValue<float>( pJsCtx_, jsX ) )
+
+        float y = convert::to_native::ToValue<float>( pJsCtx_, jsY, isValid );
+        if ( !isValid )
         {
             JS_ReportErrorASCII( pJsCtx_, "'y' property of point is of wrong type" );
             return false;
         }
 
-        gdiPoints.emplace_back( Gdiplus::PointF(
-            convert::to_native::ToValue<float>( pJsCtx_, jsX ),
-            convert::to_native::ToValue<float>( pJsCtx_, jsY ) )
-        );
+        gdiPoints.emplace_back( Gdiplus::PointF( x, y ) );
     }
 
     return true;
