@@ -12,6 +12,8 @@ namespace Gdiplus
 class Bitmap;
 }
 
+// TODO: add default arguments everywhere
+
 namespace mozjs
 {
 
