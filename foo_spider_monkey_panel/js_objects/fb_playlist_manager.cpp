@@ -150,12 +150,10 @@ const JSPropertySpec jsProperties[] = {
     JS_PS_END
 };
 
-
 }
 
 namespace mozjs
 {
-
 
 JsFbPlaylistManager::JsFbPlaylistManager( JSContext* cx )
     : pJsCtx_( cx )

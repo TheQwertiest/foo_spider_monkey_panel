@@ -25,7 +25,7 @@ public:
 public:
     std::optional<std::string> Eval( bool force );
     std::optional<std::string> EvalWithMetadb( JsFbMetadbHandle* handle );
-    std::optional<std::string> EvalWithMetadbs( JsFbMetadbHandleList* handles );
+    std::optional<JSObject*> EvalWithMetadbs( JsFbMetadbHandleList* handles );
 
 private:
     JsFbTitleFormat( JSContext* cx, const std::string& expr );

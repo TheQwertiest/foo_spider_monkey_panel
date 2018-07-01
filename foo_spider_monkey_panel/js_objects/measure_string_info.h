@@ -19,12 +19,12 @@ public:
     static const JSClass& GetClass();
 
 public:
-    std::optional<uint32_t> get_chars();
-    std::optional<float> get_height();
-    std::optional<uint32_t> get_lines();
-    std::optional<float> get_width();
-    std::optional<float> get_x();
-    std::optional<float> get_y();
+    std::optional<uint32_t> get_Chars();
+    std::optional<float> get_Height();
+    std::optional<uint32_t> get_Lines();
+    std::optional<float> get_Width();
+    std::optional<float> get_X();
+    std::optional<float> get_Y();
 
 private:
     JsMeasureStringInfo( JSContext* cx, float x, float y, float w, float h, uint32_t l, uint32_t c );

@@ -163,6 +163,18 @@
     <ClCompile Include="js_objects\main_menu_manager.cpp">
       <Filter>js_objects</Filter>
     </ClCompile>
+    <ClCompile Include="js_objects\measure_string_info.cpp">
+      <Filter>js_objects</Filter>
+    </ClCompile>
+    <ClCompile Include="js_objects\fb_ui_selection_holder.cpp">
+      <Filter>js_objects</Filter>
+    </ClCompile>
+    <ClCompile Include="js_objects\fb_tooltip.cpp">
+      <Filter>js_objects</Filter>
+    </ClCompile>
+    <ClCompile Include="js_objects\fb_title_format.cpp">
+      <Filter>js_objects</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="js_engine\js_engine.h">

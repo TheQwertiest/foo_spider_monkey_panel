@@ -27,19 +27,19 @@ JSClassOps jsOps = {
 
 JSClass jsClass = {
     "Placeholder",
-    JSCLASS_HAS_PRIVATE | JSCLASS_FOREGROUND_FINALIZE,
+    DefaultClassFlags(),
     &jsOps
 };
 
 const JSFunctionSpec jsFunctions[] = {
-    JS_FN( "Style",  get_Style, 2, 0 ),
+    JS_FN( "Style", get_Style, 2, DefaultPropsFlags() ),
     JS_FS_END
 };
 
 MJS_DEFINE_JS_TO_NATIVE_FN( JsPlaceholder, get_Height )
 
 const JSPropertySpec jsProperties[] = {
-    JS_PSG( "Height", get_Height, 0 ),
+    JS_PSG( "Height", get_Height, DefaultPropsFlags() ),
     JS_PS_END
 };
 
