@@ -193,6 +193,12 @@ const JSClass& JsFbPlaylistManager::GetClass()
 std::optional<std::nullptr_t>
 JsFbPlaylistManager::AddItemToPlaybackQueue( JsFbMetadbHandle* handle )
 {
+    if ( !handle )
+    {
+        JS_ReportErrorASCII( pJsCtx_, "handle argument is null" );
+        return std::nullopt;
+    }
+
     playlist_manager::get()->queue_add_item( handle->GetHandle() );
     return nullptr;
 }
@@ -322,6 +328,12 @@ JsFbPlaylistManager::FindOrCreatePlaylist( const std::string& name, bool unlocke
 std::optional<int32_t>
 JsFbPlaylistManager::FindPlaybackQueueItemIndex( JsFbMetadbHandle* handle, uint32_t playlistIndex, uint32_t playlistItemIndex )
 {
+    if ( !handle )
+    {
+        JS_ReportErrorASCII( pJsCtx_, "handle argument is null" );
+        return std::nullopt;
+    }
+
     t_playback_queue_item item;
     item.m_handle = handle->GetHandle();
     item.m_playlist = playlistIndex;
@@ -434,6 +446,12 @@ JsFbPlaylistManager::GetPlaylistSelectedItems( uint32_t playlistIndex )
 std::optional<std::nullptr_t>
 JsFbPlaylistManager::InsertPlaylistItems( uint32_t playlistIndex, uint32_t base, JsFbMetadbHandleList* handles, bool select )
 {    
+    if ( !handles )
+    {
+        JS_ReportErrorASCII( pJsCtx_, "handles argument is null" );
+        return std::nullopt;
+    }
+
     pfc::bit_array_val selection( select );
     playlist_manager::get()->playlist_insert_items( playlistIndex, base, handles->GetHandleList(), selection );
     return nullptr;
@@ -442,6 +460,12 @@ JsFbPlaylistManager::InsertPlaylistItems( uint32_t playlistIndex, uint32_t base,
 std::optional<std::nullptr_t>
 JsFbPlaylistManager::InsertPlaylistItemsFilter( uint32_t playlistIndex, uint32_t base, JsFbMetadbHandleList* handles, bool select )
 {    
+    if ( !handles )
+    {
+        JS_ReportErrorASCII( pJsCtx_, "handles argument is null" );
+        return std::nullopt;
+    }
+
     playlist_manager::get()->playlist_insert_items_filter( playlistIndex, base, handles->GetHandleList(), select );
     return nullptr;
 }
@@ -560,6 +584,12 @@ JsFbPlaylistManager::SetPlaylistFocusItem( uint32_t playlistIndex, uint32_t play
 std::optional<std::nullptr_t>
 JsFbPlaylistManager::SetPlaylistFocusItemByHandle( uint32_t playlistIndex, JsFbMetadbHandle* handle )
 {
+    if ( !handle )
+    {
+        JS_ReportErrorASCII( pJsCtx_, "handle argument is null" );
+        return std::nullopt;
+    }
+
     playlist_manager::get()->playlist_set_focus_by_handle( playlistIndex, handle->GetHandle() );
     return nullptr;
 }

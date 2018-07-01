@@ -37,8 +37,8 @@ public:
     void SetGraphicsObject( Gdiplus::Graphics* graphics );
 
 public:
-    std::optional<uint32_t> CalcTextHeight( std::wstring str, JsGdiFont* font );
-    std::optional<uint32_t> CalcTextWidth( std::wstring str, JsGdiFont* font );
+    std::optional<uint32_t> CalcTextHeight( const std::wstring& str, JsGdiFont* font );
+    std::optional<uint32_t> CalcTextWidth( const std::wstring& str, JsGdiFont* font );
     std::optional<std::nullptr_t> DrawEllipse( float x, float y, float w, float h, float line_width, uint32_t colour );
     std::optional<std::nullptr_t> DrawImage( JsGdiBitmap* image, float dstX, float dstY, float dstW, float dstH, float srcX, float srcY, float srcW, float srcH, float angle, uint8_t alpha );
     std::optional<std::nullptr_t> DrawLine( float x1, float y1, float x2, float y2, float line_width, uint32_t colour );
@@ -56,7 +56,7 @@ public:
     std::optional<std::nullptr_t> GdiAlphaBlend( JsGdiRawBitmap* bitmap, int32_t dstX, int32_t dstY, uint32_t dstW, uint32_t dstH, int32_t srcX, int32_t srcY, uint32_t srcW, uint32_t srcH, uint8_t alpha );
     std::optional<std::nullptr_t> GdiDrawBitmap( JsGdiRawBitmap* bitmap, int32_t dstX, int32_t dstY, uint32_t dstW, uint32_t dstH, int32_t srcX, int32_t srcY, uint32_t srcW, uint32_t srcH );
     //GdiDrawText( BSTR str, IGdiFont* font, VARIANT colour, int x, int y, int w, int h, int format, VARIANT* p );
-    //MeasureString( BSTR str, IGdiFont* font, float x, float y, float w, float h, int flags, IMeasureStringInfo** pp );
+    std::optional<JSObject*> MeasureString( const std::wstring& str, JsGdiFont* font, float x, float y, float w, float h, uint32_t flags );
     std::optional<std::nullptr_t> SetInterpolationMode( uint32_t mode );
     std::optional<std::nullptr_t> SetInterpolationModeWithOpt( size_t optArgCount, uint32_t mode );
     std::optional<std::nullptr_t> SetSmoothingMode( uint32_t mode );

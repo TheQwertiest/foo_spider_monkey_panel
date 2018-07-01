@@ -94,15 +94,15 @@ const JSClass& JsContextMenuManager::GetClass()
 std::optional<std::nullptr_t> 
 JsContextMenuManager::BuildMenu( JsMenuObject* menuObject, int32_t base_id, int32_t max_id )
 {
-    if ( !menuObject )
-    {
-        JS_ReportErrorASCII( pJsCtx_, "menuObject argument is null" );
-        return std::nullopt;
-    }
-
     if ( !contextMenu_.is_empty() )
     {
         JS_ReportErrorASCII( pJsCtx_, "Context menu is not initialized" );
+        return std::nullopt;
+    }
+
+    if ( !menuObject )
+    {
+        JS_ReportErrorASCII( pJsCtx_, "menuObject argument is null" );
         return std::nullopt;
     }
 

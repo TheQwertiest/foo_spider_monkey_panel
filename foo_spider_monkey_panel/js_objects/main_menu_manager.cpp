@@ -90,7 +90,7 @@ const JSClass& JsMainMenuManager::GetClass()
 }
 
 std::optional<std::nullptr_t> 
-JsMainMenuManager::BuildMenu( JsMenuObject* p, int32_t base_id, int32_t count )
+JsMainMenuManager::BuildMenu( JsMenuObject* menu, int32_t base_id, int32_t count )
 {
     if ( !menuManager_.is_empty() )
     {
@@ -98,10 +98,16 @@ JsMainMenuManager::BuildMenu( JsMenuObject* p, int32_t base_id, int32_t count )
         return std::nullopt;
     }
 
+    if ( !menu )
+    {
+        JS_ReportErrorASCII( pJsCtx_, "menu argument is null" );
+        return std::nullopt;
+    }
+
     // HACK: workaround for foo_menu_addons
     try
     {
-        menuManager_->generate_menu_win32( p->HMenu(), base_id, count, mainmenu_manager::flag_show_shortcuts );
+        menuManager_->generate_menu_win32( menu->HMenu(), base_id, count, mainmenu_manager::flag_show_shortcuts );
     }
     catch ( ... )
     {

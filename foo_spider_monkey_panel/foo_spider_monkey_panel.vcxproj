@@ -130,12 +130,14 @@
     <ClCompile Include="js_objects\main_menu_manager.cpp" />
     <ClCompile Include="js_objects\measure_string_info.cpp" />
     <ClCompile Include="js_objects\menu_object.cpp" />
+    <ClCompile Include="js_objects\theme_manager.cpp" />
     <ClCompile Include="js_panel_window.cpp" />
     <ClCompile Include="js_panel_window_cui.cpp" />
     <ClCompile Include="js_panel_window_dui.cpp" />
     <ClCompile Include="js_utils\gdi_error_helper.cpp" />
     <ClCompile Include="js_utils\js_error_helper.cpp" />
     <ClCompile Include="js_utils\js_object_helper.cpp" />
+    <ClCompile Include="js_utils\winapi_error_helper.cpp" />
     <ClCompile Include="mainmenu.cpp" />
     <ClCompile Include="panel_manager.cpp" />
     <ClCompile Include="scintilla_prop_sets.cpp" />

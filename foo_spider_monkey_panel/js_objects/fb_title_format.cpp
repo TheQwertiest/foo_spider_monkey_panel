@@ -111,6 +111,12 @@ JsFbTitleFormat::Eval( bool force )
 std::optional<std::string>
 JsFbTitleFormat::EvalWithMetadb( JsFbMetadbHandle* handle )
 {
+    if ( !handle )
+    {
+        JS_ReportErrorASCII( pJsCtx_, "handle argument is null" );
+        return std::nullopt;
+    }
+
     pfc::string8_fast text;
     handle->GetHandle()->format_title( nullptr, text, titleFormatObject_, nullptr );
 
@@ -120,6 +126,12 @@ JsFbTitleFormat::EvalWithMetadb( JsFbMetadbHandle* handle )
 std::optional<JSObject*> 
 JsFbTitleFormat::EvalWithMetadbs( JsFbMetadbHandleList* handles )
 {
+    if ( !handles )
+    {
+        JS_ReportErrorASCII( pJsCtx_, "handles argument is null" );
+        return std::nullopt;
+    }
+
     metadb_handle_list_cref handles_cref = handles->GetHandleList();
     t_size count = handles_cref.get_count();
 

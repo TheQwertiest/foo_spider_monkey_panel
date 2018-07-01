@@ -1,5 +1,4 @@
 #include <stdafx.h>
-
 #include "menu_object.h"
 
 #include <js_engine/js_to_native_invoker.h>
@@ -141,6 +140,12 @@ std::optional<std::nullptr_t>
 JsMenuObject::AppendTo( JsMenuObject* parent, uint32_t flags, std::wstring text )
 {
     assert( hMenu_ );
+
+    if ( !parent )
+    {
+        JS_ReportErrorASCII( pJsCtx_, "parent argument is null" );
+        return std::nullopt;
+    }
 
     BOOL bRet = ::AppendMenu( parent->HMenu(), flags | MF_STRING | MF_POPUP, (UINT_PTR)hMenu_, text.c_str() );
     IF_WINAPI_FAILED_RETURN_WITH_REPORT( pJsCtx_, bRet, std::nullopt, AppendMenu );

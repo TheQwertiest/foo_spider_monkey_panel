@@ -36,5 +36,7 @@ private:
     JSContext * pJsCtx_ = nullptr;
 
     HTHEME hTheme_;
-    int32_t partId_;    
+    int32_t partId_;
+};
+
 }

@@ -6,6 +6,7 @@
 #include <js_objects/gdi_font.h>
 #include <js_objects/gdi_bitmap.h>
 #include <js_objects/gdi_raw_bitmap.h>
+#include <js_objects/measure_string_info.h>
 #include <js_utils/gdi_error_helper.h>
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
@@ -55,6 +56,7 @@ MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiGraphics, FillRoundRect )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiGraphics, FillSolidRect )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiGraphics, GdiAlphaBlend )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiGraphics, GdiDrawBitmap )
+MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiGraphics, MeasureString )
 MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsGdiGraphics, SetInterpolationMode, SetInterpolationModeWithOpt, 1 )
 MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsGdiGraphics, SetSmoothingMode, SetSmoothingModeWithOpt, 1 )
 MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsGdiGraphics, SetTextRenderingHint, SetTextRenderingHintWithOpt, 1 )
@@ -76,6 +78,7 @@ const JSFunctionSpec jsFunctions[] = {
     JS_FN( "FillSolidRect", FillSolidRect, 5, DefaultPropsFlags() ),
     JS_FN( "GdiAlphaBlend", GdiAlphaBlend, 10, DefaultPropsFlags() ),
     JS_FN( "GdiDrawBitmap", GdiDrawBitmap, 9, DefaultPropsFlags() ),
+    JS_FN( "MeasureString", MeasureString, 7, DefaultPropsFlags() ),
     JS_FN( "SetInterpolationMode", SetInterpolationMode, 1, DefaultPropsFlags() ),
     JS_FN( "SetSmoothingMode", SetSmoothingMode, 1, DefaultPropsFlags() ),
     JS_FN( "SetTextRenderingHint", SetTextRenderingHint, 1, DefaultPropsFlags() ),
@@ -134,7 +137,7 @@ void JsGdiGraphics::SetGraphicsObject( Gdiplus::Graphics* graphics )
 }
 
 std::optional<uint32_t>
-JsGdiGraphics::CalcTextHeight( std::wstring str, JsGdiFont* font )
+JsGdiGraphics::CalcTextHeight( const std::wstring& str, JsGdiFont* font )
 {
     if ( !pGdi_ )
     {
@@ -161,7 +164,7 @@ JsGdiGraphics::CalcTextHeight( std::wstring str, JsGdiFont* font )
 }
 
 std::optional<uint32_t>
-JsGdiGraphics::CalcTextWidth( std::wstring str, JsGdiFont* font )
+JsGdiGraphics::CalcTextWidth( const std::wstring& str, JsGdiFont* font )
 {
     if ( !pGdi_ )
     {
@@ -212,6 +215,12 @@ JsGdiGraphics::DrawImage( JsGdiBitmap* image,
     if ( !pGdi_ )
     {
         JS_ReportErrorASCII( pJsCtx_, "Internal error: Gdiplus::Graphics object is null" );
+        return std::nullopt;
+    }
+
+    if ( !image )
+    {
+        JS_ReportErrorASCII( pJsCtx_, "image argument is null" );
         return std::nullopt;
     }
 
@@ -368,7 +377,7 @@ JsGdiGraphics::DrawString( std::wstring str, JsGdiFont* font, uint32_t colour, f
 
     if ( !font )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Font argument is null" );
+        JS_ReportErrorASCII( pJsCtx_, "font argument is null" );
         return std::nullopt;
     }
     
@@ -622,7 +631,52 @@ JsGdiGraphics::GdiDrawBitmap( JsGdiRawBitmap* bitmap,
     return nullptr;
 }
 
-std::optional<std::nullptr_t> JsGdiGraphics::SetInterpolationMode( uint32_t mode )
+std::optional<JSObject*> 
+JsGdiGraphics::MeasureString( const std::wstring& str, JsGdiFont* font, float x, float y, float w, float h, uint32_t flags )
+{
+    if ( !pGdi_ )
+    {
+        JS_ReportErrorASCII( pJsCtx_, "Internal error: Gdiplus::Graphics object is null" );
+        return std::nullopt;
+    }
+
+    if ( !font )
+    {
+        JS_ReportErrorASCII( pJsCtx_, "font argument is null" );
+        return std::nullopt;
+    }
+
+    Gdiplus::Font* fn = font->GdiFont();
+    assert( fn );
+
+    Gdiplus::StringFormat fmt = Gdiplus::StringFormat::GenericTypographic();
+
+    if ( flags != 0 )
+    {
+        fmt.SetAlignment( (Gdiplus::StringAlignment)((flags >> 28) & 0x3) ); //0xf0000000
+        fmt.SetLineAlignment( (Gdiplus::StringAlignment)((flags >> 24) & 0x3) ); //0x0f000000
+        fmt.SetTrimming( (Gdiplus::StringTrimming)((flags >> 20) & 0x7) ); //0x00f00000
+        fmt.SetFormatFlags( (Gdiplus::StringFormatFlags)(flags & 0x7FFF) ); //0x0000ffff
+    }
+
+    Gdiplus::RectF bound;
+    int chars, lines;
+
+    Gdiplus::Status gdiRet = pGdi_->MeasureString( str.c_str(), -1, fn, Gdiplus::RectF( x, y, w, h ), &fmt, &bound, &chars, &lines );
+    IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, std::nullopt, MeasureString );
+
+    JS::RootedObject jsObject( pJsCtx_, JsMeasureStringInfo::Create( pJsCtx_, bound.X, bound.Y, bound.Width, bound.Height, lines, chars ) );
+    if ( !jsObject )
+    {
+        JS_ReportErrorASCII( pJsCtx_, "Internal error: failed to create JS object" );
+        return std::nullopt;
+    }
+
+    return jsObject;
+}
+
+std::optional<std::nullptr_t> 
+JsGdiGraphics::SetInterpolationMode( uint32_t mode )
 {
     if ( !pGdi_ )
     {
@@ -636,7 +690,8 @@ std::optional<std::nullptr_t> JsGdiGraphics::SetInterpolationMode( uint32_t mode
     return nullptr;
 }
 
-std::optional<std::nullptr_t> JsGdiGraphics::SetInterpolationModeWithOpt( size_t optArgCount, uint32_t mode )
+std::optional<std::nullptr_t> 
+JsGdiGraphics::SetInterpolationModeWithOpt( size_t optArgCount, uint32_t mode )
 {
     if ( optArgCount > 1 )
     {

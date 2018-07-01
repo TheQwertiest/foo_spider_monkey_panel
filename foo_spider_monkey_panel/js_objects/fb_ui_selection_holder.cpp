@@ -107,6 +107,12 @@ JsFbUiSelectionHolder::SetPlaylistTracking()
 std::optional<std::nullptr_t> 
 JsFbUiSelectionHolder::SetSelection( JsFbMetadbHandleList* handles )
 {
+    if ( !handles )
+    {
+        JS_ReportErrorASCII( pJsCtx_, "handles argument is null" );
+        return std::nullopt;
+    }
+
     holder_->set_selection( handles->GetHandleList() );
     return nullptr;
 }

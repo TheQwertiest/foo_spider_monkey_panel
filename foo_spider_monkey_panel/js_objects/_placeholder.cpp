@@ -43,18 +43,15 @@ const JSPropertySpec jsProperties[] = {
     JS_PS_END
 };
 
-
 }
 
 namespace mozjs
 {
 
-
 JsPlaceholder::JsPlaceholder( JSContext* cx )
     : pJsCtx_( cx )
 {
 }
-
 
 JsPlaceholder::~JsPlaceholder()
 {
