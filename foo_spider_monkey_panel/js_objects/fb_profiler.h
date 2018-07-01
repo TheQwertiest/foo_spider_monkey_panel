@@ -20,6 +20,7 @@ public:
     static const JSClass& GetClass();
 
 public:
+    // TODO: add a new argument to print (custom message) and update doc
     std::optional<std::nullptr_t> Print();
     std::optional<std::nullptr_t> Reset();
 

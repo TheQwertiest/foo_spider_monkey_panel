@@ -35,7 +35,7 @@ JSClassOps jsOps = {
 
 JSClass jsClass = {
     "GdiGraphics",
-    JSCLASS_HAS_PRIVATE | JSCLASS_FOREGROUND_FINALIZE,
+    DefaultClassFlags(),
     &jsOps
 };
 
@@ -60,25 +60,25 @@ MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsGdiGraphics, SetSmoothingMode, SetSmoothi
 MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsGdiGraphics, SetTextRenderingHint, SetTextRenderingHintWithOpt, 1 )
 
 const JSFunctionSpec jsFunctions[] = {
-    JS_FN( "CalcTextHeight", CalcTextHeight, 2, 0 ),
-    JS_FN( "CalcTextWidth", CalcTextWidth, 2, 0 ),
-    JS_FN( "DrawEllipse", DrawEllipse, 6, 0 ),
-    JS_FN( "DrawImage", DrawImage, 11, 0 ),
-    JS_FN( "DrawLine", DrawLine, 6, 0 ),
-    JS_FN( "DrawPolygon", DrawPolygon, 3, 0 ),
-    JS_FN( "DrawRect", DrawRect, 6, 0 ),
-    JS_FN( "DrawRoundRect", DrawRoundRect, 8, 0 ),
-    JS_FN( "DrawString", DrawString, 8, 0 ),
-    JS_FN( "FillEllipse", FillEllipse, 5, 0 ),
-    JS_FN( "FillGradRect", FillGradRect, 8, 0 ),
-    JS_FN( "FillPolygon", DrawPolygon, 3, 0 ),
-    JS_FN( "FillRoundRect", FillRoundRect, 7, 0 ),
-    JS_FN( "FillSolidRect", FillSolidRect, 5, 0 ),
-    JS_FN( "GdiAlphaBlend", GdiAlphaBlend, 10, 0 ),
-    JS_FN( "GdiDrawBitmap", GdiDrawBitmap, 9, 0 ),
-    JS_FN( "SetInterpolationMode", SetInterpolationMode, 1, 0 ),
-    JS_FN( "SetSmoothingMode", SetSmoothingMode, 1, 0 ),
-    JS_FN( "SetTextRenderingHint", SetTextRenderingHint, 1, 0 ),
+    JS_FN( "CalcTextHeight", CalcTextHeight, 2, DefaultPropsFlags() ),
+    JS_FN( "CalcTextWidth", CalcTextWidth, 2, DefaultPropsFlags() ),
+    JS_FN( "DrawEllipse", DrawEllipse, 6, DefaultPropsFlags() ),
+    JS_FN( "DrawImage", DrawImage, 11, DefaultPropsFlags() ),
+    JS_FN( "DrawLine", DrawLine, 6, DefaultPropsFlags() ),
+    JS_FN( "DrawPolygon", DrawPolygon, 3, DefaultPropsFlags() ),
+    JS_FN( "DrawRect", DrawRect, 6, DefaultPropsFlags() ),
+    JS_FN( "DrawRoundRect", DrawRoundRect, 8, DefaultPropsFlags() ),
+    JS_FN( "DrawString", DrawString, 8, DefaultPropsFlags() ),
+    JS_FN( "FillEllipse", FillEllipse, 5, DefaultPropsFlags() ),
+    JS_FN( "FillGradRect", FillGradRect, 8, DefaultPropsFlags() ),
+    JS_FN( "FillPolygon", DrawPolygon, 3, DefaultPropsFlags() ),
+    JS_FN( "FillRoundRect", FillRoundRect, 7, DefaultPropsFlags() ),
+    JS_FN( "FillSolidRect", FillSolidRect, 5, DefaultPropsFlags() ),
+    JS_FN( "GdiAlphaBlend", GdiAlphaBlend, 10, DefaultPropsFlags() ),
+    JS_FN( "GdiDrawBitmap", GdiDrawBitmap, 9, DefaultPropsFlags() ),
+    JS_FN( "SetInterpolationMode", SetInterpolationMode, 1, DefaultPropsFlags() ),
+    JS_FN( "SetSmoothingMode", SetSmoothingMode, 1, DefaultPropsFlags() ),
+    JS_FN( "SetTextRenderingHint", SetTextRenderingHint, 1, DefaultPropsFlags() ),
     JS_FS_END
 };
 

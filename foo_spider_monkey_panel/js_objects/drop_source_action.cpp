@@ -28,7 +28,7 @@ JSClassOps jsOps = {
 
 JSClass jsClass = {
     "DropSourceAction",
-    JSCLASS_HAS_PRIVATE | JSCLASS_FOREGROUND_FINALIZE,
+    DefaultClassFlags(),
     &jsOps
 };
 
@@ -39,10 +39,10 @@ MJS_DEFINE_JS_TO_NATIVE_FN( JsDropSourceAction, put_Playlist )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsDropSourceAction, put_ToSelect )
 
 const JSPropertySpec jsProperties[] = {
-    JS_PSGS( "Base", nullptr, put_Base, 0 ),
-    JS_PSGS( "Effect", get_Effect, put_Effect, 0 ),
-    JS_PSGS( "Playlist", nullptr, put_Playlist, 0 ),
-    JS_PSGS( "ToSelect", nullptr, put_ToSelect, 0 ),
+    JS_PSGS( "Base", nullptr, put_Base, DefaultPropsFlags() ),
+    JS_PSGS( "Effect", get_Effect, put_Effect, DefaultPropsFlags() ),
+    JS_PSGS( "Playlist", nullptr, put_Playlist, DefaultPropsFlags() ),
+    JS_PSGS( "ToSelect", nullptr, put_ToSelect, DefaultPropsFlags() ),
     JS_PS_END
 };
 

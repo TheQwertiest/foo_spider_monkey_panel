@@ -28,7 +28,7 @@ JSClassOps jsOps = {
 
 JSClass jsClass = {
     "FbFileInfo",
-    JSCLASS_HAS_PRIVATE | JSCLASS_FOREGROUND_FINALIZE,
+    DefaultClassFlags(),
     &jsOps
 };
 
@@ -41,13 +41,13 @@ MJS_DEFINE_JS_TO_NATIVE_FN( JsFbFileInfo, MetaValue );
 MJS_DEFINE_JS_TO_NATIVE_FN( JsFbFileInfo, MetaValueCount );
 
 const JSFunctionSpec jsFunctions[] = {
-    JS_FN( "InfoFind",       InfoFind      , 1, 0 ),
-    JS_FN( "InfoName",       InfoName      , 1, 0 ),
-    JS_FN( "InfoValue",      InfoValue     , 1, 0 ),
-    JS_FN( "MetaFind",       MetaFind      , 1, 0 ),
-    JS_FN( "MetaName",       MetaName      , 1, 0 ),
-    JS_FN( "MetaValue",      MetaValue     , 2, 0 ),
-    JS_FN( "MetaValueCount", MetaValueCount, 1, 0 ),
+    JS_FN( "InfoFind",       InfoFind      , 1, DefaultPropsFlags() ),
+    JS_FN( "InfoName",       InfoName      , 1, DefaultPropsFlags() ),
+    JS_FN( "InfoValue",      InfoValue     , 1, DefaultPropsFlags() ),
+    JS_FN( "MetaFind",       MetaFind      , 1, DefaultPropsFlags() ),
+    JS_FN( "MetaName",       MetaName      , 1, DefaultPropsFlags() ),
+    JS_FN( "MetaValue",      MetaValue     , 2, DefaultPropsFlags() ),
+    JS_FN( "MetaValueCount", MetaValueCount, 1, DefaultPropsFlags() ),
     JS_FS_END
 };
 
@@ -57,8 +57,8 @@ MJS_DEFINE_JS_TO_NATIVE_FN( JsFbFileInfo, get_MetaCount );
 
 const JSPropertySpec jsProperties[] = {
     
-    JS_PSG( "InfoCount", get_InfoCount , 0 ),
-    JS_PSG( "MetaCount", get_MetaCount , 0 ),
+    JS_PSG( "InfoCount", get_InfoCount , DefaultPropsFlags() ),
+    JS_PSG( "MetaCount", get_MetaCount , DefaultPropsFlags() ),
     JS_PS_END
 };
 

@@ -30,14 +30,14 @@ public:
     std::optional<std::nullptr_t> AddPlaylistItemToPlaybackQueue( uint32_t playlistIndex, uint32_t playlistItemIndex );
     std::optional<std::nullptr_t> ClearPlaylist( uint32_t playlistIndex );
     std::optional<std::nullptr_t> ClearPlaylistSelection( uint32_t playlistIndex );
-    std::optional<int32_t> CreateAutoPlaylist( uint32_t playlistIndex, std::string name, std::string  query, std::string  sort, uint32_t flags );
-    std::optional<int32_t> CreatePlaylist( uint32_t playlistIndex, std::string name );
-    std::optional<uint32_t> DuplicatePlaylist( uint32_t from, std::string  name );
+    std::optional<int32_t> CreateAutoPlaylist( uint32_t playlistIndex, const std::string& name, const std::string&  query, const std::string&  sort, uint32_t flags );
+    std::optional<int32_t> CreatePlaylist( uint32_t playlistIndex, const std::string& name );
+    std::optional<uint32_t> DuplicatePlaylist( uint32_t from, const std::string&  name );
     std::optional<std::nullptr_t> EnsurePlaylistItemVisible( uint32_t playlistIndex, uint32_t playlistItemIndex );
     std::optional<bool> ExecutePlaylistDefaultAction( uint32_t playlistIndex, uint32_t playlistItemIndex );
-    std::optional<int32_t> FindOrCreatePlaylist( std::string name, bool unlocked );
+    std::optional<int32_t> FindOrCreatePlaylist( const std::string& name, bool unlocked );
     std::optional<int32_t> FindPlaybackQueueItemIndex( JsFbMetadbHandle* handle, uint32_t playlistIndex, uint32_t playlistItemIndex );
-    std::optional<int32_t> FindPlaylist( std::string name );
+    std::optional<int32_t> FindPlaylist( const std::string& name );
     std::optional<std::nullptr_t> FlushPlaybackQueue();
     //std::optional<std::nullptr_t> GetPlaybackQueueContents( VARIANT* outContents );
     std::optional<JSObject*> GetPlaybackQueueHandles();
@@ -59,15 +59,15 @@ public:
     std::optional<bool> RemovePlaylist( uint32_t playlistIndex );
     std::optional<std::nullptr_t> RemovePlaylistSelection( uint32_t playlistIndex, bool crop );
     std::optional<bool> RemovePlaylistSwitch( uint32_t playlistIndex );
-    std::optional<bool> RenamePlaylist( uint32_t playlistIndex, std::string name );
+    std::optional<bool> RenamePlaylist( uint32_t playlistIndex, const std::string& name );
     std::optional<std::nullptr_t> SetActivePlaylistContext();
     std::optional<std::nullptr_t> SetPlaylistFocusItem( uint32_t playlistIndex, uint32_t playlistItemIndex );
     std::optional<std::nullptr_t> SetPlaylistFocusItemByHandle( uint32_t playlistIndex, JsFbMetadbHandle* handle );
     //std::optional<std::nullptr_t> SetPlaylistSelection( uint32_t playlistIndex, VARIANT affectedItems, bool state );
     std::optional<std::nullptr_t> SetPlaylistSelectionSingle( uint32_t playlistIndex, uint32_t playlistItemIndex, bool state );
     std::optional<bool> ShowAutoPlaylistUI( uint32_t playlistIndex );
-    std::optional<bool> SortByFormat( uint32_t playlistIndex, std::string pattern, bool selOnly );
-    std::optional<bool> SortByFormatV2( uint32_t playlistIndex, std::string pattern, int8_t direction );
+    std::optional<bool> SortByFormat( uint32_t playlistIndex, const std::string& pattern, bool selOnly );
+    std::optional<bool> SortByFormatV2( uint32_t playlistIndex, const std::string& pattern, int8_t direction );
     std::optional<std::nullptr_t> SortPlaylistsByName( int8_t direction );
     std::optional<std::nullptr_t> UndoBackup( uint32_t playlistIndex );
 
@@ -88,7 +88,8 @@ private:
 
 private:
     JSContext * pJsCtx_ = nullptr;
-    //JsFbPlaylistRecyclerManagerPtr m_fbPlaylistRecyclerManager;
+    // TODO: add to Create?
+    JS::PersistentRootedObject jsPlaylistRecycler_;    
 };
 
 }

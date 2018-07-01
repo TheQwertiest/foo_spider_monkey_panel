@@ -13,61 +13,9 @@ namespace mozjs::convert
 
 template<class T>
 struct _is_primitive
-    : std::false_type
-{
-};
-
-template<>
-struct _is_primitive<bool>
-    : std::true_type
-{
-};
-
-template<>
-struct _is_primitive<int32_t>
-    : std::true_type
-{
-};
-
-template<>
-struct _is_primitive<uint8_t>
-    : std::true_type
-{
-};
-
-template<>
-struct _is_primitive<uint32_t>
-    : std::true_type
-{
-};
-
-template<>
-struct _is_primitive<double>
-    : std::true_type
-{
-};
-
-template<>
-struct _is_primitive<float>
-    : std::true_type
-{
-};
-
-template<>
-struct _is_primitive<std::string>
-    : std::true_type
-{
-};
-
-template<>
-struct _is_primitive<std::wstring>
-    : std::true_type
-{
-};
-
-template<>
-struct _is_primitive<std::nullptr_t>
-    : std::true_type
+    : std::bool_constant<std::is_fundamental_v<T> 
+    || std::is_same_v<std::string, T> 
+    || std::is_same_v<std::wstring, T>>
 {
 };
 

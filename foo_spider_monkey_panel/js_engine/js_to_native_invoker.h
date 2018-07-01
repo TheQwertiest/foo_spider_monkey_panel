@@ -109,8 +109,8 @@ bool InvokeNativeCallback_Impl( JSContext* cx,
         JsToNativeArguments<maxArgCount, ArgTypes...>(
             args,
             [&cx, &bRet, &failedIdx]( const JS::CallArgs& jsArgs, auto argTypeStruct, size_t index )
-            {
-                using ArgType = typename decltype( argTypeStruct )::type;
+            {                
+                using ArgType = typename std::remove_const_t<std::remove_reference_t<decltype( argTypeStruct )::type>>;
 
                 if constexpr( std::is_same_v<ArgType, JS::HandleValue> )
                 {// Skip conversion, pass through

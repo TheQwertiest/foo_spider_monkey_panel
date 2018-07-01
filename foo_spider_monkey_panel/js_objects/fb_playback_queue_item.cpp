@@ -29,7 +29,7 @@ JSClassOps jsOps = {
 
 JSClass jsClass = {
     "FbPlaybackQueueItem",
-    JSCLASS_HAS_PRIVATE | JSCLASS_FOREGROUND_FINALIZE,
+    DefaultClassFlags(),
     &jsOps
 };
 
@@ -38,9 +38,9 @@ MJS_DEFINE_JS_TO_NATIVE_FN( JsFbPlaybackQueueItem, get_PlaylistIndex )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsFbPlaybackQueueItem, get_PlaylistItemIndex )
 
 const JSPropertySpec jsProperties[] = {
-    JS_PSG( "Handle", get_Handle, 0 ),
-    JS_PSG( "PlaylistIndex", get_PlaylistIndex, 0 ),
-    JS_PSG( "PlaylistItemIndex", get_PlaylistItemIndex, 0 ),
+    JS_PSG( "Handle", get_Handle, DefaultPropsFlags() ),
+    JS_PSG( "PlaylistIndex", get_PlaylistIndex, DefaultPropsFlags() ),
+    JS_PSG( "PlaylistItemIndex", get_PlaylistItemIndex, DefaultPropsFlags() ),
     JS_PS_END
 };
 

@@ -30,7 +30,7 @@ JSClassOps jsOps = {
 
 JSClass jsClass = {
     "ContextMenuManager",
-    JSCLASS_HAS_PRIVATE | JSCLASS_FOREGROUND_FINALIZE,
+    DefaultClassFlags(),
     &jsOps
 };
 
@@ -44,10 +44,10 @@ MJS_DEFINE_JS_TO_NATIVE_FN( JsContextMenuManager, InitContext )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsContextMenuManager, InitNowPlaying )
 
 const JSFunctionSpec jsFunctions[] = {
-    JS_FN( "BuildMenu",  BuildMenu, 3, 0 ),
-    JS_FN( "ExecuteByID",  ExecuteByID, 1, 0 ),
-    JS_FN( "InitContext",  InitContext, 1, 0 ),
-    JS_FN( "InitNowPlaying",  InitNowPlaying, 0, 0 ),
+    JS_FN( "BuildMenu",  BuildMenu, 3, DefaultPropsFlags() ),
+    JS_FN( "ExecuteByID",  ExecuteByID, 1, DefaultPropsFlags() ),
+    JS_FN( "InitContext",  InitContext, 1, DefaultPropsFlags() ),
+    JS_FN( "InitNowPlaying",  InitNowPlaying, 0, DefaultPropsFlags() ),
     JS_FS_END
 };
 

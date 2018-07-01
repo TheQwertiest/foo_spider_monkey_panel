@@ -32,7 +32,7 @@ JSClassOps jsOps = {
 
 JSClass jsClass = {
     "GdiUtils",
-    JSCLASS_HAS_PRIVATE | JSCLASS_FOREGROUND_FINALIZE,
+    DefaultClassFlags(),
     &jsOps
 };
 
@@ -40,8 +40,8 @@ MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiUtils, CreateImage )
 MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsGdiUtils, Font, FontWithOpt, 1 )
 
 const JSFunctionSpec jsFunctions[] = {
-    JS_FN( "CreateImage", CreateImage, 2, 0 ),
-    JS_FN( "Font", Font, 3, 0 ),
+    JS_FN( "CreateImage", CreateImage, 2, DefaultPropsFlags() ),
+    JS_FN( "Font", Font, 3, DefaultPropsFlags() ),
     JS_FS_END
 };
 
@@ -107,7 +107,7 @@ JsGdiUtils::CreateImage( uint32_t w, uint32_t h )
 }
 
 std::optional<JSObject*>
-JsGdiUtils::Font( std::wstring fontName, float pxSize, uint32_t style )
+JsGdiUtils::Font( const std::wstring& fontName, float pxSize, uint32_t style )
 {
     std::unique_ptr<Gdiplus::Font> pGdiFont( new Gdiplus::Font( fontName.c_str(), pxSize, style, Gdiplus::UnitPixel ) );
     if ( !helpers::ensure_gdiplus_object( pGdiFont.get() ) )

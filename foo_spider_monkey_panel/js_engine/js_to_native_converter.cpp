@@ -14,6 +14,14 @@ bool ToValue<bool>( [[maybe_unused]]JSContext * cx, const JS::HandleValue& jsVal
 }
 
 template <>
+int8_t ToValue<int8_t>( JSContext * cx, const JS::HandleValue& jsValue, bool& isValid )
+{
+    int8_t val;
+    isValid = JS::ToInt8( cx, jsValue, &val );
+    return val;
+}
+
+template <>
 int32_t ToValue<int32_t>( JSContext * cx, const JS::HandleValue& jsValue, bool& isValid )
 {
     int32_t val;

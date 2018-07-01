@@ -22,6 +22,9 @@ template <>
 bool ToValue<bool>( JSContext * cx, const JS::HandleValue& jsValue, bool& isValid );
 
 template <>
+int8_t ToValue<int8_t>( JSContext * cx, const JS::HandleValue& jsValue, bool& isValid );
+
+template <>
 int32_t ToValue<int32_t>( JSContext * cx, const JS::HandleValue& jsValue, bool& isValid );
 
 template <>

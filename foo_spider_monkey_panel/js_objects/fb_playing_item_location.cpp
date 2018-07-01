@@ -19,7 +19,7 @@ JSClassOps jsOps = {
     nullptr,
     nullptr,
     nullptr,
-    JsFinalizeOp<JsPlayingItemLocation>,
+    JsFinalizeOp<JsFbPlayingItemLocation>,
     nullptr,
     nullptr,
     nullptr,
@@ -28,18 +28,18 @@ JSClassOps jsOps = {
 
 JSClass jsClass = {
     "PlayingItemLocation",
-    JSCLASS_HAS_PRIVATE | JSCLASS_FOREGROUND_FINALIZE,
+    DefaultClassFlags(),
     &jsOps
 };
 
-MJS_DEFINE_JS_TO_NATIVE_FN( JsPlayingItemLocation, get_IsValid )
-MJS_DEFINE_JS_TO_NATIVE_FN( JsPlayingItemLocation, get_PlaylistIndex )
-MJS_DEFINE_JS_TO_NATIVE_FN( JsPlayingItemLocation, get_PlaylistItemIndex )
+MJS_DEFINE_JS_TO_NATIVE_FN( JsFbPlayingItemLocation, get_IsValid )
+MJS_DEFINE_JS_TO_NATIVE_FN( JsFbPlayingItemLocation, get_PlaylistIndex )
+MJS_DEFINE_JS_TO_NATIVE_FN( JsFbPlayingItemLocation, get_PlaylistItemIndex )
 
 const JSPropertySpec jsProperties[] = {
-    JS_PSG( "IsValid", get_IsValid, 0 ),
-    JS_PSG( "PlaylistIndex", get_PlaylistIndex, 0 ),
-    JS_PSG( "PlaylistItemIndex", get_PlaylistItemIndex, 0 ),
+    JS_PSG( "IsValid", get_IsValid, DefaultPropsFlags() ),
+    JS_PSG( "PlaylistIndex", get_PlaylistIndex, DefaultPropsFlags() ),
+    JS_PSG( "PlaylistItemIndex", get_PlaylistItemIndex, DefaultPropsFlags() ),
     JS_PS_END
 };
 
@@ -54,7 +54,7 @@ namespace mozjs
 {
 
 
-JsPlayingItemLocation::JsPlayingItemLocation( JSContext* cx, bool isValid, uint32_t playlistIndex, uint32_t playlistItemIndex )
+JsFbPlayingItemLocation::JsFbPlayingItemLocation( JSContext* cx, bool isValid, uint32_t playlistIndex, uint32_t playlistItemIndex )
     : pJsCtx_( cx )
     , isValid_(isValid)
     , playlistIndex_(playlistIndex)
@@ -63,11 +63,11 @@ JsPlayingItemLocation::JsPlayingItemLocation( JSContext* cx, bool isValid, uint3
 }
 
 
-JsPlayingItemLocation::~JsPlayingItemLocation()
+JsFbPlayingItemLocation::~JsFbPlayingItemLocation()
 {
 }
 
-JSObject* JsPlayingItemLocation::Create( JSContext* cx, bool isValid, uint32_t playlistIndex, uint32_t playlistItemIndex )
+JSObject* JsFbPlayingItemLocation::Create( JSContext* cx, bool isValid, uint32_t playlistIndex, uint32_t playlistItemIndex )
 {
     JS::RootedObject jsObj( cx,
                             JS_NewObject( cx, &jsClass ) );
@@ -82,30 +82,30 @@ JSObject* JsPlayingItemLocation::Create( JSContext* cx, bool isValid, uint32_t p
         return nullptr;
     }
 
-    JS_SetPrivate( jsObj, new JsPlayingItemLocation( cx, isValid, playlistIndex, playlistItemIndex ) );
+    JS_SetPrivate( jsObj, new JsFbPlayingItemLocation( cx, isValid, playlistIndex, playlistItemIndex ) );
 
     return jsObj;
 }
 
-const JSClass& JsPlayingItemLocation::GetClass()
+const JSClass& JsFbPlayingItemLocation::GetClass()
 {
     return jsClass;
 }
 
 std::optional<bool> 
-JsPlayingItemLocation::get_IsValid()
+JsFbPlayingItemLocation::get_IsValid()
 {    
     return isValid_;
 }
 
 std::optional<uint32_t> 
-JsPlayingItemLocation::get_PlaylistIndex()
+JsFbPlayingItemLocation::get_PlaylistIndex()
 {    
     return playlistIndex_;
 }
 
 std::optional<uint32_t> 
-JsPlayingItemLocation::get_PlaylistItemIndex()
+JsFbPlayingItemLocation::get_PlaylistItemIndex()
 {    
     return playlistItemIndex_;
 }

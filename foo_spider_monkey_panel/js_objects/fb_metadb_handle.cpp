@@ -30,7 +30,7 @@ JSClassOps jsOps = {
 
 JSClass jsClass = {
     "FbMetadbHandle",
-    JSCLASS_HAS_PRIVATE | JSCLASS_FOREGROUND_FINALIZE,
+    DefaultClassFlags(),
     &jsOps
 };
 
@@ -45,15 +45,15 @@ MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandle, SetPlaycount )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandle, SetRating )
 
 const JSFunctionSpec jsFunctions[] = {
-    JS_FN( "ClearStats",    ClearStats, 0, 0 ),
-    JS_FN( "Compare",       Compare, 1, 0 ),
-    JS_FN( "GetFileInfo",   GetFileInfo, 0, 0 ),
-    JS_FN( "RefreshStats",  RefreshStats, 0, 0 ),
-    JS_FN( "SetFirstPlayed",SetFirstPlayed, 1, 0 ),
-    JS_FN( "SetLastPlayed", SetLastPlayed, 1, 0 ),
-    JS_FN( "SetLoved",      SetLoved, 1, 0 ),
-    JS_FN( "SetPlaycount",  SetPlaycount, 1, 0 ),
-    JS_FN( "SetRating",     SetRating, 1, 0 ),
+    JS_FN( "ClearStats",    ClearStats, 0, DefaultPropsFlags() ),
+    JS_FN( "Compare",       Compare, 1, DefaultPropsFlags() ),
+    JS_FN( "GetFileInfo",   GetFileInfo, 0, DefaultPropsFlags() ),
+    JS_FN( "RefreshStats",  RefreshStats, 0, DefaultPropsFlags() ),
+    JS_FN( "SetFirstPlayed",SetFirstPlayed, 1, DefaultPropsFlags() ),
+    JS_FN( "SetLastPlayed", SetLastPlayed, 1, DefaultPropsFlags() ),
+    JS_FN( "SetLoved",      SetLoved, 1, DefaultPropsFlags() ),
+    JS_FN( "SetPlaycount",  SetPlaycount, 1, DefaultPropsFlags() ),
+    JS_FN( "SetRating",     SetRating, 1, DefaultPropsFlags() ),
     JS_FS_END
 };
 
@@ -65,11 +65,11 @@ MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandle, get_RawPath )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandle, get_SubSong )
 
 const JSPropertySpec jsProperties[] = {
-    JS_PSG( "FileSize", get_FileSize, 0 ),
-    JS_PSG( "Length",   get_Length, 0 ),
-    JS_PSG( "Path",     get_Path, 0 ),
-    JS_PSG( "RawPath",  get_RawPath, 0 ),
-    JS_PSG( "SubSong",  get_SubSong, 0 ),
+    JS_PSG( "FileSize", get_FileSize, DefaultPropsFlags() ),
+    JS_PSG( "Length",   get_Length, DefaultPropsFlags() ),
+    JS_PSG( "Path",     get_Path, DefaultPropsFlags() ),
+    JS_PSG( "RawPath",  get_RawPath, DefaultPropsFlags() ),
+    JS_PSG( "SubSong",  get_SubSong, DefaultPropsFlags() ),
     JS_PS_END
 };
 
@@ -124,6 +124,7 @@ const JSClass& JsFbMetadbHandle::GetClass()
 
 metadb_handle_ptr& JsFbMetadbHandle::GetHandle()
 {
+    assert( metadbHandle_.is_valid() );
     return metadbHandle_;
 }
 

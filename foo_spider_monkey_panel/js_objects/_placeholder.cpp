@@ -1,5 +1,4 @@
 #include <stdafx.h>
-
 #include "_placeholder.h"
 
 #include <js_engine/js_to_native_invoker.h>
@@ -32,6 +31,11 @@ JSClass jsClass = {
     &jsOps
 };
 
+const JSFunctionSpec jsFunctions[] = {
+    JS_FN( "Style",  get_Style, 2, 0 ),
+    JS_FS_END
+};
+
 MJS_DEFINE_JS_TO_NATIVE_FN( JsPlaceholder, get_Height )
 
 const JSPropertySpec jsProperties[] = {
@@ -39,11 +43,6 @@ const JSPropertySpec jsProperties[] = {
     JS_PS_END
 };
 
-
-const JSFunctionSpec jsFunctions[] = {
-    JS_FN( "Style",  get_Style, 2, 0 ),
-    JS_FS_END
-};
 
 }
 

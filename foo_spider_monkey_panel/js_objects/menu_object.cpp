@@ -29,12 +29,8 @@ JSClassOps jsOps = {
 
 JSClass jsClass = {
     "MenuObject",
-    JSCLASS_HAS_PRIVATE | JSCLASS_FOREGROUND_FINALIZE,
+    DefaultClassFlags(),
     &jsOps
-};
-
-const JSPropertySpec jsProperties[] = {
-    JS_PS_END
 };
 
 MJS_DEFINE_JS_TO_NATIVE_FN( JsMenuObject, AppendMenuItem )
@@ -45,14 +41,19 @@ MJS_DEFINE_JS_TO_NATIVE_FN( JsMenuObject, CheckMenuRadioItem )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsMenuObject, TrackPopupMenu )
 
 const JSFunctionSpec jsFunctions[] = {
-    JS_FN( "AppendMenuItem", AppendMenuItem, 3, 0 ),
-    JS_FN( "AppendMenuSeparator", AppendMenuSeparator, 0, 0 ),
-    JS_FN( "AppendTo", AppendTo, 3, 0 ),
-    JS_FN( "CheckMenuItem", CheckMenuItem, 2, 0 ),
-    JS_FN( "CheckMenuRadioItem", CheckMenuRadioItem, 3, 0 ),
-    JS_FN( "TrackPopupMenu", TrackPopupMenu, 3, 0 ),
+    JS_FN( "AppendMenuItem", AppendMenuItem, 3, DefaultPropsFlags() ),
+    JS_FN( "AppendMenuSeparator", AppendMenuSeparator, 0, DefaultPropsFlags() ),
+    JS_FN( "AppendTo", AppendTo, 3, DefaultPropsFlags() ),
+    JS_FN( "CheckMenuItem", CheckMenuItem, 2, DefaultPropsFlags() ),
+    JS_FN( "CheckMenuRadioItem", CheckMenuRadioItem, 3, DefaultPropsFlags() ),
+    JS_FN( "TrackPopupMenu", TrackPopupMenu, 3, DefaultPropsFlags() ),
     JS_FS_END
 };
+
+const JSPropertySpec jsProperties[] = {
+    JS_PS_END
+};
+
 
 }
 

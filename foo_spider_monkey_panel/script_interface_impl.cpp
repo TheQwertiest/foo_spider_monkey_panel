@@ -4556,7 +4556,7 @@ STDMETHODIMP ThemeManager::DrawThemeBackground(IGdiGraphics* gr, int x, int y, i
 	return hr;
 }
 
-STDMETHODIMP ThemeManager::IsThemePartDefined(int partid, VARIANT_BOOL* p)
+STDMETHODIMP ThemeManager::IsThemePartDefined(int partid, int stateid, VARIANT_BOOL* p)
 {
 	if (!m_theme || !p) return E_POINTER;
 

@@ -4,6 +4,7 @@
 #include <js_engine/js_container.h>
 #include <js_objects/console.h>
 #include <js_objects/gdi_utils.h>
+#include <js_objects/fb_playlist_manager.h>
 #include <js_objects/active_x.h>
 #include <js_utils/js_object_helper.h>
 
@@ -34,7 +35,7 @@ JSClassOps jsOps = {
 
 JSClass jsClass = {
      "Global",
-     JSCLASS_GLOBAL_FLAGS | JSCLASS_HAS_PRIVATE | JSCLASS_FOREGROUND_FINALIZE,
+     JSCLASS_GLOBAL_FLAGS | DefaultClassFlags(),
      &jsOps
 };
 
@@ -86,13 +87,8 @@ JSObject* JsGlobalObject::Create( JSContext* cx, JsContainer &parentContainer, j
             return nullptr;
         }
 
-        JS::RootedObject gdiObj( cx, JsGdiUtils::Create( cx ) );
-        if ( !gdiObj )
-        {
-            return nullptr;
-        }
-
-        if ( !JS_DefineProperty( cx, jsObj, "gdi", gdiObj, 0 ) )
+        if ( !CreateAndInstallObject( cx, jsObj, "gdi", JsGdiUtils::Create ) 
+             || !CreateAndInstallObject( cx, jsObj, "plman", JsFbPlaylistManager::Create ) )
         {
             return nullptr;
         }

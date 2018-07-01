@@ -33,7 +33,7 @@ JSClassOps jsOps = {
 
 JSClass jsClass = {
     "GdiBitmap",
-    JSCLASS_HAS_PRIVATE | JSCLASS_FOREGROUND_FINALIZE,
+    DefaultClassFlags(),
     &jsOps
 };
 
@@ -48,15 +48,15 @@ MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiBitmap, RotateFlip )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiBitmap, StackBlur )
 
 const JSFunctionSpec jsFunctions[] = {
-    JS_FN( "ApplyAlpha", ApplyAlpha, 1, 0 ),
-    JS_FN( "ApplyMask", ApplyMask, 1, 0 ),
-    JS_FN( "Clone", Clone, 4, 0 ),
-    JS_FN( "CreateRawBitmap", CreateRawBitmap, 0, 0 ),
-    JS_FN( "GetGraphics", GetGraphics, 0, 0 ),
-    JS_FN( "ReleaseGraphics", ReleaseGraphics, 1, 0 ),
-    JS_FN( "Resize", Resize, 3, 0 ),
-    JS_FN( "RotateFlip", RotateFlip, 1, 0 ),
-    JS_FN( "StackBlur", StackBlur, 1, 0 ),
+    JS_FN( "ApplyAlpha", ApplyAlpha, 1, DefaultPropsFlags() ),
+    JS_FN( "ApplyMask", ApplyMask, 1, DefaultPropsFlags() ),
+    JS_FN( "Clone", Clone, 4, DefaultPropsFlags() ),
+    JS_FN( "CreateRawBitmap", CreateRawBitmap, 0, DefaultPropsFlags() ),
+    JS_FN( "GetGraphics", GetGraphics, 0, DefaultPropsFlags() ),
+    JS_FN( "ReleaseGraphics", ReleaseGraphics, 1, DefaultPropsFlags() ),
+    JS_FN( "Resize", Resize, 3, DefaultPropsFlags() ),
+    JS_FN( "RotateFlip", RotateFlip, 1, DefaultPropsFlags() ),
+    JS_FN( "StackBlur", StackBlur, 1, DefaultPropsFlags() ),
     JS_FS_END
 };
 
@@ -64,8 +64,8 @@ MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiBitmap, get_Height )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiBitmap, get_Width )
 
 const JSPropertySpec jsProperties[] = {
-    JS_PSG( "Height", get_Height, 0 ),
-    JS_PSG( "Width",  get_Width, 0 ),
+    JS_PSG( "Height", get_Height, DefaultPropsFlags() ),
+    JS_PSG( "Width",  get_Width, DefaultPropsFlags() ),
     JS_PS_END
 };
 

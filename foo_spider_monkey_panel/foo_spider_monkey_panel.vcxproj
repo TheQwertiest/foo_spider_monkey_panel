@@ -115,12 +115,16 @@
     <ClCompile Include="js_objects\fb_metadb_handle_list.cpp" />
     <ClCompile Include="js_objects\fb_playback_queue_item.cpp" />
     <ClCompile Include="js_objects\fb_playing_item_location.cpp" />
+    <ClCompile Include="js_objects\fb_playlist_manager.cpp" />
+    <ClCompile Include="js_objects\fb_playlist_recycler_manager.cpp" />
+    <ClCompile Include="js_objects\fb_profiler.cpp" />
     <ClCompile Include="js_objects\gdi_bitmap.cpp" />
     <ClCompile Include="js_objects\gdi_graphics.cpp" />
     <ClCompile Include="js_objects\gdi_raw_bitmap.cpp" />
     <ClCompile Include="js_objects\gdi_utils.cpp" />
     <ClCompile Include="js_objects\gdi_font.cpp" />
     <ClCompile Include="js_objects\global_object.cpp" />
+    <ClCompile Include="js_objects\main_menu_manager.cpp" />
     <ClCompile Include="js_objects\menu_object.cpp" />
     <ClCompile Include="js_panel_window.cpp" />
     <ClCompile Include="js_panel_window_cui.cpp" />

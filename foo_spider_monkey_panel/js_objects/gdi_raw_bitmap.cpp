@@ -30,7 +30,7 @@ JSClassOps jsOps = {
 
 JSClass jsClass = {
     "GdiRawBitMap",
-    JSCLASS_HAS_PRIVATE | JSCLASS_FOREGROUND_FINALIZE,
+    DefaultClassFlags(),
     &jsOps
 };
 
@@ -38,8 +38,8 @@ MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiRawBitmap, get_Height )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiRawBitmap, get_Width )
 
 const JSPropertySpec jsProperties[] = {
-    JS_PSG( "Height", get_Height, 0 ),
-    JS_PSG( "Width",  get_Width, 0 ),
+    JS_PSG( "Height", get_Height, DefaultPropsFlags() ),
+    JS_PSG( "Width",  get_Width, DefaultPropsFlags() ),
     JS_PS_END
 };
 

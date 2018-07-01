@@ -34,7 +34,7 @@ JSClassOps jsOps = {
 
 JSClass jsClass = {
     "FbMetadbHandleList",
-    JSCLASS_HAS_PRIVATE | JSCLASS_FOREGROUND_FINALIZE,
+    DefaultClassFlags(),
     &jsOps
 };
 
@@ -64,30 +64,30 @@ MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandleList, Sort );
 MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandleList, UpdateFileInfoFromJSON );
 
 const JSFunctionSpec jsFunctions[] = {
-    JS_FN( "Add"                    , Add                    , 1, 0 ),
-    JS_FN( "AddRange"               , AddRange               , 1, 0 ),
-    JS_FN( "BSearch"                , BSearch                , 1, 0 ),
-    JS_FN( "CalcTotalDuration"      , CalcTotalDuration      , 0, 0 ),
-    JS_FN( "CalcTotalSize"          , CalcTotalSize          , 0, 0 ),
-    JS_FN( "Clone"                  , Clone                  , 0, 0 ),
-    //JS_FN( "Convert"                , Convert                , 0, 0 ),
-    JS_FN( "Find"                   , Find                   , 1, 0 ),
-    //JS_FN( "GetLibraryRelativePaths", GetLibraryRelativePaths, 0, 0 ),
-    JS_FN( "Insert"                 , Insert                 , 2, 0 ),
-    JS_FN( "InsertRange"            , InsertRange            , 2, 0 ),
-    JS_FN( "MakeDifference"         , MakeDifference         , 1, 0 ),
-    JS_FN( "MakeIntersection"       , MakeIntersection       , 1, 0 ),
-    JS_FN( "MakeUnion"              , MakeUnion              , 1, 0 ),
-    //JS_FN( "OrderByFormat"          , OrderByFormat          , 0, 0 ),
-    JS_FN( "OrderByPath"            , OrderByPath            , 0, 0 ),
-    JS_FN( "OrderByRelativePath"    , OrderByRelativePath    , 0, 0 ),
-    JS_FN( "RefreshStats"           , RefreshStats           , 0, 0 ),
-    JS_FN( "Remove"                 , Remove                 , 1, 0 ),
-    JS_FN( "RemoveAll"              , RemoveAll              , 0, 0 ),
-    JS_FN( "RemoveById"             , RemoveById             , 1, 0 ),
-    JS_FN( "RemoveRange"            , RemoveRange            , 2, 0 ),
-    JS_FN( "Sort"                   , Sort                   , 0, 0 ),
-    JS_FN( "UpdateFileInfoFromJSON" , UpdateFileInfoFromJSON , 1, 0 ),
+    JS_FN( "Add"                    , Add                    , 1, DefaultPropsFlags() ),
+    JS_FN( "AddRange"               , AddRange               , 1, DefaultPropsFlags() ),
+    JS_FN( "BSearch"                , BSearch                , 1, DefaultPropsFlags() ),
+    JS_FN( "CalcTotalDuration"      , CalcTotalDuration      , 0, DefaultPropsFlags() ),
+    JS_FN( "CalcTotalSize"          , CalcTotalSize          , 0, DefaultPropsFlags() ),
+    JS_FN( "Clone"                  , Clone                  , 0, DefaultPropsFlags() ),
+    //JS_FN( "Convert"                , Convert                , 0, DefaultPropsFlags() ),
+    JS_FN( "Find"                   , Find                   , 1, DefaultPropsFlags() ),
+    //JS_FN( "GetLibraryRelativePaths", GetLibraryRelativePaths, 0, DefaultPropsFlags() ),
+    JS_FN( "Insert"                 , Insert                 , 2, DefaultPropsFlags() ),
+    JS_FN( "InsertRange"            , InsertRange            , 2, DefaultPropsFlags() ),
+    JS_FN( "MakeDifference"         , MakeDifference         , 1, DefaultPropsFlags() ),
+    JS_FN( "MakeIntersection"       , MakeIntersection       , 1, DefaultPropsFlags() ),
+    JS_FN( "MakeUnion"              , MakeUnion              , 1, DefaultPropsFlags() ),
+    //JS_FN( "OrderByFormat"          , OrderByFormat          , 0, DefaultPropsFlags() ),
+    JS_FN( "OrderByPath"            , OrderByPath            , 0, DefaultPropsFlags() ),
+    JS_FN( "OrderByRelativePath"    , OrderByRelativePath    , 0, DefaultPropsFlags() ),
+    JS_FN( "RefreshStats"           , RefreshStats           , 0, DefaultPropsFlags() ),
+    JS_FN( "Remove"                 , Remove                 , 1, DefaultPropsFlags() ),
+    JS_FN( "RemoveAll"              , RemoveAll              , 0, DefaultPropsFlags() ),
+    JS_FN( "RemoveById"             , RemoveById             , 1, DefaultPropsFlags() ),
+    JS_FN( "RemoveRange"            , RemoveRange            , 2, DefaultPropsFlags() ),
+    JS_FN( "Sort"                   , Sort                   , 0, DefaultPropsFlags() ),
+    JS_FN( "UpdateFileInfoFromJSON" , UpdateFileInfoFromJSON , 1, DefaultPropsFlags() ),
     JS_FS_END
 };
 
@@ -96,8 +96,8 @@ MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandleList, get_Item );
 MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandleList, put_Item );
 
 const JSPropertySpec jsProperties[] = {
-    JS_PSG( "Count", get_Count, 0 ),
-    JS_PSGS( "Item", get_Item, put_Item, 0 ),
+    JS_PSG( "Count", get_Count, DefaultPropsFlags() ),
+    JS_PSGS( "Item", get_Item, put_Item, DefaultPropsFlags() ),
     JS_PS_END
 };
 
@@ -217,7 +217,7 @@ JsFbMetadbHandleList::Clone()
     JS::RootedObject jsObject( pJsCtx_, JsFbMetadbHandleList::Create( pJsCtx_, metadbHandleList_ ) );
     if ( !jsObject )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Internal error: failed to create JsFbMetadbHandleList" );
+        JS_ReportErrorASCII( pJsCtx_, "Internal error: failed to create JS object" );
         return std::nullopt;
     }
 
@@ -616,7 +616,7 @@ JsFbMetadbHandleList::get_Item( uint32_t index )
     JS::RootedObject jsObject( pJsCtx_, JsFbMetadbHandle::Create( pJsCtx_, metadbHandleList_.get_item_ref( index ) ) );
     if ( !jsObject )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Internal error: failed to create JsFbMetadbHandle" );
+        JS_ReportErrorASCII( pJsCtx_, "Internal error: failed to create JS object" );
         return std::nullopt;
     }
     

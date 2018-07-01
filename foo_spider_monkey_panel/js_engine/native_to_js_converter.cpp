@@ -22,6 +22,13 @@ bool ToValue<bool>( JSContext *, const bool& inValue, JS::MutableHandleValue wra
 }
 
 template <>
+bool ToValue<int8_t>( JSContext *, const int8_t& inValue, JS::MutableHandleValue wrappedValue )
+{
+    wrappedValue.setInt32( static_cast<int32_t>(inValue) );
+    return true;
+}
+
+template <>
 bool ToValue<int32_t>( JSContext *, const int32_t& inValue, JS::MutableHandleValue wrappedValue )
 {
     wrappedValue.setInt32( inValue );

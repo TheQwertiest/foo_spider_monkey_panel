@@ -167,7 +167,7 @@ JSClassOps jsOps = {
 
 JSClass ActiveX_Class = {
     "ActiveXObject",
-    JSCLASS_HAS_PRIVATE| JSCLASS_BACKGROUND_FINALIZE,
+    JSCLASS_HAS_PRIVATE | JSCLASS_BACKGROUND_FINALIZE,
     &jsOps
 };
 
@@ -614,13 +614,13 @@ bool ActiveX_Close_Impl( JSContext* cx, unsigned argc, JS::Value* vp )
 }
 /*
 const JSFunctionSpec ActiveX_functions[] = {
-    JS_FN( "get", ActiveX_Get, 1, 0 ),
-    JS_FN( "set", ActiveX_Set, 2, 0 ),
-    JS_FN( "exec", ActiveX_Exec, 2, 0 ),
-    JS_FN( "at", ActiveX_Exec, 2, 0 ),
-    JS_FN( "as", ActiveX_as, 2, 0 ),
-    JS_FN( "close", ActiveX_Close, 0, 0 ),
-    JS_FN( "toString", ActiveX_ToString, 0, 0 ),
+    JS_FN( "get", ActiveX_Get, 1, DefaultPropsFlags() ),
+    JS_FN( "set", ActiveX_Set, 2, DefaultPropsFlags() ),
+    JS_FN( "exec", ActiveX_Exec, 2, DefaultPropsFlags() ),
+    JS_FN( "at", ActiveX_Exec, 2, DefaultPropsFlags() ),
+    JS_FN( "as", ActiveX_as, 2, DefaultPropsFlags() ),
+    JS_FN( "close", ActiveX_Close, 0, DefaultPropsFlags() ),
+    JS_FN( "toString", ActiveX_ToString, 0, DefaultPropsFlags() ),
     JS_FS_END
 };
 */

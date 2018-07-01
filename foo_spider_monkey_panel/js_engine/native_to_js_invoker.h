@@ -9,8 +9,6 @@
 namespace mozjs
 {
 
-// TODO: make possible passing std::string by reference
-
 template <typename ReturnType = std::nullptr_t, typename... Args>
 std::optional<ReturnType> InvokeJsCallback( JSContext* cx,
                                             JS::HandleObject globalObject,
