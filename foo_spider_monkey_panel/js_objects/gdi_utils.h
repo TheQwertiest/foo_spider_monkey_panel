@@ -21,11 +21,9 @@ public:
     static const JSClass& GetClass();
 
 public: 
-    // TODO: replace ''string' with 'const string&' everywhere
-
     std::optional<JSObject*> CreateImage( uint32_t w, uint32_t h );
     std::optional<JSObject*> Font( const std::wstring& fontName, float pxSize, uint32_t style );
-    std::optional<JSObject*> FontWithOpt( size_t optArgCount, std::wstring fontName, float pxSize, uint32_t style );
+    std::optional<JSObject*> FontWithOpt( size_t optArgCount, const std::wstring& fontName, float pxSize, uint32_t style );
     //STDMETHODIMP Image( BSTR path, IGdiBitmap** pp );
     //STDMETHODIMP LoadImageAsync( UINT window_id, BSTR path, UINT* p );
 

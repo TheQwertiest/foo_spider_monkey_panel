@@ -200,7 +200,7 @@ JsFbMetadbHandle::RefreshStats()
 }
 
 std::optional<std::nullptr_t> 
-JsFbMetadbHandle::SetFirstPlayed( std::string first_played )
+JsFbMetadbHandle::SetFirstPlayed( const std::string& first_played )
 {
     assert( metadbHandle_.is_valid() );
 
@@ -219,7 +219,7 @@ JsFbMetadbHandle::SetFirstPlayed( std::string first_played )
 }
 
 std::optional<std::nullptr_t> 
-JsFbMetadbHandle::SetLastPlayed( std::string last_played )
+JsFbMetadbHandle::SetLastPlayed( const std::string& last_played )
 {
     assert( metadbHandle_.is_valid() );
 

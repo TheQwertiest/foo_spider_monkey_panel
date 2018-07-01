@@ -23,9 +23,9 @@ public:
 
 public:
     std::optional<std::nullptr_t> DrawThemeBackground( JsGdiGraphics* gr, int32_t x, int32_t y, uint32_t w, uint32_t h, int32_t clip_x, int32_t clip_y, uint32_t clip_w, uint32_t clip_h );
-    // TODO: document changes for these two methods
-    std::optional<bool> IsThemePartDefined( int32_t partid );
+    std::optional<bool> IsThemePartDefined( int32_t partid, int32_t stateId );
     std::optional<std::nullptr_t> SetPartID( int32_t partid );
+    std::optional<std::nullptr_t> SetStateID( int32_t stateId );
 
 private:
     JsThemeManager( JSContext* cx, HWND hwnd, const std::wstring& classlist );
@@ -37,6 +37,7 @@ private:
 
     HTHEME hTheme_;
     int32_t partId_;
+    int32_t stateId_;
 };
 
 }

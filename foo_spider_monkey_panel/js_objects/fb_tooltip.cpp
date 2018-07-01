@@ -226,7 +226,7 @@ JsFbTooltip::get_Text()
 }
 
 std::optional<std::nullptr_t> 
-JsFbTooltip::put_Text( std::wstring text )
+JsFbTooltip::put_Text( const std::wstring& text )
 {
     SysReAllocString( &tipBuffer_, text.c_str() );
     toolInfo_.lpszText = tipBuffer_;

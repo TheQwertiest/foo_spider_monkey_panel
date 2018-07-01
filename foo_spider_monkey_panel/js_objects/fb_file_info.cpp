@@ -110,7 +110,7 @@ const JSClass& JsFbFileInfo::GetClass()
 }
 
 std::optional<int32_t> 
-JsFbFileInfo::InfoFind( std::string name )
+JsFbFileInfo::InfoFind( const std::string& name )
 {
     assert( fileInfo_ );
 
@@ -146,7 +146,7 @@ JsFbFileInfo::InfoValue( uint32_t index )
 }
 
 std::optional<int32_t> 
-JsFbFileInfo::MetaFind( std::string name )
+JsFbFileInfo::MetaFind( const std::string& name )
 {
     assert( fileInfo_ );
 

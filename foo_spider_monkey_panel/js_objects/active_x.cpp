@@ -25,7 +25,7 @@
 #include <string>
 
 // TODO: add VT_ARRAY <> JSArray and VT_DISPATCH <> JSFunction support
-// TODO: callbacks set on COM objects are not destroyed, memory leak fix
+// TODO: rewrite everything here!
 
 //#define DEBUG
 //#define TRACE

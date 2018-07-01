@@ -63,7 +63,7 @@ private:
     JsContainer &parentContainer_;
     js_panel_window& parentPanel_;
     
-    uint32_t currentHeapId_;    
+    uint32_t currentHeapId_ = 0;    
     struct HeapElement
     {
         HeapElement( JS::HandleValue inValue )

@@ -493,7 +493,7 @@ JsFbMetadbHandleList::Sort()
 }
 
 std::optional<std::nullptr_t> 
-JsFbMetadbHandleList::UpdateFileInfoFromJSON( std::string str )
+JsFbMetadbHandleList::UpdateFileInfoFromJSON( const std::string& str )
 {
     // TODO: investigate
     uint32_t count = metadbHandleList_.get_count();

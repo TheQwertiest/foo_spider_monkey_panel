@@ -4,8 +4,11 @@
 #define JSP_WINDOW_CLASS_NAME "foo_spider_monkey_panel_class"
 #define JSP_DLL_NAME "foo_spider_monkey_panel.dll"
 
-// Remember to bump utils.version too
-#define JSP_VERSION_NUMBER "1.0"
+#define JSP_STRINGIFY(x) #x
+#define JSP_VERSION_MAJOR 0
+#define JSP_VERSION_MINOR 1
+#define JSP_VERSION_PATCH 0
+#define JSP_VERSION_NUMBER JSP_STRINGIFY(JSP_VERSION_MAJOR)"."JSP_STRINGIFY(JSP_VERSION_MINOR)"."JSP_STRINGIFY(JSP_VERSION_PATCH)
 #define JSP_VERSION_TEST ""
 
 #ifdef _DEBUG

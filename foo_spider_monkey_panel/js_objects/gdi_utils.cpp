@@ -147,7 +147,7 @@ JsGdiUtils::Font( const std::wstring& fontName, float pxSize, uint32_t style )
 }
 
 std::optional<JSObject*>
-JsGdiUtils::FontWithOpt( size_t optArgCount, std::wstring fontName, float pxSize, uint32_t style )
+JsGdiUtils::FontWithOpt( size_t optArgCount, const std::wstring& fontName, float pxSize, uint32_t style )
 {
     if ( optArgCount > 1 )
     {

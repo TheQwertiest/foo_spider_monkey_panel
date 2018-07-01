@@ -181,6 +181,9 @@
     <ClCompile Include="js_utils\winapi_error_helper.cpp">
       <Filter>js_utils</Filter>
     </ClCompile>
+    <ClCompile Include="js_objects\utils.cpp">
+      <Filter>js_objects</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="js_engine\js_engine.h">

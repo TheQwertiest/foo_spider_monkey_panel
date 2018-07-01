@@ -26,8 +26,8 @@ public: // methods
     std::optional<bool> Compare( JsFbMetadbHandle* handle );
     std::optional<JSObject*> GetFileInfo();
     std::optional<std::nullptr_t> RefreshStats();
-    std::optional<std::nullptr_t> SetFirstPlayed( std::string first_played );
-    std::optional<std::nullptr_t> SetLastPlayed( std::string last_played );
+    std::optional<std::nullptr_t> SetFirstPlayed( const std::string& first_played );
+    std::optional<std::nullptr_t> SetLastPlayed( const std::string& last_played );
     std::optional<std::nullptr_t> SetLoved( uint32_t loved );
     std::optional<std::nullptr_t> SetPlaycount( uint32_t playcount );
     std::optional<std::nullptr_t> SetRating( uint32_t rating );

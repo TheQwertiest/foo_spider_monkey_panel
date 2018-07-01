@@ -109,7 +109,7 @@ HMENU JsMenuObject::HMenu() const
 }
 
 std::optional<std::nullptr_t> 
-JsMenuObject::AppendMenuItem( uint32_t flags, uint32_t item_id, std::wstring text )
+JsMenuObject::AppendMenuItem( uint32_t flags, uint32_t item_id, const std::wstring& text )
 {
     assert( hMenu_ );
 
@@ -137,7 +137,7 @@ JsMenuObject::AppendMenuSeparator()
 }
 
 std::optional<std::nullptr_t> 
-JsMenuObject::AppendTo( JsMenuObject* parent, uint32_t flags, std::wstring text )
+JsMenuObject::AppendTo( JsMenuObject* parent, uint32_t flags, const std::wstring& text )
 {
     assert( hMenu_ );
 

@@ -11,6 +11,7 @@ namespace mozjs
 
 /*
 
+// Various wsh_panel methods and uihacks ports will go here
 
 */
 }

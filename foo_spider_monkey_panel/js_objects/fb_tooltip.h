@@ -47,7 +47,7 @@ public:
 
 public:
     std::optional<std::wstring> get_Text();
-    std::optional<std::nullptr_t> put_Text( std::wstring text );
+    std::optional<std::nullptr_t> put_Text( const std::wstring& text );
     std::optional<std::nullptr_t> put_TrackActivate( bool activate );
 
 private:

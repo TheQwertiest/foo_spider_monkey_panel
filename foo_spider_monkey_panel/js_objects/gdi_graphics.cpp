@@ -367,7 +367,7 @@ JsGdiGraphics::DrawRoundRect( float x, float y, float w, float h, float arc_widt
 }
 
 std::optional<std::nullptr_t>
-JsGdiGraphics::DrawString( std::wstring str, JsGdiFont* font, uint32_t colour, float x, float y, float w, float h, uint32_t flags )
+JsGdiGraphics::DrawString( const std::wstring& str, JsGdiFont* font, uint32_t colour, float x, float y, float w, float h, uint32_t flags )
 {
     if ( !pGdi_ )
     {
@@ -413,7 +413,7 @@ JsGdiGraphics::DrawString( std::wstring str, JsGdiFont* font, uint32_t colour, f
 }
 
 std::optional<std::nullptr_t>
-JsGdiGraphics::DrawStringWithOpt( size_t optArgCount, std::wstring str, JsGdiFont* font, uint32_t colour, float x, float y, float w, float h, uint32_t flags )
+JsGdiGraphics::DrawStringWithOpt( size_t optArgCount, const std::wstring& str, JsGdiFont* font, uint32_t colour, float x, float y, float w, float h, uint32_t flags )
 {
     if ( optArgCount > 1 )
     {

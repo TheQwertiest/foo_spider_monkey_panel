@@ -131,6 +131,7 @@
     <ClCompile Include="js_objects\measure_string_info.cpp" />
     <ClCompile Include="js_objects\menu_object.cpp" />
     <ClCompile Include="js_objects\theme_manager.cpp" />
+    <ClCompile Include="js_objects\utils.cpp" />
     <ClCompile Include="js_panel_window.cpp" />
     <ClCompile Include="js_panel_window_cui.cpp" />
     <ClCompile Include="js_panel_window_dui.cpp" />

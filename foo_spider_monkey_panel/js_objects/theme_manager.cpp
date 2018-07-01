@@ -129,15 +129,22 @@ JsThemeManager::DrawThemeBackground( JsGdiGraphics* gr,
 }
 
 std::optional<bool> 
-JsThemeManager::IsThemePartDefined( int32_t partid )
+JsThemeManager::IsThemePartDefined( int32_t partid, int32_t stateId )
 {
-    return ::IsThemePartDefined( hTheme_, partid, 0 );
+    return ::IsThemePartDefined( hTheme_, partid, stateId );
 }
 
 std::optional<std::nullptr_t> 
 JsThemeManager::SetPartID( int32_t partid )
 {
     partId_ = partid;
+    return nullptr;
+}
+
+std::optional<std::nullptr_t>
+JsThemeManager::SetStateID( int32_t stateId )
+{
+    stateId_ = stateId;
     return nullptr;
 }
 

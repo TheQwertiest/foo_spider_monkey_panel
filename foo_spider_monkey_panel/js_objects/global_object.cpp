@@ -2,10 +2,11 @@
 #include "global_object.h"
 
 #include <js_engine/js_container.h>
-#include <js_objects/console.h>
-#include <js_objects/gdi_utils.h>
-#include <js_objects/fb_playlist_manager.h>
 #include <js_objects/active_x.h>
+#include <js_objects/console.h>
+#include <js_objects/fb_playlist_manager.h>
+#include <js_objects/gdi_utils.h>
+#include <js_objects/utils.h>
 #include <js_utils/js_object_helper.h>
 
 #include <js_panel_window.h>
@@ -50,7 +51,6 @@ JsGlobalObject::JsGlobalObject( JSContext* cx, JsContainer &parentContainer, js_
     , parentContainer_( parentContainer )
     , parentPanel_( parentPanel )
 {
-    currentHeapId_ = 0;
 }
 
 
@@ -88,11 +88,13 @@ JSObject* JsGlobalObject::Create( JSContext* cx, JsContainer &parentContainer, j
         }
 
         if ( !CreateAndInstallObject( cx, jsObj, "gdi", JsGdiUtils::Create ) 
-             || !CreateAndInstallObject( cx, jsObj, "plman", JsFbPlaylistManager::Create ) )
+             || !CreateAndInstallObject( cx, jsObj, "plman", JsFbPlaylistManager::Create )
+             || !CreateAndInstallObject( cx, jsObj, "utils", JsUtils::Create ) )
         {
             return nullptr;
         }
 
+        // TODO: proto must be saved and used in object creation
         JS::RootedObject activeXproto( cx, CreateActiveXProto( cx, jsObj ) );
         if ( !activeXproto )
         {
