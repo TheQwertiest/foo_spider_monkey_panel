@@ -1290,11 +1290,14 @@ STDMETHODIMP FbPlaylistManager::InsertPlaylistItemsFilter(UINT playlistIndex, UI
 
 STDMETHODIMP FbPlaylistManager::IsAutoPlaylist(UINT playlistIndex, VARIANT_BOOL* p)
 {
-	if (playlistIndex < 0 || playlistIndex >= playlist_manager::get()->get_playlist_count()) return E_INVALIDARG;
 	if (!p) return E_POINTER;
 
-	*p = TO_VARIANT_BOOL(autoplaylist_manager::get()->is_client_present(playlistIndex));
-	return S_OK;
+	if (playlistIndex < playlist_manager::get()->get_playlist_count())
+	{
+		*p = TO_VARIANT_BOOL(autoplaylist_manager::get()->is_client_present(playlistIndex));
+		return S_OK;
+	}
+	return E_INVALIDARG;
 }
 
 STDMETHODIMP FbPlaylistManager::IsPlaylistItemSelected(UINT playlistIndex, UINT playlistItemIndex, VARIANT_BOOL* outSelected)
@@ -1307,12 +1310,15 @@ STDMETHODIMP FbPlaylistManager::IsPlaylistItemSelected(UINT playlistIndex, UINT 
 
 STDMETHODIMP FbPlaylistManager::IsPlaylistLocked(UINT playlistIndex, VARIANT_BOOL* p)
 {
-	auto api = playlist_manager::get();
-	if (playlistIndex < 0 || playlistIndex >= api->get_playlist_count()) return E_INVALIDARG;
 	if (!p) return E_POINTER;
 
-	*p = TO_VARIANT_BOOL(api->playlist_lock_is_present(playlistIndex));
-	return S_OK;
+	auto api = playlist_manager::get();
+	if (playlistIndex < api->get_playlist_count())
+	{
+		*p = TO_VARIANT_BOOL(api->playlist_lock_is_present(playlistIndex));
+		return S_OK;
+	}
+	return E_INVALIDARG;
 }
 
 STDMETHODIMP FbPlaylistManager::MovePlaylist(UINT from, UINT to, VARIANT_BOOL* outSuccess)
@@ -1450,20 +1456,22 @@ STDMETHODIMP FbPlaylistManager::SetPlaylistSelectionSingle(UINT playlistIndex, U
 
 STDMETHODIMP FbPlaylistManager::ShowAutoPlaylistUI(UINT playlistIndex, VARIANT_BOOL* outSuccess)
 {
-	if (playlistIndex < 0 || playlistIndex >= playlist_manager::get()->get_playlist_count()) return E_INVALIDARG;
 	if (!outSuccess) return E_POINTER;
 
-	*outSuccess = VARIANT_FALSE;
-
-	auto api = autoplaylist_manager::get();
-	if (api->is_client_present(playlistIndex))
+	if (playlistIndex < playlist_manager::get()->get_playlist_count())
 	{
-		autoplaylist_client_ptr client = api->query_client(playlistIndex);
-		client->show_ui(playlistIndex);
-		*outSuccess = VARIANT_TRUE;
-	}
+		*outSuccess = VARIANT_FALSE;
 
-	return S_OK;
+		auto api = autoplaylist_manager::get();
+		if (api->is_client_present(playlistIndex))
+		{
+			autoplaylist_client_ptr client = api->query_client(playlistIndex);
+			client->show_ui(playlistIndex);
+			*outSuccess = VARIANT_TRUE;
+		}
+		return S_OK;
+	}
+	return E_INVALIDARG;
 }
 
 STDMETHODIMP FbPlaylistManager::SortByFormat(UINT playlistIndex, BSTR pattern, VARIANT_BOOL selOnly, VARIANT_BOOL* outSuccess)
@@ -1620,15 +1628,12 @@ STDMETHODIMP FbPlaylistRecyclerManager::Restore(UINT index)
 {
 	auto api = playlist_manager_v3::get();
 	t_size count = api->recycler_get_count();
-	if (index >= 0 && index < count)
+	if (index < count)
 	{
 		api->recycler_restore(index);
+		return S_OK;
 	}
-	else
-	{
-		return E_INVALIDARG;
-	}
-	return S_OK;
+	return E_INVALIDARG;
 }
 
 STDMETHODIMP FbPlaylistRecyclerManager::get_Content(UINT index, IFbMetadbHandleList** outContent)
@@ -1637,17 +1642,14 @@ STDMETHODIMP FbPlaylistRecyclerManager::get_Content(UINT index, IFbMetadbHandleL
 
 	auto api = playlist_manager_v3::get();
 	t_size count = api->recycler_get_count();
-	if (index >= 0 && index < count)
+	if (index < count)
 	{
 		metadb_handle_list handles;
 		api->recycler_get_content(index, handles);
 		*outContent = new com_object_impl_t<FbMetadbHandleList>(handles);
+		return S_OK;
 	}
-	else
-	{
-		return E_INVALIDARG;
-	}
-	return S_OK;
+	return E_INVALIDARG;
 }
 
 STDMETHODIMP FbPlaylistRecyclerManager::get_Count(UINT* outCount)
@@ -1664,17 +1666,14 @@ STDMETHODIMP FbPlaylistRecyclerManager::get_Name(UINT index, BSTR* outName)
 
 	auto api = playlist_manager_v3::get();
 	t_size count = api->recycler_get_count();
-	if (index >= 0 && index < count)
+	if (index < count)
 	{
 		pfc::string8_fast name;
 		api->recycler_get_name(index, name);
 		*outName = SysAllocString(pfc::stringcvt::string_wide_from_utf8_fast(name));
+		return S_OK;
 	}
-	else
-	{
-		return E_INVALIDARG;
-	}
-	return S_OK;
+	return E_INVALIDARG;
 }
 
 FbProfiler::FbProfiler(const char* p_name) : m_name(p_name)
@@ -2277,9 +2276,7 @@ STDMETHODIMP FbUtils::GetQueryItems(IFbMetadbHandleList* handles, BSTR query, IF
 	mask.set_size(dst_list.get_count());
 	filter->test_multi(dst_list, mask.get_ptr());
 	dst_list.filter_mask(mask.get_ptr());
-
 	*pp = new com_object_impl_t<FbMetadbHandleList>(dst_list);
-
 	return S_OK;
 }
 
@@ -2287,6 +2284,7 @@ STDMETHODIMP FbUtils::GetSelection(IFbMetadbHandle** pp)
 {
 	if (!pp) return E_POINTER;
 
+	*pp = NULL;
 	metadb_handle_list items;
 	ui_selection_manager::get()->get_selection(items);
 
@@ -2294,11 +2292,6 @@ STDMETHODIMP FbUtils::GetSelection(IFbMetadbHandle** pp)
 	{
 		*pp = new com_object_impl_t<FbMetadbHandle>(items[0]);
 	}
-	else
-	{
-		*pp = NULL;
-	}
-
 	return S_OK;
 }
 
@@ -2478,8 +2471,8 @@ STDMETHODIMP FbUtils::SetDSPPreset(UINT idx)
 
 	auto api = dsp_config_manager_v2::get();
 	t_size count = api->get_preset_count();
-
-	if (idx >= 0 && idx < count) {
+	if (idx < count)
+	{
 		api->select_preset(idx);
 		return S_OK;
 	}
@@ -2491,7 +2484,6 @@ STDMETHODIMP FbUtils::SetOutputDevice(BSTR output, BSTR device)
 	if (!static_api_test_t<output_manager_v2>()) return E_NOTIMPL;
 
 	GUID output_id, device_id;
-
 	if (CLSIDFromString(output, &output_id) == NOERROR && CLSIDFromString(device, &device_id) == NOERROR)
 	{
 		output_manager_v2::get()->setCoreConfigDevice(output_id, device_id);
