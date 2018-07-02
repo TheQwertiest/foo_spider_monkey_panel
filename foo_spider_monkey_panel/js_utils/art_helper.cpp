@@ -101,8 +101,8 @@ Gdiplus::Bitmap* GetBitmapFromAlbumArtData( const album_art_data_ptr& data )
         return nullptr;
     }
 
-    CComPtr<IStream> is( SHCreateMemStream( nullptr, 0 ) );
-    if ( !is )
+    pfc::com_ptr_t<IStream> is( SHCreateMemStream( nullptr, 0 ) );
+    if ( !is.is_valid() )
     {
         return nullptr;
     }
@@ -114,7 +114,7 @@ Gdiplus::Bitmap* GetBitmapFromAlbumArtData( const album_art_data_ptr& data )
         return nullptr;
     }
 
-    std::unique_ptr<Gdiplus::Bitmap> bmp( new Gdiplus::Bitmap( is, PixelFormat32bppPARGB ) );
+    std::unique_ptr<Gdiplus::Bitmap> bmp( new Gdiplus::Bitmap( is.get_ptr(), PixelFormat32bppPARGB ) );
     if ( !IsGdiplusObjectValid( bmp.get() ) )
     {
         return nullptr;
@@ -236,7 +236,7 @@ uint32_t GetAlbumArtAsync( HWND hWnd, const metadb_handle_ptr& handle, uint32_t 
         if ( simple_thread_pool::instance().enqueue( task.get() ) )
         {
             uint64_t taskId = reinterpret_cast<uint64_t>(task.release());
-            return taskId ^ ( taskId >> 32 );
+            return static_cast<uint32_t>( ( taskId & 0xFFFFFFFF ) ^ ( taskId >> 32 ) );
         }
     }
     catch ( ... )

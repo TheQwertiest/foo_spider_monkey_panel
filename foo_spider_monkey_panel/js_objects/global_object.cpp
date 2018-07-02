@@ -7,6 +7,7 @@
 #include <js_objects/fb_playlist_manager.h>
 #include <js_objects/gdi_utils.h>
 #include <js_objects/utils.h>
+#include <js_objects/fb_utils.h>
 #include <js_utils/js_object_helper.h>
 
 #include <js_panel_window.h>
@@ -89,7 +90,8 @@ JSObject* JsGlobalObject::Create( JSContext* cx, JsContainer &parentContainer, j
 
         if ( !CreateAndInstallObject( cx, jsObj, "gdi", JsGdiUtils::Create ) 
              || !CreateAndInstallObject( cx, jsObj, "plman", JsFbPlaylistManager::Create )
-             || !CreateAndInstallObject( cx, jsObj, "utils", JsUtils::Create ) )
+             || !CreateAndInstallObject( cx, jsObj, "utils", JsUtils::Create ) 
+             || !CreateAndInstallObject( cx, jsObj, "fb", JsFbUtils::Create ) )
         {
             return nullptr;
         }

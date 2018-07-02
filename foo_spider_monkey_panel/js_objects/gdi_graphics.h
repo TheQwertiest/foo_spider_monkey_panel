@@ -55,7 +55,7 @@ public:
     std::optional<std::nullptr_t> FillSolidRect( float x, float y, float w, float h, uint32_t colour );
     std::optional<std::nullptr_t> GdiAlphaBlend( JsGdiRawBitmap* bitmap, int32_t dstX, int32_t dstY, uint32_t dstW, uint32_t dstH, int32_t srcX, int32_t srcY, uint32_t srcW, uint32_t srcH, uint8_t alpha );
     std::optional<std::nullptr_t> GdiDrawBitmap( JsGdiRawBitmap* bitmap, int32_t dstX, int32_t dstY, uint32_t dstW, uint32_t dstH, int32_t srcX, int32_t srcY, uint32_t srcW, uint32_t srcH );
-    //GdiDrawText( BSTR str, IGdiFont* font, VARIANT colour, int x, int y, int w, int h, int format, VARIANT* p );
+    std::optional<std::nullptr_t> GdiDrawText( const std::wstring& str, JsGdiFont* font, uint32_t colour, int x, int y, uint32_t w, uint32_t h, uint32_t format );
     std::optional<JSObject*> MeasureString( const std::wstring& str, JsGdiFont* font, float x, float y, float w, float h, uint32_t flags );
     std::optional<std::nullptr_t> SetInterpolationMode( uint32_t mode );
     std::optional<std::nullptr_t> SetInterpolationModeWithOpt( size_t optArgCount, uint32_t mode );

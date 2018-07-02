@@ -474,7 +474,7 @@ JsFbPlaylistManager::InsertPlaylistItemsFilter( uint32_t playlistIndex, uint32_t
 std::optional<bool>
 JsFbPlaylistManager::IsAutoPlaylist( uint32_t playlistIndex )
 {
-    if ( playlistIndex < 0 || playlistIndex >= playlist_manager::get()->get_playlist_count() )
+    if ( playlistIndex >= playlist_manager::get()->get_playlist_count() )
     {
         JS_ReportErrorASCII( pJsCtx_, "Index is out of bounds" );
         return std::nullopt;
@@ -493,7 +493,7 @@ std::optional<bool>
 JsFbPlaylistManager::IsPlaylistLocked( uint32_t playlistIndex )
 {
     auto api = playlist_manager::get();
-    if ( playlistIndex < 0 || playlistIndex >= api->get_playlist_count() )
+    if ( playlistIndex >= api->get_playlist_count() )
     {
         JS_ReportErrorASCII( pJsCtx_, "Index is out of bounds" );
         return std::nullopt;
@@ -605,7 +605,7 @@ JsFbPlaylistManager::SetPlaylistSelectionSingle( uint32_t playlistIndex, uint32_
 std::optional<bool>
 JsFbPlaylistManager::ShowAutoPlaylistUI( uint32_t playlistIndex )
 {
-    if ( playlistIndex < 0 || playlistIndex >= playlist_manager::get()->get_playlist_count() )
+    if ( playlistIndex >= playlist_manager::get()->get_playlist_count() )
     {
         JS_ReportErrorASCII( pJsCtx_, "Index is out of bounds" );
         return std::nullopt;

@@ -133,8 +133,8 @@ JsGdiUtils::Font( const std::wstring& fontName, float pxSize, uint32_t style )
         DEFAULT_PITCH | FF_DONTCARE,
         fontName.c_str() );
 
-    JS::RootedObject jsRetObject( pJsCtx_, JsGdiFont::Create( pJsCtx_, pGdiFont.get(), hFont, true ) );
-    if ( !jsRetObject )
+    JS::RootedObject jsObject( pJsCtx_, JsGdiFont::Create( pJsCtx_, pGdiFont.get(), hFont, true ) );
+    if ( !jsObject )
     {
         DeleteObject( hFont );
 
@@ -143,7 +143,7 @@ JsGdiUtils::Font( const std::wstring& fontName, float pxSize, uint32_t style )
     }
 
     pGdiFont.release();
-    return jsRetObject;
+    return jsObject;
 }
 
 std::optional<JSObject*>
@@ -161,6 +161,34 @@ JsGdiUtils::FontWithOpt( size_t optArgCount, const std::wstring& fontName, float
     }
 
     return Font( fontName, pxSize, style );
+}
+
+std::optional<JSObject*> 
+JsGdiUtils::Image( const std::wstring& path )
+{
+    // Since using Gdiplus::Bitmap(path) will result locking file, so use IStream instead to prevent it.
+    pfc::com_ptr_t<IStream> pStream;
+    HRESULT hr = SHCreateStreamOnFileEx( path.c_str(), STGM_READ | STGM_SHARE_DENY_WRITE, GENERIC_READ, FALSE, NULL, pStream.receive_ptr() );
+    if ( !SUCCEEDED( hr ) )
+    {
+        return nullptr;
+    }
+
+    std::unique_ptr<Gdiplus::Bitmap> img (new Gdiplus::Bitmap( pStream.get_ptr(), PixelFormat32bppPARGB ));
+    if ( !helpers::ensure_gdiplus_object( img.get() ) )
+    {
+        return nullptr;
+    }
+
+    JS::RootedObject jsObject( pJsCtx_, JsGdiBitmap::Create( pJsCtx_, img.get() ) );
+    if ( !jsObject )
+    {
+        JS_ReportErrorASCII( pJsCtx_, "Internal error: failed to create JS object" );
+        return std::nullopt;
+    }
+
+    img.release();
+    return jsObject;
 }
 
 }

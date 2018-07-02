@@ -23,10 +23,10 @@
         return retValue;\
     } while(false)
 
-#define IF_WINAPI_FAILED_RETURN_WITH_REPORT(cx, bRet, retValue, funcName) \
+#define IF_WINAPI_FAILED_RETURN_WITH_REPORT(cx, successPredicate, retValue, funcName) \
     do \
     {\
-        if ( !bRet )\
+        if ( !(successPredicate) )\
         {\
             WINAPI_RETURN_WITH_REPORT(cx, retValue, funcName);\
         }\

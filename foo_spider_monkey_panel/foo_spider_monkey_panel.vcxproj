@@ -121,6 +121,7 @@
     <ClCompile Include="js_objects\fb_title_format.cpp" />
     <ClCompile Include="js_objects\fb_tooltip.cpp" />
     <ClCompile Include="js_objects\fb_ui_selection_holder.cpp" />
+    <ClCompile Include="js_objects\fb_utils.cpp" />
     <ClCompile Include="js_objects\gdi_bitmap.cpp" />
     <ClCompile Include="js_objects\gdi_graphics.cpp" />
     <ClCompile Include="js_objects\gdi_raw_bitmap.cpp" />

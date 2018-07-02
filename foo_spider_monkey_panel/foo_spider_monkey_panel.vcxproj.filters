@@ -187,6 +187,9 @@
     <ClCompile Include="js_utils\art_helper.cpp">
       <Filter>js_utils</Filter>
     </ClCompile>
+    <ClCompile Include="js_objects\fb_utils.cpp">
+      <Filter>js_objects</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="js_engine\js_engine.h">

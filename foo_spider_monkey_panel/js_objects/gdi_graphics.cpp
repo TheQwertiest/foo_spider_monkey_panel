@@ -56,6 +56,7 @@ MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiGraphics, FillRoundRect )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiGraphics, FillSolidRect )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiGraphics, GdiAlphaBlend )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiGraphics, GdiDrawBitmap )
+MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiGraphics, GdiDrawText )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiGraphics, MeasureString )
 MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsGdiGraphics, SetInterpolationMode, SetInterpolationModeWithOpt, 1 )
 MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsGdiGraphics, SetSmoothingMode, SetSmoothingModeWithOpt, 1 )
@@ -78,6 +79,7 @@ const JSFunctionSpec jsFunctions[] = {
     JS_FN( "FillSolidRect", FillSolidRect, 5, DefaultPropsFlags() ),
     JS_FN( "GdiAlphaBlend", GdiAlphaBlend, 10, DefaultPropsFlags() ),
     JS_FN( "GdiDrawBitmap", GdiDrawBitmap, 9, DefaultPropsFlags() ),
+    JS_FN( "GdiDrawText", GdiDrawText, 8, DefaultPropsFlags() ),
     JS_FN( "MeasureString", MeasureString, 7, DefaultPropsFlags() ),
     JS_FN( "SetInterpolationMode", SetInterpolationMode, 1, DefaultPropsFlags() ),
     JS_FN( "SetSmoothingMode", SetSmoothingMode, 1, DefaultPropsFlags() ),
@@ -627,6 +629,97 @@ JsGdiGraphics::GdiDrawBitmap( JsGdiRawBitmap* bitmap,
         bRet = StretchBlt( dc, dstX, dstY, dstW, dstH, srcDc, srcX, srcY, srcW, srcH, SRCCOPY );
         IF_WINAPI_FAILED_RETURN_WITH_REPORT( pJsCtx_, bRet, std::nullopt, StretchBlt );
     }
+
+    return nullptr;
+}
+
+std::optional<std::nullptr_t> 
+JsGdiGraphics::GdiDrawText( const std::wstring& str, JsGdiFont* font, uint32_t colour, int x, int y, uint32_t w, uint32_t h, uint32_t format )
+{
+    if ( !pGdi_ )
+    {
+        JS_ReportErrorASCII( pJsCtx_, "Internal error: Gdiplus::Graphics object is null" );
+        return std::nullopt;
+    }
+
+    if ( !font )
+    {
+        JS_ReportErrorASCII( pJsCtx_, "font argument is null" );
+        return std::nullopt;
+    }
+    
+    HFONT hFont = font->HFont();
+    assert( hFont );
+   
+    HFONT oldfont;
+    HDC dc = pGdi_->GetHDC();
+    assert( dc );
+
+    class ScopedHDC
+    {// TODO: move somewhere
+    public:
+        ScopedHDC( Gdiplus::Graphics* pGdi, HDC hDc )
+            : pGdi_( pGdi )
+            , hDc_( hDc )
+        {
+
+        }
+        ~ScopedHDC()
+        {
+            pGdi_->ReleaseHDC( hDc_ );
+        }
+
+    private:
+        Gdiplus::Graphics* pGdi_;
+        HDC hDc_;
+    };
+
+    ScopedHDC shdc( pGdi_, dc );
+
+    RECT rc = { x, y, static_cast<LONG>( x + w ), static_cast<LONG>( y + h ) };
+    DRAWTEXTPARAMS dpt = { sizeof( DRAWTEXTPARAMS ), 4, 0, 0, 0 };
+
+    oldfont = SelectFont( dc, hFont );
+    int iRet = SetBkMode( dc, TRANSPARENT );
+    IF_WINAPI_FAILED_RETURN_WITH_REPORT( pJsCtx_, CLR_INVALID != iRet, std::nullopt, SetBkMode );
+    
+    UINT uRet = SetTextAlign( dc, TA_LEFT | TA_TOP | TA_NOUPDATECP );
+    IF_WINAPI_FAILED_RETURN_WITH_REPORT( pJsCtx_, GDI_ERROR != uRet, std::nullopt, SetTextAlign );
+
+    if ( format & DT_MODIFYSTRING )
+    {
+        format &= ~DT_MODIFYSTRING;
+    }
+
+    // Well, magic :P
+    if ( format & DT_CALCRECT )
+    {
+        RECT rc_calc = { 0 }, rc_old = { 0 };
+
+        memcpy( &rc_calc, &rc, sizeof( RECT ) );
+        memcpy( &rc_old, &rc, sizeof( RECT ) );
+
+        iRet = DrawText( dc, str.c_str(), -1, &rc_calc, format );
+        IF_WINAPI_FAILED_RETURN_WITH_REPORT( pJsCtx_, iRet, std::nullopt, DrawText );
+
+        format &= ~DT_CALCRECT;
+
+        // adjust vertical align
+        if ( format & DT_VCENTER )
+        {
+            rc.top = rc_old.top + ( ( ( rc_old.bottom - rc_old.top ) - ( rc_calc.bottom - rc_calc.top ) ) >> 1 );
+            rc.bottom = rc.top + ( rc_calc.bottom - rc_calc.top );
+        }
+        else if ( format & DT_BOTTOM )
+        {
+            rc.top = rc_old.bottom - ( rc_calc.bottom - rc_calc.top );
+        }
+    }
+
+    iRet = DrawTextEx( dc, const_cast<wchar_t*>(str.c_str()), -1, &rc, format, &dpt );
+    IF_WINAPI_FAILED_RETURN_WITH_REPORT( pJsCtx_, iRet, std::nullopt, DrawTextEx );
+
+    SelectFont( dc, oldfont );
 
     return nullptr;
 }
