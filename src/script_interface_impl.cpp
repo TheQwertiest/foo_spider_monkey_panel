@@ -283,16 +283,9 @@ STDMETHODIMP FbMetadbHandle::Compare(IFbMetadbHandle* handle, VARIANT_BOOL* p)
 {
 	if (m_handle.is_empty() || !p) return E_POINTER;
 
-	*p = VARIANT_FALSE;
-
-	if (handle)
-	{
-		metadb_handle* ptr = NULL;
-		handle->get__ptr((void**)&ptr);
-
-		*p = TO_VARIANT_BOOL(ptr == m_handle.get_ptr());
-	}
-
+	metadb_handle* ptr = NULL;
+	handle->get__ptr((void**)&ptr);
+	*p = TO_VARIANT_BOOL(ptr == m_handle.get_ptr());
 	return S_OK;
 }
 
@@ -301,7 +294,6 @@ STDMETHODIMP FbMetadbHandle::GetFileInfo(IFbFileInfo** pp)
 	if (m_handle.is_empty() || !pp) return E_POINTER;
 
 	file_info_impl* info_ptr = new file_info_impl;
-
 	m_handle->get_info(*info_ptr);
 	*pp = new com_object_impl_t<FbFileInfo>(info_ptr);
 	return S_OK;
