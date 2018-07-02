@@ -163,6 +163,7 @@ JsFbPlaylistManager::JsFbPlaylistManager( JSContext* cx )
 
 JsFbPlaylistManager::~JsFbPlaylistManager()
 {
+    jsPlaylistRecycler_.reset();
 }
 
 JSObject* JsFbPlaylistManager::Create( JSContext* cx )

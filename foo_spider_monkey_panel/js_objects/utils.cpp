@@ -8,6 +8,7 @@
 #include <js_utils/gdi_error_helper.h>
 #include <js_utils/winapi_error_helper.h>
 #include <js_utils/js_object_helper.h>
+#include <js_utils/art_helper.h>
 
 #include <helpers.h>
 
@@ -36,13 +37,53 @@ JSClass jsClass = {
     &jsOps
 };
 
-// TODO: add methods
+MJS_DEFINE_JS_TO_NATIVE_FN( JsUtils, CheckComponent      );
+MJS_DEFINE_JS_TO_NATIVE_FN( JsUtils, CheckFont           );
+MJS_DEFINE_JS_TO_NATIVE_FN( JsUtils, ColourPicker        );
+//MJS_DEFINE_JS_TO_NATIVE_FN( JsUtils, FileTest            );
+MJS_DEFINE_JS_TO_NATIVE_FN( JsUtils, FormatDuration      );
+MJS_DEFINE_JS_TO_NATIVE_FN( JsUtils, FormatFileSize      );
+//MJS_DEFINE_JS_TO_NATIVE_FN( JsUtils, GetAlbumArtAsync    );
+MJS_DEFINE_JS_TO_NATIVE_FN( JsUtils, GetAlbumArtEmbedded );
+MJS_DEFINE_JS_TO_NATIVE_FN( JsUtils, GetAlbumArtV2       );
+MJS_DEFINE_JS_TO_NATIVE_FN( JsUtils, GetSysColour        );
+MJS_DEFINE_JS_TO_NATIVE_FN( JsUtils, GetSystemMetrics    );
+//MJS_DEFINE_JS_TO_NATIVE_FN( JsUtils, Glob                );
+MJS_DEFINE_JS_TO_NATIVE_FN( JsUtils, IsKeyPressed        );
+MJS_DEFINE_JS_TO_NATIVE_FN( JsUtils, MapString           );
+MJS_DEFINE_JS_TO_NATIVE_FN( JsUtils, PathWildcardMatch   );
+MJS_DEFINE_JS_TO_NATIVE_FN( JsUtils, ReadINI             );
+MJS_DEFINE_JS_TO_NATIVE_FN( JsUtils, ReadTextFile        );
+MJS_DEFINE_JS_TO_NATIVE_FN( JsUtils, WriteINI            );
+MJS_DEFINE_JS_TO_NATIVE_FN( JsUtils, WriteTextFile       );
 
 const JSFunctionSpec jsFunctions[] = {
+    JS_FN( "CheckComponent", CheckComponent, 0, DefaultPropsFlags() ),
+    JS_FN( "CheckFont", CheckFont, 0, DefaultPropsFlags() ),
+    JS_FN( "ColourPicker", ColourPicker, 0, DefaultPropsFlags() ),
+    //JS_FN( "FileTest", FileTest, 0, DefaultPropsFlags() ),
+    JS_FN( "FormatDuration", FormatDuration, 0, DefaultPropsFlags() ),
+    JS_FN( "FormatFileSize", FormatFileSize, 0, DefaultPropsFlags() ),
+    //JS_FN( "GetAlbumArtAsync", GetAlbumArtAsync, 0, DefaultPropsFlags() ),
+    JS_FN( "GetAlbumArtEmbedded", GetAlbumArtEmbedded, 0, DefaultPropsFlags() ),
+    JS_FN( "GetAlbumArtV2", GetAlbumArtV2, 0, DefaultPropsFlags() ),
+    JS_FN( "GetSysColour", GetSysColour, 0, DefaultPropsFlags() ),
+    JS_FN( "GetSystemMetrics", GetSystemMetrics, 0, DefaultPropsFlags() ),
+    //JS_FN( "Glob", Glob, 0, DefaultPropsFlags() ),
+    JS_FN( "IsKeyPressed", IsKeyPressed, 0, DefaultPropsFlags() ),
+    JS_FN( "MapString", MapString, 0, DefaultPropsFlags() ),
+    JS_FN( "PathWildcardMatch", PathWildcardMatch, 0, DefaultPropsFlags() ),
+    JS_FN( "ReadINI", ReadINI, 0, DefaultPropsFlags() ),
+    JS_FN( "ReadTextFile", ReadTextFile, 0, DefaultPropsFlags() ),
+    JS_FN( "WriteINI", WriteINI, 0, DefaultPropsFlags() ),
+    JS_FN( "WriteTextFile", WriteTextFile, 0, DefaultPropsFlags() ),
     JS_FS_END
 };
 
+MJS_DEFINE_JS_TO_NATIVE_FN( JsUtils, get_Version )
+
 const JSPropertySpec jsProperties[] = {
+    JS_PSG( "Version", get_Version, DefaultPropsFlags() ),
     JS_PS_END
 };
 
@@ -146,11 +187,11 @@ JsUtils::CheckFont( const std::wstring& name )
 std::optional<uint32_t>
 JsUtils::ColourPicker( uint64_t hWindow, uint32_t default_colour )
 {
-    COLORREF COLOR = helpers::convert_argb_to_colorref( default_colour );
-    COLORREF COLORS[16] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-    uChooseColor( &COLOR, (HWND)hWindow, &COLORS[0] );
+    COLORREF color = helpers::convert_argb_to_colorref( default_colour );
+    COLORREF colors[16] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+    uChooseColor( &color, (HWND)hWindow, &colors[0] );
 
-    return helpers::convert_colorref_to_argb( COLOR );
+    return helpers::convert_colorref_to_argb( color );
 }
 
 std::optional<std::string>
@@ -169,7 +210,7 @@ JsUtils::FormatFileSize( uint64_t p )
 
 std::optional<std::uint64_t>
 JsUtils::GetAlbumArtAsync( uint64_t hWnd, JsFbMetadbHandle* handle, uint32_t art_id, bool need_stub, bool only_embed, bool no_load )
-{
+{// TODO: rewrite - run after async invoke uses WSH
     if ( !handle )
     {
         JS_ReportErrorASCII( pJsCtx_, "font argument is null" );
@@ -198,92 +239,48 @@ JsUtils::GetAlbumArtAsync( uint64_t hWnd, JsFbMetadbHandle* handle, uint32_t art
 
 std::optional<JSObject*>
 JsUtils::GetAlbumArtEmbedded( const std::string& rawpath, uint32_t art_id )
-{// TODO: rewrite
-    service_enum_t<album_art_extractor> e;
-    album_art_extractor::ptr ptr;
-    pfc::string_extension ext( rawpath.c_str() );
-    abort_callback_dummy abort;
-
-    while ( e.next( ptr ) )
-    {
-        if ( ptr->is_our_path( rawpath.c_str(), ext ) )
-        {
-            album_art_extractor_instance_ptr aaep;
-            GUID what = helpers::convert_artid_to_guid( art_id );
-
-            try
-            {
-                aaep = ptr->open( nullptr, rawpath.c_str(), abort );
-
-                Gdiplus::Bitmap* bitmap = nullptr;
-                album_art_data_ptr data = aaep->query( what, abort );
-                // TODO: rewrite read_album_art_into_bitmap
-                if ( helpers::read_album_art_into_bitmap( data, &bitmap ) )
-                {
-                    std::unique_ptr<Gdiplus::Bitmap> autoBitmap( bitmap );
-                    JS::RootedObject jsObject( pJsCtx_, JsGdiBitmap::Create( pJsCtx_, bitmap ) );
-                    if ( !jsObject )
-                    {
-                        JS_ReportErrorASCII( pJsCtx_, "Internal error: failed to create JS object" );
-                        return std::nullopt;
-                    }
-
-                    autoBitmap.release();
-                    return jsObject;                    
-                }
-            }
-            catch ( ... )
-            {
-            }
-        }
+{
+    std::unique_ptr<Gdiplus::Bitmap> artImage( art::GetBitmapFromEmbeddedData( rawpath, art_id ) );
+    if ( !artImage )
+    {// Not an error: no image present
+        return nullptr;
     }
-    
-    return nullptr;
+
+    JS::RootedObject jsObject( pJsCtx_, JsGdiBitmap::Create( pJsCtx_, artImage.get() ) );
+    if ( !jsObject )
+    {
+        JS_ReportErrorASCII( pJsCtx_, "Internal error: failed to create JS object" );
+        return std::nullopt;
+    }
+
+    artImage.release();
+    return jsObject;
 }
 
 std::optional<JSObject*>
 JsUtils::GetAlbumArtV2( JsFbMetadbHandle* handle, uint32_t art_id, bool need_stub )
-{// TODO: rewrite
+{
     if ( !handle )
     {
-        JS_ReportErrorASCII( pJsCtx_, "font argument is null" );
+        JS_ReportErrorASCII( pJsCtx_, "handle argument is null" );
         return std::nullopt;
     }
 
-    metadb_handle_ptr ptr = handle->GetHandle();
-    assert( ptr.is_valid() );    
-
-    GUID what = helpers::convert_artid_to_guid( art_id );
-    abort_callback_dummy abort;
-    auto aamv2 = album_art_manager_v2::get();
-    album_art_extractor_instance_v2::ptr aaeiv2;
-    IGdiBitmap* ret = NULL;
-
-    try
-    {
-        aaeiv2 = aamv2->open( pfc::list_single_ref_t<metadb_handle_ptr>( handle ), pfc::list_single_ref_t<GUID>( what ), abort );
-
-        ret = helpers::query_album_art( aaeiv2, what, no_load, image_path_ptr );
-    }
-    catch ( ... )
-    {
-        if ( need_stub )
-        {
-            album_art_extractor_instance_v2::ptr aaeiv2_stub = aamv2->open_stub( abort );
-
-            try
-            {
-                album_art_data_ptr data = aaeiv2_stub->query( what, abort );
-                ret = helpers::query_album_art( aaeiv2_stub, what, no_load, image_path_ptr );
-            }
-            catch ( ... )
-            {
-            }
-        }
+    std::unique_ptr<Gdiplus::Bitmap> artImage( art::GetBitmapFromMetadb( handle->GetHandle(), art_id, need_stub, false, nullptr ) );
+    if ( !artImage )
+    {// Not an error: no image present
+        return nullptr;
     }
 
-    *pp = ret;
-    return S_OK;
+    JS::RootedObject jsObject( pJsCtx_, JsGdiBitmap::Create( pJsCtx_, artImage.get() ) );
+    if ( !jsObject )
+    {
+        JS_ReportErrorASCII( pJsCtx_, "Internal error: failed to create JS object" );
+        return std::nullopt;
+    }
+
+    artImage.release();
+    return jsObject;
 }
 
 std::optional<uint32_t>
@@ -313,7 +310,8 @@ JsUtils::IsKeyPressed( uint32_t vkey )
 
 std::optional<std::wstring>
 JsUtils::MapString( const std::wstring& str, uint32_t lcid, uint32_t flags )
-{   // WinAPI is weird: 0 - error (with LastError), > 0 - characters required
+{// TODO: LCMapStringW is deprecated
+    // WinAPI is weird: 0 - error (with LastError), > 0 - characters required
     int iRet = ::LCMapStringW( lcid, flags, str.c_str(), str.length() + 1, nullptr, 0 );
     IF_WINAPI_FAILED_RETURN_WITH_REPORT( pJsCtx_, iRet, std::nullopt, LCMapStringW );
 

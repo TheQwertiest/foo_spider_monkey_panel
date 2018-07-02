@@ -34,6 +34,9 @@ template <>
 uint32_t ToValue<uint32_t>( JSContext * cx, const JS::HandleValue& jsValue, bool& isValid );
 
 template <>
+uint64_t ToValue<uint64_t>( JSContext * cx, const JS::HandleValue& jsValue, bool& isValid );
+
+template <>
 float ToValue<float>( JSContext * cx, const JS::HandleValue& jsValue, bool& isValid );
 
 template <>

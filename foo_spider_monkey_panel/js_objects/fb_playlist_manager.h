@@ -88,8 +88,7 @@ private:
 
 private:
     JSContext * pJsCtx_ = nullptr;
-    // TODO: add to Create?
-    JS::PersistentRootedObject jsPlaylistRecycler_;    
+    JS::PersistentRootedObject jsPlaylistRecycler_;
 };
 
 }

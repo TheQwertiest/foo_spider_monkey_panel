@@ -325,6 +325,12 @@ JsGdiBitmap::ApplyAlpha( uint8_t alpha )
     t_size height = pGdi_->GetHeight();
 
     std::unique_ptr<Gdiplus::Bitmap> out( new Gdiplus::Bitmap( width, height, PixelFormat32bppPARGB ) );
+    if ( !helpers::ensure_gdiplus_object( out.get() ) )
+    {// TODO: replace with IF_FAILED macro
+        JS_ReportErrorASCII( pJsCtx_, "Internal error: failed to create Gdiplus object" );
+        return std::nullopt;
+    }
+
     Gdiplus::Graphics g( out.get() );
     Gdiplus::ImageAttributes ia;
     Gdiplus::ColorMatrix cm = { 0.0 };
@@ -477,6 +483,12 @@ JsGdiBitmap::GetGraphics()
     assert( pGdi_ );
 
     std::unique_ptr<Gdiplus::Graphics> g( new Gdiplus::Graphics( pGdi_.get() ) );
+    if ( !helpers::ensure_gdiplus_object( g.get() ) )
+    {// TODO: replace with IF_FAILED macro
+        JS_ReportErrorASCII( pJsCtx_, "Internal error: failed to create Gdiplus object" );
+        return std::nullopt;
+    }
+
     JS::RootedObject jsObject( pJsCtx_, JsGdiGraphics::Create( pJsCtx_ ) );
     if ( !jsObject )
     {
@@ -523,6 +535,12 @@ JsGdiBitmap::Resize( uint32_t w, uint32_t h, uint32_t interpolationMode )
     assert( pGdi_ );
 
     std::unique_ptr<Gdiplus::Bitmap> bitmap( new Gdiplus::Bitmap( w, h, PixelFormat32bppPARGB ) );
+    if ( !helpers::ensure_gdiplus_object( bitmap.get() ) )
+    {// TODO: replace with IF_FAILED macro
+        JS_ReportErrorASCII( pJsCtx_, "Internal error: failed to create Gdiplus object" );
+        return std::nullopt;
+    }
+
     Gdiplus::Graphics g( bitmap.get() );
     Gdiplus::Status gdiRet = g.SetInterpolationMode( ( Gdiplus::InterpolationMode )interpolationMode );
     IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, std::nullopt, RotateFlip );
