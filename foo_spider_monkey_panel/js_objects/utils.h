@@ -28,7 +28,7 @@ public:
     //std::optional<std::nullptr_t> FileTest( const std::wstring& path, const std::wstring&  mode, VARIANT* p );
     std::optional<std::string> FormatDuration( double p );
     std::optional<std::string> FormatFileSize( uint64_t p );
-    std::optional<std::uint64_t> GetAlbumArtAsync( uint64_t hWnd, JsFbMetadbHandle* handle, uint32_t art_id, bool need_stub, bool only_embed, bool no_load );
+    std::optional<std::uint32_t> GetAlbumArtAsync( uint64_t hWnd, JsFbMetadbHandle* handle, uint32_t art_id, bool need_stub, bool only_embed, bool no_load );
     std::optional<JSObject*> GetAlbumArtEmbedded( const std::string& rawpath, uint32_t art_id );
     std::optional<JSObject*> GetAlbumArtV2( JsFbMetadbHandle* handle, uint32_t art_id, bool need_stub );
     std::optional<uint32_t> GetSysColour( uint32_t index );
@@ -38,9 +38,7 @@ public:
     std::optional<std::wstring> MapString( const std::wstring& str, uint32_t lcid, uint32_t flags );
     std::optional<bool> PathWildcardMatch( const std::wstring& pattern, const std::wstring& str );
     std::optional<std::wstring> ReadINI( const std::wstring& filename, const std::wstring& section, const std::wstring& key, const std::wstring& defaultval );
-    // TODO: think about removing wstring here 
     std::optional<std::wstring> ReadTextFile( const std::wstring& filename, uint32_t codepage );
-    // TODO: and here
     std::optional<bool> WriteINI( const std::wstring& filename, const std::wstring& section, const std::wstring& key, const std::wstring& val );
     std::optional<bool> WriteTextFile( const std::string& filename, const std::string& content, bool write_bom );
     std::optional<uint32_t> get_Version();

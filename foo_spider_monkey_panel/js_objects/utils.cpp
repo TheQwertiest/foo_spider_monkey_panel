@@ -43,7 +43,7 @@ MJS_DEFINE_JS_TO_NATIVE_FN( JsUtils, ColourPicker        );
 //MJS_DEFINE_JS_TO_NATIVE_FN( JsUtils, FileTest            );
 MJS_DEFINE_JS_TO_NATIVE_FN( JsUtils, FormatDuration      );
 MJS_DEFINE_JS_TO_NATIVE_FN( JsUtils, FormatFileSize      );
-//MJS_DEFINE_JS_TO_NATIVE_FN( JsUtils, GetAlbumArtAsync    );
+MJS_DEFINE_JS_TO_NATIVE_FN( JsUtils, GetAlbumArtAsync    );
 MJS_DEFINE_JS_TO_NATIVE_FN( JsUtils, GetAlbumArtEmbedded );
 MJS_DEFINE_JS_TO_NATIVE_FN( JsUtils, GetAlbumArtV2       );
 MJS_DEFINE_JS_TO_NATIVE_FN( JsUtils, GetSysColour        );
@@ -64,7 +64,7 @@ const JSFunctionSpec jsFunctions[] = {
     //JS_FN( "FileTest", FileTest, 0, DefaultPropsFlags() ),
     JS_FN( "FormatDuration", FormatDuration, 0, DefaultPropsFlags() ),
     JS_FN( "FormatFileSize", FormatFileSize, 0, DefaultPropsFlags() ),
-    //JS_FN( "GetAlbumArtAsync", GetAlbumArtAsync, 0, DefaultPropsFlags() ),
+    JS_FN( "GetAlbumArtAsync", GetAlbumArtAsync, 0, DefaultPropsFlags() ),
     JS_FN( "GetAlbumArtEmbedded", GetAlbumArtEmbedded, 0, DefaultPropsFlags() ),
     JS_FN( "GetAlbumArtV2", GetAlbumArtV2, 0, DefaultPropsFlags() ),
     JS_FN( "GetSysColour", GetSysColour, 0, DefaultPropsFlags() ),
@@ -208,9 +208,9 @@ JsUtils::FormatFileSize( uint64_t p )
     return std::string( str.c_str(), str.length() );
 }
 
-std::optional<std::uint64_t>
+std::optional<std::uint32_t>
 JsUtils::GetAlbumArtAsync( uint64_t hWnd, JsFbMetadbHandle* handle, uint32_t art_id, bool need_stub, bool only_embed, bool no_load )
-{// TODO: rewrite - run after async invoke uses WSH
+{
     if ( !handle )
     {
         JS_ReportErrorASCII( pJsCtx_, "font argument is null" );
@@ -220,21 +220,7 @@ JsUtils::GetAlbumArtAsync( uint64_t hWnd, JsFbMetadbHandle* handle, uint32_t art
     metadb_handle_ptr ptr = handle->GetHandle();
     assert( ptr.is_valid() );
 
-    try
-    {
-        std::unique_ptr<helpers::album_art_async> task( new helpers::album_art_async( (HWND)hWnd, ptr.get_ptr(), art_id, need_stub, only_embed, no_load ) );
-
-        if ( !simple_thread_pool::instance().enqueue( task.get() ) )
-        {
-            return 0;
-            
-        }
-        return reinterpret_cast<uint64_t>(task.release());
-    }
-    catch ( ... )
-    {
-        return 0;
-    }
+    return art::GetAlbumArtAsync( (HWND)hWnd, ptr, art_id, need_stub, only_embed, no_load );
 }
 
 std::optional<JSObject*>
@@ -242,7 +228,7 @@ JsUtils::GetAlbumArtEmbedded( const std::string& rawpath, uint32_t art_id )
 {
     std::unique_ptr<Gdiplus::Bitmap> artImage( art::GetBitmapFromEmbeddedData( rawpath, art_id ) );
     if ( !artImage )
-    {// Not an error: no image present
+    {// Not an error: no art found
         return nullptr;
     }
 
@@ -268,7 +254,7 @@ JsUtils::GetAlbumArtV2( JsFbMetadbHandle* handle, uint32_t art_id, bool need_stu
 
     std::unique_ptr<Gdiplus::Bitmap> artImage( art::GetBitmapFromMetadb( handle->GetHandle(), art_id, need_stub, false, nullptr ) );
     if ( !artImage )
-    {// Not an error: no image present
+    {// Not an error: no art found
         return nullptr;
     }
 
@@ -287,8 +273,7 @@ std::optional<uint32_t>
 JsUtils::GetSysColour( uint32_t index )
 {
     if ( !::GetSysColorBrush( index ))
-    {
-        // invalid index
+    {// invalid index
         return 0;
     }
    
@@ -310,7 +295,7 @@ JsUtils::IsKeyPressed( uint32_t vkey )
 
 std::optional<std::wstring>
 JsUtils::MapString( const std::wstring& str, uint32_t lcid, uint32_t flags )
-{// TODO: LCMapStringW is deprecated
+{// TODO: LCMapString is deprecated, replace with a new V2 method (based on LCMapStringEx)
     // WinAPI is weird: 0 - error (with LastError), > 0 - characters required
     int iRet = ::LCMapStringW( lcid, flags, str.c_str(), str.length() + 1, nullptr, 0 );
     IF_WINAPI_FAILED_RETURN_WITH_REPORT( pJsCtx_, iRet, std::nullopt, LCMapStringW );

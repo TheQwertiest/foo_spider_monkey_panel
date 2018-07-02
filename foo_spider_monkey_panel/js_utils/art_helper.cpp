@@ -1,12 +1,78 @@
 #include <stdafx.h>
 #include "art_helper.h"
 
-#include <algorithm>
+#include <helpers.h>
+#include <user_message.h>
 
 #include <Shlwapi.h>
 
+#include <algorithm>
+
 namespace
 {
+
+using namespace mozjs;
+
+class AlbumArtFetchTask : public simple_thread_task
+{
+public:
+    AlbumArtFetchTask( HWND hNotifyWnd, metadb_handle_ptr handle, uint32_t artId, bool need_stub, bool only_embed, bool no_load );
+
+private:
+    virtual void run();
+
+private:
+    metadb_handle_ptr handle_;
+    std::string rawPath_;
+    uint32_t artId_;
+    bool needStub_;
+    bool onlyEmbed_;
+    bool noLoad_;
+    HWND hNotifyWnd_;
+};
+
+AlbumArtFetchTask::AlbumArtFetchTask( HWND hNotifyWnd, metadb_handle_ptr handle, uint32_t artId, bool need_stub, bool only_embed, bool no_load )
+    : hNotifyWnd_( hNotifyWnd )
+    , handle_( handle )
+    , artId_( artId )
+    , needStub_( need_stub )
+    , onlyEmbed_( only_embed )
+    , noLoad_( no_load )
+{
+    if ( handle_.is_valid() )
+    {
+        rawPath_.assign( handle_->get_path() );
+    }
+}
+
+void AlbumArtFetchTask::run()
+{
+    std::string imagePath;
+    std::unique_ptr<Gdiplus::Bitmap> bitmap;
+
+    if ( handle_.is_valid() )
+    {
+        if ( onlyEmbed_ )
+        {
+            bitmap.reset( art::GetBitmapFromEmbeddedData( rawPath_, artId_ ) );
+            if ( bitmap )
+            {
+                imagePath = handle_->get_path();
+            }
+        }
+        else
+        {
+            bitmap.reset( art::GetBitmapFromMetadb( handle_, artId_, needStub_, noLoad_, &imagePath ) );
+        }
+    }
+
+    art::AsyncArtTaskResult taskResult;
+    taskResult.handle = handle_;
+    taskResult.artId = artId_;
+    taskResult.bitmap.reset( bitmap.release() );
+    taskResult.imagePath = imagePath.empty() ? "" : file_path_display( imagePath.c_str() );
+    SendMessage( hNotifyWnd_, CALLBACK_UWM_ON_GET_ALBUM_ART_DONE, 0, (LPARAM)&taskResult );
+}
 
 // TODO: move\remove this
 template <class T>
@@ -157,6 +223,27 @@ Gdiplus::Bitmap* GetBitmapFromMetadb( const metadb_handle_ptr& handle, uint32_t 
     }
 
     return nullptr;    
+}
+
+uint32_t GetAlbumArtAsync( HWND hWnd, const metadb_handle_ptr& handle, uint32_t art_id, bool need_stub, bool only_embed, bool no_load )
+{
+    assert( handle.is_valid() );
+
+    try
+    {
+        std::unique_ptr<AlbumArtFetchTask> task( new AlbumArtFetchTask( hWnd, handle, art_id, need_stub, only_embed, no_load ) );
+
+        if ( simple_thread_pool::instance().enqueue( task.get() ) )
+        {
+            uint64_t taskId = reinterpret_cast<uint64_t>(task.release());
+            return taskId ^ ( taskId >> 32 );
+        }
+    }
+    catch ( ... )
+    {
+    }
+
+    return 0;
 }
 
 }
