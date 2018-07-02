@@ -8,13 +8,18 @@
 #include <js_engine/js_engine.h>
 #include <js_engine/native_to_js_invoker.h>
 #include <js_objects/gdi_graphics.h>
+#include <js_utils/art_helper.h>
 
 
-js_panel_window::js_panel_window() :
-    m_script_host( new ScriptHost( this ) ),
-    m_is_mouse_tracked( false ),
-    m_is_droptarget_registered( false )
+js_panel_window::js_panel_window()
+    : m_is_mouse_tracked( false )
+    , m_is_droptarget_registered( false )
 {
+}
+
+js_panel_window::js_panel_window()
+{
+
 }
 
 js_panel_window::~js_panel_window()
@@ -22,17 +27,10 @@ js_panel_window::~js_panel_window()
     m_script_host->Release();
 }
 
-HRESULT js_panel_window::script_invoke_v( int callbackId, VARIANTARG* argv, UINT argc, VARIANT* ret )
+void js_panel_window::update_script( const char* code )
 {
-    return S_OK;
-    //return m_script_host->InvokeCallback( callbackId, argv, argc, ret );
-}
-
-void js_panel_window::update_script( const char* name, const char* code )
-{
-    if ( name && code )
+    if ( code )
     {
-        get_script_engine() = name;
         get_script_code() = code;
     }
 
@@ -54,48 +52,30 @@ LRESULT js_panel_window::on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
     {
     case WM_CREATE:
     {
-        RECT rect;
-        m_hwnd = hwnd;
-        m_hdc = GetDC( m_hwnd );
-        GetClientRect( m_hwnd, &rect );
-        m_width = rect.right - rect.left;
-        m_height = rect.bottom - rect.top;
-        create_context();
-        // Interfaces
-        m_gr_wrap.Attach( new com_object_impl_t<GdiGraphics>(), false );
-        panel_manager::instance().add_window( m_hwnd );
-
-        mozjs::JsEngine::GetInstance().RegisterPanel( *this, jsContainer_ );
-        script_load();
-    }
-    return 0;
-
-    case WM_DESTROY:
-        script_unload();
-        mozjs::JsEngine::GetInstance().UnregisterPanel( *this );
-
-        panel_manager::instance().remove_window( m_hwnd );
-
-        if ( m_gr_wrap )
-            m_gr_wrap.Release();
-        delete_context();
-        ReleaseDC( m_hwnd, m_hdc );
+        on_panel_create();
         return 0;
-
+    }
+    case WM_DESTROY:
+    {
+        on_panel_destroy();
+        return 0;
+    }
     case WM_DISPLAYCHANGE:
     case WM_THEMECHANGED:
         update_script();
         return 0;
 
     case WM_ERASEBKGND:
-        if ( get_pseudo_transparent() )
-            PostMessage( m_hwnd, UWM_REFRESHBK, 0, 0 );
+    {
+        on_erase_background();
         return 1;
-
+    }
     case WM_PAINT:
     {
         if ( m_suppress_drawing )
+        {
             break;
+        }
 
         if ( get_pseudo_transparent() && !m_paint_pending )
         {
@@ -111,177 +91,175 @@ LRESULT js_panel_window::on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
         on_paint( dc, &ps.rcPaint );
         EndPaint( m_hwnd, &ps );
         m_paint_pending = false;
-    }
-    return 0;
 
+        return 0;
+    }
     case WM_SIZE:
     {
         RECT rect;
         GetClientRect( m_hwnd, &rect );
         on_size( rect.right - rect.left, rect.bottom - rect.top );
         if ( get_pseudo_transparent() )
+        {
             PostMessage( m_hwnd, UWM_REFRESHBK, 0, 0 );
+        }
         else
+        {
             Repaint();
+        }
+        return 0;
     }
-    return 0;
-
     case WM_GETMINMAXINFO:
     {
-        LPMINMAXINFO pmmi = reinterpret_cast<LPMINMAXINFO>( lp );
+        LPMINMAXINFO pmmi = reinterpret_cast<LPMINMAXINFO>(lp);
         memcpy( &pmmi->ptMaxTrackSize, &MaxSize(), sizeof( POINT ) );
         memcpy( &pmmi->ptMinTrackSize, &MinSize(), sizeof( POINT ) );
     }
     return 0;
 
     case WM_GETDLGCODE:
+    {
         return DlgCode();
-
+    }
     case WM_LBUTTONDOWN:
     case WM_MBUTTONDOWN:
     case WM_RBUTTONDOWN:
+    {
         on_mouse_button_down( msg, wp, lp );
         break;
-
+    }
     case WM_LBUTTONUP:
     case WM_MBUTTONUP:
     case WM_RBUTTONUP:
+    {
         if ( on_mouse_button_up( msg, wp, lp ) )
+        {
             return 0;
+        }
         break;
-
+    }
     case WM_LBUTTONDBLCLK:
     case WM_MBUTTONDBLCLK:
     case WM_RBUTTONDBLCLK:
+    {
         on_mouse_button_dblclk( msg, wp, lp );
         break;
-
+    }
     case WM_CONTEXTMENU:
+    {
         on_context_menu( GET_X_LPARAM( lp ), GET_Y_LPARAM( lp ) );
         return 1;
-
+    }
     case WM_MOUSEMOVE:
+    {
         on_mouse_move( wp, lp );
         break;
-
+    }
     case WM_MOUSELEAVE:
+    {
         on_mouse_leave();
         break;
-
+    }
     case WM_MOUSEWHEEL:
+    {
         on_mouse_wheel( wp );
         break;
-
+    }
     case WM_MOUSEHWHEEL:
+    {
         on_mouse_wheel_h( wp );
         break;
-
+    }
     case WM_SETCURSOR:
+    {
         return 1;
-
+    }
     case WM_SYSKEYDOWN:
     case WM_KEYDOWN:
     {
-        VARIANTARG args[1];
-
-        args[0].vt = VT_UI4;
-        args[0].ulVal = (ULONG)wp;
-        script_invoke_v( CallbackIds::on_key_down, args, _countof( args ) );
+        on_key_down( wp );
+        return 0;
     }
-    return 0;
-
     case WM_KEYUP:
     {
-        VARIANTARG args[1];
-
-        args[0].vt = VT_UI4;
-        args[0].ulVal = (ULONG)wp;
-        script_invoke_v( CallbackIds::on_key_up, args, _countof( args ) );
+        on_key_up( wp );
+        return 0;
     }
-    return 0;
-
     case WM_CHAR:
     {
-        VARIANTARG args[1];
-
-        args[0].vt = VT_UI4;
-        args[0].ulVal = (ULONG)wp;
-        script_invoke_v( CallbackIds::on_char, args, _countof( args ) );
+        on_char( wp );
+        return 0;
     }
-    return 0;
-
     case WM_SETFOCUS:
     {
-        m_selection_holder = ui_selection_manager::get()->acquire();
-
-        VARIANTARG args[1];
-
-        args[0].vt = VT_BOOL;
-        args[0].boolVal = VARIANT_TRUE;
-        script_invoke_v( CallbackIds::on_focus, args, _countof( args ) );
+        on_focus_changed( true );
+        break;
     }
-    break;
-
     case WM_KILLFOCUS:
     {
-        m_selection_holder.release();
-
-        VARIANTARG args[1];
-
-        args[0].vt = VT_BOOL;
-        args[0].boolVal = VARIANT_FALSE;
-        script_invoke_v( CallbackIds::on_focus, args, _countof( args ) );
+        on_focus_changed( false );
+        break;
     }
-    break;
-
     case CALLBACK_UWM_ON_ALWAYS_ON_TOP_CHANGED:
+    {
         on_always_on_top_changed( wp );
         return 0;
-
+    }
     case CALLBACK_UWM_ON_COLOURS_CHANGED:
+    {
         on_colours_changed();
         return 0;
-
+    }
     case CALLBACK_UWM_ON_CURSOR_FOLLOW_PLAYBACK_CHANGED:
+    {
         on_cursor_follow_playback_changed( wp );
         return 0;
-
+    }
     case CALLBACK_UWM_ON_DSP_PRESET_CHANGED:
+    {
         on_dsp_preset_changed();
         return 0;
-
+    }
     case CALLBACK_UWM_ON_FONT_CHANGED:
+    {
         on_font_changed();
         return 0;
-
+    }
     case CALLBACK_UWM_ON_GET_ALBUM_ART_DONE:
+    {
         on_get_album_art_done( lp );
         return 0;
-
+    }
     case CALLBACK_UWM_ON_ITEM_FOCUS_CHANGE:
+    {
         on_item_focus_change( wp );
         return 0;
-
+    }
     case CALLBACK_UWM_ON_ITEM_PLAYED:
+    {
         on_item_played( wp );
         return 0;
-
+    }
     case CALLBACK_UWM_ON_LIBRARY_ITEMS_ADDED:
+    {
         on_library_items_added( wp );
         return 0;
-
+    }
     case CALLBACK_UWM_ON_LIBRARY_ITEMS_CHANGED:
+    {
         on_library_items_changed( wp );
         return 0;
-
+    }
     case CALLBACK_UWM_ON_LIBRARY_ITEMS_REMOVED:
+    {
         on_library_items_removed( wp );
         return 0;
-
+    }
     case CALLBACK_UWM_ON_LOAD_IMAGE_DONE:
+    {
         on_load_image_done( lp );
         return 0;
-
+    }
     case CALLBACK_UWM_ON_MAIN_MENU:
         on_main_menu( wp );
         return 0;
@@ -335,11 +313,11 @@ LRESULT js_panel_window::on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
         return 0;
 
     case CALLBACK_UWM_ON_PLAYBACK_STARTING:
-        on_playback_starting( ( playback_control::t_track_command )wp, lp != 0 );
+        on_playback_starting( (playback_control::t_track_command)wp, lp != 0 );
         return 0;
 
     case CALLBACK_UWM_ON_PLAYBACK_STOP:
-        on_playback_stop( ( playback_control::t_stop_reason )wp );
+        on_playback_stop( (playback_control::t_stop_reason)wp );
         return 0;
 
     case CALLBACK_UWM_ON_PLAYBACK_TIME:
@@ -400,15 +378,9 @@ LRESULT js_panel_window::on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
 
     case UWM_SCRIPT_ERROR:
     {
-        const auto& tooltip_param = PanelTooltipParam();
-        if ( tooltip_param && tooltip_param->tooltip_hwnd )
-            SendMessage( tooltip_param->tooltip_hwnd, TTM_ACTIVATE, FALSE, 0 );
-
-        Repaint();
-        m_script_host->Stop();
-        script_unload();
+        on_script_error();
+        return 0;
     }
-    return 0;
 
     case UWM_SCRIPT_TERM:
         script_unload();
@@ -425,9 +397,13 @@ LRESULT js_panel_window::on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
     case UWM_SIZE:
         on_size( m_width, m_height );
         if ( get_pseudo_transparent() )
+        {
             PostMessage( m_hwnd, UWM_REFRESHBK, 0, 0 );
+        }
         else
+        {
             Repaint();
+        }
         return 0;
 
     case UWM_TIMER:
@@ -473,8 +449,10 @@ void js_panel_window::execute_context_menu_command( int id, int id_base )
     switch ( id - id_base )
     {
     case 1:
+    {
         update_script();
         break;
+    }
     case 2:
     {
         pfc::stringcvt::string_os_from_utf8 folder( helpers::get_fb2k_component_path() );
@@ -488,6 +466,11 @@ void js_panel_window::execute_context_menu_command( int id, int id_base )
         show_configure_popup( m_hwnd );
         break;
     }
+}
+
+HWND js_panel_window::GetCoreHwnd() const
+{
+    return m_hwnd;
 }
 
 bool js_panel_window::script_load()
@@ -533,8 +516,24 @@ bool js_panel_window::script_load()
     // HACK: Script update will not call on_size, so invoke it explicitly
     SendMessage( m_hwnd, UWM_SIZE, 0, 0 );
 
-    FB2K_console_formatter() << JSP_NAME " v" JSP_VERSION " (" << ScriptInfo().build_info_string() << "): initialised in " << (int)( timer.query() * 1000 ) << " ms";
+    FB2K_console_formatter() << JSP_NAME " v" JSP_VERSION " (" << ScriptInfo().build_info_string() << "): initialized in " << (uint32_t)( timer.query() * 1000 ) << " ms";
     return true;
+}
+
+void js_panel_window::script_unload()
+{
+    m_script_host->Finalize();
+
+    if ( m_is_droptarget_registered )
+    {
+        m_drop_target->RevokeDragDrop();
+        m_is_droptarget_registered = false;
+    }
+
+    HostTimerDispatcher::Get().onPanelUnload( m_hwnd );
+    m_selection_holder.release();
+
+    jsContainer_.Finalize();
 }
 
 ui_helpers::container_window::class_data& js_panel_window::get_class_data() const
@@ -586,19 +585,6 @@ void js_panel_window::delete_context()
     }
 }
 
-void js_panel_window::on_always_on_top_changed( WPARAM wp )
-{
-    VARIANTARG args[1];
-    args[0].vt = VT_BOOL;
-    args[0].boolVal = TO_VARIANT_BOOL( wp );
-    script_invoke_v( CallbackIds::on_always_on_top_changed, args, _countof( args ) );
-}
-
-void js_panel_window::on_colours_changed()
-{
-    script_invoke_v( CallbackIds::on_colours_changed );
-}
-
 void js_panel_window::on_context_menu( int x, int y )
 {
     const int base_id = 0;
@@ -611,173 +597,227 @@ void js_panel_window::on_context_menu( int x, int y )
     DestroyMenu( menu );
 }
 
+void js_panel_window::on_erase_background()
+{
+    if ( get_pseudo_transparent() )
+    {
+        PostMessage( m_hwnd, UWM_REFRESHBK, 0, 0 );
+    }
+}
+
+void js_panel_window::on_panel_create()
+{
+    RECT rect;
+    m_hwnd = hwnd;
+    m_hdc = GetDC( m_hwnd );
+    GetClientRect( m_hwnd, &rect );
+    m_width = rect.right - rect.left;
+    m_height = rect.bottom - rect.top;
+    create_context();
+    // Interfaces
+    m_gr_wrap.Attach( new com_object_impl_t<GdiGraphics>(), false );
+    panel_manager::instance().add_window( m_hwnd );
+
+    mozjs::JsEngine::GetInstance().RegisterPanel( *this, jsContainer_ );
+    script_load();
+}
+
+void js_panel_window::on_panel_destroy()
+{
+    script_unload();
+    mozjs::JsEngine::GetInstance().UnregisterPanel( *this );
+
+    panel_manager::instance().remove_window( m_hwnd );
+
+    if ( m_gr_wrap )
+    {
+        m_gr_wrap.Release();
+    }
+    delete_context();
+    ReleaseDC( m_hwnd, m_hdc );
+}
+
+void js_panel_window::on_script_error()
+{
+    const auto& tooltip_param = PanelTooltipParam();
+    if ( tooltip_param && tooltip_param->tooltip_hwnd )
+    {
+        SendMessage( tooltip_param->tooltip_hwnd, TTM_ACTIVATE, FALSE, 0 );
+    }
+
+    Repaint();
+    m_script_host->Stop();
+    script_unload();
+}
+
+void js_panel_window::on_always_on_top_changed( WPARAM wp )
+{
+    jsContainer_.InvokeJsCallback( "on_always_on_top_changed",
+                                   static_cast<bool>(wp) );
+}
+
+void js_panel_window::on_char( WPARAM wp )
+{
+    jsContainer_.InvokeJsCallback( "on_char",
+                                   static_cast<uint32_t>(wp) );
+}
+
+void js_panel_window::on_colours_changed()
+{
+    jsContainer_.InvokeJsCallback( "on_colours_changed" );
+}
+
 void js_panel_window::on_cursor_follow_playback_changed( WPARAM wp )
 {
-    VARIANTARG args[1];
-    args[0].vt = VT_BOOL;
-    args[0].boolVal = TO_VARIANT_BOOL( wp );
-    script_invoke_v( CallbackIds::on_cursor_follow_playback_changed, args, _countof( args ) );
+    jsContainer_.InvokeJsCallback( "on_cursor_follow_playback_changed",
+                                   static_cast<bool>(wp) );
 }
 
 void js_panel_window::on_dsp_preset_changed()
 {
-    script_invoke_v( CallbackIds::on_dsp_preset_changed );
+    jsContainer_.InvokeJsCallback( "on_dsp_preset_changed" );
+}
+
+void js_panel_window::on_focus_changed( bool isFocused )
+{
+    if ( isFocused )
+    {
+        m_selection_holder = ui_selection_manager::get()->acquire();
+    }
+    else
+    {
+        m_selection_holder.release();
+    }
+    jsContainer_.InvokeJsCallback( "on_focus_changed",
+                                   static_cast<bool>(isFocused) );
 }
 
 void js_panel_window::on_font_changed()
 {
-    script_invoke_v( CallbackIds::on_font_changed );
+    jsContainer_.InvokeJsCallback( "on_font_changed" );
 }
 
 void js_panel_window::on_get_album_art_done( LPARAM lp )
 {
-    using namespace helpers;
-    album_art_async::t_param* param = reinterpret_cast<album_art_async::t_param *>( lp );
-
-    VARIANTARG args[4];
-    args[0].vt = VT_BSTR;
-    args[0].bstrVal = SysAllocString( param->image_path );
-    args[1].vt = VT_DISPATCH;
-    args[1].pdispVal = param->bitmap;
-    args[2].vt = VT_I4;
-    args[2].lVal = param->art_id;
-    args[3].vt = VT_DISPATCH;
-    args[3].pdispVal = param->handle;
-    script_invoke_v( CallbackIds::on_get_album_art_done, args, _countof( args ) );
+    std::unique_ptr<mozjs::art::AsyncArtTaskResult> param( reinterpret_cast<mozjs::art::AsyncArtTaskResult*>(lp) );
+    auto autoRet = jsContainer_.InvokeJsCallback( "on_get_album_art_done",
+                                                  static_cast<metadb_handle_ptr>(param->handle),
+                                                  static_cast<uint32_t>(param->artId),
+                                                  static_cast<Gdiplus::Bitmap*>(param->bitmap.get()),
+                                                  static_cast<std::string>(param->imagePath) );
+    if ( autoRet )
+    {
+        param->bitmap.release();
+    }
 }
 
 void js_panel_window::on_item_focus_change( WPARAM wp )
 {
     simple_callback_data_scope_releaser<simple_callback_data_3<t_size, t_size, t_size>> data( wp );
-
-    VARIANTARG args[3];
-    args[0].vt = VT_I4;
-    args[0].lVal = data->m_item3;
-    args[1].vt = VT_I4;
-    args[1].lVal = data->m_item2;
-    args[2].vt = VT_I4;
-    args[2].lVal = data->m_item1;
-    script_invoke_v( CallbackIds::on_item_focus_change, args, _countof( args ) );
+    jsContainer_.InvokeJsCallback( "on_item_focus_change",
+                                   static_cast<int32_t>(data->m_item1),
+                                   static_cast<int32_t>(data->m_item2),
+                                   static_cast<int32_t>(data->m_item3) );
 }
 
 void js_panel_window::on_item_played( WPARAM wp )
 {
     simple_callback_data_scope_releaser<simple_callback_data<metadb_handle_ptr>> data( wp );
-    FbMetadbHandle* handle = new com_object_impl_t<FbMetadbHandle>( data->m_item );
+    jsContainer_.InvokeJsCallback( "on_item_played",
+                                   static_cast<metadb_handle_ptr>(data->m_item) );
+}
 
-    VARIANTARG args[1];
-    args[0].vt = VT_DISPATCH;
-    args[0].pdispVal = handle;
-    script_invoke_v( CallbackIds::on_item_played, args, _countof( args ) );
+void js_panel_window::on_key_down( WPARAM wp )
+{
+    jsContainer_.InvokeJsCallback( "on_key_down",
+                                   static_cast<uint32_t>(wp) );
+}
 
-    if ( handle )
-        handle->Release();
+void js_panel_window::on_key_up( WPARAM wp )
+{
+    jsContainer_.InvokeJsCallback( "on_key_up",
+                                   static_cast<uint32_t>(wp) );
 }
 
 void js_panel_window::on_load_image_done( LPARAM lp )
-{
-    using namespace helpers;
-    load_image_async::t_param* param = reinterpret_cast<load_image_async::t_param *>( lp );
-
-    VARIANTARG args[3];
-    args[0].vt = VT_BSTR;
-    args[0].bstrVal = param->path;
-    args[1].vt = VT_DISPATCH;
-    args[1].pdispVal = param->bitmap;
-    args[2].vt = VT_I4;
-    args[2].lVal = param->cookie;
-    script_invoke_v( CallbackIds::on_load_image_done, args, _countof( args ) );
+{// TODO: missing param doc
+    std::unique_ptr<mozjs::art::AsyncImageTaskResult> param( reinterpret_cast<mozjs::art::AsyncImageTaskResult*>(lp) );
+    auto autoRet = jsContainer_.InvokeJsCallback( "on_load_image_done",
+                                                  static_cast<uint32_t>(param->artId),
+                                                  static_cast<Gdiplus::Bitmap*>(param->bitmap.get()),
+                                                  static_cast<std::string>(param->imagePath) );
+    if ( autoRet )
+    {
+        param->bitmap.release();
+    }
 }
 
 void js_panel_window::on_library_items_added( WPARAM wp )
 {
     simple_callback_data_scope_releaser<t_on_data> data( wp );
-    FbMetadbHandleList* handles = new com_object_impl_t<FbMetadbHandleList>( data->m_items );
-
-    VARIANTARG args[1];
-    args[0].vt = VT_DISPATCH;
-    args[0].pdispVal = handles;
-    script_invoke_v( CallbackIds::on_library_items_added, args, _countof( args ) );
-
-    if ( handles )
-        handles->Release();
+    jsContainer_.InvokeJsCallback( "on_library_items_added",
+                                   static_cast<metadb_handle_list_cref>(data->m_items) );
 }
 
 void js_panel_window::on_library_items_changed( WPARAM wp )
 {
     simple_callback_data_scope_releaser<t_on_data> data( wp );
-    FbMetadbHandleList* handles = new com_object_impl_t<FbMetadbHandleList>( data->m_items );
-
-    VARIANTARG args[1];
-    args[0].vt = VT_DISPATCH;
-    args[0].pdispVal = handles;
-    script_invoke_v( CallbackIds::on_library_items_changed, args, _countof( args ) );
-
-    if ( handles )
-        handles->Release();
+    jsContainer_.InvokeJsCallback( "on_library_items_changed",
+                                   static_cast<metadb_handle_list_cref>(data->m_items) );
 }
 
 void js_panel_window::on_library_items_removed( WPARAM wp )
 {
     simple_callback_data_scope_releaser<t_on_data> data( wp );
-    FbMetadbHandleList* handles = new com_object_impl_t<FbMetadbHandleList>( data->m_items );
-
-    VARIANTARG args[1];
-    args[0].vt = VT_DISPATCH;
-    args[0].pdispVal = handles;
-    script_invoke_v( CallbackIds::on_library_items_removed, args, _countof( args ) );
-
-    if ( handles )
-        handles->Release();
+    jsContainer_.InvokeJsCallback( "on_library_items_removed",
+                                   static_cast<metadb_handle_list_cref>(data->m_items) );
 }
 
 void js_panel_window::on_main_menu( WPARAM wp )
 {
-    VARIANTARG args[1];
-    args[0].vt = VT_I4;
-    args[0].lVal = wp;
-    script_invoke_v( CallbackIds::on_main_menu, args, _countof( args ) );
+    simple_callback_data_scope_releaser<t_on_data> data( wp );
+    jsContainer_.InvokeJsCallback( "on_main_menu",
+                                   static_cast<uint64_t>(wp) );
 }
 
 void js_panel_window::on_metadb_changed( WPARAM wp )
 {
     simple_callback_data_scope_releaser<t_on_data> data( wp );
-    FbMetadbHandleList* handles = new com_object_impl_t<FbMetadbHandleList>( data->m_items );
-
-    VARIANTARG args[2];
-    args[0].vt = VT_BOOL;
-    args[0].boolVal = TO_VARIANT_BOOL( data->m_fromhook );
-    args[1].vt = VT_DISPATCH;
-    args[1].pdispVal = handles;
-    script_invoke_v( CallbackIds::on_metadb_changed, args, _countof( args ) );
-
-    if ( handles )
-        handles->Release();
+    jsContainer_.InvokeJsCallback( "on_metadb_changed",
+                                   static_cast<metadb_handle_list_cref>(data->m_items),
+                                   static_cast<bool>(data->m_fromhook) );
 }
 
 void js_panel_window::on_mouse_button_dblclk( UINT msg, WPARAM wp, LPARAM lp )
 {
-    VARIANTARG args[3];
-    args[0].vt = VT_I4;
-    args[0].lVal = wp;
-    args[1].vt = VT_I4;
-    args[1].lVal = GET_Y_LPARAM( lp );
-    args[2].vt = VT_I4;
-    args[2].lVal = GET_X_LPARAM( lp );
-
     switch ( msg )
     {
     case WM_LBUTTONDBLCLK:
-        script_invoke_v( CallbackIds::on_mouse_lbtn_dblclk, args, _countof( args ) );
+    {
+        jsContainer_.InvokeJsCallback( "on_mouse_lbtn_dblclk",
+                                       static_cast<int32_t>(GET_X_LPARAM( lp )),
+                                       static_cast<int32_t>(GET_Y_LPARAM( lp )),
+                                       static_cast<uint32_t>(wp) );
         break;
+    }
 
     case WM_MBUTTONDBLCLK:
-        script_invoke_v( CallbackIds::on_mouse_mbtn_dblclk, args, _countof( args ) );
+    {
+        jsContainer_.InvokeJsCallback( "on_mouse_mbtn_dblclk",
+                                       static_cast<int32_t>(GET_X_LPARAM( lp )),
+                                       static_cast<int32_t>(GET_Y_LPARAM( lp )),
+                                       static_cast<uint32_t>(wp) );
         break;
+    }
 
     case WM_RBUTTONDBLCLK:
-        script_invoke_v( CallbackIds::on_mouse_rbtn_dblclk, args, _countof( args ) );
+    {
+        jsContainer_.InvokeJsCallback( "on_mouse_rbtn_dblclk",
+                                       static_cast<int32_t>(GET_X_LPARAM( lp )),
+                                       static_cast<int32_t>(GET_Y_LPARAM( lp )),
+                                       static_cast<uint32_t>(wp) );
         break;
+    }
     }
 }
 
@@ -788,27 +828,32 @@ void js_panel_window::on_mouse_button_down( UINT msg, WPARAM wp, LPARAM lp )
 
     SetCapture( m_hwnd );
 
-    VARIANTARG args[3];
-    args[0].vt = VT_I4;
-    args[0].lVal = wp;
-    args[1].vt = VT_I4;
-    args[1].lVal = GET_Y_LPARAM( lp );
-    args[2].vt = VT_I4;
-    args[2].lVal = GET_X_LPARAM( lp );
-
     switch ( msg )
     {
     case WM_LBUTTONDOWN:
-        script_invoke_v( CallbackIds::on_mouse_lbtn_down, args, _countof( args ) );
+    {
+        jsContainer_.InvokeJsCallback( "on_mouse_lbtn_down",
+                                       static_cast<int32_t>(GET_X_LPARAM( lp )),
+                                       static_cast<int32_t>(GET_Y_LPARAM( lp )),
+                                       static_cast<uint32_t>(wp) );
         break;
-
+    }
     case WM_MBUTTONDOWN:
-        script_invoke_v( CallbackIds::on_mouse_mbtn_down, args, _countof( args ) );
+    {
+        jsContainer_.InvokeJsCallback( "on_mouse_mbtn_down",
+                                       static_cast<int32_t>(GET_X_LPARAM( lp )),
+                                       static_cast<int32_t>(GET_Y_LPARAM( lp )),
+                                       static_cast<uint32_t>(wp) );
         break;
-
+    }
     case WM_RBUTTONDOWN:
-        script_invoke_v( CallbackIds::on_mouse_rbtn_down, args, _countof( args ) );
+    {
+        jsContainer_.InvokeJsCallback( "on_mouse_rbtn_down",
+                                       static_cast<int32_t>(GET_X_LPARAM( lp )),
+                                       static_cast<int32_t>(GET_Y_LPARAM( lp )),
+                                       static_cast<uint32_t>(wp) );
         break;
+    }
     }
 }
 
@@ -816,24 +861,24 @@ bool js_panel_window::on_mouse_button_up( UINT msg, WPARAM wp, LPARAM lp )
 {
     bool ret = false;
 
-    VARIANTARG args[3];
-    args[0].vt = VT_I4;
-    args[0].lVal = wp;
-    args[1].vt = VT_I4;
-    args[1].lVal = GET_Y_LPARAM( lp );
-    args[2].vt = VT_I4;
-    args[2].lVal = GET_X_LPARAM( lp );
-
     switch ( msg )
     {
     case WM_LBUTTONUP:
-        script_invoke_v( CallbackIds::on_mouse_lbtn_up, args, _countof( args ) );
+    {
+        jsContainer_.InvokeJsCallback( "on_mouse_lbtn_up",
+                                       static_cast<int32_t>(GET_X_LPARAM( lp )),
+                                       static_cast<int32_t>(GET_Y_LPARAM( lp )),
+                                       static_cast<uint32_t>(wp) );
         break;
-
+    }
     case WM_MBUTTONUP:
-        script_invoke_v( CallbackIds::on_mouse_mbtn_up, args, _countof( args ) );
+    {
+        jsContainer_.InvokeJsCallback( "on_mouse_mbtn_up",
+                                       static_cast<int32_t>(GET_X_LPARAM( lp )),
+                                       static_cast<int32_t>(GET_Y_LPARAM( lp )),
+                                       static_cast<uint32_t>(wp) );
         break;
-
+    }
     case WM_RBUTTONUP:
     {
         _variant_t result;
@@ -844,14 +889,16 @@ bool js_panel_window::on_mouse_button_up( UINT msg, WPARAM wp, LPARAM lp )
             break;
         }
 
-        if ( SUCCEEDED( script_invoke_v( CallbackIds::on_mouse_rbtn_up, args, _countof( args ), &result ) ) )
+        auto autoRet = jsContainer_.InvokeJsCallback<bool>( "on_mouse_rbtn_up",
+                                                            static_cast<int32_t>(GET_X_LPARAM( lp )),
+                                                            static_cast<int32_t>(GET_Y_LPARAM( lp )),
+                                                            static_cast<uint32_t>(wp) );
+        if ( autoRet )
         {
-            result.ChangeType( VT_BOOL );
-            if ( result.boolVal != VARIANT_FALSE )
-                ret = true;
+            ret = autoRet.value();
         }
+        break;
     }
-    break;
     }
 
     ReleaseCapture();
@@ -862,7 +909,8 @@ void js_panel_window::on_mouse_leave()
 {
     m_is_mouse_tracked = false;
 
-    script_invoke_v( CallbackIds::on_mouse_leave );
+    jsContainer_.InvokeJsCallback( "on_mouse_leave" );
+
     // Restore default cursor
     SetCursor( LoadCursor( NULL, IDC_ARROW ) );
 }
@@ -883,50 +931,38 @@ void js_panel_window::on_mouse_move( WPARAM wp, LPARAM lp )
         SetCursor( LoadCursor( NULL, IDC_ARROW ) );
     }
 
-    VARIANTARG args[3];
-    args[0].vt = VT_I4;
-    args[0].lVal = wp;
-    args[1].vt = VT_I4;
-    args[1].lVal = GET_Y_LPARAM( lp );
-    args[2].vt = VT_I4;
-    args[2].lVal = GET_X_LPARAM( lp );
-    script_invoke_v( CallbackIds::on_mouse_move, args, _countof( args ) );
+    jsContainer_.InvokeJsCallback( "on_mouse_move",
+                                   static_cast<int32_t>(GET_X_LPARAM( lp )),
+                                   static_cast<int32_t>(GET_Y_LPARAM( lp )),
+                                   static_cast<uint32_t>(wp) );
 }
 
 void js_panel_window::on_mouse_wheel( WPARAM wp )
-{
-    VARIANTARG args[3];
-    args[2].vt = VT_I4;
-    args[2].lVal = GET_WHEEL_DELTA_WPARAM( wp ) > 0 ? 1 : -1;
-    args[1].vt = VT_I4;
-    args[1].lVal = GET_WHEEL_DELTA_WPARAM( wp );
-    args[0].vt = VT_I4;
-    args[0].lVal = WHEEL_DELTA;
-    script_invoke_v( CallbackIds::on_mouse_wheel, args, _countof( args ) );
+{// TODO: missing param doc
+    jsContainer_.InvokeJsCallback( "on_mouse_wheel",
+                                   static_cast<int8_t>(GET_WHEEL_DELTA_WPARAM( wp ) > 0 ? 1 : -1),
+                                   static_cast<int32_t>(GET_WHEEL_DELTA_WPARAM( wp )),
+                                   static_cast<int32_t>(WHEEL_DELTA) );
 }
 
 void js_panel_window::on_mouse_wheel_h( WPARAM wp )
 {
-    VARIANTARG args[1];
-    args[0].vt = VT_I4;
-    args[0].lVal = GET_WHEEL_DELTA_WPARAM( wp ) > 0 ? 1 : -1;
-    script_invoke_v( CallbackIds::on_mouse_wheel_h, args, _countof( args ) );
+    jsContainer_.InvokeJsCallback( "on_mouse_wheel_h",
+                                   static_cast<int8_t>(GET_WHEEL_DELTA_WPARAM( wp ) > 0 ? 1 : -1) );
 }
 
 void js_panel_window::on_notify_data( WPARAM wp )
 {
-    simple_callback_data_scope_releaser<simple_callback_data_2<_bstr_t, _variant_t>> data( wp );
-
-    VARIANTARG args[2];
-    args[0] = data->m_item2;
-    args[1].vt = VT_BSTR;
-    args[1].bstrVal = data->m_item1;
-    script_invoke_v( CallbackIds::on_notify_data, args, _countof( args ) );
+    simple_callback_data_scope_releaser<simple_callback_data_2<std::wstring, _variant_t>> data( wp );
+    jsContainer_.InvokeJsCallback( "on_notify_data",
+                                   static_cast<std::wstring&>(data->m_item1)
+                                    //, TODO: data->m_item2 ???
+    );
 }
 
 void js_panel_window::on_output_device_changed()
 {
-    script_invoke_v( CallbackIds::on_output_device_changed );
+    jsContainer_.InvokeJsCallback( "on_output_device_changed" );
 }
 
 void js_panel_window::on_paint( HDC dc, LPRECT lpUpdateRect )
@@ -978,7 +1014,7 @@ void js_panel_window::on_paint( HDC dc, LPRECT lpUpdateRect )
 
 void js_panel_window::on_paint_error( HDC memdc )
 {
-    const TCHAR errmsg[] = _T( "Aw, crashed :(" );
+    const std::wstring errmsg( L"Aw, crashed :(" );
     RECT rc = { 0, 0, m_width, m_height };
     SIZE sz = { 0 };
 
@@ -1010,249 +1046,175 @@ void js_panel_window::on_paint_error( HDC memdc )
         SetBkMode( memdc, TRANSPARENT );
 
         SetTextColor( memdc, RGB( 255, 255, 255 ) );
-        DrawText( memdc, errmsg, -1, &rc, DT_CENTER | DT_VCENTER | DT_NOPREFIX | DT_SINGLELINE );
+        DrawText( memdc, errmsg.c_str(), -1, &rc, DT_CENTER | DT_VCENTER | DT_NOPREFIX | DT_SINGLELINE );
 
         DeleteObject( hBack );
     }
 
     SelectObject( memdc, oldfont );
 }
+
 void js_panel_window::on_paint_user( HDC memdc, LPRECT lpUpdateRect )
 {
-    if ( m_script_host->Ready() )
+    if ( mozjs::JsContainer::JsStatus::Ready != jsContainer_.GetStatus() )
     {
-        // Prepare graphics object to the script.
-        Gdiplus::Graphics gr( memdc );
-        Gdiplus::Rect rect( lpUpdateRect->left, lpUpdateRect->top, lpUpdateRect->right - lpUpdateRect->left, lpUpdateRect->bottom - lpUpdateRect->top );
-
-        // SetClip() may improve performance slightly
-        gr.SetClip( rect );
-
-        m_gr_wrap->put__ptr( &gr );
-
-        {
-            VARIANTARG args[1];
-
-            args[0].vt = VT_DISPATCH;
-            args[0].pdispVal = m_gr_wrap;
-            script_invoke_v( CallbackIds::on_paint, args, _countof( args ) );
-        }
-
-        m_gr_wrap->put__ptr( NULL );
+        return;
     }
 
-    if ( mozjs::JsContainer::JsStatus::Ready == jsContainer_.GetStatus() )
+    // Prepare graphics object to the script.
+    Gdiplus::Graphics gr( memdc );
+    Gdiplus::Rect rect( lpUpdateRect->left, lpUpdateRect->top, lpUpdateRect->right - lpUpdateRect->left, lpUpdateRect->bottom - lpUpdateRect->top );
+
+    // SetClip() may improve performance slightly
+    gr.SetClip( rect );
+
     {
-        // Prepare graphics object to the script.
-        Gdiplus::Graphics gr( memdc );
-        Gdiplus::Rect rect( lpUpdateRect->left, lpUpdateRect->top, lpUpdateRect->right - lpUpdateRect->left, lpUpdateRect->bottom - lpUpdateRect->top );
-
-        // SetClip() may improve performance slightly
-        gr.SetClip( rect );
-
-        {
-            mozjs::JsContainer::GraphicsWrapper autoGraphics( jsContainer_, gr );
-            jsContainer_.InvokeJsCallback( "on_paint",
-                                            jsContainer_.GetGraphics() );
-        }
+        mozjs::JsContainer::GraphicsWrapper autoGraphics( jsContainer_, gr );
+        jsContainer_.InvokeJsCallback( "on_paint",
+                                        jsContainer_.GetGraphics() );
     }
 }
 
 void js_panel_window::on_playback_dynamic_info()
 {
-    script_invoke_v( CallbackIds::on_playback_dynamic_info );
+    jsContainer_.InvokeJsCallback( "on_playback_dynamic_info" );
 }
 
 void js_panel_window::on_playback_dynamic_info_track()
 {
-    script_invoke_v( CallbackIds::on_playback_dynamic_info_track );
+    jsContainer_.InvokeJsCallback( "on_playback_dynamic_info_track" );
 }
 
 void js_panel_window::on_playback_edited( WPARAM wp )
 {
     simple_callback_data_scope_releaser<simple_callback_data<metadb_handle_ptr>> data( wp );
-    FbMetadbHandle* handle = new com_object_impl_t<FbMetadbHandle>( data->m_item );
-
-    VARIANTARG args[1];
-    args[0].vt = VT_DISPATCH;
-    args[0].pdispVal = handle;
-    script_invoke_v( CallbackIds::on_playback_edited, args, _countof( args ) );
-
-    if ( handle )
-        handle->Release();
+    jsContainer_.InvokeJsCallback( "on_playback_edited",
+                                   static_cast<metadb_handle_ptr&>(data->m_item) );
 }
 
 void js_panel_window::on_playback_follow_cursor_changed( WPARAM wp )
 {
-    VARIANTARG args[1];
-    args[0].vt = VT_BOOL;
-    args[0].boolVal = TO_VARIANT_BOOL( wp );
-    script_invoke_v( CallbackIds::on_playback_follow_cursor_changed, args, _countof( args ) );
+    jsContainer_.InvokeJsCallback( "on_playback_follow_cursor_changed",
+                                   static_cast<bool>(wp) );
 }
 
 void js_panel_window::on_playback_new_track( WPARAM wp )
 {
     simple_callback_data_scope_releaser<simple_callback_data<metadb_handle_ptr>> data( wp );
-    FbMetadbHandle* handle = new com_object_impl_t<FbMetadbHandle>( data->m_item );
-
-    VARIANTARG args[1];
-    args[0].vt = VT_DISPATCH;
-    args[0].pdispVal = handle;
-    script_invoke_v( CallbackIds::on_playback_new_track, args, _countof( args ) );
-
-    if ( handle )
-        handle->Release();
-
-    if ( mozjs::JsContainer::JsStatus::Ready == jsContainer_.GetStatus() )
-    {
-        jsContainer_.InvokeJsCallback( "on_playback_new_track",
-                                       static_cast<metadb_handle_ptr&>( data->m_item ) );
-    }
+    jsContainer_.InvokeJsCallback( "on_playback_new_track",
+                                   static_cast<metadb_handle_ptr&>(data->m_item) );
 }
 
 void js_panel_window::on_playback_order_changed( WPARAM wp )
 {
-    VARIANTARG args[1];
-    args[0].vt = VT_I4;
-    args[0].lVal = wp;
-    script_invoke_v( CallbackIds::on_playback_order_changed, args, _countof( args ) );
+    jsContainer_.InvokeJsCallback( "on_playback_order_changed",
+                                   static_cast<uint32_t>(wp) );
 }
 
 void js_panel_window::on_playback_pause( bool state )
 {
-    VARIANTARG args[1];
-    args[0].vt = VT_BOOL;
-    args[0].boolVal = TO_VARIANT_BOOL( state );
-    script_invoke_v( CallbackIds::on_playback_pause, args, _countof( args ) );
+    jsContainer_.InvokeJsCallback( "on_playback_pause",
+                                   static_cast<bool>(state) );
 }
 
 void js_panel_window::on_playback_queue_changed( WPARAM wp )
 {
-    VARIANTARG args[1];
-    args[0].vt = VT_I4;
-    args[0].lVal = wp;
-    script_invoke_v( CallbackIds::on_playback_queue_changed, args, _countof( args ) );
+    jsContainer_.InvokeJsCallback( "on_playback_queue_changed",
+                                   static_cast<uint32_t>(wp) );
 }
 
 void js_panel_window::on_playback_seek( WPARAM wp )
 {
     simple_callback_data_scope_releaser<simple_callback_data<double>> data( wp );
-
-    VARIANTARG args[1];
-    args[0].vt = VT_R8;
-    args[0].dblVal = data->m_item;
-    script_invoke_v( CallbackIds::on_playback_seek, args, _countof( args ) );
+    jsContainer_.InvokeJsCallback( "on_playback_seek",
+                                   static_cast<double>(data->m_item) );
 }
 
 void js_panel_window::on_playback_starting( play_control::t_track_command cmd, bool paused )
 {
-    VARIANTARG args[2];
-    args[0].vt = VT_BOOL;
-    args[0].boolVal = TO_VARIANT_BOOL( paused );
-    args[1].vt = VT_I4;
-    args[1].lVal = cmd;
-    script_invoke_v( CallbackIds::on_playback_starting, args, _countof( args ) );
+    jsContainer_.InvokeJsCallback( "on_playback_starting",
+                                   static_cast<uint32_t>(cmd) ,
+                                   static_cast<bool>(paused) );
 }
 
 void js_panel_window::on_playback_stop( play_control::t_stop_reason reason )
 {
-    VARIANTARG args[1];
-    args[0].vt = VT_I4;
-    args[0].lVal = reason;
-    script_invoke_v( CallbackIds::on_playback_stop, args, _countof( args ) );
+    jsContainer_.InvokeJsCallback( "on_playback_stop",
+                                   static_cast<uint32_t>(reason));
 }
 
 void js_panel_window::on_playback_time( WPARAM wp )
 {
     simple_callback_data_scope_releaser<simple_callback_data<double>> data( wp );
-
-    VARIANTARG args[1];
-    args[0].vt = VT_R8;
-    args[0].dblVal = data->m_item;
-    script_invoke_v( CallbackIds::on_playback_time, args, _countof( args ) );
+    jsContainer_.InvokeJsCallback( "on_playback_time",
+                                   static_cast<double>(data->m_item) );
 }
 
 void js_panel_window::on_playlist_item_ensure_visible( WPARAM wp, LPARAM lp )
 {
-    VARIANTARG args[2];
-    args[0].vt = VT_UI4;
-    args[0].ulVal = lp;
-    args[1].vt = VT_UI4;
-    args[1].ulVal = wp;
-    script_invoke_v( CallbackIds::on_playlist_item_ensure_visible, args, _countof( args ) );
+    jsContainer_.InvokeJsCallback( "on_playlist_item_ensure_visible",
+                                   static_cast<uint32_t>(wp),
+                                   static_cast<uint32_t>(lp) );
 }
 
 void js_panel_window::on_playlist_items_added( WPARAM wp )
 {
-    VARIANTARG args[1];
-    args[0].vt = VT_UI4;
-    args[0].ulVal = wp;
-    script_invoke_v( CallbackIds::on_playlist_items_added, args, _countof( args ) );
+    jsContainer_.InvokeJsCallback( "on_playlist_items_added",
+                                   static_cast<uint32_t>(wp) );
 }
 
 void js_panel_window::on_playlist_items_removed( WPARAM wp, LPARAM lp )
 {
-    VARIANTARG args[2];
-    args[0].vt = VT_UI4;
-    args[0].ulVal = lp;
-    args[1].vt = VT_UI4;
-    args[1].ulVal = wp;
-    script_invoke_v( CallbackIds::on_playlist_items_removed, args, _countof( args ) );
+    jsContainer_.InvokeJsCallback( "on_playlist_items_removed",
+                                   static_cast<uint32_t>(wp),
+                                   static_cast<uint32_t>(lp) );
 }
 
 void js_panel_window::on_playlist_items_reordered( WPARAM wp )
 {
-    VARIANTARG args[1];
-    args[0].vt = VT_UI4;
-    args[0].ulVal = wp;
-    script_invoke_v( CallbackIds::on_playlist_items_reordered, args, _countof( args ) );
+    jsContainer_.InvokeJsCallback( "on_playlist_items_reordered",
+                                   static_cast<uint32_t>(wp) );
 }
 
 void js_panel_window::on_playlist_items_selection_change()
 {
-    script_invoke_v( CallbackIds::on_playlist_items_selection_change );
+    jsContainer_.InvokeJsCallback( "on_playlist_items_selection_change" );
 }
 
 void js_panel_window::on_playlist_stop_after_current_changed( WPARAM wp )
 {
-    VARIANTARG args[1];
-    args[0].vt = VT_BOOL;
-    args[0].boolVal = TO_VARIANT_BOOL( wp );
-    script_invoke_v( CallbackIds::on_playlist_stop_after_current_changed, args, _countof( args ) );
+    jsContainer_.InvokeJsCallback( "on_playlist_stop_after_current_changed",
+                                   static_cast<bool>(wp) );
 }
 
 void js_panel_window::on_playlist_switch()
 {
-    script_invoke_v( CallbackIds::on_playlist_switch );
+    jsContainer_.InvokeJsCallback( "on_playlist_switch" );
 }
 
 void js_panel_window::on_playlists_changed()
 {
-    script_invoke_v( CallbackIds::on_playlists_changed );
+    jsContainer_.InvokeJsCallback( "on_playlists_changed" );
 }
 
 void js_panel_window::on_replaygain_mode_changed( WPARAM wp )
 {
-    VARIANTARG args[1];
-    args[0].vt = VT_I4;
-    args[0].lVal = wp;
-    script_invoke_v( CallbackIds::on_replaygain_mode_changed, args, _countof( args ) );
+    jsContainer_.InvokeJsCallback( "on_replaygain_mode_changed",
+                                   static_cast<uint32_t>(wp) );
 }
 
 void js_panel_window::on_selection_changed()
 {
-    script_invoke_v( CallbackIds::on_selection_changed );
+    jsContainer_.InvokeJsCallback( "on_selection_changed" );
 }
 
-void js_panel_window::on_size( int w, int h )
+void js_panel_window::on_size( uint32_t w, uint32_t h )
 {
     m_width = w;
     m_height = h;
 
     delete_context();
     create_context();
-
-    script_invoke_v( CallbackIds::on_size );
 
     if ( mozjs::JsContainer::JsStatus::Ready == jsContainer_.GetStatus() )
     {
@@ -1265,25 +1227,6 @@ void js_panel_window::on_size( int w, int h )
 void js_panel_window::on_volume_change( WPARAM wp )
 {
     simple_callback_data_scope_releaser<simple_callback_data<float>> data( wp );
-
-    VARIANTARG args[1];
-    args[0].vt = VT_R4;
-    args[0].fltVal = data->m_item;
-    script_invoke_v( CallbackIds::on_volume_change, args, _countof( args ) );
-}
-
-void js_panel_window::script_unload()
-{
-    m_script_host->Finalize();
-
-    if ( m_is_droptarget_registered )
-    {
-        m_drop_target->RevokeDragDrop();
-        m_is_droptarget_registered = false;
-    }
-
-    HostTimerDispatcher::Get().onPanelUnload( m_hwnd );
-    m_selection_holder.release();
-
-    jsContainer_.Finalize();
+    jsContainer_.InvokeJsCallback( "on_volume_change",
+                                   static_cast<float>(data->m_item) );
 }

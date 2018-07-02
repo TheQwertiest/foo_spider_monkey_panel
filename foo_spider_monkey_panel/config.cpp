@@ -248,11 +248,6 @@ pfc::string_base& js_panel_vars::get_script_code()
 	return m_script_code;
 }
 
-pfc::string_base& js_panel_vars::get_script_engine()
-{
-	return m_script_engine_str;
-}
-
 prop_kv_config& js_panel_vars::get_config_prop()
 {
 	return m_config_prop;

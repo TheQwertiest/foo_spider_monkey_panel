@@ -190,6 +190,9 @@
     <ClCompile Include="js_objects\fb_utils.cpp">
       <Filter>js_objects</Filter>
     </ClCompile>
+    <ClCompile Include="js_objects\window.cpp">
+      <Filter>js_objects</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="js_engine\js_engine.h">
@@ -439,6 +442,9 @@
       <Filter>js_utils</Filter>
     </ClInclude>
     <ClInclude Include="js_utils\art_helper.h">
+      <Filter>js_utils</Filter>
+    </ClInclude>
+    <ClInclude Include="js_utils\scope_helper.h">
       <Filter>js_utils</Filter>
     </ClInclude>
   </ItemGroup>

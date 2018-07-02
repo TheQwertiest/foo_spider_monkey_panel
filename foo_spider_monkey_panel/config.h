@@ -2,7 +2,7 @@
 
 enum t_version_info
 {
-	JSP_VERSION_100 = 123, // must start with 123 so we don't break component upgrades
+	JSP_VERSION_100 = 1, // must start with 1 so we don't break component upgrades
 	CONFIG_VERSION_CURRENT = JSP_VERSION_100
 };
 
@@ -68,7 +68,6 @@ public:
 	const bool& get_pseudo_transparent() const;
 	const t_edge_style& get_edge_style() const;
 	pfc::string_base& get_script_code();
-	pfc::string_base& get_script_engine();
 	prop_kv_config& get_config_prop();
 	static void get_default_script_code(pfc::string_base& out);
 	t_edge_style& get_edge_style();

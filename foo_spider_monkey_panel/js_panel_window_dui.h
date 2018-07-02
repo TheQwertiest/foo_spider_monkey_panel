@@ -1,6 +1,8 @@
 #pragma once
 
-class js_panel_window_dui : public js_panel_window, public ui_element_instance
+class js_panel_window_dui 
+    : public js_panel_window
+    , public ui_element_instance
 {
 public:
 	js_panel_window_dui(ui_element_config::ptr cfg, ui_element_instance_callback::ptr callback);

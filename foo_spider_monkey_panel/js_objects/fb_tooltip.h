@@ -60,7 +60,7 @@ private:
 
     HWND hTooltipWnd_;
     HWND hParentWnd_;
-    BSTR tipBuffer_;
+    std::wstring tipBuffer_;
     TOOLINFO toolInfo_;
     panel_tooltip_param_ptr panelTooltipParam_;
 };

@@ -7,6 +7,8 @@
 #include <js_objects/gdi_bitmap.h>
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
+#include <js_utils/scope_helper.h>
+#include <js_utils/winapi_error_helper.h>
 
 #include <helpers.h>
 
@@ -132,6 +134,12 @@ JsGdiUtils::Font( const std::wstring& fontName, float pxSize, uint32_t style )
         DEFAULT_QUALITY,
         DEFAULT_PITCH | FF_DONTCARE,
         fontName.c_str() );
+    IF_WINAPI_FAILED_RETURN_WITH_REPORT( pJsCtx_, !!hFont, std::nullopt, CreateFont );
+
+    scope::unique_ptr<std::remove_pointer_t<HFONT>> autoFont( hFont, []( auto obj )
+    {
+        DeleteObject( obj );
+    } );
 
     JS::RootedObject jsObject( pJsCtx_, JsGdiFont::Create( pJsCtx_, pGdiFont.get(), hFont, true ) );
     if ( !jsObject )
@@ -142,6 +150,7 @@ JsGdiUtils::Font( const std::wstring& fontName, float pxSize, uint32_t style )
         return std::nullopt;
     }
 
+    autoFont.release();
     pGdiFont.release();
     return jsObject;
 }

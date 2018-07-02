@@ -4,13 +4,15 @@
 
 #include <js_engine/js_container.h>
 
-class js_panel_window : public HostComm, public ui_helpers::container_window
+class js_panel_window 
+    : public ui_helpers::container_window 
+    //,public HostComm
+    , public js_panel_vars
 {
 public:
     js_panel_window();
     virtual ~js_panel_window();
-    HRESULT script_invoke_v(int callbackId, VARIANTARG* argv = NULL, UINT argc = 0, VARIANT* ret = NULL);
-    void update_script(const char* name = NULL, const char* code = NULL);
+    void update_script(const char* code = nullptr);
 
     void JsEngineFail( std::string_view errorText );
 protected:
@@ -24,26 +26,86 @@ protected:
 private:    
     mozjs::JsContainer jsContainer_;    
 
-    CComPtr<IDropTargetImpl> m_drop_target;
-    IGdiGraphicsPtr m_gr_wrap;
-    ScriptHost* m_script_host;
+    CComPtr<IDropTargetImpl> m_drop_target; // keep
+    IGdiGraphicsPtr m_gr_wrap; // currently in JsContainer: extract from there to a proper place (ConstAfterScriptLoad)
+    ScriptHost* m_script_host; // remove
 
-    bool m_is_droptarget_registered;
-    bool m_is_mouse_tracked;
+private:
+    enum class PanelType
+    {
+        CUI = 0,
+        DUI = 1
+    };
+
+    struct AlwaysConst
+    {// Used externally as well
+        PanelType m_instance_type;
+    };
+
+    struct ConstAfterPanelLoad
+    {// Used externally as well
+        HWND m_hwnd;
+        HDC m_hdc;
+    };
+
+    struct ConstAfterScriptLoad
+    {
+        t_script_info m_script_info; // move to JsContainer
+        bool m_is_droptarget_registered; // should be with gr from JsContainer
+    };
+
+    struct GraphicsOnSizeAndCreation
+    {
+        uint32_t m_height; // Used externally as well
+        uint32_t m_width; // Used externally as well
+        HBITMAP m_gr_bmp; // used only internally
+        HBITMAP m_gr_bmp_bk; // used only internally
+    };
+
+    struct DynamicDataModifiedOnlyFromInternal
+    {// used only internally
+        bool m_paint_pending;
+        bool m_suppress_drawing;
+        bool m_is_mouse_tracked;
+        ui_selection_holder::ptr m_selection_holder;
+    };
+
+    struct DynamicDataModifiedOnlyFromExternal
+    {// used internally and externally
+        t_size m_dlg_code;
+        POINT m_max_size;
+        POINT m_min_size;
+        panel_tooltip_param_ptr m_panel_tooltip_param_ptr;
+    };  
+
+private:
     bool on_mouse_button_up(UINT msg, WPARAM wp, LPARAM lp);
     bool script_load();
+    void script_unload();
     virtual class_data& get_class_data() const;
     void create_context();
     void delete_context();
+
+    // Internal callbacks
+    void on_context_menu( int x, int y );
+    void on_erase_background();
+    void on_panel_create();
+    void on_panel_destroy();
+    void on_script_error();
+
+    // JS callbacks
     void on_always_on_top_changed(WPARAM wp);
+    void on_char( WPARAM wp );
     void on_colours_changed();
-    void on_context_menu(int x, int y);
     void on_cursor_follow_playback_changed(WPARAM wp);
     void on_dsp_preset_changed();
+    void on_focus_changed(bool isFocused);
     void on_font_changed();
     void on_get_album_art_done(LPARAM lp);
     void on_item_focus_change(WPARAM wp);
     void on_item_played(WPARAM wp);
+    void on_key_down( WPARAM wp );
+    void on_key_up( WPARAM wp );
     void on_library_items_added(WPARAM wp);
     void on_library_items_changed(WPARAM wp);
     void on_library_items_removed(WPARAM wp);
@@ -83,7 +145,6 @@ private:
     void on_playlists_changed();
     void on_replaygain_mode_changed(WPARAM wp);
     void on_selection_changed();
-    void on_size(int w, int h);
+    void on_size(uint32_t w, uint32_t h);
     void on_volume_change(WPARAM wp);
-    void script_unload();
 };

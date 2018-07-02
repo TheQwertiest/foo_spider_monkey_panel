@@ -70,6 +70,7 @@ JsFbTooltip::JsFbTooltip( JSContext* cx, HWND hParentWnd, const panel_tooltip_pa
     : pJsCtx_( cx )
     , hParentWnd_( hParentWnd )
     , panelTooltipParam_( p_param_ptr )
+    , tipBuffer_( PFC_WIDESTRING( JSP_NAME ) )
 {
     // TODO: move to Create
 
@@ -86,6 +87,7 @@ JsFbTooltip::JsFbTooltip( JSContext* cx, HWND hParentWnd, const panel_tooltip_pa
         NULL,
         core_api::get_my_instance(),
         NULL );
+    // IF_WINAPI_FAILED_RETURN_WITH_REPORT( pJsCtx_, !!hTooltipWnd_, std::nullopt, CreateWindowEx );
 
     // Original position
     SetWindowPos( hTooltipWnd_, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE );
@@ -98,9 +100,9 @@ JsFbTooltip::JsFbTooltip( JSContext* cx, HWND hParentWnd, const panel_tooltip_pa
     toolInfo_.hinst = core_api::get_my_instance();
     toolInfo_.hwnd = hParentWnd_;
     toolInfo_.uId = (UINT_PTR)hParentWnd_;
-    toolInfo_.lpszText = tipBuffer_;
+    toolInfo_.lpszText = (LPWSTR)tipBuffer_.c_str();
 
-    HFONT font = CreateFont(
+    HFONT hFont = CreateFont(
         -(INT)panelTooltipParam_->fontSize,
         0,
         0,
@@ -115,10 +117,11 @@ JsFbTooltip::JsFbTooltip( JSContext* cx, HWND hParentWnd, const panel_tooltip_pa
         DEFAULT_QUALITY,
         DEFAULT_PITCH | FF_DONTCARE,
         panelTooltipParam_->fontName.c_str() );
+    // IF_WINAPI_FAILED_RETURN_WITH_REPORT( pJsCtx_, !!hFont, std::nullopt, CreateFont );
 
     SendMessage( hTooltipWnd_, TTM_ADDTOOL, 0, (LPARAM)&toolInfo_ );
     SendMessage( hTooltipWnd_, TTM_ACTIVATE, FALSE, 0 );
-    SendMessage( hTooltipWnd_, WM_SETFONT, (WPARAM)font, MAKELPARAM( FALSE, 0 ) );
+    SendMessage( hTooltipWnd_, WM_SETFONT, (WPARAM)hFont, MAKELPARAM( FALSE, 0 ) );
 
     panelTooltipParam_->hTooltip = hTooltipWnd_;
     panelTooltipParam_->tooltipSize.cx = -1;
@@ -131,11 +134,6 @@ JsFbTooltip::~JsFbTooltip()
     if ( hTooltipWnd_ && IsWindow( hTooltipWnd_ ) )
     {
         DestroyWindow( hTooltipWnd_ );
-    }
-
-    if ( tipBuffer_ )
-    {
-        SysFreeString( tipBuffer_ );
     }
 }
 
@@ -222,14 +220,14 @@ JsFbTooltip::TrackPosition( int x, int y )
 std::optional<std::wstring>
 JsFbTooltip::get_Text()
 {    
-    return tipBuffer_ ? std::wstring( tipBuffer_, SysStringLen( tipBuffer_ ) ) : std::wstring();
+    return tipBuffer_;
 }
 
 std::optional<std::nullptr_t> 
 JsFbTooltip::put_Text( const std::wstring& text )
 {
-    SysReAllocString( &tipBuffer_, text.c_str() );
-    toolInfo_.lpszText = tipBuffer_;
+    tipBuffer_.assign(text);
+    toolInfo_.lpszText = (LPWSTR)tipBuffer_.c_str();
     SendMessage( hTooltipWnd_, TTM_SETTOOLINFO, 0, (LPARAM)&toolInfo_ );
     return nullptr;
 }
