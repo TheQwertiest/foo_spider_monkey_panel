@@ -1573,7 +1573,6 @@ STDMETHODIMP FbPlaylistManager::get_PlaylistRecyclerManager(__interface IFbPlayl
 		{
 			m_fbPlaylistRecyclerManager.Attach(new com_object_impl_t<FbPlaylistRecyclerManager>());
 		}
-
 		(*outRecyclerManagerManager) = m_fbPlaylistRecyclerManager;
 		(*outRecyclerManagerManager)->AddRef();
 	}
@@ -1581,7 +1580,6 @@ STDMETHODIMP FbPlaylistManager::get_PlaylistRecyclerManager(__interface IFbPlayl
 	{
 		return E_FAIL;
 	}
-
 	return S_OK;
 }
 
@@ -1607,31 +1605,26 @@ STDMETHODIMP FbPlaylistManager::put_PlayingPlaylist(int playlistIndex)
 
 STDMETHODIMP FbPlaylistRecyclerManager::Purge(VARIANT affectedItems)
 {
-	try
+	auto api = playlist_manager_v3::get();
+	pfc::bit_array_bittable affected(api->recycler_get_count());
+	bool ok;
+	if (!helpers::com_array_to_bitarray::convert(affectedItems, affected, ok)) return E_INVALIDARG;
+	if (ok)
 	{
-		auto api = playlist_manager_v3::get();
-		pfc::bit_array_bittable affected(api->recycler_get_count());
-		bool ok;
-		if (!helpers::com_array_to_bitarray::convert(affectedItems, affected, ok)) return E_INVALIDARG;
-		if (ok)
-		{
-			api->recycler_purge(affected);
-		}
-	}
-	catch (...)
-	{
-		return E_INVALIDARG;
+		api->recycler_purge(affected);
 	}
 	return S_OK;
 }
 
 STDMETHODIMP FbPlaylistRecyclerManager::Restore(UINT index)
 {
-	try
+	auto api = playlist_manager_v3::get();
+	t_size count = api->recycler_get_count();
+	if (index >= 0 && index < count)
 	{
-		playlist_manager_v3::get()->recycler_restore(index);
+		api->recycler_restore(index);
 	}
-	catch (...)
+	else
 	{
 		return E_INVALIDARG;
 	}
@@ -1642,13 +1635,15 @@ STDMETHODIMP FbPlaylistRecyclerManager::get_Content(UINT index, IFbMetadbHandleL
 {
 	if (!outContent) return E_POINTER;
 
-	try
+	auto api = playlist_manager_v3::get();
+	t_size count = api->recycler_get_count();
+	if (index >= 0 && index < count)
 	{
 		metadb_handle_list handles;
-		playlist_manager_v3::get()->recycler_get_content(index, handles);
+		api->recycler_get_content(index, handles);
 		*outContent = new com_object_impl_t<FbMetadbHandleList>(handles);
 	}
-	catch (...)
+	else
 	{
 		return E_INVALIDARG;
 	}
@@ -1667,13 +1662,15 @@ STDMETHODIMP FbPlaylistRecyclerManager::get_Name(UINT index, BSTR* outName)
 {
 	if (!outName) return E_POINTER;
 
-	try
+	auto api = playlist_manager_v3::get();
+	t_size count = api->recycler_get_count();
+	if (index >= 0 && index < count)
 	{
 		pfc::string8_fast name;
-		playlist_manager_v3::get()->recycler_get_name(index, name);
+		api->recycler_get_name(index, name);
 		*outName = SysAllocString(pfc::stringcvt::string_wide_from_utf8_fast(name));
 	}
-	catch (...)
+	else
 	{
 		return E_INVALIDARG;
 	}
@@ -1730,7 +1727,7 @@ STDMETHODIMP FbTitleFormat::Eval(VARIANT_BOOL force, BSTR* pp)
 
 	pfc::string8_fast text;
 
-	if (!playback_control::get()->playback_format_title(NULL, text, m_obj, NULL, playback_control::display_level_all) && force)
+	if (!playback_control::get()->playback_format_title(NULL, text, m_obj, NULL, playback_control::display_level_all) && force != VARIANT_FALSE)
 	{
 		metadb_handle_ptr handle;
 
@@ -2172,27 +2169,18 @@ STDMETHODIMP FbUtils::GetFocusItem(VARIANT_BOOL force, IFbMetadbHandle** pp)
 {
 	if (!pp) return E_POINTER;
 
+	*pp = NULL;
 	metadb_handle_ptr metadb;
 	auto api = playlist_manager::get();
 
-	try
+	if (!api->activeplaylist_get_focus_item_handle(metadb) && force != VARIANT_FALSE)
 	{
-		api->activeplaylist_get_focus_item_handle(metadb);
-		if (metadb.is_empty() && force != VARIANT_FALSE)
-		{
-			api->activeplaylist_get_item_handle(metadb, 0);
-		}
-		if (metadb.is_empty())
-		{
-			*pp = NULL;
-			return S_OK;
-		}
+		api->activeplaylist_get_item_handle(metadb, 0);
 	}
-	catch (...)
+	if (metadb.is_valid())
 	{
+		*pp = new com_object_impl_t<FbMetadbHandle>(metadb);
 	}
-
-	*pp = new com_object_impl_t<FbMetadbHandle>(metadb);
 	return S_OK;
 }
 

@@ -282,6 +282,7 @@ interface IFbUtils {
 		/*
 		force: boolean, default true.
 		When true, it will use the first item of the active playlist if it is unable to get the focus item.
+		Returns null on failure.
 		*/
 
 		fb.GetLibraryItems(); (IFbMetadbHandleList)
@@ -303,7 +304,7 @@ interface IFbUtils {
 		*/
 
 		fb.GetNowPlaying(); (IFbMetadbHandle)
-		// Get handle of now playing item.
+		// Get handle of now playing item. Returns null on failure.
 
 		fb.GetOutputDevices(); (string)
 		/*
