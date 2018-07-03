@@ -4,7 +4,8 @@
 #define JSP_WINDOW_CLASS_NAME "foo_spider_monkey_panel_class"
 #define JSP_DLL_NAME "foo_spider_monkey_panel.dll"
 
-#define JSP_STRINGIFY(x) #x
+#define JSP_STRINGIFY_HELPER(x) #x
+#define JSP_STRINGIFY(x) JSP_STRINGIFY_HELPER(x)
 #define JSP_VERSION_MAJOR 0
 #define JSP_VERSION_MINOR 1
 #define JSP_VERSION_PATCH 0

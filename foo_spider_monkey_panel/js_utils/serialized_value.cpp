@@ -28,7 +28,7 @@ std::optional<SerializedJsValue> SerializeJsValue( JSContext* cx, JS::HandleValu
     }
     else if ( jsValue.isString() )
     {
-        serializedValue.type = JsValueType::pt_double;
+        serializedValue.type = JsValueType::pt_string;
         bool isValid;
         JS::RootedValue rVal( cx, jsValue );
         serializedValue.strVal = convert::to_native::ToValue<std::string>( cx, rVal, isValid );

@@ -140,7 +140,7 @@ bool JsFbProperties::SetProperty( const std::string& propName, JS::HandleValue p
         return false;
     }
 
-    properties_.emplace( propName, std::make_shared<HeapElement>( propValue ) );
+    properties_[propName] = std::make_shared<HeapElement>( propValue );
     parentPanel_.get_config_prop().set_config_item( propName, serializedValue.value() );
     
     return true;

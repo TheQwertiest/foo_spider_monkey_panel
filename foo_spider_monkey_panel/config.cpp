@@ -15,7 +15,7 @@ prop_kv_config::get_config_item(const std::string& propName)
 
 void prop_kv_config::set_config_item(const std::string& propName, const mozjs::SerializedJsValue& serializedValue )
 {
-    m_map.emplace( propName, std::make_shared<mozjs::SerializedJsValue>( serializedValue ) );
+    m_map[propName] = std::make_shared<mozjs::SerializedJsValue>( serializedValue );
 }
 
 void prop_kv_config::g_load(config_map& data, stream_reader* reader, abort_callback& abort) throw()
@@ -66,7 +66,7 @@ void prop_kv_config::g_load(config_map& data, stream_reader* reader, abort_callb
                 break;
             }
 
-            data.emplace( pfcPropName.c_str(), std::make_shared<mozjs::SerializedJsValue>( serializedValue ) );
+            data[pfcPropName.c_str()] = std::make_shared<mozjs::SerializedJsValue>( serializedValue );
 		}
 	}
 	catch (...)
