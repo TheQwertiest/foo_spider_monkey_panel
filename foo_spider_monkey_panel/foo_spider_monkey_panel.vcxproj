@@ -118,6 +118,7 @@
     <ClCompile Include="js_objects\fb_playlist_manager.cpp" />
     <ClCompile Include="js_objects\fb_playlist_recycler_manager.cpp" />
     <ClCompile Include="js_objects\fb_profiler.cpp" />
+    <ClCompile Include="js_objects\fb_properties.cpp" />
     <ClCompile Include="js_objects\fb_title_format.cpp" />
     <ClCompile Include="js_objects\fb_tooltip.cpp" />
     <ClCompile Include="js_objects\fb_ui_selection_holder.cpp" />
@@ -141,6 +142,7 @@
     <ClCompile Include="js_utils\gdi_error_helper.cpp" />
     <ClCompile Include="js_utils\js_error_helper.cpp" />
     <ClCompile Include="js_utils\js_object_helper.cpp" />
+    <ClCompile Include="js_utils\serialized_value.cpp" />
     <ClCompile Include="js_utils\winapi_error_helper.cpp" />
     <ClCompile Include="mainmenu.cpp" />
     <ClCompile Include="panel_manager.cpp" />
@@ -186,6 +188,7 @@
     <ClInclude Include="js_objects\fb_playlist_manager.h" />
     <ClInclude Include="js_objects\fb_playlist_recycler_manager.h" />
     <ClInclude Include="js_objects\fb_profiler.h" />
+    <ClInclude Include="js_objects\fb_properties.h" />
     <ClInclude Include="js_objects\fb_title_format.h" />
     <ClInclude Include="js_objects\fb_tooltip.h" />
     <ClInclude Include="js_objects\fb_ui_selection_holder.h" />
@@ -209,8 +212,10 @@
     <ClInclude Include="js_utils\js_error_helper.h" />
     <ClInclude Include="js_utils\js_object_helper.h" />
     <ClInclude Include="js_utils\scope_helper.h" />
+    <ClInclude Include="js_utils\serialized_value.h" />
     <ClInclude Include="js_utils\winapi_error_helper.h" />
     <ClInclude Include="kmeans.h" />
+    <ClInclude Include="panel_tooltip_param.h" />
     <ClInclude Include="SString.h" />
     <ClInclude Include="com_tools.h" />
     <ClInclude Include="component_defines.h" />

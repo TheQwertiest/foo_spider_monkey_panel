@@ -26,6 +26,8 @@ public:
 
     static const JSClass& GetClass();
 
+    void RemoveHeapTracer();
+
 public: // methods
     std::optional<std::nullptr_t> ClearInterval( uint32_t intervalId );
     std::optional<std::nullptr_t> ClearTimeout( uint32_t timeoutId );
@@ -36,7 +38,7 @@ public: // methods
     std::optional<uint32_t> GetColourDUI( uint32_t type );
     std::optional<JSObject*> GetFontCUI( uint32_t type, const std::wstring& guidstr );
     std::optional<JSObject*> GetFontDUI( uint32_t type );
-    std::optional<JSObject*> GetProperty( const std::string& name, JS::HandleValue defaultval );
+    std::optional<JS::Value*> GetProperty( const std::string& name, JS::HandleValue defaultval );
     std::optional<std::nullptr_t> NotifyOthers( const std::string& name, JS::HandleValue info );
     std::optional<std::nullptr_t> Reload();
     std::optional<std::nullptr_t> Repaint( bool force );
@@ -75,6 +77,9 @@ private:
 private:
     JSContext * pJsCtx_;
     js_panel_window& parentPanel_;
+
+    JS::PersistentRootedObject jsFbProperties_;
+    JsFbProperties* pFbProperties_ = nullptr;
 };
 
 }

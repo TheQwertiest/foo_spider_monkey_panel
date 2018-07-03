@@ -58,4 +58,10 @@ bool ToValue<std::nullptr_t>( JSContext * cx, const std::nullptr_t& inValue, JS:
 template<>
 bool ToValue<metadb_handle_ptr>( JSContext * cx, const metadb_handle_ptr& inValue, JS::MutableHandleValue wrappedValue );
 
+template<>
+bool ToValue<metadb_handle_list>( JSContext * cx, const metadb_handle_list& inValue, JS::MutableHandleValue wrappedValue );
+
+template<>
+bool ToValue<Gdiplus::Bitmap*>( JSContext * cx, Gdiplus::Bitmap* const& inValue, JS::MutableHandleValue wrappedValue );
+
 }

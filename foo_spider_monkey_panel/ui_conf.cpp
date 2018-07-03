@@ -41,28 +41,13 @@ LRESULT CDialogConf::OnInitDialog(HWND hwndFocus, LPARAM lParam)
 	m_editorctrl.SetContent(m_parent->get_script_code(), true);
 	m_editorctrl.SetSavePoint();
 
-	// Script Engine
-	HWND combo_engine = GetDlgItem(IDC_COMBO_ENGINE);
-	ComboBox_AddString(combo_engine, _T("Chakra"));
-	ComboBox_AddString(combo_engine, _T("JScript"));
-
-	if (helpers::supports_chakra())
-	{
-		uComboBox_SelectString(combo_engine, m_parent->get_script_engine());
-	}
-	else
-	{
-		uComboBox_SelectString(combo_engine, "JScript");
-		GetDlgItem(IDC_COMBO_ENGINE).EnableWindow(false);
-	}
-
 	// Edge Style
 	HWND combo_edge = GetDlgItem(IDC_COMBO_EDGE);
 	ComboBox_AddString(combo_edge, _T("None"));
 	ComboBox_AddString(combo_edge, _T("Sunken"));
 	ComboBox_AddString(combo_edge, _T("Grey"));
 
-	if (helpers::is14() && m_parent->GetInstanceType() == HostComm::KInstanceTypeDUI)
+	if (helpers::is14() && m_parent->GetPanelType() == HostComm::KInstanceTypeDUI)
 	{
 		// disable in default UI fb2k v1.4 and above
 		ComboBox_SetCurSel(combo_edge, 0);
@@ -74,7 +59,7 @@ LRESULT CDialogConf::OnInitDialog(HWND hwndFocus, LPARAM lParam)
 	}
 
 	// Pseudo Transparent
-	if (m_parent->GetInstanceType() == HostComm::KInstanceTypeCUI)
+	if (m_parent->GetPanelType() == HostComm::KInstanceTypeCUI)
 	{
 		uButton_SetCheck(m_hWnd, IDC_CHECK_PSEUDO_TRANSPARENT, m_parent->get_pseudo_transparent());
 	}
@@ -129,8 +114,6 @@ LRESULT CDialogConf::OnCloseCmd(WORD wNotifyCode, WORD wID, HWND hWndCtl)
 
 void CDialogConf::OnResetDefault()
 {
-	HWND combo = GetDlgItem(IDC_COMBO_ENGINE);
-	uComboBox_SelectString(combo, "Chakra");
 	pfc::string8 code;
 	js_panel_vars::get_default_script_code(code);
 	m_editorctrl.SetContent(code);
@@ -138,8 +121,6 @@ void CDialogConf::OnResetDefault()
 
 void CDialogConf::OnResetCurrent()
 {
-	HWND combo = GetDlgItem(IDC_COMBO_ENGINE);
-	uComboBox_SelectString(combo, m_parent->get_script_engine());
 	m_editorctrl.SetContent(m_parent->get_script_code());
 }
 
@@ -227,8 +208,6 @@ void CDialogConf::Apply()
 	pfc::array_t<char> code;
 	int len = 0;
 
-	// Get engine name
-	uGetWindowText(GetDlgItem(IDC_COMBO_ENGINE), name);
 	// Get script text
 	len = m_editorctrl.GetTextLength();
 	code.set_size(len + 1);
@@ -237,9 +216,9 @@ void CDialogConf::Apply()
 	m_parent->get_edge_style() = static_cast<t_edge_style>(ComboBox_GetCurSel(GetDlgItem(IDC_COMBO_EDGE)));
 	m_parent->get_grab_focus() = uButton_GetCheck(m_hWnd, IDC_CHECK_GRABFOCUS);
 	m_parent->get_pseudo_transparent() = uButton_GetCheck(m_hWnd, IDC_CHECK_PSEUDO_TRANSPARENT);
-	m_parent->update_script(name, code.get_ptr());
+	m_parent->update_script( code.get_ptr());
 
-	// Wndow position
+	// Window position
 	GetWindowPlacement(&m_parent->get_windowplacement());
 
 	// Save point

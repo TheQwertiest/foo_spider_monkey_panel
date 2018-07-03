@@ -3,6 +3,7 @@
 
 #include <js_objects/global_object.h>
 #include <js_objects/gdi_graphics.h>
+#include <js_objects/window.h>
 #include <js_utils/js_error_helper.h>
 
 
@@ -66,8 +67,10 @@ bool JsContainer::Initialize()
         return false;
     }
 
-    nativeGraphics_ = static_cast<JsGdiGraphics*>(JS_GetPrivate( jsGraphics_ ));
-    assert( nativeGraphics_ );
+    pNativeGlobal_ = static_cast<JsGlobalObject*>( JS_GetPrivate( jsGlobal_ ) );
+    assert( pNativeGlobal_ );
+    pNativeGraphics_ = static_cast<JsGdiGraphics*>(JS_GetPrivate( jsGraphics_ ));
+    assert( pNativeGraphics_ );
 
     jsStatus_ = JsStatus::Ready;
     return true;
@@ -85,14 +88,36 @@ void JsContainer::Finalize()
         jsStatus_ = JsStatus::Prepared;
     }
     
-    nativeGraphics_ = nullptr;
+    pNativeGraphics_ = nullptr;
     jsGraphics_.reset();
-    if ( jsGlobal_.initialized() )
+    if ( !jsGlobal_.initialized() )
     {
-        auto nativeGlobal_ = static_cast<JsGlobalObject*>( JS_GetPrivate( jsGlobal_ ) );
-        nativeGlobal_->RemoveHeapTracer();
-        jsGlobal_.reset();
-    }  
+        return;
+    }
+
+    {
+        JSAutoRequest ar( pJsCtx_ );
+        JSAutoCompartment ac( pJsCtx_, jsGlobal_ );
+
+        JS::RootedValue jsProperty( pJsCtx_ );
+        if ( JS_GetProperty( pJsCtx_, jsGlobal_, "window", &jsProperty ) )
+        {
+            JS::RootedObject jsWindow( pJsCtx_, jsProperty.toObjectOrNull() );
+            if ( jsWindow )
+            {
+                auto nativeWindow = static_cast<JsWindow*>( JS_GetInstancePrivate( pJsCtx_, jsWindow, &JsWindow::GetClass(), nullptr ) );
+                if ( nativeWindow )
+                {
+                    nativeWindow->RemoveHeapTracer();
+                }
+            }
+        }
+    }
+
+    auto nativeGlobal_ = static_cast<JsGlobalObject*>( JS_GetPrivate( jsGlobal_ ) );
+    nativeGlobal_->RemoveHeapTracer();
+
+    jsGlobal_.reset();
 }
 
 void JsContainer::Fail()
@@ -140,16 +165,16 @@ JsContainer::GraphicsWrapper::GraphicsWrapper( JsContainer& parent, Gdiplus::Gra
     :parent_( parent )
 {// TODO: remove this awkward wrapper
     assert( JsStatus::Ready == parent_.jsStatus_ );
-    assert( parent_.nativeGraphics_ );
+    assert( parent_.pNativeGraphics_ );
 
-    parent_.nativeGraphics_->SetGraphicsObject( &gr );
+    parent_.pNativeGraphics_->SetGraphicsObject( &gr );
 }
 
 JsContainer::GraphicsWrapper::~GraphicsWrapper()
 {
     if ( JsStatus::Ready == parent_.jsStatus_ )
     {
-        parent_.nativeGraphics_->SetGraphicsObject( nullptr );
+        parent_.pNativeGraphics_->SetGraphicsObject( nullptr );
     }
 }
 

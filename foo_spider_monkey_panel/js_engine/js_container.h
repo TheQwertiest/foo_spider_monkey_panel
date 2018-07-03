@@ -49,7 +49,7 @@ public:
                                                 Args&&... args )
     {
         assert( JsStatus::Ready == jsStatus_ );
-        return mozjs::InvokeJsCallback( pJsCtx_, jsGlobal_, functionName, args... );
+        return mozjs::InvokeJsCallback<ReturnType>( pJsCtx_, jsGlobal_, functionName, args... );
     }    
 
     void Fail();
@@ -78,7 +78,8 @@ private:
 
     JS::PersistentRootedObject jsGlobal_;
     JS::PersistentRootedObject jsGraphics_;
-    JsGdiGraphics* nativeGraphics_ = nullptr;
+    JsGlobalObject* pNativeGlobal_ = nullptr;
+    JsGdiGraphics* pNativeGraphics_ = nullptr;
 
     JsStatus jsStatus_ = JsStatus::NotPrepared;
 };

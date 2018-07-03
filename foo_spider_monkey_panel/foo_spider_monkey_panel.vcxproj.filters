@@ -193,6 +193,12 @@
     <ClCompile Include="js_objects\window.cpp">
       <Filter>js_objects</Filter>
     </ClCompile>
+    <ClCompile Include="js_objects\fb_properties.cpp">
+      <Filter>js_objects</Filter>
+    </ClCompile>
+    <ClCompile Include="js_utils\serialized_value.cpp">
+      <Filter>js_utils</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="js_engine\js_engine.h">
@@ -445,6 +451,15 @@
       <Filter>js_utils</Filter>
     </ClInclude>
     <ClInclude Include="js_utils\scope_helper.h">
+      <Filter>js_utils</Filter>
+    </ClInclude>
+    <ClInclude Include="panel_tooltip_param.h">
+      <Filter>uncategorized</Filter>
+    </ClInclude>
+    <ClInclude Include="js_objects\fb_properties.h">
+      <Filter>js_objects</Filter>
+    </ClInclude>
+    <ClInclude Include="js_utils\serialized_value.h">
       <Filter>js_utils</Filter>
     </ClInclude>
   </ItemGroup>

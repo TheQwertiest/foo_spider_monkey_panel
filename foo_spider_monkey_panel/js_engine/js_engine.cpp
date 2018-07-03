@@ -37,7 +37,7 @@ JSContext * JsEngine::GetJsContext() const
     return pJsCtx_;
 }
 
-bool JsEngine::RegisterPanel( js_panel_window& parentPanel, JsContainer& jsContainer )
+bool JsEngine::RegisterPanel( js_panel_window& panel, JsContainer& jsContainer )
 {
     if ( !registeredPanels_.size() )
     {
@@ -47,12 +47,12 @@ bool JsEngine::RegisterPanel( js_panel_window& parentPanel, JsContainer& jsConta
         }
     }
 
-    if ( !jsContainer.Prepare( pJsCtx_, parentPanel ) )
+    if ( !jsContainer.Prepare( pJsCtx_, panel ) )
     {
         return false;
     }
 
-    registeredPanels_.insert_or_assign(parentPanel.GetHWND(), jsContainer);
+    registeredPanels_.insert_or_assign( panel.GetHWND(), jsContainer);
     return true;
 }
 

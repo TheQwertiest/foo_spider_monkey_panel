@@ -1,5 +1,7 @@
 #pragma once
 
+#include <panel_tooltip_param.h>
+
 #include <optional>
 #include <memory>
 #include <string>
@@ -14,26 +16,9 @@ namespace mozjs
 class JsFbTooltip
 {
 public:
-    struct panel_tooltip_param
-    {
-        HWND hTooltip;
-        SIZE tooltipSize;
-
-        std::wstring fontName;
-        float fontSize;
-        uint32_t fontStyle;
-
-        panel_tooltip_param() : hTooltip( nullptr )
-        {
-        }
-    };
-
-    using panel_tooltip_param_ptr = std::shared_ptr<panel_tooltip_param>;
-
-public:
     ~JsFbTooltip();
 
-    static JSObject* Create( JSContext* cx, HWND hParentWnd, const panel_tooltip_param_ptr& p_param_ptr );
+    static JSObject* Create( JSContext* cx, HWND hParentWnd, smp::PanelTooltipParam& p_param_ptr );
 
     static const JSClass& GetClass();
 
@@ -51,7 +36,7 @@ public:
     std::optional<std::nullptr_t> put_TrackActivate( bool activate );
 
 private:
-    JsFbTooltip( JSContext* cx, HWND hParentWnd, const panel_tooltip_param_ptr& p_param_ptr );
+    JsFbTooltip( JSContext* cx, HWND hParentWnd, smp::PanelTooltipParam& p_param_ptr );
     JsFbTooltip( const JsFbTooltip& ) = delete;
     JsFbTooltip& operator=( const JsFbTooltip& ) = delete;
 
@@ -62,7 +47,7 @@ private:
     HWND hParentWnd_;
     std::wstring tipBuffer_;
     TOOLINFO toolInfo_;
-    panel_tooltip_param_ptr panelTooltipParam_;
+    smp::PanelTooltipParam& panelTooltipParam_;
 };
 
 }

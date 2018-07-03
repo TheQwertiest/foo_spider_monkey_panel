@@ -7,10 +7,10 @@ class js_panel_window_cui
     , public cui::colours::common_callback
 {
 protected:
-	virtual DWORD GetColourCUI(unsigned type, const GUID& guid);
-	virtual DWORD GetColourDUI(unsigned type);
-	virtual HFONT GetFontCUI(unsigned type, const GUID& guid);
-	virtual HFONT GetFontDUI(unsigned type);
+	virtual DWORD GetColourCUI(unsigned type, const GUID& guid) override;
+	virtual DWORD GetColourDUI(unsigned type) override;
+	virtual HFONT GetFontCUI(unsigned type, const GUID& guid) override;
+	virtual HFONT GetFontDUI(unsigned type) override;
 	virtual HWND create_or_transfer_window(HWND parent, const uie::window_host_ptr& host, const ui_helpers::window_position_t& p_position);
 	virtual HWND get_wnd() const;
 	virtual LRESULT on_message(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp);

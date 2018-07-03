@@ -2,7 +2,7 @@
 #include "config.h"
 #include "resource.h"
 
-bool prop_kv_config::get_config_item(const char* p_key, VARIANT& p_out)
+std::optional<mozjs::SerializedJsValue> prop_kv_config::get_config_item(const std::string& propName)
 {
 	t_val val;
 
@@ -19,6 +19,18 @@ bool prop_kv_config::get_config_item(const char* p_key, VARIANT& p_out)
 	}
 
 	return false;
+}
+
+void prop_kv_config::set_config_item(const std::string& propName, const mozjs::SerializedJsValue& serializedProp )
+{
+	if (!g_is_allowed_type(p_val.vt))
+	{
+		m_map.remove(p_key);
+	}
+	else
+	{
+		m_map[p_key] = p_val;
+	}
 }
 
 bool prop_kv_config::g_is_allowed_type(VARTYPE p_vt)
@@ -201,18 +213,6 @@ void prop_kv_config::save(stream_writer* writer, abort_callback& abort) const th
 	g_save(m_map, writer, abort);
 }
 
-void prop_kv_config::set_config_item(const char* p_key, const VARIANT& p_val)
-{
-	if (!g_is_allowed_type(p_val.vt))
-	{
-		m_map.remove(p_key);
-	}
-	else
-	{
-		m_map[p_key] = p_val;
-	}
-}
-
 GUID& js_panel_vars::get_config_guid()
 {
 	return m_config_guid;
@@ -284,7 +284,6 @@ void js_panel_vars::load_config(stream_reader* reader, t_size size, abort_callba
 			reader->skip_object(sizeof(false), abort); // HACK: skip over "disable before"
 			reader->read_object_t(m_grab_focus, abort);
 			reader->read_object(&m_wndpl, sizeof(m_wndpl), abort);
-			reader->read_string(m_script_engine_str, abort);
 			reader->read_string(m_script_code, abort);
 			reader->read_object_t(m_pseudo_transparent, abort);
 		}
@@ -298,7 +297,6 @@ void js_panel_vars::load_config(stream_reader* reader, t_size size, abort_callba
 
 void js_panel_vars::reset_config()
 {
-	m_script_engine_str = "Chakra";
 	get_default_script_code(m_script_code);
 	m_pseudo_transparent = false;
 	m_wndpl.length = 0;
@@ -322,7 +320,6 @@ void js_panel_vars::save_config(stream_writer* writer, abort_callback& abort) co
 		writer->write_object_t(false, abort); // HACK: write this in place of "disable before"
 		writer->write_object_t(m_grab_focus, abort);
 		writer->write_object(&m_wndpl, sizeof(m_wndpl), abort);
-		writer->write_string(m_script_engine_str, abort);
 		writer->write_string(m_script_code, abort);
 		writer->write_object_t(m_pseudo_transparent, abort);
 	}

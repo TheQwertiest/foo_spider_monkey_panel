@@ -63,6 +63,7 @@ private:
     JsContainer &parentContainer_;
     js_panel_window& parentPanel_;
     
+private: // heap
     uint32_t currentHeapId_ = 0;    
     struct HeapElement
     {

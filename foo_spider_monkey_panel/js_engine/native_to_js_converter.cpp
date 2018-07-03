@@ -2,6 +2,8 @@
 #include "native_to_js_converter.h"
 
 #include <js_objects/fb_metadb_handle.h>
+#include <js_objects/fb_metadb_handle_list.h>
+#include <js_objects/gdi_bitmap.h>
 
 namespace mozjs::convert::to_js
 {
@@ -113,6 +115,32 @@ template <>
 bool ToValue<metadb_handle_ptr>( JSContext * cx, const metadb_handle_ptr& inValue, JS::MutableHandleValue wrappedValue )
 {
     JS::RootedObject jsObject( cx, JsFbMetadbHandle::Create( cx, inValue ) );
+    if ( !jsObject )
+    {
+        return false;
+    }
+
+    wrappedValue.setObjectOrNull( jsObject );
+    return true;
+}
+
+template <>
+bool ToValue<metadb_handle_list>( JSContext * cx, const metadb_handle_list& inValue, JS::MutableHandleValue wrappedValue )
+{
+    JS::RootedObject jsObject( cx, JsFbMetadbHandleList::Create( cx, inValue ) );
+    if ( !jsObject )
+    {
+        return false;
+    }
+
+    wrappedValue.setObjectOrNull( jsObject );
+    return true;
+}
+
+template<>
+bool ToValue<Gdiplus::Bitmap*>( JSContext * cx, Gdiplus::Bitmap* const& inValue, JS::MutableHandleValue wrappedValue )
+{
+    JS::RootedObject jsObject( cx, JsGdiBitmap::Create( cx, inValue ) );
     if ( !jsObject )
     {
         return false;

@@ -178,14 +178,14 @@ void HostComm::RefreshBackground(LPRECT lprcUpdate)
 
 void HostComm::Repaint(bool force)
 {
-	m_paint_pending = true;
-
 	if (force)
 	{
+        m_paint_pending = false;
 		RedrawWindow(m_hwnd, NULL, NULL, RDW_INVALIDATE | RDW_UPDATENOW);
 	}
 	else
 	{
+        m_paint_pending = true;
 		InvalidateRect(m_hwnd, NULL, FALSE);
 	}
 }
@@ -198,14 +198,14 @@ void HostComm::RepaintRect(LONG x, LONG y, LONG w, LONG h, bool force)
 	rc.right = x + w;
 	rc.bottom = y + h;
 
-	m_paint_pending = true;
-
 	if (force)
 	{
+        m_paint_pending = false;
 		RedrawWindow(m_hwnd, &rc, NULL, RDW_INVALIDATE | RDW_UPDATENOW);
 	}
 	else
 	{
+        m_paint_pending = true;
 		InvalidateRect(m_hwnd, &rc, FALSE);
 	}
 }

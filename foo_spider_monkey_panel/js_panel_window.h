@@ -3,14 +3,23 @@
 #include "host.h"
 
 #include <js_engine/js_container.h>
+#include <panel_tooltip_param.h>
 
+// TODO: split this class somehow
 class js_panel_window 
     : public ui_helpers::container_window 
-    //,public HostComm
     , public js_panel_vars
 {
 public:
-    js_panel_window();
+    enum class PanelType 
+        : unsigned int
+    {
+        CUI = 0,
+        DUI = 1
+    };
+
+public:
+    js_panel_window( PanelType instanceType );
     virtual ~js_panel_window();
     void update_script(const char* code = nullptr);
 
@@ -28,68 +37,68 @@ private:
 
     CComPtr<IDropTargetImpl> m_drop_target; // keep
     IGdiGraphicsPtr m_gr_wrap; // currently in JsContainer: extract from there to a proper place (ConstAfterScriptLoad)
-    ScriptHost* m_script_host; // remove
+
+public:
+    GUID GetGUID();
+    HDC GetHDC() const;
+    HWND GetHWND() const;
+    POINT& MaxSize();
+    POINT& MinSize();
+    int GetHeight() const;
+    int GetWidth() const;
+    smp::PanelTooltipParam& GetPanelTooltipParam();
+    t_script_info& ScriptInfo();
+    
+    t_size& DlgCode();
+    PanelType GetPanelType() const;
+    virtual DWORD GetColourCUI( unsigned type, const GUID& guid ) = 0;
+    virtual DWORD GetColourDUI( unsigned type ) = 0;
+    virtual HFONT GetFontCUI( unsigned type, const GUID& guid ) = 0;
+    virtual HFONT GetFontDUI( unsigned type ) = 0;
+
+    void /*Request*/ Repaint( bool force = false );
+    void /*Request*/ RepaintRect( LONG x, LONG y, LONG w, LONG h, bool force = false );
+    void RefreshBackground( LPRECT lprcUpdate = nullptr );
+    unsigned SetInterval( IDispatch* func, int delay );
+    unsigned SetTimeout( IDispatch* func, int delay );
+    void ClearIntervalOrTimeout( UINT timerId );
 
 private:
-    enum class PanelType
-    {
-        CUI = 0,
-        DUI = 1
-    };
+    
+    const PanelType panelType_;
 
-    struct AlwaysConst
-    {// Used externally as well
-        PanelType m_instance_type;
-    };
+    HWND hWnd_ = nullptr;
+    HDC hDc_ = nullptr;
 
-    struct ConstAfterPanelLoad
-    {// Used externally as well
-        HWND m_hwnd;
-        HDC m_hdc;
-    };
+    t_script_info m_script_info; // move to JsContainer
+    bool isDropTargetRegistered_ = false; // should be with gr from JsContainer
 
-    struct ConstAfterScriptLoad
-    {
-        t_script_info m_script_info; // move to JsContainer
-        bool m_is_droptarget_registered; // should be with gr from JsContainer
-    };
+    uint32_t height_ = 0; // Used externally as well
+    uint32_t width_ = 0; // Used externally as well
+    HBITMAP hBitmap_ = nullptr; // used only internally
+    HBITMAP hBitmapBg_ = nullptr; // used only internally
 
-    struct GraphicsOnSizeAndCreation
-    {
-        uint32_t m_height; // Used externally as well
-        uint32_t m_width; // Used externally as well
-        HBITMAP m_gr_bmp; // used only internally
-        HBITMAP m_gr_bmp_bk; // used only internally
-    };
+    bool isPaintPending_ = false;                // used only internally
+    bool isPaintSuppressed_ = false;             // used only internally
+    bool isMouseTracked_ = false;             // used only internally
+    ui_selection_holder::ptr selectionHolder_;  // used only internally
 
-    struct DynamicDataModifiedOnlyFromInternal
-    {// used only internally
-        bool m_paint_pending;
-        bool m_suppress_drawing;
-        bool m_is_mouse_tracked;
-        ui_selection_holder::ptr m_selection_holder;
-    };
-
-    struct DynamicDataModifiedOnlyFromExternal
-    {// used internally and externally
-        t_size m_dlg_code;
-        POINT m_max_size;
-        POINT m_min_size;
-        panel_tooltip_param_ptr m_panel_tooltip_param_ptr;
-    };  
+    t_size dlgCode_ = 0;                            // modified only form external
+    POINT maxSize_ = { INT_MAX , INT_MAX };     // modified only form external
+    POINT minSize_ = { 0 , 0 };                 // modified only form external
+    smp::PanelTooltipParam panelTooltipParam_ ; // modified only form external
 
 private:
-    bool on_mouse_button_up(UINT msg, WPARAM wp, LPARAM lp);
     bool script_load();
     void script_unload();
-    virtual class_data& get_class_data() const;
+    virtual class_data& get_class_data() const override;
     void create_context();
     void delete_context();
 
     // Internal callbacks
     void on_context_menu( int x, int y );
     void on_erase_background();
-    void on_panel_create();
+    void on_panel_create(HWND hWnd);
     void on_panel_destroy();
     void on_script_error();
 
@@ -114,6 +123,7 @@ private:
     void on_metadb_changed(WPARAM wp);
     void on_mouse_button_dblclk(UINT msg, WPARAM wp, LPARAM lp);
     void on_mouse_button_down(UINT msg, WPARAM wp, LPARAM lp);
+    bool on_mouse_button_up( UINT msg, WPARAM wp, LPARAM lp );
     void on_mouse_leave();
     void on_mouse_move(WPARAM wp, LPARAM lp);
     void on_mouse_wheel(WPARAM wp);

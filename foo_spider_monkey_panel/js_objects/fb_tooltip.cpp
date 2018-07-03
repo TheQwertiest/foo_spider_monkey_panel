@@ -66,7 +66,7 @@ namespace mozjs
 {
 
 
-JsFbTooltip::JsFbTooltip( JSContext* cx, HWND hParentWnd, const panel_tooltip_param_ptr& p_param_ptr )
+JsFbTooltip::JsFbTooltip( JSContext* cx, HWND hParentWnd, PanelTooltipParam& p_param_ptr )
     : pJsCtx_( cx )
     , hParentWnd_( hParentWnd )
     , panelTooltipParam_( p_param_ptr )
@@ -103,29 +103,29 @@ JsFbTooltip::JsFbTooltip( JSContext* cx, HWND hParentWnd, const panel_tooltip_pa
     toolInfo_.lpszText = (LPWSTR)tipBuffer_.c_str();
 
     HFONT hFont = CreateFont(
-        -(INT)panelTooltipParam_->fontSize,
+        -(INT)panelTooltipParam_.fontSize,
         0,
         0,
         0,
-        (panelTooltipParam_->fontStyle & Gdiplus::FontStyleBold) ? FW_BOLD : FW_NORMAL,
-        (panelTooltipParam_->fontStyle & Gdiplus::FontStyleItalic) ? TRUE : FALSE,
-        (panelTooltipParam_->fontStyle & Gdiplus::FontStyleUnderline) ? TRUE : FALSE,
-        (panelTooltipParam_->fontStyle & Gdiplus::FontStyleStrikeout) ? TRUE : FALSE,
+        (panelTooltipParam_.fontStyle & Gdiplus::FontStyleBold) ? FW_BOLD : FW_NORMAL,
+        (panelTooltipParam_.fontStyle & Gdiplus::FontStyleItalic) ? TRUE : FALSE,
+        (panelTooltipParam_.fontStyle & Gdiplus::FontStyleUnderline) ? TRUE : FALSE,
+        (panelTooltipParam_.fontStyle & Gdiplus::FontStyleStrikeout) ? TRUE : FALSE,
         DEFAULT_CHARSET,
         OUT_DEFAULT_PRECIS,
         CLIP_DEFAULT_PRECIS,
         DEFAULT_QUALITY,
         DEFAULT_PITCH | FF_DONTCARE,
-        panelTooltipParam_->fontName.c_str() );
+        panelTooltipParam_.fontName.c_str() );
     // IF_WINAPI_FAILED_RETURN_WITH_REPORT( pJsCtx_, !!hFont, std::nullopt, CreateFont );
 
     SendMessage( hTooltipWnd_, TTM_ADDTOOL, 0, (LPARAM)&toolInfo_ );
     SendMessage( hTooltipWnd_, TTM_ACTIVATE, FALSE, 0 );
     SendMessage( hTooltipWnd_, WM_SETFONT, (WPARAM)hFont, MAKELPARAM( FALSE, 0 ) );
 
-    panelTooltipParam_->hTooltip = hTooltipWnd_;
-    panelTooltipParam_->tooltipSize.cx = -1;
-    panelTooltipParam_->tooltipSize.cy = -1;
+    panelTooltipParam_.hTooltip = hTooltipWnd_;
+    panelTooltipParam_.tooltipSize.cx = -1;
+    panelTooltipParam_.tooltipSize.cy = -1;
 }
 
 
@@ -137,7 +137,7 @@ JsFbTooltip::~JsFbTooltip()
     }
 }
 
-JSObject* JsFbTooltip::Create( JSContext* cx, HWND hParentWnd, const panel_tooltip_param_ptr& p_param_ptr )
+JSObject* JsFbTooltip::Create( JSContext* cx, HWND hParentWnd, PanelTooltipParam& p_param_ptr )
 {
     JS::RootedObject jsObj( cx,
                             JS_NewObject( cx, &jsClass ) );

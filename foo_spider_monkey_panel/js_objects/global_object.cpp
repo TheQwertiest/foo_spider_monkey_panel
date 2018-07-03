@@ -8,6 +8,7 @@
 #include <js_objects/gdi_utils.h>
 #include <js_objects/utils.h>
 #include <js_objects/fb_utils.h>
+#include <js_objects/window.h>
 #include <js_utils/js_object_helper.h>
 
 #include <js_panel_window.h>
@@ -51,7 +52,7 @@ JsGlobalObject::JsGlobalObject( JSContext* cx, JsContainer &parentContainer, js_
     : pJsCtx_( cx )
     , parentContainer_( parentContainer )
     , parentPanel_( parentPanel )
-{
+{    
 }
 
 
@@ -91,7 +92,8 @@ JSObject* JsGlobalObject::Create( JSContext* cx, JsContainer &parentContainer, j
         if ( !CreateAndInstallObject( cx, jsObj, "gdi", JsGdiUtils::Create ) 
              || !CreateAndInstallObject( cx, jsObj, "plman", JsFbPlaylistManager::Create )
              || !CreateAndInstallObject( cx, jsObj, "utils", JsUtils::Create ) 
-             || !CreateAndInstallObject( cx, jsObj, "fb", JsFbUtils::Create ) )
+             || !CreateAndInstallObject( cx, jsObj, "fb", JsFbUtils::Create ) 
+             || !CreateAndInstallObject( cx, jsObj, "window", JsWindow::Create ) )
         {
             return nullptr;
         }
@@ -103,7 +105,8 @@ JSObject* JsGlobalObject::Create( JSContext* cx, JsContainer &parentContainer, j
             return nullptr;
         }
 
-        JsGlobalObject* pNative = new JsGlobalObject( cx, parentContainer, parentPanel );
+        auto pNative = new JsGlobalObject( cx, parentContainer, parentPanel );
+
         JS_SetPrivate( jsObj, pNative );
 
         if ( !JS_AddExtraGCRootsTracer( cx, JsGlobalObject::TraceHeapValue, pNative ) )
@@ -203,7 +206,7 @@ void JsGlobalObject::TraceHeapValue( JSTracer *trc, void *data )
         }
         else
         {
-            JS::TraceEdge( trc, &(it->second->value), "CustomHeap" );
+            JS::TraceEdge( trc, &(it->second->value), "CustomHeap_Global" );
             it++;
         }
     }

@@ -6,11 +6,13 @@
 #include <js_objects/theme_manager.h>
 #include <js_objects/fb_tooltip.h>
 #include <js_objects/gdi_font.h>
+#include <js_objects/fb_properties.h>
 #include <js_utils/js_error_helper.h>
 #include <js_utils/winapi_error_helper.h>
 #include <js_utils/js_object_helper.h>
 #include <js_utils/scope_helper.h>
 
+#include <js_panel_window.h>
 #include <helpers.h>
 
 namespace
@@ -55,11 +57,15 @@ JsWindow::JsWindow( JSContext* cx, js_panel_window& parentPanel )
     : pJsCtx_( cx )
     , parentPanel_( parentPanel )
 {
-
+    assert( jsFbProperties_ );
+    pFbProperties_ = static_cast<JsFbProperties*>( JS_GetPrivate( jsFbProperties_ ) );
+    assert( pFbProperties_ );
 }
 
 JsWindow::~JsWindow()
 {
+    RemoveHeapTracer();
+    jsFbProperties_.reset();
 }
 
 JSObject* JsWindow::Create( JSContext* cx, js_panel_window& parentPanel )
@@ -77,7 +83,16 @@ JSObject* JsWindow::Create( JSContext* cx, js_panel_window& parentPanel )
         return nullptr;
     }
 
-    JS_SetPrivate( jsObj, new JsWindow( cx, parentPanel ) );
+    JS::RootedObject fbProperties( cx, JsFbProperties::Create( cx, parentPanel ) );
+    if ( !fbProperties )
+    {
+        return nullptr;
+    }
+
+    auto pNative = new JsWindow( cx, parentPanel );
+    pNative->jsFbProperties_.init( cx, fbProperties );
+
+    JS_SetPrivate( jsObj, pNative );
 
     return jsObj;
 }
@@ -87,24 +102,32 @@ const JSClass& JsWindow::GetClass()
     return jsClass;
 }
 
+void JsWindow::RemoveHeapTracer()
+{
+    if ( jsFbProperties_.initialized() && pFbProperties_ )
+    {
+        pFbProperties_->RemoveHeapTracer();
+    }
+}
+
 std::optional<std::nullptr_t>
 JsWindow::ClearInterval( uint32_t intervalId )
 {
-    m_host->ClearIntervalOrTimeout( intervalID );
-    return S_OK;
+    parentPanel_.ClearIntervalOrTimeout( intervalId );
+    return nullptr;
 }
 
 std::optional<std::nullptr_t>
 JsWindow::ClearTimeout( uint32_t timeoutId )
 {
-    m_host->ClearIntervalOrTimeout( timeoutID );
-    return S_OK;
+    parentPanel_.ClearIntervalOrTimeout( timeoutId );
+    return nullptr;
 }
 
 std::optional<JSObject*>
 JsWindow::CreatePopupMenu()
 {
-    JS::RootedObject jsObject( pJsCtx_, JsMenuObject::Create( pJsCtx_, m_host->GetHWND() ) );
+    JS::RootedObject jsObject( pJsCtx_, JsMenuObject::Create( pJsCtx_, parentPanel_.GetHWND() ) );
     if ( !jsObject )
     {
         JS_ReportErrorASCII( pJsCtx_, "Internal error: failed to create JS object" );
@@ -117,7 +140,7 @@ JsWindow::CreatePopupMenu()
 std::optional<JSObject*>
 JsWindow::CreateThemeManager( const std::wstring& classid )
 {
-    JS::RootedObject jsObject( pJsCtx_, JsThemeManager::Create( pJsCtx_, m_host->GetHWND(), classid ) );
+    JS::RootedObject jsObject( pJsCtx_, JsThemeManager::Create( pJsCtx_, parentPanel_.GetHWND(), classid ) );
     if ( !jsObject )
     {// TODO: may not be an internal error, if classid is wrong
         JS_ReportErrorASCII( pJsCtx_, "Internal error: failed to create JS object" );
@@ -130,12 +153,12 @@ JsWindow::CreateThemeManager( const std::wstring& classid )
 std::optional<JSObject*>
 JsWindow::CreateTooltip( const std::wstring& name, uint32_t pxSize, uint32_t style )
 {
-    const auto& tooltip_param = m_host->PanelTooltipParam();
-    tooltip_param->font_name = name;
-    tooltip_param->font_size = pxSize;
-    tooltip_param->font_style = style;
+    auto& tooltip_param = parentPanel_.GetPanelTooltipParam();
+    tooltip_param.fontName = name;
+    tooltip_param.fontSize = pxSize;
+    tooltip_param.fontStyle = style;
 
-    JS::RootedObject jsObject( pJsCtx_, JsFbTooltip::Create( pJsCtx_, m_host->GetHWND(), tooltip_param ) );
+    JS::RootedObject jsObject( pJsCtx_, JsFbTooltip::Create( pJsCtx_, parentPanel_.GetHWND(), tooltip_param ) );
     if ( !jsObject )
     {
         JS_ReportErrorASCII( pJsCtx_, "Internal error: failed to create JS object" );
@@ -148,42 +171,7 @@ JsWindow::CreateTooltip( const std::wstring& name, uint32_t pxSize, uint32_t sty
 std::optional<uint32_t>
 JsWindow::GetColourCUI( uint32_t type, const std::wstring& guidstr )
 {
-    if ( m_host->GetInstanceType() != HostComm::KInstanceTypeCUI )
-    {
-        JS_ReportErrorASCII( pJsCtx_, "Can be called only in CUI" );
-        return std::nullopt;
-    }
-
-    GUID guid;
-    if ( guidstr.empty() )
-    {
-        memcpy( &guid, &pfc::guid_null, sizeof( guid ) );
-    }
-    else
-    {
-        HRESULT hr = CLSIDFromString( guidstr.c_str(), &guid );
-        IF_HR_FAILED_RETURN_WITH_REPORT( pJsCtx_, hr, std::nullopt, CLSIDFromString );        
-    }
-
-    return m_host->GetColourCUI( type, guid );
-}
-
-std::optional<uint32_t>
-JsWindow::GetColourDUI( uint32_t type )
-{
-    if ( m_host->GetInstanceType() != HostComm::KInstanceTypeDUI )
-    {
-        JS_ReportErrorASCII( pJsCtx_, "Can be called only in DUI" );
-        return std::nullopt;
-    }
-
-    return m_host->GetColourDUI( type );
-}
-
-std::optional<JSObject*>
-JsWindow::GetFontCUI( uint32_t type, const std::wstring& guidstr )
-{
-    if ( m_host->GetInstanceType() != HostComm::KInstanceTypeCUI )
+    if ( parentPanel_.GetPanelType() != js_panel_window::PanelType::CUI )
     {
         JS_ReportErrorASCII( pJsCtx_, "Can be called only in CUI" );
         return std::nullopt;
@@ -200,18 +188,53 @@ JsWindow::GetFontCUI( uint32_t type, const std::wstring& guidstr )
         IF_HR_FAILED_RETURN_WITH_REPORT( pJsCtx_, hr, std::nullopt, CLSIDFromString );
     }
 
-    HFONT hFont = m_host->GetFontCUI( type, guid );
-    scope::unique_ptr<std::remove_pointer_t<HFONT>> autoFont( hFont, []( auto obj )
+    return parentPanel_.GetColourCUI( type, guid );
+}
+
+std::optional<uint32_t>
+JsWindow::GetColourDUI( uint32_t type )
+{
+    if ( parentPanel_.GetPanelType() != js_panel_window::PanelType::DUI )
     {
-        DeleteObject( obj );
-    } );
+        JS_ReportErrorASCII( pJsCtx_, "Can be called only in DUI" );
+        return std::nullopt;
+    }
+
+    return parentPanel_.GetColourDUI( type );
+}
+
+std::optional<JSObject*>
+JsWindow::GetFontCUI( uint32_t type, const std::wstring& guidstr )
+{
+    if ( parentPanel_.GetPanelType() != js_panel_window::PanelType::CUI )
+    {
+        JS_ReportErrorASCII( pJsCtx_, "Can be called only in CUI" );
+        return std::nullopt;
+    }
+
+    GUID guid;
+    if ( guidstr.empty() )
+    {
+        memcpy( &guid, &pfc::guid_null, sizeof( guid ) );
+    }
+    else
+    {
+        HRESULT hr = CLSIDFromString( guidstr.c_str(), &guid );
+        IF_HR_FAILED_RETURN_WITH_REPORT( pJsCtx_, hr, std::nullopt, CLSIDFromString );
+    }
+
+    HFONT hFont = parentPanel_.GetFontCUI( type, guid );
+    scope::unique_ptr<std::remove_pointer_t<HFONT>> autoFont( hFont, []( auto obj )
+                                                              {
+                                                                  DeleteObject( obj );
+                                                              } );
 
     if ( hFont )
     {// Not an error: font not found
         return nullptr;
     }
 
-    std::unique_ptr<Gdiplus::Font> pGdiFont( new Gdiplus::Font( m_host->GetHDC(), hFont ) );
+    std::unique_ptr<Gdiplus::Font> pGdiFont( new Gdiplus::Font( parentPanel_.GetHDC(), hFont ) );
     if ( !helpers::ensure_gdiplus_object( pGdiFont.get() ) )
     {// Not an error: font not found
         return nullptr;
@@ -234,20 +257,20 @@ JsWindow::GetFontCUI( uint32_t type, const std::wstring& guidstr )
 std::optional<JSObject*>
 JsWindow::GetFontDUI( uint32_t type )
 {
-    if ( m_host->GetInstanceType() != HostComm::KInstanceTypeDUI )
+    if ( parentPanel_.GetPanelType() != js_panel_window::PanelType::DUI )
     {
         JS_ReportErrorASCII( pJsCtx_, "Can be called only in DUI" );
         return std::nullopt;
     }
 
-    HFONT hFont = m_host->GetFontDUI( type ); // No need to delete, it is managed by DUI
+    HFONT hFont = parentPanel_.GetFontDUI( type ); // No need to delete, it is managed by DUI
 
     if ( hFont )
     {// Not an error: font not found
         return nullptr;
     }
 
-    std::unique_ptr<Gdiplus::Font> pGdiFont( new Gdiplus::Font( m_host->GetHDC(), hFont ) );
+    std::unique_ptr<Gdiplus::Font> pGdiFont( new Gdiplus::Font( parentPanel_.GetHDC(), hFont ) );
     if ( !helpers::ensure_gdiplus_object( pGdiFont.get() ) )
     {// Not an error: font not found
         return nullptr;
@@ -266,28 +289,16 @@ JsWindow::GetFontDUI( uint32_t type )
     return jsObject;
 }
 
-std::optional<JSObject*>
+std::optional<JS::Value*>
 JsWindow::GetProperty( const std::string& name, JS::HandleValue defaultval )
-{// TODO: rewrite config_prop
-    HRESULT hr;
-    _variant_t var;
-
-    if ( m_host->get_config_prop().get_config_item( name.c_str(), var ) )
-    {
-        hr = VariantCopy( p, &var );
-    }
-    else
-    {
-        m_host->get_config_prop().set_config_item( name.c_str(), defaultval );
-        hr = VariantCopy( p, &defaultval );
+{
+    auto retVal = pFbProperties_->GetProperty( name, defaultval );
+    if ( !retVal )
+    {// report in GetProperty
+        return std::nullopt;
     }
 
-    if ( FAILED( hr ) )
-    {
-        p = nullptr;
-    }
-
-    return S_OK;
+    return &(retVal.value());
 }
 
 std::optional<std::nullptr_t>
@@ -306,29 +317,29 @@ JsWindow::NotifyOthers( const std::string& name, JS::HandleValue info )
 
     notify_data->m_item2.Attach( var.Detach() );
 
-    panel_manager::instance().send_msg_to_others_pointer( m_host->GetHWND(), CALLBACK_UWM_ON_NOTIFY_DATA, notify_data );
+    panel_manager::instance().send_msg_to_others_pointer( parentPanel_.GetHWND(), CALLBACK_UWM_ON_NOTIFY_DATA, notify_data );
 
-    return S_OK;
+    return nullptr;
 }
 
 std::optional<std::nullptr_t>
 JsWindow::Reload()
 {
-    PostMessage( m_host->GetHWND(), UWM_RELOAD, 0, 0 );
+    PostMessage( parentPanel_.GetHWND(), UWM_RELOAD, 0, 0 );
     return nullptr;
 }
 
 std::optional<std::nullptr_t>
 JsWindow::Repaint( bool force )
 {
-    m_host->Repaint( force );
+    parentPanel_.Repaint( force );
     return nullptr;
 }
 
 std::optional<std::nullptr_t>
 JsWindow::RepaintRect( uint32_t x, uint32_t y, uint32_t w, uint32_t h, bool force )
 {
-    m_host->RepaintRect( x, y, w, h, force );
+    parentPanel_.RepaintRect( x, y, w, h, force );
     return nullptr;
 }
 
@@ -342,150 +353,154 @@ JsWindow::SetCursor( uint8_t id )
 std::optional<uint32_t>
 JsWindow::SetInterval( JS::HandleFunction func, uint32_t delay )
 {
-    return m_host->SetInterval( func, delay );
+    return parentPanel_.SetInterval( func, delay );
 }
 
 std::optional<std::nullptr_t>
 JsWindow::SetProperty( const std::string& name, JS::HandleValue val )
-{// TODO: rewrite
-    m_host->get_config_prop().set_config_item( pfc::stringcvt::string_utf8_from_wide( name ), val );
-    return S_OK;
+{
+    if ( !pFbProperties_->SetProperty( name, val ) )
+    {// report in SetProperty
+        return std::nullopt;
+    }
+
+    return nullptr;
 }
 
 std::optional<uint32_t>
 JsWindow::SetTimeout( JS::HandleFunction func, uint32_t delay )
 {
-    return m_host->SetTimeout( func, delay );
+    return parentPanel_.SetTimeout( func, delay );
 }
 
 std::optional<std::nullptr_t>
 JsWindow::ShowConfigure()
 {
-    PostMessage( m_host->GetHWND(), UWM_SHOW_CONFIGURE, 0, 0 );
+    PostMessage( parentPanel_.GetHWND(), UWM_SHOW_CONFIGURE, 0, 0 );
     return nullptr;
 }
 
 std::optional<std::nullptr_t>
 JsWindow::ShowProperties()
 {
-    PostMessage( m_host->GetHWND(), UWM_SHOW_PROPERTIES, 0, 0 );
+    PostMessage( parentPanel_.GetHWND(), UWM_SHOW_PROPERTIES, 0, 0 );
     return nullptr;
 }
 
 std::optional<uint32_t>
 JsWindow::get_DlgCode()
 {
-    return m_host->DlgCode();    
+    return parentPanel_.DlgCode();
 }
 
 std::optional<uint32_t>
 JsWindow::get_Height()
 {
-    return m_host->GetHeight();
+    return parentPanel_.GetHeight();
 }
 
 std::optional<uint64_t>
 JsWindow::get_Id()
 {
-    return reinterpret_cast<uint64_t>(m_host->GetHWND());
+    return reinterpret_cast<uint64_t>( parentPanel_.GetHWND() );
 }
 
 std::optional<uint32_t>
 JsWindow::get_InstanceType()
 {
-    return m_host->GetInstanceType();
+    return static_cast<uint32_t>( parentPanel_.GetPanelType() );
 }
 
 std::optional<bool>
 JsWindow::get_IsTransparent()
 {
-    return m_host->get_pseudo_transparent();
+    return parentPanel_.get_pseudo_transparent();
 }
 
 std::optional<bool>
 JsWindow::get_IsVisible()
 {
-    return  IsWindowVisible( m_host->GetHWND() );
+    return  IsWindowVisible( parentPanel_.GetHWND() );
 }
 
 std::optional<uint32_t>
 JsWindow::get_MaxHeight()
 {
-    return m_host->MaxSize().y;
+    return parentPanel_.MaxSize().y;
 }
 
 std::optional<uint32_t>
 JsWindow::get_MaxWidth()
 {
-    return m_host->MaxSize().x;
+    return parentPanel_.MaxSize().x;
 }
 
 std::optional<uint32_t>
 JsWindow::get_MinHeight()
 {
-    return  m_host->MinSize().y;
+    return  parentPanel_.MinSize().y;
 }
 
 std::optional<uint32_t>
 JsWindow::get_MinWidth()
 {
-    return m_host->MinSize().x;
+    return parentPanel_.MinSize().x;
 }
 
 std::optional<std::string>
 JsWindow::get_Name()
 {
-    pfc::string8_fast name = m_host->ScriptInfo().name;
+    pfc::string8_fast name = parentPanel_.ScriptInfo().name;
     if ( name.is_empty() )
     {
-        name = pfc::print_guid( m_host->GetGUID() );
+        name = pfc::print_guid( parentPanel_.GetGUID() );
     }
 
-    return std::string( name.c_str(), name.length());
+    return std::string( name.c_str(), name.length() );
 }
 
 std::optional<uint32_t>
 JsWindow::get_Width()
 {
-    return m_host->GetWidth();
+    return parentPanel_.GetWidth();
 }
 
 std::optional<std::nullptr_t>
 JsWindow::put_DlgCode( uint32_t code )
 {
-    m_host->DlgCode() = code;
+    parentPanel_.DlgCode() = code;
     return nullptr;
 }
 
 std::optional<std::nullptr_t>
 JsWindow::put_MaxHeight( uint32_t height )
 {
-    m_host->MaxSize().y = height;
-    PostMessage( m_host->GetHWND(), UWM_SIZE_LIMIT_CHANGED, 0, uie::size_limit_maximum_height );
+    parentPanel_.MaxSize().y = height;
+    PostMessage( parentPanel_.GetHWND(), UWM_SIZE_LIMIT_CHANGED, 0, uie::size_limit_maximum_height );
     return nullptr;
 }
 
 std::optional<std::nullptr_t>
 JsWindow::put_MaxWidth( uint32_t width )
 {
-    m_host->MaxSize().x = width;
-    PostMessage( m_host->GetHWND(), UWM_SIZE_LIMIT_CHANGED, 0, uie::size_limit_maximum_width );
+    parentPanel_.MaxSize().x = width;
+    PostMessage( parentPanel_.GetHWND(), UWM_SIZE_LIMIT_CHANGED, 0, uie::size_limit_maximum_width );
     return nullptr;
 }
 
 std::optional<std::nullptr_t>
 JsWindow::put_MinHeight( uint32_t height )
 {
-    m_host->MinSize().y = height;
-    PostMessage( m_host->GetHWND(), UWM_SIZE_LIMIT_CHANGED, 0, uie::size_limit_minimum_height );
+    parentPanel_.MinSize().y = height;
+    PostMessage( parentPanel_.GetHWND(), UWM_SIZE_LIMIT_CHANGED, 0, uie::size_limit_minimum_height );
     return nullptr;
 }
 
 std::optional<std::nullptr_t>
 JsWindow::put_MinWidth( uint32_t width )
 {
-    m_host->MinSize().x = width;
-    PostMessage( m_host->GetHWND(), UWM_SIZE_LIMIT_CHANGED, 0, uie::size_limit_minimum_width );
+    parentPanel_.MinSize().x = width;
+    PostMessage( parentPanel_.GetHWND(), UWM_SIZE_LIMIT_CHANGED, 0, uie::size_limit_minimum_width );
     return nullptr;
 }
 

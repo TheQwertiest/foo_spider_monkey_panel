@@ -7,24 +7,19 @@
 
 #include <js_engine/js_engine.h>
 #include <js_engine/native_to_js_invoker.h>
+#include <js_objects/fb_tooltip.h>
 #include <js_objects/gdi_graphics.h>
 #include <js_utils/art_helper.h>
 
 
-js_panel_window::js_panel_window()
-    : m_is_mouse_tracked( false )
-    , m_is_droptarget_registered( false )
+js_panel_window::js_panel_window( PanelType instanceType )
+    : panelType_( instanceType )
+    , m_script_info( get_config_guid() )
 {
-}
-
-js_panel_window::js_panel_window()
-{
-
 }
 
 js_panel_window::~js_panel_window()
 {
-    m_script_host->Release();
 }
 
 void js_panel_window::update_script( const char* code )
@@ -43,7 +38,7 @@ void js_panel_window::JsEngineFail( std::string_view errorText )
     popup_msg::g_show( errorText.data(), JSP_NAME );
     MessageBeep( MB_ICONASTERISK );
 
-    SendMessage( m_hwnd, UWM_SCRIPT_ERROR, 0, 0 );
+    SendMessage( hWnd_, UWM_SCRIPT_ERROR, 0, 0 );
 }
 
 LRESULT js_panel_window::on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
@@ -52,7 +47,7 @@ LRESULT js_panel_window::on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
     {
     case WM_CREATE:
     {
-        on_panel_create();
+        on_panel_create( hwnd );
         return 0;
     }
     case WM_DESTROY:
@@ -72,36 +67,36 @@ LRESULT js_panel_window::on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
     }
     case WM_PAINT:
     {
-        if ( m_suppress_drawing )
+        if ( isPaintSuppressed_ )
         {
             break;
         }
 
-        if ( get_pseudo_transparent() && !m_paint_pending )
+        if ( get_pseudo_transparent() && !isPaintPending_ )
         {
             RECT rc;
 
-            GetUpdateRect( m_hwnd, &rc, FALSE );
+            GetUpdateRect( hWnd_, &rc, FALSE );
             RefreshBackground( &rc );
             return 0;
         }
 
         PAINTSTRUCT ps;
-        HDC dc = BeginPaint( m_hwnd, &ps );
+        HDC dc = BeginPaint( hWnd_, &ps );
         on_paint( dc, &ps.rcPaint );
-        EndPaint( m_hwnd, &ps );
-        m_paint_pending = false;
+        EndPaint( hWnd_, &ps );
+        isPaintPending_ = false;
 
         return 0;
     }
     case WM_SIZE:
     {
         RECT rect;
-        GetClientRect( m_hwnd, &rect );
+        GetClientRect( hWnd_, &rect );
         on_size( rect.right - rect.left, rect.bottom - rect.top );
         if ( get_pseudo_transparent() )
         {
-            PostMessage( m_hwnd, UWM_REFRESHBK, 0, 0 );
+            PostMessage( hWnd_, UWM_REFRESHBK, 0, 0 );
         }
         else
         {
@@ -369,7 +364,7 @@ LRESULT js_panel_window::on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
         return 0;
 
     case UWM_REFRESHBK:
-        Redraw();
+        Repaint(true);
         return 0;
 
     case UWM_RELOAD:
@@ -387,18 +382,18 @@ LRESULT js_panel_window::on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
         return 0;
 
     case UWM_SHOW_CONFIGURE:
-        show_configure_popup( m_hwnd );
+        show_configure_popup( hWnd_ );
         return 0;
 
     case UWM_SHOW_PROPERTIES:
-        show_property_popup( m_hwnd );
+        show_property_popup( hWnd_ );
         return 0;
 
     case UWM_SIZE:
-        on_size( m_width, m_height );
+        on_size( width_, height_ );
         if ( get_pseudo_transparent() )
         {
-            PostMessage( m_hwnd, UWM_REFRESHBK, 0, 0 );
+            PostMessage( hWnd_, UWM_REFRESHBK, 0, 0 );
         }
         else
         {
@@ -460,17 +455,193 @@ void js_panel_window::execute_context_menu_command( int id, int id_base )
     }
     break;
     case 3:
-        show_property_popup( m_hwnd );
+        show_property_popup( hWnd_ );
         break;
     case 4:
-        show_configure_popup( m_hwnd );
+        show_configure_popup( hWnd_ );
         break;
     }
 }
 
-HWND js_panel_window::GetCoreHwnd() const
+GUID js_panel_window::GetGUID()
 {
-    return m_hwnd;
+    return get_config_guid();
+}
+
+HDC js_panel_window::GetHDC() const
+{
+    return hDc_;
+}
+
+HWND js_panel_window::GetHWND() const
+{
+    return hWnd_;
+}
+
+POINT& js_panel_window::MaxSize()
+{
+    return maxSize_;
+}
+
+POINT& js_panel_window::MinSize()
+{
+    return minSize_;
+}
+
+int js_panel_window::GetHeight() const
+{
+    return height_;
+}
+
+int js_panel_window::GetWidth() const
+{
+    return width_;
+}
+
+smp::PanelTooltipParam& js_panel_window::GetPanelTooltipParam()
+{
+    return panelTooltipParam_;
+}
+
+t_script_info& js_panel_window::ScriptInfo()
+{
+    return m_script_info;
+}
+
+t_size& js_panel_window::DlgCode()
+{
+    return dlgCode_;
+}
+
+js_panel_window::PanelType js_panel_window::GetPanelType() const
+{
+    return panelType_;
+}
+
+void  js_panel_window::Repaint( bool force /*= false */ )
+{
+    if ( force )
+    {
+        isPaintPending_ = false;
+        RedrawWindow( hWnd_, nullptr, nullptr, RDW_INVALIDATE | RDW_UPDATENOW );
+    }
+    else
+    {
+        isPaintPending_ = true;
+        InvalidateRect( hWnd_, nullptr, FALSE );
+    }
+}
+
+void  js_panel_window::RepaintRect( LONG x, LONG y, LONG w, LONG h, bool force /*= false */ )
+{
+    RECT rc;
+    rc.left = x;
+    rc.top = y;
+    rc.right = x + w;
+    rc.bottom = y + h;
+
+    if ( force )
+    {
+        isPaintPending_ = false;
+        RedrawWindow( hWnd_, &rc, nullptr, RDW_INVALIDATE | RDW_UPDATENOW );
+    }
+    else
+    {
+        isPaintPending_ = true;
+        InvalidateRect( hWnd_, &rc, FALSE );
+    }
+}
+
+void js_panel_window::RefreshBackground( LPRECT lprcUpdate /*= nullptr */ )
+{
+    HWND wnd_parent = GetAncestor( hWnd_, GA_PARENT );
+
+    if ( !wnd_parent || IsIconic( core_api::get_main_window() ) || !IsWindowVisible( hWnd_ ) )
+        return;
+
+    HDC dc_parent = GetDC( wnd_parent );
+    HDC hdc_bk = CreateCompatibleDC( dc_parent );
+    POINT pt = { 0, 0 };
+    RECT rect_child = { 0, 0, (LONG)width_, (LONG)height_ };
+    RECT rect_parent;
+    HRGN rgn_child = nullptr;
+
+    // HACK: for Tab control
+    // Find siblings
+    HWND hwnd = nullptr;
+    while ( hwnd = FindWindowEx( wnd_parent, hwnd, nullptr, nullptr ) )
+    {
+        TCHAR buff[64];
+        if ( hwnd == hWnd_ )
+        {
+            continue;
+        }
+        GetClassName( hwnd, buff, _countof( buff ) );
+        if ( _tcsstr( buff, _T( "SysTabControl32" ) ) )
+        {
+            wnd_parent = hwnd;
+            break;
+        }
+    }
+
+    if ( lprcUpdate )
+    {
+        HRGN rgn = CreateRectRgnIndirect( lprcUpdate );
+        rgn_child = CreateRectRgnIndirect( &rect_child );
+        CombineRgn( rgn_child, rgn_child, rgn, RGN_DIFF );
+        DeleteRgn( rgn );
+    }
+    else
+    {
+        rgn_child = CreateRectRgn( 0, 0, 0, 0 );
+    }
+
+    ClientToScreen( hWnd_, &pt );
+    ScreenToClient( wnd_parent, &pt );
+
+    CopyRect( &rect_parent, &rect_child );
+    ClientToScreen( hWnd_, (LPPOINT)&rect_parent );
+    ClientToScreen( hWnd_, (LPPOINT)&rect_parent + 1 );
+    ScreenToClient( wnd_parent, (LPPOINT)&rect_parent );
+    ScreenToClient( wnd_parent, (LPPOINT)&rect_parent + 1 );
+
+    // Force Repaint
+    isPaintSuppressed_ = true;
+    SetWindowRgn( hWnd_, rgn_child, FALSE );
+    RedrawWindow( wnd_parent, &rect_parent, nullptr, RDW_INVALIDATE | RDW_ERASE | RDW_ERASENOW | RDW_UPDATENOW );
+
+    // Background bitmap
+    HBITMAP old_bmp = SelectBitmap( hdc_bk, hBitmapBg_ );
+
+    // Paint BK
+    BitBlt( hdc_bk, rect_child.left, rect_child.top, rect_child.right - rect_child.left, rect_child.bottom - rect_child.top, dc_parent, pt.x, pt.y, SRCCOPY );
+
+    SelectBitmap( hdc_bk, old_bmp );
+    DeleteDC( hdc_bk );
+    ReleaseDC( wnd_parent, dc_parent );
+    DeleteRgn( rgn_child );
+    SetWindowRgn( hWnd_, nullptr, FALSE );
+    isPaintSuppressed_ = false;
+    if ( get_edge_style() )
+    {
+        SendMessage( hWnd_, WM_NCPAINT, 1, 0 );
+    }
+    Repaint( true );
+}
+
+unsigned js_panel_window::SetInterval( IDispatch* func, int delay )
+{
+    return HostTimerDispatcher::Get().setInterval( hWnd_, delay, func );
+}
+
+unsigned js_panel_window::SetTimeout( IDispatch* func, int delay )
+{
+    return HostTimerDispatcher::Get().setTimeout( hWnd_, delay, func );
+}
+
+void js_panel_window::ClearIntervalOrTimeout( UINT timerId )
+{
+    HostTimerDispatcher::Get().killTimer( timerId );
 }
 
 bool js_panel_window::script_load()
@@ -478,17 +649,15 @@ bool js_panel_window::script_load()
     pfc::hires_timer timer;
     timer.start();
 
-    DWORD extstyle = GetWindowLongPtr( m_hwnd, GWL_EXSTYLE );
+    DWORD extstyle = GetWindowLongPtr( hWnd_, GWL_EXSTYLE );
     extstyle &= ~WS_EX_CLIENTEDGE & ~WS_EX_STATICEDGE;
     extstyle |= edge_style_from_config( get_edge_style() );
-    SetWindowLongPtr( m_hwnd, GWL_EXSTYLE, extstyle );
-    SetWindowPos( m_hwnd, NULL, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED );
+    SetWindowLongPtr( hWnd_, GWL_EXSTYLE, extstyle );
+    SetWindowPos( hWnd_, nullptr, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED );
 
-    m_max_size.x = INT_MAX;
-    m_max_size.y = INT_MAX;
-    m_min_size.x = 0;
-    m_min_size.x = 0;
-    PostMessage( m_hwnd, UWM_SIZE_LIMIT_CHANGED, 0, uie::size_limit_all );
+    maxSize_ = { INT_MAX, INT_MAX };
+    minSize_ = { 0, 0 };
+    PostMessage( hWnd_, UWM_SIZE_LIMIT_CHANGED, 0, uie::size_limit_all );
 
     if ( !jsContainer_.Initialize() )
     {
@@ -500,21 +669,18 @@ bool js_panel_window::script_load()
         return false;
     }
 
-    HRESULT hr = m_script_host->Initialize();
-    if ( FAILED( hr ) )
-    {
-        return false;
-    }
+    // TODO: check
+    //HRESULT hr = m_script_host->Initialize();
 
     if ( ScriptInfo().feature_mask & t_script_info::kFeatureDragDrop )
     {
         m_drop_target.Attach( new com_object_impl_t<HostDropTarget>( this ) );
         m_drop_target->RegisterDragDrop();
-        m_is_droptarget_registered = true;
+        isDropTargetRegistered_ = true;
     }
 
     // HACK: Script update will not call on_size, so invoke it explicitly
-    SendMessage( m_hwnd, UWM_SIZE, 0, 0 );
+    SendMessage( hWnd_, UWM_SIZE, 0, 0 );
 
     FB2K_console_formatter() << JSP_NAME " v" JSP_VERSION " (" << ScriptInfo().build_info_string() << "): initialized in " << (uint32_t)( timer.query() * 1000 ) << " ms";
     return true;
@@ -522,16 +688,17 @@ bool js_panel_window::script_load()
 
 void js_panel_window::script_unload()
 {
-    m_script_host->Finalize();
+    // TODO: check
+    //m_script_host->Finalize();
 
-    if ( m_is_droptarget_registered )
+    if ( isDropTargetRegistered_ )
     {
         m_drop_target->RevokeDragDrop();
-        m_is_droptarget_registered = false;
+        isDropTargetRegistered_ = false;
     }
 
-    HostTimerDispatcher::Get().onPanelUnload( m_hwnd );
-    m_selection_holder.release();
+    HostTimerDispatcher::Get().onPanelUnload( hWnd_ );
+    selectionHolder_.release();
 
     jsContainer_.Finalize();
 }
@@ -557,31 +724,31 @@ ui_helpers::container_window::class_data& js_panel_window::get_class_data() cons
 
 void js_panel_window::create_context()
 {
-    if ( m_gr_bmp || m_gr_bmp_bk )
+    if ( hBitmap_ || hBitmapBg_ )
     {
         delete_context();
     }
 
-    m_gr_bmp = CreateCompatibleBitmap( m_hdc, m_width, m_height );
+    hBitmap_ = CreateCompatibleBitmap( hDc_, width_, height_ );
 
     if ( get_pseudo_transparent() )
     {
-        m_gr_bmp_bk = CreateCompatibleBitmap( m_hdc, m_width, m_height );
+        hBitmapBg_ = CreateCompatibleBitmap( hDc_, width_, height_ );
     }
 }
 
 void js_panel_window::delete_context()
 {
-    if ( m_gr_bmp )
+    if ( hBitmap_ )
     {
-        DeleteBitmap( m_gr_bmp );
-        m_gr_bmp = NULL;
+        DeleteBitmap( hBitmap_ );
+        hBitmap_ = nullptr;
     }
 
-    if ( m_gr_bmp_bk )
+    if ( hBitmapBg_ )
     {
-        DeleteBitmap( m_gr_bmp_bk );
-        m_gr_bmp_bk = NULL;
+        DeleteBitmap( hBitmapBg_ );
+        hBitmapBg_ = nullptr;
     }
 }
 
@@ -592,7 +759,7 @@ void js_panel_window::on_context_menu( int x, int y )
     int ret = 0;
 
     build_context_menu( menu, x, y, base_id );
-    ret = TrackPopupMenu( menu, TPM_RIGHTBUTTON | TPM_NONOTIFY | TPM_RETURNCMD, x, y, 0, m_hwnd, 0 );
+    ret = TrackPopupMenu( menu, TPM_RIGHTBUTTON | TPM_NONOTIFY | TPM_RETURNCMD, x, y, 0, hWnd_, 0 );
     execute_context_menu_command( ret, base_id );
     DestroyMenu( menu );
 }
@@ -601,22 +768,23 @@ void js_panel_window::on_erase_background()
 {
     if ( get_pseudo_transparent() )
     {
-        PostMessage( m_hwnd, UWM_REFRESHBK, 0, 0 );
+        PostMessage( hWnd_, UWM_REFRESHBK, 0, 0 );
     }
 }
 
-void js_panel_window::on_panel_create()
+void js_panel_window::on_panel_create(HWND hWnd)
 {
     RECT rect;
-    m_hwnd = hwnd;
-    m_hdc = GetDC( m_hwnd );
-    GetClientRect( m_hwnd, &rect );
-    m_width = rect.right - rect.left;
-    m_height = rect.bottom - rect.top;
+    hWnd_ = hWnd;
+    hDc_ = GetDC( hWnd_ );
+    GetClientRect( hWnd_, &rect );
+    width_ = rect.right - rect.left;
+    height_ = rect.bottom - rect.top;
     create_context();
     // Interfaces
-    m_gr_wrap.Attach( new com_object_impl_t<GdiGraphics>(), false );
-    panel_manager::instance().add_window( m_hwnd );
+    // TODO: check
+    // m_gr_wrap.Attach( new com_object_impl_t<GdiGraphics>(), false );
+    panel_manager::instance().add_window( hWnd_ );
 
     mozjs::JsEngine::GetInstance().RegisterPanel( *this, jsContainer_ );
     script_load();
@@ -627,26 +795,26 @@ void js_panel_window::on_panel_destroy()
     script_unload();
     mozjs::JsEngine::GetInstance().UnregisterPanel( *this );
 
-    panel_manager::instance().remove_window( m_hwnd );
+    panel_manager::instance().remove_window( hWnd_ );
 
-    if ( m_gr_wrap )
-    {
-        m_gr_wrap.Release();
-    }
+    // TODO: check
+    //if ( m_gr_wrap )
+    //{
+        //m_gr_wrap.Release();
+    //}
     delete_context();
-    ReleaseDC( m_hwnd, m_hdc );
+    ReleaseDC( hWnd_, hDc_ );
 }
 
 void js_panel_window::on_script_error()
 {
-    const auto& tooltip_param = PanelTooltipParam();
-    if ( tooltip_param && tooltip_param->tooltip_hwnd )
+    auto& tooltip_param = GetPanelTooltipParam();
+    if ( tooltip_param.hTooltip )
     {
-        SendMessage( tooltip_param->tooltip_hwnd, TTM_ACTIVATE, FALSE, 0 );
+        SendMessage( tooltip_param.hTooltip, TTM_ACTIVATE, FALSE, 0 );
     }
 
     Repaint();
-    m_script_host->Stop();
     script_unload();
 }
 
@@ -682,11 +850,11 @@ void js_panel_window::on_focus_changed( bool isFocused )
 {
     if ( isFocused )
     {
-        m_selection_holder = ui_selection_manager::get()->acquire();
+        selectionHolder_ = ui_selection_manager::get()->acquire();
     }
     else
     {
-        m_selection_holder.release();
+        selectionHolder_.release();
     }
     jsContainer_.InvokeJsCallback( "on_focus_changed",
                                    static_cast<bool>(isFocused) );
@@ -741,36 +909,38 @@ void js_panel_window::on_key_up( WPARAM wp )
 
 void js_panel_window::on_load_image_done( LPARAM lp )
 {// TODO: missing param doc
-    std::unique_ptr<mozjs::art::AsyncImageTaskResult> param( reinterpret_cast<mozjs::art::AsyncImageTaskResult*>(lp) );
-    auto autoRet = jsContainer_.InvokeJsCallback( "on_load_image_done",
-                                                  static_cast<uint32_t>(param->artId),
-                                                  static_cast<Gdiplus::Bitmap*>(param->bitmap.get()),
-                                                  static_cast<std::string>(param->imagePath) );
-    if ( autoRet )
-    {
-        param->bitmap.release();
-    }
+    return;
+
+    // std::unique_ptr<mozjs::art::AsyncImageTaskResult> param( reinterpret_cast<mozjs::art::AsyncImageTaskResult*>(lp) );
+    // auto autoRet = jsContainer_.InvokeJsCallback( "on_load_image_done",
+    //                                               static_cast<uint32_t>(param->artId),
+    //                                               static_cast<Gdiplus::Bitmap*>(param->bitmap.get()),
+    //                                               static_cast<std::string>(param->imagePath) );
+    // if ( autoRet )
+    // {
+    //     param->bitmap.release();
+    // }
 }
 
 void js_panel_window::on_library_items_added( WPARAM wp )
 {
     simple_callback_data_scope_releaser<t_on_data> data( wp );
     jsContainer_.InvokeJsCallback( "on_library_items_added",
-                                   static_cast<metadb_handle_list_cref>(data->m_items) );
+                                   static_cast<metadb_handle_list>(data->m_items) );
 }
 
 void js_panel_window::on_library_items_changed( WPARAM wp )
 {
     simple_callback_data_scope_releaser<t_on_data> data( wp );
     jsContainer_.InvokeJsCallback( "on_library_items_changed",
-                                   static_cast<metadb_handle_list_cref>(data->m_items) );
+                                   static_cast<metadb_handle_list>(data->m_items) );
 }
 
 void js_panel_window::on_library_items_removed( WPARAM wp )
 {
     simple_callback_data_scope_releaser<t_on_data> data( wp );
     jsContainer_.InvokeJsCallback( "on_library_items_removed",
-                                   static_cast<metadb_handle_list_cref>(data->m_items) );
+                                   static_cast<metadb_handle_list>(data->m_items) );
 }
 
 void js_panel_window::on_main_menu( WPARAM wp )
@@ -784,7 +954,7 @@ void js_panel_window::on_metadb_changed( WPARAM wp )
 {
     simple_callback_data_scope_releaser<t_on_data> data( wp );
     jsContainer_.InvokeJsCallback( "on_metadb_changed",
-                                   static_cast<metadb_handle_list_cref>(data->m_items),
+                                   static_cast<metadb_handle_list>(data->m_items),
                                    static_cast<bool>(data->m_fromhook) );
 }
 
@@ -824,9 +994,11 @@ void js_panel_window::on_mouse_button_dblclk( UINT msg, WPARAM wp, LPARAM lp )
 void js_panel_window::on_mouse_button_down( UINT msg, WPARAM wp, LPARAM lp )
 {
     if ( get_grab_focus() )
-        SetFocus( m_hwnd );
+    {
+        SetFocus( hWnd_ );
+    }
 
-    SetCapture( m_hwnd );
+    SetCapture( hWnd_ );
 
     switch ( msg )
     {
@@ -907,28 +1079,28 @@ bool js_panel_window::on_mouse_button_up( UINT msg, WPARAM wp, LPARAM lp )
 
 void js_panel_window::on_mouse_leave()
 {
-    m_is_mouse_tracked = false;
+    isMouseTracked_ = false;
 
     jsContainer_.InvokeJsCallback( "on_mouse_leave" );
 
     // Restore default cursor
-    SetCursor( LoadCursor( NULL, IDC_ARROW ) );
+    SetCursor( LoadCursor( nullptr, IDC_ARROW ) );
 }
 
 void js_panel_window::on_mouse_move( WPARAM wp, LPARAM lp )
 {
-    if ( !m_is_mouse_tracked )
+    if ( !isMouseTracked_ )
     {
         TRACKMOUSEEVENT tme;
 
         tme.cbSize = sizeof( tme );
-        tme.hwndTrack = m_hwnd;
+        tme.hwndTrack = hWnd_;
         tme.dwFlags = TME_LEAVE;
         TrackMouseEvent( &tme );
-        m_is_mouse_tracked = true;
+        isMouseTracked_ = true;
 
         // Restore default cursor
-        SetCursor( LoadCursor( NULL, IDC_ARROW ) );
+        SetCursor( LoadCursor( nullptr, IDC_ARROW ) );
     }
 
     jsContainer_.InvokeJsCallback( "on_mouse_move",
@@ -952,12 +1124,14 @@ void js_panel_window::on_mouse_wheel_h( WPARAM wp )
 }
 
 void js_panel_window::on_notify_data( WPARAM wp )
-{
-    simple_callback_data_scope_releaser<simple_callback_data_2<std::wstring, _variant_t>> data( wp );
-    jsContainer_.InvokeJsCallback( "on_notify_data",
-                                   static_cast<std::wstring&>(data->m_item1)
-                                    //, TODO: data->m_item2 ???
-    );
+{// TODO: todo
+    return;
+
+    // simple_callback_data_scope_releaser<simple_callback_data_2<std::wstring, _variant_t>> data( wp );
+    // jsContainer_.InvokeJsCallback( "on_notify_data",
+    //                                static_cast<std::wstring&>(data->m_item1)
+    //                                 //, TODO: data->m_item2 ???
+    // );
 }
 
 void js_panel_window::on_output_device_changed()
@@ -967,12 +1141,12 @@ void js_panel_window::on_output_device_changed()
 
 void js_panel_window::on_paint( HDC dc, LPRECT lpUpdateRect )
 {
-    if ( !dc || !lpUpdateRect || !m_gr_bmp || !m_gr_wrap ) return;
+    if ( !dc || !lpUpdateRect || !hBitmap_ || !m_gr_wrap ) return;
 
     HDC memdc = CreateCompatibleDC( dc );
-    HBITMAP oldbmp = SelectBitmap( memdc, m_gr_bmp );
+    HBITMAP oldbmp = SelectBitmap( memdc, hBitmap_ );
 
-    if ( m_script_host->HasError() || mozjs::JsContainer::JsStatus::Failed == jsContainer_.GetStatus() )
+    if ( mozjs::JsContainer::JsStatus::Failed == jsContainer_.GetStatus() )
     {
         on_paint_error( memdc );
     }
@@ -981,7 +1155,7 @@ void js_panel_window::on_paint( HDC dc, LPRECT lpUpdateRect )
         if ( get_pseudo_transparent() )
         {
             HDC bkdc = CreateCompatibleDC( dc );
-            HBITMAP bkoldbmp = SelectBitmap( bkdc, m_gr_bmp_bk );
+            HBITMAP bkoldbmp = SelectBitmap( bkdc, hBitmapBg_ );
 
             BitBlt(
                 memdc,
@@ -999,7 +1173,7 @@ void js_panel_window::on_paint( HDC dc, LPRECT lpUpdateRect )
         }
         else
         {
-            RECT rc = { 0, 0, m_width, m_height };
+            RECT rc = { 0, 0, (LONG)width_, (LONG)height_ };
 
             FillRect( memdc, &rc, (HBRUSH)( COLOR_WINDOW + 1 ) );
         }
@@ -1007,7 +1181,7 @@ void js_panel_window::on_paint( HDC dc, LPRECT lpUpdateRect )
         on_paint_user( memdc, lpUpdateRect );
     }
 
-    BitBlt( dc, 0, 0, m_width, m_height, memdc, 0, 0, SRCCOPY );
+    BitBlt( dc, 0, 0, width_, height_, memdc, 0, 0, SRCCOPY );
     SelectBitmap( memdc, oldbmp );
     DeleteDC( memdc );
 }
@@ -1015,7 +1189,7 @@ void js_panel_window::on_paint( HDC dc, LPRECT lpUpdateRect )
 void js_panel_window::on_paint_error( HDC memdc )
 {
     const std::wstring errmsg( L"Aw, crashed :(" );
-    RECT rc = { 0, 0, m_width, m_height };
+    RECT rc = { 0, 0, (LONG)width_, (LONG)height_ };
     SIZE sz = { 0 };
 
     // Font chosing
@@ -1210,8 +1384,8 @@ void js_panel_window::on_selection_changed()
 
 void js_panel_window::on_size( uint32_t w, uint32_t h )
 {
-    m_width = w;
-    m_height = h;
+    width_ = w;
+    height_ = h;
 
     delete_context();
     create_context();
