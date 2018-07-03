@@ -2,135 +2,71 @@
 #include "config.h"
 #include "resource.h"
 
-std::optional<mozjs::SerializedJsValue> prop_kv_config::get_config_item(const std::string& propName)
+std::optional<mozjs::SerializedJsValue> 
+prop_kv_config::get_config_item(const std::string& propName)
 {
-	t_val val;
+    if ( !m_map.count( propName ) )
+    {
+        return std::nullopt;
+    }
 
-	if (m_map.query(p_key, val))
-	{
-		if (g_is_allowed_type(val.vt) && SUCCEEDED(VariantCopy(&p_out, &val)))
-		{
-			return true;
-		}
-		else
-		{
-			m_map.remove(p_key);
-		}
-	}
-
-	return false;
+    return *(m_map[propName].get());
 }
 
-void prop_kv_config::set_config_item(const std::string& propName, const mozjs::SerializedJsValue& serializedProp )
+void prop_kv_config::set_config_item(const std::string& propName, const mozjs::SerializedJsValue& serializedValue )
 {
-	if (!g_is_allowed_type(p_val.vt))
-	{
-		m_map.remove(p_key);
-	}
-	else
-	{
-		m_map[p_key] = p_val;
-	}
+    m_map.emplace( propName, std::make_shared<mozjs::SerializedJsValue>( serializedValue ) );
 }
 
-bool prop_kv_config::g_is_allowed_type(VARTYPE p_vt)
+void prop_kv_config::g_load(config_map& data, stream_reader* reader, abort_callback& abort) throw()
 {
-	switch (p_vt)
-	{
-	case VT_UI1:
-	case VT_I1:
-	case VT_I2:
-	case VT_UI2:
-	case VT_BOOL:
-	case VT_I4:
-	case VT_UI4:
-	case VT_R4:
-	case VT_INT:
-	case VT_UINT:
-	case VT_I8:
-	case VT_UI8:
-	case VT_R8:
-	case VT_CY:
-	case VT_DATE:
-	case VT_BSTR:
-		return true;
-	}
-
-	return false;
-}
-
-void prop_kv_config::g_load(t_map& data, stream_reader* reader, abort_callback& abort) throw()
-{
-	t_size count;
-
-	data.remove_all();
+	data.clear();
 
 	try
 	{
-		// Get count
+        uint32_t count;		
 		reader->read_lendian_t(count, abort);
 
-		for (t_size i = 0; i < count; ++i)
+        mozjs::SerializedJsValue serializedValue;
+		for ( uint32_t i = 0; i < count; ++i )
 		{
-			pfc::string8_fast key;
-			t_val val;
-			VARTYPE vt;
-			int cbRead = 0;
+            pfc::string8_fast pfcPropName;
+			reader->read_string( pfcPropName, abort);
 
-			// read key
-			reader->read_string(key, abort);
-			// read vtype
-			reader->read_lendian_t(vt, abort);
+            uint32_t valueType;
+			reader->read_lendian_t( valueType, abort);
+            serializedValue.type = static_cast<mozjs::JsValueType>(valueType);
 
-			switch (vt)
-			{
-			case VT_UI1:
-			case VT_I1:
-				cbRead = sizeof(BYTE);
-				break;
+            switch ( serializedValue.type )
+            {
+            case mozjs::JsValueType::pt_boolean:
+            {
+                reader->read_lendian_t( serializedValue.boolVal, abort );
+                break;
+            }
+            case mozjs::JsValueType::pt_int32:
+            {
+                reader->read_lendian_t( serializedValue.intVal, abort );
+                break;
+            }
+            case mozjs::JsValueType::pt_double:
+            {
+                reader->read_lendian_t( serializedValue.doubleVal, abort );
+                break;
+            }
+            case mozjs::JsValueType::pt_string:
+            {
+                pfc::string8_fast pfcStrVal;
+                reader->read_string( pfcStrVal, abort );
+                serializedValue.strVal.assign( pfcStrVal.c_str(), pfcStrVal.length() );
+                break;
+            }
+            default:
+                assert( 0 );
+                break;
+            }
 
-			case VT_I2:
-			case VT_UI2:
-			case VT_BOOL:
-				cbRead = sizeof(short);
-				break;
-
-			case VT_I4:
-			case VT_UI4:
-			case VT_R4:
-			case VT_INT:
-			case VT_UINT:
-				cbRead = sizeof(LONG);
-				break;
-
-			case VT_I8:
-			case VT_UI8:
-				cbRead = sizeof(LONGLONG);
-				break;
-
-			case VT_R8:
-			case VT_CY:
-			case VT_DATE:
-				cbRead = sizeof(double);
-				break;
-			}
-
-			val.vt = vt;
-
-			if (cbRead != 0)
-			{
-				reader->read(&val.bVal, cbRead, abort);
-			}
-			else
-			{
-				// Read to bstr
-				pfc::string8_fast str;
-
-				reader->read_string(str, abort);
-				val.bstrVal = SysAllocString(pfc::stringcvt::string_wide_from_utf8_fast(str));
-			}
-
-			data[key] = val;
+            data.emplace( pfcPropName.c_str(), std::make_shared<mozjs::SerializedJsValue>( serializedValue ) );
 		}
 	}
 	catch (...)
@@ -138,65 +74,48 @@ void prop_kv_config::g_load(t_map& data, stream_reader* reader, abort_callback& 
 	}
 }
 
-void prop_kv_config::g_save(const t_map& data, stream_writer* writer, abort_callback& abort) throw()
+void prop_kv_config::g_save(const config_map& data, stream_writer* writer, abort_callback& abort) throw()
 {
 	try
 	{
-		// Write count
-		writer->write_lendian_t(data.get_count(), abort);
+		writer->write_lendian_t(static_cast<uint32_t>(data.size()), abort);
 
-		for (t_map::const_iterator iter = data.first(); iter.is_valid(); ++iter)
-		{
-			// Write key
-			writer->write_string(iter->m_key, abort);
-			// Write vt
-			writer->write_lendian_t(iter->m_value.vt, abort);
-			// Write value
-			int cbWrite = 0;
+        for each (auto& elem in data)
+        {
+            writer->write_string( elem.first.c_str(), elem.first.length(), abort );
 
-			switch (iter->m_value.vt)
-			{
-			case VT_UI1:
-			case VT_I1:
-				cbWrite = sizeof(BYTE);
-				break;
+            auto& serializedValue = *(elem.second);
 
-			case VT_I2:
-			case VT_UI2:
-			case VT_BOOL:
-				cbWrite = sizeof(short);
-				break;
-
-			case VT_I4:
-			case VT_UI4:
-			case VT_R4:
-			case VT_INT:
-			case VT_UINT:
-				cbWrite = sizeof(LONG);
-				break;
-
-			case VT_I8:
-			case VT_UI8:
-				cbWrite = sizeof(LONGLONG);
-				break;
-
-			case VT_R8:
-			case VT_CY:
-			case VT_DATE:
-				cbWrite = sizeof(double);
-				break;
-			}
-
-			if (cbWrite != 0)
-			{
-				writer->write(&iter->m_value.bVal, cbWrite, abort);
-			}
-			else if (iter->m_value.vt == VT_BSTR)
-			{
-				pfc::stringcvt::string_utf8_from_wide conv = iter->m_value.bstrVal;
-				writer->write_string(conv, abort);
-			}
-		}
+            uint32_t valueType = static_cast<uint32_t>(serializedValue.type);
+            writer->write_lendian_t( valueType, abort );
+            
+            switch ( elem.second->type )
+            {
+            case mozjs::JsValueType::pt_boolean:
+            {
+                writer->write_lendian_t( serializedValue.boolVal, abort );
+                break;
+            }
+            case mozjs::JsValueType::pt_int32:
+            {
+                writer->write_lendian_t( serializedValue.intVal, abort );
+                break;
+            }
+            case mozjs::JsValueType::pt_double:
+            {
+                writer->write_lendian_t( serializedValue.doubleVal, abort );
+                break;
+            }
+            case mozjs::JsValueType::pt_string:
+            {
+                writer->write_string( serializedValue.strVal.c_str(), serializedValue.strVal.length(), abort );
+                break;
+            }
+            default:
+                assert( 0 );
+                break;
+            }
+        }
 	}
 	catch (...)
 	{
@@ -277,6 +196,10 @@ void js_panel_vars::load_config(stream_reader* reader, t_size size, abort_callba
 		try
 		{
 			reader->read_object_t(ver, abort);
+            if ( ver > CONFIG_VERSION_CURRENT )
+            {
+                throw std::runtime_error("");
+            }
 			reader->skip_object(sizeof(false), abort); // HACK: skip over "delay load"
 			reader->read_object_t(m_config_guid, abort);
 			reader->read_object(&m_edge_style, sizeof(m_edge_style), abort);

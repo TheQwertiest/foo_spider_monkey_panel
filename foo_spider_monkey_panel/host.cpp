@@ -300,12 +300,12 @@ HRESULT ScriptHost::Initialize()
 	m_has_error = false;
 
 	IActiveScriptParsePtr parser;
-	pfc::stringcvt::string_wide_from_utf8_fast wname(m_host->get_script_engine());
+	pfc::stringcvt::string_wide_from_utf8_fast wname(/*m_host->get_script_engine()*/"");
 	pfc::stringcvt::string_wide_from_utf8_fast wcode(/*m_host->get_script_code()*/"");
 	script_preprocessor preprocessor(wcode.get_ptr());
 	preprocessor.process_script_info(m_host->ScriptInfo());
 
-	hr = InitScriptEngineByName(wname);
+	hr = InitScriptEngineByName( L"Chakra" );
 
 	if (SUCCEEDED(hr)) hr = m_script_engine->SetScriptSite(this);
 	if (SUCCEEDED(hr)) hr = m_script_engine->QueryInterface(&parser);
@@ -794,6 +794,7 @@ STDMETHODIMP FbWindow::GetFontDUI(UINT type, IGdiFont** pp)
 
 STDMETHODIMP FbWindow::GetProperty(BSTR name, VARIANT defaultval, VARIANT* p)
 {
+    /*
 	if (!p) return E_POINTER;
 
 	HRESULT hr;
@@ -812,7 +813,7 @@ STDMETHODIMP FbWindow::GetProperty(BSTR name, VARIANT defaultval, VARIANT* p)
 
 	if (FAILED(hr))
 		p = NULL;
-
+        */
 	return S_OK;
 }
 
@@ -870,7 +871,9 @@ STDMETHODIMP FbWindow::SetInterval(IDispatch* func, int delay, UINT* outInterval
 
 STDMETHODIMP FbWindow::SetProperty(BSTR name, VARIANT val)
 {
+    /*
 	m_host->get_config_prop().set_config_item(pfc::stringcvt::string_utf8_from_wide(name), val);
+    */
 	return S_OK;
 }
 

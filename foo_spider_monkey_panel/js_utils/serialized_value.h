@@ -19,11 +19,11 @@ struct SerializedJsValue
     JsValueType type;
     union
     {
-        uint64_t intVal;
+        uint32_t intVal;
         double doubleVal;
         bool boolVal;
     };
-    std::wstring strVal; ///< JS uses wide strings internally, thus less conversions
+    std::string strVal; ///< JS uses wide strings internally, thus less conversions
 };
 
 std::optional<SerializedJsValue> SerializeJsValue( JSContext* cx, JS::HandleValue jsValue );

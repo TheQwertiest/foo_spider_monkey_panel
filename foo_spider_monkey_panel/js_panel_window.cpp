@@ -518,7 +518,7 @@ js_panel_window::PanelType js_panel_window::GetPanelType() const
     return panelType_;
 }
 
-void  js_panel_window::Repaint( bool force /*= false */ )
+void js_panel_window::Repaint( bool force /*= false */ )
 {
     if ( force )
     {
@@ -532,7 +532,7 @@ void  js_panel_window::Repaint( bool force /*= false */ )
     }
 }
 
-void  js_panel_window::RepaintRect( LONG x, LONG y, LONG w, LONG h, bool force /*= false */ )
+void js_panel_window::RepaintRect( LONG x, LONG y, LONG w, LONG h, bool force /*= false */ )
 {
     RECT rc;
     rc.left = x;
@@ -1141,7 +1141,7 @@ void js_panel_window::on_output_device_changed()
 
 void js_panel_window::on_paint( HDC dc, LPRECT lpUpdateRect )
 {
-    if ( !dc || !lpUpdateRect || !hBitmap_ || !m_gr_wrap ) return;
+    if ( !dc || !lpUpdateRect || !hBitmap_ ) return;
 
     HDC memdc = CreateCompatibleDC( dc );
     HBITMAP oldbmp = SelectBitmap( memdc, hBitmap_ );
@@ -1390,12 +1390,9 @@ void js_panel_window::on_size( uint32_t w, uint32_t h )
     delete_context();
     create_context();
 
-    if ( mozjs::JsContainer::JsStatus::Ready == jsContainer_.GetStatus() )
-    {
-        jsContainer_.InvokeJsCallback( "on_size",
-                                        static_cast<uint32_t>(w),
-                                        static_cast<uint32_t>(h) );
-    }
+    jsContainer_.InvokeJsCallback( "on_size",
+                                   static_cast<uint32_t>(w),
+                                   static_cast<uint32_t>(h) );
 }
 
 void js_panel_window::on_volume_change( WPARAM wp )

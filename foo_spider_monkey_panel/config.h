@@ -1,5 +1,7 @@
 #pragma once
 
+#include <js_utils/serialized_value.h>
+
 #include <optional>
 
 enum t_version_info
@@ -33,25 +35,21 @@ inline DWORD edge_style_from_config(t_edge_style edge_style)
 class prop_kv_config
 {
 public:
-	typedef prop_kv_config t_self;
-	typedef pfc::string_simple t_key;
-	typedef pfc::string_simple t_val;
-	typedef pfc::map_t<t_key, t_val, pfc::comparator_stricmp_ascii> t_map;
-
-	t_map& get_val()
+    using config_map = std::unordered_map<std::string, std::shared_ptr<mozjs::SerializedJsValue>>;
+    config_map& get_val()
 	{
 		return m_map;
 	}
 
     std::optional<mozjs::SerializedJsValue> get_config_item( const std::string& propName );
-    void set_config_item( const std::string& propName, const mozjs::SerializedJsValue& serializedProp );
-	static void g_load(t_map& data, stream_reader* reader, abort_callback& abort) throw();
-	static void g_save(const t_map& data, stream_writer* writer, abort_callback& abort) throw();
+    void set_config_item( const std::string& propName, const mozjs::SerializedJsValue& serializedValue );
+	static void g_load( config_map& data, stream_reader* reader, abort_callback& abort) throw();
+	static void g_save(const config_map& data, stream_writer* writer, abort_callback& abort) throw();
 	void load(stream_reader* reader, abort_callback& abort) throw();
 	void save(stream_writer* writer, abort_callback& abort) const throw();
 
 private:
-	t_map m_map;
+    config_map m_map;
 };
 
 class js_panel_vars

@@ -48,7 +48,10 @@ public:
     std::optional<ReturnType> InvokeJsCallback( std::string_view functionName,
                                                 Args&&... args )
     {
-        assert( JsStatus::Ready == jsStatus_ );
+        if ( JsStatus::Ready != jsStatus_ )
+        {
+            return std::nullopt;
+        }        
         return mozjs::InvokeJsCallback<ReturnType>( pJsCtx_, jsGlobal_, functionName, args... );
     }    
 

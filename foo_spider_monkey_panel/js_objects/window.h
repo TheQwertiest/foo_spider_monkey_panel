@@ -17,6 +17,8 @@ class js_panel_window;
 namespace mozjs
 {
 
+class JsFbProperties;
+
 class JsWindow
 {
 public:
@@ -33,20 +35,22 @@ public: // methods
     std::optional<std::nullptr_t> ClearTimeout( uint32_t timeoutId );
     std::optional<JSObject*> CreatePopupMenu();
     std::optional<JSObject*> CreateThemeManager( const std::wstring& classid );
-    std::optional<JSObject*> CreateTooltip( const std::wstring& name, uint32_t pxSize, uint32_t style );
+    std::optional<JSObject*> CreateTooltip( const std::wstring& name, float pxSize, uint32_t style );
     std::optional<uint32_t> GetColourCUI( uint32_t type, const std::wstring& guidstr );
     std::optional<uint32_t> GetColourDUI( uint32_t type );
     std::optional<JSObject*> GetFontCUI( uint32_t type, const std::wstring& guidstr );
     std::optional<JSObject*> GetFontDUI( uint32_t type );
-    std::optional<JS::Value*> GetProperty( const std::string& name, JS::HandleValue defaultval );
+    std::optional<JS::Heap<JS::Value>> GetProperty( const std::string& name, JS::HandleValue defaultval );
     std::optional<std::nullptr_t> NotifyOthers( const std::string& name, JS::HandleValue info );
     std::optional<std::nullptr_t> Reload();
     std::optional<std::nullptr_t> Repaint( bool force );
+    std::optional<std::nullptr_t> RepaintWithOpt( size_t optArgCount, bool force );
     std::optional<std::nullptr_t> RepaintRect( uint32_t x, uint32_t y, uint32_t w, uint32_t h, bool force );
-    std::optional<std::nullptr_t> SetCursor( uint8_t id );
-    std::optional<uint32_t> SetInterval( JS::HandleFunction func, uint32_t delay );
+    std::optional<std::nullptr_t> RepaintRectWithOpt( size_t optArgCount, uint32_t x, uint32_t y, uint32_t w, uint32_t h, bool force );
+    std::optional<std::nullptr_t> SetCursor( uint32_t id );
+    std::optional<uint32_t> SetInterval( JS::HandleValue func, uint32_t delay );
     std::optional<std::nullptr_t> SetProperty( const std::string& name, JS::HandleValue val );
-    std::optional<uint32_t> SetTimeout( JS::HandleFunction func, uint32_t delay );
+    std::optional<uint32_t> SetTimeout( JS::HandleValue func, uint32_t delay );
     std::optional<std::nullptr_t> ShowConfigure();
     std::optional<std::nullptr_t> ShowProperties();
 

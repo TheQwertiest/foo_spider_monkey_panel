@@ -47,7 +47,7 @@ LRESULT CDialogConf::OnInitDialog(HWND hwndFocus, LPARAM lParam)
 	ComboBox_AddString(combo_edge, _T("Sunken"));
 	ComboBox_AddString(combo_edge, _T("Grey"));
 
-	if (helpers::is14() && m_parent->GetPanelType() == HostComm::KInstanceTypeDUI)
+	if (helpers::is14() && m_parent->GetPanelType() == js_panel_window::PanelType::DUI)
 	{
 		// disable in default UI fb2k v1.4 and above
 		ComboBox_SetCurSel(combo_edge, 0);
@@ -59,7 +59,7 @@ LRESULT CDialogConf::OnInitDialog(HWND hwndFocus, LPARAM lParam)
 	}
 
 	// Pseudo Transparent
-	if (m_parent->GetPanelType() == HostComm::KInstanceTypeCUI)
+	if (m_parent->GetPanelType() == js_panel_window::PanelType::CUI )
 	{
 		uButton_SetCheck(m_hWnd, IDC_CHECK_PSEUDO_TRANSPARENT, m_parent->get_pseudo_transparent());
 	}

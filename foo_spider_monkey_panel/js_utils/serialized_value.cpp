@@ -31,7 +31,7 @@ std::optional<SerializedJsValue> SerializeJsValue( JSContext* cx, JS::HandleValu
         serializedValue.type = JsValueType::pt_double;
         bool isValid;
         JS::RootedValue rVal( cx, jsValue );
-        serializedValue.strVal = convert::to_native::ToValue<std::wstring>( cx, rVal, isValid );
+        serializedValue.strVal = convert::to_native::ToValue<std::string>( cx, rVal, isValid );
         assert( isValid );
     }
     else

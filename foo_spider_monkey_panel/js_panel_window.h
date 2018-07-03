@@ -19,7 +19,7 @@ public:
     };
 
 public:
-    js_panel_window( PanelType instanceType );
+    js_panel_window( PanelType instanceType = PanelType::CUI );
     virtual ~js_panel_window();
     void update_script(const char* code = nullptr);
 
@@ -36,7 +36,6 @@ private:
     mozjs::JsContainer jsContainer_;    
 
     CComPtr<IDropTargetImpl> m_drop_target; // keep
-    IGdiGraphicsPtr m_gr_wrap; // currently in JsContainer: extract from there to a proper place (ConstAfterScriptLoad)
 
 public:
     GUID GetGUID();

@@ -58,5 +58,5 @@ public:
 private:
 	CPropertyListCtrl m_properties;
 	js_panel_window* m_parent;
-	prop_kv_config::t_map m_dup_prop_map;
+	prop_kv_config::config_map m_dup_prop_map;
 };

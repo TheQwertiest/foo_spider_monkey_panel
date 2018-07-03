@@ -93,7 +93,7 @@ JSObject* JsGlobalObject::Create( JSContext* cx, JsContainer &parentContainer, j
              || !CreateAndInstallObject( cx, jsObj, "plman", JsFbPlaylistManager::Create )
              || !CreateAndInstallObject( cx, jsObj, "utils", JsUtils::Create ) 
              || !CreateAndInstallObject( cx, jsObj, "fb", JsFbUtils::Create ) 
-             || !CreateAndInstallObject( cx, jsObj, "window", JsWindow::Create ) )
+             || !CreateAndInstallObject( cx, jsObj, "window", JsWindow::Create, parentPanel ) )
         {
             return nullptr;
         }

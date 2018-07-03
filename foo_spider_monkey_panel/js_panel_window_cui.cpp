@@ -56,12 +56,12 @@ HWND js_panel_window_cui::create_or_transfer_window(HWND parent, const uie::wind
 {
 	if (m_host.is_valid())
 	{
-		ShowWindow(hWnd_, SW_HIDE);
-		SetParent(hWnd_, parent);
-		m_host->relinquish_ownership(hWnd_);
+		ShowWindow(t_parent::GetHWND(), SW_HIDE);
+		SetParent(t_parent::GetHWND(), parent);
+		m_host->relinquish_ownership(t_parent::GetHWND());
 		m_host = host;
 
-		SetWindowPos(hWnd_, NULL, p_position.x, p_position.y, p_position.cx, p_position.cy, SWP_NOZORDER);
+		SetWindowPos(t_parent::GetHWND(), NULL, p_position.x, p_position.y, p_position.cx, p_position.cy, SWP_NOZORDER);
 	}
 	else
 	{
@@ -175,12 +175,12 @@ void js_panel_window_cui::on_bool_changed(t_size mask) const
 
 void js_panel_window_cui::on_colour_changed(t_size mask) const
 {
-	PostMessage(hWnd_, CALLBACK_UWM_ON_COLOURS_CHANGED, 0, 0);
+	PostMessage(t_parent::GetHWND(), CALLBACK_UWM_ON_COLOURS_CHANGED, 0, 0);
 }
 
 void js_panel_window_cui::on_font_changed(t_size mask) const
 {
-	PostMessage(hWnd_, CALLBACK_UWM_ON_FONT_CHANGED, 0, 0);
+	PostMessage(t_parent::GetHWND(), CALLBACK_UWM_ON_FONT_CHANGED, 0, 0);
 }
 
 void js_panel_window_cui::set_config(stream_reader* reader, t_size size, abort_callback& abort)
@@ -190,5 +190,5 @@ void js_panel_window_cui::set_config(stream_reader* reader, t_size size, abort_c
 
 void js_panel_window_cui::notify_size_limit_changed(LPARAM lp)
 {
-	get_host()->on_size_limit_change(hWnd_, lp);
+	get_host()->on_size_limit_change(t_parent::GetHWND(), lp);
 }

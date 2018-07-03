@@ -53,9 +53,10 @@ private:
 // DUI panel instance
 static service_factory_t<my_ui_element_impl<js_panel_window_dui>> g_js_panel_wndow_dui;
 
-js_panel_window_dui::js_panel_window_dui(ui_element_config::ptr cfg, ui_element_instance_callback::ptr callback) : m_callback(callback)
+js_panel_window_dui::js_panel_window_dui(ui_element_config::ptr cfg, ui_element_instance_callback::ptr callback) 
+    : m_callback(callback)
+    , js_panel_window(js_panel_window::PanelType::DUI)
 {
-	panelType_ = KInstanceTypeDUI;
 	m_is_edit_mode = m_callback->is_edit_mode_enabled();
 	set_configuration(cfg);
 }
@@ -213,11 +214,11 @@ void js_panel_window_dui::notify(const GUID& p_what, t_size p_param1, const void
 	}
 	else if (p_what == ui_element_notify_font_changed)
 	{
-		PostMessage(hWnd_, CALLBACK_UWM_ON_FONT_CHANGED, 0, 0);
+		PostMessage(t_parent::GetHWND(), CALLBACK_UWM_ON_FONT_CHANGED, 0, 0);
 	}
 	else if (p_what == ui_element_notify_colors_changed)
 	{
-		PostMessage(hWnd_, CALLBACK_UWM_ON_COLOURS_CHANGED, 0, 0);
+		PostMessage(t_parent::GetHWND(), CALLBACK_UWM_ON_COLOURS_CHANGED, 0, 0);
 	}
 }
 
@@ -228,7 +229,7 @@ void js_panel_window_dui::set_configuration(ui_element_config::ptr data)
 	load_config(&parser.m_stream, parser.get_remaining(), abort_callback_dummy());
 
 	// FIX: If window already created, DUI won't destroy it and create it again.
-	if (hWnd_)
+	if (t_parent::GetHWND())
 	{
 		update_script();
 	}

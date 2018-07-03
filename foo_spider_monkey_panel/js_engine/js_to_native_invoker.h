@@ -94,8 +94,7 @@ bool InvokeNativeCallback_Impl( JSContext* cx,
     JS::CallArgs args = JS::CallArgsFromVp( argc, vp );
     args.rval().setUndefined();
 
-    if ( args.length() < ( maxArgCount - OptArgCount )
-         || args.length() > maxArgCount )
+    if ( args.length() < ( maxArgCount - OptArgCount ) )
     {
         JS_ReportErrorASCII( cx, "Invalid number of arguments" );
         return false;
@@ -108,13 +107,13 @@ bool InvokeNativeCallback_Impl( JSContext* cx,
     auto callbackArguments =
         JsToNativeArguments<maxArgCount, ArgTypes...>(
             args,
-            [&cx, &bRet, &failedIdx]( const JS::CallArgs& jsArgs, auto argTypeStruct, size_t index )
+            [maxArgCount, &cx, &bRet, &failedIdx]( const JS::CallArgs& jsArgs, auto argTypeStruct, size_t index )
             {                
                 using ArgType = typename std::remove_const_t<std::remove_reference_t<decltype( argTypeStruct )::type>>;
 
                 if constexpr( std::is_same_v<ArgType, JS::HandleValue> )
                 {// Skip conversion, pass through
-                    if ( index >= jsArgs.length() )
+                    if ( index >= jsArgs.length() || index > maxArgCount )
                     {// Not an error: default value might be set in callback
                         return jsArgs[0]; ///< Dummy value
                     }
@@ -122,7 +121,7 @@ bool InvokeNativeCallback_Impl( JSContext* cx,
                 }
                 else 
                 {
-                    if ( index >= jsArgs.length() )
+                    if ( index >= jsArgs.length() || index > maxArgCount )
                     {// Not an error: default value might be set in callback
                         return ArgType();
                     }
@@ -198,10 +197,13 @@ bool InvokeNativeCallback_Impl( JSContext* cx,
     }
 
     // Return value
-
     if constexpr( std::is_same_v<ReturnType::value_type, JSObject*> )
     {// retVal.value() is a raw JS pointer! Be careful when editing this code!
         args.rval().setObjectOrNull( retVal.value() );
+    }
+    else if constexpr(std::is_same_v<ReturnType::value_type, JS::Heap<JS::Value>>)
+    {
+        args.rval().set( retVal.value() );
     }
     else if constexpr( std::is_same_v<ReturnType::value_type, nullptr_t> )
     {

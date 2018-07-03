@@ -5,6 +5,7 @@
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
 
+using namespace smp;
 
 namespace
 {

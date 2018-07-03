@@ -40,11 +40,82 @@ JSClass jsClass = {
     &jsOps
 };
 
+MJS_DEFINE_JS_TO_NATIVE_FN( JsWindow, ClearInterval )
+MJS_DEFINE_JS_TO_NATIVE_FN( JsWindow, ClearTimeout )
+MJS_DEFINE_JS_TO_NATIVE_FN( JsWindow, CreatePopupMenu )
+MJS_DEFINE_JS_TO_NATIVE_FN( JsWindow, CreateThemeManager )
+MJS_DEFINE_JS_TO_NATIVE_FN( JsWindow, CreateTooltip )
+MJS_DEFINE_JS_TO_NATIVE_FN( JsWindow, GetColourCUI )
+MJS_DEFINE_JS_TO_NATIVE_FN( JsWindow, GetColourDUI )
+MJS_DEFINE_JS_TO_NATIVE_FN( JsWindow, GetFontCUI )
+MJS_DEFINE_JS_TO_NATIVE_FN( JsWindow, GetFontDUI )
+MJS_DEFINE_JS_TO_NATIVE_FN( JsWindow, GetProperty )
+MJS_DEFINE_JS_TO_NATIVE_FN( JsWindow, NotifyOthers )
+MJS_DEFINE_JS_TO_NATIVE_FN( JsWindow, Reload )
+MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsWindow, Repaint, RepaintWithOpt, 1 )
+MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsWindow, RepaintRect, RepaintRectWithOpt, 1 )
+MJS_DEFINE_JS_TO_NATIVE_FN( JsWindow, SetCursor )
+MJS_DEFINE_JS_TO_NATIVE_FN( JsWindow, SetInterval )
+MJS_DEFINE_JS_TO_NATIVE_FN( JsWindow, SetProperty )
+MJS_DEFINE_JS_TO_NATIVE_FN( JsWindow, SetTimeout )
+MJS_DEFINE_JS_TO_NATIVE_FN( JsWindow, ShowConfigure )
+MJS_DEFINE_JS_TO_NATIVE_FN( JsWindow, ShowProperties )
+
 const JSFunctionSpec jsFunctions[] = {
+    JS_FN( "ClearInterval", ClearInterval, 0, DefaultPropsFlags() ),
+    JS_FN( "ClearTimeout", ClearTimeout, 0, DefaultPropsFlags() ),
+    JS_FN( "CreatePopupMenu", CreatePopupMenu, 0, DefaultPropsFlags() ),
+    JS_FN( "CreateThemeManager", CreateThemeManager, 0, DefaultPropsFlags() ),
+    JS_FN( "CreateTooltip", CreateTooltip, 0, DefaultPropsFlags() ),
+    JS_FN( "GetColourCUI", GetColourCUI, 0, DefaultPropsFlags() ),
+    JS_FN( "GetColourDUI", GetColourDUI, 0, DefaultPropsFlags() ),
+    JS_FN( "GetFontCUI", GetFontCUI, 0, DefaultPropsFlags() ),
+    JS_FN( "GetFontDUI", GetFontDUI, 0, DefaultPropsFlags() ),
+    JS_FN( "GetProperty", GetProperty, 0, DefaultPropsFlags() ),
+    JS_FN( "NotifyOthers", NotifyOthers, 0, DefaultPropsFlags() ),
+    JS_FN( "Reload", Reload, 0, DefaultPropsFlags() ),
+    JS_FN( "Repaint", Repaint, 0, DefaultPropsFlags() ),
+    JS_FN( "RepaintRect", RepaintRect, 0, DefaultPropsFlags() ),
+    JS_FN( "SetCursor", SetCursor, 0, DefaultPropsFlags() ),
+    JS_FN( "SetInterval", SetInterval, 0, DefaultPropsFlags() ),
+    JS_FN( "SetProperty", SetProperty, 0, DefaultPropsFlags() ),
+    JS_FN( "SetTimeout", SetTimeout, 0, DefaultPropsFlags() ),
+    JS_FN( "ShowConfigure", ShowConfigure, 0, DefaultPropsFlags() ),
+    JS_FN( "ShowProperties", ShowProperties, 0, DefaultPropsFlags() ),
     JS_FS_END
 };
 
+MJS_DEFINE_JS_TO_NATIVE_FN( JsWindow, get_DlgCode )
+MJS_DEFINE_JS_TO_NATIVE_FN( JsWindow, get_Height )
+MJS_DEFINE_JS_TO_NATIVE_FN( JsWindow, get_Id )
+MJS_DEFINE_JS_TO_NATIVE_FN( JsWindow, get_InstanceType )
+MJS_DEFINE_JS_TO_NATIVE_FN( JsWindow, get_IsTransparent )
+MJS_DEFINE_JS_TO_NATIVE_FN( JsWindow, get_IsVisible )
+MJS_DEFINE_JS_TO_NATIVE_FN( JsWindow, get_MaxHeight )
+MJS_DEFINE_JS_TO_NATIVE_FN( JsWindow, get_MaxWidth )
+MJS_DEFINE_JS_TO_NATIVE_FN( JsWindow, get_MinHeight )
+MJS_DEFINE_JS_TO_NATIVE_FN( JsWindow, get_MinWidth )
+MJS_DEFINE_JS_TO_NATIVE_FN( JsWindow, get_Name )
+MJS_DEFINE_JS_TO_NATIVE_FN( JsWindow, get_Width )
+MJS_DEFINE_JS_TO_NATIVE_FN( JsWindow, put_DlgCode )
+MJS_DEFINE_JS_TO_NATIVE_FN( JsWindow, put_MaxHeight )
+MJS_DEFINE_JS_TO_NATIVE_FN( JsWindow, put_MaxWidth )
+MJS_DEFINE_JS_TO_NATIVE_FN( JsWindow, put_MinHeight )
+MJS_DEFINE_JS_TO_NATIVE_FN( JsWindow, put_MinWidth )
+
 const JSPropertySpec jsProperties[] = {
+    JS_PSGS( "DlgCode", get_DlgCode, put_DlgCode, DefaultPropsFlags() ),
+    JS_PSG( "Height", get_Height, DefaultPropsFlags() ),
+    JS_PSG( "Id", get_Id, DefaultPropsFlags() ),
+    JS_PSG( "InstanceType", get_InstanceType, DefaultPropsFlags() ),
+    JS_PSG( "IsTransparent", get_IsTransparent, DefaultPropsFlags() ),
+    JS_PSG( "IsVisible", get_IsVisible, DefaultPropsFlags() ),
+    JS_PSGS( "MaxHeight", get_MaxHeight, put_MaxHeight, DefaultPropsFlags() ),
+    JS_PSGS( "MaxWidth", get_MaxWidth, put_MaxWidth, DefaultPropsFlags() ),
+    JS_PSGS( "MinHeight", get_MinHeight, put_MinHeight, DefaultPropsFlags() ),
+    JS_PSGS( "MinWidth", get_MinWidth, put_MinWidth, DefaultPropsFlags() ),
+    JS_PSG( "Name", get_Name, DefaultPropsFlags() ),
+    JS_PSG( "Width", get_Width, DefaultPropsFlags() ),
     JS_PS_END
 };
 
@@ -57,9 +128,6 @@ JsWindow::JsWindow( JSContext* cx, js_panel_window& parentPanel )
     : pJsCtx_( cx )
     , parentPanel_( parentPanel )
 {
-    assert( jsFbProperties_ );
-    pFbProperties_ = static_cast<JsFbProperties*>( JS_GetPrivate( jsFbProperties_ ) );
-    assert( pFbProperties_ );
 }
 
 JsWindow::~JsWindow()
@@ -90,7 +158,9 @@ JSObject* JsWindow::Create( JSContext* cx, js_panel_window& parentPanel )
     }
 
     auto pNative = new JsWindow( cx, parentPanel );
+    // TODO: cleanup
     pNative->jsFbProperties_.init( cx, fbProperties );
+    pNative->pFbProperties_ = static_cast<JsFbProperties*>(JS_GetPrivate( fbProperties ));
 
     JS_SetPrivate( jsObj, pNative );
 
@@ -151,7 +221,7 @@ JsWindow::CreateThemeManager( const std::wstring& classid )
 }
 
 std::optional<JSObject*>
-JsWindow::CreateTooltip( const std::wstring& name, uint32_t pxSize, uint32_t style )
+JsWindow::CreateTooltip( const std::wstring& name, float pxSize, uint32_t style )
 {
     auto& tooltip_param = parentPanel_.GetPanelTooltipParam();
     tooltip_param.fontName = name;
@@ -228,8 +298,7 @@ JsWindow::GetFontCUI( uint32_t type, const std::wstring& guidstr )
                                                               {
                                                                   DeleteObject( obj );
                                                               } );
-
-    if ( hFont )
+    if ( !hFont )
     {// Not an error: font not found
         return nullptr;
     }
@@ -264,8 +333,7 @@ JsWindow::GetFontDUI( uint32_t type )
     }
 
     HFONT hFont = parentPanel_.GetFontDUI( type ); // No need to delete, it is managed by DUI
-
-    if ( hFont )
+    if ( !hFont )
     {// Not an error: font not found
         return nullptr;
     }
@@ -289,21 +357,16 @@ JsWindow::GetFontDUI( uint32_t type )
     return jsObject;
 }
 
-std::optional<JS::Value*>
+std::optional<JS::Heap<JS::Value>>
 JsWindow::GetProperty( const std::string& name, JS::HandleValue defaultval )
 {
-    auto retVal = pFbProperties_->GetProperty( name, defaultval );
-    if ( !retVal )
-    {// report in GetProperty
-        return std::nullopt;
-    }
-
-    return &(retVal.value());
+    return pFbProperties_->GetProperty( name, defaultval );
 }
 
 std::optional<std::nullptr_t>
 JsWindow::NotifyOthers( const std::string& name, JS::HandleValue info )
 {// TODO: casts, a lot of casts
+    /*
     if ( info.vt & VT_BYREF ) return E_INVALIDARG;
 
     HRESULT hr = S_OK;
@@ -318,7 +381,7 @@ JsWindow::NotifyOthers( const std::string& name, JS::HandleValue info )
     notify_data->m_item2.Attach( var.Detach() );
 
     panel_manager::instance().send_msg_to_others_pointer( parentPanel_.GetHWND(), CALLBACK_UWM_ON_NOTIFY_DATA, notify_data );
-
+    */
     return nullptr;
 }
 
@@ -336,6 +399,22 @@ JsWindow::Repaint( bool force )
     return nullptr;
 }
 
+std::optional<std::nullptr_t> JsWindow::RepaintWithOpt( size_t optArgCount, bool force )
+{
+    if ( optArgCount > 1 )
+    {
+        JS_ReportErrorASCII( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
+        return std::nullopt;
+    }
+
+    if ( optArgCount == 1 )
+    {
+        return Repaint( false );
+    }
+
+    return Repaint( force );
+}
+
 std::optional<std::nullptr_t>
 JsWindow::RepaintRect( uint32_t x, uint32_t y, uint32_t w, uint32_t h, bool force )
 {
@@ -343,17 +422,34 @@ JsWindow::RepaintRect( uint32_t x, uint32_t y, uint32_t w, uint32_t h, bool forc
     return nullptr;
 }
 
+std::optional<std::nullptr_t> JsWindow::RepaintRectWithOpt( size_t optArgCount, uint32_t x, uint32_t y, uint32_t w, uint32_t h, bool force )
+{
+    if ( optArgCount > 1 )
+    {
+        JS_ReportErrorASCII( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
+        return std::nullopt;
+    }
+
+    if ( optArgCount == 1 )
+    {
+        return RepaintRect( x, y, w, h, false );
+    }
+
+    return RepaintRect( x, y, w, h, force );
+}
+
 std::optional<std::nullptr_t>
-JsWindow::SetCursor( uint8_t id )
+JsWindow::SetCursor( uint32_t id )
 {
     ::SetCursor( LoadCursor( nullptr, MAKEINTRESOURCE( id ) ) );
     return nullptr;
 }
 
 std::optional<uint32_t>
-JsWindow::SetInterval( JS::HandleFunction func, uint32_t delay )
-{
-    return parentPanel_.SetInterval( func, delay );
+JsWindow::SetInterval( JS::HandleValue func, uint32_t delay )
+{// TODO: todo
+    //return parentPanel_.SetInterval( func, delay );
+    return 0;
 }
 
 std::optional<std::nullptr_t>
@@ -368,9 +464,10 @@ JsWindow::SetProperty( const std::string& name, JS::HandleValue val )
 }
 
 std::optional<uint32_t>
-JsWindow::SetTimeout( JS::HandleFunction func, uint32_t delay )
-{
-    return parentPanel_.SetTimeout( func, delay );
+JsWindow::SetTimeout( JS::HandleValue func, uint32_t delay )
+{// TODO: todo
+    //return parentPanel_.SetTimeout( func, delay );
+    return 0;
 }
 
 std::optional<std::nullptr_t>

@@ -30,10 +30,10 @@ void JsFinalizeOp( [[maybe_unused]] JSFreeOp* fop, JSObject* obj )
     }
 }
 
-template<typename FuncType>
-bool CreateAndInstallObject( JSContext* cx, JS::HandleObject parentObject, std::string_view propertyName, FuncType fn )
+template<typename FuncType, typename ...ArgsType>
+bool CreateAndInstallObject( JSContext* cx, JS::HandleObject parentObject, std::string_view propertyName, FuncType fn, ArgsType&&... args )
 {
-    JS::RootedObject objectToInstall( cx, fn( cx ) );
+    JS::RootedObject objectToInstall( cx, fn( cx, args... ) );
     if ( !objectToInstall )
     {
         return false;

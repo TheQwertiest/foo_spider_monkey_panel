@@ -256,7 +256,7 @@ public:
 		{
 		case VT_UI1:
 		case VT_UI2:
-		case VT_UI4:
+		case VT_UI4:        
 			win->ModifyStyle(0, ES_NUMBER);
 			break;
 		}

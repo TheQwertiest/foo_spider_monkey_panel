@@ -34,10 +34,6 @@ JSClass jsClass = {
     &jsOps
 };
 
-const JSPropertySpec jsProperties[] = {
-    JS_PS_END
-};
-
 MJS_DEFINE_JS_TO_NATIVE_FN( JsContextMenuManager, BuildMenu )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsContextMenuManager, ExecuteByID )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsContextMenuManager, InitContext )
@@ -49,6 +45,10 @@ const JSFunctionSpec jsFunctions[] = {
     JS_FN( "InitContext",  InitContext, 1, DefaultPropsFlags() ),
     JS_FN( "InitNowPlaying",  InitNowPlaying, 0, DefaultPropsFlags() ),
     JS_FS_END
+};
+
+const JSPropertySpec jsProperties[] = {
+    JS_PS_END
 };
 
 }

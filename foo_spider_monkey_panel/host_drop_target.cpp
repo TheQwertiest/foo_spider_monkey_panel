@@ -95,7 +95,7 @@ HRESULT HostDropTarget::OnDrop(IDataObject* pDataObj, DWORD grfKeyState, POINTL 
 }
 
 void HostDropTarget::on_drag_enter(unsigned keyState, POINTL& pt, IDropSourceAction* action)
-{
+{// TODO:
 	VARIANTARG args[4];
 	args[0].vt = VT_I4;
 	args[0].lVal = keyState;
@@ -105,16 +105,16 @@ void HostDropTarget::on_drag_enter(unsigned keyState, POINTL& pt, IDropSourceAct
 	args[2].lVal = pt.x;
 	args[3].vt = VT_DISPATCH;
 	args[3].pdispVal = action;
-	m_host->script_invoke_v(CallbackIds::on_drag_enter, args, _countof(args));
+	//m_host->script_invoke_v(CallbackIds::on_drag_enter, args, _countof(args));
 }
 
 void HostDropTarget::on_drag_leave()
-{
-	m_host->script_invoke_v(CallbackIds::on_drag_leave);
+{// TODO:
+	//m_host->script_invoke_v(CallbackIds::on_drag_leave);
 }
 
 void HostDropTarget::on_drag_over(unsigned keyState, POINTL& pt, IDropSourceAction* action)
-{
+{// TODO:
 	VARIANTARG args[4];
 	args[0].vt = VT_I4;
 	args[0].lVal = keyState;
@@ -124,11 +124,11 @@ void HostDropTarget::on_drag_over(unsigned keyState, POINTL& pt, IDropSourceActi
 	args[2].lVal = pt.x;
 	args[3].vt = VT_DISPATCH;
 	args[3].pdispVal = action;
-	m_host->script_invoke_v(CallbackIds::on_drag_over, args, _countof(args));
+	//m_host->script_invoke_v(CallbackIds::on_drag_over, args, _countof(args));
 }
 
 void HostDropTarget::on_drag_drop(unsigned keyState, POINTL& pt, IDropSourceAction* action)
-{
+{// TODO:
 	VARIANTARG args[4];
 	args[0].vt = VT_I4;
 	args[0].lVal = keyState;
@@ -138,5 +138,5 @@ void HostDropTarget::on_drag_drop(unsigned keyState, POINTL& pt, IDropSourceActi
 	args[2].lVal = pt.x;
 	args[3].vt = VT_DISPATCH;
 	args[3].pdispVal = action;
-	m_host->script_invoke_v(CallbackIds::on_drag_drop, args, _countof(args));
+	//m_host->script_invoke_v(CallbackIds::on_drag_drop, args, _countof(args));
 }
