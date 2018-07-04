@@ -429,22 +429,22 @@ JsWindow::NotifyOthers( const std::string& name, JS::HandleValue info )
         JS::RootedObject jsObject( pJsCtx_, &info.toObject() );
         if ( !JS::ToJSONMaybeSafely( pJsCtx_, jsObject, jsonCopyFunc, &jsonStr ) )
         {
-            JS_ReportErrorASCII( pJsCtx_, "info argument value is unsuited for notification" );
+            JS_ReportErrorASCII( pJsCtx_, "Unsuitable info argument" );
             return std::nullopt;
         }
     }
-    else if (info.isPrimitive() || !info.isNullOrUndefined())
+    else if (info.isPrimitive() && !info.isNullOrUndefined())
     {
         JS::RootedValue valueCopy( pJsCtx_, info );
         if ( !JS_Stringify( pJsCtx_, &valueCopy, nullptr, JS::NullHandleValue, jsonCopyFunc, &jsonStr ) )
         {
-            JS_ReportErrorASCII( pJsCtx_, "info argument value is unsuited for notification" );
+            JS_ReportErrorASCII( pJsCtx_, "Unsuitable info argument" );
             return std::nullopt;
         }
     }
     else
     {
-        JS_ReportErrorASCII( pJsCtx_, "info argument value is unsuited for notification" );
+        JS_ReportErrorASCII( pJsCtx_, "Unsuitable info argument" );
         return std::nullopt;
     }
 
