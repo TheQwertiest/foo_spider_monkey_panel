@@ -129,17 +129,4 @@ std::optional<std::uint32_t> JsGdiRawBitmap::get_Width()
     return width_;
 }
 
-/*
-
-
-STDMETHODIMP GdiRawBitmap::get__Handle(HDC* p)
-{
-if (!m_hdc || !p) return E_POINTER;
-
-*p = m_hdc;
-return S_OK;
-}
-
-*/
-
 }
