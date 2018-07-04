@@ -198,6 +198,13 @@ JsUtils::ColourPicker( uint32_t hWindow, uint32_t default_colour )
 std::optional<JS::Value>
 JsUtils::FileTest( const std::wstring& path, const std::string& mode )
 {
+    std::wstring cleanedPath = path;
+    for ( std::wstring::size_type i = 0; (i = cleanedPath.find( L"/", i )) != std::string::npos;)
+    {
+        cleanedPath.replace( i, 1, L"\\" );
+        i += 1;
+    }
+
     if ( "e" == mode ) // exists
     {
         JS::RootedValue jsValue( pJsCtx_ );
@@ -207,7 +214,7 @@ JsUtils::FileTest( const std::wstring& path, const std::string& mode )
 
     if ( "s" == mode )
     {
-        HANDLE fh = CreateFile( path.c_str(), GENERIC_READ, FILE_SHARE_READ, 0, OPEN_EXISTING, 0, 0 );
+        HANDLE fh = CreateFile( cleanedPath.c_str(), GENERIC_READ, FILE_SHARE_READ, 0, OPEN_EXISTING, 0, 0 );
         IF_WINAPI_FAILED_RETURN_WITH_REPORT( pJsCtx_, fh != INVALID_HANDLE_VALUE, std::nullopt, CreateFile );
 
         LARGE_INTEGER size = { 0 };
@@ -222,13 +229,13 @@ JsUtils::FileTest( const std::wstring& path, const std::string& mode )
     if ( "d" == mode )
     {
         JS::RootedValue jsValue( pJsCtx_ );
-        jsValue.setBoolean( PathIsDirectory( path.c_str() ) );
+        jsValue.setBoolean( PathIsDirectory( cleanedPath.c_str() ) );
         return jsValue;
     }
 
     if ( "split" == mode )
-    {// TODO: handle '\' as well
-        const wchar_t* fn = PathFindFileName( path.c_str() );
+    {
+        const wchar_t* fn = PathFindFileName( cleanedPath.c_str() );
         const wchar_t* ext = PathFindExtension( fn );
         wchar_t dir[MAX_PATH] = { 0 };
 
@@ -236,7 +243,7 @@ JsUtils::FileTest( const std::wstring& path, const std::string& mode )
 
         if ( PathIsFileSpec( fn ) )
         {
-            StringCchCopyN( dir, _countof( dir ), path.c_str(), fn - path.c_str() );
+            StringCchCopyN( dir, _countof( dir ), cleanedPath.c_str(), fn - cleanedPath.c_str() );
             PathAddBackslash( dir );
 
             out[0].assign( dir );
@@ -245,7 +252,7 @@ JsUtils::FileTest( const std::wstring& path, const std::string& mode )
         }
         else
         {
-            StringCchCopy( dir, _countof( dir ), path.c_str() );
+            StringCchCopy( dir, _countof( dir ), cleanedPath.c_str() );
             PathAddBackslash( dir );
 
             out[0].assign( dir );
@@ -282,7 +289,7 @@ JsUtils::FileTest( const std::wstring& path, const std::string& mode )
         JS::RootedValue jsValue( pJsCtx_ );
         jsValue.setNumber(
             static_cast<uint32_t>(
-                helpers::detect_charset( pfc::stringcvt::string_utf8_from_wide( path.c_str(), path.length() ) )
+                helpers::detect_charset( pfc::stringcvt::string_utf8_from_wide( cleanedPath.c_str(), cleanedPath.length() ) )
                 )
         );
         return jsValue;
