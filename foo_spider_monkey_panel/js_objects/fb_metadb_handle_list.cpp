@@ -248,7 +248,7 @@ JsFbMetadbHandleList::Convert()
             return std::nullopt;
         }
 
-        jsValue.set( JS::ObjectValue( *jsObject ) );
+        jsValue.set(JS::ObjectValue( *jsObject ));
         if ( !JS_SetElement( pJsCtx_, jsArray, i, jsValue ) )
         {
             JS_ReportErrorASCII( pJsCtx_, "Internal error: JS_SetElement failed" );

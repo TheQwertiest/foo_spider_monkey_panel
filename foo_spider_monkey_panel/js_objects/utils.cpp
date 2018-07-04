@@ -258,8 +258,7 @@ JsUtils::FileTest( const std::wstring& path, const std::string& mode )
             return std::nullopt;
         }
 
-        JS::RootedValue jsValue( pJsCtx_ );
-        JS::RootedObject jsObject( pJsCtx_ );
+        JS::RootedValue jsValue( pJsCtx_ );        
         for ( size_t i = 0; i < _countof( out ); ++i )
         {
             if ( !convert::to_js::ToValue( pJsCtx_, out[i], &jsValue ) )
@@ -268,7 +267,6 @@ JsUtils::FileTest( const std::wstring& path, const std::string& mode )
                 return std::nullopt;
             }
 
-            jsValue.set( JS::ObjectValue( *jsObject ) );
             if ( !JS_SetElement( pJsCtx_, jsArray, i, jsValue ) )
             {
                 JS_ReportErrorASCII( pJsCtx_, "Internal error: JS_SetElement failed" );
