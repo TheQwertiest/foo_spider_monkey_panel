@@ -1,12 +1,29 @@
-# Planned
+# Current
 - Check that all callbacks are defined.
-- Check uint64_t <-> double conversion.
+- Add default arguments everywhere.
+- Check drag-n-drop functionality.
+- Check that all files are correctly parsed: UTF8, UTF8-BOM, ASCII.
+- Rewrite ActiveXObject properly (and rename the files as well).
+- Implement timers.
+- Update docs.
+- Complete rebranding to spider_monkey_panel.
+- Check that it can work side-by-side with foo-jscript-panel.
+- Remove engine settings from Panel Properties dialog.
+- Move all failable initialization from ctor to Create (add PostCreate?).
+- Check all TODOs.
+- Stop staying up all night making this...
+
+# Planned
 - Port hacks from ui_hacks.
 - Add `include(path.to.js)` method for loading scripts.
-- Add ES6 modules support.
+- Add ES6 modules support (`import`).
 - Fill callbacks argument count everywhere.
-- Add default arguments everywhere.
+- Replace PropertyList with something more maintenable.
+- Save Panel Properties dialog size between calls.
+- Add array conversion support in ActiveXObject.
+- See if it's possible to export some common Array checking/creating/parsing code.
 
 # Maybe
 - Add help to properties and methods
 - Replace separate JSON parser with the one from JS engine.
+- Minimal .js tests for all the functionality.
