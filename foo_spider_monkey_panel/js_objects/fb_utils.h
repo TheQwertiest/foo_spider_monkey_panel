@@ -43,7 +43,7 @@ public:
     std::optional<JSObject*> CreateProfiler( const std::string& name );
     std::optional<uint32_t> DoDragDrop( JsFbMetadbHandleList* handles, uint32_t okEffects );
     std::optional<std::nullptr_t> Exit();
-    std::optional<JSObject*> GetClipboardContents( uint64_t hWindow );
+    std::optional<JSObject*> GetClipboardContents( uint32_t hWindow );
     std::optional<std::string> GetDSPPresets();
     std::optional<JSObject*> GetFocusItem( bool force );
     std::optional<JSObject*> GetLibraryItems();

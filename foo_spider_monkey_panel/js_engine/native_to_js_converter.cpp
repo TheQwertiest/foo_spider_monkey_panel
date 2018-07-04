@@ -46,8 +46,7 @@ bool ToValue<uint32_t>( JSContext *, const uint32_t& inValue, JS::MutableHandleV
 
 template <>
 bool ToValue<uint64_t>( JSContext *, const uint64_t& inValue, JS::MutableHandleValue wrappedValue )
-{
-    // TODO: test if this actually works!
+{    
     wrappedValue.setDouble( static_cast<double>(inValue) );
     return true;
 }

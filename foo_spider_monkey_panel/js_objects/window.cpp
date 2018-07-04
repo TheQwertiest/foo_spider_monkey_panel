@@ -40,6 +40,8 @@ JSClass jsClass = {
     &jsOps
 };
 
+// MJS_DEFINE_JS_TO_NATIVE_FN( JsWindow, TestValue )
+
 MJS_DEFINE_JS_TO_NATIVE_FN( JsWindow, ClearInterval )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsWindow, ClearTimeout )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsWindow, CreatePopupMenu )
@@ -62,6 +64,8 @@ MJS_DEFINE_JS_TO_NATIVE_FN( JsWindow, ShowConfigure )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsWindow, ShowProperties )
 
 const JSFunctionSpec jsFunctions[] = {
+    // JS_FN( "TestValue", TestValue, 0, DefaultPropsFlags() ),
+
     JS_FN( "ClearInterval", ClearInterval, 0, DefaultPropsFlags() ),
     JS_FN( "ClearTimeout", ClearTimeout, 0, DefaultPropsFlags() ),
     JS_FN( "CreatePopupMenu", CreatePopupMenu, 0, DefaultPropsFlags() ),
@@ -179,7 +183,15 @@ void JsWindow::RemoveHeapTracer()
         pFbProperties_->RemoveHeapTracer();
     }
 }
-
+/*
+std::optional<JS::Heap<JS::Value>> JsWindow::TestValue( uint32_t test )
+{
+    JS::RootedObject jsProp( pJsCtx_, CreatePopupMenu().value() );
+    JS::RootedValue jsVal( pJsCtx_, JS::ObjectValue( *jsProp ) );
+    JS::Heap<JS::Value> tmp ( jsVal );
+    return std::make_optional( tmp );
+}
+*/
 std::optional<std::nullptr_t>
 JsWindow::ClearInterval( uint32_t intervalId )
 {
@@ -532,10 +544,10 @@ JsWindow::get_Height()
     return parentPanel_.GetHeight();
 }
 
-std::optional<uint64_t>
+std::optional<uint32_t>
 JsWindow::get_Id()
-{
-    return reinterpret_cast<uint64_t>( parentPanel_.GetHWND() );
+{// Will work properly only on x86
+    return reinterpret_cast<uint32_t>( parentPanel_.GetHWND() );
 }
 
 std::optional<uint32_t>

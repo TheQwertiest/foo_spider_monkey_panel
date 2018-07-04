@@ -19,7 +19,7 @@ struct SerializedJsValue
     JsValueType type;
     union
     {
-        uint32_t intVal;
+        int32_t intVal;
         double doubleVal;
         bool boolVal;
     };

@@ -947,7 +947,7 @@ void js_panel_window::on_main_menu( WPARAM wp )
 {
     simple_callback_data_scope_releaser<t_on_data> data( wp );
     jsContainer_.InvokeJsCallback( "on_main_menu",
-                                   static_cast<uint64_t>(wp) );
+                                   static_cast<uint32_t>(wp) );
 }
 
 void js_panel_window::on_metadb_changed( WPARAM wp )

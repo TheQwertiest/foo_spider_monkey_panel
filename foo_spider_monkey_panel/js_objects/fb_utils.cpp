@@ -377,7 +377,7 @@ JsFbUtils::Exit()
 }
 
 std::optional<JSObject*>
-JsFbUtils::GetClipboardContents( uint64_t hWindow )
+JsFbUtils::GetClipboardContents( uint32_t hWindow )
 {
     auto api = ole_interaction::get();
     pfc::com_ptr_t<IDataObject> pDO;
@@ -394,7 +394,7 @@ JsFbUtils::GetClipboardContents( uint64_t hWindow )
             dropped_files_data_impl data;
             hr = api->parse_dataobject( pDO, data );
             if ( SUCCEEDED( hr ) )
-            {
+            {// Such cast will work only on x86
                 data.to_handles( items, native, (HWND)hWindow );
             }
         }

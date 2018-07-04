@@ -185,16 +185,17 @@ JsUtils::CheckFont( const std::wstring& name )
 }
 
 std::optional<uint32_t>
-JsUtils::ColourPicker( uint64_t hWindow, uint32_t default_colour )
+JsUtils::ColourPicker( uint32_t hWindow, uint32_t default_colour )
 {
     COLORREF color = helpers::convert_argb_to_colorref( default_colour );
     COLORREF colors[16] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+    // Such cast will work only on x86
     uChooseColor( &color, (HWND)hWindow, &colors[0] );
 
     return helpers::convert_colorref_to_argb( color );
 }
 
-std::optional<JS::HandleValue>
+std::optional<JS::Value>
 JsUtils::FileTest( const std::wstring& path, const std::string& mode )
 {
     if ( "e" == mode ) // exists
@@ -214,8 +215,7 @@ JsUtils::FileTest( const std::wstring& path, const std::string& mode )
         CloseHandle( fh );
 
         JS::RootedValue jsValue( pJsCtx_ );
-        // TODO: change this (should be uint64_t)
-        jsValue.setNumber( static_cast<double>( size.QuadPart ) );
+        jsValue.setNumber( static_cast<double>(size.QuadPart) );
         return jsValue;
     }
 
@@ -227,7 +227,7 @@ JsUtils::FileTest( const std::wstring& path, const std::string& mode )
     }
 
     if ( "split" == mode )
-    {
+    {// TODO: handle '\' as well
         const wchar_t* fn = PathFindFileName( path.c_str() );
         const wchar_t* ext = PathFindExtension( fn );
         wchar_t dir[MAX_PATH] = { 0 };
@@ -272,10 +272,9 @@ JsUtils::FileTest( const std::wstring& path, const std::string& mode )
                 JS_ReportErrorASCII( pJsCtx_, "Internal error: JS_SetElement failed" );
                 return std::nullopt;
             }
-        }
+        }        
 
-        jsValue.set( JS::ObjectValue( *jsArray ) );
-        return jsValue;
+        return JS::ObjectValue( *jsArray );
     }
 
     if ( "chardet" == mode )
@@ -308,7 +307,7 @@ JsUtils::FormatFileSize( uint64_t p )
 }
 
 std::optional<std::uint32_t>
-JsUtils::GetAlbumArtAsync( uint64_t hWnd, JsFbMetadbHandle* handle, uint32_t art_id, bool need_stub, bool only_embed, bool no_load )
+JsUtils::GetAlbumArtAsync( uint32_t hWnd, JsFbMetadbHandle* handle, uint32_t art_id, bool need_stub, bool only_embed, bool no_load )
 {
     if ( !hWnd )
     {
@@ -325,6 +324,7 @@ JsUtils::GetAlbumArtAsync( uint64_t hWnd, JsFbMetadbHandle* handle, uint32_t art
     metadb_handle_ptr ptr = handle->GetHandle();
     assert( ptr.is_valid() );
 
+    // Such cast will work only on x86
     return art::GetAlbumArtAsync( (HWND)hWnd, ptr, art_id, need_stub, only_embed, no_load );
 }
 

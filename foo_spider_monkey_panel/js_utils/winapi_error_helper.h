@@ -12,7 +12,7 @@
             FORMAT_MESSAGE_IGNORE_INSERTS,\
             nullptr,\
             errorCode,\
-            MAKELANGID( LANG_NEUTRAL, SUBLANG_DEFAULT ),\
+            MAKELANGID( LANG_ENGLISH, SUBLANG_ENGLISH_US),\
             (LPTSTR)&lpMsgBuf,\
             0, nullptr );\
 \

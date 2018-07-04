@@ -24,11 +24,11 @@ public:
 public:
     std::optional<bool> CheckComponent( const std::string& name, bool is_dll );
     std::optional<bool> CheckFont( const std::wstring& name );
-    std::optional<uint32_t> ColourPicker( uint64_t hWindow, uint32_t default_colour );
-    std::optional<JS::HandleValue> FileTest( const std::wstring& path, const std::string& mode );
+    std::optional<uint32_t> ColourPicker( uint32_t hWindow, uint32_t default_colour );
+    std::optional<JS::Value> FileTest( const std::wstring& path, const std::string& mode );
     std::optional<std::string> FormatDuration( double p );
     std::optional<std::string> FormatFileSize( uint64_t p );
-    std::optional<std::uint32_t> GetAlbumArtAsync( uint64_t hWnd, JsFbMetadbHandle* handle, uint32_t art_id, bool need_stub, bool only_embed, bool no_load );
+    std::optional<std::uint32_t> GetAlbumArtAsync( uint32_t hWnd, JsFbMetadbHandle* handle, uint32_t art_id, bool need_stub, bool only_embed, bool no_load );
     std::optional<JSObject*> GetAlbumArtEmbedded( const std::string& rawpath, uint32_t art_id );
     std::optional<JSObject*> GetAlbumArtV2( JsFbMetadbHandle* handle, uint32_t art_id, bool need_stub );
     std::optional<uint32_t> GetSysColour( uint32_t index );

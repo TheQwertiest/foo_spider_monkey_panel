@@ -31,6 +31,7 @@ bool ToValue<int32_t>( JSContext * cx, const int32_t& inValue, JS::MutableHandle
 template <>
 bool ToValue<uint32_t>( JSContext * cx, const uint32_t& inValue, JS::MutableHandleValue wrappedValue );
 
+/// @details Returns only approximate uint64_t value, use with care!
 template <>
 bool ToValue<uint64_t>( JSContext * cx, const uint64_t& inValue, JS::MutableHandleValue wrappedValue );
 

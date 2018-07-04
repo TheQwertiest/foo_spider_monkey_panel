@@ -33,6 +33,7 @@ uint8_t ToValue<uint8_t>( JSContext * cx, const JS::HandleValue& jsValue, bool& 
 template <>
 uint32_t ToValue<uint32_t>( JSContext * cx, const JS::HandleValue& jsValue, bool& isValid );
 
+/// @details Returns only approximate uint64_t value, use with care!
 template <>
 uint64_t ToValue<uint64_t>( JSContext * cx, const JS::HandleValue& jsValue, bool& isValid );
 

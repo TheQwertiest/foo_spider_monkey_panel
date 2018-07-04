@@ -19,7 +19,7 @@ std::optional<SerializedJsValue> SerializeJsValue( JSContext* cx, JS::HandleValu
     else if ( jsValue.isInt32() )
     {
         serializedValue.type = JsValueType::pt_int32;
-        serializedValue.intVal = static_cast<uint64_t>( jsValue.toInt32() );
+        serializedValue.intVal = jsValue.toInt32();
     }
     else if ( jsValue.isDouble() )
     {

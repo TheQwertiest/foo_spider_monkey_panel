@@ -204,14 +204,14 @@ JsGdiUtils::Image( const std::wstring& path )
 }
 
 std::optional<std::uint32_t> 
-JsGdiUtils::LoadImageAsync( uint64_t hWnd, const std::wstring& path )
+JsGdiUtils::LoadImageAsync( uint32_t hWnd, const std::wstring& path )
 {
     if ( !hWnd )
     {
         JS_ReportErrorASCII( pJsCtx_, "Invalid hWnd argument" );
         return std::nullopt;
     }
-
+    // Such cast will work only on x86
     return image::LoadImageAsync( (HWND)hWnd, path );
 }
 

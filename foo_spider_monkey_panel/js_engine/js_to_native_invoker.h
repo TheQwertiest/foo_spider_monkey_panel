@@ -202,8 +202,8 @@ bool InvokeNativeCallback_Impl( JSContext* cx,
         args.rval().setObjectOrNull( retVal.value() );
     }
     else if constexpr(std::is_same_v<ReturnType::value_type, JS::Heap<JS::Value>>
-                       || std::is_same_v<ReturnType::value_type, JS::HandleValue> )
-    {// TODO: test if it actually works
+                       || std::is_same_v<ReturnType::value_type, JS::Value> )
+    {
         args.rval().set( retVal.value() );
     }
     else if constexpr( std::is_same_v<ReturnType::value_type, nullptr_t> )
