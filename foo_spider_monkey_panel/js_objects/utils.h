@@ -25,7 +25,7 @@ public:
     std::optional<bool> CheckComponent( const std::string& name, bool is_dll );
     std::optional<bool> CheckFont( const std::wstring& name );
     std::optional<uint32_t> ColourPicker( uint64_t hWindow, uint32_t default_colour );
-    //std::optional<std::nullptr_t> FileTest( const std::wstring& path, const std::wstring&  mode, VARIANT* p );
+    std::optional<JS::HandleValue> FileTest( const std::wstring& path, const std::string& mode );
     std::optional<std::string> FormatDuration( double p );
     std::optional<std::string> FormatFileSize( uint64_t p );
     std::optional<std::uint32_t> GetAlbumArtAsync( uint64_t hWnd, JsFbMetadbHandle* handle, uint32_t art_id, bool need_stub, bool only_embed, bool no_load );
@@ -33,7 +33,7 @@ public:
     std::optional<JSObject*> GetAlbumArtV2( JsFbMetadbHandle* handle, uint32_t art_id, bool need_stub );
     std::optional<uint32_t> GetSysColour( uint32_t index );
     std::optional<uint32_t> GetSystemMetrics( uint32_t index );
-    //std::optional<std::nullptr_t> Glob( const std::string& pattern, uint32_t exc_mask, uint32_t inc_mask, VARIANT* p );
+    std::optional<JSObject*> Glob( const std::string& pattern, uint32_t exc_mask, uint32_t inc_mask );
     std::optional<bool> IsKeyPressed( uint32_t vkey );
     std::optional<std::wstring> MapString( const std::wstring& str, uint32_t lcid, uint32_t flags );
     std::optional<bool> PathWildcardMatch( const std::wstring& pattern, const std::wstring& str );

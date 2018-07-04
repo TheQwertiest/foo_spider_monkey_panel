@@ -22,6 +22,8 @@ public:
 
     static const JSClass& GetClass();
 
+    titleformat_object::ptr GetTitleFormat();
+
 public:
     std::optional<std::string> Eval( bool force );
     std::optional<std::string> EvalWithMetadb( JsFbMetadbHandle* handle );

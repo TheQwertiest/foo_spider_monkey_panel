@@ -35,11 +35,11 @@ JSClass jsClass = {
     &jsOps
 };
 
-//MJS_DEFINE_JS_TO_NATIVE_FN( JsFbPlaylistRecyclerManager, Purge )
+MJS_DEFINE_JS_TO_NATIVE_FN( JsFbPlaylistRecyclerManager, Purge )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsFbPlaylistRecyclerManager, Restore )
 
 const JSFunctionSpec jsFunctions[] = {
-//  JS_FN( "Purge", Purge, 1, DefaultPropsFlags() ),
+    JS_FN( "Purge", Purge, 1, DefaultPropsFlags() ),
     JS_FN( "Restore", Restore, 1, DefaultPropsFlags() ),
     JS_FS_END
 };
@@ -95,54 +95,84 @@ const JSClass& JsFbPlaylistRecyclerManager::GetClass()
 {
     return jsClass;
 }
-/*
+
 std::optional<std::nullptr_t> 
 JsFbPlaylistRecyclerManager::Purge( JS::HandleValue affectedItems )
 {
-    //try
-    //{
-        auto api = playlist_manager_v3::get();
-        pfc::bit_array_bittable affected( api->recycler_get_count() );
-        bool ok;
-        //if ( !helpers::com_array_to_bitarray::convert( affectedItems, affected, ok ) )
-        //{
-            //return E_INVALIDARG;
-        //}
-        if ( !ok )
+    JS::RootedObject jsObject( pJsCtx_, affectedItems.toObjectOrNull() );
+    if ( !jsObject )
+    {
+        JS_ReportErrorASCII( pJsCtx_, "affectedItems argument is not a JS object" );
+        return std::nullopt;
+    }
+
+    bool is;
+    if ( !JS_IsArrayObject( pJsCtx_, jsObject, &is ) )
+    {
+        JS_ReportErrorASCII( pJsCtx_, "affectedItems argument is an array" );
+        return std::nullopt;
+    }
+
+    uint32_t arraySize;
+    if ( !JS_GetArrayLength( pJsCtx_, jsObject, &arraySize ) )
+    {
+        JS_ReportErrorASCII( pJsCtx_, "Failed to get affectedItems argument array length" );
+        return std::nullopt;
+    }
+
+    auto api = playlist_manager_v3::get();
+    pfc::bit_array_bittable affected( api->recycler_get_count() );
+
+    JS::RootedValue arrayElement( pJsCtx_ );
+    for ( uint32_t i = 0; i < arraySize; ++i )
+    {
+        if ( !JS_GetElement( pJsCtx_, jsObject, i, &arrayElement ) )
         {
-            //JS_ReportErrorASCII( pJsCtx_, "points[%d] is not an object", i );
+            JS_ReportErrorASCII( pJsCtx_, "Failed to get affectedItems[%ud]", i );
             return std::nullopt;
         }
-        api->recycler_purge( affected );
-    //}
-    //catch ( ... )
-    //{
-        //return E_INVALIDARG;
-    //}
 
-    //return nullptr;
+        bool isValid;
+        uint32_t affectedIdx( convert::to_native::ToValue<uint32_t>( pJsCtx_, arrayElement, isValid ) );
+        if ( !isValid )
+        {
+            JS_ReportErrorASCII( pJsCtx_, "affectedItems[%ud] can't be converted to number" );
+            return std::nullopt;
+        }
+
+        affected.set( affectedIdx, true );
+    }
+
+    api->recycler_purge( affected );
+    return nullptr;
 }
-*/
+
 std::optional<std::nullptr_t> 
 JsFbPlaylistRecyclerManager::Restore( uint32_t index )
 {
-    //try
-    //{
-    playlist_manager_v3::get()->recycler_restore( index );
-    //}
-    //catch ( ... )
-    //{
-        //return E_INVALIDARG;
-    //}
+    auto api = playlist_manager_v3::get();
+    t_size count = api->recycler_get_count();
+    if ( index >= count )
+    {
+        JS_ReportErrorASCII( pJsCtx_, "Index is out of bounds" );
+        return std::nullopt;
+    }
 
+    api->recycler_restore( index );
     return nullptr;
 }
 
 std::optional<JSObject*> 
 JsFbPlaylistRecyclerManager::get_Content( uint32_t index )
 {
-    //try
-    //{
+    auto api = playlist_manager_v3::get();
+    t_size count = api->recycler_get_count();
+    if ( index >= count )
+    {
+        JS_ReportErrorASCII( pJsCtx_, "Index is out of bounds" );
+        return std::nullopt;
+    }
+
     metadb_handle_list handles;
     playlist_manager_v3::get()->recycler_get_content( index, handles );    
 
@@ -154,14 +184,6 @@ JsFbPlaylistRecyclerManager::get_Content( uint32_t index )
     }
 
     return jsObject;
-
-    //}
-    //catch ( ... )
-    //{
-        //return E_INVALIDARG;
-    //}
-
-    //return nullptr;
 }
 
 std::optional<uint32_t> 
@@ -173,18 +195,17 @@ JsFbPlaylistRecyclerManager::get_Count()
 std::optional<std::string>
 JsFbPlaylistRecyclerManager::get_Name( uint32_t index )
 {
-    // TODO: test for exceptions
+    auto api = playlist_manager_v3::get();
+    t_size count = api->recycler_get_count();
+    if ( index >= count )
+    {
+        JS_ReportErrorASCII( pJsCtx_, "Index is out of bounds" );
+        return std::nullopt;
+    }
 
-    //try
-    //{
     pfc::string8_fast name;
     playlist_manager_v3::get()->recycler_get_name( index, name );
     return name.c_str();
-    //}
-    //catch ( ... )
-    //{
-        //return E_INVALIDARG;
-    //}
 }
 
 }

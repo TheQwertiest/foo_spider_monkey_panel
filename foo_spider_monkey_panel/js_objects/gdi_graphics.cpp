@@ -49,6 +49,7 @@ MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiGraphics, DrawPolygon )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiGraphics, DrawRect )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiGraphics, DrawRoundRect )
 MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsGdiGraphics, DrawString, DrawStringWithOpt, 1 )
+MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiGraphics, EstimateLineWrap )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiGraphics, FillEllipse )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiGraphics, FillGradRect )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiGraphics, FillPolygon )
@@ -72,7 +73,8 @@ const JSFunctionSpec jsFunctions[] = {
     JS_FN( "DrawRect", DrawRect, 6, DefaultPropsFlags() ),
     JS_FN( "DrawRoundRect", DrawRoundRect, 8, DefaultPropsFlags() ),
     JS_FN( "DrawString", DrawString, 8, DefaultPropsFlags() ),
-    JS_FN( "FillEllipse", FillEllipse, 5, DefaultPropsFlags() ),
+    JS_FN( "DrawString", DrawString, 8, DefaultPropsFlags() ),
+    JS_FN( "EstimateLineWrap", EstimateLineWrap, 0, DefaultPropsFlags() ),
     JS_FN( "FillGradRect", FillGradRect, 8, DefaultPropsFlags() ),
     JS_FN( "FillPolygon", DrawPolygon, 3, DefaultPropsFlags() ),
     JS_FN( "FillRoundRect", FillRoundRect, 7, DefaultPropsFlags() ),
@@ -153,7 +155,7 @@ JsGdiGraphics::CalcTextHeight( const std::wstring& str, JsGdiFont* font )
         return std::nullopt;
     }
 
-    HFONT hFont = font->HFont();
+    HFONT hFont = font->GetHFont();
     HDC dc = pGdi_->GetHDC();
     HFONT oldfont = SelectFont( dc, hFont );
 
@@ -180,7 +182,7 @@ JsGdiGraphics::CalcTextWidth( const std::wstring& str, JsGdiFont* font )
         return std::nullopt;
     }
 
-    HFONT hFont = font->HFont();
+    HFONT hFont = font->GetHFont();
     HDC dc = pGdi_->GetHDC();
     HFONT oldfont = SelectFont( dc, hFont );
 
@@ -431,6 +433,77 @@ JsGdiGraphics::DrawStringWithOpt( size_t optArgCount, const std::wstring& str, J
     return DrawString( str, font, colour, x, y, w, h, flags );
 }
 
+std::optional<JSObject*> 
+JsGdiGraphics::EstimateLineWrap( const std::wstring& str, JsGdiFont* font, uint32_t max_width )
+{
+    if ( !pGdi_ )
+    {
+        JS_ReportErrorASCII( pJsCtx_, "Internal error: Gdiplus::Graphics object is null" );
+        return std::nullopt;
+    }
+
+    if ( !font )
+    {
+        JS_ReportErrorASCII( pJsCtx_, "font argument is null" );
+        return std::nullopt;
+    }
+
+    HFONT hFont = font->GetHFont();
+    assert( hFont );
+
+    HFONT oldfont;
+    HDC dc = pGdi_->GetHDC();
+    assert( dc );
+
+    pfc::list_t<helpers::wrapped_item> result;
+    oldfont = SelectFont( dc, hFont );
+    estimate_line_wrap( dc, str.c_str(), str.length(), max_width, result );
+    SelectFont( dc, oldfont );
+
+    pGdi_->ReleaseHDC( dc );
+
+    helpers::com_array_writer<> helper;
+
+    if ( !helper.create( result.get_count() * 2 ) )
+    {
+        JS_ReportOutOfMemory( pJsCtx_ );
+        return std::nullopt;
+    }
+
+    JS::RootedObject jsArray( pJsCtx_, JS_NewArrayObject( pJsCtx_, helper.get_count() ) );
+    if ( !jsArray )
+    {
+        JS_ReportOutOfMemory( pJsCtx_ );
+        return std::nullopt;
+    }
+
+    JS::RootedValue jsValue( pJsCtx_ );
+    for ( LONG i = 0; i < helper.get_count() / 2; ++i )
+    {
+        std::wstring tmpString( (const wchar_t*)result[i].text );
+        if ( !convert::to_js::ToValue( pJsCtx_, tmpString, &jsValue ) )
+        {
+            JS_ReportErrorASCII( pJsCtx_, "Internal error: cast to JSString failed" );
+            return std::nullopt;
+        }
+
+        if ( !JS_SetElement( pJsCtx_, jsArray, 2 * i, jsValue ) )
+        {
+            JS_ReportErrorASCII( pJsCtx_, "Internal error: JS_SetElement failed" );
+            return std::nullopt;
+        }
+
+        jsValue.setNumber( (uint32_t)result[i].width );
+        if ( !JS_SetElement( pJsCtx_, jsArray, 2 * i + 1, jsValue ) )
+        {
+            JS_ReportErrorASCII( pJsCtx_, "Internal error: JS_SetElement failed" );
+            return std::nullopt;
+        }
+    }
+
+    return jsArray;
+}
+
 std::optional<std::nullptr_t>
 JsGdiGraphics::FillEllipse( float x, float y, float w, float h, uint32_t colour )
 {
@@ -648,7 +721,7 @@ JsGdiGraphics::GdiDrawText( const std::wstring& str, JsGdiFont* font, uint32_t c
         return std::nullopt;
     }
     
-    HFONT hFont = font->HFont();
+    HFONT hFont = font->GetHFont();
     assert( hFont );
    
     HFONT oldfont;
@@ -898,7 +971,7 @@ bool JsGdiGraphics::ParsePoints( JS::HandleValue jsValue, std::vector<Gdiplus::P
 {
     gdiPoints.clear();
 
-    JS::RootedObject jsObject( pJsCtx_, GetJsObjectFromValue( pJsCtx_, jsValue ) );
+    JS::RootedObject jsObject( pJsCtx_, jsValue.toObjectOrNull() );
     if ( !jsObject )
     {
         JS_ReportErrorASCII( pJsCtx_, "Points argument is not a JS object" );

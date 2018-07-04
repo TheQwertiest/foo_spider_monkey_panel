@@ -88,6 +88,11 @@ const JSClass& JsFbTitleFormat::GetClass()
     return jsClass;
 }
 
+titleformat_object::ptr JsFbTitleFormat::GetTitleFormat()
+{
+    return titleFormatObject_;
+}
+
 std::optional<std::string> 
 JsFbTitleFormat::Eval( bool force )
 {

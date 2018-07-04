@@ -140,6 +140,7 @@
     <ClCompile Include="js_panel_window_dui.cpp" />
     <ClCompile Include="js_utils\art_helper.cpp" />
     <ClCompile Include="js_utils\gdi_error_helper.cpp" />
+    <ClCompile Include="js_utils\image_helper.cpp" />
     <ClCompile Include="js_utils\js_error_helper.cpp" />
     <ClCompile Include="js_utils\js_object_helper.cpp" />
     <ClCompile Include="js_utils\serialized_value.cpp" />
@@ -209,6 +210,7 @@
     <ClInclude Include="js_objects\_placeholder.h" />
     <ClInclude Include="js_utils\art_helper.h" />
     <ClInclude Include="js_utils\gdi_error_helper.h" />
+    <ClInclude Include="js_utils\image_helper.h" />
     <ClInclude Include="js_utils\js_error_helper.h" />
     <ClInclude Include="js_utils\js_object_helper.h" />
     <ClInclude Include="js_utils\scope_helper.h" />
@@ -280,6 +282,9 @@
       <LinkLibraryDependencies>true</LinkLibraryDependencies>
       <UseLibraryDependencyInputs>false</UseLibraryDependencyInputs>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="todo.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

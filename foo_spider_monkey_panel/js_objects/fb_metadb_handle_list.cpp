@@ -4,6 +4,7 @@
 
 #include <js_engine/js_to_native_invoker.h>
 #include <js_objects/fb_metadb_handle.h>
+#include <js_objects/fb_title_format.h>
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
 
@@ -44,15 +45,15 @@ MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandleList, BSearch );
 MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandleList, CalcTotalDuration );
 MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandleList, CalcTotalSize );
 MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandleList, Clone );
-//MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandleList, Convert );
+MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandleList, Convert );
 MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandleList, Find );
-//MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandleList, GetLibraryRelativePaths );
+MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandleList, GetLibraryRelativePaths );
 MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandleList, Insert );
 MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandleList, InsertRange );
 MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandleList, MakeDifference );
 MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandleList, MakeIntersection );
 MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandleList, MakeUnion );
-//MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandleList, OrderByFormat );
+MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandleList, OrderByFormat );
 MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandleList, OrderByPath );
 MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandleList, OrderByRelativePath );
 MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandleList, RefreshStats );
@@ -70,15 +71,15 @@ const JSFunctionSpec jsFunctions[] = {
     JS_FN( "CalcTotalDuration"      , CalcTotalDuration      , 0, DefaultPropsFlags() ),
     JS_FN( "CalcTotalSize"          , CalcTotalSize          , 0, DefaultPropsFlags() ),
     JS_FN( "Clone"                  , Clone                  , 0, DefaultPropsFlags() ),
-    //JS_FN( "Convert"                , Convert                , 0, DefaultPropsFlags() ),
+    JS_FN( "Convert"                , Convert                , 0, DefaultPropsFlags() ),
     JS_FN( "Find"                   , Find                   , 1, DefaultPropsFlags() ),
-    //JS_FN( "GetLibraryRelativePaths", GetLibraryRelativePaths, 0, DefaultPropsFlags() ),
+    JS_FN( "GetLibraryRelativePaths", GetLibraryRelativePaths, 0, DefaultPropsFlags() ),
     JS_FN( "Insert"                 , Insert                 , 2, DefaultPropsFlags() ),
     JS_FN( "InsertRange"            , InsertRange            , 2, DefaultPropsFlags() ),
     JS_FN( "MakeDifference"         , MakeDifference         , 1, DefaultPropsFlags() ),
     JS_FN( "MakeIntersection"       , MakeIntersection       , 1, DefaultPropsFlags() ),
     JS_FN( "MakeUnion"              , MakeUnion              , 1, DefaultPropsFlags() ),
-    //JS_FN( "OrderByFormat"          , OrderByFormat          , 0, DefaultPropsFlags() ),
+    JS_FN( "OrderByFormat"          , OrderByFormat          , 0, DefaultPropsFlags() ),
     JS_FN( "OrderByPath"            , OrderByPath            , 0, DefaultPropsFlags() ),
     JS_FN( "OrderByRelativePath"    , OrderByRelativePath    , 0, DefaultPropsFlags() ),
     JS_FN( "RefreshStats"           , RefreshStats           , 0, DefaultPropsFlags() ),
@@ -224,6 +225,40 @@ JsFbMetadbHandleList::Clone()
     return jsObject;
 }
 
+std::optional<JSObject*> 
+JsFbMetadbHandleList::Convert()
+{
+    t_size count = metadbHandleList_.get_count();
+
+    JS::RootedObject jsArray( pJsCtx_, JS_NewArrayObject( pJsCtx_, count ) );
+    if ( !jsArray )
+    {
+        JS_ReportOutOfMemory( pJsCtx_ );
+        return std::nullopt;
+    }
+
+    JS::RootedValue jsValue( pJsCtx_ );
+    JS::RootedObject jsObject( pJsCtx_ );
+    for ( t_size i = 0; i < count; ++i )
+    {
+        jsObject = JsFbMetadbHandle::Create( pJsCtx_, metadbHandleList_.get_item_ref( i ));
+        if ( !jsObject )
+        {
+            JS_ReportErrorASCII( pJsCtx_, "Internal error: failed to create JS object" );
+            return std::nullopt;
+        }
+
+        jsValue.set( JS::ObjectValue( *jsObject ) );
+        if ( !JS_SetElement( pJsCtx_, jsArray, i, jsValue ) )
+        {
+            JS_ReportErrorASCII( pJsCtx_, "Internal error: JS_SetElement failed" );
+            return std::nullopt;
+        }
+    }
+
+    return jsArray;
+}
+
 std::optional<int32_t> 
 JsFbMetadbHandleList::Find( JsFbMetadbHandle* handle )
 {
@@ -241,6 +276,49 @@ JsFbMetadbHandleList::Find( JsFbMetadbHandle* handle )
     }
 
     return static_cast<int32_t>( metadbHandleList_.find_item( fbHandle ) );
+}
+
+std::optional<JSObject*> 
+JsFbMetadbHandleList::GetLibraryRelativePaths()
+{
+    auto api = library_manager::get();
+    t_size count = metadbHandleList_.get_count();
+
+    pfc::string8_fastalloc path;
+    path.prealloc( 512 );
+    metadb_handle_ptr item;
+
+    JS::RootedObject jsArray( pJsCtx_, JS_NewArrayObject( pJsCtx_, count ) );
+    if ( !jsArray )
+    {
+        JS_ReportOutOfMemory( pJsCtx_ );
+        return std::nullopt;
+    }
+
+    JS::RootedValue jsValue( pJsCtx_ );
+    for ( t_size i = 0; i < count; ++i )
+    {
+        item = metadbHandleList_.get_item_ref(i);
+        if ( !api->get_relative_path( item, path ) )
+        {
+            path = "";
+        }
+
+        std::string tmpString( path.c_str(), path.length() );
+        if ( !convert::to_js::ToValue( pJsCtx_, tmpString, &jsValue ) )
+        {
+            JS_ReportErrorASCII( pJsCtx_, "Internal error: cast to JSString failed" );
+            return std::nullopt;
+        }
+
+        if ( !JS_SetElement( pJsCtx_, jsArray, i, jsValue ) )
+        {
+            JS_ReportErrorASCII( pJsCtx_, "Internal error: JS_SetElement failed" );
+            return std::nullopt;
+        }
+    }
+
+    return jsArray;
 }
 
 std::optional<std::nullptr_t> 
@@ -363,6 +441,20 @@ JsFbMetadbHandleList::MakeUnion( JsFbMetadbHandleList* handles )
 
     metadbHandleList_.add_items( handles->GetHandleList() );
     metadbHandleList_.sort_by_pointer_remove_duplicates();
+    return nullptr;
+}
+
+std::optional<std::nullptr_t> 
+JsFbMetadbHandleList::OrderByFormat( JsFbTitleFormat* script, int8_t direction )
+{
+    if ( !script )
+    {
+        JS_ReportErrorASCII( pJsCtx_, "script argument is null" );
+        return std::nullopt;
+    }
+
+    titleformat_object::ptr titleFormat = script->GetTitleFormat();    
+    metadbHandleList_.sort_by_format( titleFormat, nullptr, direction );
     return nullptr;
 }
 

@@ -45,9 +45,9 @@ MJS_DEFINE_JS_TO_NATIVE_FN( JsWindow, ClearTimeout )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsWindow, CreatePopupMenu )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsWindow, CreateThemeManager )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsWindow, CreateTooltip )
-MJS_DEFINE_JS_TO_NATIVE_FN( JsWindow, GetColourCUI )
+MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsWindow, GetColourCUI, GetColourCUIWithOpt, 1 )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsWindow, GetColourDUI )
-MJS_DEFINE_JS_TO_NATIVE_FN( JsWindow, GetFontCUI )
+MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsWindow, GetFontCUI, GetFontCUIWithOpt, 1 )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsWindow, GetFontDUI )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsWindow, GetProperty )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsWindow, NotifyOthers )
@@ -262,6 +262,24 @@ JsWindow::GetColourCUI( uint32_t type, const std::wstring& guidstr )
 }
 
 std::optional<uint32_t>
+JsWindow::GetColourCUIWithOpt( size_t optArgCount, uint32_t type, const std::wstring& guidstr )
+{
+    if ( optArgCount > 1 )
+    {
+        JS_ReportErrorASCII( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
+        return std::nullopt;
+    }
+
+    if ( optArgCount == 1 )
+    {
+        std::wstring dummy;
+        return GetColourCUI( type, dummy );
+    }
+
+    return GetColourCUI( type, guidstr );
+}
+
+std::optional<uint32_t>
 JsWindow::GetColourDUI( uint32_t type )
 {
     if ( parentPanel_.GetPanelType() != js_panel_window::PanelType::DUI )
@@ -321,6 +339,24 @@ JsWindow::GetFontCUI( uint32_t type, const std::wstring& guidstr )
     pGdiFont.release();
     autoFont.release();
     return jsObject;
+}
+
+std::optional<JSObject*>
+JsWindow::GetFontCUIWithOpt( size_t optArgCount, uint32_t type, const std::wstring& guidstr )
+{
+    if ( optArgCount > 1 )
+    {
+        JS_ReportErrorASCII( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
+        return std::nullopt;
+    }
+
+    if ( optArgCount == 1 )
+    {
+        std::wstring dummy;
+        return GetFontCUI( type, dummy );
+    }
+
+    return GetFontCUI( type, guidstr );
 }
 
 std::optional<JSObject*>

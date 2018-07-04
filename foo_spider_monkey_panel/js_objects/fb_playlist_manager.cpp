@@ -5,6 +5,7 @@
 #include <js_objects/fb_metadb_handle.h>
 #include <js_objects/fb_metadb_handle_list.h>
 #include <js_objects/fb_playing_item_location.h>
+#include <js_objects/fb_playback_queue_item.h>
 #include <js_objects/fb_playlist_recycler_manager.h>
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
@@ -37,7 +38,7 @@ JSClass jsClass = {
 };
 
 MJS_DEFINE_JS_TO_NATIVE_FN( JsFbPlaylistManager, AddItemToPlaybackQueue        );
-// MJS_DEFINE_JS_TO_NATIVE_FN( JsFbPlaylistManager, AddLocations               );
+MJS_DEFINE_JS_TO_NATIVE_FN( JsFbPlaylistManager, AddLocations               );
 MJS_DEFINE_JS_TO_NATIVE_FN( JsFbPlaylistManager, AddPlaylistItemToPlaybackQueue);
 MJS_DEFINE_JS_TO_NATIVE_FN( JsFbPlaylistManager, ClearPlaylist                 );
 MJS_DEFINE_JS_TO_NATIVE_FN( JsFbPlaylistManager, ClearPlaylistSelection        );
@@ -50,7 +51,7 @@ MJS_DEFINE_JS_TO_NATIVE_FN( JsFbPlaylistManager, FindOrCreatePlaylist          )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsFbPlaylistManager, FindPlaybackQueueItemIndex    );
 MJS_DEFINE_JS_TO_NATIVE_FN( JsFbPlaylistManager, FindPlaylist                  );
 MJS_DEFINE_JS_TO_NATIVE_FN( JsFbPlaylistManager, FlushPlaybackQueue           );
-// MJS_DEFINE_JS_TO_NATIVE_FN( JsFbPlaylistManager, GetPlaybackQueueContents   );
+MJS_DEFINE_JS_TO_NATIVE_FN( JsFbPlaylistManager, GetPlaybackQueueContents   );
 MJS_DEFINE_JS_TO_NATIVE_FN( JsFbPlaylistManager, GetPlaybackQueueHandles       );
 MJS_DEFINE_JS_TO_NATIVE_FN( JsFbPlaylistManager, GetPlayingItemLocation        );
 MJS_DEFINE_JS_TO_NATIVE_FN( JsFbPlaylistManager, GetPlaylistFocusItemIndex     );
@@ -66,7 +67,7 @@ MJS_DEFINE_JS_TO_NATIVE_FN( JsFbPlaylistManager, MovePlaylist                  )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsFbPlaylistManager, MovePlaylistSelection         );
 MJS_DEFINE_JS_TO_NATIVE_FN( JsFbPlaylistManager, PlaylistItemCount             );
 MJS_DEFINE_JS_TO_NATIVE_FN( JsFbPlaylistManager, RemoveItemFromPlaybackQueue  );
-// MJS_DEFINE_JS_TO_NATIVE_FN( JsFbPlaylistManager, RemoveItemsFromPlaybackQueue);
+MJS_DEFINE_JS_TO_NATIVE_FN( JsFbPlaylistManager, RemoveItemsFromPlaybackQueue);
 MJS_DEFINE_JS_TO_NATIVE_FN( JsFbPlaylistManager, RemovePlaylist                );
 MJS_DEFINE_JS_TO_NATIVE_FN( JsFbPlaylistManager, RemovePlaylistSelection       );
 MJS_DEFINE_JS_TO_NATIVE_FN( JsFbPlaylistManager, RemovePlaylistSwitch          );
@@ -74,7 +75,7 @@ MJS_DEFINE_JS_TO_NATIVE_FN( JsFbPlaylistManager, RenamePlaylist               );
 MJS_DEFINE_JS_TO_NATIVE_FN( JsFbPlaylistManager, SetActivePlaylistContext      );
 MJS_DEFINE_JS_TO_NATIVE_FN( JsFbPlaylistManager, SetPlaylistFocusItem          );
 MJS_DEFINE_JS_TO_NATIVE_FN( JsFbPlaylistManager, SetPlaylistFocusItemByHandle  );
-// MJS_DEFINE_JS_TO_NATIVE_FN( JsFbPlaylistManager, SetPlaylistSelection       );
+MJS_DEFINE_JS_TO_NATIVE_FN( JsFbPlaylistManager, SetPlaylistSelection       );
 MJS_DEFINE_JS_TO_NATIVE_FN( JsFbPlaylistManager, SetPlaylistSelectionSingle    );
 MJS_DEFINE_JS_TO_NATIVE_FN( JsFbPlaylistManager, ShowAutoPlaylistUI            );
 MJS_DEFINE_JS_TO_NATIVE_FN( JsFbPlaylistManager, SortByFormat                  );
@@ -85,7 +86,7 @@ MJS_DEFINE_JS_TO_NATIVE_FN( JsFbPlaylistManager, UndoBackup                    )
 // TODO: set arg count
 const JSFunctionSpec jsFunctions[] = {
     JS_FN("AddItemToPlaybackQueue", AddItemToPlaybackQueue, 0, DefaultPropsFlags() ),
-    // JS_FN("AddLocations", AddLocations, 0, DefaultPropsFlags() ),
+    JS_FN("AddLocations", AddLocations, 0, DefaultPropsFlags() ),
     JS_FN("AddPlaylistItemToPlaybackQueue", AddPlaylistItemToPlaybackQueue, 0, DefaultPropsFlags() ),
     JS_FN("ClearPlaylist", ClearPlaylist, 0, DefaultPropsFlags() ),
     JS_FN("ClearPlaylistSelection", ClearPlaylistSelection, 0, DefaultPropsFlags() ),
@@ -98,7 +99,7 @@ const JSFunctionSpec jsFunctions[] = {
     JS_FN("FindPlaybackQueueItemIndex", FindPlaybackQueueItemIndex, 0, DefaultPropsFlags() ),
     JS_FN("FindPlaylist", FindPlaylist, 0, DefaultPropsFlags() ),
     JS_FN("FlushPlaybackQueue", FlushPlaybackQueue, 0, DefaultPropsFlags() ),
-    // JS_FN("GetPlaybackQueueContents", GetPlaybackQueueContents, 0, DefaultPropsFlags() ),
+    JS_FN("GetPlaybackQueueContents", GetPlaybackQueueContents, 0, DefaultPropsFlags() ),
     JS_FN("GetPlaybackQueueHandles", GetPlaybackQueueHandles, 0, DefaultPropsFlags() ),
     JS_FN("GetPlayingItemLocation", GetPlayingItemLocation, 0, DefaultPropsFlags() ),
     JS_FN("GetPlaylistFocusItemIndex", GetPlaylistFocusItemIndex, 0, DefaultPropsFlags() ),
@@ -114,7 +115,7 @@ const JSFunctionSpec jsFunctions[] = {
     JS_FN("MovePlaylistSelection", MovePlaylistSelection, 0, DefaultPropsFlags() ),
     JS_FN("PlaylistItemCount", PlaylistItemCount, 0, DefaultPropsFlags() ),
     JS_FN("RemoveItemFromPlaybackQueue", RemoveItemFromPlaybackQueue, 0, DefaultPropsFlags() ),
-    // JS_FN("RemoveItemsFromPlaybackQueue", RemoveItemsFromPlaybackQueue, 0, DefaultPropsFlags() ),
+    JS_FN("RemoveItemsFromPlaybackQueue", RemoveItemsFromPlaybackQueue, 0, DefaultPropsFlags() ),
     JS_FN("RemovePlaylist", RemovePlaylist, 0, DefaultPropsFlags() ),
     JS_FN("RemovePlaylistSelection", RemovePlaylistSelection, 0, DefaultPropsFlags() ),
     JS_FN("RemovePlaylistSwitch", RemovePlaylistSwitch, 0, DefaultPropsFlags() ),
@@ -122,7 +123,7 @@ const JSFunctionSpec jsFunctions[] = {
     JS_FN("SetActivePlaylistContext", SetActivePlaylistContext, 0, DefaultPropsFlags() ),
     JS_FN("SetPlaylistFocusItem", SetPlaylistFocusItem, 0, DefaultPropsFlags() ),
     JS_FN("SetPlaylistFocusItemByHandle", SetPlaylistFocusItemByHandle, 0, DefaultPropsFlags() ),
-    // JS_FN("SetPlaylistSelection", SetPlaylistSelection, 0, DefaultPropsFlags() ),
+    JS_FN("SetPlaylistSelection", SetPlaylistSelection, 0, DefaultPropsFlags() ),
     JS_FN("SetPlaylistSelectionSingle", SetPlaylistSelectionSingle, 0, DefaultPropsFlags() ),
     JS_FN("ShowAutoPlaylistUI", ShowAutoPlaylistUI, 0, DefaultPropsFlags() ),
     JS_FN("SortByFormat", SortByFormat, 0, DefaultPropsFlags() ),
@@ -201,6 +202,64 @@ JsFbPlaylistManager::AddItemToPlaybackQueue( JsFbMetadbHandle* handle )
     }
 
     playlist_manager::get()->queue_add_item( handle->GetHandle() );
+    return nullptr;
+}
+
+std::optional<std::nullptr_t> 
+JsFbPlaylistManager::AddLocations( uint32_t playlistIndex, JS::HandleValue locations, bool select )
+{ 
+    JS::RootedObject jsObject( pJsCtx_, locations.toObjectOrNull() );
+    if ( !jsObject )
+    {
+        JS_ReportErrorASCII( pJsCtx_, "locations argument is not a JS object" );
+        return std::nullopt;
+    }
+
+    bool is;
+    if ( !JS_IsArrayObject( pJsCtx_, jsObject, &is ) )
+    {
+        JS_ReportErrorASCII( pJsCtx_, "locations argument is an array" );
+        return std::nullopt;
+    }
+
+    uint32_t arraySize;
+    if ( !JS_GetArrayLength( pJsCtx_, jsObject, &arraySize ) )
+    {
+        JS_ReportErrorASCII( pJsCtx_, "Failed to get locations argument array length" );
+        return std::nullopt;
+    }
+
+    pfc::string_list_impl locations2;
+
+    JS::RootedValue arrayElement( pJsCtx_ );
+    for ( uint32_t i = 0; i < arraySize; ++i )
+    {
+        if ( !JS_GetElement( pJsCtx_, jsObject, i, &arrayElement ) )
+        {
+            JS_ReportErrorASCII( pJsCtx_, "Failed to get locations[%ud]", i );
+            return std::nullopt;
+        }
+
+        bool isValid;
+        std::string path( convert::to_native::ToValue<std::string>( pJsCtx_, arrayElement, isValid ) );
+        if ( !isValid )
+        {
+            JS_ReportErrorASCII( pJsCtx_, "locations[%ud] is not a string" );
+            return std::nullopt;
+        }
+
+        locations2.add_item( path.c_str() );
+    }
+
+    t_size base = playlist_manager::get()->playlist_get_item_count( playlistIndex );
+    playlist_incoming_item_filter_v2::get()->process_locations_async(
+        locations2,
+        playlist_incoming_item_filter_v2::op_flag_no_filter | playlist_incoming_item_filter_v2::op_flag_delay_ui,
+        NULL,
+        NULL,
+        NULL,
+        new service_impl_t<helpers::js_process_locations>( playlistIndex, base, select ) );
+
     return nullptr;
 }
 
@@ -356,6 +415,42 @@ JsFbPlaylistManager::FlushPlaybackQueue()
 {
     playlist_manager::get()->queue_flush();
     return nullptr;
+}
+
+std::optional<JSObject*> 
+JsFbPlaylistManager::GetPlaybackQueueContents()
+{
+    pfc::list_t<t_playback_queue_item> contents;
+    playlist_manager::get()->queue_get_contents( contents );
+    t_size count = contents.get_count();
+
+    JS::RootedObject jsArray( pJsCtx_, JS_NewArrayObject( pJsCtx_, count ) );
+    if ( !jsArray )
+    {
+        JS_ReportOutOfMemory( pJsCtx_ );
+        return std::nullopt;
+    }
+
+    JS::RootedValue jsValue( pJsCtx_ );
+    JS::RootedObject jsObject( pJsCtx_ );
+    for ( t_size i = 0; i < count; ++i )
+    {
+        jsObject.set( JsFbPlaybackQueueItem::Create( pJsCtx_, contents[i] ) );
+        if ( !jsObject )
+        {
+            JS_ReportErrorASCII( pJsCtx_, "Internal error: failed to create JS object" );
+            return std::nullopt;
+        }
+
+        jsValue.set( JS::ObjectValue( *jsObject ) );
+        if ( !JS_SetElement( pJsCtx_, jsArray, i, jsValue ) )
+        {
+            JS_ReportErrorASCII( pJsCtx_, "Internal error: JS_SetElement failed" );
+            return std::nullopt;
+        }
+    }
+
+    return jsArray;
 }
 
 std::optional<JSObject*>
@@ -543,6 +638,57 @@ JsFbPlaylistManager::RemoveItemFromPlaybackQueue( uint32_t index )
     return nullptr;
 }
 
+std::optional<std::nullptr_t> 
+JsFbPlaylistManager::RemoveItemsFromPlaybackQueue( JS::HandleValue affectedItems )
+{
+    JS::RootedObject jsObject( pJsCtx_, affectedItems.toObjectOrNull() );
+    if ( !jsObject )
+    {
+        JS_ReportErrorASCII( pJsCtx_, "affectedItems argument is not a JS object" );
+        return std::nullopt;
+    }
+
+    bool is;
+    if ( !JS_IsArrayObject( pJsCtx_, jsObject, &is ) )
+    {
+        JS_ReportErrorASCII( pJsCtx_, "affectedItems argument is an array" );
+        return std::nullopt;
+    }
+
+    uint32_t arraySize;
+    if ( !JS_GetArrayLength( pJsCtx_, jsObject, &arraySize ) )
+    {
+        JS_ReportErrorASCII( pJsCtx_, "Failed to get affectedItems argument array length" );
+        return std::nullopt;
+    }
+
+    auto api = playlist_manager::get();
+    pfc::bit_array_bittable affected( api->queue_get_count() );
+    
+    JS::RootedValue arrayElement( pJsCtx_ );
+    for ( uint32_t i = 0; i < arraySize; ++i )
+    {
+        if ( !JS_GetElement( pJsCtx_, jsObject, i, &arrayElement ) )
+        {
+            JS_ReportErrorASCII( pJsCtx_, "Failed to get affectedItems[%ud]", i );
+            return std::nullopt;
+        }
+
+        bool isValid;
+        uint32_t affectedIdx( convert::to_native::ToValue<uint32_t>( pJsCtx_, arrayElement, isValid ) );
+        if ( !isValid )
+        {
+            JS_ReportErrorASCII( pJsCtx_, "affectedItems[%ud] can't be converted to number" );
+            return std::nullopt;
+        }
+
+        affected.set( affectedIdx, true );
+    }
+    
+    api->queue_remove_mask( affected );
+    return nullptr;
+}
+
 std::optional<bool>
 JsFbPlaylistManager::RemovePlaylist( uint32_t playlistIndex )
 {
@@ -592,6 +738,59 @@ JsFbPlaylistManager::SetPlaylistFocusItemByHandle( uint32_t playlistIndex, JsFbM
     }
 
     playlist_manager::get()->playlist_set_focus_by_handle( playlistIndex, handle->GetHandle() );
+    return nullptr;
+}
+
+std::optional<std::nullptr_t> 
+JsFbPlaylistManager::SetPlaylistSelection( uint32_t playlistIndex, JS::HandleValue affectedItems, bool state )
+{
+    JS::RootedObject jsObject( pJsCtx_, affectedItems.toObjectOrNull() );
+    if ( !jsObject )
+    {
+        JS_ReportErrorASCII( pJsCtx_, "affectedItems argument is not a JS object" );
+        return std::nullopt;
+    }
+
+    bool is;
+    if ( !JS_IsArrayObject( pJsCtx_, jsObject, &is ) )
+    {
+        JS_ReportErrorASCII( pJsCtx_, "affectedItems argument is an array" );
+        return std::nullopt;
+    }
+
+    uint32_t arraySize;
+    if ( !JS_GetArrayLength( pJsCtx_, jsObject, &arraySize ) )
+    {
+        JS_ReportErrorASCII( pJsCtx_, "Failed to get affectedItems argument array length" );
+        return std::nullopt;
+    }
+
+    auto api = playlist_manager::get();
+    pfc::bit_array_bittable affected( api->playlist_get_item_count( playlistIndex ) );
+
+    JS::RootedValue arrayElement( pJsCtx_ );
+    for ( uint32_t i = 0; i < arraySize; ++i )
+    {
+        if ( !JS_GetElement( pJsCtx_, jsObject, i, &arrayElement ) )
+        {
+            JS_ReportErrorASCII( pJsCtx_, "Failed to get affectedItems[%ud]", i );
+            return std::nullopt;
+        }
+
+        bool isValid;
+        uint32_t affectedIdx( convert::to_native::ToValue<uint32_t>( pJsCtx_, arrayElement, isValid ) );
+        if ( !isValid )
+        {
+            JS_ReportErrorASCII( pJsCtx_, "affectedItems[%ud] can't be converted to number" );
+            return std::nullopt;
+        }
+
+        affected.set( affectedIdx, true );
+    }
+
+    pfc::bit_array_val status( state );
+    api->playlist_set_selection( playlistIndex, affected, status );
+
     return nullptr;
 }
 

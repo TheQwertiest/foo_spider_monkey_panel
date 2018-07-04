@@ -113,7 +113,7 @@ Gdiplus::Font* JsGdiFont::GdiFont() const
     return pGdi_.get();
 }
 
-HFONT JsGdiFont::HFont() const
+HFONT JsGdiFont::GetHFont() const
 {
     assert( hFont_ );
     return hFont_;

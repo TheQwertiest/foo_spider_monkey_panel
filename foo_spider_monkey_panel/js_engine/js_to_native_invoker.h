@@ -201,8 +201,9 @@ bool InvokeNativeCallback_Impl( JSContext* cx,
     {// retVal.value() is a raw JS pointer! Be careful when editing this code!
         args.rval().setObjectOrNull( retVal.value() );
     }
-    else if constexpr(std::is_same_v<ReturnType::value_type, JS::Heap<JS::Value>>)
-    {
+    else if constexpr(std::is_same_v<ReturnType::value_type, JS::Heap<JS::Value>>
+                       || std::is_same_v<ReturnType::value_type, JS::HandleValue> )
+    {// TODO: test if it actually works
         args.rval().set( retVal.value() );
     }
     else if constexpr( std::is_same_v<ReturnType::value_type, nullptr_t> )

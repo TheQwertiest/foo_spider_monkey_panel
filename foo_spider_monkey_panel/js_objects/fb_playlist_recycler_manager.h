@@ -20,7 +20,7 @@ public:
     static const JSClass& GetClass();
 
 public:
-    //std::optional<std::nullptr_t> Purge( JS::HandleValue affectedItems );
+    std::optional<std::nullptr_t> Purge( JS::HandleValue affectedItems );
     std::optional<std::nullptr_t> Restore( uint32_t index );
 
 public:

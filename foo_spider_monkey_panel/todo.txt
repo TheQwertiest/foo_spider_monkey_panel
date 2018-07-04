@@ -1,0 +1,12 @@
+# Planned
+- Check that all callbacks are defined.
+- Check uint64_t <-> double conversion.
+- Port hacks from ui_hacks.
+- Add `include(path.to.js)` method for loading scripts.
+- Add ES6 modules support.
+- Fill callbacks argument count everywhere.
+- Add default arguments everywhere.
+
+# Maybe
+- Add help to properties and methods
+- Replace separate JSON parser with the one from JS engine.

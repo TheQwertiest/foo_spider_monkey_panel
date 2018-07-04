@@ -47,7 +47,7 @@ public:
     std::optional<std::nullptr_t> DrawRoundRect( float x, float y, float w, float h, float arc_width, float arc_height, float line_width, uint32_t colour );
     std::optional<std::nullptr_t> DrawString( const std::wstring& str, JsGdiFont* font, uint32_t colour, float x, float y, float w, float h, uint32_t flags );
     std::optional<std::nullptr_t> DrawStringWithOpt( size_t optArgCount, const std::wstring& str, JsGdiFont* font, uint32_t colour, float x, float y, float w, float h, uint32_t flags );
-    //EstimateLineWrap( BSTR str, IGdiFont* font, int max_width, VARIANT* p );
+    std::optional<JSObject*> EstimateLineWrap( const std::wstring& str, JsGdiFont* font, uint32_t max_width );
     std::optional<std::nullptr_t> FillEllipse( float x, float y, float w, float h, uint32_t colour );
     std::optional<std::nullptr_t> FillGradRect( float x, float y, float w, float h, float angle, uint32_t colour1, uint32_t colour2, float focus );
     std::optional<std::nullptr_t> FillPolygon( uint32_t colour, uint32_t fillmode, JS::HandleValue points );

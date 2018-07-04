@@ -25,7 +25,7 @@ public:
     std::optional<JSObject*> Font( const std::wstring& fontName, float pxSize, uint32_t style );
     std::optional<JSObject*> FontWithOpt( size_t optArgCount, const std::wstring& fontName, float pxSize, uint32_t style );
     std::optional<JSObject*> Image( const std::wstring& path );
-    //STDMETHODIMP LoadImageAsync( UINT window_id, BSTR path, UINT* p );
+    std::optional<std::uint32_t> LoadImageAsync( uint64_t hWnd, const std::wstring& path );
 
 private:
     JsGdiUtils( JSContext* cx );

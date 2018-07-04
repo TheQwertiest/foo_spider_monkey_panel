@@ -445,20 +445,14 @@ JsFbUtils::GetFocusItem( bool force )
     metadb_handle_ptr metadb;
     auto api = playlist_manager::get();
 
-    try
+    if ( !api->activeplaylist_get_focus_item_handle( metadb ) && force )
     {
-        api->activeplaylist_get_focus_item_handle( metadb );
-        if ( metadb.is_empty() && force )
-        {
-            api->activeplaylist_get_item_handle( metadb, 0 );
-        }
-        if ( metadb.is_empty() )
-        {
-            return nullptr;
-        }
+        api->activeplaylist_get_item_handle( metadb, 0 );
     }
-    catch ( ... )
+
+    if ( metadb.is_empty() )
     {
+        return nullptr;
     }
 
     JS::RootedObject jsObject( pJsCtx_, JsFbMetadbHandle::Create( pJsCtx_, metadb ) );

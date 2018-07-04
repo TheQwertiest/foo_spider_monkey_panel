@@ -37,31 +37,31 @@ JSClass jsClass = {
     &jsOps
 };
 
-MJS_DEFINE_JS_TO_NATIVE_FN( JsUtils, CheckComponent      );
-MJS_DEFINE_JS_TO_NATIVE_FN( JsUtils, CheckFont           );
-MJS_DEFINE_JS_TO_NATIVE_FN( JsUtils, ColourPicker        );
-//MJS_DEFINE_JS_TO_NATIVE_FN( JsUtils, FileTest            );
-MJS_DEFINE_JS_TO_NATIVE_FN( JsUtils, FormatDuration      );
-MJS_DEFINE_JS_TO_NATIVE_FN( JsUtils, FormatFileSize      );
-MJS_DEFINE_JS_TO_NATIVE_FN( JsUtils, GetAlbumArtAsync    );
+MJS_DEFINE_JS_TO_NATIVE_FN( JsUtils, CheckComponent );
+MJS_DEFINE_JS_TO_NATIVE_FN( JsUtils, CheckFont );
+MJS_DEFINE_JS_TO_NATIVE_FN( JsUtils, ColourPicker );
+MJS_DEFINE_JS_TO_NATIVE_FN( JsUtils, FileTest );
+MJS_DEFINE_JS_TO_NATIVE_FN( JsUtils, FormatDuration );
+MJS_DEFINE_JS_TO_NATIVE_FN( JsUtils, FormatFileSize );
+MJS_DEFINE_JS_TO_NATIVE_FN( JsUtils, GetAlbumArtAsync );
 MJS_DEFINE_JS_TO_NATIVE_FN( JsUtils, GetAlbumArtEmbedded );
-MJS_DEFINE_JS_TO_NATIVE_FN( JsUtils, GetAlbumArtV2       );
-MJS_DEFINE_JS_TO_NATIVE_FN( JsUtils, GetSysColour        );
-MJS_DEFINE_JS_TO_NATIVE_FN( JsUtils, GetSystemMetrics    );
-//MJS_DEFINE_JS_TO_NATIVE_FN( JsUtils, Glob                );
-MJS_DEFINE_JS_TO_NATIVE_FN( JsUtils, IsKeyPressed        );
-MJS_DEFINE_JS_TO_NATIVE_FN( JsUtils, MapString           );
-MJS_DEFINE_JS_TO_NATIVE_FN( JsUtils, PathWildcardMatch   );
-MJS_DEFINE_JS_TO_NATIVE_FN( JsUtils, ReadINI             );
-MJS_DEFINE_JS_TO_NATIVE_FN( JsUtils, ReadTextFile        );
-MJS_DEFINE_JS_TO_NATIVE_FN( JsUtils, WriteINI            );
-MJS_DEFINE_JS_TO_NATIVE_FN( JsUtils, WriteTextFile       );
+MJS_DEFINE_JS_TO_NATIVE_FN( JsUtils, GetAlbumArtV2 );
+MJS_DEFINE_JS_TO_NATIVE_FN( JsUtils, GetSysColour );
+MJS_DEFINE_JS_TO_NATIVE_FN( JsUtils, GetSystemMetrics );
+MJS_DEFINE_JS_TO_NATIVE_FN( JsUtils, Glob );
+MJS_DEFINE_JS_TO_NATIVE_FN( JsUtils, IsKeyPressed );
+MJS_DEFINE_JS_TO_NATIVE_FN( JsUtils, MapString );
+MJS_DEFINE_JS_TO_NATIVE_FN( JsUtils, PathWildcardMatch );
+MJS_DEFINE_JS_TO_NATIVE_FN( JsUtils, ReadINI );
+MJS_DEFINE_JS_TO_NATIVE_FN( JsUtils, ReadTextFile );
+MJS_DEFINE_JS_TO_NATIVE_FN( JsUtils, WriteINI );
+MJS_DEFINE_JS_TO_NATIVE_FN( JsUtils, WriteTextFile );
 
 const JSFunctionSpec jsFunctions[] = {
     JS_FN( "CheckComponent", CheckComponent, 0, DefaultPropsFlags() ),
     JS_FN( "CheckFont", CheckFont, 0, DefaultPropsFlags() ),
     JS_FN( "ColourPicker", ColourPicker, 0, DefaultPropsFlags() ),
-    //JS_FN( "FileTest", FileTest, 0, DefaultPropsFlags() ),
+    JS_FN( "FileTest", FileTest, 0, DefaultPropsFlags() ),
     JS_FN( "FormatDuration", FormatDuration, 0, DefaultPropsFlags() ),
     JS_FN( "FormatFileSize", FormatFileSize, 0, DefaultPropsFlags() ),
     JS_FN( "GetAlbumArtAsync", GetAlbumArtAsync, 0, DefaultPropsFlags() ),
@@ -69,7 +69,7 @@ const JSFunctionSpec jsFunctions[] = {
     JS_FN( "GetAlbumArtV2", GetAlbumArtV2, 0, DefaultPropsFlags() ),
     JS_FN( "GetSysColour", GetSysColour, 0, DefaultPropsFlags() ),
     JS_FN( "GetSystemMetrics", GetSystemMetrics, 0, DefaultPropsFlags() ),
-    //JS_FN( "Glob", Glob, 0, DefaultPropsFlags() ),
+    JS_FN( "Glob", Glob, 0, DefaultPropsFlags() ),
     JS_FN( "IsKeyPressed", IsKeyPressed, 0, DefaultPropsFlags() ),
     JS_FN( "MapString", MapString, 0, DefaultPropsFlags() ),
     JS_FN( "PathWildcardMatch", PathWildcardMatch, 0, DefaultPropsFlags() ),
@@ -133,7 +133,7 @@ JsUtils::CheckComponent( const std::string& name, bool is_dll )
     componentversion::ptr ptr;
     pfc::string8_fast temp;
 
-     while ( e.next( ptr ) )
+    while ( e.next( ptr ) )
     {
         if ( is_dll )
         {
@@ -162,7 +162,7 @@ JsUtils::CheckFont( const std::wstring& name )
     int count = font_collection.GetFamilyCount();
     std::unique_ptr<Gdiplus::FontFamily[]> font_families( new Gdiplus::FontFamily[count] );
     int recv;
-    
+
     Gdiplus::Status gdiRet = font_collection.GetFamilies( count, font_families.get(), &recv );
     IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, std::nullopt, GetFamilies );
 
@@ -176,7 +176,7 @@ JsUtils::CheckFont( const std::wstring& name )
             if ( !_wcsicmp( name.c_str(), family_name_loc )
                  || !_wcsicmp( name.c_str(), family_name_eng ) )
             {
-                return true;                
+                return true;
             }
         }
     }
@@ -192,6 +192,107 @@ JsUtils::ColourPicker( uint64_t hWindow, uint32_t default_colour )
     uChooseColor( &color, (HWND)hWindow, &colors[0] );
 
     return helpers::convert_colorref_to_argb( color );
+}
+
+std::optional<JS::HandleValue>
+JsUtils::FileTest( const std::wstring& path, const std::string& mode )
+{
+    if ( "e" == mode ) // exists
+    {
+        JS::RootedValue jsValue( pJsCtx_ );
+        jsValue.setBoolean( PathFileExists( path.c_str() ) );
+        return jsValue;
+    }
+
+    if ( "s" == mode )
+    {
+        HANDLE fh = CreateFile( path.c_str(), GENERIC_READ, FILE_SHARE_READ, 0, OPEN_EXISTING, 0, 0 );
+        IF_WINAPI_FAILED_RETURN_WITH_REPORT( pJsCtx_, fh != INVALID_HANDLE_VALUE, std::nullopt, CreateFile );
+
+        LARGE_INTEGER size = { 0 };
+        GetFileSizeEx( fh, &size );
+        CloseHandle( fh );
+
+        JS::RootedValue jsValue( pJsCtx_ );
+        // TODO: change this (should be uint64_t)
+        jsValue.setNumber( static_cast<double>( size.QuadPart ) );
+        return jsValue;
+    }
+
+    if ( "d" == mode )
+    {
+        JS::RootedValue jsValue( pJsCtx_ );
+        jsValue.setBoolean( PathIsDirectory( path.c_str() ) );
+        return jsValue;
+    }
+
+    if ( "split" == mode )
+    {
+        const wchar_t* fn = PathFindFileName( path.c_str() );
+        const wchar_t* ext = PathFindExtension( fn );
+        wchar_t dir[MAX_PATH] = { 0 };
+
+        std::wstring out[3];
+
+        if ( PathIsFileSpec( fn ) )
+        {
+            StringCchCopyN( dir, _countof( dir ), path.c_str(), fn - path.c_str() );
+            PathAddBackslash( dir );
+
+            out[0].assign( dir );
+            out[1].assign( fn, ext - fn );
+            out[2].assign( ext );
+        }
+        else
+        {
+            StringCchCopy( dir, _countof( dir ), path.c_str() );
+            PathAddBackslash( dir );
+
+            out[0].assign( dir );
+        }
+
+        JS::RootedObject jsArray( pJsCtx_, JS_NewArrayObject( pJsCtx_, _countof( out ) ) );
+        if ( !jsArray )
+        {
+            JS_ReportOutOfMemory( pJsCtx_ );
+            return std::nullopt;
+        }
+
+        JS::RootedValue jsValue( pJsCtx_ );
+        JS::RootedObject jsObject( pJsCtx_ );
+        for ( size_t i = 0; i < _countof( out ); ++i )
+        {
+            if ( !convert::to_js::ToValue( pJsCtx_, out[i], &jsValue ) )
+            {
+                JS_ReportErrorASCII( pJsCtx_, "Internal error: cast to JSString failed" );
+                return std::nullopt;
+            }
+
+            jsValue.set( JS::ObjectValue( *jsObject ) );
+            if ( !JS_SetElement( pJsCtx_, jsArray, i, jsValue ) )
+            {
+                JS_ReportErrorASCII( pJsCtx_, "Internal error: JS_SetElement failed" );
+                return std::nullopt;
+            }
+        }
+
+        jsValue.set( JS::ObjectValue( *jsArray ) );
+        return jsValue;
+    }
+
+    if ( "chardet" == mode )
+    {
+        JS::RootedValue jsValue( pJsCtx_ );
+        jsValue.setNumber(
+            static_cast<uint32_t>(
+                helpers::detect_charset( pfc::stringcvt::string_utf8_from_wide( path.c_str(), path.length() ) )
+                )
+        );
+        return jsValue;
+    }
+
+    JS_ReportErrorASCII( pJsCtx_, "Invalid value of mode argument" );
+    return std::nullopt;
 }
 
 std::optional<std::string>
@@ -211,9 +312,15 @@ JsUtils::FormatFileSize( uint64_t p )
 std::optional<std::uint32_t>
 JsUtils::GetAlbumArtAsync( uint64_t hWnd, JsFbMetadbHandle* handle, uint32_t art_id, bool need_stub, bool only_embed, bool no_load )
 {
+    if ( !hWnd )
+    {
+        JS_ReportErrorASCII( pJsCtx_, "Invalid hWnd argument" );
+        return std::nullopt;
+    }
+
     if ( !handle )
     {
-        JS_ReportErrorASCII( pJsCtx_, "font argument is null" );
+        JS_ReportErrorASCII( pJsCtx_, "handle argument is null" );
         return std::nullopt;
     }
 
@@ -272,11 +379,11 @@ JsUtils::GetAlbumArtV2( JsFbMetadbHandle* handle, uint32_t art_id, bool need_stu
 std::optional<uint32_t>
 JsUtils::GetSysColour( uint32_t index )
 {
-    if ( !::GetSysColorBrush( index ))
+    if ( !::GetSysColorBrush( index ) )
     {// invalid index
         return 0;
     }
-   
+
     int col = ::GetSysColor( index );
     return helpers::convert_colorref_to_argb( col );
 }
@@ -284,13 +391,66 @@ JsUtils::GetSysColour( uint32_t index )
 std::optional<uint32_t>
 JsUtils::GetSystemMetrics( uint32_t index )
 {
-    return ::GetSystemMetrics( index );    
+    return ::GetSystemMetrics( index );
+}
+
+std::optional<JSObject*>
+JsUtils::Glob( const std::string& pattern, uint32_t exc_mask, uint32_t inc_mask )
+{
+    const char* fn = pattern.c_str() + pfc::scan_filename( pattern.c_str() );
+    std::string dir( pattern.c_str(), fn - pattern.c_str() );
+    std::unique_ptr<uFindFile> ff( uFindFirstFile( pattern.c_str() ) );
+
+    pfc::string_list_impl files;
+
+    if ( ff )
+    {
+        do
+        {
+            DWORD attr = ff->GetAttributes();
+
+            if ( ( attr & inc_mask ) && !( attr & exc_mask ) )
+            {
+                std::string fullpath( dir );
+                fullpath.append( ff->GetFileName() );
+                files.add_item( fullpath.c_str() );
+            }
+        } while ( ff->FindNext() );
+    }
+
+    ff.release();
+
+    JS::RootedObject evalResult( pJsCtx_, JS_NewArrayObject( pJsCtx_, files.get_count() ) );
+    if ( !evalResult )
+    {
+        JS_ReportOutOfMemory( pJsCtx_ );
+        return std::nullopt;
+    }
+
+    JS::RootedValue jsValue( pJsCtx_ );
+    for ( t_size i = 0; i < files.get_count(); ++i )
+    {
+        std::string tmpString( files[i] );
+        if ( !convert::to_js::ToValue( pJsCtx_, tmpString, &jsValue ) )
+        {
+            JS_ReportErrorASCII( pJsCtx_, "Internal error: cast to JSString failed" );
+            return std::nullopt;
+        }
+
+        if ( !JS_SetElement( pJsCtx_, evalResult, i, jsValue ) )
+        {
+            JS_ReportErrorASCII( pJsCtx_, "Internal error: JS_SetElement failed" );
+            return std::nullopt;
+        }
+    }
+
+    return evalResult;
 }
 
 std::optional<bool>
 JsUtils::IsKeyPressed( uint32_t vkey )
 {
-    return ::IsKeyPressed( vkey );    
+    return ::IsKeyPressed( vkey );
 }
 
 std::optional<std::wstring>
@@ -300,10 +460,10 @@ JsUtils::MapString( const std::wstring& str, uint32_t lcid, uint32_t flags )
     int iRet = ::LCMapStringW( lcid, flags, str.c_str(), str.length() + 1, nullptr, 0 );
     IF_WINAPI_FAILED_RETURN_WITH_REPORT( pJsCtx_, iRet, std::nullopt, LCMapStringW );
 
-    std::unique_ptr<wchar_t[]> dst(new wchar_t[iRet]);
+    std::unique_ptr<wchar_t[]> dst( new wchar_t[iRet] );
     iRet = ::LCMapStringW( lcid, flags, str.c_str(), str.length() + 1, dst.get(), iRet );
     IF_WINAPI_FAILED_RETURN_WITH_REPORT( pJsCtx_, iRet, std::nullopt, LCMapStringW );
-    
+
     return dst.get();
 }
 
@@ -347,7 +507,7 @@ JsUtils::WriteTextFile( const std::string& filename, const std::string& content,
     {
         return false;
     }
-    
+
     pfc::string8_fast content8( content.c_str(), content.length() );
     return helpers::write_file( filename.c_str(), content8, write_bom );
 }
@@ -355,7 +515,7 @@ JsUtils::WriteTextFile( const std::string& filename, const std::string& content,
 std::optional<uint32_t>
 JsUtils::get_Version()
 {
-    return JSP_VERSION_MAJOR*100 + JSP_VERSION_MINOR*10 + JSP_VERSION_PATCH;
+    return JSP_VERSION_MAJOR * 100 + JSP_VERSION_MINOR * 10 + JSP_VERSION_PATCH;
 }
 
 }

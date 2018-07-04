@@ -9,6 +9,7 @@
 #include <js_utils/js_object_helper.h>
 
 #include <stackblur.h>
+#include <kmeans.h>
 #include <helpers.h>
 
 
@@ -41,10 +42,13 @@ MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiBitmap, ApplyAlpha )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiBitmap, ApplyMask )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiBitmap, Clone )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiBitmap, CreateRawBitmap )
+MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiBitmap, GetColourScheme )
+MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiBitmap, GetColourSchemeJSON )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiBitmap, GetGraphics )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiBitmap, ReleaseGraphics )
 MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsGdiBitmap, Resize, ResizeWithOpt, 1 )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiBitmap, RotateFlip )
+MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiBitmap, SaveAs )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiBitmap, StackBlur )
 
 const JSFunctionSpec jsFunctions[] = {
@@ -52,10 +56,13 @@ const JSFunctionSpec jsFunctions[] = {
     JS_FN( "ApplyMask", ApplyMask, 1, DefaultPropsFlags() ),
     JS_FN( "Clone", Clone, 4, DefaultPropsFlags() ),
     JS_FN( "CreateRawBitmap", CreateRawBitmap, 0, DefaultPropsFlags() ),
+    JS_FN( "GetColourScheme", GetColourScheme, 0, DefaultPropsFlags() ),
+    JS_FN( "GetColourSchemeJSON", GetColourSchemeJSON, 0, DefaultPropsFlags() ),
     JS_FN( "GetGraphics", GetGraphics, 0, DefaultPropsFlags() ),
     JS_FN( "ReleaseGraphics", ReleaseGraphics, 1, DefaultPropsFlags() ),
     JS_FN( "Resize", Resize, 3, DefaultPropsFlags() ),
     JS_FN( "RotateFlip", RotateFlip, 1, DefaultPropsFlags() ),
+    JS_FN( "SaveAs", SaveAs, 2, DefaultPropsFlags() ),
     JS_FN( "StackBlur", StackBlur, 1, DefaultPropsFlags() ),
     JS_FS_END
 };
@@ -123,184 +130,6 @@ Gdiplus::Bitmap* JsGdiBitmap::GdiBitmap() const
     assert( pGdi_ );
     return pGdi_.get();
 }
-
-/*
-
-STDMETHODIMP GdiBitmap::GetColourScheme(UINT count, VARIANT* outArray)
-{
-    if (!m_ptr || !outArray) return E_POINTER;
-
-    Gdiplus::BitmapData bmpdata;
-    Gdiplus::Rect rect(0, 0, m_ptr->GetWidth(), m_ptr->GetHeight());
-
-    if (m_ptr->LockBits(&rect, Gdiplus::ImageLockModeRead, PixelFormat32bppARGB, &bmpdata) != Gdiplus::Ok) return E_POINTER;
-
-    std::map<unsigned, int> color_counters;
-    const unsigned colors_length = bmpdata.Width * bmpdata.Height;
-    const t_uint32* colors = (const t_uint32 *)bmpdata.Scan0;
-
-    for (unsigned i = 0; i < colors_length; i++)
-    {
-        // format: 0xaarrggbb
-        unsigned color = colors[i];
-        unsigned r = (color >> 16) & 0xff;
-        unsigned g = (color >> 8) & 0xff;
-        unsigned b = (color) & 0xff;
-
-        // Round colors
-        r = (r + 16) & 0xffffffe0;
-        g = (g + 16) & 0xffffffe0;
-        b = (b + 16) & 0xffffffe0;
-
-        if (r > 0xff) r = 0xff;
-        if (g > 0xff) g = 0xff;
-        if (b > 0xff) b = 0xff;
-
-        ++color_counters[Gdiplus::Color::MakeARGB(0xff, r, g, b)];
-    }
-
-    m_ptr->UnlockBits(&bmpdata);
-
-    // Sorting
-    typedef std::pair<unsigned, int> sort_vec_pair_t;
-    std::vector<sort_vec_pair_t> sort_vec(color_counters.begin(), color_counters.end());
-    count = std::min(count, sort_vec.size());
-    std::partial_sort(
-        sort_vec.begin(),
-        sort_vec.begin() + count,
-        sort_vec.end(),
-        [](const sort_vec_pair_t& a, const sort_vec_pair_t& b)
-    {
-        return a.second > b.second;
-    });
-
-    helpers::com_array_writer<> helper;
-    if (!helper.create(count)) return E_OUTOFMEMORY;
-
-    for (LONG i = 0; i < helper.get_count(); ++i)
-    {
-        _variant_t var;
-        var.vt = VT_UI4;
-        var.ulVal = sort_vec[i].first;
-
-        if (FAILED(helper.put(i, var)))
-        {
-            helper.reset();
-            return E_OUTOFMEMORY;
-        }
-    }
-
-    outArray->vt = VT_ARRAY | VT_VARIANT;
-    outArray->parray = helper.get_ptr();
-    return S_OK;
-}
-
-STDMETHODIMP GdiBitmap::GetColourSchemeJSON(UINT count, BSTR* outJson)
-{
-    if (!m_ptr || !outJson) return E_POINTER;
-
-    Gdiplus::BitmapData bmpdata;
-
-    // rescaled image will have max of ~48k pixels
-    int w = std::min(m_ptr->GetWidth(), static_cast<UINT>( 220 )), h = std::min(m_ptr->GetHeight(), static_cast<UINT>( 220 ) );
-
-    Gdiplus::Bitmap* bitmap = new Gdiplus::Bitmap(w, h, PixelFormat32bppPARGB);
-    Gdiplus::Graphics g(bitmap);
-    Gdiplus::Rect rect(0, 0, w, h);
-    g.SetInterpolationMode((Gdiplus::InterpolationMode)6); // InterpolationModeHighQualityBilinear
-    g.DrawImage(m_ptr, 0, 0, w, h); // scale image down
-
-    if (bitmap->LockBits(&rect, Gdiplus::ImageLockModeRead, PixelFormat32bppARGB, &bmpdata) != Gdiplus::Ok)
-        return E_POINTER;
-
-    std::map<unsigned, int> colour_counters;
-    const unsigned colours_length = bmpdata.Width * bmpdata.Height;
-    const t_uint32* colours = (const t_uint32 *)bmpdata.Scan0;
-
-    // reduce color set to pass to k-means by rounding colour components to multiples of 8
-    for (unsigned i = 0; i < colours_length; i++)
-    {
-        unsigned int r = (colours[i] >> 16) & 0xff;
-        unsigned int g = (colours[i] >> 8) & 0xff;
-        unsigned int b = (colours[i] & 0xff);
-
-        // round colours
-        r = (r + 4) & 0xfffffff8;
-        g = (g + 4) & 0xfffffff8;
-        b = (b + 4) & 0xfffffff8;
-
-        if (r > 255) r = 0xff;
-        if (g > 255) g = 0xff;
-        if (b > 255) b = 0xff;
-
-        ++colour_counters[r << 16 | g << 8 | b];
-    }
-    bitmap->UnlockBits(&bmpdata);
-
-    std::map<unsigned, int>::iterator it;
-    std::vector<Point> points;
-    int idx = 0;
-
-    for (it = colour_counters.begin(); it != colour_counters.end(); it++, idx++)
-    {
-        unsigned int r = (it->first >> 16) & 0xff;
-        unsigned int g = (it->first >> 8) & 0xff;
-        unsigned int b = (it->first & 0xff);
-
-        std::vector<unsigned int> values = { r, g, b };
-        Point p(idx, values, it->second);
-        points.push_back(p);
-    }
-
-    KMeans kmeans(count, colour_counters.size(), 12); // 12 iterations max
-    std::vector<Cluster> clusters = kmeans.run(points);
-
-    // sort by largest clusters
-    std::sort(
-        clusters.begin(),
-        clusters.end(),
-        [](Cluster& a, Cluster& b) {
-        return a.getTotalPoints() > b.getTotalPoints();
-    });
-
-    json j;
-    t_size outCount = std::min(count, colour_counters.size());
-    for (t_size i = 0; i < outCount; ++i)
-    {
-        int colour = 0xff000000 | (int)clusters[i].getCentralValue(0) << 16 | (int)clusters[i].getCentralValue(1) << 8 | (int)clusters[i].getCentralValue(2);
-        double frequency = clusters[i].getTotalPoints() / (double)colours_length;
-
-        j.push_back({
-            { "col", colour },
-            { "freq", frequency }
-        });
-    }
-    std::string s = j.dump();
-    *outJson = SysAllocString(pfc::stringcvt::string_wide_from_utf8(s.c_str()));
-    return S_OK;
-}
-
-STDMETHODIMP GdiBitmap::SaveAs(BSTR path, BSTR format, VARIANT_BOOL* p)
-{
-    if (!m_ptr || !p) return E_POINTER;
-
-    CLSID clsid_encoder;
-    int ret = helpers::get_encoder_clsid(format, &clsid_encoder);
-
-    if (ret > -1)
-    {
-        m_ptr->Save(path, &clsid_encoder);
-        *p = TO_VARIANT_BOOL(m_ptr->GetLastStatus() == Gdiplus::Ok);
-    }
-    else
-    {
-        *p = VARIANT_FALSE;
-    }
-
-    return S_OK;
-}
-
-*/
 
 std::optional<std::uint32_t>
 JsGdiBitmap::get_Height()
@@ -461,21 +290,176 @@ std::optional<JSObject*> JsGdiBitmap::CreateRawBitmap()
     return jsObject;
 }
 
-/*
-std::optional<JSObject*>
-JsGdiBitmap::CreateRawBitmap()
+std::optional<JSObject*> 
+JsGdiBitmap::GetColourScheme( uint32_t count )
 {
-    if ( !pGdi_ )
+    assert( pGdi_ );
+
+    Gdiplus::BitmapData bmpdata;
+    Gdiplus::Rect rect( 0, 0, (LONG)pGdi_->GetWidth(), (LONG)pGdi_->GetHeight() );
+
+    Gdiplus::Status gdiRet = pGdi_->LockBits( &rect, Gdiplus::ImageLockModeRead, PixelFormat32bppARGB, &bmpdata );
+    IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, std::nullopt, LockBits );
+
+    std::map<unsigned, int> color_counters;
+    const unsigned colors_length = bmpdata.Width * bmpdata.Height;
+    const t_uint32* colors = (const t_uint32 *)bmpdata.Scan0;
+
+    for ( unsigned i = 0; i < colors_length; i++ )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Internal error: Gdiplus::Bitmap object is null" );
+        // format: 0xaarrggbb
+        unsigned color = colors[i];
+        unsigned r = ( color >> 16 ) & 0xff;
+        unsigned g = ( color >> 8 ) & 0xff;
+        unsigned b = ( color ) & 0xff;
+
+        // Round colors
+        r = ( r + 16 ) & 0xffffffe0;
+        g = ( g + 16 ) & 0xffffffe0;
+        b = ( b + 16 ) & 0xffffffe0;
+
+        if ( r > 0xff ) r = 0xff;
+        if ( g > 0xff ) g = 0xff;
+        if ( b > 0xff ) b = 0xff;
+
+        ++color_counters[Gdiplus::Color::MakeARGB( 0xff, r, g, b )];
+    }
+
+    pGdi_->UnlockBits( &bmpdata );
+
+    // Sorting
+    typedef std::pair<unsigned, int> sort_vec_pair_t;
+    std::vector<sort_vec_pair_t> sort_vec( color_counters.begin(), color_counters.end() );
+    count = std::min( count, sort_vec.size() );
+    std::partial_sort(
+        sort_vec.begin(),
+        sort_vec.begin() + count,
+        sort_vec.end(),
+        []( const sort_vec_pair_t& a, const sort_vec_pair_t& b )
+        {
+            return a.second > b.second;
+        } );
+
+    JS::RootedObject jsArray( pJsCtx_, JS_NewArrayObject( pJsCtx_, count ) );
+    if ( !jsArray )
+    {
+        JS_ReportOutOfMemory( pJsCtx_ );
         return std::nullopt;
     }
 
-    if ( !m_ptr || !pp ) return E_POINTER;
+    JS::RootedValue jsValue( pJsCtx_ );
+    for ( t_size i = 0; i < count; ++i )
+    {
+        jsValue.setNumber( sort_vec[i].first );
 
-    *pp = new com_object_impl_t<GdiRawBitmap>( m_ptr );
-    return S_OK;
-}*/
+        if ( !JS_SetElement( pJsCtx_, jsArray, i, jsValue ) )
+        {
+            JS_ReportErrorASCII( pJsCtx_, "Internal error: JS_SetElement failed" );
+            return std::nullopt;
+        }
+    }
+
+    return jsArray;
+}
+
+std::optional<std::string> 
+JsGdiBitmap::GetColourSchemeJSON( uint32_t count )
+{
+    assert( pGdi_ );
+
+    Gdiplus::BitmapData bmpdata;
+
+    // rescaled image will have max of ~48k pixels
+    uint32_t w = std::min( pGdi_->GetWidth(), static_cast<UINT>( 220 ) );
+    uint32_t h = std::min( pGdi_->GetHeight(), static_cast<UINT>( 220 ) );
+
+    Gdiplus::Bitmap* bitmap = new Gdiplus::Bitmap( w, h, PixelFormat32bppPARGB );
+    if ( !helpers::ensure_gdiplus_object( bitmap ) )
+    {// TODO: replace with IF_FAILED macro
+        JS_ReportErrorASCII( pJsCtx_, "Internal error: failed to create Gdiplus object" );
+        return std::nullopt;
+    }
+
+    Gdiplus::Graphics g( bitmap );
+    Gdiplus::Rect rect( 0, 0, (LONG)w, (LONG)h );
+    Gdiplus::Status gdiRet = g.SetInterpolationMode( ( Gdiplus::InterpolationMode )6 ); // InterpolationModeHighQualityBilinear
+    IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, std::nullopt, SetInterpolationMode );
+
+    gdiRet = g.DrawImage( pGdi_.get(), 0, 0, w, h ); // scale image down
+    IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, std::nullopt, DrawImage );
+
+    gdiRet = bitmap->LockBits( &rect, Gdiplus::ImageLockModeRead, PixelFormat32bppARGB, &bmpdata );
+    IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, std::nullopt, LockBits );
+
+    std::map<unsigned, int> colour_counters;
+    const unsigned colours_length = bmpdata.Width * bmpdata.Height;
+    const t_uint32* colours = (const t_uint32 *)bmpdata.Scan0;
+
+    // reduce color set to pass to k-means by rounding colour components to multiples of 8
+    for ( unsigned i = 0; i < colours_length; i++ )
+    {
+        unsigned int r = ( colours[i] >> 16 ) & 0xff;
+        unsigned int g = ( colours[i] >> 8 ) & 0xff;
+        unsigned int b = ( colours[i] & 0xff );
+
+        // round colours
+        r = ( r + 4 ) & 0xfffffff8;
+        g = ( g + 4 ) & 0xfffffff8;
+        b = ( b + 4 ) & 0xfffffff8;
+
+        if ( r > 255 ) r = 0xff;
+        if ( g > 255 ) g = 0xff;
+        if ( b > 255 ) b = 0xff;
+
+        ++colour_counters[r << 16 | g << 8 | b];
+    }
+    bitmap->UnlockBits( &bmpdata );
+
+    std::map<unsigned, int>::iterator it;
+    std::vector<Point> points;
+    int idx = 0;
+
+    for ( it = colour_counters.begin(); it != colour_counters.end(); it++, idx++ )
+    {
+        unsigned int r = ( it->first >> 16 ) & 0xff;
+        unsigned int g = ( it->first >> 8 ) & 0xff;
+        unsigned int b = ( it->first & 0xff );
+
+        std::vector<unsigned int> values = { r, g, b };
+        Point p( idx, values, it->second );
+        points.push_back( p );
+    }
+
+    KMeans kmeans( count, colour_counters.size(), 12 ); // 12 iterations max
+    std::vector<Cluster> clusters = kmeans.run( points );
+
+    // sort by largest clusters
+    std::sort(
+        clusters.begin(),
+        clusters.end(),
+        []( Cluster& a, Cluster& b )
+        {
+            return a.getTotalPoints() > b.getTotalPoints();
+        } );
+
+    json j;
+    t_size outCount = std::min( count, colour_counters.size() );
+    for ( t_size i = 0; i < outCount; ++i )
+    {
+        int colour = 0xff000000 
+            | (int)clusters[i].getCentralValue( 0 ) << 16 
+            | (int)clusters[i].getCentralValue( 1 ) << 8 
+            | (int)clusters[i].getCentralValue( 2 );
+        double frequency = clusters[i].getTotalPoints() / (double)colours_length;
+
+        j.push_back(
+            {
+                { "col", colour },
+                { "freq", frequency }
+            } );
+    }
+    return j.dump();    
+}
 
 std::optional<JSObject*>
 JsGdiBitmap::GetGraphics()
@@ -543,10 +527,10 @@ JsGdiBitmap::Resize( uint32_t w, uint32_t h, uint32_t interpolationMode )
 
     Gdiplus::Graphics g( bitmap.get() );
     Gdiplus::Status gdiRet = g.SetInterpolationMode( ( Gdiplus::InterpolationMode )interpolationMode );
-    IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, std::nullopt, RotateFlip );
+    IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, std::nullopt, SetInterpolationMode );
 
     gdiRet = g.DrawImage( pGdi_.get(), 0, 0, w, h );
-    IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, std::nullopt, RotateFlip );
+    IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, std::nullopt, DrawImage );
 
     JS::RootedObject jsRetObject( pJsCtx_, JsGdiBitmap::Create( pJsCtx_, bitmap.get() ) );
     if ( !jsRetObject )
@@ -588,6 +572,22 @@ JsGdiBitmap::RotateFlip( uint32_t mode )
     IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, std::nullopt, RotateFlip );
 
     return nullptr;
+}
+
+std::optional<bool> 
+JsGdiBitmap::SaveAs( const std::wstring& path, const std::wstring& format )
+{
+    assert( pGdi_ );
+
+    CLSID clsid_encoder;
+    int ret = helpers::get_encoder_clsid( format.c_str(), &clsid_encoder );
+    if ( ret < 0 )
+    {
+        return false;
+    }
+
+    Gdiplus::Status gdiRet = pGdi_->Save( path.c_str(), &clsid_encoder );
+    return ( Gdiplus::Ok == gdiRet );
 }
 
 std::optional<std::nullptr_t>

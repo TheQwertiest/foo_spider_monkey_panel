@@ -37,8 +37,10 @@ public: // methods
     std::optional<JSObject*> CreateThemeManager( const std::wstring& classid );
     std::optional<JSObject*> CreateTooltip( const std::wstring& name, float pxSize, uint32_t style );
     std::optional<uint32_t> GetColourCUI( uint32_t type, const std::wstring& guidstr );
+    std::optional<uint32_t> GetColourCUIWithOpt( size_t optArgCount, uint32_t type, const std::wstring& guidstr );
     std::optional<uint32_t> GetColourDUI( uint32_t type );
     std::optional<JSObject*> GetFontCUI( uint32_t type, const std::wstring& guidstr );
+    std::optional<JSObject*> GetFontCUIWithOpt( size_t optArgCount, uint32_t type, const std::wstring& guidstr );
     std::optional<JSObject*> GetFontDUI( uint32_t type );
     std::optional<JS::Heap<JS::Value>> GetProperty( const std::string& name, JS::HandleValue defaultval );
     std::optional<std::nullptr_t> NotifyOthers( const std::string& name, JS::HandleValue info );

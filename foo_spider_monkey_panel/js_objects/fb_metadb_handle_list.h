@@ -15,6 +15,7 @@ namespace mozjs
 {
 
 class JsFbMetadbHandle;
+class JsFbTitleFormat;
 
 class JsFbMetadbHandleList
 {
@@ -34,15 +35,16 @@ public: // methods
     std::optional<double> CalcTotalDuration();
     std::optional<std::uint64_t> CalcTotalSize();
     std::optional<JSObject*> Clone();
-    //std::optional<std::nullptr_t> Convert( VARIANT* p );
+    // TODO: rename to ToArray()
+    std::optional<JSObject*> Convert();
     std::optional<int32_t> Find( JsFbMetadbHandle* handle );
-    //std::optional<std::nullptr_t> GetLibraryRelativePaths( VARIANT* p );
+    std::optional<JSObject*> GetLibraryRelativePaths();
     std::optional<std::nullptr_t> Insert( uint32_t index, JsFbMetadbHandle* handle );
     std::optional<std::nullptr_t> InsertRange( uint32_t index, JsFbMetadbHandleList* handles );
     std::optional<std::nullptr_t> MakeDifference( JsFbMetadbHandleList* handles );
     std::optional<std::nullptr_t> MakeIntersection( JsFbMetadbHandleList* handles );
     std::optional<std::nullptr_t> MakeUnion( JsFbMetadbHandleList* handles );
-    //std::optional<std::nullptr_t> OrderByFormat( __interface IFbTitleFormat* script, int direction );
+    std::optional<std::nullptr_t> OrderByFormat( JsFbTitleFormat* script, int8_t direction );
     std::optional<std::nullptr_t> OrderByPath();
     std::optional<std::nullptr_t> OrderByRelativePath();
     std::optional<std::nullptr_t> RefreshStats();

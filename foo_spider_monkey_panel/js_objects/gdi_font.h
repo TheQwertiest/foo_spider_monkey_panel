@@ -25,7 +25,7 @@ public:
 
 public: 
     Gdiplus::Font* GdiFont() const;
-    HFONT HFont() const;
+    HFONT GetHFont() const;
 
 public: // props
     std::optional<uint32_t> get_Height() const;

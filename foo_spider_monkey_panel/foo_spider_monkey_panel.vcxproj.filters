@@ -199,6 +199,9 @@
     <ClCompile Include="js_utils\serialized_value.cpp">
       <Filter>js_utils</Filter>
     </ClCompile>
+    <ClCompile Include="js_utils\image_helper.cpp">
+      <Filter>js_utils</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="js_engine\js_engine.h">
@@ -462,6 +465,9 @@
     <ClInclude Include="js_utils\serialized_value.h">
       <Filter>js_utils</Filter>
     </ClInclude>
+    <ClInclude Include="js_utils\image_helper.h">
+      <Filter>js_utils</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include=".editorconfig" />
@@ -496,5 +502,10 @@
     <ResourceCompile Include="foo_spider_monkey_panel.rc">
       <Filter>uncategorized</Filter>
     </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="todo.txt">
+      <Filter>uncategorized</Filter>
+    </Text>
   </ItemGroup>
 </Project>

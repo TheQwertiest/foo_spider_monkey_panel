@@ -10,6 +10,7 @@
 #include <js_objects/fb_tooltip.h>
 #include <js_objects/gdi_graphics.h>
 #include <js_utils/art_helper.h>
+#include <js_utils/image_helper.h>
 
 
 js_panel_window::js_panel_window( PanelType instanceType )
@@ -908,18 +909,17 @@ void js_panel_window::on_key_up( WPARAM wp )
 }
 
 void js_panel_window::on_load_image_done( LPARAM lp )
-{// TODO: missing param doc
+{
     return;
 
-    // std::unique_ptr<mozjs::art::AsyncImageTaskResult> param( reinterpret_cast<mozjs::art::AsyncImageTaskResult*>(lp) );
-    // auto autoRet = jsContainer_.InvokeJsCallback( "on_load_image_done",
-    //                                               static_cast<uint32_t>(param->artId),
-    //                                               static_cast<Gdiplus::Bitmap*>(param->bitmap.get()),
-    //                                               static_cast<std::string>(param->imagePath) );
-    // if ( autoRet )
-    // {
-    //     param->bitmap.release();
-    // }
+    std::unique_ptr<mozjs::image::AsyncImageTaskResult> param( reinterpret_cast<mozjs::image::AsyncImageTaskResult*>(lp) );
+    auto autoRet = jsContainer_.InvokeJsCallback( "on_load_image_done",
+                                                  static_cast<Gdiplus::Bitmap*>(param->bitmap.get()),
+                                                  static_cast<std::string>(param->imagePath) );
+    if ( autoRet )
+    {
+        param->bitmap.release();
+    }
 }
 
 void js_panel_window::on_library_items_added( WPARAM wp )

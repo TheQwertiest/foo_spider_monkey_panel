@@ -8,6 +8,7 @@
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
 #include <js_utils/scope_helper.h>
+#include <js_utils/image_helper.h>
 #include <js_utils/winapi_error_helper.h>
 
 #include <helpers.h>
@@ -40,10 +41,12 @@ JSClass jsClass = {
 
 MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiUtils, CreateImage )
 MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsGdiUtils, Font, FontWithOpt, 1 )
+MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiUtils, LoadImageAsync )
 
 const JSFunctionSpec jsFunctions[] = {
     JS_FN( "CreateImage", CreateImage, 2, DefaultPropsFlags() ),
     JS_FN( "Font", Font, 3, DefaultPropsFlags() ),
+    JS_FN( "LoadImageAsync", LoadImageAsync, 0, DefaultPropsFlags() ),
     JS_FS_END
 };
 
@@ -198,6 +201,18 @@ JsGdiUtils::Image( const std::wstring& path )
 
     img.release();
     return jsObject;
+}
+
+std::optional<std::uint32_t> 
+JsGdiUtils::LoadImageAsync( uint64_t hWnd, const std::wstring& path )
+{
+    if ( !hWnd )
+    {
+        JS_ReportErrorASCII( pJsCtx_, "Invalid hWnd argument" );
+        return std::nullopt;
+    }
+
+    return image::LoadImageAsync( (HWND)hWnd, path );
 }
 
 }
