@@ -70,6 +70,8 @@ public:
         JsContainer & parent_;
     };
 
+    void InvokeOnNotifyCallback( const std::string& name, const std::wstring& data );
+
 private:
     JsContainer( const JsContainer& ) = delete;
 

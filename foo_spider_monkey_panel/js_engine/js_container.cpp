@@ -161,6 +161,37 @@ JS::HandleObject JsContainer::GetGraphics() const
     return jsGraphics_;
 }
 
+void JsContainer::InvokeOnNotifyCallback( const std::string& name, const std::wstring& data )
+{   
+    if ( JsStatus::Ready != jsStatus_ )
+    {
+        return;
+    }
+
+    JSAutoCompartment ac( pJsCtx_, jsGlobal_ );
+    AutoReportException are( pJsCtx_ );
+
+    JS::RootedValue jsStringVal( pJsCtx_ );
+    if ( !convert::to_js::ToValue( pJsCtx_, data, &jsStringVal ) )
+    {
+        JS_ReportErrorASCII( pJsCtx_, "Internal error: on_notify_data received unparsable data" );
+        return;
+    }
+    JS::RootedString jsString( pJsCtx_, jsStringVal.toString() );
+
+    JS::RootedValue jsVal( pJsCtx_ );
+    if ( !JS_ParseJSON( pJsCtx_, jsString, &jsVal ) )
+    {
+        JS_ReportErrorASCII( pJsCtx_, "Internal error: on_notify_data received unparsable data" );
+        return;
+    }
+
+    are.Disable();
+    InvokeJsCallback( "on_notify_data",
+                      static_cast<std::string>(name),
+                      static_cast<JS::HandleValue>(jsVal) );
+}
+
 JsContainer::GraphicsWrapper::GraphicsWrapper( JsContainer& parent, Gdiplus::Graphics& gr )
     :parent_( parent )
 {// TODO: remove this awkward wrapper

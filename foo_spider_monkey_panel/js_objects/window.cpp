@@ -13,6 +13,7 @@
 #include <js_utils/scope_helper.h>
 
 #include <js_panel_window.h>
+#include <panel_manager.h>
 #include <helpers.h>
 
 namespace
@@ -413,23 +414,45 @@ JsWindow::GetProperty( const std::string& name, JS::HandleValue defaultval )
 
 std::optional<std::nullptr_t>
 JsWindow::NotifyOthers( const std::string& name, JS::HandleValue info )
-{// TODO: casts, a lot of casts
-    /*
-    if ( info.vt & VT_BYREF ) return E_INVALIDARG;
+{
+    std::wstring jsonStr;
+    auto jsonCopyFunc = []( const char16_t* buf, uint32_t len, void* data )
+    {
+        assert( data );
+        std::wstring* pJsonStr = (std::wstring*)data;
+        pJsonStr->assign((const wchar_t*)buf, len );
+        return true;
+    };
+    
+    if ( info.isObject() )
+    {
+        JS::RootedObject jsObject( pJsCtx_, &info.toObject() );
+        if ( !JS::ToJSONMaybeSafely( pJsCtx_, jsObject, jsonCopyFunc, &jsonStr ) )
+        {
+            JS_ReportErrorASCII( pJsCtx_, "info argument value is unsuited for notification" );
+            return std::nullopt;
+        }
+    }
+    else if (info.isPrimitive() || !info.isNullOrUndefined())
+    {
+        JS::RootedValue valueCopy( pJsCtx_, info );
+        if ( !JS_Stringify( pJsCtx_, &valueCopy, nullptr, JS::NullHandleValue, jsonCopyFunc, &jsonStr ) )
+        {
+            JS_ReportErrorASCII( pJsCtx_, "info argument value is unsuited for notification" );
+            return std::nullopt;
+        }
+    }
+    else
+    {
+        JS_ReportErrorASCII( pJsCtx_, "info argument value is unsuited for notification" );
+        return std::nullopt;
+    }
 
-    HRESULT hr = S_OK;
-    _variant_t var;
-
-    hr = VariantCopy( &var, &info );
-
-    if ( FAILED( hr ) ) return hr;
-
-    simple_callback_data_2<_bstr_t, _variant_t>* notify_data = new simple_callback_data_2<_bstr_t, _variant_t>( name, nullptr );
-
-    notify_data->m_item2.Attach( var.Detach() );
+    simple_callback_data_2<std::string, std::wstring>* notify_data = 
+        new simple_callback_data_2<std::string, std::wstring>( name, jsonStr );
 
     panel_manager::instance().send_msg_to_others_pointer( parentPanel_.GetHWND(), CALLBACK_UWM_ON_NOTIFY_DATA, notify_data );
-    */
+    
     return nullptr;
 }
 

@@ -17,11 +17,14 @@ public:
     explicit AutoReportException( JSContext* cx );
     ~AutoReportException();
 
+    void Disable();
+
 private: 
     static std::string GetStackTraceString( JSContext* cx, JS::HandleObject exn );
 
 private:
     JSContext * cx;
+    bool isDisabled_ = false;
 };
 
 std::string GetCurrentExceptionText( JSContext* cx );

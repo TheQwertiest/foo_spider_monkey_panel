@@ -10,7 +10,18 @@
 namespace mozjs::convert::to_js
 {
 
-bool ToValue( JSContext * cx, JS::HandleObject inValue, JS::MutableHandleValue wrappedValue );
+template <typename InJsType>
+bool ToValue( JSContext * cx, JS::Handle<InJsType> inValue, JS::MutableHandleValue wrappedValue )
+{
+    static_assert(0, "Unsupported type");
+    return false;
+}
+
+template <>
+bool ToValue<JSObject*>( JSContext * cx, JS::HandleObject inValue, JS::MutableHandleValue wrappedValue );
+
+template <>
+bool ToValue<JS::Value>( JSContext * cx, JS::HandleValue inValue, JS::MutableHandleValue wrappedValue );
 
 template <typename InType>
 bool ToValue( JSContext * cx, const InType& inValue, JS::MutableHandleValue wrappedValue )

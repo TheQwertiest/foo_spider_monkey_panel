@@ -1124,14 +1124,9 @@ void js_panel_window::on_mouse_wheel_h( WPARAM wp )
 }
 
 void js_panel_window::on_notify_data( WPARAM wp )
-{// TODO: todo
-    return;
-
-    // simple_callback_data_scope_releaser<simple_callback_data_2<std::wstring, _variant_t>> data( wp );
-    // jsContainer_.InvokeJsCallback( "on_notify_data",
-    //                                static_cast<std::wstring&>(data->m_item1)
-    //                                 //, TODO: data->m_item2 ???
-    // );
+{
+    simple_callback_data_scope_releaser<simple_callback_data_2<std::string, std::wstring>> data( wp );
+    jsContainer_.InvokeOnNotifyCallback( data->m_item1, data->m_item2 );
 }
 
 void js_panel_window::on_output_device_changed()

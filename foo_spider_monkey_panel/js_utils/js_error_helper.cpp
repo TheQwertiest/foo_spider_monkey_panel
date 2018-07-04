@@ -17,6 +17,11 @@ AutoReportException::AutoReportException( JSContext* cx )
 
 AutoReportException::~AutoReportException()
 {
+    if ( isDisabled_ )
+    {
+        return;
+    }
+
     if ( !JS_IsExceptionPending( cx ) )
     {
         return;
@@ -105,6 +110,11 @@ AutoReportException::~AutoReportException()
         scFail.errorText += "Stack trace:\n";
         scFail.errorText += stackTrace;
     }
+}
+
+void AutoReportException::Disable()
+{
+    isDisabled_ = true;
 }
 
 std::string AutoReportException::GetStackTraceString( JSContext* cx, JS::HandleObject exn )
