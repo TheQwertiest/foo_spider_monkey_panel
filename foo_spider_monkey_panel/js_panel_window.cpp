@@ -403,7 +403,7 @@ LRESULT js_panel_window::on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
         return 0;
 
     case UWM_TIMER:
-        HostTimerDispatcher::Get().onInvokeMessage( wp );
+        jsContainer_.InvokeTimerFunction( static_cast<uint32_t>( wp ) );
         return 0;
     }
 
@@ -630,19 +630,19 @@ void js_panel_window::RefreshBackground( LPRECT lprcUpdate /*= nullptr */ )
     Repaint( true );
 }
 
-unsigned js_panel_window::SetInterval( IDispatch* func, int delay )
+uint32_t js_panel_window::SetInterval( JS::HandleFunction func, uint32_t delay )
 {
-    return HostTimerDispatcher::Get().setInterval( hWnd_, delay, func );
+    return jsContainer_.SetInterval( hWnd_, delay, func );
 }
 
-unsigned js_panel_window::SetTimeout( IDispatch* func, int delay )
+uint32_t js_panel_window::SetTimeout( JS::HandleFunction func, uint32_t delay )
 {
-    return HostTimerDispatcher::Get().setTimeout( hWnd_, delay, func );
+    return jsContainer_.SetTimeout( hWnd_, delay, func );
 }
 
-void js_panel_window::ClearIntervalOrTimeout( UINT timerId )
+void js_panel_window::ClearIntervalOrTimeout( uint32_t timerId )
 {
-    HostTimerDispatcher::Get().killTimer( timerId );
+    return jsContainer_.KillTimer( timerId );
 }
 
 bool js_panel_window::script_load()
@@ -698,7 +698,6 @@ void js_panel_window::script_unload()
         isDropTargetRegistered_ = false;
     }
 
-    HostTimerDispatcher::Get().onPanelUnload( hWnd_ );
     selectionHolder_.release();
 
     jsContainer_.Finalize();
@@ -1237,11 +1236,7 @@ void js_panel_window::on_paint_user( HDC memdc, LPRECT lpUpdateRect )
     // SetClip() may improve performance slightly
     gr.SetClip( rect );
 
-    {
-        mozjs::JsContainer::GraphicsWrapper autoGraphics( jsContainer_, gr );
-        jsContainer_.InvokeJsCallback( "on_paint",
-                                        jsContainer_.GetGraphics() );
-    }
+    jsContainer_.InvokeOnPaintCallback( gr );
 }
 
 void js_panel_window::on_playback_dynamic_info()

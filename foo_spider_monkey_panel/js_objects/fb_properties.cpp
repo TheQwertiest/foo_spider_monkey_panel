@@ -152,7 +152,7 @@ void JsFbProperties::TraceHeapValue( JSTracer *trc, void *data )
     auto jsObject = static_cast<JsFbProperties*>( data );
     auto& properties = jsObject->properties_;
     
-    for each ( auto& elem in properties )
+    for ( auto& elem : properties )
     {
         JS::TraceEdge( trc, &(elem.second->value), "CustomHeap_Properties" );
     }

@@ -148,7 +148,7 @@ void CDialogProperty::LoadProperties(bool reload)
 		m_dup_prop_map = m_parent->get_config_prop().get_val();
 	}
 
-    for each (auto& elem in m_dup_prop_map)
+    for (auto& elem : m_dup_prop_map)
     {
         pfc::stringcvt::string_wide_from_utf8_fast wname( elem.first.c_str(), elem.first.length() );
         HPROPERTY hProp = nullptr;        

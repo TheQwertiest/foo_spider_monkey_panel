@@ -113,7 +113,7 @@ void JsEngine::Finalize()
 {
     if (pJsCtx_)
     {
-        for each ( auto elem in registeredPanels_ )
+        for (auto& elem : registeredPanels_ )
         {
             elem.second.get().Finalize();
         }

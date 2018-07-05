@@ -42,6 +42,10 @@ public:
     bool Initialize();
     void Finalize();
 
+    void Fail();
+
+    JsStatus GetStatus() const;
+
     bool ExecuteScript( std::string_view scriptCode );
 
     template <typename ReturnType = std::nullptr_t, typename... Args>
@@ -55,22 +59,13 @@ public:
         return mozjs::InvokeJsCallback<ReturnType>( pJsCtx_, jsGlobal_, functionName, args... );
     }    
 
-    void Fail();
-
-    JsStatus GetStatus() const;
-    
-    JS::HandleObject GetGraphics() const;
-
-    class GraphicsWrapper
-    {
-    public:
-        GraphicsWrapper( JsContainer& parent, Gdiplus::Graphics& gr );
-        ~GraphicsWrapper();
-    private:
-        JsContainer & parent_;
-    };
-
     void InvokeOnNotifyCallback( const std::string& name, const std::wstring& data );
+    void InvokeOnPaintCallback( Gdiplus::Graphics& gr );
+
+    uint32_t SetInterval( HWND hWnd, uint32_t delay, JS::HandleFunction jsFunction );
+    uint32_t SetTimeout( HWND hWnd, uint32_t delay, JS::HandleFunction jsFunction );
+    void KillTimer( uint32_t timerId );
+    void InvokeTimerFunction( uint32_t timerId );
 
 private:
     JsContainer( const JsContainer& ) = delete;

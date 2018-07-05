@@ -182,7 +182,7 @@ void JsGlobalObject::RemoveHeapTracer()
     
     std::scoped_lock sl( heapUsersLock_ );
 
-    for each ( auto heapUser in heapUsers_ )
+    for ( auto heapUser : heapUsers_ )
     {
         heapUser.second->DisableHeapCleanup();
     }

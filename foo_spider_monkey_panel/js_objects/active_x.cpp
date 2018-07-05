@@ -109,6 +109,8 @@ protected:
             return E_POINTER;
         }
 
+        // Might be executed outside of main JS workflow, so we need to set request and compartment
+
         JSAutoRequest ar( pJsCtx_ );
         JS::RootedObject jsGlobal( pJsCtx_, pNativeGlobal_->GetFromHeap(globalId_).toObjectOrNull() );
         assert( jsGlobal );
@@ -120,7 +122,7 @@ protected:
         JS::RootedValue retVal( pJsCtx_ );
         if ( !JS::Call( pJsCtx_, jsGlobal, rFunc, JS::HandleValueArray::empty(), &retVal ) )
         {// TODO: set fail somehow
-            JS_ClearPendingException( pJsCtx_ ); ///< can't forward exceptions inside ActiveX objects...
+            JS_ClearPendingException( pJsCtx_ ); ///< can't forward exceptions inside ActiveX objects (see reasons above)...
             return E_FAIL;
         }
 

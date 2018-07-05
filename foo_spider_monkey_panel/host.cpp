@@ -86,12 +86,12 @@ t_script_info& HostComm::ScriptInfo()
 
 unsigned HostComm::SetInterval(IDispatch* func, int delay)
 {
-	return HostTimerDispatcher::Get().setInterval(m_hwnd, delay, func);
+    return 0;// HostTimerDispatcher::Get().setInterval( m_hwnd, delay, func );
 }
 
 unsigned HostComm::SetTimeout(IDispatch* func, int delay)
 {
-	return HostTimerDispatcher::Get().setTimeout(m_hwnd, delay, func);
+    return 0;// HostTimerDispatcher::Get().setTimeout( m_hwnd, delay, func );
 }
 
 void HostComm::ClearIntervalOrTimeout(UINT timerId)

@@ -518,9 +518,15 @@ JsWindow::SetCursor( uint32_t id )
 
 std::optional<uint32_t>
 JsWindow::SetInterval( JS::HandleValue func, uint32_t delay )
-{// TODO: todo
-    //return parentPanel_.SetInterval( func, delay );
-    return 0;
+{// TODO: try to remove the roundabout call (JsWindow > js_panel_window > JsContainer)
+    if ( !func.isObject() || !JS_ObjectIsFunction( pJsCtx_, &func.toObject() ) )
+    {
+        JS_ReportErrorASCII( pJsCtx_, "func argument is not a JS function" );
+        return std::nullopt;
+    }
+
+    JS::RootedFunction jsFunction( pJsCtx_, JS_ValueToFunction( pJsCtx_, func ) );
+    return parentPanel_.SetInterval( jsFunction, delay );
 }
 
 std::optional<std::nullptr_t>
@@ -536,9 +542,15 @@ JsWindow::SetProperty( const std::string& name, JS::HandleValue val )
 
 std::optional<uint32_t>
 JsWindow::SetTimeout( JS::HandleValue func, uint32_t delay )
-{// TODO: todo
-    //return parentPanel_.SetTimeout( func, delay );
-    return 0;
+{    
+    if ( !func.isObject() || !JS_ObjectIsFunction( pJsCtx_, &func.toObject() ) )
+    {
+        JS_ReportErrorASCII( pJsCtx_, "func argument is not a JS function" );
+        return std::nullopt;
+    }
+
+    JS::RootedFunction jsFunction( pJsCtx_, JS_ValueToFunction( pJsCtx_, func ) );
+    return parentPanel_.SetTimeout( jsFunction, delay );
 }
 
 std::optional<std::nullptr_t>

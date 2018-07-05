@@ -55,12 +55,12 @@ public:
     virtual HFONT GetFontCUI( unsigned type, const GUID& guid ) = 0;
     virtual HFONT GetFontDUI( unsigned type ) = 0;
 
-    void /*Request*/ Repaint( bool force = false );
-    void /*Request*/ RepaintRect( LONG x, LONG y, LONG w, LONG h, bool force = false );
+    void Repaint( bool force = false );
+    void RepaintRect( LONG x, LONG y, LONG w, LONG h, bool force = false );
     void RefreshBackground( LPRECT lprcUpdate = nullptr );
-    unsigned SetInterval( IDispatch* func, int delay );
-    unsigned SetTimeout( IDispatch* func, int delay );
-    void ClearIntervalOrTimeout( UINT timerId );
+    uint32_t SetInterval( JS::HandleFunction func, uint32_t delay );
+    uint32_t SetTimeout( JS::HandleFunction func, uint32_t delay );
+    void ClearIntervalOrTimeout( uint32_t timerId );
 
 private:
     

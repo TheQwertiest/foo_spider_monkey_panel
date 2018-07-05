@@ -7,7 +7,8 @@
 #include <js_utils/js_error_helper.h>
 
 
-// TODO: remove js_panel_window
+#include <js_panel_window.h>
+
 
 namespace mozjs
 {
@@ -95,6 +96,8 @@ void JsContainer::Finalize()
         return;
     }
 
+    HostTimerDispatcher::Get().onPanelUnload( pParentPanel_->GetHWND() );
+
     {
         JSAutoRequest ar( pJsCtx_ );
         JSAutoCompartment ac( pJsCtx_, jsGlobal_ );
@@ -126,6 +129,11 @@ void JsContainer::Fail()
     jsStatus_ = JsStatus::Failed;
 }
 
+JsContainer::JsStatus JsContainer::GetStatus() const
+{
+    return jsStatus_;
+}
+
 bool JsContainer::ExecuteScript( std::string_view scriptCode )
 {
     assert( pJsCtx_ );
@@ -141,24 +149,7 @@ bool JsContainer::ExecuteScript( std::string_view scriptCode )
     JS::RootedValue rval( pJsCtx_ );
 
     AutoReportException are( pJsCtx_ );
-    bool bRet = JS::Evaluate( pJsCtx_, opts, scriptCode.data(), scriptCode.length(), &rval );
-    if ( !bRet )
-    {
-        console::printf( JSP_NAME "JS::Evaluate failed\n" );
-        return false;
-    }
-
-    return true;
-}
-
-JsContainer::JsStatus JsContainer::GetStatus() const
-{
-    return jsStatus_;
-}
-
-JS::HandleObject JsContainer::GetGraphics() const
-{
-    return jsGraphics_;
+    return JS::Evaluate( pJsCtx_, opts, scriptCode.data(), scriptCode.length(), &rval );   
 }
 
 void JsContainer::InvokeOnNotifyCallback( const std::string& name, const std::wstring& data )
@@ -168,6 +159,7 @@ void JsContainer::InvokeOnNotifyCallback( const std::string& name, const std::ws
         return;
     }
 
+    JSAutoRequest ar( pJsCtx_ );
     JSAutoCompartment ac( pJsCtx_, jsGlobal_ );
     AutoReportException are( pJsCtx_ );
 
@@ -186,27 +178,45 @@ void JsContainer::InvokeOnNotifyCallback( const std::string& name, const std::ws
         return;
     }
 
-    are.Disable();
+    are.Disable(); ///< InvokeJsCallback has it's own AutoReportException
     InvokeJsCallback( "on_notify_data",
                       static_cast<std::string>(name),
                       static_cast<JS::HandleValue>(jsVal) );
 }
 
-JsContainer::GraphicsWrapper::GraphicsWrapper( JsContainer& parent, Gdiplus::Graphics& gr )
-    :parent_( parent )
-{// TODO: remove this awkward wrapper
-    assert( JsStatus::Ready == parent_.jsStatus_ );
-    assert( parent_.pNativeGraphics_ );
+void JsContainer::InvokeOnPaintCallback( Gdiplus::Graphics& gr )
+{
+    if ( JsStatus::Ready != jsStatus_ )
+    {
+        return;
+    }
 
-    parent_.pNativeGraphics_->SetGraphicsObject( &gr );
+    pNativeGraphics_->SetGraphicsObject( &gr );
+
+    InvokeJsCallback( "on_paint",
+                      static_cast<JS::HandleObject>( jsGraphics_ ) );
+
+    pNativeGraphics_->SetGraphicsObject( nullptr );
 }
 
-JsContainer::GraphicsWrapper::~GraphicsWrapper()
+uint32_t JsContainer::SetInterval( HWND hWnd, uint32_t delay, JS::HandleFunction jsFunction )
 {
-    if ( JsStatus::Ready == parent_.jsStatus_ )
-    {
-        parent_.pNativeGraphics_->SetGraphicsObject( nullptr );
-    }
+    return HostTimerDispatcher::Get().setInterval( hWnd, delay, pJsCtx_, jsFunction );
+}
+
+uint32_t JsContainer::SetTimeout( HWND hWnd, uint32_t delay, JS::HandleFunction jsFunction )
+{
+    return HostTimerDispatcher::Get().setTimeout( hWnd, delay, pJsCtx_, jsFunction );
+}
+
+void JsContainer::KillTimer( uint32_t timerId )
+{
+    HostTimerDispatcher::Get().killTimer( timerId );
+}
+
+void JsContainer::InvokeTimerFunction( uint32_t timerId )
+{
+    HostTimerDispatcher::Get().onInvokeMessage( timerId );
 }
 
 }

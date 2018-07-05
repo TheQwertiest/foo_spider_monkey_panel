@@ -80,7 +80,7 @@ void prop_kv_config::g_save(const config_map& data, stream_writer* writer, abort
 	{
 		writer->write_lendian_t(static_cast<uint32_t>(data.size()), abort);
 
-        for each (auto& elem in data)
+        for (auto& elem : data)
         {
             writer->write_string( elem.first.c_str(), elem.first.length(), abort );
 

@@ -1,8 +1,14 @@
 #pragma once
+
 #include <mutex>
 #include <map>
 #include <atomic>
 #include <list>
+
+namespace mozjs
+{
+class JsGlobalObject;
+}
 
 class HostTimer;
 class HostTimerTask;
@@ -27,34 +33,34 @@ public:
 
 	static HostTimerDispatcher& Get();
 
-	unsigned setInterval(HWND hWnd, unsigned delay, IDispatch* pDisp);
-	unsigned setTimeout(HWND hWnd, unsigned delay, IDispatch* pDisp);
+    uint32_t setInterval( HWND hWnd, uint32_t delay, JSContext* cx, JS::HandleFunction jsFunction );
+    uint32_t setTimeout( HWND hWnd, uint32_t delay, JSContext* cx, JS::HandleFunction jsFunction );
 
-	void killTimer(unsigned timerId);
+	void killTimer( uint32_t timerId);
 
 public: // callbacks
 	void onPanelUnload(HWND hWnd);
 
 	/// @brief Callback from timer via window message
 	/// @details WT:timerProc >> window_msg >> MT:invoke
-	void onInvokeMessage(unsigned timerId);
+	void onInvokeMessage( uint32_t timerId);
 
 	/// @brief Callback from Killer Thread when timer is expired
-	void onTimerExpire(unsigned timerId);
+	void onTimerExpire( uint32_t timerId);
 
 	/// @brief Callback from HostTimer when timer proc finished execution
-	void onTimerStopRequest(HWND hWnd, HANDLE hTimer, unsigned timerId);
+	void onTimerStopRequest(HWND hWnd, HANDLE hTimer, uint32_t timerId);
 
 	/// @brief Callback from HostTimerTask when task has been completed
-	void onTaskComplete(unsigned timerId);
+	void onTaskComplete( uint32_t timerId);
 
 private:
 	HostTimerDispatcher();
 
-	unsigned createTimer(HWND hWnd, unsigned delay, bool isRepeated, IDispatch* pDisp);
+	unsigned createTimer( HWND hWnd, uint32_t delay, bool isRepeated, JSContext* cx, JS::HandleFunction jsFunction );
 
 private: //thread
-	enum ThreadTaskId
+	enum class ThreadTaskId
 	{
 		killTimerTask,
 		shutdownTask
@@ -67,20 +73,21 @@ private: //thread
 
 private:
 	typedef std::map<unsigned, std::unique_ptr<HostTimer>> TimerMap;
+    // TODO: may be replace unique_ptr with shared_ptr (also check std::enable_shared_from_this)
 	typedef std::map<unsigned, std::unique_ptr<HostTimerTask>> TaskMap;
 
 	HANDLE m_hTimerQueue;
 	std::mutex m_timerMutex;
 	TaskMap m_taskMap;
 	TimerMap m_timerMap;
-	unsigned m_curTimerId;
+    uint32_t m_curTimerId;
 
 private: // thread
 	typedef struct
 	{
 		ThreadTaskId taskId;
 		HWND hWnd;
-		unsigned timerId;
+        uint32_t timerId;
 		HANDLE hTimer;
 	} ThreadTask;
 
@@ -91,23 +98,22 @@ private: // thread
 };
 
 /// @brief Task that should be executed on timer proc
-/// @details Also handles IDispatch references
+/// @details Everything apart from destructor is performed on the MainThread
 class HostTimerTask
 {
 public:
 	/// @brief ctor
-	/// @details Adds reference to pDisp
-	HostTimerTask(IDispatch* pDisp, unsigned timerId);
+    /// @details Pushes func to heap	
+	HostTimerTask( uint32_t timerId, JSContext* cx, JS::HandleFunction func );
 
 	/// @brief dtor
-	/// @details Removes reference from pDisp
 	~HostTimerTask();
 
 	/// @brief Adds reference to task
 	void acquire();
 
 	/// @brief Removes reference from task
-	/// @details Self-destruct when task reference is zero
+	/// @details When task reference is zero removes func from heap and self-destructs
 	void release();
 
 	/// @brief Invokes JS callback
@@ -116,16 +122,20 @@ public:
 	void invoke();
 
 private:
-	IDispatch* m_pDisp;
+    JSContext * pJsCtx_ = nullptr;
 
-	unsigned m_timerId;
-	unsigned m_refCount;
+    uint32_t funcId_;
+    uint32_t globalId_;
+    mozjs::JsGlobalObject* pNativeGlobal_ = nullptr;
+
+    uint32_t m_timerId;
+    uint32_t m_refCount = 0;
 };
 
 class HostTimer
 {
 public:
-	HostTimer(HWND hWnd, unsigned id, unsigned delay, bool isRepeated);
+	HostTimer(HWND hWnd, uint32_t id, uint32_t delay, bool isRepeated);
 	~HostTimer();
 
 	bool start(HANDLE hTimerQueue);
@@ -147,8 +157,8 @@ private:
 	IDispatch* m_pDisp;
 	HANDLE m_hTimer;
 
-	unsigned m_id;
-	unsigned m_delay;
+    uint32_t m_id;
+    uint32_t m_delay;
 	bool m_isRepeated;
 
 	std::atomic<bool> m_isStopRequested;
