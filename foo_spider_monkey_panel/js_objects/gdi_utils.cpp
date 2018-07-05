@@ -41,12 +41,14 @@ JSClass jsClass = {
 
 MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiUtils, CreateImage )
 MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsGdiUtils, Font, FontWithOpt, 1 )
+MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiUtils, Image )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiUtils, LoadImageAsync )
 
 const JSFunctionSpec jsFunctions[] = {
     JS_FN( "CreateImage", CreateImage, 2, DefaultPropsFlags() ),
-    JS_FN( "Font", Font, 3, DefaultPropsFlags() ),
-    JS_FN( "LoadImageAsync", LoadImageAsync, 0, DefaultPropsFlags() ),
+    JS_FN( "Font", Font, 2, DefaultPropsFlags() ),
+    JS_FN( "Image", Image, 1, DefaultPropsFlags() ),
+    JS_FN( "LoadImageAsync", LoadImageAsync, 2, DefaultPropsFlags() ),
     JS_FS_END
 };
 

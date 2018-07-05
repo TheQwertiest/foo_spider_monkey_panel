@@ -31,7 +31,7 @@ public:
     std::optional<std::nullptr_t> AddPlaylistItemToPlaybackQueue( uint32_t playlistIndex, uint32_t playlistItemIndex );
     std::optional<std::nullptr_t> ClearPlaylist( uint32_t playlistIndex );
     std::optional<std::nullptr_t> ClearPlaylistSelection( uint32_t playlistIndex );
-    std::optional<int32_t> CreateAutoPlaylist( uint32_t playlistIndex, const std::string& name, const std::string& query, const std::string& sort /* ="" */, uint32_t flags = 0 );
+    std::optional<int32_t> CreateAutoPlaylist( uint32_t playlistIndex, const std::string& name, const std::string& query, const std::string& sort = "", uint32_t flags = 0 );
     std::optional<int32_t> CreateAutoPlaylistWithOpt( size_t optArgCount, uint32_t playlistIndex, const std::string& name, const std::string& query, const std::string& sort, uint32_t flags );
     std::optional<int32_t> CreatePlaylist( uint32_t playlistIndex, const std::string& name );
     std::optional<uint32_t> DuplicatePlaylist( uint32_t from, const std::string&  name );
@@ -52,7 +52,7 @@ public:
     std::optional<std::nullptr_t> InsertPlaylistItems( uint32_t playlistIndex, uint32_t base, JsFbMetadbHandleList* handles, bool select = false );
     std::optional<std::nullptr_t> InsertPlaylistItemsWithOpt( size_t optArgCount, uint32_t playlistIndex, uint32_t base, JsFbMetadbHandleList* handles, bool select );
     std::optional<std::nullptr_t> InsertPlaylistItemsFilter( uint32_t playlistIndex, uint32_t base, JsFbMetadbHandleList* handles, bool select = false );
-    std::optional<std::nullptr_t> InsertPlaylistItemsFilterWithOpt( size_t optArgCount, uint32_t playlistIndex, uint32_t base, JsFbMetadbHandleList* handles, bool select = false );
+    std::optional<std::nullptr_t> InsertPlaylistItemsFilterWithOpt( size_t optArgCount, uint32_t playlistIndex, uint32_t base, JsFbMetadbHandleList* handles, bool select );
     std::optional<bool> IsAutoPlaylist( uint32_t playlistIndex );
     std::optional<bool> IsPlaylistItemSelected( uint32_t playlistIndex, uint32_t playlistItemIndex );
     std::optional<bool> IsPlaylistLocked( uint32_t playlistIndex );

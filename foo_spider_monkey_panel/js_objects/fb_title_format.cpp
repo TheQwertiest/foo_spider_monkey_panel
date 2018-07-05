@@ -33,12 +33,12 @@ JSClass jsClass = {
     &jsOps
 };
 
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbTitleFormat, Eval )
+MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsFbTitleFormat, Eval, EvalWithOpt, 1 )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsFbTitleFormat, EvalWithMetadb )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsFbTitleFormat, EvalWithMetadbs )
 
 const JSFunctionSpec jsFunctions[] = {
-    JS_FN( "Eval", Eval, 1, DefaultPropsFlags() ),
+    JS_FN( "Eval", Eval, 0, DefaultPropsFlags() ),
     JS_FN( "EvalWithMetadb", EvalWithMetadb, 1, DefaultPropsFlags() ),
     JS_FN( "EvalWithMetadbs", EvalWithMetadbs, 1, DefaultPropsFlags() ),
     JS_FS_END
@@ -111,6 +111,23 @@ JsFbTitleFormat::Eval( bool force )
     pc->playback_format_title_ex( handle, nullptr, text, titleFormatObject_, nullptr, playback_control::display_level_all );
 
     return std::string( text.c_str(), text.length() );
+}
+
+std::optional<std::string> 
+JsFbTitleFormat::EvalWithOpt( size_t optArgCount, bool force )
+{
+    if ( optArgCount > 1 )
+    {
+        JS_ReportErrorASCII( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
+        return std::nullopt;
+    }
+
+    if ( optArgCount == 1 )
+    {
+        return Eval();
+    }
+
+    return Eval( force );
 }
 
 std::optional<std::string>

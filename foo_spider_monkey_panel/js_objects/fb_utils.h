@@ -40,7 +40,7 @@ public:
     // TODO: remove after adding array methods to JsFbMetadbHandleList
     std::optional<JSObject*> CreateHandleList();
     std::optional<JSObject*> CreateMainMenuManager();
-    std::optional<JSObject*> CreateProfiler( const std::string& name /* = "" */ );    
+    std::optional<JSObject*> CreateProfiler( const std::string& name = "" );    
     std::optional<JSObject*> CreateProfilerWithOpt( size_t optArgCount, const std::string& name );
     std::optional<uint32_t> DoDragDrop( JsFbMetadbHandleList* handles, uint32_t okEffects );
     std::optional<std::nullptr_t> Exit();
@@ -55,9 +55,10 @@ public:
     std::optional<JSObject*> GetQueryItems( JsFbMetadbHandleList* handles, const std::string& query );
     std::optional<JSObject*> GetSelection();
     std::optional<JSObject*> GetSelections( uint32_t flags = 0 );
-    std::optional<JSObject*> GetSelectionsWithOpt( size_t optArgCount, uint32_t flags = 0 );
+    std::optional<JSObject*> GetSelectionsWithOpt( size_t optArgCount, uint32_t flags );
     std::optional<uint32_t> GetSelectionType();
     std::optional<bool> IsLibraryEnabled();
+    // TODO: document this
     std::optional<bool> IsMainMenuCommandChecked( const std::string& command );
     std::optional<bool> IsMetadbInMediaLibrary( JsFbMetadbHandle* handle );
     std::optional<std::nullptr_t> LoadPlaylist();
@@ -78,7 +79,7 @@ public:
     std::optional<std::nullptr_t> SetOutputDevice( const std::wstring& output, const std::wstring& device );
     std::optional<std::nullptr_t> ShowConsole();
     std::optional<std::nullptr_t> ShowLibrarySearchUI( const std::string& query );
-    std::optional<std::nullptr_t> ShowPopupMessage( const std::string& msg, const std::string& title /* ='JScript Panel' */ );
+    std::optional<std::nullptr_t> ShowPopupMessage( const std::string& msg, const std::string& title = "Spider Monkey Panel" );
     std::optional<std::nullptr_t> ShowPopupMessageWithOpt( size_t optArgCount, const std::string& msg, const std::string& title );
     std::optional<std::nullptr_t> ShowPreferences();
     std::optional<std::nullptr_t> Stop();

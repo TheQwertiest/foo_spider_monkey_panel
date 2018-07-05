@@ -72,7 +72,9 @@ public:
                                                         int32_t dstX, int32_t dstY, uint32_t dstW, uint32_t dstH,
                                                         int32_t srcX, int32_t srcY, uint32_t srcW, uint32_t srcH,
                                                         uint8_t alpha );
-    std::optional<std::nullptr_t> GdiDrawBitmap( JsGdiRawBitmap* bitmap, int32_t dstX, int32_t dstY, uint32_t dstW, uint32_t dstH, int32_t srcX, int32_t srcY, uint32_t srcW, uint32_t srcH );
+    std::optional<std::nullptr_t> GdiDrawBitmap( JsGdiRawBitmap* bitmap, 
+                                                 int32_t dstX, int32_t dstY, uint32_t dstW, uint32_t dstH, 
+                                                 int32_t srcX, int32_t srcY, uint32_t srcW, uint32_t srcH );
     std::optional<std::nullptr_t> GdiDrawText( const std::wstring& str, JsGdiFont* font, uint32_t colour, 
                                                int32_t x, int32_t y, uint32_t w, uint32_t h,
                                                uint32_t format = 0 );

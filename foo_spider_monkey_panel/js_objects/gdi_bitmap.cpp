@@ -48,7 +48,7 @@ MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiBitmap, GetGraphics )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiBitmap, ReleaseGraphics )
 MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsGdiBitmap, Resize, ResizeWithOpt, 1 )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiBitmap, RotateFlip )
-MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiBitmap, SaveAs )
+MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsGdiBitmap, SaveAs, SaveAsWithOpt, 1 )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiBitmap, StackBlur )
 
 const JSFunctionSpec jsFunctions[] = {
@@ -56,13 +56,13 @@ const JSFunctionSpec jsFunctions[] = {
     JS_FN( "ApplyMask", ApplyMask, 1, DefaultPropsFlags() ),
     JS_FN( "Clone", Clone, 4, DefaultPropsFlags() ),
     JS_FN( "CreateRawBitmap", CreateRawBitmap, 0, DefaultPropsFlags() ),
-    JS_FN( "GetColourScheme", GetColourScheme, 0, DefaultPropsFlags() ),
-    JS_FN( "GetColourSchemeJSON", GetColourSchemeJSON, 0, DefaultPropsFlags() ),
+    JS_FN( "GetColourScheme", GetColourScheme, 1, DefaultPropsFlags() ),
+    JS_FN( "GetColourSchemeJSON", GetColourSchemeJSON, 1, DefaultPropsFlags() ),
     JS_FN( "GetGraphics", GetGraphics, 0, DefaultPropsFlags() ),
     JS_FN( "ReleaseGraphics", ReleaseGraphics, 1, DefaultPropsFlags() ),
-    JS_FN( "Resize", Resize, 3, DefaultPropsFlags() ),
+    JS_FN( "Resize", Resize, 2, DefaultPropsFlags() ),
     JS_FN( "RotateFlip", RotateFlip, 1, DefaultPropsFlags() ),
-    JS_FN( "SaveAs", SaveAs, 2, DefaultPropsFlags() ),
+    JS_FN( "SaveAs", SaveAs, 1, DefaultPropsFlags() ),
     JS_FN( "StackBlur", StackBlur, 1, DefaultPropsFlags() ),
     JS_FS_END
 };
@@ -588,6 +588,23 @@ JsGdiBitmap::SaveAs( const std::wstring& path, const std::wstring& format )
 
     Gdiplus::Status gdiRet = pGdi_->Save( path.c_str(), &clsid_encoder );
     return ( Gdiplus::Ok == gdiRet );
+}
+
+std::optional<bool> 
+JsGdiBitmap::SaveAsWithOpt( size_t optArgCount, const std::wstring& path, const std::wstring& format /* ='image/png' */ )
+{
+    if ( optArgCount > 1 )
+    {
+        JS_ReportErrorASCII( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
+        return std::nullopt;
+    }
+
+    if ( optArgCount == 1 )
+    {
+        return SaveAs( path );
+    }
+
+    return SaveAs( path, format );
 }
 
 std::optional<std::nullptr_t>

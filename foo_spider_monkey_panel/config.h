@@ -43,6 +43,7 @@ public:
 
     std::optional<mozjs::SerializedJsValue> get_config_item( const std::string& propName );
     void set_config_item( const std::string& propName, const mozjs::SerializedJsValue& serializedValue );
+    void remove_config_item( const std::string& propName );
 	static void g_load( config_map& data, stream_reader* reader, abort_callback& abort) throw();
 	static void g_save(const config_map& data, stream_writer* writer, abort_callback& abort) throw();
 	void load(stream_reader* reader, abort_callback& abort) throw();

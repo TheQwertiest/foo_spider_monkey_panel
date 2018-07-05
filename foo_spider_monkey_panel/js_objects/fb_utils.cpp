@@ -51,19 +51,19 @@ MJS_DEFINE_JS_TO_NATIVE_FN( JsFbUtils, CopyHandleListToClipboard )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsFbUtils, CreateContextMenuManager )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsFbUtils, CreateHandleList )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsFbUtils, CreateMainMenuManager )
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbUtils, CreateProfiler )
+MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsFbUtils, CreateProfiler, CreateProfilerWithOpt, 1 )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsFbUtils, DoDragDrop )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsFbUtils, Exit )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsFbUtils, GetClipboardContents )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsFbUtils, GetDSPPresets )
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbUtils, GetFocusItem )
+MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsFbUtils, GetFocusItem, GetFocusItemWithOpt, 1 )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsFbUtils, GetLibraryItems )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsFbUtils, GetLibraryRelativePath )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsFbUtils, GetNowPlaying )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsFbUtils, GetOutputDevices )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsFbUtils, GetQueryItems )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsFbUtils, GetSelection )
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbUtils, GetSelections )
+MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsFbUtils, GetSelections, GetSelectionsWithOpt, 1 )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsFbUtils, GetSelectionType )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsFbUtils, IsLibraryEnabled )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsFbUtils, IsMainMenuCommandChecked )
@@ -75,8 +75,8 @@ MJS_DEFINE_JS_TO_NATIVE_FN( JsFbUtils, Play )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsFbUtils, PlayOrPause )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsFbUtils, Prev )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsFbUtils, Random )
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbUtils, RunContextCommand )
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbUtils, RunContextCommandWithMetadb )
+MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsFbUtils, RunContextCommand, RunContextCommandWithOpt, 1 )
+MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsFbUtils, RunContextCommandWithMetadb, RunContextCommandWithMetadbWithOpt, 1 )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsFbUtils, RunMainMenuCommand )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsFbUtils, SaveIndex )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsFbUtils, SavePlaylist )
@@ -84,7 +84,7 @@ MJS_DEFINE_JS_TO_NATIVE_FN( JsFbUtils, SetDSPPreset )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsFbUtils, SetOutputDevice )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsFbUtils, ShowConsole )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsFbUtils, ShowLibrarySearchUI )
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbUtils, ShowPopupMessage )
+MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsFbUtils, ShowPopupMessage, ShowPopupMessageWithOpt, 1 )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsFbUtils, ShowPreferences )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsFbUtils, Stop )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsFbUtils, TitleFormat )
@@ -100,27 +100,27 @@ const JSFunctionSpec jsFunctions[] = {
     JS_FN( "AddFiles", AddFiles, 0, DefaultPropsFlags() ),
     JS_FN( "CheckClipboardContents", CheckClipboardContents, 0, DefaultPropsFlags() ),
     JS_FN( "ClearPlaylist", ClearPlaylist, 0, DefaultPropsFlags() ),
-    JS_FN( "CopyHandleListToClipboard", CopyHandleListToClipboard, 0, DefaultPropsFlags() ),
+    JS_FN( "CopyHandleListToClipboard", CopyHandleListToClipboard, 1, DefaultPropsFlags() ),
     JS_FN( "CreateContextMenuManager", CreateContextMenuManager, 0, DefaultPropsFlags() ),
     JS_FN( "CreateHandleList", CreateHandleList, 0, DefaultPropsFlags() ),
     JS_FN( "CreateMainMenuManager", CreateMainMenuManager, 0, DefaultPropsFlags() ),
     JS_FN( "CreateProfiler", CreateProfiler, 0, DefaultPropsFlags() ),
-    JS_FN( "DoDragDrop", DoDragDrop, 0, DefaultPropsFlags() ),
+    JS_FN( "DoDragDrop", DoDragDrop, 2, DefaultPropsFlags() ),
     JS_FN( "Exit", Exit, 0, DefaultPropsFlags() ),
     JS_FN( "GetClipboardContents", GetClipboardContents, 0, DefaultPropsFlags() ),
     JS_FN( "GetDSPPresets", GetDSPPresets, 0, DefaultPropsFlags() ),
     JS_FN( "GetFocusItem", GetFocusItem, 0, DefaultPropsFlags() ),
     JS_FN( "GetLibraryItems", GetLibraryItems, 0, DefaultPropsFlags() ),
-    JS_FN( "GetLibraryRelativePath", GetLibraryRelativePath, 0, DefaultPropsFlags() ),
+    JS_FN( "GetLibraryRelativePath", GetLibraryRelativePath, 1, DefaultPropsFlags() ),
     JS_FN( "GetNowPlaying", GetNowPlaying, 0, DefaultPropsFlags() ),
     JS_FN( "GetOutputDevices", GetOutputDevices, 0, DefaultPropsFlags() ),
-    JS_FN( "GetQueryItems", GetQueryItems, 0, DefaultPropsFlags() ),
+    JS_FN( "GetQueryItems", GetQueryItems, 2, DefaultPropsFlags() ),
     JS_FN( "GetSelection", GetSelection, 0, DefaultPropsFlags() ),
     JS_FN( "GetSelections", GetSelections, 0, DefaultPropsFlags() ),
     JS_FN( "GetSelectionType", GetSelectionType, 0, DefaultPropsFlags() ),
     JS_FN( "IsLibraryEnabled", IsLibraryEnabled, 0, DefaultPropsFlags() ),
-    JS_FN( "IsMainMenuCommandChecked", IsMainMenuCommandChecked, 0, DefaultPropsFlags() ),
-    JS_FN( "IsMetadbInMediaLibrary", IsMetadbInMediaLibrary, 0, DefaultPropsFlags() ),
+    JS_FN( "IsMainMenuCommandChecked", IsMainMenuCommandChecked, 1, DefaultPropsFlags() ),
+    JS_FN( "IsMetadbInMediaLibrary", IsMetadbInMediaLibrary, 1, DefaultPropsFlags() ),
     JS_FN( "LoadPlaylist", LoadPlaylist, 0, DefaultPropsFlags() ),
     JS_FN( "Next", Next, 0, DefaultPropsFlags() ),
     JS_FN( "Pause", Pause, 0, DefaultPropsFlags() ),
@@ -128,19 +128,19 @@ const JSFunctionSpec jsFunctions[] = {
     JS_FN( "PlayOrPause", PlayOrPause, 0, DefaultPropsFlags() ),
     JS_FN( "Prev", Prev, 0, DefaultPropsFlags() ),
     JS_FN( "Random", Random, 0, DefaultPropsFlags() ),
-    JS_FN( "RunContextCommand", RunContextCommand, 0, DefaultPropsFlags() ),
-    JS_FN( "RunContextCommandWithMetadb", RunContextCommandWithMetadb, 0, DefaultPropsFlags() ),
-    JS_FN( "RunMainMenuCommand", RunMainMenuCommand, 0, DefaultPropsFlags() ),
+    JS_FN( "RunContextCommand", RunContextCommand, 1, DefaultPropsFlags() ),
+    JS_FN( "RunContextCommandWithMetadb", RunContextCommandWithMetadb, 2, DefaultPropsFlags() ),
+    JS_FN( "RunMainMenuCommand", RunMainMenuCommand, 1, DefaultPropsFlags() ),
     JS_FN( "SaveIndex", SaveIndex, 0, DefaultPropsFlags() ),
     JS_FN( "SavePlaylist", SavePlaylist, 0, DefaultPropsFlags() ),
-    JS_FN( "SetDSPPreset", SetDSPPreset, 0, DefaultPropsFlags() ),
-    JS_FN( "SetOutputDevice", SetOutputDevice, 0, DefaultPropsFlags() ),
+    JS_FN( "SetDSPPreset", SetDSPPreset, 1, DefaultPropsFlags() ),
+    JS_FN( "SetOutputDevice", SetOutputDevice, 2, DefaultPropsFlags() ),
     JS_FN( "ShowConsole", ShowConsole, 0, DefaultPropsFlags() ),
-    JS_FN( "ShowLibrarySearchUI", ShowLibrarySearchUI, 0, DefaultPropsFlags() ),
-    JS_FN( "ShowPopupMessage", ShowPopupMessage, 0, DefaultPropsFlags() ),
+    JS_FN( "ShowLibrarySearchUI", ShowLibrarySearchUI, 1, DefaultPropsFlags() ),
+    JS_FN( "ShowPopupMessage", ShowPopupMessage, 1, DefaultPropsFlags() ),
     JS_FN( "ShowPreferences", ShowPreferences, 0, DefaultPropsFlags() ),
     JS_FN( "Stop", Stop, 0, DefaultPropsFlags() ),
-    JS_FN( "TitleFormat", TitleFormat, 0, DefaultPropsFlags() ),
+    JS_FN( "TitleFormat", TitleFormat, 1, DefaultPropsFlags() ),
     JS_FN( "VolumeDown", VolumeDown, 0, DefaultPropsFlags() ),
     JS_FN( "VolumeMute", VolumeMute, 0, DefaultPropsFlags() ),
     JS_FN( "VolumeUp", VolumeUp, 0, DefaultPropsFlags() ),
@@ -346,6 +346,23 @@ JsFbUtils::CreateProfiler( const std::string& name )
     return jsObject;
 }
 
+std::optional<JSObject*> 
+JsFbUtils::CreateProfilerWithOpt( size_t optArgCount, const std::string& name )
+{
+    if ( optArgCount > 1 )
+    {
+        JS_ReportErrorASCII( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
+        return std::nullopt;
+    }
+
+    if ( optArgCount == 1 )
+    {
+        return CreateProfiler();
+    }
+
+    return CreateProfiler( name );
+}
+
 std::optional<uint32_t>
 JsFbUtils::DoDragDrop( JsFbMetadbHandleList* handles, uint32_t okEffects )
 {
@@ -463,6 +480,23 @@ JsFbUtils::GetFocusItem( bool force )
     }
 
     return jsObject;
+}
+
+std::optional<JSObject*> 
+JsFbUtils::GetFocusItemWithOpt( size_t optArgCount, bool force )
+{
+    if ( optArgCount > 1 )
+    {
+        JS_ReportErrorASCII( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
+        return std::nullopt;
+    }
+
+    if ( optArgCount == 1 )
+    {
+        return GetFocusItem();
+    }
+
+    return GetFocusItem( force );
 }
 
 std::optional<JSObject*>
@@ -628,6 +662,23 @@ JsFbUtils::GetSelections( uint32_t flags )
     return jsObject;
 }
 
+std::optional<JSObject*> 
+JsFbUtils::GetSelectionsWithOpt( size_t optArgCount, uint32_t flags )
+{
+    if ( optArgCount > 1 )
+    {
+        JS_ReportErrorASCII( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
+        return std::nullopt;
+    }
+
+    if ( optArgCount == 1 )
+    {
+        return GetSelections();
+    }
+
+    return GetSelections( flags );
+}
+
 std::optional<uint32_t>
 JsFbUtils::GetSelectionType()
 {
@@ -740,6 +791,23 @@ JsFbUtils::RunContextCommand( const std::string& command, uint32_t flags )
     return helpers::execute_context_command_by_name_SEH( command.c_str(), dummy_list, flags );  
 }
 
+std::optional<bool> 
+JsFbUtils::RunContextCommandWithOpt( size_t optArgCount, const std::string& command, uint32_t flags )
+{
+    if ( optArgCount > 1 )
+    {
+        JS_ReportErrorASCII( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
+        return std::nullopt;
+    }
+
+    if ( optArgCount == 1 )
+    {
+        return RunContextCommand( command );
+    }
+
+    return RunContextCommand( command, flags );
+}
+
 std::optional<bool>
 JsFbUtils::RunContextCommandWithMetadb( const std::string& command, JS::HandleValue handle, uint32_t flags )
 {
@@ -773,6 +841,23 @@ JsFbUtils::RunContextCommandWithMetadb( const std::string& command, JS::HandleVa
     }
 
     return helpers::execute_context_command_by_name_SEH( command.c_str(), handle_list, flags );
+}
+
+std::optional<bool> 
+JsFbUtils::RunContextCommandWithMetadbWithOpt( size_t optArgCount, const std::string& command, JS::HandleValue handle, uint32_t flags )
+{
+    if ( optArgCount > 1 )
+    {
+        JS_ReportErrorASCII( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
+        return std::nullopt;
+    }
+
+    if ( optArgCount == 1 )
+    {
+        return RunContextCommandWithMetadb( command, handle );
+    }
+
+    return RunContextCommandWithMetadb( command, handle, flags );
 }
 
 std::optional<bool>
@@ -863,6 +948,23 @@ JsFbUtils::ShowPopupMessage( const std::string& msg, const std::string& title )
 {
     popup_msg::g_show( msg.c_str(), title.c_str() );
     return nullptr;
+}
+
+std::optional<std::nullptr_t> 
+JsFbUtils::ShowPopupMessageWithOpt( size_t optArgCount, const std::string& msg, const std::string& title )
+{
+    if ( optArgCount > 1 )
+    {
+        JS_ReportErrorASCII( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
+        return std::nullopt;
+    }
+
+    if ( optArgCount == 1 )
+    {
+        return ShowPopupMessage( msg );
+    }
+
+    return ShowPopupMessage( msg, title );
 }
 
 std::optional<std::nullptr_t>

@@ -18,6 +18,11 @@ void prop_kv_config::set_config_item(const std::string& propName, const mozjs::S
     m_map[propName] = std::make_shared<mozjs::SerializedJsValue>( serializedValue );
 }
 
+void prop_kv_config::remove_config_item( const std::string& propName )
+{
+    m_map.erase( propName );
+}
+
 void prop_kv_config::g_load(config_map& data, stream_reader* reader, abort_callback& abort) throw()
 {
 	data.clear();

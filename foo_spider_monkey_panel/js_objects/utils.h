@@ -42,13 +42,15 @@ public:
     std::optional<bool> IsKeyPressed( uint32_t vkey );
     std::optional<std::wstring> MapString( const std::wstring& str, uint32_t lcid, uint32_t flags );
     std::optional<bool> PathWildcardMatch( const std::wstring& pattern, const std::wstring& str );
-    std::optional<std::wstring> ReadINI( const std::wstring& filename, const std::wstring& section, const std::wstring& key, const std::wstring& defaultval /* = NULL */ );
+    std::optional<std::wstring> ReadINI( const std::wstring& filename, const std::wstring& section, const std::wstring& key, const std::wstring& defaultval = L"" );
     std::optional<std::wstring> ReadINIWithOpt( size_t optArgCount, const std::wstring& filename, const std::wstring& section, const std::wstring& key, const std::wstring& defaultval);
     std::optional<std::wstring> ReadTextFile( const std::wstring& filename, uint32_t codepage = 0 );
     std::optional<std::wstring> ReadTextFileWithOpt( size_t optArgCount, const std::wstring& filename, uint32_t codepage );
     std::optional<bool> WriteINI( const std::wstring& filename, const std::wstring& section, const std::wstring& key, const std::wstring& val );
     std::optional<bool> WriteTextFile( const std::string& filename, const std::string& content, bool write_bom = true );
     std::optional<bool> WriteTextFileWithOpt( size_t optArgCount, const std::string& filename, const std::string& content, bool write_bom );
+    
+public:    
     std::optional<uint32_t> get_Version();
 
 private:

@@ -9,9 +9,6 @@
 namespace mozjs
 {
 
-// TODO: think about adding JS_DefineFunctionsWithHelp()
-// TODO: nargs == args before the first default
-
 bool DefineConsole( JSContext* cx, JS::HandleObject global );
 
 }

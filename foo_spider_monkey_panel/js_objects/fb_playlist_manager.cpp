@@ -38,11 +38,11 @@ JSClass jsClass = {
 };
 
 MJS_DEFINE_JS_TO_NATIVE_FN( JsFbPlaylistManager, AddItemToPlaybackQueue        );
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbPlaylistManager, AddLocations               );
+MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsFbPlaylistManager, AddLocations, AddLocationsWithOpt, 1 );
 MJS_DEFINE_JS_TO_NATIVE_FN( JsFbPlaylistManager, AddPlaylistItemToPlaybackQueue);
 MJS_DEFINE_JS_TO_NATIVE_FN( JsFbPlaylistManager, ClearPlaylist                 );
 MJS_DEFINE_JS_TO_NATIVE_FN( JsFbPlaylistManager, ClearPlaylistSelection        );
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbPlaylistManager, CreateAutoPlaylist           );
+MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsFbPlaylistManager, CreateAutoPlaylist, CreateAutoPlaylistWithOpt, 2 );
 MJS_DEFINE_JS_TO_NATIVE_FN( JsFbPlaylistManager, CreatePlaylist                );
 MJS_DEFINE_JS_TO_NATIVE_FN( JsFbPlaylistManager, DuplicatePlaylist            );
 MJS_DEFINE_JS_TO_NATIVE_FN( JsFbPlaylistManager, EnsurePlaylistItemVisible    );
@@ -58,8 +58,8 @@ MJS_DEFINE_JS_TO_NATIVE_FN( JsFbPlaylistManager, GetPlaylistFocusItemIndex     )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsFbPlaylistManager, GetPlaylistItems              );
 MJS_DEFINE_JS_TO_NATIVE_FN( JsFbPlaylistManager, GetPlaylistName               );
 MJS_DEFINE_JS_TO_NATIVE_FN( JsFbPlaylistManager, GetPlaylistSelectedItems      );
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbPlaylistManager, InsertPlaylistItems           );
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbPlaylistManager, InsertPlaylistItemsFilter     );
+MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsFbPlaylistManager, InsertPlaylistItems, InsertPlaylistItemsWithOpt, 1 );
+MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsFbPlaylistManager, InsertPlaylistItemsFilter, InsertPlaylistItemsFilterWithOpt, 1 );
 MJS_DEFINE_JS_TO_NATIVE_FN( JsFbPlaylistManager, IsAutoPlaylist                );
 MJS_DEFINE_JS_TO_NATIVE_FN( JsFbPlaylistManager, IsPlaylistItemSelected        );
 MJS_DEFINE_JS_TO_NATIVE_FN( JsFbPlaylistManager, IsPlaylistLocked              );
@@ -69,7 +69,7 @@ MJS_DEFINE_JS_TO_NATIVE_FN( JsFbPlaylistManager, PlaylistItemCount             )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsFbPlaylistManager, RemoveItemFromPlaybackQueue  );
 MJS_DEFINE_JS_TO_NATIVE_FN( JsFbPlaylistManager, RemoveItemsFromPlaybackQueue);
 MJS_DEFINE_JS_TO_NATIVE_FN( JsFbPlaylistManager, RemovePlaylist                );
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbPlaylistManager, RemovePlaylistSelection       );
+MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsFbPlaylistManager, RemovePlaylistSelection, RemovePlaylistSelectionWithOpt, 1 );
 MJS_DEFINE_JS_TO_NATIVE_FN( JsFbPlaylistManager, RemovePlaylistSwitch          );
 MJS_DEFINE_JS_TO_NATIVE_FN( JsFbPlaylistManager, RenamePlaylist               );
 MJS_DEFINE_JS_TO_NATIVE_FN( JsFbPlaylistManager, SetActivePlaylistContext      );
@@ -78,58 +78,58 @@ MJS_DEFINE_JS_TO_NATIVE_FN( JsFbPlaylistManager, SetPlaylistFocusItemByHandle  )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsFbPlaylistManager, SetPlaylistSelection       );
 MJS_DEFINE_JS_TO_NATIVE_FN( JsFbPlaylistManager, SetPlaylistSelectionSingle    );
 MJS_DEFINE_JS_TO_NATIVE_FN( JsFbPlaylistManager, ShowAutoPlaylistUI            );
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbPlaylistManager, SortByFormat                  );
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbPlaylistManager, SortByFormatV2                );
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbPlaylistManager, SortPlaylistsByName           );
+MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsFbPlaylistManager, SortByFormat, SortByFormatWithOpt, 1 );
+MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsFbPlaylistManager, SortByFormatV2, SortByFormatV2WithOpt, 1 );
+MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsFbPlaylistManager, SortPlaylistsByName, SortPlaylistsByNameWithOpt, 1 );
 MJS_DEFINE_JS_TO_NATIVE_FN( JsFbPlaylistManager, UndoBackup                    );
 
-// TODO: set arg count
+
 const JSFunctionSpec jsFunctions[] = {
-    JS_FN("AddItemToPlaybackQueue", AddItemToPlaybackQueue, 0, DefaultPropsFlags() ),
-    JS_FN("AddLocations", AddLocations, 0, DefaultPropsFlags() ),
-    JS_FN("AddPlaylistItemToPlaybackQueue", AddPlaylistItemToPlaybackQueue, 0, DefaultPropsFlags() ),
-    JS_FN("ClearPlaylist", ClearPlaylist, 0, DefaultPropsFlags() ),
-    JS_FN("ClearPlaylistSelection", ClearPlaylistSelection, 0, DefaultPropsFlags() ),
-    JS_FN("CreateAutoPlaylist", CreateAutoPlaylist, 0, DefaultPropsFlags() ),
-    JS_FN("CreatePlaylist", CreatePlaylist, 0, DefaultPropsFlags() ),
-    JS_FN("DuplicatePlaylist", DuplicatePlaylist, 0, DefaultPropsFlags() ),
-    JS_FN("EnsurePlaylistItemVisible", EnsurePlaylistItemVisible, 0, DefaultPropsFlags() ),
-    JS_FN("ExecutePlaylistDefaultAction", ExecutePlaylistDefaultAction, 0, DefaultPropsFlags() ),
-    JS_FN("FindOrCreatePlaylist", FindOrCreatePlaylist, 0, DefaultPropsFlags() ),
-    JS_FN("FindPlaybackQueueItemIndex", FindPlaybackQueueItemIndex, 0, DefaultPropsFlags() ),
-    JS_FN("FindPlaylist", FindPlaylist, 0, DefaultPropsFlags() ),
+    JS_FN("AddItemToPlaybackQueue", AddItemToPlaybackQueue, 1, DefaultPropsFlags() ),
+    JS_FN("AddLocations", AddLocations, 2, DefaultPropsFlags() ),
+    JS_FN("AddPlaylistItemToPlaybackQueue", AddPlaylistItemToPlaybackQueue, 2, DefaultPropsFlags() ),
+    JS_FN("ClearPlaylist", ClearPlaylist, 1, DefaultPropsFlags() ),
+    JS_FN("ClearPlaylistSelection", ClearPlaylistSelection, 1, DefaultPropsFlags() ),
+    JS_FN("CreateAutoPlaylist", CreateAutoPlaylist, 3, DefaultPropsFlags() ),
+    JS_FN("CreatePlaylist", CreatePlaylist, 2, DefaultPropsFlags() ),
+    JS_FN("DuplicatePlaylist", DuplicatePlaylist, 2, DefaultPropsFlags() ),
+    JS_FN("EnsurePlaylistItemVisible", EnsurePlaylistItemVisible, 2, DefaultPropsFlags() ),
+    JS_FN("ExecutePlaylistDefaultAction", ExecutePlaylistDefaultAction, 2, DefaultPropsFlags() ),
+    JS_FN("FindOrCreatePlaylist", FindOrCreatePlaylist, 2, DefaultPropsFlags() ),
+    JS_FN("FindPlaybackQueueItemIndex", FindPlaybackQueueItemIndex, 3, DefaultPropsFlags() ),
+    JS_FN("FindPlaylist", FindPlaylist, 1, DefaultPropsFlags() ),
     JS_FN("FlushPlaybackQueue", FlushPlaybackQueue, 0, DefaultPropsFlags() ),
     JS_FN("GetPlaybackQueueContents", GetPlaybackQueueContents, 0, DefaultPropsFlags() ),
     JS_FN("GetPlaybackQueueHandles", GetPlaybackQueueHandles, 0, DefaultPropsFlags() ),
     JS_FN("GetPlayingItemLocation", GetPlayingItemLocation, 0, DefaultPropsFlags() ),
-    JS_FN("GetPlaylistFocusItemIndex", GetPlaylistFocusItemIndex, 0, DefaultPropsFlags() ),
-    JS_FN("GetPlaylistItems", GetPlaylistItems, 0, DefaultPropsFlags() ),
-    JS_FN("GetPlaylistName", GetPlaylistName, 0, DefaultPropsFlags() ),
-    JS_FN("GetPlaylistSelectedItems", GetPlaylistSelectedItems, 0, DefaultPropsFlags() ),
-    JS_FN("InsertPlaylistItems", InsertPlaylistItems, 0, DefaultPropsFlags() ),
-    JS_FN("InsertPlaylistItemsFilter", InsertPlaylistItemsFilter, 0, DefaultPropsFlags() ),
-    JS_FN("IsAutoPlaylist", IsAutoPlaylist, 0, DefaultPropsFlags() ),
-    JS_FN("IsPlaylistItemSelected", IsPlaylistItemSelected, 0, DefaultPropsFlags() ),
-    JS_FN("IsPlaylistLocked", IsPlaylistLocked, 0, DefaultPropsFlags() ),
-    JS_FN("MovePlaylist", MovePlaylist, 0, DefaultPropsFlags() ),
-    JS_FN("MovePlaylistSelection", MovePlaylistSelection, 0, DefaultPropsFlags() ),
-    JS_FN("PlaylistItemCount", PlaylistItemCount, 0, DefaultPropsFlags() ),
-    JS_FN("RemoveItemFromPlaybackQueue", RemoveItemFromPlaybackQueue, 0, DefaultPropsFlags() ),
-    JS_FN("RemoveItemsFromPlaybackQueue", RemoveItemsFromPlaybackQueue, 0, DefaultPropsFlags() ),
-    JS_FN("RemovePlaylist", RemovePlaylist, 0, DefaultPropsFlags() ),
-    JS_FN("RemovePlaylistSelection", RemovePlaylistSelection, 0, DefaultPropsFlags() ),
-    JS_FN("RemovePlaylistSwitch", RemovePlaylistSwitch, 0, DefaultPropsFlags() ),
-    JS_FN("RenamePlaylist", RenamePlaylist, 0, DefaultPropsFlags() ),
+    JS_FN("GetPlaylistFocusItemIndex", GetPlaylistFocusItemIndex, 1, DefaultPropsFlags() ),
+    JS_FN("GetPlaylistItems", GetPlaylistItems, 1, DefaultPropsFlags() ),
+    JS_FN("GetPlaylistName", GetPlaylistName, 1, DefaultPropsFlags() ),
+    JS_FN("GetPlaylistSelectedItems", GetPlaylistSelectedItems, 1, DefaultPropsFlags() ),
+    JS_FN("InsertPlaylistItems", InsertPlaylistItems, 3, DefaultPropsFlags() ),
+    JS_FN("InsertPlaylistItemsFilter", InsertPlaylistItemsFilter, 3, DefaultPropsFlags() ),
+    JS_FN("IsAutoPlaylist", IsAutoPlaylist, 1, DefaultPropsFlags() ),
+    JS_FN("IsPlaylistItemSelected", IsPlaylistItemSelected, 2, DefaultPropsFlags() ),
+    JS_FN("IsPlaylistLocked", IsPlaylistLocked, 1, DefaultPropsFlags() ),
+    JS_FN("MovePlaylist", MovePlaylist, 2, DefaultPropsFlags() ),
+    JS_FN("MovePlaylistSelection", MovePlaylistSelection, 2, DefaultPropsFlags() ),
+    JS_FN("PlaylistItemCount", PlaylistItemCount, 1, DefaultPropsFlags() ),
+    JS_FN("RemoveItemFromPlaybackQueue", RemoveItemFromPlaybackQueue, 1, DefaultPropsFlags() ),
+    JS_FN("RemoveItemsFromPlaybackQueue", RemoveItemsFromPlaybackQueue, 1, DefaultPropsFlags() ),
+    JS_FN("RemovePlaylist", RemovePlaylist, 1, DefaultPropsFlags() ),
+    JS_FN("RemovePlaylistSelection", RemovePlaylistSelection, 1, DefaultPropsFlags() ),
+    JS_FN("RemovePlaylistSwitch", RemovePlaylistSwitch, 1, DefaultPropsFlags() ),
+    JS_FN("RenamePlaylist", RenamePlaylist, 2, DefaultPropsFlags() ),
     JS_FN("SetActivePlaylistContext", SetActivePlaylistContext, 0, DefaultPropsFlags() ),
-    JS_FN("SetPlaylistFocusItem", SetPlaylistFocusItem, 0, DefaultPropsFlags() ),
-    JS_FN("SetPlaylistFocusItemByHandle", SetPlaylistFocusItemByHandle, 0, DefaultPropsFlags() ),
-    JS_FN("SetPlaylistSelection", SetPlaylistSelection, 0, DefaultPropsFlags() ),
-    JS_FN("SetPlaylistSelectionSingle", SetPlaylistSelectionSingle, 0, DefaultPropsFlags() ),
-    JS_FN("ShowAutoPlaylistUI", ShowAutoPlaylistUI, 0, DefaultPropsFlags() ),
-    JS_FN("SortByFormat", SortByFormat, 0, DefaultPropsFlags() ),
-    JS_FN("SortByFormatV2", SortByFormatV2, 0, DefaultPropsFlags() ),
+    JS_FN("SetPlaylistFocusItem", SetPlaylistFocusItem, 2, DefaultPropsFlags() ),
+    JS_FN("SetPlaylistFocusItemByHandle", SetPlaylistFocusItemByHandle, 2, DefaultPropsFlags() ),
+    JS_FN("SetPlaylistSelection", SetPlaylistSelection, 3, DefaultPropsFlags() ),
+    JS_FN("SetPlaylistSelectionSingle", SetPlaylistSelectionSingle, 3, DefaultPropsFlags() ),
+    JS_FN("ShowAutoPlaylistUI", ShowAutoPlaylistUI, 1, DefaultPropsFlags() ),
+    JS_FN("SortByFormat", SortByFormat, 2, DefaultPropsFlags() ),
+    JS_FN("SortByFormatV2", SortByFormatV2, 2, DefaultPropsFlags() ),
     JS_FN("SortPlaylistsByName", SortPlaylistsByName, 0, DefaultPropsFlags() ),
-    JS_FN("UndoBackup", UndoBackup, 0, DefaultPropsFlags() ),
+    JS_FN("UndoBackup", UndoBackup, 1, DefaultPropsFlags() ),
     JS_FS_END
 };
 
@@ -263,6 +263,23 @@ JsFbPlaylistManager::AddLocations( uint32_t playlistIndex, JS::HandleValue locat
     return nullptr;
 }
 
+std::optional<std::nullptr_t> 
+JsFbPlaylistManager::AddLocationsWithOpt( size_t optArgCount, uint32_t playlistIndex, JS::HandleValue locations, bool select )
+{
+    if ( optArgCount > 1 )
+    {
+        JS_ReportErrorASCII( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
+        return std::nullopt;
+    }
+
+    if ( optArgCount == 1 )
+    {
+        return AddLocations( playlistIndex, locations );
+    }
+
+    return AddLocations( playlistIndex, locations, select );
+}
+
 std::optional<std::nullptr_t>
 JsFbPlaylistManager::AddPlaylistItemToPlaybackQueue( uint32_t playlistIndex, uint32_t playlistItemIndex )
 {
@@ -310,6 +327,27 @@ JsFbPlaylistManager::CreateAutoPlaylist( uint32_t playlistIndex, const std::stri
     }
     
     return (pfc_infinite == upos ? -1 : static_cast<int32_t>(upos));
+}
+
+std::optional<int32_t> 
+JsFbPlaylistManager::CreateAutoPlaylistWithOpt( size_t optArgCount, uint32_t playlistIndex, const std::string& name, const std::string& query, const std::string& sort, uint32_t flags )
+{
+    if ( optArgCount > 2 )
+    {
+        JS_ReportErrorASCII( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
+        return std::nullopt;
+    }
+
+    if ( optArgCount == 2 )
+    {
+        return CreateAutoPlaylist( playlistIndex, name, query );
+    }
+    else if ( optArgCount == 1 )
+    {
+        return CreateAutoPlaylist( playlistIndex, name, query, sort );
+    }
+
+    return CreateAutoPlaylist( playlistIndex, name, query, sort, flags );
 }
 
 std::optional<int32_t>
@@ -554,6 +592,23 @@ JsFbPlaylistManager::InsertPlaylistItems( uint32_t playlistIndex, uint32_t base,
 }
 
 std::optional<std::nullptr_t>
+JsFbPlaylistManager::InsertPlaylistItemsWithOpt( size_t optArgCount, uint32_t playlistIndex, uint32_t base, JsFbMetadbHandleList* handles, bool select )
+{
+    if ( optArgCount > 1 )
+    {
+        JS_ReportErrorASCII( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
+        return std::nullopt;
+    }
+
+    if ( optArgCount == 1 )
+    {
+        return InsertPlaylistItems( playlistIndex, base, handles );
+    }
+
+    return InsertPlaylistItems( playlistIndex, base, handles, select );
+}
+
+std::optional<std::nullptr_t>
 JsFbPlaylistManager::InsertPlaylistItemsFilter( uint32_t playlistIndex, uint32_t base, JsFbMetadbHandleList* handles, bool select )
 {    
     if ( !handles )
@@ -564,6 +619,23 @@ JsFbPlaylistManager::InsertPlaylistItemsFilter( uint32_t playlistIndex, uint32_t
 
     playlist_manager::get()->playlist_insert_items_filter( playlistIndex, base, handles->GetHandleList(), select );
     return nullptr;
+}
+
+std::optional<std::nullptr_t>
+JsFbPlaylistManager::InsertPlaylistItemsFilterWithOpt( size_t optArgCount, uint32_t playlistIndex, uint32_t base, JsFbMetadbHandleList* handles, bool select )
+{
+    if ( optArgCount > 1 )
+    {
+        JS_ReportErrorASCII( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
+        return std::nullopt;
+    }
+
+    if ( optArgCount == 1 )
+    {
+        return InsertPlaylistItemsFilter( playlistIndex, base, handles );
+    }
+
+    return InsertPlaylistItemsFilter( playlistIndex, base, handles, select );
 }
 
 std::optional<bool>
@@ -702,6 +774,23 @@ JsFbPlaylistManager::RemovePlaylistSelection( uint32_t playlistIndex, bool crop 
     return nullptr;
 }
 
+std::optional<std::nullptr_t> 
+JsFbPlaylistManager::RemovePlaylistSelectionWithOpt( size_t optArgCount, uint32_t playlistIndex, bool crop )
+{
+    if ( optArgCount > 1 )
+    {
+        JS_ReportErrorASCII( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
+        return std::nullopt;
+    }
+
+    if ( optArgCount == 1 )
+    {
+        return RemovePlaylistSelection( playlistIndex );
+    }
+
+    return RemovePlaylistSelection( playlistIndex, crop );
+}
+
 std::optional<bool>
 JsFbPlaylistManager::RemovePlaylistSwitch( uint32_t playlistIndex )
 {
@@ -828,6 +917,23 @@ JsFbPlaylistManager::SortByFormat( uint32_t playlistIndex, const std::string& pa
     return playlist_manager::get()->playlist_sort_by_format( playlistIndex, pattern.empty() ? nullptr : pattern.c_str(), selOnly );
 }
 
+std::optional<bool> 
+JsFbPlaylistManager::SortByFormatWithOpt( size_t optArgCount, uint32_t playlistIndex, const std::string& pattern, bool selOnly )
+{
+    if ( optArgCount > 1 )
+    {
+        JS_ReportErrorASCII( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
+        return std::nullopt;
+    }
+
+    if ( optArgCount == 1 )
+    {
+        return SortByFormat( playlistIndex, pattern );
+    }
+
+    return SortByFormat( playlistIndex, pattern, selOnly );
+}
+
 std::optional<bool>
 JsFbPlaylistManager::SortByFormatV2( uint32_t playlistIndex, const std::string& pattern, int8_t direction )
 {
@@ -844,6 +950,23 @@ JsFbPlaylistManager::SortByFormatV2( uint32_t playlistIndex, const std::string& 
     metadb_handle_list_helper::sort_by_format_get_order( handles, order.get_ptr(), script, nullptr, direction );
 
     return api->playlist_reorder_items( playlistIndex, order.get_ptr(), order.get_count() );
+}
+
+std::optional<bool> 
+JsFbPlaylistManager::SortByFormatV2WithOpt( size_t optArgCount, uint32_t playlistIndex, const std::string& pattern, int8_t direction )
+{
+    if ( optArgCount > 1 )
+    {
+        JS_ReportErrorASCII( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
+        return std::nullopt;
+    }
+
+    if ( optArgCount == 1 )
+    {
+        return SortByFormatV2( playlistIndex, pattern );
+    }
+
+    return SortByFormatV2( playlistIndex, pattern, direction );
 }
 
 std::optional<std::nullptr_t>
@@ -877,6 +1000,23 @@ JsFbPlaylistManager::SortPlaylistsByName( int8_t direction )
 
     api->reorder( order.get_ptr(), order.get_count() );
     return nullptr;
+}
+
+std::optional<std::nullptr_t> 
+JsFbPlaylistManager::SortPlaylistsByNameWithOpt( size_t optArgCount, int8_t direction )
+{
+    if ( optArgCount > 1 )
+    {
+        JS_ReportErrorASCII( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
+        return std::nullopt;
+    }
+
+    if ( optArgCount == 1 )
+    {
+        return SortPlaylistsByName();
+    }
+
+    return SortPlaylistsByName( direction );
 }
 
 std::optional<std::nullptr_t>

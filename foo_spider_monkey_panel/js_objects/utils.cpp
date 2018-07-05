@@ -37,46 +37,46 @@ JSClass jsClass = {
     &jsOps
 };
 
-MJS_DEFINE_JS_TO_NATIVE_FN( JsUtils, CheckComponent );
+MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsUtils, CheckComponent, CheckComponentWithOpt, 1 );
 MJS_DEFINE_JS_TO_NATIVE_FN( JsUtils, CheckFont );
 MJS_DEFINE_JS_TO_NATIVE_FN( JsUtils, ColourPicker );
 MJS_DEFINE_JS_TO_NATIVE_FN( JsUtils, FileTest );
 MJS_DEFINE_JS_TO_NATIVE_FN( JsUtils, FormatDuration );
 MJS_DEFINE_JS_TO_NATIVE_FN( JsUtils, FormatFileSize );
-MJS_DEFINE_JS_TO_NATIVE_FN( JsUtils, GetAlbumArtAsync );
-MJS_DEFINE_JS_TO_NATIVE_FN( JsUtils, GetAlbumArtEmbedded );
-MJS_DEFINE_JS_TO_NATIVE_FN( JsUtils, GetAlbumArtV2 );
+MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsUtils, GetAlbumArtAsync, GetAlbumArtAsyncWithOpt, 4 );
+MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsUtils, GetAlbumArtEmbedded, GetAlbumArtEmbeddedWithOpt, 1 );
+MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsUtils, GetAlbumArtV2, GetAlbumArtV2WithOpt, 2 );
 MJS_DEFINE_JS_TO_NATIVE_FN( JsUtils, GetSysColour );
 MJS_DEFINE_JS_TO_NATIVE_FN( JsUtils, GetSystemMetrics );
-MJS_DEFINE_JS_TO_NATIVE_FN( JsUtils, Glob );
+MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsUtils, Glob, GlobWithOpt, 2 );
 MJS_DEFINE_JS_TO_NATIVE_FN( JsUtils, IsKeyPressed );
 MJS_DEFINE_JS_TO_NATIVE_FN( JsUtils, MapString );
 MJS_DEFINE_JS_TO_NATIVE_FN( JsUtils, PathWildcardMatch );
-MJS_DEFINE_JS_TO_NATIVE_FN( JsUtils, ReadINI );
-MJS_DEFINE_JS_TO_NATIVE_FN( JsUtils, ReadTextFile );
+MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsUtils, ReadINI, ReadINIWithOpt, 1 );
+MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsUtils, ReadTextFile, ReadTextFileWithOpt, 1 );
 MJS_DEFINE_JS_TO_NATIVE_FN( JsUtils, WriteINI );
-MJS_DEFINE_JS_TO_NATIVE_FN( JsUtils, WriteTextFile );
+MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsUtils, WriteTextFile, WriteTextFileWithOpt, 1 );
 
 const JSFunctionSpec jsFunctions[] = {
-    JS_FN( "CheckComponent", CheckComponent, 0, DefaultPropsFlags() ),
-    JS_FN( "CheckFont", CheckFont, 0, DefaultPropsFlags() ),
-    JS_FN( "ColourPicker", ColourPicker, 0, DefaultPropsFlags() ),
-    JS_FN( "FileTest", FileTest, 0, DefaultPropsFlags() ),
-    JS_FN( "FormatDuration", FormatDuration, 0, DefaultPropsFlags() ),
-    JS_FN( "FormatFileSize", FormatFileSize, 0, DefaultPropsFlags() ),
-    JS_FN( "GetAlbumArtAsync", GetAlbumArtAsync, 0, DefaultPropsFlags() ),
-    JS_FN( "GetAlbumArtEmbedded", GetAlbumArtEmbedded, 0, DefaultPropsFlags() ),
-    JS_FN( "GetAlbumArtV2", GetAlbumArtV2, 0, DefaultPropsFlags() ),
-    JS_FN( "GetSysColour", GetSysColour, 0, DefaultPropsFlags() ),
-    JS_FN( "GetSystemMetrics", GetSystemMetrics, 0, DefaultPropsFlags() ),
-    JS_FN( "Glob", Glob, 0, DefaultPropsFlags() ),
-    JS_FN( "IsKeyPressed", IsKeyPressed, 0, DefaultPropsFlags() ),
-    JS_FN( "MapString", MapString, 0, DefaultPropsFlags() ),
-    JS_FN( "PathWildcardMatch", PathWildcardMatch, 0, DefaultPropsFlags() ),
-    JS_FN( "ReadINI", ReadINI, 0, DefaultPropsFlags() ),
-    JS_FN( "ReadTextFile", ReadTextFile, 0, DefaultPropsFlags() ),
-    JS_FN( "WriteINI", WriteINI, 0, DefaultPropsFlags() ),
-    JS_FN( "WriteTextFile", WriteTextFile, 0, DefaultPropsFlags() ),
+    JS_FN( "CheckComponent", CheckComponent, 1, DefaultPropsFlags() ),
+    JS_FN( "CheckFont", CheckFont, 1, DefaultPropsFlags() ),
+    JS_FN( "ColourPicker", ColourPicker, 2, DefaultPropsFlags() ),
+    JS_FN( "FileTest", FileTest, 2, DefaultPropsFlags() ),
+    JS_FN( "FormatDuration", FormatDuration, 1, DefaultPropsFlags() ),
+    JS_FN( "FormatFileSize", FormatFileSize, 1, DefaultPropsFlags() ),
+    JS_FN( "GetAlbumArtAsync", GetAlbumArtAsync, 2, DefaultPropsFlags() ),
+    JS_FN( "GetAlbumArtEmbedded", GetAlbumArtEmbedded, 1, DefaultPropsFlags() ),
+    JS_FN( "GetAlbumArtV2", GetAlbumArtV2, 1, DefaultPropsFlags() ),
+    JS_FN( "GetSysColour", GetSysColour, 1, DefaultPropsFlags() ),
+    JS_FN( "GetSystemMetrics", GetSystemMetrics, 1, DefaultPropsFlags() ),
+    JS_FN( "Glob", Glob, 1, DefaultPropsFlags() ),
+    JS_FN( "IsKeyPressed", IsKeyPressed, 1, DefaultPropsFlags() ),
+    JS_FN( "MapString", MapString, 3, DefaultPropsFlags() ),
+    JS_FN( "PathWildcardMatch", PathWildcardMatch, 2, DefaultPropsFlags() ),
+    JS_FN( "ReadINI", ReadINI, 3, DefaultPropsFlags() ),
+    JS_FN( "ReadTextFile", ReadTextFile, 1, DefaultPropsFlags() ),
+    JS_FN( "WriteINI", WriteINI, 4, DefaultPropsFlags() ),
+    JS_FN( "WriteTextFile", WriteTextFile, 2, DefaultPropsFlags() ),
     JS_FS_END
 };
 
@@ -151,6 +151,23 @@ JsUtils::CheckComponent( const std::string& name, bool is_dll )
     }
 
     return false;
+}
+
+std::optional<bool> 
+JsUtils::CheckComponentWithOpt( size_t optArgCount, const std::string& name, bool is_dll )
+{
+    if ( optArgCount > 1 )
+    {
+        JS_ReportErrorASCII( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
+        return std::nullopt;
+    }
+
+    if ( optArgCount == 1 )
+    {
+        return CheckComponent( name );
+    }
+
+    return CheckComponent( name, is_dll );
 }
 
 std::optional<bool>
@@ -335,6 +352,35 @@ JsUtils::GetAlbumArtAsync( uint32_t hWnd, JsFbMetadbHandle* handle, uint32_t art
     return art::GetAlbumArtAsync( (HWND)hWnd, ptr, art_id, need_stub, only_embed, no_load );
 }
 
+std::optional<std::uint32_t> 
+JsUtils::GetAlbumArtAsyncWithOpt( size_t optArgCount, uint32_t hWnd, JsFbMetadbHandle* handle, uint32_t art_id, bool need_stub, bool only_embed, bool no_load )
+{
+    if ( optArgCount > 4 )
+    {
+        JS_ReportErrorASCII( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
+        return std::nullopt;
+    }
+
+    if ( optArgCount == 4 )
+    {
+        return GetAlbumArtAsync( hWnd, handle );
+    }
+    else if ( optArgCount == 3 )
+    {
+        return GetAlbumArtAsync( hWnd, handle, art_id );
+    }
+    else if ( optArgCount == 2 )
+    {
+        return GetAlbumArtAsync( hWnd, handle, art_id, need_stub );
+    }
+    else if ( optArgCount == 1 )
+    {
+        return GetAlbumArtAsync( hWnd, handle, art_id, need_stub, only_embed );
+    }
+
+    return GetAlbumArtAsync( hWnd, handle, art_id, need_stub, only_embed, no_load );
+}
+
 std::optional<JSObject*>
 JsUtils::GetAlbumArtEmbedded( const std::string& rawpath, uint32_t art_id )
 {
@@ -353,6 +399,23 @@ JsUtils::GetAlbumArtEmbedded( const std::string& rawpath, uint32_t art_id )
 
     artImage.release();
     return jsObject;
+}
+
+std::optional<JSObject*> 
+JsUtils::GetAlbumArtEmbeddedWithOpt( size_t optArgCount, const std::string& rawpath, uint32_t art_id )
+{
+    if ( optArgCount > 1 )
+    {
+        JS_ReportErrorASCII( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
+        return std::nullopt;
+    }
+
+    if ( optArgCount == 1 )
+    {
+        return GetAlbumArtEmbedded( rawpath );
+    }
+
+    return GetAlbumArtEmbedded( rawpath, art_id );
 }
 
 std::optional<JSObject*>
@@ -379,6 +442,27 @@ JsUtils::GetAlbumArtV2( JsFbMetadbHandle* handle, uint32_t art_id, bool need_stu
 
     artImage.release();
     return jsObject;
+}
+
+std::optional<JSObject*>
+JsUtils::GetAlbumArtV2WithOpt( size_t optArgCount, JsFbMetadbHandle* handle, uint32_t art_id, bool need_stub )
+{
+    if ( optArgCount > 2 )
+    {
+        JS_ReportErrorASCII( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
+        return std::nullopt;
+    }
+
+    if ( optArgCount == 2 )
+    {
+        return GetAlbumArtV2( handle );
+    }
+    else if ( optArgCount == 1 )
+    {
+        return GetAlbumArtV2( handle, art_id );
+    }
+
+    return GetAlbumArtV2( handle, art_id, need_stub );
 }
 
 std::optional<uint32_t>
@@ -452,6 +536,27 @@ JsUtils::Glob( const std::string& pattern, uint32_t exc_mask, uint32_t inc_mask 
     return evalResult;
 }
 
+std::optional<JSObject*>
+JsUtils::GlobWithOpt( size_t optArgCount, const std::string& pattern, uint32_t exc_mask, uint32_t inc_mask )
+{
+    if ( optArgCount > 2 )
+    {
+        JS_ReportErrorASCII( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
+        return std::nullopt;
+    }
+
+    if ( optArgCount == 2 )
+    {
+        return Glob( pattern );
+    }
+    else if ( optArgCount == 1 )
+    {
+        return Glob( pattern, exc_mask );
+    }
+
+    return Glob( pattern, exc_mask, inc_mask );
+}
+
 std::optional<bool>
 JsUtils::IsKeyPressed( uint32_t vkey )
 {
@@ -486,6 +591,23 @@ JsUtils::ReadINI( const std::wstring& filename, const std::wstring& section, con
     return !buff[0] ? defaultval : buff;
 }
 
+std::optional<std::wstring> 
+JsUtils::ReadINIWithOpt( size_t optArgCount, const std::wstring& filename, const std::wstring& section, const std::wstring& key, const std::wstring& defaultval )
+{
+    if ( optArgCount > 1 )
+    {
+        JS_ReportErrorASCII( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
+        return std::nullopt;
+    }
+
+    if ( optArgCount == 1 )
+    {
+        return ReadINI( filename, section, key );
+    }
+
+    return ReadINI( filename, section, key, defaultval );
+}
+
 std::optional<std::wstring>
 JsUtils::ReadTextFile( const std::wstring& filename, uint32_t codepage )
 {// TODO: inspect the code (replace with std::filesystem perhaps?)
@@ -497,6 +619,23 @@ JsUtils::ReadTextFile( const std::wstring& filename, uint32_t codepage )
     }
 
     return std::wstring( content.get_ptr(), content.get_size() );
+}
+
+std::optional<std::wstring> 
+JsUtils::ReadTextFileWithOpt( size_t optArgCount, const std::wstring& filename, uint32_t codepage )
+{
+    if ( optArgCount > 1 )
+    {
+        JS_ReportErrorASCII( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
+        return std::nullopt;
+    }
+
+    if ( optArgCount == 1 )
+    {
+        return ReadTextFile( filename );
+    }
+
+    return ReadTextFile( filename, codepage );
 }
 
 std::optional<bool>
@@ -515,6 +654,23 @@ JsUtils::WriteTextFile( const std::string& filename, const std::string& content,
 
     pfc::string8_fast content8( content.c_str(), content.length() );
     return helpers::write_file( filename.c_str(), content8, write_bom );
+}
+
+std::optional<bool> 
+JsUtils::WriteTextFileWithOpt( size_t optArgCount, const std::string& filename, const std::string& content, bool write_bom )
+{
+    if ( optArgCount > 1 )
+    {
+        JS_ReportErrorASCII( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
+        return std::nullopt;
+    }
+
+    if ( optArgCount == 1 )
+    {
+        return WriteTextFile( filename, content );
+    }
+
+    return WriteTextFile( filename, content, write_bom );
 }
 
 std::optional<uint32_t>

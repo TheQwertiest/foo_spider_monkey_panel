@@ -122,6 +122,13 @@ JsFbProperties::GetProperty( const std::string& propName, JS::HandleValue propDe
 
     if ( !hasProperty )
     {
+        if ( propDefaultValue.isNullOrUndefined() )
+        {// Not a error: user does not want to set default value
+            JS::Heap<JS::Value> tmpVal;
+            tmpVal.setNull();
+            return std::make_optional( tmpVal );
+        }
+
         if ( !SetProperty( propName, propDefaultValue ) )
         {
             return std::nullopt;
@@ -133,6 +140,13 @@ JsFbProperties::GetProperty( const std::string& propName, JS::HandleValue propDe
 
 bool JsFbProperties::SetProperty( const std::string& propName, JS::HandleValue propValue )
 {
+    if ( propValue.isNullOrUndefined() )
+    {
+        parentPanel_.get_config_prop().remove_config_item( propName );
+        properties_.erase( propName );
+        return true;
+    }
+
     auto serializedValue = SerializeJsValue( pJsCtx_, propValue );
     if ( !serializedValue )
     {

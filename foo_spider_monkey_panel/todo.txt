@@ -1,6 +1,4 @@
 # Current
-- Check that all callbacks are defined.
-- Add default arguments everywhere.
 - Check drag-n-drop functionality.
 - Check that all files are correctly parsed: UTF8, UTF8-BOM, ASCII.
 - Rewrite ActiveXObject properly (and rename the files as well).
@@ -18,7 +16,6 @@
 - Port hacks from ui_hacks.
 - Add `include(path.to.js)` method for loading scripts.
 - Add ES6 modules support (`import`).
-- Fill callbacks argument count everywhere.
 - Replace PropertyList with something more maintenable.
 - Save Panel Properties dialog size between calls.
 - Add array conversion support in ActiveXObject.
@@ -26,6 +23,6 @@
 
 # Maybe
 - Raise warning level to W4 or WALL with WERROR
-- Add help to properties and methods
+- Add help to properties and methods (JS_DefineFunctionsWithHelp)
 - Replace separate JSON parser with the one from JS engine.
 - Minimal .js tests for all the functionality.

@@ -79,7 +79,7 @@ const JSFunctionSpec jsFunctions[] = {
     JS_FN( "MakeDifference"         , MakeDifference         , 1, DefaultPropsFlags() ),
     JS_FN( "MakeIntersection"       , MakeIntersection       , 1, DefaultPropsFlags() ),
     JS_FN( "MakeUnion"              , MakeUnion              , 1, DefaultPropsFlags() ),
-    JS_FN( "OrderByFormat"          , OrderByFormat          , 0, DefaultPropsFlags() ),
+    JS_FN( "OrderByFormat"          , OrderByFormat          , 2, DefaultPropsFlags() ),
     JS_FN( "OrderByPath"            , OrderByPath            , 0, DefaultPropsFlags() ),
     JS_FN( "OrderByRelativePath"    , OrderByRelativePath    , 0, DefaultPropsFlags() ),
     JS_FN( "RefreshStats"           , RefreshStats           , 0, DefaultPropsFlags() ),

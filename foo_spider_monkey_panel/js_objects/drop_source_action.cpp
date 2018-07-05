@@ -39,10 +39,10 @@ MJS_DEFINE_JS_TO_NATIVE_FN( JsDropSourceAction, put_Playlist )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsDropSourceAction, put_ToSelect )
 
 const JSPropertySpec jsProperties[] = {
-    JS_PSGS( "Base", nullptr, put_Base, DefaultPropsFlags() ),
+    JS_PSGS( "Base", DummyGetter, put_Base, DefaultPropsFlags() ),
     JS_PSGS( "Effect", get_Effect, put_Effect, DefaultPropsFlags() ),
-    JS_PSGS( "Playlist", nullptr, put_Playlist, DefaultPropsFlags() ),
-    JS_PSGS( "ToSelect", nullptr, put_ToSelect, DefaultPropsFlags() ),
+    JS_PSGS( "Playlist", DummyGetter, put_Playlist, DefaultPropsFlags() ),
+    JS_PSGS( "ToSelect", DummyGetter, put_ToSelect, DefaultPropsFlags() ),
     JS_PS_END
 };
 

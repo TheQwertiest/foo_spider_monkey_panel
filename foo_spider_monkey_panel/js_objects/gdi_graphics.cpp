@@ -43,7 +43,7 @@ JSClass jsClass = {
 MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiGraphics, CalcTextHeight )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiGraphics, CalcTextWidth )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiGraphics, DrawEllipse )
-MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiGraphics, DrawImage )
+MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsGdiGraphics, DrawImage, DrawImageWithOpt, 1 )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiGraphics, DrawLine )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiGraphics, DrawPolygon )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiGraphics, DrawRect )
@@ -55,10 +55,10 @@ MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiGraphics, FillGradRect )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiGraphics, FillPolygon )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiGraphics, FillRoundRect )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiGraphics, FillSolidRect )
-MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiGraphics, GdiAlphaBlend )
+MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsGdiGraphics, GdiAlphaBlend, GdiAlphaBlendWithOpt, 1 )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiGraphics, GdiDrawBitmap )
-MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiGraphics, GdiDrawText )
-MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiGraphics, MeasureString )
+MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsGdiGraphics, GdiDrawText, GdiDrawTextWithOpt, 1 )
+MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsGdiGraphics, MeasureString, MeasureStringWithOpt, 1 )
 MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsGdiGraphics, SetInterpolationMode, SetInterpolationModeWithOpt, 1 )
 MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsGdiGraphics, SetSmoothingMode, SetSmoothingModeWithOpt, 1 )
 MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsGdiGraphics, SetTextRenderingHint, SetTextRenderingHintWithOpt, 1 )
@@ -67,25 +67,25 @@ const JSFunctionSpec jsFunctions[] = {
     JS_FN( "CalcTextHeight", CalcTextHeight, 2, DefaultPropsFlags() ),
     JS_FN( "CalcTextWidth", CalcTextWidth, 2, DefaultPropsFlags() ),
     JS_FN( "DrawEllipse", DrawEllipse, 6, DefaultPropsFlags() ),
-    JS_FN( "DrawImage", DrawImage, 11, DefaultPropsFlags() ),
+    JS_FN( "DrawImage", DrawImage, 9, DefaultPropsFlags() ),
     JS_FN( "DrawLine", DrawLine, 6, DefaultPropsFlags() ),
     JS_FN( "DrawPolygon", DrawPolygon, 3, DefaultPropsFlags() ),
     JS_FN( "DrawRect", DrawRect, 6, DefaultPropsFlags() ),
     JS_FN( "DrawRoundRect", DrawRoundRect, 8, DefaultPropsFlags() ),
-    JS_FN( "DrawString", DrawString, 8, DefaultPropsFlags() ),
-    JS_FN( "DrawString", DrawString, 8, DefaultPropsFlags() ),
-    JS_FN( "EstimateLineWrap", EstimateLineWrap, 0, DefaultPropsFlags() ),
+    JS_FN( "DrawString", DrawString, 7, DefaultPropsFlags() ),
+    JS_FN( "EstimateLineWrap", EstimateLineWrap, 3, DefaultPropsFlags() ),
+    JS_FN( "FillEllipse", FillEllipse, 5, DefaultPropsFlags() ),
     JS_FN( "FillGradRect", FillGradRect, 8, DefaultPropsFlags() ),
     JS_FN( "FillPolygon", DrawPolygon, 3, DefaultPropsFlags() ),
     JS_FN( "FillRoundRect", FillRoundRect, 7, DefaultPropsFlags() ),
     JS_FN( "FillSolidRect", FillSolidRect, 5, DefaultPropsFlags() ),
-    JS_FN( "GdiAlphaBlend", GdiAlphaBlend, 10, DefaultPropsFlags() ),
+    JS_FN( "GdiAlphaBlend", GdiAlphaBlend, 9, DefaultPropsFlags() ),
     JS_FN( "GdiDrawBitmap", GdiDrawBitmap, 9, DefaultPropsFlags() ),
-    JS_FN( "GdiDrawText", GdiDrawText, 8, DefaultPropsFlags() ),
-    JS_FN( "MeasureString", MeasureString, 7, DefaultPropsFlags() ),
-    JS_FN( "SetInterpolationMode", SetInterpolationMode, 1, DefaultPropsFlags() ),
-    JS_FN( "SetSmoothingMode", SetSmoothingMode, 1, DefaultPropsFlags() ),
-    JS_FN( "SetTextRenderingHint", SetTextRenderingHint, 1, DefaultPropsFlags() ),
+    JS_FN( "GdiDrawText", GdiDrawText, 7, DefaultPropsFlags() ),
+    JS_FN( "MeasureString", MeasureString, 6, DefaultPropsFlags() ),
+    JS_FN( "SetInterpolationMode", SetInterpolationMode, 0, DefaultPropsFlags() ),
+    JS_FN( "SetSmoothingMode", SetSmoothingMode, 0, DefaultPropsFlags() ),
+    JS_FN( "SetTextRenderingHint", SetTextRenderingHint, 0, DefaultPropsFlags() ),
     JS_FS_END
 };
 
@@ -279,6 +279,30 @@ JsGdiGraphics::DrawImage( JsGdiBitmap* image,
     }
 
     return nullptr;
+}
+
+std::optional<std::nullptr_t> 
+JsGdiGraphics::DrawImageWithOpt( size_t optArgCount, JsGdiBitmap* image, 
+                                 float dstX, float dstY, float dstW, float dstH, 
+                                 float srcX, float srcY, float srcW, float srcH, float angle,
+                                 uint8_t alpha )
+{
+    if ( optArgCount > 2 )
+    {
+        JS_ReportErrorASCII( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
+        return std::nullopt;
+    }
+
+    if ( optArgCount == 2 )
+    {
+        return DrawImage( image, dstX, dstY, dstW, dstH, srcX, srcY, srcW, srcH );
+    }
+    else if ( optArgCount == 1 )
+    {
+        return DrawImage( image, dstX, dstY, dstW, dstH, srcX, srcY, srcW, srcH, angle );
+    }
+
+    return DrawImage( image, dstX, dstY, dstW, dstH, srcX, srcY, srcW, srcH, angle, alpha );
 }
 
 std::optional<std::nullptr_t>
@@ -643,6 +667,26 @@ JsGdiGraphics::GdiAlphaBlend( JsGdiRawBitmap* bitmap,
     return nullptr;
 }
 
+std::optional<std::nullptr_t> 
+JsGdiGraphics::GdiAlphaBlendWithOpt( size_t optArgCount, JsGdiRawBitmap* bitmap, 
+                                     int32_t dstX, int32_t dstY, uint32_t dstW, uint32_t dstH, 
+                                     int32_t srcX, int32_t srcY, uint32_t srcW, uint32_t srcH, 
+                                     uint8_t alpha )
+{
+    if ( optArgCount > 1 )
+    {
+        JS_ReportErrorASCII( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
+        return std::nullopt;
+    }
+
+    if ( optArgCount == 1 )
+    {
+        return GdiAlphaBlend( bitmap, dstX, dstY, dstW, dstH, srcX, srcY, srcW, srcH );
+    }
+
+    return GdiAlphaBlend( bitmap, dstX, dstY, dstW, dstH, srcX, srcY, srcW, srcH, alpha );
+}
+
 std::optional<std::nullptr_t>
 JsGdiGraphics::GdiDrawBitmap( JsGdiRawBitmap* bitmap,
                               int32_t dstX, int32_t dstY, uint32_t dstW, uint32_t dstH,
@@ -799,6 +843,25 @@ JsGdiGraphics::GdiDrawText( const std::wstring& str, JsGdiFont* font, uint32_t c
     return nullptr;
 }
 
+std::optional<std::nullptr_t> 
+JsGdiGraphics::GdiDrawTextWithOpt( size_t optArgCount, const std::wstring& str, JsGdiFont* font, uint32_t colour, 
+                                   int32_t x, int32_t y, uint32_t w, uint32_t h, 
+                                   uint32_t format )
+{
+    if ( optArgCount > 1 )
+    {
+        JS_ReportErrorASCII( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
+        return std::nullopt;
+    }
+
+    if ( optArgCount == 1 )
+    {
+        return GdiDrawText( str, font, colour, x, y, w, h );
+    }
+
+    return GdiDrawText( str, font, colour, x, y, w, h, format );
+}
+
 std::optional<JSObject*> 
 JsGdiGraphics::MeasureString( const std::wstring& str, JsGdiFont* font, float x, float y, float w, float h, uint32_t flags )
 {
@@ -841,6 +904,25 @@ JsGdiGraphics::MeasureString( const std::wstring& str, JsGdiFont* font, float x,
     }
 
     return jsObject;
+}
+
+std::optional<JSObject*> 
+JsGdiGraphics::MeasureStringWithOpt( size_t optArgCount, const std::wstring& str, JsGdiFont* font,
+                                     float x, float y, float w, float h, 
+                                     uint32_t flags )
+{
+    if ( optArgCount > 1 )
+    {
+        JS_ReportErrorASCII( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
+        return std::nullopt;
+    }
+
+    if ( optArgCount == 1 )
+    {
+        return MeasureString( str, font, x, y, w, h );
+    }
+
+    return MeasureString( str, font, x, y, w, h, flags );
 }
 
 std::optional<std::nullptr_t> 
@@ -1002,7 +1084,7 @@ bool JsGdiGraphics::ParsePoints( JS::HandleValue jsValue, std::vector<Gdiplus::P
 
     JS::RootedValue arrayElement( pJsCtx_ );
     JS::RootedValue jsX( pJsCtx_ ), jsY( pJsCtx_ );
-    for ( uint32_t i = 0; i < arraySize; ++i )
+    for ( uint32_t i = 0; i < arraySize/2; ++i )
     {
         if ( !JS_GetElement( pJsCtx_, jsObject, i, &arrayElement ) )
         {
@@ -1010,36 +1092,25 @@ bool JsGdiGraphics::ParsePoints( JS::HandleValue jsValue, std::vector<Gdiplus::P
             return false;
         }
 
-        JS::RootedObject curElement( pJsCtx_, GetJsObjectFromValue( pJsCtx_, arrayElement ) );
-        if ( !curElement )
-        {
-            JS_ReportErrorASCII( pJsCtx_, "points[%d] is not an object", i );
-            return false;
-        }
-
-        if ( !JS_GetProperty( pJsCtx_, curElement, "x", &jsX ) )
-        {
-            JS_ReportErrorASCII( pJsCtx_, "Failed to get 'x' property of point" );
-            return false;
-        }
-        if ( !JS_GetProperty( pJsCtx_, curElement, "y", &jsY ) )
-        {
-            JS_ReportErrorASCII( pJsCtx_, "Failed to get 'y' property of point" );
-            return false;
-        }
-
         bool isValid;
         float x = convert::to_native::ToValue<float>( pJsCtx_, jsX, isValid );
         if ( !isValid )
         {
-            JS_ReportErrorASCII( pJsCtx_, "'x' property of point is of wrong type" );
+            JS_ReportErrorASCII( pJsCtx_, "points[%d] can't be converted to number", i );
+            return false;
+        }
+
+
+        if ( !JS_GetElement( pJsCtx_, jsObject, i + 1, &arrayElement ) )
+        {
+            JS_ReportErrorASCII( pJsCtx_, "Failed to get points[%d]", i );
             return false;
         }
 
         float y = convert::to_native::ToValue<float>( pJsCtx_, jsY, isValid );
         if ( !isValid )
         {
-            JS_ReportErrorASCII( pJsCtx_, "'y' property of point is of wrong type" );
+            JS_ReportErrorASCII( pJsCtx_, "points[%d] can't be converted to number", i + 1 );
             return false;
         }
 

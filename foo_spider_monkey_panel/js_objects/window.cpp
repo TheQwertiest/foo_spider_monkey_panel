@@ -41,50 +41,46 @@ JSClass jsClass = {
     &jsOps
 };
 
-// MJS_DEFINE_JS_TO_NATIVE_FN( JsWindow, TestValue )
-
 MJS_DEFINE_JS_TO_NATIVE_FN( JsWindow, ClearInterval )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsWindow, ClearTimeout )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsWindow, CreatePopupMenu )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsWindow, CreateThemeManager )
-MJS_DEFINE_JS_TO_NATIVE_FN( JsWindow, CreateTooltip )
+MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsWindow, CreateTooltip, CreateTooltipWithOpt, 3 )
 MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsWindow, GetColourCUI, GetColourCUIWithOpt, 1 )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsWindow, GetColourDUI )
 MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsWindow, GetFontCUI, GetFontCUIWithOpt, 1 )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsWindow, GetFontDUI )
-MJS_DEFINE_JS_TO_NATIVE_FN( JsWindow, GetProperty )
+MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsWindow, GetProperty, GetPropertyWithOpt, 1 )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsWindow, NotifyOthers )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsWindow, Reload )
 MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsWindow, Repaint, RepaintWithOpt, 1 )
 MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsWindow, RepaintRect, RepaintRectWithOpt, 1 )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsWindow, SetCursor )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsWindow, SetInterval )
-MJS_DEFINE_JS_TO_NATIVE_FN( JsWindow, SetProperty )
+MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsWindow, SetProperty, SetPropertyWithOpt, 1 )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsWindow, SetTimeout )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsWindow, ShowConfigure )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsWindow, ShowProperties )
 
 const JSFunctionSpec jsFunctions[] = {
-    // JS_FN( "TestValue", TestValue, 0, DefaultPropsFlags() ),
-
-    JS_FN( "ClearInterval", ClearInterval, 0, DefaultPropsFlags() ),
-    JS_FN( "ClearTimeout", ClearTimeout, 0, DefaultPropsFlags() ),
+    JS_FN( "ClearInterval", ClearInterval, 1, DefaultPropsFlags() ),
+    JS_FN( "ClearTimeout", ClearTimeout, 1, DefaultPropsFlags() ),
     JS_FN( "CreatePopupMenu", CreatePopupMenu, 0, DefaultPropsFlags() ),
-    JS_FN( "CreateThemeManager", CreateThemeManager, 0, DefaultPropsFlags() ),
+    JS_FN( "CreateThemeManager", CreateThemeManager, 1, DefaultPropsFlags() ),
     JS_FN( "CreateTooltip", CreateTooltip, 0, DefaultPropsFlags() ),
-    JS_FN( "GetColourCUI", GetColourCUI, 0, DefaultPropsFlags() ),
-    JS_FN( "GetColourDUI", GetColourDUI, 0, DefaultPropsFlags() ),
-    JS_FN( "GetFontCUI", GetFontCUI, 0, DefaultPropsFlags() ),
-    JS_FN( "GetFontDUI", GetFontDUI, 0, DefaultPropsFlags() ),
-    JS_FN( "GetProperty", GetProperty, 0, DefaultPropsFlags() ),
-    JS_FN( "NotifyOthers", NotifyOthers, 0, DefaultPropsFlags() ),
+    JS_FN( "GetColourCUI", GetColourCUI, 1, DefaultPropsFlags() ),
+    JS_FN( "GetColourDUI", GetColourDUI, 1, DefaultPropsFlags() ),
+    JS_FN( "GetFontCUI", GetFontCUI, 1, DefaultPropsFlags() ),
+    JS_FN( "GetFontDUI", GetFontDUI, 1, DefaultPropsFlags() ),
+    JS_FN( "GetProperty", GetProperty, 1, DefaultPropsFlags() ),
+    JS_FN( "NotifyOthers", NotifyOthers, 2, DefaultPropsFlags() ),
     JS_FN( "Reload", Reload, 0, DefaultPropsFlags() ),
     JS_FN( "Repaint", Repaint, 0, DefaultPropsFlags() ),
-    JS_FN( "RepaintRect", RepaintRect, 0, DefaultPropsFlags() ),
-    JS_FN( "SetCursor", SetCursor, 0, DefaultPropsFlags() ),
-    JS_FN( "SetInterval", SetInterval, 0, DefaultPropsFlags() ),
-    JS_FN( "SetProperty", SetProperty, 0, DefaultPropsFlags() ),
-    JS_FN( "SetTimeout", SetTimeout, 0, DefaultPropsFlags() ),
+    JS_FN( "RepaintRect", RepaintRect, 4, DefaultPropsFlags() ),
+    JS_FN( "SetCursor", SetCursor, 1, DefaultPropsFlags() ),
+    JS_FN( "SetInterval", SetInterval, 2, DefaultPropsFlags() ),
+    JS_FN( "SetProperty", SetProperty, 1, DefaultPropsFlags() ),
+    JS_FN( "SetTimeout", SetTimeout, 2, DefaultPropsFlags() ),
     JS_FN( "ShowConfigure", ShowConfigure, 0, DefaultPropsFlags() ),
     JS_FN( "ShowProperties", ShowProperties, 0, DefaultPropsFlags() ),
     JS_FS_END
@@ -251,6 +247,31 @@ JsWindow::CreateTooltip( const std::wstring& name, float pxSize, uint32_t style 
     return jsObject;
 }
 
+std::optional<JSObject*>
+JsWindow::CreateTooltipWithOpt( size_t optArgCount, const std::wstring& name, float pxSize, uint32_t style )
+{
+    if ( optArgCount > 3 )
+    {
+        JS_ReportErrorASCII( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
+        return std::nullopt;
+    }
+
+    if ( optArgCount == 3 )
+    {
+        return CreateTooltip();
+    }
+    else if ( optArgCount == 2 )
+    {
+        return CreateTooltip( name );
+    }
+    else if ( optArgCount == 1 )
+    {
+        return CreateTooltip( name, pxSize );
+    }
+
+    return CreateTooltip( name, pxSize, style );
+}
+
 std::optional<uint32_t>
 JsWindow::GetColourCUI( uint32_t type, const std::wstring& guidstr )
 {
@@ -285,8 +306,7 @@ JsWindow::GetColourCUIWithOpt( size_t optArgCount, uint32_t type, const std::wst
 
     if ( optArgCount == 1 )
     {
-        std::wstring dummy;
-        return GetColourCUI( type, dummy );
+        return GetColourCUI( type );
     }
 
     return GetColourCUI( type, guidstr );
@@ -365,8 +385,7 @@ JsWindow::GetFontCUIWithOpt( size_t optArgCount, uint32_t type, const std::wstri
 
     if ( optArgCount == 1 )
     {
-        std::wstring dummy;
-        return GetFontCUI( type, dummy );
+        return GetFontCUI( type );
     }
 
     return GetFontCUI( type, guidstr );
@@ -410,6 +429,23 @@ std::optional<JS::Heap<JS::Value>>
 JsWindow::GetProperty( const std::string& name, JS::HandleValue defaultval )
 {
     return pFbProperties_->GetProperty( name, defaultval );
+}
+
+std::optional<JS::Heap<JS::Value>> 
+JsWindow::GetPropertyWithOpt( size_t optArgCount, const std::string& name, JS::HandleValue defaultval )
+{
+    if ( optArgCount > 1 )
+    {
+        JS_ReportErrorASCII( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
+        return std::nullopt;
+    }
+
+    if ( optArgCount == 1 )
+    {
+        return GetProperty( name );
+    }
+
+    return GetProperty( name, defaultval );
 }
 
 std::optional<std::nullptr_t>
@@ -538,6 +574,23 @@ JsWindow::SetProperty( const std::string& name, JS::HandleValue val )
     }
 
     return nullptr;
+}
+
+std::optional<std::nullptr_t> 
+JsWindow::SetPropertyWithOpt( size_t optArgCount, const std::string& name, JS::HandleValue val )
+{
+    if ( optArgCount > 1 )
+    {
+        JS_ReportErrorASCII( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
+        return std::nullopt;
+    }
+
+    if ( optArgCount == 1 )
+    {
+        return SetProperty( name );
+    }
+
+    return SetProperty( name, val );
 }
 
 std::optional<uint32_t>

@@ -56,10 +56,9 @@ MJS_DEFINE_JS_TO_NATIVE_FN( JsFbTooltip, put_TrackActivate )
 
 const JSPropertySpec jsProperties[] = {
     JS_PSGS( "Text", get_Text, put_Text, DefaultPropsFlags() ),
-    JS_PSGS( "TrackActivate", nullptr, put_TrackActivate, DefaultPropsFlags() ),
+    JS_PSGS( "TrackActivate", DummyGetter, put_TrackActivate, DefaultPropsFlags() ),
     JS_PS_END
 };
-
 
 }
 

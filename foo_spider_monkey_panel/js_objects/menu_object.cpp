@@ -37,7 +37,7 @@ MJS_DEFINE_JS_TO_NATIVE_FN( JsMenuObject, AppendMenuSeparator )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsMenuObject, AppendTo )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsMenuObject, CheckMenuItem )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsMenuObject, CheckMenuRadioItem )
-MJS_DEFINE_JS_TO_NATIVE_FN( JsMenuObject, TrackPopupMenu )
+MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsMenuObject, TrackPopupMenu, TrackPopupMenuWithOpt, 1 )
 
 const JSFunctionSpec jsFunctions[] = {
     JS_FN( "AppendMenuItem", AppendMenuItem, 3, DefaultPropsFlags() ),
@@ -45,7 +45,7 @@ const JSFunctionSpec jsFunctions[] = {
     JS_FN( "AppendTo", AppendTo, 3, DefaultPropsFlags() ),
     JS_FN( "CheckMenuItem", CheckMenuItem, 2, DefaultPropsFlags() ),
     JS_FN( "CheckMenuRadioItem", CheckMenuRadioItem, 3, DefaultPropsFlags() ),
-    JS_FN( "TrackPopupMenu", TrackPopupMenu, 3, DefaultPropsFlags() ),
+    JS_FN( "TrackPopupMenu", TrackPopupMenu, 2, DefaultPropsFlags() ),
     JS_FS_END
 };
 
@@ -174,6 +174,12 @@ JsMenuObject::CheckMenuRadioItem( uint32_t first, uint32_t last, uint32_t select
 {
     assert( hMenu_ );
 
+    if ( selected < first || selected > last )
+    {
+        JS_ReportErrorASCII( pJsCtx_, "Index is out of bounds" );
+        return std::nullopt;
+    }
+
     BOOL bRet = ::CheckMenuRadioItem( hMenu_, first, last, selected, MF_BYCOMMAND );
     IF_WINAPI_FAILED_RETURN_WITH_REPORT( pJsCtx_, bRet, std::nullopt, CheckMenuRadioItem );
 
@@ -206,6 +212,23 @@ JsMenuObject::TrackPopupMenu( int32_t x, int32_t y, uint32_t flags )
     }
 
     return itemIdx;
+}
+
+std::optional<std::uint32_t> 
+JsMenuObject::TrackPopupMenuWithOpt( size_t optArgCount, int32_t x, int32_t y, uint32_t flags )
+{
+    if ( optArgCount > 1 )
+    {
+        JS_ReportErrorASCII( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
+        return std::nullopt;
+    }
+
+    if ( optArgCount == 1 )
+    {
+        return TrackPopupMenu( x, y );
+    }
+
+    return TrackPopupMenu( x, y, flags );
 }
 
 }

@@ -33,12 +33,12 @@ JSClass jsClass = {
     &jsOps
 };
 
-MJS_DEFINE_JS_TO_NATIVE_FN( JsThemeManager, DrawThemeBackground )
+MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsThemeManager, DrawThemeBackground, DrawThemeBackgroundWithOpt, 4 )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsThemeManager, IsThemePartDefined )
-MJS_DEFINE_JS_TO_NATIVE_FN( JsThemeManager, SetPartAndStateID )
+MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsThemeManager, SetPartAndStateID, SetPartAndStateIDWithOpt, 1 )
 
 const JSFunctionSpec jsFunctions[] = {
-    JS_FN( "DrawThemeBackground", DrawThemeBackground, 9, DefaultPropsFlags() ),
+    JS_FN( "DrawThemeBackground", DrawThemeBackground, 5, DefaultPropsFlags() ),
     JS_FN( "IsThemePartDefined", IsThemePartDefined, 1, DefaultPropsFlags() ),
     JS_FN( "SetPartAndStateID", SetPartAndStateID, 1, DefaultPropsFlags() ),
     JS_FS_END
@@ -128,6 +128,37 @@ JsThemeManager::DrawThemeBackground( JsGdiGraphics* gr,
     return nullptr;
 }
 
+std::optional<std::nullptr_t> 
+JsThemeManager::DrawThemeBackgroundWithOpt( size_t optArgCount, JsGdiGraphics* gr, 
+                                            int32_t x, int32_t y, uint32_t w, uint32_t h, 
+                                            int32_t clip_x, int32_t clip_y, uint32_t clip_w, uint32_t clip_h )
+{
+    if ( optArgCount > 4 )
+    {
+        JS_ReportErrorASCII( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
+        return std::nullopt;
+    }
+
+    if ( optArgCount == 4 )
+    {
+        return DrawThemeBackground( gr, x, y, w, h );
+    }
+    else if ( optArgCount == 3 )
+    {
+        return DrawThemeBackground( gr, x, y, w, h, clip_x );
+    }
+    else if ( optArgCount == 2 )
+    {
+        return DrawThemeBackground( gr, x, y, w, h, clip_x, clip_y );
+    }
+    else if ( optArgCount == 1 )
+    {
+        return DrawThemeBackground( gr, x, y, w, h, clip_x, clip_y, clip_w );
+    }
+
+    return DrawThemeBackground( gr, x, y, w, h, clip_x, clip_y, clip_w, clip_h );
+}
+
 std::optional<bool> 
 JsThemeManager::IsThemePartDefined( int32_t partid, int32_t stateId )
 {
@@ -140,6 +171,23 @@ JsThemeManager::SetPartAndStateID( int32_t partid, int32_t stateId )
     partId_ = partid;
     stateId_ = stateId;
     return nullptr;
+}
+
+std::optional<std::nullptr_t> 
+JsThemeManager::SetPartAndStateIDWithOpt( size_t optArgCount, int32_t partid, int32_t stateId )
+{
+    if ( optArgCount > 1 )
+    {
+        JS_ReportErrorASCII( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
+        return std::nullopt;
+    }
+
+    if ( optArgCount == 1 )
+    {
+        return SetPartAndStateID( partid );
+    }
+
+    return SetPartAndStateID( partid, stateId );
 }
 
 }

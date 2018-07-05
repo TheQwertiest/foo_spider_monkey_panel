@@ -34,13 +34,13 @@ JSClass jsClass = {
     &jsOps
 };
 
-MJS_DEFINE_JS_TO_NATIVE_FN( JsContextMenuManager, BuildMenu )
+MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsContextMenuManager, BuildMenu, BuildMenuWithOpt, 1 )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsContextMenuManager, ExecuteByID )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsContextMenuManager, InitContext )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsContextMenuManager, InitNowPlaying )
 
 const JSFunctionSpec jsFunctions[] = {
-    JS_FN( "BuildMenu",  BuildMenu, 3, DefaultPropsFlags() ),
+    JS_FN( "BuildMenu",  BuildMenu, 2, DefaultPropsFlags() ),
     JS_FN( "ExecuteByID",  ExecuteByID, 1, DefaultPropsFlags() ),
     JS_FN( "InitContext",  InitContext, 1, DefaultPropsFlags() ),
     JS_FN( "InitNowPlaying",  InitNowPlaying, 0, DefaultPropsFlags() ),
@@ -110,6 +110,23 @@ JsContextMenuManager::BuildMenu( JsMenuObject* menuObject, int32_t base_id, int3
     contextmenu_node* parent = contextMenu_->get_root();
     contextMenu_->win32_build_menu( hMenu, parent, base_id, max_id );
     return nullptr;
+}
+
+std::optional<std::nullptr_t> 
+JsContextMenuManager::BuildMenuWithOpt( size_t optArgCount, JsMenuObject* menuObject, int32_t base_id, int32_t max_id )
+{
+    if ( optArgCount > 1 )
+    {
+        JS_ReportErrorASCII( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
+        return std::nullopt;
+    }
+
+    if ( optArgCount == 1 )
+    {
+        return BuildMenu( menuObject, base_id );
+    }
+
+    return BuildMenu( menuObject, base_id, max_id );
 }
 
 std::optional<bool> 

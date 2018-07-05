@@ -30,6 +30,8 @@ void JsFinalizeOp( [[maybe_unused]] JSFreeOp* fop, JSObject* obj )
     }
 }
 
+bool DummyGetter( JSContext* cx, unsigned argc, JS::Value* vp );
+
 template<typename FuncType, typename ...ArgsType>
 bool CreateAndInstallObject( JSContext* cx, JS::HandleObject parentObject, std::string_view propertyName, FuncType fn, ArgsType&&... args )
 {
