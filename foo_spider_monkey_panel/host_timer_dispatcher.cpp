@@ -2,6 +2,7 @@
 #include "host_timer_dispatcher.h"
 
 #include <js_objects/global_object.h>
+#include <js_utils/js_error_helper.h>
 
 #include "user_message.h"
 
@@ -272,8 +273,11 @@ void HostTimerTask::invoke()
     JS::RootedFunction rFunc( pJsCtx_, JS_ValueToFunction( pJsCtx_, vFunc ) );
 
     JS::RootedValue retVal( pJsCtx_ );
-    // Should be checked for exceptions by the caller
-    JS::Call( pJsCtx_, jsGlobal, rFunc, JS::HandleValueArray::empty(), &retVal );
+
+    {
+        mozjs::AutoReportException are( pJsCtx_ );
+        JS::Call( pJsCtx_, jsGlobal, rFunc, JS::HandleValueArray::empty(), &retVal );
+    }
 
     release();
 }

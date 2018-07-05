@@ -32,9 +32,10 @@ void prop_kv_config::g_load(config_map& data, stream_reader* reader, abort_callb
         uint32_t count;		
 		reader->read_lendian_t(count, abort);
 
-        mozjs::SerializedJsValue serializedValue;
 		for ( uint32_t i = 0; i < count; ++i )
 		{
+            mozjs::SerializedJsValue serializedValue;
+
             pfc::string8_fast pfcPropName;
 			reader->read_string( pfcPropName, abort);
 

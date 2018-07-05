@@ -2,6 +2,7 @@
 #include "global_object.h"
 
 #include <js_engine/js_container.h>
+#include <js_engine/js_to_native_invoker.h>
 #include <js_objects/active_x.h>
 #include <js_objects/console.h>
 #include <js_objects/fb_playlist_manager.h>
@@ -10,10 +11,14 @@
 #include <js_objects/fb_utils.h>
 #include <js_objects/window.h>
 #include <js_utils/js_object_helper.h>
+#include <js_utils/js_error_helper.h>
 
 #include <js_panel_window.h>
 
 #include <js/TracingAPI.h>
+
+#include <filesystem>
+#include <fstream>  
 
 namespace
 {
@@ -41,6 +46,14 @@ JSClass jsClass = {
      JSCLASS_GLOBAL_FLAGS | DefaultClassFlags(),
      &jsOps
 };
+
+MJS_DEFINE_JS_TO_NATIVE_FN( JsGlobalObject, IncludeScript )
+
+const JSFunctionSpec jsFunctions[] = {
+    JS_FN( "include", IncludeScript, 1, DefaultPropsFlags() ),
+    JS_FS_END
+};
+
 
 }
 
@@ -106,6 +119,11 @@ JSObject* JsGlobalObject::Create( JSContext* cx, JsContainer &parentContainer, j
         }
 
         auto pNative = new JsGlobalObject( cx, parentContainer, parentPanel );
+
+        if ( !JS_DefineFunctions( cx, jsObj, jsFunctions ) )
+        {
+            return nullptr;
+        }
 
         JS_SetPrivate( jsObj, pNative );
 
@@ -210,6 +228,33 @@ void JsGlobalObject::TraceHeapValue( JSTracer *trc, void *data )
             it++;
         }
     }
+}
+
+std::optional<std::nullptr_t> 
+JsGlobalObject::IncludeScript( const std::string& path )
+{
+    namespace fs = std::filesystem;
+    // TODO: catch exceptions
+    fs::path fsPath( path );
+    if ( fs::is_regular_file( fsPath ) )
+    {
+        std::string filename = fsPath.filename().string();
+
+        JS::CompileOptions opts( pJsCtx_ );
+        opts.setFileAndLine( filename.c_str(), 1 );
+
+        std::ifstream ifs( fsPath );
+        // TODO: ask someone, why constructor with () does not work
+        std::string scriptCode{ std::istreambuf_iterator<char>( ifs ),
+                                std::istreambuf_iterator<char>() };
+
+        JS::RootedValue rval( pJsCtx_ );
+
+        AutoReportException are( pJsCtx_ );
+        JS::Evaluate( pJsCtx_, opts, scriptCode.c_str(), scriptCode.length(), &rval );
+        return nullptr;
+    }
+    return nullptr;
 }
 
 }

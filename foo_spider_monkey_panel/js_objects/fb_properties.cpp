@@ -6,6 +6,7 @@
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
 #include <js_utils/serialized_value.h>
+#include <js_utils/string_util.h>
 
 #include <js_panel_window.h>
 
@@ -101,21 +102,23 @@ void JsFbProperties::RemoveHeapTracer()
 std::optional<JS::Heap<JS::Value>>
 JsFbProperties::GetProperty( const std::string& propName, JS::HandleValue propDefaultValue )
 {    
+    std::string trimmedPropName( Trim( propName ) );
+
     bool hasProperty = false;
-    if ( properties_.count( propName ) )
+    if ( properties_.count( trimmedPropName ) )
     {
         hasProperty = true;
     }
     else
     {
-        auto prop = parentPanel_.get_config_prop().get_config_item( propName );
+        auto prop = parentPanel_.get_config_prop().get_config_item( trimmedPropName );
         if ( prop )
         {
             JS::RootedValue jsProp( pJsCtx_ );
             if ( DeserializeJsValue( pJsCtx_, prop.value(), &jsProp ) )
             {
                 hasProperty = true;
-                properties_.emplace( propName, std::make_shared<HeapElement>( jsProp ) );
+                properties_.emplace( trimmedPropName, std::make_shared<HeapElement>( jsProp ) );
             }
         }        
     }
@@ -129,21 +132,23 @@ JsFbProperties::GetProperty( const std::string& propName, JS::HandleValue propDe
             return std::make_optional( tmpVal );
         }
 
-        if ( !SetProperty( propName, propDefaultValue ) )
+        if ( !SetProperty( trimmedPropName, propDefaultValue ) )
         {
             return std::nullopt;
         }
     }
 
-    return std::make_optional( properties_[propName]->value );
+    return std::make_optional( properties_[trimmedPropName]->value );
 }
 
 bool JsFbProperties::SetProperty( const std::string& propName, JS::HandleValue propValue )
 {
+    std::string trimmedPropName( Trim( propName ) );
+
     if ( propValue.isNullOrUndefined() )
     {
-        parentPanel_.get_config_prop().remove_config_item( propName );
-        properties_.erase( propName );
+        parentPanel_.get_config_prop().remove_config_item( trimmedPropName );
+        properties_.erase( trimmedPropName );
         return true;
     }
 
@@ -154,8 +159,8 @@ bool JsFbProperties::SetProperty( const std::string& propName, JS::HandleValue p
         return false;
     }
 
-    properties_[propName] = std::make_shared<HeapElement>( propValue );
-    parentPanel_.get_config_prop().set_config_item( propName, serializedValue.value() );
+    properties_[trimmedPropName] = std::make_shared<HeapElement>( propValue );
+    parentPanel_.get_config_prop().set_config_item( trimmedPropName, serializedValue.value() );
     
     return true;
 }

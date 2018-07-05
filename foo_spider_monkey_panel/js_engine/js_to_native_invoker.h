@@ -182,7 +182,15 @@ bool InvokeNativeCallback_Impl( JSContext* cx,
 
     // Call function
 
-    BaseClass* baseClass = static_cast<BaseClass*>( JS_GetPrivate( args.thisv().toObjectOrNull() ) );
+    BaseClass* baseClass;
+    if constexpr(std::is_same_v<BaseClass, JsGlobalObject>)
+    {// Global has undefined thisv 
+        baseClass = static_cast<BaseClass*>(JS_GetPrivate( JS::CurrentGlobalOrNull(cx) ));
+    }
+    else
+    {
+        baseClass = static_cast<BaseClass*>(JS_GetPrivate( args.thisv().toObjectOrNull() ));
+    }
     if ( !baseClass )
     {
         JS_ReportErrorASCII( cx, "Internal error: JS_GetPrivate failed" );

@@ -43,7 +43,7 @@ JSClass jsClass = {
 MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiGraphics, CalcTextHeight )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiGraphics, CalcTextWidth )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiGraphics, DrawEllipse )
-MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsGdiGraphics, DrawImage, DrawImageWithOpt, 1 )
+MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsGdiGraphics, DrawImage, DrawImageWithOpt, 2 )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiGraphics, DrawLine )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiGraphics, DrawPolygon )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiGraphics, DrawRect )

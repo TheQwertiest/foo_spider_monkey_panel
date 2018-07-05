@@ -12,9 +12,9 @@
 - Stop staying up all night making this...
 
 # Planned
+- Try to make it work with paths containing cyrillics and other exotic characters
 - Move setInterval and co to global namespace.
 - Port hacks from ui_hacks.
-- Add `include(path.to.js)` method for loading scripts.
 - Add ES6 modules support (`import`).
 - Replace PropertyList with something more maintenable.
 - Save Panel Properties dialog size between calls.

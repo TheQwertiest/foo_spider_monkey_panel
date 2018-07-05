@@ -7,6 +7,7 @@
 #pragma warning( pop )  
 
 #include <shared_mutex>
+#include <optional>
 
 
 class js_panel_window;
@@ -50,6 +51,9 @@ public:
     void RemoveFromHeap( uint32_t id );
 
     void RemoveHeapTracer();
+
+public:
+    std::optional<std::nullptr_t> IncludeScript( const std::string& path );
 
 private:
     JsGlobalObject( JSContext* cx, JsContainer &parentContainer, js_panel_window& parentPanel );
