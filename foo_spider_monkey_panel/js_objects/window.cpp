@@ -480,7 +480,7 @@ std::optional<std::nullptr_t> JsWindow::RepaintWithOpt( size_t optArgCount, bool
 
     if ( optArgCount == 1 )
     {
-        return Repaint( false );
+        return Repaint();
     }
 
     return Repaint( force );
@@ -503,7 +503,7 @@ std::optional<std::nullptr_t> JsWindow::RepaintRectWithOpt( size_t optArgCount, 
 
     if ( optArgCount == 1 )
     {
-        return RepaintRect( x, y, w, h, false );
+        return RepaintRect( x, y, w, h );
     }
 
     return RepaintRect( x, y, w, h, force );

@@ -417,7 +417,9 @@ JsGdiGraphics::DrawString( const std::wstring& str, JsGdiFont* font, uint32_t co
 }
 
 std::optional<std::nullptr_t>
-JsGdiGraphics::DrawStringWithOpt( size_t optArgCount, const std::wstring& str, JsGdiFont* font, uint32_t colour, float x, float y, float w, float h, uint32_t flags )
+JsGdiGraphics::DrawStringWithOpt( size_t optArgCount, const std::wstring& str, JsGdiFont* font, uint32_t colour, 
+                                  float x, float y, float w, float h, 
+                                  uint32_t flags )
 {
     if ( optArgCount > 1 )
     {
@@ -427,7 +429,7 @@ JsGdiGraphics::DrawStringWithOpt( size_t optArgCount, const std::wstring& str, J
 
     if ( optArgCount == 1 )
     {
-        return DrawString( str, font, colour, x, y, w, h, 0 );
+        return DrawString( str, font, colour, x, y, w, h );
     }
 
     return DrawString( str, font, colour, x, y, w, h, flags );
@@ -707,7 +709,7 @@ JsGdiGraphics::GdiDrawBitmap( JsGdiRawBitmap* bitmap,
 }
 
 std::optional<std::nullptr_t> 
-JsGdiGraphics::GdiDrawText( const std::wstring& str, JsGdiFont* font, uint32_t colour, int x, int y, uint32_t w, uint32_t h, uint32_t format )
+JsGdiGraphics::GdiDrawText( const std::wstring& str, JsGdiFont* font, uint32_t colour, int32_t x, int32_t y, uint32_t w, uint32_t h, uint32_t format )
 {
     if ( !pGdi_ )
     {
@@ -867,7 +869,7 @@ JsGdiGraphics::SetInterpolationModeWithOpt( size_t optArgCount, uint32_t mode )
 
     if ( optArgCount == 1 )
     {
-        return SetInterpolationMode( 0 );
+        return SetInterpolationMode();
     }
 
     return SetInterpolationMode( mode );
@@ -897,7 +899,7 @@ std::optional<std::nullptr_t> JsGdiGraphics::SetSmoothingModeWithOpt( size_t opt
 
     if ( optArgCount == 1 )
     {
-        return SetSmoothingMode( 0 );
+        return SetSmoothingMode();
     }
 
     return SetSmoothingMode( mode );
@@ -927,7 +929,7 @@ std::optional<std::nullptr_t> JsGdiGraphics::SetTextRenderingHintWithOpt( size_t
 
     if ( optArgCount == 1 )
     {
-        return SetTextRenderingHint( 0 );
+        return SetTextRenderingHint();
     }
 
     return SetTextRenderingHint( mode );

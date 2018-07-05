@@ -557,7 +557,7 @@ JsGdiBitmap::ResizeWithOpt( size_t optArgCount, uint32_t w, uint32_t h, uint32_t
 
     if ( optArgCount == 1 )
     {
-        return Resize( w, h, 0 );
+        return Resize( w, h );
     }
 
     return Resize( w, h, interpolationMode );

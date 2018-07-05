@@ -22,10 +22,15 @@ public:
     static const JSClass& GetClass();
 
 public:
-    std::optional<std::nullptr_t> DrawThemeBackground( JsGdiGraphics* gr, int32_t x, int32_t y, uint32_t w, uint32_t h, int32_t clip_x, int32_t clip_y, uint32_t clip_w, uint32_t clip_h );
+    std::optional<std::nullptr_t> DrawThemeBackground( JsGdiGraphics* gr, 
+                                                       int32_t x, int32_t y, uint32_t w, uint32_t h, 
+                                                       int32_t clip_x = 0, int32_t clip_y = 0, uint32_t clip_w = 0, uint32_t clip_h = 0 );
+    std::optional<std::nullptr_t> DrawThemeBackgroundWithOpt( size_t optArgCount, JsGdiGraphics* gr,
+                                                              int32_t x, int32_t y, uint32_t w, uint32_t h,
+                                                              int32_t clip_x, int32_t clip_y, uint32_t clip_w, uint32_t clip_h );
     std::optional<bool> IsThemePartDefined( int32_t partid, int32_t stateId );
-    std::optional<std::nullptr_t> SetPartID( int32_t partid );
-    std::optional<std::nullptr_t> SetStateID( int32_t stateId );
+    std::optional<std::nullptr_t> SetPartAndStateID( int32_t partid, int32_t stateId = 0);
+    std::optional<std::nullptr_t> SetPartAndStateIDWithOpt( size_t optArgCount, int32_t partid, int32_t stateId );
 
 private:
     JsThemeManager( JSContext* cx, HWND hwnd, const std::wstring& classlist );

@@ -85,7 +85,7 @@ void JsContainer::Finalize()
     }
 
     if ( JsStatus::Failed != jsStatus_ )
-    {// Don't supress error: it should be cleared only on initialization
+    {// Don't suppress error: it should be cleared only on initialization
         jsStatus_ = JsStatus::Prepared;
     }
     

@@ -9,6 +9,7 @@
 - Check that it can work side-by-side with foo-jscript-panel.
 - Remove engine settings from Panel Properties dialog.
 - Move all failable initialization from ctor to Create (add PostCreate?).
+- Document that toArray() methods are not needed anymore.
 - Check all TODOs.
 - Stop staying up all night making this...
 
@@ -24,6 +25,7 @@
 - See if it's possible to export some common Array checking/creating/parsing code.
 
 # Maybe
+- Raise warning level to W4 or WALL with WERROR
 - Add help to properties and methods
 - Replace separate JSON parser with the one from JS engine.
 - Minimal .js tests for all the functionality.

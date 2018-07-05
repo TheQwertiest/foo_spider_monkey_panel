@@ -38,10 +38,11 @@ public: //methods
     std::optional<std::string> GetColourSchemeJSON( uint32_t count );
     std::optional<JSObject*> GetGraphics();
     std::optional<std::nullptr_t> ReleaseGraphics( JsGdiGraphics* graphics );
-    std::optional<JSObject*> Resize( uint32_t w, uint32_t h, uint32_t interpolationMode );
+    std::optional<JSObject*> Resize( uint32_t w, uint32_t h, uint32_t interpolationMode = 0 );
     std::optional<JSObject*> ResizeWithOpt( size_t optArgCount, uint32_t w, uint32_t h, uint32_t interpolationMode );
     std::optional<std::nullptr_t> RotateFlip( uint32_t mode );
     std::optional<bool> SaveAs( const std::wstring& path, const std::wstring& format );
+    std::optional<bool> SaveAsWithOpt( size_t optArgCount, const std::wstring& path, const std::wstring& format /* ='image/png' */ );
     std::optional<std::nullptr_t> StackBlur( uint32_t radius );
 
 public: // props

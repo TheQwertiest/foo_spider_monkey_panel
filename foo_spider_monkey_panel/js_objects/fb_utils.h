@@ -40,19 +40,22 @@ public:
     // TODO: remove after adding array methods to JsFbMetadbHandleList
     std::optional<JSObject*> CreateHandleList();
     std::optional<JSObject*> CreateMainMenuManager();
-    std::optional<JSObject*> CreateProfiler( const std::string& name );
+    std::optional<JSObject*> CreateProfiler( const std::string& name /* = "" */ );    
+    std::optional<JSObject*> CreateProfilerWithOpt( size_t optArgCount, const std::string& name );
     std::optional<uint32_t> DoDragDrop( JsFbMetadbHandleList* handles, uint32_t okEffects );
     std::optional<std::nullptr_t> Exit();
     std::optional<JSObject*> GetClipboardContents( uint32_t hWindow );
     std::optional<std::string> GetDSPPresets();
-    std::optional<JSObject*> GetFocusItem( bool force );
+    std::optional<JSObject*> GetFocusItem( bool force = true );
+    std::optional<JSObject*> GetFocusItemWithOpt( size_t optArgCount, bool force );
     std::optional<JSObject*> GetLibraryItems();
     std::optional<std::string> GetLibraryRelativePath( JsFbMetadbHandle* handle );
     std::optional<JSObject*> GetNowPlaying();
     std::optional<std::string> GetOutputDevices();
     std::optional<JSObject*> GetQueryItems( JsFbMetadbHandleList* handles, const std::string& query );
     std::optional<JSObject*> GetSelection();
-    std::optional<JSObject*> GetSelections( uint32_t flags );
+    std::optional<JSObject*> GetSelections( uint32_t flags = 0 );
+    std::optional<JSObject*> GetSelectionsWithOpt( size_t optArgCount, uint32_t flags = 0 );
     std::optional<uint32_t> GetSelectionType();
     std::optional<bool> IsLibraryEnabled();
     std::optional<bool> IsMainMenuCommandChecked( const std::string& command );
@@ -64,8 +67,10 @@ public:
     std::optional<std::nullptr_t> PlayOrPause();
     std::optional<std::nullptr_t> Prev();
     std::optional<std::nullptr_t> Random();
-    std::optional<bool> RunContextCommand( const std::string& command, uint32_t flags );
-    std::optional<bool> RunContextCommandWithMetadb( const std::string& command, JS::HandleValue handle, uint32_t flags );
+    std::optional<bool> RunContextCommand( const std::string& command, uint32_t flags = 0);
+    std::optional<bool> RunContextCommandWithOpt( size_t optArgCount, const std::string& command, uint32_t flags );
+    std::optional<bool> RunContextCommandWithMetadb( const std::string& command, JS::HandleValue handle, uint32_t flags = 0);
+    std::optional<bool> RunContextCommandWithMetadbWithOpt( size_t optArgCount, const std::string& command, JS::HandleValue handle, uint32_t flags );
     std::optional<bool> RunMainMenuCommand( const std::string& command );
     std::optional<std::nullptr_t> SaveIndex();
     std::optional<std::nullptr_t> SavePlaylist();
@@ -73,7 +78,8 @@ public:
     std::optional<std::nullptr_t> SetOutputDevice( const std::wstring& output, const std::wstring& device );
     std::optional<std::nullptr_t> ShowConsole();
     std::optional<std::nullptr_t> ShowLibrarySearchUI( const std::string& query );
-    std::optional<std::nullptr_t> ShowPopupMessage( const std::string& msg, const std::string& title );
+    std::optional<std::nullptr_t> ShowPopupMessage( const std::string& msg, const std::string& title /* ='JScript Panel' */ );
+    std::optional<std::nullptr_t> ShowPopupMessageWithOpt( size_t optArgCount, const std::string& msg, const std::string& title );
     std::optional<std::nullptr_t> ShowPreferences();
     std::optional<std::nullptr_t> Stop();
     std::optional<JSObject*> TitleFormat( const std::string& expression );

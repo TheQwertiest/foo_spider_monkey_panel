@@ -169,7 +169,7 @@ JsGdiUtils::FontWithOpt( size_t optArgCount, const std::wstring& fontName, float
 
     if ( optArgCount == 1 )
     {
-        return Font( fontName, pxSize, 0 );
+        return Font( fontName, pxSize );
     }
 
     return Font( fontName, pxSize, style );

@@ -26,7 +26,8 @@ public:
     std::optional<std::nullptr_t> AppendTo( JsMenuObject* parent, uint32_t flags, const std::wstring& text );
     std::optional<std::nullptr_t> CheckMenuItem( uint32_t item_id, bool check );
     std::optional<std::nullptr_t> CheckMenuRadioItem( uint32_t first, uint32_t last, uint32_t selected );
-    std::optional<std::uint32_t> TrackPopupMenu( int32_t x, int32_t y, uint32_t flags );
+    std::optional<std::uint32_t> TrackPopupMenu( int32_t x, int32_t y, uint32_t flags = 0);
+    std::optional<std::uint32_t> TrackPopupMenuWithOpt( size_t optArgCount, int32_t x, int32_t y, uint32_t flags );
 
 private:
     JsMenuObject( JSContext* cx, HWND hParentWnd );

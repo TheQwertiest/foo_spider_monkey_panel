@@ -35,12 +35,12 @@ JSClass jsClass = {
 
 MJS_DEFINE_JS_TO_NATIVE_FN( JsThemeManager, DrawThemeBackground )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsThemeManager, IsThemePartDefined )
-MJS_DEFINE_JS_TO_NATIVE_FN( JsThemeManager, SetPartID )
+MJS_DEFINE_JS_TO_NATIVE_FN( JsThemeManager, SetPartAndStateID )
 
 const JSFunctionSpec jsFunctions[] = {
     JS_FN( "DrawThemeBackground", DrawThemeBackground, 9, DefaultPropsFlags() ),
     JS_FN( "IsThemePartDefined", IsThemePartDefined, 1, DefaultPropsFlags() ),
-    JS_FN( "SetPartID", SetPartID, 1, DefaultPropsFlags() ),
+    JS_FN( "SetPartAndStateID", SetPartAndStateID, 1, DefaultPropsFlags() ),
     JS_FS_END
 };
 
@@ -135,15 +135,9 @@ JsThemeManager::IsThemePartDefined( int32_t partid, int32_t stateId )
 }
 
 std::optional<std::nullptr_t> 
-JsThemeManager::SetPartID( int32_t partid )
+JsThemeManager::SetPartAndStateID( int32_t partid, int32_t stateId )
 {
     partId_ = partid;
-    return nullptr;
-}
-
-std::optional<std::nullptr_t>
-JsThemeManager::SetStateID( int32_t stateId )
-{
     stateId_ = stateId;
     return nullptr;
 }

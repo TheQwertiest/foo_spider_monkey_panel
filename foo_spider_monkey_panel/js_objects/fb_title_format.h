@@ -25,7 +25,8 @@ public:
     titleformat_object::ptr GetTitleFormat();
 
 public:
-    std::optional<std::string> Eval( bool force );
+    std::optional<std::string> Eval( bool force = false );
+    std::optional<std::string> EvalWithOpt( size_t optArgCount, bool force );
     std::optional<std::string> EvalWithMetadb( JsFbMetadbHandle* handle );
     std::optional<JSObject*> EvalWithMetadbs( JsFbMetadbHandleList* handles );
 
