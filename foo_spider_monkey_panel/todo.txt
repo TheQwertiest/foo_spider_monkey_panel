@@ -4,7 +4,6 @@
 - Check drag-n-drop functionality.
 - Check that all files are correctly parsed: UTF8, UTF8-BOM, ASCII.
 - Rewrite ActiveXObject properly (and rename the files as well).
-- Implement timers.
 - Update docs.
 - Complete rebranding to spider_monkey_panel.
 - Check that it can work side-by-side with foo-jscript-panel.
@@ -14,6 +13,7 @@
 - Stop staying up all night making this...
 
 # Planned
+- Move setInterval and co to global namespace.
 - Port hacks from ui_hacks.
 - Add `include(path.to.js)` method for loading scripts.
 - Add ES6 modules support (`import`).
