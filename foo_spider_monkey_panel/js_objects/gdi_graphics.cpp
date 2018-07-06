@@ -51,7 +51,7 @@ MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiGraphics, DrawRoundRect )
 MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsGdiGraphics, DrawString, DrawStringWithOpt, 1 )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiGraphics, EstimateLineWrap )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiGraphics, FillEllipse )
-MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiGraphics, FillGradRect )
+MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsGdiGraphics, FillGradRect, FillGradRectWithOpt, 1 )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiGraphics, FillPolygon )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiGraphics, FillRoundRect )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiGraphics, FillSolidRect )
@@ -75,7 +75,7 @@ const JSFunctionSpec jsFunctions[] = {
     JS_FN( "DrawString", DrawString, 7, DefaultPropsFlags() ),
     JS_FN( "EstimateLineWrap", EstimateLineWrap, 3, DefaultPropsFlags() ),
     JS_FN( "FillEllipse", FillEllipse, 5, DefaultPropsFlags() ),
-    JS_FN( "FillGradRect", FillGradRect, 8, DefaultPropsFlags() ),
+    JS_FN( "FillGradRect", FillGradRect, 7, DefaultPropsFlags() ),
     JS_FN( "FillPolygon", DrawPolygon, 3, DefaultPropsFlags() ),
     JS_FN( "FillRoundRect", FillRoundRect, 7, DefaultPropsFlags() ),
     JS_FN( "FillSolidRect", FillSolidRect, 5, DefaultPropsFlags() ),
@@ -564,6 +564,23 @@ JsGdiGraphics::FillGradRect( float x, float y, float w, float h, float angle, ui
     IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, std::nullopt, FillRectangle );
 
     return nullptr;
+}
+
+std::optional<std::nullptr_t> 
+JsGdiGraphics::FillGradRectWithOpt( size_t optArgCount, float x, float y, float w, float h, float angle, uint32_t colour1, uint32_t colour2, float focus )
+{
+    if ( optArgCount > 1 )
+    {
+        JS_ReportErrorUTF8( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
+        return std::nullopt;
+    }
+
+    if ( optArgCount == 1 )
+    {
+        return FillGradRect(x, y, w, h, angle, colour1, colour2);
+    }
+
+    return FillGradRect( x, y, w, h, angle, colour1, colour2, focus );
 }
 
 std::optional<std::nullptr_t>

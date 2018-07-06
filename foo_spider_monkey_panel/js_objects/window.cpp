@@ -88,7 +88,7 @@ const JSFunctionSpec jsFunctions[] = {
 
 MJS_DEFINE_JS_TO_NATIVE_FN( JsWindow, get_DlgCode )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsWindow, get_Height )
-MJS_DEFINE_JS_TO_NATIVE_FN( JsWindow, get_Id )
+MJS_DEFINE_JS_TO_NATIVE_FN( JsWindow, get_ID )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsWindow, get_InstanceType )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsWindow, get_IsTransparent )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsWindow, get_IsVisible )
@@ -107,7 +107,7 @@ MJS_DEFINE_JS_TO_NATIVE_FN( JsWindow, put_MinWidth )
 const JSPropertySpec jsProperties[] = {
     JS_PSGS( "DlgCode", get_DlgCode, put_DlgCode, DefaultPropsFlags() ),
     JS_PSG( "Height", get_Height, DefaultPropsFlags() ),
-    JS_PSG( "Id", get_Id, DefaultPropsFlags() ),
+    JS_PSG( "ID", get_ID, DefaultPropsFlags() ),
     JS_PSG( "InstanceType", get_InstanceType, DefaultPropsFlags() ),
     JS_PSG( "IsTransparent", get_IsTransparent, DefaultPropsFlags() ),
     JS_PSG( "IsVisible", get_IsVisible, DefaultPropsFlags() ),
@@ -633,7 +633,7 @@ JsWindow::get_Height()
 }
 
 std::optional<uint32_t>
-JsWindow::get_Id()
+JsWindow::get_ID()
 {// Will work properly only on x86
     return reinterpret_cast<uint32_t>( parentPanel_.GetHWND() );
 }

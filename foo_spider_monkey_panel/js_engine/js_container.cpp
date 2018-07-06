@@ -193,9 +193,11 @@ void JsContainer::InvokeOnPaintCallback( Gdiplus::Graphics& gr )
 
     pNativeGraphics_->SetGraphicsObject( &gr );
 
-    InvokeJsCallback( "on_paint",
-                      static_cast<JS::HandleObject>( jsGraphics_ ) );
-
+    if ( !InvokeJsCallback( "on_paint",
+                           static_cast<JS::HandleObject>(jsGraphics_) ) )
+    {// Will clear pNativeGraphics_ on error
+        return;
+    }
     pNativeGraphics_->SetGraphicsObject( nullptr );
 }
 

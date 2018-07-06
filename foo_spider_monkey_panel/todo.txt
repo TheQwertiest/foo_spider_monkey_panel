@@ -1,4 +1,6 @@
 # Current
+- WshShell COM object does not enumerate all the methods and properties: fix this.
+- Diagnose JS_ShutDown freeze on conditional wait on fb2k exit
 - Check utf8 literals everywhere (paths, script window, script files, properties, callback arguments)
 - Check drag-n-drop functionality.
 - Check that all files are correctly parsed: UTF8, UTF8-BOM, ASCII.

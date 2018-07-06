@@ -27,6 +27,6 @@ private:
     bool isDisabled_ = false;
 };
 
-pfc::string8_fast GetCurrentExceptionText( JSContext* cx );
+void RethrowExceptionWithFunctionName( JSContext* cx, const char* functionName );
 
 }

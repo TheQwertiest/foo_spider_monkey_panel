@@ -60,7 +60,11 @@ public:
                                                      uint32_t flags );
     std::optional<JSObject*> EstimateLineWrap( const std::wstring& str, JsGdiFont* font, uint32_t max_width );
     std::optional<std::nullptr_t> FillEllipse( float x, float y, float w, float h, uint32_t colour );
-    std::optional<std::nullptr_t> FillGradRect( float x, float y, float w, float h, float angle, uint32_t colour1, uint32_t colour2, float focus );
+    std::optional<std::nullptr_t> FillGradRect( float x, float y, float w, float h, 
+                                                float angle, uint32_t colour1, uint32_t colour2, float focus = 1 );
+    std::optional<std::nullptr_t> FillGradRectWithOpt( size_t optArgCount, 
+                                                       float x, float y, float w, float h, 
+                                                       float angle, uint32_t colour1, uint32_t colour2, float focus );
     std::optional<std::nullptr_t> FillPolygon( uint32_t colour, uint32_t fillmode, JS::HandleValue points );
     std::optional<std::nullptr_t> FillRoundRect( float x, float y, float w, float h, float arc_width, float arc_height, uint32_t colour );
     std::optional<std::nullptr_t> FillSolidRect( float x, float y, float w, float h, uint32_t colour );

@@ -62,7 +62,7 @@ public: // methods
 public: // props
     std::optional<uint32_t> get_DlgCode();
     std::optional<uint32_t> get_Height();
-    std::optional<uint32_t> get_Id();
+    std::optional<uint32_t> get_ID();
     std::optional<uint32_t> get_InstanceType();
     std::optional<bool> get_IsTransparent();
     std::optional<bool> get_IsVisible();

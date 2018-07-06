@@ -107,6 +107,12 @@ bool ToValue( JSContext *, const std::nullptr_t& inValue, JS::MutableHandleValue
 template <>
 bool ToValue( JSContext * cx, const metadb_handle_ptr& inValue, JS::MutableHandleValue wrappedValue )
 {
+    if ( inValue.is_empty() )
+    {// Not an error
+        wrappedValue.setNull();
+        return true;
+    }
+
     JS::RootedObject jsObject( cx, JsFbMetadbHandle::Create( cx, inValue ) );
     if ( !jsObject )
     {
@@ -133,6 +139,12 @@ bool ToValue( JSContext * cx, const metadb_handle_list& inValue, JS::MutableHand
 template<>
 bool ToValue( JSContext * cx, Gdiplus::Bitmap* const& inValue, JS::MutableHandleValue wrappedValue )
 {
+    if ( !inValue )
+    {// Not an error
+        wrappedValue.setNull();
+        return true;
+    }
+
     JS::RootedObject jsObject( cx, JsGdiBitmap::Create( cx, inValue ) );
     if ( !jsObject )
     {

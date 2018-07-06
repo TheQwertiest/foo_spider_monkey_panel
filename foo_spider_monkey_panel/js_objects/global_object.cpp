@@ -47,7 +47,18 @@ JSClass jsClass = {
      &jsOps
 };
 
-MJS_DEFINE_JS_TO_NATIVE_FN( JsGlobalObject, IncludeScript )
+// Defining function manually, because we won't a proper logging and we can't name it `include`
+// TODO: define a new macro?
+bool IncludeScript( JSContext* cx, unsigned argc, JS::Value* vp )
+{
+    bool bRet =
+        InvokeNativeCallback<0>( cx, &JsGlobalObject::IncludeScript, &JsGlobalObject::IncludeScript, argc, vp );
+    if ( !bRet )
+    {
+        mozjs::RethrowExceptionWithFunctionName( cx, "include" );
+    }
+    return bRet;
+}
 
 const JSFunctionSpec jsFunctions[] = {
     JS_FN( "include", IncludeScript, 1, DefaultPropsFlags() ),
@@ -231,28 +242,41 @@ void JsGlobalObject::TraceHeapValue( JSTracer *trc, void *data )
 }
 
 std::optional<std::nullptr_t> 
-JsGlobalObject::IncludeScript( const std::string& path )
+JsGlobalObject::IncludeScript( const pfc::string8_fast& path )
 {
+    pfc::string8_fast parsedPath = path;
+    t_size pos = parsedPath.find_first( "%fb2k_path%" );
+    pfc::string8_fast substPath = helpers::get_fb2k_path();
+    parsedPath.replace_string( "%fb2k_path%", substPath.c_str(), pos );
+    substPath = helpers::get_fb2k_component_path();
+    parsedPath.replace_string( "%fb2k_component_path%", substPath.c_str(), pos );
+    substPath = helpers::get_profile_path();
+    parsedPath.replace_string( "%fb2k_profile_path%", substPath.c_str(), pos );
+
     namespace fs = std::filesystem;
     // TODO: catch exceptions
-    fs::path fsPath( path );
-    if ( fs::is_regular_file( fsPath ) )
+    fs::path fsPath = fs::u8path( parsedPath.c_str() );
+    if ( !fs::exists( fsPath ) || !fs::is_regular_file( fsPath ) )
     {
-        std::string filename = fsPath.filename().string();
+        JS_ReportErrorUTF8( pJsCtx_, "Failed to open the script: %s", parsedPath.c_str() );
+        return std::nullopt;
+    }
 
-        JS::CompileOptions opts( pJsCtx_ );
-        opts.setFileAndLine( filename.c_str(), 1 );
+    std::string filename = fsPath.filename().string();
 
-        std::ifstream ifs( fsPath );
-        // TODO: ask someone, why constructor with () does not work
-        std::string scriptCode{ std::istreambuf_iterator<char>( ifs ),
-                                std::istreambuf_iterator<char>() };
+    JS::CompileOptions opts( pJsCtx_ );
+    opts.setFileAndLine( filename.c_str(), 1 );
 
-        JS::RootedValue rval( pJsCtx_ );
+    std::wifstream ifs( fsPath );
+    // TODO: ask someone, why constructor with () does not work
+    std::wstring scriptCode{ std::istreambuf_iterator<wchar_t>( ifs ),
+                            std::istreambuf_iterator<wchar_t>() };
 
-        AutoReportException are( pJsCtx_ );
-        JS::Evaluate( pJsCtx_, opts, scriptCode.c_str(), scriptCode.length(), &rval );
-        return nullptr;
+    JS::RootedValue rval( pJsCtx_ );
+
+    if ( !JS::Evaluate( pJsCtx_, opts, (char16_t*)scriptCode.c_str(), scriptCode.length(), &rval ) )
+    {// Report in Evaluate
+        return std::nullopt;
     }
     return nullptr;
 }

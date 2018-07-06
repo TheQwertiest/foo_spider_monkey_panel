@@ -94,7 +94,7 @@ const JSClass& JsContextMenuManager::GetClass()
 std::optional<std::nullptr_t> 
 JsContextMenuManager::BuildMenu( JsMenuObject* menuObject, int32_t base_id, int32_t max_id )
 {
-    if ( !contextMenu_.is_empty() )
+    if ( contextMenu_.is_empty() )
     {
         JS_ReportErrorUTF8( pJsCtx_, "Context menu is not initialized" );
         return std::nullopt;
@@ -132,7 +132,7 @@ JsContextMenuManager::BuildMenuWithOpt( size_t optArgCount, JsMenuObject* menuOb
 std::optional<bool> 
 JsContextMenuManager::ExecuteByID( uint32_t id )
 {
-    if ( !contextMenu_.is_empty() )
+    if ( contextMenu_.is_empty() )
     {
         JS_ReportErrorUTF8( pJsCtx_, "Context menu is not initialized" );
         return std::nullopt;

@@ -53,7 +53,7 @@ public:
     void RemoveHeapTracer();
 
 public:
-    std::optional<std::nullptr_t> IncludeScript( const std::string& path );
+    std::optional<std::nullptr_t> IncludeScript( const pfc::string8_fast& path );
 
 private:
     JsGlobalObject( JSContext* cx, JsContainer &parentContainer, js_panel_window& parentPanel );

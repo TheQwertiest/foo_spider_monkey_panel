@@ -92,7 +92,7 @@ const JSClass& JsMainMenuManager::GetClass()
 std::optional<std::nullptr_t> 
 JsMainMenuManager::BuildMenu( JsMenuObject* menu, int32_t base_id, int32_t count )
 {
-    if ( !menuManager_.is_empty() )
+    if ( menuManager_.is_empty() )
     {
         JS_ReportErrorUTF8( pJsCtx_, "Main menu manager is not initialized" );
         return std::nullopt;
@@ -119,7 +119,7 @@ JsMainMenuManager::BuildMenu( JsMenuObject* menu, int32_t base_id, int32_t count
 std::optional<bool> 
 JsMainMenuManager::ExecuteByID( uint32_t id )
 {
-    if ( !menuManager_.is_empty() )
+    if ( menuManager_.is_empty() )
     {
         JS_ReportErrorUTF8( pJsCtx_, "Main menu manager is not initialized" );
         return std::nullopt;

@@ -50,14 +50,17 @@ bool DeserializeJsValue( JSContext* cx, const SerializedJsValue& serializedValue
     case JsValueType::pt_boolean:
     {
         jsValue.setBoolean( serializedValue.boolVal );
+        break;
     }
     case JsValueType::pt_int32:
     {
         jsValue.setInt32( serializedValue.intVal );
+        break;
     }
     case JsValueType::pt_double:
     {
         jsValue.setDouble( serializedValue.doubleVal );
+        break;
     }
     case JsValueType::pt_string:
     {

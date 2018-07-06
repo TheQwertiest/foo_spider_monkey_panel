@@ -102,7 +102,7 @@ void JsFbProperties::RemoveHeapTracer()
 std::optional<JS::Heap<JS::Value>>
 JsFbProperties::GetProperty( const std::wstring& propName, JS::HandleValue propDefaultValue )
 {    
-    std::string trimmedPropName( Trim( propName ) );
+    std::wstring trimmedPropName( Trim( propName ) );
 
     bool hasProperty = false;
     if ( properties_.count( trimmedPropName ) )
@@ -143,7 +143,7 @@ JsFbProperties::GetProperty( const std::wstring& propName, JS::HandleValue propD
 
 bool JsFbProperties::SetProperty( const std::wstring& propName, JS::HandleValue propValue )
 {
-    std::string trimmedPropName( Trim( propName ) );
+    std::wstring trimmedPropName( Trim( propName ) );
 
     if ( propValue.isNullOrUndefined() )
     {

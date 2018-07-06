@@ -16,14 +16,7 @@
             InvokeNativeCallback<optArgCount>( cx, &baseClass::functionName, &baseClass::functionWithOptName, argc, vp );\
         if (!bRet)\
         {\
-            pfc::string8_fast innerErrorText(mozjs::GetCurrentExceptionText(cx));\
-            if (!innerErrorText.is_empty())\
-            {\
-                pfc::string8_fast tmpString = ": \n";\
-                tmpString += innerErrorText;\
-                innerErrorText.set_string( tmpString );\
-            }\
-            JS_ReportErrorUTF8( cx, "'%s' failed%s", #functionName, innerErrorText.c_str() ); \
+            mozjs::RethrowExceptionWithFunctionName(cx, #functionName);\
         }\
         return bRet;\
     }
@@ -37,14 +30,7 @@
         bool bRet = functionImplName(cx, argc, vp);\
         if (!bRet)\
         {\
-            pfc::string8_fast innerErrorText(mozjs::GetCurrentExceptionText(cx));\
-            if (!innerErrorText.is_empty())\
-            {\
-                pfc::string8_fast tmpString = ": \n";\
-                tmpString += innerErrorText;\
-                innerErrorText.set_string( tmpString );\
-            }\
-            JS_ReportErrorUTF8( cx, "'%s' failed%s", #functionName, innerErrorText.c_str() ); \
+            mozjs::RethrowExceptionWithFunctionName(cx, #functionName);\
         }\
         return bRet;\
     }

@@ -1,6 +1,7 @@
 #include <stdafx.h>
 #include "js_error_helper.h"
 
+#include <js_engine/native_to_js_converter.h>
 #include <js_objects/global_object.h>
 
 #include <popup_msg.h>
@@ -76,8 +77,7 @@ AutoReportException::~AutoReportException()
 
     JSErrorReport* report = JS_ErrorFromException( cx, excnObject );
     if ( !report )
-    {
-        assert( 0 );
+    {// Can sometimes happen :/
         return;
     }
 
@@ -98,7 +98,6 @@ AutoReportException::~AutoReportException()
         if ( report->linebufLength() )
         {
             scFail.errorText += "\n";
-            // <codecvt> is deprecated in C++17...
             scFail.errorText += pfc::stringcvt::string_utf8_from_utf16( report->linebuf(), report->linebufLength() );
         }
     }
@@ -182,6 +181,70 @@ pfc::string8_fast GetCurrentExceptionText( JSContext* cx )
 
     JS_ClearPendingException( cx );
     return report->message().c_str();
+}
+
+void RethrowExceptionWithFunctionName( JSContext* cx, const char* functionName )
+{
+    // TODO: wrap JS_ReportErrorUTF8 to scoped
+    if ( !JS_IsExceptionPending( cx ) )
+    {
+        JS_ReportErrorUTF8( cx, "'%s' failed", functionName );
+        return;
+    }
+
+    // Get exception object before printing and clearing exception.
+    JS::RootedValue excn( cx );
+    (void)JS_GetPendingException( cx, &excn );
+
+    if ( !excn.isObject() )
+    {// Sometimes happens with custom JS errors
+        JS_ReportErrorUTF8( cx, "'%s' failed", functionName );
+        return;
+    }
+
+    JS::RootedObject excnObject( cx, &excn.toObject() );
+
+    JSErrorReport* report = JS_ErrorFromException( cx, excnObject );
+    if ( !report )
+    {// Sometimes happens with custom JS errors
+        JS_ReportErrorUTF8( cx, "'%s' failed", functionName );
+        return;
+    }
+
+    pfc::string8_fast currentMessage = report->message().c_str();
+    pfc::string8_fast newMessage; 
+    newMessage += "'";
+    newMessage += functionName;
+    newMessage += "'";
+    newMessage += (" failed" );
+    if ( currentMessage.length() )
+    {
+        newMessage += ( ":\n" );
+        newMessage += currentMessage;
+    }
+   
+    JS::RootedValue jsFilename( cx );
+    JS::RootedValue jsMessage( cx );
+    if ( !convert::to_js::ToValue<pfc::string8_fast>( cx, report->filename, &jsFilename )
+         || !convert::to_js::ToValue<pfc::string8_fast>( cx, newMessage, &jsMessage ) )
+    {
+        JS_ReportErrorUTF8( cx, "'%s' failed", functionName );
+        return;
+    }
+
+    JS::RootedObject excnStack( cx, JS::ExceptionStackOrNull( excnObject ) );
+    JS::RootedValue newExcn( cx );
+    JS::RootedString jsFilenameStr( cx, jsFilename.toString() );
+    JS::RootedString jsMessageStr( cx, jsMessage.toString() );
+
+    if ( !JS::CreateError( cx, (JSExnType)report->exnType, excnStack, jsFilenameStr, report->lineno, report->column, nullptr, jsMessageStr, &newExcn ) )
+    {
+        JS_ReportErrorUTF8( cx, "'%s' failed", functionName );
+        return;
+    }
+
+    JS_ClearPendingException( cx );
+    JS_SetPendingException( cx, newExcn );
 }
 
 }

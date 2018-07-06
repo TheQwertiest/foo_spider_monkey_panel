@@ -867,11 +867,12 @@ void js_panel_window::on_font_changed()
 
 void js_panel_window::on_get_album_art_done( LPARAM lp )
 {
-    std::unique_ptr<mozjs::art::AsyncArtTaskResult> param( reinterpret_cast<mozjs::art::AsyncArtTaskResult*>(lp) );
+    // Destroyed by task runner, no need to keep track
+    auto param = reinterpret_cast<mozjs::art::AsyncArtTaskResult*>(lp);
     auto autoRet = jsContainer_.InvokeJsCallback( "on_get_album_art_done",
                                                   static_cast<metadb_handle_ptr>(param->handle),
                                                   static_cast<uint32_t>(param->artId),
-                                                  static_cast<Gdiplus::Bitmap*>(param->bitmap.get()),
+                                                  static_cast<Gdiplus::Bitmap*>(param->bitmap ? param->bitmap.get() : nullptr),
                                                   static_cast<pfc::string8_fast>(param->imagePath) );
     if ( autoRet )
     {
@@ -909,9 +910,8 @@ void js_panel_window::on_key_up( WPARAM wp )
 
 void js_panel_window::on_load_image_done( LPARAM lp )
 {
-    return;
-
-    std::unique_ptr<mozjs::image::AsyncImageTaskResult> param( reinterpret_cast<mozjs::image::AsyncImageTaskResult*>(lp) );
+    // Destroyed by task runner, no need to keep track
+    auto param = reinterpret_cast<mozjs::image::AsyncImageTaskResult*>(lp);
     auto autoRet = jsContainer_.InvokeJsCallback( "on_load_image_done",
                                                   static_cast<Gdiplus::Bitmap*>(param->bitmap.get()),
                                                   static_cast<pfc::string8_fast>(param->imagePath) );
