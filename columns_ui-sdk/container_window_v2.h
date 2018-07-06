@@ -2,77 +2,6 @@
 
 namespace ui_helpers {
 
-/**
- * \brief Implements a window that serves either as an empty container for other windows, or as a custom control
- * This is a newer version of ui_helpers::container_window, and has not been extensively used/tested.
- */
-template <typename TBase>
-class container_window_v2_t : public TBase {
-private:
-    container_window_v2_t(const container_window_v2_t<TBase>& p_source){};
-
-public:
-    enum : uint32_t {
-        flag_forward_system_settings_change = (1 << 0),
-        flag_forward_system_colours_change = (1 << 1),
-        flag_forward_system_time_change = (1 << 2),
-        flag_transparent_background = (1 << 3),
-        flag_default_flags
-        = flag_forward_system_settings_change | flag_forward_system_colours_change | flag_forward_system_time_change,
-        flag_default_flags_plus_transparent_background = flag_default_flags | flag_transparent_background,
-
-        style_child_default = WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
-        ex_style_child_default = WS_EX_CONTROLPARENT,
-
-        style_popup_default = WS_SYSMENU | WS_POPUP | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_CAPTION | WS_THICKFRAME,
-        ex_style_popup_default = WS_EX_DLGMODALFRAME,
-    };
-
-    virtual t_uint32 get_flags() const { return flag_default_flags; }
-    virtual t_uint32 get_styles() const { return style_child_default; }
-    virtual t_uint32 get_ex_styles() const { return ex_style_child_default; }
-
-    virtual t_uint32 get_class_styles() const { return CS_DBLCLKS; }
-    virtual LPWSTR get_class_cursor() const { return IDC_ARROW; }
-    virtual HBRUSH get_class_background() const { return NULL; }
-    virtual const GUID& get_class_guid() = 0;
-    virtual const char* get_window_title() { return ""; };
-    virtual t_uint32 get_class_extra_wnd_bytes() const { return 0; }
-
-    virtual void on_size(t_size cx, t_size cy){};
-    void on_size();
-
-    container_window_v2_t() : m_wnd(NULL), m_autounreg_disabled(false){};
-
-    HWND create(HWND wnd_parent, LPVOID create_param = 0,
-        const ui_helpers::window_position_t& p_window_position = ui_helpers::window_position_null);
-
-    HWND create_in_dialog_units(
-        HWND wnd_dialog, const ui_helpers::window_position_t& p_window_position, LPVOID create_param = NULL);
-
-    void destroy()
-    {
-        m_autounreg_disabled = true;
-        GUID class_guid = get_class_guid();
-        DestroyWindow(m_wnd);
-        g_window_class_manager.class_deref(class_guid);
-    }
-
-    static LRESULT WINAPI g_on_message(HWND wnd, UINT msg, WPARAM wp, LPARAM lp);
-
-    HWND get_wnd() const { return m_wnd; };
-
-    LRESULT __on_message(HWND wnd, UINT msg, WPARAM wp, LPARAM lp);
-
-    // override me
-    // you won't get called for WM_ERASEBKGRND if you specify want_transparent_background
-    virtual LRESULT on_message(HWND wnd, UINT msg, WPARAM wp, LPARAM lp) = 0;
-
-private:
-    HWND m_wnd;
-    bool m_autounreg_disabled;
-};
-
 class print_guid_wide {
 public:
     print_guid_wide(const GUID& p_guid);
@@ -164,6 +93,77 @@ private:
 };
 
 extern window_class_manager g_window_class_manager;
+
+/**
+ * \brief Implements a window that serves either as an empty container for other windows, or as a custom control
+ * This is a newer version of ui_helpers::container_window, and has not been extensively used/tested.
+ */
+template <typename TBase>
+class container_window_v2_t : public TBase {
+private:
+    container_window_v2_t(const container_window_v2_t<TBase>& p_source){};
+
+public:
+    enum : uint32_t {
+        flag_forward_system_settings_change = (1 << 0),
+        flag_forward_system_colours_change = (1 << 1),
+        flag_forward_system_time_change = (1 << 2),
+        flag_transparent_background = (1 << 3),
+        flag_default_flags
+        = flag_forward_system_settings_change | flag_forward_system_colours_change | flag_forward_system_time_change,
+        flag_default_flags_plus_transparent_background = flag_default_flags | flag_transparent_background,
+
+        style_child_default = WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
+        ex_style_child_default = WS_EX_CONTROLPARENT,
+
+        style_popup_default = WS_SYSMENU | WS_POPUP | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_CAPTION | WS_THICKFRAME,
+        ex_style_popup_default = WS_EX_DLGMODALFRAME,
+    };
+
+    virtual t_uint32 get_flags() const { return flag_default_flags; }
+    virtual t_uint32 get_styles() const { return style_child_default; }
+    virtual t_uint32 get_ex_styles() const { return ex_style_child_default; }
+
+    virtual t_uint32 get_class_styles() const { return CS_DBLCLKS; }
+    virtual LPWSTR get_class_cursor() const { return IDC_ARROW; }
+    virtual HBRUSH get_class_background() const { return NULL; }
+    virtual const GUID& get_class_guid() = 0;
+    virtual const char* get_window_title() { return ""; };
+    virtual t_uint32 get_class_extra_wnd_bytes() const { return 0; }
+
+    virtual void on_size(t_size cx, t_size cy){};
+    void on_size();
+
+    container_window_v2_t() : m_wnd(NULL), m_autounreg_disabled(false){};
+
+    HWND create(HWND wnd_parent, LPVOID create_param = 0,
+        const ui_helpers::window_position_t& p_window_position = ui_helpers::window_position_null);
+
+    HWND create_in_dialog_units(
+        HWND wnd_dialog, const ui_helpers::window_position_t& p_window_position, LPVOID create_param = NULL);
+
+    void destroy()
+    {
+        m_autounreg_disabled = true;
+        GUID class_guid = get_class_guid();
+        DestroyWindow(m_wnd);
+        g_window_class_manager.class_deref(class_guid);
+    }
+
+    static LRESULT WINAPI g_on_message(HWND wnd, UINT msg, WPARAM wp, LPARAM lp);
+
+    HWND get_wnd() const { return m_wnd; };
+
+    LRESULT __on_message(HWND wnd, UINT msg, WPARAM wp, LPARAM lp);
+
+    // override me
+    // you won't get called for WM_ERASEBKGRND if you specify want_transparent_background
+    virtual LRESULT on_message(HWND wnd, UINT msg, WPARAM wp, LPARAM lp) = 0;
+
+private:
+    HWND m_wnd;
+    bool m_autounreg_disabled;
+};
 
 template <typename TBase>
 void container_window_v2_t<TBase>::on_size()

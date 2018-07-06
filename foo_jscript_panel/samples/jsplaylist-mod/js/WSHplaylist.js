@@ -285,7 +285,7 @@ oItem = function (playlist, row_index, type, handle, track_index, group_index, t
 					};
 					if (g_font_guifx_found) {
 						gr.SetTextRenderingHint(3);
-						//gr.DrawString(". ".repeat(total_stars_drawable), gdi.Font("lucida console", zoom(12, g_dpi), 2), this.text_colour_default & 0x20ffffff, columns.rating_x - 3 + 03, this.y - 1 - 02, cw + 1, cTrack.height + cTrack.parity, lc_stringformat);
+						//gr.DrawString(". ".repeat(total_stars_drawable), gdi_font("lucida console", zoom(12, g_dpi), 2), this.text_colour_default & 0x20ffffff, columns.rating_x - 3 + 03, this.y - 1 - 02, cw + 1, cTrack.height + cTrack.parity, lc_stringformat);
 						gr.DrawString("b".repeat(total_stars_drawable), g_font_rating, this.text_colour_default & 0x20ffffff, columns.rating_x - 2, this.y, cw + 1, cTrack.height + cTrack.parity, lc_stringformat);
 						gr.DrawString("b".repeat(Math.round(this.rating > total_stars_drawable ? total_stars_drawable : this.rating)), g_font_rating, RGBA(0, 0, 0, 40), columns.rating_x - 2, this.y, cw + 1, cTrack.height + cTrack.parity, lc_stringformat);
 						gr.DrawString("b".repeat(Math.round(this.rating > total_stars_drawable ? total_stars_drawable : this.rating)), g_font_rating, this.rating_color, columns.rating_x - 3, this.y - 1, cw + 1, cTrack.height + cTrack.parity, lc_stringformat);
@@ -359,8 +359,8 @@ oItem = function (playlist, row_index, type, handle, track_index, group_index, t
 						} else {
 							tf2 = "";
 						};
-						DrawColoredText(gr, tf2, gdi.Font(g_fname, g_fsize - 1, g_fstyle), blendColors(this.text_colour, RGB(0, 0, 0), 0.25), cx, tf2_y, cw, tf2_h, p.headerBar.columns[j].DT_align, !this.normalTextColor);
-						//gr.GdiDrawText(tf2, gdi.Font(g_fname, g_fsize - 1, g_fstyle), blendColors(this.text_colour, RGB(0,0,0), 0.25), cx, tf2_y, cw, tf2_h, p.headerBar.columns[j].DT_align | DT_CALCRECT | DT_TOP | DT_END_ELLIPSIS | DT_NOPREFIX);
+						DrawColoredText(gr, tf2, gdi_font(g_fname, g_fsize - 1, g_fstyle), blendColors(this.text_colour, RGB(0, 0, 0), 0.25), cx, tf2_y, cw, tf2_h, p.headerBar.columns[j].DT_align, !this.normalTextColor);
+						//gr.GdiDrawText(tf2, gdi_font(g_fname, g_fsize - 1, g_fstyle), blendColors(this.text_colour, RGB(0,0,0), 0.25), cx, tf2_y, cw, tf2_h, p.headerBar.columns[j].DT_align | DT_CALCRECT | DT_TOP | DT_END_ELLIPSIS | DT_NOPREFIX);
 					};
 					//} catch (e) {};
 				};
@@ -474,13 +474,13 @@ oItem = function (playlist, row_index, type, handle, track_index, group_index, t
 				} else {
 				gr.FillSolidRect(this.x + cover.w, this.y, this.w - cover.w, this.h, RGBA(255,255,255,5));
 				};
-				 */
+				*/
 				// if last empty track of the group, draw group length info
 				/*
 				if (cGroup.extra_rows > 0 && this.track_index_in_group == p.list.groups[this.group_index].count) {
-				gr.gdiDrawText("Total Group Length = " + TimeFromSeconds(Math.round(p.list.groups[this.group_index].total_time_length)), gdi.Font("Arial", 10, 0), g_color_normal_txt, this.x, this.y, this.w - 010, this.h, DT_RIGHT | DT_TOP | DT_VCENTER | DT_CALCRECT | DT_NOPREFIX | DT_SINGLELINE | DT_END_ELLIPSIS);
+				gr.gdiDrawText("Total Group Length = " + TimeFromSeconds(Math.round(p.list.groups[this.group_index].total_time_length)), gdi_font("Arial", 10, 0), g_color_normal_txt, this.x, this.y, this.w - 010, this.h, DT_RIGHT | DT_TOP | DT_VCENTER | DT_CALCRECT | DT_NOPREFIX | DT_SINGLELINE | DT_END_ELLIPSIS);
 				};
-				 */
+				*/
 			};
 
 			// now playing track
@@ -1003,7 +1003,7 @@ oItem = function (playlist, row_index, type, handle, track_index, group_index, t
 						p.list.updateGroupsOnCollapse(this.group_index);
 						};
 						};
-						 */
+						*/
 					} else {
 						if (this.obj) {
 							if (this.obj.collapsed) {

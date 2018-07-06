@@ -436,7 +436,7 @@ function removeAccents(str) {
 	for (var i = 0; i < spec.length; i++) {
 	str = replaceAll(str, norm[i], spec[i]);
 	};
-	 */
+	*/
 	return str;
 };
 //}}

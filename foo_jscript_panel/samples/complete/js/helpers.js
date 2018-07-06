@@ -313,13 +313,6 @@ _.mixin({
 			return gdi.Image(folders.images + value);
 		}
 	},
-	input : function (prompt, title, value) {
-		var p = prompt.toString().replace(/"/g, _.q(' + Chr(34) + ')).replace(/\n/g, _.q(' + Chr(13) + '));
-		var t = title.toString().replace(/"/g, _.q(' + Chr(34) + '));
-		var v = value.toString().replace(/"/g, _.q(' + Chr(34) + '));
-		var tmp = vb.eval('InputBox(' + _.q(p) + ', ' + _.q(t) + ', ' + _.q(v) + ')');
-		return _.isString(tmp) ? _.trim(tmp) : value;
-	},
 	isFile : function (file) {
 		return _.isString(file) ? fso.FileExists(file) : false;
 	},
@@ -484,12 +477,11 @@ _.mixin({
 		}
 	},
 	save : function (file, value) {
-		if (!_.isFolder(utils.FileTest(file, 'split').toArray()[0])) {
-			return;
+		if (_.isFolder(utils.FileTest(file, 'split').toArray()[0]) && utils.WriteTextFile(file, value)) {
+			return true;
 		}
-		if (!utils.WriteTextFile(file, value)) {
-			console.log('Error saving to ' + file);
-		}
+		console.log('Error saving to ' + file);
+		return false;
 	},
 	sb : function (t, x, y, w, h, v, fn) {
 		this.paint = function (gr, colour) {
@@ -605,8 +597,6 @@ var doc = new ActiveXObject('htmlfile');
 var app = new ActiveXObject('Shell.Application');
 var WshShell = new ActiveXObject('WScript.Shell');
 var fso = new ActiveXObject('Scripting.FileSystemObject');
-var vb = new ActiveXObject('ScriptControl');
-vb.Language = 'VBScript';
 
 var DT_LEFT = 0x00000000;
 var DT_CENTER = 0x00000001;

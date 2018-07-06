@@ -1870,7 +1870,7 @@ oBrowser = function (name) {
 			if(TFsorting.length > 0) {
 			this.list.OrderByFormat(fb.TitleFormat(TFsorting), 1);
 			};
-			 */
+			*/
 		};
 
 		this.init_groups();
@@ -2908,7 +2908,7 @@ oBrowser = function (name) {
 				ppt.lineHeightMin = 44;
 				window.SetProperty("SYSTEM Minimal Line Height", ppt.lineHeightMin);
 				};
-				 */
+				*/
 				break;
 			case 2:
 				ppt.albumArtId = 4;
@@ -4073,7 +4073,7 @@ function on_item_focus_change(playlist_idx, from, to) {
 
 };
 
-function on_metadb_changed(metadb_or_metadbs, fromhook) {
+function on_metadb_changed() {
 	// rebuild list
 	if (ppt.sourceMode == 1) {
 		if (filter_text.length > 0) {

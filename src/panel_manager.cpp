@@ -123,25 +123,25 @@ void my_initquit::outputConfigChanged()
 
 void my_library_callback::on_items_added(metadb_handle_list_cref p_data)
 {
-	t_on_data* on_items_added_data = new t_on_data(p_data, false);
+	metadb_callback_data* on_items_added_data = new metadb_callback_data(p_data);
 	panel_manager::instance().post_msg_to_all_pointer(CALLBACK_UWM_ON_LIBRARY_ITEMS_ADDED, on_items_added_data);
 }
 
 void my_library_callback::on_items_modified(metadb_handle_list_cref p_data)
 {
-	t_on_data* on_items_modified_data = new t_on_data(p_data, false);
+	metadb_callback_data* on_items_modified_data = new metadb_callback_data(p_data);
 	panel_manager::instance().post_msg_to_all_pointer(CALLBACK_UWM_ON_LIBRARY_ITEMS_CHANGED, on_items_modified_data);
 }
 
 void my_library_callback::on_items_removed(metadb_handle_list_cref p_data)
 {
-	t_on_data* on_items_removed_data = new t_on_data(p_data, false);
+	metadb_callback_data* on_items_removed_data = new metadb_callback_data(p_data);
 	panel_manager::instance().post_msg_to_all_pointer(CALLBACK_UWM_ON_LIBRARY_ITEMS_REMOVED, on_items_removed_data);
 }
 
 void my_metadb_io_callback::on_changed_sorted(metadb_handle_list_cref p_items_sorted, bool p_fromhook)
 {
-	t_on_data* on_changed_sorted_data = new t_on_data(p_items_sorted, p_fromhook);
+	metadb_callback_data* on_changed_sorted_data = new metadb_callback_data(p_items_sorted);
 	panel_manager::instance().post_msg_to_all_pointer(CALLBACK_UWM_ON_METADB_CHANGED, on_changed_sorted_data);
 }
 

@@ -30,13 +30,12 @@ public:
 		CHAIN_MSG_MAP(CDialogResize<CDialogReplace>)
 	END_MSG_MAP()
 
-	CHARRANGE GetSelection();
-
 	enum
 	{
 		IDD = IDD_DIALOG_REPLACE
 	};
 
+	CHARRANGE GetSelection();
 	LRESULT OnCancel(WORD wNotifyCode, WORD wID, HWND hWndCtl);
 	LRESULT OnEditFindWhatEnChange(WORD wNotifyCode, WORD wID, HWND hWndCtl);
 	LRESULT OnEditReplaceEnChange(WORD wNotifyCode, WORD wID, HWND hWndCtl);
@@ -53,16 +52,16 @@ private:
 	public:
 		typedef CWindowImpl<CEditWithReturn, CEdit> parent;
 
+		BEGIN_MSG_MAP(CEditWithReturn)
+			MESSAGE_HANDLER(WM_CHAR, OnChar)
+			MESSAGE_HANDLER(WM_KEYDOWN, OnKeyDown)
+		END_MSG_MAP()
+
 		BOOL SubclassWindow(HWND hWnd, HWND hParent)
 		{
 			m_parent = hParent;
 			return parent::SubclassWindow(hWnd);
 		}
-
-		BEGIN_MSG_MAP(CEditWithReturn)
-			MESSAGE_HANDLER(WM_CHAR, OnChar)
-			MESSAGE_HANDLER(WM_KEYDOWN, OnKeyDown)
-		END_MSG_MAP()
 
 		LRESULT OnChar(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 		{

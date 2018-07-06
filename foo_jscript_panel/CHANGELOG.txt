@@ -1,3 +1,22 @@
+v2.1.5.2
+- CHG: utils.InputBox is now centred when you open it plus you can now
+       detect when the user presses Cancel. See docs\interfaces.txt.
+- FIX: Fix bug with Autoplaylists sample which prevent existing queries
+       from being edited.
+- CHG: gr.GdiDrawText no longer has any return value.
+
+v2.1.5.1
+- FIX: Fix incorrect spelling on the "Cancel" button in utils.InputBox.
+
+v2.1.5
+- NEW: Add utils.InputBox method. See docs\interfaces.txt.
+- FIX: Update samples in "complete" folder with above method - input is no longer
+       truncated at 254 characters.
+- CHG: Remove "fromhook" argument from "on_metadb_changed" callback. From now on, it
+       will always be "undefined".
+- FIX: Ensure JSPlaylist doesn't load the same font more than once. Previously it
+       was using gdi.Font inside on_paint which is bad practice.
+
 v2.1.4
 - NEW: Add on_dsp_preset_changed callback. See docs\callbacks.txt.
 - NEW: Add fb.GetDSPPresets and fb.SetDSPPreset methods. See docs\interfaces.txt.
@@ -43,7 +62,7 @@ v2.1.0
        has been added. The included playlist samples have been updated so they're
        compatible but they do not make use of the new functionality.
 - NEW: A new on_replaygain_mode_changed callback has been added. See docs\callbacks.txt.
-- CHG: The behaviour of plman.AddLocations with the "select" argument set to "true" has 
+- CHG: The behaviour of plman.AddLocations with the "select" argument set to "true" has
        been slightly modified. See docs\interfaces.txt.
 
 https://github.com/marc2k3/foo_jscript_panel/wiki/Drag-and-Drop

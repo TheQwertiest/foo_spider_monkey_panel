@@ -25,3 +25,8 @@ LRESULT CNameValueEdit::OnCommand(UINT codeNotify, int id, HWND hwndCtl)
 
 	return 0;
 }
+
+void CNameValueEdit::GetValue(pfc::string_base& p_value)
+{
+	p_value = m_value;
+}

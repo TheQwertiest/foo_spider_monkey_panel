@@ -1695,8 +1695,7 @@ public:
 		pT->NormalizeRect(rc);
 		if(!::IsRectEmpty(&rc))
 		{
-			::MapWindowPoints(pT->m_hWnd, NULL, (LPPOINT)&rc, 2);
-			CWindowDC dc(NULL);
+			CClientDC dc(pT->m_hWnd);
 			dc.DrawDragRect(&rc, sizeLines, NULL, sizeLines);
 		}
 	}
@@ -1831,6 +1830,18 @@ public:
 				pT->SetCapture();
 				m_bTracking = true;
 				::SetRect(&m_rcTrack, pt.x, pt.y, pt.x, pt.y);
+
+				RECT rcClip;
+				pT->GetClientRect(&rcClip);
+				if((this->m_ptOffset.x == 0) && (this->m_ptOffset.y == 0))
+				{
+					if(rcClip.right > this->m_sizeAll.cx)
+						rcClip.right = this->m_sizeAll.cx;
+					if(rcClip.bottom > this->m_sizeAll.cy)
+						rcClip.bottom = this->m_sizeAll.cy;
+				}
+				::MapWindowPoints(pT->m_hWnd, NULL, (LPPOINT)&rcClip, 2);
+				::ClipCursor(&rcClip);
 			}	
 		}
 
@@ -1847,8 +1858,8 @@ public:
 			if(pT->PtInDevRect(pt))
 			{
 				pT->DrawTrackRect();
-				m_rcTrack.right = pt.x;
-				m_rcTrack.bottom = pt.y;
+				m_rcTrack.right = pt.x + 1;
+				m_rcTrack.bottom = pt.y + 1;
 				pT->DrawTrackRect();
 			}
 		}
@@ -1881,6 +1892,7 @@ public:
 			pT->Zoom(m_rcTrack);
 			pT->NotifyParentZoomChanged();
 			::SetRectEmpty(&m_rcTrack);
+			::ClipCursor(NULL);
 		}
 
 		bHandled = FALSE;

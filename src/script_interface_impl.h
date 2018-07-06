@@ -522,7 +522,7 @@ public:
 	STDMETHODIMP FillSolidRect(float x, float y, float w, float h, VARIANT colour);
 	STDMETHODIMP GdiAlphaBlend(IGdiRawBitmap* bitmap, int dstX, int dstY, int dstW, int dstH, int srcX, int srcY, int srcW, int srcH, BYTE alpha);
 	STDMETHODIMP GdiDrawBitmap(IGdiRawBitmap* bitmap, int dstX, int dstY, int dstW, int dstH, int srcX, int srcY, int srcW, int srcH);
-	STDMETHODIMP GdiDrawText(BSTR str, IGdiFont* font, VARIANT colour, int x, int y, int w, int h, int format, VARIANT* p);
+	STDMETHODIMP GdiDrawText(BSTR str, IGdiFont* font, VARIANT colour, int x, int y, int w, int h, int format);
 	STDMETHODIMP MeasureString(BSTR str, IGdiFont* font, float x, float y, float w, float h, int flags, IMeasureStringInfo** pp);
 	STDMETHODIMP SetInterpolationMode(int mode);
 	STDMETHODIMP SetSmoothingMode(int mode);
@@ -589,6 +589,7 @@ public:
 	STDMETHODIMP GetSysColour(UINT index, int* p);
 	STDMETHODIMP GetSystemMetrics(UINT index, int* p);
 	STDMETHODIMP Glob(BSTR pattern, UINT exc_mask, UINT inc_mask, VARIANT* p);
+	STDMETHODIMP InputBox(UINT window_id, BSTR prompt, BSTR caption, BSTR def, VARIANT_BOOL error_on_cancel, BSTR* out);
 	STDMETHODIMP IsKeyPressed(UINT vkey, VARIANT_BOOL* p);
 	STDMETHODIMP MapString(BSTR str, UINT lcid, UINT flags, BSTR* pp);
 	STDMETHODIMP PathWildcardMatch(BSTR pattern, BSTR str, VARIANT_BOOL* p);

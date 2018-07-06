@@ -34,6 +34,15 @@ struct simple_callback_data_3 : public pfc::refcounted_object_root
 	}
 };
 
+struct metadb_callback_data : public pfc::refcounted_object_root
+{
+	metadb_handle_list m_items;
+
+	metadb_callback_data(metadb_handle_list_cref p_items) : m_items(p_items)
+	{
+	}
+};
+
 // Only used in message handler
 template <class T>
 class simple_callback_data_scope_releaser
@@ -63,16 +72,6 @@ public:
 
 private:
 	T * m_data;
-};
-
-struct t_on_data : public pfc::refcounted_object_root
-{
-	metadb_handle_list m_items;
-	bool m_fromhook;
-
-	t_on_data(metadb_handle_list_cref p_items, bool p_fromhook) : m_items(p_items), m_fromhook(p_fromhook)
-	{
-	}
 };
 
 class panel_manager
@@ -111,9 +110,12 @@ class my_initquit : public initquit, public ui_selection_callback, public replay
 public:
 	virtual void on_init()
 	{
-		if (helpers::is14())
+		if (static_api_test_t<replaygain_manager_v2>())
 		{
 			replaygain_manager_v2::get()->add_notify(this);
+		}
+		if (static_api_test_t<output_manager_v2>())
+		{
 			output_manager_v2::get()->addCallback(this);
 		}
 		ui_selection_manager_v2::get()->register_callback(this, 0);
@@ -121,9 +123,12 @@ public:
 
 	virtual void on_quit()
 	{
-		if (helpers::is14())
+		if (static_api_test_t<replaygain_manager_v2>())
 		{
 			replaygain_manager_v2::get()->remove_notify(this);
+		}
+		if (static_api_test_t<output_manager_v2>())
+		{
 			output_manager_v2::get()->removeCallback(this);
 		}
 		ui_selection_manager_v2::get()->unregister_callback(this);

@@ -3,11 +3,6 @@
 #include "scintilla_prop_sets.h"
 #include "ui_name_value_edit.h"
 
-namespace
-{
-	preferences_page_factory_t<js_preferences_page_impl> g_pref;
-}
-
 BOOL CDialogPref::OnInitDialog(HWND hwndFocus, LPARAM lParam)
 {
 	DoDataExchange();
@@ -24,26 +19,9 @@ BOOL CDialogPref::OnInitDialog(HWND hwndFocus, LPARAM lParam)
 	return TRUE; // set focus to default control
 }
 
-void CDialogPref::LoadProps(bool reset)
+HWND CDialogPref::get_wnd()
 {
-	if (reset)
-		g_sci_prop_sets.reset();
-
-	pfc::stringcvt::string_os_from_utf8_fast conv;
-	t_sci_prop_set_list& prop_sets = g_sci_prop_sets.val();
-
-	m_props.DeleteAllItems();
-
-	for (t_size i = 0; i < prop_sets.get_count(); ++i)
-	{
-		conv.convert(prop_sets[i].key);
-		m_props.AddItem(i, 0, conv);
-
-		conv.convert(prop_sets[i].val);
-		m_props.AddItem(i, 1, conv);
-	}
-
-	OnChanged();
+	return m_hWnd;
 }
 
 LRESULT CDialogPref::OnPropNMDblClk(LPNMHDR pnmh)
@@ -92,16 +70,33 @@ LRESULT CDialogPref::OnPropNMDblClk(LPNMHDR pnmh)
 	return 0;
 }
 
-void CDialogPref::uGetItemText(int nItem, int nSubItem, pfc::string_base& out)
+t_uint32 CDialogPref::get_state()
 {
-	enum
-	{
-		BUFFER_LEN = 1024
-	};
-	TCHAR buffer[BUFFER_LEN];
+	t_uint32 state = preferences_state::resettable;
 
-	m_props.GetItemText(nItem, nSubItem, buffer, BUFFER_LEN);
-	out.set_string(pfc::stringcvt::string_utf8_from_os(buffer));
+	return state;
+}
+
+void CDialogPref::LoadProps(bool reset)
+{
+	if (reset)
+		g_sci_prop_sets.reset();
+
+	pfc::stringcvt::string_os_from_utf8_fast conv;
+	t_sci_prop_set_list& prop_sets = g_sci_prop_sets.val();
+
+	m_props.DeleteAllItems();
+
+	for (t_size i = 0; i < prop_sets.get_count(); ++i)
+	{
+		conv.convert(prop_sets[i].key);
+		m_props.AddItem(i, 0, conv);
+
+		conv.convert(prop_sets[i].val);
+		m_props.AddItem(i, 1, conv);
+	}
+
+	OnChanged();
 }
 
 void CDialogPref::OnButtonExportBnClicked(WORD wNotifyCode, WORD wID, HWND hWndCtl)
@@ -122,26 +117,26 @@ void CDialogPref::OnButtonImportBnClicked(WORD wNotifyCode, WORD wID, HWND hWndC
 	LoadProps();
 }
 
-void CDialogPref::OnEditChange(WORD, WORD, HWND)
-{
-	OnChanged();
-}
-
 void CDialogPref::OnChanged()
 {
 	m_callback->on_state_changed();
 }
 
-HWND CDialogPref::get_wnd()
+void CDialogPref::OnEditChange(WORD, WORD, HWND)
 {
-	return m_hWnd;
+	OnChanged();
 }
 
-t_uint32 CDialogPref::get_state()
+void CDialogPref::uGetItemText(int nItem, int nSubItem, pfc::string_base& out)
 {
-	t_uint32 state = preferences_state::resettable;
+	enum
+	{
+		BUFFER_LEN = 1024
+	};
+	TCHAR buffer[BUFFER_LEN];
 
-	return state;
+	m_props.GetItemText(nItem, nSubItem, buffer, BUFFER_LEN);
+	out.set_string(pfc::stringcvt::string_utf8_from_os(buffer));
 }
 
 void CDialogPref::apply()
@@ -152,4 +147,9 @@ void CDialogPref::apply()
 void CDialogPref::reset()
 {
 	LoadProps(true);
+}
+
+namespace
+{
+	preferences_page_factory_t<js_preferences_page_impl> g_pref;
 }

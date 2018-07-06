@@ -2559,23 +2559,13 @@ function on_playlist_switch() {
 	brw.repaint();
 };
 
-function on_playlist_items_added(playlist_idx) {
+function on_playlist_items_added() {
 	brw.repaint();
 };
 
-function on_playlist_items_removed(playlist_idx, new_count) {
+function on_playlist_items_removed() {
 	brw.repaint();
 };
-
-function on_playlist_items_reordered(playlist_idx) {};
-
-function on_item_focus_change(playlist, from, to) {};
-
-function on_metadb_changed(metadb_or_metadbs, fromhook) {};
-
-function on_item_selection_change() {};
-
-function on_playlist_items_selection_change() {};
 
 function on_focus(is_focused) {
 	if (brw.inputboxID >= 0) {

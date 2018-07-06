@@ -13,8 +13,8 @@ cInputbox = {
 oInputbox = function (w, h, default_text, empty_text, textcolor, backcolor, bordercolor, backselectioncolor, func, parentObjectName, id, font_size, bg_alpha) {
 	this.id = id;
 	this.font_size = font_size;
-	this.font = gdi.Font("segoe ui", this.font_size, 0);
-	this.font_italic = gdi.Font("segoe ui", this.font_size, 2);
+	this.font = gdi_font("segoe ui", this.font_size, 0);
+	this.font_italic = gdi_font("segoe ui", this.font_size, 2);
 	this.w = w;
 	this.h = h;
 	this.textcolor = textcolor;
@@ -139,8 +139,6 @@ oInputbox = function (w, h, default_text, empty_text, textcolor, backcolor, bord
 	};
 
 	this.CalcText = function () {
-		var arr = cInputbox.temp_gr.GdiDrawText(this.text.substr(this.offset), this.font, 0, 0, 0, 9999999, 9999999, DT_NOPREFIX | DT_CALCRECT).toArray();
-		this.TLength = arr[4];
 		this.TWidth = cInputbox.temp_gr.CalcTextWidth(this.text.substr(this.offset), this.font);
 	};
 
@@ -231,7 +229,7 @@ oInputbox = function (w, h, default_text, empty_text, textcolor, backcolor, bord
 				cInputbox.timer_cursor = false;
 				cInputbox.cursor_state = true;
 				};
-				 */
+				*/
 			};
 			this.repaint();
 			break;

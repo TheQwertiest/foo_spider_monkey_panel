@@ -191,12 +191,12 @@ void prop_kv_config::g_save(const t_map& data, stream_writer* writer, abort_call
 	}
 }
 
-void prop_kv_config::load(stream_reader* reader, abort_callback& abort)
+void prop_kv_config::load(stream_reader* reader, abort_callback& abort) throw()
 {
 	g_load(m_map, reader, abort);
 }
 
-void prop_kv_config::save(stream_writer* writer, abort_callback& abort) const
+void prop_kv_config::save(stream_writer* writer, abort_callback& abort) const throw()
 {
 	g_save(m_map, writer, abort);
 }
@@ -296,7 +296,7 @@ void js_panel_vars::load_config(stream_reader* reader, t_size size, abort_callba
 		catch (...)
 		{
 			reset_config();
-			FB2K_console_formatter() << "Error: " JSP_NAME " v" JSP_VERSION " Configuration has been corrupted. All settings have been reset.";
+			FB2K_console_formatter() << "Error: " JSP_NAME_VERSION " Configuration has been corrupted. All settings have been reset.";
 		}
 	}
 }

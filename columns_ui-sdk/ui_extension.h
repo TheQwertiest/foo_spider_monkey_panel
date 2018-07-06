@@ -145,7 +145,6 @@ namespace ui_extension = uie;
 #include "container_window_v2.h"
 #include "splitter.h"
 #include "visualisation.h"
-#include "imp_helper.h"
 #include "buttons.h"
 #include "columns_ui.h"
 #include "columns_ui_appearance.h"

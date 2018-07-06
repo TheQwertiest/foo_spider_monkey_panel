@@ -16,9 +16,6 @@
 #define COM_QI_ENTRY(Iimpl) \
 			COM_QI_ENTRY_MULTI(Iimpl, Iimpl);
 
-#define COM_QI_ENTRY_COND(Iimpl, cond) \
-			if (cond) COM_QI_ENTRY_MULTI(Iimpl, Iimpl);
-
 #define END_COM_QI_IMPL() \
 			*ppv = NULL; \
 			return E_NOINTERFACE; \

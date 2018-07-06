@@ -48,7 +48,7 @@ _.mixin({
 					gr.GdiDrawText(this.data[i + this.offset].value, panel.fonts.normal, panel.colours.text, this.x + this.text_x, this.y + _.scale(12) + (i * panel.row_height), this.text_width, panel.row_height, LEFT);
 				}
 				break;
-			default: // autoplaylists / last.fm similar artists / musicbrainz links / queue viewer
+			default: // autoplaylists / last.fm similar artists / last.fm recent tracks / musicbrainz links / queue viewer
 				this.text_x = 0;
 				this.text_width = this.w;
 				for (var i = 0; i < Math.min(this.items, this.rows); i++) {
@@ -63,7 +63,7 @@ _.mixin({
 		this.metadb_changed = function () {
 			switch (true) {
 			case this.mode == 'autoplaylists':
-			case this.mode == 'lastfm_info' && this.properties.mode.value == 1:
+			case this.mode == 'lastfm_info' && this.properties.mode.value > 0:
 			case this.mode == 'queue_viewer':
 				break;
 			case !panel.metadb:
@@ -93,6 +93,20 @@ _.mixin({
 				this.artist = temp_artist;
 				this.update();
 				break;
+			}
+		}
+		
+		this.playback_new_track = function () {
+			panel.item_focus_change();
+			this.time_elapsed = 0;
+		}
+		
+		this.playback_time = function () {
+			if (this.mode == 'lastfm_info') {
+				this.time_elapsed++;
+				if (this.time_elapsed == 3 && this.properties.mode.value == 2 && lastfm.username.length) {
+					this.get();
+				}
 			}
 		}
 		
@@ -132,7 +146,6 @@ _.mixin({
 				case this.up_btn.move(x, y):
 				case this.down_btn.move(x, y):
 					break;
-				case this.mode == 'autoplaylists' && this.editing:
 				case !this.in_range:
 					break;
 				case this.mode == 'autoplaylists':
@@ -169,7 +182,6 @@ _.mixin({
 				switch (true) {
 				case this.up_btn.lbtn_up(x, y):
 				case this.down_btn.lbtn_up(x, y):
-				case this.mode == 'autoplaylists' && this.editing:
 				case !this.in_range:
 					break;
 				case this.mode == 'autoplaylists':
@@ -195,7 +207,7 @@ _.mixin({
 		this.rbtn_up = function (x, y) {
 			switch (this.mode) {
 			case 'autoplaylists':
-				panel.m.AppendMenuItem(this.editing ? MF_GRAYED: MF_STRING, 1000, 'Add new autoplaylist...');
+				panel.m.AppendMenuItem(MF_STRING, 1000, 'Add new autoplaylist...');
 				panel.m.AppendMenuSeparator();
 				if (this.deleted_items.length) {
 					_(this.deleted_items)
@@ -211,13 +223,16 @@ _.mixin({
 			case 'lastfm_info':
 				panel.m.AppendMenuItem(MF_STRING, 1100, 'Similar artists');
 				panel.m.AppendMenuItem(MF_STRING, 1101, 'User Charts');
-				panel.m.CheckMenuRadioItem(1100, 1101, this.properties.mode.value + 1100);
+				panel.m.AppendMenuItem(MF_STRING, 1102, 'Recent Tracks');
+				panel.m.CheckMenuRadioItem(1100, 1102, this.properties.mode.value + 1100);
 				panel.m.AppendMenuSeparator();
-				panel.s10.AppendMenuItem(MF_STRING, 1110, 'Open Last.fm website');
-				panel.s10.AppendMenuItem(MF_STRING, 1111, 'Autoplaylist');
-				panel.s10.CheckMenuRadioItem(1110, 1111, this.properties.link.value + 1110);
-				panel.s10.AppendTo(panel.m, this.properties.mode.value == 0 || this.properties.method.value == 0 ? MF_STRING : MF_GRAYED, 'Links');
-				panel.m.AppendMenuSeparator();
+				if (this.properties.mode.value < 2) {
+					panel.s10.AppendMenuItem(MF_STRING, 1110, 'Open Last.fm website');
+					panel.s10.AppendMenuItem(MF_STRING, 1111, 'Autoplaylist');
+					panel.s10.CheckMenuRadioItem(1110, 1111, this.properties.link.value + 1110);
+					panel.s10.AppendTo(panel.m, this.properties.mode.value == 0 || this.properties.method.value == 0 ? MF_STRING : MF_GRAYED, 'Links');
+					panel.m.AppendMenuSeparator();
+				}
 				if (this.properties.mode.value == 1) {
 					_.forEach(this.methods, function (item, i) {
 						panel.m.AppendMenuItem(MF_STRING, i + 1120, _.capitalize(item.display));
@@ -293,7 +308,8 @@ _.mixin({
 				this.reset();
 				break;
 			case 1101:
-				this.properties.mode.set(1);
+			case 1102:
+				this.properties.mode.set(idx - 1100);
 				this.update();
 				break;
 			case 1110:
@@ -349,7 +365,7 @@ _.mixin({
 				panel.item_focus_change();
 				break;
 			case 1400:
-				var tmp = _.input('Enter title formatting', window.Name, this.properties.tf.value);
+				var tmp = utils.InputBox(window.ID, 'Enter title formatting', window.Name, this.properties.tf.value);
 				this.properties.tf.set(tmp || this.properties.tf.default_);
 				_.dispose(this.tfo);
 				this.tfo = fb.TitleFormat(this.properties.tf.value);
@@ -392,7 +408,8 @@ _.mixin({
 				break;
 			case 'lastfm_info':
 				this.filename = '';
-				if (this.properties.mode.value == 0) {
+				switch (this.properties.mode.value) {
+ 				case 0:
 					this.filename = _.artistFolder(this.artist) + 'lastfm.artist.getSimilar.json';
 					if (_.isFile(this.filename)) {
 						this.data = _(_.get(_.jsonParseFile(this.filename), 'similarartists.artist', []))
@@ -410,7 +427,8 @@ _.mixin({
 					} else {
 						this.get();
 					}
-				} else {
+					break;
+				case 1:
 					if (!lastfm.username.length) {
 						console.log(N, 'Last.fm username not set.');
 						break;
@@ -437,6 +455,28 @@ _.mixin({
 						if (_.fileExpired(this.filename, ONE_DAY)) {
 							this.get();
 						}
+					} else {
+						this.get();
+					}
+					break;
+				case 2:
+					if (!lastfm.username.length) {
+						console.log(N, 'Last.fm username not set.');
+						break;
+					}
+					this.filename = folders.lastfm + lastfm.username + '.user.getRecentTracks.json';
+					if (_.isFile(this.filename)) {
+						this.data = _(_.get(_.jsonParseFile(this.filename), 'recenttracks.track', []))
+							.filter('date')
+							.map(function (item) {
+								var name = item.artist['#text'] + ' - ' + item.name;
+								return {
+									name : name,
+									width : _.textWidth(name, panel.fonts.normal),
+									url : item.url
+								};
+							})
+							.value();
 					} else {
 						this.get();
 					}
@@ -560,13 +600,19 @@ _.mixin({
 			var f = this.filename;
 			switch (this.mode) {
 			case 'lastfm_info':
-				if (this.properties.mode.value == 0) {
+				switch (this.properties.mode.value) {
+				case 0:
 					if (!_.tagged(this.artist)) {
 						return;
 					}
 					var url = lastfm.get_base_url() + '&limit=100&method=artist.getSimilar&artist=' + encodeURIComponent(this.artist);
-				} else {
+					break;
+				case 1:
 					var url = lastfm.get_base_url() + '&limit=100&method=' + this.methods[this.properties.method.value].method + '&period=' + this.periods[this.properties.period.value].period + '&user=' + lastfm.username;
+					break;
+				case 2:
+					var url = lastfm.get_base_url() + '&limit=100&method=user.getRecentTracks&user=' + lastfm.username;
+					break;
 				}
 				break;
 			case 'musicbrainz':
@@ -617,13 +663,15 @@ _.mixin({
 					this.mb_offset += 100;
 					this.get();
 				} else {
-					_.save(f, JSON.stringify(this.mb_data));
-					this.reset();
+					if (_.save(f, JSON.stringify(this.mb_data))) {
+						this.reset();
+					}
 				}
 				break;
 			case this.mode == 'musicbrainz': // links
-				_.save(f, this.xmlhttp.responseText);
-				this.reset();
+				if (_.save(f, this.xmlhttp.responseText)) {
+					this.reset();
+				}
 				break;
 			case this.mode == 'lastfm_info':
 				var data = _.jsonParse(this.xmlhttp.responseText);
@@ -635,11 +683,13 @@ _.mixin({
 					if (_.get(data, 'similarartists.artist', []).length == 0) {
 						return;
 					}
-					_.save(f, this.xmlhttp.responseText);
-					this.reset();
+					if (_.save(f, this.xmlhttp.responseText)) {
+						this.reset();
+					}
 				} else {
-					_.save(f, this.xmlhttp.responseText);
-					this.update();
+					if (_.save(f, this.xmlhttp.responseText)) {
+						this.update();
+					}
 				}
 				break;
 			}
@@ -650,7 +700,15 @@ _.mixin({
 			case 'autoplaylists':
 				return 'Autoplaylists';
 			case 'lastfm_info':
-				return this.properties.mode.value == 0 ? this.artist + ': similar artists' : lastfm.username + ': ' + this.periods[this.properties.period.value].display + ' ' + this.methods[this.properties.method.value].display + ' charts';
+				switch (this.properties.mode.value) {
+				case 0:
+					return this.artist + ': similar artists';
+				case 1:
+					return lastfm.username + ': ' + this.periods[this.properties.period.value].display + ' ' + this.methods[this.properties.method.value].display + ' charts';
+				case 2:
+					return lastfm.username + ': recent tracks';
+				}
+				break;
 			case 'musicbrainz':
 				return this.artist + ': ' + (this.properties.mode.value == 0 ? 'releases' : 'links');
 			case 'properties':
@@ -680,19 +738,15 @@ _.mixin({
 				}
 				
 				this.add = function () {
-					if (this.editing) {
+					var new_name = utils.InputBox(window.ID, 'Enter autoplaylist name', window.Name);
+					if (!new_name.length) {
 						return;
 					}
-					this.editing = true;
-					var new_name = _.input('Enter autoplaylist name', window.Name, '');
-					if (new_name == '') {
-						return this.editing = false;
+					var new_query = utils.InputBox(window.ID, 'Enter autoplaylist query', window.Name);
+					if (!new_query.length) {
+						return;
 					}
-					var new_query = _.input('Enter autoplaylist query', window.Name, '');
-					if (new_query == '') {
-						return this.editing = false;
-					}
-					var new_sort = _.input('Enter sort pattern\n\n(optional)', window.Name, '');
+					var new_sort = utils.InputBox(window.ID, 'Enter sort pattern\n\n(optional)', window.Name);
 					var new_forced = (new_sort.length ? WshShell.popup('Force sort?', 0, window.Name, popup.question + popup.yes_no) : popup.no) == popup.yes;
 					this.data.push({
 						name : new_name,
@@ -701,7 +755,6 @@ _.mixin({
 						forced : new_forced
 					});
 					this.edit_done(this.data.length - 1);
-					this.editing = false;
 				}
 				
 				this.edit = function (x, y) {
@@ -720,28 +773,27 @@ _.mixin({
 					m.AppendMenuItem(z < this.data.length - 1 ? MF_STRING : MF_GRAYED, 7, 'Move down');
 					m.AppendMenuSeparator();
 					m.AppendMenuItem(MF_STRING, 8, 'Delete');
-					this.editing = true;
 					var idx = m.TrackPopupMenu(x, y);
 					switch (idx) {
 					case 1:
 						this.run_query(this.data[z].name, this.data[z].query, this.data[z].sort, this.data[z].forced);
 						break;
 					case 2:
-						var new_name = _.input('Rename autoplaylist', window.Name, this.data[z].name);
+						var new_name = utils.InputBox(window.ID, 'Rename autoplaylist', window.Name, this.data[z].name);
 						if (new_name.length && new_name != this.data[z].name) {
 							this.data[z].name = new_name;
 							this.edit_done(z);
 						}
 						break;
-					case 1:
-						var new_query = _.input('Enter autoplaylist query', window.Name, this.data[z].query);
+					case 3:
+						var new_query = utils.InputBox(window.ID, 'Enter autoplaylist query', window.Name, this.data[z].query);
 						if (new_query.length && new_query != this.data[z].query) {
 							this.data[z].query = new_query;
 							this.edit_done(z);
 						}
 						break;
 					case 4:
-						var new_sort = _.input('Enter sort pattern\n\n(optional)', window.Name, this.data[z].sort);
+						var new_sort = utils.InputBox(window.ID, 'Enter sort pattern\n\n(optional)', window.Name, this.data[z].sort);
 						if (new_sort != this.data[z].sort) {
 							this.data[z].sort = new_sort;
 							if (new_sort.length) {
@@ -767,7 +819,6 @@ _.mixin({
 						this.save();
 						break;
 					}
-					this.editing = false;
 					_.dispose(m);
 				}
 				
@@ -790,7 +841,6 @@ _.mixin({
 				}
 				
 				_.createFolder(folders.data);
-				this.editing = false;
 				this.deleted_items = [];
 				this.filename = folders.data + 'autoplaylists.json';
 				this.update();
@@ -799,6 +849,7 @@ _.mixin({
 				_.createFolder(folders.data);
 				_.createFolder(folders.artists);
 				_.createFolder(folders.lastfm);
+				this.time_elapsed = 0;
 				this.ua = lastfm.ua;
 				this.methods = [{
 						method : 'user.getTopArtists',
@@ -841,7 +892,7 @@ _.mixin({
 					colour : new _.p('2K3.LIST.LASTFM.CHARTS.BAR.COLOUR', _.RGB(60, 60, 60)),
 					link : new _.p('2K3.LIST.LASTFM.LINK', 0) // 0 last.fm website 1 autoplaylist
 				};
-				if (this.properties.mode.value == 1) {
+				if (this.properties.mode.value > 0) {
 					this.update();
 				}
 				break;

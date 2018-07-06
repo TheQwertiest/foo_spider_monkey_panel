@@ -102,6 +102,9 @@
     <ClCompile Include="ui_pref.cpp">
       <Filter>Source Files\UI</Filter>
     </ClCompile>
+    <ClCompile Include="ui_input_box.cpp">
+      <Filter>Source Files\UI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="host.h">
@@ -226,6 +229,9 @@
     </ClInclude>
     <ClInclude Include="kmeans.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ui_input_box.h">
+      <Filter>Header Files\UI</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

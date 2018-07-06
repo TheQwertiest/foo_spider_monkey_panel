@@ -579,7 +579,7 @@ void ScriptHost::ReportError(IActiveScriptError* err)
 	}
 
 	pfc::string_formatter formatter;
-	formatter << "Error: " JSP_NAME " v" JSP_VERSION " (" << m_host->ScriptInfo().build_info_string().get_ptr() << ")\n";
+	formatter << "Error: " JSP_NAME_VERSION " (" << m_host->ScriptInfo().build_info_string().get_ptr() << ")\n";
 
 	if (excep.bstrSource && excep.bstrDescription)
 	{

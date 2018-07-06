@@ -1,5 +1,5 @@
 // ==PREPROCESSOR==
-// @name "Last.fm Similar Artists + User Charts"
+// @name "Last.fm Similar Artists + User Charts + Recent Tracks"
 // @author "marc2003"
 // @import "%fb2k_component_path%samples\complete\js\lodash.min.js"
 // @import "%fb2k_component_path%samples\complete\js\helpers.js"
@@ -30,6 +30,14 @@ function on_paint(gr) {
 	gr.GdiDrawText(list.header_text(), panel.fonts.title, panel.colours.highlight, LM, 0, panel.w - (LM * 2), TM, LEFT);
 	gr.DrawLine(list.x, list.y + 1, list.x + list.w, list.y + 1, 1, panel.colours.highlight);
 	list.paint(gr);
+}
+
+function on_playback_new_track() {
+	list.playback_new_track();
+}
+
+function on_playback_time() {
+	list.playback_time();
 }
 
 function on_metadb_changed() {

@@ -2787,9 +2787,9 @@ public:
 
 // dialog resize map macros
 #define BEGIN_DLGRESIZE_MAP(thisClass) \
-	static const _AtlDlgResizeMap* GetDlgResizeMap() \
+	static const typename CDialogResize::_AtlDlgResizeMap* GetDlgResizeMap() \
 	{ \
-		static const _AtlDlgResizeMap theMap[] = \
+		static const typename CDialogResize::_AtlDlgResizeMap theMap[] = \
 		{
 
 #define END_DLGRESIZE_MAP() \

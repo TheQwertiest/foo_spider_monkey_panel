@@ -20,13 +20,12 @@ public:
 		NOTIFY_HANDLER_EX(IDC_LIST_EDITOR_PROP, NM_DBLCLK, OnPropNMDblClk)
 	END_MSG_MAP()
 
-	BOOL OnInitDialog(HWND hwndFocus, LPARAM lParam);
-
 	enum
 	{
-		IDD = IDD_DIALOG_PREFERENCE
+		IDD = IDD_DIALOG_PREF
 	};
 
+	BOOL OnInitDialog(HWND hwndFocus, LPARAM lParam);
 	HWND get_wnd();
 	LRESULT OnPropNMDblClk(LPNMHDR pnmh);
 	t_uint32 get_state();

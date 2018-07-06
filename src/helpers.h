@@ -30,7 +30,6 @@ namespace helpers
 	bool execute_mainmenu_command_by_name(const char* p_name);
 	bool execute_mainmenu_command_recur_v2(mainmenu_node::ptr node, pfc::string8_fast path, const char* p_name, t_size p_name_len);
 	bool find_context_command_recur(const char* p_command, pfc::string_base& p_path, contextmenu_node* p_parent, contextmenu_node*& p_out);
-	bool is14();
 	bool match_menu_command(const pfc::string_base& path, const char* command, t_size command_len = ~0);
 	bool read_album_art_into_bitmap(const album_art_data_ptr& data, Gdiplus::Bitmap** bitmap);
 	bool read_file(const char* path, pfc::string_base& content);
@@ -212,11 +211,6 @@ namespace helpers
 			reset();
 		}
 
-		com_array_reader(VARIANT* pVarSrc) : m_psa(NULL)
-		{
-			convert(pVarSrc);
-		}
-
 		~com_array_reader()
 		{
 			reset();
@@ -359,7 +353,6 @@ namespace helpers
 		LONG m_lbound, m_ubound;
 	};
 
-	template <bool managed = false>
 	class com_array_writer
 	{
 	public:
@@ -370,10 +363,6 @@ namespace helpers
 
 		~com_array_writer()
 		{
-			if (managed)
-			{
-				reset();
-			}
 		}
 
 		SAFEARRAY* get_ptr()
@@ -425,21 +414,21 @@ namespace helpers
 	public:
 		static bool convert(VARIANT items, pfc::bit_array_bittable& out, bool& ok)
 		{
-			com_array_reader arrayReader;
+			com_array_reader helper;
 			ok = true;
 
-			if (!arrayReader.convert(&items)) return false;
-			if (arrayReader.get_count() == 0)
+			if (!helper.convert(&items)) return false;
+			if (helper.get_count() == 0)
 			{
 				ok = false;
 				out.resize(0);
 				return true;
 			}
 
-			for (int i = arrayReader.get_lbound(); i < arrayReader.get_count(); ++i)
+			for (int i = helper.get_lbound(); i < helper.get_count(); ++i)
 			{
 				_variant_t index;
-				arrayReader.get_item(i, index);
+				helper.get_item(i, index);
 				if (FAILED(VariantChangeType(&index, &index, 0, VT_I4))) return false;
 				out.set(index.lVal, true);
 			}

@@ -504,7 +504,7 @@ bool js_panel_window::script_load()
 	// HACK: Script update will not call on_size, so invoke it explicitly
 	SendMessage(m_hwnd, UWM_SIZE, 0, 0);
 
-	FB2K_console_formatter() << JSP_NAME " v" JSP_VERSION " (" << ScriptInfo().build_info_string() << "): initialised in " << (int)(timer.query() * 1000) << " ms";
+	FB2K_console_formatter() << JSP_NAME_VERSION " (" << ScriptInfo().build_info_string() << "): initialised in " << (int)(timer.query() * 1000) << " ms";
 	return true;
 }
 
@@ -512,7 +512,7 @@ ui_helpers::container_window::class_data& js_panel_window::get_class_data() cons
 {
 	static class_data my_class_data =
 	{
-		_T(JSP_WINDOW_CLASS_NAME),
+		_T(JSP_NAME " Class"),
 		_T(""),
 		0,
 		false,
@@ -662,7 +662,7 @@ void js_panel_window::on_load_image_done(LPARAM lp)
 
 void js_panel_window::on_library_items_added(WPARAM wp)
 {
-	simple_callback_data_scope_releaser<t_on_data> data(wp);
+	simple_callback_data_scope_releaser<metadb_callback_data> data(wp);
 	FbMetadbHandleList* handles = new com_object_impl_t<FbMetadbHandleList>(data->m_items);
 
 	VARIANTARG args[1];
@@ -676,7 +676,7 @@ void js_panel_window::on_library_items_added(WPARAM wp)
 
 void js_panel_window::on_library_items_changed(WPARAM wp)
 {
-	simple_callback_data_scope_releaser<t_on_data> data(wp);
+	simple_callback_data_scope_releaser<metadb_callback_data> data(wp);
 	FbMetadbHandleList* handles = new com_object_impl_t<FbMetadbHandleList>(data->m_items);
 
 	VARIANTARG args[1];
@@ -690,7 +690,7 @@ void js_panel_window::on_library_items_changed(WPARAM wp)
 
 void js_panel_window::on_library_items_removed(WPARAM wp)
 {
-	simple_callback_data_scope_releaser<t_on_data> data(wp);
+	simple_callback_data_scope_releaser<metadb_callback_data> data(wp);
 	FbMetadbHandleList* handles = new com_object_impl_t<FbMetadbHandleList>(data->m_items);
 
 	VARIANTARG args[1];
@@ -712,14 +712,12 @@ void js_panel_window::on_main_menu(WPARAM wp)
 
 void js_panel_window::on_metadb_changed(WPARAM wp)
 {
-	simple_callback_data_scope_releaser<t_on_data> data(wp);
+	simple_callback_data_scope_releaser<metadb_callback_data> data(wp);
 	FbMetadbHandleList* handles = new com_object_impl_t<FbMetadbHandleList>(data->m_items);
 
-	VARIANTARG args[2];
-	args[0].vt = VT_BOOL;
-	args[0].boolVal = TO_VARIANT_BOOL(data->m_fromhook);
-	args[1].vt = VT_DISPATCH;
-	args[1].pdispVal = handles;
+	VARIANTARG args[1];
+	args[0].vt = VT_DISPATCH;
+	args[0].pdispVal = handles;
 	script_invoke_v(CallbackIds::on_metadb_changed, args, _countof(args));
 
 	if (handles)
