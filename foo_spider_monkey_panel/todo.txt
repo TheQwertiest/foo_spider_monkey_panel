@@ -1,6 +1,5 @@
 # Current
-- replace JS_ReportErrorASCII with JS_ReportErrorUTF8
-- std::string does not work properly with utf8, replace it!
+- Check utf8 literals everywhere (paths, script window, script files, properties, callback arguments)
 - Check drag-n-drop functionality.
 - Check that all files are correctly parsed: UTF8, UTF8-BOM, ASCII.
 - Rewrite ActiveXObject properly (and rename the files as well).
@@ -24,7 +23,11 @@
 - See if it's possible to export some common Array checking/creating/parsing code.
 
 # Maybe
+- Replace in-repository scintilla with it's submodule.
+- Update scintilla to the latest version.
+- Update scintilla JS keywords list
+- Replace in-repository wtl with it's submodule.
 - Raise warning level to W4 or WALL with WERROR
 - Add help to properties and methods (JS_DefineFunctionsWithHelp)
-- Replace separate JSON parser with the one from JS engine.
+- Investigate: separate native JSON parser vs one from SpiderMonkey engine.
 - Minimal .js tests for all the functionality.
