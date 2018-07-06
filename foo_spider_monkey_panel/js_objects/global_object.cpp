@@ -143,7 +143,7 @@ const JSClass& JsGlobalObject::GetClass()
     return jsClass;
 }
 
-void JsGlobalObject::Fail( std::string_view errorText )
+void JsGlobalObject::Fail( pfc::string8_fast errorText )
 {
     parentContainer_.Fail();
     parentPanel_.JsEngineFail( errorText );

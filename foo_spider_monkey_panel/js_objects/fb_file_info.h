@@ -20,12 +20,12 @@ public:
     static const JSClass& GetClass();
 
 public:
-    std::optional<int32_t>InfoFind( const std::string& name );
-    std::optional<std::string>InfoName( uint32_t idx );
-    std::optional<std::string>InfoValue( uint32_t idx );
-    std::optional<int32_t>MetaFind( const std::string& name );
-    std::optional<std::string>MetaName( uint32_t idx );
-    std::optional<std::string>MetaValue( uint32_t idx, uint32_t vidx );
+    std::optional<int32_t>InfoFind( const pfc::string8_fast& name );
+    std::optional<pfc::string8_fast>InfoName( uint32_t idx );
+    std::optional<pfc::string8_fast>InfoValue( uint32_t idx );
+    std::optional<int32_t>MetaFind( const pfc::string8_fast& name );
+    std::optional<pfc::string8_fast>MetaName( uint32_t idx );
+    std::optional<pfc::string8_fast>MetaValue( uint32_t idx, uint32_t vidx );
     std::optional<uint32_t>MetaValueCount( uint32_t idx );
 
 public:

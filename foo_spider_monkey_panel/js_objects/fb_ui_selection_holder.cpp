@@ -109,7 +109,7 @@ JsFbUiSelectionHolder::SetSelection( JsFbMetadbHandleList* handles )
 {
     if ( !handles )
     {
-        JS_ReportErrorASCII( pJsCtx_, "handles argument is null" );
+        JS_ReportErrorUTF8( pJsCtx_, "handles argument is null" );
         return std::nullopt;
     }
 

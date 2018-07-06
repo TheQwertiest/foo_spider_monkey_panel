@@ -153,14 +153,14 @@ JsFbMetadbHandleList::Add( JsFbMetadbHandle* handle )
 {
     if ( !handle )
     {
-        JS_ReportErrorASCII( pJsCtx_, "handle argument is null" );
+        JS_ReportErrorUTF8( pJsCtx_, "handle argument is null" );
         return std::nullopt;
     }
 
     metadb_handle_ptr fbHandle( handle->GetHandle() );
     if ( fbHandle.is_empty() )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Internal error: FbMetadbHandle does not contain valid handle" );
+        JS_ReportErrorUTF8( pJsCtx_, "Internal error: FbMetadbHandle does not contain valid handle" );
         return std::nullopt;
     }
 
@@ -173,7 +173,7 @@ JsFbMetadbHandleList::AddRange( JsFbMetadbHandleList* handles )
 {
     if ( !handles )
     {
-        JS_ReportErrorASCII( pJsCtx_, "handles argument is null" );
+        JS_ReportErrorUTF8( pJsCtx_, "handles argument is null" );
         return std::nullopt;
     }
     
@@ -186,14 +186,14 @@ JsFbMetadbHandleList::BSearch( JsFbMetadbHandle* handle )
 {
     if ( !handle )
     {
-        JS_ReportErrorASCII( pJsCtx_, "handle argument is null" );
+        JS_ReportErrorUTF8( pJsCtx_, "handle argument is null" );
         return std::nullopt;
     }
 
     metadb_handle_ptr fbHandle( handle->GetHandle() );
     if ( fbHandle.is_empty() )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Internal error: FbMetadbHandle does not contain valid handle" );
+        JS_ReportErrorUTF8( pJsCtx_, "Internal error: FbMetadbHandle does not contain valid handle" );
         return std::nullopt;
     }
 
@@ -218,7 +218,7 @@ JsFbMetadbHandleList::Clone()
     JS::RootedObject jsObject( pJsCtx_, JsFbMetadbHandleList::Create( pJsCtx_, metadbHandleList_ ) );
     if ( !jsObject )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Internal error: failed to create JS object" );
+        JS_ReportErrorUTF8( pJsCtx_, "Internal error: failed to create JS object" );
         return std::nullopt;
     }
 
@@ -244,14 +244,14 @@ JsFbMetadbHandleList::Convert()
         jsObject = JsFbMetadbHandle::Create( pJsCtx_, metadbHandleList_.get_item_ref( i ));
         if ( !jsObject )
         {
-            JS_ReportErrorASCII( pJsCtx_, "Internal error: failed to create JS object" );
+            JS_ReportErrorUTF8( pJsCtx_, "Internal error: failed to create JS object" );
             return std::nullopt;
         }
 
         jsValue.set(JS::ObjectValue( *jsObject ));
         if ( !JS_SetElement( pJsCtx_, jsArray, i, jsValue ) )
         {
-            JS_ReportErrorASCII( pJsCtx_, "Internal error: JS_SetElement failed" );
+            JS_ReportErrorUTF8( pJsCtx_, "Internal error: JS_SetElement failed" );
             return std::nullopt;
         }
     }
@@ -264,14 +264,14 @@ JsFbMetadbHandleList::Find( JsFbMetadbHandle* handle )
 {
     if ( !handle )
     {
-        JS_ReportErrorASCII( pJsCtx_, "handle argument is null" );
+        JS_ReportErrorUTF8( pJsCtx_, "handle argument is null" );
         return std::nullopt;
     }
 
     metadb_handle_ptr fbHandle( handle->GetHandle() );
     if ( fbHandle.is_empty() )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Internal error: FbMetadbHandle does not contain valid handle" );
+        JS_ReportErrorUTF8( pJsCtx_, "Internal error: FbMetadbHandle does not contain valid handle" );
         return std::nullopt;
     }
 
@@ -304,16 +304,16 @@ JsFbMetadbHandleList::GetLibraryRelativePaths()
             path = "";
         }
 
-        std::string tmpString( path.c_str(), path.length() );
+        pfc::string8_fast tmpString( path.c_str(), path.length() );
         if ( !convert::to_js::ToValue( pJsCtx_, tmpString, &jsValue ) )
         {
-            JS_ReportErrorASCII( pJsCtx_, "Internal error: cast to JSString failed" );
+            JS_ReportErrorUTF8( pJsCtx_, "Internal error: cast to JSString failed" );
             return std::nullopt;
         }
 
         if ( !JS_SetElement( pJsCtx_, jsArray, i, jsValue ) )
         {
-            JS_ReportErrorASCII( pJsCtx_, "Internal error: JS_SetElement failed" );
+            JS_ReportErrorUTF8( pJsCtx_, "Internal error: JS_SetElement failed" );
             return std::nullopt;
         }
     }
@@ -326,14 +326,14 @@ JsFbMetadbHandleList::Insert( uint32_t index, JsFbMetadbHandle* handle )
 {
     if ( !handle )
     {
-        JS_ReportErrorASCII( pJsCtx_, "handle argument is null" );
+        JS_ReportErrorUTF8( pJsCtx_, "handle argument is null" );
         return std::nullopt;
     }
 
     metadb_handle_ptr fbHandle( handle->GetHandle() );
     if ( fbHandle.is_empty() )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Internal error: FbMetadbHandle does not contain valid handle" );
+        JS_ReportErrorUTF8( pJsCtx_, "Internal error: FbMetadbHandle does not contain valid handle" );
         return std::nullopt;
     }
 
@@ -346,7 +346,7 @@ JsFbMetadbHandleList::InsertRange( uint32_t index, JsFbMetadbHandleList* handles
 {
     if ( !handles )
     {
-        JS_ReportErrorASCII( pJsCtx_, "handles argument is null" );
+        JS_ReportErrorUTF8( pJsCtx_, "handles argument is null" );
         return std::nullopt;
     }
 
@@ -359,7 +359,7 @@ JsFbMetadbHandleList::MakeDifference( JsFbMetadbHandleList* handles )
 {
     if ( !handles )
     {
-        JS_ReportErrorASCII( pJsCtx_, "handles argument is null" );
+        JS_ReportErrorUTF8( pJsCtx_, "handles argument is null" );
         return std::nullopt;
     }
 
@@ -397,7 +397,7 @@ JsFbMetadbHandleList::MakeIntersection( JsFbMetadbHandleList* handles )
 {
     if ( !handles )
     {
-        JS_ReportErrorASCII( pJsCtx_, "handles argument is null" );
+        JS_ReportErrorUTF8( pJsCtx_, "handles argument is null" );
         return std::nullopt;
     }
 
@@ -435,7 +435,7 @@ JsFbMetadbHandleList::MakeUnion( JsFbMetadbHandleList* handles )
 {
     if ( !handles )
     {
-        JS_ReportErrorASCII( pJsCtx_, "handles argument is null" );
+        JS_ReportErrorUTF8( pJsCtx_, "handles argument is null" );
         return std::nullopt;
     }
 
@@ -449,7 +449,7 @@ JsFbMetadbHandleList::OrderByFormat( JsFbTitleFormat* script, int8_t direction )
 {
     if ( !script )
     {
-        JS_ReportErrorASCII( pJsCtx_, "script argument is null" );
+        JS_ReportErrorUTF8( pJsCtx_, "script argument is null" );
         return std::nullopt;
     }
 
@@ -536,14 +536,14 @@ JsFbMetadbHandleList::Remove( JsFbMetadbHandle* handle )
 {
     if ( !handle )
     {
-        JS_ReportErrorASCII( pJsCtx_, "handle argument is null" );
+        JS_ReportErrorUTF8( pJsCtx_, "handle argument is null" );
         return std::nullopt;
     }
 
     metadb_handle_ptr fbHandle( handle->GetHandle() );
     if ( fbHandle.is_empty() )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Internal error: FbMetadbHandle does not contain valid handle" );
+        JS_ReportErrorUTF8( pJsCtx_, "Internal error: FbMetadbHandle does not contain valid handle" );
         return std::nullopt;
     }
 
@@ -563,7 +563,7 @@ JsFbMetadbHandleList::RemoveById( uint32_t index )
 {
     if ( index >= metadbHandleList_.get_count() )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Index is out of bounds" );
+        JS_ReportErrorUTF8( pJsCtx_, "Index is out of bounds" );
         return std::nullopt;
     }
     metadbHandleList_.remove_by_idx( index );
@@ -585,7 +585,7 @@ JsFbMetadbHandleList::Sort()
 }
 
 std::optional<std::nullptr_t> 
-JsFbMetadbHandleList::UpdateFileInfoFromJSON( const std::string& str )
+JsFbMetadbHandleList::UpdateFileInfoFromJSON( const pfc::string8_fast& str )
 {
     // TODO: investigate
     uint32_t count = metadbHandleList_.get_count();
@@ -604,7 +604,7 @@ JsFbMetadbHandleList::UpdateFileInfoFromJSON( const std::string& str )
         {
             if ( o.size() != count )
             {
-                JS_ReportErrorASCII( pJsCtx_, "Invalid JSON info: mismatched with handle count" );
+                JS_ReportErrorUTF8( pJsCtx_, "Invalid JSON info: mismatched with handle count" );
                 return std::nullopt;
             }
             isArray = true;
@@ -613,20 +613,20 @@ JsFbMetadbHandleList::UpdateFileInfoFromJSON( const std::string& str )
         {
             if ( o.size() == 0 )
             {
-                //JS_ReportErrorASCII( pJsCtx_, "???" );
+                //JS_ReportErrorUTF8( pJsCtx_, "???" );
                 return std::nullopt;
             }
             isArray = false;
         }
         else
         {
-            //JS_ReportErrorASCII( pJsCtx_, "???" );
+            //JS_ReportErrorUTF8( pJsCtx_, "???" );
             return std::nullopt;
         }
     }
     catch ( ... )
     {// TODO: add error handling
-        JS_ReportErrorASCII( pJsCtx_, "JSON parsing failed" );
+        JS_ReportErrorUTF8( pJsCtx_, "JSON parsing failed" );
         return std::nullopt;
     }
 
@@ -638,7 +638,7 @@ JsFbMetadbHandleList::UpdateFileInfoFromJSON( const std::string& str )
         json obj = isArray ? o[i] : o;
         if ( !obj.is_object() || obj.size() == 0 )
         {
-            //JS_ReportErrorASCII( pJsCtx_, "???" );
+            //JS_ReportErrorUTF8( pJsCtx_, "???" );
             return std::nullopt;
         }
 
@@ -647,11 +647,11 @@ JsFbMetadbHandleList::UpdateFileInfoFromJSON( const std::string& str )
 
         for ( json::iterator it = obj.begin(); it != obj.end(); ++it )
         {
-            std::string key = it.key();
+            pfc::string8_fast key = it.key().c_str();
             pfc::string8 key8 = key.c_str();
             if ( key8.is_empty() )
             {
-                //JS_ReportErrorASCII( pJsCtx_, "???" );
+                //JS_ReportErrorUTF8( pJsCtx_, "???" );
                 return std::nullopt;
             }
 
@@ -701,14 +701,14 @@ JsFbMetadbHandleList::get_Item( uint32_t index )
 {
     if( index >= metadbHandleList_.get_count() )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Index is out of bounds" );
+        JS_ReportErrorUTF8( pJsCtx_, "Index is out of bounds" );
         return std::nullopt;
     }
 
     JS::RootedObject jsObject( pJsCtx_, JsFbMetadbHandle::Create( pJsCtx_, metadbHandleList_.get_item_ref( index ) ) );
     if ( !jsObject )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Internal error: failed to create JS object" );
+        JS_ReportErrorUTF8( pJsCtx_, "Internal error: failed to create JS object" );
         return std::nullopt;
     }
     
@@ -721,20 +721,20 @@ JsFbMetadbHandleList::put_Item( uint32_t index, JsFbMetadbHandle* handle )
 {
     if ( index >= metadbHandleList_.get_count() )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Index is out of bounds" );
+        JS_ReportErrorUTF8( pJsCtx_, "Index is out of bounds" );
         return std::nullopt;
     }
 
     if ( !handle )
     {
-        JS_ReportErrorASCII( pJsCtx_, "handle argument is null" );
+        JS_ReportErrorUTF8( pJsCtx_, "handle argument is null" );
         return std::nullopt;
     }
 
     metadb_handle_ptr fbHandle( handle->GetHandle() );
     if ( fbHandle.is_empty() )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Internal error: FbMetadbHandle does not contain valid handle" );
+        JS_ReportErrorUTF8( pJsCtx_, "Internal error: FbMetadbHandle does not contain valid handle" );
         return std::nullopt;
     }
 

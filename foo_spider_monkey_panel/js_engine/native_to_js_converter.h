@@ -53,13 +53,10 @@ template <>
 bool ToValue<float>( JSContext * cx, const float& inValue, JS::MutableHandleValue wrappedValue );
 
 template <>
-bool ToValue<std::string_view>( JSContext * cx, const std::string_view& inValue, JS::MutableHandleValue wrappedValue );
+bool ToValue<pfc::string8_fast>( JSContext * cx, const pfc::string8_fast& inValue, JS::MutableHandleValue wrappedValue );
 
 template <>
 bool ToValue<std::wstring_view>( JSContext * cx, const std::wstring_view& inValue, JS::MutableHandleValue wrappedValue );
-
-template <>
-bool ToValue<std::string>( JSContext * cx, const std::string& inValue, JS::MutableHandleValue wrappedValue );
 
 template <>
 bool ToValue<std::wstring>( JSContext * cx, const std::wstring& inValue, JS::MutableHandleValue wrappedValue );

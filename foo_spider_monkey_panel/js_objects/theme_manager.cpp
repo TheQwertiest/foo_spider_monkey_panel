@@ -102,7 +102,7 @@ JsThemeManager::DrawThemeBackground( JsGdiGraphics* gr,
 {
     if ( !gr )
     {
-        JS_ReportErrorASCII( pJsCtx_, "gr argument is null" );
+        JS_ReportErrorUTF8( pJsCtx_, "gr argument is null" );
         return std::nullopt;
     }
 
@@ -135,7 +135,7 @@ JsThemeManager::DrawThemeBackgroundWithOpt( size_t optArgCount, JsGdiGraphics* g
 {
     if ( optArgCount > 4 )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
+        JS_ReportErrorUTF8( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
         return std::nullopt;
     }
 
@@ -178,7 +178,7 @@ JsThemeManager::SetPartAndStateIDWithOpt( size_t optArgCount, int32_t partid, in
 {
     if ( optArgCount > 1 )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
+        JS_ReportErrorUTF8( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
         return std::nullopt;
     }
 

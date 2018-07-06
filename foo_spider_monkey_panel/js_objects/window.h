@@ -43,9 +43,9 @@ public: // methods
     std::optional<JSObject*> GetFontCUI( uint32_t type, const std::wstring& guidstr = L"" );
     std::optional<JSObject*> GetFontCUIWithOpt( size_t optArgCount, uint32_t type, const std::wstring& guidstr );
     std::optional<JSObject*> GetFontDUI( uint32_t type );
-    std::optional<JS::Heap<JS::Value>> GetProperty( const std::string& name, JS::HandleValue defaultval = JS::NullHandleValue );
-    std::optional<JS::Heap<JS::Value>> GetPropertyWithOpt( size_t optArgCount, const std::string& name, JS::HandleValue defaultval  );
-    std::optional<std::nullptr_t> NotifyOthers( const std::string& name, JS::HandleValue info );
+    std::optional<JS::Heap<JS::Value>> GetProperty( const std::wstring& name, JS::HandleValue defaultval = JS::NullHandleValue );
+    std::optional<JS::Heap<JS::Value>> GetPropertyWithOpt( size_t optArgCount, const std::wstring& name, JS::HandleValue defaultval  );
+    std::optional<std::nullptr_t> NotifyOthers( const pfc::string8_fast& name, JS::HandleValue info );
     std::optional<std::nullptr_t> Reload();
     std::optional<std::nullptr_t> Repaint( bool force = false);
     std::optional<std::nullptr_t> RepaintWithOpt( size_t optArgCount, bool force );
@@ -53,8 +53,8 @@ public: // methods
     std::optional<std::nullptr_t> RepaintRectWithOpt( size_t optArgCount, uint32_t x, uint32_t y, uint32_t w, uint32_t h, bool force );
     std::optional<std::nullptr_t> SetCursor( uint32_t id );
     std::optional<uint32_t> SetInterval( JS::HandleValue func, uint32_t delay );
-    std::optional<std::nullptr_t> SetProperty( const std::string& name, JS::HandleValue val = JS::NullHandleValue );
-    std::optional<std::nullptr_t> SetPropertyWithOpt( size_t optArgCount, const std::string& name, JS::HandleValue val );
+    std::optional<std::nullptr_t> SetProperty( const std::wstring& name, JS::HandleValue val = JS::NullHandleValue );
+    std::optional<std::nullptr_t> SetPropertyWithOpt( size_t optArgCount, const std::wstring& name, JS::HandleValue val );
     std::optional<uint32_t> SetTimeout( JS::HandleValue func, uint32_t delay );
     std::optional<std::nullptr_t> ShowConfigure();
     std::optional<std::nullptr_t> ShowProperties();
@@ -70,7 +70,7 @@ public: // props
     std::optional<uint32_t> get_MaxWidth();
     std::optional<uint32_t> get_MinHeight();
     std::optional<uint32_t> get_MinWidth();
-    std::optional<std::string> get_Name();
+    std::optional<pfc::string8_fast> get_Name();
     std::optional<uint32_t> get_Width();
     std::optional<std::nullptr_t> put_DlgCode( uint32_t code );
     std::optional<std::nullptr_t> put_MaxHeight( uint32_t height );

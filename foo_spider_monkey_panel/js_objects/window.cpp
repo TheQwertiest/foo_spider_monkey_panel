@@ -209,7 +209,7 @@ JsWindow::CreatePopupMenu()
     JS::RootedObject jsObject( pJsCtx_, JsMenuObject::Create( pJsCtx_, parentPanel_.GetHWND() ) );
     if ( !jsObject )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Internal error: failed to create JS object" );
+        JS_ReportErrorUTF8( pJsCtx_, "Internal error: failed to create JS object" );
         return std::nullopt;
     }
 
@@ -222,7 +222,7 @@ JsWindow::CreateThemeManager( const std::wstring& classid )
     JS::RootedObject jsObject( pJsCtx_, JsThemeManager::Create( pJsCtx_, parentPanel_.GetHWND(), classid ) );
     if ( !jsObject )
     {// TODO: may not be an internal error, if classid is wrong
-        JS_ReportErrorASCII( pJsCtx_, "Internal error: failed to create JS object" );
+        JS_ReportErrorUTF8( pJsCtx_, "Internal error: failed to create JS object" );
         return std::nullopt;
     }
 
@@ -240,7 +240,7 @@ JsWindow::CreateTooltip( const std::wstring& name, float pxSize, uint32_t style 
     JS::RootedObject jsObject( pJsCtx_, JsFbTooltip::Create( pJsCtx_, parentPanel_.GetHWND(), tooltip_param ) );
     if ( !jsObject )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Internal error: failed to create JS object" );
+        JS_ReportErrorUTF8( pJsCtx_, "Internal error: failed to create JS object" );
         return std::nullopt;
     }
 
@@ -252,7 +252,7 @@ JsWindow::CreateTooltipWithOpt( size_t optArgCount, const std::wstring& name, fl
 {
     if ( optArgCount > 3 )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
+        JS_ReportErrorUTF8( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
         return std::nullopt;
     }
 
@@ -277,7 +277,7 @@ JsWindow::GetColourCUI( uint32_t type, const std::wstring& guidstr )
 {
     if ( parentPanel_.GetPanelType() != js_panel_window::PanelType::CUI )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Can be called only in CUI" );
+        JS_ReportErrorUTF8( pJsCtx_, "Can be called only in CUI" );
         return std::nullopt;
     }
 
@@ -300,7 +300,7 @@ JsWindow::GetColourCUIWithOpt( size_t optArgCount, uint32_t type, const std::wst
 {
     if ( optArgCount > 1 )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
+        JS_ReportErrorUTF8( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
         return std::nullopt;
     }
 
@@ -317,7 +317,7 @@ JsWindow::GetColourDUI( uint32_t type )
 {
     if ( parentPanel_.GetPanelType() != js_panel_window::PanelType::DUI )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Can be called only in DUI" );
+        JS_ReportErrorUTF8( pJsCtx_, "Can be called only in DUI" );
         return std::nullopt;
     }
 
@@ -329,7 +329,7 @@ JsWindow::GetFontCUI( uint32_t type, const std::wstring& guidstr )
 {
     if ( parentPanel_.GetPanelType() != js_panel_window::PanelType::CUI )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Can be called only in CUI" );
+        JS_ReportErrorUTF8( pJsCtx_, "Can be called only in CUI" );
         return std::nullopt;
     }
 
@@ -365,7 +365,7 @@ JsWindow::GetFontCUI( uint32_t type, const std::wstring& guidstr )
     {
         DeleteObject( hFont );
 
-        JS_ReportErrorASCII( pJsCtx_, "Internal error: failed to create JS object" );
+        JS_ReportErrorUTF8( pJsCtx_, "Internal error: failed to create JS object" );
         return std::nullopt;
     }
 
@@ -379,7 +379,7 @@ JsWindow::GetFontCUIWithOpt( size_t optArgCount, uint32_t type, const std::wstri
 {
     if ( optArgCount > 1 )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
+        JS_ReportErrorUTF8( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
         return std::nullopt;
     }
 
@@ -396,7 +396,7 @@ JsWindow::GetFontDUI( uint32_t type )
 {
     if ( parentPanel_.GetPanelType() != js_panel_window::PanelType::DUI )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Can be called only in DUI" );
+        JS_ReportErrorUTF8( pJsCtx_, "Can be called only in DUI" );
         return std::nullopt;
     }
 
@@ -417,7 +417,7 @@ JsWindow::GetFontDUI( uint32_t type )
     {
         DeleteObject( hFont );
 
-        JS_ReportErrorASCII( pJsCtx_, "Internal error: failed to create JS object" );
+        JS_ReportErrorUTF8( pJsCtx_, "Internal error: failed to create JS object" );
         return std::nullopt;
     }
 
@@ -426,17 +426,17 @@ JsWindow::GetFontDUI( uint32_t type )
 }
 
 std::optional<JS::Heap<JS::Value>>
-JsWindow::GetProperty( const std::string& name, JS::HandleValue defaultval )
+JsWindow::GetProperty( const std::wstring& name, JS::HandleValue defaultval )
 {
     return pFbProperties_->GetProperty( name, defaultval );
 }
 
 std::optional<JS::Heap<JS::Value>> 
-JsWindow::GetPropertyWithOpt( size_t optArgCount, const std::string& name, JS::HandleValue defaultval )
+JsWindow::GetPropertyWithOpt( size_t optArgCount, const std::wstring& name, JS::HandleValue defaultval )
 {
     if ( optArgCount > 1 )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
+        JS_ReportErrorUTF8( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
         return std::nullopt;
     }
 
@@ -449,7 +449,7 @@ JsWindow::GetPropertyWithOpt( size_t optArgCount, const std::string& name, JS::H
 }
 
 std::optional<std::nullptr_t>
-JsWindow::NotifyOthers( const std::string& name, JS::HandleValue info )
+JsWindow::NotifyOthers( const pfc::string8_fast& name, JS::HandleValue info )
 {
     std::wstring jsonStr;
     auto jsonCopyFunc = []( const char16_t* buf, uint32_t len, void* data )
@@ -465,7 +465,7 @@ JsWindow::NotifyOthers( const std::string& name, JS::HandleValue info )
         JS::RootedObject jsObject( pJsCtx_, &info.toObject() );
         if ( !JS::ToJSONMaybeSafely( pJsCtx_, jsObject, jsonCopyFunc, &jsonStr ) )
         {
-            JS_ReportErrorASCII( pJsCtx_, "Unsuitable info argument" );
+            JS_ReportErrorUTF8( pJsCtx_, "Unsuitable info argument" );
             return std::nullopt;
         }
     }
@@ -474,18 +474,18 @@ JsWindow::NotifyOthers( const std::string& name, JS::HandleValue info )
         JS::RootedValue valueCopy( pJsCtx_, info );
         if ( !JS_Stringify( pJsCtx_, &valueCopy, nullptr, JS::NullHandleValue, jsonCopyFunc, &jsonStr ) )
         {
-            JS_ReportErrorASCII( pJsCtx_, "Unsuitable info argument" );
+            JS_ReportErrorUTF8( pJsCtx_, "Unsuitable info argument" );
             return std::nullopt;
         }
     }
     else
     {
-        JS_ReportErrorASCII( pJsCtx_, "Unsuitable info argument" );
+        JS_ReportErrorUTF8( pJsCtx_, "Unsuitable info argument" );
         return std::nullopt;
     }
 
-    simple_callback_data_2<std::string, std::wstring>* notify_data = 
-        new simple_callback_data_2<std::string, std::wstring>( name, jsonStr );
+    simple_callback_data_2<pfc::string8_fast, std::wstring>* notify_data = 
+        new simple_callback_data_2<pfc::string8_fast, std::wstring>( name, jsonStr );
 
     panel_manager::instance().send_msg_to_others_pointer( parentPanel_.GetHWND(), CALLBACK_UWM_ON_NOTIFY_DATA, notify_data );
     
@@ -510,7 +510,7 @@ std::optional<std::nullptr_t> JsWindow::RepaintWithOpt( size_t optArgCount, bool
 {
     if ( optArgCount > 1 )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
+        JS_ReportErrorUTF8( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
         return std::nullopt;
     }
 
@@ -533,7 +533,7 @@ std::optional<std::nullptr_t> JsWindow::RepaintRectWithOpt( size_t optArgCount, 
 {
     if ( optArgCount > 1 )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
+        JS_ReportErrorUTF8( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
         return std::nullopt;
     }
 
@@ -557,7 +557,7 @@ JsWindow::SetInterval( JS::HandleValue func, uint32_t delay )
 {// TODO: try to remove the roundabout call (JsWindow > js_panel_window > JsContainer)
     if ( !func.isObject() || !JS_ObjectIsFunction( pJsCtx_, &func.toObject() ) )
     {
-        JS_ReportErrorASCII( pJsCtx_, "func argument is not a JS function" );
+        JS_ReportErrorUTF8( pJsCtx_, "func argument is not a JS function" );
         return std::nullopt;
     }
 
@@ -566,7 +566,7 @@ JsWindow::SetInterval( JS::HandleValue func, uint32_t delay )
 }
 
 std::optional<std::nullptr_t>
-JsWindow::SetProperty( const std::string& name, JS::HandleValue val )
+JsWindow::SetProperty( const std::wstring& name, JS::HandleValue val )
 {
     if ( !pFbProperties_->SetProperty( name, val ) )
     {// report in SetProperty
@@ -577,11 +577,11 @@ JsWindow::SetProperty( const std::string& name, JS::HandleValue val )
 }
 
 std::optional<std::nullptr_t> 
-JsWindow::SetPropertyWithOpt( size_t optArgCount, const std::string& name, JS::HandleValue val )
+JsWindow::SetPropertyWithOpt( size_t optArgCount, const std::wstring& name, JS::HandleValue val )
 {
     if ( optArgCount > 1 )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
+        JS_ReportErrorUTF8( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
         return std::nullopt;
     }
 
@@ -598,7 +598,7 @@ JsWindow::SetTimeout( JS::HandleValue func, uint32_t delay )
 {    
     if ( !func.isObject() || !JS_ObjectIsFunction( pJsCtx_, &func.toObject() ) )
     {
-        JS_ReportErrorASCII( pJsCtx_, "func argument is not a JS function" );
+        JS_ReportErrorUTF8( pJsCtx_, "func argument is not a JS function" );
         return std::nullopt;
     }
 
@@ -680,7 +680,7 @@ JsWindow::get_MinWidth()
     return parentPanel_.MinSize().x;
 }
 
-std::optional<std::string>
+std::optional<pfc::string8_fast>
 JsWindow::get_Name()
 {
     pfc::string8_fast name = parentPanel_.ScriptInfo().name;
@@ -689,7 +689,7 @@ JsWindow::get_Name()
         name = pfc::print_guid( parentPanel_.GetGUID() );
     }
 
-    return std::string( name.c_str(), name.length() );
+    return pfc::string8_fast( name.c_str(), name.length() );
 }
 
 std::optional<uint32_t>

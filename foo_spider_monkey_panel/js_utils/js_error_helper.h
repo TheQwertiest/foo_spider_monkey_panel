@@ -20,13 +20,13 @@ public:
     void Disable();
 
 private: 
-    static std::string GetStackTraceString( JSContext* cx, JS::HandleObject exn );
+    static pfc::string8_fast GetStackTraceString( JSContext* cx, JS::HandleObject exn );
 
 private:
     JSContext * cx;
     bool isDisabled_ = false;
 };
 
-std::string GetCurrentExceptionText( JSContext* cx );
+pfc::string8_fast GetCurrentExceptionText( JSContext* cx );
 
 }

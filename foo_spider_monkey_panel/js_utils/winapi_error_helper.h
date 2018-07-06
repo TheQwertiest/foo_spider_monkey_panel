@@ -16,8 +16,8 @@
             (LPTSTR)&lpMsgBuf,\
             0, nullptr );\
 \
-        std::string errorStr = pfc::stringcvt::string_utf8_from_wide( (const wchar_t*)lpMsgBuf );\
-        JS_ReportErrorASCII( cx, "WinAPI error: '%s' failed with error (0x%X): %s", #funcName, errorCode, errorStr.c_str() );\
+        pfc::string8_fast errorStr = pfc::stringcvt::string_utf8_from_wide( (const wchar_t*)lpMsgBuf );\
+        JS_ReportErrorUTF8( cx, "WinAPI error: '%s' failed with error (0x%X): %s", #funcName, errorCode, errorStr.c_str() );\
 \
         LocalFree( lpMsgBuf );\
         return retValue;\

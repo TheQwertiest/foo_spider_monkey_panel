@@ -82,7 +82,7 @@ JSObject* JsFbFileInfo::Create( JSContext* cx, file_info_impl* pFileInfo )
 {
     if ( !pFileInfo )
     {
-        JS_ReportErrorASCII( cx, "Internal error: file_info object is null" );
+        JS_ReportErrorUTF8( cx, "Internal error: file_info object is null" );
         return nullptr;
     }
 
@@ -110,35 +110,35 @@ const JSClass& JsFbFileInfo::GetClass()
 }
 
 std::optional<int32_t> 
-JsFbFileInfo::InfoFind( const std::string& name )
+JsFbFileInfo::InfoFind( const pfc::string8_fast& name )
 {
     assert( fileInfo_ );
 
     return fileInfo_->info_find_ex( name.c_str(), name.length() );
 }
 
-std::optional<std::string> 
+std::optional<pfc::string8_fast> 
 JsFbFileInfo::InfoName( uint32_t index )
 {
     assert( fileInfo_ );
 
     if ( index >= fileInfo_->info_get_count() )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Index is out of bounds" );
+        JS_ReportErrorUTF8( pJsCtx_, "Index is out of bounds" );
         return std::nullopt;
     }
 
     return fileInfo_->info_enum_name( index );
 }
 
-std::optional<std::string> 
+std::optional<pfc::string8_fast> 
 JsFbFileInfo::InfoValue( uint32_t index )
 {
     assert( fileInfo_ );
 
     if ( index >= fileInfo_->info_get_count() )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Index is out of bounds" );
+        JS_ReportErrorUTF8( pJsCtx_, "Index is out of bounds" );
         return std::nullopt;
     }
 
@@ -146,7 +146,7 @@ JsFbFileInfo::InfoValue( uint32_t index )
 }
 
 std::optional<int32_t> 
-JsFbFileInfo::MetaFind( const std::string& name )
+JsFbFileInfo::MetaFind( const pfc::string8_fast& name )
 {
     assert( fileInfo_ );
 
@@ -159,21 +159,21 @@ JsFbFileInfo::MetaFind( const std::string& name )
     return static_cast<int32_t>( idx );
 }
 
-std::optional<std::string> 
+std::optional<pfc::string8_fast> 
 JsFbFileInfo::MetaName( uint32_t index )
 {
     assert( fileInfo_ );
 
     if ( index >= fileInfo_->info_get_count() )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Index is out of bounds" );
+        JS_ReportErrorUTF8( pJsCtx_, "Index is out of bounds" );
         return std::nullopt;
     }
 
     return fileInfo_->meta_enum_name( index );
 }
 
-std::optional<std::string> 
+std::optional<pfc::string8_fast> 
 JsFbFileInfo::MetaValue( uint32_t infoIndex, uint32_t valueIndex )
 {
     assert( fileInfo_ );
@@ -181,7 +181,7 @@ JsFbFileInfo::MetaValue( uint32_t infoIndex, uint32_t valueIndex )
     if ( infoIndex >= fileInfo_->info_get_count()
          || valueIndex >= fileInfo_->meta_enum_value_count( infoIndex ) )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Index is out of bounds" );
+        JS_ReportErrorUTF8( pJsCtx_, "Index is out of bounds" );
         return std::nullopt;
     }
 
@@ -195,7 +195,7 @@ JsFbFileInfo::MetaValueCount( uint32_t index )
 
     if ( index >= fileInfo_->info_get_count() )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Index is out of bounds" );
+        JS_ReportErrorUTF8( pJsCtx_, "Index is out of bounds" );
         return std::nullopt;
     }
 

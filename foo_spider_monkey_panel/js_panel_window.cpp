@@ -34,9 +34,9 @@ void js_panel_window::update_script( const char* code )
     script_load();
 }
 
-void js_panel_window::JsEngineFail( std::string_view errorText )
+void js_panel_window::JsEngineFail( const pfc::string8_fast& errorText )
 {
-    popup_msg::g_show( errorText.data(), JSP_NAME );
+    popup_msg::g_show( errorText, JSP_NAME );
     MessageBeep( MB_ICONASTERISK );
 
     SendMessage( hWnd_, UWM_SCRIPT_ERROR, 0, 0 );
@@ -872,7 +872,7 @@ void js_panel_window::on_get_album_art_done( LPARAM lp )
                                                   static_cast<metadb_handle_ptr>(param->handle),
                                                   static_cast<uint32_t>(param->artId),
                                                   static_cast<Gdiplus::Bitmap*>(param->bitmap.get()),
-                                                  static_cast<std::string>(param->imagePath) );
+                                                  static_cast<pfc::string8_fast>(param->imagePath) );
     if ( autoRet )
     {
         param->bitmap.release();
@@ -914,7 +914,7 @@ void js_panel_window::on_load_image_done( LPARAM lp )
     std::unique_ptr<mozjs::image::AsyncImageTaskResult> param( reinterpret_cast<mozjs::image::AsyncImageTaskResult*>(lp) );
     auto autoRet = jsContainer_.InvokeJsCallback( "on_load_image_done",
                                                   static_cast<Gdiplus::Bitmap*>(param->bitmap.get()),
-                                                  static_cast<std::string>(param->imagePath) );
+                                                  static_cast<pfc::string8_fast>(param->imagePath) );
     if ( autoRet )
     {
         param->bitmap.release();
@@ -1124,7 +1124,7 @@ void js_panel_window::on_mouse_wheel_h( WPARAM wp )
 
 void js_panel_window::on_notify_data( WPARAM wp )
 {
-    simple_callback_data_scope_releaser<simple_callback_data_2<std::string, std::wstring>> data( wp );
+    simple_callback_data_scope_releaser<simple_callback_data_2<std::wstring, std::wstring>> data( wp );
     jsContainer_.InvokeOnNotifyCallback( data->m_item1, data->m_item2 );
 }
 

@@ -16,12 +16,12 @@ bool LogImpl( JSContext* cx, unsigned argc, JS::Value* vp )
 {
      JS::CallArgs args = JS::CallArgsFromVp( argc, vp );
 
-     std::string outputString;
+     pfc::string8_fast outputString;
 
      for ( unsigned i = 0; i < args.length(); i++ )
      {
          bool bRet;
-         std::string parsedArg = convert::to_native::ToValue<std::string>( cx, args[i], bRet );
+         pfc::string8_fast parsedArg = convert::to_native::ToValue<pfc::string8_fast>( cx, args[i], bRet );
          if ( !bRet )
          {
              parsedArg = "__parsing_failed__";
@@ -30,7 +30,7 @@ bool LogImpl( JSContext* cx, unsigned argc, JS::Value* vp )
          outputString += parsedArg;
          if ( i < args.length() )
          {
-             outputString += ' ';
+             outputString.add_char( ' ' );
          }
      }
 

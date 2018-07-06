@@ -63,7 +63,7 @@ AutoReportException::~AutoReportException()
 
         JSContext* pCx_;
         JsGlobalObject * pGlobal_;
-        std::string errorText = "Script failed!";
+        pfc::string8_fast errorText = "Script failed!";
     };
     ScopedFail scFail( cx, globalCtx );
     
@@ -92,9 +92,9 @@ AutoReportException::~AutoReportException()
         scFail.errorText += report->filename;
         scFail.errorText += "\n";
         scFail.errorText += "Line: ";
-        scFail.errorText += std::to_string( report->lineno );
+        scFail.errorText.add_string(std::to_string( report->lineno ).c_str());
         scFail.errorText += ", Column: ";
-        scFail.errorText += std::to_string( report->column );
+        scFail.errorText.add_string( std::to_string( report->column ).c_str() );
         if ( report->linebufLength() )
         {
             scFail.errorText += "\n";
@@ -103,8 +103,8 @@ AutoReportException::~AutoReportException()
         }
     }
 
-    std::string stackTrace = GetStackTraceString( cx, excnObject );
-    if ( !stackTrace.empty() )
+    pfc::string8_fast stackTrace = GetStackTraceString( cx, excnObject );
+    if ( !stackTrace.is_empty() )
     {
         scFail.errorText += "\n\n";
         scFail.errorText += "Stack trace:\n";
@@ -117,40 +117,40 @@ void AutoReportException::Disable()
     isDisabled_ = true;
 }
 
-std::string AutoReportException::GetStackTraceString( JSContext* cx, JS::HandleObject exn )
+pfc::string8_fast AutoReportException::GetStackTraceString( JSContext* cx, JS::HandleObject exn )
 {
     // Exceptions thrown while compiling top-level script have no stack.
     JS::RootedObject stackObj( cx, JS::ExceptionStackOrNull( exn ) );
     if ( !stackObj )
     {
-        return std::string();
+        return pfc::string8_fast();
     }
 
     JS::RootedString stackStr( cx );
     if ( !BuildStackString( cx, stackObj, &stackStr, 2 ) )
     {
-        return std::string();
+        return pfc::string8_fast();
     }
 
     // JS::UniqueChars generates heap corruption exception in it's destructor
     const char* encodedString = JS_EncodeStringToUTF8( cx, stackStr );
     if ( !encodedString )
     {
-        return std::string();
+        return pfc::string8_fast();
     } 
 
-    std::string outString( encodedString );
+    pfc::string8_fast outString( encodedString );
     JS_free( cx, (void*)encodedString );
 
     return outString;
 }
 
 
-std::string GetCurrentExceptionText( JSContext* cx )
+pfc::string8_fast GetCurrentExceptionText( JSContext* cx )
 {
     if ( !JS_IsExceptionPending( cx ) )
     {
-        return std::string();
+        return pfc::string8_fast();
     }
 
     // Get exception object before printing and clearing exception.
@@ -160,24 +160,24 @@ std::string GetCurrentExceptionText( JSContext* cx )
     JS::RootedObject global( cx, JS::CurrentGlobalOrNull( cx ) );
     if ( !global )
     {
-        return std::string();
+        return pfc::string8_fast();
     }
 
     JS::RootedObject excnObject( cx, excn.toObjectOrNull() );
     if ( !excnObject )
     {
-        return std::string();
+        return pfc::string8_fast();
     }
 
     JSErrorReport* report = JS_ErrorFromException( cx, excnObject );
     if ( !report )
     {
-        return std::string();
+        return pfc::string8_fast();
     }
 
     if ( JSMSG_USER_DEFINED_ERROR != report->errorNumber )
     {
-        return std::string();
+        return pfc::string8_fast();
     }
 
     JS_ClearPendingException( cx );

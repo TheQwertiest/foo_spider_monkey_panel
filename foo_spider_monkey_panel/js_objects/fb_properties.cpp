@@ -100,7 +100,7 @@ void JsFbProperties::RemoveHeapTracer()
 }
 
 std::optional<JS::Heap<JS::Value>>
-JsFbProperties::GetProperty( const std::string& propName, JS::HandleValue propDefaultValue )
+JsFbProperties::GetProperty( const std::wstring& propName, JS::HandleValue propDefaultValue )
 {    
     std::string trimmedPropName( Trim( propName ) );
 
@@ -141,7 +141,7 @@ JsFbProperties::GetProperty( const std::string& propName, JS::HandleValue propDe
     return std::make_optional( properties_[trimmedPropName]->value );
 }
 
-bool JsFbProperties::SetProperty( const std::string& propName, JS::HandleValue propValue )
+bool JsFbProperties::SetProperty( const std::wstring& propName, JS::HandleValue propValue )
 {
     std::string trimmedPropName( Trim( propName ) );
 
@@ -155,7 +155,7 @@ bool JsFbProperties::SetProperty( const std::string& propName, JS::HandleValue p
     auto serializedValue = SerializeJsValue( pJsCtx_, propValue );
     if ( !serializedValue )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Unsupported value type" );
+        JS_ReportErrorUTF8( pJsCtx_, "Unsupported value type" );
         return false;
     }
 

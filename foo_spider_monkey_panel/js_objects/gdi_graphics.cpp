@@ -145,13 +145,13 @@ JsGdiGraphics::CalcTextHeight( const std::wstring& str, JsGdiFont* font )
 {
     if ( !pGdi_ )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Internal error: Gdiplus::Graphics object is null" );
+        JS_ReportErrorUTF8( pJsCtx_, "Internal error: Gdiplus::Graphics object is null" );
         return std::nullopt;
     }
 
     if ( !font )
     {
-        JS_ReportErrorASCII( pJsCtx_, "font argument is null" );
+        JS_ReportErrorUTF8( pJsCtx_, "font argument is null" );
         return std::nullopt;
     }
 
@@ -172,13 +172,13 @@ JsGdiGraphics::CalcTextWidth( const std::wstring& str, JsGdiFont* font )
 {
     if ( !pGdi_ )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Internal error: Gdiplus::Graphics object is null" );
+        JS_ReportErrorUTF8( pJsCtx_, "Internal error: Gdiplus::Graphics object is null" );
         return std::nullopt;
     }
 
     if ( !font )
     {
-        JS_ReportErrorASCII( pJsCtx_, "font argument is null" );
+        JS_ReportErrorUTF8( pJsCtx_, "font argument is null" );
         return std::nullopt;
     }
 
@@ -199,7 +199,7 @@ JsGdiGraphics::DrawEllipse( float x, float y, float w, float h, float line_width
 {
     if ( !pGdi_ )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Internal error: Gdiplus::Graphics object is null" );
+        JS_ReportErrorUTF8( pJsCtx_, "Internal error: Gdiplus::Graphics object is null" );
         return std::nullopt;
     }
 
@@ -218,13 +218,13 @@ JsGdiGraphics::DrawImage( JsGdiBitmap* image,
 {
     if ( !pGdi_ )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Internal error: Gdiplus::Graphics object is null" );
+        JS_ReportErrorUTF8( pJsCtx_, "Internal error: Gdiplus::Graphics object is null" );
         return std::nullopt;
     }
 
     if ( !image )
     {
-        JS_ReportErrorASCII( pJsCtx_, "image argument is null" );
+        JS_ReportErrorUTF8( pJsCtx_, "image argument is null" );
         return std::nullopt;
     }
 
@@ -289,7 +289,7 @@ JsGdiGraphics::DrawImageWithOpt( size_t optArgCount, JsGdiBitmap* image,
 {
     if ( optArgCount > 2 )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
+        JS_ReportErrorUTF8( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
         return std::nullopt;
     }
 
@@ -310,7 +310,7 @@ JsGdiGraphics::DrawLine( float x1, float y1, float x2, float y2, float line_widt
 {
     if ( !pGdi_ )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Internal error: Gdiplus::Graphics object is null" );
+        JS_ReportErrorUTF8( pJsCtx_, "Internal error: Gdiplus::Graphics object is null" );
         return std::nullopt;
     }
 
@@ -325,7 +325,7 @@ std::optional<std::nullptr_t> JsGdiGraphics::DrawPolygon( uint32_t colour, float
 {
     if ( !pGdi_ )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Internal error: Gdiplus::Graphics object is null" );
+        JS_ReportErrorUTF8( pJsCtx_, "Internal error: Gdiplus::Graphics object is null" );
         return std::nullopt;
     }
 
@@ -347,7 +347,7 @@ JsGdiGraphics::DrawRect( float x, float y, float w, float h, float line_width, u
 {
     if ( !pGdi_ )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Internal error: Gdiplus::Graphics object is null" );
+        JS_ReportErrorUTF8( pJsCtx_, "Internal error: Gdiplus::Graphics object is null" );
         return std::nullopt;
     }
 
@@ -363,13 +363,13 @@ JsGdiGraphics::DrawRoundRect( float x, float y, float w, float h, float arc_widt
 {
     if ( !pGdi_ )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Internal error: Gdiplus::Graphics object is null" );
+        JS_ReportErrorUTF8( pJsCtx_, "Internal error: Gdiplus::Graphics object is null" );
         return std::nullopt;
     }
 
     if ( 2 * arc_width > w || 2 * arc_height > h )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Arc argument has invalid value" );
+        JS_ReportErrorUTF8( pJsCtx_, "Arc argument has invalid value" );
         return std::nullopt;
     }
 
@@ -399,20 +399,20 @@ JsGdiGraphics::DrawString( const std::wstring& str, JsGdiFont* font, uint32_t co
 {
     if ( !pGdi_ )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Internal error: Gdiplus::Graphics object is null" );
+        JS_ReportErrorUTF8( pJsCtx_, "Internal error: Gdiplus::Graphics object is null" );
         return std::nullopt;
     }
 
     if ( !font )
     {
-        JS_ReportErrorASCII( pJsCtx_, "font argument is null" );
+        JS_ReportErrorUTF8( pJsCtx_, "font argument is null" );
         return std::nullopt;
     }
     
     Gdiplus::Font* pGdiFont = font->GdiFont();
     if ( !pGdiFont )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Internal error: GdiFont is null" );
+        JS_ReportErrorUTF8( pJsCtx_, "Internal error: GdiFont is null" );
         return std::nullopt;
     }
 
@@ -447,7 +447,7 @@ JsGdiGraphics::DrawStringWithOpt( size_t optArgCount, const std::wstring& str, J
 {
     if ( optArgCount > 1 )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
+        JS_ReportErrorUTF8( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
         return std::nullopt;
     }
 
@@ -464,13 +464,13 @@ JsGdiGraphics::EstimateLineWrap( const std::wstring& str, JsGdiFont* font, uint3
 {
     if ( !pGdi_ )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Internal error: Gdiplus::Graphics object is null" );
+        JS_ReportErrorUTF8( pJsCtx_, "Internal error: Gdiplus::Graphics object is null" );
         return std::nullopt;
     }
 
     if ( !font )
     {
-        JS_ReportErrorASCII( pJsCtx_, "font argument is null" );
+        JS_ReportErrorUTF8( pJsCtx_, "font argument is null" );
         return std::nullopt;
     }
 
@@ -509,20 +509,20 @@ JsGdiGraphics::EstimateLineWrap( const std::wstring& str, JsGdiFont* font, uint3
         std::wstring tmpString( (const wchar_t*)result[i].text );
         if ( !convert::to_js::ToValue( pJsCtx_, tmpString, &jsValue ) )
         {
-            JS_ReportErrorASCII( pJsCtx_, "Internal error: cast to JSString failed" );
+            JS_ReportErrorUTF8( pJsCtx_, "Internal error: cast to JSString failed" );
             return std::nullopt;
         }
 
         if ( !JS_SetElement( pJsCtx_, jsArray, 2 * i, jsValue ) )
         {
-            JS_ReportErrorASCII( pJsCtx_, "Internal error: JS_SetElement failed" );
+            JS_ReportErrorUTF8( pJsCtx_, "Internal error: JS_SetElement failed" );
             return std::nullopt;
         }
 
         jsValue.setNumber( (uint32_t)result[i].width );
         if ( !JS_SetElement( pJsCtx_, jsArray, 2 * i + 1, jsValue ) )
         {
-            JS_ReportErrorASCII( pJsCtx_, "Internal error: JS_SetElement failed" );
+            JS_ReportErrorUTF8( pJsCtx_, "Internal error: JS_SetElement failed" );
             return std::nullopt;
         }
     }
@@ -535,7 +535,7 @@ JsGdiGraphics::FillEllipse( float x, float y, float w, float h, uint32_t colour 
 {
     if ( !pGdi_ )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Internal error: Gdiplus::Graphics object is null" );
+        JS_ReportErrorUTF8( pJsCtx_, "Internal error: Gdiplus::Graphics object is null" );
         return std::nullopt;
     }
 
@@ -551,7 +551,7 @@ JsGdiGraphics::FillGradRect( float x, float y, float w, float h, float angle, ui
 {
     if ( !pGdi_ )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Internal error: Gdiplus::Graphics object is null" );
+        JS_ReportErrorUTF8( pJsCtx_, "Internal error: Gdiplus::Graphics object is null" );
         return std::nullopt;
     }
 
@@ -571,7 +571,7 @@ JsGdiGraphics::FillPolygon( uint32_t colour, uint32_t fillmode, JS::HandleValue 
 {
     if ( !pGdi_ )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Internal error: Gdiplus::Graphics object is null" );
+        JS_ReportErrorUTF8( pJsCtx_, "Internal error: Gdiplus::Graphics object is null" );
         return std::nullopt;
     }
 
@@ -593,13 +593,13 @@ JsGdiGraphics::FillRoundRect( float x, float y, float w, float h, float arc_widt
 {
     if ( !pGdi_ )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Internal error: Gdiplus::Graphics object is null" );
+        JS_ReportErrorUTF8( pJsCtx_, "Internal error: Gdiplus::Graphics object is null" );
         return std::nullopt;
     }
 
     if ( 2 * arc_width > w || 2 * arc_height > h )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Arc argument has invalid value" );
+        JS_ReportErrorUTF8( pJsCtx_, "Arc argument has invalid value" );
         return std::nullopt;
     }
 
@@ -623,7 +623,7 @@ JsGdiGraphics::FillSolidRect( float x, float y, float w, float h, uint32_t colou
 {
     if ( !pGdi_ )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Internal error: Gdiplus::Graphics object is null" );
+        JS_ReportErrorUTF8( pJsCtx_, "Internal error: Gdiplus::Graphics object is null" );
         return std::nullopt;
     }
 
@@ -642,13 +642,13 @@ JsGdiGraphics::GdiAlphaBlend( JsGdiRawBitmap* bitmap,
 {
     if ( !pGdi_ )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Internal error: Gdiplus::Graphics object is null" );
+        JS_ReportErrorUTF8( pJsCtx_, "Internal error: Gdiplus::Graphics object is null" );
         return std::nullopt;
     }
 
     if ( !bitmap )
     {
-        JS_ReportErrorASCII( pJsCtx_, "bitmap argument is null" );
+        JS_ReportErrorUTF8( pJsCtx_, "bitmap argument is null" );
         return std::nullopt;
     }
 
@@ -675,7 +675,7 @@ JsGdiGraphics::GdiAlphaBlendWithOpt( size_t optArgCount, JsGdiRawBitmap* bitmap,
 {
     if ( optArgCount > 1 )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
+        JS_ReportErrorUTF8( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
         return std::nullopt;
     }
 
@@ -694,13 +694,13 @@ JsGdiGraphics::GdiDrawBitmap( JsGdiRawBitmap* bitmap,
 {
     if ( !pGdi_ )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Internal error: Gdiplus::Graphics object is null" );
+        JS_ReportErrorUTF8( pJsCtx_, "Internal error: Gdiplus::Graphics object is null" );
         return std::nullopt;
     }
 
     if ( !bitmap )
     {
-        JS_ReportErrorASCII( pJsCtx_, "bitmap argument is null" );
+        JS_ReportErrorUTF8( pJsCtx_, "bitmap argument is null" );
         return std::nullopt;
     }
 
@@ -757,13 +757,13 @@ JsGdiGraphics::GdiDrawText( const std::wstring& str, JsGdiFont* font, uint32_t c
 {
     if ( !pGdi_ )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Internal error: Gdiplus::Graphics object is null" );
+        JS_ReportErrorUTF8( pJsCtx_, "Internal error: Gdiplus::Graphics object is null" );
         return std::nullopt;
     }
 
     if ( !font )
     {
-        JS_ReportErrorASCII( pJsCtx_, "font argument is null" );
+        JS_ReportErrorUTF8( pJsCtx_, "font argument is null" );
         return std::nullopt;
     }
     
@@ -850,7 +850,7 @@ JsGdiGraphics::GdiDrawTextWithOpt( size_t optArgCount, const std::wstring& str, 
 {
     if ( optArgCount > 1 )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
+        JS_ReportErrorUTF8( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
         return std::nullopt;
     }
 
@@ -867,13 +867,13 @@ JsGdiGraphics::MeasureString( const std::wstring& str, JsGdiFont* font, float x,
 {
     if ( !pGdi_ )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Internal error: Gdiplus::Graphics object is null" );
+        JS_ReportErrorUTF8( pJsCtx_, "Internal error: Gdiplus::Graphics object is null" );
         return std::nullopt;
     }
 
     if ( !font )
     {
-        JS_ReportErrorASCII( pJsCtx_, "font argument is null" );
+        JS_ReportErrorUTF8( pJsCtx_, "font argument is null" );
         return std::nullopt;
     }
 
@@ -899,7 +899,7 @@ JsGdiGraphics::MeasureString( const std::wstring& str, JsGdiFont* font, float x,
     JS::RootedObject jsObject( pJsCtx_, JsMeasureStringInfo::Create( pJsCtx_, bound.X, bound.Y, bound.Width, bound.Height, lines, chars ) );
     if ( !jsObject )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Internal error: failed to create JS object" );
+        JS_ReportErrorUTF8( pJsCtx_, "Internal error: failed to create JS object" );
         return std::nullopt;
     }
 
@@ -913,7 +913,7 @@ JsGdiGraphics::MeasureStringWithOpt( size_t optArgCount, const std::wstring& str
 {
     if ( optArgCount > 1 )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
+        JS_ReportErrorUTF8( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
         return std::nullopt;
     }
 
@@ -930,7 +930,7 @@ JsGdiGraphics::SetInterpolationMode( uint32_t mode )
 {
     if ( !pGdi_ )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Internal error: Gdiplus::Graphics object is null" );
+        JS_ReportErrorUTF8( pJsCtx_, "Internal error: Gdiplus::Graphics object is null" );
         return std::nullopt;
     }
 
@@ -945,7 +945,7 @@ JsGdiGraphics::SetInterpolationModeWithOpt( size_t optArgCount, uint32_t mode )
 {
     if ( optArgCount > 1 )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
+        JS_ReportErrorUTF8( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
         return std::nullopt;
     }
 
@@ -961,7 +961,7 @@ std::optional<std::nullptr_t> JsGdiGraphics::SetSmoothingMode( uint32_t mode )
 {
     if ( !pGdi_ )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Internal error: Gdiplus::Graphics object is null" );
+        JS_ReportErrorUTF8( pJsCtx_, "Internal error: Gdiplus::Graphics object is null" );
         return std::nullopt;
     }
 
@@ -975,7 +975,7 @@ std::optional<std::nullptr_t> JsGdiGraphics::SetSmoothingModeWithOpt( size_t opt
 {
     if ( optArgCount > 1 )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
+        JS_ReportErrorUTF8( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
         return std::nullopt;
     }
 
@@ -991,7 +991,7 @@ std::optional<std::nullptr_t> JsGdiGraphics::SetTextRenderingHint( uint32_t mode
 {
     if ( !pGdi_ )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Internal error: Gdiplus::Graphics object is null" );
+        JS_ReportErrorUTF8( pJsCtx_, "Internal error: Gdiplus::Graphics object is null" );
         return std::nullopt;
     }
 
@@ -1005,7 +1005,7 @@ std::optional<std::nullptr_t> JsGdiGraphics::SetTextRenderingHintWithOpt( size_t
 {
     if ( optArgCount > 1 )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
+        JS_ReportErrorUTF8( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
         return std::nullopt;
     }
 
@@ -1058,27 +1058,27 @@ bool JsGdiGraphics::ParsePoints( JS::HandleValue jsValue, std::vector<Gdiplus::P
     JS::RootedObject jsObject( pJsCtx_, jsValue.toObjectOrNull() );
     if ( !jsObject )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Points argument is not a JS object" );
+        JS_ReportErrorUTF8( pJsCtx_, "Points argument is not a JS object" );
         return false;
     }
 
     bool is;
     if ( !JS_IsArrayObject( pJsCtx_, jsObject, &is ) )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Points argument is an array" );
+        JS_ReportErrorUTF8( pJsCtx_, "Points argument is an array" );
         return false;
     }
 
     uint32_t arraySize;
     if ( !JS_GetArrayLength( pJsCtx_, jsObject, &arraySize ) )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Failed to get points argument array length" );
+        JS_ReportErrorUTF8( pJsCtx_, "Failed to get points argument array length" );
         return false;
     }
 
     if ( arraySize % 2 > 0 )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Points count must be multiple of two" );
+        JS_ReportErrorUTF8( pJsCtx_, "Points count must be multiple of two" );
         return false;
     }
 
@@ -1088,7 +1088,7 @@ bool JsGdiGraphics::ParsePoints( JS::HandleValue jsValue, std::vector<Gdiplus::P
     {
         if ( !JS_GetElement( pJsCtx_, jsObject, i, &arrayElement ) )
         {
-            JS_ReportErrorASCII( pJsCtx_, "Failed to get points[%d]", i );
+            JS_ReportErrorUTF8( pJsCtx_, "Failed to get points[%d]", i );
             return false;
         }
 
@@ -1096,21 +1096,21 @@ bool JsGdiGraphics::ParsePoints( JS::HandleValue jsValue, std::vector<Gdiplus::P
         float x = convert::to_native::ToValue<float>( pJsCtx_, jsX, isValid );
         if ( !isValid )
         {
-            JS_ReportErrorASCII( pJsCtx_, "points[%d] can't be converted to number", i );
+            JS_ReportErrorUTF8( pJsCtx_, "points[%d] can't be converted to number", i );
             return false;
         }
 
 
         if ( !JS_GetElement( pJsCtx_, jsObject, i + 1, &arrayElement ) )
         {
-            JS_ReportErrorASCII( pJsCtx_, "Failed to get points[%d]", i );
+            JS_ReportErrorUTF8( pJsCtx_, "Failed to get points[%d]", i );
             return false;
         }
 
         float y = convert::to_native::ToValue<float>( pJsCtx_, jsY, isValid );
         if ( !isValid )
         {
-            JS_ReportErrorASCII( pJsCtx_, "points[%d] can't be converted to number", i + 1 );
+            JS_ReportErrorUTF8( pJsCtx_, "points[%d] can't be converted to number", i + 1 );
             return false;
         }
 

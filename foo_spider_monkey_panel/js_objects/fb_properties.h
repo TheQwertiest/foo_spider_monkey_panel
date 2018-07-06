@@ -25,8 +25,8 @@ public:
 public:
     void RemoveHeapTracer();
 
-    std::optional<JS::Heap<JS::Value>> GetProperty( const std::string& propName, JS::HandleValue propDefaultValue );
-    bool SetProperty( const std::string& propName, JS::HandleValue propValue );
+    std::optional<JS::Heap<JS::Value>> GetProperty( const std::wstring& propName, JS::HandleValue propDefaultValue );
+    bool SetProperty( const std::wstring& propName, JS::HandleValue propValue );
 
 private:
     JsFbProperties( JSContext* cx, js_panel_window& parentPanel );
@@ -47,7 +47,7 @@ private:
         }
         JS::Heap<JS::Value> value;
     };
-    std::unordered_map<std::string, std::shared_ptr<HeapElement>> properties_;
+    std::unordered_map<std::wstring, std::shared_ptr<HeapElement>> properties_;
 };
 
 }

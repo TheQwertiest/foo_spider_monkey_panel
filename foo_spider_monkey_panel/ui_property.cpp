@@ -36,11 +36,11 @@ LRESULT CDialogProperty::OnPinItemChanged(LPNMHDR pnmh)
 {
 	LPNMPROPERTYITEM pnpi = (LPNMPROPERTYITEM)pnmh;
 
-	pfc::stringcvt::string_utf8_from_os uname = pnpi->prop->GetName();
+	std::wstring name = pnpi->prop->GetName();
 
-	if (m_dup_prop_map.count(uname.toString()))
+	if (m_dup_prop_map.count( name ))
 	{
-		auto& val = *(m_dup_prop_map[uname.toString()].get());
+		auto& val = *(m_dup_prop_map[name].get());
 		_variant_t var;
 
 		if (pnpi->prop->GetValue(&var))
@@ -150,7 +150,7 @@ void CDialogProperty::LoadProperties(bool reload)
 
     for (auto& elem : m_dup_prop_map)
     {
-        pfc::stringcvt::string_wide_from_utf8_fast wname( elem.first.c_str(), elem.first.length() );
+        std::wstring name( elem.first );
         HPROPERTY hProp = nullptr;        
         _variant_t var;
         VariantInit( &var );
@@ -161,14 +161,14 @@ void CDialogProperty::LoadProperties(bool reload)
         {
         case mozjs::JsValueType::pt_boolean:
         {
-            hProp = PropCreateSimple( wname, serializedValue.boolVal );
+            hProp = PropCreateSimple( name.c_str(), serializedValue.boolVal );
             break;
         }
         case mozjs::JsValueType::pt_int32:
         {
             var.vt = VT_I4;
             var.lVal = serializedValue.intVal;
-            hProp = PropCreateSimple( wname, var.lVal );
+            hProp = PropCreateSimple( name.c_str(), var.lVal );
             break;
         }
         case mozjs::JsValueType::pt_double:
@@ -177,7 +177,7 @@ void CDialogProperty::LoadProperties(bool reload)
             pfc::stringcvt::string_wide_from_utf8_fast wStrVal( strNumber.c_str(), strNumber.length() );
             var.vt = VT_BSTR;
             var.bstrVal = SysAllocString( wStrVal );
-            hProp = PropCreateSimple( wname, var.bstrVal );
+            hProp = PropCreateSimple( name.c_str(), var.bstrVal );
             break;
         }
         case mozjs::JsValueType::pt_string:
@@ -185,7 +185,7 @@ void CDialogProperty::LoadProperties(bool reload)
             pfc::stringcvt::string_wide_from_utf8_fast wStrVal( serializedValue.strVal.c_str(), serializedValue.strVal.length() );
             var.vt = VT_BSTR;
             var.bstrVal = SysAllocString( wStrVal );
-            hProp = PropCreateSimple( wname, var.bstrVal );
+            hProp = PropCreateSimple( name.c_str(), var.bstrVal );
             break;
         }
         default:
@@ -204,10 +204,10 @@ LRESULT CDialogProperty::OnDelBnClicked(WORD wNotifyCode, WORD wID, HWND hWndCtl
 	if (idx >= 0)
 	{
 		HPROPERTY hproperty = m_properties.GetProperty(idx);
-		pfc::stringcvt::string_utf8_from_os uname = hproperty->GetName();
+		std::wstring name = hproperty->GetName();
 
 		m_properties.DeleteItem(hproperty);
-		m_dup_prop_map.erase(uname.toString());
+		m_dup_prop_map.erase( name );
 	}
 
 	return 0;

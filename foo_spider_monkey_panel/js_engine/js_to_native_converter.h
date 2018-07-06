@@ -44,7 +44,7 @@ template <>
 double ToValue<double>( JSContext * cx, const JS::HandleValue& jsValue, bool& isValid );
 
 template <>
-std::string ToValue<std::string>( JSContext * cx, const JS::HandleValue& jsValue, bool& isValid );
+pfc::string8_fast ToValue<pfc::string8_fast>( JSContext * cx, const JS::HandleValue& jsValue, bool& isValid );
 
 template <>
 std::wstring ToValue<std::wstring>( JSContext * cx, const JS::HandleValue& jsValue, bool& isValid );

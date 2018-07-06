@@ -72,16 +72,10 @@ bool ToValue( JSContext *, const float& inValue, JS::MutableHandleValue wrappedV
 }
 
 template <>
-bool ToValue( JSContext * cx, const std::string_view& inValue, JS::MutableHandleValue wrappedValue )
+bool ToValue( JSContext * cx, const pfc::string8_fast& inValue, JS::MutableHandleValue wrappedValue )
 {
-    JS::RootedString jsString (cx, JS_NewStringCopyN( cx, inValue.data(), inValue.length() ));
-    if ( !jsString )
-    {
-        return false;
-    }
-
-    wrappedValue.setString( jsString );
-    return true;
+    pfc::stringcvt::string_wide_from_utf8 inValue8( inValue );
+    return ToValue<std::wstring_view>( cx, inValue8.get_ptr(), wrappedValue );
 }
 
 template <>
@@ -95,12 +89,6 @@ bool ToValue( JSContext * cx, const std::wstring_view& inValue, JS::MutableHandl
 
     wrappedValue.setString( jsString );
     return true;
-}
-
-template <>
-bool ToValue( JSContext * cx, const std::string& inValue, JS::MutableHandleValue wrappedValue )
-{
-    return ToValue<std::string_view>( cx, inValue, wrappedValue );
 }
 
 template <>

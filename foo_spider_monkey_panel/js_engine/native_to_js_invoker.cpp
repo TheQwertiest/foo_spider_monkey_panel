@@ -11,14 +11,14 @@ namespace mozjs
 {
 bool InvokeJsCallback_Impl( JSContext* cx,
                             JS::HandleObject globalObject,
-                            std::string_view functionName,
+                            pfc::string8_fast functionName,
                             const JS::HandleValueArray& args,
                             JS::MutableHandleValue rval )
 {      
     AutoReportException are( cx );
 
     JS::RootedValue funcValue( cx );
-    if ( !JS_GetProperty( cx, globalObject, functionName.data(), &funcValue ) )
+    if ( !JS_GetProperty( cx, globalObject, functionName.c_str(), &funcValue ) )
     {// Reports
         return false;
     }

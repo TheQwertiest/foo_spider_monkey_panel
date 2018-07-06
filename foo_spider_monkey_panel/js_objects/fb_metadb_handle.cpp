@@ -95,7 +95,7 @@ JSObject* JsFbMetadbHandle::Create( JSContext* cx, const metadb_handle_ptr& hand
 {
     if ( !handle.is_valid() )
     {
-        JS_ReportErrorASCII( cx, "Internal error: metadb_handle_ptr is null" );
+        JS_ReportErrorUTF8( cx, "Internal error: metadb_handle_ptr is null" );
         return nullptr;
     }    
 
@@ -149,7 +149,7 @@ JsFbMetadbHandle::Compare( JsFbMetadbHandle* handle )
 
     if ( !handle )
     {
-        JS_ReportErrorASCII( pJsCtx_, "handle argument is null" );
+        JS_ReportErrorUTF8( pJsCtx_, "handle argument is null" );
         return std::nullopt;
     }
 
@@ -177,7 +177,7 @@ JsFbMetadbHandle::GetFileInfo()
     JS::RootedObject jsObject( pJsCtx_, JsFbFileInfo::Create( pJsCtx_, pFileInfo.get() ) );
     if ( !jsObject )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Internal error: failed to create JS object" );
+        JS_ReportErrorUTF8( pJsCtx_, "Internal error: failed to create JS object" );
         return std::nullopt;
     }
 
@@ -200,7 +200,7 @@ JsFbMetadbHandle::RefreshStats()
 }
 
 std::optional<std::nullptr_t> 
-JsFbMetadbHandle::SetFirstPlayed( const std::string& first_played )
+JsFbMetadbHandle::SetFirstPlayed( const pfc::string8_fast& first_played )
 {
     assert( metadbHandle_.is_valid() );
 
@@ -219,7 +219,7 @@ JsFbMetadbHandle::SetFirstPlayed( const std::string& first_played )
 }
 
 std::optional<std::nullptr_t> 
-JsFbMetadbHandle::SetLastPlayed( const std::string& last_played )
+JsFbMetadbHandle::SetLastPlayed( const pfc::string8_fast& last_played )
 {
     assert( metadbHandle_.is_valid() );
 
@@ -308,14 +308,14 @@ JsFbMetadbHandle::get_Length()
     return metadbHandle_->get_length();
 }
 
-std::optional<std::string> 
+std::optional<pfc::string8_fast> 
 JsFbMetadbHandle::get_Path()
 {
     assert( metadbHandle_.is_valid() );
     return file_path_display( metadbHandle_->get_path() ).get_ptr();
 }
 
-std::optional<std::string> 
+std::optional<pfc::string8_fast> 
 JsFbMetadbHandle::get_RawPath()
 {
     assert( metadbHandle_.is_valid() );

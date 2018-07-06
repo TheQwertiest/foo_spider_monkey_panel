@@ -98,14 +98,14 @@ JsGdiUtils::CreateImage( uint32_t w, uint32_t h )
     std::unique_ptr<Gdiplus::Bitmap> img( new Gdiplus::Bitmap( w, h, PixelFormat32bppPARGB ) );
     if ( !helpers::ensure_gdiplus_object( img.get() ) )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Bitmap creation failed" );
+        JS_ReportErrorUTF8( pJsCtx_, "Bitmap creation failed" );
         return std::nullopt;
     }
 
     JS::RootedObject jsObject( pJsCtx_, JsGdiBitmap::Create( pJsCtx_, img.get() ) );
     if ( !jsObject )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Internal error: failed to create JS object" );
+        JS_ReportErrorUTF8( pJsCtx_, "Internal error: failed to create JS object" );
         return std::nullopt;
     }
 
@@ -151,7 +151,7 @@ JsGdiUtils::Font( const std::wstring& fontName, float pxSize, uint32_t style )
     {
         DeleteObject( hFont );
 
-        JS_ReportErrorASCII( pJsCtx_, "Internal error: failed to create JS object" );
+        JS_ReportErrorUTF8( pJsCtx_, "Internal error: failed to create JS object" );
         return std::nullopt;
     }
 
@@ -165,7 +165,7 @@ JsGdiUtils::FontWithOpt( size_t optArgCount, const std::wstring& fontName, float
 {
     if ( optArgCount > 1 )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
+        JS_ReportErrorUTF8( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
         return std::nullopt;
     }
 
@@ -197,7 +197,7 @@ JsGdiUtils::Image( const std::wstring& path )
     JS::RootedObject jsObject( pJsCtx_, JsGdiBitmap::Create( pJsCtx_, img.get() ) );
     if ( !jsObject )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Internal error: failed to create JS object" );
+        JS_ReportErrorUTF8( pJsCtx_, "Internal error: failed to create JS object" );
         return std::nullopt;
     }
 
@@ -210,7 +210,7 @@ JsGdiUtils::LoadImageAsync( uint32_t hWnd, const std::wstring& path )
 {
     if ( !hWnd )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Invalid hWnd argument" );
+        JS_ReportErrorUTF8( pJsCtx_, "Invalid hWnd argument" );
         return std::nullopt;
     }
     // Such cast will work only on x86

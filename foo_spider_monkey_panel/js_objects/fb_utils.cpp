@@ -231,7 +231,7 @@ JsFbUtils::AcquireUiSelectionHolder()
     JS::RootedObject jsObject( pJsCtx_, JsFbUiSelectionHolder::Create( pJsCtx_, holder ) );
     if ( !jsObject )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Internal error: failed to create JS object" );
+        JS_ReportErrorUTF8( pJsCtx_, "Internal error: failed to create JS object" );
         return std::nullopt;
     }
 
@@ -280,7 +280,7 @@ JsFbUtils::CopyHandleListToClipboard( JsFbMetadbHandleList* handles )
 {
     if ( !handles )
     {
-        JS_ReportErrorASCII( pJsCtx_, "handles argument is null" );
+        JS_ReportErrorUTF8( pJsCtx_, "handles argument is null" );
         return std::nullopt;
     }
 
@@ -299,7 +299,7 @@ JsFbUtils::CreateContextMenuManager()
     JS::RootedObject jsObject( pJsCtx_, JsContextMenuManager::Create( pJsCtx_ ) );
     if ( !jsObject )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Internal error: failed to create JS object" );
+        JS_ReportErrorUTF8( pJsCtx_, "Internal error: failed to create JS object" );
         return std::nullopt;
     }
 
@@ -313,7 +313,7 @@ JsFbUtils::CreateHandleList()
     JS::RootedObject jsObject( pJsCtx_, JsFbMetadbHandleList::Create( pJsCtx_, items ) );
     if ( !jsObject )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Internal error: failed to create JS object" );
+        JS_ReportErrorUTF8( pJsCtx_, "Internal error: failed to create JS object" );
         return std::nullopt;
     }
 
@@ -326,7 +326,7 @@ JsFbUtils::CreateMainMenuManager()
     JS::RootedObject jsObject( pJsCtx_, JsMainMenuManager::Create( pJsCtx_ ) );
     if ( !jsObject )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Internal error: failed to create JS object" );
+        JS_ReportErrorUTF8( pJsCtx_, "Internal error: failed to create JS object" );
         return std::nullopt;
     }
 
@@ -334,12 +334,12 @@ JsFbUtils::CreateMainMenuManager()
 }
 
 std::optional<JSObject*>
-JsFbUtils::CreateProfiler( const std::string& name )
+JsFbUtils::CreateProfiler( const pfc::string8_fast& name )
 {
     JS::RootedObject jsObject( pJsCtx_, JsFbProfiler::Create( pJsCtx_, name ) );
     if ( !jsObject )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Internal error: failed to create JS object" );
+        JS_ReportErrorUTF8( pJsCtx_, "Internal error: failed to create JS object" );
         return std::nullopt;
     }
 
@@ -347,11 +347,11 @@ JsFbUtils::CreateProfiler( const std::string& name )
 }
 
 std::optional<JSObject*> 
-JsFbUtils::CreateProfilerWithOpt( size_t optArgCount, const std::string& name )
+JsFbUtils::CreateProfilerWithOpt( size_t optArgCount, const pfc::string8_fast& name )
 {
     if ( optArgCount > 1 )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
+        JS_ReportErrorUTF8( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
         return std::nullopt;
     }
 
@@ -368,7 +368,7 @@ JsFbUtils::DoDragDrop( JsFbMetadbHandleList* handles, uint32_t okEffects )
 {
     if ( !handles )
     {
-        JS_ReportErrorASCII( pJsCtx_, "handles argument is null" );
+        JS_ReportErrorUTF8( pJsCtx_, "handles argument is null" );
         return std::nullopt;
     }
 
@@ -420,19 +420,19 @@ JsFbUtils::GetClipboardContents( uint32_t hWindow )
     JS::RootedObject jsObject( pJsCtx_, JsFbMetadbHandleList::Create( pJsCtx_, items ) );
     if ( !jsObject )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Internal error: failed to create JS object" );
+        JS_ReportErrorUTF8( pJsCtx_, "Internal error: failed to create JS object" );
         return std::nullopt;
     }
 
     return jsObject;
 }
 
-std::optional<std::string>
+std::optional<pfc::string8_fast>
 JsFbUtils::GetDSPPresets()
 {
     if ( !helpers::is14() )
     {
-        JS_ReportErrorASCII( pJsCtx_, "foobar2000 v1.4+ is required for this method" );
+        JS_ReportErrorUTF8( pJsCtx_, "foobar2000 v1.4+ is required for this method" );
         return std::nullopt;
     }
 
@@ -453,7 +453,7 @@ JsFbUtils::GetDSPPresets()
         );
     }
 
-    return j.dump();
+    return j.dump().c_str();
 }
 
 std::optional<JSObject*>
@@ -475,7 +475,7 @@ JsFbUtils::GetFocusItem( bool force )
     JS::RootedObject jsObject( pJsCtx_, JsFbMetadbHandle::Create( pJsCtx_, metadb ) );
     if ( !jsObject )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Internal error: failed to create JS object" );
+        JS_ReportErrorUTF8( pJsCtx_, "Internal error: failed to create JS object" );
         return std::nullopt;
     }
 
@@ -487,7 +487,7 @@ JsFbUtils::GetFocusItemWithOpt( size_t optArgCount, bool force )
 {
     if ( optArgCount > 1 )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
+        JS_ReportErrorUTF8( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
         return std::nullopt;
     }
 
@@ -508,19 +508,19 @@ JsFbUtils::GetLibraryItems()
     JS::RootedObject jsObject( pJsCtx_, JsFbMetadbHandleList::Create( pJsCtx_, items ) );
     if ( !jsObject )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Internal error: failed to create JS object" );
+        JS_ReportErrorUTF8( pJsCtx_, "Internal error: failed to create JS object" );
         return std::nullopt;
     }
 
     return jsObject;
 }
 
-std::optional<std::string>
+std::optional<pfc::string8_fast>
 JsFbUtils::GetLibraryRelativePath( JsFbMetadbHandle* handle )
 {
     if ( !handle )
     {
-        JS_ReportErrorASCII( pJsCtx_, "handle argument is null" );
+        JS_ReportErrorUTF8( pJsCtx_, "handle argument is null" );
         return std::nullopt;
     }
 
@@ -531,7 +531,7 @@ JsFbUtils::GetLibraryRelativePath( JsFbMetadbHandle* handle )
         temp = "";
     }
 
-    return std::string( temp.c_str(), temp.length() );
+    return pfc::string8_fast( temp.c_str(), temp.length() );
 }
 
 std::optional<JSObject*>
@@ -546,19 +546,19 @@ JsFbUtils::GetNowPlaying()
     JS::RootedObject jsObject( pJsCtx_, JsFbMetadbHandle::Create( pJsCtx_, metadb ) );
     if ( !jsObject )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Internal error: failed to create JS object" );
+        JS_ReportErrorUTF8( pJsCtx_, "Internal error: failed to create JS object" );
         return std::nullopt;
     }
 
     return jsObject;
 }
 
-std::optional<std::string>
+std::optional<pfc::string8_fast>
 JsFbUtils::GetOutputDevices()
 {
     if ( !helpers::is14() )
     {
-        JS_ReportErrorASCII( pJsCtx_, "foobar2000 v1.4+ is required for this method" );
+        JS_ReportErrorUTF8( pJsCtx_, "foobar2000 v1.4+ is required for this method" );
         return std::nullopt;
     }
 
@@ -583,15 +583,15 @@ JsFbUtils::GetOutputDevices()
                           );
                       } );
 
-    return j.dump();
+    return j.dump().c_str();
 }
 
 std::optional<JSObject*>
-JsFbUtils::GetQueryItems( JsFbMetadbHandleList* handles, const std::string& query )
+JsFbUtils::GetQueryItems( JsFbMetadbHandleList* handles, const pfc::string8_fast& query )
 {
     if ( !handles )
     {
-        JS_ReportErrorASCII( pJsCtx_, "handles argument is null" );
+        JS_ReportErrorUTF8( pJsCtx_, "handles argument is null" );
         return std::nullopt;
     }
 
@@ -618,7 +618,7 @@ JsFbUtils::GetQueryItems( JsFbMetadbHandleList* handles, const std::string& quer
     JS::RootedObject jsObject( pJsCtx_, JsFbMetadbHandleList::Create( pJsCtx_, dst_list ) );
     if ( !jsObject )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Internal error: failed to create JS object" );
+        JS_ReportErrorUTF8( pJsCtx_, "Internal error: failed to create JS object" );
         return std::nullopt;
     }
 
@@ -639,7 +639,7 @@ JsFbUtils::GetSelection()
     JS::RootedObject jsObject( pJsCtx_, JsFbMetadbHandle::Create( pJsCtx_, items[0] ) );
     if ( !jsObject )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Internal error: failed to create JS object" );
+        JS_ReportErrorUTF8( pJsCtx_, "Internal error: failed to create JS object" );
         return std::nullopt;
     }
 
@@ -655,7 +655,7 @@ JsFbUtils::GetSelections( uint32_t flags )
     JS::RootedObject jsObject( pJsCtx_, JsFbMetadbHandleList::Create( pJsCtx_, items ) );
     if ( !jsObject )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Internal error: failed to create JS object" );
+        JS_ReportErrorUTF8( pJsCtx_, "Internal error: failed to create JS object" );
         return std::nullopt;
     }
 
@@ -667,7 +667,7 @@ JsFbUtils::GetSelectionsWithOpt( size_t optArgCount, uint32_t flags )
 {
     if ( optArgCount > 1 )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
+        JS_ReportErrorUTF8( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
         return std::nullopt;
     }
 
@@ -711,7 +711,7 @@ JsFbUtils::IsLibraryEnabled()
 }
 
 std::optional<bool>
-JsFbUtils::IsMainMenuCommandChecked( const std::string& command )
+JsFbUtils::IsMainMenuCommandChecked( const pfc::string8_fast& command )
 {// TODO: inspect get_mainmenu_command_status_by_name_SEH
     t_uint32 status;
     if ( !helpers::get_mainmenu_command_status_by_name_SEH( command.c_str(), status ) )
@@ -728,7 +728,7 @@ JsFbUtils::IsMetadbInMediaLibrary( JsFbMetadbHandle* handle )
 {
     if ( !handle )
     {
-        JS_ReportErrorASCII( pJsCtx_, "handle argument is null" );
+        JS_ReportErrorUTF8( pJsCtx_, "handle argument is null" );
         return std::nullopt;
     }
 
@@ -785,18 +785,18 @@ JsFbUtils::Random()
 }
 
 std::optional<bool>
-JsFbUtils::RunContextCommand( const std::string& command, uint32_t flags )
+JsFbUtils::RunContextCommand( const pfc::string8_fast& command, uint32_t flags )
 {
     metadb_handle_list dummy_list;
     return helpers::execute_context_command_by_name_SEH( command.c_str(), dummy_list, flags );  
 }
 
 std::optional<bool> 
-JsFbUtils::RunContextCommandWithOpt( size_t optArgCount, const std::string& command, uint32_t flags )
+JsFbUtils::RunContextCommandWithOpt( size_t optArgCount, const pfc::string8_fast& command, uint32_t flags )
 {
     if ( optArgCount > 1 )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
+        JS_ReportErrorUTF8( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
         return std::nullopt;
     }
 
@@ -809,11 +809,11 @@ JsFbUtils::RunContextCommandWithOpt( size_t optArgCount, const std::string& comm
 }
 
 std::optional<bool>
-JsFbUtils::RunContextCommandWithMetadb( const std::string& command, JS::HandleValue handle, uint32_t flags )
+JsFbUtils::RunContextCommandWithMetadb( const pfc::string8_fast& command, JS::HandleValue handle, uint32_t flags )
 {
     if ( !handle.isObject() )
     {
-        JS_ReportErrorASCII( pJsCtx_, "handle argument is invalid" );
+        JS_ReportErrorUTF8( pJsCtx_, "handle argument is invalid" );
         return std::nullopt;
     }
 
@@ -826,7 +826,7 @@ JsFbUtils::RunContextCommandWithMetadb( const std::string& command, JS::HandleVa
 
     if ( !jsHandle || !jsHandleList )
     {
-        JS_ReportErrorASCII( pJsCtx_, "handle argument is invalid" );
+        JS_ReportErrorUTF8( pJsCtx_, "handle argument is invalid" );
         return std::nullopt;
     }
 
@@ -844,11 +844,11 @@ JsFbUtils::RunContextCommandWithMetadb( const std::string& command, JS::HandleVa
 }
 
 std::optional<bool> 
-JsFbUtils::RunContextCommandWithMetadbWithOpt( size_t optArgCount, const std::string& command, JS::HandleValue handle, uint32_t flags )
+JsFbUtils::RunContextCommandWithMetadbWithOpt( size_t optArgCount, const pfc::string8_fast& command, JS::HandleValue handle, uint32_t flags )
 {
     if ( optArgCount > 1 )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
+        JS_ReportErrorUTF8( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
         return std::nullopt;
     }
 
@@ -861,7 +861,7 @@ JsFbUtils::RunContextCommandWithMetadbWithOpt( size_t optArgCount, const std::st
 }
 
 std::optional<bool>
-JsFbUtils::RunMainMenuCommand( const std::string& command )
+JsFbUtils::RunMainMenuCommand( const pfc::string8_fast& command )
 {
     return helpers::execute_mainmenu_command_by_name_SEH( command.c_str() );
 }
@@ -892,7 +892,7 @@ JsFbUtils::SetDSPPreset( uint32_t idx )
 {
     if ( !helpers::is14() )
     {
-        JS_ReportErrorASCII( pJsCtx_, "foobar2000 v1.4+ is required for this method" );
+        JS_ReportErrorUTF8( pJsCtx_, "foobar2000 v1.4+ is required for this method" );
         return std::nullopt;
     }
 
@@ -901,7 +901,7 @@ JsFbUtils::SetDSPPreset( uint32_t idx )
 
     if ( idx >= count )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Index is out of bounds" );
+        JS_ReportErrorUTF8( pJsCtx_, "Index is out of bounds" );
         return std::nullopt;
     }
 
@@ -914,7 +914,7 @@ JsFbUtils::SetOutputDevice( const std::wstring& output, const std::wstring& devi
 {
     if ( !helpers::is14() )
     {
-        JS_ReportErrorASCII( pJsCtx_, "foobar2000 v1.4+ is required for this method" );
+        JS_ReportErrorUTF8( pJsCtx_, "foobar2000 v1.4+ is required for this method" );
         return std::nullopt;
     }
 
@@ -937,25 +937,25 @@ JsFbUtils::ShowConsole()
 }
 
 std::optional<std::nullptr_t>
-JsFbUtils::ShowLibrarySearchUI( const std::string& query )
+JsFbUtils::ShowLibrarySearchUI( const pfc::string8_fast& query )
 {
     library_search_ui::get()->show( query.c_str() );
     return nullptr;
 }
 
 std::optional<std::nullptr_t>
-JsFbUtils::ShowPopupMessage( const std::string& msg, const std::string& title )
+JsFbUtils::ShowPopupMessage( const pfc::string8_fast& msg, const pfc::string8_fast& title )
 {
     popup_msg::g_show( msg.c_str(), title.c_str() );
     return nullptr;
 }
 
 std::optional<std::nullptr_t> 
-JsFbUtils::ShowPopupMessageWithOpt( size_t optArgCount, const std::string& msg, const std::string& title )
+JsFbUtils::ShowPopupMessageWithOpt( size_t optArgCount, const pfc::string8_fast& msg, const pfc::string8_fast& title )
 {
     if ( optArgCount > 1 )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
+        JS_ReportErrorUTF8( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
         return std::nullopt;
     }
 
@@ -982,12 +982,12 @@ JsFbUtils::Stop()
 }
 
 std::optional<JSObject*>
-JsFbUtils::TitleFormat( const std::string& expression )
+JsFbUtils::TitleFormat( const pfc::string8_fast& expression )
 {
     JS::RootedObject jsObject( pJsCtx_, JsFbTitleFormat::Create( pJsCtx_, expression ) );
     if ( !jsObject )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Internal error: failed to create JS object" );
+        JS_ReportErrorUTF8( pJsCtx_, "Internal error: failed to create JS object" );
         return std::nullopt;
     }
 
@@ -1021,11 +1021,11 @@ JsFbUtils::get_AlwaysOnTop()
     return config_object::g_get_data_bool_simple( standard_config_objects::bool_ui_always_on_top, false );
 }
 
-std::optional<std::string>
+std::optional<pfc::string8_fast>
 JsFbUtils::get_ComponentPath()
 {
     pfc::string8_fast tmp( helpers::get_fb2k_component_path() );
-    return std::string( tmp.c_str(), tmp.length() );
+    return pfc::string8_fast( tmp.c_str(), tmp.length() );
 }
 
 std::optional<bool>
@@ -1034,11 +1034,11 @@ JsFbUtils::get_CursorFollowPlayback()
     return config_object::g_get_data_bool_simple( standard_config_objects::bool_cursor_follows_playback, false );
 }
 
-std::optional<std::string>
+std::optional<pfc::string8_fast>
 JsFbUtils::get_FoobarPath()
 {
     pfc::string8_fast tmp( helpers::get_fb2k_path() );
-    return std::string( tmp.c_str(), tmp.length() );
+    return pfc::string8_fast( tmp.c_str(), tmp.length() );
 }
 
 std::optional<bool>
@@ -1071,11 +1071,11 @@ JsFbUtils::get_PlaybackTime()
     return playback_control::get()->playback_get_position();
 }
 
-std::optional<std::string>
+std::optional<pfc::string8_fast>
 JsFbUtils::get_ProfilePath()
 {
     pfc::string8_fast tmp( helpers::get_profile_path() );
-    return std::string( tmp.c_str(), tmp.length() );
+    return pfc::string8_fast( tmp.c_str(), tmp.length() );
 }
 
 std::optional<uint32_t>
@@ -1145,7 +1145,7 @@ JsFbUtils::put_ReplaygainMode( uint32_t p )
         break;
     default:
     {
-        JS_ReportErrorASCII( pJsCtx_, "Invalid replay gain mode: %d", p );
+        JS_ReportErrorUTF8( pJsCtx_, "Invalid replay gain mode: %d", p );
         return std::nullopt;
     }
     }

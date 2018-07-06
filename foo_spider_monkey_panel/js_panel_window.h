@@ -23,7 +23,7 @@ public:
     virtual ~js_panel_window();
     void update_script(const char* code = nullptr);
 
-    void JsEngineFail( std::string_view errorText );
+    void JsEngineFail( const pfc::string8_fast& errorText );
 protected:
     LRESULT on_message(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp);
     bool show_configure_popup(HWND parent);
