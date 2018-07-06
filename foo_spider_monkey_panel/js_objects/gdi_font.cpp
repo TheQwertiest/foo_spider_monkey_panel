@@ -80,7 +80,7 @@ JSObject* JsGdiFont::Create( JSContext* cx, Gdiplus::Font* pGdiFont, HFONT hFont
 {
     if ( !pGdiFont )
     {
-        JS_ReportErrorASCII( cx, "Internal error: Gdiplus::Font object is null" );
+        JS_ReportErrorUTF8( cx, "Internal error: Gdiplus::Font object is null" );
         return nullptr;
     }    
 

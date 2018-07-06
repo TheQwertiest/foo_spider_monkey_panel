@@ -35,15 +35,12 @@ inline DWORD edge_style_from_config(t_edge_style edge_style)
 class prop_kv_config
 {
 public:
-    using config_map = std::unordered_map<std::string, std::shared_ptr<mozjs::SerializedJsValue>>;
-    config_map& get_val()
-	{
-		return m_map;
-	}
+    using config_map = std::unordered_map<std::wstring, std::shared_ptr<mozjs::SerializedJsValue>>;
 
-    std::optional<mozjs::SerializedJsValue> get_config_item( const std::string& propName );
-    void set_config_item( const std::string& propName, const mozjs::SerializedJsValue& serializedValue );
-    void remove_config_item( const std::string& propName );
+    config_map& get_val();
+    std::optional<mozjs::SerializedJsValue> get_config_item( const std::wstring& propName );
+    void set_config_item( const std::wstring& propName, const mozjs::SerializedJsValue& serializedValue );
+    void remove_config_item( const std::wstring& propName );
 	static void g_load( config_map& data, stream_reader* reader, abort_callback& abort) throw();
 	static void g_save(const config_map& data, stream_writer* writer, abort_callback& abort) throw();
 	void load(stream_reader* reader, abort_callback& abort) throw();

@@ -40,7 +40,7 @@ public:
     static const JSClass& GetClass();
 
 public:
-    void Fail( std::string_view errorText);
+    void Fail( pfc::string8_fast errorText);
 
     void RegisterHeapUser( IHeapUser* heapUser );
     void UnregisterHeapUser( IHeapUser* heapUser );

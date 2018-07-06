@@ -96,13 +96,13 @@ JsContextMenuManager::BuildMenu( JsMenuObject* menuObject, int32_t base_id, int3
 {
     if ( !contextMenu_.is_empty() )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Context menu is not initialized" );
+        JS_ReportErrorUTF8( pJsCtx_, "Context menu is not initialized" );
         return std::nullopt;
     }
 
     if ( !menuObject )
     {
-        JS_ReportErrorASCII( pJsCtx_, "menuObject argument is null" );
+        JS_ReportErrorUTF8( pJsCtx_, "menuObject argument is null" );
         return std::nullopt;
     }
 
@@ -117,7 +117,7 @@ JsContextMenuManager::BuildMenuWithOpt( size_t optArgCount, JsMenuObject* menuOb
 {
     if ( optArgCount > 1 )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
+        JS_ReportErrorUTF8( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
         return std::nullopt;
     }
 
@@ -134,7 +134,7 @@ JsContextMenuManager::ExecuteByID( uint32_t id )
 {
     if ( !contextMenu_.is_empty() )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Context menu is not initialized" );
+        JS_ReportErrorUTF8( pJsCtx_, "Context menu is not initialized" );
         return std::nullopt;
     }
 
@@ -146,7 +146,7 @@ JsContextMenuManager::InitContext( JsFbMetadbHandleList* handles )
 {
     if ( !handles )
     {
-        JS_ReportErrorASCII( pJsCtx_, "handles argument is null" );
+        JS_ReportErrorUTF8( pJsCtx_, "handles argument is null" );
         return std::nullopt;
     }
 

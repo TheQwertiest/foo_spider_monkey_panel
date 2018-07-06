@@ -15,7 +15,7 @@ class JsFbProfiler
 public:
     ~JsFbProfiler();
 
-    static JSObject* Create( JSContext* cx, const std::string& name );
+    static JSObject* Create( JSContext* cx, const pfc::string8_fast& name );
 
     static const JSClass& GetClass();
 
@@ -28,7 +28,7 @@ public:
     std::optional<uint32_t> get_Time();
 
 private:
-    JsFbProfiler( JSContext* cx, const std::string& name );
+    JsFbProfiler( JSContext* cx, const pfc::string8_fast& name );
     JsFbProfiler( const JsFbProfiler& ) = delete;
     JsFbProfiler& operator=( const JsFbProfiler& ) = delete;
 

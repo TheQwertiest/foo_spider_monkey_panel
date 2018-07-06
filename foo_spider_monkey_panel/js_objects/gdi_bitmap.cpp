@@ -98,7 +98,7 @@ JSObject* JsGdiBitmap::Create( JSContext* cx, Gdiplus::Bitmap* pGdiBitmap )
 {
     if ( !pGdiBitmap )
     {
-        JS_ReportErrorASCII( cx, "Internal error: Gdiplus::Bitmap object is null" );
+        JS_ReportErrorUTF8( cx, "Internal error: Gdiplus::Bitmap object is null" );
         return nullptr;
     }
 
@@ -156,7 +156,7 @@ JsGdiBitmap::ApplyAlpha( uint8_t alpha )
     std::unique_ptr<Gdiplus::Bitmap> out( new Gdiplus::Bitmap( width, height, PixelFormat32bppPARGB ) );
     if ( !helpers::ensure_gdiplus_object( out.get() ) )
     {// TODO: replace with IF_FAILED macro
-        JS_ReportErrorASCII( pJsCtx_, "Internal error: failed to create Gdiplus object" );
+        JS_ReportErrorUTF8( pJsCtx_, "Internal error: failed to create Gdiplus object" );
         return std::nullopt;
     }
 
@@ -180,7 +180,7 @@ JsGdiBitmap::ApplyAlpha( uint8_t alpha )
     JS::RootedObject jsObject( pJsCtx_, JsGdiBitmap::Create( pJsCtx_, out.get() ) );
     if ( !jsObject )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Internal error: failed to create JS object" );
+        JS_ReportErrorUTF8( pJsCtx_, "Internal error: failed to create JS object" );
         return std::nullopt;
     }
 
@@ -195,7 +195,7 @@ JsGdiBitmap::ApplyMask( JsGdiBitmap* mask )
 
     if ( !mask )
     {
-        JS_ReportErrorASCII( pJsCtx_, "mask argument is null" );
+        JS_ReportErrorUTF8( pJsCtx_, "mask argument is null" );
         return std::nullopt;
     }
 
@@ -205,7 +205,7 @@ JsGdiBitmap::ApplyMask( JsGdiBitmap* mask )
     if ( pBitmapMask->GetHeight() != pGdi_->GetHeight() 
          || pBitmapMask->GetWidth() != pGdi_->GetWidth() )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Mismatched dimensions" );
+        JS_ReportErrorUTF8( pJsCtx_, "Mismatched dimensions" );
         return std::nullopt;
     }
 
@@ -261,14 +261,14 @@ JsGdiBitmap::Clone( float x, float y, float w, float h )
     std::unique_ptr<Gdiplus::Bitmap> img( pGdi_->Clone( x, y, w, h, PixelFormat32bppPARGB ) );
     if ( !helpers::ensure_gdiplus_object( img.get() ) )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Clone failed" );
+        JS_ReportErrorUTF8( pJsCtx_, "Clone failed" );
         return std::nullopt;
     }
 
     JS::RootedObject jsObject( pJsCtx_, JsGdiBitmap::Create( pJsCtx_, img.get() ) );
     if ( !jsObject )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Internal error: failed to create JS object" );
+        JS_ReportErrorUTF8( pJsCtx_, "Internal error: failed to create JS object" );
         return std::nullopt;
     }
 
@@ -283,7 +283,7 @@ std::optional<JSObject*> JsGdiBitmap::CreateRawBitmap()
     JS::RootedObject jsObject( pJsCtx_, JsGdiRawBitmap::Create( pJsCtx_, pGdi_.get() ) );
     if ( !jsObject )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Internal error: failed to create JS object" );
+        JS_ReportErrorUTF8( pJsCtx_, "Internal error: failed to create JS object" );
         return std::nullopt;
     }
 
@@ -354,7 +354,7 @@ JsGdiBitmap::GetColourScheme( uint32_t count )
 
         if ( !JS_SetElement( pJsCtx_, jsArray, i, jsValue ) )
         {
-            JS_ReportErrorASCII( pJsCtx_, "Internal error: JS_SetElement failed" );
+            JS_ReportErrorUTF8( pJsCtx_, "Internal error: JS_SetElement failed" );
             return std::nullopt;
         }
     }
@@ -362,7 +362,7 @@ JsGdiBitmap::GetColourScheme( uint32_t count )
     return jsArray;
 }
 
-std::optional<std::string> 
+std::optional<pfc::string8_fast> 
 JsGdiBitmap::GetColourSchemeJSON( uint32_t count )
 {
     assert( pGdi_ );
@@ -376,7 +376,7 @@ JsGdiBitmap::GetColourSchemeJSON( uint32_t count )
     Gdiplus::Bitmap* bitmap = new Gdiplus::Bitmap( w, h, PixelFormat32bppPARGB );
     if ( !helpers::ensure_gdiplus_object( bitmap ) )
     {// TODO: replace with IF_FAILED macro
-        JS_ReportErrorASCII( pJsCtx_, "Internal error: failed to create Gdiplus object" );
+        JS_ReportErrorUTF8( pJsCtx_, "Internal error: failed to create Gdiplus object" );
         return std::nullopt;
     }
 
@@ -458,7 +458,8 @@ JsGdiBitmap::GetColourSchemeJSON( uint32_t count )
                 { "freq", frequency }
             } );
     }
-    return j.dump();    
+
+    return j.dump().c_str();    
 }
 
 std::optional<JSObject*>
@@ -469,21 +470,21 @@ JsGdiBitmap::GetGraphics()
     std::unique_ptr<Gdiplus::Graphics> g( new Gdiplus::Graphics( pGdi_.get() ) );
     if ( !helpers::ensure_gdiplus_object( g.get() ) )
     {// TODO: replace with IF_FAILED macro
-        JS_ReportErrorASCII( pJsCtx_, "Internal error: failed to create Gdiplus object" );
+        JS_ReportErrorUTF8( pJsCtx_, "Internal error: failed to create Gdiplus object" );
         return std::nullopt;
     }
 
     JS::RootedObject jsObject( pJsCtx_, JsGdiGraphics::Create( pJsCtx_ ) );
     if ( !jsObject )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Internal error: failed to create JS object" );
+        JS_ReportErrorUTF8( pJsCtx_, "Internal error: failed to create JS object" );
         return std::nullopt;
     }
 
     JsGdiGraphics* pNativeObject = GetNativeFromJsObject<JsGdiGraphics>( pJsCtx_, jsObject );
     if ( !pNativeObject )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Internal error: failed to get JsGdiGraphics object" );
+        JS_ReportErrorUTF8( pJsCtx_, "Internal error: failed to get JsGdiGraphics object" );
         return std::nullopt;
     }
 
@@ -521,7 +522,7 @@ JsGdiBitmap::Resize( uint32_t w, uint32_t h, uint32_t interpolationMode )
     std::unique_ptr<Gdiplus::Bitmap> bitmap( new Gdiplus::Bitmap( w, h, PixelFormat32bppPARGB ) );
     if ( !helpers::ensure_gdiplus_object( bitmap.get() ) )
     {// TODO: replace with IF_FAILED macro
-        JS_ReportErrorASCII( pJsCtx_, "Internal error: failed to create Gdiplus object" );
+        JS_ReportErrorUTF8( pJsCtx_, "Internal error: failed to create Gdiplus object" );
         return std::nullopt;
     }
 
@@ -535,7 +536,7 @@ JsGdiBitmap::Resize( uint32_t w, uint32_t h, uint32_t interpolationMode )
     JS::RootedObject jsRetObject( pJsCtx_, JsGdiBitmap::Create( pJsCtx_, bitmap.get() ) );
     if ( !jsRetObject )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Internal error: failed to create JS object" );
+        JS_ReportErrorUTF8( pJsCtx_, "Internal error: failed to create JS object" );
         return std::nullopt;
     }
 
@@ -551,7 +552,7 @@ JsGdiBitmap::ResizeWithOpt( size_t optArgCount, uint32_t w, uint32_t h, uint32_t
 
     if ( optArgCount > 1 )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
+        JS_ReportErrorUTF8( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
         return std::nullopt;
     }
 
@@ -595,7 +596,7 @@ JsGdiBitmap::SaveAsWithOpt( size_t optArgCount, const std::wstring& path, const 
 {
     if ( optArgCount > 1 )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
+        JS_ReportErrorUTF8( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
         return std::nullopt;
     }
 

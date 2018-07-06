@@ -23,7 +23,7 @@ private:
 
 private:
     metadb_handle_ptr handle_;
-    std::string rawPath_;
+    pfc::string8_fast rawPath_;
     uint32_t artId_;
     bool needStub_;
     bool onlyEmbed_;
@@ -41,13 +41,13 @@ AlbumArtFetchTask::AlbumArtFetchTask( HWND hNotifyWnd, metadb_handle_ptr handle,
 {
     if ( handle_.is_valid() )
     {
-        rawPath_.assign( handle_->get_path() );
+        rawPath_.add_string( handle_->get_path() );
     }
 }
 
 void AlbumArtFetchTask::run()
 {
-    std::string imagePath;
+    pfc::string8_fast imagePath;
     std::unique_ptr<Gdiplus::Bitmap> bitmap;
 
     if ( handle_.is_valid() )
@@ -70,7 +70,7 @@ void AlbumArtFetchTask::run()
     taskResult.handle = handle_;
     taskResult.artId = artId_;
     taskResult.bitmap.reset( bitmap.release() );
-    taskResult.imagePath = imagePath.empty() ? "" : file_path_display( imagePath.c_str() );
+    taskResult.imagePath = imagePath.is_empty() ? "" : file_path_display( imagePath.c_str() );
     SendMessage( hNotifyWnd_, CALLBACK_UWM_ON_GET_ALBUM_ART_DONE, 0, (LPARAM)&taskResult );
 }
 
@@ -123,7 +123,7 @@ Gdiplus::Bitmap* GetBitmapFromAlbumArtData( const album_art_data_ptr& data )
     return bmp.release();
 }
 
-Gdiplus::Bitmap* ExtractBitmap( album_art_extractor_instance_v2::ptr extractor, GUID& artTypeGuid, bool no_load, std::string* pImagePath )
+Gdiplus::Bitmap* ExtractBitmap( album_art_extractor_instance_v2::ptr extractor, GUID& artTypeGuid, bool no_load, pfc::string8_fast* pImagePath )
 {
     abort_callback_dummy abort;
     album_art_data_ptr data = extractor->query( artTypeGuid, abort );
@@ -139,7 +139,7 @@ Gdiplus::Bitmap* ExtractBitmap( album_art_extractor_instance_v2::ptr extractor, 
         album_art_path_list::ptr pathlist = extractor->query_paths( artTypeGuid, abort );
         if ( pathlist->get_count() > 0 )
         {
-            pImagePath->assign( pathlist->get_path( 0 ) );
+            pImagePath->add_string( pathlist->get_path( 0 ) );
         }
     }
 
@@ -151,7 +151,7 @@ Gdiplus::Bitmap* ExtractBitmap( album_art_extractor_instance_v2::ptr extractor, 
 namespace mozjs::art
 {
 
-Gdiplus::Bitmap* GetBitmapFromEmbeddedData( const std::string& rawpath, uint32_t art_id )
+Gdiplus::Bitmap* GetBitmapFromEmbeddedData( const pfc::string8_fast& rawpath, uint32_t art_id )
 {
     pfc::string_extension extension( rawpath.c_str() );
     service_enum_t<album_art_extractor> extractorEnum;
@@ -187,7 +187,7 @@ Gdiplus::Bitmap* GetBitmapFromEmbeddedData( const std::string& rawpath, uint32_t
     return nullptr;
 }
 
-Gdiplus::Bitmap* GetBitmapFromMetadb( const metadb_handle_ptr& handle, uint32_t art_id, bool need_stub, bool no_load, std::string* pImagePath )
+Gdiplus::Bitmap* GetBitmapFromMetadb( const metadb_handle_ptr& handle, uint32_t art_id, bool need_stub, bool no_load, pfc::string8_fast* pImagePath )
 {
     if ( !handle.is_valid() )
     {

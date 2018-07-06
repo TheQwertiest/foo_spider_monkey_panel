@@ -35,7 +35,7 @@ public: //methods
     std::optional<JSObject*> Clone( float x, float y, float w, float h );
     std::optional<JSObject*> CreateRawBitmap();
     std::optional<JSObject*> GetColourScheme( uint32_t count );
-    std::optional<std::string> GetColourSchemeJSON( uint32_t count );
+    std::optional<pfc::string8_fast> GetColourSchemeJSON( uint32_t count );
     std::optional<JSObject*> GetGraphics();
     std::optional<std::nullptr_t> ReleaseGraphics( JsGdiGraphics* graphics );
     std::optional<JSObject*> Resize( uint32_t w, uint32_t h, uint32_t interpolationMode = 0 );

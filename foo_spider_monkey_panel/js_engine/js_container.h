@@ -46,10 +46,10 @@ public:
 
     JsStatus GetStatus() const;
 
-    bool ExecuteScript( std::string_view scriptCode );
+    bool ExecuteScript( pfc::string8_fast scriptCode );
 
     template <typename ReturnType = std::nullptr_t, typename... Args>
-    std::optional<ReturnType> InvokeJsCallback( std::string_view functionName,
+    std::optional<ReturnType> InvokeJsCallback( pfc::string8_fast functionName,
                                                 Args&&... args )
     {
         if ( JsStatus::Ready != jsStatus_ )
@@ -59,7 +59,7 @@ public:
         return mozjs::InvokeJsCallback<ReturnType>( pJsCtx_, jsGlobal_, functionName, args... );
     }    
 
-    void InvokeOnNotifyCallback( const std::string& name, const std::wstring& data );
+    void InvokeOnNotifyCallback( const std::wstring& name, const std::wstring& data );
     void InvokeOnPaintCallback( Gdiplus::Graphics& gr );
 
     uint32_t SetInterval( HWND hWnd, uint32_t delay, JS::HandleFunction jsFunction );

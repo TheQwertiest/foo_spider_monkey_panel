@@ -181,7 +181,7 @@ JsFbTooltip::GetDelayTime( uint32_t type )
 {
     if ( type < TTDT_AUTOMATIC || type > TTDT_INITIAL )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Invalid delay type" );
+        JS_ReportErrorUTF8( pJsCtx_, "Invalid delay type" );
         return std::nullopt;
     }
 
@@ -193,7 +193,7 @@ JsFbTooltip::SetDelayTime( uint32_t type, int32_t time )
 {   
     if ( type < TTDT_AUTOMATIC || type > TTDT_INITIAL )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Invalid delay type" );
+        JS_ReportErrorUTF8( pJsCtx_, "Invalid delay type" );
         return std::nullopt;
     }
 

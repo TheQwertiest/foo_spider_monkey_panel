@@ -53,7 +53,7 @@ public: // methods
     std::optional<std::nullptr_t> RemoveById( uint32_t index );
     std::optional<std::nullptr_t> RemoveRange( uint32_t from, uint32_t count );
     std::optional<std::nullptr_t> Sort();
-    std::optional<std::nullptr_t> UpdateFileInfoFromJSON( const std::string& str );
+    std::optional<std::nullptr_t> UpdateFileInfoFromJSON( const pfc::string8_fast& str );
 
 public: // props
     std::optional<uint32_t> get_Count();

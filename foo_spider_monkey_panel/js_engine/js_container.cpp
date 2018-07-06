@@ -134,7 +134,7 @@ JsContainer::JsStatus JsContainer::GetStatus() const
     return jsStatus_;
 }
 
-bool JsContainer::ExecuteScript( std::string_view scriptCode )
+bool JsContainer::ExecuteScript( pfc::string8_fast scriptCode )
 {
     assert( pJsCtx_ );
     assert( jsGlobal_.initialized() );
@@ -149,10 +149,10 @@ bool JsContainer::ExecuteScript( std::string_view scriptCode )
     JS::RootedValue rval( pJsCtx_ );
 
     AutoReportException are( pJsCtx_ );
-    return JS::Evaluate( pJsCtx_, opts, scriptCode.data(), scriptCode.length(), &rval );   
+    return JS::Evaluate( pJsCtx_, opts, scriptCode.c_str(), scriptCode.length(), &rval );   
 }
 
-void JsContainer::InvokeOnNotifyCallback( const std::string& name, const std::wstring& data )
+void JsContainer::InvokeOnNotifyCallback( const std::wstring& name, const std::wstring& data )
 {   
     if ( JsStatus::Ready != jsStatus_ )
     {
@@ -166,7 +166,7 @@ void JsContainer::InvokeOnNotifyCallback( const std::string& name, const std::ws
     JS::RootedValue jsStringVal( pJsCtx_ );
     if ( !convert::to_js::ToValue( pJsCtx_, data, &jsStringVal ) )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Internal error: on_notify_data received unparsable data" );
+        JS_ReportErrorUTF8( pJsCtx_, "Internal error: on_notify_data received unparsable data" );
         return;
     }
     JS::RootedString jsString( pJsCtx_, jsStringVal.toString() );
@@ -174,13 +174,13 @@ void JsContainer::InvokeOnNotifyCallback( const std::string& name, const std::ws
     JS::RootedValue jsVal( pJsCtx_ );
     if ( !JS_ParseJSON( pJsCtx_, jsString, &jsVal ) )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Internal error: on_notify_data received unparsable data" );
+        JS_ReportErrorUTF8( pJsCtx_, "Internal error: on_notify_data received unparsable data" );
         return;
     }
 
     are.Disable(); ///< InvokeJsCallback has it's own AutoReportException
     InvokeJsCallback( "on_notify_data",
-                      static_cast<std::string>(name),
+                      static_cast<std::wstring>(name),
                       static_cast<JS::HandleValue>(jsVal) );
 }
 

@@ -54,7 +54,7 @@ namespace mozjs
 {
 
 
-JsFbProfiler::JsFbProfiler( JSContext* cx, const std::string& name )
+JsFbProfiler::JsFbProfiler( JSContext* cx, const pfc::string8_fast& name )
     : pJsCtx_( cx )
     , name_(name.c_str())
 {
@@ -65,7 +65,7 @@ JsFbProfiler::~JsFbProfiler()
 {
 }
 
-JSObject* JsFbProfiler::Create( JSContext* cx, const std::string& name )
+JSObject* JsFbProfiler::Create( JSContext* cx, const pfc::string8_fast& name )
 {
     JS::RootedObject jsObj( cx,
                             JS_NewObject( cx, &jsClass ) );

@@ -1,4 +1,6 @@
 # Current
+- replace JS_ReportErrorASCII with JS_ReportErrorUTF8
+- std::string does not work properly with utf8, replace it!
 - Check drag-n-drop functionality.
 - Check that all files are correctly parsed: UTF8, UTF8-BOM, ASCII.
 - Rewrite ActiveXObject properly (and rename the files as well).

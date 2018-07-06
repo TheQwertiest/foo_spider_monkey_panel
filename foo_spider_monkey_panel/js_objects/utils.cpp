@@ -127,7 +127,7 @@ const JSClass& JsUtils::GetClass()
 }
 
 std::optional<bool>
-JsUtils::CheckComponent( const std::string& name, bool is_dll )
+JsUtils::CheckComponent( const pfc::string8_fast& name, bool is_dll )
 {
     service_enum_t<componentversion> e;
     componentversion::ptr ptr;
@@ -154,11 +154,11 @@ JsUtils::CheckComponent( const std::string& name, bool is_dll )
 }
 
 std::optional<bool> 
-JsUtils::CheckComponentWithOpt( size_t optArgCount, const std::string& name, bool is_dll )
+JsUtils::CheckComponentWithOpt( size_t optArgCount, const pfc::string8_fast& name, bool is_dll )
 {
     if ( optArgCount > 1 )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
+        JS_ReportErrorUTF8( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
         return std::nullopt;
     }
 
@@ -213,23 +213,23 @@ JsUtils::ColourPicker( uint32_t hWindow, uint32_t default_colour )
 }
 
 std::optional<JS::Value>
-JsUtils::FileTest( const std::wstring& path, const std::string& mode )
+JsUtils::FileTest( const std::wstring& path, const std::wstring& mode )
 {
     std::wstring cleanedPath = path;
-    for ( std::wstring::size_type i = 0; (i = cleanedPath.find( L"/", i )) != std::string::npos;)
+    for ( std::wstring::size_type i = 0; (i = cleanedPath.find( L"/", i )) != std::wstring::npos;)
     {
         cleanedPath.replace( i, 1, L"\\" );
         i += 1;
     }
 
-    if ( "e" == mode ) // exists
+    if ( L"e" == mode ) // exists
     {
         JS::RootedValue jsValue( pJsCtx_ );
         jsValue.setBoolean( PathFileExists( path.c_str() ) );
         return jsValue;
     }
 
-    if ( "s" == mode )
+    if ( L"s" == mode )
     {
         HANDLE fh = CreateFile( cleanedPath.c_str(), GENERIC_READ, FILE_SHARE_READ, 0, OPEN_EXISTING, 0, 0 );
         IF_WINAPI_FAILED_RETURN_WITH_REPORT( pJsCtx_, fh != INVALID_HANDLE_VALUE, std::nullopt, CreateFile );
@@ -243,14 +243,14 @@ JsUtils::FileTest( const std::wstring& path, const std::string& mode )
         return jsValue;
     }
 
-    if ( "d" == mode )
+    if ( L"d" == mode )
     {
         JS::RootedValue jsValue( pJsCtx_ );
         jsValue.setBoolean( PathIsDirectory( cleanedPath.c_str() ) );
         return jsValue;
     }
 
-    if ( "split" == mode )
+    if ( L"split" == mode )
     {
         const wchar_t* fn = PathFindFileName( cleanedPath.c_str() );
         const wchar_t* ext = PathFindExtension( fn );
@@ -287,13 +287,13 @@ JsUtils::FileTest( const std::wstring& path, const std::string& mode )
         {
             if ( !convert::to_js::ToValue( pJsCtx_, out[i], &jsValue ) )
             {
-                JS_ReportErrorASCII( pJsCtx_, "Internal error: cast to JSString failed" );
+                JS_ReportErrorUTF8( pJsCtx_, "Internal error: cast to JSString failed" );
                 return std::nullopt;
             }
 
             if ( !JS_SetElement( pJsCtx_, jsArray, i, jsValue ) )
             {
-                JS_ReportErrorASCII( pJsCtx_, "Internal error: JS_SetElement failed" );
+                JS_ReportErrorUTF8( pJsCtx_, "Internal error: JS_SetElement failed" );
                 return std::nullopt;
             }
         }        
@@ -301,7 +301,7 @@ JsUtils::FileTest( const std::wstring& path, const std::string& mode )
         return JS::ObjectValue( *jsArray );
     }
 
-    if ( "chardet" == mode )
+    if ( L"chardet" == mode )
     {
         JS::RootedValue jsValue( pJsCtx_ );
         jsValue.setNumber(
@@ -312,22 +312,22 @@ JsUtils::FileTest( const std::wstring& path, const std::string& mode )
         return jsValue;
     }
 
-    JS_ReportErrorASCII( pJsCtx_, "Invalid value of mode argument" );
+    JS_ReportErrorUTF8( pJsCtx_, "Invalid value of mode argument" );
     return std::nullopt;
 }
 
-std::optional<std::string>
+std::optional<pfc::string8_fast>
 JsUtils::FormatDuration( double p )
 {
     pfc::string8_fast str( pfc::format_time_ex( p, 0 ) );
-    return std::string( str.c_str(), str.length() );
+    return pfc::string8_fast( str.c_str(), str.length() );
 }
 
-std::optional<std::string>
+std::optional<pfc::string8_fast>
 JsUtils::FormatFileSize( uint64_t p )
 {
     pfc::string8_fast str = pfc::format_file_size_short( p );
-    return std::string( str.c_str(), str.length() );
+    return pfc::string8_fast( str.c_str(), str.length() );
 }
 
 std::optional<std::uint32_t>
@@ -335,13 +335,13 @@ JsUtils::GetAlbumArtAsync( uint32_t hWnd, JsFbMetadbHandle* handle, uint32_t art
 {
     if ( !hWnd )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Invalid hWnd argument" );
+        JS_ReportErrorUTF8( pJsCtx_, "Invalid hWnd argument" );
         return std::nullopt;
     }
 
     if ( !handle )
     {
-        JS_ReportErrorASCII( pJsCtx_, "handle argument is null" );
+        JS_ReportErrorUTF8( pJsCtx_, "handle argument is null" );
         return std::nullopt;
     }
 
@@ -357,7 +357,7 @@ JsUtils::GetAlbumArtAsyncWithOpt( size_t optArgCount, uint32_t hWnd, JsFbMetadbH
 {
     if ( optArgCount > 4 )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
+        JS_ReportErrorUTF8( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
         return std::nullopt;
     }
 
@@ -382,7 +382,7 @@ JsUtils::GetAlbumArtAsyncWithOpt( size_t optArgCount, uint32_t hWnd, JsFbMetadbH
 }
 
 std::optional<JSObject*>
-JsUtils::GetAlbumArtEmbedded( const std::string& rawpath, uint32_t art_id )
+JsUtils::GetAlbumArtEmbedded( const pfc::string8_fast& rawpath, uint32_t art_id )
 {
     std::unique_ptr<Gdiplus::Bitmap> artImage( art::GetBitmapFromEmbeddedData( rawpath, art_id ) );
     if ( !artImage )
@@ -393,7 +393,7 @@ JsUtils::GetAlbumArtEmbedded( const std::string& rawpath, uint32_t art_id )
     JS::RootedObject jsObject( pJsCtx_, JsGdiBitmap::Create( pJsCtx_, artImage.get() ) );
     if ( !jsObject )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Internal error: failed to create JS object" );
+        JS_ReportErrorUTF8( pJsCtx_, "Internal error: failed to create JS object" );
         return std::nullopt;
     }
 
@@ -402,11 +402,11 @@ JsUtils::GetAlbumArtEmbedded( const std::string& rawpath, uint32_t art_id )
 }
 
 std::optional<JSObject*> 
-JsUtils::GetAlbumArtEmbeddedWithOpt( size_t optArgCount, const std::string& rawpath, uint32_t art_id )
+JsUtils::GetAlbumArtEmbeddedWithOpt( size_t optArgCount, const pfc::string8_fast& rawpath, uint32_t art_id )
 {
     if ( optArgCount > 1 )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
+        JS_ReportErrorUTF8( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
         return std::nullopt;
     }
 
@@ -423,7 +423,7 @@ JsUtils::GetAlbumArtV2( JsFbMetadbHandle* handle, uint32_t art_id, bool need_stu
 {
     if ( !handle )
     {
-        JS_ReportErrorASCII( pJsCtx_, "handle argument is null" );
+        JS_ReportErrorUTF8( pJsCtx_, "handle argument is null" );
         return std::nullopt;
     }
 
@@ -436,7 +436,7 @@ JsUtils::GetAlbumArtV2( JsFbMetadbHandle* handle, uint32_t art_id, bool need_stu
     JS::RootedObject jsObject( pJsCtx_, JsGdiBitmap::Create( pJsCtx_, artImage.get() ) );
     if ( !jsObject )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Internal error: failed to create JS object" );
+        JS_ReportErrorUTF8( pJsCtx_, "Internal error: failed to create JS object" );
         return std::nullopt;
     }
 
@@ -449,7 +449,7 @@ JsUtils::GetAlbumArtV2WithOpt( size_t optArgCount, JsFbMetadbHandle* handle, uin
 {
     if ( optArgCount > 2 )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
+        JS_ReportErrorUTF8( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
         return std::nullopt;
     }
 
@@ -484,10 +484,10 @@ JsUtils::GetSystemMetrics( uint32_t index )
 }
 
 std::optional<JSObject*>
-JsUtils::Glob( const std::string& pattern, uint32_t exc_mask, uint32_t inc_mask )
+JsUtils::Glob( const pfc::string8_fast& pattern, uint32_t exc_mask, uint32_t inc_mask )
 {
     const char* fn = pattern.c_str() + pfc::scan_filename( pattern.c_str() );
-    std::string dir( pattern.c_str(), fn - pattern.c_str() );
+    pfc::string8_fast dir( pattern.c_str(), fn - pattern.c_str() );
     std::unique_ptr<uFindFile> ff( uFindFirstFile( pattern.c_str() ) );
 
     pfc::string_list_impl files;
@@ -500,8 +500,8 @@ JsUtils::Glob( const std::string& pattern, uint32_t exc_mask, uint32_t inc_mask 
 
             if ( ( attr & inc_mask ) && !( attr & exc_mask ) )
             {
-                std::string fullpath( dir );
-                fullpath.append( ff->GetFileName() );
+                pfc::string8_fast fullpath( dir );
+                fullpath.add_string( ff->GetFileName() );
                 files.add_item( fullpath.c_str() );
             }
         } while ( ff->FindNext() );
@@ -519,16 +519,16 @@ JsUtils::Glob( const std::string& pattern, uint32_t exc_mask, uint32_t inc_mask 
     JS::RootedValue jsValue( pJsCtx_ );
     for ( t_size i = 0; i < files.get_count(); ++i )
     {
-        std::string tmpString( files[i] );
+        pfc::string8_fast tmpString( files[i] );
         if ( !convert::to_js::ToValue( pJsCtx_, tmpString, &jsValue ) )
         {
-            JS_ReportErrorASCII( pJsCtx_, "Internal error: cast to JSString failed" );
+            JS_ReportErrorUTF8( pJsCtx_, "Internal error: cast to JSString failed" );
             return std::nullopt;
         }
 
         if ( !JS_SetElement( pJsCtx_, evalResult, i, jsValue ) )
         {
-            JS_ReportErrorASCII( pJsCtx_, "Internal error: JS_SetElement failed" );
+            JS_ReportErrorUTF8( pJsCtx_, "Internal error: JS_SetElement failed" );
             return std::nullopt;
         }
     }
@@ -537,11 +537,11 @@ JsUtils::Glob( const std::string& pattern, uint32_t exc_mask, uint32_t inc_mask 
 }
 
 std::optional<JSObject*>
-JsUtils::GlobWithOpt( size_t optArgCount, const std::string& pattern, uint32_t exc_mask, uint32_t inc_mask )
+JsUtils::GlobWithOpt( size_t optArgCount, const pfc::string8_fast& pattern, uint32_t exc_mask, uint32_t inc_mask )
 {
     if ( optArgCount > 2 )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
+        JS_ReportErrorUTF8( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
         return std::nullopt;
     }
 
@@ -596,7 +596,7 @@ JsUtils::ReadINIWithOpt( size_t optArgCount, const std::wstring& filename, const
 {
     if ( optArgCount > 1 )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
+        JS_ReportErrorUTF8( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
         return std::nullopt;
     }
 
@@ -626,7 +626,7 @@ JsUtils::ReadTextFileWithOpt( size_t optArgCount, const std::wstring& filename, 
 {
     if ( optArgCount > 1 )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
+        JS_ReportErrorUTF8( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
         return std::nullopt;
     }
 
@@ -645,9 +645,9 @@ JsUtils::WriteINI( const std::wstring& filename, const std::wstring& section, co
 }
 
 std::optional<bool>
-JsUtils::WriteTextFile( const std::string& filename, const std::string& content, bool write_bom )
+JsUtils::WriteTextFile( const pfc::string8_fast& filename, const pfc::string8_fast& content, bool write_bom )
 {// TODO: inspect the code (replace with std::filesystem perhaps?)
-    if ( filename.empty() || content.empty() )
+    if ( filename.is_empty() || content.is_empty() )
     {
         return false;
     }
@@ -657,11 +657,11 @@ JsUtils::WriteTextFile( const std::string& filename, const std::string& content,
 }
 
 std::optional<bool> 
-JsUtils::WriteTextFileWithOpt( size_t optArgCount, const std::string& filename, const std::string& content, bool write_bom )
+JsUtils::WriteTextFileWithOpt( size_t optArgCount, const pfc::string8_fast& filename, const pfc::string8_fast& content, bool write_bom )
 {
     if ( optArgCount > 1 )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
+        JS_ReportErrorUTF8( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
         return std::nullopt;
     }
 

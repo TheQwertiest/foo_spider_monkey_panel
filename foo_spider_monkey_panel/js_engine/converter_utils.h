@@ -14,7 +14,7 @@ namespace mozjs::convert
 template<class T>
 struct _is_primitive
     : std::bool_constant<std::is_fundamental_v<T> 
-    || std::is_same_v<std::string, T> 
+    || std::is_same_v<pfc::string8_fast, T> 
     || std::is_same_v<std::wstring, T>>
 {
 };

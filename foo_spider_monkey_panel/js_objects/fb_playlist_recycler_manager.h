@@ -26,7 +26,7 @@ public:
 public:
     std::optional<JSObject*> get_Content( uint32_t index );
     std::optional<uint32_t> get_Count();
-    std::optional<std::string> get_Name( uint32_t index );
+    std::optional<pfc::string8_fast> get_Name( uint32_t index );
 
 private:
     JsFbPlaylistRecyclerManager( JSContext* cx );

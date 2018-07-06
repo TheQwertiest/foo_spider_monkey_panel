@@ -94,13 +94,13 @@ JsMainMenuManager::BuildMenu( JsMenuObject* menu, int32_t base_id, int32_t count
 {
     if ( !menuManager_.is_empty() )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Main menu manager is not initialized" );
+        JS_ReportErrorUTF8( pJsCtx_, "Main menu manager is not initialized" );
         return std::nullopt;
     }
 
     if ( !menu )
     {
-        JS_ReportErrorASCII( pJsCtx_, "menu argument is null" );
+        JS_ReportErrorUTF8( pJsCtx_, "menu argument is null" );
         return std::nullopt;
     }
 
@@ -121,7 +121,7 @@ JsMainMenuManager::ExecuteByID( uint32_t id )
 {
     if ( !menuManager_.is_empty() )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Main menu manager is not initialized" );
+        JS_ReportErrorUTF8( pJsCtx_, "Main menu manager is not initialized" );
         return std::nullopt;
     }
 
@@ -129,7 +129,7 @@ JsMainMenuManager::ExecuteByID( uint32_t id )
 }
 
 std::optional<std::nullptr_t> 
-JsMainMenuManager::Init( const std::string & root_name )
+JsMainMenuManager::Init( const pfc::string8_fast & root_name )
 {
     struct RootElement
     {
@@ -160,7 +160,7 @@ JsMainMenuManager::Init( const std::string & root_name )
         }
     }
 
-    JS_ReportErrorASCII( pJsCtx_, "Invalid menu root name" );
+    JS_ReportErrorUTF8( pJsCtx_, "Invalid menu root name" );
     return std::nullopt;
 }
 

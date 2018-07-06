@@ -6,7 +6,7 @@
     {\
         if ( gdiRet > 0 )\
         {\
-            JS_ReportErrorASCII( cx, "GDI error: '%s' failed: %s(0x%X)", #funcName, GdiErrorCodeToText( gdiRet ), gdiRet ); \
+            JS_ReportErrorUTF8( cx, "GDI error: '%s' failed: %s(0x%X)", #funcName, GdiErrorCodeToText( gdiRet ), gdiRet ); \
             return retValue;\
         }\
     } while(false)

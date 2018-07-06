@@ -53,7 +53,7 @@ const JSPropertySpec jsProperties[] = {
 namespace mozjs
 {
 
-JsFbTitleFormat::JsFbTitleFormat( JSContext* cx, const std::string& expr )
+JsFbTitleFormat::JsFbTitleFormat( JSContext* cx, const pfc::string8_fast& expr )
     : pJsCtx_( cx )
 {
     titleformat_compiler::get()->compile_safe( titleFormatObject_, expr.c_str() );
@@ -63,7 +63,7 @@ JsFbTitleFormat::~JsFbTitleFormat()
 {
 }
 
-JSObject* JsFbTitleFormat::Create( JSContext* cx, const std::string& expr )
+JSObject* JsFbTitleFormat::Create( JSContext* cx, const pfc::string8_fast& expr )
 {
     JS::RootedObject jsObj( cx,
                             JS_NewObject( cx, &jsClass ) );
@@ -93,7 +93,7 @@ titleformat_object::ptr JsFbTitleFormat::GetTitleFormat()
     return titleFormatObject_;
 }
 
-std::optional<std::string> 
+std::optional<pfc::string8_fast> 
 JsFbTitleFormat::Eval( bool force )
 {
     auto pc = playback_control::get();
@@ -110,15 +110,15 @@ JsFbTitleFormat::Eval( bool force )
     }
     pc->playback_format_title_ex( handle, nullptr, text, titleFormatObject_, nullptr, playback_control::display_level_all );
 
-    return std::string( text.c_str(), text.length() );
+    return pfc::string8_fast( text.c_str(), text.length() );
 }
 
-std::optional<std::string> 
+std::optional<pfc::string8_fast> 
 JsFbTitleFormat::EvalWithOpt( size_t optArgCount, bool force )
 {
     if ( optArgCount > 1 )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
+        JS_ReportErrorUTF8( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
         return std::nullopt;
     }
 
@@ -130,19 +130,19 @@ JsFbTitleFormat::EvalWithOpt( size_t optArgCount, bool force )
     return Eval( force );
 }
 
-std::optional<std::string>
+std::optional<pfc::string8_fast>
 JsFbTitleFormat::EvalWithMetadb( JsFbMetadbHandle* handle )
 {
     if ( !handle )
     {
-        JS_ReportErrorASCII( pJsCtx_, "handle argument is null" );
+        JS_ReportErrorUTF8( pJsCtx_, "handle argument is null" );
         return std::nullopt;
     }
 
     pfc::string8_fast text;
     handle->GetHandle()->format_title( nullptr, text, titleFormatObject_, nullptr );
 
-    return std::string( text.c_str(), text.length());
+    return pfc::string8_fast( text.c_str(), text.length());
 }
 
 std::optional<JSObject*> 
@@ -150,7 +150,7 @@ JsFbTitleFormat::EvalWithMetadbs( JsFbMetadbHandleList* handles )
 {
     if ( !handles )
     {
-        JS_ReportErrorASCII( pJsCtx_, "handles argument is null" );
+        JS_ReportErrorUTF8( pJsCtx_, "handles argument is null" );
         return std::nullopt;
     }
 
@@ -169,17 +169,16 @@ JsFbTitleFormat::EvalWithMetadbs( JsFbMetadbHandleList* handles )
     {
         pfc::string8_fast text;
         handles_cref[i]->format_title( nullptr, text, titleFormatObject_, nullptr );
-
-        std::string tmpString( text.c_str(), text.length() );
-        if ( !convert::to_js::ToValue( pJsCtx_, tmpString, &jsValue ) )
+        
+        if ( !convert::to_js::ToValue( pJsCtx_, text, &jsValue ) )
         {
-            JS_ReportErrorASCII( pJsCtx_, "Internal error: cast to JSString failed" );
+            JS_ReportErrorUTF8( pJsCtx_, "Internal error: cast to JSString failed" );
             return std::nullopt;
         }
 
         if ( !JS_SetElement( pJsCtx_, evalResult, i, jsValue ) )
         {
-            JS_ReportErrorASCII( pJsCtx_, "Internal error: JS_SetElement failed" );
+            JS_ReportErrorUTF8( pJsCtx_, "Internal error: JS_SetElement failed" );
             return std::nullopt;
         }
     }

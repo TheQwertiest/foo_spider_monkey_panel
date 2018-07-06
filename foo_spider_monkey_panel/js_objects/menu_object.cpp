@@ -115,7 +115,7 @@ JsMenuObject::AppendMenuItem( uint32_t flags, uint32_t item_id, const std::wstri
 
     if ( flags & MF_POPUP )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Invalid flags: MF_POPUP when adding menu item" );
+        JS_ReportErrorUTF8( pJsCtx_, "Invalid flags: MF_POPUP when adding menu item" );
         return std::nullopt;
     }
 
@@ -143,7 +143,7 @@ JsMenuObject::AppendTo( JsMenuObject* parent, uint32_t flags, const std::wstring
 
     if ( !parent )
     {
-        JS_ReportErrorASCII( pJsCtx_, "parent argument is null" );
+        JS_ReportErrorUTF8( pJsCtx_, "parent argument is null" );
         return std::nullopt;
     }
 
@@ -162,7 +162,7 @@ JsMenuObject::CheckMenuItem( uint32_t item_id, bool check )
     DWORD dRet = ::CheckMenuItem( hMenu_, item_id, check != VARIANT_FALSE ? MF_CHECKED : MF_UNCHECKED );
     if ( static_cast<DWORD>(-1) == dRet )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Menu item with specified id does not exist" );
+        JS_ReportErrorUTF8( pJsCtx_, "Menu item with specified id does not exist" );
         return std::nullopt;
     }
 
@@ -176,7 +176,7 @@ JsMenuObject::CheckMenuRadioItem( uint32_t first, uint32_t last, uint32_t select
 
     if ( selected < first || selected > last )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Index is out of bounds" );
+        JS_ReportErrorUTF8( pJsCtx_, "Index is out of bounds" );
         return std::nullopt;
     }
 
@@ -219,7 +219,7 @@ JsMenuObject::TrackPopupMenuWithOpt( size_t optArgCount, int32_t x, int32_t y, u
 {
     if ( optArgCount > 1 )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
+        JS_ReportErrorUTF8( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
         return std::nullopt;
     }
 

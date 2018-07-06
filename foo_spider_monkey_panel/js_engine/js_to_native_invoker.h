@@ -16,14 +16,14 @@
             InvokeNativeCallback<optArgCount>( cx, &baseClass::functionName, &baseClass::functionWithOptName, argc, vp );\
         if (!bRet)\
         {\
-            std::string innerErrorText(mozjs::GetCurrentExceptionText(cx));\
-            if (!innerErrorText.empty())\
+            pfc::string8_fast innerErrorText(mozjs::GetCurrentExceptionText(cx));\
+            if (!innerErrorText.is_empty())\
             {\
-                std::string tmpString = ": \n";\
+                pfc::string8_fast tmpString = ": \n";\
                 tmpString += innerErrorText;\
-                innerErrorText.swap( tmpString );\
+                innerErrorText.set_string( tmpString );\
             }\
-            JS_ReportErrorASCII( cx, "'%s' failed%s", #functionName, innerErrorText.c_str() ); \
+            JS_ReportErrorUTF8( cx, "'%s' failed%s", #functionName, innerErrorText.c_str() ); \
         }\
         return bRet;\
     }
@@ -37,14 +37,14 @@
         bool bRet = functionImplName(cx, argc, vp);\
         if (!bRet)\
         {\
-            std::string innerErrorText(mozjs::GetCurrentExceptionText(cx));\
-            if (!innerErrorText.empty())\
+            pfc::string8_fast innerErrorText(mozjs::GetCurrentExceptionText(cx));\
+            if (!innerErrorText.is_empty())\
             {\
-                std::string tmpString = ": \n";\
+                pfc::string8_fast tmpString = ": \n";\
                 tmpString += innerErrorText;\
-                innerErrorText.swap( tmpString );\
+                innerErrorText.set_string( tmpString );\
             }\
-            JS_ReportErrorASCII( cx, "'%s' failed%s", #functionName, innerErrorText.c_str() ); \
+            JS_ReportErrorUTF8( cx, "'%s' failed%s", #functionName, innerErrorText.c_str() ); \
         }\
         return bRet;\
     }
@@ -96,7 +96,7 @@ bool InvokeNativeCallback_Impl( JSContext* cx,
 
     if ( args.length() < ( maxArgCount - OptArgCount ) )
     {
-        JS_ReportErrorASCII( cx, "Invalid number of arguments" );
+        JS_ReportErrorUTF8( cx, "Invalid number of arguments" );
         return false;
     }
 
@@ -176,7 +176,7 @@ bool InvokeNativeCallback_Impl( JSContext* cx,
             } );
     if ( !bRet )
     {
-        JS_ReportErrorASCII( cx, "Argument #%d is of wrong type", failedIdx );
+        JS_ReportErrorUTF8( cx, "Argument #%d is of wrong type", failedIdx );
         return false;
     }
 
@@ -185,7 +185,7 @@ bool InvokeNativeCallback_Impl( JSContext* cx,
     BaseClass* baseClass = static_cast<BaseClass*>( JS_GetPrivate( args.thisv().toObjectOrNull() ) );
     if ( !baseClass )
     {
-        JS_ReportErrorASCII( cx, "Internal error: JS_GetPrivate failed" );
+        JS_ReportErrorUTF8( cx, "Internal error: JS_GetPrivate failed" );
         return false;
     }
 
@@ -214,7 +214,7 @@ bool InvokeNativeCallback_Impl( JSContext* cx,
     {
         if ( !convert::to_js::ToValue( cx, retVal.value(), args.rval() ) )
         {
-            JS_ReportErrorASCII( cx, "Internal error: failed to convert return value" );
+            JS_ReportErrorUTF8( cx, "Internal error: failed to convert return value" );
             return false;
         }
     }

@@ -2,8 +2,13 @@
 #include "config.h"
 #include "resource.h"
 
+prop_kv_config::config_map& prop_kv_config::get_val()
+{
+    return m_map;
+}
+
 std::optional<mozjs::SerializedJsValue> 
-prop_kv_config::get_config_item(const std::string& propName)
+prop_kv_config::get_config_item(const std::wstring& propName)
 {
     if ( !m_map.count( propName ) )
     {
@@ -13,12 +18,12 @@ prop_kv_config::get_config_item(const std::string& propName)
     return *(m_map[propName].get());
 }
 
-void prop_kv_config::set_config_item(const std::string& propName, const mozjs::SerializedJsValue& serializedValue )
+void prop_kv_config::set_config_item(const std::wstring& propName, const mozjs::SerializedJsValue& serializedValue )
 {
     m_map[propName] = std::make_shared<mozjs::SerializedJsValue>( serializedValue );
 }
 
-void prop_kv_config::remove_config_item( const std::string& propName )
+void prop_kv_config::remove_config_item( const std::wstring& propName )
 {
     m_map.erase( propName );
 }
@@ -63,7 +68,7 @@ void prop_kv_config::g_load(config_map& data, stream_reader* reader, abort_callb
             {
                 pfc::string8_fast pfcStrVal;
                 reader->read_string( pfcStrVal, abort );
-                serializedValue.strVal.assign( pfcStrVal.c_str(), pfcStrVal.length() );
+                serializedValue.strVal.add_string_nc( pfcStrVal.c_str(), pfcStrVal.length() );
                 break;
             }
             default:
@@ -71,7 +76,8 @@ void prop_kv_config::g_load(config_map& data, stream_reader* reader, abort_callb
                 break;
             }
 
-            data[pfcPropName.c_str()] = std::make_shared<mozjs::SerializedJsValue>( serializedValue );
+            pfc::stringcvt::string_wide_from_utf8 propnameW( pfcPropName.c_str(), pfcPropName.length() );
+            data[propnameW.get_ptr()] = std::make_shared<mozjs::SerializedJsValue>( serializedValue );
 		}
 	}
 	catch (...)
@@ -87,7 +93,8 @@ void prop_kv_config::g_save(const config_map& data, stream_writer* writer, abort
 
         for (auto& elem : data)
         {
-            writer->write_string( elem.first.c_str(), elem.first.length(), abort );
+            pfc::stringcvt::string_utf8_from_wide propNameW( elem.first.c_str(), elem.first.length() );
+            writer->write_string( propNameW.get_ptr(), propNameW.length(), abort );
 
             auto& serializedValue = *(elem.second);
 

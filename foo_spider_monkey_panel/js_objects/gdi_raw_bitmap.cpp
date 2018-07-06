@@ -85,7 +85,7 @@ JSObject* JsGdiRawBitmap::Create( JSContext* cx, Gdiplus::Bitmap* pBmp )
 {
     if ( !pBmp )
     {
-        JS_ReportErrorASCII( cx, "Internal error: Gdiplus::Bitmap is null" );
+        JS_ReportErrorUTF8( cx, "Internal error: Gdiplus::Bitmap is null" );
         return nullptr;
     }
 

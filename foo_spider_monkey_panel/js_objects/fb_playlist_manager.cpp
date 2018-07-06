@@ -197,7 +197,7 @@ JsFbPlaylistManager::AddItemToPlaybackQueue( JsFbMetadbHandle* handle )
 {
     if ( !handle )
     {
-        JS_ReportErrorASCII( pJsCtx_, "handle argument is null" );
+        JS_ReportErrorUTF8( pJsCtx_, "handle argument is null" );
         return std::nullopt;
     }
 
@@ -211,21 +211,21 @@ JsFbPlaylistManager::AddLocations( uint32_t playlistIndex, JS::HandleValue locat
     JS::RootedObject jsObject( pJsCtx_, locations.toObjectOrNull() );
     if ( !jsObject )
     {
-        JS_ReportErrorASCII( pJsCtx_, "locations argument is not a JS object" );
+        JS_ReportErrorUTF8( pJsCtx_, "locations argument is not a JS object" );
         return std::nullopt;
     }
 
     bool is;
     if ( !JS_IsArrayObject( pJsCtx_, jsObject, &is ) )
     {
-        JS_ReportErrorASCII( pJsCtx_, "locations argument is an array" );
+        JS_ReportErrorUTF8( pJsCtx_, "locations argument is an array" );
         return std::nullopt;
     }
 
     uint32_t arraySize;
     if ( !JS_GetArrayLength( pJsCtx_, jsObject, &arraySize ) )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Failed to get locations argument array length" );
+        JS_ReportErrorUTF8( pJsCtx_, "Failed to get locations argument array length" );
         return std::nullopt;
     }
 
@@ -236,15 +236,15 @@ JsFbPlaylistManager::AddLocations( uint32_t playlistIndex, JS::HandleValue locat
     {
         if ( !JS_GetElement( pJsCtx_, jsObject, i, &arrayElement ) )
         {
-            JS_ReportErrorASCII( pJsCtx_, "Failed to get locations[%ud]", i );
+            JS_ReportErrorUTF8( pJsCtx_, "Failed to get locations[%ud]", i );
             return std::nullopt;
         }
 
         bool isValid;
-        std::string path( convert::to_native::ToValue<std::string>( pJsCtx_, arrayElement, isValid ) );
+        pfc::string8_fast path( convert::to_native::ToValue<pfc::string8_fast>( pJsCtx_, arrayElement, isValid ) );
         if ( !isValid )
         {
-            JS_ReportErrorASCII( pJsCtx_, "locations[%ud] is not a string" );
+            JS_ReportErrorUTF8( pJsCtx_, "locations[%ud] is not a string" );
             return std::nullopt;
         }
 
@@ -268,7 +268,7 @@ JsFbPlaylistManager::AddLocationsWithOpt( size_t optArgCount, uint32_t playlistI
 {
     if ( optArgCount > 1 )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
+        JS_ReportErrorUTF8( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
         return std::nullopt;
     }
 
@@ -302,7 +302,7 @@ JsFbPlaylistManager::ClearPlaylistSelection( uint32_t playlistIndex )
 }
 
 std::optional<int32_t>
-JsFbPlaylistManager::CreateAutoPlaylist( uint32_t playlistIndex, const std::string& name, const std::string& query, const std::string& sort, uint32_t flags )
+JsFbPlaylistManager::CreateAutoPlaylist( uint32_t playlistIndex, const pfc::string8_fast& name, const pfc::string8_fast& query, const pfc::string8_fast& sort, uint32_t flags )
 {
     std::optional<int32_t> optPos = CreatePlaylist( playlistIndex, name );
     if ( !optPos )
@@ -330,11 +330,11 @@ JsFbPlaylistManager::CreateAutoPlaylist( uint32_t playlistIndex, const std::stri
 }
 
 std::optional<int32_t> 
-JsFbPlaylistManager::CreateAutoPlaylistWithOpt( size_t optArgCount, uint32_t playlistIndex, const std::string& name, const std::string& query, const std::string& sort, uint32_t flags )
+JsFbPlaylistManager::CreateAutoPlaylistWithOpt( size_t optArgCount, uint32_t playlistIndex, const pfc::string8_fast& name, const pfc::string8_fast& query, const pfc::string8_fast& sort, uint32_t flags )
 {
     if ( optArgCount > 2 )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
+        JS_ReportErrorUTF8( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
         return std::nullopt;
     }
 
@@ -351,12 +351,12 @@ JsFbPlaylistManager::CreateAutoPlaylistWithOpt( size_t optArgCount, uint32_t pla
 }
 
 std::optional<int32_t>
-JsFbPlaylistManager::CreatePlaylist( uint32_t playlistIndex, const std::string& name )
+JsFbPlaylistManager::CreatePlaylist( uint32_t playlistIndex, const pfc::string8_fast& name )
 {
     auto api = playlist_manager::get();
 
     uint32_t upos;
-    if ( name.empty() )
+    if ( name.is_empty() )
     {
         upos = api->create_playlist_autoname( playlistIndex );
     }
@@ -369,13 +369,13 @@ JsFbPlaylistManager::CreatePlaylist( uint32_t playlistIndex, const std::string& 
 }
 
 std::optional<uint32_t>
-JsFbPlaylistManager::DuplicatePlaylist( uint32_t from, const std::string& name )
+JsFbPlaylistManager::DuplicatePlaylist( uint32_t from, const pfc::string8_fast& name )
 {
     auto api = playlist_manager_v4::get();
 
     if ( from >= api->get_playlist_count() )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Index is out of bounds" );
+        JS_ReportErrorUTF8( pJsCtx_, "Index is out of bounds" );
         return std::nullopt;
     }
 
@@ -406,7 +406,7 @@ JsFbPlaylistManager::ExecutePlaylistDefaultAction( uint32_t playlistIndex, uint3
 }
 
 std::optional<int32_t>
-JsFbPlaylistManager::FindOrCreatePlaylist( const std::string& name, bool unlocked )
+JsFbPlaylistManager::FindOrCreatePlaylist( const pfc::string8_fast& name, bool unlocked )
 {
     auto api = playlist_manager::get();
 
@@ -428,7 +428,7 @@ JsFbPlaylistManager::FindPlaybackQueueItemIndex( JsFbMetadbHandle* handle, uint3
 {
     if ( !handle )
     {
-        JS_ReportErrorASCII( pJsCtx_, "handle argument is null" );
+        JS_ReportErrorUTF8( pJsCtx_, "handle argument is null" );
         return std::nullopt;
     }
 
@@ -442,7 +442,7 @@ JsFbPlaylistManager::FindPlaybackQueueItemIndex( JsFbMetadbHandle* handle, uint3
 }
 
 std::optional<int32_t>
-JsFbPlaylistManager::FindPlaylist( const std::string& name )
+JsFbPlaylistManager::FindPlaylist( const pfc::string8_fast& name )
 {
     uint32_t upos = playlist_manager::get()->find_playlist( name.c_str(), name.length() );
     return (pfc_infinite == upos ? -1 : static_cast<int32_t>(upos));
@@ -476,14 +476,14 @@ JsFbPlaylistManager::GetPlaybackQueueContents()
         jsObject.set( JsFbPlaybackQueueItem::Create( pJsCtx_, contents[i] ) );
         if ( !jsObject )
         {
-            JS_ReportErrorASCII( pJsCtx_, "Internal error: failed to create JS object" );
+            JS_ReportErrorUTF8( pJsCtx_, "Internal error: failed to create JS object" );
             return std::nullopt;
         }
 
         jsValue.set( JS::ObjectValue( *jsObject ) );
         if ( !JS_SetElement( pJsCtx_, jsArray, i, jsValue ) )
         {
-            JS_ReportErrorASCII( pJsCtx_, "Internal error: JS_SetElement failed" );
+            JS_ReportErrorUTF8( pJsCtx_, "Internal error: JS_SetElement failed" );
             return std::nullopt;
         }
     }
@@ -506,7 +506,7 @@ JsFbPlaylistManager::GetPlaybackQueueHandles()
     JS::RootedObject jsObject( pJsCtx_, JsFbMetadbHandleList::Create( pJsCtx_, items ) );
     if ( !jsObject )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Internal error: failed to create JS object" );
+        JS_ReportErrorUTF8( pJsCtx_, "Internal error: failed to create JS object" );
         return std::nullopt;
     }
 
@@ -523,7 +523,7 @@ JsFbPlaylistManager::GetPlayingItemLocation()
     JS::RootedObject jsObject( pJsCtx_, JsFbPlayingItemLocation::Create( pJsCtx_, isValid, playlistIndex, playlistItemIndex ) );
     if ( !jsObject )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Internal error: failed to create JS object" );
+        JS_ReportErrorUTF8( pJsCtx_, "Internal error: failed to create JS object" );
         return std::nullopt;
     }
 
@@ -546,14 +546,14 @@ JsFbPlaylistManager::GetPlaylistItems( uint32_t playlistIndex )
     JS::RootedObject jsObject( pJsCtx_, JsFbMetadbHandleList::Create( pJsCtx_, items ) );
     if ( !jsObject )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Internal error: failed to create JS object" );
+        JS_ReportErrorUTF8( pJsCtx_, "Internal error: failed to create JS object" );
         return std::nullopt;
     }
 
     return jsObject;
 }
 
-std::optional<std::string>
+std::optional<pfc::string8_fast>
 JsFbPlaylistManager::GetPlaylistName( uint32_t playlistIndex )
 {
     pfc::string8_fast name;
@@ -570,7 +570,7 @@ JsFbPlaylistManager::GetPlaylistSelectedItems( uint32_t playlistIndex )
     JS::RootedObject jsObject( pJsCtx_, JsFbMetadbHandleList::Create( pJsCtx_, items ) );
     if ( !jsObject )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Internal error: failed to create JS object" );
+        JS_ReportErrorUTF8( pJsCtx_, "Internal error: failed to create JS object" );
         return std::nullopt;
     }
 
@@ -582,7 +582,7 @@ JsFbPlaylistManager::InsertPlaylistItems( uint32_t playlistIndex, uint32_t base,
 {    
     if ( !handles )
     {
-        JS_ReportErrorASCII( pJsCtx_, "handles argument is null" );
+        JS_ReportErrorUTF8( pJsCtx_, "handles argument is null" );
         return std::nullopt;
     }
 
@@ -596,7 +596,7 @@ JsFbPlaylistManager::InsertPlaylistItemsWithOpt( size_t optArgCount, uint32_t pl
 {
     if ( optArgCount > 1 )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
+        JS_ReportErrorUTF8( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
         return std::nullopt;
     }
 
@@ -613,7 +613,7 @@ JsFbPlaylistManager::InsertPlaylistItemsFilter( uint32_t playlistIndex, uint32_t
 {    
     if ( !handles )
     {
-        JS_ReportErrorASCII( pJsCtx_, "handles argument is null" );
+        JS_ReportErrorUTF8( pJsCtx_, "handles argument is null" );
         return std::nullopt;
     }
 
@@ -626,7 +626,7 @@ JsFbPlaylistManager::InsertPlaylistItemsFilterWithOpt( size_t optArgCount, uint3
 {
     if ( optArgCount > 1 )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
+        JS_ReportErrorUTF8( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
         return std::nullopt;
     }
 
@@ -643,7 +643,7 @@ JsFbPlaylistManager::IsAutoPlaylist( uint32_t playlistIndex )
 {
     if ( playlistIndex >= playlist_manager::get()->get_playlist_count() )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Index is out of bounds" );
+        JS_ReportErrorUTF8( pJsCtx_, "Index is out of bounds" );
         return std::nullopt;
     }
 
@@ -662,7 +662,7 @@ JsFbPlaylistManager::IsPlaylistLocked( uint32_t playlistIndex )
     auto api = playlist_manager::get();
     if ( playlistIndex >= api->get_playlist_count() )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Index is out of bounds" );
+        JS_ReportErrorUTF8( pJsCtx_, "Index is out of bounds" );
         return std::nullopt;
     }
 
@@ -716,21 +716,21 @@ JsFbPlaylistManager::RemoveItemsFromPlaybackQueue( JS::HandleValue affectedItems
     JS::RootedObject jsObject( pJsCtx_, affectedItems.toObjectOrNull() );
     if ( !jsObject )
     {
-        JS_ReportErrorASCII( pJsCtx_, "affectedItems argument is not a JS object" );
+        JS_ReportErrorUTF8( pJsCtx_, "affectedItems argument is not a JS object" );
         return std::nullopt;
     }
 
     bool is;
     if ( !JS_IsArrayObject( pJsCtx_, jsObject, &is ) )
     {
-        JS_ReportErrorASCII( pJsCtx_, "affectedItems argument is an array" );
+        JS_ReportErrorUTF8( pJsCtx_, "affectedItems argument is an array" );
         return std::nullopt;
     }
 
     uint32_t arraySize;
     if ( !JS_GetArrayLength( pJsCtx_, jsObject, &arraySize ) )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Failed to get affectedItems argument array length" );
+        JS_ReportErrorUTF8( pJsCtx_, "Failed to get affectedItems argument array length" );
         return std::nullopt;
     }
 
@@ -742,7 +742,7 @@ JsFbPlaylistManager::RemoveItemsFromPlaybackQueue( JS::HandleValue affectedItems
     {
         if ( !JS_GetElement( pJsCtx_, jsObject, i, &arrayElement ) )
         {
-            JS_ReportErrorASCII( pJsCtx_, "Failed to get affectedItems[%ud]", i );
+            JS_ReportErrorUTF8( pJsCtx_, "Failed to get affectedItems[%ud]", i );
             return std::nullopt;
         }
 
@@ -750,7 +750,7 @@ JsFbPlaylistManager::RemoveItemsFromPlaybackQueue( JS::HandleValue affectedItems
         uint32_t affectedIdx( convert::to_native::ToValue<uint32_t>( pJsCtx_, arrayElement, isValid ) );
         if ( !isValid )
         {
-            JS_ReportErrorASCII( pJsCtx_, "affectedItems[%ud] can't be converted to number" );
+            JS_ReportErrorUTF8( pJsCtx_, "affectedItems[%ud] can't be converted to number" );
             return std::nullopt;
         }
 
@@ -779,7 +779,7 @@ JsFbPlaylistManager::RemovePlaylistSelectionWithOpt( size_t optArgCount, uint32_
 {
     if ( optArgCount > 1 )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
+        JS_ReportErrorUTF8( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
         return std::nullopt;
     }
 
@@ -798,7 +798,7 @@ JsFbPlaylistManager::RemovePlaylistSwitch( uint32_t playlistIndex )
 }
 
 std::optional<bool>
-JsFbPlaylistManager::RenamePlaylist( uint32_t playlistIndex, const std::string& name )
+JsFbPlaylistManager::RenamePlaylist( uint32_t playlistIndex, const pfc::string8_fast& name )
 {
     return playlist_manager::get()->playlist_rename( playlistIndex, name.c_str(), name.length() );
 }
@@ -822,7 +822,7 @@ JsFbPlaylistManager::SetPlaylistFocusItemByHandle( uint32_t playlistIndex, JsFbM
 {
     if ( !handle )
     {
-        JS_ReportErrorASCII( pJsCtx_, "handle argument is null" );
+        JS_ReportErrorUTF8( pJsCtx_, "handle argument is null" );
         return std::nullopt;
     }
 
@@ -836,21 +836,21 @@ JsFbPlaylistManager::SetPlaylistSelection( uint32_t playlistIndex, JS::HandleVal
     JS::RootedObject jsObject( pJsCtx_, affectedItems.toObjectOrNull() );
     if ( !jsObject )
     {
-        JS_ReportErrorASCII( pJsCtx_, "affectedItems argument is not a JS object" );
+        JS_ReportErrorUTF8( pJsCtx_, "affectedItems argument is not a JS object" );
         return std::nullopt;
     }
 
     bool is;
     if ( !JS_IsArrayObject( pJsCtx_, jsObject, &is ) )
     {
-        JS_ReportErrorASCII( pJsCtx_, "affectedItems argument is an array" );
+        JS_ReportErrorUTF8( pJsCtx_, "affectedItems argument is an array" );
         return std::nullopt;
     }
 
     uint32_t arraySize;
     if ( !JS_GetArrayLength( pJsCtx_, jsObject, &arraySize ) )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Failed to get affectedItems argument array length" );
+        JS_ReportErrorUTF8( pJsCtx_, "Failed to get affectedItems argument array length" );
         return std::nullopt;
     }
 
@@ -862,7 +862,7 @@ JsFbPlaylistManager::SetPlaylistSelection( uint32_t playlistIndex, JS::HandleVal
     {
         if ( !JS_GetElement( pJsCtx_, jsObject, i, &arrayElement ) )
         {
-            JS_ReportErrorASCII( pJsCtx_, "Failed to get affectedItems[%ud]", i );
+            JS_ReportErrorUTF8( pJsCtx_, "Failed to get affectedItems[%ud]", i );
             return std::nullopt;
         }
 
@@ -870,7 +870,7 @@ JsFbPlaylistManager::SetPlaylistSelection( uint32_t playlistIndex, JS::HandleVal
         uint32_t affectedIdx( convert::to_native::ToValue<uint32_t>( pJsCtx_, arrayElement, isValid ) );
         if ( !isValid )
         {
-            JS_ReportErrorASCII( pJsCtx_, "affectedItems[%ud] can't be converted to number" );
+            JS_ReportErrorUTF8( pJsCtx_, "affectedItems[%ud] can't be converted to number" );
             return std::nullopt;
         }
 
@@ -895,7 +895,7 @@ JsFbPlaylistManager::ShowAutoPlaylistUI( uint32_t playlistIndex )
 {
     if ( playlistIndex >= playlist_manager::get()->get_playlist_count() )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Index is out of bounds" );
+        JS_ReportErrorUTF8( pJsCtx_, "Index is out of bounds" );
         return std::nullopt;
     }
 
@@ -912,17 +912,17 @@ JsFbPlaylistManager::ShowAutoPlaylistUI( uint32_t playlistIndex )
 }
 
 std::optional<bool>
-JsFbPlaylistManager::SortByFormat( uint32_t playlistIndex, const std::string& pattern, bool selOnly )
+JsFbPlaylistManager::SortByFormat( uint32_t playlistIndex, const pfc::string8_fast& pattern, bool selOnly )
 {
-    return playlist_manager::get()->playlist_sort_by_format( playlistIndex, pattern.empty() ? nullptr : pattern.c_str(), selOnly );
+    return playlist_manager::get()->playlist_sort_by_format( playlistIndex, pattern.is_empty() ? nullptr : pattern.c_str(), selOnly );
 }
 
 std::optional<bool> 
-JsFbPlaylistManager::SortByFormatWithOpt( size_t optArgCount, uint32_t playlistIndex, const std::string& pattern, bool selOnly )
+JsFbPlaylistManager::SortByFormatWithOpt( size_t optArgCount, uint32_t playlistIndex, const pfc::string8_fast& pattern, bool selOnly )
 {
     if ( optArgCount > 1 )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
+        JS_ReportErrorUTF8( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
         return std::nullopt;
     }
 
@@ -935,7 +935,7 @@ JsFbPlaylistManager::SortByFormatWithOpt( size_t optArgCount, uint32_t playlistI
 }
 
 std::optional<bool>
-JsFbPlaylistManager::SortByFormatV2( uint32_t playlistIndex, const std::string& pattern, int8_t direction )
+JsFbPlaylistManager::SortByFormatV2( uint32_t playlistIndex, const pfc::string8_fast& pattern, int8_t direction )
 {
     auto api = playlist_manager::get();
     metadb_handle_list handles;
@@ -953,11 +953,11 @@ JsFbPlaylistManager::SortByFormatV2( uint32_t playlistIndex, const std::string& 
 }
 
 std::optional<bool> 
-JsFbPlaylistManager::SortByFormatV2WithOpt( size_t optArgCount, uint32_t playlistIndex, const std::string& pattern, int8_t direction )
+JsFbPlaylistManager::SortByFormatV2WithOpt( size_t optArgCount, uint32_t playlistIndex, const pfc::string8_fast& pattern, int8_t direction )
 {
     if ( optArgCount > 1 )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
+        JS_ReportErrorUTF8( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
         return std::nullopt;
     }
 
@@ -1007,7 +1007,7 @@ JsFbPlaylistManager::SortPlaylistsByNameWithOpt( size_t optArgCount, int8_t dire
 {
     if ( optArgCount > 1 )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
+        JS_ReportErrorUTF8( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
         return std::nullopt;
     }
 
@@ -1060,7 +1060,7 @@ JsFbPlaylistManager::get_PlaylistRecyclerManager()
         jsPlaylistRecycler_.init( pJsCtx_, JsFbPlaylistRecyclerManager::Create( pJsCtx_ ) );
         if ( !jsPlaylistRecycler_ )
         {
-            JS_ReportErrorASCII( pJsCtx_, "Internal error: failed to create JS object" );
+            JS_ReportErrorUTF8( pJsCtx_, "Internal error: failed to create JS object" );
             return std::nullopt;
         }
     }

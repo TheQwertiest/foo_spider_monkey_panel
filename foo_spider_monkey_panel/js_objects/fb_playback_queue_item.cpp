@@ -97,7 +97,7 @@ JsFbPlaybackQueueItem::get_Handle()
     JS::RootedObject jsObject( pJsCtx_, JsFbMetadbHandle::Create( pJsCtx_, playbackQueueItem_.m_handle ) );
     if ( !jsObject )
     {
-        JS_ReportErrorASCII( pJsCtx_, "Internal error: failed to create JS object" );
+        JS_ReportErrorUTF8( pJsCtx_, "Internal error: failed to create JS object" );
         return std::nullopt;
     }
 

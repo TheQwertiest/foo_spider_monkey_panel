@@ -33,7 +33,7 @@ void JsFinalizeOp( [[maybe_unused]] JSFreeOp* fop, JSObject* obj )
 bool DummyGetter( JSContext* cx, unsigned argc, JS::Value* vp );
 
 template<typename FuncType, typename ...ArgsType>
-bool CreateAndInstallObject( JSContext* cx, JS::HandleObject parentObject, std::string_view propertyName, FuncType fn, ArgsType&&... args )
+bool CreateAndInstallObject( JSContext* cx, JS::HandleObject parentObject, const pfc::string8_fast& propertyName, FuncType fn, ArgsType&&... args )
 {
     JS::RootedObject objectToInstall( cx, fn( cx, args... ) );
     if ( !objectToInstall )
@@ -41,7 +41,7 @@ bool CreateAndInstallObject( JSContext* cx, JS::HandleObject parentObject, std::
         return false;
     }
 
-    if ( !JS_DefineProperty( cx, parentObject, propertyName.data(), objectToInstall, DefaultPropsFlags() ) )
+    if ( !JS_DefineProperty( cx, parentObject, propertyName.c_str(), objectToInstall, DefaultPropsFlags() ) )
     {
         return false;
     }

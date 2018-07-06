@@ -65,7 +65,7 @@ public:
 		ATLASSERT(m_hWndOwner == NULL); // Cannot set it twice
 		m_hWndOwner = hWnd;
 	}
-	virtual LPCTSTR GetName() const
+	virtual LPCWSTR GetName() const
 	{
 		return m_pszName; // Dangerous!
 	}
