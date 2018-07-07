@@ -61,6 +61,12 @@ namespace mozjs
 
 JsMeasureStringInfo::JsMeasureStringInfo( JSContext* cx, float x, float y, float w, float h, uint32_t lines, uint32_t characters )
     : pJsCtx_( cx )
+    , x_(x)
+    , y_( y )
+    , w_( w )
+    , h_( h )
+    , lines_( lines )
+    , characters_( characters )
 {
 }
 
