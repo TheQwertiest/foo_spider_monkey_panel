@@ -321,7 +321,8 @@ JsGdiGraphics::DrawLine( float x1, float y1, float x2, float y2, float line_widt
     return nullptr;
 }
 
-std::optional<std::nullptr_t> JsGdiGraphics::DrawPolygon( uint32_t colour, float line_width, JS::HandleValue points )
+std::optional<std::nullptr_t>
+JsGdiGraphics::DrawPolygon( uint32_t colour, float line_width, JS::HandleValue points )
 {
     if ( !pGdi_ )
     {
