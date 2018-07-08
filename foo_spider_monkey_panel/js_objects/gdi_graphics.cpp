@@ -793,7 +793,7 @@ JsGdiGraphics::GdiDrawText( const std::wstring& str, JsGdiFont* font, uint32_t c
     assert( dc );
 
     class ScopedHDC
-    {// TODO: move somewhere
+    {// TODO: move somewhere - every GetHDC call should be wrapped with this
     public:
         ScopedHDC( Gdiplus::Graphics* pGdi, HDC hDc )
             : pGdi_( pGdi )
@@ -816,6 +816,7 @@ JsGdiGraphics::GdiDrawText( const std::wstring& str, JsGdiFont* font, uint32_t c
     RECT rc = { x, y, static_cast<LONG>( x + w ), static_cast<LONG>( y + h ) };
     DRAWTEXTPARAMS dpt = { sizeof( DRAWTEXTPARAMS ), 4, 0, 0, 0 };
 
+    SetTextColor( dc, helpers::convert_argb_to_colorref( colour ) );
     oldfont = SelectFont( dc, hFont );
     int iRet = SetBkMode( dc, TRANSPARENT );
     IF_WINAPI_FAILED_RETURN_WITH_REPORT( pJsCtx_, CLR_INVALID != iRet, std::nullopt, SetBkMode );

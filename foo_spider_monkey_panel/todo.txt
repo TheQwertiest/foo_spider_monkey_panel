@@ -1,4 +1,5 @@
 # Current
+- Reimplement ActiveXObject accessors through proxy instead of current hacks.
 - Document that everything is case-sensitive (unlike how it was in WSH\IE...)
 - Implement FbHandleList.Item through [] proxy, since JS does not allow calls to be LHS (WSH\IE does though...)
 - Test `include` with various codepages (esp. JP,KR,CH)

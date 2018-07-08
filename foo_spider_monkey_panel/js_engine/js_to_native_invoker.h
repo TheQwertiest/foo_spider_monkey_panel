@@ -6,6 +6,15 @@
 #include <js_objects/global_object.h>
 #include <js_utils/js_error_helper.h>
 
+#pragma warning( push )  
+#pragma warning( disable : 4100 ) // unused variable
+#pragma warning( disable : 4251 ) // dll interface warning
+#pragma warning( disable : 4324 ) // structure was padded due to alignment specifier
+#pragma warning( disable : 4996 ) // C++17 deprecation warning
+#   include <js/Wrapper.h>
+#pragma warning( pop ) 
+
+
 #include <type_traits>
 #include <vector>
 
@@ -142,9 +151,13 @@ bool InvokeNativeCallback_Impl( JSContext* cx,
                         }
 
                         JS::RootedObject jsObject( cx, &curArg.toObject() );
+                        if ( js::IsProxy( jsObject ) )
+                        {
+                            jsObject.set( js::GetProxyTargetObject( jsObject ) );
+                        }
                         ArgType pNative = static_cast<ArgType>(
                             JS_GetInstancePrivate( cx, jsObject, &std::remove_pointer_t<ArgType>::GetClass(), nullptr )
-                        );
+                            );
                         if ( !pNative )
                         {
                             failedIdx = index;
@@ -175,7 +188,16 @@ bool InvokeNativeCallback_Impl( JSContext* cx,
     }
     else
     {
-        baseClass = static_cast<BaseClass*>(JS_GetPrivate( args.thisv().toObjectOrNull() ));
+        assert( args.thisv().isObject() );
+        JSObject& jsObject = args.thisv().toObject(); // No need to root, since no GC here
+        if ( js::IsProxy( &jsObject ) )
+        {
+            baseClass = static_cast<BaseClass*>(JS_GetPrivate( js::GetProxyTargetObject( &jsObject ) ));
+        }
+        else
+        {
+            baseClass = static_cast<BaseClass*>(JS_GetPrivate( &jsObject ));
+        }
     }
     if ( !baseClass )
     {

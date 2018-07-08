@@ -11,7 +11,6 @@
 #include <helpers.h>
 #include <stats.h>
 
-
 // TODO: add constructor
 
 namespace
@@ -50,7 +49,7 @@ MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandleList, Find );
 MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandleList, GetLibraryRelativePaths );
 MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandleList, Insert );
 MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandleList, InsertRange );
-MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsFbMetadbHandleList, Item2, Item2WithOpt, 1 );
+//MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsFbMetadbHandleList, Item2, Item2WithOpt, 1 );
 MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandleList, MakeDifference );
 MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandleList, MakeIntersection );
 MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandleList, MakeUnion );
@@ -78,7 +77,7 @@ const JSFunctionSpec jsFunctions[] = {
     JS_FN( "Insert"                 , Insert                 , 2, DefaultPropsFlags() ),
     JS_FN( "InsertRange"            , InsertRange            , 2, DefaultPropsFlags() ),
     // TODO: test with name collision, there is no report somewhere and it asserts
-    JS_FN( "Item2"                  , Item2                  , 1, DefaultPropsFlags() ),
+    //JS_FN( "Item2"                  , Item2                  , 1, DefaultPropsFlags() ),
     JS_FN( "MakeDifference"         , MakeDifference         , 1, DefaultPropsFlags() ),
     JS_FN( "MakeIntersection"       , MakeIntersection       , 1, DefaultPropsFlags() ),
     JS_FN( "MakeUnion"              , MakeUnion              , 1, DefaultPropsFlags() ),
@@ -105,6 +104,59 @@ const JSPropertySpec jsProperties[] = {
     JS_PSGS( "Item", get_Item, put_Item, DefaultPropsFlags() ),
     JS_PS_END
 };
+
+// Wrapper to intercept indexed gets/sets.
+class FbMetadbHandleListProxyHandler : public js::ForwardingProxyHandler
+{
+public:
+    static const FbMetadbHandleListProxyHandler singleton;
+
+    constexpr FbMetadbHandleListProxyHandler() : js::ForwardingProxyHandler( nullptr ) {}
+
+    bool get( JSContext* cx, JS::HandleObject proxy, JS::HandleValue receiver,
+              JS::HandleId id, JS::MutableHandleValue vp ) const override;
+    bool set( JSContext* cx, JS::HandleObject proxy, JS::HandleId id, JS::HandleValue v,
+              JS::HandleValue receiver, JS::ObjectOpResult& result ) const override;
+};
+
+const FbMetadbHandleListProxyHandler FbMetadbHandleListProxyHandler::singleton;
+
+bool
+FbMetadbHandleListProxyHandler::get( JSContext* cx, JS::HandleObject proxy, JS::HandleValue receiver,
+                             JS::HandleId id, JS::MutableHandleValue vp ) const
+{
+    /*
+    JS::RootedObject target( cx, proxy->as<ProxyObject>().target() );
+    bool handled = false;
+    if ( !ArrayType::Getter( cx, target, id, vp, &handled ) )
+        return false;
+    if ( handled )
+        return true;*/
+    return js::ForwardingProxyHandler::get( cx, proxy, receiver, id, vp );
+}
+
+bool
+FbMetadbHandleListProxyHandler::set( JSContext* cx, JS::HandleObject proxy, JS::HandleId id, JS::HandleValue v,
+                             JS::HandleValue receiver, JS::ObjectOpResult& result ) const
+{
+    /*
+    JS::RootedObject target( cx, proxy->as<ProxyObject>().target() );
+    bool handled = false;
+    if ( !ArrayType::Setter( cx, target, id, v, result, &handled ) )
+        return false;
+    if ( handled )
+        return true;
+        */
+    return js::ForwardingProxyHandler::set( cx, proxy, id, v, receiver, result );
+}
+/*
+static JSObject*
+MaybeUnwrapArrayWrapper( JSObject* obj )
+{
+    if ( IsProxy( obj ) && obj->as<ProxyObject>().handler() == &FbMetadbHandleListProxyHandler::singleton )
+        return obj->as<ProxyObject>().target();
+    return obj;
+}*/
 
 }
 
@@ -139,7 +191,11 @@ JSObject* JsFbMetadbHandleList::Create( JSContext* cx, metadb_handle_list_cref h
 
     JS_SetPrivate( jsObj, new JsFbMetadbHandleList( cx, handles ) );
 
-    return jsObj;
+    JS::RootedValue priv( cx, JS::ObjectValue( *jsObj ) );
+    js::ProxyOptions options;
+    options.setLazyProto( true );
+
+    return js::NewProxyObject( cx, &FbMetadbHandleListProxyHandler::singleton, priv, nullptr, options );
 }
 
 const JSClass& JsFbMetadbHandleList::GetClass()
