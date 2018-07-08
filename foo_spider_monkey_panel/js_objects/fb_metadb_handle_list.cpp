@@ -50,6 +50,7 @@ MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandleList, Find );
 MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandleList, GetLibraryRelativePaths );
 MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandleList, Insert );
 MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandleList, InsertRange );
+MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsFbMetadbHandleList, Item2, Item2WithOpt, 1 );
 MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandleList, MakeDifference );
 MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandleList, MakeIntersection );
 MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandleList, MakeUnion );
@@ -76,6 +77,8 @@ const JSFunctionSpec jsFunctions[] = {
     JS_FN( "GetLibraryRelativePaths", GetLibraryRelativePaths, 0, DefaultPropsFlags() ),
     JS_FN( "Insert"                 , Insert                 , 2, DefaultPropsFlags() ),
     JS_FN( "InsertRange"            , InsertRange            , 2, DefaultPropsFlags() ),
+    // TODO: test with name collision, there is no report somewhere and it asserts
+    JS_FN( "Item2"                  , Item2                  , 1, DefaultPropsFlags() ),
     JS_FN( "MakeDifference"         , MakeDifference         , 1, DefaultPropsFlags() ),
     JS_FN( "MakeIntersection"       , MakeIntersection       , 1, DefaultPropsFlags() ),
     JS_FN( "MakeUnion"              , MakeUnion              , 1, DefaultPropsFlags() ),
@@ -93,6 +96,7 @@ const JSFunctionSpec jsFunctions[] = {
 };
 
 MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandleList, get_Count );
+// TODO: replace with Proxy
 MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandleList, get_Item );
 MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandleList, put_Item );
 

@@ -1,4 +1,7 @@
 # Current
+- Document that everything is case-sensitive (unlike how it was in WSH\IE...)
+- Implement FbHandleList.Item through [] proxy, since JS does not allow calls to be LHS (WSH\IE does though...)
+- Test `include` with various codepages (esp. JP,KR,CH)
 - WshShell COM object does not enumerate all the methods and properties: fix this.
 - Diagnose JS_ShutDown freeze on conditional wait on fb2k exit
 - Check utf8 literals everywhere (paths, script window, script files, properties, callback arguments)

@@ -896,6 +896,88 @@ namespace helpers
 		return codepage;
 	}
 
+    size_t detect_text_charset( const char* text, size_t textSize )
+    {
+        _COM_SMARTPTR_TYPEDEF( IMultiLanguage2, IID_IMultiLanguage2 );
+        IMultiLanguage2Ptr lang;
+        HRESULT hr;
+
+        hr = lang.CreateInstance( CLSID_CMultiLanguage, NULL, CLSCTX_INPROC_SERVER );
+        if ( FAILED( hr ) )
+        {
+            return 0;
+        }
+
+        const int maxEncodings = 2;
+        int encodingCount = maxEncodings;
+        DetectEncodingInfo encodings[maxEncodings];
+        int iTextSize = textSize;
+
+        hr = lang->DetectInputCodepage( MLDETECTCP_NONE, 0, (char*)text, &iTextSize, encodings, &encodingCount );
+        if ( FAILED( hr ) )
+        {
+            return 0;
+        }
+
+        unsigned codepage = 0;
+        bool found = false;
+
+        // MLang fine tunes
+        if ( encodingCount == 2 && encodings[0].nCodePage == 1252 )
+        {
+            switch ( encodings[1].nCodePage )
+            {
+            case 850:
+            case 65001:
+                found = true;
+                codepage = 65001;
+                break;
+                // DBCS
+            case 932: // shift-jis
+            case 936: // gbk
+            case 949: // korean
+            case 950: // big5
+            {
+                // '¡¯', <= special char
+                // "ve" "d" "ll" "m" 't' 're'
+                bool fallback = true;
+
+                const char pattern[] = "\x92";
+                const char* pPos = std::search( text, text + textSize, pattern, pattern + sizeof( pattern ) - 1 );
+                if ( pPos != (text + textSize) )
+                {
+                    const char pattern2[] = "vldmtr ";
+                    pPos = std::search( text, text + textSize, pattern, pattern2 + sizeof( pattern2 ) - 1 );
+                    if ( pPos != (text + textSize) )
+                    {
+                        codepage = encodings[0].nCodePage;
+                        fallback = false;
+                    }
+                }
+
+                if ( fallback )
+                {
+                    codepage = encodings[1].nCodePage;
+                }
+                found = true;
+            }
+            break;
+            }
+        }
+
+        if ( !found )
+        {
+            codepage = encodings[0].nCodePage;
+        }
+        // ASCII?
+        if ( codepage == 20127 )
+        {
+            codepage = 0;
+        }
+
+        return codepage;
+    }
+
 	t_size get_colour_from_variant(VARIANT v)
 	{
 		return (v.vt == VT_R8) ? static_cast<unsigned>(v.dblVal) : v.lVal;

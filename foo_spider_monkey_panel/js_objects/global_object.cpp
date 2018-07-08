@@ -252,25 +252,112 @@ JsGlobalObject::IncludeScript( const pfc::string8_fast& path )
     parsedPath.replace_string( "%fb2k_component_path%", substPath.c_str(), pos );
     substPath = helpers::get_profile_path();
     parsedPath.replace_string( "%fb2k_profile_path%", substPath.c_str(), pos );
+    parsedPath.replace_string( "/", "\\", pos );
 
     namespace fs = std::filesystem;
     // TODO: catch exceptions
     fs::path fsPath = fs::u8path( parsedPath.c_str() );
     if ( !fs::exists( fsPath ) || !fs::is_regular_file( fsPath ) )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "Failed to open the script: %s", parsedPath.c_str() );
+        JS_ReportErrorUTF8( pJsCtx_, "Path does not point to a valid script file: %s", parsedPath.c_str() );
         return std::nullopt;
     }
 
     std::string filename = fsPath.filename().string();
 
+    std::wstring scriptCode;
+
+    // TODO: extract to file_helpers
+
+    // Start
+
+    HANDLE hFile = CreateFile( fsPath.wstring().c_str(), GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL );
+    if ( !hFile )
+    {
+        JS_ReportErrorUTF8( pJsCtx_, "Failed to open script file: %s", parsedPath.c_str() );
+        return std::nullopt;
+    }
+
+    HANDLE hFileMapping = CreateFileMapping( hFile, NULL, PAGE_READONLY, 0, 0, NULL );
+    if ( !hFileMapping )
+    {
+        CloseHandle( hFile );
+
+        JS_ReportErrorUTF8( pJsCtx_, "Internal error: CreateFileMapping failed for `%s`", parsedPath.c_str() );
+        return std::nullopt;
+    }
+
+    DWORD dwFileSize = GetFileSize( hFile, NULL );
+    LPCBYTE pAddr = (LPCBYTE)MapViewOfFile( hFileMapping, FILE_MAP_READ, 0, 0, 0 );
+    if ( !pAddr )
+    {
+        CloseHandle( hFileMapping );
+        CloseHandle( hFile );
+        
+        JS_ReportErrorUTF8( pJsCtx_, "Internal error: MapViewOfFile failed for `%s`", parsedPath.c_str() );
+        return std::nullopt;
+    }
+
+    if ( dwFileSize == INVALID_FILE_SIZE )
+    {
+        UnmapViewOfFile( pAddr );
+        CloseHandle( hFileMapping );
+        CloseHandle( hFile );
+        
+        JS_ReportErrorUTF8( pJsCtx_, "Internal error: failed to read file size of `%s`", parsedPath.c_str() );
+        return std::nullopt;
+    }
+
+    const unsigned char bom32Be[] = { 0x00, 0x00, 0xfe, 0xff };
+    const unsigned char bom32Le[] = { 0xff, 0xfe, 0x00, 0x00 };
+    const unsigned char bom16Be[] = { 0xfe, 0xff };// must be 4byte size
+    const unsigned char bom16Le[] = { 0xff, 0xfe };// must be 4byte size, but not 0xff, 0xfe, 0x00, 0x00
+    const unsigned char bom8[] = { 0xef, 0xbb, 0xbf };
+
+    // TODO: handle all other BOM cases as well
+    if ( dwFileSize >= 4 
+            && !memcmp( bom16Le, pAddr, sizeof( bom16Le ) ) )
+    {
+        pAddr += sizeof( bom16Le );
+        dwFileSize -= sizeof( bom16Le );
+
+        const size_t outputSize = (dwFileSize >> 1) + 1;
+        scriptCode.resize( outputSize );
+
+        memcpy( scriptCode.data(), (const char*)pAddr, dwFileSize );
+        scriptCode[outputSize] = 0;
+    }
+    else if ( dwFileSize >= sizeof( bom8 )
+        && !memcmp( bom8, pAddr, sizeof( bom8 ) ) )
+    {
+        pAddr += sizeof( bom8 );
+        dwFileSize -= sizeof( bom8 );            
+
+        size_t outputSize = pfc::stringcvt::estimate_codepage_to_wide( CP_UTF8, (const char*)pAddr, dwFileSize );
+        scriptCode.resize( outputSize );
+
+        outputSize = pfc::stringcvt::convert_codepage_to_wide( CP_UTF8, scriptCode.data(), outputSize, (const char*)pAddr, dwFileSize );
+        scriptCode.resize( outputSize );
+    }
+    else
+    {
+        t_size codepage = helpers::detect_text_charset( (const char*)pAddr, dwFileSize );
+
+        size_t outputSize = pfc::stringcvt::estimate_codepage_to_wide( codepage, (const char*)pAddr, dwFileSize );
+        scriptCode.resize( outputSize );
+
+        outputSize = pfc::stringcvt::convert_codepage_to_wide( codepage, scriptCode.data(), outputSize, (const char*)pAddr, dwFileSize );
+        scriptCode.resize( outputSize );
+    }
+
+    // End
+
+    UnmapViewOfFile( pAddr );
+    CloseHandle( hFileMapping );
+    CloseHandle( hFile );
+
     JS::CompileOptions opts( pJsCtx_ );
     opts.setFileAndLine( filename.c_str(), 1 );
-
-    std::wifstream ifs( fsPath );
-    // TODO: ask someone, why constructor with () does not work
-    std::wstring scriptCode{ std::istreambuf_iterator<wchar_t>( ifs ),
-                            std::istreambuf_iterator<wchar_t>() };
 
     JS::RootedValue rval( pJsCtx_ );
 

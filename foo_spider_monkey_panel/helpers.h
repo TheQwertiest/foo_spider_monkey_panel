@@ -48,6 +48,7 @@ namespace helpers
 	pfc::string8_fast get_fb2k_path();
 	pfc::string8_fast get_profile_path();
 	t_size detect_charset(const char* fileName);
+    size_t detect_text_charset( const char* text, size_t textSize );
 	t_size get_colour_from_variant(VARIANT v);
 	void build_mainmenu_group_map(pfc::map_t<GUID, mainmenu_group::ptr>& p_group_guid_text_map);
 	void estimate_line_wrap(HDC hdc, const wchar_t* text, int len, int width, pfc::list_t<wrapped_item>& out);

@@ -41,6 +41,8 @@ public: // methods
     std::optional<JSObject*> GetLibraryRelativePaths();
     std::optional<std::nullptr_t> Insert( uint32_t index, JsFbMetadbHandle* handle );
     std::optional<std::nullptr_t> InsertRange( uint32_t index, JsFbMetadbHandleList* handles );
+    std::optional<JSObject*> Item2( uint32_t index, JsFbMetadbHandle* handle );
+    std::optional<JSObject*> Item2WithOpt( size_t optArgCount, uint32_t index, JsFbMetadbHandle* handle );
     std::optional<std::nullptr_t> MakeDifference( JsFbMetadbHandleList* handles );
     std::optional<std::nullptr_t> MakeIntersection( JsFbMetadbHandleList* handles );
     std::optional<std::nullptr_t> MakeUnion( JsFbMetadbHandleList* handles );
