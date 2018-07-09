@@ -15,6 +15,7 @@ bool InvokeJsCallback_Impl( JSContext* cx,
                             const JS::HandleValueArray& args,
                             JS::MutableHandleValue rval )
 {      
+    // TODO: move this to before argument parsing: first check then parse!
     AutoReportException are( cx );
 
     JS::RootedValue funcValue( cx );
