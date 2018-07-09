@@ -21,6 +21,19 @@
 class ActiveX //takes ownership, calls Release() at the end
 {
 public:
+    ActiveX();
+    ActiveX( CLSID& clsid );
+    ActiveX( IUnknown *obj, bool addref = false );
+    ActiveX( IDispatch *obj, bool addref = false );
+    ActiveX( VARIANTARG& var );
+
+    ~ActiveX();
+
+    static JSObject* Create( JSContext* cx );
+
+    static const JSClass& GetClass();
+
+public:
     IDispatch * pDispatch_;
     IUnknown * pUnknown_;
     ITypeInfo * pTypeInfo_;
@@ -37,14 +50,7 @@ public:
 
     std::map<std::wstring, std::shared_ptr<PropInfo>> properties_;
 
-    ActiveX();
-    ActiveX( CLSID& clsid );
-    ActiveX( IUnknown *obj, bool addref = false );
-    ActiveX( IDispatch *obj, bool addref = false );
-    ActiveX( VARIANTARG& var );
-    //TIntList properties;
-
-    ~ActiveX();
+    
 
     PropInfo* Find( std::wstring_view name );
 
