@@ -11,6 +11,8 @@
 #include <helpers.h>
 #include <stats.h>
 
+#include <js/Conversions.h>
+
 // TODO: add constructor
 
 namespace
@@ -95,23 +97,26 @@ const JSFunctionSpec jsFunctions[] = {
 };
 
 MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandleList, get_Count );
-// TODO: replace with Proxy
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandleList, get_Item );
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandleList, put_Item );
 
 const JSPropertySpec jsProperties[] = {
     JS_PSG( "Count", get_Count, DefaultPropsFlags() ),
-    JS_PSGS( "Item", get_Item, put_Item, DefaultPropsFlags() ),
     JS_PS_END
 };
+
+}
+
+namespace
+{
 
 // Wrapper to intercept indexed gets/sets.
 class FbMetadbHandleListProxyHandler : public js::ForwardingProxyHandler
 {
 public:
     static const FbMetadbHandleListProxyHandler singleton;
+    // family must contain unique pointer, so the value does not really matter
+    static const char family;
 
-    constexpr FbMetadbHandleListProxyHandler() : js::ForwardingProxyHandler( nullptr ) {}
+    constexpr FbMetadbHandleListProxyHandler() : js::ForwardingProxyHandler( &family ) {}
 
     bool get( JSContext* cx, JS::HandleObject proxy, JS::HandleValue receiver,
               JS::HandleId id, JS::MutableHandleValue vp ) const override;
@@ -120,18 +125,29 @@ public:
 };
 
 const FbMetadbHandleListProxyHandler FbMetadbHandleListProxyHandler::singleton;
+const char FbMetadbHandleListProxyHandler::family = 'Q';
 
 bool
 FbMetadbHandleListProxyHandler::get( JSContext* cx, JS::HandleObject proxy, JS::HandleValue receiver,
                              JS::HandleId id, JS::MutableHandleValue vp ) const
 {
-    /*
-    JS::RootedObject target( cx, proxy->as<ProxyObject>().target() );
-    bool handled = false;
-    if ( !ArrayType::Getter( cx, target, id, vp, &handled ) )
-        return false;
-    if ( handled )
-        return true;*/
+    if ( JSID_IS_INT( id ) )
+    {
+        JS::RootedObject target( cx, js::GetProxyTargetObject( proxy ) );
+        auto pNativeTarget = static_cast<JsFbMetadbHandleList*>( JS_GetPrivate( target ) );
+        assert( pNativeTarget );
+
+        uint32_t index = static_cast<uint32_t>( JSID_TO_INT(id ));
+        auto result = pNativeTarget->get_Item( index );
+        if ( !result )
+        {// report in get_Item
+            return false;
+        }
+
+        vp.setObjectOrNull( result.value() );
+        return true;
+    }
+
     return js::ForwardingProxyHandler::get( cx, proxy, receiver, id, vp );
 }
 
@@ -139,24 +155,38 @@ bool
 FbMetadbHandleListProxyHandler::set( JSContext* cx, JS::HandleObject proxy, JS::HandleId id, JS::HandleValue v,
                              JS::HandleValue receiver, JS::ObjectOpResult& result ) const
 {
-    /*
-    JS::RootedObject target( cx, proxy->as<ProxyObject>().target() );
-    bool handled = false;
-    if ( !ArrayType::Setter( cx, target, id, v, result, &handled ) )
-        return false;
-    if ( handled )
+    if ( JSID_IS_INT( id ) )
+    {
+        JS::RootedObject target( cx, js::GetProxyTargetObject( proxy ) );
+        auto pNativeTarget = static_cast<JsFbMetadbHandleList*>( JS_GetPrivate( target ) );
+        assert( pNativeTarget );
+
+        uint32_t index = static_cast<uint32_t>( JSID_TO_INT( id ) );
+
+        if ( !v.isObjectOrNull() )
+        {
+            JS_ReportErrorUTF8( cx, "Value in assignment is of wrong type" );
+            return false;
+        }
+
+        JS::RootedObject jsObject( cx, v.toObjectOrNull() );
+        JsFbMetadbHandle* pNativeValue = 
+            jsObject 
+            ? static_cast<JsFbMetadbHandle*>( JS_GetInstancePrivate( cx, jsObject, &JsFbMetadbHandle::GetClass(), nullptr ) )
+            : nullptr;
+        
+        auto retVal = pNativeTarget->put_Item( index, pNativeValue );
+        if ( !retVal )
+        {// report in get_Item
+            return false;
+        }
+
+        result.succeed();
         return true;
-        */
+    }
+
     return js::ForwardingProxyHandler::set( cx, proxy, id, v, receiver, result );
 }
-/*
-static JSObject*
-MaybeUnwrapArrayWrapper( JSObject* obj )
-{
-    if ( IsProxy( obj ) && obj->as<ProxyObject>().handler() == &FbMetadbHandleListProxyHandler::singleton )
-        return obj->as<ProxyObject>().target();
-    return obj;
-}*/
 
 }
 
@@ -193,7 +223,8 @@ JSObject* JsFbMetadbHandleList::Create( JSContext* cx, metadb_handle_list_cref h
 
     JS::RootedValue priv( cx, JS::ObjectValue( *jsObj ) );
     js::ProxyOptions options;
-    options.setLazyProto( true );
+    // Might need this after adding prototype
+    //options.setLazyProto( true );
 
     return js::NewProxyObject( cx, &FbMetadbHandleListProxyHandler::singleton, priv, nullptr, options );
 }

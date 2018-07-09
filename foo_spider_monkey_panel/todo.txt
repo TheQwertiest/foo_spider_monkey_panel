@@ -2,8 +2,6 @@
 - Change scintilla classname: https://github.com/TheQwertiest/foo-jscript-panel/commit/57393822ae42e1ebd77911c0f934471903975b4e#commitcomment-29624489
 - Change stats field names: https://github.com/TheQwertiest/foo-jscript-panel/commit/57393822ae42e1ebd77911c0f934471903975b4e#commitcomment-29629263
 - Reimplement ActiveXObject accessors through proxy instead of current hacks.
-- Document that everything is case-sensitive (unlike how it was in WSH\IE...)
-- Implement FbHandleList.Item through [] proxy, since JS does not allow calls to be LHS (WSH\IE does though...)
 - Test `include` with various codepages (esp. JP,KR,CH)
 - It seems that it's impossible to access WshShell object outside of wscript, need to implement most used methods natively: Run, RegRead (maybe Popup)
 - Diagnose JS_ShutDown freeze on conditional wait on fb2k exit
@@ -11,12 +9,14 @@
 - Check drag-n-drop functionality.
 - Check that all files are correctly parsed: UTF8, UTF8-BOM, ASCII.
 - Rewrite ActiveXObject properly (and rename the files as well).
-- Update docs.
 - Complete rebranding to spider_monkey_panel.
 - Check that it can work side-by-side with foo-jscript-panel.
 - Remove engine settings from Panel Properties dialog.
 - Move all failable initialization from ctor to Create (add PostCreate?).
 - Document that toArray() methods are not needed anymore.
+- Document FbHandleList.Item removal ([] proxy)
+- Document that everything is case-sensitive (unlike how it was in WSH\IE...)
+- Update docs.
 - Check all TODOs.
 - Why is this list getting longer, instead of shorter?!
 - Stop staying up all night making this...

@@ -87,8 +87,6 @@ bool InvokeNativeCallback_Impl( JSContext* cx,
     constexpr size_t maxArgCount = sizeof ...( ArgTypes );
 
     JS::CallArgs args = JS::CallArgsFromVp( argc, vp );
-    args.rval().setUndefined();
-
     if ( args.length() < ( maxArgCount - OptArgCount ) )
     {
         JS_ReportErrorUTF8( cx, "Invalid number of arguments" );
