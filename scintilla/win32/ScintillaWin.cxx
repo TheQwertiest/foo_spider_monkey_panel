@@ -123,7 +123,7 @@ typedef UINT_PTR (WINAPI *SetCoalescableTimerSig)(HWND hwnd, UINT_PTR nIDEvent,
 
 // GCC has trouble with the standard COM ABI so do it the old C way with explicit vtables.
 
-const TCHAR callClassName[] = TEXT("JScriptCallTip");
+const TCHAR callClassName[] = TEXT("SMPanelCallTip");
 
 #ifdef SCI_NAMESPACE
 using namespace Scintilla;
@@ -3149,7 +3149,7 @@ bool ScintillaWin::Register(HINSTANCE hInstance_) {
 	wndclass.hCursor = NULL;
 	wndclass.hbrBackground = NULL;
 	wndclass.lpszMenuName = NULL;
-	wndclass.lpszClassName = L"JScriptScintilla";
+	wndclass.lpszClassName = L"SMPanelScintilla";
 	wndclass.hIconSm = 0;
 	scintillaClassAtom = ::RegisterClassExW(&wndclass);
 	result = 0 != scintillaClassAtom;

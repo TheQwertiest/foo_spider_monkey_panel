@@ -131,6 +131,9 @@ JsMainMenuManager::ExecuteByID( uint32_t id )
 std::optional<std::nullptr_t> 
 JsMainMenuManager::Init( const pfc::string8_fast & root_name )
 {
+    std::string preparedRootName( root_name.c_str() ); ///< Don't care about UTF8 here: we need exact match
+    std::transform( preparedRootName.begin(), preparedRootName.end(), preparedRootName.begin(), ::tolower );    
+
     struct RootElement
     {
         const char* name;
@@ -152,7 +155,7 @@ JsMainMenuManager::Init( const pfc::string8_fast & root_name )
     // Find
     for ( int i = 0; i < _countof( validRoots ); ++i )
     {
-        if ( root_name == validRoots[i].name )
+        if ( preparedRootName == validRoots[i].name )
         {// found
             menuManager_ = standard_api_create_t<mainmenu_manager>();
             menuManager_->instantiate( *(validRoots[i].guid) );

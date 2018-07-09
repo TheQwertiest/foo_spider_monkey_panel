@@ -1,9 +1,9 @@
 # Current
+- Just great: 'Shell.Application' (???), 'WScript.Shell' (Run, RegRead, maybe RegWrite), 'Scripting.FileSystemObject' (w3c) are inaccessible outside wscript...
 - Change scintilla classname: https://github.com/TheQwertiest/foo-jscript-panel/commit/57393822ae42e1ebd77911c0f934471903975b4e#commitcomment-29624489
 - Change stats field names: https://github.com/TheQwertiest/foo-jscript-panel/commit/57393822ae42e1ebd77911c0f934471903975b4e#commitcomment-29629263
 - Reimplement ActiveXObject accessors through proxy instead of current hacks.
 - Test `include` with various codepages (esp. JP,KR,CH)
-- It seems that it's impossible to access WshShell object outside of wscript, need to implement most used methods natively: Run, RegRead (maybe Popup)
 - Diagnose JS_ShutDown freeze on conditional wait on fb2k exit
 - Check utf8 literals everywhere (paths, script window, script files, properties, callback arguments)
 - Check drag-n-drop functionality.
