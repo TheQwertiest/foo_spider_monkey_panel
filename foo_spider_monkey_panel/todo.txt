@@ -1,6 +1,5 @@
 # Current
 - 'Shell.Application': use through ActiveXObject, manual linking is possible (shell32.lib, Shldisp.idl, Shldisp.h), 
-- 'Scripting.FileSystemObject': global namespace prorotype, possible interface for replacement - https://developer.mozilla.org/en-US/docs/Archive/Mozilla/SpiderMonkey/File_object
 - 'WScript.Shell': new `utils` methods? Run, RegRead, maybe RegWrite.
 - Change scintilla classname: https://github.com/TheQwertiest/foo-jscript-panel/commit/57393822ae42e1ebd77911c0f934471903975b4e#commitcomment-29624489
 - Change stats field names: https://github.com/TheQwertiest/foo-jscript-panel/commit/57393822ae42e1ebd77911c0f934471903975b4e#commitcomment-29629263
