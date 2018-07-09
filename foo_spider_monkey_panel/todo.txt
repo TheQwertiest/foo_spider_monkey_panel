@@ -1,13 +1,16 @@
 # Current
-- Just great: 'Shell.Application' (???), 'WScript.Shell' (Run, RegRead, maybe RegWrite), 'Scripting.FileSystemObject' (w3c) are inaccessible outside wscript...
+- 'Shell.Application': use through ActiveXObject, manual linking is possible (shell32.lib, Shldisp.idl, Shldisp.h), 
+- 'Scripting.FileSystemObject': global namespace prorotype, possible interface for replacement - https://developer.mozilla.org/en-US/docs/Archive/Mozilla/SpiderMonkey/File_object
+- 'WScript.Shell': new `utils` methods? Run, RegRead, maybe RegWrite.
 - Change scintilla classname: https://github.com/TheQwertiest/foo-jscript-panel/commit/57393822ae42e1ebd77911c0f934471903975b4e#commitcomment-29624489
 - Change stats field names: https://github.com/TheQwertiest/foo-jscript-panel/commit/57393822ae42e1ebd77911c0f934471903975b4e#commitcomment-29629263
 - Reimplement ActiveXObject accessors through proxy instead of current hacks.
-- Test `include` with various codepages (esp. JP,KR,CH)
+- Test `include` with various codepages (esp. JP,KR,CH).
 - Diagnose JS_ShutDown freeze on conditional wait on fb2k exit
 - Check utf8 literals everywhere (paths, script window, script files, properties, callback arguments)
 - Check drag-n-drop functionality.
 - Check that all files are correctly parsed: UTF8, UTF8-BOM, ASCII.
+- See todo in FbMetadbHandleList about collisions.
 - Rewrite ActiveXObject properly (and rename the files as well).
 - Complete rebranding to spider_monkey_panel.
 - Check that it can work side-by-side with foo-jscript-panel.
@@ -22,6 +25,7 @@
 - Stop staying up all night making this...
 
 # Planned
+- Replace `Create*` interface methods with prototypes and `new` where possible
 - Try to make it work with paths containing cyrillics and other exotic characters
 - Move setInterval and co to global namespace.
 - Port hacks from ui_hacks.
