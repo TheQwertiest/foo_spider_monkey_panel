@@ -37,14 +37,6 @@ JSClass jsClass = {
     &jsOps
 };
 
-const JSFunctionSpec jsFunctions[] = {
-    JS_FS_END
-};
-
-const JSPropertySpec jsProperties[] = {
-    JS_PS_END
-};
-
 }
 
 namespace mozjs
@@ -66,12 +58,6 @@ JSObject* JsFbProperties::Create( JSContext* cx, js_panel_window& parentPanel )
     JS::RootedObject jsObj( cx,
                             JS_NewObject( cx, &jsClass ) );
     if ( !jsObj )
-    {
-        return nullptr;
-    }
-
-    if ( !JS_DefineFunctions( cx, jsObj, jsFunctions )
-         || !JS_DefineProperties( cx, jsObj, jsProperties ) )
     {
         return nullptr;
     }

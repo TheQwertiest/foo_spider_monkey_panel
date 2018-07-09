@@ -154,7 +154,6 @@ public:
 private:
 	HWND m_hWnd;
 
-	IDispatch* m_pDisp;
 	HANDLE m_hTimer;
 
     uint32_t m_id;

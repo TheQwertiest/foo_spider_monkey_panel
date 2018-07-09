@@ -11,6 +11,7 @@
 
 
 class js_panel_window;
+class ActiveX;
 
 namespace mozjs
 {
@@ -43,6 +44,16 @@ public:
 public:
     void Fail( pfc::string8_fast errorText);
 
+public: // proto
+    template <typename T>
+    typename std::enable_if<std::is_same<T, ActiveX>::value, JSObject*>::type
+        GetPrototype()
+    {
+        return activeX_proto_;
+    }
+
+
+public: // heap
     void RegisterHeapUser( IHeapUser* heapUser );
     void UnregisterHeapUser( IHeapUser* heapUser );
 
@@ -52,7 +63,7 @@ public:
 
     void RemoveHeapTracer();
 
-public:
+public: // methods
     std::optional<std::nullptr_t> IncludeScript( const pfc::string8_fast& path );
 
 private:
@@ -66,6 +77,9 @@ private:
     JSContext * pJsCtx_ = nullptr;;
     JsContainer &parentContainer_;
     js_panel_window& parentPanel_;
+
+private: // proto
+    JS::PersistentRootedObject activeX_proto_;
     
 private: // heap
     uint32_t currentHeapId_ = 0;    

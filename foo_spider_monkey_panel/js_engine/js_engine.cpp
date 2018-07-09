@@ -101,7 +101,7 @@ bool JsEngine::Initialize()
     }
 
 #ifdef DEBUG
-    //JS_SetGCZeal( pJsCtx, 2, 20 );
+    JS_SetGCZeal( pJsCtx, 2, 20 );
 #endif
 
     pJsCtx_ = autoJsCtx.release();

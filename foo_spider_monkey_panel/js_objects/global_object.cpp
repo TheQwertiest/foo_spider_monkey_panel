@@ -122,14 +122,8 @@ JSObject* JsGlobalObject::Create( JSContext* cx, JsContainer &parentContainer, j
             return nullptr;
         }
 
-        // TODO: proto must be saved and used in object creation
-        JS::RootedObject activeXproto( cx, CreateActiveXProto( cx, jsObj ) );
-        if ( !activeXproto )
-        {
-            return nullptr;
-        }
-
         auto pNative = new JsGlobalObject( cx, parentContainer, parentPanel );
+        pNative->activeX_proto_.init( cx, ActiveX::InitPrototype( cx, jsObj ) );
 
         if ( !JS_DefineFunctions( cx, jsObj, jsFunctions ) )
         {
@@ -217,6 +211,9 @@ void JsGlobalObject::RemoveHeapTracer()
     }
 
     heapUsers_.clear();
+
+    // TODO: move it somewhere
+    activeX_proto_.reset();
 }
 
 void JsGlobalObject::TraceHeapValue( JSTracer *trc, void *data )

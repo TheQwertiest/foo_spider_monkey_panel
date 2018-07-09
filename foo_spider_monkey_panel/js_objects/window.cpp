@@ -178,17 +178,13 @@ void JsWindow::RemoveHeapTracer()
     if ( jsFbProperties_.initialized() && pFbProperties_ )
     {
         pFbProperties_->RemoveHeapTracer();
+
+        // TODO: reset is needed for proper GC, dunno why though, need to think it over
+        jsFbProperties_.reset();
+        pFbProperties_ = nullptr;
     }
 }
-/*
-std::optional<JS::Heap<JS::Value>> JsWindow::TestValue( uint32_t test )
-{
-    JS::RootedObject jsProp( pJsCtx_, CreatePopupMenu().value() );
-    JS::RootedValue jsVal( pJsCtx_, JS::ObjectValue( *jsProp ) );
-    JS::Heap<JS::Value> tmp ( jsVal );
-    return std::make_optional( tmp );
-}
-*/
+
 std::optional<std::nullptr_t>
 JsWindow::ClearInterval( uint32_t intervalId )
 {

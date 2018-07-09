@@ -21,7 +21,6 @@
 class ActiveX //takes ownership, calls Release() at the end
 {
 public:
-    ActiveX();
     ActiveX( CLSID& clsid );
     ActiveX( IUnknown *obj, bool addref = false );
     ActiveX( IDispatch *obj, bool addref = false );
@@ -29,7 +28,9 @@ public:
 
     ~ActiveX();
 
-    static JSObject* Create( JSContext* cx );
+    static JSObject* InitPrototype( JSContext *cx, JS::HandleObject parentObject );
+    static JSObject* Create( JSContext* cx, const std::wstring& name );
+    static JSObject* Create( JSContext* cx, ActiveX* pPremadeNative );
 
     static const JSClass& GetClass();
 
@@ -56,13 +57,11 @@ public:
 
     // bool Id(size_t x,DISPID &dispid);
 
-    bool Id( std::wstring_view name, DISPID &dispid );
-    bool Set( DISPID dispid, JSContext* cx, unsigned argc, JS::Value* vp, bool ref );
-    bool Get( DISPID dispid, JSContext* cx, unsigned argc, JS::Value* vp, bool exceptions = true );
+    bool GetDispId( std::wstring_view name, DISPID &dispid );
+    bool Set( JSContext* cx, unsigned argc, JS::Value* vp, DISPID dispid, bool ref );
+    bool Get( JSContext* cx, unsigned argc, JS::Value* vp, DISPID dispid, bool exceptions = true );
 
     //throws an xdb exception on error
-    bool Invoke( DISPID dispid, JSContext* cx, unsigned argc, JS::Value* vp );
+    bool Invoke( JSContext* cx, unsigned argc, JS::Value* vp, DISPID dispid );
     bool SetupMembers( JSContext* cx, JS::HandleObject obj );
 };
-
-JSObject* CreateActiveXProto( JSContext *cx, JS::HandleObject obj );

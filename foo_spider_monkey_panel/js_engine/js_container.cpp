@@ -103,16 +103,13 @@ void JsContainer::Finalize()
         JSAutoCompartment ac( pJsCtx_, jsGlobal_ );
 
         JS::RootedValue jsProperty( pJsCtx_ );
-        if ( JS_GetProperty( pJsCtx_, jsGlobal_, "window", &jsProperty ) )
+        if ( JS_GetProperty( pJsCtx_, jsGlobal_, "window", &jsProperty ) && jsProperty.isObject() )
         {
-            JS::RootedObject jsWindow( pJsCtx_, jsProperty.toObjectOrNull() );
-            if ( jsWindow )
+            JS::RootedObject jsWindow( pJsCtx_, &jsProperty.toObject() );
+            auto nativeWindow = static_cast<JsWindow*>( JS_GetInstancePrivate( pJsCtx_, jsWindow, &JsWindow::GetClass(), nullptr ) );
+            if ( nativeWindow )
             {
-                auto nativeWindow = static_cast<JsWindow*>( JS_GetInstancePrivate( pJsCtx_, jsWindow, &JsWindow::GetClass(), nullptr ) );
-                if ( nativeWindow )
-                {
-                    nativeWindow->RemoveHeapTracer();
-                }
+                nativeWindow->RemoveHeapTracer();
             }
         }
     }

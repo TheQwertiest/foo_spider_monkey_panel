@@ -38,10 +38,6 @@
 #   define DISPID_PROPERTYPUT (-3)
 #endif
 
-
-JSObject*
-ActiveX_CreateObject( JSContext *cx, ActiveX* t );
-
 bool VariantToJs( VARIANTARG& var, JSContext* cx, JS::MutableHandleValue rval );
 bool JsToVariant( VARIANTARG& arg, JSContext* cx, JS::HandleValue rval );
 
@@ -167,107 +163,48 @@ JSClassOps jsOps = {
     nullptr
 };
 
-JSClass ActiveX_Class = {
+JSClass jsClass = {
     "ActiveXObject",
     mozjs::DefaultClassFlags(),
     &jsOps
 };
 
-
-//shadow property 0 to 255
-bool
-ActiveX_JSGet_Impl( JSContext* cx, unsigned argc, JS::Value* vp )
-{// JSContext *cx, JSObject *obj, jsid id, jsval *rval 
-    /*
-    if ( !JSVAL_IS_INT( id ) ) return false;
-    int x = JSVAL_TO_INT( id );
-    */
-
+bool ActiveX_Constructor_Impl( JSContext* cx, unsigned argc, JS::Value* vp )
+{
     JS::CallArgs args = JS::CallArgsFromVp( argc, vp );
-
-    // TODO: dirty hack! Think of a way to replace it
-    JS::RootedString s( cx, JS_GetFunctionId( JS_ValueToFunction( cx, args.calleev() ) ) );
-    if ( !s )
+    if ( !argc || !args[0].isString() )
     {
-        JS_ReportErrorUTF8( cx, "ActiveX_Exec error: No property name" );
+        JS_ReportErrorUTF8( cx, "Argument 1 is not a string" );
         return false;
     }
 
-    size_t strLen = JS_GetStringLength( s );
-    std::wstring name( strLen, '\0' );
-    mozilla::Range<char16_t> wCharStr( (char16_t*)name.data(), strLen );
-    if ( !JS_CopyStringChars( cx, wCharStr, s ) )
+    bool bRet = true;
+    std::wstring name = mozjs::convert::to_native::ToValue<std::wstring>( cx, args[0], bRet );
+    if ( !bRet )
     {
-        JS_ReportOutOfMemory( cx );
+        JS_ReportErrorUTF8( cx, "Failed to parse name argument" );
         return false;
     }
 
-    std::size_t fPos = name.find( L" " );
-    if ( fPos == std::wstring::npos )
-    {
-        pfc::string8_fast tmpStr = pfc::stringcvt::string_utf8_from_wide( name.c_str() );
-        JS_ReportErrorUTF8( cx, "ActiveX_JSSet error: invalid command: %s", tmpStr.c_str() );
-        return false;
-    }
-    name = name.substr( fPos + 1 );
-
-    /*
-    GETENV;
-    GETOBJ2( ActiveX, ActiveX, t );*/
-    ActiveX* t = static_cast<ActiveX*>( JS_GetPrivate( args.thisv().toObjectOrNull() ) );
-    if ( !t )
-    {
-        //JS_ReportErrorUTF8( cx, "Internal error: JS_GetPrivate failed" );
+    auto jsObject = ActiveX::Create( cx, name );
+    if ( !jsObject )
+    {// report in ctor
         return false;
     }
 
-    /*
-    Default
-
-    switch ( x )
-    {
-    case 255:
-    {
-        JS::RootedString str (JS_NewUCStringCopyZ( cx, (char16_t*)L"ActiveX" ));
-        if ( !str )
-        {
-            return false;
-        }
-        args.rval().setString( str );
-        return true;
-    }
-    }
-    */
-
-    ActiveX::PropInfo * p = t->Find( name );
-    DISPID dispid = 0;
-    if ( p && t->Id( p->name, dispid ) )
-    {
-        return t->Get( dispid, cx, argc, vp );
-    }
-
-    return false;
+    args.rval().setObjectOrNull( jsObject );
+    return true;
 }
 
-bool
-ActiveX_JSSet_Impl( JSContext *cx, unsigned argc, JS::Value* vp )
+bool ActiveX_JSGet_Impl( JSContext* cx, unsigned argc, JS::Value* vp )
 {
-    /*
-    if ( !JSVAL_IS_INT( id ) ) return false;
-    int x = JSVAL_TO_INT( id );
-    */
-
     JS::CallArgs args = JS::CallArgsFromVp( argc, vp );
-    /*
-    GETENV;
-    GETOBJ2( ActiveX, ActiveX, t );
-    */
 
     // TODO: dirty hack! Think of a way to replace it
     JS::RootedString s( cx, JS_GetFunctionId( JS_ValueToFunction( cx, args.calleev() ) ) );
     if ( !s )
     {
-        JS_ReportErrorUTF8( cx, "ActiveX_Exec error: No property name" );
+        JS_ReportErrorUTF8( cx, "Failed to get property name" );
         return false;
     }
 
@@ -292,21 +229,81 @@ ActiveX_JSSet_Impl( JSContext *cx, unsigned argc, JS::Value* vp )
     ActiveX* t = static_cast<ActiveX*>( JS_GetPrivate( args.thisv().toObjectOrNull() ) );
     if ( !t )
     {
-        //JS_ReportErrorUTF8( cx, "Internal error: JS_GetPrivate failed" );
+        JS_ReportErrorUTF8( cx, "Internal error: JS_GetPrivate failed" );
         return false;
     }
 
-    // DISPID dispid=0;
-    // if (t->Id(id,dispid))
-
     ActiveX::PropInfo * p = t->Find( name );
-    DISPID dispid = 0;
-    if ( p && t->Id( p->name, dispid ) )
+    if ( !p )
     {
-        return t->Set( dispid, cx, argc, vp, p->PutRef );
+        pfc::string8_fast tmpStr = pfc::stringcvt::string_utf8_from_wide( name.c_str() );
+        JS_ReportErrorUTF8( cx, "Unknown property: %s", tmpStr.c_str() );
+        return false;
     }
 
-    return false;
+    DISPID dispid = 0;
+    if ( !t->GetDispId( p->name, dispid ) )
+    {
+        pfc::string8_fast tmpStr = pfc::stringcvt::string_utf8_from_wide( name.c_str() );
+        JS_ReportErrorUTF8( cx, "Failed to get dispid for `%s`", tmpStr.c_str() );
+    }
+
+    return t->Get( cx, argc, vp, dispid );
+}
+
+bool ActiveX_JSSet_Impl( JSContext *cx, unsigned argc, JS::Value* vp )
+{
+    JS::CallArgs args = JS::CallArgsFromVp( argc, vp );
+
+    // TODO: dirty hack! Think of a way to replace it
+    JS::RootedString s( cx, JS_GetFunctionId( JS_ValueToFunction( cx, args.calleev() ) ) );
+    if ( !s )
+    {
+        JS_ReportErrorUTF8( cx, "Failed to get property name" );
+        return false;
+    }
+
+    size_t strLen = JS_GetStringLength( s );
+    std::wstring name( strLen, '\0' );
+    mozilla::Range<char16_t> wCharStr( (char16_t*)name.data(), strLen );
+    if ( !JS_CopyStringChars( cx, wCharStr, s ) )
+    {
+        JS_ReportOutOfMemory( cx );
+        return false;
+    }
+
+    std::size_t fPos = name.find( L" " );
+    if ( fPos == std::wstring::npos )
+    {
+        pfc::string8_fast tmpStr = pfc::stringcvt::string_utf8_from_wide( name.c_str() );
+        JS_ReportErrorUTF8( cx, "Invalid command: %s", tmpStr.c_str() );
+        return false;
+    }
+    name = name.substr( fPos + 1 );
+
+    ActiveX* t = static_cast<ActiveX*>( JS_GetPrivate( args.thisv().toObjectOrNull() ) );
+    if ( !t )
+    {
+        JS_ReportErrorUTF8( cx, "Internal error: JS_GetPrivate failed" );
+        return false;
+    }
+
+    ActiveX::PropInfo * p = t->Find( name );
+    if ( !p )
+    {
+        pfc::string8_fast tmpStr = pfc::stringcvt::string_utf8_from_wide( name.c_str() );
+        JS_ReportErrorUTF8( cx, "Unknown property: %s", tmpStr.c_str() );
+        return false;
+    }
+
+    DISPID dispid = 0;
+    if ( !t->GetDispId( p->name, dispid ) )
+    {
+        pfc::string8_fast tmpStr = pfc::stringcvt::string_utf8_from_wide( name.c_str() );
+        JS_ReportErrorUTF8( cx, "Failed to get dispid for `%s`", tmpStr.c_str() );
+    }
+
+    return t->Set( cx, argc, vp, dispid, p->PutRef );
 }
 
 /*
@@ -322,28 +319,21 @@ WRAP_HELP( ActiveX,
            "close()\n" );
 */
 
-
 bool ActiveX_Run_Impl( JSContext* cx, unsigned argc, JS::Value* vp )
 {
-    /*
-    GETENV;
-    GETARGS;
-    GETOBJ( ActiveX, ActiveX, t );
-    */
-
     JS::CallArgs args = JS::CallArgsFromVp( argc, vp );
 
     ActiveX* t = static_cast<ActiveX*>( JS_GetPrivate( args.thisv().toObjectOrNull() ) );
     if ( !t )
     {
-        //JS_ReportErrorUTF8( cx, "Internal error: JS_GetPrivate failed" );
+        JS_ReportErrorUTF8( cx, "Internal error: JS_GetPrivate failed" );
         return false;
     }
 
     JS::RootedString s( cx, JS_GetFunctionId( JS_ValueToFunction( cx, args.calleev() ) ) );
     if ( !s )
     {
-        JS_ReportErrorUTF8( cx, "ActiveX_Exec error: No function name" );
+        JS_ReportErrorUTF8( cx, "Failed to get function name" );
         return false;
     }
 
@@ -357,20 +347,20 @@ bool ActiveX_Run_Impl( JSContext* cx, unsigned argc, JS::Value* vp )
     }
 
     DISPID dispid;
-    if ( !t->Id( name, dispid ) )
+    if ( !t->GetDispId( name, dispid ) )
     {
         pfc::string8_fast tmpStr = pfc::stringcvt::string_utf8_from_wide( name.c_str() );
-        JS_ReportErrorUTF8( cx, "ActiveX error: This object does not have that function: %s", tmpStr.c_str() );
+        JS_ReportErrorUTF8( cx, "Unknown function: %s", tmpStr.c_str() );
         return false;
     }
-    if ( !t->Invoke( dispid, cx, argc, vp ) )
+
+    if ( !t->Invoke( cx, argc, vp, dispid ) )
     {
         pfc::string8_fast tmpStr = pfc::stringcvt::string_utf8_from_wide( name.c_str() );
-        JS_ReportErrorUTF8( cx, "ActiveX error: IDispatch->Invoke failed: %s", tmpStr.c_str() );
+        JS_ReportErrorUTF8( cx, "IDispatch->Invoke failed: %s", tmpStr.c_str() );
         return false;
-        //      RETOBJ(0);
-                //JavaScript handles the exception with SetPendingException
     }
+
     return true;
 }
 
@@ -627,6 +617,7 @@ const JSFunctionSpec ActiveX_functions[] = {
 };
 */
 
+MJS_WRAP_JS_TO_NATIVE_FN( ActiveX_Constructor, ActiveX_Constructor_Impl )
 MJS_WRAP_JS_TO_NATIVE_FN( ActiveX_JSGet, ActiveX_JSGet_Impl )
 MJS_WRAP_JS_TO_NATIVE_FN( ActiveX_JSSet, ActiveX_JSSet_Impl )
 MJS_WRAP_JS_TO_NATIVE_FN( ActiveX_Run, ActiveX_Run_Impl )
@@ -660,14 +651,10 @@ static JSFunctionSpec ActiveX_fnstatic[] = {
 
 }
 
-#define FETCH(x) (ref? * (var.p ## x) : var.x)
-
 /// VariantToJs assumes that the caller will call VariantClear, so call AddRef on new objects
 bool VariantToJs( VARIANTARG& var, JSContext* cx, JS::MutableHandleValue rval )
 {
-    /*
-    ENTERNATIVE( cx );
-    */
+#define FETCH(x) (ref? * (var.p ## x) : var.x)
 
     bool ref = false;
     int type = var.vt;
@@ -702,8 +689,6 @@ bool VariantToJs( VARIANTARG& var, JSContext* cx, JS::MutableHandleValue rval )
         {
             rval.setString( JS_NewUCStringCopyN( cx, (char16_t*)FETCH( bstrVal ), SysStringLen( FETCH( bstrVal ) ) ) );
             break;
-            //              SysFreeString(FETCH(bstrVal));
-            //              var.vt = VT_EMPTY;
         };
         case VT_DATE:
         {
@@ -721,29 +706,34 @@ bool VariantToJs( VARIANTARG& var, JSContext* cx, JS::MutableHandleValue rval )
         {
             if ( !FETCH( punkVal ) )
             {
-                rval.setNull(); break;
+                rval.setNull(); 
+                break;
             }
-            // TODO: pdispVal punkVal???
-            std::unique_ptr<ActiveX> x( new ActiveX( FETCH( pdispVal ), true ) );
+
+            std::unique_ptr<ActiveX> x( new ActiveX( FETCH( punkVal ), true ) );
             if ( !x->pUnknown_ && !x->pDispatch_ )
             {
                 return false;
             }
-            rval.setObjectOrNull( ActiveX_CreateObject( cx, x.release() ) );
+
+            rval.setObjectOrNull( ActiveX::Create( cx, x.release() ) );
             break;
         }
         case VT_DISPATCH:
         {
             if ( !FETCH( pdispVal ) )
             {
-                rval.setNull(); break;
+                rval.setNull(); 
+                break;
             }
+
             std::unique_ptr<ActiveX> x( new ActiveX( FETCH( pdispVal ), true ) );
             if ( !x->pUnknown_ && !x->pDispatch_ )
             {
                 return false;
             }
-            rval.setObjectOrNull( ActiveX_CreateObject( cx, x.release() ) );
+
+            rval.setObjectOrNull( ActiveX::Create( cx, x.release() ) );
             break;
         }
         case VT_VARIANT: //traverse the indirection list?
@@ -751,7 +741,9 @@ bool VariantToJs( VARIANTARG& var, JSContext* cx, JS::MutableHandleValue rval )
             {
                 VARIANTARG* v = var.pvarVal;
                 if ( v )
+                {
                     return VariantToJs( *v, cx, rval );
+                }
             }
             break;
 
@@ -759,7 +751,7 @@ bool VariantToJs( VARIANTARG& var, JSContext* cx, JS::MutableHandleValue rval )
             if ( type <= VT_CLSID )
             {
                 std::unique_ptr<ActiveX> x( new ActiveX( var ) );
-                rval.setObjectOrNull( ActiveX_CreateObject( cx, x.release() ) );
+                rval.setObjectOrNull( ActiveX::Create( cx, x.release() ) );
 
                 return true;
             }
@@ -786,7 +778,7 @@ void CheckReturn( JSContext* cx, JS::MutableHandleValue rval )
     HRESULT hresult;
     JS::RootedObject j0( cx, &rval.toObject() );
 
-    ActiveX* x = static_cast<ActiveX*>( JS_GetInstancePrivate( cx, j0, &ActiveX_Class, nullptr ) );
+    ActiveX* x = static_cast<ActiveX*>( JS_GetInstancePrivate( cx, j0, &jsClass, nullptr ) );
     if ( !x )
     {
         return;
@@ -813,7 +805,7 @@ bool JsToVariant( VARIANTARG& arg, JSContext* cx, JS::HandleValue rval )
     if ( rval.isObject() )
     {
         JS::RootedObject j0( cx, rval.toObjectOrNull() );
-        if ( j0 && JS_InstanceOf( cx, j0, &ActiveX_Class, 0 ) )
+        if ( j0 && JS_InstanceOf( cx, j0, &jsClass, 0 ) )
         {
             ActiveX* x = static_cast<ActiveX*>( JS_GetPrivate( j0 ) );
             if ( !x )
@@ -1124,146 +1116,6 @@ void ReportActiveXError( HRESULT hresult, EXCEPINFO& exception, UINT& argerr, JS
     }
 }
 
-JSObject*
-ActiveX_CreateObject( JSContext *cx, ActiveX* t )
-{
-    // TODO: add creation via prototype
-
-    /*
-    GETENV;
-    ENTERNATIVE( cx );
-    */
-
-    JS::RootedObject obj( cx, JS_NewObject( cx, &ActiveX_Class ) );
-    //JS_DefineFunctions( cx, obj, ActiveX_functions );
-    //JS_DefineProperties( cx, obj, ActiveX_properties );
-    /*obj = JS_NewObject(cx, &ActiveX_Class,Env->ActiveX, nullptr);
-    JS_DefineFunctions(cx,obj,ActiveX_functions);
-    JS_DefineProperties(cx,obj,ActiveX_properties);   */
-    if ( t )
-    {
-        JS_SetPrivate( obj, t );
-        t->SetupMembers( cx, obj );
-    }
-    return obj;
-}
-
-bool ActiveX_Constructor( JSContext* cx, unsigned argc, JS::Value* vp )
-{
-    JS::CallArgs args = JS::CallArgsFromVp( argc, vp );
-
-    /*
-    GETENV;
-    if ( Env->SafeMode )
-    {
-        JS_ReportErrorUTF8( cx, "ActiveX error: blocked by security settings" );
-        args.rval().setUndefined();
-        return false;
-    }
-    */
-
-    if ( argc )
-    {
-        if ( !args[0].isString() )
-        {
-            JS_ReportErrorUTF8( cx, "ActiveX_Exec error: argument 1 is not a string" );
-            return false;
-        }
-    }
-    //ENTERNATIVE(cx);
-
-    //argc > 0 if clsid is valid
-    CLSID clsid;
-    HRESULT hresult;
-    bool bRet = true;
-    std::wstring name = argc ? mozjs::convert::to_native::ToValue<std::wstring>( cx, args[0], bRet ) : std::wstring();
-    if ( !bRet )
-    {
-        JS_ReportErrorUTF8( cx, "ActiveX error: failed to parse name" );
-        return false;
-    }
-
-    if ( argc )
-    {
-        if ( name[0] == L'{' )
-            hresult = CLSIDFromString( name.c_str(), &clsid );
-        else
-            hresult = CLSIDFromProgID( name.c_str(), &clsid );
-
-        if ( !SUCCEEDED( hresult ) )
-        {
-            pfc::string8_fast tmpStr = pfc::stringcvt::string_utf8_from_wide( name.c_str() );
-            JS_ReportErrorUTF8( cx, "ActiveX error: invalid CLSID" );
-            return false;
-        }
-    }
-
-    std::unique_ptr<ActiveX> t;
-
-    if ( argc == 0 )
-    {
-        t.reset( new ActiveX() );
-    }
-    else
-    {
-        IUnknown* unk = nullptr;
-        if ( argc == 1 )
-        {
-            hresult = GetActiveObject( clsid, nullptr, &unk );
-        }
-
-        if ( SUCCEEDED( hresult ) && unk )
-        {
-            t.reset( new ActiveX( unk ) );
-            if ( !t->pUnknown_ )
-            {
-                pfc::string8_fast cStr = pfc::stringcvt::string_utf8_from_wide( name.c_str() );
-                JS_ReportErrorUTF8( cx, "ActiveX error: Can't create ActiveX object: %s", cStr.c_str() );
-                args.rval().setUndefined();
-                return false;
-            }
-        }
-    }
-
-    if ( !t )
-    {
-        t.reset( new ActiveX( clsid ) );
-        if ( !t->pUnknown_ )
-        {
-            pfc::string8_fast cStr = pfc::stringcvt::string_utf8_from_wide( name.c_str() );
-            JS_ReportErrorUTF8( cx, "ActiveX error: Can't create ActiveX object: %s", cStr.c_str() );
-            args.rval().setUndefined();
-            return false;
-        }
-    }
-    if ( t )
-    {
-        JS::RootedObject retObj( cx, ActiveX_CreateObject( cx, t.get() ) );
-        if ( !retObj )
-        {
-            return false;
-        }
-
-        args.rval().setObjectOrNull( retObj );
-    }
-
-    t.release();
-    return true;
-}
-
-JSObject* CreateActiveXProto( JSContext *cx, JS::HandleObject obj )
-{
-    /* INITCLASS( ActiveX ); */
-    return JS_InitClass( cx, obj, nullptr, &ActiveX_Class,
-                         ActiveX_Constructor, 0,
-                         nullptr, nullptr, nullptr, nullptr );
-    /*
-    Env->oActiveX = JS_InitClass( cx, obj, nullptr, &ActiveX_Class,
-                                  ActiveX_Constructor, 0,
-                                   ActiveX_properties, ActiveX_functions, nullptr,ActiveX_fnstatic);
-    */
-}
-
 ActiveX::ActiveX( VARIANTARG& var )
 {
     pUnknown_ = nullptr;
@@ -1271,14 +1123,6 @@ ActiveX::ActiveX( VARIANTARG& var )
     pDispatch_ = nullptr;
     VariantInit( &variant_ );
     VariantCopyInd( &variant_, &var );
-}
-
-ActiveX::ActiveX()
-{
-    pUnknown_ = nullptr;
-    pTypeInfo_ = nullptr;
-    pDispatch_ = nullptr;
-    memset( &variant_, 0, sizeof( variant_ ) );
 }
 
 ActiveX::ActiveX( IDispatch *obj, bool addref )
@@ -1320,9 +1164,6 @@ ActiveX::ActiveX( IUnknown* obj, bool addref )
     {
         pDispatch_ = nullptr;
     }
-
-    // else  QueryInterface calls AddRef() for you
-      //  pDispatch_->AddRef();
 }
 
 ActiveX::ActiveX( CLSID& clsid )
@@ -1376,24 +1217,111 @@ ActiveX::~ActiveX()
     CoFreeUnusedLibraries();
 }
 
-bool ActiveX::Id( std::wstring_view name, DISPID& dispid )
+JSObject* ActiveX::InitPrototype( JSContext *cx, JS::HandleObject parentObject )
+{
+    return JS_InitClass( cx, parentObject, nullptr, &jsClass,
+                         ActiveX_Constructor, 0,
+                         nullptr, nullptr, nullptr, nullptr );
+}
+JSObject* ActiveX::Create( JSContext* cx, const std::wstring& name )
+{   
+    CLSID clsid;
+    HRESULT hresult = (name[0] == L'{')
+        ? CLSIDFromString( name.c_str(), &clsid )
+        : CLSIDFromProgID( name.c_str(), &clsid );
+    if ( !SUCCEEDED( hresult ) )
+    {
+        pfc::string8_fast tmpStr = pfc::stringcvt::string_utf8_from_wide( name.c_str() );
+        JS_ReportErrorUTF8( cx, "Invalid CLSID" );
+        return nullptr;
+    }
+
+    std::unique_ptr<ActiveX> nativeObject;
+    IUnknown* unk = nullptr;
+    hresult = GetActiveObject( clsid, nullptr, &unk );
+    if ( SUCCEEDED( hresult ) && unk )
+    {
+        nativeObject.reset( new ActiveX( unk ) );
+        if ( !nativeObject->pUnknown_ )
+        {
+            pfc::string8_fast cStr = pfc::stringcvt::string_utf8_from_wide( name.c_str() );
+            JS_ReportErrorUTF8( cx, "Failed to create ActiveX object via IUnknown: %s", cStr.c_str() );
+            return nullptr;
+        }
+    }
+
+    if ( !nativeObject )
+    {
+        nativeObject.reset( new ActiveX( clsid ) );
+        if ( !nativeObject->pUnknown_ )
+        {
+            pfc::string8_fast cStr = pfc::stringcvt::string_utf8_from_wide( name.c_str() );
+            JS_ReportErrorUTF8( cx, "Failed to create ActiveX object via CLSID: %s", cStr.c_str() );
+            return nullptr;
+        }
+    }
+
+    return Create( cx, nativeObject.release() );
+}
+
+JSObject* ActiveX::Create( JSContext* cx, ActiveX* pPremadeNative )
+{
+    if ( !pPremadeNative )
+    {
+        JS_ReportErrorUTF8( cx, "Internal error: pPremadeNative is null" );
+        return nullptr;
+    }
+
+    std::unique_ptr<ActiveX> autoNative( pPremadeNative );
+
+    auto pGlobal = JS::CurrentGlobalOrNull( cx );
+    if ( !pGlobal )
+    {
+        JS_ReportErrorUTF8( cx, "Internal error: pGlobal is null" );
+        return nullptr;
+    }
+
+    auto pNativeGlobal = static_cast<mozjs::JsGlobalObject*>(JS_GetPrivate( pGlobal ));
+    assert( pNativeGlobal );
+
+    JS::RootedObject jsProto(cx, pNativeGlobal->GetPrototype<ActiveX>() );
+    JS::RootedObject jsObj( cx,
+                            JS_NewObjectWithGivenProto( cx, &jsClass, jsProto ) );
+    if ( !jsObj )
+    {
+        return nullptr;
+    }
+
+    JS_SetPrivate( jsObj, pPremadeNative );
+    autoNative.release();
+    if ( !pPremadeNative->SetupMembers( cx, jsObj ) )
+    {
+        return nullptr;
+    }
+
+    return jsObj;
+}
+
+const JSClass& ActiveX::GetClass()
+{
+    return jsClass;
+}
+
+bool ActiveX::GetDispId( std::wstring_view name, DISPID& dispid )
 {
     if ( !pDispatch_ )
     {
         return false;
     }
 
-    dispid = 0;
-    HRESULT hresult;
-
     if ( name.empty() || name[0] == L'0' )
     {
-        dispid = 0; return true;
+        dispid = 0; 
+        return true;
     }
 
     wchar_t* cname = const_cast<wchar_t*>( name.data() );
-    hresult = pDispatch_->GetIDsOfNames( IID_NULL, &cname, 1, LOCALE_USER_DEFAULT, &dispid );
-
+    HRESULT hresult = pDispatch_->GetIDsOfNames( IID_NULL, &cname, 1, LOCALE_USER_DEFAULT, &dispid );
     if ( !SUCCEEDED( hresult ) )
     {
         hresult = pDispatch_->GetIDsOfNames( IID_NULL, &cname, 1, LOCALE_SYSTEM_DEFAULT, &dispid );
@@ -1402,7 +1330,7 @@ bool ActiveX::Id( std::wstring_view name, DISPID& dispid )
     return SUCCEEDED( hresult );
 }
 
-bool ActiveX::Invoke( DISPID dispid, JSContext* cx, unsigned argc, JS::Value* vp )
+bool ActiveX::Invoke( JSContext* cx, unsigned argc, JS::Value* vp, DISPID dispid )
 {
     if ( !pDispatch_ )
     {
@@ -1465,7 +1393,7 @@ bool ActiveX::Invoke( DISPID dispid, JSContext* cx, unsigned argc, JS::Value* vp
     return true;
 }
 
-bool ActiveX::Get( DISPID dispid, JSContext* cx, unsigned argc, JS::Value* vp, bool exceptions )
+bool ActiveX::Get( JSContext* cx, unsigned argc, JS::Value* vp, DISPID dispid, bool exceptions /*= true */ )
 {
     if ( !pDispatch_ )
     {
@@ -1488,10 +1416,10 @@ bool ActiveX::Get( DISPID dispid, JSContext* cx, unsigned argc, JS::Value* vp, b
         dispparams.cArgs = argc;
         for ( size_t i = 0; i < argc; i++ )
         {
-            if ( !JsToVariant( args[i], cx, callArgs[i] ) )
+            if ( !JsToVariant( args[argc - i - 1], cx, callArgs[i] ) )
             {
-                args[i].vt = VT_ERROR;
-                args[i].scode = 0;
+                args[argc - i - 1].vt = VT_ERROR;
+                args[argc - i - 1].scode = 0;
             }
         }
     }
@@ -1529,7 +1457,7 @@ bool ActiveX::Get( DISPID dispid, JSContext* cx, unsigned argc, JS::Value* vp, b
     return true;
 }
 
-bool ActiveX::Set( DISPID dispid, JSContext* cx, unsigned argc, JS::Value* vp, bool byref )
+bool ActiveX::Set( JSContext* cx, unsigned argc, JS::Value* vp, DISPID dispid, bool ref )
 {
     if ( !pDispatch_ )
     {
@@ -1538,38 +1466,25 @@ bool ActiveX::Set( DISPID dispid, JSContext* cx, unsigned argc, JS::Value* vp, b
 
     JS::CallArgs callArgs = JS::CallArgsFromVp( argc, vp );
 
-    VARIANTARG * args = new VARIANTARG[argc];
+    std::unique_ptr<VARIANTARG[]> args( new VARIANTARG[argc] );
     DISPID dispput = DISPID_PROPERTYPUT;
-    DISPPARAMS dispparams = { args,&dispput,argc,1 };
+    DISPPARAMS dispparams = { args.get(),&dispput,argc,1 };
     HRESULT hresult;
     EXCEPINFO exception = { 0 };
     UINT argerr = 0;
 
-    //the set value
-    /*
-    if ( !JsToVariant( args[0], cx, callArgs.rval() ) )
-    {
-        return false;
-    }
-    */
-
     //the index values, in reverse order
-    if ( argc )
+    for ( size_t i = 0; i < argc; i++ )
     {
-        //   dispparams.rgvarg = args; //initialized in the declaration
-        //   dispparams.cArgs = argc+1;
-        for ( size_t i = 0; i < argc; i++ )
+        if ( !JsToVariant( args[argc - i - 1], cx, callArgs[i] ) )
         {
-            if ( !JsToVariant( args[i], cx, callArgs[i] ) )
-            {
-                args[i].vt = VT_ERROR;
-                args[i].scode = 0;
-            }
+            args[argc - i - 1].vt = VT_ERROR;
+            args[argc - i - 1].scode = 0;
         }
     }
 
     DWORD flag = DISPATCH_PROPERTYPUT;
-    if ( byref && ( args[0].vt & VT_DISPATCH || args[0].vt & VT_UNKNOWN ) )
+    if ( ref && ( args[0].vt & VT_DISPATCH || args[0].vt & VT_UNKNOWN ) )
     {//must be passed by name
         flag = DISPATCH_PROPERTYPUTREF;
     }
@@ -1586,8 +1501,6 @@ bool ActiveX::Set( DISPID dispid, JSContext* cx, unsigned argc, JS::Value* vp, b
         CheckReturn( cx, callArgs[i] );
         VariantClear( &args[i] );
     }
-
-    if ( argc ) delete[] args;
 
     if ( !SUCCEEDED( hresult ) )
     {
@@ -1621,10 +1534,6 @@ bool ActiveX::SetupMembers( JSContext* cx, JS::HandleObject obj )
     {
         return false;
     }
-
-    /*
-    ENTERNATIVE( cx );
-    */
 
     JS::RootedObject doc( cx, JS_NewPlainObject( cx ) );
     JS_DefineProperty( cx, obj, "members", doc, JSPROP_ENUMERATE );
@@ -1732,30 +1641,6 @@ bool ActiveX::SetupMembers( JSContext* cx, JS::HandleObject obj )
     }
 
     return true;
-}
-
-JSObject* ActiveX::Create( JSContext* cx )
-{
-    JS::RootedObject jsObj( cx,
-                            JS_NewObject( cx, &ActiveX_Class ) );
-    if ( !jsObj )
-    {
-        return nullptr;
-    }
-
-    if ( !JS_DefineFunctions( cx, jsObj, jsFunctions ) )
-    {
-        return nullptr;
-    }
-
-    JS_SetPrivate( jsObj, new ActiveX( cx ) );
-
-    return jsObj;
-}
-
-const JSClass& ActiveX::GetClass()
-{
-    return ActiveX_Class;
 }
 
 
