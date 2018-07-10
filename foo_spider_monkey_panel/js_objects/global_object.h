@@ -33,6 +33,7 @@ public:
 
 class JsContainer;
 class JsGdiFont;
+class JsFbMetadbHandle;
 
 class JsGlobalObject
 {
@@ -44,12 +45,12 @@ public:
     static const JSClass& GetClass();
 
 public:
-    void Fail( pfc::string8_fast errorText);
+    void Fail( pfc::string8_fast errorText );
 
 public: // proto
     template <typename T>
     typename std::enable_if<std::is_same_v<T, ActiveX>, JSObject*>::type
-        GetPrototype(JS::HandleObject globalObject)
+        GetPrototype( JS::HandleObject globalObject )
     {
         return GetObjectFromSlot<T>( globalObject, activeX_protoSlot_ );
     }
@@ -59,6 +60,13 @@ public: // proto
         GetPrototype( JS::HandleObject globalObject )
     {
         return GetObjectFromSlot<T>( globalObject, gdiFont_protoSlot_ );
+    }
+
+    template <typename T>
+    typename std::enable_if<std::is_same_v<T, JsFbMetadbHandle>, JSObject*>::type
+        GetPrototype( JS::HandleObject globalObject )
+    {
+        return GetObjectFromSlot<T>( globalObject, fbMetadbHandle_protoSlot_ );
     }
 
 public: // heap
@@ -82,7 +90,7 @@ private:
         assert( JS_GetPrivate( globalObject ) == this );
 
         JS::Value& valRef = JS_GetReservedSlot( globalObject, slotId );
-        if ( !valRef.isObject() || JS_GetClass(&valRef.toObject() ) != &T::JsClass )
+        if ( !valRef.isObject() )
         {
             return nullptr;
         }
@@ -90,9 +98,11 @@ private:
         return &valRef.toObject();
     }
 
+    size_t AddProto( JS::HandleObject self, JSObject* proto );
+
 private:
     JsGlobalObject( JSContext* cx, JsContainer &parentContainer, js_panel_window& parentPanel );
-    JsGlobalObject( const JsGlobalObject& ) = delete;   
+    JsGlobalObject( const JsGlobalObject& ) = delete;
     JsGlobalObject& operator=( const JsGlobalObject& ) = delete;
 
     static void TraceHeapValue( JSTracer *trc, void *data );
@@ -103,11 +113,14 @@ private:
     js_panel_window& parentPanel_;
 
 private: // proto
+    size_t curProtoSlotIdx_ = 1;
+
     size_t activeX_protoSlot_ = 0;
-    size_t gdiFont_protoSlot_ = 0;    
-    
+    size_t fbMetadbHandle_protoSlot_ = 0;
+    size_t gdiFont_protoSlot_ = 0;
+
 private: // heap
-    uint32_t currentHeapId_ = 0;    
+    uint32_t currentHeapId_ = 0;
     struct HeapElement
     {
         HeapElement( JS::HandleValue inValue )

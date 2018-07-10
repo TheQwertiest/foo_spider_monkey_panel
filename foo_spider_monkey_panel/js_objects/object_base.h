@@ -4,6 +4,13 @@ class JSObject;
 struct JSContext;
 struct JSClass;
 
+namespace js
+{
+
+class ProxyOptions;
+
+}
+
 namespace mozjs
 {
 
@@ -85,6 +92,8 @@ public:
         {// report in PostCreate
             return nullptr;
         }
+
+        JS_SetPrivate( jsObject, nativeObject.release() );
 
         if constexpr ( T::HasProxy )
         {

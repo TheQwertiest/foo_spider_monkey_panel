@@ -86,40 +86,29 @@ JsFbMetadbHandle::JsFbMetadbHandle( JSContext* cx, const metadb_handle_ptr& hand
 {
 }
 
+const JSClass JsFbMetadbHandle::JsClass = jsClass;
+const JSFunctionSpec* JsFbMetadbHandle::JsFunctions = jsFunctions;
+const JSPropertySpec* JsFbMetadbHandle::JsProperties = jsProperties;
 
 JsFbMetadbHandle::~JsFbMetadbHandle()
 {
 }
 
-JSObject* JsFbMetadbHandle::Create( JSContext* cx, const metadb_handle_ptr& handle )
+bool JsFbMetadbHandle::ValidateCreateArgs( JSContext* cx, const metadb_handle_ptr& handle )
 {
     if ( !handle.is_valid() )
     {
         JS_ReportErrorUTF8( cx, "Internal error: metadb_handle_ptr is null" );
-        return nullptr;
-    }    
-
-    JS::RootedObject jsObj( cx,
-                            JS_NewObject( cx, &jsClass ) );
-    if ( !jsObj )
-    {
-        return nullptr;
+        return false;
     }
 
-    if ( !JS_DefineFunctions( cx, jsObj, jsFunctions )
-         || !JS_DefineProperties(cx, jsObj, jsProperties ) )
-    {
-        return nullptr;
-    }
-
-    JS_SetPrivate( jsObj, new JsFbMetadbHandle( cx, handle ) );
-
-    return jsObj;
+    return true;
 }
 
-const JSClass& JsFbMetadbHandle::GetClass()
+
+bool JsFbMetadbHandle::PostCreate( JSContext* cx, const metadb_handle_ptr& handle )
 {
-    return jsClass;
+    return true;
 }
 
 metadb_handle_ptr& JsFbMetadbHandle::GetHandle()

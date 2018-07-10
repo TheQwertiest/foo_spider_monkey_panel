@@ -1,6 +1,7 @@
 #include <stdafx.h>
 #include "native_to_js_converter.h"
 
+#include <js_objects/global_object.h>
 #include <js_objects/fb_metadb_handle.h>
 #include <js_objects/fb_metadb_handle_list.h>
 #include <js_objects/gdi_bitmap.h>

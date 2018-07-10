@@ -359,8 +359,6 @@ JsWindow::GetFontCUI( uint32_t type, const std::wstring& guidstr )
     JS::RootedObject jsObject( pJsCtx_, JsGdiFont::Create( pJsCtx_, pGdiFont.get(), hFont, true ) );
     if ( !jsObject )
     {
-        DeleteObject( hFont );
-
         JS_ReportErrorUTF8( pJsCtx_, "Internal error: failed to create JS object" );
         return std::nullopt;
     }
@@ -411,8 +409,6 @@ JsWindow::GetFontDUI( uint32_t type )
     JS::RootedObject jsObject( pJsCtx_, JsGdiFont::Create( pJsCtx_, pGdiFont.get(), hFont, false ) );
     if ( !jsObject )
     {
-        DeleteObject( hFont );
-
         JS_ReportErrorUTF8( pJsCtx_, "Internal error: failed to create JS object" );
         return std::nullopt;
     }

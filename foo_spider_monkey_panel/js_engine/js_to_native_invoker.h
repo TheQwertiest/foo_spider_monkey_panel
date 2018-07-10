@@ -155,7 +155,8 @@ bool InvokeNativeCallback_Impl( JSContext* cx,
                         }
                         ArgType pNative;
                         // TODO: remove after refactoring
-                        if constexpr ( std::is_same_v<std::remove_pointer_t<ArgType>, JsGdiFont> )
+                        if constexpr ( std::is_same_v<std::remove_pointer_t<ArgType>, JsGdiFont> 
+                                       || std::is_same_v<std::remove_pointer_t<ArgType>, JsFbMetadbHandle> )
                         {
                             pNative = static_cast<ArgType>(
                                 JS_GetInstancePrivate( cx, jsObject, &std::remove_pointer_t<ArgType>::JsClass, nullptr )

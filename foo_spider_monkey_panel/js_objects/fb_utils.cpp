@@ -820,7 +820,7 @@ JsFbUtils::RunContextCommandWithMetadb( const pfc::string8_fast& command, JS::Ha
     JS::RootedObject jsObject( pJsCtx_, &handle.toObject() );
 
     JsFbMetadbHandle* jsHandle = 
-        static_cast<JsFbMetadbHandle*>( JS_GetInstancePrivate( pJsCtx_, jsObject, &JsFbMetadbHandle::GetClass(), nullptr ) );
+        static_cast<JsFbMetadbHandle*>( JS_GetInstancePrivate( pJsCtx_, jsObject, &JsFbMetadbHandle::JsClass, nullptr ) );
     JsFbMetadbHandleList* jsHandleList =
         static_cast<JsFbMetadbHandleList*>( JS_GetInstancePrivate( pJsCtx_, jsObject, &JsFbMetadbHandleList::GetClass(), nullptr ) );
 

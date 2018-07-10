@@ -172,7 +172,7 @@ FbMetadbHandleListProxyHandler::set( JSContext* cx, JS::HandleObject proxy, JS::
         JS::RootedObject jsObject( cx, v.toObjectOrNull() );
         JsFbMetadbHandle* pNativeValue = 
             jsObject 
-            ? static_cast<JsFbMetadbHandle*>( JS_GetInstancePrivate( cx, jsObject, &JsFbMetadbHandle::GetClass(), nullptr ) )
+            ? static_cast<JsFbMetadbHandle*>( JS_GetInstancePrivate( cx, jsObject, &JsFbMetadbHandle::JsClass, nullptr ) )
             : nullptr;
         
         auto retVal = pNativeTarget->put_Item( index, pNativeValue );

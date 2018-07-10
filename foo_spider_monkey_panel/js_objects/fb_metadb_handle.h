@@ -1,5 +1,7 @@
 #pragma once
 
+#include <js_objects/object_base.h>
+
 #include <optional>
 
 class JSObject;
@@ -11,14 +13,25 @@ namespace mozjs
 {
 
 class JsFbMetadbHandle
+    : public JsObjectBase<JsFbMetadbHandle>
 {
 public:
+    friend class JsObjectBase<JsFbMetadbHandle>;
+
+    static constexpr bool HasProto = true;
+    static constexpr bool HasProxy = false;
+
+    static const JSClass JsClass;
+    static const JSFunctionSpec* JsFunctions;
+    static const JSPropertySpec* JsProperties;
+
+public:
     ~JsFbMetadbHandle();
+
+    static bool ValidateCreateArgs( JSContext* cx, const metadb_handle_ptr& handle );
+    bool PostCreate( JSContext* cx, const metadb_handle_ptr& handle );
     
-    static JSObject* Create( JSContext* cx, const metadb_handle_ptr& handle );
-
-    static const JSClass& GetClass();
-
+public:
     metadb_handle_ptr& GetHandle();
 
 public: // methods

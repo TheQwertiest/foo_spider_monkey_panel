@@ -5,11 +5,12 @@
 #include <js_engine/js_to_native_invoker.h>
 #include <js_objects/active_x.h>
 #include <js_objects/console.h>
+#include <js_objects/fb_metadb_handle.h>
 #include <js_objects/fb_playlist_manager.h>
+#include <js_objects/fb_utils.h>
 #include <js_objects/gdi_utils.h>
 #include <js_objects/gdi_font.h>
 #include <js_objects/utils.h>
-#include <js_objects/fb_utils.h>
 #include <js_objects/window.h>
 #include <js_utils/js_object_helper.h>
 #include <js_utils/js_error_helper.h>
@@ -72,7 +73,6 @@ const JSFunctionSpec jsFunctions[] = {
 namespace mozjs
 {
 
-
 JsGlobalObject::JsGlobalObject( JSContext* cx, JsContainer &parentContainer, js_panel_window& parentPanel )
     : pJsCtx_( cx )
     , parentContainer_( parentContainer )
@@ -131,16 +131,9 @@ JSObject* JsGlobalObject::Create( JSContext* cx, JsContainer &parentContainer, j
         auto pNative = new JsGlobalObject( cx, parentContainer, parentPanel );
         JS_SetPrivate( jsObj, pNative );
 
-        JS::RootedValue jsProto( cx );
-        size_t protoSlotIdx = 1;
-
-        pNative->gdiFont_protoSlot_ = protoSlotIdx;
-        jsProto.setObjectOrNull( JsGdiFont::CreateProto( cx ) );
-        JS_SetReservedSlot( jsObj, protoSlotIdx++, jsProto );
-        
-        pNative->activeX_protoSlot_ = protoSlotIdx;
-        jsProto.setObjectOrNull( ActiveX::InitPrototype( cx, jsObj ) );
-        JS_SetReservedSlot( jsObj, protoSlotIdx++, jsProto );
+        pNative->gdiFont_protoSlot_ = pNative->AddProto( jsObj, JsGdiFont::CreateProto( cx ) );
+        pNative->fbMetadbHandle_protoSlot_ = pNative->AddProto( jsObj, JsFbMetadbHandle::CreateProto( cx ) );
+        pNative->activeX_protoSlot_ = pNative->AddProto( jsObj, ActiveX::InitPrototype( cx, jsObj ) );
         
         if ( !JS_AddExtraGCRootsTracer( cx, JsGlobalObject::TraceHeapValue, pNative ) )
         {
@@ -151,6 +144,14 @@ JSObject* JsGlobalObject::Create( JSContext* cx, JsContainer &parentContainer, j
     }
 
     return jsObj;
+}
+
+size_t JsGlobalObject::AddProto( JS::HandleObject self, JSObject* proto )
+{
+    assert( proto );
+    JS::Value protoVal = JS::ObjectValue( *proto );
+    JS_SetReservedSlot( self, curProtoSlotIdx_, protoVal );
+    return curProtoSlotIdx_++;
 }
 
 const JSClass& JsGlobalObject::GetClass()
