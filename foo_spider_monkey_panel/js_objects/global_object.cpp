@@ -43,7 +43,7 @@ JSClassOps jsOps = {
 
 JSClass jsClass = {
      "Global",
-     JSCLASS_GLOBAL_FLAGS | DefaultClassFlags(),
+     JSCLASS_GLOBAL_FLAGS_WITH_SLOTS(40) | DefaultClassFlags(),
      &jsOps
 };
 
@@ -152,6 +152,12 @@ void JsGlobalObject::Fail( pfc::string8_fast errorText )
 {
     parentContainer_.Fail();
     parentPanel_.JsEngineFail( errorText );
+}
+
+void JsGlobalObject::AddPrototype( JS::HandleObject prototype )
+{
+    assert( prototype );
+    protoSlots_
 }
 
 void JsGlobalObject::RegisterHeapUser( IHeapUser* heapUser )

@@ -8,6 +8,7 @@
 
 #include <shared_mutex>
 #include <optional>
+#include <set>
 
 
 class js_panel_window;
@@ -31,6 +32,7 @@ public:
 };
 
 class JsContainer;
+class JsGdiFont;
 
 class JsGlobalObject
 {
@@ -47,10 +49,29 @@ public:
 public: // proto
     template <typename T>
     typename std::enable_if<std::is_same<T, ActiveX>::value, JSObject*>::type
+    static GetPrototype()
+    {
+        assert( protoSlots_.count( activeX_protoSlot_ ) );
+        return GetReservedSlot( activeX_protoSlot_ );
+    }
+
+    template <typename T>
+    typename std::enable_if<std::is_same<T, ActiveX>::value, JSObject*>::type
         GetPrototype()
     {
-        return activeX_proto_;
+        assert( protoSlots_.count(activeX_protoSlot_) );
+        return GetReservedSlot( activeX_protoSlot_ );
     }
+
+    template <typename T>
+    typename std::enable_if<std::is_same<T, JsGdiFont>::value, JSObject*>::type
+        GetPrototype()
+    {
+        assert( protoSlots_.count( gdiFont_protoSlot_ ) );
+        return GetReservedSlot( gdiFont_protoSlot_ );
+    }
+
+    void AddPrototype( JS::HandleObject prototype );
 
 
 public: // heap
@@ -79,7 +100,11 @@ private:
     js_panel_window& parentPanel_;
 
 private: // proto
-    JS::PersistentRootedObject activeX_proto_;
+
+    size_t activeX_protoSlot_ = 0;
+    size_t gdiFont_protoSlot_ = 0;
+
+    std::set<size_t> protoSlots_;
     
 private: // heap
     uint32_t currentHeapId_ = 0;    

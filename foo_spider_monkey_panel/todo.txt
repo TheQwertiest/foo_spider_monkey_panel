@@ -1,4 +1,5 @@
 # Current
+- Reimplement all object creation code through prototypes, since JS_DefineProperties and JS_DefineFunctions are very expensive.
 - 'Shell.Application': use through ActiveXObject, manual linking is possible (shell32.lib, Shldisp.idl, Shldisp.h), 
 - 'WScript.Shell': new `utils` methods? Run, RegRead, maybe RegWrite.
 - Change scintilla classname: https://github.com/TheQwertiest/foo-jscript-panel/commit/57393822ae42e1ebd77911c0f934471903975b4e#commitcomment-29624489
@@ -18,6 +19,7 @@
 - Document that toArray() methods are not needed anymore.
 - Document FbHandleList.Item removal ([] proxy)
 - Document that everything is case-sensitive (unlike how it was in WSH\IE...)
+- Create a simple JSP > SMP script migration guide.
 - Update docs.
 - Check all TODOs.
 - Why is this list getting longer, instead of shorter?!

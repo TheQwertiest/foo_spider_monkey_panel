@@ -1,10 +1,14 @@
 #pragma once
 
+#include <js_objects/object_base.h>
+
 #include <optional>
 
 class JSObject;
 struct JSContext;
 struct JSClass;
+struct JSFunctionSpec;
+struct JSPropertySpec;
 
 namespace Gdiplus
 {
@@ -15,13 +19,23 @@ namespace mozjs
 {
 
 class JsGdiFont
+    : public JsObjectBase<JsGdiFont>
 {
 public:
-    ~JsGdiFont();
-    
-    static JSObject* Create( JSContext* cx, Gdiplus::Font* pGdiFont, HFONT hFont, bool isManaged );
+    friend class JsObjectBase<JsGdiFont>;
 
-    static const JSClass& GetClass();
+    static constexpr bool HasProto = true;
+    static constexpr bool HasProxy = false;
+
+    static const JSClass JsClass;
+    static const JSFunctionSpec* JsFunctions;
+    static const JSPropertySpec* JsProperties;
+
+public:
+    ~JsGdiFont();
+
+    static bool ValidateCreateArgs( JSContext* cx, Gdiplus::Font* pGdiFont, HFONT hFont, bool isManaged );
+    bool PostCreate( JSContext* cx, Gdiplus::Font* pGdiFont, HFONT hFont, bool isManaged );
 
 public: 
     Gdiplus::Font* GdiFont() const;

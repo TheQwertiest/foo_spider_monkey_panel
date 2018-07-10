@@ -58,6 +58,9 @@ const JSFunctionSpec jsFunctions[] = {
 namespace mozjs
 {
 
+const JSClass JsGdiFont::JsClass = jsClass;
+const JSFunctionSpec* JsGdiFont::JsFunctions = jsFunctions;
+const JSPropertySpec* JsGdiFont::JsProperties = jsProperties;
 
 JsGdiFont::JsGdiFont( JSContext* cx, Gdiplus::Font* pGdiFont, HFONT hFont, bool isManaged )
     : pJsCtx_( cx )
@@ -67,7 +70,6 @@ JsGdiFont::JsGdiFont( JSContext* cx, Gdiplus::Font* pGdiFont, HFONT hFont, bool 
 {
 }
 
-
 JsGdiFont::~JsGdiFont()
 {
     if ( hFont_ && isManaged_ )
@@ -76,35 +78,21 @@ JsGdiFont::~JsGdiFont()
     }    
 }
 
-JSObject* JsGdiFont::Create( JSContext* cx, Gdiplus::Font* pGdiFont, HFONT hFont, bool isManaged )
+
+bool JsGdiFont::ValidateCreateArgs( JSContext* cx, Gdiplus::Font* pGdiFont, HFONT hFont, bool isManaged )
 {
     if ( !pGdiFont )
     {
         JS_ReportErrorUTF8( cx, "Internal error: Gdiplus::Font object is null" );
-        return nullptr;
-    }    
-
-    JS::RootedObject jsObj( cx,
-                            JS_NewObject( cx, &jsClass ) );
-    if ( !jsObj )
-    {
-        return nullptr;
+        return false;
     }
 
-    if ( !JS_DefineFunctions( cx, jsObj, jsFunctions )
-         || !JS_DefineProperties(cx, jsObj, jsProperties ) )
-    {
-        return nullptr;
-    }
-
-    JS_SetPrivate( jsObj, new JsGdiFont( cx, pGdiFont, hFont, isManaged ) );
-
-    return jsObj;
+    return true;
 }
 
-const JSClass& JsGdiFont::GetClass()
+bool JsGdiFont::PostCreate( JSContext* cx, Gdiplus::Font* pGdiFont, HFONT hFont, bool isManaged )
 {
-    return jsClass;
+    return true;
 }
 
 Gdiplus::Font* JsGdiFont::GdiFont() const

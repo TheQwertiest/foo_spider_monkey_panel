@@ -223,8 +223,6 @@ JSObject* JsFbMetadbHandleList::Create( JSContext* cx, metadb_handle_list_cref h
 
     JS::RootedValue priv( cx, JS::ObjectValue( *jsObj ) );
     js::ProxyOptions options;
-    // Might need this after adding prototype
-    //options.setLazyProto( true );
 
     return js::NewProxyObject( cx, &FbMetadbHandleListProxyHandler::singleton, priv, nullptr, options );
 }

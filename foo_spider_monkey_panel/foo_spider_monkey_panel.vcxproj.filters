@@ -474,6 +474,9 @@
     <ClInclude Include="js_utils\string_util.h">
       <Filter>js_utils</Filter>
     </ClInclude>
+    <ClInclude Include="js_objects\object_base.h">
+      <Filter>js_objects</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include=".editorconfig" />
