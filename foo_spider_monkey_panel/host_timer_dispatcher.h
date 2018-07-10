@@ -45,14 +45,11 @@ public: // callbacks
 	/// @details WT:timerProc >> window_msg >> MT:invoke
 	void onInvokeMessage( uint32_t timerId);
 
-	/// @brief Callback from Killer Thread when timer is expired
+	/// @brief Callback from KT: when timer is expired
 	void onTimerExpire( uint32_t timerId);
 
-	/// @brief Callback from HostTimer when timer proc finished execution
+	/// @brief Callback from WT: from HostTimer when timer proc finished execution
 	void onTimerStopRequest(HWND hWnd, HANDLE hTimer, uint32_t timerId);
-
-	/// @brief Callback from HostTimerTask when task has been completed
-	void onTaskComplete( uint32_t timerId);
 
 private:
 	HostTimerDispatcher();
@@ -72,13 +69,20 @@ private: //thread
 	void threadMain();
 
 private:
-	typedef std::map<unsigned, std::unique_ptr<HostTimer>> TimerMap;
-    // TODO: may be replace unique_ptr with shared_ptr (also check std::enable_shared_from_this)
-	typedef std::map<unsigned, std::unique_ptr<HostTimerTask>> TaskMap;
+    struct TimerObject
+    {
+        TimerObject( HostTimer* timerArg, HostTimerTask* taskArg )
+            : timer( timerArg )
+            , task( taskArg )
+        {
+        }
+        std::unique_ptr<HostTimer> timer;
+        std::shared_ptr<HostTimerTask> task;
+    };
+    using TimerMap = std::map<unsigned, std::shared_ptr<TimerObject>>;
 
-	HANDLE m_hTimerQueue;
+	HANDLE m_hTimerQueue = nullptr;
 	std::mutex m_timerMutex;
-	TaskMap m_taskMap;
 	TimerMap m_timerMap;
     uint32_t m_curTimerId;
 
@@ -91,7 +95,7 @@ private: // thread
 		HANDLE hTimer;
 	} ThreadTask;
 
-	std::thread* m_thread;
+	std::thread* m_thread = nullptr;
 	std::mutex m_threadTaskMutex;
 	std::list<ThreadTask> m_threadTaskList;
 	std::condition_variable m_cv;
@@ -104,22 +108,15 @@ class HostTimerTask
 public:
 	/// @brief ctor
     /// @details Pushes func to heap	
-	HostTimerTask( uint32_t timerId, JSContext* cx, JS::HandleFunction func );
+	HostTimerTask( JSContext* cx, JS::HandleFunction func );
 
 	/// @brief dtor
 	~HostTimerTask();
 
-	/// @brief Adds reference to task
-	void acquire();
-
-	/// @brief Removes reference from task
-	/// @details When task reference is zero removes func from heap and self-destructs
-	void release();
-
 	/// @brief Invokes JS callback
-	/// @details Adds task reference on enter and removes on exit,
-	///          so if the corresponding timer is dead, it will self-destruct.
 	void invoke();
+
+    void DisableHeapCleanup();
 
 private:
     JSContext * pJsCtx_ = nullptr;
@@ -128,8 +125,7 @@ private:
     uint32_t globalId_;
     mozjs::JsGlobalObject* pNativeGlobal_ = nullptr;
 
-    uint32_t m_timerId;
-    uint32_t m_refCount = 0;
+    bool needsCleanup_ = false;
 };
 
 class HostTimer
@@ -152,9 +148,8 @@ public:
 	HANDLE GetHandle() const;
 
 private:
-	HWND m_hWnd;
-
-	HANDLE m_hTimer;
+	HWND m_hWnd = nullptr;
+	HANDLE m_hTimer = nullptr;
 
     uint32_t m_id;
     uint32_t m_delay;

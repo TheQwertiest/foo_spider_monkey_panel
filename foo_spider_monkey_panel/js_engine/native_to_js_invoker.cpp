@@ -6,6 +6,12 @@
 
 #include <js/Conversions.h>
 
+namespace
+{
+
+uint32_t gcCounter = 0;
+
+}
 
 namespace mozjs
 {
@@ -17,6 +23,18 @@ bool InvokeJsCallback_Impl( JSContext* cx,
 {      
     // TODO: move this to before argument parsing: first check then parse!
     AutoReportException are( cx );
+
+    // TODO: implement a better GC mechanism
+    if ( !(gcCounter % 100) )
+    {
+        JS_MaybeGC( cx );        
+    }
+    if ( ++gcCounter > 1000 )
+    {
+        JS_GC( cx );
+        gcCounter = 0;
+    }
+    ++gcCounter;
 
     JS::RootedValue funcValue( cx );
     if ( !JS_GetProperty( cx, globalObject, functionName.c_str(), &funcValue ) )
