@@ -32,7 +32,7 @@ public:
     static JSObject* Create( JSContext* cx, const std::wstring& name );
     static JSObject* Create( JSContext* cx, ActiveX* pPremadeNative );
 
-    static const JSClass& GetClass();
+    static const JSClass JsClass;
 
 public:
     IDispatch * pDispatch_;

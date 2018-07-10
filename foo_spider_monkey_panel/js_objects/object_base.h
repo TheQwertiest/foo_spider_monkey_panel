@@ -48,10 +48,10 @@ public:
             JS::RootedObject jsGlobal( cx, JS::CurrentGlobalOrNull( cx ) );
             assert( jsGlobal );
 
-            auto pNativeGlobal = static_cast<T*>( JS_GetPrivate( jsGlobal ) );
+            auto pNativeGlobal = static_cast<JsGlobalObject*>( JS_GetPrivate( jsGlobal ) );
             assert( pNativeGlobal );
 
-            JS::RootedObject jsProto( cx, pNativeGlobal->GetPrototype<T>() );
+            JS::RootedObject jsProto( cx, pNativeGlobal->GetPrototype<T>( jsGlobal ) );
             assert( jsProto );
 
             jsObject.set( JS_NewObjectWithGivenProto( cx, &T::JsClass, jsProto ) );

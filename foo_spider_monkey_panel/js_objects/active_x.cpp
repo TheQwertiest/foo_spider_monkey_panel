@@ -1274,17 +1274,19 @@ JSObject* ActiveX::Create( JSContext* cx, ActiveX* pPremadeNative )
 
     std::unique_ptr<ActiveX> autoNative( pPremadeNative );
 
-    auto pGlobal = JS::CurrentGlobalOrNull( cx );
-    if ( !pGlobal )
+    JS::RootedObject jsGlobal(cx, JS::CurrentGlobalOrNull( cx ));
+    if ( !jsGlobal )
     {
         JS_ReportErrorUTF8( cx, "Internal error: pGlobal is null" );
         return nullptr;
     }
 
-    auto pNativeGlobal = static_cast<mozjs::JsGlobalObject*>(JS_GetPrivate( pGlobal ));
+    auto pNativeGlobal = static_cast<mozjs::JsGlobalObject*>(JS_GetPrivate( jsGlobal ));
     assert( pNativeGlobal );
 
-    JS::RootedObject jsProto(cx, pNativeGlobal->GetPrototype<ActiveX>() );
+    JS::RootedObject jsProto(cx, pNativeGlobal->GetPrototype<ActiveX>( jsGlobal ) );
+    assert( jsProto );
+
     JS::RootedObject jsObj( cx,
                             JS_NewObjectWithGivenProto( cx, &jsClass, jsProto ) );
     if ( !jsObj )
@@ -1302,10 +1304,7 @@ JSObject* ActiveX::Create( JSContext* cx, ActiveX* pPremadeNative )
     return jsObj;
 }
 
-const JSClass& ActiveX::GetClass()
-{
-    return jsClass;
-}
+const JSClass ActiveX::JsClass = jsClass;
 
 bool ActiveX::GetDispId( std::wstring_view name, DISPID& dispid )
 {

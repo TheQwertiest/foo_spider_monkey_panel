@@ -48,31 +48,18 @@ public:
 
 public: // proto
     template <typename T>
-    typename std::enable_if<std::is_same<T, ActiveX>::value, JSObject*>::type
-    static GetPrototype()
+    typename std::enable_if<std::is_same_v<T, ActiveX>, JSObject*>::type
+        GetPrototype(JS::HandleObject globalObject)
     {
-        assert( protoSlots_.count( activeX_protoSlot_ ) );
-        return GetReservedSlot( activeX_protoSlot_ );
+        return GetObjectFromSlot<T>( globalObject, activeX_protoSlot_ );
     }
 
     template <typename T>
-    typename std::enable_if<std::is_same<T, ActiveX>::value, JSObject*>::type
-        GetPrototype()
+    typename std::enable_if<std::is_same_v<T, JsGdiFont>, JSObject*>::type
+        GetPrototype( JS::HandleObject globalObject )
     {
-        assert( protoSlots_.count(activeX_protoSlot_) );
-        return GetReservedSlot( activeX_protoSlot_ );
+        return GetObjectFromSlot<T>( globalObject, gdiFont_protoSlot_ );
     }
-
-    template <typename T>
-    typename std::enable_if<std::is_same<T, JsGdiFont>::value, JSObject*>::type
-        GetPrototype()
-    {
-        assert( protoSlots_.count( gdiFont_protoSlot_ ) );
-        return GetReservedSlot( gdiFont_protoSlot_ );
-    }
-
-    void AddPrototype( JS::HandleObject prototype );
-
 
 public: // heap
     void RegisterHeapUser( IHeapUser* heapUser );
@@ -88,6 +75,22 @@ public: // methods
     std::optional<std::nullptr_t> IncludeScript( const pfc::string8_fast& path );
 
 private:
+    template <typename T>
+    JSObject* GetObjectFromSlot( JS::HandleObject globalObject, uint32_t slotId )
+    {
+        assert( slotId );
+        assert( JS_GetPrivate( globalObject ) == this );
+
+        JS::Value& valRef = JS_GetReservedSlot( globalObject, slotId );
+        if ( !valRef.isObject() || JS_GetClass(&valRef.toObject() ) != &T::JsClass )
+        {
+            return nullptr;
+        }
+
+        return &valRef.toObject();
+    }
+
+private:
     JsGlobalObject( JSContext* cx, JsContainer &parentContainer, js_panel_window& parentPanel );
     JsGlobalObject( const JsGlobalObject& ) = delete;   
     JsGlobalObject& operator=( const JsGlobalObject& ) = delete;
@@ -100,11 +103,8 @@ private:
     js_panel_window& parentPanel_;
 
 private: // proto
-
     size_t activeX_protoSlot_ = 0;
-    size_t gdiFont_protoSlot_ = 0;
-
-    std::set<size_t> protoSlots_;
+    size_t gdiFont_protoSlot_ = 0;    
     
 private: // heap
     uint32_t currentHeapId_ = 0;    

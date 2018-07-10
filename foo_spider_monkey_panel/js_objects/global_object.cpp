@@ -7,6 +7,7 @@
 #include <js_objects/console.h>
 #include <js_objects/fb_playlist_manager.h>
 #include <js_objects/gdi_utils.h>
+#include <js_objects/gdi_font.h>
 #include <js_objects/utils.h>
 #include <js_objects/fb_utils.h>
 #include <js_objects/window.h>
@@ -122,16 +123,25 @@ JSObject* JsGlobalObject::Create( JSContext* cx, JsContainer &parentContainer, j
             return nullptr;
         }
 
-        auto pNative = new JsGlobalObject( cx, parentContainer, parentPanel );
-        pNative->activeX_proto_.init( cx, ActiveX::InitPrototype( cx, jsObj ) );
-
         if ( !JS_DefineFunctions( cx, jsObj, jsFunctions ) )
         {
             return nullptr;
         }
 
+        auto pNative = new JsGlobalObject( cx, parentContainer, parentPanel );
         JS_SetPrivate( jsObj, pNative );
 
+        JS::RootedValue jsProto( cx );
+        size_t protoSlotIdx = 1;
+
+        pNative->gdiFont_protoSlot_ = protoSlotIdx;
+        jsProto.setObjectOrNull( JsGdiFont::CreateProto( cx ) );
+        JS_SetReservedSlot( jsObj, protoSlotIdx++, jsProto );
+        
+        pNative->activeX_protoSlot_ = protoSlotIdx;
+        jsProto.setObjectOrNull( ActiveX::InitPrototype( cx, jsObj ) );
+        JS_SetReservedSlot( jsObj, protoSlotIdx++, jsProto );
+        
         if ( !JS_AddExtraGCRootsTracer( cx, JsGlobalObject::TraceHeapValue, pNative ) )
         {
             return nullptr;
@@ -152,12 +162,6 @@ void JsGlobalObject::Fail( pfc::string8_fast errorText )
 {
     parentContainer_.Fail();
     parentPanel_.JsEngineFail( errorText );
-}
-
-void JsGlobalObject::AddPrototype( JS::HandleObject prototype )
-{
-    assert( prototype );
-    protoSlots_
 }
 
 void JsGlobalObject::RegisterHeapUser( IHeapUser* heapUser )
@@ -217,9 +221,6 @@ void JsGlobalObject::RemoveHeapTracer()
     }
 
     heapUsers_.clear();
-
-    // TODO: move it somewhere
-    activeX_proto_.reset();
 }
 
 void JsGlobalObject::TraceHeapValue( JSTracer *trc, void *data )

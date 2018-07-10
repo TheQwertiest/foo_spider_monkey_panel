@@ -153,9 +153,20 @@ bool InvokeNativeCallback_Impl( JSContext* cx,
                         {
                             jsObject.set( js::GetProxyTargetObject( jsObject ) );
                         }
-                        ArgType pNative = static_cast<ArgType>(
-                            JS_GetInstancePrivate( cx, jsObject, &std::remove_pointer_t<ArgType>::GetClass(), nullptr )
-                            );
+                        ArgType pNative;
+                        // TODO: remove after refactoring
+                        if constexpr ( std::is_same_v<std::remove_pointer_t<ArgType>, JsGdiFont> )
+                        {
+                            pNative = static_cast<ArgType>(
+                                JS_GetInstancePrivate( cx, jsObject, &std::remove_pointer_t<ArgType>::JsClass, nullptr )
+                                );
+                        }
+                        else
+                        {
+                            pNative = static_cast<ArgType>(
+                                JS_GetInstancePrivate( cx, jsObject, &std::remove_pointer_t<ArgType>::GetClass(), nullptr )
+                                );
+                        }
                         if ( !pNative )
                         {
                             failedIdx = index;
