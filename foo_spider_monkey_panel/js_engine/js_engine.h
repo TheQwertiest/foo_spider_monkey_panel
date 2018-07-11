@@ -23,6 +23,7 @@ public:
     ~JsEngine();
 
     static JsEngine& GetInstance();
+    void PrepareForExit();
 
 public:
     JSContext * GetJsContext() const;
@@ -42,6 +43,7 @@ private:
     JSContext * pJsCtx_ = nullptr;
 
     bool isInitialized_ = false;
+    bool shouldShutdown_ = false;
 
     std::map<HWND, std::reference_wrapper<JsContainer>> registeredPanels_;
 };

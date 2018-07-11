@@ -4,7 +4,7 @@
 #include "panel_manager.h"
 #include "user_message.h"
 
-#include <js/Initialization.h>
+#include <js_engine/js_engine.h>
 
 // Script TypeLib
 ITypeLibPtr g_typelib;
@@ -46,6 +46,7 @@ namespace
 
 		void on_quit()
 		{
+            mozjs::JsEngine::GetInstance().PrepareForExit();
 			panel_manager::instance().send_msg_to_all(UWM_SCRIPT_TERM, 0, 0);
 			simple_thread_pool::instance().join();
 		}
@@ -119,15 +120,11 @@ namespace
 			{
 				g_load_status |= E_GDIPLUS;
 			}
-			_Module.Init(NULL, ins);
-
-            JS_Init();
+			_Module.Init(NULL, ins);            
 		}
         break;
         case DLL_PROCESS_DETACH:
         {
-            JS_ShutDown();
-
             // Term WTL
             _Module.Term();
 

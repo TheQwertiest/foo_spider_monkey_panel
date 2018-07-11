@@ -71,7 +71,6 @@ double ToValue( JSContext * cx, const JS::HandleValue& jsValue, bool& isValid )
     return val;
 }
 
-
 template <>
 pfc::string8_fast ToValue( JSContext * cx, const JS::HandleValue& jsValue, bool& isValid )
 {

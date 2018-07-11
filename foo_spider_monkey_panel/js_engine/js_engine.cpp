@@ -6,6 +6,8 @@
 
 #include <js_panel_window.h>
 
+#include <js/Initialization.h>
+
 // TODO: remove js_panel_window, may be replace with HWND
 
 
@@ -13,16 +15,13 @@ namespace mozjs
 {
 
 JsEngine::JsEngine()
-    : pJsCtx_( nullptr )
 {
-    isInitialized_ = false;
+    JS_Init();
 }
 
 JsEngine::~JsEngine()
-{
-    // Attempt to cleanup, may result in crashes though, 
-    // since mozjs.dll might be unloaded at this time    
-    Finalize();
+{// Can't clean up here, since mozjs.dll might be already unloaded
+    assert( !isInitialized_ );
 }
 
 JsEngine& JsEngine::GetInstance()
@@ -122,7 +121,17 @@ void JsEngine::Finalize()
         pJsCtx_ = nullptr;
     }
 
+    if ( shouldShutdown_ )
+    {
+        JS_ShutDown();
+    }
+
     isInitialized_ = false;
+}
+
+void JsEngine::PrepareForExit()
+{
+    shouldShutdown_ = true;
 }
 
 }
