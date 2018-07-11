@@ -1,4 +1,5 @@
 # Current
+- Add one-use only DefinePanel(name, author, [options]) method somewhere (global, utils, window?)
 - Fix unresponsive arrow keys in some scripts (mb smth with focus?).
 - Reimplement all object creation code through prototypes, since JS_DefineProperties and JS_DefineFunctions are very expensive.
 - 'Shell.Application': use through ActiveXObject, manual linking is possible (shell32.lib, Shldisp.idl, Shldisp.h), 
