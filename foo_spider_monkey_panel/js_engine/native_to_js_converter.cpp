@@ -75,8 +75,14 @@ bool ToValue( JSContext *, const float& inValue, JS::MutableHandleValue wrappedV
 template <>
 bool ToValue( JSContext * cx, const pfc::string8_fast& inValue, JS::MutableHandleValue wrappedValue )
 {
-    pfc::stringcvt::string_wide_from_utf8 inValue8( inValue );
-    return ToValue<std::wstring_view>( cx, inValue8.get_ptr(), wrappedValue );
+    size_t stringLen = MultiByteToWideChar( CP_UTF8, 0, inValue.c_str(), inValue.length(), nullptr, 0 );
+    std::wstring strVal;
+    strVal.resize( stringLen );
+
+    stringLen = MultiByteToWideChar( CP_UTF8, 0, inValue.c_str(), inValue.length(), strVal.data(), strVal.size() );
+    strVal.resize( stringLen );
+
+    return ToValue<std::wstring_view>( cx, strVal, wrappedValue );
 }
 
 template <>
