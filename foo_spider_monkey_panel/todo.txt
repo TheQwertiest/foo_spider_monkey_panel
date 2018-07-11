@@ -16,7 +16,7 @@
 - Why is this list getting longer, instead of shorter?!
 - Stop staying up all night making this...
 
-# Prerelease
+# Prerelease-Test
 - Test `include` with various codepages (esp. JP,KR,CH).
 - Check utf8 literals everywhere (paths, script window, script files, properties, callback arguments)
 - Check drag-n-drop functionality.
@@ -25,6 +25,8 @@
 - Test if JS_ShutDown deadlock on fb2k exit is fixed.
 - Profile CPU usage and check if there are any bottlenecks (pfc utf8<>wide is much slower than WinAPI WideCharToMultiByte equivalent)
 - Make sure there are no memory leaks.
+
+# Prerelease-Doc
 - Document that toArray() methods are not needed anymore.
 - Document FbHandleList.Item removal ([] proxy)
 - Document that everything is case-sensitive (unlike how it was in WSH\IE...)
