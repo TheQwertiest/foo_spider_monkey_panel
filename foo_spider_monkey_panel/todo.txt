@@ -1,6 +1,5 @@
 # Current
 - Fix unresponsive arrow keys in some scripts (mb smth with focus?).
-- Diagnose JS_ShutDown freeze on conditional wait on fb2k exit (helper threads killed before DllMain?)
 - Reimplement all object creation code through prototypes, since JS_DefineProperties and JS_DefineFunctions are very expensive.
 - 'Shell.Application': use through ActiveXObject, manual linking is possible (shell32.lib, Shldisp.idl, Shldisp.h), 
 - 'WScript.Shell': new `utils` methods? Run, RegRead, maybe RegWrite.
@@ -10,14 +9,19 @@
 - Reimplement ActiveXObject accessors through proxy instead of current hacks.
 - Move all failable initialization from ctor to PostCreate.
 - Rework GC.
+- Rewrite ActiveXObject properly (and rename the files as well).
+- Remove engine settings from Panel Properties dialog.
+- Complete rebranding to spider_monkey_panel.
+- Why is this list getting longer, instead of shorter?!
+- Stop staying up all night making this...
+
+# Prerelease
 - Test `include` with various codepages (esp. JP,KR,CH).
 - Check utf8 literals everywhere (paths, script window, script files, properties, callback arguments)
 - Check drag-n-drop functionality.
 - Check that all files are correctly parsed: UTF8, UTF8-BOM, ASCII.
-- Rewrite ActiveXObject properly (and rename the files as well).
-- Remove engine settings from Panel Properties dialog.
-- Complete rebranding to spider_monkey_panel.
 - Check that it can work side-by-side with foo-jscript-panel.
+- Test if JS_ShutDown deadlock on fb2k exit is fixed.
 - Profile CPU usage and check if there are any bottlenecks (pfc utf8<>wide is much slower than WinAPI WideCharToMultiByte equivalent)
 - Make sure there are no memory leaks.
 - Document that toArray() methods are not needed anymore.
@@ -26,8 +30,6 @@
 - Create a simple JSP > SMP script migration guide.
 - Update docs.
 - Check all TODOs.
-- Why is this list getting longer, instead of shorter?!
-- Stop staying up all night making this...
 
 # Planned
 - Replace `Create*` interface methods with prototypes and `new` where possible
@@ -41,6 +43,7 @@
 - See if it's possible to export some common Array checking/creating/parsing code.
 
 # Maybe
+- Follow the bug https://bugzilla.mozilla.org/show_bug.cgi?id=1474914 , if fixed consider moving to newer branches.
 - Replace in-repository scintilla with it's submodule.
 - Update scintilla to the latest version.
 - Update scintilla JS keywords list
