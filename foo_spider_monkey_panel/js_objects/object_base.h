@@ -18,14 +18,10 @@ template <typename T>
 class JsObjectBase
 {
 public:
-    JsObjectBase()
-    {
-
-    }
-    virtual ~JsObjectBase()
-    {
-
-    }
+    JsObjectBase() = default;
+    JsObjectBase( const JsObjectBase& ) = delete;
+    JsObjectBase& operator=( const JsObjectBase& ) = delete;
+    virtual ~JsObjectBase() = default;
 
 public:
     static JSObject* CreateProto( JSContext* cx )
@@ -45,6 +41,8 @@ public:
 
         return jsObject;
     }
+
+    // TODO: rename to CreateJs
 
     template <typename ... ArgTypes>
     static JSObject* Create( JSContext* cx, ArgTypes&&... args )
@@ -82,14 +80,9 @@ public:
             }
         }
 
-        if ( !T::ValidateCreateArgs( cx, args... ) )
-        {// report in ValidateCtorArgs
-            return nullptr;
-        }
-
-        std::unique_ptr<T> nativeObject( new T( cx, args... ) );
-        if ( !nativeObject->PostCreate( cx, args... ) )
-        {// report in PostCreate
+        std::unique_ptr<T> nativeObject = T::CreateNative( cx, std::forward<ArgTypes>( args )... );
+        if ( !nativeObject )
+        {// report in CreateNative
             return nullptr;
         }
 
@@ -107,10 +100,6 @@ public:
             return jsObject;
         }
     }
-
-private:
-    JsObjectBase(const JsObjectBase& ) = delete;
-    JsObjectBase& operator=( const JsObjectBase& ) = delete;
 };
 
 }

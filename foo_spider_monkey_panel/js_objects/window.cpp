@@ -356,14 +356,13 @@ JsWindow::GetFontCUI( uint32_t type, const std::wstring& guidstr )
         return nullptr;
     }
 
-    JS::RootedObject jsObject( pJsCtx_, JsGdiFont::Create( pJsCtx_, pGdiFont.get(), hFont, true ) );
+    JS::RootedObject jsObject( pJsCtx_, JsGdiFont::Create( pJsCtx_, std::move(pGdiFont), hFont, true ) );
     if ( !jsObject )
     {
         JS_ReportErrorUTF8( pJsCtx_, "Internal error: failed to create JS object" );
         return std::nullopt;
     }
 
-    pGdiFont.release();
     autoFont.release();
     return jsObject;
 }
@@ -406,14 +405,13 @@ JsWindow::GetFontDUI( uint32_t type )
         return nullptr;
     }
 
-    JS::RootedObject jsObject( pJsCtx_, JsGdiFont::Create( pJsCtx_, pGdiFont.get(), hFont, false ) );
+    JS::RootedObject jsObject( pJsCtx_, JsGdiFont::Create( pJsCtx_, std::move( pGdiFont ), hFont, false ) );
     if ( !jsObject )
     {
         JS_ReportErrorUTF8( pJsCtx_, "Internal error: failed to create JS object" );
         return std::nullopt;
     }
 
-    pGdiFont.release();
     return jsObject;
 }
 

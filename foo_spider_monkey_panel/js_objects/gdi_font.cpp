@@ -62,12 +62,12 @@ const JSClass JsGdiFont::JsClass = jsClass;
 const JSFunctionSpec* JsGdiFont::JsFunctions = jsFunctions;
 const JSPropertySpec* JsGdiFont::JsProperties = jsProperties;
 
-JsGdiFont::JsGdiFont( JSContext* cx, Gdiplus::Font* pGdiFont, HFONT hFont, bool isManaged )
+JsGdiFont::JsGdiFont( JSContext* cx, std::unique_ptr<Gdiplus::Font> gdiFont, HFONT hFont, bool isManaged )
     : pJsCtx_( cx )
     , isManaged_( isManaged )
-    , pGdi_( pGdiFont )
     , hFont_( hFont )
 {
+    pGdi_.swap(gdiFont);
 }
 
 JsGdiFont::~JsGdiFont()
@@ -79,20 +79,21 @@ JsGdiFont::~JsGdiFont()
 }
 
 
-bool JsGdiFont::ValidateCreateArgs( JSContext* cx, Gdiplus::Font* pGdiFont, HFONT hFont, bool isManaged )
+std::unique_ptr<JsGdiFont> JsGdiFont::CreateNative( JSContext* cx, std::unique_ptr<Gdiplus::Font> pGdiFont, HFONT hFont, bool isManaged )
 {
     if ( !pGdiFont )
     {
         JS_ReportErrorUTF8( cx, "Internal error: Gdiplus::Font object is null" );
-        return false;
+        return nullptr;
     }
 
-    return true;
-}
+    if ( !hFont )
+    {
+        JS_ReportErrorUTF8( cx, "Internal error: HFONT object is null" );
+        return nullptr;
+    }
 
-bool JsGdiFont::PostCreate( JSContext* cx, Gdiplus::Font* pGdiFont, HFONT hFont, bool isManaged )
-{
-    return true;
+    return std::unique_ptr<JsGdiFont>( new JsGdiFont(cx, std::move( pGdiFont ), hFont, isManaged ));
 }
 
 Gdiplus::Font* JsGdiFont::GdiFont() const

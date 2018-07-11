@@ -48,15 +48,15 @@ public:
 
     bool ExecuteScript( pfc::string8_fast scriptCode );
 
-    template <typename ReturnType = std::nullptr_t, typename... Args>
+    template <typename ReturnType = std::nullptr_t, typename... ArgTypes>
     std::optional<ReturnType> InvokeJsCallback( pfc::string8_fast functionName,
-                                                Args&&... args )
+                                                ArgTypes&&... args )
     {
         if ( JsStatus::Ready != jsStatus_ )
         {
             return std::nullopt;
         }        
-        return mozjs::InvokeJsCallback<ReturnType>( pJsCtx_, jsGlobal_, functionName, args... );
+        return mozjs::InvokeJsCallback<ReturnType>( pJsCtx_, jsGlobal_, functionName, std::forward<ArgTypes>(args)... );
     }    
 
     void InvokeOnNotifyCallback( const std::wstring& name, const std::wstring& data );

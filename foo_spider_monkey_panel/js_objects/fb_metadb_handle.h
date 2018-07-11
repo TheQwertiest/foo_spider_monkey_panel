@@ -16,8 +16,6 @@ class JsFbMetadbHandle
     : public JsObjectBase<JsFbMetadbHandle>
 {
 public:
-    friend class JsObjectBase<JsFbMetadbHandle>;
-
     static constexpr bool HasProto = true;
     static constexpr bool HasProxy = false;
 
@@ -26,10 +24,11 @@ public:
     static const JSPropertySpec* JsProperties;
 
 public:
+    JsFbMetadbHandle( const JsFbMetadbHandle& ) = delete;
+    JsFbMetadbHandle& operator=( const JsFbMetadbHandle& ) = delete;
     ~JsFbMetadbHandle();
 
-    static bool ValidateCreateArgs( JSContext* cx, const metadb_handle_ptr& handle );
-    bool PostCreate( JSContext* cx, const metadb_handle_ptr& handle );
+    static std::unique_ptr<JsFbMetadbHandle> CreateNative( JSContext* cx, const metadb_handle_ptr& handle );    
     
 public:
     metadb_handle_ptr& GetHandle();
@@ -53,9 +52,7 @@ public: // props
     std::optional<std::uint32_t> get_SubSong();
 
 private:
-    JsFbMetadbHandle( JSContext* cx, const metadb_handle_ptr& handle );
-    JsFbMetadbHandle( const JsFbMetadbHandle& ) = delete;
-    JsFbMetadbHandle& operator=( const JsFbMetadbHandle& ) = delete;
+    JsFbMetadbHandle( JSContext* cx, const metadb_handle_ptr& handle );    
 
 private:
     JSContext * pJsCtx_ = nullptr;

@@ -79,6 +79,9 @@ const JSPropertySpec jsProperties[] = {
 namespace mozjs
 {
 
+const JSClass JsFbMetadbHandle::JsClass = jsClass;
+const JSFunctionSpec* JsFbMetadbHandle::JsFunctions = jsFunctions;
+const JSPropertySpec* JsFbMetadbHandle::JsProperties = jsProperties;
 
 JsFbMetadbHandle::JsFbMetadbHandle( JSContext* cx, const metadb_handle_ptr& handle )
     : pJsCtx_( cx )
@@ -86,29 +89,19 @@ JsFbMetadbHandle::JsFbMetadbHandle( JSContext* cx, const metadb_handle_ptr& hand
 {
 }
 
-const JSClass JsFbMetadbHandle::JsClass = jsClass;
-const JSFunctionSpec* JsFbMetadbHandle::JsFunctions = jsFunctions;
-const JSPropertySpec* JsFbMetadbHandle::JsProperties = jsProperties;
-
 JsFbMetadbHandle::~JsFbMetadbHandle()
 {
 }
 
-bool JsFbMetadbHandle::ValidateCreateArgs( JSContext* cx, const metadb_handle_ptr& handle )
+std::unique_ptr<mozjs::JsFbMetadbHandle> JsFbMetadbHandle::CreateNative( JSContext* cx, const metadb_handle_ptr& handle )
 {
     if ( !handle.is_valid() )
     {
         JS_ReportErrorUTF8( cx, "Internal error: metadb_handle_ptr is null" );
-        return false;
+        return nullptr;
     }
 
-    return true;
-}
-
-
-bool JsFbMetadbHandle::PostCreate( JSContext* cx, const metadb_handle_ptr& handle )
-{
-    return true;
+    return std::unique_ptr<JsFbMetadbHandle>( new JsFbMetadbHandle( cx, handle ) );
 }
 
 metadb_handle_ptr& JsFbMetadbHandle::GetHandle()

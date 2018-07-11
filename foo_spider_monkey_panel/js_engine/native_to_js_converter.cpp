@@ -162,4 +162,24 @@ bool ToValue( JSContext * cx, Gdiplus::Bitmap* const& inValue, JS::MutableHandle
     return true;
 }
 
+template<>
+bool ToValue( JSContext * cx, std::unique_ptr<Gdiplus::Bitmap> inValue, JS::MutableHandleValue wrappedValue )
+{
+    if ( !inValue )
+    {// Not an error
+        wrappedValue.setNull();
+        return true;
+    }
+
+    JS::RootedObject jsObject( cx, JsGdiBitmap::Create( cx, inValue.get() ) );
+    if ( !jsObject )
+    {
+        return false;
+    }
+
+    inValue.release();
+    wrappedValue.setObjectOrNull( jsObject );
+    return true;
+}
+
 }

@@ -146,7 +146,7 @@ JsGdiUtils::Font( const std::wstring& fontName, float pxSize, uint32_t style )
         DeleteObject( obj );
     } );
 
-    JS::RootedObject jsObject( pJsCtx_, JsGdiFont::Create( pJsCtx_, pGdiFont.get(), hFont, true ) );
+    JS::RootedObject jsObject( pJsCtx_, JsGdiFont::Create( pJsCtx_, std::move(pGdiFont), hFont, true ) );
     if ( !jsObject )
     {
         JS_ReportErrorUTF8( pJsCtx_, "Internal error: failed to create JS object" );
@@ -154,7 +154,6 @@ JsGdiUtils::Font( const std::wstring& fontName, float pxSize, uint32_t style )
     }
 
     autoFont.release();
-    pGdiFont.release();
     return jsObject;
 }
 

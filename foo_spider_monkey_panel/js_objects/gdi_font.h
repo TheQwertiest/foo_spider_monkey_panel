@@ -22,8 +22,6 @@ class JsGdiFont
     : public JsObjectBase<JsGdiFont>
 {
 public:
-    friend class JsObjectBase<JsGdiFont>;
-
     static constexpr bool HasProto = true;
     static constexpr bool HasProxy = false;
 
@@ -32,10 +30,11 @@ public:
     static const JSPropertySpec* JsProperties;
 
 public:
+    JsGdiFont( const JsGdiFont& ) = delete;
+    JsGdiFont& operator=( const JsGdiFont& ) = delete;
     ~JsGdiFont();
 
-    static bool ValidateCreateArgs( JSContext* cx, Gdiplus::Font* pGdiFont, HFONT hFont, bool isManaged );
-    bool PostCreate( JSContext* cx, Gdiplus::Font* pGdiFont, HFONT hFont, bool isManaged );
+    static std::unique_ptr<JsGdiFont> CreateNative( JSContext* cx, std::unique_ptr<Gdiplus::Font> pGdiFont, HFONT hFont, bool isManaged );
 
 public: 
     Gdiplus::Font* GdiFont() const;
@@ -48,9 +47,7 @@ public: // props
     std::optional<uint32_t> get_Style() const;
 
 private:
-    JsGdiFont( JSContext* cx, Gdiplus::Font* pGdiFont, HFONT hFont, bool isManaged );
-    JsGdiFont( const JsGdiFont& ) = delete;
-    JsGdiFont& operator=( const JsGdiFont& ) = delete;
+    JsGdiFont( JSContext* cx, std::unique_ptr<Gdiplus::Font> gdiFont, HFONT hFont, bool isManaged );    
 
 private:
     JSContext * pJsCtx_ = nullptr;

@@ -90,7 +90,7 @@ std::wstring ToValue( JSContext * cx, const JS::HandleValue& jsValue, bool& isVa
     isValid = !!jsString;
     if ( !isValid )
     {
-        return std::forward<std::wstring>( std::wstring() );
+        return std::wstring();
     }
 
     size_t strLen = JS_GetStringLength( jsString );
@@ -99,7 +99,7 @@ std::wstring ToValue( JSContext * cx, const JS::HandleValue& jsValue, bool& isVa
     if ( !JS_CopyStringChars( cx, wCharStr, jsString ) )
     {
         JS_ReportOutOfMemory( cx );
-        return std::forward<std::wstring>( std::wstring() );
+        return std::wstring();
     }
 
     return wStr;
