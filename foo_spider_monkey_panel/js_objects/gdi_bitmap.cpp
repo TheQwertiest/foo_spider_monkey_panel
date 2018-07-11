@@ -370,8 +370,8 @@ JsGdiBitmap::GetColourSchemeJSON( uint32_t count )
     Gdiplus::BitmapData bmpdata;
 
     // rescaled image will have max of ~48k pixels
-    uint32_t w = std::min( pGdi_->GetWidth(), static_cast<UINT>( 220 ) );
-    uint32_t h = std::min( pGdi_->GetHeight(), static_cast<UINT>( 220 ) );
+    uint32_t w = std::min( pGdi_->GetWidth(), static_cast<uint32_t>( 220 ) );
+    uint32_t h = std::min( pGdi_->GetHeight(), static_cast<uint32_t>( 220 ) );
 
     Gdiplus::Bitmap* bitmap = new Gdiplus::Bitmap( w, h, PixelFormat32bppPARGB );
     if ( !helpers::ensure_gdiplus_object( bitmap ) )
@@ -391,16 +391,16 @@ JsGdiBitmap::GetColourSchemeJSON( uint32_t count )
     gdiRet = bitmap->LockBits( &rect, Gdiplus::ImageLockModeRead, PixelFormat32bppARGB, &bmpdata );
     IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, std::nullopt, LockBits );
 
-    std::map<unsigned, int> colour_counters;
-    const unsigned colours_length = bmpdata.Width * bmpdata.Height;
+    std::map<uint32_t, uint32_t> colour_counters;
+    const uint32_t colours_length = bmpdata.Width * bmpdata.Height;
     const t_uint32* colours = (const t_uint32 *)bmpdata.Scan0;
 
     // reduce color set to pass to k-means by rounding colour components to multiples of 8
-    for ( unsigned i = 0; i < colours_length; i++ )
+    for ( uint32_t i = 0; i < colours_length; i++ )
     {
-        unsigned int r = ( colours[i] >> 16 ) & 0xff;
-        unsigned int g = ( colours[i] >> 8 ) & 0xff;
-        unsigned int b = ( colours[i] & 0xff );
+        uint32_t r = ( colours[i] >> 16 ) & 0xff;
+        uint32_t g = ( colours[i] >> 8 ) & 0xff;
+        uint32_t b = ( colours[i] & 0xff );
 
         // round colours
         r = ( r + 4 ) & 0xfffffff8;
@@ -415,18 +415,17 @@ JsGdiBitmap::GetColourSchemeJSON( uint32_t count )
     }
     bitmap->UnlockBits( &bmpdata );
 
-    std::map<unsigned, int>::iterator it;
     std::vector<Point> points;
-    int idx = 0;
+    uint32_t idx = 0;
 
-    for ( it = colour_counters.begin(); it != colour_counters.end(); it++, idx++ )
+    for ( const auto& [colour, pixelCount]: colour_counters )
     {
-        unsigned int r = ( it->first >> 16 ) & 0xff;
-        unsigned int g = ( it->first >> 8 ) & 0xff;
-        unsigned int b = ( it->first & 0xff );
+        uint8_t r = (colour >> 16) & 0xff;
+        uint8_t g = (colour >> 8) & 0xff;
+        uint8_t b = (colour & 0xff);
 
-        std::vector<unsigned int> values = { r, g, b };
-        Point p( idx, values, it->second );
+        std::vector<uint32_t> values = { r, g, b };
+        Point p( idx++, values, pixelCount );
         points.push_back( p );
     }
 

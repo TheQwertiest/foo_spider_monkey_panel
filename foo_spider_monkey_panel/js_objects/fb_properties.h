@@ -47,7 +47,7 @@ private:
         }
         JS::Heap<JS::Value> value;
     };
-    std::unordered_map<std::wstring, std::shared_ptr<HeapElement>> properties_;
+    std::unordered_map<std::wstring, std::unique_ptr<HeapElement>> properties_;
 };
 
 }

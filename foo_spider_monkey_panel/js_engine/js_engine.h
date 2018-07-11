@@ -45,7 +45,7 @@ private:
     bool isInitialized_ = false;
     bool shouldShutdown_ = false;
 
-    std::map<HWND, std::reference_wrapper<JsContainer>> registeredPanels_;
+    std::map<HWND, std::reference_wrapper<JsContainer>> registeredContainers_;
 };
 
 }

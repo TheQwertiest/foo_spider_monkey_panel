@@ -30,8 +30,6 @@ public:
     static const JSPropertySpec* JsProperties;
 
 public:
-    JsGdiFont( const JsGdiFont& ) = delete;
-    JsGdiFont& operator=( const JsGdiFont& ) = delete;
     ~JsGdiFont();
 
     static std::unique_ptr<JsGdiFont> CreateNative( JSContext* cx, std::unique_ptr<Gdiplus::Font> pGdiFont, HFONT hFont, bool isManaged );

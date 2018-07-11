@@ -28,18 +28,18 @@ class Point
 {
 private:
 	int id_point, id_cluster;
-	std::vector<unsigned int> values;
-	int total_values;
-	int pixel_count;
+	std::vector<uint32_t> values;
+    uint32_t total_values;
+    uint32_t pixel_count;
 
 public:
-	Point(int id_point, std::vector<unsigned int>& values, int pixel_count)
+	Point(int id_point, std::vector<uint32_t>& values, uint32_t pixel_count)
 	{
 		this->id_point = id_point;
 		this->pixel_count = pixel_count;
 		total_values = values.size();
 
-		for (int i = 0; i < total_values; i++)
+		for ( uint32_t i = 0; i < total_values; i++)
 			this->values.push_back(values[i]);
 
 		id_cluster = -1;
@@ -57,15 +57,15 @@ public:
 		return id_cluster;
 	}
 
-	unsigned int getValue(int index) {
+    uint32_t getValue(int index) {
 		return values[index];
 	}
 
-	int getTotalValues() {
+    uint32_t getTotalValues() {
 		return total_values;
 	}
 
-	int getPixelCount() {
+    uint32_t getPixelCount() {
 		return pixel_count;
 	}
 };
@@ -82,9 +82,9 @@ public:
 	{
 		this->id_cluster = id_cluster;
 
-		int total_values = point.getTotalValues();
+        uint32_t total_values = point.getTotalValues();
 
-		for (int i = 0; i < total_values; i++)
+		for ( uint32_t i = 0; i < total_values; i++)
 			central_values.push_back(point.getValue(i));
 
 		points.push_back(point);
@@ -95,9 +95,9 @@ public:
 	}
 
 	bool removePoint(int id_point) {
-		int total_points = points.size();
+        uint32_t total_points = points.size();
 
-		for (int i = 0; i < total_points; i++)
+		for ( uint32_t i = 0; i < total_points; i++)
 		{
 			if (points[i].getID() == id_point)
 			{
@@ -122,7 +122,7 @@ public:
 
 	int getTotalPoints() {
 		int total = 0;
-		for (unsigned int i = 0; i < points.size(); i++)
+		for ( uint32_t i = 0; i < points.size(); i++)
 			total += points[i].getPixelCount();
 
 		return total;

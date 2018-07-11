@@ -43,15 +43,13 @@ public:
     struct PropInfo
     {
         std::wstring name;
-        bool Get;
-        bool Put;
-        bool PutRef;
-        PropInfo( const wchar_t* n ) : name( n ) { Get = Put = PutRef = false; }
+        bool Get = false;
+        bool Put = false;
+        bool PutRef = false;
+        PropInfo( std::wstring_view n ) : name( n ) {}
     };
 
-    std::map<std::wstring, std::shared_ptr<PropInfo>> properties_;
-
-    
+    std::map<std::wstring, std::unique_ptr<PropInfo>> properties_;
 
     PropInfo* Find( std::wstring_view name );
 

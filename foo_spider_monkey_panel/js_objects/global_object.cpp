@@ -7,6 +7,7 @@
 #include <js_objects/console.h>
 #include <js_objects/fb_metadb_handle.h>
 #include <js_objects/fb_playlist_manager.h>
+#include <js_objects/fb_title_format.h>
 #include <js_objects/fb_utils.h>
 #include <js_objects/gdi_utils.h>
 #include <js_objects/gdi_font.h>
@@ -45,7 +46,7 @@ JSClassOps jsOps = {
 
 JSClass jsClass = {
      "Global",
-     JSCLASS_GLOBAL_FLAGS_WITH_SLOTS(40) | DefaultClassFlags(),
+     JSCLASS_GLOBAL_FLAGS_WITH_SLOTS( JsGlobalObject::kMaxProtoSlotSize ) | DefaultClassFlags(),
      &jsOps
 };
 
@@ -131,9 +132,17 @@ JSObject* JsGlobalObject::Create( JSContext* cx, JsContainer &parentContainer, j
         auto pNative = new JsGlobalObject( cx, parentContainer, parentPanel );
         JS_SetPrivate( jsObj, pNative );
 
-        pNative->gdiFont_protoSlot_ = pNative->AddProto( jsObj, JsGdiFont::CreateProto( cx ) );
-        pNative->fbMetadbHandle_protoSlot_ = pNative->AddProto( jsObj, JsFbMetadbHandle::CreateProto( cx ) );
         pNative->activeX_protoSlot_ = pNative->AddProto( jsObj, ActiveX::InitPrototype( cx, jsObj ) );
+        pNative->fbMetadbHandle_protoSlot_ = pNative->AddProto( jsObj, JsFbMetadbHandle::CreateProto( cx ) );
+        pNative->fbTitleFormat_protoSlot_ = pNative->AddProto( jsObj, JsFbTitleFormat::CreateProto( cx ) );
+        pNative->gdiFont_protoSlot_ = pNative->AddProto( jsObj, JsGdiFont::CreateProto( cx ) );
+        if ( !pNative->gdiFont_protoSlot_
+             || !pNative->fbMetadbHandle_protoSlot_
+             || !pNative->fbTitleFormat_protoSlot_
+             || !pNative->activeX_protoSlot_ )
+        {
+            return nullptr;
+        }
         
         if ( !JS_AddExtraGCRootsTracer( cx, JsGlobalObject::TraceHeapValue, pNative ) )
         {
@@ -148,7 +157,12 @@ JSObject* JsGlobalObject::Create( JSContext* cx, JsContainer &parentContainer, j
 
 size_t JsGlobalObject::AddProto( JS::HandleObject self, JSObject* proto )
 {
-    assert( proto );
+    if ( !proto )
+    {
+        return 0;
+    }
+
+    assert( kMaxProtoSlotSize > curProtoSlotIdx_ );   
     JS::Value protoVal = JS::ObjectValue( *proto );
     JS_SetReservedSlot( self, curProtoSlotIdx_, protoVal );
     return curProtoSlotIdx_++;
@@ -190,7 +204,7 @@ uint32_t JsGlobalObject::StoreToHeap( JS::HandleValue valueToStore )
         ++currentHeapId_;
     }
 
-    heapElements_[currentHeapId_] = std::make_shared<HeapElement>( valueToStore );
+    heapElements_.emplace(currentHeapId_, std::make_unique<HeapElement>( valueToStore ));
     return currentHeapId_++;
 }
 
@@ -216,9 +230,9 @@ void JsGlobalObject::RemoveHeapTracer()
     
     std::scoped_lock sl( heapUsersLock_ );
 
-    for ( auto heapUser : heapUsers_ )
+    for ( auto& [id, heapUser] : heapUsers_ )
     {
-        heapUser.second->DisableHeapCleanup();
+        heapUser->DisableHeapCleanup();
     }
 
     heapUsers_.clear();
@@ -232,7 +246,7 @@ void JsGlobalObject::TraceHeapValue( JSTracer *trc, void *data )
     std::scoped_lock sl( globalObject->heapElementsLock_ );
     
     auto& heapMap = globalObject->heapElements_;
-    for ( auto it = heapMap.begin(); it != heapMap.end();)
+    for ( auto& it = heapMap.begin(); it != heapMap.end();)
     {
         if ( !it->second->inUse )
         {

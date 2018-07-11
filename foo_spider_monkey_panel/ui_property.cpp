@@ -40,7 +40,7 @@ LRESULT CDialogProperty::OnPinItemChanged(LPNMHDR pnmh)
 
 	if (m_dup_prop_map.count( name ))
 	{
-		auto& val = *(m_dup_prop_map[name].get());
+        auto& val = *(m_dup_prop_map[name].get());
 		_variant_t var;
 
 		if (pnpi->prop->GetValue(&var))
@@ -148,16 +148,15 @@ void CDialogProperty::LoadProperties(bool reload)
 		m_dup_prop_map = m_parent->get_config_prop().get_val();
 	}
 
-    for (auto& elem : m_dup_prop_map)
+    for (const auto& [name, pSerializedValue] : m_dup_prop_map)
     {
-        std::wstring name( elem.first );
         HPROPERTY hProp = nullptr;        
         _variant_t var;
         VariantInit( &var );
 
-        auto& serializedValue = *(elem.second);
+        auto& serializedValue = *pSerializedValue;
 
-        switch ( elem.second->type )
+        switch ( serializedValue.type )
         {
         case mozjs::JsValueType::pt_boolean:
         {

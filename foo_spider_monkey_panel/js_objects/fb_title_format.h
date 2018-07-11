@@ -1,5 +1,7 @@
 #pragma once
 
+#include <js_objects/object_base.h>
+
 #include <optional>
 #include <string>
 
@@ -14,14 +16,22 @@ class JsFbMetadbHandle;
 class JsFbMetadbHandleList;
 
 class JsFbTitleFormat
+    : public JsObjectBase<JsFbTitleFormat>
 {
+public:
+    static constexpr bool HasProto = true;
+    static constexpr bool HasProxy = false;
+
+    static const JSClass JsClass;
+    static const JSFunctionSpec* JsFunctions;
+    static const JSPropertySpec* JsProperties;
+
 public:
     ~JsFbTitleFormat();
 
-    static JSObject* Create( JSContext* cx, const pfc::string8_fast& expr );
+    static std::unique_ptr<JsFbTitleFormat> CreateNative( JSContext* cx, const pfc::string8_fast& expr );
 
-    static const JSClass& GetClass();
-
+public:
     titleformat_object::ptr GetTitleFormat();
 
 public:

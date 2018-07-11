@@ -41,7 +41,7 @@ pfc::string8_fast MessageFromErrorCode( DWORD errorCode )
         return pfc::string8_fast();
     }
 
-    scope::unique_ptr<std::remove_pointer_t<LPVOID>> scopedMsg( lpMsgBuf, []( LPVOID buf )
+    scope::unique_ptr<std::remove_pointer_t<LPVOID>> scopedMsg( lpMsgBuf, []( auto buf )
     {
         LocalFree( buf );
     } );

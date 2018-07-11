@@ -34,9 +34,13 @@ public:
 class JsContainer;
 class JsGdiFont;
 class JsFbMetadbHandle;
+class JsFbTitleFormat;
 
 class JsGlobalObject
 {
+public:
+    static constexpr uint8_t kMaxProtoSlotSize = 40;
+
 public:
     ~JsGlobalObject();
 
@@ -69,7 +73,14 @@ public: // proto
         return GetObjectFromSlot<T>( globalObject, fbMetadbHandle_protoSlot_ );
     }
 
-public: // heap
+    template <typename T>
+    typename std::enable_if<std::is_same_v<T, JsFbTitleFormat>, JSObject*>::type
+        GetPrototype( JS::HandleObject globalObject )
+    {
+        return GetObjectFromSlot<T>( globalObject, fbTitleFormat_protoSlot_ );
+    }
+
+public: // TODO: move heap functionality to a separate class
     void RegisterHeapUser( IHeapUser* heapUser );
     void UnregisterHeapUser( IHeapUser* heapUser );
 
@@ -117,6 +128,7 @@ private: // proto
 
     size_t activeX_protoSlot_ = 0;
     size_t fbMetadbHandle_protoSlot_ = 0;
+    size_t fbTitleFormat_protoSlot_ = 0;
     size_t gdiFont_protoSlot_ = 0;
 
 private: // heap
@@ -133,7 +145,7 @@ private: // heap
         JS::Heap<JS::Value> value;
     };
     std::mutex heapElementsLock_;
-    std::unordered_map<uint32_t, std::shared_ptr<HeapElement>> heapElements_;
+    std::unordered_map<uint32_t, std::unique_ptr<HeapElement>> heapElements_;
 
     std::mutex heapUsersLock_;
     std::unordered_map<IHeapUser*, IHeapUser*> heapUsers_;

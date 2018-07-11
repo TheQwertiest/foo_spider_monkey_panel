@@ -1563,10 +1563,10 @@ bool ActiveX::SetupMembers( JSContext* cx, JS::HandleObject obj )
             PropInfo * p = Find( (wchar_t*)name );
             if ( !p )
             {
-                p = new ActiveX::PropInfo( (wchar_t*)name );
+                auto& [it, bRet] = properties_.emplace( name, std::make_unique<PropInfo>( (wchar_t*)name ) );
+                p = it->second.get();
             }
             p->Get = p->Put = true;
-            properties_[name] = std::shared_ptr<PropInfo>( p );
 
             JS_DefineUCProperty( cx, obj, (char16_t*)name, SysStringLen( name ),
                                  ActiveX_JSGet, ActiveX_JSSet, JSPROP_ENUMERATE );
@@ -1606,11 +1606,9 @@ bool ActiveX::SetupMembers( JSContext* cx, JS::HandleObject obj )
             else
             {
                 PropInfo * p = Find( (wchar_t*)name );
-
                 if ( !p )
                 {
-                    p = new PropInfo( (wchar_t*)name );
-                    properties_[name] = std::shared_ptr<PropInfo>( p );
+                    properties_.emplace( name, std::make_unique<PropInfo>( (wchar_t*)name ) );
                     JS_DefineUCProperty( cx, obj, (char16_t*)name,
                                          SysStringLen( name ), ActiveX_JSGet, ActiveX_JSSet, JSPROP_ENUMERATE );
                 }

@@ -20,7 +20,7 @@ prop_kv_config::get_config_item(const std::wstring& propName)
 
 void prop_kv_config::set_config_item(const std::wstring& propName, const mozjs::SerializedJsValue& serializedValue )
 {
-    m_map[propName] = std::make_shared<mozjs::SerializedJsValue>( serializedValue );
+    m_map.emplace(propName, std::make_shared<mozjs::SerializedJsValue>( serializedValue ));
 }
 
 void prop_kv_config::remove_config_item( const std::wstring& propName )
@@ -78,7 +78,7 @@ void prop_kv_config::g_load(config_map& data, stream_reader* reader, abort_callb
             }
 
             pfc::stringcvt::string_wide_from_utf8 propnameW( pfcPropName.c_str(), pfcPropName.length() );
-            data[propnameW.get_ptr()] = std::make_shared<mozjs::SerializedJsValue>( serializedValue );
+            data.emplace(propnameW.get_ptr(), std::make_shared<mozjs::SerializedJsValue>( serializedValue ));
 		}
 	}
 	catch (...)
@@ -92,17 +92,17 @@ void prop_kv_config::g_save(const config_map& data, stream_writer* writer, abort
 	{
 		writer->write_lendian_t(static_cast<uint32_t>(data.size()), abort);
 
-        for (auto& elem : data)
+        for (const auto& [name, pValue] : data)
         {
-            pfc::stringcvt::string_utf8_from_wide propNameW( elem.first.c_str(), elem.first.length() );
+            pfc::stringcvt::string_utf8_from_wide propNameW( name.c_str(), name.length() );
             writer->write_string( propNameW.get_ptr(), propNameW.length(), abort );
 
-            auto& serializedValue = *(elem.second);
+            const auto& serializedValue = *pValue;
 
             uint32_t valueType = static_cast<uint32_t>(serializedValue.type);
             writer->write_lendian_t( valueType, abort );
             
-            switch ( elem.second->type )
+            switch ( serializedValue.type )
             {
             case mozjs::JsValueType::pt_boolean:
             {

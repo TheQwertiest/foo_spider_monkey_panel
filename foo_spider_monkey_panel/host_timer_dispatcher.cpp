@@ -122,8 +122,8 @@ uint32_t HostTimerDispatcher::createTimer(HWND hWnd, uint32_t delay, bool isRepe
         id = m_curTimerId++;
     }
 
-    m_timerMap.emplace(id, std::make_shared<TimerObject>( new HostTimer( hWnd, id, delay, isRepeated ), 
-                                                          new HostTimerTask( cx, jsFunction ) ) );
+    m_timerMap.emplace(id, std::make_unique<TimerObject>( std::make_unique<HostTimer>( hWnd, id, delay, isRepeated ),
+                                                          std::make_unique<HostTimerTask>( cx, jsFunction ) ) );
 
     if (!m_timerMap[id]->timer->start(m_hTimerQueue))
     {

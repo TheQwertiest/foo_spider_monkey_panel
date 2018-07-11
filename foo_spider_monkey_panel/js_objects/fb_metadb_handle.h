@@ -24,8 +24,6 @@ public:
     static const JSPropertySpec* JsProperties;
 
 public:
-    JsFbMetadbHandle( const JsFbMetadbHandle& ) = delete;
-    JsFbMetadbHandle& operator=( const JsFbMetadbHandle& ) = delete;
     ~JsFbMetadbHandle();
 
     static std::unique_ptr<JsFbMetadbHandle> CreateNative( JSContext* cx, const metadb_handle_ptr& handle );    

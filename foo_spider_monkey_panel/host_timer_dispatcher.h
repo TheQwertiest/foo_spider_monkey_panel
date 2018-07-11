@@ -71,15 +71,15 @@ private: //thread
 private:
     struct TimerObject
     {
-        TimerObject( HostTimer* timerArg, HostTimerTask* taskArg )
-            : timer( timerArg )
-            , task( taskArg )
+        TimerObject( std::unique_ptr<HostTimer> timerArg, std::unique_ptr<HostTimerTask> taskArg )
         {
+            timer.swap( timerArg );
+            task = std::move(taskArg);
         }
         std::unique_ptr<HostTimer> timer;
         std::shared_ptr<HostTimerTask> task;
     };
-    using TimerMap = std::map<unsigned, std::shared_ptr<TimerObject>>;
+    using TimerMap = std::map<uint32_t, std::unique_ptr<TimerObject>>;
 
 	HANDLE m_hTimerQueue = nullptr;
 	std::mutex m_timerMutex;

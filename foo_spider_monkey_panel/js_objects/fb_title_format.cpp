@@ -53,39 +53,24 @@ const JSPropertySpec jsProperties[] = {
 namespace mozjs
 {
 
+const JSClass JsFbTitleFormat::JsClass = jsClass;
+const JSFunctionSpec* JsFbTitleFormat::JsFunctions = jsFunctions;
+const JSPropertySpec* JsFbTitleFormat::JsProperties = jsProperties;
+
 JsFbTitleFormat::JsFbTitleFormat( JSContext* cx, const pfc::string8_fast& expr )
     : pJsCtx_( cx )
 {
     titleformat_compiler::get()->compile_safe( titleFormatObject_, expr.c_str() );
 }
 
+
 JsFbTitleFormat::~JsFbTitleFormat()
 {
 }
 
-JSObject* JsFbTitleFormat::Create( JSContext* cx, const pfc::string8_fast& expr )
+std::unique_ptr<JsFbTitleFormat> JsFbTitleFormat::CreateNative( JSContext* cx, const pfc::string8_fast& expr )
 {
-    JS::RootedObject jsObj( cx,
-                            JS_NewObject( cx, &jsClass ) );
-    if ( !jsObj )
-    {
-        return nullptr;
-    }
-
-    if ( !JS_DefineFunctions( cx, jsObj, jsFunctions )
-         || !JS_DefineProperties( cx, jsObj, jsProperties ) )
-    {
-        return nullptr;
-    }
-
-    JS_SetPrivate( jsObj, new JsFbTitleFormat( cx, expr ) );
-
-    return jsObj;
-}
-
-const JSClass& JsFbTitleFormat::GetClass()
-{
-    return jsClass;
+    return std::unique_ptr<JsFbTitleFormat>( new JsFbTitleFormat( cx, expr ) );
 }
 
 titleformat_object::ptr JsFbTitleFormat::GetTitleFormat()

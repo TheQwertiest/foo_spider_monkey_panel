@@ -104,7 +104,7 @@ JsFbProperties::GetProperty( const std::wstring& propName, JS::HandleValue propD
             if ( DeserializeJsValue( pJsCtx_, prop.value(), &jsProp ) )
             {
                 hasProperty = true;
-                properties_.emplace( trimmedPropName, std::make_shared<HeapElement>( jsProp ) );
+                properties_.emplace( trimmedPropName, std::make_unique<HeapElement>( jsProp ) );
             }
         }        
     }
@@ -145,7 +145,7 @@ bool JsFbProperties::SetProperty( const std::wstring& propName, JS::HandleValue 
         return false;
     }
 
-    properties_[trimmedPropName] = std::make_shared<HeapElement>( propValue );
+    properties_.emplace(trimmedPropName, std::make_unique<HeapElement>( propValue ));
     parentPanel_.get_config_prop().set_config_item( trimmedPropName, serializedValue.value() );
     
     return true;
@@ -157,9 +157,9 @@ void JsFbProperties::TraceHeapValue( JSTracer *trc, void *data )
     auto jsObject = static_cast<JsFbProperties*>( data );
     auto& properties = jsObject->properties_;
     
-    for ( auto& elem : properties )
+    for ( auto& [name,heapElem] : properties )
     {
-        JS::TraceEdge( trc, &(elem.second->value), "CustomHeap_Properties" );
+        JS::TraceEdge( trc, &heapElem->value, "CustomHeap_Properties" );
     }
 }
 

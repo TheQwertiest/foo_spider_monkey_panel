@@ -3,6 +3,7 @@
 
 #include <js_engine/js_container.h>
 #include <js_utils/js_error_helper.h>
+#include <js_utils/scope_helper.h>
 
 #include <js_panel_window.h>
 
@@ -38,12 +39,9 @@ JSContext * JsEngine::GetJsContext() const
 
 bool JsEngine::RegisterPanel( js_panel_window& panel, JsContainer& jsContainer )
 {
-    if ( !registeredPanels_.size() )
+    if ( !registeredContainers_.size() && !Initialize() )
     {
-        if ( !Initialize() )
-        {
-            return false;
-        }
+        return false;
     }
 
     if ( !jsContainer.Prepare( pJsCtx_, panel ) )
@@ -51,20 +49,20 @@ bool JsEngine::RegisterPanel( js_panel_window& panel, JsContainer& jsContainer )
         return false;
     }
 
-    registeredPanels_.insert_or_assign( panel.GetHWND(), jsContainer);
+    registeredContainers_.insert_or_assign( panel.GetHWND(), jsContainer);
     return true;
 }
 
 void JsEngine::UnregisterPanel( js_panel_window& parentPanel )
 {
-    auto elem = registeredPanels_.find( parentPanel.GetHWND() );
-    if ( elem != registeredPanels_.end() )
+    auto elem = registeredContainers_.find( parentPanel.GetHWND() );
+    if ( elem != registeredContainers_.end() )
     {
         elem->second.get().Finalize();
-        registeredPanels_.erase( elem );
+        registeredContainers_.erase( elem );
     }
     
-    if ( !registeredPanels_.size() )
+    if ( !registeredContainers_.size() )
     {
         Finalize();
     }
@@ -84,13 +82,10 @@ bool JsEngine::Initialize()
         return false;
     }
 
-    std::unique_ptr<JSContext, void( *)(JSContext *)> autoJsCtx(
-        pJsCtx,
-        []( JSContext* pCtx )
+    scope::unique_ptr<JSContext> autoJsCtx( pJsCtx, []( auto pCtx )
     {
         JS_DestroyContext( pCtx );
-    }
-    );
+    } );
 
     // TODO: JS::SetWarningReporter( pJsCtx_ )
 
@@ -112,9 +107,9 @@ void JsEngine::Finalize()
 {
     if (pJsCtx_)
     {
-        for (auto& elem : registeredPanels_ )
+        for (auto& [hWnd, jsContainer] : registeredContainers_ )
         {
-            elem.second.get().Finalize();
+            jsContainer.get().Finalize();
         }
 
         JS_DestroyContext( pJsCtx_ );
