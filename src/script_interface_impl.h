@@ -4,52 +4,6 @@
 #include "com_tools.h"
 #include "helpers.h"
 
-template <class T, class T2>
-class GdiObj : public MyIDispatchImpl<T>
-{
-	BEGIN_COM_QI_IMPL()
-		COM_QI_ENTRY_MULTI(IUnknown, IDispatch)
-		COM_QI_ENTRY(T)
-		COM_QI_ENTRY(IGdiObj)
-		COM_QI_ENTRY(IDisposable)
-		COM_QI_ENTRY(IDispatch)
-	END_COM_QI_IMPL()
-
-protected:
-	T2* m_ptr;
-
-	GdiObj<T, T2>(T2* p) : m_ptr(p)
-	{
-	}
-
-	virtual ~GdiObj<T, T2>()
-	{
-	}
-
-	virtual void FinalRelease()
-	{
-		if (m_ptr)
-		{
-			delete m_ptr;
-			m_ptr = NULL;
-		}
-	}
-
-public:
-	// Default Dispose
-	STDMETHODIMP Dispose()
-	{
-		FinalRelease();
-		return S_OK;
-	}
-
-	STDMETHODIMP get__ptr(void** pp)
-	{
-		*pp = m_ptr;
-		return S_OK;
-	}
-};
-
 class ContextMenuManager : public IDisposableImpl4<IContextMenuManager>
 {
 protected:
@@ -69,28 +23,26 @@ public:
 class DropSourceAction : public IDisposableImpl4<IDropSourceAction>
 {
 protected:
-	// -1 means active playlist
-	int m_playlist_idx;
-	t_size m_base;
-	bool m_to_select;
 	DWORD m_effect;
+	bool m_to_select;
+	t_size m_base;
+	t_size m_playlist_idx;
 
 	DropSourceAction();
 	virtual ~DropSourceAction();
 	virtual void FinalRelease();
 
 public:
-	void Reset();
-
-	t_size& Base();
-	int& Playlist();
-	bool& ToSelect();
 	DWORD& Effect();
+	bool& ToSelect();
+	t_size& Base();
+	t_size& Playlist();
+	void Reset();
 
 	STDMETHODIMP get_Effect(UINT* effect);
 	STDMETHODIMP put_Base(UINT base);
 	STDMETHODIMP put_Effect(UINT effect);
-	STDMETHODIMP put_Playlist(int id);
+	STDMETHODIMP put_Playlist(UINT id);
 	STDMETHODIMP put_ToSelect(VARIANT_BOOL to_select);
 };
 

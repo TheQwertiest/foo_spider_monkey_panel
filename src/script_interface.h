@@ -457,7 +457,7 @@ __interface IDropSourceAction : IDisposable
 	[propget] STDMETHOD(Effect)([out, retval] UINT* effect);
 	[propput] STDMETHOD(Base)(UINT base);
 	[propput] STDMETHOD(Effect)(UINT effect);
-	[propput] STDMETHOD(Playlist)(int id);
+	[propput] STDMETHOD(Playlist)(UINT id);
 	[propput] STDMETHOD(ToSelect)(VARIANT_BOOL to_select);
 };
 

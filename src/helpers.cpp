@@ -157,11 +157,10 @@ namespace helpers
 
 	bool execute_context_command_by_name(const char* p_name, metadb_handle_list_cref p_handles, unsigned flags)
 	{
-		contextmenu_node* node = NULL;
-
 		contextmenu_manager::ptr cm;
-		pfc::string8_fast dummy("");
 		contextmenu_manager::g_create(cm);
+		contextmenu_node* node = NULL;
+		pfc::string8_fast dummy("");
 
 		if (p_handles.get_count() > 0)
 		{
@@ -172,12 +171,7 @@ namespace helpers
 			cm->init_context_now_playing(flags);
 		}
 
-		if (!find_context_command_recur(p_name, dummy, cm->get_root(), node))
-		{
-			return false;
-		}
-
-		if (node)
+		if (find_context_command_recur(p_name, dummy, cm->get_root(), node) && node)
 		{
 			node->execute();
 			return true;

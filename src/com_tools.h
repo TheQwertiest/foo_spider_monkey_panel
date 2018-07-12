@@ -177,6 +177,52 @@ public:
 	}
 };
 
+template <class T, class T2>
+class GdiObj : public MyIDispatchImpl<T>
+{
+	BEGIN_COM_QI_IMPL()
+		COM_QI_ENTRY_MULTI(IUnknown, IDispatch)
+		COM_QI_ENTRY(T)
+		COM_QI_ENTRY(IGdiObj)
+		COM_QI_ENTRY(IDisposable)
+		COM_QI_ENTRY(IDispatch)
+		END_COM_QI_IMPL()
+
+protected:
+	T2 * m_ptr;
+
+	GdiObj<T, T2>(T2* p) : m_ptr(p)
+	{
+	}
+
+	virtual ~GdiObj<T, T2>()
+	{
+	}
+
+	virtual void FinalRelease()
+	{
+		if (m_ptr)
+		{
+			delete m_ptr;
+			m_ptr = NULL;
+		}
+	}
+
+public:
+	// Default Dispose
+	STDMETHODIMP Dispose()
+	{
+		FinalRelease();
+		return S_OK;
+	}
+
+	STDMETHODIMP get__ptr(void** pp)
+	{
+		*pp = m_ptr;
+		return S_OK;
+	}
+};
+
 template <typename _Base, bool _AddRef = true>
 class com_object_impl_t : public _Base
 {

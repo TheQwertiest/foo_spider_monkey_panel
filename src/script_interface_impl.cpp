@@ -71,22 +71,9 @@ void DropSourceAction::FinalRelease()
 {
 }
 
-void DropSourceAction::Reset()
+DWORD& DropSourceAction::Effect()
 {
-	m_playlist_idx = -1;
-	m_base = 0;
-	m_to_select = true;
-	m_effect = DROPEFFECT_NONE;
-}
-
-UINT& DropSourceAction::Base()
-{
-	return m_base;
-}
-
-int& DropSourceAction::Playlist()
-{
-	return m_playlist_idx;
+	return m_effect;
 }
 
 bool& DropSourceAction::ToSelect()
@@ -94,9 +81,22 @@ bool& DropSourceAction::ToSelect()
 	return m_to_select;
 }
 
-DWORD& DropSourceAction::Effect()
+t_size& DropSourceAction::Base()
 {
-	return m_effect;
+	return m_base;
+}
+
+t_size& DropSourceAction::Playlist()
+{
+	return m_playlist_idx;
+}
+
+void DropSourceAction::Reset()
+{
+	m_playlist_idx = -1;
+	m_base = 0;
+	m_to_select = true;
+	m_effect = DROPEFFECT_NONE;
 }
 
 STDMETHODIMP DropSourceAction::get_Effect(UINT* effect)
@@ -119,7 +119,7 @@ STDMETHODIMP DropSourceAction::put_Effect(UINT effect)
 	return S_OK;
 }
 
-STDMETHODIMP DropSourceAction::put_Playlist(int id)
+STDMETHODIMP DropSourceAction::put_Playlist(UINT id)
 {
 	m_playlist_idx = id;
 	return S_OK;
@@ -1015,7 +1015,7 @@ STDMETHODIMP FbPlaylistManager::AddLocations(UINT playlistIndex, VARIANT locatio
 		NULL,
 		NULL,
 		NULL,
-		new service_impl_t<helpers::js_process_locations>(playlistIndex, base, select != VARIANT_FALSE));
+		new service_impl_t<helpers::js_process_locations>(select != VARIANT_FALSE, base, playlistIndex));
 
 	return S_OK;
 }
@@ -1721,13 +1721,7 @@ STDMETHODIMP FbTitleFormat::Eval(VARIANT_BOOL force, BSTR* pp)
 	if (!playback_control::get()->playback_format_title(NULL, text, m_obj, NULL, playback_control::display_level_all) && force != VARIANT_FALSE)
 	{
 		metadb_handle_ptr handle;
-
-		if (!metadb::g_get_random_handle(handle))
-		{
-			// HACK: A fake file handle should be okay
-			metadb::get()->handle_create(handle, make_playable_location("file://C:\\________.ogg", 0));
-		}
-
+		metadb::get()->handle_create(handle, make_playable_location("file://C:\\________.ogg", 0));
 		handle->format_title(NULL, text, m_obj, NULL);
 	}
 
