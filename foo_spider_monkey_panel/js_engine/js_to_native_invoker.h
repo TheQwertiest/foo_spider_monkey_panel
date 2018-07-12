@@ -194,6 +194,8 @@ bool InvokeNativeCallback_Impl( JSContext* cx,
 
     // TODO: check that object is not a prototype and move this code before arg checks.
     // if (GlobalPrivate.GetProto<BaseClass> == &jsObject) { JS_ReportErrorUTF8("Can't call on proto") }
+    // TODO: replace with JS_GetInstancePrivate, since apparently it is possible to apply objects method 
+    // to another altogether unrelated object of a different type
     BaseClass* baseClass;
     if constexpr(std::is_same_v<BaseClass, JsGlobalObject>)
     {// Global has undefined thisv 

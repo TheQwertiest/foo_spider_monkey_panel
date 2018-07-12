@@ -5,6 +5,7 @@
 #include <js_objects/fb_metadb_handle.h>
 #include <js_objects/fb_metadb_handle_list.h>
 #include <js_objects/gdi_bitmap.h>
+#include <js_utils/js_object_helper.h>
 
 namespace mozjs::convert::to_js
 {

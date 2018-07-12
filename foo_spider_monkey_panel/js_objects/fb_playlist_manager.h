@@ -97,6 +97,7 @@ private:
 
 private:
     JSContext * pJsCtx_ = nullptr;
+    // TODO: need to reset it manually via additional CleanUp method on global destruction
     JS::PersistentRootedObject jsPlaylistRecycler_;
 };
 

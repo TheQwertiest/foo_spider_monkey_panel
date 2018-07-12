@@ -39,9 +39,6 @@ class JsFbTitleFormat;
 class JsGlobalObject
 {
 public:
-    static constexpr uint8_t kMaxProtoSlotSize = 40;
-
-public:
     ~JsGlobalObject();
 
     static JSObject* Create( JSContext* cx, JsContainer &parentContainer, js_panel_window& parentPanel );
@@ -50,35 +47,6 @@ public:
 
 public:
     void Fail( pfc::string8_fast errorText );
-
-public: // proto
-    template <typename T>
-    typename std::enable_if<std::is_same_v<T, ActiveX>, JSObject*>::type
-        GetPrototype( JS::HandleObject globalObject )
-    {
-        return GetObjectFromSlot<T>( globalObject, activeX_protoSlot_ );
-    }
-
-    template <typename T>
-    typename std::enable_if<std::is_same_v<T, JsGdiFont>, JSObject*>::type
-        GetPrototype( JS::HandleObject globalObject )
-    {
-        return GetObjectFromSlot<T>( globalObject, gdiFont_protoSlot_ );
-    }
-
-    template <typename T>
-    typename std::enable_if<std::is_same_v<T, JsFbMetadbHandle>, JSObject*>::type
-        GetPrototype( JS::HandleObject globalObject )
-    {
-        return GetObjectFromSlot<T>( globalObject, fbMetadbHandle_protoSlot_ );
-    }
-
-    template <typename T>
-    typename std::enable_if<std::is_same_v<T, JsFbTitleFormat>, JSObject*>::type
-        GetPrototype( JS::HandleObject globalObject )
-    {
-        return GetObjectFromSlot<T>( globalObject, fbTitleFormat_protoSlot_ );
-    }
 
 public: // TODO: move heap functionality to a separate class
     void RegisterHeapUser( IHeapUser* heapUser );
@@ -92,24 +60,6 @@ public: // TODO: move heap functionality to a separate class
 
 public: // methods
     std::optional<std::nullptr_t> IncludeScript( const pfc::string8_fast& path );
-
-private:
-    template <typename T>
-    JSObject* GetObjectFromSlot( JS::HandleObject globalObject, uint32_t slotId )
-    {
-        assert( slotId );
-        assert( JS_GetPrivate( globalObject ) == this );
-
-        JS::Value& valRef = JS_GetReservedSlot( globalObject, slotId );
-        if ( !valRef.isObject() )
-        {
-            return nullptr;
-        }
-
-        return &valRef.toObject();
-    }
-
-    size_t AddProto( JS::HandleObject self, JSObject* proto );
 
 private:
     JsGlobalObject( JSContext* cx, JsContainer &parentContainer, js_panel_window& parentPanel );

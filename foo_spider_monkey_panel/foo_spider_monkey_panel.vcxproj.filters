@@ -447,9 +447,6 @@
     <ClInclude Include="js_objects\measure_string_info.h">
       <Filter>js_objects</Filter>
     </ClInclude>
-    <ClInclude Include="js_objects\_placeholder.h">
-      <Filter>js_objects</Filter>
-    </ClInclude>
     <ClInclude Include="js_utils\winapi_error_helper.h">
       <Filter>js_utils</Filter>
     </ClInclude>
@@ -475,6 +472,9 @@
       <Filter>js_utils</Filter>
     </ClInclude>
     <ClInclude Include="js_objects\object_base.h">
+      <Filter>js_objects</Filter>
+    </ClInclude>
+    <ClInclude Include="js_objects\prototype_ids.h">
       <Filter>js_objects</Filter>
     </ClInclude>
   </ItemGroup>

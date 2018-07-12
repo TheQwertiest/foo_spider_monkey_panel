@@ -8,6 +8,7 @@
 #include <js_engine/native_to_js_converter.h>
 #include <js_engine/js_to_native_invoker.h>
 #include <js_objects/global_object.h>
+#include <js_objects/prototype_ids.h>
 #include <js_utils/js_object_helper.h>
 
 #include <script_interface.h>
@@ -54,18 +55,21 @@ protected:
         assert( cx );
 
         JS::RootedObject funcObject( cx, JS_GetFunctionObject( jsFunction ) );
-        JS::RootedValue funcValue( cx, JS::ObjectValue( *funcObject ) );
+        assert( funcObject );
 
         JS::RootedObject jsGlobal( cx, JS::CurrentGlobalOrNull( cx ) );
         assert( jsGlobal );
-        JS::RootedValue globalValue( cx, JS::ObjectValue( *jsGlobal ) );
 
-        pNativeGlobal_ = mozjs::GetNativeFromJsObject<mozjs::JsGlobalObject>( cx, jsGlobal );
+        pNativeGlobal_ = static_cast<mozjs::JsGlobalObject*>(JS_GetInstancePrivate( cx, jsGlobal, &mozjs::JsGlobalObject::GetClass(), nullptr));
         assert( pNativeGlobal_ );
 
         pNativeGlobal_->RegisterHeapUser( this );
+
+        JS::RootedValue funcValue( cx, JS::ObjectValue( *funcObject ) );
         funcId_ = pNativeGlobal_->StoreToHeap( funcValue );
+        JS::RootedValue globalValue( cx, JS::ObjectValue( *jsGlobal ) );
         globalId_ = pNativeGlobal_->StoreToHeap( globalValue );
+
         needsCleanup_ = true;
     }
     /// @details Might be called off main thread
@@ -1281,11 +1285,11 @@ JSObject* ActiveX::Create( JSContext* cx, ActiveX* pPremadeNative )
         return nullptr;
     }
 
-    auto pNativeGlobal = static_cast<mozjs::JsGlobalObject*>(JS_GetPrivate( jsGlobal ));
-    assert( pNativeGlobal );
-
-    JS::RootedObject jsProto(cx, pNativeGlobal->GetPrototype<ActiveX>( jsGlobal ) );
-    assert( jsProto );
+    JS::RootedObject jsProto(cx, mozjs::GetPrototype<ActiveX>(cx, jsGlobal, mozjs::JsPrototypeId::ActiveX ) );
+    if ( !jsProto )
+    {// report in GetPrototype
+        return nullptr;
+    }
 
     JS::RootedObject jsObj( cx,
                             JS_NewObjectWithGivenProto( cx, &jsClass, jsProto ) );

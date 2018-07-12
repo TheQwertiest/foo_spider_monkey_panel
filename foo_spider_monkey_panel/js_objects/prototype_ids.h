@@ -1,0 +1,34 @@
+#pragma once
+
+#include <stdint.h>
+
+namespace mozjs
+{
+
+enum class JsPrototypeId
+    : uint32_t
+{
+    ActiveX,
+    ContextMenuManager,
+    DropSourceAction,
+    FbFileInfo,
+    FbMetadbHandle,
+    FbMetadbHandleList,
+    FbPlaybackQueueItem,
+    FbPlayingItemLocation,
+    FbProfiler,
+    FbTitleFormat,
+    FbTooltip,
+    FbUiSelectionHolder,
+    GdiBitmap,
+    GdiFont,
+    GdiGraphics,
+    GdiRawBitmap,
+    MainMenuManager,
+    MeasureStringInfo,
+    MenuObject,
+    ThemeManager,
+    ProrototypeCount
+};
+
+}

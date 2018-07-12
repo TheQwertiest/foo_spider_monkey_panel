@@ -61,6 +61,7 @@ namespace mozjs
 const JSClass JsGdiFont::JsClass = jsClass;
 const JSFunctionSpec* JsGdiFont::JsFunctions = jsFunctions;
 const JSPropertySpec* JsGdiFont::JsProperties = jsProperties;
+const JsPrototypeId JsGdiFont::PrototypeId = JsPrototypeId::GdiFont;
 
 JsGdiFont::JsGdiFont( JSContext* cx, std::unique_ptr<Gdiplus::Font> gdiFont, HFONT hFont, bool isManaged )
     : pJsCtx_( cx )

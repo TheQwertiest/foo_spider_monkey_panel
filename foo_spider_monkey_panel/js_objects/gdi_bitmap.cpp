@@ -480,7 +480,7 @@ JsGdiBitmap::GetGraphics()
         return std::nullopt;
     }
 
-    JsGdiGraphics* pNativeObject = GetNativeFromJsObject<JsGdiGraphics>( pJsCtx_, jsObject );
+    JsGdiGraphics* pNativeObject = static_cast<JsGdiGraphics*>( JS_GetInstancePrivate( pJsCtx_, jsObject, &JsGdiGraphics::GetClass(), nullptr ));
     if ( !pNativeObject )
     {
         JS_ReportErrorUTF8( pJsCtx_, "Internal error: failed to get JsGdiGraphics object" );

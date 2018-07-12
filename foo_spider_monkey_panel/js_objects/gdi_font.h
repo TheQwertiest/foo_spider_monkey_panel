@@ -23,11 +23,13 @@ class JsGdiFont
 {
 public:
     static constexpr bool HasProto = true;
+    static constexpr bool HasGlobalProto = false;
     static constexpr bool HasProxy = false;
 
     static const JSClass JsClass;
     static const JSFunctionSpec* JsFunctions;
     static const JSPropertySpec* JsProperties;
+    static const JsPrototypeId PrototypeId;
 
 public:
     ~JsGdiFont();

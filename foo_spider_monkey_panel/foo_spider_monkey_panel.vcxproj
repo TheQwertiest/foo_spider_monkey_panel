@@ -206,10 +206,10 @@
     <ClInclude Include="js_objects\main_menu_manager.h" />
     <ClInclude Include="js_objects\measure_string_info.h" />
     <ClInclude Include="js_objects\menu_object.h" />
+    <ClInclude Include="js_objects\prototype_ids.h" />
     <ClInclude Include="js_objects\theme_manager.h" />
     <ClInclude Include="js_objects\utils.h" />
     <ClInclude Include="js_objects\window.h" />
-    <ClInclude Include="js_objects\_placeholder.h" />
     <ClInclude Include="js_utils\art_helper.h" />
     <ClInclude Include="js_utils\gdi_error_helper.h" />
     <ClInclude Include="js_utils\image_helper.h" />

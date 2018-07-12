@@ -13,6 +13,7 @@
 #include <js_objects/gdi_font.h>
 #include <js_objects/utils.h>
 #include <js_objects/window.h>
+#include <js_objects/prototype_ids.h>
 #include <js_utils/js_object_helper.h>
 #include <js_utils/js_error_helper.h>
 
@@ -46,7 +47,7 @@ JSClassOps jsOps = {
 
 JSClass jsClass = {
      "Global",
-     JSCLASS_GLOBAL_FLAGS_WITH_SLOTS( JsGlobalObject::kMaxProtoSlotSize ) | DefaultClassFlags(),
+     JSCLASS_GLOBAL_FLAGS_WITH_SLOTS( static_cast<uint32_t>(JsPrototypeId::ProrototypeCount) ) | DefaultClassFlags(),
      &jsOps
 };
 
@@ -132,17 +133,15 @@ JSObject* JsGlobalObject::Create( JSContext* cx, JsContainer &parentContainer, j
         auto pNative = new JsGlobalObject( cx, parentContainer, parentPanel );
         JS_SetPrivate( jsObj, pNative );
 
-        pNative->activeX_protoSlot_ = pNative->AddProto( jsObj, ActiveX::InitPrototype( cx, jsObj ) );
-        pNative->fbMetadbHandle_protoSlot_ = pNative->AddProto( jsObj, JsFbMetadbHandle::CreateProto( cx ) );
-        pNative->fbTitleFormat_protoSlot_ = pNative->AddProto( jsObj, JsFbTitleFormat::CreateProto( cx ) );
-        pNative->gdiFont_protoSlot_ = pNative->AddProto( jsObj, JsGdiFont::CreateProto( cx ) );
-        if ( !pNative->gdiFont_protoSlot_
-             || !pNative->fbMetadbHandle_protoSlot_
-             || !pNative->fbTitleFormat_protoSlot_
-             || !pNative->activeX_protoSlot_ )
-        {
+        // TODO: remove or replace with CreateAndInstall
+        JS::RootedObject jsProto( cx, ActiveX::InitPrototype( cx, jsObj ) );
+        if ( !jsProto )
+        {// report in InitPrototype
             return nullptr;
         }
+
+        JS::Value protoVal = JS::ObjectValue( *jsProto );
+        JS_SetReservedSlot( jsObj, static_cast<uint32_t>(JsPrototypeId::ActiveX), protoVal );
         
         if ( !JS_AddExtraGCRootsTracer( cx, JsGlobalObject::TraceHeapValue, pNative ) )
         {
@@ -153,19 +152,6 @@ JSObject* JsGlobalObject::Create( JSContext* cx, JsContainer &parentContainer, j
     }
 
     return jsObj;
-}
-
-size_t JsGlobalObject::AddProto( JS::HandleObject self, JSObject* proto )
-{
-    if ( !proto )
-    {
-        return 0;
-    }
-
-    assert( kMaxProtoSlotSize > curProtoSlotIdx_ );   
-    JS::Value protoVal = JS::ObjectValue( *proto );
-    JS_SetReservedSlot( self, curProtoSlotIdx_, protoVal );
-    return curProtoSlotIdx_++;
 }
 
 const JSClass& JsGlobalObject::GetClass()

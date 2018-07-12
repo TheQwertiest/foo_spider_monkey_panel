@@ -6,6 +6,8 @@
 #include <jsapi.h>
 #pragma warning( pop )  
 
+#include <js_objects/prototype_ids.h>
+
 namespace mozjs
 {
 
@@ -30,6 +32,7 @@ void JsFinalizeOp( [[maybe_unused]] JSFreeOp* fop, JSObject* obj )
     }
 }
 
+/// @details Used to define write-only property with JS_PSGS
 bool DummyGetter( JSContext* cx, unsigned argc, JS::Value* vp );
 
 template<typename FuncType, typename ...ArgsType>
@@ -49,33 +52,85 @@ bool CreateAndInstallObject( JSContext* cx, JS::HandleObject parentObject, const
     return true;
 }
 
-// TODO: remove this shit
-
-JSObject* GetJsObjectFromValue( JSContext* cx, JS::HandleValue jsValue );
-
-template <typename NativeType>
-NativeType* GetNativeFromJsObject( JSContext* cx, JS::HandleObject jsObject )
+template<typename JsObjectType>
+bool CreateAndSavePrototype( JSContext* cx, JS::HandleObject parentObject, JsPrototypeId protoId )
 {
-    if ( !jsObject )
-    {
-        return nullptr;
+    uint32_t slotIdx = static_cast<uint32_t>( protoId );
+    assert( parentObject );
+    assert( slotIdx < JSCLASS_RESERVED_SLOTS( JS_GetClass( parentObject ) ) );
+    
+    JS::RootedObject jsProto( cx, JsObjectType::CreateProto(cx) );
+    if ( !jsProto )
+    {// report in CreateProto
+        return false;
     }
 
-    const JSClass * jsClass = JS_GetClass( jsObject );
-    if ( !jsClass
-         || !( jsClass->flags & JSCLASS_HAS_PRIVATE ) )
-    {
-        return nullptr;
-    }
+    JS::Value protoVal = JS::ObjectValue( *jsProto );
+    JS_SetReservedSlot( parentObject, slotIdx, protoVal );
 
-    return static_cast<NativeType *>( JS_GetInstancePrivate( cx, jsObject, &NativeType::GetClass(), nullptr ) );
+    return true;
 }
 
-template <typename NativeType>
-NativeType* GetNativeFromJsValue( JSContext* cx, JS::HandleValue jsValue )
+template<typename JsObjectType>
+bool CreateAndInstallPrototype( JSContext* cx, JS::HandleObject parentObject, JsPrototypeId protoId )
 {
-    JS::RootedObject jsObject( cx, GetJsObjectFromValue( cx, jsValue ) );
-    return GetNativeFromJsObject<NativeType>( cx, jsObject );
+    uint32_t slotIdx = static_cast<uint32_t>( protoId );
+    assert( parentObject );
+    assert( slotIdx < JSCLASS_RESERVED_SLOTS( JS_GetClass( parentObject ) ) );
+
+    JS::RootedObject jsProto( cx, JsObjectType::InstallProto( cx, parentObject ) );
+    if ( !jsProto )
+    {// report in CreateProto
+        return false;
+    }
+
+    JS::Value protoVal = JS::ObjectValue( *jsProto );
+    JS_SetReservedSlot( parentObject, slotIdx, protoVal );
+
+    return true;
+}
+
+template<typename JsObjectType>
+JSObject* GetPrototype( JSContext* cx, JS::HandleObject parentObject, JsPrototypeId protoId )
+{
+    uint32_t slotIdx = static_cast<uint32_t>( protoId );
+    assert( parentObject );
+    assert( slotIdx < JSCLASS_RESERVED_SLOTS( JS_GetClass( parentObject ) ) );
+
+    JS::Value& valRef = JS_GetReservedSlot( parentObject, slotIdx );
+    if ( !valRef.isObject() )
+    {
+        JS_ReportErrorUTF8(cx, "Internal error: Slot %ud does not contain a prototype", slotIdx );
+        return nullptr;
+    }
+
+    return &valRef.toObject();
+}
+
+template<typename JsObjectType>
+JSObject* GetOrCreatePrototype( JSContext* cx, JS::HandleObject parentObject, JsPrototypeId protoId )
+{
+    uint32_t slotIdx = static_cast<uint32_t>( protoId );
+    assert( parentObject );
+    assert( slotIdx < JSCLASS_RESERVED_SLOTS( JS_GetClass( parentObject ) ) );
+
+    {
+        JS::Value& valRef = JS_GetReservedSlot( parentObject, slotIdx );
+        if ( valRef.isObject() )
+        {
+            return &valRef.toObject();
+        }
+    }
+
+    if ( !CreateAndSavePrototype<JsObjectType>( cx, parentObject, protoId ) )
+    {// report in CreateAndSavePrototype
+        return nullptr;
+    }
+
+    JS::Value& valRef = JS_GetReservedSlot( parentObject, slotIdx );
+    assert( valRef.isObject() );
+
+    return &valRef.toObject();
 }
 
 }

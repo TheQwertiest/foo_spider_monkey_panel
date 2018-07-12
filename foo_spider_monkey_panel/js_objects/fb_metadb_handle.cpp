@@ -82,6 +82,7 @@ namespace mozjs
 const JSClass JsFbMetadbHandle::JsClass = jsClass;
 const JSFunctionSpec* JsFbMetadbHandle::JsFunctions = jsFunctions;
 const JSPropertySpec* JsFbMetadbHandle::JsProperties = jsProperties;
+const JsPrototypeId JsFbMetadbHandle::PrototypeId = JsPrototypeId::FbMetadbHandle;
 
 JsFbMetadbHandle::JsFbMetadbHandle( JSContext* cx, const metadb_handle_ptr& handle )
     : pJsCtx_( cx )

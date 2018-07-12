@@ -56,6 +56,7 @@ namespace mozjs
 const JSClass JsFbTitleFormat::JsClass = jsClass;
 const JSFunctionSpec* JsFbTitleFormat::JsFunctions = jsFunctions;
 const JSPropertySpec* JsFbTitleFormat::JsProperties = jsProperties;
+const JsPrototypeId JsFbTitleFormat::PrototypeId = JsPrototypeId::FbTitleFormat;
 
 JsFbTitleFormat::JsFbTitleFormat( JSContext* cx, const pfc::string8_fast& expr )
     : pJsCtx_( cx )
