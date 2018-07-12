@@ -128,7 +128,7 @@ JsFbPlaylistRecyclerManager::Purge( JS::HandleValue affectedItems )
     {
         if ( !JS_GetElement( pJsCtx_, jsObject, i, &arrayElement ) )
         {
-            JS_ReportErrorUTF8( pJsCtx_, "Failed to get affectedItems[%ud]", i );
+            JS_ReportErrorUTF8( pJsCtx_, "Failed to get affectedItems[%u]", i );
             return std::nullopt;
         }
 
@@ -136,7 +136,7 @@ JsFbPlaylistRecyclerManager::Purge( JS::HandleValue affectedItems )
         uint32_t affectedIdx( convert::to_native::ToValue<uint32_t>( pJsCtx_, arrayElement, isValid ) );
         if ( !isValid )
         {
-            JS_ReportErrorUTF8( pJsCtx_, "affectedItems[%ud] can't be converted to number" );
+            JS_ReportErrorUTF8( pJsCtx_, "affectedItems[%u] can't be converted to number" );
             return std::nullopt;
         }
 

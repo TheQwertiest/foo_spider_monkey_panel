@@ -139,9 +139,9 @@ JSObject* JsGlobalObject::Create( JSContext* cx, JsContainer &parentContainer, j
         {// report in InitPrototype
             return nullptr;
         }
-
+        
         JS::Value protoVal = JS::ObjectValue( *jsProto );
-        JS_SetReservedSlot( jsObj, static_cast<uint32_t>(JsPrototypeId::ActiveX), protoVal );
+        JS_SetReservedSlot( jsObj, JSCLASS_GLOBAL_SLOT_COUNT + static_cast<uint32_t>(JsPrototypeId::ActiveX), protoVal );
         
         if ( !JS_AddExtraGCRootsTracer( cx, JsGlobalObject::TraceHeapValue, pNative ) )
         {

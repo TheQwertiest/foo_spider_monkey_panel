@@ -53,12 +53,13 @@ bool CreateAndInstallObject( JSContext* cx, JS::HandleObject parentObject, const
 }
 
 template<typename JsObjectType>
-bool CreateAndSavePrototype( JSContext* cx, JS::HandleObject parentObject, JsPrototypeId protoId )
+bool CreateAndSavePrototype( JSContext* cx, JS::HandleObject globalObject, JsPrototypeId protoId )
 {
-    uint32_t slotIdx = static_cast<uint32_t>( protoId );
-    assert( parentObject );
-    assert( slotIdx < JSCLASS_RESERVED_SLOTS( JS_GetClass( parentObject ) ) );
-    
+    uint32_t slotIdx = JSCLASS_GLOBAL_SLOT_COUNT + static_cast<uint32_t>( protoId );
+    assert( globalObject );
+    assert( JS::CurrentGlobalOrNull( cx ) == globalObject );
+    assert( slotIdx < JSCLASS_RESERVED_SLOTS( JS_GetClass( globalObject ) ) );
+
     JS::RootedObject jsProto( cx, JsObjectType::CreateProto(cx) );
     if ( !jsProto )
     {// report in CreateProto
@@ -66,41 +67,43 @@ bool CreateAndSavePrototype( JSContext* cx, JS::HandleObject parentObject, JsPro
     }
 
     JS::Value protoVal = JS::ObjectValue( *jsProto );
-    JS_SetReservedSlot( parentObject, slotIdx, protoVal );
+    JS_SetReservedSlot( globalObject, slotIdx, protoVal );
 
     return true;
 }
 
 template<typename JsObjectType>
-bool CreateAndInstallPrototype( JSContext* cx, JS::HandleObject parentObject, JsPrototypeId protoId )
+bool CreateAndInstallPrototype( JSContext* cx, JS::HandleObject globalObject, JsPrototypeId protoId )
 {
-    uint32_t slotIdx = static_cast<uint32_t>( protoId );
-    assert( parentObject );
-    assert( slotIdx < JSCLASS_RESERVED_SLOTS( JS_GetClass( parentObject ) ) );
+    uint32_t slotIdx = JSCLASS_GLOBAL_SLOT_COUNT + static_cast<uint32_t>( protoId );
+    assert( globalObject );
+    assert( JS::CurrentGlobalOrNull( cx ) == globalObject );
+    assert( slotIdx < JSCLASS_RESERVED_SLOTS( JS_GetClass( globalObject ) ) );
 
-    JS::RootedObject jsProto( cx, JsObjectType::InstallProto( cx, parentObject ) );
+    JS::RootedObject jsProto( cx, JsObjectType::InstallProto( cx, globalObject ) );
     if ( !jsProto )
-    {// report in CreateProto
+    {// report in InstallProto
         return false;
     }
 
     JS::Value protoVal = JS::ObjectValue( *jsProto );
-    JS_SetReservedSlot( parentObject, slotIdx, protoVal );
+    JS_SetReservedSlot( globalObject, slotIdx, protoVal );
 
     return true;
 }
 
 template<typename JsObjectType>
-JSObject* GetPrototype( JSContext* cx, JS::HandleObject parentObject, JsPrototypeId protoId )
+JSObject* GetPrototype( JSContext* cx, JS::HandleObject globalObject, JsPrototypeId protoId )
 {
-    uint32_t slotIdx = static_cast<uint32_t>( protoId );
-    assert( parentObject );
-    assert( slotIdx < JSCLASS_RESERVED_SLOTS( JS_GetClass( parentObject ) ) );
+    uint32_t slotIdx = JSCLASS_GLOBAL_SLOT_COUNT + static_cast<uint32_t>( protoId );
+    assert( globalObject );
+    assert( JS::CurrentGlobalOrNull( cx ) == globalObject );
+    assert( slotIdx < JSCLASS_RESERVED_SLOTS( JS_GetClass( globalObject ) ) );
 
-    JS::Value& valRef = JS_GetReservedSlot( parentObject, slotIdx );
+    JS::Value& valRef = JS_GetReservedSlot( globalObject, slotIdx );
     if ( !valRef.isObject() )
     {
-        JS_ReportErrorUTF8(cx, "Internal error: Slot %ud does not contain a prototype", slotIdx );
+        JS_ReportErrorUTF8(cx, "Internal error: Slot %u does not contain a prototype", slotIdx );
         return nullptr;
     }
 
@@ -108,26 +111,27 @@ JSObject* GetPrototype( JSContext* cx, JS::HandleObject parentObject, JsPrototyp
 }
 
 template<typename JsObjectType>
-JSObject* GetOrCreatePrototype( JSContext* cx, JS::HandleObject parentObject, JsPrototypeId protoId )
+JSObject* GetOrCreatePrototype( JSContext* cx, JS::HandleObject globalObject, JsPrototypeId protoId )
 {
-    uint32_t slotIdx = static_cast<uint32_t>( protoId );
-    assert( parentObject );
-    assert( slotIdx < JSCLASS_RESERVED_SLOTS( JS_GetClass( parentObject ) ) );
+    uint32_t slotIdx = JSCLASS_GLOBAL_SLOT_COUNT + static_cast<uint32_t>( protoId );
+    assert( globalObject );
+    assert( JS::CurrentGlobalOrNull( cx ) == globalObject );
+    assert( slotIdx < JSCLASS_RESERVED_SLOTS( JS_GetClass( globalObject ) ) );
 
     {
-        JS::Value& valRef = JS_GetReservedSlot( parentObject, slotIdx );
+        JS::Value& valRef = JS_GetReservedSlot( globalObject, slotIdx );
         if ( valRef.isObject() )
         {
             return &valRef.toObject();
         }
     }
 
-    if ( !CreateAndSavePrototype<JsObjectType>( cx, parentObject, protoId ) )
+    if ( !CreateAndSavePrototype<JsObjectType>( cx, globalObject, protoId ) )
     {// report in CreateAndSavePrototype
         return nullptr;
     }
 
-    JS::Value& valRef = JS_GetReservedSlot( parentObject, slotIdx );
+    JS::Value& valRef = JS_GetReservedSlot( globalObject, slotIdx );
     assert( valRef.isObject() );
 
     return &valRef.toObject();

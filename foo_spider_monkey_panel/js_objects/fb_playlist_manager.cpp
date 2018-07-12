@@ -236,7 +236,7 @@ JsFbPlaylistManager::AddLocations( uint32_t playlistIndex, JS::HandleValue locat
     {
         if ( !JS_GetElement( pJsCtx_, jsObject, i, &arrayElement ) )
         {
-            JS_ReportErrorUTF8( pJsCtx_, "Failed to get locations[%ud]", i );
+            JS_ReportErrorUTF8( pJsCtx_, "Failed to get locations[%u]", i );
             return std::nullopt;
         }
 
@@ -244,7 +244,7 @@ JsFbPlaylistManager::AddLocations( uint32_t playlistIndex, JS::HandleValue locat
         pfc::string8_fast path( convert::to_native::ToValue<pfc::string8_fast>( pJsCtx_, arrayElement, isValid ) );
         if ( !isValid )
         {
-            JS_ReportErrorUTF8( pJsCtx_, "locations[%ud] is not a string" );
+            JS_ReportErrorUTF8( pJsCtx_, "locations[%u] is not a string", i );
             return std::nullopt;
         }
 
@@ -268,7 +268,7 @@ JsFbPlaylistManager::AddLocationsWithOpt( size_t optArgCount, uint32_t playlistI
 {
     if ( optArgCount > 1 )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
+        JS_ReportErrorUTF8( pJsCtx_, "Internal error: invalid number of optional arguments specified: %u", optArgCount );
         return std::nullopt;
     }
 
@@ -742,7 +742,7 @@ JsFbPlaylistManager::RemoveItemsFromPlaybackQueue( JS::HandleValue affectedItems
     {
         if ( !JS_GetElement( pJsCtx_, jsObject, i, &arrayElement ) )
         {
-            JS_ReportErrorUTF8( pJsCtx_, "Failed to get affectedItems[%ud]", i );
+            JS_ReportErrorUTF8( pJsCtx_, "Failed to get affectedItems[%u]", i );
             return std::nullopt;
         }
 
@@ -750,7 +750,7 @@ JsFbPlaylistManager::RemoveItemsFromPlaybackQueue( JS::HandleValue affectedItems
         uint32_t affectedIdx( convert::to_native::ToValue<uint32_t>( pJsCtx_, arrayElement, isValid ) );
         if ( !isValid )
         {
-            JS_ReportErrorUTF8( pJsCtx_, "affectedItems[%ud] can't be converted to number" );
+            JS_ReportErrorUTF8( pJsCtx_, "affectedItems[%u] can't be converted to number" );
             return std::nullopt;
         }
 
@@ -862,7 +862,7 @@ JsFbPlaylistManager::SetPlaylistSelection( uint32_t playlistIndex, JS::HandleVal
     {
         if ( !JS_GetElement( pJsCtx_, jsObject, i, &arrayElement ) )
         {
-            JS_ReportErrorUTF8( pJsCtx_, "Failed to get affectedItems[%ud]", i );
+            JS_ReportErrorUTF8( pJsCtx_, "Failed to get affectedItems[%u]", i );
             return std::nullopt;
         }
 
@@ -870,7 +870,7 @@ JsFbPlaylistManager::SetPlaylistSelection( uint32_t playlistIndex, JS::HandleVal
         uint32_t affectedIdx( convert::to_native::ToValue<uint32_t>( pJsCtx_, arrayElement, isValid ) );
         if ( !isValid )
         {
-            JS_ReportErrorUTF8( pJsCtx_, "affectedItems[%ud] can't be converted to number" );
+            JS_ReportErrorUTF8( pJsCtx_, "affectedItems[%u] can't be converted to number" );
             return std::nullopt;
         }
 

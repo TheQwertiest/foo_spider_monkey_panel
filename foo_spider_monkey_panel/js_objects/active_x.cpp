@@ -1569,11 +1569,11 @@ bool ActiveX::SetupMembers( JSContext* cx, JS::HandleObject obj )
             {
                 auto& [it, bRet] = properties_.emplace( name, std::make_unique<PropInfo>( (wchar_t*)name ) );
                 p = it->second.get();
+
+                JS_DefineUCProperty( cx, obj, (char16_t*)name, SysStringLen( name ),
+                                     ActiveX_JSGet, ActiveX_JSSet, JSPROP_ENUMERATE );
             }
             p->Get = p->Put = true;
-
-            JS_DefineUCProperty( cx, obj, (char16_t*)name, SysStringLen( name ),
-                                 ActiveX_JSGet, ActiveX_JSSet, JSPROP_ENUMERATE );
 
             JS::RootedValue d( cx );
             if ( desc && *desc )
@@ -1612,14 +1612,25 @@ bool ActiveX::SetupMembers( JSContext* cx, JS::HandleObject obj )
                 PropInfo * p = Find( (wchar_t*)name );
                 if ( !p )
                 {
-                    properties_.emplace( name, std::make_unique<PropInfo>( (wchar_t*)name ) );
+                    auto&[it, bRet] = properties_.emplace( name, std::make_unique<PropInfo>( (wchar_t*)name ) );
+                    p = it->second.get();
+
                     JS_DefineUCProperty( cx, obj, (char16_t*)name,
                                          SysStringLen( name ), ActiveX_JSGet, ActiveX_JSSet, JSPROP_ENUMERATE );
                 }
 
-                p->Get = !!( funcdesc->invkind & INVOKE_PROPERTYGET );
-                p->Put = !!( funcdesc->invkind & INVOKE_PROPERTYPUT );
-                p->Put = !!( funcdesc->invkind & INVOKE_PROPERTYPUTREF );
+                if ( funcdesc->invkind & INVOKE_PROPERTYGET )
+                {
+                    p->Get = true;
+                }
+                if ( funcdesc->invkind & INVOKE_PROPERTYPUT )
+                {
+                    p->Put = true;
+                }
+                if ( funcdesc->invkind & INVOKE_PROPERTYPUTREF )
+                {
+                    p->PutRef = true;
+                }
             }
 
             JS::RootedValue d( cx );
