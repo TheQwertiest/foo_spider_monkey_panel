@@ -52,44 +52,33 @@ const JSFunctionSpec jsFunctions[] = {
     JS_FS_END
 };
 
+const JSPropertySpec jsProperties[] = {
+    JS_PS_END
+};
+
+
 }
 
 namespace mozjs
 {
 
+const JSClass JsGdiUtils::JsClass = jsClass;
+const JSFunctionSpec* JsGdiUtils::JsFunctions = jsFunctions;
+const JSPropertySpec* JsGdiUtils::JsProperties = jsProperties;
 
 JsGdiUtils::JsGdiUtils( JSContext* cx )
     : pJsCtx_( cx )
 {
 }
 
-
 JsGdiUtils::~JsGdiUtils()
 {
 }
 
-JSObject* JsGdiUtils::Create( JSContext* cx )
+std::unique_ptr<JsGdiUtils>
+JsGdiUtils::CreateNative( JSContext* cx )
 {
-    JS::RootedObject jsObj( cx,
-                            JS_NewObject( cx, &jsClass ) );
-    if ( !jsObj )
-    {
-        return nullptr;
-    }
-
-    if ( !JS_DefineFunctions( cx, jsObj, jsFunctions ) )
-    {
-        return nullptr;
-    }
-
-    JS_SetPrivate( jsObj, new JsGdiUtils( cx ) );
-
-    return jsObj;
-}
-
-const JSClass& JsGdiUtils::GetClass()
-{
-    return jsClass;
+    return std::unique_ptr<JsGdiUtils>( new JsGdiUtils( cx ) );
 }
 
 std::optional<JSObject*>
@@ -102,14 +91,12 @@ JsGdiUtils::CreateImage( uint32_t w, uint32_t h )
         return std::nullopt;
     }
 
-    JS::RootedObject jsObject( pJsCtx_, JsGdiBitmap::Create( pJsCtx_, img.get() ) );
+    JS::RootedObject jsObject( pJsCtx_, JsGdiBitmap::Create( pJsCtx_, std::move(img) ) );
     if ( !jsObject )
-    {
-        JS_ReportErrorUTF8( pJsCtx_, "Internal error: failed to create JS object" );
+    {// report in Create
         return std::nullopt;
     }
 
-    img.release();
     return jsObject;
 }
 
@@ -191,14 +178,12 @@ JsGdiUtils::Image( const std::wstring& path )
         return nullptr;
     }
 
-    JS::RootedObject jsObject( pJsCtx_, JsGdiBitmap::Create( pJsCtx_, img.get() ) );
+    JS::RootedObject jsObject( pJsCtx_, JsGdiBitmap::Create( pJsCtx_, std::move(img) ) );
     if ( !jsObject )
-    {
-        JS_ReportErrorUTF8( pJsCtx_, "Internal error: failed to create JS object" );
+    {// report in Create
         return std::nullopt;
     }
 
-    img.release();
     return jsObject;
 }
 

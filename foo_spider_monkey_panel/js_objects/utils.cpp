@@ -92,6 +92,10 @@ const JSPropertySpec jsProperties[] = {
 namespace mozjs
 {
 
+const JSClass JsUtils::JsClass = jsClass;
+const JSFunctionSpec* JsUtils::JsFunctions = jsFunctions;
+const JSPropertySpec* JsUtils::JsProperties = jsProperties;
+
 JsUtils::JsUtils( JSContext* cx )
     : pJsCtx_( cx )
 {
@@ -101,29 +105,10 @@ JsUtils::~JsUtils()
 {
 }
 
-JSObject* JsUtils::Create( JSContext* cx )
+std::unique_ptr<JsUtils>
+JsUtils::CreateNative( JSContext* cx )
 {
-    JS::RootedObject jsObj( cx,
-                            JS_NewObject( cx, &jsClass ) );
-    if ( !jsObj )
-    {
-        return nullptr;
-    }
-
-    if ( !JS_DefineFunctions( cx, jsObj, jsFunctions )
-         || !JS_DefineProperties( cx, jsObj, jsProperties ) )
-    {
-        return nullptr;
-    }
-
-    JS_SetPrivate( jsObj, new JsUtils( cx ) );
-
-    return jsObj;
-}
-
-const JSClass& JsUtils::GetClass()
-{
-    return jsClass;
+    return std::unique_ptr<JsUtils>( new JsUtils( cx ) );
 }
 
 std::optional<bool>
@@ -390,14 +375,13 @@ JsUtils::GetAlbumArtEmbedded( const pfc::string8_fast& rawpath, uint32_t art_id 
         return nullptr;
     }
 
-    JS::RootedObject jsObject( pJsCtx_, JsGdiBitmap::Create( pJsCtx_, artImage.get() ) );
+    JS::RootedObject jsObject( pJsCtx_, JsGdiBitmap::Create( pJsCtx_, std::move( artImage ) ) );
     if ( !jsObject )
     {
         JS_ReportErrorUTF8( pJsCtx_, "Internal error: failed to create JS object" );
         return std::nullopt;
     }
 
-    artImage.release();
     return jsObject;
 }
 
@@ -433,14 +417,12 @@ JsUtils::GetAlbumArtV2( JsFbMetadbHandle* handle, uint32_t art_id, bool need_stu
         return nullptr;
     }
 
-    JS::RootedObject jsObject( pJsCtx_, JsGdiBitmap::Create( pJsCtx_, artImage.get() ) );
+    JS::RootedObject jsObject( pJsCtx_, JsGdiBitmap::Create( pJsCtx_, std::move(artImage) ) );
     if ( !jsObject )
-    {
-        JS_ReportErrorUTF8( pJsCtx_, "Internal error: failed to create JS object" );
+    {// report in Create
         return std::nullopt;
     }
 
-    artImage.release();
     return jsObject;
 }
 

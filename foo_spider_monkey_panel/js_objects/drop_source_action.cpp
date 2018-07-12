@@ -56,41 +56,24 @@ const JSFunctionSpec jsFunctions[] = {
 namespace mozjs
 {
 
+const JSClass JsDropSourceAction::JsClass = jsClass;
+const JSFunctionSpec* JsDropSourceAction::JsFunctions = jsFunctions;
+const JSPropertySpec* JsDropSourceAction::JsProperties = jsProperties;
+const JsPrototypeId JsDropSourceAction::PrototypeId = JsPrototypeId::DropSourceAction;
 
 JsDropSourceAction::JsDropSourceAction( JSContext* cx )
     : pJsCtx_( cx )
 {
     Reset();
 }
-
-
 JsDropSourceAction::~JsDropSourceAction()
 {
 }
 
-JSObject* JsDropSourceAction::Create( JSContext* cx )
+std::unique_ptr<mozjs::JsDropSourceAction> 
+JsDropSourceAction::CreateNative( JSContext* cx )
 {
-    JS::RootedObject jsObj( cx,
-                            JS_NewObject( cx, &jsClass ) );
-    if ( !jsObj )
-    {
-        return nullptr;
-    }
-
-    if ( !JS_DefineFunctions( cx, jsObj, jsFunctions )
-         || !JS_DefineProperties( cx, jsObj, jsProperties ) )
-    {
-        return nullptr;
-    }
-
-    JS_SetPrivate( jsObj, new JsDropSourceAction( cx ) );
-
-    return jsObj;
-}
-
-const JSClass& JsDropSourceAction::GetClass()
-{
-    return jsClass;
+    return std::unique_ptr<JsDropSourceAction>( new JsDropSourceAction( cx ) );
 }
 
 void JsDropSourceAction::Reset()

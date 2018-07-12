@@ -1,5 +1,7 @@
 #pragma once
 
+#include <js_objects/object_base.h>
+
 #include <string>
 #include <optional>
 
@@ -12,15 +14,22 @@ namespace mozjs
 {
 
 class JsGdiUtils
+    : public JsObjectBase<JsGdiUtils>
 {
 public:
+    static constexpr bool HasProto = false;
+    static constexpr bool HasProxy = false;
+
+    static const JSClass JsClass;
+    static const JSFunctionSpec* JsFunctions;
+    static const JSPropertySpec* JsProperties;
+
+public:
     ~JsGdiUtils();
-    
-    static JSObject* Create( JSContext* cx );
 
-    static const JSClass& GetClass();
+    static std::unique_ptr<JsGdiUtils> CreateNative( JSContext* cx );
 
-public: 
+public:
     std::optional<JSObject*> CreateImage( uint32_t w, uint32_t h );
     std::optional<JSObject*> Font( const std::wstring& fontName, float pxSize, uint32_t style = 0 );
     std::optional<JSObject*> FontWithOpt( size_t optArgCount, const std::wstring& fontName, float pxSize, uint32_t style );
@@ -29,8 +38,6 @@ public:
 
 private:
     JsGdiUtils( JSContext* cx );
-    JsGdiUtils( const JsGdiUtils& ) = delete;
-    JsGdiUtils& operator=( const JsGdiUtils& ) = delete;
 
 private:
     JSContext * pJsCtx_ = nullptr;;

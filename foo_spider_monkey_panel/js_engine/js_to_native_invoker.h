@@ -93,6 +93,13 @@ bool InvokeNativeCallback_Impl( JSContext* cx,
         return false;
     }
 
+    BaseClass* baseClass = InvokeNativeCallback_GetThisObject<BaseClass>( cx, args.thisv() );
+    if ( !baseClass )
+    {
+        JS_ReportErrorUTF8( cx, "Invalid `this` context" );
+        return false;
+    }
+
     // Parse arguments
 
     bool bRet = true;
@@ -154,21 +161,9 @@ bool InvokeNativeCallback_Impl( JSContext* cx,
                             jsObject.set( js::GetProxyTargetObject( jsObject ) );
                         }
                         ArgType pNative;
-                        // TODO: remove after refactoring
-                        if constexpr ( std::is_same_v<std::remove_pointer_t<ArgType>, JsGdiFont> 
-                                       || std::is_same_v<std::remove_pointer_t<ArgType>, JsFbMetadbHandle>
-                                       || std::is_same_v<std::remove_pointer_t<ArgType>, JsFbTitleFormat>)
-                        {
-                            pNative = static_cast<ArgType>(
-                                JS_GetInstancePrivate( cx, jsObject, &std::remove_pointer_t<ArgType>::JsClass, nullptr )
-                                );
-                        }
-                        else
-                        {
-                            pNative = static_cast<ArgType>(
-                                JS_GetInstancePrivate( cx, jsObject, &std::remove_pointer_t<ArgType>::GetClass(), nullptr )
-                                );
-                        }
+                        pNative = static_cast<ArgType>(
+                            JS_GetInstancePrivate( cx, jsObject, &std::remove_pointer_t<ArgType>::JsClass, nullptr )
+                            );
                         if ( !pNative )
                         {
                             failedIdx = index;
@@ -191,34 +186,6 @@ bool InvokeNativeCallback_Impl( JSContext* cx,
     }
 
     // Call function
-
-    // TODO: check that object is not a prototype and move this code before arg checks.
-    // if (GlobalPrivate.GetProto<BaseClass> == &jsObject) { JS_ReportErrorUTF8("Can't call on proto") }
-    // TODO: replace with JS_GetInstancePrivate, since apparently it is possible to apply objects method 
-    // to another altogether unrelated object of a different type
-    BaseClass* baseClass;
-    if constexpr(std::is_same_v<BaseClass, JsGlobalObject>)
-    {// Global has undefined thisv 
-        baseClass = static_cast<BaseClass*>(JS_GetPrivate( JS::CurrentGlobalOrNull(cx) ));
-    }
-    else
-    {
-        assert( args.thisv().isObject() );
-        JSObject& jsObject = args.thisv().toObject(); // No need to root, since no GC here
-        if ( js::IsProxy( &jsObject ) )
-        {
-            baseClass = static_cast<BaseClass*>(JS_GetPrivate( js::GetProxyTargetObject( &jsObject ) ));
-        }
-        else
-        {
-            baseClass = static_cast<BaseClass*>(JS_GetPrivate( &jsObject ));
-        }
-    }
-    if ( !baseClass )
-    {
-        JS_ReportErrorUTF8( cx, "Internal error: JS_GetPrivate failed" );
-        return false;
-    }
 
     ReturnType retVal =
         InvokeNativeCallback_Call<!!OptArgCount, ReturnType>( baseClass, fn, fnWithOpt, callbackArguments, maxArgCount - args.length() );
@@ -251,6 +218,34 @@ bool InvokeNativeCallback_Impl( JSContext* cx,
     }
 
     return true;
+}
+
+template <typename BaseClass>
+BaseClass* InvokeNativeCallback_GetThisObject( JSContext* cx, JS::HandleValue jsThis )
+{
+    JS::RootedObject jsObject( cx );
+    if ( jsThis.isObject() )
+    {
+        if ( js::IsProxy( &jsThis.toObject() ) )
+        {
+            jsObject.set( js::GetProxyTargetObject( &jsThis.toObject() ) );
+            return static_cast<BaseClass*>(JS_GetInstancePrivate( cx, jsObject, &BaseClass::JsClass, nullptr ));
+        }
+
+        jsObject.set( &jsThis.toObject() );
+        return static_cast<BaseClass*>(JS_GetInstancePrivate( cx, jsObject, &BaseClass::JsClass, nullptr ));
+    }
+
+    if constexpr(std::is_same_v<BaseClass, JsGlobalObject>)
+    {
+        if ( jsThis.isUndefined() )
+        {// global has undefined `this`
+            jsObject.set( JS::CurrentGlobalOrNull( cx ) );
+            return static_cast<BaseClass*>(JS_GetInstancePrivate( cx, jsObject, &BaseClass::JsClass, nullptr ));
+        }
+    }
+
+    return nullptr;
 }
 
 template <typename T>

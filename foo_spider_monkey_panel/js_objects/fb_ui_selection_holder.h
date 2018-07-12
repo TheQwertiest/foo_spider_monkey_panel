@@ -1,5 +1,7 @@
 #pragma once
 
+#include <js_objects/object_base.h>
+
 #include <optional>
 
 class JSObject;
@@ -12,13 +14,22 @@ namespace mozjs
 class JsFbMetadbHandleList;
 
 class JsFbUiSelectionHolder
+    : public JsObjectBase<JsFbUiSelectionHolder>
 {
+public:
+    static constexpr bool HasProto = true;
+    static constexpr bool HasGlobalProto = false;
+    static constexpr bool HasProxy = false;
+
+    static const JSClass JsClass;
+    static const JSFunctionSpec* JsFunctions;
+    static const JSPropertySpec* JsProperties;
+    static const JsPrototypeId PrototypeId;
+
 public:
     ~JsFbUiSelectionHolder();
 
-    static JSObject* Create( JSContext* cx, const ui_selection_holder::ptr& holder );
-
-    static const JSClass& GetClass();
+    static std::unique_ptr<JsFbUiSelectionHolder> CreateNative( JSContext* cx, const ui_selection_holder::ptr& holder );
 
 public:
    std::optional<std::nullptr_t> SetPlaylistSelectionTracking();
@@ -27,8 +38,6 @@ public:
 
 private:
     JsFbUiSelectionHolder( JSContext* cx, const ui_selection_holder::ptr& holder );
-    JsFbUiSelectionHolder( const JsFbUiSelectionHolder& ) = delete;
-    JsFbUiSelectionHolder& operator=( const JsFbUiSelectionHolder& ) = delete;
 
 private:
     JSContext * pJsCtx_ = nullptr;

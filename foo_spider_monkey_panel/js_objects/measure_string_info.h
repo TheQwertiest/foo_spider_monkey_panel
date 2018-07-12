@@ -1,5 +1,7 @@
 #pragma once
 
+#include <js_objects/object_base.h>
+
 #include <optional>
 
 class JSObject;
@@ -10,13 +12,22 @@ namespace mozjs
 {
 
 class JsMeasureStringInfo
+    : public JsObjectBase<JsMeasureStringInfo>
 {
+public:
+    static constexpr bool HasProto = true;
+    static constexpr bool HasGlobalProto = false;
+    static constexpr bool HasProxy = false;
+
+    static const JSClass JsClass;
+    static const JSFunctionSpec* JsFunctions;
+    static const JSPropertySpec* JsProperties;
+    static const JsPrototypeId PrototypeId;
+
 public:
     ~JsMeasureStringInfo();
 
-    static JSObject* Create( JSContext* cx, float x, float y, float w, float h, uint32_t lines, uint32_t characters );
-
-    static const JSClass& GetClass();
+    static std::unique_ptr<JsMeasureStringInfo> CreateNative( JSContext* cx, float x, float y, float w, float h, uint32_t l, uint32_t c );
 
 public:
     std::optional<uint32_t> get_Chars();
@@ -28,8 +39,6 @@ public:
 
 private:
     JsMeasureStringInfo( JSContext* cx, float x, float y, float w, float h, uint32_t l, uint32_t c );
-    JsMeasureStringInfo( const JsMeasureStringInfo& ) = delete;
-    JsMeasureStringInfo& operator=( const JsMeasureStringInfo& ) = delete;
 
 private:
     JSContext * pJsCtx_ = nullptr;

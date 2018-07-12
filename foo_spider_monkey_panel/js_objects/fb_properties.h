@@ -13,14 +13,14 @@ class js_panel_window;
 namespace mozjs
 {
 
-class JsFbProperties
+class FbProperties
 {
 public:
-    ~JsFbProperties();
+    FbProperties( const FbProperties& ) = delete;
+    FbProperties& operator=( const FbProperties& ) = delete;
+    ~FbProperties();
 
-    static JSObject* Create( JSContext* cx, js_panel_window& parentPanel );
-
-    static const JSClass& GetClass();
+    static std::unique_ptr<FbProperties> Create( JSContext* cx, js_panel_window& parentPanel );
 
 public:
     void RemoveHeapTracer();
@@ -29,9 +29,7 @@ public:
     bool SetProperty( const std::wstring& propName, JS::HandleValue propValue );
 
 private:
-    JsFbProperties( JSContext* cx, js_panel_window& parentPanel );
-    JsFbProperties( const JsFbProperties& ) = delete;
-    JsFbProperties& operator=( const JsFbProperties& ) = delete;
+    FbProperties( JSContext* cx, js_panel_window& parentPanel );
 
     static void TraceHeapValue( JSTracer *trc, void *data );
 

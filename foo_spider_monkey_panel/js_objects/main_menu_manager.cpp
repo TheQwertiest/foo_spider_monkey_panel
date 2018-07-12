@@ -53,6 +53,10 @@ const JSPropertySpec jsProperties[] = {
 namespace mozjs
 {
 
+const JSClass JsMainMenuManager::JsClass = jsClass;
+const JSFunctionSpec* JsMainMenuManager::JsFunctions = jsFunctions;
+const JSPropertySpec* JsMainMenuManager::JsProperties = jsProperties;
+const JsPrototypeId JsMainMenuManager::PrototypeId = JsPrototypeId::MainMenuManager;
 
 JsMainMenuManager::JsMainMenuManager( JSContext* cx )
     : pJsCtx_( cx )
@@ -64,29 +68,10 @@ JsMainMenuManager::~JsMainMenuManager()
 {
 }
 
-JSObject* JsMainMenuManager::Create( JSContext* cx )
+std::unique_ptr<JsMainMenuManager>
+JsMainMenuManager::CreateNative( JSContext* cx )
 {
-    JS::RootedObject jsObj( cx,
-                            JS_NewObject( cx, &jsClass ) );
-    if ( !jsObj )
-    {
-        return nullptr;
-    }
-
-    if ( !JS_DefineFunctions( cx, jsObj, jsFunctions )
-         || !JS_DefineProperties( cx, jsObj, jsProperties ) )
-    {
-        return nullptr;
-    }
-
-    JS_SetPrivate( jsObj, new JsMainMenuManager( cx ) );
-
-    return jsObj;
-}
-
-const JSClass& JsMainMenuManager::GetClass()
-{
-    return jsClass;
+    return std::unique_ptr<JsMainMenuManager>( new JsMainMenuManager( cx ) );
 }
 
 std::optional<std::nullptr_t> 

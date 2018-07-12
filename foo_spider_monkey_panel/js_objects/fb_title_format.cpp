@@ -69,7 +69,8 @@ JsFbTitleFormat::~JsFbTitleFormat()
 {
 }
 
-std::unique_ptr<JsFbTitleFormat> JsFbTitleFormat::CreateNative( JSContext* cx, const pfc::string8_fast& expr )
+std::unique_ptr<JsFbTitleFormat> 
+JsFbTitleFormat::CreateNative( JSContext* cx, const pfc::string8_fast& expr )
 {
     return std::unique_ptr<JsFbTitleFormat>( new JsFbTitleFormat( cx, expr ) );
 }

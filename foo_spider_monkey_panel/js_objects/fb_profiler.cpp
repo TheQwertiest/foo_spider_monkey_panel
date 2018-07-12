@@ -53,6 +53,10 @@ const JSPropertySpec jsProperties[] = {
 namespace mozjs
 {
 
+const JSClass JsFbProfiler::JsClass = jsClass;
+const JSFunctionSpec* JsFbProfiler::JsFunctions = jsFunctions;
+const JSPropertySpec* JsFbProfiler::JsProperties = jsProperties;
+const JsPrototypeId JsFbProfiler::PrototypeId = JsPrototypeId::FbProfiler;
 
 JsFbProfiler::JsFbProfiler( JSContext* cx, const pfc::string8_fast& name )
     : pJsCtx_( cx )
@@ -65,29 +69,10 @@ JsFbProfiler::~JsFbProfiler()
 {
 }
 
-JSObject* JsFbProfiler::Create( JSContext* cx, const pfc::string8_fast& name )
+std::unique_ptr<JsFbProfiler>
+JsFbProfiler::CreateNative( JSContext* cx, const pfc::string8_fast& name )
 {
-    JS::RootedObject jsObj( cx,
-                            JS_NewObject( cx, &jsClass ) );
-    if ( !jsObj )
-    {
-        return nullptr;
-    }
-
-    if ( !JS_DefineFunctions( cx, jsObj, jsFunctions )
-         || !JS_DefineProperties( cx, jsObj, jsProperties ) )
-    {
-        return nullptr;
-    }
-
-    JS_SetPrivate( jsObj, new JsFbProfiler( cx, name ) );
-
-    return jsObj;
-}
-
-const JSClass& JsFbProfiler::GetClass()
-{
-    return jsClass;
+    return std::unique_ptr<JsFbProfiler>( new JsFbProfiler( cx, name ) );
 }
 
 std::optional<std::nullptr_t> 

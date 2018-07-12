@@ -67,47 +67,34 @@ const JSPropertySpec jsProperties[] = {
 namespace mozjs
 {
 
-JsFbFileInfo::JsFbFileInfo( JSContext* cx, file_info_impl* pFileInfo )
-    : pJsCtx_( cx )
-    , fileInfo_( pFileInfo )
-{
+const JSClass JsFbFileInfo::JsClass = jsClass;
+const JSFunctionSpec* JsFbFileInfo::JsFunctions = jsFunctions;
+const JSPropertySpec* JsFbFileInfo::JsProperties = jsProperties;
+const JsPrototypeId JsFbFileInfo::PrototypeId = JsPrototypeId::FbFileInfo;
 
+
+JsFbFileInfo::JsFbFileInfo( JSContext* cx, std::unique_ptr<file_info_impl> fileInfo )
+    : pJsCtx_( cx )
+{
+    fileInfo_.swap( fileInfo );
 }
 
 JsFbFileInfo::~JsFbFileInfo()
 {
 }
 
-JSObject* JsFbFileInfo::Create( JSContext* cx, file_info_impl* pFileInfo )
+std::unique_ptr<mozjs::JsFbFileInfo> 
+JsFbFileInfo::CreateNative( JSContext* cx, std::unique_ptr<file_info_impl> fileInfo )
 {
-    if ( !pFileInfo )
+    if ( !fileInfo )
     {
         JS_ReportErrorUTF8( cx, "Internal error: file_info object is null" );
         return nullptr;
     }
 
-    JS::RootedObject jsObj( cx,
-                            JS_NewObject( cx, &jsClass ) );
-    if ( !jsObj )
-    {
-        return nullptr;
-    }
-
-    if ( !JS_DefineFunctions( cx, jsObj, jsFunctions )
-         || !JS_DefineProperties( cx, jsObj, jsProperties ) )
-    {
-        return nullptr;
-    }
-
-    JS_SetPrivate( jsObj, new JsFbFileInfo( cx, pFileInfo ) );
-
-    return jsObj;
+    return std::unique_ptr<JsFbFileInfo>( new JsFbFileInfo( cx, std::move(fileInfo) ) );
 }
 
-const JSClass& JsFbFileInfo::GetClass()
-{
-    return jsClass;
-}
 
 std::optional<int32_t> 
 JsFbFileInfo::InfoFind( const pfc::string8_fast& name )

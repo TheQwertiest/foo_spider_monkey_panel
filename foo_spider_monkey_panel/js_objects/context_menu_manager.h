@@ -1,5 +1,7 @@
 #pragma once
 
+#include <js_objects/object_base.h>
+
 #include <optional>
 
 class JSObject;
@@ -13,13 +15,22 @@ class JsMenuObject;
 class JsFbMetadbHandleList;
 
 class JsContextMenuManager
+    : public JsObjectBase<JsContextMenuManager>
 {
+public:
+    static constexpr bool HasProto = true;
+    static constexpr bool HasGlobalProto = false;
+    static constexpr bool HasProxy = false;
+
+    static const JSClass JsClass;
+    static const JSFunctionSpec* JsFunctions;
+    static const JSPropertySpec* JsProperties;
+    static const JsPrototypeId PrototypeId;
+
 public:
     ~JsContextMenuManager();
 
-    static JSObject* Create( JSContext* cx );
-
-    static const JSClass& GetClass();
+    static std::unique_ptr<JsContextMenuManager> CreateNative( JSContext* cx );
 
 public:
     std::optional<std::nullptr_t> BuildMenu( JsMenuObject* menuObject, int32_t base_id, int32_t max_id = -1 );
@@ -30,8 +41,6 @@ public:
 
 private:
     JsContextMenuManager( JSContext* cx );
-    JsContextMenuManager( const JsContextMenuManager& ) = delete;
-    JsContextMenuManager& operator=( const JsContextMenuManager& ) = delete;
 
 private:
     JSContext * pJsCtx_ = nullptr;

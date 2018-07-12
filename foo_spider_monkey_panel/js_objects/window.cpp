@@ -125,63 +125,39 @@ const JSPropertySpec jsProperties[] = {
 namespace mozjs
 {
 
-JsWindow::JsWindow( JSContext* cx, js_panel_window& parentPanel )
+const JSClass JsWindow::JsClass = jsClass;
+const JSFunctionSpec* JsWindow::JsFunctions = jsFunctions;
+const JSPropertySpec* JsWindow::JsProperties = jsProperties;
+
+JsWindow::JsWindow( JSContext* cx, js_panel_window& parentPanel, std::unique_ptr<FbProperties> fbProperties )
     : pJsCtx_( cx )
     , parentPanel_( parentPanel )
 {
+    fbProperties_.swap( fbProperties );
 }
 
 JsWindow::~JsWindow()
 {
     RemoveHeapTracer();
-    jsFbProperties_.reset();
 }
 
-JSObject* JsWindow::Create( JSContext* cx, js_panel_window& parentPanel )
+std::unique_ptr<JsWindow>
+JsWindow::CreateNative( JSContext* cx, js_panel_window& parentPanel )
 {
-    JS::RootedObject jsObj( cx,
-                            JS_NewObject( cx, &jsClass ) );
-    if ( !jsObj )
-    {
-        return nullptr;
-    }
-
-    if ( !JS_DefineFunctions( cx, jsObj, jsFunctions )
-         || !JS_DefineProperties( cx, jsObj, jsProperties ) )
-    {
-        return nullptr;
-    }
-
-    JS::RootedObject fbProperties( cx, JsFbProperties::Create( cx, parentPanel ) );
+    std::unique_ptr<FbProperties> fbProperties = FbProperties::Create( cx, parentPanel );
     if ( !fbProperties )
-    {
+    {// report in Create
         return nullptr;
     }
 
-    auto pNative = new JsWindow( cx, parentPanel );
-    // TODO: cleanup
-    pNative->jsFbProperties_.init( cx, fbProperties );
-    pNative->pFbProperties_ = static_cast<JsFbProperties*>(JS_GetPrivate( fbProperties ));
-
-    JS_SetPrivate( jsObj, pNative );
-
-    return jsObj;
-}
-
-const JSClass& JsWindow::GetClass()
-{
-    return jsClass;
+    return std::unique_ptr<JsWindow>( new JsWindow( cx, parentPanel, std::move( fbProperties ) ));
 }
 
 void JsWindow::RemoveHeapTracer()
 {
-    if ( jsFbProperties_.initialized() && pFbProperties_ )
+    if ( fbProperties_ )
     {
-        pFbProperties_->RemoveHeapTracer();
-
-        // TODO: reset is needed for proper GC, dunno why though, need to think it over
-        jsFbProperties_.reset();
-        pFbProperties_ = nullptr;
+        fbProperties_->RemoveHeapTracer();
     }
 }
 
@@ -418,7 +394,7 @@ JsWindow::GetFontDUI( uint32_t type )
 std::optional<JS::Heap<JS::Value>>
 JsWindow::GetProperty( const std::wstring& name, JS::HandleValue defaultval )
 {
-    return pFbProperties_->GetProperty( name, defaultval );
+    return fbProperties_->GetProperty( name, defaultval );
 }
 
 std::optional<JS::Heap<JS::Value>> 
@@ -558,7 +534,7 @@ JsWindow::SetInterval( JS::HandleValue func, uint32_t delay )
 std::optional<std::nullptr_t>
 JsWindow::SetProperty( const std::wstring& name, JS::HandleValue val )
 {
-    if ( !pFbProperties_->SetProperty( name, val ) )
+    if ( !fbProperties_->SetProperty( name, val ) )
     {// report in SetProperty
         return std::nullopt;
     }

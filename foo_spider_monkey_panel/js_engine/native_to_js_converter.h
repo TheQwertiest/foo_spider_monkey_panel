@@ -10,6 +10,16 @@
 namespace mozjs::convert::to_js
 {
 
+template<typename InType>
+bool ToValue( JSContext * cx, std::unique_ptr<InType> inValue, JS::MutableHandleValue wrappedValue )
+{
+    static_assert(0, "Unsupported type");
+    return false;
+}
+
+template<>
+bool ToValue( JSContext * cx, std::unique_ptr<Gdiplus::Bitmap> inValue, JS::MutableHandleValue wrappedValue );
+
 template <typename InJsType>
 bool ToValue( JSContext * cx, JS::Handle<InJsType> inValue, JS::MutableHandleValue wrappedValue )
 {
@@ -69,18 +79,5 @@ bool ToValue( JSContext * cx, const metadb_handle_ptr& inValue, JS::MutableHandl
 
 template <>
 bool ToValue( JSContext * cx, const metadb_handle_list& inValue, JS::MutableHandleValue wrappedValue );
-
-template <>
-bool ToValue( JSContext * cx, Gdiplus::Bitmap* const& inValue, JS::MutableHandleValue wrappedValue );
-
-template<typename InType>
-bool ToValue( JSContext * cx, std::unique_ptr<InType> inValue, JS::MutableHandleValue wrappedValue )
-{
-    static_assert(0, "Unsupported type");
-    return false;
-}
-
-template<>
-bool ToValue( JSContext * cx, std::unique_ptr<Gdiplus::Bitmap> inValue, JS::MutableHandleValue wrappedValue );
 
 }

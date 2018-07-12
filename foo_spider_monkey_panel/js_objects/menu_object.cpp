@@ -59,6 +59,10 @@ const JSPropertySpec jsProperties[] = {
 namespace mozjs
 {
 
+const JSClass JsMenuObject::JsClass = jsClass;
+const JSFunctionSpec* JsMenuObject::JsFunctions = jsFunctions;
+const JSPropertySpec* JsMenuObject::JsProperties = jsProperties;
+const JsPrototypeId JsMenuObject::PrototypeId = JsPrototypeId::MenuObject;
 
 JsMenuObject::JsMenuObject( JSContext* cx, HWND hParentWnd )
     : pJsCtx_( cx )
@@ -78,29 +82,10 @@ JsMenuObject::~JsMenuObject()
     }
 }
 
-JSObject* JsMenuObject::Create( JSContext* cx, HWND hParentWnd )
+std::unique_ptr<JsMenuObject>
+JsMenuObject::CreateNative( JSContext* cx, HWND hParentWnd )
 {
-    JS::RootedObject jsObj( cx,
-                            JS_NewObject( cx, &jsClass ) );
-    if ( !jsObj )
-    {
-        return nullptr;
-    }
-
-    if ( !JS_DefineFunctions( cx, jsObj, jsFunctions )
-         || !JS_DefineProperties( cx, jsObj, jsProperties ) )
-    {
-        return nullptr;
-    }
-
-    JS_SetPrivate( jsObj, new JsMenuObject( cx, hParentWnd ) );
-
-    return jsObj;
-}
-
-const JSClass& JsMenuObject::GetClass()
-{
-    return jsClass;
+    return std::unique_ptr<JsMenuObject>( new JsMenuObject( cx, hParentWnd ) );
 }
 
 HMENU JsMenuObject::HMenu() const

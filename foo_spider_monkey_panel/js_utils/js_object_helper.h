@@ -35,10 +35,10 @@ void JsFinalizeOp( [[maybe_unused]] JSFreeOp* fop, JSObject* obj )
 /// @details Used to define write-only property with JS_PSGS
 bool DummyGetter( JSContext* cx, unsigned argc, JS::Value* vp );
 
-template<typename FuncType, typename ...ArgsType>
-bool CreateAndInstallObject( JSContext* cx, JS::HandleObject parentObject, const pfc::string8_fast& propertyName, FuncType fn, ArgsType&&... args )
+template<typename JsObjectType, typename ...ArgsType>
+bool CreateAndInstallObject( JSContext* cx, JS::HandleObject parentObject, const pfc::string8_fast& propertyName, ArgsType&&... args )
 {
-    JS::RootedObject objectToInstall( cx, fn( cx, args... ) );
+    JS::RootedObject objectToInstall( cx, JsObjectType::Create( cx, args... ) );
     if ( !objectToInstall )
     {
         return false;

@@ -1,5 +1,9 @@
 #pragma once
 
+#include <js_objects/object_base.h>
+
+#include <js/Proxy.h>
+
 #include <optional>
 
 class JSObject;
@@ -11,6 +15,11 @@ namespace Gdiplus
 class Font;
 }
 
+namespace js
+{
+class BaseProxyHandler;
+}
+
 namespace mozjs
 {
 
@@ -18,14 +27,26 @@ class JsFbMetadbHandle;
 class JsFbTitleFormat;
 
 class JsFbMetadbHandleList
+    : public JsObjectBase<JsFbMetadbHandleList>
 {
 public:
+    static constexpr bool HasProto = true;
+    // TODO: add global proto
+    static constexpr bool HasGlobalProto = false;
+    static constexpr bool HasProxy = true;
+
+    static const JSClass JsClass;
+    static const JSFunctionSpec* JsFunctions;
+    static const JSPropertySpec* JsProperties;
+    static const JsPrototypeId PrototypeId;
+    static const js::BaseProxyHandler& JsProxy;
+
+public:
     ~JsFbMetadbHandleList();
-    
-    static JSObject* Create( JSContext* cx, metadb_handle_list_cref handles );
 
-    static const JSClass& GetClass();
+    static std::unique_ptr<JsFbMetadbHandleList> CreateNative( JSContext* cx, metadb_handle_list_cref handles );
 
+public:
     metadb_handle_list_cref GetHandleList() const;
 
 public: // methods
@@ -41,8 +62,6 @@ public: // methods
     std::optional<JSObject*> GetLibraryRelativePaths();
     std::optional<std::nullptr_t> Insert( uint32_t index, JsFbMetadbHandle* handle );
     std::optional<std::nullptr_t> InsertRange( uint32_t index, JsFbMetadbHandleList* handles );
-    std::optional<JSObject*> Item2( uint32_t index, JsFbMetadbHandle* handle );
-    std::optional<JSObject*> Item2WithOpt( size_t optArgCount, uint32_t index, JsFbMetadbHandle* handle );
     std::optional<std::nullptr_t> MakeDifference( JsFbMetadbHandleList* handles );
     std::optional<std::nullptr_t> MakeIntersection( JsFbMetadbHandleList* handles );
     std::optional<std::nullptr_t> MakeUnion( JsFbMetadbHandleList* handles );
@@ -59,14 +78,13 @@ public: // methods
 
 public: // props
     std::optional<uint32_t> get_Count();
+
+public:
     std::optional<JSObject*> get_Item( uint32_t index );
     std::optional<std::nullptr_t> put_Item( uint32_t index, JsFbMetadbHandle* handle );
-    // TODO: add array methods
 
 private:
     JsFbMetadbHandleList( JSContext* cx, metadb_handle_list_cref handles );
-    JsFbMetadbHandleList( const JsFbMetadbHandleList& ) = delete;
-    JsFbMetadbHandleList& operator=( const JsFbMetadbHandleList& ) = delete;
 
 private:
     JSContext * pJsCtx_ = nullptr;

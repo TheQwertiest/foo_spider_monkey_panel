@@ -3,6 +3,7 @@
 
 #include <js_engine/js_to_native_invoker.h>
 #include <js_utils/js_error_helper.h>
+#include <js_utils/winapi_error_helper.h>
 #include <js_utils/js_object_helper.h>
 
 using namespace smp;
@@ -65,63 +66,20 @@ const JSPropertySpec jsProperties[] = {
 namespace mozjs
 {
 
+const JSClass JsFbTooltip::JsClass = jsClass;
+const JSFunctionSpec* JsFbTooltip::JsFunctions = jsFunctions;
+const JSPropertySpec* JsFbTooltip::JsProperties = jsProperties;
+const JsPrototypeId JsFbTooltip::PrototypeId = JsPrototypeId::FbTooltip;
 
-JsFbTooltip::JsFbTooltip( JSContext* cx, HWND hParentWnd, PanelTooltipParam& p_param_ptr )
+JsFbTooltip::JsFbTooltip( JSContext* cx, HWND hParentWnd, HWND hTooltipWnd, std::unique_ptr<TOOLINFO> toolInfo, PanelTooltipParam& p_param_ptr )
     : pJsCtx_( cx )
     , hParentWnd_( hParentWnd )
+    , hTooltipWnd_( hTooltipWnd )
     , panelTooltipParam_( p_param_ptr )
     , tipBuffer_( PFC_WIDESTRING( JSP_NAME ) )
 {
-    // TODO: move to Create
-
-    hTooltipWnd_ = CreateWindowEx(
-        WS_EX_TOPMOST,
-        TOOLTIPS_CLASS,
-        NULL,
-        WS_POPUP | TTS_ALWAYSTIP | TTS_NOPREFIX,
-        CW_USEDEFAULT,
-        CW_USEDEFAULT,
-        CW_USEDEFAULT,
-        CW_USEDEFAULT,
-        hParentWnd_,
-        NULL,
-        core_api::get_my_instance(),
-        NULL );
-    // IF_WINAPI_FAILED_RETURN_WITH_REPORT( pJsCtx_, !!hTooltipWnd_, std::nullopt, CreateWindowEx );
-
-    // Original position
-    SetWindowPos( hTooltipWnd_, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE );
-
-    // Set up tooltip information.
-    memset( &toolInfo_, 0, sizeof( toolInfo_ ) );
-
-    toolInfo_.cbSize = sizeof( toolInfo_ );
-    toolInfo_.uFlags = TTF_IDISHWND | TTF_SUBCLASS | TTF_TRANSPARENT;
-    toolInfo_.hinst = core_api::get_my_instance();
-    toolInfo_.hwnd = hParentWnd_;
-    toolInfo_.uId = (UINT_PTR)hParentWnd_;
-    toolInfo_.lpszText = (LPWSTR)tipBuffer_.c_str();
-
-    HFONT hFont = CreateFont(
-        -(INT)panelTooltipParam_.fontSize,
-        0,
-        0,
-        0,
-        (panelTooltipParam_.fontStyle & Gdiplus::FontStyleBold) ? FW_BOLD : FW_NORMAL,
-        (panelTooltipParam_.fontStyle & Gdiplus::FontStyleItalic) ? TRUE : FALSE,
-        (panelTooltipParam_.fontStyle & Gdiplus::FontStyleUnderline) ? TRUE : FALSE,
-        (panelTooltipParam_.fontStyle & Gdiplus::FontStyleStrikeout) ? TRUE : FALSE,
-        DEFAULT_CHARSET,
-        OUT_DEFAULT_PRECIS,
-        CLIP_DEFAULT_PRECIS,
-        DEFAULT_QUALITY,
-        DEFAULT_PITCH | FF_DONTCARE,
-        panelTooltipParam_.fontName.c_str() );
-    // IF_WINAPI_FAILED_RETURN_WITH_REPORT( pJsCtx_, !!hFont, std::nullopt, CreateFont );
-
-    SendMessage( hTooltipWnd_, TTM_ADDTOOL, 0, (LPARAM)&toolInfo_ );
-    SendMessage( hTooltipWnd_, TTM_ACTIVATE, FALSE, 0 );
-    SendMessage( hTooltipWnd_, WM_SETFONT, (WPARAM)hFont, MAKELPARAM( FALSE, 0 ) );
+    toolInfo_.swap( toolInfo );
+    toolInfo_->lpszText = (wchar_t*)tipBuffer_.c_str();
 
     panelTooltipParam_.hTooltip = hTooltipWnd_;
     panelTooltipParam_.tooltipSize.cx = -1;
@@ -137,29 +95,67 @@ JsFbTooltip::~JsFbTooltip()
     }
 }
 
-JSObject* JsFbTooltip::Create( JSContext* cx, HWND hParentWnd, PanelTooltipParam& p_param_ptr )
+std::unique_ptr<JsFbTooltip>
+JsFbTooltip::CreateNative( JSContext* cx, HWND hParentWnd, PanelTooltipParam& p_param_ptr )
 {
-    JS::RootedObject jsObj( cx,
-                            JS_NewObject( cx, &jsClass ) );
-    if ( !jsObj )
+    if ( !hParentWnd )
     {
+        JS_ReportErrorUTF8( cx, "Internal error: hParentWnd is null" );
         return nullptr;
     }
 
-    if ( !JS_DefineFunctions( cx, jsObj, jsFunctions )
-         || !JS_DefineProperties( cx, jsObj, jsProperties ) )
-    {
-        return nullptr;
-    }
+    HWND hTooltipWnd = CreateWindowEx(
+        WS_EX_TOPMOST,
+        TOOLTIPS_CLASS,
+        NULL,
+        WS_POPUP | TTS_ALWAYSTIP | TTS_NOPREFIX,
+        CW_USEDEFAULT,
+        CW_USEDEFAULT,
+        CW_USEDEFAULT,
+        CW_USEDEFAULT,
+        hParentWnd,
+        NULL,
+        core_api::get_my_instance(),
+        NULL );
+    IF_WINAPI_FAILED_RETURN_WITH_REPORT( cx, !!hTooltipWnd, nullptr, CreateWindowEx );
 
-    JS_SetPrivate( jsObj, new JsFbTooltip( cx, hParentWnd, p_param_ptr ) );
+    // Original position
+    SetWindowPos( hTooltipWnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE );
 
-    return jsObj;
-}
+    std::unique_ptr<TOOLINFO> toolInfo(new TOOLINFO);
+    // Set up tooltip information.
+    memset( toolInfo.get(), 0, sizeof( TOOLINFO ) );
 
-const JSClass& JsFbTooltip::GetClass()
-{
-    return jsClass;
+    toolInfo->cbSize = sizeof( TOOLINFO );
+    toolInfo->uFlags = TTF_IDISHWND | TTF_SUBCLASS | TTF_TRANSPARENT;
+    toolInfo->hinst = core_api::get_my_instance();
+    toolInfo->hwnd = hParentWnd;
+    toolInfo->uId = (UINT_PTR)hParentWnd;
+    toolInfo->lpszText = nullptr;
+
+    // TODO: memory leak?
+    HFONT hFont = CreateFont(
+        -(INT)p_param_ptr.fontSize,
+        0,
+        0,
+        0,
+        (p_param_ptr.fontStyle & Gdiplus::FontStyleBold) ? FW_BOLD : FW_NORMAL,
+        (p_param_ptr.fontStyle & Gdiplus::FontStyleItalic) ? TRUE : FALSE,
+        (p_param_ptr.fontStyle & Gdiplus::FontStyleUnderline) ? TRUE : FALSE,
+        (p_param_ptr.fontStyle & Gdiplus::FontStyleStrikeout) ? TRUE : FALSE,
+        DEFAULT_CHARSET,
+        OUT_DEFAULT_PRECIS,
+        CLIP_DEFAULT_PRECIS,
+        DEFAULT_QUALITY,
+        DEFAULT_PITCH | FF_DONTCARE,
+        p_param_ptr.fontName.c_str() );
+    IF_WINAPI_FAILED_RETURN_WITH_REPORT( cx, !!hFont, nullptr, CreateFont );
+
+    SendMessage( hTooltipWnd, TTM_ADDTOOL, 0, (LPARAM)toolInfo.get() );
+    SendMessage( hTooltipWnd, TTM_ACTIVATE, FALSE, 0 );
+    SendMessage( hTooltipWnd, WM_SETFONT, (WPARAM)hFont, MAKELPARAM( FALSE, 0 ) );   
+
+    return std::unique_ptr<JsFbTooltip>( new JsFbTooltip( cx, hParentWnd, hTooltipWnd, std::move(toolInfo), p_param_ptr ) );
 }
 
 std::optional<std::nullptr_t>
@@ -227,7 +223,7 @@ std::optional<std::nullptr_t>
 JsFbTooltip::put_Text( const std::wstring& text )
 {
     tipBuffer_.assign(text);
-    toolInfo_.lpszText = (LPWSTR)tipBuffer_.c_str();
+    toolInfo_->lpszText = (LPWSTR)tipBuffer_.c_str();
     SendMessage( hTooltipWnd_, TTM_SETTOOLINFO, 0, (LPARAM)&toolInfo_ );
     return nullptr;
 }
@@ -237,11 +233,11 @@ JsFbTooltip::put_TrackActivate( bool activate )
 {
     if ( activate )
     {
-        toolInfo_.uFlags |= TTF_TRACK | TTF_ABSOLUTE;
+        toolInfo_->uFlags |= TTF_TRACK | TTF_ABSOLUTE;
     }
     else
     {
-        toolInfo_.uFlags &= ~(TTF_TRACK | TTF_ABSOLUTE);
+        toolInfo_->uFlags &= ~(TTF_TRACK | TTF_ABSOLUTE);
     }
 
     SendMessage( hTooltipWnd_, TTM_TRACKACTIVATE, activate, (LPARAM)&toolInfo_ );

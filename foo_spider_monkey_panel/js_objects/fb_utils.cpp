@@ -190,6 +190,10 @@ const JSPropertySpec jsProperties[] = {
 namespace mozjs
 {
 
+const JSClass JsFbUtils::JsClass = jsClass;
+const JSFunctionSpec* JsFbUtils::JsFunctions = jsFunctions;
+const JSPropertySpec* JsFbUtils::JsProperties = jsProperties;
+
 JsFbUtils::JsFbUtils( JSContext* cx )
     : pJsCtx_( cx )
 {
@@ -199,29 +203,10 @@ JsFbUtils::~JsFbUtils()
 {
 }
 
-JSObject* JsFbUtils::Create( JSContext* cx )
+std::unique_ptr<JsFbUtils>
+JsFbUtils::CreateNative( JSContext* cx )
 {
-    JS::RootedObject jsObj( cx,
-                            JS_NewObject( cx, &jsClass ) );
-    if ( !jsObj )
-    {
-        return nullptr;
-    }
-
-    if ( !JS_DefineFunctions( cx, jsObj, jsFunctions )
-         || !JS_DefineProperties( cx, jsObj, jsProperties ) )
-    {
-        return nullptr;
-    }
-
-    JS_SetPrivate( jsObj, new JsFbUtils( cx ) );
-
-    return jsObj;
-}
-
-const JSClass& JsFbUtils::GetClass()
-{
-    return jsClass;
+    return std::unique_ptr<JsFbUtils>( new JsFbUtils( cx ) );
 }
 
 std::optional<JSObject*>
@@ -822,7 +807,7 @@ JsFbUtils::RunContextCommandWithMetadb( const pfc::string8_fast& command, JS::Ha
     JsFbMetadbHandle* jsHandle = 
         static_cast<JsFbMetadbHandle*>( JS_GetInstancePrivate( pJsCtx_, jsObject, &JsFbMetadbHandle::JsClass, nullptr ) );
     JsFbMetadbHandleList* jsHandleList =
-        static_cast<JsFbMetadbHandleList*>( JS_GetInstancePrivate( pJsCtx_, jsObject, &JsFbMetadbHandleList::GetClass(), nullptr ) );
+        static_cast<JsFbMetadbHandleList*>( JS_GetInstancePrivate( pJsCtx_, jsObject, &JsFbMetadbHandleList::JsClass, nullptr ) );
 
     if ( !jsHandle || !jsHandleList )
     {

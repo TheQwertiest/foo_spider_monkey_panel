@@ -53,7 +53,7 @@ bool JsContainer::Initialize()
 
     JSAutoRequest ar( pJsCtx_ );
 
-    jsGlobal_.init( pJsCtx_, JsGlobalObject::Create( pJsCtx_, *this, *pParentPanel_ ) );
+    jsGlobal_.init( pJsCtx_, JsGlobalObject::CreateNative( pJsCtx_, *this, *pParentPanel_ ) );
     if ( !jsGlobal_ )
     {
         return false;
@@ -106,7 +106,7 @@ void JsContainer::Finalize()
         if ( JS_GetProperty( pJsCtx_, jsGlobal_, "window", &jsProperty ) && jsProperty.isObject() )
         {
             JS::RootedObject jsWindow( pJsCtx_, &jsProperty.toObject() );
-            auto nativeWindow = static_cast<JsWindow*>( JS_GetInstancePrivate( pJsCtx_, jsWindow, &JsWindow::GetClass(), nullptr ) );
+            auto nativeWindow = static_cast<JsWindow*>( JS_GetInstancePrivate( pJsCtx_, jsWindow, &JsWindow::JsClass, nullptr ) );
             if ( nativeWindow )
             {
                 nativeWindow->RemoveHeapTracer();
