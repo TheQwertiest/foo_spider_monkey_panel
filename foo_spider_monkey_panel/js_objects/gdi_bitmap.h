@@ -1,5 +1,7 @@
 #pragma once
 
+#include <js_objects/object_base.h>
+
 #include <optional>
 #include <memory>
 
@@ -18,15 +20,24 @@ namespace mozjs
 class JsGdiGraphics;
 
 class JsGdiBitmap
+    : public JsObjectBase<JsGdiBitmap>
 {
 public:
+    static constexpr bool HasProto = true;
+    static constexpr bool HasGlobalProto = false;
+    static constexpr bool HasProxy = false;
+
+    static const JSClass JsClass;
+    static const JSFunctionSpec* JsFunctions;
+    static const JSPropertySpec* JsProperties;
+    static const JsPrototypeId PrototypeId;
+
+public:
     ~JsGdiBitmap();
-    
-    static JSObject* Create( JSContext* cx, Gdiplus::Bitmap* pGdiBitmap );
 
-    static const JSClass& GetClass();
+    static std::unique_ptr<JsGdiBitmap> CreateNative( JSContext* cx, std::unique_ptr<Gdiplus::Bitmap> gdiBitmap );
 
-public: 
+public:
     Gdiplus::Bitmap* GdiBitmap() const;
 
 public: //methods
@@ -50,9 +61,7 @@ public: // props
     std::optional<std::uint32_t> get_Width();
 
 private:
-    JsGdiBitmap( JSContext* cx, Gdiplus::Bitmap* pGdiBitmap );
-    JsGdiBitmap( const JsGdiBitmap& ) = delete;
-    JsGdiBitmap& operator=( const JsGdiBitmap& ) = delete;
+    JsGdiBitmap( JSContext* cx, std::unique_ptr<Gdiplus::Bitmap> gdiBitmap );
 
 private:
     JSContext * pJsCtx_ = nullptr;;

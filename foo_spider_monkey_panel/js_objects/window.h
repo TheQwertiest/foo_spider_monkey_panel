@@ -1,5 +1,7 @@
 #pragma once
 
+#include <js_objects/object_base.h>
+
 #pragma warning( push )  
 #pragma warning( disable : 4251 ) // dll interface warning
 #pragma warning( disable : 4996 ) // C++17 deprecation warning
@@ -17,17 +19,25 @@ class js_panel_window;
 namespace mozjs
 {
 
-class JsFbProperties;
+class FbProperties;
 
 class JsWindow
+    : public JsObjectBase<JsWindow>
 {
 public:
+    static constexpr bool HasProto = false;
+    static constexpr bool HasProxy = false;
+
+    static const JSClass JsClass;
+    static const JSFunctionSpec* JsFunctions;
+    static const JSPropertySpec* JsProperties;
+
+public:
     ~JsWindow();
-    
-    static JSObject* Create( JSContext* cx, js_panel_window& parentPanel );
 
-    static const JSClass& GetClass();
+    static std::unique_ptr<JsWindow> CreateNative( JSContext* cx, js_panel_window& parentPanel );
 
+public:
     void RemoveHeapTracer();
 
 public: // methods
@@ -79,16 +89,13 @@ public: // props
     std::optional<std::nullptr_t> put_MinWidth( uint32_t width );
    
 private:
-    JsWindow( JSContext* cx, js_panel_window& parentPanel );
-    JsWindow( const JsWindow& ) = delete;
-    JsWindow& operator=( const JsWindow& ) = delete;
+    JsWindow( JSContext* cx, js_panel_window& parentPanel, std::unique_ptr<FbProperties> fbProperties );
 
 private:
     JSContext * pJsCtx_;
     js_panel_window& parentPanel_;
 
-    JS::PersistentRootedObject jsFbProperties_;
-    JsFbProperties* pFbProperties_ = nullptr;
+    std::unique_ptr<FbProperties> fbProperties_;
 };
 
 }

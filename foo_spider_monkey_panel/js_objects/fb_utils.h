@@ -1,5 +1,7 @@
 #pragma once
 
+#include <js_objects/object_base.h>
+
 #pragma warning( push )  
 #pragma warning( disable : 4251 ) // dll interface warning
 #pragma warning( disable : 4996 ) // C++17 deprecation warning
@@ -20,13 +22,20 @@ class JsFbMetadbHandle;
 class JsFbMetadbHandleList;
 
 class JsFbUtils
+    : public JsObjectBase<JsFbUtils>
 {
+public:
+    static constexpr bool HasProto = false;
+    static constexpr bool HasProxy = false;
+
+    static const JSClass JsClass;
+    static const JSFunctionSpec* JsFunctions;
+    static const JSPropertySpec* JsProperties;
+
 public:
     ~JsFbUtils();
 
-    static JSObject* Create( JSContext* cx );
-
-    static const JSClass& GetClass();
+    static std::unique_ptr<JsFbUtils> CreateNative( JSContext* cx );
 
 public:
     std::optional<JSObject*> AcquireUiSelectionHolder();
@@ -112,8 +121,6 @@ public:
 
 private:
     JsFbUtils( JSContext* cx );
-    JsFbUtils( const JsFbUtils& ) = delete;
-    JsFbUtils& operator=( const JsFbUtils& ) = delete;
 
 private:
     JSContext * pJsCtx_ = nullptr;

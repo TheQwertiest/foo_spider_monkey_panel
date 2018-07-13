@@ -53,6 +53,10 @@ const JSPropertySpec jsProperties[] = {
 namespace mozjs
 {
 
+const JSClass JsFbUiSelectionHolder::JsClass = jsClass;
+const JSFunctionSpec* JsFbUiSelectionHolder::JsFunctions = jsFunctions;
+const JSPropertySpec* JsFbUiSelectionHolder::JsProperties = jsProperties;
+const JsPrototypeId JsFbUiSelectionHolder::PrototypeId = JsPrototypeId::FbUiSelectionHolder;
 
 JsFbUiSelectionHolder::JsFbUiSelectionHolder( JSContext* cx, const ui_selection_holder::ptr& holder )
     : pJsCtx_( cx )
@@ -65,29 +69,10 @@ JsFbUiSelectionHolder::~JsFbUiSelectionHolder()
 {
 }
 
-JSObject* JsFbUiSelectionHolder::Create( JSContext* cx, const ui_selection_holder::ptr& holder )
+std::unique_ptr<JsFbUiSelectionHolder>
+JsFbUiSelectionHolder::CreateNative( JSContext* cx, const ui_selection_holder::ptr& holder )
 {
-    JS::RootedObject jsObj( cx,
-                            JS_NewObject( cx, &jsClass ) );
-    if ( !jsObj )
-    {
-        return nullptr;
-    }
-
-    if ( !JS_DefineFunctions( cx, jsObj, jsFunctions )
-         || !JS_DefineProperties( cx, jsObj, jsProperties ) )
-    {
-        return nullptr;
-    }
-
-    JS_SetPrivate( jsObj, new JsFbUiSelectionHolder( cx, holder ) );
-
-    return jsObj;
-}
-
-const JSClass& JsFbUiSelectionHolder::GetClass()
-{
-    return jsClass;
+    return std::unique_ptr<JsFbUiSelectionHolder>( new JsFbUiSelectionHolder( cx, holder ) );
 }
 
 std::optional<std::nullptr_t> 

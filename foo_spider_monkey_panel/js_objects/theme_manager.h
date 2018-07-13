@@ -1,5 +1,7 @@
 #pragma once
 
+#include <js_objects/object_base.h>
+
 #include <optional>
 #include <string>
 
@@ -13,13 +15,22 @@ namespace mozjs
 class JsGdiGraphics;
 
 class JsThemeManager
+    : public JsObjectBase<JsThemeManager>
 {
+public:
+    static constexpr bool HasProto = true;
+    static constexpr bool HasGlobalProto = false;
+    static constexpr bool HasProxy = false;
+
+    static const JSClass JsClass;
+    static const JSFunctionSpec* JsFunctions;
+    static const JSPropertySpec* JsProperties;
+    static const JsPrototypeId PrototypeId;
+
 public:
     ~JsThemeManager();
 
-    static JSObject* Create( JSContext* cx, HWND hwnd, const std::wstring& classlist );
-
-    static const JSClass& GetClass();
+    static std::unique_ptr<JsThemeManager> CreateNative( JSContext* cx, HWND hwnd, const std::wstring& classlist );
 
 public:
     std::optional<std::nullptr_t> DrawThemeBackground( JsGdiGraphics* gr, 
@@ -33,16 +44,14 @@ public:
     std::optional<std::nullptr_t> SetPartAndStateIDWithOpt( size_t optArgCount, int32_t partid, int32_t stateId );
 
 private:
-    JsThemeManager( JSContext* cx, HWND hwnd, const std::wstring& classlist );
-    JsThemeManager( const JsThemeManager& ) = delete;
-    JsThemeManager& operator=( const JsThemeManager& ) = delete;
+    JsThemeManager( JSContext* cx, HWND hwnd, HTHEME hTheme );
 
 private:
     JSContext * pJsCtx_ = nullptr;
 
-    HTHEME hTheme_;
-    int32_t partId_;
-    int32_t stateId_;
+    HTHEME hTheme_ = nullptr;
+    int32_t partId_ = 0;
+    int32_t stateId_ = 0;
 };
 
 }

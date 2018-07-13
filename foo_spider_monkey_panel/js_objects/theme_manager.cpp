@@ -53,13 +53,15 @@ const JSPropertySpec jsProperties[] = {
 namespace mozjs
 {
 
-JsThemeManager::JsThemeManager( JSContext* cx, HWND hwnd, const std::wstring& classlist )
-    : pJsCtx_( cx )
-{
-    // TODO: move to Create
-    hTheme_ = OpenThemeData( hwnd, classlist.c_str() );
+const JSClass JsThemeManager::JsClass = jsClass;
+const JSFunctionSpec* JsThemeManager::JsFunctions = jsFunctions;
+const JSPropertySpec* JsThemeManager::JsProperties = jsProperties;
+const JsPrototypeId JsThemeManager::PrototypeId = JsPrototypeId::ThemeManager;
 
-    if ( !hTheme_ ) throw pfc::exception_invalid_params();
+JsThemeManager::JsThemeManager( JSContext* cx, HWND hwnd, HTHEME hTheme )
+    : pJsCtx_( cx )
+    , hTheme_( hTheme )
+{
 }
 
 JsThemeManager::~JsThemeManager()
@@ -70,29 +72,17 @@ JsThemeManager::~JsThemeManager()
     }
 }
 
-JSObject* JsThemeManager::Create( JSContext* cx, HWND hwnd, const std::wstring& classlist )
+std::unique_ptr<JsThemeManager>
+JsThemeManager::CreateNative( JSContext* cx, HWND hwnd, const std::wstring& classlist )
 {
-    JS::RootedObject jsObj( cx,
-                            JS_NewObject( cx, &jsClass ) );
-    if ( !jsObj )
+    HTHEME hTheme = OpenThemeData( hwnd, classlist.c_str() );
+    if ( !hTheme )
     {
+        JS_ReportErrorUTF8( cx, "No data matched supplied class list" );
         return nullptr;
     }
 
-    if ( !JS_DefineFunctions( cx, jsObj, jsFunctions )
-         || !JS_DefineProperties( cx, jsObj, jsProperties ) )
-    {
-        return nullptr;
-    }
-
-    JS_SetPrivate( jsObj, new JsThemeManager( cx, hwnd, classlist ) );
-
-    return jsObj;
-}
-
-const JSClass& JsThemeManager::GetClass()
-{
-    return jsClass;
+    return std::unique_ptr<JsThemeManager>( new JsThemeManager( cx, hwnd, hTheme ) );
 }
 
 std::optional<std::nullptr_t> 

@@ -89,11 +89,19 @@ const JSFunctionSpec jsFunctions[] = {
     JS_FS_END
 };
 
+const JSPropertySpec jsProperties[] = {
+    JS_PS_END
+};
+
 }
 
 namespace mozjs
 {
 
+const JSClass JsGdiGraphics::JsClass = jsClass;
+const JSFunctionSpec* JsGdiGraphics::JsFunctions = jsFunctions;
+const JSPropertySpec* JsGdiGraphics::JsProperties = jsProperties;
+const JsPrototypeId JsGdiGraphics::PrototypeId = JsPrototypeId::GdiGraphics;
 
 JsGdiGraphics::JsGdiGraphics( JSContext* cx )
     : pJsCtx_( cx )
@@ -106,28 +114,10 @@ JsGdiGraphics::~JsGdiGraphics()
 {
 }
 
-JSObject* JsGdiGraphics::Create( JSContext* cx )
+std::unique_ptr<JsGdiGraphics>
+JsGdiGraphics::CreateNative( JSContext* cx )
 {
-    JS::RootedObject jsObj( cx,
-                            JS_NewObject( cx, &jsClass ) );
-    if ( !jsObj )
-    {
-        return nullptr;
-    }
-
-    if ( !JS_DefineFunctions( cx, jsObj, jsFunctions ) )
-    {
-        return nullptr;
-    }
-
-    JS_SetPrivate( jsObj, new JsGdiGraphics( cx ) );
-
-    return jsObj;
-}
-
-const JSClass& JsGdiGraphics::GetClass()
-{
-    return jsClass;
+    return std::unique_ptr<JsGdiGraphics>( new JsGdiGraphics( cx ) );
 }
 
 Gdiplus::Graphics* JsGdiGraphics::GetGraphicsObject() const

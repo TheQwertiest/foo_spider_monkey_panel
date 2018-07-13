@@ -1,5 +1,7 @@
 #pragma once
 
+#include <js_objects/object_base.h>
+
 #include <optional>
 #include <string>
 
@@ -11,13 +13,23 @@ namespace mozjs
 {
 
 class JsFbProfiler
+    : public JsObjectBase<JsFbProfiler>
 {
+public:
+    static constexpr bool HasProto = true;
+    // TODO: add global proto
+    static constexpr bool HasGlobalProto = false;
+    static constexpr bool HasProxy = false;
+
+    static const JSClass JsClass;
+    static const JSFunctionSpec* JsFunctions;
+    static const JSPropertySpec* JsProperties;
+    static const JsPrototypeId PrototypeId;
+
 public:
     ~JsFbProfiler();
 
-    static JSObject* Create( JSContext* cx, const pfc::string8_fast& name );
-
-    static const JSClass& GetClass();
+    static std::unique_ptr<JsFbProfiler> CreateNative( JSContext* cx, const pfc::string8_fast& name );
 
 public:
     // TODO: add a new argument to print (custom message) and update doc
@@ -29,8 +41,6 @@ public:
 
 private:
     JsFbProfiler( JSContext* cx, const pfc::string8_fast& name );
-    JsFbProfiler( const JsFbProfiler& ) = delete;
-    JsFbProfiler& operator=( const JsFbProfiler& ) = delete;
 
 private:
     JSContext * pJsCtx_ = nullptr;

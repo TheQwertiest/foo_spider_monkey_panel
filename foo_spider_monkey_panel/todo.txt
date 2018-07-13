@@ -1,14 +1,12 @@
 # Current
 - Add one-use only DefinePanel(name, author, [options]) method somewhere (global, utils, window?)
 - Fix unresponsive arrow keys in some scripts (mb smth with focus?).
-- Reimplement all object creation code through prototypes, since JS_DefineProperties and JS_DefineFunctions are very expensive.
 - 'Shell.Application': use through ActiveXObject, manual linking is possible (shell32.lib, Shldisp.idl, Shldisp.h), 
-- 'WScript.Shell': new `utils` methods? Run, RegRead, maybe RegWrite.
+- 'WScript.Shell': new `utils` methods? Run (Shell.Application has ShellExecute), RegRead, maybe RegWrite.
 - See todo in FbMetadbHandleList about collisions (probably can be reproduced by returning nullptr from Create).
 - Change scintilla classname: https://github.com/TheQwertiest/foo-jscript-panel/commit/57393822ae42e1ebd77911c0f934471903975b4e#commitcomment-29624489
 - Change stats field names: https://github.com/TheQwertiest/foo-jscript-panel/commit/57393822ae42e1ebd77911c0f934471903975b4e#commitcomment-29629263
 - Reimplement ActiveXObject accessors through proxy instead of current hacks.
-- Move all failable initialization from ctor to PostCreate.
 - Rework GC.
 - Rewrite ActiveXObject properly (and rename the files as well).
 - Remove engine settings from Panel Properties dialog.

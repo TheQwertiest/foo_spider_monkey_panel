@@ -12,81 +12,41 @@
 
 using namespace smp;
 
-namespace
-{
-
-using namespace mozjs;
-
-JSClassOps jsOps = {
-    nullptr,
-    nullptr,
-    nullptr,
-    nullptr,
-    nullptr,
-    nullptr,
-    JsFinalizeOp<JsFbProperties>,
-    nullptr,
-    nullptr,
-    nullptr,
-    nullptr
-};
-
-JSClass jsClass = {
-    "FbProperties",
-    DefaultClassFlags(),
-    &jsOps
-};
-
-}
-
 namespace mozjs
 {
 
-JsFbProperties::JsFbProperties( JSContext* cx, js_panel_window& parentPanel )
+FbProperties::FbProperties( JSContext* cx, js_panel_window& parentPanel )
     : pJsCtx_( cx )
     , parentPanel_( parentPanel )
 {
 }
 
-JsFbProperties::~JsFbProperties()
+FbProperties::~FbProperties()
 {
     RemoveHeapTracer();
 }
 
-JSObject* JsFbProperties::Create( JSContext* cx, js_panel_window& parentPanel )
+std::unique_ptr<FbProperties> 
+FbProperties::Create( JSContext* cx, js_panel_window& parentPanel )
 {
-    JS::RootedObject jsObj( cx,
-                            JS_NewObject( cx, &jsClass ) );
-    if ( !jsObj )
+    std::unique_ptr<FbProperties> fbProps( new FbProperties( cx, parentPanel ) );
+
+    if ( !JS_AddExtraGCRootsTracer( cx, FbProperties::TraceHeapValue, fbProps.get() ) )
     {
         return nullptr;
     }
 
-    auto pNative = new JsFbProperties( cx, parentPanel );
-    JS_SetPrivate( jsObj, pNative );
-
-    if ( !JS_AddExtraGCRootsTracer( cx, JsFbProperties::TraceHeapValue, pNative ) )
-    {
-        return nullptr;
-    }
-
-    return jsObj;
+    return fbProps;
 }
 
-const JSClass& JsFbProperties::GetClass()
+void FbProperties::RemoveHeapTracer()
 {
-    return jsClass;
-}
-
-
-void JsFbProperties::RemoveHeapTracer()
-{
-    JS_RemoveExtraGCRootsTracer( pJsCtx_, JsFbProperties::TraceHeapValue, this );
+    JS_RemoveExtraGCRootsTracer( pJsCtx_, FbProperties::TraceHeapValue, this );
     properties_.clear();
 }
 
 std::optional<JS::Heap<JS::Value>>
-JsFbProperties::GetProperty( const std::wstring& propName, JS::HandleValue propDefaultValue )
+FbProperties::GetProperty( const std::wstring& propName, JS::HandleValue propDefaultValue )
 {    
     std::wstring trimmedPropName( Trim( propName ) );
 
@@ -127,7 +87,7 @@ JsFbProperties::GetProperty( const std::wstring& propName, JS::HandleValue propD
     return std::make_optional( properties_[trimmedPropName]->value );
 }
 
-bool JsFbProperties::SetProperty( const std::wstring& propName, JS::HandleValue propValue )
+bool FbProperties::SetProperty( const std::wstring& propName, JS::HandleValue propValue )
 {
     std::wstring trimmedPropName( Trim( propName ) );
 
@@ -151,10 +111,10 @@ bool JsFbProperties::SetProperty( const std::wstring& propName, JS::HandleValue 
     return true;
 }
 
-void JsFbProperties::TraceHeapValue( JSTracer *trc, void *data )
+void FbProperties::TraceHeapValue( JSTracer *trc, void *data )
 {
     assert( data );
-    auto jsObject = static_cast<JsFbProperties*>( data );
+    auto jsObject = static_cast<FbProperties*>( data );
     auto& properties = jsObject->properties_;
     
     for ( auto& [name,heapElem] : properties )

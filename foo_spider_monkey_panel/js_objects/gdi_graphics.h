@@ -1,5 +1,7 @@
 #pragma once
 
+#include <js_objects/object_base.h>
+
 #pragma warning( push )  
 #pragma warning( disable : 4251 ) // dll interface warning
 #pragma warning( disable : 4996 ) // C++17 deprecation warning
@@ -24,13 +26,22 @@ class JsGdiBitmap;
 class JsGdiRawBitmap;
 
 class JsGdiGraphics
+    : public JsObjectBase<JsGdiGraphics>
 {
 public:
+    static constexpr bool HasProto = true;
+    static constexpr bool HasGlobalProto = false;
+    static constexpr bool HasProxy = false;
+
+    static const JSClass JsClass;
+    static const JSFunctionSpec* JsFunctions;
+    static const JSPropertySpec* JsProperties;
+    static const JsPrototypeId PrototypeId;
+
+public:   
     ~JsGdiGraphics();
 
-    static JSObject* Create( JSContext* cx );
-
-    static const JSClass& GetClass();
+    static std::unique_ptr<JsGdiGraphics> CreateNative( JSContext* cx );
 
 public:
     Gdiplus::Graphics* GetGraphicsObject() const;
@@ -100,8 +111,6 @@ public:
 
 private:
     JsGdiGraphics( JSContext* cx );
-    JsGdiGraphics( const JsGdiGraphics& ) = delete;
-    JsGdiGraphics& operator=( const JsGdiGraphics& ) = delete;
 
     bool GetRoundRectPath( Gdiplus::GraphicsPath& gp, Gdiplus::RectF& rect, float arc_width, float arc_height );
     bool ParsePoints( JS::HandleValue jsValue, std::vector<Gdiplus::PointF> &gdiPoints );

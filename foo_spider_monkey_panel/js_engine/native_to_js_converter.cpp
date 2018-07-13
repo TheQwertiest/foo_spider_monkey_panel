@@ -10,6 +10,26 @@
 namespace mozjs::convert::to_js
 {
 
+template<>
+bool ToValue( JSContext * cx, std::unique_ptr<Gdiplus::Bitmap> inValue, JS::MutableHandleValue wrappedValue )
+{
+    if ( !inValue )
+    {// Not an error
+        wrappedValue.setNull();
+        return true;
+    }
+
+    JS::RootedObject jsObject( cx, JsGdiBitmap::Create( cx, std::move( inValue ) ) );
+    if ( !jsObject )
+    {
+        return false;
+    }
+
+    inValue.release();
+    wrappedValue.setObjectOrNull( jsObject );
+    return true;
+}
+
 template <>
 bool ToValue( JSContext *, JS::HandleObject inValue, JS::MutableHandleValue wrappedValue )
 {
@@ -140,45 +160,6 @@ bool ToValue( JSContext * cx, const metadb_handle_list& inValue, JS::MutableHand
         return false;
     }
 
-    wrappedValue.setObjectOrNull( jsObject );
-    return true;
-}
-
-template<>
-bool ToValue( JSContext * cx, Gdiplus::Bitmap* const& inValue, JS::MutableHandleValue wrappedValue )
-{
-    if ( !inValue )
-    {// Not an error
-        wrappedValue.setNull();
-        return true;
-    }
-
-    JS::RootedObject jsObject( cx, JsGdiBitmap::Create( cx, inValue ) );
-    if ( !jsObject )
-    {
-        return false;
-    }
-
-    wrappedValue.setObjectOrNull( jsObject );
-    return true;
-}
-
-template<>
-bool ToValue( JSContext * cx, std::unique_ptr<Gdiplus::Bitmap> inValue, JS::MutableHandleValue wrappedValue )
-{
-    if ( !inValue )
-    {// Not an error
-        wrappedValue.setNull();
-        return true;
-    }
-
-    JS::RootedObject jsObject( cx, JsGdiBitmap::Create( cx, inValue.get() ) );
-    if ( !jsObject )
-    {
-        return false;
-    }
-
-    inValue.release();
     wrappedValue.setObjectOrNull( jsObject );
     return true;
 }

@@ -1,5 +1,7 @@
 #pragma once
 
+#include <js_objects/object_base.h>
+
 #include <optional>
 #include <string>
 
@@ -13,13 +15,20 @@ namespace mozjs
 class JsFbMetadbHandle;
 
 class JsUtils
+    : public JsObjectBase<JsUtils>
 {
+public:
+    static constexpr bool HasProto = false;
+    static constexpr bool HasProxy = false;
+
+    static const JSClass JsClass;
+    static const JSFunctionSpec* JsFunctions;
+    static const JSPropertySpec* JsProperties;
+
 public:
     ~JsUtils();
 
-    static JSObject* Create( JSContext* cx );
-
-    static const JSClass& GetClass();
+    static std::unique_ptr<JsUtils> CreateNative( JSContext* cx );
 
 public:
     std::optional<bool> CheckComponent( const pfc::string8_fast& name, bool is_dll = true );
@@ -55,8 +64,6 @@ public:
 
 private:
     JsUtils( JSContext* cx );
-    JsUtils( const JsUtils& ) = delete;
-    JsUtils& operator=( const JsUtils& ) = delete;
 
 private:
     JSContext * pJsCtx_ = nullptr;

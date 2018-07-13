@@ -1,5 +1,7 @@
 #pragma once
 
+#include <js_objects/object_base.h>
+
 #include <optional>
 #include <string>
 
@@ -16,13 +18,20 @@ class JsFbPlayingItemLocation;
 class JsFbPlaylistRecyclerManager;
 
 class JsFbPlaylistManager
+    : public JsObjectBase<JsFbPlaylistManager>
 {
+public:
+    static constexpr bool HasProto = false;
+    static constexpr bool HasProxy = false;
+
+    static const JSClass JsClass;
+    static const JSFunctionSpec* JsFunctions;
+    static const JSPropertySpec* JsProperties;
+
 public:
     ~JsFbPlaylistManager();
 
-    static JSObject* Create( JSContext* cx );
-
-    static const JSClass& GetClass();
+    static std::unique_ptr<JsFbPlaylistManager> CreateNative( JSContext* cx );
 
 public:
     std::optional<std::nullptr_t> AddItemToPlaybackQueue( JsFbMetadbHandle* handle );
@@ -92,8 +101,6 @@ public:
 
 private:
     JsFbPlaylistManager( JSContext* cx );
-    JsFbPlaylistManager( const JsFbPlaylistManager& ) = delete;
-    JsFbPlaylistManager& operator=( const JsFbPlaylistManager& ) = delete;
 
 private:
     JSContext * pJsCtx_ = nullptr;

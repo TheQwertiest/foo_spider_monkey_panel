@@ -1,5 +1,7 @@
 #pragma once
 
+#include <js_objects/object_base.h>
+
 #include <optional>
 
 class JSObject;
@@ -9,15 +11,26 @@ struct JSClass;
 namespace mozjs
 {
 
+
 class JsDropSourceAction
+    : public JsObjectBase<JsDropSourceAction>
 {
+public:
+    static constexpr bool HasProto = true;
+    static constexpr bool HasGlobalProto = false;
+    static constexpr bool HasProxy = false;
+
+    static const JSClass JsClass;
+    static const JSFunctionSpec* JsFunctions;
+    static const JSPropertySpec* JsProperties;
+    static const JsPrototypeId PrototypeId;
+
 public:
     ~JsDropSourceAction();
 
-    static JSObject* Create( JSContext* cx );
+    static std::unique_ptr<JsDropSourceAction> CreateNative( JSContext* cx );
 
-    static const JSClass& GetClass();
-
+public:
     void Reset();
 
     uint32_t & Base();
@@ -34,8 +47,6 @@ public:
 
 private:
     JsDropSourceAction( JSContext* cx );
-    JsDropSourceAction( const JsDropSourceAction& ) = delete;
-    JsDropSourceAction& operator=( const JsDropSourceAction& ) = delete;
 
 private:
     JSContext * pJsCtx_ = nullptr;

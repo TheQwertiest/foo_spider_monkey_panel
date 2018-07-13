@@ -1,5 +1,7 @@
 #pragma once
 
+#include <js_objects/object_base.h>
+
 #include <optional>
 
 class JSObject;
@@ -11,13 +13,22 @@ namespace mozjs
 {
 
 class JsFbFileInfo
+    : public JsObjectBase<JsFbFileInfo>
 {
 public:
-    ~JsFbFileInfo();
-    
-    static JSObject* Create( JSContext* cx, file_info_impl* pFileInfo );
+    static constexpr bool HasProto = true;
+    static constexpr bool HasGlobalProto = false;
+    static constexpr bool HasProxy = false;
 
-    static const JSClass& GetClass();
+    static const JSClass JsClass;
+    static const JSFunctionSpec* JsFunctions;
+    static const JSPropertySpec* JsProperties;
+    static const JsPrototypeId PrototypeId;
+
+public:
+    ~JsFbFileInfo();
+
+    static std::unique_ptr<JsFbFileInfo> CreateNative( JSContext* cx, std::unique_ptr<file_info_impl> fileInfo );
 
 public:
     std::optional<int32_t>InfoFind( const pfc::string8_fast& name );
@@ -33,9 +44,7 @@ public:
     std::optional<uint32_t>get_MetaCount();
 
 private:
-    JsFbFileInfo( JSContext* cx, file_info_impl* pFileInfo );
-    JsFbFileInfo( const JsFbFileInfo& ) = delete;
-    JsFbFileInfo& operator=( const JsFbFileInfo& ) = delete;
+    JsFbFileInfo( JSContext* cx, std::unique_ptr<file_info_impl> fileInfo );
 
 private:
     JSContext * pJsCtx_ = nullptr;

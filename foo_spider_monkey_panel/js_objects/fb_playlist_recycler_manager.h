@@ -1,5 +1,7 @@
 #pragma once
 
+#include <js_objects/object_base.h>
+
 #include <optional>
 #include <string>
 
@@ -11,13 +13,20 @@ namespace mozjs
 {
 
 class JsFbPlaylistRecyclerManager
+    : public JsObjectBase<JsFbPlaylistRecyclerManager>
 {
+public:
+    static constexpr bool HasProto = false;
+    static constexpr bool HasProxy = false;
+
+    static const JSClass JsClass;
+    static const JSFunctionSpec* JsFunctions;
+    static const JSPropertySpec* JsProperties;
+
 public:
     ~JsFbPlaylistRecyclerManager();
 
-    static JSObject* Create( JSContext* cx );
-
-    static const JSClass& GetClass();
+    static std::unique_ptr<JsFbPlaylistRecyclerManager> CreateNative( JSContext* cx );
 
 public:
     std::optional<std::nullptr_t> Purge( JS::HandleValue affectedItems );
@@ -30,8 +39,6 @@ public:
 
 private:
     JsFbPlaylistRecyclerManager( JSContext* cx );
-    JsFbPlaylistRecyclerManager( const JsFbPlaylistRecyclerManager& ) = delete;
-    JsFbPlaylistRecyclerManager& operator=( const JsFbPlaylistRecyclerManager& ) = delete;
 
 private:
     JSContext * pJsCtx_ = nullptr;

@@ -53,6 +53,10 @@ const JSFunctionSpec jsFunctions[] = {
 namespace mozjs
 {
 
+const JSClass JsFbPlayingItemLocation::JsClass = jsClass;
+const JSFunctionSpec* JsFbPlayingItemLocation::JsFunctions = jsFunctions;
+const JSPropertySpec* JsFbPlayingItemLocation::JsProperties = jsProperties;
+const JsPrototypeId JsFbPlayingItemLocation::PrototypeId = JsPrototypeId::FbPlayingItemLocation;
 
 JsFbPlayingItemLocation::JsFbPlayingItemLocation( JSContext* cx, bool isValid, uint32_t playlistIndex, uint32_t playlistItemIndex )
     : pJsCtx_( cx )
@@ -67,29 +71,10 @@ JsFbPlayingItemLocation::~JsFbPlayingItemLocation()
 {
 }
 
-JSObject* JsFbPlayingItemLocation::Create( JSContext* cx, bool isValid, uint32_t playlistIndex, uint32_t playlistItemIndex )
+std::unique_ptr<JsFbPlayingItemLocation> 
+JsFbPlayingItemLocation::CreateNative( JSContext* cx, bool isValid, uint32_t playlistIndex, uint32_t playlistItemIndex )
 {
-    JS::RootedObject jsObj( cx,
-                            JS_NewObject( cx, &jsClass ) );
-    if ( !jsObj )
-    {
-        return nullptr;
-    }
-
-    if ( !JS_DefineFunctions( cx, jsObj, jsFunctions )
-         || !JS_DefineProperties( cx, jsObj, jsProperties ) )
-    {
-        return nullptr;
-    }
-
-    JS_SetPrivate( jsObj, new JsFbPlayingItemLocation( cx, isValid, playlistIndex, playlistItemIndex ) );
-
-    return jsObj;
-}
-
-const JSClass& JsFbPlayingItemLocation::GetClass()
-{
-    return jsClass;
+    return std::unique_ptr<JsFbPlayingItemLocation>( new JsFbPlayingItemLocation(cx, isValid, playlistIndex, playlistItemIndex) );
 }
 
 std::optional<bool> 

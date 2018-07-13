@@ -58,6 +58,10 @@ const JSPropertySpec jsProperties[] = {
 namespace mozjs
 {
 
+const JSClass JsMeasureStringInfo::JsClass = jsClass;
+const JSFunctionSpec* JsMeasureStringInfo::JsFunctions = jsFunctions;
+const JSPropertySpec* JsMeasureStringInfo::JsProperties = jsProperties;
+const JsPrototypeId JsMeasureStringInfo::PrototypeId = JsPrototypeId::MeasureStringInfo;
 
 JsMeasureStringInfo::JsMeasureStringInfo( JSContext* cx, float x, float y, float w, float h, uint32_t lines, uint32_t characters )
     : pJsCtx_( cx )
@@ -70,34 +74,14 @@ JsMeasureStringInfo::JsMeasureStringInfo( JSContext* cx, float x, float y, float
 {
 }
 
-
 JsMeasureStringInfo::~JsMeasureStringInfo()
 {
 }
 
-JSObject* JsMeasureStringInfo::Create( JSContext* cx, float x, float y, float w, float h, uint32_t lines, uint32_t characters )
+std::unique_ptr<JsMeasureStringInfo>
+JsMeasureStringInfo::CreateNative( JSContext* cx, float x, float y, float w, float h, uint32_t lines, uint32_t characters )
 {
-    JS::RootedObject jsObj( cx,
-                            JS_NewObject( cx, &jsClass ) );
-    if ( !jsObj )
-    {
-        return nullptr;
-    }
-
-    if ( !JS_DefineFunctions( cx, jsObj, jsFunctions )
-         || !JS_DefineProperties( cx, jsObj, jsProperties ) )
-    {
-        return nullptr;
-    }
-
-    JS_SetPrivate( jsObj, new JsMeasureStringInfo( cx, x, y, w, h, lines, characters ) );
-
-    return jsObj;
-}
-
-const JSClass& JsMeasureStringInfo::GetClass()
-{
-    return jsClass;
+    return std::unique_ptr<JsMeasureStringInfo>( new JsMeasureStringInfo( cx, x, y, w, h, lines, characters ) );
 }
 
 std::optional<uint32_t> 

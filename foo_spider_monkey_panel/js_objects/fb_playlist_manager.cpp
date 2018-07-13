@@ -156,40 +156,24 @@ const JSPropertySpec jsProperties[] = {
 namespace mozjs
 {
 
+const JSClass JsFbPlaylistManager::JsClass = jsClass;
+const JSFunctionSpec* JsFbPlaylistManager::JsFunctions = jsFunctions;
+const JSPropertySpec* JsFbPlaylistManager::JsProperties = jsProperties;
+
 JsFbPlaylistManager::JsFbPlaylistManager( JSContext* cx )
     : pJsCtx_( cx )
 {
 }
-
 
 JsFbPlaylistManager::~JsFbPlaylistManager()
 {
     jsPlaylistRecycler_.reset();
 }
 
-JSObject* JsFbPlaylistManager::Create( JSContext* cx )
+std::unique_ptr<JsFbPlaylistManager>
+JsFbPlaylistManager::CreateNative( JSContext* cx )
 {
-    JS::RootedObject jsObj( cx,
-                            JS_NewObject( cx, &jsClass ) );
-    if ( !jsObj )
-    {
-        return nullptr;
-    }
-
-    if ( !JS_DefineFunctions( cx, jsObj, jsFunctions )
-         || !JS_DefineProperties( cx, jsObj, jsProperties ) )
-    {
-        return nullptr;
-    }
-
-    JS_SetPrivate( jsObj, new JsFbPlaylistManager( cx ) );
-
-    return jsObj;
-}
-
-const JSClass& JsFbPlaylistManager::GetClass()
-{
-    return jsClass;
+    return std::unique_ptr<JsFbPlaylistManager>( new JsFbPlaylistManager( cx ) );
 }
 
 std::optional<std::nullptr_t>

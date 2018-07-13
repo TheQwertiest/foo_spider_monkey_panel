@@ -1,5 +1,8 @@
 #pragma once
 
+// TODO: replace with prototype_helper.h
+#include <js_utils/js_object_helper.h>
+
 class JSObject;
 struct JSContext;
 struct JSClass;
@@ -50,21 +53,20 @@ public:
     static JSObject* Create( JSContext* cx, ArgTypes&&... args )
     {
         JS::RootedObject jsObject( cx );
+        JS::RootedObject jsProto( cx );
         if constexpr ( T::HasProto )
         {
             JS::RootedObject jsGlobal( cx, JS::CurrentGlobalOrNull( cx ) );
             assert( jsGlobal );
 
-            JSObject* pRawJsProto = nullptr; ///< Raw JS pointer, be careful!
             if constexpr ( T::HasGlobalProto )
             {
-                pRawJsProto = GetPrototype<T>( cx, jsGlobal, T::PrototypeId );
+                jsProto = GetPrototype<T>( cx, jsGlobal, T::PrototypeId );
             }
             else
             {
-                pRawJsProto = GetOrCreatePrototype<T>( cx, jsGlobal, T::PrototypeId );
+                jsProto = GetOrCreatePrototype<T>( cx, jsGlobal, T::PrototypeId );
             }
-            JS::RootedObject jsProto( cx, pRawJsProto );
             if ( !jsProto )
             {// report in GetPrototype
                 return nullptr;
@@ -104,7 +106,7 @@ public:
             JS::RootedValue priv( cx, JS::ObjectValue( *jsObject ) );
 
             js::ProxyOptions options;
-            return js::NewProxyObject( cx, &T::GetProxy(), priv, jsProto, options );;
+            return js::NewProxyObject( cx, &T::JsProxy, priv, jsProto, options );;
         }
         else
         {

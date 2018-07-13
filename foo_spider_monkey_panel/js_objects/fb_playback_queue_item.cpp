@@ -54,6 +54,10 @@ const JSFunctionSpec jsFunctions[] = {
 namespace mozjs
 {
 
+const JSClass JsFbPlaybackQueueItem::JsClass = jsClass;
+const JSFunctionSpec* JsFbPlaybackQueueItem::JsFunctions = jsFunctions;
+const JSPropertySpec* JsFbPlaybackQueueItem::JsProperties = jsProperties;
+const JsPrototypeId JsFbPlaybackQueueItem::PrototypeId = JsPrototypeId::FbPlaybackQueueItem;
 
 JsFbPlaybackQueueItem::JsFbPlaybackQueueItem( JSContext* cx, const t_playback_queue_item& playbackQueueItem )
     : pJsCtx_( cx )
@@ -66,29 +70,10 @@ JsFbPlaybackQueueItem::~JsFbPlaybackQueueItem()
 {
 }
 
-JSObject* JsFbPlaybackQueueItem::Create( JSContext* cx, const t_playback_queue_item& playbackQueueItem )
+std::unique_ptr<JsFbPlaybackQueueItem> 
+JsFbPlaybackQueueItem::CreateNative( JSContext* cx, const t_playback_queue_item& playbackQueueItem )
 {
-    JS::RootedObject jsObj( cx,
-                            JS_NewObject( cx, &jsClass ) );
-    if ( !jsObj )
-    {
-        return nullptr;
-    }
-
-    if ( !JS_DefineFunctions( cx, jsObj, jsFunctions )
-         || !JS_DefineProperties( cx, jsObj, jsProperties ) )
-    {
-        return nullptr;
-    }
-
-    JS_SetPrivate( jsObj, new JsFbPlaybackQueueItem( cx, playbackQueueItem ) );
-
-    return jsObj;
-}
-
-const JSClass& JsFbPlaybackQueueItem::GetClass()
-{
-    return jsClass;
+    return std::unique_ptr<JsFbPlaybackQueueItem>( new JsFbPlaybackQueueItem( cx, playbackQueueItem ) );
 }
 
 std::optional<JSObject*> 

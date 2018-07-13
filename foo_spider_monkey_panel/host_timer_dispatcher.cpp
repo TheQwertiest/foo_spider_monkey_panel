@@ -221,7 +221,7 @@ HostTimerTask::HostTimerTask( JSContext* cx, JS::HandleFunction jsFunction )
     assert( jsGlobal );
     JS::RootedValue globalValue( cx, JS::ObjectValue( *jsGlobal ) );
 
-    pNativeGlobal_ = static_cast<mozjs::JsGlobalObject*>( JS_GetInstancePrivate( cx, jsGlobal, &mozjs::JsGlobalObject::GetClass(), nullptr ) );
+    pNativeGlobal_ = static_cast<mozjs::JsGlobalObject*>( JS_GetInstancePrivate( cx, jsGlobal, &mozjs::JsGlobalObject::JsClass, nullptr ) );
     assert( pNativeGlobal_ );
 
     funcId_ = pNativeGlobal_->StoreToHeap( funcValue );

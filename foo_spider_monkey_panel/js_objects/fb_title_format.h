@@ -2,6 +2,8 @@
 
 #include <js_objects/object_base.h>
 
+#include <js_objects/object_base.h>
+
 #include <optional>
 #include <string>
 
@@ -43,9 +45,7 @@ public:
     std::optional<JSObject*> EvalWithMetadbs( JsFbMetadbHandleList* handles );
 
 private:
-    JsFbTitleFormat( JSContext* cx, const pfc::string8_fast& expr );
-    JsFbTitleFormat( const JsFbTitleFormat& ) = delete;
-    JsFbTitleFormat& operator=( const JsFbTitleFormat& ) = delete;
+    JsFbTitleFormat( JSContext* cx, const pfc::string8_fast& expr );    
 
 private:
     JSContext * pJsCtx_ = nullptr;

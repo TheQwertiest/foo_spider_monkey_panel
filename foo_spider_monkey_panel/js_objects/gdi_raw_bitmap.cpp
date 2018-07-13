@@ -5,6 +5,7 @@
 #include <js_utils/gdi_error_helper.h>
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
+#include <js_utils/winapi_error_helper.h>
 
 #include <helpers.h>
 
@@ -34,6 +35,10 @@ JSClass jsClass = {
     &jsOps
 };
 
+const JSFunctionSpec jsFunctions[] = {
+    JS_FS_END
+};
+
 MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiRawBitmap, get_Height )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiRawBitmap, get_Width )
 
@@ -43,26 +48,24 @@ const JSPropertySpec jsProperties[] = {
     JS_PS_END
 };
 
-const JSFunctionSpec jsFunctions[] = {
-    JS_FS_END
-};
-
 }
 
 namespace mozjs
 {
 
+const JSClass JsGdiRawBitmap::JsClass = jsClass;
+const JSFunctionSpec* JsGdiRawBitmap::JsFunctions = jsFunctions;
+const JSPropertySpec* JsGdiRawBitmap::JsProperties = jsProperties;
+const JsPrototypeId JsGdiRawBitmap::PrototypeId = JsPrototypeId::GdiRawBitmap;
 
-JsGdiRawBitmap::JsGdiRawBitmap( JSContext* cx, Gdiplus::Bitmap* p_bmp )
+JsGdiRawBitmap::JsGdiRawBitmap( JSContext* cx, HDC hDc, HBITMAP hBmp, uint32_t width, uint32_t height )
     : pJsCtx_( cx )
+    , hDc_(hDc)
+    , hBmp_(hBmp)
+    , width_(width)
+    , height_(height)
 {
-    width_ = p_bmp->GetWidth();
-    height_ = p_bmp->GetHeight();
-
-    // TODO: move to create
-    hDc_ = CreateCompatibleDC( nullptr );
-    hBmp_ = helpers::create_hbitmap_from_gdiplus_bitmap( p_bmp );
-    hBmpOld_ = SelectBitmap( hDc_, hBmp_ );
+    hBmpOld_ = SelectBitmap( hDc, hBmp );
 }
 
 JsGdiRawBitmap::~JsGdiRawBitmap()
@@ -81,7 +84,9 @@ JsGdiRawBitmap::~JsGdiRawBitmap()
     }
 }
 
-JSObject* JsGdiRawBitmap::Create( JSContext* cx, Gdiplus::Bitmap* pBmp )
+
+std::unique_ptr<JsGdiRawBitmap>
+JsGdiRawBitmap::CreateNative( JSContext* cx, Gdiplus::Bitmap* pBmp )
 {
     if ( !pBmp )
     {
@@ -89,27 +94,19 @@ JSObject* JsGdiRawBitmap::Create( JSContext* cx, Gdiplus::Bitmap* pBmp )
         return nullptr;
     }
 
-    JS::RootedObject jsObj( cx,
-                            JS_NewObject( cx, &jsClass ) );
-    if ( !jsObj )
+    HDC hDc = CreateCompatibleDC( nullptr );
+    IF_WINAPI_FAILED_RETURN_WITH_REPORT( cx, !!hDc, nullptr, CreateCompatibleDC );
+
+    HBITMAP hBmp = helpers::create_hbitmap_from_gdiplus_bitmap( pBmp );
+    if ( !hBmp )
     {
+        DeleteDC( hDc );
+
+        JS_ReportErrorUTF8( cx, "Internal error: failed to get HBITMAP from Gdiplus::Bitmap" );
         return nullptr;
     }
 
-    if ( !JS_DefineFunctions( cx, jsObj, jsFunctions )
-         || !JS_DefineProperties(cx, jsObj, jsProperties ) )
-    {
-        return nullptr;
-    }
-
-    JS_SetPrivate( jsObj, new JsGdiRawBitmap( cx, pBmp ) );
-
-    return jsObj;
-}
-
-const JSClass& JsGdiRawBitmap::GetClass()
-{
-    return jsClass;
+    return std::unique_ptr<JsGdiRawBitmap>( new JsGdiRawBitmap( cx, hDc, hBmp, pBmp->GetWidth(), pBmp->GetHeight() ) );
 }
 
 HDC JsGdiRawBitmap::GetHDC() const
@@ -119,13 +116,11 @@ HDC JsGdiRawBitmap::GetHDC() const
 
 std::optional<std::uint32_t> JsGdiRawBitmap::get_Height()
 {
-    assert( hDc_ );
     return height_;
 }
 
 std::optional<std::uint32_t> JsGdiRawBitmap::get_Width()
 {
-    assert( hDc_ );
     return width_;
 }
 

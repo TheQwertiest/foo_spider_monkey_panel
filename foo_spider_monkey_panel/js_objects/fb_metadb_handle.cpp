@@ -94,7 +94,8 @@ JsFbMetadbHandle::~JsFbMetadbHandle()
 {
 }
 
-std::unique_ptr<mozjs::JsFbMetadbHandle> JsFbMetadbHandle::CreateNative( JSContext* cx, const metadb_handle_ptr& handle )
+std::unique_ptr<mozjs::JsFbMetadbHandle> 
+JsFbMetadbHandle::CreateNative( JSContext* cx, const metadb_handle_ptr& handle )
 {
     if ( !handle.is_valid() )
     {
@@ -157,14 +158,12 @@ JsFbMetadbHandle::GetFileInfo()
         return nullptr;
     }
 
-    JS::RootedObject jsObject( pJsCtx_, JsFbFileInfo::Create( pJsCtx_, pFileInfo.get() ) );
+    JS::RootedObject jsObject( pJsCtx_, JsFbFileInfo::Create( pJsCtx_, std::move(pFileInfo) ) );
     if ( !jsObject )
-    {
-        JS_ReportErrorUTF8( pJsCtx_, "Internal error: failed to create JS object" );
+    {// report in Create
         return std::nullopt;
     }
 
-    pFileInfo.release();
     return jsObject;
 }
 

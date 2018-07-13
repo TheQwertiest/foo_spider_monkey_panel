@@ -75,6 +75,8 @@ const JSFunctionSpec jsFunctions[] = {
 namespace mozjs
 {
 
+const JSClass JsGlobalObject::JsClass = jsClass; 
+
 JsGlobalObject::JsGlobalObject( JSContext* cx, JsContainer &parentContainer, js_panel_window& parentPanel )
     : pJsCtx_( cx )
     , parentContainer_( parentContainer )
@@ -82,13 +84,12 @@ JsGlobalObject::JsGlobalObject( JSContext* cx, JsContainer &parentContainer, js_
 {    
 }
 
-
 JsGlobalObject::~JsGlobalObject()
 {
     RemoveHeapTracer();
 }
 
-JSObject* JsGlobalObject::Create( JSContext* cx, JsContainer &parentContainer, js_panel_window& parentPanel )
+JSObject* JsGlobalObject::CreateNative( JSContext* cx, JsContainer &parentContainer, js_panel_window& parentPanel )
 {
     if ( !jsOps.trace )
     {// JS_GlobalObjectTraceHook address is only accessible after mozjs is loaded.      
@@ -116,11 +117,11 @@ JSObject* JsGlobalObject::Create( JSContext* cx, JsContainer &parentContainer, j
             return nullptr;
         }
 
-        if ( !CreateAndInstallObject( cx, jsObj, "gdi", JsGdiUtils::Create ) 
-             || !CreateAndInstallObject( cx, jsObj, "plman", JsFbPlaylistManager::Create )
-             || !CreateAndInstallObject( cx, jsObj, "utils", JsUtils::Create ) 
-             || !CreateAndInstallObject( cx, jsObj, "fb", JsFbUtils::Create ) 
-             || !CreateAndInstallObject( cx, jsObj, "window", JsWindow::Create, parentPanel ) )
+        if ( !CreateAndInstallObject<JsGdiUtils>( cx, jsObj, "gdi" )
+             || !CreateAndInstallObject<JsFbPlaylistManager>( cx, jsObj, "plman" )
+             || !CreateAndInstallObject<JsUtils>( cx, jsObj, "utils" )
+             || !CreateAndInstallObject<JsFbUtils>( cx, jsObj, "fb" )
+             || !CreateAndInstallObject<JsWindow>( cx, jsObj, "window", parentPanel ) )
         {
             return nullptr;
         }
@@ -152,11 +153,6 @@ JSObject* JsGlobalObject::Create( JSContext* cx, JsContainer &parentContainer, j
     }
 
     return jsObj;
-}
-
-const JSClass& JsGlobalObject::GetClass()
-{
-    return jsClass;
 }
 
 void JsGlobalObject::Fail( pfc::string8_fast errorText )

@@ -39,11 +39,15 @@ class JsFbTitleFormat;
 class JsGlobalObject
 {
 public:
-    ~JsGlobalObject();
+    static constexpr bool HasProto = false;
+    static constexpr bool HasProxy = false;
 
-    static JSObject* Create( JSContext* cx, JsContainer &parentContainer, js_panel_window& parentPanel );
+    static const JSClass JsClass;
 
-    static const JSClass& GetClass();
+public:
+    ~JsGlobalObject();    
+
+    static JSObject* CreateNative( JSContext* cx, JsContainer &parentContainer, js_panel_window& parentPanel );
 
 public:
     void Fail( pfc::string8_fast errorText );
@@ -63,8 +67,6 @@ public: // methods
 
 private:
     JsGlobalObject( JSContext* cx, JsContainer &parentContainer, js_panel_window& parentPanel );
-    JsGlobalObject( const JsGlobalObject& ) = delete;
-    JsGlobalObject& operator=( const JsGlobalObject& ) = delete;
 
     static void TraceHeapValue( JSTracer *trc, void *data );
 

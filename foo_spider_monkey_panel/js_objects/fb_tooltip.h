@@ -1,5 +1,7 @@
 #pragma once
 
+#include <js_objects/object_base.h>
+
 #include <panel_tooltip_param.h>
 
 #include <optional>
@@ -14,13 +16,22 @@ namespace mozjs
 {
 
 class JsFbTooltip
+    : public JsObjectBase<JsFbTooltip>
 {
+public:
+    static constexpr bool HasProto = true;
+    static constexpr bool HasGlobalProto = false;
+    static constexpr bool HasProxy = false;
+
+    static const JSClass JsClass;
+    static const JSFunctionSpec* JsFunctions;
+    static const JSPropertySpec* JsProperties;
+    static const JsPrototypeId PrototypeId;
+
 public:
     ~JsFbTooltip();
 
-    static JSObject* Create( JSContext* cx, HWND hParentWnd, smp::PanelTooltipParam& p_param_ptr );
-
-    static const JSClass& GetClass();
+    static std::unique_ptr<JsFbTooltip> CreateNative( JSContext* cx, HWND hParentWnd, smp::PanelTooltipParam& p_param_ptr );
 
 public:
     std::optional<std::nullptr_t> Activate();
@@ -36,9 +47,7 @@ public:
     std::optional<std::nullptr_t> put_TrackActivate( bool activate );
 
 private:
-    JsFbTooltip( JSContext* cx, HWND hParentWnd, smp::PanelTooltipParam& p_param_ptr );
-    JsFbTooltip( const JsFbTooltip& ) = delete;
-    JsFbTooltip& operator=( const JsFbTooltip& ) = delete;
+    JsFbTooltip( JSContext* cx, HWND hParentWnd, HWND hTooltipWnd, std::unique_ptr<TOOLINFO> toolInfo, smp::PanelTooltipParam& p_param_ptr );
 
 private:
     JSContext * pJsCtx_ = nullptr;
@@ -46,7 +55,7 @@ private:
     HWND hTooltipWnd_;
     HWND hParentWnd_;
     std::wstring tipBuffer_;
-    TOOLINFO toolInfo_;
+    std::unique_ptr<TOOLINFO> toolInfo_;
     smp::PanelTooltipParam& panelTooltipParam_;
 };
 

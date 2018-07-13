@@ -1,5 +1,7 @@
 #pragma once
 
+#include <js_objects/object_base.h>
+
 #include <optional>
 
 class JSObject;
@@ -10,14 +12,24 @@ namespace mozjs
 {
 
 class JsMenuObject
+    : public JsObjectBase<JsMenuObject>
 {
+public:
+    static constexpr bool HasProto = true;
+    static constexpr bool HasGlobalProto = false;
+    static constexpr bool HasProxy = false;
+
+    static const JSClass JsClass;
+    static const JSFunctionSpec* JsFunctions;
+    static const JSPropertySpec* JsProperties;
+    static const JsPrototypeId PrototypeId;
+
 public:
     ~JsMenuObject();
 
-    static JSObject* Create( JSContext* cx, HWND hParentWnd );
+    static std::unique_ptr<JsMenuObject> CreateNative( JSContext* cx, HWND hParentWnd );
 
-    static const JSClass& GetClass();
-
+public:
     HMENU HMenu() const;
 
 public:
@@ -31,8 +43,6 @@ public:
 
 private:
     JsMenuObject( JSContext* cx, HWND hParentWnd );
-    JsMenuObject( const JsMenuObject& ) = delete;
-    JsMenuObject& operator=( const JsMenuObject& ) = delete;
 
 private:
     JSContext * pJsCtx_ = nullptr;

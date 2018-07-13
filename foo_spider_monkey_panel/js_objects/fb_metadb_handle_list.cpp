@@ -193,6 +193,12 @@ FbMetadbHandleListProxyHandler::set( JSContext* cx, JS::HandleObject proxy, JS::
 namespace mozjs
 {
 
+const JSClass JsFbMetadbHandleList::JsClass = jsClass;
+const JSFunctionSpec* JsFbMetadbHandleList::JsFunctions = jsFunctions;
+const JSPropertySpec* JsFbMetadbHandleList::JsProperties = jsProperties;
+const JsPrototypeId JsFbMetadbHandleList::PrototypeId = JsPrototypeId::FbMetadbHandleList;
+const js::BaseProxyHandler& JsFbMetadbHandleList::JsProxy = FbMetadbHandleListProxyHandler::singleton;
+
 JsFbMetadbHandleList::JsFbMetadbHandleList( JSContext* cx, metadb_handle_list_cref handles )
     : pJsCtx_( cx )
     , metadbHandleList_( handles )
@@ -204,32 +210,10 @@ JsFbMetadbHandleList::~JsFbMetadbHandleList()
 { 
 }
 
-JSObject* JsFbMetadbHandleList::Create( JSContext* cx, metadb_handle_list_cref handles )
+std::unique_ptr<JsFbMetadbHandleList> 
+JsFbMetadbHandleList::CreateNative( JSContext* cx, metadb_handle_list_cref handles )
 {
-    JS::RootedObject jsObj( cx,
-                            JS_NewObject( cx, &jsClass ) );
-    if ( !jsObj )
-    {
-        return nullptr;
-    }
-
-    if ( !JS_DefineFunctions( cx, jsObj, jsFunctions )
-         || !JS_DefineProperties(cx, jsObj, jsProperties ) )
-    {
-        return nullptr;
-    }
-
-    JS_SetPrivate( jsObj, new JsFbMetadbHandleList( cx, handles ) );
-
-    JS::RootedValue priv( cx, JS::ObjectValue( *jsObj ) );
-    js::ProxyOptions options;
-
-    return js::NewProxyObject( cx, &FbMetadbHandleListProxyHandler::singleton, priv, nullptr, options );
-}
-
-const JSClass& JsFbMetadbHandleList::GetClass()
-{
-    return jsClass;
+    return std::unique_ptr<JsFbMetadbHandleList>( new JsFbMetadbHandleList( cx, handles ) );
 }
 
 metadb_handle_list_cref JsFbMetadbHandleList::GetHandleList() const

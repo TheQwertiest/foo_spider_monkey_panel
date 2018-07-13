@@ -872,12 +872,8 @@ void js_panel_window::on_get_album_art_done( LPARAM lp )
     auto autoRet = jsContainer_.InvokeJsCallback( "on_get_album_art_done",
                                                   static_cast<metadb_handle_ptr>(param->handle),
                                                   static_cast<uint32_t>(param->artId),
-                                                  static_cast<Gdiplus::Bitmap*>(param->bitmap ? param->bitmap.get() : nullptr),
+                                                  param->bitmap,
                                                   static_cast<pfc::string8_fast>(param->imagePath) );
-    if ( autoRet )
-    {
-        param->bitmap.release();
-    }
 }
 
 void js_panel_window::on_item_focus_change( WPARAM wp )
@@ -913,12 +909,8 @@ void js_panel_window::on_load_image_done( LPARAM lp )
     // Destroyed by task runner, no need to keep track
     auto param = reinterpret_cast<mozjs::image::AsyncImageTaskResult*>(lp);
     auto autoRet = jsContainer_.InvokeJsCallback( "on_load_image_done",
-                                                  static_cast<Gdiplus::Bitmap*>(param->bitmap.get()),
+                                                  param->bitmap,
                                                   static_cast<pfc::string8_fast>(param->imagePath) );
-    if ( autoRet )
-    {
-        param->bitmap.release();
-    }
 }
 
 void js_panel_window::on_library_items_added( WPARAM wp )

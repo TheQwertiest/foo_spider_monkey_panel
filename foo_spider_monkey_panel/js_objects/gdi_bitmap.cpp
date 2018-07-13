@@ -82,11 +82,15 @@ const JSPropertySpec jsProperties[] = {
 namespace mozjs
 {
 
+const JSClass JsGdiBitmap::JsClass = jsClass;
+const JSFunctionSpec* JsGdiBitmap::JsFunctions = jsFunctions;
+const JSPropertySpec* JsGdiBitmap::JsProperties = jsProperties;
+const JsPrototypeId JsGdiBitmap::PrototypeId = JsPrototypeId::GdiBitmap;
 
-JsGdiBitmap::JsGdiBitmap( JSContext* cx, Gdiplus::Bitmap* pGdiBitmap )
+JsGdiBitmap::JsGdiBitmap( JSContext* cx, std::unique_ptr<Gdiplus::Bitmap> gdiBitmap )
     : pJsCtx_( cx )
-    , pGdi_( pGdiBitmap )
 {
+    pGdi_.swap( gdiBitmap );
 }
 
 
@@ -94,62 +98,38 @@ JsGdiBitmap::~JsGdiBitmap()
 {
 }
 
-JSObject* JsGdiBitmap::Create( JSContext* cx, Gdiplus::Bitmap* pGdiBitmap )
+std::unique_ptr<JsGdiBitmap>
+JsGdiBitmap::CreateNative( JSContext* cx, std::unique_ptr<Gdiplus::Bitmap> gdiBitmap )
 {
-    if ( !pGdiBitmap )
+    if ( !gdiBitmap )
     {
         JS_ReportErrorUTF8( cx, "Internal error: Gdiplus::Bitmap object is null" );
         return nullptr;
     }
 
-    JS::RootedObject jsObj( cx,
-                            JS_NewObject( cx, &jsClass ) );
-    if ( !jsObj )
-    {
-        return nullptr;
-    }
-
-    if ( !JS_DefineFunctions( cx, jsObj, jsFunctions )
-         || !JS_DefineProperties( cx, jsObj, jsProperties ) )
-    {
-        return nullptr;
-    }
-
-    JS_SetPrivate( jsObj, new JsGdiBitmap( cx, pGdiBitmap ) );
-
-    return jsObj;
-}
-
-const JSClass& JsGdiBitmap::GetClass()
-{
-    return jsClass;
+    return std::unique_ptr<JsGdiBitmap>( new JsGdiBitmap( cx, std::move( gdiBitmap ) ) );
 }
 
 Gdiplus::Bitmap* JsGdiBitmap::GdiBitmap() const
 {
-    assert( pGdi_ );
     return pGdi_.get();
 }
 
 std::optional<std::uint32_t>
 JsGdiBitmap::get_Height()
 {
-    assert( pGdi_ );
     return pGdi_->GetHeight();
 }
 
 std::optional<std::uint32_t>
 JsGdiBitmap::get_Width()
 {
-    assert( pGdi_ );
     return pGdi_->GetWidth();
 }
 
 std::optional<JSObject*>
 JsGdiBitmap::ApplyAlpha( uint8_t alpha )
 {
-    assert( pGdi_ );
-
     t_size width = pGdi_->GetWidth();
     t_size height = pGdi_->GetHeight();
 
@@ -177,22 +157,19 @@ JsGdiBitmap::ApplyAlpha( uint8_t alpha )
     gdiRet = g.DrawImage( pGdi_.get(), rc, 0, 0, width, height, Gdiplus::UnitPixel, &ia );
     IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, std::nullopt, DrawImage );
 
-    JS::RootedObject jsObject( pJsCtx_, JsGdiBitmap::Create( pJsCtx_, out.get() ) );
+    JS::RootedObject jsObject( pJsCtx_, JsGdiBitmap::Create( pJsCtx_, std::move( out ) ) );
     if ( !jsObject )
     {
         JS_ReportErrorUTF8( pJsCtx_, "Internal error: failed to create JS object" );
         return std::nullopt;
     }
 
-    out.release();
     return jsObject;
 }
 
 std::optional<bool> 
 JsGdiBitmap::ApplyMask( JsGdiBitmap* mask )
 {
-    assert( pGdi_ );
-
     if ( !mask )
     {
         JS_ReportErrorUTF8( pJsCtx_, "mask argument is null" );
@@ -256,8 +233,6 @@ JsGdiBitmap::ApplyMask( JsGdiBitmap* mask )
 std::optional<JSObject*>
 JsGdiBitmap::Clone( float x, float y, float w, float h )
 {
-    assert( pGdi_ );
-
     std::unique_ptr<Gdiplus::Bitmap> img( pGdi_->Clone( x, y, w, h, PixelFormat32bppPARGB ) );
     if ( !helpers::ensure_gdiplus_object( img.get() ) )
     {
@@ -265,10 +240,9 @@ JsGdiBitmap::Clone( float x, float y, float w, float h )
         return std::nullopt;
     }
 
-    JS::RootedObject jsObject( pJsCtx_, JsGdiBitmap::Create( pJsCtx_, img.get() ) );
+    JS::RootedObject jsObject( pJsCtx_, JsGdiBitmap::Create( pJsCtx_, std::move(img) ) );
     if ( !jsObject )
-    {
-        JS_ReportErrorUTF8( pJsCtx_, "Internal error: failed to create JS object" );
+    {// report in Create
         return std::nullopt;
     }
 
@@ -278,8 +252,6 @@ JsGdiBitmap::Clone( float x, float y, float w, float h )
 
 std::optional<JSObject*> JsGdiBitmap::CreateRawBitmap()
 {
-    assert( pGdi_ );
-
     JS::RootedObject jsObject( pJsCtx_, JsGdiRawBitmap::Create( pJsCtx_, pGdi_.get() ) );
     if ( !jsObject )
     {
@@ -293,8 +265,6 @@ std::optional<JSObject*> JsGdiBitmap::CreateRawBitmap()
 std::optional<JSObject*> 
 JsGdiBitmap::GetColourScheme( uint32_t count )
 {
-    assert( pGdi_ );
-
     Gdiplus::BitmapData bmpdata;
     Gdiplus::Rect rect( 0, 0, (LONG)pGdi_->GetWidth(), (LONG)pGdi_->GetHeight() );
 
@@ -365,8 +335,6 @@ JsGdiBitmap::GetColourScheme( uint32_t count )
 std::optional<pfc::string8_fast> 
 JsGdiBitmap::GetColourSchemeJSON( uint32_t count )
 {
-    assert( pGdi_ );
-
     Gdiplus::BitmapData bmpdata;
 
     // rescaled image will have max of ~48k pixels
@@ -464,8 +432,6 @@ JsGdiBitmap::GetColourSchemeJSON( uint32_t count )
 std::optional<JSObject*>
 JsGdiBitmap::GetGraphics()
 {
-    assert( pGdi_ );
-
     std::unique_ptr<Gdiplus::Graphics> g( new Gdiplus::Graphics( pGdi_.get() ) );
     if ( !helpers::ensure_gdiplus_object( g.get() ) )
     {// TODO: replace with IF_FAILED macro
@@ -480,7 +446,7 @@ JsGdiBitmap::GetGraphics()
         return std::nullopt;
     }
 
-    JsGdiGraphics* pNativeObject = static_cast<JsGdiGraphics*>( JS_GetInstancePrivate( pJsCtx_, jsObject, &JsGdiGraphics::GetClass(), nullptr ));
+    JsGdiGraphics* pNativeObject = static_cast<JsGdiGraphics*>( JS_GetInstancePrivate( pJsCtx_, jsObject, &JsGdiGraphics::JsClass, nullptr ));
     if ( !pNativeObject )
     {
         JS_ReportErrorUTF8( pJsCtx_, "Internal error: failed to get JsGdiGraphics object" );
@@ -496,8 +462,6 @@ JsGdiBitmap::GetGraphics()
 std::optional<std::nullptr_t>
 JsGdiBitmap::ReleaseGraphics( JsGdiGraphics* graphics )
 {
-    assert( pGdi_ );
-
     if ( !graphics )
     {// Not an error
         return nullptr;
@@ -516,8 +480,6 @@ JsGdiBitmap::ReleaseGraphics( JsGdiGraphics* graphics )
 std::optional<JSObject*>
 JsGdiBitmap::Resize( uint32_t w, uint32_t h, uint32_t interpolationMode )
 {
-    assert( pGdi_ );
-
     std::unique_ptr<Gdiplus::Bitmap> bitmap( new Gdiplus::Bitmap( w, h, PixelFormat32bppPARGB ) );
     if ( !helpers::ensure_gdiplus_object( bitmap.get() ) )
     {// TODO: replace with IF_FAILED macro
@@ -532,23 +494,18 @@ JsGdiBitmap::Resize( uint32_t w, uint32_t h, uint32_t interpolationMode )
     gdiRet = g.DrawImage( pGdi_.get(), 0, 0, w, h );
     IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, std::nullopt, DrawImage );
 
-    JS::RootedObject jsRetObject( pJsCtx_, JsGdiBitmap::Create( pJsCtx_, bitmap.get() ) );
+    JS::RootedObject jsRetObject( pJsCtx_, JsGdiBitmap::Create( pJsCtx_, std::move(bitmap) ) );
     if ( !jsRetObject )
-    {
-        JS_ReportErrorUTF8( pJsCtx_, "Internal error: failed to create JS object" );
+    {// report in Create
         return std::nullopt;
     }
 
-    bitmap.release();
     return jsRetObject;
 }
-
 
 std::optional<JSObject*>
 JsGdiBitmap::ResizeWithOpt( size_t optArgCount, uint32_t w, uint32_t h, uint32_t interpolationMode )
 {
-    assert( pGdi_ );
-
     if ( optArgCount > 1 )
     {
         JS_ReportErrorUTF8( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
@@ -566,8 +523,6 @@ JsGdiBitmap::ResizeWithOpt( size_t optArgCount, uint32_t w, uint32_t h, uint32_t
 std::optional<std::nullptr_t>
 JsGdiBitmap::RotateFlip( uint32_t mode )
 {
-    assert( pGdi_ );
-
     Gdiplus::Status gdiRet = pGdi_->RotateFlip( ( Gdiplus::RotateFlipType )mode );
     IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, std::nullopt, RotateFlip );
 
@@ -577,8 +532,6 @@ JsGdiBitmap::RotateFlip( uint32_t mode )
 std::optional<bool> 
 JsGdiBitmap::SaveAs( const std::wstring& path, const std::wstring& format )
 {
-    assert( pGdi_ );
-
     CLSID clsid_encoder;
     int ret = helpers::get_encoder_clsid( format.c_str(), &clsid_encoder );
     if ( ret < 0 )
@@ -610,8 +563,6 @@ JsGdiBitmap::SaveAsWithOpt( size_t optArgCount, const std::wstring& path, const 
 std::optional<std::nullptr_t>
 JsGdiBitmap::StackBlur( uint32_t radius )
 {
-    assert( pGdi_ );
-
     stack_blur_filter( *pGdi_, radius );
     return nullptr;
 }
