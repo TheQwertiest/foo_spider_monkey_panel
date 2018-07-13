@@ -2,6 +2,7 @@
 
 #include <js_engine/native_to_js_converter.h>
 #include <js_engine/js_to_native_converter.h>
+#include <js_engine/converter_utils.h>
 
 #include <optional>
 
@@ -58,9 +59,9 @@ std::optional<ReturnType> InvokeJsCallback( JSContext* cx,
 template <int ArgArraySize, typename ArgType, typename... ArgTypes>
 bool NativeToJsArguments( JSContext * cx,
                           JS::AutoValueArray<ArgArraySize>& wrappedArgs,
-                          uint8_t argIndex, ArgType arg, ArgTypes&&... args )
+                          uint8_t argIndex, ArgType&& arg, ArgTypes&&... args )
 {
-    return convert::to_js::ToValue( cx, arg, wrappedArgs[argIndex] )
+    return convert::to_js::ToValue( cx, std::forward<ArgType>( arg ), wrappedArgs[argIndex] )
         && NativeToJsArguments( cx, wrappedArgs, argIndex + 1, std::forward<ArgTypes>( args )... );
 }
 

@@ -80,7 +80,7 @@ public:
         }
         else
         {
-            jsObject.set( JS_NewObject( cx, &jsClass ) );
+            jsObject.set( JS_NewObject( cx, &T::JsClass ) );
             if ( !jsObject )
             {// report in JS_NewObject
                 return nullptr;
@@ -98,6 +98,7 @@ public:
         {// report in CreateNative
             return nullptr;
         }
+        JS_updateMallocCounter( cx, sizeof( T ) );
 
         JS_SetPrivate( jsObject, nativeObject.release() );
 

@@ -42,7 +42,7 @@ public:
     static constexpr bool HasProto = false;
     static constexpr bool HasProxy = false;
 
-    static const JSClass JsClass;
+    static const JSClass& JsClass;
 
 public:
     ~JsGlobalObject();    

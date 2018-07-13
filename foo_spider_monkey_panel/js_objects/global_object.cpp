@@ -19,7 +19,13 @@
 
 #include <js_panel_window.h>
 
-#include <js/TracingAPI.h>
+#pragma warning( push )  
+#pragma warning( disable : 4100 ) // unused variable
+#pragma warning( disable : 4251 ) // dll interface warning
+#pragma warning( disable : 4324 ) // structure was padded due to alignment specifier
+#pragma warning( disable : 4996 ) // C++17 deprecation warning
+#   include <js/TracingAPI.h>
+#pragma warning( pop ) 
 
 #include <filesystem>
 #include <fstream>  
@@ -75,7 +81,7 @@ const JSFunctionSpec jsFunctions[] = {
 namespace mozjs
 {
 
-const JSClass JsGlobalObject::JsClass = jsClass; 
+const JSClass& JsGlobalObject::JsClass = jsClass; 
 
 JsGlobalObject::JsGlobalObject( JSContext* cx, JsContainer &parentContainer, js_panel_window& parentPanel )
     : pJsCtx_( cx )
