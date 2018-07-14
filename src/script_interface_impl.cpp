@@ -51,6 +51,13 @@ STDMETHODIMP ContextMenuManager::InitContext(IFbMetadbHandleList* handles)
 	return S_OK;
 }
 
+STDMETHODIMP ContextMenuManager::InitContextPlaylist()
+{
+	contextmenu_manager::g_create(m_cm);
+	m_cm->init_context_playlist(contextmenu_manager::flag_show_shortcuts);
+	return S_OK;
+}
+
 STDMETHODIMP ContextMenuManager::InitNowPlaying()
 {
 	contextmenu_manager::g_create(m_cm);

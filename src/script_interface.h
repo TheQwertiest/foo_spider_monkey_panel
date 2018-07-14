@@ -305,6 +305,7 @@ __interface IContextMenuManager : IDisposable
 	STDMETHOD(BuildMenu)(IMenuObj* p, int base_id, [defaultvalue(-1)] int max_id);
 	STDMETHOD(ExecuteByID)(UINT id, [out, retval] VARIANT_BOOL* p);
 	STDMETHOD(InitContext)(IFbMetadbHandleList* handles);
+	STDMETHOD(InitContextPlaylist)();
 	STDMETHOD(InitNowPlaying)();
 };
 

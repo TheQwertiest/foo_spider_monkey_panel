@@ -178,6 +178,7 @@ interface IFbUtils {
 					Dispose(); (void)
 					ExecuteByID(id); (boolean)
 					InitContext(handle_list); (void)
+					InitContextPlaylist(); (void)
 					InitNowPlaying(); (void)
 			}
 

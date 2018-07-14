@@ -2821,7 +2821,7 @@ oBrowser = function (name) {
 		};
 
 		this.metadblist_selection = plman.GetPlaylistSelectedItems(g_active_playlist);
-		Context.InitContext(this.metadblist_selection);
+		Context.InitContextPlaylist();
 
 		// check if selection is single and is in the Media Library to provide if ok a link to Album View panel
 		var showInAlbumView = false;

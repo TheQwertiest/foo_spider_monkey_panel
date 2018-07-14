@@ -186,10 +186,10 @@ class GdiObj : public MyIDispatchImpl<T>
 		COM_QI_ENTRY(IGdiObj)
 		COM_QI_ENTRY(IDisposable)
 		COM_QI_ENTRY(IDispatch)
-		END_COM_QI_IMPL()
+	END_COM_QI_IMPL()
 
 protected:
-	T2 * m_ptr;
+	T2* m_ptr;
 
 	GdiObj<T, T2>(T2* p) : m_ptr(p)
 	{
