@@ -84,8 +84,6 @@ const JSFunctionSpec jsFunctions[] = {
     JS_FN( "GetLibraryRelativePaths", GetLibraryRelativePaths, 0, DefaultPropsFlags() ),
     JS_FN( "Insert"                 , Insert                 , 2, DefaultPropsFlags() ),
     JS_FN( "InsertRange"            , InsertRange            , 2, DefaultPropsFlags() ),
-    // TODO: test with name collision, there is no report somewhere and it asserts
-    //JS_FN( "Item2"                  , Item2                  , 1, DefaultPropsFlags() ),
     JS_FN( "MakeDifference"         , MakeDifference         , 1, DefaultPropsFlags() ),
     JS_FN( "MakeIntersection"       , MakeIntersection       , 1, DefaultPropsFlags() ),
     JS_FN( "MakeUnion"              , MakeUnion              , 1, DefaultPropsFlags() ),

@@ -2,15 +2,12 @@
 - Fix GC: incremental GC is never used for some reason.
 - Add one-use only DefinePanel(name, author, [options]) method somewhere (global, utils, window?)
 - Fix unresponsive arrow keys in some scripts (mb smth with focus? only in DUI?).
-- 'Shell.Application': use through ActiveXObject, manual linking is possible (shell32.lib, Shldisp.idl, Shldisp.h), 
+- 'Shell.Application': for some reason GetTypeInfo return only the top-most interface.
 - 'WScript.Shell': new `utils` methods? Run (Shell.Application has ShellExecute), RegRead, maybe RegWrite.
-- See todo in FbMetadbHandleList about collisions (probably can be reproduced by returning nullptr from Create).
 - Change stats field names: https://github.com/TheQwertiest/foo-jscript-panel/commit/57393822ae42e1ebd77911c0f934471903975b4e#commitcomment-29629263
-- Reimplement ActiveXObject accessors through proxy instead of current hacks.
-- Rewrite ActiveXObject properly (and rename the files as well).
+- Rewrite ActiveXObject properly (and rename the files as well). Reimplement accessors through proxy instead of current hacks.
 - Remove engine settings from Panel Properties dialog.
 - Complete rebranding to spider_monkey_panel.
-- Why is this list getting longer, instead of shorter?!
 - Stop staying up all night making this...
 
 # Prerelease-Test
@@ -19,7 +16,6 @@
 - Check drag-n-drop functionality.
 - Check that all files are correctly parsed: UTF8, UTF8-BOM, ASCII.
 - Check that it can work side-by-side with foo-jscript-panel.
-- Test if JS_ShutDown deadlock on fb2k exit is fixed.
 - Profile CPU usage and check if there are any bottlenecks (pfc utf8<>wide is much slower than WinAPI WideCharToMultiByte equivalent)
 - Make sure there are no memory leaks.
 
