@@ -6,6 +6,7 @@
 #include <js_utils/js_error_helper.h>
 #include <js_utils/winapi_error_helper.h>
 #include <js_utils/js_object_helper.h>
+#include <js_utils/scope_helper.h>
 
 
 namespace
@@ -117,7 +118,10 @@ JsThemeManager::DrawThemeBackground( JsGdiGraphics* gr,
     assert( graphics );
 
     HDC dc = graphics->GetHDC();
-    assert( dc );
+    scope::auto_caller autoHdcReleaser( []( auto& args )
+    {
+        std::get<0>( args )->ReleaseHDC( std::get<1>( args ) );
+    }, graphics, dc );
 
     RECT rc = { x, y, static_cast<LONG>(x + w), static_cast<LONG>(y + h)};
     RECT clip_rc = { clip_x, clip_y, static_cast<LONG>(clip_x + clip_y), static_cast<LONG>(clip_w + clip_h) };
@@ -129,7 +133,6 @@ JsThemeManager::DrawThemeBackground( JsGdiGraphics* gr,
     }
 
     HRESULT hr = ::DrawThemeBackground( hTheme_, dc, partId_, 0, &rc, pclip_rc );
-    graphics->ReleaseHDC( dc );
     IF_HR_FAILED_RETURN_WITH_REPORT( pJsCtx_, hr, std::nullopt, DrawThemeBackground );
 
     return nullptr;

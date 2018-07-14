@@ -11,6 +11,7 @@
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
 #include <js_utils/winapi_error_helper.h>
+#include <js_utils/scope_helper.h>
 
 #include <helpers.h>
 
@@ -179,6 +180,7 @@ JsGdiGraphics::CalcTextWidth( const std::wstring& str, JsGdiFont* font )
 
     HFONT hFont = font->GetHFont();
     HDC dc = pGdi_->GetHDC();
+    assert( dc );
     HFONT oldfont = SelectFont( dc, hFont );
 
     uint32_t textW = helpers::get_text_width( dc, str.c_str(), str.length() );
@@ -473,15 +475,13 @@ JsGdiGraphics::EstimateLineWrap( const std::wstring& str, JsGdiFont* font, uint3
     HFONT hFont = font->GetHFont();
     assert( hFont );
 
-    HFONT oldfont;
     HDC dc = pGdi_->GetHDC();
-    assert( dc );
+    HFONT oldfont = SelectFont( dc, hFont );
 
     pfc::list_t<helpers::wrapped_item> result;
-    oldfont = SelectFont( dc, hFont );
     estimate_line_wrap( dc, str.c_str(), str.length(), max_width, result );
+    
     SelectFont( dc, oldfont );
-
     pGdi_->ReleaseHDC( dc );
 
     helpers::com_array_writer<> helper;
@@ -667,12 +667,14 @@ JsGdiGraphics::GdiAlphaBlend( JsGdiRawBitmap* bitmap,
     assert( srcDc );
 
     HDC dc = pGdi_->GetHDC();
-    assert( dc );
+    scope::auto_caller autoHdcReleaser( []( auto& args )
+    {
+        std::get<0>( args )->ReleaseHDC( std::get<1>( args ) );
+    }, pGdi_, dc );
 
     BLENDFUNCTION bf = { AC_SRC_OVER, 0, alpha, AC_SRC_ALPHA };
 
     BOOL bRet = ::GdiAlphaBlend( dc, dstX, dstY, dstW, dstH, srcDc, srcX, srcY, srcW, srcH, bf );
-    pGdi_->ReleaseHDC( dc );
     IF_WINAPI_FAILED_RETURN_WITH_REPORT( pJsCtx_, bRet, std::nullopt, GdiAlphaBlend );
 
     return nullptr;
@@ -719,28 +721,11 @@ JsGdiGraphics::GdiDrawBitmap( JsGdiRawBitmap* bitmap,
     assert( srcDc );
 
     HDC dc = pGdi_->GetHDC();
-    assert( dc );
 
-    class ScopedHDC
+    scope::auto_caller autoHdcReleaser( []( auto& args )
     {
-    public:
-        ScopedHDC( Gdiplus::Graphics* pGdi, HDC hDc )
-            : pGdi_( pGdi )
-            , hDc_( hDc )
-        {
-
-        }
-        ~ScopedHDC()
-        {
-            pGdi_->ReleaseHDC( hDc_ );
-        }
-
-    private:
-        Gdiplus::Graphics* pGdi_;
-        HDC hDc_;
-    };
-
-    ScopedHDC shdc( pGdi_, dc );
+        std::get<0>( args )->ReleaseHDC( std::get<1>( args ) );
+    }, pGdi_, dc );
 
     BOOL bRet;
     if ( dstW == srcW && dstH == srcH )
@@ -781,36 +766,20 @@ JsGdiGraphics::GdiDrawText( const std::wstring& str, JsGdiFont* font, uint32_t c
     HFONT hFont = font->GetHFont();
     assert( hFont );
    
-    HFONT oldfont;
     HDC dc = pGdi_->GetHDC();
-    assert( dc );
+    HFONT oldfont = SelectFont( dc, hFont );
 
-    class ScopedHDC
-    {// TODO: move somewhere - every GetHDC call should be wrapped with this
-    public:
-        ScopedHDC( Gdiplus::Graphics* pGdi, HDC hDc )
-            : pGdi_( pGdi )
-            , hDc_( hDc )
-        {
-
-        }
-        ~ScopedHDC()
-        {
-            pGdi_->ReleaseHDC( hDc_ );
-        }
-
-    private:
-        Gdiplus::Graphics* pGdi_;
-        HDC hDc_;
-    };
-
-    ScopedHDC shdc( pGdi_, dc );
+    scope::auto_caller autoHdcReleaser( []( auto& args )
+    {
+        SelectFont( std::get<1>( args ), std::get<2>( args ) );
+        std::get<0>(args)->ReleaseHDC( std::get<1>( args ) );
+    }, pGdi_, dc, oldfont );
 
     RECT rc = { x, y, static_cast<LONG>( x + w ), static_cast<LONG>( y + h ) };
     DRAWTEXTPARAMS dpt = { sizeof( DRAWTEXTPARAMS ), 4, 0, 0, 0 };
 
     SetTextColor( dc, helpers::convert_argb_to_colorref( colour ) );
-    oldfont = SelectFont( dc, hFont );
+    
     int iRet = SetBkMode( dc, TRANSPARENT );
     IF_WINAPI_FAILED_RETURN_WITH_REPORT( pJsCtx_, CLR_INVALID != iRet, std::nullopt, SetBkMode );
     
@@ -849,8 +818,6 @@ JsGdiGraphics::GdiDrawText( const std::wstring& str, JsGdiFont* font, uint32_t c
 
     iRet = DrawTextEx( dc, const_cast<wchar_t*>(str.c_str()), -1, &rc, format, &dpt );
     IF_WINAPI_FAILED_RETURN_WITH_REPORT( pJsCtx_, iRet, std::nullopt, DrawTextEx );
-
-    SelectFont( dc, oldfont );
 
     return nullptr;
 }
