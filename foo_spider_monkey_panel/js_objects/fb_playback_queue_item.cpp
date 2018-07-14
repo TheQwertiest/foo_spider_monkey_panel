@@ -84,7 +84,7 @@ size_t JsFbPlaybackQueueItem::GetInternalSize( const t_playback_queue_item& play
 std::optional<JSObject*> 
 JsFbPlaybackQueueItem::get_Handle()
 {
-    JS::RootedObject jsObject( pJsCtx_, JsFbMetadbHandle::Create( pJsCtx_, playbackQueueItem_.m_handle ) );
+    JS::RootedObject jsObject( pJsCtx_, JsFbMetadbHandle::CreateJs( pJsCtx_, playbackQueueItem_.m_handle ) );
     if ( !jsObject )
     {// report in Create
         return std::nullopt;

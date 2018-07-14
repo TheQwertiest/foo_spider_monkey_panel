@@ -1,7 +1,6 @@
 #pragma once
 
-// TODO: replace with prototype_helper.h
-#include <js_utils/js_object_helper.h>
+#include <js_utils/js_prototype_helpers.h>
 
 class JSObject;
 struct JSContext;
@@ -16,8 +15,6 @@ class ProxyOptions;
 
 namespace mozjs
 {
-static uint32_t gcCounter = 0;
-enum class JsPrototypeId : uint32_t;
 
 template <typename T>
 class JsObjectBase
@@ -47,10 +44,8 @@ public:
         return jsObject;
     }
 
-    // TODO: rename to CreateJs
-
     template <typename ... ArgTypes>
-    static JSObject* Create( JSContext* cx, ArgTypes&&... args )
+    static JSObject* CreateJs( JSContext* cx, ArgTypes&&... args )
     {
         JS::RootedObject jsObject( cx );
         JS::RootedObject jsProto( cx );
@@ -100,22 +95,6 @@ public:
             return nullptr;
         }
         JS_updateMallocCounter( cx, nativeObjectSize );
-
-        // TODO: implement a better GC mechanism
-        if ( !(gcCounter % 100) )
-        {
-            uint32_t bytes = JS_GetGCParameter( cx, JSGC_BYTES );
-            std::wstring tmp = std::to_wstring( bytes ) + L'\n';
-
-            OutputDebugString( tmp.c_str() );
-            //JS_MaybeGC( cx );        
-        }
-        if ( gcCounter > 1000 )
-        {
-            //JS_GC( cx );
-            gcCounter = 0;
-        }
-        ++gcCounter;
 
         JS_SetPrivate( jsObject, nativeObject.release() );
 

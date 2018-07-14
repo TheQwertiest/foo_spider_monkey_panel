@@ -8,9 +8,9 @@
 #include <js_engine/native_to_js_converter.h>
 #include <js_engine/js_to_native_invoker.h>
 #include <js_objects/global_object.h>
-#include <js_objects/prototype_ids.h>
 #include <js_objects/internal/global_heap_manager.h>
 #include <js_utils/js_object_helper.h>
+#include <js_utils/js_prototype_helpers.h>
 
 #include <script_interface.h>
 #include <com_tools.h>

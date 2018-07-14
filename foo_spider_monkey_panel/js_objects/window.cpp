@@ -183,7 +183,7 @@ JsWindow::ClearTimeout( uint32_t timeoutId )
 std::optional<JSObject*>
 JsWindow::CreatePopupMenu()
 {
-    JS::RootedObject jsObject( pJsCtx_, JsMenuObject::Create( pJsCtx_, parentPanel_.GetHWND() ) );
+    JS::RootedObject jsObject( pJsCtx_, JsMenuObject::CreateJs( pJsCtx_, parentPanel_.GetHWND() ) );
     if ( !jsObject )
     {// Report in Create
         return std::nullopt;
@@ -195,10 +195,14 @@ JsWindow::CreatePopupMenu()
 std::optional<JSObject*>
 JsWindow::CreateThemeManager( const std::wstring& classid )
 {
-    JS::RootedObject jsObject( pJsCtx_, JsThemeManager::Create( pJsCtx_, parentPanel_.GetHWND(), classid ) );
+    if ( !JsThemeManager::HasThemeData( parentPanel_.GetHWND(), classid ) )
+    {// Not a error: not found
+        return nullptr;
+    }
+
+    JS::RootedObject jsObject( pJsCtx_, JsThemeManager::CreateJs( pJsCtx_, parentPanel_.GetHWND(), classid ) );
     if ( !jsObject )
-    {// TODO: null is not always an error, handle that somehow
-        // Report in Create
+    {// Report in Create
         return std::nullopt;
     }
 
@@ -213,7 +217,7 @@ JsWindow::CreateTooltip( const std::wstring& name, float pxSize, uint32_t style 
     tooltip_param.fontSize = pxSize;
     tooltip_param.fontStyle = style;
 
-    JS::RootedObject jsObject( pJsCtx_, JsFbTooltip::Create( pJsCtx_, parentPanel_.GetHWND(), tooltip_param ) );
+    JS::RootedObject jsObject( pJsCtx_, JsFbTooltip::CreateJs( pJsCtx_, parentPanel_.GetHWND(), tooltip_param ) );
     if ( !jsObject )
     {// Report in Create
         return std::nullopt;
@@ -335,7 +339,7 @@ JsWindow::GetFontCUI( uint32_t type, const std::wstring& guidstr )
         return nullptr;
     }
 
-    JS::RootedObject jsObject( pJsCtx_, JsGdiFont::Create( pJsCtx_, std::move(pGdiFont), hFont, true ) );
+    JS::RootedObject jsObject( pJsCtx_, JsGdiFont::CreateJs( pJsCtx_, std::move(pGdiFont), hFont, true ) );
     if ( !jsObject )
     {// Report in Create
         return std::nullopt;
@@ -383,7 +387,7 @@ JsWindow::GetFontDUI( uint32_t type )
         return nullptr;
     }
 
-    JS::RootedObject jsObject( pJsCtx_, JsGdiFont::Create( pJsCtx_, std::move( pGdiFont ), hFont, false ) );
+    JS::RootedObject jsObject( pJsCtx_, JsGdiFont::CreateJs( pJsCtx_, std::move( pGdiFont ), hFont, false ) );
     if ( !jsObject )
     {// Report in Create
         return std::nullopt;

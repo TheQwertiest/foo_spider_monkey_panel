@@ -379,7 +379,7 @@ JsUtils::GetAlbumArtEmbedded( const pfc::string8_fast& rawpath, uint32_t art_id 
         return nullptr;
     }
 
-    JS::RootedObject jsObject( pJsCtx_, JsGdiBitmap::Create( pJsCtx_, std::move( artImage ) ) );
+    JS::RootedObject jsObject( pJsCtx_, JsGdiBitmap::CreateJs( pJsCtx_, std::move( artImage ) ) );
     if ( !jsObject )
     {// report in Create
         return std::nullopt;
@@ -420,7 +420,7 @@ JsUtils::GetAlbumArtV2( JsFbMetadbHandle* handle, uint32_t art_id, bool need_stu
         return nullptr;
     }
 
-    JS::RootedObject jsObject( pJsCtx_, JsGdiBitmap::Create( pJsCtx_, std::move(artImage) ) );
+    JS::RootedObject jsObject( pJsCtx_, JsGdiBitmap::CreateJs( pJsCtx_, std::move(artImage) ) );
     if ( !jsObject )
     {// report in Create
         return std::nullopt;

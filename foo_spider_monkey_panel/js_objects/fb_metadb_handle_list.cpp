@@ -299,7 +299,7 @@ JsFbMetadbHandleList::CalcTotalSize()
 std::optional<JSObject*> 
 JsFbMetadbHandleList::Clone()
 {
-    JS::RootedObject jsObject( pJsCtx_, JsFbMetadbHandleList::Create( pJsCtx_, metadbHandleList_ ) );
+    JS::RootedObject jsObject( pJsCtx_, JsFbMetadbHandleList::CreateJs( pJsCtx_, metadbHandleList_ ) );
     if ( !jsObject )
     {// Report in Create
         return std::nullopt;
@@ -324,7 +324,7 @@ JsFbMetadbHandleList::Convert()
     JS::RootedObject jsObject( pJsCtx_ );
     for ( t_size i = 0; i < count; ++i )
     {
-        jsObject = JsFbMetadbHandle::Create( pJsCtx_, metadbHandleList_.get_item_ref( i ));
+        jsObject = JsFbMetadbHandle::CreateJs( pJsCtx_, metadbHandleList_.get_item_ref( i ));
         if ( !jsObject )
         {// Report in Create
             return std::nullopt;
@@ -785,7 +785,7 @@ JsFbMetadbHandleList::get_Item( uint32_t index )
         return std::nullopt;
     }
 
-    JS::RootedObject jsObject( pJsCtx_, JsFbMetadbHandle::Create( pJsCtx_, metadbHandleList_.get_item_ref( index ) ) );
+    JS::RootedObject jsObject( pJsCtx_, JsFbMetadbHandle::CreateJs( pJsCtx_, metadbHandleList_.get_item_ref( index ) ) );
     if ( !jsObject )
     {// report in Create
         return std::nullopt;

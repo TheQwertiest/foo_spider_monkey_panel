@@ -218,7 +218,7 @@ std::optional<JSObject*>
 JsFbUtils::AcquireUiSelectionHolder()
 {
     ui_selection_holder::ptr holder = ui_selection_manager::get()->acquire();
-    JS::RootedObject jsObject( pJsCtx_, JsFbUiSelectionHolder::Create( pJsCtx_, holder ) );
+    JS::RootedObject jsObject( pJsCtx_, JsFbUiSelectionHolder::CreateJs( pJsCtx_, holder ) );
     if ( !jsObject )
     {// report in Create
         return std::nullopt;
@@ -285,7 +285,7 @@ JsFbUtils::CopyHandleListToClipboard( JsFbMetadbHandleList* handles )
 std::optional<JSObject*>
 JsFbUtils::CreateContextMenuManager()
 {
-    JS::RootedObject jsObject( pJsCtx_, JsContextMenuManager::Create( pJsCtx_ ) );
+    JS::RootedObject jsObject( pJsCtx_, JsContextMenuManager::CreateJs( pJsCtx_ ) );
     if ( !jsObject )
     {// report in Create
         return std::nullopt;
@@ -298,7 +298,7 @@ std::optional<JSObject*>
 JsFbUtils::CreateHandleList()
 {
     metadb_handle_list items;
-    JS::RootedObject jsObject( pJsCtx_, JsFbMetadbHandleList::Create( pJsCtx_, items ) );
+    JS::RootedObject jsObject( pJsCtx_, JsFbMetadbHandleList::CreateJs( pJsCtx_, items ) );
     if ( !jsObject )
     {// report in Create
         return std::nullopt;
@@ -310,7 +310,7 @@ JsFbUtils::CreateHandleList()
 std::optional<JSObject*>
 JsFbUtils::CreateMainMenuManager()
 {
-    JS::RootedObject jsObject( pJsCtx_, JsMainMenuManager::Create( pJsCtx_ ) );
+    JS::RootedObject jsObject( pJsCtx_, JsMainMenuManager::CreateJs( pJsCtx_ ) );
     if ( !jsObject )
     {// report in Create
         return std::nullopt;
@@ -322,7 +322,7 @@ JsFbUtils::CreateMainMenuManager()
 std::optional<JSObject*>
 JsFbUtils::CreateProfiler( const pfc::string8_fast& name )
 {
-    JS::RootedObject jsObject( pJsCtx_, JsFbProfiler::Create( pJsCtx_, name ) );
+    JS::RootedObject jsObject( pJsCtx_, JsFbProfiler::CreateJs( pJsCtx_, name ) );
     if ( !jsObject )
     {// report in Create
         return std::nullopt;
@@ -402,7 +402,7 @@ JsFbUtils::GetClipboardContents( uint32_t hWindow )
         }
     }
 
-    JS::RootedObject jsObject( pJsCtx_, JsFbMetadbHandleList::Create( pJsCtx_, items ) );
+    JS::RootedObject jsObject( pJsCtx_, JsFbMetadbHandleList::CreateJs( pJsCtx_, items ) );
     if ( !jsObject )
     {
         JS_ReportErrorUTF8( pJsCtx_, "Internal error: failed to create JS object" );
@@ -456,7 +456,7 @@ JsFbUtils::GetFocusItem( bool force )
         return nullptr;
     }
 
-    JS::RootedObject jsObject( pJsCtx_, JsFbMetadbHandle::Create( pJsCtx_, metadb ) );
+    JS::RootedObject jsObject( pJsCtx_, JsFbMetadbHandle::CreateJs( pJsCtx_, metadb ) );
     if ( !jsObject )
     {// report in Create
         return std::nullopt;
@@ -488,7 +488,7 @@ JsFbUtils::GetLibraryItems()
     metadb_handle_list items;
     library_manager::get()->get_all_items( items );
 
-    JS::RootedObject jsObject( pJsCtx_, JsFbMetadbHandleList::Create( pJsCtx_, items ) );
+    JS::RootedObject jsObject( pJsCtx_, JsFbMetadbHandleList::CreateJs( pJsCtx_, items ) );
     if ( !jsObject )
     {// report in Create
         return std::nullopt;
@@ -525,7 +525,7 @@ JsFbUtils::GetNowPlaying()
         return nullptr;        
     }
 
-    JS::RootedObject jsObject( pJsCtx_, JsFbMetadbHandle::Create( pJsCtx_, metadb ) );
+    JS::RootedObject jsObject( pJsCtx_, JsFbMetadbHandle::CreateJs( pJsCtx_, metadb ) );
     if ( !jsObject )
     {// report in Create
         return std::nullopt;
@@ -596,7 +596,7 @@ JsFbUtils::GetQueryItems( JsFbMetadbHandleList* handles, const pfc::string8_fast
     filter->test_multi( dst_list, mask.get_ptr() );
     dst_list.filter_mask( mask.get_ptr() );
 
-    JS::RootedObject jsObject( pJsCtx_, JsFbMetadbHandleList::Create( pJsCtx_, dst_list ) );
+    JS::RootedObject jsObject( pJsCtx_, JsFbMetadbHandleList::CreateJs( pJsCtx_, dst_list ) );
     if ( !jsObject )
     {// report in Create
         return std::nullopt;
@@ -616,7 +616,7 @@ JsFbUtils::GetSelection()
         return nullptr;
     }
 
-    JS::RootedObject jsObject( pJsCtx_, JsFbMetadbHandle::Create( pJsCtx_, items[0] ) );
+    JS::RootedObject jsObject( pJsCtx_, JsFbMetadbHandle::CreateJs( pJsCtx_, items[0] ) );
     if ( !jsObject )
     {// report in Create
         return std::nullopt;
@@ -631,7 +631,7 @@ JsFbUtils::GetSelections( uint32_t flags )
     metadb_handle_list items;
     ui_selection_manager_v2::get()->get_selection( items, flags );
 
-    JS::RootedObject jsObject( pJsCtx_, JsFbMetadbHandleList::Create( pJsCtx_, items ) );
+    JS::RootedObject jsObject( pJsCtx_, JsFbMetadbHandleList::CreateJs( pJsCtx_, items ) );
     if ( !jsObject )
     {// report in Create
         return std::nullopt;
@@ -962,7 +962,7 @@ JsFbUtils::Stop()
 std::optional<JSObject*>
 JsFbUtils::TitleFormat( const pfc::string8_fast& expression )
 {
-    JS::RootedObject jsObject( pJsCtx_, JsFbTitleFormat::Create( pJsCtx_, expression ) );
+    JS::RootedObject jsObject( pJsCtx_, JsFbTitleFormat::CreateJs( pJsCtx_, expression ) );
     if ( !jsObject )
     {// report in Create
         return std::nullopt;

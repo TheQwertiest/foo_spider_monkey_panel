@@ -908,7 +908,7 @@ JsGdiGraphics::MeasureString( const std::wstring& str, JsGdiFont* font, float x,
     Gdiplus::Status gdiRet = pGdi_->MeasureString( str.c_str(), -1, fn, Gdiplus::RectF( x, y, w, h ), &fmt, &bound, &chars, &lines );
     IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, std::nullopt, MeasureString );
 
-    JS::RootedObject jsObject( pJsCtx_, JsMeasureStringInfo::Create( pJsCtx_, bound.X, bound.Y, bound.Width, bound.Height, lines, chars ) );
+    JS::RootedObject jsObject( pJsCtx_, JsMeasureStringInfo::CreateJs( pJsCtx_, bound.X, bound.Y, bound.Width, bound.Height, lines, chars ) );
     if ( !jsObject )
     {// report in Create
         return std::nullopt;

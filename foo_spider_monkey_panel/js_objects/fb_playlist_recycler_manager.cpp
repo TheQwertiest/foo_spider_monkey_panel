@@ -165,7 +165,7 @@ JsFbPlaylistRecyclerManager::get_Content( uint32_t index )
     metadb_handle_list handles;
     playlist_manager_v3::get()->recycler_get_content( index, handles );    
 
-    JS::RootedObject jsObject( pJsCtx_, JsFbMetadbHandleList::Create( pJsCtx_, handles ) );
+    JS::RootedObject jsObject( pJsCtx_, JsFbMetadbHandleList::CreateJs( pJsCtx_, handles ) );
     if ( !jsObject )
     {// Report in Create
         return std::nullopt;

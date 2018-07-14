@@ -96,7 +96,7 @@ JsGdiUtils::CreateImage( uint32_t w, uint32_t h )
         return std::nullopt;
     }
 
-    JS::RootedObject jsObject( pJsCtx_, JsGdiBitmap::Create( pJsCtx_, std::move(img) ) );
+    JS::RootedObject jsObject( pJsCtx_, JsGdiBitmap::CreateJs( pJsCtx_, std::move(img) ) );
     if ( !jsObject )
     {// report in Create
         return std::nullopt;
@@ -138,7 +138,7 @@ JsGdiUtils::Font( const std::wstring& fontName, float pxSize, uint32_t style )
         DeleteObject( obj );
     } );
 
-    JS::RootedObject jsObject( pJsCtx_, JsGdiFont::Create( pJsCtx_, std::move(pGdiFont), hFont, true ) );
+    JS::RootedObject jsObject( pJsCtx_, JsGdiFont::CreateJs( pJsCtx_, std::move(pGdiFont), hFont, true ) );
     if ( !jsObject )
     {// report in Create
         return std::nullopt;
@@ -182,7 +182,7 @@ JsGdiUtils::Image( const std::wstring& path )
         return nullptr;
     }
 
-    JS::RootedObject jsObject( pJsCtx_, JsGdiBitmap::Create( pJsCtx_, std::move(img) ) );
+    JS::RootedObject jsObject( pJsCtx_, JsGdiBitmap::CreateJs( pJsCtx_, std::move(img) ) );
     if ( !jsObject )
     {// report in Create
         return std::nullopt;

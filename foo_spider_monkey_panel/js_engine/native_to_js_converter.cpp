@@ -5,7 +5,7 @@
 #include <js_objects/fb_metadb_handle.h>
 #include <js_objects/fb_metadb_handle_list.h>
 #include <js_objects/gdi_bitmap.h>
-#include <js_utils/js_object_helper.h>
+
 
 namespace mozjs::convert::to_js
 {
@@ -19,7 +19,7 @@ bool ToValue( JSContext * cx, std::unique_ptr<Gdiplus::Bitmap> inValue, JS::Muta
         return true;
     }
 
-    JS::RootedObject jsObject( cx, JsGdiBitmap::Create( cx, std::move( inValue ) ) );
+    JS::RootedObject jsObject( cx, JsGdiBitmap::CreateJs( cx, std::move( inValue ) ) );
     if ( !jsObject )
     {
         return false;
@@ -141,7 +141,7 @@ bool ToValue( JSContext * cx, const metadb_handle_ptr& inValue, JS::MutableHandl
         return true;
     }
 
-    JS::RootedObject jsObject( cx, JsFbMetadbHandle::Create( cx, inValue ) );
+    JS::RootedObject jsObject( cx, JsFbMetadbHandle::CreateJs( cx, inValue ) );
     if ( !jsObject )
     {
         return false;
@@ -154,7 +154,7 @@ bool ToValue( JSContext * cx, const metadb_handle_ptr& inValue, JS::MutableHandl
 template <>
 bool ToValue( JSContext * cx, const metadb_handle_list& inValue, JS::MutableHandleValue wrappedValue )
 {
-    JS::RootedObject jsObject( cx, JsFbMetadbHandleList::Create( cx, inValue ) );
+    JS::RootedObject jsObject( cx, JsFbMetadbHandleList::CreateJs( cx, inValue ) );
     if ( !jsObject )
     {
         return false;

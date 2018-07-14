@@ -30,6 +30,7 @@ public:
 public:
     ~JsThemeManager();
 
+    static bool HasThemeData( HWND hwnd, const std::wstring& classlist );
     static std::unique_ptr<JsThemeManager> CreateNative( JSContext* cx, HWND hwnd, const std::wstring& classlist );
     static size_t GetInternalSize( HWND hwnd, const std::wstring& classlist );
 

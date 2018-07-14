@@ -61,7 +61,7 @@ bool JsContainer::Initialize()
 
     JSAutoCompartment ac( pJsCtx_, jsGlobal_ );
 
-    jsGraphics_.init( pJsCtx_, JsGdiGraphics::Create( pJsCtx_ ) );
+    jsGraphics_.init( pJsCtx_, JsGdiGraphics::CreateJs( pJsCtx_ ) );
     if ( !jsGraphics_ )
     {
         jsGlobal_.reset();

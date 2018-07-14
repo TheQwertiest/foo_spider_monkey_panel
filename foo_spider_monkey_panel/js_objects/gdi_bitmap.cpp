@@ -162,7 +162,7 @@ JsGdiBitmap::ApplyAlpha( uint8_t alpha )
     gdiRet = g.DrawImage( pGdi_.get(), rc, 0, 0, width, height, Gdiplus::UnitPixel, &ia );
     IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, std::nullopt, DrawImage );
 
-    JS::RootedObject jsObject( pJsCtx_, JsGdiBitmap::Create( pJsCtx_, std::move( out ) ) );
+    JS::RootedObject jsObject( pJsCtx_, JsGdiBitmap::CreateJs( pJsCtx_, std::move( out ) ) );
     if ( !jsObject )
     {// report in Create
         return std::nullopt;
@@ -244,7 +244,7 @@ JsGdiBitmap::Clone( float x, float y, float w, float h )
         return std::nullopt;
     }
 
-    JS::RootedObject jsObject( pJsCtx_, JsGdiBitmap::Create( pJsCtx_, std::move(img) ) );
+    JS::RootedObject jsObject( pJsCtx_, JsGdiBitmap::CreateJs( pJsCtx_, std::move(img) ) );
     if ( !jsObject )
     {// report in Create
         return std::nullopt;
@@ -256,7 +256,7 @@ JsGdiBitmap::Clone( float x, float y, float w, float h )
 
 std::optional<JSObject*> JsGdiBitmap::CreateRawBitmap()
 {
-    JS::RootedObject jsObject( pJsCtx_, JsGdiRawBitmap::Create( pJsCtx_, pGdi_.get() ) );
+    JS::RootedObject jsObject( pJsCtx_, JsGdiRawBitmap::CreateJs( pJsCtx_, pGdi_.get() ) );
     if ( !jsObject )
     {// report in Create
         return std::nullopt;
@@ -441,7 +441,7 @@ JsGdiBitmap::GetGraphics()
         return std::nullopt;
     }
 
-    JS::RootedObject jsObject( pJsCtx_, JsGdiGraphics::Create( pJsCtx_ ) );
+    JS::RootedObject jsObject( pJsCtx_, JsGdiGraphics::CreateJs( pJsCtx_ ) );
     if ( !jsObject )
     {// report in JS_SetElement
         return std::nullopt;
@@ -495,7 +495,7 @@ JsGdiBitmap::Resize( uint32_t w, uint32_t h, uint32_t interpolationMode )
     gdiRet = g.DrawImage( pGdi_.get(), 0, 0, w, h );
     IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, std::nullopt, DrawImage );
 
-    JS::RootedObject jsRetObject( pJsCtx_, JsGdiBitmap::Create( pJsCtx_, std::move(bitmap) ) );
+    JS::RootedObject jsRetObject( pJsCtx_, JsGdiBitmap::CreateJs( pJsCtx_, std::move(bitmap) ) );
     if ( !jsRetObject )
     {// report in Create
         return std::nullopt;

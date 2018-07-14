@@ -163,7 +163,7 @@ JsFbMetadbHandle::GetFileInfo()
         return nullptr;
     }
 
-    JS::RootedObject jsObject( pJsCtx_, JsFbFileInfo::Create( pJsCtx_, std::move(pFileInfo) ) );
+    JS::RootedObject jsObject( pJsCtx_, JsFbFileInfo::CreateJs( pJsCtx_, std::move(pFileInfo) ) );
     if ( !jsObject )
     {// report in Create
         return std::nullopt;

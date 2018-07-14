@@ -72,12 +72,25 @@ JsThemeManager::~JsThemeManager()
     }
 }
 
+bool JsThemeManager::HasThemeData( HWND hwnd, const std::wstring& classlist )
+{// Since CreateNative return nullptr only on error, we need to validate args beforehand
+    HTHEME hTheme = OpenThemeData( hwnd, classlist.c_str() );
+    bool bFound = !!hTheme;
+    if ( hTheme )
+    {
+        CloseThemeData( hTheme );
+    }
+
+    return bFound;
+}
+
 std::unique_ptr<JsThemeManager>
 JsThemeManager::CreateNative( JSContext* cx, HWND hwnd, const std::wstring& classlist )
 {
     HTHEME hTheme = OpenThemeData( hwnd, classlist.c_str() );
     if ( !hTheme )
-    {// Not an error        
+    {
+        JS_ReportErrorUTF8( cx, "Internal error: Failed to get theme data for the provided class list" );
         return nullptr;
     }
 

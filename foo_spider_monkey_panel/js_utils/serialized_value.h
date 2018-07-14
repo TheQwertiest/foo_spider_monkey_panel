@@ -23,7 +23,7 @@ struct SerializedJsValue
         double doubleVal;
         bool boolVal;
     };
-    pfc::string8_fast strVal; ///< JS uses wide strings internally, thus less conversions
+    pfc::string8_fast strVal;
 };
 
 std::optional<SerializedJsValue> SerializeJsValue( JSContext* cx, JS::HandleValue jsValue );

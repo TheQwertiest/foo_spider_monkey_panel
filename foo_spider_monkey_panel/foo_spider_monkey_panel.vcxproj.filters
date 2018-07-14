@@ -474,13 +474,16 @@
     <ClInclude Include="js_objects\object_base.h">
       <Filter>js_objects</Filter>
     </ClInclude>
-    <ClInclude Include="js_objects\prototype_ids.h">
-      <Filter>js_objects</Filter>
-    </ClInclude>
     <ClInclude Include="js_objects\internal\fb_properties.h">
       <Filter>js_objects\internal</Filter>
     </ClInclude>
     <ClInclude Include="js_objects\internal\global_heap_manager.h">
+      <Filter>js_objects\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="js_utils\js_prototype_helpers.h">
+      <Filter>js_utils</Filter>
+    </ClInclude>
+    <ClInclude Include="js_objects\internal\prototype_ids.h">
       <Filter>js_objects\internal</Filter>
     </ClInclude>
   </ItemGroup>

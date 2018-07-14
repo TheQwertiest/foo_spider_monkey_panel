@@ -462,7 +462,7 @@ JsFbPlaylistManager::GetPlaybackQueueContents()
     JS::RootedObject jsObject( pJsCtx_ );
     for ( t_size i = 0; i < count; ++i )
     {
-        jsObject.set( JsFbPlaybackQueueItem::Create( pJsCtx_, contents[i] ) );
+        jsObject.set( JsFbPlaybackQueueItem::CreateJs( pJsCtx_, contents[i] ) );
         if ( !jsObject )
         {// report in Create
             return std::nullopt;
@@ -490,7 +490,7 @@ JsFbPlaylistManager::GetPlaybackQueueHandles()
         items.add_item( contents[i].m_handle );
     }
 
-    JS::RootedObject jsObject( pJsCtx_, JsFbMetadbHandleList::Create( pJsCtx_, items ) );
+    JS::RootedObject jsObject( pJsCtx_, JsFbMetadbHandleList::CreateJs( pJsCtx_, items ) );
     if ( !jsObject )
     {// report in Create
         return std::nullopt;
@@ -506,7 +506,7 @@ JsFbPlaylistManager::GetPlayingItemLocation()
     t_size playlistItemIndex = pfc_infinite;
     bool isValid = playlist_manager::get()->get_playing_item_location( &playlistIndex, &playlistItemIndex );
     
-    JS::RootedObject jsObject( pJsCtx_, JsFbPlayingItemLocation::Create( pJsCtx_, isValid, playlistIndex, playlistItemIndex ) );
+    JS::RootedObject jsObject( pJsCtx_, JsFbPlayingItemLocation::CreateJs( pJsCtx_, isValid, playlistIndex, playlistItemIndex ) );
     if ( !jsObject )
     {// report in Create
         return std::nullopt;
@@ -528,7 +528,7 @@ JsFbPlaylistManager::GetPlaylistItems( uint32_t playlistIndex )
     metadb_handle_list items;
     playlist_manager::get()->playlist_get_all_items( playlistIndex, items );
     
-    JS::RootedObject jsObject( pJsCtx_, JsFbMetadbHandleList::Create( pJsCtx_, items ) );
+    JS::RootedObject jsObject( pJsCtx_, JsFbMetadbHandleList::CreateJs( pJsCtx_, items ) );
     if ( !jsObject )
     {
         JS_ReportErrorUTF8( pJsCtx_, "Internal error: failed to create JS object" );
@@ -552,7 +552,7 @@ JsFbPlaylistManager::GetPlaylistSelectedItems( uint32_t playlistIndex )
     metadb_handle_list items;
     playlist_manager::get()->playlist_get_selected_items( playlistIndex, items );
     
-    JS::RootedObject jsObject( pJsCtx_, JsFbMetadbHandleList::Create( pJsCtx_, items ) );
+    JS::RootedObject jsObject( pJsCtx_, JsFbMetadbHandleList::CreateJs( pJsCtx_, items ) );
     if ( !jsObject )
     {
         JS_ReportErrorUTF8( pJsCtx_, "Internal error: failed to create JS object" );
@@ -1042,7 +1042,7 @@ JsFbPlaylistManager::get_PlaylistRecyclerManager()
 {
     if ( !jsPlaylistRecycler_.initialized() )
     {
-        jsPlaylistRecycler_.init( pJsCtx_, JsFbPlaylistRecyclerManager::Create( pJsCtx_ ) );
+        jsPlaylistRecycler_.init( pJsCtx_, JsFbPlaylistRecyclerManager::CreateJs( pJsCtx_ ) );
         if ( !jsPlaylistRecycler_ )
         {
             JS_ReportErrorUTF8( pJsCtx_, "Internal error: failed to create JS object" );
