@@ -3,6 +3,7 @@
 
 #include <js_engine/native_to_js_converter.h>
 #include <js_objects/global_object.h>
+#include <js_utils/scope_helper.h>
 
 #include <popup_msg.h>
 #include <user_message.h>
@@ -185,10 +186,13 @@ pfc::string8_fast GetCurrentExceptionText( JSContext* cx )
 
 void RethrowExceptionWithFunctionName( JSContext* cx, const char* functionName )
 {
-    // TODO: wrap JS_ReportErrorUTF8 to scoped
+    scope::auto_caller autoJsReport( []( auto& args )
+    {
+        JS_ReportErrorUTF8( std::get<0>( args ), "'%s' failed", std::get<1>( args ) );
+    }, cx, functionName );
+
     if ( !JS_IsExceptionPending( cx ) )
     {
-        JS_ReportErrorUTF8( cx, "'%s' failed", functionName );
         return;
     }
 
@@ -198,7 +202,6 @@ void RethrowExceptionWithFunctionName( JSContext* cx, const char* functionName )
 
     if ( !excn.isObject() )
     {// Sometimes happens with custom JS errors
-        JS_ReportErrorUTF8( cx, "'%s' failed", functionName );
         return;
     }
 
@@ -207,7 +210,6 @@ void RethrowExceptionWithFunctionName( JSContext* cx, const char* functionName )
     JSErrorReport* report = JS_ErrorFromException( cx, excnObject );
     if ( !report )
     {// Sometimes happens with custom JS errors
-        JS_ReportErrorUTF8( cx, "'%s' failed", functionName );
         return;
     }
 
@@ -228,7 +230,6 @@ void RethrowExceptionWithFunctionName( JSContext* cx, const char* functionName )
     if ( !convert::to_js::ToValue<pfc::string8_fast>( cx, report->filename, &jsFilename )
          || !convert::to_js::ToValue<pfc::string8_fast>( cx, newMessage, &jsMessage ) )
     {
-        JS_ReportErrorUTF8( cx, "'%s' failed", functionName );
         return;
     }
 
@@ -239,10 +240,10 @@ void RethrowExceptionWithFunctionName( JSContext* cx, const char* functionName )
 
     if ( !JS::CreateError( cx, (JSExnType)report->exnType, excnStack, jsFilenameStr, report->lineno, report->column, nullptr, jsMessageStr, &newExcn ) )
     {
-        JS_ReportErrorUTF8( cx, "'%s' failed", functionName );
         return;
     }
 
+    autoJsReport.cancel();
     JS_ClearPendingException( cx );
     JS_SetPendingException( cx, newExcn );
 }
