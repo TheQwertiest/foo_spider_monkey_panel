@@ -64,13 +64,11 @@ const JSFunctionSpec* JsMenuObject::JsFunctions = jsFunctions;
 const JSPropertySpec* JsMenuObject::JsProperties = jsProperties;
 const JsPrototypeId JsMenuObject::PrototypeId = JsPrototypeId::MenuObject;
 
-JsMenuObject::JsMenuObject( JSContext* cx, HWND hParentWnd )
+JsMenuObject::JsMenuObject( JSContext* cx, HWND hParentWnd, HMENU hMenu )
     : pJsCtx_( cx )
     , hParentWnd_( hParentWnd )
+    , hMenu_( hMenu )
 {
-    hMenu_ = ::CreatePopupMenu();
-    assert( hMenu_ );
-    // TODO: move to create for error checking
 }
 
 
@@ -85,7 +83,10 @@ JsMenuObject::~JsMenuObject()
 std::unique_ptr<JsMenuObject>
 JsMenuObject::CreateNative( JSContext* cx, HWND hParentWnd )
 {
-    return std::unique_ptr<JsMenuObject>( new JsMenuObject( cx, hParentWnd ) );
+    HMENU hMenu = ::CreatePopupMenu();
+    IF_WINAPI_FAILED_RETURN_WITH_REPORT( cx, !!hMenu, nullptr, CreatePopupMenu );
+
+    return std::unique_ptr<JsMenuObject>( new JsMenuObject( cx, hParentWnd, hMenu ) );
 }
 
 size_t JsMenuObject::GetInternalSize( HWND hParentWnd )
@@ -101,8 +102,6 @@ HMENU JsMenuObject::HMenu() const
 std::optional<std::nullptr_t> 
 JsMenuObject::AppendMenuItem( uint32_t flags, uint32_t item_id, const std::wstring& text )
 {
-    assert( hMenu_ );
-
     if ( flags & MF_POPUP )
     {
         JS_ReportErrorUTF8( pJsCtx_, "Invalid flags: MF_POPUP when adding menu item" );
@@ -118,8 +117,6 @@ JsMenuObject::AppendMenuItem( uint32_t flags, uint32_t item_id, const std::wstri
 std::optional<std::nullptr_t>
 JsMenuObject::AppendMenuSeparator()
 {
-    assert( hMenu_ );
-
     BOOL bRet = ::AppendMenu( hMenu_, MF_SEPARATOR, 0, 0 );
     IF_WINAPI_FAILED_RETURN_WITH_REPORT( pJsCtx_, bRet, std::nullopt, AppendMenu );
 
@@ -129,8 +126,6 @@ JsMenuObject::AppendMenuSeparator()
 std::optional<std::nullptr_t> 
 JsMenuObject::AppendTo( JsMenuObject* parent, uint32_t flags, const std::wstring& text )
 {
-    assert( hMenu_ );
-
     if ( !parent )
     {
         JS_ReportErrorUTF8( pJsCtx_, "parent argument is null" );
@@ -147,8 +142,6 @@ JsMenuObject::AppendTo( JsMenuObject* parent, uint32_t flags, const std::wstring
 std::optional<std::nullptr_t>
 JsMenuObject::CheckMenuItem( uint32_t item_id, bool check )
 {
-    assert( hMenu_ );
-
     DWORD dRet = ::CheckMenuItem( hMenu_, item_id, check != VARIANT_FALSE ? MF_CHECKED : MF_UNCHECKED );
     if ( static_cast<DWORD>(-1) == dRet )
     {
@@ -162,8 +155,6 @@ JsMenuObject::CheckMenuItem( uint32_t item_id, bool check )
 std::optional<std::nullptr_t>
 JsMenuObject::CheckMenuRadioItem( uint32_t first, uint32_t last, uint32_t selected )
 {
-    assert( hMenu_ );
-
     if ( selected < first || selected > last )
     {
         JS_ReportErrorUTF8( pJsCtx_, "Index is out of bounds" );
@@ -179,8 +170,6 @@ JsMenuObject::CheckMenuRadioItem( uint32_t first, uint32_t last, uint32_t select
 std::optional<std::uint32_t> 
 JsMenuObject::TrackPopupMenu( int32_t x, int32_t y, uint32_t flags )
 {
-    assert( hMenu_ );
-
     POINT pt = { x, y };
 
     // Only include specified flags

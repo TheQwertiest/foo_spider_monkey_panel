@@ -113,15 +113,12 @@ size_t JsFbMetadbHandle::GetInternalSize( const metadb_handle_ptr& handle )
 
 metadb_handle_ptr& JsFbMetadbHandle::GetHandle()
 {
-    assert( metadbHandle_.is_valid() );
     return metadbHandle_;
 }
 
 std::optional<std::nullptr_t> 
 JsFbMetadbHandle::ClearStats()
 {
-    assert( metadbHandle_.is_valid() );
-
     metadb_index_hash hash;
     if ( !stats::g_client->hashHandle( metadbHandle_, hash ) )
     {
@@ -134,8 +131,6 @@ JsFbMetadbHandle::ClearStats()
 std::optional<bool> 
 JsFbMetadbHandle::Compare( JsFbMetadbHandle* handle )
 {
-    assert( metadbHandle_.is_valid() );
-
     if ( !handle )
     {
         JS_ReportErrorUTF8( pJsCtx_, "handle argument is null" );
@@ -154,8 +149,6 @@ JsFbMetadbHandle::Compare( JsFbMetadbHandle* handle )
 std::optional<JSObject*> 
 JsFbMetadbHandle::GetFileInfo()
 {
-    assert( metadbHandle_.is_valid() );
-
     std::unique_ptr<file_info_impl> pFileInfo(new file_info_impl);
 
     if ( !metadbHandle_->get_info( *pFileInfo ) )
@@ -175,8 +168,6 @@ JsFbMetadbHandle::GetFileInfo()
 std::optional<std::nullptr_t> 
 JsFbMetadbHandle::RefreshStats()
 {
-    assert( metadbHandle_.is_valid() );
-
     metadb_index_hash hash;
     if ( stats::g_client->hashHandle( metadbHandle_, hash ) )
     {
@@ -189,8 +180,6 @@ JsFbMetadbHandle::RefreshStats()
 std::optional<std::nullptr_t> 
 JsFbMetadbHandle::SetFirstPlayed( const pfc::string8_fast& first_played )
 {
-    assert( metadbHandle_.is_valid() );
-
     metadb_index_hash hash;
     if ( stats::g_client->hashHandle( metadbHandle_, hash ) )
     {
@@ -208,8 +197,6 @@ JsFbMetadbHandle::SetFirstPlayed( const pfc::string8_fast& first_played )
 std::optional<std::nullptr_t> 
 JsFbMetadbHandle::SetLastPlayed( const pfc::string8_fast& last_played )
 {
-    assert( metadbHandle_.is_valid() );
-
     metadb_index_hash hash;
     if ( stats::g_client->hashHandle( metadbHandle_, hash ) )
     {
@@ -227,8 +214,6 @@ JsFbMetadbHandle::SetLastPlayed( const pfc::string8_fast& last_played )
 std::optional<std::nullptr_t> 
 JsFbMetadbHandle::SetLoved( uint32_t loved )
 {
-    assert( metadbHandle_.is_valid() );
-
     metadb_index_hash hash;
     if ( stats::g_client->hashHandle( metadbHandle_, hash ) )
     {
@@ -246,8 +231,6 @@ JsFbMetadbHandle::SetLoved( uint32_t loved )
 std::optional<std::nullptr_t> 
 JsFbMetadbHandle::SetPlaycount( uint32_t playcount )
 {
-    assert( metadbHandle_.is_valid() );
-
     metadb_index_hash hash;
     if ( stats::g_client->hashHandle( metadbHandle_, hash ) )
     {
@@ -265,8 +248,6 @@ JsFbMetadbHandle::SetPlaycount( uint32_t playcount )
 std::optional<std::nullptr_t> 
 JsFbMetadbHandle::SetRating( uint32_t rating )
 {
-    assert( metadbHandle_.is_valid() );
-
     metadb_index_hash hash;
     if ( stats::g_client->hashHandle( metadbHandle_, hash ) )
     {
@@ -284,35 +265,30 @@ JsFbMetadbHandle::SetRating( uint32_t rating )
 std::optional<std::uint64_t> 
 JsFbMetadbHandle::get_FileSize()
 {
-    assert( metadbHandle_.is_valid() );
     return static_cast<uint64_t>(metadbHandle_->get_filesize());
 }
 
 std::optional<double> 
 JsFbMetadbHandle::get_Length()
 {
-    assert( metadbHandle_.is_valid() );
     return metadbHandle_->get_length();
 }
 
 std::optional<pfc::string8_fast> 
 JsFbMetadbHandle::get_Path()
 {
-    assert( metadbHandle_.is_valid() );
     return file_path_display( metadbHandle_->get_path() ).get_ptr();
 }
 
 std::optional<pfc::string8_fast> 
 JsFbMetadbHandle::get_RawPath()
 {
-    assert( metadbHandle_.is_valid() );
     return metadbHandle_->get_path();
 }
 
 std::optional<std::uint32_t> 
 JsFbMetadbHandle::get_SubSong()
 {
-    assert( metadbHandle_.is_valid() );
     return metadbHandle_->get_subsong_index();
 }
 

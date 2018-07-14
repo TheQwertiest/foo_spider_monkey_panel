@@ -104,16 +104,12 @@ size_t JsFbFileInfo::GetInternalSize( const std::unique_ptr<file_info_impl>& fil
 std::optional<int32_t> 
 JsFbFileInfo::InfoFind( const pfc::string8_fast& name )
 {
-    assert( fileInfo_ );
-
     return fileInfo_->info_find_ex( name.c_str(), name.length() );
 }
 
 std::optional<pfc::string8_fast> 
 JsFbFileInfo::InfoName( uint32_t index )
 {
-    assert( fileInfo_ );
-
     if ( index >= fileInfo_->info_get_count() )
     {
         JS_ReportErrorUTF8( pJsCtx_, "Index is out of bounds" );
@@ -126,8 +122,6 @@ JsFbFileInfo::InfoName( uint32_t index )
 std::optional<pfc::string8_fast> 
 JsFbFileInfo::InfoValue( uint32_t index )
 {
-    assert( fileInfo_ );
-
     if ( index >= fileInfo_->info_get_count() )
     {
         JS_ReportErrorUTF8( pJsCtx_, "Index is out of bounds" );
@@ -140,8 +134,6 @@ JsFbFileInfo::InfoValue( uint32_t index )
 std::optional<int32_t> 
 JsFbFileInfo::MetaFind( const pfc::string8_fast& name )
 {
-    assert( fileInfo_ );
-
     t_size idx = fileInfo_->meta_find_ex( name.c_str(), name.length() );
     if ( idx == pfc_infinite )
     {
@@ -154,8 +146,6 @@ JsFbFileInfo::MetaFind( const pfc::string8_fast& name )
 std::optional<pfc::string8_fast> 
 JsFbFileInfo::MetaName( uint32_t index )
 {
-    assert( fileInfo_ );
-
     if ( index >= fileInfo_->info_get_count() )
     {
         JS_ReportErrorUTF8( pJsCtx_, "Index is out of bounds" );
@@ -168,8 +158,6 @@ JsFbFileInfo::MetaName( uint32_t index )
 std::optional<pfc::string8_fast> 
 JsFbFileInfo::MetaValue( uint32_t infoIndex, uint32_t valueIndex )
 {
-    assert( fileInfo_ );
-
     if ( infoIndex >= fileInfo_->info_get_count()
          || valueIndex >= fileInfo_->meta_enum_value_count( infoIndex ) )
     {
@@ -183,8 +171,6 @@ JsFbFileInfo::MetaValue( uint32_t infoIndex, uint32_t valueIndex )
 std::optional<uint32_t> 
 JsFbFileInfo::MetaValueCount( uint32_t index )
 {
-    assert( fileInfo_ );
-
     if ( index >= fileInfo_->info_get_count() )
     {
         JS_ReportErrorUTF8( pJsCtx_, "Index is out of bounds" );
@@ -197,14 +183,12 @@ JsFbFileInfo::MetaValueCount( uint32_t index )
 std::optional<uint32_t> 
 JsFbFileInfo::get_InfoCount()
 {
-    assert( fileInfo_ );
     return fileInfo_->info_get_count();
 }
 
 std::optional<uint32_t> 
 JsFbFileInfo::get_MetaCount()
 {
-    assert( fileInfo_ );
     return fileInfo_->meta_get_count();
 }
 

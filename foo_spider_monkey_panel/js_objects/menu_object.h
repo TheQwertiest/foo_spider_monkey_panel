@@ -43,7 +43,7 @@ public:
     std::optional<std::uint32_t> TrackPopupMenuWithOpt( size_t optArgCount, int32_t x, int32_t y, uint32_t flags );
 
 private:
-    JsMenuObject( JSContext* cx, HWND hParentWnd );
+    JsMenuObject( JSContext* cx, HWND hParentWnd, HMENU hMenu );
 
 private:
     JSContext * pJsCtx_ = nullptr;
