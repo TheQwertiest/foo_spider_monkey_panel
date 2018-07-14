@@ -1285,14 +1285,7 @@ JSObject* ActiveX::Create( JSContext* cx, ActiveX* pPremadeNative )
 
     std::unique_ptr<ActiveX> autoNative( pPremadeNative );
 
-    JS::RootedObject jsGlobal(cx, JS::CurrentGlobalOrNull( cx ));
-    if ( !jsGlobal )
-    {
-        JS_ReportErrorUTF8( cx, "Internal error: pGlobal is null" );
-        return nullptr;
-    }
-
-    JS::RootedObject jsProto(cx, mozjs::GetPrototype<ActiveX>(cx, jsGlobal, mozjs::JsPrototypeId::ActiveX ) );
+    JS::RootedObject jsProto(cx, mozjs::GetPrototype<ActiveX>(cx, mozjs::JsPrototypeId::ActiveX ) );
     if ( !jsProto )
     {// report in GetPrototype
         return nullptr;

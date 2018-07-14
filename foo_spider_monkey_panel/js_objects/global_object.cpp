@@ -78,8 +78,7 @@ JsGlobalObject::JsGlobalObject( JSContext* cx, JsContainer &parentContainer, js_
 }
 
 JsGlobalObject::~JsGlobalObject()
-{
-    RemoveHeapTracer();
+{// No need to cleanup JS here, since it must be performed manually beforehand anyway
 }
 
 JSObject* JsGlobalObject::CreateNative( JSContext* cx, JsContainer &parentContainer, js_panel_window& parentPanel )
@@ -161,9 +160,33 @@ GlobalHeapManager& JsGlobalObject::GetHeapManager() const
     return *heapManager_;
 }
 
-void JsGlobalObject::RemoveHeapTracer()
+void JsGlobalObject::CleanupBeforeDestruction( JSContext* cx, JS::HandleObject self )
 {
-    heapManager_.reset();
+    auto nativeGlobal = static_cast<JsGlobalObject*>(JS_GetInstancePrivate( cx, self, &JsGlobalObject::JsClass, nullptr ));
+    assert( nativeGlobal );
+
+    JS::RootedValue jsProperty( cx );
+    if ( JS_GetProperty( cx, self, "window", &jsProperty ) && jsProperty.isObject() )
+    {
+        JS::RootedObject jsWindow( cx, &jsProperty.toObject() );
+        auto nativeWindow = static_cast<JsWindow*>(JS_GetInstancePrivate( cx, jsWindow, &JsWindow::JsClass, nullptr ));
+        if ( nativeWindow )
+        {
+            nativeWindow->CleanupBeforeDestruction();
+        }
+    }
+
+    if ( JS_GetProperty( cx, self, "plman", &jsProperty ) && jsProperty.isObject() )
+    {
+        JS::RootedObject jsWindow( cx, &jsProperty.toObject() );
+        auto nativeWindow = static_cast<JsFbPlaylistManager*>(JS_GetInstancePrivate( cx, jsWindow, &JsFbPlaylistManager::JsClass, nullptr ));
+        if ( nativeWindow )
+        {
+            nativeWindow->CleanupBeforeDestruction();
+        }
+    }
+
+    nativeGlobal->heapManager_.reset();
 }
 
 std::optional<std::nullptr_t> 

@@ -167,7 +167,7 @@ JsFbPlaylistManager::JsFbPlaylistManager( JSContext* cx )
 
 JsFbPlaylistManager::~JsFbPlaylistManager()
 {
-    jsPlaylistRecycler_.reset();
+    CleanupBeforeDestruction();
 }
 
 std::unique_ptr<JsFbPlaylistManager>
@@ -179,6 +179,11 @@ JsFbPlaylistManager::CreateNative( JSContext* cx )
 size_t JsFbPlaylistManager::GetInternalSize()
 {
     return 0;
+}
+
+void JsFbPlaylistManager::CleanupBeforeDestruction()
+{
+    jsPlaylistRecycler_.reset();
 }
 
 std::optional<std::nullptr_t>

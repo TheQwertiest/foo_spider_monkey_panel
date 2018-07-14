@@ -6,11 +6,12 @@ namespace mozjs
 {
 
 template<typename JsObjectType>
-bool CreateAndSavePrototype( JSContext* cx, JS::HandleObject globalObject, JsPrototypeId protoId )
+bool CreateAndSavePrototype( JSContext* cx, JsPrototypeId protoId )
 {
-    uint32_t slotIdx = JSCLASS_GLOBAL_SLOT_COUNT + static_cast<uint32_t>( protoId );
+    JS::RootedObject globalObject( cx, JS::CurrentGlobalOrNull( cx ) );
     assert( globalObject );
-    assert( JS::CurrentGlobalOrNull( cx ) == globalObject );
+
+    uint32_t slotIdx = JSCLASS_GLOBAL_SLOT_COUNT + static_cast<uint32_t>(protoId);
     assert( slotIdx < JSCLASS_RESERVED_SLOTS( JS_GetClass( globalObject ) ) );
 
     JS::RootedObject jsProto( cx, JsObjectType::CreateProto(cx) );
@@ -26,11 +27,12 @@ bool CreateAndSavePrototype( JSContext* cx, JS::HandleObject globalObject, JsPro
 }
 
 template<typename JsObjectType>
-bool CreateAndInstallPrototype( JSContext* cx, JS::HandleObject globalObject, JsPrototypeId protoId )
+bool CreateAndInstallPrototype( JSContext* cx, JsPrototypeId protoId )
 {
-    uint32_t slotIdx = JSCLASS_GLOBAL_SLOT_COUNT + static_cast<uint32_t>( protoId );
+    JS::RootedObject globalObject( cx, JS::CurrentGlobalOrNull( cx ) );
     assert( globalObject );
-    assert( JS::CurrentGlobalOrNull( cx ) == globalObject );
+
+    uint32_t slotIdx = JSCLASS_GLOBAL_SLOT_COUNT + static_cast<uint32_t>(protoId);
     assert( slotIdx < JSCLASS_RESERVED_SLOTS( JS_GetClass( globalObject ) ) );
 
     JS::RootedObject jsProto( cx, JsObjectType::InstallProto( cx, globalObject ) );
@@ -46,11 +48,12 @@ bool CreateAndInstallPrototype( JSContext* cx, JS::HandleObject globalObject, Js
 }
 
 template<typename JsObjectType>
-JSObject* GetPrototype( JSContext* cx, JS::HandleObject globalObject, JsPrototypeId protoId )
+JSObject* GetPrototype( JSContext* cx, JsPrototypeId protoId )
 {
-    uint32_t slotIdx = JSCLASS_GLOBAL_SLOT_COUNT + static_cast<uint32_t>( protoId );
+    JS::RootedObject globalObject( cx, JS::CurrentGlobalOrNull( cx ) );
     assert( globalObject );
-    assert( JS::CurrentGlobalOrNull( cx ) == globalObject );
+
+    uint32_t slotIdx = JSCLASS_GLOBAL_SLOT_COUNT + static_cast<uint32_t>(protoId);
     assert( slotIdx < JSCLASS_RESERVED_SLOTS( JS_GetClass( globalObject ) ) );
 
     JS::Value& valRef = JS_GetReservedSlot( globalObject, slotIdx );
@@ -64,11 +67,12 @@ JSObject* GetPrototype( JSContext* cx, JS::HandleObject globalObject, JsPrototyp
 }
 
 template<typename JsObjectType>
-JSObject* GetOrCreatePrototype( JSContext* cx, JS::HandleObject globalObject, JsPrototypeId protoId )
+JSObject* GetOrCreatePrototype( JSContext* cx, JsPrototypeId protoId )
 {
-    uint32_t slotIdx = JSCLASS_GLOBAL_SLOT_COUNT + static_cast<uint32_t>( protoId );
+    JS::RootedObject globalObject(cx, JS::CurrentGlobalOrNull( cx ) );
     assert( globalObject );
-    assert( JS::CurrentGlobalOrNull( cx ) == globalObject );
+
+    uint32_t slotIdx = JSCLASS_GLOBAL_SLOT_COUNT + static_cast<uint32_t>( protoId );    
     assert( slotIdx < JSCLASS_RESERVED_SLOTS( JS_GetClass( globalObject ) ) );
 
     {
@@ -79,7 +83,7 @@ JSObject* GetOrCreatePrototype( JSContext* cx, JS::HandleObject globalObject, Js
         }
     }
 
-    if ( !CreateAndSavePrototype<JsObjectType>( cx, globalObject, protoId ) )
+    if ( !CreateAndSavePrototype<JsObjectType>( cx,  protoId ) )
     {// report in CreateAndSavePrototype
         return nullptr;
     }

@@ -39,7 +39,7 @@ public:
     static size_t GetInternalSize( const js_panel_window& parentPanel );
 
 public:
-    void RemoveHeapTracer();
+    void CleanupBeforeDestruction();
 
 public: // methods
     std::optional<std::nullptr_t> ClearInterval( uint32_t intervalId );

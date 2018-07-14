@@ -34,6 +34,8 @@ public:
     static std::unique_ptr<JsFbPlaylistManager> CreateNative( JSContext* cx );
     static size_t GetInternalSize();
 
+    void CleanupBeforeDestruction();
+
 public:
     std::optional<std::nullptr_t> AddItemToPlaybackQueue( JsFbMetadbHandle* handle );
     std::optional<std::nullptr_t> AddLocations( uint32_t playlistIndex, JS::HandleValue locations, bool select = false );
@@ -105,7 +107,6 @@ private:
 
 private:
     JSContext * pJsCtx_ = nullptr;
-    // TODO: need to reset it manually via additional CleanUp method on global destruction
     JS::PersistentRootedObject jsPlaylistRecycler_;
 };
 

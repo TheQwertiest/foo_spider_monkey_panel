@@ -3,7 +3,6 @@
 
 #include <js_objects/global_object.h>
 #include <js_objects/gdi_graphics.h>
-#include <js_objects/window.h>
 #include <js_utils/js_error_helper.h>
 
 
@@ -102,20 +101,8 @@ void JsContainer::Finalize()
         JSAutoRequest ar( pJsCtx_ );
         JSAutoCompartment ac( pJsCtx_, jsGlobal_ );
 
-        JS::RootedValue jsProperty( pJsCtx_ );
-        if ( JS_GetProperty( pJsCtx_, jsGlobal_, "window", &jsProperty ) && jsProperty.isObject() )
-        {
-            JS::RootedObject jsWindow( pJsCtx_, &jsProperty.toObject() );
-            auto nativeWindow = static_cast<JsWindow*>( JS_GetInstancePrivate( pJsCtx_, jsWindow, &JsWindow::JsClass, nullptr ) );
-            if ( nativeWindow )
-            {
-                nativeWindow->RemoveHeapTracer();
-            }
-        }
+        JsGlobalObject::CleanupBeforeDestruction( pJsCtx_, jsGlobal_ );
     }
-
-    auto nativeGlobal_ = static_cast<JsGlobalObject*>( JS_GetPrivate( jsGlobal_ ) );
-    nativeGlobal_->RemoveHeapTracer();
 
     jsGlobal_.reset();
 }

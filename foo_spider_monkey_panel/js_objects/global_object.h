@@ -35,7 +35,7 @@ public:
 
     GlobalHeapManager& GetHeapManager() const;
 
-    void RemoveHeapTracer();
+    static void CleanupBeforeDestruction( JSContext* cx, JS::HandleObject self );
 
 public: // methods
     std::optional<std::nullptr_t> IncludeScript( const pfc::string8_fast& path );

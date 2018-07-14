@@ -138,7 +138,7 @@ JsWindow::JsWindow( JSContext* cx, js_panel_window& parentPanel, std::unique_ptr
 
 JsWindow::~JsWindow()
 {
-    RemoveHeapTracer();
+    CleanupBeforeDestruction();
 }
 
 std::unique_ptr<JsWindow>
@@ -158,7 +158,7 @@ size_t JsWindow::GetInternalSize( const js_panel_window& parentPanel )
     return sizeof( FbProperties );
 }
 
-void JsWindow::RemoveHeapTracer()
+void JsWindow::CleanupBeforeDestruction()
 {
     if ( fbProperties_ )
     {

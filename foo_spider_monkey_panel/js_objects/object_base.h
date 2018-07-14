@@ -51,16 +51,13 @@ public:
         JS::RootedObject jsProto( cx );
         if constexpr ( T::HasProto )
         {
-            JS::RootedObject jsGlobal( cx, JS::CurrentGlobalOrNull( cx ) );
-            assert( jsGlobal );
-
             if constexpr ( T::HasGlobalProto )
             {
-                jsProto = GetPrototype<T>( cx, jsGlobal, T::PrototypeId );
+                jsProto = GetPrototype<T>( cx, T::PrototypeId );
             }
             else
             {
-                jsProto = GetOrCreatePrototype<T>( cx, jsGlobal, T::PrototypeId );
+                jsProto = GetOrCreatePrototype<T>( cx, T::PrototypeId );
             }
             if ( !jsProto )
             {// report in GetPrototype
