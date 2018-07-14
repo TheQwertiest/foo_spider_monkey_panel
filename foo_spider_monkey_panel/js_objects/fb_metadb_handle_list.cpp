@@ -244,7 +244,7 @@ JsFbMetadbHandleList::Add( JsFbMetadbHandle* handle )
     metadb_handle_ptr fbHandle( handle->GetHandle() );
     if ( fbHandle.is_empty() )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "Internal error: FbMetadbHandle does not contain valid handle" );
+        JS_ReportErrorUTF8( pJsCtx_, "Internal error: FbMetadbHandle does not contain a valid handle" );
         return std::nullopt;
     }
 
@@ -277,7 +277,7 @@ JsFbMetadbHandleList::BSearch( JsFbMetadbHandle* handle )
     metadb_handle_ptr fbHandle( handle->GetHandle() );
     if ( fbHandle.is_empty() )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "Internal error: FbMetadbHandle does not contain valid handle" );
+        JS_ReportErrorUTF8( pJsCtx_, "Internal error: FbMetadbHandle does not contain a valid handle" );
         return std::nullopt;
     }
 
@@ -301,8 +301,7 @@ JsFbMetadbHandleList::Clone()
 {
     JS::RootedObject jsObject( pJsCtx_, JsFbMetadbHandleList::Create( pJsCtx_, metadbHandleList_ ) );
     if ( !jsObject )
-    {
-        JS_ReportErrorUTF8( pJsCtx_, "Internal error: failed to create JS object" );
+    {// Report in Create
         return std::nullopt;
     }
 
@@ -327,15 +326,13 @@ JsFbMetadbHandleList::Convert()
     {
         jsObject = JsFbMetadbHandle::Create( pJsCtx_, metadbHandleList_.get_item_ref( i ));
         if ( !jsObject )
-        {
-            JS_ReportErrorUTF8( pJsCtx_, "Internal error: failed to create JS object" );
+        {// Report in Create
             return std::nullopt;
         }
 
         jsValue.set(JS::ObjectValue( *jsObject ));
         if ( !JS_SetElement( pJsCtx_, jsArray, i, jsValue ) )
-        {
-            JS_ReportErrorUTF8( pJsCtx_, "Internal error: JS_SetElement failed" );
+        {// report in JS_SetElement
             return std::nullopt;
         }
     }
@@ -355,7 +352,7 @@ JsFbMetadbHandleList::Find( JsFbMetadbHandle* handle )
     metadb_handle_ptr fbHandle( handle->GetHandle() );
     if ( fbHandle.is_empty() )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "Internal error: FbMetadbHandle does not contain valid handle" );
+        JS_ReportErrorUTF8( pJsCtx_, "Internal error: FbMetadbHandle does not contain a valid handle" );
         return std::nullopt;
     }
 
@@ -396,8 +393,7 @@ JsFbMetadbHandleList::GetLibraryRelativePaths()
         }
 
         if ( !JS_SetElement( pJsCtx_, jsArray, i, jsValue ) )
-        {
-            JS_ReportErrorUTF8( pJsCtx_, "Internal error: JS_SetElement failed" );
+        {// Report in JS_SetElement
             return std::nullopt;
         }
     }
@@ -627,7 +623,7 @@ JsFbMetadbHandleList::Remove( JsFbMetadbHandle* handle )
     metadb_handle_ptr fbHandle( handle->GetHandle() );
     if ( fbHandle.is_empty() )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "Internal error: FbMetadbHandle does not contain valid handle" );
+        JS_ReportErrorUTF8( pJsCtx_, "Internal error: FbMetadbHandle does not contain a valid handle" );
         return std::nullopt;
     }
 
@@ -791,8 +787,7 @@ JsFbMetadbHandleList::get_Item( uint32_t index )
 
     JS::RootedObject jsObject( pJsCtx_, JsFbMetadbHandle::Create( pJsCtx_, metadbHandleList_.get_item_ref( index ) ) );
     if ( !jsObject )
-    {
-        JS_ReportErrorUTF8( pJsCtx_, "Internal error: failed to create JS object" );
+    {// report in Create
         return std::nullopt;
     }
     
@@ -818,7 +813,7 @@ JsFbMetadbHandleList::put_Item( uint32_t index, JsFbMetadbHandle* handle )
     metadb_handle_ptr fbHandle( handle->GetHandle() );
     if ( fbHandle.is_empty() )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "Internal error: FbMetadbHandle does not contain valid handle" );
+        JS_ReportErrorUTF8( pJsCtx_, "Internal error: FbMetadbHandle does not contain a valid handle" );
         return std::nullopt;
     }
 

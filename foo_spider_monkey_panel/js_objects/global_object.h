@@ -48,14 +48,6 @@ private:
     JsContainer &parentContainer_;
     js_panel_window& parentPanel_;
 
-private: // proto
-    size_t curProtoSlotIdx_ = 1;
-
-    size_t activeX_protoSlot_ = 0;
-    size_t fbMetadbHandle_protoSlot_ = 0;
-    size_t fbTitleFormat_protoSlot_ = 0;
-    size_t gdiFont_protoSlot_ = 0;
-
 private: // heap
     std::unique_ptr<GlobalHeapManager> heapManager_;
 };

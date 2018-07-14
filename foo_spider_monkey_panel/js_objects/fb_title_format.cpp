@@ -169,8 +169,7 @@ JsFbTitleFormat::EvalWithMetadbs( JsFbMetadbHandleList* handles )
         }
 
         if ( !JS_SetElement( pJsCtx_, evalResult, i, jsValue ) )
-        {
-            JS_ReportErrorUTF8( pJsCtx_, "Internal error: JS_SetElement failed" );
+        {// report in JS_SetElement
             return std::nullopt;
         }
     }

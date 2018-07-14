@@ -185,8 +185,7 @@ JsWindow::CreatePopupMenu()
 {
     JS::RootedObject jsObject( pJsCtx_, JsMenuObject::Create( pJsCtx_, parentPanel_.GetHWND() ) );
     if ( !jsObject )
-    {
-        JS_ReportErrorUTF8( pJsCtx_, "Internal error: failed to create JS object" );
+    {// Report in Create
         return std::nullopt;
     }
 
@@ -198,8 +197,8 @@ JsWindow::CreateThemeManager( const std::wstring& classid )
 {
     JS::RootedObject jsObject( pJsCtx_, JsThemeManager::Create( pJsCtx_, parentPanel_.GetHWND(), classid ) );
     if ( !jsObject )
-    {// TODO: may not be an internal error, if classid is wrong
-        JS_ReportErrorUTF8( pJsCtx_, "Internal error: failed to create JS object" );
+    {// TODO: null is not always an error, handle that somehow
+        // Report in Create
         return std::nullopt;
     }
 
@@ -216,8 +215,7 @@ JsWindow::CreateTooltip( const std::wstring& name, float pxSize, uint32_t style 
 
     JS::RootedObject jsObject( pJsCtx_, JsFbTooltip::Create( pJsCtx_, parentPanel_.GetHWND(), tooltip_param ) );
     if ( !jsObject )
-    {
-        JS_ReportErrorUTF8( pJsCtx_, "Internal error: failed to create JS object" );
+    {// Report in Create
         return std::nullopt;
     }
 
@@ -339,8 +337,7 @@ JsWindow::GetFontCUI( uint32_t type, const std::wstring& guidstr )
 
     JS::RootedObject jsObject( pJsCtx_, JsGdiFont::Create( pJsCtx_, std::move(pGdiFont), hFont, true ) );
     if ( !jsObject )
-    {
-        JS_ReportErrorUTF8( pJsCtx_, "Internal error: failed to create JS object" );
+    {// Report in Create
         return std::nullopt;
     }
 
@@ -388,8 +385,7 @@ JsWindow::GetFontDUI( uint32_t type )
 
     JS::RootedObject jsObject( pJsCtx_, JsGdiFont::Create( pJsCtx_, std::move( pGdiFont ), hFont, false ) );
     if ( !jsObject )
-    {
-        JS_ReportErrorUTF8( pJsCtx_, "Internal error: failed to create JS object" );
+    {// Report in Create
         return std::nullopt;
     }
 

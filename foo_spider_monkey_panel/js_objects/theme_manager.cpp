@@ -77,8 +77,7 @@ JsThemeManager::CreateNative( JSContext* cx, HWND hwnd, const std::wstring& clas
 {
     HTHEME hTheme = OpenThemeData( hwnd, classlist.c_str() );
     if ( !hTheme )
-    {
-        JS_ReportErrorUTF8( cx, "No data matched supplied class list" );
+    {// Not an error        
         return nullptr;
     }
 

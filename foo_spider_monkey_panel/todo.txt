@@ -10,7 +10,6 @@
 - Rewrite ActiveXObject properly (and rename the files as well).
 - Remove engine settings from Panel Properties dialog.
 - Complete rebranding to spider_monkey_panel.
-- Remove unneeded reports (e.g. after calling JS_NewObject or after JSTYPE::Create) to prevent report overriding.
 - Why is this list getting longer, instead of shorter?!
 - Stop staying up all night making this...
 

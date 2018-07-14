@@ -164,8 +164,7 @@ JsGdiBitmap::ApplyAlpha( uint8_t alpha )
 
     JS::RootedObject jsObject( pJsCtx_, JsGdiBitmap::Create( pJsCtx_, std::move( out ) ) );
     if ( !jsObject )
-    {
-        JS_ReportErrorUTF8( pJsCtx_, "Internal error: failed to create JS object" );
+    {// report in Create
         return std::nullopt;
     }
 
@@ -259,8 +258,7 @@ std::optional<JSObject*> JsGdiBitmap::CreateRawBitmap()
 {
     JS::RootedObject jsObject( pJsCtx_, JsGdiRawBitmap::Create( pJsCtx_, pGdi_.get() ) );
     if ( !jsObject )
-    {
-        JS_ReportErrorUTF8( pJsCtx_, "Internal error: failed to create JS object" );
+    {// report in Create
         return std::nullopt;
     }
 
@@ -328,8 +326,7 @@ JsGdiBitmap::GetColourScheme( uint32_t count )
         jsValue.setNumber( sort_vec[i].first );
 
         if ( !JS_SetElement( pJsCtx_, jsArray, i, jsValue ) )
-        {
-            JS_ReportErrorUTF8( pJsCtx_, "Internal error: JS_SetElement failed" );
+        {// report in JS_SetElement
             return std::nullopt;
         }
     }
@@ -446,8 +443,7 @@ JsGdiBitmap::GetGraphics()
 
     JS::RootedObject jsObject( pJsCtx_, JsGdiGraphics::Create( pJsCtx_ ) );
     if ( !jsObject )
-    {
-        JS_ReportErrorUTF8( pJsCtx_, "Internal error: failed to create JS object" );
+    {// report in JS_SetElement
         return std::nullopt;
     }
 

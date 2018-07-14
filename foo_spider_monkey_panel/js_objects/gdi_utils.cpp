@@ -140,8 +140,7 @@ JsGdiUtils::Font( const std::wstring& fontName, float pxSize, uint32_t style )
 
     JS::RootedObject jsObject( pJsCtx_, JsGdiFont::Create( pJsCtx_, std::move(pGdiFont), hFont, true ) );
     if ( !jsObject )
-    {
-        JS_ReportErrorUTF8( pJsCtx_, "Internal error: failed to create JS object" );
+    {// report in Create
         return std::nullopt;
     }
 

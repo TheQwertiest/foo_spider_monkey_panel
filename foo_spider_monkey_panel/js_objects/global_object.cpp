@@ -38,8 +38,6 @@ JSClassOps jsOps = {
     nullptr // set in runtime to JS_GlobalObjectTraceHook
 };
 
-// TODO: remove HWND and HAS_PRIVATE after creating Window class
-
 JSClass jsClass = {
      "Global",
      JSCLASS_GLOBAL_FLAGS_WITH_SLOTS( static_cast<uint32_t>(JsPrototypeId::ProrototypeCount) ) | DefaultClassFlags(),
@@ -182,9 +180,10 @@ JsGlobalObject::IncludeScript( const pfc::string8_fast& path )
     parsedPath.replace_string( "/", "\\", pos );
 
     namespace fs = std::filesystem;
-    // TODO: catch exceptions
+
     fs::path fsPath = fs::u8path( parsedPath.c_str() );
-    if ( !fs::exists( fsPath ) || !fs::is_regular_file( fsPath ) )
+    std::error_code dymmyErr;
+    if ( !fs::exists( fsPath ) || !fs::is_regular_file( fsPath, dymmyErr ) )
     {
         JS_ReportErrorUTF8( pJsCtx_, "Path does not point to a valid script file: %s", parsedPath.c_str() );
         return std::nullopt;
@@ -292,6 +291,7 @@ JsGlobalObject::IncludeScript( const pfc::string8_fast& path )
     {// Report in Evaluate
         return std::nullopt;
     }
+
     return nullptr;
 }
 

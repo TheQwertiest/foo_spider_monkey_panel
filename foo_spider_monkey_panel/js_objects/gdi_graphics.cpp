@@ -510,15 +510,13 @@ JsGdiGraphics::EstimateLineWrap( const std::wstring& str, JsGdiFont* font, uint3
         }
 
         if ( !JS_SetElement( pJsCtx_, jsArray, 2 * i, jsValue ) )
-        {
-            JS_ReportErrorUTF8( pJsCtx_, "Internal error: JS_SetElement failed" );
+        {// report in JS_SetElement
             return std::nullopt;
         }
 
         jsValue.setNumber( (uint32_t)result[i].width );
         if ( !JS_SetElement( pJsCtx_, jsArray, 2 * i + 1, jsValue ) )
-        {
-            JS_ReportErrorUTF8( pJsCtx_, "Internal error: JS_SetElement failed" );
+        {// report in JS_SetElement
             return std::nullopt;
         }
     }
@@ -912,8 +910,7 @@ JsGdiGraphics::MeasureString( const std::wstring& str, JsGdiFont* font, float x,
 
     JS::RootedObject jsObject( pJsCtx_, JsMeasureStringInfo::Create( pJsCtx_, bound.X, bound.Y, bound.Width, bound.Height, lines, chars ) );
     if ( !jsObject )
-    {
-        JS_ReportErrorUTF8( pJsCtx_, "Internal error: failed to create JS object" );
+    {// report in Create
         return std::nullopt;
     }
 
@@ -1085,8 +1082,7 @@ bool JsGdiGraphics::ParsePoints( JS::HandleValue jsValue, std::vector<Gdiplus::P
 
     uint32_t arraySize;
     if ( !JS_GetArrayLength( pJsCtx_, jsObject, &arraySize ) )
-    {
-        JS_ReportErrorUTF8( pJsCtx_, "Failed to get points argument array length" );
+    {// report in JS_GetArrayLength
         return false;
     }
 
@@ -1101,8 +1097,7 @@ bool JsGdiGraphics::ParsePoints( JS::HandleValue jsValue, std::vector<Gdiplus::P
     for ( uint32_t i = 0; i < arraySize/2; ++i )
     {
         if ( !JS_GetElement( pJsCtx_, jsObject, i, &arrayElement ) )
-        {
-            JS_ReportErrorUTF8( pJsCtx_, "Failed to get points[%d]", i );
+        {// report in JS_GetElement
             return false;
         }
 
@@ -1116,8 +1111,7 @@ bool JsGdiGraphics::ParsePoints( JS::HandleValue jsValue, std::vector<Gdiplus::P
 
 
         if ( !JS_GetElement( pJsCtx_, jsObject, i + 1, &arrayElement ) )
-        {
-            JS_ReportErrorUTF8( pJsCtx_, "Failed to get points[%d]", i );
+        {// report in JS_GetElement
             return false;
         }
 

@@ -282,8 +282,7 @@ JsUtils::FileTest( const std::wstring& path, const std::wstring& mode )
             }
 
             if ( !JS_SetElement( pJsCtx_, jsArray, i, jsValue ) )
-            {
-                JS_ReportErrorUTF8( pJsCtx_, "Internal error: JS_SetElement failed" );
+            {// report in JS_SetElement
                 return std::nullopt;
             }
         }        
@@ -382,8 +381,7 @@ JsUtils::GetAlbumArtEmbedded( const pfc::string8_fast& rawpath, uint32_t art_id 
 
     JS::RootedObject jsObject( pJsCtx_, JsGdiBitmap::Create( pJsCtx_, std::move( artImage ) ) );
     if ( !jsObject )
-    {
-        JS_ReportErrorUTF8( pJsCtx_, "Internal error: failed to create JS object" );
+    {// report in Create
         return std::nullopt;
     }
 
@@ -514,8 +512,7 @@ JsUtils::Glob( const pfc::string8_fast& pattern, uint32_t exc_mask, uint32_t inc
         }
 
         if ( !JS_SetElement( pJsCtx_, evalResult, i, jsValue ) )
-        {
-            JS_ReportErrorUTF8( pJsCtx_, "Internal error: JS_SetElement failed" );
+        {// report in JS_SetElement
             return std::nullopt;
         }
     }

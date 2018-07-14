@@ -220,8 +220,7 @@ JsFbUtils::AcquireUiSelectionHolder()
     ui_selection_holder::ptr holder = ui_selection_manager::get()->acquire();
     JS::RootedObject jsObject( pJsCtx_, JsFbUiSelectionHolder::Create( pJsCtx_, holder ) );
     if ( !jsObject )
-    {
-        JS_ReportErrorUTF8( pJsCtx_, "Internal error: failed to create JS object" );
+    {// report in Create
         return std::nullopt;
     }
 
@@ -288,8 +287,7 @@ JsFbUtils::CreateContextMenuManager()
 {
     JS::RootedObject jsObject( pJsCtx_, JsContextMenuManager::Create( pJsCtx_ ) );
     if ( !jsObject )
-    {
-        JS_ReportErrorUTF8( pJsCtx_, "Internal error: failed to create JS object" );
+    {// report in Create
         return std::nullopt;
     }
 
@@ -302,8 +300,7 @@ JsFbUtils::CreateHandleList()
     metadb_handle_list items;
     JS::RootedObject jsObject( pJsCtx_, JsFbMetadbHandleList::Create( pJsCtx_, items ) );
     if ( !jsObject )
-    {
-        JS_ReportErrorUTF8( pJsCtx_, "Internal error: failed to create JS object" );
+    {// report in Create
         return std::nullopt;
     }
 
@@ -315,8 +312,7 @@ JsFbUtils::CreateMainMenuManager()
 {
     JS::RootedObject jsObject( pJsCtx_, JsMainMenuManager::Create( pJsCtx_ ) );
     if ( !jsObject )
-    {
-        JS_ReportErrorUTF8( pJsCtx_, "Internal error: failed to create JS object" );
+    {// report in Create
         return std::nullopt;
     }
 
@@ -328,8 +324,7 @@ JsFbUtils::CreateProfiler( const pfc::string8_fast& name )
 {
     JS::RootedObject jsObject( pJsCtx_, JsFbProfiler::Create( pJsCtx_, name ) );
     if ( !jsObject )
-    {
-        JS_ReportErrorUTF8( pJsCtx_, "Internal error: failed to create JS object" );
+    {// report in Create
         return std::nullopt;
     }
 
@@ -421,8 +416,7 @@ std::optional<pfc::string8_fast>
 JsFbUtils::GetDSPPresets()
 {
     if ( !helpers::is14() )
-    {
-        JS_ReportErrorUTF8( pJsCtx_, "foobar2000 v1.4+ is required for this method" );
+    {// report in Create
         return std::nullopt;
     }
 
@@ -464,8 +458,7 @@ JsFbUtils::GetFocusItem( bool force )
 
     JS::RootedObject jsObject( pJsCtx_, JsFbMetadbHandle::Create( pJsCtx_, metadb ) );
     if ( !jsObject )
-    {
-        JS_ReportErrorUTF8( pJsCtx_, "Internal error: failed to create JS object" );
+    {// report in Create
         return std::nullopt;
     }
 
@@ -497,8 +490,7 @@ JsFbUtils::GetLibraryItems()
 
     JS::RootedObject jsObject( pJsCtx_, JsFbMetadbHandleList::Create( pJsCtx_, items ) );
     if ( !jsObject )
-    {
-        JS_ReportErrorUTF8( pJsCtx_, "Internal error: failed to create JS object" );
+    {// report in Create
         return std::nullopt;
     }
 
@@ -535,8 +527,7 @@ JsFbUtils::GetNowPlaying()
 
     JS::RootedObject jsObject( pJsCtx_, JsFbMetadbHandle::Create( pJsCtx_, metadb ) );
     if ( !jsObject )
-    {
-        JS_ReportErrorUTF8( pJsCtx_, "Internal error: failed to create JS object" );
+    {// report in Create
         return std::nullopt;
     }
 
@@ -607,8 +598,7 @@ JsFbUtils::GetQueryItems( JsFbMetadbHandleList* handles, const pfc::string8_fast
 
     JS::RootedObject jsObject( pJsCtx_, JsFbMetadbHandleList::Create( pJsCtx_, dst_list ) );
     if ( !jsObject )
-    {
-        JS_ReportErrorUTF8( pJsCtx_, "Internal error: failed to create JS object" );
+    {// report in Create
         return std::nullopt;
     }
 
@@ -628,8 +618,7 @@ JsFbUtils::GetSelection()
 
     JS::RootedObject jsObject( pJsCtx_, JsFbMetadbHandle::Create( pJsCtx_, items[0] ) );
     if ( !jsObject )
-    {
-        JS_ReportErrorUTF8( pJsCtx_, "Internal error: failed to create JS object" );
+    {// report in Create
         return std::nullopt;
     }
 
@@ -644,8 +633,7 @@ JsFbUtils::GetSelections( uint32_t flags )
 
     JS::RootedObject jsObject( pJsCtx_, JsFbMetadbHandleList::Create( pJsCtx_, items ) );
     if ( !jsObject )
-    {
-        JS_ReportErrorUTF8( pJsCtx_, "Internal error: failed to create JS object" );
+    {// report in Create
         return std::nullopt;
     }
 
@@ -976,8 +964,7 @@ JsFbUtils::TitleFormat( const pfc::string8_fast& expression )
 {
     JS::RootedObject jsObject( pJsCtx_, JsFbTitleFormat::Create( pJsCtx_, expression ) );
     if ( !jsObject )
-    {
-        JS_ReportErrorUTF8( pJsCtx_, "Internal error: failed to create JS object" );
+    {// report in Create
         return std::nullopt;
     }
 

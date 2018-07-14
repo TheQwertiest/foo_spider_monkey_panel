@@ -167,8 +167,7 @@ JsFbPlaylistRecyclerManager::get_Content( uint32_t index )
 
     JS::RootedObject jsObject( pJsCtx_, JsFbMetadbHandleList::Create( pJsCtx_, handles ) );
     if ( !jsObject )
-    {
-        JS_ReportErrorUTF8( pJsCtx_, "Internal error: failed to create JS object" );
+    {// Report in Create
         return std::nullopt;
     }
 

@@ -464,15 +464,13 @@ JsFbPlaylistManager::GetPlaybackQueueContents()
     {
         jsObject.set( JsFbPlaybackQueueItem::Create( pJsCtx_, contents[i] ) );
         if ( !jsObject )
-        {
-            JS_ReportErrorUTF8( pJsCtx_, "Internal error: failed to create JS object" );
+        {// report in Create
             return std::nullopt;
         }
 
         jsValue.set( JS::ObjectValue( *jsObject ) );
         if ( !JS_SetElement( pJsCtx_, jsArray, i, jsValue ) )
-        {
-            JS_ReportErrorUTF8( pJsCtx_, "Internal error: JS_SetElement failed" );
+        {// report in JS_SetElement
             return std::nullopt;
         }
     }
@@ -494,8 +492,7 @@ JsFbPlaylistManager::GetPlaybackQueueHandles()
 
     JS::RootedObject jsObject( pJsCtx_, JsFbMetadbHandleList::Create( pJsCtx_, items ) );
     if ( !jsObject )
-    {
-        JS_ReportErrorUTF8( pJsCtx_, "Internal error: failed to create JS object" );
+    {// report in Create
         return std::nullopt;
     }
 
@@ -511,8 +508,7 @@ JsFbPlaylistManager::GetPlayingItemLocation()
     
     JS::RootedObject jsObject( pJsCtx_, JsFbPlayingItemLocation::Create( pJsCtx_, isValid, playlistIndex, playlistItemIndex ) );
     if ( !jsObject )
-    {
-        JS_ReportErrorUTF8( pJsCtx_, "Internal error: failed to create JS object" );
+    {// report in Create
         return std::nullopt;
     }
 
