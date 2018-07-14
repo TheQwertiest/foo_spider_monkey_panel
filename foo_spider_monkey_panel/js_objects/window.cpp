@@ -6,7 +6,7 @@
 #include <js_objects/theme_manager.h>
 #include <js_objects/fb_tooltip.h>
 #include <js_objects/gdi_font.h>
-#include <js_objects/fb_properties.h>
+#include <js_objects/internal/fb_properties.h>
 #include <js_utils/js_error_helper.h>
 #include <js_utils/winapi_error_helper.h>
 #include <js_utils/js_object_helper.h>
@@ -151,6 +151,11 @@ JsWindow::CreateNative( JSContext* cx, js_panel_window& parentPanel )
     }
 
     return std::unique_ptr<JsWindow>( new JsWindow( cx, parentPanel, std::move( fbProperties ) ));
+}
+
+size_t JsWindow::GetInternalSize( const js_panel_window& parentPanel )
+{
+    return sizeof( FbProperties );
 }
 
 void JsWindow::RemoveHeapTracer()

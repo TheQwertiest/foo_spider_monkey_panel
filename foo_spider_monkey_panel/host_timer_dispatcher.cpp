@@ -2,6 +2,7 @@
 #include "host_timer_dispatcher.h"
 
 #include <js_objects/global_object.h>
+#include <js_objects/internal/global_heap_manager.h>
 #include <js_utils/js_error_helper.h>
 
 #include "user_message.h"
@@ -224,8 +225,8 @@ HostTimerTask::HostTimerTask( JSContext* cx, JS::HandleFunction jsFunction )
     pNativeGlobal_ = static_cast<mozjs::JsGlobalObject*>( JS_GetInstancePrivate( cx, jsGlobal, &mozjs::JsGlobalObject::JsClass, nullptr ) );
     assert( pNativeGlobal_ );
 
-    funcId_ = pNativeGlobal_->StoreToHeap( funcValue );
-    globalId_ = pNativeGlobal_->StoreToHeap( globalValue );
+    funcId_ = pNativeGlobal_->GetHeapManager().Store( funcValue );
+    globalId_ = pNativeGlobal_->GetHeapManager().Store( globalValue );
 
     needsCleanup_ = true;
 }
@@ -234,19 +235,19 @@ HostTimerTask::~HostTimerTask()
 {    
     if ( needsCleanup_ )
     {
-        pNativeGlobal_->RemoveFromHeap( funcId_ );
-        pNativeGlobal_->RemoveFromHeap( globalId_ );
+        pNativeGlobal_->GetHeapManager().Remove( funcId_ );
+        pNativeGlobal_->GetHeapManager().Remove( globalId_ );
     }
 }
 
 void HostTimerTask::invoke()
 {
     JSAutoRequest ar( pJsCtx_ );
-    JS::RootedObject jsGlobal( pJsCtx_, pNativeGlobal_->GetFromHeap( globalId_ ).toObjectOrNull() );
+    JS::RootedObject jsGlobal( pJsCtx_, pNativeGlobal_->GetHeapManager().Get( globalId_ ).toObjectOrNull() );
     assert( jsGlobal );
     JSAutoCompartment ac( pJsCtx_, jsGlobal );
 
-    JS::RootedValue vFunc( pJsCtx_, pNativeGlobal_->GetFromHeap( funcId_ ) );
+    JS::RootedValue vFunc( pJsCtx_, pNativeGlobal_->GetHeapManager().Get( funcId_ ) );
     JS::RootedFunction rFunc( pJsCtx_, JS_ValueToFunction( pJsCtx_, vFunc ) );
 
     JS::RootedValue retVal( pJsCtx_ );

@@ -31,6 +31,7 @@ public:
     ~JsThemeManager();
 
     static std::unique_ptr<JsThemeManager> CreateNative( JSContext* cx, HWND hwnd, const std::wstring& classlist );
+    static size_t GetInternalSize( HWND hwnd, const std::wstring& classlist );
 
 public:
     std::optional<std::nullptr_t> DrawThemeBackground( JsGdiGraphics* gr, 

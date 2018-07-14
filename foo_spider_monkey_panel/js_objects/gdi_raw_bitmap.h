@@ -33,6 +33,7 @@ public:
     ~JsGdiRawBitmap();
 
     static std::unique_ptr<JsGdiRawBitmap> CreateNative( JSContext* cx, Gdiplus::Bitmap* pBmp );
+    static size_t GetInternalSize( Gdiplus::Bitmap* pBmp );
 
 public:
     HDC GetHDC() const;

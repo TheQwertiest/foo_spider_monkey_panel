@@ -28,6 +28,7 @@ public:
     ~JsFbPlayingItemLocation();
 
     static std::unique_ptr<JsFbPlayingItemLocation> CreateNative( JSContext* cx, bool isValid, uint32_t playlistIndex, uint32_t playlistItemIndex );
+    static size_t GetInternalSize( bool isValid, uint32_t playlistIndex, uint32_t playlistItemIndex );
 
 public:
     std::optional<bool> get_IsValid();

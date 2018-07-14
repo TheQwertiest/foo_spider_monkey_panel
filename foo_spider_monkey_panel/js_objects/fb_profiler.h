@@ -30,6 +30,7 @@ public:
     ~JsFbProfiler();
 
     static std::unique_ptr<JsFbProfiler> CreateNative( JSContext* cx, const pfc::string8_fast& name );
+    static size_t GetInternalSize( const pfc::string8_fast& name );
 
 public:
     // TODO: add a new argument to print (custom message) and update doc

@@ -118,7 +118,6 @@
     <ClCompile Include="js_objects\fb_playlist_manager.cpp" />
     <ClCompile Include="js_objects\fb_playlist_recycler_manager.cpp" />
     <ClCompile Include="js_objects\fb_profiler.cpp" />
-    <ClCompile Include="js_objects\fb_properties.cpp" />
     <ClCompile Include="js_objects\fb_title_format.cpp" />
     <ClCompile Include="js_objects\fb_tooltip.cpp" />
     <ClCompile Include="js_objects\fb_ui_selection_holder.cpp" />
@@ -129,6 +128,8 @@
     <ClCompile Include="js_objects\gdi_utils.cpp" />
     <ClCompile Include="js_objects\gdi_font.cpp" />
     <ClCompile Include="js_objects\global_object.cpp" />
+    <ClCompile Include="js_objects\internal\fb_properties.cpp" />
+    <ClCompile Include="js_objects\internal\global_heap_manager.cpp" />
     <ClCompile Include="js_objects\main_menu_manager.cpp" />
     <ClCompile Include="js_objects\measure_string_info.cpp" />
     <ClCompile Include="js_objects\menu_object.cpp" />
@@ -179,6 +180,8 @@
     <ClInclude Include="js_engine\native_to_js_converter.h" />
     <ClInclude Include="js_engine\native_to_js_invoker.h" />
     <ClInclude Include="js_objects\active_x.h" />
+    <ClInclude Include="js_objects\internal\fb_properties.h" />
+    <ClInclude Include="js_objects\internal\global_heap_manager.h" />
     <ClInclude Include="js_objects\object_base.h" />
     <ClInclude Include="js_objects\console.h" />
     <ClInclude Include="js_objects\context_menu_manager.h" />
@@ -191,7 +194,6 @@
     <ClInclude Include="js_objects\fb_playlist_manager.h" />
     <ClInclude Include="js_objects\fb_playlist_recycler_manager.h" />
     <ClInclude Include="js_objects\fb_profiler.h" />
-    <ClInclude Include="js_objects\fb_properties.h" />
     <ClInclude Include="js_objects\fb_title_format.h" />
     <ClInclude Include="js_objects\fb_tooltip.h" />
     <ClInclude Include="js_objects\fb_ui_selection_holder.h" />

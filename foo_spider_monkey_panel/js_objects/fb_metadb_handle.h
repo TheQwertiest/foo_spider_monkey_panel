@@ -29,6 +29,7 @@ public:
     ~JsFbMetadbHandle();
 
     static std::unique_ptr<JsFbMetadbHandle> CreateNative( JSContext* cx, const metadb_handle_ptr& handle );    
+    static size_t GetInternalSize( const metadb_handle_ptr& handle );
     
 public:
     metadb_handle_ptr& GetHandle();

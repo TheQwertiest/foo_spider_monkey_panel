@@ -29,6 +29,7 @@ public:
     ~JsUtils();
 
     static std::unique_ptr<JsUtils> CreateNative( JSContext* cx );
+    static size_t GetInternalSize();
 
 public:
     std::optional<bool> CheckComponent( const pfc::string8_fast& name, bool is_dll = true );

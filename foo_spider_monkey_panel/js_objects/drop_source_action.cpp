@@ -76,6 +76,11 @@ JsDropSourceAction::CreateNative( JSContext* cx )
     return std::unique_ptr<JsDropSourceAction>( new JsDropSourceAction( cx ) );
 }
 
+size_t JsDropSourceAction::GetInternalSize()
+{
+    return 0;
+}
+
 void JsDropSourceAction::Reset()
 {
     playlistIdx_ = -1;

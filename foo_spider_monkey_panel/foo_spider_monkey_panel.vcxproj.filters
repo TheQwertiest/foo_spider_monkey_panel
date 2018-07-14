@@ -193,9 +193,6 @@
     <ClCompile Include="js_objects\window.cpp">
       <Filter>js_objects</Filter>
     </ClCompile>
-    <ClCompile Include="js_objects\fb_properties.cpp">
-      <Filter>js_objects</Filter>
-    </ClCompile>
     <ClCompile Include="js_utils\serialized_value.cpp">
       <Filter>js_utils</Filter>
     </ClCompile>
@@ -204,6 +201,12 @@
     </ClCompile>
     <ClCompile Include="js_utils\string_util.cpp">
       <Filter>js_utils</Filter>
+    </ClCompile>
+    <ClCompile Include="js_objects\internal\fb_properties.cpp">
+      <Filter>js_objects\internal</Filter>
+    </ClCompile>
+    <ClCompile Include="js_objects\internal\global_heap_manager.cpp">
+      <Filter>js_objects\internal</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -459,9 +462,6 @@
     <ClInclude Include="panel_tooltip_param.h">
       <Filter>uncategorized</Filter>
     </ClInclude>
-    <ClInclude Include="js_objects\fb_properties.h">
-      <Filter>js_objects</Filter>
-    </ClInclude>
     <ClInclude Include="js_utils\serialized_value.h">
       <Filter>js_utils</Filter>
     </ClInclude>
@@ -476,6 +476,12 @@
     </ClInclude>
     <ClInclude Include="js_objects\prototype_ids.h">
       <Filter>js_objects</Filter>
+    </ClInclude>
+    <ClInclude Include="js_objects\internal\fb_properties.h">
+      <Filter>js_objects\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="js_objects\internal\global_heap_manager.h">
+      <Filter>js_objects\internal</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -505,6 +511,9 @@
     </Filter>
     <Filter Include="uncategorized\property_window">
       <UniqueIdentifier>{829a0a84-1ed1-49ce-b6f6-3195f2a84050}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="js_objects\internal">
+      <UniqueIdentifier>{7f83e895-8195-4301-aa89-41a268af1ea6}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

@@ -120,6 +120,11 @@ JsGdiGraphics::CreateNative( JSContext* cx )
     return std::unique_ptr<JsGdiGraphics>( new JsGdiGraphics( cx ) );
 }
 
+size_t JsGdiGraphics::GetInternalSize()
+{
+    return 0;
+}
+
 Gdiplus::Graphics* JsGdiGraphics::GetGraphicsObject() const
 {
     return pGdi_;

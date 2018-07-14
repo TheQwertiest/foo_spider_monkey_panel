@@ -222,6 +222,11 @@ JsFbMetadbHandleList::CreateNative( JSContext* cx, metadb_handle_list_cref handl
     return std::unique_ptr<JsFbMetadbHandleList>( new JsFbMetadbHandleList( cx, handles ) );
 }
 
+size_t JsFbMetadbHandleList::GetInternalSize( metadb_handle_list_cref handles )
+{
+    return sizeof( metadb_handle )*handles.get_size();
+}
+
 metadb_handle_list_cref JsFbMetadbHandleList::GetHandleList() const
 {
     return metadbHandleList_;

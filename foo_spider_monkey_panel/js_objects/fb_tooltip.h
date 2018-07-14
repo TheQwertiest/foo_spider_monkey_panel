@@ -32,6 +32,7 @@ public:
     ~JsFbTooltip();
 
     static std::unique_ptr<JsFbTooltip> CreateNative( JSContext* cx, HWND hParentWnd, smp::PanelTooltipParam& p_param_ptr );
+    static size_t GetInternalSize( HWND hParentWnd, const smp::PanelTooltipParam& p_param_ptr );
 
 public:
     std::optional<std::nullptr_t> Activate();

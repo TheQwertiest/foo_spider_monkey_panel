@@ -30,6 +30,7 @@ public:
     ~JsFbUiSelectionHolder();
 
     static std::unique_ptr<JsFbUiSelectionHolder> CreateNative( JSContext* cx, const ui_selection_holder::ptr& holder );
+    static size_t GetInternalSize( const ui_selection_holder::ptr& holder );
 
 public:
    std::optional<std::nullptr_t> SetPlaylistSelectionTracking();

@@ -29,6 +29,7 @@ public:
     ~JsFbFileInfo();
 
     static std::unique_ptr<JsFbFileInfo> CreateNative( JSContext* cx, std::unique_ptr<file_info_impl> fileInfo );
+    static size_t GetInternalSize( const std::unique_ptr<file_info_impl>& fileInfo );
 
 public:
     std::optional<int32_t>InfoFind( const pfc::string8_fast& name );

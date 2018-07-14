@@ -109,6 +109,11 @@ JsGdiRawBitmap::CreateNative( JSContext* cx, Gdiplus::Bitmap* pBmp )
     return std::unique_ptr<JsGdiRawBitmap>( new JsGdiRawBitmap( cx, hDc, hBmp, pBmp->GetWidth(), pBmp->GetHeight() ) );
 }
 
+size_t JsGdiRawBitmap::GetInternalSize( Gdiplus::Bitmap* pBmp )
+{// We generate only PixelFormat32bppPARGB images
+    return pBmp->GetWidth()*pBmp->GetHeight()*Gdiplus::GetPixelFormatSize( PixelFormat32bppPARGB );
+}
+
 HDC JsGdiRawBitmap::GetHDC() const
 {
     return hDc_;

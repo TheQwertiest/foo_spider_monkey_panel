@@ -110,6 +110,11 @@ JsGdiBitmap::CreateNative( JSContext* cx, std::unique_ptr<Gdiplus::Bitmap> gdiBi
     return std::unique_ptr<JsGdiBitmap>( new JsGdiBitmap( cx, std::move( gdiBitmap ) ) );
 }
 
+size_t JsGdiBitmap::GetInternalSize( const std::unique_ptr<Gdiplus::Bitmap>& gdiBitmap )
+{
+    return gdiBitmap->GetWidth()*gdiBitmap->GetHeight()*Gdiplus::GetPixelFormatSize( gdiBitmap->GetPixelFormat() );
+}
+
 Gdiplus::Bitmap* JsGdiBitmap::GdiBitmap() const
 {
     return pGdi_.get();

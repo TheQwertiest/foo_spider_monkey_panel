@@ -42,6 +42,7 @@ public:
     ~JsGdiGraphics();
 
     static std::unique_ptr<JsGdiGraphics> CreateNative( JSContext* cx );
+    static size_t GetInternalSize();
 
 public:
     Gdiplus::Graphics* GetGraphicsObject() const;

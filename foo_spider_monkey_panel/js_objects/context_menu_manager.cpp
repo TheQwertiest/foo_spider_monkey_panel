@@ -76,6 +76,11 @@ JsContextMenuManager::CreateNative( JSContext* cx )
     return std::unique_ptr<JsContextMenuManager>( new JsContextMenuManager( cx ) );
 }
 
+size_t JsContextMenuManager::GetInternalSize()
+{
+    return 0;
+}
+
 std::optional<std::nullptr_t> 
 JsContextMenuManager::BuildMenu( JsMenuObject* menuObject, int32_t base_id, int32_t max_id )
 {

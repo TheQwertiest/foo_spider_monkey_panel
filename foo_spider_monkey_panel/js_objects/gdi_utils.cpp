@@ -81,6 +81,11 @@ JsGdiUtils::CreateNative( JSContext* cx )
     return std::unique_ptr<JsGdiUtils>( new JsGdiUtils( cx ) );
 }
 
+size_t JsGdiUtils::GetInternalSize()
+{
+    return 0;
+}
+
 std::optional<JSObject*>
 JsGdiUtils::CreateImage( uint32_t w, uint32_t h )
 {

@@ -9,6 +9,7 @@
 #include <js_engine/js_to_native_invoker.h>
 #include <js_objects/global_object.h>
 #include <js_objects/prototype_ids.h>
+#include <js_objects/internal/global_heap_manager.h>
 #include <js_utils/js_object_helper.h>
 
 #include <script_interface.h>
@@ -63,12 +64,14 @@ protected:
         pNativeGlobal_ = static_cast<mozjs::JsGlobalObject*>(JS_GetInstancePrivate( cx, jsGlobal, &mozjs::JsGlobalObject::JsClass, nullptr));
         assert( pNativeGlobal_ );
 
-        pNativeGlobal_->RegisterHeapUser( this );
+        auto& heapMgr = pNativeGlobal_->GetHeapManager();
+
+        heapMgr.RegisterUser( this );
 
         JS::RootedValue funcValue( cx, JS::ObjectValue( *funcObject ) );
-        funcId_ = pNativeGlobal_->StoreToHeap( funcValue );
+        funcId_ = heapMgr.Store( funcValue );
         JS::RootedValue globalValue( cx, JS::ObjectValue( *jsGlobal ) );
-        globalId_ = pNativeGlobal_->StoreToHeap( globalValue );
+        globalId_ = heapMgr.Store( globalValue );
 
         needsCleanup_ = true;
     }
@@ -91,9 +94,11 @@ protected:
             return;
         }
 
-        pNativeGlobal_->RemoveFromHeap( globalId_ );
-        pNativeGlobal_->RemoveFromHeap( funcId_ );
-        pNativeGlobal_->UnregisterHeapUser( this );
+        auto& heapMgr = pNativeGlobal_->GetHeapManager();
+
+        heapMgr.Remove( globalId_ );
+        heapMgr.Remove( funcId_ );
+        heapMgr.UnregisterUser( this );
     }
 
     virtual void DisableHeapCleanup() override
@@ -111,12 +116,14 @@ protected:
 
         // Might be executed outside of main JS workflow, so we need to set request and compartment
 
+        auto& heapMgr = pNativeGlobal_->GetHeapManager();
+
         JSAutoRequest ar( pJsCtx_ );
-        JS::RootedObject jsGlobal( pJsCtx_, pNativeGlobal_->GetFromHeap( globalId_ ).toObjectOrNull() );
+        JS::RootedObject jsGlobal( pJsCtx_, heapMgr.Get( globalId_ ).toObjectOrNull() );
         assert( jsGlobal );
         JSAutoCompartment ac( pJsCtx_, jsGlobal );
 
-        JS::RootedValue vFunc( pJsCtx_, pNativeGlobal_->GetFromHeap( funcId_ ) );
+        JS::RootedValue vFunc( pJsCtx_, heapMgr.Get( funcId_ ) );
         JS::RootedFunction rFunc( pJsCtx_, JS_ValueToFunction( pJsCtx_, vFunc ) );
 
         JS::RootedValue retVal( pJsCtx_ );

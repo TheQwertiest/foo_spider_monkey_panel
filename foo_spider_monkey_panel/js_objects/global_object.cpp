@@ -5,27 +5,16 @@
 #include <js_engine/js_to_native_invoker.h>
 #include <js_objects/active_x.h>
 #include <js_objects/console.h>
-#include <js_objects/fb_metadb_handle.h>
 #include <js_objects/fb_playlist_manager.h>
-#include <js_objects/fb_title_format.h>
 #include <js_objects/fb_utils.h>
 #include <js_objects/gdi_utils.h>
-#include <js_objects/gdi_font.h>
 #include <js_objects/utils.h>
 #include <js_objects/window.h>
-#include <js_objects/prototype_ids.h>
+#include <js_objects/internal/global_heap_manager.h>
 #include <js_utils/js_object_helper.h>
 #include <js_utils/js_error_helper.h>
 
 #include <js_panel_window.h>
-
-#pragma warning( push )  
-#pragma warning( disable : 4100 ) // unused variable
-#pragma warning( disable : 4251 ) // dll interface warning
-#pragma warning( disable : 4324 ) // structure was padded due to alignment specifier
-#pragma warning( disable : 4996 ) // C++17 deprecation warning
-#   include <js/TracingAPI.h>
-#pragma warning( pop ) 
 
 #include <filesystem>
 #include <fstream>  
@@ -138,6 +127,12 @@ JSObject* JsGlobalObject::CreateNative( JSContext* cx, JsContainer &parentContai
         }
 
         auto pNative = new JsGlobalObject( cx, parentContainer, parentPanel );
+        pNative->heapManager_ = GlobalHeapManager::Create( cx );
+        if ( !pNative->heapManager_ )
+        {// report in Create
+            return nullptr;
+        }
+
         JS_SetPrivate( jsObj, pNative );
 
         // TODO: remove or replace with CreateAndInstall
@@ -149,11 +144,6 @@ JSObject* JsGlobalObject::CreateNative( JSContext* cx, JsContainer &parentContai
         
         JS::Value protoVal = JS::ObjectValue( *jsProto );
         JS_SetReservedSlot( jsObj, JSCLASS_GLOBAL_SLOT_COUNT + static_cast<uint32_t>(JsPrototypeId::ActiveX), protoVal );
-        
-        if ( !JS_AddExtraGCRootsTracer( cx, JsGlobalObject::TraceHeapValue, pNative ) )
-        {
-            return nullptr;
-        }
 
         JS_FireOnNewGlobalObject( cx, jsObj );
     }
@@ -167,85 +157,15 @@ void JsGlobalObject::Fail( pfc::string8_fast errorText )
     parentPanel_.JsEngineFail( errorText );
 }
 
-void JsGlobalObject::RegisterHeapUser( IHeapUser* heapUser )
+GlobalHeapManager& JsGlobalObject::GetHeapManager() const
 {
-    std::scoped_lock sl( heapUsersLock_ );
-
-    assert( !heapUsers_.count( heapUser ) );
-    heapUsers_.emplace( heapUser, heapUser );
-}
-
-void JsGlobalObject::UnregisterHeapUser( IHeapUser* heapUser )
-{
-    std::scoped_lock sl( heapUsersLock_ );
-
-    assert( heapUsers_.count( heapUser ) );
-    heapUsers_.erase( heapUser );
-}
-
-uint32_t JsGlobalObject::StoreToHeap( JS::HandleValue valueToStore )
-{
-    std::scoped_lock sl( heapElementsLock_ );
-
-    while( heapElements_.count( currentHeapId_ ))
-    {
-        ++currentHeapId_;
-    }
-
-    heapElements_.emplace(currentHeapId_, std::make_unique<HeapElement>( valueToStore ));
-    return currentHeapId_++;
-}
-
-JS::Heap<JS::Value>& JsGlobalObject::GetFromHeap( uint32_t id )
-{
-    std::scoped_lock sl( heapElementsLock_ );
-
-    assert( heapElements_.count( id ) );
-    return heapElements_[id]->value;
-}
-
-void JsGlobalObject::RemoveFromHeap( uint32_t id )
-{
-    std::scoped_lock sl( heapElementsLock_ );
-    
-    assert( heapElements_.count(id) );    
-    heapElements_[id]->inUse = false;    
+    assert( heapManager_ );
+    return *heapManager_;
 }
 
 void JsGlobalObject::RemoveHeapTracer()
 {
-    JS_RemoveExtraGCRootsTracer( pJsCtx_, JsGlobalObject::TraceHeapValue, this );
-    
-    std::scoped_lock sl( heapUsersLock_ );
-
-    for ( auto& [id, heapUser] : heapUsers_ )
-    {
-        heapUser->DisableHeapCleanup();
-    }
-
-    heapUsers_.clear();
-}
-
-void JsGlobalObject::TraceHeapValue( JSTracer *trc, void *data )
-{  
-    assert( data );
-    auto globalObject = static_cast<JsGlobalObject*>( data );
-
-    std::scoped_lock sl( globalObject->heapElementsLock_ );
-    
-    auto& heapMap = globalObject->heapElements_;
-    for ( auto& it = heapMap.begin(); it != heapMap.end();)
-    {
-        if ( !it->second->inUse )
-        {
-            it = heapMap.erase( it );
-        }
-        else
-        {
-            JS::TraceEdge( trc, &(it->second->value), "CustomHeap_Global" );
-            it++;
-        }
-    }
+    heapManager_.reset();
 }
 
 std::optional<std::nullptr_t> 

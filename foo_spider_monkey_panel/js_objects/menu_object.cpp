@@ -88,6 +88,11 @@ JsMenuObject::CreateNative( JSContext* cx, HWND hParentWnd )
     return std::unique_ptr<JsMenuObject>( new JsMenuObject( cx, hParentWnd ) );
 }
 
+size_t JsMenuObject::GetInternalSize( HWND hParentWnd )
+{
+    return 0;
+}
+
 HMENU JsMenuObject::HMenu() const
 {
     return hMenu_;

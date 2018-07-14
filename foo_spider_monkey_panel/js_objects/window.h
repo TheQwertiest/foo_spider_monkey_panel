@@ -36,6 +36,7 @@ public:
     ~JsWindow();
 
     static std::unique_ptr<JsWindow> CreateNative( JSContext* cx, js_panel_window& parentPanel );
+    static size_t GetInternalSize( const js_panel_window& parentPanel );
 
 public:
     void RemoveHeapTracer();

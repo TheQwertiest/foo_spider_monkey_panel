@@ -176,6 +176,11 @@ JsFbPlaylistManager::CreateNative( JSContext* cx )
     return std::unique_ptr<JsFbPlaylistManager>( new JsFbPlaylistManager( cx ) );
 }
 
+size_t JsFbPlaylistManager::GetInternalSize()
+{
+    return 0;
+}
+
 std::optional<std::nullptr_t>
 JsFbPlaylistManager::AddItemToPlaybackQueue( JsFbMetadbHandle* handle )
 {

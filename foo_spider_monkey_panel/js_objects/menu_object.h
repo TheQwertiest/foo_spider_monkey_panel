@@ -28,6 +28,7 @@ public:
     ~JsMenuObject();
 
     static std::unique_ptr<JsMenuObject> CreateNative( JSContext* cx, HWND hParentWnd );
+    static size_t GetInternalSize( HWND hParentWnd );
 
 public:
     HMENU HMenu() const;

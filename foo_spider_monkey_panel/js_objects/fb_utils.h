@@ -36,6 +36,7 @@ public:
     ~JsFbUtils();
 
     static std::unique_ptr<JsFbUtils> CreateNative( JSContext* cx );
+    static size_t GetInternalSize();
 
 public:
     std::optional<JSObject*> AcquireUiSelectionHolder();

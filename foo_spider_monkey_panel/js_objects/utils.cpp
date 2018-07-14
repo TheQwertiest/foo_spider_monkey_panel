@@ -111,6 +111,11 @@ JsUtils::CreateNative( JSContext* cx )
     return std::unique_ptr<JsUtils>( new JsUtils( cx ) );
 }
 
+size_t JsUtils::GetInternalSize()
+{
+    return 0;
+}
+
 std::optional<bool>
 JsUtils::CheckComponent( const pfc::string8_fast& name, bool is_dll )
 {

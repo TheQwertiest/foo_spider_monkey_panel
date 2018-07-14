@@ -27,6 +27,7 @@ public:
     ~JsFbPlaylistRecyclerManager();
 
     static std::unique_ptr<JsFbPlaylistRecyclerManager> CreateNative( JSContext* cx );
+    static size_t GetInternalSize();
 
 public:
     std::optional<std::nullptr_t> Purge( JS::HandleValue affectedItems );

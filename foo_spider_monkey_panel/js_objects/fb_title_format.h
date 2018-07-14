@@ -34,6 +34,7 @@ public:
     ~JsFbTitleFormat();
 
     static std::unique_ptr<JsFbTitleFormat> CreateNative( JSContext* cx, const pfc::string8_fast& expr );
+    static size_t GetInternalSize( const pfc::string8_fast& expr );
 
 public:
     titleformat_object::ptr GetTitleFormat();

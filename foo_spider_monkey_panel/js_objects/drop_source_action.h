@@ -29,6 +29,7 @@ public:
     ~JsDropSourceAction();
 
     static std::unique_ptr<JsDropSourceAction> CreateNative( JSContext* cx );
+    static size_t GetInternalSize();
 
 public:
     void Reset();

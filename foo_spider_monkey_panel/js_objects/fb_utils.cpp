@@ -209,6 +209,11 @@ JsFbUtils::CreateNative( JSContext* cx )
     return std::unique_ptr<JsFbUtils>( new JsFbUtils( cx ) );
 }
 
+size_t JsFbUtils::GetInternalSize()
+{
+    return 0;
+}
+
 std::optional<JSObject*>
 JsFbUtils::AcquireUiSelectionHolder()
 {

@@ -16,7 +16,7 @@ class ProxyOptions;
 
 namespace mozjs
 {
-
+static uint32_t gcCounter = 0;
 enum class JsPrototypeId : uint32_t;
 
 template <typename T>
@@ -93,12 +93,29 @@ public:
             }
         }
 
+        const size_t nativeObjectSize = sizeof( T ) + T::GetInternalSize( args... ); ///< don't forward: don't want to lose those smart ptrs
         std::unique_ptr<T> nativeObject = T::CreateNative( cx, std::forward<ArgTypes>( args )... );
         if ( !nativeObject )
         {// report in CreateNative
             return nullptr;
         }
-        JS_updateMallocCounter( cx, sizeof( T ) );
+        JS_updateMallocCounter( cx, nativeObjectSize );
+
+        // TODO: implement a better GC mechanism
+        if ( !(gcCounter % 100) )
+        {
+            uint32_t bytes = JS_GetGCParameter( cx, JSGC_BYTES );
+            std::wstring tmp = std::to_wstring( bytes ) + L'\n';
+
+            OutputDebugString( tmp.c_str() );
+            //JS_MaybeGC( cx );        
+        }
+        if ( gcCounter > 1000 )
+        {
+            //JS_GC( cx );
+            gcCounter = 0;
+        }
+        ++gcCounter;
 
         JS_SetPrivate( jsObject, nativeObject.release() );
 

@@ -74,6 +74,11 @@ JsMainMenuManager::CreateNative( JSContext* cx )
     return std::unique_ptr<JsMainMenuManager>( new JsMainMenuManager( cx ) );
 }
 
+size_t JsMainMenuManager::GetInternalSize()
+{
+    return sizeof( mainmenu_manager );
+}
+
 std::optional<std::nullptr_t> 
 JsMainMenuManager::BuildMenu( JsMenuObject* menu, int32_t base_id, int32_t count )
 {
@@ -137,19 +142,19 @@ JsMainMenuManager::Init( const pfc::string8_fast & root_name )
         { "help", &mainmenu_groups::help },
     };
 
-    // Find
-    for ( int i = 0; i < _countof( validRoots ); ++i )
+    auto result = std::find_if( std::cbegin( validRoots ), std::cend( validRoots ), [&preparedRootName]( auto& root )
     {
-        if ( preparedRootName == validRoots[i].name )
-        {// found
-            menuManager_ = standard_api_create_t<mainmenu_manager>();
-            menuManager_->instantiate( *(validRoots[i].guid) );
-            return nullptr;
-        }
+        return preparedRootName == root.name;
+    } );
+    if ( result == std::cend( validRoots ) )
+    {
+        JS_ReportErrorUTF8( pJsCtx_, "Invalid menu root name %s", root_name.c_str() );
+        return std::nullopt;
     }
 
-    JS_ReportErrorUTF8( pJsCtx_, "Invalid menu root name" );
-    return std::nullopt;
+    menuManager_ = standard_api_create_t<mainmenu_manager>();
+    menuManager_->instantiate( *(result->guid) );
+    return nullptr;
 }
 
 }

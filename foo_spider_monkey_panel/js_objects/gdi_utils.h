@@ -28,6 +28,7 @@ public:
     ~JsGdiUtils();
 
     static std::unique_ptr<JsGdiUtils> CreateNative( JSContext* cx );
+    static size_t GetInternalSize();
 
 public:
     std::optional<JSObject*> CreateImage( uint32_t w, uint32_t h );

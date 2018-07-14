@@ -80,6 +80,11 @@ JsFbPlaylistRecyclerManager::CreateNative( JSContext* cx )
     return std::unique_ptr<JsFbPlaylistRecyclerManager>( new JsFbPlaylistRecyclerManager( cx ) );
 }
 
+size_t JsFbPlaylistRecyclerManager::GetInternalSize()
+{
+    return 0;
+}
+
 std::optional<std::nullptr_t> 
 JsFbPlaylistRecyclerManager::Purge( JS::HandleValue affectedItems )
 {
