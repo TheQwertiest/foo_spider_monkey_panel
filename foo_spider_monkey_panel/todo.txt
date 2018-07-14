@@ -1,11 +1,10 @@
 # Current
-- Fix heap memory usage tracking: use JS_updateMallocCounter with new or cx->new_ instead of new; remove manual GC.
+- Fix GC: incremental GC is never used for some reason.
 - Add one-use only DefinePanel(name, author, [options]) method somewhere (global, utils, window?)
-- Fix unresponsive arrow keys in some scripts (mb smth with focus?).
+- Fix unresponsive arrow keys in some scripts (mb smth with focus? only in DUI?).
 - 'Shell.Application': use through ActiveXObject, manual linking is possible (shell32.lib, Shldisp.idl, Shldisp.h), 
 - 'WScript.Shell': new `utils` methods? Run (Shell.Application has ShellExecute), RegRead, maybe RegWrite.
 - See todo in FbMetadbHandleList about collisions (probably can be reproduced by returning nullptr from Create).
-- Change scintilla classname: https://github.com/TheQwertiest/foo-jscript-panel/commit/57393822ae42e1ebd77911c0f934471903975b4e#commitcomment-29624489
 - Change stats field names: https://github.com/TheQwertiest/foo-jscript-panel/commit/57393822ae42e1ebd77911c0f934471903975b4e#commitcomment-29629263
 - Reimplement ActiveXObject accessors through proxy instead of current hacks.
 - Rewrite ActiveXObject properly (and rename the files as well).
