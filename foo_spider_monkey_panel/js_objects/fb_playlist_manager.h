@@ -53,7 +53,6 @@ public:
     std::optional<int32_t> FindPlaybackQueueItemIndex( JsFbMetadbHandle* handle, uint32_t playlistIndex, uint32_t playlistItemIndex );
     std::optional<int32_t> FindPlaylist( const pfc::string8_fast& name );
     std::optional<std::nullptr_t> FlushPlaybackQueue();
-    // TODO: Document change: returns js array now
     std::optional<JSObject*> GetPlaybackQueueContents();
     std::optional<JSObject*> GetPlaybackQueueHandles();
     std::optional<JSObject*> GetPlayingItemLocation();
