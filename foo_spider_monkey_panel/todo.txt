@@ -1,4 +1,5 @@
 # Current
+- 3 times performance loss when using proxy for pass-through calls: bug Mozilla devs.
 - Fix GC: incremental GC is never used for some reason.
 - Add one-use only DefinePanel(name, author, [options]) method somewhere (global, utils, window?)
 - Fix unresponsive arrow keys in some scripts (mb smth with focus? only in DUI?).
