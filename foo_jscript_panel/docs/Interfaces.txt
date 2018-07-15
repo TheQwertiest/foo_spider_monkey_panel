@@ -179,6 +179,10 @@ interface IFbUtils {
 					ExecuteByID(id); (boolean)
 					InitContext(handle_list); (void)
 					InitContextPlaylist(); (void)
+					/*
+					Shows playlist specific options that aren't available when passing a
+					handle list to InitContext.
+					*/
 					InitNowPlaying(); (void)
 			}
 
