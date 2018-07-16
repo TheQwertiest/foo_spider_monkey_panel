@@ -105,7 +105,7 @@ bool FbProperties::SetProperty( const std::wstring& propName, JS::HandleValue pr
         return false;
     }
 
-    properties_.emplace(trimmedPropName, std::make_unique<HeapElement>( propValue ));
+    properties_.insert_or_assign(trimmedPropName, std::make_unique<HeapElement>( propValue ));
     parentPanel_.get_config_prop().set_config_item( trimmedPropName, serializedValue.value() );
     
     return true;

@@ -1567,7 +1567,7 @@ bool ActiveX::SetupMembers( JSContext* cx, JS::HandleObject obj )
             PropInfo * p = Find( (wchar_t*)name );
             if ( !p )
             {
-                auto& [it, bRet] = properties_.emplace( name, std::make_unique<PropInfo>( (wchar_t*)name ) );
+                auto [it, bRet] = properties_.emplace( name, std::make_unique<PropInfo>( (wchar_t*)name ) );
                 p = it->second.get();
 
                 JS_DefineUCProperty( cx, obj, (char16_t*)name, SysStringLen( name ),
@@ -1612,7 +1612,7 @@ bool ActiveX::SetupMembers( JSContext* cx, JS::HandleObject obj )
                 PropInfo * p = Find( (wchar_t*)name );
                 if ( !p )
                 {
-                    auto&[it, bRet] = properties_.emplace( name, std::make_unique<PropInfo>( (wchar_t*)name ) );
+                    auto [it, bRet] = properties_.emplace( name, std::make_unique<PropInfo>( (wchar_t*)name ) );
                     p = it->second.get();
 
                     JS_DefineUCProperty( cx, obj, (char16_t*)name,

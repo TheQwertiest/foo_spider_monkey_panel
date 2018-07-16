@@ -20,7 +20,7 @@ prop_kv_config::get_config_item(const std::wstring& propName)
 
 void prop_kv_config::set_config_item(const std::wstring& propName, const mozjs::SerializedJsValue& serializedValue )
 {
-    m_map.emplace(propName, std::make_shared<mozjs::SerializedJsValue>( serializedValue ));
+    m_map.insert_or_assign(propName, std::make_shared<mozjs::SerializedJsValue>( serializedValue ));
 }
 
 void prop_kv_config::remove_config_item( const std::wstring& propName )
