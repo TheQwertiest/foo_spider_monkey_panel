@@ -29,7 +29,7 @@ JSClassOps jsOps = {
     nullptr,
     nullptr,
     nullptr,
-    JsFinalizeOp<JsFbUtils>,
+    JsFbUtils::FinalizeJsObject,
     nullptr,
     nullptr,
     nullptr,

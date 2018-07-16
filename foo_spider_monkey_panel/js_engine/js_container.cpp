@@ -1,6 +1,7 @@
 #include <stdafx.h>
 #include "js_container.h"
 
+#include <js_engine/js_compartment_inner.h>
 #include <js_objects/global_object.h>
 #include <js_objects/gdi_graphics.h>
 #include <js_utils/js_error_helper.h>
@@ -105,6 +106,9 @@ void JsContainer::Finalize()
     }
 
     jsGlobal_.reset();
+    // TODO: ask why zone might be null here
+    // TODO: ask how to clean up globals
+    //JS_MaybeGC( pJsCtx_ );
 }
 
 void JsContainer::Fail()
@@ -179,7 +183,7 @@ void JsContainer::InvokeOnPaintCallback( Gdiplus::Graphics& gr )
 
     if ( !InvokeJsCallback( "on_paint",
                            static_cast<JS::HandleObject>(jsGraphics_) ) )
-    {// Will clear pNativeGraphics_ on error
+    {// Will clear pNativeGraphics_ on error through Fail
         return;
     }
     pNativeGraphics_->SetGraphicsObject( nullptr );

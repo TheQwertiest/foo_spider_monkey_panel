@@ -19,7 +19,7 @@ JSClassOps jsOps = {
     nullptr,
     nullptr,
     nullptr,
-    JsFinalizeOp<JsFbProfiler>,
+    JsFbProfiler::FinalizeJsObject,
     nullptr,
     nullptr,
     nullptr,

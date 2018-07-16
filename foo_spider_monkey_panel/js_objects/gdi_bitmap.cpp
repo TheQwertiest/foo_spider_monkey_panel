@@ -25,7 +25,7 @@ JSClassOps jsOps = {
     nullptr,
     nullptr,
     nullptr,
-    JsFinalizeOp<JsGdiBitmap>,
+    JsGdiBitmap::FinalizeJsObject,
     nullptr,
     nullptr,
     nullptr,

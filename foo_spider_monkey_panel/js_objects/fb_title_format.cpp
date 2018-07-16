@@ -20,7 +20,7 @@ JSClassOps jsOps = {
     nullptr,
     nullptr,
     nullptr,
-    JsFinalizeOp<JsFbTitleFormat>,
+    JsFbTitleFormat::FinalizeJsObject,
     nullptr,
     nullptr,
     nullptr,

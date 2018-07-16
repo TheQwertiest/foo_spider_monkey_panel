@@ -1,6 +1,5 @@
 # Current
 - Allow to configure max component RAM usage via preferences.
-- 3 times performance loss when using proxy for pass-through calls: bug Mozilla devs.
 - Add one-use only DefinePanel(name, author, [options]) method somewhere (global, utils, window?)
 - Fix unresponsive arrow keys in some scripts (mb smth with focus? only in DUI?).
 - 'Shell.Application': https://github.com/Microsoft/VCSamples/blob/feeab9bc32c5c38b76b5b3f5dec15a376492a1ab/VC2008Samples/MFC/ole/oleview/iviewers/tree.cpp#L868.

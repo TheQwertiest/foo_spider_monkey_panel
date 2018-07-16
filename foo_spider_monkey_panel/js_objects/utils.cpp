@@ -24,7 +24,7 @@ JSClassOps jsOps = {
     nullptr,
     nullptr,
     nullptr,
-    JsFinalizeOp<JsUtils>,
+    JsUtils::FinalizeJsObject,
     nullptr,
     nullptr,
     nullptr,

@@ -2,6 +2,7 @@
 #include "js_engine.h"
 
 #include <js_engine/js_container.h>
+#include <js_engine/js_compartment_inner.h>
 #include <js_utils/js_error_helper.h>
 #include <js_utils/scope_helper.h>
 
@@ -81,28 +82,9 @@ void JsEngine::UnregisterPanel( js_panel_window& parentPanel )
     }
 }
 
-void JsEngine::OnHeapAllocate( uint32_t size )
-{
-    std::scoped_lock sl( gcLock_ );
-    curNativeHeapSize_ += size;
-}
-
-void JsEngine::OnHeapDeallocate( uint32_t size )
-{
-    std::scoped_lock sl( gcLock_ );
-    if ( size > curNativeHeapSize_ )
-    {
-        curNativeHeapSize_ = 0;
-    }
-    else
-    {
-        curNativeHeapSize_ -= size;
-    }    
-}
-
-void JsEngine::MaybeIncrementalGC( JSContext* cx )
-{
-    assert( JS::IsIncrementalGCEnabled( cx ) );
+void JsEngine::MaybeIncrementalGC()
+{// TODO: clean up this method
+    assert( JS::IsIncrementalGCEnabled( pJsCtx_ ) );
 
     if ( timeGetTime() - lastGcCheckTime_ < k_GcCheckDelay )
     {
@@ -110,61 +92,108 @@ void JsEngine::MaybeIncrementalGC( JSContext* cx )
     }
     lastGcCheckTime_ = timeGetTime();
 
-    uint64_t curTotalHeapSize = JS_GetGCParameter( cx, JSGC_BYTES );
-    {
-        std::scoped_lock sl( gcLock_ );
-        curTotalHeapSize += curNativeHeapSize_;
-    }
+    uint64_t curTotalHeapSize = JS_GetGCParameter( pJsCtx_, JSGC_BYTES );
+    JS_IterateCompartments( pJsCtx_, &curTotalHeapSize, []( JSContext* cx, void* data, JSCompartment* pJsCompartment )
+    {// TODO: ask about extra compartments
+        auto pCurTotalHeapSize = static_cast<uint64_t*>(data);
+        auto pNativeCompartment = static_cast<JsCompartmentInner*>(JS_GetCompartmentPrivate( pJsCompartment ));
+        if ( !pNativeCompartment )
+        {
+            return;
+        }
+        *pCurTotalHeapSize += pNativeCompartment->GetCurrentHeapBytes();
+    } );
 
-    if ( lastTotalHeapSize_ > curTotalHeapSize 
-         || !lastTotalHeapSize_ )
+    if ( !lastTotalHeapSize_ || lastTotalHeapSize_ > curTotalHeapSize )
     {
         lastTotalHeapSize_ = curTotalHeapSize;
         return;
     }
 
-    // TODO: currently only a single global can do GC (see #jsapi for <jonco>'s explanations)
-    if ( JS::IsIncrementalGCInProgress( cx ) 
-         || ( curTotalHeapSize - lastTotalHeapSize_ > k_HeapGrowthRateTrigger ) )
+    if ( !JS::IsIncrementalGCInProgress( pJsCtx_ )
+         && (curTotalHeapSize - lastTotalHeapSize_ <= k_HeapGrowthRateTrigger) )
     {
-        if ( curTotalHeapSize <= k_MaxHeapSize / 2 )
+        return;
+    }
+
+    if ( curTotalHeapSize <= k_MaxHeapSize / 2 )
+    {
+        if ( !JS::IsIncrementalGCInProgress( pJsCtx_ ) )
         {
-            if ( !JS::IsIncrementalGCInProgress( cx ) )
+            std::vector<JSCompartment*> compartments;
+            JS_IterateCompartments( pJsCtx_, &compartments, []( JSContext* cx, void* data, JSCompartment* pJsCompartment )
             {
-                JS::PrepareZoneForGC( js::GetCompartmentZone( js::GetContextCompartment( cx ) ) );
-                JS::StartIncrementalGC( cx, GC_NORMAL, JS::gcreason::RESERVED1, k_GcSliceTimeBudget );
+                auto pJsCompartments = static_cast<std::vector<JSCompartment*>*>(data);
+                auto pNativeCompartment = static_cast<JsCompartmentInner*>(JS_GetCompartmentPrivate( pJsCompartment ));                
+                if ( !pNativeCompartment )
+                {
+                    return;
+                }
+
+                if ( pNativeCompartment->GetCurrentHeapBytes() > (pNativeCompartment->GetLastHeapBytes() + k_HeapGrowthRateTrigger / 2) )
+                {
+                    pNativeCompartment->OnGcStart();
+                    pJsCompartments->push_back( pJsCompartment );
+                }
+            } );
+            if ( compartments.size() )
+            {
+                for ( auto pCompartment : compartments )
+                {
+                    JS::PrepareZoneForGC( js::GetCompartmentZone( pCompartment ) );
+                }
             }
             else
             {
-                JS::PrepareForIncrementalGC( cx );
-                JS::IncrementalGCSlice( cx, JS::gcreason::RESERVED2, k_GcSliceTimeBudget );
+                JS::PrepareForFullGC( pJsCtx_ );
             }
+
+            JS::StartIncrementalGC( pJsCtx_, GC_NORMAL, JS::gcreason::RESERVED1, k_GcSliceTimeBudget );
         }
         else
         {
-            if ( JS::IsIncrementalGCInProgress( cx ) )
+            JS::PrepareForIncrementalGC( pJsCtx_ );
+            JS::IncrementalGCSlice( pJsCtx_, JS::gcreason::RESERVED2, k_GcSliceTimeBudget );
+        }
+    }
+    else // if ( curTotalHeapSize > k_MaxHeapSize / 2 )
+    {
+        if ( JS::IsIncrementalGCInProgress( pJsCtx_ ) )
+        {
+            JS::PrepareForIncrementalGC( pJsCtx_ );
+            JS::FinishIncrementalGC( pJsCtx_, JS::gcreason::RESERVED3 );
+        }
+        else
+        {
+            if ( curTotalHeapSize > k_MaxHeapSize * 0.75 )
             {
-                JS::PrepareForIncrementalGC( cx );
-                JS::FinishIncrementalGC( cx, JS::gcreason::RESERVED3 );
+                JS_SetGCParameter( pJsCtx_, JSGC_MODE, JSGC_MODE_GLOBAL );
+                JS::PrepareForFullGC( pJsCtx_ );
+                JS::GCForReason( pJsCtx_, GC_SHRINK, JS::gcreason::RESERVED4 );
+                JS_SetGCParameter( pJsCtx_, JSGC_MODE, JSGC_MODE_INCREMENTAL );
             }
             else
             {
-                if ( curTotalHeapSize > k_MaxHeapSize * 0.75 )
-                {
-                    JS_SetGCParameter( cx, JSGC_MODE, JSGC_MODE_GLOBAL );
-                    JS::PrepareForFullGC( cx );
-                    JS::GCForReason( cx, GC_SHRINK, JS::gcreason::RESERVED4 );
-                    JS_SetGCParameter( cx, JSGC_MODE, JSGC_MODE_INCREMENTAL );
-                }
-                else
-                {
-                    JS_GC( cx );
-                }
+                JS_GC( pJsCtx_ );
             }
         }
-
-        lastTotalHeapSize_ = curTotalHeapSize;
     }
+
+    JS_IterateCompartments( pJsCtx_, nullptr, []( JSContext* cx, void* data, JSCompartment* pJsCompartment )
+    {
+        auto pNativeCompartment = static_cast<JsCompartmentInner*>(JS_GetCompartmentPrivate( pJsCompartment ));
+        if ( !pNativeCompartment )
+        {
+            return;
+        }
+
+        if ( pNativeCompartment->HasGcStarted() )
+        {
+            pNativeCompartment->OnGcDone();
+        }
+    } );
+
+    lastTotalHeapSize_ = curTotalHeapSize;
 }
 
 bool JsEngine::Initialize()

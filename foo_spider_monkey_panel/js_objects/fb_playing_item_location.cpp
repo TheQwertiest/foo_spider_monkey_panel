@@ -19,7 +19,7 @@ JSClassOps jsOps = {
     nullptr,
     nullptr,
     nullptr,
-    JsFinalizeOp<JsFbPlayingItemLocation>,
+    JsFbPlayingItemLocation::FinalizeJsObject,
     nullptr,
     nullptr,
     nullptr,

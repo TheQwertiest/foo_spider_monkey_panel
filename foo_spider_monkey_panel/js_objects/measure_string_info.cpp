@@ -18,7 +18,7 @@ JSClassOps jsOps = {
     nullptr,
     nullptr,
     nullptr,
-    JsFinalizeOp<JsMeasureStringInfo>,
+    JsMeasureStringInfo::FinalizeJsObject,
     nullptr,
     nullptr,
     nullptr,

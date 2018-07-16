@@ -2,6 +2,7 @@
 #include "global_object.h"
 
 #include <js_engine/js_container.h>
+#include <js_engine/js_compartment_inner.h>
 #include <js_engine/js_to_native_invoker.h>
 #include <js_objects/active_x.h>
 #include <js_objects/console.h>
@@ -24,6 +25,18 @@ namespace
 
 using namespace mozjs;
 
+void JsFinalizeOpLocal( JSFreeOp* fop, JSObject* obj )
+{
+    auto x = static_cast<JsGlobalObject*>(JS_GetPrivate( obj ));
+    if ( x )
+    {
+        delete x;
+        JS_SetPrivate( obj, nullptr );
+
+        JS_SetCompartmentPrivate( js::GetObjectCompartment( obj ), nullptr );
+    }
+}
+
 JSClassOps jsOps = {
     nullptr,
     nullptr,
@@ -31,7 +44,7 @@ JSClassOps jsOps = {
     nullptr,
     nullptr,
     nullptr,
-    JsFinalizeOp<JsGlobalObject>,
+    JsFinalizeOpLocal,
     nullptr,
     nullptr,
     nullptr,
@@ -40,7 +53,7 @@ JSClassOps jsOps = {
 
 JSClass jsClass = {
      "Global",
-     JSCLASS_GLOBAL_FLAGS_WITH_SLOTS( static_cast<uint32_t>(JsPrototypeId::ProrototypeCount) ) | DefaultClassFlags(),
+     JSCLASS_GLOBAL_FLAGS_WITH_SLOTS( static_cast<uint32_t>(JsPrototypeId::ProrototypeCount) ) | JSCLASS_HAS_PRIVATE | JSCLASS_FOREGROUND_FINALIZE,
      &jsOps
 };
 
@@ -98,6 +111,7 @@ JSObject* JsGlobalObject::CreateNative( JSContext* cx, JsContainer &parentContai
 
     {
         JSAutoCompartment ac( cx, jsObj );
+        JS_SetCompartmentPrivate( js::GetContextCompartment( cx ), new JsCompartmentInner() );
 
         if ( !JS_InitStandardClasses( cx, jsObj ) )
         {
@@ -140,7 +154,7 @@ JSObject* JsGlobalObject::CreateNative( JSContext* cx, JsContainer &parentContai
         }
         
         JS::Value protoVal = JS::ObjectValue( *jsProto );
-        JS_SetReservedSlot( jsObj, JSCLASS_GLOBAL_SLOT_COUNT + static_cast<uint32_t>(JsPrototypeId::ActiveX), protoVal );
+        JS_SetReservedSlot( jsObj, JSCLASS_GLOBAL_SLOT_COUNT + static_cast<uint32_t>(JsPrototypeId::ActiveX), protoVal );        
 
         JS_FireOnNewGlobalObject( cx, jsObj );
     }

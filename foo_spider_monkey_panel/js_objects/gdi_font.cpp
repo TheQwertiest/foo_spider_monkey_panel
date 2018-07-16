@@ -22,7 +22,7 @@ JSClassOps jsOps = {
     nullptr,
     nullptr,
     nullptr,
-    JsFinalizeOp<JsGdiFont>,
+    JsGdiFont::FinalizeJsObject,
     nullptr,
     nullptr,
     nullptr,

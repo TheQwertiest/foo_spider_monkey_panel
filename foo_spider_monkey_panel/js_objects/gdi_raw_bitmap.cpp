@@ -22,7 +22,7 @@ JSClassOps jsOps = {
     nullptr,
     nullptr,
     nullptr,
-    JsFinalizeOp<JsGdiRawBitmap>,
+    JsGdiRawBitmap::FinalizeJsObject,
     nullptr,
     nullptr,
     nullptr,

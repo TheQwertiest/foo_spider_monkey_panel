@@ -9,7 +9,7 @@ namespace mozjs
 
 constexpr uint32_t DefaultClassFlags()
 {
-    return JSCLASS_HAS_PRIVATE | JSCLASS_FOREGROUND_FINALIZE;
+    return JSCLASS_HAS_PRIVATE | JSCLASS_BACKGROUND_FINALIZE;
 }
 
 constexpr uint16_t DefaultPropsFlags()

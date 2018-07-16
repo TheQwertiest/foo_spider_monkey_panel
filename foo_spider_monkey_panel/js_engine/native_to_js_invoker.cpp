@@ -47,10 +47,8 @@ bool InvokeJsCallback_Impl( JSContext* cx,
         return false;
     }
 
-    //JS_MaybeGC( cx );
-
     // TODO: move to a better place
-    JsEngine::GetInstance().MaybeIncrementalGC( cx );
+    JsEngine::GetInstance().MaybeIncrementalGC();
 
     return true;
 }

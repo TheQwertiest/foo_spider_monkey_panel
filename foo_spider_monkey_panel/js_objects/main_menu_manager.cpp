@@ -19,7 +19,7 @@ JSClassOps jsOps = {
     nullptr,
     nullptr,
     nullptr,
-    JsFinalizeOp<JsMainMenuManager>,
+    JsMainMenuManager::FinalizeJsObject,
     nullptr,
     nullptr,
     nullptr,

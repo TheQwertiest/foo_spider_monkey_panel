@@ -59,6 +59,7 @@ using std::max;
 #pragma warning( disable : 4324 ) // structure was padded due to alignment specifier
 #pragma warning( disable : 4996 ) // C++17 deprecation warning
 #   include <jsapi.h>
+#   include <jsfriendapi.h>
 #pragma warning( pop ) 
 
 // Some macros defined by windowsx.h should be removed

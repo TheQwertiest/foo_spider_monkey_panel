@@ -28,7 +28,7 @@ JSClassOps jsOps = {
     nullptr,
     nullptr,
     nullptr,
-    JsFinalizeOp<JsGdiGraphics>,
+    JsGdiGraphics::FinalizeJsObject,
     nullptr,
     nullptr,
     nullptr,

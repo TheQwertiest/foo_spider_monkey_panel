@@ -1,6 +1,6 @@
 #pragma once
 
-#include <js_engine/js_engine_proxy.h>
+#include <js_engine/js_compartment_inner.h>
 #include <js_utils/js_prototype_helpers.h>
 
 class JSObject;
@@ -24,10 +24,7 @@ public:
     JsObjectBase() = default;
     JsObjectBase( const JsObjectBase& ) = delete;
     JsObjectBase& operator=( const JsObjectBase& ) = delete;
-    virtual ~JsObjectBase()
-    {
-        UpdateJsEngineOnHeapDeallocate( nativeObjectSize_ );
-    };
+    virtual ~JsObjectBase() = default;
 
 public:
     static JSObject* CreateProto( JSContext* cx )
@@ -95,9 +92,11 @@ public:
         {// report in CreateNative
             return nullptr;
         }
-
-        UpdateJsEngineOnHeapAllocate( nativeObjectSize );
         nativeObject->nativeObjectSize_ = nativeObjectSize;
+
+        auto pJsCompartment = static_cast<JsCompartmentInner*>(JS_GetCompartmentPrivate( js::GetContextCompartment( cx ) ));
+        assert( pJsCompartment );
+        pJsCompartment->OnHeapAllocate( nativeObjectSize );
 
         JS_SetPrivate( jsObject, nativeObject.release() );
 
@@ -111,6 +110,23 @@ public:
         else
         {
             return jsObject;
+        }
+    }
+
+    static void FinalizeJsObject( JSFreeOp* fop, JSObject* pSelf )
+    {
+        auto pNative = static_cast<T*>(JS_GetPrivate( pSelf ));
+        if ( pNative )
+        {// TODO: ask if compartment may be destroyed before object
+         // TODO: ask it this is really safe to do in background
+            auto pJsCompartment = static_cast<JsCompartmentInner*>( JS_GetCompartmentPrivate( js::GetObjectCompartment( pSelf ) ));
+            if ( pJsCompartment )
+            {
+                pJsCompartment->OnHeapDeallocate( pNative->nativeObjectSize_ );
+            }
+
+            delete pNative;
+            JS_SetPrivate( pSelf, nullptr );
         }
     }
 

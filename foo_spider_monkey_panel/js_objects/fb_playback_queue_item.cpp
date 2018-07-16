@@ -20,7 +20,7 @@ JSClassOps jsOps = {
     nullptr,
     nullptr,
     nullptr,
-    JsFinalizeOp<JsFbPlaybackQueueItem>,
+    JsFbPlaybackQueueItem::FinalizeJsObject,
     nullptr,
     nullptr,
     nullptr,

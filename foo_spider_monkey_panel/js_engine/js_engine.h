@@ -1,16 +1,11 @@
 #pragma once
 
-#pragma warning( push )  
-#pragma warning( disable : 4251 ) // dll interface warning
-#pragma warning( disable : 4996 ) // C++17 deprecation warning
-#include <jsapi.h>
-#pragma warning( pop )  
-
 #include <map>
 #include <functional>
 #include <mutex>
 
 class js_panel_window;
+struct JSContext;
 
 
 namespace mozjs
@@ -31,9 +26,7 @@ public:
     void UnregisterPanel( js_panel_window& parentPanel );
 
 public:
-    void OnHeapAllocate( uint32_t size );
-    void OnHeapDeallocate( uint32_t size );
-    void MaybeIncrementalGC(JSContext* cx);
+    void MaybeIncrementalGC();
 
 private:
     JsEngine();
@@ -50,10 +43,8 @@ private:
     bool shouldShutdown_ = false;
 
     std::map<HWND, std::reference_wrapper<JsContainer>> registeredContainers_;
-
-    std::mutex gcLock_;
+    
     uint32_t lastGcCheckTime_ = 0;
-    uint64_t curNativeHeapSize_ = 0;
     uint64_t lastTotalHeapSize_ = 0;
 };
 

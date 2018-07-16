@@ -19,7 +19,7 @@ JSClassOps jsOps = {
     nullptr,
     nullptr,
     nullptr,
-    JsFinalizeOp<JsFbUiSelectionHolder>,
+    JsFbUiSelectionHolder::FinalizeJsObject,
     nullptr,
     nullptr,
     nullptr,
