@@ -675,7 +675,7 @@ bool js_panel_window::script_load()
 
     if ( ScriptInfo().feature_mask & t_script_info::kFeatureDragDrop )
     {
-        m_drop_target.Attach( new com_object_impl_t<HostDropTarget>( this ) );
+        m_drop_target.Attach( new com_object_impl_t<HostDropTarget>( hWnd_, &jsContainer_ ) );
         m_drop_target->RegisterDragDrop();
         isDropTargetRegistered_ = true;
     }

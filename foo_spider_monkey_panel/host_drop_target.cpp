@@ -3,9 +3,11 @@
 #include "host_drop_target.h"
 #include "js_panel_window.h"
 
-HostDropTarget::HostDropTarget(js_panel_window* host)
-	: IDropTargetImpl(host->GetHWND())
-	, m_host(host)
+#include <js_engine/js_container.h>
+
+HostDropTarget::HostDropTarget( HWND hWnd, mozjs::JsContainer* pJsContainer )
+	: IDropTargetImpl( hWnd )
+	, pJsContainer_( pJsContainer )
 	, m_action(new com_object_impl_t<DropSourceAction, true>())
 {
 }
@@ -17,11 +19,14 @@ HostDropTarget::~HostDropTarget()
 
 HRESULT HostDropTarget::OnDragEnter(IDataObject* pDataObj, DWORD grfKeyState, POINTL pt, DWORD* pdwEffect)
 {
-	if (!pdwEffect) return E_POINTER;
+    if ( !pdwEffect )
+    {
+        return E_POINTER;
+    }
 
 	m_action->Reset();
-	bool native;
-
+	
+    bool native;
 	HRESULT hr = ole_interaction::get()->check_dataobject(pDataObj, m_fb2kAllowedEffect, native);
 	if (!SUCCEEDED(hr))
 	{
@@ -49,7 +54,10 @@ HRESULT HostDropTarget::OnDragLeave()
 
 HRESULT HostDropTarget::OnDragOver(DWORD grfKeyState, POINTL pt, DWORD* pdwEffect)
 {
-	if (!pdwEffect) return E_POINTER;
+    if ( !pdwEffect )
+    {
+        return E_POINTER;
+    }
 
 	m_action->Effect() = *pdwEffect & m_fb2kAllowedEffect;
 
@@ -63,7 +71,10 @@ HRESULT HostDropTarget::OnDragOver(DWORD grfKeyState, POINTL pt, DWORD* pdwEffec
 
 HRESULT HostDropTarget::OnDrop(IDataObject* pDataObj, DWORD grfKeyState, POINTL pt, DWORD* pdwEffect)
 {
-	if (!pdwEffect) return E_POINTER;
+    if ( !pdwEffect )
+    {
+        return E_POINTER;
+    }
 
 	m_action->Effect() = *pdwEffect & m_fb2kAllowedEffect;
 
@@ -96,47 +107,32 @@ HRESULT HostDropTarget::OnDrop(IDataObject* pDataObj, DWORD grfKeyState, POINTL 
 
 void HostDropTarget::on_drag_enter(unsigned keyState, POINTL& pt, IDropSourceAction* action)
 {// TODO:
-	VARIANTARG args[4];
-	args[0].vt = VT_I4;
-	args[0].lVal = keyState;
-	args[1].vt = VT_I4;
-	args[1].lVal = pt.y;
-	args[2].vt = VT_I4;
-	args[2].lVal = pt.x;
-	args[3].vt = VT_DISPATCH;
-	args[3].pdispVal = action;
-	//m_host->script_invoke_v(CallbackIds::on_drag_enter, args, _countof(args));
+    pJsContainer_->InvokeJsCallback( "on_drag_enter",
+                                     /*??? action*/
+                                     static_cast<int32_t>(pt.x),
+                                     static_cast<int32_t>(pt.y),
+                                     static_cast<uint32_t>(keyState) );
 }
 
 void HostDropTarget::on_drag_leave()
-{// TODO:
-	//m_host->script_invoke_v(CallbackIds::on_drag_leave);
+{
+    pJsContainer_->InvokeJsCallback( "on_drag_leave" );
 }
 
 void HostDropTarget::on_drag_over(unsigned keyState, POINTL& pt, IDropSourceAction* action)
 {// TODO:
-	VARIANTARG args[4];
-	args[0].vt = VT_I4;
-	args[0].lVal = keyState;
-	args[1].vt = VT_I4;
-	args[1].lVal = pt.y;
-	args[2].vt = VT_I4;
-	args[2].lVal = pt.x;
-	args[3].vt = VT_DISPATCH;
-	args[3].pdispVal = action;
-	//m_host->script_invoke_v(CallbackIds::on_drag_over, args, _countof(args));
+    pJsContainer_->InvokeJsCallback( "on_drag_over",
+                                     /*??? action*/
+                                     static_cast<int32_t>(pt.x),
+                                     static_cast<int32_t>(pt.y),
+                                     static_cast<uint32_t>(keyState) );
 }
 
 void HostDropTarget::on_drag_drop(unsigned keyState, POINTL& pt, IDropSourceAction* action)
 {// TODO:
-	VARIANTARG args[4];
-	args[0].vt = VT_I4;
-	args[0].lVal = keyState;
-	args[1].vt = VT_I4;
-	args[1].lVal = pt.y;
-	args[2].vt = VT_I4;
-	args[2].lVal = pt.x;
-	args[3].vt = VT_DISPATCH;
-	args[3].pdispVal = action;
-	//m_host->script_invoke_v(CallbackIds::on_drag_drop, args, _countof(args));
+    pJsContainer_->InvokeJsCallback( "on_drag_drop",
+                                     /*??? action*/
+                                     static_cast<int32_t>(pt.x),
+                                     static_cast<int32_t>(pt.y),
+                                     static_cast<uint32_t>(keyState) );
 }

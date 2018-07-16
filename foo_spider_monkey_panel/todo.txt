@@ -2,7 +2,6 @@
 - Fix script reload from Preferences>CUI.
 - Allow to configure max component RAM usage via preferences.
 - Add one-use only DefinePanel(name, author, [options]) method somewhere (global, utils, window?)
-- Fix unresponsive arrow keys in some scripts (mb smth with focus? only in DUI?).
 - 'Shell.Application': https://github.com/Microsoft/VCSamples/blob/feeab9bc32c5c38b76b5b3f5dec15a376492a1ab/VC2008Samples/MFC/ole/oleview/iviewers/tree.cpp#L868.
 - 'WScript.Shell': test after applying the fix for inherited interfaces from above.
 - Change stats field names: https://github.com/TheQwertiest/foo-jscript-panel/commit/57393822ae42e1ebd77911c0f934471903975b4e#commitcomment-29629263
@@ -39,6 +38,7 @@
 - Check all TODOs.
 
 # Planned
+- Fix unresponsive arrow keys in DUI in CaTRoX (present in jscript as well).
 - Replace `Create*` interface methods with prototypes and `new` where possible
 - Try to make it work with paths containing cyrillics and other exotic characters
 - Move setInterval and friends to global namespace.

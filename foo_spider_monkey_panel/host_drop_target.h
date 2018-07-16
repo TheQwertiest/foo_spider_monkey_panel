@@ -3,7 +3,12 @@
 #include "drop_target_impl.h"
 #include "script_interface_impl.h"
 
-class js_panel_window;
+namespace mozjs
+{
+
+class JsContainer;
+
+}
 
 class HostDropTarget : public IDropTargetImpl
 {
@@ -13,7 +18,7 @@ protected:
 	}
 
 public:
-	HostDropTarget(js_panel_window* host);
+	HostDropTarget( HWND hWnd, mozjs::JsContainer* pJsContainer);
 	virtual ~HostDropTarget();
 
 	// IDropTarget
@@ -28,8 +33,9 @@ public:
 	void on_drag_drop(unsigned keyState, POINTL& pt, IDropSourceAction* action);
 
 private:
-	js_panel_window* m_host;
-	DropSourceAction* m_action;
+    mozjs::JsContainer* pJsContainer_ = nullptr;
+
+	DropSourceAction* m_action = nullptr;
 	DWORD m_fb2kAllowedEffect;
 
 	BEGIN_COM_QI_IMPL()
