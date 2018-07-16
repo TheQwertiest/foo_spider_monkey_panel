@@ -1,4 +1,5 @@
 # Current
+- Fix script reload from Preferences>CUI.
 - Allow to configure max component RAM usage via preferences.
 - Add one-use only DefinePanel(name, author, [options]) method somewhere (global, utils, window?)
 - Fix unresponsive arrow keys in some scripts (mb smth with focus? only in DUI?).
