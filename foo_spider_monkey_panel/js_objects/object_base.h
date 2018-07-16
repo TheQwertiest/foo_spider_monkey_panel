@@ -1,5 +1,6 @@
 #pragma once
 
+#include <js_engine/js_engine_proxy.h>
 #include <js_utils/js_prototype_helpers.h>
 
 class JSObject;
@@ -23,7 +24,10 @@ public:
     JsObjectBase() = default;
     JsObjectBase( const JsObjectBase& ) = delete;
     JsObjectBase& operator=( const JsObjectBase& ) = delete;
-    virtual ~JsObjectBase() = default;
+    virtual ~JsObjectBase()
+    {
+        UpdateJsEngineOnHeapDeallocate( nativeObjectSize_ );
+    };
 
 public:
     static JSObject* CreateProto( JSContext* cx )
@@ -91,7 +95,9 @@ public:
         {// report in CreateNative
             return nullptr;
         }
-        JS_updateMallocCounter( cx, nativeObjectSize );
+
+        UpdateJsEngineOnHeapAllocate( nativeObjectSize );
+        nativeObject->nativeObjectSize_ = nativeObjectSize;
 
         JS_SetPrivate( jsObject, nativeObject.release() );
 
@@ -107,6 +113,10 @@ public:
             return jsObject;
         }
     }
+
+private:
+    uint32_t nativeObjectSize_ = 0;
+
 };
 
 }

@@ -1,6 +1,7 @@
 #include <stdafx.h>
 #include "native_to_js_invoker.h"
 
+#include <js_engine/js_engine.h>
 #include <js_objects/global_object.h>
 #include <js_utils/js_error_helper.h>
 
@@ -46,7 +47,10 @@ bool InvokeJsCallback_Impl( JSContext* cx,
         return false;
     }
 
-    JS_MaybeGC( cx );
+    //JS_MaybeGC( cx );
+
+    // TODO: move to a better place
+    JsEngine::GetInstance().MaybeIncrementalGC( cx );
 
     return true;
 }

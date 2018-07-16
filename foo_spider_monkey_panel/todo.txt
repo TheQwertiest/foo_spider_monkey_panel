@@ -1,6 +1,6 @@
 # Current
+- Allow to configure max component RAM usage via preferences.
 - 3 times performance loss when using proxy for pass-through calls: bug Mozilla devs.
-- Fix GC: incremental GC is never used for some reason.
 - Add one-use only DefinePanel(name, author, [options]) method somewhere (global, utils, window?)
 - Fix unresponsive arrow keys in some scripts (mb smth with focus? only in DUI?).
 - 'Shell.Application': https://github.com/Microsoft/VCSamples/blob/feeab9bc32c5c38b76b5b3f5dec15a376492a1ab/VC2008Samples/MFC/ole/oleview/iviewers/tree.cpp#L868.
@@ -68,4 +68,3 @@
 - Add help to properties and methods (JS_DefineFunctionsWithHelp)
 - Investigate: separate native JSON parser vs one from SpiderMonkey engine.
 - Minimal .js tests for all the functionality: might be possible to cycle them in GUI via include().
-- Allow to configure JS heap size via preferences?

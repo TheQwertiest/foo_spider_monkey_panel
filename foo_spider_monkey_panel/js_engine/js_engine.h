@@ -8,6 +8,7 @@
 
 #include <map>
 #include <functional>
+#include <mutex>
 
 class js_panel_window;
 
@@ -26,10 +27,13 @@ public:
     void PrepareForExit();
 
 public:
-    JSContext * GetJsContext() const;
-
     bool RegisterPanel( js_panel_window& parentPanel, JsContainer& jsContainer );
     void UnregisterPanel( js_panel_window& parentPanel );
+
+public:
+    void OnHeapAllocate( uint32_t size );
+    void OnHeapDeallocate( uint32_t size );
+    void MaybeIncrementalGC(JSContext* cx);
 
 private:
     JsEngine();
@@ -46,6 +50,11 @@ private:
     bool shouldShutdown_ = false;
 
     std::map<HWND, std::reference_wrapper<JsContainer>> registeredContainers_;
+
+    std::mutex gcLock_;
+    uint32_t lastGcCheckTime_ = 0;
+    uint64_t curNativeHeapSize_ = 0;
+    uint64_t lastTotalHeapSize_ = 0;
 };
 
 }

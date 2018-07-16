@@ -103,6 +103,7 @@
     <ClCompile Include="host_timer_dispatcher.cpp" />
     <ClCompile Include="js_engine\js_container.cpp" />
     <ClCompile Include="js_engine\js_engine.cpp" />
+    <ClCompile Include="js_engine\js_engine_proxy.cpp" />
     <ClCompile Include="js_engine\js_to_native_converter.cpp" />
     <ClCompile Include="js_engine\native_to_js_converter.cpp" />
     <ClCompile Include="js_engine\native_to_js_invoker.cpp" />
@@ -175,6 +176,7 @@
     <ClInclude Include="js_engine\converter_utils.h" />
     <ClInclude Include="js_engine\js_container.h" />
     <ClInclude Include="js_engine\js_engine.h" />
+    <ClInclude Include="js_engine\js_engine_proxy.h" />
     <ClInclude Include="js_engine\js_to_native_converter.h" />
     <ClInclude Include="js_engine\js_to_native_invoker.h" />
     <ClInclude Include="js_engine\native_to_js_converter.h" />

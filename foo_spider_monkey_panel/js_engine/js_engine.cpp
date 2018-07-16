@@ -9,7 +9,21 @@
 
 #include <js/Initialization.h>
 
-// TODO: remove js_panel_window, may be replace with HWND
+
+namespace
+{
+// TODO: Fine tune heap settings 
+
+/// @brief Max total size of both GC heap and SMP heap
+const uint64_t k_MaxHeapSize = 1024L * 1024 * 1024;
+/// @brief Max heap size difference before triggering GC
+const uint64_t k_HeapGrowthRateTrigger = 50L * 1024 * 1024;
+/// @brief Time in ms that an incremental slice is allowed to run
+const uint32_t k_GcSliceTimeBudget = 30;
+/// @brief Delay in ms between GC checks
+const uint32_t k_GcCheckDelay = 50;
+
+}
 
 
 namespace mozjs
@@ -31,10 +45,9 @@ JsEngine& JsEngine::GetInstance()
     return jsEnv;
 }
 
-JSContext * JsEngine::GetJsContext() const
+void JsEngine::PrepareForExit()
 {
-    assert( pJsCtx_ );
-    return pJsCtx_;
+    shouldShutdown_ = true;
 }
 
 bool JsEngine::RegisterPanel( js_panel_window& panel, JsContainer& jsContainer )
@@ -68,6 +81,93 @@ void JsEngine::UnregisterPanel( js_panel_window& parentPanel )
     }
 }
 
+void JsEngine::OnHeapAllocate( uint32_t size )
+{
+    std::scoped_lock sl( gcLock_ );
+    curNativeHeapSize_ += size;
+}
+
+void JsEngine::OnHeapDeallocate( uint32_t size )
+{
+    std::scoped_lock sl( gcLock_ );
+    if ( size > curNativeHeapSize_ )
+    {
+        curNativeHeapSize_ = 0;
+    }
+    else
+    {
+        curNativeHeapSize_ -= size;
+    }    
+}
+
+void JsEngine::MaybeIncrementalGC( JSContext* cx )
+{
+    assert( JS::IsIncrementalGCEnabled( cx ) );
+
+    if ( timeGetTime() - lastGcCheckTime_ < k_GcCheckDelay )
+    {
+        return;
+    }
+    lastGcCheckTime_ = timeGetTime();
+
+    uint64_t curTotalHeapSize = JS_GetGCParameter( cx, JSGC_BYTES );
+    {
+        std::scoped_lock sl( gcLock_ );
+        curTotalHeapSize += curNativeHeapSize_;
+    }
+
+    if ( lastTotalHeapSize_ > curTotalHeapSize 
+         || !lastTotalHeapSize_ )
+    {
+        lastTotalHeapSize_ = curTotalHeapSize;
+        return;
+    }
+
+    if ( JS::IsIncrementalGCInProgress( cx ) 
+         || ( curTotalHeapSize - lastTotalHeapSize_ > k_HeapGrowthRateTrigger ) )
+    {
+        if ( curTotalHeapSize <= k_MaxHeapSize / 2 )
+        {
+            if ( !JS::IsIncrementalGCInProgress( cx ) )
+            {
+                JS::PrepareZoneForGC( js::GetCompartmentZone( js::GetContextCompartment( cx ) ) );
+                JS::StartIncrementalGC( cx, GC_NORMAL, JS::gcreason::RESERVED1, k_GcSliceTimeBudget );
+            }
+            else
+            {
+                JS::PrepareForIncrementalGC( cx );
+                JS::IncrementalGCSlice( cx, JS::gcreason::RESERVED2, k_GcSliceTimeBudget );
+            }
+        }
+        else
+        {
+            // A hack to make sure we never exceed the runtime size because we can't collect the memory
+            // fast enough.
+            if ( JS::IsIncrementalGCInProgress( cx ) )
+            {
+                JS::PrepareForIncrementalGC( cx );
+                JS::FinishIncrementalGC( cx, JS::gcreason::RESERVED3 );
+            }
+            else
+            {
+                if ( curTotalHeapSize > k_MaxHeapSize * 0.75 )
+                {
+                    JS_SetGCParameter( cx, JSGC_MODE, JSGC_MODE_GLOBAL );
+                    JS::PrepareForFullGC( cx );
+                    JS::GCForReason( cx, GC_SHRINK, JS::gcreason::RESERVED4 );
+                    JS_SetGCParameter( cx, JSGC_MODE, JSGC_MODE_INCREMENTAL );
+                }
+                else
+                {
+                    JS_GC( cx );
+                }
+            }
+        }
+
+        lastTotalHeapSize_ = curTotalHeapSize;
+    }
+}
+
 bool JsEngine::Initialize()
 {
     if ( isInitialized_ )
@@ -75,8 +175,7 @@ bool JsEngine::Initialize()
         return true;
     }
 
-    // TODO: Fine tune heap settings 
-    JSContext* pJsCtx = JS_NewContext( 1024L * 1024 * 1024 );
+    JSContext* pJsCtx = JS_NewContext( k_MaxHeapSize );
     if (!pJsCtx)
     {
         return false;
@@ -93,6 +192,8 @@ bool JsEngine::Initialize()
     {
         return false;
     }
+
+    JS_SetGCParameter( pJsCtx, JSGC_MODE, JSGC_MODE_INCREMENTAL );
 
 #ifdef DEBUG
     //JS_SetGCZeal( pJsCtx, 2, 200 );
@@ -122,11 +223,6 @@ void JsEngine::Finalize()
     }
 
     isInitialized_ = false;
-}
-
-void JsEngine::PrepareForExit()
-{
-    shouldShutdown_ = true;
 }
 
 }
