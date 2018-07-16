@@ -123,6 +123,7 @@ void JsEngine::MaybeIncrementalGC( JSContext* cx )
         return;
     }
 
+    // TODO: currently only a single global can do GC (see #jsapi for <jonco>'s explanations)
     if ( JS::IsIncrementalGCInProgress( cx ) 
          || ( curTotalHeapSize - lastTotalHeapSize_ > k_HeapGrowthRateTrigger ) )
     {
@@ -141,8 +142,6 @@ void JsEngine::MaybeIncrementalGC( JSContext* cx )
         }
         else
         {
-            // A hack to make sure we never exceed the runtime size because we can't collect the memory
-            // fast enough.
             if ( JS::IsIncrementalGCInProgress( cx ) )
             {
                 JS::PrepareForIncrementalGC( cx );
