@@ -7,7 +7,7 @@
 - Change stats field names: https://github.com/TheQwertiest/foo-jscript-panel/commit/57393822ae42e1ebd77911c0f934471903975b4e#commitcomment-29629263
 - Rewrite ActiveXObject properly (and rename the files as well). Reimplement accessors through proxy instead of current hacks.
 - Reimplement drag-n-drop.
-- Add a header with component name and version to error repoerter.
+- Add a header with component name and version to error reporeter.
 - Reuse updated encoding handling code in ReadFile.
 - Remove engine settings from Panel Properties dialog.
 - Create patches for pfc, columns-ui and fb2k sdk.

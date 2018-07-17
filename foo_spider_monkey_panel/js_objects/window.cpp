@@ -132,8 +132,8 @@ const JSPropertySpec* JsWindow::JsProperties = jsProperties;
 JsWindow::JsWindow( JSContext* cx, js_panel_window& parentPanel, std::unique_ptr<FbProperties> fbProperties )
     : pJsCtx_( cx )
     , parentPanel_( parentPanel )
+    , fbProperties_( std::move( fbProperties ) )
 {
-    fbProperties_.swap( fbProperties );
 }
 
 JsWindow::~JsWindow()

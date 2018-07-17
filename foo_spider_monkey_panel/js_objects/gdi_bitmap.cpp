@@ -89,8 +89,8 @@ const JsPrototypeId JsGdiBitmap::PrototypeId = JsPrototypeId::GdiBitmap;
 
 JsGdiBitmap::JsGdiBitmap( JSContext* cx, std::unique_ptr<Gdiplus::Bitmap> gdiBitmap )
     : pJsCtx_( cx )
+    , pGdi_( std::move( gdiBitmap ) )
 {
-    pGdi_.swap( gdiBitmap );
 }
 
 

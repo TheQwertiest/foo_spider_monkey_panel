@@ -740,7 +740,7 @@ JsFbPlaylistManager::RemoveItemsFromPlaybackQueue( JS::HandleValue affectedItems
         uint32_t affectedIdx( convert::to_native::ToValue<uint32_t>( pJsCtx_, arrayElement, isValid ) );
         if ( !isValid )
         {
-            JS_ReportErrorUTF8( pJsCtx_, "affectedItems[%u] can't be converted to number" );
+            JS_ReportErrorUTF8( pJsCtx_, "affectedItems[%u] can't be converted to number", i );
             return std::nullopt;
         }
 

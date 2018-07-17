@@ -265,15 +265,10 @@ void HostTimerTask::DisableHeapCleanup()
 
 HostTimer::HostTimer(HWND hWnd, uint32_t id, uint32_t delay, bool isRepeated)
 {
-    m_hTimer = 0;
-
     m_hWnd = hWnd;
     m_delay = delay;
     m_isRepeated = isRepeated;
     m_id = id;
-
-    m_isStopRequested = false;
-    m_isStopped = false;
 }
 
 HostTimer::~HostTimer()

@@ -77,8 +77,8 @@ JsFbTooltip::JsFbTooltip( JSContext* cx, HWND hParentWnd, HWND hTooltipWnd, std:
     , hTooltipWnd_( hTooltipWnd )
     , panelTooltipParam_( p_param_ptr )
     , tipBuffer_( PFC_WIDESTRING( JSP_NAME ) )
+    , toolInfo_( std::move( toolInfo ) )
 {
-    toolInfo_.swap( toolInfo );
     toolInfo_->lpszText = (wchar_t*)tipBuffer_.c_str();
 
     panelTooltipParam_.hTooltip = hTooltipWnd_;

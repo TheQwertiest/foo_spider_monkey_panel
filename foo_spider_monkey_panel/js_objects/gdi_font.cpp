@@ -66,8 +66,8 @@ JsGdiFont::JsGdiFont( JSContext* cx, std::unique_ptr<Gdiplus::Font> gdiFont, HFO
     : pJsCtx_( cx )
     , isManaged_( isManaged )
     , hFont_( hFont )
+    , pGdi_( std::move( gdiFont ) )
 {
-    pGdi_.swap(gdiFont);
 }
 
 JsGdiFont::~JsGdiFont()

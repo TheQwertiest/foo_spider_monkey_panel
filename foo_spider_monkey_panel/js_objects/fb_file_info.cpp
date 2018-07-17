@@ -75,8 +75,8 @@ const JsPrototypeId JsFbFileInfo::PrototypeId = JsPrototypeId::FbFileInfo;
 
 JsFbFileInfo::JsFbFileInfo( JSContext* cx, std::unique_ptr<file_info_impl> fileInfo )
     : pJsCtx_( cx )
+    , fileInfo_(std::move( fileInfo ))
 {
-    fileInfo_.swap( fileInfo );
 }
 
 JsFbFileInfo::~JsFbFileInfo()

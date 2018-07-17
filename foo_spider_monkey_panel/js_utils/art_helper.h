@@ -9,7 +9,7 @@ namespace mozjs::art
 struct AsyncArtTaskResult
 {
     metadb_handle_ptr handle;
-    uint32_t artId;
+    uint32_t artId = 0;
     std::unique_ptr<Gdiplus::Bitmap> bitmap;
     pfc::string8_fast imagePath;
 };

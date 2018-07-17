@@ -72,9 +72,9 @@ private:
     struct TimerObject
     {
         TimerObject( std::unique_ptr<HostTimer> timerArg, std::unique_ptr<HostTimerTask> taskArg )
+            : timer(std::move( timerArg ) )
+            , task( std::move( taskArg ) )
         {
-            timer.swap( timerArg );
-            task = std::move(taskArg);
         }
         std::unique_ptr<HostTimer> timer;
         std::shared_ptr<HostTimerTask> task;
@@ -87,13 +87,13 @@ private:
     uint32_t m_curTimerId;
 
 private: // thread
-	typedef struct
+    struct ThreadTask
 	{
 		ThreadTaskId taskId;
 		HWND hWnd;
         uint32_t timerId;
 		HANDLE hTimer;
-	} ThreadTask;
+	};
 
 	std::thread* m_thread = nullptr;
 	std::mutex m_threadTaskMutex;
@@ -155,6 +155,6 @@ private:
     uint32_t m_delay;
 	bool m_isRepeated;
 
-	std::atomic<bool> m_isStopRequested;
-	bool m_isStopped;
+	std::atomic<bool> m_isStopRequested = false;
+	bool m_isStopped = false;
 };
