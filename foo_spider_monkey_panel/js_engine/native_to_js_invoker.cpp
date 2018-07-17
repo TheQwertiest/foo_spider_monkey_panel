@@ -48,7 +48,7 @@ bool InvokeJsCallback_Impl( JSContext* cx,
     }
 
     // TODO: move to a better place
-    JsEngine::GetInstance().MaybeIncrementalGC();
+    JsEngine::GetInstance().MaybeGc();
 
     return true;
 }

@@ -117,8 +117,7 @@ public:
     {
         auto pNative = static_cast<T*>(JS_GetPrivate( pSelf ));
         if ( pNative )
-        {// TODO: ask if compartment may be destroyed before object
-         // TODO: ask it this is really safe to do in background
+        {
             auto pJsCompartment = static_cast<JsCompartmentInner*>( JS_GetCompartmentPrivate( js::GetObjectCompartment( pSelf ) ));
             if ( pJsCompartment )
             {

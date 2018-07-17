@@ -103,12 +103,14 @@ void JsContainer::Finalize()
         JSAutoCompartment ac( pJsCtx_, jsGlobal_ );
 
         JsGlobalObject::CleanupBeforeDestruction( pJsCtx_, jsGlobal_ );
+
+        auto pJsCompartment = static_cast<JsCompartmentInner*>( JS_GetCompartmentPrivate( js::GetContextCompartment( pJsCtx_ ) ) );
+        assert( pJsCompartment );
+
+        pJsCompartment->MarkForDeletion();
     }
 
     jsGlobal_.reset();
-    // TODO: ask why zone might be null here
-    // TODO: ask how to clean up globals
-    //JS_MaybeGC( pJsCtx_ );
 }
 
 void JsContainer::Fail()

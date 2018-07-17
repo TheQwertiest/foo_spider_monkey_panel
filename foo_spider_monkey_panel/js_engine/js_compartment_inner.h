@@ -15,16 +15,22 @@ public:
     JsCompartmentInner& operator=( const JsCompartmentInner& ) = delete;
 
 public:
+    void MarkForDeletion();
+    bool IsMarkedForDeletion() const;
+
     void OnGcStart();
     void OnGcDone();
-    bool HasGcStarted() const;
+    bool IsMarkedForGc() const;
+
     uint32_t GetCurrentHeapBytes();    
     uint32_t GetLastHeapBytes();
+
     void OnHeapAllocate( uint32_t size );
     void OnHeapDeallocate( uint32_t size );
 
 private:
-    bool hasGcStarted_ = false;
+    bool isMarkedForDeletion_ = false;
+    bool isMarkedForGc_ = false;
     std::mutex heapSizeLock_;
     uint32_t curHeapSize_ = 0;
     uint32_t lastHeapSize_ = 0;

@@ -9,7 +9,7 @@ namespace mozjs
 
 void JsCompartmentInner::OnGcStart()
 {
-    hasGcStarted_ = true;
+    isMarkedForGc_ = true;
 }
 
 void JsCompartmentInner::OnGcDone()
@@ -17,12 +17,12 @@ void JsCompartmentInner::OnGcDone()
     std::scoped_lock sl( heapSizeLock_ );
 
     lastHeapSize_ = curHeapSize_;
-    hasGcStarted_ = false;
+    isMarkedForGc_ = false;
 }
 
-bool JsCompartmentInner::HasGcStarted() const
+bool JsCompartmentInner::IsMarkedForGc() const
 {
-    return hasGcStarted_;
+    return isMarkedForGc_;
 }
 
 uint32_t JsCompartmentInner::GetCurrentHeapBytes()
@@ -61,7 +61,16 @@ void JsCompartmentInner::OnHeapDeallocate( uint32_t size )
     {
         curHeapSize_ -= size;
     }
-    
+}
+
+void JsCompartmentInner::MarkForDeletion()
+{
+    isMarkedForDeletion_ = true;
+}
+
+bool JsCompartmentInner::IsMarkedForDeletion() const
+{
+    return isMarkedForDeletion_;
 }
 
 }

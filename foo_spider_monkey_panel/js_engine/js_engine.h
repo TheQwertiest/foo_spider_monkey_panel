@@ -26,7 +26,7 @@ public:
     void UnregisterPanel( js_panel_window& parentPanel );
 
 public:
-    void MaybeIncrementalGC();
+    void MaybeGc();
 
 private:
     JsEngine();
@@ -35,6 +35,22 @@ private:
 private:
     bool Initialize();
     void Finalize();
+
+private:
+    enum class GcLevel: uint8_t
+    {
+        Incremental,
+        Normal,
+        Full
+    };
+
+    uint64_t GetCurrentTotalHeapSize();
+    void PerformGc( GcLevel gcLevel );
+    void PerformIncrementalGc();
+    void PerformNormalGc();
+    void PerformFullGc();
+    void PrepareCompartmentsForGc( GcLevel gcLevel );
+    void NotifyCompartmentsOnGcEnd();
 
 private:
     JSContext * pJsCtx_ = nullptr;
