@@ -6,6 +6,22 @@
 namespace mozjs::convert::to_native
 {
 
+std::wstring ToValue( JSContext * cx, const JS::HandleString& jsString, bool& isValid )
+{
+    isValid = true;
+
+    size_t strLen = JS_GetStringLength( jsString );
+    std::wstring wStr( strLen, '\0' );
+    mozilla::Range<char16_t> wCharStr( reinterpret_cast<char16_t*>( wStr.data() ), strLen );
+    if ( !JS_CopyStringChars( cx, wCharStr, jsString ) )
+    {
+        JS_ReportOutOfMemory( cx );
+        return std::wstring();
+    }
+
+    return wStr;
+}
+
 template <>
 bool ToValue( JSContext * cx, const JS::HandleValue& jsValue, bool& isValid )
 {
@@ -93,16 +109,7 @@ std::wstring ToValue( JSContext * cx, const JS::HandleValue& jsValue, bool& isVa
         return std::wstring();
     }
 
-    size_t strLen = JS_GetStringLength( jsString );
-    std::wstring wStr( strLen, '\0' );
-    mozilla::Range<char16_t> wCharStr( reinterpret_cast<char16_t*>(wStr.data()), strLen) ;
-    if ( !JS_CopyStringChars( cx, wCharStr, jsString ) )
-    {
-        JS_ReportOutOfMemory( cx );
-        return std::wstring();
-    }
-
-    return wStr;
+    return ToValue(cx, jsString, isValid);
 }
 
 template <>

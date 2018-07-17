@@ -181,7 +181,10 @@ bool InvokeNativeCallback_Impl( JSContext* cx,
             } );
     if ( !bRet )
     {
-        JS_ReportErrorUTF8( cx, "Argument #%d is of wrong type", failedIdx );
+        if ( !JS_IsExceptionPending( cx ) )
+        {// do not overwrite internal errors
+            JS_ReportErrorUTF8( cx, "Argument #%d is of wrong type", failedIdx );
+        }
         return false;
     }
 

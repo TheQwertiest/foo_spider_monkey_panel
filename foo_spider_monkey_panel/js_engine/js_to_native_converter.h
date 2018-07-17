@@ -10,6 +10,8 @@
 namespace mozjs::convert::to_native
 {
 
+std::wstring ToValue( JSContext * cx, const JS::HandleString& jsString, bool& isValid );
+
 template <typename ReturnType>
 ReturnType ToValue( JSContext * cx, const JS::HandleValue& jsValue, bool& isValid )
 {

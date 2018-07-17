@@ -108,6 +108,7 @@
     <ClCompile Include="js_engine\native_to_js_converter.cpp" />
     <ClCompile Include="js_engine\native_to_js_invoker.cpp" />
     <ClCompile Include="js_objects\active_x.cpp" />
+    <ClCompile Include="js_objects\active_x_object.cpp" />
     <ClCompile Include="js_objects\console.cpp" />
     <ClCompile Include="js_objects\context_menu_manager.cpp" />
     <ClCompile Include="js_objects\drop_source_action.cpp" />
@@ -182,6 +183,7 @@
     <ClInclude Include="js_engine\native_to_js_converter.h" />
     <ClInclude Include="js_engine\native_to_js_invoker.h" />
     <ClInclude Include="js_objects\active_x.h" />
+    <ClInclude Include="js_objects\active_x_object.h" />
     <ClInclude Include="js_objects\internal\fb_properties.h" />
     <ClInclude Include="js_objects\internal\global_heap_manager.h" />
     <ClInclude Include="js_objects\internal\prototype_ids.h" />
