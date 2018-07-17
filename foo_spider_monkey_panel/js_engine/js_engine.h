@@ -17,6 +17,8 @@ class JsEngine final
 {
 public:
     ~JsEngine();
+    JsEngine( const JsEngine& ) = delete;
+    JsEngine& operator=( const JsEngine& ) = delete;
 
     static JsEngine& GetInstance();
     void PrepareForExit();
@@ -30,7 +32,6 @@ public:
 
 private:
     JsEngine();
-    JsEngine( const JsEngine& ) = delete;
 
 private:
     bool Initialize();
