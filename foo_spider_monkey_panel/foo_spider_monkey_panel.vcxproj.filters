@@ -214,6 +214,12 @@
     <ClCompile Include="js_objects\active_x_object.cpp">
       <Filter>js_objects</Filter>
     </ClCompile>
+    <ClCompile Include="convert\com.cpp">
+      <Filter>convert</Filter>
+    </ClCompile>
+    <ClCompile Include="js_utils\com_error_helper.cpp">
+      <Filter>js_utils</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="js_engine\js_engine.h">
@@ -498,6 +504,12 @@
     <ClInclude Include="js_objects\active_x_object.h">
       <Filter>js_objects</Filter>
     </ClInclude>
+    <ClInclude Include="convert\com.h">
+      <Filter>convert</Filter>
+    </ClInclude>
+    <ClInclude Include="js_utils\com_error_helper.h">
+      <Filter>js_utils</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include=".editorconfig" />
@@ -529,6 +541,9 @@
     </Filter>
     <Filter Include="js_objects\internal">
       <UniqueIdentifier>{7f83e895-8195-4301-aa89-41a268af1ea6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="convert">
+      <UniqueIdentifier>{9b140af0-03ed-4c1a-aaae-127af5622eb8}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

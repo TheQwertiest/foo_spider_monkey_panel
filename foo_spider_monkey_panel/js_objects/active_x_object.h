@@ -1,20 +1,35 @@
+#include <js_objects/object_base.h>
+
 #pragma warning( push )  
+#pragma warning( disable : 4100 ) // unused variable
 #pragma warning( disable : 4251 ) // dll interface warning
+#pragma warning( disable : 4324 ) // structure was padded due to alignment specifier
 #pragma warning( disable : 4996 ) // C++17 deprecation warning
-#include <jsapi.h>
-#pragma warning( pop )  
+#   include <js/Proxy.h>
+#pragma warning( pop ) 
 
 #include <oleauto.h>
 
+#include <optional>
 #include <map>
 
 namespace mozjs
 {
 
-class ActiveXObject //takes ownership, calls Release() at the end
+/// @details Takes ownership, calls Release() at the end
+class ActiveXObject 
+    : public JsObjectBase<ActiveXObject>
 {
 public:
+    static constexpr bool HasProto = true;
+    static constexpr bool HasGlobalProto = true;
+    static constexpr bool HasProxy = true;
+
     static const JSClass JsClass;
+    static const JSFunctionSpec* JsFunctions;
+    static const JSPropertySpec* JsProperties;
+    static const JsPrototypeId PrototypeId;
+    static const js::BaseProxyHandler& JsProxy;
 
 public:
     ActiveXObject( JSContext* cx, CLSID& clsid );
@@ -27,8 +42,8 @@ public:
     ActiveXObject& operator=( const ActiveXObject& ) = delete;
 
     static JSObject* InitPrototype( JSContext *cx, JS::HandleObject parentObject );
-    static JSObject* Create( JSContext* cx, const std::wstring& name );
-    static JSObject* Create( JSContext* cx, ActiveXObject* pPremadeNative );
+    static std::unique_ptr<ActiveXObject> CreateNative( JSContext* cx, const std::wstring& name );
+    static size_t GetInternalSize( const std::wstring& name );
 
 public:
     IDispatch * pDispatch_ = nullptr;
@@ -36,30 +51,25 @@ public:
     ITypeInfo * pTypeInfo_ = nullptr;
     VARIANT variant_;
 
-    bool GetDispId( std::wstring_view name, DISPID &dispid );
-
-    bool Get( JS::HandleValue idxArg, JS::MutableHandleValue vp, DISPID dispid );
-    bool Set( JS::HandleValue v, DISPID dispid, bool ref );
-    bool Invoke(const JS::CallArgs& args, DISPID dispid );
+    bool Get( const std::wstring& propName, JS::MutableHandleValue vp );
+    bool Set( const std::wstring& propName, JS::HandleValue v );
+    bool Invoke( const std::wstring& funcName, const JS::CallArgs& args );
 
 private:
-    bool GetAllPutProperties();
+    std::optional<DISPID> GetDispId( const std::wstring& name );
+    bool UpdateAllPutProperties();
 
 private:
     JSContext * pJsCtx_ = nullptr;
+    bool isTypeInfoParsed_ = false;
 
-    struct PropInfo
-    {
-        PropInfo( std::wstring_view nameArg )
-            : name( nameArg )
-        {
-        }
-        std::wstring name;
+    struct MemberInfo
+    {      
         bool isPutRef = false;
         bool hasDispId = false;
         DISPID dispId;
     };
-    std::map<std::wstring, std::unique_ptr<PropInfo>> properties_;
+    std::map<std::wstring, std::unique_ptr<MemberInfo>> members_;
 };
 
 }

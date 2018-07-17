@@ -93,6 +93,7 @@
   <ItemGroup>
     <ClCompile Include="com_tools.cpp" />
     <ClCompile Include="config.cpp" />
+    <ClCompile Include="convert\com.cpp" />
     <ClCompile Include="editorctrl.cpp" />
     <ClCompile Include="foo_spider_monkey_panel.cpp">
       <PrecompiledHeader>Use</PrecompiledHeader>
@@ -142,6 +143,7 @@
     <ClCompile Include="js_panel_window_cui.cpp" />
     <ClCompile Include="js_panel_window_dui.cpp" />
     <ClCompile Include="js_utils\art_helper.cpp" />
+    <ClCompile Include="js_utils\com_error_helper.cpp" />
     <ClCompile Include="js_utils\gdi_error_helper.cpp" />
     <ClCompile Include="js_utils\image_helper.cpp" />
     <ClCompile Include="js_utils\js_error_helper.cpp" />
@@ -173,6 +175,7 @@
     <ClInclude Include="..\PropertyList\PropertyItemEditors.h" />
     <ClInclude Include="..\PropertyList\PropertyItemImpl.h" />
     <ClInclude Include="..\PropertyList\PropertyList.h" />
+    <ClInclude Include="convert\com.h" />
     <ClInclude Include="drop_source_impl.h" />
     <ClInclude Include="js_engine\converter_utils.h" />
     <ClInclude Include="js_engine\js_compartment_inner.h" />
@@ -217,6 +220,7 @@
     <ClInclude Include="js_objects\utils.h" />
     <ClInclude Include="js_objects\window.h" />
     <ClInclude Include="js_utils\art_helper.h" />
+    <ClInclude Include="js_utils\com_error_helper.h" />
     <ClInclude Include="js_utils\gdi_error_helper.h" />
     <ClInclude Include="js_utils\image_helper.h" />
     <ClInclude Include="js_utils\js_error_helper.h" />

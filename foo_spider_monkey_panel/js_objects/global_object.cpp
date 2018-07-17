@@ -1,10 +1,16 @@
 #include <stdafx.h>
 #include "global_object.h"
 
+#define NEW_ACTIVEX_IMPL
+
 #include <js_engine/js_container.h>
 #include <js_engine/js_compartment_inner.h>
 #include <js_engine/js_to_native_invoker.h>
-#include <js_objects/active_x.h>
+#ifdef NEW_ACTIVEX_IMPL
+#   include <js_objects/active_x_object.h>
+#else
+#   include <js_objects/active_x.h>
+#endif
 #include <js_objects/console.h>
 #include <js_objects/fb_playlist_manager.h>
 #include <js_objects/fb_utils.h>
@@ -147,7 +153,11 @@ JSObject* JsGlobalObject::CreateNative( JSContext* cx, JsContainer &parentContai
         JS_SetPrivate( jsObj, pNative );
 
         // TODO: remove or replace with CreateAndInstall
+#ifdef NEW_ACTIVEX_IMPL
+        JS::RootedObject jsProto( cx, ActiveXObject::InitPrototype( cx, jsObj ) );
+#else
         JS::RootedObject jsProto( cx, ActiveX::InitPrototype( cx, jsObj ) );
+#endif
         if ( !jsProto )
         {// report in InitPrototype
             return nullptr;
