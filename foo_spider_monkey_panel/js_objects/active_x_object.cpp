@@ -134,7 +134,30 @@ ActiveXObjectProxyHandler::set( JSContext* cx, JS::HandleObject proxy, JS::Handl
 
     return js::ForwardingProxyHandler::set( cx, proxy, id, v, receiver, result );
 }
+/*
+bool ActiveXObjectProxyHandler::ownPropertyKeys( JSContext* cx, JS::HandleObject proxy, JS::AutoIdVector& props ) const
+{
+    JS::RootedObject target( cx, js::GetProxyTargetObject( proxy ) );
+    auto pNativeTarget = static_cast<ActiveXObject*>(JS_GetPrivate( target ));
+    assert( pNativeTarget );
 
+    const auto memberList = pNativeTarget->GetAllMembers();
+
+    props.clear();
+    props.reserve( memberList.size() );
+    JS::RootedId jsId( cx );
+    for ( const auto& member : memberList )
+    {
+        JS::TwoByteChars jsString( (const char16_t*)member.c_str(), member.length() );
+        if ( !JS_CharsToId( cx, jsString, &jsId ) || !props.append( jsId ) )
+        {// report in JS_CharsToId
+            return false;
+        }        
+    }
+    
+    return true;
+}
+*/
 }
 
 namespace
@@ -499,6 +522,16 @@ bool ActiveXObject::IsInvoke( const std::wstring& name )
     return members_.count( name ) && members_[name]->isInvoke;
 }
 
+std::vector<std::wstring> ActiveXObject::GetAllMembers()
+{
+    std::vector<std::wstring> memberList;
+    for ( const auto & member : members_ )
+    { 
+        memberList.push_back( member.first );
+    }
+    return memberList;
+}
+
 bool ActiveXObject::Get( const std::wstring& propName, JS::MutableHandleValue vp )
 {
     if ( !pDispatch_ )
@@ -738,8 +771,9 @@ bool ActiveXObject::ParseTypeInfoRecursive( JSContext * cx, ITypeInfo * pTypeInf
         }
     }, pTypeInfo, pAttr );
 
-    if ( ( TKIND_INTERFACE == pAttr->typekind || TKIND_DISPATCH == pAttr->typekind )
-         && pAttr->cImplTypes )
+    if ( /*!(pAttr->wTypeFlags & TYPEFLAG_FRESTRICTED)
+         && (TKIND_DISPATCH == pAttr->typekind || TKIND_INTERFACE == pAttr->typekind)*/
+         pAttr->cImplTypes )
     {
         for ( size_t i = 0; i < pAttr->cImplTypes; ++i )
         {
@@ -753,21 +787,28 @@ bool ActiveXObject::ParseTypeInfoRecursive( JSContext * cx, ITypeInfo * pTypeInf
 
             ITypeInfo* pTypeInfoCur = nullptr;
             hresult = pTypeInfo->GetRefTypeInfo( hRef, &pTypeInfoCur );
+            if ( SUCCEEDED(hresult) && pTypeInfoCur )
+            {
+                scope::unique_ptr<ITypeInfo> scopedTypeInfo( pTypeInfoCur, []( auto pTi )
+                {
+                    pTi->Release();
+                } );
+
+                if ( !ParseTypeInfoRecursive( cx, pTypeInfoCur, members ) )
+                {
+                    return false;
+                }
+            }
+
+
+            /*
             if ( FAILED( hresult ) )
             {
                 JS_ReportErrorUTF8( cx, "Failed to GetRefTypeInfo" );
                 return false;
             }
-
-            scope::unique_ptr<ITypeInfo> scopedTypeInfo( pTypeInfoCur, []( auto pTi )
-            {
-                pTi->Release();
-            } );
-
-            if ( !ParseTypeInfoRecursive( cx, pTypeInfoCur, members ) )
-            {
-                return false;
-            }
+            */
+            
         }
     }
 
@@ -783,13 +824,20 @@ void ActiveXObject::ParseTypeInfo( ITypeInfo * pTypeInfo, MemberMap& members )
         //BSTR desc = nullptr;
         if ( pTypeInfo->GetDocumentation( vardesc->memid, &name, nullptr /*&desc*/, nullptr, nullptr ) == S_OK )
         {
-            auto[it, bRet] = members.try_emplace( name, std::make_unique<MemberInfo>() );
-            auto pProp = it->second.get();
-            pProp->isGet = true;
-            pProp->isPut = true;
+            scope::auto_caller autoName( []( auto& args )
+            {
+                SysFreeString( std::get<0>( args ) );
+                //SysFreeString( desc );
+            }, name );
 
-            SysFreeString( name );
-            //SysFreeString( desc );
+           /* if ( !(vardesc->wVarFlags & VARFLAG_FRESTRICTED)
+                 && !(vardesc->wVarFlags & VARFLAG_FHIDDEN) )*/
+            {
+                auto[it, bRet] = members.try_emplace( name, std::make_unique<MemberInfo>() );
+                auto pProp = it->second.get();
+                pProp->isGet = true;
+                pProp->isPut = true;
+            }
         }
         pTypeInfo->ReleaseVarDesc( vardesc );
     }
@@ -799,30 +847,36 @@ void ActiveXObject::ParseTypeInfo( ITypeInfo * pTypeInfo, MemberMap& members )
     {
         BSTR name = nullptr;
         //BSTR desc = nullptr;
-
         if ( pTypeInfo->GetDocumentation( funcdesc->memid, &name, nullptr /*&desc*/, nullptr, nullptr ) == S_OK )
         {
-            auto[it, bRet] = members.try_emplace( name, std::make_unique<MemberInfo>() );
-            auto pProp = it->second.get();
-            if ( INVOKE_PROPERTYPUT == funcdesc->invkind )
+            scope::auto_caller autoName( []( auto& args )
             {
-                pProp->isPut = true;
-            }
-            if ( INVOKE_PROPERTYPUTREF == funcdesc->invkind )
-            {
-                pProp->isPutRef = true;
-            }
-            if ( INVOKE_PROPERTYGET == funcdesc->invkind )
-            {
-                pProp->isGet = true;
-            }
-            if ( INVOKE_FUNC == funcdesc->invkind )
-            {
-                pProp->isInvoke = true;
-            }
+                SysFreeString( std::get<0>( args ) );
+                //SysFreeString( desc );
+            }, name );
 
-            SysFreeString( name );
-            //SysFreeString( desc );
+            /*if ( !(funcdesc->wFuncFlags & FUNCFLAG_FRESTRICTED)
+                 && !(funcdesc->wFuncFlags & FUNCFLAG_FHIDDEN) )*/
+            {
+                auto[it, bRet] = members.try_emplace( name, std::make_unique<MemberInfo>() );
+                auto pProp = it->second.get();
+                if ( INVOKE_PROPERTYPUT == funcdesc->invkind )
+                {
+                    pProp->isPut = true;
+                }
+                if ( INVOKE_PROPERTYPUTREF == funcdesc->invkind )
+                {
+                    pProp->isPutRef = true;
+                }
+                if ( INVOKE_PROPERTYGET == funcdesc->invkind )
+                {
+                    pProp->isGet = true;
+                }
+                if ( INVOKE_FUNC == funcdesc->invkind )
+                {
+                    pProp->isInvoke = true;
+                }
+            }
         }
         pTypeInfo->ReleaseFuncDesc( funcdesc );
     }

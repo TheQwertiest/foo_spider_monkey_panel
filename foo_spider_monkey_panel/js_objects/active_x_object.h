@@ -56,6 +56,7 @@ public:
     bool IsGet( const std::wstring& name );
     bool IsSet( const std::wstring& name );
     bool IsInvoke( const std::wstring& name );
+    std::vector<std::wstring> GetAllMembers();
 
     bool Get( const std::wstring& propName, JS::MutableHandleValue vp );
     bool Set( const std::wstring& propName, JS::HandleValue v );
