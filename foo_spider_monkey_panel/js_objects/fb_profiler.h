@@ -20,6 +20,7 @@ public:
     // TODO: add global proto
     static constexpr bool HasGlobalProto = false;
     static constexpr bool HasProxy = false;
+    static constexpr bool HasPostCreate = false;
 
     static const JSClass JsClass;
     static const JSFunctionSpec* JsFunctions;

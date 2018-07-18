@@ -24,6 +24,7 @@ public:
     static constexpr bool HasProto = true;
     static constexpr bool HasGlobalProto = true;
     static constexpr bool HasProxy = true;
+    static constexpr bool HasPostCreate = true;
 
     static const JSClass JsClass;
     static const JSFunctionSpec* JsFunctions;
@@ -44,6 +45,7 @@ public:
     static JSObject* InitPrototype( JSContext *cx, JS::HandleObject parentObject );
     static std::unique_ptr<ActiveXObject> CreateNative( JSContext* cx, const std::wstring& name );
     static size_t GetInternalSize( const std::wstring& name );
+    static bool PostCreate( JS::HandleObject self );
 
 public:
     IDispatch * pDispatch_ = nullptr;
@@ -51,25 +53,40 @@ public:
     ITypeInfo * pTypeInfo_ = nullptr;
     VARIANT variant_;
 
+    bool IsGet( const std::wstring& name );
+    bool IsSet( const std::wstring& name );
+    bool IsInvoke( const std::wstring& name );
+
     bool Get( const std::wstring& propName, JS::MutableHandleValue vp );
     bool Set( const std::wstring& propName, JS::HandleValue v );
     bool Invoke( const std::wstring& funcName, const JS::CallArgs& args );
 
 private:
-    std::optional<DISPID> GetDispId( const std::wstring& name );
-    bool UpdateAllPutProperties();
-
-private:
-    JSContext * pJsCtx_ = nullptr;
-    bool isTypeInfoParsed_ = false;
-
     struct MemberInfo
-    {      
+    {
+        bool isGet = false;
+        bool isPut = false;
         bool isPutRef = false;
+        bool isInvoke = false;
         bool hasDispId = false;
         DISPID dispId;
     };
-    std::map<std::wstring, std::unique_ptr<MemberInfo>> members_;
+
+    using MemberMap = std::unordered_map<std::wstring, std::unique_ptr<MemberInfo>>;
+
+private:
+    std::optional<DISPID> GetDispId( const std::wstring& name );
+
+    bool SetupMembers( JS::HandleObject jsObject );
+    static bool ParseTypeInfoRecursive( JSContext * cx, ITypeInfo * pTypeInfo, MemberMap& members );
+    static void ParseTypeInfo( ITypeInfo * pTypeInfo, MemberMap& members );
+    bool SetupMembers_Impl( JS::HandleObject jsObject );
+
+private:
+    JSContext * pJsCtx_ = nullptr;
+    bool areMembersSetup_ = false;
+
+    MemberMap members_;
 };
 
 }

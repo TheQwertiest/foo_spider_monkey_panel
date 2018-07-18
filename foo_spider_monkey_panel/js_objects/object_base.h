@@ -175,6 +175,14 @@ private:
 
         JS_SetPrivate( jsBaseObject, premadeNative.release() );
 
+        if constexpr ( T::HasPostCreate )
+        {
+            if ( !T::PostCreate( jsBaseObject ) )
+            {// report in PostFinal
+                return nullptr;
+            }
+        }
+
         if constexpr (T::HasProxy)
         {
             JS::RootedValue priv( cx, JS::ObjectValue( *jsBaseObject ) );

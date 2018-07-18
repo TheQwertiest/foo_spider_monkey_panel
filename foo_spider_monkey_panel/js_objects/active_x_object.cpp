@@ -54,9 +54,6 @@ public:
               JS::HandleId id, JS::MutableHandleValue vp ) const override;
     bool set( JSContext* cx, JS::HandleObject proxy, JS::HandleId id, JS::HandleValue v,
               JS::HandleValue receiver, JS::ObjectOpResult& result ) const override;
-    bool call( JSContext* cx, JS::HandleObject proxy, const JS::CallArgs& args ) const override;
-
-    virtual bool isCallable( JSObject* obj ) const override;
 };
 
 const ActiveXObjectProxyHandler ActiveXObjectProxyHandler::singleton;
@@ -68,12 +65,11 @@ ActiveXObjectProxyHandler::get( JSContext* cx, JS::HandleObject proxy, JS::Handl
 {
     if ( !JSID_IS_STRING( id ) )
     {
-        JS_ReportErrorUTF8( cx, "Property id is not a string" );
-        return false;
+        return js::ForwardingProxyHandler::get( cx, proxy, receiver, id, vp );
     }
 
     JS::RootedObject target( cx, js::GetProxyTargetObject( proxy ) );
-    auto pNativeTarget = static_cast<ActiveXObject*>(JS_GetPrivate( target ));
+    auto pNativeTarget = static_cast<ActiveXObject*>( JS_GetPrivate( target ) );
     assert( pNativeTarget );
 
     JS::RootedString jsString( cx, JSID_TO_STRING( id ) );
@@ -88,9 +84,14 @@ ActiveXObjectProxyHandler::get( JSContext* cx, JS::HandleObject proxy, JS::Handl
             JS_ReportErrorUTF8( cx, "Failed to parse property name" );
         }
         return false;
+    }   
+
+    if ( pNativeTarget->IsGet( propName ) )
+    {
+        return pNativeTarget->Get( propName, vp );
     }
 
-    return pNativeTarget->Get( propName, vp );
+    return js::ForwardingProxyHandler::get( cx, proxy, receiver, id, vp );
 }
 
 bool
@@ -99,12 +100,11 @@ ActiveXObjectProxyHandler::set( JSContext* cx, JS::HandleObject proxy, JS::Handl
 {
     if ( !JSID_IS_STRING( id ) )
     {
-        JS_ReportErrorUTF8( cx, "Property id is not a string" );
-        return false;
+        return js::ForwardingProxyHandler::set( cx, proxy, id, v, receiver, result );
     }
 
     JS::RootedObject target( cx, js::GetProxyTargetObject( proxy ) );
-    auto pNativeTarget = static_cast<ActiveXObject*>(JS_GetPrivate( target ));
+    auto pNativeTarget = static_cast<ActiveXObject*>( JS_GetPrivate( target ) );
     assert( pNativeTarget );
 
     JS::RootedString jsString( cx, JSID_TO_STRING( id ) );
@@ -121,45 +121,18 @@ ActiveXObjectProxyHandler::set( JSContext* cx, JS::HandleObject proxy, JS::Handl
         return false;
     }
 
-    if ( !pNativeTarget->Set( propName, v ) )
-    {// report in set
-        return false;
-    }
-
-    result.succeed();
-    return true;
-}
-
-bool ActiveXObjectProxyHandler::call( JSContext* cx, JS::HandleObject proxy, const JS::CallArgs& args ) const
-{
-    JS::RootedObject target( cx, js::GetProxyTargetObject( proxy ) );
-    auto pNativeTarget = static_cast<ActiveXObject*>(JS_GetPrivate( target ));
-    assert( pNativeTarget );
-
-    JS::RootedString jsString( cx, JS_GetFunctionId( JS_ValueToFunction( cx, args.calleev() ) ) );
-    if ( !jsString )
+    if ( pNativeTarget->IsSet( propName ) )
     {
-        JS_ReportErrorUTF8( cx, "Failed to get function name" );
-        return false;
-    }
-
-    bool isValid;
-    std::wstring functionName = convert::to_native::ToValue( cx, jsString, isValid );
-    if ( !isValid )
-    {
-        if ( !JS_IsExceptionPending( cx ) )
-        {
-            JS_ReportErrorUTF8( cx, "Failed to parse property name" );
+        if ( !pNativeTarget->Set( propName, v ) )
+        {// report in set
+            return false;
         }
-        return false;
+
+        result.succeed();
+        return true;
     }
 
-    return pNativeTarget->Invoke( functionName, args );
-}
-
-bool ActiveXObjectProxyHandler::isCallable( JSObject* obj ) const
-{
-    return true;
+    return js::ForwardingProxyHandler::set( cx, proxy, id, v, receiver, result );
 }
 
 }
@@ -216,7 +189,53 @@ bool ActiveX_Constructor_Impl( JSContext* cx, unsigned argc, JS::Value* vp )
     return true;
 }
 
+bool ActiveX_Run_Impl( JSContext* cx, unsigned argc, JS::Value* vp )
+{
+    JS::CallArgs args = JS::CallArgsFromVp( argc, vp );
+    JS::RootedValue jsThis( cx, args.thisv() );
+
+    JS::RootedObject jsObject( cx );
+    if ( jsThis.isObject() )
+    {
+        if ( js::IsProxy( &jsThis.toObject() ) )
+        {
+            jsObject.set( js::GetProxyTargetObject( &jsThis.toObject() ) );
+        }
+        else
+        {
+            jsObject.set( &jsThis.toObject() );
+        }
+    }
+    auto pNative = static_cast<ActiveXObject*>( JS_GetInstancePrivate( cx, jsObject, &ActiveXObject::JsClass, nullptr ) );
+    if ( !pNative )
+    {
+        JS_ReportErrorUTF8( cx, "`this` is not an object of valid type" );
+        return false;
+    }
+
+    JS::RootedString jsString( cx, JS_GetFunctionId( JS_ValueToFunction( cx, args.calleev() ) ) );
+    if ( !jsString )
+    {
+        JS_ReportErrorUTF8( cx, "Failed to get function name" );
+        return false;
+    }
+
+    bool isValid;
+    std::wstring functionName = convert::to_native::ToValue( cx, jsString, isValid );
+    if ( !isValid )
+    {
+        if ( !JS_IsExceptionPending( cx ) )
+        {
+            JS_ReportErrorUTF8( cx, "Failed to parse property name" );
+        }
+        return false;
+    }
+
+    return pNative->Invoke( functionName, args );
+}
+
 MJS_WRAP_JS_TO_NATIVE_FN( ActiveX_Constructor, ActiveX_Constructor_Impl )
+MJS_WRAP_JS_TO_NATIVE_FN( ActiveX_Run, ActiveX_Run_Impl )
 
 const JSFunctionSpec jsFunctions[] = {
     JS_FS_END
@@ -310,7 +329,7 @@ ActiveXObject::ActiveXObject( JSContext* cx, CLSID& clsid )
     memset( &variant_, 0, sizeof( variant_ ) );
 
     HRESULT hresult = CoCreateInstance( clsid, nullptr, CLSCTX_INPROC_SERVER,
-                                IID_IUnknown, (void **)&pUnknown_ );
+                                        IID_IUnknown, (void **)&pUnknown_ );
 
     if ( !SUCCEEDED( hresult ) )
     {
@@ -381,7 +400,7 @@ std::unique_ptr<ActiveXObject> ActiveXObject::CreateNative( JSContext* cx, const
     hresult = GetActiveObject( clsid, nullptr, &unk );
     if ( SUCCEEDED( hresult ) && unk )
     {
-        nativeObject.reset( new ActiveXObject( cx,unk ) );
+        nativeObject.reset( new ActiveXObject( cx, unk ) );
         if ( !nativeObject->pUnknown_ )
         {
             pfc::string8_fast cStr = pfc::stringcvt::string_utf8_from_wide( name.c_str() );
@@ -409,6 +428,13 @@ size_t ActiveXObject::GetInternalSize( const std::wstring& name )
     return 0;
 }
 
+bool ActiveXObject::PostCreate( JS::HandleObject self )
+{
+    auto pNative = static_cast<ActiveXObject*>(JS_GetPrivate( self ));
+    assert( pNative );
+    return pNative->SetupMembers( self );
+}
+
 std::optional<DISPID> ActiveXObject::GetDispId( const std::wstring& name )
 {
     if ( !pDispatch_ )
@@ -428,7 +454,7 @@ std::optional<DISPID> ActiveXObject::GetDispId( const std::wstring& name )
     }
 
     DISPID dispId;
-    wchar_t* cname = const_cast<wchar_t*>(name.c_str());
+    wchar_t* cname = const_cast<wchar_t*>( name.c_str() );
     HRESULT hresult = pDispatch_->GetIDsOfNames( IID_NULL, &cname, 1, LOCALE_USER_DEFAULT, &dispId );
     if ( !SUCCEEDED( hresult ) )
     {
@@ -454,8 +480,23 @@ std::optional<DISPID> ActiveXObject::GetDispId( const std::wstring& name )
 
         members_.insert_or_assign( name, std::move( newMember ) );
     }
-   
+
     return dispId;
+}
+
+bool ActiveXObject::IsGet( const std::wstring& name )
+{
+    return members_.count( name ) && members_[name]->isGet;
+}
+
+bool ActiveXObject::IsSet( const std::wstring& name )
+{
+    return members_.count( name ) && (members_[name]->isPut || members_[name]->isPutRef);
+}
+
+bool ActiveXObject::IsInvoke( const std::wstring& name )
+{
+    return members_.count( name ) && members_[name]->isInvoke;
 }
 
 bool ActiveXObject::Get( const std::wstring& propName, JS::MutableHandleValue vp )
@@ -520,11 +561,6 @@ bool ActiveXObject::Set( const std::wstring& propName, JS::HandleValue v )
         return false;
     }
 
-    if ( !UpdateAllPutProperties() )
-    {// report in GetAllPutProperties
-        return false;
-    }
-
     VARIANTARG arg;
     DISPID dispput = DISPID_PROPERTYPUT;
     DISPPARAMS dispparams = { &arg,&dispput,1,1 };
@@ -536,7 +572,7 @@ bool ActiveXObject::Set( const std::wstring& propName, JS::HandleValue v )
     }
 
     DWORD flag = DISPATCH_PROPERTYPUT;
-    if (( arg.vt == VT_DISPATCH || arg.vt == VT_UNKNOWN )
+    if ( ( arg.vt == VT_DISPATCH || arg.vt == VT_UNKNOWN )
          && members_.count( propName ) && members_[propName]->isPutRef )
     {//must be passed by name
         flag = DISPATCH_PROPERTYPUTREF;
@@ -634,9 +670,9 @@ bool ActiveXObject::Invoke( const std::wstring& funcName, const JS::CallArgs& ca
     return true;
 }
 
-bool ActiveXObject::UpdateAllPutProperties()
+bool ActiveXObject::SetupMembers( JS::HandleObject jsObject )
 {
-    if ( isTypeInfoParsed_ )
+    if ( areMembersSetup_ )
     {
         return true;
     }
@@ -649,6 +685,7 @@ bool ActiveXObject::UpdateAllPutProperties()
 
     if ( !pDispatch_ )
     {
+        JS_ReportErrorUTF8( pJsCtx_, "Failed to QueryInterface" );
         return false;
     }
 
@@ -665,50 +702,145 @@ bool ActiveXObject::UpdateAllPutProperties()
 
     if ( !pTypeInfo_ )
     {
+        JS_ReportErrorUTF8( pJsCtx_, "Failed to GetTypeInfo" );
         return false;
     }
 
+    if ( !ParseTypeInfoRecursive( pJsCtx_, pTypeInfo_, members_ )
+         || !SetupMembers_Impl( jsObject ) )
+    {
+        return false;
+    }
+
+    areMembersSetup_ = true;
+    return true;
+}
+
+bool ActiveXObject::ParseTypeInfoRecursive( JSContext * cx, ITypeInfo * pTypeInfo, MemberMap& members )
+{
+    ParseTypeInfo( pTypeInfo, members );
+
+    TYPEATTR* pAttr = nullptr;
+    HRESULT hresult = pTypeInfo->GetTypeAttr( &pAttr );
+    if ( FAILED( hresult ) )
+    {
+        JS_ReportErrorUTF8( cx, "Failed to GetTypeAttr" );
+        return false;
+    }
+
+    scope::auto_caller scopedAttrReleaser( []( auto& args )
+    {
+        auto pTi = std::get<0>( args );
+        auto pAttr = std::get<1>( args );
+        if ( pTi && pAttr )
+        {
+            pTi->ReleaseTypeAttr( pAttr );
+        }
+    }, pTypeInfo, pAttr );
+
+    if ( ( TKIND_INTERFACE == pAttr->typekind || TKIND_DISPATCH == pAttr->typekind )
+         && pAttr->cImplTypes )
+    {
+        for ( size_t i = 0; i < pAttr->cImplTypes; ++i )
+        {
+            HREFTYPE hRef = 0;
+            hresult = pTypeInfo->GetRefTypeOfImplType( i, &hRef );
+            if ( FAILED( hresult ) )
+            {
+                JS_ReportErrorUTF8( cx, "Failed to GetRefTypeOfImplType" );
+                return false;
+            }
+
+            ITypeInfo* pTypeInfoCur = nullptr;
+            hresult = pTypeInfo->GetRefTypeInfo( hRef, &pTypeInfoCur );
+            if ( FAILED( hresult ) )
+            {
+                JS_ReportErrorUTF8( cx, "Failed to GetRefTypeInfo" );
+                return false;
+            }
+
+            scope::unique_ptr<ITypeInfo> scopedTypeInfo( pTypeInfoCur, []( auto pTi )
+            {
+                pTi->Release();
+            } );
+
+            if ( !ParseTypeInfoRecursive( cx, pTypeInfoCur, members ) )
+            {
+                return false;
+            }
+        }
+    }
+
+    return true;
+}
+
+void ActiveXObject::ParseTypeInfo( ITypeInfo * pTypeInfo, MemberMap& members )
+{
     VARDESC * vardesc;
-    for ( size_t i = 0; pTypeInfo_->GetVarDesc( i, &vardesc ) == S_OK; ++i )
+    for ( size_t i = 0; pTypeInfo->GetVarDesc( i, &vardesc ) == S_OK; ++i )
     {
         BSTR name = nullptr;
         //BSTR desc = nullptr;
-        if ( pTypeInfo_->GetDocumentation( vardesc->memid, &name, nullptr /*&desc*/, nullptr, nullptr ) == S_OK )
+        if ( pTypeInfo->GetDocumentation( vardesc->memid, &name, nullptr /*&desc*/, nullptr, nullptr ) == S_OK )
         {
-            members_.emplace( name, std::make_unique<MemberInfo>() );
+            auto[it, bRet] = members.try_emplace( name, std::make_unique<MemberInfo>() );
+            auto pProp = it->second.get();
+            pProp->isGet = true;
+            pProp->isPut = true;
 
             SysFreeString( name );
             //SysFreeString( desc );
         }
-        pTypeInfo_->ReleaseVarDesc( vardesc );
+        pTypeInfo->ReleaseVarDesc( vardesc );
     }
 
     FUNCDESC * funcdesc;
-    for ( size_t i = 0; pTypeInfo_->GetFuncDesc( i, &funcdesc ) == S_OK; ++i )
+    for ( size_t i = 0; pTypeInfo->GetFuncDesc( i, &funcdesc ) == S_OK; ++i )
     {
         BSTR name = nullptr;
         //BSTR desc = nullptr;
 
-        if ( pTypeInfo_->GetDocumentation( funcdesc->memid, &name, nullptr /*&desc*/, nullptr, nullptr ) == S_OK )
+        if ( pTypeInfo->GetDocumentation( funcdesc->memid, &name, nullptr /*&desc*/, nullptr, nullptr ) == S_OK )
         {
-            if ( INVOKE_PROPERTYPUT == funcdesc->invkind
-                 || INVOKE_PROPERTYPUTREF == funcdesc->invkind )
+            auto[it, bRet] = members.try_emplace( name, std::make_unique<MemberInfo>() );
+            auto pProp = it->second.get();
+            if ( INVOKE_PROPERTYPUT == funcdesc->invkind )
             {
-                auto[it, bRet] = members_.emplace( name, std::make_unique<MemberInfo>() );
-                if ( INVOKE_PROPERTYPUT == funcdesc->invkind )
-                {
-                    auto pProp = it->second.get();
-                    pProp->isPutRef = true;
-                }
+                pProp->isPut = true;
+            }
+            if ( INVOKE_PROPERTYPUTREF == funcdesc->invkind )
+            {
+                pProp->isPutRef = true;
+            }
+            if ( INVOKE_PROPERTYGET == funcdesc->invkind )
+            {
+                pProp->isGet = true;
+            }
+            if ( INVOKE_FUNC == funcdesc->invkind )
+            {
+                pProp->isInvoke = true;
             }
 
             SysFreeString( name );
             //SysFreeString( desc );
         }
-        pTypeInfo_->ReleaseFuncDesc( funcdesc );
+        pTypeInfo->ReleaseFuncDesc( funcdesc );
+    }
+}
+
+bool ActiveXObject::SetupMembers_Impl( JS::HandleObject jsObject )
+{
+    for ( const auto&[name, member] : members_ )
+    {
+        if ( member->isInvoke )
+        {
+            if ( !JS_DefineUCFunction( pJsCtx_, jsObject, (const char16_t*)name.c_str(), name.length(), ActiveX_Run, 0, 0 ) )
+            {// report in JS_DefineUCFunction
+                return false;
+            }
+        }
     }
 
-    isTypeInfoParsed_ = true;
     return true;
 }
 
