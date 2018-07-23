@@ -184,8 +184,8 @@ JsMenuObject::TrackPopupMenu( int32_t x, int32_t y, uint32_t flags )
     if ( !itemIdx )
     {
         DWORD lastError = GetLastError();
-        if ( ERROR_SUCCESS != lastError && ERROR_INVALID_PARAMETER != lastError )
-        {// ERROR_INVALID_PARAMETER is returned when user click outside...
+        if ( ERROR_SUCCESS != lastError && ERROR_INVALID_PARAMETER != lastError && ERROR_FILE_NOT_FOUND != lastError)
+        {// ERROR_INVALID_PARAMETER and ERROR_FILE_NOT_FOUND are returned when user clicks outside...
             WINAPI_RETURN_WITH_REPORT( pJsCtx_, std::nullopt, TrackPopupMenu );
         }
     }
