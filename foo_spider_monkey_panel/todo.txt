@@ -6,7 +6,8 @@
 - Add one-time-use DefinePanel(name, author, [options]) method somewhere (global, utils, window?).
 - Change stats field names: https://github.com/TheQwertiest/foo-jscript-panel/commit/57393822ae42e1ebd77911c0f934471903975b4e#commitcomment-29629263
 - Reimplement drag-n-drop.
-- Add a header with component name and version to error reporeter.
+- Add try-catch's (to all js-to-native wrappers and all the code that might lead back to JS).
+- Add a header with component name and version to error reporter.
 - Reuse updated encoding handling code in ReadFile.
 - Remove engine settings from Panel Properties dialog.
 - Create patches for pfc, columns-ui and fb2k sdk.

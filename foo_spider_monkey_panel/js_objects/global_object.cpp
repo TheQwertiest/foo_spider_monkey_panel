@@ -216,15 +216,19 @@ void JsGlobalObject::CleanupBeforeDestruction( JSContext* cx, JS::HandleObject s
 std::optional<std::nullptr_t> 
 JsGlobalObject::IncludeScript( const pfc::string8_fast& path )
 {
-    pfc::string8_fast parsedPath = path;
-    t_size pos = parsedPath.find_first( "%fb2k_path%" );
-    pfc::string8_fast substPath = helpers::get_fb2k_path();
-    parsedPath.replace_string( "%fb2k_path%", substPath.c_str(), pos );
-    substPath = helpers::get_fb2k_component_path();
-    parsedPath.replace_string( "%fb2k_component_path%", substPath.c_str(), pos );
-    substPath = helpers::get_profile_path();
-    parsedPath.replace_string( "%fb2k_profile_path%", substPath.c_str(), pos );
-    parsedPath.replace_string( "/", "\\", pos );
+    const auto parsedPath = [&]
+    {
+        pfc::string8_fast tmpPath = path;
+        t_size pos = tmpPath.find_first( "%fb2k_path%" );
+        pfc::string8_fast substPath = helpers::get_fb2k_path();
+        tmpPath.replace_string( "%fb2k_path%", substPath.c_str(), pos );
+        substPath = helpers::get_fb2k_component_path();
+        tmpPath.replace_string( "%fb2k_component_path%", substPath.c_str(), pos );
+        substPath = helpers::get_profile_path();
+        tmpPath.replace_string( "%fb2k_profile_path%", substPath.c_str(), pos );
+        tmpPath.replace_string( "/", "\\", pos );
+        return tmpPath;
+    }();
 
     namespace fs = std::filesystem;
 
@@ -237,7 +241,6 @@ JsGlobalObject::IncludeScript( const pfc::string8_fast& path )
     }
 
     std::string filename = fsPath.filename().string();
-
     std::wstring scriptCode;
 
     // TODO: extract to file_helpers
