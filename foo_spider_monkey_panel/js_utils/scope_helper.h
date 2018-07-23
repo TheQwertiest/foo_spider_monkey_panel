@@ -12,7 +12,7 @@ template <typename Fn, typename ... Args>
 class auto_caller
 {
 public:
-    auto_caller( Fn&& releaseFunc, Args... args )
+    auto_caller( Fn releaseFunc, Args... args )
         : releaseFunc_( releaseFunc )
     {
         args_ = std::make_tuple( args... );
@@ -25,6 +25,7 @@ public:
             releaseFunc_( args_ );
         }
     }
+
     void cancel()
     {
         isReleased_ = true;
