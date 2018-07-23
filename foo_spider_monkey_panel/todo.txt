@@ -1,10 +1,10 @@
 # Current
-- Check ActiveXObject reference count (sometimes it locks on Release).
+- Add HtmlPopup(source, additionalData, callbacks) method (other possible names: CreateHtmlWindow, CreateHtmlDialog, new HtmlWindow, new HtmlDialog).
+- Check ActiveXObject reference count (sometimes it locks on Release, might have smth to do with accessing another process?).
 - Fix script reload from Preferences>CUI.
 - Allow to configure max component RAM usage via preferences.
-- Add one-use only DefinePanel(name, author, [options]) method somewhere (global, utils, window?)
+- Add one-time-use DefinePanel(name, author, [options]) method somewhere (global, utils, window?).
 - Change stats field names: https://github.com/TheQwertiest/foo-jscript-panel/commit/57393822ae42e1ebd77911c0f934471903975b4e#commitcomment-29629263
-- Rewrite ActiveXObject properly (and rename the files as well). Reimplement accessors through proxy instead of current hacks.
 - Reimplement drag-n-drop.
 - Add a header with component name and version to error reporeter.
 - Reuse updated encoding handling code in ReadFile.
@@ -14,6 +14,7 @@
 - Check and fix all the samples.
 - Beta-test?
 - Stop staying up all night making this...
+- Fix unresponsive arrow keys in DUI in CaTRoX: https://github.com/TheQwertiest/foo-jscript-panel/commit/8a41c524a9c3c16c466204fde81c5c108975310b#commitcomment-29727611.
 
 # Prerelease-Test
 - Test `include` with various codepages (esp. JP,KR,CH).
@@ -37,7 +38,6 @@
 - Check all TODOs.
 
 # Planned
-- Fix unresponsive arrow keys in DUI in CaTRoX (present in jscript as well).
 - Replace `Create*` interface methods with prototypes and `new` where possible
 - Try to make it work with paths containing cyrillics and other exotic characters
 - Move setInterval and friends to global namespace.
@@ -47,7 +47,6 @@
 - Save Panel Properties dialog size between calls.
 - Add array conversion support in ActiveXObject.
 - See if it's possible to export some common Array checking/creating/parsing code.
-- Update Brett's JS smooth playlist.
 - Add support for more UTF encodings when reading scripts and files (UTF16BE, UTF32LE, UTF32BE).
 - Add a custom message support to profiler.
 - Add W3C specified printf-lile behaviour to console.log.
@@ -65,5 +64,7 @@
 - Raise warning level to W4 or WALL with WERROR.
 - Some sort of build system?
 - Add help to properties and methods (JS_DefineFunctionsWithHelp)
+- Add docs to ActiveXObject methods and properties.
+- Update Brett's JS smooth playlist.
 - Investigate: separate native JSON parser vs one from SpiderMonkey engine.
 - Minimal .js tests for all the functionality: might be possible to cycle them in GUI via include().

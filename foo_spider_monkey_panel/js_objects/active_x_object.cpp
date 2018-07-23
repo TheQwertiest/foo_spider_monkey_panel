@@ -771,9 +771,9 @@ bool ActiveXObject::ParseTypeInfoRecursive( JSContext * cx, ITypeInfo * pTypeInf
         }
     }, pTypeInfo, pAttr );
 
-    if ( /*!(pAttr->wTypeFlags & TYPEFLAG_FRESTRICTED)
-         && (TKIND_DISPATCH == pAttr->typekind || TKIND_INTERFACE == pAttr->typekind)*/
-         pAttr->cImplTypes )
+    if ( !(pAttr->wTypeFlags & TYPEFLAG_FRESTRICTED)
+         && (TKIND_DISPATCH == pAttr->typekind || TKIND_INTERFACE == pAttr->typekind)
+         && pAttr->cImplTypes )
     {
         for ( size_t i = 0; i < pAttr->cImplTypes; ++i )
         {
@@ -830,8 +830,8 @@ void ActiveXObject::ParseTypeInfo( ITypeInfo * pTypeInfo, MemberMap& members )
                 //SysFreeString( desc );
             }, name );
 
-           /* if ( !(vardesc->wVarFlags & VARFLAG_FRESTRICTED)
-                 && !(vardesc->wVarFlags & VARFLAG_FHIDDEN) )*/
+            if ( !(vardesc->wVarFlags & VARFLAG_FRESTRICTED)
+                 && !(vardesc->wVarFlags & VARFLAG_FHIDDEN) )
             {
                 auto[it, bRet] = members.try_emplace( name, std::make_unique<MemberInfo>() );
                 auto pProp = it->second.get();
@@ -855,8 +855,8 @@ void ActiveXObject::ParseTypeInfo( ITypeInfo * pTypeInfo, MemberMap& members )
                 //SysFreeString( desc );
             }, name );
 
-            /*if ( !(funcdesc->wFuncFlags & FUNCFLAG_FRESTRICTED)
-                 && !(funcdesc->wFuncFlags & FUNCFLAG_FHIDDEN) )*/
+            if ( !(funcdesc->wFuncFlags & FUNCFLAG_FRESTRICTED)
+                 && !(funcdesc->wFuncFlags & FUNCFLAG_FHIDDEN) )
             {
                 auto[it, bRet] = members.try_emplace( name, std::make_unique<MemberInfo>() );
                 auto pProp = it->second.get();
