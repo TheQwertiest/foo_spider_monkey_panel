@@ -46,14 +46,7 @@ std::optional<ReturnType> InvokeJsCallback( JSContext* cx,
         }
     }
 
-    bool isValid;
-    ReturnType nativeVal = convert::to_native::ToValue<ReturnType>( cx, retVal, isValid );
-    if ( !isValid )
-    {
-        return std::nullopt;
-    }
-
-    return nativeVal;
+    return convert::to_native::ToValue<ReturnType>( cx, retVal );
 }
 
 template <int ArgArraySize, typename ArgType, typename... ArgTypes>

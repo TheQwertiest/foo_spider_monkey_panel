@@ -75,9 +75,8 @@ ActiveXObjectProxyHandler::get( JSContext* cx, JS::HandleObject proxy, JS::Handl
     JS::RootedString jsString( cx, JSID_TO_STRING( id ) );
     assert( jsString );
 
-    bool isValid;
-    std::wstring propName = convert::to_native::ToValue( cx, jsString, isValid );
-    if ( !isValid )
+    auto retVal = convert::to_native::ToValue( cx, jsString );
+    if ( !retVal )
     {
         if ( !JS_IsExceptionPending( cx ) )
         {
@@ -86,6 +85,7 @@ ActiveXObjectProxyHandler::get( JSContext* cx, JS::HandleObject proxy, JS::Handl
         return false;
     }   
 
+    std::wstring propName = retVal.value();
     if ( pNativeTarget->IsGet( propName ) )
     {
         return pNativeTarget->Get( propName, vp );
@@ -110,9 +110,8 @@ ActiveXObjectProxyHandler::set( JSContext* cx, JS::HandleObject proxy, JS::Handl
     JS::RootedString jsString( cx, JSID_TO_STRING( id ) );
     assert( jsString );
 
-    bool isValid;
-    std::wstring propName = convert::to_native::ToValue( cx, jsString, isValid );
-    if ( !isValid )
+    auto retVal = convert::to_native::ToValue( cx, jsString );
+    if ( !retVal )
     {
         if ( !JS_IsExceptionPending( cx ) )
         {
@@ -121,6 +120,7 @@ ActiveXObjectProxyHandler::set( JSContext* cx, JS::HandleObject proxy, JS::Handl
         return false;
     }
 
+    std::wstring propName = retVal.value();
     if ( pNativeTarget->IsSet( propName ) )
     {
         if ( !pNativeTarget->Set( propName, v ) )
@@ -194,15 +194,14 @@ bool ActiveX_Constructor_Impl( JSContext* cx, unsigned argc, JS::Value* vp )
         return false;
     }
 
-    bool bRet = true;
-    const std::wstring name = mozjs::convert::to_native::ToValue<std::wstring>( cx, args[0], bRet );
-    if ( !bRet )
+    auto retVal = mozjs::convert::to_native::ToValue<std::wstring>( cx, args[0] );
+    if ( !retVal )
     {
         JS_ReportErrorUTF8( cx, "Failed to parse name argument" );
         return false;
     }
 
-    JS::RootedObject jsObject( cx, ActiveXObject::CreateJs( cx, name ) );
+    JS::RootedObject jsObject( cx, ActiveXObject::CreateJs( cx, retVal.value() ) );
     if ( !jsObject )
     {// report in CreateJs
         return false;
@@ -243,9 +242,8 @@ bool ActiveX_Run_Impl( JSContext* cx, unsigned argc, JS::Value* vp )
         return false;
     }
 
-    bool isValid;
-    std::wstring functionName = convert::to_native::ToValue( cx, jsString, isValid );
-    if ( !isValid )
+    auto retVal = convert::to_native::ToValue( cx, jsString );
+    if ( !retVal )
     {
         if ( !JS_IsExceptionPending( cx ) )
         {
@@ -254,7 +252,7 @@ bool ActiveX_Run_Impl( JSContext* cx, unsigned argc, JS::Value* vp )
         return false;
     }
 
-    return pNative->Invoke( functionName, args );
+    return pNative->Invoke( retVal.value(), args );
 }
 
 MJS_WRAP_JS_TO_NATIVE_FN( ActiveX_Constructor, ActiveX_Constructor_Impl )

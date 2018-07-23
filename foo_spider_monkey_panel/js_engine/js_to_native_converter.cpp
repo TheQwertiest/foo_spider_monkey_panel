@@ -6,13 +6,11 @@
 namespace mozjs::convert::to_native
 {
 
-std::wstring ToValue( JSContext * cx, const JS::HandleString& jsString, bool& isValid )
+std::optional<std::wstring> ToValue( JSContext * cx, const JS::HandleString& jsString )
 {
-    isValid = true;
-
     size_t strLen = JS_GetStringLength( jsString );
     std::wstring wStr( strLen, '\0' );
-    mozilla::Range<char16_t> wCharStr( reinterpret_cast<char16_t*>( wStr.data() ), strLen );
+    mozilla::Range<char16_t> wCharStr( reinterpret_cast<char16_t*>(wStr.data()), strLen );
     if ( !JS_CopyStringChars( cx, wCharStr, jsString ) )
     {
         JS_ReportOutOfMemory( cx );
@@ -23,102 +21,118 @@ std::wstring ToValue( JSContext * cx, const JS::HandleString& jsString, bool& is
 }
 
 template <>
-bool ToValue( JSContext * cx, const JS::HandleValue& jsValue, bool& isValid )
+std::optional<bool> ToValue( JSContext * cx, const JS::HandleValue& jsValue )
 {
     (void)cx;
-
-    isValid = true;
     return JS::ToBoolean( jsValue );
 }
 
 template <>
-int8_t ToValue( JSContext * cx, const JS::HandleValue& jsValue, bool& isValid )
+std::optional<int8_t> ToValue( JSContext * cx, const JS::HandleValue& jsValue )
 {
     int8_t val;
-    isValid = JS::ToInt8( cx, jsValue, &val );
+    if ( !JS::ToInt8( cx, jsValue, &val ) )
+    {
+        return std::nullopt;
+    }
     return val;
 }
 
 template <>
-int32_t ToValue( JSContext * cx, const JS::HandleValue& jsValue, bool& isValid )
+std::optional<int32_t> ToValue( JSContext * cx, const JS::HandleValue& jsValue )
 {
     int32_t val;
-    isValid = JS::ToInt32( cx, jsValue, &val );
+    if ( !JS::ToInt32( cx, jsValue, &val ) )
+    {
+        return std::nullopt;
+    }
     return val;
 }
 
 template <>
-uint8_t ToValue( JSContext * cx, const JS::HandleValue& jsValue, bool& isValid )
+std::optional<uint8_t> ToValue( JSContext * cx, const JS::HandleValue& jsValue )
 {
     uint8_t val;
-    isValid = JS::ToUint8( cx, jsValue, &val );
+    if ( !JS::ToUint8( cx, jsValue, &val ) )
+    {
+        return std::nullopt;
+    }
     return val;
 }
 
 template <>
-uint32_t ToValue( JSContext * cx, const JS::HandleValue& jsValue, bool& isValid )
+std::optional<uint32_t> ToValue( JSContext * cx, const JS::HandleValue& jsValue )
 {
     uint32_t val;
-    isValid = JS::ToUint32( cx, jsValue, &val );
+    if ( !JS::ToUint32( cx, jsValue, &val ) )
+    {
+        return std::nullopt;
+    }
     return val;
 }
 
 template <>
-uint64_t ToValue( JSContext * cx, const JS::HandleValue& jsValue, bool& isValid )
+std::optional<uint64_t> ToValue( JSContext * cx, const JS::HandleValue& jsValue )
 {
     uint64_t val;
-    isValid = JS::ToUint64( cx, jsValue, &val );
+    if ( !JS::ToUint64( cx, jsValue, &val ) )
+    {
+        return std::nullopt;
+    }
     return val;
 }
 
 template <>
-float ToValue( JSContext * cx, const JS::HandleValue& jsValue, bool& isValid )
+std::optional<float> ToValue( JSContext * cx, const JS::HandleValue& jsValue )
 {
     double val;
-    isValid = JS::ToNumber( cx, jsValue, &val );
+    if ( !JS::ToNumber( cx, jsValue, &val ) )
+    {
+        return std::nullopt;
+    }
     return static_cast<float>(val);
 }
 
 template <>
-double ToValue( JSContext * cx, const JS::HandleValue& jsValue, bool& isValid )
+std::optional<double> ToValue( JSContext * cx, const JS::HandleValue& jsValue )
 {
     double val;
-    isValid = JS::ToNumber( cx, jsValue, &val );
+    if ( !JS::ToNumber( cx, jsValue, &val ) )
+    {
+        return std::nullopt;
+    }
     return val;
 }
 
 template <>
-pfc::string8_fast ToValue( JSContext * cx, const JS::HandleValue& jsValue, bool& isValid )
+std::optional<pfc::string8_fast> ToValue( JSContext * cx, const JS::HandleValue& jsValue )
 {
-    std::wstring wValue (ToValue<std::wstring>( cx, jsValue, isValid ));
-    if ( !isValid )
+    auto retValue = ToValue<std::wstring>( cx, jsValue );
+    if ( !retValue )
     {
-        return pfc::string8_fast();
+        return std::nullopt;
     }
 
-    return pfc::string8_fast(pfc::stringcvt::string_utf8_from_wide( wValue.c_str(), wValue.length() ));
+    return pfc::string8_fast( pfc::stringcvt::string_utf8_from_wide( retValue->c_str(), retValue->length() ) );
 }
 
 template <>
-std::wstring ToValue( JSContext * cx, const JS::HandleValue& jsValue, bool& isValid )
+std::optional<std::wstring> ToValue( JSContext * cx, const JS::HandleValue& jsValue )
 {
     JS::RootedString jsString( cx, JS::ToString( cx, jsValue ) );
-    isValid = !!jsString;
-    if ( !isValid )
+    if ( !jsString )
     {
-        return std::wstring();
+        return std::nullopt;
     }
 
-    return ToValue(cx, jsString, isValid);
+    return ToValue( cx, jsString );
 }
 
 template <>
-std::nullptr_t ToValue( JSContext * cx, const JS::HandleValue& jsValue, bool& isValid )
+std::optional<std::nullptr_t> ToValue( JSContext * cx, const JS::HandleValue& jsValue )
 {
     (void)cx;
-    ( void )jsValue;
-
-    isValid = true;
+    (void)jsValue;
     return nullptr;
 }
 

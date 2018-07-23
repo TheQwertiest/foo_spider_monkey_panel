@@ -189,15 +189,14 @@ bool ActiveX_Constructor_Impl( JSContext* cx, unsigned argc, JS::Value* vp )
         return false;
     }
 
-    bool bRet = true;
-    std::wstring name = mozjs::convert::to_native::ToValue<std::wstring>( cx, args[0], bRet );
-    if ( !bRet )
+    auto retVal = mozjs::convert::to_native::ToValue<std::wstring>( cx, args[0] );
+    if ( !retVal )
     {
         JS_ReportErrorUTF8( cx, "Failed to parse name argument" );
         return false;
     }
 
-    auto jsObject = ActiveX::Create( cx, name );
+    auto jsObject = ActiveX::Create( cx, retVal.value() );
     if ( !jsObject )
     {// report in ctor
         return false;

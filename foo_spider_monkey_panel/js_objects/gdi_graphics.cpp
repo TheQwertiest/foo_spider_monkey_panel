@@ -1068,9 +1068,8 @@ bool JsGdiGraphics::ParsePoints( JS::HandleValue jsValue, std::vector<Gdiplus::P
             return false;
         }
 
-        bool isValid;
-        float x = convert::to_native::ToValue<float>( pJsCtx_, jsX, isValid );
-        if ( !isValid )
+        auto xVal = convert::to_native::ToValue<float>( pJsCtx_, jsX );
+        if ( !xVal )
         {
             JS_ReportErrorUTF8( pJsCtx_, "points[%d] can't be converted to number", i );
             return false;
@@ -1082,14 +1081,14 @@ bool JsGdiGraphics::ParsePoints( JS::HandleValue jsValue, std::vector<Gdiplus::P
             return false;
         }
 
-        float y = convert::to_native::ToValue<float>( pJsCtx_, jsY, isValid );
-        if ( !isValid )
+        auto yVal = convert::to_native::ToValue<float>( pJsCtx_, jsY );
+        if ( !yVal )
         {
             JS_ReportErrorUTF8( pJsCtx_, "points[%d] can't be converted to number", i + 1 );
             return false;
         }
 
-        gdiPoints.emplace_back( Gdiplus::PointF( x, y ) );
+        gdiPoints.emplace_back( Gdiplus::PointF( xVal.value(), yVal.value() ) );
     }
 
     return true;

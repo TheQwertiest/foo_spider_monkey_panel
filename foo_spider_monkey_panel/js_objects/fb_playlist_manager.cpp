@@ -234,15 +234,14 @@ JsFbPlaylistManager::AddLocations( uint32_t playlistIndex, JS::HandleValue locat
             return std::nullopt;
         }
 
-        bool isValid;
-        pfc::string8_fast path( convert::to_native::ToValue<pfc::string8_fast>( pJsCtx_, arrayElement, isValid ) );
-        if ( !isValid )
+        auto retVal = convert::to_native::ToValue<pfc::string8_fast>( pJsCtx_, arrayElement );
+        if ( !retVal )
         {
             JS_ReportErrorUTF8( pJsCtx_, "locations[%u] is not a string", i );
             return std::nullopt;
         }
 
-        locations2.add_item( path.c_str() );
+        locations2.add_item( retVal->c_str() );
     }
 
     t_size base = playlist_manager::get()->playlist_get_item_count( playlistIndex );
@@ -736,15 +735,14 @@ JsFbPlaylistManager::RemoveItemsFromPlaybackQueue( JS::HandleValue affectedItems
             return std::nullopt;
         }
 
-        bool isValid;
-        uint32_t affectedIdx( convert::to_native::ToValue<uint32_t>( pJsCtx_, arrayElement, isValid ) );
-        if ( !isValid )
+        auto retVal = convert::to_native::ToValue<uint32_t>( pJsCtx_, arrayElement );
+        if ( !retVal )
         {
             JS_ReportErrorUTF8( pJsCtx_, "affectedItems[%u] can't be converted to number", i );
             return std::nullopt;
         }
 
-        affected.set( affectedIdx, true );
+        affected.set( retVal.value(), true );
     }
     
     api->queue_remove_mask( affected );
@@ -856,15 +854,14 @@ JsFbPlaylistManager::SetPlaylistSelection( uint32_t playlistIndex, JS::HandleVal
             return std::nullopt;
         }
 
-        bool isValid;
-        uint32_t affectedIdx( convert::to_native::ToValue<uint32_t>( pJsCtx_, arrayElement, isValid ) );
-        if ( !isValid )
+        auto retVal = convert::to_native::ToValue<uint32_t>( pJsCtx_, arrayElement );
+        if ( !retVal )
         {
             JS_ReportErrorUTF8( pJsCtx_, "affectedItems[%u] can't be converted to number" );
             return std::nullopt;
         }
 
-        affected.set( affectedIdx, true );
+        affected.set( retVal.value(), true );
     }
 
     pfc::bit_array_val status( state );

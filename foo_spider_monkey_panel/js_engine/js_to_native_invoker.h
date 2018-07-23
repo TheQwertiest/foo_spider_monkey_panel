@@ -128,21 +128,21 @@ bool InvokeNativeCallback_Impl( JSContext* cx,
 
                     auto& curArg = jsArgs[index];
 
-                    if constexpr (convert::is_primitive_v<ArgType>)
+                    if constexpr (convert::to_native::is_convertable_v<ArgType>)
                     {// Construct and copy
-                        bool isValid;
-                        ArgType nativeVal = convert::to_native::ToValue<ArgType>( cx, curArg, isValid );
-                        if ( !isValid )
+                        auto retVal = convert::to_native::ToValue<ArgType>( cx, curArg );
+                        if ( !retVal )
                         {
                             failedIdx = index;
                             bRet = false;
                             return ArgType();
                         }
 
-                        return nativeVal;
+                        return retVal.value();
                     }
                     else if constexpr (std::is_pointer_v<ArgType>)
                     {// Extract native pointer
+                        // TODO: think if there is a good way to move this to convert::to_native
                         if ( !curArg.isObjectOrNull() )
                         {
                             failedIdx = index;
@@ -150,28 +150,21 @@ bool InvokeNativeCallback_Impl( JSContext* cx,
                             return static_cast<ArgType>(nullptr);
                         }
 
-                        if ( curArg.isNull() )
-                        {// Not an error: null might be a valid argument
+                        if (curArg.isNull())
+                        {// Not an error: null might be a valid argument                            
                             return static_cast<ArgType>(nullptr);
                         }
 
-                        JS::RootedObject jsObject( cx, &curArg.toObject() );
-                        if ( js::IsProxy( jsObject ) )
-                        {
-                            jsObject.set( js::GetProxyTargetObject( jsObject ) );
-                        }
-                        ArgType pNative;
-                        pNative = static_cast<ArgType>(
-                            JS_GetInstancePrivate( cx, jsObject, &std::remove_pointer_t<ArgType>::JsClass, nullptr )
-                            );
-                        if ( !pNative )
+                        JS::RootedObject jsObject(cx, &curArg.toObject());
+                        auto retVal = convert::to_native::ToValue<ArgType>(cx, jsObject);
+                        if (!retVal )
                         {
                             failedIdx = index;
                             bRet = false;
                             return static_cast<ArgType>(nullptr);
                         }
 
-                        return pNative;
+                        return retVal.value();
                     }
                     else
                     {
@@ -189,7 +182,7 @@ bool InvokeNativeCallback_Impl( JSContext* cx,
     }
 
     // Call function
-
+    // May return raw JS pointer! (see below)
     ReturnType retVal =
         InvokeNativeCallback_Call<!!OptArgCount, ReturnType>( baseClass, fn, fnWithOpt, callbackArguments, maxArgCount - args.length() );
     if ( !retVal )
@@ -226,16 +219,16 @@ bool InvokeNativeCallback_Impl( JSContext* cx,
 template <typename BaseClass>
 BaseClass* InvokeNativeCallback_GetThisObject( JSContext* cx, JS::HandleValue jsThis )
 {
-    JS::RootedObject jsObject( cx );
+    
     if ( jsThis.isObject() )
     {
         if ( js::IsProxy( &jsThis.toObject() ) )
         {
-            jsObject.set( js::GetProxyTargetObject( &jsThis.toObject() ) );
+            JS::RootedObject jsObject(cx, js::GetProxyTargetObject( &jsThis.toObject() ) );
             return static_cast<BaseClass*>(JS_GetInstancePrivate( cx, jsObject, &BaseClass::JsClass, nullptr ));
         }
 
-        jsObject.set( &jsThis.toObject() );
+        JS::RootedObject jsObject(cx, &jsThis.toObject() );
         return static_cast<BaseClass*>(JS_GetInstancePrivate( cx, jsObject, &BaseClass::JsClass, nullptr ));
     }
 
@@ -243,7 +236,7 @@ BaseClass* InvokeNativeCallback_GetThisObject( JSContext* cx, JS::HandleValue js
     {
         if ( jsThis.isUndefined() )
         {// global has undefined `this`
-            jsObject.set( JS::CurrentGlobalOrNull( cx ) );
+            JS::RootedObject jsObject(cx, JS::CurrentGlobalOrNull( cx ) );
             return static_cast<BaseClass*>(JS_GetInstancePrivate( cx, jsObject, &BaseClass::JsClass, nullptr ));
         }
     }

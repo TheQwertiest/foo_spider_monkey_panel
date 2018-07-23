@@ -121,15 +121,14 @@ JsFbPlaylistRecyclerManager::Purge( JS::HandleValue affectedItems )
             return std::nullopt;
         }
 
-        bool isValid;
-        uint32_t affectedIdx( convert::to_native::ToValue<uint32_t>( pJsCtx_, arrayElement, isValid ) );
-        if ( !isValid )
+        auto retVal = convert::to_native::ToValue<uint32_t>( pJsCtx_, arrayElement );
+        if ( !retVal )
         {
             JS_ReportErrorUTF8( pJsCtx_, "affectedItems[%u] can't be converted to number" );
             return std::nullopt;
         }
 
-        affected.set( affectedIdx, true );
+        affected.set( retVal.value(), true );
     }
 
     api->recycler_purge( affected );

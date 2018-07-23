@@ -29,10 +29,10 @@ std::optional<SerializedJsValue> SerializeJsValue( JSContext* cx, JS::HandleValu
     else if ( jsValue.isString() )
     {
         serializedValue.type = JsValueType::pt_string;
-        bool isValid;
         JS::RootedValue rVal( cx, jsValue );
-        serializedValue.strVal = convert::to_native::ToValue<pfc::string8_fast>( cx, rVal, isValid );
-        assert( isValid );
+        auto retVal = convert::to_native::ToValue<pfc::string8_fast>( cx, rVal );
+        assert( retVal.has_value() );
+        serializedValue.strVal = retVal.value();
     }
     else
     {

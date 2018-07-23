@@ -20,12 +20,8 @@ bool LogImpl( JSContext* cx, unsigned argc, JS::Value* vp )
 
      for ( unsigned i = 0; i < args.length(); i++ )
      {
-         bool bRet;
-         pfc::string8_fast parsedArg = convert::to_native::ToValue<pfc::string8_fast>( cx, args[i], bRet );
-         if ( !bRet )
-         {
-             parsedArg = "__parsing_failed__";
-         }
+         auto retVal = convert::to_native::ToValue<pfc::string8_fast>( cx, args[i] );
+         pfc::string8_fast parsedArg = retVal ? retVal.value() : "__parsing_failed__";
 
          outputString += parsedArg;
          if ( i < args.length() )
