@@ -186,10 +186,10 @@ pfc::string8_fast GetCurrentExceptionText( JSContext* cx )
 
 void RethrowExceptionWithFunctionName( JSContext* cx, const char* functionName )
 {
-    scope::auto_caller autoJsReport( []( auto& args )
+    scope::final_action autoJsReport( [cx, functionName]()
     {
-        JS_ReportErrorUTF8( std::get<0>( args ), "'%s' failed", std::get<1>( args ) );
-    }, cx, functionName );
+        JS_ReportErrorUTF8( cx, "'%s' failed", functionName );
+    });
 
     if ( !JS_IsExceptionPending( cx ) )
     {

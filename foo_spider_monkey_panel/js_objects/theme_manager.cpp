@@ -118,10 +118,10 @@ JsThemeManager::DrawThemeBackground( JsGdiGraphics* gr,
     assert( graphics );
 
     HDC dc = graphics->GetHDC();
-    scope::auto_caller autoHdcReleaser( []( auto& args )
+    scope::final_action autoHdcReleaser( [graphics, dc]()
     {
-        std::get<0>( args )->ReleaseHDC( std::get<1>( args ) );
-    }, graphics, dc );
+        graphics->ReleaseHDC( dc );
+    });
 
     RECT rc = { x, y, static_cast<LONG>(x + w), static_cast<LONG>(y + h)};
     RECT clip_rc = { clip_x, clip_y, static_cast<LONG>(clip_x + clip_y), static_cast<LONG>(clip_w + clip_h) };

@@ -8,33 +8,54 @@ namespace mozjs::scope
 template <typename T>
 using unique_ptr = std::unique_ptr<T, void(*)(T*)>;
 
-template <typename Fn, typename ... Args>
-class auto_caller
+template <class F>
+class final_action
 {
 public:
-    auto_caller( Fn releaseFunc, Args... args )
-        : releaseFunc_( releaseFunc )
+    explicit final_action( F f ) noexcept 
+        : f_( std::move( f ) )
     {
-        args_ = std::make_tuple( args... );
     }
 
-    ~auto_caller()
+    final_action( final_action&& other ) noexcept 
+        : f_( std::move( other.f_ ) )
+        , invoke_( other.invoke_ )
     {
-        if ( !isReleased_ )
+        other.invoke_ = false;
+    }
+
+    final_action( const final_action& ) = delete;
+    final_action& operator=( const final_action& ) = delete;
+    final_action& operator=( final_action&& ) = delete;
+
+    ~final_action() noexcept
+    {
+        if ( invoke_ )
         {
-            releaseFunc_( args_ );
+            f_();
         }
     }
 
     void cancel()
     {
-        isReleased_ = true;
+        invoke_ = false;
     }
 
 private:
-    bool isReleased_ = false;
-    std::tuple<Args...> args_;
-    Fn releaseFunc_;
+    F f_;
+    bool invoke_{ true };
 };
+
+template <class F>
+final_action<F> finally( const F& f ) noexcept
+{
+    return final_action<F>( f );
+}
+
+template <class F>
+final_action<F> finally( F&& f ) noexcept
+{
+    return final_action<F>( std::forward<F>( f ));
+}
 
 }

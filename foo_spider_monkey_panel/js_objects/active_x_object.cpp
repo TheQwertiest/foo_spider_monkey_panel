@@ -759,15 +759,13 @@ bool ActiveXObject::ParseTypeInfoRecursive( JSContext * cx, ITypeInfo * pTypeInf
         return false;
     }
 
-    scope::auto_caller scopedAttrReleaser( []( auto& args )
+    scope::final_action scopedAttrReleaser( [pTypeInfo, pAttr]()
     {
-        auto pTi = std::get<0>( args );
-        auto pAttr = std::get<1>( args );
-        if ( pTi && pAttr )
+        if ( pTypeInfo && pAttr )
         {
-            pTi->ReleaseTypeAttr( pAttr );
+            pTypeInfo->ReleaseTypeAttr( pAttr );
         }
-    }, pTypeInfo, pAttr );
+    } );
 
     if ( !(pAttr->wTypeFlags & TYPEFLAG_FRESTRICTED)
          && (TKIND_DISPATCH == pAttr->typekind || TKIND_INTERFACE == pAttr->typekind)
@@ -822,11 +820,11 @@ void ActiveXObject::ParseTypeInfo( ITypeInfo * pTypeInfo, MemberMap& members )
         //BSTR desc = nullptr;
         if ( pTypeInfo->GetDocumentation( vardesc->memid, &name, nullptr /*&desc*/, nullptr, nullptr ) == S_OK )
         {
-            scope::auto_caller autoName( []( auto& args )
+            scope::final_action autoName( [name]()
             {
-                SysFreeString( std::get<0>( args ) );
+                SysFreeString( name );
                 //SysFreeString( desc );
-            }, name );
+            } );
 
             if ( !(vardesc->wVarFlags & VARFLAG_FRESTRICTED)
                  && !(vardesc->wVarFlags & VARFLAG_FHIDDEN) )
@@ -847,11 +845,11 @@ void ActiveXObject::ParseTypeInfo( ITypeInfo * pTypeInfo, MemberMap& members )
         //BSTR desc = nullptr;
         if ( pTypeInfo->GetDocumentation( funcdesc->memid, &name, nullptr /*&desc*/, nullptr, nullptr ) == S_OK )
         {
-            scope::auto_caller autoName( []( auto& args )
+            scope::final_action autoName( [name]()
             {
-                SysFreeString( std::get<0>( args ) );
+                SysFreeString( name );
                 //SysFreeString( desc );
-            }, name );
+            } );
 
             if ( !(funcdesc->wFuncFlags & FUNCFLAG_FRESTRICTED)
                  && !(funcdesc->wFuncFlags & FUNCFLAG_FHIDDEN) )

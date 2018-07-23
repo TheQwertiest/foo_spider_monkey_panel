@@ -667,10 +667,10 @@ JsGdiGraphics::GdiAlphaBlend( JsGdiRawBitmap* bitmap,
     assert( srcDc );
 
     HDC dc = pGdi_->GetHDC();
-    scope::auto_caller autoHdcReleaser( []( auto& args )
+    scope::final_action autoHdcReleaser( [pGdi = pGdi_, dc]()
     {
-        std::get<0>( args )->ReleaseHDC( std::get<1>( args ) );
-    }, pGdi_, dc );
+        pGdi->ReleaseHDC( dc );
+    } );
 
     BLENDFUNCTION bf = { AC_SRC_OVER, 0, alpha, AC_SRC_ALPHA };
 
@@ -721,11 +721,10 @@ JsGdiGraphics::GdiDrawBitmap( JsGdiRawBitmap* bitmap,
     assert( srcDc );
 
     HDC dc = pGdi_->GetHDC();
-
-    scope::auto_caller autoHdcReleaser( []( auto& args )
+    scope::final_action autoHdcReleaser( [pGdi = pGdi_, dc]()
     {
-        std::get<0>( args )->ReleaseHDC( std::get<1>( args ) );
-    }, pGdi_, dc );
+        pGdi->ReleaseHDC( dc );
+    } );
 
     BOOL bRet;
     if ( dstW == srcW && dstH == srcH )
@@ -768,12 +767,11 @@ JsGdiGraphics::GdiDrawText( const std::wstring& str, JsGdiFont* font, uint32_t c
    
     HDC dc = pGdi_->GetHDC();
     HFONT oldfont = SelectFont( dc, hFont );
-
-    scope::auto_caller autoHdcReleaser( []( auto& args )
+    scope::final_action autoHdcReleaser( [pGdi=pGdi_, dc, oldfont]()
     {
-        SelectFont( std::get<1>( args ), std::get<2>( args ) );
-        std::get<0>(args)->ReleaseHDC( std::get<1>( args ) );
-    }, pGdi_, dc, oldfont );
+        SelectFont( dc, oldfont );
+        pGdi->ReleaseHDC( dc );
+    } );
 
     RECT rc = { x, y, static_cast<LONG>( x + w ), static_cast<LONG>( y + h ) };
     DRAWTEXTPARAMS dpt = { sizeof( DRAWTEXTPARAMS ), 4, 0, 0, 0 };
