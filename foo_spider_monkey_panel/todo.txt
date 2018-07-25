@@ -6,6 +6,7 @@
 - Add OOM error reporting and handling (both JS and native).
 - Add a header with component name and version to error reporter.
 - Reuse updated encoding handling code in ReadFile.
+- Backport all the changes from foo-jscript-panel.
 - Create patches for pfc, columns-ui and fb2k sdk.
 - Complete rebranding to spider_monkey_panel.
 - Check and fix all the samples.
