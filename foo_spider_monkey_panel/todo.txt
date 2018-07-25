@@ -31,7 +31,7 @@
 - Document FbHandleList.Item removal ([] proxy)
 - Document that everything is case-sensitive (unlike how it was in WSH\IE...)
 - Document discontinued support for WinXP and Vista (i.e. only Win7 and above).
-- Document DefinePanel
+- Document DefinePanel.
 - Copy and update marc2003's wiki.
 - Create a simple JSP > SMP script migration guide.
 - Create a building guide for devs.

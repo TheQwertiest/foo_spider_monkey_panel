@@ -2,7 +2,7 @@
 #include "fb_properties.h"
 
 #include <js_engine/js_to_native_invoker.h>
-#include <js_engine/native_to_js_converter.h>
+#include <convert/native_to_js.h>
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
 #include <js_utils/serialized_value.h>

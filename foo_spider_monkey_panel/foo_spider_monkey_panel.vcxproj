@@ -94,6 +94,8 @@
     <ClCompile Include="com_tools.cpp" />
     <ClCompile Include="config.cpp" />
     <ClCompile Include="convert\com.cpp" />
+    <ClCompile Include="convert\js_to_native.cpp" />
+    <ClCompile Include="convert\native_to_js.cpp" />
     <ClCompile Include="editorctrl.cpp" />
     <ClCompile Include="foo_spider_monkey_panel.cpp">
       <PrecompiledHeader>Use</PrecompiledHeader>
@@ -105,8 +107,6 @@
     <ClCompile Include="js_engine\js_compartment_inner.cpp" />
     <ClCompile Include="js_engine\js_container.cpp" />
     <ClCompile Include="js_engine\js_engine.cpp" />
-    <ClCompile Include="js_engine\js_to_native_converter.cpp" />
-    <ClCompile Include="js_engine\native_to_js_converter.cpp" />
     <ClCompile Include="js_engine\native_to_js_invoker.cpp" />
     <ClCompile Include="js_objects\active_x.cpp" />
     <ClCompile Include="js_objects\active_x_object.cpp" />
@@ -176,14 +176,13 @@
     <ClInclude Include="..\PropertyList\PropertyItemImpl.h" />
     <ClInclude Include="..\PropertyList\PropertyList.h" />
     <ClInclude Include="convert\com.h" />
+    <ClInclude Include="convert\js_to_native.h" />
+    <ClInclude Include="convert\native_to_js.h" />
     <ClInclude Include="drop_source_impl.h" />
-    <ClInclude Include="js_engine\converter_utils.h" />
     <ClInclude Include="js_engine\js_compartment_inner.h" />
     <ClInclude Include="js_engine\js_container.h" />
     <ClInclude Include="js_engine\js_engine.h" />
-    <ClInclude Include="js_engine\js_to_native_converter.h" />
     <ClInclude Include="js_engine\js_to_native_invoker.h" />
-    <ClInclude Include="js_engine\native_to_js_converter.h" />
     <ClInclude Include="js_engine\native_to_js_invoker.h" />
     <ClInclude Include="js_objects\active_x.h" />
     <ClInclude Include="js_objects\active_x_object.h" />

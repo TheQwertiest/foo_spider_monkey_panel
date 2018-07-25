@@ -1,8 +1,7 @@
 #pragma once
 
-#include <js_engine/native_to_js_converter.h>
-#include <js_engine/js_to_native_converter.h>
-#include <js_engine/converter_utils.h>
+#include <convert/native_to_js.h>
+#include <convert/js_to_native.h>
 
 #include <optional>
 
