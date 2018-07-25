@@ -53,13 +53,13 @@ private:
     std::vector<Point> points;
 
 public:
-    Cluster( uint32_t id_cluster, Point point );
+    Cluster( uint32_t id_cluster, const Point& point );
 
-    void addPoint( Point point );
     bool removePoint( uint32_t id_point );
-    Point getPoint( uint32_t index ) const;
-    uint32_t getTotalPoints() const;
-    uint32_t getSize() const;
+    uint32_t getTotalPixelCount() const;
+
+    const std::vector<Point>& getPoints() const;
+    std::vector<Point>& getPoints();
 
     const std::vector<double>& getCentralValues() const;
     std::vector<double>& getCentralValues();
@@ -74,7 +74,7 @@ private:
 
     // return ID of nearest center
     // uses distance calculations from: https://en.wikipedia.org/wiki/Color_difference
-    uint32_t getIDNearestCenter( Point point ) const;
+    uint32_t getIDNearestCenter( const Point& point ) const;
 
 public:
     KMeans( uint32_t K, uint32_t total_points, uint32_t  max_iterations );

@@ -63,16 +63,11 @@ const std::vector<uint32_t>& Point::getValues() const
     return values;
 }
 
-Cluster::Cluster( uint32_t id_cluster, Point point )
+Cluster::Cluster( uint32_t id_cluster, const Point& point )
 {
     this->id_cluster = id_cluster;
 
     central_values.assign(point.getValues().cbegin(), point.getValues().cend());
-    points.push_back( point );
-}
-
-void Cluster::addPoint( Point point )
-{
     points.push_back( point );
 }
 
@@ -91,12 +86,7 @@ bool Cluster::removePoint( uint32_t id_point )
     return false;
 }
 
-Point Cluster::getPoint( uint32_t index ) const
-{
-    return points[index];
-}
-
-uint32_t Cluster::getTotalPoints() const
+uint32_t Cluster::getTotalPixelCount() const
 {
     uint32_t total = std::accumulate( points.begin(), points.end(), 0, []( auto sum, const auto& curPoint )
     {
@@ -106,9 +96,14 @@ uint32_t Cluster::getTotalPoints() const
     return total;
 }
 
-uint32_t Cluster::getSize() const
+const std::vector<Point>& Cluster::getPoints() const
 {
-    return points.size();
+    return points;
+}
+
+std::vector<Point>& Cluster::getPoints()
+{
+    return points;
 }
 
 const std::vector<double>& Cluster::getCentralValues() const
@@ -123,32 +118,28 @@ std::vector<double>& Cluster::getCentralValues()
 
 // return ID of nearest center
 // uses distance calculations from: https://en.wikipedia.org/wiki/Color_difference
-uint32_t KMeans::getIDNearestCenter( Point point ) const
+uint32_t KMeans::getIDNearestCenter( const Point& point ) const
 {
-    double min_dist;
-    uint32_t id_cluster_center = 0;
-
     const auto& pointValues = point.getValues();
-    {// i = 0
+
+    auto calculateDistance = [&]( uint32_t idx )
+    {
         double sum = 0.0;
-        const auto& centralValues = clusters[0].getCentralValues();
-        
+        const auto& centralValues = clusters[idx].getCentralValues();
+
         sum += 2 * pow( centralValues[0] - pointValues[0], 2.0 ); // r
         sum += 4 * pow( centralValues[1] - pointValues[1], 2.0 ); // g
         sum += 3 * pow( centralValues[2] - pointValues[2], 2.0 ); // b
 
-        min_dist = sum;
-    }
+        return sum;
+    };
+
+    uint32_t id_cluster_center = 0;
+    double min_dist = calculateDistance( 0 );
 
     for ( uint32_t i = 1; i < K; ++i )
     {
-        double dist = 0.0;
-        const auto& centralValues = clusters[i].getCentralValues();
-
-        dist += 2 * pow( centralValues[0] - pointValues[0], 2.0 );
-        dist += 4 * pow( centralValues[1] - pointValues[1], 2.0 );
-        dist += 3 * pow( centralValues[2] - pointValues[2], 2.0 );
-
+        double dist = calculateDistance( i );
         if ( dist < min_dist )
         {
             min_dist = dist;
@@ -176,9 +167,8 @@ std::vector<Cluster> KMeans::run( std::vector<Point> & points )
     for ( uint32_t i = 0; i < K; ++i )
     {
         index_point = static_cast<uint32_t>(i * total_points / K); // colours are already distinct so we can't have duplicate centers
-        points[index_point].setCluster( i );
-        Cluster cluster( i, points[index_point] );
-        clusters.push_back( cluster );
+        points[index_point].setCluster( i );        
+        clusters.emplace_back( i, points[index_point] );
     }
 
     uint32_t iter = 1;
@@ -201,7 +191,7 @@ std::vector<Cluster> KMeans::run( std::vector<Point> & points )
                 }
 
                 points[i].setCluster( id_nearest_center );
-                clusters[id_nearest_center].addPoint( points[i] );
+                clusters[id_nearest_center].getPoints().push_back( points[i] );
                 done = false;
             }
         }
@@ -212,16 +202,16 @@ std::vector<Cluster> KMeans::run( std::vector<Point> & points )
             auto& centralValues = clusters[i].getCentralValues();
             for ( uint32_t j = 0; j < colour_components; j++ )
             {
-                uint32_t total_points_cluster = clusters[i].getTotalPoints();
-                double sum = 0.0;
-
-                if ( total_points_cluster > 0 )
+                uint32_t pixelsInCluster = clusters[i].getTotalPixelCount();
+                if ( pixelsInCluster )
                 {
-                    for ( uint32_t p = 0; p < clusters[i].getSize(); p++ )
+                    const auto& points = clusters[i].getPoints();
+                    double sum = 0.0;
+                    for ( uint32_t p = 0; p < points.size(); p++ )
                     {
-                        sum += clusters[i].getPoint( p ).getValues()[j] * clusters[i].getPoint( p ).getPixelCount();
+                        sum += points[p].getValues()[j] * points[p].getPixelCount();
                     }
-                    centralValues[j] = sum / total_points_cluster;
+                    centralValues[j] = sum / pixelsInCluster;
                 }
             }
         }

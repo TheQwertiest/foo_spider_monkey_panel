@@ -408,7 +408,7 @@ JsGdiBitmap::GetColourSchemeJSON( uint32_t count )
         clusters.end(),
         []( Cluster& a, Cluster& b )
         {
-            return a.getTotalPoints() > b.getTotalPoints();
+            return a.getTotalPixelCount() > b.getTotalPixelCount();
         } );
 
     json j;
@@ -421,7 +421,7 @@ JsGdiBitmap::GetColourSchemeJSON( uint32_t count )
             | static_cast<uint32_t>(centralValues[0]) << 16
             | static_cast<uint32_t>(centralValues[1]) << 8
             | static_cast<uint32_t>(centralValues[2]);
-        double frequency = clusters[i].getTotalPoints() / (double)colours_length;
+        double frequency = clusters[i].getTotalPixelCount() / (double)colours_length;
 
         j.push_back(
             {

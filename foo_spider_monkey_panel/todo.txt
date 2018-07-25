@@ -22,6 +22,8 @@
 - Check drag-n-drop functionality.
 - Check that all files are correctly parsed: UTF8, UTF8-BOM, ASCII.
 - Check that it can work side-by-side with foo-jscript-panel.
+- Check that stackblur results are identical with foo-jscript-panel.
+- Check that kmeans results are identical with foo-jscript-panel.
 - Profile CPU usage and check if there are any bottlenecks (note: pfc utf8<>wide is much slower than WinAPI WideCharToMultiByte equivalent)
 - Make sure there are no memory leaks.
 
