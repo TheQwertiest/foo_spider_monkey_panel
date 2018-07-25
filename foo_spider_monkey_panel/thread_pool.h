@@ -10,7 +10,6 @@ public:
 };
 
 // Rip from pfc
-//! IMPORTANT: all classes derived from thread must call waitTillDone() in their destructor, to avoid object destruction during a virtual function call!
 class simple_thread
 {
 public:
@@ -40,7 +39,7 @@ class simple_thread_worker : public simple_thread
 {
 public:
     simple_thread_worker() = default;
-    virtual ~simple_thread_worker();
+    virtual ~simple_thread_worker() = default;
 	virtual void threadProc() override;
 
 private:
@@ -58,7 +57,6 @@ public:
 	bool enqueue( std::unique_ptr<simple_thread_task> task);
 	bool is_queue_empty();
 	void track( std::unique_ptr<simple_thread_task> task );
-	void untrack(simple_thread_task* task);
 	void untrack_all();
 	// Should always called from the main thread
 	void join();

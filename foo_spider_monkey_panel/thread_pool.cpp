@@ -61,12 +61,6 @@ unsigned CALLBACK simple_thread::g_entry(void* p_instance)
 	return reinterpret_cast<simple_thread*>(p_instance)->entry();
 }
 
-
-simple_thread_worker::~simple_thread_worker()
-{
-    waitTillDone();
-}
-
 void simple_thread_worker::threadProc()
 {
 	pfc::tickcount_t last_tick = pfc::getTickCount();

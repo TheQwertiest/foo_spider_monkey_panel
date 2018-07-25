@@ -309,9 +309,6 @@
     <ClInclude Include="popup_msg.h">
       <Filter>uncategorized</Filter>
     </ClInclude>
-    <ClInclude Include="resource.h">
-      <Filter>uncategorized</Filter>
-    </ClInclude>
     <ClInclude Include="scintilla_prop_sets.h">
       <Filter>uncategorized</Filter>
     </ClInclude>
@@ -498,11 +495,14 @@
     <ClInclude Include="script_info.h">
       <Filter>uncategorized</Filter>
     </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>uncategorized\resources</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include=".editorconfig" />
     <None Include="default.js">
-      <Filter>uncategorized</Filter>
+      <Filter>uncategorized\resources</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
@@ -514,9 +514,6 @@
     </Filter>
     <Filter Include="js_utils">
       <UniqueIdentifier>{ec53acea-e62f-4dab-a310-6e7ad5b88ff9}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="panel">
-      <UniqueIdentifier>{045ffeaf-5db4-457a-914a-ad3d1aa42f0d}</UniqueIdentifier>
     </Filter>
     <Filter Include="uncategorized">
       <UniqueIdentifier>{3b775acd-8e41-4e46-b8ac-2d5ebc0de307}</UniqueIdentifier>
@@ -533,15 +530,18 @@
     <Filter Include="convert">
       <UniqueIdentifier>{9b140af0-03ed-4c1a-aaae-127af5622eb8}</UniqueIdentifier>
     </Filter>
-  </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="foo_spider_monkey_panel.rc">
-      <Filter>uncategorized</Filter>
-    </ResourceCompile>
+    <Filter Include="uncategorized\resources">
+      <UniqueIdentifier>{c5622339-902d-4569-9e43-3a9dab7b21a7}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="todo.txt">
       <Filter>uncategorized</Filter>
     </Text>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="foo_spider_monkey_panel.rc">
+      <Filter>uncategorized\resources</Filter>
+    </ResourceCompile>
   </ItemGroup>
 </Project>
