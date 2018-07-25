@@ -62,7 +62,7 @@ public:
 
 		pfc::string_simple msg_, title_;
 
-		virtual void execute()
+		virtual void execute() override
 		{
 			::popup_message::g_show(msg_, title_);
 		}
