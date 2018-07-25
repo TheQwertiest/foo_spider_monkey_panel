@@ -337,6 +337,8 @@ JsGdiBitmap::GetColourScheme( uint32_t count )
 std::optional<pfc::string8_fast> 
 JsGdiBitmap::GetColourSchemeJSON( uint32_t count )
 {
+    using namespace kmeans;
+
     Gdiplus::BitmapData bmpdata;
 
     // rescaled image will have max of ~48k pixels

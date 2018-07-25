@@ -171,7 +171,7 @@ JsFbMetadbHandle::RefreshStats()
     metadb_index_hash hash;
     if ( stats::g_client->hashHandle( metadbHandle_, hash ) )
     {
-        stats::theAPI()->dispatch_refresh( g_guid_jsp_metadb_index, hash );
+        stats::theAPI()->dispatch_refresh( g_guid_smp_metadb_index, hash );
     }
 
     return nullptr;

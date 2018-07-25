@@ -605,7 +605,7 @@ JsFbMetadbHandleList::RefreshStats()
         const metadb_index_hash hash = *iter;
         hashes += hash;
     }
-    stats::theAPI()->dispatch_refresh( g_guid_jsp_metadb_index, hashes );
+    stats::theAPI()->dispatch_refresh( g_guid_smp_metadb_index, hashes );
     return nullptr;
 }
 

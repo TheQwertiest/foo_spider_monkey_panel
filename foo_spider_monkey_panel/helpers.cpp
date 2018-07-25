@@ -42,54 +42,26 @@ namespace helpers
 	{
 		// COLORREF : 0x00bbggrr
 		// ARGB : 0xaarrggbb
-		return (GetRValue(color) << RED_SHIFT) |
-			(GetGValue(color) << GREEN_SHIFT) |
-			(GetBValue(color) << BLUE_SHIFT) |
-			0xff000000;
-	}
-
-	IGdiBitmap* query_album_art(album_art_extractor_instance_v2::ptr extractor, GUID& what, bool no_load, pfc::string_base* image_path_ptr)
-	{
-		abort_callback_dummy abort;
-		album_art_data_ptr data = extractor->query(what, abort);
-		Gdiplus::Bitmap* bitmap = NULL;
-		IGdiBitmap* ret = NULL;
-
-		if (!no_load && read_album_art_into_bitmap(data, &bitmap))
-		{
-			ret = new com_object_impl_t<GdiBitmap>(bitmap);
-		}
-
-		if (image_path_ptr && (no_load || ret))
-		{
-			album_art_path_list::ptr pathlist = extractor->query_paths(what, abort);
-
-			if (pathlist->get_count() > 0)
-			{
-				image_path_ptr->set_string(pathlist->get_path(0));
-			}
-		}
-
-		return ret;
+        return (GetRValue( color ) << RED_SHIFT)
+            | (GetGValue( color ) << GREEN_SHIFT)
+            | (GetBValue( color ) << BLUE_SHIFT)
+            | 0xff000000;
 	}
 
 	HBITMAP create_hbitmap_from_gdiplus_bitmap(Gdiplus::Bitmap* bitmap_ptr)
 	{
-		BITMAP bm;
-		Gdiplus::Rect rect;
-		Gdiplus::BitmapData bmpdata;
-		HBITMAP hBitmap;
-
+        Gdiplus::Rect rect;
 		rect.X = rect.Y = 0;
 		rect.Width = bitmap_ptr->GetWidth();
 		rect.Height = bitmap_ptr->GetHeight();
 
+        Gdiplus::BitmapData bmpdata;
 		if (bitmap_ptr->LockBits(&rect, Gdiplus::ImageLockModeRead, PixelFormat32bppPARGB, &bmpdata) != Gdiplus::Ok)
-		{
-			// Error
-			return NULL;
+		{// Error
+			return nullptr;
 		}
 
+        BITMAP bm;
 		bm.bmType = 0;
 		bm.bmWidth = bmpdata.Width;
 		bm.bmHeight = bmpdata.Height;
@@ -98,93 +70,13 @@ namespace helpers
 		bm.bmBitsPixel = 32;
 		bm.bmBits = bmpdata.Scan0;
 
-		hBitmap = CreateBitmapIndirect(&bm);
+        HBITMAP hBitmap = CreateBitmapIndirect(&bm);
 		bitmap_ptr->UnlockBits(&bmpdata);
 		return hBitmap;
 	}
 
-	HRESULT get_album_art_embedded(BSTR rawpath, IGdiBitmap** pp, int art_id)
-	{
-		if (!pp) return E_POINTER;
-
-		service_enum_t<album_art_extractor> e;
-		album_art_extractor::ptr ptr;
-		pfc::stringcvt::string_utf8_from_wide urawpath(rawpath);
-		pfc::string_extension ext(urawpath);
-		abort_callback_dummy abort;
-		IGdiBitmap* ret = NULL;
-
-		while (e.next(ptr))
-		{
-			if (ptr->is_our_path(urawpath, ext))
-			{
-				album_art_extractor_instance_ptr aaep;
-				GUID what = convert_artid_to_guid(art_id);
-
-				try
-				{
-					aaep = ptr->open(NULL, urawpath, abort);
-
-					Gdiplus::Bitmap* bitmap = NULL;
-					album_art_data_ptr data = aaep->query(what, abort);
-
-					if (read_album_art_into_bitmap(data, &bitmap))
-					{
-						ret = new com_object_impl_t<GdiBitmap>(bitmap);
-						break;
-					}
-				}
-				catch (...)
-				{
-				}
-			}
-		}
-
-		*pp = ret;
-		return S_OK;
-	}
-
-	HRESULT get_album_art_v2(const metadb_handle_ptr& handle, IGdiBitmap** pp, int art_id, bool need_stub, bool no_load, pfc::string_base* image_path_ptr)
-	{
-		if (handle.is_empty() || !pp) return E_POINTER;
-
-		GUID what = convert_artid_to_guid(art_id);
-		abort_callback_dummy abort;
-		auto aamv2 = album_art_manager_v2::get();
-		album_art_extractor_instance_v2::ptr aaeiv2;
-		IGdiBitmap* ret = NULL;
-
-		try
-		{
-			aaeiv2 = aamv2->open(pfc::list_single_ref_t<metadb_handle_ptr>(handle), pfc::list_single_ref_t<GUID>(what), abort);
-
-			ret = query_album_art(aaeiv2, what, no_load, image_path_ptr);
-		}
-		catch (...)
-		{
-			if (need_stub)
-			{
-				album_art_extractor_instance_v2::ptr aaeiv2_stub = aamv2->open_stub(abort);
-
-				try
-				{
-					album_art_data_ptr data = aaeiv2_stub->query(what, abort);
-					ret = query_album_art(aaeiv2_stub, what, no_load, image_path_ptr);
-				}
-				catch (...)
-				{
-				}
-			}
-		}
-
-		*pp = ret;
-		return S_OK;
-	}
-
 	bool execute_context_command_by_name(const char* p_name, metadb_handle_list_cref p_handles, unsigned flags)
 	{
-		contextmenu_node* node = NULL;
-
 		contextmenu_manager::ptr cm;
 		pfc::string8_fast dummy("");
 		contextmenu_manager::g_create(cm);
@@ -198,6 +90,7 @@ namespace helpers
 			cm->init_context_now_playing(flags);
 		}
 
+        contextmenu_node* node = nullptr;
 		if (!find_context_command_recur(p_name, dummy, cm->get_root(), node))
 		{
 			return false;
@@ -211,6 +104,8 @@ namespace helpers
 
 		return false;
 	}
+
+    // TODO: remove code copy-paste
 
 	bool execute_mainmenu_command_by_name(const char* p_name)
 	{
@@ -232,24 +127,18 @@ namespace helpers
 
 				// for new fb2k1.0 commands
 				mainmenu_commands_v2::ptr v2_ptr;
-
-				if (ptr->service_query_t(v2_ptr))
+				if (ptr->service_query_t(v2_ptr) && v2_ptr->is_command_dynamic( idx ) )
 				{
-					if (v2_ptr->is_command_dynamic(idx))
-					{
-						mainmenu_node::ptr node = v2_ptr->dynamic_instantiate(idx);
-						mainmenu_node::ptr node_out;
+                    mainmenu_node::ptr node = v2_ptr->dynamic_instantiate( idx );
+                    mainmenu_node::ptr node_out;
 
-						if (get_mainmenu_command_node_recur_v2(node, path, p_name, name_len, node_out))
-						{
-							node_out->execute(NULL);
-							return true;
-						}
-						else
-						{
-							continue;
-						}
-					}
+                    if ( get_mainmenu_command_node_recur_v2( node, path, p_name, name_len, node_out ) )
+                    {
+                        node_out->execute( nullptr );
+                        return true;
+                    }
+
+                    continue;
 				}
 
 				// old commands
@@ -288,26 +177,20 @@ namespace helpers
 
 				// for new fb2k1.0 commands
 				mainmenu_commands_v2::ptr v2_ptr;
+                if ( ptr->service_query_t( v2_ptr ) && v2_ptr->is_command_dynamic( idx ) )
+                {
+                    mainmenu_node::ptr node = v2_ptr->dynamic_instantiate( idx );
+                    mainmenu_node::ptr retNode;
 
-				if (ptr->service_query_t(v2_ptr))
-				{
-					if (v2_ptr->is_command_dynamic(idx))
-					{
-						mainmenu_node::ptr node = v2_ptr->dynamic_instantiate(idx);
-						mainmenu_node::ptr retNode;
+                    if ( get_mainmenu_command_node_recur_v2( node, path, p_name, name_len, retNode ) )
+                    {
+                        pfc::string8_fast tmp;
+                        retNode->get_display( tmp, status );
+                        return true;
+                    }
 
-						if (get_mainmenu_command_node_recur_v2(node, path, p_name, name_len, retNode))
-						{
-							pfc::string8_fast tmp;
-							retNode->get_display(tmp, status);
-							return true;
-						}
-						else
-						{
-							continue;
-						}
-					}
-				}
+                    continue;
+                }
 
 				// old commands
 				pfc::string8_fast command;
@@ -339,32 +222,33 @@ namespace helpers
 				path.add_string(text);
 		}
 
-		switch (type)
-		{
-		case mainmenu_node::type_command:
-		{
-			if (match_menu_command(path, p_name, p_name_len))
-			{
-				node_out = node;
-				return true;
-			}
-		}
-		break;
+        switch ( type )
+        {
+        case mainmenu_node::type_command:
+        {
+            if ( match_menu_command( path, p_name, p_name_len ) )
+            {
+                node_out = node;
+                return true;
+            }
+            break;
+        }
 
-		case mainmenu_node::type_group:
-		{
-			if (!text.is_empty())
-				path.add_char('/');
 
-			for (t_size i = 0; i < node->get_children_count(); ++i)
-			{
-				mainmenu_node::ptr child = node->get_child(i);
+        case mainmenu_node::type_group:
+        {
+            if ( !text.is_empty() )
+                path.add_char( '/' );
 
-				if (get_mainmenu_command_node_recur_v2(child, path, p_name, p_name_len, node_out))
-					return true;
-			}
-		}
-		break;
+            for ( t_size i = 0; i < node->get_children_count(); ++i )
+            {
+                mainmenu_node::ptr child = node->get_child( i );
+
+                if ( get_mainmenu_command_node_recur_v2( child, path, p_name, p_name_len, node_out ) )
+                    return true;
+            }
+            break;
+        }
 		}
 
 		return false;
@@ -372,7 +256,7 @@ namespace helpers
 
 	bool find_context_command_recur(const char* p_command, pfc::string_base& p_path, contextmenu_node* p_parent, contextmenu_node*& p_out)
 	{
-		if (p_parent != NULL && p_parent->get_type() == contextmenu_item_node::TYPE_POPUP)
+		if (p_parent && p_parent->get_type() == contextmenu_item_node::TYPE_POPUP)
 		{
 			for (t_size child_id = 0; child_id < p_parent->get_num_children(); ++child_id)
 			{
@@ -387,20 +271,23 @@ namespace helpers
 					switch (child->get_type())
 					{
 					case contextmenu_item_node::TYPE_POPUP:
-						path += "/";
+                    {
+                        path += "/";
 
-						if (find_context_command_recur(p_command, path, child, p_out))
-							return true;
+                        if ( find_context_command_recur( p_command, path, child, p_out ) )
+                            return true;
 
-						break;
-
+                        break;
+                    }
 					case contextmenu_item_node::TYPE_COMMAND:
-						if (match_menu_command(path, p_command))
-						{
-							p_out = child;
-							return true;
-						}
-						break;
+                    {
+                        if ( match_menu_command( path, p_command ) )
+                        {
+                            p_out = child;
+                            return true;
+                        }
+                        break;
+                    }
 					}
 				}
 			}
@@ -434,54 +321,16 @@ namespace helpers
 		return false;
 	}
 
-	bool read_album_art_into_bitmap(const album_art_data_ptr& data, Gdiplus::Bitmap** bitmap)
-	{
-		*bitmap = NULL;
-
-		if (!data.is_valid())
-			return false;
-
-		// Using IStream
-		IStreamPtr is;
-		Gdiplus::Bitmap* bmp = NULL;
-		bool ret = true;
-		HRESULT hr = CreateStreamOnHGlobal(NULL, TRUE, &is);
-
-		if (SUCCEEDED(hr) && bitmap && is)
-		{
-			ULONG bytes_written = 0;
-
-			hr = is->Write(data->get_ptr(), data->get_size(), &bytes_written);
-
-			if (SUCCEEDED(hr) && bytes_written == data->get_size())
-			{
-				bmp = new Gdiplus::Bitmap(is, PixelFormat32bppPARGB);
-
-				if (!ensure_gdiplus_object(bmp))
-				{
-					ret = false;
-					if (bmp) delete bmp;
-					bmp = NULL;
-				}
-			}
-		}
-
-		*bitmap = bmp;
-		return ret;
-	}
-
 	bool read_file(const char* path, pfc::string_base& content)
 	{
 		HANDLE hFile = uCreateFile(path, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
-
 		if (hFile == INVALID_HANDLE_VALUE)
 		{
 			return false;
 		}
 
 		HANDLE hFileMapping = uCreateFileMapping(hFile, NULL, PAGE_READONLY, 0, 0, NULL);
-
-		if (hFileMapping == NULL)
+		if (!hFileMapping)
 		{
 			CloseHandle(hFile);
 			return false;
@@ -489,8 +338,7 @@ namespace helpers
 
 		DWORD dwFileSize = GetFileSize(hFile, NULL);
 		LPCBYTE pAddr = (LPCBYTE)MapViewOfFile(hFileMapping, FILE_MAP_READ, 0, 0, 0);
-
-		if (pAddr == NULL)
+		if (!pAddr)
 		{
 			CloseHandle(hFileMapping);
 			CloseHandle(hFile);
@@ -555,15 +403,13 @@ namespace helpers
 	bool read_file_wide(unsigned codepage, const wchar_t* path, pfc::array_t<wchar_t>& content)
 	{
 		HANDLE hFile = CreateFile(path, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
-
 		if (hFile == INVALID_HANDLE_VALUE)
 		{
 			return false;
 		}
 
 		HANDLE hFileMapping = CreateFileMapping(hFile, NULL, PAGE_READONLY, 0, 0, NULL);
-
-		if (hFileMapping == NULL)
+		if (!hFileMapping)
 		{
 			CloseHandle(hFile);
 			return false;
@@ -571,8 +417,7 @@ namespace helpers
 
 		DWORD dwFileSize = GetFileSize(hFile, NULL);
 		LPCBYTE pAddr = (LPCBYTE)MapViewOfFile(hFileMapping, FILE_MAP_READ, 0, 0, 0);
-
-		if (pAddr == NULL)
+		if (!pAddr)
 		{
 			CloseHandle(hFileMapping);
 			CloseHandle(hFile);
@@ -642,33 +487,24 @@ namespace helpers
 		return status;
 	}
 
-	bool supports_chakra()
-	{
-		HKEY hKey;
-		return RegOpenKeyExW(HKEY_CLASSES_ROOT, L"CLSID\\{16d51579-a30b-4c8b-a276-0ff4dc41e755}", 0, KEY_READ, &hKey) == ERROR_SUCCESS;
-	}
-
 	bool write_file(const char* path, const pfc::string_base& content, bool write_bom)
 	{
 		int offset = write_bom ? 3 : 0;
 		HANDLE hFile = uCreateFile(path, GENERIC_READ | GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
-
 		if (hFile == INVALID_HANDLE_VALUE)
 		{
 			return false;
 		}
 
 		HANDLE hFileMapping = uCreateFileMapping(hFile, NULL, PAGE_READWRITE, 0, content.get_length() + offset, NULL);
-
-		if (hFileMapping == NULL)
+		if (!hFileMapping)
 		{
 			CloseHandle(hFile);
 			return false;
 		}
 
 		PBYTE pAddr = (PBYTE)MapViewOfFile(hFileMapping, FILE_MAP_WRITE, 0, 0, 0);
-
-		if (pAddr == NULL)
+		if (!pAddr)
 		{
 			CloseHandle(hFileMapping);
 			CloseHandle(hFile);
@@ -688,60 +524,41 @@ namespace helpers
 		return true;
 	}
 
-	const GUID convert_artid_to_guid(int art_id)
-	{
-		const GUID* guids[] = {
-			&album_art_ids::cover_front,
-			&album_art_ids::cover_back,
-			&album_art_ids::disc,
-			&album_art_ids::icon,
-			&album_art_ids::artist,
-		};
-
-		if (0 <= art_id && art_id < _countof(guids))
-		{
-			return *guids[art_id];
-		}
-		else
-		{
-			return *guids[0];
-		}
-	}
-
 	int get_encoder_clsid(const WCHAR* format, CLSID* pClsid)
 	{
-		int ret = -1;
+        UINT num = 0;
+        UINT size = 0;
+        Gdiplus::Status status = Gdiplus::GetImageEncodersSize(&num, &size);
+        if ( status != Gdiplus::Ok || !size )
+        {
+            return -1;
+        }
 
-		t_size num = 0;
-		t_size size = 0;
+        std::vector<uint8_t> imageCodeInfoBuf( size );
+        Gdiplus::ImageCodecInfo* pImageCodecInfo = (Gdiplus::ImageCodecInfo*)imageCodeInfoBuf.data();
 
-		Gdiplus::ImageCodecInfo* pImageCodecInfo = NULL;
+        status = Gdiplus::GetImageEncoders(num, size, pImageCodecInfo);
+        if ( status != Gdiplus::Ok )
+        {
+            return -1;
+        }
 
-		Gdiplus::GetImageEncodersSize(&num, &size);
-		if (size == 0) return ret;
-
-		pImageCodecInfo = (Gdiplus::ImageCodecInfo*)(malloc((size_t)size));
-		if (pImageCodecInfo == NULL) return ret;
-
-		Gdiplus::GetImageEncoders(num, size, pImageCodecInfo);
-
-		for (UINT j = 0; j < num; ++j)
+		for (UINT i = 0; i < num; ++i)
 		{
-			if (wcscmp(pImageCodecInfo[j].MimeType, format) == 0)
+			if (!wcscmp(pImageCodecInfo[i].MimeType, format))
 			{
-				*pClsid = pImageCodecInfo[j].Clsid;
-				ret = j;
-				break;
+				*pClsid = pImageCodecInfo[i].Clsid;
+                return i;
 			}
 		}
 
-		free(pImageCodecInfo);
-		return ret;
+		return -1;
 	}
 
 	int get_text_height(HDC hdc, const wchar_t* text, int len)
 	{
 		SIZE size;
+        // TODO: add error checks
 		GetTextExtentPoint32(hdc, text, len, &size);
 		return size.cy;
 	}
@@ -749,7 +566,7 @@ namespace helpers
 	int get_text_width(HDC hdc, LPCTSTR text, int len)
 	{
 		SIZE size;
-
+        // TODO: add error checks
 		GetTextExtentPoint32(hdc, text, len, &size);
 		return size.cx;
 	}
@@ -816,17 +633,6 @@ namespace helpers
 
 	t_size detect_charset(const char* fileName)
 	{
-		_COM_SMARTPTR_TYPEDEF(IMultiLanguage2, IID_IMultiLanguage2);
-		IMultiLanguage2Ptr lang;
-		HRESULT hr;
-
-		hr = lang.CreateInstance(CLSID_CMultiLanguage, NULL, CLSCTX_INPROC_SERVER);
-		// mlang is not working...
-		if (FAILED(hr)) return 0;
-
-		const int maxEncodings = 2;
-		int encodingCount = maxEncodings;
-		DetectEncodingInfo encodings[maxEncodings];
 		pfc::string8_fast text;
 		int textSize = 0;
 
@@ -843,66 +649,15 @@ namespace helpers
 			return 0;
 		}
 
-		hr = lang->DetectInputCodepage(MLDETECTCP_NONE, 0, const_cast<char *>(text.get_ptr()), &textSize, encodings, &encodingCount);
-
-		if (FAILED(hr)) return 0;
-
-		unsigned codepage = 0;
-		bool found = false;
-
-		// MLang fine tunes
-		if (encodingCount == 2 && encodings[0].nCodePage == 1252)
-		{
-			switch (encodings[1].nCodePage)
-			{
-			case 850:
-			case 65001:
-				found = true;
-				codepage = 65001;
-				break;
-				// DBCS
-			case 932: // shift-jis
-			case 936: // gbk
-			case 949: // korean
-			case 950: // big5
-			{
-				// '¡¯', <= special char
-				// "ve" "d" "ll" "m" 't' 're'
-				bool fallback = true;
-				t_size index;
-				if (index = text.find_first("\x92") != pfc_infinite)
-				{
-					if ((index < text.get_length() - 1) &&
-						(strchr("vldmtr ", text[index + 1])))
-					{
-						codepage = encodings[0].nCodePage;
-						fallback = false;
-					}
-				}
-				if (fallback)
-					codepage = encodings[1].nCodePage;
-				found = true;
-			}
-			break;
-			}
-		}
-
-		if (!found)
-			codepage = encodings[0].nCodePage;
-		// ASCII?
-		if (codepage == 20127)
-			codepage = 0;
-
-		return codepage;
+        return detect_text_charset( const_cast<char *>(text.get_ptr()), text.get_length() );
 	}
 
     size_t detect_text_charset( const char* text, size_t textSize )
     {
         _COM_SMARTPTR_TYPEDEF( IMultiLanguage2, IID_IMultiLanguage2 );
         IMultiLanguage2Ptr lang;
-        HRESULT hr;
 
-        hr = lang.CreateInstance( CLSID_CMultiLanguage, NULL, CLSCTX_INPROC_SERVER );
+        HRESULT hr = lang.CreateInstance( CLSID_CMultiLanguage, NULL, CLSCTX_INPROC_SERVER );
         if ( FAILED( hr ) )
         {
             return 0;
@@ -978,11 +733,6 @@ namespace helpers
         return codepage;
     }
 
-	t_size get_colour_from_variant(VARIANT v)
-	{
-		return (v.vt == VT_R8) ? static_cast<unsigned>(v.dblVal) : v.lVal;
-	}
-
 	void build_mainmenu_group_map(pfc::map_t<GUID, mainmenu_group::ptr>& p_group_guid_text_map)
 	{
 		service_enum_t<mainmenu_group> e;
@@ -997,10 +747,10 @@ namespace helpers
 
 	void estimate_line_wrap(HDC hdc, const wchar_t* text, int len, int width, pfc::list_t<wrapped_item>& out)
 	{
-		for (;;)
-		{
-			const wchar_t* next = wcschr(text, '\n');
-			if (next == NULL)
+        while ( true )
+        {
+            const wchar_t* next = wcschr(text, '\n');
+			if (!next)
 			{
 				estimate_line_wrap_recur(hdc, text, wcslen(text), width, out);
 				break;
@@ -1087,50 +837,34 @@ namespace helpers
 		return out;
 	}
 
-	void album_art_async::run()
-	{
-		pfc::string8_fast image_path;
-		FbMetadbHandle* handle = NULL;
-		IGdiBitmap* bitmap = NULL;
+    js_process_locations::js_process_locations( int playlist_idx, UINT base, bool to_select )
+        : m_playlist_idx( playlist_idx )
+        , m_base( base )
+        , m_to_select( to_select )
+    {
 
-		if (m_handle.is_valid())
-		{
-			if (m_only_embed)
-			{
-				get_album_art_embedded(m_rawpath, &bitmap, m_art_id);
-				if (bitmap)
-					image_path = m_handle->get_path();
-			}
-			else
-			{
-				get_album_art_v2(m_handle, &bitmap, m_art_id, m_need_stub, m_no_load, &image_path);
-			}
+    }
 
-			handle = new com_object_impl_t<FbMetadbHandle>(m_handle);
-		}
+    void js_process_locations::on_completion( metadb_handle_list_cref p_items )
+    {
+        pfc::bit_array_val selection( m_to_select );
+        auto api = playlist_manager::get();
+        t_size playlist = m_playlist_idx == -1 ? api->get_active_playlist() : m_playlist_idx;
 
-		t_param param(handle, m_art_id, bitmap, image_path.is_empty() ? "" : file_path_display(image_path));
+        if ( playlist < api->get_playlist_count() && !api->playlist_lock_is_present( playlist ) )
+        {
+            api->playlist_insert_items( playlist, m_base, p_items, selection );
+            if ( m_to_select )
+            {
+                api->set_active_playlist( playlist );
+                api->playlist_set_focus_item( playlist, m_base );
+            }
+        }
+    }
 
-		SendMessage(m_notify_hwnd, CALLBACK_UWM_ON_GET_ALBUM_ART_DONE, 0, (LPARAM)&param);
-	}
+    void js_process_locations::on_aborted()
+    {
 
-	void load_image_async::run()
-	{
-		IGdiBitmap* bitmap = NULL;
-		Gdiplus::Bitmap* img = new Gdiplus::Bitmap(m_path, PixelFormat32bppPARGB);
+    }
 
-		if (ensure_gdiplus_object(img))
-		{
-			bitmap = new com_object_impl_t<GdiBitmap>(img);
-		}
-		else
-		{
-			if (img) delete img;
-			img = NULL;
-		}
-
-		t_param param(reinterpret_cast<unsigned>(this), bitmap, m_path);
-
-		SendMessage(m_notify_hwnd, CALLBACK_UWM_ON_LOAD_IMAGE_DONE, 0, (LPARAM)&param);
-	}
 }

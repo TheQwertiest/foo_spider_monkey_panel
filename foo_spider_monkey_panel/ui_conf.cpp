@@ -374,7 +374,7 @@ bool CDialogConf::FindResult(HWND hWnd, HWND hWndEdit, int pos, const char* whic
 	pfc::string8 buff = "Cannot find \"";
 	buff += which;
 	buff += "\"";
-	uMessageBox(hWnd, buff.get_ptr(), JSP_NAME, MB_ICONINFORMATION | MB_SETFOREGROUND);
+	uMessageBox(hWnd, buff.get_ptr(), SMP_NAME, MB_ICONINFORMATION | MB_SETFOREGROUND);
 	return false;
 }
 

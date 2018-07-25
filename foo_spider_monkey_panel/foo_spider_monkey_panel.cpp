@@ -12,15 +12,16 @@ ITypeLibPtr g_typelib;
 namespace
 {
 	DECLARE_COMPONENT_VERSION(
-		JSP_NAME,
-		JSP_VERSION,
-		JSP_NAME " v" JSP_VERSION " by marc2003\n"
+		SMP_NAME,
+		SMP_VERSION,
+		SMP_NAME " v" SMP_VERSION " by TheQwertiest\n"
+        "Based on JScript Panel by marc2003\n"
 		"Based on WSH Panel Mod by T.P. Wang\n\n"
 		"Build: " __TIME__ ", " __DATE__ "\n"
 		"Columns UI SDK Version: " UI_EXTENSION_VERSION
 	);
 
-	VALIDATE_COMPONENT_FILENAME(JSP_DLL_NAME);
+	VALIDATE_COMPONENT_FILENAME(SMP_DLL_NAME);
 
 	// Is there anything not correctly loaded?
 	enum t_load_status_error
@@ -81,7 +82,7 @@ namespace
 
 			if (!err_msg.is_empty())
 			{
-				popup_msg::g_show(err_msg, JSP_NAME);
+				popup_msg::g_show(err_msg, SMP_NAME);
 			}
 		}
 	};

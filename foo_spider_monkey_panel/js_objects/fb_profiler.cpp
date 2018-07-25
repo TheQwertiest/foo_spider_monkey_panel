@@ -84,7 +84,7 @@ std::optional<std::nullptr_t>
 JsFbProfiler::Print()
 {
     FB2K_console_formatter() 
-        << JSP_NAME " v" JSP_VERSION ": FbProfiler (" << name_ << "): "
+        << SMP_NAME " v" SMP_VERSION ": FbProfiler (" << name_ << "): "
         << static_cast<uint32_t>(timer_.query() * 1000) << " ms";
     return nullptr;
 }

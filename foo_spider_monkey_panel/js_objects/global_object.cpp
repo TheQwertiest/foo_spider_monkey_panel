@@ -22,6 +22,7 @@
 #include <js_utils/js_error_helper.h>
 
 #include <js_panel_window.h>
+#include <helpers.h>
 
 #include <filesystem>
 #include <fstream>  

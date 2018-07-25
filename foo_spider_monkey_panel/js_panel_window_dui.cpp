@@ -2,6 +2,9 @@
 #include "js_panel_window.h"
 #include "js_panel_window_dui.h"
 
+#include "helpers.h"
+#include "user_message.h"
+
 // Just because I don't want to include the helpers
 template <typename TImpl>
 class my_ui_element_impl : public ui_element
@@ -68,7 +71,7 @@ js_panel_window_dui::~js_panel_window_dui()
 
 GUID js_panel_window_dui::g_get_guid()
 {
-	return g_guid_jsp_window_dui;
+	return g_guid_smp_window_dui;
 }
 
 GUID js_panel_window_dui::g_get_subclass()
@@ -94,7 +97,7 @@ ui_element_config::ptr js_panel_window_dui::g_get_default_configuration()
 
 void js_panel_window_dui::g_get_name(pfc::string_base& out)
 {
-	out = JSP_NAME;
+	out = SMP_NAME;
 }
 
 DWORD js_panel_window_dui::GetColourCUI(unsigned type, const GUID& guid)

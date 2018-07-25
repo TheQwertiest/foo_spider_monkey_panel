@@ -484,15 +484,7 @@ JsGdiGraphics::EstimateLineWrap( const std::wstring& str, JsGdiFont* font, uint3
     SelectFont( dc, oldfont );
     pGdi_->ReleaseHDC( dc );
 
-    helpers::com_array_writer<> helper;
-
-    if ( !helper.create( result.get_count() * 2 ) )
-    {
-        JS_ReportOutOfMemory( pJsCtx_ );
-        return std::nullopt;
-    }
-
-    JS::RootedObject jsArray( pJsCtx_, JS_NewArrayObject( pJsCtx_, helper.get_count() ) );
+    JS::RootedObject jsArray( pJsCtx_, JS_NewArrayObject( pJsCtx_, result.get_count() * 2 ) );
     if ( !jsArray )
     {
         JS_ReportOutOfMemory( pJsCtx_ );
@@ -500,7 +492,7 @@ JsGdiGraphics::EstimateLineWrap( const std::wstring& str, JsGdiFont* font, uint3
     }
 
     JS::RootedValue jsValue( pJsCtx_ );
-    for ( LONG i = 0; i < helper.get_count() / 2; ++i )
+    for ( size_t i = 0; i < result.get_count(); ++i )
     {
         std::wstring tmpString( (const wchar_t*)result[i].text );
         if ( !convert::to_js::ToValue( pJsCtx_, tmpString, &jsValue ) )

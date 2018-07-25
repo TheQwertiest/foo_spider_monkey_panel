@@ -849,11 +849,11 @@ JsFbUtils::SaveIndex()
 {
     try
     {
-        stats::theAPI()->save_index_data( g_guid_jsp_metadb_index );
+        stats::theAPI()->save_index_data( g_guid_smp_metadb_index );
     }
     catch ( ... )
     {
-        FB2K_console_formatter() << JSP_NAME " v" JSP_VERSION ": Save index fail.";
+        FB2K_console_formatter() << SMP_NAME " v" SMP_VERSION ": Save index fail.";
     }
     return nullptr;
 }

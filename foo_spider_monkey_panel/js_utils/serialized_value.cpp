@@ -1,8 +1,8 @@
 #include <stdafx.h>
 #include "serialized_value.h"
 
-#include <js_engine/native_to_js_converter.h>
-#include <js_engine/js_to_native_converter.h>
+#include <convert/native_to_js.h>
+#include <convert/js_to_native.h>
 
 namespace mozjs
 {

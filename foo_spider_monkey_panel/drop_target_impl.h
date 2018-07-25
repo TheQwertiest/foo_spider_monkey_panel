@@ -45,8 +45,8 @@ public:
 	// IDropTarget
 	STDMETHODIMP DragEnter(IDataObject* pDataObj, DWORD grfKeyState, POINTL pt, DWORD* pdwEffect)
 	{
-		if (pDataObj == NULL) return E_FAIL;
-		if (pdwEffect == NULL) return E_POINTER;
+		if (!pDataObj) return E_FAIL;
+		if (!pdwEffect) return E_POINTER;
 
 		HRESULT hr = S_OK;
 		try
@@ -72,7 +72,7 @@ public:
 
 	STDMETHODIMP DragOver(DWORD grfKeyState, POINTL pt, DWORD* pdwEffect)
 	{
-		if (pdwEffect == NULL) return E_POINTER;
+		if (!pdwEffect) return E_POINTER;
 
 		HRESULT hr = S_OK;
 		try
@@ -124,8 +124,8 @@ public:
 	{
 		HRESULT hr = S_OK;
 
-		if (pDataObj == NULL) return E_FAIL;
-		if (pdwEffect == NULL) return E_POINTER;
+		if (!pDataObj) return E_FAIL;
+		if (!pdwEffect) return E_POINTER;
 
 		try
 		{

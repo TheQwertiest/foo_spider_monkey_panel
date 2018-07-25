@@ -660,7 +660,7 @@ JsUtils::WriteTextFileWithOpt( size_t optArgCount, const pfc::string8_fast& file
 std::optional<uint32_t>
 JsUtils::get_Version()
 {
-    return JSP_VERSION_MAJOR * 100 + JSP_VERSION_MINOR * 10 + JSP_VERSION_PATCH;
+    return SMP_VERSION_MAJOR * 100 + SMP_VERSION_MINOR * 10 + SMP_VERSION_PATCH;
 }
 
 }

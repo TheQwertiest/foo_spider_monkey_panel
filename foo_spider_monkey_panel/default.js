@@ -75,10 +75,10 @@ function get_colours() {
 
 function get_version_string() {
 	var tmp = utils.Version.toString().split("");
-	if (tmp[3] == 0) {
-		tmp.pop();
-	}
-	return "JScript Panel v" + tmp.join(".") + ".";
+    if (tmp.length <= 2) {
+        tmp = "0" + tmp;
+    }    
+	return "Spider Monkey Panel v" + tmp.join(".") + ".";
 }
 
 function on_size() {

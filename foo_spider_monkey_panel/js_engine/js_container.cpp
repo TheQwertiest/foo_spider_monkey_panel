@@ -6,8 +6,8 @@
 #include <js_objects/gdi_graphics.h>
 #include <js_utils/js_error_helper.h>
 
-
 #include <js_panel_window.h>
+#include <host_timer_dispatcher.h>
 
 
 namespace mozjs

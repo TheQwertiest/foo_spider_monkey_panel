@@ -38,12 +38,12 @@ namespace stats
 				g_cachedAPI = api;
 				try
 				{
-					api->add(g_client, g_guid_jsp_metadb_index, retentionPeriod);
+					api->add(g_client, g_guid_smp_metadb_index, retentionPeriod);
 				}
 				catch (std::exception const& e)
 				{
-					api->remove(g_guid_jsp_metadb_index);
-					FB2K_console_formatter() << JSP_NAME " stats: Critical initialisation failure: " << e;
+					api->remove(g_guid_smp_metadb_index);
+					FB2K_console_formatter() << SMP_NAME " stats: Critical initialization failure: " << e;
 					return;
 				}
 				api->dispatch_global_refresh();
@@ -76,7 +76,7 @@ namespace stats
 	static fields get(metadb_index_hash hash)
 	{
 		mem_block_container_impl temp;
-		theAPI()->get_user_data(g_guid_jsp_metadb_index, hash, temp);
+		theAPI()->get_user_data(g_guid_smp_metadb_index, hash, temp);
 		if (temp.get_size() > 0)
 		{
 			try
@@ -108,7 +108,7 @@ namespace stats
 		writer << f.first_played;
 		writer << f.last_played;
 		writer << f.rating;
-		theAPI()->set_user_data(g_guid_jsp_metadb_index, hash, writer.m_buffer.get_ptr(), writer.m_buffer.get_size());
+		theAPI()->set_user_data(g_guid_smp_metadb_index, hash, writer.m_buffer.get_ptr(), writer.m_buffer.get_size());
 	}
 
 	class metadb_display_field_provider_impl : public metadb_display_field_provider
@@ -123,19 +123,19 @@ namespace stats
 			switch (index)
 			{
 			case 0:
-				out = "jsp_playcount";
+				out = "smp_playcount";
 				break;
 			case 1:
-				out = "jsp_loved";
+				out = "smp_loved";
 				break;
 			case 2:
-				out = "jsp_first_played";
+				out = "smp_first_played";
 				break;
 			case 3:
-				out = "jsp_last_played";
+				out = "smp_last_played";
 				break;
 			case 4:
-				out = "jsp_rating";
+				out = "smp_rating";
 				break;
 			}
 		}
@@ -200,11 +200,11 @@ namespace stats
 				if (g_client->hashHandle(p_tracks[0], hash))
 				{
 					fields tmp = get(hash);
-					p_out.set_property(JSP_NAME, 0, "Playcount", pfc::format_uint(tmp.playcount));
-					p_out.set_property(JSP_NAME, 1, "Loved", pfc::format_uint(tmp.loved));
-					p_out.set_property(JSP_NAME, 2, "First Played", tmp.first_played);
-					p_out.set_property(JSP_NAME, 3, "Last Played", tmp.last_played);
-					p_out.set_property(JSP_NAME, 4, "Rating", pfc::format_uint(tmp.rating));
+					p_out.set_property(SMP_NAME, 0, "Playcount", pfc::format_uint(tmp.playcount));
+					p_out.set_property(SMP_NAME, 1, "Loved", pfc::format_uint(tmp.loved));
+					p_out.set_property(SMP_NAME, 2, "First Played", tmp.first_played);
+					p_out.set_property(SMP_NAME, 3, "Last Played", tmp.last_played);
+					p_out.set_property(SMP_NAME, 4, "Rating", pfc::format_uint(tmp.rating));
 				}
 			}
 			else
@@ -228,14 +228,14 @@ namespace stats
 
 				if (total > 0)
 				{
-					p_out.set_property(JSP_NAME, 0, "Playcount", pfc::format_uint(total));
+					p_out.set_property(SMP_NAME, 0, "Playcount", pfc::format_uint(total));
 				}
 			}
 		}
 
 		void enumerate_properties_v2(metadb_handle_list_cref p_tracks, track_property_callback_v2& p_out)
 		{
-			if (p_out.is_group_wanted(JSP_NAME))
+			if (p_out.is_group_wanted(SMP_NAME))
 			{
 				enumerate_properties(p_tracks, p_out);
 			}

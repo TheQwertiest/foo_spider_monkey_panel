@@ -49,12 +49,12 @@ class js_preferences_page_impl : public preferences_page_v3
 public:
 	const char* get_name()
 	{
-		return JSP_NAME;
+		return SMP_NAME;
 	}
 
 	GUID get_guid()
 	{
-		return g_guid_jsp_ui_pref;
+		return g_guid_smp_ui_pref;
 	}
 
 	GUID get_parent_guid()

@@ -101,7 +101,6 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="helpers.cpp" />
-    <ClCompile Include="host.cpp" />
     <ClCompile Include="host_drop_target.cpp" />
     <ClCompile Include="host_timer_dispatcher.cpp" />
     <ClCompile Include="js_engine\js_compartment_inner.cpp" />
@@ -151,12 +150,12 @@
     <ClCompile Include="js_utils\serialized_value.cpp" />
     <ClCompile Include="js_utils\string_util.cpp" />
     <ClCompile Include="js_utils\winapi_error_helper.cpp" />
+    <ClCompile Include="kmeans.cpp" />
     <ClCompile Include="mainmenu.cpp" />
     <ClCompile Include="panel_manager.cpp" />
     <ClCompile Include="scintilla_prop_sets.cpp" />
-    <ClCompile Include="script_callback_invoker.cpp" />
     <ClCompile Include="script_interface_impl.cpp" />
-    <ClCompile Include="script_preprocessor.cpp" />
+    <ClCompile Include="stackblur.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
@@ -238,7 +237,6 @@
     <ClInclude Include="drop_target_impl.h" />
     <ClInclude Include="editorctrl.h" />
     <ClInclude Include="helpers.h" />
-    <ClInclude Include="host.h" />
     <ClInclude Include="host_drop_target.h" />
     <ClInclude Include="host_timer_dispatcher.h" />
     <ClInclude Include="js_panel_window.h" />
@@ -249,10 +247,9 @@
     <ClInclude Include="popup_msg.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="scintilla_prop_sets.h" />
-    <ClInclude Include="script_callback_invoker.h" />
     <ClInclude Include="script_interface.h" />
     <ClInclude Include="script_interface_impl.h" />
-    <ClInclude Include="script_preprocessor.h" />
+    <ClInclude Include="script_info.h" />
     <ClInclude Include="stackblur.h" />
     <ClInclude Include="stats.h" />
     <ClInclude Include="stdafx.h" />

@@ -2,7 +2,7 @@
 #include "user_message.h"
 #include "panel_manager.h"
 
-static mainmenu_group_popup_factory g_mainmenu_group(g_guid_jsp_mainmenu_group_id, mainmenu_groups::file, mainmenu_commands::sort_priority_dontcare, JSP_NAME);
+static mainmenu_group_popup_factory g_mainmenu_group(g_guid_smp_mainmenu_group_id, mainmenu_groups::file, mainmenu_commands::sort_priority_dontcare, SMP_NAME);
 
 class my_mainmenu_commands : public mainmenu_commands
 {
@@ -29,16 +29,16 @@ public:
 	{
 		switch (p_index)
 		{
-		case cmd_one: return g_guid_jsp_menu_one;
-		case cmd_two: return g_guid_jsp_menu_two;
-		case cmd_three: return g_guid_jsp_menu_three;
-		case cmd_four: return g_guid_jsp_menu_four;
-		case cmd_five: return g_guid_jsp_menu_five;
-		case cmd_six: return g_guid_jsp_menu_six;
-		case cmd_seven: return g_guid_jsp_menu_seven;
-		case cmd_eight: return g_guid_jsp_menu_eight;
-		case cmd_nine: return g_guid_jsp_menu_nine;
-		case cmd_ten: return g_guid_jsp_menu_ten;
+		case cmd_one: return g_guid_smp_menu_one;
+		case cmd_two: return g_guid_smp_menu_two;
+		case cmd_three: return g_guid_smp_menu_three;
+		case cmd_four: return g_guid_smp_menu_four;
+		case cmd_five: return g_guid_smp_menu_five;
+		case cmd_six: return g_guid_smp_menu_six;
+		case cmd_seven: return g_guid_smp_menu_seven;
+		case cmd_eight: return g_guid_smp_menu_eight;
+		case cmd_nine: return g_guid_smp_menu_nine;
+		case cmd_ten: return g_guid_smp_menu_ten;
 		default: uBugCheck();
 		}
 	}
@@ -66,7 +66,7 @@ public:
 	}
 	GUID get_parent()
 	{
-		return g_guid_jsp_mainmenu_group_id;
+		return g_guid_smp_mainmenu_group_id;
 	}
 	void execute(t_uint32 p_index, service_ptr_t<service_base> p_callback)
 	{

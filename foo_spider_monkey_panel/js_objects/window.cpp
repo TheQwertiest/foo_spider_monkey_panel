@@ -15,6 +15,8 @@
 #include <js_panel_window.h>
 #include <panel_manager.h>
 #include <helpers.h>
+#include <user_message.h>
+#include <host_drop_target.h>
 
 namespace
 {

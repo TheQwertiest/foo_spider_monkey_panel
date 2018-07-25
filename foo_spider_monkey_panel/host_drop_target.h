@@ -29,10 +29,10 @@ public:
     virtual void DisableHeapCleanup() override;
 
 	// IDropTarget
-	HRESULT OnDragEnter(IDataObject* pDataObj, DWORD grfKeyState, POINTL pt, DWORD* pdwEffect);
-	HRESULT OnDragLeave();
-	HRESULT OnDragOver(DWORD grfKeyState, POINTL pt, DWORD* pdwEffect);
-	HRESULT OnDrop(IDataObject* pDataObj, DWORD grfKeyState, POINTL pt, DWORD* pdwEffect);
+	virtual HRESULT OnDragEnter(IDataObject* pDataObj, DWORD grfKeyState, POINTL pt, DWORD* pdwEffect) override;
+	virtual HRESULT OnDragLeave() override;
+	virtual HRESULT OnDragOver(DWORD grfKeyState, POINTL pt, DWORD* pdwEffect) override;
+	virtual HRESULT OnDrop(IDataObject* pDataObj, DWORD grfKeyState, POINTL pt, DWORD* pdwEffect) override;
 
 private:
 	void on_drag_enter(unsigned keyState, POINTL& pt);

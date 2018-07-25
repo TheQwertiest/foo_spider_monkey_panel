@@ -55,9 +55,6 @@
     <ClCompile Include="helpers.cpp">
       <Filter>uncategorized</Filter>
     </ClCompile>
-    <ClCompile Include="host.cpp">
-      <Filter>uncategorized</Filter>
-    </ClCompile>
     <ClCompile Include="host_drop_target.cpp">
       <Filter>uncategorized</Filter>
     </ClCompile>
@@ -82,13 +79,7 @@
     <ClCompile Include="scintilla_prop_sets.cpp">
       <Filter>uncategorized</Filter>
     </ClCompile>
-    <ClCompile Include="script_callback_invoker.cpp">
-      <Filter>uncategorized</Filter>
-    </ClCompile>
     <ClCompile Include="script_interface_impl.cpp">
-      <Filter>uncategorized</Filter>
-    </ClCompile>
-    <ClCompile Include="script_preprocessor.cpp">
       <Filter>uncategorized</Filter>
     </ClCompile>
     <ClCompile Include="stdafx.cpp">
@@ -220,6 +211,12 @@
     <ClCompile Include="convert\js_to_native.cpp">
       <Filter>convert</Filter>
     </ClCompile>
+    <ClCompile Include="stackblur.cpp">
+      <Filter>uncategorized</Filter>
+    </ClCompile>
+    <ClCompile Include="kmeans.cpp">
+      <Filter>uncategorized</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="js_engine\js_engine.h">
@@ -285,9 +282,6 @@
     <ClInclude Include="helpers.h">
       <Filter>uncategorized</Filter>
     </ClInclude>
-    <ClInclude Include="host.h">
-      <Filter>uncategorized</Filter>
-    </ClInclude>
     <ClInclude Include="host_drop_target.h">
       <Filter>uncategorized</Filter>
     </ClInclude>
@@ -321,16 +315,10 @@
     <ClInclude Include="scintilla_prop_sets.h">
       <Filter>uncategorized</Filter>
     </ClInclude>
-    <ClInclude Include="script_callback_invoker.h">
-      <Filter>uncategorized</Filter>
-    </ClInclude>
     <ClInclude Include="script_interface.h">
       <Filter>uncategorized</Filter>
     </ClInclude>
     <ClInclude Include="script_interface_impl.h">
-      <Filter>uncategorized</Filter>
-    </ClInclude>
-    <ClInclude Include="script_preprocessor.h">
       <Filter>uncategorized</Filter>
     </ClInclude>
     <ClInclude Include="SString.h">
@@ -506,6 +494,9 @@
     </ClInclude>
     <ClInclude Include="convert\js_to_native.h">
       <Filter>convert</Filter>
+    </ClInclude>
+    <ClInclude Include="script_info.h">
+      <Filter>uncategorized</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

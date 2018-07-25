@@ -2,6 +2,9 @@
 #include "js_panel_window.h"
 #include "js_panel_window_cui.h"
 
+#include "helpers.h"
+#include "user_message.h"
+
 // CUI panel instance
 static uie::window_factory<js_panel_window_cui> g_js_panel_wndow_cui;
 
@@ -134,7 +137,7 @@ bool js_panel_window_cui::show_config_popup(HWND parent)
 
 const GUID& js_panel_window_cui::get_extension_guid() const
 {
-	return g_guid_jsp_window_cui;
+	return g_guid_smp_window_cui;
 }
 
 const uie::window_host_ptr& js_panel_window_cui::get_host() const
@@ -165,7 +168,7 @@ void js_panel_window_cui::get_config(stream_writer* writer, abort_callback& abor
 
 void js_panel_window_cui::get_name(pfc::string_base& out) const
 {
-	out = JSP_NAME;
+	out = SMP_NAME;
 }
 
 void js_panel_window_cui::on_bool_changed(t_size mask) const

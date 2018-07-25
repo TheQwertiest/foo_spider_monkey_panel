@@ -1,7 +1,7 @@
 #include <stdafx.h>
 #include "js_error_helper.h"
 
-#include <js_engine/native_to_js_converter.h>
+#include <convert/native_to_js.h>
 #include <js_objects/global_object.h>
 #include <js_utils/scope_helper.h>
 

@@ -36,7 +36,7 @@ void js_panel_window::update_script( const char* code )
 
 void js_panel_window::JsEngineFail( const pfc::string8_fast& errorText )
 {
-    popup_msg::g_show( errorText, JSP_NAME );
+    popup_msg::g_show( errorText, SMP_NAME );
     MessageBeep( MB_ICONASTERISK );
 
     SendMessage( hWnd_, UWM_SCRIPT_ERROR, 0, 0 );
@@ -681,7 +681,7 @@ bool js_panel_window::script_load()
     // HACK: Script update will not call on_size, so invoke it explicitly
     SendMessage( hWnd_, UWM_SIZE, 0, 0 );
 
-    FB2K_console_formatter() << JSP_NAME " v" JSP_VERSION " (" << ScriptInfo().build_info_string() << "): initialized in " << (uint32_t)( timer.query() * 1000 ) << " ms";
+    FB2K_console_formatter() << SMP_NAME " v" SMP_VERSION " (" << ScriptInfo().build_info_string() << "): initialized in " << (uint32_t)( timer.query() * 1000 ) << " ms";
     return true;
 }
 
@@ -699,7 +699,7 @@ ui_helpers::container_window::class_data& js_panel_window::get_class_data() cons
 {
     static class_data my_class_data =
     {
-        _T( JSP_WINDOW_CLASS_NAME ),
+        _T( SMP_WINDOW_CLASS_NAME ),
         _T( "" ),
         0,
         false,

@@ -1,6 +1,7 @@
 #pragma once
 
-#include "host.h"
+#include "config.h"
+#include "script_info.h"
 
 #include <js_engine/js_container.h>
 #include <panel_tooltip_param.h>
@@ -71,7 +72,6 @@ private:
     HDC hDc_ = nullptr;
 
     t_script_info m_script_info; // move to JsContainer
-    bool isDropTargetRegistered_ = false; // should be with gr from JsContainer
 
     uint32_t height_ = 0; // Used externally as well
     uint32_t width_ = 0; // Used externally as well
@@ -83,10 +83,10 @@ private:
     bool isMouseTracked_ = false;             // used only internally
     ui_selection_holder::ptr selectionHolder_;  // used only internally
 
-    t_size dlgCode_ = 0;                            // modified only form external
-    POINT maxSize_ = { INT_MAX , INT_MAX };     // modified only form external
-    POINT minSize_ = { 0 , 0 };                 // modified only form external
-    smp::PanelTooltipParam panelTooltipParam_ ; // modified only form external
+    t_size dlgCode_ = 0;                            // modified only from external
+    POINT maxSize_ = { INT_MAX , INT_MAX };     // modified only from external
+    POINT minSize_ = { 0 , 0 };                 // modified only from external
+    smp::PanelTooltipParam panelTooltipParam_ ; // modified only from external
 
 private:
     bool script_load();
