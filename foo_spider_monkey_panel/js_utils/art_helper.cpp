@@ -19,7 +19,7 @@ public:
     AlbumArtFetchTask( HWND hNotifyWnd, metadb_handle_ptr handle, uint32_t artId, bool need_stub, bool only_embed, bool no_load );
 
 private:
-    virtual void run();
+    virtual void run() override;
 
 private:
     metadb_handle_ptr handle_;

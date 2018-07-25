@@ -11,7 +11,6 @@ simple_thread::simple_thread()
 
 simple_thread::~simple_thread()
 {
-    PFC_ASSERT( !isActive() );
     waitTillDone();
 }
 

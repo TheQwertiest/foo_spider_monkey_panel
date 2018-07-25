@@ -3,10 +3,7 @@
 class simple_thread_task
 {
 public:
-	virtual void run()
-	{
-		PFC_ASSERT(!"Should not go here");
-	}
+    virtual void run() = 0;
 };
 
 // Rip from pfc

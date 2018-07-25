@@ -19,7 +19,7 @@ public:
     LoadImageTask( HWND hNotifyWnd, const std::wstring& imagePath );
 
 private:
-    virtual void run();
+    virtual void run() override;
 
 private:
     HWND hNotifyWnd_;
