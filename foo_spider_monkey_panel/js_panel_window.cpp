@@ -30,8 +30,12 @@ void js_panel_window::update_script( const char* code )
         get_script_code() = code;
     }
 
-    script_unload();
-    script_load();
+    if ( jsContainer_.GetStatus() != mozjs::JsContainer::JsStatus::NotPrepared )
+    {// Panel might be not loaded at all, if settings are changed from Preferences.
+     // This also removes the double-panel-reload when changing panel settings from Preferences.
+        script_unload();
+        script_load();
+    }
 }
 
 void js_panel_window::JsEngineFail( const pfc::string8_fast& errorText )

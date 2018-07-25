@@ -1,9 +1,7 @@
 # Current
 - Add HtmlPopup(source, additionalData, callbacks) method (other possible names: CreateHtmlWindow, CreateHtmlDialog, new HtmlWindow, new HtmlDialog).
 - Check ActiveXObject reference count (sometimes it locks on Release, might have smth to do with accessing another process?).
-- Fix script reload from Preferences>CUI.
 - Allow to configure max component RAM usage via preferences.
-- Change stats field names: https://github.com/TheQwertiest/foo-jscript-panel/commit/57393822ae42e1ebd77911c0f934471903975b4e#commitcomment-29629263
 - Add try-catch's (to all js-to-native wrappers and all the code that might lead back to JS).
 - Add OOM error reporting and handling (both JS and native).
 - Add a header with component name and version to error reporter.

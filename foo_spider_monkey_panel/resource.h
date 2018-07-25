@@ -19,8 +19,6 @@
 #define IDC_STATIC_GUID                 1000
 #define IDC_EDIT                        1001
 #define IDC_TOOLS                       1002
-#define IDC_STATIC_ENGINE               1003
-#define IDC_COMBO_ENGINE                1004
 #define IDC_STATIC_EDGE                 1005
 #define IDC_COMBO_EDGE                  1006
 #define IDC_CHECK_PSEUDO_TRANSPARENT    1007
