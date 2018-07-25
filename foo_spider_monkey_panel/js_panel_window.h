@@ -33,11 +33,12 @@ protected:
     void execute_context_menu_command(int id, int id_base);
 
 private:    
-    mozjs::JsContainer jsContainer_;    
-
-    CComPtr<IDropTargetImpl> m_drop_target; // keep
+    mozjs::JsContainer jsContainer_;
 
 public:
+    // TODO: dirty hack, remove
+    mozjs::JsContainer& GetJsContainer();
+
     GUID GetGUID();
     HDC GetHDC() const;
     HWND GetHWND() const;

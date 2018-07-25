@@ -3,10 +3,9 @@
 - Check ActiveXObject reference count (sometimes it locks on Release, might have smth to do with accessing another process?).
 - Fix script reload from Preferences>CUI.
 - Allow to configure max component RAM usage via preferences.
-- Add one-time-use DefinePanel(name, author, [options]) method somewhere (global, utils, window?).
 - Change stats field names: https://github.com/TheQwertiest/foo-jscript-panel/commit/57393822ae42e1ebd77911c0f934471903975b4e#commitcomment-29629263
-- Reimplement drag-n-drop.
 - Add try-catch's (to all js-to-native wrappers and all the code that might lead back to JS).
+- Add OOM error reporting and handling (both JS and native).
 - Add a header with component name and version to error reporter.
 - Reuse updated encoding handling code in ReadFile.
 - Remove engine settings from Panel Properties dialog.
@@ -32,6 +31,7 @@
 - Document FbHandleList.Item removal ([] proxy)
 - Document that everything is case-sensitive (unlike how it was in WSH\IE...)
 - Document discontinued support for WinXP and Vista (i.e. only Win7 and above).
+- Document DefinePanel
 - Copy and update marc2003's wiki.
 - Create a simple JSP > SMP script migration guide.
 - Create a building guide for devs.
@@ -55,6 +55,7 @@
 - Split stackblur and kmeans into .cpp and .h.
 - Run a static analysis on the code (cppcheck? pvs? VS build-in?).
 - Change the limit of JS heap according to available RAM on system (1gb heap size with only 2gb RAM is brutal).
+- Reimplement drag-n-drop properly.
 
 # Maybe
 - Follow the bug https://bugzilla.mozilla.org/show_bug.cgi?id=1474914 , if fixed consider moving to newer non-ESR branches.

@@ -46,6 +46,7 @@ MJS_DEFINE_JS_TO_NATIVE_FN( JsWindow, ClearTimeout )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsWindow, CreatePopupMenu )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsWindow, CreateThemeManager )
 MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsWindow, CreateTooltip, CreateTooltipWithOpt, 3 )
+MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsWindow, DefinePanel, DefinePanelWithOpt, 2 )
 MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsWindow, GetColourCUI, GetColourCUIWithOpt, 1 )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsWindow, GetColourDUI )
 MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsWindow, GetFontCUI, GetFontCUIWithOpt, 1 )
@@ -68,6 +69,7 @@ const JSFunctionSpec jsFunctions[] = {
     JS_FN( "CreatePopupMenu", CreatePopupMenu, 0, DefaultPropsFlags() ),
     JS_FN( "CreateThemeManager", CreateThemeManager, 1, DefaultPropsFlags() ),
     JS_FN( "CreateTooltip", CreateTooltip, 0, DefaultPropsFlags() ),
+    JS_FN( "DefinePanel", DefinePanel, 1, DefaultPropsFlags() ),
     JS_FN( "GetColourCUI", GetColourCUI, 1, DefaultPropsFlags() ),
     JS_FN( "GetColourDUI", GetColourDUI, 1, DefaultPropsFlags() ),
     JS_FN( "GetFontCUI", GetFontCUI, 1, DefaultPropsFlags() ),
@@ -164,6 +166,13 @@ void JsWindow::CleanupBeforeDestruction()
     {
         fbProperties_->RemoveHeapTracer();
     }
+    if ( dropTargetHandler_ )
+    {
+        dropTargetHandler_->RevokeDragDrop();
+        dropTargetHandler_.Detach();
+        //m_drop_target.Attach( new com_object_impl_t<HostDropTarget>( hWnd_, &jsContainer_ ) );
+        //m_drop_target->RegisterDragDrop();
+    }
 }
 
 std::optional<std::nullptr_t>
@@ -249,6 +258,92 @@ JsWindow::CreateTooltipWithOpt( size_t optArgCount, const std::wstring& name, fl
     }
 
     return CreateTooltip( name, pxSize, style );
+}
+
+std::optional<std::nullptr_t> 
+JsWindow::DefinePanel( const pfc::string8_fast& name, const pfc::string8_fast& author, JS::HandleValue options )
+{
+    if ( isPanelDefined_ )
+    {
+        JS_ReportErrorUTF8( pJsCtx_, "DefinePanel can't be called twice" );
+        return std::nullopt;
+    }
+
+    if ( !options.isNullOrUndefined() )
+    {
+        if ( !options.isObject() )
+        {
+            JS_ReportErrorUTF8( pJsCtx_, "options argument is not an object" );
+            return std::nullopt;
+        }
+
+        JS::RootedObject jsObject( pJsCtx_, &options.toObject() );
+        bool hasProp;
+        if ( !JS_HasProperty( pJsCtx_, jsObject, "drag_n_drop", &hasProp ) )
+        {// report in JS_HasProperty
+            return std::nullopt;            
+        }
+
+        if ( hasProp )
+        {
+            JS::RootedValue jsValue( pJsCtx_ );
+            if ( !JS_GetProperty( pJsCtx_, jsObject, "drag_n_drop", &jsValue ) )
+            {// report in JS_GetProperty
+                return std::nullopt;
+            }
+
+            auto retVal = convert::to_native::ToValue<bool>( pJsCtx_, jsValue );
+            if ( !retVal )
+            {
+                JS_ReportErrorUTF8( pJsCtx_, "`drag_n_drop` can't be converted to boolean" );
+                return std::nullopt;
+            }
+
+            if ( retVal.value() )
+            {
+                try
+                {
+                    dropTargetHandler_.Attach( new com_object_impl_t<HostDropTarget>( pJsCtx_, parentPanel_.GetHWND(), &parentPanel_.GetJsContainer() ) );
+                }
+                catch (...)
+                {// report in new
+                    return std::nullopt;
+                }
+                
+                HRESULT hr = dropTargetHandler_->RegisterDragDrop();
+                IF_HR_FAILED_RETURN_WITH_REPORT( pJsCtx_, hr, std::nullopt, RegisterDragDrop );
+
+                
+            }
+        }
+    }
+
+    parentPanel_.ScriptInfo().name = name;
+    parentPanel_.ScriptInfo().author = author;
+
+    isPanelDefined_ = true;
+    return nullptr;
+}
+
+std::optional<std::nullptr_t> 
+JsWindow::DefinePanelWithOpt( size_t optArgCount, const pfc::string8_fast& name, const pfc::string8_fast& author, JS::HandleValue options )
+{
+    if ( optArgCount > 2 )
+    {
+        JS_ReportErrorUTF8( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
+        return std::nullopt;
+    }
+
+    if ( optArgCount == 2 )
+    {
+        return DefinePanel( name );
+    }
+    else if ( optArgCount == 1 )
+    {
+        return DefinePanel( name, author );
+    }
+
+    return DefinePanel( name, author, options );
 }
 
 std::optional<uint32_t>

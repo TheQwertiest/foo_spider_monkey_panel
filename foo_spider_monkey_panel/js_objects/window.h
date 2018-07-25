@@ -15,6 +15,7 @@ struct JSContext;
 struct JSClass;
 
 class js_panel_window;
+class IDropTargetImpl;
 
 namespace mozjs
 {
@@ -49,6 +50,8 @@ public: // methods
     std::optional<JSObject*> CreateThemeManager( const std::wstring& classid );
     std::optional<JSObject*> CreateTooltip( const std::wstring& name = L"Segoe UI", float pxSize = 12, uint32_t style = 0 );
     std::optional<JSObject*> CreateTooltipWithOpt( size_t optArgCount, const std::wstring& name, float pxSize, uint32_t style );
+    std::optional<std::nullptr_t> DefinePanel( const pfc::string8_fast& name, const pfc::string8_fast& author = "", JS::HandleValue options = JS::UndefinedHandleValue );
+    std::optional<std::nullptr_t> DefinePanelWithOpt( size_t optArgCount, const pfc::string8_fast& name, const pfc::string8_fast& author = "", JS::HandleValue options = JS::UndefinedHandleValue );
     std::optional<uint32_t> GetColourCUI( uint32_t type, const std::wstring& guidstr = L"" );
     std::optional<uint32_t> GetColourCUIWithOpt( size_t optArgCount, uint32_t type, const std::wstring& guidstr );
     std::optional<uint32_t> GetColourDUI( uint32_t type );
@@ -56,7 +59,7 @@ public: // methods
     std::optional<JSObject*> GetFontCUIWithOpt( size_t optArgCount, uint32_t type, const std::wstring& guidstr );
     std::optional<JSObject*> GetFontDUI( uint32_t type );
     std::optional<JS::Heap<JS::Value>> GetProperty( const std::wstring& name, JS::HandleValue defaultval = JS::NullHandleValue );
-    std::optional<JS::Heap<JS::Value>> GetPropertyWithOpt( size_t optArgCount, const std::wstring& name, JS::HandleValue defaultval  );
+    std::optional<JS::Heap<JS::Value>> GetPropertyWithOpt( size_t optArgCount, const std::wstring& name, JS::HandleValue defaultval );
     std::optional<std::nullptr_t> NotifyOthers( const pfc::string8_fast& name, JS::HandleValue info );
     std::optional<std::nullptr_t> Reload();
     std::optional<std::nullptr_t> Repaint( bool force = false);
@@ -97,7 +100,9 @@ private:
     JSContext * pJsCtx_;
     js_panel_window& parentPanel_;
 
+    bool isPanelDefined_ = false;
     std::unique_ptr<FbProperties> fbProperties_;
+    CComPtr<IDropTargetImpl> dropTargetHandler_;
 };
 
 }

@@ -464,6 +464,11 @@ void js_panel_window::execute_context_menu_command( int id, int id_base )
     }
 }
 
+mozjs::JsContainer& js_panel_window::GetJsContainer()
+{
+    return jsContainer_;
+}
+
 GUID js_panel_window::GetGUID()
 {
     return get_config_guid();
@@ -673,13 +678,6 @@ bool js_panel_window::script_load()
     // TODO: check
     //HRESULT hr = m_script_host->Initialize();
 
-    if ( ScriptInfo().feature_mask & t_script_info::kFeatureDragDrop )
-    {
-        m_drop_target.Attach( new com_object_impl_t<HostDropTarget>( hWnd_, &jsContainer_ ) );
-        m_drop_target->RegisterDragDrop();
-        isDropTargetRegistered_ = true;
-    }
-
     // HACK: Script update will not call on_size, so invoke it explicitly
     SendMessage( hWnd_, UWM_SIZE, 0, 0 );
 
@@ -691,12 +689,6 @@ void js_panel_window::script_unload()
 {
     // TODO: check
     //m_script_host->Finalize();
-
-    if ( isDropTargetRegistered_ )
-    {
-        m_drop_target->RevokeDragDrop();
-        isDropTargetRegistered_ = false;
-    }
 
     selectionHolder_.release();
 
