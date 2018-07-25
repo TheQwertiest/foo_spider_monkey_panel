@@ -228,11 +228,15 @@ uint32_t GetAlbumArtAsync( HWND hWnd, const metadb_handle_ptr& handle, uint32_t 
     try
     {
         std::unique_ptr<AlbumArtFetchTask> task( new AlbumArtFetchTask( hWnd, handle, art_id, need_stub, only_embed, no_load ) );
-
-        if ( simple_thread_pool::instance().enqueue( task.get() ) )
+        uint32_t taskId = [&]()
         {
-            uint64_t taskId = reinterpret_cast<uint64_t>(task.release());
-            return static_cast<uint32_t>( ( taskId & 0xFFFFFFFF ) ^ ( taskId >> 32 ) );
+            uint64_t tmp = reinterpret_cast<uint64_t>(task.get());
+            return static_cast<uint32_t>((tmp & 0xFFFFFFFF) ^ (tmp >> 32));
+        }();
+
+        if ( simple_thread_pool::instance().enqueue( std::move( task ) ) )
+        {
+            return taskId;
         }
     }
     catch ( ... )

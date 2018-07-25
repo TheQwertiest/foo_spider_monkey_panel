@@ -16,25 +16,15 @@ class simple_thread
 public:
 	PFC_DECLARE_EXCEPTION(exception_creation, pfc::exception, "Could not create thread");
 
-	simple_thread() : m_thread(INVALID_HANDLE_VALUE)
-	{
-	}
-
-	~simple_thread()
-	{
-		PFC_ASSERT(!isActive());
-		waitTillDone();
-	}
+    simple_thread();
+    virtual ~simple_thread();
 
 	void start();
 	bool isActive() const;
 	void waitTillDone();
 
 protected:
-	virtual void threadProc()
-	{
-		PFC_ASSERT(!"Stub thread entry - should not get here");
-	}
+    virtual void threadProc() = 0;
 
 private:
 	void close();
@@ -49,15 +39,9 @@ private:
 class simple_thread_worker : public simple_thread
 {
 public:
-	simple_thread_worker()
-	{
-	}
-
-	virtual ~simple_thread_worker()
-	{
-		waitTillDone();
-	}
-	virtual void threadProc();
+    simple_thread_worker() = default;
+    virtual ~simple_thread_worker();
+	virtual void threadProc() override;
 
 private:
 	PFC_CLASS_NOT_COPYABLE_EX(simple_thread_worker)
@@ -66,43 +50,25 @@ private:
 class simple_thread_pool
 {
 public:
-	static simple_thread_pool& instance()
-	{
-		return instance_;
-	}
+    static simple_thread_pool& instance();
 
-	simple_thread_pool() : num_workers_(0)
-	{
-		empty_worker_ = CreateEvent(NULL, TRUE, TRUE, NULL);
-		exiting_ = CreateEvent(NULL, TRUE, FALSE, NULL);
-		have_task_ = CreateEvent(NULL, TRUE, FALSE, NULL);
+    simple_thread_pool();
+    ~simple_thread_pool();
 
-		pfc::dynamic_assert(empty_worker_ != INVALID_HANDLE_VALUE);
-		pfc::dynamic_assert(exiting_ != INVALID_HANDLE_VALUE);
-		pfc::dynamic_assert(have_task_ != INVALID_HANDLE_VALUE);
-	}
-
-	~simple_thread_pool()
-	{
-		CloseHandle(empty_worker_);
-		CloseHandle(exiting_);
-		CloseHandle(have_task_);
-	}
-
-	bool enqueue(simple_thread_task* task);
+	bool enqueue( std::unique_ptr<simple_thread_task> task);
 	bool is_queue_empty();
-	void track(simple_thread_task* task);
+	void track( std::unique_ptr<simple_thread_task> task );
 	void untrack(simple_thread_task* task);
 	void untrack_all();
 	// Should always called from the main thread
 	void join();
-	simple_thread_task* acquire_task();
+    std::unique_ptr<simple_thread_task> acquire_task();
 
 private:
 	void add_worker_(simple_thread_worker* worker);
 	void remove_worker_(simple_thread_worker* worker);
 
-	typedef pfc::chain_list_v2_t<simple_thread_task *> t_task_list;
+    using t_task_list = std::list<std::unique_ptr<simple_thread_task>>;
 	t_task_list task_list_;
 	critical_section cs_;
 	volatile LONG num_workers_;

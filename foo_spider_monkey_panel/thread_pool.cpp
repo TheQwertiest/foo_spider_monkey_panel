@@ -3,6 +3,18 @@
 
 simple_thread_pool simple_thread_pool::instance_;
 
+
+simple_thread::simple_thread() 
+    : m_thread( INVALID_HANDLE_VALUE )
+{
+}
+
+simple_thread::~simple_thread()
+{
+    PFC_ASSERT( !isActive() );
+    waitTillDone();
+}
+
 void simple_thread::start()
 {
 	close();
@@ -49,6 +61,12 @@ unsigned CALLBACK simple_thread::g_entry(void* p_instance)
 	return reinterpret_cast<simple_thread*>(p_instance)->entry();
 }
 
+
+simple_thread_worker::~simple_thread_worker()
+{
+    waitTillDone();
+}
+
 void simple_thread_worker::threadProc()
 {
 	pfc::tickcount_t last_tick = pfc::getTickCount();
@@ -57,12 +75,10 @@ void simple_thread_worker::threadProc()
 	{
 		if (WaitForSingleObject(simple_thread_pool::instance().have_task_, 1000) == WAIT_OBJECT_0)
 		{
-			simple_thread_task* task = simple_thread_pool::instance().acquire_task();
-
+			std::unique_ptr<simple_thread_task> task = simple_thread_pool::instance().acquire_task();
 			if (task)
 			{
 				task->run();
-				simple_thread_pool::instance().untrack(task);
 				last_tick = pfc::getTickCount();
 				continue;
 			}
@@ -83,14 +99,40 @@ void simple_thread_worker::threadProc()
 	simple_thread_pool::instance().remove_worker_(this);
 }
 
-bool simple_thread_pool::enqueue(simple_thread_task* task)
+
+simple_thread_pool& simple_thread_pool::instance()
+{
+    return instance_;
+}
+
+simple_thread_pool::simple_thread_pool() 
+    : num_workers_( 0 )
+{
+    empty_worker_ = CreateEvent( NULL, TRUE, TRUE, NULL );
+    exiting_ = CreateEvent( NULL, TRUE, FALSE, NULL );
+    have_task_ = CreateEvent( NULL, TRUE, FALSE, NULL );
+
+    pfc::dynamic_assert( empty_worker_ != INVALID_HANDLE_VALUE );
+    pfc::dynamic_assert( exiting_ != INVALID_HANDLE_VALUE );
+    pfc::dynamic_assert( have_task_ != INVALID_HANDLE_VALUE );
+}
+
+simple_thread_pool::~simple_thread_pool()
+{
+    CloseHandle( empty_worker_ );
+    CloseHandle( exiting_ );
+    CloseHandle( have_task_ );
+}
+
+bool simple_thread_pool::enqueue(std::unique_ptr<simple_thread_task> task)
 {
 	if (WaitForSingleObject(exiting_, 0) == WAIT_OBJECT_0)
 		return false;
 
 	insync(cs_);
+
 	int max_count = pfc::getOptimalWorkerThreadCount();
-	track(task);
+    track( std::move(task) );
 
 	if (num_workers_ < max_count)
 	{
@@ -105,37 +147,28 @@ bool simple_thread_pool::enqueue(simple_thread_task* task)
 bool simple_thread_pool::is_queue_empty()
 {
 	insync(cs_);
-	return task_list_.get_count() == 0;
+
+	return task_list_.empty();
 }
 
-void simple_thread_pool::track(simple_thread_task* task)
+void simple_thread_pool::track( std::unique_ptr<simple_thread_task> task )
 {
 	insync(cs_);
+
 	bool empty = is_queue_empty();
-	task_list_.add_item(task);
+	task_list_.emplace_back(std::move(task));
 
-	if (empty)
-		SetEvent(have_task_);
-}
-
-void simple_thread_pool::untrack(simple_thread_task* task)
-{
-	insync(cs_);
-	task_list_.remove_item(task);
-	delete task;
-
-	if (is_queue_empty())
-		ResetEvent(have_task_);
+    if ( empty )
+    {
+        SetEvent( have_task_ );
+    }
 }
 
 void simple_thread_pool::untrack_all()
 {
 	insync(cs_);
-	for (t_task_list::iterator iter = task_list_.first(); iter.is_valid(); ++iter)
-	{
-		task_list_.remove(iter);
-		delete *iter;
-	}
+
+    task_list_.clear();
 
 	ResetEvent(have_task_);
 }
@@ -163,21 +196,23 @@ void simple_thread_pool::join()
 	untrack_all();
 }
 
-simple_thread_task* simple_thread_pool::acquire_task()
+std::unique_ptr<simple_thread_task> simple_thread_pool::acquire_task()
 {
 	insync(cs_);
 
-	t_task_list::iterator iter = task_list_.first();
+    std::unique_ptr<simple_thread_task> task;
+    if ( !task_list_.empty() )
+    {
+        task = std::move( task_list_.front() );
+        task_list_.pop_front();
+    }
 
-	if (iter.is_valid())
-	{
-		task_list_.remove(iter);
-	}
+    if ( is_queue_empty() )
+    {
+        ResetEvent( have_task_ );
+    }
 
-	if (is_queue_empty())
-		ResetEvent(have_task_);
-
-	return iter.is_valid() ? *iter : NULL;
+	return task;
 }
 
 void simple_thread_pool::add_worker_(simple_thread_worker* worker)
@@ -208,8 +243,10 @@ void simple_thread_pool::remove_worker_(simple_thread_worker* worker)
 	InterlockedDecrement(&num_workers_);
 	insync(cs_);
 
-	if (num_workers_ == 0)
-		SetEvent(empty_worker_);
+    if ( !num_workers_ )
+    {
+        SetEvent( empty_worker_ );
+    }
 
 	main_thread_callback_manager::get()->add_callback(new service_impl_t<simple_thread_worker_remover>(worker));
 }
