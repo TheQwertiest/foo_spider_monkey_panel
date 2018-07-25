@@ -91,7 +91,7 @@ const GUID& GetGuidForArtId( uint32_t art_id )
         &album_art_ids::artist,
     };
 
-    return *guids[std::clamp<uint32_t>( art_id, 0, _countof( guids ) - 1 )];
+    return *guids[std::min( art_id, _countof( guids ) - 1 )];
 }
 
 std::unique_ptr<Gdiplus::Bitmap> GetBitmapFromAlbumArtData( const album_art_data_ptr& data )

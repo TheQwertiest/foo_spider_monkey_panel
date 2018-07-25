@@ -2,6 +2,7 @@
 
 #include <convert/native_to_js.h>
 #include <convert/js_to_native.h>
+#include <js_utils/js_error_helper.h>
 
 #include <optional>
 
@@ -21,9 +22,20 @@ std::optional<ReturnType> InvokeJsCallback( JSContext* cx,
 
     JSAutoRequest ar( cx );
     JSAutoCompartment ac( cx, globalObject );
+    AutoReportException are( cx );
+
+    JS::RootedValue funcValue( cx );
+    if ( !JS_GetProperty( cx, globalObject, functionName.c_str(), &funcValue ) )
+    {// Reports
+        return std::nullopt;
+    }
+
+    if ( funcValue.isUndefined() )
+    {// Not an error: user does not handle the callback
+        return nullptr;
+    }
 
     JS::RootedValue retVal( cx );
-
     if constexpr ( sizeof...(ArgTypes) > 0 )
     {
         JS::AutoValueArray<sizeof...(ArgTypes)> wrappedArgs( cx );
@@ -32,14 +44,14 @@ std::optional<ReturnType> InvokeJsCallback( JSContext* cx,
             return std::nullopt;
         }
 
-        if ( !InvokeJsCallback_Impl( cx, globalObject, functionName, wrappedArgs, &retVal ) )
+        if ( !InvokeJsCallback_Impl( cx, globalObject, funcValue, wrappedArgs, &retVal ) )
         {
             return std::nullopt;
         }
     }
     else
     {
-        if ( !InvokeJsCallback_Impl( cx, globalObject, functionName, JS::HandleValueArray::empty(), &retVal ) )
+        if ( !InvokeJsCallback_Impl( cx, globalObject, funcValue, JS::HandleValueArray::empty(), &retVal ) )
         {
             return std::nullopt;
         }
@@ -67,7 +79,7 @@ bool NativeToJsArguments( [[maybe_unused]] JSContext * cx,
 
 bool InvokeJsCallback_Impl( JSContext* cx,
                             JS::HandleObject globalObject,
-                            pfc::string8_fast functionName,
+                            JS::HandleValue functionValue,
                             const JS::HandleValueArray& args,
                             JS::MutableHandleValue rval );
 

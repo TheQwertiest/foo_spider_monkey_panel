@@ -35,14 +35,7 @@ struct t_style_to_key_table
 class CScriptEditorCtrl : public CScintillaCtrl
 {
 public:
-	CScriptEditorCtrl()
-	{
-		m_nBraceCount = 0;
-		m_nCurrentCallTip = 0;
-		m_nStartCalltipWord = 0;
-		m_nLastPosCallTip = 0;
-		m_nStatementLookback = 10;
-	}
+    CScriptEditorCtrl() = default;
 
 	// Operations and Implementation
 	Sci_CharacterRange GetSelection();
@@ -90,11 +83,11 @@ public:
 	LRESULT OnChange(UINT uNotifyCode, int nID, HWND wndCtl);
 
 private:
-	int m_nBraceCount;
-	int m_nCurrentCallTip;
-	int m_nStartCalltipWord;
-	int m_nLastPosCallTip;
-	int m_nStatementLookback;
+	int m_nBraceCount = 0;
+	int m_nCurrentCallTip = 0;
+	int m_nStartCalltipWord = 0;
+	int m_nLastPosCallTip = 0;
+	int m_nStatementLookback = 10;
 
 	StyleAndWords m_BlockStart;
 	StyleAndWords m_BlockEnd;

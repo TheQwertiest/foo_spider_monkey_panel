@@ -1,8 +1,8 @@
 #pragma once
 
-//#define _WIN32_WINNT _WIN32_WINNT_WINXP
-//#define WINVER _WIN32_WINNT_WINXP
-//#define _WIN32_IE _WIN32_IE_IE60
+// Spider Monkey ESR60 supports only Win7+
+#define _WIN32_WINNT _WIN32_WINNT_WIN7
+#define WINVER _WIN32_WINNT_WIN7
 
 #define TO_VARIANT_BOOL(v) ((v) ? (VARIANT_TRUE) : (VARIANT_FALSE))
 

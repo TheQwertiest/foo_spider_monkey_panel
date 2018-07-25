@@ -5,7 +5,6 @@
 - Add try-catch's (to all js-to-native wrappers and all the code that might lead back to JS).
 - Add OOM error reporting and handling (both JS and native).
 - Add a header with component name and version to error reporter.
-- Reuse updated encoding handling code in ReadFile.
 - Backport all the changes from foo-jscript-panel.
 - Create patches for pfc, columns-ui and fb2k sdk.
 - Complete rebranding to spider_monkey_panel.
@@ -52,7 +51,7 @@
 - Add a custom message support to profiler.
 - Add W3C specified printf-lile behaviour to console.log.
 - Add font caching (check if it's not handled by the system already though).
-- Split stackblur and kmeans into .cpp and .h.
+- Add a better drag-n-drop window (rip it from CUI?).
 - Run a static analysis on the code (cppcheck? pvs? VS build-in?).
 - Change the limit of JS heap according to available RAM on system (1gb heap size with only 2gb RAM is brutal).
 - Reimplement drag-n-drop properly.

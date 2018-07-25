@@ -109,9 +109,6 @@
     <ClCompile Include="ui_replace.cpp">
       <Filter>uncategorized\ui</Filter>
     </ClCompile>
-    <ClCompile Include="js_objects\active_x.cpp">
-      <Filter>js_objects</Filter>
-    </ClCompile>
     <ClCompile Include="js_objects\fb_metadb_handle.cpp">
       <Filter>js_objects</Filter>
     </ClCompile>
@@ -216,6 +213,9 @@
     </ClCompile>
     <ClCompile Include="kmeans.cpp">
       <Filter>uncategorized</Filter>
+    </ClCompile>
+    <ClCompile Include="js_utils\file_helpers.cpp">
+      <Filter>js_utils</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -372,9 +372,6 @@
     <ClInclude Include="..\PropertyList\PropertyList.h">
       <Filter>uncategorized\property_window</Filter>
     </ClInclude>
-    <ClInclude Include="js_objects\active_x.h">
-      <Filter>js_objects</Filter>
-    </ClInclude>
     <ClInclude Include="js_objects\fb_metadb_handle.h">
       <Filter>js_objects</Filter>
     </ClInclude>
@@ -497,6 +494,9 @@
     </ClInclude>
     <ClInclude Include="resource.h">
       <Filter>uncategorized\resources</Filter>
+    </ClInclude>
+    <ClInclude Include="js_utils\file_helpers.h">
+      <Filter>js_utils</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

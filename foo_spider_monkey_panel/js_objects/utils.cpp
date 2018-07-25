@@ -9,6 +9,7 @@
 #include <js_utils/winapi_error_helper.h>
 #include <js_utils/js_object_helper.h>
 #include <js_utils/art_helper.h>
+#include <js_utils/file_helpers.h>
 
 #include <helpers.h>
 
@@ -593,20 +594,19 @@ JsUtils::ReadINIWithOpt( size_t optArgCount, const std::wstring& filename, const
 }
 
 std::optional<std::wstring>
-JsUtils::ReadTextFile( const std::wstring& filename, uint32_t codepage )
-{// TODO: inspect the code (replace with std::filesystem perhaps?)
-    pfc::array_t<wchar_t> content;
-
-    if ( !helpers::read_file_wide( codepage, filename.c_str(), content ) )
-    {
-        return std::wstring();
+JsUtils::ReadTextFile( const pfc::string8_fast& filePath, uint32_t codepage )
+{
+    auto retVal = file::ReadFromFile( pJsCtx_, filePath );
+    if ( !retVal )
+    {// report in ReadFromFile;
+        return std::nullopt;
     }
 
-    return std::wstring( content.get_ptr(), content.get_size() );
+    return retVal.value();
 }
 
 std::optional<std::wstring> 
-JsUtils::ReadTextFileWithOpt( size_t optArgCount, const std::wstring& filename, uint32_t codepage )
+JsUtils::ReadTextFileWithOpt( size_t optArgCount, const pfc::string8_fast& filePath, uint32_t codepage )
 {
     if ( optArgCount > 1 )
     {
@@ -616,10 +616,10 @@ JsUtils::ReadTextFileWithOpt( size_t optArgCount, const std::wstring& filename, 
 
     if ( optArgCount == 1 )
     {
-        return ReadTextFile( filename );
+        return ReadTextFile( filePath );
     }
 
-    return ReadTextFile( filename, codepage );
+    return ReadTextFile( filePath, codepage );
 }
 
 std::optional<bool>
