@@ -396,9 +396,7 @@ JsGdiBitmap::GetColourSchemeJSON( uint32_t count )
         uint8_t g = (colour >> 8) & 0xff;
         uint8_t b = (colour & 0xff);
 
-        std::vector<uint32_t> values = { r, g, b };
-        Point p( idx++, values, pixelCount );
-        points.push_back( p );
+        points.emplace_back( idx++, std::vector<uint32_t>{ r, g, b }, pixelCount );
     }
 
     KMeans kmeans( count, colour_counters.size(), 12 ); // 12 iterations max
@@ -417,10 +415,12 @@ JsGdiBitmap::GetColourSchemeJSON( uint32_t count )
     t_size outCount = std::min( count, colour_counters.size() );
     for ( t_size i = 0; i < outCount; ++i )
     {
-        int colour = 0xff000000 
-            | (int)clusters[i].getCentralValue( 0 ) << 16 
-            | (int)clusters[i].getCentralValue( 1 ) << 8 
-            | (int)clusters[i].getCentralValue( 2 );
+        const auto& centralValues = clusters[i].getCentralValues();
+
+        uint32_t colour = 0xff000000
+            | static_cast<uint32_t>(centralValues[0]) << 16
+            | static_cast<uint32_t>(centralValues[1]) << 8
+            | static_cast<uint32_t>(centralValues[2]);
         double frequency = clusters[i].getTotalPoints() / (double)colours_length;
 
         j.push_back(

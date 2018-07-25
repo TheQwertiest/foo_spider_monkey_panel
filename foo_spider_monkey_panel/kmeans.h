@@ -28,54 +28,56 @@ namespace kmeans
 class Point
 {
 private:
-    int id_point, id_cluster;
+    uint32_t id_point;
+    uint32_t id_cluster = -1;
     std::vector<uint32_t> values;
     uint32_t total_values;
     uint32_t pixel_count;
 
 public:
-    Point( int id_point, const std::vector<uint32_t>& values, uint32_t pixel_count );
+    Point( uint32_t id_point, const std::vector<uint32_t>& values, uint32_t pixel_count );
 
-    int getID() const;
-    void setCluster( int id_cluster );
-    int getCluster() const;
-    uint32_t getValue( int index ) const;
-    uint32_t getTotalValues() const;
+    uint32_t getID() const;
+    void setCluster( uint32_t id_cluster );
+    uint32_t getCluster() const;
     uint32_t getPixelCount()const;
+
+    const std::vector<uint32_t>& getValues() const;
 };
 
 class Cluster
 {
 private:
-    int id_cluster;
+    uint32_t id_cluster;
     std::vector<double> central_values;
     std::vector<Point> points;
 
 public:
-    Cluster( int id_cluster, Point point );
+    Cluster( uint32_t id_cluster, Point point );
 
     void addPoint( Point point );
-    bool removePoint( int id_point );
-    double getCentralValue( int index ) const;
-    void setCentralValue( int index, double value );
-    Point getPoint( int index ) const;
-    int getTotalPoints() const;
-    int getSize() const;
+    bool removePoint( uint32_t id_point );
+    Point getPoint( uint32_t index ) const;
+    uint32_t getTotalPoints() const;
+    uint32_t getSize() const;
+
+    const std::vector<double>& getCentralValues() const;
+    std::vector<double>& getCentralValues();
 };
 
 class KMeans
 {
 private:
-    int K; // number of clusters
-    int colour_components, total_points, max_iterations;
+    uint32_t K; // number of clusters
+    uint32_t colour_components, total_points, max_iterations;
     std::vector<Cluster> clusters;
 
     // return ID of nearest center
     // uses distance calculations from: https://en.wikipedia.org/wiki/Color_difference
-    int getIDNearestCenter( Point point ) const;
+    uint32_t getIDNearestCenter( Point point ) const;
 
 public:
-    KMeans( int K, int total_points, int max_iterations );
+    KMeans( uint32_t K, uint32_t total_points, uint32_t  max_iterations );
 
     std::vector<Cluster> run( std::vector<Point> & points );
 };
