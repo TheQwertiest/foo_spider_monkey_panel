@@ -34,10 +34,7 @@ JSClass jsClass = {
     &jsOps
 };
 
-MJS_DEFINE_JS_TO_NATIVE_FN( JsHacks, GetFbWindow )
-
 const JSFunctionSpec jsFunctions[] = {
-    JS_FN("GetFbWindow", GetFbWindow, 0, DefaultPropsFlags()),
     JS_FS_END
 };
 
@@ -75,15 +72,9 @@ size_t JsHacks::GetInternalSize()
 }
 
 
-std::optional<JSObject*> JsHacks::GetFbWindow()
+bool JsHacks::PostCreate( JSContext* cx, JS::HandleObject self )
 {
-    JS::RootedObject jsObject( pJsCtx_, JsFbWindow::CreateJs( pJsCtx_ ) );
-    if ( !jsObject )
-    {// reports
-        return std::nullopt;
-    }
-
-    return jsObject;
+    return CreateAndInstallObject<JsFbWindow>( cx, self, "FbWindow" );
 }
 
 }

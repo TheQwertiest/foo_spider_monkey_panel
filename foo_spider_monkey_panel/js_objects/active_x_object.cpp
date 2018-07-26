@@ -449,9 +449,9 @@ size_t ActiveXObject::GetInternalSize( const std::wstring& name )
     return 0;
 }
 
-bool ActiveXObject::PostCreate( JS::HandleObject self )
+bool ActiveXObject::PostCreate( JSContext* cx, JS::HandleObject self )
 {
-    auto pNative = static_cast<ActiveXObject*>(JS_GetPrivate( self ));
+    auto pNative = static_cast<ActiveXObject*>(JS_GetInstancePrivate( cx, self, &ActiveXObject::JsClass, nullptr ));
     assert( pNative );
     return pNative->SetupMembers( self );
 }

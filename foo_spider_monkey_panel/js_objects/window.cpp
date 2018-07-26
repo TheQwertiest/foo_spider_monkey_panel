@@ -172,8 +172,6 @@ void JsWindow::CleanupBeforeDestruction()
     {
         dropTargetHandler_->RevokeDragDrop();
         dropTargetHandler_.Detach();
-        //m_drop_target.Attach( new com_object_impl_t<HostDropTarget>( hWnd_, &jsContainer_ ) );
-        //m_drop_target->RegisterDragDrop();
     }
 }
 

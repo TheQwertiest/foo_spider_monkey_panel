@@ -177,7 +177,7 @@ private:
 
         if constexpr ( T::HasPostCreate )
         {
-            if ( !T::PostCreate( jsBaseObject ) )
+            if ( !T::PostCreate( cx, jsBaseObject ) )
             {// report in PostFinal
                 return nullptr;
             }

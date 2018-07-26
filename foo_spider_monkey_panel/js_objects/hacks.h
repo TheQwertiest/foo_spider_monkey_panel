@@ -18,7 +18,7 @@ class JsHacks
 public:
     static constexpr bool HasProto = false;
     static constexpr bool HasProxy = false;
-    static constexpr bool HasPostCreate = false;
+    static constexpr bool HasPostCreate = true;
 
     static const JSClass JsClass;
     static const JSFunctionSpec* JsFunctions;
@@ -29,9 +29,7 @@ public:
 
     static std::unique_ptr<JsHacks> CreateNative( JSContext* cx );
     static size_t GetInternalSize();
-
-public:
-    std::optional<JSObject*> GetFbWindow();
+    static bool PostCreate( JSContext* cx, JS::HandleObject self );
 
 private:
     JsHacks( JSContext* cx );
