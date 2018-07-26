@@ -108,6 +108,7 @@
     <ClCompile Include="js_engine\js_engine.cpp" />
     <ClCompile Include="js_engine\native_to_js_invoker.cpp" />
     <ClCompile Include="js_objects\active_x_object.cpp" />
+    <ClCompile Include="js_objects\aero.cpp" />
     <ClCompile Include="js_objects\console.cpp" />
     <ClCompile Include="js_objects\context_menu_manager.cpp" />
     <ClCompile Include="js_objects\drop_source_action.cpp" />
@@ -123,12 +124,14 @@
     <ClCompile Include="js_objects\fb_tooltip.cpp" />
     <ClCompile Include="js_objects\fb_ui_selection_holder.cpp" />
     <ClCompile Include="js_objects\fb_utils.cpp" />
+    <ClCompile Include="js_objects\fb_window.cpp" />
     <ClCompile Include="js_objects\gdi_bitmap.cpp" />
     <ClCompile Include="js_objects\gdi_graphics.cpp" />
     <ClCompile Include="js_objects\gdi_raw_bitmap.cpp" />
     <ClCompile Include="js_objects\gdi_utils.cpp" />
     <ClCompile Include="js_objects\gdi_font.cpp" />
     <ClCompile Include="js_objects\global_object.cpp" />
+    <ClCompile Include="js_objects\hacks.cpp" />
     <ClCompile Include="js_objects\internal\fb_properties.cpp" />
     <ClCompile Include="js_objects\internal\global_heap_manager.cpp" />
     <ClCompile Include="js_objects\main_menu_manager.cpp" />
@@ -185,6 +188,8 @@
     <ClInclude Include="js_engine\js_to_native_invoker.h" />
     <ClInclude Include="js_engine\native_to_js_invoker.h" />
     <ClInclude Include="js_objects\active_x_object.h" />
+    <ClInclude Include="js_objects\aero.h" />
+    <ClInclude Include="js_objects\fb_window.h" />
     <ClInclude Include="js_objects\internal\fb_properties.h" />
     <ClInclude Include="js_objects\internal\global_heap_manager.h" />
     <ClInclude Include="js_objects\internal\prototype_ids.h" />

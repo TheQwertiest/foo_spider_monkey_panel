@@ -59,6 +59,13 @@ bool ToValue( JSContext *, const int8_t& inValue, JS::MutableHandleValue wrapped
 }
 
 template <>
+bool ToValue( JSContext *, const uint8_t& inValue, JS::MutableHandleValue wrappedValue )
+{
+    wrappedValue.setNumber( static_cast<uint32_t>(inValue) );
+    return true;
+}
+
+template <>
 bool ToValue( JSContext *, const int32_t& inValue, JS::MutableHandleValue wrappedValue )
 {
     wrappedValue.setInt32( inValue );

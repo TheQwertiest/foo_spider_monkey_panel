@@ -9,6 +9,7 @@
 #include <js_objects/fb_playlist_manager.h>
 #include <js_objects/fb_utils.h>
 #include <js_objects/gdi_utils.h>
+#include <js_objects/hacks.h>
 #include <js_objects/utils.h>
 #include <js_objects/window.h>
 #include <js_objects/internal/global_heap_manager.h>
@@ -129,7 +130,8 @@ JSObject* JsGlobalObject::CreateNative( JSContext* cx, JsContainer &parentContai
              || !CreateAndInstallObject<JsFbPlaylistManager>( cx, jsObj, "plman" )
              || !CreateAndInstallObject<JsUtils>( cx, jsObj, "utils" )
              || !CreateAndInstallObject<JsFbUtils>( cx, jsObj, "fb" )
-             || !CreateAndInstallObject<JsWindow>( cx, jsObj, "window", parentPanel ) )
+             || !CreateAndInstallObject<JsWindow>( cx, jsObj, "window", parentPanel ) 
+             || !CreateAndInstallObject<JsHacks>( cx, jsObj, "hacks" ) )
         {
             return nullptr;
         }

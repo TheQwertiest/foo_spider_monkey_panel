@@ -1,5 +1,4 @@
 #include <stdafx.h>
-
 #include "gdi_font.h"
 
 #include <js_engine/js_to_native_invoker.h>

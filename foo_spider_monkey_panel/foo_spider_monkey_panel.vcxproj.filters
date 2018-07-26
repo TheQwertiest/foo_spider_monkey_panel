@@ -217,6 +217,15 @@
     <ClCompile Include="js_utils\file_helpers.cpp">
       <Filter>js_utils</Filter>
     </ClCompile>
+    <ClCompile Include="js_objects\aero.cpp">
+      <Filter>js_objects</Filter>
+    </ClCompile>
+    <ClCompile Include="js_objects\fb_window.cpp">
+      <Filter>js_objects</Filter>
+    </ClCompile>
+    <ClCompile Include="js_objects\hacks.cpp">
+      <Filter>js_objects</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="js_engine\js_engine.h">
@@ -500,6 +509,12 @@
     </ClInclude>
     <ClInclude Include="drop_action_params.h">
       <Filter>uncategorized</Filter>
+    </ClInclude>
+    <ClInclude Include="js_objects\fb_window.h">
+      <Filter>js_objects</Filter>
+    </ClInclude>
+    <ClInclude Include="js_objects\aero.h">
+      <Filter>js_objects</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
