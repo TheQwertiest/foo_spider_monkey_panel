@@ -27,7 +27,7 @@ bool InvokeJsCallback_Impl( JSContext* cx,
         return false;
     }
 
-    bool bRet = !JS::Call( cx, globalObject, func, args, rval ); // reports
+    bool bRet = JS::Call( cx, globalObject, func, args, rval ); // reports
     JsEngine::GetInstance().MaybeGc();
     return bRet;
 }

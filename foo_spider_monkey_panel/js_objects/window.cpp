@@ -303,14 +303,7 @@ JsWindow::DefinePanel( const pfc::string8_fast& name, const pfc::string8_fast& a
 
             if ( retVal.value() )
             {
-                try
-                {
-                    dropTargetHandler_.Attach( new com_object_impl_t<HostDropTarget>( pJsCtx_, parentPanel_.GetHWND(), &parentPanel_.GetJsContainer() ) );
-                }
-                catch (...)
-                {// report in new
-                    return std::nullopt;
-                }
+                dropTargetHandler_.Attach( new com_object_impl_t<HostDropTarget>( parentPanel_.GetHWND() ) );
                 
                 HRESULT hr = dropTargetHandler_->RegisterDragDrop();
                 IF_HR_FAILED_RETURN_WITH_REPORT( pJsCtx_, hr, std::nullopt, RegisterDragDrop );

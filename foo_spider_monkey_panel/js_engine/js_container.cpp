@@ -4,7 +4,9 @@
 #include <js_engine/js_compartment_inner.h>
 #include <js_objects/global_object.h>
 #include <js_objects/gdi_graphics.h>
+#include <js_objects/drop_source_action.h>
 #include <js_utils/js_error_helper.h>
+#include <js_utils/scope_helper.h>
 
 #include <js_panel_window.h>
 #include <host_timer_dispatcher.h>
@@ -91,6 +93,7 @@ void JsContainer::Finalize()
     
     pNativeGraphics_ = nullptr;
     jsGraphics_.reset();
+    jsDropAction_.reset();
     if ( !jsGlobal_.initialized() )
     {
         return;
@@ -124,34 +127,29 @@ JsContainer::JsStatus JsContainer::GetStatus() const
     return jsStatus_;
 }
 
-bool JsContainer::ExecuteScript( pfc::string8_fast scriptCode )
+bool JsContainer::ExecuteScript( const pfc::string8_fast&  scriptCode )
 {
     assert( pJsCtx_ );
     assert( jsGlobal_.initialized() );
     assert( JsStatus::Ready == jsStatus_ );
 
-    JSAutoRequest ar( pJsCtx_ );
-    JSAutoCompartment ac( pJsCtx_, jsGlobal_ );
+    scope::JsScope autoScope( pJsCtx_, jsGlobal_ );
 
     JS::CompileOptions opts( pJsCtx_ );
     opts.setFileAndLine( "<main>", 1 );
 
-    JS::RootedValue rval( pJsCtx_ );
-
-    AutoReportException are( pJsCtx_ );
-    return JS::Evaluate( pJsCtx_, opts, scriptCode.c_str(), scriptCode.length(), &rval );   
+    JS::RootedValue dummyRval( pJsCtx_ );    
+    return JS::Evaluate( pJsCtx_, opts, scriptCode.c_str(), scriptCode.length(), &dummyRval );
 }
 
-void JsContainer::InvokeOnNotifyCallback( const std::wstring& name, const std::wstring& data )
+void JsContainer::InvokeOnNotify( const std::wstring& name, const std::wstring& data )
 {   
     if ( JsStatus::Ready != jsStatus_ )
     {
         return;
     }
 
-    JSAutoRequest ar( pJsCtx_ );
-    JSAutoCompartment ac( pJsCtx_, jsGlobal_ );
-    AutoReportException are( pJsCtx_ );
+    scope::JsScope autoScope( pJsCtx_, jsGlobal_ );
 
     JS::RootedValue jsStringVal( pJsCtx_ );
     if ( !convert::to_js::ToValue( pJsCtx_, data, &jsStringVal ) )
@@ -168,13 +166,13 @@ void JsContainer::InvokeOnNotifyCallback( const std::wstring& name, const std::w
         return;
     }
 
-    are.Disable(); ///< InvokeJsCallback has it's own AutoReportException
+    autoScope.DisableReport(); ///< InvokeJsCallback has it's own AutoReportException
     InvokeJsCallback( "on_notify_data",
                       static_cast<std::wstring>(name),
                       static_cast<JS::HandleValue>(jsVal) );
 }
 
-void JsContainer::InvokeOnPaintCallback( Gdiplus::Graphics& gr )
+void JsContainer::InvokeOnPaint( Gdiplus::Graphics& gr )
 {
     if ( JsStatus::Ready != jsStatus_ )
     {
@@ -189,6 +187,33 @@ void JsContainer::InvokeOnPaintCallback( Gdiplus::Graphics& gr )
         return;
     }
     pNativeGraphics_->SetGraphicsObject( nullptr );
+}
+
+void JsContainer::InvokeOnDragAction( const pfc::string8_fast& functionName, const POINTL& pt, uint32_t keyState, DropActionParams& actionParams )
+{
+    if ( JsStatus::Ready != jsStatus_ )
+    {
+        return;
+    }
+
+    scope::JsScope autoScope( pJsCtx_, jsGlobal_ );
+
+    if ( !CreateDropActionIfNeeded() )
+    {// reports
+        return;
+    }
+
+    pNativeDropAction_->GetDropActionParams() = actionParams;
+
+    auto retVal = InvokeJsCallback( functionName,
+                                    static_cast<JS::HandleObject>(jsDropAction_),
+                                    static_cast<int32_t>(pt.x),
+                                    static_cast<int32_t>(pt.y),
+                                    static_cast<uint32_t>(keyState) );
+    if ( retVal )
+    {
+        actionParams = pNativeDropAction_->GetDropActionParams();
+    }
 }
 
 uint32_t JsContainer::SetInterval( HWND hWnd, uint32_t delay, JS::HandleFunction jsFunction )
@@ -209,6 +234,25 @@ void JsContainer::KillTimer( uint32_t timerId )
 void JsContainer::InvokeTimerFunction( uint32_t timerId )
 {
     HostTimerDispatcher::Get().onInvokeMessage( timerId );
+}
+
+bool JsContainer::CreateDropActionIfNeeded()
+{
+    if ( jsDropAction_.initialized() )
+    {
+        return true;
+    }
+
+    jsDropAction_.init( pJsCtx_, JsDropSourceAction::CreateJs( pJsCtx_ ) );
+    if ( !jsDropAction_ )
+    {// reports
+        return false;
+    }
+
+    pNativeDropAction_ = static_cast<JsDropSourceAction*>(JS_GetPrivate( jsDropAction_ ));
+    assert( pNativeDropAction_ );
+    
+    return true;
 }
 
 }

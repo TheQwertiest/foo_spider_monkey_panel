@@ -498,6 +498,9 @@
     <ClInclude Include="js_utils\file_helpers.h">
       <Filter>js_utils</Filter>
     </ClInclude>
+    <ClInclude Include="drop_action_params.h">
+      <Filter>uncategorized</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include=".editorconfig" />

@@ -38,6 +38,8 @@
 - Check all TODOs.
 
 # Planned
+- Add relative path support to `include`.
+- Add script caching to to `include` (measure if there is any performance improvement though).
 - Replace `Create*` interface methods with prototypes and `new` where possible
 - Try to make it work with paths containing cyrillics and other exotic characters
 - Move setInterval and friends to global namespace.
@@ -54,7 +56,6 @@
 - Add a better drag-n-drop window (rip it from CUI?).
 - Run a static analysis on the code (cppcheck? pvs? VS build-in?).
 - Change the limit of JS heap according to available RAM on system (1gb heap size with only 2gb RAM is brutal).
-- Reimplement drag-n-drop properly.
 
 # Maybe
 - Follow the bug https://bugzilla.mozilla.org/show_bug.cgi?id=1474914 , if fixed consider moving to newer non-ESR branches.

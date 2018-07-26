@@ -177,6 +177,7 @@
     <ClInclude Include="convert\com.h" />
     <ClInclude Include="convert\js_to_native.h" />
     <ClInclude Include="convert\native_to_js.h" />
+    <ClInclude Include="drop_action_params.h" />
     <ClInclude Include="drop_source_impl.h" />
     <ClInclude Include="js_engine\js_compartment_inner.h" />
     <ClInclude Include="js_engine\js_container.h" />

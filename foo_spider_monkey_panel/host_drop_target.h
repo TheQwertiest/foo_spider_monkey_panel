@@ -5,6 +5,8 @@
 
 #include <js_objects/internal/global_heap_manager.h>
 
+#include <drop_action_params.h>
+
 namespace mozjs
 {
 
@@ -16,17 +18,13 @@ class JsGlobalObject;
 
 class HostDropTarget
     : public IDropTargetImpl
-    , public mozjs::IHeapUser
 {
 protected:
     virtual void FinalRelease();
 
 public:
-	HostDropTarget( JSContext * cx, HWND hWnd, mozjs::JsContainer* pJsContainer);
-	virtual ~HostDropTarget();
-
-    // IHeapUser
-    virtual void DisableHeapCleanup() override;
+	HostDropTarget( HWND hWnd );
+	virtual ~HostDropTarget() = default;
 
 	// IDropTarget
 	virtual HRESULT OnDragEnter(IDataObject* pDataObj, DWORD grfKeyState, POINTL pt, DWORD* pdwEffect) override;
@@ -35,23 +33,11 @@ public:
 	virtual HRESULT OnDrop(IDataObject* pDataObj, DWORD grfKeyState, POINTL pt, DWORD* pdwEffect) override;
 
 private:
-	void on_drag_enter(unsigned keyState, POINTL& pt);
-	void on_drag_leave();
-	void on_drag_over(unsigned keyState, POINTL& pt);
-	void on_drag_drop(unsigned keyState, POINTL& pt);
+    void SendDragMessage( DWORD msgId, DWORD grfKeyState, POINTL pt );
 
 private:
-    JSContext * pJsCtx_ = nullptr;
-    uint32_t objectId_;
-    uint32_t globalId_;
-    mozjs::JsGlobalObject* pNativeGlobal_ = nullptr;
-    mozjs::JsDropSourceAction* pNativeAction_ = nullptr;
-
-    std::mutex cleanupLock_;
-    bool needsCleanup_ = false;
-    mozjs::JsContainer* pJsContainer_;
-
-	DWORD m_fb2kAllowedEffect;
+    mozjs::DropActionParams actionParams_;
+	DWORD m_fb2kAllowedEffect = DROPEFFECT_NONE;
 
 	BEGIN_COM_QI_IMPL()
 		COM_QI_ENTRY_MULTI(IUnknown, IDropTarget)

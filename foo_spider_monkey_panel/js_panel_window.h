@@ -37,9 +37,6 @@ private:
     mozjs::JsContainer jsContainer_;
 
 public:
-    // TODO: dirty hack, remove
-    mozjs::JsContainer& GetJsContainer();
-
     GUID GetGUID();
     HDC GetHDC() const;
     HWND GetHWND() const;
@@ -107,6 +104,10 @@ private:
     void on_char( WPARAM wp );
     void on_colours_changed();
     void on_cursor_follow_playback_changed(WPARAM wp);
+    void on_drag_drop( LPARAM lp );
+    void on_drag_enter( LPARAM lp );
+    void on_drag_leave();
+    void on_drag_over( LPARAM lp );
     void on_dsp_preset_changed();
     void on_focus_changed(bool isFocused);
     void on_font_changed();

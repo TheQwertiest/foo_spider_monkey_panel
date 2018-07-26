@@ -19,6 +19,8 @@ namespace mozjs
 class JsEngine;
 class JsGlobalObject;
 class JsGdiGraphics;
+class JsDropSourceAction;
+struct DropActionParams;
 
 class JsContainer final
 {
@@ -38,7 +40,7 @@ public:
         Failed
     };
 
-public:   
+public:
     bool Initialize();
     void Finalize();
 
@@ -46,7 +48,7 @@ public:
 
     JsStatus GetStatus() const;
 
-    bool ExecuteScript( pfc::string8_fast scriptCode );
+    bool ExecuteScript( const pfc::string8_fast& scriptCode );
 
     template <typename ReturnType = std::nullptr_t, typename... ArgTypes>
     std::optional<ReturnType> InvokeJsCallback( pfc::string8_fast functionName,
@@ -55,12 +57,14 @@ public:
         if ( JsStatus::Ready != jsStatus_ )
         {
             return std::nullopt;
-        }        
-        return mozjs::InvokeJsCallback<ReturnType>( pJsCtx_, jsGlobal_, functionName, std::forward<ArgTypes>(args)... );
-    }    
+        }
+        return mozjs::InvokeJsCallback<ReturnType>( pJsCtx_, jsGlobal_, functionName, std::forward<ArgTypes>( args )... );
+    }
 
-    void InvokeOnNotifyCallback( const std::wstring& name, const std::wstring& data );
-    void InvokeOnPaintCallback( Gdiplus::Graphics& gr );
+public: // callbacks that require js data
+    void InvokeOnNotify( const std::wstring& name, const std::wstring& data );
+    void InvokeOnPaint( Gdiplus::Graphics& gr );
+    void InvokeOnDragAction( const pfc::string8_fast& functionName, const POINTL& pt, uint32_t keyState, DropActionParams& actionParams );
 
     uint32_t SetInterval( HWND hWnd, uint32_t delay, JS::HandleFunction jsFunction );
     uint32_t SetTimeout( HWND hWnd, uint32_t delay, JS::HandleFunction jsFunction );
@@ -72,14 +76,18 @@ private:
 
     bool Prepare( JSContext *cx, js_panel_window& parentPanel );
 
+    bool CreateDropActionIfNeeded();
+
 private:
     JSContext * pJsCtx_ = nullptr;
     js_panel_window* pParentPanel_ = nullptr;
 
     JS::PersistentRootedObject jsGlobal_;
     JS::PersistentRootedObject jsGraphics_;
+    JS::PersistentRootedObject jsDropAction_;
     JsGlobalObject* pNativeGlobal_ = nullptr;
     JsGdiGraphics* pNativeGraphics_ = nullptr;
+    JsDropSourceAction* pNativeDropAction_ = nullptr;
 
     JsStatus jsStatus_ = JsStatus::NotPrepared;
 };

@@ -210,7 +210,7 @@ JsGlobalObject::IncludeScript( const pfc::string8_fast& path )
 {
     const auto parsedPath = [&]
     {
-        pfc::string8_fast tmpPath;
+        pfc::string8_fast tmpPath = path;
         tmpPath.replace_string( "/", "\\", 0 );
         return tmpPath;
     }();

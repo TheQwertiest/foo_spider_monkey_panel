@@ -150,11 +150,15 @@ void JsEngine::MaybeGc()
     lastGcCheckTime_ = timeGetTime();
 
     uint64_t curTotalHeapSize = GetCurrentTotalHeapSize();
+    if ( !lastTotalHeapSize_ )
+    {
+        lastTotalHeapSize_ = curTotalHeapSize;
+    }
 
     if ( !JS::IsIncrementalGCInProgress( pJsCtx_ )
          && (curTotalHeapSize <= lastTotalHeapSize_ + k_HeapGrowthRateTrigger) )
     {
-        if ( !lastTotalHeapSize_ || lastTotalHeapSize_ > curTotalHeapSize )
+        if ( lastTotalHeapSize_ > curTotalHeapSize )
         {
             lastTotalHeapSize_ = curTotalHeapSize;            
         }

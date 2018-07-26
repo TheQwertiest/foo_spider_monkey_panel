@@ -1,6 +1,7 @@
 #pragma once
 
 #include <js_objects/object_base.h>
+#include <drop_action_params.h>
 
 #include <optional>
 
@@ -10,7 +11,6 @@ struct JSClass;
 
 namespace mozjs
 {
-
 
 class JsDropSourceAction
     : public JsObjectBase<JsDropSourceAction>
@@ -33,12 +33,7 @@ public:
     static size_t GetInternalSize();
 
 public:
-    void Reset();
-
-    uint32_t & Base();
-    int32_t& Playlist();
-    bool& ToSelect();
-    uint32_t& Effect();
+    DropActionParams & GetDropActionParams();
 
 public:
     std::optional<uint32_t> get_Effect();
@@ -53,11 +48,7 @@ private:
 private:
     JSContext * pJsCtx_ = nullptr;
 
-    // -1 means active playlist
-    int32_t playlistIdx_;
-    uint32_t base_;
-    bool toSelect_;
-    uint32_t effect_;
+    DropActionParams actionParams_;
 };
 
 }

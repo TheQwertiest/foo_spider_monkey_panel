@@ -6,7 +6,6 @@
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
 
-
 namespace
 {
 
@@ -64,8 +63,8 @@ const JsPrototypeId JsDropSourceAction::PrototypeId = JsPrototypeId::DropSourceA
 JsDropSourceAction::JsDropSourceAction( JSContext* cx )
     : pJsCtx_( cx )
 {
-    Reset();
 }
+
 JsDropSourceAction::~JsDropSourceAction()
 {
 }
@@ -81,65 +80,42 @@ size_t JsDropSourceAction::GetInternalSize()
     return 0;
 }
 
-void JsDropSourceAction::Reset()
+DropActionParams & JsDropSourceAction::GetDropActionParams()
 {
-    playlistIdx_ = -1;
-    base_ = 0;
-    toSelect_ = true;
-    effect_ = DROPEFFECT_NONE;
-}
-
-uint32_t & JsDropSourceAction::Base()
-{
-    return base_;
-}
-
-int32_t& JsDropSourceAction::Playlist()
-{
-    return playlistIdx_;
-}
-
-bool& JsDropSourceAction::ToSelect()
-{
-    return toSelect_;
-}
-
-uint32_t& JsDropSourceAction::Effect()
-{
-    return effect_;
+    return actionParams_;
 }
 
 std::optional<uint32_t> 
 JsDropSourceAction::get_Effect()
 {
-    return effect_;
+    return actionParams_.effect;
 }
 
 std::optional<std::nullptr_t> 
 JsDropSourceAction::put_Base( uint32_t base )
 {
-    base_ = base;
+    actionParams_.base = base;
     return nullptr;
 }
 
 std::optional<std::nullptr_t> 
 JsDropSourceAction::put_Effect( uint32_t effect )
 {
-    effect_ = effect;
+    actionParams_.effect = effect;
     return nullptr;
 }
 
 std::optional<std::nullptr_t> 
 JsDropSourceAction::put_Playlist( int32_t id )
 {
-    playlistIdx_ = id;
+    actionParams_.playlistIdx = id;
     return nullptr;
 }
 
 std::optional<std::nullptr_t> 
 JsDropSourceAction::put_ToSelect( bool toSelect )
 {
-    toSelect_ = toSelect;
+    actionParams_.toSelect = toSelect;
     return nullptr;
 }
 

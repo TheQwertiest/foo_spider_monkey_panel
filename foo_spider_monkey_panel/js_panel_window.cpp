@@ -12,6 +12,8 @@
 #include <js_utils/art_helper.h>
 #include <js_utils/image_helper.h>
 
+#include <drop_action_params.h>
+
 
 js_panel_window::js_panel_window( PanelType instanceType )
     : panelType_( instanceType )
@@ -213,6 +215,26 @@ LRESULT js_panel_window::on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
     case CALLBACK_UWM_ON_CURSOR_FOLLOW_PLAYBACK_CHANGED:
     {
         on_cursor_follow_playback_changed( wp );
+        return 0;
+    }
+    case CALLBACK_UWM_ON_DRAG_DROP:
+    {
+        on_drag_drop(lp);
+        return 0;
+    }
+    case CALLBACK_UWM_ON_DRAG_ENTER:
+    {
+        on_drag_enter( lp );
+        return 0;
+    }
+    case CALLBACK_UWM_ON_DRAG_LEAVE:
+    {
+        on_drag_leave();
+        return 0;
+    }
+    case CALLBACK_UWM_ON_DRAG_OVER:
+    {
+        on_drag_over( lp );
         return 0;
     }
     case CALLBACK_UWM_ON_DSP_PRESET_CHANGED:
@@ -466,11 +488,6 @@ void js_panel_window::execute_context_menu_command( int id, int id_base )
         show_configure_popup( hWnd_ );
         break;
     }
-}
-
-mozjs::JsContainer& js_panel_window::GetJsContainer()
-{
-    return jsContainer_;
 }
 
 GUID js_panel_window::GetGUID()
@@ -837,6 +854,38 @@ void js_panel_window::on_cursor_follow_playback_changed( WPARAM wp )
                                    static_cast<bool>(wp) );
 }
 
+void js_panel_window::on_drag_drop( LPARAM lp )
+{
+    auto actionParams = reinterpret_cast<mozjs::DropActionMessageParams*>(lp);
+    jsContainer_.InvokeOnDragAction( "on_drag_drop",
+                                     actionParams->pt,
+                                     actionParams->keyState,
+                                     actionParams->actionParams );
+}
+
+void js_panel_window::on_drag_enter( LPARAM lp )
+{
+    auto actionParams = reinterpret_cast<mozjs::DropActionMessageParams*>(lp);
+    jsContainer_.InvokeOnDragAction( "on_drag_enter",
+                                     actionParams->pt,
+                                     actionParams->keyState,
+                                     actionParams->actionParams );
+}
+
+void js_panel_window::on_drag_leave()
+{
+    jsContainer_.InvokeJsCallback( "on_drag_leave" );
+}
+
+void js_panel_window::on_drag_over( LPARAM lp )
+{
+    auto actionParams = reinterpret_cast<mozjs::DropActionMessageParams*>(lp);
+    jsContainer_.InvokeOnDragAction( "on_drag_over",
+                                     actionParams->pt,
+                                     actionParams->keyState,
+                                     actionParams->actionParams );
+}
+
 void js_panel_window::on_dsp_preset_changed()
 {
     jsContainer_.InvokeJsCallback( "on_dsp_preset_changed" );
@@ -1113,7 +1162,7 @@ void js_panel_window::on_mouse_wheel_h( WPARAM wp )
 void js_panel_window::on_notify_data( WPARAM wp )
 {
     simple_callback_data_scope_releaser<simple_callback_data_2<std::wstring, std::wstring>> data( wp );
-    jsContainer_.InvokeOnNotifyCallback( data->m_item1, data->m_item2 );
+    jsContainer_.InvokeOnNotify( data->m_item1, data->m_item2 );
 }
 
 void js_panel_window::on_output_device_changed()
@@ -1224,7 +1273,7 @@ void js_panel_window::on_paint_user( HDC memdc, LPRECT lpUpdateRect )
     // SetClip() may improve performance slightly
     gr.SetClip( rect );
 
-    jsContainer_.InvokeOnPaintCallback( gr );
+    jsContainer_.InvokeOnPaint( gr );
 }
 
 void js_panel_window::on_playback_dynamic_info()

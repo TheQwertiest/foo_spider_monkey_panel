@@ -1,6 +1,12 @@
 #pragma once
 
+#include <js_utils/js_error_helper.h>
+
 #include <tuple>
+
+// TODO: separate js specific stuff
+
+struct JSContext;
 
 namespace mozjs::scope
 {
@@ -57,5 +63,33 @@ final_action<F> finally( F&& f ) noexcept
 {
     return final_action<F>( std::forward<F>( f ));
 }
+
+class JsScope
+{
+public:
+    JsScope(JSContext* cx, JS::HandleObject global, bool enableAutoReport = true )
+        : ar_(cx)
+        , ac_( cx, global )
+        , are_( cx )
+    {
+        if ( !enableAutoReport )
+        {
+            are_.Disable();
+        }
+    }
+
+    JsScope( const JsScope& ) = delete;
+    JsScope& operator=( const JsScope& ) = delete;
+
+    void DisableReport()
+    {
+        are_.Disable();
+    }
+
+private:
+    JSAutoRequest ar_;
+    JSAutoCompartment ac_;
+    AutoReportException are_;
+};
 
 }
