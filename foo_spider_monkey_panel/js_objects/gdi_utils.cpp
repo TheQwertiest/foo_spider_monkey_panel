@@ -170,7 +170,7 @@ JsGdiUtils::Image( const std::wstring& path )
 {
     // Since using Gdiplus::Bitmap(path) will result locking file, so use IStream instead to prevent it.
     pfc::com_ptr_t<IStream> pStream;
-    HRESULT hr = SHCreateStreamOnFileEx( path.c_str(), STGM_READ | STGM_SHARE_DENY_WRITE, GENERIC_READ, FALSE, NULL, pStream.receive_ptr() );
+    HRESULT hr = SHCreateStreamOnFileEx( path.c_str(), STGM_READ | STGM_SHARE_DENY_WRITE, GENERIC_READ, FALSE, nullptr, pStream.receive_ptr() );
     if ( !SUCCEEDED( hr ) )
     {
         return nullptr;

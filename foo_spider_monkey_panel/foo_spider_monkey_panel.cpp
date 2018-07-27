@@ -104,7 +104,7 @@ namespace
 
 			path[len] = 0;
 
-			if (FAILED(OleInitialize(NULL)))
+			if (FAILED(OleInitialize( nullptr )))
 			{
 				g_load_status |= E_OLE;
 			}
@@ -117,11 +117,11 @@ namespace
 				g_load_status |= E_SCINTILLA;
 			}
 			Gdiplus::GdiplusStartupInput gdip_input;
-			if (Gdiplus::GdiplusStartup(&g_gdip_token, &gdip_input, NULL) != Gdiplus::Ok)
+			if (Gdiplus::GdiplusStartup(&g_gdip_token, &gdip_input, nullptr ) != Gdiplus::Ok)
 			{
 				g_load_status |= E_GDIPLUS;
 			}
-			_Module.Init(NULL, ins);            
+			_Module.Init( nullptr, ins);
 		}
         break;
         case DLL_PROCESS_DETACH:

@@ -210,32 +210,22 @@ void JsGlobalObject::CleanupBeforeDestruction( JSContext* cx, JS::HandleObject s
 std::optional<std::nullptr_t> 
 JsGlobalObject::IncludeScript( const pfc::string8_fast& path )
 {
-    const auto parsedPath = [&]
-    {
-        pfc::string8_fast tmpPath = path;
-        tmpPath.replace_string( "/", "\\", 0 );
-        return tmpPath;
-    }();
-
-    namespace fs = std::filesystem;
-
-    fs::path fsPath = fs::u8path( parsedPath.c_str() );
-    std::error_code dummyErr;
-    if ( !fs::exists( fsPath ) || !fs::is_regular_file( fsPath, dummyErr ) )
-    {
-        JS_ReportErrorUTF8( pJsCtx_, "Path does not point to a valid script file: %s", parsedPath.c_str() );
-        return std::nullopt;
-    }
-
-    auto retVal = file::ReadFromFile( pJsCtx_, parsedPath );
+    auto retVal = file::ReadFromFile( pJsCtx_, path );
     if ( !retVal )
     {// report in ReadFromFile;
         return std::nullopt;
     }
 
     std::wstring scriptCode = retVal.value();
-    std::string filename = fsPath.filename().string();
 
+    const auto filename = [&]
+    {
+        namespace fs = std::filesystem;
+        pfc::string8_fast tmpPath = path;
+        tmpPath.replace_string( "/", "\\", 0 );        
+        return fs::u8path( tmpPath.c_str() ).filename().string(); // all check are performed in ReadFromFile
+    }();
+        
     JS::CompileOptions opts( pJsCtx_ );
     opts.setFileAndLine( filename.c_str(), 1 );
 

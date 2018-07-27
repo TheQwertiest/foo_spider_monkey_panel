@@ -367,7 +367,7 @@ JsFbUtils::DoDragDrop( JsFbMetadbHandleList* handles, uint32_t okEffects )
     pfc::com_ptr_t<IDropSourceImpl> pIDropSource = new IDropSourceImpl();
 
     DWORD returnEffect;
-    HRESULT hr = SHDoDragDrop( NULL, pDO.get_ptr(), pIDropSource.get_ptr(), okEffects, &returnEffect );
+    HRESULT hr = SHDoDragDrop( nullptr, pDO.get_ptr(), pIDropSource.get_ptr(), okEffects, &returnEffect );
     return ( DRAGDROP_S_CANCEL == hr ? DROPEFFECT_NONE : returnEffect );
 }
 

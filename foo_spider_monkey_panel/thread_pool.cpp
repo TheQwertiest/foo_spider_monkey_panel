@@ -1,8 +1,23 @@
 #include "stdafx.h"
 #include "thread_pool.h"
 
-simple_thread_pool simple_thread_pool::instance_;
+class simple_thread_worker_remover : public main_thread_callback
+{
+public:
+    simple_thread_worker_remover( simple_thread_worker* worker ) : worker_( worker )
+    {
+    }
 
+    virtual void callback_run()
+    {
+        delete worker_;
+    }
+
+private:
+    simple_thread_worker * worker_;
+};
+
+simple_thread_pool simple_thread_pool::instance_;
 
 simple_thread::simple_thread() 
     : m_thread( INVALID_HANDLE_VALUE )
@@ -214,22 +229,6 @@ void simple_thread_pool::add_worker_(simple_thread_worker* worker)
 	InterlockedIncrement(&num_workers_);
 	ResetEvent(empty_worker_);
 }
-
-class simple_thread_worker_remover : public main_thread_callback
-{
-public:
-	simple_thread_worker_remover(simple_thread_worker* worker) : worker_(worker)
-	{
-	}
-
-	virtual void callback_run()
-	{
-		delete worker_;
-	}
-
-private:
-	simple_thread_worker* worker_;
-};
 
 void simple_thread_pool::remove_worker_(simple_thread_worker* worker)
 {

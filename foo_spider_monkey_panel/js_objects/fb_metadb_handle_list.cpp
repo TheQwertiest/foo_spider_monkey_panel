@@ -577,7 +577,6 @@ JsFbMetadbHandleList::OrderByRelativePath()
     for ( i = 0; i < count; ++i )
     {
         order[i] = data[i].index;
-        delete[] data[i].text;
     }
 
     metadbHandleList_.reorder( order.get_ptr() );

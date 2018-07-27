@@ -128,7 +128,7 @@ void CDialogConf::OnImport()
 {
 	pfc::string8 filename;
 
-	if (uGetOpenFileName(m_hWnd, "Text files|*.txt|JScript files|*.js|All files|*.*", 0, "txt", "Import from", NULL, filename, FALSE))
+	if (uGetOpenFileName(m_hWnd, "Text files|*.txt|JScript files|*.js|All files|*.*", 0, "txt", "Import from", nullptr, filename, FALSE))
 	{
 		// Open file
 		pfc::string8_fast text;
@@ -142,7 +142,7 @@ void CDialogConf::OnExport()
 {
 	pfc::string8 filename;
 
-	if (uGetOpenFileName(m_hWnd, "Text files|*.txt|All files|*.*", 0, "txt", "Save as", NULL, filename, TRUE))
+	if (uGetOpenFileName(m_hWnd, "Text files|*.txt|All files|*.*", 0, "txt", "Save as", nullptr, filename, TRUE))
 	{
 		int len = m_editorctrl.GetTextLength();
 		pfc::string8_fast text;

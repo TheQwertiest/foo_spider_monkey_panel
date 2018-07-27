@@ -137,7 +137,7 @@ uint32_t HostTimerDispatcher::createTimer(HWND hWnd, uint32_t delay, bool isRepe
 
 void HostTimerDispatcher::createThread()
 {
-    m_thread = new std::thread(&HostTimerDispatcher::threadMain, this);
+    m_thread = std::make_unique<std::thread>(&HostTimerDispatcher::threadMain, this);
 }
 
 void HostTimerDispatcher::stopThread()
@@ -161,8 +161,7 @@ void HostTimerDispatcher::stopThread()
         m_thread->join();
     }
 
-    delete m_thread;
-    m_thread = NULL;
+    m_thread.reset();   
 }
 
 void HostTimerDispatcher::threadMain()
@@ -198,7 +197,7 @@ void HostTimerDispatcher::threadMain()
         case ThreadTaskId::shutdownTask:
         {
             DeleteTimerQueueEx(m_hTimerQueue, INVALID_HANDLE_VALUE);
-            m_hTimerQueue = NULL;
+            m_hTimerQueue = nullptr;
             return;
         }
         default:

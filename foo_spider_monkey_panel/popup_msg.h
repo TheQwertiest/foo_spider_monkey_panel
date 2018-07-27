@@ -10,7 +10,7 @@ public:
 class delay_loader
 {
 public:
-	static void g_enqueue(delay_loader_action* callback)
+	static void g_enqueue(std::unique_ptr<delay_loader_action> callback)
 	{
 		if (!callback)
 			return;
@@ -21,7 +21,7 @@ public:
 		}
 		else
 		{
-			callbacks_.add_item(callback);
+			callbacks_.emplace_back(std::move(callback));
 		}
 	}
 
@@ -29,13 +29,13 @@ public:
 	{
 		services_initialized_ = true;
 
-		for (t_size i = 0; i < callbacks_.get_count(); ++i)
+		for (t_size i = 0; i < callbacks_.size(); ++i)
 		{
 			callbacks_[i]->execute();
-			delete callbacks_[i];
+            callbacks_[i].reset();
 		}
 
-		callbacks_.remove_all();
+		callbacks_.clear();
 	}
 
 	static bool g_ready()
@@ -44,23 +44,26 @@ public:
 	}
 
 private:
-	static pfc::list_t<delay_loader_action *> callbacks_;
+	static std::vector<std::unique_ptr<delay_loader_action>> callbacks_;
 	static bool services_initialized_;
 };
 
 FOOGUIDDECL bool delay_loader::services_initialized_ = false;
-FOOGUIDDECL pfc::list_t<delay_loader_action *> delay_loader::callbacks_;
+FOOGUIDDECL std::vector<std::unique_ptr<delay_loader_action>> delay_loader::callbacks_;
 
 class popup_msg
 {
 public:
 	struct action : delay_loader_action
 	{
-		action(const char* p_msg, const char* p_title) : msg_(p_msg), title_(p_title)
+		action(const char* p_msg, const char* p_title) 
+            : msg_(p_msg)
+            , title_(p_title)
 		{
 		}
 
-		pfc::string_simple msg_, title_;
+        pfc::string_simple msg_;
+        pfc::string_simple title_;
 
 		virtual void execute() override
 		{
@@ -70,6 +73,6 @@ public:
 
 	static void g_show(const char* p_msg, const char* p_title)
 	{
-		delay_loader::g_enqueue(new action(p_msg, p_title));
+		delay_loader::g_enqueue(std::make_unique<action>(p_msg, p_title));
 	}
 };

@@ -95,7 +95,7 @@ private: // thread
 		HANDLE hTimer;
 	};
 
-	std::thread* m_thread = nullptr;
+	std::unique_ptr<std::thread> m_thread;
 	std::mutex m_threadTaskMutex;
 	std::list<ThreadTask> m_threadTaskList;
 	std::condition_variable m_cv;

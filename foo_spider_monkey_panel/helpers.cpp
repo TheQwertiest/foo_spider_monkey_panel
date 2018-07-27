@@ -48,15 +48,15 @@ namespace helpers
             | 0xff000000;
 	}
 
-	HBITMAP create_hbitmap_from_gdiplus_bitmap(Gdiplus::Bitmap* bitmap_ptr)
+	HBITMAP create_hbitmap_from_gdiplus_bitmap(Gdiplus::Bitmap& bitmap)
 	{
         Gdiplus::Rect rect;
 		rect.X = rect.Y = 0;
-		rect.Width = bitmap_ptr->GetWidth();
-		rect.Height = bitmap_ptr->GetHeight();
+		rect.Width = bitmap.GetWidth();
+		rect.Height = bitmap.GetHeight();
 
         Gdiplus::BitmapData bmpdata;
-		if (bitmap_ptr->LockBits(&rect, Gdiplus::ImageLockModeRead, PixelFormat32bppPARGB, &bmpdata) != Gdiplus::Ok)
+		if (bitmap.LockBits(&rect, Gdiplus::ImageLockModeRead, PixelFormat32bppPARGB, &bmpdata) != Gdiplus::Ok)
 		{// Error
 			return nullptr;
 		}
@@ -71,7 +71,7 @@ namespace helpers
 		bm.bmBits = bmpdata.Scan0;
 
         HBITMAP hBitmap = CreateBitmapIndirect(&bm);
-		bitmap_ptr->UnlockBits(&bmpdata);
+		bitmap.UnlockBits(&bmpdata);
 		return hBitmap;
 	}
 
@@ -148,7 +148,7 @@ namespace helpers
 
 				if (match_menu_command(path, p_name, name_len))
 				{
-					ptr->execute(idx, NULL);
+					ptr->execute(idx, nullptr );
 					return true;
 				}
 			}
@@ -400,93 +400,6 @@ namespace helpers
 		return status;
 	}
 
-	bool read_file_wide(unsigned codepage, const wchar_t* path, pfc::array_t<wchar_t>& content)
-	{
-		HANDLE hFile = CreateFile(path, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
-		if (hFile == INVALID_HANDLE_VALUE)
-		{
-			return false;
-		}
-
-		HANDLE hFileMapping = CreateFileMapping(hFile, NULL, PAGE_READONLY, 0, 0, NULL);
-		if (!hFileMapping)
-		{
-			CloseHandle(hFile);
-			return false;
-		}
-
-		DWORD dwFileSize = GetFileSize(hFile, NULL);
-		LPCBYTE pAddr = (LPCBYTE)MapViewOfFile(hFileMapping, FILE_MAP_READ, 0, 0, 0);
-		if (!pAddr)
-		{
-			CloseHandle(hFileMapping);
-			CloseHandle(hFile);
-			return false;
-		}
-
-		if (dwFileSize == INVALID_FILE_SIZE)
-		{
-			UnmapViewOfFile(pAddr);
-			CloseHandle(hFileMapping);
-			CloseHandle(hFile);
-			return false;
-		}
-
-		bool status = false;
-
-		if (dwFileSize > 3)
-		{
-			// UTF16 LE?
-			if (pAddr[0] == 0xFF && pAddr[1] == 0xFE)
-			{
-				const wchar_t* pSource = (const wchar_t *)(pAddr + 2);
-				t_size len = (dwFileSize - 2) >> 1;
-
-				content.set_size(len + 1);
-				pfc::__unsafe__memcpy_t(content.get_ptr(), pSource, len);
-				content[len] = 0;
-				status = true;
-			}
-			// UTF8-BOM?
-			else if (pAddr[0] == 0xEF && pAddr[1] == 0xBB && pAddr[2] == 0xBF)
-			{
-				const char* pSource = (const char *)(pAddr + 3);
-				t_size pSourceSize = dwFileSize - 3;
-
-				const t_size size = pfc::stringcvt::estimate_utf8_to_wide_quick(pSource, pSourceSize);
-				content.set_size(size);
-				pfc::stringcvt::convert_utf8_to_wide(content.get_ptr(), size, pSource, pSourceSize);
-				status = true;
-			}
-		}
-
-		if (!status)
-		{
-			const char* pSource = (const char *)(pAddr);
-			t_size pSourceSize = dwFileSize;
-
-			t_size tmp = detect_charset(pfc::stringcvt::string_utf8_from_wide(path));
-			if (tmp == CP_UTF8)
-			{
-				const t_size size = pfc::stringcvt::estimate_utf8_to_wide_quick(pSource, pSourceSize);
-				content.set_size(size);
-				pfc::stringcvt::convert_utf8_to_wide(content.get_ptr(), size, pSource, pSourceSize);
-			}
-			else
-			{
-				const t_size size = pfc::stringcvt::estimate_codepage_to_wide(codepage, pSource, pSourceSize);
-				content.set_size(size);
-				pfc::stringcvt::convert_codepage_to_wide(codepage, content.get_ptr(), size, pSource, pSourceSize);
-			}
-			status = true;
-		}
-
-		UnmapViewOfFile(pAddr);
-		CloseHandle(hFileMapping);
-		CloseHandle(hFile);
-		return status;
-	}
-
 	bool write_file(const char* path, const pfc::string_base& content, bool write_bom)
 	{
 		int offset = write_bom ? 3 : 0;
@@ -614,7 +527,7 @@ namespace helpers
 	{
 		pfc::string8_fast path;
 
-		uGetModuleFileName(NULL, path);
+		uGetModuleFileName( nullptr, path);
 		path = pfc::string_directory(path);
 		path.add_char('\\');
 
@@ -829,11 +742,11 @@ namespace helpers
 		}
 	}
 
-	wchar_t* make_sort_string(const char* in)
+	std::wstring make_sort_string(const char* in)
 	{
-		wchar_t* out = new wchar_t[pfc::stringcvt::estimate_utf8_to_wide(in) + 1];
+        std::wstring out( pfc::stringcvt::estimate_utf8_to_wide( in ) + 1, 0 );		
 		out[0] = ' ';//StrCmpLogicalW bug workaround.
-		pfc::stringcvt::convert_utf8_to_wide_unchecked(out + 1, in);
+		pfc::stringcvt::convert_utf8_to_wide_unchecked(out.data() + 1, in);
 		return out;
 	}
 

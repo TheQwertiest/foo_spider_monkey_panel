@@ -3,18 +3,8 @@
 #include "drop_target_impl.h"
 #include "script_interface_impl.h"
 
-#include <js_objects/internal/global_heap_manager.h>
-
 #include <drop_action_params.h>
 
-namespace mozjs
-{
-
-class JsContainer;
-class JsDropSourceAction;
-class JsGlobalObject;
-
-}
 
 class HostDropTarget
     : public IDropTargetImpl

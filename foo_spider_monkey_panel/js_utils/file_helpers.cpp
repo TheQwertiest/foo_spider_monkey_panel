@@ -32,7 +32,7 @@ std::optional<std::wstring> ReadFromFile( JSContext* cx, const pfc::string8_fast
 
     // Prepare file
 
-    HANDLE hFile = CreateFile( fsPath.wstring().c_str(), GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL );
+    HANDLE hFile = CreateFile( fsPath.wstring().c_str(), GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr );
     if ( !hFile )
     {
         JS_ReportErrorUTF8( cx, "Failed to open script file: %s", cleanPath.c_str() );
@@ -43,7 +43,7 @@ std::optional<std::wstring> ReadFromFile( JSContext* cx, const pfc::string8_fast
         CloseHandle( hFile );
     } );
 
-    HANDLE hFileMapping = CreateFileMapping( hFile, NULL, PAGE_READONLY, 0, 0, NULL );
+    HANDLE hFileMapping = CreateFileMapping( hFile, nullptr, PAGE_READONLY, 0, 0, nullptr );
     if ( !hFileMapping )
     {
         JS_ReportErrorUTF8( cx, "Internal error: CreateFileMapping failed for `%s`", cleanPath.c_str() );
@@ -54,7 +54,7 @@ std::optional<std::wstring> ReadFromFile( JSContext* cx, const pfc::string8_fast
         CloseHandle( hFileMapping );
     } );
 
-    DWORD dwFileSize = GetFileSize( hFile, NULL );
+    DWORD dwFileSize = GetFileSize( hFile, nullptr );
     LPCBYTE pAddr = (LPCBYTE)MapViewOfFile( hFileMapping, FILE_MAP_READ, 0, 0, 0 );
     if ( !pAddr )
     {

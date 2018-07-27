@@ -206,12 +206,11 @@ JsUtils::ColourPicker( uint32_t hWindow, uint32_t default_colour )
 std::optional<JS::Value>
 JsUtils::FileTest( const std::wstring& path, const std::wstring& mode )
 {
-    std::wstring cleanedPath = path;
-    for ( std::wstring::size_type i = 0; (i = cleanedPath.find( L"/", i )) != std::wstring::npos;)
+    const auto cleanedPath = [&]()
     {
-        cleanedPath.replace( i, 1, L"\\" );
-        i += 1;
-    }
+        std::wstring tmp = path;
+        return tmp.replace( tmp.begin(), tmp.end(), L'/', L'\\' );
+    }();
 
     if ( L"e" == mode ) // exists
     {

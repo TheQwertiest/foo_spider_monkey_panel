@@ -10,7 +10,7 @@ namespace helpers
 {
 	struct custom_sort_data
 	{
-		wchar_t* text;
+        std::wstring text;
 		t_size index;
 	};
 
@@ -22,7 +22,7 @@ namespace helpers
 
 	COLORREF convert_argb_to_colorref(DWORD argb);
 	DWORD convert_colorref_to_argb(DWORD color);
-	HBITMAP create_hbitmap_from_gdiplus_bitmap(Gdiplus::Bitmap* bitmap_ptr);
+	HBITMAP create_hbitmap_from_gdiplus_bitmap(Gdiplus::Bitmap& bitmap_ptr);
 	bool execute_context_command_by_name(const char* p_name, metadb_handle_list_cref p_handles, unsigned flags);
 	bool execute_mainmenu_command_by_name(const char* p_name);
 	bool get_mainmenu_command_node_recur_v2(mainmenu_node::ptr node, pfc::string8_fast path, const char* p_name, t_size p_name_len, mainmenu_node::ptr &node_out);
@@ -31,7 +31,6 @@ namespace helpers
 	bool is14();
 	bool match_menu_command(const pfc::string_base& path, const char* command, t_size command_len = ~0);
 	bool read_file(const char* path, pfc::string_base& content);
-	bool read_file_wide(unsigned codepage, const wchar_t* path, pfc::array_t<wchar_t>& content);
 	bool write_file(const char* path, const pfc::string_base& content, bool write_bom = true);
 	int get_encoder_clsid(const WCHAR* format, CLSID* pClsid);
 	int get_text_height(HDC hdc, const wchar_t* text, int len);
@@ -46,7 +45,7 @@ namespace helpers
 	void build_mainmenu_group_map(pfc::map_t<GUID, mainmenu_group::ptr>& p_group_guid_text_map);
 	void estimate_line_wrap(HDC hdc, const wchar_t* text, int len, int width, pfc::list_t<wrapped_item>& out);
 	void estimate_line_wrap_recur(HDC hdc, const wchar_t* text, int len, int width, pfc::list_t<wrapped_item>& out);
-	wchar_t* make_sort_string(const char* in);
+	std::wstring make_sort_string(const char* in);
 
 	template <class T>
 	bool ensure_gdiplus_object(T* obj)
@@ -57,8 +56,11 @@ namespace helpers
 	template<int direction>
 	static int custom_sort_compare(const custom_sort_data& elem1, const custom_sort_data& elem2)
 	{
-		int ret = direction * StrCmpLogicalW(elem1.text, elem2.text);
-		if (ret == 0) ret = pfc::sgn_t((t_ssize)elem1.index - (t_ssize)elem2.index);
+		int ret = direction * StrCmpLogicalW(elem1.text.c_str(), elem2.text.c_str() );
+        if ( !ret )
+        {
+            ret = pfc::sgn_t( (t_ssize)elem1.index - (t_ssize)elem2.index );
+        }
 		return ret;
 	}
 

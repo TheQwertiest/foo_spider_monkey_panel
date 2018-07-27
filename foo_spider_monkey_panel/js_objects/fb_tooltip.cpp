@@ -107,16 +107,16 @@ JsFbTooltip::CreateNative( JSContext* cx, HWND hParentWnd, PanelTooltipParam& p_
     HWND hTooltipWnd = CreateWindowEx(
         WS_EX_TOPMOST,
         TOOLTIPS_CLASS,
-        NULL,
+        nullptr,
         WS_POPUP | TTS_ALWAYSTIP | TTS_NOPREFIX,
         CW_USEDEFAULT,
         CW_USEDEFAULT,
         CW_USEDEFAULT,
         CW_USEDEFAULT,
         hParentWnd,
-        NULL,
+        nullptr,
         core_api::get_my_instance(),
-        NULL );
+        nullptr );
     IF_WINAPI_FAILED_RETURN_WITH_REPORT( cx, !!hTooltipWnd, nullptr, CreateWindowEx );
 
     // Original position

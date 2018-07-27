@@ -44,7 +44,7 @@ public:
 	IndentationStatus GetIndentState(int line);
 	unsigned int GetLinePartsInStyle(int line, int style1, int style2, SString sv[], int len);
 	bool RangeIsAllWhitespace(int start, int end);
-	DWORD GetPropertyColor(const char * key, bool * key_exist = NULL);
+	DWORD GetPropertyColor(const char * key, bool * key_exist = nullptr );
 	void Init();
 	void LoadProperties(const pfc::list_t<t_sci_prop_set> & data);
 	void SetContent(const char * text, bool clear_undo_buffer = false);
@@ -63,7 +63,7 @@ public:
 	int IndentOfBlock(int line);
 	void AutomaticIndentation(char ch);
 	bool FindBraceMatchPos(int &braceAtCaret, int &braceOpposite);
-	const char * GetNearestWord(const char *wordStart, int searchLen, SString wordCharacters = NULL, int wordIndex = -1);
+	const char * GetNearestWord(const char *wordStart, int searchLen, SString wordCharacters = nullptr, int wordIndex = -1);
 	bool GetNearestWords(pfc::string_base & out, const char * wordStart, int searchLen, const char *separators);
 	void SetIndentation(int line, int indent);
 

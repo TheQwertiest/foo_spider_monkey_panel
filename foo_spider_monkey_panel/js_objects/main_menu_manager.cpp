@@ -121,9 +121,13 @@ JsMainMenuManager::ExecuteByID( uint32_t id )
 std::optional<std::nullptr_t> 
 JsMainMenuManager::Init( const pfc::string8_fast & root_name )
 {
-    std::string preparedRootName( root_name.c_str() ); ///< Don't care about UTF8 here: we need exact match
-    std::transform( preparedRootName.begin(), preparedRootName.end(), preparedRootName.begin(), ::tolower );    
-
+    const auto preparedRootName = [&]()
+    {
+        std::string tmp = root_name.c_str(); ///< Don't care about UTF8 here: we need exact match
+        std::transform( tmp.begin(), tmp.end(), tmp.begin(), ::tolower );
+        return tmp;
+    }();
+    
     struct RootElement
     {
         const char* name;

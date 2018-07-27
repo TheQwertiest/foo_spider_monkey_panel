@@ -6,6 +6,7 @@
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
 #include <js_utils/winapi_error_helper.h>
+#include <js_utils/scope_helper.h>
 
 #include <helpers.h>
 
@@ -97,15 +98,19 @@ JsGdiRawBitmap::CreateNative( JSContext* cx, Gdiplus::Bitmap* pBmp )
     HDC hDc = CreateCompatibleDC( nullptr );
     IF_WINAPI_FAILED_RETURN_WITH_REPORT( cx, !!hDc, nullptr, CreateCompatibleDC );
 
-    HBITMAP hBmp = helpers::create_hbitmap_from_gdiplus_bitmap( pBmp );
-    if ( !hBmp )
+    scope::final_action autoDc( [hDc]()
     {
         DeleteDC( hDc );
+    } );
 
+    HBITMAP hBmp = helpers::create_hbitmap_from_gdiplus_bitmap( *pBmp );
+    if ( !hBmp )
+    {
         JS_ReportErrorUTF8( cx, "Internal error: failed to get HBITMAP from Gdiplus::Bitmap" );
         return nullptr;
     }
 
+    autoDc.cancel();
     return std::unique_ptr<JsGdiRawBitmap>( new JsGdiRawBitmap( cx, hDc, hBmp, pBmp->GetWidth(), pBmp->GetHeight() ) );
 }
 

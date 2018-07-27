@@ -248,9 +248,9 @@ JsFbPlaylistManager::AddLocations( uint32_t playlistIndex, JS::HandleValue locat
     playlist_incoming_item_filter_v2::get()->process_locations_async(
         locations2,
         playlist_incoming_item_filter_v2::op_flag_no_filter | playlist_incoming_item_filter_v2::op_flag_delay_ui,
-        NULL,
-        NULL,
-        NULL,
+        nullptr,
+        nullptr,
+        nullptr,
         new service_impl_t<helpers::js_process_locations>( playlistIndex, base, select ) );
 
     return nullptr;
@@ -982,7 +982,6 @@ JsFbPlaylistManager::SortPlaylistsByName( int8_t direction )
     for ( i = 0; i < count; ++i )
     {
         order[i] = data[i].index;
-        delete[] data[i].text;
     }
 
     api->reorder( order.get_ptr(), order.get_count() );
