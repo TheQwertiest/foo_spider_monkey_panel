@@ -131,7 +131,8 @@ JSObject* JsGlobalObject::CreateNative( JSContext* cx, JsContainer &parentContai
              || !CreateAndInstallObject<JsUtils>( cx, jsObj, "utils" )
              || !CreateAndInstallObject<JsFbUtils>( cx, jsObj, "fb" )
              || !CreateAndInstallObject<JsWindow>( cx, jsObj, "window", parentPanel ) 
-             || !CreateAndInstallObject<JsHacks>( cx, jsObj, "hacks" ) )
+             // || !CreateAndInstallObject<JsHacks>( cx, jsObj, "hacks" ) 
+             )
         {
             return nullptr;
         }

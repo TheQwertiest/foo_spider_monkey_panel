@@ -24,6 +24,7 @@ enum class JsPrototypeId
     GdiFont,
     GdiGraphics,
     GdiRawBitmap,
+    HtmlWindow,
     MainMenuManager,
     MeasureStringInfo,
     MenuObject,

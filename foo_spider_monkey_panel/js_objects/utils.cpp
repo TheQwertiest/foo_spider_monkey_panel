@@ -203,6 +203,39 @@ JsUtils::ColourPicker( uint32_t hWindow, uint32_t default_colour )
     return helpers::convert_colorref_to_argb( color );
 }
 
+std::optional<JSObject*> 
+JsUtils::CreateHtmlWindow( const std::wstring& htmlCode, const std::wstring& data, JS::HandleValue callback )
+{
+    JS::RootedObject jsObject( pJsCtx_, JsHtmlWindow::CreateJs( pJsCtx_, htmlCode, data, callback ) );
+    if ( !jsObject )
+    {// reports
+        return std::nullopt;
+    }
+
+    return jsObject;
+}
+
+std::optional<JSObject*>
+JsUtils::CreateHtmlWindowWithOpt( size_t optArgCount, const std::wstring& htmlCode, const std::wstring& data, JS::HandleValue callback )
+{
+    if ( optArgCount > 2 )
+    {
+        JS_ReportErrorUTF8( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
+        return std::nullopt;
+    }
+
+    if ( optArgCount == 2 )
+    {
+        return CreateHtmlWindow( htmlCode );
+    }
+    else if ( optArgCount == 1 )
+    {
+        return CreateHtmlWindow( htmlCode, data );
+    }
+
+    return CreateHtmlWindow( htmlCode, data, callback );
+}
+
 std::optional<JS::Value>
 JsUtils::FileTest( const std::wstring& path, const std::wstring& mode )
 {
