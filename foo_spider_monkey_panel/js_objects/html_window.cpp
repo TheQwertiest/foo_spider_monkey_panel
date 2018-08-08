@@ -105,7 +105,6 @@ JsHtmlWindow::CreateNative( JSContext* cx, const std::wstring& htmlCode, const s
             L"selection=no "
             L"innerBorder=no";
         const auto htaCode =
-            L"about:"
             L"<script>moveTo(-1000,-1000);resizeTo(0,0);</script>"
             L"<hta:application id=app " + features + L" />"
             L"<object id='" + wndId + L"' style='display:none' classid='clsid:8856F961-340A-11D0-A96B-00C04FD705A2'>"
@@ -140,7 +139,6 @@ JsHtmlWindow::CreateNative( JSContext* cx, const std::wstring& htmlCode, const s
         SHDocVw::IShellWindowsPtr pShellWindows( pDispatch );
 
         long windowsCount = pShellWindows->GetCount();
-        IF_HR_FAILED_RETURN_WITH_REPORT( cx, hr, nullptr, "windowsCount" );
 
         for ( long i = 0; i < windowsCount; ++i )
         {
