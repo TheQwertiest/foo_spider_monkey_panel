@@ -54,10 +54,11 @@
 - Add W3C specified printf-lile behaviour to console.log.
 - Add font caching (check if it's not handled by the system already though).
 - Add a better drag-n-drop window (rip it from CUI?).
-- Run a static analysis on the code (cppcheck? pvs? VS build-in?).
+- Run a static analysis on the code (cppcheck? pvs? VS built-in?).
 - Change the limit of JS heap according to available RAM on system (1gb heap size with only 2gb RAM is brutal).
 
 # Maybe
+- Add CI (appveyor?).
 - Follow the bug https://bugzilla.mozilla.org/show_bug.cgi?id=1474914 , if fixed consider moving to newer non-ESR branches.
 - Replace in-repository scintilla with it's submodule.
 - Update scintilla to the latest version.

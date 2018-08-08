@@ -4,6 +4,7 @@
 #include <js_engine/js_to_native_invoker.h>
 #include <js_objects/fb_metadb_handle.h>
 #include <js_objects/gdi_bitmap.h>
+#include <js_objects/html_window.h>
 #include <js_utils/js_error_helper.h>
 #include <js_utils/gdi_error_helper.h>
 #include <js_utils/winapi_error_helper.h>
@@ -41,6 +42,7 @@ JSClass jsClass = {
 MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsUtils, CheckComponent, CheckComponentWithOpt, 1 );
 MJS_DEFINE_JS_TO_NATIVE_FN( JsUtils, CheckFont );
 MJS_DEFINE_JS_TO_NATIVE_FN( JsUtils, ColourPicker );
+MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsUtils, CreateHtmlWindow, CreateHtmlWindowWithOpt, 2 );
 MJS_DEFINE_JS_TO_NATIVE_FN( JsUtils, FileTest );
 MJS_DEFINE_JS_TO_NATIVE_FN( JsUtils, FormatDuration );
 MJS_DEFINE_JS_TO_NATIVE_FN( JsUtils, FormatFileSize );
@@ -62,6 +64,7 @@ const JSFunctionSpec jsFunctions[] = {
     JS_FN( "CheckComponent", CheckComponent, 1, DefaultPropsFlags() ),
     JS_FN( "CheckFont", CheckFont, 1, DefaultPropsFlags() ),
     JS_FN( "ColourPicker", ColourPicker, 2, DefaultPropsFlags() ),
+    JS_FN( "CreateHtmlWindow", CreateHtmlWindow, 1, DefaultPropsFlags() ),
     JS_FN( "FileTest", FileTest, 2, DefaultPropsFlags() ),
     JS_FN( "FormatDuration", FormatDuration, 1, DefaultPropsFlags() ),
     JS_FN( "FormatFileSize", FormatFileSize, 1, DefaultPropsFlags() ),

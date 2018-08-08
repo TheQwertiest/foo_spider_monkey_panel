@@ -226,6 +226,9 @@
     <ClCompile Include="js_objects\hacks.cpp">
       <Filter>js_objects</Filter>
     </ClCompile>
+    <ClCompile Include="js_objects\html_window.cpp">
+      <Filter>js_objects</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="js_engine\js_engine.h">
@@ -514,6 +517,9 @@
       <Filter>js_objects</Filter>
     </ClInclude>
     <ClInclude Include="js_objects\aero.h">
+      <Filter>js_objects</Filter>
+    </ClInclude>
+    <ClInclude Include="js_objects\html_window.h">
       <Filter>js_objects</Filter>
     </ClInclude>
   </ItemGroup>

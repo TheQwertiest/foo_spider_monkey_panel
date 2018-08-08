@@ -132,6 +132,9 @@
     <ClCompile Include="js_objects\gdi_font.cpp" />
     <ClCompile Include="js_objects\global_object.cpp" />
     <ClCompile Include="js_objects\hacks.cpp" />
+    <ClCompile Include="js_objects\html_window.cpp">
+      <MultiProcessorCompilation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</MultiProcessorCompilation>
+    </ClCompile>
     <ClCompile Include="js_objects\internal\fb_properties.cpp" />
     <ClCompile Include="js_objects\internal\global_heap_manager.cpp" />
     <ClCompile Include="js_objects\main_menu_manager.cpp" />
@@ -190,6 +193,7 @@
     <ClInclude Include="js_objects\active_x_object.h" />
     <ClInclude Include="js_objects\aero.h" />
     <ClInclude Include="js_objects\fb_window.h" />
+    <ClInclude Include="js_objects\html_window.h" />
     <ClInclude Include="js_objects\internal\fb_properties.h" />
     <ClInclude Include="js_objects\internal\global_heap_manager.h" />
     <ClInclude Include="js_objects\internal\prototype_ids.h" />

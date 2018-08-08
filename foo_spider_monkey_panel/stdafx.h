@@ -22,6 +22,9 @@ using std::max;
 #pragma warning( pop ) 
 #include <ActivScp.h>
 #include <activdbg.h>
+#include <MsHTML.h>
+#include <ShlDisp.h>
+#include <exdisp.h>
 #include <ComDef.h>
 #include <StrSafe.h>
 
