@@ -522,6 +522,9 @@
     <ClInclude Include="js_objects\html_window.h">
       <Filter>js_objects</Filter>
     </ClInclude>
+    <ClInclude Include="js_utils\dispatch_ptr.h">
+      <Filter>js_utils</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include=".editorconfig" />

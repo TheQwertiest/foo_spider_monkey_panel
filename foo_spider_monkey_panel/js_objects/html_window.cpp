@@ -6,6 +6,8 @@
 #include <js_utils/winapi_error_helper.h>
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
+#include <js_utils/dispatch_ptr.h>
+#include <js_utils/scope_helper.h>
 
 // std::time
 #include <ctime>
@@ -47,11 +49,12 @@ JSClass jsClass = {
     &jsOps
 };
 
+MJS_DEFINE_JS_TO_NATIVE_FN( JsHtmlWindow, Close )
+
 const JSFunctionSpec jsFunctions[] = {
+    JS_FN( "Close", Close , 0, DefaultPropsFlags() ),
     JS_FS_END
 };
-
-//MJS_DEFINE_JS_TO_NATIVE_FN( JsHtmlWindow, get_Height )
 
 const JSPropertySpec jsProperties[] = {
     JS_PS_END
@@ -67,8 +70,9 @@ const JSFunctionSpec* JsHtmlWindow::JsFunctions = jsFunctions;
 const JSPropertySpec* JsHtmlWindow::JsProperties = jsProperties;
 const JsPrototypeId JsHtmlWindow::PrototypeId = JsPrototypeId::HtmlWindow;
 
-JsHtmlWindow::JsHtmlWindow( JSContext* cx)
+JsHtmlWindow::JsHtmlWindow( JSContext* cx, HtmlWindow2ComPtr pHtaWindow )
     : pJsCtx_( cx )
+    , pHtaWindow_( pHtaWindow )
 {
 }
 
@@ -79,6 +83,15 @@ JsHtmlWindow::~JsHtmlWindow()
 std::unique_ptr<JsHtmlWindow> 
 JsHtmlWindow::CreateNative( JSContext* cx, const std::wstring& htmlCode, const std::wstring& data, JS::HandleValue callback )
 {
+    const std::wstring wndId = []
+    {
+        std::srand( unsigned( std::time( 0 ) ) );
+        return L"a123";//+ std::to_wstring( std::rand() );
+    }();
+
+    MSHTML::IHTMLWindow2Ptr pHtaWindow;
+    MSHTML::IHTMLDocument2Ptr pDocument;
+
     try
     {
         IShellDispatchPtr pShell;
@@ -89,11 +102,6 @@ JsHtmlWindow::CreateNative( JSContext* cx, const std::wstring& htmlCode, const s
             IF_HR_FAILED_RETURN_WITH_REPORT( cx, hr, nullptr, "CreateInstance" );
         }
 
-        const auto wndId = []
-        {
-            std::srand( unsigned( std::time( 0 ) ) );
-            return L"a" + std::to_wstring( std::rand() );
-        }();
         const std::wstring features =
             L"singleinstance=yes "
             L"border=dialog "
@@ -138,27 +146,45 @@ JsHtmlWindow::CreateNative( JSContext* cx, const std::wstring& htmlCode, const s
 
         SHDocVw::IShellWindowsPtr pShellWindows( pDispatch );
 
-        long windowsCount = pShellWindows->GetCount();
-
-        for ( long i = 0; i < windowsCount; ++i )
+        for ( long i = pShellWindows->GetCount() - 1; i >= 0; --i )
         {
             Sleep(100);
 
-            _variant_t va( i, VT_I4 );           
-            SHDocVw::IWebBrowser2Ptr pCurWindow = pShellWindows->Item( va );               
-            MSHTML::IHTMLDocument2Ptr pParentDoc = pCurWindow->GetParent();    
-            if ( !pParentDoc )
+            _variant_t va( i, VT_I4 );                       
+            CDispatchPtr pCurWindow = pShellWindows->Item( va );
+            _variant_t idVal = pCurWindow.Get( L"id" );
+            if ( idVal.vt == VT_EMPTY )
             {
                 continue;
-                //JS_ReportErrorUTF8( cx, "Failed to get IHTMLDocument2" );
-                //return nullptr;
             }
-            MSHTML::IHTMLWindow2Ptr pHtaWindow = pParentDoc->GetparentWindow();
+
+            const _bstr_t id = static_cast<_bstr_t>(idVal);
+            if ( id != _bstr_t(wndId.c_str()) )
+            {
+                continue;
+            }
+
+            pDocument = pCurWindow.Get(L"parent");
+            if ( !pDocument )
+            {                
+                JS_ReportErrorUTF8( cx, "Failed to get IHTMLDocument2" );
+                return nullptr;
+            }
+
+            pHtaWindow = pDocument->GetparentWindow();
             if ( !pHtaWindow )
             {
                 JS_ReportErrorUTF8( cx, "Failed to get IHTMLWindow2" );
                 return nullptr;
             }
+
+            break;
+        }
+
+        if ( !pHtaWindow )
+        {
+            JS_ReportErrorUTF8( cx, "Failed to create HTML window" );
+            return nullptr;
         }
     }
     catch ( const _com_error& e )
@@ -170,12 +196,53 @@ JsHtmlWindow::CreateNative( JSContext* cx, const std::wstring& htmlCode, const s
         return nullptr;
     }
 
-    return std::unique_ptr<JsHtmlWindow>( new JsHtmlWindow(cx ) );
+    _bstr_t bstr = 
+        _bstr_t(htmlCode.c_str()) +
+        L"<script language=\"JScript\" id=\"" + wndId.c_str() + "\">"
+        L"    eval; "
+        L"    document.title=\"azaza\";"
+        L"    var width = 200;"
+        L"    var height = 200;"
+        L"    resizeTo(width, height);" +
+        L"    moveTo((screen.width-width)/2, (screen.height-height)/2);"
+        L"    document.getElementById(\"" + wndId.c_str() + "\").removeNode();"
+        L"</script>";
+
+    SAFEARRAY* pSaStrings = SafeArrayCreateVector( VT_VARIANT, 0, 1 );
+    scope::final_action autoPsa( [pSaStrings]()
+    {
+        SafeArrayDestroy( pSaStrings );
+    } );
+    
+    VARIANT *param;
+    HRESULT hr = SafeArrayAccessData( pSaStrings, (LPVOID*)&param );
+    IF_HR_FAILED_RETURN_WITH_REPORT( cx, hr, nullptr, "SafeArrayAccessData" );
+
+    param->vt = VT_BSTR;
+    param->bstrVal = bstr.Detach();
+
+    hr = SafeArrayUnaccessData( pSaStrings );
+    IF_HR_FAILED_RETURN_WITH_REPORT( cx, hr, nullptr, "SafeArrayUnaccessData" );
+
+    hr = pDocument->write( pSaStrings );
+    IF_HR_FAILED_RETURN_WITH_REPORT( cx, hr, nullptr, "write" );
+
+    hr = pDocument->close();
+    IF_HR_FAILED_RETURN_WITH_REPORT( cx, hr, nullptr, "close" );
+
+    return std::unique_ptr<JsHtmlWindow>( new JsHtmlWindow(cx, pHtaWindow ) );
 }
 
 size_t JsHtmlWindow::GetInternalSize( const std::wstring& htmlCode, const std::wstring& data, JS::HandleValue callback )
 {
     return htmlCode.length() * sizeof( wchar_t ) + data.length() * sizeof( wchar_t );
+}
+
+std::optional<nullptr_t> 
+JsHtmlWindow::Close()
+{
+    pHtaWindow_->close();
+    return nullptr;
 }
 
 }

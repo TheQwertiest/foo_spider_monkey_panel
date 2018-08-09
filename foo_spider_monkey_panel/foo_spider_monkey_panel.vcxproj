@@ -228,6 +228,7 @@
     <ClInclude Include="js_objects\window.h" />
     <ClInclude Include="js_utils\art_helper.h" />
     <ClInclude Include="js_utils\com_error_helper.h" />
+    <ClInclude Include="js_utils\dispatch_ptr.h" />
     <ClInclude Include="js_utils\file_helpers.h" />
     <ClInclude Include="js_utils\gdi_error_helper.h" />
     <ClInclude Include="js_utils\image_helper.h" />

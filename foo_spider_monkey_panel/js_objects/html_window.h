@@ -37,15 +37,20 @@ public:
     static size_t GetInternalSize( const std::wstring& htmlCode, const std::wstring& data, JS::HandleValue callback );
 
 public: 
+    std::optional<nullptr_t> Close();
 
 public: 
 
 
 private:
-    JsHtmlWindow( JSContext* cx );
+    // alias for MSHTML::IHTMLWindow2Ptr: don't want to drag #import into headers
+    using HtmlWindow2ComPtr = _com_ptr_t<_com_IIID<IHTMLDocument2, &__uuidof(IHTMLDocument2)> >;
+
+    JsHtmlWindow( JSContext* cx, HtmlWindow2ComPtr pHtaWindow );
 
 private:
     JSContext * pJsCtx_ = nullptr;
+    HtmlWindow2ComPtr pHtaWindow_;
 };
 
 }
