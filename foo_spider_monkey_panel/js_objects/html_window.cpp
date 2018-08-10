@@ -77,27 +77,32 @@ JsHtmlWindow::JsHtmlWindow( JSContext* cx, HtmlWindow2ComPtr pHtaWindow )
 }
 
 JsHtmlWindow::~JsHtmlWindow()
-{ 
+{
 }
 
-std::unique_ptr<JsHtmlWindow> 
+std::unique_ptr<JsHtmlWindow>
 JsHtmlWindow::CreateNative( JSContext* cx, const std::wstring& htmlCode, const std::wstring& data, JS::HandleValue callback )
 {
-    const std::wstring wndId = []
+    if ( !(callback.isObject() && JS_ObjectIsFunction( cx, &callback.toObject() ))
+         && !callback.isNullOrUndefined() )
     {
-        std::srand( unsigned( std::time( 0 ) ) );
-        return L"a123";//+ std::to_wstring( std::rand() );
-    }();
+        JS_ReportErrorUTF8( cx, "callback argument is not a function" );
+        return nullptr;
+    }
+
+    JS::RootedFunction jsFunction( cx );
+    if ( callback.isObject() )
+    {
+        jsFunction.set( JS_ValueToFunction( cx, callback ) );
+    }
 
     try
     {
-        IShellDispatchPtr pShell;
-        HRESULT hr = pShell.GetActiveObject( CLSID_Shell );
-        if ( FAILED( hr ) )
+        const auto wndId = []
         {
-            hr = pShell.CreateInstance( CLSID_Shell, nullptr, CLSCTX_INPROC_SERVER );
-            IF_HR_FAILED_RETURN_WITH_REPORT( cx, hr, nullptr, "CreateInstance" );
-        }
+            std::srand( unsigned( std::time( 0 ) ) );
+            return L"a" + std::to_wstring( std::rand() );
+        }();
 
         const std::wstring features =
             L"singleinstance=yes "
@@ -115,8 +120,8 @@ JsHtmlWindow::CreateNative( JSContext* cx, const std::wstring& htmlCode, const s
             L"<object id='" + wndId + L"' style='display:none' classid='clsid:8856F961-340A-11D0-A96B-00C04FD705A2'>"
             L"    <param name=RegisterAsBrowser value=1>"
             L"</object>";
-        
-        const std::wstring launchCmd = L"\"about:" +  htaCode + L"\"";
+
+        const std::wstring launchCmd = L"\"about:" + htaCode + L"\"";
 
         HINSTANCE dwRet = ShellExecute( nullptr, L"open", L"mshta.exe", launchCmd.c_str(), nullptr, 1 );
         if ( (DWORD)dwRet <= 32 )
@@ -124,7 +129,7 @@ JsHtmlWindow::CreateNative( JSContext* cx, const std::wstring& htmlCode, const s
             JS_ReportErrorUTF8( cx, "ShellExecute failed: %u", dwRet );
             return nullptr;
         }
-        
+
         /*
         IWshRuntimeLibrary::IWshShellPtr pWsh;
         hr = pWsh.GetActiveObject( L"WScript.Shell" );
@@ -138,7 +143,7 @@ JsHtmlWindow::CreateNative( JSContext* cx, const std::wstring& htmlCode, const s
         hr = pWsh->Run( cmd.c_str() );
         IF_HR_FAILED_RETURN_WITH_REPORT( cx, hr, nullptr, "Run" );
         */
-        
+
         /*
         SHELLEXECUTEINFO execInfo = { 0 };
         execInfo.cbSize = sizeof( execInfo );
@@ -149,7 +154,7 @@ JsHtmlWindow::CreateNative( JSContext* cx, const std::wstring& htmlCode, const s
 
         BOOL bRet = ShellExecuteEx( &execInfo );
         IF_WINAPI_FAILED_RETURN_WITH_REPORT( cx, bRet && ((DWORD)execInfo.hInstApp > 32), nullptr, ShellExecuteEx );
-              
+
         struct ProcessWindowsInfo
         {
             DWORD ProcessID;
@@ -185,6 +190,14 @@ JsHtmlWindow::CreateNative( JSContext* cx, const std::wstring& htmlCode, const s
 
         Sleep( 100 ); ///< Give some time for window to spawn
 
+        IShellDispatchPtr pShell;
+        HRESULT hr = pShell.GetActiveObject( CLSID_Shell );
+        if ( FAILED( hr ) )
+        {
+            hr = pShell.CreateInstance( CLSID_Shell, nullptr, CLSCTX_INPROC_SERVER );
+            IF_HR_FAILED_RETURN_WITH_REPORT( cx, hr, nullptr, "CreateInstance" );
+        }
+
         IDispatchPtr pDispatch;
         hr = pShell->Windows( &pDispatch );
         IF_HR_FAILED_RETURN_WITH_REPORT( cx, hr, nullptr, "Windows" );
@@ -192,7 +205,6 @@ JsHtmlWindow::CreateNative( JSContext* cx, const std::wstring& htmlCode, const s
         SHDocVw::IShellWindowsPtr pShellWindows( pDispatch );
         MSHTML::IHTMLWindow2Ptr pHtaWindow;
         MSHTML::IHTMLDocument2Ptr pDocument;
-
         for ( long i = pShellWindows->GetCount() - 1; i >= 0; --i )
         {// Ideally we should use HWND instead, but GetHWND fails for no apparent reason...
             _variant_t va( i, VT_I4 );
@@ -202,9 +214,8 @@ JsHtmlWindow::CreateNative( JSContext* cx, const std::wstring& htmlCode, const s
             {
                 continue;
             }
-
-            const _bstr_t id = static_cast<_bstr_t>(idVal);
-            if ( id != _bstr_t( wndId.c_str() ) )
+            
+            if ( static_cast<_bstr_t>(idVal) != _bstr_t( wndId.c_str() ) )
             {
                 continue;
             }
@@ -270,13 +281,13 @@ JsHtmlWindow::CreateNative( JSContext* cx, const std::wstring& htmlCode, const s
         IF_HR_FAILED_RETURN_WITH_REPORT( cx, hr, nullptr, "close" );
 
         hr = pHtaWindow->focus();
-        IF_HR_FAILED_RETURN_WITH_REPORT( cx, hr, nullptr, "close" );
+        IF_HR_FAILED_RETURN_WITH_REPORT( cx, hr, nullptr, "focus" );
 
         return std::unique_ptr<JsHtmlWindow>( new JsHtmlWindow( cx, pHtaWindow ) );
     }
     catch ( const _com_error& e )
     {
-        pfc::string8_fast errorMsg8 = pfc::stringcvt::string_utf8_from_wide( (const wchar_t*)e.ErrorMessage() );        
+        pfc::string8_fast errorMsg8 = pfc::stringcvt::string_utf8_from_wide( (const wchar_t*)e.ErrorMessage() );
         pfc::string8_fast errorSource8 = pfc::stringcvt::string_utf8_from_wide( e.Source().length() ? (const wchar_t*)e.Source() : L"" );
         pfc::string8_fast errorDesc8 = pfc::stringcvt::string_utf8_from_wide( e.Description().length() ? (const wchar_t*)e.Description() : L"" );
         JS_ReportErrorUTF8( cx, "COM error: message %s; source: %s; description: %s", errorMsg8.c_str(), errorSource8.c_str(), errorDesc8.c_str() );
@@ -289,9 +300,9 @@ size_t JsHtmlWindow::GetInternalSize( const std::wstring& htmlCode, const std::w
     return htmlCode.length() * sizeof( wchar_t ) + data.length() * sizeof( wchar_t );
 }
 
-std::optional<nullptr_t> 
+std::optional<nullptr_t>
 JsHtmlWindow::Close()
-{
+{    
     pHtaWindow_->close();
     return nullptr;
 }
