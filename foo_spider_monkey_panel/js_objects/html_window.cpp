@@ -89,9 +89,6 @@ JsHtmlWindow::CreateNative( JSContext* cx, const std::wstring& htmlCode, const s
         return L"a123";//+ std::to_wstring( std::rand() );
     }();
 
-    MSHTML::IHTMLWindow2Ptr pHtaWindow;
-    MSHTML::IHTMLDocument2Ptr pDocument;
-
     try
     {
         IShellDispatchPtr pShell;
@@ -117,17 +114,18 @@ JsHtmlWindow::CreateNative( JSContext* cx, const std::wstring& htmlCode, const s
             L"<hta:application id=app " + features + L" />"
             L"<object id='" + wndId + L"' style='display:none' classid='clsid:8856F961-340A-11D0-A96B-00C04FD705A2'>"
             L"    <param name=RegisterAsBrowser value=1>"
-            L"</object>";        
+            L"</object>";
+        
+        const std::wstring launchCmd = L"\"about:" +  htaCode + L"\"";
 
-        /*
-        HINSTANCE dwRet = ShellExecute( nullptr, L"open", L"mshta.exe", htaCode.c_str(), nullptr, 1 );
+        HINSTANCE dwRet = ShellExecute( nullptr, L"open", L"mshta.exe", launchCmd.c_str(), nullptr, 1 );
         if ( (DWORD)dwRet <= 32 )
         {// yep, WinAPI logic
             JS_ReportErrorUTF8( cx, "ShellExecute failed: %u", dwRet );
             return nullptr;
         }
-        */
-
+        
+        /*
         IWshRuntimeLibrary::IWshShellPtr pWsh;
         hr = pWsh.GetActiveObject( L"WScript.Shell" );
         if ( FAILED( hr ) )
@@ -139,18 +137,65 @@ JsHtmlWindow::CreateNative( JSContext* cx, const std::wstring& htmlCode, const s
         const std::wstring cmd = L"mshta.exe about:" + htaCode;
         hr = pWsh->Run( cmd.c_str() );
         IF_HR_FAILED_RETURN_WITH_REPORT( cx, hr, nullptr, "Run" );
+        */
+        
+        /*
+        SHELLEXECUTEINFO execInfo = { 0 };
+        execInfo.cbSize = sizeof( execInfo );
+        execInfo.lpVerb = L"open";
+        execInfo.lpFile = L"mshta.exe";
+        execInfo.lpParameters = launchCmd.c_str();
+        execInfo.fMask = SEE_MASK_NOCLOSEPROCESS;
+
+        BOOL bRet = ShellExecuteEx( &execInfo );
+        IF_WINAPI_FAILED_RETURN_WITH_REPORT( cx, bRet && ((DWORD)execInfo.hInstApp > 32), nullptr, ShellExecuteEx );
+              
+        struct ProcessWindowsInfo
+        {
+            DWORD ProcessID;
+            HWND hwnd;
+
+            ProcessWindowsInfo( DWORD const AProcessID )
+                : ProcessID( AProcessID )
+            {
+            }
+        };
+
+        auto EnumProcessWindowsProc = []( HWND hwnd, LPARAM lParam ) -> BOOL
+        {
+            ProcessWindowsInfo *Info = reinterpret_cast<ProcessWindowsInfo*>(lParam);
+            DWORD WindowProcessID;
+
+            GetWindowThreadProcessId( hwnd, &WindowProcessID );
+
+            if ( WindowProcessID == Info->ProcessID )
+            {
+                Info->hwnd = hwnd;
+            }
+
+            return true;
+        };
+
+        ProcessWindowsInfo Info( GetProcessId( execInfo.hProcess ) );
+
+        bRet = EnumWindows( (WNDENUMPROC)EnumProcessWindowsProc,
+                            reinterpret_cast<LPARAM>(&Info) );
+        IF_WINAPI_FAILED_RETURN_WITH_REPORT( cx, bRet, nullptr, EnumWindows );
+        */
+
+        Sleep( 100 ); ///< Give some time for window to spawn
 
         IDispatchPtr pDispatch;
         hr = pShell->Windows( &pDispatch );
         IF_HR_FAILED_RETURN_WITH_REPORT( cx, hr, nullptr, "Windows" );
 
         SHDocVw::IShellWindowsPtr pShellWindows( pDispatch );
+        MSHTML::IHTMLWindow2Ptr pHtaWindow;
+        MSHTML::IHTMLDocument2Ptr pDocument;
 
         for ( long i = pShellWindows->GetCount() - 1; i >= 0; --i )
-        {
-            Sleep(100);
-
-            _variant_t va( i, VT_I4 );                       
+        {// Ideally we should use HWND instead, but GetHWND fails for no apparent reason...
+            _variant_t va( i, VT_I4 );
             CDispatchPtr pCurWindow = pShellWindows->Item( va );
             _variant_t idVal = pCurWindow.Get( L"id" );
             if ( idVal.vt == VT_EMPTY )
@@ -159,14 +204,14 @@ JsHtmlWindow::CreateNative( JSContext* cx, const std::wstring& htmlCode, const s
             }
 
             const _bstr_t id = static_cast<_bstr_t>(idVal);
-            if ( id != _bstr_t(wndId.c_str()) )
+            if ( id != _bstr_t( wndId.c_str() ) )
             {
                 continue;
             }
 
-            pDocument = pCurWindow.Get(L"parent");
+            pDocument = pCurWindow.Get( L"parent" );
             if ( !pDocument )
-            {                
+            {
                 JS_ReportErrorUTF8( cx, "Failed to get IHTMLDocument2" );
                 return nullptr;
             }
@@ -180,57 +225,63 @@ JsHtmlWindow::CreateNative( JSContext* cx, const std::wstring& htmlCode, const s
 
             break;
         }
-
         if ( !pHtaWindow )
         {
             JS_ReportErrorUTF8( cx, "Failed to create HTML window" );
             return nullptr;
         }
+
+        _bstr_t bstr =
+            _bstr_t() +
+            L"<script>"
+            L"    window.callback_data = '" + data.c_str() + "';" +
+            L"</script>" +
+            _bstr_t( htmlCode.c_str() ) +
+            L"<script id=\"" + wndId.c_str() + "\">"
+            L"    eval; "
+            L"    document.title='azaza';"
+            L"    var width = 200;"
+            L"    var height = 200;"
+            L"    resizeTo(width, height);" +
+            L"    moveTo((screen.width-width)/2, (screen.height-height)/2);"
+            L"    document.getElementById('" + wndId.c_str() + "').removeNode();"
+            L"</script>";
+
+        SAFEARRAY* pSaStrings = SafeArrayCreateVector( VT_VARIANT, 0, 1 );
+        scope::final_action autoPsa( [pSaStrings]()
+        {
+            SafeArrayDestroy( pSaStrings );
+        } );
+
+        VARIANT *param;
+        hr = SafeArrayAccessData( pSaStrings, (LPVOID*)&param );
+        IF_HR_FAILED_RETURN_WITH_REPORT( cx, hr, nullptr, "SafeArrayAccessData" );
+
+        param->vt = VT_BSTR;
+        param->bstrVal = bstr.Detach();
+
+        hr = SafeArrayUnaccessData( pSaStrings );
+        IF_HR_FAILED_RETURN_WITH_REPORT( cx, hr, nullptr, "SafeArrayUnaccessData" );
+
+        hr = pDocument->write( pSaStrings );
+        IF_HR_FAILED_RETURN_WITH_REPORT( cx, hr, nullptr, "write" );
+
+        hr = pDocument->close();
+        IF_HR_FAILED_RETURN_WITH_REPORT( cx, hr, nullptr, "close" );
+
+        hr = pHtaWindow->focus();
+        IF_HR_FAILED_RETURN_WITH_REPORT( cx, hr, nullptr, "close" );
+
+        return std::unique_ptr<JsHtmlWindow>( new JsHtmlWindow( cx, pHtaWindow ) );
     }
     catch ( const _com_error& e )
     {
         pfc::string8_fast errorMsg8 = pfc::stringcvt::string_utf8_from_wide( (const wchar_t*)e.ErrorMessage() );        
-        pfc::string8_fast errorSource8 = pfc::stringcvt::string_utf8_from_wide( (const wchar_t*)e.Source() );
-        pfc::string8_fast errorDesc8 = pfc::stringcvt::string_utf8_from_wide( (const wchar_t*)e.Description() );
+        pfc::string8_fast errorSource8 = pfc::stringcvt::string_utf8_from_wide( e.Source().length() ? (const wchar_t*)e.Source() : L"" );
+        pfc::string8_fast errorDesc8 = pfc::stringcvt::string_utf8_from_wide( e.Description().length() ? (const wchar_t*)e.Description() : L"" );
         JS_ReportErrorUTF8( cx, "COM error: message %s; source: %s; description: %s", errorMsg8.c_str(), errorSource8.c_str(), errorDesc8.c_str() );
         return nullptr;
     }
-
-    _bstr_t bstr = 
-        _bstr_t(htmlCode.c_str()) +
-        L"<script language=\"JScript\" id=\"" + wndId.c_str() + "\">"
-        L"    eval; "
-        L"    document.title=\"azaza\";"
-        L"    var width = 200;"
-        L"    var height = 200;"
-        L"    resizeTo(width, height);" +
-        L"    moveTo((screen.width-width)/2, (screen.height-height)/2);"
-        L"    document.getElementById(\"" + wndId.c_str() + "\").removeNode();"
-        L"</script>";
-
-    SAFEARRAY* pSaStrings = SafeArrayCreateVector( VT_VARIANT, 0, 1 );
-    scope::final_action autoPsa( [pSaStrings]()
-    {
-        SafeArrayDestroy( pSaStrings );
-    } );
-    
-    VARIANT *param;
-    HRESULT hr = SafeArrayAccessData( pSaStrings, (LPVOID*)&param );
-    IF_HR_FAILED_RETURN_WITH_REPORT( cx, hr, nullptr, "SafeArrayAccessData" );
-
-    param->vt = VT_BSTR;
-    param->bstrVal = bstr.Detach();
-
-    hr = SafeArrayUnaccessData( pSaStrings );
-    IF_HR_FAILED_RETURN_WITH_REPORT( cx, hr, nullptr, "SafeArrayUnaccessData" );
-
-    hr = pDocument->write( pSaStrings );
-    IF_HR_FAILED_RETURN_WITH_REPORT( cx, hr, nullptr, "write" );
-
-    hr = pDocument->close();
-    IF_HR_FAILED_RETURN_WITH_REPORT( cx, hr, nullptr, "close" );
-
-    return std::unique_ptr<JsHtmlWindow>( new JsHtmlWindow(cx, pHtaWindow ) );
 }
 
 size_t JsHtmlWindow::GetInternalSize( const std::wstring& htmlCode, const std::wstring& data, JS::HandleValue callback )
