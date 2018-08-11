@@ -790,29 +790,28 @@ STDMETHODIMP FbMetadbHandleList::UpdateFileInfoFromJSON(BSTR str)
 	t_size count = m_handles.get_count();
 	if (count == 0) return E_POINTER;
 
-	json o;
+	json j;
 	bool is_array;
 
 	try
 	{
 		pfc::stringcvt::string_utf8_from_wide ustr(str);
-		o = json::parse(ustr.get_ptr());
-		if (o.is_array())
-		{
-			if (o.size() != count) return E_INVALIDARG;
-			is_array = true;
-		}
-		else if (o.is_object())
-		{
-			if (o.size() == 0) return E_INVALIDARG;
-			is_array = false;
-		}
-		else
-		{
-			return E_INVALIDARG;
-		}
+		j = json::parse(ustr.get_ptr());
 	}
 	catch (...)
+	{
+		return E_INVALIDARG;
+	}
+
+	if (j.is_array() && j.size() == count)
+	{
+		is_array = true;
+	}
+	else if (j.is_object() && j.size() > 0)
+	{
+		is_array = false;
+	}
+	else
 	{
 		return E_INVALIDARG;
 	}
@@ -820,9 +819,9 @@ STDMETHODIMP FbMetadbHandleList::UpdateFileInfoFromJSON(BSTR str)
 	pfc::list_t<file_info_impl> info;
 	info.set_size(count);
 
-	for (t_size i = 0; i < count; i++)
+	for (t_size i = 0; i < count; ++i)
 	{
-		json obj = is_array ? o[i] : o;
+		json obj = is_array ? j[i] : j;
 		if (!obj.is_object() || obj.size() == 0) return E_INVALIDARG;
 
 		metadb_handle_ptr item = m_handles.get_item(i);
@@ -830,11 +829,10 @@ STDMETHODIMP FbMetadbHandleList::UpdateFileInfoFromJSON(BSTR str)
 
 		for (json::iterator it = obj.begin(); it != obj.end(); ++it)
 		{
-			std::string key = it.key();
-			pfc::string8 key8 = key.c_str();
-			if (key8.is_empty()) return E_INVALIDARG;
+			pfc::string8 key = (it.key()).c_str();
+			if (key.is_empty()) return E_INVALIDARG;
 
-			info[i].meta_remove_field(key8);
+			info[i].meta_remove_field(key);
 
 			if (it.value().is_array())
 			{
@@ -842,14 +840,14 @@ STDMETHODIMP FbMetadbHandleList::UpdateFileInfoFromJSON(BSTR str)
 				{
 					pfc::string8 value = helpers::iterator_to_string8(ita);
 					if (!value.is_empty())
-						info[i].meta_add(key8, value);
+						info[i].meta_add(key, value);
 				}
 			}
 			else
 			{
 				pfc::string8 value = helpers::iterator_to_string8(it);
 				if (!value.is_empty())
-					info[i].meta_set(key8, value);
+					info[i].meta_set(key, value);
 			}
 		}
 	}
@@ -988,6 +986,10 @@ STDMETHODIMP FbPlayingItemLocation::get_PlaylistItemIndex(int* outPlaylistItemIn
 }
 
 FbPlaylistManager::FbPlaylistManager() : m_fbPlaylistRecyclerManager(NULL)
+{
+}
+
+FbPlaylistManager::~FbPlaylistManager()
 {
 }
 
@@ -1580,6 +1582,7 @@ STDMETHODIMP FbPlaylistManager::get_PlaylistRecyclerManager(__interface IFbPlayl
 		{
 			m_fbPlaylistRecyclerManager.Attach(new com_object_impl_t<FbPlaylistRecyclerManager>());
 		}
+
 		(*outRecyclerManagerManager) = m_fbPlaylistRecyclerManager;
 		(*outRecyclerManagerManager)->AddRef();
 	}
@@ -1587,27 +1590,41 @@ STDMETHODIMP FbPlaylistManager::get_PlaylistRecyclerManager(__interface IFbPlayl
 	{
 		return E_FAIL;
 	}
+
 	return S_OK;
 }
 
-STDMETHODIMP FbPlaylistManager::put_ActivePlaylist(int playlistIndex)
+STDMETHODIMP FbPlaylistManager::put_ActivePlaylist(UINT playlistIndex)
 {
-	t_size index = playlistIndex > -1 ? playlistIndex : pfc::infinite_size;
-	playlist_manager::get()->set_active_playlist(index);
-	return S_OK;
+	auto api = playlist_manager::get();
+	if (playlistIndex < api->get_playlist_count())
+	{
+		api->set_active_playlist(playlistIndex);
+		return S_OK;
+	}
+	return E_INVALIDARG;
 }
 
 STDMETHODIMP FbPlaylistManager::put_PlaybackOrder(UINT p)
 {
-	playlist_manager::get()->playback_order_set_active(p);
-	return S_OK;
+	auto api = playlist_manager::get();
+	if (p < api->playback_order_get_count())
+	{
+		api->playback_order_set_active(p);
+		return S_OK;
+	}
+	return E_INVALIDARG;
 }
 
-STDMETHODIMP FbPlaylistManager::put_PlayingPlaylist(int playlistIndex)
+STDMETHODIMP FbPlaylistManager::put_PlayingPlaylist(UINT playlistIndex)
 {
-	t_size index = playlistIndex > -1 ? playlistIndex : pfc::infinite_size;
-	playlist_manager::get()->set_playing_playlist(index);
-	return S_OK;
+	auto api = playlist_manager::get();
+	if (playlistIndex < api->get_playlist_count())
+	{
+		api->set_playing_playlist(playlistIndex);
+		return S_OK;
+	}
+	return E_INVALIDARG;
 }
 
 STDMETHODIMP FbPlaylistRecyclerManager::Purge(VARIANT affectedItems)
@@ -2151,9 +2168,7 @@ STDMETHODIMP FbUtils::GetDSPPresets(BSTR* p)
 			{ "name",  name.get_ptr() }
 		});
 	}
-
-	std::string s = j.dump();
-	*p = SysAllocString(pfc::stringcvt::string_wide_from_utf8_fast(s.c_str()));
+	*p = SysAllocString(pfc::stringcvt::string_wide_from_utf8_fast((j.dump()).c_str()));
 	return S_OK;
 }
 
@@ -2228,20 +2243,18 @@ STDMETHODIMP FbUtils::GetOutputDevices(BSTR* p)
 	api->getCoreConfig(config);
 
 	api->listDevices([&j, &config](pfc::string8&& name, auto&& output_id, auto&& device_id) {
-		std::string name_string = name.get_ptr();
-		std::string output_string = pfc::print_guid(output_id).get_ptr();
-		std::string device_string = pfc::print_guid(device_id).get_ptr();
+		pfc::string8 output_string, device_string;
+		output_string << "{" << pfc::print_guid(output_id) << "}";
+		device_string << "{" << pfc::print_guid(device_id) << "}";
 
 		j.push_back({
-			{ "name", name_string },
-			{ "output_id", "{" + output_string + "}" },
-			{ "device_id", "{" + device_string + "}" },
+			{ "name", name.get_ptr() },
+			{ "output_id", output_string.get_ptr() },
+			{ "device_id", device_string.get_ptr() },
 			{ "active", config.m_output == output_id && config.m_device == device_id }
 		});
 	});
-
-	std::string s = j.dump();
-	*p = SysAllocString(pfc::stringcvt::string_wide_from_utf8_fast(s.c_str()));
+	*p = SysAllocString(pfc::stringcvt::string_wide_from_utf8_fast((j.dump()).c_str()));
 	return S_OK;
 }
 
@@ -2436,19 +2449,6 @@ STDMETHODIMP FbUtils::RunMainMenuCommand(BSTR command, VARIANT_BOOL* p)
 
 	pfc::stringcvt::string_utf8_from_wide ucommand(command);
 	*p = TO_VARIANT_BOOL(helpers::execute_mainmenu_command_by_name_SEH(ucommand));
-	return S_OK;
-}
-
-STDMETHODIMP FbUtils::SaveIndex()
-{
-	try
-	{
-		stats::theAPI()->save_index_data(g_guid_jsp_metadb_index);
-	}
-	catch (...)
-	{
-		FB2K_console_formatter() << JSP_NAME_VERSION ": Save index fail.";
-	}
 	return S_OK;
 }
 
@@ -2839,7 +2839,7 @@ STDMETHODIMP GdiBitmap::GetColourScheme(UINT count, VARIANT* outArray)
 	const unsigned colors_length = bmpdata.Width * bmpdata.Height;
 	const t_uint32* colors = (const t_uint32 *)bmpdata.Scan0;
 
-	for (unsigned i = 0; i < colors_length; i++)
+	for (unsigned i = 0; i < colors_length; ++i)
 	{
 		// format: 0xaarrggbb
 		unsigned color = colors[i];
@@ -2895,9 +2895,9 @@ STDMETHODIMP GdiBitmap::GetColourScheme(UINT count, VARIANT* outArray)
 	return S_OK;
 }
 
-STDMETHODIMP GdiBitmap::GetColourSchemeJSON(UINT count, BSTR* outJson)
+STDMETHODIMP GdiBitmap::GetColourSchemeJSON(UINT count, BSTR* p)
 {
-	if (!m_ptr || !outJson) return E_POINTER;
+	if (!m_ptr || !p) return E_POINTER;
 
 	Gdiplus::BitmapData bmpdata;
 
@@ -2918,7 +2918,7 @@ STDMETHODIMP GdiBitmap::GetColourSchemeJSON(UINT count, BSTR* outJson)
 	const t_uint32* colours = (const t_uint32 *)bmpdata.Scan0;
 
 	// reduce color set to pass to k-means by rounding colour components to multiples of 8
-	for (unsigned i = 0; i < colours_length; i++)
+	for (unsigned i = 0; i < colours_length; ++i)
 	{
 		unsigned int r = (colours[i] >> 16) & 0xff;
 		unsigned int g = (colours[i] >> 8) & 0xff;
@@ -2975,8 +2975,7 @@ STDMETHODIMP GdiBitmap::GetColourSchemeJSON(UINT count, BSTR* outJson)
 			{ "freq", frequency }
 		});
 	}
-	std::string s = j.dump();
-	*outJson = SysAllocString(pfc::stringcvt::string_wide_from_utf8(s.c_str()));
+	*p = SysAllocString(pfc::stringcvt::string_wide_from_utf8_fast((j.dump()).c_str()));
 	return S_OK;
 }
 

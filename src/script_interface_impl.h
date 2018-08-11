@@ -158,6 +158,7 @@ class FbPlaylistManager : public IDispatchImpl3<IFbPlaylistManager>
 {
 protected:
 	FbPlaylistManager();
+	virtual ~FbPlaylistManager();
 
 public:
 	STDMETHODIMP AddItemToPlaybackQueue(IFbMetadbHandle* handle);
@@ -210,9 +211,9 @@ public:
 	STDMETHODIMP get_PlayingPlaylist(int* outPlaylistIndex);
 	STDMETHODIMP get_PlaylistCount(UINT* outCount);
 	STDMETHODIMP get_PlaylistRecyclerManager(__interface IFbPlaylistRecyclerManager** outRecyclerManager);
-	STDMETHODIMP put_ActivePlaylist(int playlistIndex);
+	STDMETHODIMP put_ActivePlaylist(UINT playlistIndex);
 	STDMETHODIMP put_PlaybackOrder(UINT order);
-	STDMETHODIMP put_PlayingPlaylist(int playlistIndex);
+	STDMETHODIMP put_PlayingPlaylist(UINT playlistIndex);
 
 private:
 	IFbPlaylistRecyclerManagerPtr m_fbPlaylistRecyclerManager;
@@ -371,7 +372,6 @@ public:
 	STDMETHODIMP RunContextCommand(BSTR command, UINT flags, VARIANT_BOOL* p);
 	STDMETHODIMP RunContextCommandWithMetadb(BSTR command, VARIANT handle, UINT flags, VARIANT_BOOL* p);
 	STDMETHODIMP RunMainMenuCommand(BSTR command, VARIANT_BOOL* p);
-	STDMETHODIMP SaveIndex();
 	STDMETHODIMP SavePlaylist();
 	STDMETHODIMP SetDSPPreset(UINT idx);
 	STDMETHODIMP SetOutputDevice(BSTR output, BSTR device);
@@ -417,7 +417,7 @@ public:
 	STDMETHODIMP Clone(float x, float y, float w, float h, IGdiBitmap** pp);
 	STDMETHODIMP CreateRawBitmap(IGdiRawBitmap** pp);
 	STDMETHODIMP GetColourScheme(UINT count, VARIANT* outArray);
-	STDMETHODIMP GetColourSchemeJSON(UINT count, BSTR* outJson);
+	STDMETHODIMP GetColourSchemeJSON(UINT count, BSTR* p);
 	STDMETHODIMP GetGraphics(IGdiGraphics** pp);
 	STDMETHODIMP ReleaseGraphics(IGdiGraphics* p);
 	STDMETHODIMP Resize(UINT w, UINT h, int interpolationMode, IGdiBitmap** pp);
