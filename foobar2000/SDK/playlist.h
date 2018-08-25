@@ -448,7 +448,8 @@ public:
 		PFC_STATIC_ASSERT( sizeof(p_data[0]) == 1 );
 		typedef pfc::array_t<t_uint8,pfc::alloc_fast_aggressive> t_temp;
 		t_temp temp;
-		if (!playlist_get_property(p_playlist,p_property,&stream_writer_buffer_append_ref_t<t_temp>(temp),abort_callback_dummy())) return false;
+		abort_callback_dummy dummy;
+		if (!playlist_get_property(p_playlist,p_property,&stream_writer_buffer_append_ref_t<t_temp>(temp), dummy)) return false;
 		p_data = temp;
 		return true;
 	}
