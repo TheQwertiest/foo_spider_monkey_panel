@@ -38,6 +38,32 @@ namespace
 
 using namespace mozjs;
 
+void RefreshValue( JSContext* cx, JS::HandleValue valToCheck )
+{
+    if ( !valToCheck.isObject() )
+    {
+        return;
+    }
+
+    HRESULT hresult;
+    JS::RootedObject j0( cx, &valToCheck.toObject() );
+
+    ActiveXObject* x = static_cast<ActiveXObject*>(JS_GetInstancePrivate( cx, j0, &ActiveXObject::JsClass, nullptr ));
+    if ( !x )
+    {
+        return;
+    }
+
+    if ( x->pUnknown_ && !x->pDispatch_ )
+    {
+        hresult = x->pUnknown_->QueryInterface( IID_IDispatch, (void **)&x->pDispatch_ );
+        if ( !SUCCEEDED( hresult ) )
+        {
+            x->pDispatch_ = nullptr;
+        }
+    }
+}
+
 // Wrapper to intercept indexed gets/sets.
 class ActiveXObjectProxyHandler : public js::ForwardingProxyHandler
 {
@@ -618,7 +644,7 @@ bool ActiveXObject::Set( const std::wstring& propName, JS::HandleValue v )
                                           (WORD)flag,
                                           &dispparams, nullptr, &exception, &argerr );
 
-    convert::com::CheckReturn( pJsCtx_, v );
+    RefreshValue( pJsCtx_, v );
     VariantClear( &arg );
 
     if ( !SUCCEEDED( hresult ) )
@@ -683,7 +709,7 @@ bool ActiveXObject::Invoke( const std::wstring& funcName, const JS::CallArgs& ca
 
     for ( size_t i = 0; i < argc; i++ )
     {
-        convert::com::CheckReturn( pJsCtx_, callArgs[i] ); //in case any empty ActiveXObject objects were filled in by Invoke()
+        RefreshValue( pJsCtx_, callArgs[i] ); //in case any empty ActiveXObject objects were filled in by Invoke()
         VariantClear( &args[i] );
     }
 

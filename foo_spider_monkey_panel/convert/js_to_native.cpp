@@ -14,7 +14,7 @@ std::optional<std::wstring> ToValue( JSContext * cx, const JS::HandleString& jsS
     if ( !JS_CopyStringChars( cx, wCharStr, jsString ) )
     {
         JS_ReportOutOfMemory( cx );
-        return std::wstring();
+        return std::nullopt;
     }
 
     return wStr;

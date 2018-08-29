@@ -11,6 +11,5 @@ namespace mozjs::convert::com
 
 bool VariantToJs( JSContext* cx, VARIANTARG& var, JS::MutableHandleValue rval );
 bool JsToVariant( JSContext* cx, JS::HandleValue rval, VARIANTARG& arg );
-void CheckReturn( JSContext* cx, JS::HandleValue valToCheck );
 
 }

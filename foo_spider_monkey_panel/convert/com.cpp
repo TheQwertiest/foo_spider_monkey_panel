@@ -10,6 +10,8 @@
 #include <js_objects/internal/global_heap_manager.h>
 #include <js_objects/active_x_object.h>
 
+#include <convert/js_to_native.h>
+
 
 // TODO: add VT_ARRAY <> JSArray and VT_DISPATCH <> JSFunction support
 
@@ -316,10 +318,9 @@ bool JsToVariant( JSContext* cx, JS::HandleValue rval, VARIANTARG& arg )
         if ( j0 && JS_ObjectIsFunction( cx, j0 ) )
         {
             JS::RootedFunction func( cx, JS_ValueToFunction( cx, rval ) );
-            auto pWrappedJs = new com_object_impl_t<WrappedJs>( cx, func );
 
             arg.vt = VT_DISPATCH;
-            arg.pdispVal = pWrappedJs;
+            arg.pdispVal = new com_object_impl_t<WrappedJs>( cx, func );
             return true;
         }
     }
@@ -339,7 +340,6 @@ bool JsToVariant( JSContext* cx, JS::HandleValue rval, VARIANTARG& arg )
     {
         arg.vt = VT_R8;
         arg.dblVal = rval.toDouble();
-
         return true;
     }
     else if ( rval.isNull() )
@@ -356,21 +356,17 @@ bool JsToVariant( JSContext* cx, JS::HandleValue rval, VARIANTARG& arg )
     }
     else if ( rval.isString() )
     {
-        JS::RootedString rStr( cx, rval.toString() );
-        size_t strLen = JS_GetStringLength( rStr );
-        std::wstring strVal( strLen, '\0' );
-        mozilla::Range<char16_t> wCharStr( (char16_t*)strVal.data(), strLen );
-        if ( !JS_CopyStringChars( cx, wCharStr, rStr ) )
+        auto str = convert::to_native::ToValue<std::wstring>( cx, rval );
+        if ( !str )
         {
-            JS_ReportOutOfMemory( cx );
-
-            // Avoid cleaning up garbage
-            arg.vt = VT_EMPTY;
+            arg.vt = VT_EMPTY; // Avoid cleaning up garbage
             return false;
         }
 
+        _bstr_t bStr = str.value().c_str();
+
         arg.vt = VT_BSTR;
-        arg.bstrVal = SysAllocString( strVal.c_str() );
+        arg.bstrVal = bStr.Detach();
         return true;
     }
     /*
@@ -397,32 +393,6 @@ bool JsToVariant( JSContext* cx, JS::HandleValue rval, VARIANTARG& arg )
     // Avoid cleaning up garbage
     arg.vt = VT_EMPTY;
     return false;
-}
-
-void CheckReturn( JSContext* cx, JS::HandleValue valToCheck )
-{
-    if ( !valToCheck.isObject() )
-    {
-        return;
-    }
-
-    HRESULT hresult;
-    JS::RootedObject j0( cx, &valToCheck.toObject() );
-
-    ActiveXObject* x = static_cast<ActiveXObject*>( JS_GetInstancePrivate( cx, j0, &ActiveXObject::JsClass, nullptr ) );
-    if ( !x )
-    {
-        return;
-    }
-
-    if ( x->pUnknown_ && !x->pDispatch_ )
-    {
-        hresult = x->pUnknown_->QueryInterface( IID_IDispatch, (void **)&x->pDispatch_ );
-        if ( !SUCCEEDED( hresult ) )
-        {
-            x->pDispatch_ = nullptr;
-        }
-    }
 }
 
 }
