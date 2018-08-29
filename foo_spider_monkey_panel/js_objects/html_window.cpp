@@ -8,6 +8,7 @@
 #include <js_utils/js_object_helper.h>
 #include <js_utils/dispatch_ptr.h>
 #include <js_utils/scope_helper.h>
+#include <convert/com.h>
 
 // std::time
 #include <ctime>
@@ -131,20 +132,6 @@ JsHtmlWindow::CreateNative( JSContext* cx, const std::wstring& htmlCode, const s
         }
 
         /*
-        IWshRuntimeLibrary::IWshShellPtr pWsh;
-        hr = pWsh.GetActiveObject( L"WScript.Shell" );
-        if ( FAILED( hr ) )
-        {
-            hr = pWsh.CreateInstance( L"WScript.Shell", nullptr, CLSCTX_INPROC_SERVER );
-            IF_HR_FAILED_RETURN_WITH_REPORT( cx, hr, nullptr, "CreateInstance" );
-        }
-
-        const std::wstring cmd = L"mshta.exe about:" + htaCode;
-        hr = pWsh->Run( cmd.c_str() );
-        IF_HR_FAILED_RETURN_WITH_REPORT( cx, hr, nullptr, "Run" );
-        */
-
-        /*
         SHELLEXECUTEINFO execInfo = { 0 };
         execInfo.cbSize = sizeof( execInfo );
         execInfo.lpVerb = L"open";
@@ -242,11 +229,28 @@ JsHtmlWindow::CreateNative( JSContext* cx, const std::wstring& htmlCode, const s
             return nullptr;
         }
 
+        IDispatchExPtr pHtaWindowEx( pHtaWindow );
+        //assert( pHtaWindowEx );
+
+        DISPID dispId;
+        /*
+        hr = static_cast<IDispatchExPtr>(pHtaWindow)->GetDispID( L"callback_fn", fdexNameEnsure, &dispId );
+        IF_HR_FAILED_RETURN_WITH_REPORT( cx, hr, nullptr, "GetDispID" );
+
+        _variant_t comCallbackFn;
+        convert::com::JsToVariant( cx, callback, comCallbackFn.GetVARIANT() );
+        static_cast<CDispatchPtr>( pHtaWindow ).Set( dispId, comCallbackFn );
+        */
+        hr = pHtaWindowEx->GetDispID( L"callback_data", fdexNameEnsure | fdexNameImplicit, &dispId );
+        IF_HR_FAILED_RETURN_WITH_REPORT( cx, hr, nullptr, "GetDispID" );
+
+        _variant_t callbackData( data.c_str() );
+        DISPPARAMS dispparams = { &callbackData.GetVARIANT(), NULL, 1, 0 };
+
+        hr = pHtaWindowEx->InvokeEx( dispId, LOCALE_USER_DEFAULT, DISPATCH_PROPERTYPUT, &dispparams, nullptr, nullptr, nullptr );
+        IF_HR_FAILED_RETURN_WITH_REPORT( cx, hr, nullptr, "InvokeEx" );
+
         _bstr_t bstr =
-            _bstr_t() +
-            L"<script>"
-            L"    window.callback_data = '" + data.c_str() + "';" +
-            L"</script>" +
             _bstr_t( htmlCode.c_str() ) +
             L"<script id=\"" + wndId.c_str() + "\">"
             L"    eval; "
