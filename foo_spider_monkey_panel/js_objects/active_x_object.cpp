@@ -842,20 +842,14 @@ void ActiveXObject::ParseTypeInfo( ITypeInfo * pTypeInfo, MemberMap& members )
     VARDESC * vardesc;
     for ( size_t i = 0; pTypeInfo->GetVarDesc( i, &vardesc ) == S_OK; ++i )
     {
-        BSTR name = nullptr;
-        //BSTR desc = nullptr;
-        if ( pTypeInfo->GetDocumentation( vardesc->memid, &name, nullptr /*&desc*/, nullptr, nullptr ) == S_OK )
+        _bstr_t name;
+        //_bstr_t desc;
+        if ( pTypeInfo->GetDocumentation( vardesc->memid, name.GetAddress(), nullptr /*&desc*/, nullptr, nullptr ) == S_OK )
         {
-            scope::final_action autoName( [name]()
-            {
-                SysFreeString( name );
-                //SysFreeString( desc );
-            } );
-
             if ( !(vardesc->wVarFlags & VARFLAG_FRESTRICTED)
                  && !(vardesc->wVarFlags & VARFLAG_FHIDDEN) )
             {
-                auto[it, bRet] = members.try_emplace( name, std::make_unique<MemberInfo>() );
+                auto[it, bRet] = members.try_emplace( name.GetBSTR(), std::make_unique<MemberInfo>() );
                 auto pProp = it->second.get();
                 pProp->isGet = true;
                 pProp->isPut = true;
@@ -867,20 +861,14 @@ void ActiveXObject::ParseTypeInfo( ITypeInfo * pTypeInfo, MemberMap& members )
     FUNCDESC * funcdesc;
     for ( size_t i = 0; pTypeInfo->GetFuncDesc( i, &funcdesc ) == S_OK; ++i )
     {
-        BSTR name = nullptr;
-        //BSTR desc = nullptr;
-        if ( pTypeInfo->GetDocumentation( funcdesc->memid, &name, nullptr /*&desc*/, nullptr, nullptr ) == S_OK )
+        _bstr_t name;
+        //_bstr_t desc;
+        if ( pTypeInfo->GetDocumentation( funcdesc->memid, name.GetAddress(), nullptr /*&desc*/, nullptr, nullptr ) == S_OK )
         {
-            scope::final_action autoName( [name]()
-            {
-                SysFreeString( name );
-                //SysFreeString( desc );
-            } );
-
             if ( !(funcdesc->wFuncFlags & FUNCFLAG_FRESTRICTED)
                  && !(funcdesc->wFuncFlags & FUNCFLAG_FHIDDEN) )
             {
-                auto[it, bRet] = members.try_emplace( name, std::make_unique<MemberInfo>() );
+                auto[it, bRet] = members.try_emplace( name.GetBSTR(), std::make_unique<MemberInfo>() );
                 auto pProp = it->second.get();
                 if ( INVOKE_PROPERTYPUT == funcdesc->invkind )
                 {
@@ -911,7 +899,7 @@ bool ActiveXObject::SetupMembers_Impl( JS::HandleObject jsObject )
         if ( member->isInvoke )
         {
             if ( !JS_DefineUCFunction( pJsCtx_, jsObject, (const char16_t*)name.c_str(), name.length(), ActiveX_Run, 0, 0 ) )
-            {// report in JS_DefineUCFunction
+            {// reports
                 return false;
             }
         }

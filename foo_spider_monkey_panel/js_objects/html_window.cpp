@@ -53,7 +53,7 @@ JSClass jsClass = {
 MJS_DEFINE_JS_TO_NATIVE_FN( JsHtmlWindow, Close )
 
 const JSFunctionSpec jsFunctions[] = {
-    JS_FN( "Close", Close , 0, DefaultPropsFlags() ),
+    JS_FN( "Close", Close, 0, DefaultPropsFlags() ),
     JS_FS_END
 };
 
@@ -79,6 +79,10 @@ JsHtmlWindow::JsHtmlWindow( JSContext* cx, HtmlWindow2ComPtr pHtaWindow )
 
 JsHtmlWindow::~JsHtmlWindow()
 {
+    if ( pHtaWindow_ )
+    {
+        pHtaWindow_->close();
+    }
 }
 
 std::unique_ptr<JsHtmlWindow>
@@ -230,6 +234,7 @@ JsHtmlWindow::CreateNative( JSContext* cx, const std::wstring& htmlCode, const s
         }
 
         IDispatchExPtr pHtaWindowEx( pHtaWindow );
+        assert( !!pHtaWindowEx );
        
         {// open document
             SAFEARRAY* pSaStrings = SafeArrayCreateVector( VT_VARIANT, 0, 1 );

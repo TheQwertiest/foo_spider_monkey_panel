@@ -138,7 +138,7 @@ JsUtils::CheckComponent( const pfc::string8_fast& name, bool is_dll )
             ptr->get_component_name( temp );
         }
 
-        if ( !_stricmp( temp, name.c_str() ) )
+        if ( temp == name )
         {
             return true;
         }
@@ -199,7 +199,7 @@ std::optional<uint32_t>
 JsUtils::ColourPicker( uint32_t hWindow, uint32_t default_colour )
 {
     COLORREF color = helpers::convert_argb_to_colorref( default_colour );
-    COLORREF colors[16] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+    COLORREF colors[16] = { 0 };
     // Such cast will work only on x86
     uChooseColor( &color, (HWND)hWindow, &colors[0] );
 
@@ -221,28 +221,24 @@ JsUtils::CreateHtmlWindow( const std::wstring& htmlCode, const std::wstring& dat
 std::optional<JSObject*>
 JsUtils::CreateHtmlWindowWithOpt( size_t optArgCount, const std::wstring& htmlCode, const std::wstring& data, JS::HandleValue callback )
 {
-    if ( optArgCount > 2 )
+    switch ( optArgCount )
     {
+    case 2:
+        return CreateHtmlWindow( htmlCode );
+    case 1:
+        return CreateHtmlWindow( htmlCode, data );
+    case 0:
+        return CreateHtmlWindow( htmlCode, data, callback );
+    default:
         JS_ReportErrorUTF8( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
         return std::nullopt;
     }
-
-    if ( optArgCount == 2 )
-    {
-        return CreateHtmlWindow( htmlCode );
-    }
-    else if ( optArgCount == 1 )
-    {
-        return CreateHtmlWindow( htmlCode, data );
-    }
-
-    return CreateHtmlWindow( htmlCode, data, callback );
 }
 
 std::optional<JS::Value>
 JsUtils::FileTest( const std::wstring& path, const std::wstring& mode )
 {
-    const auto cleanedPath = [&]()
+    const auto cleanedPath = [&path]()
     {
         std::wstring tmp = path;
         return tmp.replace( tmp.begin(), tmp.end(), L'/', L'\\' );
@@ -254,8 +250,7 @@ JsUtils::FileTest( const std::wstring& path, const std::wstring& mode )
         jsValue.setBoolean( PathFileExists( path.c_str() ) );
         return jsValue;
     }
-
-    if ( L"s" == mode )
+    else if ( L"s" == mode )
     {
         HANDLE fh = CreateFile( cleanedPath.c_str(), GENERIC_READ, FILE_SHARE_READ, 0, OPEN_EXISTING, 0, 0 );
         IF_WINAPI_FAILED_RETURN_WITH_REPORT( pJsCtx_, fh != INVALID_HANDLE_VALUE, std::nullopt, CreateFile );
@@ -268,15 +263,13 @@ JsUtils::FileTest( const std::wstring& path, const std::wstring& mode )
         jsValue.setNumber( static_cast<double>(size.QuadPart) );
         return jsValue;
     }
-
-    if ( L"d" == mode )
+    else if ( L"d" == mode )
     {
         JS::RootedValue jsValue( pJsCtx_ );
         jsValue.setBoolean( PathIsDirectory( cleanedPath.c_str() ) );
         return jsValue;
     }
-
-    if ( L"split" == mode )
+    else if ( L"split" == mode )
     {
         const wchar_t* fn = PathFindFileName( cleanedPath.c_str() );
         const wchar_t* ext = PathFindExtension( fn );
@@ -325,8 +318,7 @@ JsUtils::FileTest( const std::wstring& path, const std::wstring& mode )
 
         return JS::ObjectValue( *jsArray );
     }
-
-    if ( L"chardet" == mode )
+    else if ( L"chardet" == mode )
     {
         JS::RootedValue jsValue( pJsCtx_ );
         jsValue.setNumber(

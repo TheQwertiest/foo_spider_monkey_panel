@@ -44,7 +44,7 @@ public:
 
 private:
     // alias for MSHTML::IHTMLWindow2Ptr: don't want to drag #import into headers
-    using HtmlWindow2ComPtr = _com_ptr_t<_com_IIID<IHTMLDocument2, &__uuidof(IHTMLDocument2)> >;
+    using HtmlWindow2ComPtr = _com_ptr_t<_com_IIID<IHTMLWindow2, &__uuidof(IHTMLWindow2)> >;
 
     JsHtmlWindow( JSContext* cx, HtmlWindow2ComPtr pHtaWindow );
 
