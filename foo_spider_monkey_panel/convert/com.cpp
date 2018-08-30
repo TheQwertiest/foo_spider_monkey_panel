@@ -82,9 +82,9 @@ protected:
         needsCleanup_ = false;
     }
 
-    STDMETHODIMP ExecuteValue( VARIANT* pVariant )
-    {
-        if ( !pVariant )
+    STDMETHODIMP ExecuteValue( VARIANT arg, VARIANT* pResult )
+    {// TODO: add more arguments
+        if ( !pResult )
         {
             return E_POINTER;
         }
@@ -100,18 +100,24 @@ protected:
 
         JS::RootedValue vFunc( pJsCtx_, heapMgr.Get( funcId_ ) );
         JS::RootedFunction rFunc( pJsCtx_, JS_ValueToFunction( pJsCtx_, vFunc ) );
+        JS::AutoValueArray<1> wrappedArgs( pJsCtx_ );
+        if ( !convert::com::VariantToJs( pJsCtx_, arg, wrappedArgs[0] ) )
+        {
+            JS_ClearPendingException( pJsCtx_ ); ///< can't forward exceptions inside ActiveXObject objects (see reasons above)...
+            return E_FAIL;
+        }
 
         JS::RootedValue retVal( pJsCtx_ );
-        if ( !JS::Call( pJsCtx_, jsGlobal, rFunc, JS::HandleValueArray::empty(), &retVal ) )
+        if ( !JS::Call( pJsCtx_, jsGlobal, rFunc, wrappedArgs, &retVal ) )
         {// TODO: set fail somehow
             JS_ClearPendingException( pJsCtx_ ); ///< can't forward exceptions inside ActiveXObject objects (see reasons above)...
             return E_FAIL;
         }
 
-        if ( !convert::com::JsToVariant( pJsCtx_, retVal, *pVariant ) )
+        if ( !convert::com::JsToVariant( pJsCtx_, retVal, *pResult ) )
         {
-            pVariant->vt = VT_ERROR;
-            pVariant->scode = 0;
+            pResult->vt = VT_ERROR;
+            pResult->scode = 0;
             return E_FAIL;
         }
 

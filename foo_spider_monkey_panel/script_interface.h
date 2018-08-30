@@ -26,7 +26,7 @@ __interface IDisposable : IDispatch
 ]
 __interface IWrappedJs : IDispatch
 {
-    [id( DISPID_VALUE )] STDMETHOD(ExecuteValue)( [out, retval] VARIANT* Result );
+    [id( DISPID_VALUE )] STDMETHOD(ExecuteValue)([optional] VARIANT arg, [out, retval]VARIANT* result );
 };
 
 [
