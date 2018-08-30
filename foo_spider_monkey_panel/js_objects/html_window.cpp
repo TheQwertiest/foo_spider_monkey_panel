@@ -46,7 +46,7 @@ JSClassOps jsOps = {
 
 JSClass jsClass = {
     "HtmlWindow",
-    DefaultClassFlags(),
+    JSCLASS_HAS_PRIVATE | JSCLASS_FOREGROUND_FINALIZE, // COM objects must be finalized in foreground
     &jsOps
 };
 
@@ -71,18 +71,15 @@ const JSFunctionSpec* JsHtmlWindow::JsFunctions = jsFunctions;
 const JSPropertySpec* JsHtmlWindow::JsProperties = jsProperties;
 const JsPrototypeId JsHtmlWindow::PrototypeId = JsPrototypeId::HtmlWindow;
 
-JsHtmlWindow::JsHtmlWindow( JSContext* cx, HtmlWindow2ComPtr pHtaWindow )
+JsHtmlWindow::JsHtmlWindow( JSContext* cx, DWORD pid )
     : pJsCtx_( cx )
-    , pHtaWindow_( pHtaWindow )
+    , pid_(pid)
 {
 }
 
 JsHtmlWindow::~JsHtmlWindow()
 {
-    if ( pHtaWindow_ )
-    {
-        pHtaWindow_->close();
-    }
+    Close();
 }
 
 std::unique_ptr<JsHtmlWindow>
@@ -249,15 +246,7 @@ JsHtmlWindow::CreateNative( JSContext* cx, const std::wstring& htmlCode, JS::Han
             L"</object>";
 
         const std::wstring launchCmd = L"\"about:" + htaCode + L"\"";
-
-        HINSTANCE dwRet = ShellExecute( nullptr, L"open", L"mshta.exe", launchCmd.c_str(), nullptr, 1 );
-        if ( (DWORD)dwRet <= 32 )
-        {// yep, WinAPI logic
-            JS_ReportErrorUTF8( cx, "ShellExecute failed: %u", dwRet );
-            return nullptr;
-        }
-
-        /*
+        
         SHELLEXECUTEINFO execInfo = { 0 };
         execInfo.cbSize = sizeof( execInfo );
         execInfo.lpVerb = L"open";
@@ -268,38 +257,7 @@ JsHtmlWindow::CreateNative( JSContext* cx, const std::wstring& htmlCode, JS::Han
         BOOL bRet = ShellExecuteEx( &execInfo );
         IF_WINAPI_FAILED_RETURN_WITH_REPORT( cx, bRet && ((DWORD)execInfo.hInstApp > 32), nullptr, ShellExecuteEx );
 
-        struct ProcessWindowsInfo
-        {
-            DWORD ProcessID;
-            HWND hwnd;
-
-            ProcessWindowsInfo( DWORD const AProcessID )
-                : ProcessID( AProcessID )
-            {
-            }
-        };
-
-        auto EnumProcessWindowsProc = []( HWND hwnd, LPARAM lParam ) -> BOOL
-        {
-            ProcessWindowsInfo *Info = reinterpret_cast<ProcessWindowsInfo*>(lParam);
-            DWORD WindowProcessID;
-
-            GetWindowThreadProcessId( hwnd, &WindowProcessID );
-
-            if ( WindowProcessID == Info->ProcessID )
-            {
-                Info->hwnd = hwnd;
-            }
-
-            return true;
-        };
-
-        ProcessWindowsInfo Info( GetProcessId( execInfo.hProcess ) );
-
-        bRet = EnumWindows( (WNDENUMPROC)EnumProcessWindowsProc,
-                            reinterpret_cast<LPARAM>(&Info) );
-        IF_WINAPI_FAILED_RETURN_WITH_REPORT( cx, bRet, nullptr, EnumWindows );
-        */
+        DWORD pid =  GetProcessId( execInfo.hProcess );
 
         Sleep( 100 ); ///< Give some time for window to spawn
 
@@ -454,7 +412,7 @@ JsHtmlWindow::CreateNative( JSContext* cx, const std::wstring& htmlCode, JS::Han
         hr = pHtaWindow->focus();
         IF_HR_FAILED_RETURN_WITH_REPORT( cx, hr, nullptr, "focus" );
 
-        return std::unique_ptr<JsHtmlWindow>( new JsHtmlWindow( cx, pHtaWindow ) );
+        return std::unique_ptr<JsHtmlWindow>( new JsHtmlWindow( cx, pid ) );
     }
     catch ( const _com_error& e )
     {
@@ -474,7 +432,45 @@ size_t JsHtmlWindow::GetInternalSize( const std::wstring& htmlCode, JS::HandleVa
 std::optional<nullptr_t>
 JsHtmlWindow::Close()
 {    
-    pHtaWindow_->close();
+    if ( !pid_ )
+    {
+        return nullptr;
+    }
+
+    HANDLE hProc = OpenProcess( SYNCHRONIZE | PROCESS_TERMINATE, FALSE, pid_ );
+    if ( !hProc )
+    {
+        return nullptr;
+    }
+
+    auto enumFn = []( HWND hwnd, LPARAM lParam ) -> BOOL
+    {
+        DWORD pid;
+        GetWindowThreadProcessId( hwnd, &pid );
+
+        if ( pid == (DWORD)lParam )
+        {
+            PostMessage( hwnd, WM_CLOSE, 0, 0 );
+        }
+
+        return TRUE;
+    };
+
+    // TerminateAppEnum() posts WM_CLOSE to all windows whose PID
+    // matches your process's.
+    EnumWindows( (WNDENUMPROC)enumFn, (LPARAM)pid_ );
+
+    // Wait on the handle. If it signals, great. If it times out,
+    // then you kill it.
+    if ( WaitForSingleObject( hProc, 1000 ) != WAIT_OBJECT_0 )
+    {
+        TerminateProcess( hProc, 0 );
+    }
+
+    CloseHandle( hProc );
+
+    pid_ = 0;
+
     return nullptr;
 }
 

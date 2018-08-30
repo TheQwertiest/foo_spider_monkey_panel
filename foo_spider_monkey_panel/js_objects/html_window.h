@@ -39,18 +39,15 @@ public:
 public: 
     std::optional<nullptr_t> Close();
 
-public: 
-
-
 private:
     // alias for MSHTML::IHTMLWindow2Ptr: don't want to drag #import into headers
     using HtmlWindow2ComPtr = _com_ptr_t<_com_IIID<IHTMLWindow2, &__uuidof(IHTMLWindow2)> >;
 
-    JsHtmlWindow( JSContext* cx, HtmlWindow2ComPtr pHtaWindow );
+    JsHtmlWindow( JSContext* cx, DWORD pid );
 
 private:
     JSContext * pJsCtx_ = nullptr;
-    HtmlWindow2ComPtr pHtaWindow_;
+    DWORD pid_ = 0;
 };
 
 }
