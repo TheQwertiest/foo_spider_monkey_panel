@@ -86,19 +86,141 @@ JsHtmlWindow::~JsHtmlWindow()
 }
 
 std::unique_ptr<JsHtmlWindow>
-JsHtmlWindow::CreateNative( JSContext* cx, const std::wstring& htmlCode, const std::wstring& data, JS::HandleValue callback )
+JsHtmlWindow::CreateNative( JSContext* cx, const std::wstring& htmlCode, JS::HandleValue options )
 {
-    if ( !(callback.isObject() && JS_ObjectIsFunction( cx, &callback.toObject() ))
-         && !callback.isNullOrUndefined() )
-    {
-        JS_ReportErrorUTF8( cx, "callback argument is not a function" );
-        return nullptr;
-    }
+    uint32_t width = 400;
+    uint32_t height = 400;
+    std::wstring title = L"foobar2000";
+    std::wstring storedData;
+    JS::RootedFunction storedFunction( cx );
 
-    JS::RootedFunction jsFunction( cx );
-    if ( callback.isObject() )
+    if ( !options.isNullOrUndefined() )
     {
-        jsFunction.set( JS_ValueToFunction( cx, callback ) );
+        if ( !options.isObject() )
+        {
+            JS_ReportErrorUTF8( cx, "options argument is not an object" );
+            return nullptr;
+        }
+
+        JS::RootedObject jsObject( cx, &options.toObject() );
+        bool hasProp;
+        if ( !JS_HasProperty( cx, jsObject, "width", &hasProp ) )
+        {// reports
+            return nullptr;
+        }
+
+        if ( hasProp )
+        {
+            JS::RootedValue jsValue( cx );
+            if ( !JS_GetProperty( cx, jsObject, "width", &jsValue ) )
+            {// reports
+                return nullptr;
+            }
+
+            auto retVal = convert::to_native::ToValue<uint32_t>( cx, jsValue );
+            if ( !retVal )
+            {
+                JS_ReportErrorUTF8( cx, "`width` can't be converted to uint32_t" );
+                return nullptr;
+            }
+
+            width = retVal.value();
+        }
+
+        if ( !JS_HasProperty( cx, jsObject, "height", &hasProp ) )
+        {// reports
+            return nullptr;
+        }
+
+        if ( hasProp )
+        {
+            JS::RootedValue jsValue( cx );
+            if ( !JS_GetProperty( cx, jsObject, "height", &jsValue ) )
+            {// reports
+                return nullptr;
+            }
+
+            auto retVal = convert::to_native::ToValue<uint32_t>( cx, jsValue );
+            if ( !retVal )
+            {
+                JS_ReportErrorUTF8( cx, "`height` can't be converted to uint32_t" );
+                return nullptr;
+            }
+
+            height = retVal.value();
+        }
+
+        if ( !JS_HasProperty( cx, jsObject, "title", &hasProp ) )
+        {// reports
+            return nullptr;
+        }
+
+        if ( hasProp )
+        {
+            JS::RootedValue jsValue( cx );
+            if ( !JS_GetProperty( cx, jsObject, "title", &jsValue ) )
+            {// reports
+                return nullptr;
+            }
+
+            auto retVal = convert::to_native::ToValue<std::wstring>( cx, jsValue );
+            if ( !retVal )
+            {
+                JS_ReportErrorUTF8( cx, "`title` can't be converted to uint32_t" );
+                return nullptr;
+            }
+
+            title = retVal.value();
+        }
+
+        if ( !JS_HasProperty( cx, jsObject, "data", &hasProp ) )
+        {// reports
+            return nullptr;
+        }
+
+        if ( hasProp )
+        {
+            JS::RootedValue jsValue( cx );
+            if ( !JS_GetProperty( cx, jsObject, "data", &jsValue ) )
+            {// reports
+                return nullptr;
+            }
+
+            auto retVal = convert::to_native::ToValue<std::wstring>( cx, jsValue );
+            if ( !retVal )
+            {
+                JS_ReportErrorUTF8( cx, "`data` can't be converted to uint32_t" );
+                return nullptr;
+            }
+
+            storedData = retVal.value();
+        }
+
+        if ( !JS_HasProperty( cx, jsObject, "fn", &hasProp ) )
+        {// reports
+            return nullptr;
+        }
+
+        if ( hasProp )
+        {
+            JS::RootedValue jsValue( cx );
+            if ( !JS_GetProperty( cx, jsObject, "fn", &jsValue ) )
+            {// reports
+                return nullptr;
+            }
+
+            if ( !(jsValue.isObject() && JS_ObjectIsFunction( cx, &jsValue.toObject() ))
+                 && !jsValue.isNullOrUndefined() )
+            {
+                JS_ReportErrorUTF8( cx, "fn argument is not a function" );
+                return nullptr;
+            }
+
+            if ( jsValue.isObject() )
+            {
+                storedFunction.set( JS_ValueToFunction( cx, jsValue ) );
+            }
+        }
     }
 
     try
@@ -259,43 +381,48 @@ JsHtmlWindow::CreateNative( JSContext* cx, const std::wstring& htmlCode, const s
             IF_HR_FAILED_RETURN_WITH_REPORT( cx, hr, nullptr, "write" );
         }
 
+        if (!storedData.empty())
         {// store callback data
             DISPID dispId;
-            _bstr_t varName = L"callback_data";
+            _bstr_t varName = L"stored_data";
             hr = pHtaWindowEx->GetDispID( varName.GetBSTR(), fdexNameEnsure, &dispId );
             IF_HR_FAILED_RETURN_WITH_REPORT( cx, hr, nullptr, "GetDispID" );
 
-            _variant_t callbackData( data.c_str() );
+            _variant_t callbackDataV( storedData.c_str() );
             DISPID dispPut = { DISPID_PROPERTYPUT };
-            DISPPARAMS dispParams = { &callbackData.GetVARIANT(), &dispPut, 1, 1 };
+            DISPPARAMS dispParams = { &callbackDataV.GetVARIANT(), &dispPut, 1, 1 };
 
             hr = pHtaWindowEx->InvokeEx( dispId, LOCALE_USER_DEFAULT, DISPATCH_PROPERTYPUT, &dispParams, nullptr, nullptr, nullptr );
             IF_HR_FAILED_RETURN_WITH_REPORT( cx, hr, nullptr, "InvokeEx" );
         }
 
+        if (storedFunction)
         {// store callback function
             DISPID dispId;
-            _bstr_t varName = L"callback_fn";
+            _bstr_t varName = L"stored_function";
             hr = pHtaWindowEx->GetDispID( varName.GetBSTR(), fdexNameEnsure, &dispId );
             IF_HR_FAILED_RETURN_WITH_REPORT( cx, hr, nullptr, "GetDispID" );
 
-            _variant_t callbackFn;
-            convert::com::JsToVariant( cx, callback, callbackFn.GetVARIANT() );
+            _variant_t callbackFnV;
+            JS::RootedValue jsValue( cx, JS::ObjectValue( *JS_GetFunctionObject( storedFunction ) ) );
+            convert::com::JsToVariant( cx, jsValue, callbackFnV.GetVARIANT() );
 
             DISPID dispPut = { DISPID_PROPERTYPUT };
-            DISPPARAMS dispParams = { &callbackFn.GetVARIANT(), &dispPut, 1, 1 };
+            DISPPARAMS dispParams = { &callbackFnV.GetVARIANT(), &dispPut, 1, 1 };
 
             hr = pHtaWindowEx->InvokeEx( dispId, LOCALE_USER_DEFAULT, DISPATCH_PROPERTYPUT, &dispParams, nullptr, nullptr, nullptr );
             IF_HR_FAILED_RETURN_WITH_REPORT( cx, hr, nullptr, "InvokeEx" );
         }
 
         {// write html
+            const std::wstring wStr = std::to_wstring( width );
+            const std::wstring hStr = std::to_wstring( height );
             _bstr_t bstr =
                 _bstr_t( htmlCode.c_str() ) +
                 L"<script id=\"" + wndId.c_str() + "\">"
-                L"    document.title='azaza';"
-                L"    var width = 800;"
-                L"    var height = 800;"
+                L"    document.title = \"" + title.c_str() + "\";"
+                L"    var width = " + wStr.c_str() + ";"
+                L"    var height = " + hStr.c_str() + ";"
                 L"    resizeTo(width, height);" +
                 L"    moveTo((screen.width-width)/2, (screen.height-height)/2);"
                 L"    document.getElementById('" + wndId.c_str() + "').removeNode();"
@@ -339,9 +466,9 @@ JsHtmlWindow::CreateNative( JSContext* cx, const std::wstring& htmlCode, const s
     }
 }
 
-size_t JsHtmlWindow::GetInternalSize( const std::wstring& htmlCode, const std::wstring& data, JS::HandleValue callback )
+size_t JsHtmlWindow::GetInternalSize( const std::wstring& htmlCode, JS::HandleValue options )
 {
-    return htmlCode.length() * sizeof( wchar_t ) + data.length() * sizeof( wchar_t );
+    return htmlCode.length() * sizeof( wchar_t );
 }
 
 std::optional<nullptr_t>

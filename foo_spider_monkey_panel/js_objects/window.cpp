@@ -305,8 +305,6 @@ JsWindow::DefinePanel( const pfc::string8_fast& name, const pfc::string8_fast& a
                 
                 HRESULT hr = dropTargetHandler_->RegisterDragDrop();
                 IF_HR_FAILED_RETURN_WITH_REPORT( pJsCtx_, hr, std::nullopt, RegisterDragDrop );
-
-                
             }
         }
     }

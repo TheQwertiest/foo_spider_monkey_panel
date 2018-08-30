@@ -42,7 +42,7 @@ JSClass jsClass = {
 MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsUtils, CheckComponent, CheckComponentWithOpt, 1 );
 MJS_DEFINE_JS_TO_NATIVE_FN( JsUtils, CheckFont );
 MJS_DEFINE_JS_TO_NATIVE_FN( JsUtils, ColourPicker );
-MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsUtils, CreateHtmlWindow, CreateHtmlWindowWithOpt, 2 );
+MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsUtils, CreateHtmlWindow, CreateHtmlWindowWithOpt, 1 );
 MJS_DEFINE_JS_TO_NATIVE_FN( JsUtils, FileTest );
 MJS_DEFINE_JS_TO_NATIVE_FN( JsUtils, FormatDuration );
 MJS_DEFINE_JS_TO_NATIVE_FN( JsUtils, FormatFileSize );
@@ -207,9 +207,9 @@ JsUtils::ColourPicker( uint32_t hWindow, uint32_t default_colour )
 }
 
 std::optional<JSObject*> 
-JsUtils::CreateHtmlWindow( const std::wstring& htmlCode, const std::wstring& data, JS::HandleValue callback )
+JsUtils::CreateHtmlWindow( const std::wstring& htmlCode, JS::HandleValue options )
 {
-    JS::RootedObject jsObject( pJsCtx_, JsHtmlWindow::CreateJs( pJsCtx_, htmlCode, data, callback ) );
+    JS::RootedObject jsObject( pJsCtx_, JsHtmlWindow::CreateJs( pJsCtx_, htmlCode, options ) );
     if ( !jsObject )
     {// reports
         return std::nullopt;
@@ -219,16 +219,14 @@ JsUtils::CreateHtmlWindow( const std::wstring& htmlCode, const std::wstring& dat
 }
 
 std::optional<JSObject*>
-JsUtils::CreateHtmlWindowWithOpt( size_t optArgCount, const std::wstring& htmlCode, const std::wstring& data, JS::HandleValue callback )
+JsUtils::CreateHtmlWindowWithOpt( size_t optArgCount, const std::wstring& htmlCode, JS::HandleValue options )
 {
     switch ( optArgCount )
     {
-    case 2:
-        return CreateHtmlWindow( htmlCode );
     case 1:
-        return CreateHtmlWindow( htmlCode, data );
+        return CreateHtmlWindow( htmlCode );
     case 0:
-        return CreateHtmlWindow( htmlCode, data, callback );
+        return CreateHtmlWindow( htmlCode, options );
     default:
         JS_ReportErrorUTF8( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
         return std::nullopt;

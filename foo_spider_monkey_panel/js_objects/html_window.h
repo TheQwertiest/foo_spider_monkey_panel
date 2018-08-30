@@ -33,8 +33,8 @@ public:
 public:
     ~JsHtmlWindow();
 
-    static std::unique_ptr<JsHtmlWindow> CreateNative( JSContext* cx, const std::wstring& htmlCode, const std::wstring& data, JS::HandleValue callback );
-    static size_t GetInternalSize( const std::wstring& htmlCode, const std::wstring& data, JS::HandleValue callback );
+    static std::unique_ptr<JsHtmlWindow> CreateNative( JSContext* cx, const std::wstring& htmlCode, JS::HandleValue options );
+    static size_t GetInternalSize( const std::wstring& htmlCode, JS::HandleValue options );
 
 public: 
     std::optional<nullptr_t> Close();
