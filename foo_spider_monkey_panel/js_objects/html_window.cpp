@@ -230,56 +230,91 @@ JsHtmlWindow::CreateNative( JSContext* cx, const std::wstring& htmlCode, const s
         }
 
         IDispatchExPtr pHtaWindowEx( pHtaWindow );
-        //assert( pHtaWindowEx );
+       
+        {// open document
+            SAFEARRAY* pSaStrings = SafeArrayCreateVector( VT_VARIANT, 0, 1 );
+            scope::final_action autoPsa( [pSaStrings]()
+            {
+                SafeArrayDestroy( pSaStrings );
+            } );
 
-        DISPID dispId;
-        /*
-        hr = static_cast<IDispatchExPtr>(pHtaWindow)->GetDispID( L"callback_fn", fdexNameEnsure, &dispId );
-        IF_HR_FAILED_RETURN_WITH_REPORT( cx, hr, nullptr, "GetDispID" );
+            VARIANT *pSaVar = nullptr;
+            hr = SafeArrayAccessData( pSaStrings, (LPVOID*)&pSaVar );
+            IF_HR_FAILED_RETURN_WITH_REPORT( cx, hr, nullptr, "SafeArrayAccessData" );
 
-        _variant_t comCallbackFn;
-        convert::com::JsToVariant( cx, callback, comCallbackFn.GetVARIANT() );
-        static_cast<CDispatchPtr>( pHtaWindow ).Set( dispId, comCallbackFn );
-        */
-        hr = pHtaWindowEx->GetDispID( L"callback_data", fdexNameEnsure | fdexNameImplicit, &dispId );
-        IF_HR_FAILED_RETURN_WITH_REPORT( cx, hr, nullptr, "GetDispID" );
+            _bstr_t bstr( L"" );
+            pSaVar->vt = VT_BSTR;
+            pSaVar->bstrVal = bstr.Detach();
 
-        _variant_t callbackData( data.c_str() );
-        DISPPARAMS dispparams = { &callbackData.GetVARIANT(), NULL, 1, 0 };
+            hr = SafeArrayUnaccessData( pSaStrings );
+            IF_HR_FAILED_RETURN_WITH_REPORT( cx, hr, nullptr, "SafeArrayUnaccessData" );
 
-        hr = pHtaWindowEx->InvokeEx( dispId, LOCALE_USER_DEFAULT, DISPATCH_PROPERTYPUT, &dispparams, nullptr, nullptr, nullptr );
-        IF_HR_FAILED_RETURN_WITH_REPORT( cx, hr, nullptr, "InvokeEx" );
+            // TODO: investigate if it's possible to replace with document.open()
+            hr = pDocument->write( pSaStrings );
+            IF_HR_FAILED_RETURN_WITH_REPORT( cx, hr, nullptr, "write" );
+        }
 
-        _bstr_t bstr =
-            _bstr_t( htmlCode.c_str() ) +
-            L"<script id=\"" + wndId.c_str() + "\">"
-            L"    eval; "
-            L"    document.title='azaza';"
-            L"    var width = 200;"
-            L"    var height = 200;"
-            L"    resizeTo(width, height);" +
-            L"    moveTo((screen.width-width)/2, (screen.height-height)/2);"
-            L"    document.getElementById('" + wndId.c_str() + "').removeNode();"
-            L"</script>";
+        {// store callback data
+            DISPID dispId;
+            _bstr_t varName = L"callback_data";
+            hr = pHtaWindowEx->GetDispID( varName.GetBSTR(), fdexNameEnsure, &dispId );
+            IF_HR_FAILED_RETURN_WITH_REPORT( cx, hr, nullptr, "GetDispID" );
 
-        SAFEARRAY* pSaStrings = SafeArrayCreateVector( VT_VARIANT, 0, 1 );
-        scope::final_action autoPsa( [pSaStrings]()
-        {
-            SafeArrayDestroy( pSaStrings );
-        } );
+            _variant_t callbackData( data.c_str() );
+            DISPID dispPut = { DISPID_PROPERTYPUT };
+            DISPPARAMS dispParams = { &callbackData.GetVARIANT(), &dispPut, 1, 1 };
 
-        VARIANT *param;
-        hr = SafeArrayAccessData( pSaStrings, (LPVOID*)&param );
-        IF_HR_FAILED_RETURN_WITH_REPORT( cx, hr, nullptr, "SafeArrayAccessData" );
+            hr = pHtaWindowEx->InvokeEx( dispId, LOCALE_USER_DEFAULT, DISPATCH_PROPERTYPUT, &dispParams, nullptr, nullptr, nullptr );
+            IF_HR_FAILED_RETURN_WITH_REPORT( cx, hr, nullptr, "InvokeEx" );
+        }
 
-        param->vt = VT_BSTR;
-        param->bstrVal = bstr.Detach();
+        {// store callback function
+            DISPID dispId;
+            _bstr_t varName = L"callback_fn";
+            hr = pHtaWindowEx->GetDispID( varName.GetBSTR(), fdexNameEnsure, &dispId );
+            IF_HR_FAILED_RETURN_WITH_REPORT( cx, hr, nullptr, "GetDispID" );
 
-        hr = SafeArrayUnaccessData( pSaStrings );
-        IF_HR_FAILED_RETURN_WITH_REPORT( cx, hr, nullptr, "SafeArrayUnaccessData" );
+            _variant_t callbackFn;
+            convert::com::JsToVariant( cx, callback, callbackFn.GetVARIANT() );
 
-        hr = pDocument->write( pSaStrings );
-        IF_HR_FAILED_RETURN_WITH_REPORT( cx, hr, nullptr, "write" );
+            DISPID dispPut = { DISPID_PROPERTYPUT };
+            DISPPARAMS dispParams = { &callbackFn.GetVARIANT(), &dispPut, 1, 1 };
+
+            hr = pHtaWindowEx->InvokeEx( dispId, LOCALE_USER_DEFAULT, DISPATCH_PROPERTYPUT, &dispParams, nullptr, nullptr, nullptr );
+            IF_HR_FAILED_RETURN_WITH_REPORT( cx, hr, nullptr, "InvokeEx" );
+        }
+
+        {// write html
+            _bstr_t bstr =
+                _bstr_t( htmlCode.c_str() ) +
+                L"<script id=\"" + wndId.c_str() + "\">"
+                L"    document.title='azaza';"
+                L"    var width = 800;"
+                L"    var height = 800;"
+                L"    resizeTo(width, height);" +
+                L"    moveTo((screen.width-width)/2, (screen.height-height)/2);"
+                L"    document.getElementById('" + wndId.c_str() + "').removeNode();"
+                L"</script>";
+
+            SAFEARRAY* pSaStrings = SafeArrayCreateVector( VT_VARIANT, 0, 1 );
+            scope::final_action autoPsa( [pSaStrings]()
+            {
+                SafeArrayDestroy( pSaStrings );
+            } );
+
+            VARIANT *pSaVar = nullptr;
+            hr = SafeArrayAccessData( pSaStrings, (LPVOID*)&pSaVar );
+            IF_HR_FAILED_RETURN_WITH_REPORT( cx, hr, nullptr, "SafeArrayAccessData" );
+
+            pSaVar->vt = VT_BSTR;
+            pSaVar->bstrVal = bstr.Detach();
+
+            hr = SafeArrayUnaccessData( pSaStrings );
+            IF_HR_FAILED_RETURN_WITH_REPORT( cx, hr, nullptr, "SafeArrayUnaccessData" );
+
+            hr = pDocument->write( pSaStrings );
+            IF_HR_FAILED_RETURN_WITH_REPORT( cx, hr, nullptr, "write" );
+        }
 
         hr = pDocument->close();
         IF_HR_FAILED_RETURN_WITH_REPORT( cx, hr, nullptr, "close" );
