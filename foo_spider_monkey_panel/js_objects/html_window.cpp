@@ -82,6 +82,8 @@ JsHtmlWindow::~JsHtmlWindow()
     Close();
 }
 
+// TODO: cleanup the code
+
 std::unique_ptr<JsHtmlWindow>
 JsHtmlWindow::CreateNative( JSContext* cx, const std::wstring& htmlCode, JS::HandleValue options )
 {

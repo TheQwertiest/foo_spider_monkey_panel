@@ -1,20 +1,20 @@
 # Current
-- Add HtmlPopup(source, additionalData, callbacks) method (other possible names: CreateHtmlWindow, CreateHtmlDialog, new HtmlWindow, new HtmlDialog).
-- Check ActiveXObject reference count (sometimes it locks on Release, might have smth to do with accessing another process?).
+- Add array conversion support in ActiveXObject.
 - Allow to configure max component RAM usage via preferences.
+- Change the default limit of JS heap according to available RAM on system (1gb heap size with only 2gb RAM is brutal).
 - Add try-catch's (to all js-to-native wrappers and all the code that might lead back to JS).
 - Add OOM error reporting and handling (both JS and native).
 - Add a header with component name and version to error reporter.
 - Backport all the changes from foo-jscript-panel.
-- Create patches for pfc, columns-ui and fb2k sdk.
+- Create patches for pfc, columns-ui and fb2k sdk (combine with gitmodules fetch?).
 - Complete rebranding to spider_monkey_panel.
 - Check and fix all the samples.
 - Beta-test?
-- Stop staying up all night making this...
 - Fix unresponsive arrow keys in DUI in CaTRoX: https://github.com/TheQwertiest/foo-jscript-panel/commit/8a41c524a9c3c16c466204fde81c5c108975310b#commitcomment-29727611.
 
 # Prerelease-Test
 - Test `include` with various codepages (esp. JP,KR,CH).
+- Test methods that uses path with arguments containing cyrillics and other exotic characters.
 - Check utf8 literals everywhere (paths, script window, script files, properties, callback arguments)
 - Check drag-n-drop functionality.
 - Check that all files are correctly parsed: UTF8, UTF8-BOM, ASCII.
@@ -25,12 +25,14 @@
 - Make sure there are no memory leaks.
 
 # Prerelease-Doc
-- Document new features: ES6, ES2016, ES2017 (with links to feature breakdown), possible ESNext in the future, global.include(), performance.
+- Document new features: ES6, ES2016, ES2017 (with links to feature breakdown), possible ESNext in the future, performance, new methods.
 - Document that Dispose() and toArray() methods are not needed anymore.
 - Document FbHandleList.Item removal ([] proxy)
 - Document that everything is case-sensitive (unlike how it was in WSH\IE...)
 - Document discontinued support for WinXP and Vista (i.e. only Win7 and above).
+- Document global.include.
 - Document DefinePanel.
+- Document CreateHtmlWindow.
 - Copy and update marc2003's wiki.
 - Create a simple JSP > SMP script migration guide.
 - Create a building guide for devs.
@@ -38,16 +40,16 @@
 - Check all TODOs.
 
 # Planned
+- Extract common options handling code (i.e. options = {opt1: val1, opt2: val2}; ).
+- Consider replacing std::optional with exceptions: need to be very careful - exceptions MUST NOT leak to JS from native code.
 - Add relative path support to `include`.
 - Add script caching to to `include` (measure if there is any performance improvement though).
-- Replace `Create*` interface methods with prototypes and `new` where possible
-- Try to make it work with paths containing cyrillics and other exotic characters
+- Add prototypes and `new` for JS objects where possible. Consider removing corresponding `Create*` interface methods. 
 - Move setInterval and friends to global namespace.
-- Port hacks from ui_hacks and wsh_mod.
+- Port hacks from ui_hacks and wsh_mod. Also try to make minimize|maximize and etc utilize corresponding stock animations.
 - Add ES6 modules support (`import`).
 - Replace PropertyList with something more maintenable.
 - Save Panel Properties dialog size between calls.
-- Add array conversion support in ActiveXObject.
 - See if it's possible to export some common Array checking/creating/parsing code.
 - Add support for more UTF encodings when reading scripts and files (UTF16BE, UTF32LE, UTF32BE).
 - Add a custom message support to profiler.
@@ -55,11 +57,11 @@
 - Add font caching (check if it's not handled by the system already though).
 - Add a better drag-n-drop window (rip it from CUI?).
 - Run a static analysis on the code (cppcheck? pvs? VS built-in?).
-- Change the limit of JS heap according to available RAM on system (1gb heap size with only 2gb RAM is brutal).
+- Check remaining TODOs.
 
 # Maybe
 - Add CI (appveyor?).
-- Follow the bug https://bugzilla.mozilla.org/show_bug.cgi?id=1474914 , if fixed consider moving to newer non-ESR branches.
+- Follow the bug https://bugzilla.mozilla.org/show_bug.cgi?id=1474914, if fixed consider moving to newer non-ESR branches.
 - Replace in-repository scintilla with it's submodule.
 - Update scintilla to the latest version.
 - Update scintilla JS keywords list.
