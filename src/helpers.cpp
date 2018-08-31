@@ -81,39 +81,32 @@ namespace helpers
 	{
 		if (!pp) return E_POINTER;
 
-		service_enum_t<album_art_extractor> e;
-		album_art_extractor::ptr ptr;
 		pfc::stringcvt::string_utf8_from_wide urawpath(rawpath);
-		pfc::string_extension ext(urawpath);
-		abort_callback_dummy abort;
 		IGdiBitmap* ret = NULL;
 
-		while (e.next(ptr))
+		album_art_extractor::ptr ptr;
+		if (album_art_extractor::g_get_interface(ptr, urawpath))
 		{
-			if (ptr->is_our_path(urawpath, ext))
-			{
-				album_art_extractor_instance_ptr aaep;
-				GUID what = convert_artid_to_guid(art_id);
+			album_art_extractor_instance_ptr aaep;
+			GUID what = convert_artid_to_guid(art_id);
+			abort_callback_dummy abort;
 
-				try
+			try
+			{	
+				aaep = ptr->open(NULL, urawpath, abort);
+
+				album_art_data_ptr data = aaep->query(what, abort);
+				Gdiplus::Bitmap* bitmap = NULL;
+
+				if (read_album_art_into_bitmap(data, &bitmap))
 				{
-					aaep = ptr->open(NULL, urawpath, abort);
-
-					Gdiplus::Bitmap* bitmap = NULL;
-					album_art_data_ptr data = aaep->query(what, abort);
-
-					if (read_album_art_into_bitmap(data, &bitmap))
-					{
-						ret = new com_object_impl_t<GdiBitmap>(bitmap);
-						break;
-					}
-				}
-				catch (...)
-				{
+					ret = new com_object_impl_t<GdiBitmap>(bitmap);
 				}
 			}
+			catch (...)
+			{
+			}
 		}
-
 		*pp = ret;
 		return S_OK;
 	}
