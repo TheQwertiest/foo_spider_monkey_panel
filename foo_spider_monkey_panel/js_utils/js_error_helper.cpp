@@ -52,20 +52,20 @@ AutoReportException::~AutoReportException()
     struct ScopedFail
     {
         ScopedFail( JSContext* pCx, JsGlobalObject * pGlobal )
+            : pCx( pCx )
+            , pGlobal( pGlobal )
         {
-            pCx_ = pCx;
-            pGlobal_ = pGlobal;
         }
         ~ScopedFail()
         {
             FB2K_console_formatter() << errorText.c_str();
-            pGlobal_->Fail( errorText );
-            JS_ClearPendingException( pCx_ );
+            pGlobal->Fail( errorText );
+            JS_ClearPendingException( pCx );
         }
 
-        JSContext* pCx_;
-        JsGlobalObject * pGlobal_;
-        pfc::string8_fast errorText = "Script failed!";
+        JSContext* pCx = nullptr;
+        JsGlobalObject * pGlobal = nullptr;
+        pfc::string8_fast errorText = "Error: " SMP_NAME_WITH_VERSION;
     };
     ScopedFail scFail( cx, globalCtx );
     
@@ -84,8 +84,9 @@ AutoReportException::~AutoReportException()
 
     assert( !JSREPORT_IS_WARNING( report->flags ) );
 
-    // TODO: "Error: JScript Panel v2.1.3 (Top Panel)"
-    scFail.errorText = report->message().c_str();
+    // TODO: Add t_script_info.build_info_string (e.g. "Top Panel")
+    scFail.errorText += "\n";
+    scFail.errorText += report->message().c_str();
     if ( report->filename )
     {        
         scFail.errorText += "\n\n";

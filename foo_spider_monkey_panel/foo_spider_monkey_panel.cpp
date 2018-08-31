@@ -14,7 +14,7 @@ namespace
 	DECLARE_COMPONENT_VERSION(
 		SMP_NAME,
 		SMP_VERSION,
-		SMP_NAME " v" SMP_VERSION " by TheQwertiest\n"
+        SMP_NAME_WITH_VERSION " by TheQwertiest\n"
         "Based on JScript Panel by marc2003\n"
 		"Based on WSH Panel Mod by T.P. Wang\n\n"
 		"Build: " __TIME__ ", " __DATE__ "\n"

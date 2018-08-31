@@ -853,7 +853,7 @@ JsFbUtils::SaveIndex()
     }
     catch ( ... )
     {
-        FB2K_console_formatter() << SMP_NAME " v" SMP_VERSION ": Save index fail.";
+        FB2K_console_formatter() << SMP_NAME_WITH_VERSION ": Failed to save index.";
     }
     return nullptr;
 }

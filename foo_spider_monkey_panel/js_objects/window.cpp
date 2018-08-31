@@ -262,7 +262,7 @@ JsWindow::CreateTooltipWithOpt( size_t optArgCount, const std::wstring& name, fl
 
 std::optional<std::nullptr_t> 
 JsWindow::DefinePanel( const pfc::string8_fast& name, const pfc::string8_fast& author, JS::HandleValue options )
-{
+{// TODO: add version
     if ( isPanelDefined_ )
     {
         JS_ReportErrorUTF8( pJsCtx_, "DefinePanel can't be called twice" );

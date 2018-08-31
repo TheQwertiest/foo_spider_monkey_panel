@@ -702,7 +702,7 @@ bool js_panel_window::script_load()
     // HACK: Script update will not call on_size, so invoke it explicitly
     SendMessage( hWnd_, UWM_SIZE, 0, 0 );
 
-    FB2K_console_formatter() << SMP_NAME " v" SMP_VERSION " (" << ScriptInfo().build_info_string() << "): initialized in " << (uint32_t)( timer.query() * 1000 ) << " ms";
+    FB2K_console_formatter() << SMP_NAME_WITH_VERSION " (" << ScriptInfo().build_info_string() << "): initialized in " << (uint32_t)( timer.query() * 1000 ) << " ms";
     return true;
 }
 
