@@ -1765,7 +1765,7 @@ interface IFbMetadbHandleList {
 		Note you cannot perform embedded art operations on the currently playing track - it will silently fail.
 		This is a limitation of the foobar2000 SDK. You may consider detecting if your handle list
 		contains the playing track and stopping playback, performing this action and then restarting
-		playback. A progress dialog will be shown for larger operations.
+		playback.
 
 		Any other errors such as invalid path, corrupt image, target file type not supporting
 		embedded art, etc should all silently fail. A progress dialog will be shown for larger file
