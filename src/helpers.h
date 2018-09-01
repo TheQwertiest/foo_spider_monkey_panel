@@ -108,8 +108,9 @@ namespace helpers
 			t_size count = m_handles.get_count();
 			for (t_size i = 0; i < count; ++i)
 			{
-				p_status.set_progress(i, count);
 				pfc::string8_fast path = m_handles.get_item(i)->get_path();
+				p_status.set_progress(i, count);
+				p_status.set_item_path(path);
 				album_art_editor::ptr ptr;
 				if (album_art_editor::g_get_interface(ptr, path))
 				{

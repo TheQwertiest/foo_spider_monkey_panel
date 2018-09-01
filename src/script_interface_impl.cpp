@@ -517,7 +517,7 @@ STDMETHODIMP FbMetadbHandleList::AttachImage(BSTR image_path, int art_id)
 	if (ok)
 	{
 		threaded_process_callback::ptr cb = new service_impl_t<helpers::embed_thread>(0, data, m_handles, what);
-		threaded_process::get()->run_modeless(cb, threaded_process::flag_show_progress | threaded_process::flag_show_delayed, core_api::get_main_window(), "Embedding images...");
+		threaded_process::get()->run_modeless(cb, threaded_process::flag_show_progress | threaded_process::flag_show_delayed | threaded_process::flag_show_item, core_api::get_main_window(), "Embedding images...");
 	}
 	return S_OK;
 }
@@ -811,7 +811,7 @@ STDMETHODIMP FbMetadbHandleList::RemoveAttachedImage(int art_id)
 	GUID what = helpers::convert_artid_to_guid(art_id);
 
 	threaded_process_callback::ptr cb = new service_impl_t<helpers::embed_thread>(1, album_art_data_ptr(), m_handles, what);
-	threaded_process::get()->run_modeless(cb, threaded_process::flag_show_progress | threaded_process::flag_show_delayed, core_api::get_main_window(), "Removing images...");
+	threaded_process::get()->run_modeless(cb, threaded_process::flag_show_progress | threaded_process::flag_show_delayed | threaded_process::flag_show_item, core_api::get_main_window(), "Removing images...");
 	return S_OK;
 }
 
