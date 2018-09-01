@@ -1771,6 +1771,22 @@ interface IFbMetadbHandleList {
 		embedded art, etc should all silently fail. A progress dialog will be shown for larger file
 		selections. Any existing artwork of the specified type will be overwritten - there is no need to
 		remove it first.
+
+		Example1:
+		var items = plman.GetPlaylistItems(plman.ActivePlaylist);
+		if (items.Count > 0) {
+			var img_path = "C:\\path\\to\\image.jpg";
+			items.AttachImage(img_path, 0);
+		}
+		items.Dispose();
+
+		Example2:
+		// since there is no handle method, do this for a single item
+		var items = fb.CreateHandleList();
+		items.Add(fb.GetFocusItem());
+		var img_path = "C:\\path\\to\\image.jpg";
+		items.AttachImage(img_path, 0);
+		items.Dispose();
 		*/
 
 		BSearch(handle); (int)
