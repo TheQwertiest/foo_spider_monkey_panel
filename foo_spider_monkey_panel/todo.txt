@@ -5,7 +5,8 @@
 - Add a header with component name and version to error reporter.
 - Backport all the changes from foo-jscript-panel.
 - Create patches for pfc, columns-ui and fb2k sdk (combine with gitmodules fetch?).
-- Complete rebranding to spider_monkey_panel.
+- Complete rebranding to spider_monkey_panel (including folders).
+- Add script for fb2k-component archive creation.
 - Check and fix all the samples.
 - Beta-test?
 - Fix unresponsive arrow keys in DUI in CaTRoX: https://github.com/TheQwertiest/foo-jscript-panel/commit/8a41c524a9c3c16c466204fde81c5c108975310b#commitcomment-29727611.
