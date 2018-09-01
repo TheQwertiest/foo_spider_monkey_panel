@@ -136,7 +136,7 @@ namespace helpers
 		}
 
 	private:
-		t_size m_action;
+		t_size m_action; // 0 embed, 1 remove
 		album_art_data_ptr m_data;
 		metadb_handle_list m_handles;
 		GUID m_what;

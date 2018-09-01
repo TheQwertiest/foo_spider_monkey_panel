@@ -1,3 +1,7 @@
+v2.1.7
+- NEW: Add FbMetadbHandleList AttachImage / RemoveAttachedImage methods.
+       See docs\interfaces.txt. There are some limitations!!
+
 v2.1.6
 - NEW: Add IContextMenuManager InitContextPlaylist method which shows
        playlist specific options not available when passing a handle list
