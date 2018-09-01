@@ -98,6 +98,50 @@ namespace helpers
 		return ret;
 	}
 
+	class embed_thread : public threaded_process_callback
+	{
+	public:
+		embed_thread(t_size action, album_art_data_ptr data, metadb_handle_list_cref handles, GUID what) : m_action(action), m_data(data), m_handles(handles), m_what(what) {}
+		void on_init(HWND p_wnd) {}
+		void run(threaded_process_status& p_status, abort_callback& p_abort)
+		{
+			t_size count = m_handles.get_count();
+			for (t_size i = 0; i < count; ++i)
+			{
+				p_status.set_progress(i, count);
+				pfc::string8_fast path = m_handles.get_item(i)->get_path();
+				album_art_editor::ptr ptr;
+				if (album_art_editor::g_get_interface(ptr, path))
+				{
+					album_art_editor_instance_ptr aaep;
+
+					try
+					{
+						aaep = ptr->open(NULL, path, p_abort);
+						if (m_action == 0)
+						{
+							aaep->set(m_what, m_data, p_abort);
+						}
+						else if (m_action == 1)
+						{
+							aaep->remove(m_what);
+						}
+						aaep->commit(p_abort);
+					}
+					catch (...)
+					{
+					}
+				}
+			}
+		}
+
+	private:
+		t_size m_action;
+		album_art_data_ptr m_data;
+		metadb_handle_list m_handles;
+		GUID m_what;
+	};
+
 	class album_art_async : public simple_thread_task
 	{
 	public:

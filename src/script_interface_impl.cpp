@@ -482,6 +482,46 @@ STDMETHODIMP FbMetadbHandleList::AddRange(IFbMetadbHandleList* handles)
 	return S_OK;
 }
 
+STDMETHODIMP FbMetadbHandleList::AttachImage(BSTR image_path, int art_id)
+{
+	t_size count = m_handles.get_count();
+	if (count == 0) return E_POINTER;
+
+	GUID what = helpers::convert_artid_to_guid(art_id);
+	abort_callback_dummy abort;
+	album_art_data_ptr data;
+	bool ok = false;
+
+	try
+	{
+		file::ptr file;
+		pfc::stringcvt::string_utf8_from_wide realPath(image_path);
+		pfc::string8 canPath;
+		filesystem::g_get_canonical_path(realPath, canPath);
+		if (!filesystem::g_is_remote_or_unrecognized(canPath))
+		{
+			filesystem::g_open(file, canPath, filesystem::open_mode_read, abort);
+		}
+		if (file.is_valid())
+		{
+			service_ptr_t<album_art_data_impl> tmp = new service_impl_t<album_art_data_impl>;
+			tmp->from_stream(file.get_ptr(), t_size(file->get_size_ex(abort)), abort);
+			ok = true;
+			data = tmp;
+		}
+	}
+	catch (...)
+	{
+	}
+
+	if (ok)
+	{
+		threaded_process_callback::ptr cb = new service_impl_t<helpers::embed_thread>(0, data, m_handles, what);
+		threaded_process::get()->run_modeless(cb, threaded_process::flag_show_progress | threaded_process::flag_show_delayed, core_api::get_main_window(), "Embedding images...");
+	}
+	return S_OK;
+}
+
 STDMETHODIMP FbMetadbHandleList::BSearch(IFbMetadbHandle* handle, int* p)
 {
 	if (!p) return E_POINTER;
@@ -760,6 +800,18 @@ STDMETHODIMP FbMetadbHandleList::Remove(IFbMetadbHandle* handle)
 STDMETHODIMP FbMetadbHandleList::RemoveAll()
 {
 	m_handles.remove_all();
+	return S_OK;
+}
+
+STDMETHODIMP FbMetadbHandleList::RemoveAttachedImage(int art_id)
+{
+	t_size count = m_handles.get_count();
+	if (count == 0) return E_POINTER;
+
+	GUID what = helpers::convert_artid_to_guid(art_id);
+
+	threaded_process_callback::ptr cb = new service_impl_t<helpers::embed_thread>(1, album_art_data_ptr(), m_handles, what);
+	threaded_process::get()->run_modeless(cb, threaded_process::flag_show_progress | threaded_process::flag_show_delayed, core_api::get_main_window(), "Removing images...");
 	return S_OK;
 }
 

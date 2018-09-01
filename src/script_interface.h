@@ -232,6 +232,7 @@ __interface IFbMetadbHandleList : IDisposable
 {
 	STDMETHOD(Add)(IFbMetadbHandle* handle);
 	STDMETHOD(AddRange)(IFbMetadbHandleList* handles);
+	STDMETHOD(AttachImage)(BSTR image_path, [defaultvalue(0)] int art_id);
 	STDMETHOD(BSearch)(IFbMetadbHandle* handle, [out, retval] int* p);
 	STDMETHOD(CalcTotalDuration)([out, retval] double* p);
 	STDMETHOD(CalcTotalSize)([out, retval] LONGLONG* p);
@@ -250,6 +251,7 @@ __interface IFbMetadbHandleList : IDisposable
 	STDMETHOD(RefreshStats)();
 	STDMETHOD(Remove)(IFbMetadbHandle* handle);
 	STDMETHOD(RemoveAll)();
+	STDMETHOD(RemoveAttachedImage)([defaultvalue(0)] int art_id);
 	STDMETHOD(RemoveById)(UINT index);
 	STDMETHOD(RemoveRange)(UINT from, UINT count);
 	STDMETHOD(Sort)();

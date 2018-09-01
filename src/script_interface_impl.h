@@ -109,6 +109,7 @@ protected:
 public:
 	STDMETHODIMP Add(IFbMetadbHandle* handle);
 	STDMETHODIMP AddRange(IFbMetadbHandleList* handles);
+	STDMETHODIMP AttachImage(BSTR image_path, int art_id);
 	STDMETHODIMP BSearch(IFbMetadbHandle* handle, int* p);
 	STDMETHODIMP CalcTotalDuration(double* p);
 	STDMETHODIMP CalcTotalSize(LONGLONG* p);
@@ -127,6 +128,7 @@ public:
 	STDMETHODIMP RefreshStats();
 	STDMETHODIMP Remove(IFbMetadbHandle* handle);
 	STDMETHODIMP RemoveAll();
+	STDMETHODIMP RemoveAttachedImage(int art_id);
 	STDMETHODIMP RemoveById(UINT index);
 	STDMETHODIMP RemoveRange(UINT from, UINT count);
 	STDMETHODIMP Sort();
