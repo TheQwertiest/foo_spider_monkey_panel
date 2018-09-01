@@ -91,6 +91,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="adv_config.cpp" />
     <ClCompile Include="com_tools.cpp" />
     <ClCompile Include="config.cpp" />
     <ClCompile Include="convert\com.cpp" />
@@ -180,6 +181,7 @@
     <ClInclude Include="..\PropertyList\PropertyItemEditors.h" />
     <ClInclude Include="..\PropertyList\PropertyItemImpl.h" />
     <ClInclude Include="..\PropertyList\PropertyList.h" />
+    <ClInclude Include="adv_config.h" />
     <ClInclude Include="convert\com.h" />
     <ClInclude Include="convert\js_to_native.h" />
     <ClInclude Include="convert\native_to_js.h" />

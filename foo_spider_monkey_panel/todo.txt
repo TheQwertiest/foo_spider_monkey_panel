@@ -1,7 +1,5 @@
 # Current
 - Add array conversion support in ActiveXObject.
-- Allow to configure max component RAM usage via preferences.
-- Change the default limit of JS heap according to available RAM on system (1gb heap size with only 2gb RAM is brutal).
 - Add try-catch's (to all js-to-native wrappers and all the code that might lead back to JS).
 - Add OOM error reporting and handling (both JS and native).
 - Add a header with component name and version to error reporter.
@@ -33,6 +31,7 @@
 - Document global.include.
 - Document DefinePanel.
 - Document CreateHtmlWindow.
+- Document `Advanced` settings.
 - Copy and update marc2003's wiki.
 - Create a simple JSP > SMP script migration guide.
 - Create a building guide for devs.
@@ -40,6 +39,7 @@
 - Check all TODOs.
 
 # Planned
+- Add option for global.include to skip file if it was loaded before, like include guard (enabled by default).
 - Extract common options handling code (i.e. options = {opt1: val1, opt2: val2}; ).
 - Consider replacing std::optional with exceptions: need to be very careful - exceptions MUST NOT leak to JS from native code.
 - Add relative path support to `include`.

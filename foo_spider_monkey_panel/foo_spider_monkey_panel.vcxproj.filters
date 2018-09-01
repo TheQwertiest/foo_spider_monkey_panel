@@ -229,6 +229,9 @@
     <ClCompile Include="js_objects\html_window.cpp">
       <Filter>js_objects</Filter>
     </ClCompile>
+    <ClCompile Include="adv_config.cpp">
+      <Filter>uncategorized</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="js_engine\js_engine.h">
@@ -524,6 +527,9 @@
     </ClInclude>
     <ClInclude Include="js_utils\dispatch_ptr.h">
       <Filter>js_utils</Filter>
+    </ClInclude>
+    <ClInclude Include="adv_config.h">
+      <Filter>uncategorized</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

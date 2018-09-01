@@ -63,6 +63,11 @@ private:
     
     uint32_t lastGcCheckTime_ = 0;
     uint64_t lastTotalHeapSize_ = 0;
+
+    uint32_t maxHeapSize_ = 1024UL * 1024 * 1024;
+    uint32_t heapGrowthRateTrigger_ = 50UL * 1024 * 1024;
+    uint32_t gcSliceTimeBudget_ = 30;
+    uint32_t gcCheckDelay_ = 50;
 };
 
 }

@@ -799,6 +799,7 @@ void js_panel_window::on_panel_create(HWND hWnd)
     // m_gr_wrap.Attach( new com_object_impl_t<GdiGraphics>(), false );
     panel_manager::instance().add_window( hWnd_ );
 
+    // TODO: add error handling
     mozjs::JsEngine::GetInstance().RegisterPanel( *this, jsContainer_ );
     script_load();
 }
