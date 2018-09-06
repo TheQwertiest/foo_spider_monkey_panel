@@ -9,16 +9,17 @@
 #include <js_objects/global_object.h>
 #include <js_objects/internal/global_heap_manager.h>
 #include <js_objects/active_x_object.h>
-
+#include <js_utils/scope_helper.h>
 #include <convert/js_to_native.h>
 
 
-// TODO: add VT_ARRAY <> JSArray and VT_DISPATCH <> JSFunction support
+// TODO: add VT_ARRAY <> JSArray
 
 namespace
 {
 
 using namespace mozjs;
+using namespace convert::com;
 
 class WrappedJs
     : public IDispatchImpl3<IWrappedJs>
@@ -133,6 +134,74 @@ private:
     std::mutex cleanupLock_;
     bool needsCleanup_ = false;
 };
+
+bool JSArrayToCOMArray( JSContext* cx, JS::HandleObject obj, VARIANT & var )
+{    
+    uint32_t len;
+    if ( !JS_GetArrayLength( cx, obj, &len ) )
+    {        
+        return false;
+    }
+
+    // Create the safe array of variants and populate it
+    SAFEARRAY * safeArray = SafeArrayCreateVector( VT_VARIANT, index, len - index );
+    if ( !safeArray )
+    {
+        //err = NS_ERROR_OUT_OF_MEMORY;
+        return false;
+    }
+
+    VARIANT * varArray = nullptr;
+    if ( FAILED( SafeArrayAccessData( safeArray, reinterpret_cast<void**>(&varArray) ) ) )
+    {
+        //err = NS_ERROR_FAILURE;
+        return false;
+    }
+
+    scope::final_action autoSa( [safeArray]()
+    {
+        SafeArrayUnaccessData( safeArray );
+        SafeArrayDestroy( safeArray );
+    } );
+    
+    for ( uint32_t index = 0; index < len; ++index )
+    {
+        JS::RootedValue val(cx);
+        if ( !JS_GetElement( cx, obj, index, &val ) )
+        {
+            return false;
+        }
+
+        if ( !JsToVariant( cx, val, *varArray ) )
+        {
+            SafeArrayUnaccessData( safeArray );
+            //err = NS_ERROR_FAILURE;
+            SafeArrayDestroyData( safeArray );// This cleans up the elements as well
+            return false;
+        }
+        if ( varArray )
+        {
+            ++varArray;
+        }
+    }
+
+    if ( !safeArray )
+    {
+        safeArray = SafeArrayCreateVector( VT_VARIANT, 0, 0 );
+        if ( !safeArray )
+        {
+            //report error
+            return false;
+        }
+    }
+    else
+    {
+        SafeArrayUnaccessData( safeArray );
+    }
+    var.vt = VT_ARRAY | VT_VARIANT;
+    var.parray = safeArray;
+    return true;
+}
 
 }
 
@@ -261,7 +330,6 @@ bool VariantToJs( JSContext* cx, VARIANTARG& var, JS::MutableHandleValue rval )
             }
 
             return false;
-            //default: return false;
         }
     }
     catch ( ... )
@@ -274,19 +342,16 @@ bool VariantToJs( JSContext* cx, VARIANTARG& var, JS::MutableHandleValue rval )
 bool JsToVariant( JSContext* cx, JS::HandleValue rval, VARIANTARG& arg )
 {
     VariantInit( &arg );
-
+    
     if ( rval.isObject() )
     {
-        JS::RootedObject j0( cx, rval.toObjectOrNull() );
-        if ( j0 && JS_InstanceOf( cx, j0, &ActiveXObject::JsClass, 0 ) )
+        JS::RootedObject j0( cx, &rval.toObject() );
+        if ( JS_InstanceOf( cx, j0, &ActiveXObject::JsClass, 0 ) )
         {
             ActiveXObject* x = static_cast<ActiveXObject*>( JS_GetPrivate( j0 ) );
             if ( !x )
             {
                 //JS_ReportErrorUTF8( cx, "Internal error: JS_GetPrivate failed" );
-
-                // Avoid cleaning up garbage
-                arg.vt = VT_EMPTY;
                 return false;
             }
             if ( x->variant_.vt != VT_EMPTY )
@@ -320,14 +385,25 @@ bool JsToVariant( JSContext* cx, JS::HandleValue rval, VARIANTARG& arg )
                 return true;
             }
         }
-
-        if ( j0 && JS_ObjectIsFunction( cx, j0 ) )
+        else if ( JS_ObjectIsFunction( cx, j0 ) )
         {
             JS::RootedFunction func( cx, JS_ValueToFunction( cx, rval ) );
 
             arg.vt = VT_DISPATCH;
             arg.pdispVal = new com_object_impl_t<WrappedJs>( cx, func );
             return true;
+        }
+        else
+        {
+            bool is;
+            if ( JS_IsArrayObject( cx, rval, &is ) && is )
+            {
+                return JSArrayToCOMArray( cx, j0, arg );
+            }
+            else
+            {
+                return false;
+            }
         }
     }
     else if ( rval.isBoolean() )
@@ -365,7 +441,6 @@ bool JsToVariant( JSContext* cx, JS::HandleValue rval, VARIANTARG& arg )
         auto str = convert::to_native::ToValue<std::wstring>( cx, rval );
         if ( !str )
         {
-            arg.vt = VT_EMPTY; // Avoid cleaning up garbage
             return false;
         }
 
@@ -375,30 +450,10 @@ bool JsToVariant( JSContext* cx, JS::HandleValue rval, VARIANTARG& arg )
         arg.bstrVal = bStr.Detach();
         return true;
     }
-    /*
-
-    // See https://hg.mozilla.org/mozilla-central/rev/d115405d4e0b
-
     else
     {
-        bool is;
-        if ( JS_IsArrayObject( cx, rval, &is ) )
-        {
-            return false;
-        }
-
-        if ( is )
-        {
-            arg.vt = VT_ARRAY | VT_VARIANT;
-            arg.bstrVal = SysAllocString( strVal.c_str() );
-            return true;
-        }
+        return false;
     }
-    */
-
-    // Avoid cleaning up garbage
-    arg.vt = VT_EMPTY;
-    return false;
 }
 
 }
