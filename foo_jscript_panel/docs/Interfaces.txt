@@ -152,19 +152,19 @@ interface IFbUtils {
 		Items can then be pasted in other playlist viewers or in Windows Explorer as files.
 
 		Example1: (copy playlist items)
-		var items = plman.GetPlaylistSelectedItems(plman.ActivePlaylist);
-		fb.CopyHandleListToClipboard(items);
-		items.Dispose();
+		var handle_list = plman.GetPlaylistSelectedItems(plman.ActivePlaylist);
+		fb.CopyHandleListToClipboard(handle_list);
+		handle_list.Dispose();
 
 		Example2: (cut playlist items)
 		var ap = plman.ActivePlaylist;
 		if (!plman.IsPlaylistLocked(ap)) {
-			var items = plman.GetPlaylistSelectedItems(ap);
-			if (fb.CopyHandleListToClipboard(items)) {
+			var handle_list = plman.GetPlaylistSelectedItems(ap);
+			if (fb.CopyHandleListToClipboard(handle_list)) {
 				plman.UndoBackup(ap);
 				plman.RemovePlaylistSelection(ap);
 			}
-			items.Dispose();
+			handle_list.Dispose();
 		}
 		*/
 
@@ -234,12 +234,12 @@ interface IFbUtils {
 		function on_mouse_rbtn_up(x, y) {
 			var ap = plman.ActivePlaylist;
 			var menu = window.CreatePopupMenu();
-			menu.AppendMenuItem(!plman.IsPlaylistLocked(ap) && fb.CheckClipboardContents(window.ID) ? MF_STRING : MF_GRAYED, 1, "Paste"); // assume MF_* are already defined
+			menu.AppendMenuItem(!plman.IsPlaylistLocked(ap) && fb.CheckClipboardContents(window.ID) ? MF_STRING : MF_GRAYED, 1, "Paste"); // see Flags.txt for MF_* definitions
 			var idx = menu.TrackPopupMenu(x, y);
 			if (idx == 1) {
-				var items = fb.GetClipboardContents(window.ID);
-				plman.InsertPlaylistItems(ap, plman.PlaylistItemCount(ap), items);
-				items.Dispose();
+				var handle_list = fb.GetClipboardContents(window.ID);
+				plman.InsertPlaylistItems(ap, plman.PlaylistItemCount(ap), handle_list);
+				handle_list.Dispose();
 			}
 			menu.Dispose();
 			return true;
@@ -515,9 +515,9 @@ interface IFbUtils {
 					Returns a VBArray so you need to use .toArray() on the result.
 
 					Example:
-					var items = fb.GetLibraryItems();
-					var artists = tfo.EvalWithMetadbs(items).toArray();
-					console.log(items.Count === artists.length); // should always be true!
+					var handle_list = fb.GetLibraryItems();
+					var artists = tfo.EvalWithMetadbs(handle_list).toArray();
+					console.log(handle_list.Count === artists.length); // should always be true!
 					*/
 			}
 
@@ -1773,20 +1773,20 @@ interface IFbMetadbHandleList {
 		remove it first.
 
 		Example1:
-		var items = plman.GetPlaylistItems(plman.ActivePlaylist);
-		if (items.Count > 0) {
+		var handle_list = plman.GetPlaylistItems(plman.ActivePlaylist);
+		if (handle_list.Count > 0) {
 			var img_path = "C:\\path\\to\\image.jpg";
-			items.AttachImage(img_path, 0);
+			handle_list.AttachImage(img_path, 0);
 		}
-		items.Dispose();
+		handle_list.Dispose();
 
 		Example2:
 		// since there is no handle method, do this for a single item
-		var items = fb.CreateHandleList();
-		items.Add(fb.GetFocusItem());
+		var handle_list = fb.CreateHandleList();
+		handle_list.Add(fb.GetFocusItem());
 		var img_path = "C:\\path\\to\\image.jpg";
-		items.AttachImage(img_path, 0);
-		items.Dispose();
+		handle_list.AttachImage(img_path, 0);
+		handle_list.Dispose();
 		*/
 
 		BSearch(handle); (int)
@@ -1846,9 +1846,9 @@ interface IFbMetadbHandleList {
 		a handle list manually and using the aforementioned method.
 
 		Example:
-		var items = fb.GetLibraryItems();
-		items.OrderByRelativePath();
-		var relative_paths = items.GetLibraryRelativePaths().toArray();
+		var handle_list = fb.GetLibraryItems();
+		handle_list.OrderByRelativePath();
+		var relative_paths = handle_list.GetLibraryRelativePaths().toArray();
 		*/
 
 		Insert(index, handle); (void)
