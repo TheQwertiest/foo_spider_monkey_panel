@@ -144,62 +144,133 @@ bool JSArrayToCOMArray( JSContext* cx, JS::HandleObject obj, VARIANT & var )
     }
 
     // Create the safe array of variants and populate it
-    SAFEARRAY * safeArray = SafeArrayCreateVector( VT_VARIANT, index, len - index );
+    SAFEARRAY * safeArray = SafeArrayCreateVector( VT_VARIANT, 0, len );
     if ( !safeArray )
     {
         //err = NS_ERROR_OUT_OF_MEMORY;
         return false;
     }
 
-    VARIANT * varArray = nullptr;
-    if ( FAILED( SafeArrayAccessData( safeArray, reinterpret_cast<void**>(&varArray) ) ) )
+    scope::final_action autoSa( [safeArray]()
     {
-        //err = NS_ERROR_FAILURE;
+        SafeArrayDestroy( safeArray );
+    } );
+
+    if ( len )
+    {
+        VARIANT * varArray = nullptr;
+        if ( FAILED( SafeArrayAccessData( safeArray, reinterpret_cast<void**>(&varArray) ) ) )
+        {
+            //err = NS_ERROR_FAILURE;
+            return false;
+        }
+
+        scope::final_action autoSaData( [safeArray]()
+        {
+            SafeArrayUnaccessData( safeArray );
+        } );
+
+        for ( uint32_t i = 0; i < len; ++i )
+        {
+            JS::RootedValue val( cx );
+            if ( !JS_GetElement( cx, obj, i, &val ) )
+            {
+                //err = NS_ERROR_FAILURE;
+                return false;
+            }
+
+            if ( !JsToVariant( cx, val, varArray[i] ) )
+            {
+                //err = NS_ERROR_FAILURE;            
+                return false;
+            }
+        }
+    }
+ 
+    var.vt = VT_ARRAY | VT_VARIANT;
+    var.parray = safeArray;
+    autoSa.cancel(); // cancel array destruction
+    return true;
+}
+
+bool COMArrayToJSArray( JSContext* cx, const VARIANT & src, JS::MutableHandleValue & dest )
+{
+    // We only support one dimensional arrays for now
+    if ( SafeArrayGetDim( src.parray ) != 1 )
+    {
+        // err = NS_ERROR_FAILURE;
+        return false;
+    }
+    // Get the upper bound;
+    long ubound;
+    if ( FAILED( SafeArrayGetUBound( src.parray, 1, &ubound ) ) )
+    {
+        // err = NS_ERROR_FAILURE;
         return false;
     }
 
-    scope::final_action autoSa( [safeArray]()
+    // Get the lower bound
+    long lbound;
+    if ( FAILED( SafeArrayGetLBound( src.parray, 1, &lbound ) ) )
     {
-        SafeArrayUnaccessData( safeArray );
-        SafeArrayDestroy( safeArray );
-    } );
-    
-    for ( uint32_t index = 0; index < len; ++index )
+        // err = NS_ERROR_FAILURE;
+        return false;
+    }
+
+    // Create the JS Array
+    JS::RootedObject jsArray( cx, JS_NewArrayObject( cx, ubound - lbound + 1 ) );
+    if ( !jsArray )
     {
-        JS::RootedValue val(cx);
-        if ( !JS_GetElement( cx, obj, index, &val ) )
+        // err = NS_ERROR_OUT_OF_MEMORY;
+        return false;
+    }
+
+    // Divine the type of our array
+    VARTYPE vartype;
+    if ( (src.vt & VT_ARRAY) != 0 )
+    {
+        vartype = src.vt & ~VT_ARRAY;
+    }
+    else // This was maybe a VT_SAFEARRAY
+    {
+        if ( FAILED( SafeArrayGetVartype( src.parray, &vartype ) ) )
         {
+            return false;
+        }
+    }
+
+    JS::RootedValue jsVal( cx );
+    for ( long i = lbound; i <= ubound; ++i )
+    {
+        HRESULT hr;
+        _variant_t var;
+        if ( vartype == VT_VARIANT )
+        {
+            hr = SafeArrayGetElement( src.parray, &i, &var );
+        }
+        else
+        {
+            var.vt = vartype;
+            hr = SafeArrayGetElement( src.parray, &i, &var.byref );
+        }
+        if ( FAILED( hr ) )
+        {
+            // err = NS_ERROR_FAILURE;
             return false;
         }
 
-        if ( !JsToVariant( cx, val, *varArray ) )
+        if ( !VariantToJs( cx, var, &jsVal ) )
         {
-            SafeArrayUnaccessData( safeArray );
-            //err = NS_ERROR_FAILURE;
-            SafeArrayDestroyData( safeArray );// This cleans up the elements as well
             return false;
         }
-        if ( varArray )
+        
+        if ( !JS_SetElement( cx, jsArray, i, jsVal ) )
         {
-            ++varArray;
+            return false;
         }
     }
 
-    if ( !safeArray )
-    {
-        safeArray = SafeArrayCreateVector( VT_VARIANT, 0, 0 );
-        if ( !safeArray )
-        {
-            //report error
-            return false;
-        }
-    }
-    else
-    {
-        SafeArrayUnaccessData( safeArray );
-    }
-    var.vt = VT_ARRAY | VT_VARIANT;
-    var.parray = safeArray;
+    dest.setObjectOrNull( jsArray );
     return true;
 }
 
