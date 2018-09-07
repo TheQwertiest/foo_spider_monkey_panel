@@ -64,7 +64,7 @@ template <class T, class TBase = CButton, class TWinTraits = ATL::CControlWinTra
 class ATL_NO_VTABLE CBitmapButtonImpl : public ATL::CWindowImpl< T, TBase, TWinTraits >
 {
 public:
-	DECLARE_WND_SUPERCLASS(NULL, TBase::GetWndClassName())
+	DECLARE_WND_SUPERCLASS2(NULL, T, TBase::GetWndClassName())
 
 	enum
 	{
@@ -643,7 +643,7 @@ template <class T, class TBase = CListViewCtrl, class TWinTraits = CCheckListVie
 class ATL_NO_VTABLE CCheckListViewCtrlImpl : public ATL::CWindowImpl<T, TBase, TWinTraits >
 {
 public:
-	DECLARE_WND_SUPERCLASS(NULL, TBase::GetWndClassName())
+	DECLARE_WND_SUPERCLASS2(NULL, T, TBase::GetWndClassName())
 
 // Attributes
 	static DWORD GetExtendedLVStyle()
@@ -1867,7 +1867,7 @@ template <class T, class TBase = CStatusBarCtrl>
 class ATL_NO_VTABLE CMultiPaneStatusBarCtrlImpl : public ATL::CWindowImpl< T, TBase >
 {
 public:
-	DECLARE_WND_SUPERCLASS(NULL, TBase::GetWndClassName())
+	DECLARE_WND_SUPERCLASS2(NULL, T, TBase::GetWndClassName())
 
 // Data
 	enum { m_cxPaneMargin = 3 };
@@ -2193,7 +2193,7 @@ template <class T, class TBase = ATL::CWindow, class TWinTraits = ATL::CControlW
 class ATL_NO_VTABLE CPaneContainerImpl : public ATL::CWindowImpl< T, TBase, TWinTraits >, public CCustomDraw< T >
 {
 public:
-	DECLARE_WND_CLASS_EX(NULL, 0, -1)
+	DECLARE_WND_CLASS_EX2(NULL, T, 0, -1)
 
 // Constants
 	enum
@@ -3497,7 +3497,7 @@ template <class T, class TBase = CListViewCtrl, class TWinTraits = CSortListView
 class ATL_NO_VTABLE CSortListViewCtrlImpl: public ATL::CWindowImpl<T, TBase, TWinTraits>, public CSortListViewImpl<T>
 {
 public:
-	DECLARE_WND_SUPERCLASS(NULL, TBase::GetWndClassName())
+	DECLARE_WND_SUPERCLASS2(NULL, T, TBase::GetWndClassName())
 
 	bool SortItems(int iCol, bool bDescending = false)
 	{
@@ -3541,7 +3541,7 @@ template <class T, class TBase = ATL::CWindow, class TWinTraits = ATL::CControlW
 class ATL_NO_VTABLE CTabViewImpl : public ATL::CWindowImpl< T, TBase, TWinTraits >
 {
 public:
-	DECLARE_WND_CLASS_EX(NULL, 0, COLOR_APPWORKSPACE)
+	DECLARE_WND_CLASS_EX2(NULL, T, 0, COLOR_APPWORKSPACE)
 
 // Declarations and enums
 	struct TABVIEWPAGE

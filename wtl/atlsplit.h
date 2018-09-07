@@ -693,6 +693,7 @@ public:
 			{
 			case VK_RETURN:
 				m_xySplitterPosNew = m_xySplitterPos;
+				// FALLTHROUGH
 			case VK_ESCAPE:
 				::ReleaseCapture();
 				break;
@@ -1048,7 +1049,7 @@ template <class T, class TBase = ATL::CWindow, class TWinTraits = ATL::CControlW
 class ATL_NO_VTABLE CSplitterWindowImpl : public ATL::CWindowImpl< T, TBase, TWinTraits >, public CSplitterImpl< T >
 {
 public:
-	DECLARE_WND_CLASS_EX(NULL, CS_DBLCLKS, COLOR_WINDOW)
+	DECLARE_WND_CLASS_EX2(NULL, T, CS_DBLCLKS, COLOR_WINDOW)
 
 	CSplitterWindowImpl(bool bVertical = true) : CSplitterImpl< T >(bVertical)
 	{ }

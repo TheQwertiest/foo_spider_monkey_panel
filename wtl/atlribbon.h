@@ -155,8 +155,8 @@ public:
 	bool UIPersistElement(UINT nID, bool bPersist = true)
 	{
 		return bPersist ?
-			UIAddElement<UPDUI_PERSIST>(nID) :
-			UIRemoveElement<UPDUI_PERSIST>(nID);
+			this->UIAddElement<UPDUI_PERSIST>(nID) :
+			this->UIRemoveElement<UPDUI_PERSIST>(nID);
 	}
 
 // methods for Ribbon elements
@@ -980,7 +980,7 @@ public:
 		{
 			if (m_auItemCat[uItem] == UI_COLLECTION_INVALIDINDEX)
 			{
-				TCtrl::WndRibbon& ribbon = static_cast<TCtrl*>(this)->GetWndRibbon();
+				typename TCtrl::WndRibbon& ribbon = static_cast<TCtrl*>(this)->GetWndRibbon();
 				m_auItemCat[uItem] = ribbon.OnRibbonQueryItemCategory(TCtrl::GetID(), uItem);
 			}
 			uCat = m_auItemCat[uItem];
@@ -998,7 +998,7 @@ public:
 		case k_Label:
 			if (m_asCatName[uCat].IsEmpty())
 			{
-				TCtrl::WndRibbon& ribbon = static_cast<TCtrl*>(this)->GetWndRibbon();
+				typename TCtrl::WndRibbon& ribbon = static_cast<TCtrl*>(this)->GetWndRibbon();
 				m_asCatName[uCat] = ribbon.OnRibbonQueryCategoryText(TCtrl::GetID(), uCat);
 			}
 			hr = SetPropertyVal(key, (LPCWSTR)m_asCatName[uCat], value);
@@ -1102,7 +1102,7 @@ public:
 
 		m_uSelected = uItem;
 
-		TCtrl::WndRibbon& ribbon = static_cast<TCtrl*>(this)->GetWndRibbon();
+		typename TCtrl::WndRibbon& ribbon = static_cast<TCtrl*>(this)->GetWndRibbon();
 		return bUpdate ?
 			ribbon.SetProperty(TCtrl::GetID(), UI_PKEY_SelectedItem, uItem) : 
 			S_OK;
@@ -1117,7 +1117,7 @@ public:
 		{
 			if (m_asText[uItem].IsEmpty())
 			{
-				TCtrl::WndRibbon& ribbon = static_cast<TCtrl*>(this)->GetWndRibbon();
+				typename TCtrl::WndRibbon& ribbon = static_cast<TCtrl*>(this)->GetWndRibbon();
 				m_asText[uItem] = ribbon.OnRibbonQueryItemText(TCtrl::GetID(), uItem);
 			}
 			return SetPropertyVal(key, (LPCWSTR)m_asText[uItem], value);
@@ -1135,7 +1135,7 @@ public:
 
 		if (k_(key) == k_SelectedItem)
 		{
-			TCtrl::WndRibbon& ribbon = static_cast<TCtrl*>(this)->GetWndRibbon();
+			typename TCtrl::WndRibbon& ribbon = static_cast<TCtrl*>(this)->GetWndRibbon();
 			UINT uSel = UI_COLLECTION_INVALIDINDEX;
 			if ((m_uSelected == UI_COLLECTION_INVALIDINDEX) &&
 			    ribbon.OnRibbonQuerySelectedItem(TCtrl::GetID(), uSel))
@@ -1185,7 +1185,7 @@ public:
 		{
 			if (m_aBitmap[uItem].IsNull())
 			{
-				TCtrl::WndRibbon& ribbon = static_cast<TCtrl*>(this)->GetWndRibbon();
+				typename TCtrl::WndRibbon& ribbon = static_cast<TCtrl*>(this)->GetWndRibbon();
 				m_aBitmap[uItem] = ribbon.OnRibbonQueryItemImage(TCtrl::GetID(), uItem);
 			}
 			return m_aBitmap[uItem].IsNull() ?
@@ -1211,7 +1211,7 @@ public:
 	// Operations
 	HRESULT SetComboText(LPCWSTR sText)
 	{
-		TCtrl::WndRibbon& ribbon = static_cast<TCtrl*>(this)->GetWndRibbon();
+		typename TCtrl::WndRibbon& ribbon = static_cast<TCtrl*>(this)->GetWndRibbon();
 		return ribbon.IsRibbonUI() ? 
 			ribbon.SetProperty(TCtrl::GetID(), UI_PKEY_StringValue, sText) : 
 			S_OK;
@@ -1220,7 +1220,7 @@ public:
 	LPCWSTR GetComboText()
 	{
 		static WCHAR sCombo[RIBBONUI_MAX_TEXT] = { 0 };
-		TCtrl::WndRibbon& ribbon = static_cast<TCtrl*>(this)->GetWndRibbon();
+		typename TCtrl::WndRibbon& ribbon = static_cast<TCtrl*>(this)->GetWndRibbon();
 		PROPVARIANT var;
 		if (ribbon.IsRibbonUI())
 		{
@@ -1258,7 +1258,7 @@ public:
 		if (uCommandID == m_auCmd[uItem])
 			return S_OK;
 
-		TCtrl::WndRibbon& ribbon = static_cast<TCtrl*>(this)->GetWndRibbon();
+		typename TCtrl::WndRibbon& ribbon = static_cast<TCtrl*>(this)->GetWndRibbon();
 
 		m_auCmd[uItem] = uCommandID;
 		if (uCommandID != 0)
@@ -1280,7 +1280,7 @@ public:
  	HRESULT DoGetItem(UINT uItem, REFPROPERTYKEY key, PROPVARIANT *value)
 	{
 		ATLASSERT(uItem < t_items);
-		TCtrl::WndRibbon& ribbon = static_cast<TCtrl*>(this)->GetWndRibbon();
+		typename TCtrl::WndRibbon& ribbon = static_cast<TCtrl*>(this)->GetWndRibbon();
 
 		HRESULT hr = E_FAIL;
 		switch (k_(key))
@@ -1325,7 +1325,7 @@ public:
 	HRESULT OnGetItem(UINT uItem, REFPROPERTYKEY key, PROPVARIANT *value)
 	{
 		ATLASSERT(uItem < t_size);
-		TCtrl::WndRibbon& ribbon = static_cast<TCtrl*>(this)->GetWndRibbon();
+		typename TCtrl::WndRibbon& ribbon = static_cast<TCtrl*>(this)->GetWndRibbon();
 
 		HRESULT hr = E_NOTIMPL;
 		switch (k_(key))
@@ -3217,9 +3217,9 @@ public:
 		if(bVisible && !bShow)
 			this->SetRedraw(FALSE);
 
-		if (bShow && ::IsWindow(m_hWndToolBar))
+		if (bShow && ::IsWindow(this->m_hWndToolBar))
 		{
-			::ShowWindow(m_hWndToolBar, SW_HIDE);
+			::ShowWindow(this->m_hWndToolBar, SW_HIDE);
 			UpdateLayout();
 		}
 
@@ -3231,9 +3231,9 @@ public:
 
 		if (SUCCEEDED(hr))
 		{
-			if(::IsWindow(m_hWndToolBar) && !bShow)
+			if(::IsWindow(this->m_hWndToolBar) && !bShow)
 			{
-				::ShowWindow(m_hWndToolBar, SW_SHOWNA);
+				::ShowWindow(this->m_hWndToolBar, SW_SHOWNA);
 				UpdateLayout(); 
 			}
 			else if (bShow)

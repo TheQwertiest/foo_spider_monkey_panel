@@ -480,7 +480,7 @@ public:
 	{
 		ATLASSERT(m_hFind != NULL);
 
-		ULARGE_INTEGER nFileSize = { 0 };
+		ULARGE_INTEGER nFileSize = {};
 
 		if(m_bFound)
 		{

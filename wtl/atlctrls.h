@@ -7303,7 +7303,7 @@ public:
 	int GetTextRange(LONG nStartChar, LONG nEndChar, LPTSTR lpstrText) const
 	{
 		ATLASSERT(::IsWindow(this->m_hWnd));
-		TEXTRANGE tr = { 0 };
+		TEXTRANGE tr = {};
 		tr.chrg.cpMin = nStartChar;
 		tr.chrg.cpMax = nEndChar;
 		tr.lpstrText = lpstrText;
