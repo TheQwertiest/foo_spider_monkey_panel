@@ -22,10 +22,11 @@ namespace helpers
 
 	COLORREF convert_argb_to_colorref(DWORD argb);
 	DWORD convert_colorref_to_argb(DWORD color);
-	IGdiBitmap* query_album_art(album_art_extractor_instance_v2::ptr extractor, GUID& what, bool no_load = false, pfc::string_base* image_path_ptr = NULL);
 	HBITMAP create_hbitmap_from_gdiplus_bitmap(Gdiplus::Bitmap* bitmap_ptr);
 	HRESULT get_album_art_embedded(BSTR rawpath, IGdiBitmap** pp, int art_id);
 	HRESULT get_album_art_v2(const metadb_handle_ptr& handle, IGdiBitmap** pp, int art_id, bool need_stub, bool no_load = false, pfc::string_base* image_path_ptr = NULL);
+	IGdiBitmap* load_image(BSTR path);
+	IGdiBitmap* query_album_art(album_art_extractor_instance_v2::ptr extractor, GUID& what, bool no_load = false, pfc::string_base* image_path_ptr = NULL);
 	bool execute_context_command_by_name(const char* p_name, metadb_handle_list_cref p_handles, unsigned flags);
 	bool execute_mainmenu_command_by_name(const char* p_name);
 	bool execute_mainmenu_command_recur_v2(mainmenu_node::ptr node, pfc::string8_fast path, const char* p_name, t_size p_name_len);

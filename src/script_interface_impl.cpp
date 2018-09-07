@@ -3758,24 +3758,8 @@ STDMETHODIMP GdiUtils::Font(BSTR name, float pxSize, int style, IGdiFont** pp)
 STDMETHODIMP GdiUtils::Image(BSTR path, IGdiBitmap** pp)
 {
 	if (!pp) return E_POINTER;
-	*pp = NULL;
 
-	// Since using Gdiplus::Bitmap(path) will result locking file, so use IStream instead to prevent it.
-	IStreamPtr pStream;
-	HRESULT hr = SHCreateStreamOnFileEx(path, STGM_READ | STGM_SHARE_DENY_WRITE, GENERIC_READ, FALSE, NULL, &pStream);
-	if (SUCCEEDED(hr))
-	{
-		Gdiplus::Bitmap* img = new Gdiplus::Bitmap(pStream, PixelFormat32bppPARGB);
-		if (helpers::ensure_gdiplus_object(img))
-		{
-			*pp = new com_object_impl_t<GdiBitmap>(img);
-		}
-		else
-		{
-			if (img) delete img;
-		}
-	}
-
+	*pp = helpers::load_image(path);
 	return S_OK;
 }
 

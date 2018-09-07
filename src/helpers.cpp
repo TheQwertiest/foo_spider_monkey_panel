@@ -22,31 +22,6 @@ namespace helpers
 			0xff000000;
 	}
 
-	IGdiBitmap* query_album_art(album_art_extractor_instance_v2::ptr extractor, GUID& what, bool no_load, pfc::string_base* image_path_ptr)
-	{
-		abort_callback_dummy abort;
-		album_art_data_ptr data = extractor->query(what, abort);
-		Gdiplus::Bitmap* bitmap = NULL;
-		IGdiBitmap* ret = NULL;
-
-		if (!no_load && read_album_art_into_bitmap(data, &bitmap))
-		{
-			ret = new com_object_impl_t<GdiBitmap>(bitmap);
-		}
-
-		if (image_path_ptr && (no_load || ret))
-		{
-			album_art_path_list::ptr pathlist = extractor->query_paths(what, abort);
-
-			if (pathlist->get_count() > 0)
-			{
-				image_path_ptr->set_string(pathlist->get_path(0));
-			}
-		}
-
-		return ret;
-	}
-
 	HBITMAP create_hbitmap_from_gdiplus_bitmap(Gdiplus::Bitmap* bitmap_ptr)
 	{
 		BITMAP bm;
@@ -146,6 +121,48 @@ namespace helpers
 
 		*pp = ret;
 		return S_OK;
+	}
+
+	IGdiBitmap* load_image(BSTR path)
+	{
+		IGdiBitmap* ret = NULL;
+		IStreamPtr pStream;
+		HRESULT hr = SHCreateStreamOnFileEx(path, STGM_READ | STGM_SHARE_DENY_WRITE, GENERIC_READ, FALSE, NULL, &pStream);
+		if (SUCCEEDED(hr))
+		{
+			Gdiplus::Bitmap* img = new Gdiplus::Bitmap(pStream, PixelFormat32bppPARGB);
+			if (helpers::ensure_gdiplus_object(img))
+			{
+				ret = new com_object_impl_t<GdiBitmap>(img);
+			}
+			else
+			{
+				if (img) delete img;
+				img = NULL;
+			}
+		}
+		return ret;
+	}
+
+	IGdiBitmap* query_album_art(album_art_extractor_instance_v2::ptr extractor, GUID& what, bool no_load, pfc::string_base* image_path_ptr)
+	{
+		abort_callback_dummy abort;
+		album_art_data_ptr data = extractor->query(what, abort);
+		Gdiplus::Bitmap* bitmap = NULL;
+		IGdiBitmap* ret = NULL;
+		if (!no_load && read_album_art_into_bitmap(data, &bitmap))
+		{
+			ret = new com_object_impl_t<GdiBitmap>(bitmap);
+		}
+		if (image_path_ptr && (no_load || ret))
+		{
+			album_art_path_list::ptr pathlist = extractor->query_paths(what, abort);
+			if (pathlist->get_count() > 0)
+			{
+				image_path_ptr->set_string(pathlist->get_path(0));
+			}
+		}
+		return ret;
 	}
 
 	bool execute_context_command_by_name(const char* p_name, metadb_handle_list_cref p_handles, unsigned flags)
@@ -941,27 +958,13 @@ namespace helpers
 		}
 
 		t_param param(handle, m_art_id, bitmap, image_path.is_empty() ? "" : file_path_display(image_path));
-
 		SendMessage(m_notify_hwnd, CALLBACK_UWM_ON_GET_ALBUM_ART_DONE, 0, (LPARAM)&param);
 	}
 
 	void load_image_async::run()
 	{
-		IGdiBitmap* bitmap = NULL;
-		Gdiplus::Bitmap* img = new Gdiplus::Bitmap(m_path, PixelFormat32bppPARGB);
-
-		if (ensure_gdiplus_object(img))
-		{
-			bitmap = new com_object_impl_t<GdiBitmap>(img);
-		}
-		else
-		{
-			if (img) delete img;
-			img = NULL;
-		}
-
+		IGdiBitmap* bitmap = load_image(m_path);
 		t_param param(reinterpret_cast<unsigned>(this), bitmap, m_path);
-
 		SendMessage(m_notify_hwnd, CALLBACK_UWM_ON_LOAD_IMAGE_DONE, 0, (LPARAM)&param);
 	}
 }
