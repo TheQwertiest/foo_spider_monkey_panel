@@ -32,7 +32,7 @@ public:
     static JSObject* CreateNative( JSContext* cx, JsContainer &parentContainer, js_panel_window& parentPanel );
 
 public:
-    void Fail( pfc::string8_fast errorText );
+    void Fail( const pfc::string8_fast &errorText );
 
     GlobalHeapManager& GetHeapManager() const;
 
@@ -40,14 +40,28 @@ public:
 
 public: // methods
     std::optional<std::nullptr_t> IncludeScript( const pfc::string8_fast& path );
+    
+    template <typename T>
+    static void CleanupObjectProperty( JSContext* cx, JS::HandleObject self, std::string_view propName )
+    {
+        JS::RootedValue jsPropertyValue( cx );
+        if ( JS_GetProperty( cx, self, propName.data(), &jsPropertyValue ) && jsPropertyValue.isObject() )
+        {
+            JS::RootedObject jsProperty( cx, &jsPropertyValue.toObject() );
+            auto pNative = static_cast<T*>(JS_GetInstancePrivate( cx, jsProperty, &T::JsClass, nullptr ));
+            if ( pNative )
+            {
+                pNative->CleanupBeforeDestruction();
+            }
+        }
+    }
 
 private:
-    JsGlobalObject( JSContext* cx, JsContainer &parentContainer, js_panel_window& parentPanel );
+    JsGlobalObject( JSContext* cx, JsContainer &parentContainer );
 
 private:
     JSContext * pJsCtx_ = nullptr;
     JsContainer &parentContainer_;
-    js_panel_window& parentPanel_;
 
 private: // heap
     std::unique_ptr<GlobalHeapManager> heapManager_;

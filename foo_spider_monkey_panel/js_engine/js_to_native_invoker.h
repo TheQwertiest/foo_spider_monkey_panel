@@ -17,11 +17,28 @@
 #include <type_traits>
 #include <vector>
 
+// TODO: ask in IRC how to handle OOM errors and if it it's alright to throw C++ exceptions (remove catch(...) after that)
+
 #define MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT(baseClass, functionName, functionWithOptName, optArgCount) \
     bool functionName( JSContext* cx, unsigned argc, JS::Value* vp )\
     {\
-        bool bRet = \
-            InvokeNativeCallback<optArgCount>( cx, &baseClass::functionName, &baseClass::functionWithOptName, argc, vp );\
+        bool bRet = true;\
+        try\
+        {\
+            bRet = InvokeNativeCallback<optArgCount>( cx, &baseClass::functionName, &baseClass::functionWithOptName, argc, vp );\
+        }\
+        catch ( const std::bad_alloc& )\
+        {\
+            JS_ClearPendingException( cx );\
+            JS_ReportAllocationOverflow(cx);\
+            bRet = false;\
+        }\
+        catch ( ... )\
+        {\
+            JS_ClearPendingException( cx );\
+            JS_ReportErrorUTF8( cx, "Uncaught internal exception" );\
+            bRet = false;\
+        }\
         if (!bRet)\
         {\
             mozjs::RethrowExceptionWithFunctionName(cx, #functionName);\
@@ -35,7 +52,23 @@
 #define MJS_WRAP_JS_TO_NATIVE_FN(functionName, functionImplName) \
     bool functionName( JSContext* cx, unsigned argc, JS::Value* vp )\
     {\
-        bool bRet = functionImplName(cx, argc, vp);\
+        bool bRet = true;\
+        try\
+        {\
+            bRet = functionImplName(cx, argc, vp);\
+        }\
+        catch ( const std::bad_alloc& )\
+        {\
+            JS_ClearPendingException( cx );\
+            JS_ReportAllocationOverflow(cx);\
+            bRet = false;\
+        }\
+        catch ( ... )\
+        {\
+            JS_ClearPendingException( cx );\
+            JS_ReportErrorUTF8( cx, "Uncaught internal exception" );\
+            bRet = false;\
+        }\
         if (!bRet)\
         {\
             mozjs::RethrowExceptionWithFunctionName(cx, #functionName);\

@@ -1,5 +1,4 @@
 # Current
-- Add try-catch's (to all js-to-native wrappers and all the code that might lead back to JS).
 - Add OOM error reporting and handling (both JS and native).
 - Add a header with component name and version to error reporter.
 - Backport all the changes from foo-jscript-panel.

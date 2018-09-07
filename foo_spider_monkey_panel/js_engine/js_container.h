@@ -44,7 +44,7 @@ public:
     bool Initialize();
     void Finalize();
 
-    void Fail();
+    void Fail( const pfc::string8_fast &errorText );
 
     JsStatus GetStatus() const;
 

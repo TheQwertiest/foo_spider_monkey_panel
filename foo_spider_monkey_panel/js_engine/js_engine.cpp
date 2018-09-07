@@ -196,6 +196,15 @@ void JsEngine::MaybeGc()
     PerformGc( gcLevel );
 
     lastTotalHeapSize_ = curTotalHeapSize;
+
+    if ( curTotalHeapSize >= maxHeapSize_ )
+    {
+        FB2K_console_formatter() << "Out of memory error: " SMP_NAME_WITH_VERSION;
+        for ( auto& [hWnd, jsContainer] : registeredContainers_ )
+        {
+            jsContainer.get().Fail( "Out of memory" );
+        }
+    }
 }
 
 uint64_t JsEngine::GetCurrentTotalHeapSize()

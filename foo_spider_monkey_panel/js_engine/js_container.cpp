@@ -116,10 +116,13 @@ void JsContainer::Finalize()
     jsGlobal_.reset();
 }
 
-void JsContainer::Fail()
+void JsContainer::Fail( const pfc::string8_fast &errorText )
 {
     Finalize();
     jsStatus_ = JsStatus::Failed;
+
+    assert( pParentPanel_ );
+    pParentPanel_->JsEngineFail( errorText );
 }
 
 JsContainer::JsStatus JsContainer::GetStatus() const

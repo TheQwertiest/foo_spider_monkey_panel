@@ -86,10 +86,9 @@ namespace mozjs
 
 const JSClass& JsGlobalObject::JsClass = jsClass; 
 
-JsGlobalObject::JsGlobalObject( JSContext* cx, JsContainer &parentContainer, js_panel_window& parentPanel )
+JsGlobalObject::JsGlobalObject( JSContext* cx, JsContainer &parentContainer )
     : pJsCtx_( cx )
     , parentContainer_( parentContainer )
-    , parentPanel_( parentPanel )
 {    
 }
 
@@ -142,10 +141,10 @@ JSObject* JsGlobalObject::CreateNative( JSContext* cx, JsContainer &parentContai
             return nullptr;
         }
 
-        auto pNative = new JsGlobalObject( cx, parentContainer, parentPanel );
+        auto pNative = new JsGlobalObject( cx, parentContainer );
         pNative->heapManager_ = GlobalHeapManager::Create( cx );
         if ( !pNative->heapManager_ )
-        {// report in Create
+        {// reports
             return nullptr;
         }
 
@@ -154,7 +153,7 @@ JSObject* JsGlobalObject::CreateNative( JSContext* cx, JsContainer &parentContai
         // TODO: remove or replace with CreateAndInstall
         JS::RootedObject jsProto( cx, ActiveXObject::InitPrototype( cx, jsObj ) );
         if ( !jsProto )
-        {// report in InitPrototype
+        {// reports
             return nullptr;
         }
         
@@ -167,10 +166,9 @@ JSObject* JsGlobalObject::CreateNative( JSContext* cx, JsContainer &parentContai
     return jsObj;
 }
 
-void JsGlobalObject::Fail( pfc::string8_fast errorText )
+void JsGlobalObject::Fail( const pfc::string8_fast &errorText )
 {
-    parentContainer_.Fail();
-    parentPanel_.JsEngineFail( errorText );
+    parentContainer_.Fail(errorText);    
 }
 
 GlobalHeapManager& JsGlobalObject::GetHeapManager() const
@@ -184,26 +182,8 @@ void JsGlobalObject::CleanupBeforeDestruction( JSContext* cx, JS::HandleObject s
     auto nativeGlobal = static_cast<JsGlobalObject*>(JS_GetInstancePrivate( cx, self, &JsGlobalObject::JsClass, nullptr ));
     assert( nativeGlobal );
 
-    JS::RootedValue jsProperty( cx );
-    if ( JS_GetProperty( cx, self, "window", &jsProperty ) && jsProperty.isObject() )
-    {
-        JS::RootedObject jsWindow( cx, &jsProperty.toObject() );
-        auto nativeWindow = static_cast<JsWindow*>(JS_GetInstancePrivate( cx, jsWindow, &JsWindow::JsClass, nullptr ));
-        if ( nativeWindow )
-        {
-            nativeWindow->CleanupBeforeDestruction();
-        }
-    }
-
-    if ( JS_GetProperty( cx, self, "plman", &jsProperty ) && jsProperty.isObject() )
-    {
-        JS::RootedObject jsWindow( cx, &jsProperty.toObject() );
-        auto nativeWindow = static_cast<JsFbPlaylistManager*>(JS_GetInstancePrivate( cx, jsWindow, &JsFbPlaylistManager::JsClass, nullptr ));
-        if ( nativeWindow )
-        {
-            nativeWindow->CleanupBeforeDestruction();
-        }
-    }
+    CleanupObjectProperty<JsWindow>( cx, self, "window" );
+    CleanupObjectProperty<JsFbPlaylistManager>( cx, self, "plman" );
 
     nativeGlobal->heapManager_.reset();
 }
@@ -213,13 +193,12 @@ JsGlobalObject::IncludeScript( const pfc::string8_fast& path )
 {
     auto retVal = file::ReadFromFile( pJsCtx_, path );
     if ( !retVal )
-    {// report in ReadFromFile;
+    {// reports
         return std::nullopt;
     }
 
-    std::wstring scriptCode = retVal.value();
-
-    const auto filename = [&]
+    const std::wstring scriptCode = retVal.value();
+    const auto filename = [&path]
     {
         namespace fs = std::filesystem;
         pfc::string8_fast tmpPath = path;
@@ -232,7 +211,7 @@ JsGlobalObject::IncludeScript( const pfc::string8_fast& path )
 
     JS::RootedValue dummyRval( pJsCtx_ );
     if ( !JS::Evaluate( pJsCtx_, opts, (char16_t*)scriptCode.c_str(), scriptCode.length(), &dummyRval ) )
-    {// Report in Evaluate
+    {// Reports
         return std::nullopt;
     }
 
