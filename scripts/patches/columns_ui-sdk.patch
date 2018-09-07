@@ -1,0 +1,39 @@
+﻿diff a/columns_ui-sdk/columns_ui-sdk.vcxproj b/columns_ui-sdk/columns_ui-sdk.vcxproj
+--- a/columns_ui-sdk/columns_ui-sdk.vcxproj
++++ b/columns_ui-sdk/columns_ui-sdk.vcxproj
+@@ -92,7 +92,7 @@
+       <Optimization>Disabled</Optimization>
+       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+-      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
++      <RuntimeLibrary>MultiThreadedDebugDll</RuntimeLibrary>
+       <PrecompiledHeader>Use</PrecompiledHeader>
+       <PrecompiledHeaderFile>ui_extension.h</PrecompiledHeaderFile>
+       <WarningLevel>Level3</WarningLevel>
+@@ -116,7 +116,7 @@
+       <Optimization>Disabled</Optimization>
+       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+-      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
++      <RuntimeLibrary>MultiThreadedDebugDll</RuntimeLibrary>
+       <PrecompiledHeader>Use</PrecompiledHeader>
+       <PrecompiledHeaderFile>ui_extension.h</PrecompiledHeaderFile>
+       <WarningLevel>Level3</WarningLevel>
+@@ -147,7 +147,7 @@
+       <AdditionalOptions>/Zc:threadSafeInit- %(AdditionalOptions)</AdditionalOptions>
+       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+       <BufferSecurityCheck>false</BufferSecurityCheck>
+-      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
++      <RuntimeLibrary>MultiThreadedDll</RuntimeLibrary>
+       <ConformanceMode>true</ConformanceMode>
+       <DiagnosticsFormat>Caret</DiagnosticsFormat>
+     </ClCompile>
+@@ -174,7 +174,7 @@
+       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+       <OmitFramePointers>false</OmitFramePointers>
+       <BufferSecurityCheck>false</BufferSecurityCheck>
+-      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
++      <RuntimeLibrary>MultiThreadedDll</RuntimeLibrary>
+       <ConformanceMode>true</ConformanceMode>
+       <DiagnosticsFormat>Caret</DiagnosticsFormat>
+     </ClCompile>

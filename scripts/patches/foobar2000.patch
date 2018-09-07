@@ -1,0 +1,117 @@
+﻿diff a/foobar2000 b/foobar2000
+--- a/foobar2000/ATLHelpers/foobar2000_ATL_helpers.vcxproj
++++ b/foobar2000/ATLHelpers/foobar2000_ATL_helpers.vcxproj
+@@ -83,7 +83,7 @@
+       <PrecompiledHeader>Use</PrecompiledHeader>
+       <WarningLevel>Level3</WarningLevel>
+       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+-      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
++      <RuntimeLibrary>MultiThreadedDebugDll</RuntimeLibrary>
+       <EnableEnhancedInstructionSet>NoExtensions</EnableEnhancedInstructionSet>
+       <AdditionalOptions>/Zc:threadSafeInit- </AdditionalOptions>
+     </ClCompile>
+@@ -97,7 +97,7 @@
+       <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+       <MinimalRebuild>true</MinimalRebuild>
+       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+-      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
++      <RuntimeLibrary>MultiThreadedDebugDll</RuntimeLibrary>
+       <PrecompiledHeader>Use</PrecompiledHeader>
+       <WarningLevel>Level3</WarningLevel>
+       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+--- a/foobar2000/foobar2000_component_client/foobar2000_component_client.vcxproj
++++ b/foobar2000/foobar2000_component_client/foobar2000_component_client.vcxproj
+@@ -87,7 +87,7 @@
+       <WarningLevel>Level3</WarningLevel>
+       <SuppressStartupBanner>true</SuppressStartupBanner>
+       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+-      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
++      <RuntimeLibrary>MultiThreadedDebugDll</RuntimeLibrary>
+       <EnableEnhancedInstructionSet>NoExtensions</EnableEnhancedInstructionSet>
+       <AdditionalOptions>/Zc:threadSafeInit- %(AdditionalOptions)</AdditionalOptions>
+       <DiagnosticsFormat>Caret</DiagnosticsFormat>
+@@ -109,7 +109,7 @@
+       <Optimization>Disabled</Optimization>
+       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+-      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
++      <RuntimeLibrary>MultiThreadedDebugDll</RuntimeLibrary>
+       <PrecompiledHeader>
+       </PrecompiledHeader>
+       <WarningLevel>Level3</WarningLevel>
+@@ -136,7 +136,7 @@
+       <EnableEnhancedInstructionSet>NoExtensions</EnableEnhancedInstructionSet>
+       <AdditionalOptions>/Zc:threadSafeInit- %(AdditionalOptions)</AdditionalOptions>
+       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+-      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
++      <RuntimeLibrary>MultiThreadedDll</RuntimeLibrary>
+       <DiagnosticsFormat>Caret</DiagnosticsFormat>
+     </ClCompile>
+     <ResourceCompile>
+@@ -161,7 +161,7 @@
+       <OmitFramePointers>false</OmitFramePointers>
+       <EnableEnhancedInstructionSet>NoExtensions</EnableEnhancedInstructionSet>
+       <BufferSecurityCheck>false</BufferSecurityCheck>
+-      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
++      <RuntimeLibrary>MultiThreadedDll</RuntimeLibrary>
+       <DiagnosticsFormat>Caret</DiagnosticsFormat>
+     </ClCompile>
+     <ResourceCompile>
+--- a/foobar2000/helpers/foobar2000_sdk_helpers.vcxproj
++++ b/foobar2000/helpers/foobar2000_sdk_helpers.vcxproj
+@@ -91,7 +91,7 @@
+       <AdditionalOptions>/Zc:threadSafeInit- %(AdditionalOptions)</AdditionalOptions>
+       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+       <AdditionalIncludeDirectories>../..</AdditionalIncludeDirectories>
+-      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
++      <RuntimeLibrary>MultiThreadedDll</RuntimeLibrary>
+       <DiagnosticsFormat>Caret</DiagnosticsFormat>
+     </ClCompile>
+     <ResourceCompile>
+@@ -119,7 +119,7 @@
+       <EnableEnhancedInstructionSet>NoExtensions</EnableEnhancedInstructionSet>
+       <BufferSecurityCheck>false</BufferSecurityCheck>
+       <AdditionalIncludeDirectories>../..</AdditionalIncludeDirectories>
+-      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
++      <RuntimeLibrary>MultiThreadedDll</RuntimeLibrary>
+       <DiagnosticsFormat>Caret</DiagnosticsFormat>
+     </ClCompile>
+     <ResourceCompile>
+--- a/foobar2000/SDK/foobar2000_SDK.vcxproj
++++ b/foobar2000/SDK/foobar2000_SDK.vcxproj
+@@ -87,7 +87,7 @@
+       <WarningLevel>Level3</WarningLevel>
+       <SuppressStartupBanner>true</SuppressStartupBanner>
+       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+-      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
++      <RuntimeLibrary>MultiThreadedDebugDll</RuntimeLibrary>
+       <EnableEnhancedInstructionSet>NoExtensions</EnableEnhancedInstructionSet>
+       <AdditionalOptions>/Zc:threadSafeInit- %(AdditionalOptions)</AdditionalOptions>
+       <DiagnosticsFormat>Caret</DiagnosticsFormat>
+@@ -109,7 +109,7 @@
+       <Optimization>Disabled</Optimization>
+       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+-      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
++      <RuntimeLibrary>MultiThreadedDebugDll</RuntimeLibrary>
+       <PrecompiledHeader>Use</PrecompiledHeader>
+       <PrecompiledHeaderFile>foobar2000.h</PrecompiledHeaderFile>
+       <WarningLevel>Level3</WarningLevel>
+@@ -138,7 +138,7 @@
+       <EnableEnhancedInstructionSet>NoExtensions</EnableEnhancedInstructionSet>
+       <AdditionalOptions>/Zc:threadSafeInit- %(AdditionalOptions)</AdditionalOptions>
+       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+-      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
++      <RuntimeLibrary>MultiThreadedDll</RuntimeLibrary>
+       <DiagnosticsFormat>Caret</DiagnosticsFormat>
+     </ClCompile>
+     <ResourceCompile>
+@@ -164,7 +164,7 @@
+       <EnableEnhancedInstructionSet>NoExtensions</EnableEnhancedInstructionSet>
+       <AdditionalOptions>/Zc:threadSafeInit- %(AdditionalOptions)</AdditionalOptions>
+       <BufferSecurityCheck>false</BufferSecurityCheck>
+-      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
++      <RuntimeLibrary>MultiThreadedDll</RuntimeLibrary>
+       <DiagnosticsFormat>Caret</DiagnosticsFormat>
+     </ClCompile>
+     <ResourceCompile>
