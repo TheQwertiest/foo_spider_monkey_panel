@@ -1,10 +1,8 @@
 # Current
-- Add array conversion support in ActiveXObject.
 - Add try-catch's (to all js-to-native wrappers and all the code that might lead back to JS).
 - Add OOM error reporting and handling (both JS and native).
 - Add a header with component name and version to error reporter.
 - Backport all the changes from foo-jscript-panel.
-- Create patches for pfc, columns-ui and fb2k sdk (combine with gitmodules fetch?).
 - Complete rebranding to spider_monkey_panel (including folders).
 - Add script for fb2k-component archive creation.
 - Check and fix all the samples.
@@ -12,6 +10,7 @@
 - Fix unresponsive arrow keys in DUI in CaTRoX: https://github.com/TheQwertiest/foo-jscript-panel/commit/8a41c524a9c3c16c466204fde81c5c108975310b#commitcomment-29727611.
 
 # Prerelease-Test
+- Test array conversion support in ActiveXObject.
 - Test `include` with various codepages (esp. JP,KR,CH).
 - Test methods that uses path with arguments containing cyrillics and other exotic characters.
 - Check utf8 literals everywhere (paths, script window, script files, properties, callback arguments)
