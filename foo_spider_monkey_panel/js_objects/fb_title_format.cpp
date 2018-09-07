@@ -151,8 +151,7 @@ JsFbTitleFormat::EvalWithMetadbs( JsFbMetadbHandleList* handles )
 
     JS::RootedObject evalResult( pJsCtx_, JS_NewArrayObject( pJsCtx_, count ) );
     if ( !evalResult )
-    {
-        JS_ReportOutOfMemory( pJsCtx_ );
+    {// reports
         return std::nullopt;
     }
 

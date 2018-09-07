@@ -486,8 +486,7 @@ JsGdiGraphics::EstimateLineWrap( const std::wstring& str, JsGdiFont* font, uint3
 
     JS::RootedObject jsArray( pJsCtx_, JS_NewArrayObject( pJsCtx_, result.get_count() * 2 ) );
     if ( !jsArray )
-    {
-        JS_ReportOutOfMemory( pJsCtx_ );
+    {// reports
         return std::nullopt;
     }
 

@@ -294,8 +294,7 @@ JsUtils::FileTest( const std::wstring& path, const std::wstring& mode )
 
         JS::RootedObject jsArray( pJsCtx_, JS_NewArrayObject( pJsCtx_, _countof( out ) ) );
         if ( !jsArray )
-        {
-            JS_ReportOutOfMemory( pJsCtx_ );
+        {// reports
             return std::nullopt;
         }
 
@@ -522,8 +521,7 @@ JsUtils::Glob( const pfc::string8_fast& pattern, uint32_t exc_mask, uint32_t inc
 
     JS::RootedObject evalResult( pJsCtx_, JS_NewArrayObject( pJsCtx_, files.get_count() ) );
     if ( !evalResult )
-    {
-        JS_ReportOutOfMemory( pJsCtx_ );
+    {// reports
         return std::nullopt;
     }
 

@@ -315,8 +315,7 @@ JsGdiBitmap::GetColourScheme( uint32_t count )
 
     JS::RootedObject jsArray( pJsCtx_, JS_NewArrayObject( pJsCtx_, count ) );
     if ( !jsArray )
-    {
-        JS_ReportOutOfMemory( pJsCtx_ );
+    {// reports
         return std::nullopt;
     }
 
