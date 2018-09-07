@@ -1,3 +1,7 @@
+v2.1.7.1
+- FIX: Images loaded by gdi.LoadImageAsync are no longer locked by the process.
+- FIX: Correctly bump utils.Version - it wasn't updated in v2.1.7.
+
 v2.1.7
 - NEW: Add FbMetadbHandleList AttachImage / RemoveAttachedImage methods.
        See docs\interfaces.txt. There are some limitations!!
