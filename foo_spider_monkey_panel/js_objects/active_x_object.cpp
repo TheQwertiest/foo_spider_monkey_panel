@@ -422,7 +422,7 @@ ActiveXObject::~ActiveXObject()
     CoFreeUnusedLibraries();
 }
 
-JSObject* ActiveXObject::InitPrototype( JSContext *cx, JS::HandleObject parentObject )
+JSObject* ActiveXObject::InstallProto( JSContext *cx, JS::HandleObject parentObject )
 {
     return JS_InitClass( cx, parentObject, nullptr, &jsClass,
                          ActiveX_Constructor, 0,

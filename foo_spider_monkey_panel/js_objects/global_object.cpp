@@ -151,15 +151,10 @@ JSObject* JsGlobalObject::CreateNative( JSContext* cx, JsContainer &parentContai
 
         JS_SetPrivate( jsObj, pNative );
 
-        // TODO: remove or replace with CreateAndInstall
-        JS::RootedObject jsProto( cx, ActiveXObject::InitPrototype( cx, jsObj ) );
-        if ( !jsProto )
+        if ( !CreateAndInstallPrototype<ActiveXObject>( cx, JsPrototypeId::ActiveX ) )
         {// reports
             return nullptr;
-        }
-        
-        JS::Value protoVal = JS::ObjectValue( *jsProto );
-        JS_SetReservedSlot( jsObj, JSCLASS_GLOBAL_SLOT_COUNT + static_cast<uint32_t>(JsPrototypeId::ActiveX), protoVal );        
+        }     
 
         JS_FireOnNewGlobalObject( cx, jsObj );
     }

@@ -5,6 +5,9 @@
 namespace mozjs
 {
 
+/// @brief Create a prototype for the specified object 
+///        and store it in the current global object.
+///        Created prototype is not accessible from JS.
 template<typename JsObjectType>
 bool CreateAndSavePrototype( JSContext* cx, JsPrototypeId protoId )
 {
@@ -16,7 +19,7 @@ bool CreateAndSavePrototype( JSContext* cx, JsPrototypeId protoId )
 
     JS::RootedObject jsProto( cx, JsObjectType::CreateProto(cx) );
     if ( !jsProto )
-    {// report in CreateProto
+    {// reports
         return false;
     }
 
@@ -26,6 +29,9 @@ bool CreateAndSavePrototype( JSContext* cx, JsPrototypeId protoId )
     return true;
 }
 
+/// @brief Create a prototype for the specified object 
+///        and store it in the current global object.
+///        Created prototype is accessible from JS.
 template<typename JsObjectType>
 bool CreateAndInstallPrototype( JSContext* cx, JsPrototypeId protoId )
 {
@@ -37,7 +43,7 @@ bool CreateAndInstallPrototype( JSContext* cx, JsPrototypeId protoId )
 
     JS::RootedObject jsProto( cx, JsObjectType::InstallProto( cx, globalObject ) );
     if ( !jsProto )
-    {// report in InstallProto
+    {// reports
         return false;
     }
 
@@ -47,6 +53,7 @@ bool CreateAndInstallPrototype( JSContext* cx, JsPrototypeId protoId )
     return true;
 }
 
+/// @brief Get the prototype for the specified object from the current global object.
 template<typename JsObjectType>
 JSObject* GetPrototype( JSContext* cx, JsPrototypeId protoId )
 {
@@ -66,6 +73,8 @@ JSObject* GetPrototype( JSContext* cx, JsPrototypeId protoId )
     return &valRef.toObject();
 }
 
+/// @brief Get the prototype for the specified object from the current global object.
+///        And create the prototype, if it's missing.
 template<typename JsObjectType>
 JSObject* GetOrCreatePrototype( JSContext* cx, JsPrototypeId protoId )
 {
