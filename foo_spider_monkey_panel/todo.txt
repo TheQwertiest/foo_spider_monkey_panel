@@ -1,5 +1,4 @@
 # Current
-- Add OOM error reporting and handling (both JS and native).
 - Add a header with component name and version to error reporter.
 - Backport all the changes from foo-jscript-panel.
 - Complete rebranding to spider_monkey_panel (including folders).

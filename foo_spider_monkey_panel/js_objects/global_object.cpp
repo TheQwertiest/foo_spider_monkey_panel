@@ -96,6 +96,7 @@ JsGlobalObject::~JsGlobalObject()
 {// No need to cleanup JS here, since it must be performed manually beforehand anyway
 }
 
+// TODO: remove js_panel_window from ctor (add a method to JsContainer instead)
 JSObject* JsGlobalObject::CreateNative( JSContext* cx, JsContainer &parentContainer, js_panel_window& parentPanel )
 {
     if ( !jsOps.trace )
