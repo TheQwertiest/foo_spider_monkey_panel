@@ -48,7 +48,7 @@ MJS_DEFINE_JS_TO_NATIVE_FN( JsWindow, ClearTimeout )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsWindow, CreatePopupMenu )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsWindow, CreateThemeManager )
 MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsWindow, CreateTooltip, CreateTooltipWithOpt, 3 )
-MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsWindow, DefinePanel, DefinePanelWithOpt, 2 )
+MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsWindow, DefinePanel, DefinePanelWithOpt, 1 )
 MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsWindow, GetColourCUI, GetColourCUIWithOpt, 1 )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsWindow, GetColourDUI )
 MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsWindow, GetFontCUI, GetFontCUIWithOpt, 1 )
@@ -261,80 +261,154 @@ JsWindow::CreateTooltipWithOpt( size_t optArgCount, const std::wstring& name, fl
 }
 
 std::optional<std::nullptr_t> 
-JsWindow::DefinePanel( const pfc::string8_fast& name, const pfc::string8_fast& author, JS::HandleValue options )
-{// TODO: add version
+JsWindow::DefinePanel( const pfc::string8_fast& name, JS::HandleValue options )
+{// TODO: clean up this mess
     if ( isPanelDefined_ )
     {
         JS_ReportErrorUTF8( pJsCtx_, "DefinePanel can't be called twice" );
         return std::nullopt;
     }
 
-    if ( !options.isNullOrUndefined() )
+    struct Options
     {
-        if ( !options.isObject() )
+        pfc::string8_fast author;
+        pfc::string8_fast version;
+        struct Features
         {
-            JS_ReportErrorUTF8( pJsCtx_, "options argument is not an object" );
-            return std::nullopt;
-        }
+            bool drag_n_drop = false;
+        } features;
+    };
 
-        JS::RootedObject jsObject( pJsCtx_, &options.toObject() );
-        bool hasProp;
-        if ( !JS_HasProperty( pJsCtx_, jsObject, "drag_n_drop", &hasProp ) )
-        {// report in JS_HasProperty
-            return std::nullopt;            
-        }
-
-        if ( hasProp )
+    Options parsed_options;
+    {
+        if ( !options.isNullOrUndefined() )
         {
-            JS::RootedValue jsValue( pJsCtx_ );
-            if ( !JS_GetProperty( pJsCtx_, jsObject, "drag_n_drop", &jsValue ) )
-            {// report in JS_GetProperty
+            if ( !options.isObject() )
+            {
+                JS_ReportErrorUTF8( pJsCtx_, "options argument is not an object" );
                 return std::nullopt;
             }
 
-            auto retVal = convert::to_native::ToValue<bool>( pJsCtx_, jsValue );
-            if ( !retVal )
-            {
-                JS_ReportErrorUTF8( pJsCtx_, "`drag_n_drop` can't be converted to boolean" );
+            JS::RootedObject jsOptions( pJsCtx_, &options.toObject() );
+
+            bool hasProp;
+            if ( !JS_HasProperty( pJsCtx_, jsOptions, "author", &hasProp ) )
+            {// reports
                 return std::nullopt;
             }
 
-            if ( retVal.value() )
+            if ( hasProp )
             {
-                dropTargetHandler_.Attach( new com_object_impl_t<HostDropTarget>( parentPanel_.GetHWND() ) );
-                
-                HRESULT hr = dropTargetHandler_->RegisterDragDrop();
-                IF_HR_FAILED_RETURN_WITH_REPORT( pJsCtx_, hr, std::nullopt, RegisterDragDrop );
+                JS::RootedValue jsValue( pJsCtx_ );
+                if ( !JS_GetProperty( pJsCtx_, jsOptions, "author", &jsValue ) )
+                {// reports
+                    return std::nullopt;
+                }
+
+                auto retVal = convert::to_native::ToValue<pfc::string8_fast>( pJsCtx_, jsValue );
+                if ( !retVal )
+                {
+                    JS_ReportErrorUTF8( pJsCtx_, "Failed to parse `author`" );
+                    return std::nullopt;
+                }
+
+                parsed_options.author = retVal.value();
             }
+
+            if ( !JS_HasProperty( pJsCtx_, jsOptions, "version", &hasProp ) )
+            {// reports
+                return std::nullopt;
+            }
+
+            if ( hasProp )
+            {
+                JS::RootedValue jsValue( pJsCtx_ );
+                if ( !JS_GetProperty( pJsCtx_, jsOptions, "version", &jsValue ) )
+                {// reports
+                    return std::nullopt;
+                }
+
+                auto retVal = convert::to_native::ToValue<pfc::string8_fast>( pJsCtx_, jsValue );
+                if ( !retVal )
+                {
+                    JS_ReportErrorUTF8( pJsCtx_, "Failed to parse `version`" );
+                    return std::nullopt;
+                }
+
+                parsed_options.version = retVal.value();
+            }
+
+            if ( !JS_HasProperty( pJsCtx_, jsOptions, "features", &hasProp ) )
+            {// reports
+                return std::nullopt;
+            }
+
+            if ( hasProp )
+            {
+                if ( !options.isObject() )
+                {
+                    JS_ReportErrorUTF8( pJsCtx_, "features is not an object" );
+                    return std::nullopt;
+                }
+
+                JS::RootedObject jsFeatures( pJsCtx_, &options.toObject() );
+
+                if ( !JS_HasProperty( pJsCtx_, jsFeatures, "drag_n_drop", &hasProp ) )
+                {// reports
+                    return std::nullopt;
+                }
+
+                if ( hasProp )
+                {
+                    JS::RootedValue jsValue( pJsCtx_ );
+                    if ( !JS_GetProperty( pJsCtx_, jsFeatures, "drag_n_drop", &jsValue ) )
+                    {// report in JS_GetProperty
+                        return std::nullopt;
+                    }
+
+                    auto retVal = convert::to_native::ToValue<bool>( pJsCtx_, jsValue );
+                    if ( !retVal )
+                    {
+                        JS_ReportErrorUTF8( pJsCtx_, "`drag_n_drop` can't be converted to boolean" );
+                        return std::nullopt;
+                    }
+
+                    parsed_options.features.drag_n_drop = retVal.value();
+                }
+            }            
         }
     }
 
     parentPanel_.ScriptInfo().name = name;
-    parentPanel_.ScriptInfo().author = author;
+    parentPanel_.ScriptInfo().author = parsed_options.author;
+    parentPanel_.ScriptInfo().version = parsed_options.version;
+    if ( parsed_options.features.drag_n_drop )
+    {
+        dropTargetHandler_.Attach( new com_object_impl_t<HostDropTarget>( parentPanel_.GetHWND() ) );
+
+        HRESULT hr = dropTargetHandler_->RegisterDragDrop();
+        IF_HR_FAILED_RETURN_WITH_REPORT( pJsCtx_, hr, std::nullopt, RegisterDragDrop );
+    }
 
     isPanelDefined_ = true;
     return nullptr;
 }
 
 std::optional<std::nullptr_t> 
-JsWindow::DefinePanelWithOpt( size_t optArgCount, const pfc::string8_fast& name, const pfc::string8_fast& author, JS::HandleValue options )
+JsWindow::DefinePanelWithOpt( size_t optArgCount, const pfc::string8_fast& name, JS::HandleValue options )
 {
-    if ( optArgCount > 2 )
+    if ( optArgCount > 1 )
     {
         JS_ReportErrorUTF8( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
         return std::nullopt;
     }
 
-    if ( optArgCount == 2 )
+    if ( optArgCount == 1 )
     {
         return DefinePanel( name );
     }
-    else if ( optArgCount == 1 )
-    {
-        return DefinePanel( name, author );
-    }
 
-    return DefinePanel( name, author, options );
+    return DefinePanel( name, options );
 }
 
 std::optional<uint32_t>

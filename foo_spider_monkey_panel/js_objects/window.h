@@ -50,8 +50,8 @@ public: // methods
     std::optional<JSObject*> CreateThemeManager( const std::wstring& classid );
     std::optional<JSObject*> CreateTooltip( const std::wstring& name = L"Segoe UI", float pxSize = 12, uint32_t style = 0 );
     std::optional<JSObject*> CreateTooltipWithOpt( size_t optArgCount, const std::wstring& name, float pxSize, uint32_t style );
-    std::optional<std::nullptr_t> DefinePanel( const pfc::string8_fast& name, const pfc::string8_fast& author = "", JS::HandleValue options = JS::UndefinedHandleValue );
-    std::optional<std::nullptr_t> DefinePanelWithOpt( size_t optArgCount, const pfc::string8_fast& name, const pfc::string8_fast& author = "", JS::HandleValue options = JS::UndefinedHandleValue );
+    std::optional<std::nullptr_t> DefinePanel( const pfc::string8_fast& name, JS::HandleValue options = JS::UndefinedHandleValue );
+    std::optional<std::nullptr_t> DefinePanelWithOpt( size_t optArgCount, const pfc::string8_fast& name, JS::HandleValue options = JS::UndefinedHandleValue );
     std::optional<uint32_t> GetColourCUI( uint32_t type, const std::wstring& guidstr = L"" );
     std::optional<uint32_t> GetColourCUIWithOpt( size_t optArgCount, uint32_t type, const std::wstring& guidstr );
     std::optional<uint32_t> GetColourDUI( uint32_t type );
