@@ -128,7 +128,7 @@ void CDialogConf::OnImport()
 {
 	pfc::string8 filename;
 
-	if (uGetOpenFileName(m_hWnd, "Text files|*.txt|JScript files|*.js|All files|*.*", 0, "txt", "Import from", nullptr, filename, FALSE))
+	if (uGetOpenFileName(m_hWnd, "Text files|*.txt|JavaScript files|*.js|All files|*.*", 0, "txt", "Import from", nullptr, filename, FALSE))
 	{
 		// Open file
 		pfc::string8_fast text;

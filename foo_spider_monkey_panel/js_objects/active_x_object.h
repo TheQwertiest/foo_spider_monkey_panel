@@ -42,7 +42,7 @@ public:
     ActiveXObject( const ActiveXObject& ) = delete;
     ActiveXObject& operator=( const ActiveXObject& ) = delete;
 
-    static JSObject* InitPrototype( JSContext *cx, JS::HandleObject parentObject );
+    static JSObject* InstallProto( JSContext *cx, JS::HandleObject parentObject );
     static std::unique_ptr<ActiveXObject> CreateNative( JSContext* cx, const std::wstring& name );
     static size_t GetInternalSize( const std::wstring& name );
     static bool PostCreate( JSContext* cx, JS::HandleObject self );

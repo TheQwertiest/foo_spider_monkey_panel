@@ -81,7 +81,7 @@ GUID js_panel_window_dui::g_get_subclass()
 
 pfc::string8 js_panel_window_dui::g_get_description()
 {
-	return "Customisable panel with JScript scripting support.";
+	return "Customizable panel with JavaScript support.";
 }
 
 ui_element_config::ptr js_panel_window_dui::g_get_default_configuration()
