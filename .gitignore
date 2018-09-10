@@ -17,9 +17,9 @@ mozjs
 *.userprefs
 
 # Build results
-foo_jscript_panel/foo_jscript_panel.dll
-*.idl
 _result
+*.fb2k-component
+*.idl
 [Dd]ebug/
 [Dd]ebugPublic/
 [Rr]elease/
