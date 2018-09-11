@@ -146,7 +146,7 @@ JsFbFileInfo::MetaFind( const pfc::string8_fast& name )
 std::optional<pfc::string8_fast> 
 JsFbFileInfo::MetaName( uint32_t index )
 {
-    if ( index >= fileInfo_->info_get_count() )
+    if ( index >= fileInfo_->meta_get_count() )
     {
         JS_ReportErrorUTF8( pJsCtx_, "Index is out of bounds" );
         return std::nullopt;
@@ -158,7 +158,7 @@ JsFbFileInfo::MetaName( uint32_t index )
 std::optional<pfc::string8_fast> 
 JsFbFileInfo::MetaValue( uint32_t infoIndex, uint32_t valueIndex )
 {
-    if ( infoIndex >= fileInfo_->info_get_count()
+    if ( infoIndex >= fileInfo_->meta_get_count()
          || valueIndex >= fileInfo_->meta_enum_value_count( infoIndex ) )
     {
         JS_ReportErrorUTF8( pJsCtx_, "Index is out of bounds" );
@@ -171,7 +171,7 @@ JsFbFileInfo::MetaValue( uint32_t infoIndex, uint32_t valueIndex )
 std::optional<uint32_t> 
 JsFbFileInfo::MetaValueCount( uint32_t index )
 {
-    if ( index >= fileInfo_->info_get_count() )
+    if ( index >= fileInfo_->meta_get_count() )
     {
         JS_ReportErrorUTF8( pJsCtx_, "Index is out of bounds" );
         return std::nullopt;
