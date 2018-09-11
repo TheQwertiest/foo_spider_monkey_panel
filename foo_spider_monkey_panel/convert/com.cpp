@@ -83,7 +83,8 @@ protected:
         needsCleanup_ = false;
     }
 
-    STDMETHODIMP ExecuteValue( VARIANT arg, VARIANT* pResult )
+    STDMETHODIMP ExecuteValue( VARIANT arg1, VARIANT arg2, VARIANT arg3, VARIANT arg4, VARIANT arg5, VARIANT arg6, VARIANT arg7,
+                               VARIANT* pResult )
     {// TODO: add more arguments
         if ( !pResult )
         {
@@ -101,11 +102,15 @@ protected:
 
         JS::RootedValue vFunc( pJsCtx_, heapMgr.Get( funcId_ ) );
         JS::RootedFunction rFunc( pJsCtx_, JS_ValueToFunction( pJsCtx_, vFunc ) );
-        JS::AutoValueArray<1> wrappedArgs( pJsCtx_ );
-        if ( !convert::com::VariantToJs( pJsCtx_, arg, wrappedArgs[0] ) )
+        std::array<VARIANT*, 7> args = { &arg1, &arg2, &arg3, &arg4, &arg5, &arg6, &arg7 };
+        JS::AutoValueArray<args.size()> wrappedArgs( pJsCtx_ );
+        for ( size_t i = 0; i < args.size(); ++i )
         {
-            JS_ClearPendingException( pJsCtx_ ); ///< can't forward exceptions inside ActiveXObject objects (see reasons above)...
-            return E_FAIL;
+            if ( !convert::com::VariantToJs( pJsCtx_, *args[i], wrappedArgs[i] ) )
+            {
+                JS_ClearPendingException( pJsCtx_ ); ///< can't forward exceptions inside ActiveXObject objects (see reasons above)...
+                return E_FAIL;
+            }
         }
 
         JS::RootedValue retVal( pJsCtx_ );
@@ -376,6 +381,14 @@ bool VariantToJs( JSContext* cx, VARIANTARG& var, JS::MutableHandleValue rval )
             rval.setObjectOrNull( jsObject );
             break;
         }
+        case VT_ARRAY | VT_VARIANT:
+        {
+            if ( !COMArrayToJSArray( cx, var, rval ) )
+            {
+                return false;
+            }
+            break;
+        }
         case VT_VARIANT: //traverse the indirection list?
             if ( ref )
             {
@@ -385,8 +398,7 @@ bool VariantToJs( JSContext* cx, VARIANTARG& var, JS::MutableHandleValue rval )
                     return VariantToJs( cx, *v, rval );
                 }
             }
-            break;
-
+            break;        
         default:
             if ( type <= VT_CLSID )
             {
