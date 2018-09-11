@@ -680,10 +680,10 @@ JsUtils::WriteTextFileWithOpt( size_t optArgCount, const pfc::string8_fast& file
     return WriteTextFile( filename, content, write_bom );
 }
 
-std::optional<uint32_t>
+std::optional<pfc::string8_fast>
 JsUtils::get_Version()
 {
-    return SMP_VERSION_MAJOR * 100 + SMP_VERSION_MINOR * 10 + SMP_VERSION_PATCH;
+    return SMP_VERSION;
 }
 
 }

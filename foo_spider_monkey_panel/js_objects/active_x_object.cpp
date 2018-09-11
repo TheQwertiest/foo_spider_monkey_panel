@@ -415,7 +415,6 @@ ActiveXObject::ActiveXObject( JSContext* cx, IUnknown* pUnknown, bool addref )
     HRESULT hresult = pUnknown_->QueryInterface( IID_IDispatch, (void * *)&pDispatch_ );
     if ( !SUCCEEDED( hresult ) )
     {
-        IID_IEnumVARIANT
         pDispatch_ = nullptr;
         return;
     }

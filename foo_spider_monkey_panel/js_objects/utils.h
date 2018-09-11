@@ -64,7 +64,7 @@ public:
     std::optional<bool> WriteTextFileWithOpt( size_t optArgCount, const pfc::string8_fast& filename, const pfc::string8_fast& content, bool write_bom );
     
 public:    
-    std::optional<uint32_t> get_Version();
+    std::optional<pfc::string8_fast> get_Version();
 
 private:
     JsUtils( JSContext* cx );
