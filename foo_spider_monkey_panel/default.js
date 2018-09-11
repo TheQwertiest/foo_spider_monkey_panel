@@ -74,11 +74,11 @@ function get_colours() {
 }
 
 function get_version_string() {
-	var tmp = utils.Version.toString().split("");
+	var tmp = utils.Version.toString();
     if (tmp.length <= 2) {
         tmp = "0" + tmp;
     }    
-	return "Spider Monkey Panel v" + tmp.join(".") + ".";
+    return "Spider Monkey Panel v" + tmp.split("").join(".") + ".";
 }
 
 function on_size() {
