@@ -42,7 +42,7 @@ public: // methods
     std::optional<std::nullptr_t> IncludeScript( const pfc::string8_fast& path );
     
     template <typename T>
-    static void CleanupObjectProperty( JSContext* cx, JS::HandleObject self, std::string_view propName )
+    static void CleanupObjectProperty( JSContext* cx, JS::HandleObject self, const std::string& propName )
     {
         JS::RootedValue jsPropertyValue( cx );
         if ( JS_GetProperty( cx, self, propName.data(), &jsPropertyValue ) && jsPropertyValue.isObject() )
