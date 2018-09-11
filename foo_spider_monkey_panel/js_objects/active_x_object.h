@@ -59,7 +59,9 @@ public:
     std::vector<std::wstring> GetAllMembers();
 
     bool Get( const std::wstring& propName, JS::MutableHandleValue vp );
+    bool Get( JS::CallArgs& args );
     bool Set( const std::wstring& propName, JS::HandleValue v );
+    bool Set( const JS::CallArgs& args );
     bool Invoke( const std::wstring& funcName, const JS::CallArgs& args );
 
 private:

@@ -27,7 +27,7 @@
 #include <vector>
 #include <string>
 
-// TODO: add VT_ARRAY <> JSArray and VT_DISPATCH <> JSFunction support
+// TODO: cleanup the code
 
 #ifndef DISPID_PROPERTYPUT
 #   define DISPID_PROPERTYPUT (-3)
@@ -281,10 +281,70 @@ bool ActiveX_Run_Impl( JSContext* cx, unsigned argc, JS::Value* vp )
     return pNative->Invoke( retVal.value(), args );
 }
 
+
+bool ActiveX_Get_Impl( JSContext* cx, unsigned argc, JS::Value* vp )
+{
+    JS::CallArgs args = JS::CallArgsFromVp( argc, vp );
+    JS::RootedValue jsThis( cx, args.thisv() );
+
+    JS::RootedObject jsObject( cx );
+    if ( jsThis.isObject() )
+    {
+        if ( js::IsProxy( &jsThis.toObject() ) )
+        {
+            jsObject.set( js::GetProxyTargetObject( &jsThis.toObject() ) );
+        }
+        else
+        {
+            jsObject.set( &jsThis.toObject() );
+        }
+    }
+    auto pNative = static_cast<ActiveXObject*>(JS_GetInstancePrivate( cx, jsObject, &ActiveXObject::JsClass, nullptr ));
+    if ( !pNative )
+    {
+        JS_ReportErrorUTF8( cx, "`this` is not an object of valid type" );
+        return false;
+    }
+
+    return pNative->Get( args );
+}
+
+
+bool ActiveX_Set_Impl( JSContext* cx, unsigned argc, JS::Value* vp )
+{
+    JS::CallArgs args = JS::CallArgsFromVp( argc, vp );
+    JS::RootedValue jsThis( cx, args.thisv() );
+
+    JS::RootedObject jsObject( cx );
+    if ( jsThis.isObject() )
+    {
+        if ( js::IsProxy( &jsThis.toObject() ) )
+        {
+            jsObject.set( js::GetProxyTargetObject( &jsThis.toObject() ) );
+        }
+        else
+        {
+            jsObject.set( &jsThis.toObject() );
+        }
+    }
+    auto pNative = static_cast<ActiveXObject*>(JS_GetInstancePrivate( cx, jsObject, &ActiveXObject::JsClass, nullptr ));
+    if ( !pNative )
+    {
+        JS_ReportErrorUTF8( cx, "`this` is not an object of valid type" );
+        return false;
+    }
+
+    return pNative->Set( args );
+}
+
 MJS_WRAP_JS_TO_NATIVE_FN( ActiveX_Constructor, ActiveX_Constructor_Impl )
 MJS_WRAP_JS_TO_NATIVE_FN( ActiveX_Run, ActiveX_Run_Impl )
+MJS_WRAP_JS_TO_NATIVE_FN( ActiveX_Get, ActiveX_Get_Impl )
+MJS_WRAP_JS_TO_NATIVE_FN( ActiveX_Set, ActiveX_Set_Impl )
 
 const JSFunctionSpec jsFunctions[] = {
+    JS_FN( "ActiveX_Get", ActiveX_Get, 1, DefaultPropsFlags() ),
+    JS_FN( "ActiveX_Set", ActiveX_Set, 1, DefaultPropsFlags() ),
     JS_FS_END
 };
 
@@ -355,6 +415,7 @@ ActiveXObject::ActiveXObject( JSContext* cx, IUnknown* pUnknown, bool addref )
     HRESULT hresult = pUnknown_->QueryInterface( IID_IDispatch, (void * *)&pDispatch_ );
     if ( !SUCCEEDED( hresult ) )
     {
+        IID_IEnumVARIANT
         pDispatch_ = nullptr;
         return;
     }
@@ -424,9 +485,10 @@ ActiveXObject::~ActiveXObject()
 
 JSObject* ActiveXObject::InstallProto( JSContext *cx, JS::HandleObject parentObject )
 {
+    // TODO: move to ObjectBase
     return JS_InitClass( cx, parentObject, nullptr, &jsClass,
                          ActiveX_Constructor, 0,
-                         nullptr, nullptr, nullptr, nullptr );
+                         nullptr, jsFunctions, nullptr, nullptr );
 }
 
 std::unique_ptr<ActiveXObject> ActiveXObject::CreateNative( JSContext* cx, const std::wstring& name )
@@ -603,6 +665,92 @@ bool ActiveXObject::Get( const std::wstring& propName, JS::MutableHandleValue vp
     return true;
 }
 
+bool ActiveXObject::Get( JS::CallArgs& callArgs )
+{
+    if ( !pDispatch_ )
+    {
+        return false;
+    }
+
+    if ( !callArgs.length() )
+    {
+        JS_ReportErrorUTF8( pJsCtx_, "Property name is missing" );
+        return false;
+    }
+
+    auto propNameRetVal = convert::to_native::ToValue<std::wstring>( pJsCtx_, callArgs[0] );
+    if ( !propNameRetVal )
+    {
+        JS_ReportErrorUTF8( pJsCtx_, "Property name argument is not a string" );
+        return false;
+    }
+
+    const std::wstring propName = propNameRetVal.value();
+
+    auto dispRet = GetDispId( propName );
+    if ( !dispRet )
+    {
+        pfc::string8_fast tmpStr = pfc::stringcvt::string_utf8_from_wide( propName.c_str() );
+        JS_ReportErrorUTF8( pJsCtx_, "Invalid property name: %s", tmpStr.c_str() );
+        return false;
+    }
+
+    uint32_t argc = callArgs.length() - 1;
+    VARIANT VarResult;
+    std::unique_ptr<VARIANTARG[]> args;
+    DISPPARAMS dispparams = { nullptr,nullptr,0,0 };
+
+    EXCEPINFO exception = { 0 };
+    UINT argerr = 0;
+
+    if ( argc )
+    {
+        args.reset( new VARIANTARG[argc] );
+        dispparams.rgvarg = args.get();
+        dispparams.cArgs = argc;
+        for ( size_t i = 0; i < argc; i++ )
+        {
+            if ( !convert::com::JsToVariant( pJsCtx_, callArgs[1 + i], args[argc - i - 1] ) )
+            {
+                args[argc - i - 1].vt = VT_ERROR;
+                args[argc - i - 1].scode = 0;
+            }
+        }
+    }
+
+    VariantInit( &VarResult );
+
+    // don't use DispInvoke, because we don't know the TypeInfo
+    HRESULT hresult = pDispatch_->Invoke( dispRet.value(),
+                                          IID_NULL,
+                                          LOCALE_USER_DEFAULT,
+                                          DISPATCH_PROPERTYGET,
+                                          &dispparams, &VarResult, &exception, &argerr );
+    scope::unique_ptr<VARIANT> autoVarClear( &VarResult, []( auto pVar )
+    {
+        VariantClear( pVar );
+    } );
+
+    for ( size_t i = 0; i < argc; i++ )
+    {
+        RefreshValue( pJsCtx_, callArgs[i] ); //in case any empty ActiveXObject objects were filled in by Invoke()
+        VariantClear( &args[i] );
+    }
+
+    if ( !SUCCEEDED( hresult ) )
+    {
+        ReportActiveXError( pJsCtx_, hresult, exception, argerr );
+        return false;
+    }
+
+    if ( !convert::com::VariantToJs( pJsCtx_, VarResult, callArgs.rval() ) )
+    {// report in VariantToJs
+        return false;
+    }
+
+    return true;
+}
+
 bool ActiveXObject::Set( const std::wstring& propName, JS::HandleValue v )
 {
     if ( !pDispatch_ )
@@ -628,7 +776,7 @@ bool ActiveXObject::Set( const std::wstring& propName, JS::HandleValue v )
         arg.scode = 0;
     }
 
-    DWORD flag = DISPATCH_PROPERTYPUT;
+    WORD flag = DISPATCH_PROPERTYPUT;
     if ( ( arg.vt == VT_DISPATCH || arg.vt == VT_UNKNOWN )
          && members_.count( propName ) && members_[propName]->isPutRef )
     {//must be passed by name
@@ -641,11 +789,93 @@ bool ActiveXObject::Set( const std::wstring& propName, JS::HandleValue v )
     HRESULT hresult = pDispatch_->Invoke( dispRet.value(),
                                           IID_NULL,
                                           LOCALE_USER_DEFAULT,
-                                          (WORD)flag,
+                                          flag,
                                           &dispparams, nullptr, &exception, &argerr );
 
     RefreshValue( pJsCtx_, v );
     VariantClear( &arg );
+
+    if ( !SUCCEEDED( hresult ) )
+    {
+        ReportActiveXError( pJsCtx_, hresult, exception, argerr );
+        return false;
+    }
+
+    return true;
+}
+
+bool ActiveXObject::Set( const JS::CallArgs& callArgs )
+{
+    if ( !pDispatch_ )
+    {
+        return false;
+    }
+
+    if ( !callArgs.length() )
+    {
+        JS_ReportErrorUTF8( pJsCtx_, "Property name is missing" );
+        return false;
+    }
+
+    auto propNameRetVal = convert::to_native::ToValue<std::wstring>( pJsCtx_, callArgs[0] );
+    if ( !propNameRetVal )
+    {
+        JS_ReportErrorUTF8( pJsCtx_, "Property name argument is not a string" );
+        return false;
+    }
+
+    const std::wstring propName = propNameRetVal.value();
+
+    auto dispRet = GetDispId( propName );
+    if ( !dispRet )
+    {
+        pfc::string8_fast tmpStr = pfc::stringcvt::string_utf8_from_wide( propName.c_str() );
+        JS_ReportErrorUTF8( pJsCtx_, "Invalid property name: %s", tmpStr.c_str() );
+        return false;
+    }
+
+    uint32_t argc = callArgs.length() - 1;
+    std::unique_ptr<VARIANTARG[]> args;
+    DISPID dispput = DISPID_PROPERTYPUT;
+    DISPPARAMS dispparams = { nullptr, &dispput, 0, 1 };
+
+    EXCEPINFO exception = { 0 };
+    UINT argerr = 0;
+
+    if ( argc )
+    {
+        args.reset( new VARIANTARG[argc] );
+        dispparams.rgvarg = args.get();
+        dispparams.cArgs = argc;
+        for ( size_t i = 0; i < argc; i++ )
+        {
+            if ( !convert::com::JsToVariant( pJsCtx_, callArgs[1 + i], args[argc - i - 1] ) )
+            {
+                args[argc - i - 1].vt = VT_ERROR;
+                args[argc - i - 1].scode = 0;
+            }
+        }
+    }
+
+    WORD flag = DISPATCH_PROPERTYPUT;
+    if ( (args[argc - 1].vt == VT_DISPATCH || args[argc - 1].vt == VT_UNKNOWN)
+         && members_.count( propName ) && members_[propName]->isPutRef )
+    {//must be passed by name
+        flag = DISPATCH_PROPERTYPUTREF;
+    }
+
+    // don't use DispInvoke, because we don't know the TypeInfo
+    HRESULT hresult = pDispatch_->Invoke( dispRet.value(),
+                                          IID_NULL,
+                                          LOCALE_USER_DEFAULT,
+                                          flag,
+                                          &dispparams, nullptr, &exception, &argerr );
+
+    for ( size_t i = 0; i < argc; i++ )
+    {
+        RefreshValue( pJsCtx_, callArgs[i] ); //in case any empty ActiveXObject objects were filled in by Invoke()
+        VariantClear( &args[i] );
+    }
 
     if ( !SUCCEEDED( hresult ) )
     {

@@ -17,7 +17,7 @@ void ReportActiveXError( JSContext* cx, HRESULT hresult, EXCEPINFO& exception, U
     }
     case DISP_E_BADVARTYPE:
     {
-        JS_ReportErrorUTF8( cx, "ActiveXObject: Bad variable type %d", argerr );
+        JS_ReportErrorUTF8( cx, "ActiveXObject: Bad variable type %u", argerr );
         break;
     }
     case DISP_E_EXCEPTION:
@@ -35,7 +35,7 @@ void ReportActiveXError( JSContext* cx, HRESULT hresult, EXCEPINFO& exception, U
         }
         else
         {
-            JS_ReportErrorUTF8( cx, "ActiveXObject: Error code %d", exception.scode );
+            JS_ReportErrorUTF8( cx, "ActiveXObject: Error code %u", exception.scode );
         }
         SysFreeString( exception.bstrSource );
         SysFreeString( exception.bstrDescription );
@@ -49,17 +49,17 @@ void ReportActiveXError( JSContext* cx, HRESULT hresult, EXCEPINFO& exception, U
     }
     case DISP_E_OVERFLOW:
     {
-        JS_ReportErrorUTF8( cx, "ActiveXObject: Can not convert variable %d", argerr );
+        JS_ReportErrorUTF8( cx, "ActiveXObject: Can not convert variable %u", argerr );
         break;
     }
     case DISP_E_PARAMNOTFOUND:
     {
-        JS_ReportErrorUTF8( cx, "ActiveXObject: Parameter %d not found", argerr );
+        JS_ReportErrorUTF8( cx, "ActiveXObject: Parameter %u not found", argerr );
         break;
     }
     case DISP_E_TYPEMISMATCH:
     {
-        JS_ReportErrorUTF8( cx, "ActiveXObject: Parameter %d type mismatch", argerr );
+        JS_ReportErrorUTF8( cx, "ActiveXObject: Parameter %u type mismatch", argerr );
         break;
     }
     case DISP_E_UNKNOWNINTERFACE:
@@ -74,7 +74,7 @@ void ReportActiveXError( JSContext* cx, HRESULT hresult, EXCEPINFO& exception, U
     }
     case DISP_E_PARAMNOTOPTIONAL:
     {
-        JS_ReportErrorUTF8( cx, "ActiveXObject: Parameter %d is required", argerr );
+        JS_ReportErrorUTF8( cx, "ActiveXObject: Parameter %u is required", argerr );
         break;
     }
     default:
