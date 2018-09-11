@@ -362,7 +362,7 @@ JsWindow::DefinePanel( const pfc::string8_fast& name, JS::HandleValue options )
                 {
                     JS::RootedValue jsValue( pJsCtx_ );
                     if ( !JS_GetProperty( pJsCtx_, jsFeatures, "drag_n_drop", &jsValue ) )
-                    {// report in JS_GetProperty
+                    {// reports
                         return std::nullopt;
                     }
 
@@ -580,7 +580,7 @@ JsWindow::GetPropertyWithOpt( size_t optArgCount, const std::wstring& name, JS::
 }
 
 std::optional<std::nullptr_t>
-JsWindow::NotifyOthers( const pfc::string8_fast& name, JS::HandleValue info )
+JsWindow::NotifyOthers( const std::wstring& name, JS::HandleValue info )
 {
     std::wstring jsonStr;
     auto jsonCopyFunc = []( const char16_t* buf, uint32_t len, void* data )
@@ -615,9 +615,8 @@ JsWindow::NotifyOthers( const pfc::string8_fast& name, JS::HandleValue info )
         return std::nullopt;
     }
 
-    simple_callback_data_2<pfc::string8_fast, std::wstring>* notify_data = 
-        new simple_callback_data_2<pfc::string8_fast, std::wstring>( name, jsonStr );
-
+    simple_callback_data_2<std::wstring, std::wstring>* notify_data =
+        new simple_callback_data_2<std::wstring, std::wstring>( name, jsonStr );
     panel_manager::instance().send_msg_to_others_pointer( parentPanel_.GetHWND(), CALLBACK_UWM_ON_NOTIFY_DATA, notify_data );
     
     return nullptr;

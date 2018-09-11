@@ -60,7 +60,7 @@ public: // methods
     std::optional<JSObject*> GetFontDUI( uint32_t type );
     std::optional<JS::Heap<JS::Value>> GetProperty( const std::wstring& name, JS::HandleValue defaultval = JS::NullHandleValue );
     std::optional<JS::Heap<JS::Value>> GetPropertyWithOpt( size_t optArgCount, const std::wstring& name, JS::HandleValue defaultval );
-    std::optional<std::nullptr_t> NotifyOthers( const pfc::string8_fast& name, JS::HandleValue info );
+    std::optional<std::nullptr_t> NotifyOthers( const std::wstring& name, JS::HandleValue info );
     std::optional<std::nullptr_t> Reload();
     std::optional<std::nullptr_t> Repaint( bool force = false);
     std::optional<std::nullptr_t> RepaintWithOpt( size_t optArgCount, bool force );
