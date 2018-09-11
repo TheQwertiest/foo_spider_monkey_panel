@@ -117,6 +117,7 @@ bool InvokeNativeCallback_Impl( JSContext* cx,
                                 unsigned argc, JS::Value* vp )
 {
     constexpr size_t maxArgCount = sizeof ...( ArgTypes );
+    static_assert( OptArgCount <= maxArgCount );
 
     JS::CallArgs args = JS::CallArgsFromVp( argc, vp );
     if ( args.length() < ( maxArgCount - OptArgCount ) )
@@ -216,7 +217,8 @@ bool InvokeNativeCallback_Impl( JSContext* cx,
     // Call function
     // May return raw JS pointer! (see below)
     ReturnType retVal =
-        InvokeNativeCallback_Call<!!OptArgCount, ReturnType>( baseClass, fn, fnWithOpt, callbackArguments, maxArgCount - args.length() );
+        InvokeNativeCallback_Call<!!OptArgCount, ReturnType>( baseClass, fn, fnWithOpt, 
+                                                              callbackArguments, (maxArgCount > args.length() ? maxArgCount - args.length() : 0) );
     if ( !retVal )
     {
         return false;
