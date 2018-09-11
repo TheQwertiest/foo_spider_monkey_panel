@@ -237,21 +237,41 @@ void JsContainer::InvokeOnDragAction( const pfc::string8_fast& functionName, con
 
 uint32_t JsContainer::SetInterval( HWND hWnd, uint32_t delay, JS::HandleFunction jsFunction )
 {
+    if ( JsStatus::Ready != jsStatus_ )
+    {
+        return 0;
+    }
+
     return HostTimerDispatcher::Get().setInterval( hWnd, delay, pJsCtx_, jsFunction );
 }
 
 uint32_t JsContainer::SetTimeout( HWND hWnd, uint32_t delay, JS::HandleFunction jsFunction )
 {
+    if ( JsStatus::Ready != jsStatus_ )
+    {
+        return 0;
+    }
+
     return HostTimerDispatcher::Get().setTimeout( hWnd, delay, pJsCtx_, jsFunction );
 }
 
 void JsContainer::KillTimer( uint32_t timerId )
 {
+    if ( JsStatus::Ready != jsStatus_ )
+    {
+        return;
+    }
+
     HostTimerDispatcher::Get().killTimer( timerId );
 }
 
 void JsContainer::InvokeTimerFunction( uint32_t timerId )
 {
+    if ( JsStatus::Ready != jsStatus_ )
+    {
+        return;
+    }
+
     HostTimerDispatcher::Get().onInvokeMessage( timerId );
 }
 
