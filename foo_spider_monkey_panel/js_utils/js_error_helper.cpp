@@ -59,14 +59,13 @@ AutoReportException::~AutoReportException()
         }
         ~ScopedFail()
         {
-            FB2K_console_formatter() << errorText.c_str();
             pGlobal->Fail( errorText );
             JS_ClearPendingException( pCx );
         }
 
         JSContext* pCx = nullptr;
         JsGlobalObject * pGlobal = nullptr;
-        pfc::string8_fast errorText = "Error: " SMP_NAME_WITH_VERSION;
+        pfc::string8_fast errorText;
     };
     ScopedFail scFail( cx, globalCtx );
 
@@ -78,8 +77,7 @@ AutoReportException::~AutoReportException()
             return;
         }
 
-        scFail.errorText += "\n";
-        scFail.errorText += retVal.value();
+        scFail.errorText = retVal.value();
     }
     else if ( excn.isObject() )
     {
@@ -92,10 +90,8 @@ AutoReportException::~AutoReportException()
         }
 
         assert( !JSREPORT_IS_WARNING( report->flags ) );
-
-        // TODO: Add t_script_info.build_info_string (e.g. "Top Panel")
-        scFail.errorText += "\n";
-        scFail.errorText += report->message().c_str();
+        
+        scFail.errorText = report->message().c_str();
         if ( report->filename )
         {
             scFail.errorText += "\n\n";

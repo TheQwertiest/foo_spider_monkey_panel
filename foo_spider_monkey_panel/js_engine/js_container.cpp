@@ -122,7 +122,23 @@ void JsContainer::Fail( const pfc::string8_fast &errorText )
     jsStatus_ = JsStatus::Failed;
 
     assert( pParentPanel_ );
-    pParentPanel_->JsEngineFail( errorText );
+    const pfc::string8_fast errorTextPadded = [&pParentPanel = pParentPanel_, &errorText]()
+    {
+        pfc::string8_fast text = "Error: " SMP_NAME_WITH_VERSION;
+        text += " (";
+        text += pParentPanel->ScriptInfo().build_info_string();
+        text += ")";
+        if ( !errorText.is_empty() )
+        {
+            text += "\n";
+            text += errorText;
+        }
+
+        return text;
+    }();
+
+    FB2K_console_formatter() << errorTextPadded.c_str();
+    pParentPanel_->JsEngineFail( errorTextPadded );
 }
 
 JsContainer::JsStatus JsContainer::GetStatus() const
