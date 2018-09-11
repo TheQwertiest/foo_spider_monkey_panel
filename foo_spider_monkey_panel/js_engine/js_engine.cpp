@@ -328,9 +328,10 @@ void JsEngine::PrepareCompartmentsForGc( GcLevel gcLevel )
     {
     case mozjs::JsEngine::GcLevel::Incremental:
     {
-        JS_IterateCompartments( pJsCtx_, &heapGrowthRateTrigger_, []( JSContext* cx, void* data, JSCompartment* pJsCompartment )
+        uint32_t heapGrowthRateTrigger = heapGrowthRateTrigger_; ///< Need this temporary so that we don't have to worry about the var's type
+        JS_IterateCompartments( pJsCtx_, &heapGrowthRateTrigger, []( JSContext* cx, void* data, JSCompartment* pJsCompartment )
         {
-            uint64_t heapGrowthRateTrigger = *reinterpret_cast<uint64_t*>(data);
+            uint32_t heapGrowthRateTrigger = *reinterpret_cast<uint32_t*>(data);
 
             auto pNativeCompartment = static_cast<JsCompartmentInner*>(JS_GetCompartmentPrivate( pJsCompartment ));
             if ( !pNativeCompartment )
