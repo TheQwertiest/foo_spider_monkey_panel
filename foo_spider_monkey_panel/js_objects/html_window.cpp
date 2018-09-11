@@ -83,6 +83,8 @@ JsHtmlWindow::~JsHtmlWindow()
 }
 
 // TODO: cleanup the code
+// TODO: add html window centering
+// TODO: consider
 
 std::unique_ptr<JsHtmlWindow>
 JsHtmlWindow::CreateNative( JSContext* cx, const std::wstring& htmlCode, JS::HandleValue options )

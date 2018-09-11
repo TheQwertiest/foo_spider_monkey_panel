@@ -1,12 +1,10 @@
 # Current
-- Add a header with component name and version to error reporter.
 - Backport all the changes from foo-jscript-panel.
 - Complete rebranding to spider_monkey_panel (including folders).
 - Check and fix all the samples.
 - Fix unresponsive arrow keys in DUI in CaTRoX: https://github.com/TheQwertiest/foo-jscript-panel/commit/8a41c524a9c3c16c466204fde81c5c108975310b#commitcomment-29727611.
 
 # Prerelease-Test
-- Test array conversion support in ActiveXObject.
 - Test `include` with various codepages (esp. JP,KR,CH).
 - Test methods that uses path with arguments containing cyrillics and other exotic characters.
 - Check utf8 literals everywhere (paths, script window, script files, properties, callback arguments)
@@ -26,7 +24,7 @@
 - Document discontinued support for WinXP and Vista (i.e. only Win7 and above).
 - Document global.include.
 - Document DefinePanel.
-- Document CreateHtmlWindow.
+- Document CreateHtmlWindow (7 args in callback max, arrays are not supported, use JSON).
 - Document `Advanced` settings.
 - Copy and update marc2003's wiki.
 - Create a simple JSP > SMP script migration guide.
