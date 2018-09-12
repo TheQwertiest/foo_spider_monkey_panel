@@ -264,7 +264,7 @@
     <ClInclude Include="scintilla_prop_sets.h" />
     <ClInclude Include="script_interface.h" />
     <ClInclude Include="script_interface_impl.h" />
-    <ClInclude Include="script_info.h" />
+    <ClInclude Include="panel_info.h" />
     <ClInclude Include="stackblur.h" />
     <ClInclude Include="stats.h" />
     <ClInclude Include="stdafx.h" />

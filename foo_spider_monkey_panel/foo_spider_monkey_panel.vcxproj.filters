@@ -507,9 +507,6 @@
     <ClInclude Include="convert\js_to_native.h">
       <Filter>convert</Filter>
     </ClInclude>
-    <ClInclude Include="script_info.h">
-      <Filter>uncategorized</Filter>
-    </ClInclude>
     <ClInclude Include="resource.h">
       <Filter>uncategorized\resources</Filter>
     </ClInclude>
@@ -536,6 +533,9 @@
     </ClInclude>
     <ClInclude Include="js_objects\enumerator.h">
       <Filter>js_objects</Filter>
+    </ClInclude>
+    <ClInclude Include="panel_info.h">
+      <Filter>uncategorized</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

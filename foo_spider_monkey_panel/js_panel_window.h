@@ -1,7 +1,7 @@
 #pragma once
 
 #include "config.h"
-#include "script_info.h"
+#include "panel_info.h"
 
 #include <js_engine/js_container.h>
 #include <panel_tooltip_param.h>
