@@ -1,12 +1,12 @@
 #pragma once
 
-struct t_script_info
+struct PanelInfo
 {
 	pfc::string_simple name;
 	pfc::string_simple version;
 	pfc::string_simple author;
 
-	t_script_info(GUID& guid_ref) : m_guid_ref(guid_ref)
+	PanelInfo(GUID& guid_ref) : m_guid_ref(guid_ref)
 	{
 	}
 

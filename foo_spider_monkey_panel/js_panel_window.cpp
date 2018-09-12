@@ -531,7 +531,7 @@ smp::PanelTooltipParam& js_panel_window::GetPanelTooltipParam()
     return panelTooltipParam_;
 }
 
-t_script_info& js_panel_window::ScriptInfo()
+PanelInfo& js_panel_window::ScriptInfo()
 {
     return m_script_info;
 }
@@ -585,7 +585,9 @@ void js_panel_window::RefreshBackground( LPRECT lprcUpdate /*= nullptr */ )
     HWND wnd_parent = GetAncestor( hWnd_, GA_PARENT );
 
     if ( !wnd_parent || IsIconic( core_api::get_main_window() ) || !IsWindowVisible( hWnd_ ) )
+    {
         return;
+    }
 
     HDC dc_parent = GetDC( wnd_parent );
     HDC hdc_bk = CreateCompatibleDC( dc_parent );
@@ -677,9 +679,15 @@ bool js_panel_window::script_load()
     pfc::hires_timer timer;
     timer.start();
 
-    DWORD extstyle = GetWindowLongPtr( hWnd_, GWL_EXSTYLE );
-    extstyle &= ~WS_EX_CLIENTEDGE & ~WS_EX_STATICEDGE;
-    extstyle |= edge_style_from_config( get_edge_style() );
+    const auto extstyle = [&]()
+    {
+        DWORD extstyle = GetWindowLongPtr( hWnd_, GWL_EXSTYLE );
+        extstyle &= ~WS_EX_CLIENTEDGE & ~WS_EX_STATICEDGE;
+        extstyle |= edge_style_from_config( get_edge_style() );
+
+        return extstyle;
+    }();
+   
     SetWindowLongPtr( hWnd_, GWL_EXSTYLE, extstyle );
     SetWindowPos( hWnd_, nullptr, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED );
 
@@ -721,7 +729,7 @@ ui_helpers::container_window::class_data& js_panel_window::get_class_data() cons
     static class_data my_class_data =
     {
         _T( SMP_WINDOW_CLASS_NAME ),
-        _T( "" ),
+        L"",
         0,
         false,
         false,
@@ -737,10 +745,7 @@ ui_helpers::container_window::class_data& js_panel_window::get_class_data() cons
 
 void js_panel_window::create_context()
 {
-    if ( hBitmap_ || hBitmapBg_ )
-    {
-        delete_context();
-    }
+    delete_context();
 
     hBitmap_ = CreateCompatibleBitmap( hDc_, width_, height_ );
 
@@ -768,13 +773,15 @@ void js_panel_window::delete_context()
 void js_panel_window::on_context_menu( int x, int y )
 {
     const int base_id = 0;
-    HMENU menu = CreatePopupMenu();
-    int ret = 0;
+    HMENU hMenu = CreatePopupMenu();
+    mozjs::scope::final_action autoMenu( [hMenu]
+    {
+        DestroyMenu( hMenu );
+    } );
 
-    build_context_menu( menu, x, y, base_id );
-    ret = TrackPopupMenu( menu, TPM_RIGHTBUTTON | TPM_NONOTIFY | TPM_RETURNCMD, x, y, 0, hWnd_, 0 );
+    build_context_menu( hMenu, x, y, base_id );
+    int ret = TrackPopupMenu( hMenu, TPM_RIGHTBUTTON | TPM_NONOTIFY | TPM_RETURNCMD, x, y, 0, hWnd_, 0 );
     execute_context_menu_command( ret, base_id );
-    DestroyMenu( menu );
 }
 
 void js_panel_window::on_erase_background()
@@ -1176,7 +1183,16 @@ void js_panel_window::on_paint( HDC dc, LPRECT lpUpdateRect )
     if ( !dc || !lpUpdateRect || !hBitmap_ ) return;
 
     HDC memdc = CreateCompatibleDC( dc );
+    mozjs::scope::final_action autoDc( [memdc]
+    {
+        DeleteDC( memdc );
+    } );
+
     HBITMAP oldbmp = SelectBitmap( memdc, hBitmap_ );
+    mozjs::scope::final_action autoBmp( [memdc, oldbmp]
+    {
+        SelectBitmap( memdc, oldbmp );
+    } );
 
     if ( mozjs::JsContainer::JsStatus::Failed == jsContainer_.GetStatus() )
     {
@@ -1187,21 +1203,26 @@ void js_panel_window::on_paint( HDC dc, LPRECT lpUpdateRect )
         if ( get_pseudo_transparent() )
         {
             HDC bkdc = CreateCompatibleDC( dc );
+            mozjs::scope::final_action autoBkDc( [bkdc]
+            {
+                DeleteDC( bkdc );
+            } );
+
             HBITMAP bkoldbmp = SelectBitmap( bkdc, hBitmapBg_ );
+            mozjs::scope::final_action autoBkBmp( [bkdc, bkoldbmp]
+            {
+                SelectBitmap( bkdc, bkoldbmp );
+            } );
 
-            BitBlt(
-                memdc,
-                lpUpdateRect->left,
-                lpUpdateRect->top,
-                lpUpdateRect->right - lpUpdateRect->left,
-                lpUpdateRect->bottom - lpUpdateRect->top,
-                bkdc,
-                lpUpdateRect->left,
-                lpUpdateRect->top,
-                SRCCOPY );
-
-            SelectBitmap( bkdc, bkoldbmp );
-            DeleteDC( bkdc );
+            BitBlt( memdc,
+                    lpUpdateRect->left,
+                    lpUpdateRect->top,
+                    lpUpdateRect->right - lpUpdateRect->left,
+                    lpUpdateRect->bottom - lpUpdateRect->top,
+                    bkdc,
+                    lpUpdateRect->left,
+                    lpUpdateRect->top,
+                    SRCCOPY );
         }
         else
         {
@@ -1214,16 +1235,10 @@ void js_panel_window::on_paint( HDC dc, LPRECT lpUpdateRect )
     }
 
     BitBlt( dc, 0, 0, width_, height_, memdc, 0, 0, SRCCOPY );
-    SelectBitmap( memdc, oldbmp );
-    DeleteDC( memdc );
 }
 
 void js_panel_window::on_paint_error( HDC memdc )
 {
-    const std::wstring errmsg( L"Aw, crashed :(" );
-    RECT rc = { 0, 0, (LONG)width_, (LONG)height_ };
-    SIZE sz = { 0 };
-    
     HFONT newfont = CreateFont(
         20,
         0,
@@ -1245,22 +1260,24 @@ void js_panel_window::on_paint_error( HDC memdc )
     } );
 
     HFONT oldfont = (HFONT)SelectObject( memdc, newfont );
+    mozjs::scope::final_action autoFontSelect( [memdc, oldfont]()
     {
-        LOGBRUSH lbBack = { BS_SOLID, RGB( 225, 60, 45 ), 0 };
-        HBRUSH hBack = CreateBrushIndirect( &lbBack );
-        mozjs::scope::final_action autoBrush( [hBack]()
-        {
-            DeleteObject( hBack );
-        } );
+        SelectObject( memdc, oldfont );
+    } );
 
-        FillRect( memdc, &rc, hBack );
-        SetBkMode( memdc, TRANSPARENT );
+    LOGBRUSH lbBack = { BS_SOLID, RGB( 225, 60, 45 ), 0 };
+    HBRUSH hBack = CreateBrushIndirect( &lbBack );
+    mozjs::scope::final_action autoBrush( [hBack]()
+    {
+        DeleteObject( hBack );
+    } );
 
-        SetTextColor( memdc, RGB( 255, 255, 255 ) );
-        DrawText( memdc, errmsg.c_str(), -1, &rc, DT_CENTER | DT_VCENTER | DT_NOPREFIX | DT_SINGLELINE );
-    }
+    RECT rc = { 0, 0, (LONG)width_, (LONG)height_ };
+    FillRect( memdc, &rc, hBack );
+    SetBkMode( memdc, TRANSPARENT );
 
-    SelectObject( memdc, oldfont );
+    SetTextColor( memdc, RGB( 255, 255, 255 ) );
+    DrawText( memdc, L"Aw, crashed :(", -1, &rc, DT_CENTER | DT_VCENTER | DT_NOPREFIX | DT_SINGLELINE );
 }
 
 void js_panel_window::on_paint_user( HDC memdc, LPRECT lpUpdateRect )

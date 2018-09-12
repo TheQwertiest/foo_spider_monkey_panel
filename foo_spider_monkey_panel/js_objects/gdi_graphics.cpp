@@ -472,17 +472,19 @@ JsGdiGraphics::EstimateLineWrap( const std::wstring& str, JsGdiFont* font, uint3
         return std::nullopt;
     }
 
-    HFONT hFont = font->GetHFont();
-    assert( hFont );
-
-    HDC dc = pGdi_->GetHDC();
-    HFONT oldfont = SelectFont( dc, hFont );
-
     pfc::list_t<helpers::wrapped_item> result;
-    estimate_line_wrap( dc, str.c_str(), str.length(), max_width, result );
-    
-    SelectFont( dc, oldfont );
-    pGdi_->ReleaseHDC( dc );
+    {
+        HFONT hFont = font->GetHFont();
+        assert( hFont );
+
+        HDC dc = pGdi_->GetHDC();
+        HFONT oldfont = SelectFont( dc, hFont );
+
+        estimate_line_wrap( dc, str.c_str(), str.length(), max_width, result );
+
+        SelectFont( dc, oldfont );
+        pGdi_->ReleaseHDC( dc );
+    }
 
     JS::RootedObject jsArray( pJsCtx_, JS_NewArrayObject( pJsCtx_, result.get_count() * 2 ) );
     if ( !jsArray )

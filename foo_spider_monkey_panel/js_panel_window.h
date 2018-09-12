@@ -45,7 +45,7 @@ public:
     int GetHeight() const;
     int GetWidth() const;
     smp::PanelTooltipParam& GetPanelTooltipParam();
-    t_script_info& ScriptInfo();
+    PanelInfo& ScriptInfo();
     
     t_size& DlgCode();
     PanelType GetPanelType() const;
@@ -68,7 +68,7 @@ private:
     HWND hWnd_ = nullptr;
     HDC hDc_ = nullptr;
 
-    t_script_info m_script_info; // move to JsContainer
+    PanelInfo m_script_info; // move to JsContainer
 
     uint32_t height_ = 0; // Used externally as well
     uint32_t width_ = 0; // Used externally as well

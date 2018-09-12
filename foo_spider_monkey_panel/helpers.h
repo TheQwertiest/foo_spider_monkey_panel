@@ -16,7 +16,7 @@ namespace helpers
 
 	struct wrapped_item
 	{
-		BSTR text;
+		_bstr_t text;
 		int width;
 	};
 

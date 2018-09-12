@@ -690,7 +690,7 @@ namespace helpers
 		{
 			wrapped_item item =
 			{
-				SysAllocStringLen(text, len),
+                _bstr_t(SysAllocStringLen(text, len), false),
 				textWidth
 			};
 			out.add_item(item);
@@ -729,7 +729,7 @@ namespace helpers
 
 				wrapped_item item =
 				{
-					SysAllocStringLen(text, textLength),
+                    _bstr_t( SysAllocStringLen( text, textLength ), false ),					
 					get_text_width(hdc, text, textLength)
 				};
 				out.add_item(item);
