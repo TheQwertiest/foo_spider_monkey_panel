@@ -232,6 +232,9 @@
     <ClCompile Include="adv_config.cpp">
       <Filter>uncategorized</Filter>
     </ClCompile>
+    <ClCompile Include="js_objects\enumerator.cpp">
+      <Filter>js_objects</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="js_engine\js_engine.h">
@@ -530,6 +533,9 @@
     </ClInclude>
     <ClInclude Include="adv_config.h">
       <Filter>uncategorized</Filter>
+    </ClInclude>
+    <ClInclude Include="js_objects\enumerator.h">
+      <Filter>js_objects</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

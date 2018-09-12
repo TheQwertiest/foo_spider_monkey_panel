@@ -440,7 +440,8 @@ ActiveXObject::ActiveXObject( JSContext* cx, CLSID& clsid )
 
     if ( !SUCCEEDED( hresult ) )
     {
-        pUnknown_ = 0; return;
+        pUnknown_ = 0; 
+        return;
     }
 
     hresult = pUnknown_->QueryInterface( IID_IDispatch, (void * *)&pDispatch_ );

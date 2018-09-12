@@ -2,6 +2,7 @@
 
 #include <js_engine/js_compartment_inner.h>
 #include <js_utils/js_prototype_helpers.h>
+#include <memory>
 
 class JSObject;
 struct JSContext;

@@ -11,6 +11,7 @@ enum class JsPrototypeId
     ActiveX,
     ContextMenuManager,
     DropSourceAction,
+    Enumerator,
     FbFileInfo,
     FbMetadbHandle,
     FbMetadbHandleList,
