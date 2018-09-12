@@ -48,8 +48,8 @@ private:
 
 private:
     JSContext * pJsCtx_ = nullptr;
-    HMENU hMenu_;
-    HWND hParentWnd_;
+    HMENU hMenu_ = nullptr;
+    HWND hParentWnd_ = nullptr;
     bool isDetached_ = false;
 };
 

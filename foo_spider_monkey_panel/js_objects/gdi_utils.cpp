@@ -132,10 +132,9 @@ JsGdiUtils::Font( const std::wstring& fontName, float pxSize, uint32_t style )
         DEFAULT_PITCH | FF_DONTCARE,
         fontName.c_str() );
     IF_WINAPI_FAILED_RETURN_WITH_REPORT( pJsCtx_, !!hFont, std::nullopt, CreateFont );
-
-    scope::unique_ptr<std::remove_pointer_t<HFONT>> autoFont( hFont, []( auto obj )
+    scope::final_action autoFont( [hFont]()
     {
-        DeleteObject( obj );
+        DeleteObject( hFont );
     } );
 
     JS::RootedObject jsObject( pJsCtx_, JsGdiFont::CreateJs( pJsCtx_, std::move(pGdiFont), hFont, true ) );
@@ -144,7 +143,7 @@ JsGdiUtils::Font( const std::wstring& fontName, float pxSize, uint32_t style )
         return std::nullopt;
     }
 
-    autoFont.release();
+    autoFont.cancel();
     return jsObject;
 }
 

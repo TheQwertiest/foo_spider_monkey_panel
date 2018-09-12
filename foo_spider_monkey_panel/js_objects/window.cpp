@@ -345,14 +345,19 @@ JsWindow::DefinePanel( const pfc::string8_fast& name, JS::HandleValue options )
 
             if ( hasProp )
             {
-                if ( !options.isObject() )
+                JS::RootedValue jsFeaturesValue( pJsCtx_ );
+                if ( !JS_GetProperty( pJsCtx_, jsOptions, "features", &jsFeaturesValue ) )
+                {// reports
+                    return std::nullopt;
+                }
+
+                if ( !jsFeaturesValue.isObject() )
                 {
                     JS_ReportErrorUTF8( pJsCtx_, "features is not an object" );
                     return std::nullopt;
                 }
 
-                JS::RootedObject jsFeatures( pJsCtx_, &options.toObject() );
-
+                JS::RootedObject jsFeatures( pJsCtx_, &jsFeaturesValue.toObject() );
                 if ( !JS_HasProperty( pJsCtx_, jsFeatures, "drag_n_drop", &hasProp ) )
                 {// reports
                     return std::nullopt;

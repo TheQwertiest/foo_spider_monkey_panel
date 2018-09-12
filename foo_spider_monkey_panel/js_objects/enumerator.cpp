@@ -32,7 +32,7 @@ JSClassOps jsOps = {
 
 JSClass jsClass = {
     "Enumerator",
-    DefaultClassFlags(),
+    JSCLASS_HAS_PRIVATE | JSCLASS_FOREGROUND_FINALIZE, // COM objects must be finalized in foreground
     &jsOps
 };
 

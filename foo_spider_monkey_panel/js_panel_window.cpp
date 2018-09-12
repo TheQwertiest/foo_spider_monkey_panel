@@ -11,6 +11,7 @@
 #include <js_objects/gdi_graphics.h>
 #include <js_utils/art_helper.h>
 #include <js_utils/image_helper.h>
+#include <js_utils/scope_helper.h>
 
 #include <drop_action_params.h>
 
@@ -712,7 +713,6 @@ void js_panel_window::script_unload()
     //m_script_host->Finalize();
 
     selectionHolder_.release();
-
     jsContainer_.Finalize();
 }
 
@@ -1223,8 +1223,7 @@ void js_panel_window::on_paint_error( HDC memdc )
     const std::wstring errmsg( L"Aw, crashed :(" );
     RECT rc = { 0, 0, (LONG)width_, (LONG)height_ };
     SIZE sz = { 0 };
-
-    // Font chosing
+    
     HFONT newfont = CreateFont(
         20,
         0,
@@ -1240,21 +1239,25 @@ void js_panel_window::on_paint_error( HDC memdc )
         DEFAULT_QUALITY,
         DEFAULT_PITCH | FF_DONTCARE,
         _T( "Tahoma" ) );
+    mozjs::scope::final_action autoFont( [newfont]()
+    {
+        DeleteObject( newfont );
+    } );
 
     HFONT oldfont = (HFONT)SelectObject( memdc, newfont );
-
-    // Font drawing
     {
         LOGBRUSH lbBack = { BS_SOLID, RGB( 225, 60, 45 ), 0 };
         HBRUSH hBack = CreateBrushIndirect( &lbBack );
+        mozjs::scope::final_action autoBrush( [hBack]()
+        {
+            DeleteObject( hBack );
+        } );
 
         FillRect( memdc, &rc, hBack );
         SetBkMode( memdc, TRANSPARENT );
 
         SetTextColor( memdc, RGB( 255, 255, 255 ) );
         DrawText( memdc, errmsg.c_str(), -1, &rc, DT_CENTER | DT_VCENTER | DT_NOPREFIX | DT_SINGLELINE );
-
-        DeleteObject( hBack );
     }
 
     SelectObject( memdc, oldfont );

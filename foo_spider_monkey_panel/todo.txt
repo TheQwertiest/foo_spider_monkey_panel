@@ -33,6 +33,7 @@
 - Check all TODOs.
 
 # Planned
+- BEWARE: foo_ui_hacks leaks a HFONT every time "SendMessage( hTooltipWnd, WM_SETFONT, (WPARAM)hFont, MAKELPARAM( FALSE, 0 ) )" is called.
 - Add option for global.include to skip file if it was loaded before, like include guard (enabled by default).
 - Extract common options handling code (i.e. options = {opt1: val1, opt2: val2}; ).
 - Consider replacing std::optional with exceptions: need to be very careful - exceptions MUST NOT leak to JS from native code.

@@ -71,8 +71,9 @@ const JSFunctionSpec* JsFbTooltip::JsFunctions = jsFunctions;
 const JSPropertySpec* JsFbTooltip::JsProperties = jsProperties;
 const JsPrototypeId JsFbTooltip::PrototypeId = JsPrototypeId::FbTooltip;
 
-JsFbTooltip::JsFbTooltip( JSContext* cx, HWND hParentWnd, HWND hTooltipWnd, std::unique_ptr<TOOLINFO> toolInfo, PanelTooltipParam& p_param_ptr )
+JsFbTooltip::JsFbTooltip( JSContext* cx, HFONT hFont, HWND hParentWnd, HWND hTooltipWnd, std::unique_ptr<TOOLINFO> toolInfo, PanelTooltipParam& p_param_ptr )
     : pJsCtx_( cx )
+    , hFont_( hFont )
     , hParentWnd_( hParentWnd )
     , hTooltipWnd_( hTooltipWnd )
     , panelTooltipParam_( p_param_ptr )
@@ -92,6 +93,10 @@ JsFbTooltip::~JsFbTooltip()
     if ( hTooltipWnd_ && IsWindow( hTooltipWnd_ ) )
     {
         DestroyWindow( hTooltipWnd_ );
+    }
+    if ( hFont_ )
+    {
+        DeleteObject( hFont_ );
     }
 }
 
@@ -133,7 +138,6 @@ JsFbTooltip::CreateNative( JSContext* cx, HWND hParentWnd, PanelTooltipParam& p_
     toolInfo->uId = (UINT_PTR)hParentWnd;
     toolInfo->lpszText = nullptr;
 
-    // TODO: memory leak?
     HFONT hFont = CreateFont(
         -(INT)p_param_ptr.fontSize,
         0,
@@ -155,12 +159,12 @@ JsFbTooltip::CreateNative( JSContext* cx, HWND hParentWnd, PanelTooltipParam& p_
     SendMessage( hTooltipWnd, TTM_ACTIVATE, FALSE, 0 );
     SendMessage( hTooltipWnd, WM_SETFONT, (WPARAM)hFont, MAKELPARAM( FALSE, 0 ) );   
 
-    return std::unique_ptr<JsFbTooltip>( new JsFbTooltip( cx, hParentWnd, hTooltipWnd, std::move(toolInfo), p_param_ptr ) );
+    return std::unique_ptr<JsFbTooltip>( new JsFbTooltip( cx, hFont, hParentWnd, hTooltipWnd, std::move(toolInfo), p_param_ptr ) );
 }
 
 size_t JsFbTooltip::GetInternalSize( HWND hParentWnd, const smp::PanelTooltipParam& p_param_ptr )
 {
-    return sizeof( TOOLINFO );
+    return sizeof( LOGFONT ) + sizeof( TOOLINFO );
 }
 
 std::optional<std::nullptr_t>

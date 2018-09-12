@@ -37,7 +37,12 @@ void JsFinalizeOpLocal( JSFreeOp* fop, JSObject* obj )
         delete x;
         JS_SetPrivate( obj, nullptr );
 
-        JS_SetCompartmentPrivate( js::GetObjectCompartment( obj ), nullptr );
+        auto pJsCompartment = static_cast<JsCompartmentInner*>(JS_GetCompartmentPrivate( js::GetObjectCompartment( obj ) ));
+        if ( pJsCompartment )
+        {
+            delete pJsCompartment;
+            JS_SetCompartmentPrivate( js::GetObjectCompartment( obj ), nullptr );
+        }        
     }
 }
 

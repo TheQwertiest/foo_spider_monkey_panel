@@ -28,7 +28,7 @@ JSClassOps jsOps = {
 
 JSClass jsClass = {
     "FbUiSelectionHolder",
-    DefaultClassFlags(),
+    JSCLASS_HAS_PRIVATE | JSCLASS_FOREGROUND_FINALIZE, // selection_holder must be finalized in foreground
     &jsOps
 };
 
