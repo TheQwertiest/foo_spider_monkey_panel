@@ -24,7 +24,7 @@ namespace helpers
 				if (!temp.is_empty())
 				{
 					temp.add_char('/');
-					temp.add_string(path);
+					temp += path;
 					path = temp;
 				}
 			}
@@ -144,7 +144,7 @@ namespace helpers
 				// old commands
 				pfc::string8_fast command;
 				ptr->get_name(idx, command);
-				path.add_string(command);
+				path += command;
 
 				if (match_menu_command(path, p_name, name_len))
 				{
@@ -195,7 +195,7 @@ namespace helpers
 				// old commands
 				pfc::string8_fast command;
 				ptr->get_name(idx, command);
-				path.add_string(command);
+				path += command;
 
 				if (match_menu_command(path, p_name, name_len))
 				{
@@ -218,8 +218,10 @@ namespace helpers
 		if (type != mainmenu_node::type_separator)
 		{
 			node->get_display(text, flags);
-			if (!text.is_empty())
-				path.add_string(text);
+            if ( !text.is_empty() )
+            {
+                path += text;
+            }
 		}
 
         switch ( type )

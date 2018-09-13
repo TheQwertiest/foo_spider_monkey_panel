@@ -11,8 +11,14 @@
 #include <js_utils/js_object_helper.h>
 #include <js_utils/art_helper.h>
 #include <js_utils/file_helpers.h>
+#include <js_utils/scope_helper.h>
 
 #include <helpers.h>
+
+#include <io.h>
+#include <fcntl.h>
+
+#include <filesystem>
 
 namespace
 {
@@ -43,6 +49,7 @@ MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsUtils, CheckComponent, CheckComponentWith
 MJS_DEFINE_JS_TO_NATIVE_FN( JsUtils, CheckFont );
 MJS_DEFINE_JS_TO_NATIVE_FN( JsUtils, ColourPicker );
 MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsUtils, CreateHtmlWindow, CreateHtmlWindowWithOpt, 1 );
+MJS_DEFINE_JS_TO_NATIVE_FN( JsUtils, DumpHeap );
 MJS_DEFINE_JS_TO_NATIVE_FN( JsUtils, FileTest );
 MJS_DEFINE_JS_TO_NATIVE_FN( JsUtils, FormatDuration );
 MJS_DEFINE_JS_TO_NATIVE_FN( JsUtils, FormatFileSize );
@@ -65,6 +72,9 @@ const JSFunctionSpec jsFunctions[] = {
     JS_FN( "CheckFont", CheckFont, 1, DefaultPropsFlags() ),
     JS_FN( "ColourPicker", ColourPicker, 2, DefaultPropsFlags() ),
     JS_FN( "CreateHtmlWindow", CreateHtmlWindow, 1, DefaultPropsFlags() ),
+#ifdef _DEBUG
+    JS_FN( "DumpHeap", DumpHeap, 1, DefaultPropsFlags() ),
+#endif
     JS_FN( "FileTest", FileTest, 2, DefaultPropsFlags() ),
     JS_FN( "FormatDuration", FormatDuration, 1, DefaultPropsFlags() ),
     JS_FN( "FormatFileSize", FormatFileSize, 1, DefaultPropsFlags() ),
@@ -231,6 +241,34 @@ JsUtils::CreateHtmlWindowWithOpt( size_t optArgCount, const std::wstring& htmlCo
         JS_ReportErrorUTF8( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
         return std::nullopt;
     }
+}
+
+std::optional<std::nullptr_t> 
+JsUtils::DumpHeap( const pfc::string8_fast& path, bool nursery )
+{
+    const auto fsPath = [&path]
+    {
+        namespace fs = std::filesystem;
+
+        pfc::string8_fast tmpPath = path;
+        tmpPath.replace_string( "/", "\\", 0 );
+        return fs::u8path( tmpPath.c_str() ); // all check are performed in ReadFromFile
+    }();
+
+    FILE *fp = fopen( fsPath.string().c_str(), "w" );
+    //if ( fopen_s( &fp, fsPath.string().c_str(), "w" ) )
+    if (!fp )
+    {
+        JS_ReportErrorUTF8( pJsCtx_, "Failed to open file for write: %s", fsPath.u8string().c_str() );
+        return std::nullopt;
+    }
+    scope::final_action autoFile( [fp]()
+    {
+        fclose( fp );
+    } );
+
+    js::DumpHeap( pJsCtx_, fp, nursery ? js::DumpHeapNurseryBehaviour::CollectNurseryBeforeDump : js::DumpHeapNurseryBehaviour::IgnoreNurseryObjects );
+    return nullptr;
 }
 
 std::optional<JS::Value>
@@ -496,28 +534,24 @@ JsUtils::GetSystemMetrics( uint32_t index )
 std::optional<JSObject*>
 JsUtils::Glob( const pfc::string8_fast& pattern, uint32_t exc_mask, uint32_t inc_mask )
 {
-    const char* fn = pattern.c_str() + pfc::scan_filename( pattern.c_str() );
-    pfc::string8_fast dir( pattern.c_str(), fn - pattern.c_str() );
-    std::unique_ptr<uFindFile> ff( uFindFirstFile( pattern.c_str() ) );
-
     pfc::string_list_impl files;
-
-    if ( ff )
-    {
-        do
+    {       
+        std::unique_ptr<uFindFile> ff( uFindFirstFile( pattern.c_str() ) );
+        if ( ff )
         {
-            DWORD attr = ff->GetAttributes();
-
-            if ( ( attr & inc_mask ) && !( attr & exc_mask ) )
+            const char* fn = pattern.c_str() + pfc::scan_filename( pattern.c_str() );
+            const pfc::string8_fast dir( pattern.c_str(), fn - pattern.c_str() );
+            do
             {
-                pfc::string8_fast fullpath( dir );
-                fullpath.add_string( ff->GetFileName() );
-                files.add_item( fullpath.c_str() );
-            }
-        } while ( ff->FindNext() );
-    }
-
-    ff.release();
+                DWORD attr = ff->GetAttributes();
+                if ( (attr & inc_mask) && !(attr & exc_mask) )
+                {
+                    const pfc::string8_fast fullPath = dir + ff->GetFileName();
+                    files.add_item( fullPath.c_str() );
+                }
+            } while ( ff->FindNext() );
+        }
+    }    
 
     JS::RootedObject evalResult( pJsCtx_, JS_NewArrayObject( pJsCtx_, files.get_count() ) );
     if ( !evalResult )

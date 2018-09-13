@@ -148,13 +148,11 @@ JSObject* JsGlobalObject::CreateNative( JSContext* cx, JsContainer &parentContai
             return nullptr;
         }
 
-#ifdef _DEBUG
         JS::RootedObject testFuncs( cx, js::GetTestingFunctions( cx ) );
         if ( !JS_DefineProperty( cx, jsObj, "test", testFuncs, DefaultPropsFlags() ) )
         {
             return false;
         }
-#endif
 
         auto pNative = new JsGlobalObject( cx, parentContainer );
         pNative->heapManager_ = GlobalHeapManager::Create( cx );

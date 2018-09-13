@@ -39,6 +39,7 @@ public:
     std::optional<uint32_t> ColourPicker( uint32_t hWindow, uint32_t default_colour );
     std::optional<JSObject*> CreateHtmlWindow( const std::wstring& htmlCode, JS::HandleValue options = JS::UndefinedHandleValue );
     std::optional<JSObject*> CreateHtmlWindowWithOpt( size_t optArgCount, const std::wstring& htmlCode, JS::HandleValue options );
+    std::optional<std::nullptr_t> DumpHeap( const pfc::string8_fast& path, bool nursery );
     std::optional<JS::Value> FileTest( const std::wstring& path, const std::wstring& mode );
     std::optional<pfc::string8_fast> FormatDuration( double p );
     std::optional<pfc::string8_fast> FormatFileSize( uint64_t p );

@@ -3,6 +3,7 @@
 class simple_thread_task
 {
 public:
+    virtual ~simple_thread_task() = default;
     virtual void run() = 0;
 };
 

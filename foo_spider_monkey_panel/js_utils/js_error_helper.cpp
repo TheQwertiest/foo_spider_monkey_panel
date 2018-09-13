@@ -99,9 +99,9 @@ AutoReportException::~AutoReportException()
             scFail.errorText += report->filename;
             scFail.errorText += "\n";
             scFail.errorText += "Line: ";
-            scFail.errorText.add_string( std::to_string( report->lineno ).c_str() );
+            scFail.errorText += std::to_string( report->lineno ).c_str();
             scFail.errorText += ", Column: ";
-            scFail.errorText.add_string( std::to_string( report->column ).c_str() );
+            scFail.errorText += std::to_string( report->column ).c_str();
             if ( report->linebufLength() )
             {
                 scFail.errorText += "\n";

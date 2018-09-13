@@ -17,6 +17,7 @@ class AlbumArtFetchTask : public simple_thread_task
 {
 public:
     AlbumArtFetchTask( HWND hNotifyWnd, metadb_handle_ptr handle, uint32_t artId, bool need_stub, bool only_embed, bool no_load );
+    ~AlbumArtFetchTask();
 
 private:
     virtual void run() override;
@@ -43,6 +44,11 @@ AlbumArtFetchTask::AlbumArtFetchTask( HWND hNotifyWnd, metadb_handle_ptr handle,
     {
         rawPath_ = handle_->get_path();
     }
+}
+
+AlbumArtFetchTask::~AlbumArtFetchTask()
+{
+
 }
 
 void AlbumArtFetchTask::run()
