@@ -179,18 +179,8 @@ JsMenuObject::TrackPopupMenu( int32_t x, int32_t y, uint32_t flags )
     BOOL bRet = ClientToScreen( hParentWnd_, &pt );
     IF_WINAPI_FAILED_RETURN_WITH_REPORT( pJsCtx_, bRet, std::nullopt, ClientToScreen );
 
-    SetLastError( ERROR_SUCCESS );
-    DWORD itemIdx = ::TrackPopupMenu( hMenu_, flags, pt.x, pt.y, 0, hParentWnd_, 0 );
-    if ( !itemIdx )
-    {
-        DWORD lastError = GetLastError();
-        if ( ERROR_SUCCESS != lastError && ERROR_INVALID_PARAMETER != lastError && ERROR_FILE_NOT_FOUND != lastError)
-        {// ERROR_INVALID_PARAMETER and ERROR_FILE_NOT_FOUND are returned when user clicks outside...
-            WINAPI_RETURN_WITH_REPORT( pJsCtx_, std::nullopt, TrackPopupMenu );
-        }
-    }
-
-    return itemIdx;
+    // Don't bother with error checking, since TrackPopupMenu returns numerous errors when clicked outside of menu
+    return ::TrackPopupMenu( hMenu_, flags, pt.x, pt.y, 0, hParentWnd_, 0 );
 }
 
 std::optional<std::uint32_t> 

@@ -374,13 +374,12 @@ JsGdiGraphics::DrawRoundRect( float x, float y, float w, float h, float arc_widt
     Gdiplus::Pen pen( colour, line_width );
     Gdiplus::GraphicsPath gp;
     Gdiplus::RectF rect( x, y, w, h );
-    Gdiplus::Status gdiRet = (Gdiplus::Status)GetRoundRectPath( gp, rect, arc_width, arc_height );
-    if ( gdiRet > 0 )
-    {// Report in GetRoundRectPath
+    if ( !GetRoundRectPath( gp, rect, arc_width, arc_height ) )
+    {// reports
         return std::nullopt;
     }
 
-    gdiRet = pen.SetStartCap( Gdiplus::LineCapRound );
+    Gdiplus::Status gdiRet = pen.SetStartCap( Gdiplus::LineCapRound );
     IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, std::nullopt, SetStartCap );
 
     gdiRet = pen.SetEndCap( Gdiplus::LineCapRound );
@@ -610,13 +609,12 @@ JsGdiGraphics::FillRoundRect( float x, float y, float w, float h, float arc_widt
     Gdiplus::SolidBrush br( colour );
     Gdiplus::GraphicsPath gp;
     Gdiplus::RectF rect( x, y, w, h );
-    Gdiplus::Status gdiRet = (Gdiplus::Status)GetRoundRectPath( gp, rect, arc_width, arc_height );
-    if ( gdiRet > 0 )
-    {// Report in GetRoundRectPath
+    if ( !GetRoundRectPath( gp, rect, arc_width, arc_height ) )
+    {// reports
         return std::nullopt;
     }
 
-    gdiRet = pGdi_->FillPath( &br, &gp );
+    Gdiplus::Status gdiRet = pGdi_->FillPath( &br, &gp );
     IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, std::nullopt, FillPath );
 
     return nullptr;

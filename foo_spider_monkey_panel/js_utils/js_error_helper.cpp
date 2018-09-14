@@ -196,7 +196,7 @@ void RethrowExceptionWithFunctionName( JSContext* cx, const char* functionName )
     scope::final_action autoJsReport( [cx, functionName]()
     {
         JS_ReportErrorUTF8( cx, "'%s' failed", functionName );
-    });
+    } );
 
     if ( !JS_IsExceptionPending( cx ) )
     {
