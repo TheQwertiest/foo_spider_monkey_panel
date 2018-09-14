@@ -11,6 +11,20 @@
 namespace mozjs::file
 {
 
+std::wstring CleanPath( const std::wstring &path )
+{// TODO: replace with `ReplaceChar` or ReplaceString
+    std::wstring cleanedPath = path;
+    for ( auto& curChar : cleanedPath )
+    {
+        if ( L'/' == curChar )
+        {
+            curChar = L'\\';
+        }
+    }
+
+    return cleanedPath;
+}
+
 std::optional<std::wstring> ReadFromFile( JSContext* cx, const pfc::string8_fast& path, uint32_t codepage )
 {
     const auto cleanPath = [&]

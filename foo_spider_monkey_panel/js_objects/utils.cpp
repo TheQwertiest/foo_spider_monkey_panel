@@ -245,7 +245,7 @@ JsUtils::CreateHtmlWindowWithOpt( size_t optArgCount, const std::wstring& htmlCo
 
 std::optional<std::nullptr_t> 
 JsUtils::DumpHeap( const pfc::string8_fast& path, bool nursery )
-{
+{// TODO: remove
     const auto fsPath = [&path]
     {
         namespace fs = std::filesystem;
@@ -274,11 +274,7 @@ JsUtils::DumpHeap( const pfc::string8_fast& path, bool nursery )
 std::optional<JS::Value>
 JsUtils::FileTest( const std::wstring& path, const std::wstring& mode )
 {
-    const auto cleanedPath = [&path]()
-    {
-        std::wstring tmp = path;
-        return tmp.replace( tmp.begin(), tmp.end(), L'/', L'\\' );
-    }();
+    const std::wstring cleanedPath = file::CleanPath( path );
 
     if ( L"e" == mode ) // exists
     {
