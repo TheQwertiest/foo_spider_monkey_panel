@@ -11,13 +11,13 @@ namespace helpers
 	struct custom_sort_data
 	{
         std::wstring text;
-		t_size index;
+        size_t index;
 	};
 
 	struct wrapped_item
 	{
 		_bstr_t text;
-		int width;
+		size_t width;
 	};
 
 	COLORREF convert_argb_to_colorref(DWORD argb);
@@ -33,8 +33,8 @@ namespace helpers
 	bool read_file(const char* path, pfc::string_base& content);
 	bool write_file(const char* path, const pfc::string_base& content, bool write_bom = true);
 	int get_encoder_clsid(const WCHAR* format, CLSID* pClsid);
-	int get_text_height(HDC hdc, const wchar_t* text, int len);
-	int get_text_width(HDC hdc, LPCTSTR text, int len);
+    size_t get_text_height(HDC hdc, std::wstring_view text );
+	size_t get_text_width(HDC hdc, std::wstring_view text);
 	int is_wrap_char(wchar_t current, wchar_t next);
 	pfc::string8 iterator_to_string8(json::iterator j);
 	pfc::string8_fast get_fb2k_component_path();
@@ -43,8 +43,8 @@ namespace helpers
 	t_size detect_charset(const char* fileName);
     size_t detect_text_charset( const char* text, size_t textSize );
 	void build_mainmenu_group_map(pfc::map_t<GUID, mainmenu_group::ptr>& p_group_guid_text_map);
-	void estimate_line_wrap(HDC hdc, const wchar_t* text, int len, int width, pfc::list_t<wrapped_item>& out);
-	void estimate_line_wrap_recur(HDC hdc, const wchar_t* text, int len, int width, pfc::list_t<wrapped_item>& out);
+	void estimate_line_wrap(HDC hdc, const std::wstring& text, size_t width, std::list<helpers::wrapped_item>& out);
+	void estimate_line_wrap_recur(HDC hdc, std::wstring_view text, size_t width, std::list<helpers::wrapped_item>& out);
 	std::wstring make_sort_string(const char* in);
 
 	template <class T>

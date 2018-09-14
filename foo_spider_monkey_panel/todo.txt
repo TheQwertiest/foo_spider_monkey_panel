@@ -5,6 +5,7 @@
 - Fix unresponsive arrow keys in DUI in CaTRoX: https://github.com/TheQwertiest/foo-jscript-panel/commit/8a41c524a9c3c16c466204fde81c5c108975310b#commitcomment-29727611.
 
 # Prerelease-Test
+- Check that EstimateLineWrap results are identical with foo-jscript-panel.
 - Test `include` with various codepages (esp. JP,KR,CH).
 - Test methods that uses path with arguments containing cyrillics and other exotic characters.
 - Check utf8 literals everywhere (paths, script window, script files, properties, callback arguments)

@@ -470,20 +470,20 @@ namespace helpers
 		return -1;
 	}
 
-	int get_text_height(HDC hdc, const wchar_t* text, int len)
+    size_t get_text_height(HDC hdc, std::wstring_view text )
 	{
 		SIZE size;
         // TODO: add error checks
-		GetTextExtentPoint32(hdc, text, len, &size);
-		return size.cy;
+		GetTextExtentPoint32(hdc, text.data(), static_cast<int>(text.size()), &size);
+		return static_cast<size_t>(size.cy);
 	}
 
-	int get_text_width(HDC hdc, LPCTSTR text, int len)
+	size_t get_text_width(HDC hdc, std::wstring_view text )
 	{
 		SIZE size;
         // TODO: add error checks
-		GetTextExtentPoint32(hdc, text, len, &size);
-		return size.cx;
+		GetTextExtentPoint32(hdc, text.data(), static_cast<int>(text.size()), &size);
+		return static_cast<size_t>(size.cx);
 	}
 
 	int is_wrap_char(wchar_t current, wchar_t next)
@@ -660,90 +660,91 @@ namespace helpers
 		}
 	}
 
-	void estimate_line_wrap(HDC hdc, const wchar_t* text, int len, int width, pfc::list_t<wrapped_item>& out)
+	void estimate_line_wrap(HDC hdc, const std::wstring& text, size_t width, std::list<helpers::wrapped_item>& out)
 	{
+        const wchar_t* curTextPos = text.c_str();
         while ( true )
         {
-            const wchar_t* next = wcschr(text, '\n');
-			if (!next)
+            const wchar_t* next = wcschr( curTextPos, '\n');
+			if ( !next )
 			{
-				estimate_line_wrap_recur(hdc, text, wcslen(text), width, out);
+                estimate_line_wrap_recur( hdc, std::wstring_view( curTextPos ), width, out );
 				break;
 			}
 
 			const wchar_t* walk = next;
-
-			while (walk > text && walk[-1] == '\r')
+			while (walk > curTextPos && walk[-1] == '\r')
 			{
 				--walk;
 			}
 
-			estimate_line_wrap_recur(hdc, text, walk - text, width, out);
-			text = next + 1;
+			estimate_line_wrap_recur(hdc, std::wstring_view( curTextPos, walk - curTextPos ), width, out);
+            curTextPos = next + 1;
 		}
 	}
 
-    // TODO: replace with wstring_view
-	void estimate_line_wrap_recur(HDC hdc, const wchar_t* text, int len, int width, pfc::list_t<wrapped_item>& out)
-	{
-		int textLength = len;
-		int textWidth = get_text_width(hdc, text, len);
+    void estimate_line_wrap_recur( HDC hdc, std::wstring_view text, size_t width, std::list<helpers::wrapped_item>& out )
+    {
+        size_t textLength = text.size();
+        size_t textWidth = get_text_width( hdc, text );
 
-		if (textWidth <= width || len <= 1)
-		{
-			wrapped_item item =
-			{
-                _bstr_t(SysAllocStringLen(text, len), false),
-				textWidth
-			};
-			out.add_item(item);
-		}
-		else
-		{
-			textLength = (len * width) / textWidth;
+        if ( textWidth <= width || text.size() <= 1 )
+        {
+            out.emplace_back(
+                wrapped_item
+                {
+                    _bstr_t( SysAllocStringLen( text.data(), text.size() ), false ),
+                    textWidth
+                }
+            );
+        }
+        else
+        {
+            textLength = (text.size() * width) / textWidth;
 
-			if (get_text_width(hdc, text, textLength) < width)
-			{
-				while (get_text_width(hdc, text, std::min(len, textLength + 1)) <= width)
-				{
-					++textLength;
-				}
-			}
-			else
-			{
-				while (get_text_width(hdc, text, textLength) > width && textLength > 1)
-				{
-					--textLength;
-				}
-			}
+            if ( get_text_width( hdc, std::wstring_view( text.data(), textLength ) ) < width )
+            {
+                while ( get_text_width( hdc, std::wstring_view( text.data(), std::min( text.size(), textLength + 1 ) ) ) <= width )
+                {
+                    ++textLength;
+                }
+            }
+            else
+            {
+                while ( get_text_width( hdc, std::wstring_view( text.data(), textLength ) ) > width && textLength > 1 )
+                {
+                    --textLength;
+                }
+            }
 
-			{
-				int fallbackTextLength = std::max(textLength, 1);
+            {
+                size_t fallbackTextLength = std::max( textLength, (size_t)1 );
 
-				while (textLength > 0 && !is_wrap_char(text[textLength - 1], text[textLength]))
-				{
-					--textLength;
-				}
+                while ( textLength > 0 && !is_wrap_char( text[textLength - 1], text[textLength] ) )
+                {
+                    --textLength;
+                }
 
-				if (textLength == 0)
-				{
-					textLength = fallbackTextLength;
-				}
+                if ( !textLength )
+                {
+                    textLength = fallbackTextLength;
+                }
 
-				wrapped_item item =
-				{
-                    _bstr_t( SysAllocStringLen( text, textLength ), false ),					
-					get_text_width(hdc, text, textLength)
-				};
-				out.add_item(item);
-			}
+                out.emplace_back(
+                    wrapped_item
+                    {
+                        _bstr_t( SysAllocStringLen( text.data(), textLength ), false ),
+                        get_text_width( hdc,  std::wstring_view( text.data(), textLength ) )
+                    }
+                );
+            }
 
-			if (textLength < len)
-			{
-				estimate_line_wrap_recur(hdc, text + textLength, len - textLength, width, out);
-			}
-		}
-	}
+            if ( textLength < text.size() )
+            {
+                estimate_line_wrap_recur( hdc, std::wstring_view( text.data() + textLength, text.size() - textLength ), width, out );
+            }
+        }
+    }
 
 	std::wstring make_sort_string(const char* in)
 	{

@@ -155,7 +155,7 @@ JsGdiGraphics::CalcTextHeight( const std::wstring& str, JsGdiFont* font )
     HDC dc = pGdi_->GetHDC();
     HFONT oldfont = SelectFont( dc, hFont );
 
-    uint32_t textH = helpers::get_text_height( dc, str.c_str(), str.length() );
+    uint32_t textH = helpers::get_text_height( dc, str );
 
     SelectFont( dc, oldfont );
     pGdi_->ReleaseHDC( dc );
@@ -183,7 +183,7 @@ JsGdiGraphics::CalcTextWidth( const std::wstring& str, JsGdiFont* font )
     assert( dc );
     HFONT oldfont = SelectFont( dc, hFont );
 
-    uint32_t textW = helpers::get_text_width( dc, str.c_str(), str.length() );
+    uint32_t textW = helpers::get_text_width( dc, str );
 
     SelectFont( dc, oldfont );
     pGdi_->ReleaseHDC( dc );
@@ -470,8 +470,8 @@ JsGdiGraphics::EstimateLineWrap( const std::wstring& str, JsGdiFont* font, uint3
         JS_ReportErrorUTF8( pJsCtx_, "font argument is null" );
         return std::nullopt;
     }
-
-    pfc::list_t<helpers::wrapped_item> result;
+    
+    std::list<helpers::wrapped_item> result;
     {
         HFONT hFont = font->GetHFont();
         assert( hFont );
@@ -479,35 +479,36 @@ JsGdiGraphics::EstimateLineWrap( const std::wstring& str, JsGdiFont* font, uint3
         HDC dc = pGdi_->GetHDC();
         HFONT oldfont = SelectFont( dc, hFont );
 
-        estimate_line_wrap( dc, str.c_str(), str.length(), max_width, result );
+        estimate_line_wrap( dc, str, max_width, result );
 
         SelectFont( dc, oldfont );
         pGdi_->ReleaseHDC( dc );
     }
 
-    JS::RootedObject jsArray( pJsCtx_, JS_NewArrayObject( pJsCtx_, result.get_count() * 2 ) );
+    JS::RootedObject jsArray( pJsCtx_, JS_NewArrayObject( pJsCtx_, result.size() * 2 ) );
     if ( !jsArray )
     {// reports
         return std::nullopt;
     }
 
     JS::RootedValue jsValue( pJsCtx_ );
-    for ( size_t i = 0; i < result.get_count(); ++i )
+    size_t i = 0;
+    for ( auto&[text, width] : result )
     {
-        std::wstring tmpString( (const wchar_t*)result[i].text );
+        std::wstring tmpString( (const wchar_t*)text );
         if ( !convert::to_js::ToValue( pJsCtx_, tmpString, &jsValue ) )
         {
             JS_ReportErrorUTF8( pJsCtx_, "Internal error: cast to JSString failed" );
             return std::nullopt;
         }
 
-        if ( !JS_SetElement( pJsCtx_, jsArray, 2 * i, jsValue ) )
+        if ( !JS_SetElement( pJsCtx_, jsArray, i++, jsValue ) )
         {// report in JS_SetElement
             return std::nullopt;
         }
 
-        jsValue.setNumber( (uint32_t)result[i].width );
-        if ( !JS_SetElement( pJsCtx_, jsArray, 2 * i + 1, jsValue ) )
+        jsValue.setNumber( (uint32_t)width );
+        if ( !JS_SetElement( pJsCtx_, jsArray, i++, jsValue ) )
         {// report in JS_SetElement
             return std::nullopt;
         }
