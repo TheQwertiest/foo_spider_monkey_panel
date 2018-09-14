@@ -597,7 +597,7 @@ std::optional<DISPID> ActiveXObject::GetDispId( const std::wstring& name, bool r
         return std::nullopt;
     }
 
-    if ( name.empty() || name[0] == L'0' )
+    if ( name.empty() )
     {
         return 0;
     }

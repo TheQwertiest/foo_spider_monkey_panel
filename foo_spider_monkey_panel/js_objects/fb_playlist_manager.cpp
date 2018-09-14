@@ -308,18 +308,17 @@ JsFbPlaylistManager::CreateAutoPlaylist( uint32_t playlistIndex, const pfc::stri
         return -1;        
     }
 
-    uint32_t upos = pfc_infinite;
+    uint32_t upos = static_cast<uint32_t>(optPos.value());
     try
     {
         autoplaylist_manager::get()->add_client_simple( query.c_str(), sort.c_str(), upos, flags );
+        return upos;
     }
     catch ( ... )
     {
         playlist_manager::get()->remove_playlist( upos );
         return -1;
     }
-    
-    return (pfc_infinite == upos ? -1 : static_cast<int32_t>(upos));
 }
 
 std::optional<int32_t> 

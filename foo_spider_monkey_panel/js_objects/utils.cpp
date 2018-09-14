@@ -684,13 +684,12 @@ JsUtils::WriteINI( const std::wstring& filename, const std::wstring& section, co
 std::optional<bool>
 JsUtils::WriteTextFile( const pfc::string8_fast& filename, const pfc::string8_fast& content, bool write_bom )
 {// TODO: inspect the code (replace with std::filesystem perhaps?)
-    if ( filename.is_empty() || content.is_empty() )
+    if ( filename.is_empty() )
     {
         return false;
     }
-
-    pfc::string8_fast content8( content.c_str(), content.length() );
-    return helpers::write_file( filename.c_str(), content8, write_bom );
+    
+    return helpers::write_file( filename.c_str(), content, write_bom );
 }
 
 std::optional<bool> 

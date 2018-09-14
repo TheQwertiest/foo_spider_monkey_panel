@@ -77,7 +77,7 @@ const JSFunctionSpec jsFunctions[] = {
     JS_FN( "EstimateLineWrap", EstimateLineWrap, 3, DefaultPropsFlags() ),
     JS_FN( "FillEllipse", FillEllipse, 5, DefaultPropsFlags() ),
     JS_FN( "FillGradRect", FillGradRect, 7, DefaultPropsFlags() ),
-    JS_FN( "FillPolygon", DrawPolygon, 3, DefaultPropsFlags() ),
+    JS_FN( "FillPolygon", FillPolygon, 3, DefaultPropsFlags() ),
     JS_FN( "FillRoundRect", FillRoundRect, 7, DefaultPropsFlags() ),
     JS_FN( "FillSolidRect", FillSolidRect, 5, DefaultPropsFlags() ),
     JS_FN( "GdiAlphaBlend", GdiAlphaBlend, 9, DefaultPropsFlags() ),
@@ -1049,15 +1049,14 @@ bool JsGdiGraphics::ParsePoints( JS::HandleValue jsValue, std::vector<Gdiplus::P
     }
 
     JS::RootedValue arrayElement( pJsCtx_ );
-    JS::RootedValue jsX( pJsCtx_ ), jsY( pJsCtx_ );
-    for ( uint32_t i = 0; i < arraySize/2; ++i )
+    for ( uint32_t i = 0; i < arraySize; i += 2 )
     {
         if ( !JS_GetElement( pJsCtx_, jsObject, i, &arrayElement ) )
         {// report in JS_GetElement
             return false;
         }
 
-        auto xVal = convert::to_native::ToValue<float>( pJsCtx_, jsX );
+        auto xVal = convert::to_native::ToValue<float>( pJsCtx_, arrayElement );
         if ( !xVal )
         {
             JS_ReportErrorUTF8( pJsCtx_, "points[%d] can't be converted to number", i );
@@ -1070,7 +1069,7 @@ bool JsGdiGraphics::ParsePoints( JS::HandleValue jsValue, std::vector<Gdiplus::P
             return false;
         }
 
-        auto yVal = convert::to_native::ToValue<float>( pJsCtx_, jsY );
+        auto yVal = convert::to_native::ToValue<float>( pJsCtx_, arrayElement );
         if ( !yVal )
         {
             JS_ReportErrorUTF8( pJsCtx_, "points[%d] can't be converted to number", i + 1 );
