@@ -51,19 +51,12 @@ private:
     JSContext * pJsCtx_ = nullptr;;
 
     uint32_t currentHeapId_ = 0;
-    struct HeapElement
-    {
-        HeapElement( JS::HandleValue inValue )
-            : inUse( true )
-            , value( inValue )
-        {
-        }
 
-        bool inUse;
-        JS::Heap<JS::Value> value;
-    };
+    using HeapElement = JS::Heap<JS::Value>;
+
     std::mutex heapElementsLock_;
     std::unordered_map<uint32_t, std::unique_ptr<HeapElement>> heapElements_;
+    std::list<std::unique_ptr<HeapElement>> unusedHeapElements_;
 
     std::mutex heapUsersLock_;
     std::unordered_map<IHeapUser*, IHeapUser*> heapUsers_;

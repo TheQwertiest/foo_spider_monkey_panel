@@ -68,6 +68,11 @@ uint32_t GlobalHeapManager::Store( JS::HandleValue valueToStore )
 {
     std::scoped_lock sl( heapElementsLock_ );
 
+    if ( !unusedHeapElements_.empty() )
+    {
+        unusedHeapElements_.clear();
+    }
+
     while( heapElements_.count( currentHeapId_ ))
     {
         ++currentHeapId_;
@@ -81,16 +86,22 @@ JS::Heap<JS::Value>& GlobalHeapManager::Get( uint32_t id )
 {
     std::scoped_lock sl( heapElementsLock_ );
 
+    if ( !unusedHeapElements_.empty() )
+    {
+        unusedHeapElements_.clear();
+    }
+
     assert( heapElements_.count( id ) );
-    return heapElements_[id]->value;
+    return *heapElements_[id];
 }
 
 void GlobalHeapManager::Remove( uint32_t id )
 {
     std::scoped_lock sl( heapElementsLock_ );
     
-    assert( heapElements_.count(id) );    
-    heapElements_[id]->inUse = false;    
+    assert( heapElements_.count(id) );        
+    unusedHeapElements_.emplace_back( std::move( heapElements_[id] ) );
+    heapElements_.erase( id );
 }
 
 void GlobalHeapManager::TraceHeapValue( JSTracer *trc, void *data )
@@ -98,20 +109,11 @@ void GlobalHeapManager::TraceHeapValue( JSTracer *trc, void *data )
     assert( data );
     auto globalObject = static_cast<GlobalHeapManager*>( data );
 
-    std::scoped_lock sl( globalObject->heapElementsLock_ );
-    
-    auto& heapMap = globalObject->heapElements_;
-    for ( auto it = heapMap.cbegin(); it != heapMap.cend();)
+    std::scoped_lock sl( globalObject->heapElementsLock_ );     
+
+    for ( auto&[id, heapElement] : globalObject->heapElements_ )
     {
-        if ( !it->second->inUse )
-        {
-            it = heapMap.erase( it );
-        }
-        else
-        {
-            JS::TraceEdge( trc, &(it->second->value), "CustomHeap_Global" );
-            it++;
-        }
+        JS::TraceEdge( trc, heapElement.get(), "CustomHeap_Global" );
     }
 }
 
