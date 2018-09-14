@@ -1,224 +1,212 @@
 _.mixin({
-	lastfm : function () {
-		this.notify_data = function (name, data) {
-			switch (name) {
-			case '2K3.NOTIFY.LASTFM':
-				this.username = this.read_ini('username');
-				this.sk = this.read_ini('sk');
-				if (typeof buttons == 'object' && typeof buttons.update == 'function') {
-					buttons.update();
-					window.Repaint();
-				}
-				_.forEach(panel.list_objects, function (item) {
-					if (item.mode == 'lastfm_info' && item.properties.mode.value == 1) {
-						item.update();
-					}
-				});
-				break;
-			case '2K3.NOTIFY.LOVE':
-				if (typeof buttons == 'object' && typeof buttons.update == 'function') { // make sure this only fires from scrobbler/lover scripts
-					this.post(this.tfo.loved.EvalWithMetadb(data) == 1 ? 'track.unlove' : 'track.love', null, data);
-				}
-				break;
-			}
-		}
-		
-		this.post = function (method, token, metadb) {
-			switch (method) {
-			case 'auth.getToken':
-				this.update_sk('');
-				var api_sig = md5('api_key' + this.api_key + 'method' + method + this.secret);
-				var data = 'format=json&method=' + method + '&api_key=' + this.api_key + '&api_sig=' + api_sig;
-				break;
-			case 'auth.getSession':
-				var api_sig = md5('api_key' + this.api_key + 'method' + method + 'token' + token + this.secret);
-				var data = 'format=json&method=' + method + '&api_key=' + this.api_key + '&api_sig=' + api_sig + '&token=' + token;
-				break;
-			case 'track.love':
-			case 'track.unlove':
-				switch (true) {
-				case !this.username.length:
-					return console.log(N, 'Last.fm username not set.');
-				case this.sk.length != 32:
-					return console.log(N, 'This script has not been authorised.');
-				}
-				var artist = this.tfo.artist.EvalWithMetadb(metadb);
-				var track = this.tfo.title.EvalWithMetadb(metadb);
-				if (!_.tagged(artist) || !_.tagged(track)) {
-					return;
-				}
-				console.log(N, 'Attempting to ' + (method == 'track.love' ? 'love ' : 'unlove ') + _.q(track) + ' by ' + _.q(artist));
-				console.log(N, 'Contacting Last.fm....');
-				var api_sig = md5('api_key' + this.api_key + 'artist' + artist + 'method' + method + 'sk' + this.sk + 'track' + track + this.secret);
-				// can't use format=json because Last.fm API is broken for this method
-				var data = 'method=' + method + '&api_key=' + this.api_key + '&api_sig=' + api_sig + '&sk=' + this.sk + '&artist=' + encodeURIComponent(artist) + '&track=' + encodeURIComponent(track);
-				break;
-			default:
-				return;
-			}
-			this.xmlhttp.open('POST', 'https://ws.audioscrobbler.com/2.0/', true);
-			this.xmlhttp.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
-			this.xmlhttp.setRequestHeader('User-Agent', this.ua);
-			this.xmlhttp.send(data);
-			this.xmlhttp.onreadystatechange = _.bind(function () {
-				if (this.xmlhttp.readyState == 4) {
-					this.done(method, metadb);
-				}
-			}, this);
-		}
-		
-		this.get_loved_tracks = function (p) {
-			if (!this.username.length) {
-				return console.log(N, 'Last.fm Username not set.');
-			}
-			this.page = p;
-			var url = this.get_base_url() + '&method=user.getLovedTracks&limit=200&user=' + this.username + '&page=' + this.page;
-			this.xmlhttp.open('GET', url, true);
-			this.xmlhttp.setRequestHeader('User-Agent', this.ua);
-			this.xmlhttp.setRequestHeader('If-Modified-Since', 'Thu, 01 Jan 1970 00:00:00 GMT');
-			this.xmlhttp.send();
-			this.xmlhttp.onreadystatechange = _.bind(function () {
-				if (this.xmlhttp.readyState == 4) {
-					this.done('user.getLovedTracks');
-				}
-			}, this);
-		}
-		
-		this.done = function (method, metadb) {
-			switch (method) {
-			case 'user.getLovedTracks':
-				var data = _.jsonParse(this.xmlhttp.responseText);
-				if (this.page == 1) {
-					fb.ShowConsole();
-					if (data.error) {
-						return console.log(N, 'Last.fm server error:', data.message);
-					}
-					this.loved_tracks = [];
-					this.pages = _.get(data, 'lovedtracks["@attr"].totalPages', 0);
-				}
-				data = _.get(data, 'lovedtracks.track', []);
-				if (data.length) {
-					_.forEach(data, function (item) {
-						var artist = item.artist.name.toLowerCase();
-						var title = item.name.toLowerCase();
-						this.loved_tracks.push(artist + ' - ' + title);
-					}, this);
-					console.log('Loved tracks: completed page', + this.page, 'of ', this.pages);
-				}
-				if (this.page < this.pages) {
-					this.page++;
-					this.get_loved_tracks(this.page);
-				} else {
-					console.log(this.loved_tracks.length, 'loved tracks were found on Last.fm.');
-					var tfo = fb.TitleFormat('$lower(%artist% - %title%)');
-					var items = fb.GetLibraryItems();
-					items.OrderByFormat(tfo, 1);
-					var items_to_refresh = fb.CreateHandleList();
-					for (var i = 0; i < items.Count; i++) {
-						var m = items.Item(i);
-						var current = tfo.EvalWithMetadb(m);
-						var idx = _.indexOf(this.loved_tracks, current);
-						if (idx > -1) {
-							this.loved_tracks.splice(idx, 1);
-							m.SetLoved(1);
-							items_to_refresh.Add(m);
-						}
-						m.Dispose();
-					}
-					console.log(items_to_refresh.Count, 'library tracks matched and updated. Duplicates are not counted.');
-					console.log('For those updated tracks, %JSP_LOVED% now has the value of 1 in all components/search dialogs.');
-					if (this.loved_tracks.length) {
-						console.log('The following tracks were not matched:');
-						_.forEach(this.loved_tracks, function (item) {
-							console.log(item);
-						});
-					}
-					items_to_refresh.RefreshStats();
-					_.dispose(tfo, items, items_to_refresh);
-				}
-				return;
-			case 'track.love':
-				if (this.xmlhttp.responseText.indexOf('ok') > -1) {
-					console.log(N, 'Track loved successfully.');
-					metadb.SetLoved(1);
-					metadb.RefreshStats();
-					return;
-				}
-				break;
-			case 'track.unlove':
-				if (this.xmlhttp.responseText.indexOf('ok') > -1) {
-					console.log(N, 'Track unloved successfully.');
-					metadb.SetLoved(0);
-					metadb.RefreshStats();
-					return;
-				}
-				break;
-			case 'auth.getToken':
-				var data = _.jsonParse(this.xmlhttp.responseText);
-				if (data.token) {
-					_.run('https://last.fm/api/auth/?api_key=' + this.api_key + '&token=' + data.token);
-					if (WshShell.popup('If you granted permission successfully, click Yes to continue.', 0, window.Name, popup.question + popup.yes_no) == popup.yes) {
-						this.post('auth.getSession', data.token);
-					}
-					return;
-				}
-				break;
-			case 'auth.getSession':
-				var data = _.jsonParse(this.xmlhttp.responseText);
-				if (data.session && data.session.key) {
-					this.update_sk(data.session.key);
-					return;
-				}
-				break;
-			}
-			// display response text/error if we get here, any success returned early
-			console.log(N, this.xmlhttp.responseText || this.xmlhttp.status);
-		}
-		
-		this.update_username = function () {
-			var username = _.input('Enter your Last.fm username', window.Name, this.username);
-			if (username != this.username) {
-				this.write_ini('username', username);
-				this.update_sk('');
-			}
-		}
-		
-		this.get_base_url = function () {
-			return 'http://ws.audioscrobbler.com/2.0/?format=json&api_key=' + this.api_key;
-		}
-		
-		this.read_ini = function (k) {
-			return utils.ReadINI(this.ini_file, 'Last.fm', k);
-		}
-		
-		this.write_ini = function (k, v) {
-			utils.WriteINI(this.ini_file, 'Last.fm', k, v);
-		}
-		
-		this.update_sk = function (sk) {
-			this.write_ini('sk', sk);
-			window.NotifyOthers('2K3.NOTIFY.LASTFM', 'update');
-			this.notify_data('2K3.NOTIFY.LASTFM', 'update');
-		}
-		
-		this.tfo = {
-			artist : fb.TitleFormat('%artist%'),
-			title : fb.TitleFormat('%title%'),
-			album : fb.TitleFormat('[%album%]'),
-			loved : fb.TitleFormat('$if2(%JSP_LOVED%,0)'),
-			playcount : fb.TitleFormat('$if2(%JSP_PLAYCOUNT%,0)'),
-			first_played : fb.TitleFormat('%JSP_FIRST_PLAYED%')
-		};
-		
-		_.createFolder(folders.data);
-		this.ini_file = folders.data + 'lastfm.ini';
-		this.api_key = '1f078d9e59cb34909f7ed56d7fc64aba';
-		this.secret = 'a8b4adc5de20242f585b12ef08a464a9';
-		this.username = this.read_ini('username');
-		this.sk = this.read_ini('sk');
-		this.ua = 'foo_jscript_panel_lastfm2';
-		this.xmlhttp = new ActiveXObject('Microsoft.XMLHTTP');
-	}
+    lastfm: function () {
+        this.notify_data = function (name, data) {
+            switch (name) {
+                case '2K3.NOTIFY.LASTFM':
+                    this.username = this.read_ini('username');
+                    this.sk = this.read_ini('sk');
+                    if (typeof buttons == 'object' && typeof buttons.update == 'function') {
+                        buttons.update();
+                        window.Repaint();
+                    }
+                    _.forEach(panel.list_objects, function (item) {
+                        if (item.mode == 'lastfm_info' && item.properties.mode.value == 1) {
+                            item.update();
+                        }
+                    });
+                    break;
+                case '2K3.NOTIFY.LOVE':
+                    this.post(_.tf('%JSP_LOVED%', data) == 1 ? 'track.unlove' : 'track.love', null, data);
+                    break;
+            }
+        }
+
+        this.post = function (method, token, metadb) {
+            switch (method) {
+                case 'auth.getToken':
+                    this.update_sk('');
+                    var api_sig = md5('api_key' + this.api_key + 'method' + method + this.secret);
+                    var data = 'format=json&method=' + method + '&api_key=' + this.api_key + '&api_sig=' + api_sig;
+                    break;
+                case 'auth.getSession':
+                    var api_sig = md5('api_key' + this.api_key + 'method' + method + 'token' + token + this.secret);
+                    var data = 'format=json&method=' + method + '&api_key=' + this.api_key + '&api_sig=' + api_sig + '&token=' + token;
+                    break;
+                case 'track.love':
+                case 'track.unlove':
+                    switch (true) {
+                        case !this.username.length:
+                            return console.log(N, 'Last.fm username not set.');
+                        case this.sk.length != 32:
+                            return console.log(N, 'This script has not been authorised.');
+                    }
+                    var artist = _.tf('%artist%', metadb);
+                    var track = _.tf('%title%', metadb);
+                    if (!_.tagged(artist) || !_.tagged(track)) {
+                        return;
+                    }
+                    console.log(N, 'Attempting to ' + (method == 'track.love' ? 'love ' : 'unlove ') + _.q(track) + ' by ' + _.q(artist));
+                    console.log(N, 'Contacting Last.fm....');
+                    var api_sig = md5('api_key' + this.api_key + 'artist' + artist + 'method' + method + 'sk' + this.sk + 'track' + track + this.secret);
+                    // can't use format=json because Last.fm API is broken for this method
+                    var data = 'method=' + method + '&api_key=' + this.api_key + '&api_sig=' + api_sig + '&sk=' + this.sk + '&artist=' + encodeURIComponent(artist) + '&track=' + encodeURIComponent(track);
+                    break;
+                default:
+                    return;
+            }
+            this.xmlhttp.open('POST', 'https://ws.audioscrobbler.com/2.0/', true);
+            this.xmlhttp.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+            this.xmlhttp.setRequestHeader('User-Agent', this.ua);
+            this.xmlhttp.send(data);
+            this.xmlhttp.onreadystatechange = _.bind(function () {
+                if (this.xmlhttp.readyState == 4) {
+                    this.done(method, metadb);
+                }
+            }, this);
+        }
+
+        this.get_loved_tracks = function (p) {
+            if (!this.username.length) {
+                return console.log(N, 'Last.fm Username not set.');
+            }
+            this.page = p;
+            var url = this.get_base_url() + '&method=user.getLovedTracks&limit=200&user=' + this.username + '&page=' + this.page;
+            this.xmlhttp.open('GET', url, true);
+            this.xmlhttp.setRequestHeader('User-Agent', this.ua);
+            this.xmlhttp.setRequestHeader('If-Modified-Since', 'Thu, 01 Jan 1970 00:00:00 GMT');
+            this.xmlhttp.send();
+            this.xmlhttp.onreadystatechange = _.bind(function () {
+                if (this.xmlhttp.readyState == 4) {
+                    this.done('user.getLovedTracks');
+                }
+            }, this);
+        }
+
+        this.done = function (method, metadb) {
+            switch (method) {
+                case 'user.getLovedTracks':
+                    var data = _.jsonParse(this.xmlhttp.responseText);
+                    if (this.page == 1) {
+                        fb.ShowConsole();
+                        if (data.error) {
+                            return console.log(N, 'Last.fm server error:', data.message);
+                        }
+                        this.loved_tracks = [];
+                        this.pages = _.get(data, 'lovedtracks["@attr"].totalPages', 0);
+                    }
+                    data = _.get(data, 'lovedtracks.track', []);
+                    if (data.length) {
+                        _.forEach(data, function (item) {
+                            var artist = item.artist.name.toLowerCase();
+                            var title = item.name.toLowerCase();
+                            this.loved_tracks.push(artist + ' - ' + title);
+                        }, this);
+                        console.log('Loved tracks: completed page', +this.page, 'of ', this.pages);
+                    }
+                    if (this.page < this.pages) {
+                        this.page++;
+                        this.get_loved_tracks(this.page);
+                    }
+                    else {
+                        console.log(this.loved_tracks.length, 'loved tracks were found on Last.fm.');
+                        var tfo = fb.TitleFormat('$lower(%artist% - %title%)');
+                        var items = fb.GetLibraryItems();
+                        items.OrderByFormat(tfo, 1);
+                        var items_to_refresh = fb.CreateHandleList();
+                        for (var i = 0; i < items.Count; i++) {
+                            var m = items.Item(i);
+                            var current = tfo.EvalWithMetadb(m);
+                            var idx = _.indexOf(this.loved_tracks, current);
+                            if (idx > -1) {
+                                this.loved_tracks.splice(idx, 1);
+                                m.SetLoved(1);
+                                items_to_refresh.Add(m);
+                            }
+                        }
+                        console.log(items_to_refresh.Count, 'library tracks matched and updated. Duplicates are not counted.');
+                        console.log('For those updated tracks, %JSP_LOVED% now has the value of 1 in all components/search dialogs.');
+                        if (this.loved_tracks.length) {
+                            console.log('The following tracks were not matched:');
+                            _.forEach(this.loved_tracks, function (item) {
+                                console.log(item);
+                            });
+                        }
+                        items_to_refresh.RefreshStats();
+                    }
+                    return;
+                case 'track.love':
+                    if (this.xmlhttp.responseText.indexOf('ok') > -1) {
+                        console.log(N, 'Track loved successfully.');
+                        metadb.SetLoved(1);
+                        metadb.RefreshStats();
+                        return;
+                    }
+                    break;
+                case 'track.unlove':
+                    if (this.xmlhttp.responseText.indexOf('ok') > -1) {
+                        console.log(N, 'Track unloved successfully.');
+                        metadb.SetLoved(0);
+                        metadb.RefreshStats();
+                        return;
+                    }
+                    break;
+                case 'auth.getToken':
+                    var data = _.jsonParse(this.xmlhttp.responseText);
+                    if (data.token) {
+                        _.run('https://last.fm/api/auth/?api_key=' + this.api_key + '&token=' + data.token);
+                        if (WshShell.popup('If you granted permission successfully, click Yes to continue.', 0, window.Name, popup.question + popup.yes_no) == popup.yes) {
+                            this.post('auth.getSession', data.token);
+                        }
+                        return;
+                    }
+                    break;
+                case 'auth.getSession':
+                    var data = _.jsonParse(this.xmlhttp.responseText);
+                    if (data.session && data.session.key) {
+                        this.update_sk(data.session.key);
+                        return;
+                    }
+                    break;
+            }
+            // display response text/error if we get here, any success returned early
+            console.log(N, this.xmlhttp.responseText || this.xmlhttp.status);
+        }
+
+        this.update_username = function () {
+            var username = _.input('Enter your Last.fm username', window.Name, this.username);
+            if (username != this.username) {
+                this.write_ini('username', username);
+                this.update_sk('');
+            }
+        }
+
+        this.get_base_url = function () {
+            return 'http://ws.audioscrobbler.com/2.0/?format=json&api_key=' + this.api_key;
+        }
+
+        this.read_ini = function (k) {
+            return utils.ReadINI(this.ini_file, 'Last.fm', k);
+        }
+
+        this.write_ini = function (k, v) {
+            utils.WriteINI(this.ini_file, 'Last.fm', k, v);
+        }
+
+        this.update_sk = function (sk) {
+            this.write_ini('sk', sk);
+            window.NotifyOthers('2K3.NOTIFY.LASTFM', 'update');
+            this.notify_data('2K3.NOTIFY.LASTFM', 'update');
+        }
+
+        _.createFolder(folders.data);
+        this.ini_file = folders.data + 'lastfm.ini';
+        this.api_key = '1f078d9e59cb34909f7ed56d7fc64aba';
+        this.secret = 'a8b4adc5de20242f585b12ef08a464a9';
+        this.username = this.read_ini('username');
+        this.sk = this.read_ini('sk');
+        this.ua = 'foo_jscript_panel_lastfm2';
+        this.xmlhttp = new ActiveXObject('Microsoft.XMLHTTP');
+    }
 });
 
 /*

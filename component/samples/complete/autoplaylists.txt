@@ -1,11 +1,8 @@
-// ==PREPROCESSOR==
-// @name "Autoplaylists"
-// @author "marc2003"
-// @import "%fb2k_component_path%samples\complete\js\lodash.min.js"
-// @import "%fb2k_component_path%samples\complete\js\helpers.js"
-// @import "%fb2k_component_path%samples\complete\js\panel.js"
-// @import "%fb2k_component_path%samples\complete\js\list.js"
-// ==/PREPROCESSOR==
+window.DefinePanel("Autoplaylists", {author:"marc2003"});
+include(fb.ComponentPath + "samples\\complete\\js\\lodash.min.js");
+include(fb.ComponentPath + "samples\\complete\\js\\helpers.js");
+include(fb.ComponentPath + "samples\\complete\\js\\panel.js");
+include(fb.ComponentPath + "samples\\complete\\js\\list.js");
 
 var panel = new _.panel();
 var list = new _.list('autoplaylists', LM, TM, 0, 0);

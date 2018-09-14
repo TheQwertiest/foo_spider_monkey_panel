@@ -1,11 +1,8 @@
-// ==PREPROCESSOR==
-// @name "Text Reader"
-// @author "marc2003"
-// @import "%fb2k_component_path%samples\complete\js\lodash.min.js"
-// @import "%fb2k_component_path%samples\complete\js\helpers.js"
-// @import "%fb2k_component_path%samples\complete\js\panel.js"
-// @import "%fb2k_component_path%samples\complete\js\text.js"
-// ==/PREPROCESSOR==
+window.DefinePanel("Text Reader", {author:"marc2003"});
+include(fb.ComponentPath + "samples\\complete\\js\\lodash.min.js");
+include(fb.ComponentPath + "samples\\complete\\js\\helpers.js");
+include(fb.ComponentPath + "samples\\complete\\js\\panel.js");
+include(fb.ComponentPath + "samples\\complete\\js\\text.js");
 
 var panel = new _.panel();
 var text = new _.text('text_reader', LM, TM, 0, 0);

@@ -1,10 +1,7 @@
-// ==PREPROCESSOR==
-// @name "Volume Slider"
-// @author "marc2003"
-// @import "%fb2k_component_path%samples\complete\js\lodash.min.js"
-// @import "%fb2k_component_path%samples\complete\js\helpers.js"
-// @import "%fb2k_component_path%samples\complete\js\volume.js"
-// ==/PREPROCESSOR==
+window.DefinePanel("Volume Slider", {author:"marc2003"});
+include(fb.ComponentPath + "samples\\complete\\js\\lodash.min.js");
+include(fb.ComponentPath + "samples\\complete\\js\\helpers.js");
+include(fb.ComponentPath + "samples\\complete\\js\\volume.js");
 
 var volume = new _.volume(0, 0, 0, 0);
 volume.c1 = _.RGB(50, 50, 50);
@@ -18,7 +15,7 @@ function on_size() {
 function on_paint(gr) {
 	gr.FillSolidRect(volume.x, volume.y, volume.w, volume.h, volume.c1);
 	gr.SetSmoothingMode(2);
-	var points = [volume.x, volume.y + volume.h, volume.x + volume.pos(), volume.y + volume.h, volume.x + volume.pos(), volume.y + volume.h - volume.pos('h')];
+	var points = [volume.x, volume.y + volume.h, volume.x + volume.pos(), volume.y + volume.h, volume.x + volume.pos(), volume.y + volume.h - volume.pos('h')];    
 	gr.FillPolygon(volume.c2, 1, points);
 }
 

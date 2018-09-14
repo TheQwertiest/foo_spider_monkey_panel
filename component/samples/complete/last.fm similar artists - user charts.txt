@@ -1,12 +1,9 @@
-// ==PREPROCESSOR==
-// @name "Last.fm Similar Artists + User Charts"
-// @author "marc2003"
-// @import "%fb2k_component_path%samples\complete\js\lodash.min.js"
-// @import "%fb2k_component_path%samples\complete\js\helpers.js"
-// @import "%fb2k_component_path%samples\complete\js\panel.js"
-// @import "%fb2k_component_path%samples\complete\js\list.js"
-// @import "%fb2k_component_path%samples\complete\js\lastfm.js"
-// ==/PREPROCESSOR==
+window.DefinePanel("Last.fm Similar Artists + User Charts", {author:"marc2003"});
+include(fb.ComponentPath + "samples\\complete\\js\\lodash.min.js");
+include(fb.ComponentPath + "samples\\complete\\js\\helpers.js");
+include(fb.ComponentPath + "samples\\complete\\js\\panel.js");
+include(fb.ComponentPath + "samples\\complete\\js\\list.js");
+include(fb.ComponentPath + "samples\\complete\\js\\lastfm.js");
 
 var panel = new _.panel();
 var lastfm = new _.lastfm();

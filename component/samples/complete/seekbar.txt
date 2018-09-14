@@ -1,10 +1,8 @@
-// ==PREPROCESSOR==
-// @name "Seekbar"
-// @author "marc2003"
-// @import "%fb2k_component_path%samples\complete\js\lodash.min.js"
-// @import "%fb2k_component_path%samples\complete\js\helpers.js"
-// @import "%fb2k_component_path%samples\complete\js\seekbar.js"
-// ==/PREPROCESSOR==
+window.DefinePanel("Seekbar", {author:"marc2003"});
+include(fb.ComponentPath + "samples\\complete\\js\\lodash.min.js");
+include(fb.ComponentPath + "samples\\complete\\js\\helpers.js");
+include(fb.ComponentPath + "samples\\complete\\js\\seekbar.js");
+
 
 var seekbar = new _.seekbar(0, 0, 0, 0);
 seekbar.c1 = _.RGB(50, 50, 50);

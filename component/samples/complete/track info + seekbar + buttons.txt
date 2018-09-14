@@ -1,11 +1,8 @@
-// ==PREPROCESSOR==
-// @name "Track Info + Seekbar + Buttons"
-// @author "marc2003"
-// @import "%fb2k_component_path%samples\complete\js\lodash.min.js"
-// @import "%fb2k_component_path%samples\complete\js\helpers.js"
-// @import "%fb2k_component_path%samples\complete\js\panel.js"
-// @import "%fb2k_component_path%samples\complete\js\seekbar.js"
-// ==/PREPROCESSOR==
+window.DefinePanel("Track Info + Seekbar + Buttons", {author:"marc2003"});
+include(fb.ComponentPath + "samples\\complete\\js\\lodash.min.js");
+include(fb.ComponentPath + "samples\\complete\\js\\helpers.js");
+include(fb.ComponentPath + "samples\\complete\\js\\panel.js");
+include(fb.ComponentPath + "samples\\complete\\js\\seekbar.js");
 
 var colours = {
 	buttons : _.RGB(255, 255, 255),
@@ -80,7 +77,6 @@ function on_playback_new_track(metadb) {
 	if (!metadb) {
 		return;
 	}
-	_.dispose(img);
 	img = utils.GetAlbumArtV2(metadb, 0);
 	window.Repaint();
 }
@@ -131,6 +127,7 @@ function on_mouse_leave() {
 }
 
 function on_mouse_lbtn_down(x, y) {
+	buttons.lbtn_down(x, y)
 	seekbar.lbtn_down(x, y);
 }
 

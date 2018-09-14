@@ -1,9 +1,7 @@
-// ==PREPROCESSOR==
-// @name "Status Bar"
-// @author "marc2003"
-// @import "%fb2k_component_path%samples\complete\js\lodash.min.js"
-// @import "%fb2k_component_path%samples\complete\js\helpers.js"
-// ==/PREPROCESSOR==
+window.DefinePanel("Status Bar", {author:"marc2003"});
+include(fb.ComponentPath + "samples\\complete\\js\\lodash.min.js");
+include(fb.ComponentPath + "samples\\complete\\js\\helpers.js");
+
 
 var left_text_tf = '%playback_time%[ / %length%] :: %__bitrate% kbps %codec% [%codec_profile% ][%__tool% ][%__tagtype% ]';
 
@@ -137,7 +135,6 @@ function on_mouse_rbtn_up(x, y) {
 		c.ExecuteByID(idx - 1);
 		break;
 	}
-	_.dispose(m, s, c, col);
 	return true;
 }
 
@@ -182,5 +179,4 @@ function refresh() {
 	right_text = tmp.join(' :: ');
 	right_text_width = _.textWidth(right_text, font);
 	window.Repaint();
-	_.dispose(items);
 }

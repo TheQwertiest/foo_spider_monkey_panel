@@ -1,11 +1,9 @@
-// ==PREPROCESSOR==
-// @name "Rating"
-// @author "marc2003"
-// @import "%fb2k_component_path%samples\complete\js\lodash.min.js"
-// @import "%fb2k_component_path%samples\complete\js\helpers.js"
-// @import "%fb2k_component_path%samples\complete\js\panel.js"
-// @import "%fb2k_component_path%samples\complete\js\rating.js"
-// ==/PREPROCESSOR==
+window.DefinePanel("Rating", {author:"marc2003"});
+include(fb.ComponentPath + "samples\\complete\\js\\lodash.min.js");
+include(fb.ComponentPath + "samples\\complete\\js\\helpers.js");
+include(fb.ComponentPath + "samples\\complete\\js\\panel.js");
+include(fb.ComponentPath + "samples\\complete\\js\\rating.js");
+
 
 /*
 Now supports 3 modes:

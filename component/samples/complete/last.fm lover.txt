@@ -1,11 +1,9 @@
-// ==PREPROCESSOR==
-// @name "Last.fm Lover"
-// @author "marc2003"
-// @import "%fb2k_component_path%samples\complete\js\lodash.min.js"
-// @import "%fb2k_component_path%samples\complete\js\helpers.js"
-// @import "%fb2k_component_path%samples\complete\js\panel.js"
-// @import "%fb2k_component_path%samples\complete\js\lastfm.js"
-// ==/PREPROCESSOR==
+window.DefinePanel("Last.fm Lover", {author:"marc2003"});
+include(fb.ComponentPath + "samples\\complete\\js\\lodash.min.js");
+include(fb.ComponentPath + "samples\\complete\\js\\helpers.js");
+include(fb.ComponentPath + "samples\\complete\\js\\panel.js");
+include(fb.ComponentPath + "samples\\complete\\js\\lastfm.js");
+
 
 /*
 This script makes use of the JScript Panel "Playback Stats" database to import
@@ -88,6 +86,10 @@ function on_mouse_leave() {
 	buttons.leave();
 }
 
+function on_mouse_lbtn_down(x, y) {
+	buttons.lbtn_down(x, y);
+}
+
 function on_mouse_lbtn_up(x, y) {
 	buttons.lbtn_up(x, y);
 }
@@ -121,7 +123,6 @@ function on_mouse_rbtn_up(x, y) {
 			window.ShowConfigure();
 			break;
 		}
-		m.Dispose();
 	} else {
 		panel.rbtn_up(x, y);
 	}
