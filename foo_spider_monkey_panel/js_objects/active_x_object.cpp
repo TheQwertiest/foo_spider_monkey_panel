@@ -341,8 +341,10 @@ MJS_WRAP_JS_TO_NATIVE_FN( ActiveX_Constructor, ActiveX_Constructor_Impl )
 MJS_WRAP_JS_TO_NATIVE_FN( ActiveX_Run, ActiveX_Run_Impl )
 MJS_WRAP_JS_TO_NATIVE_FN( ActiveX_Get, ActiveX_Get_Impl )
 MJS_WRAP_JS_TO_NATIVE_FN( ActiveX_Set, ActiveX_Set_Impl )
+MJS_DEFINE_JS_TO_NATIVE_FN( ActiveXObject, ToString )
 
 const JSFunctionSpec jsFunctions[] = {
+    JS_FN( "toString", ToString, 0, DefaultPropsFlags() ),
     JS_FN( "ActiveX_Get", ActiveX_Get, 1, DefaultPropsFlags() ),
     JS_FN( "ActiveX_Set", ActiveX_Set, 1, DefaultPropsFlags() ),
     JS_FS_END
@@ -616,6 +618,18 @@ std::vector<std::wstring> ActiveXObject::GetAllMembers()
         memberList.push_back( member.first );
     }
     return memberList;
+}
+
+std::optional<std::wstring> 
+ActiveXObject::ToString()
+{
+    JS::RootedValue jsValue( pJsCtx_ );
+    if ( !Get( L"", &jsValue ) )
+    {
+        return std::nullopt;
+    }
+
+    return convert::to_native::ToValue<std::wstring>( pJsCtx_, jsValue );
 }
 
 bool ActiveXObject::Get( const std::wstring& propName, JS::MutableHandleValue vp )
