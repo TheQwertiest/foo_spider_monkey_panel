@@ -272,6 +272,7 @@ void JsContainer::InvokeTimerFunction( uint32_t timerId )
         return;
     }
 
+    // TODO: add error handling
     HostTimerDispatcher::Get().onInvokeMessage( timerId );
 }
 

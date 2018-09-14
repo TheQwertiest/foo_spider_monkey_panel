@@ -683,6 +683,7 @@ namespace helpers
 		}
 	}
 
+    // TODO: replace with wstring_view
 	void estimate_line_wrap_recur(HDC hdc, const wchar_t* text, int len, int width, pfc::list_t<wrapped_item>& out)
 	{
 		int textLength = len;
