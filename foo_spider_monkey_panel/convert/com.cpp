@@ -85,10 +85,15 @@ protected:
 
     STDMETHODIMP ExecuteValue( VARIANT arg1, VARIANT arg2, VARIANT arg3, VARIANT arg4, VARIANT arg5, VARIANT arg6, VARIANT arg7,
                                VARIANT* pResult )
-    {// TODO: add more arguments
+    {
         if ( !pResult )
         {
             return E_POINTER;
+        }
+
+        if ( !needsCleanup_ )
+        {// Global is being destroyed, can't access anything
+            return E_FAIL;
         }
 
         // Might be executed outside of main JS workflow, so we need to set request and compartment
