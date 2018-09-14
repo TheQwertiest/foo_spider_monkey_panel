@@ -53,6 +53,7 @@ public:
     ITypeInfo * pTypeInfo_ = nullptr;
     VARIANT variant_;
 
+    bool Has( const std::wstring& name );
     bool IsGet( const std::wstring& name );
     bool IsSet( const std::wstring& name );
     bool IsInvoke( const std::wstring& name );
@@ -80,7 +81,7 @@ private:
     using MemberMap = std::unordered_map<std::wstring, std::unique_ptr<MemberInfo>>;
 
 private:
-    std::optional<DISPID> GetDispId( const std::wstring& name );
+    std::optional<DISPID> GetDispId( const std::wstring& name, bool reportError = true );
 
     bool SetupMembers( JS::HandleObject jsObject );
     static bool ParseTypeInfoRecursive( JSContext * cx, ITypeInfo * pTypeInfo, MemberMap& members );

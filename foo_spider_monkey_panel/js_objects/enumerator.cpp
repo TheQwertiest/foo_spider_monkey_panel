@@ -125,7 +125,7 @@ JsEnumerator::CreateNative( JSContext* cx, IUnknown* pUnknown )
     {
         CDispatchPtr pCollection( pUnknown );
         uint32_t collectionSize = pCollection.Get( L"Count" );
-        EnumVARIANTComPtr pEnum( pCollection.Get( L"_NewEnum" ) );
+        EnumVARIANTComPtr pEnum( pCollection.Get( (DISPID)DISPID_NEWENUM ) );
 
         auto pNative = std::unique_ptr<JsEnumerator>( new JsEnumerator( cx, pEnum, !!collectionSize ) );
         if ( !pNative->GetCurrentElement() )

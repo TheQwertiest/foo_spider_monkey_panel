@@ -76,6 +76,7 @@ public:
     {
     }
 
+    // bool has( JSContext* cx, JS::HandleObject proxy, JS::HandleId id, bool* bp ) const override;
     bool get( JSContext* cx, JS::HandleObject proxy, JS::HandleValue receiver,
               JS::HandleId id, JS::MutableHandleValue vp ) const override;
     bool set( JSContext* cx, JS::HandleObject proxy, JS::HandleId id, JS::HandleValue v,
@@ -85,17 +86,17 @@ public:
 const ActiveXObjectProxyHandler ActiveXObjectProxyHandler::singleton;
 const char ActiveXObjectProxyHandler::family = 'Q';
 
-bool
-ActiveXObjectProxyHandler::get( JSContext* cx, JS::HandleObject proxy, JS::HandleValue receiver,
-                                JS::HandleId id, JS::MutableHandleValue vp ) const
+/*
+bool 
+ActiveXObjectProxyHandler::has( JSContext* cx, JS::HandleObject proxy, JS::HandleId id, bool* bp ) const
 {
     if ( !JSID_IS_STRING( id ) )
     {
-        return js::ForwardingProxyHandler::get( cx, proxy, receiver, id, vp );
+        return js::ForwardingProxyHandler::has( cx, proxy, id, bp );
     }
 
     JS::RootedObject target( cx, js::GetProxyTargetObject( proxy ) );
-    auto pNativeTarget = static_cast<ActiveXObject*>( JS_GetPrivate( target ) );
+    auto pNativeTarget = static_cast<ActiveXObject*>(JS_GetPrivate( target ));
     assert( pNativeTarget );
 
     JS::RootedString jsString( cx, JSID_TO_STRING( id ) );
@@ -109,12 +110,51 @@ ActiveXObjectProxyHandler::get( JSContext* cx, JS::HandleObject proxy, JS::Handl
             JS_ReportErrorUTF8( cx, "Failed to parse property name" );
         }
         return false;
-    }   
+    }
+    
+    *bp = pNativeTarget->Has( retVal.value() );
+    return true;
+}
+*/
 
-    std::wstring propName = retVal.value();
-    if ( pNativeTarget->IsGet( propName ) )
+bool
+ActiveXObjectProxyHandler::get( JSContext* cx, JS::HandleObject proxy, JS::HandleValue receiver,
+                                JS::HandleId id, JS::MutableHandleValue vp ) const
+{
+    if ( JSID_IS_STRING( id ) || JSID_IS_INT( id ) )
     {
-        return pNativeTarget->Get( propName, vp );
+        JS::RootedObject target( cx, js::GetProxyTargetObject( proxy ) );
+        auto pNativeTarget = static_cast<ActiveXObject*>(JS_GetPrivate( target ));
+        assert( pNativeTarget );
+
+        std::wstring propName;
+        if ( JSID_IS_STRING( id ))
+        {
+            JS::RootedString jsString( cx, JSID_TO_STRING( id ) );
+            assert( jsString );
+
+            auto retVal = convert::to_native::ToValue( cx, jsString );
+            if ( !retVal )
+            {
+                if ( !JS_IsExceptionPending( cx ) )
+                {
+                    JS_ReportErrorUTF8( cx, "Failed to parse property name" );
+                }
+                return false;
+            }
+
+            propName = retVal.value();
+        }
+        else if ( JSID_IS_INT( id ) )
+        {
+            int32_t idx = JSID_TO_INT( id );
+            propName = std::to_wstring( idx );
+        }
+
+        if ( pNativeTarget->IsGet( propName ) || JSID_IS_INT( id ) )
+        {
+            return pNativeTarget->Get( propName, vp );
+        }
     }
 
     return js::ForwardingProxyHandler::get( cx, proxy, receiver, id, vp );
@@ -546,10 +586,14 @@ bool ActiveXObject::PostCreate( JSContext* cx, JS::HandleObject self )
     return pNative->SetupMembers( self );
 }
 
-std::optional<DISPID> ActiveXObject::GetDispId( const std::wstring& name )
+std::optional<DISPID> ActiveXObject::GetDispId( const std::wstring& name, bool reportError )
 {
     if ( !pDispatch_ )
     {
+        if ( reportError )
+        {
+            JS_ReportErrorUTF8( pJsCtx_, "Internal error: pDispatch_ is null" );
+        }
         return std::nullopt;
     }
 
@@ -572,8 +616,11 @@ std::optional<DISPID> ActiveXObject::GetDispId( const std::wstring& name )
         hresult = pDispatch_->GetIDsOfNames( IID_NULL, &cname, 1, LOCALE_SYSTEM_DEFAULT, &dispId );
         if ( !SUCCEEDED( hresult ) )
         {
-            pfc::string8_fast tmpStr = pfc::stringcvt::string_utf8_from_wide( name.c_str() );
-            JS_ReportErrorUTF8( pJsCtx_, "Failed to get DISPID for `%s`", tmpStr.c_str() );
+            if ( reportError )
+            {
+                pfc::string8_fast tmpStr = pfc::stringcvt::string_utf8_from_wide( name.c_str() );
+                JS_ReportErrorUTF8( pJsCtx_, "Failed to get DISPID for `%s`", tmpStr.c_str() );
+            }
             return std::nullopt;
         }
     }
@@ -593,6 +640,11 @@ std::optional<DISPID> ActiveXObject::GetDispId( const std::wstring& name )
     }
 
     return dispId;
+}
+
+bool ActiveXObject::Has( const std::wstring& name )
+{
+    return members_.count( name );
 }
 
 bool ActiveXObject::IsGet( const std::wstring& name )
@@ -624,8 +676,9 @@ std::optional<std::wstring>
 ActiveXObject::ToString()
 {
     JS::RootedValue jsValue( pJsCtx_ );
-    if ( !Get( L"", &jsValue ) )
-    {
+    auto dispRet = GetDispId( L"toString", false );
+    if ( !Get( (dispRet ? L"toString" : L""), &jsValue ) )
+    {// reports
         return std::nullopt;
     }
 
@@ -636,15 +689,15 @@ bool ActiveXObject::Get( const std::wstring& propName, JS::MutableHandleValue vp
 {
     if ( !pDispatch_ )
     {
+        JS_ReportErrorUTF8( pJsCtx_, "Internal error: pDispatch_ is null" );
         return false;
     }
 
-    auto dispRet = GetDispId( propName );
+    auto dispRet = GetDispId( propName, false );
     if ( !dispRet )
-    {
-        pfc::string8_fast tmpStr = pfc::stringcvt::string_utf8_from_wide( propName.c_str() );
-        JS_ReportErrorUTF8( pJsCtx_, "Invalid property name: %s", tmpStr.c_str() );
-        return false;
+    {// not an error
+        vp.setUndefined();        
+        return true;
     }
 
     DISPPARAMS dispparams = { nullptr,nullptr,0,0 };
@@ -683,6 +736,7 @@ bool ActiveXObject::Get( JS::CallArgs& callArgs )
 {
     if ( !pDispatch_ )
     {
+        JS_ReportErrorUTF8( pJsCtx_, "Internal error: pDispatch_ is null" );
         return false;
     }
 
@@ -769,6 +823,7 @@ bool ActiveXObject::Set( const std::wstring& propName, JS::HandleValue v )
 {
     if ( !pDispatch_ )
     {
+        JS_ReportErrorUTF8( pJsCtx_, "Internal error: pDispatch_ is null" );
         return false;
     }
 
@@ -822,6 +877,7 @@ bool ActiveXObject::Set( const JS::CallArgs& callArgs )
 {
     if ( !pDispatch_ )
     {
+        JS_ReportErrorUTF8( pJsCtx_, "Internal error: pDispatch_ is null" );
         return false;
     }
 
@@ -904,6 +960,7 @@ bool ActiveXObject::Invoke( const std::wstring& funcName, const JS::CallArgs& ca
 {
     if ( !pDispatch_ )
     {
+        JS_ReportErrorUTF8( pJsCtx_, "Internal error: pDispatch_ is null" );
         return false;
     }
 
@@ -1142,7 +1199,7 @@ bool ActiveXObject::SetupMembers_Impl( JS::HandleObject jsObject )
     {
         if ( member->isInvoke )
         {
-            if ( !JS_DefineUCFunction( pJsCtx_, jsObject, (const char16_t*)name.c_str(), name.length(), ActiveX_Run, 0, 0 ) )
+            if ( !JS_DefineUCFunction( pJsCtx_, jsObject, (const char16_t*)name.c_str(), name.length(), ActiveX_Run, 0, JSPROP_ENUMERATE ) )
             {// reports
                 return false;
             }
