@@ -22,10 +22,11 @@ namespace helpers
 
 	COLORREF convert_argb_to_colorref(DWORD argb);
 	DWORD convert_colorref_to_argb(DWORD color);
-	IGdiBitmap* query_album_art(album_art_extractor_instance_v2::ptr extractor, GUID& what, bool no_load = false, pfc::string_base* image_path_ptr = NULL);
 	HBITMAP create_hbitmap_from_gdiplus_bitmap(Gdiplus::Bitmap* bitmap_ptr);
 	HRESULT get_album_art_embedded(BSTR rawpath, IGdiBitmap** pp, int art_id);
 	HRESULT get_album_art_v2(const metadb_handle_ptr& handle, IGdiBitmap** pp, int art_id, bool need_stub, bool no_load = false, pfc::string_base* image_path_ptr = NULL);
+	IGdiBitmap* load_image(BSTR path);
+	IGdiBitmap* query_album_art(album_art_extractor_instance_v2::ptr extractor, GUID& what, bool no_load = false, pfc::string_base* image_path_ptr = NULL);
 	bool execute_context_command_by_name(const char* p_name, metadb_handle_list_cref p_handles, unsigned flags);
 	bool execute_mainmenu_command_by_name(const char* p_name);
 	bool execute_mainmenu_command_recur_v2(mainmenu_node::ptr node, pfc::string8_fast path, const char* p_name, t_size p_name_len);
@@ -97,6 +98,51 @@ namespace helpers
 
 		return ret;
 	}
+
+	class embed_thread : public threaded_process_callback
+	{
+	public:
+		embed_thread(t_size action, album_art_data_ptr data, metadb_handle_list_cref handles, GUID what) : m_action(action), m_data(data), m_handles(handles), m_what(what) {}
+		void on_init(HWND p_wnd) {}
+		void run(threaded_process_status& p_status, abort_callback& p_abort)
+		{
+			t_size count = m_handles.get_count();
+			for (t_size i = 0; i < count; ++i)
+			{
+				pfc::string8_fast path = m_handles.get_item(i)->get_path();
+				p_status.set_progress(i, count);
+				p_status.set_item_path(path);
+				album_art_editor::ptr ptr;
+				if (album_art_editor::g_get_interface(ptr, path))
+				{
+					album_art_editor_instance_ptr aaep;
+
+					try
+					{
+						aaep = ptr->open(NULL, path, p_abort);
+						if (m_action == 0)
+						{
+							aaep->set(m_what, m_data, p_abort);
+						}
+						else if (m_action == 1)
+						{
+							aaep->remove(m_what);
+						}
+						aaep->commit(p_abort);
+					}
+					catch (...)
+					{
+					}
+				}
+			}
+		}
+
+	private:
+		t_size m_action; // 0 embed, 1 remove
+		album_art_data_ptr m_data;
+		metadb_handle_list m_handles;
+		GUID m_what;
+	};
 
 	class album_art_async : public simple_thread_task
 	{
@@ -172,7 +218,7 @@ namespace helpers
 	class js_process_locations : public process_locations_notify
 	{
 	public:
-		js_process_locations(int playlist_idx, UINT base, bool to_select) : m_playlist_idx(playlist_idx), m_base(base), m_to_select(to_select)
+		js_process_locations(bool to_select, t_size base, t_size playlist) : m_to_select(to_select), m_base(base), m_playlist(playlist)
 		{
 		}
 
@@ -180,15 +226,14 @@ namespace helpers
 		{
 			pfc::bit_array_val selection(m_to_select);
 			auto api = playlist_manager::get();
-			t_size playlist = m_playlist_idx == -1 ? api->get_active_playlist() : m_playlist_idx;
 
-			if (playlist < api->get_playlist_count() && !api->playlist_lock_is_present(playlist))
+			if (m_playlist < api->get_playlist_count() && !api->playlist_lock_is_present(m_playlist))
 			{
-				api->playlist_insert_items(playlist, m_base, p_items, selection);
+				api->playlist_insert_items(m_playlist, m_base, p_items, selection);
 				if (m_to_select)
 				{
-					api->set_active_playlist(playlist);
-					api->playlist_set_focus_item(playlist, m_base);
+					api->set_active_playlist(m_playlist);
+					api->playlist_set_focus_item(m_playlist, m_base);
 				}
 			}
 		}
@@ -199,8 +244,8 @@ namespace helpers
 
 	private:
 		bool m_to_select;
-		int m_playlist_idx;
 		t_size m_base;
+		t_size m_playlist;
 	};
 
 	class com_array_reader

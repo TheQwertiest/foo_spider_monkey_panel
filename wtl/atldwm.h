@@ -262,7 +262,7 @@ public:
 
 	CDwmWindowT< TBase >& operator =(HWND hWnd)
 	{
-		m_hWnd = hWnd;
+		this->m_hWnd = hWnd;
 		return *this;
 	}
 };
@@ -424,7 +424,7 @@ public:
 // Operations
 	BOOL SubclassWindow(HWND hWnd)
 	{
-		ATLASSERT(m_hWnd == NULL);
+		ATLASSERT(this->m_hWnd == NULL);
 		ATLASSERT(::IsWindow(hWnd));
 		BOOL bRet = _windowClass::SubclassWindow(hWnd);
 		if(bRet)

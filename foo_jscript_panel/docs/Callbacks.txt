@@ -35,8 +35,11 @@ function on_font_changed() {}
 // Retrieve fonts using window.GetFontDUI()/window.GetFontCUI()
 
 function on_get_album_art_done(handle, art_id, image, image_path) {}
-// Called when thread created by utils.GetAlbumArtAsync() is done.
-// image_path will point to the image file (or music file if image is embedded).
+/*
+Called when thread created by utils.GetAlbumArtAsync() is done.
+image: IGdiBitmap object or null on failure.
+image_path: path to image file (or music file if image is embedded).
+*/
 
 function on_item_focus_change(playlistIndex, from, to) {}
 // Called when playlist focus has been changed.
@@ -62,8 +65,13 @@ function on_library_items_changed(handle_list) {}
 function on_library_items_removed(handle_list) {}
 // handle_list: affected items.
 
-function on_load_image_done(cookie, image) {}
-// Called when thread created by gdi.LoadImageAsync() is done.
+function on_load_image_done(cookie, image, image_path) {}
+/*
+Called when thread created by gdi.LoadImageAsync() is done.
+cookie: the return value from the gdi.LoadImageAsync call.
+image: IGdiBitmap object or null on failure (invalid path/not an image).
+image_path: the path that was originally supplied to gdi.LoadImageAsync.
+*/
 
 function on_main_menu(index) {}
 /*

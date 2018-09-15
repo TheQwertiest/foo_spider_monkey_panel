@@ -814,7 +814,7 @@ template <class T, class TBase = ATL::CWindow, class TWinTraits = ATL::CControlW
 class ATL_NO_VTABLE CPrintPreviewWindowImpl : public ATL::CWindowImpl<T, TBase, TWinTraits>, public CPrintPreview
 {
 public:
-	DECLARE_WND_CLASS_EX(NULL, CS_VREDRAW | CS_HREDRAW, -1)
+	DECLARE_WND_CLASS_EX2(NULL, T, CS_VREDRAW | CS_HREDRAW, -1)
 
 	enum { m_cxOffset = 10, m_cyOffset = 10 };
 

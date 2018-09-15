@@ -95,7 +95,7 @@ void ScriptCallbackInvoker::init(IDispatch* pActiveScriptRoot)
 	m_activeScriptRoot = pActiveScriptRoot;
 	int count = _countof(g_idToNames);
 
-	for (int i = 0; i < count; i++)
+	for (int i = 0; i < count; ++i)
 	{
 		int callbackId = g_idToNames[i].id;
 		LPOLESTR name = const_cast<LPOLESTR>(g_idToNames[i].name);

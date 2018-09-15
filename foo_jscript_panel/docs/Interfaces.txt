@@ -152,19 +152,19 @@ interface IFbUtils {
 		Items can then be pasted in other playlist viewers or in Windows Explorer as files.
 
 		Example1: (copy playlist items)
-		var items = plman.GetPlaylistSelectedItems(plman.ActivePlaylist);
-		fb.CopyHandleListToClipboard(items);
-		items.Dispose();
+		var handle_list = plman.GetPlaylistSelectedItems(plman.ActivePlaylist);
+		fb.CopyHandleListToClipboard(handle_list);
+		handle_list.Dispose();
 
 		Example2: (cut playlist items)
 		var ap = plman.ActivePlaylist;
 		if (!plman.IsPlaylistLocked(ap)) {
-			var items = plman.GetPlaylistSelectedItems(ap);
-			if (fb.CopyHandleListToClipboard(items)) {
+			var handle_list = plman.GetPlaylistSelectedItems(ap);
+			if (fb.CopyHandleListToClipboard(handle_list)) {
 				plman.UndoBackup(ap);
 				plman.RemovePlaylistSelection(ap);
 			}
-			items.Dispose();
+			handle_list.Dispose();
 		}
 		*/
 
@@ -178,6 +178,11 @@ interface IFbUtils {
 					Dispose(); (void)
 					ExecuteByID(id); (boolean)
 					InitContext(handle_list); (void)
+					InitContextPlaylist(); (void)
+					/*
+					Shows playlist specific options that aren't available when passing a
+					handle list to InitContext.
+					*/
 					InitNowPlaying(); (void)
 			}
 
@@ -229,12 +234,12 @@ interface IFbUtils {
 		function on_mouse_rbtn_up(x, y) {
 			var ap = plman.ActivePlaylist;
 			var menu = window.CreatePopupMenu();
-			menu.AppendMenuItem(!plman.IsPlaylistLocked(ap) && fb.CheckClipboardContents(window.ID) ? MF_STRING : MF_GRAYED, 1, "Paste"); // assume MF_* are already defined
+			menu.AppendMenuItem(!plman.IsPlaylistLocked(ap) && fb.CheckClipboardContents(window.ID) ? MF_STRING : MF_GRAYED, 1, "Paste"); // see Flags.txt for MF_* definitions
 			var idx = menu.TrackPopupMenu(x, y);
 			if (idx == 1) {
-				var items = fb.GetClipboardContents(window.ID);
-				plman.InsertPlaylistItems(ap, plman.PlaylistItemCount(ap), items);
-				items.Dispose();
+				var handle_list = fb.GetClipboardContents(window.ID);
+				plman.InsertPlaylistItems(ap, plman.PlaylistItemCount(ap), handle_list);
+				handle_list.Dispose();
 			}
 			menu.Dispose();
 			return true;
@@ -510,9 +515,9 @@ interface IFbUtils {
 					Returns a VBArray so you need to use .toArray() on the result.
 
 					Example:
-					var items = fb.GetLibraryItems();
-					var artists = tfo.EvalWithMetadbs(items).toArray();
-					console.log(items.Count === artists.length); // should always be true!
+					var handle_list = fb.GetLibraryItems();
+					var artists = tfo.EvalWithMetadbs(handle_list).toArray();
+					console.log(handle_list.Count === artists.length); // should always be true!
 					*/
 			}
 
@@ -622,12 +627,13 @@ interface IFbPlaylistManager {
 		plman.ClearPlaylistSelection(plman.ActivePlaylist);
 		*/
 
-		plman.CreateAutoPlaylist(playlistIndex, name, query[, sort][, flags]); (int)
+		plman.CreateAutoPlaylist(playlistIndex, name, query[, sort, flags]); (int)
 		/*
 		name: a name for the new Autplaylist
 		query: a valid query
 		sort: default "". title formatting pattern.
 		flags: default 0, use 1 to force sort.
+
 		Returns -1 on failure.
 		*/
 
@@ -641,6 +647,7 @@ interface IFbPlaylistManager {
 		Example2:
 		plman.CreatePlaylist(plman.PlaylistCount, "my favourites");
 		This will be added at the end of the current playlists.
+
 		Returns -1 on failure.
 		*/
 
@@ -659,6 +666,7 @@ interface IFbPlaylistManager {
 		unlocked: boolean. If true, locked playlists are ignored when looking for existing playlists.
 		If false, the playlistIndex of any playlist with the matching name will be returned.
 		If a new playlist is created, the playlistIndex of that will be returned.
+
 		Returns -1 on failure.
 		*/
 
@@ -1011,7 +1019,7 @@ interface IJSUtils {
 		console.log(utils.FormatFileSize(plman.GetPlaylistItems(plman.ActivePlaylist).CalcTotalSize())); // 7.9 GB
 		*/
 
-		utils.GetAlbumArtAsync(window_id, handle[, art_id][, need_stub][, only_embed][, no_load]); (uint)
+		utils.GetAlbumArtAsync(window_id, handle[, art_id, need_stub, only_embed, no_load]); (uint)
 		/*
 		window_id: window.ID
 		art_id: default 0. See flags.txt > AlbumArtId
@@ -1029,7 +1037,7 @@ interface IJSUtils {
 		var img = utils.GetAlbumArtEmbedded(fb.GetNowPlaying().RawPath, 0);
 		*/
 
-		utils.GetAlbumArtV2(handle[, art_id][, need_stub]); (IGdiBitmap)
+		utils.GetAlbumArtV2(handle[, art_id, need_stub]); (IGdiBitmap)
 		/*
 		art_id: default 0. See flags.txt > AlbumArtId
 		need stub: boolean, default true.
@@ -1051,7 +1059,7 @@ interface IJSUtils {
 		Returns 0 if failed.
 		*/
 
-		utils.Glob(pattern[, exc_mask][, inc_mask]); (VBArray)
+		utils.Glob(pattern[, exc_mask, inc_mask]); (VBArray)
 		/*
 		exc_mask: default FILE_ATTRIBUTE_DIRECTORY
 		See flags.txt > Used in utils.Glob()
@@ -1062,7 +1070,7 @@ interface IJSUtils {
 		var arr = utils.Glob("C:\\*.*").toArray();
 		*/
 
-		utils.InputBox(window_id, prompt, caption[, defaultval][, error_on_cancel]) (string)
+		utils.InputBox(window_id, prompt, caption[, defaultval, error_on_cancel]) (string)
 		/*
 		window_id: window.ID
 		prompt: string
@@ -1226,7 +1234,7 @@ interface IFbWindow {
 
 			interface IThemeManager {
 				Methods:
-					DrawThemeBackground(IGdiGraphics, x, y, w, h[, clip_x][, clip_y][, clip_w][, clip_h]); (void)
+					DrawThemeBackground(IGdiGraphics, x, y, w, h[, clip_x, clip_y, clip_w, clip_h]); (void)
 					// clip_x, clip_y, clip_w, clip_h: defaults to 0 if omitted
 
 					IsThemePartDefined(partid); (boolean)
@@ -1238,7 +1246,7 @@ interface IFbWindow {
 					*/
 			}
 
-		window.CreateTooltip([font_name][, font_size_px][, font_style]); (IFbTooltip)
+		window.CreateTooltip([font_name, font_size_px, font_style]); (IFbTooltip)
 		/*
 		font_name: default "Segoe UI"
 		font_size_px: default 12
@@ -1504,7 +1512,7 @@ interface IGdiGraphics {
 
 		gr.DrawEllipse(x, y, w, h, line_width, colour); (void)
 
-		gr.DrawImage(IGdiBitmap, dstX, dstY, dstW, dstH, srcX, srcY, srcW, srcH[, angle][, alpha]); (void)
+		gr.DrawImage(IGdiBitmap, dstX, dstY, dstW, dstH, srcX, srcY, srcW, srcH[, angle, alpha]); (void)
 		/*
 		angle: default 0
 		alpha: default 255. Valid values 0-255.
@@ -1749,6 +1757,38 @@ interface IFbMetadbHandleList {
 		handle_list.Add(fb.GetLibraryItems());
 		*/
 
+		AttachImage(image_path[, art_id]) (void)
+		/*
+		image_path: path to an existing image
+		art_id: default 0. See flags.txt > AlbumArtId
+
+		Note you cannot perform embedded art operations on the currently playing track - it will silently fail.
+		This is a limitation of the foobar2000 SDK. You may consider detecting if your handle list
+		contains the playing track and stopping playback, performing this action and then restarting
+		playback.
+
+		Any other errors such as invalid path, corrupt image, target file type not supporting
+		embedded art, etc should all silently fail. A progress dialog will be shown for larger file
+		selections. Any existing artwork of the specified type will be overwritten - there is no need to
+		remove it first.
+
+		Example1:
+		var handle_list = plman.GetPlaylistItems(plman.ActivePlaylist);
+		if (handle_list.Count > 0) {
+			var img_path = "C:\\path\\to\\image.jpg";
+			handle_list.AttachImage(img_path, 0);
+		}
+		handle_list.Dispose();
+
+		Example2:
+		// since there is no handle method, do this for a single item
+		var handle_list = fb.CreateHandleList();
+		handle_list.Add(fb.GetFocusItem());
+		var img_path = "C:\\path\\to\\image.jpg";
+		handle_list.AttachImage(img_path, 0);
+		handle_list.Dispose();
+		*/
+
 		BSearch(handle); (int)
 		/*
 		Must be sorted, faster than Find()
@@ -1792,7 +1832,8 @@ interface IFbMetadbHandleList {
 
 		Find(handle); (int)
 		/*
-		If sorted, use BSearch instead
+		If sorted, use BSearch instead.
+
 		Returns -1 on failure.
 		*/
 
@@ -1805,9 +1846,9 @@ interface IFbMetadbHandleList {
 		a handle list manually and using the aforementioned method.
 
 		Example:
-		var items = fb.GetLibraryItems();
-		items.OrderByRelativePath();
-		var relative_paths = items.GetLibraryRelativePaths().toArray();
+		var handle_list = fb.GetLibraryItems();
+		handle_list.OrderByRelativePath();
+		var relative_paths = handle_list.GetLibraryRelativePaths().toArray();
 		*/
 
 		Insert(index, handle); (void)
@@ -1886,6 +1927,13 @@ interface IFbMetadbHandleList {
 		Remove(handle); (void)
 
 		RemoveAll(); (void)
+
+		RemoveAttachedImage([art_id]); (void)
+		/*
+		art_id: default 0. See flags.txt > AlbumArtId
+
+		See AttachImage() for more info as there are some limitaions.
+		*/
 
 		RemoveById(idx); (void)
 		/*

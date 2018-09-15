@@ -22,31 +22,6 @@ namespace helpers
 			0xff000000;
 	}
 
-	IGdiBitmap* query_album_art(album_art_extractor_instance_v2::ptr extractor, GUID& what, bool no_load, pfc::string_base* image_path_ptr)
-	{
-		abort_callback_dummy abort;
-		album_art_data_ptr data = extractor->query(what, abort);
-		Gdiplus::Bitmap* bitmap = NULL;
-		IGdiBitmap* ret = NULL;
-
-		if (!no_load && read_album_art_into_bitmap(data, &bitmap))
-		{
-			ret = new com_object_impl_t<GdiBitmap>(bitmap);
-		}
-
-		if (image_path_ptr && (no_load || ret))
-		{
-			album_art_path_list::ptr pathlist = extractor->query_paths(what, abort);
-
-			if (pathlist->get_count() > 0)
-			{
-				image_path_ptr->set_string(pathlist->get_path(0));
-			}
-		}
-
-		return ret;
-	}
-
 	HBITMAP create_hbitmap_from_gdiplus_bitmap(Gdiplus::Bitmap* bitmap_ptr)
 	{
 		BITMAP bm;
@@ -81,39 +56,32 @@ namespace helpers
 	{
 		if (!pp) return E_POINTER;
 
-		service_enum_t<album_art_extractor> e;
-		album_art_extractor::ptr ptr;
 		pfc::stringcvt::string_utf8_from_wide urawpath(rawpath);
-		pfc::string_extension ext(urawpath);
-		abort_callback_dummy abort;
 		IGdiBitmap* ret = NULL;
 
-		while (e.next(ptr))
+		album_art_extractor::ptr ptr;
+		if (album_art_extractor::g_get_interface(ptr, urawpath))
 		{
-			if (ptr->is_our_path(urawpath, ext))
-			{
-				album_art_extractor_instance_ptr aaep;
-				GUID what = convert_artid_to_guid(art_id);
+			album_art_extractor_instance_ptr aaep;
+			GUID what = convert_artid_to_guid(art_id);
+			abort_callback_dummy abort;
 
-				try
+			try
+			{	
+				aaep = ptr->open(NULL, urawpath, abort);
+
+				album_art_data_ptr data = aaep->query(what, abort);
+				Gdiplus::Bitmap* bitmap = NULL;
+
+				if (read_album_art_into_bitmap(data, &bitmap))
 				{
-					aaep = ptr->open(NULL, urawpath, abort);
-
-					Gdiplus::Bitmap* bitmap = NULL;
-					album_art_data_ptr data = aaep->query(what, abort);
-
-					if (read_album_art_into_bitmap(data, &bitmap))
-					{
-						ret = new com_object_impl_t<GdiBitmap>(bitmap);
-						break;
-					}
-				}
-				catch (...)
-				{
+					ret = new com_object_impl_t<GdiBitmap>(bitmap);
 				}
 			}
+			catch (...)
+			{
+			}
 		}
-
 		*pp = ret;
 		return S_OK;
 	}
@@ -155,13 +123,54 @@ namespace helpers
 		return S_OK;
 	}
 
+	IGdiBitmap* load_image(BSTR path)
+	{
+		IGdiBitmap* ret = NULL;
+		IStreamPtr pStream;
+		HRESULT hr = SHCreateStreamOnFileEx(path, STGM_READ | STGM_SHARE_DENY_WRITE, GENERIC_READ, FALSE, NULL, &pStream);
+		if (SUCCEEDED(hr))
+		{
+			Gdiplus::Bitmap* img = new Gdiplus::Bitmap(pStream, PixelFormat32bppPARGB);
+			if (helpers::ensure_gdiplus_object(img))
+			{
+				ret = new com_object_impl_t<GdiBitmap>(img);
+			}
+			else
+			{
+				if (img) delete img;
+				img = NULL;
+			}
+		}
+		return ret;
+	}
+
+	IGdiBitmap* query_album_art(album_art_extractor_instance_v2::ptr extractor, GUID& what, bool no_load, pfc::string_base* image_path_ptr)
+	{
+		abort_callback_dummy abort;
+		album_art_data_ptr data = extractor->query(what, abort);
+		Gdiplus::Bitmap* bitmap = NULL;
+		IGdiBitmap* ret = NULL;
+		if (!no_load && read_album_art_into_bitmap(data, &bitmap))
+		{
+			ret = new com_object_impl_t<GdiBitmap>(bitmap);
+		}
+		if (image_path_ptr && (no_load || ret))
+		{
+			album_art_path_list::ptr pathlist = extractor->query_paths(what, abort);
+			if (pathlist->get_count() > 0)
+			{
+				image_path_ptr->set_string(pathlist->get_path(0));
+			}
+		}
+		return ret;
+	}
+
 	bool execute_context_command_by_name(const char* p_name, metadb_handle_list_cref p_handles, unsigned flags)
 	{
-		contextmenu_node* node = NULL;
-
 		contextmenu_manager::ptr cm;
-		pfc::string8_fast dummy("");
 		contextmenu_manager::g_create(cm);
+		contextmenu_node* node = NULL;
+		pfc::string8_fast dummy("");
 
 		if (p_handles.get_count() > 0)
 		{
@@ -172,12 +181,7 @@ namespace helpers
 			cm->init_context_now_playing(flags);
 		}
 
-		if (!find_context_command_recur(p_name, dummy, cm->get_root(), node))
-		{
-			return false;
-		}
-
-		if (node)
+		if (find_context_command_recur(p_name, dummy, cm->get_root(), node) && node)
 		{
 			node->execute();
 			return true;
@@ -954,27 +958,13 @@ namespace helpers
 		}
 
 		t_param param(handle, m_art_id, bitmap, image_path.is_empty() ? "" : file_path_display(image_path));
-
 		SendMessage(m_notify_hwnd, CALLBACK_UWM_ON_GET_ALBUM_ART_DONE, 0, (LPARAM)&param);
 	}
 
 	void load_image_async::run()
 	{
-		IGdiBitmap* bitmap = NULL;
-		Gdiplus::Bitmap* img = new Gdiplus::Bitmap(m_path, PixelFormat32bppPARGB);
-
-		if (ensure_gdiplus_object(img))
-		{
-			bitmap = new com_object_impl_t<GdiBitmap>(img);
-		}
-		else
-		{
-			if (img) delete img;
-			img = NULL;
-		}
-
+		IGdiBitmap* bitmap = load_image(m_path);
 		t_param param(reinterpret_cast<unsigned>(this), bitmap, m_path);
-
 		SendMessage(m_notify_hwnd, CALLBACK_UWM_ON_LOAD_IMAGE_DONE, 0, (LPARAM)&param);
 	}
 }

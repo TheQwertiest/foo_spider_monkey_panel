@@ -2548,7 +2548,7 @@ oList = function (object_name, playlist) {
 		var _menu = window.CreatePopupMenu();
 		var _context = fb.CreateContextMenuManager();
 		
-		_context.InitContext(items);
+		_context.InitContextPlaylist();
 		_menu.AppendMenuItem(MF_STRING, 1000, "Panel Settings...");
 		_menu.AppendMenuSeparator();
 		_menu.AppendMenuItem(flag, 1001, "Crop");

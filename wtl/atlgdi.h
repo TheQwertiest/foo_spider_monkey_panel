@@ -1133,6 +1133,11 @@ typedef CRgnT<true>    CRgn;
 // CDC - The device context class
 
 template <bool t_bManaged>
+class CDCT;
+typedef CDCT<false>   CDCHandle;
+typedef CDCT<true>    CDC;
+
+template <bool t_bManaged>
 class CDCT
 {
 public:
@@ -3133,9 +3138,6 @@ public:
 		return ::ColorCorrectPalette(m_hDC, hPalette, dwFirstEntry, dwNumOfEntries);
 	}
 };
-
-typedef CDCT<false>   CDCHandle;
-typedef CDCT<true>    CDC;
 
 
 ///////////////////////////////////////////////////////////////////////////////

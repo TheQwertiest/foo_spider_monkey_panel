@@ -86,7 +86,7 @@ HRESULT HostDropTarget::OnDrop(IDataObject* pDataObj, DWORD grfKeyState, POINTL 
 
 		droppedData.to_handles_async_ex(playlist_incoming_item_filter_v2::op_flag_delay_ui,
 			core_api::get_main_window(),
-			new service_impl_t<helpers::js_process_locations>(playlist, base, to_select));
+			new service_impl_t<helpers::js_process_locations>(to_select, base, playlist));
 	}
 
 	*pdwEffect = m_action->Effect();

@@ -93,7 +93,7 @@ __interface IGdiBitmap : IGdiObj
 	STDMETHOD(Clone)(float x, float y, float w, float h, [out, retval] IGdiBitmap** pp);
 	STDMETHOD(CreateRawBitmap)([out, retval] IGdiRawBitmap** pp);
 	STDMETHOD(GetColourScheme)(UINT count, [out, retval] VARIANT* outArray);
-	STDMETHOD(GetColourSchemeJSON)(UINT count, [out, retval] BSTR* outJson);
+	STDMETHOD(GetColourSchemeJSON)(UINT count, [out, retval] BSTR* p);
 	STDMETHOD(GetGraphics)([out, retval] __interface IGdiGraphics** pp);
 	STDMETHOD(ReleaseGraphics)(__interface IGdiGraphics* p);
 	STDMETHOD(Resize)(UINT w, UINT h, [defaultvalue(0)] int interpolationMode, [out, retval] IGdiBitmap** pp);
@@ -232,6 +232,7 @@ __interface IFbMetadbHandleList : IDisposable
 {
 	STDMETHOD(Add)(IFbMetadbHandle* handle);
 	STDMETHOD(AddRange)(IFbMetadbHandleList* handles);
+	STDMETHOD(AttachImage)(BSTR image_path, [defaultvalue(0)] int art_id);
 	STDMETHOD(BSearch)(IFbMetadbHandle* handle, [out, retval] int* p);
 	STDMETHOD(CalcTotalDuration)([out, retval] double* p);
 	STDMETHOD(CalcTotalSize)([out, retval] LONGLONG* p);
@@ -250,6 +251,7 @@ __interface IFbMetadbHandleList : IDisposable
 	STDMETHOD(RefreshStats)();
 	STDMETHOD(Remove)(IFbMetadbHandle* handle);
 	STDMETHOD(RemoveAll)();
+	STDMETHOD(RemoveAttachedImage)([defaultvalue(0)] int art_id);
 	STDMETHOD(RemoveById)(UINT index);
 	STDMETHOD(RemoveRange)(UINT from, UINT count);
 	STDMETHOD(Sort)();
@@ -305,6 +307,7 @@ __interface IContextMenuManager : IDisposable
 	STDMETHOD(BuildMenu)(IMenuObj* p, int base_id, [defaultvalue(-1)] int max_id);
 	STDMETHOD(ExecuteByID)(UINT id, [out, retval] VARIANT_BOOL* p);
 	STDMETHOD(InitContext)(IFbMetadbHandleList* handles);
+	STDMETHOD(InitContextPlaylist)();
 	STDMETHOD(InitNowPlaying)();
 };
 
@@ -394,7 +397,6 @@ __interface IFbUtils : IDispatch
 	STDMETHOD(RunContextCommand)(BSTR command, [defaultvalue(0)] UINT flags, [out, retval] VARIANT_BOOL* p);
 	STDMETHOD(RunContextCommandWithMetadb)(BSTR command, VARIANT handle, [defaultvalue(0)] UINT flags, [out, retval] VARIANT_BOOL* p);
 	STDMETHOD(RunMainMenuCommand)(BSTR command, [out, retval] VARIANT_BOOL* p);
-	STDMETHOD(SaveIndex)();
 	STDMETHOD(SavePlaylist)();
 	STDMETHOD(SetDSPPreset)(UINT idx);
 	STDMETHOD(SetOutputDevice)(BSTR output, BSTR device);
@@ -457,7 +459,7 @@ __interface IDropSourceAction : IDisposable
 	[propget] STDMETHOD(Effect)([out, retval] UINT* effect);
 	[propput] STDMETHOD(Base)(UINT base);
 	[propput] STDMETHOD(Effect)(UINT effect);
-	[propput] STDMETHOD(Playlist)(int id);
+	[propput] STDMETHOD(Playlist)(UINT id);
 	[propput] STDMETHOD(ToSelect)(VARIANT_BOOL to_select);
 };
 
@@ -633,9 +635,9 @@ __interface IFbPlaylistManager : IDispatch
 	[propget] STDMETHOD(PlayingPlaylist)([out, retval] int* outPlaylistIndex);
 	[propget] STDMETHOD(PlaylistCount)([out, retval] UINT* outCount);
 	[propget] STDMETHOD(PlaylistRecyclerManager)([out, retval] __interface IFbPlaylistRecyclerManager** outRecyclerManager);
-	[propput] STDMETHOD(ActivePlaylist)(int playlistIndex);
+	[propput] STDMETHOD(ActivePlaylist)(UINT playlistIndex);
 	[propput] STDMETHOD(PlaybackOrder)(UINT order);
-	[propput] STDMETHOD(PlayingPlaylist)(int playlistIndex);
+	[propput] STDMETHOD(PlayingPlaylist)(UINT playlistIndex);
 };
 
 _COM_SMARTPTR_TYPEDEF(IFbPlaylistManager, __uuidof(IFbPlaylistManager));

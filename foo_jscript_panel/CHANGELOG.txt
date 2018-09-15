@@ -1,3 +1,17 @@
+v2.1.7.1
+- FIX: Images loaded by gdi.LoadImageAsync are no longer locked by the process.
+- FIX: Correctly bump utils.Version - it wasn't updated in v2.1.7.
+
+v2.1.7
+- NEW: Add FbMetadbHandleList AttachImage / RemoveAttachedImage methods.
+       See docs\interfaces.txt. There are some limitations!!
+
+v2.1.6
+- NEW: Add IContextMenuManager InitContextPlaylist method which shows
+       playlist specific options not available when passing a handle list
+       to InitContext.
+- FIX: Update JSPlaylist and JS Smooth Playlist samples with the above method.
+
 v2.1.5.2
 - CHG: utils.InputBox is now centred when you open it plus you can now
        detect when the user presses Cancel. See docs\interfaces.txt.
