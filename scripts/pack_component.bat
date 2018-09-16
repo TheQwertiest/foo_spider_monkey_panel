@@ -2,13 +2,16 @@
 setlocal
 
 set PATH=%PATH%;C:\Program Files\7-Zip
-
 set ROOT_DIR=%~dp0..\
+set CONFIGURATION=Release
+if '%1'=='--debug' (
+    set CONFIGURATION=Debug
+)
 
 set COMPONENT_DIR_NO_SLASH=%ROOT_DIR%component
-set COMPONENT_DLL=%ROOT_DIR%_result\Win32_Release\bin\foo_spider_monkey_panel.dll
-set MOZ_JS_BIN_DIR_NO_SLASH=%ROOT_DIR%mozjs\Release\bin
-set COMPONENT_OUT_DIR_NO_SLASH=%ROOT_DIR%_result\Win32_Release\component
+set COMPONENT_DLL=%ROOT_DIR%_result\Win32_%CONFIGURATION%\bin\foo_spider_monkey_panel.dll
+set MOZ_JS_BIN_DIR_NO_SLASH=%ROOT_DIR%mozjs\%CONFIGURATION%\bin
+set COMPONENT_OUT_DIR_NO_SLASH=%ROOT_DIR%_result\Win32_%CONFIGURATION%\component
 set COMPONENT_OUT_DIR=%COMPONENT_OUT_DIR_NO_SLASH%\
 set FB2K_ARCHIVE=%ROOT_DIR%foo_spider_monkey_panel.fb2k-component
 
