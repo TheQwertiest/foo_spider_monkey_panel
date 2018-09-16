@@ -545,10 +545,10 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include=".editorconfig" />
     <None Include="default.js">
       <Filter>uncategorized\resources</Filter>
     </None>
+    <None Include=".clang-format" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="js_engine">
@@ -583,13 +583,11 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="todo.txt">
-      <Filter>uncategorized</Filter>
-    </Text>
-  </ItemGroup>
-  <ItemGroup>
     <ResourceCompile Include="foo_spider_monkey_panel.rc">
       <Filter>uncategorized\resources</Filter>
     </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="todo.txt" />
   </ItemGroup>
 </Project>
