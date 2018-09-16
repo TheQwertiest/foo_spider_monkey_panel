@@ -1,4 +1,5 @@
 # Current
+- Fix Scintilla window position.
 - Backport all the .js changes from foo-jscript-panel.
 - Complete rebranding to spider_monkey_panel (including folders).
 - Check and fix all the basic samples.
@@ -59,8 +60,6 @@
 # Maybe
 - Add CI (appveyor?).
 - Follow the bug https://bugzilla.mozilla.org/show_bug.cgi?id=1474914, if fixed consider moving to newer non-ESR branches.
-- Replace in-repository scintilla with it's submodule.
-- Update scintilla to the latest version.
 - Update scintilla JS keywords list.
 - Raise warning level to W4 or WALL.
 - Some sort of build system?
