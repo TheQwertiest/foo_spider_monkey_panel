@@ -620,9 +620,9 @@ JsWindow::NotifyOthers( const std::wstring& name, JS::HandleValue info )
         return std::nullopt;
     }
 
-    simple_callback_data_2<std::wstring, std::wstring>* notify_data =
-        new simple_callback_data_2<std::wstring, std::wstring>( name, jsonStr );
-    panel_manager::instance().send_msg_to_others_pointer( parentPanel_.GetHWND(), CALLBACK_UWM_ON_NOTIFY_DATA, notify_data );
+    // TODO: think about replacing with PostMessage
+    panel_manager::instance().send_msg_to_others_pointer( parentPanel_.GetHWND(), CALLBACK_UWM_ON_NOTIFY_DATA, 
+                                                          std::make_unique<std::tuple<std::wstring, std::wstring>>(name, jsonStr));
     
     return nullptr;
 }

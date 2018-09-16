@@ -717,9 +717,6 @@ bool js_panel_window::script_load()
 
 void js_panel_window::script_unload()
 {
-    // TODO: check
-    //m_script_host->Finalize();
-
     selectionHolder_.release();
     jsContainer_.Finalize();
 }
@@ -931,18 +928,18 @@ void js_panel_window::on_get_album_art_done( LPARAM lp )
 
 void js_panel_window::on_item_focus_change( WPARAM wp )
 {
-    simple_callback_data_scope_releaser<simple_callback_data_3<t_size, t_size, t_size>> data( wp );
+    smp::panel::ScopedCallbackData<std::tuple<t_size, t_size, t_size>> data( wp );
     jsContainer_.InvokeJsCallback( "on_item_focus_change",
-                                   static_cast<int32_t>(data->m_item1),
-                                   static_cast<int32_t>(data->m_item2),
-                                   static_cast<int32_t>(data->m_item3) );
+                                   static_cast<int32_t>(std::get<0>( data.get() )),
+                                   static_cast<int32_t>(std::get<1>( data.get() )),
+                                   static_cast<int32_t>(std::get<2>( data.get() )) );
 }
 
 void js_panel_window::on_item_played( WPARAM wp )
 {
-    simple_callback_data_scope_releaser<simple_callback_data<metadb_handle_ptr>> data( wp );
+    smp::panel::ScopedCallbackData<metadb_handle_ptr> data( wp );
     jsContainer_.InvokeJsCallback( "on_item_played",
-                                   static_cast<metadb_handle_ptr>(data->m_item) );
+                                   static_cast<metadb_handle_ptr>(*data) );
 }
 
 void js_panel_window::on_key_down( WPARAM wp )
@@ -968,35 +965,35 @@ void js_panel_window::on_load_image_done( LPARAM lp )
 
 void js_panel_window::on_library_items_added( WPARAM wp )
 {
-    simple_callback_data_scope_releaser<metadb_callback_data> data( wp );
+    smp::panel::ScopedCallbackData<metadb_callback_data> data( wp );
     jsContainer_.InvokeJsCallback( "on_library_items_added",
                                    static_cast<metadb_handle_list>(data->m_items) );
 }
 
 void js_panel_window::on_library_items_changed( WPARAM wp )
 {
-    simple_callback_data_scope_releaser<metadb_callback_data> data( wp );
+    smp::panel::ScopedCallbackData<metadb_callback_data> data( wp );
     jsContainer_.InvokeJsCallback( "on_library_items_changed",
                                    static_cast<metadb_handle_list>(data->m_items) );
 }
 
 void js_panel_window::on_library_items_removed( WPARAM wp )
 {
-    simple_callback_data_scope_releaser<metadb_callback_data> data( wp );
+    smp::panel::ScopedCallbackData<metadb_callback_data> data( wp );
     jsContainer_.InvokeJsCallback( "on_library_items_removed",
                                    static_cast<metadb_handle_list>(data->m_items) );
 }
 
 void js_panel_window::on_main_menu( WPARAM wp )
 {
-    simple_callback_data_scope_releaser<metadb_callback_data> data( wp );
+    smp::panel::ScopedCallbackData<metadb_callback_data> data( wp );
     jsContainer_.InvokeJsCallback( "on_main_menu",
                                    static_cast<uint32_t>(wp) );
 }
 
 void js_panel_window::on_metadb_changed( WPARAM wp )
 {
-    simple_callback_data_scope_releaser<metadb_callback_data> data( wp );
+    smp::panel::ScopedCallbackData<metadb_callback_data> data( wp );
     jsContainer_.InvokeJsCallback( "on_metadb_changed",
                                    static_cast<metadb_handle_list>(data->m_items),
                                    static_cast<bool>(data->m_fromhook) );
@@ -1169,8 +1166,9 @@ void js_panel_window::on_mouse_wheel_h( WPARAM wp )
 
 void js_panel_window::on_notify_data( WPARAM wp )
 {
-    simple_callback_data_scope_releaser<simple_callback_data_2<std::wstring, std::wstring>> data( wp );
-    jsContainer_.InvokeOnNotify( data->m_item1, data->m_item2 );
+    smp::panel::ScopedCallbackData<std::tuple<std::wstring, std::wstring>> data( wp );
+    jsContainer_.InvokeOnNotify( std::get<0>( data.get() ),
+                                 std::get<1>( data.get() ) );
 }
 
 void js_panel_window::on_output_device_changed()
@@ -1309,9 +1307,9 @@ void js_panel_window::on_playback_dynamic_info_track()
 
 void js_panel_window::on_playback_edited( WPARAM wp )
 {
-    simple_callback_data_scope_releaser<simple_callback_data<metadb_handle_ptr>> data( wp );
+    smp::panel::ScopedCallbackData<metadb_handle_ptr> data( wp );
     jsContainer_.InvokeJsCallback( "on_playback_edited",
-                                   static_cast<metadb_handle_ptr&>(data->m_item) );
+                                   static_cast<metadb_handle_ptr&>(data.get()) );
 }
 
 void js_panel_window::on_playback_follow_cursor_changed( WPARAM wp )
@@ -1322,9 +1320,9 @@ void js_panel_window::on_playback_follow_cursor_changed( WPARAM wp )
 
 void js_panel_window::on_playback_new_track( WPARAM wp )
 {
-    simple_callback_data_scope_releaser<simple_callback_data<metadb_handle_ptr>> data( wp );
+    smp::panel::ScopedCallbackData<metadb_handle_ptr> data( wp );
     jsContainer_.InvokeJsCallback( "on_playback_new_track",
-                                   static_cast<metadb_handle_ptr&>(data->m_item) );
+                                   static_cast<metadb_handle_ptr&>(data.get()) );
 }
 
 void js_panel_window::on_playback_order_changed( WPARAM wp )
@@ -1347,9 +1345,9 @@ void js_panel_window::on_playback_queue_changed( WPARAM wp )
 
 void js_panel_window::on_playback_seek( WPARAM wp )
 {
-    simple_callback_data_scope_releaser<simple_callback_data<double>> data( wp );
+    smp::panel::ScopedCallbackData<double> data( wp );
     jsContainer_.InvokeJsCallback( "on_playback_seek",
-                                   static_cast<double>(data->m_item) );
+                                   static_cast<double>(data.get()) );
 }
 
 void js_panel_window::on_playback_starting( play_control::t_track_command cmd, bool paused )
@@ -1367,9 +1365,9 @@ void js_panel_window::on_playback_stop( play_control::t_stop_reason reason )
 
 void js_panel_window::on_playback_time( WPARAM wp )
 {
-    simple_callback_data_scope_releaser<simple_callback_data<double>> data( wp );
+    smp::panel::ScopedCallbackData<double> data( wp );
     jsContainer_.InvokeJsCallback( "on_playback_time",
-                                   static_cast<double>(data->m_item) );
+                                   static_cast<double>(data.get()) );
 }
 
 void js_panel_window::on_playlist_item_ensure_visible( WPARAM wp, LPARAM lp )
@@ -1445,7 +1443,7 @@ void js_panel_window::on_size( uint32_t w, uint32_t h )
 
 void js_panel_window::on_volume_change( WPARAM wp )
 {
-    simple_callback_data_scope_releaser<simple_callback_data<float>> data( wp );
+    smp::panel::ScopedCallbackData<float> data( wp );
     jsContainer_.InvokeJsCallback( "on_volume_change",
-                                   static_cast<float>(data->m_item) );
+                                   static_cast<float>(data.get()) );
 }

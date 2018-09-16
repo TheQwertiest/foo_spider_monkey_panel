@@ -1,77 +1,73 @@
 #pragma once
 #include "helpers.h"
 
-template <typename T>
-struct simple_callback_data : public pfc::refcounted_object_root
+namespace smp::panel
 {
-	T m_item;
 
-	simple_callback_data(const T& p_item) : m_item(p_item)
-	{
-	}
-};
+// TODO: try to make optimizations for integral types
 
-template <typename T1, typename T2>
-struct simple_callback_data_2 : public pfc::refcounted_object_root
-{
-	T1 m_item1;
-	T2 m_item2;
-
-	simple_callback_data_2(const T1& p_item1, const T2& p_item2) : m_item1(p_item1), m_item2(p_item2)
-	{
-	}
-};
-
-template <typename T1, typename T2, typename T3>
-struct simple_callback_data_3 : public pfc::refcounted_object_root
-{
-	T1 m_item1;
-	T2 m_item2;
-	T3 m_item3;
-
-	simple_callback_data_3(const T1& p_item1, const T2& p_item2, const T3& p_item3) : m_item1(p_item1), m_item2(p_item2), m_item3(p_item3)
-	{
-	}
-};
-
-// Only used in message handler
 template <class T>
-class simple_callback_data_scope_releaser
+using CallbackData = std::shared_ptr<T>;
+
+template <class T>
+class ScopedCallbackData
 {
 public:
-	template <class TParam>
-	simple_callback_data_scope_releaser(TParam p_data)
-	{
-		m_data = reinterpret_cast<T *>(p_data);
-	}
+    template <class TParam>
+    ScopedCallbackData( TParam p_data )
+        : m_data( reinterpret_cast<CallbackData<T>*>(p_data) )
+    {
+    }
 
-	template <class TParam>
-	simple_callback_data_scope_releaser(TParam* p_data)
-	{
-		m_data = reinterpret_cast<T *>(p_data);
-	}
+    T* operator->()
+    {
+        return &get();
+    }
 
-	~simple_callback_data_scope_releaser()
-	{
-		m_data->refcount_release();
-	}
+    const T* operator->() const
+    {
+        return &get();
+    }
 
-	T* operator->()
-	{
-		return m_data;
-	}
+    T& operator*()
+    {
+        return get();
+    }
+
+    const T& operator*() const
+    {
+        return get();
+    }
+
+    T& get()
+    {
+        return **m_data;
+    }
+
+    const T& get() const
+    {
+        return **m_data;
+    }
 
 private:
-	T * m_data;
+    ScopedCallbackData( const ScopedCallbackData & ) = delete;
+    ScopedCallbackData operator=( const ScopedCallbackData & ) = delete;
+
+private:
+    std::unique_ptr<CallbackData<T>> m_data;
 };
 
+}
+
 // TODO: consider removing fromhook
-struct metadb_callback_data : public pfc::refcounted_object_root
+struct metadb_callback_data
 {
 	metadb_handle_list m_items;
 	bool m_fromhook;
 
-	metadb_callback_data(metadb_handle_list_cref p_items, bool p_fromhook) : m_items(p_items), m_fromhook(p_fromhook)
+	metadb_callback_data(metadb_handle_list_cref p_items, bool p_fromhook) 
+        : m_items(p_items)
+        , m_fromhook(p_fromhook)
 	{
 	}
 };
@@ -79,9 +75,7 @@ struct metadb_callback_data : public pfc::refcounted_object_root
 class panel_manager
 {
 public:
-	panel_manager()
-	{
-	}
+    panel_manager() = default;
 
 	static panel_manager& instance();
 	t_size get_count();
@@ -89,13 +83,52 @@ public:
 	void post_msg_to_all(UINT p_msg);
 	void post_msg_to_all(UINT p_msg, WPARAM p_wp);
 	void post_msg_to_all(UINT p_msg, WPARAM p_wp, LPARAM p_lp);
-	void post_msg_to_all_pointer(UINT p_msg, pfc::refcounted_object_root* p_param);
+    template<typename T>
+    void post_msg_to_all_pointer( UINT p_msg, std::unique_ptr<T> data )
+    {
+        if ( m_hwnds.empty() )
+        {
+            return;
+        }
+
+        std::shared_ptr<T> sharedData( std::move( data ) );
+        for ( const auto& hWnd : m_hwnds )
+        {
+            PostMessage( hWnd, p_msg,
+                         // ya, rly
+                         reinterpret_cast<WPARAM>(new smp::panel::CallbackData<T>( sharedData )),
+                         0 );
+        }
+    }
 	void remove_window(HWND p_wnd);
 	void send_msg_to_all(UINT p_msg, WPARAM p_wp, LPARAM p_lp);
-	void send_msg_to_others_pointer(HWND p_wnd_except, UINT p_msg, pfc::refcounted_object_root* p_param);
+	void send_msg_to_others(HWND p_wnd_except, UINT p_msg, WPARAM p_wp, LPARAM p_lp );
+    template<typename T>
+    void send_msg_to_others_pointer( HWND p_wnd_except, UINT p_msg, std::unique_ptr<T> data )
+    {
+        if ( m_hwnds.empty() )
+        {
+            return;
+        }
+
+        // Don't really need this (SendMessage is synchronous),
+        // but this way we can use the same interface everywhere
+        std::shared_ptr<T> sharedData( std::move(data) );  
+        for ( const auto& hWnd : m_hwnds )
+        {
+            if ( hWnd != p_wnd_except )
+            {
+                SendMessage( hWnd, p_msg,
+                             // ya, rly
+                             reinterpret_cast<WPARAM>(new smp::panel::CallbackData<T>( sharedData )),
+                             0 );
+            }
+            
+        }
+    }
 
 private:
-	pfc::list_t<HWND> m_hwnds;
+	std::vector<HWND> m_hwnds;
 	static panel_manager sm_instance;
 
 	PFC_CLASS_NOT_COPYABLE_EX(panel_manager)

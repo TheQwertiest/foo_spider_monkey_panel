@@ -24,15 +24,15 @@ panel_manager& panel_manager::instance()
 
 t_size panel_manager::get_count()
 {
-	return m_hwnds.get_count();
+	return m_hwnds.size();
 }
 
 void panel_manager::add_window(HWND p_wnd)
 {
-	if (m_hwnds.find_item(p_wnd) == pfc_infinite)
-	{
-		m_hwnds.add_item(p_wnd);
-	}
+    if ( m_hwnds.cend() == std::find( m_hwnds.cbegin(), m_hwnds.cend(), p_wnd ) )
+    {
+        m_hwnds.push_back( p_wnd );
+    }
 }
 
 void panel_manager::post_msg_to_all(UINT p_msg)
@@ -47,59 +47,42 @@ void panel_manager::post_msg_to_all(UINT p_msg, WPARAM p_wp)
 
 void panel_manager::post_msg_to_all(UINT p_msg, WPARAM p_wp, LPARAM p_lp)
 {
-	m_hwnds.for_each([p_msg, p_wp, p_lp](const HWND& hWnd) -> void
-	{
-		PostMessage(hWnd, p_msg, p_wp, p_lp);
-	});
-}
-
-// TODO: replace pfc::refcounted_object_root with shared_ptr
-void panel_manager::post_msg_to_all_pointer(UINT p_msg, pfc::refcounted_object_root* p_param)
-{
-	t_size count = m_hwnds.get_count();
-
-	if (count < 1 || !p_param)
-		return;
-
-	for (t_size i = 0; i < count; ++i)
-		p_param->refcount_add_ref();
-
-	m_hwnds.for_each([p_msg, p_param](const HWND& hWnd) -> void
-	{
-		PostMessage(hWnd, p_msg, reinterpret_cast<WPARAM>(p_param), 0);
-	});
+    for (const auto& hWnd : m_hwnds )
+    {
+        PostMessage( hWnd, p_msg, p_wp, p_lp );
+    }
 }
 
 void panel_manager::remove_window(HWND p_wnd)
 {
-	m_hwnds.remove_item(p_wnd);
+    if ( auto it = std::find( m_hwnds.cbegin(), m_hwnds.cend(), p_wnd ); m_hwnds.cend() != it )
+    {
+        m_hwnds.erase( it );
+    }
 }
 
 void panel_manager::send_msg_to_all(UINT p_msg, WPARAM p_wp, LPARAM p_lp)
 {
-	m_hwnds.for_each([p_msg, p_wp, p_lp](const HWND& hWnd) -> void
-	{
-		SendMessage(hWnd, p_msg, p_wp, p_lp);
-	});
+    for ( const auto& hWnd : m_hwnds )
+    {
+        SendMessage( hWnd, p_msg, p_wp, p_lp );
+    }
 }
 
-void panel_manager::send_msg_to_others_pointer(HWND p_wnd_except, UINT p_msg, pfc::refcounted_object_root* p_param)
+void panel_manager::send_msg_to_others(HWND p_wnd_except, UINT p_msg, WPARAM p_wp, LPARAM p_lp )
 {
-	t_size count = m_hwnds.get_count();
+    if ( m_hwnds.size() < 2 )
+    {
+        return;
+    }
 
-	if (count < 2 || !p_param)
-		return;
-
-	for (t_size i = 0; i < count - 1; ++i)
-		p_param->refcount_add_ref();
-
-	m_hwnds.for_each([p_msg, p_param, p_wnd_except](const HWND& hWnd) -> void
-	{
-		if (hWnd != p_wnd_except)
-		{
-			SendMessage(hWnd, p_msg, reinterpret_cast<WPARAM>(p_param), 0);
-		}
-	});
+    for ( const auto& hWnd : m_hwnds )
+    {
+        if ( hWnd != p_wnd_except )
+        {
+            SendMessage( hWnd, p_msg, p_wp, p_lp );
+        }
+    }	
 }
 
 void my_dsp_config_callback::on_core_settings_change(const dsp_chain_config& p_newdata)
@@ -150,26 +133,26 @@ void my_initquit::outputConfigChanged()
 
 void my_library_callback::on_items_added(metadb_handle_list_cref p_data)
 {
-	metadb_callback_data* on_items_added_data = new metadb_callback_data(p_data, false);
-	panel_manager::instance().post_msg_to_all_pointer(CALLBACK_UWM_ON_LIBRARY_ITEMS_ADDED, on_items_added_data);
+	panel_manager::instance().post_msg_to_all_pointer( CALLBACK_UWM_ON_LIBRARY_ITEMS_ADDED, 
+                                                       std::make_unique<metadb_callback_data>( p_data, false ));
 }
 
 void my_library_callback::on_items_modified(metadb_handle_list_cref p_data)
 {
-	metadb_callback_data* on_items_modified_data = new metadb_callback_data(p_data, false);
-	panel_manager::instance().post_msg_to_all_pointer(CALLBACK_UWM_ON_LIBRARY_ITEMS_CHANGED, on_items_modified_data);
+    panel_manager::instance().post_msg_to_all_pointer( CALLBACK_UWM_ON_LIBRARY_ITEMS_CHANGED,
+                                                        std::make_unique<metadb_callback_data>( p_data, false ) );
 }
 
 void my_library_callback::on_items_removed(metadb_handle_list_cref p_data)
 {
-	metadb_callback_data* on_items_removed_data = new metadb_callback_data(p_data, false);
-	panel_manager::instance().post_msg_to_all_pointer(CALLBACK_UWM_ON_LIBRARY_ITEMS_REMOVED, on_items_removed_data);
+    panel_manager::instance().post_msg_to_all_pointer( CALLBACK_UWM_ON_LIBRARY_ITEMS_REMOVED,
+                                                        std::make_unique<metadb_callback_data>( p_data, false ) );
 }
 
 void my_metadb_io_callback::on_changed_sorted(metadb_handle_list_cref p_items_sorted, bool p_fromhook)
 {
-	metadb_callback_data* on_changed_sorted_data = new metadb_callback_data(p_items_sorted, p_fromhook);
-	panel_manager::instance().post_msg_to_all_pointer(CALLBACK_UWM_ON_METADB_CHANGED, on_changed_sorted_data);
+    panel_manager::instance().post_msg_to_all_pointer( CALLBACK_UWM_ON_METADB_CHANGED,
+                                                        std::make_unique<metadb_callback_data>( p_items_sorted, p_fromhook ) );
 }
 
 unsigned my_play_callback_static::get_flags()
@@ -188,15 +171,15 @@ void my_play_callback_static::on_playback_dynamic_info_track(const file_info& in
 }
 
 void my_play_callback_static::on_playback_edited(metadb_handle_ptr track)
-{
-	simple_callback_data<metadb_handle_ptr>* on_playback_edited_data = new simple_callback_data<metadb_handle_ptr>(track);
-	panel_manager::instance().post_msg_to_all_pointer(CALLBACK_UWM_ON_PLAYBACK_EDITED, on_playback_edited_data);
+{	
+    panel_manager::instance().post_msg_to_all_pointer( CALLBACK_UWM_ON_PLAYBACK_EDITED,
+                                                       std::make_unique<metadb_handle_ptr>( track ) );
 }
 
 void my_play_callback_static::on_playback_new_track(metadb_handle_ptr track)
 {
-	simple_callback_data<metadb_handle_ptr>* on_playback_new_track_data = new simple_callback_data<metadb_handle_ptr>(track);
-	panel_manager::instance().post_msg_to_all_pointer(CALLBACK_UWM_ON_PLAYBACK_NEW_TRACK, on_playback_new_track_data);
+    panel_manager::instance().post_msg_to_all_pointer( CALLBACK_UWM_ON_PLAYBACK_NEW_TRACK,
+                                                       std::make_unique<metadb_handle_ptr>( track ) );
 }
 
 void my_play_callback_static::on_playback_pause(bool state)
@@ -205,9 +188,9 @@ void my_play_callback_static::on_playback_pause(bool state)
 }
 
 void my_play_callback_static::on_playback_seek(double time)
-{
-	simple_callback_data<double>* on_playback_seek_data = new simple_callback_data<double>(time);
-	panel_manager::instance().post_msg_to_all_pointer(CALLBACK_UWM_ON_PLAYBACK_SEEK, on_playback_seek_data);
+{	
+    panel_manager::instance().post_msg_to_all_pointer( CALLBACK_UWM_ON_PLAYBACK_SEEK,
+                                                       std::make_unique<double>( time ) );
 }
 
 void my_play_callback_static::on_playback_starting(play_control::t_track_command cmd, bool paused)
@@ -222,14 +205,14 @@ void my_play_callback_static::on_playback_stop(play_control::t_stop_reason reaso
 
 void my_play_callback_static::on_playback_time(double time)
 {
-	simple_callback_data<double>* on_playback_time_data = new simple_callback_data<double>(time);
-	panel_manager::instance().post_msg_to_all_pointer(CALLBACK_UWM_ON_PLAYBACK_TIME, on_playback_time_data);
+    panel_manager::instance().post_msg_to_all_pointer( CALLBACK_UWM_ON_PLAYBACK_TIME,
+                                                       std::make_unique<double>( time ) );
 }
 
 void my_play_callback_static::on_volume_change(float newval)
-{
-	simple_callback_data<float>* on_volume_change_data = new simple_callback_data<float>(newval);
-	panel_manager::instance().post_msg_to_all_pointer(CALLBACK_UWM_ON_VOLUME_CHANGE, on_volume_change_data);
+{	
+    panel_manager::instance().post_msg_to_all_pointer( CALLBACK_UWM_ON_VOLUME_CHANGE,
+                                                       std::make_unique<float>( newval ) );
 }
 
 void my_playback_queue_callback::on_changed(t_change_origin p_origin)
@@ -239,8 +222,8 @@ void my_playback_queue_callback::on_changed(t_change_origin p_origin)
 
 void my_playback_statistics_collector::on_item_played(metadb_handle_ptr p_item)
 {
-	simple_callback_data<metadb_handle_ptr>* on_item_played_data = new simple_callback_data<metadb_handle_ptr>(p_item);
-	panel_manager::instance().post_msg_to_all_pointer(CALLBACK_UWM_ON_ITEM_PLAYED, on_item_played_data);
+    panel_manager::instance().post_msg_to_all_pointer( CALLBACK_UWM_ON_ITEM_PLAYED,
+                                                       std::make_unique<metadb_handle_ptr>( p_item ) );
 }
 
 GUID my_config_object_notify::get_watched_object(t_size p_index)
@@ -303,8 +286,8 @@ void my_playlist_callback_static::on_item_ensure_visible(t_size p_playlist, t_si
 
 void my_playlist_callback_static::on_item_focus_change(t_size p_playlist, t_size p_from, t_size p_to)
 {
-	simple_callback_data_3<t_size, t_size, t_size>* on_item_focus_change_data = new simple_callback_data_3<t_size, t_size, t_size>(p_playlist, p_from, p_to);
-	panel_manager::instance().post_msg_to_all_pointer(CALLBACK_UWM_ON_ITEM_FOCUS_CHANGE, on_item_focus_change_data);
+    panel_manager::instance().post_msg_to_all_pointer( CALLBACK_UWM_ON_ITEM_FOCUS_CHANGE,
+                                                       std::make_unique<std::tuple<t_size, t_size, t_size>>( p_playlist, p_from, p_to ) );
 }
 
 void my_playlist_callback_static::on_items_added(t_size p_playlist, t_size p_start, metadb_handle_list_cref p_data, const pfc::bit_array& p_selection)
