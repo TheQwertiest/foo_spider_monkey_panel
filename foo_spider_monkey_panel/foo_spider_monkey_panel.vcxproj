@@ -168,14 +168,14 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="thread_pool.cpp" />
-    <ClCompile Include="ui_conf.cpp" />
-    <ClCompile Include="ui_find.cpp" />
-    <ClCompile Include="ui_goto.cpp" />
-    <ClCompile Include="ui_input_box.cpp" />
-    <ClCompile Include="ui_name_value_edit.cpp" />
-    <ClCompile Include="ui_pref.cpp" />
-    <ClCompile Include="ui_property.cpp" />
-    <ClCompile Include="ui_replace.cpp" />
+    <ClCompile Include="ui\ui_conf.cpp" />
+    <ClCompile Include="ui\ui_find.cpp" />
+    <ClCompile Include="ui\ui_goto.cpp" />
+    <ClCompile Include="ui\ui_input_box.cpp" />
+    <ClCompile Include="ui\ui_name_value_edit.cpp" />
+    <ClCompile Include="ui\ui_pref.cpp" />
+    <ClCompile Include="ui\ui_property.cpp" />
+    <ClCompile Include="ui\ui_replace.cpp" />
     <ClCompile Include="utils\kmeans.cpp" />
     <ClCompile Include="utils\stackblur.cpp" />
   </ItemGroup>
@@ -268,14 +268,14 @@
     <ClInclude Include="stats.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="thread_pool.h" />
-    <ClInclude Include="ui_conf.h" />
-    <ClInclude Include="ui_find.h" />
-    <ClInclude Include="ui_goto.h" />
-    <ClInclude Include="ui_input_box.h" />
-    <ClInclude Include="ui_name_value_edit.h" />
-    <ClInclude Include="ui_pref.h" />
-    <ClInclude Include="ui_property.h" />
-    <ClInclude Include="ui_replace.h" />
+    <ClInclude Include="ui\ui_conf.h" />
+    <ClInclude Include="ui\ui_find.h" />
+    <ClInclude Include="ui\ui_goto.h" />
+    <ClInclude Include="ui\ui_input_box.h" />
+    <ClInclude Include="ui\ui_name_value_edit.h" />
+    <ClInclude Include="ui\ui_pref.h" />
+    <ClInclude Include="ui\ui_property.h" />
+    <ClInclude Include="ui\ui_replace.h" />
     <ClInclude Include="user_message.h" />
     <ClInclude Include="utils\json.hpp" />
     <ClInclude Include="utils\kmeans.h" />

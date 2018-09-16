@@ -88,27 +88,6 @@
     <ClCompile Include="thread_pool.cpp">
       <Filter>uncategorized</Filter>
     </ClCompile>
-    <ClCompile Include="ui_conf.cpp">
-      <Filter>uncategorized\ui</Filter>
-    </ClCompile>
-    <ClCompile Include="ui_find.cpp">
-      <Filter>uncategorized\ui</Filter>
-    </ClCompile>
-    <ClCompile Include="ui_goto.cpp">
-      <Filter>uncategorized\ui</Filter>
-    </ClCompile>
-    <ClCompile Include="ui_name_value_edit.cpp">
-      <Filter>uncategorized\ui</Filter>
-    </ClCompile>
-    <ClCompile Include="ui_pref.cpp">
-      <Filter>uncategorized\ui</Filter>
-    </ClCompile>
-    <ClCompile Include="ui_property.cpp">
-      <Filter>uncategorized\ui</Filter>
-    </ClCompile>
-    <ClCompile Include="ui_replace.cpp">
-      <Filter>uncategorized\ui</Filter>
-    </ClCompile>
     <ClCompile Include="js_objects\fb_metadb_handle.cpp">
       <Filter>js_objects</Filter>
     </ClCompile>
@@ -229,14 +208,35 @@
     <ClCompile Include="js_objects\enumerator.cpp">
       <Filter>js_objects</Filter>
     </ClCompile>
-    <ClCompile Include="ui_input_box.cpp">
-      <Filter>uncategorized\ui</Filter>
-    </ClCompile>
     <ClCompile Include="utils\stackblur.cpp">
       <Filter>utils</Filter>
     </ClCompile>
     <ClCompile Include="utils\kmeans.cpp">
       <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\ui_pref.cpp">
+      <Filter>ui</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\ui_property.cpp">
+      <Filter>ui</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\ui_replace.cpp">
+      <Filter>ui</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\ui_conf.cpp">
+      <Filter>ui</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\ui_find.cpp">
+      <Filter>ui</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\ui_goto.cpp">
+      <Filter>ui</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\ui_input_box.cpp">
+      <Filter>ui</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\ui_name_value_edit.cpp">
+      <Filter>ui</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -350,27 +350,6 @@
     </ClInclude>
     <ClInclude Include="wtlscintilla.h">
       <Filter>uncategorized</Filter>
-    </ClInclude>
-    <ClInclude Include="ui_conf.h">
-      <Filter>uncategorized\ui</Filter>
-    </ClInclude>
-    <ClInclude Include="ui_find.h">
-      <Filter>uncategorized\ui</Filter>
-    </ClInclude>
-    <ClInclude Include="ui_goto.h">
-      <Filter>uncategorized\ui</Filter>
-    </ClInclude>
-    <ClInclude Include="ui_name_value_edit.h">
-      <Filter>uncategorized\ui</Filter>
-    </ClInclude>
-    <ClInclude Include="ui_pref.h">
-      <Filter>uncategorized\ui</Filter>
-    </ClInclude>
-    <ClInclude Include="ui_property.h">
-      <Filter>uncategorized\ui</Filter>
-    </ClInclude>
-    <ClInclude Include="ui_replace.h">
-      <Filter>uncategorized\ui</Filter>
     </ClInclude>
     <ClInclude Include="..\PropertyList\PropertyItem.h">
       <Filter>uncategorized\property_window</Filter>
@@ -531,9 +510,6 @@
     <ClInclude Include="panel_info.h">
       <Filter>uncategorized</Filter>
     </ClInclude>
-    <ClInclude Include="ui_input_box.h">
-      <Filter>uncategorized\ui</Filter>
-    </ClInclude>
     <ClInclude Include="utils\kmeans.h">
       <Filter>utils</Filter>
     </ClInclude>
@@ -542,6 +518,30 @@
     </ClInclude>
     <ClInclude Include="utils\json.hpp">
       <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="ui\ui_name_value_edit.h">
+      <Filter>ui</Filter>
+    </ClInclude>
+    <ClInclude Include="ui\ui_pref.h">
+      <Filter>ui</Filter>
+    </ClInclude>
+    <ClInclude Include="ui\ui_property.h">
+      <Filter>ui</Filter>
+    </ClInclude>
+    <ClInclude Include="ui\ui_replace.h">
+      <Filter>ui</Filter>
+    </ClInclude>
+    <ClInclude Include="ui\ui_conf.h">
+      <Filter>ui</Filter>
+    </ClInclude>
+    <ClInclude Include="ui\ui_find.h">
+      <Filter>ui</Filter>
+    </ClInclude>
+    <ClInclude Include="ui\ui_goto.h">
+      <Filter>ui</Filter>
+    </ClInclude>
+    <ClInclude Include="ui\ui_input_box.h">
+      <Filter>ui</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -563,9 +563,6 @@
     <Filter Include="uncategorized">
       <UniqueIdentifier>{3b775acd-8e41-4e46-b8ac-2d5ebc0de307}</UniqueIdentifier>
     </Filter>
-    <Filter Include="uncategorized\ui">
-      <UniqueIdentifier>{6cdd963f-4f38-4310-b440-f96d5e5d2df5}</UniqueIdentifier>
-    </Filter>
     <Filter Include="uncategorized\property_window">
       <UniqueIdentifier>{829a0a84-1ed1-49ce-b6f6-3195f2a84050}</UniqueIdentifier>
     </Filter>
@@ -580,6 +577,9 @@
     </Filter>
     <Filter Include="utils">
       <UniqueIdentifier>{047b1a54-ba81-4cee-910d-751ebb3953fe}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ui">
+      <UniqueIdentifier>{6cdd963f-4f38-4310-b440-f96d5e5d2df5}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

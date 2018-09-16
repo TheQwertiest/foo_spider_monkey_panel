@@ -5,6 +5,7 @@
 
 // Forward declarations
 class js_panel_window;
+
 class CDialogFind;
 class CDialogReplace;
 

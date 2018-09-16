@@ -1,9 +1,10 @@
-#include "stdafx.h"
+#include <stdafx.h>
 #include "js_panel_window.h"
-#include "ui_conf.h"
-#include "ui_property.h"
 #include "panel_manager.h"
 #include "popup_msg.h"
+
+#include <ui/ui_conf.h>
+#include <ui/ui_property.h>
 
 #include <js_engine/js_engine.h>
 #include <js_engine/native_to_js_invoker.h>
