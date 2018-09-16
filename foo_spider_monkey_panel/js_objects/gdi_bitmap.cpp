@@ -336,6 +336,7 @@ JsGdiBitmap::GetColourScheme( uint32_t count )
 std::optional<pfc::string8_fast> 
 JsGdiBitmap::GetColourSchemeJSON( uint32_t count )
 {
+    using json = nlohmann::json;
     using namespace smp::utils::kmeans;
 
     Gdiplus::BitmapData bmpdata;
@@ -531,12 +532,42 @@ JsGdiBitmap::RotateFlip( uint32_t mode )
     return nullptr;
 }
 
-std::optional<bool> 
-JsGdiBitmap::SaveAs( const std::wstring& path, const std::wstring& format )
+std::optional<bool> JsGdiBitmap::SaveAs( const std::wstring& path, const std::wstring& format )
 {
     CLSID clsid_encoder;
-    int ret = helpers::get_encoder_clsid( format.c_str(), &clsid_encoder );
-    if ( ret < 0 )
+    int imageEncoderId = []( const std::wstring& format, CLSID& clsId ) -> int 
+    {// get image encoder
+        UINT num = 0;
+        UINT size = 0;
+        Gdiplus::Status status = Gdiplus::GetImageEncodersSize( &num, &size );
+        if ( status != Gdiplus::Ok || !size )
+        {
+            return -1;
+        }
+
+        std::vector<uint8_t> imageCodeInfoBuf( size );
+        Gdiplus::ImageCodecInfo* pImageCodecInfo = 
+            reinterpret_cast<Gdiplus::ImageCodecInfo*>(imageCodeInfoBuf.data());
+
+        status = Gdiplus::GetImageEncoders( num, size, pImageCodecInfo );
+        if ( status != Gdiplus::Ok )
+        {
+            return -1;
+        }
+
+        for ( UINT i = 0; i < num; ++i )
+        {
+            if ( format != pImageCodecInfo[i].MimeType )
+            {
+                clsId = pImageCodecInfo[i].Clsid;
+                return i;
+            }
+        }
+
+        return -1;
+    }( format, clsid_encoder );
+
+    if ( imageEncoderId < 0 )
     {
         return false;
     }

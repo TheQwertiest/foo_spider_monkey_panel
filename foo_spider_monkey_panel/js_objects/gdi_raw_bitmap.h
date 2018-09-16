@@ -1,6 +1,7 @@
 #pragma once
 
 #include <js_objects/object_base.h>
+#include <js_utils/gdi_helpers.h>
 
 #include <optional>
 
@@ -44,13 +45,17 @@ public: // props
     std::optional<std::uint32_t> get_Width();
 
 private:
-    JsGdiRawBitmap( JSContext* cx, HDC hDc, HBITMAP hBmp, uint32_t width, uint32_t height );
+    JsGdiRawBitmap( JSContext* cx,
+                    gdi::unique_dc_ptr hDc,
+                    gdi::unique_bitmap_ptr hBmp,
+                    uint32_t width,
+                    uint32_t height );
 
 private:
     JSContext * pJsCtx_ = nullptr;
-    HDC hDc_ = nullptr;
-    HBITMAP hBmp_ = nullptr;
-    HBITMAP hBmpOld_ = nullptr;
+    gdi::unique_dc_ptr hDc_;
+    gdi::unique_bitmap_ptr hBmp_;
+    HBITMAP hBmpOld_;    
     uint32_t width_;
     uint32_t height_;
 };

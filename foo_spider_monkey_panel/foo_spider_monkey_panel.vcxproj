@@ -154,6 +154,7 @@
     <ClCompile Include="js_utils\com_error_helper.cpp" />
     <ClCompile Include="js_utils\file_helpers.cpp" />
     <ClCompile Include="js_utils\gdi_error_helper.cpp" />
+    <ClCompile Include="js_utils\gdi_helpers.cpp" />
     <ClCompile Include="js_utils\image_helper.cpp" />
     <ClCompile Include="js_utils\js_error_helper.cpp" />
     <ClCompile Include="js_utils\js_object_helper.cpp" />
@@ -237,6 +238,7 @@
     <ClInclude Include="js_utils\dispatch_ptr.h" />
     <ClInclude Include="js_utils\file_helpers.h" />
     <ClInclude Include="js_utils\gdi_error_helper.h" />
+    <ClInclude Include="js_utils\gdi_helpers.h" />
     <ClInclude Include="js_utils\image_helper.h" />
     <ClInclude Include="js_utils\js_error_helper.h" />
     <ClInclude Include="js_utils\js_object_helper.h" />

@@ -238,6 +238,9 @@
     <ClCompile Include="ui\ui_name_value_edit.cpp">
       <Filter>ui</Filter>
     </ClCompile>
+    <ClCompile Include="js_utils\gdi_helpers.cpp">
+      <Filter>js_utils</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="js_engine\js_engine.h">
@@ -542,6 +545,9 @@
     </ClInclude>
     <ClInclude Include="ui\ui_input_box.h">
       <Filter>ui</Filter>
+    </ClInclude>
+    <ClInclude Include="js_utils\gdi_helpers.h">
+      <Filter>js_utils</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -3,6 +3,7 @@
 
 #include <js_engine/js_to_native_invoker.h>
 #include <js_utils/gdi_error_helper.h>
+#include <js_utils/gdi_helpers.h>
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
 #include <js_utils/winapi_error_helper.h>
@@ -59,30 +60,23 @@ const JSFunctionSpec* JsGdiRawBitmap::JsFunctions = jsFunctions;
 const JSPropertySpec* JsGdiRawBitmap::JsProperties = jsProperties;
 const JsPrototypeId JsGdiRawBitmap::PrototypeId = JsPrototypeId::GdiRawBitmap;
 
-JsGdiRawBitmap::JsGdiRawBitmap( JSContext* cx, HDC hDc, HBITMAP hBmp, uint32_t width, uint32_t height )
+JsGdiRawBitmap::JsGdiRawBitmap( JSContext* cx,
+                                gdi::unique_dc_ptr hDc,
+                                gdi::unique_bitmap_ptr hBmp,
+                                uint32_t width,
+                                uint32_t height )
     : pJsCtx_( cx )
-    , hDc_(hDc)
-    , hBmp_(hBmp)
+    , hDc_(std::move(hDc))
+    , hBmp_(std::move(hBmp))
     , width_(width)
     , height_(height)
 {
-    hBmpOld_ = SelectBitmap( hDc, hBmp );
+    hBmpOld_ = SelectBitmap( hDc.get(), hBmp.get() );
 }
 
 JsGdiRawBitmap::~JsGdiRawBitmap()
 {
-    if ( hDc_ )
-    {
-        SelectBitmap( hDc_, hBmpOld_ );
-        DeleteDC( hDc_ );
-        hDc_ = nullptr;
-    }
-
-    if ( hBmp_ )
-    {
-        DeleteBitmap( hBmp_ );
-        hBmp_ = nullptr;
-    }
+    SelectBitmap( hDc_.get(), hBmpOld_ );
 }
 
 
@@ -95,23 +89,19 @@ JsGdiRawBitmap::CreateNative( JSContext* cx, Gdiplus::Bitmap* pBmp )
         return nullptr;
     }
 
-    HDC hDc = CreateCompatibleDC( nullptr );
+    auto hDc = gdi::CreateUniquePtr( CreateCompatibleDC( nullptr ) );
     IF_WINAPI_FAILED_RETURN_WITH_REPORT( cx, !!hDc, nullptr, CreateCompatibleDC );
 
-    scope::final_action autoDc( [hDc]()
-    {
-        DeleteDC( hDc );
-    } );
-
-    HBITMAP hBmp = helpers::create_hbitmap_from_gdiplus_bitmap( *pBmp );
-    if ( !hBmp )
+    auto hBitmap = gdi::CreateHBitmapFromGdiPlusBitmap( *pBmp );
+    if ( !hBitmap )
     {
         JS_ReportErrorUTF8( cx, "Internal error: failed to get HBITMAP from Gdiplus::Bitmap" );
         return nullptr;
     }
-
-    autoDc.cancel();
-    return std::unique_ptr<JsGdiRawBitmap>( new JsGdiRawBitmap( cx, hDc, hBmp, pBmp->GetWidth(), pBmp->GetHeight() ) );
+    
+    return std::unique_ptr<JsGdiRawBitmap>(
+        new JsGdiRawBitmap( cx, std::move(hDc), std::move(hBitmap), pBmp->GetWidth(), pBmp->GetHeight() ) 
+    );
 }
 
 size_t JsGdiRawBitmap::GetInternalSize( Gdiplus::Bitmap* pBmp )
@@ -121,7 +111,7 @@ size_t JsGdiRawBitmap::GetInternalSize( Gdiplus::Bitmap* pBmp )
 
 HDC JsGdiRawBitmap::GetHDC() const
 {
-    return hDc_;
+    return hDc_.get();
 }
 
 std::optional<std::uint32_t> JsGdiRawBitmap::get_Height()

@@ -48,33 +48,6 @@ namespace helpers
             | 0xff000000;
 	}
 
-	HBITMAP create_hbitmap_from_gdiplus_bitmap(Gdiplus::Bitmap& bitmap)
-	{
-        Gdiplus::Rect rect;
-		rect.X = rect.Y = 0;
-		rect.Width = bitmap.GetWidth();
-		rect.Height = bitmap.GetHeight();
-
-        Gdiplus::BitmapData bmpdata;
-		if (bitmap.LockBits(&rect, Gdiplus::ImageLockModeRead, PixelFormat32bppPARGB, &bmpdata) != Gdiplus::Ok)
-		{// Error
-			return nullptr;
-		}
-
-        BITMAP bm;
-		bm.bmType = 0;
-		bm.bmWidth = bmpdata.Width;
-		bm.bmHeight = bmpdata.Height;
-		bm.bmWidthBytes = bmpdata.Stride;
-		bm.bmPlanes = 1;
-		bm.bmBitsPixel = 32;
-		bm.bmBits = bmpdata.Scan0;
-
-        HBITMAP hBitmap = CreateBitmapIndirect(&bm);
-		bitmap.UnlockBits(&bmpdata);
-		return hBitmap;
-	}
-
 	bool execute_context_command_by_name(const char* p_name, metadb_handle_list_cref p_handles, unsigned flags)
 	{
 		contextmenu_manager::ptr cm;
@@ -434,37 +407,6 @@ namespace helpers
 		return true;
 	}
 
-	int get_encoder_clsid(const WCHAR* format, CLSID* pClsid)
-	{
-        UINT num = 0;
-        UINT size = 0;
-        Gdiplus::Status status = Gdiplus::GetImageEncodersSize(&num, &size);
-        if ( status != Gdiplus::Ok || !size )
-        {
-            return -1;
-        }
-
-        std::vector<uint8_t> imageCodeInfoBuf( size );
-        Gdiplus::ImageCodecInfo* pImageCodecInfo = (Gdiplus::ImageCodecInfo*)imageCodeInfoBuf.data();
-
-        status = Gdiplus::GetImageEncoders(num, size, pImageCodecInfo);
-        if ( status != Gdiplus::Ok )
-        {
-            return -1;
-        }
-
-		for (UINT i = 0; i < num; ++i)
-		{
-			if (!wcscmp(pImageCodecInfo[i].MimeType, format))
-			{
-				*pClsid = pImageCodecInfo[i].Clsid;
-                return i;
-			}
-		}
-
-		return -1;
-	}
-
     size_t get_text_height(HDC hdc, std::wstring_view text )
 	{
 		SIZE size;
@@ -501,12 +443,6 @@ namespace helpers
 		}
 
 		return currentAlphaNum == 0 || iswalnum(next) == 0;
-	}
-
-	pfc::string8 iterator_to_string8(json::iterator j)
-	{
-		std::string value = j.value().type() == json::value_t::string ? j.value().get<std::string>() : j.value().dump();
-		return value.c_str();
 	}
 
 	pfc::string8_fast get_fb2k_component_path()

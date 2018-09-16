@@ -413,6 +413,8 @@ JsFbUtils::GetClipboardContents( uint32_t hWindow )
 std::optional<pfc::string8_fast>
 JsFbUtils::GetDSPPresets()
 {
+    using json = nlohmann::json;
+
     if ( !static_api_test_t<output_manager_v2>() )
     {
         JS_ReportErrorUTF8( pJsCtx_, "This method requires foobar2000 v1.4 or later" );
@@ -536,6 +538,8 @@ JsFbUtils::GetNowPlaying()
 std::optional<pfc::string8_fast>
 JsFbUtils::GetOutputDevices()
 {
+    using json = nlohmann::json;
+
     if ( !static_api_test_t<output_manager_v2>() )
     {
         JS_ReportErrorUTF8( pJsCtx_, "This method requires foobar2000 v1.4 or later" );

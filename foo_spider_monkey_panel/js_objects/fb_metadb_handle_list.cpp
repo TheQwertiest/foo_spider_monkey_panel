@@ -303,7 +303,7 @@ JsFbMetadbHandleList::AttachImage( const pfc::string8_fast& image_path, uint32_t
 
     if ( data.is_valid() )
     {
-        threaded_process_callback::ptr cb = new service_impl_t<helpers::embed_thread>( 0, data, metadbHandleList_, what );
+        threaded_process_callback::ptr cb (new service_impl_t<art::embed_thread>( 0, data, metadbHandleList_, what ));
         threaded_process::get()->run_modeless( cb, 
                                                threaded_process::flag_show_progress | threaded_process::flag_show_delayed | threaded_process::flag_show_item, 
                                                core_api::get_main_window(), 
@@ -694,7 +694,7 @@ JsFbMetadbHandleList::RemoveAttachedImage( uint32_t art_id )
 
     GUID what = art::GetGuidForArtId( art_id );
 
-    threaded_process_callback::ptr cb = new service_impl_t<helpers::embed_thread>( 1, album_art_data_ptr(), metadbHandleList_, what );
+    threaded_process_callback::ptr cb = new service_impl_t<art::embed_thread>( 1, album_art_data_ptr(), metadbHandleList_, what );
     threaded_process::get()->run_modeless( cb, 
                                            threaded_process::flag_show_progress | threaded_process::flag_show_delayed | threaded_process::flag_show_item, 
                                            core_api::get_main_window(), 
@@ -731,7 +731,9 @@ JsFbMetadbHandleList::Sort()
 std::optional<std::nullptr_t> 
 JsFbMetadbHandleList::UpdateFileInfoFromJSON( const pfc::string8_fast& str )
 {
-    // TODO: investigate
+    using json = nlohmann::json;
+
+    // TODO: investigate and cleanup
     uint32_t count = metadbHandleList_.get_count();
     if ( !count )
     {// Not an error
@@ -778,6 +780,14 @@ JsFbMetadbHandleList::UpdateFileInfoFromJSON( const pfc::string8_fast& str )
     pfc::list_t<file_info_impl> info;
     info.set_size( count );
 
+    auto iterator_to_string8 = []( json::iterator j )
+    {
+        std::string value = j.value().type() == json::value_t::string
+                              ? j.value().get<std::string>()
+                              : j.value().dump();
+        return pfc::string8_fast( value.c_str(), value.length() );
+    };
+
     for ( t_size i = 0; i < count; ++i )
     {
         json obj = isArray ? jsonObject[i] : jsonObject;
@@ -805,7 +815,7 @@ JsFbMetadbHandleList::UpdateFileInfoFromJSON( const pfc::string8_fast& str )
             {
                 for ( json::iterator ita = it.value().begin(); ita != it.value().end(); ++ita )
                 {
-                    pfc::string8 value = helpers::iterator_to_string8( ita );
+                    pfc::string8 value = iterator_to_string8( ita );
                     if ( !value.is_empty() )
                     {
                         info[i].meta_add( key, value );
@@ -814,7 +824,7 @@ JsFbMetadbHandleList::UpdateFileInfoFromJSON( const pfc::string8_fast& str )
             }
             else
             {
-                pfc::string8 value = helpers::iterator_to_string8( it );
+                pfc::string8 value = iterator_to_string8( it );
                 if ( !value.is_empty() )
                 {
                     info[i].meta_set( key, value );

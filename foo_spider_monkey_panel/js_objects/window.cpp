@@ -11,6 +11,7 @@
 #include <js_utils/winapi_error_helper.h>
 #include <js_utils/js_object_helper.h>
 #include <js_utils/scope_helper.h>
+#include <js_utils/gdi_helpers.h>
 
 #include <js_panel_window.h>
 #include <panel_manager.h>
@@ -488,29 +489,25 @@ JsWindow::GetFontCUI( uint32_t type, const std::wstring& guidstr )
         IF_HR_FAILED_RETURN_WITH_REPORT( pJsCtx_, hr, std::nullopt, CLSIDFromString );
     }
 
-    HFONT hFont = parentPanel_.GetFontCUI( type, guid );
-    scope::unique_ptr<std::remove_pointer_t<HFONT>> autoFont( hFont, []( auto obj )
-                                                              {
-                                                                  DeleteObject( obj );
-                                                              } );
+    gdi::unique_font_ptr hFont( gdi::CreateUniquePtr(parentPanel_.GetFontCUI( type, guid ) ) );
     if ( !hFont )
     {// Not an error: font not found
         return nullptr;
     }
 
-    std::unique_ptr<Gdiplus::Font> pGdiFont( new Gdiplus::Font( parentPanel_.GetHDC(), hFont ) );
+    std::unique_ptr<Gdiplus::Font> pGdiFont( new Gdiplus::Font( parentPanel_.GetHDC(), hFont.get() ) );
     if ( !helpers::ensure_gdiplus_object( pGdiFont.get() ) )
     {// Not an error: font not found
         return nullptr;
     }
 
-    JS::RootedObject jsObject( pJsCtx_, JsGdiFont::CreateJs( pJsCtx_, std::move(pGdiFont), hFont, true ) );
+    JS::RootedObject jsObject( pJsCtx_, JsGdiFont::CreateJs( pJsCtx_, std::move(pGdiFont), hFont.release(), true ) );
     if ( !jsObject )
     {// Report in Create
         return std::nullopt;
     }
-
-    autoFont.release();
+    
+    hFont.release();
     return jsObject;
 }
 

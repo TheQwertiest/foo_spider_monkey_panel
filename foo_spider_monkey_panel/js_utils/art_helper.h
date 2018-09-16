@@ -6,6 +6,23 @@
 namespace mozjs::art
 {
 
+class embed_thread 
+    : public threaded_process_callback
+{
+public:
+    embed_thread( t_size action,
+                  album_art_data_ptr data,
+                  metadb_handle_list_cref handles,
+                  GUID what );
+    void run( threaded_process_status& p_status, abort_callback& p_abort );
+
+private:
+    t_size m_action; // 0 embed, 1 remove
+    album_art_data_ptr m_data;
+    metadb_handle_list m_handles;
+    GUID m_what;
+};
+
 struct AsyncArtTaskResult
 {
     metadb_handle_ptr handle;
