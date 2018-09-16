@@ -1,7 +1,7 @@
 ﻿diff a/scintilla b/scintilla
 --- a/scintilla/win32/scintilla.mak
 +++ b/scintilla/win32/scintilla.mak
-@@ -26,10 +26,10 @@
+@@ -26,11 +26,15 @@
  
  CRTFLAGS=-D_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES=1 -D_CRT_SECURE_NO_DEPRECATE=1 -D_SCL_SECURE_NO_WARNINGS=1 $(XP_DEFINE)
  CXXFLAGS=-Zi -TP -MP -W4 -EHsc -std:c++latest $(CRTFLAGS)
@@ -13,8 +13,34 @@
 -LDFLAGS=-OPT:REF -LTCG -IGNORE:4197 -DEBUG $(XP_LINK)
 +LDFLAGS=-OPT:REF -IGNORE:4197 -DEBUG $(XP_LINK)
  LDDEBUG=
++LDRELEASE=-LTCG
++LIBFLAGS=
++LIBDEBUG=
++LIBRELEASE=/LTCG
  LIBS=KERNEL32.lib USER32.lib GDI32.lib IMM32.lib OLE32.lib OLEAUT32.lib MSIMG32.lib
  NOLOGO=-nologo
+ 
+@@ -47,8 +51,11 @@
+ !IFDEF DEBUG
+ CXXFLAGS=$(CXXFLAGS) $(CXXDEBUG)
+ LDFLAGS=$(LDDEBUG) $(LDFLAGS)
++LIBFLAGS=$(LIBDEBUG) $(LIBFLAGS)
+ !ELSE
+ CXXFLAGS=$(CXXFLAGS) $(CXXNDEBUG)
++LDFLAGS=$(LDRELEASE) $(LDFLAGS)
++LIBFLAGS=$(LIBRELEASE) $(LIBFLAGS)
+ !ENDIF
+ 
+ INCLUDEDIRS=-I../include -I../src -I../lexlib
+@@ -136,7 +143,7 @@
+ 	$(LD) $(LDFLAGS) -DEF:Scintilla.def -DLL -OUT:$@ $** $(LIBS)
+ 
+ $(LIBSCI): $(SCILEXOBJS) $(DIR_O)\ScintillaWin.obj
+-	LIB /OUT:$@ $**
++	LIB $(LIBFLAGS) /OUT:$@ $**
+ 
+ # Define how to build all the objects and what they depend on
+ 
 --- a/scintilla/win32/ScintillaWin.cxx
 +++ b/scintilla/win32/ScintillaWin.cxx
 @@ -140,7 +140,7 @@
