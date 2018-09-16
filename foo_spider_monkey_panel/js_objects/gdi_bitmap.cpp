@@ -8,8 +8,8 @@
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
 
-#include <stackblur.h>
-#include <kmeans.h>
+#include <utils/stackblur.h>
+#include <utils/kmeans.h>
 #include <helpers.h>
 
 
@@ -336,7 +336,7 @@ JsGdiBitmap::GetColourScheme( uint32_t count )
 std::optional<pfc::string8_fast> 
 JsGdiBitmap::GetColourSchemeJSON( uint32_t count )
 {
-    using namespace kmeans;
+    using namespace smp::utils::kmeans;
 
     Gdiplus::BitmapData bmpdata;
 
@@ -565,7 +565,7 @@ JsGdiBitmap::SaveAsWithOpt( size_t optArgCount, const std::wstring& path, const 
 std::optional<std::nullptr_t>
 JsGdiBitmap::StackBlur( uint32_t radius )
 {
-    stack_blur_filter( *pGdi_, radius );
+    smp::utils::stack_blur_filter( *pGdi_, radius );
     return nullptr;
 }
 

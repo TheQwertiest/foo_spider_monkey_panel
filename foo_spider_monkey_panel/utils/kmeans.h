@@ -22,7 +22,7 @@ not acceptable for generating colour values, so the starting center colour value
 across the data set.
 */
 
-namespace kmeans
+namespace smp::utils::kmeans
 {
 
 class Point

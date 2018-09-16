@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include <stdafx.h>
 #include "kmeans.h"
 
 #include <numeric>
@@ -28,7 +28,7 @@ namespace
 uint8_t kNumberOfColourComponents = 3;
 }
 
-namespace kmeans
+namespace smp::utils::kmeans
 {
 
 Point::Point( uint32_t id_point, const std::vector<uint32_t>& values, uint32_t pixel_count )

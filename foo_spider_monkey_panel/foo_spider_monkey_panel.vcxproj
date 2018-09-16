@@ -159,12 +159,10 @@
     <ClCompile Include="js_utils\serialized_value.cpp" />
     <ClCompile Include="js_utils\string_util.cpp" />
     <ClCompile Include="js_utils\winapi_error_helper.cpp" />
-    <ClCompile Include="kmeans.cpp" />
     <ClCompile Include="mainmenu.cpp" />
     <ClCompile Include="panel_manager.cpp" />
     <ClCompile Include="scintilla_prop_sets.cpp" />
     <ClCompile Include="script_interface_impl.cpp" />
-    <ClCompile Include="stackblur.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
@@ -178,6 +176,8 @@
     <ClCompile Include="ui_pref.cpp" />
     <ClCompile Include="ui_property.cpp" />
     <ClCompile Include="ui_replace.cpp" />
+    <ClCompile Include="utils\kmeans.cpp" />
+    <ClCompile Include="utils\stackblur.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\PropertyList\PropertyItem.h" />
@@ -245,7 +245,6 @@
     <ClInclude Include="js_utils\serialized_value.h" />
     <ClInclude Include="js_utils\string_util.h" />
     <ClInclude Include="js_utils\winapi_error_helper.h" />
-    <ClInclude Include="kmeans.h" />
     <ClInclude Include="panel_tooltip_param.h" />
     <ClInclude Include="SString.h" />
     <ClInclude Include="com_tools.h" />
@@ -259,7 +258,6 @@
     <ClInclude Include="js_panel_window.h" />
     <ClInclude Include="js_panel_window_cui.h" />
     <ClInclude Include="js_panel_window_dui.h" />
-    <ClInclude Include="json.hpp" />
     <ClInclude Include="panel_manager.h" />
     <ClInclude Include="popup_msg.h" />
     <ClInclude Include="resource.h" />
@@ -267,7 +265,6 @@
     <ClInclude Include="script_interface.h" />
     <ClInclude Include="script_interface_impl.h" />
     <ClInclude Include="panel_info.h" />
-    <ClInclude Include="stackblur.h" />
     <ClInclude Include="stats.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="thread_pool.h" />
@@ -280,6 +277,9 @@
     <ClInclude Include="ui_property.h" />
     <ClInclude Include="ui_replace.h" />
     <ClInclude Include="user_message.h" />
+    <ClInclude Include="utils\json.hpp" />
+    <ClInclude Include="utils\kmeans.h" />
+    <ClInclude Include="utils\stackblur.h" />
     <ClInclude Include="wtlscintilla.h" />
   </ItemGroup>
   <ItemGroup>

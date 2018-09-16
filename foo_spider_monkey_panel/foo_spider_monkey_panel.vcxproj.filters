@@ -208,12 +208,6 @@
     <ClCompile Include="convert\js_to_native.cpp">
       <Filter>convert</Filter>
     </ClCompile>
-    <ClCompile Include="stackblur.cpp">
-      <Filter>uncategorized</Filter>
-    </ClCompile>
-    <ClCompile Include="kmeans.cpp">
-      <Filter>uncategorized</Filter>
-    </ClCompile>
     <ClCompile Include="js_utils\file_helpers.cpp">
       <Filter>js_utils</Filter>
     </ClCompile>
@@ -237,6 +231,12 @@
     </ClCompile>
     <ClCompile Include="ui_input_box.cpp">
       <Filter>uncategorized\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="utils\stackblur.cpp">
+      <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="utils\kmeans.cpp">
+      <Filter>utils</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -318,12 +318,6 @@
     <ClInclude Include="js_panel_window_dui.h">
       <Filter>uncategorized</Filter>
     </ClInclude>
-    <ClInclude Include="json.hpp">
-      <Filter>uncategorized</Filter>
-    </ClInclude>
-    <ClInclude Include="kmeans.h">
-      <Filter>uncategorized</Filter>
-    </ClInclude>
     <ClInclude Include="panel_manager.h">
       <Filter>uncategorized</Filter>
     </ClInclude>
@@ -340,9 +334,6 @@
       <Filter>uncategorized</Filter>
     </ClInclude>
     <ClInclude Include="SString.h">
-      <Filter>uncategorized</Filter>
-    </ClInclude>
-    <ClInclude Include="stackblur.h">
       <Filter>uncategorized</Filter>
     </ClInclude>
     <ClInclude Include="stats.h">
@@ -543,6 +534,15 @@
     <ClInclude Include="ui_input_box.h">
       <Filter>uncategorized\ui</Filter>
     </ClInclude>
+    <ClInclude Include="utils\kmeans.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\stackblur.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\json.hpp">
+      <Filter>utils</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include=".editorconfig" />
@@ -577,6 +577,9 @@
     </Filter>
     <Filter Include="uncategorized\resources">
       <UniqueIdentifier>{c5622339-902d-4569-9e43-3a9dab7b21a7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="utils">
+      <UniqueIdentifier>{047b1a54-ba81-4cee-910d-751ebb3953fe}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

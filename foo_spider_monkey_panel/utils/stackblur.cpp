@@ -448,7 +448,7 @@ void stackblur( unsigned char* src, ///< input image data
 
 }
 
-namespace mozjs
+namespace smp::utils
 {
 
 void stack_blur_filter( Gdiplus::Bitmap& img, int radius ) throw()

@@ -1,6 +1,6 @@
 #pragma once
 
-namespace mozjs
+namespace smp::utils
 {
 
 /*

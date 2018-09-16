@@ -2,7 +2,8 @@
 
 #include "thread_pool.h"
 #include "script_interface.h"
-#include "json.hpp"
+
+#include <utils/json.hpp>
 
 using json = nlohmann::json;
 
