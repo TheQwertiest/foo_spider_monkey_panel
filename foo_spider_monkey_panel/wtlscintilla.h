@@ -164,18 +164,6 @@ public:
 		return GetStyledText(trRange);
 	}
 
-	void SetStyleBits(int nBits)
-	{
-		ATLASSERT(::IsWindow(m_hWnd));
-		::SendMessage(m_hWnd, SCI_SETSTYLEBITS, nBits, 0L);
-	}
-
-	int GetStyleBits() const
-	{
-		ATLASSERT(::IsWindow(m_hWnd));
-		return ::SendMessage(m_hWnd, SCI_GETSTYLEBITS, 0, 0L);
-	}
-
 	//@}
 	/** @name Searching */
 	//@{
@@ -1903,12 +1891,6 @@ public:
 	{
 		ATLASSERT(::IsWindow(m_hWnd));
 		::SendMessage(m_hWnd, SCI_SETKEYWORDS, nSet, (LPARAM)szKeyWords);
-	}
-
-	int GetStyleBitsNeeded() const
-	{
-		ATLASSERT(::IsWindow(m_hWnd));
-		return ::SendMessage(m_hWnd, SCI_GETSTYLEBITSNEEDED, 0, 0L);
 	}
 
 	//@}

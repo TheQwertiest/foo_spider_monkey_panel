@@ -732,73 +732,73 @@ void CScriptEditorCtrl::AutomaticIndentation(char ch)
 
 bool CScriptEditorCtrl::FindBraceMatchPos(int &braceAtCaret, int &braceOpposite)
 {
-	bool isInside = false;
-	int mask = (1 << GetStyleBits()) - 1;
-	int caretPos = GetCurrentPos();
+    bool isInside = false;
+    /*
+    const int mainSel = win.Call( SCI_GETMAINSELECTION, 0, 0 );
+    if ( win.Call( SCI_GETSELECTIONNCARETVIRTUALSPACE, mainSel, 0 ) > 0 )
+        return false;
+    */
+    int caretPos = GetCurrentPos();
+    braceAtCaret = -1;
+    braceOpposite = -1;
+    char charBefore = '\0';
+    int styleBefore = 0;
+    const int lengthDoc = GetLength();
 
-	braceAtCaret = -1;
-	braceOpposite = -1;
-
-	char charBefore = 0;
-	char styleBefore = 0;
-	int lengthDoc = GetLength();
-
-	if ((lengthDoc > 0) && (caretPos > 0))
-	{
-		// Check to ensure not matching brace that is part of a multibyte character
-		int posBefore = PositionBefore(caretPos);
-
-		if (posBefore == (caretPos - 1))
-		{
-			charBefore = GetCharAt(posBefore);
-			styleBefore = GetStyleAt(posBefore) & mask;
-		}
-	}
-
-	// Priority goes to character before caret
-	if (charBefore && IsBraceChar(charBefore))
-	{
-		braceAtCaret = caretPos - 1;
-	}
-
-	bool colonMode = false;
-	bool isAfter = true;
-
-	if (lengthDoc > 0 && (braceAtCaret < 0) && (caretPos < lengthDoc))
-	{
-		// No brace found so check other side
-		// Check to ensure not matching brace that is part of a multibyte character
-		char charAfter = GetCharAt(caretPos);
-		char styleAfter = GetStyleAt(caretPos) & mask;
-
-		if (charAfter && IsBraceChar(charAfter))
-		{
-			braceAtCaret = caretPos;
-			isAfter = false;
-		}
-	}
-
-	if (braceAtCaret >= 0)
-	{
-		if (colonMode)
-		{
-			int lineStart = LineFromPosition(braceAtCaret);
-			int lineMaxSubord = GetLastChild(lineStart, -1);
-
-			braceOpposite = GetLineEndPosition(lineMaxSubord);
-		}
-		else
-		{
-			braceOpposite = BraceMatch(braceAtCaret);
-		}
-
-		if (braceOpposite > braceAtCaret)
-			isInside = isAfter;
-		else
-			isInside = !isAfter;
-	}
-
-	return isInside;
+    if ( ( lengthDoc > 0 ) && ( caretPos > 0 ) )
+    {
+        // Check to ensure not matching brace that is part of a multibyte character
+        int posBefore = PositionBefore( caretPos );
+        if ( posBefore == ( caretPos - 1 ) )
+        {
+            charBefore = GetCharAt( posBefore );
+            styleBefore = GetStyleAt( posBefore );
+        }
+    }
+    // Priority goes to character before caret
+    if ( charBefore && IsBraceChar( charBefore ) )
+    {
+        braceAtCaret = caretPos - 1;
+    }
+    bool colonMode = false;
+    bool isAfter = true;
+    if ( lengthDoc > 0 && ( braceAtCaret < 0 ) && ( caretPos < lengthDoc ) )
+    {
+        // No brace found so check other side
+        // Check to ensure not matching brace that is part of a multibyte character
+        const char charAfter = GetCharAt( caretPos );
+        if ( charAfter == ( caretPos + 1 ) )
+        {
+            const int styleAfter = GetStyleAt( caretPos );
+            if ( charAfter && IsBraceChar( charAfter ) )
+            {
+                braceAtCaret = caretPos;
+                isAfter = false;
+            }
+        }
+    }
+    if ( braceAtCaret >= 0 )
+    {
+        if ( colonMode )
+        {
+            const int lineStart = LineFromPosition( braceAtCaret );
+            const int lineMaxSubord = GetLastChild( lineStart, -1 );
+            braceOpposite = GetLineEndPosition( lineMaxSubord );
+        }
+        else
+        {
+            braceOpposite = BraceMatch( braceAtCaret );
+        }
+        if ( braceOpposite > braceAtCaret )
+        {
+            isInside = isAfter;
+        }
+        else
+        {
+            isInside = !isAfter;
+        }
+    }
+    return isInside;
 }
 
 const char * CScriptEditorCtrl::GetNearestWord(const char *wordStart, int searchLen, SString wordCharacters, int wordIndex)

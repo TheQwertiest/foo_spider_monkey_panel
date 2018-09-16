@@ -39,14 +39,12 @@
     <Import Project="$(SolutionDir)\..\props\BuildEnvCpp.props" />
     <Import Project="$(SolutionDir)\..\props\DynamicRuntime.props" />
     <Import Project="$(SolutionDir)\..\props\foobar2000_sdk.props" />
-    <Import Project="$(SolutionDir)\..\props\pfc.props" />
     <Import Project="$(SolutionDir)\..\props\mozjs.props" />
+    <Import Project="$(SolutionDir)\..\props\pfc.props" />
+    <Import Project="$(SolutionDir)\..\props\scintilla.props" />
     <Import Project="$(SolutionDir)\..\props\wtl.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
-  <PropertyGroup>
-    <IncludePath>..\wtl;..\scintilla\include;$(IncludePath)</IncludePath>
-  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)'=='Debug'">
     <LinkIncremental>true</LinkIncremental>
   </PropertyGroup>
@@ -137,7 +135,7 @@
     <ClCompile Include="js_objects\global_object.cpp" />
     <ClCompile Include="js_objects\hacks.cpp" />
     <ClCompile Include="js_objects\html_window.cpp">
-      <MultiProcessorCompilation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</MultiProcessorCompilation>
+      <MultiProcessorCompilation>false</MultiProcessorCompilation>
     </ClCompile>
     <ClCompile Include="js_objects\internal\fb_properties.cpp" />
     <ClCompile Include="js_objects\internal\global_heap_manager.cpp" />
@@ -305,12 +303,8 @@
       <Project>{ebfffb4e-261d-44d3-b89c-957b31a0bf9c}</Project>
     </ProjectReference>
     <ProjectReference Include="..\scintilla\win32\scintilla.vcxproj">
-      <Project>{641a7d58-c47d-4110-b800-e18e8a5d818f}</Project>
-      <Private>true</Private>
-      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
-      <CopyLocalSatelliteAssemblies>false</CopyLocalSatelliteAssemblies>
-      <LinkLibraryDependencies>true</LinkLibraryDependencies>
-      <UseLibraryDependencyInputs>false</UseLibraryDependencyInputs>
+      <Project>{10b2a7ef-9089-4352-ba26-7e9aef50987d}</Project>
+      <Private>false</Private>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

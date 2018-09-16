@@ -46,9 +46,6 @@
     <ClCompile Include="config.cpp">
       <Filter>uncategorized</Filter>
     </ClCompile>
-    <ClCompile Include="editorctrl.cpp">
-      <Filter>uncategorized</Filter>
-    </ClCompile>
     <ClCompile Include="foo_spider_monkey_panel.cpp">
       <Filter>uncategorized</Filter>
     </ClCompile>
@@ -74,9 +71,6 @@
       <Filter>uncategorized</Filter>
     </ClCompile>
     <ClCompile Include="panel_manager.cpp">
-      <Filter>uncategorized</Filter>
-    </ClCompile>
-    <ClCompile Include="scintilla_prop_sets.cpp">
       <Filter>uncategorized</Filter>
     </ClCompile>
     <ClCompile Include="script_interface_impl.cpp">
@@ -241,6 +235,12 @@
     <ClCompile Include="js_utils\gdi_helpers.cpp">
       <Filter>js_utils</Filter>
     </ClCompile>
+    <ClCompile Include="scintilla_prop_sets.cpp">
+      <Filter>uncategorized\scintilla</Filter>
+    </ClCompile>
+    <ClCompile Include="editorctrl.cpp">
+      <Filter>uncategorized\scintilla</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="js_engine\js_engine.h">
@@ -300,9 +300,6 @@
     <ClInclude Include="drop_target_impl.h">
       <Filter>uncategorized</Filter>
     </ClInclude>
-    <ClInclude Include="editorctrl.h">
-      <Filter>uncategorized</Filter>
-    </ClInclude>
     <ClInclude Include="helpers.h">
       <Filter>uncategorized</Filter>
     </ClInclude>
@@ -327,16 +324,10 @@
     <ClInclude Include="popup_msg.h">
       <Filter>uncategorized</Filter>
     </ClInclude>
-    <ClInclude Include="scintilla_prop_sets.h">
-      <Filter>uncategorized</Filter>
-    </ClInclude>
     <ClInclude Include="script_interface.h">
       <Filter>uncategorized</Filter>
     </ClInclude>
     <ClInclude Include="script_interface_impl.h">
-      <Filter>uncategorized</Filter>
-    </ClInclude>
-    <ClInclude Include="SString.h">
       <Filter>uncategorized</Filter>
     </ClInclude>
     <ClInclude Include="stats.h">
@@ -349,9 +340,6 @@
       <Filter>uncategorized</Filter>
     </ClInclude>
     <ClInclude Include="user_message.h">
-      <Filter>uncategorized</Filter>
-    </ClInclude>
-    <ClInclude Include="wtlscintilla.h">
       <Filter>uncategorized</Filter>
     </ClInclude>
     <ClInclude Include="..\PropertyList\PropertyItem.h">
@@ -549,6 +537,18 @@
     <ClInclude Include="js_utils\gdi_helpers.h">
       <Filter>js_utils</Filter>
     </ClInclude>
+    <ClInclude Include="scintilla_prop_sets.h">
+      <Filter>uncategorized\scintilla</Filter>
+    </ClInclude>
+    <ClInclude Include="SString.h">
+      <Filter>uncategorized\scintilla</Filter>
+    </ClInclude>
+    <ClInclude Include="wtlscintilla.h">
+      <Filter>uncategorized\scintilla</Filter>
+    </ClInclude>
+    <ClInclude Include="editorctrl.h">
+      <Filter>uncategorized\scintilla</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="default.js">
@@ -586,6 +586,9 @@
     </Filter>
     <Filter Include="ui">
       <UniqueIdentifier>{6cdd963f-4f38-4310-b440-f96d5e5d2df5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="uncategorized\scintilla">
+      <UniqueIdentifier>{fe84cd3a-a0ea-4f6b-9816-6d2d77d6c024}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
