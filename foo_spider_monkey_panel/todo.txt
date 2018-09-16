@@ -1,7 +1,7 @@
 # Current
-- Backport all the changes from foo-jscript-panel.
+- Backport all the .js changes from foo-jscript-panel.
 - Complete rebranding to spider_monkey_panel (including folders).
-- Check and fix all the samples.
+- Check and fix all the basic samples.
 - Fix unresponsive arrow keys in DUI in CaTRoX: https://github.com/TheQwertiest/foo-jscript-panel/commit/8a41c524a9c3c16c466204fde81c5c108975310b#commitcomment-29727611.
 
 # Prerelease-Test
