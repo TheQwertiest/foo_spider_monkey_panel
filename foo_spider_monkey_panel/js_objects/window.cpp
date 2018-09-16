@@ -489,7 +489,7 @@ JsWindow::GetFontCUI( uint32_t type, const std::wstring& guidstr )
         IF_HR_FAILED_RETURN_WITH_REPORT( pJsCtx_, hr, std::nullopt, CLSIDFromString );
     }
 
-    gdi::unique_font_ptr hFont( gdi::CreateUniquePtr(parentPanel_.GetFontCUI( type, guid ) ) );
+    auto hFont = gdi::CreateUniquePtr(parentPanel_.GetFontCUI( type, guid ) );
     if ( !hFont )
     {// Not an error: font not found
         return nullptr;
