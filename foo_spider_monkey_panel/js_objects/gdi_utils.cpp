@@ -7,6 +7,7 @@
 #include <js_objects/gdi_bitmap.h>
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
+#include <js_utils/gdi_helpers.h>
 #include <js_utils/scope_helper.h>
 #include <js_utils/image_helper.h>
 #include <js_utils/winapi_error_helper.h>
@@ -90,7 +91,7 @@ std::optional<JSObject*>
 JsGdiUtils::CreateImage( uint32_t w, uint32_t h )
 {
     std::unique_ptr<Gdiplus::Bitmap> img( new Gdiplus::Bitmap( w, h, PixelFormat32bppPARGB ) );
-    if ( !helpers::ensure_gdiplus_object( img.get() ) )
+    if ( !gdi::IsGdiPlusObjectValid( img.get() ) )
     {
         JS_ReportErrorUTF8( pJsCtx_, "Bitmap creation failed" );
         return std::nullopt;
@@ -109,7 +110,7 @@ std::optional<JSObject*>
 JsGdiUtils::Font( const std::wstring& fontName, float pxSize, uint32_t style )
 {
     std::unique_ptr<Gdiplus::Font> pGdiFont( new Gdiplus::Font( fontName.c_str(), pxSize, style, Gdiplus::UnitPixel ) );
-    if ( !helpers::ensure_gdiplus_object( pGdiFont.get() ) )
+    if ( !gdi::IsGdiPlusObjectValid( pGdiFont.get() ) )
     {// Not an error: font not found
         return nullptr;
     }

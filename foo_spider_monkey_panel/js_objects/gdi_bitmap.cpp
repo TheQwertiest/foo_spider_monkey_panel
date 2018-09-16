@@ -139,7 +139,7 @@ JsGdiBitmap::ApplyAlpha( uint8_t alpha )
     t_size height = pGdi_->GetHeight();
 
     std::unique_ptr<Gdiplus::Bitmap> out( new Gdiplus::Bitmap( width, height, PixelFormat32bppPARGB ) );
-    if ( !helpers::ensure_gdiplus_object( out.get() ) )
+    if ( !gdi::IsGdiPlusObjectValid( out.get() ) )
     {// TODO: replace with IF_FAILED macro
         JS_ReportErrorUTF8( pJsCtx_, "Internal error: failed to create Gdiplus object" );
         return std::nullopt;
@@ -238,7 +238,7 @@ std::optional<JSObject*>
 JsGdiBitmap::Clone( float x, float y, float w, float h )
 {
     std::unique_ptr<Gdiplus::Bitmap> img( pGdi_->Clone( x, y, w, h, PixelFormat32bppPARGB ) );
-    if ( !helpers::ensure_gdiplus_object( img.get() ) )
+    if ( !gdi::IsGdiPlusObjectValid( img.get() ) )
     {
         JS_ReportErrorUTF8( pJsCtx_, "Clone failed" );
         return std::nullopt;
@@ -346,7 +346,7 @@ JsGdiBitmap::GetColourSchemeJSON( uint32_t count )
     uint32_t h = std::min( pGdi_->GetHeight(), static_cast<uint32_t>( 220 ) );
 
     Gdiplus::Bitmap* bitmap = new Gdiplus::Bitmap( w, h, PixelFormat32bppPARGB );
-    if ( !helpers::ensure_gdiplus_object( bitmap ) )
+    if ( !gdi::IsGdiPlusObjectValid( bitmap ) )
     {// TODO: replace with IF_FAILED macro
         JS_ReportErrorUTF8( pJsCtx_, "Internal error: failed to create Gdiplus object" );
         return std::nullopt;
@@ -437,7 +437,7 @@ std::optional<JSObject*>
 JsGdiBitmap::GetGraphics()
 {
     std::unique_ptr<Gdiplus::Graphics> g( new Gdiplus::Graphics( pGdi_.get() ) );
-    if ( !helpers::ensure_gdiplus_object( g.get() ) )
+    if ( !gdi::IsGdiPlusObjectValid( g.get() ) )
     {// TODO: replace with IF_FAILED macro
         JS_ReportErrorUTF8( pJsCtx_, "Internal error: failed to create Gdiplus object" );
         return std::nullopt;
@@ -484,7 +484,7 @@ std::optional<JSObject*>
 JsGdiBitmap::Resize( uint32_t w, uint32_t h, uint32_t interpolationMode )
 {
     std::unique_ptr<Gdiplus::Bitmap> bitmap( new Gdiplus::Bitmap( w, h, PixelFormat32bppPARGB ) );
-    if ( !helpers::ensure_gdiplus_object( bitmap.get() ) )
+    if ( !gdi::IsGdiPlusObjectValid( bitmap.get() ) )
     {// TODO: replace with IF_FAILED macro
         JS_ReportErrorUTF8( pJsCtx_, "Internal error: failed to create Gdiplus object" );
         return std::nullopt;

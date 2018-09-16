@@ -496,7 +496,7 @@ JsWindow::GetFontCUI( uint32_t type, const std::wstring& guidstr )
     }
 
     std::unique_ptr<Gdiplus::Font> pGdiFont( new Gdiplus::Font( parentPanel_.GetHDC(), hFont.get() ) );
-    if ( !helpers::ensure_gdiplus_object( pGdiFont.get() ) )
+    if ( !gdi::IsGdiPlusObjectValid( pGdiFont.get() ) )
     {// Not an error: font not found
         return nullptr;
     }
@@ -544,7 +544,7 @@ JsWindow::GetFontDUI( uint32_t type )
     }
 
     std::unique_ptr<Gdiplus::Font> pGdiFont( new Gdiplus::Font( parentPanel_.GetHDC(), hFont ) );
-    if ( !helpers::ensure_gdiplus_object( pGdiFont.get() ) )
+    if ( !gdi::IsGdiPlusObjectValid( pGdiFont.get() ) )
     {// Not an error: font not found
         return nullptr;
     }

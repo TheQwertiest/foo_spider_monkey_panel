@@ -6,8 +6,8 @@
 
 enum t_version_info
 {
-	JSP_VERSION_100 = 1, // must start with 1 so we don't break component upgrades
-	CONFIG_VERSION_CURRENT = JSP_VERSION_100
+	SMP_VERSION_100 = 1, // must start with 1 so we don't break component upgrades
+	CONFIG_VERSION_CURRENT = SMP_VERSION_100
 };
 
 enum t_edge_style : char
@@ -23,10 +23,8 @@ inline DWORD edge_style_from_config(t_edge_style edge_style)
 	{
 	case SUNKEN_EDGE:
 		return WS_EX_CLIENTEDGE;
-
 	case GREY_EDGE:
 		return WS_EX_STATICEDGE;
-
 	default:
 		return 0;
 	}

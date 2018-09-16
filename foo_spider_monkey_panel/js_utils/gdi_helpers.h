@@ -9,6 +9,12 @@
 namespace mozjs::gdi
 {
 
+template<class T>
+bool IsGdiPlusObjectValid( T* obj )
+{
+    return ( obj && ( Gdiplus::Ok == obj->GetLastStatus() ) );
+}
+
 using unique_bitmap_ptr = scope::unique_ptr<std::remove_pointer_t<HBITMAP>>;
 using unique_dc_ptr = scope::unique_ptr<std::remove_pointer_t<HDC>>;
 using unique_font_ptr = scope::unique_ptr<std::remove_pointer_t<HFONT>>;

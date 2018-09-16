@@ -56,7 +56,7 @@ public:
 	bool is_queue_empty();
 	void track( std::unique_ptr<simple_thread_task> task );
 	void untrack_all();
-	// Should always called from the main thread
+	// Should be always called from the main thread
 	void join();
     std::unique_ptr<simple_thread_task> acquire_task();
 

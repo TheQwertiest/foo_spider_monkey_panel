@@ -1,6 +1,8 @@
 #include <stdafx.h>
 #include "image_helper.h"
 
+#include <js_utils/gdi_helpers.h>
+
 #include <helpers.h>
 #include <user_message.h>
 
@@ -83,7 +85,7 @@ std::unique_ptr<Gdiplus::Bitmap> LoadImage( const std::wstring& imagePath )
     }
 
     std::unique_ptr<Gdiplus::Bitmap> img( new Gdiplus::Bitmap( pStream, PixelFormat32bppPARGB ) );
-    if ( !helpers::ensure_gdiplus_object( img.get() ) )
+    if ( !gdi::IsGdiPlusObjectValid( img.get() ) )
     {
         return nullptr;
     }

@@ -42,12 +42,6 @@ namespace helpers
 	void estimate_line_wrap_recur(HDC hdc, std::wstring_view text, size_t width, std::list<helpers::wrapped_item>& out);
 	std::wstring make_sort_string(const char* in);
 
-	template <class T>
-	bool ensure_gdiplus_object(T* obj)
-	{
-		return ((obj) && (obj->GetLastStatus() == Gdiplus::Ok));
-	}
-
 	template<int direction>
 	static int custom_sort_compare(const custom_sort_data& elem1, const custom_sort_data& elem2)
 	{
