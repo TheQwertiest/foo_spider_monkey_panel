@@ -1,6 +1,8 @@
 #include <stdafx.h>
 #include "utils.h"
 
+#include <ui/ui_input_box.h>
+
 #include <js_engine/js_to_native_invoker.h>
 #include <js_objects/fb_metadb_handle.h>
 #include <js_objects/gdi_bitmap.h>
@@ -14,7 +16,6 @@
 #include <js_utils/scope_helper.h>
 
 #include <helpers.h>
-#include <ui_input_box.h>
 
 #include <io.h>
 #include <fcntl.h>
