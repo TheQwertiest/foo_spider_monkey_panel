@@ -28,7 +28,6 @@ namespace helpers
 	bool get_mainmenu_command_node_recur_v2(mainmenu_node::ptr node, pfc::string8_fast path, const char* p_name, t_size p_name_len, mainmenu_node::ptr &node_out);
 	bool get_mainmenu_command_status_by_name(const char* p_name, t_uint32 &status);
 	bool find_context_command_recur(const char* p_command, pfc::string_base& p_path, contextmenu_node* p_parent, contextmenu_node*& p_out);
-	bool is14();
 	bool match_menu_command(const pfc::string_base& path, const char* command, t_size command_len = ~0);
 	bool read_file(const char* path, pfc::string_base& content);
 	bool write_file(const char* path, const pfc::string_base& content, bool write_bom = true);
@@ -111,6 +110,49 @@ namespace helpers
 
         return ret;
     }
+
+    class embed_thread : public threaded_process_callback
+    {
+    public:
+        embed_thread( t_size action, album_art_data_ptr data, metadb_handle_list_cref handles, GUID what ) : m_action( action ), m_data( data ), m_handles( handles ), m_what( what ) {}
+        void on_init( HWND p_wnd ) {}
+        void run( threaded_process_status& p_status, abort_callback& p_abort )
+        {
+            t_size count = m_handles.get_count();
+            for ( t_size i = 0; i < count; ++i )
+            {
+                pfc::string8_fast path = m_handles.get_item( i )->get_path();
+                p_status.set_progress( i, count );
+                p_status.set_item_path( path );
+                album_art_editor::ptr ptr;
+                if ( album_art_editor::g_get_interface( ptr, path ) )
+                {
+                    album_art_editor_instance_ptr aaep;
+                    try
+                    {
+                        aaep = ptr->open( NULL, path, p_abort );
+                        if ( m_action == 0 )
+                        {
+                            aaep->set( m_what, m_data, p_abort );
+                        }
+                        else if ( m_action == 1 )
+                        {
+                            aaep->remove( m_what );
+                        }
+                        aaep->commit( p_abort );
+                    }
+                    catch ( ... )
+                    {
+                    }
+                }
+            }
+        }
+    private:
+        t_size m_action; // 0 embed, 1 remove
+        album_art_data_ptr m_data;
+        metadb_handle_list m_handles;
+        GUID m_what;
+    };
     
     class js_process_locations : public process_locations_notify
     {

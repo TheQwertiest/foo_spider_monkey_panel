@@ -39,6 +39,7 @@ public:
     std::optional<std::nullptr_t> BuildMenuWithOpt( size_t optArgCount, JsMenuObject* menuObject, int32_t base_id, int32_t max_id );
     std::optional<bool> ExecuteByID( uint32_t id );
     std::optional<std::nullptr_t> InitContext( JsFbMetadbHandleList* handles );
+    std::optional<std::nullptr_t> InitContextPlaylist();
     std::optional<std::nullptr_t> InitNowPlaying();
 
 private:

@@ -137,12 +137,7 @@ JsFbMetadbHandle::Compare( JsFbMetadbHandle* handle )
         return std::nullopt;
     }
 
-    metadb_handle_ptr otherHandle ( handle->GetHandle());
-    if ( otherHandle.is_empty() )
-    {
-        return false;
-    }
-
+    metadb_handle_ptr otherHandle( handle->GetHandle() );
     return otherHandle == metadbHandle_;
 }
 

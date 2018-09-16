@@ -96,9 +96,9 @@ JsFbPlaylistRecyclerManager::Purge( JS::HandleValue affectedItems )
     }
 
     bool is;
-    if ( !JS_IsArrayObject( pJsCtx_, jsObject, &is ) )
+    if ( !JS_IsArrayObject( pJsCtx_, jsObject, &is ) && !is )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "affectedItems argument is an array" );
+        JS_ReportErrorUTF8( pJsCtx_, "affectedItems argument is not an array" );
         return std::nullopt;
     }
 

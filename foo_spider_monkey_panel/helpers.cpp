@@ -298,11 +298,6 @@ namespace helpers
 		return false;
 	}
 
-	bool is14()
-	{
-		return core_version_info_v2::get()->test_version(1, 4, 0, 0);
-	}
-
 	bool match_menu_command(const pfc::string_base& path, const char* command, t_size command_len)
 	{
 		if (command_len == ~0)

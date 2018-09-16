@@ -78,7 +78,6 @@ MJS_DEFINE_JS_TO_NATIVE_FN( JsFbUtils, Random )
 MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsFbUtils, RunContextCommand, RunContextCommandWithOpt, 1 )
 MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsFbUtils, RunContextCommandWithMetadb, RunContextCommandWithMetadbWithOpt, 1 )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsFbUtils, RunMainMenuCommand )
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbUtils, SaveIndex )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsFbUtils, SavePlaylist )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsFbUtils, SetDSPPreset )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsFbUtils, SetOutputDevice )
@@ -131,7 +130,6 @@ const JSFunctionSpec jsFunctions[] = {
     JS_FN( "RunContextCommand", RunContextCommand, 1, DefaultPropsFlags() ),
     JS_FN( "RunContextCommandWithMetadb", RunContextCommandWithMetadb, 2, DefaultPropsFlags() ),
     JS_FN( "RunMainMenuCommand", RunMainMenuCommand, 1, DefaultPropsFlags() ),
-    JS_FN( "SaveIndex", SaveIndex, 0, DefaultPropsFlags() ),
     JS_FN( "SavePlaylist", SavePlaylist, 0, DefaultPropsFlags() ),
     JS_FN( "SetDSPPreset", SetDSPPreset, 1, DefaultPropsFlags() ),
     JS_FN( "SetOutputDevice", SetOutputDevice, 2, DefaultPropsFlags() ),
@@ -415,27 +413,28 @@ JsFbUtils::GetClipboardContents( uint32_t hWindow )
 std::optional<pfc::string8_fast>
 JsFbUtils::GetDSPPresets()
 {
-    if ( !helpers::is14() )
-    {// report in Create
+    if ( !static_api_test_t<output_manager_v2>() )
+    {
+        JS_ReportErrorUTF8( pJsCtx_, "This method requires foobar2000 v1.4 or later" );
         return std::nullopt;
     }
 
     json j = json::array();
-    auto api = dsp_config_manager_v2::get();
-    t_size count = api->get_preset_count();
-    pfc::string8 name;
-
-    for ( t_size i = 0; i < count; ++i )
+    auto api = output_manager_v2::get();
+    outputCoreConfig_t config;
+    api->getCoreConfig( config );
+    api->listDevices( [&j, &config]( const char * fullName, const GUID & output_id, const GUID & device_id )
     {
-        api->get_preset_name( i, name );
-
-        j.push_back(
-            {
-                { "active", api->get_selected_preset() == i },
-                { "name",  name.get_ptr() }
-            } 
-        );
-    }
+        pfc::string8 output_string, device_string;
+        output_string << "{" << pfc::print_guid( output_id ) << "}";
+        device_string << "{" << pfc::print_guid( device_id ) << "}";
+        j.push_back( {
+                     { "name", fullName },
+                     { "output_id", output_string.get_ptr() },
+                     { "device_id", device_string.get_ptr() },
+                     { "active", config.m_output == output_id && config.m_device == device_id }
+                     } );
+    } );
 
     return j.dump().c_str();
 }
@@ -537,13 +536,13 @@ JsFbUtils::GetNowPlaying()
 std::optional<pfc::string8_fast>
 JsFbUtils::GetOutputDevices()
 {
-    if ( !helpers::is14() )
+    if ( !static_api_test_t<output_manager_v2>() )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "foobar2000 v1.4+ is required for this method" );
+        JS_ReportErrorUTF8( pJsCtx_, "This method requires foobar2000 v1.4 or later" );
         return std::nullopt;
     }
 
-    json j;
+    json j = json::array();
     auto api = output_manager_v2::get();
     outputCoreConfig_t config;
     api->getCoreConfig( config );
@@ -845,20 +844,6 @@ JsFbUtils::RunMainMenuCommand( const pfc::string8_fast& command )
 }
 
 std::optional<std::nullptr_t>
-JsFbUtils::SaveIndex()
-{
-    try
-    {
-        stats::theAPI()->save_index_data( g_guid_smp_metadb_index );
-    }
-    catch ( ... )
-    {
-        FB2K_console_formatter() << SMP_NAME_WITH_VERSION ": Failed to save index.";
-    }
-    return nullptr;
-}
-
-std::optional<std::nullptr_t>
 JsFbUtils::SavePlaylist()
 {
     standard_commands::main_save_playlist();
@@ -868,9 +853,9 @@ JsFbUtils::SavePlaylist()
 std::optional<std::nullptr_t>
 JsFbUtils::SetDSPPreset( uint32_t idx )
 {
-    if ( !helpers::is14() )
+    if ( !static_api_test_t<dsp_config_manager_v2>() )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "foobar2000 v1.4+ is required for this method" );
+        JS_ReportErrorUTF8( pJsCtx_, "This method requires foobar2000 v1.4 or later" );
         return std::nullopt;
     }
 
@@ -890,9 +875,9 @@ JsFbUtils::SetDSPPreset( uint32_t idx )
 std::optional<std::nullptr_t>
 JsFbUtils::SetOutputDevice( const std::wstring& output, const std::wstring& device )
 {
-    if ( !helpers::is14() )
+    if ( !static_api_test_t<output_manager_v2>() )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "foobar2000 v1.4+ is required for this method" );
+        JS_ReportErrorUTF8( pJsCtx_, "This method requires foobar2000 v1.4 or later" );
         return std::nullopt;
     }
 

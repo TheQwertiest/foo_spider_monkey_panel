@@ -98,9 +98,9 @@ public:
     std::optional<int32_t> get_PlayingPlaylist();
     std::optional<uint32_t> get_PlaylistCount();
     std::optional<JSObject*> get_PlaylistRecyclerManager();
-    std::optional<std::nullptr_t> put_ActivePlaylist( int32_t playlistIndex );
+    std::optional<std::nullptr_t> put_ActivePlaylist( uint32_t playlistIndex );
     std::optional<std::nullptr_t> put_PlaybackOrder( uint32_t order );
-    std::optional<std::nullptr_t> put_PlayingPlaylist( int32_t playlistIndex );
+    std::optional<std::nullptr_t> put_PlayingPlaylist( uint32_t playlistIndex );
 
 private:
     JsFbPlaylistManager( JSContext* cx );

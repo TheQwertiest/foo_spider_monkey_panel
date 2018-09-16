@@ -34,16 +34,13 @@ LoadImageTask::LoadImageTask( HWND hNotifyWnd, const std::wstring& imagePath )
 
 void LoadImageTask::run()
 {
-    std::unique_ptr<Gdiplus::Bitmap> bitmap( new Gdiplus::Bitmap( imagePath_.c_str(), PixelFormat32bppPARGB ) );
-    if ( !helpers::ensure_gdiplus_object( bitmap.get() ) )
+    image::AsyncImageTaskResult taskResult;
+    if ( !imagePath_.empty() )
     {
-        bitmap.reset();
+        taskResult.bitmap = image::LoadImage( imagePath_ );
+        taskResult.imagePath = file_path_display( pfc::stringcvt::string_utf8_from_wide( imagePath_.c_str(), imagePath_.length() ) );
     }
 
-    image::AsyncImageTaskResult taskResult;
-    taskResult.bitmap.swap( bitmap );
-
-    taskResult.imagePath = imagePath_.empty() ? "" : file_path_display( pfc::stringcvt::string_utf8_from_wide( imagePath_.c_str(), imagePath_.length() ) );
     SendMessage( hNotifyWnd_, CALLBACK_UWM_ON_LOAD_IMAGE_DONE, 0, (LPARAM)&taskResult );
 }
 
@@ -73,6 +70,25 @@ uint32_t LoadImageAsync( HWND hWnd, const std::wstring& imagePath )
     }
 
     return 0;
+}
+
+std::unique_ptr<Gdiplus::Bitmap> LoadImage( const std::wstring& imagePath )
+{
+    // Since using Gdiplus::Bitmap(path) will result locking file, so use IStream instead to prevent it.
+    CComPtr<IStream> pStream;
+    HRESULT hr = SHCreateStreamOnFileEx( imagePath.c_str(), STGM_READ | STGM_SHARE_DENY_WRITE, GENERIC_READ, FALSE, nullptr, &pStream );
+    if ( !SUCCEEDED( hr ) )
+    {
+        return nullptr;
+    }
+
+    std::unique_ptr<Gdiplus::Bitmap> img( new Gdiplus::Bitmap( pStream, PixelFormat32bppPARGB ) );
+    if ( !helpers::ensure_gdiplus_object( img.get() ) )
+    {
+        return nullptr;
+    }
+
+    return img;
 }
 
 }

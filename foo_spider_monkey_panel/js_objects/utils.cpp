@@ -14,6 +14,7 @@
 #include <js_utils/scope_helper.h>
 
 #include <helpers.h>
+#include <ui_input_box.h>
 
 #include <io.h>
 #include <fcntl.h>
@@ -49,7 +50,6 @@ MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsUtils, CheckComponent, CheckComponentWith
 MJS_DEFINE_JS_TO_NATIVE_FN( JsUtils, CheckFont );
 MJS_DEFINE_JS_TO_NATIVE_FN( JsUtils, ColourPicker );
 MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsUtils, CreateHtmlWindow, CreateHtmlWindowWithOpt, 1 );
-MJS_DEFINE_JS_TO_NATIVE_FN( JsUtils, DumpHeap );
 MJS_DEFINE_JS_TO_NATIVE_FN( JsUtils, FileTest );
 MJS_DEFINE_JS_TO_NATIVE_FN( JsUtils, FormatDuration );
 MJS_DEFINE_JS_TO_NATIVE_FN( JsUtils, FormatFileSize );
@@ -59,6 +59,7 @@ MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsUtils, GetAlbumArtV2, GetAlbumArtV2WithOp
 MJS_DEFINE_JS_TO_NATIVE_FN( JsUtils, GetSysColour );
 MJS_DEFINE_JS_TO_NATIVE_FN( JsUtils, GetSystemMetrics );
 MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsUtils, Glob, GlobWithOpt, 2 );
+MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsUtils, InputBox, InputBoxWithOpt, 2 );
 MJS_DEFINE_JS_TO_NATIVE_FN( JsUtils, IsKeyPressed );
 MJS_DEFINE_JS_TO_NATIVE_FN( JsUtils, MapString );
 MJS_DEFINE_JS_TO_NATIVE_FN( JsUtils, PathWildcardMatch );
@@ -72,9 +73,6 @@ const JSFunctionSpec jsFunctions[] = {
     JS_FN( "CheckFont", CheckFont, 1, DefaultPropsFlags() ),
     JS_FN( "ColourPicker", ColourPicker, 2, DefaultPropsFlags() ),
     JS_FN( "CreateHtmlWindow", CreateHtmlWindow, 1, DefaultPropsFlags() ),
-#ifdef _DEBUG
-    JS_FN( "DumpHeap", DumpHeap, 1, DefaultPropsFlags() ),
-#endif
     JS_FN( "FileTest", FileTest, 2, DefaultPropsFlags() ),
     JS_FN( "FormatDuration", FormatDuration, 1, DefaultPropsFlags() ),
     JS_FN( "FormatFileSize", FormatFileSize, 1, DefaultPropsFlags() ),
@@ -84,6 +82,7 @@ const JSFunctionSpec jsFunctions[] = {
     JS_FN( "GetSysColour", GetSysColour, 1, DefaultPropsFlags() ),
     JS_FN( "GetSystemMetrics", GetSystemMetrics, 1, DefaultPropsFlags() ),
     JS_FN( "Glob", Glob, 1, DefaultPropsFlags() ),
+    JS_FN( "InputBox", InputBox, 3, DefaultPropsFlags() ),
     JS_FN( "IsKeyPressed", IsKeyPressed, 1, DefaultPropsFlags() ),
     JS_FN( "MapString", MapString, 3, DefaultPropsFlags() ),
     JS_FN( "PathWildcardMatch", PathWildcardMatch, 2, DefaultPropsFlags() ),
@@ -241,34 +240,6 @@ JsUtils::CreateHtmlWindowWithOpt( size_t optArgCount, const std::wstring& htmlCo
         JS_ReportErrorUTF8( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
         return std::nullopt;
     }
-}
-
-std::optional<std::nullptr_t> 
-JsUtils::DumpHeap( const pfc::string8_fast& path, bool nursery )
-{// TODO: remove
-    const auto fsPath = [&path]
-    {
-        namespace fs = std::filesystem;
-
-        pfc::string8_fast tmpPath = path;
-        tmpPath.replace_string( "/", "\\", 0 );
-        return fs::u8path( tmpPath.c_str() ); // all check are performed in ReadFromFile
-    }();
-
-    FILE *fp = fopen( fsPath.string().c_str(), "w" );
-    //if ( fopen_s( &fp, fsPath.string().c_str(), "w" ) )
-    if (!fp )
-    {
-        JS_ReportErrorUTF8( pJsCtx_, "Failed to open file for write: %s", fsPath.u8string().c_str() );
-        return std::nullopt;
-    }
-    scope::final_action autoFile( [fp]()
-    {
-        fclose( fp );
-    } );
-
-    js::DumpHeap( pJsCtx_, fp, nursery ? js::DumpHeapNurseryBehaviour::CollectNurseryBeforeDump : js::DumpHeapNurseryBehaviour::IgnoreNurseryObjects );
-    return nullptr;
 }
 
 std::optional<JS::Value>
@@ -577,22 +548,61 @@ JsUtils::Glob( const pfc::string8_fast& pattern, uint32_t exc_mask, uint32_t inc
 std::optional<JSObject*>
 JsUtils::GlobWithOpt( size_t optArgCount, const pfc::string8_fast& pattern, uint32_t exc_mask, uint32_t inc_mask )
 {
-    if ( optArgCount > 2 )
+    switch ( optArgCount )
     {
+    case 0:
+        return Glob( pattern, exc_mask, inc_mask );
+    case 1:
+        return Glob( pattern, exc_mask );
+    case 2:
+        return Glob( pattern );
+    default:
         JS_ReportErrorUTF8( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
         return std::nullopt;
     }
+}
 
-    if ( optArgCount == 2 )
+std::optional<pfc::string8_fast> 
+JsUtils::InputBox( uint32_t hWnd, const pfc::string8_fast& prompt, const pfc::string8_fast& caption, const pfc::string8_fast& def, bool error_on_cancel )
+{
+    modal_dialog_scope scope;
+    if ( scope.can_create() )
     {
-        return Glob( pattern );
-    }
-    else if ( optArgCount == 1 )
-    {
-        return Glob( pattern, exc_mask );
+        scope.initialize( HWND( hWnd ) );
+        CInputBox dlg( prompt, caption, def );
+        int status = dlg.DoModal( HWND( hWnd ) );
+        if ( status == IDCANCEL && error_on_cancel )
+        {
+            JS_ReportErrorUTF8( pJsCtx_, "Dialog window was closed" );
+            return std::nullopt;
+        }
+
+        if ( status == IDOK )
+        {
+            pfc::string8_fast val;
+            dlg.GetValue( val );
+            return val;
+        }        
     }
 
-    return Glob( pattern, exc_mask, inc_mask );
+    return pfc::string8_fast();
+}
+
+std::optional<pfc::string8_fast>
+JsUtils::InputBoxWithOpt( size_t optArgCount, uint32_t hWnd, const pfc::string8_fast& prompt, const pfc::string8_fast& caption, const pfc::string8_fast& def, bool error_on_cancel )
+{
+    switch ( optArgCount )
+    {
+    case 0:
+        return InputBox( hWnd, prompt, caption, def, error_on_cancel );
+    case 1:
+        return InputBox( hWnd, prompt, caption, def );
+    case 2:
+        return InputBox( hWnd, prompt, caption );
+    default:
+        JS_ReportErrorUTF8( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
+        return std::nullopt;
+    }   
 }
 
 std::optional<bool>

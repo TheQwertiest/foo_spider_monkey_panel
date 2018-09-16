@@ -6,6 +6,7 @@
 #include "ui_replace.h"
 #include "helpers.h"
 
+
 LRESULT CDialogConf::OnInitDialog(HWND hwndFocus, LPARAM lParam)
 {
 	// Get caption text
@@ -47,7 +48,7 @@ LRESULT CDialogConf::OnInitDialog(HWND hwndFocus, LPARAM lParam)
 	ComboBox_AddString(combo_edge, _T("Sunken"));
 	ComboBox_AddString(combo_edge, _T("Grey"));
 
-	if (helpers::is14() && m_parent->GetPanelType() == js_panel_window::PanelType::DUI)
+	if ( core_version_info_v2::get()->test_version( 1, 4, 0, 0 ) && m_parent->GetPanelType() == js_panel_window::PanelType::DUI)
 	{
 		// disable in default UI fb2k v1.4 and above
 		ComboBox_SetCurSel(combo_edge, 0);

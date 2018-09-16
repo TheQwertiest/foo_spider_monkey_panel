@@ -7,6 +7,7 @@
 #include <js_objects/fb_title_format.h>
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
+#include <js_utils/art_helper.h>
 
 #include <helpers.h>
 #include <stats.h>
@@ -48,16 +49,17 @@ JSClass jsClass = {
 
 MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandleList, Add );
 MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandleList, AddRange );
+MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandleList, AttachImage );
 MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandleList, BSearch );
 MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandleList, CalcTotalDuration );
 MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandleList, CalcTotalSize );
 MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandleList, Clone );
 MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandleList, Convert );
+MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandleList, RemoveAttachedImage );
 MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandleList, Find );
 MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandleList, GetLibraryRelativePaths );
 MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandleList, Insert );
 MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandleList, InsertRange );
-//MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsFbMetadbHandleList, Item2, Item2WithOpt, 1 );
 MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandleList, MakeDifference );
 MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandleList, MakeIntersection );
 MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandleList, MakeUnion );
@@ -75,6 +77,7 @@ MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandleList, UpdateFileInfoFromJSON );
 const JSFunctionSpec jsFunctions[] = {
     JS_FN( "Add"                    , Add                    , 1, DefaultPropsFlags() ),
     JS_FN( "AddRange"               , AddRange               , 1, DefaultPropsFlags() ),
+    JS_FN( "AttachImage"            , AttachImage            , 2, DefaultPropsFlags() ),
     JS_FN( "BSearch"                , BSearch                , 1, DefaultPropsFlags() ),
     JS_FN( "CalcTotalDuration"      , CalcTotalDuration      , 0, DefaultPropsFlags() ),
     JS_FN( "CalcTotalSize"          , CalcTotalSize          , 0, DefaultPropsFlags() ),
@@ -93,6 +96,7 @@ const JSFunctionSpec jsFunctions[] = {
     JS_FN( "RefreshStats"           , RefreshStats           , 0, DefaultPropsFlags() ),
     JS_FN( "Remove"                 , Remove                 , 1, DefaultPropsFlags() ),
     JS_FN( "RemoveAll"              , RemoveAll              , 0, DefaultPropsFlags() ),
+    JS_FN( "RemoveAttachedImage"    , RemoveAttachedImage    , 1, DefaultPropsFlags() ),
     JS_FN( "RemoveById"             , RemoveById             , 1, DefaultPropsFlags() ),
     JS_FN( "RemoveRange"            , RemoveRange            , 2, DefaultPropsFlags() ),
     JS_FN( "Sort"                   , Sort                   , 0, DefaultPropsFlags() ),
@@ -260,6 +264,52 @@ JsFbMetadbHandleList::AddRange( JsFbMetadbHandleList* handles )
     }
     
     metadbHandleList_.add_items( handles->GetHandleList() );
+    return nullptr;
+}
+
+std::optional<std::nullptr_t> 
+JsFbMetadbHandleList::AttachImage( const pfc::string8_fast& image_path, uint32_t art_id )
+{
+    t_size count = metadbHandleList_.get_count();
+    if ( !count )
+    {// Nothing to do here
+        return nullptr;
+    }
+
+    GUID what = art::GetGuidForArtId( art_id );
+    abort_callback_dummy abort;
+    album_art_data_ptr data;
+
+    try
+    {
+        file::ptr file;        
+        pfc::string8_fast canPath;
+        filesystem::g_get_canonical_path( image_path, canPath );
+        if ( !filesystem::g_is_remote_or_unrecognized( canPath ) )
+        {
+            filesystem::g_open( file, canPath, filesystem::open_mode_read, abort );
+        }
+        if ( file.is_valid() )
+        {
+            service_ptr_t<album_art_data_impl> tmp = new service_impl_t<album_art_data_impl>;
+            tmp->from_stream( file.get_ptr(), t_size( file->get_size_ex( abort ) ), abort );
+            data = tmp;
+        }
+    }
+    catch ( ... )
+    {
+        return nullptr;
+    }
+
+    if ( data.is_valid() )
+    {
+        threaded_process_callback::ptr cb = new service_impl_t<helpers::embed_thread>( 0, data, metadbHandleList_, what );
+        threaded_process::get()->run_modeless( cb, 
+                                               threaded_process::flag_show_progress | threaded_process::flag_show_delayed | threaded_process::flag_show_item, 
+                                               core_api::get_main_window(), 
+                                               "Embedding images..." );
+    }
+
     return nullptr;
 }
 
@@ -633,6 +683,25 @@ JsFbMetadbHandleList::RemoveAll()
     return nullptr;
 }
 
+std::optional<std::nullptr_t>
+JsFbMetadbHandleList::RemoveAttachedImage( uint32_t art_id )
+{
+    t_size count = metadbHandleList_.get_count();
+    if ( !count )
+    {// Nothing to do here
+        return nullptr;
+    }
+
+    GUID what = art::GetGuidForArtId( art_id );
+
+    threaded_process_callback::ptr cb = new service_impl_t<helpers::embed_thread>( 1, album_art_data_ptr(), metadbHandleList_, what );
+    threaded_process::get()->run_modeless( cb, 
+                                           threaded_process::flag_show_progress | threaded_process::flag_show_delayed | threaded_process::flag_show_item, 
+                                           core_api::get_main_window(), 
+                                           "Removing images..." );
+    return nullptr;
+}
+
 std::optional<std::nullptr_t> 
 JsFbMetadbHandleList::RemoveById( uint32_t index )
 {
@@ -669,51 +738,52 @@ JsFbMetadbHandleList::UpdateFileInfoFromJSON( const pfc::string8_fast& str )
         return nullptr;
     }
 
-    json o;
+    json jsonObject;
     bool isArray;
 
     try
     {
-        o = json::parse( str.c_str() );
-        if ( o.is_array() )
-        {
-            if ( o.size() != count )
-            {
-                JS_ReportErrorUTF8( pJsCtx_, "Invalid JSON info: mismatched with handle count" );
-                return std::nullopt;
-            }
-            isArray = true;
-        }
-        else if ( o.is_object() )
-        {
-            if ( o.size() == 0 )
-            {
-                //JS_ReportErrorUTF8( pJsCtx_, "???" );
-                return std::nullopt;
-            }
-            isArray = false;
-        }
-        else
-        {
-            //JS_ReportErrorUTF8( pJsCtx_, "???" );
-            return std::nullopt;
-        }
+        jsonObject = json::parse( str.c_str() );
     }
     catch ( ... )
-    {// TODO: add error handling
+    {
         JS_ReportErrorUTF8( pJsCtx_, "JSON parsing failed" );
+        return std::nullopt;
+    }
+
+    if ( jsonObject.is_array() )
+    {
+        if ( jsonObject.size() != count )
+        {
+            JS_ReportErrorUTF8( pJsCtx_, "Invalid JSON info: mismatched with handle count" );
+            return std::nullopt;
+        }
+        isArray = true;
+    }
+    else if ( jsonObject.is_object() )
+    {
+        if ( !jsonObject.size() )
+        {
+            JS_ReportErrorUTF8( pJsCtx_, "Invalid JSON info: empty object" );
+            return std::nullopt;
+        }
+        isArray = false;
+    }
+    else
+    {
+        JS_ReportErrorUTF8( pJsCtx_, "Invalid JSON info: unsupported value type" );
         return std::nullopt;
     }
 
     pfc::list_t<file_info_impl> info;
     info.set_size( count );
 
-    for ( t_size i = 0; i < count; i++ )
+    for ( t_size i = 0; i < count; ++i )
     {
-        json obj = isArray ? o[i] : o;
-        if ( !obj.is_object() || obj.size() == 0 )
+        json obj = isArray ? jsonObject[i] : jsonObject;
+        if ( !obj.is_object() || !obj.size() )
         {
-            //JS_ReportErrorUTF8( pJsCtx_, "???" );
+            JS_ReportErrorUTF8( pJsCtx_, "Invalid JSON info: unsupported value" );
             return std::nullopt;
         }
 
@@ -723,14 +793,13 @@ JsFbMetadbHandleList::UpdateFileInfoFromJSON( const pfc::string8_fast& str )
         for ( json::iterator it = obj.begin(); it != obj.end(); ++it )
         {
             pfc::string8_fast key = it.key().c_str();
-            pfc::string8 key8 = key.c_str();
-            if ( key8.is_empty() )
+            if ( key.is_empty() )
             {
-                //JS_ReportErrorUTF8( pJsCtx_, "???" );
+                JS_ReportErrorUTF8( pJsCtx_, "Invalid JSON info: key is empty" );
                 return std::nullopt;
             }
 
-            info[i].meta_remove_field( key8 );
+            info[i].meta_remove_field( key );
 
             if ( it.value().is_array() )
             {
@@ -739,7 +808,7 @@ JsFbMetadbHandleList::UpdateFileInfoFromJSON( const pfc::string8_fast& str )
                     pfc::string8 value = helpers::iterator_to_string8( ita );
                     if ( !value.is_empty() )
                     {
-                        info[i].meta_add( key8, value );
+                        info[i].meta_add( key, value );
                     }
                 }
             }
@@ -748,7 +817,7 @@ JsFbMetadbHandleList::UpdateFileInfoFromJSON( const pfc::string8_fast& str )
                 pfc::string8 value = helpers::iterator_to_string8( it );
                 if ( !value.is_empty() )
                 {
-                    info[i].meta_set( key8, value );
+                    info[i].meta_set( key, value );
                 }
             }
         }

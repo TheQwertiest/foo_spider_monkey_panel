@@ -1,5 +1,7 @@
 #pragma once
 
+// TODO: cleanup
+
 //-- IUnknown ---
 #define BEGIN_COM_QI_IMPL() \
 	public:\

@@ -1053,25 +1053,44 @@ JsFbPlaylistManager::get_PlaylistRecyclerManager()
 }
 
 std::optional<std::nullptr_t>
-JsFbPlaylistManager::put_ActivePlaylist( int32_t playlistIndex )
+JsFbPlaylistManager::put_ActivePlaylist( uint32_t playlistIndex )
 {
-    t_size index = playlistIndex >= 0 ? static_cast<t_size>(playlistIndex) : pfc_infinite;
-    playlist_manager::get()->set_active_playlist( index );
+    auto api = playlist_manager::get();
+    if ( playlistIndex >= api->get_playlist_count() )
+    {
+        JS_ReportErrorUTF8( pJsCtx_, "Index is out of bounds" );
+        return std::nullopt;
+    }
+
+    api->set_active_playlist( playlistIndex );
     return nullptr;
 }
 
 std::optional<std::nullptr_t>
 JsFbPlaylistManager::put_PlaybackOrder( uint32_t order )
 {
-    playlist_manager::get()->playback_order_set_active( order );
+    auto api = playlist_manager::get();
+    if ( order >= api->playback_order_get_count() )
+    {
+        JS_ReportErrorUTF8( pJsCtx_, "Unknown play back order id: %u", order );
+        return std::nullopt;
+    }    
+
+    api->playback_order_set_active( order );
     return nullptr;
 }
 
 std::optional<std::nullptr_t>
-JsFbPlaylistManager::put_PlayingPlaylist( int32_t playlistIndex )
+JsFbPlaylistManager::put_PlayingPlaylist( uint32_t playlistIndex )
 {
-    t_size index = playlistIndex >= 0 ? static_cast<t_size>(playlistIndex) : pfc_infinite;
-    playlist_manager::get()->set_playing_playlist( index );
+    auto api = playlist_manager::get();
+    if ( playlistIndex >= api->get_playlist_count() )
+    {
+        JS_ReportErrorUTF8( pJsCtx_, "Index is out of bounds" );
+        return std::nullopt;
+    }
+
+    api->set_playing_playlist( playlistIndex );
     return nullptr;
 }
 

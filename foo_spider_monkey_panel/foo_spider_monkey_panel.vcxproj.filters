@@ -235,6 +235,9 @@
     <ClCompile Include="js_objects\enumerator.cpp">
       <Filter>js_objects</Filter>
     </ClCompile>
+    <ClCompile Include="ui_input_box.cpp">
+      <Filter>uncategorized\ui</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="js_engine\js_engine.h">
@@ -536,6 +539,9 @@
     </ClInclude>
     <ClInclude Include="panel_info.h">
       <Filter>uncategorized</Filter>
+    </ClInclude>
+    <ClInclude Include="ui_input_box.h">
+      <Filter>uncategorized\ui</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -39,7 +39,6 @@ public:
     std::optional<uint32_t> ColourPicker( uint32_t hWindow, uint32_t default_colour );
     std::optional<JSObject*> CreateHtmlWindow( const std::wstring& htmlCode, JS::HandleValue options = JS::UndefinedHandleValue );
     std::optional<JSObject*> CreateHtmlWindowWithOpt( size_t optArgCount, const std::wstring& htmlCode, JS::HandleValue options );
-    std::optional<std::nullptr_t> DumpHeap( const pfc::string8_fast& path, bool nursery );
     std::optional<JS::Value> FileTest( const std::wstring& path, const std::wstring& mode );
     std::optional<pfc::string8_fast> FormatDuration( double p );
     std::optional<pfc::string8_fast> FormatFileSize( uint64_t p );
@@ -53,6 +52,8 @@ public:
     std::optional<uint32_t> GetSystemMetrics( uint32_t index );
     std::optional<JSObject*> Glob( const pfc::string8_fast& pattern, uint32_t exc_mask = FILE_ATTRIBUTE_DIRECTORY, uint32_t inc_mask = 0xFFFFFFFF );
     std::optional<JSObject*> GlobWithOpt( size_t optArgCount, const pfc::string8_fast& pattern, uint32_t exc_mask, uint32_t inc_mask );
+    std::optional<pfc::string8_fast> InputBox( uint32_t hWnd, const pfc::string8_fast& prompt, const pfc::string8_fast& caption, const pfc::string8_fast& def = "", bool error_on_cancel = false );
+    std::optional<pfc::string8_fast> InputBoxWithOpt( size_t optArgCount, uint32_t hWnd, const pfc::string8_fast& prompt, const pfc::string8_fast& caption, const pfc::string8_fast& def, bool error_on_cancel );
     std::optional<bool> IsKeyPressed( uint32_t vkey );
     std::optional<std::wstring> MapString( const std::wstring& str, uint32_t lcid, uint32_t flags );
     std::optional<bool> PathWildcardMatch( const std::wstring& pattern, const std::wstring& str );

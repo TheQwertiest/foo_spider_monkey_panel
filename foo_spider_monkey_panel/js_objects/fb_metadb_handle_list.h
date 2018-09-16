@@ -60,6 +60,7 @@ public:
 public: // methods
     std::optional<std::nullptr_t> Add( JsFbMetadbHandle* handle );
     std::optional<std::nullptr_t> AddRange( JsFbMetadbHandleList* handles );
+    std::optional<std::nullptr_t> AttachImage( const pfc::string8_fast& image_path, uint32_t art_id );
     std::optional<int32_t> BSearch( JsFbMetadbHandle* handle );
     std::optional<double> CalcTotalDuration();
     std::optional<std::uint64_t> CalcTotalSize();
@@ -79,6 +80,7 @@ public: // methods
     std::optional<std::nullptr_t> RefreshStats();
     std::optional<std::nullptr_t> Remove( JsFbMetadbHandle* handle );
     std::optional<std::nullptr_t> RemoveAll();
+    std::optional<std::nullptr_t> RemoveAttachedImage( uint32_t art_id );
     std::optional<std::nullptr_t> RemoveById( uint32_t index );
     std::optional<std::nullptr_t> RemoveRange( uint32_t from, uint32_t count );
     std::optional<std::nullptr_t> Sort();

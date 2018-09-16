@@ -45,6 +45,9 @@
 #define IDC_BUTTON_EXPORT               1052
 #define IDC_EDIT_NAME                   1060
 #define IDC_EDIT_VALUE                  1061
+#define IDD_DIALOG_INPUT                1062
+#define IDC_INPUT_PROMPT                1063
+#define IDC_INPUT_VALUE                 1064
 
 // Next default values for new objects
 // 
@@ -52,7 +55,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        111
 #define _APS_NEXT_COMMAND_VALUE         40012
-#define _APS_NEXT_CONTROL_VALUE         1040
+#define _APS_NEXT_CONTROL_VALUE         1065
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

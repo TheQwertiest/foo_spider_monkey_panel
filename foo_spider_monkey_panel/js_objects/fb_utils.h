@@ -83,8 +83,7 @@ public:
     std::optional<bool> RunContextCommandWithOpt( size_t optArgCount, const pfc::string8_fast& command, uint32_t flags );
     std::optional<bool> RunContextCommandWithMetadb( const pfc::string8_fast& command, JS::HandleValue handle, uint32_t flags = 0);
     std::optional<bool> RunContextCommandWithMetadbWithOpt( size_t optArgCount, const pfc::string8_fast& command, JS::HandleValue handle, uint32_t flags );
-    std::optional<bool> RunMainMenuCommand( const pfc::string8_fast& command );
-    std::optional<std::nullptr_t> SaveIndex();
+    std::optional<bool> RunMainMenuCommand( const pfc::string8_fast& command );    
     std::optional<std::nullptr_t> SavePlaylist();
     std::optional<std::nullptr_t> SetDSPPreset( uint32_t idx );
     std::optional<std::nullptr_t> SetOutputDevice( const std::wstring& output, const std::wstring& device );

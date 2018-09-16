@@ -278,7 +278,7 @@ JsGdiBitmap::GetColourScheme( uint32_t count )
     const unsigned colors_length = bmpdata.Width * bmpdata.Height;
     const t_uint32* colors = (const t_uint32 *)bmpdata.Scan0;
 
-    for ( unsigned i = 0; i < colors_length; i++ )
+    for ( unsigned i = 0; i < colors_length; ++i )
     {
         // format: 0xaarrggbb
         unsigned color = colors[i];
@@ -410,7 +410,7 @@ JsGdiBitmap::GetColourSchemeJSON( uint32_t count )
             return a.getTotalPixelCount() > b.getTotalPixelCount();
         } );
 
-    json j;
+    json j = json::array();
     t_size outCount = std::min( count, colour_counters.size() );
     for ( t_size i = 0; i < outCount; ++i )
     {

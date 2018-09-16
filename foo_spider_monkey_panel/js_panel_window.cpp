@@ -968,35 +968,35 @@ void js_panel_window::on_load_image_done( LPARAM lp )
 
 void js_panel_window::on_library_items_added( WPARAM wp )
 {
-    simple_callback_data_scope_releaser<t_on_data> data( wp );
+    simple_callback_data_scope_releaser<metadb_callback_data> data( wp );
     jsContainer_.InvokeJsCallback( "on_library_items_added",
                                    static_cast<metadb_handle_list>(data->m_items) );
 }
 
 void js_panel_window::on_library_items_changed( WPARAM wp )
 {
-    simple_callback_data_scope_releaser<t_on_data> data( wp );
+    simple_callback_data_scope_releaser<metadb_callback_data> data( wp );
     jsContainer_.InvokeJsCallback( "on_library_items_changed",
                                    static_cast<metadb_handle_list>(data->m_items) );
 }
 
 void js_panel_window::on_library_items_removed( WPARAM wp )
 {
-    simple_callback_data_scope_releaser<t_on_data> data( wp );
+    simple_callback_data_scope_releaser<metadb_callback_data> data( wp );
     jsContainer_.InvokeJsCallback( "on_library_items_removed",
                                    static_cast<metadb_handle_list>(data->m_items) );
 }
 
 void js_panel_window::on_main_menu( WPARAM wp )
 {
-    simple_callback_data_scope_releaser<t_on_data> data( wp );
+    simple_callback_data_scope_releaser<metadb_callback_data> data( wp );
     jsContainer_.InvokeJsCallback( "on_main_menu",
                                    static_cast<uint32_t>(wp) );
 }
 
 void js_panel_window::on_metadb_changed( WPARAM wp )
 {
-    simple_callback_data_scope_releaser<t_on_data> data( wp );
+    simple_callback_data_scope_releaser<metadb_callback_data> data( wp );
     jsContainer_.InvokeJsCallback( "on_metadb_changed",
                                    static_cast<metadb_handle_list>(data->m_items),
                                    static_cast<bool>(data->m_fromhook) );

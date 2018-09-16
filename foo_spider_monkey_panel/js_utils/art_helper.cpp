@@ -81,19 +81,6 @@ bool IsGdiplusObjectValid( T* obj )
     return ( ( obj ) && ( obj->GetLastStatus() == Gdiplus::Ok ) );
 }
 
-const GUID& GetGuidForArtId( uint32_t art_id )
-{
-    const GUID* guids[] = {
-        &album_art_ids::cover_front,
-        &album_art_ids::cover_back,
-        &album_art_ids::disc,
-        &album_art_ids::icon,
-        &album_art_ids::artist,
-    };
-
-    return *guids[std::min( art_id, _countof( guids ) - 1 )];
-}
-
 std::unique_ptr<Gdiplus::Bitmap> GetBitmapFromAlbumArtData( const album_art_data_ptr& data )
 {
     if ( !data.is_valid() )
@@ -110,8 +97,9 @@ std::unique_ptr<Gdiplus::Bitmap> GetBitmapFromAlbumArtData( const album_art_data
         }
 
         // copy and assignment operators increase Stream ref count,
-        // while SHCreateMemStream returns ref count 1,
+        // while SHCreateMemStream returns object with ref count 1,
         // so we need to take ownership without increasing ref count
+        // (or decrease ref count manually)
         iStream.Attach( memStream );
     }
 
@@ -158,6 +146,19 @@ std::unique_ptr<Gdiplus::Bitmap> ExtractBitmap( album_art_extractor_instance_v2:
 
 namespace mozjs::art
 {
+
+const GUID& GetGuidForArtId( uint32_t art_id )
+{
+    const GUID* guids[] = {
+        &album_art_ids::cover_front,
+        &album_art_ids::cover_back,
+        &album_art_ids::disc,
+        &album_art_ids::icon,
+        &album_art_ids::artist,
+    };
+
+    return *guids[std::min( art_id, _countof( guids ) - 1 )];
+}
 
 std::unique_ptr<Gdiplus::Bitmap> GetBitmapFromEmbeddedData( const pfc::string8_fast& rawpath, uint32_t art_id )
 {

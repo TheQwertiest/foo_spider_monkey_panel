@@ -37,12 +37,14 @@ JSClass jsClass = {
 MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsContextMenuManager, BuildMenu, BuildMenuWithOpt, 1 )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsContextMenuManager, ExecuteByID )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsContextMenuManager, InitContext )
+MJS_DEFINE_JS_TO_NATIVE_FN( JsContextMenuManager, InitContextPlaylist )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsContextMenuManager, InitNowPlaying )
 
 const JSFunctionSpec jsFunctions[] = {
     JS_FN( "BuildMenu",  BuildMenu, 2, DefaultPropsFlags() ),
     JS_FN( "ExecuteByID",  ExecuteByID, 1, DefaultPropsFlags() ),
     JS_FN( "InitContext",  InitContext, 1, DefaultPropsFlags() ),
+    JS_FN( "InitContextPlaylist",  InitContextPlaylist, 0, DefaultPropsFlags() ),
     JS_FN( "InitNowPlaying",  InitNowPlaying, 0, DefaultPropsFlags() ),
     JS_FS_END
 };
@@ -143,6 +145,14 @@ JsContextMenuManager::InitContext( JsFbMetadbHandleList* handles )
     metadb_handle_list_cref handles_ptr = handles->GetHandleList();
     contextmenu_manager::g_create( contextMenu_ );
     contextMenu_->init_context( handles_ptr, contextmenu_manager::flag_show_shortcuts );
+    return nullptr;
+}
+
+std::optional<std::nullptr_t> 
+JsContextMenuManager::InitContextPlaylist()
+{
+    contextmenu_manager::g_create( contextMenu_ );
+    contextMenu_->init_context_playlist( contextmenu_manager::flag_show_shortcuts );
     return nullptr;
 }
 

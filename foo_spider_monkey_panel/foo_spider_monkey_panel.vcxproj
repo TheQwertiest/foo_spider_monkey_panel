@@ -55,6 +55,7 @@
       <LanguageStandard>stdcpp17</LanguageStandard>
       <AdditionalOptions>/Zc:threadSafeInit- /Zm200 /Zo %(AdditionalOptions)</AdditionalOptions>
       <PrecompiledHeader>Use</PrecompiledHeader>
+      <TreatWarningAsError>true</TreatWarningAsError>
     </ClCompile>
     <Link>
       <AdditionalDependencies>GdiPlus.lib;shlwapi.lib;WinMM.lib;Imm32.lib;uxtheme.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -172,6 +173,7 @@
     <ClCompile Include="ui_conf.cpp" />
     <ClCompile Include="ui_find.cpp" />
     <ClCompile Include="ui_goto.cpp" />
+    <ClCompile Include="ui_input_box.cpp" />
     <ClCompile Include="ui_name_value_edit.cpp" />
     <ClCompile Include="ui_pref.cpp" />
     <ClCompile Include="ui_property.cpp" />
@@ -272,6 +274,7 @@
     <ClInclude Include="ui_conf.h" />
     <ClInclude Include="ui_find.h" />
     <ClInclude Include="ui_goto.h" />
+    <ClInclude Include="ui_input_box.h" />
     <ClInclude Include="ui_name_value_edit.h" />
     <ClInclude Include="ui_pref.h" />
     <ClInclude Include="ui_property.h" />

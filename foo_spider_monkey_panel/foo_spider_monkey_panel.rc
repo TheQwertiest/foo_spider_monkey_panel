@@ -156,6 +156,16 @@ BEGIN
     PUSHBUTTON      "Cancel",IDCANCEL,185,41,50,14
 END
 
+IDD_DIALOG_INPUT DIALOGEX 0, 0, 239, 76
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "InputBox"
+FONT 8, "Tahoma", 400, 0, 0x0
+BEGIN
+    LTEXT           "Prompt", IDC_INPUT_PROMPT, 7, 7, 170, 56
+    EDITTEXT        IDC_INPUT_VALUE, 7, 55, 225, 14, ES_AUTOHSCROLL
+    DEFPUSHBUTTON   "OK", IDOK, 182, 7, 50, 14
+    PUSHBUTTON      "Cancel", IDCANCEL, 182, 26, 50, 14
+END
 
 /////////////////////////////////////////////////////////////////////////////
 //

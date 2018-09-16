@@ -167,16 +167,8 @@ JsGdiUtils::FontWithOpt( size_t optArgCount, const std::wstring& fontName, float
 std::optional<JSObject*> 
 JsGdiUtils::Image( const std::wstring& path )
 {
-    // Since using Gdiplus::Bitmap(path) will result locking file, so use IStream instead to prevent it.
-    pfc::com_ptr_t<IStream> pStream;
-    HRESULT hr = SHCreateStreamOnFileEx( path.c_str(), STGM_READ | STGM_SHARE_DENY_WRITE, GENERIC_READ, FALSE, nullptr, pStream.receive_ptr() );
-    if ( !SUCCEEDED( hr ) )
-    {
-        return nullptr;
-    }
-
-    std::unique_ptr<Gdiplus::Bitmap> img (new Gdiplus::Bitmap( pStream.get_ptr(), PixelFormat32bppPARGB ));
-    if ( !helpers::ensure_gdiplus_object( img.get() ) )
+    std::unique_ptr<Gdiplus::Bitmap> img = image::LoadImage(path);
+    if ( !img )
     {
         return nullptr;
     }
