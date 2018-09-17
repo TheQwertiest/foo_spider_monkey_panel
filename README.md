@@ -1,10 +1,13 @@
-# foo_jscript_panel
-JScript Panel v2
+# foo_spider_monkey_panel [![version][version-badge]][CHANGELOG]
+foobar2000 component
 
-This is a fork of [marc2003](https://github.com/marc2k3)'s [foo_jscript_panel](https://github.com/marc2k3/foo_jscript_panel) with a few extensions of my own (mainly for personal usage).
+This component allows the creation of customisable panels that can be written with JavaScript rather than the C++ required by the foobar2000 SDK.
 
-Differences from vanilla foo_jscript_panel:
-* Added IsMainMenuCommandChecked method.
-* Added methods for window management from [foo_uie_wsh_panel_mod_plus](https://github.com/ttsping/foo_uie_wsh_panel_mod_plus).
+## Credits
+[marc2003](https://github.com/marc2k3): JScript Panel.  
+[T.P. Wang](https://hydrogenaud.io/index.php?action=profile;u=44175): WSH Panel Mod.
 
-For more info see [foo_jscript_panel](https://github.com/marc2k3/foo_jscript_panel).
+[CHANGELOG]: ./CHANGELOG.md
+[TODO]: ./TODO.md
+[version-badge]:https://img.shields.io/badge/version-WIP-blue.svg)
+

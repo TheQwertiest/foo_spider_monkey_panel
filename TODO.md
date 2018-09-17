@@ -18,6 +18,7 @@
 - Make sure there are no memory leaks.
 
 # Prerelease-Doc
+- Add `API changes` page or file with detailed description of API changes and reasons behind them.
 - Document new features: ES6, ES2016, ES2017 (with links to feature breakdown), possible ESNext in the future, performance, new methods.
 - Document that Dispose() and toArray() methods are not needed anymore.
 - Document FbHandleList.Item removal ([] proxy)
