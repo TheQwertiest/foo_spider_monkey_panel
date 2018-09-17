@@ -155,6 +155,7 @@ bool JsContainer::ExecuteScript( const pfc::string8_fast&  scriptCode )
     scope::JsScope autoScope( pJsCtx_, jsGlobal_ );
 
     JS::CompileOptions opts( pJsCtx_ );
+    opts.setUTF8( true );
     opts.setFileAndLine( "<main>", 1 );
 
     JS::RootedValue dummyRval( pJsCtx_ );    

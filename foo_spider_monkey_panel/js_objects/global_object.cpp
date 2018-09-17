@@ -218,6 +218,7 @@ JsGlobalObject::IncludeScript( const pfc::string8_fast& path )
     }();
         
     JS::CompileOptions opts( pJsCtx_ );
+    opts.setUTF8( true );
     opts.setFileAndLine( filename.c_str(), 1 );
 
     JS::RootedValue dummyRval( pJsCtx_ );
