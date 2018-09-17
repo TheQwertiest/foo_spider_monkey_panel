@@ -555,6 +555,8 @@
       <Filter>uncategorized\resources</Filter>
     </None>
     <None Include=".clang-format" />
+    <None Include="..\CHANGELOG.md" />
+    <None Include="..\README.md" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="js_engine">
@@ -595,8 +597,5 @@
     <ResourceCompile Include="foo_spider_monkey_panel.rc">
       <Filter>uncategorized\resources</Filter>
     </ResourceCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="todo.txt" />
   </ItemGroup>
 </Project>

@@ -283,6 +283,8 @@
     <ClInclude Include="wtlscintilla.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\CHANGELOG.md" />
+    <None Include="..\README.md" />
     <None Include=".clang-format" />
     <None Include="default.js" />
   </ItemGroup>
@@ -306,9 +308,6 @@
       <Project>{10b2a7ef-9089-4352-ba26-7e9aef50987d}</Project>
       <Private>false</Private>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="todo.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
