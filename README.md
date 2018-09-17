@@ -1,7 +1,5 @@
 # foo_spider_monkey_panel [![version][version-badge]][CHANGELOG]
-foobar2000 component
-
-This component allows the creation of customisable panels that can be written with JavaScript rather than the C++ required by the foobar2000 SDK.
+foobar2000 component that allows the creation of customisable CUI/DUI panels. These panels can be written with JavaScript rather than the C++ required by the foobar2000 SDK.
 
 ## Links
 [Changelog][CHANGELOG]  
