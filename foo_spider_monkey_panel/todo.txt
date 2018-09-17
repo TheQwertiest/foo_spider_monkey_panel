@@ -1,5 +1,4 @@
 # Current
-- Fix Scintilla window position.
 - Backport all the .js changes from foo-jscript-panel.
 - Complete rebranding to spider_monkey_panel (including folders).
 - Check and fix all the basic samples.
