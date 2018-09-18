@@ -34,20 +34,6 @@ std::unique_ptr<GlobalHeapManager> GlobalHeapManager::Create( JSContext * cx )
     return tmp;
 }
 
-void GlobalHeapManager::RemoveTracer()
-{
-    JS_RemoveExtraGCRootsTracer( pJsCtx_, GlobalHeapManager::TraceHeapValue, this );
-    
-    std::scoped_lock sl( heapUsersLock_ );
-
-    for ( auto& [id, heapUser] : heapUsers_ )
-    {
-        heapUser->DisableHeapCleanup();
-    }
-
-    heapUsers_.clear();
-}
-
 void GlobalHeapManager::RegisterUser( IHeapUser* heapUser )
 {
     std::scoped_lock sl( heapUsersLock_ );
@@ -104,6 +90,18 @@ void GlobalHeapManager::Remove( uint32_t id )
     heapElements_.erase( id );
 }
 
+void GlobalHeapManager::RemoveTracer()
+{
+    JS_RemoveExtraGCRootsTracer( pJsCtx_, GlobalHeapManager::TraceHeapValue, this );
+    
+    std::scoped_lock sl( heapUsersLock_ );
+
+    for ( auto& [id, heapUser] : heapUsers_ )
+    {
+        heapUser->DisableHeapCleanup();
+    }
+}
+
 void GlobalHeapManager::TraceHeapValue( JSTracer *trc, void *data )
 {  
     assert( data );
@@ -112,6 +110,10 @@ void GlobalHeapManager::TraceHeapValue( JSTracer *trc, void *data )
     std::scoped_lock sl( globalObject->heapElementsLock_ );     
 
     for ( auto&[id, heapElement] : globalObject->heapElements_ )
+    {
+        JS::TraceEdge( trc, heapElement.get(), "CustomHeap_Global" );
+    }
+    for ( auto& heapElement : globalObject->unusedHeapElements_ )
     {
         JS::TraceEdge( trc, heapElement.get(), "CustomHeap_Global" );
     }

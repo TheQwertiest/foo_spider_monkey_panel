@@ -214,9 +214,9 @@ JsGlobalObject::IncludeScript( const pfc::string8_fast& path )
         namespace fs = std::filesystem;
         pfc::string8_fast tmpPath = path;
         tmpPath.replace_string( "/", "\\", 0 );        
-        return fs::u8path( tmpPath.c_str() ).filename().string(); // all check are performed in ReadFromFile
+        return fs::u8path( tmpPath.c_str() ).filename().u8string(); // all check are performed in ReadFromFile
     }();
-        
+
     JS::CompileOptions opts( pJsCtx_ );
     opts.setUTF8( true );
     opts.setFileAndLine( filename.c_str(), 1 );

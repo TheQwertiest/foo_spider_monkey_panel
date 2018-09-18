@@ -25,6 +25,7 @@ public:
     virtual void DisableHeapCleanup() = 0;
 };
 
+/// @details Contains a tracer, which is removed only in destructor
 class GlobalHeapManager
 {
 public:
@@ -33,7 +34,7 @@ public:
     GlobalHeapManager& operator=( const GlobalHeapManager& ) = delete;
 
     static std::unique_ptr<GlobalHeapManager> Create( JSContext * cx );
-    void RemoveTracer();
+
 public:
     void RegisterUser( IHeapUser* heapUser );
     void UnregisterUser( IHeapUser* heapUser );
@@ -45,10 +46,11 @@ public:
 private:
     GlobalHeapManager( JSContext * cx );
 
+    void RemoveTracer();
     static void TraceHeapValue( JSTracer *trc, void *data );
 
 private: 
-    JSContext * pJsCtx_ = nullptr;;
+    JSContext * pJsCtx_ = nullptr;
 
     uint32_t currentHeapId_ = 0;
 
