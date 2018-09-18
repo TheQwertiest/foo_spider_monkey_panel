@@ -10,12 +10,17 @@ namespace stats
 	public:
 		metadb_index_hash transform(const file_info& info, const playable_location& location)
 		{
-			titleformat_object::ptr obj;
-			titleformat_compiler::get()->compile_force(obj, pinTo);
+               if ( titleFormat_.is_empty() )
+               {
+                   titleformat_compiler::get()->compile_force( titleFormat_, pinTo );
+               }
+			
 			pfc::string_formatter str;
-			obj->run_simple(location, &info, str);
+               titleFormat_->run_simple( location, &info, str );
 			return hasher_md5::get()->process_single_string(str).xorHalve();
 		}
+     private:
+          titleformat_object::ptr titleFormat_;
 	};
 	static metadb_index_client_impl* g_client = new service_impl_single_t<metadb_index_client_impl>;
 
