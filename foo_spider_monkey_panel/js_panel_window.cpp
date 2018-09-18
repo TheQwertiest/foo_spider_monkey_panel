@@ -653,7 +653,7 @@ void js_panel_window::RefreshBackground( LPRECT lprcUpdate /*= nullptr */ )
     DeleteRgn( rgn_child );
     SetWindowRgn( hWnd_, nullptr, FALSE );
     isPaintSuppressed_ = false;
-    if ( get_edge_style() )
+    if ( smp::config::EdgeStyle::NO_EDGE != get_edge_style() )
     {
         SendMessage( hWnd_, WM_NCPAINT, 1, 0 );
     }

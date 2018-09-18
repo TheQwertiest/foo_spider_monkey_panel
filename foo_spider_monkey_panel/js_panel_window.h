@@ -9,7 +9,7 @@
 // TODO: split this class somehow
 class js_panel_window 
     : public ui_helpers::container_window 
-    , public js_panel_vars
+    , public smp::config::PanelSettings
 {
 public:
     enum class PanelType 

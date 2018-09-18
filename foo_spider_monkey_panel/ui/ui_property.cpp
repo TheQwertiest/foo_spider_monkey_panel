@@ -212,45 +212,45 @@ LRESULT CDialogProperty::OnDelBnClicked(WORD wNotifyCode, WORD wID, HWND hWndCtl
 	return 0;
 }
 
-LRESULT CDialogProperty::OnImportBnClicked(WORD wNotifyCode, WORD wID, HWND hWndCtl)
+LRESULT CDialogProperty::OnImportBnClicked( WORD wNotifyCode, WORD wID, HWND hWndCtl )
 {
-	pfc::string8 filename;
+    pfc::string8 filename;
 
-	if (uGetOpenFileName(m_hWnd, "Property files|*.wsp|All files|*.*", 0, "wsp", "Import from", nullptr, filename, FALSE))
-	{
-		file_ptr io;
-		abort_callback_dummy abort;
+    if ( uGetOpenFileName( m_hWnd, "Property files|*.wsp|All files|*.*", 0, "wsp", "Import from", nullptr, filename, FALSE ) )
+    {
+        file_ptr io;
+        abort_callback_dummy abort;
 
-		try
-		{
-			filesystem::g_open_read(io, filename, abort);
-			prop_kv_config::g_load(m_dup_prop_map, io.get_ptr(), abort);
-			LoadProperties(false);
-		}
-		catch (...)
-		{
-		}
-	}
-	return 0;
+        try
+        {
+            filesystem::g_open_read( io, filename, abort );
+            smp::config::PanelProperties::g_load( m_dup_prop_map, io.get_ptr(), abort );
+            LoadProperties( false );
+        }
+        catch ( ... )
+        {
+        }
+    }
+    return 0;
 }
 
-LRESULT CDialogProperty::OnExportBnClicked(WORD wNotifyCode, WORD wID, HWND hWndCtl)
+LRESULT CDialogProperty::OnExportBnClicked( WORD wNotifyCode, WORD wID, HWND hWndCtl )
 {
-	pfc::string8 path;
+    pfc::string8 path;
 
-	if (uGetOpenFileName(m_hWnd, "Property files|*.wsp", 0, "wsp", "Save as", nullptr, path, TRUE))
-	{
-		file_ptr io;
-		abort_callback_dummy abort;
+    if ( uGetOpenFileName( m_hWnd, "Property files|*.wsp", 0, "wsp", "Save as", nullptr, path, TRUE ) )
+    {
+        file_ptr io;
+        abort_callback_dummy abort;
 
-		try
-		{
-			filesystem::g_open_write_new(io, path, abort);
-			prop_kv_config::g_save(m_dup_prop_map, io.get_ptr(), abort);
-		}
-		catch (...)
-		{
-		}
-	}
-	return 0;
+        try
+        {
+            filesystem::g_open_write_new( io, path, abort );
+            smp::config::PanelProperties::g_save( m_dup_prop_map, io.get_ptr(), abort );
+        }
+        catch ( ... )
+        {
+        }
+    }
+    return 0;
 }

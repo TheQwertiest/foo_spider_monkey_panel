@@ -115,9 +115,9 @@ LRESULT CDialogConf::OnCloseCmd(WORD wNotifyCode, WORD wID, HWND hWndCtl)
 
 void CDialogConf::OnResetDefault()
 {
-	pfc::string8 code;
-	js_panel_vars::get_default_script_code(code);
-	m_editorctrl.SetContent(code);
+    pfc::string8 code;
+    smp::config::PanelSettings::get_default_script_code( code );
+    m_editorctrl.SetContent( code );
 }
 
 void CDialogConf::OnResetCurrent()
@@ -205,25 +205,25 @@ LRESULT CDialogConf::OnTools(WORD wNotifyCode, WORD wID, HWND hWndCtl)
 
 void CDialogConf::Apply()
 {
-	pfc::string8 name;
-	pfc::array_t<char> code;
-	int len = 0;
+    pfc::string8 name;
+    pfc::array_t<char> code;
+    int len = 0;
 
-	// Get script text
-	len = m_editorctrl.GetTextLength();
-	code.set_size(len + 1);
-	m_editorctrl.GetText(code.get_ptr(), len + 1);
+    // Get script text
+    len = m_editorctrl.GetTextLength();
+    code.set_size( len + 1 );
+    m_editorctrl.GetText( code.get_ptr(), len + 1 );
 
-	m_parent->get_edge_style() = static_cast<t_edge_style>(ComboBox_GetCurSel(GetDlgItem(IDC_COMBO_EDGE)));
-	m_parent->get_grab_focus() = uButton_GetCheck(m_hWnd, IDC_CHECK_GRABFOCUS);
-	m_parent->get_pseudo_transparent() = uButton_GetCheck(m_hWnd, IDC_CHECK_PSEUDO_TRANSPARENT);
-	m_parent->update_script( code.get_ptr());
+    m_parent->get_edge_style() = static_cast<smp::config::EdgeStyle>( ComboBox_GetCurSel( GetDlgItem( IDC_COMBO_EDGE ) ) );
+    m_parent->get_grab_focus() = uButton_GetCheck( m_hWnd, IDC_CHECK_GRABFOCUS );
+    m_parent->get_pseudo_transparent() = uButton_GetCheck( m_hWnd, IDC_CHECK_PSEUDO_TRANSPARENT );
+    m_parent->update_script( code.get_ptr() );
 
-	// Window position
-	GetWindowPlacement(&m_parent->get_windowplacement());
+    // Window position
+    GetWindowPlacement( &m_parent->get_windowplacement() );
 
-	// Save point
-	m_editorctrl.SetSavePoint();
+    // Save point
+    m_editorctrl.SetSavePoint();
 }
 
 LRESULT CDialogConf::OnNotify(int idCtrl, LPNMHDR pnmh)

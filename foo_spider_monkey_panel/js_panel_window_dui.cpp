@@ -87,7 +87,7 @@ pfc::string8 js_panel_window_dui::g_get_description()
 ui_element_config::ptr js_panel_window_dui::g_get_default_configuration()
 {
 	ui_element_config_builder builder;
-	js_panel_vars vars;
+	PanelSettings vars;
 
 	vars.reset_config();
     abort_callback_dummy dummy;
