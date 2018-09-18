@@ -15,6 +15,7 @@ AlwaysBreakTemplateDeclarations: 'true'
 BreakBeforeBraces: Allman
 ColumnLimit: 120
 ConstructorInitializerIndentWidth: '4' 
+FixNamespaceComments: 'true'
 IndentWidth: '4'
 PointerAlignment: Left
 ReflowComments: 'true'

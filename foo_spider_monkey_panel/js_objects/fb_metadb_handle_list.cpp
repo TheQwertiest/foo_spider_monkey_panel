@@ -634,25 +634,18 @@ JsFbMetadbHandleList::OrderByRelativePath()
 std::optional<std::nullptr_t> 
 JsFbMetadbHandleList::RefreshStats()
 {
-    // TODO: investigate this code
-
     const t_size count = metadbHandleList_.get_count();
-    pfc::avltree_t<metadb_index_hash> tmp;
+    pfc::list_t<metadb_index_hash> hashes;
     for ( t_size i = 0; i < count; ++i )
     {
         metadb_index_hash hash;
-        if ( stats::g_client->hashHandle( metadbHandleList_[i], hash ) )
+        if ( stats::hashHandle( metadbHandleList_[i], hash ) )
         {
-            tmp += hash;
+            hashes.add_item(hash);
         }
     }
-    pfc::list_t<metadb_index_hash> hashes;
-    for ( auto iter = tmp.first(); iter.is_valid(); ++iter )
-    {
-        const metadb_index_hash hash = *iter;
-        hashes += hash;
-    }
-    stats::theAPI()->dispatch_refresh( g_guid_smp_metadb_index, hashes );
+
+    stats::refresh( hashes );
     return nullptr;
 }
 

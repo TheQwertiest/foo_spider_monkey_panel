@@ -3,19 +3,6 @@
 namespace stats
 {
 
-class metadb_index_client_impl 
-     : public metadb_index_client
-{
-public:
-    metadb_index_hash transform( const file_info& info, const playable_location& location );
-
-private:
-    titleformat_object::ptr titleFormat_;
-};
-
-extern metadb_index_client_impl* g_client;
-metadb_index_manager::ptr theAPI();
-
 typedef uint32_t stats_t;
 struct fields
 {
@@ -26,7 +13,11 @@ struct fields
     stats_t rating = 0;
 };
 
+
+bool hashHandle( metadb_handle_ptr const& pMetadb, metadb_index_hash& hash );
 fields get( metadb_index_hash hash );
 void set( metadb_index_hash hash, fields f );
+void refresh( const pfc::list_base_const_t<metadb_index_hash>& hashes );
+void refresh( const metadb_index_hash& hash );
 
 }

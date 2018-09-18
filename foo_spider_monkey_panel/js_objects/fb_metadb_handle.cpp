@@ -120,7 +120,7 @@ std::optional<std::nullptr_t>
 JsFbMetadbHandle::ClearStats()
 {
     metadb_index_hash hash;
-    if ( !stats::g_client->hashHandle( metadbHandle_, hash ) )
+    if ( !stats::hashHandle( metadbHandle_, hash ) )
     {
         stats::set( hash, stats::fields() );
     }
@@ -164,9 +164,9 @@ std::optional<std::nullptr_t>
 JsFbMetadbHandle::RefreshStats()
 {
     metadb_index_hash hash;
-    if ( stats::g_client->hashHandle( metadbHandle_, hash ) )
+    if ( stats::hashHandle( metadbHandle_, hash ) )
     {
-        stats::theAPI()->dispatch_refresh( g_guid_smp_metadb_index, hash );
+        stats::refresh( hash );
     }
 
     return nullptr;
@@ -176,12 +176,12 @@ std::optional<std::nullptr_t>
 JsFbMetadbHandle::SetFirstPlayed( const pfc::string8_fast& first_played )
 {
     metadb_index_hash hash;
-    if ( stats::g_client->hashHandle( metadbHandle_, hash ) )
+    if ( stats::hashHandle( metadbHandle_, hash ) )
     {
         stats::fields tmp = stats::get( hash );
-        if ( !tmp.first_played.equals( first_played.c_str() ) )
+        if (tmp.first_played != first_played )
         {
-            tmp.first_played.set_string_nc( first_played.c_str(), first_played.length() );
+            tmp.first_played = first_played;
             stats::set( hash, tmp );
         }
     }
@@ -193,12 +193,12 @@ std::optional<std::nullptr_t>
 JsFbMetadbHandle::SetLastPlayed( const pfc::string8_fast& last_played )
 {
     metadb_index_hash hash;
-    if ( stats::g_client->hashHandle( metadbHandle_, hash ) )
+    if ( stats::hashHandle( metadbHandle_, hash ) )
     {
         stats::fields tmp = stats::get( hash );
-        if ( !tmp.last_played.equals( last_played.c_str() ) )
+        if ( tmp.last_played != last_played )
         {
-            tmp.last_played.set_string_nc( last_played.c_str(), last_played.length() );
+            tmp.last_played = last_played;
             stats::set( hash, tmp );
         }
     }
@@ -210,7 +210,7 @@ std::optional<std::nullptr_t>
 JsFbMetadbHandle::SetLoved( uint32_t loved )
 {
     metadb_index_hash hash;
-    if ( stats::g_client->hashHandle( metadbHandle_, hash ) )
+    if ( stats::hashHandle( metadbHandle_, hash ) )
     {
         stats::fields tmp = stats::get( hash );
         if ( tmp.loved != loved )
@@ -227,7 +227,7 @@ std::optional<std::nullptr_t>
 JsFbMetadbHandle::SetPlaycount( uint32_t playcount )
 {
     metadb_index_hash hash;
-    if ( stats::g_client->hashHandle( metadbHandle_, hash ) )
+    if ( stats::hashHandle( metadbHandle_, hash ) )
     {
         stats::fields tmp = stats::get( hash );
         if ( tmp.playcount != playcount )
@@ -244,7 +244,7 @@ std::optional<std::nullptr_t>
 JsFbMetadbHandle::SetRating( uint32_t rating )
 {
     metadb_index_hash hash;
-    if ( stats::g_client->hashHandle( metadbHandle_, hash ) )
+    if ( stats::hashHandle( metadbHandle_, hash ) )
     {
         stats::fields tmp = stats::get( hash );
         if ( tmp.rating != rating )

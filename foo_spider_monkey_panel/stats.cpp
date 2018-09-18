@@ -1,36 +1,45 @@
 #include <stdafx.h>
 #include "stats.h"
 
-namespace stats
+
+namespace
 {
 
-// TODO: cleanup
+using namespace stats;
 
-static const char pinTo[] = "$lower(%artist% - %title%)";
-static const t_filetimestamp retentionPeriod = system_time_periods::week * 4;
+const char pinTo[] = "$lower(%artist% - %title%)";
+const t_filetimestamp retentionPeriod = system_time_periods::week * 4;
 
-metadb_index_hash metadb_index_client_impl::transform( const file_info& info, const playable_location& location )
-{
-    if ( titleFormat_.is_empty() )
-    {
-        titleformat_compiler::get()->compile_force( titleFormat_, pinTo );
-    }
-
-    pfc::string_formatter str;
-    titleFormat_->run_simple( location, &info, str );
-    return hasher_md5::get()->process_single_string( str ).xorHalve();
-}
-
-metadb_index_client_impl* g_client = new service_impl_single_t<metadb_index_client_impl>;
-
-static metadb_index_manager::ptr g_cachedAPI;
+metadb_index_manager::ptr g_cachedAPI;
 metadb_index_manager::ptr theAPI()
 {
     auto ret = g_cachedAPI;
     if ( ret.is_empty() )
+    {
         ret = metadb_index_manager::get();
+    }
     return ret;
 }
+
+class metadb_index_client_impl : public metadb_index_client
+{
+public:
+    metadb_index_hash transform( const file_info& info, const playable_location& location )
+    {
+        if ( titleFormat_.is_empty() )
+        {
+            titleformat_compiler::get()->compile_force( titleFormat_, pinTo );
+        }
+
+        pfc::string_formatter str;
+        titleFormat_->run_simple( location, &info, str );
+        return hasher_md5::get()->process_single_string( str ).xorHalve();
+    }
+
+private:
+    titleformat_object::ptr titleFormat_;
+};
+metadb_index_client* g_client = new service_impl_single_t<metadb_index_client_impl>;
 
 class init_stage_callback_impl : public init_stage_callback
 {
@@ -39,8 +48,7 @@ public:
     {
         if ( stage == init_stages::before_config_read )
         {
-            auto api = metadb_index_manager::get();
-            g_cachedAPI = api;
+            auto api = theAPI();
             try
             {
                 api->add( g_client, g_guid_smp_metadb_index, retentionPeriod );
@@ -55,7 +63,7 @@ public:
         }
     }
 };
-static service_factory_single_t<init_stage_callback_impl> g_init_stage_callback_impl;
+service_factory_single_t<init_stage_callback_impl> g_init_stage_callback_impl;
 
 class initquit_impl : public initquit
 {
@@ -65,45 +73,7 @@ public:
         g_cachedAPI.release();
     }
 };
-static service_factory_single_t<initquit_impl> g_initquit_impl;
-
-fields get( metadb_index_hash hash )
-{
-    mem_block_container_impl temp;
-    theAPI()->get_user_data( g_guid_smp_metadb_index, hash, temp );
-    if ( temp.get_size() > 0 )
-    {
-        try
-        {
-            stream_reader_formatter_simple_ref<false> reader( temp.get_ptr(), temp.get_size() );
-            fields ret;
-            reader >> ret.playcount;
-            reader >> ret.loved;
-            reader >> ret.first_played;
-            reader >> ret.last_played;
-            if ( reader.get_remaining() > 0 ) // check needed here for compatibility with v2 Beta4
-            {
-                reader >> ret.rating;
-            }
-            return ret;
-        }
-        catch ( exception_io_data )
-        {
-        }
-    }
-    return fields();
-}
-
-void set( metadb_index_hash hash, fields f )
-{
-    stream_writer_formatter_simple<false> writer;
-    writer << f.playcount;
-    writer << f.loved;
-    writer << f.first_played;
-    writer << f.last_played;
-    writer << f.rating;
-    theAPI()->set_user_data( g_guid_smp_metadb_index, hash, writer.m_buffer.get_ptr(), writer.m_buffer.get_size() );
-}
+service_factory_single_t<initquit_impl> g_initquit_impl;
 
 class metadb_display_field_provider_impl : public metadb_display_field_provider
 {
@@ -186,7 +156,7 @@ public:
         return false;
     }
 };
-static service_factory_single_t<metadb_display_field_provider_impl> g_metadb_display_field_provider_impl;
+service_factory_single_t<metadb_display_field_provider_impl> g_metadb_display_field_provider_impl;
 
 class track_property_provider_impl : public track_property_provider_v2
 {
@@ -246,5 +216,64 @@ public:
         return false;
     }
 };
-static service_factory_single_t<track_property_provider_impl> g_track_property_provider_impl;
+service_factory_single_t<track_property_provider_impl> g_track_property_provider_impl;
+
+} // namespace
+
+namespace stats
+{
+
+bool hashHandle( metadb_handle_ptr const& pMetadb, metadb_index_hash& hash )
+{
+    return g_client->hashHandle( pMetadb, hash );
 }
+
+fields get( metadb_index_hash hash )
+{
+    mem_block_container_impl temp;
+    theAPI()->get_user_data( g_guid_smp_metadb_index, hash, temp );
+    if ( temp.get_size() > 0 )
+    {
+        try
+        {
+            stream_reader_formatter_simple_ref<false> reader( temp.get_ptr(), temp.get_size() );
+            fields ret;
+            reader >> ret.playcount;
+            reader >> ret.loved;
+            reader >> ret.first_played;
+            reader >> ret.last_played;
+            if ( reader.get_remaining() > 0 ) // check needed here for compatibility with v2 Beta4
+            {
+                reader >> ret.rating;
+            }
+            return ret;
+        }
+        catch ( exception_io_data )
+        {
+        }
+    }
+    return fields();
+}
+
+void set( metadb_index_hash hash, fields f )
+{
+    stream_writer_formatter_simple<false> writer;
+    writer << f.playcount;
+    writer << f.loved;
+    writer << f.first_played;
+    writer << f.last_played;
+    writer << f.rating;
+    theAPI()->set_user_data( g_guid_smp_metadb_index, hash, writer.m_buffer.get_ptr(), writer.m_buffer.get_size() );
+}
+
+void refresh( const pfc::list_base_const_t<metadb_index_hash>& hashes )
+{
+    theAPI()->dispatch_refresh( g_guid_smp_metadb_index, hashes );
+}
+
+void refresh( const metadb_index_hash& hash )
+{
+    theAPI()->dispatch_refresh( g_guid_smp_metadb_index, hash );
+}
+
+} // namespace stats
