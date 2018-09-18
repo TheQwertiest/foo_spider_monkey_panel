@@ -23,8 +23,23 @@ js_panel_window::js_panel_window( PanelType instanceType )
 {
 }
 
-js_panel_window::~js_panel_window()
+ui_helpers::container_window::class_data& js_panel_window::get_class_data() const
 {
+    static class_data my_class_data =
+    {
+        _T( SMP_WINDOW_CLASS_NAME ),
+        L"",
+        0,
+        false,
+        false,
+        0,
+        WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
+        edge_style_from_config( get_edge_style() ),
+        CS_DBLCLKS,
+        true, true, true, IDC_ARROW
+    };
+
+    return my_class_data;
 }
 
 void js_panel_window::update_script( const char* code )
@@ -720,25 +735,6 @@ void js_panel_window::script_unload()
 {
     selectionHolder_.release();
     jsContainer_.Finalize();
-}
-
-ui_helpers::container_window::class_data& js_panel_window::get_class_data() const
-{
-    static class_data my_class_data =
-    {
-        _T( SMP_WINDOW_CLASS_NAME ),
-        L"",
-        0,
-        false,
-        false,
-        0,
-        WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
-        edge_style_from_config( get_edge_style() ),
-        CS_DBLCLKS,
-        true, true, true, IDC_ARROW
-    };
-
-    return my_class_data;
 }
 
 void js_panel_window::create_context()

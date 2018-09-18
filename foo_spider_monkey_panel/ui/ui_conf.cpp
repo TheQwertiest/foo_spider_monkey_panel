@@ -115,9 +115,7 @@ LRESULT CDialogConf::OnCloseCmd(WORD wNotifyCode, WORD wID, HWND hWndCtl)
 
 void CDialogConf::OnResetDefault()
 {
-    pfc::string8 code;
-    smp::config::PanelSettings::get_default_script_code( code );
-    m_editorctrl.SetContent( code );
+    m_editorctrl.SetContent( smp::config::PanelSettings::get_default_script_code() );
 }
 
 void CDialogConf::OnResetCurrent()

@@ -30,7 +30,8 @@ protected:
 	virtual void set_config(stream_reader* reader, t_size size, abort_callback& abort);
 
 private:
-	typedef js_panel_window t_parent;
-	uie::window_host_ptr m_host;
-	virtual void notify_size_limit_changed(LPARAM lp);
+    virtual void notify_size_limit_changed( LPARAM lp );
+
+    using t_parent = js_panel_window;
+    uie::window_host_ptr m_host;    
 };

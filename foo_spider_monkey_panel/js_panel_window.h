@@ -21,10 +21,14 @@ public:
 
 public:
     js_panel_window( PanelType instanceType = PanelType::CUI );
-    virtual ~js_panel_window();
-    void update_script(const char* code = nullptr);
+    virtual ~js_panel_window() = default;
 
+public:
+    virtual class_data& get_class_data() const override;
+
+    void update_script( const char* code = nullptr );
     void JsEngineFail( const pfc::string8_fast& errorText );
+
 protected:
     LRESULT on_message(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp);
     bool show_configure_popup(HWND parent);
@@ -32,9 +36,6 @@ protected:
     static void build_context_menu(HMENU menu, int x, int y, int id_base);
     virtual void notify_size_limit_changed(LPARAM lp) = 0;
     void execute_context_menu_command(int id, int id_base);
-
-private:    
-    mozjs::JsContainer jsContainer_;
 
 public:
     GUID GetGUID();
@@ -62,8 +63,8 @@ public:
     void ClearIntervalOrTimeout( uint32_t timerId );
 
 private:
-    
     const PanelType panelType_;
+    mozjs::JsContainer jsContainer_;
 
     HWND hWnd_ = nullptr;
     HDC hDc_ = nullptr;
@@ -88,7 +89,6 @@ private:
 private:
     bool script_load();
     void script_unload();
-    virtual class_data& get_class_data() const override;
     void create_context();
     void delete_context();
 

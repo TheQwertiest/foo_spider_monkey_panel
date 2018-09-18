@@ -205,13 +205,15 @@ PanelProperties& PanelSettings::get_config_prop()
     return m_config_prop;
 }
 
-void PanelSettings::get_default_script_code( pfc::string_base& out )
+pfc::string8_fast PanelSettings::get_default_script_code()
 {
-    out.reset();
+    pfc::string8_fast scriptCode;
     puResource pures = uLoadResource( core_api::get_my_instance(), uMAKEINTRESOURCE( IDR_SCRIPT ), "SCRIPT" );
-
     if ( pures )
-        out.set_string( reinterpret_cast<const char*>( pures->GetPointer() ), pures->GetSize() );
+    {
+        scriptCode.set_string( reinterpret_cast<const char*>( pures->GetPointer() ), pures->GetSize() );
+    }
+    return scriptCode;
 }
 
 EdgeStyle& PanelSettings::get_edge_style()
@@ -253,7 +255,7 @@ void PanelSettings::load_config( stream_reader* reader, t_size size, abort_callb
 
 void PanelSettings::reset_config()
 {
-    get_default_script_code( m_script_code );
+    m_script_code = get_default_script_code();
     m_pseudo_transparent = false;
     m_wndpl.length = 0;
     m_grab_focus = true;

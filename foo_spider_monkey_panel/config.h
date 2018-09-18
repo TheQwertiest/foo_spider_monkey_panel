@@ -31,6 +31,7 @@ public:
     std::optional<mozjs::SerializedJsValue> get_config_item( const std::wstring& propName );
     void set_config_item( const std::wstring& propName, const mozjs::SerializedJsValue& serializedValue );
     void remove_config_item( const std::wstring& propName );
+
     static void g_load( config_map& data, stream_reader* reader, abort_callback& abort ) throw();
     static void g_save( const config_map& data, stream_writer* writer, abort_callback& abort ) throw();
     void load( stream_reader* reader, abort_callback& abort ) throw();
@@ -54,7 +55,7 @@ public:
     const EdgeStyle& get_edge_style() const;
     pfc::string_base& get_script_code();
     PanelProperties& get_config_prop();
-    static void get_default_script_code( pfc::string_base& out );
+    static pfc::string8_fast get_default_script_code();
     EdgeStyle& get_edge_style();
 
     void load_config( stream_reader* reader, t_size size, abort_callback& abort );
