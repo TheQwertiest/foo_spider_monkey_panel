@@ -241,6 +241,9 @@
     <ClCompile Include="editorctrl.cpp">
       <Filter>uncategorized\scintilla</Filter>
     </ClCompile>
+    <ClCompile Include="stats.cpp">
+      <Filter>uncategorized</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="js_engine\js_engine.h">
@@ -328,9 +331,6 @@
       <Filter>uncategorized</Filter>
     </ClInclude>
     <ClInclude Include="script_interface_impl.h">
-      <Filter>uncategorized</Filter>
-    </ClInclude>
-    <ClInclude Include="stats.h">
       <Filter>uncategorized</Filter>
     </ClInclude>
     <ClInclude Include="stdafx.h">
@@ -548,6 +548,9 @@
     </ClInclude>
     <ClInclude Include="editorctrl.h">
       <Filter>uncategorized\scintilla</Filter>
+    </ClInclude>
+    <ClInclude Include="stats.h">
+      <Filter>uncategorized</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

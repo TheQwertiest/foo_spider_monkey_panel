@@ -163,6 +163,7 @@
     <ClCompile Include="panel_manager.cpp" />
     <ClCompile Include="scintilla_prop_sets.cpp" />
     <ClCompile Include="script_interface_impl.cpp" />
+    <ClCompile Include="stats.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
