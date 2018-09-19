@@ -172,7 +172,7 @@ void JsWindow::CleanupBeforeDestruction()
     if ( dropTargetHandler_ )
     {
         dropTargetHandler_->RevokeDragDrop();
-        dropTargetHandler_.Detach();
+        dropTargetHandler_.Release();
     }
 }
 
