@@ -1,10 +1,7 @@
-// ==PREPROCESSOR==
-// @name "LoadImageAsync"
-// @author "T.P Wang"
-// ==/PREPROCESSOR==
+window.DefinePanel("LoadImageAsync", { author: "T.P Wang" });
 
 // Get a list of jpg files from a folder
-var g_image_list = utils.Glob('c:\\windows\\web\\wallpaper\\*.jpg').toArray();
+var g_image_list = utils.Glob('C:\\Users\\TheQwertiest\\Pictures\\Wallpapers\\*.jpg');
 var ww = 0, wh = 0;
 var g_img = null;
 var g_valid_tid = 0;
@@ -44,10 +41,8 @@ function on_paint(gr) {
 }
 
 // After loading image is done in the background, this callback will be invoked
-function on_load_image_done(tid, image) {
+function on_load_image_done(tid, image, image_path) {
 	if (g_valid_tid == tid) {
-		if (g_img)
-			g_img.Dispose();
 		g_img = image;
 		window.Repaint();
 	}

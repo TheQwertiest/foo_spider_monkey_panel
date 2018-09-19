@@ -1,9 +1,6 @@
-// ==PREPROCESSOR==
-// @name "GetAlbumArtV2"
-// @author "T.P Wang"
-// @import "%fb2k_component_path%docs\flags.txt"
-// @import "%fb2k_component_path%docs\helpers.txt"
-// ==/PREPROCESSOR==
+window.DefinePanel("GetAlbumArtV2", { author: "T.P Wang" });
+include(fb.ComponentPath + "docs\\flags.txt");
+include(fb.ComponentPath + "docs\\helpers.txt");
 
 // Nothing will show until you start playing a new track
 

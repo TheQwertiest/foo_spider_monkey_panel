@@ -1,8 +1,5 @@
-// ==PREPROCESSOR==
-// @name "Preprocessor"
-// @author "T.P Wang"
-// @import "%fb2k_component_path%samples\basic\js\includeme.js"
-// ==/PREPROCESSOR==
+window.DefinePanel("Preprocessor", { author: "T.P Wang" });
+include(fb.ComponentPath + "samples\\basic\\js\\includeme.js");
 
 //check samples\basic\js\includeme.js for print_to_console function
 print_to_console('Hello world!');

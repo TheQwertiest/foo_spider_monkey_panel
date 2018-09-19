@@ -1,9 +1,6 @@
-// ==PREPROCESSOR==
-// @name "MainMenuManager All-In-One"
-// @author "YBStone / T.P Wang / marc2003"
-// @import "%fb2k_component_path%docs\flags.txt"
-// @import "%fb2k_component_path%docs\helpers.txt"
-// ==/PREPROCESSOR==
+window.DefinePanel("MainMenuManager All-In-One", { author: "YBStone / T.P Wang / marc2003" });
+include(fb.ComponentPath + "docs\\flags.txt");
+include(fb.ComponentPath + "docs\\helpers.txt");
 
 var img = gdi.Image(fb.ComponentPath + 'samples\\basic\\images\\cog.png');
 
@@ -37,7 +34,7 @@ function menu() {
 	var menuman5 = fb.CreateMainMenuManager();
 	var menuman6 = fb.CreateMainMenuManager();
 	
-	// MF_STRING is defined in docs\flags.txt
+	// MF_STRING is defined in docs\\flags.txt
 	child1.AppendTo(basemenu, MF_STRING, 'File');
 	child2.AppendTo(basemenu, MF_STRING, 'Edit');
 	child3.AppendTo(basemenu, MF_STRING, 'View');
@@ -94,13 +91,4 @@ function menu() {
 		contextman.ExecuteByID(ret - 1301);
 		break;
 	}
-	
-	basemenu.Dispose();
-	contextman.Dispose();
-	menuman1.Dispose();
-	menuman2.Dispose();
-	menuman3.Dispose();
-	menuman4.Dispose();
-	menuman5.Dispose();
-	menuman6.Dispose();
 }

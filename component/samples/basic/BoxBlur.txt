@@ -1,22 +1,19 @@
-// ==PREPROCESSOR==
-// @name "BoxBlur"
-// @author "T.P Wang"
-// @import "%fb2k_component_path%docs\flags.txt"
-// @import "%fb2k_component_path%docs\helpers.txt"
-// ==/PREPROCESSOR==
+window.DefinePanel("BoxBlur", { author: "T.P Wang" });
+include(fb.ComponentPath + "docs\\flags.txt");
+include(fb.ComponentPath + "docs\\helpers.txt");
 
 var ww = 0, wh = 0;
 var img_to_blur;
-// FontStyle.Bold is defined in docs\flags.txt
+// FontStyle.Bold is defined in docs\\flags.txt
 var g_font = gdi.Font('Segoe UI', 20, FontStyle.Bold);
 var text_to_draw = '"Box Blur" Sample';
 
 function on_paint(gr) {
 	img_to_blur && gr.DrawImage(img_to_blur, 0, 0, ww, wh, 0, 0, ww, wh);
-	// TextRenderingHint.ClearTypeGridFit is defined in docs\flags.txt
+	// TextRenderingHint.ClearTypeGridFit is defined in docs\\flags.txt
 	gr.SetTextRenderingHint(TextRenderingHint.ClearTypeGridFit);
-	// RGB function is defined in docs\helpers.txt
-	// String* are defined inside docs\flags.txt
+	// RGB function is defined in docs\\helpers.txt
+	// String* are defined inside docs\\flags.txt
 	gr.DrawString(text_to_draw, g_font, RGB(0, 0, 255), 0, 0, ww, wh, StringFormat(StringAlignment.Center, StringAlignment.Center));
 }
 
@@ -34,8 +31,8 @@ function on_size() {
 	// g.FillSolidRect(0, 0, ww, wh, RGB(255, 255, 255));
 	// g.SetTextRenderingHint(TextRenderingHint.ClearTypeGridFit);
 	
-	// RGB function is defined inside docs\helpers.txt
-	// String* are defined inside docs\flags.txt
+	// RGB function is defined inside docs\\helpers.txt
+	// String* are defined inside docs\\flags.txt
 	g.DrawString(text_to_draw, g_font, RGB(0, 0, 255), 0, 0, ww, wh, StringFormat(StringAlignment.Center, StringAlignment.Center));
 	// Release graphics (or it will remain in memory util system collects GC)
 	img_to_blur.ReleaseGraphics(g);

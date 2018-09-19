@@ -1,9 +1,6 @@
-// ==PREPROCESSOR==
-// @name "ColourPicker"
-// @author "marc2003"
-// @import "%fb2k_component_path%docs\flags.txt"
-// @import "%fb2k_component_path%docs\helpers.txt"
-// ==/PREPROCESSOR==
+window.DefinePanel("ColourPicker", { author: "marc2003" });
+include(fb.ComponentPath + "docs\\flags.txt");
+include(fb.ComponentPath + "docs\\helpers.txt");
 
 var colour = RGB(255, 0, 0);
 var font = gdi.Font('Segoe UI', 16, 1);

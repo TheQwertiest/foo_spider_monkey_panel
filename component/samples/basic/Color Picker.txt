@@ -1,6 +1,4 @@
-// ==PREPROCESSOR==
-// @import "%fb2k_component_path%docs\helpers.txt"
-// ==/PREPROCESSOR==
+include(fb.ComponentPath + "docs\\helpers.txt");
 
 var tooltip = window.CreateTooltip();
 var colour = RGB(255, 0, 0);
@@ -15,6 +13,6 @@ function on_mouse_lbtn_up() {
 }
 
 function on_mouse_move() {
-	// tt function is defined in docs\helpers.txt
+	// tt function is defined in docs\\helpers.txt
 	tt("Click to change colour");
 }

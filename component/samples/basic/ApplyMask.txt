@@ -1,9 +1,6 @@
-// ==PREPROCESSOR==
-// @name "ApplyMask"
-// @author "T.P Wang / marc2003"
-// @import "%fb2k_component_path%docs\flags.txt"
-// @import "%fb2k_component_path%docs\helpers.txt"
-// ==/PREPROCESSOR==
+window.DefinePanel("ApplyMask", { author: "T.P Wang / marc2003" });
+include(fb.ComponentPath + "docs\\flags.txt");
+include(fb.ComponentPath + "docs\\helpers.txt");
 
 var g_img = gdi.Image(fb.ComponentPath + 'samples\\basic\\images\\post.jpg');
 var font = gdi.Font('Segoe UI', 16, 1);
