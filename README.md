@@ -3,6 +3,7 @@ foobar2000 component that allows the creation of customisable CUI/DUI panels. Th
 
 ## Links
 [Changelog][CHANGELOG]  
+[Detailed list of API Changes][API_CHANGES]  
 [Current tasks and plans][TODO]
 
 ## Credits
@@ -11,5 +12,6 @@ foobar2000 component that allows the creation of customisable CUI/DUI panels. Th
 
 [CHANGELOG]: CHANGELOG.md
 [TODO]: https://github.com/TheQwertiest/foo-jscript-panel/projects/1
+[API_CHANGES]: https://github.com/TheQwertiest/foo_spider_monkey_panel/wiki/API-Changes
 [version-badge]: https://img.shields.io/badge/version-TBD-blue.svg
 
