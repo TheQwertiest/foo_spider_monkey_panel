@@ -169,8 +169,8 @@ void JsEngine::MaybeGc()
         lastTotalHeapSize_ = curTotalHeapSize;
     }
 
-    if ( !JS::IsIncrementalGCInProgress( pJsCtx_ )
-         && (curTotalHeapSize <= lastTotalHeapSize_ + heapGrowthRateTrigger_) )
+    if ( !JS::IsIncrementalGCInProgress( pJsCtx_ ) 
+         && ( curTotalHeapSize <= lastTotalHeapSize_ + heapGrowthRateTrigger_ ) )
     {
         if ( lastTotalHeapSize_ > curTotalHeapSize )
         {
@@ -300,10 +300,8 @@ void JsEngine::PerformNormalGc()
         JS::PrepareForIncrementalGC( pJsCtx_ );
         JS::FinishIncrementalGC( pJsCtx_, JS::gcreason::RESERVED3 );
     }
-    else
-    {
-        JS_GC( pJsCtx_ );
-    }
+
+    JS_GC( pJsCtx_ );
 }
 
 void JsEngine::PerformFullGc()
@@ -313,13 +311,11 @@ void JsEngine::PerformFullGc()
         JS::PrepareForIncrementalGC( pJsCtx_ );
         JS::FinishIncrementalGC( pJsCtx_, JS::gcreason::RESERVED4 );
     }
-    else
-    {
-        JS_SetGCParameter( pJsCtx_, JSGC_MODE, JSGC_MODE_GLOBAL );
-        JS::PrepareForFullGC( pJsCtx_ );
-        JS::GCForReason( pJsCtx_, GC_SHRINK, JS::gcreason::RESERVED5 );
-        JS_SetGCParameter( pJsCtx_, JSGC_MODE, JSGC_MODE_INCREMENTAL );
-    }
+
+    JS_SetGCParameter( pJsCtx_, JSGC_MODE, JSGC_MODE_GLOBAL );
+    JS::PrepareForFullGC( pJsCtx_ );
+    JS::GCForReason( pJsCtx_, GC_SHRINK, JS::gcreason::RESERVED5 );
+    JS_SetGCParameter( pJsCtx_, JSGC_MODE, JSGC_MODE_INCREMENTAL );
 }
 
 void JsEngine::PrepareCompartmentsForGc( GcLevel gcLevel )
