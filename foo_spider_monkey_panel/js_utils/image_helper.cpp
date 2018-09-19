@@ -20,11 +20,14 @@ class LoadImageTask : public simple_thread_task
 public:
     LoadImageTask( HWND hNotifyWnd, const std::wstring& imagePath );
 
+    uint32_t GetTaskId() const;
+
 private:
     virtual void run() override;
 
 private:
     HWND hNotifyWnd_;
+    uint32_t taskId_;
     std::wstring imagePath_;
 };
 
@@ -32,6 +35,13 @@ LoadImageTask::LoadImageTask( HWND hNotifyWnd, const std::wstring& imagePath )
     : hNotifyWnd_( hNotifyWnd )
     , imagePath_( imagePath )
 {
+    uint64_t tmp = reinterpret_cast<uint64_t>( this );
+    taskId_ = static_cast<uint32_t>( ( tmp & 0xFFFFFFFF ) ^ ( tmp >> 32 ) );
+}
+
+uint32_t LoadImageTask::GetTaskId() const
+{
+    return taskId_;
 }
 
 void LoadImageTask::run()
@@ -39,6 +49,7 @@ void LoadImageTask::run()
     image::AsyncImageTaskResult taskResult;
     if ( !imagePath_.empty() )
     {
+        taskResult.taskId = taskId_;
         taskResult.bitmap = image::LoadImage( imagePath_ );
         taskResult.imagePath = file_path_display( pfc::stringcvt::string_utf8_from_wide( imagePath_.c_str(), imagePath_.length() ) );
     }
@@ -56,11 +67,7 @@ uint32_t LoadImageAsync( HWND hWnd, const std::wstring& imagePath )
     try
     {
         std::unique_ptr<LoadImageTask> task( new LoadImageTask( hWnd, imagePath ) );
-        uint32_t taskId = [&]()
-        {
-            uint64_t tmp = reinterpret_cast<uint64_t>(task.get());
-            return static_cast<uint32_t>((tmp & 0xFFFFFFFF) ^ (tmp >> 32));
-        }();
+        const uint32_t taskId = task->GetTaskId();
 
         if ( simple_thread_pool::instance().enqueue( std::move( task ) ) )
         {

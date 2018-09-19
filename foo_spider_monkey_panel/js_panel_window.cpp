@@ -956,6 +956,7 @@ void js_panel_window::on_load_image_done( LPARAM lp )
     // Destroyed by task runner, no need to keep track
     auto param = reinterpret_cast<mozjs::image::AsyncImageTaskResult*>(lp);
     auto autoRet = jsContainer_.InvokeJsCallback( "on_load_image_done",
+                                                  param->taskId,
                                                   std::move( param->bitmap ),
                                                   static_cast<pfc::string8_fast>(param->imagePath) );
 }

@@ -8,6 +8,7 @@ namespace mozjs::image
 
 struct AsyncImageTaskResult
 {
+    uint32_t taskId;
     std::unique_ptr<Gdiplus::Bitmap> bitmap;
     pfc::string8_fast imagePath;
 };
