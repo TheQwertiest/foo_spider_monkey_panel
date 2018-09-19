@@ -27,15 +27,15 @@ function SimpleButton(x, y, w, h, text, fonClick, state) {
 		switch (this.state)
 		{
 		case ButtonStates.normal:
-			g_theme.SetPartAndStateId(1, 1);
+			g_theme.SetPartAndStateID(1, 1);
 			break;
 			
 		case ButtonStates.hover:
-			g_theme.SetPartAndStateId(1, 2);
+			g_theme.SetPartAndStateID(1, 2);
 			break;
 			
 		case ButtonStates.down:
-			g_theme.SetPartAndStateId(1, 3);
+			g_theme.SetPartAndStateID(1, 3);
 			break;
 			
 		case ButtonStates.hide:

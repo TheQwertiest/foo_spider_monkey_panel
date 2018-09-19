@@ -19,6 +19,6 @@ function on_playlist_switch() {
 
 function on_paint(gr) {
 	if (handle) {
-		gr.gdiDrawText(tfo.EvalWithMetadb(handle), font, RGB(0, 0, 0), 0, 0, window.Width, window.Height, DT_VCENTER | DT_CENTER | DT_END_ELLIPSIS | DT_CALCRECT | DT_NOPREFIX);
+		gr.GdiDrawText(tfo.EvalWithMetadb(handle), font, RGB(0, 0, 0), 0, 0, window.Width, window.Height, DT_VCENTER | DT_CENTER | DT_END_ELLIPSIS | DT_CALCRECT | DT_NOPREFIX);
 	}
 }

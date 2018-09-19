@@ -17,7 +17,7 @@ function on_paint(gr) {
 		var scale = Math.min(scale_w, scale_h);
 		var pos_x = 0, pos_y = 0;
 		if (scale_w < scale_h)
-			pos_y = (wh - g_img.height * scale) / 2;
+			pos_y = (wh - g_img.Height * scale) / 2;
 		else if (scale_w > scale_h)
 			pos_x = (ww - g_img.Width * scale) / 2;
 		gr.DrawImage(g_img, pos_x, pos_y, g_img.Width * scale, g_img.Height * scale, 0, 0, g_img.Width, g_img.Height);

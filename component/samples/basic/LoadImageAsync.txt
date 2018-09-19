@@ -1,7 +1,7 @@
 window.DefinePanel("LoadImageAsync", { author: "T.P Wang" });
 
 // Get a list of jpg files from a folder
-var g_image_list = utils.Glob('C:\\Users\\TheQwertiest\\Pictures\\Wallpapers\\*.jpg');
+var g_image_list = utils.Glob('c:\\wallpaper\\*.jpg');
 var ww = 0, wh = 0;
 var g_img = null;
 var g_valid_tid = 0;
@@ -33,7 +33,7 @@ function on_paint(gr) {
 		var scale = Math.min(scale_w, scale_h);
 		var pos_x = 0, pos_y = 0;
 		if (scale_w < scale_h)
-			pos_y = (wh - g_img.height * scale) / 2;
+			pos_y = (wh - g_img.Height * scale) / 2;
 		else if (scale_w > scale_h)
 			pos_x = (ww - g_img.Width * scale) / 2;
 		gr.DrawImage(g_img, pos_x, pos_y, g_img.Width * scale, g_img.Height * scale, 0, 0, g_img.Width, g_img.Height);

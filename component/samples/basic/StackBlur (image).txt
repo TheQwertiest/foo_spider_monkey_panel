@@ -10,7 +10,6 @@ var radius = 20;
 StackBlur(radius);
 
 function StackBlur(radius) {
-	blur_img && blur_img.Dispose();
 	blur_img = img.Clone(0, 0, img.Width, img.Height);
 	blur_img.StackBlur(radius);
 }
