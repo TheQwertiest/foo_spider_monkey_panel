@@ -3,9 +3,12 @@ setlocal
 
 set ROOT_DIR=%~dp0..\
 
-@echo on
-call load_submodules.bat %ROOT_DIR%
-@echo off
+if not '%1'=='--patch_only' (
+    @echo on
+    call load_submodules.bat %ROOT_DIR%
+    @echo off
+)
+
 if not '%1'=='--init_only' (
     @echo on
     call prepare_mozjs.bat %ROOT_DIR%
