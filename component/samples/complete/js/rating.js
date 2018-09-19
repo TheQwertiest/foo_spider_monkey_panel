@@ -76,11 +76,11 @@ _.mixin({
                     this.properties.mode.set(idx - 1000);
                     break;
                 case idx == 1004:
-                    var tmp = _.input('Enter a custom tag name. Do not use %%. Defaults to "rating" if left blank.', window.Name, this.properties.tag.value);
+                    var tmp = utils.InputBox(window.ID, 'Enter a custom tag name. Do not use %%. Defaults to "rating" if left blank.', window.Name, this.properties.tag.value);
                     this.properties.tag.set(tmp || this.properties.tag.default_);
                     break;
                 case idx == 1005:
-                    var tmp = _.input('Enter a maximum value. Defaults to "5" if left blank.', window.Name, this.properties.max.value);
+                    var tmp = utils.InputBox(window.ID, 'Enter a maximum value. Defaults to "5" if left blank.', window.Name, this.properties.max.value);
                     this.properties.max.set(tmp || this.properties.max.default_);
                     break;
             }

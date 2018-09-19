@@ -216,11 +216,11 @@ _.mixin({
                     panel.item_focus_change();
                     break;
                 case 1210:
-                    this.properties.title_tf.set(_.input('You can use full title formatting here.', window.Name, this.properties.title_tf.value));
+                    this.properties.title_tf.set(utils.InputBox(window.ID, 'You can use full title formatting here.', window.Name, this.properties.title_tf.value));
                     window.Repaint();
                     break;
                 case 1220:
-                    this.properties.filename_tf.set(_.input('Use title formatting to specify a path to a text file. eg: $directory_path(%path%)\\info.txt\n\nIf you prefer, you can specify just the path to a folder and the first txt or log file will be used.', window.Name, this.properties.filename_tf.value));
+                    this.properties.filename_tf.set(utils.InputBox(window.ID, 'Use title formatting to specify a path to a text file. eg: $directory_path(%path%)\\info.txt\n\nIf you prefer, you can specify just the path to a folder and the first txt or log file will be used.', window.Name, this.properties.filename_tf.value));
                     panel.item_focus_change();
                     break;
                 case 1230:
@@ -316,7 +316,10 @@ _.mixin({
                             .stripTags()
                             .value();
                         console.log(N, content.length ? 'A review was found and saved.' : 'No review was found on the page for this album.');
-                        _.save(f, content);
+                        if (_.save(f, content)) {
+                            this.artist = '';
+                            panel.item_focus_change();
+                        } 
                         this.artist = '';
                         panel.item_focus_change();
                     }
@@ -350,10 +353,11 @@ _.mixin({
                     }
                     break;
                 case 'lastfm_bio':
-                    _.save(f, this.xmlhttp.responseText);
-                    this.artist = '';
-                    panel.item_focus_change();
-                    break;
+                    if (_.save(f, this.xmlhttp.responseText)) {
+                        this.artist = '';
+                        panel.item_focus_change();
+                    }
+                    break; 
             }
         }
 
