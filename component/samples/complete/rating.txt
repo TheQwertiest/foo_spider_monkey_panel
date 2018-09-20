@@ -17,6 +17,16 @@ var rating = new _.rating(0, 0, 24, _.RGB(255, 128, 0)); // x, y, height, colour
 
 panel.item_focus_change();
 
+function on_colours_changed() {
+	panel.colours_changed();
+	window.Repaint();
+}
+
+function on_font_changed() {
+	panel.font_changed();
+	window.Repaint();
+}
+
 function on_size() {
 	panel.size();
 }
@@ -44,4 +54,26 @@ function on_mouse_lbtn_up(x, y) {
 
 function on_mouse_rbtn_up(x, y) {
 	return panel.rbtn_up(x, y, rating);
+}
+
+function on_playlist_switch() {
+	panel.item_focus_change();
+}
+
+function on_playback_new_track() {
+	panel.item_focus_change();
+}
+
+function on_playback_dynamic_info_track() {
+	panel.item_focus_change();
+}
+
+function on_playback_stop(reason) {
+	if (reason != 2) {
+		panel.item_focus_change();
+	}
+}
+
+function on_item_focus_change() {
+	panel.item_focus_change();
 }

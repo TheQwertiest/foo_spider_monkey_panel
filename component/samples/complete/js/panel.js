@@ -1,35 +1,3 @@
-function on_colours_changed() {
-	panel.colours_changed();
-	window.Repaint();
-}
-
-function on_font_changed() {
-	panel.font_changed();
-	window.Repaint();
-}
-
-function on_playlist_switch() {
-	panel.item_focus_change();
-}
-
-function on_playback_new_track() {
-	panel.item_focus_change();
-}
-
-function on_playback_dynamic_info_track() {
-	panel.item_focus_change();
-}
-
-function on_playback_stop(reason) {
-	if (reason != 2) {
-		panel.item_focus_change();
-	}
-}
-
-function on_item_focus_change() {
-	panel.item_focus_change();
-}
-
 _.mixin({
     panel: function () {
         this.item_focus_change = function () {
@@ -210,7 +178,6 @@ _.mixin({
             this.selection = new _.p('2K3.PANEL.SELECTION', 0);
         }
         switch (true) {
-            case arguments.length == 2 && _.indexOf(arguments[1], 'custom_background') > -1:
             case arguments[0] == 'custom_background':
                 this.custom_background = true;
                 this.colours.mode = new _.p('2K3.PANEL.COLOURS.MODE', 0);

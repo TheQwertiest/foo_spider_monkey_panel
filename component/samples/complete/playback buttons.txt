@@ -15,6 +15,16 @@ buttons.update = function () {
 	this.buttons.next = new _.button(bs * 3, 0, bs, bs, {normal : 'buttons\\next.png'}, function (x, y) { fb.Next(); }, 'Next');
 }
 
+function on_colours_changed() {
+	panel.colours_changed();
+	window.Repaint();
+}
+
+function on_font_changed() {
+	panel.font_changed();
+	window.Repaint();
+}
+
 function on_size() {
 	panel.size();
 	buttons.update();

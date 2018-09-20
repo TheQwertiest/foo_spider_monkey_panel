@@ -8,6 +8,16 @@ include(fb.ComponentPath + "samples\\complete\\js\\list.js");
 var panel = new _.panel();
 var list = new _.list('queue_viewer', LM, TM, 0, 0);
 
+function on_colours_changed() {
+	panel.colours_changed();
+	window.Repaint();
+}
+
+function on_font_changed() {
+	panel.font_changed();
+	window.Repaint();
+}
+
 function on_playback_queue_changed() {
 	list.playback_queue_changed();
 }
