@@ -44,10 +44,6 @@ function on_mouse_move(x, y) {
 	list.move(x, y);
 }
 
-function on_mouse_lbtn_down(x, y) {
-	list.lbtn_down(x, y);
-}
-
 function on_mouse_lbtn_up(x, y) {
 	list.lbtn_up(x, y);
 }

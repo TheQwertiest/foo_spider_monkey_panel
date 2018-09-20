@@ -578,7 +578,7 @@ _.mixin({
 				break;
 			case 'queue_viewer':
 				var items = plman.GetPlaybackQueueHandles();
-				this.data = _.map(this.tfo.EvalWithMetadbs(items).toArray(), function (item) {
+				this.data = _.map(this.tfo.EvalWithMetadbs(items), function (item) {
 					return {
 						name : item
 					};

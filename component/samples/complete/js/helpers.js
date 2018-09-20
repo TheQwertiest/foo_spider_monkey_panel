@@ -754,7 +754,7 @@ _.mixin({
         }
     },
     save:                 function (file, value) {
-        if (_.isFolder(utils.FileTest(file, 'split').toArray()[0]) && utils.WriteTextFile(file, value)) {
+        if (_.isFolder(utils.FileTest(file, 'split')[0]) && utils.WriteTextFile(file, value)) {
             return true;
         }
         console.log('Error saving to ' + file);
@@ -1162,7 +1162,7 @@ var tooltip = window.CreateTooltip('Segoe UI', _.scale(9));
 tooltip.SetMaxWidth(1200);
 
 var folders = {};
-folders.home = fb.FoobarPath + "themes\\CaTRoX\\Scripts\\js_marc2003\\";
+folders.home = fb.ComponentPath + 'samples\\complete\\';
 folders.images = folders.home + 'images\\';
 folders.data = fb.ProfilePath + 'js_data\\';
 folders.artists = folders.data + 'artists\\';
