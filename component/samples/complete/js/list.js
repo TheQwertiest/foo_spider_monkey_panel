@@ -747,7 +747,7 @@ _.mixin({
 						return;
 					}
 					var new_sort = utils.InputBox(window.ID, 'Enter sort pattern\n\n(optional)', window.Name);
-					var new_forced = (new_sort.length ? WshShell.popup('Force sort?', 0, window.Name, popup.question + popup.yes_no) : popup.no) == popup.yes;
+					var new_forced = (new_sort.length ? WshShell.Popup('Force sort?', 0, window.Name, popup.question + popup.yes_no) : popup.no) == popup.yes;
 					this.data.push({
 						name : new_name,
 						query : new_query,
@@ -797,7 +797,7 @@ _.mixin({
 						if (new_sort != this.data[z].sort) {
 							this.data[z].sort = new_sort;
 							if (new_sort.length) {
-								this.data[z].forced = WshShell.popup('Force sort?', 0, window.Name, popup.question + popup.yes_no) == popup.yes;
+								this.data[z].forced = WshShell.Popup('Force sort?', 0, window.Name, popup.question + popup.yes_no) == popup.yes;
 							}
 							this.edit_done(z);
 						}
