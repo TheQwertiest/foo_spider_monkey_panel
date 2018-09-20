@@ -231,7 +231,7 @@ JsFbTooltip::get_Text()
 std::optional<std::nullptr_t> 
 JsFbTooltip::put_Text( const std::wstring& text )
 {
-    tipBuffer_.assign(text);
+    tipBuffer_ = text;
     toolInfo_->lpszText = (LPWSTR)tipBuffer_.c_str();
     SendMessage( hTooltipWnd_, TTM_SETTOOLINFO, 0, (LPARAM)toolInfo_.get() );
     return nullptr;
