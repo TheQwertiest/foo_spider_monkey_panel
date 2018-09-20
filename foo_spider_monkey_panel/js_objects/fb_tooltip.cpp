@@ -233,7 +233,7 @@ JsFbTooltip::put_Text( const std::wstring& text )
 {
     tipBuffer_.assign(text);
     toolInfo_->lpszText = (LPWSTR)tipBuffer_.c_str();
-    SendMessage( hTooltipWnd_, TTM_SETTOOLINFO, 0, (LPARAM)&toolInfo_ );
+    SendMessage( hTooltipWnd_, TTM_SETTOOLINFO, 0, (LPARAM)toolInfo_.get() );
     return nullptr;
 }
 
@@ -249,7 +249,7 @@ JsFbTooltip::put_TrackActivate( bool activate )
         toolInfo_->uFlags &= ~(TTF_TRACK | TTF_ABSOLUTE);
     }
 
-    SendMessage( hTooltipWnd_, TTM_TRACKACTIVATE, activate, (LPARAM)&toolInfo_ );
+    SendMessage( hTooltipWnd_, TTM_TRACKACTIVATE, activate, (LPARAM)toolInfo_.get() );
     return nullptr;
 }
 
