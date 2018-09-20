@@ -21,6 +21,7 @@ PointerAlignment: Left
 ReflowComments: 'true'
 SortIncludes: 'false'
 SpaceAfterCStyleCast: 'false'
+SpaceAfterTemplateKeyword : 'true'
 SpaceBeforeAssignmentOperators: 'true'
 SpaceBeforeParens: ControlStatements
 SpaceInEmptyParentheses: 'false'
