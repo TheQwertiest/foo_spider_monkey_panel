@@ -899,7 +899,7 @@ _.mixin({
 				
 				_.createFolder(folders.data);
 				_.createFolder(folders.artists);
-				this.ua = 'foo_jscript_panel_musicbrainz +https://github.com/marc2k3';
+				this.ua = 'foo_spider_monkey_panel_musicbrainz +https://github.com/TheQwertiest';
 				this.mb_id = '';
 				this.properties = {
 					mode : new _.p('2K3.LIST.MUSICBRAINZ.MODE', 0) // 0 releases 1 links

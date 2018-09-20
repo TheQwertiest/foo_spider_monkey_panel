@@ -97,7 +97,7 @@ _.mixin({
                     var idx = f.MetaFind(this.properties.tag.value);
                     var ret = idx > -1 ? f.MetaValue(idx, 0) : 0;
                     return ret;
-                case 3: // JScript Panel DB
+                case 3: // Spider Monkey Panel DB
                     return panel.tf('$if2(%smp_rating%,0)');
                 default:
                     return 0;
@@ -117,7 +117,7 @@ _.mixin({
                     handles.Add(panel.metadb);
                     handles.UpdateFileInfoFromJSON(JSON.stringify(obj));
                     break;
-                case 3: // JScript Panel db
+                case 3: // Spider Monkey Panel DB
                     panel.metadb.SetRating(this.hrating == this.rating ? 0 : this.hrating);
                     panel.metadb.RefreshStats();
                     break;
@@ -129,8 +129,8 @@ _.mixin({
         }
 
         this.properties = {
-            mode: new _.p('2K3.RATING.MODE', 0), // 0 not set 1 foo_playcount 2 file tag 3 JScript Panel db
-            max:  new _.p('2K3.RATING.MAX', 5), // only use for file tag/JScript Panel db mode
+            mode: new _.p('2K3.RATING.MODE', 0), // 0 not set 1 foo_playcount 2 file tag 3 Spider Monkey Panel DB
+            max:  new _.p('2K3.RATING.MAX', 5), // only use for file tag/Spider Monkey Panel DB mode
             tag:  new _.p('2K3.RATING.TAG', 'rating')
         };
         this.x = x;
@@ -143,14 +143,14 @@ _.mixin({
         this.hrating = 0;
         this.font = gdi.Font('FontAwesome', this.h - 2);
         this.tiptext_tf = 'Rate "%title%" by "%artist%".';
-        this.modes = ['Not Set', 'foo_playcount', 'File Tag', 'JScript Panel DB'];
+        this.modes = ['Not Set', 'foo_playcount', 'File Tag', 'Spider Monkey Panel DB'];
         this.foo_playcount = _.cc('foo_playcount');
         window.SetTimeout(_.bind(function () {
             if (this.properties.mode.value == 1 && !this.foo_playcount) { // if mode is set to 1 (foo_playcount) but component is missing, reset to 0.
                 this.properties.mode.set(0);
             }
             if (this.properties.mode.value == 0) {
-                fb.ShowPopupMessage('This script has now been updated and supports 3 different modes.\n\nAs before, you can use foo_playcount which is limited to 5 stars.\n\nThe 2nd option is writing to your file tags. You can choose the tag name and a max value via the right click menu.\n\nLastly, a new "Playback Stats" database has been built into JScript Panel. It is bound to just "%artist% - %title%". This uses %smp_rating% which can be accessed via title formatting in all other components/search dialogs. This also supports a custom max value.\n\nAll options are available on the right click menu. If you do not see the new options when right clicking, make sure you have the latest "rating.txt" imported from the "samples\\complete" folder.', window.Name);
+                fb.ShowPopupMessage('This script has now been updated and supports 3 different modes.\n\nAs before, you can use foo_playcount which is limited to 5 stars.\n\nThe 2nd option is writing to your file tags. You can choose the tag name and a max value via the right click menu.\n\nLastly, a new "Playback Stats" database has been built into Spider Monkey Panel. It is bound to just "%artist% - %title%". This uses %smp_rating% which can be accessed via title formatting in all other components/search dialogs. This also supports a custom max value.\n\nAll options are available on the right click menu. If you do not see the new options when right clicking, make sure you have the latest "rating.txt" imported from the "samples\\complete" folder.', window.Name);
             }
         }, this), 500);
     }

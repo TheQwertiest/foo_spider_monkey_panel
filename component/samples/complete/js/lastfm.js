@@ -204,7 +204,7 @@ _.mixin({
         this.secret = 'a8b4adc5de20242f585b12ef08a464a9';
         this.username = this.read_ini('username');
         this.sk = this.read_ini('sk');
-        this.ua = 'foo_jscript_panel_lastfm2';
+        this.ua = 'foo_spider_monkey_panel_lastfm';
         this.xmlhttp = new ActiveXObject('Microsoft.XMLHTTP');
     }
 });
