@@ -13,7 +13,7 @@ AllowShortLoopsOnASingleLine: 'false'
 AlwaysBreakAfterReturnType: None
 AlwaysBreakTemplateDeclarations: 'true'
 BreakBeforeBraces: Allman
-ColumnLimit: 160
+ColumnLimit: 0
 ConstructorInitializerIndentWidth: '4' 
 FixNamespaceComments: 'true'
 IndentWidth: '4'
