@@ -191,10 +191,6 @@ _.mixin({
         }
 
         this.open_cache = function () {
-            if (!_.isFile(this.cache_file)) {
-                _.save(this.cache_file,'');
-                return '';
-            }
             return _.jsonParseFile(this.cache_file);
         }
 

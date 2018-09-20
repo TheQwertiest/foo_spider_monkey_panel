@@ -680,7 +680,11 @@ _.mixin({
         }
     },
     open:                 function (file) {
-        return utils.ReadTextFile(file);
+        if (_.isFile(file)) {
+            return utils.ReadTextFile(file);
+        } else {
+            return '';
+        }
     },
     p:                    function (property, default_) {
         this.set = function (value) {
