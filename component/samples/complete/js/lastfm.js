@@ -16,7 +16,7 @@ _.mixin({
                     });
                     break;
                 case '2K3.NOTIFY.LOVE':
-                    this.post(_.tf('%JSP_LOVED%', data) == 1 ? 'track.unlove' : 'track.love', null, data);
+                    this.post(_.tf('%SMP_LOVED%', data) == 1 ? 'track.unlove' : 'track.love', null, data);
                     break;
             }
         }
@@ -124,7 +124,7 @@ _.mixin({
                             }
                         }
                         console.log(items_to_refresh.Count, 'library tracks matched and updated. Duplicates are not counted.');
-                        console.log('For those updated tracks, %JSP_LOVED% now has the value of 1 in all components/search dialogs.');
+                        console.log('For those updated tracks, %SMP_LOVED% now has the value of 1 in all components/search dialogs.');
                         if (this.loved_tracks.length) {
                             console.log('The following tracks were not matched:');
                             _.forEach(this.loved_tracks, function (item) {
