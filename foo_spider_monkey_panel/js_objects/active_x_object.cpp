@@ -238,7 +238,7 @@ JSClassOps jsOps = {
     nullptr,
     nullptr,
     nullptr,
-    mozjs::JsFinalizeOp<ActiveXObject>,
+    ActiveXObject::FinalizeJsObject,
     nullptr,
     nullptr,
     nullptr,
