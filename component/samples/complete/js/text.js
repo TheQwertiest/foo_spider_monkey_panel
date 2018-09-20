@@ -311,7 +311,7 @@ _.mixin({
                     if (this.allmusic_url) {
                         this.allmusic_url = false;
                         var content = _(_.getElementsByTagName(this.xmlhttp.responseText, 'div'))
-                            .filter({itemprop: 'reviewBody'})
+                            .filter({className: 'text'})
                             .map('innerText')
                             .stripTags()
                             .value();
@@ -335,7 +335,6 @@ _.mixin({
                                     var artist = tmp.length ? _.first(tmp).innerText : 'various artists';
                                     if (this.is_match(artist, album)) {
                                         this.allmusic_url = _.first(divs[2].getElementsByTagName('a')).href;
-                                        console.log(this.allmusic_url)
                                         return false;
                                     }
                                 }, this));

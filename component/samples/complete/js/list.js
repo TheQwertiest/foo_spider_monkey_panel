@@ -500,18 +500,22 @@ _.mixin({
 							})
 							.nest(['primary', 'secondary'])
 							.value();
+						var tmp = [];
 						_.forEach(['Album', 'Single', 'EP', 'Other', 'Broadcast', 'null'], function (primary) {
 							_.forEach(['null', 'Audiobook', 'Compilation', 'Demo', 'DJ-mix', 'Interview', 'Live', 'Mixtape/Street', 'Remix', 'Spokenword', 'Soundtrack'], function (secondary) {
 								var group = _.get(data, primary + '.' + secondary);
 								if (group) {
 									var name = (primary + ' + ' + secondary).replace('null + null', 'Unspecified type').replace('null + ', '').replace(' + null', '');
-									this.data.push({name : name, width : 0, url : '', date : ''});
-									this.data.push.apply(this.data, group);
-									this.data.push({name : '', width : 0, url : '', date : ''});
+									tmp.push({name : name, width : 0, url : '', date : ''});
+									tmp.push.apply(tmp, group);
+									tmp.push({name : '', width : 0, url : '', date : ''});
 								}
-							}, this);
-						}, this);
-						this.data.pop();
+							});
+						});
+						if (tmp.length) {
+							tmp.pop(); // last line is always blank - nuke it
+							this.data.push.apply(this.data, tmp);
+						}
 						if (_.fileExpired(this.filename, ONE_DAY)) {
 							this.get();
 						}
@@ -549,7 +553,6 @@ _.mixin({
 				}
 				break;
 			case 'properties':
-				this.text_x = 0;
 				this.filename = panel.metadb.Path;
 				var fileinfo = panel.metadb.GetFileInfo();
 				if (this.properties.meta.enabled) {
@@ -571,10 +574,12 @@ _.mixin({
 					this.add_rg();
 				}
 				this.data.pop();
+				var text_x = 0;
 				_.forEach(this.data, function (item) {
 					item.width = _.textWidth(item.value, panel.fonts.normal);
-					this.text_x = Math.max(this.text_x, _.textWidth(item.name, panel.fonts.normal) + 20);
-				}, this);
+					text_x = Math.max(text_x, _.textWidth(item.name, panel.fonts.normal) + 20);
+				});
+				this.text_x = text_x;
 				break;
 			case 'queue_viewer':
 				var items = plman.GetPlaybackQueueHandles();
