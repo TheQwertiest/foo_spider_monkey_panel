@@ -11,6 +11,14 @@
 #include <js_panel_window.h>
 #include <host_timer_dispatcher.h>
 
+#pragma warning( push )
+#pragma warning( disable : 4100 ) // unused variable
+#pragma warning( disable : 4251 ) // dll interface warning
+#pragma warning( disable : 4324 ) // structure was padded due to alignment specifier
+#pragma warning( disable : 4996 ) // C++17 deprecation warning
+#include <js/Wrapper.h>
+#pragma warning( pop ) 
+
 
 namespace mozjs
 {
@@ -162,7 +170,7 @@ bool JsContainer::ExecuteScript( const pfc::string8_fast&  scriptCode )
     return JS::Evaluate( pJsCtx_, opts, scriptCode.c_str(), scriptCode.length(), &dummyRval );
 }
 
-void JsContainer::InvokeOnNotify( const std::wstring& name, const std::wstring& data )
+void JsContainer::InvokeOnNotify( WPARAM wp, LPARAM lp )
 {   
     if ( JsStatus::Ready != jsStatus_ )
     {
@@ -171,25 +179,21 @@ void JsContainer::InvokeOnNotify( const std::wstring& name, const std::wstring& 
 
     scope::JsScope autoScope( pJsCtx_, jsGlobal_ );
 
-    JS::RootedValue jsStringVal( pJsCtx_ );
-    if ( !convert::to_js::ToValue( pJsCtx_, data, &jsStringVal ) )
-    {
-        JS_ReportErrorUTF8( pJsCtx_, "Internal error: on_notify_data received unparsable data" );
-        return;
-    }
-    JS::RootedString jsString( pJsCtx_, jsStringVal.toString() );
-
-    JS::RootedValue jsVal( pJsCtx_ );
-    if ( !JS_ParseJSON( pJsCtx_, jsString, &jsVal ) )
-    {
-        JS_ReportErrorUTF8( pJsCtx_, "Internal error: on_notify_data received unparsable data" );
+    // Bind object to current compartment
+    JS::RootedValue jsValue( pJsCtx_, *reinterpret_cast<JS::HandleValue*>( lp ) );
+    if ( !JS_WrapValue( pJsCtx_, &jsValue ) )
+    { // reports
         return;
     }
 
     autoScope.DisableReport(); ///< InvokeJsCallback has it's own AutoReportException
-    InvokeJsCallback( "on_notify_data",
-                      static_cast<std::wstring>(name),
-                      static_cast<JS::HandleValue>(jsVal) );
+    if ( InvokeJsCallback( "on_notify_data",
+                           *reinterpret_cast<std::wstring*>( wp ),
+                           static_cast<JS::HandleValue>( jsValue ) )
+         && jsValue.isObject() )
+    { // Remove binding
+        js::NukeCrossCompartmentWrapper( pJsCtx_, &jsValue.toObject() );
+    }
 }
 
 void JsContainer::InvokeOnPaint( Gdiplus::Graphics& gr )

@@ -125,7 +125,7 @@ const JSPropertySpec jsProperties[] = {
     JS_PS_END
 };
 
-}
+} // namespace
 
 namespace mozjs
 {
@@ -151,11 +151,11 @@ JsWindow::CreateNative( JSContext* cx, js_panel_window& parentPanel )
 {
     std::unique_ptr<FbProperties> fbProperties = FbProperties::Create( cx, parentPanel );
     if ( !fbProperties )
-    {// report in Create
+    { // report in Create
         return nullptr;
     }
 
-    return std::unique_ptr<JsWindow>( new JsWindow( cx, parentPanel, std::move( fbProperties ) ));
+    return std::unique_ptr<JsWindow>( new JsWindow( cx, parentPanel, std::move( fbProperties ) ) );
 }
 
 size_t JsWindow::GetInternalSize( const js_panel_window& parentPanel )
@@ -195,7 +195,7 @@ JsWindow::CreatePopupMenu()
 {
     JS::RootedObject jsObject( pJsCtx_, JsMenuObject::CreateJs( pJsCtx_, parentPanel_.GetHWND() ) );
     if ( !jsObject )
-    {// Report in Create
+    { // Report in Create
         return std::nullopt;
     }
 
@@ -206,13 +206,13 @@ std::optional<JSObject*>
 JsWindow::CreateThemeManager( const std::wstring& classid )
 {
     if ( !JsThemeManager::HasThemeData( parentPanel_.GetHWND(), classid ) )
-    {// Not a error: not found
+    { // Not a error: not found
         return nullptr;
     }
 
     JS::RootedObject jsObject( pJsCtx_, JsThemeManager::CreateJs( pJsCtx_, parentPanel_.GetHWND(), classid ) );
     if ( !jsObject )
-    {// Report in Create
+    { // Report in Create
         return std::nullopt;
     }
 
@@ -229,7 +229,7 @@ JsWindow::CreateTooltip( const std::wstring& name, float pxSize, uint32_t style 
 
     JS::RootedObject jsObject( pJsCtx_, JsFbTooltip::CreateJs( pJsCtx_, parentPanel_.GetHWND(), tooltip_param ) );
     if ( !jsObject )
-    {// Report in Create
+    { // Report in Create
         return std::nullopt;
     }
 
@@ -261,9 +261,9 @@ JsWindow::CreateTooltipWithOpt( size_t optArgCount, const std::wstring& name, fl
     return CreateTooltip( name, pxSize, style );
 }
 
-std::optional<std::nullptr_t> 
+std::optional<std::nullptr_t>
 JsWindow::DefinePanel( const pfc::string8_fast& name, JS::HandleValue options )
-{// TODO: clean up this mess
+{ // TODO: clean up this mess
     if ( isPanelDefined_ )
     {
         JS_ReportErrorUTF8( pJsCtx_, "DefinePanel can't be called twice" );
@@ -294,7 +294,7 @@ JsWindow::DefinePanel( const pfc::string8_fast& name, JS::HandleValue options )
 
             bool hasProp;
             if ( !JS_HasProperty( pJsCtx_, jsOptions, "author", &hasProp ) )
-            {// reports
+            { // reports
                 return std::nullopt;
             }
 
@@ -302,7 +302,7 @@ JsWindow::DefinePanel( const pfc::string8_fast& name, JS::HandleValue options )
             {
                 JS::RootedValue jsValue( pJsCtx_ );
                 if ( !JS_GetProperty( pJsCtx_, jsOptions, "author", &jsValue ) )
-                {// reports
+                { // reports
                     return std::nullopt;
                 }
 
@@ -317,7 +317,7 @@ JsWindow::DefinePanel( const pfc::string8_fast& name, JS::HandleValue options )
             }
 
             if ( !JS_HasProperty( pJsCtx_, jsOptions, "version", &hasProp ) )
-            {// reports
+            { // reports
                 return std::nullopt;
             }
 
@@ -325,7 +325,7 @@ JsWindow::DefinePanel( const pfc::string8_fast& name, JS::HandleValue options )
             {
                 JS::RootedValue jsValue( pJsCtx_ );
                 if ( !JS_GetProperty( pJsCtx_, jsOptions, "version", &jsValue ) )
-                {// reports
+                { // reports
                     return std::nullopt;
                 }
 
@@ -340,7 +340,7 @@ JsWindow::DefinePanel( const pfc::string8_fast& name, JS::HandleValue options )
             }
 
             if ( !JS_HasProperty( pJsCtx_, jsOptions, "features", &hasProp ) )
-            {// reports
+            { // reports
                 return std::nullopt;
             }
 
@@ -348,7 +348,7 @@ JsWindow::DefinePanel( const pfc::string8_fast& name, JS::HandleValue options )
             {
                 JS::RootedValue jsFeaturesValue( pJsCtx_ );
                 if ( !JS_GetProperty( pJsCtx_, jsOptions, "features", &jsFeaturesValue ) )
-                {// reports
+                { // reports
                     return std::nullopt;
                 }
 
@@ -360,7 +360,7 @@ JsWindow::DefinePanel( const pfc::string8_fast& name, JS::HandleValue options )
 
                 JS::RootedObject jsFeatures( pJsCtx_, &jsFeaturesValue.toObject() );
                 if ( !JS_HasProperty( pJsCtx_, jsFeatures, "drag_n_drop", &hasProp ) )
-                {// reports
+                { // reports
                     return std::nullopt;
                 }
 
@@ -368,7 +368,7 @@ JsWindow::DefinePanel( const pfc::string8_fast& name, JS::HandleValue options )
                 {
                     JS::RootedValue jsValue( pJsCtx_ );
                     if ( !JS_GetProperty( pJsCtx_, jsFeatures, "drag_n_drop", &jsValue ) )
-                    {// reports
+                    { // reports
                         return std::nullopt;
                     }
 
@@ -381,7 +381,7 @@ JsWindow::DefinePanel( const pfc::string8_fast& name, JS::HandleValue options )
 
                     parsed_options.features.drag_n_drop = retVal.value();
                 }
-            }            
+            }
         }
     }
 
@@ -400,7 +400,7 @@ JsWindow::DefinePanel( const pfc::string8_fast& name, JS::HandleValue options )
     return nullptr;
 }
 
-std::optional<std::nullptr_t> 
+std::optional<std::nullptr_t>
 JsWindow::DefinePanelWithOpt( size_t optArgCount, const pfc::string8_fast& name, JS::HandleValue options )
 {
     if ( optArgCount > 1 )
@@ -489,24 +489,24 @@ JsWindow::GetFontCUI( uint32_t type, const std::wstring& guidstr )
         IF_HR_FAILED_RETURN_WITH_REPORT( pJsCtx_, hr, std::nullopt, CLSIDFromString );
     }
 
-    auto hFont = gdi::CreateUniquePtr(parentPanel_.GetFontCUI( type, guid ) );
+    auto hFont = gdi::CreateUniquePtr( parentPanel_.GetFontCUI( type, guid ) );
     if ( !hFont )
-    {// Not an error: font not found
+    { // Not an error: font not found
         return nullptr;
     }
 
     std::unique_ptr<Gdiplus::Font> pGdiFont( new Gdiplus::Font( parentPanel_.GetHDC(), hFont.get() ) );
     if ( !gdi::IsGdiPlusObjectValid( pGdiFont.get() ) )
-    {// Not an error: font not found
+    { // Not an error: font not found
         return nullptr;
     }
 
-    JS::RootedObject jsObject( pJsCtx_, JsGdiFont::CreateJs( pJsCtx_, std::move(pGdiFont), hFont.release(), true ) );
+    JS::RootedObject jsObject( pJsCtx_, JsGdiFont::CreateJs( pJsCtx_, std::move( pGdiFont ), hFont.release(), true ) );
     if ( !jsObject )
-    {// Report in Create
+    { // Report in Create
         return std::nullopt;
     }
-    
+
     hFont.release();
     return jsObject;
 }
@@ -539,19 +539,19 @@ JsWindow::GetFontDUI( uint32_t type )
 
     HFONT hFont = parentPanel_.GetFontDUI( type ); // No need to delete, it is managed by DUI
     if ( !hFont )
-    {// Not an error: font not found
+    { // Not an error: font not found
         return nullptr;
     }
 
     std::unique_ptr<Gdiplus::Font> pGdiFont( new Gdiplus::Font( parentPanel_.GetHDC(), hFont ) );
     if ( !gdi::IsGdiPlusObjectValid( pGdiFont.get() ) )
-    {// Not an error: font not found
+    { // Not an error: font not found
         return nullptr;
     }
 
     JS::RootedObject jsObject( pJsCtx_, JsGdiFont::CreateJs( pJsCtx_, std::move( pGdiFont ), hFont, false ) );
     if ( !jsObject )
-    {// Report in Create
+    { // Report in Create
         return std::nullopt;
     }
 
@@ -564,7 +564,7 @@ JsWindow::GetProperty( const std::wstring& name, JS::HandleValue defaultval )
     return fbProperties_->GetProperty( name, defaultval );
 }
 
-std::optional<JS::Heap<JS::Value>> 
+std::optional<JS::Heap<JS::Value>>
 JsWindow::GetPropertyWithOpt( size_t optArgCount, const std::wstring& name, JS::HandleValue defaultval )
 {
     if ( optArgCount > 1 )
@@ -584,43 +584,14 @@ JsWindow::GetPropertyWithOpt( size_t optArgCount, const std::wstring& name, JS::
 std::optional<std::nullptr_t>
 JsWindow::NotifyOthers( const std::wstring& name, JS::HandleValue info )
 {
-    std::wstring jsonStr;
-    auto jsonCopyFunc = []( const char16_t* buf, uint32_t len, void* data )
-    {
-        assert( data );
-        std::wstring* pJsonStr = (std::wstring*)data;
-        pJsonStr->assign((const wchar_t*)buf, len );
-        return true;
-    };
-    
-    if ( info.isObject() )
-    {
-        JS::RootedObject jsObject( pJsCtx_, &info.toObject() );
-        if ( !JS::ToJSONMaybeSafely( pJsCtx_, jsObject, jsonCopyFunc, &jsonStr ) )
-        {
-            JS_ReportErrorUTF8( pJsCtx_, "Unsuitable info argument" );
-            return std::nullopt;
-        }
-    }
-    else if (info.isPrimitive() && !info.isNullOrUndefined())
-    {
-        JS::RootedValue valueCopy( pJsCtx_, info );
-        if ( !JS_Stringify( pJsCtx_, &valueCopy, nullptr, JS::NullHandleValue, jsonCopyFunc, &jsonStr ) )
-        {
-            JS_ReportErrorUTF8( pJsCtx_, "Unsuitable info argument" );
-            return std::nullopt;
-        }
-    }
-    else
-    {
-        JS_ReportErrorUTF8( pJsCtx_, "Unsuitable info argument" );
-        return std::nullopt;
-    }
-
     // TODO: think about replacing with PostMessage
-    panel_manager::instance().send_msg_to_others_pointer( parentPanel_.GetHWND(), CALLBACK_UWM_ON_NOTIFY_DATA, 
-                                                          std::make_unique<std::tuple<std::wstring, std::wstring>>(name, jsonStr));
-    
+    panel_manager::instance().send_msg_to_others(
+        parentPanel_.GetHWND(),
+        CALLBACK_UWM_ON_NOTIFY_DATA,
+        reinterpret_cast<WPARAM>( &name ),
+        reinterpret_cast<LPARAM>( &info ) 
+    );    
+
     return nullptr;
 }
 
@@ -686,7 +657,7 @@ JsWindow::SetCursor( uint32_t id )
 
 std::optional<uint32_t>
 JsWindow::SetInterval( JS::HandleValue func, uint32_t delay )
-{// TODO: try to remove the roundabout call (JsWindow > js_panel_window > JsContainer)
+{ // TODO: try to remove the roundabout call (JsWindow > js_panel_window > JsContainer)
     if ( !func.isObject() || !JS_ObjectIsFunction( pJsCtx_, &func.toObject() ) )
     {
         JS_ReportErrorUTF8( pJsCtx_, "func argument is not a JS function" );
@@ -701,14 +672,14 @@ std::optional<std::nullptr_t>
 JsWindow::SetProperty( const std::wstring& name, JS::HandleValue val )
 {
     if ( !fbProperties_->SetProperty( name, val ) )
-    {// report in SetProperty
+    { // report in SetProperty
         return std::nullopt;
     }
 
     return nullptr;
 }
 
-std::optional<std::nullptr_t> 
+std::optional<std::nullptr_t>
 JsWindow::SetPropertyWithOpt( size_t optArgCount, const std::wstring& name, JS::HandleValue val )
 {
     if ( optArgCount > 1 )
@@ -727,7 +698,7 @@ JsWindow::SetPropertyWithOpt( size_t optArgCount, const std::wstring& name, JS::
 
 std::optional<uint32_t>
 JsWindow::SetTimeout( JS::HandleValue func, uint32_t delay )
-{    
+{
     if ( !func.isObject() || !JS_ObjectIsFunction( pJsCtx_, &func.toObject() ) )
     {
         JS_ReportErrorUTF8( pJsCtx_, "func argument is not a JS function" );
@@ -766,7 +737,7 @@ JsWindow::get_Height()
 
 std::optional<uint32_t>
 JsWindow::get_ID()
-{// Will work properly only on x86
+{ // Will work properly only on x86
     return reinterpret_cast<uint32_t>( parentPanel_.GetHWND() );
 }
 
@@ -785,7 +756,7 @@ JsWindow::get_IsTransparent()
 std::optional<bool>
 JsWindow::get_IsVisible()
 {
-    return  IsWindowVisible( parentPanel_.GetHWND() );
+    return IsWindowVisible( parentPanel_.GetHWND() );
 }
 
 std::optional<uint32_t>
@@ -803,7 +774,7 @@ JsWindow::get_MaxWidth()
 std::optional<uint32_t>
 JsWindow::get_MinHeight()
 {
-    return  parentPanel_.MinSize().y;
+    return parentPanel_.MinSize().y;
 }
 
 std::optional<uint32_t>
@@ -869,4 +840,4 @@ JsWindow::put_MinWidth( uint32_t width )
     return nullptr;
 }
 
-}
+} // namespace mozjs

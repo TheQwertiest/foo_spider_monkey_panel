@@ -12,9 +12,11 @@ AllowShortIfStatementsOnASingleLine: 'false'
 AllowShortLoopsOnASingleLine: 'false'
 AlwaysBreakAfterReturnType: None
 AlwaysBreakTemplateDeclarations: 'true'
+BreakBeforeBinaryOperators: NonAssignment
 BreakBeforeBraces: Allman
 ColumnLimit: 0
 ConstructorInitializerIndentWidth: '4' 
+ContinuationIndentWidth: '4'
 FixNamespaceComments: 'true'
 IndentWidth: '4'
 PointerAlignment: Left

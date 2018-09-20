@@ -308,7 +308,7 @@ LRESULT js_panel_window::on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
         return 0;
 
     case CALLBACK_UWM_ON_NOTIFY_DATA:
-        on_notify_data( wp );
+        on_notify_data( wp, lp );
         return 0;
 
     case CALLBACK_UWM_ON_OUTPUT_DEVICE_CHANGED:
@@ -1162,11 +1162,9 @@ void js_panel_window::on_mouse_wheel_h( WPARAM wp )
                                    static_cast<int8_t>(GET_WHEEL_DELTA_WPARAM( wp ) > 0 ? 1 : -1) );
 }
 
-void js_panel_window::on_notify_data( WPARAM wp )
+void js_panel_window::on_notify_data( WPARAM wp, LPARAM lp )
 {
-    smp::panel::ScopedCallbackData<std::tuple<std::wstring, std::wstring>> data( wp );
-    jsContainer_.InvokeOnNotify( std::get<0>( data.get() ),
-                                 std::get<1>( data.get() ) );
+    jsContainer_.InvokeOnNotify( wp, lp );
 }
 
 void js_panel_window::on_output_device_changed()

@@ -62,7 +62,7 @@ public:
     }
 
 public: // callbacks that require js data
-    void InvokeOnNotify( const std::wstring& name, const std::wstring& data );
+    void InvokeOnNotify( WPARAM wp, LPARAM lp );
     void InvokeOnPaint( Gdiplus::Graphics& gr );
     void InvokeOnDragAction( const pfc::string8_fast& functionName, const POINTL& pt, uint32_t keyState, DropActionParams& actionParams );
 
