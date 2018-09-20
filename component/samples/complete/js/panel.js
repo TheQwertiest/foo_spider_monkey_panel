@@ -48,9 +48,9 @@ _.mixin({
             this.fonts.normal = _.gdiFont(name, this.fonts.size.value);
             this.fonts.fixed = _.gdiFont('Lucida Console', this.fonts.size.value);
             this.row_height = this.fonts.normal.Height;
-            _.invoke(this.list_objects, 'size');
-            _.invoke(this.list_objects, 'update');
-            _.invoke(this.text_objects, 'size');
+            _.invokeMap(this.list_objects, 'size');
+            _.invokeMap(this.list_objects, 'update');
+            _.invokeMap(this.text_objects, 'size');
         }
 
         this.size = function () {
@@ -123,7 +123,8 @@ _.mixin({
                     break;
                 case idx <= 20:
                     this.fonts.size.set(idx);
-                    on_font_changed();
+                    this.font_changed();
+                    window.Repaint();
                     break;
                 case idx == 100:
                 case idx == 101:
