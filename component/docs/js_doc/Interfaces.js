@@ -1,4 +1,12 @@
 /**
+ * Evaluates the script in file.
+ * Similar to eval(ReadFile(path)), but provides better error reporting
+ *
+ * @param {string} path Path to JavaScript file
+ */
+function include(path) {};
+
+/**
  * @constructor
  */
 function IFbUtils() {
@@ -13,7 +21,7 @@ function IFbUtils() {
     this.ComponentPath = undefined; // (string) (read)
     /*
     Example:
-    console.log(fb.ComponentPath); // C:\Users\User\AppData\Roaming\foobar2000\user-components\foo_jscript_panel\
+    console.log(fb.ComponentPath); // C:\Users\User\AppData\Roaming\foobar2000\user-components\foo_spider_monkey_panel\
     */
 
     /** @type {boolean} */
@@ -84,7 +92,7 @@ function IFbUtils() {
      * This is typically used to update the selection used by the default UI artwork panel
      * or any other panel that makes use of the preferences under
      * File>Preferences>Display>Selection viewers. Use in conjunction with the on_focus
-     * callback. See callbacks.txt.
+     * callback. See Callbacks.js.
      *
      * @constructor
      */
@@ -281,7 +289,7 @@ function IFbUtils() {
     var test = fb.CreateProfiler("test");
     // do something time consuming
     console.log(test.Time); // Outputs bare time in ms like "789"
-    test.Print(); // Outputs component name/version/assigned name like "JScript Panel v2.0.2: FbProfiler (test): 789 ms"
+    test.Print(); // Outputs component name/version/assigned name like "Spider Monkey Panel v1.0.0: FbProfiler (test): 789 ms"
     */
 
     /**
@@ -308,7 +316,7 @@ function IFbUtils() {
     function on_mouse_rbtn_up(x, y) {
         var ap = plman.ActivePlaylist;
         var menu = window.CreatePopupMenu();
-        menu.AppendMenuItem(!plman.IsPlaylistLocked(ap) && fb.CheckClipboardContents(window.ID) ? MF_STRING : MF_GRAYED, 1, "Paste"); // see Flags.txt for MF_* definitions
+        menu.AppendMenuItem(!plman.IsPlaylistLocked(ap) && fb.CheckClipboardContents(window.ID) ? MF_STRING : MF_GRAYED, 1, "Paste"); // see Flags.js for MF_* definitions
         var idx = menu.TrackPopupMenu(x, y);
         if (idx == 1) {
             var handle_list  = fb.GetClipboardContents(window.ID);
@@ -559,7 +567,7 @@ function IFbUtils() {
 
     /**
      * @param {string} message
-     * @param {string=} [title='JScript Panel']
+     * @param {string=} [title='Spider Monkey Panel']
      */
     this.ShowPopupMessage = function (message, title) {}; // (void) [, title]
 
@@ -644,8 +652,8 @@ function IGdiUtils() {
      * Avoid using inside on_paint.
      *  
      * @param {string} name
-     * @param {number} size_px See helpers.txt > Point2Pixel function for conversions
-     * @param {number=} [style=0] See flags.txt > FontStyle
+     * @param {number} size_px See Helper.js > Point2Pixel function for conversions
+     * @param {number=} [style=0] See Flags.js > FontStyle
      * @return {?IGdiFont} Returns null if font is not present.
      */
     this.Font = function (name, size_px, style) {}; // (IGdiFont) [, style]
@@ -1300,8 +1308,23 @@ function IJSUtils() {
     /*
     Example:
     var colour = utils.ColourPicker(window.ID, RGB(255, 0, 0));
-    See docs\helpers.txt for RGB function.
+    See docs\Helper.js for RGB function.
     */
+
+    /**
+     * Creates a window with html page (rendered by IE engine).
+     *
+     * @param {string} code Html source code of the page
+     * @param {object=} [options={}]
+     * @param {number=} [options.width=400] Window width
+     * @param {number=} [options.height=400] Window height
+     * @param {string=} [options.title='foobar2000'] Window title
+     * @param {*=} [options.data=undefined] Will be saved in window.stored_data object and can be accessed from JavaScript executed inside HTML window.
+     *                                      This data is read-only and should not be modified.
+     * @param {object=} [options.fn=undefined] Will be saved in window.stored_function object and can be accessed from JavaScript as well.
+     *                                         This function can have up to 7 arguments and can be used as callback to pass some data back to the caller.
+     */
+    this.CreateHtmlWindow = function(code, options){};
 
     /**
      * @param {string} path
@@ -1347,7 +1370,7 @@ function IJSUtils() {
      *
      * @param {number} window_id {@link window.ID}
      * @param {IFbMetadbHandle} handle
-     * @param {number=} [art_id=0] See flags.txt > AlbumArtId
+     * @param {number=} [art_id=0] See Flags.js > AlbumArtId
      * @param {boolean=} [need_stub=true]
      * @param {boolean=} [only_embed=false]
      * @param {boolean=} [no_load=false]  If true, "image" parameter will be null in on_get_album_art_done callback.
@@ -1357,7 +1380,7 @@ function IJSUtils() {
 
     /**
      * @param {string} rawpath
-     * @param {number=} [art_id=0] See flags.txt > AlbumArtId
+     * @param {number=} [art_id=0] See Flags.js > AlbumArtId
      * @return {IGdiBitmap}
      */
     this.GetAlbumArtEmbedded = function (rawpath, art_id) {}; // (IGdiBitmap) [, art_id]
@@ -1371,7 +1394,7 @@ function IJSUtils() {
      *
      * @param {number} window_id
      * @param {IFbMetadbHandle} handle
-     * @param {number=} [art_id=0] See flags.txt > AlbumArtId
+     * @param {number=} [art_id=0] See Flags.js > AlbumArtId
      * @param {boolean=} [need_stub=true]
      * @return {IGdiBitmap}
      */
@@ -1395,7 +1418,7 @@ function IJSUtils() {
 
     /**
      * @param {string} pattern
-     * @param {number=} [exc_mask=0x10] Default is FILE_ATTRIBUTE_DIRECTORY. See flags.txt > Used in utils.Glob()
+     * @param {number=} [exc_mask=0x10] Default is FILE_ATTRIBUTE_DIRECTORY. See Flags.js > Used in utils.Glob()
      * @param {number=} [inc_mask=0xffffffff]
      * @return {Array<string>}
      */
@@ -1413,17 +1436,17 @@ function IJSUtils() {
      * @param {boolean=} [error_on_cancel = false] If set to true, use try/catch like Example2.
      * @return {string}
      */
-    this.InputBox(window_id, prompt, caption[, defaultval][, error_on_cancel]) // (string)
+    this.InputBox = function(window_id, prompt, caption, defaultval, error_on_cancel) {}; // (string)
     /*
     Example1:
-    var username = utils.InputBox(window.ID, "Enter your username", "JScript Panel", "");
+    var username = utils.InputBox(window.ID, "Enter your username", "Spider Monkey Panel", "");
     With "error_on_cancel" not set (or set to false), cancelling the dialog will return "defaultval".
     Example2:
     Using Example1, you can't tell if OK or Cancel was pressed if the return value is the same
     as "defaultval". If you need to know, set "error_on_cancel" to true which throws a script error
     when Cancel is pressed.
     try {
-        var username = utils.InputBox(window.ID, "Enter your username", "JScript Panel", "", true);
+        var username = utils.InputBox(window.ID, "Enter your username", "Spider Monkey Panel", "", true);
         // OK was pressed.
     } catch(e) {
         // Dialog was closed by pressing Esc, Cancel or the Close button.
@@ -1431,7 +1454,7 @@ function IJSUtils() {
     */
 
     /**
-     * @param {number} vkey {@link http://msdn.microsoft.com/en-us/library/ms927178.aspx}. Some are defined in flags.txt > Used with utils.IsKeyPressed().
+     * @param {number} vkey {@link http://msdn.microsoft.com/en-us/library/ms927178.aspx}. Some are defined in Flags.js > Used with utils.IsKeyPressed().
      * @return {boolean}
      */
     this.IsKeyPressed = function (vkey) {}; // (boolean)
@@ -1455,7 +1478,7 @@ function IJSUtils() {
 
     /**
      * @param {string} filename
-     * @param {number=} [codepage=0] See codepages.txt. If codepage is 0, text file can be UTF16-BOM, UTF8-BOM or ANSI.
+     * @param {number=} [codepage=0] See Codepages.js. If codepage is 0, text file can be UTF16-BOM, UTF8-BOM or ANSI.
      * @return {string}
      */
     this.ReadTextFile = function (filename, codepage) {}; // (string) [,codepage]
@@ -1520,7 +1543,7 @@ var utils = new IJSUtils();
  */
 function Fb2kWindow() {
     /**
-     * See flags.txt > With window.DlgCode
+     * See Flags.js > With window.DlgCode
      *
      * @return {number}
      */
@@ -1549,7 +1572,7 @@ function Fb2kWindow() {
     */
 
     /**
-     * Depends on setting inside JScript Panel Configuration window. You generally use it to determine
+     * Depends on setting inside Spider Monkey Panel Configuration window. You generally use it to determine
      * whether or not to draw a background. Only useful within Panel Stack Splitter (Columns UI component)
      *
      * @type {boolean}
@@ -1576,7 +1599,7 @@ function Fb2kWindow() {
     // The previous 4 methods can be used to lock the panel size. Do not use if panels are contained within Panel Stack Splitter (Columns UI component).
 
     /**
-     * Returns the @name set in the preprocessor section. See preprocessors.txt
+     * Returns the author set in {@link window.DefinePanel}
      * If that isn't present, the GUID of the panel is returned.
      *
      * @type {string}
@@ -1595,6 +1618,20 @@ function Fb2kWindow() {
      * @param {number} timerID
      */
     this.ClearInterval = function (timerID) {}; // (void)
+
+    /**
+     * Setups the panel information and available features.
+     * Can be called only once, so it's better to define it
+     * directly in the panel Configure menu.
+     *
+     * @param {string} name Displayed panel name
+     * @param {object=} [options={}]
+     * @param {string=} [options.author=''] Script author
+     * @param {string=} [options.version=''] Script version
+     * @param {object=} [options.features=undefined] Additional script features
+     * @param {boolean=} [options.features.drag_n_drop=false] Indicates if drag_n_drop functionality should be enabled
+     */
+    this.DefinePanel = function (name, options) {}; // (void)
 
     /**
      * @return {number}
@@ -1621,7 +1658,7 @@ function Fb2kWindow() {
     function IMenuObj() {
 
         /**
-         * @param {number} flags See flags.txt > Used in AppendMenuItem()
+         * @param {number} flags See Flags.js > Used in AppendMenuItem()
          * @param {number} item_id Integer greater than 0. Each menu item needs a unique id.
          * @param {string} text
          */
@@ -1652,7 +1689,7 @@ function Fb2kWindow() {
         /**
          * @param {number} x
          * @param {number} y
-         * @param {number=} [flags=0] See flags.txt > Used in TrackPopupMenu().
+         * @param {number=} [flags=0] See Flags.js > Used in TrackPopupMenu().
          * @return {number}
          */
         this.TrackPopupMenu = function (x, y, flags) {}; // (int) [, flags]
@@ -1701,7 +1738,7 @@ function Fb2kWindow() {
     /**
      * @param {string=} [font_name="Segoe UI"]
      * @param {number=} [font_size_px=12]
-     * @param {number=} [font_style=0] See flags.txt > FontStyle
+     * @param {number=} [font_style=0] See Flags.js > FontStyle
      * @return {IFbTooltip}
      */
     this.CreateTooltip = function (font_name, font_size_px, font_style) {}; // (IFbTooltip) [font_name][, font_size_px][, font_style]
@@ -1745,7 +1782,7 @@ function Fb2kWindow() {
         this.GetDelayTime = function (type) {}; // (int)
 
         /**
-         * @param {number} type See flags.txt > Used in IFbTooltip.GetDelayTime() and IFbTooltip.SetDelayTime()
+         * @param {number} type See Flags.js > Used in IFbTooltip.GetDelayTime() and IFbTooltip.SetDelayTime()
          * @param {number} time
          */
         this.SetDelayTime = function (type, time) {}; // (void)
@@ -1786,14 +1823,14 @@ function Fb2kWindow() {
     this.GetColourDUI = function (type) {}; // (uint)
 
     /**
-     * @param {number} type See flags.txt > Used in window.GetFontXXX()
-     * @param {string=} client_guid See flags.txt > Used in GetFontCUI() as client_guid.
+     * @param {number} type See Flags.js > Used in window.GetFontXXX()
+     * @param {string=} client_guid See Flags.js > Used in GetFontCUI() as client_guid.
      * @return {IGdiFont} null if the component was unable to determine your font.
      */
     this.GetFontCUI = function (type, client_guid) {}; // (IGdiFont) [, client_guid]
 
     /**
-     * @param {number} type See flags.txt > Used in window.GetFontXXX()
+     * @param {number} type See Flags.js > Used in window.GetFontXXX()
      * @return {IGdiFont} null if the component was unable to determine your font.
      */
     this.GetFontDUI = function (type) {}; // (IGdiFont)
@@ -1838,7 +1875,7 @@ function Fb2kWindow() {
     this.RepaintRect = function (x, y, w, h, force) {}; // (void) [force]
 
     /**
-     * @param {number} id See flags.txt > Used in window.SetCursor()
+     * @param {number} id See Flags.js > Used in window.SetCursor()
      */
     this.SetCursor = function (id) {}; // (void)
     /*
@@ -1883,7 +1920,7 @@ function IGdiFont() {
     /*
     This will be used in the examples below:
     var my_font = window.GetFontDUI(0);
-    See flags.txt > FontTypeDUI
+    See Flags.js > FontTypeDUI
     */
 
     /** @type {number} */
@@ -1912,7 +1949,7 @@ function IGdiFont() {
     /*
     Example:
     console.log(my_font.Style);
-    See flags.txt > FontStyle
+    See Flags.js > FontStyle
     */
 }
 
@@ -1994,7 +2031,7 @@ function IGdiBitmap() {
     console.log(colours[0].freq); // 0.34
     console.log(toRGB(colours[0].col)); // [192, 0, 0]
 
-    See docs\helpers.txt for "toRGB" function.
+    See docs\Helpers.js for "toRGB" function.
     */
 
     /**
@@ -2012,13 +2049,13 @@ function IGdiBitmap() {
     /**
      * @param {number} w
      * @param {number} h
-     * @param {number=} [mode=0] See flags.txt > InterpolationMode
+     * @param {number=} [mode=0] See Flags.js > InterpolationMode
      * @return{IGdiBitmap}
      */
     this.Resize = function (w, h, mode) {}; // (IGdiBitmap) [, mode]
 
     /**
-     * @param {number} mode See flags.txt > RotateFlipType
+     * @param {number} mode See Flags.js > RotateFlipType
      */
     this.RotateFlip = function (mode) {}; // (void)
 
@@ -2054,7 +2091,7 @@ function IGdiGraphics() {
     Typically used inside on_paint(gr)
     There are many different ways to get colours.
     Use window.GetColourDUI/window.GetColourCUI,
-    RGB function from helpers.txt, utils.ColourPicker,
+    RGB function from Helpers.js, utils.ColourPicker,
     etc.
     */
 
@@ -2129,7 +2166,7 @@ function IGdiGraphics() {
      * @param {number} y
      * @param {number} w
      * @param {number} h
-     * @param {number=} [flags=0] See flags.txt > StringFormatFlags
+     * @param {number=} [flags=0] See Flags.js > StringFormatFlags
      */
     this.DrawString = function (str, font, colour, x, y, w, h, flags) {}; // (void) [, flags]
 
@@ -2271,7 +2308,7 @@ function IGdiGraphics() {
      * @param {number} y
      * @param {number} w
      * @param {number} h
-     * @param {number=} [format=0] See flags.txt > DT_*
+     * @param {number=} [format=0] See Flags.js > DT_*
      * @return {Array<number>}
      */
     this.GdiDrawText = function (str, font, colour, x, y, w, h, format) {}; // (Array) [, format]
@@ -2293,7 +2330,7 @@ function IGdiGraphics() {
      * @param {number} y
      * @param {number} w
      * @param {number} h
-     * @param {number=} [flags=0] See flags.txt > StringFormatFlags
+     * @param {number=} [flags=0] See Flags.js > StringFormatFlags
      * @return {IMeasureStringInfo}
      */
     this.MeasureString = function (str, font, x, y, w, h, flags) {}; // (IMeasureStringInfo) [, flags]
@@ -2323,10 +2360,8 @@ function IGdiGraphics() {
 
         /*
         Example:
-        // ==PREPROCESSOR==
-        // @import "%fb2k_component_path%docs\flags.txt"
-        // @import "%fb2k_component_path%docs\helpers.txt"
-        // ==/PREPROCESSOR==
+        include(fb.ComponentPath + 'docs\\Flags.js');
+        include(fb.ComponentPath + 'docs\\Helpers.js');        
 
         var sf = StringFormat(StringAlignment.Near, StringAlignment.Near);
         var text = utils.ReadTextFile("z:\\info.txt");
@@ -2345,19 +2380,19 @@ function IGdiGraphics() {
     }
 
     /**
-     * See flags.txt > InterpolationMode
+     * See Flags.js > InterpolationMode
      *
      * @param {number=} [mode=0]
      */
     this.SetInterpolationMode = function (mode) {}; // (void)
 
     /**
-     * @param {number=} [mode=0] See flags.txt > SmoothingMode
+     * @param {number=} [mode=0] See Flags.js > SmoothingMode
      */
     this.SetSmoothingMode = function (mode) {}; // (void)
 
     /**
-     * @param {number=} [mode=0] See flags.txt > TextRenderingHint
+     * @param {number=} [mode=0] See Flags.js > TextRenderingHint
      */
     this.SetTextRenderingHint = function (mode) {}; // (void)
 }
@@ -2573,7 +2608,7 @@ function IFbMetadbHandleList() {
      * remove it first.
      * 
      * @param {IFbMetadbHandleList} image_path path to an existing image
-     * @param {number=} [art_id=0] See flags.txt > AlbumArtId
+     * @param {number=} [art_id=0] See Flags.js > AlbumArtId
      */
     this.AttachImage(image_path, art_id) //(void)
     /*
@@ -2762,7 +2797,7 @@ function IFbMetadbHandleList() {
     /**
      * See {@link IFbMetadbHandleList.AttachImage()} for more info as there are some limitaions.
      * 
-     * @param {number=} [art_id=0] See flags.txt > AlbumArtId
+     * @param {number=} [art_id=0] See Flags.js > AlbumArtId
      */
     this.RemoveAttachedImage(art_id); // (void)
 
