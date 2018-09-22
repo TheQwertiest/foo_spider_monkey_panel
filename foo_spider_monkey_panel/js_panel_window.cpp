@@ -13,6 +13,7 @@
 #include <js_utils/art_helper.h>
 #include <js_utils/image_helper.h>
 #include <js_utils/scope_helper.h>
+#include <js_utils/gdi_helpers.h>
 
 #include <drop_action_params.h>
 
@@ -91,10 +92,11 @@ LRESULT js_panel_window::on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
     }
     case WM_PAINT:
     {
-        if ( isPaintSuppressed_ )
+        if ( isPaintInProgress_ )
         {
             break;
         }
+        isPaintInProgress_ = true;
 
         if ( get_pseudo_transparent() && isBgRepaintNeeded_ )
         { // Two pass redraw: paint BG > Repaint() > paint FG
@@ -103,6 +105,9 @@ LRESULT js_panel_window::on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
             RepaintBackground( &rc ); ///< Calls Repaint() inside
 
             isBgRepaintNeeded_ = false;
+            isPaintInProgress_ = false;
+
+            Repaint( true );
             return 0;
         }
 
@@ -111,6 +116,7 @@ LRESULT js_panel_window::on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
         on_paint( dc, &ps.rcPaint );
         EndPaint( hWnd_, &ps );
 
+        isPaintInProgress_ = false;
         return 0;
     }
     case WM_SIZE:
@@ -340,7 +346,7 @@ LRESULT js_panel_window::on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
         return 0;
 
     case CALLBACK_UWM_ON_PLAYBACK_PAUSE:
-        on_playback_pause( wp != 0 );
+        on_playback_pause( wp );
         return 0;
 
     case CALLBACK_UWM_ON_PLAYBACK_QUEUE_CHANGED:
@@ -352,11 +358,11 @@ LRESULT js_panel_window::on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
         return 0;
 
     case CALLBACK_UWM_ON_PLAYBACK_STARTING:
-        on_playback_starting( (playback_control::t_track_command)wp, lp != 0 );
+        on_playback_starting( wp, lp );
         return 0;
 
     case CALLBACK_UWM_ON_PLAYBACK_STOP:
-        on_playback_stop( (playback_control::t_stop_reason)wp );
+        on_playback_stop( wp );
         return 0;
 
     case CALLBACK_UWM_ON_PLAYBACK_TIME:
@@ -649,7 +655,6 @@ void js_panel_window::RepaintBackground( LPRECT lprcUpdate /*= nullptr */ )
     ScreenToClient( wnd_parent, (LPPOINT)&rect_parent + 1 );
 
     // Force Repaint
-    isPaintSuppressed_ = true;
     SetWindowRgn( hWnd_, rgn_child, FALSE );
     RedrawWindow( wnd_parent, &rect_parent, nullptr, RDW_INVALIDATE | RDW_ERASE | RDW_ERASENOW | RDW_UPDATENOW );
 
@@ -663,13 +668,11 @@ void js_panel_window::RepaintBackground( LPRECT lprcUpdate /*= nullptr */ )
     DeleteDC( hdc_bk );
     ReleaseDC( wnd_parent, dc_parent );
     DeleteRgn( rgn_child );
-    SetWindowRgn( hWnd_, nullptr, FALSE );
-    isPaintSuppressed_ = false;
+    SetWindowRgn( hWnd_, nullptr, FALSE );    
     if ( smp::config::EdgeStyle::NO_EDGE != get_edge_style() )
     {
         SendMessage( hWnd_, WM_NCPAINT, 1, 0 );
     }
-    Repaint( true );
 }
 
 uint32_t js_panel_window::SetInterval( JS::HandleFunction func, uint32_t delay )
@@ -1171,13 +1174,10 @@ void js_panel_window::on_output_device_changed()
 
 void js_panel_window::on_paint( HDC dc, LPRECT lpUpdateRect )
 {
-    if ( !dc || !lpUpdateRect || !hBitmap_ ) return;
+    if ( !dc || !lpUpdateRect || !hBitmap_ ) return;   
 
     HDC memdc = CreateCompatibleDC( dc );
-    mozjs::scope::final_action autoDc( [memdc]
-    {
-        DeleteDC( memdc );
-    } );
+    auto autoMemDc = mozjs::gdi::CreateUniquePtr( memdc );
 
     HBITMAP oldbmp = SelectBitmap( memdc, hBitmap_ );
     mozjs::scope::final_action autoBmp( [memdc, oldbmp]
@@ -1194,10 +1194,7 @@ void js_panel_window::on_paint( HDC dc, LPRECT lpUpdateRect )
         if ( get_pseudo_transparent() )
         {
             HDC bkdc = CreateCompatibleDC( dc );
-            mozjs::scope::final_action autoBkDc( [bkdc]
-            {
-                DeleteDC( bkdc );
-            } );
+            auto autoBkDc = mozjs::gdi::CreateUniquePtr( bkdc );
 
             HBITMAP bkoldbmp = SelectBitmap( bkdc, hBitmapBg_ );
             mozjs::scope::final_action autoBkBmp( [bkdc, bkoldbmp]
@@ -1218,14 +1215,13 @@ void js_panel_window::on_paint( HDC dc, LPRECT lpUpdateRect )
         else
         {
             RECT rc = { 0, 0, (LONG)width_, (LONG)height_ };
-
             FillRect( memdc, &rc, (HBRUSH)( COLOR_WINDOW + 1 ) );
         }
 
         on_paint_user( memdc, lpUpdateRect );
     }
 
-    BitBlt( dc, 0, 0, width_, height_, memdc, 0, 0, SRCCOPY );
+    BitBlt( dc, 0, 0, width_, height_, memdc, 0, 0, SRCCOPY );    
 }
 
 void js_panel_window::on_paint_error( HDC memdc )
@@ -1245,10 +1241,7 @@ void js_panel_window::on_paint_error( HDC memdc )
         DEFAULT_QUALITY,
         DEFAULT_PITCH | FF_DONTCARE,
         _T( "Tahoma" ) );
-    mozjs::scope::final_action autoFont( [newfont]()
-    {
-        DeleteObject( newfont );
-    } );
+    auto autoFont = mozjs::gdi::CreateUniquePtr( newfont );
 
     HFONT oldfont = (HFONT)SelectObject( memdc, newfont );
     mozjs::scope::final_action autoFontSelect( [memdc, oldfont]()
@@ -1258,10 +1251,7 @@ void js_panel_window::on_paint_error( HDC memdc )
 
     LOGBRUSH lbBack = { BS_SOLID, RGB( 225, 60, 45 ), 0 };
     HBRUSH hBack = CreateBrushIndirect( &lbBack );
-    mozjs::scope::final_action autoBrush( [hBack]()
-    {
-        DeleteObject( hBack );
-    } );
+    auto autoHBack = mozjs::gdi::CreateUniquePtr( hBack );
 
     RECT rc = { 0, 0, (LONG)width_, (LONG)height_ };
     FillRect( memdc, &rc, hBack );
@@ -1324,10 +1314,10 @@ void js_panel_window::on_playback_order_changed( WPARAM wp )
                                    static_cast<uint32_t>(wp) );
 }
 
-void js_panel_window::on_playback_pause( bool state )
+void js_panel_window::on_playback_pause( WPARAM wp )
 {
     jsContainer_.InvokeJsCallback( "on_playback_pause",
-                                   static_cast<bool>(state) );
+                                   static_cast<bool>(wp != 0) );
 }
 
 void js_panel_window::on_playback_queue_changed( WPARAM wp )
@@ -1343,17 +1333,17 @@ void js_panel_window::on_playback_seek( WPARAM wp )
                                    static_cast<double>(data.get()) );
 }
 
-void js_panel_window::on_playback_starting( play_control::t_track_command cmd, bool paused )
-{
-    jsContainer_.InvokeJsCallback( "on_playback_starting",
-                                   static_cast<uint32_t>(cmd) ,
-                                   static_cast<bool>(paused) );
+void js_panel_window::on_playback_starting( WPARAM wp, LPARAM lp )
+{    
+    jsContainer_.InvokeJsCallback( "on_playback_starting", 
+                                   static_cast<uint32_t>( (playback_control::t_track_command)wp ), 
+                                   static_cast<bool>( lp != 0 ) );
 }
 
-void js_panel_window::on_playback_stop( play_control::t_stop_reason reason )
+void js_panel_window::on_playback_stop( WPARAM wp )
 {
     jsContainer_.InvokeJsCallback( "on_playback_stop",
-                                   static_cast<uint32_t>(reason));
+                                   static_cast<uint32_t>( (playback_control::t_stop_reason)wp ) );
 }
 
 void js_panel_window::on_playback_time( WPARAM wp )

@@ -78,7 +78,7 @@ private:
     HBITMAP hBitmapBg_ = nullptr; // used only internally
 
     bool isBgRepaintNeeded_ = false;                // used only internally
-    bool isPaintSuppressed_ = false;             // used only internally
+    bool isPaintInProgress_ = false;             // used only internally
     bool isMouseTracked_ = false;             // used only internally
     ui_selection_holder::ptr selectionHolder_;  // used only internally
 
@@ -141,11 +141,11 @@ private:
     void on_playback_follow_cursor_changed(WPARAM wp);
     void on_playback_new_track(WPARAM wp);
     void on_playback_order_changed(WPARAM wp);
-    void on_playback_pause(bool state);
+    void on_playback_pause( WPARAM wp );
     void on_playback_queue_changed(WPARAM wp);
     void on_playback_seek(WPARAM wp);
-    void on_playback_starting(play_control::t_track_command cmd, bool paused);
-    void on_playback_stop(play_control::t_stop_reason reason);
+    void on_playback_starting( WPARAM wp, LPARAM lp );
+    void on_playback_stop( WPARAM wp );
     void on_playback_time(WPARAM wp);
     void on_playlist_item_ensure_visible(WPARAM wp, LPARAM lp);
     void on_playlist_items_added(WPARAM wp);
