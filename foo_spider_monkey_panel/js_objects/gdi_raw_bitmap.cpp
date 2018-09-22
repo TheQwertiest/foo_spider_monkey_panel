@@ -71,7 +71,7 @@ JsGdiRawBitmap::JsGdiRawBitmap( JSContext* cx,
     , width_(width)
     , height_(height)
 {
-    hBmpOld_ = SelectBitmap( hDc.get(), hBmp.get() );
+    hBmpOld_ = SelectBitmap( hDc_.get(), hBmp_.get() );
 }
 
 JsGdiRawBitmap::~JsGdiRawBitmap()
