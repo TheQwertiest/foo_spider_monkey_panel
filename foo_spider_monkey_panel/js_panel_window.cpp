@@ -733,6 +733,8 @@ bool js_panel_window::script_load()
 
 void js_panel_window::script_unload()
 {
+    jsContainer_.InvokeJsCallback( "on_script_unload" );
+
     selectionHolder_.release();
     jsContainer_.Finalize();
 }
