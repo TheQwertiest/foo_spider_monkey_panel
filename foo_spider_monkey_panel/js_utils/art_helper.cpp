@@ -245,11 +245,10 @@ std::unique_ptr<Gdiplus::Bitmap> GetBitmapFromMetadb( const metadb_handle_ptr& h
     GUID artTypeGuid = GetGuidForArtId( art_id );
     abort_callback_dummy abort;
     auto aamv2 = album_art_manager_v2::get();
-    album_art_extractor_instance_v2::ptr aaeiv2;
 
     try
     {
-        aaeiv2 = aamv2->open( pfc::list_single_ref_t<metadb_handle_ptr>( handle ), pfc::list_single_ref_t<GUID>( artTypeGuid ), abort );
+        auto aaeiv2 = aamv2->open( pfc::list_single_ref_t<metadb_handle_ptr>( handle ), pfc::list_single_ref_t<GUID>( artTypeGuid ), abort );
         return ExtractBitmap( aaeiv2, artTypeGuid, no_load, pImagePath );
     }
     catch ( ... )
@@ -258,11 +257,11 @@ std::unique_ptr<Gdiplus::Bitmap> GetBitmapFromMetadb( const metadb_handle_ptr& h
 
     if ( need_stub )
     {
-        album_art_extractor_instance_v2::ptr aaeiv2_stub = aamv2->open_stub( abort );
+        auto aaeiv2_stub = aamv2->open_stub( abort );
 
         try
         {
-            album_art_data_ptr data = aaeiv2_stub->query( artTypeGuid, abort );
+            auto data = aaeiv2_stub->query( artTypeGuid, abort );
             return ExtractBitmap( aaeiv2_stub, artTypeGuid, no_load, pImagePath );
         }
         catch ( ... )
