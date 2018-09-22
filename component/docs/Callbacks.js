@@ -1,3 +1,9 @@
+/*
+ * !!! Do NOT include this whole file !!!
+ *
+ *  Only include callbacks that you need   
+ */
+
 function on_always_on_top_changed(state) {}
 // Called when "Always On Top" state changes from using the menu, Alt + A, fb.AlwaysOnTop, etc
 // state: boolean.
@@ -224,13 +230,21 @@ new_mode:
 */
 
 function on_script_unload() {}
-// This callback is not guaranteed to be called during unloading.
+// Called when: 
+// - Panel script is reloaded via context menu > Reload.
+// - Panel script is changed via panel menu > Configure.
+// - fb2k is exiting normally.
+// Not called when:
+// - Script fails with error.
+// - fb2k closed externally (e.g. killed with process manager).
+// - fb2k fails with exception.
 
 function on_selection_changed() {}
 // Called when selection changes based on "File>Preferences>Display>Selection viewers".
 
-function on_size() {}
+function on_size(width, height) {}
 // Called when panel is resized.
+// width and height arguments have same values as window.Width and window.Height
 // IMPORTANT: DO NOT call window.Repaint()
 
 function on_volume_change(val) {}
