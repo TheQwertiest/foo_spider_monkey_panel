@@ -731,9 +731,12 @@ bool js_panel_window::script_load()
     return true;
 }
 
-void js_panel_window::script_unload()
+void js_panel_window::script_unload( bool isErrorEnvoked )
 {
-    jsContainer_.InvokeJsCallback( "on_script_unload" );
+    if ( !isErrorEnvoked )
+    {
+        jsContainer_.InvokeJsCallback( "on_script_unload" );
+    }
 
     selectionHolder_.release();
     jsContainer_.Finalize();
@@ -832,7 +835,7 @@ void js_panel_window::on_script_error()
     }
 
     Repaint();
-    script_unload();
+    script_unload( true );
 }
 
 void js_panel_window::on_always_on_top_changed( WPARAM wp )
