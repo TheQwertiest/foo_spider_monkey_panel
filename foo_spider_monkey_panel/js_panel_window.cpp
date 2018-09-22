@@ -96,12 +96,13 @@ LRESULT js_panel_window::on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
             break;
         }
 
-        if ( get_pseudo_transparent() && !isPaintPending_ )
-        {
+        if ( get_pseudo_transparent() && isBgRepaintNeeded_ )
+        { // Two pass redraw: paint BG > Repaint() > paint FG
             RECT rc;
+            GetUpdateRect( hWnd_, &rc, FALSE );            
+            RepaintBackground( &rc ); ///< Calls Repaint() inside
 
-            GetUpdateRect( hWnd_, &rc, FALSE );
-            RefreshBackground( &rc );
+            isBgRepaintNeeded_ = false;
             return 0;
         }
 
@@ -109,7 +110,6 @@ LRESULT js_panel_window::on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
         HDC dc = BeginPaint( hWnd_, &ps );
         on_paint( dc, &ps.rcPaint );
         EndPaint( hWnd_, &ps );
-        isPaintPending_ = false;
 
         return 0;
     }
@@ -407,7 +407,8 @@ LRESULT js_panel_window::on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
         on_volume_change( wp );
         return 0;
 
-    case UWM_REFRESHBK:
+    case UWM_REFRESHBK:        
+        isBgRepaintNeeded_ = true;
         Repaint(true);
         return 0;
 
@@ -566,12 +567,10 @@ void js_panel_window::Repaint( bool force /*= false */ )
 {
     if ( force )
     {
-        isPaintPending_ = false;
         RedrawWindow( hWnd_, nullptr, nullptr, RDW_INVALIDATE | RDW_UPDATENOW );
     }
     else
     {
-        isPaintPending_ = true;
         InvalidateRect( hWnd_, nullptr, FALSE );
     }
 }
@@ -586,17 +585,15 @@ void js_panel_window::RepaintRect( LONG x, LONG y, LONG w, LONG h, bool force /*
 
     if ( force )
     {
-        isPaintPending_ = false;
         RedrawWindow( hWnd_, &rc, nullptr, RDW_INVALIDATE | RDW_UPDATENOW );
     }
     else
     {
-        isPaintPending_ = true;
         InvalidateRect( hWnd_, &rc, FALSE );
     }
 }
 
-void js_panel_window::RefreshBackground( LPRECT lprcUpdate /*= nullptr */ )
+void js_panel_window::RepaintBackground( LPRECT lprcUpdate /*= nullptr */ )
 {
     HWND wnd_parent = GetAncestor( hWnd_, GA_PARENT );
 

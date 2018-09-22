@@ -57,7 +57,8 @@ public:
 
     void Repaint( bool force = false );
     void RepaintRect( LONG x, LONG y, LONG w, LONG h, bool force = false );
-    void RefreshBackground( LPRECT lprcUpdate = nullptr );
+    /// @details Calls Repaint inside
+    void RepaintBackground( LPRECT lprcUpdate = nullptr );
     uint32_t SetInterval( JS::HandleFunction func, uint32_t delay );
     uint32_t SetTimeout( JS::HandleFunction func, uint32_t delay );
     void ClearIntervalOrTimeout( uint32_t timerId );
@@ -76,7 +77,7 @@ private:
     HBITMAP hBitmap_ = nullptr; // used only internally
     HBITMAP hBitmapBg_ = nullptr; // used only internally
 
-    bool isPaintPending_ = false;                // used only internally
+    bool isBgRepaintNeeded_ = false;                // used only internally
     bool isPaintSuppressed_ = false;             // used only internally
     bool isMouseTracked_ = false;             // used only internally
     ui_selection_holder::ptr selectionHolder_;  // used only internally
