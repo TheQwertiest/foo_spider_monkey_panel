@@ -70,7 +70,7 @@ private:
     HWND hWnd_ = nullptr;
     HDC hDc_ = nullptr;
 
-    PanelInfo m_script_info; // move to JsContainer
+    PanelInfo m_script_info; // TODO: move to JsContainer
 
     uint32_t height_ = 0; // Used externally as well
     uint32_t width_ = 0; // Used externally as well
