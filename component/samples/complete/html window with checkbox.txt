@@ -1,0 +1,161 @@
+window.DefinePanel('Html window with checkbox', {author: 'TheQwertiest'});
+
+var WshShell = new ActiveXObject('WScript.Shell');
+
+function get_windows_version() {
+    var version = '';
+
+    try {
+        version = (WshShell.RegRead('HKLM\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\CurrentMajorVersionNumber')).toString();
+        version += '.';
+        version += (WshShell.RegRead('HKLM\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\CurrentMinorVersionNumber')).toString();
+
+        return version;
+    }
+    catch (e) {
+    }
+
+    try {
+        version = WshShell.RegRead('HKLM\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\CurrentVersion');
+
+        return version;
+    }
+    catch (e) {
+    }
+
+    return '6.1';
+}
+
+var html_style = {};
+html_style.body = 'body { color: WindowText; background-color: Menu; }';
+
+html_style.input =
+    'input { font:caption; border: 1px solid #7A7A7A; width: 100%; }' +
+    'input:focus { outline: none !important; border:1px solid #0078D7; }' +
+    'input:hover:focus { outline: none !important; border:1px solid #0078D7; }' +
+    'input:hover { outline: none !important; border:1px solid #000000; }';
+
+html_style.label = 'label { font:caption; }';
+
+html_style.button =
+    'button { font:caption; background: #E1E1E1; color:ButtonText; border: 1px solid #ADADAD; margin: 5px; padding: 3px; width: 70px; }';
+
+if (get_windows_version() === '6.1') {
+    // Workaround for weird borders on focused buttons in Windows 7
+    html_style.button +=
+        'button:focus { border: 1px solid #0078D7; padding: 3px; }' +
+        'button:hover { background: #e5f1fb; border: 1px solid #0078D7; padding: 3px; }' +
+        'button:focus:hover { background: #e5f1fb; border:1px solid #0078D7; padding: 3px; }';
+}
+else {
+    html_style.button +=
+        'button:focus { outline: none !important; border:2px solid #0078D7; padding: 2px; }' +
+        'button:hover { background: #e5f1fb; outline: none !important; border:1px solid #0078D7; padding: 3px; }' +
+        'button:focus:hover { background: #e5f1fb; outline: none !important; border:2px solid #0078D7; padding: 2px; }';
+}
+
+html_style.button +=
+    'button[disabled] { background: #CCCCCC; color:#EBEBE4; }' +
+    // Suppress button:hover manually, since not() is not working =(
+    'button[disabled]:hover { border: 1px solid #ADADAD; padding: 3px; }';
+
+var style =
+    '<style type="text/css">' +
+    html_style.body +
+    html_style.label +
+    html_style.input +
+    html_style.button +
+    '     div { overflow: hidden; }' +
+    '     span { display:block; overflow: hidden; padding-right:10px; }' +
+    '     input[type="checkbox"] { float:left; display: inline; position: relative; width: 15px; border: 0; padding: 2px 1px; }' +
+    '     input[type="checkbox"]:focus { border:1px solid #0078D7; padding: 1px 0; }' +
+    '     input[type="checkbox"]:hover:focus { border:1px solid #0078D7; padding: 1px 0; }' +
+    '     input[type="checkbox"]:hover { border:1px solid #000000; padding: 1px 0; }' +
+    '     .label_for_checkbox { float:left; padding-top: 1px; }' +
+    '     .input_checkbox { position: relative; top: -1px; margin-right: 1px; } ' +
+    '     .cnt { font:caption; margin: 10px; word-wrap: break-word; white-space: pre-wrap; }' +
+    '     .input_cnt_block { position: absolute; left: 14px; bottom: 15px; }' +
+    '     .button_ok { width: 70px; position: absolute; right: 8px; bottom: 8px; }' +
+    '</style>';
+
+var content =
+    '<html>' +
+    '<head>' +
+    '   <meta http-equiv="x-ua-compatible" content="IE=8"/>' +
+    style +
+    '</head>' +
+    '<body>' +
+    '     <div id="div_text" class="cnt">' + 'test text' + '</div>' +
+    '               <div class="input_cnt_block">' +
+    '                         <input id="input_checkbox" type="checkbox"/>' +
+    '                    <label id="label_for_checkbox" class="label_for_checkbox">' +
+    'dummy' +
+    '                    </label>' +
+    '               </div>' +
+    '     <button class="button_ok" id="btn_ok">OK</button>' +
+    '</body>' +
+    '</html>';
+
+var script =
+    '<script>' +
+    '   var window_w = 358;' +
+    '   var window_h = 425;' +
+    '   ' +
+    '   window.div_text.innerText = window.stored_data;' +
+    '   var labelInnerHtml = window.label_for_checkbox.innerHTML;' +
+    '   window.label_for_checkbox.innerHTML = labelInnerHtml.replace(/dummy/g, "tmp");' +
+    '   ' +
+    '   window_h = 83 + window.div_text.offsetHeight + window.btn_ok.offsetHeight;' +
+    '   if (window_w < window_h + 50) {' +
+    '       window_w += 50;' +
+    '   ' +
+    '       window.resizeTo(window_w, window_h);' +
+    '       window_h = 83 + window.div_text.offsetHeight + window.btn_ok.offsetHeight;' +
+    '   }' +
+    '   window.resizeTo(window_w, window_h);' +
+    '   ' +
+    '   window.input_checkbox.checked = false;' +
+    '   ' +
+    '   window.btn_ok.onclick = function () {' +
+    '       window.stored_function("ok", window.input_checkbox.checked);' +
+    '       window.close();' +
+    '   };' +
+    '   ' +
+    '   window.document.body.focus();' +
+    '   window.btn_ok.focus();' +
+    '    alert(document.documentMode); ' +
+          'alert(window.navigator.userAgent);' +
+    '</script>';
+
+var htmlWindow;
+
+function on_mouse_lbtn_down() {
+    close_window();
+
+    var text = 'This is a HTML window';
+    htmlWindow = utils.CreateHtmlWindow(content + script, {
+        data: text,
+        fn:   window_callback
+    });
+}
+
+function on_mouse_mbtn_down() {
+    close_window();
+}
+
+function on_script_unload() {
+    close_window();
+}
+
+function close_window()
+{
+    if (htmlWindow) {
+        htmlWindow.Close();
+        htmlWindow = undefined;
+    }
+}
+
+function window_callback(has_agreed, need_to_remind) {
+    console.log(has_agreed, need_to_remind);
+    htmlWindow = undefined;
+}
