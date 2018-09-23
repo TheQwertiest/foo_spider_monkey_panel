@@ -52,7 +52,7 @@ void js_panel_window::update_script( const char* code )
 
     if ( jsContainer_.GetStatus() != mozjs::JsContainer::JsStatus::NotPrepared )
     {// Panel might be not loaded at all, if settings are changed from Preferences.
-     // This also removes the double-panel-reload when changing panel settings from Preferences.
+     // This also prevents double-panel-reload when changing panel settings from Preferences.
         script_unload();
         script_load();
     }
@@ -731,13 +731,11 @@ bool js_panel_window::script_load()
     return true;
 }
 
-void js_panel_window::script_unload( bool isErrorEnvoked )
+void js_panel_window::script_unload()
 {
-    if ( !isErrorEnvoked )
-    {
-        jsContainer_.InvokeJsCallback( "on_script_unload" );
-    }
+    jsContainer_.InvokeJsCallback( "on_script_unload" );
 
+    ScriptInfo().clear();
     selectionHolder_.release();
     jsContainer_.Finalize();
 }
@@ -835,7 +833,7 @@ void js_panel_window::on_script_error()
     }
 
     Repaint();
-    script_unload( true );
+    script_unload();
 }
 
 void js_panel_window::on_always_on_top_changed( WPARAM wp )

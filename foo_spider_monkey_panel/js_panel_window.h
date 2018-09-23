@@ -89,7 +89,7 @@ private:
 
 private:
     bool script_load();
-    void script_unload(bool isErrorEnvoked = false);
+    void script_unload();
     void create_context();
     void delete_context();
 
