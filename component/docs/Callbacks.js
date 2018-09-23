@@ -134,7 +134,14 @@ function on_mouse_wheel_h(step) {}
 // Scroll left/right
 
 function on_notify_data(name, info) {}
-// Called in other panels after window.NotifyOthers(name, info) is executed
+// Called in other panels after window.NotifyOthers(name, info) is executed.
+// !!! Beware !!! 
+// 1. Data from `info` argument is only accessible inside `on_notify_data` callback:
+//    if stored and accessed outside of the callback it will throw JS error.
+//    This also applies to the data produced from that `info`: e.g. stroring `info.Path` directly (if `info` is IFbMetadbHandle).
+// 2. If you want to store the data from `info` you have to perform a deep copy:
+//    e.g. `String(info)` for string or `JSON.parse(JSON.stringify(info))` for serializeable objects.
+// 3. `info` argument is shared between panels, so it should NOT be modified in any way.
 
 function on_output_device_changed() {}
 // This callback is only available in foobar2000 v1.4 and later.
