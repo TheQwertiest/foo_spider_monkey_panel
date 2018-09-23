@@ -380,7 +380,7 @@ JsHtmlWindow::CreateNative( JSContext* cx, const std::wstring& htmlCode, JS::Han
             const std::wstring wStr = std::to_wstring( width );
             const std::wstring hStr = std::to_wstring( height );
             _bstr_t bstr =
-                _bstr_t( htmlCode.c_str() ) +
+                _bstr_t(L"") +
                 L"<script id=\"" + wndId.c_str() + "\">"
                 L"    document.title = \"" + title.c_str() + "\";"
                 L"    var width = " + wStr.c_str() + ";"
@@ -388,7 +388,8 @@ JsHtmlWindow::CreateNative( JSContext* cx, const std::wstring& htmlCode, JS::Han
                 L"    resizeTo(width, height);" +
                 L"    moveTo((screen.width-width)/2, (screen.height-height)/2);"
                 L"    document.getElementById('" + wndId.c_str() + "').removeNode();"
-                L"</script>";
+                L"</script>" +
+                htmlCode.c_str();
 
             SAFEARRAY* pSaStrings = SafeArrayCreateVector( VT_VARIANT, 0, 1 );
             scope::final_action autoPsa( [pSaStrings]()
