@@ -680,7 +680,11 @@ _.mixin({
         }
     },
     open:                 function (file) {
-        return utils.ReadTextFile(file);
+        if (_.isFile(file)) {
+            return utils.ReadTextFile(file);
+        } else {
+            return '';
+        }
     },
     p:                    function (property, default_) {
         this.set = function (value) {
@@ -754,7 +758,7 @@ _.mixin({
         }
     },
     save:                 function (file, value) {
-        if (_.isFolder(utils.FileTest(file, 'split').toArray()[0]) && utils.WriteTextFile(file, value)) {
+        if (_.isFolder(utils.FileTest(file, 'split')[0]) && utils.WriteTextFile(file, value)) {
             return true;
         }
         console.log('Error saving to ' + file);
@@ -1149,11 +1153,7 @@ var ONE_WEEK = 604800000;
 var DEFAULT_ARTIST = '$meta(artist,0)';
 var N = window.Name + ':';
 
-try {
-	var DPI = WshShell.RegRead('HKCU\\Control Panel\\Desktop\\WindowMetrics\\AppliedDPI');
-} catch (e) {
-	var DPI = 96;
-}
+var DPI = WshShell.RegRead('HKCU\\Control Panel\\Desktop\\WindowMetrics\\AppliedDPI');
 
 var LM = _.scale(5);
 var TM = _.scale(16);
@@ -1162,7 +1162,7 @@ var tooltip = window.CreateTooltip('Segoe UI', _.scale(9));
 tooltip.SetMaxWidth(1200);
 
 var folders = {};
-folders.home = fb.FoobarPath + "themes\\CaTRoX\\Scripts\\js_marc2003\\";
+folders.home = fb.ComponentPath + 'samples\\complete\\';
 folders.images = folders.home + 'images\\';
 folders.data = fb.ProfilePath + 'js_data\\';
 folders.artists = folders.data + 'artists\\';

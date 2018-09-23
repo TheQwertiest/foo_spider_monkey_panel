@@ -56,7 +56,7 @@ oItem = function (playlist, row_index, type, handle, track_index, group_index, t
 	this.groupRowDelta = groupRowDelta;
 	this.obj = obj;
 	this.empty_row_index = empty_row_index;
-	this.tracktype = TrackType(this.metadb.rawpath.substring(0, 4));
+	this.tracktype = TrackType(this.metadb.RawPath.substring(0, 4));
 	this.l_rating = 0;
 	this.l_mood = 0;
 
@@ -285,13 +285,13 @@ oItem = function (playlist, row_index, type, handle, track_index, group_index, t
 					};
 					if (g_font_guifx_found) {
 						gr.SetTextRenderingHint(3);
-						//gr.DrawString(". ".repeat(total_stars_drawable), gdi.Font("lucida console", zoom(12, g_dpi), 2), this.text_colour_default & 0x20ffffff, columns.rating_x - 3 + 03, this.y - 1 - 02, cw + 1, cTrack.height + cTrack.parity, lc_stringformat);
+						//gr.DrawString(". ".repeat(total_stars_drawable), gdi_font("lucida console", zoom(12, g_dpi), 2), this.text_colour_default & 0x20ffffff, columns.rating_x - 3 + 03, this.y - 1 - 02, cw + 1, cTrack.height + cTrack.parity, lc_stringformat);
 						gr.DrawString("b".repeat(total_stars_drawable), g_font_rating, this.text_colour_default & 0x20ffffff, columns.rating_x - 2, this.y, cw + 1, cTrack.height + cTrack.parity, lc_stringformat);
 						gr.DrawString("b".repeat(Math.round(this.rating > total_stars_drawable ? total_stars_drawable : this.rating)), g_font_rating, RGBA(0, 0, 0, 40), columns.rating_x - 2, this.y, cw + 1, cTrack.height + cTrack.parity, lc_stringformat);
 						gr.DrawString("b".repeat(Math.round(this.rating > total_stars_drawable ? total_stars_drawable : this.rating)), g_font_rating, this.rating_color, columns.rating_x - 3, this.y - 1, cw + 1, cTrack.height + cTrack.parity, lc_stringformat);
 						if (total_stars_drawable < 5) {
 							var drawn_star_w = gr.CalcTextWidth("b".repeat(total_stars_drawable), g_font_rating) - 1;
-							gr.gdiDrawText("...", g_font, this.text_colour_default, columns.rating_x - 6 + drawn_star_w, this.y - 1, columns.rating_w + 1, cTrack.height + cTrack.parity, g_LDT);
+							gr.GdiDrawText("...", g_font, this.text_colour_default, columns.rating_x - 6 + drawn_star_w, this.y - 1, columns.rating_w + 1, cTrack.height + cTrack.parity, g_LDT);
 						};
 					} else {
 						gr.SetTextRenderingHint(3);
@@ -300,7 +300,7 @@ oItem = function (playlist, row_index, type, handle, track_index, group_index, t
 						gr.DrawString(String.fromCharCode(234).repeat(Math.round(this.rating > total_stars_drawable ? total_stars_drawable : this.rating)), g_font_rating, this.rating_color, columns.rating_x - 4, this.y + 2, cw + 1, cTrack.height + cTrack.parity, lc_stringformat);
 						if (total_stars_drawable < 5) {
 							var drawn_star_w = gr.CalcTextWidth(String.fromCharCode(234).repeat(total_stars_drawable), g_font_rating);
-							gr.gdiDrawText("...", g_font, this.text_colour_default, columns.rating_x - 6 + drawn_star_w, this.y, cw + 1, cTrack.height + cTrack.parity, g_LDT);
+							gr.GdiDrawText("...", g_font, this.text_colour_default, columns.rating_x - 6 + drawn_star_w, this.y, cw + 1, cTrack.height + cTrack.parity, g_LDT);
 						};
 					};
 					break;
@@ -359,8 +359,8 @@ oItem = function (playlist, row_index, type, handle, track_index, group_index, t
 						} else {
 							tf2 = "";
 						};
-						DrawColoredText(gr, tf2, gdi.Font(g_fname, g_fsize - 1, g_fstyle), blendColors(this.text_colour, RGB(0, 0, 0), 0.25), cx, tf2_y, cw, tf2_h, p.headerBar.columns[j].DT_align, !this.normalTextColor);
-						//gr.GdiDrawText(tf2, gdi.Font(g_fname, g_fsize - 1, g_fstyle), blendColors(this.text_colour, RGB(0,0,0), 0.25), cx, tf2_y, cw, tf2_h, p.headerBar.columns[j].DT_align | DT_CALCRECT | DT_TOP | DT_END_ELLIPSIS | DT_NOPREFIX);
+						DrawColoredText(gr, tf2, gdi_font(g_fname, g_fsize - 1, g_fstyle), blendColors(this.text_colour, RGB(0, 0, 0), 0.25), cx, tf2_y, cw, tf2_h, p.headerBar.columns[j].DT_align, !this.normalTextColor);
+						//gr.GdiDrawText(tf2, gdi_font(g_fname, g_fsize - 1, g_fstyle), blendColors(this.text_colour, RGB(0,0,0), 0.25), cx, tf2_y, cw, tf2_h, p.headerBar.columns[j].DT_align | DT_CALCRECT | DT_TOP | DT_END_ELLIPSIS | DT_NOPREFIX);
 					};
 					//} catch (e) {};
 				};
@@ -474,13 +474,13 @@ oItem = function (playlist, row_index, type, handle, track_index, group_index, t
 				} else {
 				gr.FillSolidRect(this.x + cover.w, this.y, this.w - cover.w, this.h, RGBA(255,255,255,5));
 				};
-				 */
+				*/
 				// if last empty track of the group, draw group length info
 				/*
 				if (cGroup.extra_rows > 0 && this.track_index_in_group == p.list.groups[this.group_index].count) {
-				gr.gdiDrawText("Total Group Length = " + TimeFromSeconds(Math.round(p.list.groups[this.group_index].total_time_length)), gdi.Font("Arial", 10, 0), g_color_normal_txt, this.x, this.y, this.w - 010, this.h, DT_RIGHT | DT_TOP | DT_VCENTER | DT_CALCRECT | DT_NOPREFIX | DT_SINGLELINE | DT_END_ELLIPSIS);
+				gr.GdiDrawText("Total Group Length = " + TimeFromSeconds(Math.round(p.list.groups[this.group_index].total_time_length)), gdi_font("Arial", 10, 0), g_color_normal_txt, this.x, this.y, this.w - 010, this.h, DT_RIGHT | DT_TOP | DT_VCENTER | DT_CALCRECT | DT_NOPREFIX | DT_SINGLELINE | DT_END_ELLIPSIS);
 				};
-				 */
+				*/
 			};
 
 			// now playing track
@@ -526,7 +526,7 @@ oItem = function (playlist, row_index, type, handle, track_index, group_index, t
 					var cv_w = Math.floor(cover.w - cMargin * 2);
 					var cv_h = Math.floor(cover.h - cMargin * 2);
 
-					var groupmetadb = p.list.handleList.Item(p.list.groups[this.group_index].start);
+					var groupmetadb = p.list.handleList[p.list.groups[this.group_index].start];
 					this.cover_img = g_image_cache.hit(groupmetadb);
 					//
 					if (typeof this.cover_img != "undefined") {
@@ -564,7 +564,7 @@ oItem = function (playlist, row_index, type, handle, track_index, group_index, t
 							gr.DrawRect(cv_x + 1, cv_y + 1, cv_w - 2.0, cv_h - 2.0, 6.0, RGBA(0, 0, 10, 60));
 							gr.SetSmoothingMode(0);
 							if (p.headerBar.columns[0].w < cover.max_w) {
-								gr.DrawImage(this.cover_img.resize(cv_w, cv_h, 2), cv_x, cv_y, cv_w, cv_h, 0, 0, cv_w, cv_h);
+								gr.DrawImage(this.cover_img.Resize(cv_w, cv_h, 2), cv_x, cv_y, cv_w, cv_h, 0, 0, cv_w, cv_h);
 							} else {
 								gr.DrawImage(this.cover_img, cv_x, cv_y, cv_w, cv_h, 0, 0, this.cover_img.Width, this.cover_img.Height);
 							};
@@ -661,26 +661,26 @@ oItem = function (playlist, row_index, type, handle, track_index, group_index, t
 			switch (this.heightInRow) {
 			case 1:
 				var lg1_right_field_w = gr.CalcTextWidth(this.r1, g_font_group1) + cList.borderWidth * 2;
-				gr.gdiDrawText(this.l1 + " / " + this.l2, g_font_group1, this.l1_color, this.x + cover.w + text_left_padding, (this.y - groupDelta) - 1, this.w - cover.w - text_left_padding * 4 - lg1_right_field_w - scrollbar_gape, this.h, DT_LEFT | DT_VCENTER | DT_CALCRECT | DT_NOPREFIX | DT_SINGLELINE | DT_END_ELLIPSIS);
-				gr.gdiDrawText(this.r1, g_font_group1, this.l1_color, this.x + cover.w + text_left_padding, (this.y - groupDelta) - 1, this.w - cover.w - text_left_padding * 5 + 2 - scrollbar_gape, this.h, DT_RIGHT | DT_VCENTER | DT_CALCRECT | DT_NOPREFIX | DT_SINGLELINE | DT_END_ELLIPSIS | DT_NOPREFIX);
+				gr.GdiDrawText(this.l1 + " / " + this.l2, g_font_group1, this.l1_color, this.x + cover.w + text_left_padding, (this.y - groupDelta) - 1, this.w - cover.w - text_left_padding * 4 - lg1_right_field_w - scrollbar_gape, this.h, DT_LEFT | DT_VCENTER | DT_CALCRECT | DT_NOPREFIX | DT_SINGLELINE | DT_END_ELLIPSIS);
+				gr.GdiDrawText(this.r1, g_font_group1, this.l1_color, this.x + cover.w + text_left_padding, (this.y - groupDelta) - 1, this.w - cover.w - text_left_padding * 5 + 2 - scrollbar_gape, this.h, DT_RIGHT | DT_VCENTER | DT_CALCRECT | DT_NOPREFIX | DT_SINGLELINE | DT_END_ELLIPSIS | DT_NOPREFIX);
 				gr.FillSolidRect(this.x + cover.w + text_left_padding, Math.round(this.y + cTrack.height * 1 - groupDelta - 5), this.w - cover.w - text_left_padding * 5 + 2 - scrollbar_gape, 1.0, line_color);
 				break;
 			case 2:
 				var lg1_right_field_w = gr.CalcTextWidth(this.r1, g_font_group1) + cList.borderWidth * 2;
 				var lg2_right_field_w = gr.CalcTextWidth(this.r2, g_font_group2) + cList.borderWidth * 2;
-				gr.gdiDrawText(this.l1, g_font_group1, this.l1_color, this.x + cover.w + text_left_padding, (this.y - groupDelta) + 3, this.w - cover.w - text_left_padding * 4 - lg1_right_field_w - scrollbar_gape, cTrack.height, DT_LEFT | DT_VCENTER | DT_CALCRECT | DT_NOPREFIX | DT_SINGLELINE | DT_END_ELLIPSIS);
-				gr.gdiDrawText(this.l2, g_font_group2, this.l2_color, this.x + cover.w + text_left_padding, (this.y + cTrack.height - groupDelta) - 6, this.w - cover.w - text_left_padding * 4 - lg2_right_field_w - scrollbar_gape, cTrack.height, DT_LEFT | DT_VCENTER | DT_CALCRECT | DT_NOPREFIX | DT_SINGLELINE | DT_END_ELLIPSIS);
-				gr.gdiDrawText(this.r1, g_font_group1, this.l1_color, this.x + cover.w + text_left_padding, (this.y - groupDelta) + 3, this.w - cover.w - text_left_padding * 5 + 2 - scrollbar_gape, cTrack.height, DT_RIGHT | DT_VCENTER | DT_CALCRECT | DT_NOPREFIX | DT_SINGLELINE | DT_END_ELLIPSIS);
-				gr.gdiDrawText(this.r2, g_font_group2, this.l2_color, this.x + cover.w + text_left_padding, (this.y + cTrack.height - groupDelta) - 6, this.w - cover.w - text_left_padding * 5 + 1 - scrollbar_gape, cTrack.height, DT_RIGHT | DT_VCENTER | DT_CALCRECT | DT_NOPREFIX | DT_SINGLELINE | DT_END_ELLIPSIS);
+				gr.GdiDrawText(this.l1, g_font_group1, this.l1_color, this.x + cover.w + text_left_padding, (this.y - groupDelta) + 3, this.w - cover.w - text_left_padding * 4 - lg1_right_field_w - scrollbar_gape, cTrack.height, DT_LEFT | DT_VCENTER | DT_CALCRECT | DT_NOPREFIX | DT_SINGLELINE | DT_END_ELLIPSIS);
+				gr.GdiDrawText(this.l2, g_font_group2, this.l2_color, this.x + cover.w + text_left_padding, (this.y + cTrack.height - groupDelta) - 6, this.w - cover.w - text_left_padding * 4 - lg2_right_field_w - scrollbar_gape, cTrack.height, DT_LEFT | DT_VCENTER | DT_CALCRECT | DT_NOPREFIX | DT_SINGLELINE | DT_END_ELLIPSIS);
+				gr.GdiDrawText(this.r1, g_font_group1, this.l1_color, this.x + cover.w + text_left_padding, (this.y - groupDelta) + 3, this.w - cover.w - text_left_padding * 5 + 2 - scrollbar_gape, cTrack.height, DT_RIGHT | DT_VCENTER | DT_CALCRECT | DT_NOPREFIX | DT_SINGLELINE | DT_END_ELLIPSIS);
+				gr.GdiDrawText(this.r2, g_font_group2, this.l2_color, this.x + cover.w + text_left_padding, (this.y + cTrack.height - groupDelta) - 6, this.w - cover.w - text_left_padding * 5 + 1 - scrollbar_gape, cTrack.height, DT_RIGHT | DT_VCENTER | DT_CALCRECT | DT_NOPREFIX | DT_SINGLELINE | DT_END_ELLIPSIS);
 				gr.FillSolidRect(this.x + cover.w + text_left_padding, (this.y + cTrack.height * 2 - groupDelta) - 8, this.w - cover.w - text_left_padding * 5 + 2 - scrollbar_gape, 1.0, line_color);
 				break;
 			default:
 				var lg1_right_field_w = gr.CalcTextWidth(this.r1, g_font_group1) + cList.borderWidth * 2;
 				var lg2_right_field_w = gr.CalcTextWidth(this.r2, g_font_group2) + cList.borderWidth * 2;
-				gr.gdiDrawText(this.l1, g_font_group1, this.l1_color, this.x + cover.w + text_left_padding, (this.y - groupDelta) + 3, this.w - cover.w - text_left_padding * 4 - lg1_right_field_w - scrollbar_gape, cTrack.height, DT_LEFT | DT_VCENTER | DT_CALCRECT | DT_NOPREFIX | DT_SINGLELINE | DT_END_ELLIPSIS);
-				gr.gdiDrawText(this.l2, g_font_group2, this.l2_color, this.x + cover.w + text_left_padding, (this.y + cTrack.height - groupDelta) - 4, this.w - cover.w - text_left_padding * 4 - lg2_right_field_w - scrollbar_gape, cTrack.height, DT_LEFT | DT_VCENTER | DT_CALCRECT | DT_NOPREFIX | DT_SINGLELINE | DT_END_ELLIPSIS);
-				gr.gdiDrawText(this.r1, g_font_group1, this.l1_color, this.x + cover.w + text_left_padding, (this.y - groupDelta) + 3, this.w - cover.w - text_left_padding * 5 + 2 - scrollbar_gape, cTrack.height, DT_RIGHT | DT_VCENTER | DT_CALCRECT | DT_NOPREFIX | DT_SINGLELINE | DT_END_ELLIPSIS);
-				gr.gdiDrawText(this.r2, g_font_group2, this.l2_color, this.x + cover.w + text_left_padding, (this.y + cTrack.height - groupDelta) - 4, this.w - cover.w - text_left_padding * 5 + 1 - scrollbar_gape, cTrack.height, DT_RIGHT | DT_VCENTER | DT_CALCRECT | DT_NOPREFIX | DT_SINGLELINE | DT_END_ELLIPSIS);
+				gr.GdiDrawText(this.l1, g_font_group1, this.l1_color, this.x + cover.w + text_left_padding, (this.y - groupDelta) + 3, this.w - cover.w - text_left_padding * 4 - lg1_right_field_w - scrollbar_gape, cTrack.height, DT_LEFT | DT_VCENTER | DT_CALCRECT | DT_NOPREFIX | DT_SINGLELINE | DT_END_ELLIPSIS);
+				gr.GdiDrawText(this.l2, g_font_group2, this.l2_color, this.x + cover.w + text_left_padding, (this.y + cTrack.height - groupDelta) - 4, this.w - cover.w - text_left_padding * 4 - lg2_right_field_w - scrollbar_gape, cTrack.height, DT_LEFT | DT_VCENTER | DT_CALCRECT | DT_NOPREFIX | DT_SINGLELINE | DT_END_ELLIPSIS);
+				gr.GdiDrawText(this.r1, g_font_group1, this.l1_color, this.x + cover.w + text_left_padding, (this.y - groupDelta) + 3, this.w - cover.w - text_left_padding * 5 + 2 - scrollbar_gape, cTrack.height, DT_RIGHT | DT_VCENTER | DT_CALCRECT | DT_NOPREFIX | DT_SINGLELINE | DT_END_ELLIPSIS);
+				gr.GdiDrawText(this.r2, g_font_group2, this.l2_color, this.x + cover.w + text_left_padding, (this.y + cTrack.height - groupDelta) - 4, this.w - cover.w - text_left_padding * 5 + 1 - scrollbar_gape, cTrack.height, DT_RIGHT | DT_VCENTER | DT_CALCRECT | DT_NOPREFIX | DT_SINGLELINE | DT_END_ELLIPSIS);
 				// lg 3 (not customizable)
 				gr.FillSolidRect(this.x + cover.w + text_left_padding, (this.y + cTrack.height * 2 - groupDelta) - 1, this.w - cover.w - text_left_padding * 5 + 2 - scrollbar_gape, 1.0, line_color);
 				if (this.obj) {
@@ -690,8 +690,8 @@ oItem = function (playlist, row_index, type, handle, track_index, group_index, t
 				}
 				var lg3_right_field = (this.group_index + 1) + " / " + p.list.groups.length;
 				var lg3_right_field_w = gr.CalcTextWidth(lg3_right_field, g_font) + cList.borderWidth * 2;
-				gr.gdiDrawText(lg3_left_field, g_font, blendColors(g_color_normal_txt, g_color_normal_bg, 0.35), this.x + cover.w + text_left_padding, (this.y + cTrack.height * 2 - groupDelta) - 2, this.w - cover.w - text_left_padding * 4 - lg3_right_field_w - scrollbar_gape, cTrack.height, DT_LEFT | DT_TOP | DT_VCENTER | DT_CALCRECT | DT_NOPREFIX | DT_SINGLELINE | DT_END_ELLIPSIS);
-				gr.gdiDrawText(lg3_right_field, g_font, blendColors(g_color_normal_txt, g_color_normal_bg, 0.35), this.x + cover.w + text_left_padding, (this.y + cTrack.height * 2 - groupDelta) - 2, this.w - cover.w - text_left_padding * 5 + 01 - scrollbar_gape, cTrack.height, DT_RIGHT | DT_VCENTER | DT_CALCRECT | DT_NOPREFIX | DT_SINGLELINE | DT_END_ELLIPSIS);
+				gr.GdiDrawText(lg3_left_field, g_font, blendColors(g_color_normal_txt, g_color_normal_bg, 0.35), this.x + cover.w + text_left_padding, (this.y + cTrack.height * 2 - groupDelta) - 2, this.w - cover.w - text_left_padding * 4 - lg3_right_field_w - scrollbar_gape, cTrack.height, DT_LEFT | DT_TOP | DT_VCENTER | DT_CALCRECT | DT_NOPREFIX | DT_SINGLELINE | DT_END_ELLIPSIS);
+				gr.GdiDrawText(lg3_right_field, g_font, blendColors(g_color_normal_txt, g_color_normal_bg, 0.35), this.x + cover.w + text_left_padding, (this.y + cTrack.height * 2 - groupDelta) - 2, this.w - cover.w - text_left_padding * 5 + 01 - scrollbar_gape, cTrack.height, DT_RIGHT | DT_VCENTER | DT_CALCRECT | DT_NOPREFIX | DT_SINGLELINE | DT_END_ELLIPSIS);
 			};
 
 			// highlight group that contains a selected track
@@ -763,7 +763,7 @@ oItem = function (playlist, row_index, type, handle, track_index, group_index, t
 								gr.DrawRect(cv_x + 1, cv_y + 1, cv_w - 2.0, cv_h - 2.0, 6.0, RGBA(0, 0, 10, 60));
 								gr.SetSmoothingMode(0);
 								if (this.obj.collapsed) {
-									gr.DrawImage(this.cover_img.resize(cv_w, cv_h, 2), cv_x, cv_y, cv_w, cv_h, 0, 0, cv_w, cv_h);
+									gr.DrawImage(this.cover_img.Resize(cv_w, cv_h, 2), cv_x, cv_y, cv_w, cv_h, 0, 0, cv_w, cv_h);
 								} else {
 									gr.DrawImage(this.cover_img, cv_x, cv_y, cv_w, cv_h, 0, 0, this.cover_img.Width, this.cover_img.Height);
 								};
@@ -917,8 +917,8 @@ oItem = function (playlist, row_index, type, handle, track_index, group_index, t
 									dragndrop.y = y;
 									if (p.list.metadblist_selection.Count > 1) {
 										// test if selection is contigus, if not, drag'n drop disable
-										var first_item_selected_id = p.list.handleList.Find(p.list.metadblist_selection.item(0));
-										var last_item_selected_id = p.list.handleList.Find(p.list.metadblist_selection.item(p.list.metadblist_selection.Count - 1));
+										var first_item_selected_id = p.list.handleList.Find(p.list.metadblist_selection[0]);
+										var last_item_selected_id = p.list.handleList.Find(p.list.metadblist_selection[p.list.metadblist_selection.Count - 1]);
 										var contigus_count = (last_item_selected_id - first_item_selected_id) + 1;
 									} else {
 										var contigus_count = 0;
@@ -1003,7 +1003,7 @@ oItem = function (playlist, row_index, type, handle, track_index, group_index, t
 						p.list.updateGroupsOnCollapse(this.group_index);
 						};
 						};
-						 */
+						*/
 					} else {
 						if (this.obj) {
 							if (this.obj.collapsed) {
@@ -1059,7 +1059,6 @@ oItem = function (playlist, row_index, type, handle, track_index, group_index, t
 									handles.UpdateFileInfoFromJSON(JSON.stringify({"RATING" : ""}));
 									this.rating = 0;
 								};
-								handles.Dispose();
 							};
 						};
 					} else if (this.mood_hover) {
@@ -1074,7 +1073,6 @@ oItem = function (playlist, row_index, type, handle, track_index, group_index, t
 								handles.UpdateFileInfoFromJSON(JSON.stringify({"MOOD" : ""}));
 								this.mood = 0;
 							};
-							handles.Dispose();
 						};
 					} else if (!cTouch.down) {
 						if (!p.list.drawRectSel && plman.IsPlaylistItemSelected(p.list.playlist, this.track_index)) {
@@ -1653,7 +1651,6 @@ oList = function (object_name, playlist) {
 		cover.max_h = cGroup.default_collapsed_height > cGroup.default_expanded_height ? cGroup.default_collapsed_height * cTrack.height : cGroup.default_expanded_height * cTrack.height;
 		// refresh playlist
 		g_image_cache = new image_cache;
-		CollectGarbage();
 	};
 
 	this.init_groups = function (iscollapsed) {
@@ -1714,7 +1711,7 @@ oList = function (object_name, playlist) {
 
 		this.groups.splice(0, this.groups.length);
 		for (var i = 0; i < this.count; i++) {
-			handle = this.handleList.Item(i);
+			handle = this.handleList[i];
 			current = properties.showgroupheaders ? tf_group_key.EvalWithMetadb(handle) : handle.Path;
 			if (i == 0) {
 				if (this.count == 1) {
@@ -1770,8 +1767,6 @@ oList = function (object_name, playlist) {
 		} else {
 			this.focusedTrackId = -1;
 		};
-		if (this.handleList)
-			this.handleList.Dispose();
 		this.handleList = plman.GetPlaylistItems(this.playlist);
 		this.count = this.handleList.Count;
 		this.init_groups(iscollapsed);
@@ -2015,12 +2010,12 @@ oList = function (object_name, playlist) {
 				while (i < this.offset + total_rows_to_draw) {
 					this.getTrackId(i);
 					if (this.s_groupheader_line_id >= 0) { // group header
-						this.items.push(new oItem(this.playlist, row_index, 1, this.handleList.Item(this.s_track_id), this.s_track_id, this.s_group_id, 0, this.s_group_height, this.s_groupheader_line_id, this.groups[this.s_group_id], 0));
+						this.items.push(new oItem(this.playlist, row_index, 1, this.handleList[this.s_track_id], this.s_track_id, this.s_group_id, 0, this.s_group_height, this.s_groupheader_line_id, this.groups[this.s_group_id], 0));
 						i += this.s_group_height - this.s_groupheader_line_id;
 						row_index += this.s_group_height - this.s_groupheader_line_id;
 					} else { // track row
 						track_index_in_group = this.s_track_id - this.groups[this.s_group_id].start + this.s_delta;
-						this.items.push(new oItem(this.playlist, row_index, 0, this.handleList.Item(this.s_track_id), this.s_track_id, this.s_group_id, track_index_in_group, 1, 0, null, this.s_delta));
+						this.items.push(new oItem(this.playlist, row_index, 0, this.handleList[this.s_track_id], this.s_track_id, this.s_group_id, track_index_in_group, 1, 0, null, this.s_delta));
 						i++;
 						row_index++;
 					};
@@ -2033,12 +2028,12 @@ oList = function (object_name, playlist) {
 				while (i < this.totalRows) {
 					this.getTrackId(i);
 					if (this.s_groupheader_line_id >= 0) { // group header
-						this.items.push(new oItem(this.playlist, row_index, 1, this.handleList.Item(this.s_track_id), this.s_track_id, this.s_group_id, 0, this.s_group_height, this.s_groupheader_line_id, this.groups[this.s_group_id], 0));
+						this.items.push(new oItem(this.playlist, row_index, 1, this.handleList[this.s_track_id], this.s_track_id, this.s_group_id, 0, this.s_group_height, this.s_groupheader_line_id, this.groups[this.s_group_id], 0));
 						i += this.s_group_height - this.s_groupheader_line_id;
 						row_index += this.s_group_height - this.s_groupheader_line_id;
 					} else { // track row
 						track_index_in_group = this.s_track_id - this.groups[this.s_group_id].start + this.s_delta;
-						this.items.push(new oItem(this.playlist, row_index, 0, this.handleList.Item(this.s_track_id), this.s_track_id, this.s_group_id, track_index_in_group, 1, 0, null, this.s_delta));
+						this.items.push(new oItem(this.playlist, row_index, 0, this.handleList[this.s_track_id], this.s_track_id, this.s_group_id, track_index_in_group, 1, 0, null, this.s_delta));
 						i++;
 						row_index++;
 					};
@@ -2062,12 +2057,12 @@ oList = function (object_name, playlist) {
 				while (i < this.offset + total_rows_to_draw) {
 					this.getTrackId(i);
 					if (this.s_groupheader_line_id >= 0) { // group header
-						this.items.push(new oItem(this.playlist, row_index, 1, this.handleList.Item(this.s_track_id), this.s_track_id, this.s_group_id, 0, this.s_group_height, this.s_groupheader_line_id, this.groups[this.s_group_id], 0));
+						this.items.push(new oItem(this.playlist, row_index, 1, this.handleList[this.s_track_id], this.s_track_id, this.s_group_id, 0, this.s_group_height, this.s_groupheader_line_id, this.groups[this.s_group_id], 0));
 						i += this.s_group_height - this.s_groupheader_line_id;
 						row_index += this.s_group_height - this.s_groupheader_line_id;
 					} else { // track row
 						track_index_in_group = this.s_track_id - this.groups[this.s_group_id].start + this.s_delta;
-						this.items.push(new oItem(this.playlist, row_index, 0, this.handleList.Item(this.s_track_id), this.s_track_id, this.s_group_id, track_index_in_group, 1, 0, null, this.s_delta));
+						this.items.push(new oItem(this.playlist, row_index, 0, this.handleList[this.s_track_id], this.s_track_id, this.s_group_id, track_index_in_group, 1, 0, null, this.s_delta));
 						i++;
 						row_index++;
 					};
@@ -2078,12 +2073,12 @@ oList = function (object_name, playlist) {
 				while (i < this.totalRows) {
 					this.getTrackId(i);
 					if (this.s_groupheader_line_id >= 0) { // group header
-						this.items.push(new oItem(this.playlist, row_index, 1, this.handleList.Item(this.s_track_id), this.s_track_id, this.s_group_id, 0, this.s_group_height, this.s_groupheader_line_id, this.groups[this.s_group_id], 0));
+						this.items.push(new oItem(this.playlist, row_index, 1, this.handleList[this.s_track_id], this.s_track_id, this.s_group_id, 0, this.s_group_height, this.s_groupheader_line_id, this.groups[this.s_group_id], 0));
 						i += this.s_group_height - this.s_groupheader_line_id;
 						row_index += this.s_group_height - this.s_groupheader_line_id;
 					} else { // track row
 						track_index_in_group = this.s_track_id - this.groups[this.s_group_id].start + this.s_delta;
-						this.items.push(new oItem(this.playlist, row_index, 0, this.handleList.Item(this.s_track_id), this.s_track_id, this.s_group_id, track_index_in_group, 1, 0, null, this.s_delta));
+						this.items.push(new oItem(this.playlist, row_index, 0, this.handleList[this.s_track_id], this.s_track_id, this.s_group_id, track_index_in_group, 1, 0, null, this.s_delta));
 						i++;
 						row_index++;
 					};
@@ -2441,7 +2436,7 @@ oList = function (object_name, playlist) {
 
 		// which start point for the search
 		if (this.count > 1000) {
-			albumartist = tf_albumartist.EvalWithMetadb(this.handleList.Item(Math.floor(this.count / 2)));
+			albumartist = tf_albumartist.EvalWithMetadb(this.handleList[Math.floor(this.count / 2)]);
 			chr = albumartist.substring(0, 1);
 			if (first_chr.charCodeAt(first_chr) > chr.charCodeAt(chr)) {
 				gstart = Math.floor(this.count / 2);
@@ -2457,7 +2452,7 @@ oList = function (object_name, playlist) {
 			// 1st search on "album artist" TAG
 			var format_str = "";
 			for (var i = gstart; i < this.count; i++) {
-				albumartist = tf_albumartist.EvalWithMetadb(this.handleList.Item(i));
+				albumartist = tf_albumartist.EvalWithMetadb(this.handleList[i]);
 				format_str = albumartist.substring(0, len).toUpperCase();
 				if (format_str == cList.search_string) {
 					pid = i;
@@ -2469,7 +2464,7 @@ oList = function (object_name, playlist) {
 			if (pid < 0) {
 				var format_str = "";
 				for (var i = 0; i < gstart; i++) {
-					albumartist = tf_albumartist.EvalWithMetadb(this.handleList.Item(i));
+					albumartist = tf_albumartist.EvalWithMetadb(this.handleList[i]);
 					format_str = albumartist.substring(0, len).toUpperCase();
 					if (format_str == cList.search_string) {
 						pid = i;
@@ -2482,7 +2477,7 @@ oList = function (object_name, playlist) {
 				// 2nd search on "artist" TAG
 				var format_str = "";
 				for (var i = 0; i < this.count; i++) {
-					artist = tf_artist.EvalWithMetadb(this.handleList.Item(i));
+					artist = tf_artist.EvalWithMetadb(this.handleList[i]);
 					format_str = artist.substring(0, len).toUpperCase();
 					if (format_str == cList.search_string) {
 						pid = i;
@@ -2496,7 +2491,7 @@ oList = function (object_name, playlist) {
 			// 1st search on tf_group_key of current group by pattern
 			var format_str = "";
 			for (var i = gstart; i < this.count; i++) {
-				groupkey = tf_group_key.EvalWithMetadb(this.handleList.Item(i));
+				groupkey = tf_group_key.EvalWithMetadb(this.handleList[i]);
 				format_str = groupkey.substring(0, len).toUpperCase();
 				if (format_str == cList.search_string) {
 					pid = i;
@@ -2508,7 +2503,7 @@ oList = function (object_name, playlist) {
 			if (pid < 0) {
 				var format_str = "";
 				for (var i = 0; i < gstart; i++) {
-					groupkey = tf_group_key.EvalWithMetadb(this.handleList.Item(i));
+					groupkey = tf_group_key.EvalWithMetadb(this.handleList[i]);
 					format_str = groupkey.substring(0, len).toUpperCase();
 					if (format_str == cList.search_string) {
 						pid = i;
@@ -2548,7 +2543,7 @@ oList = function (object_name, playlist) {
 		var _menu = window.CreatePopupMenu();
 		var _context = fb.CreateContextMenuManager();
 		
-		_context.InitContext(items);
+		_context.InitContextPlaylist();
 		_menu.AppendMenuItem(MF_STRING, 1000, "Panel Settings...");
 		_menu.AppendMenuSeparator();
 		_menu.AppendMenuItem(flag, 1001, "Crop");
@@ -2601,9 +2596,6 @@ oList = function (object_name, playlist) {
 			_context.ExecuteByID(idx - 1);
 			break;
 		}
-		items.Dispose();
-		_context.Dispose();
-		_menu.Dispose();
 		return true;
 	};
 };

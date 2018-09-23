@@ -1,23 +1,18 @@
 _.mixin({
     lastfm: function () {
         this.notify_data = function (name, data) {
-            switch (name) {
-                case '2K3.NOTIFY.LASTFM':
-                    this.username = this.read_ini('username');
-                    this.sk = this.read_ini('sk');
-                    if (typeof buttons == 'object' && typeof buttons.update == 'function') {
-                        buttons.update();
-                        window.Repaint();
+            if (name == '2K3.NOTIFY.LASTFM') {
+                this.username = this.read_ini('username');
+                this.sk = this.read_ini('sk');
+                if (typeof buttons == 'object' && typeof buttons.update == 'function') {
+                    buttons.update();
+                    window.Repaint();
+                }
+                _.forEach(panel.list_objects, function (item) {
+                    if (item.mode == 'lastfm_info' && item.properties.mode.value == 1) {
+                        item.update();
                     }
-                    _.forEach(panel.list_objects, function (item) {
-                        if (item.mode == 'lastfm_info' && item.properties.mode.value == 1) {
-                            item.update();
-                        }
-                    });
-                    break;
-                case '2K3.NOTIFY.LOVE':
-                    this.post(_.tf('%JSP_LOVED%', data) == 1 ? 'track.unlove' : 'track.love', null, data);
-                    break;
+                });
             }
         }
 
@@ -96,25 +91,24 @@ _.mixin({
                     }
                     data = _.get(data, 'lovedtracks.track', []);
                     if (data.length) {
-                        _.forEach(data, function (item) {
+                        this.loved_tracks.push.apply(this.loved_tracks, _.map(data, function (item) {
                             var artist = item.artist.name.toLowerCase();
                             var title = item.name.toLowerCase();
-                            this.loved_tracks.push(artist + ' - ' + title);
-                        }, this);
-                        console.log('Loved tracks: completed page', +this.page, 'of ', this.pages);
+                            return artist + ' - ' + title;
+                        }));
+                        console.log('Loved tracks: completed page', this.page, 'of', this.pages);
                     }
                     if (this.page < this.pages) {
                         this.page++;
                         this.get_loved_tracks(this.page);
-                    }
-                    else {
+                    } else {
                         console.log(this.loved_tracks.length, 'loved tracks were found on Last.fm.');
                         var tfo = fb.TitleFormat('$lower(%artist% - %title%)');
                         var items = fb.GetLibraryItems();
                         items.OrderByFormat(tfo, 1);
                         var items_to_refresh = fb.CreateHandleList();
                         for (var i = 0; i < items.Count; i++) {
-                            var m = items.Item(i);
+                            var m = items[i];
                             var current = tfo.EvalWithMetadb(m);
                             var idx = _.indexOf(this.loved_tracks, current);
                             if (idx > -1) {
@@ -124,7 +118,7 @@ _.mixin({
                             }
                         }
                         console.log(items_to_refresh.Count, 'library tracks matched and updated. Duplicates are not counted.');
-                        console.log('For those updated tracks, %JSP_LOVED% now has the value of 1 in all components/search dialogs.');
+                        console.log('For those updated tracks, %SMP_LOVED% now has the value of 1 in all components/search dialogs.');
                         if (this.loved_tracks.length) {
                             console.log('The following tracks were not matched:');
                             _.forEach(this.loved_tracks, function (item) {
@@ -154,7 +148,7 @@ _.mixin({
                     var data = _.jsonParse(this.xmlhttp.responseText);
                     if (data.token) {
                         _.run('https://last.fm/api/auth/?api_key=' + this.api_key + '&token=' + data.token);
-                        if (WshShell.popup('If you granted permission successfully, click Yes to continue.', 0, window.Name, popup.question + popup.yes_no) == popup.yes) {
+                        if (WshShell.Popup('If you granted permission successfully, click Yes to continue.', 0, window.Name, popup.question + popup.yes_no) == popup.yes) {
                             this.post('auth.getSession', data.token);
                         }
                         return;
@@ -204,7 +198,7 @@ _.mixin({
         this.secret = 'a8b4adc5de20242f585b12ef08a464a9';
         this.username = this.read_ini('username');
         this.sk = this.read_ini('sk');
-        this.ua = 'foo_jscript_panel_lastfm2';
+        this.ua = 'foo_spider_monkey_panel_lastfm';
         this.xmlhttp = new ActiveXObject('Microsoft.XMLHTTP');
     }
 });

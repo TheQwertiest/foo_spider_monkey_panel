@@ -33,9 +33,7 @@ _.mixin({
                                 _.drawImage(temp_gr, this.images[ci], col * this.properties.px.value, row * this.properties.px.value, this.properties.px.value, this.properties.px.value, image.crop_top);
                                 ci++;
                             }
-                            ;
                         }
-                        ;
                         this.img.ReleaseGraphics(temp_gr);
                         temp_gr = null;
                     }
@@ -85,8 +83,6 @@ _.mixin({
             switch (true) {
                 case !this.images.length:
                     this.image_xywh = [];
-                    gr.SetTextRenderingHint(TextRenderingHint.ClearTypeGridFit);
-                    gr.DrawString("Thumbs Panel:\nNo images to display", gdi.Font("Segoe Ui Semibold", 24, 0), _.RGB(70, 70, 70), 0, 0, panel.w, panel.h, SF_CENTRE);
                     break;
                 case this.properties.mode.value == 5: // off
                     if (this.properties.aspect.value == image.centre) {

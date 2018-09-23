@@ -83,7 +83,7 @@ oHeaderBar = function () {
 	this.clickX = 0;
 
 	this.setButtons = function () {
-		var gfx_font = gdi.Font("guifx v2 transports", 15, 0);
+		var gfx_font = gdi_font("guifx v2 transports", 15, 0);
 
 		if (properties.themed) {
 			var color_txt = g_syscolor_button_txt;
@@ -247,7 +247,7 @@ oHeaderBar = function () {
 							images.sortdirection && gr.DrawImage(images.sortdirection, sx, sh, images.sortdirection.Width, images.sortdirection.Height, 0, 0, images.sortdirection.Width, images.sortdirection.Height, (this.sortedColumnDirection > 0 ? 180 : 0), 130);
 						};
 					};
-					gr.GdiDrawText(this.columns[j].label, gdi.Font(g_fname, this.txtHeight, 1), g_color_normal_txt, cx + (this.borderWidth * 2), cy + 1, cw - (this.borderWidth * 4) - 1, this.h, this.columns[j].DT_align | DT_VCENTER | DT_CALCRECT | DT_NOPREFIX | DT_END_ELLIPSIS);
+					gr.GdiDrawText(this.columns[j].label, gdi_font(g_fname, this.txtHeight, 1), g_color_normal_txt, cx + (this.borderWidth * 2), cy + 1, cw - (this.borderWidth * 4) - 1, this.h, this.columns[j].DT_align | DT_VCENTER | DT_CALCRECT | DT_NOPREFIX | DT_END_ELLIPSIS);
 				} else if (j == this.columnDraggedId && this.columnDragged == 2) {
 					gr.FillGradRect(cx, cy, cw, this.h, 90, RGBA(0, 0, 0, 60), 0, 1.0);
 				};
@@ -285,7 +285,7 @@ oHeaderBar = function () {
 							images.sortdirection && gr.DrawImage(images.sortdirection, sx, sh, images.sortdirection.Width, images.sortdirection.Height, 0, 0, images.sortdirection.Width, images.sortdirection.Height, (this.sortedColumnDirection > 0 ? 180 : 0), 130);
 						};
 					};
-					gr.GdiDrawText(this.columns[j].label, gdi.Font(g_fname, this.txtHeight, 1), g_color_normal_txt, cx + (this.borderWidth * 2), cy + 1, cw - (this.borderWidth * 4) - 1, this.h, this.columns[j].DT_align | DT_VCENTER | DT_CALCRECT | DT_NOPREFIX | DT_END_ELLIPSIS);
+					gr.GdiDrawText(this.columns[j].label, gdi_font(g_fname, this.txtHeight, 1), g_color_normal_txt, cx + (this.borderWidth * 2), cy + 1, cw - (this.borderWidth * 4) - 1, this.h, this.columns[j].DT_align | DT_VCENTER | DT_CALCRECT | DT_NOPREFIX | DT_END_ELLIPSIS);
 				} else if (j == this.columnDraggedId && this.columnDragged == 2) {
 					gr.FillGradRect(cx, cy, cw, this.h, 90, RGBA(0, 0, 0, 70), 0, 1.0);
 				};
@@ -306,7 +306,7 @@ oHeaderBar = function () {
 			gr.DrawRect(cx, cy + 1, Math.floor(this.columns[this.columnDraggedId].w - 2), this.h - 2, 2.0, g_color_normal_txt);
 			gr.DrawRect(cx + 1, cy + 2, Math.floor(this.columns[this.columnDraggedId].w - 5), this.h - 5, 1.0, blendColors(g_color_normal_txt, g_color_normal_bg, 0.55));
 			// header text info
-			gr.GdiDrawText(this.columns[this.columnDraggedId].label, gdi.Font(g_fname, this.txtHeight, 1), g_color_normal_bg, cx + (this.borderWidth * 2), cy + 1, this.columns[this.columnDraggedId].w - (this.borderWidth * 4) - 2, this.h, this.columns[this.columnDraggedId].DT_align | DT_VCENTER | DT_CALCRECT | DT_NOPREFIX | DT_END_ELLIPSIS);
+			gr.GdiDrawText(this.columns[this.columnDraggedId].label, gdi_font(g_fname, this.txtHeight, 1), g_color_normal_bg, cx + (this.borderWidth * 2), cy + 1, this.columns[this.columnDraggedId].w - (this.borderWidth * 4) - 2, this.h, this.columns[this.columnDraggedId].DT_align | DT_VCENTER | DT_CALCRECT | DT_NOPREFIX | DT_END_ELLIPSIS);
 		};
 		// draw settings button
 		this.button.draw(gr, this.x + this.w, this.y, 255);
@@ -997,7 +997,6 @@ oHeaderBar = function () {
 
 				cover.previous_max_size = this.columns[0].w;
 				g_image_cache = new image_cache;
-				CollectGarbage();
 			} else {
 				cover.column = false;
 				cGroup.count_minimum = cGroup.default_count_minimum;
@@ -1005,7 +1004,6 @@ oHeaderBar = function () {
 			update_playlist(properties.collapseGroupsByDefault);
 			break;
 		};
-		_menu.Dispose();
 		this.columnRightClicked = -1;
 		full_repaint();
 		return true;

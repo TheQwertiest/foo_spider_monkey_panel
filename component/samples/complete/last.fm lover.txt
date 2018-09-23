@@ -6,9 +6,9 @@ include(fb.ComponentPath + "samples\\complete\\js\\lastfm.js");
 
 
 /*
-This script makes use of the JScript Panel "Playback Stats" database to import
+This script makes use of the Spider Monkey "Playback Stats" database to import
 and store loved tracks from Last.fm. Each loved track will have the value of
-%jsp_loved% set to 1. You can access this through all other components/search -
+%smp_loved% set to 1. You can access this through all other components/search -
 it works in the same way as "foo_playcount" - all values are stored in a database
 file and no files are tagged. Each record is bound to "%artist% - %title%" so
 common tracks across different albums will share the same loved status. Right click
@@ -39,7 +39,7 @@ buttons.update = function () {
 		var func = null;
 		var tooltip = 'No selection';
 		break;
-	case _.parseInt(panel.tf('%JSP_LOVED%')) == 1:
+	case _.parseInt(panel.tf('%SMP_LOVED%')) == 1:
 		var n = loved;
 		var h = unloved;
 		var func = function () {
@@ -57,6 +57,16 @@ buttons.update = function () {
 		break;
 	}
 	this.buttons.lover = new _.button(0, 0, 36, 36, {normal : n, hover : h}, func, tooltip);
+}
+
+function on_colours_changed() {
+	panel.colours_changed();
+	window.Repaint();
+}
+
+function on_font_changed() {
+	panel.font_changed();
+	window.Repaint();
 }
 
 function on_notify_data(name, data) {
@@ -117,7 +127,7 @@ function on_mouse_rbtn_up(x, y) {
 			lastfm.get_loved_tracks(1);
 			break;
 		case 3:
-			fb.ShowLibrarySearchUI('%JSP_LOVED% IS 1');
+			fb.ShowLibrarySearchUI('%SMP_LOVED% IS 1');
 			break;
 		case 4:
 			window.ShowConfigure();
@@ -127,4 +137,26 @@ function on_mouse_rbtn_up(x, y) {
 		panel.rbtn_up(x, y);
 	}
 	return true;
+}
+
+function on_playlist_switch() {
+	panel.item_focus_change();
+}
+
+function on_playback_new_track() {
+	panel.item_focus_change();
+}
+
+function on_playback_dynamic_info_track() {
+	panel.item_focus_change();
+}
+
+function on_playback_stop(reason) {
+	if (reason != 2) {
+		panel.item_focus_change();
+	}
+}
+
+function on_item_focus_change() {
+	panel.item_focus_change();
 }

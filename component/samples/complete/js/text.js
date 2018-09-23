@@ -10,20 +10,12 @@ _.mixin({
         }
 
         this.paint = function (gr) {
-            if (this.lines.length) {
-                for (var i = 0; i < Math.min(this.rows, this.lines.length); i++) {
-
-                    if (this.mode == 'text_reader' && this.properties.fixed.enabled) {
-                        gr.GdiDrawText(this.lines[i + this.offset], panel.fonts.fixed, panel.colours.text, this.x, this.y + _.scale(12) + (i * panel.row_height) + Math.floor(panel.row_height / 2), this.w, panel.row_height, LEFT);
-                    }
-                    else {
-                        gr.GdiDrawText(this.lines[i + this.offset], panel.fonts.normal, panel.colours.text, this.x, this.y + _.scale(12) + (i * panel.row_height), this.w, panel.row_height, LEFT);
-                    }
+            for (var i = 0; i < Math.min(this.rows, this.lines.length); i++) {
+                if (this.mode == 'text_reader' && this.properties.fixed.enabled) {
+                    gr.GdiDrawText(this.lines[i + this.offset], panel.fonts.fixed, panel.colours.text, this.x, this.y + _.scale(12) + (i * panel.row_height) + Math.floor(panel.row_height / 2), this.w, panel.row_height, LEFT);
+                } else {
+                    gr.GdiDrawText(this.lines[i + this.offset], panel.fonts.normal, panel.colours.text, this.x, this.y + _.scale(12) + (i * panel.row_height), this.w, panel.row_height, LEFT);
                 }
-            }
-            else {
-                gr.SetTextRenderingHint(TextRenderingHint.ClearTypeGridFit);
-                gr.DrawString("No text to display", gdi.Font("Segoe Ui Semibold", 24, 0), _.RGB(70, 70, 70), this.x, this.y, this.w, this.h, SF_CENTRE);
             }
             this.up_btn.paint(gr, panel.colours.text);
             this.down_btn.paint(gr, panel.colours.text);
@@ -311,7 +303,7 @@ _.mixin({
                     if (this.allmusic_url) {
                         this.allmusic_url = false;
                         var content = _(_.getElementsByTagName(this.xmlhttp.responseText, 'div'))
-                            .filter({itemprop: 'reviewBody'})
+                            .filter({className: 'text'})
                             .map('innerText')
                             .stripTags()
                             .value();
@@ -335,7 +327,6 @@ _.mixin({
                                     var artist = tmp.length ? _.first(tmp).innerText : 'various artists';
                                     if (this.is_match(artist, album)) {
                                         this.allmusic_url = _.first(divs[2].getElementsByTagName('a')).href;
-                                        console.log(this.allmusic_url)
                                         return false;
                                     }
                                 }, this));

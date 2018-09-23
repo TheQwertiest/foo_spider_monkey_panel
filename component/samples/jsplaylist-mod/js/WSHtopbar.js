@@ -20,7 +20,7 @@ oTopBar = function () {
 		var s = 0;
 		if (p.list) {
 			for (var i = 0; i < p.list.count; i++) {
-				s += p.list.handleList.Item(i).Length;
+				s += p.list.handleList[i].Length;
 			};
 		};
 		return s;
@@ -88,7 +88,7 @@ oTopBar = function () {
 		var gb = this.close_off.GetGraphics();
 		gb.SetSmoothingMode(2);
 		gb.SetTextRenderingHint(4);
-		gb.DrawString(String.fromCharCode(209), gdi.Font(g_font_wd2.name, g_font_wd2.Size - g_z6, 0), blendColors(color_bg, color_txt, 0.75), 0, 0, bt_w, bt_h, cc_stringformat);
+		gb.DrawString(String.fromCharCode(209), gdi_font("Wingdings 2", g_font_wd2.Size - g_z6, 0), blendColors(color_bg, color_txt, 0.75), 0, 0, bt_w, bt_h, cc_stringformat);
 		gb.SetSmoothingMode(0);
 		this.close_off.ReleaseGraphics(gb);
 
@@ -97,7 +97,7 @@ oTopBar = function () {
 		var gb = this.close_ov.GetGraphics();
 		gb.SetSmoothingMode(2);
 		gb.SetTextRenderingHint(4);
-		gb.DrawString(String.fromCharCode(209), gdi.Font(g_font_wd2.name, g_font_wd2.Size - g_z2, 0), color_txt, 0, 0, bt_w, bt_h, cc_stringformat);
+		gb.DrawString(String.fromCharCode(209), gdi_font("Wingdings 2", g_font_wd2.Size - g_z2, 0), color_txt, 0, 0, bt_w, bt_h, cc_stringformat);
 		gb.SetSmoothingMode(0);
 		this.close_ov.ReleaseGraphics(gb);
 
@@ -118,17 +118,17 @@ oTopBar = function () {
 			gr.SetSmoothingMode(0);
 			// playlist name
 			gr.SetTextRenderingHint(3);
-			var playlist_name_width = gr.CalcTextWidth(this.playlist_name + " ", gdi.Font("segoe ui", this.txt1Height, 1));
-			gr.DrawString(this.playlist_name, gdi.Font("segoe ui", this.txt1Height, 1), g_color_normal_txt, this.x + logoW + borderHeight, this.y + 1 + borderHeight, this.w - logoW - 34, this.txt1Height + 15, lt_stringformat);
+			var playlist_name_width = gr.CalcTextWidth(this.playlist_name + " ", gdi_font("segoe ui", this.txt1Height, 1));
+			gr.DrawString(this.playlist_name, gdi_font("segoe ui", this.txt1Height, 1), g_color_normal_txt, this.x + logoW + borderHeight, this.y + 1 + borderHeight, this.w - logoW - 34, this.txt1Height + 15, lt_stringformat);
 			if (this.filter_type > 0) {
-				//gr.DrawString("["+p.list.groupby[this.pattern_idx].label+"]", gdi.Font("segoe ui", this.txt1Height - g_z6, 0), blendColors(g_color_normal_txt, g_color_normal_bg, 0.5), this.x + logoW + borderHeight + playlist_name_width, this.y + 1 + borderHeight + g_z6, this.w - logoW - 34 - playlist_name_width, this.txt1Height + 15, lt_stringformat);
+				//gr.DrawString("["+p.list.groupby[this.pattern_idx].label+"]", gdi_font("segoe ui", this.txt1Height - g_z6, 0), blendColors(g_color_normal_txt, g_color_normal_bg, 0.5), this.x + logoW + borderHeight + playlist_name_width, this.y + 1 + borderHeight + g_z6, this.w - logoW - 34 - playlist_name_width, this.txt1Height + 15, lt_stringformat);
 			}
 			// playlist infos
 			gr.SetTextRenderingHint(5);
 			if (this.totalDurationText.length > 0) {
-				gr.DrawString(this.playlist_count > 0 ? (this.playlist_count + (this.playlist_count > 1 ? " tracks. " : " track. ") + this.totalDurationText) : "empty playlist", gdi.Font("segoe ui", this.txt2Height, 0), g_color_normal_txt & 0x88ffffff, this.x + logoW + borderHeight, Math.ceil(cTopBar.height / 2) + 1 + borderHeight, this.w - logoW - 15, 32, lt_stringformat);
+				gr.DrawString(this.playlist_count > 0 ? (this.playlist_count + (this.playlist_count > 1 ? " tracks. " : " track. ") + this.totalDurationText) : "empty playlist", gdi_font("segoe ui", this.txt2Height, 0), g_color_normal_txt & 0x88ffffff, this.x + logoW + borderHeight, Math.ceil(cTopBar.height / 2) + 1 + borderHeight, this.w - logoW - 15, 32, lt_stringformat);
 			} else {
-				gr.DrawString(this.playlist_count > 0 ? (this.playlist_count + (this.playlist_count > 1 ? " streams " : " stream ")) : "empty playlist", gdi.Font("segoe ui", this.txt2Height, 0), g_color_normal_txt & 0x88ffffff, this.x + logoW + cHeaderBar.borderWidth, Math.ceil(cTopBar.height / 2) + 1 + borderHeight, this.w - logoW - 15, 32, lt_stringformat);
+				gr.DrawString(this.playlist_count > 0 ? (this.playlist_count + (this.playlist_count > 1 ? " streams " : " stream ")) : "empty playlist", gdi_font("segoe ui", this.txt2Height, 0), g_color_normal_txt & 0x88ffffff, this.x + logoW + cHeaderBar.borderWidth, Math.ceil(cTopBar.height / 2) + 1 + borderHeight, this.w - logoW - 15, 32, lt_stringformat);
 			};
 			// draw close button
 			this.button.draw(gr, this.x + this.w - zoom(20, g_dpi), this.y + zoom(4, g_dpi), 255);
@@ -202,7 +202,6 @@ oTopBar = function () {
 			full_repaint();
 			break;
 		};
-		_menu.Dispose();
 		return true;
 	};
 };

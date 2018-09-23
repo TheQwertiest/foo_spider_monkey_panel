@@ -8,10 +8,20 @@ include(fb.ComponentPath + "samples\\complete\\js\\list.js");
 var panel = new _.panel();
 var list = new _.list('properties', LM, TM, 0, 0);
 
-// uncomment if you want to display data from the JScript Panel database documented here: https://github.com/marc2k3/foo_jscript_panel/wiki/Playback-Stats
-// list.custom_fields = ['JSP_PLAYCOUNT', 'JSP_LOVED', 'JSP_FIRST_PLAYED', 'JSP_LAST_PLAYED', 'JSP_RATING'];
+// uncomment if you want to display data from the Spider Monkey Stats DB
+// list.custom_fields = ['SMP_PLAYCOUNT', 'SMP_LOVED', 'SMP_FIRST_PLAYED', 'SMP_LAST_PLAYED', 'SMP_RATING'];
 
 panel.item_focus_change();
+
+function on_colours_changed() {
+	panel.colours_changed();
+	window.Repaint();
+}
+
+function on_font_changed() {
+	panel.font_changed();
+	window.Repaint();
+}
 
 function on_size() {
 	panel.size();
@@ -39,10 +49,6 @@ function on_mouse_move(x, y) {
 	list.move(x, y);
 }
 
-function on_mouse_lbtn_down(x, y) {
-	list.lbtn_down(x, y);
-}
-
 function on_mouse_lbtn_up(x, y) {
 	list.lbtn_up(x, y);
 }
@@ -53,4 +59,26 @@ function on_key_down(k) {
 
 function on_mouse_rbtn_up(x, y) {
 	return panel.rbtn_up(x, y, list);
+}
+
+function on_playlist_switch() {
+	panel.item_focus_change();
+}
+
+function on_playback_new_track() {
+	panel.item_focus_change();
+}
+
+function on_playback_dynamic_info_track() {
+	panel.item_focus_change();
+}
+
+function on_playback_stop(reason) {
+	if (reason != 2) {
+		panel.item_focus_change();
+	}
+}
+
+function on_item_focus_change() {
+	panel.item_focus_change();
 }

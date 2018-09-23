@@ -50,7 +50,7 @@ oPlaylistManager = function (obj_name) {
 		var gb = this.bt_sortAz_normal.GetGraphics();
 		gb.SetTextRenderingHint(3);
 		gb.FillSolidRect(0, 0, 1, Az_h, blendColors(color_bg, color_txt, 0.35));
-		gb.DrawString(String.fromCharCode(159), gdi.Font(g_font_wd3.name, g_fsize, 1), blendColors(color_bg, color_txt, 0.5), left_padding, 1, Az_w, Az_h, lc_stringformat);
+		gb.DrawString(String.fromCharCode(159), gdi_font("Wingdings 3", g_fsize, 1), blendColors(color_bg, color_txt, 0.5), left_padding, 1, Az_w, Az_h, lc_stringformat);
 		gb.DrawString("Az", g_font, blendColors(color_bg, color_txt, 0.5), 0, 0, Az_w - right_padding, Az_h, rc_stringformat);
 		gb.FillSolidRect(Az_w - 1, 0, 1, Az_h, blendColors(color_bg, color_txt, 0.35));
 		this.bt_sortAz_normal.ReleaseGraphics(gb);
@@ -60,7 +60,7 @@ oPlaylistManager = function (obj_name) {
 		var gb = this.bt_sortAz_hover.GetGraphics();
 		gb.SetTextRenderingHint(3);
 		gb.FillSolidRect(0, 0, 1, Az_h, blendColors(color_bg, color_txt, 0.35));
-		gb.DrawString(String.fromCharCode(159), gdi.Font(g_font_wd3.name, g_fsize, 1), color_txt, left_padding, 1, Az_w, Az_h, lc_stringformat);
+		gb.DrawString(String.fromCharCode(159), gdi_font("Wingdings 3", g_fsize, 1), color_txt, left_padding, 1, Az_w, Az_h, lc_stringformat);
 		gb.DrawString("Az", g_font, color_txt, 0, 0, Az_w - right_padding, Az_h, rc_stringformat);
 		gb.FillSolidRect(Az_w - 1, 0, 1, Az_h, blendColors(color_bg, color_txt, 0.35));
 		this.bt_sortAz_hover.ReleaseGraphics(gb);
@@ -71,7 +71,7 @@ oPlaylistManager = function (obj_name) {
 		this.bt_sortZa_normal = gdi.CreateImage(Az_w, Az_h);
 		var gb = this.bt_sortZa_normal.GetGraphics();
 		gb.SetTextRenderingHint(3);
-		gb.DrawString(String.fromCharCode(160), gdi.Font(g_font_wd3.name, g_fsize, 1), blendColors(color_bg, color_txt, 0.5), left_padding, 1, Az_w, Az_h, lc_stringformat);
+		gb.DrawString(String.fromCharCode(160), gdi_font("Wingdings 3", g_fsize, 1), blendColors(color_bg, color_txt, 0.5), left_padding, 1, Az_w, Az_h, lc_stringformat);
 		gb.DrawString("Za  ", g_font, blendColors(color_bg, color_txt, 0.5), 0, 0, Az_w - right_padding, Az_h, rc_stringformat);
 		gb.FillSolidRect(Az_w - 1, 0, 1, Az_h, blendColors(color_bg, color_txt, 0.35));
 		this.bt_sortZa_normal.ReleaseGraphics(gb);
@@ -80,7 +80,7 @@ oPlaylistManager = function (obj_name) {
 		this.bt_sortZa_hover = gdi.CreateImage(Az_w, Az_h);
 		var gb = this.bt_sortZa_hover.GetGraphics();
 		gb.SetTextRenderingHint(3);
-		gb.DrawString(String.fromCharCode(160), gdi.Font(g_font_wd3.name, g_fsize, 1), color_txt, left_padding, 1, Az_w, Az_h, lc_stringformat);
+		gb.DrawString(String.fromCharCode(160), gdi_font("Wingdings 3", g_fsize, 1), color_txt, left_padding, 1, Az_w, Az_h, lc_stringformat);
 		gb.DrawString("Za  ", g_font, color_txt, 0, 0, Az_w - right_padding, Az_h, rc_stringformat);
 		gb.FillSolidRect(Az_w - 1, 0, 1, Az_h, blendColors(color_bg, color_txt, 0.35));
 		this.bt_sortZa_hover.ReleaseGraphics(gb);
@@ -91,21 +91,21 @@ oPlaylistManager = function (obj_name) {
 		this.bt_remove_normal = gdi.CreateImage(bt_w, bt_h);
 		var gb = this.bt_remove_normal.GetGraphics();
 		gb.SetTextRenderingHint(4);
-		gb.DrawString(String.fromCharCode(209), gdi.Font(g_font_wd2.name, g_font_wd2.Size - g_z8, 0), blendColors(color_bg, color_txt, 0.5), 0, 0, bt_w, bt_h, cc_stringformat);
+		gb.DrawString(String.fromCharCode(209), gdi_font("Wingdings 2", g_font_wd2.Size - g_z8, 0), blendColors(color_bg, color_txt, 0.5), 0, 0, bt_w, bt_h, cc_stringformat);
 		this.bt_remove_normal.ReleaseGraphics(gb);
 
 		// hover remove playlist Image
 		this.bt_remove_hover = gdi.CreateImage(bt_w, bt_h);
 		gb = this.bt_remove_hover.GetGraphics();
 		gb.SetTextRenderingHint(4);
-		gb.DrawString(String.fromCharCode(209), gdi.Font(g_font_wd2.name, g_font_wd2.Size - g_z2, 0), RGB(255, 0, 0), 0, 0, bt_w, bt_h, cc_stringformat);
+		gb.DrawString(String.fromCharCode(209), gdi_font("Wingdings 2", g_font_wd2.Size - g_z2, 0), RGB(255, 0, 0), 0, 0, bt_w, bt_h, cc_stringformat);
 		this.bt_remove_hover.ReleaseGraphics(gb);
 
 		// down remove playlist Image
 		this.bt_remove_down = gdi.CreateImage(bt_w, bt_h);
 		gb = this.bt_remove_down.GetGraphics();
 		gb.SetTextRenderingHint(4);
-		gb.DrawString(String.fromCharCode(209), gdi.Font(g_font_wd2.name, g_font_wd2.Size - g_z2, 0), color_txt, 0, 0, bt_w, bt_h, cc_stringformat);
+		gb.DrawString(String.fromCharCode(209), gdi_font("Wingdings 2", g_font_wd2.Size - g_z2, 0), color_txt, 0, 0, bt_w, bt_h, cc_stringformat);
 		this.bt_remove_down.ReleaseGraphics(gb);
 	};
 
@@ -410,8 +410,8 @@ oPlaylistManager = function (obj_name) {
 					// playlist total items
 					if (cPlaylistManager.showTotalItems) {
 						t = plman.PlaylistItemCount(this.playlists[i].idx);
-						tw = gr.CalcTextWidth(t, gdi.Font(g_fname, g_fsize - 1, 0)) + 5;
-						gr.GdiDrawText(t, gdi.Font(g_fname, g_fsize - 1, 0), blendColors(txt_color, this.color_bg, 0.35), cx + 5 + iconw + 5, cy, cw - iconw - 5 - bt_w, ch, DT_RIGHT | DT_CALCRECT | DT_VCENTER | DT_END_ELLIPSIS | DT_NOPREFIX);
+						tw = gr.CalcTextWidth(t, gdi_font(g_fname, g_fsize - 1, 0)) + 5;
+						gr.GdiDrawText(t, gdi_font(g_fname, g_fsize - 1, 0), blendColors(txt_color, this.color_bg, 0.35), cx + 5 + iconw + 5, cy, cw - iconw - 5 - bt_w, ch, DT_RIGHT | DT_CALCRECT | DT_VCENTER | DT_END_ELLIPSIS | DT_NOPREFIX);
 					} else {
 						tw = 0;
 					};
@@ -420,7 +420,7 @@ oPlaylistManager = function (obj_name) {
 					gr.GdiDrawText(this.playlists[i].name, g_font, txt_color, cx + 5 + iconw + 4, cy, cw - iconw - 4 - tw - bt_w, ch, DT_LEFT | DT_CALCRECT | DT_VCENTER | DT_END_ELLIPSIS | DT_NOPREFIX);
 					// add mark when a Playlist Filter is set for this playlist
 					if (this.playlists[i].filter_type > 0) {
-						gr.GdiDrawText(String.fromCharCode(this.playlists[i].filter_type == 1 ? 162 : 163), gdi.Font(g_font_wd2.name, g_font_wd2.Size - zoom(14, g_dpi), 0), txt_color, cx + 5 + iconw + 5, cy - zoom(4, g_dpi), cw - iconw - zoom(6.0, g_dpi), ch, DT_RIGHT | DT_CALCRECT | DT_BOTTOM | DT_END_ELLIPSIS | DT_NOPREFIX);
+						gr.GdiDrawText(String.fromCharCode(this.playlists[i].filter_type == 1 ? 162 : 163), gdi_font("Wingdings 2", g_font_wd2.Size - zoom(14, g_dpi), 0), txt_color, cx + 5 + iconw + 5, cy - zoom(4, g_dpi), cw - iconw - zoom(6.0, g_dpi), ch, DT_RIGHT | DT_CALCRECT | DT_BOTTOM | DT_END_ELLIPSIS | DT_NOPREFIX);
 					};
 
 					// draw remove button
@@ -457,7 +457,7 @@ oPlaylistManager = function (obj_name) {
 				gr.FillGradRect(fx, fy, fw, fh, 90, this.color_txt & 0x15ffffff, 0, 0.96);
 				gr.FillSolidRect(fx, fy, fw, 1.0, this.color_txt & 0x50ffffff);
 				var status_txt = this.playlists.length + (this.playlists.length > 1 ? " PLAYLISTS" : " PLAYLIST");
-				gr.GdiDrawText(status_txt, gdi.Font(g_fname, g_fsize - 2, 0), blendColors(this.color_txt, this.color_bg, 0.25), fx + 5, fy, fw - 10, fh, DT_RIGHT | DT_CALCRECT | DT_VCENTER | DT_END_ELLIPSIS | DT_NOPREFIX);
+				gr.GdiDrawText(status_txt, gdi_font(g_fname, g_fsize - 2, 0), blendColors(this.color_txt, this.color_bg, 0.25), fx + 5, fy, fw - 10, fh, DT_RIGHT | DT_CALCRECT | DT_VCENTER | DT_END_ELLIPSIS | DT_NOPREFIX);
 				// draw sort buttons
 				this.sortAz_button.draw(gr, fx, fy, 255);
 				this.sortZa_button.draw(gr, fx + this.sortAz_button.img[0].Width, fy, 255);
@@ -1048,9 +1048,6 @@ oPlaylistManager = function (obj_name) {
 			p.playlistManager.refresh("", false, false, false);
 			break;
 		};
-		_autoplaylist.Dispose();
-		_newplaylist.Dispose();
-		_menu.Dispose();
 		cPlaylistManager.rightClickedId = null;
 		full_repaint();
 		return true;

@@ -317,7 +317,6 @@ function draw_glass_reflect(w, h) {
 	// resizing and applying the mask
 	var Mask = Mask_img.Resize(w, h);
 	glass_img.ApplyMask(Mask);
-	Mask.Dispose();
 	return glass_img;
 };
 
@@ -415,7 +414,7 @@ function removeAccents(str) {
 	for (var i = 0; i < spec.length; i++) {
 	str = replaceAll(str, norm[i], spec[i]);
 	};
-	 */
+	*/
 	return str;
 };
 //}}
@@ -880,3 +879,12 @@ WindowState = {
 	Minimized: 1,
 	Maximized: 2
 };
+
+var fonts = {};
+function gdi_font(name, size, style) {
+	var id = name.toLowerCase() + "_" + size + "_" + (style || 0);
+	if (!fonts[id]) {
+		fonts[id] = gdi.Font(name, size, style || 0);
+	}
+	return fonts[id];
+}

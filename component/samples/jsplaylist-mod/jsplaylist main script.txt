@@ -1,18 +1,16 @@
-// ==PREPROCESSOR==
-// @name "JSPlaylist"
-// @version "2018-mod"
-// @author "Br3tt aka Falstaff"
-// @feature "dragdrop"
-// @import "%fb2k_component_path%samples\jsplaylist-mod\js\WSHcommon.js"
-// @import "%fb2k_component_path%samples\jsplaylist-mod\js\WSHinputbox.js"
-// @import "%fb2k_component_path%samples\jsplaylist-mod\js\WSHtopbar.js"
-// @import "%fb2k_component_path%samples\jsplaylist-mod\js\WSHscrollbar.js"
-// @import "%fb2k_component_path%samples\jsplaylist-mod\js\WSHheaderbar.js"
-// @import "%fb2k_component_path%samples\jsplaylist-mod\js\WSHplaylist.js"
-// @import "%fb2k_component_path%samples\jsplaylist-mod\js\WSHplaylistmanager.js"
-// @import "%fb2k_component_path%samples\jsplaylist-mod\js\WSHsettings.js"
-// @import "%fb2k_component_path%samples\jsplaylist-mod\js\main.js"
-// ==/PREPROCESSOR==
+window.DefinePanel('JSPlaylist', {author: 'Br3tt', version: 'SMP-Mod', features: {drag_n_drop: true}});
+
+['WSHcommon.js',
+'WSHinputbox.js',
+'WSHtopbar.js',
+'WSHscrollbar.js',
+'WSHheaderbar.js',
+'WSHplaylist.js',
+'WSHplaylistmanager.js',
+'WSHsettings.js',
+'main.js'].forEach(function (item) {
+	include(fb.ComponentPath + 'samples\\jsplaylist-mod\\js\\' + item);
+});
 
 /*
 [Features]
