@@ -1607,13 +1607,13 @@ interface IGdiGraphics {
 			}
 
 		gr.SetInterpolationMode(mode); (void)
-		// mode: default 0. See flags.txt > InterpolationMode
+		// See flags.txt > InterpolationMode
 
 		gr.SetSmoothingMode(mode); (void)
-		// mode: default 0. See flags.txt > SmoothingMode
+		// See flags.txt > SmoothingMode
 
 		gr.SetTextRenderingHint(mode); (void)
-		// mode: default 0. See flags.txt > TextRenderingHint
+		// See flags.txt > TextRenderingHint
 }
 
 interface IFbMetadbHandle {
