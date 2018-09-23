@@ -1,6 +1,6 @@
 window.DefinePanel("ApplyMask", { author: "T.P Wang / marc2003" });
-include(fb.ComponentPath + "docs\\flags.txt");
-include(fb.ComponentPath + "docs\\helpers.txt");
+include(fb.ComponentPath + "docs\\Flags.js");
+include(fb.ComponentPath + "docs\\Helpers.js");
 
 var g_img = gdi.Image(fb.ComponentPath + 'samples\\basic\\images\\post.jpg');
 var font = gdi.Font('Segoe UI', 16, 1);

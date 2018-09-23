@@ -1,6 +1,6 @@
 window.DefinePanel("Volbar with GdiDrawText", { author: "T.P Wang" });
-include(fb.ComponentPath + "docs\\flags.txt");
-include(fb.ComponentPath + "docs\\helpers.txt");
+include(fb.ComponentPath + "docs\\Flags.js");
+include(fb.ComponentPath + "docs\\Helpers.js");
 
 var g_font = gdi.Font('Segoe UI', 12, 0);
 var g_drag = 0;

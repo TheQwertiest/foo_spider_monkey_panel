@@ -1,6 +1,6 @@
 window.DefinePanel("GetAlbumArtAsync", { author: "T.P Wang" });
-include(fb.ComponentPath + "docs\\flags.txt");
-include(fb.ComponentPath + "docs\\helpers.txt");
+include(fb.ComponentPath + "docs\\Flags.js");
+include(fb.ComponentPath + "docs\\Helpers.js");
 
 // Nothing will show until you start playing a new track
 

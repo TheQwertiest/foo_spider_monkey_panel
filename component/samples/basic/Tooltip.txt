@@ -1,5 +1,5 @@
 window.DefinePanel("Tooltip", { author: "T.P Wang" });
-include(fb.ComponentPath + "docs\\helpers.txt");
+include(fb.ComponentPath + "docs\\Helpers.js");
 
 // Do not create more than one tooltip in one panel
 var g_tooltip = window.CreateTooltip();
@@ -31,7 +31,7 @@ function SampleButton(x, y, w, h, caption, func, tiptext) {
 
 	this.draw = function(gr) {
 		// Draw border
-		// RGB function is defined in docs\\helpers.txt
+		// RGB function is defined in docs\\Helpers.js
 		gr.FillRoundRect(this.left, this.top, this.w, this.h, 3, 3, RGB(19, 30, 38));
 		gr.DrawRoundRect(this.left, this.top, this.w, this.h, 3, 3, 1, RGB(151, 180, 202));
 		// Draw caption

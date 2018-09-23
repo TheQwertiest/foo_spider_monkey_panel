@@ -1,6 +1,6 @@
 window.DefinePanel("SimpleThemedButton", { author: "T.P Wang" });
-include(fb.ComponentPath + "docs\\flags.txt");
-include(fb.ComponentPath + "docs\\helpers.txt");
+include(fb.ComponentPath + "docs\\Flags.js");
+include(fb.ComponentPath + "docs\\Helpers.js");
 
 function SimpleButton(x, y, w, h, text, fonClick, state) {
 	this.state = state ? state : ButtonStates.normal;

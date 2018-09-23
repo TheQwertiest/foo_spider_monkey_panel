@@ -1,6 +1,6 @@
 window.DefinePanel("StackBlur (text)", { author: "T.P Wang / marc2003" });
-include(fb.ComponentPath + "docs\\flags.txt");
-include(fb.ComponentPath + "docs\\helpers.txt");
+include(fb.ComponentPath + "docs\\Flags.js");
+include(fb.ComponentPath + "docs\\Helpers.js");
 
 var ww = 0, wh = 0;
 var img_to_blur;

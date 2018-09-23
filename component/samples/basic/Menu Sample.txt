@@ -1,5 +1,5 @@
 window.DefinePanel("Menu Sample", { author: "T.P Wang / marc2003" });
-include(fb.ComponentPath + "docs\\flags.txt");
+include(fb.ComponentPath + "docs\\Flags.js");
 
 function on_mouse_lbtn_down(x, y) {
 	var _context = fb.CreateContextMenuManager();

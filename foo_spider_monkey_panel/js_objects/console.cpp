@@ -21,7 +21,7 @@ bool LogImpl( JSContext* cx, unsigned argc, JS::Value* vp )
     {
         auto retVal = convert::to_native::ToValue<pfc::string8_fast>( cx, args[i] );
         if ( !retVal )
-        {
+        {// reports
             return false;
         }
 
