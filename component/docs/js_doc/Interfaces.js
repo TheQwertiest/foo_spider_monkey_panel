@@ -1323,6 +1323,7 @@ function IJSUtils() {
      *                                      This data is read-only and should not be modified.
      * @param {object=} [options.fn=undefined] Will be saved in window.stored_function object and can be accessed from JavaScript as well.
      *                                         This function can have up to 7 arguments and can be used as callback to pass some data back to the caller.
+     * @return {IHtmlWindow}
      */
     this.CreateHtmlWindow = function(code, options){};
 
@@ -2860,4 +2861,12 @@ function IDropTargetAction() {
 
     /** @type {boolean} */
     this.ToSelect = undefined; // (boolean) (write)
+}
+
+
+function IHtmlWindow() {
+    /**
+     * Close the window
+     */
+    this.Close = function() {};
 }
