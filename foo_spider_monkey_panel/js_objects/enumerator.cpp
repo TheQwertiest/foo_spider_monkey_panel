@@ -95,6 +95,7 @@ const JSClass JsEnumerator::JsClass = jsClass;
 const JSFunctionSpec* JsEnumerator::JsFunctions = jsFunctions;
 const JSPropertySpec* JsEnumerator::JsProperties = jsProperties;
 const JsPrototypeId JsEnumerator::PrototypeId = JsPrototypeId::Enumerator;
+const JSNative JsEnumerator::JsConstructor = Enumerator_Constructor;
 
 JsEnumerator::JsEnumerator( JSContext* cx, EnumVARIANTComPtr pEnum, bool hasElements )
     : pJsCtx_( cx )
@@ -102,18 +103,6 @@ JsEnumerator::JsEnumerator( JSContext* cx, EnumVARIANTComPtr pEnum, bool hasElem
     , hasElements_( hasElements )
     , isAtEnd_( !hasElements )
 {
-}
-
-JsEnumerator::~JsEnumerator()
-{ 
-}
-
-JSObject* JsEnumerator::InstallProto( JSContext *cx, JS::HandleObject parentObject )
-{
-    // TODO: move to ObjectBase
-    return JS_InitClass( cx, parentObject, nullptr, &jsClass,
-                         Enumerator_Constructor, 0,
-                         nullptr, jsFunctions, nullptr, nullptr );
 }
 
 std::unique_ptr<JsEnumerator> 
@@ -210,7 +199,7 @@ bool JsEnumerator::GetCurrentElement()
     ULONG fetchedElements = 0;
     HRESULT hr = pEnum_->Next( 1, curElem_.GetAddress(), &fetchedElements );
     if ( S_FALSE == hr )
-    {// meaning that we reached the end
+    {// meaning that we've reached the end
         fetchedElements = 0;
     }
     else

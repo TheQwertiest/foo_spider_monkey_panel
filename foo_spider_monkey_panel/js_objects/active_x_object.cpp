@@ -403,6 +403,7 @@ const JSClass ActiveXObject::JsClass = jsClass;
 const JSFunctionSpec* ActiveXObject::JsFunctions = jsFunctions;
 const JSPropertySpec* ActiveXObject::JsProperties = jsProperties;
 const JsPrototypeId ActiveXObject::PrototypeId = JsPrototypeId::ActiveX;
+const JSNative ActiveXObject::JsConstructor = ActiveX_Constructor;
 const js::BaseProxyHandler& ActiveXObject::JsProxy = ActiveXObjectProxyHandler::singleton;
 
 ActiveXObject::ActiveXObject( JSContext* cx, VARIANTARG& var )
@@ -523,14 +524,6 @@ ActiveXObject::~ActiveXObject()
         VariantClear( &variant_ );
     }
     CoFreeUnusedLibraries();
-}
-
-JSObject* ActiveXObject::InstallProto( JSContext *cx, JS::HandleObject parentObject )
-{
-    // TODO: move to ObjectBase
-    return JS_InitClass( cx, parentObject, nullptr, &jsClass,
-                         ActiveX_Constructor, 0,
-                         nullptr, jsFunctions, nullptr, nullptr );
 }
 
 std::unique_ptr<ActiveXObject> ActiveXObject::CreateNative( JSContext* cx, const std::wstring& name )

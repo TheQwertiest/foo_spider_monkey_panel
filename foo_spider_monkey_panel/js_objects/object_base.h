@@ -46,6 +46,11 @@ public:
         return jsObject;
     }
 
+    static JSObject* InstallProto( JSContext* cx, JS::HandleObject parentObject )
+    {
+        return JS_InitClass( cx, parentObject, nullptr, &T::JsClass, T::JsConstructor, 0, T::JsProperties, T::JsFunctions, nullptr, nullptr );
+    }
+
     template <typename ... ArgTypes>
     static JSObject* CreateJs( JSContext* cx, ArgTypes&&... args )
     {
@@ -187,9 +192,7 @@ private:
         if constexpr (T::HasProxy)
         {
             JS::RootedValue priv( cx, JS::ObjectValue( *jsBaseObject ) );
-
-            js::ProxyOptions options;
-            return js::NewProxyObject( cx, &T::JsProxy, priv, jsProto, options );;
+            return js::NewProxyObject( cx, &T::JsProxy, priv, jsProto );
         }
         else
         {
