@@ -48,8 +48,8 @@ advconfig_integer_factory g_var_gc_zeal_level(
     2, 0, 14
 );
 advconfig_integer_factory g_var_gc_zeal_freq(
-    "Frequency (in ms)", g_guid_smp_adv_var_gc_zeal_freq, g_guid_smp_adv_branch_zeal, 2,
-    200, 1, 5000
+    "Frequency (in number of allocations)", g_guid_smp_adv_var_gc_zeal_freq, g_guid_smp_adv_branch_zeal, 2,
+    400, 1, 5000
 );
 #endif
 
