@@ -14,7 +14,7 @@ void JsCompartmentInner::OnGcStart()
 
 void JsCompartmentInner::OnGcDone()
 {
-    std::scoped_lock sl( heapSizeLock_ );
+    std::scoped_lock sl( gcDataLock_ );
 
     lastHeapSize_ = curHeapSize_;
     isMarkedForGc_ = false;
@@ -27,7 +27,7 @@ bool JsCompartmentInner::IsMarkedForGc() const
 
 uint32_t JsCompartmentInner::GetCurrentHeapBytes()
 {
-    std::scoped_lock sl( heapSizeLock_ );
+    std::scoped_lock sl( gcDataLock_ );
 
     if ( lastHeapSize_ > curHeapSize_ )
     {
@@ -39,19 +39,38 @@ uint32_t JsCompartmentInner::GetCurrentHeapBytes()
 
 uint32_t JsCompartmentInner::GetLastHeapBytes()
 {
-    std::scoped_lock sl( heapSizeLock_ );
+    std::scoped_lock sl( gcDataLock_ );
     return lastHeapSize_;
+}
+
+uint32_t JsCompartmentInner::GetCurrentAllocCount()
+{
+    std::scoped_lock sl( gcDataLock_ );
+
+    if ( lastAllocCount_ > curAllocCount_ )
+    {
+        lastAllocCount_ = curAllocCount_;
+    }
+
+    return curAllocCount_;
+}
+
+uint32_t JsCompartmentInner::GetLastAllocCount()
+{
+    std::scoped_lock sl( gcDataLock_ );
+    return lastAllocCount_;
 }
 
 void JsCompartmentInner::OnHeapAllocate( uint32_t size )
 {
-    std::scoped_lock sl( heapSizeLock_ );
+    std::scoped_lock sl( gcDataLock_ );
     curHeapSize_ += size;
+    ++curAllocCount_;
 }
 
 void JsCompartmentInner::OnHeapDeallocate( uint32_t size )
 {
-    std::scoped_lock sl( heapSizeLock_ );
+    std::scoped_lock sl( gcDataLock_ );
     if ( size > curHeapSize_ )
     {
         assert( 0 );
@@ -60,6 +79,15 @@ void JsCompartmentInner::OnHeapDeallocate( uint32_t size )
     else
     {
         curHeapSize_ -= size;
+    }
+
+    if ( !curAllocCount_ )
+    {
+        assert( 0 );
+    }
+    else
+    {
+        --curAllocCount_;
     }
 }
 

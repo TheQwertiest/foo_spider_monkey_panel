@@ -32,6 +32,12 @@ advconfig_integer_factory g_var_gc_delay(
     "Delay before next GC trigger (in ms)", g_guid_smp_adv_var_gc_delay, g_guid_smp_adv_branch_gc, 3,
     50, 1, 100
 );
+// TODO: fine-tune alloc count
+advconfig_integer_factory g_var_max_alloc_increase(
+    "Allowed number of allocations before next GC trigger", g_guid_smp_adv_var_max_alloc_increase, g_guid_smp_adv_branch_gc, 4,
+    1000, 1, 1000000
+);
+
 #ifdef _DEBUG
 advconfig_checkbox_factory g_var_gc_zeal(
     "Enable", g_guid_smp_adv_var_gc_zeal, g_guid_smp_adv_branch_zeal, 0,

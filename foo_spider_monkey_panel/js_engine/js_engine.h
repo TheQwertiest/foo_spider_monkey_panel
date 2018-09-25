@@ -58,6 +58,7 @@ private:
     void MaybeRunJobs();
 
     uint64_t GetCurrentTotalHeapSize();
+    uint64_t GetCurrentTotalAllocCount();
     void PerformGc( GcLevel gcLevel );
     void PerformIncrementalGc();
     void PerformNormalGc();
@@ -79,11 +80,13 @@ private:
     
     uint32_t lastGcCheckTime_ = 0;
     uint64_t lastTotalHeapSize_ = 0;
+    uint64_t lastTotalAllocCount_ = 0;
 
     uint32_t maxHeapSize_ = 1024UL * 1024 * 1024;
     uint32_t heapGrowthRateTrigger_ = 50UL * 1024 * 1024;
     uint32_t gcSliceTimeBudget_ = 30;
     uint32_t gcCheckDelay_ = 50;
+    uint32_t allocCountTrigger_ = 50;
 
     bool areJobsInProgress_ = false;
     uint32_t jobsStartTime_ = 0;

@@ -25,15 +25,20 @@ public:
     uint32_t GetCurrentHeapBytes();    
     uint32_t GetLastHeapBytes();
 
+    uint32_t GetCurrentAllocCount();
+    uint32_t GetLastAllocCount();
+
     void OnHeapAllocate( uint32_t size );
     void OnHeapDeallocate( uint32_t size );
 
 private:
     bool isMarkedForDeletion_ = false;
     bool isMarkedForGc_ = false;
-    std::mutex heapSizeLock_;
+    std::mutex gcDataLock_;
     uint32_t curHeapSize_ = 0;
     uint32_t lastHeapSize_ = 0;
+    uint32_t curAllocCount_ = 0;
+    uint32_t lastAllocCount_ = 0;
 };
 
 }

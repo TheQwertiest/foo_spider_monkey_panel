@@ -69,6 +69,7 @@ bool JsEngine::Initialize()
     heapGrowthRateTrigger_ = static_cast<uint32_t>(smp_advconf::g_var_max_heap_growth.get());
     gcSliceTimeBudget_ = static_cast<uint32_t>(smp_advconf::g_var_gc_budget.get());
     gcCheckDelay_ = static_cast<uint32_t>(smp_advconf::g_var_gc_delay.get());
+    allocCountTrigger_ = static_cast<uint32_t>( smp_advconf::g_var_max_alloc_increase.get() );
 
     JSContext* pJsCtx = JS_NewContext( maxHeapSize_ );
     if ( !pJsCtx )
@@ -224,7 +225,7 @@ void JsEngine::UnregisterPanel( js_panel_window& parentPanel )
 }
 
 void JsEngine::MaybeGc()
-{
+{// TODO: cleanup
     assert( JS::IsIncrementalGCEnabled( pJsCtx_ ) );
 
     if ( timeGetTime() - lastGcCheckTime_ < gcCheckDelay_ )
@@ -239,19 +240,30 @@ void JsEngine::MaybeGc()
         lastTotalHeapSize_ = curTotalHeapSize;
     }
 
+    uint64_t curTotalAllocCount = GetCurrentTotalAllocCount();
+    if ( !lastTotalAllocCount_ )
+    {
+        lastTotalAllocCount_ = curTotalAllocCount;
+    }
+
     if ( !JS::IsIncrementalGCInProgress( pJsCtx_ ) 
-         && ( curTotalHeapSize <= lastTotalHeapSize_ + heapGrowthRateTrigger_ ) )
+         && ( curTotalHeapSize <= lastTotalHeapSize_ + heapGrowthRateTrigger_ )
+         && ( curTotalAllocCount <= lastTotalAllocCount_ + allocCountTrigger_ ) )
     {
         if ( lastTotalHeapSize_ > curTotalHeapSize )
         {
             lastTotalHeapSize_ = curTotalHeapSize;
+        }
+        if ( lastTotalAllocCount_ > curTotalAllocCount )
+        {
+            lastTotalAllocCount_ = curTotalAllocCount;
         }
         return;
     }
 
     GcLevel gcLevel;
     if ( curTotalHeapSize <= maxHeapSize_ / 2 )
-    {
+    {// alloc trigger usually goes here as well
         gcLevel = GcLevel::Incremental;
     }
     else if ( curTotalHeapSize <= maxHeapSize_ * 0.75 )
@@ -266,6 +278,7 @@ void JsEngine::MaybeGc()
     PerformGc( gcLevel );
 
     lastTotalHeapSize_ = curTotalHeapSize;
+    lastTotalAllocCount_ = curTotalAllocCount;
 
     if ( curTotalHeapSize >= maxHeapSize_ )
     {
@@ -292,6 +305,22 @@ uint64_t JsEngine::GetCurrentTotalHeapSize()
     } );
 
     return curTotalHeapSize;
+}
+
+uint64_t JsEngine::GetCurrentTotalAllocCount()
+{
+    uint64_t curTotalAllocCount = JS_GetGCParameter( pJsCtx_, JSGC_BYTES );
+    JS_IterateCompartments( pJsCtx_, &curTotalAllocCount, []( JSContext* cx, void* data, JSCompartment* pJsCompartment ) {
+        auto pCurTotalAllocCount = static_cast<uint64_t*>( data );
+        auto pNativeCompartment = static_cast<JsCompartmentInner*>( JS_GetCompartmentPrivate( pJsCompartment ) );
+        if ( !pNativeCompartment )
+        {
+            return;
+        }
+        *pCurTotalAllocCount += pNativeCompartment->GetCurrentAllocCount();
+    } );
+
+    return curTotalAllocCount;
 }
 
 void JsEngine::PerformGc( GcLevel gcLevel )
@@ -394,10 +423,15 @@ void JsEngine::PrepareCompartmentsForGc( GcLevel gcLevel )
     {
     case mozjs::JsEngine::GcLevel::Incremental:
     {
-        uint32_t heapGrowthRateTrigger = heapGrowthRateTrigger_; ///< Need this temporary so that we don't have to worry about the var's type
-        JS_IterateCompartments( pJsCtx_, &heapGrowthRateTrigger, []( JSContext* cx, void* data, JSCompartment* pJsCompartment )
+        using TriggerData = struct  
         {
-            uint32_t heapGrowthRateTrigger = *reinterpret_cast<uint32_t*>(data);
+            uint32_t heapGrowthRateTrigger;
+            uint32_t allocCountTrigger;
+        };
+        TriggerData triggers{ heapGrowthRateTrigger_, allocCountTrigger_ };
+        JS_IterateCompartments( pJsCtx_, &triggers, []( JSContext* cx, void* data, JSCompartment* pJsCompartment )
+        {
+            TriggerData* pTriggerData = reinterpret_cast<TriggerData*>( data );
 
             auto pNativeCompartment = static_cast<JsCompartmentInner*>(JS_GetCompartmentPrivate( pJsCompartment ));
             if ( !pNativeCompartment )
@@ -405,8 +439,9 @@ void JsEngine::PrepareCompartmentsForGc( GcLevel gcLevel )
                 return;
             }
 
-            bool hasHeapOverGrowth = pNativeCompartment->GetCurrentHeapBytes() > (pNativeCompartment->GetLastHeapBytes() + heapGrowthRateTrigger / 2);
-            if ( hasHeapOverGrowth || pNativeCompartment->IsMarkedForDeletion() )
+            bool hasHeapOvergrowth = pNativeCompartment->GetCurrentHeapBytes() > ( pNativeCompartment->GetLastHeapBytes() + pTriggerData->heapGrowthRateTrigger / 2 );
+            bool hasOveralloc = pNativeCompartment->GetCurrentAllocCount() > ( pNativeCompartment->GetLastAllocCount() + pTriggerData->allocCountTrigger / 2 );
+            if ( hasHeapOvergrowth || hasOveralloc ||pNativeCompartment->IsMarkedForDeletion() )
             {
                 pNativeCompartment->OnGcStart();
             }
