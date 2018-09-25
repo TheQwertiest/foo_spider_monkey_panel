@@ -1,9 +1,6 @@
 #include <stdafx.h>
 #include "native_to_js_invoker.h"
 
-#include <js_engine/js_engine.h>
-#include <js_objects/global_object.h>
-
 #pragma warning( push )  
 #pragma warning( disable : 4100 ) // unused variable
 #pragma warning( disable : 4251 ) // dll interface warning
@@ -27,13 +24,7 @@ bool InvokeJsCallback_Impl( JSContext* cx,
         return false;
     }
 
-    bool bRet = JS::Call( cx, globalObject, func, args, rval ); // reports
-    if ( bRet )
-    {
-        JsEngine::GetInstance().MaybeRunJobs();
-    }
-    JsEngine::GetInstance().MaybeGc();
-    return bRet;
+    return JS::Call( cx, globalObject, func, args, rval ); // reports    
 }
 
 }

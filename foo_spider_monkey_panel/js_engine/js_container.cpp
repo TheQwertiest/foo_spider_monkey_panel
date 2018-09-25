@@ -170,6 +170,33 @@ bool JsContainer::ExecuteScript( const pfc::string8_fast&  scriptCode )
     return JS::Evaluate( pJsCtx_, opts, scriptCode.c_str(), scriptCode.length(), &dummyRval );
 }
 
+void JsContainer::InvokeOnDragAction( const pfc::string8_fast& functionName, const POINTL& pt, uint32_t keyState, DropActionParams& actionParams )
+{
+    if ( JsStatus::Ready != jsStatus_ )
+    {
+        return;
+    }
+
+    scope::JsScope autoScope( pJsCtx_, jsGlobal_ );
+
+    if ( !CreateDropActionIfNeeded() )
+    {// reports
+        return;
+    }
+
+    pNativeDropAction_->GetDropActionParams() = actionParams;
+
+    auto retVal = InvokeJsCallback( functionName,
+                                    static_cast<JS::HandleObject>(jsDropAction_),
+                                    static_cast<int32_t>(pt.x),
+                                    static_cast<int32_t>(pt.y),
+                                    static_cast<uint32_t>(keyState) );
+    if ( retVal )
+    {
+        actionParams = pNativeDropAction_->GetDropActionParams();
+    }
+}
+
 void JsContainer::InvokeOnNotify( WPARAM wp, LPARAM lp )
 {   
     if ( JsStatus::Ready != jsStatus_ )
@@ -211,33 +238,6 @@ void JsContainer::InvokeOnPaint( Gdiplus::Graphics& gr )
         return;
     }
     pNativeGraphics_->SetGraphicsObject( nullptr );
-}
-
-void JsContainer::InvokeOnDragAction( const pfc::string8_fast& functionName, const POINTL& pt, uint32_t keyState, DropActionParams& actionParams )
-{
-    if ( JsStatus::Ready != jsStatus_ )
-    {
-        return;
-    }
-
-    scope::JsScope autoScope( pJsCtx_, jsGlobal_ );
-
-    if ( !CreateDropActionIfNeeded() )
-    {// reports
-        return;
-    }
-
-    pNativeDropAction_->GetDropActionParams() = actionParams;
-
-    auto retVal = InvokeJsCallback( functionName,
-                                    static_cast<JS::HandleObject>(jsDropAction_),
-                                    static_cast<int32_t>(pt.x),
-                                    static_cast<int32_t>(pt.y),
-                                    static_cast<uint32_t>(keyState) );
-    if ( retVal )
-    {
-        actionParams = pNativeDropAction_->GetDropActionParams();
-    }
 }
 
 uint32_t JsContainer::SetInterval( HWND hWnd, uint32_t delay, JS::HandleFunction jsFunction )

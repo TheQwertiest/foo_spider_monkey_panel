@@ -101,6 +101,7 @@
     <ClCompile Include="foo_spider_monkey_panel.cpp">
       <PrecompiledHeader>Use</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="heartbeat_window.cpp" />
     <ClCompile Include="helpers.cpp" />
     <ClCompile Include="host_drop_target.cpp" />
     <ClCompile Include="host_timer_dispatcher.cpp" />
@@ -190,6 +191,7 @@
     <ClInclude Include="convert\native_to_js.h" />
     <ClInclude Include="drop_action_params.h" />
     <ClInclude Include="drop_source_impl.h" />
+    <ClInclude Include="heartbeat_window.h" />
     <ClInclude Include="js_engine\js_compartment_inner.h" />
     <ClInclude Include="js_engine\js_container.h" />
     <ClInclude Include="js_engine\js_engine.h" />

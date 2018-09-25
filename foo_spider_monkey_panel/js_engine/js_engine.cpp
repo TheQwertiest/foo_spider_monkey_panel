@@ -8,13 +8,15 @@
 
 #include <js_panel_window.h>
 #include <adv_config.h>
+#include <user_message.h>
+#include <heartbeat_window.h>
 
 #include <js/Initialization.h>
 
 namespace
 {
-const uint32_t kJobsMaxBudget = 500;
-const uint32_t kJobsDelay = 100;
+const uint32_t kHeartbeatRate = 73; ///< In ms
+const uint32_t kJobsMaxBudget = 500; ///< In ms
 }
 
 namespace mozjs
@@ -103,6 +105,12 @@ bool JsEngine::Initialize()
 #endif
 
     pJsCtx_ = autoJsCtx.release();
+
+    if ( !StartHeartbeatThread() )
+    {// TODO: error report
+        return false;
+    }
+
     isInitialized_ = true;
     return true;
 }
@@ -111,6 +119,8 @@ void JsEngine::Finalize()
 {
     if ( pJsCtx_ )
     {
+        StopHeartbeatThread();
+
         for ( auto&[hWnd, jsContainer] : registeredContainers_ )
         {
             jsContainer.get().Finalize();
@@ -126,6 +136,54 @@ void JsEngine::Finalize()
     }
 
     isInitialized_ = false;
+}
+
+void JsEngine::OnHeartbeat()
+{
+    if ( !isInitialized_ )
+    {
+        return;
+    }
+
+    JSAutoRequest ar( pJsCtx_ );
+
+    MaybeRunJobs();
+    MaybeGc();
+}
+
+bool JsEngine::StartHeartbeatThread()
+{
+    if ( !heartbeatWindow_ )
+    {
+        heartbeatWindow_ = smp::HeartbeatWindow::Create();
+        if ( !heartbeatWindow_ )
+        {
+            return false;
+        }
+    }
+
+    shouldStopHeartbeatThread_ = false;
+    heartbeatThread_ = std::thread( [parent = this] {
+        while ( !parent->shouldStopHeartbeatThread_ )
+        {
+            std::this_thread::sleep_for(
+                std::chrono::milliseconds( kHeartbeatRate ) 
+            );
+
+            PostMessage( parent->heartbeatWindow_->GetHwnd(), UWM_HEARTBEAT, 0, 0 );
+        }
+    } );
+
+    return true;
+}
+
+void JsEngine::StopHeartbeatThread()
+{
+    if ( heartbeatThread_.joinable() )
+    {
+        shouldStopHeartbeatThread_ = true;
+        heartbeatThread_.join();
+    }
 }
 
 void JsEngine::PrepareForExit()
@@ -146,6 +204,7 @@ bool JsEngine::RegisterPanel( js_panel_window& panel, JsContainer& jsContainer )
     }
 
     registeredContainers_.insert_or_assign( panel.GetHWND(), jsContainer );
+
     return true;
 }
 

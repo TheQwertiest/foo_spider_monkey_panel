@@ -244,6 +244,9 @@
     <ClCompile Include="stats.cpp">
       <Filter>uncategorized</Filter>
     </ClCompile>
+    <ClCompile Include="heartbeat_window.cpp">
+      <Filter>uncategorized</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="js_engine\js_engine.h">
@@ -550,6 +553,9 @@
       <Filter>uncategorized\scintilla</Filter>
     </ClInclude>
     <ClInclude Include="stats.h">
+      <Filter>uncategorized</Filter>
+    </ClInclude>
+    <ClInclude Include="heartbeat_window.h">
       <Filter>uncategorized</Filter>
     </ClInclude>
   </ItemGroup>

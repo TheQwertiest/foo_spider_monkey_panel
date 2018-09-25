@@ -62,9 +62,9 @@ public:
     }
 
 public: // callbacks that require js data
+    void InvokeOnDragAction( const pfc::string8_fast& functionName, const POINTL& pt, uint32_t keyState, DropActionParams& actionParams );    
     void InvokeOnNotify( WPARAM wp, LPARAM lp );
     void InvokeOnPaint( Gdiplus::Graphics& gr );
-    void InvokeOnDragAction( const pfc::string8_fast& functionName, const POINTL& pt, uint32_t keyState, DropActionParams& actionParams );
 
     uint32_t SetInterval( HWND hWnd, uint32_t delay, JS::HandleFunction jsFunction );
     uint32_t SetTimeout( HWND hWnd, uint32_t delay, JS::HandleFunction jsFunction );

@@ -7,6 +7,12 @@
 class js_panel_window;
 struct JSContext;
 
+namespace smp
+{
+
+class HeartbeatWindow;
+
+}
 
 namespace mozjs
 {
@@ -28,8 +34,7 @@ public:
     void UnregisterPanel( js_panel_window& parentPanel );
 
 public:
-    void MaybeGc();
-    void MaybeRunJobs();
+    void OnHeartbeat();
 
 private:
     JsEngine();
@@ -38,6 +43,9 @@ private:
     bool Initialize();
     void Finalize();
 
+    bool StartHeartbeatThread();
+    void StopHeartbeatThread();
+
 private:
     enum class GcLevel: uint8_t
     {
@@ -45,6 +53,9 @@ private:
         Normal,
         Full
     };
+
+    void MaybeGc();
+    void MaybeRunJobs();
 
     uint64_t GetCurrentTotalHeapSize();
     void PerformGc( GcLevel gcLevel );
@@ -61,6 +72,10 @@ private:
     bool shouldShutdown_ = false;
 
     std::map<HWND, std::reference_wrapper<JsContainer>> registeredContainers_;
+
+    std::unique_ptr<smp::HeartbeatWindow> heartbeatWindow_;
+    std::thread heartbeatThread_;
+    std::atomic_bool shouldStopHeartbeatThread_ = false;    
     
     uint32_t lastGcCheckTime_ = 0;
     uint64_t lastTotalHeapSize_ = 0;
@@ -72,7 +87,6 @@ private:
 
     bool areJobsInProgress_ = false;
     uint32_t jobsStartTime_ = 0;
-    uint32_t jobsDelayTime_ = 50;
 };
 
 }
