@@ -79,6 +79,7 @@ var style =
     '</style>';
 
 var content =
+    '<!DOCTYPE html>' +
     '<html>' +
     '<head>' +
     '   <meta http-equiv="x-ua-compatible" content="IE=8"/>' +
@@ -100,10 +101,11 @@ var script =
     '<script>' +
     '   var window_w = 358;' +
     '   var window_h = 425;' +
+    '   var parsed_data = window.stored_data.toArray();' +
     '   ' +
-    '   window.div_text.innerText = window.stored_data;' +
+    '   window.div_text.innerText = parsed_data[0];' +
     '   var labelInnerHtml = window.label_for_checkbox.innerHTML;' +
-    '   window.label_for_checkbox.innerHTML = labelInnerHtml.replace(/dummy/g, "tmp");' +
+    '   window.label_for_checkbox.innerHTML = labelInnerHtml.replace(/dummy/g, parsed_data[1]);' +
     '   ' +
     '   window_h = 83 + window.div_text.offsetHeight + window.btn_ok.offsetHeight;' +
     '   if (window_w < window_h + 50) {' +
@@ -123,24 +125,37 @@ var script =
     '   ' +
     '   window.document.body.focus();' +
     '   window.btn_ok.focus();' +
-    '    alert(document.documentMode); ' +
-          'alert(window.navigator.userAgent);' +
     '</script>';
 
 var htmlWindow;
+var ww = 0;
+var wh = 0;
+var text = '>> Click Me To Open Dialog <<';
+var font = gdi.Font('Segoe Ui Semibold', 11);
 
-function on_mouse_lbtn_down() {
-    close_window();
-
-    var text = 'This is a HTML window';
-    htmlWindow = utils.CreateHtmlWindow(content + script, {
-        data: text,
-        fn:   window_callback
-    });
+function on_paint(gr) {
+    gr.DrawString(text, font, 0xFF000000, 0, 0, ww, wh, 0x11000000);
 }
 
-function on_mouse_mbtn_down() {
-    close_window();
+function on_size(w,h) {
+    ww = w;
+    wh = h;
+}
+
+function on_mouse_lbtn_up() {
+    if (htmlWindow)
+    {
+        close_window();
+    }
+    else    
+    {
+        htmlWindow = utils.CreateHtmlWindow(content + script, {
+            data: ['This is an HTML notification window with a check box\n', '< Click me'],
+            fn:   window_ok_callback
+        });
+        text = '>> Click Me To Close Dialog <<';
+        window.Repaint();
+    }
 }
 
 function on_script_unload() {
@@ -152,10 +167,15 @@ function close_window()
     if (htmlWindow) {
         htmlWindow.Close();
         htmlWindow = undefined;
+        
+        text = '>> Click Me To Open Dialog <<';
+        window.Repaint();
     }
 }
 
-function window_callback(has_agreed, need_to_remind) {
-    console.log(has_agreed, need_to_remind);
+function window_ok_callback(status, clicked) {
     htmlWindow = undefined;
+    text = `Dialog was closed with ${status} and checkbox ${clicked}\n`
+        + '>> Click Me To Open Dialog <<';
+    window.Repaint();
 }
