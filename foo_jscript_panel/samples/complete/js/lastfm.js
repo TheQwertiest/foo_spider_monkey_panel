@@ -10,7 +10,7 @@ _.mixin({
 					window.Repaint();
 				}
 				_.forEach(panel.list_objects, function (item) {
-					if (item.mode == 'lastfm_info' && item.properties.mode.value == 1) {
+					if (item.mode == 'lastfm_info' && item.properties.mode.value > 0) {
 						item.update();
 					}
 				});
