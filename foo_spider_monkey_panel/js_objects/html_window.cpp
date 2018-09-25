@@ -91,7 +91,7 @@ JsHtmlWindow::CreateNative( JSContext* cx, const std::wstring& htmlCode, JS::Han
     uint32_t width = 400;
     uint32_t height = 400;
     std::wstring title = L"foobar2000";
-    std::wstring storedData;
+    _variant_t storedData;
     JS::RootedFunction storedFunction( cx );
 
     if ( !options.isNullOrUndefined() )
@@ -185,15 +185,12 @@ JsHtmlWindow::CreateNative( JSContext* cx, const std::wstring& htmlCode, JS::Han
             {// reports
                 return nullptr;
             }
-
-            auto retVal = convert::to_native::ToValue<std::wstring>( cx, jsValue );
-            if ( !retVal )
+            
+            if ( !convert::com::JsToVariant( cx, jsValue, *storedData.GetAddress() ) )
             {
-                JS_ReportErrorUTF8( cx, "`data` can't be converted to uint32_t" );
+                JS_ReportErrorUTF8( cx, "`data` is of unsupported type" );
                 return nullptr;
             }
-
-            storedData = retVal.value();
         }
 
         if ( !JS_HasProperty( cx, jsObject, "fn", &hasProp ) )
@@ -352,16 +349,14 @@ JsHtmlWindow::CreateNative( JSContext* cx, const std::wstring& htmlCode, JS::Han
             IF_HR_FAILED_RETURN_WITH_REPORT( cx, hr, nullptr, "write" );
         }
 
-        if (!storedData.empty())
         {// store callback data
             DISPID dispId;
             _bstr_t varName = L"stored_data";
             hr = pHtaWindowEx->GetDispID( varName.GetBSTR(), fdexNameEnsure, &dispId );
             IF_HR_FAILED_RETURN_WITH_REPORT( cx, hr, nullptr, "GetDispID" );
-
-            _variant_t callbackDataV( storedData.c_str() );
+            
             DISPID dispPut = { DISPID_PROPERTYPUT };
-            DISPPARAMS dispParams = { &callbackDataV.GetVARIANT(), &dispPut, 1, 1 };
+            DISPPARAMS dispParams = { &storedData.GetVARIANT(), &dispPut, 1, 1 };
 
             hr = pHtaWindowEx->InvokeEx( dispId, LOCALE_USER_DEFAULT, DISPATCH_PROPERTYPUT, &dispParams, nullptr, nullptr, nullptr );
             IF_HR_FAILED_RETURN_WITH_REPORT( cx, hr, nullptr, "InvokeEx" );
