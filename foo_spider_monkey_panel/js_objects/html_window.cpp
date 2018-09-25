@@ -84,7 +84,6 @@ JsHtmlWindow::~JsHtmlWindow()
 
 // TODO: cleanup the code
 // TODO: add html window centering
-// TODO: consider
 
 std::unique_ptr<JsHtmlWindow>
 JsHtmlWindow::CreateNative( JSContext* cx, const std::wstring& htmlCode, JS::HandleValue options )
@@ -263,6 +262,7 @@ JsHtmlWindow::CreateNative( JSContext* cx, const std::wstring& htmlCode, JS::Han
 
         DWORD pid =  GetProcessId( execInfo.hProcess );
 
+        // TODO: add incremental sleep
         Sleep( 100 ); ///< Give some time for window to spawn
 
         IShellDispatchPtr pShell;
@@ -317,28 +317,37 @@ JsHtmlWindow::CreateNative( JSContext* cx, const std::wstring& htmlCode, JS::Han
             return nullptr;
         }
 
+        scope::final_action autoWindow( [&pHtaWindow]
+        {
+            pHtaWindow->close();
+        });
+
         IDispatchExPtr pHtaWindowEx( pHtaWindow );
         assert( !!pHtaWindowEx );
        
-        {// open document
+        { // open document
             SAFEARRAY* pSaStrings = SafeArrayCreateVector( VT_VARIANT, 0, 1 );
-            scope::final_action autoPsa( [pSaStrings]()
-            {
+            scope::final_action autoPsa( [pSaStrings]() {
                 SafeArrayDestroy( pSaStrings );
             } );
 
-            VARIANT *pSaVar = nullptr;
+            VARIANT* pSaVar = nullptr;
             hr = SafeArrayAccessData( pSaStrings, (LPVOID*)&pSaVar );
             IF_HR_FAILED_RETURN_WITH_REPORT( cx, hr, nullptr, "SafeArrayAccessData" );
 
-            _bstr_t bstr( L"" );
+            // A dirty, dirty, dirty, dirty hack, to force IE8 mode.
+            // The first `write` sets IE compatibility mode, but we can't
+            // use it to write user html code, since we need to set `stored` data
+            // before that. Which can't be set unless document is open.
+            // Which can only be opened with `write` method.
+            // Thus, the hack (thank God for IE compatibility with such malformed html).
+            _bstr_t bstr( L"<html><head><meta http-equiv=\"x-ua-compatible\" content=\"IE=8\" /></head></html>" );
             pSaVar->vt = VT_BSTR;
             pSaVar->bstrVal = bstr.Detach();
 
             hr = SafeArrayUnaccessData( pSaStrings );
             IF_HR_FAILED_RETURN_WITH_REPORT( cx, hr, nullptr, "SafeArrayUnaccessData" );
 
-            // TODO: investigate if it's possible to replace with document.open()
             hr = pDocument->write( pSaStrings );
             IF_HR_FAILED_RETURN_WITH_REPORT( cx, hr, nullptr, "write" );
         }
@@ -376,31 +385,30 @@ JsHtmlWindow::CreateNative( JSContext* cx, const std::wstring& htmlCode, JS::Han
             IF_HR_FAILED_RETURN_WITH_REPORT( cx, hr, nullptr, "InvokeEx" );
         }
 
-        {// write html
-            const std::wstring wStr = std::to_wstring( width );
-            const std::wstring hStr = std::to_wstring( height );
-            _bstr_t bstr =
-                _bstr_t(L"") +
-                L"<script id=\"" + wndId.c_str() + "\">"
-                L"    document.title = \"" + title.c_str() + "\";"
-                L"    var width = " + wStr.c_str() + ";"
-                L"    var height = " + hStr.c_str() + ";"
-                L"    resizeTo(width, height);" +
-                L"    moveTo((screen.width-width)/2, (screen.height-height)/2);"
-                L"    document.getElementById('" + wndId.c_str() + "').removeNode();"
-                L"</script>" +
-                htmlCode.c_str();
+        {// Update window according to options
+            _bstr_t bTitle( title.c_str() );
+            hr = pDocument->put_title( bTitle.Detach() );
+            IF_HR_FAILED_RETURN_WITH_REPORT( cx, hr, nullptr, "put_title" );
+            
+            hr = pHtaWindow->resizeTo( width, height );
+            IF_HR_FAILED_RETURN_WITH_REPORT( cx, hr, nullptr, "resizeTo" );
 
+            // TODO: change to relative to fb2k center
+            hr = pHtaWindow->moveTo( (pHtaWindow->screen->width - width)/2, (pHtaWindow->screen->height - height)/2);
+            IF_HR_FAILED_RETURN_WITH_REPORT( cx, hr, nullptr, "moveTo" );
+        }
+
+         { // open document
             SAFEARRAY* pSaStrings = SafeArrayCreateVector( VT_VARIANT, 0, 1 );
-            scope::final_action autoPsa( [pSaStrings]()
-            {
+            scope::final_action autoPsa( [pSaStrings]() {
                 SafeArrayDestroy( pSaStrings );
             } );
 
-            VARIANT *pSaVar = nullptr;
+            VARIANT* pSaVar = nullptr;
             hr = SafeArrayAccessData( pSaStrings, (LPVOID*)&pSaVar );
             IF_HR_FAILED_RETURN_WITH_REPORT( cx, hr, nullptr, "SafeArrayAccessData" );
 
+            _bstr_t bstr( htmlCode.c_str() );
             pSaVar->vt = VT_BSTR;
             pSaVar->bstrVal = bstr.Detach();
 
@@ -412,11 +420,12 @@ JsHtmlWindow::CreateNative( JSContext* cx, const std::wstring& htmlCode, JS::Han
         }
 
         hr = pDocument->close();
-        IF_HR_FAILED_RETURN_WITH_REPORT( cx, hr, nullptr, "close" );
+        IF_HR_FAILED_RETURN_WITH_REPORT( cx, hr, nullptr, "close" );        
 
         hr = pHtaWindow->focus();
         IF_HR_FAILED_RETURN_WITH_REPORT( cx, hr, nullptr, "focus" );
 
+        autoWindow.cancel();
         return std::unique_ptr<JsHtmlWindow>( new JsHtmlWindow( cx, pid ) );
     }
     catch ( const _com_error& e )
