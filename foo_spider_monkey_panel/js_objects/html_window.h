@@ -38,16 +38,18 @@ public:
 
 public: 
     std::optional<nullptr_t> Close();
+    std::optional<nullptr_t> Focus();
 
-private:
+private:    
     // alias for MSHTML::IHTMLWindow2Ptr: don't want to drag #import into headers
-    using HtmlWindow2ComPtr = _com_ptr_t<_com_IIID<IHTMLWindow2, &__uuidof(IHTMLWindow2)> >;
+    using HtmlWindow2ComPtr = _com_ptr_t<_com_IIID<IHTMLWindow2, &__uuidof( IHTMLWindow2 )>>;
 
-    JsHtmlWindow( JSContext* cx, DWORD pid );
+    JsHtmlWindow( JSContext* cx, DWORD pid, HtmlWindow2ComPtr pWindow );
 
 private:
     JSContext * pJsCtx_ = nullptr;
     DWORD pid_ = 0;
+    HtmlWindow2ComPtr pWindow_;
 };
 
 }

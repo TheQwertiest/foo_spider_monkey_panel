@@ -14,16 +14,16 @@
 #include <ctime>
 
 #pragma warning( push )
-#pragma warning(disable: 4192)
-#pragma warning(disable: 4146)
-#pragma warning(disable: 4278)
+#pragma warning( disable : 4192 )
+#pragma warning( disable : 4146 )
+#pragma warning( disable : 4278 )
 #   import <mshtml.tlb>
 #   import <shdocvw.dll>
 #   undef GetWindowStyle
 #   undef GetWindowLong
 #   undef GetFreeSpace
 #   import <wshom.ocx>
-#pragma warning( pop ) 
+#pragma warning( pop )
 
 namespace
 {
@@ -51,9 +51,11 @@ JSClass jsClass = {
 };
 
 MJS_DEFINE_JS_TO_NATIVE_FN( JsHtmlWindow, Close )
+MJS_DEFINE_JS_TO_NATIVE_FN( JsHtmlWindow, Focus )
 
 const JSFunctionSpec jsFunctions[] = {
     JS_FN( "Close", Close, 0, DefaultPropsFlags() ),
+    JS_FN( "Focus", Focus, 0, DefaultPropsFlags() ),
     JS_FS_END
 };
 
@@ -61,7 +63,7 @@ const JSPropertySpec jsProperties[] = {
     JS_PS_END
 };
 
-}
+} // namespace
 
 namespace mozjs
 {
@@ -71,9 +73,10 @@ const JSFunctionSpec* JsHtmlWindow::JsFunctions = jsFunctions;
 const JSPropertySpec* JsHtmlWindow::JsProperties = jsProperties;
 const JsPrototypeId JsHtmlWindow::PrototypeId = JsPrototypeId::HtmlWindow;
 
-JsHtmlWindow::JsHtmlWindow( JSContext* cx, DWORD pid )
+JsHtmlWindow::JsHtmlWindow( JSContext* cx, DWORD pid, HtmlWindow2ComPtr pWindow )
     : pJsCtx_( cx )
-    , pid_(pid)
+    , pid_( pid )
+    , pWindow_( pWindow )
 {
 }
 
@@ -105,7 +108,7 @@ JsHtmlWindow::CreateNative( JSContext* cx, const std::wstring& htmlCode, JS::Han
         JS::RootedObject jsObject( cx, &options.toObject() );
         bool hasProp;
         if ( !JS_HasProperty( cx, jsObject, "width", &hasProp ) )
-        {// reports
+        { // reports
             return nullptr;
         }
 
@@ -113,7 +116,7 @@ JsHtmlWindow::CreateNative( JSContext* cx, const std::wstring& htmlCode, JS::Han
         {
             JS::RootedValue jsValue( cx );
             if ( !JS_GetProperty( cx, jsObject, "width", &jsValue ) )
-            {// reports
+            { // reports
                 return nullptr;
             }
 
@@ -128,7 +131,7 @@ JsHtmlWindow::CreateNative( JSContext* cx, const std::wstring& htmlCode, JS::Han
         }
 
         if ( !JS_HasProperty( cx, jsObject, "height", &hasProp ) )
-        {// reports
+        { // reports
             return nullptr;
         }
 
@@ -136,7 +139,7 @@ JsHtmlWindow::CreateNative( JSContext* cx, const std::wstring& htmlCode, JS::Han
         {
             JS::RootedValue jsValue( cx );
             if ( !JS_GetProperty( cx, jsObject, "height", &jsValue ) )
-            {// reports
+            { // reports
                 return nullptr;
             }
 
@@ -151,7 +154,7 @@ JsHtmlWindow::CreateNative( JSContext* cx, const std::wstring& htmlCode, JS::Han
         }
 
         if ( !JS_HasProperty( cx, jsObject, "title", &hasProp ) )
-        {// reports
+        { // reports
             return nullptr;
         }
 
@@ -159,7 +162,7 @@ JsHtmlWindow::CreateNative( JSContext* cx, const std::wstring& htmlCode, JS::Han
         {
             JS::RootedValue jsValue( cx );
             if ( !JS_GetProperty( cx, jsObject, "title", &jsValue ) )
-            {// reports
+            { // reports
                 return nullptr;
             }
 
@@ -174,7 +177,7 @@ JsHtmlWindow::CreateNative( JSContext* cx, const std::wstring& htmlCode, JS::Han
         }
 
         if ( !JS_HasProperty( cx, jsObject, "data", &hasProp ) )
-        {// reports
+        { // reports
             return nullptr;
         }
 
@@ -182,10 +185,10 @@ JsHtmlWindow::CreateNative( JSContext* cx, const std::wstring& htmlCode, JS::Han
         {
             JS::RootedValue jsValue( cx );
             if ( !JS_GetProperty( cx, jsObject, "data", &jsValue ) )
-            {// reports
+            { // reports
                 return nullptr;
             }
-            
+
             if ( !convert::com::JsToVariant( cx, jsValue, *storedData.GetAddress() ) )
             {
                 JS_ReportErrorUTF8( cx, "`data` is of unsupported type" );
@@ -194,7 +197,7 @@ JsHtmlWindow::CreateNative( JSContext* cx, const std::wstring& htmlCode, JS::Han
         }
 
         if ( !JS_HasProperty( cx, jsObject, "fn", &hasProp ) )
-        {// reports
+        { // reports
             return nullptr;
         }
 
@@ -202,11 +205,11 @@ JsHtmlWindow::CreateNative( JSContext* cx, const std::wstring& htmlCode, JS::Han
         {
             JS::RootedValue jsValue( cx );
             if ( !JS_GetProperty( cx, jsObject, "fn", &jsValue ) )
-            {// reports
+            { // reports
                 return nullptr;
             }
 
-            if ( !(jsValue.isObject() && JS_ObjectIsFunction( cx, &jsValue.toObject() ))
+            if ( !( jsValue.isObject() && JS_ObjectIsFunction( cx, &jsValue.toObject() ) )
                  && !jsValue.isNullOrUndefined() )
             {
                 JS_ReportErrorUTF8( cx, "fn argument is not a function" );
@@ -222,8 +225,7 @@ JsHtmlWindow::CreateNative( JSContext* cx, const std::wstring& htmlCode, JS::Han
 
     try
     {
-        const auto wndId = []
-        {
+        const auto wndId = [] {
             std::srand( unsigned( std::time( 0 ) ) );
             return L"a" + std::to_wstring( std::rand() );
         }();
@@ -240,13 +242,15 @@ JsHtmlWindow::CreateNative( JSContext* cx, const std::wstring& htmlCode, JS::Han
             L"innerBorder=no";
         const auto htaCode =
             L"<script>moveTo(-1000,-1000);resizeTo(0,0);</script>"
-            L"<hta:application id=app " + features + L" />"
-            L"<object id='" + wndId + L"' style='display:none' classid='clsid:8856F961-340A-11D0-A96B-00C04FD705A2'>"
-            L"    <param name=RegisterAsBrowser value=1>"
-            L"</object>";
+            L"<hta:application id=app "
+            + features + L" />"
+                         L"<object id='"
+            + wndId + L"' style='display:none' classid='clsid:8856F961-340A-11D0-A96B-00C04FD705A2'>"
+                      L"    <param name=RegisterAsBrowser value=1>"
+                      L"</object>";
 
         const std::wstring launchCmd = L"\"about:" + htaCode + L"\"";
-        
+
         SHELLEXECUTEINFO execInfo = { 0 };
         execInfo.cbSize = sizeof( execInfo );
         execInfo.lpVerb = L"open";
@@ -255,9 +259,9 @@ JsHtmlWindow::CreateNative( JSContext* cx, const std::wstring& htmlCode, JS::Han
         execInfo.fMask = SEE_MASK_NOCLOSEPROCESS;
 
         BOOL bRet = ShellExecuteEx( &execInfo );
-        IF_WINAPI_FAILED_RETURN_WITH_REPORT( cx, bRet && ((DWORD)execInfo.hInstApp > 32), nullptr, ShellExecuteEx );
+        IF_WINAPI_FAILED_RETURN_WITH_REPORT( cx, bRet && ( (DWORD)execInfo.hInstApp > 32 ), nullptr, ShellExecuteEx );
 
-        DWORD pid =  GetProcessId( execInfo.hProcess );
+        DWORD pid = GetProcessId( execInfo.hProcess );
 
         // TODO: add incremental sleep
         Sleep( 100 ); ///< Give some time for window to spawn
@@ -278,7 +282,7 @@ JsHtmlWindow::CreateNative( JSContext* cx, const std::wstring& htmlCode, JS::Han
         MSHTML::IHTMLWindow2Ptr pHtaWindow;
         MSHTML::IHTMLDocument2Ptr pDocument;
         for ( long i = pShellWindows->GetCount() - 1; i >= 0; --i )
-        {// Ideally we should use HWND instead, but GetHWND fails for no apparent reason...
+        { // Ideally we should use HWND instead, but GetHWND fails for no apparent reason...
             _variant_t va( i, VT_I4 );
             CDispatchPtr pCurWindow = pShellWindows->Item( va );
             _variant_t idVal = pCurWindow.Get( L"id" );
@@ -286,8 +290,8 @@ JsHtmlWindow::CreateNative( JSContext* cx, const std::wstring& htmlCode, JS::Han
             {
                 continue;
             }
-            
-            if ( static_cast<_bstr_t>(idVal) != _bstr_t( wndId.c_str() ) )
+
+            if ( static_cast<_bstr_t>( idVal ) != _bstr_t( wndId.c_str() ) )
             {
                 continue;
             }
@@ -314,14 +318,13 @@ JsHtmlWindow::CreateNative( JSContext* cx, const std::wstring& htmlCode, JS::Han
             return nullptr;
         }
 
-        scope::final_action autoWindow( [&pHtaWindow]
-        {
+        scope::final_action autoWindow( [&pHtaWindow] {
             pHtaWindow->close();
-        });
+        } );
 
         IDispatchExPtr pHtaWindowEx( pHtaWindow );
         assert( !!pHtaWindowEx );
-       
+
         { // open document
             SAFEARRAY* pSaStrings = SafeArrayCreateVector( VT_VARIANT, 0, 1 );
             scope::final_action autoPsa( [pSaStrings]() {
@@ -349,12 +352,12 @@ JsHtmlWindow::CreateNative( JSContext* cx, const std::wstring& htmlCode, JS::Han
             IF_HR_FAILED_RETURN_WITH_REPORT( cx, hr, nullptr, "write" );
         }
 
-        {// store callback data
+        { // store callback data
             DISPID dispId;
             _bstr_t varName = L"stored_data";
             hr = pHtaWindowEx->GetDispID( varName.GetBSTR(), fdexNameEnsure, &dispId );
             IF_HR_FAILED_RETURN_WITH_REPORT( cx, hr, nullptr, "GetDispID" );
-            
+
             DISPID dispPut = { DISPID_PROPERTYPUT };
             DISPPARAMS dispParams = { &storedData.GetVARIANT(), &dispPut, 1, 1 };
 
@@ -362,8 +365,8 @@ JsHtmlWindow::CreateNative( JSContext* cx, const std::wstring& htmlCode, JS::Han
             IF_HR_FAILED_RETURN_WITH_REPORT( cx, hr, nullptr, "InvokeEx" );
         }
 
-        if (storedFunction)
-        {// store callback function
+        if ( storedFunction )
+        { // store callback function
             DISPID dispId;
             _bstr_t varName = L"stored_function";
             hr = pHtaWindowEx->GetDispID( varName.GetBSTR(), fdexNameEnsure, &dispId );
@@ -380,20 +383,20 @@ JsHtmlWindow::CreateNative( JSContext* cx, const std::wstring& htmlCode, JS::Han
             IF_HR_FAILED_RETURN_WITH_REPORT( cx, hr, nullptr, "InvokeEx" );
         }
 
-        {// Update window according to options
+        { // Update window according to options
             _bstr_t bTitle( title.c_str() );
             hr = pDocument->put_title( bTitle.Detach() );
             IF_HR_FAILED_RETURN_WITH_REPORT( cx, hr, nullptr, "put_title" );
-            
+
             hr = pHtaWindow->resizeTo( width, height );
             IF_HR_FAILED_RETURN_WITH_REPORT( cx, hr, nullptr, "resizeTo" );
 
             // TODO: change to relative to fb2k center
-            hr = pHtaWindow->moveTo( (pHtaWindow->screen->width - width)/2, (pHtaWindow->screen->height - height)/2);
+            hr = pHtaWindow->moveTo( ( pHtaWindow->screen->width - width ) / 2, ( pHtaWindow->screen->height - height ) / 2 );
             IF_HR_FAILED_RETURN_WITH_REPORT( cx, hr, nullptr, "moveTo" );
         }
 
-         { // open document
+        { // open document
             SAFEARRAY* pSaStrings = SafeArrayCreateVector( VT_VARIANT, 0, 1 );
             scope::final_action autoPsa( [pSaStrings]() {
                 SafeArrayDestroy( pSaStrings );
@@ -415,13 +418,13 @@ JsHtmlWindow::CreateNative( JSContext* cx, const std::wstring& htmlCode, JS::Han
         }
 
         hr = pDocument->close();
-        IF_HR_FAILED_RETURN_WITH_REPORT( cx, hr, nullptr, "close" );        
+        IF_HR_FAILED_RETURN_WITH_REPORT( cx, hr, nullptr, "close" );
 
         hr = pHtaWindow->focus();
         IF_HR_FAILED_RETURN_WITH_REPORT( cx, hr, nullptr, "focus" );
 
         autoWindow.cancel();
-        return std::unique_ptr<JsHtmlWindow>( new JsHtmlWindow( cx, pid ) );
+        return std::unique_ptr<JsHtmlWindow>( new JsHtmlWindow( cx, pid, pHtaWindow ) );
     }
     catch ( const _com_error& e )
     {
@@ -440,7 +443,7 @@ size_t JsHtmlWindow::GetInternalSize( const std::wstring& htmlCode, JS::HandleVa
 
 std::optional<nullptr_t>
 JsHtmlWindow::Close()
-{    
+{
     if ( !pid_ )
     {
         return nullptr;
@@ -452,8 +455,7 @@ JsHtmlWindow::Close()
         return nullptr;
     }
 
-    auto enumFn = []( HWND hwnd, LPARAM lParam ) -> BOOL
-    {
+    auto enumFn = []( HWND hwnd, LPARAM lParam ) -> BOOL {
         DWORD pid;
         GetWindowThreadProcessId( hwnd, &pid );
 
@@ -479,8 +481,37 @@ JsHtmlWindow::Close()
     CloseHandle( hProc );
 
     pid_ = 0;
+    pWindow_.Release();
 
     return nullptr;
 }
 
+std::optional<nullptr_t> JsHtmlWindow::Focus()
+{
+    if ( !pid_ || !pWindow_ )
+    {
+        return nullptr;
+    }
+    HANDLE hProc = OpenProcess( PROCESS_QUERY_INFORMATION, FALSE, pid_ );
+    if ( !hProc )
+    {
+        return nullptr;
+    }
+    scope::final_action autoProc( [&hProc] 
+    {
+        CloseHandle( hProc );
+    } );
+
+    DWORD exitCode;
+    if ( !GetExitCodeProcess( hProc, &exitCode ) || STILL_ACTIVE != exitCode )
+    {
+        return nullptr;
+    }
+
+    HRESULT hr = pWindow_->focus();
+    IF_HR_FAILED_RETURN_WITH_REPORT( pJsCtx_, hr, nullptr, "focus" );
+
+    return nullptr;
 }
+
+} // namespace mozjs
