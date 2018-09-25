@@ -17,6 +17,7 @@ void JsCompartmentInner::OnGcDone()
     std::scoped_lock sl( gcDataLock_ );
 
     lastHeapSize_ = curHeapSize_;
+    lastAllocCount_ = curAllocCount_;
     isMarkedForGc_ = false;
 }
 

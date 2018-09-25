@@ -13,6 +13,8 @@
 
 #include <js/Initialization.h>
 
+// TODO: move gc stuff to the separate class
+
 namespace
 {
 const uint32_t kHeartbeatRate = 73; ///< In ms
