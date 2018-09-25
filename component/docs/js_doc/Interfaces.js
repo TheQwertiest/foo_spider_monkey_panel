@@ -1303,16 +1303,19 @@ function IJSUtils() {
      * @param {number} window_id {@link window.ID}
      * @param {number} default_colour
      * @return {number}
+     *
+     * @example
+     * var colour = utils.ColourPicker(window.ID, RGB(255, 0, 0));
+     * // See docs\Helper.js for RGB function.
      */
-    this.ColourPicker = function (window_id, default_colour) {}; // (int)
-    /*
-    Example:
-    var colour = utils.ColourPicker(window.ID, RGB(255, 0, 0));
-    See docs\Helper.js for RGB function.
-    */
+    this.ColourPicker = function(window_id, default_colour) {}; // (int)
 
     /**
-     * Creates a window with html page (rendered by IE engine).
+     * Creates a window with html page (rendered by IE8 engine).
+     *
+     * Note that IE supports only ES3 + JSON subset of JavaScript.
+     * Additionally, arrays passed via `data` argument needs to be converted
+     * to array via `toArray()` inside html code.
      *
      * @param {string} code Html source code of the page
      * @param {object=} [options={}]
@@ -1323,7 +1326,10 @@ function IJSUtils() {
      *                                      This data is read-only and should not be modified.
      * @param {object=} [options.fn=undefined] Will be saved in window.stored_function object and can be accessed from JavaScript as well.
      *                                         This function can have up to 7 arguments and can be used as callback to pass some data back to the caller.
-     * @return {IHtmlWindow}
+     * @return {IHtmlWindow} {@link ..\..\samples\basic\HtmlWindowWithCheckBox.txt}
+     *
+     * @example
+     * // See samples/basic/HtmlWindowWithCheckbox.txt
      */
     this.CreateHtmlWindow = function(code, options){};
 
@@ -1335,16 +1341,15 @@ function IJSUtils() {
      *     "s" - Retrieve file size, in bytes.
      *     "d" - If path is a directory, return true.
      *     "split" - Returns an Array.
-     * @return {Array<string>}
+     * @return {*}
+     *
+     * @example
+     * var arr = utils.FileTest("D:\\Somedir\\Somefile.txt", "split");
+     * // arr[0] <= "D:\\Somedir\\" (always includes backslash at the end)
+     * // arr[1] <= "Somefile"
+     * // arr[2] <= ".txt"
      */
     this.FileTest = function (path, mode) {}; // (VARIANT)
-    /*
-    Example:
-    var arr = utils.FileTest("D:\\Somedir\\Somefile.txt", "split");
-    arr[0] <= "D:\\Somedir\\" (always includes backslash at the end)
-    arr[1] <= "Somefile"
-    arr[2] <= ".txt"
-    */
 
     /**
      * @param {number} seconds
@@ -2863,10 +2868,17 @@ function IDropTargetAction() {
     this.ToSelect = undefined; // (boolean) (write)
 }
 
-
+/**
+ * @constructor
+ */
 function IHtmlWindow() {
     /**
-     * Close the window
+     * Closes the window
      */
     this.Close = function() {};
+
+    /**
+     * Focus the window
+     */
+    this.Focus = function() {};
 }
