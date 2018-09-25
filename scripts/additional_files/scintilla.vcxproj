@@ -47,6 +47,22 @@
   <ItemDefinitionGroup>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\lexers\*.cxx" />
+    <ClCompile Include="..\lexlib\*.cxx" />
+    <ClCompile Include="..\src\*.cxx" />
+    <ClCompile Include="..\win32\HanjaDic.cxx" />
+    <ClCompile Include="..\win32\PlatWin.cxx" />
+    <ClCompile Include="..\win32\ScintillaWin.cxx" />
+    <ClCompile Include="..\win32\ScintillaDLL.cxx" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\include\*.h" />
+    <ClInclude Include="..\src\*.h" />
+    <ClInclude Include="..\lexlib\*.h" />
+    <ClInclude Include="..\win32\*.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\win32\ScintRes.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
