@@ -28,6 +28,10 @@ bool InvokeJsCallback_Impl( JSContext* cx,
     }
 
     bool bRet = JS::Call( cx, globalObject, func, args, rval ); // reports
+    if ( bRet )
+    {
+        JsEngine::GetInstance().MaybeRunJobs();
+    }
     JsEngine::GetInstance().MaybeGc();
     return bRet;
 }

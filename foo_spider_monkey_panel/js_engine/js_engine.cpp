@@ -11,6 +11,11 @@
 
 #include <js/Initialization.h>
 
+namespace
+{
+const uint32_t kJobsMaxBudget = 500;
+const uint32_t kJobsDelay = 100;
+}
 
 namespace mozjs
 {
@@ -44,6 +49,7 @@ bool JsEngine::Initialize()
     statex.dwLength = sizeof( statex );
     if ( !GlobalMemoryStatusEx( &statex ) )
     {
+        // TODO: add report
         return false;
     }
 
@@ -64,7 +70,7 @@ bool JsEngine::Initialize()
 
     JSContext* pJsCtx = JS_NewContext( maxHeapSize_ );
     if ( !pJsCtx )
-    {
+    {//reports
         return false;
     }
 
@@ -73,10 +79,15 @@ bool JsEngine::Initialize()
         JS_DestroyContext( pCtx );
     } );
 
+    if ( !js::UseInternalJobQueues( pJsCtx ) )
+    { //reports
+        return false;
+    }
+
     // TODO: JS::SetWarningReporter( pJsCtx_ )
 
     if ( !JS::InitSelfHostedCode( pJsCtx ) )
-    {
+    {//reports
         return false;
     }
 
@@ -379,6 +390,23 @@ void JsEngine::NotifyCompartmentsOnGcEnd()
             pNativeCompartment->OnGcDone();
         }
     } );
+}
+
+void JsEngine::MaybeRunJobs()
+{
+    if ( areJobsInProgress_ )
+    {
+        if ( timeGetTime() - jobsStartTime_ >= kJobsMaxBudget )
+        {
+            js::StopDrainingJobQueue( pJsCtx_ );
+        }
+        return;
+    }
+
+    jobsStartTime_ = timeGetTime();
+    areJobsInProgress_ = true; 
+    js::RunJobs( pJsCtx_ );
+    areJobsInProgress_ = false; 
 }
 
 }

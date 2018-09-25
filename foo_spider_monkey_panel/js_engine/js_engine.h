@@ -29,6 +29,7 @@ public:
 
 public:
     void MaybeGc();
+    void MaybeRunJobs();
 
 private:
     JsEngine();
@@ -68,6 +69,10 @@ private:
     uint32_t heapGrowthRateTrigger_ = 50UL * 1024 * 1024;
     uint32_t gcSliceTimeBudget_ = 30;
     uint32_t gcCheckDelay_ = 50;
+
+    bool areJobsInProgress_ = false;
+    uint32_t jobsStartTime_ = 0;
+    uint32_t jobsDelayTime_ = 50;
 };
 
 }
