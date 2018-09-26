@@ -32,10 +32,11 @@ public:
     void set_config_item( const std::wstring& propName, const mozjs::SerializedJsValue& serializedValue );
     void remove_config_item( const std::wstring& propName );
 
-    static void g_load( config_map& data, stream_reader* reader, abort_callback& abort ) throw();
-    static void g_save( const config_map& data, stream_writer* writer, abort_callback& abort ) throw();
-    void load( stream_reader* reader, abort_callback& abort ) throw();
-    void save( stream_writer* writer, abort_callback& abort ) const throw();
+    static bool g_load( config_map& data, stream_reader* reader, abort_callback& abort );    
+    static bool g_load_legacy( config_map& data, stream_reader* reader, abort_callback& abort );
+    static void g_save( const config_map& data, stream_writer* writer, abort_callback& abort );
+    void load( stream_reader* reader, abort_callback& abort );
+    void save( stream_writer* writer, abort_callback& abort ) const;
 
 private:
     config_map m_map;
