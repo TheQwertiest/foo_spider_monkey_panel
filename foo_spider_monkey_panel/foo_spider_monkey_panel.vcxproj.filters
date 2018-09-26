@@ -570,8 +570,6 @@
       <Filter>uncategorized\resources</Filter>
     </None>
     <None Include=".clang-format" />
-    <None Include="..\CHANGELOG.md" />
-    <None Include="..\README.md" />
     <None Include="..\component\interface.api">
       <Filter>_docs</Filter>
     </None>
@@ -597,6 +595,12 @@
       <Filter>_docs</Filter>
     </None>
     <None Include="..\component\docs\js_doc\ActiveXObject.js">
+      <Filter>_docs</Filter>
+    </None>
+    <None Include="..\CHANGELOG.md">
+      <Filter>_docs</Filter>
+    </None>
+    <None Include="..\README.md">
       <Filter>_docs</Filter>
     </None>
   </ItemGroup>

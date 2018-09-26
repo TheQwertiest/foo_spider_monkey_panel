@@ -49,13 +49,13 @@ function IUIHacks() {
      */
     this.MainWindowState = undefined;
 
-    /** @type {IMasterVolume} */
+    /** @type{IMasterVolume} */
     this.MasterVolume = undefined;
 
-    /** @type{boolean|IConstraints} */
+    /** @type{IConstraints} */
     this.MaxSize = undefined;
 
-    /** @type{boolean|IConstraints} */
+    /** @type{IConstraints} */
     this.MinSize = undefined;
 
     /**
@@ -102,16 +102,20 @@ function IUIHacks() {
         /** @type{number} */
         this.Bottom = undefined;
 
+        /** @type{boolean} */
+        this.Transparency = undefined;
     }
 
     /** @constructor */
     function IConstraints() {
+        /** @type{boolean} */
+        this.Enabled = undefined;
 
         /** @type{number} */
         this.Width = undefined;
+
         /** @type{number} */
         this.Height = undefined;
-
     }
 
     /** @constructor */
@@ -119,7 +123,7 @@ function IUIHacks() {
         /** @type{number} */
         this.ChannelCount = undefined; // read-only
 
-        /** @type{number} */
+        /** @type{boolean} */
         this.Mute = undefined;
 
         /** @type{float} */
