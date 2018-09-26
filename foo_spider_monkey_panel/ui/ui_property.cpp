@@ -32,95 +32,63 @@ LRESULT CDialogProperty::OnCloseCmd(WORD wNotifyCode, WORD wID, HWND hWndCtl)
 	return 0;
 }
 
-LRESULT CDialogProperty::OnPinItemChanged(LPNMHDR pnmh)
+LRESULT CDialogProperty::OnPinItemChanged( LPNMHDR pnmh )
 {
-	LPNMPROPERTYITEM pnpi = (LPNMPROPERTYITEM)pnmh;
+    LPNMPROPERTYITEM pnpi = (LPNMPROPERTYITEM)pnmh;
 
-	std::wstring name = pnpi->prop->GetName();
+    std::wstring name = pnpi->prop->GetName();
 
-	if (m_dup_prop_map.count( name ))
-	{
-        auto& val = *(m_dup_prop_map[name].get());
-		_variant_t var;
+    if ( m_dup_prop_map.count( name ) )
+    {
+        auto& val = *( m_dup_prop_map[name].get() );
+        _variant_t var;
 
-		if (pnpi->prop->GetValue(&var))
-		{
-            switch ( var.vt )
+        if ( pnpi->prop->GetValue( &var ) )
+        {
+            switch ( val.type )
             {
-                case VT_I1:
+                case mozjs::JsValueType::pt_boolean:
                 {
-                    memset( &val, 0, sizeof( val ) );
-                    val.type = mozjs::JsValueType::pt_int32;
-                    val.intVal = var.cVal;
-                    break;
-                }
-                case VT_I2:
-                {
-                    memset( &val, 0, sizeof( val ) );
-                    val.type = mozjs::JsValueType::pt_int32;
-                    val.intVal = var.iVal;
-                    break;
-                }
-                case VT_INT:
-                case VT_I4: 
-                {
-                    memset( &val, 0, sizeof( val ) );
-                    val.type = mozjs::JsValueType::pt_int32;
-                    val.intVal = var.lVal;
-                    break;
-                }
-                case VT_R4:
-                {
-                    memset( &val, 0, sizeof( val ) );
-                    val.type = mozjs::JsValueType::pt_double;
-                    val.doubleVal = var.fltVal;
-                    break;
-                }
-                case VT_R8:
-                {
-                    memset( &val, 0, sizeof( val ) );
-                    val.type = mozjs::JsValueType::pt_double;
-                    val.doubleVal = var.dblVal;
-                    break;
-                }
-                case VT_BOOL:
-                {
-                    memset( &val, 0, sizeof( val ) );
-                    val.type = mozjs::JsValueType::pt_boolean;
+                    var.ChangeType( VT_BOOL );
                     val.boolVal = var.boolVal;
                     break;
                 }
-                case VT_UI1:
+                case mozjs::JsValueType::pt_int32:
                 {
-                    memset( &val, 0, sizeof( val ) );
-                    val.type = mozjs::JsValueType::pt_double;
-                    val.doubleVal = var.bVal;
+                    var.ChangeType( VT_I4 );
+                    val.intVal = var.lVal;
                     break;
                 }
-                case VT_UI2:
+                case mozjs::JsValueType::pt_double:
                 {
-                    memset( &val, 0, sizeof( val ) );
-                    val.type = mozjs::JsValueType::pt_double;
-                    val.doubleVal = var.uiVal;
+                    if ( VT_BSTR == var.vt )
+                    {
+                        val.doubleVal = std::stod( var.bstrVal );
+                    }
+                    else
+                    {
+                        var.ChangeType( VT_R8 );
+                        val.doubleVal = var.dblVal;
+                    }
+
                     break;
                 }
-                case VT_UINT:
-                case VT_UI4:
+                case mozjs::JsValueType::pt_string:
                 {
-                    memset( &val, 0, sizeof( val ) );
-                    val.type = mozjs::JsValueType::pt_double;
-                    val.doubleVal = var.ulVal;
+                    var.ChangeType( VT_BSTR );
+                    val.strVal = pfc::stringcvt::string_utf8_from_wide( var.bstrVal );
                     break;
                 }
                 default:
                 {
+                    assert( 0 );
                     break;
                 }
             }
-		}
-	}
+        }
+    }
 
-	return 0;
+    return 0;
 }
 
 LRESULT CDialogProperty::OnClearallBnClicked(WORD wNotifyCode, WORD wID, HWND hWndCtl)

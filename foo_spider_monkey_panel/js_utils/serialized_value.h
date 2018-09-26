@@ -17,6 +17,7 @@ enum class JsValueType
 struct SerializedJsValue
 {
     JsValueType type;
+    // TODO: consider replacing with std::variant
     union
     {
         int32_t intVal;

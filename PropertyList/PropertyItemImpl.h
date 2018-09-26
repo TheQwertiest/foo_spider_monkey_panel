@@ -479,12 +479,14 @@ public:
 		SetValue(CComVariant(bValue));
 	}
 
-	BOOL SetValue(const VARIANT& value)
-	{
-		// Convert to list index...
-		if (value.vt == VT_BOOL) return CPropertyListItem::SetValue(CComVariant(value.boolVal ? 1L : 0L));
-		return CPropertyListItem::SetValue(value);
-	}
+     BOOL SetValue( const VARIANT& value )
+     {
+          if ( value.vt == VT_BOOL )
+          {// Convert to list index...
+               return CPropertyListItem::SetValue( CComVariant( value.boolVal ? 1L : 0L ) );
+          }
+          return CPropertyListItem::SetValue( value );
+     }
 
 	VOID _InitBooleanList()
 	{
