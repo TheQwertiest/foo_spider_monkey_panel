@@ -11,17 +11,17 @@ ITypeLibPtr g_typelib;
 
 namespace
 {
-	DECLARE_COMPONENT_VERSION(
-		SMP_NAME,
-		SMP_VERSION,
-        SMP_NAME_WITH_VERSION " by TheQwertiest\n"
-        "Based on JScript Panel by marc2003\n"
-		"Based on WSH Panel Mod by T.P. Wang\n\n"
-		"Build: " __TIME__ ", " __DATE__ "\n"
-		"Columns UI SDK Version: " UI_EXTENSION_VERSION
-	);
+DECLARE_COMPONENT_VERSION(
+    SMP_NAME,
+    SMP_VERSION,
+    SMP_NAME_WITH_VERSION " by TheQwertiest\n"
+    "Based on JScript Panel by marc2003\n"
+    "Based on WSH Panel Mod by T.P. Wang\n\n"
+    "Build: " __TIME__ ", " __DATE__ "\n"
+    "Columns UI SDK Version: " UI_EXTENSION_VERSION 
+);
 
-	VALIDATE_COMPONENT_FILENAME(SMP_DLL_NAME);
+VALIDATE_COMPONENT_FILENAME( SMP_DLL_NAME );
 
 	// Is there anything not correctly loaded?
 	enum t_load_status_error
