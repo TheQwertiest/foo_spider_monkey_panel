@@ -1,5 +1,7 @@
 #pragma once
 
+#include <js_engine/js_gc.h>
+
 #include <map>
 #include <functional>
 #include <mutex>
@@ -47,24 +49,7 @@ private:
     void StopHeartbeatThread();
 
 private:
-    enum class GcLevel: uint8_t
-    {
-        Incremental,
-        Normal,
-        Full
-    };
-
-    void MaybeGc();
     void MaybeRunJobs();
-
-    uint64_t GetCurrentTotalHeapSize();
-    uint64_t GetCurrentTotalAllocCount();
-    void PerformGc( GcLevel gcLevel );
-    void PerformIncrementalGc();
-    void PerformNormalGc();
-    void PerformFullGc();
-    void PrepareCompartmentsForGc( GcLevel gcLevel );
-    void NotifyCompartmentsOnGcEnd();
 
 private:
     JSContext * pJsCtx_ = nullptr;
@@ -77,16 +62,8 @@ private:
     std::unique_ptr<smp::HeartbeatWindow> heartbeatWindow_;
     std::thread heartbeatThread_;
     std::atomic_bool shouldStopHeartbeatThread_ = false;    
-    
-    uint32_t lastGcCheckTime_ = 0;
-    uint64_t lastTotalHeapSize_ = 0;
-    uint64_t lastTotalAllocCount_ = 0;
 
-    uint32_t maxHeapSize_ = 1024UL * 1024 * 1024;
-    uint32_t heapGrowthRateTrigger_ = 50UL * 1024 * 1024;
-    uint32_t gcSliceTimeBudget_ = 30;
-    uint32_t gcCheckDelay_ = 50;
-    uint32_t allocCountTrigger_ = 50;
+    JsGc jsGc_;
 
     bool areJobsInProgress_ = false;
     uint32_t jobsStartTime_ = 0;

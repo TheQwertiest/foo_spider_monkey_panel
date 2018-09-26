@@ -247,6 +247,9 @@
     <ClCompile Include="heartbeat_window.cpp">
       <Filter>uncategorized</Filter>
     </ClCompile>
+    <ClCompile Include="js_engine\js_gc.cpp">
+      <Filter>js_engine</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="js_engine\js_engine.h">
@@ -557,6 +560,9 @@
     </ClInclude>
     <ClInclude Include="heartbeat_window.h">
       <Filter>uncategorized</Filter>
+    </ClInclude>
+    <ClInclude Include="js_engine\js_gc.h">
+      <Filter>js_engine</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

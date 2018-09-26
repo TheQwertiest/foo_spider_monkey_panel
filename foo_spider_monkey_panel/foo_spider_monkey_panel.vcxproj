@@ -108,6 +108,7 @@
     <ClCompile Include="js_engine\js_compartment_inner.cpp" />
     <ClCompile Include="js_engine\js_container.cpp" />
     <ClCompile Include="js_engine\js_engine.cpp" />
+    <ClCompile Include="js_engine\js_gc.cpp" />
     <ClCompile Include="js_engine\native_to_js_invoker.cpp" />
     <ClCompile Include="js_objects\active_x_object.cpp" />
     <ClCompile Include="js_objects\aero.cpp" />
@@ -195,6 +196,7 @@
     <ClInclude Include="js_engine\js_compartment_inner.h" />
     <ClInclude Include="js_engine\js_container.h" />
     <ClInclude Include="js_engine\js_engine.h" />
+    <ClInclude Include="js_engine\js_gc.h" />
     <ClInclude Include="js_engine\js_to_native_invoker.h" />
     <ClInclude Include="js_engine\native_to_js_invoker.h" />
     <ClInclude Include="js_objects\active_x_object.h" />
