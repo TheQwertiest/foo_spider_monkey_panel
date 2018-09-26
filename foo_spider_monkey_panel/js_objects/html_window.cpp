@@ -10,8 +10,7 @@
 #include <js_utils/scope_helper.h>
 #include <convert/com.h>
 
-// std::time
-#include <ctime>
+#include <helpers.h>
 
 #pragma warning( push )
 #pragma warning( disable : 4192 )
@@ -24,6 +23,11 @@
 #undef GetFreeSpace
 #import <wshom.ocx>
 #pragma warning( pop )
+
+// std::time
+#include <ctime>
+#include <filesystem>
+
 
 namespace
 {
@@ -263,9 +267,20 @@ JsHtmlWindow::CreateNative( JSContext* cx, const std::wstring& htmlCode, JS::Han
                                     L"scroll=no "
                                     L"showintaskbar=yes "
                                     L"contextMenu=yes "
-                                    L"innerBorder=no ";
+                                    L"innerBorder=no";
 
-            features += isContextMenuEnabled ? L"selection=yes" : L"selection=no";
+            features += (isContextMenuEnabled ? L" selection=yes" : L" selection=no");
+
+            namespace fs = std::filesystem;
+
+            const pfc::string8_fast path = helpers::get_fb2k_path() + "foobar2000.exe";
+            fs::path fsPath = fs::u8path( path.c_str() );
+            std::error_code dummyErr;
+            if ( fs::exists( fsPath ) && fs::is_regular_file( fsPath, dummyErr ) )
+            {
+                features += L" icon=\"" + fsPath.wstring() + L"\"";
+            }
+
             return features;            
         }();
 
