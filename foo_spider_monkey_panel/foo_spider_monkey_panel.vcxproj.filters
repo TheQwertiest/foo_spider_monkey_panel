@@ -572,6 +572,33 @@
     <None Include=".clang-format" />
     <None Include="..\CHANGELOG.md" />
     <None Include="..\README.md" />
+    <None Include="..\component\interface.api">
+      <Filter>_docs</Filter>
+    </None>
+    <None Include="..\component\jscript.api">
+      <Filter>_docs</Filter>
+    </None>
+    <None Include="..\component\docs\Codepages.js">
+      <Filter>_docs</Filter>
+    </None>
+    <None Include="..\component\docs\Flags.js">
+      <Filter>_docs</Filter>
+    </None>
+    <None Include="..\component\docs\Helpers.js">
+      <Filter>_docs</Filter>
+    </None>
+    <None Include="..\component\docs\Callbacks.js">
+      <Filter>_docs</Filter>
+    </None>
+    <None Include="..\component\docs\js_doc\Interfaces.js">
+      <Filter>_docs</Filter>
+    </None>
+    <None Include="..\component\docs\js_doc\IUiHacks.js">
+      <Filter>_docs</Filter>
+    </None>
+    <None Include="..\component\docs\js_doc\ActiveXObject.js">
+      <Filter>_docs</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="js_engine">
@@ -606,6 +633,9 @@
     </Filter>
     <Filter Include="uncategorized\scintilla">
       <UniqueIdentifier>{fe84cd3a-a0ea-4f6b-9816-6d2d77d6c024}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="_docs">
+      <UniqueIdentifier>{2c5dc72d-4a41-4209-8fe8-0206ff7ad1da}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

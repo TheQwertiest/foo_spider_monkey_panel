@@ -17,12 +17,12 @@
 #pragma warning( disable : 4192 )
 #pragma warning( disable : 4146 )
 #pragma warning( disable : 4278 )
-#   import <mshtml.tlb>
-#   import <shdocvw.dll>
-#   undef GetWindowStyle
-#   undef GetWindowLong
-#   undef GetFreeSpace
-#   import <wshom.ocx>
+#import <mshtml.tlb>
+#import <shdocvw.dll>
+#undef GetWindowStyle
+#undef GetWindowLong
+#undef GetFreeSpace
+#import <wshom.ocx>
 #pragma warning( pop )
 
 namespace
@@ -94,6 +94,7 @@ JsHtmlWindow::CreateNative( JSContext* cx, const std::wstring& htmlCode, JS::Han
     uint32_t width = 400;
     uint32_t height = 400;
     std::wstring title = L"foobar2000";
+    bool isContextMenuEnabled = false;
     _variant_t storedData;
     JS::RootedFunction storedFunction( cx );
 
@@ -176,6 +177,29 @@ JsHtmlWindow::CreateNative( JSContext* cx, const std::wstring& htmlCode, JS::Han
             title = retVal.value();
         }
 
+        if ( !JS_HasProperty( cx, jsObject, "context_menu", &hasProp ) )
+        { // reports
+            return nullptr;
+        }
+
+        if ( hasProp )
+        {
+            JS::RootedValue jsValue( cx );
+            if ( !JS_GetProperty( cx, jsObject, "context_menu", &jsValue ) )
+            { // reports
+                return nullptr;
+            }
+
+            auto retVal = convert::to_native::ToValue<bool>( cx, jsValue );
+            if ( !retVal )
+            {
+                JS_ReportErrorUTF8( cx, "`context_menu` can't be converted to bool" );
+                return nullptr;
+            }
+
+            isContextMenuEnabled = retVal.value();
+        }
+
         if ( !JS_HasProperty( cx, jsObject, "data", &hasProp ) )
         { // reports
             return nullptr;
@@ -230,24 +254,27 @@ JsHtmlWindow::CreateNative( JSContext* cx, const std::wstring& htmlCode, JS::Han
             return L"a" + std::to_wstring( std::rand() );
         }();
 
-        const std::wstring features =
-            L"singleinstance=yes "
-            L"border=dialog "
-            L"minimizeButton=no "
-            L"maximizeButton=no "
-            L"scroll=no "
-            L"showintaskbar=yes "
-            L"contextMenu=yes "
-            L"selection=no "
-            L"innerBorder=no";
-        const auto htaCode =
+        const std::wstring features = [isContextMenuEnabled] 
+        {
+            std::wstring features = L"singleinstance=yes "
+                                    L"border=dialog "
+                                    L"minimizeButton=no "
+                                    L"maximizeButton=no "
+                                    L"scroll=no "
+                                    L"showintaskbar=yes "
+                                    L"contextMenu=yes "
+                                    L"innerBorder=no ";
+
+            features += isContextMenuEnabled ? L"selection=yes" : L"selection=no";
+            return features;            
+        }();
+
+        const std::wstring htaCode = 
             L"<script>moveTo(-1000,-1000);resizeTo(0,0);</script>"
-            L"<hta:application id=app "
-            + features + L" />"
-                         L"<object id='"
-            + wndId + L"' style='display:none' classid='clsid:8856F961-340A-11D0-A96B-00C04FD705A2'>"
-                      L"    <param name=RegisterAsBrowser value=1>"
-                      L"</object>";
+            L"<hta:application id=app " + features + L" />"
+            L"<object id='" + wndId + L"' style='display:none' classid='clsid:8856F961-340A-11D0-A96B-00C04FD705A2'>"
+            L"    <param name=RegisterAsBrowser value=1>"
+            L"</object>";
 
         const std::wstring launchCmd = L"\"about:" + htaCode + L"\"";
 
@@ -497,8 +524,7 @@ std::optional<nullptr_t> JsHtmlWindow::Focus()
     {
         return nullptr;
     }
-    scope::final_action autoProc( [&hProc] 
-    {
+    scope::final_action autoProc( [&hProc] {
         CloseHandle( hProc );
     } );
 

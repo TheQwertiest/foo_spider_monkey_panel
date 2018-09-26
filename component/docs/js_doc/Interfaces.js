@@ -1320,10 +1320,11 @@ function IJSUtils() {
      * - Arrays passed via `data` argument need to be converted via `toArray()`.
      *
      * @param {string} code Html source code of the page
-     * @param {object=} [options={}]
+     * @param {object=} [options=undefined]
      * @param {number=} [options.width=400] Window width
      * @param {number=} [options.height=400] Window height
      * @param {string=} [options.title='foobar2000'] Window title
+     * @param {boolean=} [options.context_menu=false] Enables or disables context menu invocation
      * @param {*=} [options.data=undefined] Will be saved in window.stored_data object and can be accessed from JavaScript executed inside HTML window.
      *                                      This data is read-only and should not be modified.
      * @param {object=} [options.fn=undefined] Will be saved in window.stored_function object and can be accessed from JavaScript as well.
