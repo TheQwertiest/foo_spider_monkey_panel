@@ -4,8 +4,6 @@
 #define _WIN32_WINNT _WIN32_WINNT_WIN7
 #define WINVER _WIN32_WINNT_WIN7
 
-#define TO_VARIANT_BOOL(v) ((v) ? (VARIANT_TRUE) : (VARIANT_FALSE))
-
 // Fix std min max conflicts
 #define NOMINMAX
 #include <algorithm>
@@ -20,13 +18,15 @@ using std::max;
 #pragma warning( push, 0 )
 #   include <GdiPlus.h>
 #pragma warning( pop ) 
+
+// COM objects
 #include <ActivScp.h>
 #include <activdbg.h>
 #include <MsHTML.h>
 #include <ShlDisp.h>
 #include <exdisp.h>
+// Generates wrappers for COM listed above
 #include <ComDef.h>
-#include <StrSafe.h>
 
 // ATL/WTL
 #include <atlstr.h>
@@ -39,9 +39,7 @@ using std::max;
 #include <atlcrack.h>
 #include <atltheme.h>
 
-// Other controls
-#define STATIC_BUILD 1
-#define SCI_LEXER 1
+// Scintilla
 #include <Scintilla.h>
 #include <SciLexer.h>
 

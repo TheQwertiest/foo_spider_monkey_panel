@@ -171,7 +171,7 @@ private:
     }
 
     static JSObject* CreateJsObject_Final( JSContext* cx, 
-                                           JS::HandleObject jsProto, 
+                                           [[maybe_unused]] JS::HandleObject jsProto, 
                                            JS::HandleObject jsBaseObject, 
                                            std::unique_ptr<T> premadeNative )
     {

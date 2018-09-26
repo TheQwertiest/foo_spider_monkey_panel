@@ -668,7 +668,7 @@ JsFbPlaylistManager::MovePlaylist( uint32_t from, uint32_t to )
     }
 
     int8_t inc = (from < to) ? 1 : -1;
-    for ( int32_t i = from; i != to; i += inc )
+    for ( uint32_t i = from; i != to; i += inc )
     {
         order[i] = order[i + inc];
     }

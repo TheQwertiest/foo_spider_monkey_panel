@@ -5,20 +5,10 @@
 namespace mozjs
 {
 
-bool DummyGetter( JSContext* cx, unsigned argc, JS::Value* vp )
+bool DummyGetter( JSContext*, unsigned, JS::Value* vp )
 {
     vp->setUndefined();
     return true;
-}
-
-JSObject* GetJsObjectFromValue( JSContext* cx, JS::HandleValue jsValue )
-{
-    if ( !jsValue.isObject() )
-    {        
-        return nullptr;
-    }
-
-    return jsValue.toObjectOrNull();
 }
 
 }

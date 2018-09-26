@@ -181,7 +181,7 @@ void JsGc::UpdateGcStats()
 uint64_t JsGc::GetCurrentTotalHeapSize()
 {
     uint64_t curTotalHeapSize = JS_GetGCParameter( pJsCtx_, JSGC_BYTES );
-    JS_IterateCompartments( pJsCtx_, &curTotalHeapSize, []( JSContext* cx, void* data, JSCompartment* pJsCompartment )
+    JS_IterateCompartments( pJsCtx_, &curTotalHeapSize, []( JSContext*, void* data, JSCompartment* pJsCompartment )
     {
         auto pCurTotalHeapSize = static_cast<uint64_t*>(data);
         auto pNativeCompartment = static_cast<JsCompartmentInner*>(JS_GetCompartmentPrivate( pJsCompartment ));
@@ -198,7 +198,7 @@ uint64_t JsGc::GetCurrentTotalHeapSize()
 uint64_t JsGc::GetCurrentTotalAllocCount()
 {
     uint64_t curTotalAllocCount = 0;
-    JS_IterateCompartments( pJsCtx_, &curTotalAllocCount, []( JSContext* cx, void* data, JSCompartment* pJsCompartment ) {
+    JS_IterateCompartments( pJsCtx_, &curTotalAllocCount, []( JSContext*, void* data, JSCompartment* pJsCompartment ) {
         auto pCurTotalAllocCount = static_cast<uint64_t*>( data );
         auto pNativeCompartment = static_cast<JsCompartmentInner*>( JS_GetCompartmentPrivate( pJsCompartment ) );
         if ( !pNativeCompartment )
@@ -245,7 +245,7 @@ void JsGc::PerformIncrementalGc()
     if ( !JS::IsIncrementalGCInProgress( pJsCtx_ ) )
     {
         std::vector<JSCompartment*> compartments;
-        JS_IterateCompartments( pJsCtx_, &compartments, []( JSContext* cx, void* data, JSCompartment* pJsCompartment )
+        JS_IterateCompartments( pJsCtx_, &compartments, []( JSContext*, void* data, JSCompartment* pJsCompartment )
         {
             auto pJsCompartments = static_cast<std::vector<JSCompartment*>*>(data);
             auto pNativeCompartment = static_cast<JsCompartmentInner*>(JS_GetCompartmentPrivate( pJsCompartment ));
@@ -317,7 +317,7 @@ void JsGc::PrepareCompartmentsForGc( GcLevel gcLevel )
             uint32_t allocCountTrigger;
         };
         TriggerData triggers{ heapGrowthRateTrigger_, allocCountTrigger_ };
-        JS_IterateCompartments( pJsCtx_, &triggers, []( JSContext* cx, void* data, JSCompartment* pJsCompartment )
+        JS_IterateCompartments( pJsCtx_, &triggers, []( JSContext*, void* data, JSCompartment* pJsCompartment )
         {
             TriggerData* pTriggerData = reinterpret_cast<TriggerData*>( data );
 
@@ -339,7 +339,7 @@ void JsGc::PrepareCompartmentsForGc( GcLevel gcLevel )
     case mozjs::JsGc::GcLevel::Normal:
     case mozjs::JsGc::GcLevel::Full:
     {
-        JS_IterateCompartments( pJsCtx_, nullptr, []( JSContext* cx, void* data, JSCompartment* pJsCompartment )
+        JS_IterateCompartments( pJsCtx_, nullptr, []( JSContext*, void*, JSCompartment* pJsCompartment )
         {
             auto pNativeCompartment = static_cast<JsCompartmentInner*>(JS_GetCompartmentPrivate( pJsCompartment ));
             if ( !pNativeCompartment )
@@ -359,7 +359,7 @@ void JsGc::PrepareCompartmentsForGc( GcLevel gcLevel )
 
 void JsGc::NotifyCompartmentsOnGcEnd()
 {
-    JS_IterateCompartments( pJsCtx_, nullptr, []( JSContext* cx, void* data, JSCompartment* pJsCompartment )
+    JS_IterateCompartments( pJsCtx_, nullptr, []( JSContext*, void*, JSCompartment* pJsCompartment )
     {
         auto pNativeCompartment = static_cast<JsCompartmentInner*>(JS_GetCompartmentPrivate( pJsCompartment ));
         if ( !pNativeCompartment )

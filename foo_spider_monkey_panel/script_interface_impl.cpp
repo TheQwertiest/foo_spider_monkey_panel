@@ -8,6 +8,8 @@
 #include <vector>
 #include <algorithm>
 
+#define TO_VARIANT_BOOL(v) ((v) ? (VARIANT_TRUE) : (VARIANT_FALSE))
+
 STDMETHODIMP WSHUtils::GetWndByClass(BSTR class_name, IWindow** pp)
 {
 	if (!class_name) return E_INVALIDARG;

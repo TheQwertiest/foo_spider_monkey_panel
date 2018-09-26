@@ -2,9 +2,7 @@
 #include "global_heap_manager.h"
 
 #pragma warning( push )
-#pragma warning( disable : 4100 ) // unused variable
 #pragma warning( disable : 4251 ) // dll interface warning
-#pragma warning( disable : 4324 ) // structure was padded due to alignment specifier
 #pragma warning( disable : 4996 ) // C++17 deprecation warning
 #   include <js/TracingAPI.h>
 #pragma warning( pop )

@@ -120,7 +120,6 @@ bool PanelProperties::g_load_legacy( config_map& data, stream_reader* reader, ab
         {
             pfc::string8_fast propName;
             VARTYPE vt;
-            int cbRead = 0;
 
             reader->read_string( propName, abort );
             reader->read_lendian_t( vt, abort );

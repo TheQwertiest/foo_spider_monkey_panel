@@ -63,14 +63,14 @@ JSObject* GetPrototype( JSContext* cx, JsPrototypeId protoId )
     uint32_t slotIdx = JSCLASS_GLOBAL_SLOT_COUNT + static_cast<uint32_t>(protoId);
     assert( slotIdx < JSCLASS_RESERVED_SLOTS( JS_GetClass( globalObject ) ) );
 
-    JS::Value& valRef = JS_GetReservedSlot( globalObject, slotIdx );
-    if ( !valRef.isObject() )
+    JS::Value protoVal = JS_GetReservedSlot( globalObject, slotIdx );
+    if ( !protoVal.isObject() )
     {
         JS_ReportErrorUTF8(cx, "Internal error: Slot %u does not contain a prototype", slotIdx );
         return nullptr;
     }
 
-    return &valRef.toObject();
+    return &protoVal.toObject();
 }
 
 /// @brief Get the prototype for the specified object from the current global object.
@@ -85,10 +85,10 @@ JSObject* GetOrCreatePrototype( JSContext* cx, JsPrototypeId protoId )
     assert( slotIdx < JSCLASS_RESERVED_SLOTS( JS_GetClass( globalObject ) ) );
 
     {
-        JS::Value& valRef = JS_GetReservedSlot( globalObject, slotIdx );
-        if ( valRef.isObject() )
+        JS::Value protoVal = JS_GetReservedSlot( globalObject, slotIdx );
+        if ( protoVal.isObject() )
         {
-            return &valRef.toObject();
+            return &protoVal.toObject();
         }
     }
 
@@ -97,10 +97,10 @@ JSObject* GetOrCreatePrototype( JSContext* cx, JsPrototypeId protoId )
         return nullptr;
     }
 
-    JS::Value& valRef = JS_GetReservedSlot( globalObject, slotIdx );
-    assert( valRef.isObject() );
+    JS::Value protoVal = JS_GetReservedSlot( globalObject, slotIdx );
+    assert( protoVal.isObject() );
 
-    return &valRef.toObject();
+    return &protoVal.toObject();
 }
 
 }

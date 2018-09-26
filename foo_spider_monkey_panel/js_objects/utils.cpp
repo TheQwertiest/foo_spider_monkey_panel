@@ -17,6 +17,9 @@
 
 #include <helpers.h>
 
+// StringCchCopy, StringCchCopyN
+#include <StrSafe.h>
+
 #include <io.h>
 #include <fcntl.h>
 

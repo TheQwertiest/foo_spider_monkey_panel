@@ -251,24 +251,34 @@ t_size my_config_object_notify::get_watched_object_count()
 	return 4;
 }
 
-void my_config_object_notify::on_watched_object_changed(const config_object::ptr& p_object)
+void my_config_object_notify::on_watched_object_changed( const config_object::ptr& p_object )
 {
-	GUID guid = p_object->get_guid();
-	bool boolval = false;
-	unsigned msg = 0;
+    GUID guid = p_object->get_guid();
+    unsigned msg;
+    if ( guid == standard_config_objects::bool_playlist_stop_after_current )
+    {
+        msg = CALLBACK_UWM_ON_PLAYLIST_STOP_AFTER_CURRENT_CHANGED;
+    }
+    else if ( guid == standard_config_objects::bool_cursor_follows_playback )
+    {
+        msg = CALLBACK_UWM_ON_CURSOR_FOLLOW_PLAYBACK_CHANGED;
+    }
+    else if ( guid == standard_config_objects::bool_playback_follows_cursor )
+    {
+        msg = CALLBACK_UWM_ON_PLAYBACK_FOLLOW_CURSOR_CHANGED;
+    }
+    else if ( guid == standard_config_objects::bool_ui_always_on_top )
+    {
+        msg = CALLBACK_UWM_ON_ALWAYS_ON_TOP_CHANGED;
+    }
+    else
+    {
+        return;
+    }
 
-	p_object->get_data_bool(boolval);
-
-	if (guid == standard_config_objects::bool_playlist_stop_after_current)
-		msg = CALLBACK_UWM_ON_PLAYLIST_STOP_AFTER_CURRENT_CHANGED;
-	else if (guid == standard_config_objects::bool_cursor_follows_playback)
-		msg = CALLBACK_UWM_ON_CURSOR_FOLLOW_PLAYBACK_CHANGED;
-	else if (guid == standard_config_objects::bool_playback_follows_cursor)
-		msg = CALLBACK_UWM_ON_PLAYBACK_FOLLOW_CURSOR_CHANGED;
-	else if (guid == standard_config_objects::bool_ui_always_on_top)
-		msg = CALLBACK_UWM_ON_ALWAYS_ON_TOP_CHANGED;
-
-	panel_manager::instance().post_msg_to_all(msg, TO_VARIANT_BOOL(boolval));
+    bool boolval;
+    p_object->get_data_bool( boolval );
+    panel_manager::instance().post_msg_to_all( msg, boolval );
 }
 
 unsigned my_playlist_callback_static::get_flags()

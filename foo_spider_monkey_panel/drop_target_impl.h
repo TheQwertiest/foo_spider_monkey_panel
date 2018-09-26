@@ -149,23 +149,8 @@ public:
 	}
 
 	// Overrides
-	virtual HRESULT OnDragEnter(IDataObject* pDataObj, DWORD grfKeyState, POINTL pt, DWORD* pdwEffect)
-	{
-		return S_OK;
-	}
-
-	virtual HRESULT OnDragOver(DWORD grfKeyState, POINTL pt, DWORD* pdwEffect)
-	{
-		return S_OK;
-	}
-
-	virtual HRESULT OnDrop(IDataObject* pDataObj, DWORD grfKeyState, POINTL pt, DWORD* pdwEffect)
-	{
-		return S_OK;
-	}
-
-	virtual HRESULT OnDragLeave()
-	{
-		return S_OK;
-	}
+    virtual HRESULT OnDragEnter( IDataObject* pDataObj, DWORD grfKeyState, POINTL pt, DWORD* pdwEffect ) = 0;
+    virtual HRESULT OnDragOver( DWORD grfKeyState, POINTL pt, DWORD* pdwEffect ) = 0;
+    virtual HRESULT OnDrop( IDataObject* pDataObj, DWORD grfKeyState, POINTL pt, DWORD* pdwEffect ) = 0;
+    virtual HRESULT OnDragLeave() = 0;
 };
