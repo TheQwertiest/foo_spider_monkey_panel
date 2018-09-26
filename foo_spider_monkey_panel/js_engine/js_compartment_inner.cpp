@@ -41,6 +41,12 @@ uint32_t JsCompartmentInner::GetCurrentHeapBytes()
 uint32_t JsCompartmentInner::GetLastHeapBytes()
 {
     std::scoped_lock sl( gcDataLock_ );
+
+    if ( lastHeapSize_ > curHeapSize_ )
+    {
+        lastHeapSize_ = curHeapSize_;
+    }
+
     return lastHeapSize_;
 }
 
@@ -59,6 +65,12 @@ uint32_t JsCompartmentInner::GetCurrentAllocCount()
 uint32_t JsCompartmentInner::GetLastAllocCount()
 {
     std::scoped_lock sl( gcDataLock_ );
+
+    if ( lastAllocCount_ > curAllocCount_ )
+    {
+        lastAllocCount_ = curAllocCount_;
+    }
+
     return lastAllocCount_;
 }
 
