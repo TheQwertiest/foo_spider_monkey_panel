@@ -1313,9 +1313,11 @@ function IJSUtils() {
     /**
      * Creates a window with html page (rendered by IE8 engine).
      *
-     * Note that IE supports only ES3 + JSON subset of JavaScript.
-     * Additionally, arrays passed via `data` argument needs to be converted
-     * to array via `toArray()` inside html code.
+     * Html code must be IE 8 compatible, meaning:
+     * - Only ES3 + JSON subset of JavaScript.
+     * - Objects passed to `data` are limited to standard JavaScript objects:
+     *   - No extensions from Spider Monkey Panel (e.g. no IFbMetadbHandle or IGdiBitmap).
+     * - Arrays passed via `data` argument need to be converted via `toArray()`.
      *
      * @param {string} code Html source code of the page
      * @param {object=} [options={}]
@@ -1326,7 +1328,7 @@ function IJSUtils() {
      *                                      This data is read-only and should not be modified.
      * @param {object=} [options.fn=undefined] Will be saved in window.stored_function object and can be accessed from JavaScript as well.
      *                                         This function can have up to 7 arguments and can be used as callback to pass some data back to the caller.
-     * @return {IHtmlWindow} {@link ..\..\samples\basic\HtmlWindowWithCheckBox.txt}
+     * @return {IHtmlWindow}
      *
      * @example
      * // See samples/basic/HtmlWindowWithCheckbox.txt
