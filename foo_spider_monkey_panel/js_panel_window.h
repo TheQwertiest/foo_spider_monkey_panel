@@ -110,7 +110,7 @@ private:
     void on_drag_leave();
     void on_drag_over( LPARAM lp );
     void on_dsp_preset_changed();
-    void on_focus_changed(bool isFocused);
+    void on_focus(bool isFocused);
     void on_font_changed();
     void on_get_album_art_done(LPARAM lp);
     void on_item_focus_change(WPARAM wp);

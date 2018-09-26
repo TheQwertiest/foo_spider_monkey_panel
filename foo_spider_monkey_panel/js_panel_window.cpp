@@ -217,12 +217,12 @@ LRESULT js_panel_window::on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
     }
     case WM_SETFOCUS:
     {
-        on_focus_changed( true );
+        on_focus( true );
         break;
     }
     case WM_KILLFOCUS:
     {
-        on_focus_changed( false );
+        on_focus( false );
         break;
     }
     case CALLBACK_UWM_ON_ALWAYS_ON_TOP_CHANGED:
@@ -896,7 +896,7 @@ void js_panel_window::on_dsp_preset_changed()
     jsContainer_.InvokeJsCallback( "on_dsp_preset_changed" );
 }
 
-void js_panel_window::on_focus_changed( bool isFocused )
+void js_panel_window::on_focus( bool isFocused )
 {
     if ( isFocused )
     {
@@ -906,7 +906,7 @@ void js_panel_window::on_focus_changed( bool isFocused )
     {
         selectionHolder_.release();
     }
-    jsContainer_.InvokeJsCallback( "on_focus_changed",
+    jsContainer_.InvokeJsCallback( "on_focus",
                                    static_cast<bool>(isFocused) );
 }
 
