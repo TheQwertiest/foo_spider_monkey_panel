@@ -19,7 +19,7 @@ set FB2K_ARCHIVE=%ROOT_DIR%foo_spider_monkey_panel.fb2k-component
 
 if not exist "%COMPONENT_OUT_DIR_NO_SLASH%" mkdir "%COMPONENT_OUT_DIR_NO_SLASH%"
 xcopy /r/y/s "%COMPONENT_DIR_NO_SLASH%" "%COMPONENT_OUT_DIR_NO_SLASH%"
-xcopy /r/y/s "%MOZ_JS_BIN_DIR_NO_SLASH%*.dll" "%COMPONENT_OUT_DIR%"
+xcopy /r/y/s "%MOZ_JS_BIN_DIR%*.dll" "%COMPONENT_OUT_DIR%"
 xcopy /r/y "%COMPONENT_DLL%" "%COMPONENT_OUT_DIR%"
 
 if exist "%FB2K_ARCHIVE%" del /f/q "%FB2K_ARCHIVE%"
