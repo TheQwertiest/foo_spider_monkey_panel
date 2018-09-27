@@ -1,18 +1,3 @@
-[submodule "pfc"]
-	path = pfc
-	url = https://github.com/reupen/pfc.git
-[submodule "columns_ui-sdk"]
-	path = columns_ui-sdk
-	url = https://github.com/reupen/columns_ui-sdk.git
-[submodule "foobar2000"]
-	path = foobar2000
-	url = https://github.com/reupen/foobar2000-sdk.git
-[submodule "scintilla"]
-	path = scintilla
-	url = https://github.com/mirror/scintilla.git
-[submodule "js_marc2003_complete"]
-	path = js_marc2003_complete
-	url = https://github.com/marc2k3/smp_2003.git
 [submodule "submodules/wtl"]
 	path = submodules/wtl
 	url = https://git.code.sf.net/p/wtl/git
