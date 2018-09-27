@@ -10,6 +10,7 @@ if '%1'=='--debug' (
 
 set COMPONENT_DIR_NO_SLASH=%ROOT_DIR%component
 set COMPONENT_DLL=%ROOT_DIR%_result\Win32_%CONFIGURATION%\bin\foo_spider_monkey_panel.dll
+set SAMPLES_COMPLETE_DIR_NO_SLASH=%ROOT_DIR%js_marc2003_complete
 set MOZ_JS_BIN_DIR=%ROOT_DIR%mozjs\%CONFIGURATION%\bin\
 set COMPONENT_OUT_DIR_NO_SLASH=%ROOT_DIR%_result\Win32_%CONFIGURATION%\component
 set COMPONENT_OUT_DIR=%COMPONENT_OUT_DIR_NO_SLASH%\
@@ -19,6 +20,7 @@ set FB2K_ARCHIVE=%ROOT_DIR%foo_spider_monkey_panel.fb2k-component
 
 if not exist "%COMPONENT_OUT_DIR_NO_SLASH%" mkdir "%COMPONENT_OUT_DIR_NO_SLASH%"
 xcopy /r/y/s "%COMPONENT_DIR_NO_SLASH%" "%COMPONENT_OUT_DIR_NO_SLASH%"
+echo d|xcopy /r/y/s "%SAMPLES_COMPLETE_DIR_NO_SLASH%" "%COMPONENT_OUT_DIR_NO_SLASH%\samples\complete"
 xcopy /r/y/s "%MOZ_JS_BIN_DIR%*.dll" "%COMPONENT_OUT_DIR%"
 xcopy /r/y "%COMPONENT_DLL%" "%COMPONENT_OUT_DIR%"
 

@@ -13,3 +13,6 @@
 [submodule "scintilla"]
 	path = scintilla
 	url = https://github.com/mirror/scintilla.git
+[submodule "js_marc2003_complete"]
+	path = js_marc2003_complete
+	url = https://github.com/marc2k3/smp_2003.git
