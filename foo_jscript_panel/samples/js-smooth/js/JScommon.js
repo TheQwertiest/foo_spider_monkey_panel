@@ -1,5 +1,5 @@
-if (!("Version" in utils) || utils.Version < 2000)
-	fb.ShowPopupMessage("This script requires the component JScript Panel v2.0.0 or later.\n\nhttps://github.com/marc2k3/foo_jscript_panel");
+if (!("Version" in utils) || utils.Version < 2101)
+	fb.ShowPopupMessage("This script requires the component JScript Panel v2.1.0 or later.\n\nhttps://github.com/marc2k3/foo_jscript_panel");
 
 var CACHE_FOLDER = fb.ProfilePath + "js_smooth_cache\\";
 
@@ -753,44 +753,6 @@ function Syscolor(color_n) {
 	var tempc;
 	tempc = Shell.RegRead("HKEY_CURRENT_USER\\Control Panel\\Colors\\" + color_n).split(" ");
 	return (0xff000000 | (tempc[0] << 16) | (tempc[1] << 8) | (tempc[2]));
-};
-
-function get_system_dpi_percent() {
-	// get windows version
-	var wbemFlagReturnImmediately = 0x10;
-	var wbemFlagForwardOnly = 0x20;
-	var objWMIService = GetObject("winmgmts:\\\\.\\root\\CIMV2");
-	var colItems = objWMIService.ExecQuery("SELECT * FROM Win32_OperatingSystem", "WQL",
-			wbemFlagReturnImmediately | wbemFlagForwardOnly);
-	var enumItems = new Enumerator(colItems);
-	var objItem = enumItems.item();
-	var version_number = 0;
-	if (objItem.Caption.toUpperCase().indexOf("XP") != -1)
-		version_number = 5;
-	if (objItem.Caption.toUpperCase().indexOf("VISTA") != -1)
-		version_number = 6;
-	if (objItem.Caption.toUpperCase().indexOf("7") != -1)
-		version_number = 7;
-	if (objItem.Caption.toUpperCase().indexOf("8") != -1)
-		version_number = 8;
-
-	if (version_number == 8) {
-		var Shell = new ActiveXObject("WScript.Shell");
-		var tmp;
-		tmp = Shell.RegRead("HKEY_CURRENT_USER\\Control Panel\\Desktop\\Win8DpiScaling");
-		if (tmp == 1) {
-			tmp = Shell.RegRead("HKEY_CURRENT_USER\\Control Panel\\Desktop\\WindowMetrics\\AppliedDPI");
-		} else {
-			//tmp = 100;
-			tmp = Shell.RegRead("HKEY_CURRENT_USER\\Control Panel\\Desktop\\WindowMetrics\\AppliedDPI");
-			if (tmp < 100)
-				tmp = 100;
-		};
-	} else {
-		tmp = 100;
-	};
-	//tmp = Math.ceil(tmp/10)*10;
-	return tmp;
 };
 
 function get_system_scrollbar_width() {
