@@ -94,7 +94,7 @@ _.mixin({
 				var f = panel.metadb.GetFileInfo();
 				var idx = f.MetaFind(this.properties.tag.value);
 				var ret = idx > -1 ? f.MetaValue(idx, 0) : 0;
-				f.Dispose();
+				_.dispose(f);
 				return ret;
 			case 3: // JScript Panel DB
 				return panel.tf('$if2(%jsp_rating%,0)');
@@ -115,7 +115,7 @@ _.mixin({
 				var handles = fb.CreateHandleList();
 				handles.Add(panel.metadb);
 				handles.UpdateFileInfoFromJSON(JSON.stringify(obj));
-				handles.Dispose();
+				_.dispose(handles);
 				break;
 			case 3: // JScript Panel db
 				panel.metadb.SetRating(this.hrating == this.rating ? 0 : this.hrating);

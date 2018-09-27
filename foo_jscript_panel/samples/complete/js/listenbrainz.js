@@ -265,7 +265,7 @@ _.mixin({
 				this.properties.genres.toggle();
 				break;
 			}
-			m.Dispose();
+			_.dispose(m);
 		}
 		
 		this.update_button = function () {

@@ -123,7 +123,7 @@ _.mixin({
 							m.SetLoved(1);
 							items_to_refresh.Add(m);
 						}
-						m.Dispose();
+						_.dispose(m);
 					}
 					console.log(items_to_refresh.Count, 'library tracks matched and updated. Duplicates are not counted.');
 					console.log('For those updated tracks, %JSP_LOVED% now has the value of 1 in all components/search dialogs.');
