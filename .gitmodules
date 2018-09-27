@@ -7,9 +7,6 @@
 [submodule "foobar2000"]
 	path = foobar2000
 	url = https://github.com/reupen/foobar2000-sdk.git
-[submodule "wtl"]
-	path = wtl
-	url = https://git.code.sf.net/p/wtl/git
 [submodule "scintilla"]
 	path = scintilla
 	url = https://github.com/mirror/scintilla.git
