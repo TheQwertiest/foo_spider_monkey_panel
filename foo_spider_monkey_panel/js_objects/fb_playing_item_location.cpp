@@ -77,7 +77,7 @@ JsFbPlayingItemLocation::CreateNative( JSContext* cx, bool isValid, uint32_t pla
     return std::unique_ptr<JsFbPlayingItemLocation>( new JsFbPlayingItemLocation(cx, isValid, playlistIndex, playlistItemIndex) );
 }
 
-size_t JsFbPlayingItemLocation::GetInternalSize( bool isValid, uint32_t playlistIndex, uint32_t playlistItemIndex )
+size_t JsFbPlayingItemLocation::GetInternalSize( bool /*isValid*/, uint32_t /*playlistIndex*/, uint32_t /*playlistItemIndex*/ )
 {
     return 0;
 }

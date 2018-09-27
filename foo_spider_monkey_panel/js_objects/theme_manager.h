@@ -47,7 +47,7 @@ public:
     std::optional<std::nullptr_t> SetPartAndStateIDWithOpt( size_t optArgCount, int32_t partid, int32_t stateId );
 
 private:
-    JsThemeManager( JSContext* cx, HWND hwnd, HTHEME hTheme );
+    JsThemeManager( JSContext* cx, HTHEME hTheme );
 
 private:
     JSContext * pJsCtx_ = nullptr;

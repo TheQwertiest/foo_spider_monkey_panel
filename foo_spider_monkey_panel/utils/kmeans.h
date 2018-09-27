@@ -29,7 +29,7 @@ class Point
 {
 private:
     uint32_t id_point;
-    uint32_t id_cluster = -1;
+    uint32_t id_cluster = uint32_t(-1);
     std::vector<uint32_t> values;
     uint32_t total_values;
     uint32_t pixel_count;

@@ -319,7 +319,7 @@ public:
 	void AddItem(LPCTSTR pstrItem)
 	{
 		ATLASSERT(m_wndList.IsWindow());
-		ATLASSERT(!::IsBadStringPtr(pstrItem, -1));
+		ATLASSERT(!::IsBadStringPtr(pstrItem, UINT_PTR(-1)));
 		m_wndList.AddString(pstrItem);
 		m_cyList = 0;
 	}

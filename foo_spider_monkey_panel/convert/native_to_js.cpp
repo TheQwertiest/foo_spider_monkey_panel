@@ -133,7 +133,7 @@ bool ToValue( JSContext * cx, const std::wstring& inValue, JS::MutableHandleValu
 }
 
 template <>
-bool ToValue( JSContext *, const std::nullptr_t& inValue, JS::MutableHandleValue wrappedValue )
+bool ToValue( JSContext * /*cx*/, const std::nullptr_t& /*inValue*/, JS::MutableHandleValue wrappedValue )
 {
     wrappedValue.setUndefined();
     return true;

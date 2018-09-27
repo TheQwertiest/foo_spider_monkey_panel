@@ -124,7 +124,7 @@ JsMainMenuManager::Init( const pfc::string8_fast & root_name )
     const auto preparedRootName = [&]()
     {
         std::string tmp = root_name.c_str(); ///< Don't care about UTF8 here: we need exact match
-        std::transform( tmp.begin(), tmp.end(), tmp.begin(), ::tolower );
+        std::transform( tmp.begin(), tmp.end(), tmp.begin(), []( const unsigned char i ) { return static_cast<char>(::tolower( i ) ); } );
         return tmp;
     }();
     

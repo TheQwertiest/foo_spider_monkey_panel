@@ -505,8 +505,8 @@ JsFbPlaylistManager::GetPlaybackQueueHandles()
 std::optional<JSObject*>
 JsFbPlaylistManager::GetPlayingItemLocation()
 {
-    t_size playlistIndex = pfc_infinite;
-    t_size playlistItemIndex = pfc_infinite;
+    t_size playlistIndex = t_size(pfc_infinite);
+    t_size playlistItemIndex = t_size(pfc_infinite);
     bool isValid = playlist_manager::get()->get_playing_item_location( &playlistIndex, &playlistItemIndex );
     
     JS::RootedObject jsObject( pJsCtx_, JsFbPlayingItemLocation::CreateJs( pJsCtx_, isValid, playlistIndex, playlistItemIndex ) );

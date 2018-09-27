@@ -292,7 +292,7 @@ void HostTimer::stop()
     m_isStopRequested = true;
 }
 
-VOID CALLBACK HostTimer::timerProc(PVOID lpParameter, BOOLEAN TimerOrWaitFired)
+VOID CALLBACK HostTimer::timerProc(PVOID lpParameter, BOOLEAN /*TimerOrWaitFired*/)
 {
     HostTimer* timer = (HostTimer*)lpParameter;
 

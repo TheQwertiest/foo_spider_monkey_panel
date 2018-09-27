@@ -59,7 +59,7 @@ const JSFunctionSpec* JsThemeManager::JsFunctions = jsFunctions;
 const JSPropertySpec* JsThemeManager::JsProperties = jsProperties;
 const JsPrototypeId JsThemeManager::PrototypeId = JsPrototypeId::ThemeManager;
 
-JsThemeManager::JsThemeManager( JSContext* cx, HWND hwnd, HTHEME hTheme )
+JsThemeManager::JsThemeManager( JSContext* cx, HTHEME hTheme )
     : pJsCtx_( cx )
     , hTheme_( hTheme )
 {
@@ -95,10 +95,10 @@ JsThemeManager::CreateNative( JSContext* cx, HWND hwnd, const std::wstring& clas
         return nullptr;
     }
 
-    return std::unique_ptr<JsThemeManager>( new JsThemeManager( cx, hwnd, hTheme ) );
+    return std::unique_ptr<JsThemeManager>( new JsThemeManager( cx, hTheme ) );
 }
 
-size_t JsThemeManager::GetInternalSize( HWND hwnd, const std::wstring& classlist )
+size_t JsThemeManager::GetInternalSize( HWND /* hwnd */, const std::wstring& /* classlist */ )
 {
     return 0;
 }

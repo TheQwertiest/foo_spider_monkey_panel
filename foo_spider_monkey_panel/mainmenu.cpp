@@ -2,7 +2,9 @@
 #include "user_message.h"
 #include "panel_manager.h"
 
-static mainmenu_group_popup_factory g_mainmenu_group(g_guid_smp_mainmenu_group_id, mainmenu_groups::file, mainmenu_commands::sort_priority_dontcare, SMP_NAME);
+static mainmenu_group_popup_factory g_mainmenu_group(
+     g_guid_smp_mainmenu_group_id, mainmenu_groups::file, static_cast<t_uint32>(mainmenu_commands::sort_priority_dontcare), SMP_NAME
+);
 
 class my_mainmenu_commands : public mainmenu_commands
 {
@@ -59,7 +61,7 @@ public:
 		default: uBugCheck();
 		}
 	}
-	bool get_description(t_uint32 p_index, pfc::string_base& p_out)
+	bool get_description(t_uint32 /* p_index */, pfc::string_base& p_out)
 	{
 		p_out = "Invoke on_main_menu()";
 		return true;

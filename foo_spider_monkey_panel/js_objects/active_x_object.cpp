@@ -561,7 +561,7 @@ std::unique_ptr<ActiveXObject> ActiveXObject::CreateNative( JSContext* cx, const
     return nativeObject;
 }
 
-size_t ActiveXObject::GetInternalSize( const std::wstring& name )
+size_t ActiveXObject::GetInternalSize( const std::wstring& /*name*/ )
 {
     return 0;
 }

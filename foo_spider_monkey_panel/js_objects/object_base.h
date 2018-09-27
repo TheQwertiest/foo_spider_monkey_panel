@@ -104,7 +104,7 @@ public:
         return CreateJsObject_Final( cx, jsProto, jsObject, std::move( nativeObject ) );
     }
 
-    static void FinalizeJsObject( JSFreeOp* fop, JSObject* pSelf )
+    static void FinalizeJsObject( JSFreeOp* /*fop*/, JSObject* pSelf )
     {
         auto pNative = static_cast<T*>(JS_GetPrivate( pSelf ));
         if ( pNative )
@@ -140,7 +140,7 @@ private:
         return jsProto;
     }
 
-    static JSObject* CreateJsObject_Base( JSContext* cx, JS::HandleObject jsProto )
+    static JSObject* CreateJsObject_Base( JSContext* cx, [[maybe_unused]] JS::HandleObject jsProto )
     {
         JS::RootedObject jsObject( cx );
         if constexpr (T::HasProto)

@@ -29,7 +29,7 @@ namespace
 
 using namespace mozjs;
 
-void JsFinalizeOpLocal( JSFreeOp* fop, JSObject* obj )
+void JsFinalizeOpLocal( JSFreeOp* /*fop*/, JSObject* obj )
 {
     auto x = static_cast<JsGlobalObject*>(JS_GetPrivate( obj ));
     if ( x )

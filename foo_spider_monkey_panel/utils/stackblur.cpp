@@ -1,15 +1,15 @@
+// The Stack Blur Algorithm was invented by Mario Klingemann,
+// mario@quasimondo.com and described here:
+// http://incubator.quasimondo.com/processing/fast_blur_deluxe.php
+
+// This is C++ RGBA (32 bit color) multi-threaded version
+// by Victor Laskin (victor.laskin@gmail.com)
+// More details: http://vitiy.info/stackblur-algorithm-multi-threaded-blur-for-cpp
+
+
 #include "stdafx.h"
 #include "stackblur.h"
 
-/*
-The Stack Blur Algorithm was invented by Mario Klingemann,
-mario@quasimondo.com and described here:
-http://incubator.quasimondo.com/processing/fast_blur_deluxe.php
-
-This is C++ RGBA (32 bit color) multi-threaded version
-by Victor Laskin (victor.laskin@gmail.com)
-More details: http://vitiy.info/stackblur-algorithm-multi-threaded-blur-for-cpp
-*/
 
 namespace
 {

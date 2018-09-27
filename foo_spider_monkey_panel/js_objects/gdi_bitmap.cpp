@@ -295,7 +295,10 @@ JsGdiBitmap::GetColourScheme( uint32_t count )
         if ( g > 0xff ) g = 0xff;
         if ( b > 0xff ) b = 0xff;
 
-        ++color_counters[Gdiplus::Color::MakeARGB( 0xff, r, g, b )];
+        ++color_counters[Gdiplus::Color::MakeARGB( 0xff, 
+                                                   static_cast<BYTE>(r), 
+                                                   static_cast<BYTE>(g), 
+                                                   static_cast<BYTE>(b) )];
     }
 
     pGdi_->UnlockBits( &bmpdata );
@@ -345,19 +348,19 @@ JsGdiBitmap::GetColourSchemeJSON( uint32_t count )
     uint32_t w = std::min( pGdi_->GetWidth(), static_cast<uint32_t>( 220 ) );
     uint32_t h = std::min( pGdi_->GetHeight(), static_cast<uint32_t>( 220 ) );
 
-    Gdiplus::Bitmap* bitmap = new Gdiplus::Bitmap( w, h, PixelFormat32bppPARGB );
-    if ( !gdi::IsGdiPlusObjectValid( bitmap ) )
+    auto bitmap = std::make_unique<Gdiplus::Bitmap>( w, h, PixelFormat32bppPARGB );
+    if ( !gdi::IsGdiPlusObjectValid( bitmap.get() ) )
     {// TODO: replace with IF_FAILED macro
         JS_ReportErrorUTF8( pJsCtx_, "Internal error: failed to create Gdiplus object" );
         return std::nullopt;
     }
 
-    Gdiplus::Graphics g( bitmap );
+    Gdiplus::Graphics gr( bitmap.get() );
     Gdiplus::Rect rect( 0, 0, (LONG)w, (LONG)h );
-    Gdiplus::Status gdiRet = g.SetInterpolationMode( ( Gdiplus::InterpolationMode )6 ); // InterpolationModeHighQualityBilinear
+    Gdiplus::Status gdiRet = gr.SetInterpolationMode( (Gdiplus::InterpolationMode)6 ); // InterpolationModeHighQualityBilinear
     IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, std::nullopt, SetInterpolationMode );
 
-    gdiRet = g.DrawImage( pGdi_.get(), 0, 0, w, h ); // scale image down
+    gdiRet = gr.DrawImage( pGdi_.get(), 0, 0, w, h ); // scale image down
     IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, std::nullopt, DrawImage );
 
     gdiRet = bitmap->LockBits( &rect, Gdiplus::ImageLockModeRead, PixelFormat32bppARGB, &bmpdata );

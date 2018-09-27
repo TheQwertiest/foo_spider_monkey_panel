@@ -162,7 +162,7 @@ JsFbTooltip::CreateNative( JSContext* cx, HWND hParentWnd, PanelTooltipParam& p_
     return std::unique_ptr<JsFbTooltip>( new JsFbTooltip( cx, hFont, hParentWnd, hTooltipWnd, std::move(toolInfo), p_param_ptr ) );
 }
 
-size_t JsFbTooltip::GetInternalSize( HWND hParentWnd, const smp::PanelTooltipParam& p_param_ptr )
+size_t JsFbTooltip::GetInternalSize( HWND /*hParentWnd*/, const smp::PanelTooltipParam& /*p_param_ptr*/ )
 {
     return sizeof( LOGFONT ) + sizeof( TOOLINFO );
 }

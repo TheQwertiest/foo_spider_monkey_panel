@@ -76,7 +76,7 @@ JsFbPlaybackQueueItem::CreateNative( JSContext* cx, const t_playback_queue_item&
     return std::unique_ptr<JsFbPlaybackQueueItem>( new JsFbPlaybackQueueItem( cx, playbackQueueItem ) );
 }
 
-size_t JsFbPlaybackQueueItem::GetInternalSize( const t_playback_queue_item& playbackQueueItem )
+size_t JsFbPlaybackQueueItem::GetInternalSize( const t_playback_queue_item& /*playbackQueueItem*/ )
 {
     return 0;
 }

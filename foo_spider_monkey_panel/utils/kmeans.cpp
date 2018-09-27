@@ -43,9 +43,9 @@ uint32_t Point::getID() const
     return id_point;
 }
 
-void Point::setCluster( uint32_t id_cluster )
+void Point::setCluster( uint32_t new_cluster_id )
 {
-    this->id_cluster = id_cluster;
+    id_cluster = new_cluster_id;
 }
 
 uint32_t Point::getCluster()const
@@ -185,7 +185,7 @@ std::vector<Cluster> KMeans::run( std::vector<Point> & points )
 
             if ( id_old_cluster != id_nearest_center )
             {
-                if ( id_old_cluster != -1 )
+                if ( id_old_cluster != uint32_t(-1) )
                 {
                     clusters[id_old_cluster].removePoint( points[i].getID() );
                 }
@@ -205,11 +205,11 @@ std::vector<Cluster> KMeans::run( std::vector<Point> & points )
                 uint32_t pixelsInCluster = clusters[i].getTotalPixelCount();
                 if ( pixelsInCluster )
                 {
-                    const auto& points = clusters[i].getPoints();
+                    const auto& clPoints = clusters[i].getPoints();
                     double sum = 0.0;
-                    for ( uint32_t p = 0; p < points.size(); p++ )
+                    for ( uint32_t p = 0; p < clPoints.size(); p++ )
                     {
-                        sum += points[p].getValues()[j] * points[p].getPixelCount();
+                        sum += clPoints[p].getValues()[j] * clPoints[p].getPixelCount();
                     }
                     centralValues[j] = sum / pixelsInCluster;
                 }

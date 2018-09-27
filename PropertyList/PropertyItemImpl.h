@@ -49,7 +49,7 @@ protected:
 public:
 	CProperty(LPCTSTR pstrName, LPARAM lParam) : m_fEnabled(true), m_lParam(lParam), m_hWndOwner(NULL)
 	{
-		ATLASSERT(!::IsBadStringPtr(pstrName, -1));
+		ATLASSERT(!::IsBadStringPtr(pstrName, UINT_PTR(-1)));
 		int size = (::lstrlen(pstrName) * sizeof(TCHAR)) + 1;
 		ATLTRY(m_pszName = new TCHAR[size]);
 		ATLASSERT(m_pszName);
@@ -455,7 +455,7 @@ public:
 	}
 	void AddListItem(LPCTSTR pstrText)
 	{
-		ATLASSERT(!::IsBadStringPtr(pstrText, -1));
+		ATLASSERT(!::IsBadStringPtr(pstrText, UINT_PTR(-1)));
 		CComBSTR bstr(pstrText);
 		m_arrList.Add(bstr);
 		if (m_val.lVal < 0L) m_val = 0L;

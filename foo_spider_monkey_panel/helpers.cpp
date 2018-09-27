@@ -182,7 +182,7 @@ namespace helpers
 		return false;
 	}
 
-	static bool get_mainmenu_command_node_recur_v2(mainmenu_node::ptr node, pfc::string8_fast path, const char* p_name, t_size p_name_len, mainmenu_node::ptr &node_out)
+	bool get_mainmenu_command_node_recur_v2(mainmenu_node::ptr node, pfc::string8_fast path, const char* p_name, t_size p_name_len, mainmenu_node::ptr &node_out)
 	{
 		pfc::string8_fast text;
 		t_uint32 flags;
