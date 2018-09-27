@@ -1,6 +1,3 @@
-if (!("Version" in utils) || utils.Version < 2101)
-	fb.ShowPopupMessage("This script requires the component JScript Panel v2.1.0 or later.\n\nhttps://github.com/marc2k3/foo_jscript_panel");
-
 var CACHE_FOLDER = fb.ProfilePath + "js_smooth_cache\\";
 
 // *****************************************************************************************************************************************
