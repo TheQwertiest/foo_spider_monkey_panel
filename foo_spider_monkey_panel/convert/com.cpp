@@ -49,7 +49,7 @@ protected:
         JS::RootedValue globalValue( cx, JS::ObjectValue( *jsGlobal ) );
         globalId_ = heapMgr.Store( globalValue );
 
-        needsCleanup_ = true;
+        isJsAvailable_ = true;
     }
     /// @details Might be called off main thread
     virtual ~WrappedJs()
@@ -59,13 +59,13 @@ protected:
     virtual void FinalRelease()
     {// most of the JS object might be invalid at GC time,
      // so we need to be extra careful
-        if ( !needsCleanup_ )
+        if ( !isJsAvailable_ )
         {
             return;
         }
 
         std::scoped_lock sl( cleanupLock_ );
-        if ( !needsCleanup_ )
+        if ( !isJsAvailable_ )
         {
             return;
         }
@@ -80,7 +80,8 @@ protected:
     virtual void DisableHeapCleanup() override
     {
         std::scoped_lock sl( cleanupLock_ );
-        needsCleanup_ = false;
+        // Global is being destroyed, can't access anything
+        isJsAvailable_ = false;
     }
 
     STDMETHODIMP ExecuteValue( VARIANT arg1, VARIANT arg2, VARIANT arg3, VARIANT arg4, VARIANT arg5, VARIANT arg6, VARIANT arg7,
@@ -91,8 +92,8 @@ protected:
             return E_POINTER;
         }
 
-        if ( !needsCleanup_ )
-        {// Global is being destroyed, can't access anything
+        if ( !isJsAvailable_ )
+        {
             return E_FAIL;
         }
 
@@ -142,7 +143,7 @@ private:
     mozjs::JsGlobalObject* pNativeGlobal_ = nullptr;
 
     std::mutex cleanupLock_;
-    bool needsCleanup_ = false;
+    bool isJsAvailable_ = false;
 };
 
 bool JSArrayToCOMArray( JSContext* cx, JS::HandleObject obj, VARIANT & var )

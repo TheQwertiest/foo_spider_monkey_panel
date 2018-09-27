@@ -125,7 +125,7 @@ private:
     uint32_t globalId_;
     mozjs::JsGlobalObject* pNativeGlobal_ = nullptr;
 
-    bool needsCleanup_ = false;
+    bool isJsAvailable_ = false;
 };
 
 class HostTimer

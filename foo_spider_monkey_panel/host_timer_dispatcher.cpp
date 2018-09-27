@@ -227,12 +227,12 @@ HostTimerTask::HostTimerTask( JSContext* cx, JS::HandleFunction jsFunction )
     funcId_ = pNativeGlobal_->GetHeapManager().Store( funcValue );
     globalId_ = pNativeGlobal_->GetHeapManager().Store( globalValue );
 
-    needsCleanup_ = true;
+    isJsAvailable_ = true;
 }
 
 HostTimerTask::~HostTimerTask()
 {    
-    if ( needsCleanup_ )
+    if ( isJsAvailable_ )
     {
         pNativeGlobal_->GetHeapManager().Remove( funcId_ );
         pNativeGlobal_->GetHeapManager().Remove( globalId_ );
@@ -241,6 +241,11 @@ HostTimerTask::~HostTimerTask()
 
 void HostTimerTask::invoke()
 {
+    if ( !isJsAvailable_ )
+    {
+        return;
+    }
+
     JSAutoRequest ar( pJsCtx_ );
     JS::RootedObject jsGlobal( pJsCtx_, pNativeGlobal_->GetHeapManager().Get( globalId_ ).toObjectOrNull() );
     assert( jsGlobal );
@@ -259,7 +264,8 @@ void HostTimerTask::invoke()
 
 void HostTimerTask::DisableHeapCleanup()
 {
-    needsCleanup_ = false;
+    // Global is being destroyed, can't access anything
+    isJsAvailable_ = false;
 }
 
 HostTimer::HostTimer(HWND hWnd, uint32_t id, uint32_t delay, bool isRepeated)
