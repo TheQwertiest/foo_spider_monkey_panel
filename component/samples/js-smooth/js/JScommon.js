@@ -1,5 +1,4 @@
-if (!("Version" in utils) || utils.Version < 2000)
-	fb.ShowPopupMessage("This script requires the component JScript Panel v2.0.0 or later.\n\nhttps://github.com/marc2k3/foo_jscript_panel");
+var CACHE_FOLDER = fb.ProfilePath + "smp_smooth_cache\\";
 
 // *****************************************************************************************************************************************
 // Common functions & flags by Br3tt aka Falstaff (c)2013-2015
@@ -338,7 +337,6 @@ function draw_glass_reflect(w, h) {
 	// resizing and applying the mask
 	var Mask = Mask_img.Resize(w, h);
 	glass_img.ApplyMask(Mask);
-	Mask.Dispose();
 	return glass_img;
 };
 
@@ -436,7 +434,7 @@ function removeAccents(str) {
 	for (var i = 0; i < spec.length; i++) {
 	str = replaceAll(str, norm[i], spec[i]);
 	};
-	 */
+	*/
 	return str;
 };
 //}}
@@ -1005,8 +1003,8 @@ WindowState = {
 };
 
 function on_load() {
-	if (!fso.FolderExists(fb.ProfilePath + "js_smooth_cache"))
-		fso.CreateFolder(fb.ProfilePath + "js_smooth_cache");
+	if (!fso.FolderExists(CACHE_FOLDER))
+		fso.CreateFolder(CACHE_FOLDER);
 };
 
 function resize(source, crc) {
@@ -1018,40 +1016,14 @@ function resize(source, crc) {
 	var w = Math.floor(img.Width * s);
 	var h = Math.floor(img.Height * s);
 	img = img.Resize(w, h, 2);
-	img.SaveAs(fb.ProfilePath + 'js_smooth_cache\\' + crc, "image/jpeg");
-	img.Dispose();
+	img.SaveAs(CACHE_FOLDER + crc, "image/jpeg");
 }
-
-function getpath(path) {
-	var img_path = "";
-	var path_,
-	temp,
-	subFlds,
-	tmp;
-	for (var iii = 0; iii < 2; iii++) {
-		if (tmp = getpath_(iii == 0 ? path : (path + "..\\")))
-			return tmp;
-		try {
-			subFlds = new Enumerator(fso.GetFolder((iii == 0 ? path : (path + "..\\"))).SubFolders);
-		} catch (err) {
-			return null
-		};
-		for (; !subFlds.atEnd(); subFlds.moveNext()) {
-			temp = subFlds.item() + "\\";
-			if (temp.toLowerCase().match(cover_path)) {
-				if (tmp = getpath_(temp))
-					return tmp;
-			};
-		};
-	};
-	return null;
-};
 
 function getpath_(temp) {
 	var img_path = "",
 	path_;
 	for (var iii in cover_img) {
-		path_ = utils.Glob(temp + cover_img[iii], exc_mask = FILE_ATTRIBUTE_DIRECTORY, inc_mask = 0xffffffff).toArray();
+		path_ = utils.Glob(temp + cover_img[iii], exc_mask = FILE_ATTRIBUTE_DIRECTORY, inc_mask = 0xffffffff);
 		for (var j in path_) {
 			if (path_[j].toLowerCase().indexOf(".jpg") > -1 || path_[j].toLowerCase().indexOf(".png") > -1 || path_[j].toLowerCase().indexOf(".gif") > -1) {
 				return path_[j];
@@ -1064,15 +1036,15 @@ function getpath_(temp) {
 function check_cache(metadb, albumIndex) {
 	//var crc = ppt.tf_crc.EvalWithMetadb(metadb);
 	var crc = brw.groups[albumIndex].cachekey;
-	if (fso.FileExists(fb.ProfilePath + "js_smooth_cache\\" + crc)) {
+	if (fso.FileExists(CACHE_FOLDER + crc)) {
 		return crc;
 	};
 	return null;
 };
 
 function load_image_from_cache(metadb, crc) {
-	if (fso.FileExists(fb.ProfilePath + "js_smooth_cache\\" + crc)) { // image in folder cache
-		var tdi = gdi.LoadImageAsync(window.ID, fb.ProfilePath + "js_smooth_cache\\" + crc);
+	if (fso.FileExists(CACHE_FOLDER + crc)) { // image in folder cache
+		var tdi = gdi.LoadImageAsync(window.ID, CACHE_FOLDER + crc);
 		return tdi;
 	} else {
 		return -1;
@@ -1097,7 +1069,7 @@ function process_cachekey(str) {
 function setWallpaperImg(path, metadb) {
 
 	var fmt_path = fb.TitleFormat(path).Eval(true);
-	var fmt_path_arr = utils.Glob(fmt_path).toArray();
+	var fmt_path_arr = utils.Glob(fmt_path);
 	if (fmt_path_arr.length > 0) {
 		var final_path = fmt_path_arr[0];
 	} else {
@@ -1128,8 +1100,12 @@ function setWallpaperImg(path, metadb) {
 
 function draw_blurred_image(image, ix, iy, iw, ih, bx, by, bw, bh, blur_value, overlay_color) {
 	var blurValue = blur_value;
-	var imgA = image.Resize(iw * blurValue / 100, ih * blurValue / 100, 2);
-	var imgB = imgA.resize(iw, ih, 2);
+	try {
+		var imgA = image.Resize(iw * blurValue / 100, ih * blurValue / 100, 2);
+		var imgB = imgA.Resize(iw, ih, 2);
+	} catch (e) {
+		return null;
+	}
 
 	var bbox = gdi.CreateImage(bw, bh);
 	// Get graphics interface like "gr" in on_paint
@@ -1247,8 +1223,9 @@ function FormatWallpaper(image, iw, ih, interpolation_mode, display_mode, angle,
 		tmp_img = draw_blurred_image(tmp_img, 0, 0, tmp_img.Width, tmp_img.Height, 0, 0, tmp_img.Width, tmp_img.Height, blur_factor, 0x00ffffff);
 	};
 
-	CollectGarbage();
-	if (rawBitmap) {
+	if (!tmp_img) {
+		return null;
+	} else if (rawBitmap) {
 		return tmp_img.CreateRawBitmap();
 	} else {
 		return tmp_img;

@@ -16,7 +16,6 @@ ppt = {
 	extraRowsNumber: window.GetProperty("_PROPERTY: Number of Extra Rows per Group", 0),
 	minimumRowsNumberPerGroup: window.GetProperty("_PROPERTY: Number minimum of Rows per Group", 0),
 	groupHeaderRowsNumber: window.GetProperty("_PROPERTY: Number of Rows for Group Header", 2),
-	albumArtId: 0,
 	showHeaderBar: window.GetProperty("_DISPLAY: Show Top Bar", true),
 	defaultHeaderBarHeight: 25,
 	headerBarHeight: 25,
@@ -29,7 +28,7 @@ ppt = {
 	wallpaperblurred: window.GetProperty("_DISPLAY: Wallpaper Blurred", true),
 	wallpaperblurvalue: 1.05,
 	wallpapermode: window.GetProperty("_SYSTEM: Wallpaper Mode", 0),
-	wallpaperpath: window.GetProperty("_PROPERTY: Default Wallpaper Path", ".\\user-components\\foo_jscript_panel\\samples\\js-smooth\\images\\default.png"),
+	wallpaperpath: window.GetProperty("_PROPERTY: Default Wallpaper Path", ".\\user-components\\foo_spider_monkey_panel\\samples\\js-smooth\\images\\default.png"),
 	extra_font_size: window.GetProperty("_SYSTEM: Extra font size value", 0),
 	showFilterBox: window.GetProperty("_PROPERTY: Enable Playlist Filterbox in Top Bar", true),
 	doubleRowText: window.GetProperty("_PROPERTY: Double Row Text Info", true),
@@ -187,22 +186,15 @@ function on_load_image_done(tid, image) {
 			if (brw.groups[k].tid == tid && brw.groups[k].load_requested == 1) {
 				brw.groups[k].load_requested = 2;
 				brw.groups[k].cover_img = g_image_cache.getit(brw.groups[k].metadb, k, image);
-				//if(!isScrolling && !cScrollBar.timerID) {
 				if (k < brw.groups.length && brw.groups[k].rowId >= g_start_ && brw.groups[k].rowId <= g_end_) {
 					if (!timers.coverDone) {
 						timers.coverDone = window.SetTimeout(function () {
-								g_1x1 = false;
-								brw.cover_repaint();
-								timers.coverDone && window.ClearTimeout(timers.coverDone);
-								timers.coverDone = false;
-							}, 5);
+							brw.cover_repaint();
+							timers.coverDone && window.ClearTimeout(timers.coverDone);
+							timers.coverDone = false;
+						}, 5);
 					};
-				} else {
-					g_1x1 = true;
-					window.RepaintRect(0, 0, 1, 1);
-					g_1x1 = false;
-				};
-				//};
+				}
 				break;
 			};
 		};
@@ -211,54 +203,19 @@ function on_load_image_done(tid, image) {
 
 function on_get_album_art_done(metadb, art_id, image, image_path) {
 	var tot = brw.groups.length;
-	if (ppt.albumArtId != 0) {
-		for (var i = 0; i < tot; i++) {
-			if (brw.groups[i].metadb) {
-				if (brw.groups[i].metadb.Compare(metadb)) {
-					brw.groups[i].cover_img = g_image_cache.getit(metadb, i, image);
-					//if(!isScrolling && !cScrollBar.timerID) {
-					if (i < brw.groups.length && brw.groups[i].rowId >= g_start_ && brw.groups[i].rowId <= g_end_) {
-						if (!timers.coverDone) {
-							timers.coverDone = window.SetTimeout(function () {
-									g_1x1 = false;
-									brw.cover_repaint();
-									timers.coverDone && window.ClearTimeout(timers.coverDone);
-									timers.coverDone = false;
-								}, 5);
-						};
-					} else {
-						g_1x1 = true;
-						window.RepaintRect(0, 0, 1, 1);
-						g_1x1 = false;
-					};
-					//};
-					break;
+	for (var i = 0; i < tot; i++) {
+		if (brw.groups[i].metadb && brw.groups[i].metadb.Compare(metadb)) {
+			brw.groups[i].cover_img = g_image_cache.getit(metadb, i, image);
+			if (i < brw.groups.length && i >= g_start_ && i <= g_end_) {
+				if (!timers.coverDone) {
+					timers.coverDone = window.SetTimeout(function () {
+							brw.cover_repaint();
+							timers.coverDone && window.ClearTimeout(timers.coverDone);
+							timers.coverDone = false;
+						}, 5);
 				};
-			};
-		};
-	} else {
-		var i = art_id - 5;
-		g_last = i;
-		if (i < tot) {
-			if (brw.groups[i].metadb) {
-				brw.groups[i].cover_img = g_image_cache.getit(metadb, i, image);
-				//if(!isScrolling && !cScrollBar.timerID) {
-				if (i < brw.groups.length && brw.groups[i].rowId >= g_start_ && brw.groups[i].rowId <= g_end_) {
-					if (!timers.coverDone) {
-						timers.coverDone = window.SetTimeout(function () {
-								g_1x1 = false;
-								brw.cover_repaint();
-								timers.coverDone && window.ClearTimeout(timers.coverDone);
-								timers.coverDone = false;
-							}, 5);
-					};
-				} else {
-					g_1x1 = true;
-					window.RepaintRect(0, 0, 1, 1);
-					g_1x1 = false;
-				};
-				//};
-			};
+			}
+			break;
 		};
 	};
 };
@@ -287,12 +244,11 @@ image_cache = function () {
 				// load img default method
 				if (!timers.coverLoad) {
 					timers.coverLoad = window.SetTimeout(function () {
-							this.albumArtId = ppt.albumArtId == 0 ? albumIndex + 5 : ppt.albumArtId;
-							brw.groups[albumIndex].load_requested = 1;
-							utils.GetAlbumArtAsync(window.ID, metadb, this.albumArtId, true, false, false);
-							timers.coverLoad && window.ClearTimeout(timers.coverLoad);
-							timers.coverLoad = false;
-						}, (!isScrolling && !cScrollBar.timerID ? 5 : 25));
+						brw.groups[albumIndex].load_requested = 1;
+						utils.GetAlbumArtAsync(window.ID, metadb, 0, true, false, false);
+						timers.coverLoad && window.ClearTimeout(timers.coverLoad);
+						timers.coverLoad = false;
+					}, (!isScrolling && !cScrollBar.timerID ? 5 : 25));
 				};
 			};
 			//};
@@ -791,30 +747,30 @@ oFilterBox = function () {
 
 		this.images.resetIcon_off = gdi.CreateImage(w, w);
 		gb = this.images.resetIcon_off.GetGraphics();
-		gb.setSmoothingMode(2);
+		gb.SetSmoothingMode(2);
 		var xpts1 = Array(6, 5, w - 5, w - 6, w - 6, w - 5, 5, 6);
 		var xpts2 = Array(5, w - 6, w - 6, 5, w - 5, 6, 6, w - 5);
 		gb.FillPolygon(RGB(170, 170, 170), 0, xpts1);
 		gb.FillPolygon(RGB(170, 170, 170), 0, xpts2);
 		gb.DrawLine(6, 6, w - 6, w - 6, 2.0, blendColors(g_color_normal_txt, g_color_normal_bg, 0.35));
 		gb.DrawLine(6, w - 6, w - 6, 6, 2.0, blendColors(g_color_normal_txt, g_color_normal_bg, 0.35));
-		gb.setSmoothingMode(0);
+		gb.SetSmoothingMode(0);
 		this.images.resetIcon_off.ReleaseGraphics(gb);
 
 		this.images.resetIcon_ov = gdi.CreateImage(w, w);
 		gb = this.images.resetIcon_ov.GetGraphics();
-		gb.setSmoothingMode(2);
+		gb.SetSmoothingMode(2);
 		gb.DrawLine(4, 4, w - 4, w - 4, 3.0, blendColors(g_color_normal_txt, g_color_normal_bg, 0.35));
 		gb.DrawLine(4, w - 4, w - 4, 4, 3.0, blendColors(g_color_normal_txt, g_color_normal_bg, 0.35));
-		gb.setSmoothingMode(0);
+		gb.SetSmoothingMode(0);
 		this.images.resetIcon_ov.ReleaseGraphics(gb);
 
 		this.images.resetIcon_dn = gdi.CreateImage(w, w);
 		gb = this.images.resetIcon_dn.GetGraphics();
-		gb.setSmoothingMode(2);
+		gb.SetSmoothingMode(2);
 		gb.DrawLine(4, 4, w - 4, w - 4, 3.0, RGB(255, 50, 50));
 		gb.DrawLine(4, w - 4, w - 4, 4, 3.0, RGB(255, 50, 50));
-		gb.setSmoothingMode(0);
+		gb.SetSmoothingMode(0);
 		this.images.resetIcon_dn.ReleaseGraphics(gb);
 
 		this.reset_bt = new button(this.images.resetIcon_off, this.images.resetIcon_ov, this.images.resetIcon_dn);
@@ -1404,7 +1360,7 @@ oGroup = function (index, start, handle, groupkey) {
 	//
 	this.cover_img = null;
 	this.cover_type = null;
-	this.tracktype = TrackType(handle.rawpath.substring(0, 4));
+	this.tracktype = TrackType(handle.RawPath.substring(0, 4));
 	this.tra = [];
 	this.load_requested = 0;
 	this.save_requested = false;
@@ -1527,7 +1483,7 @@ oBrowser = function (name) {
 		/*
 		var d1 = new Date();
 		var t1 = d1.getSeconds()*1000 + d1.getMilliseconds();
-		 */
+		*/
 
 		var end = this.groups.length;
 		for (i = 0; i < end; i++) {
@@ -1574,12 +1530,12 @@ oBrowser = function (name) {
 				for (j = 0; j < m; j++) {
 					this.rows[r] = new Object();
 					this.rows[r].type = 0; // track
-					this.rows[r].metadb = this.list.Item(s + j);
+					this.rows[r].metadb = this.list[s + j];
 					this.rows[r].albumId = i;
 					this.rows[r].albumTrackId = j;
 					this.rows[r].playlistTrackId = s + j;
 					this.rows[r].groupkey = grptags;
-					this.rows[r].tracktype = TrackType(this.rows[r].metadb.rawpath.substring(0, 4));
+					this.rows[r].tracktype = TrackType(this.rows[r].metadb.RawPath.substring(0, 4));
 					this.rows[r].rating = -1;
 					r++;
 				};
@@ -1634,7 +1590,7 @@ oBrowser = function (name) {
 		scroll_ = scroll + ppt.rowHeight * 5 * (g_focus_id_prev <= g_focus_id ? -1 : 1);
 		scroll_ = check_scroll(scroll_);
 		};
-		 */
+		*/
 		this.scrollbar.updateScrollbar();
 		//};
 	};
@@ -1753,12 +1709,11 @@ oBrowser = function (name) {
 		var t1 = d1.getSeconds() * 1000 + d1.getMilliseconds();
 
 		this.groups.splice(0, this.groups.length);
-		CollectGarbage();
 		var tf = ppt.tf_groupkey;
 		var str_filter = process_string(filter_text);
 
 		for (var i = 0; i < total; i++) {
-			handle = this.list.Item(i);
+			handle = this.list[i];
 			arr = tf.EvalWithMetadb(handle).split(" ## ");
 			current = arr[0].toLowerCase();
 			if (str_filter.length > 0) {
@@ -1799,8 +1754,6 @@ oBrowser = function (name) {
 	};
 
 	this.populate = function (is_first_populate) {
-		if (this.list)
-			this.list.Dispose();
 		this.list = plman.GetPlaylistItems(g_active_playlist);
 		this.init_groups();
 		this.setList();
@@ -2019,9 +1972,9 @@ oBrowser = function (name) {
 							// =====
 							// right area
 							cColumns.dateWidth = gr.CalcTextWidth(arr_e[3], g_font_group1) + 10;
-							gr.gdiDrawText(arr_e[3], g_font_group1, group_color_txt_normal, ax + aw - cColumns.dateWidth - 5, ay - ((ghrh - 1) * ah) + Math.round(ah * 1 / 3) - 2, cColumns.dateWidth, Math.round(ah * 2 / 3), DT_RIGHT | DT_VCENTER | DT_CALCRECT | DT_END_ELLIPSIS | DT_NOPREFIX);
+							gr.GdiDrawText(arr_e[3], g_font_group1, group_color_txt_normal, ax + aw - cColumns.dateWidth - 5, ay - ((ghrh - 1) * ah) + Math.round(ah * 1 / 3) - 2, cColumns.dateWidth, Math.round(ah * 2 / 3), DT_RIGHT | DT_VCENTER | DT_CALCRECT | DT_END_ELLIPSIS | DT_NOPREFIX);
 							cColumns.genreWidth = gr.CalcTextWidth(arr_e[2], g_font_group2) + 10;
-							gr.gdiDrawText(arr_e[2], g_font_group2, group_color_txt_fader, ax + aw - cColumns.genreWidth - 5, ay - ((ghrh - 2) * ah), cColumns.genreWidth, Math.round(ah * 2 / 3), DT_RIGHT | DT_VCENTER | DT_CALCRECT | DT_END_ELLIPSIS | DT_NOPREFIX);
+							gr.GdiDrawText(arr_e[2], g_font_group2, group_color_txt_fader, ax + aw - cColumns.genreWidth - 5, ay - ((ghrh - 2) * ah), cColumns.genreWidth, Math.round(ah * 2 / 3), DT_RIGHT | DT_VCENTER | DT_CALCRECT | DT_END_ELLIPSIS | DT_NOPREFIX);
 							// left area
 							if (arr_g[1] == "?") {
 								if (this.groups[g].count > 1) {
@@ -2033,10 +1986,10 @@ oBrowser = function (name) {
 							} else {
 								var album_name = arr_g[1];
 							};
-							gr.gdiDrawText(arr_g[0].toUpperCase(), g_font_group1, group_color_txt_fader, ax + text_left_margin + 5, ay - ((ghrh - 1) * ah) + Math.round(ah * 1 / 3) - 2, aw - text_left_margin - cColumns.dateWidth - 10, Math.round(ah * 2 / 3), DT_LEFT | DT_VCENTER | DT_CALCRECT | DT_END_ELLIPSIS | DT_NOPREFIX);
-							gr.gdiDrawText(album_name, g_font_group2, group_color_txt_normal, ax + text_left_margin + 25, ay - ((ghrh - 2) * ah), aw - text_left_margin - cColumns.genreWidth - 30, Math.round(ah * 2 / 3), DT_LEFT | DT_VCENTER | DT_CALCRECT | DT_END_ELLIPSIS | DT_NOPREFIX);
+							gr.GdiDrawText(arr_g[0].toUpperCase(), g_font_group1, group_color_txt_fader, ax + text_left_margin + 5, ay - ((ghrh - 1) * ah) + Math.round(ah * 1 / 3) - 2, aw - text_left_margin - cColumns.dateWidth - 10, Math.round(ah * 2 / 3), DT_LEFT | DT_VCENTER | DT_CALCRECT | DT_END_ELLIPSIS | DT_NOPREFIX);
+							gr.GdiDrawText(album_name, g_font_group2, group_color_txt_normal, ax + text_left_margin + 25, ay - ((ghrh - 2) * ah), aw - text_left_margin - cColumns.genreWidth - 30, Math.round(ah * 2 / 3), DT_LEFT | DT_VCENTER | DT_CALCRECT | DT_END_ELLIPSIS | DT_NOPREFIX);
 							if (nowplaying_group) {
-								gr.gdiDrawText(">", g_font_group2, group_color_txt_normal, ax + text_left_margin + 5, ay - ((ghrh - 2) * ah), 20, Math.round(ah * 2 / 3), DT_LEFT | DT_VCENTER | DT_CALCRECT | DT_END_ELLIPSIS | DT_NOPREFIX);
+								gr.GdiDrawText(">", g_font_group2, group_color_txt_normal, ax + text_left_margin + 5, ay - ((ghrh - 2) * ah), 20, Math.round(ah * 2 / 3), DT_LEFT | DT_VCENTER | DT_CALCRECT | DT_END_ELLIPSIS | DT_NOPREFIX);
 							};
 						};
 						break;
@@ -2163,13 +2116,13 @@ oBrowser = function (name) {
 										var tx = ax + cColumns.track_num_part;
 										var tw = aw - cColumns.track_num_part;
 										if (track_time_part == "ON AIR") {
-											gr.gdiDrawText(g_radio_title, g_font, track_color_txt, tx + 10, ay_1, tw - cColumns.track_time_part - 15 - (cColumns.track_rating_part + 10), ah_1, DT_LEFT | DT_VCENTER | DT_CALCRECT | DT_END_ELLIPSIS | DT_NOPREFIX);
-											gr.gdiDrawText(g_radio_artist, g_font, track_artist_color_text, tx + 10, ay_2, tw - cColumns.track_time_part - 15, ah_2, DT_LEFT | DT_VCENTER | DT_CALCRECT | DT_END_ELLIPSIS | DT_NOPREFIX);
+											gr.GdiDrawText(g_radio_title, g_font, track_color_txt, tx + 10, ay_1, tw - cColumns.track_time_part - 15 - (cColumns.track_rating_part + 10), ah_1, DT_LEFT | DT_VCENTER | DT_CALCRECT | DT_END_ELLIPSIS | DT_NOPREFIX);
+											gr.GdiDrawText(g_radio_artist, g_font, track_artist_color_text, tx + 10, ay_2, tw - cColumns.track_time_part - 15, ah_2, DT_LEFT | DT_VCENTER | DT_CALCRECT | DT_END_ELLIPSIS | DT_NOPREFIX);
 										} else {
-											gr.gdiDrawText(track_title_part, g_font, track_color_txt, tx + 10, ay_1, tw - cColumns.track_time_part - 15 - (cColumns.track_rating_part + 10), ah_1, DT_LEFT | DT_VCENTER | DT_CALCRECT | DT_END_ELLIPSIS | DT_NOPREFIX);
-											gr.gdiDrawText(track_artist_part, g_font, track_artist_color_text, tx + 10, ay_2, tw - cColumns.track_time_part - 15, ah_2, DT_LEFT | DT_VCENTER | DT_CALCRECT | DT_END_ELLIPSIS | DT_NOPREFIX);
+											gr.GdiDrawText(track_title_part, g_font, track_color_txt, tx + 10, ay_1, tw - cColumns.track_time_part - 15 - (cColumns.track_rating_part + 10), ah_1, DT_LEFT | DT_VCENTER | DT_CALCRECT | DT_END_ELLIPSIS | DT_NOPREFIX);
+											gr.GdiDrawText(track_artist_part, g_font, track_artist_color_text, tx + 10, ay_2, tw - cColumns.track_time_part - 15, ah_2, DT_LEFT | DT_VCENTER | DT_CALCRECT | DT_END_ELLIPSIS | DT_NOPREFIX);
 										};
-										gr.gdiDrawText(track_time_part, g_font, track_color_txt, tx + tw - cColumns.track_time_part - 5, ay_1, cColumns.track_time_part, ah_1, DT_RIGHT | DT_VCENTER | DT_CALCRECT | DT_END_ELLIPSIS | DT_NOPREFIX);
+										gr.GdiDrawText(track_time_part, g_font, track_color_txt, tx + tw - cColumns.track_time_part - 5, ay_1, cColumns.track_time_part, ah_1, DT_RIGHT | DT_VCENTER | DT_CALCRECT | DT_END_ELLIPSIS | DT_NOPREFIX);
 										if (g_seconds == 0 || g_seconds / 2 == Math.floor(g_seconds / 2)) {
 											gr.DrawImage(images.play_on.Resize(ppt.rowHeight, ppt.rowHeight, 2), ax + 2, ay, ppt.rowHeight, ppt.rowHeight, 0, 0, ppt.rowHeight, ppt.rowHeight, 0, 255);
 										} else {
@@ -2195,10 +2148,10 @@ oBrowser = function (name) {
 										cColumns.track_time_part = gr.CalcTextWidth("00:00:00", g_font) + 10;
 										var tx = ax + cColumns.track_num_part;
 										var tw = aw - cColumns.track_num_part;
-										gr.gdiDrawText(track_num_part, g_font, track_color_txt, ax + 10, ay_1, cColumns.track_num_part, ah_1, DT_RIGHT | DT_VCENTER | DT_CALCRECT | DT_END_ELLIPSIS | DT_NOPREFIX);
-										gr.gdiDrawText(track_artist_part, g_font, track_artist_color_text, tx + 10, ay_2, tw - cColumns.track_time_part - 15, ah_2, DT_LEFT | DT_VCENTER | DT_CALCRECT | DT_END_ELLIPSIS | DT_NOPREFIX);
-										gr.gdiDrawText(track_title_part, g_font, track_color_txt, tx + 10, ay_1, tw - cColumns.track_time_part - 15 - (cColumns.track_rating_part + 10), ah_1, DT_LEFT | DT_VCENTER | DT_CALCRECT | DT_END_ELLIPSIS | DT_NOPREFIX);
-										gr.gdiDrawText(track_time_part, g_font, track_color_txt, tx + tw - cColumns.track_time_part - 5, ay_1, cColumns.track_time_part, ah_1, DT_RIGHT | DT_VCENTER | DT_CALCRECT | DT_END_ELLIPSIS | DT_NOPREFIX);
+										gr.GdiDrawText(track_num_part, g_font, track_color_txt, ax + 10, ay_1, cColumns.track_num_part, ah_1, DT_RIGHT | DT_VCENTER | DT_CALCRECT | DT_END_ELLIPSIS | DT_NOPREFIX);
+										gr.GdiDrawText(track_artist_part, g_font, track_artist_color_text, tx + 10, ay_2, tw - cColumns.track_time_part - 15, ah_2, DT_LEFT | DT_VCENTER | DT_CALCRECT | DT_END_ELLIPSIS | DT_NOPREFIX);
+										gr.GdiDrawText(track_title_part, g_font, track_color_txt, tx + 10, ay_1, tw - cColumns.track_time_part - 15 - (cColumns.track_rating_part + 10), ah_1, DT_LEFT | DT_VCENTER | DT_CALCRECT | DT_END_ELLIPSIS | DT_NOPREFIX);
+										gr.GdiDrawText(track_time_part, g_font, track_color_txt, tx + tw - cColumns.track_time_part - 5, ay_1, cColumns.track_time_part, ah_1, DT_RIGHT | DT_VCENTER | DT_CALCRECT | DT_END_ELLIPSIS | DT_NOPREFIX);
 										// rating Stars
 										if (ppt.showRating && track_type != 3) {
 											if (g_font_guifx_found) {
@@ -2243,17 +2196,17 @@ oBrowser = function (name) {
 										var tw = aw - cColumns.track_num_part;
 										if (cColumns.track_artist_part > 0) {
 											if (track_time_part == "ON AIR") {
-												gr.gdiDrawText(g_radio_artist, g_font, track_artist_color_text, tx + 10, ay, tw - cColumns.track_time_part - 15 - (cColumns.track_rating_part + 10), ah, DT_LEFT | DT_VCENTER | DT_CALCRECT | DT_END_ELLIPSIS | DT_NOPREFIX);
+												gr.GdiDrawText(g_radio_artist, g_font, track_artist_color_text, tx + 10, ay, tw - cColumns.track_time_part - 15 - (cColumns.track_rating_part + 10), ah, DT_LEFT | DT_VCENTER | DT_CALCRECT | DT_END_ELLIPSIS | DT_NOPREFIX);
 											} else {
-												gr.gdiDrawText(track_artist_part, g_font, track_artist_color_text, tx + 10, ay, tw - cColumns.track_time_part - 15 - (cColumns.track_rating_part + 10), ah, DT_LEFT | DT_VCENTER | DT_CALCRECT | DT_END_ELLIPSIS | DT_NOPREFIX);
+												gr.GdiDrawText(track_artist_part, g_font, track_artist_color_text, tx + 10, ay, tw - cColumns.track_time_part - 15 - (cColumns.track_rating_part + 10), ah, DT_LEFT | DT_VCENTER | DT_CALCRECT | DT_END_ELLIPSIS | DT_NOPREFIX);
 											};
 										};
 										if (track_time_part == "ON AIR") {
-											gr.gdiDrawText(g_radio_title, g_font, track_color_txt, tx + cColumns.track_artist_part + 10, ay, tw - cColumns.track_artist_part - cColumns.track_time_part - 15 - (cColumns.track_rating_part + 10), ah, DT_LEFT | DT_VCENTER | DT_CALCRECT | DT_END_ELLIPSIS | DT_NOPREFIX);
+											gr.GdiDrawText(g_radio_title, g_font, track_color_txt, tx + cColumns.track_artist_part + 10, ay, tw - cColumns.track_artist_part - cColumns.track_time_part - 15 - (cColumns.track_rating_part + 10), ah, DT_LEFT | DT_VCENTER | DT_CALCRECT | DT_END_ELLIPSIS | DT_NOPREFIX);
 										} else {
-											gr.gdiDrawText(track_title_part, g_font, track_color_txt, tx + cColumns.track_artist_part + 10, ay, tw - cColumns.track_artist_part - cColumns.track_time_part - 15 - (cColumns.track_rating_part + 10), ah, DT_LEFT | DT_VCENTER | DT_CALCRECT | DT_END_ELLIPSIS | DT_NOPREFIX);
+											gr.GdiDrawText(track_title_part, g_font, track_color_txt, tx + cColumns.track_artist_part + 10, ay, tw - cColumns.track_artist_part - cColumns.track_time_part - 15 - (cColumns.track_rating_part + 10), ah, DT_LEFT | DT_VCENTER | DT_CALCRECT | DT_END_ELLIPSIS | DT_NOPREFIX);
 										};
-										gr.gdiDrawText(track_time_part, g_font, track_color_txt, tx + tw - cColumns.track_time_part - 5, ay, cColumns.track_time_part, ah, DT_RIGHT | DT_VCENTER | DT_CALCRECT | DT_END_ELLIPSIS | DT_NOPREFIX);
+										gr.GdiDrawText(track_time_part, g_font, track_color_txt, tx + tw - cColumns.track_time_part - 5, ay, cColumns.track_time_part, ah, DT_RIGHT | DT_VCENTER | DT_CALCRECT | DT_END_ELLIPSIS | DT_NOPREFIX);
 										if (g_seconds == 0 || g_seconds / 2 == Math.floor(g_seconds / 2)) {
 											gr.DrawImage(images.play_on.Resize(ppt.rowHeight, ppt.rowHeight, 2), ax + 5, ay, ppt.rowHeight, ppt.rowHeight, 0, 0, ppt.rowHeight, ppt.rowHeight, 0, 255);
 										} else {
@@ -2279,12 +2232,12 @@ oBrowser = function (name) {
 										cColumns.track_time_part = gr.CalcTextWidth("00:00:00", g_font) + 10;
 										var tx = ax + cColumns.track_num_part;
 										var tw = aw - cColumns.track_num_part;
-										gr.gdiDrawText(track_num_part, g_font, track_color_txt, ax + 10, ay, cColumns.track_num_part, ah, DT_RIGHT | DT_VCENTER | DT_CALCRECT | DT_END_ELLIPSIS | DT_NOPREFIX);
+										gr.GdiDrawText(track_num_part, g_font, track_color_txt, ax + 10, ay, cColumns.track_num_part, ah, DT_RIGHT | DT_VCENTER | DT_CALCRECT | DT_END_ELLIPSIS | DT_NOPREFIX);
 										if (cColumns.track_artist_part > 0) {
-											gr.gdiDrawText(track_artist_part, g_font, track_artist_color_text, tx + 10, ay, tw - cColumns.track_time_part - 15 - (cColumns.track_rating_part + 10), ah, DT_LEFT | DT_VCENTER | DT_CALCRECT | DT_END_ELLIPSIS | DT_NOPREFIX);
+											gr.GdiDrawText(track_artist_part, g_font, track_artist_color_text, tx + 10, ay, tw - cColumns.track_time_part - 15 - (cColumns.track_rating_part + 10), ah, DT_LEFT | DT_VCENTER | DT_CALCRECT | DT_END_ELLIPSIS | DT_NOPREFIX);
 										};
-										gr.gdiDrawText(track_title_part, g_font, track_color_txt, tx + cColumns.track_artist_part + 10, ay, tw - cColumns.track_artist_part - cColumns.track_time_part - 15 - (cColumns.track_rating_part + 10), ah, DT_LEFT | DT_VCENTER | DT_CALCRECT | DT_END_ELLIPSIS | DT_NOPREFIX);
-										gr.gdiDrawText(track_time_part, g_font, track_color_txt, tx + tw - cColumns.track_time_part - 5, ay, cColumns.track_time_part, ah, DT_RIGHT | DT_VCENTER | DT_CALCRECT | DT_END_ELLIPSIS | DT_NOPREFIX);
+										gr.GdiDrawText(track_title_part, g_font, track_color_txt, tx + cColumns.track_artist_part + 10, ay, tw - cColumns.track_artist_part - cColumns.track_time_part - 15 - (cColumns.track_rating_part + 10), ah, DT_LEFT | DT_VCENTER | DT_CALCRECT | DT_END_ELLIPSIS | DT_NOPREFIX);
+										gr.GdiDrawText(track_time_part, g_font, track_color_txt, tx + tw - cColumns.track_time_part - 5, ay, cColumns.track_time_part, ah, DT_RIGHT | DT_VCENTER | DT_CALCRECT | DT_END_ELLIPSIS | DT_NOPREFIX);
 										// rating Stars
 										if (ppt.showRating && track_type != 3) {
 											if (g_font_guifx_found) {
@@ -2367,7 +2320,7 @@ oBrowser = function (name) {
 				var tx = cFilterBox.x + cFilterBox.w + Math.round(22 * g_zoom_percent / 100) + 5;
 				var tw = this.w - tx + (cScrollBar.enabled ? cScrollBar.width : 0);
 				try {
-					gr.gdiDrawText(boxText, g_font_box, blendColors(g_color_normal_txt, g_color_normal_bg, 0.4), tx, 0, tw, ppt.headerBarHeight - 1, DT_RIGHT | DT_VCENTER | DT_CALCRECT | DT_NOPREFIX | DT_END_ELLIPSIS);
+					gr.GdiDrawText(boxText, g_font_box, blendColors(g_color_normal_txt, g_color_normal_bg, 0.4), tx, 0, tw, ppt.headerBarHeight - 1, DT_RIGHT | DT_VCENTER | DT_CALCRECT | DT_NOPREFIX | DT_END_ELLIPSIS);
 				} catch (e) {
 					console.log(">> debug: cScrollBar.width=" + cScrollBar.width + " /boxText=" + boxText + " /ppt.headerBarHeight=" + ppt.headerBarHeight + " /g_fsize=" + g_fsize);
 				};
@@ -2507,7 +2460,6 @@ oBrowser = function (name) {
 										window.Repaint();
 										handles.UpdateFileInfoFromJSON(JSON.stringify({"RATING" : ""}));
 									};
-									handles.Dispose();
 								};
 							};
 						} else {
@@ -2800,13 +2752,6 @@ oBrowser = function (name) {
 
 			scroll_prev = scroll;
 
-			// tweak to fix bug in timer/memory/repaint handle in WSH Panel Mod with timers
-			g_counter_repaint++;
-			if (g_counter_repaint > 100) {
-				g_counter_repaint = 0;
-				CollectGarbage();
-			};
-
 		}, ppt.refreshRate);
 
 	this.context_menu = function (x, y, id, row_id) {
@@ -2821,12 +2766,12 @@ oBrowser = function (name) {
 		};
 
 		this.metadblist_selection = plman.GetPlaylistSelectedItems(g_active_playlist);
-		Context.InitContext(this.metadblist_selection);
+		Context.InitContextPlaylist();
 
 		// check if selection is single and is in the Media Library to provide if ok a link to Album View panel
 		var showInAlbumView = false;
 		if (this.metadblist_selection.Count == 1) {
-			if (fb.IsMetadbInMediaLibrary(this.metadblist_selection.Item(0))) {
+			if (fb.IsMetadbInMediaLibrary(this.metadblist_selection[0])) {
 				showInAlbumView = true;
 			};
 		};
@@ -2869,11 +2814,11 @@ oBrowser = function (name) {
 		} else {
 			switch (ret) {
 			case 1010:
-				if (fso.FileExists(fb.ProfilePath + "js_smooth_cache\\" + crc)) {
+				if (fso.FileExists(CACHE_FOLDER + crc)) {
 					try {
-						fso.DeleteFile(fb.ProfilePath + "js_smooth_cache\\" + crc);
+						fso.DeleteFile(CACHE_FOLDER + crc);
 					} catch (e) {
-						console.log("WSH Panel Error: Image cache [" + crc + "] can't be deleted on disk, file in use, try later or reload panel.");
+						console.log("Spider Monkey Panel Error: Image cache [" + crc + "] can't be deleted on disk, file in use, try later or reload panel.");
 					};
 				};
 				this.groups[albumIndex].tid = -1;
@@ -2885,7 +2830,7 @@ oBrowser = function (name) {
 				this.repaint();
 				break;
 			case 1011:
-				window.NotifyOthers("JSSmoothPlaylist->JSSmoothBrowser:show_item", this.metadblist_selection.Item(0));
+				window.NotifyOthers("JSSmoothPlaylist->JSSmoothBrowser:show_item", this.metadblist_selection[0]);
 				break;
 			case 1020:
 				plman.RemovePlaylistSelection(g_active_playlist, false);
@@ -2899,9 +2844,6 @@ oBrowser = function (name) {
 				plman.InsertPlaylistItems((ret - 2001), insert_index, this.metadblist_selection, false);
 			};
 		};
-		_child01.Dispose();
-		_child02.Dispose();
-		_menu.Dispose();
 		return true;
 	};
 
@@ -3047,9 +2989,6 @@ oBrowser = function (name) {
 			window.ShowConfigure();
 			break;
 		};
-		_menu2.Dispose();
-		_menu1.Dispose();
-		_menu.Dispose();
 		return true;
 	};
 
@@ -3072,7 +3011,7 @@ oBrowser = function (name) {
 
 		// which start point for the search
 		if (this.list.count > 1000) {
-			albumartist = ppt.tf_albumartist.EvalWithMetadb(this.list.Item(Math.floor(this.list.Count / 2)));
+			albumartist = ppt.tf_albumartist.EvalWithMetadb(this.list[Math.floor(this.list.Count / 2)]);
 			chr = albumartist.substring(0, 1);
 			if (first_chr.charCodeAt(first_chr) > chr.charCodeAt(chr)) {
 				gstart = Math.floor(this.list.Count / 2);
@@ -3088,7 +3027,7 @@ oBrowser = function (name) {
 			// 1st search on "album artist" TAG
 			var format_str = "";
 			for (var i = gstart; i < this.list.Count; i++) {
-				albumartist = ppt.tf_albumartist.EvalWithMetadb(this.list.Item(i));
+				albumartist = ppt.tf_albumartist.EvalWithMetadb(this.list[i]);
 				format_str = albumartist.substring(0, len).toUpperCase();
 				if (format_str == cList.search_string) {
 					pid = i;
@@ -3100,7 +3039,7 @@ oBrowser = function (name) {
 			if (pid < 0) {
 				var format_str = "";
 				for (var i = 0; i < gstart; i++) {
-					albumartist = ppt.tf_albumartist.EvalWithMetadb(this.list.Item(i));
+					albumartist = ppt.tf_albumartist.EvalWithMetadb(this.list[i]);
 					format_str = albumartist.substring(0, len).toUpperCase();
 					if (format_str == cList.search_string) {
 						pid = i;
@@ -3113,7 +3052,7 @@ oBrowser = function (name) {
 				// 2nd search on "artist" TAG
 				var format_str = "";
 				for (var i = 0; i < this.list.Count; i++) {
-					artist = ppt.tf_artist.EvalWithMetadb(this.list.Item(i));
+					artist = ppt.tf_artist.EvalWithMetadb(this.list[i]);
 					format_str = artist.substring(0, len).toUpperCase();
 					if (format_str == cList.search_string) {
 						pid = i;
@@ -3127,7 +3066,7 @@ oBrowser = function (name) {
 			// 1st search on tf_group_key of current group by pattern
 			var format_str = "";
 			for (var i = gstart; i < this.list.Count; i++) {
-				groupkey = ppt.tf_groupkey.EvalWithMetadb(this.list.Item(i));
+				groupkey = ppt.tf_groupkey.EvalWithMetadb(this.list[i]);
 				format_str = groupkey.substring(0, len).toUpperCase();
 				if (format_str == cList.search_string) {
 					pid = i;
@@ -3139,7 +3078,7 @@ oBrowser = function (name) {
 			if (pid < 0) {
 				var format_str = "";
 				for (var i = 0; i < gstart; i++) {
-					groupkey = ppt.tf_groupkey.EvalWithMetadb(this.list.Item(i));
+					groupkey = ppt.tf_groupkey.EvalWithMetadb(this.list[i]);
 					format_str = groupkey.substring(0, len).toUpperCase();
 					if (format_str == cList.search_string) {
 						pid = i;
@@ -3194,8 +3133,6 @@ var cover_img = cover.masks.split(";");
 var stub_image, cell_null;
 
 var brw = null;
-var g_1x1 = false;
-var g_last = 0;
 var isScrolling = false;
 var g_zoom_percent = 100;
 
@@ -3203,7 +3140,6 @@ var g_filterbox = null;
 var filter_text = "";
 
 var g_instancetype = window.InstanceType;
-var g_counter_repaint = 0;
 
 // fonts
 var g_font = null;
@@ -3275,7 +3211,6 @@ var g_first_populate_done = false;
 var g_first_populate_launched = false;
 //
 var repaintforced = false;
-var launch_time = fb.CreateProfiler("launch_time");
 var form_text = "";
 var repaint_cover = true, repaint_cover1 = true, repaint_cover2 = true;
 var repaint_main = true, repaint_main1 = true, repaint_main2 = true;
@@ -3283,7 +3218,6 @@ var window_visible = false;
 var scroll_ = 0, scroll = 0, scroll_prev = 0;
 var time222;
 var g_start_ = 0, g_end_ = 0;
-var g_last = 0;
 var g_wallpaperImg = null;
 
 var g_rating_updated = false;
@@ -3346,34 +3280,32 @@ function on_paint(gr) {
 	if (!ww)
 		return;
 
-	if (!g_1x1) {
-		//gr.FillSolidRect(0, 0, ww, wh, RGBA(210,210,215,255));
-		// draw background under playlist
-		if (fb.IsPlaying && g_wallpaperImg && ppt.showwallpaper) {
+	//gr.FillSolidRect(0, 0, ww, wh, RGBA(210,210,215,255));
+	// draw background under playlist
+	if (fb.IsPlaying && g_wallpaperImg && ppt.showwallpaper) {
+		gr.GdiDrawBitmap(g_wallpaperImg, 0, 0, ww, wh, 0, 0, g_wallpaperImg.Width, g_wallpaperImg.Height);
+		gr.FillSolidRect(0, 0, ww, wh, g_color_normal_bg & RGBA(255, 255, 255, ppt.wallpaperalpha));
+	} else {
+		//gr.FillSolidRect(0, 0, ww, wh, g_color_normal_bg);
+		if (g_wallpaperImg && ppt.showwallpaper) {
 			gr.GdiDrawBitmap(g_wallpaperImg, 0, 0, ww, wh, 0, 0, g_wallpaperImg.Width, g_wallpaperImg.Height);
 			gr.FillSolidRect(0, 0, ww, wh, g_color_normal_bg & RGBA(255, 255, 255, ppt.wallpaperalpha));
 		} else {
-			//gr.FillSolidRect(0, 0, ww, wh, g_color_normal_bg);
-			if (g_wallpaperImg && ppt.showwallpaper) {
-				gr.GdiDrawBitmap(g_wallpaperImg, 0, 0, ww, wh, 0, 0, g_wallpaperImg.Width, g_wallpaperImg.Height);
-				gr.FillSolidRect(0, 0, ww, wh, g_color_normal_bg & RGBA(255, 255, 255, ppt.wallpaperalpha));
-			} else {
-				gr.FillSolidRect(0, 0, ww, wh, g_color_normal_bg);
-			};
+			gr.FillSolidRect(0, 0, ww, wh, g_color_normal_bg);
 		};
+	};
 
-		brw && brw.draw(gr);
+	brw && brw.draw(gr);
 
-		if (pman.offset > 0) {
-			pman.draw(gr);
-		};
+	if (pman.offset > 0) {
+		pman.draw(gr);
+	};
 
-		if (ppt.showHeaderBar) {
-			// inputBox
-			if (ppt.showFilterBox && g_filterbox) {
-				if (g_filterbox.inputbox.visible) {
-					g_filterbox.draw(gr, 5, 2);
-				};
+	if (ppt.showHeaderBar) {
+		// inputBox
+		if (ppt.showFilterBox && g_filterbox) {
+			if (g_filterbox.inputbox.visible) {
+				g_filterbox.draw(gr, 5, 2);
 			};
 		};
 	};
@@ -3562,7 +3494,6 @@ function on_mouse_wheel(step) {
 
 						// refresh covers
 						g_image_cache = new image_cache;
-						CollectGarbage();
 						var total = brw.groups.length;
 						for (var i = 0; i < total; i++) {
 							brw.groups[i].tid = -1;
@@ -3600,7 +3531,6 @@ function on_mouse_wheel(step) {
 
 						// refresh covers
 						g_image_cache = new image_cache;
-						CollectGarbage();
 						var total = brw.groups.length;
 						for (var i = 0; i < total; i++) {
 							brw.groups[i].tid = -1;
@@ -3672,7 +3602,6 @@ function get_metrics() {
 	cover.max_h = ppt.groupHeaderRowsNumber * ppt.rowHeight;
 	//
 	g_image_cache = new image_cache;
-	CollectGarbage();
 
 	cFilterBox.w = Math.floor(cFilterBox.default_w * g_zoom_percent / 100);
 	cFilterBox.h = Math.round(cFilterBox.default_h * g_zoom_percent / 100);
@@ -3725,7 +3654,7 @@ function get_images() {
 	gb = images.noart.GetGraphics();
 	// draw no cover art image
 	gb.FillSolidRect(0, 0, nw, nh, g_color_normal_txt & 0x10ffffff);
-	gb.setTextRenderingHint(4);
+	gb.SetTextRenderingHint(4);
 	gb.DrawString(txt, gdi.Font(g_fname, Math.round(nh / 12 * 2), 1), blendColors(g_color_normal_txt, g_color_normal_bg, 0.30), 1, 1, nw, nh, cc_stringformat);
 	images.noart.ReleaseGraphics(gb);
 
@@ -3736,7 +3665,7 @@ function get_images() {
 	gb = images.stream.GetGraphics();
 	// draw stream art image
 	gb.FillSolidRect(0, 0, sw, sh, g_color_normal_txt & 0x10ffffff);
-	gb.setTextRenderingHint(4);
+	gb.SetTextRenderingHint(4);
 	gb.DrawString(txt, gdi.Font(g_fname, Math.round(sh / 12 * 2), 1), blendColors(g_color_normal_txt, g_color_normal_bg, 0.30), 1, 1, sw, sh, cc_stringformat);
 	images.stream.ReleaseGraphics(gb);
 };
@@ -3753,13 +3682,12 @@ function get_font() {
 		g_font_headers = window.GetFontDUI(FontTypeDUI.tabs);
 	};
 
-	// tweaks to fix a problem with WSH Panel Mod on Font object Name property
 	try {
 		g_fname = default_font.Name;
 		g_fsize = default_font.Size;
 		g_fstyle = default_font.Style;
 	} catch (e) {
-		console.log("WSH Panel Error: Unable to use the default font. Using Arial font instead.");
+		console.log("Spider Monkey Panel Error: Unable to use the default font. Using Arial font instead.");
 		g_fname = "arial";
 		g_fsize = 12;
 		g_fstyle = 0;
@@ -4128,7 +4056,6 @@ function on_key_down(vkey) {
 			case VK_F5:
 				// refresh covers
 				g_image_cache = new image_cache;
-				CollectGarbage();
 				var total = brw.groups.length;
 				for (var i = 0; i < total; i++) {
 					brw.groups[i].tid = -1;
@@ -4354,7 +4281,6 @@ function on_key_down(vkey) {
 
 									// refresh covers
 									g_image_cache = new image_cache;
-									CollectGarbage();
 									var total = brw.groups.length;
 									for (var i = 0; i < total; i++) {
 										brw.groups[i].tid = -1;
@@ -4588,7 +4514,7 @@ function on_item_focus_change(playlist, from, to) {
 				scroll_ = scroll + ppt.rowHeight * 5 * (from <= to ? -1 : 1);
 				scroll_ = check_scroll(scroll_);
 				};
-				 */
+				*/
 				brw.scrollbar.updateScrollbar();
 			};
 
@@ -4599,7 +4525,7 @@ function on_item_focus_change(playlist, from, to) {
 	};
 };
 
-function on_metadb_changed(metadb_or_metadbs, fromhook) {
+function on_metadb_changed(handles) {
 	if (!brw.list)
 		return;
 
@@ -4613,7 +4539,7 @@ function on_metadb_changed(metadb_or_metadbs, fromhook) {
 		};
 		window.Repaint();
 	} else {
-		if (!(metadb_or_metadbs.Count == 1 && metadb_or_metadbs.Item(0).Length < 0)) {
+		if (!(handles.Count == 1 && handles[0].Length < 0)) {
 			if (filter_text.length > 0) {
 				g_focus_id = 0;
 				brw.populate(is_first_populate = true);
@@ -4693,10 +4619,13 @@ function on_notify_data(name, info) {
 };
 
 function save_image_to_cache(metadb, albumIndex) {
+	var crc = brw.groups[albumIndex].cachekey;
+	if (fso.FileExists(CACHE_FOLDER + crc))
+		return;
+	
 	var path = ppt.tf_path.EvalWithMetadb(metadb);
 	var path_ = getpath_(path);
 	if (path_) {
-		var crc = brw.groups[albumIndex].cachekey;
 		resize(path_, crc);
 	}
 };

@@ -1,12 +1,7 @@
-// ==PREPROCESSOR==
-// @name "JS Smooth Playlist"
-// @version "2018-mod"
-// @author "Br3tt aka Falstaff"
-// @feature "dragdrop"
-// @import "%fb2k_component_path%samples\js-smooth\js\JScommon.js"
-// @import "%fb2k_component_path%samples\js-smooth\js\JSinputbox.js"
-// @import "%fb2k_component_path%samples\js-smooth\js\jssp.js"
-// ==/PREPROCESSOR==
+window.DefinePanel("JS Smooth Playlist", { author : "Br3tt aka Falstaff", features : { drag_n_drop : true }});
+include(fb.ComponentPath + "samples\\js-smooth\\js\\JScommon.js");
+include(fb.ComponentPath + "samples\\js-smooth\\js\\JSinputbox.js");
+include(fb.ComponentPath + "samples\\js-smooth\\js\\jssp.js");
 
 /*
 [Features]
