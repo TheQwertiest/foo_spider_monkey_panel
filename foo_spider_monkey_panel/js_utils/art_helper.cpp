@@ -192,7 +192,8 @@ void embed_thread::run( threaded_process_status& p_status,
 
 const GUID& GetGuidForArtId( uint32_t art_id )
 {
-    const GUID* guids[] = {
+    const GUID* guids[] =
+    {
         &album_art_ids::cover_front,
         &album_art_ids::cover_back,
         &album_art_ids::disc,
@@ -200,7 +201,12 @@ const GUID& GetGuidForArtId( uint32_t art_id )
         &album_art_ids::artist,
     };
 
-    return *guids[std::min( art_id, uint32_t(0) )];
+    if ( art_id >= _countof( guids ) )
+    {
+        return *guids[0];
+    }
+
+    return *guids[art_id];
 }
 
 std::unique_ptr<Gdiplus::Bitmap> GetBitmapFromEmbeddedData( const pfc::string8_fast& rawpath, uint32_t art_id )
