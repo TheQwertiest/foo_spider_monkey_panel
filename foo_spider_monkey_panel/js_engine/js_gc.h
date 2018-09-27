@@ -56,6 +56,8 @@ private:
     uint64_t lastTotalHeapSize_ = 0;
     uint64_t lastTotalAllocCount_ = 0;
 
+    // These values are overwritten by config.
+    // Remain here mostly as a reference.
     uint32_t maxHeapSize_ = 1024UL * 1024 * 1024;
     uint32_t heapGrowthRateTrigger_ = 50UL * 1024 * 1024;
     uint32_t gcSliceTimeBudget_ = 30;
