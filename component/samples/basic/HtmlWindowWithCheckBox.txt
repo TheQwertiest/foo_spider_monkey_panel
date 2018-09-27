@@ -136,6 +136,7 @@ var text = '>> Click Me To Open Dialog <<';
 var font = gdi.Font('Segoe Ui Semibold', 11);
 
 function on_paint(gr) {
+    gr.SetTextRenderingHint(TextRenderingHint.ClearTypeGridFit);
     gr.DrawString(text, font, 0xFF000000, 0, 0, ww, wh, 0x11000000);
 }
 

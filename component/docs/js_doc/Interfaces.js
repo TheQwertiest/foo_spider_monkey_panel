@@ -293,11 +293,27 @@ function IFbUtils() {
     */
 
     /**
-     * See {@link https://msdn.microsoft.com/en-us/library/windows/desktop/ms678486.aspx} and {@link https://github.com/marc2k3/foo_jscript_panel/wiki/Drag-and-Drop}
+     * Invokes drag-n-drop operation (see {@link https://msdn.microsoft.com/en-us/library/windows/desktop/ms678486.aspx}).
+     *
+     * Full drag-n-drop interface description:
+     * - Drag-n-drop interface is based on Microsoft IDropSource and IDropTarget interfaces, so a lot of info (including examples) could be gathered from MSDN (IDropSource, IDropTarget, DoDragDrop, DROPEFFECT).
+     * 
+     * - Drag operation is started with DoDragDrop (whether it is called by your panel, or externally) with okEffects argument supplied.
+     * - DoDragDrop blocks code execution until the drag operation is finished (callbacks will be called properly though). It returns effect from Action.Effect from on_drag_drop after completition.
+     * - (SpiderMonkey Panel specific) Drag operation is canceled when any mouse button is pressed.
+     * - (SpiderMonkey Panel specific) All mouse callbacks are suppressed during drag operation (including on_mouse_lbtn_up, but excluding on_mouse_mbtn_up and on_mouse_rbtn_up).
+     * - Every drag callback receives Action argument. Action.Effect contains okEffects from DoDragDrop call. Action.Effect should be changed to the desired effect in the callback. 
+     *   If the returned Action.Effect was not in okEffects or is equal to DROPEFFECT_NONE (=== 0), then drop will be denied: 
+     *   cursor icon will be changed, on_drag_drop won't be called after releasing lmbtn, on_drag_leave will be called instead.
+     * - DROPEFFECT_LINK should be used as fallback in case effect argument does not have DROPEFFECT_COPY (===1), since some external drops only allow DROPEFFECT_LINK effect.
+     * - Changing effect on key modifiers is nice (to be in line with native Windows behaviour): see example here: https://github.com/TheQwertiest/CaTRoX_QWR/blob/ab1aa4c7fc19e08d3ccff84d5959779ba46bf704/theme/Scripts/Panel_Playlist.js#L2512.
      *
      * @param {IFbMetadbHandleList} handle_list
      * @param {number} effect Allowed effects.
      * @return {number} Effect that was returned in on_drag_drop.
+     *
+     * @example 
+     * // See samples/basic/DragnDrop.txt
      */
     this.DoDragDrop = function (handle_list, effect) {}; // (uint);
 

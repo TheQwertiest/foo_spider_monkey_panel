@@ -25,7 +25,7 @@ function on_drag_drop(action, x, y, mask) {}
 function on_drag_enter(action, x, y, mask) {}
 function on_drag_leave() {}
 function on_drag_over(action, x, y, mask) {}
-// See https://github.com/marc2k3/foo_jscript_panel/wiki/Drag-and-Drop
+// See fb.DoDragDrop documentation and samples/basic/DragnDrop.txt
 
 function on_dsp_preset_changed() {}
 // This callback is only available in foobar2000 v1.4 and later.
