@@ -132,8 +132,6 @@ oInputbox = function (w, h, default_text, empty_text, textcolor, backcolor, bord
 	}
 
 	this.CalcText = function () {
-		var arr = cInputbox.temp_gr.GdiDrawText(this.text.substr(this.offset), this.font, 0, 0, 0, 9999999, 9999999, DT_NOPREFIX | DT_CALCRECT).toArray();
-		this.TLength = arr[4];
 		this.TWidth = cInputbox.temp_gr.CalcTextWidth(this.text.substr(this.offset), this.font);
 	}
 
@@ -382,7 +380,6 @@ oInputbox = function (w, h, default_text, empty_text, textcolor, backcolor, bord
 			window.ShowConfigure();
 			break;
 		}
-		_menu.Dispose();
 	}
 
 	this.on_key_down = function (vkey) {
