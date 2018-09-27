@@ -6,7 +6,7 @@
     <_PropertySheetDisplayName>pfc</_PropertySheetDisplayName>
   </PropertyGroup>
   <PropertyGroup Label="UserMacros">    
-    <ScintillaDirectory>$(MainDir)scintilla\</ScintillaDirectory>
+    <ScintillaDirectory>$(MainDir)submodules\scintilla\</ScintillaDirectory>
     <ScintillaResultDirectory>$(ScintillaDirectory)bin\</ScintillaResultDirectory>
   </PropertyGroup>
   <PropertyGroup>

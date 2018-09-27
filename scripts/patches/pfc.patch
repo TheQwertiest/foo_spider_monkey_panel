@@ -1,6 +1,6 @@
-﻿diff a/pfc/pfc.vcxproj b/pfc/pfc.vcxproj
---- a/pfc/pfc.vcxproj
-+++ b/pfc/pfc.vcxproj
+﻿diff a/submodules/pfc/pfc.vcxproj b/submodules/pfc/pfc.vcxproj
+--- a/submodules/pfc/pfc.vcxproj
++++ b/submodules/pfc/pfc.vcxproj
 @@ -87,7 +87,7 @@
        <WarningLevel>Level3</WarningLevel>
        <SuppressStartupBanner>true</SuppressStartupBanner>

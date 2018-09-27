@@ -1,6 +1,6 @@
-﻿diff a/columns_ui-sdk/columns_ui-sdk.vcxproj b/columns_ui-sdk/columns_ui-sdk.vcxproj
---- a/columns_ui-sdk/columns_ui-sdk.vcxproj
-+++ b/columns_ui-sdk/columns_ui-sdk.vcxproj
+﻿diff a/submodules/columns_ui-sdk/columns_ui-sdk.vcxproj b/submodules/columns_ui-sdk/columns_ui-sdk.vcxproj
+--- a/submodules/columns_ui-sdk/columns_ui-sdk.vcxproj
++++ b/submodules/columns_ui-sdk/columns_ui-sdk.vcxproj
 @@ -92,7 +92,7 @@
        <Optimization>Disabled</Optimization>
        <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>

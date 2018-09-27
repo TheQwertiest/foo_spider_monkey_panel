@@ -1,6 +1,6 @@
-﻿diff a/scintilla b/scintilla
---- a/scintilla/win32/scintilla.mak
-+++ b/scintilla/win32/scintilla.mak
+﻿diff a/submodules/scintilla b/submodules/scintilla
+--- a/submodules/scintilla/win32/scintilla.mak
++++ b/submodules/scintilla/win32/scintilla.mak
 @@ -26,11 +26,15 @@
  
  CRTFLAGS=-D_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES=1 -D_CRT_SECURE_NO_DEPRECATE=1 -D_SCL_SECURE_NO_WARNINGS=1 $(XP_DEFINE)
@@ -41,8 +41,8 @@
  
  # Define how to build all the objects and what they depend on
  
---- a/scintilla/win32/ScintillaWin.cxx
-+++ b/scintilla/win32/ScintillaWin.cxx
+--- a/submodules/scintilla/win32/ScintillaWin.cxx
++++ b/submodules/scintilla/win32/ScintillaWin.cxx
 @@ -140,7 +140,7 @@
  
  namespace {

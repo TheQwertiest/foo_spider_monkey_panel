@@ -35,6 +35,7 @@
     <Import Project="$(SolutionDir)\..\props\BuildEnvCommon.props" />
     <Import Project="$(SolutionDir)\..\props\BuildEnvCpp.props" />
     <Import Project="$(SolutionDir)\..\props\DynamicRuntime.props" />
+    <Import Project="$(SolutionDir)\..\props\submodules.props" />
     <Import Project="$(SolutionDir)\..\props\foobar2000_sdk.props" />
     <Import Project="$(SolutionDir)\..\props\mozjs.props" />
     <Import Project="$(SolutionDir)\..\props\pfc.props" />

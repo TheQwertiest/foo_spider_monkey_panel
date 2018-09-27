@@ -45,12 +45,12 @@ using std::max;
 
 // foobar2000 SDK
 #pragma warning( push, 0 )
-#   include "../foobar2000/SDK/foobar2000.h"
+#   include <foobar2000-sdk/SDK/foobar2000.h>
 #pragma warning( pop ) 
 
 // Columns UI SDK
 #pragma warning( push, 0 )
-#   include "../columns_ui-sdk/ui_extension.h"
+#   include <columns_ui-sdk/ui_extension.h>
 #pragma warning( pop ) 
 
 // Mozilla SpiderMonkey

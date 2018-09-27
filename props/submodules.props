@@ -3,10 +3,10 @@
   <ImportGroup Label="PropertySheets">
   </ImportGroup>
   <PropertyGroup>
-    <_PropertySheetDisplayName>wtl</_PropertySheetDisplayName>
+    <_PropertySheetDisplayName>submodules</_PropertySheetDisplayName>
   </PropertyGroup>
   <PropertyGroup>
-    <IncludePath>$(MainDir)submodules\wtl\Include\;$(IncludePath)</IncludePath>
+    <IncludePath>$(MainDir)submodules\;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemGroup />
 </Project>

@@ -1,6 +1,6 @@
-﻿diff a/foobar2000 b/foobar2000
---- a/foobar2000/ATLHelpers/foobar2000_ATL_helpers.vcxproj
-+++ b/foobar2000/ATLHelpers/foobar2000_ATL_helpers.vcxproj
+﻿diff a/submodules/foobar2000 b/submodules/foobar2000
+--- a/submodules/foobar2000/ATLHelpers/foobar2000_ATL_helpers.vcxproj
++++ b/submodules/foobar2000/ATLHelpers/foobar2000_ATL_helpers.vcxproj
 @@ -83,7 +83,7 @@
        <PrecompiledHeader>Use</PrecompiledHeader>
        <WarningLevel>Level3</WarningLevel>
@@ -19,8 +19,8 @@
        <PrecompiledHeader>Use</PrecompiledHeader>
        <WarningLevel>Level3</WarningLevel>
        <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
---- a/foobar2000/foobar2000_component_client/foobar2000_component_client.vcxproj
-+++ b/foobar2000/foobar2000_component_client/foobar2000_component_client.vcxproj
+--- a/submodules/foobar2000/foobar2000_component_client/foobar2000_component_client.vcxproj
++++ b/submodules/foobar2000/foobar2000_component_client/foobar2000_component_client.vcxproj
 @@ -87,7 +87,7 @@
        <WarningLevel>Level3</WarningLevel>
        <SuppressStartupBanner>true</SuppressStartupBanner>
@@ -57,8 +57,8 @@
        <DiagnosticsFormat>Caret</DiagnosticsFormat>
      </ClCompile>
      <ResourceCompile>
---- a/foobar2000/helpers/foobar2000_sdk_helpers.vcxproj
-+++ b/foobar2000/helpers/foobar2000_sdk_helpers.vcxproj
+--- a/submodules/foobar2000/helpers/foobar2000_sdk_helpers.vcxproj
++++ b/submodules/foobar2000/helpers/foobar2000_sdk_helpers.vcxproj
 @@ -91,7 +91,7 @@
        <AdditionalOptions>/Zc:threadSafeInit- %(AdditionalOptions)</AdditionalOptions>
        <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -77,8 +77,8 @@
        <DiagnosticsFormat>Caret</DiagnosticsFormat>
      </ClCompile>
      <ResourceCompile>
---- a/foobar2000/SDK/foobar2000_SDK.vcxproj
-+++ b/foobar2000/SDK/foobar2000_SDK.vcxproj
+--- a/submodules/foobar2000/SDK/foobar2000_SDK.vcxproj
++++ b/submodules/foobar2000/SDK/foobar2000_SDK.vcxproj
 @@ -87,7 +87,7 @@
        <WarningLevel>Level3</WarningLevel>
        <SuppressStartupBanner>true</SuppressStartupBanner>

@@ -7,7 +7,7 @@
   </PropertyGroup>
   <PropertyGroup Label="UserMacros">
     <PfcName>pfc</PfcName>
-    <PfcDirectory>$(MainDir)$(PfcName)\</PfcDirectory>
+    <PfcDirectory>$(MainDir)submodules\$(PfcName)\</PfcDirectory>
     <PfcResultDirectory>$(SolutionDir)$(Configuration)\$(PfcName)\</PfcResultDirectory>
   </PropertyGroup>
   <ItemDefinitionGroup>
