@@ -381,7 +381,8 @@ JsFbPlaylistManager::DuplicatePlaylist( uint32_t from, const pfc::string8_fast& 
     }
 
     stream_reader_dummy dummy_reader;
-    return api->create_playlist_ex( uname.get_ptr(), uname.get_length(), from + 1, contents, &dummy_reader, abort_callback_dummy() );
+    abort_callback_dummy dummy_abort;
+    return api->create_playlist_ex( uname.get_ptr(), uname.get_length(), from + 1, contents, &dummy_reader, dummy_abort );
 }
 
 std::optional<std::nullptr_t>

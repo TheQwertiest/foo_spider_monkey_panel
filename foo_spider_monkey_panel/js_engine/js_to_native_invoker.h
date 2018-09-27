@@ -157,7 +157,7 @@ bool InvokeNativeCallback_Impl( JSContext* cx,
                         return ArgType();
                     }
 
-                    auto& curArg = jsArgs[index];
+                    const auto& curArg = jsArgs[index];
 
                     if constexpr (convert::to_native::is_convertable_v<ArgType>)
                     {// Construct and copy

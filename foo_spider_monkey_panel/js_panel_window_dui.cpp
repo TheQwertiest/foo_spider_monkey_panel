@@ -193,10 +193,11 @@ bool js_panel_window_dui::edit_mode_context_menu_test(const POINT& p_point, bool
 
 ui_element_config::ptr js_panel_window_dui::get_configuration()
 {
-	ui_element_config_builder builder;
+    ui_element_config_builder builder;
+    abort_callback_dummy dummy;
 
-	save_config(&builder.m_stream, abort_callback_dummy());
-	return builder.finish(g_get_guid());
+    save_config( &builder.m_stream, dummy );
+    return builder.finish( g_get_guid() );
 }
 
 void js_panel_window_dui::edit_mode_context_menu_build(const POINT& p_point, bool p_fromkeyboard, HMENU p_menu, unsigned p_id_base)
@@ -225,17 +226,18 @@ void js_panel_window_dui::notify(const GUID& p_what, t_size p_param1, const void
 	}
 }
 
-void js_panel_window_dui::set_configuration(ui_element_config::ptr data)
+void js_panel_window_dui::set_configuration( ui_element_config::ptr data )
 {
-	ui_element_config_parser parser(data);
+    ui_element_config_parser parser( data );
+    abort_callback_dummy dummy;
 
-	load_config(&parser.m_stream, parser.get_remaining(), abort_callback_dummy());
+    load_config( &parser.m_stream, parser.get_remaining(), dummy );
 
-	// FIX: If window already created, DUI won't destroy it and create it again.
-	if (t_parent::GetHWND())
-	{
-		update_script();
-	}
+    // FIX: If window already created, DUI won't destroy it and create it again.
+    if ( t_parent::GetHWND() )
+    {
+        update_script();
+    }
 }
 
 void js_panel_window_dui::initialize_window(HWND parent)
