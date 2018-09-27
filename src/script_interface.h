@@ -232,7 +232,7 @@ __interface IFbMetadbHandleList : IDisposable
 {
 	STDMETHOD(Add)(IFbMetadbHandle* handle);
 	STDMETHOD(AddRange)(IFbMetadbHandleList* handles);
-	STDMETHOD(AttachImage)(BSTR image_path, [defaultvalue(0)] int art_id);
+	STDMETHOD(AttachImage)(BSTR image_path, [defaultvalue(0)] UINT art_id);
 	STDMETHOD(BSearch)(IFbMetadbHandle* handle, [out, retval] int* p);
 	STDMETHOD(CalcTotalDuration)([out, retval] double* p);
 	STDMETHOD(CalcTotalSize)([out, retval] LONGLONG* p);
@@ -251,7 +251,7 @@ __interface IFbMetadbHandleList : IDisposable
 	STDMETHOD(RefreshStats)();
 	STDMETHOD(Remove)(IFbMetadbHandle* handle);
 	STDMETHOD(RemoveAll)();
-	STDMETHOD(RemoveAttachedImage)([defaultvalue(0)] int art_id);
+	STDMETHOD(RemoveAttachedImage)([defaultvalue(0)] UINT art_id);
 	STDMETHOD(RemoveById)(UINT index);
 	STDMETHOD(RemoveRange)(UINT from, UINT count);
 	STDMETHOD(Sort)();
@@ -542,9 +542,9 @@ __interface IJSUtils : IDispatch
 	STDMETHOD(FileTest)(BSTR path, BSTR mode, [out, retval] VARIANT* p);
 	STDMETHOD(FormatDuration)(double p, [out, retval] BSTR* pp);
 	STDMETHOD(FormatFileSize)(LONGLONG p, [out, retval] BSTR* pp);
-	STDMETHOD(GetAlbumArtAsync)(UINT window_id, IFbMetadbHandle* handle, [defaultvalue(0)] int art_id, [defaultvalue(-1)] VARIANT_BOOL need_stub, [defaultvalue(0)] VARIANT_BOOL only_embed, [defaultvalue(0)] VARIANT_BOOL no_load, [out, retval] UINT* p);
-	STDMETHOD(GetAlbumArtEmbedded)(BSTR rawpath, [defaultvalue(0)] int art_id, [out, retval] IGdiBitmap** pp);
-	STDMETHOD(GetAlbumArtV2)(IFbMetadbHandle* handle, [defaultvalue(0)] int art_id, [defaultvalue(-1)] VARIANT_BOOL need_stub, [out, retval] IGdiBitmap** pp);
+	STDMETHOD(GetAlbumArtAsync)(UINT window_id, IFbMetadbHandle* handle, [defaultvalue(0)] UINT art_id, [defaultvalue(-1)] VARIANT_BOOL need_stub, [defaultvalue(0)] VARIANT_BOOL only_embed, [defaultvalue(0)] VARIANT_BOOL no_load, [out, retval] UINT* p);
+	STDMETHOD(GetAlbumArtEmbedded)(BSTR rawpath, [defaultvalue(0)] UINT art_id, [out, retval] IGdiBitmap** pp);
+	STDMETHOD(GetAlbumArtV2)(IFbMetadbHandle* handle, [defaultvalue(0)] UINT art_id, [defaultvalue(-1)] VARIANT_BOOL need_stub, [out, retval] IGdiBitmap** pp);
 	STDMETHOD(GetSysColour)(UINT index, [out, retval] int* p);
 	STDMETHOD(GetSystemMetrics)(UINT index, [out, retval] int* p);
 	STDMETHOD(Glob)(BSTR pattern, [defaultvalue(FILE_ATTRIBUTE_DIRECTORY)] UINT exc_mask, [defaultvalue(0xffffffff)] UINT inc_mask, [out, retval] VARIANT* p);

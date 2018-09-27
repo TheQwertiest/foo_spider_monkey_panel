@@ -482,7 +482,7 @@ STDMETHODIMP FbMetadbHandleList::AddRange(IFbMetadbHandleList* handles)
 	return S_OK;
 }
 
-STDMETHODIMP FbMetadbHandleList::AttachImage(BSTR image_path, int art_id)
+STDMETHODIMP FbMetadbHandleList::AttachImage(BSTR image_path, UINT art_id)
 {
 	t_size count = m_handles.get_count();
 	if (count == 0) return E_POINTER;
@@ -803,7 +803,7 @@ STDMETHODIMP FbMetadbHandleList::RemoveAll()
 	return S_OK;
 }
 
-STDMETHODIMP FbMetadbHandleList::RemoveAttachedImage(int art_id)
+STDMETHODIMP FbMetadbHandleList::RemoveAttachedImage(UINT art_id)
 {
 	t_size count = m_handles.get_count();
 	if (count == 0) return E_POINTER;
@@ -4022,7 +4022,7 @@ STDMETHODIMP JSUtils::FormatFileSize(LONGLONG p, BSTR* pp)
 	return S_OK;
 }
 
-STDMETHODIMP JSUtils::GetAlbumArtAsync(UINT window_id, IFbMetadbHandle* handle, int art_id, VARIANT_BOOL need_stub, VARIANT_BOOL only_embed, VARIANT_BOOL no_load, UINT* p)
+STDMETHODIMP JSUtils::GetAlbumArtAsync(UINT window_id, IFbMetadbHandle* handle, UINT art_id, VARIANT_BOOL need_stub, VARIANT_BOOL only_embed, VARIANT_BOOL no_load, UINT* p)
 {
 	if (!p) return E_POINTER;
 
@@ -4055,14 +4055,14 @@ STDMETHODIMP JSUtils::GetAlbumArtAsync(UINT window_id, IFbMetadbHandle* handle, 
 	return S_OK;
 }
 
-STDMETHODIMP JSUtils::GetAlbumArtEmbedded(BSTR rawpath, int art_id, IGdiBitmap** pp)
+STDMETHODIMP JSUtils::GetAlbumArtEmbedded(BSTR rawpath, UINT art_id, IGdiBitmap** pp)
 {
 	if (!pp) return E_POINTER;
 
 	return helpers::get_album_art_embedded(rawpath, pp, art_id);
 }
 
-STDMETHODIMP JSUtils::GetAlbumArtV2(IFbMetadbHandle* handle, int art_id, VARIANT_BOOL need_stub, IGdiBitmap** pp)
+STDMETHODIMP JSUtils::GetAlbumArtV2(IFbMetadbHandle* handle, UINT art_id, VARIANT_BOOL need_stub, IGdiBitmap** pp)
 {
 	if (!pp) return E_POINTER;
 

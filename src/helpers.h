@@ -23,8 +23,8 @@ namespace helpers
 	COLORREF convert_argb_to_colorref(DWORD argb);
 	DWORD convert_colorref_to_argb(DWORD color);
 	HBITMAP create_hbitmap_from_gdiplus_bitmap(Gdiplus::Bitmap* bitmap_ptr);
-	HRESULT get_album_art_embedded(BSTR rawpath, IGdiBitmap** pp, int art_id);
-	HRESULT get_album_art_v2(const metadb_handle_ptr& handle, IGdiBitmap** pp, int art_id, bool need_stub, bool no_load = false, pfc::string_base* image_path_ptr = NULL);
+	HRESULT get_album_art_embedded(BSTR rawpath, IGdiBitmap** pp, t_size art_id);
+	HRESULT get_album_art_v2(const metadb_handle_ptr& handle, IGdiBitmap** pp, t_size art_id, bool need_stub, bool no_load = false, pfc::string_base* image_path_ptr = NULL);
 	IGdiBitmap* load_image(BSTR path);
 	IGdiBitmap* query_album_art(album_art_extractor_instance_v2::ptr extractor, GUID& what, bool no_load = false, pfc::string_base* image_path_ptr = NULL);
 	bool execute_context_command_by_name(const char* p_name, metadb_handle_list_cref p_handles, unsigned flags);
@@ -37,7 +37,7 @@ namespace helpers
 	bool read_file_wide(unsigned codepage, const wchar_t* path, pfc::array_t<wchar_t>& content);
 	bool supports_chakra();
 	bool write_file(const char* path, const pfc::string_base& content, bool write_bom = true);
-	const GUID convert_artid_to_guid(int art_id);
+	const GUID convert_artid_to_guid(t_size art_id);
 	int get_encoder_clsid(const WCHAR* format, CLSID* pClsid);
 	int get_text_height(HDC hdc, const wchar_t* text, int len);
 	int get_text_width(HDC hdc, LPCTSTR text, int len);
@@ -150,11 +150,11 @@ namespace helpers
 		struct t_param
 		{
 			IFbMetadbHandle* handle;
-			int art_id;
+			t_size art_id;
 			IGdiBitmap* bitmap;
 			pfc::stringcvt::string_wide_from_utf8 image_path;
 
-			t_param(IFbMetadbHandle* p_handle, int p_art_id, IGdiBitmap* p_bitmap, const char* p_image_path) : handle(p_handle), art_id(p_art_id), bitmap(p_bitmap), image_path(p_image_path)
+			t_param(IFbMetadbHandle* p_handle, t_size p_art_id, IGdiBitmap* p_bitmap, const char* p_image_path) : handle(p_handle), art_id(p_art_id), bitmap(p_bitmap), image_path(p_image_path)
 			{
 			}
 
@@ -168,7 +168,7 @@ namespace helpers
 			}
 		};
 
-		album_art_async(HWND notify_hwnd, metadb_handle* handle, int art_id, bool need_stub, bool only_embed, bool no_load) : m_notify_hwnd(notify_hwnd), m_handle(handle), m_art_id(art_id), m_need_stub(need_stub), m_only_embed(only_embed), m_no_load(no_load)
+		album_art_async(HWND notify_hwnd, metadb_handle* handle, t_size art_id, bool need_stub, bool only_embed, bool no_load) : m_notify_hwnd(notify_hwnd), m_handle(handle), m_art_id(art_id), m_need_stub(need_stub), m_only_embed(only_embed), m_no_load(no_load)
 		{
 			if (m_handle.is_valid())
 				m_rawpath = pfc::stringcvt::string_wide_from_utf8(m_handle->get_path());
@@ -178,7 +178,7 @@ namespace helpers
 		virtual void run();
 		metadb_handle_ptr m_handle;
 		_bstr_t m_rawpath;
-		int m_art_id;
+		t_size m_art_id;
 		bool m_need_stub;
 		bool m_only_embed;
 		bool m_no_load;

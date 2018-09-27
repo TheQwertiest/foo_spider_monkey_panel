@@ -109,7 +109,7 @@ protected:
 public:
 	STDMETHODIMP Add(IFbMetadbHandle* handle);
 	STDMETHODIMP AddRange(IFbMetadbHandleList* handles);
-	STDMETHODIMP AttachImage(BSTR image_path, int art_id);
+	STDMETHODIMP AttachImage(BSTR image_path, UINT art_id);
 	STDMETHODIMP BSearch(IFbMetadbHandle* handle, int* p);
 	STDMETHODIMP CalcTotalDuration(double* p);
 	STDMETHODIMP CalcTotalSize(LONGLONG* p);
@@ -128,7 +128,7 @@ public:
 	STDMETHODIMP RefreshStats();
 	STDMETHODIMP Remove(IFbMetadbHandle* handle);
 	STDMETHODIMP RemoveAll();
-	STDMETHODIMP RemoveAttachedImage(int art_id);
+	STDMETHODIMP RemoveAttachedImage(UINT art_id);
 	STDMETHODIMP RemoveById(UINT index);
 	STDMETHODIMP RemoveRange(UINT from, UINT count);
 	STDMETHODIMP Sort();
@@ -538,9 +538,9 @@ public:
 	STDMETHODIMP FileTest(BSTR path, BSTR mode, VARIANT* p);
 	STDMETHODIMP FormatDuration(double p, BSTR* pp);
 	STDMETHODIMP FormatFileSize(LONGLONG p, BSTR* pp);
-	STDMETHODIMP GetAlbumArtAsync(UINT window_id, IFbMetadbHandle* handle, int art_id, VARIANT_BOOL need_stub, VARIANT_BOOL only_embed, VARIANT_BOOL no_load, UINT* p);
-	STDMETHODIMP GetAlbumArtEmbedded(BSTR rawpath, int art_id, IGdiBitmap** pp);
-	STDMETHODIMP GetAlbumArtV2(IFbMetadbHandle* handle, int art_id, VARIANT_BOOL need_stub, IGdiBitmap** pp);
+	STDMETHODIMP GetAlbumArtAsync(UINT window_id, IFbMetadbHandle* handle, UINT art_id, VARIANT_BOOL need_stub, VARIANT_BOOL only_embed, VARIANT_BOOL no_load, UINT* p);
+	STDMETHODIMP GetAlbumArtEmbedded(BSTR rawpath, UINT art_id, IGdiBitmap** pp);
+	STDMETHODIMP GetAlbumArtV2(IFbMetadbHandle* handle, UINT art_id, VARIANT_BOOL need_stub, IGdiBitmap** pp);
 	STDMETHODIMP GetSysColour(UINT index, int* p);
 	STDMETHODIMP GetSystemMetrics(UINT index, int* p);
 	STDMETHODIMP Glob(BSTR pattern, UINT exc_mask, UINT inc_mask, VARIANT* p);
