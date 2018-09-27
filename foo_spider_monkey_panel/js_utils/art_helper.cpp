@@ -200,7 +200,7 @@ const GUID& GetGuidForArtId( uint32_t art_id )
         &album_art_ids::artist,
     };
 
-    return *guids[std::min( art_id, _countof( guids ) - 1 )];
+    return *guids[std::min( art_id, uint32_t(0) )];
 }
 
 std::unique_ptr<Gdiplus::Bitmap> GetBitmapFromEmbeddedData( const pfc::string8_fast& rawpath, uint32_t art_id )
