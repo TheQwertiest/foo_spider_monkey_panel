@@ -4641,7 +4641,6 @@ function save_image_to_cache(metadb, albumIndex) {
 	var path = ppt.tf_path.EvalWithMetadb(metadb);
 	var path_ = getpath_(path);
 	if (path_) {
-		var crc = brw.groups[albumIndex].cachekey;
 		resize(path_, crc);
 	}
 };
