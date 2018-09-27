@@ -152,30 +152,30 @@ oFilterBox = function () {
 
 		this.images.resetIcon_off = gdi.CreateImage(w, w);
 		gb = this.images.resetIcon_off.GetGraphics();
-		gb.setSmoothingMode(2);
+		gb.SetSmoothingMode(2);
 		var xpts1 = Array(6, 5, w - 5, w - 6, w - 6, w - 5, 5, 6);
 		var xpts2 = Array(5, w - 6, w - 6, 5, w - 5, 6, 6, w - 5);
 		gb.FillPolygon(RGB(170, 170, 170), 0, xpts1);
 		gb.FillPolygon(RGB(170, 170, 170), 0, xpts2);
 		gb.DrawLine(6, 6, w - 6, w - 6, 2.0, blendColors(g_color_normal_txt, g_color_normal_bg, 0.35));
 		gb.DrawLine(6, w - 6, w - 6, 6, 2.0, blendColors(g_color_normal_txt, g_color_normal_bg, 0.35));
-		gb.setSmoothingMode(0);
+		gb.SetSmoothingMode(0);
 		this.images.resetIcon_off.ReleaseGraphics(gb);
 
 		this.images.resetIcon_ov = gdi.CreateImage(w, w);
 		gb = this.images.resetIcon_ov.GetGraphics();
-		gb.setSmoothingMode(2);
+		gb.SetSmoothingMode(2);
 		gb.DrawLine(4, 4, w - 4, w - 4, 3.0, blendColors(g_color_normal_txt, g_color_normal_bg, 0.35));
 		gb.DrawLine(4, w - 4, w - 4, 4, 3.0, blendColors(g_color_normal_txt, g_color_normal_bg, 0.35));
-		gb.setSmoothingMode(0);
+		gb.SetSmoothingMode(0);
 		this.images.resetIcon_ov.ReleaseGraphics(gb);
 
 		this.images.resetIcon_dn = gdi.CreateImage(w, w);
 		gb = this.images.resetIcon_dn.GetGraphics();
-		gb.setSmoothingMode(2);
+		gb.SetSmoothingMode(2);
 		gb.DrawLine(4, 4, w - 4, w - 4, 3.0, RGB(255, 50, 50));
 		gb.DrawLine(4, w - 4, w - 4, 4, 3.0, RGB(255, 50, 50));
-		gb.setSmoothingMode(0);
+		gb.SetSmoothingMode(0);
 		this.images.resetIcon_dn.ReleaseGraphics(gb);
 
 		this.reset_bt = new button(this.images.resetIcon_off, this.images.resetIcon_ov, this.images.resetIcon_dn);
@@ -1045,8 +1045,8 @@ oBrowser = function (name) {
 							if (this.inputboxID == i) {
 								this.inputbox.draw(gr, tx + 2, ay + 5);
 							} else {
-								gr.gdiDrawText(track_name_part, font, track_color_txt, tx, ay, tw - cColumns.track_total_part - 5, ah, DT_LEFT | DT_VCENTER | DT_CALCRECT | DT_END_ELLIPSIS | DT_NOPREFIX);
-								gr.gdiDrawText(track_total_part, font, track_color_txt, tx + tw - cColumns.track_total_part - 5, ay, cColumns.track_total_part, ah, DT_RIGHT | DT_VCENTER | DT_CALCRECT | DT_END_ELLIPSIS | DT_NOPREFIX);
+								gr.GdiDrawText(track_name_part, font, track_color_txt, tx, ay, tw - cColumns.track_total_part - 5, ah, DT_LEFT | DT_VCENTER | DT_CALCRECT | DT_END_ELLIPSIS | DT_NOPREFIX);
+								gr.GdiDrawText(track_total_part, font, track_color_txt, tx + tw - cColumns.track_total_part - 5, ay, cColumns.track_total_part, ah, DT_RIGHT | DT_VCENTER | DT_CALCRECT | DT_END_ELLIPSIS | DT_NOPREFIX);
 							};
 						};
 					};
@@ -1086,7 +1086,7 @@ oBrowser = function (name) {
 				var tx = cFilterBox.x + cFilterBox.w + Math.round(22 * g_zoom_percent / 100) + 5;
 				var tw = this.w - tx + (cScrollBar.enabled ? cScrollBar.width : 0);
 				try {
-					gr.gdiDrawText(boxText, g_font_box, blendColors(g_color_normal_txt, g_color_normal_bg, 0.3), tx, 0, tw, ppt.headerBarHeight - 1, DT_RIGHT | DT_VCENTER | DT_CALCRECT | DT_NOPREFIX | DT_END_ELLIPSIS);
+					gr.GdiDrawText(boxText, g_font_box, blendColors(g_color_normal_txt, g_color_normal_bg, 0.3), tx, 0, tw, ppt.headerBarHeight - 1, DT_RIGHT | DT_VCENTER | DT_CALCRECT | DT_NOPREFIX | DT_END_ELLIPSIS);
 				} catch (e) {
 					console.log(">> debug: cScrollBar.width=" + cScrollBar.width + " /boxText=" + boxText + " /ppt.headerBarHeight=" + ppt.headerBarHeight + " /g_fsize=" + g_fsize);
 				};
@@ -1370,13 +1370,6 @@ oBrowser = function (name) {
 			};
 
 			scroll_prev = scroll;
-
-			// tweak to fix bug in timer/memory/repaint handle in WSH Panel Mod with timers
-			g_counter_repaint++;
-			if (g_counter_repaint > 100) {
-				g_counter_repaint = 0;
-				CollectGarbage();
-			};
 
 		}, ppt.refreshRate);
 
@@ -1704,8 +1697,6 @@ var WshShell = new ActiveXObject("WScript.Shell");
 var htmlfile = new ActiveXObject('htmlfile');
 
 var brw = null;
-var g_1x1 = false;
-var g_last = 0;
 var isScrolling = false;
 var g_zoom_percent = 100;
 
@@ -1713,7 +1704,6 @@ var g_filterbox = null;
 var filter_text = "";
 
 var g_instancetype = window.InstanceType;
-var g_counter_repaint = 0;
 
 // fonts
 var g_font = null;
@@ -1776,14 +1766,12 @@ var g_first_populate_done = false;
 var g_first_populate_launched = false;
 //
 var repaintforced = false;
-var launch_time = fb.CreateProfiler("launch_time");
 var form_text = "";
 var repaint_main = true, repaint_main1 = true, repaint_main2 = true;
 var window_visible = false;
 var scroll_ = 0, scroll = 0, scroll_prev = 0;
 var time222;
 var g_start_ = 0, g_end_ = 0;
-var g_last = 0;
 var g_wallpaperImg = null;
 
 function on_init() {
@@ -1840,30 +1828,28 @@ function on_paint(gr) {
 	if (!ww)
 		return;
 
-	if (!g_1x1) {
-		//gr.FillSolidRect(0, 0, ww, wh, RGBA(210,210,215,255));
-		// draw background under playlist
-		if (fb.IsPlaying && g_wallpaperImg && ppt.showwallpaper) {
+	//gr.FillSolidRect(0, 0, ww, wh, RGBA(210,210,215,255));
+	// draw background under playlist
+	if (fb.IsPlaying && g_wallpaperImg && ppt.showwallpaper) {
+		gr.GdiDrawBitmap(g_wallpaperImg, 0, 0, ww, wh, 0, 0, g_wallpaperImg.Width, g_wallpaperImg.Height);
+		gr.FillSolidRect(0, 0, ww, wh, g_color_normal_bg & RGBA(255, 255, 255, ppt.wallpaperalpha));
+	} else {
+		//gr.FillSolidRect(0, 0, ww, wh, g_color_normal_bg);
+		if (g_wallpaperImg && ppt.showwallpaper) {
 			gr.GdiDrawBitmap(g_wallpaperImg, 0, 0, ww, wh, 0, 0, g_wallpaperImg.Width, g_wallpaperImg.Height);
 			gr.FillSolidRect(0, 0, ww, wh, g_color_normal_bg & RGBA(255, 255, 255, ppt.wallpaperalpha));
 		} else {
-			//gr.FillSolidRect(0, 0, ww, wh, g_color_normal_bg);
-			if (g_wallpaperImg && ppt.showwallpaper) {
-				gr.GdiDrawBitmap(g_wallpaperImg, 0, 0, ww, wh, 0, 0, g_wallpaperImg.Width, g_wallpaperImg.Height);
-				gr.FillSolidRect(0, 0, ww, wh, g_color_normal_bg & RGBA(255, 255, 255, ppt.wallpaperalpha));
-			} else {
-				gr.FillSolidRect(0, 0, ww, wh, g_color_normal_bg);
-			};
+			gr.FillSolidRect(0, 0, ww, wh, g_color_normal_bg);
 		};
+	};
 
-		brw && brw.draw(gr);
+	brw && brw.draw(gr);
 
-		if (ppt.showHeaderBar) {
-			// inputBox
-			if (ppt.showFilterBox && g_filterbox) {
-				if (g_filterbox.inputbox.visible) {
-					g_filterbox.draw(gr, cFilterBox.x, cFilterBox.y);
-				};
+	if (ppt.showHeaderBar) {
+		// inputBox
+		if (ppt.showFilterBox && g_filterbox) {
+			if (g_filterbox.inputbox.visible) {
+				g_filterbox.draw(gr, cFilterBox.x, cFilterBox.y);
 			};
 		};
 	};
@@ -2175,13 +2161,13 @@ function get_font() {
 		g_font_headers = window.GetFontDUI(FontTypeDUI.tabs);
 	};
 
-	// tweaks to fix a problem with WSH Panel Mod on Font object Name property
+	// tweaks to fix a problem with JScript Panel Mod on Font object Name property
 	try {
 		g_fname = default_font.Name;
 		g_fsize = default_font.Size;
 		g_fstyle = default_font.Style;
 	} catch (e) {
-		console.log("WSH Panel Error: Unable to use the default font. Using Arial font instead.");
+		console.log("JScript Panel Error: Unable to use the default font. Using Arial font instead.");
 		g_fname = "arial";
 		g_fsize = 12;
 		g_fstyle = 0;

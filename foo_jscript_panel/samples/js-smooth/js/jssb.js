@@ -11,7 +11,6 @@ ppt = {
 	followFocusChange: window.GetProperty("_PROPERTY: Follow focus change", true), // only in source mode = Playlist
 	sourceMode: window.GetProperty("_PROPERTY: Source Mode", 0), // 0 = Library, 1 = Playlist
 	tagMode: window.GetProperty("_PROPERTY: Tag Mode", 1), // 1 = album, 2 = artist, 3 = genre
-	albumArtId: 0, // 0 = front
 	panelMode: window.GetProperty("_PROPERTY: Display Mode", 1), // 0 = text, 1 = stamps + text, 2 = lines + text, 3 = stamps no text
 	albumsTFsorting: window.GetProperty("Sort Order - ALBUM", "%album artist% | %date% | %album% | %discnumber% | %tracknumber% | %title%"),
 	artistsTFsorting: window.GetProperty("Sort Order - ARTIST", "$meta(artist,0) | %date% | %album% | %discnumber% | %tracknumber% | %title%"),
@@ -175,28 +174,22 @@ function on_load_image_done(tid, image) {
 			if (brw.groups[k].tid == tid && brw.groups[k].load_requested == 1) {
 				brw.groups[k].load_requested = 2;
 				brw.groups[k].cover_img = g_image_cache.getit(brw.groups[k].metadb, k, image);
-				//if(!isScrolling && !cScrollBar.timerID) {
 				if (k < brw.groups.length && k >= g_start_ && k <= g_end_) {
 					if (!timers.coverDone) {
 						timers.coverDone = window.SetTimeout(function () {
-								g_1x1 = false;
-								brw.cover_repaint();
-								timers.coverDone && window.ClearTimeout(timers.coverDone);
-								timers.coverDone = false;
-							}, 5);
+							brw.cover_repaint();
+							timers.coverDone && window.ClearTimeout(timers.coverDone);
+							timers.coverDone = false;
+						}, 5);
 					};
 				} else {
 					if (!timers.coverDone) {
 						timers.coverDone = window.SetTimeout(function () {
-								g_1x1 = true;
-								window.RepaintRect(0, 0, 1, 1);
-								g_1x1 = false;
-								timers.coverDone && window.ClearTimeout(timers.coverDone);
-								timers.coverDone = false;
-							}, 5);
+							timers.coverDone && window.ClearTimeout(timers.coverDone);
+							timers.coverDone = false;
+						}, 5);
 					};
 				};
-				//};
 				break;
 			};
 		};
@@ -205,54 +198,19 @@ function on_load_image_done(tid, image) {
 
 function on_get_album_art_done(metadb, art_id, image, image_path) {
 	var tot = brw.groups.length;
-	if (ppt.albumArtId != 0) {
-		for (var i = 0; i < tot; i++) {
-			if (brw.groups[i].metadb) {
-				if (brw.groups[i].metadb.Compare(metadb)) {
-					brw.groups[i].cover_img = g_image_cache.getit(metadb, i, image);
-					//if(!isScrolling && !cScrollBar.timerID) {
-					if (i < brw.groups.length && i >= g_start_ && i <= g_end_) {
-						if (!timers.coverDone) {
-							timers.coverDone = window.SetTimeout(function () {
-									g_1x1 = false;
-									brw.cover_repaint();
-									timers.coverDone && window.ClearTimeout(timers.coverDone);
-									timers.coverDone = false;
-								}, 5);
-						};
-					} else {
-						g_1x1 = true;
-						window.RepaintRect(0, 0, 1, 1);
-						g_1x1 = false;
-					};
-					//};
-					break;
+	for (var i = 0; i < tot; i++) {
+		if (brw.groups[i].metadb && brw.groups[i].metadb.Compare(metadb)) {
+			brw.groups[i].cover_img = g_image_cache.getit(metadb, i, image);
+			if (i < brw.groups.length && i >= g_start_ && i <= g_end_) {
+				if (!timers.coverDone) {
+					timers.coverDone = window.SetTimeout(function () {
+							brw.cover_repaint();
+							timers.coverDone && window.ClearTimeout(timers.coverDone);
+							timers.coverDone = false;
+						}, 5);
 				};
-			};
-		};
-	} else {
-		var i = art_id - 5;
-		g_last = i;
-		if (i < tot) {
-			if (brw.groups[i].metadb) {
-				brw.groups[i].cover_img = g_image_cache.getit(metadb, i, image);
-				//if(!isScrolling && !cScrollBar.timerID) {
-				if (i < brw.groups.length && i >= g_start_ && i <= g_end_) {
-					if (!timers.coverDone) {
-						timers.coverDone = window.SetTimeout(function () {
-								g_1x1 = false;
-								brw.cover_repaint();
-								timers.coverDone && window.ClearTimeout(timers.coverDone);
-								timers.coverDone = false;
-							}, 5);
-					};
-				} else {
-					g_1x1 = true;
-					window.RepaintRect(0, 0, 1, 1);
-					g_1x1 = false;
-				};
-				//};
-			};
+			}
+			break;
 		};
 	};
 };
@@ -296,22 +254,22 @@ image_cache = function () {
 					// load img default method
 					if (!timers.coverLoad) {
 						timers.coverLoad = window.SetTimeout(function () {
-								if (ppt.albumArtId == 5) { // genre
-									var arr = brw.groups[albumIndex].groupkey.split(" ^^ ");
-									try {
-										var genre_img = gdi.Image(images.path + "genres\\" + arr[0] + ".jpg");
-									} catch (e) {
-										var genre_img = gdi.Image(images.path + "genres\\" + "default.jpg");
-									};
-									brw.groups[albumIndex].cover_img = g_image_cache.getit(metadb, albumIndex, genre_img);
-									brw.repaint();
-								} else {
-									this.albumArtId = ppt.albumArtId == 0 ? albumIndex + 5 : ppt.albumArtId;
-									utils.GetAlbumArtAsync(window.ID, metadb, this.albumArtId, true, false, false);
+							if (ppt.tagMode == 3) { // genre
+								var arr = brw.groups[albumIndex].groupkey.split(" ^^ ");
+								try {
+									var genre_img = gdi.Image(images.path + "genres\\" + arr[0] + ".jpg");
+								} catch (e) {
+									var genre_img = gdi.Image(images.path + "genres\\" + "default.jpg");
 								};
-								timers.coverLoad && window.ClearTimeout(timers.coverLoad);
-								timers.coverLoad = false;
-							}, (!isScrolling && !cScrollBar.timerID ? 5 : 20));
+								brw.groups[albumIndex].cover_img = g_image_cache.getit(metadb, albumIndex, genre_img);
+								brw.repaint();
+							} else {
+								var art_id = ppt.tagMode == 1 ? 0 : 4;
+								utils.GetAlbumArtAsync(window.ID, metadb, art_id, true, false, false);
+							};
+							timers.coverLoad && window.ClearTimeout(timers.coverLoad);
+							timers.coverLoad = false;
+						}, (!isScrolling && !cScrollBar.timerID ? 5 : 20));
 					};
 				};
 			};
@@ -370,7 +328,7 @@ image_cache = function () {
 						timers.saveCover = window.SetTimeout(function () {
 							window.ClearTimeout(timers.saveCover);
 							timers.saveCover = false;
-						}, 50);
+						}, 10);
 					};
 				};
 			};
@@ -807,30 +765,30 @@ oFilterBox = function () {
 
 		this.images.resetIcon_off = gdi.CreateImage(w, w);
 		gb = this.images.resetIcon_off.GetGraphics();
-		gb.setSmoothingMode(2);
+		gb.SetSmoothingMode(2);
 		var xpts1 = Array(6, 5, w - 5, w - 6, w - 6, w - 5, 5, 6);
 		var xpts2 = Array(5, w - 6, w - 6, 5, w - 5, 6, 6, w - 5);
 		gb.FillPolygon(RGB(170, 170, 170), 0, xpts1);
 		gb.FillPolygon(RGB(170, 170, 170), 0, xpts2);
 		gb.DrawLine(6, 6, w - 6, w - 6, 2.0, blendColors(g_color_normal_txt, g_color_normal_bg, 0.35));
 		gb.DrawLine(6, w - 6, w - 6, 6, 2.0, blendColors(g_color_normal_txt, g_color_normal_bg, 0.35));
-		gb.setSmoothingMode(0);
+		gb.SetSmoothingMode(0);
 		this.images.resetIcon_off.ReleaseGraphics(gb);
 
 		this.images.resetIcon_ov = gdi.CreateImage(w, w);
 		gb = this.images.resetIcon_ov.GetGraphics();
-		gb.setSmoothingMode(2);
+		gb.SetSmoothingMode(2);
 		gb.DrawLine(4, 4, w - 4, w - 4, 3.0, blendColors(g_color_normal_txt, g_color_normal_bg, 0.35));
 		gb.DrawLine(4, w - 4, w - 4, 4, 3.0, blendColors(g_color_normal_txt, g_color_normal_bg, 0.35));
-		gb.setSmoothingMode(0);
+		gb.SetSmoothingMode(0);
 		this.images.resetIcon_ov.ReleaseGraphics(gb);
 
 		this.images.resetIcon_dn = gdi.CreateImage(w, w);
 		gb = this.images.resetIcon_dn.GetGraphics();
-		gb.setSmoothingMode(2);
+		gb.SetSmoothingMode(2);
 		gb.DrawLine(4, 4, w - 4, w - 4, 3.0, RGB(255, 50, 50));
 		gb.DrawLine(4, w - 4, w - 4, 4, 3.0, RGB(255, 50, 50));
-		gb.setSmoothingMode(0);
+		gb.SetSmoothingMode(0);
 		this.images.resetIcon_dn.ReleaseGraphics(gb);
 
 		this.reset_bt = new button(this.images.resetIcon_off, this.images.resetIcon_ov, this.images.resetIcon_dn);
@@ -1428,7 +1386,7 @@ oGroup = function (index, start, handle, groupkey) {
 			this.cachekey = process_cachekey(ppt.tf_crc_genre.EvalWithMetadb(handle));
 			break;
 		}
-		this.tracktype = TrackType(handle.rawpath.substring(0, 4));
+		this.tracktype = TrackType(handle.RawPath.substring(0, 4));
 	} else {
 		this.cachekey = null;
 		this.tracktype = 0;
@@ -2223,10 +2181,10 @@ oBrowser = function (name) {
 							if (ppt.showAllItem && i == 0 && total > 1) { // aggregate item ( [ALL] )
 								try {
 									if (ppt.tagMode == 1) {
-										gr.gdiDrawText("All items", g_font_bold, txt_color1, ax + Math.round((aw - coverWidth) / 2), (coverTop + 5 + coverWidth), coverWidth, ppt.botTextRowHeight + ppt.extra_font_size, DT_LEFT | DT_TOP | DT_CALCRECT | DT_END_ELLIPSIS | DT_NOPREFIX);
-										gr.gdiDrawText("(" + (total - 1) + " items)", g_font, txt_color2, ax + Math.round((aw - coverWidth) / 2), (coverTop + 5 + coverWidth + ppt.botTextRowHeight), coverWidth, ppt.botTextRowHeight + ppt.extra_font_size, DT_LEFT | DT_TOP | DT_CALCRECT | DT_END_ELLIPSIS | DT_NOPREFIX);
+										gr.GdiDrawText("All items", g_font_bold, txt_color1, ax + Math.round((aw - coverWidth) / 2), (coverTop + 5 + coverWidth), coverWidth, ppt.botTextRowHeight + ppt.extra_font_size, DT_LEFT | DT_TOP | DT_CALCRECT | DT_END_ELLIPSIS | DT_NOPREFIX);
+										gr.GdiDrawText("(" + (total - 1) + " items)", g_font, txt_color2, ax + Math.round((aw - coverWidth) / 2), (coverTop + 5 + coverWidth + ppt.botTextRowHeight), coverWidth, ppt.botTextRowHeight + ppt.extra_font_size, DT_LEFT | DT_TOP | DT_CALCRECT | DT_END_ELLIPSIS | DT_NOPREFIX);
 									} else {
-										gr.gdiDrawText("All items", i == this.selectedIndex ? g_font_bold : g_font, txt_color2, ax + Math.round((aw - coverWidth) / 2), (coverTop + 5 + coverWidth), coverWidth, ppt.botTextRowHeight + ppt.extra_font_size, DT_LEFT | DT_TOP | DT_CALCRECT | DT_END_ELLIPSIS | DT_NOPREFIX);
+										gr.GdiDrawText("All items", i == this.selectedIndex ? g_font_bold : g_font, txt_color2, ax + Math.round((aw - coverWidth) / 2), (coverTop + 5 + coverWidth), coverWidth, ppt.botTextRowHeight + ppt.extra_font_size, DT_LEFT | DT_TOP | DT_CALCRECT | DT_END_ELLIPSIS | DT_NOPREFIX);
 									};
 								} catch (e) {}
 							} else {
@@ -2242,11 +2200,11 @@ oBrowser = function (name) {
 								};
 								try {
 									if (ppt.tagMode == 1) {
-										gr.gdiDrawText(album_name, g_font_bold, txt_color1, ax + Math.round((aw - coverWidth) / 2), (coverTop + 5 + coverWidth), coverWidth, ppt.botTextRowHeight + ppt.extra_font_size, DT_LEFT | DT_TOP | DT_CALCRECT | DT_END_ELLIPSIS | DT_NOPREFIX);
+										gr.GdiDrawText(album_name, g_font_bold, txt_color1, ax + Math.round((aw - coverWidth) / 2), (coverTop + 5 + coverWidth), coverWidth, ppt.botTextRowHeight + ppt.extra_font_size, DT_LEFT | DT_TOP | DT_CALCRECT | DT_END_ELLIPSIS | DT_NOPREFIX);
 										if (this.groups[i].tracktype != 3)
-											gr.gdiDrawText(arr[0], g_font, txt_color2, ax + Math.round((aw - coverWidth) / 2), (coverTop + 5 + coverWidth + ppt.botTextRowHeight), coverWidth, ppt.botTextRowHeight + ppt.extra_font_size, DT_LEFT | DT_TOP | DT_CALCRECT | DT_END_ELLIPSIS | DT_NOPREFIX);
+											gr.GdiDrawText(arr[0], g_font, txt_color2, ax + Math.round((aw - coverWidth) / 2), (coverTop + 5 + coverWidth + ppt.botTextRowHeight), coverWidth, ppt.botTextRowHeight + ppt.extra_font_size, DT_LEFT | DT_TOP | DT_CALCRECT | DT_END_ELLIPSIS | DT_NOPREFIX);
 									} else {
-										gr.gdiDrawText(arr[0], i == this.selectedIndex ? g_font_bold : g_font, txt_color2, ax + Math.round((aw - coverWidth) / 2), (coverTop + 5 + coverWidth), coverWidth, ppt.botTextRowHeight + ppt.extra_font_size, DT_LEFT | DT_TOP | DT_CALCRECT | DT_END_ELLIPSIS | DT_NOPREFIX);
+										gr.GdiDrawText(arr[0], i == this.selectedIndex ? g_font_bold : g_font, txt_color2, ax + Math.round((aw - coverWidth) / 2), (coverTop + 5 + coverWidth), coverWidth, ppt.botTextRowHeight + ppt.extra_font_size, DT_LEFT | DT_TOP | DT_CALCRECT | DT_END_ELLIPSIS | DT_NOPREFIX);
 									};
 								} catch (e) {}
 							};
@@ -2267,11 +2225,11 @@ oBrowser = function (name) {
 								};
 								try {
 									if (ppt.tagMode == 1) {
-										gr.gdiDrawText(album_name, g_font_bold, txt_color1, ax + 10, (coverTop + 5 + coverWidth) - ppt.botGridHeight, aw - 20, ppt.botTextRowHeight + ppt.extra_font_size, DT_LEFT | DT_TOP | DT_CALCRECT | DT_END_ELLIPSIS | DT_NOPREFIX);
+										gr.GdiDrawText(album_name, g_font_bold, txt_color1, ax + 10, (coverTop + 5 + coverWidth) - ppt.botGridHeight, aw - 20, ppt.botTextRowHeight + ppt.extra_font_size, DT_LEFT | DT_TOP | DT_CALCRECT | DT_END_ELLIPSIS | DT_NOPREFIX);
 										if (this.groups[i].tracktype != 3)
-											gr.gdiDrawText(arr[0], g_font, txt_color2, ax + 10, (coverTop + 5 + coverWidth + ppt.botTextRowHeight) - ppt.botGridHeight, aw - 20, ppt.botTextRowHeight + ppt.extra_font_size, DT_LEFT | DT_TOP | DT_CALCRECT | DT_END_ELLIPSIS | DT_NOPREFIX);
+											gr.GdiDrawText(arr[0], g_font, txt_color2, ax + 10, (coverTop + 5 + coverWidth + ppt.botTextRowHeight) - ppt.botGridHeight, aw - 20, ppt.botTextRowHeight + ppt.extra_font_size, DT_LEFT | DT_TOP | DT_CALCRECT | DT_END_ELLIPSIS | DT_NOPREFIX);
 									} else {
-										gr.gdiDrawText(arr[0], i == this.selectedIndex ? g_font_bold : g_font, txt_color2, ax + 10, (coverTop + 5 + coverWidth + 8) - ppt.botGridHeight, aw - 20, ppt.botTextRowHeight + ppt.extra_font_size, DT_LEFT | DT_TOP | DT_CALCRECT | DT_END_ELLIPSIS | DT_NOPREFIX);
+										gr.GdiDrawText(arr[0], i == this.selectedIndex ? g_font_bold : g_font, txt_color2, ax + 10, (coverTop + 5 + coverWidth + 8) - ppt.botGridHeight, aw - 20, ppt.botTextRowHeight + ppt.extra_font_size, DT_LEFT | DT_TOP | DT_CALCRECT | DT_END_ELLIPSIS | DT_NOPREFIX);
 									};
 								} catch (e) {}
 							};
@@ -2339,18 +2297,18 @@ oBrowser = function (name) {
 							switch (ppt.tagMode) {
 							case 1: // album
 								try {
-									gr.gdiDrawText("All items", g_font_bold, txt_color1, ax + coverWidth + this.marginCover * 2, ay - ppt.textLineHeight, aw - coverWidth - this.marginCover * 3, ah, DT_LEFT | DT_VCENTER | DT_CALCRECT | DT_END_ELLIPSIS | DT_NOPREFIX);
-									gr.gdiDrawText("(" + (total - 1) + " albums)", g_font, txt_color2, ax + coverWidth + this.marginCover * 2, ay + ppt.textLineHeight, aw - coverWidth - this.marginCover * 3, ah, DT_LEFT | DT_VCENTER | DT_CALCRECT | DT_END_ELLIPSIS | DT_NOPREFIX);
+									gr.GdiDrawText("All items", g_font_bold, txt_color1, ax + coverWidth + this.marginCover * 2, ay - ppt.textLineHeight, aw - coverWidth - this.marginCover * 3, ah, DT_LEFT | DT_VCENTER | DT_CALCRECT | DT_END_ELLIPSIS | DT_NOPREFIX);
+									gr.GdiDrawText("(" + (total - 1) + " albums)", g_font, txt_color2, ax + coverWidth + this.marginCover * 2, ay + ppt.textLineHeight, aw - coverWidth - this.marginCover * 3, ah, DT_LEFT | DT_VCENTER | DT_CALCRECT | DT_END_ELLIPSIS | DT_NOPREFIX);
 								} catch (e) {}
 								break;
 							case 2: // artist
 								try {
-									gr.gdiDrawText("All items (" + (total - 1) + " artists)", i == this.selectedIndex ? g_font_bold : g_font, txt_color1, ax + coverWidth + this.marginCover * 2, ay, aw - coverWidth - this.marginCover * 3, ah, DT_LEFT | DT_VCENTER | DT_CALCRECT | DT_END_ELLIPSIS | DT_NOPREFIX);
+									gr.GdiDrawText("All items (" + (total - 1) + " artists)", i == this.selectedIndex ? g_font_bold : g_font, txt_color1, ax + coverWidth + this.marginCover * 2, ay, aw - coverWidth - this.marginCover * 3, ah, DT_LEFT | DT_VCENTER | DT_CALCRECT | DT_END_ELLIPSIS | DT_NOPREFIX);
 								} catch (e) {}
 								break;
 							case 3: // genre
 								try {
-									gr.gdiDrawText("All items (" + (total - 1) + " genres)", i == this.selectedIndex ? g_font_bold : g_font, txt_color1, ax + coverWidth + this.marginCover * 2, ay, aw - coverWidth - this.marginCover * 3, ah, DT_LEFT | DT_VCENTER | DT_CALCRECT | DT_END_ELLIPSIS | DT_NOPREFIX);
+									gr.GdiDrawText("All items (" + (total - 1) + " genres)", i == this.selectedIndex ? g_font_bold : g_font, txt_color1, ax + coverWidth + this.marginCover * 2, ay, aw - coverWidth - this.marginCover * 3, ah, DT_LEFT | DT_VCENTER | DT_CALCRECT | DT_END_ELLIPSIS | DT_NOPREFIX);
 								} catch (e) {}
 								break;
 							};
@@ -2368,19 +2326,19 @@ oBrowser = function (name) {
 									var album_name = arr[1];
 								};
 								try {
-									gr.gdiDrawText(album_name, g_font_bold, txt_color1, ax + coverWidth + this.marginCover * 2, ay - ppt.textLineHeight, aw - coverWidth - this.marginCover * 3, ah, DT_LEFT | DT_VCENTER | DT_CALCRECT | DT_END_ELLIPSIS | DT_NOPREFIX);
+									gr.GdiDrawText(album_name, g_font_bold, txt_color1, ax + coverWidth + this.marginCover * 2, ay - ppt.textLineHeight, aw - coverWidth - this.marginCover * 3, ah, DT_LEFT | DT_VCENTER | DT_CALCRECT | DT_END_ELLIPSIS | DT_NOPREFIX);
 									if (this.groups[i].tracktype != 3)
-										gr.gdiDrawText(arr[0], g_font, txt_color2, ax + coverWidth + this.marginCover * 2, ay + ppt.textLineHeight, aw - coverWidth - this.marginCover * 3, ah, DT_LEFT | DT_VCENTER | DT_CALCRECT | DT_END_ELLIPSIS | DT_NOPREFIX);
+										gr.GdiDrawText(arr[0], g_font, txt_color2, ax + coverWidth + this.marginCover * 2, ay + ppt.textLineHeight, aw - coverWidth - this.marginCover * 3, ah, DT_LEFT | DT_VCENTER | DT_CALCRECT | DT_END_ELLIPSIS | DT_NOPREFIX);
 								} catch (e) {}
 								break;
 							case 2: // artist
 								try {
-									gr.gdiDrawText(arr[0], i == this.selectedIndex ? g_font_bold : g_font, txt_color1, ax + coverWidth + this.marginCover * 2, ay, aw - coverWidth - this.marginCover * 3, ah, DT_LEFT | DT_VCENTER | DT_CALCRECT | DT_END_ELLIPSIS | DT_NOPREFIX);
+									gr.GdiDrawText(arr[0], i == this.selectedIndex ? g_font_bold : g_font, txt_color1, ax + coverWidth + this.marginCover * 2, ay, aw - coverWidth - this.marginCover * 3, ah, DT_LEFT | DT_VCENTER | DT_CALCRECT | DT_END_ELLIPSIS | DT_NOPREFIX);
 								} catch (e) {}
 								break;
 							case 3: // genre
 								try {
-									gr.gdiDrawText(arr[0], i == this.selectedIndex ? g_font_bold : g_font, txt_color1, ax + coverWidth + this.marginCover * 2, ay, aw - coverWidth - this.marginCover * 3, ah, DT_LEFT | DT_VCENTER | DT_CALCRECT | DT_END_ELLIPSIS | DT_NOPREFIX);
+									gr.GdiDrawText(arr[0], i == this.selectedIndex ? g_font_bold : g_font, txt_color1, ax + coverWidth + this.marginCover * 2, ay, aw - coverWidth - this.marginCover * 3, ah, DT_LEFT | DT_VCENTER | DT_CALCRECT | DT_END_ELLIPSIS | DT_NOPREFIX);
 								} catch (e) {}
 								break;
 							};
@@ -2505,7 +2463,7 @@ oBrowser = function (name) {
 				var tx = cFilterBox.x + cFilterBox.w + Math.round(22 * g_zoom_percent / 100) + 5;
 				var tw = this.w - tx + (cScrollBar.enabled ? cScrollBar.width : 0);
 				try {
-					gr.gdiDrawText(boxText, g_font_box, blendColors(g_color_normal_txt, g_color_normal_bg, 0.4), tx, 0, tw, ppt.headerBarHeight - 1, DT_RIGHT | DT_VCENTER | DT_CALCRECT | DT_NOPREFIX | DT_END_ELLIPSIS);
+					gr.GdiDrawText(boxText, g_font_box, blendColors(g_color_normal_txt, g_color_normal_bg, 0.4), tx, 0, tw, ppt.headerBarHeight - 1, DT_RIGHT | DT_VCENTER | DT_CALCRECT | DT_NOPREFIX | DT_END_ELLIPSIS);
 				} catch (e) {
 					console.log(">> debug: cScrollBar.width=" + cScrollBar.width + " /boxText=" + boxText + " /ppt.headerBarHeight=" + ppt.headerBarHeight + " /g_fsize=" + g_fsize);
 				};
@@ -2593,8 +2551,6 @@ oBrowser = function (name) {
 						plman.ExecutePlaylistDefaultAction(g_active_playlist, 0);
 					} else {
 						plman.ExecutePlaylistDefaultAction(g_active_playlist, this.groups[this.activeIndex].start);
-						//plman.SetPlaylistFocusItemByHandle(plman.ActivePlaylist, brw.groups[brw.activeIndex].pl.Item(0));
-						//fb.Play();
 					};
 				};
 			} else {
@@ -2746,13 +2702,6 @@ oBrowser = function (name) {
 
 			scroll_prev = scroll;
 
-			// tweak to fix bug in timer/memory/repaint handle in WSH Panel Mod with timers
-			g_counter_repaint++;
-			if (g_counter_repaint > 100) {
-				g_counter_repaint = 0;
-				CollectGarbage();
-			};
-
 		}, ppt.refreshRate);
 
 	this.item_context_menu = function (x, y, albumIndex) {
@@ -2799,11 +2748,11 @@ oBrowser = function (name) {
 		} else {
 			switch (ret) {
 			case 1010:
-				if (fso.FileExists(fb.ProfilePath + "js_smooth_cache\\" + crc)) {
+				if (fso.FileExists(CACHE_FOLDER + crc)) {
 					try {
-						fso.DeleteFile(fb.ProfilePath + "js_smooth_cache\\" + crc);
+						fso.DeleteFile(CACHE_FOLDER + crc);
 					} catch (e) {
-						console.log("WSH Panel Error: Image cache [" + crc + "] can't be deleted on disk, file in use, try later or reload panel.");
+						console.log("JScript Panel Error: Image cache [" + crc + "] can't be deleted on disk, file in use, try later or reload panel.");
 					};
 				};
 				this.groups[albumIndex].tid = -1;
@@ -2900,23 +2849,6 @@ oBrowser = function (name) {
 		case (idx >= 111 && idx <= 113):
 			ppt.tagMode = idx - 110;
 			window.SetProperty("_PROPERTY: Tag Mode", ppt.tagMode);
-			switch (ppt.tagMode) {
-			case 1:
-				ppt.albumArtId = 0;
-				/*
-				if(ppt.lineHeightMin < 44) {
-				ppt.lineHeightMin = 44;
-				window.SetProperty("SYSTEM Minimal Line Height", ppt.lineHeightMin);
-				};
-				*/
-				break;
-			case 2:
-				ppt.albumArtId = 4;
-				break;
-			case 3:
-				ppt.albumArtId = 5;
-				break;
-			};
 			g_image_cache = new image_cache;
 			CollectGarbage();
 			brw.populate(true);
@@ -3080,8 +3012,6 @@ var cover_img = cover.masks.split(";");
 var stub_image, cell_null;
 
 var brw = null;
-var g_1x1 = false;
-var g_last = 0;
 var isScrolling = false;
 var g_zoom_percent = 100;
 
@@ -3089,7 +3019,6 @@ var g_filterbox = null;
 var filter_text = "";
 
 var g_instancetype = window.InstanceType;
-var g_counter_repaint = 0;
 
 // fonts
 var g_font = null;
@@ -3147,7 +3076,6 @@ var g_first_populate_done = false;
 var g_first_populate_launched = false;
 
 var repaintforced = false;
-var launch_time = fb.CreateProfiler("launch_time");
 var form_text = "";
 var repaint_main = true, repaint_main1 = true, repaint_main2 = true;
 var repaint_cover = true, repaint_cover1 = true, repaint_cover2 = true;
@@ -3155,7 +3083,6 @@ var window_visible = false;
 var scroll_ = 0, scroll = 0, scroll_prev = 0;
 var time222;
 var g_start_ = 0, g_end_ = 0;
-var g_last = 0;
 var g_wallpaperImg = null;
 
 var g_rightClickedIndex = -1;
@@ -3168,18 +3095,6 @@ function on_init() {
 	get_metrics();
 
 	g_active_playlist = plman.ActivePlaylist;
-
-	switch (ppt.tagMode) {
-	case 1:
-		ppt.albumArtId = 0;
-		break;
-	case 2:
-		ppt.albumArtId = 4;
-		break;
-	case 3:
-		ppt.albumArtId = 5;
-		break;
-	};
 
 	brw = new oBrowser("brw");
 	pman = new oPlaylistManager("pman");
@@ -3228,37 +3143,36 @@ function on_paint(gr) {
 	if (!ww || !wh || ww < 10 || wh < 10)
 		return;
 
-	if (!g_1x1) {
-		//gr.FillSolidRect(0, 0, ww, wh, RGBA(210,210,215,255));
-		// draw background under playlist
-		if (fb.IsPlaying && g_wallpaperImg && ppt.showwallpaper) {
+	//gr.FillSolidRect(0, 0, ww, wh, RGBA(210,210,215,255));
+	// draw background under playlist
+	if (fb.IsPlaying && g_wallpaperImg && ppt.showwallpaper) {
+		gr.GdiDrawBitmap(g_wallpaperImg, 0, 0, ww, wh, 0, 0, g_wallpaperImg.Width, g_wallpaperImg.Height);
+		gr.FillSolidRect(0, 0, ww, wh, g_color_normal_bg & RGBA(255, 255, 255, ppt.wallpaperalpha));
+	} else {
+		//gr.FillSolidRect(0, 0, ww, wh, g_color_normal_bg);
+		if (g_wallpaperImg && ppt.showwallpaper) {
 			gr.GdiDrawBitmap(g_wallpaperImg, 0, 0, ww, wh, 0, 0, g_wallpaperImg.Width, g_wallpaperImg.Height);
 			gr.FillSolidRect(0, 0, ww, wh, g_color_normal_bg & RGBA(255, 255, 255, ppt.wallpaperalpha));
 		} else {
-			//gr.FillSolidRect(0, 0, ww, wh, g_color_normal_bg);
-			if (g_wallpaperImg && ppt.showwallpaper) {
-				gr.GdiDrawBitmap(g_wallpaperImg, 0, 0, ww, wh, 0, 0, g_wallpaperImg.Width, g_wallpaperImg.Height);
-				gr.FillSolidRect(0, 0, ww, wh, g_color_normal_bg & RGBA(255, 255, 255, ppt.wallpaperalpha));
-			} else {
-				gr.FillSolidRect(0, 0, ww, wh, g_color_normal_bg);
-			};
+			gr.FillSolidRect(0, 0, ww, wh, g_color_normal_bg);
 		};
+	};
 
-		brw && brw.draw(gr);
+	brw && brw.draw(gr);
 
-		if (pman.offset > 0) {
-			pman.draw(gr);
-		};
+	if (pman.offset > 0) {
+		pman.draw(gr);
+	};
 
-		if (ppt.showHeaderBar) {
-			// inputBox
-			if (cFilterBox.enabled && g_filterbox) {
-				if (g_filterbox.inputbox.visible) {
-					g_filterbox.draw(gr, 5, 2);
-				};
+	if (ppt.showHeaderBar) {
+		// inputBox
+		if (cFilterBox.enabled && g_filterbox) {
+			if (g_filterbox.inputbox.visible) {
+				g_filterbox.draw(gr, 5, 2);
 			};
 		};
 	};
+
 };
 
 function on_mouse_lbtn_down(x, y) {
@@ -3609,7 +3523,7 @@ function get_images() {
 	gb = images.noart.GetGraphics();
 	// draw no cover art image
 	gb.FillSolidRect(0, 0, nw, nh, g_color_normal_txt & 0x10ffffff);
-	gb.setTextRenderingHint(4);
+	gb.SetTextRenderingHint(4);
 	gb.DrawString(txt, gdi.Font(g_fname, Math.round(nh / 12 * 2), 1), blendColors(g_color_normal_txt, g_color_normal_bg, 0.2), 1, 1, nw, nh, cc_stringformat);
 	images.noart.ReleaseGraphics(gb);
 
@@ -3620,7 +3534,7 @@ function get_images() {
 	gb = images.stream.GetGraphics();
 	// draw stream art image
 	gb.FillSolidRect(0, 0, sw, sh, g_color_normal_txt & 0x10ffffff);
-	gb.setTextRenderingHint(4);
+	gb.SetTextRenderingHint(4);
 	gb.DrawString(txt, gdi.Font(g_fname, Math.round(sh / 12 * 2), 1), blendColors(g_color_normal_txt, g_color_normal_bg, 0.2), 1, 1, sw, sh, cc_stringformat);
 	images.stream.ReleaseGraphics(gb);
 };
@@ -3637,13 +3551,12 @@ function get_font() {
 		g_font_headers = window.GetFontDUI(FontTypeDUI.tabs);
 	};
 
-	// tweaks to fix a problem with WSH Panel Mod on Font object Name property
 	try {
 		g_fname = default_font.Name;
 		g_fsize = default_font.Size;
 		g_fstyle = default_font.Style;
 	} catch (e) {
-		console.log("WSH Panel Error: Unable to use the default font. Using Arial font instead.");
+		console.log("JScript Panel Error: Unable to use the default font. Using Arial font instead.");
 		g_fname = "arial";
 		g_fsize = 12;
 		g_fstyle = 0;
@@ -4135,6 +4048,10 @@ function on_notify_data(name, info) {
 };
 
 function save_image_to_cache(metadb, albumIndex) {
+	var crc = brw.groups[albumIndex].cachekey;
+	if (fso.FileExists(CACHE_FOLDER + crc))
+		return;
+
 	switch (ppt.tagMode) {
 	case 1:
 		var path = ppt.tf_path.EvalWithMetadb(metadb);
@@ -4149,7 +4066,6 @@ function save_image_to_cache(metadb, albumIndex) {
 	};
 
 	if (path_) {
-		var crc = brw.groups[albumIndex].cachekey;
 		resize(path_, crc);
 	}
 };
