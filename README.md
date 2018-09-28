@@ -11,7 +11,7 @@ foobar2000 component that allows the creation of customisable CUI/DUI panels. Th
 - [T.P. Wang](https://hydrogenaud.io/index.php?action=profile;u=44175): original WSH Panel Mod.  
 - [#jsapi IRC channel](https://wiki.mozilla.org/IRC): wouldn't make it through without them, love you guys!  
   Especially huge thanks to sfink and jonco, who spent literally tens of hours helping me!  
-- [Respective authors](LICENSE_3rd_party.md) of the code being used in this project.
+- [Respective authors](THIRD_PARTY_NOTICES.md) of the code being used in this project.
 
 [CHANGELOG]: CHANGELOG.md
 [TODO]: https://github.com/TheQwertiest/foo_spider_monkey_panel/projects/1

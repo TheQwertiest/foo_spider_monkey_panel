@@ -1,5 +1,9 @@
-### 3rd party library licenses
+Spider Monkey Panel uses third-party libraries or other resources that may
+be distributed under licenses different than the Spider Monkey Panel software.
 
+The linked notices are provided for information only.
+
+- [Columns UI SDK - other](component/licenses/Columns%20UI%20SDK.txt)
 - [CPropertyList - other](component/licenses/CPropertyList.txt)
 - [DispatchPtr - BSD](component/licenses/DispatchPtr.txt)
 - [foobar2000 SDK - other](component/licenses/foobar2000%20SDK.txt)
