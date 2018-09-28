@@ -77,6 +77,7 @@ after_build:
 # scripts to run *after* solution is built and *before* automatic packaging occurs (web apps, NuGet packages, Azure Cloud Services)
 before_package:
   - cmd: if %configuration% == Debug ( call scripts\pack_component.bat %cd%\ --debug ) else ( call scripts\pack_component.bat %cd%\ )
+  - cmd: if %configuration% == Debug ( cp _result\$(platform)_$(configuration)\foo_spider_monkey_panel.fb2k-component _result\$(platform)_$(configuration)\foo_spider_monkey_panel.fb2k-component_debug )
 
 # to disable automatic builds
 #build: off
@@ -87,7 +88,7 @@ before_package:
 
 artifacts:
   # pushing a single file with environment variable in path and "Deployment name" specified
-  - path: _result\$(platform)_$(configuration)\foo_spider_monkey_panel.fb2k-component
+  - path: _result\$(platform)_$(configuration)\foo_spider_monkey_panel.fb2k-component*
     name: SMP package ($(configuration))
 
 #---------------------------------#
@@ -97,14 +98,12 @@ artifacts:
 # providers: Local, FTP, WebDeploy, AzureCS, AzureBlob, S3, NuGet, Environment
 # provider names are case-sensitive!
 deploy:
-  release: smp-v$(appveyor_build_version)
   description: 'Dummy description'
   provider: GitHub
   auth_token:
     secure: gBfHQnRcGcTS0yQXWOHhKfDkTZfIBwPIDjTsCQOGmOSPkRqs1QPYBX47BjCvJKim # your encrypted token from GitHub
-  artifact: /.*\.fb2k-component/           # upload all NuGet packages to release assets
-  draft: true
-  prerelease: false
+  artifact: /.*\.fb2k-component/           # upload all NuGet packages to release assets  
+  prerelease: true
   on:
     branch: master                 # release from master branch only
     appveyor_repo_tag: true        # deploy on tag push only
