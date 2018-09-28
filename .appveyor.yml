@@ -77,7 +77,7 @@ after_build:
 # scripts to run *after* solution is built and *before* automatic packaging occurs (web apps, NuGet packages, Azure Cloud Services)
 before_package:
   - cmd: if %configuration% == Debug ( call scripts\pack_component.bat %cd%\ --debug ) else ( call scripts\pack_component.bat %cd%\ )
-  - cmd: if %configuration% == Debug ( ren "_result\$(platform)_$(configuration)\foo_spider_monkey_panel.fb2k-component" "_result\$(platform)_$(configuration)\foo_spider_monkey_panel.fb2k-component_debug" )
+  - cmd: if %configuration% == Debug ( ren "_result\%platform%_%configuration%\foo_spider_monkey_panel.fb2k-component" "_result\%platform%_%configuration%\foo_spider_monkey_panel.fb2k-component_debug" )
 
 # to disable automatic builds
 #build: off
