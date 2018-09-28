@@ -16,3 +16,6 @@
 [submodule "submodules/pfc"]
 	path = submodules/pfc
 	url = https://github.com/reupen/pfc.git
+[submodule "submodules/mozjs"]
+	path = submodules/mozjs
+	url = https://bitbucket.org/TheQwertiest/mozjs.git
