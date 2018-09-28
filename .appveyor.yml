@@ -49,7 +49,7 @@ install:
 
 # build platform, i.e. x86, x64, Any CPU. This setting is optional.
 platform:
-  - x86
+  - Win32
 
 # build Configuration, i.e. Debug, Release, etc.
 configuration:
@@ -89,7 +89,7 @@ before_package:
 artifacts:
 
   # pushing a single file with environment variable in path and "Deployment name" specified
-  - path: _result\Win32_$(configuration)\foo_spider_monkey_panel.fb2k-component
+  - path: _result\$(platform)_$(configuration)\foo_spider_monkey_panel.fb2k-component
     name: SMP package
 
 #---------------------------------#
