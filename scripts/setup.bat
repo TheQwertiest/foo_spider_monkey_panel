@@ -3,7 +3,7 @@ setlocal
 
 set CUR_DIR=%~dp0
 set ROOT_DIR=%~dp0..\
-if not '%1'=='--skip_mozjs' (
+if not '%1'=='' if not '%1'=='--skip_mozjs' (
     set ROOT_DIR=%1
 )
 

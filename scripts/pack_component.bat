@@ -4,7 +4,7 @@ setlocal
 set PATH=%PATH%;C:\Program Files\7-Zip
 
 set ROOT_DIR=%~dp0..\
-if not '%1'=='--debug' (
+if not '%1'=='' if not '%1'=='--debug' (
     set ROOT_DIR=%1
 )
 
@@ -28,9 +28,9 @@ set FB2K_ARCHIVE=%RESULT_CONFIGURATION_DIR%foo_spider_monkey_panel.fb2k-componen
 echo Packing component to .fb2k-component
 
 if not exist "%COMPONENT_OUT_DIR_NO_SLASH%" mkdir "%COMPONENT_OUT_DIR_NO_SLASH%"
-xcopy /r/y/s/q "%COMPONENT_DIR_NO_SLASH%" "%COMPONENT_OUT_DIR_NO_SLASH%"
+xcopy /r/y/s/q/i "%COMPONENT_DIR_NO_SLASH%" "%COMPONENT_OUT_DIR_NO_SLASH%"
 if errorlevel 1 goto fail
-echo d|xcopy /r/y/s/q "%SAMPLES_COMPLETE_DIR_NO_SLASH%" "%COMPONENT_OUT_DIR_NO_SLASH%\samples\complete"
+xcopy /r/y/s/q/i "%SAMPLES_COMPLETE_DIR_NO_SLASH%" "%COMPONENT_OUT_DIR_NO_SLASH%\samples\complete"
 if errorlevel 1 goto fail
 xcopy /r/y/s/q "%MOZ_JS_BIN_DIR%*.dll" "%COMPONENT_OUT_DIR%"
 if errorlevel 1 goto fail
