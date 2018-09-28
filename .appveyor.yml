@@ -97,16 +97,18 @@ artifacts:
 # providers: Local, FTP, WebDeploy, AzureCS, AzureBlob, S3, NuGet, Environment
 # provider names are case-sensitive!
 deploy:
-    # Deploy to GitHub Releases
-  - provider: GitHub
-    auth_token:
-      secure: gBfHQnRcGcTS0yQXWOHhKfDkTZfIBwPIDjTsCQOGmOSPkRqs1QPYBX47BjCvJKim # your encrypted token from GitHub
-    artifact: /.*\.fb2k-component/           # upload all NuGet packages to release assets
-    draft: true
-    prerelease: false
-    on:
-      branch: master                # release from master branch only
-      appveyor_repo_tag: true       # deploy on tag push only
+  release: smp-v$(appveyor_build_version)
+  description: 'Dummy description'
+  provider: GitHub
+  auth_token:
+    secure: gBfHQnRcGcTS0yQXWOHhKfDkTZfIBwPIDjTsCQOGmOSPkRqs1QPYBX47BjCvJKim # your encrypted token from GitHub
+  artifact: /.*\.fb2k-component/           # upload all NuGet packages to release assets
+  draft: true
+  prerelease: false
+  on:
+    branch: master                 # release from master branch only
+    appveyor_repo_tag: true        # deploy on tag push only
+
 
 # scripts to run before deployment
 before_deploy:
@@ -118,7 +120,7 @@ after_deploy:
 deploy_script:
 
 # to disable deployment
-# deploy: on
+# deploy: off
 
 #---------------------------------#
 #        global handlers          #
