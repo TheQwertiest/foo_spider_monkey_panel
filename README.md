@@ -1,4 +1,6 @@
-# Spider Monkey Panel [![version][version-badge]][CHANGELOG]
+# Spider Monkey Panel [![version][version-badge]][CHANGELOG] [![Build status](https://ci.appveyor.com/api/projects/status/xs7jno1f96src6qq/branch/master?svg=true)](https://ci.appveyor.com/project/TheQwertiest/foo-spider-monkey-panel/branch/master)
+
+
 foobar2000 component that allows the creation of customisable CUI/DUI panels. These panels can be written with JavaScript rather than the C++ required by the foobar2000 SDK.
 
 ## Links
