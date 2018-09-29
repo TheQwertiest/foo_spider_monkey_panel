@@ -589,7 +589,7 @@ JsUtils::InputBox( uint32_t hWnd, const pfc::string8_fast& prompt, const pfc::st
         }        
     }
 
-    return pfc::string8_fast();
+    return def;
 }
 
 std::optional<pfc::string8_fast>
