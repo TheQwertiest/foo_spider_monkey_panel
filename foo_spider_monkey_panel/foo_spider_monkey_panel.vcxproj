@@ -157,7 +157,6 @@
     <ClCompile Include="js_utils\js_error_helper.cpp" />
     <ClCompile Include="js_utils\js_object_helper.cpp" />
     <ClCompile Include="js_utils\serialized_value.cpp" />
-    <ClCompile Include="js_utils\string_util.cpp" />
     <ClCompile Include="js_utils\winapi_error_helper.cpp" />
     <ClCompile Include="mainmenu.cpp" />
     <ClCompile Include="panel_manager.cpp" />
@@ -178,6 +177,7 @@
     <ClCompile Include="ui\ui_replace.cpp" />
     <ClCompile Include="utils\kmeans.cpp" />
     <ClCompile Include="utils\stackblur.cpp" />
+    <ClCompile Include="utils\string_helpers.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\PropertyList\PropertyItem.h" />
@@ -246,7 +246,6 @@
     <ClInclude Include="js_utils\js_prototype_helpers.h" />
     <ClInclude Include="js_utils\scope_helper.h" />
     <ClInclude Include="js_utils\serialized_value.h" />
-    <ClInclude Include="js_utils\string_util.h" />
     <ClInclude Include="js_utils\winapi_error_helper.h" />
     <ClInclude Include="panel_tooltip_param.h" />
     <ClInclude Include="SString.h" />
@@ -283,6 +282,7 @@
     <ClInclude Include="utils\json.hpp" />
     <ClInclude Include="utils\kmeans.h" />
     <ClInclude Include="utils\stackblur.h" />
+    <ClInclude Include="utils\string_helpers.h" />
     <ClInclude Include="wtlscintilla.h" />
   </ItemGroup>
   <ItemGroup>

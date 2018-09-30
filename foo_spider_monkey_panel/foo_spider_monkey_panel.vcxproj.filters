@@ -154,9 +154,6 @@
     <ClCompile Include="js_utils\image_helper.cpp">
       <Filter>js_utils</Filter>
     </ClCompile>
-    <ClCompile Include="js_utils\string_util.cpp">
-      <Filter>js_utils</Filter>
-    </ClCompile>
     <ClCompile Include="js_objects\internal\fb_properties.cpp">
       <Filter>js_objects\internal</Filter>
     </ClCompile>
@@ -249,6 +246,9 @@
     </ClCompile>
     <ClCompile Include="js_engine\js_gc.cpp">
       <Filter>js_engine</Filter>
+    </ClCompile>
+    <ClCompile Include="utils\string_helpers.cpp">
+      <Filter>utils</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -441,9 +441,6 @@
     <ClInclude Include="js_utils\image_helper.h">
       <Filter>js_utils</Filter>
     </ClInclude>
-    <ClInclude Include="js_utils\string_util.h">
-      <Filter>js_utils</Filter>
-    </ClInclude>
     <ClInclude Include="js_objects\object_base.h">
       <Filter>js_objects</Filter>
     </ClInclude>
@@ -563,6 +560,9 @@
     </ClInclude>
     <ClInclude Include="js_engine\js_gc.h">
       <Filter>js_engine</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\string_helpers.h">
+      <Filter>utils</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -6,7 +6,7 @@
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
 #include <js_utils/serialized_value.h>
-#include <js_utils/string_util.h>
+#include <utils/string_helpers.h>
 
 #include <js_panel_window.h>
 
@@ -48,7 +48,7 @@ void FbProperties::RemoveHeapTracer()
 std::optional<JS::Heap<JS::Value>>
 FbProperties::GetProperty( const std::wstring& propName, JS::HandleValue propDefaultValue )
 {    
-    std::wstring trimmedPropName( Trim( propName ) );
+    std::wstring trimmedPropName( smp::string::Trim( propName ) );
 
     bool hasProperty = false;
     if ( properties_.count( trimmedPropName ) )
@@ -89,7 +89,7 @@ FbProperties::GetProperty( const std::wstring& propName, JS::HandleValue propDef
 
 bool FbProperties::SetProperty( const std::wstring& propName, JS::HandleValue propValue )
 {
-    std::wstring trimmedPropName( Trim( propName ) );
+    std::wstring trimmedPropName( smp::string::Trim( propName ) );
 
     if ( propValue.isNullOrUndefined() )
     {
