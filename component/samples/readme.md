@@ -2,7 +2,7 @@
 - "basic" scripts:  
          Should work fine on any system.
 - "complete" scripts:  
-         Should work on any system with IE8 or later installed.  
+         Should work fine on any system.
          Most scripts require the installation of FontAwesome (https://github.com/FortAwesome/Font-Awesome/blob/fa-4/fonts/fontawesome-webfont.ttf?raw=true).  
          There are three exceptions:
    - "Listenbrainz":  
