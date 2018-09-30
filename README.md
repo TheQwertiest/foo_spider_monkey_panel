@@ -27,7 +27,7 @@ Base functionality includes:
 ## JScript Panel users
 
 The main difference from the excellent `JScript Panel` component by [marc2003](https://github.com/marc2k3) is the underlying JavaScript engine:
-- `foo_jscript_panel` uses closed-source `JScript engine` from Internet Explorer, which is abandoned by Microsoft after the development of IE Edge.
+- `foo_jscript_panel` uses closed-source `JScript` engine from Internet Explorer, which is abandoned by Microsoft after the development of IE Edge.
 - `foo_spider_monkey_panel` uses open-source `SpiderMonkey` engine from Mozilla Firefox, which is actively developed and being improved upon every day!
 
 Main features of `Mozilla SpiderMonkey` engine:
