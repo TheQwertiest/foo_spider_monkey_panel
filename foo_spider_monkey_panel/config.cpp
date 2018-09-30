@@ -1,6 +1,9 @@
-#include "stdafx.h"
+#include <stdafx.h>
 #include "config.h"
+
 #include "resource.h"
+
+#include <utils/string_helpers.h>
 
 namespace smp::config
 {
@@ -113,114 +116,114 @@ bool PanelProperties::g_load_legacy( config_map& data, stream_reader* reader, ab
     try
     {
         t_size count;
-        // Get count
         reader->read_lendian_t( count, abort );
 
         for ( t_size i = 0; i < count; ++i )
         {
             pfc::string8_fast propName;
-            VARTYPE vt;
-
             reader->read_string( propName, abort );
+            propName = smp::string::Trim( propName );
+
+            VARTYPE vt;
             reader->read_lendian_t( vt, abort );
 
-            mozjs::SerializedJsValue serializedValue;            
+            mozjs::SerializedJsValue serializedValue;
 
             switch ( vt )
             {
-                case VT_UI1:
-                case VT_I1:
-                {
-                    int8_t val;
-                    reader->read( &val, sizeof( val ), abort );
+            case VT_UI1:
+            case VT_I1:
+            {
+                int8_t val;
+                reader->read( &val, sizeof( val ), abort );
 
-                    serializedValue.type = mozjs::JsValueType::pt_int32;
-                    serializedValue.intVal = static_cast<int32_t>( val );
+                serializedValue.type = mozjs::JsValueType::pt_int32;
+                serializedValue.intVal = static_cast<int32_t>( val );
 
-                    break;
-                }
-                case VT_I2:
-                case VT_UI2:
-                {
-                    int16_t val;
-                    reader->read( &val, sizeof( val ), abort );
+                break;
+            }
+            case VT_I2:
+            case VT_UI2:
+            {
+                int16_t val;
+                reader->read( &val, sizeof( val ), abort );
 
-                    serializedValue.type = mozjs::JsValueType::pt_int32;
-                    serializedValue.intVal = static_cast<int32_t>( val );
+                serializedValue.type = mozjs::JsValueType::pt_int32;
+                serializedValue.intVal = static_cast<int32_t>( val );
 
-                    break;
-                }
+                break;
+            }
 
-                case VT_BOOL:
-                {
-                    int16_t val;
-                    reader->read( &val, sizeof( val ), abort );
+            case VT_BOOL:
+            {
+                int16_t val;
+                reader->read( &val, sizeof( val ), abort );
 
-                    serializedValue.type = mozjs::JsValueType::pt_boolean;
-                    serializedValue.intVal = !!val;
+                serializedValue.type = mozjs::JsValueType::pt_boolean;
+                serializedValue.intVal = !!val;
 
-                    break;
-                }
-                case VT_I4:
-                case VT_UI4:
-                case VT_INT:
-                case VT_UINT:
-                {
-                    int32_t val;
-                    reader->read( &val, sizeof( val ), abort );
+                break;
+            }
+            case VT_I4:
+            case VT_UI4:
+            case VT_INT:
+            case VT_UINT:
+            {
+                int32_t val;
+                reader->read( &val, sizeof( val ), abort );
 
-                    serializedValue.type = mozjs::JsValueType::pt_int32;
-                    serializedValue.intVal = val;
+                serializedValue.type = mozjs::JsValueType::pt_int32;
+                serializedValue.intVal = val;
 
-                    break;
-                }
-                case VT_R4:
-                {
-                    float val;
-                    reader->read( &val, sizeof( val ), abort );
+                break;
+            }
+            case VT_R4:
+            {
+                float val;
+                reader->read( &val, sizeof( val ), abort );
 
-                    serializedValue.type = mozjs::JsValueType::pt_double;
-                    serializedValue.doubleVal = static_cast<double>( val );
+                serializedValue.type = mozjs::JsValueType::pt_double;
+                serializedValue.doubleVal = static_cast<double>( val );
 
-                    break;
-                }
-                case VT_I8:
-                case VT_UI8:
-                {
-                    int64_t val;
-                    reader->read( &val, sizeof( val ), abort );
+                break;
+            }
+            case VT_I8:
+            case VT_UI8:
+            {
+                int64_t val;
+                reader->read( &val, sizeof( val ), abort );
 
-                    serializedValue.type = mozjs::JsValueType::pt_int32;
-                    serializedValue.intVal = static_cast<int32_t>( val );
+                serializedValue.type = mozjs::JsValueType::pt_int32;
+                serializedValue.intVal = static_cast<int32_t>( val );
 
-                    break;
-                }
-                case VT_R8:
-                case VT_CY:
-                case VT_DATE:
-                {
-                    double val;
-                    reader->read( &val, sizeof( val ), abort );
+                break;
+            }
+            case VT_R8:
+            case VT_CY:
+            case VT_DATE:
+            {
+                double val;
+                reader->read( &val, sizeof( val ), abort );
 
-                    serializedValue.type = mozjs::JsValueType::pt_double;
-                    serializedValue.doubleVal = val;
+                serializedValue.type = mozjs::JsValueType::pt_double;
+                serializedValue.doubleVal = val;
 
-                    break;
-                }
-                case VT_BSTR:
-                {
-                    pfc::string8_fast str;
-                    reader->read_string( str, abort );
+                break;
+            }
+            case VT_BSTR:
+            {
+                pfc::string8_fast str;
+                reader->read_string( str, abort );
 
-                    serializedValue.type = mozjs::JsValueType::pt_string;
-                    serializedValue.strVal = str;
+                serializedValue.type = mozjs::JsValueType::pt_string;
+                serializedValue.strVal = str;
 
-                    break;
-                }
-                default:
-                {
-                    continue;
-                }
+                break;
+            }
+            default:
+            {
+                continue;
+            }
             }
 
             pfc::stringcvt::string_wide_from_utf8 propnameW( propName.c_str(), propName.length() );
