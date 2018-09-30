@@ -1276,22 +1276,16 @@ var console = new IJSConsole();
 function IJSUtils() {
 
     /**
-     * New in v1.2.0. A 4 digit number corresponding to the version.
-     * v1.2.0 -> 1200
-     * v1.2.1 -> 1210
+     * A string corresponding to the version.
      *
-     * @type {number} */
-    this.Version = undefined; // (uint) (read)
-    /*
-    If you try and access this in older components where it doesn't exist, the script will
-    crash so you can do a check like this.
-
-    if (!("Version" in utils)) {
-        fb.ShowPopupMessage("Current component version is less than v1.2.0. This script requires vX.X.X");
-    } else {
-        //check the actual version
-    }
-    */
+     * Component uses semantic versioning, so strings can be compared directly.
+     *
+     * @type {string} 
+     *
+     * @example     
+     * fb.ShowPopupMessage(`This script requires v1.0.0. Current component version is v${utils.Version}.`);     
+     */
+    this.Version = undefined; // (string) (read)
 
     /**
      * @param {string} name
