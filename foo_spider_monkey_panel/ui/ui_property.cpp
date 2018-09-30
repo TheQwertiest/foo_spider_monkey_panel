@@ -129,7 +129,17 @@ void CDialogProperty::LoadProperties( bool reload )
         return out.str();
     };
 
-    std::map<std::wstring, HPROPERTY> propMap;
+    struct LowerLexCmp
+    {// lexicographical comparison but with lower cased chars
+        bool operator()( const std::wstring& a, const std::wstring& b ) const
+        {
+            return std::lexicographical_compare( a.begin(), a.end(), b.begin(), b.end(), []( wchar_t ca, wchar_t cb )
+            {
+                return static_cast<wchar_t>(::towlower( ca ) ) < static_cast<wchar_t>(::towlower( cb ) );
+            });
+        }
+    };
+    std::map<std::wstring, HPROPERTY, LowerLexCmp> propMap;
     for ( const auto& [name, pSerializedValue] : m_dup_prop_map )
     {
         HPROPERTY hProp = nullptr;
