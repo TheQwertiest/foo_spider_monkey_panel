@@ -4,6 +4,8 @@
 namespace
 {
 
+// TODO: remove tabs as well (string_view, isspace, manual looping?)
+
 template <typename T>
 T TrimImpl(const T& str)
 {
