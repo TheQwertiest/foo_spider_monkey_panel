@@ -1,4 +1,4 @@
-# Spider Monkey Panel [![version][version-badge]][CHANGELOG] [![Build status](https://ci.appveyor.com/api/projects/status/xs7jno1f96src6qq/branch/master?svg=true)](https://ci.appveyor.com/project/TheQwertiest/foo-spider-monkey-panel/branch/master)
+# Spider Monkey Panel [![version][version-badge]][CHANGELOG] [![Build status](https://ci.appveyor.com/api/projects/status/4fg787ijr73u7mxc/branch/master?svg=true)](https://ci.appveyor.com/project/TheQwertiest/foo-spider-monkey-panel/branch/master)
 
 This is a component for the [foobar2000](https://www.foobar2000.org) audio player.
 
@@ -54,5 +54,5 @@ Or just use the [Migration Guide](https://github.com/TheQwertiest/foo_spider_mon
 [CHANGELOG]: CHANGELOG.md
 [TODO]: https://github.com/TheQwertiest/foo_spider_monkey_panel/projects/1
 [API_CHANGES]: https://github.com/TheQwertiest/foo_spider_monkey_panel/wiki/API-Changes
-[version-badge]: https://img.shields.io/badge/version-TBD-blue.svg
+[version-badge]: https://img.shields.io/badge/version-1.0.0-blue.svg
 
