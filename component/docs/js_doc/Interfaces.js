@@ -1910,7 +1910,9 @@ function Fb2kWindow() {
     /**
      * Get value of name from properties. If no value is present, defaultval will be stored and returned
      *
-     * @param {string} name
+     * Note that leading and trailing whitespace are removed from property name.
+     *
+     * @param {string} name 
      * @param {*=} defaultval
      * @return {*}
      */
@@ -1919,6 +1921,9 @@ function Fb2kWindow() {
     /**
      * Set property value, if val is invalid/null, it is removed. Property values will be saved per panel instance and are
      * remembered between foobar2000 restarts.
+     *
+     * Note that leading and trailing whitespace are removed from property name.
+     *
      * @param {string} name
      * @param {*=} val
      */
