@@ -1,7 +1,43 @@
 # Spider Monkey Panel [![version][version-badge]][CHANGELOG] [![Build status](https://ci.appveyor.com/api/projects/status/xs7jno1f96src6qq/branch/master?svg=true)](https://ci.appveyor.com/project/TheQwertiest/foo-spider-monkey-panel/branch/master)
 
+This is a component for the [foobar2000](https://www.foobar2000.org) audio player.
 
-foobar2000 component that allows the creation of customisable CUI/DUI panels. These panels can be written with JavaScript rather than the C++ required by the foobar2000 SDK.
+It allows for creation of full-fledged CUI/DUI panels by using nothing more than a Notepad!  
+The panel are coded in JavaScript, so you can immediately apply and see the changes you make!
+
+Base functionality includes:
+* Graphics functions: drawing of text, external images, lines, rectangles, etc.
+* Access to fonts and colours settings from the main preferences of CUI/DUI.
+* Execution of main menu and context menu commands.
+* Creation of custom buttons and menus.
+* Capture of keystrokes/mouse movement/clicks.
+* Capture of foobar2000 events with callbacks.
+* Processing and changing of file tags.
+* Playlists management: create, destroy, sort, change, rename and do everything else that fb2k can do.
+* Access to Media Library with ability to sort and filter it's contents.
+* Per panel settings storage. 
+* Built-in web and filesystem access.
+* And more!
+
+## Getting started!
+
+- Use [Installation Guide](https://github.com/TheQwertiest/foo_spider_monkey_panel/wiki/Installation).
+- Take a look at [Documentation and Samples](https://github.com/TheQwertiest/foo_spider_monkey_panel/wiki/Script-documentation)
+
+## JScript Panel users
+
+The main difference from the excellent `JScript Panel` component by [marc2003](https://github.com/marc2k3) is the underlying JavaScript engine:
+- `foo_jscript_panel` uses closed-source `JScript engine` from Internet Explorer, which is abandoned by Microsoft after the development of IE Edge.
+- `foo_spider_monkey_panel` uses open-source `SpiderMonkey` engine from Mozilla Firefox, which is actively developed and being improved upon every day!
+
+Main features of `Mozilla SpiderMonkey` engine:
+- ECMAScript 2017 conformant JavaScript.
+- Potential support of ECMAScript Next once it is released.
+- Blazing-fast performance!
+- Easily customizable: allows for implementing a lot of features that couldn't be implemented before.
+
+See detailed list of [API Changes][API_CHANGES] for the changes in the JavaScript API.  
+Or just use the [Migration Guide](https://github.com/TheQwertiest/foo_spider_monkey_panel/wiki/JScript-to-SpiderMonkey-migration-guide) to make your scripts compatible.
 
 ## Links
 [Changelog][CHANGELOG]  
