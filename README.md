@@ -3,7 +3,7 @@
 This is a component for the [foobar2000](https://www.foobar2000.org) audio player.
 
 It allows for creation of full-fledged CUI/DUI panels by using nothing more than a Notepad!  
-The panel are coded in JavaScript, so you can immediately apply and see the changes you make!
+Panels are coded in JavaScript, so you can immediately apply and see the changes you make!
 
 Base functionality includes:
 * Graphics functions: drawing of text, external images, lines, rectangles, etc.
