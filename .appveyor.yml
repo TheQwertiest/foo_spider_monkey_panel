@@ -13,17 +13,19 @@ branches:
     - gh-pages
 
 # Skipping commits affecting specific files (GitHub only). More details here: /docs/appveyor-yml
+# Disabled most skips, since it prevents tag build from triggering, if last commit contains only skipped files
 skip_commits:
   files:
-    - docs/*
-    - '**/*.png'
-    - '**/*.jpg'
-    - '**/*.jpeg'
-    - '**/*.bmp'
-    - '**/*.gif'
-    - '**/*.js'
-    - '**/*.txt'
-    - '**/*.md'
+     - README.md
+#    - docs/*
+#    - '**/*.png'
+#    - '**/*.jpg'
+#    - '**/*.jpeg'
+#    - '**/*.bmp'
+#    - '**/*.gif'
+#    - '**/*.js'
+#    - '**/*.txt'
+#    - '**/*.md'
 
 # Maximum number of concurrent jobs for the project
 max_jobs: 1
