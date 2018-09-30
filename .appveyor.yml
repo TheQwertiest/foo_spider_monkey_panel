@@ -97,8 +97,12 @@ before_package:
 
 artifacts:
   # pushing a single file with environment variable in path and "Deployment name" specified
-  - path: _result\$(platform)_$(configuration)\foo_spider_monkey_panel.fb2k-component*
-    name: SMP package ($(configuration))
+  - path: _result\$(platform)_$(configuration)\foo_spider_monkey_panel.fb2k-component
+    name: SMP package (Release)
+  - path: _result\$(platform)_$(configuration)\foo_spider_monkey_panel_pdb.zip
+    name: SMP PDB package (Release)
+  - path: _result\$(platform)_$(configuration)\foo_spider_monkey_panel.fb2k-component_debug
+    name: SMP package (Debug)
 
 #---------------------------------#
 #     deployment configuration    #
@@ -111,7 +115,7 @@ deploy:
   provider: GitHub
   auth_token:
     secure: gBfHQnRcGcTS0yQXWOHhKfDkTZfIBwPIDjTsCQOGmOSPkRqs1QPYBX47BjCvJKim # your encrypted token from GitHub
-  artifact: /.*\.fb2k-component/           # upload all NuGet packages to release assets  
+  artifact: /foo_spider_monkey_panel.*/           # upload all NuGet packages to release assets  
   prerelease: true
   on:
     branch: master                 # release from master branch only
