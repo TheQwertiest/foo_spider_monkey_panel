@@ -1,6 +1,8 @@
 # Changelog
 
 ## [Unreleased]
+
+## [1.0.0] - 2018-10-01
 ### Added
 - Added stack trace to error reports.
 - API changes:
@@ -19,5 +21,9 @@
   - Removed `Dispose()` and `toArray()` methods.
   - Removed `FbMetadbHandleList.Item()` method.
   - Removed old `==PREPROCESSOR==` panel header support.
+  - utils.Version returns string instead of number.
   - More rigirous error handling.
 - Updated samples with compatibility fixes.
+
+[Unreleased]: https://github.com/theqwertiest/foo_spider_monkey_panel/compare/v1.0.0...HEAD
+[1.0.0]: https://github.com/TheQwertiest/foo_spider_monkey_panel/compare/vanilla_2_0...v1.0.0
