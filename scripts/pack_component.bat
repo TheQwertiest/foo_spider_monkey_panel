@@ -39,6 +39,7 @@ if errorlevel 1 goto fail
 
 if exist "%FB2K_ARCHIVE%" del /f/q "%FB2K_ARCHIVE%"
 7z a -tzip "%FB2K_ARCHIVE%" "%COMPONENT_OUT_DIR%*" > NUL
+echo Component was sucessfuly packed: %FB2K_ARCHIVE%
 if errorlevel 1 goto fail
 exit /b 0
 
