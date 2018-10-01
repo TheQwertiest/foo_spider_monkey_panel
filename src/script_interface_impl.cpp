@@ -4153,8 +4153,6 @@ STDMETHODIMP JSUtils::InputBox(UINT window_id, BSTR prompt, BSTR caption, BSTR d
 {
 	if (!out) return E_POINTER;
 
-	*out = SysAllocString(def);
-
 	modal_dialog_scope scope;
 	if (scope.can_create())
 	{
@@ -4171,9 +4169,13 @@ STDMETHODIMP JSUtils::InputBox(UINT window_id, BSTR prompt, BSTR caption, BSTR d
 			dlg.GetValue(val);
 			*out = SysAllocString(pfc::stringcvt::string_wide_from_utf8_fast(val));
 		}
-		else if (status == IDCANCEL && error_on_cancel != VARIANT_FALSE)
+		else if (status == IDCANCEL)
 		{
-			return E_FAIL;
+			if (error_on_cancel != VARIANT_FALSE)
+			{
+				return E_FAIL;
+			}
+			*out = SysAllocString(def);
 		}
 	}
 	return S_OK;
