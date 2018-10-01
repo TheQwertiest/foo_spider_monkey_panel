@@ -21,8 +21,8 @@
   - Removed `Dispose()` and `toArray()` methods.
   - Removed `FbMetadbHandleList.Item()` method.
   - Removed old `==PREPROCESSOR==` panel header support.
-  - utils.Version returns string instead of number.
-  - More rigirous error handling.
+  - `utils.Version` returns string instead of number.
+  - More rigorous error checks.
 - Updated samples with compatibility fixes.
 
 [Unreleased]: https://github.com/theqwertiest/foo_spider_monkey_panel/compare/v1.0.0...HEAD

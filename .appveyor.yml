@@ -13,10 +13,10 @@ branches:
     - gh-pages
 
 # Skipping commits affecting specific files (GitHub only). More details here: /docs/appveyor-yml
-# Disabled most skips, since it prevents tag build from triggering, if last commit contains only skipped files
-skip_commits:
-  files:
-     - README.md
+# Disabled skips, since it prevents tag build from triggering, if last commit contains only skipped files
+#skip_commits:
+#  files:
+#     - README.md
 #    - docs/*
 #    - '**/*.png'
 #    - '**/*.jpg'
