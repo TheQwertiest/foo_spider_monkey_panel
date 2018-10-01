@@ -1,25 +1,29 @@
 #include "stdafx.h"
 
-#include <acfu-sdk/acfu.h>
-#include <acfu-sdk/utils/github.h>
+#include <utils/json.hpp>
+#include <acfu_github.h>
+
+#include <acfu-sdk/utils/common.h>
+
 
 namespace smp::acfu
 {
 
 class SmpSource
     : public ::acfu::source
-    , public ::acfu::github_conf
+    , public smp::acfu::github_conf
 {
 public:
     static pfc::string8 FetchVersion()
     {
-        pfc::string8 version;
+        pfc::string8 version = "0.0.0";
 
         componentversion::ptr cv;
-        ::acfu::for_each_service<componentversion>( [&]( auto& ptr ) {
+        ::acfu::for_each_service<componentversion>( [&]( auto& ptr ) 
+        {
             pfc::string8 file_name;
             ptr->get_file_name( file_name );
-            if ( file_name == componentFileName_ )
+            if ( file_name.equals( componentFileName_ ) )
             {
                 cv = ptr;
             }
@@ -44,27 +48,29 @@ public:
             isVersionFetched_ = true;
         }
 
-        if ( installedVersion_.is_empty() )
-        {
-            info.meta_set( "version", "0.0.0" );
-        }
-        else
-        {
-            info.meta_set( "version", installedVersion_ );
-        }
+        info.meta_set( "version", installedVersion_ );
         info.meta_set( "name", "Spider Monkey Panel" );
         info.meta_set( "module", componentFileName_ );
     }
     virtual bool is_newer( const file_info& info )
-    {
-        const std::string_view available = info.meta_get( "version", 0 );
-        const std::string_view installed = installedVersion_;
+    {        
+        if ( !info.meta_get( "version", 0 ) )
+        {
+            return false;
+        }
 
-        return available > installed;
+        pfc::string8 available = info.meta_get( "version", 0 );
+        if ( available.has_prefix( "v" ) )
+        {
+            available.set_string_nc( available.c_str() + 1, available.length() - 1 );
+        }
+
+        // We are using semantic versioning, so lexicographical comparison is fine
+        return available > installedVersion_;
     }
     virtual ::acfu::request::ptr create_request()
     {
-        return new service_impl_t<::acfu::github_latest_release<SmpSource>>();
+        return new service_impl_t<smp::acfu::github_latest_release<SmpSource>>();
     }
     static const char* get_owner()
     {
@@ -80,6 +86,6 @@ private:
     bool isVersionFetched_ = false;
     pfc::string8 installedVersion_;
 };
-static service_factory_t<SmpSource> g_smpSource;
+static service_factory_single_t<SmpSource> g_smpSource;
 
 } // namespace smp::acfu

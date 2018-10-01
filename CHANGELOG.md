@@ -1,6 +1,8 @@
 # Changelog
 
 ## [Unreleased]
+### Added
+- Integrated foo_acfu update checks.
 
 ## [1.0.0] - 2018-10-01
 ### Added

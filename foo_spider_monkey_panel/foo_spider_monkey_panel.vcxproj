@@ -89,6 +89,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="acfu_integration.cpp" />
     <ClCompile Include="adv_config.cpp" />
     <ClCompile Include="com_tools.cpp" />
     <ClCompile Include="config.cpp" />

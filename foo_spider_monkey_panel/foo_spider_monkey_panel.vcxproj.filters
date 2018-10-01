@@ -250,6 +250,9 @@
     <ClCompile Include="utils\string_helpers.cpp">
       <Filter>utils</Filter>
     </ClCompile>
+    <ClCompile Include="acfu_integration.cpp">
+      <Filter>z_uncategorized</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="js_engine\js_engine.h">
