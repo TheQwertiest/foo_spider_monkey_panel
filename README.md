@@ -40,6 +40,7 @@ See [wiki][API_CHANGES] for the detailed list of API changes.
 Or just use the [Migration Guide](https://github.com/TheQwertiest/foo_spider_monkey_panel/wiki/JScript-to-SpiderMonkey-migration-guide) to make your scripts compatible.
 
 ## Links
+[Support thread](https://hydrogenaud.io/index.php/topic,116669.new.html)  
 [Changelog][CHANGELOG]  
 [Detailed list of API Changes][API_CHANGES]  
 [Current tasks and plans][TODO]
