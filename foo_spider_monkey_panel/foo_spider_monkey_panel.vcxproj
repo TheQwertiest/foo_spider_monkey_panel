@@ -179,12 +179,14 @@
     <ClCompile Include="utils\kmeans.cpp" />
     <ClCompile Include="utils\stackblur.cpp" />
     <ClCompile Include="utils\string_helpers.cpp" />
+    <ClCompile Include="utils\version_helpers.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\PropertyList\PropertyItem.h" />
     <ClInclude Include="..\PropertyList\PropertyItemEditors.h" />
     <ClInclude Include="..\PropertyList\PropertyItemImpl.h" />
     <ClInclude Include="..\PropertyList\PropertyList.h" />
+    <ClInclude Include="acfu_github.h" />
     <ClInclude Include="adv_config.h" />
     <ClInclude Include="convert\com.h" />
     <ClInclude Include="convert\js_to_native.h" />
@@ -284,6 +286,7 @@
     <ClInclude Include="utils\kmeans.h" />
     <ClInclude Include="utils\stackblur.h" />
     <ClInclude Include="utils\string_helpers.h" />
+    <ClInclude Include="utils\version_helpers.h" />
     <ClInclude Include="wtlscintilla.h" />
   </ItemGroup>
   <ItemGroup>
