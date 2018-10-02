@@ -286,6 +286,7 @@
     <ClInclude Include="utils\kmeans.h" />
     <ClInclude Include="utils\stackblur.h" />
     <ClInclude Include="utils\string_helpers.h" />
+    <ClInclude Include="utils\timer_helpers.h" />
     <ClInclude Include="utils\version_helpers.h" />
     <ClInclude Include="wtlscintilla.h" />
   </ItemGroup>

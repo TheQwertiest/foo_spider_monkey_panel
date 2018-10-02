@@ -8,6 +8,7 @@
 #include <js_utils/js_object_helper.h>
 #include <js_utils/dispatch_ptr.h>
 #include <js_utils/scope_helper.h>
+#include <utils/timer_helpers.h>
 #include <convert/com.h>
 
 #include <helpers.h>
@@ -27,7 +28,6 @@
 // std::time
 #include <ctime>
 #include <filesystem>
-
 
 namespace
 {
@@ -253,7 +253,8 @@ JsHtmlWindow::CreateNative( JSContext* cx, const std::wstring& htmlCode, JS::Han
 
     try
     {
-        const auto wndId = [] {
+        const auto wndId = [] 
+        {
             std::srand( unsigned( std::time( 0 ) ) );
             return L"a" + std::to_wstring( std::rand() );
         }();
@@ -269,7 +270,7 @@ JsHtmlWindow::CreateNative( JSContext* cx, const std::wstring& htmlCode, JS::Han
                                     L"contextMenu=yes "
                                     L"innerBorder=no";
 
-            features += (isContextMenuEnabled ? L" selection=yes" : L" selection=no");
+            features += ( isContextMenuEnabled ? L" selection=yes" : L" selection=no" );
 
             namespace fs = std::filesystem;
 
@@ -278,14 +279,14 @@ JsHtmlWindow::CreateNative( JSContext* cx, const std::wstring& htmlCode, JS::Han
             std::error_code dummyErr;
             if ( fs::exists( fsPath ) && fs::is_regular_file( fsPath, dummyErr ) )
             {
-                features += L" icon=\"" + fsPath.wstring() + L"\"";
+                features += L" icon='" + fsPath.wstring() + L"'";
             }
 
-            return features;            
+            return features;
         }();
 
-        const std::wstring htaCode = 
-            L"<script>moveTo(-1000,-1000);resizeTo(0,0);</script>"
+        const std::wstring htaCode =
+            L"<script>moveTo(-1000,-1000); resizeTo(0,0);</script>"
             L"<hta:application id=app " + features + L" />"
             L"<object id='" + wndId + L"' style='display:none' classid='clsid:8856F961-340A-11D0-A96B-00C04FD705A2'>"
             L"    <param name=RegisterAsBrowser value=1>"
@@ -305,9 +306,6 @@ JsHtmlWindow::CreateNative( JSContext* cx, const std::wstring& htmlCode, JS::Han
 
         DWORD pid = GetProcessId( execInfo.hProcess );
 
-        // TODO: add incremental sleep
-        Sleep( 100 ); ///< Give some time for window to spawn
-
         IShellDispatchPtr pShell;
         HRESULT hr = pShell.GetActiveObject( CLSID_Shell );
         if ( FAILED( hr ) )
@@ -316,44 +314,55 @@ JsHtmlWindow::CreateNative( JSContext* cx, const std::wstring& htmlCode, JS::Han
             IF_HR_FAILED_RETURN_WITH_REPORT( cx, hr, nullptr, "CreateInstance" );
         }
 
-        IDispatchPtr pDispatch;
-        hr = pShell->Windows( &pDispatch );
-        IF_HR_FAILED_RETURN_WITH_REPORT( cx, hr, nullptr, "Windows" );
-
-        SHDocVw::IShellWindowsPtr pShellWindows( pDispatch );
         MSHTML::IHTMLWindow2Ptr pHtaWindow;
         MSHTML::IHTMLDocument2Ptr pDocument;
-        for ( long i = pShellWindows->GetCount() - 1; i >= 0; --i )
-        { // Ideally we should use HWND instead, but GetHWND fails for no apparent reason...
-            _variant_t va( i, VT_I4 );
-            CDispatchPtr pCurWindow = pShellWindows->Item( va );
-            _variant_t idVal = pCurWindow.Get( L"id" );
-            if ( idVal.vt == VT_EMPTY )
+
+        smp::timer::CallWithIncrementingTimeout( [&pShell, &pHtaWindow, &pDocument, &wndId] 
+        {// TODO: replace errors with exceptions
+            IDispatchPtr pDispatch;
+            HRESULT hr = pShell->Windows( &pDispatch );
+            if ( !SUCCEEDED( hr ) )
             {
-                continue;
+                return false;
+            }
+            // IF_HR_FAILED_RETURN_WITH_REPORT( cx, hr, nullptr, "Windows" );
+
+            SHDocVw::IShellWindowsPtr pShellWindows( pDispatch );
+            for ( long i = pShellWindows->GetCount() - 1; i >= 0; --i )
+            { // Ideally we should use HWND instead, but GetHWND fails for no apparent reason...
+                _variant_t va( i, VT_I4 );
+                CDispatchPtr pCurWindow = pShellWindows->Item( va );
+                _variant_t idVal = pCurWindow.Get( L"id" );
+                if ( idVal.vt == VT_EMPTY )
+                {
+                    continue;
+                }
+
+                if ( static_cast<_bstr_t>( idVal ) != _bstr_t( wndId.c_str() ) )
+                {
+                    continue;
+                }
+
+                pDocument = pCurWindow.Get( L"parent" );
+                if ( !pDocument )
+                {
+                    // JS_ReportErrorUTF8( cx, "Failed to get IHTMLDocument2" );
+                    return false;
+                }
+
+                pHtaWindow = pDocument->GetparentWindow();
+                if ( !pHtaWindow )
+                {
+                    // JS_ReportErrorUTF8( cx, "Failed to get IHTMLWindow2" );
+                    return false;
+                }
+
+                return true;
             }
 
-            if ( static_cast<_bstr_t>( idVal ) != _bstr_t( wndId.c_str() ) )
-            {
-                continue;
-            }
+            return false;
+        }, 50, 300, 1.5 );
 
-            pDocument = pCurWindow.Get( L"parent" );
-            if ( !pDocument )
-            {
-                JS_ReportErrorUTF8( cx, "Failed to get IHTMLDocument2" );
-                return nullptr;
-            }
-
-            pHtaWindow = pDocument->GetparentWindow();
-            if ( !pHtaWindow )
-            {
-                JS_ReportErrorUTF8( cx, "Failed to get IHTMLWindow2" );
-                return nullptr;
-            }
-
-            break;
-        }
         if ( !pHtaWindow )
         {
             JS_ReportErrorUTF8( cx, "Failed to create HTML window" );

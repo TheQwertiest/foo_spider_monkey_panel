@@ -1,5 +1,7 @@
 window.DefinePanel('Html window with checkbox', {author: 'TheQwertiest'});
 
+include(fb.ComponentPath + "docs\\Flags.js");
+
 var WshShell = new ActiveXObject('WScript.Shell');
 
 function get_windows_version() {

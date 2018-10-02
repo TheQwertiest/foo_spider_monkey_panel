@@ -576,6 +576,9 @@
     <ClInclude Include="utils\version_helpers.h">
       <Filter>utils</Filter>
     </ClInclude>
+    <ClInclude Include="utils\timer_helpers.h">
+      <Filter>utils</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="default.js">

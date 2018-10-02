@@ -4,6 +4,10 @@
 ### Added
 - Integrated foo_acfu update checks.
 
+### Fixed
+- Fixed `utils.CreateHtmlWindow` not spawning when fb2k path contained spaces.
+- Fixed `HtmlWindowWithCheckBox.txt` sample.
+
 ## [1.0.0] - 2018-10-01
 ### Added
 - Added stack trace to error reports.
