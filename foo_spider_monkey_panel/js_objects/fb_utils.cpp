@@ -805,7 +805,7 @@ JsFbUtils::RunContextCommandWithMetadb( const pfc::string8_fast& command, JS::Ha
     JsFbMetadbHandleList* jsHandleList =
         static_cast<JsFbMetadbHandleList*>( JS_GetInstancePrivate( pJsCtx_, jsObject, &JsFbMetadbHandleList::JsClass, nullptr ) );
 
-    if ( !jsHandle || !jsHandleList )
+    if ( !jsHandle && !jsHandleList )
     {
         JS_ReportErrorUTF8( pJsCtx_, "handle argument is invalid" );
         return std::nullopt;
