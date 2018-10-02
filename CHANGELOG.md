@@ -3,10 +3,16 @@
 ## [Unreleased]
 ### Added
 - Integrated foo_acfu update checks.
+- Added additional info on `utils.CreateHtmlWindow` in `Interfaces.js`.
+- API changes:
+  - Added `IHtmlWindow.IsClosed` property.
+
+### Changed
+- Rewrote `HtmlWindowWithCheckBox.txt` sample.
 
 ### Fixed
 - Fixed `utils.CreateHtmlWindow` not spawning when fb2k path contained spaces.
-- Fixed `HtmlWindowWithCheckBox.txt` sample.
+- Disabled callback invocation until script is fully evaluated.
 
 ## [1.0.0] - 2018-10-01
 ### Added
