@@ -1321,8 +1321,10 @@ function IJSUtils() {
     this.ColourPicker = function(window_id, default_colour) {}; // (int)
 
     /**
-     * Creates a window with html page (rendered by IE8 engine).
+     * Creates an object which represents window with html page (rendered by IE8 engine).
      *
+     * Note that window must be closed manually via {@link IHtmlWindow.Close()}.
+     * 
      * Html code must be IE 8 compatible, meaning:
      * - Only ES3 + JSON subset of JavaScript.
      * - Objects passed to `data` are limited to standard JavaScript objects:
@@ -2890,6 +2892,10 @@ function IDropTargetAction() {
  * @constructor
  */
 function IHtmlWindow() {
+
+    /** @type {boolean} */
+    this.IsClosed = undefined;
+
     /**
      * Closes the window
      */
