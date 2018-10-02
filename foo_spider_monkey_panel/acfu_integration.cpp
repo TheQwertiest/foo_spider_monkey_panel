@@ -1,6 +1,5 @@
 #include "stdafx.h"
 
-#include <utils/json.hpp>
 #include <utils/string_helpers.h>
 #include <utils/version_helpers.h>
 #include <acfu_github.h>

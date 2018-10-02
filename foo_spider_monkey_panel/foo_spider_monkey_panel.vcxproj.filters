@@ -516,9 +516,6 @@
     <ClInclude Include="utils\stackblur.h">
       <Filter>utils</Filter>
     </ClInclude>
-    <ClInclude Include="utils\json.hpp">
-      <Filter>utils</Filter>
-    </ClInclude>
     <ClInclude Include="ui\ui_name_value_edit.h">
       <Filter>ui</Filter>
     </ClInclude>

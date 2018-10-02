@@ -10,6 +10,8 @@ echo Downloading submodules
 
 cd %ROOT_DIR%
 
+git submodule sync
+if errorlevel 1 goto fail
 git submodule foreach git reset --hard
 if errorlevel 1 goto fail
 git submodule update --init --recursive

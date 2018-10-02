@@ -3,7 +3,7 @@
 #include "thread_pool.h"
 #include "script_interface.h"
 
-#include <utils/json.hpp>
+#include <nlohmann/json.hpp>
 
 namespace helpers
 {

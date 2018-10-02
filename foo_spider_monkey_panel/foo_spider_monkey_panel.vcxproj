@@ -37,6 +37,7 @@
     <Import Project="$(SolutionDir)\..\props\DynamicRuntime.props" />
     <Import Project="$(SolutionDir)\..\props\submodules.props" />
     <Import Project="$(SolutionDir)\..\props\foobar2000_sdk.props" />
+    <Import Project="$(SolutionDir)\..\props\json.props" />
     <Import Project="$(SolutionDir)\..\props\mozjs.props" />
     <Import Project="$(SolutionDir)\..\props\pfc.props" />
     <Import Project="$(SolutionDir)\..\props\scintilla.props" />
@@ -282,7 +283,6 @@
     <ClInclude Include="ui\ui_property.h" />
     <ClInclude Include="ui\ui_replace.h" />
     <ClInclude Include="user_message.h" />
-    <ClInclude Include="utils\json.hpp" />
     <ClInclude Include="utils\kmeans.h" />
     <ClInclude Include="utils\stackblur.h" />
     <ClInclude Include="utils\string_helpers.h" />
