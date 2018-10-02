@@ -31,7 +31,7 @@ public:
     static const JsPrototypeId PrototypeId;
 
 public:
-    ~JsHtmlWindow();
+    ~JsHtmlWindow() = default;
 
     static std::unique_ptr<JsHtmlWindow> CreateNative( JSContext* cx, const std::wstring& htmlCode, JS::HandleValue options );
     static size_t GetInternalSize( const std::wstring& htmlCode, JS::HandleValue options );
@@ -39,6 +39,9 @@ public:
 public: 
     std::optional<nullptr_t> Close();
     std::optional<nullptr_t> Focus();
+
+public:
+    std::optional<bool> get_IsClosed();
 
 private:    
     // alias for MSHTML::IHTMLWindow2Ptr: don't want to drag #import into headers

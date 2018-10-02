@@ -56,6 +56,7 @@ JSClass jsClass = {
 
 MJS_DEFINE_JS_TO_NATIVE_FN( JsHtmlWindow, Close )
 MJS_DEFINE_JS_TO_NATIVE_FN( JsHtmlWindow, Focus )
+MJS_DEFINE_JS_TO_NATIVE_FN( JsHtmlWindow, get_IsClosed )
 
 const JSFunctionSpec jsFunctions[] = {
     JS_FN( "Close", Close, 0, DefaultPropsFlags() ),
@@ -64,6 +65,7 @@ const JSFunctionSpec jsFunctions[] = {
 };
 
 const JSPropertySpec jsProperties[] = {
+    JS_PSG( "IsClosed", get_IsClosed, DefaultPropsFlags() ),
     JS_PS_END
 };
 
@@ -82,11 +84,6 @@ JsHtmlWindow::JsHtmlWindow( JSContext* cx, DWORD pid, HtmlWindow2ComPtr pWindow 
     , pid_( pid )
     , pWindow_( pWindow )
 {
-}
-
-JsHtmlWindow::~JsHtmlWindow()
-{
-    Close();
 }
 
 // TODO: cleanup the code
@@ -562,6 +559,12 @@ std::optional<nullptr_t> JsHtmlWindow::Focus()
     IF_HR_FAILED_RETURN_WITH_REPORT( pJsCtx_, hr, nullptr, "focus" );
 
     return nullptr;
+}
+
+std::optional<bool> 
+JsHtmlWindow::get_IsClosed()
+{
+    return !pid_;
 }
 
 } // namespace mozjs
