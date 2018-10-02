@@ -537,7 +537,7 @@ void file_info::to_formatter(pfc::string_formatter& out) const {
 }
 
 void file_info::to_console() const {
-	FB2K_console_formatter() << "File info dump:";
+	FB2K_console_formatter1() << "File info dump:";
 	if (get_length() > 0) FB2K_console_formatter() << "Duration: " << pfc::format_time_ex(get_length(), 6);
 	pfc::string_formatter temp;
 	for(t_size metaWalk = 0; metaWalk < meta_get_count(); ++metaWalk) {

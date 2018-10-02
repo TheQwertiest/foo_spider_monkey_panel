@@ -22,6 +22,13 @@ bool replaygain_info::g_format_gain(float p_value,char p_buffer[text_buffer_size
 	}
 }
 
+bool replaygain_info::g_format_peak_db(float p_value, char p_buffer[text_buffer_size]) {
+	const float lo = 1.0 / (float)(1 << 24);
+	if ( p_value == peak_invalid || p_value < lo ) return false;
+	return g_format_gain((float)audio_math::scale_to_gain(p_value), p_buffer);
+
+}
+
 bool replaygain_info::g_format_peak(float p_value,char p_buffer[text_buffer_size])
 {
 	RG_FPU();

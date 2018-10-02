@@ -234,6 +234,7 @@ public:
 	typedef pfc::list_base_const_t< input_entry::ptr > input_entry_list_t;
 
 	static service_ptr g_open_from_list(input_entry_list_t const & list, const GUID & whatFor, file::ptr hint, const char * path, abort_callback & aborter, GUID * outGUID = nullptr);
+	static bool g_are_parallel_reads_slow( const char * path );
 	
 };
 

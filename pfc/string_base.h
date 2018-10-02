@@ -1082,7 +1082,7 @@ namespace pfc {
 	template<typename t_char>
 	int strcmp_partial_t(const t_char * p_string,const t_char * p_substring) throw() {return strcmp_partial_ex_t(p_string,~0,p_substring,~0);}
 
-	inline int strcmp_partial_ex(const char * str, t_size strLen, const char * substr, t_size substrLen) throw() {return strcmp_partial_ex(str, strLen, substr, substrLen); }
+	inline int strcmp_partial_ex(const char * str, t_size strLen, const char * substr, t_size substrLen) throw() {return strcmp_partial_ex_t(str, strLen, substr, substrLen); }
 	inline int strcmp_partial(const char * str, const char * substr) throw() {return strcmp_partial_t(str, substr); }
 
     int stricmp_ascii_partial( const char * str, const char * substr) throw();

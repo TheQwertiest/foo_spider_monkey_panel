@@ -11,6 +11,7 @@ struct replaygain_info
 
 	static bool g_format_gain(float p_value,char p_buffer[text_buffer_size]);
 	static bool g_format_peak(float p_value,char p_buffer[text_buffer_size]);
+	static bool g_format_peak_db(float p_value, char p_buffer[text_buffer_size]);
 
 	inline bool format_album_gain(char p_buffer[text_buffer_size]) const {return g_format_gain(m_album_gain,p_buffer);}
 	inline bool format_track_gain(char p_buffer[text_buffer_size]) const {return g_format_gain(m_track_gain,p_buffer);}

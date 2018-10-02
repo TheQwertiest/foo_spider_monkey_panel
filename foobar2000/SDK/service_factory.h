@@ -106,3 +106,12 @@ public:
 	inline T& get_static_instance() { return *(T*)this; }
 };
 
+
+#ifdef _MSC_VER
+#define FB2K_SERVICE_FACTORY_ATTR
+#else
+#define FB2K_SERVICE_FACTORY_ATTR __attribute__ (( __used__ ))
+#endif
+
+#define FB2K_SERVICE_FACTORY( TYPE ) static ::service_factory_single_t< TYPE > g_##TYPE##factory FB2K_SERVICE_FACTORY_ATTR;
+#define FB2K_SERVICE_FACTORY_DYNAMIC( TYPE ) static ::service_factory_t< TYPE > g_##TYPE##factory FB2K_SERVICE_FACTORY_ATTR;

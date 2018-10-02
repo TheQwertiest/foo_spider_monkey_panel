@@ -98,7 +98,18 @@ static void index_tracks_helper(const char * p_path,const service_ptr_t<file> & 
 	} else {
 		TRACK_CALL_TEXT("hintable");
 		service_ptr_t<input_info_reader> instance;
-		input_entry::g_open_for_info_read(instance,p_reader,p_path,p_abort);
+		try {
+			input_entry::g_open_for_info_read(instance,p_reader,p_path,p_abort);
+		} catch(exception_io_unsupported_format) {
+			// specifically bail
+			throw;
+		} catch(exception_io) {
+			// broken file or some other error, open() failed - show it anyway
+			metadb_handle_ptr handle;
+			p_callback->handle_create(handle, make_playable_location(p_path, 0));
+			p_callback->on_entry(handle, p_type, p_stats, true);
+			return;
+		}
 
 		t_filestats stats = instance->get_file_stats(p_abort);
 
@@ -121,7 +132,9 @@ static void index_tracks_helper(const char * p_path,const service_ptr_t<file> & 
 				} catch(...) {
 					bInfoGetError = true;
 				}
-				p_callback->on_entry_info(handle,p_type,stats,info,true);
+				if (! bInfoGetError ) {
+					p_callback->on_entry_info(handle,p_type,stats,info,true);
+				}
 			}
 			else
 			{

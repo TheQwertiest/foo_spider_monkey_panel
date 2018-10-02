@@ -23,9 +23,9 @@ bool component_installation_validator::have_other_file(const char * fn) {
 				throw;
 			}
 		} catch(exception_io_denied) {
-			continue;
+			
 		} catch(exception_io_sharing_violation) {
-			continue;
+			
 		} catch(exception_io_file_corrupted) { // happens
 			return false; 
 		} catch(...) {

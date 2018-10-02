@@ -95,6 +95,9 @@ public:
 		//! This flag was introduced in 1.1. It will not be respected in earlier foobar2000 versions. It is recommended not to use this flag unless you are absolutely sure that you need it and take appropriate precautions. \n
 		//! Note that this has no power to entirely prevent your preferences page from being destroyed/cancelled as a result of app shutdown if the user dismisses the warnings, but you won't be getting an "apply" call while this is set.
 		busy = 16,
+
+		//! \since 1.4.1
+		needs_rescan_library = 32,
 	};
 };
 

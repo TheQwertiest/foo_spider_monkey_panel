@@ -64,7 +64,9 @@ namespace foobar2000_io
 	//! The directory is not empty.
 	PFC_DECLARE_EXCEPTION(exception_io_directory_not_empty,	exception_io,"Directory not empty");
 	//! A network connectivity error
-	PFC_DECLARE_EXCEPTION( exception_io_net, exception_io, "Connection error");
+	PFC_DECLARE_EXCEPTION( exception_io_net, exception_io, "Network error");
+	//! A network security error
+	PFC_DECLARE_EXCEPTION( exception_io_net_security, exception_io_net, "Network security error");
 	//! A network connectivity error, specifically a DNS query failure
 	PFC_DECLARE_EXCEPTION( exception_io_dns, exception_io_net, "DNS error");
 	//! The path does not point to a directory.
@@ -337,9 +339,20 @@ namespace foobar2000_io
 		//! Retrieves "static" info that doesn't change in the middle of stream, such as station names etc. Returns true on success; false when static info is not available.
 		virtual bool get_static_info(class file_info & p_out) = 0;
 		//! Returns whether dynamic info is available on this stream or not.
-		virtual bool is_dynamic_info_enabled()=0;
+		virtual bool is_dynamic_info_enabled() = 0;
 		//! Retrieves dynamic stream info (e.g. online stream track titles). Returns true on success, false when info has not changed since last call.
 		virtual bool get_dynamic_info(class file_info & p_out) = 0;
+	};
+
+	//! \since 1.4.1
+	//! Extended version of file_dynamicinfo
+	class file_dynamicinfo_v2 : public file_dynamicinfo {
+		FB2K_MAKE_SERVICE_INTERFACE(file_dynamicinfo_v2, file_dynamicinfo);
+	public:
+		virtual bool get_dynamic_info_v2( class file_info & out, t_filesize & outOffset ) = 0;
+	protected:
+		// Obsolete
+		bool get_dynamic_info(class file_info & p_out);
 	};
 
 	//! Extension for cached file access - allows callers to know that they're dealing with a cache layer, to prevent cache duplication.
@@ -495,7 +508,8 @@ namespace foobar2000_io
 
 		//! Move file overwriting an existing one. Regular move() will fail if the file exists.
 		void move_overwrite( const char * src, const char * dst, abort_callback & abort);
-		//! See win32 ReplaceFile(). Same as move_overwrite() for other filesystems.
+		//! Same as move_overwrite(). \n
+		//! This used to call win32 ReplaceFile() but that was pulled due to extreme stupidity of ReplaceFile() implementation.
 		void replace_file(const char * src, const char * dst, abort_callback & abort);
 		//! Create a directory, without throwing an exception if it already exists.
 		//! @param didCreate bool flag indicating whether a new directory was created or not. \n
