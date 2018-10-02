@@ -159,6 +159,8 @@ bool JsContainer::ExecuteScript( const pfc::string8_fast&  scriptCode )
     assert( jsGlobal_.initialized() );
     assert( JsStatus::Ready == jsStatus_ );
 
+    isScriptParsing_ = true;
+
     scope::JsScope autoScope( pJsCtx_, jsGlobal_ );
 
     JS::CompileOptions opts( pJsCtx_ );
@@ -166,12 +168,15 @@ bool JsContainer::ExecuteScript( const pfc::string8_fast&  scriptCode )
     opts.setFileAndLine( "<main>", 1 );
 
     JS::RootedValue dummyRval( pJsCtx_ );    
-    return JS::Evaluate( pJsCtx_, opts, scriptCode.c_str(), scriptCode.length(), &dummyRval );
+    bool bRet = JS::Evaluate( pJsCtx_, opts, scriptCode.c_str(), scriptCode.length(), &dummyRval );
+
+    isScriptParsing_ = false;
+    return bRet;
 }
 
 void JsContainer::InvokeOnDragAction( const pfc::string8_fast& functionName, const POINTL& pt, uint32_t keyState, DropActionParams& actionParams )
 {
-    if ( JsStatus::Ready != jsStatus_ )
+    if ( !IsReadyForCallback() )
     {
         return;
     }
@@ -198,7 +203,7 @@ void JsContainer::InvokeOnDragAction( const pfc::string8_fast& functionName, con
 
 void JsContainer::InvokeOnNotify( WPARAM wp, LPARAM lp )
 {   
-    if ( JsStatus::Ready != jsStatus_ )
+    if ( !IsReadyForCallback() )
     {
         return;
     }
@@ -224,7 +229,7 @@ void JsContainer::InvokeOnNotify( WPARAM wp, LPARAM lp )
 
 void JsContainer::InvokeOnPaint( Gdiplus::Graphics& gr )
 {
-    if ( JsStatus::Ready != jsStatus_ )
+    if ( !IsReadyForCallback() )
     {
         return;
     }
@@ -242,7 +247,7 @@ void JsContainer::InvokeOnPaint( Gdiplus::Graphics& gr )
 uint32_t JsContainer::SetInterval( HWND hWnd, uint32_t delay, JS::HandleFunction jsFunction )
 {
     if ( JsStatus::Ready != jsStatus_ )
-    {
+    {// allowed to be executed during script evaluation
         return 0;
     }
 
@@ -252,7 +257,7 @@ uint32_t JsContainer::SetInterval( HWND hWnd, uint32_t delay, JS::HandleFunction
 uint32_t JsContainer::SetTimeout( HWND hWnd, uint32_t delay, JS::HandleFunction jsFunction )
 {
     if ( JsStatus::Ready != jsStatus_ )
-    {
+    {// allowed to be executed during script evaluation
         return 0;
     }
 
@@ -261,7 +266,7 @@ uint32_t JsContainer::SetTimeout( HWND hWnd, uint32_t delay, JS::HandleFunction 
 
 void JsContainer::KillTimer( uint32_t timerId )
 {
-    if ( JsStatus::Ready != jsStatus_ )
+    if ( !IsReadyForCallback() )
     {
         return;
     }
@@ -271,7 +276,7 @@ void JsContainer::KillTimer( uint32_t timerId )
 
 void JsContainer::InvokeTimerFunction( uint32_t timerId )
 {
-    if ( JsStatus::Ready != jsStatus_ )
+    if ( !IsReadyForCallback() )
     {
         return;
     }
@@ -296,6 +301,11 @@ bool JsContainer::CreateDropActionIfNeeded()
     assert( pNativeDropAction_ );
     
     return true;
+}
+
+bool JsContainer::IsReadyForCallback() const
+{
+    return ( JsStatus::Ready == jsStatus_ ) && !isScriptParsing_;
 }
 
 }

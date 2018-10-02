@@ -48,7 +48,7 @@ public:
     std::optional<ReturnType> InvokeJsCallback( pfc::string8_fast functionName,
                                                 ArgTypes&&... args )
     {
-        if ( JsStatus::Ready != jsStatus_ )
+        if ( !IsReadyForCallback() )
         {
             return std::nullopt;
         }
@@ -70,6 +70,8 @@ private:
 
     bool Prepare( JSContext *cx, js_panel_window& parentPanel );
 
+    bool IsReadyForCallback() const;
+
     bool CreateDropActionIfNeeded();
 
 private:
@@ -84,6 +86,7 @@ private:
     JsDropSourceAction* pNativeDropAction_ = nullptr;
 
     JsStatus jsStatus_ = JsStatus::NotPrepared;
+    bool isScriptParsing_ = false;
 };
 
 }
