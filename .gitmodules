@@ -25,5 +25,4 @@
 [submodule "submodules/json"]
 	path = submodules/json
 	url = https://github.com/nlohmann/json.git
-	shallow = true
 	fetchRecurseSubmodules = false

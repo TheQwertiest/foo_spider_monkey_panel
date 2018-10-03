@@ -12,13 +12,14 @@ cd %ROOT_DIR%
 
 git submodule foreach git reset --hard
 if errorlevel 1 goto fail
-git submodule update --init --recursive
+git submodule update --init --depth=10
 if errorlevel 1 (
-  rem fix links and try again
-  git submodule sync --recursive
-  if errorlevel 1 goto fail
-  git submodule update --init --recursive
-  if errorlevel 1 goto fail
+  git submodule update --init --depth=50
+  if errorlevel 1 (
+    git submodule update --init --depth=100
+    rem We tried T_T
+    if errorlevel 1 goto fail
+  )
 )
 exit /b 0
 
