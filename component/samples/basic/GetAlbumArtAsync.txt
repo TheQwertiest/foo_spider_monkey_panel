@@ -32,8 +32,6 @@ function on_size() {
 function on_playback_new_track(metadb) {
 	if (!metadb)
 		return;
-	if (g_img)
-		g_img.Dispose();
 	utils.GetAlbumArtAsync(window.ID, metadb, AlbumArtId.front);
 	g_img = null;
 	path = null;

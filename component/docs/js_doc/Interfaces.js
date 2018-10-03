@@ -2644,14 +2644,12 @@ function IFbMetadbHandleList() {
         var img_path = "C:\\path\\to\\image.jpg";
         handle_list.AttachImage(img_path, 0);
     }
-    handle_list.Dispose();
     Example2:
     // since there is no handle method, do this for a single item
     var handle_list = fb.CreateHandleList();
     handle_list.Add(fb.GetFocusItem());
     var img_path = "C:\\path\\to\\image.jpg";
     handle_list.AttachImage(img_path, 0);
-    handle_list.Dispose();
     */
 
     /**

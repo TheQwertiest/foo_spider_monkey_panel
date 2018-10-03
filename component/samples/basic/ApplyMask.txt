@@ -42,7 +42,6 @@ function apply() {
 	var mask = g_img_mask.Resize(g_img.Width, g_img.Height);
 	// Apply mask image to g_img
 	g_img.ApplyMask(mask);
-	// Dispose() method is used to free unused resource	
 	applied = true;
 	window.Repaint();
 }
