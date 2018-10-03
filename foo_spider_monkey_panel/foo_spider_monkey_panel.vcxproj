@@ -137,11 +137,11 @@
     <ClCompile Include="js_objects\gdi_font.cpp" />
     <ClCompile Include="js_objects\global_object.cpp" />
     <ClCompile Include="js_objects\hacks.cpp" />
-    <ClCompile Include="js_objects\html_window.cpp">
-      <MultiProcessorCompilation>false</MultiProcessorCompilation>
-    </ClCompile>
     <ClCompile Include="js_objects\internal\fb_properties.cpp" />
     <ClCompile Include="js_objects\internal\global_heap_manager.cpp" />
+    <ClCompile Include="js_objects\internal\html_dialog_impl.cpp">
+      <MultiProcessorCompilation>false</MultiProcessorCompilation>
+    </ClCompile>
     <ClCompile Include="js_objects\main_menu_manager.cpp" />
     <ClCompile Include="js_objects\measure_string_info.cpp" />
     <ClCompile Include="js_objects\menu_object.cpp" />
@@ -193,6 +193,7 @@
     <ClInclude Include="com_objects\drop_source_impl.h" />
     <ClInclude Include="com_objects\drop_target_impl.h" />
     <ClInclude Include="com_objects\host_drop_target.h" />
+    <ClInclude Include="com_objects\html_moniker.h" />
     <ClInclude Include="com_objects\script_interface.h" />
     <ClInclude Include="com_objects\script_interface_impl.h" />
     <ClInclude Include="convert\com.h" />
@@ -210,9 +211,9 @@
     <ClInclude Include="js_objects\aero.h" />
     <ClInclude Include="js_objects\enumerator.h" />
     <ClInclude Include="js_objects\fb_window.h" />
-    <ClInclude Include="js_objects\html_window.h" />
     <ClInclude Include="js_objects\internal\fb_properties.h" />
     <ClInclude Include="js_objects\internal\global_heap_manager.h" />
+    <ClInclude Include="js_objects\internal\html_dialog_impl.h" />
     <ClInclude Include="js_objects\internal\prototype_ids.h" />
     <ClInclude Include="js_objects\object_base.h" />
     <ClInclude Include="js_objects\console.h" />

@@ -37,8 +37,6 @@ public:
     std::optional<bool> CheckComponentWithOpt( size_t optArgCount, const pfc::string8_fast& name, bool is_dll );
     std::optional<bool> CheckFont( const std::wstring& name );
     std::optional<uint32_t> ColourPicker( uint32_t hWindow, uint32_t default_colour );
-    std::optional<JSObject*> CreateHtmlWindow( const std::wstring& htmlCode, JS::HandleValue options = JS::UndefinedHandleValue );
-    std::optional<JSObject*> CreateHtmlWindowWithOpt( size_t optArgCount, const std::wstring& htmlCode, JS::HandleValue options );
     std::optional<JS::Value> FileTest( const std::wstring& path, const std::wstring& mode );
     std::optional<pfc::string8_fast> FormatDuration( double p );
     std::optional<pfc::string8_fast> FormatFileSize( uint64_t p );
@@ -61,6 +59,8 @@ public:
     std::optional<std::wstring> ReadINIWithOpt( size_t optArgCount, const std::wstring& filename, const std::wstring& section, const std::wstring& key, const std::wstring& defaultval);
     std::optional<std::wstring> ReadTextFile( const pfc::string8_fast& filePath, uint32_t codepage = 0 );
     std::optional<std::wstring> ReadTextFileWithOpt( size_t optArgCount, const pfc::string8_fast& filePath, uint32_t codepage );
+    std::optional<JS::Value> ShowHtmlDialog( uint32_t hWnd, const std::wstring& htmlCode, JS::HandleValue options = JS::UndefinedHandleValue );
+    std::optional<JS::Value> ShowHtmlDialogWithOpt( size_t optArgCount, uint32_t hWnd, const std::wstring& htmlCode, JS::HandleValue options );
     std::optional<bool> WriteINI( const std::wstring& filename, const std::wstring& section, const std::wstring& key, const std::wstring& val );
     std::optional<bool> WriteTextFile( const pfc::string8_fast& filename, const pfc::string8_fast& content, bool write_bom = true );
     std::optional<bool> WriteTextFileWithOpt( size_t optArgCount, const pfc::string8_fast& filename, const pfc::string8_fast& content, bool write_bom );

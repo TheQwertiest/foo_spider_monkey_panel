@@ -6,7 +6,7 @@
 #include <js_engine/js_to_native_invoker.h>
 #include <js_objects/fb_metadb_handle.h>
 #include <js_objects/gdi_bitmap.h>
-#include <js_objects/html_window.h>
+#include <js_objects/internal/html_dialog_impl.h>
 #include <js_utils/js_error_helper.h>
 #include <js_utils/gdi_error_helper.h>
 #include <js_utils/winapi_error_helper.h>
@@ -53,7 +53,6 @@ JSClass jsClass = {
 MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsUtils, CheckComponent, CheckComponentWithOpt, 1 );
 MJS_DEFINE_JS_TO_NATIVE_FN( JsUtils, CheckFont );
 MJS_DEFINE_JS_TO_NATIVE_FN( JsUtils, ColourPicker );
-MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsUtils, CreateHtmlWindow, CreateHtmlWindowWithOpt, 1 );
 MJS_DEFINE_JS_TO_NATIVE_FN( JsUtils, FileTest );
 MJS_DEFINE_JS_TO_NATIVE_FN( JsUtils, FormatDuration );
 MJS_DEFINE_JS_TO_NATIVE_FN( JsUtils, FormatFileSize );
@@ -69,6 +68,7 @@ MJS_DEFINE_JS_TO_NATIVE_FN( JsUtils, MapString );
 MJS_DEFINE_JS_TO_NATIVE_FN( JsUtils, PathWildcardMatch );
 MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsUtils, ReadINI, ReadINIWithOpt, 1 );
 MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsUtils, ReadTextFile, ReadTextFileWithOpt, 1 );
+MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsUtils, ShowHtmlDialog, ShowHtmlDialogWithOpt, 1 );
 MJS_DEFINE_JS_TO_NATIVE_FN( JsUtils, WriteINI );
 MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsUtils, WriteTextFile, WriteTextFileWithOpt, 1 );
 
@@ -76,7 +76,6 @@ const JSFunctionSpec jsFunctions[] = {
     JS_FN( "CheckComponent", CheckComponent, 1, DefaultPropsFlags() ),
     JS_FN( "CheckFont", CheckFont, 1, DefaultPropsFlags() ),
     JS_FN( "ColourPicker", ColourPicker, 2, DefaultPropsFlags() ),
-    JS_FN( "CreateHtmlWindow", CreateHtmlWindow, 1, DefaultPropsFlags() ),
     JS_FN( "FileTest", FileTest, 2, DefaultPropsFlags() ),
     JS_FN( "FormatDuration", FormatDuration, 1, DefaultPropsFlags() ),
     JS_FN( "FormatFileSize", FormatFileSize, 1, DefaultPropsFlags() ),
@@ -92,6 +91,7 @@ const JSFunctionSpec jsFunctions[] = {
     JS_FN( "PathWildcardMatch", PathWildcardMatch, 2, DefaultPropsFlags() ),
     JS_FN( "ReadINI", ReadINI, 3, DefaultPropsFlags() ),
     JS_FN( "ReadTextFile", ReadTextFile, 1, DefaultPropsFlags() ),
+    JS_FN( "ShowHtmlDialog", ShowHtmlDialog, 3, DefaultPropsFlags() ),
     JS_FN( "WriteINI", WriteINI, 4, DefaultPropsFlags() ),
     JS_FN( "WriteTextFile", WriteTextFile, 2, DefaultPropsFlags() ),
     JS_FS_END
@@ -217,33 +217,6 @@ JsUtils::ColourPicker( uint32_t hWindow, uint32_t default_colour )
     uChooseColor( &color, (HWND)hWindow, &colors[0] );
 
     return helpers::convert_colorref_to_argb( color );
-}
-
-std::optional<JSObject*> 
-JsUtils::CreateHtmlWindow( const std::wstring& htmlCode, JS::HandleValue options )
-{
-    JS::RootedObject jsObject( pJsCtx_, JsHtmlWindow::CreateJs( pJsCtx_, htmlCode, options ) );
-    if ( !jsObject )
-    {// reports
-        return std::nullopt;
-    }
-
-    return jsObject;
-}
-
-std::optional<JSObject*>
-JsUtils::CreateHtmlWindowWithOpt( size_t optArgCount, const std::wstring& htmlCode, JS::HandleValue options )
-{
-    switch ( optArgCount )
-    {
-    case 1:
-        return CreateHtmlWindow( htmlCode );
-    case 0:
-        return CreateHtmlWindow( htmlCode, options );
-    default:
-        JS_ReportErrorUTF8( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
-        return std::nullopt;
-    }
 }
 
 std::optional<JS::Value>
@@ -687,6 +660,27 @@ JsUtils::ReadTextFileWithOpt( size_t optArgCount, const pfc::string8_fast& fileP
     }
 
     return ReadTextFile( filePath, codepage );
+}
+
+std::optional<JS::Value> 
+JsUtils::ShowHtmlDialog( uint32_t hWnd, const std::wstring& htmlCode, JS::HandleValue options )
+{
+    return ShowHtmlDialogImpl( pJsCtx_, hWnd, htmlCode, options );
+}
+
+std::optional<JS::Value>
+JsUtils::ShowHtmlDialogWithOpt( size_t optArgCount, uint32_t hWnd, const std::wstring& htmlCode, JS::HandleValue options )
+{
+    switch ( optArgCount )
+    {
+    case 1:
+        return ShowHtmlDialog( hWnd, htmlCode );
+    case 0:
+        return ShowHtmlDialog( hWnd, htmlCode, options );
+    default:
+        JS_ReportErrorUTF8( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
+        return std::nullopt;
+    }
 }
 
 std::optional<bool>

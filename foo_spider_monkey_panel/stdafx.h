@@ -23,6 +23,7 @@ using std::max;
 #include <ActivScp.h>
 #include <activdbg.h>
 #include <MsHTML.h>
+#include <MsHtmHst.h>
 #include <ShlDisp.h>
 #include <exdisp.h>
 // Generates wrappers for COM listed above
