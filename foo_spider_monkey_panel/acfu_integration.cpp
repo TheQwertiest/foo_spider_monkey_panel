@@ -64,8 +64,7 @@ public:
             available.assign( available.c_str() + 1, available.length() - 1 );
         }
 
-        // We are using semantic versioning, so lexicographical comparison is fine
-        return smp::version::IsNewer( available, installedVersion_ );
+        return smp::version::IsNewerSemver( available, installedVersion_ );
     }
     virtual ::acfu::request::ptr create_request()
     {

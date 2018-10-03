@@ -208,7 +208,7 @@ bool ParseString( const std::string& strVer, SemVer& semVer )
 namespace smp::version
 {
 
-bool IsNewer( const std::string& a, const std::string& b )
+bool IsNewerSemver( const std::string& a, const std::string& b )
 {
     SemVer a_semVer;
     SemVer b_semVer;

@@ -88,7 +88,7 @@ std::unique_ptr<Gdiplus::Bitmap> GetBitmapFromAlbumArtData( const album_art_data
         return nullptr;
     }
 
-    CComPtr<IStream> iStream;
+    IStreamPtr iStream;
     {
         auto memStream = SHCreateMemStream( nullptr, 0 );
         if ( !memStream )
