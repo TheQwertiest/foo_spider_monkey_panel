@@ -13,11 +13,13 @@
 #include <js_utils/scope_helper.h>
 #include <js_utils/gdi_helpers.h>
 
+#include <com_objects/host_drop_target.h>
+
 #include <js_panel_window.h>
 #include <panel_manager.h>
 #include <helpers.h>
 #include <user_message.h>
-#include <host_drop_target.h>
+
 
 namespace
 {

@@ -12,7 +12,8 @@
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
 
-#include <drop_source_impl.h>
+#include <com_objects/drop_source_impl.h>
+
 #include <stats.h>
 #include <popup_msg.h>
 

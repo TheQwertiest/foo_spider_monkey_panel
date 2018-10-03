@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "helpers.h"
-#include "script_interface_impl.h"
+
+#include <com_objects/script_interface_impl.h>
+
 #include "user_message.h"
 
 #include <MLang.h>

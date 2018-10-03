@@ -40,9 +40,6 @@
     <ClCompile Include="js_engine\js_container.cpp">
       <Filter>js_engine</Filter>
     </ClCompile>
-    <ClCompile Include="com_tools.cpp">
-      <Filter>z_uncategorized</Filter>
-    </ClCompile>
     <ClCompile Include="config.cpp">
       <Filter>z_uncategorized</Filter>
     </ClCompile>
@@ -50,9 +47,6 @@
       <Filter>z_uncategorized</Filter>
     </ClCompile>
     <ClCompile Include="helpers.cpp">
-      <Filter>z_uncategorized</Filter>
-    </ClCompile>
-    <ClCompile Include="host_drop_target.cpp">
       <Filter>z_uncategorized</Filter>
     </ClCompile>
     <ClCompile Include="host_timer_dispatcher.cpp">
@@ -71,9 +65,6 @@
       <Filter>z_uncategorized</Filter>
     </ClCompile>
     <ClCompile Include="panel_manager.cpp">
-      <Filter>z_uncategorized</Filter>
-    </ClCompile>
-    <ClCompile Include="script_interface_impl.cpp">
       <Filter>z_uncategorized</Filter>
     </ClCompile>
     <ClCompile Include="stdafx.cpp">
@@ -256,6 +247,15 @@
     <ClCompile Include="utils\version_helpers.cpp">
       <Filter>utils</Filter>
     </ClCompile>
+    <ClCompile Include="com_objects\host_drop_target.cpp">
+      <Filter>com_objects</Filter>
+    </ClCompile>
+    <ClCompile Include="com_objects\script_interface_impl.cpp">
+      <Filter>com_objects</Filter>
+    </ClCompile>
+    <ClCompile Include="com_objects\com_tools.cpp">
+      <Filter>com_objects</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="js_engine\js_engine.h">
@@ -300,25 +300,13 @@
     <ClInclude Include="js_engine\js_container.h">
       <Filter>js_engine</Filter>
     </ClInclude>
-    <ClInclude Include="com_tools.h">
-      <Filter>z_uncategorized</Filter>
-    </ClInclude>
     <ClInclude Include="component_defines.h">
       <Filter>z_uncategorized</Filter>
     </ClInclude>
     <ClInclude Include="config.h">
       <Filter>z_uncategorized</Filter>
     </ClInclude>
-    <ClInclude Include="drop_source_impl.h">
-      <Filter>z_uncategorized</Filter>
-    </ClInclude>
-    <ClInclude Include="drop_target_impl.h">
-      <Filter>z_uncategorized</Filter>
-    </ClInclude>
     <ClInclude Include="helpers.h">
-      <Filter>z_uncategorized</Filter>
-    </ClInclude>
-    <ClInclude Include="host_drop_target.h">
       <Filter>z_uncategorized</Filter>
     </ClInclude>
     <ClInclude Include="host_timer_dispatcher.h">
@@ -337,12 +325,6 @@
       <Filter>z_uncategorized</Filter>
     </ClInclude>
     <ClInclude Include="popup_msg.h">
-      <Filter>z_uncategorized</Filter>
-    </ClInclude>
-    <ClInclude Include="script_interface.h">
-      <Filter>z_uncategorized</Filter>
-    </ClInclude>
-    <ClInclude Include="script_interface_impl.h">
       <Filter>z_uncategorized</Filter>
     </ClInclude>
     <ClInclude Include="stdafx.h">
@@ -576,6 +558,24 @@
     <ClInclude Include="utils\timer_helpers.h">
       <Filter>utils</Filter>
     </ClInclude>
+    <ClInclude Include="com_objects\host_drop_target.h">
+      <Filter>com_objects</Filter>
+    </ClInclude>
+    <ClInclude Include="com_objects\drop_source_impl.h">
+      <Filter>com_objects</Filter>
+    </ClInclude>
+    <ClInclude Include="com_objects\drop_target_impl.h">
+      <Filter>com_objects</Filter>
+    </ClInclude>
+    <ClInclude Include="com_objects\script_interface_impl.h">
+      <Filter>com_objects</Filter>
+    </ClInclude>
+    <ClInclude Include="com_objects\script_interface.h">
+      <Filter>com_objects</Filter>
+    </ClInclude>
+    <ClInclude Include="com_objects\com_tools.h">
+      <Filter>com_objects</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="default.js">
@@ -652,6 +652,9 @@
     </Filter>
     <Filter Include="z_uncategorized\scintilla">
       <UniqueIdentifier>{fe84cd3a-a0ea-4f6b-9816-6d2d77d6c024}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="com_objects">
+      <UniqueIdentifier>{613a7600-ce84-49fd-b050-5da2374693d7}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

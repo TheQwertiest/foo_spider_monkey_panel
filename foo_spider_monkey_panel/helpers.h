@@ -1,7 +1,8 @@
 #pragma once
 
 #include "thread_pool.h"
-#include "script_interface.h"
+
+#include <com_objects/script_interface.h>
 
 #include <nlohmann/json.hpp>
 

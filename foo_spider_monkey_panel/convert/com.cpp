@@ -3,8 +3,8 @@
 #include <stdafx.h>
 #include "com.h"
 
-#include <script_interface.h>
-#include <com_tools.h>
+#include <com_objects/script_interface.h>
+#include <com_objects/com_tools.h>
 
 #include <js_objects/global_object.h>
 #include <js_objects/internal/global_heap_manager.h>

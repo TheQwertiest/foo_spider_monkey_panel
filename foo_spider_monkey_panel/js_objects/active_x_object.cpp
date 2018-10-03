@@ -15,8 +15,8 @@
 #include <js_utils/scope_helper.h>
 #include <convert/com.h>
 
-#include <script_interface.h>
-#include <com_tools.h>
+#include <com_objects/script_interface.h>
+#include <com_objects/com_tools.h>
 
 #include <vector>
 #include <string>

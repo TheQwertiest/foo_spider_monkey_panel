@@ -92,7 +92,9 @@
   <ItemGroup>
     <ClCompile Include="acfu_integration.cpp" />
     <ClCompile Include="adv_config.cpp" />
-    <ClCompile Include="com_tools.cpp" />
+    <ClCompile Include="com_objects\com_tools.cpp" />
+    <ClCompile Include="com_objects\host_drop_target.cpp" />
+    <ClCompile Include="com_objects\script_interface_impl.cpp" />
     <ClCompile Include="config.cpp" />
     <ClCompile Include="convert\com.cpp" />
     <ClCompile Include="convert\js_to_native.cpp" />
@@ -103,7 +105,6 @@
     </ClCompile>
     <ClCompile Include="heartbeat_window.cpp" />
     <ClCompile Include="helpers.cpp" />
-    <ClCompile Include="host_drop_target.cpp" />
     <ClCompile Include="host_timer_dispatcher.cpp" />
     <ClCompile Include="js_engine\js_compartment_inner.cpp" />
     <ClCompile Include="js_engine\js_container.cpp" />
@@ -163,7 +164,6 @@
     <ClCompile Include="mainmenu.cpp" />
     <ClCompile Include="panel_manager.cpp" />
     <ClCompile Include="scintilla_prop_sets.cpp" />
-    <ClCompile Include="script_interface_impl.cpp" />
     <ClCompile Include="stats.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
@@ -189,11 +189,16 @@
     <ClInclude Include="..\PropertyList\PropertyList.h" />
     <ClInclude Include="acfu_github.h" />
     <ClInclude Include="adv_config.h" />
+    <ClInclude Include="com_objects\com_tools.h" />
+    <ClInclude Include="com_objects\drop_source_impl.h" />
+    <ClInclude Include="com_objects\drop_target_impl.h" />
+    <ClInclude Include="com_objects\host_drop_target.h" />
+    <ClInclude Include="com_objects\script_interface.h" />
+    <ClInclude Include="com_objects\script_interface_impl.h" />
     <ClInclude Include="convert\com.h" />
     <ClInclude Include="convert\js_to_native.h" />
     <ClInclude Include="convert\native_to_js.h" />
     <ClInclude Include="drop_action_params.h" />
-    <ClInclude Include="drop_source_impl.h" />
     <ClInclude Include="heartbeat_window.h" />
     <ClInclude Include="js_engine\js_compartment_inner.h" />
     <ClInclude Include="js_engine\js_container.h" />
@@ -253,13 +258,10 @@
     <ClInclude Include="js_utils\winapi_error_helper.h" />
     <ClInclude Include="panel_tooltip_param.h" />
     <ClInclude Include="SString.h" />
-    <ClInclude Include="com_tools.h" />
     <ClInclude Include="component_defines.h" />
     <ClInclude Include="config.h" />
-    <ClInclude Include="drop_target_impl.h" />
     <ClInclude Include="editorctrl.h" />
     <ClInclude Include="helpers.h" />
-    <ClInclude Include="host_drop_target.h" />
     <ClInclude Include="host_timer_dispatcher.h" />
     <ClInclude Include="js_panel_window.h" />
     <ClInclude Include="js_panel_window_cui.h" />
@@ -268,8 +270,6 @@
     <ClInclude Include="popup_msg.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="scintilla_prop_sets.h" />
-    <ClInclude Include="script_interface.h" />
-    <ClInclude Include="script_interface_impl.h" />
     <ClInclude Include="panel_info.h" />
     <ClInclude Include="stats.h" />
     <ClInclude Include="stdafx.h" />
