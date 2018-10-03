@@ -1904,7 +1904,9 @@ function Fb2kWindow() {
     */
 
     /**
-     * Get value of name from properties. If no value is present, defaultval will be stored and returned
+     * Get value of property.
+     * If property does not exist and defaultval is not undefined or null, 
+     * it will be created with the value of defaultval.
      *
      * Note that leading and trailing whitespace are removed from property name.
      *
@@ -1915,8 +1917,10 @@ function Fb2kWindow() {
     this.GetProperty = function (name, defaultval) {}; // (VARIANT) [, defaultval]
 
     /**
-     * Set property value, if val is invalid/null, it is removed. Property values will be saved per panel instance and are
-     * remembered between foobar2000 restarts.
+     * Set property value.
+     * Property will be removed, if val is undefined or null.
+     *
+     * Property values are saved per panel instance and are remembered between foobar2000 restarts.
      *
      * Note that leading and trailing whitespace are removed from property name.
      *
