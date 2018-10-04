@@ -1,6 +1,6 @@
 /**
  * Evaluates the script in file.
- * Similar to eval(ReadFile(path)), but provides better error reporting
+ * Similar to eval(utils.ReadTextFile(path)), but provides better error reporting
  *
  * @param {string} path Path to JavaScript file
  */
@@ -1321,34 +1321,6 @@ function IJSUtils() {
     this.ColourPicker = function(window_id, default_colour) {}; // (int)
 
     /**
-     * Creates an object which represents window with html page (rendered by IE8 engine).
-     *
-     * Note that window must be closed manually via {@link IHtmlWindow.Close()}.
-     * 
-     * Html code must be IE 8 compatible, meaning:
-     * - Only ES3 + JSON subset of JavaScript.
-     * - Objects passed to `data` are limited to standard JavaScript objects:
-     *   - No extensions from Spider Monkey Panel (e.g. no IFbMetadbHandle or IGdiBitmap).
-     * - Arrays passed via `data` argument need to be converted via `toArray()`.
-     *
-     * @param {string} code Html source code of the page
-     * @param {object=} [options=undefined]
-     * @param {number=} [options.width=400] Window width
-     * @param {number=} [options.height=400] Window height
-     * @param {string=} [options.title='foobar2000'] Window title
-     * @param {boolean=} [options.context_menu=false] Enables or disables context menu invocation
-     * @param {*=} [options.data=undefined] Will be saved in window.stored_data object and can be accessed from JavaScript executed inside HTML window.
-     *                                      This data is read-only and should not be modified.
-     * @param {object=} [options.fn=undefined] Will be saved in window.stored_function object and can be accessed from JavaScript as well.
-     *                                         This function can have up to 7 arguments and can be used as callback to pass some data back to the caller.
-     * @return {IHtmlWindow}
-     *
-     * @example
-     * // See samples/basic/HtmlWindowWithCheckbox.txt
-     */
-    this.CreateHtmlWindow = function(code, options){};
-
-    /**
      * @param {string} path
      * @param {string} mode
      *     "chardet" - Guess the charset of a file and return the codepage. It may not be accurate and returns 0 if an error occurred.
@@ -1526,6 +1498,42 @@ function IJSUtils() {
     Example:
     var username = utils.ReadINI("e:\\my_file.ini", "Last.fm", "username");
     */
+
+    /**
+     * Displays an html dialog (rendered by IE8 engine).
+     * Dialog is modal (blocks input to the parent window while open).
+     * 
+     * Html code must be IE 8 compatible, meaning:
+     * - Only ES3 + JSON subset of JavaScript.
+     * - Objects passed to `data` are limited to standard JavaScript objects:
+     *   - No extensions from Spider Monkey Panel (e.g. no IFbMetadbHandle or IGdiBitmap).
+     *   
+     * There are also additional limitations:
+     * - options.data may contain only the following types:
+     *   - Basic types: number, string, boolean, null, undefined.
+     *   - Objects as string: the only way to pass objects is to convert them to string and back with `JSON.stringify()` and `JSON.parse()`.
+     *   - Arrays: must be cast via `.toArray()` inside html. Each element has same type limitations as options.data.
+     *   - Functions: with maximum of 7 arguments. Each argument has same type limitations as options.data.
+     * - `window.returnValue` has the same type limitations as options.data.
+     * - `window.resizeTo()` is not accessible. Change size via `window.dialogWidth` and `window.dialogheight` instead.
+     *
+     * @param {number} window_id {@link window.ID}
+     * @param {string} code_or_path Html code or file path. File path must begin with `file://` prefix.
+     * @param {object=} [options=undefined]
+     * @param {number=} [options.width=400] Window width
+     * @param {number=} [options.height=400] Window height
+     * @param {*=} [options.data=undefined] Will be saved in `window.external.dialogArguments` and can be accessed from JavaScript executed inside HTML window.
+     *                                      This data is read-only and should not be modified. Has type limitations (see above).
+     * @return {*} Value from `window.returnValue` which can be set from JavaScript executed inside HTML window. 
+     *             `window.returnValue` has type limitations (see above).
+     *
+     * @example <caption>Dialog from code</caption>
+     * // See samples/basic/HtmlDialogWithCheckbox.txt
+     * 
+     * @example <caption>Dialog from file</caption>
+     * utils.ShowHtmlDialog(window.ID, `file://${fb.ComponentPath}samples/basic/html/PopupWithCheckBox.html`);
+     */
+    this.ShowHtmlDialog = function (window_id, code_or_path, options) { };
 
     /**
      * @param {string} filename
@@ -2888,23 +2896,4 @@ function IDropTargetAction() {
 
     /** @type {boolean} */
     this.ToSelect = undefined; // (boolean) (write)
-}
-
-/**
- * @constructor
- */
-function IHtmlWindow() {
-
-    /** @type {boolean} */
-    this.IsClosed = undefined;
-
-    /**
-     * Closes the window
-     */
-    this.Close = function() {};
-
-    /**
-     * Focus the window
-     */
-    this.Focus = function() {};
 }
