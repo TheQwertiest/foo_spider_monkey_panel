@@ -1908,6 +1908,36 @@ public:
 		ATLASSERT(::IsWindow(m_hWnd));
 		::SendMessage(m_hWnd, SCI_SETMODEVENTMASK, nMask, 0L);
 	}
+
+    //@}
+    /** @name Line wrap settings */
+    //@{
+
+    void SetWrapMode( int wrapMode )
+    {
+        ATLASSERT(::IsWindow( m_hWnd ) );
+        ::SendMessage( m_hWnd, SCI_SETWRAPMODE, wrapMode, 0L );
+    }
+
+    void SetWrapVisualFlags( int flags )
+    {
+        ATLASSERT(::IsWindow( m_hWnd ) );
+        ::SendMessage( m_hWnd, SCI_SETWRAPVISUALFLAGS, flags, 0L );
+    }
+
+    void SetWrapVisualFlagsLocation( int flags )
+    {
+        ATLASSERT(::IsWindow( m_hWnd ) );
+        ::SendMessage( m_hWnd, SCI_SETWRAPVISUALFLAGSLOCATION, flags, 0L );
+    }
+
+    void SetWrapIndentMode( int mode )
+    {
+        ATLASSERT(::IsWindow( m_hWnd ) );
+        ::SendMessage( m_hWnd, SCI_SETWRAPINDENTMODE, mode, 0L );
+    }
+
+    //@}
 };
 
 class CScintillaCtrl : public CScintillaImpl< CScintillaCtrl >

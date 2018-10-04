@@ -38,23 +38,24 @@ public:
     CScriptEditorCtrl() = default;
 
 	// Operations and Implementation
-	Sci_CharacterRange GetSelection();
-	int GetCaretInLine();
-	pfc::string8 GetCurrentLine();
-	IndentationStatus GetIndentState(int line);
-	unsigned int GetLinePartsInStyle(int line, int style1, int style2, SString sv[], int len);
-	bool RangeIsAllWhitespace(int start, int end);
-	DWORD GetPropertyColor(const char * key, bool * key_exist = nullptr );
-	void Init();
-	void LoadProperties(const pfc::list_t<t_sci_prop_set> & data);
-	void SetContent(const char * text, bool clear_undo_buffer = false);
-	void RestoreDefaultStyle();
-	void SetJScript();
-	void TrackWidth();
-	void SetAllStylesFromTable(const t_style_to_key_table table[]);
-	void AutoMarginWidth();
-	void ReadAPI();
-	BOOL SubclassWindow(HWND hWnd);
+    Sci_CharacterRange GetSelection();
+    int GetCaretInLine();
+    pfc::string8 GetCurrentLine();
+    IndentationStatus GetIndentState( int line );
+    unsigned int GetLinePartsInStyle( int line, int style1, int style2, SString sv[], int len );
+    bool RangeIsAllWhitespace( int start, int end );
+    DWORD GetPropertyColor( const char* key, bool* key_exist = nullptr );
+    void Init();
+    void LoadProperties( const pfc::list_t<t_sci_prop_set>& data );
+    void SetContent( const char* text, bool clear_undo_buffer = false );
+    void RestoreDefaultStyle();
+    void SetScintillaSettings();
+    void SetJScript();
+    void TrackWidth();
+    void SetAllStylesFromTable( const t_style_to_key_table table[] );
+    void AutoMarginWidth();
+    void ReadAPI();
+    BOOL SubclassWindow( HWND hWnd );
 
 	bool StartCallTip();
 	void ContinueCallTip();

@@ -7,73 +7,74 @@
 #include "helpers.h"
 
 
-LRESULT CDialogConf::OnInitDialog(HWND hwndFocus, LPARAM lParam)
+LRESULT CDialogConf::OnInitDialog( HWND hwndFocus, LPARAM lParam )
 {
-	// Get caption text
-	uGetWindowText(m_hWnd, m_caption);
+    // Get caption text
+    uGetWindowText( m_hWnd, m_caption );
 
-	// Init resize
-	DlgResize_Init();
+    // Init resize
+    DlgResize_Init();
 
-	// Apply window placement
-	if (m_parent->get_windowplacement().length == 0)
-	{
-		m_parent->get_windowplacement().length = sizeof(WINDOWPLACEMENT);
+    // Apply window placement
+    if ( m_parent->get_windowplacement().length == 0 )
+    {
+        m_parent->get_windowplacement().length = sizeof( WINDOWPLACEMENT );
 
-		if (!GetWindowPlacement(&m_parent->get_windowplacement()))
-		{
-			memset(&m_parent->get_windowplacement(), 0, sizeof(WINDOWPLACEMENT));
-		}
-	}
-	else
-	{
-		SetWindowPlacement(&m_parent->get_windowplacement());
-	}
+        if ( !GetWindowPlacement( &m_parent->get_windowplacement() ) )
+        {
+            memset( &m_parent->get_windowplacement(), 0, sizeof( WINDOWPLACEMENT ) );
+        }
+    }
+    else
+    {
+        SetWindowPlacement( &m_parent->get_windowplacement() );
+    }
 
-	// GUID Text
-	pfc::string8 guid_text = "GUID: ";
-	guid_text += pfc::print_guid(m_parent->get_config_guid());
-	uSetWindowText(GetDlgItem(IDC_STATIC_GUID), guid_text);
+    // GUID Text
+    pfc::string8 guid_text = "GUID: ";
+    guid_text += pfc::print_guid( m_parent->get_config_guid() );
+    uSetWindowText( GetDlgItem( IDC_STATIC_GUID ), guid_text );
 
-	// Edit Control
-	m_editorctrl.SubclassWindow(GetDlgItem(IDC_EDIT));
-	m_editorctrl.SetJScript();
-	m_editorctrl.ReadAPI();
-	m_editorctrl.SetContent(m_parent->get_script_code(), true);
-	m_editorctrl.SetSavePoint();
+    // Edit Control
+    m_editorctrl.SubclassWindow( GetDlgItem( IDC_EDIT ) );
+    m_editorctrl.SetScintillaSettings();
+    m_editorctrl.SetJScript();
+    m_editorctrl.ReadAPI();
+    m_editorctrl.SetContent( m_parent->get_script_code(), true );
+    m_editorctrl.SetSavePoint();
 
-	// Edge Style
-	HWND combo_edge = GetDlgItem(IDC_COMBO_EDGE);
-	ComboBox_AddString(combo_edge, _T("None"));
-	ComboBox_AddString(combo_edge, _T("Sunken"));
-	ComboBox_AddString(combo_edge, _T("Grey"));
+    // Edge Style
+    HWND combo_edge = GetDlgItem( IDC_COMBO_EDGE );
+    ComboBox_AddString( combo_edge, _T("None") );
+    ComboBox_AddString( combo_edge, _T("Sunken") );
+    ComboBox_AddString( combo_edge, _T("Grey") );
 
-	if ( core_version_info_v2::get()->test_version( 1, 4, 0, 0 ) && m_parent->GetPanelType() == js_panel_window::PanelType::DUI)
-	{
-		// disable in default UI fb2k v1.4 and above
-		ComboBox_SetCurSel(combo_edge, 0);
-		GetDlgItem(IDC_COMBO_EDGE).EnableWindow(false);
-	}
-	else
-	{
-		ComboBox_SetCurSel(combo_edge, m_parent->get_edge_style());
-	}
+    if ( core_version_info_v2::get()->test_version( 1, 4, 0, 0 ) && m_parent->GetPanelType() == js_panel_window::PanelType::DUI )
+    {
+        // disable in default UI fb2k v1.4 and above
+        ComboBox_SetCurSel( combo_edge, 0 );
+        GetDlgItem( IDC_COMBO_EDGE ).EnableWindow( false );
+    }
+    else
+    {
+        ComboBox_SetCurSel( combo_edge, m_parent->get_edge_style() );
+    }
 
-	// Pseudo Transparent
-	if (m_parent->GetPanelType() == js_panel_window::PanelType::CUI )
-	{
-		uButton_SetCheck(m_hWnd, IDC_CHECK_PSEUDO_TRANSPARENT, m_parent->get_pseudo_transparent());
-	}
-	else
-	{
-		uButton_SetCheck(m_hWnd, IDC_CHECK_PSEUDO_TRANSPARENT, false);
-		GetDlgItem(IDC_CHECK_PSEUDO_TRANSPARENT).EnableWindow(false);
-	}
+    // Pseudo Transparent
+    if ( m_parent->GetPanelType() == js_panel_window::PanelType::CUI )
+    {
+        uButton_SetCheck( m_hWnd, IDC_CHECK_PSEUDO_TRANSPARENT, m_parent->get_pseudo_transparent() );
+    }
+    else
+    {
+        uButton_SetCheck( m_hWnd, IDC_CHECK_PSEUDO_TRANSPARENT, false );
+        GetDlgItem( IDC_CHECK_PSEUDO_TRANSPARENT ).EnableWindow( false );
+    }
 
-	// Grab Focus
-	uButton_SetCheck(m_hWnd, IDC_CHECK_GRABFOCUS, m_parent->get_grab_focus());
+    // Grab Focus
+    uButton_SetCheck( m_hWnd, IDC_CHECK_GRABFOCUS, m_parent->get_grab_focus() );
 
-	return TRUE; // set focus to default control
+    return TRUE; // set focus to default control
 }
 
 LRESULT CDialogConf::OnCloseCmd(WORD wNotifyCode, WORD wID, HWND hWndCtl)

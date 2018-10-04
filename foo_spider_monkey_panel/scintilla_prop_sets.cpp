@@ -4,25 +4,29 @@
 
 const t_prop_set_init_table prop_sets_init_table[] =
 {
-	{"style.default", "font:Courier New,size:10"},
-	{"style.comment", "fore:#008000"},
-	{"style.keyword", "bold,fore:#0000ff"},
-	{"style.indentifier", "$(style.default)"},
-	{"style.string", "fore:#ff0000"},
-	{"style.number", "fore:#ff0000"},
-	{"style.operator", "$(style.default)"},
-	{"style.linenumber", "font:Courier New,size:8,fore:#2b91af"},
-	{"style.bracelight", "bold,fore:#000000,back:#ffee62"},
-	{"style.bracebad", "bold,fore:#ff0000"},
-	{"style.selection.fore", ""},
-	{"style.selection.back", ""},
-	{"style.selection.alpha", "256"}, // 256 - SC_ALPHA_NOALPHA
-	{"style.caret.fore", ""},
-	{"style.caret.width", "1"},
-	{"style.caret.line.back", ""},
-	{"style.caret.line.back.alpha", "256"},
-	{"api.jscript", "$(dir.component)jscript.api;$(dir.component)interface.api"},
-	{0, 0},
+    { "style.default", "font:Courier New,size:10" },
+    { "style.comment", "fore:#008000" },
+    { "style.keyword", "bold,fore:#0000ff" },
+    { "style.indentifier", "$(style.default)" },
+    { "style.string", "fore:#ff0000" },
+    { "style.number", "fore:#ff0000" },
+    { "style.operator", "$(style.default)" },
+    { "style.linenumber", "font:Courier New,size:8,fore:#2b91af" },
+    { "style.bracelight", "bold,fore:#000000,back:#ffee62" },
+    { "style.bracebad", "bold,fore:#ff0000" },
+    { "style.selection.fore", "" },
+    { "style.selection.back", "" },
+    { "style.selection.alpha", "256" }, // 256 - SC_ALPHA_NOALPHA
+    { "style.caret.fore", "" },
+    { "style.caret.width", "1" },
+    { "style.caret.line.back", "" },
+    { "style.caret.line.back.alpha", "256" },
+    { "sci.wrap.mode", "0" }, // SC_WRAP_NONE
+    { "sci.wrap.visualflags", "1" }, // SC_WRAPVISUALFLAG_END
+    { "sci.wrap.visualflags.location", "0" }, // SC_WRAPVISUALFLAGLOC_DEFAULT
+    { "sci.wrap.indentmode", "0" }, // SC_WRAPINDENT_FIXED
+    { "api.jscript", "$(dir.component)jscript.api;$(dir.component)interface.api" },
+    { 0, 0 },
 };
 
 cfg_sci_prop_sets g_sci_prop_sets(g_guid_smp_prop_sets, prop_sets_init_table);
