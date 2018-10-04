@@ -2,17 +2,19 @@
 
 ## [Unreleased]
 ### Added
-- Integrated foo_acfu update checks.
-- Added additional info on `utils.CreateHtmlWindow` in `Interfaces.js`.
-- API changes:
-  - Added `IHtmlWindow.IsClosed` property.
+- Integrated `foo_acfu` update checks.
 
 ### Changed
-- Rewrote `HtmlWindowWithCheckBox.txt` sample.
+- Replaced `utils.CreateHtmlWindow()` with `utils.ShowHtmlDialog()`.
+- Updated `Interfaces.js`:
+  - Updated `window.GetProperty()`/`window.SetProperty()` docs.
 
 ### Fixed
-- Fixed `utils.CreateHtmlWindow` not spawning when fb2k path contained spaces.
 - Disabled callback invocation until script is fully evaluated.
+- Fixed `fb.RunContextCommandWithMetadb()`.
+- Fixed samples:
+  - Removed left-over `.Dispose()` calls.
+  - Rewrote html dialog sample (HtmlDialogWithCheckBox.txt).
 
 ## [1.0.0] - 2018-10-01
 ### Added
