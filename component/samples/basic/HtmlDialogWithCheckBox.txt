@@ -29,9 +29,9 @@ function get_windows_version() {
 }
 
 var htmlCode = function() {
-    var htmlCode = utils.ReadTextFile( `${fb.ComponentPath}\\samples\\basic\\html\\MsgBoxWithPopup.html`);
+    var htmlCode = utils.ReadTextFile( `${fb.ComponentPath}samples\\basic\\html\\PopupWithCheckBox.html`);
     
-    var cssPath = `${fb.ComponentPath}\\samples\\basic\\html\\`;
+    var cssPath = `${fb.ComponentPath}samples\\basic\\html\\`;
     if ( get_windows_version() === '6.1' ) {
         cssPath += "styles7.css";
     }
@@ -42,7 +42,6 @@ var htmlCode = function() {
     return htmlCode;
 }();
 
-var htmlWindow;
 var ww = 0;
 var wh = 0;
 var text = '>> Click Me To Open Dialog <<';
@@ -59,39 +58,12 @@ function on_size(w,h) {
 }
 
 function on_mouse_lbtn_up() {
-    if (htmlWindow) {
-        close_window();
-    }
-    else {
-        htmlWindow = utils.CreateHtmlWindow(htmlCode, {
-            title: 'Html Window',
-            data: ['This is an HTML notification window with a check box\n', '< Click me'],
-            fn:   window_ok_callback
-        });
-        text = '>> Click Me To Close Dialog <<';
-        window.Repaint();
-    }
-}
-
-function on_script_unload() {
-    close_window();
-}
-
-function close_window()
-{
-    if (htmlWindow) {
-        if (!htmlWindow.IsClosed) {
-            htmlWindow.Close();
-        }
-        htmlWindow = undefined;
-        
-        text = '>> Click Me To Open Dialog <<';
-        window.Repaint();
-    }
+    utils.ShowHtmlDialog(window.ID, htmlCode, {
+        data: ['Html Window', 'This is an HTML notification window with a check box\n', '< Click me', window_ok_callback],            
+    });
 }
 
 function window_ok_callback(status, clicked) {
-    htmlWindow = undefined;
     text = `Dialog was closed with ${status} and checkbox ${clicked}\n`
         + '>> Click Me To Open Dialog <<';
     window.Repaint();
