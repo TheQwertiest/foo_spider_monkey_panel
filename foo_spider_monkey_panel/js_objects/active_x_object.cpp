@@ -40,20 +40,19 @@ void RefreshValue( JSContext* cx, JS::HandleValue valToCheck )
     }
 
     HRESULT hresult;
-    JS::RootedObject j0( cx, &valToCheck.toObject() );
-
-    ActiveXObject* x = static_cast<ActiveXObject*>(JS_GetInstancePrivate( cx, j0, &ActiveXObject::JsClass, nullptr ));
-    if ( !x )
+    JS::RootedObject jsObject( cx, &valToCheck.toObject() );
+    auto pNative = GetInnerInstancePrivate<ActiveXObject>( cx, jsObject );
+    if ( !pNative )
     {
         return;
     }
 
-    if ( x->pUnknown_ && !x->pDispatch_ )
+    if ( pNative->pUnknown_ && !pNative->pDispatch_ )
     {
-        hresult = x->pUnknown_->QueryInterface( IID_IDispatch, (void **)&x->pDispatch_ );
+        hresult = pNative->pUnknown_->QueryInterface( IID_IDispatch, (void**)&pNative->pDispatch_ );
         if ( !SUCCEEDED( hresult ) )
         {
-            x->pDispatch_ = nullptr;
+            pNative->pDispatch_ = nullptr;
         }
     }
 }
@@ -276,19 +275,14 @@ bool ActiveX_Run_Impl( JSContext* cx, unsigned argc, JS::Value* vp )
     JS::CallArgs args = JS::CallArgsFromVp( argc, vp );
     JS::RootedValue jsThis( cx, args.thisv() );
 
-    JS::RootedObject jsObject( cx );
-    if ( jsThis.isObject() )
+    if ( !jsThis.isObject() )
     {
-        if ( js::IsProxy( &jsThis.toObject() ) )
-        {
-            jsObject.set( js::GetProxyTargetObject( &jsThis.toObject() ) );
-        }
-        else
-        {
-            jsObject.set( &jsThis.toObject() );
-        }
+        JS_ReportErrorUTF8( cx, "`this` is not an object" );
+        return false;
     }
-    auto pNative = static_cast<ActiveXObject*>( JS_GetInstancePrivate( cx, jsObject, &ActiveXObject::JsClass, nullptr ) );
+
+    JS::RootedObject jsObject( cx, &jsThis.toObject() );
+    auto pNative = GetInnerInstancePrivate<ActiveXObject>( cx, jsObject );
     if ( !pNative )
     {
         JS_ReportErrorUTF8( cx, "`this` is not an object of valid type" );
@@ -321,19 +315,14 @@ bool ActiveX_Get_Impl( JSContext* cx, unsigned argc, JS::Value* vp )
     JS::CallArgs args = JS::CallArgsFromVp( argc, vp );
     JS::RootedValue jsThis( cx, args.thisv() );
 
-    JS::RootedObject jsObject( cx );
-    if ( jsThis.isObject() )
+    if ( !jsThis.isObject() )
     {
-        if ( js::IsProxy( &jsThis.toObject() ) )
-        {
-            jsObject.set( js::GetProxyTargetObject( &jsThis.toObject() ) );
-        }
-        else
-        {
-            jsObject.set( &jsThis.toObject() );
-        }
+        JS_ReportErrorUTF8( cx, "`this` is not an object" );
+        return false;
     }
-    auto pNative = static_cast<ActiveXObject*>(JS_GetInstancePrivate( cx, jsObject, &ActiveXObject::JsClass, nullptr ));
+
+    JS::RootedObject jsObject( cx, &jsThis.toObject() );
+    auto pNative = GetInnerInstancePrivate<ActiveXObject>( cx, jsObject );
     if ( !pNative )
     {
         JS_ReportErrorUTF8( cx, "`this` is not an object of valid type" );
@@ -349,19 +338,14 @@ bool ActiveX_Set_Impl( JSContext* cx, unsigned argc, JS::Value* vp )
     JS::CallArgs args = JS::CallArgsFromVp( argc, vp );
     JS::RootedValue jsThis( cx, args.thisv() );
 
-    JS::RootedObject jsObject( cx );
-    if ( jsThis.isObject() )
+    if ( !jsThis.isObject() )
     {
-        if ( js::IsProxy( &jsThis.toObject() ) )
-        {
-            jsObject.set( js::GetProxyTargetObject( &jsThis.toObject() ) );
-        }
-        else
-        {
-            jsObject.set( &jsThis.toObject() );
-        }
+        JS_ReportErrorUTF8( cx, "`this` is not an object" );
+        return false;
     }
-    auto pNative = static_cast<ActiveXObject*>(JS_GetInstancePrivate( cx, jsObject, &ActiveXObject::JsClass, nullptr ));
+
+    JS::RootedObject jsObject( cx, &jsThis.toObject() );
+    auto pNative = GetInnerInstancePrivate<ActiveXObject>( cx, jsObject );
     if ( !pNative )
     {
         JS_ReportErrorUTF8( cx, "`this` is not an object of valid type" );

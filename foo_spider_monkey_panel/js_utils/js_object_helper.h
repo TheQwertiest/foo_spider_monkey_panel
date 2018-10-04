@@ -37,4 +37,17 @@ bool CreateAndInstallObject( JSContext* cx, JS::HandleObject parentObject, const
     return true;
 }
 
+/// @brief Same as JS_GetInstancePrivate, but unwraps the object if it's a proxy.
+template<typename T>
+T* GetInnerInstancePrivate( JSContext* cx, JS::HandleObject jsObject )
+{
+    if ( js::IsProxy( jsObject ) )
+    {
+        JS::RootedObject jsObject( cx, js::GetProxyTargetObject( jsObject ) );
+        return static_cast<T*>( JS_GetInstancePrivate( cx, jsObject, &T::JsClass, nullptr ) );
+    }
+    
+    return static_cast<T*>( JS_GetInstancePrivate( cx, jsObject, &T::JsClass, nullptr ) );
+}
+
 }

@@ -26,14 +26,7 @@ inline constexpr bool is_convertable_v = is_convertable<T>::value;
 template <typename T>
 std::optional<T> ToValue(JSContext * cx, const JS::HandleObject& jsObject)
 {
-    JS::RootedObject jsObjectLocal(cx, jsObject);
-    if (js::IsProxy(jsObject))
-    {
-        jsObjectLocal.set(js::GetProxyTargetObject(jsObject));
-    }
-    T pNative = static_cast<T>(
-        JS_GetInstancePrivate(cx, jsObjectLocal, &std::remove_pointer_t<T>::JsClass, nullptr)
-        );
+    auto pNative = GetInnerInstancePrivate<std::remove_pointer_t<T>>( cx, jsObject );
     if (!pNative)
     {
         return std::nullopt;

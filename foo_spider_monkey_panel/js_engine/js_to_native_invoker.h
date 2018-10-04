@@ -4,6 +4,7 @@
 #include <convert/native_to_js.h>
 #include <js_objects/global_object.h>
 #include <js_utils/js_error_helper.h>
+#include <js_utils/js_object_helper.h>
 
 #pragma warning( push )  
 #pragma warning( disable : 4100 ) // unused variable
@@ -139,7 +140,7 @@ bool InvokeNativeCallback_Impl( JSContext* cx,
     auto callbackArguments =
         JsToNativeArguments<maxArgCount, ArgTypes...>(
             args,
-            [maxArgCount, &cx, &bRet, &failedIdx]( const JS::CallArgs& jsArgs, auto argTypeStruct, size_t index )
+            [maxArgCount, cx, &bRet, &failedIdx]( const JS::CallArgs& jsArgs, auto argTypeStruct, size_t index )
             {                
                 using ArgType = typename std::remove_const_t<std::remove_reference_t<decltype( argTypeStruct )::type>>;
 
@@ -255,14 +256,8 @@ BaseClass* InvokeNativeCallback_GetThisObject( JSContext* cx, JS::HandleValue js
     
     if ( jsThis.isObject() )
     {
-        if ( js::IsProxy( &jsThis.toObject() ) )
-        {
-            JS::RootedObject jsObject(cx, js::GetProxyTargetObject( &jsThis.toObject() ) );
-            return static_cast<BaseClass*>(JS_GetInstancePrivate( cx, jsObject, &BaseClass::JsClass, nullptr ));
-        }
-
-        JS::RootedObject jsObject(cx, &jsThis.toObject() );
-        return static_cast<BaseClass*>(JS_GetInstancePrivate( cx, jsObject, &BaseClass::JsClass, nullptr ));
+        JS::RootedObject jsObject( cx, &jsThis.toObject() );
+        return GetInnerInstancePrivate<BaseClass>( cx, jsObject );
     }
 
     if constexpr(std::is_same_v<BaseClass, JsGlobalObject>)
