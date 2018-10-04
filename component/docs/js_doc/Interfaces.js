@@ -1515,7 +1515,7 @@ function IJSUtils() {
      *   - Arrays: must be cast via `.toArray()` inside html. Each element has same type limitations as options.data.
      *   - Functions: with maximum of 7 arguments. Each argument has same type limitations as options.data.
      * - `window.returnValue` has the same type limitations as options.data.
-     * - `window.resizeTo()` is not accessible. Change size via `window.dialogWidth` and `window.dialogheight` instead.
+     * - `window.resizeTo()` is not accessible. Change size via `window.dialogWidth` and `window.dialogHeight` instead.
      *
      * @param {number} window_id {@link window.ID}
      * @param {string} code_or_path Html code or file path. File path must begin with `file://` prefix.
