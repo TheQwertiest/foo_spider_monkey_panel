@@ -477,9 +477,6 @@
     <ClInclude Include="js_objects\aero.h">
       <Filter>js_objects</Filter>
     </ClInclude>
-    <ClInclude Include="js_utils\dispatch_ptr.h">
-      <Filter>js_utils</Filter>
-    </ClInclude>
     <ClInclude Include="adv_config.h">
       <Filter>z_uncategorized</Filter>
     </ClInclude>
@@ -578,6 +575,9 @@
     </ClInclude>
     <ClInclude Include="js_objects\internal\html_dialog_impl.h">
       <Filter>js_objects\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="com_objects\dispatch_ptr.h">
+      <Filter>com_objects</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

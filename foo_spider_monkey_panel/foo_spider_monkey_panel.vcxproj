@@ -190,6 +190,7 @@
     <ClInclude Include="acfu_github.h" />
     <ClInclude Include="adv_config.h" />
     <ClInclude Include="com_objects\com_tools.h" />
+    <ClInclude Include="com_objects\dispatch_ptr.h" />
     <ClInclude Include="com_objects\drop_source_impl.h" />
     <ClInclude Include="com_objects\drop_target_impl.h" />
     <ClInclude Include="com_objects\host_drop_target.h" />
@@ -246,7 +247,6 @@
     <ClInclude Include="js_objects\window.h" />
     <ClInclude Include="js_utils\art_helper.h" />
     <ClInclude Include="js_utils\com_error_helper.h" />
-    <ClInclude Include="js_utils\dispatch_ptr.h" />
     <ClInclude Include="js_utils\file_helpers.h" />
     <ClInclude Include="js_utils\gdi_error_helper.h" />
     <ClInclude Include="js_utils\gdi_helpers.h" />

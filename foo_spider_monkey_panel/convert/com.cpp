@@ -1,10 +1,9 @@
-/// Code extracted from wrap_com.cpp from JSDB by Shanti Rao (see http://jsdb.org)
-
 #include <stdafx.h>
 #include "com.h"
 
 #include <com_objects/script_interface.h>
 #include <com_objects/com_tools.h>
+#include <com_objects/dispatch_ptr.h>
 
 #include <js_objects/global_object.h>
 #include <js_objects/internal/global_heap_manager.h>
@@ -146,7 +145,7 @@ private:
     bool isJsAvailable_ = false;
 };
 
-bool JSArrayToCOMArray( JSContext* cx, JS::HandleObject obj, VARIANT & var )
+bool JsArrayToComArray( JSContext* cx, JS::HandleObject obj, VARIANT & var )
 {    
     uint32_t len;
     if ( !JS_GetArrayLength( cx, obj, &len ) )
@@ -204,7 +203,7 @@ bool JSArrayToCOMArray( JSContext* cx, JS::HandleObject obj, VARIANT & var )
     return true;
 }
 
-bool COMArrayToJSArray( JSContext* cx, const VARIANT & src, JS::MutableHandleValue & dest )
+bool ComArrayToJsArray( JSContext* cx, const VARIANT & src, JS::MutableHandleValue & dest )
 {
     // We only support one dimensional arrays for now
     if ( SafeArrayGetDim( src.parray ) != 1 )
@@ -283,6 +282,51 @@ bool COMArrayToJSArray( JSContext* cx, const VARIANT & src, JS::MutableHandleVal
 
     dest.setObjectOrNull( jsArray );
     return true;
+}
+
+bool FakeComArrayToJsArray( JSContext* cx, IDispatch* pDisp, JS::MutableHandleValue& dest )
+{
+    try
+    {
+        CDispatchPtr cpDispatch( pDisp );
+        _variant_t arrLengthVar = cpDispatch.Get( L"length" );
+        if ( VT_EMPTY == arrLengthVar.vt )
+        {
+            return false;
+        }
+
+        uint32_t arrLength = arrLengthVar;
+        JS::RootedObject jsArray( cx, JS_NewArrayObject( cx, arrLength ) );
+        if ( !jsArray )
+        {
+            // err = NS_ERROR_OUT_OF_MEMORY;
+            return false;
+        }
+
+        JS::RootedValue jsVal( cx );
+        for ( uint32_t i = 0; i < arrLength; ++i )
+        {
+            const std::wstring strIndex = std::to_wstring( i );
+
+            _variant_t arrElem = cpDispatch.Get( strIndex.c_str() );
+            if ( !VariantToJs( cx, arrElem, &jsVal ) )
+            {
+                return false;
+            }
+
+            if ( !JS_SetElement( cx, jsArray, i, jsVal ) )
+            {
+                return false;
+            }
+        }
+
+        dest.setObjectOrNull( jsArray );
+        return true;
+    }
+    catch ( const _com_error& )
+    {
+        return false;
+    }
 }
 
 }
@@ -372,6 +416,11 @@ bool VariantToJs( JSContext* cx, VARIANTARG& var, JS::MutableHandleValue rval )
                 break;
             }
 
+            if ( FakeComArrayToJsArray( cx, FETCH( pdispVal ), rval ) )
+            {
+                break;
+            }
+
             std::unique_ptr<ActiveXObject> x( new ActiveXObject( cx, FETCH( pdispVal ), true ) );
             if ( !x->pUnknown_ && !x->pDispatch_ )
             {
@@ -389,7 +438,7 @@ bool VariantToJs( JSContext* cx, VARIANTARG& var, JS::MutableHandleValue rval )
         }
         case VT_ARRAY | VT_VARIANT:
         {
-            if ( !COMArrayToJSArray( cx, var, rval ) )
+            if ( !ComArrayToJsArray( cx, var, rval ) )
             {
                 return false;
             }
@@ -487,7 +536,7 @@ bool JsToVariant( JSContext* cx, JS::HandleValue rval, VARIANTARG& arg )
             bool is;
             if ( JS_IsArrayObject( cx, rval, &is ) && is )
             {
-                return JSArrayToCOMArray( cx, j0, arg );
+                return JsArrayToComArray( cx, j0, arg );
             }
             else
             {

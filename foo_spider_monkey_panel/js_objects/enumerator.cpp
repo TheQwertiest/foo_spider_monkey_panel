@@ -6,7 +6,7 @@
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
 #include <js_utils/winapi_error_helper.h>
-#include <js_utils/dispatch_ptr.h>
+#include <com_objects/dispatch_ptr.h>
 #include <convert/com.h>
 
 // TODO: add font caching
