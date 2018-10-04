@@ -30,7 +30,7 @@ _COM_SMARTPTR_TYPEDEF( IHostDialogHelper, __uuidof(IHostDialogHelper) );
 namespace mozjs
 {
 std::optional<JS::Value>
-ShowHtmlDialogImpl( JSContext* cx, uint32_t hWnd, const std::wstring& htmlCode, JS::HandleValue options )
+ShowHtmlDialogImpl( JSContext* cx, uint32_t hWnd, const std::wstring& htmlCodeOrPath, JS::HandleValue options )
 {
     if ( !hWnd )
     {
@@ -145,16 +145,30 @@ ShowHtmlDialogImpl( JSContext* cx, uint32_t hWnd, const std::wstring& htmlCode, 
 
     try
     {
-        auto pMoniker = new com_object_impl_t<smp::com::IHtmlMoniker>;
-        mozjs::scope::final_action autoMoniker( [&pMoniker] {
-            pMoniker->Release();
-        } );
+        IMonikerPtr pMoniker;
+        const std::wstring filePrefix = L"file://";
 
-        HRESULT hr = pMoniker->SetHTML( htmlCode );
-        IF_HR_FAILED_RETURN_WITH_REPORT( cx, hr, std::nullopt, SetHTML );
+        if ( htmlCodeOrPath.length() > filePrefix.length()
+             && !wmemcmp( htmlCodeOrPath.c_str(), filePrefix.c_str(), filePrefix.length() ) )
+        {
+            HRESULT hr = CreateURLMonikerEx( nullptr, htmlCodeOrPath.c_str(), &pMoniker, URL_MK_UNIFORM );
+            IF_HR_FAILED_RETURN_WITH_REPORT( cx, hr, std::nullopt, SetHTML );
+        }
+        else
+        {
+            auto pHtmlMoniker = new com_object_impl_t<smp::com::IHtmlMoniker>;
+            mozjs::scope::final_action autoMoniker( [&pHtmlMoniker] {
+                pHtmlMoniker->Release();
+            } );
+
+            HRESULT hr = pHtmlMoniker->SetHTML( htmlCodeOrPath );
+            IF_HR_FAILED_RETURN_WITH_REPORT( cx, hr, std::nullopt, SetHTML );
+
+            pMoniker = pHtmlMoniker;
+        }
 
         IHostDialogHelperPtr pHDH;
-        hr = pHDH.GetActiveObject( CLSID_HostDialogHelper );
+        HRESULT hr = pHDH.GetActiveObject( CLSID_HostDialogHelper );
         if ( FAILED( hr ) )
         {
             hr = pHDH.CreateInstance( CLSID_HostDialogHelper, nullptr, CLSCTX_INPROC_SERVER );
