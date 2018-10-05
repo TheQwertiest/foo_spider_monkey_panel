@@ -23,9 +23,6 @@
 
 // TODO: cleanup the code
 
-#ifndef DISPID_PROPERTYPUT
-#   define DISPID_PROPERTYPUT (-3)
-#endif
 
 namespace
 {
