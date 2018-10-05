@@ -1278,12 +1278,31 @@ function IJSUtils() {
     /**
      * A string corresponding to the version.
      *
-     * Component uses semantic versioning, so strings can be compared directly.
+     * Component uses semantic versioning (see @link{https://semver.org/}).
      *
      * @type {string} 
      *
      * @example     
-     * fb.ShowPopupMessage(`This script requires v1.0.0. Current component version is v${utils.Version}.`);     
+     * function is_compatible(requiredVersionStr) {
+     *     var requiredVersion = requiredVersionStr.split('.');
+     *     var currentVersion = utils.Version.split('.'); // e.g. 0.1.0-alpha.2
+     *     if (currentVersion.length > 3) {
+     *         currentVersion.length = 3; // We need only numbers
+     *     }
+     * 
+     *     for(var i = 0; i<currentVersion.length; ++i) {
+     *       if (currentVersion[i] != requiredVersion[i]) {
+     *           return currentVersion[i] > requiredVersion[i];
+     *       }
+     *     }
+     * 
+     *     return true;
+     * }
+     * 
+     * var requiredVersionStr = '1.0.0';
+     * if (!is_compatible(requiredVersionStr)) {
+     *     fb.ShowPopupMessage(`This script requires v${requiredVersionStr}. Current component version is v${utils.Version}.`);
+     * }
      */
     this.Version = undefined; // (string) (read)
 
@@ -1500,6 +1519,8 @@ function IJSUtils() {
     */
 
     /**
+     * This method is EXPERIMENTAL and is subject to change in the next versions!
+     *
      * Displays an html dialog (rendered by IE8 engine).
      * Dialog is modal (blocks input to the parent window while open).
      * 
@@ -2469,7 +2490,7 @@ function IFbMetadbHandle() {
     /** @type {float} */
     this.Length = undefined; // (double) (read)
 
-    // See {@link https://github.com/marc2k3/foo_jscript_panel/wiki/Playback-Stats}
+    // See {@link https://github.com/TheQwertiest/foo_spider_monkey_panel/wiki/Playback-stats}
 
     /**
      * @param {number} playcount Use 0 to clear
@@ -2819,7 +2840,7 @@ function IFbMetadbHandleList() {
     this.OrderByRelativePath = function () {}; // (void)
 
     /**
-     * See {@link https://github.com/marc2k3/foo_jscript_panel/wiki/Playback-Stats}
+     * See {@link https://github.com/TheQwertiest/foo_spider_monkey_panel/wiki/Playback-stats}
      */
     this.RefreshStats = function () {}; // (void)
 
@@ -2863,15 +2884,33 @@ function IFbMetadbHandleList() {
 
 
     /**
-     * See {@link https://github.com/marc2k3/foo_jscript_panel/wiki/Breaking-Changes#v130}
+     * Updated metadb tags with new values.
      *
-     * @param {string} str
+     * @param {string} str JSON string, which contains an object (applies same values to every track) 
+     *                     or an array of objects (one object per track).
+     *
+     * @example
+     * // assume we've selected one album
+     * var handles = plman.GetPlaylistSelectedItems(plman.ActivePlaylist);
+     *
+     * var arr = [];
+     * for (var i = 0; i < handles.Count; ++i) {
+     *     // each element of the array must be an object of key names/values, indicated by the curly braces
+     *     arr.push({
+     *         'tracknumber' : i + 1, // independent values per track
+     *         'totaltracks' : handles.Count,
+     *         'album' : 'Greatest Hits', // a simple string for a single value
+     *         'genre' : ['Rock', 'Hard Rock'], // we can use an array here for multiple value tags
+     *         'bad_tag' : '' // blank values will clear any existing tags.
+     *     });
+     * }
+     *
+     * handles.UpdateFileInfoFromJSON(JSON.stringify(arr));
      */
     this.UpdateFileInfoFromJSON = function (str) {}; // (void)
 }
 
 /**
- * See {@link https://github.com/marc2k3/foo_jscript_panel/wiki/Drag-and-Drop}
  * @constructor
  */
 function IDropTargetAction() {

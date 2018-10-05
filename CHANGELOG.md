@@ -5,9 +5,11 @@
 - Integrated `foo_acfu` update checks.
 
 ### Changed
-- Replaced `utils.CreateHtmlWindow()` with `utils.ShowHtmlDialog()`.
+- **[Experimental]** Replaced `utils.CreateHtmlWindow()` with `utils.ShowHtmlDialog()`.
 - Updated `Interfaces.js`:
   - Updated `window.GetProperty()`/`window.SetProperty()` docs.
+  - Updated `utils.Version` doc.
+  - Updated `FbMetadbHandleList.UpdateFileInfoFromJSON` doc.
 
 ### Fixed
 - Disabled callback invocation until script is fully evaluated.
@@ -25,7 +27,7 @@
   - FbMetadbHandleList items now can be accessed with [] operator.
   - Added global `include()` method.
   - Added `window.DefinePanel` method.
-  - Added `utils.CreateHtmlWindow()` method.
+  - **[Experimental]** Added `utils.CreateHtmlWindow()` method.
 
 ### Changed
 - Rewrote component to use Mozilla SpiderMonkey JavaScript engine.
