@@ -1,3 +1,4 @@
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/19c686bcf26d46e6a639bdece347ae3d)](https://app.codacy.com/app/qwertiest/foo_spider_monkey_panel?utm_source=github.com&utm_medium=referral&utm_content=TheQwertiest/foo_spider_monkey_panel&utm_campaign=Badge_Grade_Dashboard)
 # Spider Monkey Panel [![version][version-badge]][CHANGELOG] [![Build status](https://ci.appveyor.com/api/projects/status/4fg787ijr73u7mxc/branch/master?svg=true)](https://ci.appveyor.com/project/TheQwertiest/foo-spider-monkey-panel/branch/master)
 
 This is a component for the [foobar2000](https://www.foobar2000.org) audio player.
