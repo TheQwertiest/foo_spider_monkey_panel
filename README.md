@@ -55,5 +55,5 @@ Or just use the [Migration Guide](https://github.com/TheQwertiest/foo_spider_mon
 [CHANGELOG]: CHANGELOG.md
 [TODO]: https://github.com/TheQwertiest/foo_spider_monkey_panel/projects/1
 [API_CHANGES]: https://github.com/TheQwertiest/foo_spider_monkey_panel/wiki/API-Changes
-[version-badge]: https://img.shields.io/badge/version-1.0.0-blue.svg
+[version-badge]: https://img.shields.io/github/release/theqwertiest/foo_spider_monkey_panel.svg
 
