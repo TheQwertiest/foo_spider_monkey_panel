@@ -42,7 +42,7 @@ Or just use the [Migration Guide](https://github.com/TheQwertiest/foo_spider_mon
 [Support thread](https://hydrogenaud.io/index.php/topic,116669.new.html)  
 [Changelog][CHANGELOG]  
 [Detailed list of API Changes][API_CHANGES]  
-[Current tasks and plans][TODO]
+[Current tasks and plans][TODO]  
 [Nightly build](https://ci.appveyor.com/api/projects/theqwertiest/foo-spider-monkey-panel/artifacts/_result%2FWin32_Release%2Ffoo_spider_monkey_panel.fb2k-component?branch=master&job=Configuration%3A%20Release)
 
 ## Credits
