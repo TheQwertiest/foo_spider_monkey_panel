@@ -12,8 +12,6 @@
 #include <convert/js_to_native.h>
 
 
-// TODO: add VT_ARRAY <> JSArray
-
 namespace
 {
 

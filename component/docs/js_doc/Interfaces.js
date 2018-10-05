@@ -161,10 +161,9 @@ function IFbUtils() {
      * Checks Clipboard contents are handles or a file selection from Windows Explorer. Use in conjunction
      * with fb.GetClipboardContents().
      *
-     * @param {number} window_id
      * @return {boolean}
      */
-    this.CheckClipboardContents = function (window_id) {}; // (boolean)
+    this.CheckClipboardContents = function () {}; // (boolean)
 
     /**
      * Clears active playlist. If you wish to clear a specific playlist, use plman.ClearPlaylist(playlistIndex).
@@ -323,7 +322,7 @@ function IFbUtils() {
      * @param {number} window_id
      * @return {IFbMetadbHandleList}
      */
-    this.GetClipboardContents = function (window_id) {}; // (IFbMetadbHandleList)
+    this.GetClipboardContents = function () {}; // (IFbMetadbHandleList)
     /*
     Clipboard contents can be handles copied to the clipboard in other components, from fb.CopyHandleListToClipboard or a file selection
     from Windows Explorer etc.
@@ -332,7 +331,7 @@ function IFbUtils() {
     function on_mouse_rbtn_up(x, y) {
         var ap = plman.ActivePlaylist;
         var menu = window.CreatePopupMenu();
-        menu.AppendMenuItem(!plman.IsPlaylistLocked(ap) && fb.CheckClipboardContents(window.ID) ? MF_STRING : MF_GRAYED, 1, "Paste"); // see Flags.js for MF_* definitions
+        menu.AppendMenuItem(!plman.IsPlaylistLocked(ap) && fb.CheckClipboardContents() ? MF_STRING : MF_GRAYED, 1, "Paste"); // see Flags.js for MF_* definitions
         var idx = menu.TrackPopupMenu(x, y);
         if (idx == 1) {
             var handle_list  = fb.GetClipboardContents(window.ID);
@@ -491,7 +490,16 @@ function IFbUtils() {
     /**
      * @return {boolean}
      */
-    this.IsLibraryEnabled = function () {}; // (boolean)
+    this.IsLibraryEnabled = function () { }; // (boolean)
+
+    /**
+     * @param {string} command Path to main menu item
+     * @return {boolean} true, if the item is checked.
+     *
+     * @example
+     * fb.RunMainMenuCommand("Playback/Scrobble Tracks"); // available with foo_scrobble
+     */
+    this.IsMainMenuCommandChecked(command) = function () { }; // (boolean)
 
     /**
      * @param {IFbMetadbHandle} handle
@@ -1606,7 +1614,7 @@ function Fb2kWindow() {
     /** @type {number} */
     this.ID = undefined; // (read) (int)
     /*
-        Required in fb.CheckClipboardContents, fb.GetClipboardContents, utils.ColourPicker, utils.GetAlbumArtAsync,
+        Required in fb.GetClipboardContents, utils.ColourPicker, utils.GetAlbumArtAsync,
         utils.InputBox, utils.LoadImageAsync, etc.
     */
 

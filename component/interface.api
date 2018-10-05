@@ -21,7 +21,7 @@ fb.Volume
 fb.AcquireUiSelectionHolder()
 fb.AddDirectory()
 fb.AddFiles()
-fb.CheckClipboardContents(window_id)
+fb.CheckClipboardContents()
 fb.ClearPlaylist()
 fb.CopyHandleListToClipboard()
 fb.CreateContextMenuManager()

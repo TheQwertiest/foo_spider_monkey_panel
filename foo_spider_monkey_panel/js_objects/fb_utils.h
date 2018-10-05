@@ -37,7 +37,6 @@ public:
     std::optional<JSObject*> AcquireUiSelectionHolder();
     std::optional<std::nullptr_t> AddDirectory();
     std::optional<std::nullptr_t> AddFiles();
-    // TODO: document - removed parameter (window id argument was unused)
     std::optional<bool> CheckClipboardContents();
     std::optional<std::nullptr_t> ClearPlaylist();
     std::optional<bool> CopyHandleListToClipboard( JsFbMetadbHandleList* handles );
@@ -63,7 +62,6 @@ public:
     std::optional<JSObject*> GetSelectionsWithOpt( size_t optArgCount, uint32_t flags );
     std::optional<uint32_t> GetSelectionType();
     std::optional<bool> IsLibraryEnabled();
-    // TODO: document this
     std::optional<bool> IsMainMenuCommandChecked( const pfc::string8_fast& command );
     std::optional<bool> IsMetadbInMediaLibrary( JsFbMetadbHandle* handle );
     std::optional<std::nullptr_t> LoadPlaylist();
