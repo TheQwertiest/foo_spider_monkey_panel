@@ -1,1 +1,1 @@
-Use File>Preferences>Tools>JScript Panel to import these.
+Use `Preferences > Tools > Spider Monkey Panel` to import these.

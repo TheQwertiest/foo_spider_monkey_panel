@@ -1068,25 +1068,25 @@ void CScriptEditorCtrl::SetScintillaSettings()
         }
     };
 
-    auto retVal = getIntFromProp( "sci.wrap.mode" );
+    auto retVal = getIntFromProp( "style.wrap.mode" );
     if ( retVal )
     {
         SetWrapMode( retVal.value() );
     }
 
-    retVal = getIntFromProp( "sci.wrap.visualflags" );
+    retVal = getIntFromProp( "style.wrap.visualflags" );
     if ( retVal )
     {
         SetWrapVisualFlags( retVal.value() );
     }
 
-    retVal = getIntFromProp( "sci.wrap.visualflags.location" );
+    retVal = getIntFromProp( "style.wrap.visualflags.location" );
     if ( retVal )
     {
         SetWrapVisualFlagsLocation( retVal.value() );
     }
 
-    retVal = getIntFromProp( "sci.wrap.indentmode" );
+    retVal = getIntFromProp( "style.wrap.indentmode" );
     if ( retVal )
     {
         SetWrapIndentMode( retVal.value() );
@@ -1101,7 +1101,7 @@ void CScriptEditorCtrl::SetJScript()
                                " interface long native new null package private protected public return"
                                " short static super switch synchronized this throw throws transient true"
                                " try typeof var void while with enum byvalue cast future generic inner"
-                               " operator outer rest Array Math RegExp window fb gdi utils wsh_utils plman console";
+                               " operator outer rest Array Math RegExp window fb gdi utils plman console";
 
     RestoreDefaultStyle();
 

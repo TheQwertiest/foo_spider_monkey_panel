@@ -21,10 +21,10 @@ const t_prop_set_init_table prop_sets_init_table[] =
     { "style.caret.width", "1" },
     { "style.caret.line.back", "" },
     { "style.caret.line.back.alpha", "256" },
-    { "sci.wrap.mode", "0" }, // SC_WRAP_NONE
-    { "sci.wrap.visualflags", "1" }, // SC_WRAPVISUALFLAG_END
-    { "sci.wrap.visualflags.location", "0" }, // SC_WRAPVISUALFLAGLOC_DEFAULT
-    { "sci.wrap.indentmode", "0" }, // SC_WRAPINDENT_FIXED
+    { "style.wrap.mode", "0" }, // SC_WRAP_NONE
+    { "style.wrap.visualflags", "1" }, // SC_WRAPVISUALFLAG_END
+    { "style.wrap.visualflags.location", "0" }, // SC_WRAPVISUALFLAGLOC_DEFAULT
+    { "style.wrap.indentmode", "0" }, // SC_WRAPINDENT_FIXED
     { "api.jscript", "$(dir.component)jscript.api;$(dir.component)interface.api" },
     { 0, 0 },
 };
