@@ -35,14 +35,14 @@ Main features of `Mozilla SpiderMonkey` engine:
 - Blazing-fast performance!
 - Easily customizable: allows to implement lot of features that couldn't be implemented before.
 
-See [wiki][API_CHANGES] for the detailed list of API changes.  
+See [wiki][api_changes] for the detailed list of API changes.  
 Or just use the [Migration Guide](https://github.com/TheQwertiest/foo_spider_monkey_panel/wiki/JScript-to-SpiderMonkey-migration-guide) to make your scripts compatible.
 
 ## Links
 [Support thread](https://hydrogenaud.io/index.php/topic,116669.new.html)  
-[Changelog][CHANGELOG]  
-[Detailed list of API Changes][API_CHANGES]  
-[Current tasks and plans][TODO]  
+[Changelog][changelog]  
+[Detailed list of API Changes][api_changes]  
+[Current tasks and plans][todo]  
 [Nightly build](https://ci.appveyor.com/api/projects/theqwertiest/foo-spider-monkey-panel/artifacts/_result%2FWin32_Release%2Ffoo_spider_monkey_panel.fb2k-component?branch=master&job=Configuration%3A%20Release)
 
 ## Credits
