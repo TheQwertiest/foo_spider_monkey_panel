@@ -5,6 +5,7 @@
 ## [1.0.1] - 2018-10-05
 ### Added
 - Integrated `foo_acfu` update checks.
+- Added Scintilla line-wrap settings to `Preferences > Tools > Spider Monkey Panel`.
 
 ### Changed
 - **[Experimental]** Replaced `utils.CreateHtmlWindow()` with `utils.ShowHtmlDialog()`.
