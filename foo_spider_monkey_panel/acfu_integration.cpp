@@ -17,14 +17,16 @@ public:
     static std::string FetchVersion()
     {
         componentversion::ptr cv;
-        ::acfu::for_each_service<componentversion>( [&]( auto& ptr ) {
+        service_enum_t<componentversion> e;
+        for ( service_ptr_t<componentversion> ptr; e.next( ptr ); )
+        {
             pfc::string8 file_name;
             ptr->get_file_name( file_name );
             if ( file_name.equals( componentFileName_ ) )
             {
                 cv = ptr;
             }
-        } );
+        }
         if ( cv.is_empty() )
         {
             return "0.0.0";
