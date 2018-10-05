@@ -2,8 +2,7 @@
 
 This is a component for the [foobar2000](https://www.foobar2000.org) audio player.
 
-It allows for creation of full-fledged CUI/DUI panels by using nothing but a Notepad!  
-Panels are coded in JavaScript, so you can apply your changes and see their effect immediately!
+It allows for creation of full-fledged CUI/DUI panels using JavaScript!  
 
 Base functionality includes:
 * Graphics functions: drawing text, external images, lines, rectangles, etc.
@@ -44,6 +43,7 @@ Or just use the [Migration Guide](https://github.com/TheQwertiest/foo_spider_mon
 [Changelog][CHANGELOG]  
 [Detailed list of API Changes][API_CHANGES]  
 [Current tasks and plans][TODO]
+[Nightly build](https://ci.appveyor.com/api/projects/theqwertiest/foo-spider-monkey-panel/artifacts/_result%2FWin32_Release%2Ffoo_spider_monkey_panel.fb2k-component?branch=master&job=Configuration%3A%20Release)
 
 ## Credits
 - [marc2003](https://github.com/marc2k3): original [foo_jscript_panel](https://github.com/marc2k3/foo_jscript_panel), [sample scripts](https://github.com/marc2k3/smp_2003) and multiple contributions to this project. 
