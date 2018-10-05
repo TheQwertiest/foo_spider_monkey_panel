@@ -17,6 +17,7 @@
 - Fixed samples:
   - Removed left-over `.Dispose()` calls.
   - Rewrote html dialog sample (HtmlDialogWithCheckBox.txt).
+- Added a few fixes to `ActiveXObject` for better compatibility.
 
 ## [1.0.0] - 2018-10-01
 ### Added
