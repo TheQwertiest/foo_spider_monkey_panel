@@ -1,23 +1,22 @@
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/19c686bcf26d46e6a639bdece347ae3d)](https://app.codacy.com/app/qwertiest/foo_spider_monkey_panel?utm_source=github.com&utm_medium=referral&utm_content=TheQwertiest/foo_spider_monkey_panel&utm_campaign=Badge_Grade_Dashboard)
-# Spider Monkey Panel [![version][version-badge]][CHANGELOG] [![Build status](https://ci.appveyor.com/api/projects/status/4fg787ijr73u7mxc/branch/master?svg=true)](https://ci.appveyor.com/project/TheQwertiest/foo-spider-monkey-panel/branch/master)
+# Spider Monkey Panel [![version][version_badge]][changelog] [![Codacy Badge][codacy_badge]](https://app.codacy.com/app/qwertiest/foo_spider_monkey_panel?utm_source=github.com&utm_medium=referral&utm_content=TheQwertiest/foo_spider_monkey_panel&utm_campaign=Badge_Grade_Dashboard) [![Build status][appveyor_badge]](https://ci.appveyor.com/project/TheQwertiest/foo-spider-monkey-panel/branch/master)
 
 This is a component for the [foobar2000](https://www.foobar2000.org) audio player.
 
 It allows for creation of full-fledged CUI/DUI panels using JavaScript!  
 
 Base functionality includes:
-* Graphics functions: drawing text, external images, lines, rectangles, etc.
-* Access fonts and colours settings from the main preferences of CUI/DUI.
-* Execution of main menu and context menu commands.
-* Creation of custom buttons and menus.
-* Capture of keystrokes/mouse movement/clicks.
-* Capture of foobar2000 events with callbacks.
-* Processing and changing of file tags.
-* Playlists management: create, destroy, sort, change, rename and do anything that fb2k can do.
-* Access Media Library with ability to sort and filter it's contents.
-* Per panel settings storage. 
-* Built-in web and filesystem access.
-* And more!
+- Graphics functions: drawing text, external images, lines, rectangles, etc.
+- Access fonts and colours settings from the main preferences of CUI/DUI.
+- Execution of main menu and context menu commands.
+- Creation of custom buttons and menus.
+- Capture of keystrokes/mouse movement/clicks.
+- Capture of foobar2000 events with callbacks.
+- Processing and changing of file tags.
+- Playlists management: create, destroy, sort, change, rename and do anything that fb2k can do.
+- Access Media Library with ability to sort and filter it's contents.
+- Per panel settings storage. 
+- Built-in web and filesystem access.
+- And more!
 
 ## Getting started!
 
@@ -53,8 +52,9 @@ Or just use the [Migration Guide](https://github.com/TheQwertiest/foo_spider_mon
   Especially huge thanks to sfink and jonco, who spent literally tens of hours helping me!  
 - [Respective authors](THIRD_PARTY_NOTICES.md) of the code being used in this project.
 
-[CHANGELOG]: CHANGELOG.md
-[TODO]: https://github.com/TheQwertiest/foo_spider_monkey_panel/projects/1
-[API_CHANGES]: https://github.com/TheQwertiest/foo_spider_monkey_panel/wiki/API-Changes
-[version-badge]: https://img.shields.io/github/release/theqwertiest/foo_spider_monkey_panel.svg
-
+[changelog]: CHANGELOG.md
+[todo]: https://github.com/TheQwertiest/foo_spider_monkey_panel/projects/1
+[api_changes]: https://github.com/TheQwertiest/foo_spider_monkey_panel/wiki/API-Changes
+[version_badge]: https://img.shields.io/github/release/theqwertiest/foo_spider_monkey_panel.svg
+[codacy_badge]: https://api.codacy.com/project/badge/Grade/19c686bcf26d46e6a639bdece347ae3d
+[appveyor_badge]: https://ci.appveyor.com/api/projects/status/4fg787ijr73u7mxc/branch/master?svg=true
