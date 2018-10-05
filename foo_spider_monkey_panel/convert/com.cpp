@@ -284,51 +284,6 @@ bool ComArrayToJsArray( JSContext* cx, const VARIANT & src, JS::MutableHandleVal
     return true;
 }
 
-bool FakeComArrayToJsArray( JSContext* cx, IDispatch* pDisp, JS::MutableHandleValue& dest )
-{
-    try
-    {
-        CDispatchPtr cpDispatch( pDisp );
-        _variant_t arrLengthVar = cpDispatch.Get( L"length" );
-        if ( VT_EMPTY == arrLengthVar.vt )
-        {
-            return false;
-        }
-
-        uint32_t arrLength = arrLengthVar;
-        JS::RootedObject jsArray( cx, JS_NewArrayObject( cx, arrLength ) );
-        if ( !jsArray )
-        {
-            // err = NS_ERROR_OUT_OF_MEMORY;
-            return false;
-        }
-
-        JS::RootedValue jsVal( cx );
-        for ( uint32_t i = 0; i < arrLength; ++i )
-        {
-            const std::wstring strIndex = std::to_wstring( i );
-
-            _variant_t arrElem = cpDispatch.Get( strIndex.c_str() );
-            if ( !VariantToJs( cx, arrElem, &jsVal ) )
-            {
-                return false;
-            }
-
-            if ( !JS_SetElement( cx, jsArray, i, jsVal ) )
-            {
-                return false;
-            }
-        }
-
-        dest.setObjectOrNull( jsArray );
-        return true;
-    }
-    catch ( const _com_error& )
-    {
-        return false;
-    }
-}
-
 }
 
 namespace mozjs::convert::com
@@ -413,11 +368,6 @@ bool VariantToJs( JSContext* cx, VARIANTARG& var, JS::MutableHandleValue rval )
             if ( !FETCH( pdispVal ) )
             {
                 rval.setNull(); 
-                break;
-            }
-
-            if ( FakeComArrayToJsArray( cx, FETCH( pdispVal ), rval ) )
-            {
                 break;
             }
 
