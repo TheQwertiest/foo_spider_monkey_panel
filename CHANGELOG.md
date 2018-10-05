@@ -1,6 +1,8 @@
 # Changelog
 
 ## [Unreleased]
+
+## [1.0.1] - 2018-10-05
 ### Added
 - Integrated `foo_acfu` update checks.
 
@@ -42,5 +44,6 @@
   - More rigorous error checks.
 - Updated samples with compatibility fixes.
 
-[Unreleased]: https://github.com/theqwertiest/foo_spider_monkey_panel/compare/v1.0.0...HEAD
+[Unreleased]: https://github.com/theqwertiest/foo_spider_monkey_panel/compare/v1.0.1...HEAD
+[1.0.1]: https://github.com/TheQwertiest/foo_spider_monkey_panel/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/TheQwertiest/foo_spider_monkey_panel/compare/vanilla_2_0...v1.0.0
