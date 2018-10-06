@@ -21,6 +21,7 @@ BreakConstructorInitializers: BeforeComma
 ColumnLimit: '0'
 ConstructorInitializerIndentWidth: '4' 
 ContinuationIndentWidth: '4'
+Cpp11BracedListStyle: 'false'
 FixNamespaceComments: 'true'
 IndentWidth: '4'
 IndentCaseLabels: false
