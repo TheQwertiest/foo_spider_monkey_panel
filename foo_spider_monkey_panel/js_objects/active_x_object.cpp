@@ -1091,15 +1091,13 @@ bool ActiveXObject::ParseTypeInfoRecursive( JSContext * cx, ITypeInfo * pTypeInf
                 }
             }
 
-
             /*
             if ( FAILED( hresult ) )
             {
                 JS_ReportErrorUTF8( cx, "Failed to GetRefTypeInfo" );
                 return false;
             }
-            */
-            
+            */            
         }
     }
 
