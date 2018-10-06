@@ -1,4 +1,5 @@
-# Spider Monkey Panel [![version][version_badge]][changelog] [![Codacy Badge][codacy_badge]](https://app.codacy.com/app/qwertiest/foo_spider_monkey_panel?utm_source=github.com&utm_medium=referral&utm_content=TheQwertiest/foo_spider_monkey_panel&utm_campaign=Badge_Grade_Dashboard) [![Build status][appveyor_badge]](https://ci.appveyor.com/project/TheQwertiest/foo-spider-monkey-panel/branch/master)
+# Spider Monkey Panel 
+[![version][version_badge]][changelog] [![Build status][appveyor_badge]](https://ci.appveyor.com/project/TheQwertiest/foo-spider-monkey-panel/branch/master) [![CodeFactor][codefactor_badge]](https://www.codefactor.io/repository/github/theqwertiest/foo_spider_monkey_panel/overview/master) [![Codacy Badge][codacy_badge]](https://app.codacy.com/app/qwertiest/foo_spider_monkey_panel?utm_source=github.com&utm_medium=referral&utm_content=TheQwertiest/foo_spider_monkey_panel&utm_campaign=Badge_Grade_Dashboard) 
 
 This is a component for the [foobar2000](https://www.foobar2000.org) audio player.
 
@@ -56,5 +57,7 @@ Or just use the [Migration Guide](https://github.com/TheQwertiest/foo_spider_mon
 [todo]: https://github.com/TheQwertiest/foo_spider_monkey_panel/projects/1
 [api_changes]: https://github.com/TheQwertiest/foo_spider_monkey_panel/wiki/API-Changes
 [version_badge]: https://img.shields.io/github/release/theqwertiest/foo_spider_monkey_panel.svg
-[codacy_badge]: https://api.codacy.com/project/badge/Grade/19c686bcf26d46e6a639bdece347ae3d
 [appveyor_badge]: https://ci.appveyor.com/api/projects/status/4fg787ijr73u7mxc/branch/master?svg=true
+[codacy_badge]: https://api.codacy.com/project/badge/Grade/19c686bcf26d46e6a639bdece347ae3d
+[codefactor_badge]: https://www.codefactor.io/repository/github/theqwertiest/foo_spider_monkey_panel/badge/master
+
