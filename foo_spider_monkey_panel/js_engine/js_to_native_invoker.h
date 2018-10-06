@@ -94,6 +94,21 @@ bool InvokeNativeCallback( JSContext* cx,
         ArgTypes...>( cx, fn, fnWithOpt, argc, vp );
 }
 
+template <size_t OptArgCount = 0, typename BaseClass, typename ReturnType, typename FuncOptType, typename... ArgTypes>
+bool InvokeNativeCallback( JSContext* cx,
+                           ReturnType ( BaseClass::*fn )( ArgTypes... ) const,
+                           FuncOptType fnWithOpt,
+                           unsigned argc, JS::Value* vp )
+{
+    return InvokeNativeCallback_Impl<
+        OptArgCount,
+        BaseClass,
+        ReturnType,
+        decltype( fn ),
+        FuncOptType,
+        ArgTypes...>( cx, fn, fnWithOpt, argc, vp );
+}
+
 template <size_t OptArgCount, typename BaseClass, typename ReturnType, typename FuncType, typename FuncOptType, typename ... ArgTypes>
 bool InvokeNativeCallback_Impl( JSContext* cx,
                                 FuncType fn,
