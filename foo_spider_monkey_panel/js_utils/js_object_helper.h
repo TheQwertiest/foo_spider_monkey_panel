@@ -53,4 +53,17 @@ T* GetInnerInstancePrivate( JSContext* cx, JS::HandleObject jsObject )
     return static_cast<T*>( JS_GetInstancePrivate( cx, jsObject, &T::JsClass, nullptr ) );
 }
 
+/// @brief Same as GetInnerInstancePrivate, but also check for JS::Value
+template <typename T>
+T* GetInnerInstancePrivate( JSContext* cx, JS::HandleValue jsValue )
+{
+    if ( !jsValue.isObject() )
+    {
+        return nullptr;
+    }
+
+    JS::RootedObject jsObject( cx, &jsValue.toObject() );
+    return GetInnerInstancePrivate<T>( cx, jsObject );
+}
+
 }

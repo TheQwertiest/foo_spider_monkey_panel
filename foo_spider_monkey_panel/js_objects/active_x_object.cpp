@@ -31,14 +31,7 @@ using namespace mozjs;
 
 void RefreshValue( JSContext* cx, JS::HandleValue valToCheck )
 {
-    if ( !valToCheck.isObject() )
-    {
-        return;
-    }
-
-    HRESULT hresult;
-    JS::RootedObject jsObject( cx, &valToCheck.toObject() );
-    auto pNative = GetInnerInstancePrivate<ActiveXObject>( cx, jsObject );
+    auto pNative = GetInnerInstancePrivate<ActiveXObject>( cx, valToCheck );
     if ( !pNative )
     {
         return;
@@ -46,7 +39,7 @@ void RefreshValue( JSContext* cx, JS::HandleValue valToCheck )
 
     if ( pNative->pUnknown_ && !pNative->pDispatch_ )
     {
-        hresult = pNative->pUnknown_->QueryInterface( IID_IDispatch, (void**)&pNative->pDispatch_ );
+        HRESULT hresult = pNative->pUnknown_->QueryInterface( IID_IDispatch, (void**)&pNative->pDispatch_ );
         if ( !SUCCEEDED( hresult ) )
         {
             pNative->pDispatch_ = nullptr;
@@ -270,16 +263,8 @@ bool ActiveX_Constructor_Impl( JSContext* cx, unsigned argc, JS::Value* vp )
 bool ActiveX_Run_Impl( JSContext* cx, unsigned argc, JS::Value* vp )
 {
     JS::CallArgs args = JS::CallArgsFromVp( argc, vp );
-    JS::RootedValue jsThis( cx, args.thisv() );
 
-    if ( !jsThis.isObject() )
-    {
-        JS_ReportErrorUTF8( cx, "`this` is not an object" );
-        return false;
-    }
-
-    JS::RootedObject jsObject( cx, &jsThis.toObject() );
-    auto pNative = GetInnerInstancePrivate<ActiveXObject>( cx, jsObject );
+    auto pNative = GetInnerInstancePrivate<ActiveXObject>( cx, args.thisv() );
     if ( !pNative )
     {
         JS_ReportErrorUTF8( cx, "`this` is not an object of valid type" );
@@ -310,16 +295,8 @@ bool ActiveX_Run_Impl( JSContext* cx, unsigned argc, JS::Value* vp )
 bool ActiveX_Get_Impl( JSContext* cx, unsigned argc, JS::Value* vp )
 {
     JS::CallArgs args = JS::CallArgsFromVp( argc, vp );
-    JS::RootedValue jsThis( cx, args.thisv() );
 
-    if ( !jsThis.isObject() )
-    {
-        JS_ReportErrorUTF8( cx, "`this` is not an object" );
-        return false;
-    }
-
-    JS::RootedObject jsObject( cx, &jsThis.toObject() );
-    auto pNative = GetInnerInstancePrivate<ActiveXObject>( cx, jsObject );
+    auto pNative = GetInnerInstancePrivate<ActiveXObject>( cx, args.thisv() );
     if ( !pNative )
     {
         JS_ReportErrorUTF8( cx, "`this` is not an object of valid type" );
@@ -333,16 +310,8 @@ bool ActiveX_Get_Impl( JSContext* cx, unsigned argc, JS::Value* vp )
 bool ActiveX_Set_Impl( JSContext* cx, unsigned argc, JS::Value* vp )
 {
     JS::CallArgs args = JS::CallArgsFromVp( argc, vp );
-    JS::RootedValue jsThis( cx, args.thisv() );
 
-    if ( !jsThis.isObject() )
-    {
-        JS_ReportErrorUTF8( cx, "`this` is not an object" );
-        return false;
-    }
-
-    JS::RootedObject jsObject( cx, &jsThis.toObject() );
-    auto pNative = GetInnerInstancePrivate<ActiveXObject>( cx, jsObject );
+    auto pNative = GetInnerInstancePrivate<ActiveXObject>( cx, args.thisv() );
     if ( !pNative )
     {
         JS_ReportErrorUTF8( cx, "`this` is not an object of valid type" );
