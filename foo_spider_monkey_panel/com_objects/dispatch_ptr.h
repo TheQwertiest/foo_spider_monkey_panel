@@ -33,7 +33,6 @@ template <class Derived>
 class CDispatchFunctions
 {
 public:
-
 	// Throughout this class, for any function which is templated on type
 	// <DispatchItem>, the DispatchItem identifies one method or property
 	// of an object, and the value passed for the DispatchItem should be
@@ -270,7 +269,6 @@ class CDispatchVariant :
 	public CDispatchFunctions<CDispatchVariant>
 {
 public:
-
 	// constructors -- just copied (with slight modifications) from _variant_t
 
 	CDispatchVariant() throw() : _variant_t() { }
@@ -328,7 +326,6 @@ class CDispatchPtr :
 	public CDispatchFunctions<CDispatchPtr>
 {
 public:
-
 	// constructors -- just copied (with slight modifications) from _com_ptr_t
 
 	template<typename _InterfacePtr> CDispatchPtr(const _InterfacePtr& p) : IDispatchPtr(p) { }

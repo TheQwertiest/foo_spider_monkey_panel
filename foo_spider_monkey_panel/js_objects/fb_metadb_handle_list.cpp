@@ -210,7 +210,6 @@ JsFbMetadbHandleList::JsFbMetadbHandleList( JSContext* cx, metadb_handle_list_cr
     : pJsCtx_( cx )
     , metadbHandleList_( handles )
 {
-
 }
 
 JsFbMetadbHandleList::~JsFbMetadbHandleList()

@@ -74,7 +74,7 @@ protected:
         heapMgr.UnregisterUser( this );
     }
 
-    virtual void DisableHeapCleanup() override
+    void DisableHeapCleanup() override
     {
         std::scoped_lock sl( cleanupLock_ );
         // Global is being destroyed, can't access anything

@@ -692,7 +692,6 @@ namespace helpers
         , m_base( base )
         , m_to_select( to_select )
     {
-
     }
 
     void js_process_locations::on_completion( metadb_handle_list_cref p_items )
@@ -714,7 +713,6 @@ namespace helpers
 
     void js_process_locations::on_aborted()
     {
-
     }
 
 }
