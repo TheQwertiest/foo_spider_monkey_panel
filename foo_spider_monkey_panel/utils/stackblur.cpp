@@ -6,13 +6,15 @@
 // by Victor Laskin (victor.laskin@gmail.com)
 // More details: http://vitiy.info/stackblur-algorithm-multi-threaded-blur-for-cpp
 
-
 #include "stdafx.h"
 #include "stackblur.h"
 
-
 namespace
 {
+
+constexpr unsigned int kColourCount = 4; // 0 - r, 1 - g, 2 - b, 3 - a
+using ColourArray = std::array<unsigned long, kColourCount>;
+
 
 static unsigned short const stackblur_mul[255] =
 {
@@ -36,7 +38,7 @@ static unsigned short const stackblur_mul[255] =
 
 static unsigned char const stackblur_shr[255] =
 {
-    9, 11, 12, 13, 13, 14, 14, 15, 15, 15, 15, 16, 16, 16, 16, 17,
+     9, 11, 12, 13, 13, 14, 14, 15, 15, 15, 15, 16, 16, 16, 16, 17,
     17, 17, 17, 17, 17, 17, 18, 18, 18, 18, 18, 18, 18, 18, 18, 19,
     19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 20, 20, 20,
     20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 21,
@@ -54,377 +56,202 @@ static unsigned char const stackblur_shr[255] =
     24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24
 };
 
-void stackblur_step1( unsigned char* src, ///< input image data
-                      unsigned int w, ///< image width
-                      unsigned int h, ///< image height
-                      unsigned int radius, ///< blur intensity (should be in 2..254 range)
-                      int cores, ///< total number of working threads
-                      int core, ///< current thread number
-                      unsigned char* stack ///< stack buffer
+void stackblur_by_segment( unsigned char* src,  ///< input image data
+                           unsigned int w,      ///< image width
+                           unsigned int h,      ///< image height
+                           unsigned int radius, ///< blur intensity (should be in 2..254 range)
+                           bool isLineSegment,  ///< false, means column segment
+                           unsigned int segmentStart,
+                           unsigned int segmentEnd,
+                           unsigned char* stack ///< stack buffer
 )
 {
-    unsigned int x, y, xp, i;
-    unsigned int sp;
-    unsigned int stack_start;
-    unsigned char* stack_ptr;
+    // if line segment: coord_1 = x; coord_2 = y;
+    const unsigned int coord_1_shift = isLineSegment ? kColourCount : ( w * kColourCount );
+    const unsigned int coord_2_shift = isLineSegment ? ( w * kColourCount ) : kColourCount;
 
-    unsigned char* src_ptr;
-    unsigned char* dst_ptr;
+    const unsigned int axis_1_size = isLineSegment ? w : h;
+    const unsigned int coord_1_limit = axis_1_size - 1;
 
-    unsigned long sum_r;
-    unsigned long sum_g;
-    unsigned long sum_b;
-    unsigned long sum_a;
-    unsigned long sum_in_r;
-    unsigned long sum_in_g;
-    unsigned long sum_in_b;
-    unsigned long sum_in_a;
-    unsigned long sum_out_r;
-    unsigned long sum_out_g;
-    unsigned long sum_out_b;
-    unsigned long sum_out_a;
+    const unsigned int div = ( radius * 2 ) + 1;
+    const unsigned int mul_sum = stackblur_mul[radius];
+    const unsigned char shr_sum = stackblur_shr[radius];
 
-    unsigned int wm = w - 1;
-    unsigned int hm = h - 1;
-    unsigned int w4 = w * 4;
-    unsigned int div = (radius * 2) + 1;
-    unsigned int mul_sum = stackblur_mul[radius];
-    unsigned char shr_sum = stackblur_shr[radius];
+    for ( unsigned int coord_2 = segmentStart; coord_2 < segmentEnd; ++coord_2 )
+    {// iterate through segment elements (i.e. lines or columns)
+        ColourArray sum_colour = { 0 };
+        ColourArray sum_in_colour = { 0 };
+        ColourArray sum_out_colour = { 0 };
 
+        unsigned char* src_ptr = src + coord_2_shift * coord_2;
 
-    unsigned int minY = core * h / cores;
-    unsigned int maxY = (core + 1) * h / cores;
-
-    for ( y = minY; y < maxY; y++ )
-    {
-        sum_r = sum_g = sum_b = sum_a =
-            sum_in_r = sum_in_g = sum_in_b = sum_in_a =
-            sum_out_r = sum_out_g = sum_out_b = sum_out_a = 0;
-
-        src_ptr = src + w4 * y; // start of line (0,y)
-
-        for ( i = 0; i <= radius; i++ )
+        for ( unsigned int i = 0; i <= radius; ++i )
         {
-            stack_ptr = &stack[4 * i];
-            stack_ptr[0] = src_ptr[0];
-            stack_ptr[1] = src_ptr[1];
-            stack_ptr[2] = src_ptr[2];
-            stack_ptr[3] = src_ptr[3];
-            sum_r += src_ptr[0] * (i + 1);
-            sum_g += src_ptr[1] * (i + 1);
-            sum_b += src_ptr[2] * (i + 1);
-            sum_a += src_ptr[3] * (i + 1);
-            sum_out_r += src_ptr[0];
-            sum_out_g += src_ptr[1];
-            sum_out_b += src_ptr[2];
-            sum_out_a += src_ptr[3];
-        }
+            memcpy( &stack[kColourCount * i], src_ptr, kColourCount );
 
-        for ( i = 1; i <= radius; i++ )
-        {
-            if ( i <= wm ) src_ptr += 4;
-            stack_ptr = &stack[4 * (i + radius)];
-            stack_ptr[0] = src_ptr[0];
-            stack_ptr[1] = src_ptr[1];
-            stack_ptr[2] = src_ptr[2];
-            stack_ptr[3] = src_ptr[3];
-            sum_r += src_ptr[0] * (radius + 1 - i);
-            sum_g += src_ptr[1] * (radius + 1 - i);
-            sum_b += src_ptr[2] * (radius + 1 - i);
-            sum_a += src_ptr[3] * (radius + 1 - i);
-            sum_in_r += src_ptr[0];
-            sum_in_g += src_ptr[1];
-            sum_in_b += src_ptr[2];
-            sum_in_a += src_ptr[3];
-        }
-
-        sp = radius;
-        xp = radius;
-        if ( xp > wm ) xp = wm;
-        src_ptr = src + 4 * (xp + y * w); // img.pix_ptr(xp, y);
-        dst_ptr = src + y * w4; // img.pix_ptr(0, y);
-        for ( x = 0; x < w; x++ )
-        {
-            dst_ptr[0] = static_cast<uint8_t>((sum_r * mul_sum) >> shr_sum);
-            dst_ptr[1] = static_cast<uint8_t>((sum_g * mul_sum) >> shr_sum);
-            dst_ptr[2] = static_cast<uint8_t>((sum_b * mul_sum) >> shr_sum);
-            dst_ptr[3] = static_cast<uint8_t>((sum_a * mul_sum) >> shr_sum);
-            dst_ptr += 4;
-
-            sum_r -= sum_out_r;
-            sum_g -= sum_out_g;
-            sum_b -= sum_out_b;
-            sum_a -= sum_out_a;
-
-            stack_start = sp + div - radius;
-            if ( stack_start >= div ) stack_start -= div;
-            stack_ptr = &stack[4 * stack_start];
-
-            sum_out_r -= stack_ptr[0];
-            sum_out_g -= stack_ptr[1];
-            sum_out_b -= stack_ptr[2];
-            sum_out_a -= stack_ptr[3];
-
-            if ( xp < wm )
+            for ( unsigned int j = 0; j < kColourCount; ++j )
             {
-                src_ptr += 4;
-                ++xp;
+                sum_colour[j] += src_ptr[j] * ( i + 1 );
+            }
+            for ( unsigned int j = 0; j < kColourCount; ++j )
+            {
+                sum_out_colour[j] += src_ptr[j];
+            }
+        }
+
+        for ( unsigned int i = 1; i <= radius; ++i )
+        {
+            if ( i <= coord_1_limit )
+            {
+                src_ptr += coord_1_shift;
             }
 
-            stack_ptr[0] = src_ptr[0];
-            stack_ptr[1] = src_ptr[1];
-            stack_ptr[2] = src_ptr[2];
-            stack_ptr[3] = src_ptr[3];
+            memcpy( &stack[kColourCount * ( i + radius )], src_ptr, kColourCount );
 
-            sum_in_r += src_ptr[0];
-            sum_in_g += src_ptr[1];
-            sum_in_b += src_ptr[2];
-            sum_in_a += src_ptr[3];
-            sum_r += sum_in_r;
-            sum_g += sum_in_g;
-            sum_b += sum_in_b;
-            sum_a += sum_in_a;
-
-            ++sp;
-            if ( sp >= div ) sp = 0;
-            stack_ptr = &stack[sp * 4];
-
-            sum_out_r += stack_ptr[0];
-            sum_out_g += stack_ptr[1];
-            sum_out_b += stack_ptr[2];
-            sum_out_a += stack_ptr[3];
-            sum_in_r -= stack_ptr[0];
-            sum_in_g -= stack_ptr[1];
-            sum_in_b -= stack_ptr[2];
-            sum_in_a -= stack_ptr[3];
-        }
-    }
-}
-
-void stackblur_step2( unsigned char* src, ///< input image data
-                      unsigned int w, ///< image width
-                      unsigned int h, ///< image height
-                      unsigned int radius, ///< blur intensity (should be in 2..254 range)
-                      int cores, ///< total number of working threads
-                      int core, ///< current thread number
-                      unsigned char* stack ///< stack buffer
-)
-{
-    unsigned int x, y, yp, i;
-    unsigned int sp;
-    unsigned int stack_start;
-    unsigned char* stack_ptr;
-
-    unsigned char* src_ptr;
-    unsigned char* dst_ptr;
-
-    unsigned long sum_r;
-    unsigned long sum_g;
-    unsigned long sum_b;
-    unsigned long sum_a;
-    unsigned long sum_in_r;
-    unsigned long sum_in_g;
-    unsigned long sum_in_b;
-    unsigned long sum_in_a;
-    unsigned long sum_out_r;
-    unsigned long sum_out_g;
-    unsigned long sum_out_b;
-    unsigned long sum_out_a;
-
-    unsigned int wm = w - 1;
-    unsigned int hm = h - 1;
-    unsigned int w4 = w * 4;
-    unsigned int div = (radius * 2) + 1;
-    unsigned int mul_sum = stackblur_mul[radius];
-    unsigned char shr_sum = stackblur_shr[radius];
-
-    unsigned int minX = core * w / cores;
-    unsigned int maxX = (core + 1) * w / cores;
-
-    for ( x = minX; x < maxX; x++ )
-    {
-        sum_r = sum_g = sum_b = sum_a =
-            sum_in_r = sum_in_g = sum_in_b = sum_in_a =
-            sum_out_r = sum_out_g = sum_out_b = sum_out_a = 0;
-
-        src_ptr = src + 4 * x; // x,0
-        for ( i = 0; i <= radius; i++ )
-        {
-            stack_ptr = &stack[i * 4];
-            stack_ptr[0] = src_ptr[0];
-            stack_ptr[1] = src_ptr[1];
-            stack_ptr[2] = src_ptr[2];
-            stack_ptr[3] = src_ptr[3];
-            sum_r += src_ptr[0] * (i + 1);
-            sum_g += src_ptr[1] * (i + 1);
-            sum_b += src_ptr[2] * (i + 1);
-            sum_a += src_ptr[3] * (i + 1);
-            sum_out_r += src_ptr[0];
-            sum_out_g += src_ptr[1];
-            sum_out_b += src_ptr[2];
-            sum_out_a += src_ptr[3];
-        }
-        for ( i = 1; i <= radius; i++ )
-        {
-            if ( i <= hm ) src_ptr += w4; // +stride
-
-            stack_ptr = &stack[4 * (i + radius)];
-            stack_ptr[0] = src_ptr[0];
-            stack_ptr[1] = src_ptr[1];
-            stack_ptr[2] = src_ptr[2];
-            stack_ptr[3] = src_ptr[3];
-            sum_r += src_ptr[0] * (radius + 1 - i);
-            sum_g += src_ptr[1] * (radius + 1 - i);
-            sum_b += src_ptr[2] * (radius + 1 - i);
-            sum_a += src_ptr[3] * (radius + 1 - i);
-            sum_in_r += src_ptr[0];
-            sum_in_g += src_ptr[1];
-            sum_in_b += src_ptr[2];
-            sum_in_a += src_ptr[3];
-        }
-
-        sp = radius;
-        yp = radius;
-        if ( yp > hm ) yp = hm;
-        src_ptr = src + 4 * (x + yp * w); // img.pix_ptr(x, yp);
-        dst_ptr = src + 4 * x; // img.pix_ptr(x, 0);
-        for ( y = 0; y < h; y++ )
-        {
-            dst_ptr[0] = static_cast<uint8_t>((sum_r * mul_sum) >> shr_sum);
-            dst_ptr[1] = static_cast<uint8_t>((sum_g * mul_sum) >> shr_sum);
-            dst_ptr[2] = static_cast<uint8_t>((sum_b * mul_sum) >> shr_sum);
-            dst_ptr[3] = static_cast<uint8_t>((sum_a * mul_sum) >> shr_sum);
-            dst_ptr += w4;
-
-            sum_r -= sum_out_r;
-            sum_g -= sum_out_g;
-            sum_b -= sum_out_b;
-            sum_a -= sum_out_a;
-
-            stack_start = sp + div - radius;
-            if ( stack_start >= div ) stack_start -= div;
-            stack_ptr = &stack[4 * stack_start];
-
-            sum_out_r -= stack_ptr[0];
-            sum_out_g -= stack_ptr[1];
-            sum_out_b -= stack_ptr[2];
-            sum_out_a -= stack_ptr[3];
-
-            if ( yp < hm )
+            for ( unsigned int j = 0; j < kColourCount; ++j )
             {
-                src_ptr += w4; // stride
-                ++yp;
+                sum_colour[j] += src_ptr[j] * ( radius + 1 - i );
+            }
+            for ( unsigned int j = 0; j < kColourCount; ++j )
+            {
+                sum_in_colour[j] += src_ptr[j];
+            }
+        }
+
+        unsigned int sp = radius;
+        unsigned int coord_p = std::min( radius, coord_1_limit );
+        unsigned int src_ptr_shift = isLineSegment ? ( coord_p + coord_2 * w ) : ( coord_2 + coord_p * w );
+
+        src_ptr = src + kColourCount * src_ptr_shift;
+        unsigned char* dst_ptr = src + coord_2 * coord_2_shift;
+        for ( unsigned int coord_1 = 0; coord_1 < axis_1_size; ++coord_1 )
+        {// iterate through pixels inside segment element
+            for ( unsigned int j = 0; j < kColourCount; ++j )
+            {
+                dst_ptr[j] = static_cast<uint8_t>( ( sum_colour[j] * mul_sum ) >> shr_sum );
+            }
+            dst_ptr += coord_1_shift;
+
+            for ( unsigned int j = 0; j < kColourCount; ++j )
+            {
+                sum_colour[j] -= sum_out_colour[j];
             }
 
-            stack_ptr[0] = src_ptr[0];
-            stack_ptr[1] = src_ptr[1];
-            stack_ptr[2] = src_ptr[2];
-            stack_ptr[3] = src_ptr[3];
+            unsigned int stack_start = sp + div - radius;
+            if ( stack_start >= div )
+            {
+                stack_start -= div;
+            }
+            unsigned char* stack_ptr = &stack[kColourCount * stack_start];
 
-            sum_in_r += src_ptr[0];
-            sum_in_g += src_ptr[1];
-            sum_in_b += src_ptr[2];
-            sum_in_a += src_ptr[3];
-            sum_r += sum_in_r;
-            sum_g += sum_in_g;
-            sum_b += sum_in_b;
-            sum_a += sum_in_a;
+            for ( unsigned int j = 0; j < kColourCount; ++j )
+            {
+                sum_out_colour[j] -= stack_ptr[j];
+            }
+
+            if ( coord_p < coord_1_limit )
+            {
+                src_ptr += coord_1_shift;
+                ++coord_p;
+            }
+
+            memcpy( stack_ptr, src_ptr, kColourCount );
+
+            for ( unsigned int j = 0; j < kColourCount; ++j )
+            {
+                sum_in_colour[j] += src_ptr[j];
+            }
+            for ( unsigned int j = 0; j < kColourCount; ++j )
+            {
+                sum_colour[j] += sum_in_colour[j];
+            }
 
             ++sp;
-            if ( sp >= div ) sp = 0;
-            stack_ptr = &stack[sp * 4];
+            if ( sp >= div )
+            {
+                sp = 0;
+            }
+            stack_ptr = &stack[sp * kColourCount];
 
-            sum_out_r += stack_ptr[0];
-            sum_out_g += stack_ptr[1];
-            sum_out_b += stack_ptr[2];
-            sum_out_a += stack_ptr[3];
-            sum_in_r -= stack_ptr[0];
-            sum_in_g -= stack_ptr[1];
-            sum_in_b -= stack_ptr[2];
-            sum_in_a -= stack_ptr[3];
+            for ( unsigned int j = 0; j < kColourCount; ++j )
+            {
+                sum_out_colour[j] += stack_ptr[j];
+            }
+            for ( unsigned int j = 0; j < kColourCount; ++j )
+            {
+                sum_in_colour[j] -= stack_ptr[j];
+            }
         }
-
-    }
-}
-
-void stackblurJob( unsigned char* src, ///< input image data
-                   unsigned int w, ///< image width
-                   unsigned int h, ///< image height
-                   unsigned int radius, ///< blur intensity (should be in 2..254 range)
-                   int cores, ///< total number of working threads
-                   int core, ///< current thread number
-                   int step, ///< step of processing (1,2)
-                   unsigned char* stack ///< stack buffer
-)
-{
-    if ( step == 1 )
-    {
-        stackblur_step1( src, w, h, radius, cores, core, stack );
-    }
-    else
-    {
-        stackblur_step2( src, w, h, radius, cores, core, stack );
     }
 }
 
 class stack_blur_task : public pfc::thread
 {
 public:
+    stack_blur_task( unsigned char* src, unsigned int w, unsigned int h, unsigned int radius, int cores, int core, unsigned char* stack )
+        : src( src )
+        , w( w )
+        , h( h )
+        , radius( radius )
+        , cores( cores )
+        , core( core )
+        , stack( stack )
+    {
+    }
+
+    void threadProc() override
+    {
+        const unsigned int axisSize = iterateByLines ? h : w;
+        const unsigned int segmentStart = ( core * axisSize / cores );
+        const unsigned int segmentEnd = ( core + 1 ) * axisSize / cores;
+
+        stackblur_by_segment( src, w, h, radius, iterateByLines, segmentStart, segmentEnd, stack );
+    }
+
+    void changeAxis()
+    {
+        iterateByLines = false;
+    }
+
+private:
     unsigned char* src;
-    unsigned int w;
-    unsigned int h;
-    unsigned int radius;
-    int cores;
-    int core;
-    int step;
+
+    const unsigned int w;
+    const unsigned int h;
+    const unsigned int radius;
+    const int cores;
+    const int core;
+
+    bool iterateByLines = true;
     unsigned char* stack;
-
-    inline stack_blur_task( unsigned char* src, unsigned int w, unsigned int h, unsigned int radius, int cores, int core, int step, unsigned char* stack )
-    {
-        this->src = src;
-        this->w = w;
-        this->h = h;
-        this->radius = radius;
-        this->cores = cores;
-        this->core = core;
-        this->step = step;
-        this->stack = stack;
-    }
-
-    inline void threadProc()
-    {
-        stackblurJob( src, w, h, radius, cores, core, step, stack );
-    }
 };
 
 void stackblur( unsigned char* src, ///< input image data
-                unsigned int w, ///< image width
-                unsigned int h, ///< image height
+                unsigned int w,     ///< image width
+                unsigned int h,     ///< image height
                 unsigned int radius ///< blur intensity (should be in 2..254 range)
 )
 {
-    if ( radius > 254 || radius < 2 )
-    {
-        return;
-    }
+    assert( radius <= 254 && radius >= 2 );
 
-    unsigned int cores = std::max( static_cast<t_size>(1), pfc::getOptimalWorkerThreadCount() );
-    unsigned int div = (radius * 2) + 1;
+    const size_t cores = std::max( static_cast<t_size>( 1 ), pfc::getOptimalWorkerThreadCount() );
+    const unsigned int div = ( radius * 2 ) + 1;
     std::vector<unsigned char> stack( div * 4 * cores );
 
     if ( cores == 1 )
-    {// no multithreading
-        stackblurJob( src, w, h, radius, 1, 0, 1, stack.data() );
-        stackblurJob( src, w, h, radius, 1, 0, 2, stack.data() );
+    { // no multithreading
+        stackblur_by_segment( src, w, h, radius, true, 0, h, stack.data() );
+        stackblur_by_segment( src, w, h, radius, false, 0, w, stack.data() );
     }
     else
     {
         std::vector<std::unique_ptr<stack_blur_task>> workers;
-        for ( unsigned int i = 0; i < cores; ++i )
+        workers.reserve( cores );
+
+        for ( size_t i = 0; i < cores; ++i )
         {
             auto& worker = workers.emplace_back(
-                std::make_unique<stack_blur_task>( src, w, h, radius, cores, i, 1, &stack[div * 4 * i] )
-            );
+                std::make_unique<stack_blur_task>( src, w, h, radius, cores, i, &stack[div * 4 * i] ) );
             worker->start();
         }
 
@@ -435,7 +262,7 @@ void stackblur( unsigned char* src, ///< input image data
 
         for ( auto& worker : workers )
         {
-            worker->step = 2;
+            worker->changeAxis();
             worker->start();
         }
 
@@ -446,7 +273,7 @@ void stackblur( unsigned char* src, ///< input image data
     }
 }
 
-}
+} // namespace
 
 namespace smp::utils
 {
@@ -471,4 +298,4 @@ void stack_blur_filter( Gdiplus::Bitmap& img, int radius ) throw()
     }
 }
 
-}
+} // namespace smp::utils
