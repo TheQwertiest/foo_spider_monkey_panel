@@ -253,9 +253,6 @@
     <ClCompile Include="com_objects\com_tools.cpp">
       <Filter>com_objects</Filter>
     </ClCompile>
-    <ClCompile Include="js_objects\internal\html_dialog_impl.cpp">
-      <Filter>js_objects\internal</Filter>
-    </ClCompile>
     <ClCompile Include="ui\ui_html.cpp">
       <Filter>ui</Filter>
     </ClCompile>
@@ -576,9 +573,6 @@
     <ClInclude Include="com_objects\html_moniker.h">
       <Filter>com_objects</Filter>
     </ClInclude>
-    <ClInclude Include="js_objects\internal\html_dialog_impl.h">
-      <Filter>js_objects\internal</Filter>
-    </ClInclude>
     <ClInclude Include="com_objects\dispatch_ptr.h">
       <Filter>com_objects</Filter>
     </ClInclude>
@@ -586,6 +580,9 @@
       <Filter>ui</Filter>
     </ClInclude>
     <ClInclude Include="com_objects\scriptable_web_browser.h">
+      <Filter>com_objects</Filter>
+    </ClInclude>
+    <ClInclude Include="com_objects\host_external.h">
       <Filter>com_objects</Filter>
     </ClInclude>
   </ItemGroup>

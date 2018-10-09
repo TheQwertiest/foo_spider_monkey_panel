@@ -34,6 +34,18 @@ __interface IWrappedJs : IDispatch
 };
 
 [
+    object,
+    dual,
+    pointer_default( unique ),
+    library_block,
+    uuid( "98D9779A-4398-47D3-8CA4-B4C8BDE60526" )
+] __interface IHostExternal : IDispatch
+{
+    [propget] STDMETHOD(dialogArguments)([out, retval]VARIANT* pData);
+};
+_COM_SMARTPTR_TYPEDEF(IHostExternal, __uuidof(IHostExternal));
+
+[
 	object,
 	dual,
 	pointer_default(unique),

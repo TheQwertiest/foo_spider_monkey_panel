@@ -1,12 +1,9 @@
 #include <stdafx.h>
 #include "utils.h"
 
-#include <ui/ui_input_box.h>
-
 #include <js_engine/js_to_native_invoker.h>
 #include <js_objects/fb_metadb_handle.h>
 #include <js_objects/gdi_bitmap.h>
-#include <js_objects/internal/html_dialog_impl.h>
 #include <js_utils/js_error_helper.h>
 #include <js_utils/gdi_error_helper.h>
 #include <js_utils/winapi_error_helper.h>
@@ -14,6 +11,9 @@
 #include <js_utils/art_helper.h>
 #include <js_utils/file_helpers.h>
 #include <js_utils/scope_helper.h>
+
+#include <ui/ui_input_box.h>
+#include <ui/ui_html.h>
 
 #include <helpers.h>
 
@@ -665,7 +665,19 @@ JsUtils::ReadTextFileWithOpt( size_t optArgCount, const pfc::string8_fast& fileP
 std::optional<JS::Value> 
 JsUtils::ShowHtmlDialog( uint32_t hWnd, const std::wstring& htmlCode, JS::HandleValue options )
 {
-    return ShowHtmlDialogImpl( pJsCtx_, hWnd, htmlCode, options );
+    modal_dialog_scope scope;
+    if ( scope.can_create() )
+    {
+        scope.initialize( HWND( hWnd ) );
+        smp::ui::CDialogHtml dlg( pJsCtx_, htmlCode, options );
+        int iRet = (int)dlg.DoModal( HWND( hWnd ) );
+        if ( -1 == iRet || IDABORT == iRet )
+        {
+            return std::nullopt;
+        }
+    }
+
+    return JS::UndefinedValue();
 }
 
 std::optional<JS::Value>
