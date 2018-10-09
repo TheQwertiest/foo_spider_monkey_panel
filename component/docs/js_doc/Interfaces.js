@@ -294,13 +294,18 @@ function IFbUtils() {
     /**
      * Invokes drag-n-drop operation (see {@link https://msdn.microsoft.com/en-us/library/windows/desktop/ms678486.aspx}).
      *
+     * Quick tips:
+     * - If you need only to drag from your panel with copy (i.e. without physically moving them): 
+     *      use only fb.DoDragDrop(handles, DROPEFFECT_COPY | DROPEFFECT_LINK ).
+     * - If you need only to recieve drop to your panel with copy: 
+     *      handle on_drop_* callbacks, while setting action.effect argument to (DROPEFFECT_COPY | DROPEFFECT_LINK ).
+     * 
      * Full drag-n-drop interface description:
      * - Drag-n-drop interface is based on Microsoft IDropSource and IDropTarget interfaces, so a lot of info (including examples) could be gathered from MSDN (IDropSource, IDropTarget, DoDragDrop, DROPEFFECT).
-     * 
      * - Drag operation is started with DoDragDrop (whether it is called by your panel, or externally) with okEffects argument supplied.
      * - DoDragDrop blocks code execution until the drag operation is finished (callbacks will be called properly though). It returns effect from Action.Effect from on_drag_drop after completition.
-     * - (SpiderMonkey Panel specific) Drag operation is canceled when any mouse button is pressed.
-     * - (SpiderMonkey Panel specific) All mouse callbacks are suppressed during drag operation (including on_mouse_lbtn_up, but excluding on_mouse_mbtn_up and on_mouse_rbtn_up).
+     * - (Spider Monkey Panel specific) Drag operation is canceled when any mouse button is pressed.
+     * - (Spider Monkey Panel specific) All mouse callbacks are suppressed during drag operation (including on_mouse_lbtn_up, but excluding on_mouse_mbtn_up and on_mouse_rbtn_up).
      * - Every drag callback receives Action argument. Action.Effect contains okEffects from DoDragDrop call. Action.Effect should be changed to the desired effect in the callback. 
      *   If the returned Action.Effect was not in okEffects or is equal to DROPEFFECT_NONE (=== 0), then drop will be denied: 
      *   cursor icon will be changed, on_drag_drop won't be called after releasing lmbtn, on_drag_leave will be called instead.
