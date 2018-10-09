@@ -49,12 +49,9 @@ Or just use the [Migration Guide](https://github.com/TheQwertiest/foo_spider_mon
 
 ## Credits
 - [marc2003](https://github.com/marc2k3): original [foo_jscript_panel](https://github.com/marc2k3/foo_jscript_panel), [sample scripts](https://github.com/marc2k3/smp_2003) and multiple contributions to this project.
-
 - [T.P. Wang](https://hydrogenaud.io/index.php?action=profile;u=44175): original [WSH Panel Mod](https://code.google.com/archive/p/foo-wsh-panel-mod).
-
 - [#jsapi IRC channel](https://wiki.mozilla.org/IRC): wouldn't make it through without them, love you guys!  
   Especially huge thanks to sfink and jonco, who spent literally tens of hours helping me!
-
 - [Respective authors](THIRD_PARTY_NOTICES.md) of the code being used in this project.
 
 [changelog]: CHANGELOG.md
