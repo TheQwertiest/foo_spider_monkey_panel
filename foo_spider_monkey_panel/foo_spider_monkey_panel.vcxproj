@@ -172,6 +172,9 @@
     <ClCompile Include="ui\ui_conf.cpp" />
     <ClCompile Include="ui\ui_find.cpp" />
     <ClCompile Include="ui\ui_goto.cpp" />
+    <ClCompile Include="ui\ui_html.cpp">
+      <MultiProcessorCompilation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</MultiProcessorCompilation>
+    </ClCompile>
     <ClCompile Include="ui\ui_input_box.cpp" />
     <ClCompile Include="ui\ui_name_value_edit.cpp" />
     <ClCompile Include="ui\ui_pref.cpp" />
@@ -195,6 +198,7 @@
     <ClInclude Include="com_objects\drop_target_impl.h" />
     <ClInclude Include="com_objects\host_drop_target.h" />
     <ClInclude Include="com_objects\html_moniker.h" />
+    <ClInclude Include="com_objects\scriptable_web_browser.h" />
     <ClInclude Include="com_objects\script_interface.h" />
     <ClInclude Include="com_objects\script_interface_impl.h" />
     <ClInclude Include="convert\com.h" />
@@ -278,6 +282,7 @@
     <ClInclude Include="ui\ui_conf.h" />
     <ClInclude Include="ui\ui_find.h" />
     <ClInclude Include="ui\ui_goto.h" />
+    <ClInclude Include="ui\ui_html.h" />
     <ClInclude Include="ui\ui_input_box.h" />
     <ClInclude Include="ui\ui_name_value_edit.h" />
     <ClInclude Include="ui\ui_pref.h" />

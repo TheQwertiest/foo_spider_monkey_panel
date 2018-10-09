@@ -256,6 +256,9 @@
     <ClCompile Include="js_objects\internal\html_dialog_impl.cpp">
       <Filter>js_objects\internal</Filter>
     </ClCompile>
+    <ClCompile Include="ui\ui_html.cpp">
+      <Filter>ui</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="js_engine\js_engine.h">
@@ -577,6 +580,12 @@
       <Filter>js_objects\internal</Filter>
     </ClInclude>
     <ClInclude Include="com_objects\dispatch_ptr.h">
+      <Filter>com_objects</Filter>
+    </ClInclude>
+    <ClInclude Include="ui\ui_html.h">
+      <Filter>ui</Filter>
+    </ClInclude>
+    <ClInclude Include="com_objects\scriptable_web_browser.h">
       <Filter>com_objects</Filter>
     </ClInclude>
   </ItemGroup>

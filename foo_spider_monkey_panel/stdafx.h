@@ -39,6 +39,7 @@ using std::max;
 #include <atlddx.h>
 #include <atlcrack.h>
 #include <atltheme.h>
+#include <atltypes.h>
 
 // Scintilla
 #include <Scintilla.h>

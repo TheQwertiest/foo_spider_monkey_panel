@@ -8,23 +8,13 @@
 #include <js_utils/scope_helper.h>
 #include <utils/timer_helpers.h>
 #include <convert/com.h>
-
+#include <ui/ui_html.h>
 #include <com_objects/html_moniker.h>
 
 #include <helpers.h>
 
-#pragma warning( push )
-#pragma warning( disable : 4192 )
-#pragma warning( disable : 4146 )
-#pragma warning( disable : 4278 )
-#import <mshtml.tlb>
-#pragma warning( pop )
-
 // std::time
 #include <ctime>
-
-_COM_SMARTPTR_TYPEDEF( IMoniker, __uuidof( IMoniker ) );
-_COM_SMARTPTR_TYPEDEF( IHostDialogHelper, __uuidof(IHostDialogHelper) );
 
 
 namespace mozjs
@@ -32,6 +22,17 @@ namespace mozjs
 std::optional<JS::Value>
 ShowHtmlDialogImpl( JSContext* cx, uint32_t hWnd, const std::wstring& htmlCodeOrPath, JS::HandleValue options )
 {
+    modal_dialog_scope scope;
+    if ( scope.can_create() )
+    {
+        scope.initialize( HWND( hWnd ) );
+        smp::ui::CDialogHtml dlg( htmlCodeOrPath );
+        dlg.DoModal( HWND( hWnd ) );
+    }
+
+    return JS::NullValue();
+    /*
+
     if ( !hWnd )
     {
         JS_ReportErrorUTF8( cx, "Invalid window ID: %u", hWnd );
@@ -212,6 +213,7 @@ ShowHtmlDialogImpl( JSContext* cx, uint32_t hWnd, const std::wstring& htmlCodeOr
         JS_ReportErrorUTF8( cx, "COM error: message %s; source: %s; description: %s", errorMsg8.c_str(), errorSource8.c_str(), errorDesc8.c_str() );
         return std::nullopt;
     }
+    */
 }
 
 } // namespace mozjs

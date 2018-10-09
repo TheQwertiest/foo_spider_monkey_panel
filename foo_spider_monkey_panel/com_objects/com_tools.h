@@ -27,8 +27,7 @@
 		qi_entry_done: \
 			reinterpret_cast<IUnknown*>(*ppv)->AddRef(); \
 			return S_OK; \
-		} \
-	private:
+		}	
 
 class name_to_id_cache
 {

@@ -2,11 +2,6 @@
 // Microsoft Visual C++ generated include file.
 // Used by foo_spider_monkey_panel.rc
 //
-
-#ifndef IDC_STATIC
-#   define IDC_STATIC -1
-#endif
-
 #define IDR_SCRIPT                      101
 #define IDD_DIALOG_CONFIG               102
 #define IDD_DIALOG_FIND                 103
@@ -16,6 +11,7 @@
 #define IDD_DIALOG_NAME_VALUE           108
 #define IDD_DIALOG_PROPERTIES           109
 #define IDAPPLY                         110
+#define IDD_DIALOG_HTML                 111
 #define IDC_STATIC_GUID                 1000
 #define IDC_EDIT                        1001
 #define IDC_TOOLS                       1002
@@ -48,14 +44,21 @@
 #define IDD_DIALOG_INPUT                1062
 #define IDC_INPUT_PROMPT                1063
 #define IDC_INPUT_VALUE                 1064
+#define IDC_EXPLORER1                   1065
+#define IDC_IE                          1065
+#define IDC_IE_PLACEHOLDER              1066
+
+#ifndef IDC_STATIC
+#define IDC_STATIC                      -1
+#endif
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        111
+#define _APS_NEXT_RESOURCE_VALUE        115
 #define _APS_NEXT_COMMAND_VALUE         40012
-#define _APS_NEXT_CONTROL_VALUE         1065
+#define _APS_NEXT_CONTROL_VALUE         1067
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif
