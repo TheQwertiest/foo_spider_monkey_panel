@@ -17,6 +17,7 @@ Base functionality includes:
 - Access Media Library with ability to sort and filter it's contents.
 - Per panel settings storage. 
 - Built-in web and filesystem access.
+- [foo_acfu](https://acfu.3dyd.com) integration.
 - And more!
 
 ## Getting started!
@@ -47,10 +48,13 @@ Or just use the [Migration Guide](https://github.com/TheQwertiest/foo_spider_mon
 [Nightly build](https://ci.appveyor.com/api/projects/theqwertiest/foo-spider-monkey-panel/artifacts/_result%2FWin32_Release%2Ffoo_spider_monkey_panel.fb2k-component?branch=master&job=Configuration%3A%20Release)
 
 ## Credits
-- [marc2003](https://github.com/marc2k3): original [foo_jscript_panel](https://github.com/marc2k3/foo_jscript_panel), [sample scripts](https://github.com/marc2k3/smp_2003) and multiple contributions to this project. 
-- [T.P. Wang](https://hydrogenaud.io/index.php?action=profile;u=44175): original [WSH Panel Mod](https://code.google.com/archive/p/foo-wsh-panel-mod).  
+- [marc2003](https://github.com/marc2k3): original [foo_jscript_panel](https://github.com/marc2k3/foo_jscript_panel), [sample scripts](https://github.com/marc2k3/smp_2003) and multiple contributions to this project.
+
+- [T.P. Wang](https://hydrogenaud.io/index.php?action=profile;u=44175): original [WSH Panel Mod](https://code.google.com/archive/p/foo-wsh-panel-mod).
+
 - [#jsapi IRC channel](https://wiki.mozilla.org/IRC): wouldn't make it through without them, love you guys!  
-  Especially huge thanks to sfink and jonco, who spent literally tens of hours helping me!  
+  Especially huge thanks to sfink and jonco, who spent literally tens of hours helping me!
+
 - [Respective authors](THIRD_PARTY_NOTICES.md) of the code being used in this project.
 
 [changelog]: CHANGELOG.md
@@ -60,4 +64,3 @@ Or just use the [Migration Guide](https://github.com/TheQwertiest/foo_spider_mon
 [appveyor_badge]: https://ci.appveyor.com/api/projects/status/4fg787ijr73u7mxc/branch/master?svg=true
 [codacy_badge]: https://api.codacy.com/project/badge/Grade/19c686bcf26d46e6a639bdece347ae3d
 [codefactor_badge]: https://www.codefactor.io/repository/github/theqwertiest/foo_spider_monkey_panel/badge/master
-
