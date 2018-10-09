@@ -100,9 +100,6 @@ LRESULT CDialogHtml::OnInitDialog( HWND hwndFocus, LPARAM lParam )
         }
         hr = pDocument->close();
         IF_HR_FAILED_RETURN_WITH_REPORT( pJsCtx_, hr, -1, close );
-
-        //hr = pHtaWindow->focus();
-        //IF_HR_FAILED_RETURN_WITH_REPORT( pJsCtx_, hr, -1, "focus" );
     }
     catch ( const _com_error& e )
     {
@@ -154,25 +151,40 @@ void CDialogHtml::OnTitleChange( BSTR title )
 
 STDMETHODIMP CDialogHtml::moveTo( LONG x, LONG y )
 {
+    if ( RECT rect; GetWindowRect( &rect ) )
+    {
+        MoveWindow( x, y, (rect.right - rect.left) + x, (rect.bottom - rect.top) + y );
+    }
     return S_OK;
 }
 
 STDMETHODIMP CDialogHtml::moveBy( LONG x, LONG y )
 {
+    if ( RECT rect; GetWindowRect( &rect ) )
+    {
+        MoveWindow( rect.left + x, rect.top + y, rect.right + x, rect.bottom + y );
+    }
     return S_OK;
 }
 
 STDMETHODIMP CDialogHtml::resizeTo( LONG x, LONG y )
 {
-    ResizeClient( x, y );
+    if ( RECT windowRect, clientRect; GetWindowRect( &windowRect ) && GetClientRect(&clientRect) ) 
+    {
+        const LONG clientW = x - (( windowRect.right - windowRect.left ) - clientRect.right);
+        const LONG clientH = y - (( windowRect.bottom - windowRect.top ) - clientRect.bottom);
+        ResizeClient( clientW, clientH );
+    }
     return S_OK;
 }
 
 STDMETHODIMP CDialogHtml::resizeBy( LONG x, LONG y )
 {
-    if ( RECT rect; GetClientRect( &rect ) )
+    if ( RECT clientRect; GetClientRect( &clientRect ) )
     {
-        ResizeClient( rect.left + x, rect.top + y );
+        const LONG clientW = x + clientRect.right;
+        const LONG clientH = y + clientRect.bottom;
+        ResizeClient( clientW, clientH );
     }
 
     return S_OK;
