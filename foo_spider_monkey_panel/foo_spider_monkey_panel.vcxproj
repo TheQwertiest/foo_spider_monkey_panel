@@ -170,7 +170,7 @@
     <ClCompile Include="ui\ui_find.cpp" />
     <ClCompile Include="ui\ui_goto.cpp" />
     <ClCompile Include="ui\ui_html.cpp">
-      <MultiProcessorCompilation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</MultiProcessorCompilation>
+      <MultiProcessorCompilation>false</MultiProcessorCompilation>
     </ClCompile>
     <ClCompile Include="ui\ui_input_box.cpp" />
     <ClCompile Include="ui\ui_name_value_edit.cpp" />
