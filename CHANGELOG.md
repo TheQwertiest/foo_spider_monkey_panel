@@ -13,7 +13,8 @@ ___
 - Updated `Interfaces.js`:
   - Updated `utils.ShowHtmlDialog()` doc.
   - Updated `fb.DoDragDrop()` doc.
-- Updated `ActoveXObject.js`: added info on helper methods `ActiveX_Get`/`ActiveX_Set`.
+  - Updated `fb.IsMainMenuCommandChecked()` doc.
+- Updated `ActiveXObject.js`: added info on helper methods `ActiveX_Get`/`ActiveX_Set`.
 
 ## [1.0.2][] - 2018-10-05
 ### Fixed
