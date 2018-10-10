@@ -10,10 +10,14 @@ echo Updating submodules to their latest versions
 
 cd %ROOT_DIR%
 
-rem Shallow copy might not be enough
-git submodule update --init
-git submodule update --recursive --remote
-if errorlevel 1 goto fail
+git submodule update --init --recursive --remote
+if errorlevel 1 (
+  rem Sometimes happens with shallow copies
+  git submodule foreach git fetch
+  if errorlevel 1 goto fail
+  git submodule foreach git reset --hard origin
+  if errorlevel 1 goto fail
+)
 exit /b 0
 
 :fail
