@@ -10,6 +10,8 @@ echo Updating submodules to their latest versions
 
 cd %ROOT_DIR%
 
+rem Shallow copy might not be enough
+git submodule update --init
 git submodule update --recursive --remote
 if errorlevel 1 goto fail
 exit /b 0

@@ -16,7 +16,7 @@ git submodule update --init --depth=10
 if errorlevel 1 (
   git submodule update --init --depth=50
   if errorlevel 1 (
-    git submodule update --init --depth=100
+    git submodule update --init
     rem We tried T_T
     if errorlevel 1 goto fail
   )
