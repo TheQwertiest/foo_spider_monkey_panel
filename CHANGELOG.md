@@ -1,18 +1,31 @@
 # Changelog
 
-## [Unreleased]
+#### Table of Contents
+- [Unreleased](#unreleased)
+- [1.0.2](#102---2018-10-05)
+- [1.0.1](#101---2018-10-05)
+- [1.0.0](#100---2018-10-01)
+___
 
-## [1.0.2] - 2018-10-05
+## [Unreleased][]
+### Changed
+- Rewrote `utils.ShowHtmlDialog()`. It's no longer considered **\[Experimental]** and is safe to use.
+- Updated `Interfaces.js`:
+  - Updated `utils.ShowHtmlDialog()` doc.
+  - Updated `fb.DoDragDrop()` doc.
+- Updated `ActoveXObject.js`: added info on helper methods `ActiveX_Get`/`ActiveX_Set`.
+
+## [1.0.2][] - 2018-10-05
 ### Fixed
 - Fixed regression in `ActiveXObject` handling.
 
-## [1.0.1] - 2018-10-05
+## [1.0.1][] - 2018-10-05
 ### Added
 - Integrated `foo_acfu` update checks.
 - Added Scintilla line-wrap settings to `Preferences > Tools > Spider Monkey Panel`.
 
 ### Changed
-- **[Experimental]** Replaced `utils.CreateHtmlWindow()` with `utils.ShowHtmlDialog()`.
+- **\[Experimental]** Replaced `utils.CreateHtmlWindow()` with `utils.ShowHtmlDialog()`.
 - Updated `Interfaces.js`:
   - Updated `window.GetProperty()`/`window.SetProperty()` docs.
   - Updated `utils.Version` doc.
@@ -26,7 +39,7 @@
   - Rewrote html dialog sample (HtmlDialogWithCheckBox.txt).
 - Added a few fixes to `ActiveXObject` for better compatibility.
 
-## [1.0.0] - 2018-10-01
+## [1.0.0][] - 2018-10-01
 ### Added
 - Added stack trace to error reports.
 - API changes:
@@ -35,7 +48,7 @@
   - FbMetadbHandleList items now can be accessed with [] operator.
   - Added global `include()` method.
   - Added `window.DefinePanel` method.
-  - **[Experimental]** Added `utils.CreateHtmlWindow()` method.
+  - **\[Experimental]** Added `utils.CreateHtmlWindow()` method.
 
 ### Changed
 - Rewrote component to use Mozilla SpiderMonkey JavaScript engine.
@@ -49,7 +62,7 @@
   - More rigorous error checks.
 - Updated samples with compatibility fixes.
 
-[Unreleased]: https://github.com/theqwertiest/foo_spider_monkey_panel/compare/v1.0.2...HEAD
+[unreleased]: https://github.com/theqwertiest/foo_spider_monkey_panel/compare/v1.0.2...HEAD
 [1.0.2]: https://github.com/TheQwertiest/foo_spider_monkey_panel/compare/v1.0.1...v1.0.2
 [1.0.1]: https://github.com/TheQwertiest/foo_spider_monkey_panel/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/TheQwertiest/foo_spider_monkey_panel/compare/vanilla_2_0...v1.0.0
