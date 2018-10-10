@@ -3,10 +3,14 @@
 
 #include <js_utils/scope_helper.h>
 #include <js_utils/winapi_error_helper.h>
+#include <js_utils/js_property_helper.h>
 #include <com_objects/scriptable_web_browser.h>
 #include <com_objects/dispatch_ptr.h>
 #include <convert/js_to_native.h>
 #include <convert/com.h>
+
+#include <helpers.h>
+#include <foo_spider_monkey_panel.h>
 
 #pragma warning( push )
 #pragma warning( disable : 4192 )
@@ -14,7 +18,6 @@
 #pragma warning( disable : 4278 )
 #import <mshtml.tlb>
 #pragma warning( pop )
-
 
 namespace smp::ui
 {
@@ -27,30 +30,38 @@ CDialogHtml::CDialogHtml( JSContext* cx, const std::wstring& htmlCodeOrPath, JS:
     isInitSuccess = ParseOptions( options );
 }
 
+CDialogHtml::~CDialogHtml()
+{
+    if ( hIcon_ )
+    {
+        DestroyIcon( hIcon_ );
+    }
+}
+
 LRESULT CDialogHtml::OnInitDialog( HWND hwndFocus, LPARAM lParam )
 {
-    scope::final_action autoExit( [&]
-    {
+    scope::final_action autoExit( [&] {
         EndDialog( -1 );
     } );
 
     if ( !isInitSuccess )
-    {// report in ctor
+    { // report in ctor
         return -1;
     }
 
+    SetOptions();
+
     CAxWindow wndIE = GetDlgItem( IDC_IE );
-    IObjectWithSite* pOWS = NULL;
+    IObjectWithSitePtr pOWS = nullptr;
     HRESULT hr = wndIE.QueryHost( IID_IObjectWithSite, (void**)&pOWS );
     IF_HR_FAILED_RETURN_WITH_REPORT( pJsCtx_, hr, -1, QueryHost );
 
-    hr = pOWS->SetSite( static_cast<IServiceProvider*>(this) );
+    hr = pOWS->SetSite( static_cast<IServiceProvider*>( this ) );
     IF_HR_FAILED_RETURN_WITH_REPORT( pJsCtx_, hr, -1, SetSite );
 
     try
     {
         IWebBrowserPtr pBrowser;
-
         hr = wndIE.QueryControl( &pBrowser );
         IF_HR_FAILED_RETURN_WITH_REPORT( pJsCtx_, hr, -1, QueryControl );
 
@@ -153,7 +164,7 @@ STDMETHODIMP CDialogHtml::moveTo( LONG x, LONG y )
 {
     if ( RECT rect; GetWindowRect( &rect ) )
     {
-        MoveWindow( x, y, (rect.right - rect.left) + x, (rect.bottom - rect.top) + y );
+        MoveWindow( x, y, ( rect.right - rect.left ) + x, ( rect.bottom - rect.top ) + y );
     }
     return S_OK;
 }
@@ -169,10 +180,10 @@ STDMETHODIMP CDialogHtml::moveBy( LONG x, LONG y )
 
 STDMETHODIMP CDialogHtml::resizeTo( LONG x, LONG y )
 {
-    if ( RECT windowRect, clientRect; GetWindowRect( &windowRect ) && GetClientRect(&clientRect) ) 
+    if ( RECT windowRect, clientRect; GetWindowRect( &windowRect ) && GetClientRect( &clientRect ) )
     {
-        const LONG clientW = x - (( windowRect.right - windowRect.left ) - clientRect.right);
-        const LONG clientH = y - (( windowRect.bottom - windowRect.top ) - clientRect.bottom);
+        const LONG clientW = x - ( ( windowRect.right - windowRect.left ) - clientRect.right );
+        const LONG clientH = y - ( ( windowRect.bottom - windowRect.top ) - clientRect.bottom );
         ResizeClient( clientW, clientH );
     }
     return S_OK;
@@ -192,7 +203,7 @@ STDMETHODIMP CDialogHtml::resizeBy( LONG x, LONG y )
 
 STDMETHODIMP CDialogHtml::ShowContextMenu( DWORD dwID, POINT* ppt, IUnknown* pcmdtReserved, IDispatch* pdispReserved )
 {
-    if ( !pDefaultUiHandler_ || !showContextMenu_ )
+    if ( !pDefaultUiHandler_ || !isContextMenuEnabled_ )
     {
         return S_OK;
     }
@@ -208,9 +219,16 @@ STDMETHODIMP CDialogHtml::GetHostInfo( DOCHOSTUIINFO* pInfo )
     }
 
     HRESULT hr = pDefaultUiHandler_->GetHostInfo( pInfo );
-    if ( !enableSelection_ && SUCCEEDED( hr ) && pInfo )
+    if ( SUCCEEDED( hr ) && pInfo )
     {
-        pInfo->dwFlags |= DOCHOSTUIFLAG_DIALOG;
+        if ( !isFormSelectionEnabled_ )
+        {
+            pInfo->dwFlags |= DOCHOSTUIFLAG_DIALOG;
+        }
+        if ( !isScrollEnabled_ )
+        {
+            pInfo->dwFlags |= DOCHOSTUIFLAG_SCROLL_NO;
+        }
     }
 
     return hr;
@@ -323,7 +341,7 @@ STDMETHODIMP CDialogHtml::GetExternal( IDispatch** ppDispatch )
         return S_OK;
     }
 
-    if ( ppDispatch && pExternal_)
+    if ( ppDispatch && pExternal_ )
     {
         pExternal_.AddRef();
         *ppDispatch = pExternal_;
@@ -379,59 +397,69 @@ bool CDialogHtml::ParseOptions( JS::HandleValue options )
     }
 
     JS::RootedObject jsObject( pJsCtx_, &options.toObject() );
-    bool hasProp;
-    if ( !JS_HasProperty( pJsCtx_, jsObject, "text_selection", &hasProp ) )
+    bool hasFailed = false; // TODO: replace with exception
+
+    width_ = GetOptionalProperty<uint32_t>( pJsCtx_, jsObject, "width", hasFailed );
+    if ( hasFailed )
     { // reports
         return false;
     }
 
-    if ( hasProp )
-    {
-        JS::RootedValue jsValue( pJsCtx_ );
-        if ( !JS_GetProperty( pJsCtx_, jsObject, "text_selection", &jsValue ) )
-        { // reports
-            return false;
-        }
-
-        auto retVal = convert::to_native::ToValue<bool>( pJsCtx_, jsValue );
-        if ( !retVal )
-        {
-            JS_ReportErrorUTF8( pJsCtx_, "`text_selection` can't be converted to bool" );
-            return false;
-        }
-
-        enableSelection_ = retVal.value();
-    }
-
-    if ( !JS_HasProperty( pJsCtx_, jsObject, "context_menu", &hasProp ) )
+    height_ = GetOptionalProperty<uint32_t>( pJsCtx_, jsObject, "height", hasFailed );
+    if ( hasFailed )
     { // reports
         return false;
     }
 
-    if ( hasProp )
-    {
-        JS::RootedValue jsValue( pJsCtx_ );
-        if ( !JS_GetProperty( pJsCtx_, jsObject, "context_menu", &jsValue ) )
-        { // reports
-            return false;
-        }
-
-        auto retVal = convert::to_native::ToValue<bool>( pJsCtx_, jsValue );
-        if ( !retVal )
-        {
-            JS_ReportErrorUTF8( pJsCtx_, "`context_menu` can't be converted to bool" );
-            return false;
-        }
-
-        showContextMenu_ = retVal.value();
-    }
-
-    if ( !JS_HasProperty( pJsCtx_, jsObject, "data", &hasProp ) )
+    x_ = GetOptionalProperty<int32_t>( pJsCtx_, jsObject, "x", hasFailed );
+    if ( hasFailed )
     { // reports
         return false;
     }
 
-    if ( hasProp )
+    y_ = GetOptionalProperty<int32_t>( pJsCtx_, jsObject, "y", hasFailed );
+    if ( hasFailed )
+    { // reports
+        return false;
+    }
+
+    isCentered_ = GetOptionalProperty<bool>( pJsCtx_, jsObject, "center", hasFailed ).value_or( true );
+    if ( hasFailed )
+    { // reports
+        return false;
+    }
+
+    isContextMenuEnabled_ = GetOptionalProperty<bool>( pJsCtx_, jsObject, "context_menu", hasFailed ).value_or( false );
+    if ( hasFailed )
+    { // reports
+        return false;
+    }
+
+    isFormSelectionEnabled_ = GetOptionalProperty<bool>( pJsCtx_, jsObject, "selection", hasFailed ).value_or( false );
+    if ( hasFailed )
+    { // reports
+        return false;
+    }
+
+    isResizable_ = GetOptionalProperty<bool>( pJsCtx_, jsObject, "resizable", hasFailed ).value_or( false );
+    if ( hasFailed )
+    { // reports
+        return false;
+    }
+
+    isScrollEnabled_ = GetOptionalProperty<bool>( pJsCtx_, jsObject, "scroll", hasFailed ).value_or( false );
+    if ( hasFailed )
+    { // reports
+        return false;
+    }
+
+    bool hasProperty;
+    if ( !JS_HasProperty( pJsCtx_, jsObject, "data", &hasProperty ) )
+    { // reports
+        return false;
+    }
+
+    if ( hasProperty )
     {
         _variant_t data;
 
@@ -447,10 +475,45 @@ bool CDialogHtml::ParseOptions( JS::HandleValue options )
             return false;
         }
 
-        pExternal_.Attach(new com_object_impl_t<smp::com::HostExternal>( data ));
+        pExternal_.Attach( new com_object_impl_t<smp::com::HostExternal>( data ) );
     }
 
     return true;
+}
+
+void CDialogHtml::SetOptions()
+{
+    if ( !isResizable_ )
+    {
+        ModifyStyle( WS_THICKFRAME, WS_BORDER, SWP_FRAMECHANGED ); ///< ignore return value, since we don't really care
+    }
+
+    if ( width_ || height_ )
+    {
+        resizeTo( width_.value_or( 250 ), height_.value_or( 100 ) ); ///< ignore return value
+    }
+
+    // Center only after we know the size
+    if ( isCentered_ )
+    {
+        CenterWindow(); ///< ignore return value
+    }
+
+    if ( x_ || y_ )
+    {
+        moveTo( x_.value_or( 0 ), y_.value_or( 0 ) ); ///< ignore return value
+    }
+    
+    {
+        const std::wstring w_fb2k_path = pfc::stringcvt::string_wide_from_utf8( helpers::get_fb2k_path() + "foobar2000.exe" );
+        SHFILEINFO shfi;
+        SHGetFileInfo( w_fb2k_path.c_str(), 0, &shfi, sizeof( SHFILEINFO ), SHGFI_ICON | SHGFI_SHELLICONSIZE | SHGFI_SMALLICON );
+        if ( shfi.hIcon )
+        {
+            hIcon_ = shfi.hIcon;
+            SetIcon( hIcon_, FALSE );
+        }
+    }
 }
 
 } // namespace smp::ui

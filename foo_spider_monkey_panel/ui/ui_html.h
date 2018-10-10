@@ -6,14 +6,16 @@
 
 #include <ExDispid.h>
 
+#include <optional>
+
 namespace smp::ui
 {
 class CDialogHtml
     : public CAxDialogImpl<CDialogHtml>
     , public IServiceProviderImpl<CDialogHtml>
+    , public IDispEventImpl<IDC_IE, CDialogHtml>
     , public IHTMLOMWindowServices
     , public IDocHostUIHandler
-    , public IDispEventImpl<IDC_IE, CDialogHtml>
 {
 public:
     enum
@@ -44,7 +46,7 @@ public:
 
 public:
     CDialogHtml( JSContext* cx, const std::wstring& htmlCodeOrPath, JS::HandleValue options );
-    ~CDialogHtml() = default;
+    ~CDialogHtml();
 
     LRESULT OnInitDialog( HWND hwndFocus, LPARAM lParam );
     LRESULT OnSize( UINT nType, CSize size );
@@ -124,6 +126,7 @@ public:
 
 private:
     bool ParseOptions( JS::HandleValue options );
+    void SetOptions();
 
 private:
     JSContext* pJsCtx_ = nullptr;
@@ -133,8 +136,19 @@ private:
     // TODO: replace with exception
     bool isInitSuccess = false;
 
-    bool showContextMenu_ = false;
-    bool enableSelection_ = false;    
+    // TODO: replace with unique_ptr
+    HICON hIcon_ = nullptr;
+
+    std::optional<uint32_t> width_;
+    std::optional<uint32_t> height_;
+    std::optional<int32_t> x_;
+    std::optional<int32_t> y_;
+    bool isCentered_;
+    bool isContextMenuEnabled_;
+    bool isFormSelectionEnabled_;
+    bool isResizable_;
+    bool isScrollEnabled_;
+    
     IHostExternalPtr pExternal_;
 
     IDocHostUIHandlerPtr pDefaultUiHandler_;

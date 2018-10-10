@@ -8,10 +8,11 @@
 #include <js_objects/gdi_font.h>
 #include <js_objects/internal/fb_properties.h>
 #include <js_utils/js_error_helper.h>
-#include <js_utils/winapi_error_helper.h>
 #include <js_utils/js_object_helper.h>
+#include <js_utils/js_property_helper.h>
 #include <js_utils/scope_helper.h>
 #include <js_utils/gdi_helpers.h>
+#include <js_utils/winapi_error_helper.h>
 
 #include <com_objects/host_drop_target.h>
 
@@ -293,60 +294,27 @@ JsWindow::DefinePanel( const pfc::string8_fast& name, JS::HandleValue options )
             }
 
             JS::RootedObject jsOptions( pJsCtx_, &options.toObject() );
+            bool hasFailed = false;
 
-            bool hasProp;
-            if ( !JS_HasProperty( pJsCtx_, jsOptions, "author", &hasProp ) )
+            parsed_options.author = GetOptionalProperty<pfc::string8_fast>( pJsCtx_, jsOptions, "author", hasFailed ).value_or("");
+            if ( hasFailed )
             { // reports
                 return std::nullopt;
             }
 
-            if ( hasProp )
-            {
-                JS::RootedValue jsValue( pJsCtx_ );
-                if ( !JS_GetProperty( pJsCtx_, jsOptions, "author", &jsValue ) )
-                { // reports
-                    return std::nullopt;
-                }
-
-                auto retVal = convert::to_native::ToValue<pfc::string8_fast>( pJsCtx_, jsValue );
-                if ( !retVal )
-                {
-                    JS_ReportErrorUTF8( pJsCtx_, "Failed to parse `author`" );
-                    return std::nullopt;
-                }
-
-                parsed_options.author = retVal.value();
+            parsed_options.version = GetOptionalProperty<pfc::string8_fast>( pJsCtx_, jsOptions, "version", hasFailed ).value_or( "" );
+            if ( hasFailed )
+            { // reports
+                return std::nullopt;
             }
-
-            if ( !JS_HasProperty( pJsCtx_, jsOptions, "version", &hasProp ) )
+           
+            bool hasProperty;
+            if ( !JS_HasProperty( pJsCtx_, jsOptions, "features", &hasProperty ) )
             { // reports
                 return std::nullopt;
             }
 
-            if ( hasProp )
-            {
-                JS::RootedValue jsValue( pJsCtx_ );
-                if ( !JS_GetProperty( pJsCtx_, jsOptions, "version", &jsValue ) )
-                { // reports
-                    return std::nullopt;
-                }
-
-                auto retVal = convert::to_native::ToValue<pfc::string8_fast>( pJsCtx_, jsValue );
-                if ( !retVal )
-                {
-                    JS_ReportErrorUTF8( pJsCtx_, "Failed to parse `version`" );
-                    return std::nullopt;
-                }
-
-                parsed_options.version = retVal.value();
-            }
-
-            if ( !JS_HasProperty( pJsCtx_, jsOptions, "features", &hasProp ) )
-            { // reports
-                return std::nullopt;
-            }
-
-            if ( hasProp )
+            if ( hasProperty )
             {
                 JS::RootedValue jsFeaturesValue( pJsCtx_ );
                 if ( !JS_GetProperty( pJsCtx_, jsOptions, "features", &jsFeaturesValue ) )
@@ -360,28 +328,10 @@ JsWindow::DefinePanel( const pfc::string8_fast& name, JS::HandleValue options )
                     return std::nullopt;
                 }
 
-                JS::RootedObject jsFeatures( pJsCtx_, &jsFeaturesValue.toObject() );
-                if ( !JS_HasProperty( pJsCtx_, jsFeatures, "drag_n_drop", &hasProp ) )
+                parsed_options.features.drag_n_drop = GetOptionalProperty<bool>( pJsCtx_, jsOptions, "drag_n_drop", hasFailed ).value_or( false );
+                if ( hasFailed )
                 { // reports
                     return std::nullopt;
-                }
-
-                if ( hasProp )
-                {
-                    JS::RootedValue jsValue( pJsCtx_ );
-                    if ( !JS_GetProperty( pJsCtx_, jsFeatures, "drag_n_drop", &jsValue ) )
-                    { // reports
-                        return std::nullopt;
-                    }
-
-                    auto retVal = convert::to_native::ToValue<bool>( pJsCtx_, jsValue );
-                    if ( !retVal )
-                    {
-                        JS_ReportErrorUTF8( pJsCtx_, "`drag_n_drop` can't be converted to boolean" );
-                        return std::nullopt;
-                    }
-
-                    parsed_options.features.drag_n_drop = retVal.value();
                 }
             }
         }

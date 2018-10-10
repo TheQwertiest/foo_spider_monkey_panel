@@ -585,6 +585,12 @@
     <ClInclude Include="com_objects\host_external.h">
       <Filter>com_objects</Filter>
     </ClInclude>
+    <ClInclude Include="js_utils\js_property_helper.h">
+      <Filter>js_utils</Filter>
+    </ClInclude>
+    <ClInclude Include="foo_spider_monkey_panel.h">
+      <Filter>z_uncategorized</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="default.js">
