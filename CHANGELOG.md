@@ -2,12 +2,15 @@
 
 #### Table of Contents
 - [Unreleased](#unreleased)
+- [1.0.3](#103---2018-10-11)
 - [1.0.2](#102---2018-10-05)
 - [1.0.1](#101---2018-10-05)
 - [1.0.0](#100---2018-10-01)
 ___
 
 ## [Unreleased][]
+
+## [1.0.3][] - 2018-10-11
 ### Changed
 - Reimplemented `utils.ShowHtmlDialog()`. It's no longer considered **\[Experimental]** and is safe to use.
 - Updated `Interfaces.js`:
@@ -63,7 +66,8 @@ ___
   - More rigorous error checks.
 - Updated samples with compatibility fixes.
 
-[unreleased]: https://github.com/theqwertiest/foo_spider_monkey_panel/compare/v1.0.2...HEAD
+[unreleased]: https://github.com/theqwertiest/foo_spider_monkey_panel/compare/v1.0.3...HEAD
+[1.0.2]: https://github.com/TheQwertiest/foo_spider_monkey_panel/compare/v1.0.2...v1.0.3
 [1.0.2]: https://github.com/TheQwertiest/foo_spider_monkey_panel/compare/v1.0.1...v1.0.2
 [1.0.1]: https://github.com/TheQwertiest/foo_spider_monkey_panel/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/TheQwertiest/foo_spider_monkey_panel/compare/vanilla_2_0...v1.0.0
