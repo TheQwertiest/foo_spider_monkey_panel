@@ -41,6 +41,7 @@ public:
     END_MSG_MAP()
 
     BEGIN_SINK_MAP( CDialogHtml )
+    SINK_ENTRY( IDC_IE, DISPID_BEFORENAVIGATE2, OnBeforeNavigate )
     SINK_ENTRY( IDC_IE, DISPID_TITLECHANGE, OnTitleChange )
     END_SINK_MAP()
 
@@ -52,6 +53,9 @@ public:
     LRESULT OnSize( UINT nType, CSize size );
     LRESULT OnCloseCmd( WORD wNotifyCode, WORD wID, HWND hWndCtl );
 
+    void __stdcall OnBeforeNavigate( IDispatch* pDisp, VARIANT* URL, VARIANT* Flags,
+                                     VARIANT* TargetFrameName, VARIANT* PostData, VARIANT* Headers,
+                                     VARIANT_BOOL* Cancel );
     void __stdcall OnTitleChange( BSTR title );
 
     // IHTMLOMWindowServices

@@ -10,7 +10,6 @@
 #include <convert/com.h>
 
 #include <helpers.h>
-#include <foo_spider_monkey_panel.h>
 
 #pragma warning( push )
 #pragma warning( disable : 4192 )
@@ -66,7 +65,7 @@ LRESULT CDialogHtml::OnInitDialog( HWND hwndFocus, LPARAM lParam )
         IF_HR_FAILED_RETURN_WITH_REPORT( pJsCtx_, hr, -1, QueryControl );
 
         _variant_t v;
-        hr = pBrowser->Navigate( _bstr_t( "about:blank" ), &v, &v, &v, &v );
+        hr = pBrowser->Navigate( _bstr_t( L"about:blank" ), &v, &v, &v, &v ); ///< Document object is only available after Navigate
         IF_HR_FAILED_RETURN_WITH_REPORT( pJsCtx_, hr, -1, Navigate );
 
         IDispatchPtr pDocDispatch;
@@ -90,7 +89,14 @@ LRESULT CDialogHtml::OnInitDialog( HWND hwndFocus, LPARAM lParam )
             IF_HR_FAILED_RETURN_WITH_REPORT( pJsCtx_, hr, -1, SetUIHandler );
         }
 
-        { // open document
+        if ( const std::wstring filePrefix = L"file://"; htmlCodeOrPath_.length() > filePrefix.length()
+             && !wmemcmp( htmlCodeOrPath_.c_str(), filePrefix.c_str(), filePrefix.length() ) )
+        {
+            hr = pBrowser->Navigate( _bstr_t( htmlCodeOrPath_.c_str() ), &v, &v, &v, &v );
+            IF_HR_FAILED_RETURN_WITH_REPORT( pJsCtx_, hr, -1, Navigate );
+        }
+        else
+        {
             SAFEARRAY* pSaStrings = SafeArrayCreateVector( VT_VARIANT, 0, 1 );
             scope::final_action autoPsa( [pSaStrings]() {
                 SafeArrayDestroy( pSaStrings );
@@ -107,10 +113,11 @@ LRESULT CDialogHtml::OnInitDialog( HWND hwndFocus, LPARAM lParam )
             IF_HR_FAILED_RETURN_WITH_REPORT( pJsCtx_, hr, -1, SafeArrayUnaccessData );
 
             hr = pDocument->write( pSaStrings );
-            IF_HR_FAILED_RETURN_WITH_REPORT( pJsCtx_, hr, -1, "write" );
+            IF_HR_FAILED_RETURN_WITH_REPORT( pJsCtx_, hr, -1, write );
+
+            hr = pDocument->close();
+            IF_HR_FAILED_RETURN_WITH_REPORT( pJsCtx_, hr, -1, close );
         }
-        hr = pDocument->close();
-        IF_HR_FAILED_RETURN_WITH_REPORT( pJsCtx_, hr, -1, close );
     }
     catch ( const _com_error& e )
     {
@@ -147,6 +154,38 @@ LRESULT CDialogHtml::OnCloseCmd( WORD wNotifyCode, WORD wID, HWND hWndCtl )
 {
     EndDialog( wID );
     return 0;
+}
+
+void CDialogHtml::OnBeforeNavigate( IDispatch* pDisp, VARIANT* URL, VARIANT* Flags,
+                                    VARIANT* TargetFrameName, VARIANT* PostData, VARIANT* Headers,
+                                    VARIANT_BOOL* Cancel )
+{
+    if ( !Cancel || !URL )
+    {
+        return;
+    }
+
+    *Cancel = VARIANT_FALSE;
+
+    try
+    {
+        _bstr_t url_b( *URL );
+        for ( const auto& urlPrefix : std::initializer_list<std::wstring>{ L"http://", L"https://" } )
+        {
+            if ( url_b.length() > urlPrefix.length()
+                 && !wmemcmp( url_b.GetBSTR(), urlPrefix.c_str(), urlPrefix.length() ) )
+            {
+                if ( Cancel )
+                {
+                    *Cancel = VARIANT_TRUE;
+                    return;
+                }
+            }
+        }
+    }
+    catch ( const _com_error& )
+    {
+    }
 }
 
 void CDialogHtml::OnTitleChange( BSTR title )
@@ -503,7 +542,7 @@ void CDialogHtml::SetOptions()
     {
         moveTo( x_.value_or( 0 ), y_.value_or( 0 ) ); ///< ignore return value
     }
-    
+
     {
         const std::wstring w_fb2k_path = pfc::stringcvt::string_wide_from_utf8( helpers::get_fb2k_path() + "foobar2000.exe" );
         SHFILEINFO shfi;

@@ -203,7 +203,6 @@
     <ClInclude Include="convert\js_to_native.h" />
     <ClInclude Include="convert\native_to_js.h" />
     <ClInclude Include="drop_action_params.h" />
-    <ClInclude Include="foo_spider_monkey_panel.h" />
     <ClInclude Include="heartbeat_window.h" />
     <ClInclude Include="js_engine\js_compartment_inner.h" />
     <ClInclude Include="js_engine\js_container.h" />
