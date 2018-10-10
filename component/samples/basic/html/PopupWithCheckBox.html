@@ -53,7 +53,7 @@
             if (window_w < window_h + 50) {
                 window_w += 50;
             
-                resizeToImpl(window_w, window_h);
+                window.resizeTo(window_w, window_h);
                 window_h = 83 + window.div_text.offsetHeight + window.btn_ok.offsetHeight;
             }
             window.resizeTo(window_w, window_h);
