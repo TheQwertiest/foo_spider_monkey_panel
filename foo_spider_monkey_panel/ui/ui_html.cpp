@@ -214,7 +214,7 @@ STDMETHODIMP CDialogHtml::moveTo( LONG x, LONG y )
 {
     if ( RECT rect; GetWindowRect( &rect ) )
     {
-        MoveWindow( x, y, ( rect.right - rect.left ) + x, ( rect.bottom - rect.top ) + y );
+        MoveWindow( x, y, ( rect.right - rect.left ), ( rect.bottom - rect.top ) );
     }
     return S_OK;
 }
@@ -223,7 +223,7 @@ STDMETHODIMP CDialogHtml::moveBy( LONG x, LONG y )
 {
     if ( RECT rect; GetWindowRect( &rect ) )
     {
-        MoveWindow( rect.left + x, rect.top + y, rect.right + x, rect.bottom + y );
+        MoveWindow( rect.left + x, rect.top + y, ( rect.right - rect.left ), ( rect.bottom - rect.top ) );
     }
     return S_OK;
 }
