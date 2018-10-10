@@ -9,7 +9,7 @@ ___
 
 ## [Unreleased][]
 ### Changed
-- Rewrote `utils.ShowHtmlDialog()`. It's no longer considered **\[Experimental]** and is safe to use.
+- Reimplemented `utils.ShowHtmlDialog()`. It's no longer considered **\[Experimental]** and is safe to use.
 - Updated `Interfaces.js`:
   - Updated `utils.ShowHtmlDialog()` doc.
   - Updated `fb.DoDragDrop()` doc.
