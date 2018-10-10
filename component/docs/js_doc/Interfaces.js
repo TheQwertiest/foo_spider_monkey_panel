@@ -498,24 +498,25 @@ function IFbUtils() {
     this.IsLibraryEnabled = function () { }; // (boolean)
 
     /**
+     * Don't use in `on_paint`, otherwise it will lead to performance degaradation.
+     * 
      * @param {string} command Path to main menu item
      * @return {boolean} true, if the item is checked.
      *
      * @example
      * fb.RunMainMenuCommand("Playback/Scrobble Tracks"); // available with foo_scrobble
      */
-    this.IsMainMenuCommandChecked(command) = function () { }; // (boolean)
+    this.IsMainMenuCommandChecked = function (command) {}; // (boolean)
 
     /**
      * @param {IFbMetadbHandle} handle
      * @return {boolean}
+     * 
+     * @example
+     * var np = fb.GetNowplaying();
+     * console.log(fb.IsMetadbInMediaLibrary(np)); // If false, playing track is not in Media Library.
      */
     this.IsMetadbInMediaLibrary = function (handle) {}; // (boolean)
-    /*
-    Example:
-    var np = fb.GetNowplaying();
-    console.log(fb.IsMetadbInMediaLibrary(np)); // If false, playing track is not in Media Library.
-    */
 
     this.LoadPlaylist = function () {}; // (void)
 
@@ -1532,13 +1533,12 @@ function IJSUtils() {
     */
 
     /**
-     * This method is EXPERIMENTAL and is subject to change in the next versions!
-     *
-     * Displays an html dialog (rendered by IE8 engine).
+     * Displays an html dialog, rendered by IE engine.
+     * Utilizes the latest non-Edge IE that you have on your system.
      * Dialog is modal (blocks input to the parent window while open).
      * 
-     * Html code must be IE 8 compatible, meaning:
-     * - Only ES3 + JSON subset of JavaScript.
+     * Html code must be IE compatible, meaning:
+     * - JavaScript features are limited by IE (see {@link https://www.w3schools.com/js/js_versions.asp}).
      * - Objects passed to `data` are limited to standard JavaScript objects:
      *   - No extensions from Spider Monkey Panel (e.g. no IFbMetadbHandle or IGdiBitmap).
      *   
@@ -1548,18 +1548,21 @@ function IJSUtils() {
      *   - Objects as string: the only way to pass objects is to convert them to string and back with `JSON.stringify()` and `JSON.parse()`.
      *   - Arrays: must be cast via `.toArray()` inside html. Each element has same type limitations as options.data.
      *   - Functions: with maximum of 7 arguments. Each argument has same type limitations as options.data.
-     * - `window.returnValue` has the same type limitations as options.data.
-     * - `window.resizeTo()` is not accessible. Change size via `window.dialogWidth` and `window.dialogHeight` instead.
      *
      * @param {number} window_id {@link window.ID}
      * @param {string} code_or_path Html code or file path. File path must begin with `file://` prefix.
      * @param {object=} [options=undefined]
-     * @param {number=} [options.width=400] Window width
-     * @param {number=} [options.height=400] Window height
+     * @param {number=} [options.width=250] Window width
+     * @param {number=} [options.height=100] Window height
+     * @param {number=} [options.x=0] Window horizontal position relative to desktop
+     * @param {number=} [options.y=0] Window vertical position relative to desktop
+     * @param {boolean=} [options.center=true] If true and if options.x and options.y are not set, will center window relative to fb2k position.
+     * @param {boolean=} [options.context_menu=false] If true, will enable right-click context menu.
+     * @param {boolean=} [options.resizable=false] If true, will allow to resize the window.
+     * @param {boolean=} [options.selection=false] If true, will allow to select everything (label texts, buttons and etc).
+     * @param {boolean=} [options.scroll=false] If true, will display scrollbars.
      * @param {*=} [options.data=undefined] Will be saved in `window.external.dialogArguments` and can be accessed from JavaScript executed inside HTML window.
      *                                      This data is read-only and should not be modified. Has type limitations (see above).
-     * @return {*} Value from `window.returnValue` which can be set from JavaScript executed inside HTML window. 
-     *             `window.returnValue` has type limitations (see above).
      *
      * @example <caption>Dialog from code</caption>
      * // See samples/basic/HtmlDialogWithCheckbox.txt
@@ -1575,12 +1578,11 @@ function IJSUtils() {
      * @param {string} key
      * @param {string} val
      * @return {boolean}
+     * 
+     * @example
+     * utils.WriteINI("e:\\my_file.ini", "Last.fm", "username", "Bob");
      */
     this.WriteINI = function (filename, section, key, val) {}; // (boolean)
-    /*
-    Example:
-    utils.WriteINI("e:\\my_file.ini", "Last.fm", "username", "Bob");
-    */
 
     /**
      * The parent folder must already exist.
@@ -1589,14 +1591,18 @@ function IJSUtils() {
      * @param {string} content
      * @param {boolean=} [write_bom=true]
      * @return {boolean}
-     */
+     * 
+     * @example <caption>Default encoding</caption>
+     * // write_bom missing but defaults to true, resulting file is UTF8-BOM
+     * utils.WriteTextFile("z:\\1.txt", "test");
+     *
+     * @example <caption>UTF8 with BOM</caption>
+     * utils.WriteTextFile("z:\\2.txt", "test", true);
+     * 
+     * @example <caption>UTF8 without BOM</caption>
+     * utils.WriteTextFile("z:\\3.txt", "test", false);
+     */     
     this.WriteTextFile = function (filename, content, write_bom) {}; //(boolean)
-    /*
-    Example:
-    utils.WriteTextFile("z:\\1.txt", "test"); // write_bom missing but defaults to true, resulting file is UTF8-BOM
-    utils.WriteTextFile("z:\\2.txt", "test", true); // resulting file is UTF8-BOM
-    utils.WriteTextFile("z:\\3.txt", "test", false); // resulting file is UTF8 without BOM
-    */
 }
 
 var utils = new IJSUtils();
