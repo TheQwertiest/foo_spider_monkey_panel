@@ -89,7 +89,8 @@ LRESULT CDialogHtml::OnInitDialog( HWND hwndFocus, LPARAM lParam )
             IF_HR_FAILED_RETURN_WITH_REPORT( pJsCtx_, hr, -1, SetUIHandler );
         }
 
-        if ( const std::wstring filePrefix = L"file://"; htmlCodeOrPath_.length() > filePrefix.length()
+        if ( const std::wstring filePrefix = L"file://";
+             htmlCodeOrPath_.length() > filePrefix.length()
              && !wmemcmp( htmlCodeOrPath_.c_str(), filePrefix.c_str(), filePrefix.length() ) )
         {
             hr = pBrowser->Navigate( _bstr_t( htmlCodeOrPath_.c_str() ), &v, &v, &v, &v );
@@ -156,9 +157,9 @@ LRESULT CDialogHtml::OnCloseCmd( WORD wNotifyCode, WORD wID, HWND hWndCtl )
     return 0;
 }
 
-void CDialogHtml::OnBeforeNavigate( IDispatch* pDisp, VARIANT* URL, VARIANT* Flags,
-                                    VARIANT* TargetFrameName, VARIANT* PostData, VARIANT* Headers,
-                                    VARIANT_BOOL* Cancel )
+void CDialogHtml::OnBeforeNavigate2( IDispatch* pDisp, VARIANT* URL, VARIANT* Flags,
+                                     VARIANT* TargetFrameName, VARIANT* PostData, VARIANT* Headers,
+                                     VARIANT_BOOL* Cancel )
 {
     if ( !Cancel || !URL )
     {
@@ -196,6 +197,16 @@ void CDialogHtml::OnTitleChange( BSTR title )
     }
     catch ( const _com_error& )
     {
+    }
+}
+
+void __stdcall CDialogHtml::OnWindowClosing( VARIANT_BOOL bIsChildWindow, VARIANT_BOOL* Cancel )
+{
+    EndDialog( IDOK );
+    if ( Cancel )
+    {
+        *Cancel = VARIANT_TRUE;
+        return;
     }
 }
 

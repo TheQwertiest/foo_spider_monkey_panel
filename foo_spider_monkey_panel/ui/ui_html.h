@@ -41,8 +41,9 @@ public:
     END_MSG_MAP()
 
     BEGIN_SINK_MAP( CDialogHtml )
-    SINK_ENTRY( IDC_IE, DISPID_BEFORENAVIGATE2, OnBeforeNavigate )
+    SINK_ENTRY( IDC_IE, DISPID_BEFORENAVIGATE2, OnBeforeNavigate2 )
     SINK_ENTRY( IDC_IE, DISPID_TITLECHANGE, OnTitleChange )
+    SINK_ENTRY( IDC_IE, DISPID_WINDOWCLOSING, OnWindowClosing )
     END_SINK_MAP()
 
 public:
@@ -53,10 +54,11 @@ public:
     LRESULT OnSize( UINT nType, CSize size );
     LRESULT OnCloseCmd( WORD wNotifyCode, WORD wID, HWND hWndCtl );
 
-    void __stdcall OnBeforeNavigate( IDispatch* pDisp, VARIANT* URL, VARIANT* Flags,
-                                     VARIANT* TargetFrameName, VARIANT* PostData, VARIANT* Headers,
-                                     VARIANT_BOOL* Cancel );
+    void __stdcall OnBeforeNavigate2( IDispatch* pDisp, VARIANT* URL, VARIANT* Flags,
+                                      VARIANT* TargetFrameName, VARIANT* PostData, VARIANT* Headers,
+                                      VARIANT_BOOL* Cancel );
     void __stdcall OnTitleChange( BSTR title );
+    void __stdcall OnWindowClosing( VARIANT_BOOL bIsChildWindow, VARIANT_BOOL* Cancel );
 
     // IHTMLOMWindowServices
     STDMETHODIMP moveTo( LONG x, LONG y ) override;
@@ -152,7 +154,7 @@ private:
     bool isFormSelectionEnabled_;
     bool isResizable_;
     bool isScrollEnabled_;
-    
+
     IHostExternalPtr pExternal_;
 
     IDocHostUIHandlerPtr pDefaultUiHandler_;
