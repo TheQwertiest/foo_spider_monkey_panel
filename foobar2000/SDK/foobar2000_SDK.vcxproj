@@ -135,6 +135,7 @@
     <ClInclude Include="file_format_sanitizer.h" />
     <ClInclude Include="file_info.h" />
     <ClInclude Include="file_info_impl.h" />
+    <ClInclude Include="file_lock_manager.h" />
     <ClInclude Include="file_operation_callback.h" />
     <ClInclude Include="filesystem.h" />
     <ClInclude Include="filesystem_helper.h" />

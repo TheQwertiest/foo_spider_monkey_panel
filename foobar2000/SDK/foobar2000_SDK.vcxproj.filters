@@ -281,6 +281,9 @@
     <ClInclude Include="foosort.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="file_lock_manager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="abort_callback.cpp">
