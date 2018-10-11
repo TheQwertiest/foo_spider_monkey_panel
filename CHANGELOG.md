@@ -67,7 +67,7 @@ ___
 - Updated samples with compatibility fixes.
 
 [unreleased]: https://github.com/theqwertiest/foo_spider_monkey_panel/compare/v1.0.3...HEAD
-[1.0.2]: https://github.com/TheQwertiest/foo_spider_monkey_panel/compare/v1.0.2...v1.0.3
+[1.0.3]: https://github.com/TheQwertiest/foo_spider_monkey_panel/compare/v1.0.2...v1.0.3
 [1.0.2]: https://github.com/TheQwertiest/foo_spider_monkey_panel/compare/v1.0.1...v1.0.2
 [1.0.1]: https://github.com/TheQwertiest/foo_spider_monkey_panel/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/TheQwertiest/foo_spider_monkey_panel/compare/vanilla_2_0...v1.0.0
