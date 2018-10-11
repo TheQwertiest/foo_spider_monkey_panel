@@ -153,9 +153,28 @@ static bool isIllegalTrailingChar(char c) {
 static const char * const specialIllegalNames[] = {
 	"con", "aux", "lst", "prn", "nul", "eof", "inp", "out"
 };
+
+enum { maxPathComponent = 255 };
+static string truncatePathComponent( string name, bool preserveExt ) {
+	if (name.length() <= maxPathComponent) return name;
+	if (preserveExt) {
+		auto dot = name.lastIndexOf('.');
+		if (dot != pfc_infinite) {
+			auto ext = name.subString(dot);
+			if (ext.length() < maxPathComponent) {
+				auto lim = maxPathComponent - ext.length();
+				if (lim < dot) {
+					return name.subString(0, lim) + ext;
+				}
+			}
+		}
+	}
+	return name.subString(0, maxPathComponent);
+}
+
 #endif
 
-string validateFileName(string name, bool allowWC) {
+string validateFileName(string name, bool allowWC, bool preserveExt) {
 	for(t_size walk = 0; name[walk];) {
 		if (name[walk] == '?') {
 			t_size end = walk;
@@ -184,6 +203,9 @@ string validateFileName(string name, bool allowWC) {
 		}
 		if (end < name.length() || begin > 0) name = name.subString(begin,end - begin);
 	}
+
+	name = truncatePathComponent(name, preserveExt);
+	PFC_ASSERT( name.length() <= maxPathComponent);
 
 	for( unsigned w = 0; w < _countof(specialIllegalNames); ++w ) {
 		if (pfc::stringEqualsI_ascii( name.c_str(), specialIllegalNames[w] ) ) {

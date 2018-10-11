@@ -1,4 +1,5 @@
 #include "foobar2000.h"
+#include "foosort.h"
 
 namespace {
 	using namespace fb2k;

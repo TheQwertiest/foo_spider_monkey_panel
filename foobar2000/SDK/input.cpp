@@ -291,3 +291,13 @@ void input_open_file_helper(service_ptr_t<file> & p_file,const char * p_path,t_i
 		p_file->reopen(p_abort);
 	}
 }
+
+bool input_entry::g_are_parallel_reads_slow(const char * path) {
+	auto ext = pfc::string_extension(path);
+	input_entry::ptr svc;
+	service_enum_t<input_entry> e;
+	while (e.next(svc)) {
+		if (svc->is_our_path(path, ext) && svc->are_parallel_reads_slow()) return true;
+	}
+	return false;
+}

@@ -278,6 +278,12 @@
     <ClInclude Include="filesystem_transacted.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="foosort.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="file_lock_manager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="abort_callback.cpp">
@@ -449,6 +455,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="config_io_callback.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="foosort.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

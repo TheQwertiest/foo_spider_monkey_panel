@@ -52,7 +52,7 @@ namespace helpers
 		return hBitmap;
 	}
 
-	HRESULT get_album_art_embedded(BSTR rawpath, IGdiBitmap** pp, int art_id)
+	HRESULT get_album_art_embedded(BSTR rawpath, IGdiBitmap** pp, t_size art_id)
 	{
 		if (!pp) return E_POINTER;
 
@@ -86,7 +86,7 @@ namespace helpers
 		return S_OK;
 	}
 
-	HRESULT get_album_art_v2(const metadb_handle_ptr& handle, IGdiBitmap** pp, int art_id, bool need_stub, bool no_load, pfc::string_base* image_path_ptr)
+	HRESULT get_album_art_v2(const metadb_handle_ptr& handle, IGdiBitmap** pp, t_size art_id, bool need_stub, bool no_load, pfc::string_base* image_path_ptr)
 	{
 		if (handle.is_empty() || !pp) return E_POINTER;
 
@@ -618,7 +618,7 @@ namespace helpers
 		return true;
 	}
 
-	const GUID convert_artid_to_guid(int art_id)
+	const GUID convert_artid_to_guid(t_size art_id)
 	{
 		const GUID* guids[] = {
 			&album_art_ids::cover_front,
@@ -628,14 +628,11 @@ namespace helpers
 			&album_art_ids::artist,
 		};
 
-		if (0 <= art_id && art_id < _countof(guids))
+		if (art_id < _countof(guids))
 		{
 			return *guids[art_id];
 		}
-		else
-		{
-			return *guids[0];
-		}
+		return *guids[0];
 	}
 
 	int get_encoder_clsid(const WCHAR* format, CLSID* pClsid)

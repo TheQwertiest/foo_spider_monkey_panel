@@ -165,6 +165,9 @@ namespace metadb_handle_list_helper {
 	bool extract_single_path(metadb_handle_list_cref list, const char * &path);
 	bool extract_folder_path(metadb_handle_list_cref list, pfc::string_base & path);
 
+	void sort_by_format_get_order_v2( metadb_handle_list_cref p_list, size_t * order, const service_ptr_t<titleformat_object> & script, titleformat_hook * hook,  int direction, abort_callback & aborter );
+	void sort_by_format_v2(metadb_handle_list_ref p_list, const service_ptr_t<titleformat_object> & script, titleformat_hook * hook, int direction, abort_callback & aborter);
+
 };
 
 template<template<typename> class t_alloc = pfc::alloc_fast >

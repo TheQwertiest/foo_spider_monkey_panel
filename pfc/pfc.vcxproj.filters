@@ -83,6 +83,7 @@
     <ClInclude Include="pool.h" />
     <ClInclude Include="pocket_char_ops.h" />
     <ClInclude Include="suppress_fb2k_hooks.h" />
+    <ClInclude Include="cmd_thread.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="pfc-license.txt">

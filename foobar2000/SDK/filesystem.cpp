@@ -800,6 +800,9 @@ PFC_NORETURN void foobar2000_io::win32_file_write_failure(DWORD p_code, const ch
 }
 
 PFC_NORETURN void foobar2000_io::exception_io_from_win32(DWORD p_code) {
+#if PFC_DEBUG
+	pfc::debugLog() << "exception_io_from_win32: " << p_code;
+#endif
 	//pfc::string_fixed_t<32> debugMsg; debugMsg << "Win32 I/O error #" << (t_uint32)p_code;
 	//TRACK_CALL_TEXT(debugMsg);
 	switch(p_code) {
@@ -857,7 +860,13 @@ PFC_NORETURN void foobar2000_io::exception_io_from_win32(DWORD p_code) {
 		// known to be inflicted by momentary net connectivity issues - NOT the same as exception_io_not_found
 		throw exception_io("Network path not found");
 	case ERROR_TRANSACTIONAL_OPEN_NOT_ALLOWED:
+	case ERROR_TRANSACTIONS_UNSUPPORTED_REMOTE:
+	case ERROR_RM_NOT_ACTIVE:
+	case ERROR_RM_METADATA_CORRUPT:
+	case ERROR_DIRECTORY_NOT_RM:
 		throw exception_io_transactions_unsupported();
+	case ERROR_TRANSACTIONAL_CONFLICT:
+		throw exception_io_transactional_conflict();
 	default:
 		throw exception_io_win32_ex(p_code);
 	}
@@ -1156,12 +1165,11 @@ bool foobar2000_io::matchContentType_Musepack( const char * type) {
 
 const char * foobar2000_io::afterProtocol( const char * fullString ) {
 	const char * s = strstr( fullString, "://" );
-	if (s == nullptr) {
-		PFC_ASSERT(!"Should not get here");
-	} else {
-		s += 3;
-	}
-	return s;
+	if ( s != nullptr ) return s + 3;
+	s = strchr(fullString, ':' );
+	if ( s != nullptr && s[1] != '\\' && s[1] != 0 ) return s + 1;
+	PFC_ASSERT(!"Should not get here");
+	return fullString;
 }
 
 bool foobar2000_io::matchProtocol(const char * fullString, const char * protocolName) {
@@ -1441,7 +1449,7 @@ filesystem_transacted::ptr filesystem_transacted::create( const char * pathFor )
 	filesystem_transacted_entry::ptr p;
 	while(e.next(p)) {
 		if ( p->is_our_path( pathFor ) ) {
-			auto ret = p->create();
+			auto ret = p->create(pathFor);
 			if (ret.is_valid()) return ret;
 		}
 	}
@@ -1455,4 +1463,9 @@ bool filesystem::commit_if_transacted(abort_callback &abort) {
 		t->commit( abort ); rv = true;
 	}
 	return rv;
+}
+
+bool file_dynamicinfo_v2::get_dynamic_info(class file_info & p_out) {
+	t_filesize dummy = 0;
+	return this->get_dynamic_info_v2(p_out, dummy);
 }

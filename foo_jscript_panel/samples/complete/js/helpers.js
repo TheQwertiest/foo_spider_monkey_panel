@@ -531,17 +531,6 @@ _.mixin({
 	scale : function (size) {
 		return Math.round(size * DPI / 72);
 	},
-	shortPath : function (file) {
-		return fso.GetFile(file).ShortPath;
-	},
-	splitRGB : function (c) {
-		var tmp = c.split('-');
-		if (tmp.length == 4) {
-			return _.RGBA(tmp[0], tmp[1], tmp[2], tmp[3]);
-		} else {
-			return _.RGB(tmp[0], tmp[1], tmp[2]);
-		}
-	},
 	stripTags : function (value) {
 		doc.open();
 		var div = doc.createElement('div');
@@ -562,21 +551,6 @@ _.mixin({
 		temp_gr = null;
 		temp_bmp = null;
 		return width;
-	},
-	tf : function (t, metadb) {
-		if (!metadb) {
-			return '';
-		}
-		var tfo = fb.TitleFormat(t);
-		var str = tfo.EvalWithMetadb(metadb);
-		_.dispose(tfo);
-		return str;
-	},
-	tfe : function (t, force) {
-		var tfo = fb.TitleFormat(t);
-		var str = tfo.Eval(force);
-		_.dispose(tfo);
-		return str;
 	},
 	toRGB : function (a) {
 		var b = a - 0xFF000000;

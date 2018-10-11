@@ -21,8 +21,10 @@ void string_base::skip_trailing_char(unsigned skip)
 		if (delta==0) break;
 		if (c==skip)
 		{
-			need_trunc = true;
-			trunc = ptr;
+			if (!need_trunc) {
+				need_trunc = true;
+				trunc = ptr;
+			}
 		}
 		else
 		{
@@ -162,7 +164,7 @@ void float_to_string(char * out,t_size out_max,double val,unsigned precision,boo
 	if (outptr == out_max) {out[outptr]=0;return;}
 
 	if (val<0) {out[outptr++] = '-'; val = -val;}
-	else if (b_sign) {out[outptr++] = '+';}
+	else if (val > 0 && b_sign) {out[outptr++] = '+';}
 
 	if (outptr == out_max) {out[outptr]=0;return;}
 

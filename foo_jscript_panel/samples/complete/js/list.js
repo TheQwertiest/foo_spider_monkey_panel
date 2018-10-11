@@ -836,7 +836,7 @@ _.mixin({
 							i++;
 						}
 					}
-					plman.CreateAutoPlaylist(plman.PlaylistCount, n, q, s, f);
+					plman.CreateAutoPlaylist(plman.PlaylistCount, n, q, s, f ? 1 : 0);
 					plman.ActivePlaylist = plman.PlaylistCount - 1;
 				}
 				

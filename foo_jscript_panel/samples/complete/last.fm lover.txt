@@ -121,7 +121,7 @@ function on_mouse_rbtn_up(x, y) {
 			window.ShowConfigure();
 			break;
 		}
-		m.Dispose();
+		_.dispose(m);
 	} else {
 		panel.rbtn_up(x, y);
 	}

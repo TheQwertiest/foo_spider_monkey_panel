@@ -1,5 +1,4 @@
-if (!("Version" in utils) || utils.Version < 2000)
-	fb.ShowPopupMessage("This script requires the component JScript Panel v2.0.0 or later.\n\nhttps://github.com/marc2k3/foo_jscript_panel");
+var CACHE_FOLDER = fb.ProfilePath + "js_smooth_cache\\";
 
 // *****************************************************************************************************************************************
 // Common functions & flags by Br3tt aka Falstaff (c)2013-2015
@@ -753,44 +752,6 @@ function Syscolor(color_n) {
 	return (0xff000000 | (tempc[0] << 16) | (tempc[1] << 8) | (tempc[2]));
 };
 
-function get_system_dpi_percent() {
-	// get windows version
-	var wbemFlagReturnImmediately = 0x10;
-	var wbemFlagForwardOnly = 0x20;
-	var objWMIService = GetObject("winmgmts:\\\\.\\root\\CIMV2");
-	var colItems = objWMIService.ExecQuery("SELECT * FROM Win32_OperatingSystem", "WQL",
-			wbemFlagReturnImmediately | wbemFlagForwardOnly);
-	var enumItems = new Enumerator(colItems);
-	var objItem = enumItems.item();
-	var version_number = 0;
-	if (objItem.Caption.toUpperCase().indexOf("XP") != -1)
-		version_number = 5;
-	if (objItem.Caption.toUpperCase().indexOf("VISTA") != -1)
-		version_number = 6;
-	if (objItem.Caption.toUpperCase().indexOf("7") != -1)
-		version_number = 7;
-	if (objItem.Caption.toUpperCase().indexOf("8") != -1)
-		version_number = 8;
-
-	if (version_number == 8) {
-		var Shell = new ActiveXObject("WScript.Shell");
-		var tmp;
-		tmp = Shell.RegRead("HKEY_CURRENT_USER\\Control Panel\\Desktop\\Win8DpiScaling");
-		if (tmp == 1) {
-			tmp = Shell.RegRead("HKEY_CURRENT_USER\\Control Panel\\Desktop\\WindowMetrics\\AppliedDPI");
-		} else {
-			//tmp = 100;
-			tmp = Shell.RegRead("HKEY_CURRENT_USER\\Control Panel\\Desktop\\WindowMetrics\\AppliedDPI");
-			if (tmp < 100)
-				tmp = 100;
-		};
-	} else {
-		tmp = 100;
-	};
-	//tmp = Math.ceil(tmp/10)*10;
-	return tmp;
-};
-
 function get_system_scrollbar_width() {
 	var tmp = utils.GetSystemMetrics(SM_CXVSCROLL);
 	return tmp;
@@ -1005,8 +966,8 @@ WindowState = {
 };
 
 function on_load() {
-	if (!fso.FolderExists(fb.ProfilePath + "js_smooth_cache"))
-		fso.CreateFolder(fb.ProfilePath + "js_smooth_cache");
+	if (!fso.FolderExists(CACHE_FOLDER))
+		fso.CreateFolder(CACHE_FOLDER);
 };
 
 function resize(source, crc) {
@@ -1018,34 +979,9 @@ function resize(source, crc) {
 	var w = Math.floor(img.Width * s);
 	var h = Math.floor(img.Height * s);
 	img = img.Resize(w, h, 2);
-	img.SaveAs(fb.ProfilePath + 'js_smooth_cache\\' + crc, "image/jpeg");
+	img.SaveAs(CACHE_FOLDER + crc, "image/jpeg");
 	img.Dispose();
 }
-
-function getpath(path) {
-	var img_path = "";
-	var path_,
-	temp,
-	subFlds,
-	tmp;
-	for (var iii = 0; iii < 2; iii++) {
-		if (tmp = getpath_(iii == 0 ? path : (path + "..\\")))
-			return tmp;
-		try {
-			subFlds = new Enumerator(fso.GetFolder((iii == 0 ? path : (path + "..\\"))).SubFolders);
-		} catch (err) {
-			return null
-		};
-		for (; !subFlds.atEnd(); subFlds.moveNext()) {
-			temp = subFlds.item() + "\\";
-			if (temp.toLowerCase().match(cover_path)) {
-				if (tmp = getpath_(temp))
-					return tmp;
-			};
-		};
-	};
-	return null;
-};
 
 function getpath_(temp) {
 	var img_path = "",
@@ -1064,15 +1000,15 @@ function getpath_(temp) {
 function check_cache(metadb, albumIndex) {
 	//var crc = ppt.tf_crc.EvalWithMetadb(metadb);
 	var crc = brw.groups[albumIndex].cachekey;
-	if (fso.FileExists(fb.ProfilePath + "js_smooth_cache\\" + crc)) {
+	if (fso.FileExists(CACHE_FOLDER + crc)) {
 		return crc;
 	};
 	return null;
 };
 
 function load_image_from_cache(metadb, crc) {
-	if (fso.FileExists(fb.ProfilePath + "js_smooth_cache\\" + crc)) { // image in folder cache
-		var tdi = gdi.LoadImageAsync(window.ID, fb.ProfilePath + "js_smooth_cache\\" + crc);
+	if (fso.FileExists(CACHE_FOLDER + crc)) { // image in folder cache
+		var tdi = gdi.LoadImageAsync(window.ID, CACHE_FOLDER + crc);
 		return tdi;
 	} else {
 		return -1;
@@ -1128,8 +1064,12 @@ function setWallpaperImg(path, metadb) {
 
 function draw_blurred_image(image, ix, iy, iw, ih, bx, by, bw, bh, blur_value, overlay_color) {
 	var blurValue = blur_value;
-	var imgA = image.Resize(iw * blurValue / 100, ih * blurValue / 100, 2);
-	var imgB = imgA.resize(iw, ih, 2);
+	try {
+		var imgA = image.Resize(iw * blurValue / 100, ih * blurValue / 100, 2);
+		var imgB = imgA.Resize(iw, ih, 2);
+	} catch (e) {
+		return null;
+	}
 
 	var bbox = gdi.CreateImage(bw, bh);
 	// Get graphics interface like "gr" in on_paint
@@ -1248,7 +1188,9 @@ function FormatWallpaper(image, iw, ih, interpolation_mode, display_mode, angle,
 	};
 
 	CollectGarbage();
-	if (rawBitmap) {
+	if (!tmp_img) {
+		return null;
+	} else if (rawBitmap) {
 		return tmp_img.CreateRawBitmap();
 	} else {
 		return tmp_img;

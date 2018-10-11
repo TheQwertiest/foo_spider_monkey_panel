@@ -349,11 +349,17 @@ _.mixin({
 			switch (this.mode) {
 			case 'allmusic':
 				this.is_match = function (artist, album) {
+					if (!panel.metadb) {
+						return false;
+					}
 					return this.tidy(artist) == this.tidy(this.artist) && this.tidy(album) == this.tidy(this.album);
 				}
 				
 				this.tidy = function (value) {
-					return _.tfe('$replace($lower($ascii(' + _.fbEscape(value) + ')), & ,, and ,)', true);
+					var tfo = fb.TitleFormat('$replace($lower($ascii(' + _.fbEscape(value) + ')), & ,, and ,)');
+					var str = tfo.EvalWithMetadb(panel.metadb);
+					_.dispose(tfo);
+					return str;
 				}
 				
 				_.createFolder(folders.data);

@@ -11,7 +11,7 @@ class NOVTABLE audio_chunk {
 public:
 
 	enum {
-		sample_rate_min = 1000, sample_rate_max = 2822400
+		sample_rate_min = 1000, sample_rate_max = 20000000
 	};
 	static bool g_is_valid_sample_rate(t_uint32 p_val) {return p_val >= sample_rate_min && p_val <= sample_rate_max;}
 	

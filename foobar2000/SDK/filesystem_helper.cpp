@@ -194,7 +194,9 @@ namespace foobar2000_io {
         filesystem::g_list_directory(path, cb, aborter);
     }
 
+#ifdef _WIN32
 	pfc::string8 stripParentFolders( const char * inPath ) {
+		PFC_ASSERT( strstr(inPath, "://" ) == nullptr || matchProtocol( inPath, "file" ) );
 		size_t prefixLen = pfc::string_find_first(inPath, "://");
 		if ( prefixLen != pfc_infinite ) prefixLen += 3;
 		else prefixLen = 0;
@@ -223,4 +225,31 @@ namespace foobar2000_io {
 		return ret;
 	}
 
+
+
+	pfc::string8 winGetVolumePath(const char * fb2kPath) {
+		PFC_ASSERT(matchProtocol(fb2kPath, "file"));
+		pfc::string8 native;
+		if (!filesystem::g_get_native_path(fb2kPath, native)) throw pfc::exception_invalid_params();
+
+		TCHAR outBuffer[MAX_PATH+1] = {};
+		WIN32_IO_OP( GetVolumePathName( pfc::stringcvt::string_os_from_utf8( native ), outBuffer, MAX_PATH ) );
+		return pfc::stringcvt::string_utf8_from_os( outBuffer ).get_ptr();
+	}
+
+	DWORD winVolumeFlags( const char * fb2kPath ) {
+		PFC_ASSERT( matchProtocol( fb2kPath, "file" ) );
+
+		PFC_ASSERT(matchProtocol(fb2kPath, "file"));
+		pfc::string8 native;
+		if (!filesystem::g_get_native_path(fb2kPath, native)) throw pfc::exception_invalid_params();
+
+		TCHAR outBuffer[MAX_PATH + 1] = {};
+		WIN32_IO_OP(GetVolumePathName(pfc::stringcvt::string_os_from_utf8(native), outBuffer, MAX_PATH));
+
+		DWORD flags = 0;
+		WIN32_IO_OP(GetVolumeInformation(outBuffer, nullptr, 0, nullptr, nullptr, &flags, nullptr, 0));
+		return flags;
+	}
+#endif
 }

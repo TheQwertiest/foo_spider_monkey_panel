@@ -273,8 +273,8 @@ class NOVTABLE dsp_preset_edit_callback {
 public:
 	virtual void on_preset_changed(const dsp_preset &) = 0;
 private:
-	dsp_preset_edit_callback(const dsp_preset_edit_callback&) {throw pfc::exception_not_implemented();}
-	const dsp_preset_edit_callback & operator=(const dsp_preset_edit_callback &) {throw pfc::exception_not_implemented();}
+	dsp_preset_edit_callback(const dsp_preset_edit_callback&) = delete;
+	const dsp_preset_edit_callback & operator=(const dsp_preset_edit_callback &) = delete;
 protected:
 	dsp_preset_edit_callback() {}
 	~dsp_preset_edit_callback() {}

@@ -178,8 +178,8 @@ public:
 	bool is_valid() const {return m_icon != NULL;}
 
 private:
-	win32_icon(const win32_icon&) {throw pfc::exception_not_implemented();}
-	const win32_icon & operator=(const win32_icon &) {throw pfc::exception_not_implemented();}
+	win32_icon(const win32_icon&) = delete;
+	const win32_icon & operator=(const win32_icon &) = delete;
 
 	HICON m_icon;
 };
@@ -194,7 +194,7 @@ public:
 	void release();
 private:
 	HACCEL m_accel;
-	PFC_CLASS_NOT_COPYABLE(win32_accelerator,win32_accelerator);
+	PFC_CLASS_NOT_COPYABLE_EX(win32_accelerator);
 };
 
 class SelectObjectScope {
