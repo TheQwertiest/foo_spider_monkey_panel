@@ -6,11 +6,9 @@
 
 #include <js_engine/js_engine.h>
 
-// Script TypeLib
-ITypeLibPtr g_typelib;
+#include <map>
+#include <sstream>
 
-namespace
-{
 DECLARE_COMPONENT_VERSION(
     SMP_NAME,
     SMP_VERSION,
@@ -22,17 +20,100 @@ DECLARE_COMPONENT_VERSION(
 
 VALIDATE_COMPONENT_FILENAME( SMP_DLL_NAME );
 
-// Is there anything not correctly loaded?
-enum t_load_status_error
+// Script TypeLib
+ITypeLibPtr g_typelib;
+
+namespace
 {
-    E_OK = 0,
-    E_TYPELIB = 1 << 0,
-    E_SCINTILLA = 1 << 1,
-    E_GDIPLUS = 1 << 2,
-    E_OLE = 1 << 3,
+
+ULONG_PTR g_gdip_token;
+CAppModule g_wtl_module;
+
+enum SubsystemId : uint32_t
+{
+    SMP_OLE,
+    SMP_TYPELIB,
+    SMP_SCINTILLA,
+    SMP_GDIPLUS,
+    SMP_WTL,
+    SMP_WTL_AX,
+    ENUM_END
 };
 
-int g_load_status = E_OK;
+struct SubsystemError
+{
+    const char* description = "";
+    uint32_t errorCode = 0;
+};
+
+std::map<SubsystemId, SubsystemError> g_subsystem_failures;
+
+void InitializeSubsystems( HINSTANCE ins )
+{
+    if ( HRESULT hr = OleInitialize( nullptr );
+         FAILED( hr ) )
+    {
+        g_subsystem_failures[SMP_OLE] = { "OleInitialize failed", static_cast<uint32_t>( hr ) };
+    }
+
+    {
+        wchar_t path[MAX_PATH];
+        DWORD len = GetModuleFileName( ins, path, sizeof( path ) ); // NULL-terminated in OS newer than WinXP
+
+        if ( HRESULT hr = LoadTypeLibEx( path, REGKIND_NONE, &g_typelib );
+             FAILED( hr ) )
+        {
+            g_subsystem_failures[SMP_TYPELIB] = { "LoadTypeLibEx failed", static_cast<uint32_t>( hr ) };
+        }
+    }
+
+    if ( int iRet = Scintilla_RegisterClasses( ins );
+         !iRet )
+    {
+        g_subsystem_failures[SMP_SCINTILLA] = { "Scintilla_RegisterClasses failed", static_cast<uint32_t>( iRet ) };
+    }
+
+    {
+        Gdiplus::GdiplusStartupInput gdip_input;
+        if ( Gdiplus::Status gdiRet = Gdiplus::GdiplusStartup( &g_gdip_token, &gdip_input, nullptr );
+             Gdiplus::Ok != gdiRet )
+        {
+            g_subsystem_failures[SMP_GDIPLUS] = { "OleInitialize failed", static_cast<uint32_t>( gdiRet ) };
+        }
+    }
+
+    if ( HRESULT hr = g_wtl_module.Init( nullptr, ins );
+         FAILED( hr ) )
+    {
+        g_subsystem_failures[SMP_WTL] = { "WTL module Init failed", static_cast<uint32_t>( hr ) };
+    }
+
+    // WTL ActiveX support
+    if ( !AtlAxWinInit() )
+    {
+        g_subsystem_failures[SMP_WTL_AX] = { "AtlAxWinInit failed", static_cast<uint32_t>( GetLastError() ) };
+    }
+}
+
+void FinalizeSubsystems()
+{
+    if ( !g_subsystem_failures.count( SMP_WTL ) )
+    {
+        g_wtl_module.Term();
+    }
+    if ( !g_subsystem_failures.count( SMP_GDIPLUS ) )
+    {
+        Gdiplus::GdiplusShutdown( g_gdip_token );
+    }
+    if ( !g_subsystem_failures.count( SMP_SCINTILLA ) )
+    {
+        Scintilla_ReleaseResources();
+    }
+    if ( !g_subsystem_failures.count( SMP_OLE ) )
+    {
+        OleUninitialize();
+    }
+}
 
 class js_initquit : public initquit
 {
@@ -54,92 +135,43 @@ public:
 private:
     void check_error()
     {
-        // Check and show error message
-        pfc::string8 err_msg;
-
-        if ( g_load_status != E_OK )
+        if ( g_subsystem_failures.empty() )
         {
-            err_msg += "This error message indicates that this component will not function properly:\n\n";
-
-            if ( g_load_status & E_OLE )
-            {
-                err_msg += "OLE: Initialize OLE Failed.\n\n";
-            }
-            if ( g_load_status & E_TYPELIB )
-            {
-                err_msg += "Type Library: Load TypeLib Failed.\n\n";
-            }
-            if ( g_load_status & E_SCINTILLA )
-            {
-                err_msg += "Scintilla: Load Scintilla Failed.\n\n";
-            }
-            if ( g_load_status & E_GDIPLUS )
-            {
-                err_msg += "Gdiplus: Load Gdiplus Failed.\n\n";
-            }
+            return;
         }
 
-        if ( !err_msg.is_empty() )
+        std::stringstream ss;
+        ss << "Spider Monkey Panel initialization failed! The component will not function properly! Failures:\n\n";
+
+        for ( const auto& [key, failure] : g_subsystem_failures )
         {
-            popup_msg::g_show( err_msg, SMP_NAME );
+            ss << failure.description << ": error code 0x" << std::hex << failure.errorCode << "\n";
         }
+
+        popup_msg::g_show( ss.str().c_str(), SMP_NAME );
     }
 };
 
 initquit_factory_t<js_initquit> g_initquit;
-CAppModule _Module;
+
+} // namespace
 
 extern "C" BOOL WINAPI DllMain( HINSTANCE ins, DWORD reason, [[maybe_unused]] LPVOID lp )
 {
-    static ULONG_PTR g_gdip_token;
-
     switch ( reason )
     {
     case DLL_PROCESS_ATTACH:
     {
-        // Load TypeLib
-        TCHAR path[MAX_PATH + 4];
-        DWORD len = GetModuleFileName( ins, path, MAX_PATH );
-
-        path[len] = 0;
-
-        if ( FAILED( OleInitialize( nullptr ) ) )
-        {
-            g_load_status |= E_OLE;
-        }
-        if ( FAILED( LoadTypeLibEx( path, REGKIND_NONE, &g_typelib ) ) )
-        {
-            g_load_status |= E_TYPELIB;
-        }
-        if ( !Scintilla_RegisterClasses( ins ) )
-        {
-            g_load_status |= E_SCINTILLA;
-        }
-        Gdiplus::GdiplusStartupInput gdip_input;
-        if ( Gdiplus::GdiplusStartup( &g_gdip_token, &gdip_input, nullptr ) != Gdiplus::Ok )
-        {
-            g_load_status |= E_GDIPLUS;
-        }
-        _Module.Init( nullptr, ins );
-        AtlAxWinInit(); ///< ActiveX support
+        InitializeSubsystems( ins );
+        break;
     }
-    break;
+    
     case DLL_PROCESS_DETACH:
     {
-        // Term WTL
-        _Module.Term();
-
-        // Shutdown GDI+
-        Gdiplus::GdiplusShutdown( g_gdip_token );
-
-        // Free Scintilla resource
-        Scintilla_ReleaseResources();
-
-        OleUninitialize();
+        FinalizeSubsystems();
+        break;
     }
-    break;
     }
 
     return TRUE;
 }
-} // namespace
