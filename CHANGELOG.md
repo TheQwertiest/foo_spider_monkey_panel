@@ -9,6 +9,9 @@
 ___
 
 ## [Unreleased][]
+### Fixed
+- Fixed incorrect handling of UTF-16 BOM files in `include()` and `utils.ReadTextFile()`.
+- Fixed crash when `on_main_menu` callback is invoked.
 
 ## [1.0.3][] - 2018-10-11
 ### Changed
