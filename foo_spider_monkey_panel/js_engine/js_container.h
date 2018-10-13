@@ -16,6 +16,7 @@ class JsGdiGraphics;
 class JsDropSourceAction;
 struct DropActionParams;
 
+// Must not leak exceptions!
 class JsContainer final
 {
     // To access preparation call
@@ -86,7 +87,7 @@ private:
     JsDropSourceAction* pNativeDropAction_ = nullptr;
 
     JsStatus jsStatus_ = JsStatus::NotPrepared;
-    bool isScriptParsing_ = false;
+    bool isParsingScript_ = false;
 };
 
 }

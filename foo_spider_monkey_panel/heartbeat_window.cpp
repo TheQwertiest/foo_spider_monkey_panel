@@ -48,10 +48,11 @@ LRESULT CALLBACK HeartbeatWindow::WndProc( HWND hWnd, UINT message, WPARAM wPara
 {
     switch ( message )
     {
-        case WM_CREATE:
-            return 0;
+        case WM_CREATE:            
         case WM_DESTROY:
+        {
             return 0;
+        }
         case UWM_HEARTBEAT:
         {
             mozjs::JsEngine::GetInstance().OnHeartbeat();

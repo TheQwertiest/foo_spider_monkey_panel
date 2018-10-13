@@ -129,7 +129,7 @@ void JsContainer::Fail( const pfc::string8_fast &errorText )
     jsStatus_ = JsStatus::Failed;
 
     assert( pParentPanel_ );
-    const pfc::string8_fast errorTextPadded = [&pParentPanel = pParentPanel_, &errorText]()
+    const pfc::string8_fast errorTextPadded = [pParentPanel = pParentPanel_, &errorText]()
     {
         pfc::string8_fast text = "Error: " SMP_NAME_WITH_VERSION;
         text += " (";
@@ -159,7 +159,7 @@ bool JsContainer::ExecuteScript( const pfc::string8_fast&  scriptCode )
     assert( jsGlobal_.initialized() );
     assert( JsStatus::Ready == jsStatus_ );
 
-    isScriptParsing_ = true;
+    isParsingScript_ = true;
 
     scope::JsScope autoScope( pJsCtx_, jsGlobal_ );
 
@@ -170,7 +170,7 @@ bool JsContainer::ExecuteScript( const pfc::string8_fast&  scriptCode )
     JS::RootedValue dummyRval( pJsCtx_ );    
     bool bRet = JS::Evaluate( pJsCtx_, opts, scriptCode.c_str(), scriptCode.length(), &dummyRval );
 
-    isScriptParsing_ = false;
+    isParsingScript_ = false;
     return bRet;
 }
 
@@ -305,7 +305,7 @@ bool JsContainer::CreateDropActionIfNeeded()
 
 bool JsContainer::IsReadyForCallback() const
 {
-    return ( JsStatus::Ready == jsStatus_ ) && !isScriptParsing_;
+    return ( JsStatus::Ready == jsStatus_ ) && !isParsingScript_;
 }
 
 }

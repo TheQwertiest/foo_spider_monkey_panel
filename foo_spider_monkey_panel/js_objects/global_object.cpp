@@ -66,17 +66,14 @@ JSClass jsClass = {
      &jsOps
 };
 
-// Defining function manually, because we won't a proper logging and we can't name it `include`
+// Defining function manually, because we want a proper logging and we can't name it `include`
 // TODO: define a new macro?
 bool IncludeScript( JSContext* cx, unsigned argc, JS::Value* vp )
 {
-    bool bRet =
-        InvokeNativeCallback<0>( cx, &JsGlobalObject::IncludeScript, &JsGlobalObject::IncludeScript, argc, vp );
-    if ( !bRet )
-    {
-        mozjs::error::ReportJsErrorWithFunctionName( cx, "include" );
-    }
-    return bRet;
+    auto wrappedFunc = []( JSContext* cx, unsigned argc, JS::Value* vp ) {
+        return InvokeNativeCallback<0>( cx, &JsGlobalObject::IncludeScript, &JsGlobalObject::IncludeScript, argc, vp );
+    };
+    return mozjs::error::Execute_JsSafe( cx, "include", wrappedFunc, argc, vp );
 }
 
 const JSFunctionSpec jsFunctions[] = {
@@ -156,14 +153,14 @@ JSObject* JsGlobalObject::CreateNative( JSContext* cx, JsContainer &parentContai
         }
 #endif
 
-        auto pNative = new JsGlobalObject( cx, parentContainer );
+        auto pNative = std::unique_ptr<JsGlobalObject>( new JsGlobalObject( cx, parentContainer ) );
         pNative->heapManager_ = GlobalHeapManager::Create( cx );
         if ( !pNative->heapManager_ )
         {// reports
             return nullptr;
         }
 
-        JS_SetPrivate( jsObj, pNative );
+        JS_SetPrivate( jsObj, pNative.release() );
 
         if ( !CreateAndInstallPrototype<ActiveXObject>( cx, JsPrototypeId::ActiveX ) 
              || !CreateAndInstallPrototype<JsEnumerator>( cx, JsPrototypeId::Enumerator ) )

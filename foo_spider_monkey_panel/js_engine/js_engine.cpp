@@ -41,8 +41,6 @@ JsEngine& JsEngine::GetInstance()
 
 bool JsEngine::Initialize()
 {
-    namespace smp_advconf = smp::config::advanced;
-
     if ( isInitialized_ )
     {
         return true;
