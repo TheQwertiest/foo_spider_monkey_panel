@@ -33,9 +33,9 @@ JSClass jsClass = {
     &jsOps
 };
 
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbPlaybackQueueItem, get_Handle )
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbPlaybackQueueItem, get_PlaylistIndex )
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbPlaybackQueueItem, get_PlaylistItemIndex )
+MJS_DEFINE_JS_FN_FROM_NATIVE( get_Handle, JsFbPlaybackQueueItem::get_Handle )
+MJS_DEFINE_JS_FN_FROM_NATIVE( get_PlaylistIndex, JsFbPlaybackQueueItem::get_PlaylistIndex )
+MJS_DEFINE_JS_FN_FROM_NATIVE( get_PlaylistItemIndex, JsFbPlaybackQueueItem::get_PlaylistItemIndex )
 
 const JSPropertySpec jsProperties[] = {
     JS_PSG( "Handle", get_Handle, DefaultPropsFlags() ),

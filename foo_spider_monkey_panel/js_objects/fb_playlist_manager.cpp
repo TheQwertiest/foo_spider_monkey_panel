@@ -37,51 +37,51 @@ JSClass jsClass = {
     &jsOps
 };
 
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbPlaylistManager, AddItemToPlaybackQueue        );
-MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsFbPlaylistManager, AddLocations, AddLocationsWithOpt, 1 );
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbPlaylistManager, AddPlaylistItemToPlaybackQueue);
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbPlaylistManager, ClearPlaylist                 );
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbPlaylistManager, ClearPlaylistSelection        );
-MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsFbPlaylistManager, CreateAutoPlaylist, CreateAutoPlaylistWithOpt, 2 );
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbPlaylistManager, CreatePlaylist                );
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbPlaylistManager, DuplicatePlaylist            );
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbPlaylistManager, EnsurePlaylistItemVisible    );
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbPlaylistManager, ExecutePlaylistDefaultAction  );
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbPlaylistManager, FindOrCreatePlaylist          );
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbPlaylistManager, FindPlaybackQueueItemIndex    );
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbPlaylistManager, FindPlaylist                  );
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbPlaylistManager, FlushPlaybackQueue           );
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbPlaylistManager, GetPlaybackQueueContents   );
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbPlaylistManager, GetPlaybackQueueHandles       );
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbPlaylistManager, GetPlayingItemLocation        );
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbPlaylistManager, GetPlaylistFocusItemIndex     );
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbPlaylistManager, GetPlaylistItems              );
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbPlaylistManager, GetPlaylistName               );
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbPlaylistManager, GetPlaylistSelectedItems      );
-MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsFbPlaylistManager, InsertPlaylistItems, InsertPlaylistItemsWithOpt, 1 );
-MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsFbPlaylistManager, InsertPlaylistItemsFilter, InsertPlaylistItemsFilterWithOpt, 1 );
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbPlaylistManager, IsAutoPlaylist                );
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbPlaylistManager, IsPlaylistItemSelected        );
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbPlaylistManager, IsPlaylistLocked              );
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbPlaylistManager, MovePlaylist                  );
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbPlaylistManager, MovePlaylistSelection         );
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbPlaylistManager, PlaylistItemCount             );
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbPlaylistManager, RemoveItemFromPlaybackQueue  );
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbPlaylistManager, RemoveItemsFromPlaybackQueue);
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbPlaylistManager, RemovePlaylist                );
-MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsFbPlaylistManager, RemovePlaylistSelection, RemovePlaylistSelectionWithOpt, 1 );
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbPlaylistManager, RemovePlaylistSwitch          );
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbPlaylistManager, RenamePlaylist               );
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbPlaylistManager, SetActivePlaylistContext      );
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbPlaylistManager, SetPlaylistFocusItem          );
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbPlaylistManager, SetPlaylistFocusItemByHandle  );
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbPlaylistManager, SetPlaylistSelection       );
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbPlaylistManager, SetPlaylistSelectionSingle    );
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbPlaylistManager, ShowAutoPlaylistUI            );
-MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsFbPlaylistManager, SortByFormat, SortByFormatWithOpt, 1 );
-MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsFbPlaylistManager, SortByFormatV2, SortByFormatV2WithOpt, 1 );
-MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsFbPlaylistManager, SortPlaylistsByName, SortPlaylistsByNameWithOpt, 1 );
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbPlaylistManager, UndoBackup                    );
+MJS_DEFINE_JS_FN_FROM_NATIVE( AddItemToPlaybackQueue, JsFbPlaylistManager::AddItemToPlaybackQueue );
+MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( AddLocations, JsFbPlaylistManager::AddLocations, JsFbPlaylistManager::AddLocationsWithOpt, 1 );
+MJS_DEFINE_JS_FN_FROM_NATIVE( AddPlaylistItemToPlaybackQueue, JsFbPlaylistManager::AddPlaylistItemToPlaybackQueue );
+MJS_DEFINE_JS_FN_FROM_NATIVE( ClearPlaylist, JsFbPlaylistManager::ClearPlaylist );
+MJS_DEFINE_JS_FN_FROM_NATIVE( ClearPlaylistSelection, JsFbPlaylistManager::ClearPlaylistSelection );
+MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( CreateAutoPlaylist, JsFbPlaylistManager::CreateAutoPlaylist, JsFbPlaylistManager::CreateAutoPlaylistWithOpt, 2 );
+MJS_DEFINE_JS_FN_FROM_NATIVE( CreatePlaylist, JsFbPlaylistManager::CreatePlaylist );
+MJS_DEFINE_JS_FN_FROM_NATIVE( DuplicatePlaylist, JsFbPlaylistManager::DuplicatePlaylist );
+MJS_DEFINE_JS_FN_FROM_NATIVE( EnsurePlaylistItemVisible, JsFbPlaylistManager::EnsurePlaylistItemVisible );
+MJS_DEFINE_JS_FN_FROM_NATIVE( ExecutePlaylistDefaultAction, JsFbPlaylistManager::ExecutePlaylistDefaultAction );
+MJS_DEFINE_JS_FN_FROM_NATIVE( FindOrCreatePlaylist, JsFbPlaylistManager::FindOrCreatePlaylist );
+MJS_DEFINE_JS_FN_FROM_NATIVE( FindPlaybackQueueItemIndex, JsFbPlaylistManager::FindPlaybackQueueItemIndex );
+MJS_DEFINE_JS_FN_FROM_NATIVE( FindPlaylist, JsFbPlaylistManager::FindPlaylist );
+MJS_DEFINE_JS_FN_FROM_NATIVE( FlushPlaybackQueue, JsFbPlaylistManager::FlushPlaybackQueue );
+MJS_DEFINE_JS_FN_FROM_NATIVE( GetPlaybackQueueContents, JsFbPlaylistManager::GetPlaybackQueueContents );
+MJS_DEFINE_JS_FN_FROM_NATIVE( GetPlaybackQueueHandles, JsFbPlaylistManager::GetPlaybackQueueHandles );
+MJS_DEFINE_JS_FN_FROM_NATIVE( GetPlayingItemLocation, JsFbPlaylistManager::GetPlayingItemLocation );
+MJS_DEFINE_JS_FN_FROM_NATIVE( GetPlaylistFocusItemIndex, JsFbPlaylistManager::GetPlaylistFocusItemIndex );
+MJS_DEFINE_JS_FN_FROM_NATIVE( GetPlaylistItems, JsFbPlaylistManager::GetPlaylistItems );
+MJS_DEFINE_JS_FN_FROM_NATIVE( GetPlaylistName, JsFbPlaylistManager::GetPlaylistName );
+MJS_DEFINE_JS_FN_FROM_NATIVE( GetPlaylistSelectedItems, JsFbPlaylistManager::GetPlaylistSelectedItems );
+MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( InsertPlaylistItems, JsFbPlaylistManager::InsertPlaylistItems, JsFbPlaylistManager::InsertPlaylistItemsWithOpt, 1 );
+MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( InsertPlaylistItemsFilter, JsFbPlaylistManager::InsertPlaylistItemsFilter, JsFbPlaylistManager::InsertPlaylistItemsFilterWithOpt, 1 );
+MJS_DEFINE_JS_FN_FROM_NATIVE( IsAutoPlaylist, JsFbPlaylistManager::IsAutoPlaylist );
+MJS_DEFINE_JS_FN_FROM_NATIVE( IsPlaylistItemSelected, JsFbPlaylistManager::IsPlaylistItemSelected );
+MJS_DEFINE_JS_FN_FROM_NATIVE( IsPlaylistLocked, JsFbPlaylistManager::IsPlaylistLocked );
+MJS_DEFINE_JS_FN_FROM_NATIVE( MovePlaylist, JsFbPlaylistManager::MovePlaylist );
+MJS_DEFINE_JS_FN_FROM_NATIVE( MovePlaylistSelection, JsFbPlaylistManager::MovePlaylistSelection );
+MJS_DEFINE_JS_FN_FROM_NATIVE( PlaylistItemCount, JsFbPlaylistManager::PlaylistItemCount );
+MJS_DEFINE_JS_FN_FROM_NATIVE( RemoveItemFromPlaybackQueue, JsFbPlaylistManager::RemoveItemFromPlaybackQueue );
+MJS_DEFINE_JS_FN_FROM_NATIVE( RemoveItemsFromPlaybackQueue, JsFbPlaylistManager::RemoveItemsFromPlaybackQueue );
+MJS_DEFINE_JS_FN_FROM_NATIVE( RemovePlaylist, JsFbPlaylistManager::RemovePlaylist );
+MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( RemovePlaylistSelection, JsFbPlaylistManager::RemovePlaylistSelection, JsFbPlaylistManager::RemovePlaylistSelectionWithOpt, 1 );
+MJS_DEFINE_JS_FN_FROM_NATIVE( RemovePlaylistSwitch, JsFbPlaylistManager::RemovePlaylistSwitch );
+MJS_DEFINE_JS_FN_FROM_NATIVE( RenamePlaylist, JsFbPlaylistManager::RenamePlaylist );
+MJS_DEFINE_JS_FN_FROM_NATIVE( SetActivePlaylistContext, JsFbPlaylistManager::SetActivePlaylistContext );
+MJS_DEFINE_JS_FN_FROM_NATIVE( SetPlaylistFocusItem, JsFbPlaylistManager::SetPlaylistFocusItem );
+MJS_DEFINE_JS_FN_FROM_NATIVE( SetPlaylistFocusItemByHandle, JsFbPlaylistManager::SetPlaylistFocusItemByHandle );
+MJS_DEFINE_JS_FN_FROM_NATIVE( SetPlaylistSelection, JsFbPlaylistManager::SetPlaylistSelection );
+MJS_DEFINE_JS_FN_FROM_NATIVE( SetPlaylistSelectionSingle, JsFbPlaylistManager::SetPlaylistSelectionSingle );
+MJS_DEFINE_JS_FN_FROM_NATIVE( ShowAutoPlaylistUI, JsFbPlaylistManager::ShowAutoPlaylistUI );
+MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( SortByFormat, JsFbPlaylistManager::SortByFormat, JsFbPlaylistManager::SortByFormatWithOpt, 1 );
+MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( SortByFormatV2, JsFbPlaylistManager::SortByFormatV2, JsFbPlaylistManager::SortByFormatV2WithOpt, 1 );
+MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( SortPlaylistsByName, JsFbPlaylistManager::SortPlaylistsByName, JsFbPlaylistManager::SortPlaylistsByNameWithOpt, 1 );
+MJS_DEFINE_JS_FN_FROM_NATIVE( UndoBackup, JsFbPlaylistManager::UndoBackup );
 
 
 const JSFunctionSpec jsFunctions[] = {
@@ -133,14 +133,14 @@ const JSFunctionSpec jsFunctions[] = {
     JS_FS_END
 };
 
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbPlaylistManager, get_ActivePlaylist );
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbPlaylistManager, get_PlaybackOrder );
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbPlaylistManager, get_PlayingPlaylist );
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbPlaylistManager, get_PlaylistCount );
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbPlaylistManager, get_PlaylistRecyclerManager );
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbPlaylistManager, put_ActivePlaylist );
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbPlaylistManager, put_PlaybackOrder );
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbPlaylistManager, put_PlayingPlaylist );
+MJS_DEFINE_JS_FN_FROM_NATIVE( get_ActivePlaylist, JsFbPlaylistManager::get_ActivePlaylist );
+MJS_DEFINE_JS_FN_FROM_NATIVE( get_PlaybackOrder, JsFbPlaylistManager::get_PlaybackOrder );
+MJS_DEFINE_JS_FN_FROM_NATIVE( get_PlayingPlaylist, JsFbPlaylistManager::get_PlayingPlaylist );
+MJS_DEFINE_JS_FN_FROM_NATIVE( get_PlaylistCount, JsFbPlaylistManager::get_PlaylistCount );
+MJS_DEFINE_JS_FN_FROM_NATIVE( get_PlaylistRecyclerManager, JsFbPlaylistManager::get_PlaylistRecyclerManager );
+MJS_DEFINE_JS_FN_FROM_NATIVE( put_ActivePlaylist, JsFbPlaylistManager::put_ActivePlaylist );
+MJS_DEFINE_JS_FN_FROM_NATIVE( put_PlaybackOrder, JsFbPlaylistManager::put_PlaybackOrder );
+MJS_DEFINE_JS_FN_FROM_NATIVE( put_PlayingPlaylist, JsFbPlaylistManager::put_PlayingPlaylist );
 
 const JSPropertySpec jsProperties[] = {
     JS_PSGS( "ActivePlaylist", get_ActivePlaylist, put_ActivePlaylist, DefaultPropsFlags() ),

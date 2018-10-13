@@ -40,10 +40,10 @@ JSClass jsClass = {
     &jsOps
 };
 
-MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiUtils, CreateImage )
-MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsGdiUtils, Font, FontWithOpt, 1 )
-MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiUtils, Image )
-MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiUtils, LoadImageAsync )
+MJS_DEFINE_JS_FN_FROM_NATIVE( CreateImage, JsGdiUtils::CreateImage )
+MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( Font, JsGdiUtils::Font, JsGdiUtils::FontWithOpt, 1 )
+MJS_DEFINE_JS_FN_FROM_NATIVE( Image, JsGdiUtils::Image )
+MJS_DEFINE_JS_FN_FROM_NATIVE( LoadImageAsync, JsGdiUtils::LoadImageAsync )
 
 const JSFunctionSpec jsFunctions[] = {
     JS_FN( "CreateImage", CreateImage, 2, DefaultPropsFlags() ),

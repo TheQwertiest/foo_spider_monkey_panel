@@ -38,10 +38,10 @@ const JSFunctionSpec jsFunctions[] = {
     JS_FS_END
 };
 
-MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiFont, get_Height )
-MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiFont, get_Name )
-MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiFont, get_Size )
-MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiFont, get_Style )
+MJS_DEFINE_JS_FN_FROM_NATIVE( get_Height, JsGdiFont::get_Height )
+MJS_DEFINE_JS_FN_FROM_NATIVE( get_Name, JsGdiFont::get_Name )
+MJS_DEFINE_JS_FN_FROM_NATIVE( get_Size, JsGdiFont::get_Size )
+MJS_DEFINE_JS_FN_FROM_NATIVE( get_Style, JsGdiFont::get_Style )
 
 const JSPropertySpec jsProperties[] = {
     JS_PSG( "Height", get_Height, DefaultPropsFlags() ),

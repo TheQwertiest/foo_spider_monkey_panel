@@ -588,6 +588,9 @@
     <ClInclude Include="js_utils\js_property_helper.h">
       <Filter>js_utils</Filter>
     </ClInclude>
+    <ClInclude Include="smp_exception.h">
+      <Filter>z_uncategorized</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="default.js">

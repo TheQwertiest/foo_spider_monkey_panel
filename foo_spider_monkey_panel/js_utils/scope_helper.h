@@ -89,7 +89,7 @@ public:
 private:
     JSAutoRequest ar_;
     JSAutoCompartment ac_;
-    AutoReportException are_;
+    error::AutoJsReport are_;
 };
 
 }

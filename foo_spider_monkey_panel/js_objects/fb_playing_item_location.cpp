@@ -32,9 +32,9 @@ JSClass jsClass = {
     &jsOps
 };
 
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbPlayingItemLocation, get_IsValid )
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbPlayingItemLocation, get_PlaylistIndex )
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbPlayingItemLocation, get_PlaylistItemIndex )
+MJS_DEFINE_JS_FN_FROM_NATIVE( get_IsValid, JsFbPlayingItemLocation::get_IsValid )
+MJS_DEFINE_JS_FN_FROM_NATIVE( get_PlaylistIndex, JsFbPlayingItemLocation::get_PlaylistIndex )
+MJS_DEFINE_JS_FN_FROM_NATIVE( get_PlaylistItemIndex, JsFbPlayingItemLocation::get_PlaylistItemIndex )
 
 const JSPropertySpec jsProperties[] = {
     JS_PSG( "IsValid", get_IsValid, DefaultPropsFlags() ),

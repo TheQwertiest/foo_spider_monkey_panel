@@ -32,9 +32,9 @@ JSClass jsClass = {
     &jsOps
 };
 
-MJS_DEFINE_JS_TO_NATIVE_FN( JsMainMenuManager, BuildMenu )
-MJS_DEFINE_JS_TO_NATIVE_FN( JsMainMenuManager, ExecuteByID )
-MJS_DEFINE_JS_TO_NATIVE_FN( JsMainMenuManager, Init )
+MJS_DEFINE_JS_FN_FROM_NATIVE( BuildMenu, JsMainMenuManager::BuildMenu )
+MJS_DEFINE_JS_FN_FROM_NATIVE( ExecuteByID, JsMainMenuManager::ExecuteByID )
+MJS_DEFINE_JS_FN_FROM_NATIVE( Init, JsMainMenuManager::Init )
 
 const JSFunctionSpec jsFunctions[] = {
     JS_FN( "BuildMenu", BuildMenu, 3, DefaultPropsFlags() ),

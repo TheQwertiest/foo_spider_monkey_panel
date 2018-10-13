@@ -34,18 +34,18 @@ JSClass jsClass = {
     &jsOps
 };
 
-MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsContextMenuManager, BuildMenu, BuildMenuWithOpt, 1 )
-MJS_DEFINE_JS_TO_NATIVE_FN( JsContextMenuManager, ExecuteByID )
-MJS_DEFINE_JS_TO_NATIVE_FN( JsContextMenuManager, InitContext )
-MJS_DEFINE_JS_TO_NATIVE_FN( JsContextMenuManager, InitContextPlaylist )
-MJS_DEFINE_JS_TO_NATIVE_FN( JsContextMenuManager, InitNowPlaying )
+MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( BuildMenu, JsContextMenuManager::BuildMenu, JsContextMenuManager::BuildMenuWithOpt, 1 )
+MJS_DEFINE_JS_FN_FROM_NATIVE( ExecuteByID, JsContextMenuManager::ExecuteByID )
+MJS_DEFINE_JS_FN_FROM_NATIVE( InitContext, JsContextMenuManager::InitContext )
+MJS_DEFINE_JS_FN_FROM_NATIVE( InitContextPlaylist, JsContextMenuManager::InitContextPlaylist )
+MJS_DEFINE_JS_FN_FROM_NATIVE( InitNowPlaying, JsContextMenuManager::InitNowPlaying )
 
 const JSFunctionSpec jsFunctions[] = {
-    JS_FN( "BuildMenu",  BuildMenu, 2, DefaultPropsFlags() ),
-    JS_FN( "ExecuteByID",  ExecuteByID, 1, DefaultPropsFlags() ),
-    JS_FN( "InitContext",  InitContext, 1, DefaultPropsFlags() ),
-    JS_FN( "InitContextPlaylist",  InitContextPlaylist, 0, DefaultPropsFlags() ),
-    JS_FN( "InitNowPlaying",  InitNowPlaying, 0, DefaultPropsFlags() ),
+    JS_FN( "BuildMenu", BuildMenu, 2, DefaultPropsFlags() ),
+    JS_FN( "ExecuteByID", ExecuteByID, 1, DefaultPropsFlags() ),
+    JS_FN( "InitContext", InitContext, 1, DefaultPropsFlags() ),
+    JS_FN( "InitContextPlaylist", InitContextPlaylist, 0, DefaultPropsFlags() ),
+    JS_FN( "InitNowPlaying", InitNowPlaying, 0, DefaultPropsFlags() ),
     JS_FS_END
 };
 

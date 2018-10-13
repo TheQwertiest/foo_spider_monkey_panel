@@ -257,7 +257,7 @@ void HostTimerTask::invoke()
     JS::RootedValue retVal( pJsCtx_ );
 
     {
-        mozjs::AutoReportException are( pJsCtx_ );
+        mozjs::error::AutoJsReport are( pJsCtx_ );
         JS::Call( pJsCtx_, jsGlobal, rFunc, JS::HandleValueArray::empty(), &retVal );
     }
 }

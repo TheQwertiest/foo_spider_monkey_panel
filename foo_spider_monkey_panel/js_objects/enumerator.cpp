@@ -67,12 +67,12 @@ bool Enumerator_Constructor_Impl( JSContext* cx, unsigned argc, JS::Value* vp )
     return true;
 }
 
-MJS_WRAP_JS_TO_NATIVE_FN( Enumerator_Constructor, Enumerator_Constructor_Impl )
+MJS_DEFINE_JS_FN( Enumerator_Constructor, Enumerator_Constructor_Impl )
 
-MJS_DEFINE_JS_TO_NATIVE_FN( JsEnumerator, atEnd )
-MJS_DEFINE_JS_TO_NATIVE_FN( JsEnumerator, item )
-MJS_DEFINE_JS_TO_NATIVE_FN( JsEnumerator, moveFirst )
-MJS_DEFINE_JS_TO_NATIVE_FN( JsEnumerator, moveNext )
+MJS_DEFINE_JS_FN_FROM_NATIVE( atEnd, JsEnumerator::AtEnd )
+MJS_DEFINE_JS_FN_FROM_NATIVE( item, JsEnumerator::Item )
+MJS_DEFINE_JS_FN_FROM_NATIVE( moveFirst, JsEnumerator::MoveFirst )
+MJS_DEFINE_JS_FN_FROM_NATIVE( moveNext, JsEnumerator::MoveNext )
 
 const JSFunctionSpec jsFunctions[] = {
     JS_FN( "atEnd", atEnd, 0, DefaultPropsFlags() ),
@@ -141,13 +141,13 @@ size_t JsEnumerator::GetInternalSize( IUnknown* /*pUnknown*/ )
 
 
 std::optional<bool> 
-JsEnumerator::atEnd()
+JsEnumerator::AtEnd()
 {
     return !hasElements_ || isAtEnd_;
 }
 
 std::optional<JS::Value> 
-JsEnumerator::item()
+JsEnumerator::Item()
 {
     if ( !hasElements_ || isAtEnd_ )
     {
@@ -165,7 +165,7 @@ JsEnumerator::item()
 }
 
 std::optional<std::nullptr_t> 
-JsEnumerator::moveFirst()
+JsEnumerator::MoveFirst()
 {
     HRESULT hr = pEnum_->Reset();
     IF_HR_FAILED_RETURN_WITH_REPORT( pJsCtx_, hr, std::nullopt, Reset );
@@ -179,7 +179,7 @@ JsEnumerator::moveFirst()
 }
 
 std::optional<std::nullptr_t> 
-JsEnumerator::moveNext()
+JsEnumerator::MoveNext()
 {
     if ( !GetCurrentElement() )
     {// reports

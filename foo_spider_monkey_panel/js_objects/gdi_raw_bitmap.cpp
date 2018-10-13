@@ -41,8 +41,8 @@ const JSFunctionSpec jsFunctions[] = {
     JS_FS_END
 };
 
-MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiRawBitmap, get_Height )
-MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiRawBitmap, get_Width )
+MJS_DEFINE_JS_FN_FROM_NATIVE( get_Height, JsGdiRawBitmap::get_Height )
+MJS_DEFINE_JS_FN_FROM_NATIVE( get_Width, JsGdiRawBitmap::get_Width )
 
 const JSPropertySpec jsProperties[] = {
     JS_PSG( "Height", get_Height, DefaultPropsFlags() ),

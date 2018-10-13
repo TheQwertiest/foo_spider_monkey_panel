@@ -50,27 +50,27 @@ JSClass jsClass = {
     &jsOps
 };
 
-MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsUtils, CheckComponent, CheckComponentWithOpt, 1 );
-MJS_DEFINE_JS_TO_NATIVE_FN( JsUtils, CheckFont );
-MJS_DEFINE_JS_TO_NATIVE_FN( JsUtils, ColourPicker );
-MJS_DEFINE_JS_TO_NATIVE_FN( JsUtils, FileTest );
-MJS_DEFINE_JS_TO_NATIVE_FN( JsUtils, FormatDuration );
-MJS_DEFINE_JS_TO_NATIVE_FN( JsUtils, FormatFileSize );
-MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsUtils, GetAlbumArtAsync, GetAlbumArtAsyncWithOpt, 4 );
-MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsUtils, GetAlbumArtEmbedded, GetAlbumArtEmbeddedWithOpt, 1 );
-MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsUtils, GetAlbumArtV2, GetAlbumArtV2WithOpt, 2 );
-MJS_DEFINE_JS_TO_NATIVE_FN( JsUtils, GetSysColour );
-MJS_DEFINE_JS_TO_NATIVE_FN( JsUtils, GetSystemMetrics );
-MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsUtils, Glob, GlobWithOpt, 2 );
-MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsUtils, InputBox, InputBoxWithOpt, 2 );
-MJS_DEFINE_JS_TO_NATIVE_FN( JsUtils, IsKeyPressed );
-MJS_DEFINE_JS_TO_NATIVE_FN( JsUtils, MapString );
-MJS_DEFINE_JS_TO_NATIVE_FN( JsUtils, PathWildcardMatch );
-MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsUtils, ReadINI, ReadINIWithOpt, 1 );
-MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsUtils, ReadTextFile, ReadTextFileWithOpt, 1 );
-MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsUtils, ShowHtmlDialog, ShowHtmlDialogWithOpt, 1 );
-MJS_DEFINE_JS_TO_NATIVE_FN( JsUtils, WriteINI );
-MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsUtils, WriteTextFile, WriteTextFileWithOpt, 1 );
+MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( CheckComponent, JsUtils::CheckComponent, JsUtils::CheckComponentWithOpt, 1 );
+MJS_DEFINE_JS_FN_FROM_NATIVE( CheckFont, JsUtils::CheckFont );
+MJS_DEFINE_JS_FN_FROM_NATIVE( ColourPicker, JsUtils::ColourPicker );
+MJS_DEFINE_JS_FN_FROM_NATIVE( FileTest, JsUtils::FileTest );
+MJS_DEFINE_JS_FN_FROM_NATIVE( FormatDuration, JsUtils::FormatDuration );
+MJS_DEFINE_JS_FN_FROM_NATIVE( FormatFileSize, JsUtils::FormatFileSize );
+MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( GetAlbumArtAsync, JsUtils::GetAlbumArtAsync, JsUtils::GetAlbumArtAsyncWithOpt, 4 );
+MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( GetAlbumArtEmbedded, JsUtils::GetAlbumArtEmbedded, JsUtils::GetAlbumArtEmbeddedWithOpt, 1 );
+MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( GetAlbumArtV2, JsUtils::GetAlbumArtV2, JsUtils::GetAlbumArtV2WithOpt, 2 );
+MJS_DEFINE_JS_FN_FROM_NATIVE( GetSysColour, JsUtils::GetSysColour );
+MJS_DEFINE_JS_FN_FROM_NATIVE( GetSystemMetrics, JsUtils::GetSystemMetrics );
+MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( Glob, JsUtils::Glob, JsUtils::GlobWithOpt, 2 );
+MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( InputBox, JsUtils::InputBox, JsUtils::InputBoxWithOpt, 2 );
+MJS_DEFINE_JS_FN_FROM_NATIVE( IsKeyPressed, JsUtils::IsKeyPressed );
+MJS_DEFINE_JS_FN_FROM_NATIVE( MapString, JsUtils::MapString );
+MJS_DEFINE_JS_FN_FROM_NATIVE( PathWildcardMatch, JsUtils::PathWildcardMatch );
+MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( ReadINI, JsUtils::ReadINI, JsUtils::ReadINIWithOpt, 1 );
+MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( ReadTextFile, JsUtils::ReadTextFile, JsUtils::ReadTextFileWithOpt, 1 );
+MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( ShowHtmlDialog, JsUtils::ShowHtmlDialog, JsUtils::ShowHtmlDialogWithOpt, 1 );
+MJS_DEFINE_JS_FN_FROM_NATIVE( WriteINI, JsUtils::WriteINI );
+MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( WriteTextFile, JsUtils::WriteTextFile, JsUtils::WriteTextFileWithOpt, 1 );
 
 const JSFunctionSpec jsFunctions[] = {
     JS_FN( "CheckComponent", CheckComponent, 1, DefaultPropsFlags() ),
@@ -97,7 +97,7 @@ const JSFunctionSpec jsFunctions[] = {
     JS_FS_END
 };
 
-MJS_DEFINE_JS_TO_NATIVE_FN( JsUtils, get_Version )
+MJS_DEFINE_JS_FN_FROM_NATIVE( get_Version, JsUtils::get_Version )
 
 const JSPropertySpec jsProperties[] = {
     JS_PSG( "Version", get_Version, DefaultPropsFlags() ),

@@ -35,8 +35,8 @@ JSClass jsClass = {
     &jsOps
 };
 
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbPlaylistRecyclerManager, Purge )
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbPlaylistRecyclerManager, Restore )
+MJS_DEFINE_JS_FN_FROM_NATIVE( Purge, JsFbPlaylistRecyclerManager::Purge )
+MJS_DEFINE_JS_FN_FROM_NATIVE( Restore, JsFbPlaylistRecyclerManager::Restore )
 
 const JSFunctionSpec jsFunctions[] = {
     JS_FN( "Purge", Purge, 1, DefaultPropsFlags() ),
@@ -44,9 +44,9 @@ const JSFunctionSpec jsFunctions[] = {
     JS_FS_END
 };
 
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbPlaylistRecyclerManager, get_Content )
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbPlaylistRecyclerManager, get_Count )
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbPlaylistRecyclerManager, get_Name )
+MJS_DEFINE_JS_FN_FROM_NATIVE( get_Content, JsFbPlaylistRecyclerManager::get_Content )
+MJS_DEFINE_JS_FN_FROM_NATIVE( get_Count, JsFbPlaylistRecyclerManager::get_Count )
+MJS_DEFINE_JS_FN_FROM_NATIVE( get_Name, JsFbPlaylistRecyclerManager::get_Name )
 
 const JSPropertySpec jsProperties[] = {
     JS_PSG( "Content", get_Content, DefaultPropsFlags() ),

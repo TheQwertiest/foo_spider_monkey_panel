@@ -35,19 +35,19 @@ const JSFunctionSpec jsFunctions[] = {
     JS_FS_END
 };
 
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbWindow, get_Aero )
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbWindow, get_BlockMaximize )
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbWindow, get_FoobarCpuUsage )
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbWindow, get_FrameStyle )
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbWindow, get_FullScreen )
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbWindow, get_MainWindowState )
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbWindow, get_Sizing )
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbWindow, get_SystemCpuUsage )
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbWindow, put_BlockMaximize )
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbWindow, put_FrameStyle )
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbWindow, put_FullScreen )
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbWindow, put_MainWindowState )
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbWindow, put_Sizing )
+MJS_DEFINE_JS_FN_FROM_NATIVE( get_Aero, JsFbWindow::get_Aero )
+MJS_DEFINE_JS_FN_FROM_NATIVE( get_BlockMaximize, JsFbWindow::get_BlockMaximize )
+MJS_DEFINE_JS_FN_FROM_NATIVE( get_FoobarCpuUsage, JsFbWindow::get_FoobarCpuUsage )
+MJS_DEFINE_JS_FN_FROM_NATIVE( get_FrameStyle, JsFbWindow::get_FrameStyle )
+MJS_DEFINE_JS_FN_FROM_NATIVE( get_FullScreen, JsFbWindow::get_FullScreen )
+MJS_DEFINE_JS_FN_FROM_NATIVE( get_MainWindowState, JsFbWindow::get_MainWindowState )
+MJS_DEFINE_JS_FN_FROM_NATIVE( get_Sizing, JsFbWindow::get_Sizing )
+MJS_DEFINE_JS_FN_FROM_NATIVE( get_SystemCpuUsage, JsFbWindow::get_SystemCpuUsage )
+MJS_DEFINE_JS_FN_FROM_NATIVE( put_BlockMaximize, JsFbWindow::put_BlockMaximize )
+MJS_DEFINE_JS_FN_FROM_NATIVE( put_FrameStyle, JsFbWindow::put_FrameStyle )
+MJS_DEFINE_JS_FN_FROM_NATIVE( put_FullScreen, JsFbWindow::put_FullScreen )
+MJS_DEFINE_JS_FN_FROM_NATIVE( put_MainWindowState, JsFbWindow::put_MainWindowState )
+MJS_DEFINE_JS_FN_FROM_NATIVE( put_Sizing, JsFbWindow::put_Sizing )
 
 const JSPropertySpec jsProperties[] = {
     JS_PSG( "Aero", get_Aero, DefaultPropsFlags() ),

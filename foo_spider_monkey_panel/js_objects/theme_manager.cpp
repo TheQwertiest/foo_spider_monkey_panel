@@ -34,9 +34,9 @@ JSClass jsClass = {
     &jsOps
 };
 
-MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsThemeManager, DrawThemeBackground, DrawThemeBackgroundWithOpt, 4 )
-MJS_DEFINE_JS_TO_NATIVE_FN( JsThemeManager, IsThemePartDefined )
-MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsThemeManager, SetPartAndStateID, SetPartAndStateIDWithOpt, 1 )
+MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( DrawThemeBackground, JsThemeManager::DrawThemeBackground, JsThemeManager::DrawThemeBackgroundWithOpt, 4 )
+MJS_DEFINE_JS_FN_FROM_NATIVE( IsThemePartDefined, JsThemeManager::IsThemePartDefined )
+MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( SetPartAndStateID, JsThemeManager::SetPartAndStateID, JsThemeManager::SetPartAndStateIDWithOpt, 1 )
 
 const JSFunctionSpec jsFunctions[] = {
     JS_FN( "DrawThemeBackground", DrawThemeBackground, 5, DefaultPropsFlags() ),

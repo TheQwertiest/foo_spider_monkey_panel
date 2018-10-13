@@ -32,13 +32,13 @@ JSClass jsClass = {
     &jsOps
 };
 
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbFileInfo, InfoFind );
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbFileInfo, InfoName );
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbFileInfo, InfoValue );
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbFileInfo, MetaFind );
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbFileInfo, MetaName );
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbFileInfo, MetaValue );
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbFileInfo, MetaValueCount );
+MJS_DEFINE_JS_FN_FROM_NATIVE( InfoFind, JsFbFileInfo::InfoFind );
+MJS_DEFINE_JS_FN_FROM_NATIVE( InfoName, JsFbFileInfo::InfoName );
+MJS_DEFINE_JS_FN_FROM_NATIVE( InfoValue, JsFbFileInfo::InfoValue );
+MJS_DEFINE_JS_FN_FROM_NATIVE( MetaFind, JsFbFileInfo::MetaFind );
+MJS_DEFINE_JS_FN_FROM_NATIVE( MetaName, JsFbFileInfo::MetaName );
+MJS_DEFINE_JS_FN_FROM_NATIVE( MetaValue, JsFbFileInfo::MetaValue );
+MJS_DEFINE_JS_FN_FROM_NATIVE( MetaValueCount, JsFbFileInfo::MetaValueCount );
 
 const JSFunctionSpec jsFunctions[] = {
     JS_FN( "InfoFind",       InfoFind      , 1, DefaultPropsFlags() ),
@@ -51,8 +51,8 @@ const JSFunctionSpec jsFunctions[] = {
     JS_FS_END
 };
 
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbFileInfo, get_InfoCount );
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbFileInfo, get_MetaCount );
+MJS_DEFINE_JS_FN_FROM_NATIVE( get_InfoCount, JsFbFileInfo::get_InfoCount );
+MJS_DEFINE_JS_FN_FROM_NATIVE( get_MetaCount, JsFbFileInfo::get_MetaCount );
 
 
 const JSPropertySpec jsProperties[] = {

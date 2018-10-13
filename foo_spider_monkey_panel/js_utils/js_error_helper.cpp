@@ -6,152 +6,10 @@
 #include <js_objects/global_object.h>
 #include <js_utils/scope_helper.h>
 
-#include <popup_msg.h>
-#include <user_message.h>
+#include <smp_exception.h>
 
-
-namespace mozjs
+namespace
 {
-
-AutoReportException::AutoReportException( JSContext* cx )
-    : cx( cx )
-{
-}
-
-AutoReportException::~AutoReportException()
-{
-    if ( isDisabled_ )
-    {
-        return;
-    }
-
-    if ( !JS_IsExceptionPending( cx ) )
-    {
-        return;
-    }
-
-    // Get exception object before printing and clearing exception.
-    JS::RootedValue excn( cx );
-    (void)JS_GetPendingException( cx, &excn );
-
-    JS_ClearPendingException( cx );   
-
-    JS::RootedObject global( cx, JS::CurrentGlobalOrNull( cx ) );
-    if ( !global )
-    {
-        assert( 0 );
-        return;
-    }
-
-    auto globalCtx = static_cast<JsGlobalObject *>(JS_GetPrivate( global ));
-    if ( !globalCtx )
-    {
-        assert( 0 );
-        return;
-    }
-
-    struct ScopedFail
-    {
-        ScopedFail( JSContext* pCx, JsGlobalObject * pGlobal )
-            : pCx( pCx )
-            , pGlobal( pGlobal )
-        {
-        }
-        ~ScopedFail()
-        {
-            pGlobal->Fail( errorText );
-            JS_ClearPendingException( pCx );
-        }
-
-        JSContext* pCx = nullptr;
-        JsGlobalObject * pGlobal = nullptr;
-        pfc::string8_fast errorText;
-    };
-    ScopedFail scFail( cx, globalCtx );
-
-    if ( excn.isString() )
-    {
-        auto retVal = convert::to_native::ToValue<pfc::string8_fast>( cx, excn );
-        if ( !retVal )
-        {
-            return;
-        }
-
-        scFail.errorText = retVal.value();
-    }
-    else if ( excn.isObject() )
-    {
-        JS::RootedObject excnObject( cx, &excn.toObject() );
-
-        JSErrorReport* report = JS_ErrorFromException( cx, excnObject );
-        if ( !report )
-        {// Can sometimes happen :/
-            return;
-        }
-
-        assert( !JSREPORT_IS_WARNING( report->flags ) );
-        
-        scFail.errorText = report->message().c_str();
-        if ( report->filename )
-        {
-            scFail.errorText += "\n\n";
-            scFail.errorText += "File: ";
-            scFail.errorText += report->filename;
-            scFail.errorText += "\n";
-            scFail.errorText += "Line: ";
-            scFail.errorText += std::to_string( report->lineno ).c_str();
-            scFail.errorText += ", Column: ";
-            scFail.errorText += std::to_string( report->column ).c_str();
-            if ( report->linebufLength() )
-            {
-                scFail.errorText += "\n";
-                scFail.errorText += pfc::stringcvt::string_utf8_from_utf16( report->linebuf(), report->linebufLength() );
-            }
-        }
-
-        pfc::string8_fast stackTrace = GetStackTraceString( cx, excnObject );
-        if ( !stackTrace.is_empty() )
-        {
-            scFail.errorText += "\n\n";
-            scFail.errorText += "Stack trace:\n";
-            scFail.errorText += stackTrace;
-        }
-    }
-}
-
-void AutoReportException::Disable()
-{
-    isDisabled_ = true;
-}
-
-pfc::string8_fast AutoReportException::GetStackTraceString( JSContext* cx, JS::HandleObject exn )
-{
-    // Exceptions thrown while compiling top-level script have no stack.
-    JS::RootedObject stackObj( cx, JS::ExceptionStackOrNull( exn ) );
-    if ( !stackObj )
-    {
-        return pfc::string8_fast();
-    }
-
-    JS::RootedString stackStr( cx );
-    if ( !BuildStackString( cx, stackObj, &stackStr, 2 ) )
-    {
-        return pfc::string8_fast();
-    }
-
-    // JS::UniqueChars generates heap corruption exception in it's destructor
-    const char* encodedString = JS_EncodeStringToUTF8( cx, stackStr );
-    if ( !encodedString )
-    {
-        return pfc::string8_fast();
-    } 
-
-    pfc::string8_fast outString( encodedString );
-    JS_free( cx, (void*)encodedString );
-
-    return outString;
-}
-
 
 pfc::string8_fast GetCurrentExceptionText( JSContext* cx )
 {
@@ -191,10 +49,177 @@ pfc::string8_fast GetCurrentExceptionText( JSContext* cx )
     return report->message().c_str();
 }
 
-void RethrowExceptionWithFunctionName( JSContext* cx, const char* functionName )
+} // namespace
+
+namespace mozjs::error
 {
-    scope::final_action autoJsReport( [cx, functionName]()
+
+AutoJsReport::AutoJsReport( JSContext* cx )
+    : cx( cx )
+{
+}
+
+AutoJsReport::~AutoJsReport()
+{
+    if ( isDisabled_ )
     {
+        return;
+    }
+
+    if ( !JS_IsExceptionPending( cx ) )
+    {
+        return;
+    }
+
+    // Get exception object before printing and clearing exception.
+    JS::RootedValue excn( cx );
+    (void)JS_GetPendingException( cx, &excn );
+
+    JS_ClearPendingException( cx );
+
+    JS::RootedObject global( cx, JS::CurrentGlobalOrNull( cx ) );
+    if ( !global )
+    {
+        assert( 0 );
+        return;
+    }
+
+    auto globalCtx = static_cast<JsGlobalObject*>( JS_GetPrivate( global ) );
+    if ( !globalCtx )
+    {
+        assert( 0 );
+        return;
+    }
+
+    pfc::string8_fast errorText;
+    scope::final_action autoFail( [cx=cx, &globalCtx, &errorText]
+    {
+        globalCtx->Fail( errorText );
+        JS_ClearPendingException( cx );
+    } );
+
+    if ( excn.isString() )
+    {
+        auto retVal = convert::to_native::ToValue<pfc::string8_fast>( cx, excn );
+        if ( !retVal )
+        {
+            return;
+        }
+
+        errorText = retVal.value();
+    }
+    else if ( excn.isObject() )
+    {
+        JS::RootedObject excnObject( cx, &excn.toObject() );
+
+        JSErrorReport* report = JS_ErrorFromException( cx, excnObject );
+        if ( !report )
+        { // Can sometimes happen :/
+            return;
+        }
+
+        assert( !JSREPORT_IS_WARNING( report->flags ) );
+
+        errorText = report->message().c_str();
+        if ( report->filename )
+        {
+            errorText += "\n\n";
+            errorText += "File: ";
+            errorText += report->filename;
+            errorText += "\n";
+            errorText += "Line: ";
+            errorText += std::to_string( report->lineno ).c_str();
+            errorText += ", Column: ";
+            errorText += std::to_string( report->column ).c_str();
+            if ( report->linebufLength() )
+            {
+                errorText += "\n";
+                errorText += pfc::stringcvt::string_utf8_from_utf16( report->linebuf(), report->linebufLength() );
+            }
+        }
+
+        pfc::string8_fast stackTrace = GetStackTraceString( cx, excnObject );
+        if ( !stackTrace.is_empty() )
+        {
+            errorText += "\n\n";
+            errorText += "Stack trace:\n";
+            errorText += stackTrace;
+        }
+    }
+}
+
+void AutoJsReport::Disable()
+{
+    isDisabled_ = true;
+}
+
+pfc::string8_fast AutoJsReport::GetStackTraceString( JSContext* cx, JS::HandleObject exn )
+{
+    // Exceptions thrown while compiling top-level script have no stack.
+    JS::RootedObject stackObj( cx, JS::ExceptionStackOrNull( exn ) );
+    if ( !stackObj )
+    {
+        return pfc::string8_fast();
+    }
+
+    JS::RootedString stackStr( cx );
+    if ( !BuildStackString( cx, stackObj, &stackStr, 2 ) )
+    {
+        return pfc::string8_fast();
+    }
+
+    // JS::UniqueChars generates heap corruption exception in it's destructor
+    const char* encodedString = JS_EncodeStringToUTF8( cx, stackStr );
+    if ( !encodedString )
+    {
+        return pfc::string8_fast();
+    }
+
+    pfc::string8_fast outString( encodedString );
+    JS_free( cx, (void*)encodedString );
+
+    return outString;
+}
+
+void ExceptionToJsError( JSContext* cx )
+{ // TODO: ask in IRC how to handle OOM errors and if it it's alright to throw C++ exceptions (remove catch(...) after that)
+    try
+    {
+        throw;
+    }
+    catch ( const smp::JsException& )
+    {
+        assert( JS_IsExceptionPending( cx ) );
+    }
+    catch ( const smp::SmpException& e )
+    {
+        JS_ClearPendingException( cx );
+        JS_ReportErrorUTF8( cx, e.what() );
+    }
+    catch ( const _com_error& e )
+    {
+        JS_ClearPendingException( cx );
+
+        pfc::string8_fast errorMsg8 = pfc::stringcvt::string_utf8_from_wide( (const wchar_t*)e.ErrorMessage() );
+        pfc::string8_fast errorSource8 = pfc::stringcvt::string_utf8_from_wide( e.Source().length() ? (const wchar_t*)e.Source() : L"" );
+        pfc::string8_fast errorDesc8 = pfc::stringcvt::string_utf8_from_wide( e.Description().length() ? (const wchar_t*)e.Description() : L"" );
+        JS_ReportErrorUTF8( cx, "COM error: message %s; source: %s; description: %s", errorMsg8.c_str(), errorSource8.c_str(), errorDesc8.c_str() );
+    }
+    catch ( const std::bad_alloc& )
+    {
+        JS_ClearPendingException( cx );
+        JS_ReportAllocationOverflow( cx );
+    }
+    catch ( ... )
+    {
+        JS_ClearPendingException( cx );
+        JS_ReportErrorUTF8( cx, "Uncaught internal exception" );
+    }
+}
+
+void ReportJsErrorWithFunctionName( JSContext* cx, const char* functionName )
+{
+    scope::final_action autoJsReport( [cx, functionName]() {
         JS_ReportErrorUTF8( cx, "'%s' failed", functionName );
     } );
 
@@ -207,8 +232,7 @@ void RethrowExceptionWithFunctionName( JSContext* cx, const char* functionName )
     JS::RootedValue excn( cx );
     (void)JS_GetPendingException( cx, &excn );
 
-    auto makeErrorString = [&functionName]( const pfc::string8_fast& currentMessage )
-    {
+    auto makeErrorString = [&functionName]( const pfc::string8_fast& currentMessage ) {
         pfc::string8_fast newMessage;
         newMessage += "'";
         newMessage += functionName;
@@ -216,7 +240,7 @@ void RethrowExceptionWithFunctionName( JSContext* cx, const char* functionName )
         newMessage += " failed";
         if ( currentMessage.length() )
         {
-            newMessage += (":\n");
+            newMessage += ( ":\n" );
             newMessage += currentMessage;
         }
 
@@ -231,8 +255,8 @@ void RethrowExceptionWithFunctionName( JSContext* cx, const char* functionName )
             return;
         }
 
-        if ( retVal.value() == pfc::string8_fast("out of memory") )
-        {// Can't modify the message since we're out of memory
+        if ( retVal.value() == pfc::string8_fast( "out of memory" ) )
+        { // Can't modify the message since we're out of memory
             autoJsReport.cancel();
             return;
         }
@@ -254,7 +278,7 @@ void RethrowExceptionWithFunctionName( JSContext* cx, const char* functionName )
 
         JSErrorReport* report = JS_ErrorFromException( cx, excnObject );
         if ( !report )
-        {// Sometimes happens with custom JS errors
+        { // Sometimes happens with custom JS errors
             return;
         }
 
@@ -266,7 +290,7 @@ void RethrowExceptionWithFunctionName( JSContext* cx, const char* functionName )
         newMessage += " failed";
         if ( currentMessage.length() )
         {
-            newMessage += (":\n");
+            newMessage += ( ":\n" );
             newMessage += currentMessage;
         }
 
@@ -293,4 +317,4 @@ void RethrowExceptionWithFunctionName( JSContext* cx, const char* functionName )
     }
 }
 
-}
+} // namespace mozjs::error

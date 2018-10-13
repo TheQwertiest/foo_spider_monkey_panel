@@ -34,12 +34,12 @@ JSClass jsClass = {
 };
 
 
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbTooltip, Activate )
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbTooltip, Deactivate )
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbTooltip, GetDelayTime )
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbTooltip, SetDelayTime )
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbTooltip, SetMaxWidth )
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbTooltip, TrackPosition )
+MJS_DEFINE_JS_FN_FROM_NATIVE( Activate, JsFbTooltip::Activate )
+MJS_DEFINE_JS_FN_FROM_NATIVE( Deactivate, JsFbTooltip::Deactivate )
+MJS_DEFINE_JS_FN_FROM_NATIVE( GetDelayTime, JsFbTooltip::GetDelayTime )
+MJS_DEFINE_JS_FN_FROM_NATIVE( SetDelayTime, JsFbTooltip::SetDelayTime )
+MJS_DEFINE_JS_FN_FROM_NATIVE( SetMaxWidth, JsFbTooltip::SetMaxWidth )
+MJS_DEFINE_JS_FN_FROM_NATIVE( TrackPosition, JsFbTooltip::TrackPosition )
 
 const JSFunctionSpec jsFunctions[] = {
     JS_FN( "Activate", Activate, 0, DefaultPropsFlags() ),
@@ -51,9 +51,9 @@ const JSFunctionSpec jsFunctions[] = {
     JS_FS_END
 };
 
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbTooltip, get_Text )
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbTooltip, put_Text )
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbTooltip, put_TrackActivate )
+MJS_DEFINE_JS_FN_FROM_NATIVE( get_Text, JsFbTooltip::get_Text )
+MJS_DEFINE_JS_FN_FROM_NATIVE( put_Text, JsFbTooltip::put_Text )
+MJS_DEFINE_JS_FN_FROM_NATIVE( put_TrackActivate, JsFbTooltip::put_TrackActivate )
 
 const JSPropertySpec jsProperties[] = {
     JS_PSGS( "Text", get_Text, put_Text, DefaultPropsFlags() ),

@@ -31,11 +31,11 @@ JSClass jsClass = {
     &jsOps
 };
 
-MJS_DEFINE_JS_TO_NATIVE_FN( JsDropSourceAction, get_Effect )
-MJS_DEFINE_JS_TO_NATIVE_FN( JsDropSourceAction, put_Base )
-MJS_DEFINE_JS_TO_NATIVE_FN( JsDropSourceAction, put_Effect )
-MJS_DEFINE_JS_TO_NATIVE_FN( JsDropSourceAction, put_Playlist )
-MJS_DEFINE_JS_TO_NATIVE_FN( JsDropSourceAction, put_ToSelect )
+MJS_DEFINE_JS_FN_FROM_NATIVE( get_Effect, JsDropSourceAction::get_Effect )
+MJS_DEFINE_JS_FN_FROM_NATIVE( put_Base, JsDropSourceAction::put_Base )
+MJS_DEFINE_JS_FN_FROM_NATIVE( put_Effect, JsDropSourceAction::put_Effect )
+MJS_DEFINE_JS_FN_FROM_NATIVE( put_Playlist, JsDropSourceAction::put_Playlist )
+MJS_DEFINE_JS_FN_FROM_NATIVE( put_ToSelect, JsDropSourceAction::put_ToSelect )
 
 const JSPropertySpec jsProperties[] = {
     JS_PSGS( "Base", DummyGetter, put_Base, DefaultPropsFlags() ),

@@ -74,7 +74,7 @@ bool IncludeScript( JSContext* cx, unsigned argc, JS::Value* vp )
         InvokeNativeCallback<0>( cx, &JsGlobalObject::IncludeScript, &JsGlobalObject::IncludeScript, argc, vp );
     if ( !bRet )
     {
-        mozjs::RethrowExceptionWithFunctionName( cx, "include" );
+        mozjs::error::ReportJsErrorWithFunctionName( cx, "include" );
     }
     return bRet;
 }

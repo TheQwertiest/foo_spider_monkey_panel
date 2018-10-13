@@ -41,10 +41,10 @@ public:
     static size_t GetInternalSize( IUnknown* pUnknown );
 
 public: 
-    std::optional<bool> atEnd();
-    std::optional<JS::Value> item();
-    std::optional<std::nullptr_t> moveFirst();
-    std::optional<std::nullptr_t> moveNext();
+    std::optional<bool> AtEnd();
+    std::optional<JS::Value> Item();
+    std::optional<std::nullptr_t> MoveFirst();
+    std::optional<std::nullptr_t> MoveNext();
 
 private:
     // alias for IEnumVARIANTPtr: don't want to drag extra com headers

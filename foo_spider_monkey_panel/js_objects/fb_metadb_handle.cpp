@@ -34,15 +34,15 @@ JSClass jsClass = {
     &jsOps
 };
 
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandle, ClearStats )
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandle, Compare )
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandle, GetFileInfo )
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandle, RefreshStats )
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandle, SetFirstPlayed )
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandle, SetLastPlayed )
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandle, SetLoved )
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandle, SetPlaycount )
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandle, SetRating )
+MJS_DEFINE_JS_FN_FROM_NATIVE( ClearStats, JsFbMetadbHandle::ClearStats )
+MJS_DEFINE_JS_FN_FROM_NATIVE( Compare, JsFbMetadbHandle::Compare )
+MJS_DEFINE_JS_FN_FROM_NATIVE( GetFileInfo, JsFbMetadbHandle::GetFileInfo )
+MJS_DEFINE_JS_FN_FROM_NATIVE( RefreshStats, JsFbMetadbHandle::RefreshStats )
+MJS_DEFINE_JS_FN_FROM_NATIVE( SetFirstPlayed, JsFbMetadbHandle::SetFirstPlayed )
+MJS_DEFINE_JS_FN_FROM_NATIVE( SetLastPlayed, JsFbMetadbHandle::SetLastPlayed )
+MJS_DEFINE_JS_FN_FROM_NATIVE( SetLoved, JsFbMetadbHandle::SetLoved )
+MJS_DEFINE_JS_FN_FROM_NATIVE( SetPlaycount, JsFbMetadbHandle::SetPlaycount )
+MJS_DEFINE_JS_FN_FROM_NATIVE( SetRating, JsFbMetadbHandle::SetRating )
 
 const JSFunctionSpec jsFunctions[] = {
     JS_FN( "ClearStats",    ClearStats, 0, DefaultPropsFlags() ),
@@ -58,11 +58,11 @@ const JSFunctionSpec jsFunctions[] = {
 };
 
 
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandle, get_FileSize )
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandle, get_Length )
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandle, get_Path )
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandle, get_RawPath )
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandle, get_SubSong )
+MJS_DEFINE_JS_FN_FROM_NATIVE( get_FileSize, JsFbMetadbHandle::get_FileSize )
+MJS_DEFINE_JS_FN_FROM_NATIVE( get_Length, JsFbMetadbHandle::get_Length )
+MJS_DEFINE_JS_FN_FROM_NATIVE( get_Path, JsFbMetadbHandle::get_Path )
+MJS_DEFINE_JS_FN_FROM_NATIVE( get_RawPath, JsFbMetadbHandle::get_RawPath )
+MJS_DEFINE_JS_FN_FROM_NATIVE( get_SubSong, JsFbMetadbHandle::get_SubSong )
 
 const JSPropertySpec jsProperties[] = {
     JS_PSG( "FileSize", get_FileSize, DefaultPropsFlags() ),

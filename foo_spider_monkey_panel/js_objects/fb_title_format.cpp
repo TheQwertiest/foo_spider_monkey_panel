@@ -33,9 +33,9 @@ JSClass jsClass = {
     &jsOps
 };
 
-MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsFbTitleFormat, Eval, EvalWithOpt, 1 )
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbTitleFormat, EvalWithMetadb )
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbTitleFormat, EvalWithMetadbs )
+MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( Eval, JsFbTitleFormat::Eval, JsFbTitleFormat::EvalWithOpt, 1 )
+MJS_DEFINE_JS_FN_FROM_NATIVE( EvalWithMetadb, JsFbTitleFormat::EvalWithMetadb )
+MJS_DEFINE_JS_FN_FROM_NATIVE( EvalWithMetadbs, JsFbTitleFormat::EvalWithMetadbs )
 
 const JSFunctionSpec jsFunctions[] = {
     JS_FN( "Eval", Eval, 0, DefaultPropsFlags() ),

@@ -46,32 +46,32 @@ JSClass jsClass = {
     &jsOps
 };
 
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandleList, Add );
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandleList, AddRange );
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandleList, AttachImage );
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandleList, BSearch );
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandleList, CalcTotalDuration );
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandleList, CalcTotalSize );
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandleList, Clone );
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandleList, Convert );
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandleList, RemoveAttachedImage );
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandleList, Find );
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandleList, GetLibraryRelativePaths );
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandleList, Insert );
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandleList, InsertRange );
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandleList, MakeDifference );
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandleList, MakeIntersection );
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandleList, MakeUnion );
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandleList, OrderByFormat );
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandleList, OrderByPath );
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandleList, OrderByRelativePath );
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandleList, RefreshStats );
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandleList, Remove );
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandleList, RemoveAll );
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandleList, RemoveById );
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandleList, RemoveRange );
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandleList, Sort );
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandleList, UpdateFileInfoFromJSON );
+MJS_DEFINE_JS_FN_FROM_NATIVE( Add, JsFbMetadbHandleList::Add );
+MJS_DEFINE_JS_FN_FROM_NATIVE( AddRange, JsFbMetadbHandleList::AddRange );
+MJS_DEFINE_JS_FN_FROM_NATIVE( AttachImage, JsFbMetadbHandleList::AttachImage );
+MJS_DEFINE_JS_FN_FROM_NATIVE( BSearch, JsFbMetadbHandleList::BSearch );
+MJS_DEFINE_JS_FN_FROM_NATIVE( CalcTotalDuration, JsFbMetadbHandleList::CalcTotalDuration );
+MJS_DEFINE_JS_FN_FROM_NATIVE( CalcTotalSize, JsFbMetadbHandleList::CalcTotalSize );
+MJS_DEFINE_JS_FN_FROM_NATIVE( Clone, JsFbMetadbHandleList::Clone );
+MJS_DEFINE_JS_FN_FROM_NATIVE( Convert, JsFbMetadbHandleList::Convert );
+MJS_DEFINE_JS_FN_FROM_NATIVE( RemoveAttachedImage, JsFbMetadbHandleList::RemoveAttachedImage );
+MJS_DEFINE_JS_FN_FROM_NATIVE( Find, JsFbMetadbHandleList::Find );
+MJS_DEFINE_JS_FN_FROM_NATIVE( GetLibraryRelativePaths, JsFbMetadbHandleList::GetLibraryRelativePaths );
+MJS_DEFINE_JS_FN_FROM_NATIVE( Insert, JsFbMetadbHandleList::Insert );
+MJS_DEFINE_JS_FN_FROM_NATIVE( InsertRange, JsFbMetadbHandleList::InsertRange );
+MJS_DEFINE_JS_FN_FROM_NATIVE( MakeDifference, JsFbMetadbHandleList::MakeDifference );
+MJS_DEFINE_JS_FN_FROM_NATIVE( MakeIntersection, JsFbMetadbHandleList::MakeIntersection );
+MJS_DEFINE_JS_FN_FROM_NATIVE( MakeUnion, JsFbMetadbHandleList::MakeUnion );
+MJS_DEFINE_JS_FN_FROM_NATIVE( OrderByFormat, JsFbMetadbHandleList::OrderByFormat );
+MJS_DEFINE_JS_FN_FROM_NATIVE( OrderByPath, JsFbMetadbHandleList::OrderByPath );
+MJS_DEFINE_JS_FN_FROM_NATIVE( OrderByRelativePath, JsFbMetadbHandleList::OrderByRelativePath );
+MJS_DEFINE_JS_FN_FROM_NATIVE( RefreshStats, JsFbMetadbHandleList::RefreshStats );
+MJS_DEFINE_JS_FN_FROM_NATIVE( Remove, JsFbMetadbHandleList::Remove );
+MJS_DEFINE_JS_FN_FROM_NATIVE( RemoveAll, JsFbMetadbHandleList::RemoveAll );
+MJS_DEFINE_JS_FN_FROM_NATIVE( RemoveById, JsFbMetadbHandleList::RemoveById );
+MJS_DEFINE_JS_FN_FROM_NATIVE( RemoveRange, JsFbMetadbHandleList::RemoveRange );
+MJS_DEFINE_JS_FN_FROM_NATIVE( Sort, JsFbMetadbHandleList::Sort );
+MJS_DEFINE_JS_FN_FROM_NATIVE( UpdateFileInfoFromJSON, JsFbMetadbHandleList::UpdateFileInfoFromJSON );
 
 const JSFunctionSpec jsFunctions[] = {
     JS_FN( "Add"                    , Add                    , 1, DefaultPropsFlags() ),
@@ -103,7 +103,7 @@ const JSFunctionSpec jsFunctions[] = {
     JS_FS_END
 };
 
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbMetadbHandleList, get_Count );
+MJS_DEFINE_JS_FN_FROM_NATIVE( get_Count, JsFbMetadbHandleList::get_Count );
 
 const JSPropertySpec jsProperties[] = {
     JS_PSG( "Count", get_Count, DefaultPropsFlags() ),

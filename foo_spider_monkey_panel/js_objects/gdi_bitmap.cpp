@@ -38,18 +38,18 @@ JSClass jsClass = {
     &jsOps
 };
 
-MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiBitmap, ApplyAlpha )
-MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiBitmap, ApplyMask )
-MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiBitmap, Clone )
-MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiBitmap, CreateRawBitmap )
-MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiBitmap, GetColourScheme )
-MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiBitmap, GetColourSchemeJSON )
-MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiBitmap, GetGraphics )
-MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiBitmap, ReleaseGraphics )
-MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsGdiBitmap, Resize, ResizeWithOpt, 1 )
-MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiBitmap, RotateFlip )
-MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsGdiBitmap, SaveAs, SaveAsWithOpt, 1 )
-MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiBitmap, StackBlur )
+MJS_DEFINE_JS_FN_FROM_NATIVE( ApplyAlpha, JsGdiBitmap::ApplyAlpha )
+MJS_DEFINE_JS_FN_FROM_NATIVE( ApplyMask, JsGdiBitmap::ApplyMask )
+MJS_DEFINE_JS_FN_FROM_NATIVE( Clone, JsGdiBitmap::Clone )
+MJS_DEFINE_JS_FN_FROM_NATIVE( CreateRawBitmap, JsGdiBitmap::CreateRawBitmap )
+MJS_DEFINE_JS_FN_FROM_NATIVE( GetColourScheme, JsGdiBitmap::GetColourScheme )
+MJS_DEFINE_JS_FN_FROM_NATIVE( GetColourSchemeJSON, JsGdiBitmap::GetColourSchemeJSON )
+MJS_DEFINE_JS_FN_FROM_NATIVE( GetGraphics, JsGdiBitmap::GetGraphics )
+MJS_DEFINE_JS_FN_FROM_NATIVE( ReleaseGraphics, JsGdiBitmap::ReleaseGraphics )
+MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( Resize, JsGdiBitmap::Resize, JsGdiBitmap::ResizeWithOpt, 1 )
+MJS_DEFINE_JS_FN_FROM_NATIVE( RotateFlip, JsGdiBitmap::RotateFlip )
+MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( SaveAs, JsGdiBitmap::SaveAs, JsGdiBitmap::SaveAsWithOpt, 1 )
+MJS_DEFINE_JS_FN_FROM_NATIVE( StackBlur, JsGdiBitmap::StackBlur )
 
 const JSFunctionSpec jsFunctions[] = {
     JS_FN( "ApplyAlpha", ApplyAlpha, 1, DefaultPropsFlags() ),
@@ -67,8 +67,8 @@ const JSFunctionSpec jsFunctions[] = {
     JS_FS_END
 };
 
-MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiBitmap, get_Height )
-MJS_DEFINE_JS_TO_NATIVE_FN( JsGdiBitmap, get_Width )
+MJS_DEFINE_JS_FN_FROM_NATIVE( get_Height, JsGdiBitmap::get_Height )
+MJS_DEFINE_JS_FN_FROM_NATIVE( get_Width, JsGdiBitmap::get_Width )
 
 const JSPropertySpec jsProperties[] = {
     JS_PSG( "Height", get_Height, DefaultPropsFlags() ),

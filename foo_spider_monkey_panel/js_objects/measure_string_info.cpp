@@ -35,12 +35,12 @@ const JSFunctionSpec jsFunctions[] = {
     JS_FS_END
 };
 
-MJS_DEFINE_JS_TO_NATIVE_FN( JsMeasureStringInfo, get_Chars )
-MJS_DEFINE_JS_TO_NATIVE_FN( JsMeasureStringInfo, get_Height )
-MJS_DEFINE_JS_TO_NATIVE_FN( JsMeasureStringInfo, get_Lines )
-MJS_DEFINE_JS_TO_NATIVE_FN( JsMeasureStringInfo, get_Width )
-MJS_DEFINE_JS_TO_NATIVE_FN( JsMeasureStringInfo, get_X )
-MJS_DEFINE_JS_TO_NATIVE_FN( JsMeasureStringInfo, get_Y )
+MJS_DEFINE_JS_FN_FROM_NATIVE( get_Chars, JsMeasureStringInfo::get_Chars )
+MJS_DEFINE_JS_FN_FROM_NATIVE( get_Height, JsMeasureStringInfo::get_Height )
+MJS_DEFINE_JS_FN_FROM_NATIVE( get_Lines, JsMeasureStringInfo::get_Lines )
+MJS_DEFINE_JS_FN_FROM_NATIVE( get_Width, JsMeasureStringInfo::get_Width )
+MJS_DEFINE_JS_FN_FROM_NATIVE( get_X, JsMeasureStringInfo::get_X )
+MJS_DEFINE_JS_FN_FROM_NATIVE( get_Y, JsMeasureStringInfo::get_Y )
 
 const JSPropertySpec jsProperties[] = {
     JS_PSG( "Chars", get_Chars, DefaultPropsFlags() ),

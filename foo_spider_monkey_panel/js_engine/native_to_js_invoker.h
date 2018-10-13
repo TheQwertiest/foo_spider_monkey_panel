@@ -22,7 +22,7 @@ std::optional<ReturnType> InvokeJsCallback( JSContext* cx,
 
     JSAutoRequest ar( cx );
     JSAutoCompartment ac( cx, globalObject );
-    AutoReportException are( cx );
+    error::AutoJsReport are( cx );
 
     JS::RootedValue funcValue( cx );
     if ( !JS_GetProperty( cx, globalObject, functionName.c_str(), &funcValue ) )

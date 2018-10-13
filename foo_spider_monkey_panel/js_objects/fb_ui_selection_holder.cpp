@@ -32,9 +32,9 @@ JSClass jsClass = {
     &jsOps
 };
 
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbUiSelectionHolder, SetPlaylistSelectionTracking )
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbUiSelectionHolder, SetPlaylistTracking )
-MJS_DEFINE_JS_TO_NATIVE_FN( JsFbUiSelectionHolder, SetSelection )
+MJS_DEFINE_JS_FN_FROM_NATIVE( SetPlaylistSelectionTracking, JsFbUiSelectionHolder::SetPlaylistSelectionTracking )
+MJS_DEFINE_JS_FN_FROM_NATIVE( SetPlaylistTracking, JsFbUiSelectionHolder::SetPlaylistTracking )
+MJS_DEFINE_JS_FN_FROM_NATIVE( SetSelection, JsFbUiSelectionHolder::SetSelection )
 
 const JSFunctionSpec jsFunctions[] = {
     JS_FN( "SetPlaylistSelectionTracking", SetPlaylistTracking, 0, DefaultPropsFlags() ),

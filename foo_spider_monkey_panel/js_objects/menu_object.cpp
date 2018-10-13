@@ -32,12 +32,12 @@ JSClass jsClass = {
     &jsOps
 };
 
-MJS_DEFINE_JS_TO_NATIVE_FN( JsMenuObject, AppendMenuItem )
-MJS_DEFINE_JS_TO_NATIVE_FN( JsMenuObject, AppendMenuSeparator )
-MJS_DEFINE_JS_TO_NATIVE_FN( JsMenuObject, AppendTo )
-MJS_DEFINE_JS_TO_NATIVE_FN( JsMenuObject, CheckMenuItem )
-MJS_DEFINE_JS_TO_NATIVE_FN( JsMenuObject, CheckMenuRadioItem )
-MJS_DEFINE_JS_TO_NATIVE_FN_WITH_OPT( JsMenuObject, TrackPopupMenu, TrackPopupMenuWithOpt, 1 )
+MJS_DEFINE_JS_FN_FROM_NATIVE( AppendMenuItem, JsMenuObject::AppendMenuItem )
+MJS_DEFINE_JS_FN_FROM_NATIVE( AppendMenuSeparator, JsMenuObject::AppendMenuSeparator )
+MJS_DEFINE_JS_FN_FROM_NATIVE( AppendTo, JsMenuObject::AppendTo )
+MJS_DEFINE_JS_FN_FROM_NATIVE( CheckMenuItem, JsMenuObject::CheckMenuItem )
+MJS_DEFINE_JS_FN_FROM_NATIVE( CheckMenuRadioItem, JsMenuObject::CheckMenuRadioItem )
+MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( TrackPopupMenu, JsMenuObject::TrackPopupMenu, JsMenuObject::TrackPopupMenuWithOpt, 1 )
 
 const JSFunctionSpec jsFunctions[] = {
     JS_FN( "AppendMenuItem", AppendMenuItem, 3, DefaultPropsFlags() ),

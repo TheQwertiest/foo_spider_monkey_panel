@@ -321,11 +321,11 @@ bool ActiveX_Set_Impl( JSContext* cx, unsigned argc, JS::Value* vp )
     return pNative->Set( args );
 }
 
-MJS_WRAP_JS_TO_NATIVE_FN( ActiveX_Constructor, ActiveX_Constructor_Impl )
-MJS_WRAP_JS_TO_NATIVE_FN( ActiveX_Run, ActiveX_Run_Impl )
-MJS_WRAP_JS_TO_NATIVE_FN( ActiveX_Get, ActiveX_Get_Impl )
-MJS_WRAP_JS_TO_NATIVE_FN( ActiveX_Set, ActiveX_Set_Impl )
-MJS_DEFINE_JS_TO_NATIVE_FN( ActiveXObject, ToString )
+MJS_DEFINE_JS_FN( ActiveX_Constructor, ActiveX_Constructor_Impl )
+MJS_DEFINE_JS_FN( ActiveX_Run, ActiveX_Run_Impl )
+MJS_DEFINE_JS_FN( ActiveX_Get, ActiveX_Get_Impl )
+MJS_DEFINE_JS_FN( ActiveX_Set, ActiveX_Set_Impl )
+MJS_DEFINE_JS_FN_FROM_NATIVE( ToString, ActiveXObject::ToString )
 
 const JSFunctionSpec jsFunctions[] = {
     JS_FN( "toString", ToString, 0, DefaultPropsFlags() ),
