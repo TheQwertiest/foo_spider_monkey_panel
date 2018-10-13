@@ -112,11 +112,11 @@ std::optional<std::wstring> ReadFromFile( JSContext* cx, const pfc::string8_fast
         pAddr += sizeof( bom16Le );
         dwFileSize -= sizeof( bom16Le );
 
-        const size_t outputSize = (dwFileSize >> 1) + 1;
+        const size_t outputSize = dwFileSize >> 1;
         fileContent.resize( outputSize );
 
+        // Can't use wstring.assign(), because of potential aliasing issues
         memcpy( fileContent.data(), (const char*)pAddr, dwFileSize );
-        fileContent[outputSize] = 0;
     }
     else if ( dwFileSize >= sizeof( bom8 )
               && !memcmp( bom8, pAddr, sizeof( bom8 ) ) )
