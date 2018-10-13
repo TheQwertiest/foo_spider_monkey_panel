@@ -986,8 +986,7 @@ void js_panel_window::on_library_items_removed( WPARAM wp )
 }
 
 void js_panel_window::on_main_menu( WPARAM wp )
-{
-    smp::panel::ScopedCallbackData<metadb_callback_data> data( wp );
+{    
     jsContainer_.InvokeJsCallback( "on_main_menu",
                                    static_cast<uint32_t>(wp) );
 }
