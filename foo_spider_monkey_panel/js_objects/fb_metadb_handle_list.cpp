@@ -339,10 +339,7 @@ std::uint64_t JsFbMetadbHandleList::CalcTotalSize()
 JSObject* JsFbMetadbHandleList::Clone()
 {
     JS::RootedObject jsObject( pJsCtx_, JsFbMetadbHandleList::CreateJs( pJsCtx_, metadbHandleList_ ) );
-    if ( !jsObject )
-    { // TODO: Remove
-        throw smp::JsException();
-    }
+    assert( jsObject );
 
     return jsObject;
 }
@@ -362,10 +359,7 @@ JSObject* JsFbMetadbHandleList::Convert()
     for ( t_size i = 0; i < count; ++i )
     {
         jsObject = JsFbMetadbHandle::CreateJs( pJsCtx_, metadbHandleList_.get_item_ref( i ) );
-        if ( !jsObject )
-        { // TODO: Remove
-            throw smp::JsException();
-        }
+        assert( jsObject );
 
         jsValue.set( JS::ObjectValue( *jsObject ) );
         if ( !JS_SetElement( pJsCtx_, jsArray, i, jsValue ) )
@@ -543,7 +537,7 @@ void JsFbMetadbHandleList::OrderByFormat( JsFbTitleFormat* script, int8_t direct
 {
     if ( !script )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "script argument is null" );
+        throw smp::SmpException( "script argument is null" );
     }
 
     titleformat_object::ptr titleFormat = script->GetTitleFormat();
@@ -784,10 +778,7 @@ JSObject* JsFbMetadbHandleList::get_Item( uint32_t index )
     }
 
     JS::RootedObject jsObject( pJsCtx_, JsFbMetadbHandle::CreateJs( pJsCtx_, metadbHandleList_.get_item_ref( index ) ) );
-    if ( !jsObject )
-    { // TODO: remove
-        throw smp::JsException();
-    }
+    assert( jsObject );
 
     return jsObject;
 }

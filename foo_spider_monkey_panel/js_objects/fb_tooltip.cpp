@@ -103,8 +103,7 @@ JsFbTooltip::CreateNative( JSContext* cx, HWND hParentWnd, PanelTooltipParam& p_
 {
     if ( !hParentWnd )
     {
-        JS_ReportErrorUTF8( cx, "Internal error: hParentWnd is null" );
-        return nullptr;
+        throw smp::SmpException( "Internal error: hParentWnd is null" );        
     }
 
     HWND hTooltipWnd = CreateWindowEx(
@@ -120,7 +119,7 @@ JsFbTooltip::CreateNative( JSContext* cx, HWND hParentWnd, PanelTooltipParam& p_
         nullptr,
         core_api::get_my_instance(),
         nullptr );
-    IF_WINAPI_FAILED_RETURN_WITH_REPORT( cx, !!hTooltipWnd, nullptr, CreateWindowEx );
+    IF_WINAPI_FAILED_THROW_SMP( !!hTooltipWnd, "CreateWindowEx" );
 
     // Original position
     SetWindowPos( hTooltipWnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE );
@@ -151,7 +150,7 @@ JsFbTooltip::CreateNative( JSContext* cx, HWND hParentWnd, PanelTooltipParam& p_
         DEFAULT_QUALITY,
         DEFAULT_PITCH | FF_DONTCARE,
         p_param_ptr.fontName.c_str() );
-    IF_WINAPI_FAILED_RETURN_WITH_REPORT( cx, !!hFont, nullptr, CreateFont );
+    IF_WINAPI_FAILED_THROW_SMP( !!hFont, "CreateFont" );
 
     SendMessage( hTooltipWnd, TTM_ADDTOOL, 0, (LPARAM)toolInfo.get() );
     SendMessage( hTooltipWnd, TTM_ACTIVATE, FALSE, 0 );

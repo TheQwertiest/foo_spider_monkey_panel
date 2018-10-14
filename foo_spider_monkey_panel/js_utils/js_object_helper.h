@@ -24,11 +24,7 @@ template<typename JsObjectType, typename ...ArgsType>
 void CreateAndInstallObject( JSContext* cx, JS::HandleObject parentObject, const pfc::string8_fast& propertyName, ArgsType&&... args )
 {
     JS::RootedObject objectToInstall( cx, JsObjectType::CreateJs( cx, args... ) );
-    // TODO: remove
-    if ( !objectToInstall )
-    {
-        throw smp::JsException();
-    }
+    assert( objectToInstall );
 
     if ( !JS_DefineProperty( cx, parentObject, propertyName.c_str(), objectToInstall, DefaultPropsFlags() ) )
     {

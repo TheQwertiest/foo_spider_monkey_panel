@@ -99,8 +99,7 @@ JsFbMetadbHandle::CreateNative( JSContext* cx, const metadb_handle_ptr& handle )
 {
     if ( !handle.is_valid() )
     {
-        JS_ReportErrorUTF8( cx, "Internal error: metadb_handle_ptr is null" );
-        return nullptr;
+        throw smp::SmpException( "Internal error: metadb_handle_ptr is null" );
     }
 
     return std::unique_ptr<JsFbMetadbHandle>( new JsFbMetadbHandle( cx, handle ) );
@@ -146,10 +145,7 @@ JSObject* JsFbMetadbHandle::GetFileInfo()
     }
 
     JS::RootedObject jsObject( pJsCtx_, JsFbFileInfo::CreateJs( pJsCtx_, std::move(pFileInfo) ) );
-    if ( !jsObject )
-    {// TODO: remove
-        throw smp::JsException();
-    }
+    assert( jsObject );
 
     return jsObject;
 }

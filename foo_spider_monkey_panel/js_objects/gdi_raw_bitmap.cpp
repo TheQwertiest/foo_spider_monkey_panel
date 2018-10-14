@@ -83,18 +83,16 @@ JsGdiRawBitmap::CreateNative( JSContext* cx, Gdiplus::Bitmap* pBmp )
 {
     if ( !pBmp )
     {
-        JS_ReportErrorUTF8( cx, "Internal error: Gdiplus::Bitmap is null" );
-        return nullptr;
+        throw smp::SmpException( "Internal error: Gdiplus::Bitmap is null" );
     }
 
     auto hDc = gdi::CreateUniquePtr( CreateCompatibleDC( nullptr ) );
-    IF_WINAPI_FAILED_RETURN_WITH_REPORT( cx, !!hDc, nullptr, CreateCompatibleDC );
+    IF_WINAPI_FAILED_THROW_SMP( !!hDc, "CreateCompatibleDC" );
 
     auto hBitmap = gdi::CreateHBitmapFromGdiPlusBitmap( *pBmp );
     if ( !hBitmap )
     {
-        JS_ReportErrorUTF8( cx, "Internal error: failed to get HBITMAP from Gdiplus::Bitmap" );
-        return nullptr;
+        throw smp::SmpException( "Internal error: failed to get HBITMAP from Gdiplus::Bitmap" );
     }
 
     return std::unique_ptr<JsGdiRawBitmap>(

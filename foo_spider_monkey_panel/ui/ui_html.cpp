@@ -48,24 +48,24 @@ LRESULT CDialogHtml::OnInitDialog( HWND hwndFocus, LPARAM lParam )
     CAxWindow wndIE = GetDlgItem( IDC_IE );
     IObjectWithSitePtr pOWS = nullptr;
     HRESULT hr = wndIE.QueryHost( IID_IObjectWithSite, (void**)&pOWS );
-    IF_HR_FAILED_RETURN_WITH_REPORT( pJsCtx_, hr, -1, QueryHost );
+    IF_HR_FAILED_RETURN_WITH_REPORT( pJsCtx_, hr, -1, "QueryHost" );
 
     hr = pOWS->SetSite( static_cast<IServiceProvider*>( this ) );
-    IF_HR_FAILED_RETURN_WITH_REPORT( pJsCtx_, hr, -1, SetSite );
+    IF_HR_FAILED_RETURN_WITH_REPORT( pJsCtx_, hr, -1, "SetSite" );
 
     try
     {
         IWebBrowserPtr pBrowser;
         hr = wndIE.QueryControl( &pBrowser );
-        IF_HR_FAILED_RETURN_WITH_REPORT( pJsCtx_, hr, -1, QueryControl );
+        IF_HR_FAILED_RETURN_WITH_REPORT( pJsCtx_, hr, -1, "QueryControl" );
 
         _variant_t v;
         hr = pBrowser->Navigate( _bstr_t( L"about:blank" ), &v, &v, &v, &v ); ///< Document object is only available after Navigate
-        IF_HR_FAILED_RETURN_WITH_REPORT( pJsCtx_, hr, -1, Navigate );
+        IF_HR_FAILED_RETURN_WITH_REPORT( pJsCtx_, hr, -1, "Navigate" );
 
         IDispatchPtr pDocDispatch;
         hr = pBrowser->get_Document( &pDocDispatch );
-        IF_HR_FAILED_RETURN_WITH_REPORT( pJsCtx_, hr, -1, get_Document );
+        IF_HR_FAILED_RETURN_WITH_REPORT( pJsCtx_, hr, -1, "get_Document" );
 
         MSHTML::IHTMLDocument2Ptr pDocument = pDocDispatch;
 
@@ -74,14 +74,14 @@ LRESULT CDialogHtml::OnInitDialog( HWND hwndFocus, LPARAM lParam )
             IOleObjectPtr pOleObject( pDocument );
             IOleClientSitePtr pClientSite;
             hr = pOleObject->GetClientSite( &pClientSite );
-            IF_HR_FAILED_RETURN_WITH_REPORT( pJsCtx_, hr, -1, GetClientSite );
+            IF_HR_FAILED_RETURN_WITH_REPORT( pJsCtx_, hr, -1, "GetClientSite" );
 
             pDefaultUiHandler_ = pClientSite;
 
             // Set the new custom IDocHostUIHandler
             ICustomDocPtr pCustomDoc( pDocument );
             hr = pCustomDoc->SetUIHandler( this );
-            IF_HR_FAILED_RETURN_WITH_REPORT( pJsCtx_, hr, -1, SetUIHandler );
+            IF_HR_FAILED_RETURN_WITH_REPORT( pJsCtx_, hr, -1, "SetUIHandler" );
         }
 
         if ( const std::wstring filePrefix = L"file://";
@@ -89,7 +89,7 @@ LRESULT CDialogHtml::OnInitDialog( HWND hwndFocus, LPARAM lParam )
              && !wmemcmp( htmlCodeOrPath_.c_str(), filePrefix.c_str(), filePrefix.length() ) )
         {
             hr = pBrowser->Navigate( _bstr_t( htmlCodeOrPath_.c_str() ), &v, &v, &v, &v );
-            IF_HR_FAILED_RETURN_WITH_REPORT( pJsCtx_, hr, -1, Navigate );
+            IF_HR_FAILED_RETURN_WITH_REPORT( pJsCtx_, hr, -1, "Navigate" );
         }
         else
         {
@@ -100,19 +100,19 @@ LRESULT CDialogHtml::OnInitDialog( HWND hwndFocus, LPARAM lParam )
 
             VARIANT* pSaVar = nullptr;
             hr = SafeArrayAccessData( pSaStrings, (LPVOID*)&pSaVar );
-            IF_HR_FAILED_RETURN_WITH_REPORT( pJsCtx_, hr, -1, SafeArrayAccessData );
+            IF_HR_FAILED_RETURN_WITH_REPORT( pJsCtx_, hr, -1, "SafeArrayAccessData" );
 
             _bstr_t bstr( htmlCodeOrPath_.c_str() );
             pSaVar->vt = VT_BSTR;
             pSaVar->bstrVal = bstr.Detach();
             hr = SafeArrayUnaccessData( pSaStrings );
-            IF_HR_FAILED_RETURN_WITH_REPORT( pJsCtx_, hr, -1, SafeArrayUnaccessData );
+            IF_HR_FAILED_RETURN_WITH_REPORT( pJsCtx_, hr, -1, "SafeArrayUnaccessData" );
 
             hr = pDocument->write( pSaStrings );
-            IF_HR_FAILED_RETURN_WITH_REPORT( pJsCtx_, hr, -1, write );
+            IF_HR_FAILED_RETURN_WITH_REPORT( pJsCtx_, hr, -1, "write" );
 
             hr = pDocument->close();
-            IF_HR_FAILED_RETURN_WITH_REPORT( pJsCtx_, hr, -1, close );
+            IF_HR_FAILED_RETURN_WITH_REPORT( pJsCtx_, hr, -1, "close" );
         }
     }
     catch ( const _com_error& e )

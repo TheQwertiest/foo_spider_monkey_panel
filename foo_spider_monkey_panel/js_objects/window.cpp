@@ -191,10 +191,7 @@ void JsWindow::ClearTimeout( uint32_t timeoutId )
 JSObject* JsWindow::CreatePopupMenu()
 {
     JS::RootedObject jsObject( pJsCtx_, JsMenuObject::CreateJs( pJsCtx_, parentPanel_.GetHWND() ) );
-    if ( !jsObject )
-    { // TODO: remove
-        throw smp::JsException();
-    }
+    assert( jsObject );
 
     return jsObject;
 }
@@ -207,10 +204,7 @@ JSObject* JsWindow::CreateThemeManager( const std::wstring& classid )
     }
 
     JS::RootedObject jsObject( pJsCtx_, JsThemeManager::CreateJs( pJsCtx_, parentPanel_.GetHWND(), classid ) );
-    if ( !jsObject )
-    { // TODO: remove
-        throw smp::JsException();
-    }
+    assert( jsObject );
 
     return jsObject;
 }
@@ -223,10 +217,7 @@ JSObject* JsWindow::CreateTooltip( const std::wstring& name, float pxSize, uint3
     tooltip_param.fontStyle = style;
 
     JS::RootedObject jsObject( pJsCtx_, JsFbTooltip::CreateJs( pJsCtx_, parentPanel_.GetHWND(), tooltip_param ) );
-    if ( !jsObject )
-    { // TODO: remove
-        throw smp::JsException();
-    }
+    assert( jsObject );
 
     return jsObject;
 }
@@ -406,12 +397,8 @@ JSObject* JsWindow::GetFontCUI( uint32_t type, const std::wstring& guidstr )
     }
 
     JS::RootedObject jsObject( pJsCtx_, JsGdiFont::CreateJs( pJsCtx_, std::move( pGdiFont ), hFont.release(), true ) );
-    if ( !jsObject )
-    { // TODO: remove
-        throw smp::JsException();
-    }
+    assert( jsObject );
 
-    hFont.release();
     return jsObject;
 }
 
@@ -448,10 +435,7 @@ JSObject* JsWindow::GetFontDUI( uint32_t type )
     }
 
     JS::RootedObject jsObject( pJsCtx_, JsGdiFont::CreateJs( pJsCtx_, std::move( pGdiFont ), hFont, false ) );
-    if ( !jsObject )
-    { // TODO: remove
-        throw smp::JsException();
-    }
+    assert( jsObject );
 
     return jsObject;
 }

@@ -44,10 +44,10 @@ public:
     
     static std::unique_ptr<ActiveXObject> CreateNative( JSContext* cx, const std::wstring& name );
     static size_t GetInternalSize( const std::wstring& name );
-    static bool PostCreate( JSContext* cx, JS::HandleObject self );
+    static void PostCreate( JSContext* cx, JS::HandleObject self );
 
 public:
-    IDispatch * pDispatch_ = nullptr;
+    IDispatch* pDispatch_ = nullptr;
     IUnknown * pUnknown_ = nullptr;
     ITypeInfo * pTypeInfo_ = nullptr;
     VARIANT variant_;
@@ -82,10 +82,10 @@ private:
 private:
     std::optional<DISPID> GetDispId( const std::wstring& name, bool reportError = true );
 
-    bool SetupMembers( JS::HandleObject jsObject );
-    static bool ParseTypeInfoRecursive( JSContext * cx, ITypeInfo * pTypeInfo, MemberMap& members );
+    void SetupMembers( JS::HandleObject jsObject );
+    static void ParseTypeInfoRecursive( JSContext * cx, ITypeInfo * pTypeInfo, MemberMap& members );
     static void ParseTypeInfo( ITypeInfo * pTypeInfo, MemberMap& members );
-    bool SetupMembers_Impl( JS::HandleObject jsObject );
+    void SetupMembers_Impl( JS::HandleObject jsObject );
 
 private:
     JSContext * pJsCtx_ = nullptr;

@@ -216,10 +216,7 @@ JSObject* JsFbUtils::AcquireUiSelectionHolder()
 {
     ui_selection_holder::ptr holder = ui_selection_manager::get()->acquire();
     JS::RootedObject jsObject( pJsCtx_, JsFbUiSelectionHolder::CreateJs( pJsCtx_, holder ) );
-    if ( !jsObject )
-    { // TODO: remove
-        throw smp::JsException();
-    }
+    assert( jsObject );
 
     return jsObject;
 }
@@ -268,10 +265,7 @@ bool JsFbUtils::CopyHandleListToClipboard( JsFbMetadbHandleList* handles )
 JSObject* JsFbUtils::CreateContextMenuManager()
 {
     JS::RootedObject jsObject( pJsCtx_, JsContextMenuManager::CreateJs( pJsCtx_ ) );
-    if ( !jsObject )
-    { // TODO: remove
-        throw smp::JsException();
-    }
+    assert( jsObject );
 
     return jsObject;
 }
@@ -280,10 +274,7 @@ JSObject* JsFbUtils::CreateHandleList()
 {
     metadb_handle_list items;
     JS::RootedObject jsObject( pJsCtx_, JsFbMetadbHandleList::CreateJs( pJsCtx_, items ) );
-    if ( !jsObject )
-    { // TODO: remove
-        throw smp::JsException();
-    }
+    assert( jsObject );
 
     return jsObject;
 }
@@ -291,10 +282,7 @@ JSObject* JsFbUtils::CreateHandleList()
 JSObject* JsFbUtils::CreateMainMenuManager()
 {
     JS::RootedObject jsObject( pJsCtx_, JsMainMenuManager::CreateJs( pJsCtx_ ) );
-    if ( !jsObject )
-    { // TODO: remove
-        throw smp::JsException();
-    }
+    assert( jsObject );
 
     return jsObject;
 }
@@ -302,10 +290,7 @@ JSObject* JsFbUtils::CreateMainMenuManager()
 JSObject* JsFbUtils::CreateProfiler( const pfc::string8_fast& name )
 {
     JS::RootedObject jsObject( pJsCtx_, JsFbProfiler::CreateJs( pJsCtx_, name ) );
-    if ( !jsObject )
-    { // TODO: remove
-        throw smp::JsException();
-    }
+    assert( jsObject );
 
     return jsObject;
 }
@@ -423,10 +408,7 @@ JSObject* JsFbUtils::GetFocusItem( bool force )
     }
 
     JS::RootedObject jsObject( pJsCtx_, JsFbMetadbHandle::CreateJs( pJsCtx_, metadb ) );
-    if ( !jsObject )
-    { // TODO: remove
-        throw smp::JsException();
-    }
+    assert( jsObject );
 
     return jsObject;
 }
@@ -450,10 +432,7 @@ JSObject* JsFbUtils::GetLibraryItems()
     library_manager::get()->get_all_items( items );
 
     JS::RootedObject jsObject( pJsCtx_, JsFbMetadbHandleList::CreateJs( pJsCtx_, items ) );
-    if ( !jsObject )
-    { // TODO: remove
-        throw smp::JsException();
-    }
+    assert( jsObject );
 
     return jsObject;
 }
@@ -484,10 +463,7 @@ JSObject* JsFbUtils::GetNowPlaying()
     }
 
     JS::RootedObject jsObject( pJsCtx_, JsFbMetadbHandle::CreateJs( pJsCtx_, metadb ) );
-    if ( !jsObject )
-    { // TODO: remove
-        throw smp::JsException();
-    }
+    assert( jsObject );
 
     return jsObject;
 }
@@ -549,10 +525,7 @@ JSObject* JsFbUtils::GetQueryItems( JsFbMetadbHandleList* handles, const pfc::st
     dst_list.filter_mask( mask.get_ptr() );
 
     JS::RootedObject jsObject( pJsCtx_, JsFbMetadbHandleList::CreateJs( pJsCtx_, dst_list ) );
-    if ( !jsObject )
-    { // TODO: remove
-        throw smp::JsException();
-    }
+    assert( jsObject );
 
     return jsObject;
 }
@@ -568,10 +541,7 @@ JSObject* JsFbUtils::GetSelection()
     }
 
     JS::RootedObject jsObject( pJsCtx_, JsFbMetadbHandle::CreateJs( pJsCtx_, items[0] ) );
-    if ( !jsObject )
-    { // TODO: remove
-        throw smp::JsException();
-    }
+    assert( jsObject );
 
     return jsObject;
 }
@@ -582,10 +552,7 @@ JSObject* JsFbUtils::GetSelections( uint32_t flags )
     ui_selection_manager_v2::get()->get_selection( items, flags );
 
     JS::RootedObject jsObject( pJsCtx_, JsFbMetadbHandleList::CreateJs( pJsCtx_, items ) );
-    if ( !jsObject )
-    { // TODO: remove
-        throw smp::JsException();
-    }
+    assert( jsObject );
 
     return jsObject;
 }
@@ -837,10 +804,7 @@ void JsFbUtils::Stop()
 JSObject* JsFbUtils::TitleFormat( const pfc::string8_fast& expression )
 {
     JS::RootedObject jsObject( pJsCtx_, JsFbTitleFormat::CreateJs( pJsCtx_, expression ) );
-    if ( !jsObject )
-    { // TODO: remove
-        throw smp::JsException();
-    }
+    assert( jsObject );
 
     return jsObject;
 }

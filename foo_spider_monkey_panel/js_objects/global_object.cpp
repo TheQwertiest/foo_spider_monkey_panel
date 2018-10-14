@@ -184,13 +184,7 @@ void JsGlobalObject::CleanupBeforeDestruction( JSContext* cx, JS::HandleObject s
 
 void JsGlobalObject::IncludeScript( const pfc::string8_fast& path )
 {
-    auto retVal = file::ReadFromFile( pJsCtx_, path );
-    if ( !retVal )
-    {// TODO: remove
-        throw smp::JsException();
-    }
-
-    const std::wstring scriptCode = retVal.value();
+    const std::wstring scriptCode = file::ReadFromFile( pJsCtx_, path );
     const auto filename = [&path]
     {
         namespace fs = std::filesystem;

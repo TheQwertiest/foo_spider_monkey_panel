@@ -145,10 +145,8 @@ public:
 
         const size_t nativeObjectSize = sizeof( T ) + T::GetInternalSize( args... ); ///< don't forward: don't want to lose those smart ptrs
         std::unique_ptr<T> nativeObject = T::CreateNative( cx, std::forward<ArgTypes>( args )... );
-        if ( !nativeObject )
-        { // TODO: remove
-            throw smp::JsException();
-        }
+        assert( nativeObject );
+
         nativeObject->nativeObjectSize_ = nativeObjectSize;
 
         return CreateJsObject_Final( cx, jsProto, jsObject, std::move( nativeObject ) );
@@ -247,10 +245,7 @@ private:
 
         if constexpr ( T::HasPostCreate )
         {
-            if ( !T::PostCreate( cx, jsBaseObject ) )
-            { // TODO: remove
-                throw smp::JsException();
-            }
+            T::PostCreate( cx, jsBaseObject );
         }
 
         if constexpr ( T::HasProxy )

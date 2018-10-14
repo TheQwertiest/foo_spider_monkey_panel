@@ -11,7 +11,6 @@
 #include <js_utils/scope_helper.h>
 #include <convert/js_to_native.h>
 
-
 namespace
 {
 
@@ -23,7 +22,7 @@ class WrappedJs
     , public mozjs::IHeapUser
 {
 protected:
-    WrappedJs( JSContext * cx, JS::HandleFunction jsFunction )
+    WrappedJs( JSContext* cx, JS::HandleFunction jsFunction )
         : pJsCtx_( cx )
     {
         assert( cx );
@@ -34,7 +33,7 @@ protected:
         JS::RootedObject jsGlobal( cx, JS::CurrentGlobalOrNull( cx ) );
         assert( jsGlobal );
 
-        pNativeGlobal_ = static_cast<mozjs::JsGlobalObject*>(JS_GetInstancePrivate( cx, jsGlobal, &mozjs::JsGlobalObject::JsClass, nullptr ));
+        pNativeGlobal_ = static_cast<mozjs::JsGlobalObject*>( JS_GetInstancePrivate( cx, jsGlobal, &mozjs::JsGlobalObject::JsClass, nullptr ) );
         assert( pNativeGlobal_ );
 
         auto& heapMgr = pNativeGlobal_->GetHeapManager();
@@ -48,14 +47,14 @@ protected:
 
         isJsAvailable_ = true;
     }
+
     /// @details Might be called off main thread
-    virtual ~WrappedJs()
-    {
-    }
+    virtual ~WrappedJs() = default;
+
     /// @details Might be called off main thread
     virtual void FinalRelease()
-    {// most of the JS object might be invalid at GC time,
-     // so we need to be extra careful
+    {   // most of the JS object might be invalid at GC time,
+        // so we need to be extra careful
         if ( !isJsAvailable_ )
         {
             return;
@@ -118,7 +117,7 @@ protected:
 
         JS::RootedValue retVal( pJsCtx_ );
         if ( !JS::Call( pJsCtx_, jsGlobal, rFunc, wrappedArgs, &retVal ) )
-        {// TODO: set fail somehow
+        {                                        // TODO: set fail somehow
             JS_ClearPendingException( pJsCtx_ ); ///< can't forward exceptions inside ActiveXObject objects (see reasons above)...
             return E_FAIL;
         }
@@ -134,7 +133,7 @@ protected:
     }
 
 private:
-    JSContext * pJsCtx_ = nullptr;
+    JSContext* pJsCtx_ = nullptr;
     uint32_t funcId_;
     uint32_t globalId_;
     mozjs::JsGlobalObject* pNativeGlobal_ = nullptr;
@@ -143,38 +142,36 @@ private:
     bool isJsAvailable_ = false;
 };
 
-bool JsArrayToComArray( JSContext* cx, JS::HandleObject obj, VARIANT & var )
-{    
+bool JsArrayToComArray( JSContext* cx, JS::HandleObject obj, VARIANT& var )
+{
     uint32_t len;
     if ( !JS_GetArrayLength( cx, obj, &len ) )
-    {        
+    {
         return false;
     }
 
     // Create the safe array of variants and populate it
-    SAFEARRAY * safeArray = SafeArrayCreateVector( VT_VARIANT, 0, len );
+    SAFEARRAY* safeArray = SafeArrayCreateVector( VT_VARIANT, 0, len );
     if ( !safeArray )
     {
         //err = NS_ERROR_OUT_OF_MEMORY;
         return false;
     }
 
-    scope::final_action autoSa( [safeArray]()
-    {
+    scope::final_action autoSa( [safeArray]() {
         SafeArrayDestroy( safeArray );
     } );
 
     if ( len )
     {
-        VARIANT * varArray = nullptr;
-        if ( FAILED( SafeArrayAccessData( safeArray, reinterpret_cast<void**>(&varArray) ) ) )
+        VARIANT* varArray = nullptr;
+        if ( FAILED( SafeArrayAccessData( safeArray, reinterpret_cast<void**>( &varArray ) ) ) )
         {
             //err = NS_ERROR_FAILURE;
             return false;
         }
 
-        scope::final_action autoSaData( [safeArray]()
-        {
+        scope::final_action autoSaData( [safeArray]() {
             SafeArrayUnaccessData( safeArray );
         } );
 
@@ -189,19 +186,19 @@ bool JsArrayToComArray( JSContext* cx, JS::HandleObject obj, VARIANT & var )
 
             if ( !JsToVariant( cx, val, varArray[i] ) )
             {
-                //err = NS_ERROR_FAILURE;            
+                //err = NS_ERROR_FAILURE;
                 return false;
             }
         }
     }
- 
+
     var.vt = VT_ARRAY | VT_VARIANT;
     var.parray = safeArray;
     autoSa.cancel(); // cancel array destruction
     return true;
 }
 
-bool ComArrayToJsArray( JSContext* cx, const VARIANT & src, JS::MutableHandleValue & dest )
+bool ComArrayToJsArray( JSContext* cx, const VARIANT& src, JS::MutableHandleValue& dest )
 {
     // We only support one dimensional arrays for now
     if ( SafeArrayGetDim( src.parray ) != 1 )
@@ -235,7 +232,7 @@ bool ComArrayToJsArray( JSContext* cx, const VARIANT & src, JS::MutableHandleVal
 
     // Divine the type of our array
     VARTYPE vartype;
-    if ( (src.vt & VT_ARRAY) != 0 )
+    if ( ( src.vt & VT_ARRAY ) != 0 )
     {
         vartype = src.vt & ~VT_ARRAY;
     }
@@ -271,7 +268,7 @@ bool ComArrayToJsArray( JSContext* cx, const VARIANT & src, JS::MutableHandleVal
         {
             return false;
         }
-        
+
         if ( !JS_SetElement( cx, jsArray, i, jsVal ) )
         {
             return false;
@@ -282,7 +279,7 @@ bool ComArrayToJsArray( JSContext* cx, const VARIANT & src, JS::MutableHandleVal
     return true;
 }
 
-}
+} // namespace
 
 namespace mozjs::convert::com
 {
@@ -290,7 +287,7 @@ namespace mozjs::convert::com
 /// VariantToJs assumes that the caller will call VariantClear, so call AddRef on new objects
 bool VariantToJs( JSContext* cx, VARIANTARG& var, JS::MutableHandleValue rval )
 {
-#define FETCH(x) (ref? * (var.p ## x) : var.x)
+#define FETCH( x ) ( ref ? *( var.p##x ) : var.x )
 
     bool ref = false;
     int type = var.vt;
@@ -304,22 +301,46 @@ bool VariantToJs( JSContext* cx, VARIANTARG& var, JS::MutableHandleValue rval )
     {
         switch ( type )
         {
-        case VT_ERROR: rval.setUndefined(); break;
-        case VT_NULL: rval.setNull(); break;
-        case VT_EMPTY: rval.setUndefined(); break;
-        case VT_I1: rval.setInt32( static_cast<int32_t>( FETCH( cVal ) ) ); break;
-        case VT_I2: rval.setInt32( static_cast<int32_t>( FETCH( iVal ) ) ); break;
+        case VT_ERROR:
+            rval.setUndefined();
+            break;
+        case VT_NULL:
+            rval.setNull();
+            break;
+        case VT_EMPTY:
+            rval.setUndefined();
+            break;
+        case VT_I1:
+            rval.setInt32( static_cast<int32_t>( FETCH( cVal ) ) );
+            break;
+        case VT_I2:
+            rval.setInt32( static_cast<int32_t>( FETCH( iVal ) ) );
+            break;
         case VT_INT:
-        case VT_I4: rval.setInt32( FETCH( lVal ) ); break;
-        case VT_R4: rval.setNumber( FETCH( fltVal ) ); break;
-        case VT_R8: rval.setNumber( FETCH( dblVal ) ); break;
+        case VT_I4:
+            rval.setInt32( FETCH( lVal ) );
+            break;
+        case VT_R4:
+            rval.setNumber( FETCH( fltVal ) );
+            break;
+        case VT_R8:
+            rval.setNumber( FETCH( dblVal ) );
+            break;
 
-        case VT_BOOL: rval.setBoolean( FETCH( boolVal ) ? true : false ); break;
+        case VT_BOOL:
+            rval.setBoolean( FETCH( boolVal ) ? true : false );
+            break;
 
-        case VT_UI1: rval.setNumber( static_cast<uint32_t>( FETCH( bVal ) ) ); break;
-        case VT_UI2: rval.setNumber( static_cast<uint32_t>( FETCH( uiVal ) ) ); break;
+        case VT_UI1:
+            rval.setNumber( static_cast<uint32_t>( FETCH( bVal ) ) );
+            break;
+        case VT_UI2:
+            rval.setNumber( static_cast<uint32_t>( FETCH( uiVal ) ) );
+            break;
         case VT_UINT:
-        case VT_UI4: rval.setNumber( static_cast<uint32_t>( FETCH( ulVal ) ) ); break;
+        case VT_UI4:
+            rval.setNumber( static_cast<uint32_t>( FETCH( ulVal ) ) );
+            break;
 
         case VT_BSTR:
         {
@@ -331,9 +352,13 @@ bool VariantToJs( JSContext* cx, VARIANTARG& var, JS::MutableHandleValue rval )
             DATE d = FETCH( date );
             SYSTEMTIME time;
             VariantTimeToSystemTime( d, &time );
-            rval.setObjectOrNull( JS_NewDateObject( cx, 
-                                                    time.wYear, time.wMonth - 1, time.wDay,
-                                                    time.wHour, time.wMinute, time.wSecond ) );
+            rval.setObjectOrNull( JS_NewDateObject( cx,
+                                                    time.wYear,
+                                                    time.wMonth - 1,
+                                                    time.wDay,
+                                                    time.wHour,
+                                                    time.wMinute,
+                                                    time.wSecond ) );
 
             break;
         }
@@ -342,7 +367,7 @@ bool VariantToJs( JSContext* cx, VARIANTARG& var, JS::MutableHandleValue rval )
         {
             if ( !FETCH( punkVal ) )
             {
-                rval.setNull(); 
+                rval.setNull();
                 break;
             }
 
@@ -365,7 +390,7 @@ bool VariantToJs( JSContext* cx, VARIANTARG& var, JS::MutableHandleValue rval )
         {
             if ( !FETCH( pdispVal ) )
             {
-                rval.setNull(); 
+                rval.setNull();
                 break;
             }
 
@@ -401,7 +426,7 @@ bool VariantToJs( JSContext* cx, VARIANTARG& var, JS::MutableHandleValue rval )
                     return VariantToJs( cx, *v, rval );
                 }
             }
-            break;        
+            break;
         default:
             if ( type <= VT_CLSID )
             {
@@ -428,7 +453,7 @@ bool VariantToJs( JSContext* cx, VARIANTARG& var, JS::MutableHandleValue rval )
 bool JsToVariant( JSContext* cx, JS::HandleValue rval, VARIANTARG& arg )
 {
     VariantInit( &arg );
-    
+
     if ( rval.isObject() )
     {
         JS::RootedObject j0( cx, &rval.toObject() );
@@ -542,4 +567,4 @@ bool JsToVariant( JSContext* cx, JS::HandleValue rval, VARIANTARG& arg )
     }
 }
 
-}
+} // namespace mozjs::convert::com

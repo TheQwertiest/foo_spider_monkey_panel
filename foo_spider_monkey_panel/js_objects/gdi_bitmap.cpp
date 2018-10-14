@@ -100,8 +100,7 @@ JsGdiBitmap::CreateNative( JSContext* cx, std::unique_ptr<Gdiplus::Bitmap> gdiBi
 {
     if ( !gdiBitmap )
     {
-        JS_ReportErrorUTF8( cx, "Internal error: Gdiplus::Bitmap object is null" );
-        return nullptr;
+        throw smp::SmpException( "Internal error: Gdiplus::Bitmap object is null" );
     }
 
     return std::unique_ptr<JsGdiBitmap>( new JsGdiBitmap( cx, std::move( gdiBitmap ) ) );
@@ -156,10 +155,7 @@ JSObject* JsGdiBitmap::ApplyAlpha( uint8_t alpha )
     IF_GDI_FAILED_THROW_SMP( gdiRet, "DrawImage" );
 
     JS::RootedObject jsObject( pJsCtx_, JsGdiBitmap::CreateJs( pJsCtx_, std::move( out ) ) );
-    if ( !jsObject )
-    { // TODO: remove
-        throw smp::JsException();
-    }
+    assert( jsObject );
 
     return jsObject;
 }
@@ -233,22 +229,15 @@ JSObject* JsGdiBitmap::Clone( float x, float y, float w, float h )
     }
 
     JS::RootedObject jsObject( pJsCtx_, JsGdiBitmap::CreateJs( pJsCtx_, std::move( img ) ) );
-    if ( !jsObject )
-    { // TODO: remove
-        throw smp::JsException();
-    }
+    assert( jsObject );
 
-    img.release();
     return jsObject;
 }
 
 JSObject* JsGdiBitmap::CreateRawBitmap()
 {
     JS::RootedObject jsObject( pJsCtx_, JsGdiRawBitmap::CreateJs( pJsCtx_, pGdi_.get() ) );
-    if ( !jsObject )
-    { // TODO: remove
-        throw smp::JsException();
-    }
+    assert( jsObject );
 
     return jsObject;
 }
@@ -432,10 +421,7 @@ JSObject* JsGdiBitmap::GetGraphics()
     }
 
     JS::RootedObject jsObject( pJsCtx_, JsGdiGraphics::CreateJs( pJsCtx_ ) );
-    if ( !jsObject )
-    { // TODO: remove
-        throw smp::JsException();
-    }
+    assert( jsObject );
 
     JsGdiGraphics* pNativeObject = GetInnerInstancePrivate<JsGdiGraphics>( pJsCtx_, jsObject );
     if ( !pNativeObject )
@@ -480,10 +466,7 @@ JSObject* JsGdiBitmap::Resize( uint32_t w, uint32_t h, uint32_t interpolationMod
     IF_GDI_FAILED_THROW_SMP( gdiRet, "DrawImage" );
 
     JS::RootedObject jsRetObject( pJsCtx_, JsGdiBitmap::CreateJs( pJsCtx_, std::move( bitmap ) ) );
-    if ( !jsRetObject )
-    { // TODO: remove
-        throw smp::JsException();
-    }
+    assert( jsRetObject );
 
     return jsRetObject;
 }

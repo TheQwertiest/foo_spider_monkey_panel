@@ -90,8 +90,7 @@ JsThemeManager::CreateNative( JSContext* cx, HWND hwnd, const std::wstring& clas
     HTHEME hTheme = OpenThemeData( hwnd, classlist.c_str() );
     if ( !hTheme )
     {
-        JS_ReportErrorUTF8( cx, "Internal error: Failed to get theme data for the provided class list" );
-        return nullptr;
+        throw smp::SmpException( "Internal error: Failed to get theme data for the provided class list" );
     }
 
     return std::unique_ptr<JsThemeManager>( new JsThemeManager( cx, hTheme ) );

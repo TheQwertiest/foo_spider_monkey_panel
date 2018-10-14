@@ -65,16 +65,17 @@ bool JsContainer::Initialize()
 
         jsGlobal_.init( pJsCtx_, JsGlobalObject::CreateNative( pJsCtx_, *this, *pParentPanel_ ) );
         assert( jsGlobal_ );
+        scope::final_action autoGlobal( [&]()
+        {
+            jsGlobal_.reset();
+        } );
 
         JSAutoCompartment ac( pJsCtx_, jsGlobal_ );
 
         jsGraphics_.init( pJsCtx_, JsGdiGraphics::CreateJs( pJsCtx_ ) );
-        // TODO: remove
-        if ( !jsGraphics_ )
-        {
-            jsGlobal_.reset();
-            throw smp::JsException();
-        }
+        assert( jsGraphics_ );
+
+        autoGlobal.cancel();
     }
     catch ( ... )
     {
@@ -307,11 +308,7 @@ bool JsContainer::CreateDropActionIfNeeded()
     try
     {
         jsDropAction_.init( pJsCtx_, JsDropSourceAction::CreateJs( pJsCtx_ ) );
-        // TODO: remove
-        if ( !jsDropAction_ )
-        {
-            throw smp::JsException();
-        }
+        assert( jsDropAction_ );
     }
     catch ( ... )
     {

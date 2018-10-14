@@ -94,10 +94,7 @@ JSObject* JsGdiUtils::CreateImage( uint32_t w, uint32_t h )
     }
 
     JS::RootedObject jsObject( pJsCtx_, JsGdiBitmap::CreateJs( pJsCtx_, std::move( img ) ) );
-    if ( !jsObject )
-    { // TODO: remove
-        throw smp::JsException();
-    }
+    assert( jsObject );
 
     return jsObject;
 }
@@ -133,10 +130,7 @@ JSObject* JsGdiUtils::Font( const std::wstring& fontName, float pxSize, uint32_t
     } );
 
     JS::RootedObject jsObject( pJsCtx_, JsGdiFont::CreateJs( pJsCtx_, std::move( pGdiFont ), hFont, true ) );
-    if ( !jsObject )
-    { // TODO: remove
-        throw smp::JsException();
-    }
+    assert( jsObject );
 
     autoFont.cancel();
     return jsObject;
@@ -164,10 +158,7 @@ JSObject* JsGdiUtils::Image( const std::wstring& path )
     }
 
     JS::RootedObject jsObject( pJsCtx_, JsGdiBitmap::CreateJs( pJsCtx_, std::move( img ) ) );
-    if ( !jsObject )
-    { // TODO: remove
-        throw smp::JsException();
-    }
+    assert( jsObject );
 
     return jsObject;
 }

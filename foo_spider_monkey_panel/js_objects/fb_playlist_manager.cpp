@@ -420,10 +420,7 @@ JSObject* JsFbPlaylistManager::GetPlaybackQueueContents()
     for ( t_size i = 0; i < count; ++i )
     {
         jsObject.set( JsFbPlaybackQueueItem::CreateJs( pJsCtx_, contents[i] ) );
-        if ( !jsObject )
-        { // TODO: remove
-            throw smp::JsException();
-        }
+        assert( jsObject );
 
         jsValue.set( JS::ObjectValue( *jsObject ) );
         if ( !JS_SetElement( pJsCtx_, jsArray, i, jsValue ) )
@@ -447,10 +444,7 @@ JSObject* JsFbPlaylistManager::GetPlaybackQueueHandles()
     }
 
     JS::RootedObject jsObject( pJsCtx_, JsFbMetadbHandleList::CreateJs( pJsCtx_, items ) );
-    if ( !jsObject )
-    { // TODO: remove
-        throw smp::JsException();
-    }
+    assert( jsObject );
 
     return jsObject;
 }
@@ -462,10 +456,7 @@ JSObject* JsFbPlaylistManager::GetPlayingItemLocation()
     bool isValid = playlist_manager::get()->get_playing_item_location( &playlistIndex, &playlistItemIndex );
 
     JS::RootedObject jsObject( pJsCtx_, JsFbPlayingItemLocation::CreateJs( pJsCtx_, isValid, playlistIndex, playlistItemIndex ) );
-    if ( !jsObject )
-    { // TODO: remove
-        throw smp::JsException();
-    }
+    assert( jsObject );
 
     return jsObject;
 }

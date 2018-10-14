@@ -7,7 +7,7 @@
     {                                                                                                                        \
         DWORD errorCode = GetLastError();                                                                                    \
         pfc::string8_fast errorStr = mozjs::MessageFromErrorCode( errorCode );                                               \
-        JS_ReportErrorUTF8( cx, "WinAPI error: '%s' failed with error (0x%X): %s", #funcName, errorCode, errorStr.c_str() ); \
+        JS_ReportErrorUTF8( cx, "WinAPI error: '%s' failed with error (0x%X): %s", funcName, errorCode, errorStr.c_str() ); \
         return retValue;                                                                                                     \
     } while ( false )
 

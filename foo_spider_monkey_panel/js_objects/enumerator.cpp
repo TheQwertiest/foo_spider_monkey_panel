@@ -53,15 +53,21 @@ bool Enumerator_Constructor_Impl( JSContext* cx, unsigned argc, JS::Value* vp )
         return false;
     }
 
-    auto pActiveXObject = retVal.value();
-    JS::RootedObject jsObject( cx,
-                               JsEnumerator::CreateJs( cx, ( pActiveXObject->pUnknown_ ? pActiveXObject->pUnknown_ : pActiveXObject->pDispatch_ ) ) );
-    if ( !jsObject )
-    { // report in CreateJs
+    try
+    {
+        auto pActiveXObject = retVal.value();
+        JS::RootedObject jsObject( cx,
+                                   JsEnumerator::CreateJs( cx, ( pActiveXObject->pUnknown_ ? pActiveXObject->pUnknown_ : pActiveXObject->pDispatch_ ) ) );
+        assert( jsObject );
+
+        args.rval().setObjectOrNull( jsObject );
+    }
+    catch (...)
+    {
+        error::ExceptionToJsError( cx );
         return false;
     }
-
-    args.rval().setObjectOrNull( jsObject );
+    
     return true;
 }
 
@@ -108,22 +114,14 @@ JsEnumerator::CreateNative( JSContext* cx, IUnknown* pUnknown )
 {
     assert( pUnknown );
 
-    try
-    {
-        CDispatchPtr pCollection( pUnknown );
-        uint32_t collectionSize = pCollection.Get( L"Count" );
-        EnumVARIANTComPtr pEnum( pCollection.Get( (DISPID)DISPID_NEWENUM ) );
+    CDispatchPtr pCollection( pUnknown );
+    uint32_t collectionSize = pCollection.Get( L"Count" );
+    EnumVARIANTComPtr pEnum( pCollection.Get( (DISPID)DISPID_NEWENUM ) );
 
-        auto pNative = std::unique_ptr<JsEnumerator>( new JsEnumerator( cx, pEnum, !!collectionSize ) );
-        pNative->GetCurrentElement();
+    auto pNative = std::unique_ptr<JsEnumerator>( new JsEnumerator( cx, pEnum, !!collectionSize ) );
+    pNative->GetCurrentElement();
 
-        return pNative;
-    }
-    catch ( ... )
-    { // TODO: remove
-        error::ExceptionToJsError( cx );
-        return nullptr;
-    }
+    return pNative;
 }
 
 size_t JsEnumerator::GetInternalSize( IUnknown* /*pUnknown*/ )

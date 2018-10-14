@@ -81,14 +81,12 @@ JsGdiFont::CreateNative( JSContext* cx, std::unique_ptr<Gdiplus::Font> pGdiFont,
 {
     if ( !pGdiFont )
     {
-        JS_ReportErrorUTF8( cx, "Internal error: Gdiplus::Font object is null" );
-        return nullptr;
+        throw smp::SmpException( "Internal error: Gdiplus::Font object is null" );
     }
 
     if ( !hFont )
     {
-        JS_ReportErrorUTF8( cx, "Internal error: HFONT object is null" );
-        return nullptr;
+        throw smp::SmpException( "Internal error: HFONT object is null" );
     }
 
     return std::unique_ptr<JsGdiFont>( new JsGdiFont( cx, std::move( pGdiFont ), hFont, isManaged ) );

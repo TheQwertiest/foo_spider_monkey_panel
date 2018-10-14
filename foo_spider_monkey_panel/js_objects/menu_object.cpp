@@ -81,7 +81,7 @@ std::unique_ptr<JsMenuObject>
 JsMenuObject::CreateNative( JSContext* cx, HWND hParentWnd )
 {
     HMENU hMenu = ::CreatePopupMenu();
-    IF_WINAPI_FAILED_RETURN_WITH_REPORT( cx, !!hMenu, nullptr, CreatePopupMenu );
+    IF_WINAPI_FAILED_THROW_SMP( !!hMenu, "CreatePopupMenu" );
 
     return std::unique_ptr<JsMenuObject>( new JsMenuObject( cx, hParentWnd, hMenu ) );
 }

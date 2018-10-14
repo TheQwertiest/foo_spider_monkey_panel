@@ -85,8 +85,7 @@ JsFbFileInfo::CreateNative( JSContext* cx, std::unique_ptr<file_info_impl> fileI
 {
     if ( !fileInfo )
     {
-        JS_ReportErrorUTF8( cx, "Internal error: file_info object is null" );
-        return nullptr;
+        throw smp::SmpException( "Internal error: file_info object is null" );
     }
 
     return std::unique_ptr<JsFbFileInfo>( new JsFbFileInfo( cx, std::move( fileInfo ) ) );

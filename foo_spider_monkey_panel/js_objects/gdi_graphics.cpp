@@ -746,10 +746,7 @@ JSObject* JsGdiGraphics::MeasureString( const std::wstring& str, JsGdiFont* font
     IF_GDI_FAILED_THROW_SMP( gdiRet, "MeasureString" );
 
     JS::RootedObject jsObject( pJsCtx_, JsMeasureStringInfo::CreateJs( pJsCtx_, bound.X, bound.Y, bound.Width, bound.Height, lines, chars ) );
-    if ( !jsObject )
-    { // TODO: remove
-        throw smp::JsException();
-    }
+    assert( jsObject );
 
     return jsObject;
 }

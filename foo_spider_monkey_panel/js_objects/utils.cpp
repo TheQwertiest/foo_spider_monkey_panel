@@ -359,10 +359,7 @@ JSObject* JsUtils::GetAlbumArtEmbedded( const pfc::string8_fast& rawpath, uint32
     }
 
     JS::RootedObject jsObject( pJsCtx_, JsGdiBitmap::CreateJs( pJsCtx_, std::move( artImage ) ) );
-    if ( !jsObject )
-    { // TODO: remove
-        throw smp::JsException();
-    }
+    assert( jsObject );
 
     return jsObject;
 }
@@ -394,10 +391,7 @@ JSObject* JsUtils::GetAlbumArtV2( JsFbMetadbHandle* handle, uint32_t art_id, boo
     }
 
     JS::RootedObject jsObject( pJsCtx_, JsGdiBitmap::CreateJs( pJsCtx_, std::move( artImage ) ) );
-    if ( !jsObject )
-    { // TODO: remove
-        throw smp::JsException();
-    }
+    assert( jsObject );
 
     return jsObject;
 }
@@ -577,13 +571,7 @@ std::wstring JsUtils::ReadINIWithOpt( size_t optArgCount, const std::wstring& fi
 
 std::wstring JsUtils::ReadTextFile( const pfc::string8_fast& filePath, uint32_t codepage )
 {
-    auto retVal = file::ReadFromFile( pJsCtx_, filePath );
-    if ( !retVal )
-    { // TODO: remove
-        throw smp::JsException();
-    }
-
-    return retVal.value();
+    return file::ReadFromFile( pJsCtx_, filePath );
 }
 
 std::wstring JsUtils::ReadTextFileWithOpt( size_t optArgCount, const pfc::string8_fast& filePath, uint32_t codepage )
@@ -609,7 +597,14 @@ JS::Value JsUtils::ShowHtmlDialog( uint32_t hWnd, const std::wstring& htmlCode, 
         int iRet = (int)dlg.DoModal( HWND( hWnd ) );
         if ( -1 == iRet || IDABORT == iRet )
         {
-            throw smp::SmpException( smp::string::Formatter() << "DoModal failed: " << iRet );
+            if ( JS_IsExceptionPending( pJsCtx_ ) )
+            {
+                throw smp::JsException();
+            }
+            else
+            {
+                throw smp::SmpException( smp::string::Formatter() << "DoModal failed: " << iRet );
+            }
         }
     }
 

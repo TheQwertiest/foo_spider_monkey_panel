@@ -2,17 +2,17 @@
 #include "file_helpers.h"
 
 #include <js_utils/scope_helper.h>
+#include <utils/string_helpers.h>
 
 #include <helpers.h>
 
 #include <filesystem>
 
-
 namespace mozjs::file
 {
 
-std::wstring CleanPath( const std::wstring &path )
-{// TODO: replace with `ReplaceChar` or ReplaceString
+std::wstring CleanPath( const std::wstring& path )
+{ // TODO: replace with `ReplaceChar` or ReplaceString
     std::wstring cleanedPath = path;
     for ( auto& curChar : cleanedPath )
     {
@@ -25,10 +25,9 @@ std::wstring CleanPath( const std::wstring &path )
     return cleanedPath;
 }
 
-std::optional<std::wstring> ReadFromFile( JSContext* cx, const pfc::string8_fast& path, uint32_t codepage )
+std::wstring ReadFromFile( JSContext* cx, const pfc::string8_fast& path, uint32_t codepage )
 {
-    const auto cleanPath = [&]
-    {
+    const auto cleanPath = [&] {
         pfc::string8_fast tmpPath = path;
         tmpPath.replace_string( "/", "\\", 0 );
         return tmpPath;
@@ -40,8 +39,7 @@ std::optional<std::wstring> ReadFromFile( JSContext* cx, const pfc::string8_fast
     std::error_code dummyErr;
     if ( !fs::exists( fsPath ) || !fs::is_regular_file( fsPath, dummyErr ) )
     {
-        JS_ReportErrorUTF8( cx, "Path does not point to a valid file: %s", cleanPath.c_str() );
-        return std::nullopt;
+        throw smp::SmpException( smp::string::Formatter() << "Path does not point to a valid file: " << cleanPath.c_str() );
     }
 
     // Prepare file
@@ -49,22 +47,18 @@ std::optional<std::wstring> ReadFromFile( JSContext* cx, const pfc::string8_fast
     HANDLE hFile = CreateFile( fsPath.wstring().c_str(), GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr );
     if ( !hFile )
     {
-        JS_ReportErrorUTF8( cx, "Failed to open script file: %s", cleanPath.c_str() );
-        return std::nullopt;
+        throw smp::SmpException( smp::string::Formatter() << "Failed to open script file: " << cleanPath.c_str() );
     }
-    scope::final_action autoFile( [hFile]()
-    {
+    scope::final_action autoFile( [hFile]() {
         CloseHandle( hFile );
     } );
 
     HANDLE hFileMapping = CreateFileMapping( hFile, nullptr, PAGE_READONLY, 0, 0, nullptr );
     if ( !hFileMapping )
     {
-        JS_ReportErrorUTF8( cx, "Internal error: CreateFileMapping failed for `%s`", cleanPath.c_str() );
-        return std::nullopt;
+        throw smp::SmpException( smp::string::Formatter() << "Internal error: CreateFileMapping failed for `" << cleanPath.c_str() << "`" );
     }
-    scope::final_action autoMapping( [hFileMapping]()
-    {
+    scope::final_action autoMapping( [hFileMapping]() {
         CloseHandle( hFileMapping );
     } );
 
@@ -72,18 +66,15 @@ std::optional<std::wstring> ReadFromFile( JSContext* cx, const pfc::string8_fast
     LPCBYTE pAddr = (LPCBYTE)MapViewOfFile( hFileMapping, FILE_MAP_READ, 0, 0, 0 );
     if ( !pAddr )
     {
-        JS_ReportErrorUTF8( cx, "Internal error: MapViewOfFile failed for `%s`", cleanPath.c_str() );
-        return std::nullopt;
+        throw smp::SmpException( smp::string::Formatter() << "Internal error: MapViewOfFile failed for `" << cleanPath.c_str() << "`" );
     }
-    scope::final_action autoAddress( [pAddr]()
-    {
+    scope::final_action autoAddress( [pAddr]() {
         UnmapViewOfFile( pAddr );
     } );
 
     if ( dwFileSize == INVALID_FILE_SIZE )
     {
-        JS_ReportErrorUTF8( cx, "Internal error: failed to read file size of `%s`", cleanPath.c_str() );
-        return std::nullopt;
+        throw smp::SmpException( smp::string::Formatter() << "Internal error: failed to read file size of `" << cleanPath.c_str() << "`" );
     }
 
     // Read file
@@ -92,8 +83,8 @@ std::optional<std::wstring> ReadFromFile( JSContext* cx, const pfc::string8_fast
 
     const unsigned char bom32Be[] = { 0x00, 0x00, 0xfe, 0xff };
     const unsigned char bom32Le[] = { 0xff, 0xfe, 0x00, 0x00 };
-    const unsigned char bom16Be[] = { 0xfe, 0xff };// must be 4byte size
-    const unsigned char bom16Le[] = { 0xff, 0xfe };// must be 4byte size, but not 0xff, 0xfe, 0x00, 0x00
+    const unsigned char bom16Be[] = { 0xfe, 0xff }; // must be 4byte size
+    const unsigned char bom16Le[] = { 0xff, 0xfe }; // must be 4byte size, but not 0xff, 0xfe, 0x00, 0x00
     const unsigned char bom8[] = { 0xef, 0xbb, 0xbf };
 
     // TODO: handle all other BOM cases as well
@@ -144,4 +135,4 @@ std::optional<std::wstring> ReadFromFile( JSContext* cx, const pfc::string8_fast
     return fileContent;
 }
 
-}
+} // namespace mozjs::file
