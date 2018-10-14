@@ -168,10 +168,7 @@ void JsEngine::StartHeartbeatThread()
     if ( !heartbeatWindow_ )
     {
         heartbeatWindow_ = smp::HeartbeatWindow::Create();
-        if ( !heartbeatWindow_ )
-        {// TODO: move HeartbeatWindow to exception
-            throw smp::SmpException("Failed to create HeartbeatWindow");
-        }
+        assert( heartbeatWindow_ );
     }
 
     shouldStopHeartbeatThread_ = false;

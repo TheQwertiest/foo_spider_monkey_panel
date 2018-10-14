@@ -92,7 +92,7 @@ std::unique_ptr<Gdiplus::Bitmap> LoadImage( const std::wstring& imagePath )
     }
 
     std::unique_ptr<Gdiplus::Bitmap> img( new Gdiplus::Bitmap( pStream, PixelFormat32bppPARGB ) );
-    if ( !gdi::IsGdiPlusObjectValid( img.get() ) )
+    if ( !gdi::IsGdiPlusObjectValid( img ) )
     {
         return nullptr;
     }

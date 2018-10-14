@@ -20,8 +20,6 @@
         }                                                                               \
     } while ( false )
 
-// TODO: replace funcName with "funcName"
-
 #define IF_HR_FAILED_RETURN_WITH_REPORT( cx, hr, retValue, funcName ) \
     do                                                                \
     {                                                                 \

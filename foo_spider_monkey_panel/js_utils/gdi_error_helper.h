@@ -12,18 +12,38 @@
         }                                                                                                                  \
     } while ( false )
 
-#define IF_GDI_FAILED_THROW_SMP( gdiRet, funcName )                                                                                                                   \
-    do                                                                                                                                                                \
-    {                                                                                                                                                                 \
-        if ( gdiRet > 0 )                                                                                                                                             \
-        {                                                                                                                                                             \
-            throw smp::SmpException(                                                                                                                                  \
-                smp::string::Formatter() << "GDI error: " << funcName << " failed with error (0x" << std::hex << gdiRet << ": " << GdiErrorCodeToText( gdiRet ) ); \
-        }                                                                                                                                                             \
+#define IF_GDI_FAILED_THROW_SMP( gdiRet, funcName )                                                                                                           \
+    do                                                                                                                                                        \
+    {                                                                                                                                                         \
+        if ( gdiRet > 0 )                                                                                                                                     \
+        {                                                                                                                                                     \
+            throw smp::SmpException(                                                                                                                          \
+                smp::string::Formatter() << "GDI error: " << funcName << " failed: " << GdiErrorCodeToText( gdiRet ) << "(0x" << std::hex << gdiRet << ")" ); \
+        }                                                                                                                                                     \
     } while ( false )
 
 namespace mozjs
 {
 
-const char* GdiErrorCodeToText( Gdiplus::Status errorCode );
+template <typename T>
+void ValidateGdiPlusObject( const std::unique_ptr<T>& obj ) noexcept( false )
+{
+    if ( gdi::IsGdiPlusObjectValid( obj ) )
+    {
+        return;
+    }
+
+    if ( !obj )
+    {
+        throw smp::SmpException( "Failed to create GdiPlus object" );
+    }
+    else
+    {
+        throw smp::SmpException(
+            smp::string::Formatter() << "Failed to create GdiPlus object: " << GdiErrorCodeToText( obj->GetLastStatus() ) << "(0x" << std::hex << obj->GetLastStatus() << ")" );
+    }
 }
+
+const char* GdiErrorCodeToText( Gdiplus::Status errorCode );
+
+} // namespace mozjs

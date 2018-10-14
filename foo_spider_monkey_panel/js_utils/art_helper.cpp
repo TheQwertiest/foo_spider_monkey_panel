@@ -1,6 +1,7 @@
 #include <stdafx.h>
 #include "art_helper.h"
 
+#include <js_utils/gdi_helpers.h>
 #include <utils/string_helpers.h>
 
 #include <helpers.h>
@@ -83,13 +84,6 @@ void AlbumArtFetchTask::run()
     SendMessage( hNotifyWnd_, CALLBACK_UWM_ON_GET_ALBUM_ART_DONE, 0, (LPARAM)&taskResult );
 }
 
-// TODO: move\remove this
-template <class T>
-bool IsGdiplusObjectValid( T* obj )
-{
-    return ( ( obj ) && ( obj->GetLastStatus() == Gdiplus::Ok ) );
-}
-
 std::unique_ptr<Gdiplus::Bitmap> GetBitmapFromAlbumArtData( const album_art_data_ptr& data )
 {
     if ( !data.is_valid() )
@@ -120,7 +114,7 @@ std::unique_ptr<Gdiplus::Bitmap> GetBitmapFromAlbumArtData( const album_art_data
     }
 
     std::unique_ptr<Gdiplus::Bitmap> bmp( new Gdiplus::Bitmap( iStream, PixelFormat32bppPARGB ) );
-    if ( !IsGdiplusObjectValid( bmp.get() ) )
+    if ( !gdi::IsGdiPlusObjectValid( bmp ) )
     {
         return nullptr;
     }

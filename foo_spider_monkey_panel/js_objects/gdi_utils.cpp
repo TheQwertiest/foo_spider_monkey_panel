@@ -8,6 +8,7 @@
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
 #include <js_utils/gdi_helpers.h>
+#include <js_utils/gdi_error_helper.h>
 #include <js_utils/scope_helper.h>
 #include <js_utils/image_helper.h>
 #include <js_utils/winapi_error_helper.h>
@@ -88,10 +89,7 @@ size_t JsGdiUtils::GetInternalSize()
 JSObject* JsGdiUtils::CreateImage( uint32_t w, uint32_t h )
 {
     std::unique_ptr<Gdiplus::Bitmap> img( new Gdiplus::Bitmap( w, h, PixelFormat32bppPARGB ) );
-    if ( !gdi::IsGdiPlusObjectValid( img.get() ) )
-    {
-        throw smp::SmpException( "Bitmap creation failed" );
-    }
+    ValidateGdiPlusObject( img );
 
     JS::RootedObject jsObject( pJsCtx_, JsGdiBitmap::CreateJs( pJsCtx_, std::move( img ) ) );
     assert( jsObject );
@@ -102,7 +100,7 @@ JSObject* JsGdiUtils::CreateImage( uint32_t w, uint32_t h )
 JSObject* JsGdiUtils::Font( const std::wstring& fontName, float pxSize, uint32_t style )
 {
     std::unique_ptr<Gdiplus::Font> pGdiFont( new Gdiplus::Font( fontName.c_str(), pxSize, style, Gdiplus::UnitPixel ) );
-    if ( !gdi::IsGdiPlusObjectValid( pGdiFont.get() ) )
+    if ( !gdi::IsGdiPlusObjectValid( pGdiFont ) )
     { // Not an error: font not found
         return nullptr;
     }

@@ -132,10 +132,7 @@ JSObject* JsGdiBitmap::ApplyAlpha( uint8_t alpha )
     t_size height = pGdi_->GetHeight();
 
     std::unique_ptr<Gdiplus::Bitmap> out( new Gdiplus::Bitmap( width, height, PixelFormat32bppPARGB ) );
-    if ( !gdi::IsGdiPlusObjectValid( out.get() ) )
-    { // TODO: replace with IF_FAILED macro
-        throw smp::SmpException( "Internal error: failed to create Gdiplus object" );
-    }
+    ValidateGdiPlusObject( out );
 
     Gdiplus::Graphics g( out.get() );
     Gdiplus::ImageAttributes ia;
@@ -223,10 +220,7 @@ bool JsGdiBitmap::ApplyMask( JsGdiBitmap* mask )
 JSObject* JsGdiBitmap::Clone( float x, float y, float w, float h )
 {
     std::unique_ptr<Gdiplus::Bitmap> img( pGdi_->Clone( x, y, w, h, PixelFormat32bppPARGB ) );
-    if ( !gdi::IsGdiPlusObjectValid( img.get() ) )
-    {
-        throw smp::SmpException( "Clone failed" );
-    }
+    ValidateGdiPlusObject( img );
 
     JS::RootedObject jsObject( pJsCtx_, JsGdiBitmap::CreateJs( pJsCtx_, std::move( img ) ) );
     assert( jsObject );
@@ -326,10 +320,7 @@ pfc::string8_fast JsGdiBitmap::GetColourSchemeJSON( uint32_t count )
     uint32_t h = std::min( pGdi_->GetHeight(), static_cast<uint32_t>( 220 ) );
 
     auto bitmap = std::make_unique<Gdiplus::Bitmap>( w, h, PixelFormat32bppPARGB );
-    if ( !gdi::IsGdiPlusObjectValid( bitmap.get() ) )
-    { // TODO: replace with IF_FAILED macro
-        throw smp::SmpException( "Internal error: failed to create Gdiplus object" );
-    }
+    ValidateGdiPlusObject( bitmap );
 
     Gdiplus::Graphics gr( bitmap.get() );
     Gdiplus::Rect rect( 0, 0, (LONG)w, (LONG)h );
@@ -415,10 +406,7 @@ pfc::string8_fast JsGdiBitmap::GetColourSchemeJSON( uint32_t count )
 JSObject* JsGdiBitmap::GetGraphics()
 {
     std::unique_ptr<Gdiplus::Graphics> g( new Gdiplus::Graphics( pGdi_.get() ) );
-    if ( !gdi::IsGdiPlusObjectValid( g.get() ) )
-    { // TODO: replace with IF_FAILED macro
-        throw smp::SmpException( "Internal error: failed to create Gdiplus object" );
-    }
+    ValidateGdiPlusObject( g );
 
     JS::RootedObject jsObject( pJsCtx_, JsGdiGraphics::CreateJs( pJsCtx_ ) );
     assert( jsObject );
@@ -453,10 +441,7 @@ void JsGdiBitmap::ReleaseGraphics( JsGdiGraphics* graphics )
 JSObject* JsGdiBitmap::Resize( uint32_t w, uint32_t h, uint32_t interpolationMode )
 {
     std::unique_ptr<Gdiplus::Bitmap> bitmap( new Gdiplus::Bitmap( w, h, PixelFormat32bppPARGB ) );
-    if ( !gdi::IsGdiPlusObjectValid( bitmap.get() ) )
-    { // TODO: replace with IF_FAILED macro
-        throw smp::SmpException( "Internal error: failed to create Gdiplus object" );
-    }
+    ValidateGdiPlusObject( bitmap );
 
     Gdiplus::Graphics g( bitmap.get() );
     Gdiplus::Status gdiRet = g.SetInterpolationMode( (Gdiplus::InterpolationMode)interpolationMode );
