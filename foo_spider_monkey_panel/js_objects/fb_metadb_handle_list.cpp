@@ -275,7 +275,7 @@ void JsFbMetadbHandleList::AttachImage( const pfc::string8_fast& image_path, uin
         return;
     }
 
-    GUID what = art::GetGuidForArtId( art_id );
+    const GUID& what = art::GetGuidForArtId( art_id );
     abort_callback_dummy abort;
     album_art_data_ptr data;
 
@@ -632,7 +632,7 @@ void JsFbMetadbHandleList::RemoveAttachedImage( uint32_t art_id )
         return;
     }
 
-    GUID what = art::GetGuidForArtId( art_id );
+    const GUID& what = art::GetGuidForArtId( art_id );
 
     threaded_process_callback::ptr cb = new service_impl_t<art::embed_thread>( 1, album_art_data_ptr(), metadbHandleList_, what );
     threaded_process::get()->run_modeless( cb,

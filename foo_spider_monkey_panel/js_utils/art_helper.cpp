@@ -1,6 +1,8 @@
 #include <stdafx.h>
 #include "art_helper.h"
 
+#include <utils/string_helpers.h>
+
 #include <helpers.h>
 #include <user_message.h>
 
@@ -52,17 +54,24 @@ void AlbumArtFetchTask::run()
 
     if ( handle_.is_valid() )
     {
-        if ( onlyEmbed_ )
+        try
         {
-            bitmap = art::GetBitmapFromEmbeddedData( rawPath_, artId_ );
-            if ( bitmap )
+            if ( onlyEmbed_ )
             {
-                imagePath = handle_->get_path();
+                bitmap = art::GetBitmapFromEmbeddedData( rawPath_, artId_ );
+                if ( bitmap )
+                {
+                    imagePath = handle_->get_path();
+                }
+            }
+            else
+            {
+                bitmap = art::GetBitmapFromMetadb( handle_, artId_, needStub_, noLoad_, &imagePath );
             }
         }
-        else
-        {
-            bitmap = art::GetBitmapFromMetadb( handle_, artId_, needStub_, noLoad_, &imagePath );
+        catch ( const smp::SmpException& )
+        {// The only possible exception is invalid art_id, which should be checked beforehand
+            assert( 0 );
         }
     }
 
@@ -119,7 +128,7 @@ std::unique_ptr<Gdiplus::Bitmap> GetBitmapFromAlbumArtData( const album_art_data
     return bmp;
 }
 
-std::unique_ptr<Gdiplus::Bitmap> ExtractBitmap( album_art_extractor_instance_v2::ptr extractor, GUID& artTypeGuid, bool no_load, pfc::string8_fast* pImagePath )
+std::unique_ptr<Gdiplus::Bitmap> ExtractBitmap( album_art_extractor_instance_v2::ptr extractor, const GUID& artTypeGuid, bool no_load, pfc::string8_fast* pImagePath )
 {
     abort_callback_dummy abort;
     album_art_data_ptr data = extractor->query( artTypeGuid, abort );
@@ -132,7 +141,7 @@ std::unique_ptr<Gdiplus::Bitmap> ExtractBitmap( album_art_extractor_instance_v2:
 
     if ( pImagePath && ( no_load || bitmap ) )
     {
-        album_art_path_list::ptr pathlist = extractor->query_paths( artTypeGuid, abort );
+        auto pathlist = extractor->query_paths( artTypeGuid, abort );
         if ( pathlist->get_count() > 0 )
         {
             *pImagePath = pathlist->get_path( 0 );
@@ -163,16 +172,15 @@ void embed_thread::run( threaded_process_status& p_status,
     t_size count = m_handles.get_count();
     for ( t_size i = 0; i < count; ++i )
     {
-        pfc::string8_fast path = m_handles.get_item( i )->get_path();
+        const pfc::string8_fast path = m_handles.get_item( i )->get_path();
         p_status.set_progress( i, count );
         p_status.set_item_path( path );
         album_art_editor::ptr ptr;
         if ( album_art_editor::g_get_interface( ptr, path ) )
         {
-            album_art_editor_instance_ptr aaep;
             try
             {
-                aaep = ptr->open( NULL, path, p_abort );
+                auto aaep = ptr->open( NULL, path, p_abort );
                 if ( m_action == 0 )
                 {
                     aaep->set( m_what, m_data, p_abort );
@@ -203,7 +211,7 @@ const GUID& GetGuidForArtId( uint32_t art_id )
 
     if ( art_id >= _countof( guids ) )
     {
-        return *guids[0];
+        throw smp::SmpException( smp::string::Formatter() << "Unknown art_id: " << art_id );
     }
 
     return *guids[art_id];
@@ -211,7 +219,9 @@ const GUID& GetGuidForArtId( uint32_t art_id )
 
 std::unique_ptr<Gdiplus::Bitmap> GetBitmapFromEmbeddedData( const pfc::string8_fast& rawpath, uint32_t art_id )
 {
-    pfc::string_extension extension( rawpath.c_str() );
+    const pfc::string_extension extension( rawpath.c_str() );
+    const GUID& artTypeGuid = GetGuidForArtId( art_id );
+
     service_enum_t<album_art_extractor> extractorEnum;
     album_art_extractor::ptr extractor;
     abort_callback_dummy abort;
@@ -223,13 +233,10 @@ std::unique_ptr<Gdiplus::Bitmap> GetBitmapFromEmbeddedData( const pfc::string8_f
             continue;
         }
 
-        album_art_extractor_instance_ptr aaep;
-        GUID artTypeGuid = GetGuidForArtId( art_id );
-
         try
         {
-            aaep = extractor->open( nullptr, rawpath.c_str(), abort );
-            album_art_data_ptr data = aaep->query( artTypeGuid, abort );
+            auto aaep = extractor->open( nullptr, rawpath.c_str(), abort );
+            auto data = aaep->query( artTypeGuid, abort );
 
             return GetBitmapFromAlbumArtData( data );            
         }
@@ -248,7 +255,7 @@ std::unique_ptr<Gdiplus::Bitmap> GetBitmapFromMetadb( const metadb_handle_ptr& h
         return nullptr;
     }
 
-    GUID artTypeGuid = GetGuidForArtId( art_id );
+    const GUID& artTypeGuid = GetGuidForArtId( art_id );
     abort_callback_dummy abort;
     auto aamv2 = album_art_manager_v2::get();
 
@@ -284,17 +291,22 @@ uint32_t GetAlbumArtAsync( HWND hWnd, const metadb_handle_ptr& handle, uint32_t 
 
     try
     {
-        std::unique_ptr<AlbumArtFetchTask> task( new AlbumArtFetchTask( hWnd, handle, art_id, need_stub, only_embed, no_load ) );
+        (void)GetGuidForArtId( art_id ); ///< Check that art id is valid, since we don't want to throw in helper thread
+        auto pTask = std::make_unique<AlbumArtFetchTask>( hWnd, handle, art_id, need_stub, only_embed, no_load );
         uint32_t taskId = [&]()
         {
-            uint64_t tmp = reinterpret_cast<uint64_t>(task.get());
+            uint64_t tmp = static_cast<uint64_t>(reinterpret_cast<uintptr_t>(pTask.get()));
             return static_cast<uint32_t>((tmp & 0xFFFFFFFF) ^ (tmp >> 32));
         }();
 
-        if ( simple_thread_pool::instance().enqueue( std::move( task ) ) )
+        if ( simple_thread_pool::instance().enqueue( std::move( pTask ) ) )
         {
             return taskId;
         }
+    }
+    catch ( const smp::SmpException& )
+    {
+        throw;
     }
     catch ( ... )
     {
