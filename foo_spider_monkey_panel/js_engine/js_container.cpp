@@ -10,6 +10,7 @@
 
 #include <js_panel_window.h>
 #include <host_timer_dispatcher.h>
+#include <smp_exception.h>
 
 #pragma warning( push )
 #pragma warning( disable : 4100 ) // unused variable
@@ -32,15 +33,13 @@ JsContainer::~JsContainer()
     pJsCtx_ = nullptr;
 }
 
-bool JsContainer::Prepare( JSContext *cx, js_panel_window& parentPanel )
+void JsContainer::Prepare( JSContext *cx, js_panel_window& parentPanel )
 {
     assert( cx );
 
     pJsCtx_ = cx;
     pParentPanel_ = &parentPanel;
-    jsStatus_ = JsStatus::Prepared;
-
-    return Initialize();
+    jsStatus_ = JsStatus::Prepared;    
 }
 
 bool JsContainer::Initialize()
@@ -60,29 +59,41 @@ bool JsContainer::Initialize()
         jsGlobal_.reset();
     }
 
-    JSAutoRequest ar( pJsCtx_ );
-
-    jsGlobal_.init( pJsCtx_, JsGlobalObject::CreateNative( pJsCtx_, *this, *pParentPanel_ ) );
-    if ( !jsGlobal_ )
+    try
     {
+        JSAutoRequest ar( pJsCtx_ );
+
+        jsGlobal_.init( pJsCtx_, JsGlobalObject::CreateNative( pJsCtx_, *this, *pParentPanel_ ) );
+        assert( jsGlobal_ );
+
+        JSAutoCompartment ac( pJsCtx_, jsGlobal_ );
+
+        jsGraphics_.init( pJsCtx_, JsGdiGraphics::CreateJs( pJsCtx_ ) );
+        // TODO: remove
+        if ( !jsGraphics_ )
+        {
+            jsGlobal_.reset();
+            throw smp::JsException();
+        }
+    }
+    catch ( ... )
+    {
+        error::ExceptionToJsError( pJsCtx_ );
+        
+        const auto errorText = error::GetTextFromCurrentJsError( pJsCtx_ );
+        JS_ClearPendingException( pJsCtx_ );
+
+        Fail( errorText );
         return false;
     }
-
-    JSAutoCompartment ac( pJsCtx_, jsGlobal_ );
-
-    jsGraphics_.init( pJsCtx_, JsGdiGraphics::CreateJs( pJsCtx_ ) );
-    if ( !jsGraphics_ )
-    {
-        jsGlobal_.reset();
-        return false;
-    }
-
+    
     pNativeGlobal_ = static_cast<JsGlobalObject*>( JS_GetPrivate( jsGlobal_ ) );
     assert( pNativeGlobal_ );
-    pNativeGraphics_ = static_cast<JsGdiGraphics*>(JS_GetPrivate( jsGraphics_ ));
+    pNativeGraphics_ = static_cast<JsGdiGraphics*>( JS_GetPrivate( jsGraphics_ ) );
     assert( pNativeGraphics_ );
 
     jsStatus_ = JsStatus::Ready;
+
     return true;
 }
 
@@ -218,11 +229,13 @@ void JsContainer::InvokeOnNotify( WPARAM wp, LPARAM lp )
     }
 
     autoScope.DisableReport(); ///< InvokeJsCallback has it's own AutoReportException
-    if ( InvokeJsCallback( "on_notify_data",
-                           *reinterpret_cast<std::wstring*>( wp ),
-                           static_cast<JS::HandleValue>( jsValue ) )
-         && jsValue.isObject() )
-    { // Remove binding
+    InvokeJsCallback( "on_notify_data",
+                      *reinterpret_cast<std::wstring*>( wp ),
+                      static_cast<JS::HandleValue>( jsValue ) );
+    if ( jsValue.isObject() )
+    {
+        // TODO: test this! it was nuked only on success before
+        // Remove binding
         js::NukeCrossCompartmentWrapper( pJsCtx_, &jsValue.toObject() );
     }
 }
@@ -291,9 +304,18 @@ bool JsContainer::CreateDropActionIfNeeded()
         return true;
     }
 
-    jsDropAction_.init( pJsCtx_, JsDropSourceAction::CreateJs( pJsCtx_ ) );
-    if ( !jsDropAction_ )
-    {// reports
+    try
+    {
+        jsDropAction_.init( pJsCtx_, JsDropSourceAction::CreateJs( pJsCtx_ ) );
+        // TODO: remove
+        if ( !jsDropAction_ )
+        {
+            throw smp::JsException();
+        }
+    }
+    catch ( ... )
+    {
+        error::ExceptionToJsError( pJsCtx_ );        
         return false;
     }
 

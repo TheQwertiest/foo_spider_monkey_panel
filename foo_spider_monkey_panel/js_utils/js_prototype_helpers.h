@@ -33,7 +33,7 @@ bool CreateAndSavePrototype( JSContext* cx, JsPrototypeId protoId )
 ///        and store it in the current global object.
 ///        Created prototype is accessible from JS.
 template<typename JsObjectType>
-bool CreateAndInstallPrototype( JSContext* cx, JsPrototypeId protoId )
+void CreateAndInstallPrototype( JSContext* cx, JsPrototypeId protoId )
 {
     JS::RootedObject globalObject( cx, JS::CurrentGlobalOrNull( cx ) );
     assert( globalObject );
@@ -42,15 +42,10 @@ bool CreateAndInstallPrototype( JSContext* cx, JsPrototypeId protoId )
     assert( slotIdx < JSCLASS_RESERVED_SLOTS( JS_GetClass( globalObject ) ) );
 
     JS::RootedObject jsProto( cx, JsObjectType::InstallProto( cx, globalObject ) );
-    if ( !jsProto )
-    {// reports
-        return false;
-    }
+    assert( jsProto );
 
     JS::Value protoVal = JS::ObjectValue( *jsProto );
     JS_SetReservedSlot( globalObject, slotIdx, protoVal );
-
-    return true;
 }
 
 /// @brief Get the prototype for the specified object from the current global object.

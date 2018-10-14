@@ -32,14 +32,12 @@ public:
 
     void Disable();
 
-private: 
-    static pfc::string8_fast GetStackTraceString( JSContext* cx, JS::HandleObject exn );
-
 private:
     JSContext * cx;
     bool isDisabled_ = false;
 };
 
+pfc::string8_fast GetTextFromCurrentJsError( JSContext* cx );
 void ExceptionToJsError( JSContext* cx );
 void ReportJsErrorWithFunctionName( JSContext* cx, const char* functionName );
 

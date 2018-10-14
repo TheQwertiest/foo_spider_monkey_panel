@@ -9,6 +9,7 @@ namespace smp
 class SmpException
     : public std::runtime_error
 {
+public:
     SmpException( const std::string& errorText )
         : std::runtime_error( errorText )
     {}
@@ -20,6 +21,7 @@ class SmpException
 class JsException
     : public std::exception
 {
+public:
     JsException() = default;
     virtual ~JsException() = default;
 };

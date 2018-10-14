@@ -25,7 +25,7 @@ std::unique_ptr<GlobalHeapManager> GlobalHeapManager::Create( JSContext* cx )
     std::unique_ptr<GlobalHeapManager> tmp( new GlobalHeapManager( cx ) );
     if ( !JS_AddExtraGCRootsTracer( cx, GlobalHeapManager::TraceHeapValue, tmp.get() ) )
     {
-        return nullptr;
+        throw smp::JsException();
     }
 
     return tmp;

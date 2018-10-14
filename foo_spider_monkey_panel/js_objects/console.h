@@ -4,6 +4,6 @@
 namespace mozjs
 {
 
-bool DefineConsole( JSContext* cx, JS::HandleObject global );
+void DefineConsole( JSContext* cx, JS::HandleObject global );
 
 }

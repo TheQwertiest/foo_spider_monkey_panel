@@ -21,20 +21,19 @@ constexpr uint16_t DefaultPropsFlags()
 bool DummyGetter( JSContext* cx, unsigned argc, JS::Value* vp );
 
 template<typename JsObjectType, typename ...ArgsType>
-bool CreateAndInstallObject( JSContext* cx, JS::HandleObject parentObject, const pfc::string8_fast& propertyName, ArgsType&&... args )
+void CreateAndInstallObject( JSContext* cx, JS::HandleObject parentObject, const pfc::string8_fast& propertyName, ArgsType&&... args )
 {
     JS::RootedObject objectToInstall( cx, JsObjectType::CreateJs( cx, args... ) );
+    // TODO: remove
     if ( !objectToInstall )
     {
-        return false;
+        throw smp::JsException();
     }
 
     if ( !JS_DefineProperty( cx, parentObject, propertyName.c_str(), objectToInstall, DefaultPropsFlags() ) )
     {
-        return false;
+        throw smp::JsException();
     }
-
-    return true;
 }
 
 /// @brief Same as JS_GetInstancePrivate, but unwraps the object if it's a proxy.

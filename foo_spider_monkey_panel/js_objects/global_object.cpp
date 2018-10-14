@@ -112,7 +112,7 @@ JSObject* JsGlobalObject::CreateNative( JSContext* cx, JsContainer &parentContai
                             JS_NewGlobalObject( cx, &jsClass, nullptr, JS::DontFireOnNewGlobalHook, options ) );
     if ( !jsObj )
     {
-        return nullptr;
+        throw smp::JsException();
     }
 
     {
@@ -121,52 +121,38 @@ JSObject* JsGlobalObject::CreateNative( JSContext* cx, JsContainer &parentContai
 
         if ( !JS_InitStandardClasses( cx, jsObj ) )
         {
-            return nullptr;
+            throw smp::JsException();
         }
 
-        if ( !DefineConsole( cx, jsObj ) )
-        {
-            return nullptr;
-        }
-
-        if ( !CreateAndInstallObject<JsGdiUtils>( cx, jsObj, "gdi" )
-             || !CreateAndInstallObject<JsFbPlaylistManager>( cx, jsObj, "plman" )
-             || !CreateAndInstallObject<JsUtils>( cx, jsObj, "utils" )
-             || !CreateAndInstallObject<JsFbUtils>( cx, jsObj, "fb" )
-             || !CreateAndInstallObject<JsWindow>( cx, jsObj, "window", parentPanel ) 
-             // || !CreateAndInstallObject<JsHacks>( cx, jsObj, "hacks" ) 
-             )
-        {
-            return nullptr;
-        }
+        DefineConsole( cx, jsObj );
+        CreateAndInstallObject<JsGdiUtils>( cx, jsObj, "gdi" );
+        CreateAndInstallObject<JsFbPlaylistManager>( cx, jsObj, "plman" );
+        CreateAndInstallObject<JsUtils>( cx, jsObj, "utils" );
+        CreateAndInstallObject<JsFbUtils>( cx, jsObj, "fb" );
+        CreateAndInstallObject<JsWindow>( cx, jsObj, "window", parentPanel );
+        // CreateAndInstallObject<JsHacks>( cx, jsObj, "hacks" ) ;
 
         if ( !JS_DefineFunctions( cx, jsObj, jsFunctions ) )
         {
-            return nullptr;
+            throw smp::JsException();
         }
 
 #ifdef _DEBUG
         JS::RootedObject testFuncs( cx, js::GetTestingFunctions( cx ) );
         if ( !JS_DefineProperty( cx, jsObj, "test", testFuncs, DefaultPropsFlags() ) )
         {
-            return false;
+            throw smp::JsException();
         }
 #endif
 
+        CreateAndInstallPrototype<ActiveXObject>( cx, JsPrototypeId::ActiveX );
+        CreateAndInstallPrototype<JsEnumerator>( cx, JsPrototypeId::Enumerator );
+        
         auto pNative = std::unique_ptr<JsGlobalObject>( new JsGlobalObject( cx, parentContainer ) );
         pNative->heapManager_ = GlobalHeapManager::Create( cx );
-        if ( !pNative->heapManager_ )
-        {// reports
-            return nullptr;
-        }
+        assert( pNative->heapManager_ );
 
         JS_SetPrivate( jsObj, pNative.release() );
-
-        if ( !CreateAndInstallPrototype<ActiveXObject>( cx, JsPrototypeId::ActiveX ) 
-             || !CreateAndInstallPrototype<JsEnumerator>( cx, JsPrototypeId::Enumerator ) )
-        {// reports
-            return nullptr;
-        }     
 
         JS_FireOnNewGlobalObject( cx, jsObj );
     }

@@ -49,12 +49,15 @@ static const JSFunctionSpec console_functions[] = {
 namespace mozjs
 {
 
-bool DefineConsole( JSContext* cx, JS::HandleObject global )
+void DefineConsole( JSContext* cx, JS::HandleObject global )
 {
     JS::RootedObject consoleObj( cx, JS_NewPlainObject( cx ) );
-    return consoleObj
-           && JS_DefineFunctions( cx, consoleObj, console_functions )
-           && JS_DefineProperty( cx, global, "console", consoleObj, DefaultPropsFlags() );
+    if ( !consoleObj
+         || !JS_DefineFunctions( cx, consoleObj, console_functions )
+         || !JS_DefineProperty( cx, global, "console", consoleObj, DefaultPropsFlags() ) )
+    {
+        throw smp::JsException();
+    }
 }
 
 } // namespace mozjs

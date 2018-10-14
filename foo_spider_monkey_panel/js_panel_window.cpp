@@ -712,17 +712,14 @@ bool js_panel_window::script_load()
     PostMessage( hWnd_, UWM_SIZE_LIMIT_CHANGED, 0, uie::size_limit_all );
 
     if ( !jsContainer_.Initialize() )
-    {
+    {// error reporting handled inside
         return false;
     }
     
     if ( !jsContainer_.ExecuteScript( get_script_code().c_str() ) )
-    {
+    {// error reporting handled inside
         return false;
     }
-
-    // TODO: check
-    //HRESULT hr = m_script_host->Initialize();
 
     // HACK: Script update will not call on_size, so invoke it explicitly
     SendMessage( hWnd_, UWM_SIZE, 0, 0 );

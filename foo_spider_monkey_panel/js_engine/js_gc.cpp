@@ -16,16 +16,12 @@ uint32_t JsGc::GetMaxHeap()
 {
     namespace smp_advconf = smp::config::advanced;
 
-    if ( !UpdateGcConfig() )
-    {// TODO: report
-        assert( 0 );
-        return 0;
-    }
+    UpdateGcConfig();
 
     return static_cast<uint32_t>( smp_advconf::g_var_max_heap.get() );
 }
 
-bool JsGc::Initialize(JSContext* pJsCtx)
+void JsGc::Initialize(JSContext* pJsCtx)
 {
     namespace smp_advconf = smp::config::advanced;
 
@@ -49,8 +45,6 @@ bool JsGc::Initialize(JSContext* pJsCtx)
                       static_cast<uint32_t>(smp_advconf::g_var_gc_zeal_freq.get()) );
     }
 #endif
-
-    return true;
 }
 
 bool JsGc::MaybeGc()
@@ -76,15 +70,16 @@ bool JsGc::MaybeGc()
     return ( lastTotalHeapSize_ < maxHeapSize_ );
 }
 
-bool JsGc::UpdateGcConfig()
+void JsGc::UpdateGcConfig()
 {
     namespace smp_advconf = smp::config::advanced;
 
     MEMORYSTATUSEX statex = { 0 };
     statex.dwLength = sizeof( statex );
     if ( !GlobalMemoryStatusEx( &statex ) )
-    {// TODO: add report        
-        return false;
+    {// TODO: replace with IF macro
+        std::string errorCode = std::to_string( GetLastError() );
+        throw smp::SmpException( "GlobalMemoryStatusEx failed: error code " + std::to_string( GetLastError() ) );
     }
 
     if ( smp_advconf::g_var_max_heap.get() > statex.ullTotalPhys / 4 )
@@ -96,8 +91,6 @@ bool JsGc::UpdateGcConfig()
     {
         smp_advconf::g_var_max_heap_growth.set( smp_advconf::g_var_max_heap.get() / 8 );
     }
-
-    return true;
 }
 
 bool JsGc::IsTimeToGc()

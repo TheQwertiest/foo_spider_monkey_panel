@@ -118,10 +118,15 @@ public:
 
         return jsObject;
     }
-
+    
     static JSObject* InstallProto( JSContext* cx, JS::HandleObject parentObject )
     {
-        return JS_InitClass( cx, parentObject, nullptr, &T::JsClass, T::JsConstructor, 0, T::JsProperties, T::JsFunctions, nullptr, nullptr );
+        auto pJsProto = JS_InitClass( cx, parentObject, nullptr, &T::JsClass, T::JsConstructor, 0, T::JsProperties, T::JsFunctions, nullptr, nullptr );
+        if ( !pJsProto )
+        {
+            throw smp::JsException();
+        }
+        return pJsProto;
     }
 
     template <typename ... ArgTypes>

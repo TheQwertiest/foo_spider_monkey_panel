@@ -13,10 +13,10 @@ public:
     JsGc( const JsGc& ) = delete;
     JsGc& operator=( const JsGc& ) = delete;
 
-public:
-    static uint32_t GetMaxHeap();
+public:    
+    static uint32_t GetMaxHeap() noexcept(false);
 
-    bool Initialize( JSContext* pJsCtx );   
+    void Initialize( JSContext* pJsCtx ) noexcept(false);  
 
     bool MaybeGc();
 
@@ -29,7 +29,7 @@ private:
         Full
     };
 
-    static bool UpdateGcConfig();
+    static void UpdateGcConfig();
     
     // GC stats handling
     bool IsTimeToGc();

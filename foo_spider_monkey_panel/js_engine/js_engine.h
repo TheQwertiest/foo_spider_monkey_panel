@@ -45,7 +45,7 @@ private:
     bool Initialize();
     void Finalize();
 
-    bool StartHeartbeatThread();
+    void StartHeartbeatThread() noexcept(false);
     void StopHeartbeatThread();
 
 private:

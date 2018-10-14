@@ -10,6 +10,7 @@
 #include <adv_config.h>
 #include <user_message.h>
 #include <heartbeat_window.h>
+#include <popup_msg.h>
 
 #include <js/Initialization.h>
 
@@ -18,6 +19,25 @@ namespace
 {
 const uint32_t kHeartbeatRate = 73; ///< In ms
 const uint32_t kJobsMaxBudget = 500; ///< In ms
+
+void ReportException(const pfc::string8_fast& errorText)
+{
+    const pfc::string8_fast errorTextPadded = [&errorText]() {
+        pfc::string8_fast text = "Critical JS engine error: " SMP_NAME_WITH_VERSION;
+        if ( !errorText.is_empty() )
+        {
+            text += "\n";
+            text += errorText;
+        }
+
+        return text;
+    }();
+
+    FB2K_console_formatter() << errorTextPadded.c_str();
+    popup_msg::g_show( errorTextPadded, SMP_NAME );
+    MessageBeep( MB_ICONASTERISK );
+}
+
 }
 
 namespace mozjs
@@ -46,41 +66,53 @@ bool JsEngine::Initialize()
         return true;
     }
 
-    JSContext* pJsCtx = JS_NewContext( jsGc_.GetMaxHeap() );
-    if ( !pJsCtx )
-    {//reports
-        return false;
-    }
-
-    scope::unique_ptr<JSContext> autoJsCtx( pJsCtx, []( auto pCtx )
-    {
+    scope::unique_ptr<JSContext> autoJsCtx( nullptr, []( auto pCtx ) {
         JS_DestroyContext( pCtx );
     } );
 
-    if ( !js::UseInternalJobQueues( pJsCtx ) )
-    { //reports
+    try
+    {
+        autoJsCtx.reset( JS_NewContext( jsGc_.GetMaxHeap() ) );
+        if ( !autoJsCtx )
+        {
+            throw smp::SmpException( "JS_NewContext failed" );
+        }
+
+        JSContext* cx = autoJsCtx.get();
+
+        if ( !js::UseInternalJobQueues( cx ) )
+        {
+            throw smp::JsException();
+        }
+
+        // TODO: JS::SetWarningReporter( pJsCtx_ )
+
+        if ( !JS::InitSelfHostedCode( cx ) )
+        {
+            throw smp::JsException();
+        }
+
+        jsGc_.Initialize( cx );
+
+        StartHeartbeatThread();
+    }
+    catch ( const smp::JsException& )
+    {       
+        assert( JS_IsExceptionPending( autoJsCtx.get() ) );
+
+        auto errorText = error::GetTextFromCurrentJsError( autoJsCtx.get() );
+        JS_ClearPendingException( autoJsCtx.get() );
+
+        ReportException( errorText );
         return false;
     }
-
-    // TODO: JS::SetWarningReporter( pJsCtx_ )
-
-    if ( !JS::InitSelfHostedCode( pJsCtx ) )
-    {//reports
-        return false;
-    }
-
-    if ( !jsGc_.Initialize( pJsCtx ) )
-    {// TODO: report
+    catch ( const smp::SmpException& e )
+    {
+        ReportException( e.what() );
         return false;
     }
 
     pJsCtx_ = autoJsCtx.release();
-
-    if ( !StartHeartbeatThread() )
-    {// TODO: error report
-        return false;
-    }
-
     isInitialized_ = true;
     return true;
 }
@@ -118,17 +150,27 @@ void JsEngine::OnHeartbeat()
     JSAutoRequest ar( pJsCtx_ );
 
     MaybeRunJobs();
-    jsGc_.MaybeGc();
+
+    if ( !jsGc_.MaybeGc() )
+    {// OOM
+        for ( auto& [hWnd, jsContainer] : registeredContainers_ )
+        {
+            if ( mozjs::JsContainer::JsStatus::Failed != jsContainer.get().GetStatus() )
+            {
+                jsContainer.get().Fail( "Out of memory" );
+            }
+        }
+    }
 }
 
-bool JsEngine::StartHeartbeatThread()
+void JsEngine::StartHeartbeatThread()
 {
     if ( !heartbeatWindow_ )
     {
         heartbeatWindow_ = smp::HeartbeatWindow::Create();
         if ( !heartbeatWindow_ )
-        {
-            return false;
+        {// TODO: move HeartbeatWindow to exception
+            throw smp::SmpException("Failed to create HeartbeatWindow");
         }
     }
 
@@ -142,9 +184,7 @@ bool JsEngine::StartHeartbeatThread()
 
             PostMessage( parent->heartbeatWindow_->GetHwnd(), UWM_HEARTBEAT, 0, 0 );
         }
-    } );
-
-    return true;
+    } );      
 }
 
 void JsEngine::StopHeartbeatThread()
@@ -168,11 +208,7 @@ bool JsEngine::RegisterPanel( js_panel_window& panel, JsContainer& jsContainer )
         return false;
     }
 
-    if ( !jsContainer.Prepare( pJsCtx_, panel ) )
-    {
-        return false;
-    }
-
+    jsContainer.Prepare( pJsCtx_, panel );
     registeredContainers_.insert_or_assign( panel.GetHWND(), jsContainer );
 
     return true;

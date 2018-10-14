@@ -12,8 +12,7 @@ std::optional<std::wstring> ToValue( JSContext * cx, const JS::HandleString& jsS
     std::wstring wStr( strLen, '\0' );
     mozilla::Range<char16_t> wCharStr( reinterpret_cast<char16_t*>(wStr.data()), strLen );
     if ( !JS_CopyStringChars( cx, wCharStr, jsString ) )
-    {
-        JS_ReportOutOfMemory( cx );
+    {// reports
         return std::nullopt;
     }
 
@@ -32,7 +31,7 @@ std::optional<int8_t> ToValue( JSContext * cx, const JS::HandleValue& jsValue )
 {
     int8_t val;
     if ( !JS::ToInt8( cx, jsValue, &val ) )
-    {
+    {// reports
         return std::nullopt;
     }
     return val;
@@ -43,7 +42,7 @@ std::optional<int32_t> ToValue( JSContext * cx, const JS::HandleValue& jsValue )
 {
     int32_t val;
     if ( !JS::ToInt32( cx, jsValue, &val ) )
-    {
+    {// reports
         return std::nullopt;
     }
     return val;
@@ -54,7 +53,7 @@ std::optional<uint8_t> ToValue( JSContext * cx, const JS::HandleValue& jsValue )
 {
     uint8_t val;
     if ( !JS::ToUint8( cx, jsValue, &val ) )
-    {
+    {// reports
         return std::nullopt;
     }
     return val;
@@ -65,7 +64,7 @@ std::optional<uint32_t> ToValue( JSContext * cx, const JS::HandleValue& jsValue 
 {
     uint32_t val;
     if ( !JS::ToUint32( cx, jsValue, &val ) )
-    {
+    {// reports
         return std::nullopt;
     }
     return val;
@@ -76,7 +75,7 @@ std::optional<uint64_t> ToValue( JSContext * cx, const JS::HandleValue& jsValue 
 {
     uint64_t val;
     if ( !JS::ToUint64( cx, jsValue, &val ) )
-    {
+    {// reports
         return std::nullopt;
     }
     return val;
@@ -87,7 +86,7 @@ std::optional<float> ToValue( JSContext * cx, const JS::HandleValue& jsValue )
 {
     double val;
     if ( !JS::ToNumber( cx, jsValue, &val ) )
-    {
+    {// reports
         return std::nullopt;
     }
     return static_cast<float>(val);
@@ -98,7 +97,7 @@ std::optional<double> ToValue( JSContext * cx, const JS::HandleValue& jsValue )
 {
     double val;
     if ( !JS::ToNumber( cx, jsValue, &val ) )
-    {
+    {// reports
         return std::nullopt;
     }
     return val;
@@ -109,7 +108,7 @@ std::optional<pfc::string8_fast> ToValue( JSContext * cx, const JS::HandleValue&
 {
     auto retValue = ToValue<std::wstring>( cx, jsValue );
     if ( !retValue )
-    {
+    {// reports
         return std::nullopt;
     }
 
@@ -121,7 +120,7 @@ std::optional<std::wstring> ToValue( JSContext * cx, const JS::HandleValue& jsVa
 {
     JS::RootedString jsString( cx, JS::ToString( cx, jsValue ) );
     if ( !jsString )
-    {
+    {// reports
         return std::nullopt;
     }
 

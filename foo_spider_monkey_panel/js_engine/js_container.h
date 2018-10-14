@@ -69,10 +69,11 @@ public: // callbacks that require js data
 private:
     JsContainer( const JsContainer& ) = delete;
 
-    bool Prepare( JSContext *cx, js_panel_window& parentPanel );
+    void Prepare( JSContext *cx, js_panel_window& parentPanel );
 
     bool IsReadyForCallback() const;
 
+    /// @return true on success, false with JS report on failure
     bool CreateDropActionIfNeeded();
 
 private:

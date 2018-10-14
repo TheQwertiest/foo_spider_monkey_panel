@@ -74,7 +74,8 @@ size_t JsHacks::GetInternalSize()
 
 bool JsHacks::PostCreate( JSContext* cx, JS::HandleObject self )
 {
-    return CreateAndInstallObject<JsFbWindow>( cx, self, "FbWindow" );
+    CreateAndInstallObject<JsFbWindow>( cx, self, "FbWindow" );
+    return true;
 }
 
 }
