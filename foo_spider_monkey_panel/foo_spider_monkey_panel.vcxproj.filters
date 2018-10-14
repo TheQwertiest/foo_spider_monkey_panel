@@ -621,9 +621,6 @@
     <None Include="..\component\docs\js_doc\IUiHacks.js">
       <Filter>_docs</Filter>
     </None>
-    <None Include="..\component\docs\js_doc\ActiveXObject.js">
-      <Filter>_docs</Filter>
-    </None>
     <None Include="..\CHANGELOG.md">
       <Filter>_docs</Filter>
     </None>

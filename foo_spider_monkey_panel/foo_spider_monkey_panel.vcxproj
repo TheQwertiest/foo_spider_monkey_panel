@@ -301,7 +301,6 @@
     <None Include="..\component\docs\Codepages.js" />
     <None Include="..\component\docs\Flags.js" />
     <None Include="..\component\docs\Helpers.js" />
-    <None Include="..\component\docs\js_doc\ActiveXObject.js" />
     <None Include="..\component\docs\js_doc\Interfaces.js" />
     <None Include="..\component\docs\js_doc\IUiHacks.js" />
     <None Include="..\component\interface.api" />
