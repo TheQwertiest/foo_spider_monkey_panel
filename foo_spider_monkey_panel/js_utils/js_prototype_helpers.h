@@ -1,6 +1,7 @@
 #pragma once
 
 #include <js_objects/internal/prototype_ids.h>
+#include <utils/string_helpers.h>
 
 namespace mozjs
 {
@@ -9,7 +10,7 @@ namespace mozjs
 ///        and store it in the current global object.
 ///        Created prototype is not accessible from JS.
 template<typename JsObjectType>
-bool CreateAndSavePrototype( JSContext* cx, JsPrototypeId protoId )
+void CreateAndSavePrototype( JSContext* cx, JsPrototypeId protoId )
 {
     JS::RootedObject globalObject( cx, JS::CurrentGlobalOrNull( cx ) );
     assert( globalObject );
@@ -18,15 +19,10 @@ bool CreateAndSavePrototype( JSContext* cx, JsPrototypeId protoId )
     assert( slotIdx < JSCLASS_RESERVED_SLOTS( JS_GetClass( globalObject ) ) );
 
     JS::RootedObject jsProto( cx, JsObjectType::CreateProto(cx) );
-    if ( !jsProto )
-    {// reports
-        return false;
-    }
+    assert( jsProto );
 
     JS::Value protoVal = JS::ObjectValue( *jsProto );
     JS_SetReservedSlot( globalObject, slotIdx, protoVal );
-
-    return true;
 }
 
 /// @brief Create a prototype for the specified object 
@@ -61,8 +57,7 @@ JSObject* GetPrototype( JSContext* cx, JsPrototypeId protoId )
     JS::Value protoVal = JS_GetReservedSlot( globalObject, slotIdx );
     if ( !protoVal.isObject() )
     {
-        JS_ReportErrorUTF8(cx, "Internal error: Slot %u does not contain a prototype", slotIdx );
-        return nullptr;
+        throw smp::SmpException(smp::string::Formatter() << "Internal error: Slot " << slotIdx << " does not contain a prototype" );
     }
 
     return &protoVal.toObject();
@@ -79,7 +74,7 @@ JSObject* GetOrCreatePrototype( JSContext* cx, JsPrototypeId protoId )
     uint32_t slotIdx = JSCLASS_GLOBAL_SLOT_COUNT + static_cast<uint32_t>( protoId );    
     assert( slotIdx < JSCLASS_RESERVED_SLOTS( JS_GetClass( globalObject ) ) );
 
-    {
+    {// Try fetching prototype
         JS::Value protoVal = JS_GetReservedSlot( globalObject, slotIdx );
         if ( protoVal.isObject() )
         {
@@ -87,10 +82,7 @@ JSObject* GetOrCreatePrototype( JSContext* cx, JsPrototypeId protoId )
         }
     }
 
-    if ( !CreateAndSavePrototype<JsObjectType>( cx,  protoId ) )
-    {// report in CreateAndSavePrototype
-        return nullptr;
-    }
+    CreateAndSavePrototype<JsObjectType>( cx, protoId );
 
     JS::Value protoVal = JS_GetReservedSlot( globalObject, slotIdx );
     assert( protoVal.isObject() );
