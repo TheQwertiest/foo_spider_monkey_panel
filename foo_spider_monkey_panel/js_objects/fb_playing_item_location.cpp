@@ -6,7 +6,6 @@
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
 
-
 namespace
 {
 
@@ -43,12 +42,11 @@ const JSPropertySpec jsProperties[] = {
     JS_PS_END
 };
 
-
 const JSFunctionSpec jsFunctions[] = {
     JS_FS_END
 };
 
-}
+} // namespace
 
 namespace mozjs
 {
@@ -60,21 +58,20 @@ const JsPrototypeId JsFbPlayingItemLocation::PrototypeId = JsPrototypeId::FbPlay
 
 JsFbPlayingItemLocation::JsFbPlayingItemLocation( JSContext* cx, bool isValid, uint32_t playlistIndex, uint32_t playlistItemIndex )
     : pJsCtx_( cx )
-    , isValid_(isValid)
-    , playlistIndex_(playlistIndex)
-    , playlistItemIndex_(playlistItemIndex)
+    , isValid_( isValid )
+    , playlistIndex_( playlistIndex )
+    , playlistItemIndex_( playlistItemIndex )
 {
 }
-
 
 JsFbPlayingItemLocation::~JsFbPlayingItemLocation()
 {
 }
 
-std::unique_ptr<JsFbPlayingItemLocation> 
+std::unique_ptr<JsFbPlayingItemLocation>
 JsFbPlayingItemLocation::CreateNative( JSContext* cx, bool isValid, uint32_t playlistIndex, uint32_t playlistItemIndex )
 {
-    return std::unique_ptr<JsFbPlayingItemLocation>( new JsFbPlayingItemLocation(cx, isValid, playlistIndex, playlistItemIndex) );
+    return std::unique_ptr<JsFbPlayingItemLocation>( new JsFbPlayingItemLocation( cx, isValid, playlistIndex, playlistItemIndex ) );
 }
 
 size_t JsFbPlayingItemLocation::GetInternalSize( bool /*isValid*/, uint32_t /*playlistIndex*/, uint32_t /*playlistItemIndex*/ )
@@ -82,22 +79,19 @@ size_t JsFbPlayingItemLocation::GetInternalSize( bool /*isValid*/, uint32_t /*pl
     return 0;
 }
 
-std::optional<bool> 
-JsFbPlayingItemLocation::get_IsValid()
-{    
+bool JsFbPlayingItemLocation::get_IsValid()
+{
     return isValid_;
 }
 
-std::optional<uint32_t> 
-JsFbPlayingItemLocation::get_PlaylistIndex()
-{    
+uint32_t JsFbPlayingItemLocation::get_PlaylistIndex()
+{
     return playlistIndex_;
 }
 
-std::optional<uint32_t> 
-JsFbPlayingItemLocation::get_PlaylistItemIndex()
-{    
+uint32_t JsFbPlayingItemLocation::get_PlaylistItemIndex()
+{
     return playlistItemIndex_;
 }
 
-}
+} // namespace mozjs

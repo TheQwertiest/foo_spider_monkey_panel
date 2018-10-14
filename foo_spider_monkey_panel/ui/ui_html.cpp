@@ -26,7 +26,7 @@ CDialogHtml::CDialogHtml( JSContext* cx, const std::wstring& htmlCodeOrPath, JS:
     : pJsCtx_( cx )
     , htmlCodeOrPath_( htmlCodeOrPath )
 {
-    isInitSuccess = ParseOptions( options );
+    ParseOptions( options );
 }
 
 CDialogHtml::~CDialogHtml()
@@ -42,11 +42,6 @@ LRESULT CDialogHtml::OnInitDialog( HWND hwndFocus, LPARAM lParam )
     scope::final_action autoExit( [&] {
         EndDialog( -1 );
     } );
-
-    if ( !isInitSuccess )
-    { // report in ctor
-        return -1;
-    }
 
     SetOptions();
 
@@ -431,104 +426,54 @@ ULONG STDMETHODCALLTYPE CDialogHtml::Release( void )
     return 0;
 }
 
-bool CDialogHtml::ParseOptions( JS::HandleValue options )
+void CDialogHtml::ParseOptions( JS::HandleValue options )
 {
     assert( pJsCtx_ );
 
     if ( options.isNullOrUndefined() )
     {
-        return true;
+        return;
     }
 
     if ( !options.isObject() )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "options argument is not an object" );
-        return false;
+        throw smp::SmpException( "options argument is not an object" );
     }
 
     JS::RootedObject jsObject( pJsCtx_, &options.toObject() );
-    bool hasFailed = false; // TODO: replace with exception
 
-    width_ = GetOptionalProperty<uint32_t>( pJsCtx_, jsObject, "width", hasFailed );
-    if ( hasFailed )
-    { // reports
-        return false;
-    }
-
-    height_ = GetOptionalProperty<uint32_t>( pJsCtx_, jsObject, "height", hasFailed );
-    if ( hasFailed )
-    { // reports
-        return false;
-    }
-
-    x_ = GetOptionalProperty<int32_t>( pJsCtx_, jsObject, "x", hasFailed );
-    if ( hasFailed )
-    { // reports
-        return false;
-    }
-
-    y_ = GetOptionalProperty<int32_t>( pJsCtx_, jsObject, "y", hasFailed );
-    if ( hasFailed )
-    { // reports
-        return false;
-    }
-
-    isCentered_ = GetOptionalProperty<bool>( pJsCtx_, jsObject, "center", hasFailed ).value_or( true );
-    if ( hasFailed )
-    { // reports
-        return false;
-    }
-
-    isContextMenuEnabled_ = GetOptionalProperty<bool>( pJsCtx_, jsObject, "context_menu", hasFailed ).value_or( false );
-    if ( hasFailed )
-    { // reports
-        return false;
-    }
-
-    isFormSelectionEnabled_ = GetOptionalProperty<bool>( pJsCtx_, jsObject, "selection", hasFailed ).value_or( false );
-    if ( hasFailed )
-    { // reports
-        return false;
-    }
-
-    isResizable_ = GetOptionalProperty<bool>( pJsCtx_, jsObject, "resizable", hasFailed ).value_or( false );
-    if ( hasFailed )
-    { // reports
-        return false;
-    }
-
-    isScrollEnabled_ = GetOptionalProperty<bool>( pJsCtx_, jsObject, "scroll", hasFailed ).value_or( false );
-    if ( hasFailed )
-    { // reports
-        return false;
-    }
+    width_ = GetOptionalProperty<uint32_t>( pJsCtx_, jsObject, "width" );
+    height_ = GetOptionalProperty<uint32_t>( pJsCtx_, jsObject, "height" );
+    x_ = GetOptionalProperty<int32_t>( pJsCtx_, jsObject, "x" );
+    y_ = GetOptionalProperty<int32_t>( pJsCtx_, jsObject, "y" );
+    isCentered_ = GetOptionalProperty<bool>( pJsCtx_, jsObject, "center" ).value_or( true );
+    isContextMenuEnabled_ = GetOptionalProperty<bool>( pJsCtx_, jsObject, "context_menu" ).value_or( false );
+    isFormSelectionEnabled_ = GetOptionalProperty<bool>( pJsCtx_, jsObject, "selection" ).value_or( false );
+    isResizable_ = GetOptionalProperty<bool>( pJsCtx_, jsObject, "resizable" ).value_or( false );
+    isScrollEnabled_ = GetOptionalProperty<bool>( pJsCtx_, jsObject, "scroll" ).value_or( false );
 
     bool hasProperty;
     if ( !JS_HasProperty( pJsCtx_, jsObject, "data", &hasProperty ) )
-    { // reports
-        return false;
+    {
+        throw smp::JsException();
     }
 
     if ( hasProperty )
     {
-        _variant_t data;
-
         JS::RootedValue jsValue( pJsCtx_ );
         if ( !JS_GetProperty( pJsCtx_, jsObject, "data", &jsValue ) )
-        { // reports
-            return false;
+        {
+            throw smp::JsException();
         }
 
+        _variant_t data;
         if ( !convert::com::JsToVariant( pJsCtx_, jsValue, *data.GetAddress() ) )
         {
-            JS_ReportErrorUTF8( pJsCtx_, "`data` is of unsupported type" );
-            return false;
+            throw smp::SmpException( "`data` is of unsupported type" );
         }
 
         pExternal_.Attach( new com_object_impl_t<smp::com::HostExternal>( data ) );
     }
-
-    return true;
 }
 
 void CDialogHtml::SetOptions()

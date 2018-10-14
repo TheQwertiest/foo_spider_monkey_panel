@@ -6,7 +6,7 @@
 #include <js_objects/fb_metadb_handle_list.h>
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
-
+#include <utils/string_helpers.h>
 
 namespace
 {
@@ -48,7 +48,7 @@ const JSPropertySpec jsProperties[] = {
     JS_PS_END
 };
 
-}
+} // namespace
 
 namespace mozjs
 {
@@ -64,12 +64,11 @@ JsFbTitleFormat::JsFbTitleFormat( JSContext* cx, const pfc::string8_fast& expr )
     titleformat_compiler::get()->compile_safe( titleFormatObject_, expr.c_str() );
 }
 
-
 JsFbTitleFormat::~JsFbTitleFormat()
 {
 }
 
-std::unique_ptr<JsFbTitleFormat> 
+std::unique_ptr<JsFbTitleFormat>
 JsFbTitleFormat::CreateNative( JSContext* cx, const pfc::string8_fast& expr )
 {
     return std::unique_ptr<JsFbTitleFormat>( new JsFbTitleFormat( cx, expr ) );
@@ -85,17 +84,16 @@ titleformat_object::ptr JsFbTitleFormat::GetTitleFormat()
     return titleFormatObject_;
 }
 
-std::optional<pfc::string8_fast> 
-JsFbTitleFormat::Eval( bool force )
+pfc::string8_fast JsFbTitleFormat::Eval( bool force )
 {
     auto pc = playback_control::get();
     metadb_handle_ptr handle;
     pfc::string8_fast text;
 
     if ( !pc->is_playing() && force )
-    {// Trying to get handle to any known playable location
+    { // Trying to get handle to any known playable location
         if ( !metadb::g_get_random_handle( handle ) )
-        {// Fake handle, workaround recommended by foobar2000 devs
+        { // Fake handle, workaround recommended by foobar2000 devs
             playable_location_impl dummy;
             metadb::get()->handle_create( handle, dummy );
         }
@@ -105,45 +103,37 @@ JsFbTitleFormat::Eval( bool force )
     return pfc::string8_fast( text.c_str(), text.length() );
 }
 
-std::optional<pfc::string8_fast> 
-JsFbTitleFormat::EvalWithOpt( size_t optArgCount, bool force )
+pfc::string8_fast JsFbTitleFormat::EvalWithOpt( size_t optArgCount, bool force )
 {
-    if ( optArgCount > 1 )
+    switch ( optArgCount )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
-        return std::nullopt;
-    }
-
-    if ( optArgCount == 1 )
-    {
+    case 0:
+        return Eval( force );
+    case 1:
         return Eval();
+    default:
+        throw smp::SmpException( smp::string::Formatter() << "Internal error: invalid number of optional arguments specified: " << optArgCount );
     }
-
-    return Eval( force );
 }
 
-std::optional<pfc::string8_fast>
-JsFbTitleFormat::EvalWithMetadb( JsFbMetadbHandle* handle )
+pfc::string8_fast JsFbTitleFormat::EvalWithMetadb( JsFbMetadbHandle* handle )
 {
     if ( !handle )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "handle argument is null" );
-        return std::nullopt;
+        throw smp::SmpException( "handle argument is null" );
     }
 
     pfc::string8_fast text;
     handle->GetHandle()->format_title( nullptr, text, titleFormatObject_, nullptr );
 
-    return pfc::string8_fast( text.c_str(), text.length());
+    return pfc::string8_fast( text.c_str(), text.length() );
 }
 
-std::optional<JSObject*> 
-JsFbTitleFormat::EvalWithMetadbs( JsFbMetadbHandleList* handles )
+JSObject* JsFbTitleFormat::EvalWithMetadbs( JsFbMetadbHandleList* handles )
 {
     if ( !handles )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "handles argument is null" );
-        return std::nullopt;
+        throw smp::SmpException( "handles argument is null" );
     }
 
     metadb_handle_list_cref handles_cref = handles->GetHandleList();
@@ -151,8 +141,8 @@ JsFbTitleFormat::EvalWithMetadbs( JsFbMetadbHandleList* handles )
 
     JS::RootedObject evalResult( pJsCtx_, JS_NewArrayObject( pJsCtx_, count ) );
     if ( !evalResult )
-    {// reports
-        return std::nullopt;
+    {
+        throw smp::JsException();
     }
 
     JS::RootedValue jsValue( pJsCtx_ );
@@ -160,20 +150,19 @@ JsFbTitleFormat::EvalWithMetadbs( JsFbMetadbHandleList* handles )
     {
         pfc::string8_fast text;
         handles_cref[i]->format_title( nullptr, text, titleFormatObject_, nullptr );
-        
+
         if ( !convert::to_js::ToValue( pJsCtx_, text, &jsValue ) )
         {
-            JS_ReportErrorUTF8( pJsCtx_, "Internal error: cast to JSString failed" );
-            return std::nullopt;
+            throw smp::SmpException( "Internal error: cast to JSString failed" );
         }
 
         if ( !JS_SetElement( pJsCtx_, evalResult, i, jsValue ) )
-        {// report in JS_SetElement
-            return std::nullopt;
+        {
+            throw smp::JsException();
         }
     }
-    
+
     return evalResult;
 }
 
-}
+} // namespace mozjs

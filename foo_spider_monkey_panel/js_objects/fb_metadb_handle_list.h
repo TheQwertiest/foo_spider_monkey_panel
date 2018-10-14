@@ -2,12 +2,12 @@
 
 #include <js_objects/object_base.h>
 
-#pragma warning( push )  
+#pragma warning( push )
 #pragma warning( disable : 4100 ) // unused variable
 #pragma warning( disable : 4251 ) // dll interface warning
 #pragma warning( disable : 4996 ) // C++17 deprecation warning
-#   include <js/Proxy.h>
-#pragma warning( pop ) 
+#include <js/Proxy.h>
+#pragma warning( pop )
 
 #include <optional>
 
@@ -57,47 +57,45 @@ public:
     metadb_handle_list_cref GetHandleList() const;
 
 public: // methods
-    std::optional<std::nullptr_t> Add( JsFbMetadbHandle* handle );
-    std::optional<std::nullptr_t> AddRange( JsFbMetadbHandleList* handles );
-    std::optional<std::nullptr_t> AttachImage( const pfc::string8_fast& image_path, uint32_t art_id );
-    std::optional<int32_t> BSearch( JsFbMetadbHandle* handle );
-    std::optional<double> CalcTotalDuration();
-    std::optional<std::uint64_t> CalcTotalSize();
-    std::optional<JSObject*> Clone();
+    void Add( JsFbMetadbHandle* handle );
+    void AddRange( JsFbMetadbHandleList* handles );
+    void AttachImage( const pfc::string8_fast& image_path, uint32_t art_id );
+    int32_t BSearch( JsFbMetadbHandle* handle );
+    double CalcTotalDuration();
+    std::uint64_t CalcTotalSize();
+    JSObject* Clone();
     // TODO: rename to ToArray()
-    std::optional<JSObject*> Convert();
-    std::optional<int32_t> Find( JsFbMetadbHandle* handle );
-    std::optional<JSObject*> GetLibraryRelativePaths();
-    std::optional<std::nullptr_t> Insert( uint32_t index, JsFbMetadbHandle* handle );
-    std::optional<std::nullptr_t> InsertRange( uint32_t index, JsFbMetadbHandleList* handles );
-    std::optional<std::nullptr_t> MakeDifference( JsFbMetadbHandleList* handles );
-    std::optional<std::nullptr_t> MakeIntersection( JsFbMetadbHandleList* handles );
-    std::optional<std::nullptr_t> MakeUnion( JsFbMetadbHandleList* handles );
-    std::optional<std::nullptr_t> OrderByFormat( JsFbTitleFormat* script, int8_t direction );
-    std::optional<std::nullptr_t> OrderByPath();
-    std::optional<std::nullptr_t> OrderByRelativePath();
-    std::optional<std::nullptr_t> RefreshStats();
-    std::optional<std::nullptr_t> Remove( JsFbMetadbHandle* handle );
-    std::optional<std::nullptr_t> RemoveAll();
-    std::optional<std::nullptr_t> RemoveAttachedImage( uint32_t art_id );
-    std::optional<std::nullptr_t> RemoveById( uint32_t index );
-    std::optional<std::nullptr_t> RemoveRange( uint32_t from, uint32_t count );
-    std::optional<std::nullptr_t> Sort();
-    std::optional<std::nullptr_t> UpdateFileInfoFromJSON( const pfc::string8_fast& str );
+    JSObject* Convert();
+    int32_t Find( JsFbMetadbHandle* handle );
+    JSObject* GetLibraryRelativePaths();
+    void Insert( uint32_t index, JsFbMetadbHandle* handle );
+    void InsertRange( uint32_t index, JsFbMetadbHandleList* handles );
+    void MakeDifference( JsFbMetadbHandleList* handles );
+    void MakeIntersection( JsFbMetadbHandleList* handles );
+    void MakeUnion( JsFbMetadbHandleList* handles );
+    void OrderByFormat( JsFbTitleFormat* script, int8_t direction );
+    void OrderByPath();
+    void OrderByRelativePath();
+    void RefreshStats();
+    void Remove( JsFbMetadbHandle* handle );
+    void RemoveAll();
+    void RemoveAttachedImage( uint32_t art_id );
+    void RemoveById( uint32_t index );
+    void RemoveRange( uint32_t from, uint32_t count );
+    void Sort();
+    void UpdateFileInfoFromJSON( const pfc::string8_fast& str );
 
 public: // props
-    std::optional<uint32_t> get_Count();
-
-public:
-    std::optional<JSObject*> get_Item( uint32_t index );
-    std::optional<std::nullptr_t> put_Item( uint32_t index, JsFbMetadbHandle* handle );
+    uint32_t get_Count();
+    JSObject* get_Item( uint32_t index );
+    void put_Item( uint32_t index, JsFbMetadbHandle* handle );
 
 private:
     JsFbMetadbHandleList( JSContext* cx, metadb_handle_list_cref handles );
 
 private:
-    JSContext * pJsCtx_ = nullptr;
+    JSContext* pJsCtx_ = nullptr;
     metadb_handle_list metadbHandleList_;
 };
 
-}
+} // namespace mozjs

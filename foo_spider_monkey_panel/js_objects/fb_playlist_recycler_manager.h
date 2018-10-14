@@ -31,19 +31,19 @@ public:
     static size_t GetInternalSize();
 
 public:
-    std::optional<std::nullptr_t> Purge( JS::HandleValue affectedItems );
-    std::optional<std::nullptr_t> Restore( uint32_t index );
+    void Purge( JS::HandleValue affectedItems );
+    void Restore( uint32_t index );
 
 public:
-    std::optional<JSObject*> get_Content( uint32_t index );
-    std::optional<uint32_t> get_Count();
-    std::optional<pfc::string8_fast> get_Name( uint32_t index );
+    JSObject* get_Content( uint32_t index );
+    uint32_t get_Count();
+    pfc::string8_fast get_Name( uint32_t index );
 
 private:
     JsFbPlaylistRecyclerManager( JSContext* cx );
 
 private:
-    JSContext * pJsCtx_ = nullptr;
+    JSContext* pJsCtx_ = nullptr;
 };
 
-}
+} // namespace mozjs

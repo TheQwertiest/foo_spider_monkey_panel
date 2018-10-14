@@ -6,7 +6,6 @@
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
 
-
 // TODO: add font caching
 
 namespace
@@ -45,13 +44,13 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( get_Style, JsGdiFont::get_Style )
 
 const JSPropertySpec jsProperties[] = {
     JS_PSG( "Height", get_Height, DefaultPropsFlags() ),
-    JS_PSG( "Name",   get_Name, DefaultPropsFlags() ),
-    JS_PSG( "Size",   get_Size, DefaultPropsFlags() ),
-    JS_PSG( "Style",  get_Style, DefaultPropsFlags() ),
+    JS_PSG( "Name", get_Name, DefaultPropsFlags() ),
+    JS_PSG( "Size", get_Size, DefaultPropsFlags() ),
+    JS_PSG( "Style", get_Style, DefaultPropsFlags() ),
     JS_PS_END
 };
 
-}
+} // namespace
 
 namespace mozjs
 {
@@ -74,10 +73,10 @@ JsGdiFont::~JsGdiFont()
     if ( hFont_ && isManaged_ )
     {
         DeleteFont( hFont_ );
-    }    
+    }
 }
 
-std::unique_ptr<JsGdiFont> 
+std::unique_ptr<JsGdiFont>
 JsGdiFont::CreateNative( JSContext* cx, std::unique_ptr<Gdiplus::Font> pGdiFont, HFONT hFont, bool isManaged )
 {
     if ( !pGdiFont )
@@ -92,12 +91,12 @@ JsGdiFont::CreateNative( JSContext* cx, std::unique_ptr<Gdiplus::Font> pGdiFont,
         return nullptr;
     }
 
-    return std::unique_ptr<JsGdiFont>( new JsGdiFont(cx, std::move( pGdiFont ), hFont, isManaged ) );
+    return std::unique_ptr<JsGdiFont>( new JsGdiFont( cx, std::move( pGdiFont ), hFont, isManaged ) );
 }
 
 size_t JsGdiFont::GetInternalSize( const std::unique_ptr<Gdiplus::Font>& /*gdiFont*/, HFONT /*hFont*/, bool isManaged )
 {
-    return sizeof( Gdiplus::Font ) + (isManaged ? sizeof(LOGFONT) : 0);
+    return sizeof( Gdiplus::Font ) + ( isManaged ? sizeof( LOGFONT ) : 0 );
 }
 
 Gdiplus::Font* JsGdiFont::GdiFont() const
@@ -110,39 +109,35 @@ HFONT JsGdiFont::GetHFont() const
     return hFont_;
 }
 
-std::optional<uint32_t>
-JsGdiFont::get_Height() const
+uint32_t JsGdiFont::get_Height() const
 {
     Gdiplus::Bitmap img( 1, 1, PixelFormat32bppPARGB );
     Gdiplus::Graphics g( &img );
 
-    return static_cast<uint32_t>(pGdi_->GetHeight( &g ));
+    return static_cast<uint32_t>( pGdi_->GetHeight( &g ) );
 }
 
-std::optional<std::wstring>
-JsGdiFont::get_Name() const
+std::wstring JsGdiFont::get_Name() const
 {
     Gdiplus::FontFamily fontFamily;
     WCHAR name[LF_FACESIZE] = { 0 };
     Gdiplus::Status gdiRet = pGdi_->GetFamily( &fontFamily );
-    IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, std::nullopt, GetFamily );
+    IF_GDI_FAILED_THROW_SMP( gdiRet, "GetFamily" );
 
     gdiRet = fontFamily.GetFamilyName( name, LANG_NEUTRAL );
-    IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, std::nullopt, GetFamilyName );
-    
-    return std::wstring(name);
+    IF_GDI_FAILED_THROW_SMP( gdiRet, "GetFamilyName" );
+
+    return std::wstring( name );
 }
 
-std::optional<float>
-JsGdiFont::get_Size() const
+float JsGdiFont::get_Size() const
 {
     return pGdi_->GetSize();
 }
 
-std::optional<uint32_t>
-JsGdiFont::get_Style() const
+uint32_t JsGdiFont::get_Style() const
 {
     return pGdi_->GetStyle();
 }
 
-}
+} // namespace mozjs

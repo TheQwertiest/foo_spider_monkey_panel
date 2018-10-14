@@ -8,7 +8,6 @@ class JSObject;
 struct JSContext;
 struct JSClass;
 
-
 namespace mozjs
 {
 
@@ -33,24 +32,24 @@ public:
     static size_t GetInternalSize( const std::unique_ptr<file_info_impl>& fileInfo );
 
 public:
-    std::optional<int32_t>InfoFind( const pfc::string8_fast& name );
-    std::optional<pfc::string8_fast>InfoName( uint32_t idx );
-    std::optional<pfc::string8_fast>InfoValue( uint32_t idx );
-    std::optional<int32_t>MetaFind( const pfc::string8_fast& name );
-    std::optional<pfc::string8_fast>MetaName( uint32_t idx );
-    std::optional<pfc::string8_fast>MetaValue( uint32_t idx, uint32_t vidx );
-    std::optional<uint32_t>MetaValueCount( uint32_t idx );
+    int32_t InfoFind( const pfc::string8_fast& name );
+    pfc::string8_fast InfoName( uint32_t idx );
+    pfc::string8_fast InfoValue( uint32_t idx );
+    int32_t MetaFind( const pfc::string8_fast& name );
+    pfc::string8_fast MetaName( uint32_t idx );
+    pfc::string8_fast MetaValue( uint32_t idx, uint32_t vidx );
+    uint32_t MetaValueCount( uint32_t idx );
 
 public:
-    std::optional<uint32_t>get_InfoCount();
-    std::optional<uint32_t>get_MetaCount();
+    uint32_t get_InfoCount();
+    uint32_t get_MetaCount();
 
 private:
     JsFbFileInfo( JSContext* cx, std::unique_ptr<file_info_impl> fileInfo );
 
 private:
-    JSContext * pJsCtx_ = nullptr;
+    JSContext* pJsCtx_ = nullptr;
     std::unique_ptr<file_info_impl> fileInfo_;
 };
 
-}
+} // namespace mozjs

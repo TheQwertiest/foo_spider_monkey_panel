@@ -6,7 +6,6 @@
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
 
-
 namespace
 {
 
@@ -47,8 +46,7 @@ const JSPropertySpec jsProperties[] = {
     JS_PS_END
 };
 
-
-}
+} // namespace
 
 namespace mozjs
 {
@@ -60,10 +58,9 @@ const JsPrototypeId JsFbUiSelectionHolder::PrototypeId = JsPrototypeId::FbUiSele
 
 JsFbUiSelectionHolder::JsFbUiSelectionHolder( JSContext* cx, const ui_selection_holder::ptr& holder )
     : pJsCtx_( cx )
-    , holder_(holder)
+    , holder_( holder )
 {
 }
-
 
 JsFbUiSelectionHolder::~JsFbUiSelectionHolder()
 {
@@ -80,31 +77,24 @@ size_t JsFbUiSelectionHolder::GetInternalSize( const ui_selection_holder::ptr& /
     return 0;
 }
 
-std::optional<std::nullptr_t> 
-JsFbUiSelectionHolder::SetPlaylistSelectionTracking()
+void JsFbUiSelectionHolder::SetPlaylistSelectionTracking()
 {
     holder_->set_playlist_selection_tracking();
-    return nullptr;
 }
 
-std::optional<std::nullptr_t> 
-JsFbUiSelectionHolder::SetPlaylistTracking()
+void JsFbUiSelectionHolder::SetPlaylistTracking()
 {
     holder_->set_playlist_tracking();
-    return nullptr; 
 }
 
-std::optional<std::nullptr_t> 
-JsFbUiSelectionHolder::SetSelection( JsFbMetadbHandleList* handles )
+void JsFbUiSelectionHolder::SetSelection( JsFbMetadbHandleList* handles )
 {
     if ( !handles )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "handles argument is null" );
-        return std::nullopt;
+        throw smp::SmpException( "handles argument is null" );
     }
 
     holder_->set_selection( handles->GetHandleList() );
-    return nullptr;
 }
 
-}
+} // namespace mozjs

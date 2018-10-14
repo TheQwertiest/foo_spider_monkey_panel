@@ -104,7 +104,7 @@ const JSPropertySpec jsProperties[] = {
     JS_PS_END
 };
 
-}
+} // namespace
 
 namespace mozjs
 {
@@ -133,8 +133,7 @@ size_t JsUtils::GetInternalSize()
     return 0;
 }
 
-std::optional<bool>
-JsUtils::CheckComponent( const pfc::string8_fast& name, bool is_dll )
+bool JsUtils::CheckComponent( const pfc::string8_fast& name, bool is_dll )
 {
     service_enum_t<componentversion> e;
     componentversion::ptr ptr;
@@ -160,25 +159,20 @@ JsUtils::CheckComponent( const pfc::string8_fast& name, bool is_dll )
     return false;
 }
 
-std::optional<bool> 
-JsUtils::CheckComponentWithOpt( size_t optArgCount, const pfc::string8_fast& name, bool is_dll )
+bool JsUtils::CheckComponentWithOpt( size_t optArgCount, const pfc::string8_fast& name, bool is_dll )
 {
-    if ( optArgCount > 1 )
+    switch ( optArgCount )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
-        return std::nullopt;
-    }
-
-    if ( optArgCount == 1 )
-    {
+    case 0:
+        return CheckComponent( name, is_dll );
+    case 1:
         return CheckComponent( name );
+    default:
+        throw smp::SmpException( smp::string::Formatter() << "Internal error: invalid number of optional arguments specified: " << optArgCount );
     }
-
-    return CheckComponent( name, is_dll );
 }
 
-std::optional<bool>
-JsUtils::CheckFont( const std::wstring& name )
+bool JsUtils::CheckFont( const std::wstring& name )
 {
     WCHAR family_name_eng[LF_FACESIZE] = { 0 };
     WCHAR family_name_loc[LF_FACESIZE] = { 0 };
@@ -188,10 +182,10 @@ JsUtils::CheckFont( const std::wstring& name )
     int recv;
 
     Gdiplus::Status gdiRet = font_collection.GetFamilies( count, font_families.get(), &recv );
-    IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, std::nullopt, GetFamilies );
+    IF_GDI_FAILED_THROW_SMP( gdiRet, "GetFamilies" );
 
     if ( recv == count )
-    {// Find
+    { // Find
         for ( int i = 0; i < count; ++i )
         {
             font_families[i].GetFamilyName( family_name_eng, MAKELANGID( LANG_ENGLISH, SUBLANG_ENGLISH_US ) );
@@ -208,8 +202,7 @@ JsUtils::CheckFont( const std::wstring& name )
     return false;
 }
 
-std::optional<uint32_t>
-JsUtils::ColourPicker( uint32_t hWindow, uint32_t default_colour )
+uint32_t JsUtils::ColourPicker( uint32_t hWindow, uint32_t default_colour )
 {
     COLORREF color = helpers::convert_argb_to_colorref( default_colour );
     COLORREF colors[16] = { 0 };
@@ -219,8 +212,7 @@ JsUtils::ColourPicker( uint32_t hWindow, uint32_t default_colour )
     return helpers::convert_colorref_to_argb( color );
 }
 
-std::optional<JS::Value>
-JsUtils::FileTest( const std::wstring& path, const std::wstring& mode )
+JS::Value JsUtils::FileTest( const std::wstring& path, const std::wstring& mode )
 {
     const std::wstring cleanedPath = file::CleanPath( path );
 
@@ -233,14 +225,14 @@ JsUtils::FileTest( const std::wstring& path, const std::wstring& mode )
     else if ( L"s" == mode )
     {
         HANDLE fh = CreateFile( cleanedPath.c_str(), GENERIC_READ, FILE_SHARE_READ, 0, OPEN_EXISTING, 0, 0 );
-        IF_WINAPI_FAILED_RETURN_WITH_REPORT( pJsCtx_, fh != INVALID_HANDLE_VALUE, std::nullopt, CreateFile );
+        IF_WINAPI_FAILED_THROW_SMP( fh != INVALID_HANDLE_VALUE, "CreateFile" );
 
         LARGE_INTEGER size = { 0 };
         GetFileSizeEx( fh, &size );
         CloseHandle( fh );
 
         JS::RootedValue jsValue( pJsCtx_ );
-        jsValue.setNumber( static_cast<double>(size.QuadPart) );
+        jsValue.setNumber( static_cast<double>( size.QuadPart ) );
         return jsValue;
     }
     else if ( L"d" == mode )
@@ -276,24 +268,23 @@ JsUtils::FileTest( const std::wstring& path, const std::wstring& mode )
 
         JS::RootedObject jsArray( pJsCtx_, JS_NewArrayObject( pJsCtx_, _countof( out ) ) );
         if ( !jsArray )
-        {// reports
-            return std::nullopt;
+        {
+            throw smp::JsException();
         }
 
-        JS::RootedValue jsValue( pJsCtx_ );        
+        JS::RootedValue jsValue( pJsCtx_ );
         for ( size_t i = 0; i < _countof( out ); ++i )
         {
             if ( !convert::to_js::ToValue( pJsCtx_, out[i], &jsValue ) )
             {
-                JS_ReportErrorUTF8( pJsCtx_, "Internal error: cast to JSString failed" );
-                return std::nullopt;
+                throw smp::SmpException( "Internal error: cast to JSString failed" );
             }
 
             if ( !JS_SetElement( pJsCtx_, jsArray, i, jsValue ) )
-            {// report in JS_SetElement
-                return std::nullopt;
+            {
+                throw smp::JsException();
             }
-        }        
+        }
 
         return JS::ObjectValue( *jsArray );
     }
@@ -302,43 +293,35 @@ JsUtils::FileTest( const std::wstring& path, const std::wstring& mode )
         JS::RootedValue jsValue( pJsCtx_ );
         jsValue.setNumber(
             static_cast<uint32_t>(
-                helpers::detect_charset( pfc::stringcvt::string_utf8_from_wide( cleanedPath.c_str(), cleanedPath.length() ) )
-                )
-        );
+                helpers::detect_charset( pfc::stringcvt::string_utf8_from_wide( cleanedPath.c_str(), cleanedPath.length() ) ) ) );
         return jsValue;
     }
 
-    JS_ReportErrorUTF8( pJsCtx_, "Invalid value of mode argument" );
-    return std::nullopt;
+    throw smp::SmpException( "Invalid value of mode argument" );
 }
 
-std::optional<pfc::string8_fast>
-JsUtils::FormatDuration( double p )
+pfc::string8_fast JsUtils::FormatDuration( double p )
 {
     pfc::string8_fast str( pfc::format_time_ex( p, 0 ) );
     return pfc::string8_fast( str.c_str(), str.length() );
 }
 
-std::optional<pfc::string8_fast>
-JsUtils::FormatFileSize( uint64_t p )
+pfc::string8_fast JsUtils::FormatFileSize( uint64_t p )
 {
     pfc::string8_fast str = pfc::format_file_size_short( p );
     return pfc::string8_fast( str.c_str(), str.length() );
 }
 
-std::optional<std::uint32_t>
-JsUtils::GetAlbumArtAsync( uint32_t hWnd, JsFbMetadbHandle* handle, uint32_t art_id, bool need_stub, bool only_embed, bool no_load )
+std::uint32_t JsUtils::GetAlbumArtAsync( uint32_t hWnd, JsFbMetadbHandle* handle, uint32_t art_id, bool need_stub, bool only_embed, bool no_load )
 {
     if ( !hWnd )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "Invalid hWnd argument" );
-        return std::nullopt;
+        throw smp::SmpException( "Invalid hWnd argument" );
     }
 
     if ( !handle )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "handle argument is null" );
-        return std::nullopt;
+        throw smp::SmpException( "handle argument is null" );
     }
 
     metadb_handle_ptr ptr = handle->GetHandle();
@@ -348,120 +331,96 @@ JsUtils::GetAlbumArtAsync( uint32_t hWnd, JsFbMetadbHandle* handle, uint32_t art
     return art::GetAlbumArtAsync( (HWND)hWnd, ptr, art_id, need_stub, only_embed, no_load );
 }
 
-std::optional<std::uint32_t> 
-JsUtils::GetAlbumArtAsyncWithOpt( size_t optArgCount, uint32_t hWnd, JsFbMetadbHandle* handle, uint32_t art_id, bool need_stub, bool only_embed, bool no_load )
+std::uint32_t JsUtils::GetAlbumArtAsyncWithOpt( size_t optArgCount, uint32_t hWnd, JsFbMetadbHandle* handle, uint32_t art_id, bool need_stub, bool only_embed, bool no_load )
 {
-    if ( optArgCount > 4 )
+    switch ( optArgCount )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
-        return std::nullopt;
-    }
-
-    if ( optArgCount == 4 )
-    {
-        return GetAlbumArtAsync( hWnd, handle );
-    }
-    else if ( optArgCount == 3 )
-    {
-        return GetAlbumArtAsync( hWnd, handle, art_id );
-    }
-    else if ( optArgCount == 2 )
-    {
-        return GetAlbumArtAsync( hWnd, handle, art_id, need_stub );
-    }
-    else if ( optArgCount == 1 )
-    {
+    case 0:
+        return GetAlbumArtAsync( hWnd, handle, art_id, need_stub, only_embed, no_load );
+    case 1:
         return GetAlbumArtAsync( hWnd, handle, art_id, need_stub, only_embed );
+    case 2:
+        return GetAlbumArtAsync( hWnd, handle, art_id, need_stub );
+    case 3:
+        return GetAlbumArtAsync( hWnd, handle, art_id );
+    case 4:
+        return GetAlbumArtAsync( hWnd, handle );
+    default:
+        throw smp::SmpException( smp::string::Formatter() << "Internal error: invalid number of optional arguments specified: " << optArgCount );
     }
-
-    return GetAlbumArtAsync( hWnd, handle, art_id, need_stub, only_embed, no_load );
 }
 
-std::optional<JSObject*>
-JsUtils::GetAlbumArtEmbedded( const pfc::string8_fast& rawpath, uint32_t art_id )
+JSObject* JsUtils::GetAlbumArtEmbedded( const pfc::string8_fast& rawpath, uint32_t art_id )
 {
     std::unique_ptr<Gdiplus::Bitmap> artImage( art::GetBitmapFromEmbeddedData( rawpath, art_id ) );
     if ( !artImage )
-    {// Not an error: no art found
+    { // Not an error: no art found
         return nullptr;
     }
 
     JS::RootedObject jsObject( pJsCtx_, JsGdiBitmap::CreateJs( pJsCtx_, std::move( artImage ) ) );
     if ( !jsObject )
-    {// report in Create
-        return std::nullopt;
+    { // TODO: remove
+        throw smp::JsException();
     }
 
     return jsObject;
 }
 
-std::optional<JSObject*> 
-JsUtils::GetAlbumArtEmbeddedWithOpt( size_t optArgCount, const pfc::string8_fast& rawpath, uint32_t art_id )
+JSObject* JsUtils::GetAlbumArtEmbeddedWithOpt( size_t optArgCount, const pfc::string8_fast& rawpath, uint32_t art_id )
 {
-    if ( optArgCount > 1 )
+    switch ( optArgCount )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
-        return std::nullopt;
-    }
-
-    if ( optArgCount == 1 )
-    {
+    case 0:
+        return GetAlbumArtEmbedded( rawpath, art_id );
+    case 1:
         return GetAlbumArtEmbedded( rawpath );
+    default:
+        throw smp::SmpException( smp::string::Formatter() << "Internal error: invalid number of optional arguments specified: " << optArgCount );
     }
-
-    return GetAlbumArtEmbedded( rawpath, art_id );
 }
 
-std::optional<JSObject*>
-JsUtils::GetAlbumArtV2( JsFbMetadbHandle* handle, uint32_t art_id, bool need_stub )
+JSObject* JsUtils::GetAlbumArtV2( JsFbMetadbHandle* handle, uint32_t art_id, bool need_stub )
 {
     if ( !handle )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "handle argument is null" );
-        return std::nullopt;
+        throw smp::SmpException( "handle argument is null" );
     }
 
     std::unique_ptr<Gdiplus::Bitmap> artImage( art::GetBitmapFromMetadb( handle->GetHandle(), art_id, need_stub, false, nullptr ) );
     if ( !artImage )
-    {// Not an error: no art found
+    { // Not an error: no art found
         return nullptr;
     }
 
-    JS::RootedObject jsObject( pJsCtx_, JsGdiBitmap::CreateJs( pJsCtx_, std::move(artImage) ) );
+    JS::RootedObject jsObject( pJsCtx_, JsGdiBitmap::CreateJs( pJsCtx_, std::move( artImage ) ) );
     if ( !jsObject )
-    {// report in Create
-        return std::nullopt;
+    { // TODO: remove
+        throw smp::JsException();
     }
 
     return jsObject;
 }
 
-std::optional<JSObject*>
-JsUtils::GetAlbumArtV2WithOpt( size_t optArgCount, JsFbMetadbHandle* handle, uint32_t art_id, bool need_stub )
+JSObject* JsUtils::GetAlbumArtV2WithOpt( size_t optArgCount, JsFbMetadbHandle* handle, uint32_t art_id, bool need_stub )
 {
-    if ( optArgCount > 2 )
+    switch ( optArgCount )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
-        return std::nullopt;
-    }
-
-    if ( optArgCount == 2 )
-    {
-        return GetAlbumArtV2( handle );
-    }
-    else if ( optArgCount == 1 )
-    {
+    case 0:
+        return GetAlbumArtV2( handle, art_id, need_stub );
+    case 1:
         return GetAlbumArtV2( handle, art_id );
+    case 2:
+        return GetAlbumArtV2( handle );
+    default:
+        throw smp::SmpException( smp::string::Formatter() << "Internal error: invalid number of optional arguments specified: " << optArgCount );
     }
-
-    return GetAlbumArtV2( handle, art_id, need_stub );
 }
 
-std::optional<uint32_t>
-JsUtils::GetSysColour( uint32_t index )
+uint32_t JsUtils::GetSysColour( uint32_t index )
 {
     if ( !::GetSysColorBrush( index ) )
-    {// invalid index
+    { // invalid index
         return 0;
     }
 
@@ -469,17 +428,15 @@ JsUtils::GetSysColour( uint32_t index )
     return helpers::convert_colorref_to_argb( col );
 }
 
-std::optional<uint32_t>
-JsUtils::GetSystemMetrics( uint32_t index )
+uint32_t JsUtils::GetSystemMetrics( uint32_t index )
 {
     return ::GetSystemMetrics( index );
 }
 
-std::optional<JSObject*>
-JsUtils::Glob( const pfc::string8_fast& pattern, uint32_t exc_mask, uint32_t inc_mask )
+JSObject* JsUtils::Glob( const pfc::string8_fast& pattern, uint32_t exc_mask, uint32_t inc_mask )
 {
     pfc::string_list_impl files;
-    {       
+    {
         std::unique_ptr<uFindFile> ff( uFindFirstFile( pattern.c_str() ) );
         if ( ff )
         {
@@ -488,19 +445,19 @@ JsUtils::Glob( const pfc::string8_fast& pattern, uint32_t exc_mask, uint32_t inc
             do
             {
                 DWORD attr = ff->GetAttributes();
-                if ( (attr & inc_mask) && !(attr & exc_mask) )
+                if ( ( attr & inc_mask ) && !( attr & exc_mask ) )
                 {
                     const pfc::string8_fast fullPath = dir + ff->GetFileName();
                     files.add_item( fullPath.c_str() );
                 }
             } while ( ff->FindNext() );
         }
-    }    
+    }
 
     JS::RootedObject evalResult( pJsCtx_, JS_NewArrayObject( pJsCtx_, files.get_count() ) );
     if ( !evalResult )
-    {// reports
-        return std::nullopt;
+    {
+        throw smp::JsException();
     }
 
     JS::RootedValue jsValue( pJsCtx_ );
@@ -509,21 +466,19 @@ JsUtils::Glob( const pfc::string8_fast& pattern, uint32_t exc_mask, uint32_t inc
         pfc::string8_fast tmpString( files[i] );
         if ( !convert::to_js::ToValue( pJsCtx_, tmpString, &jsValue ) )
         {
-            JS_ReportErrorUTF8( pJsCtx_, "Internal error: cast to JSString failed" );
-            return std::nullopt;
+            throw smp::SmpException( "Internal error: cast to JSString failed" );
         }
 
         if ( !JS_SetElement( pJsCtx_, evalResult, i, jsValue ) )
-        {// report in JS_SetElement
-            return std::nullopt;
+        {
+            throw smp::JsException();
         }
     }
 
     return evalResult;
 }
 
-std::optional<JSObject*>
-JsUtils::GlobWithOpt( size_t optArgCount, const pfc::string8_fast& pattern, uint32_t exc_mask, uint32_t inc_mask )
+JSObject* JsUtils::GlobWithOpt( size_t optArgCount, const pfc::string8_fast& pattern, uint32_t exc_mask, uint32_t inc_mask )
 {
     switch ( optArgCount )
     {
@@ -534,13 +489,11 @@ JsUtils::GlobWithOpt( size_t optArgCount, const pfc::string8_fast& pattern, uint
     case 2:
         return Glob( pattern );
     default:
-        JS_ReportErrorUTF8( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
-        return std::nullopt;
+        throw smp::SmpException( smp::string::Formatter() << "Internal error: invalid number of optional arguments specified: " << optArgCount );
     }
 }
 
-std::optional<pfc::string8_fast> 
-JsUtils::InputBox( uint32_t hWnd, const pfc::string8_fast& prompt, const pfc::string8_fast& caption, const pfc::string8_fast& def, bool error_on_cancel )
+pfc::string8_fast JsUtils::InputBox( uint32_t hWnd, const pfc::string8_fast& prompt, const pfc::string8_fast& caption, const pfc::string8_fast& def, bool error_on_cancel )
 {
     modal_dialog_scope scope;
     if ( scope.can_create() )
@@ -550,8 +503,7 @@ JsUtils::InputBox( uint32_t hWnd, const pfc::string8_fast& prompt, const pfc::st
         int status = dlg.DoModal( HWND( hWnd ) );
         if ( status == IDCANCEL && error_on_cancel )
         {
-            JS_ReportErrorUTF8( pJsCtx_, "Dialog window was closed" );
-            return std::nullopt;
+            throw smp::SmpException( "Dialog window was closed" );
         }
 
         if ( status == IDOK )
@@ -559,14 +511,13 @@ JsUtils::InputBox( uint32_t hWnd, const pfc::string8_fast& prompt, const pfc::st
             pfc::string8_fast val;
             dlg.GetValue( val );
             return val;
-        }        
+        }
     }
 
     return def;
 }
 
-std::optional<pfc::string8_fast>
-JsUtils::InputBoxWithOpt( size_t optArgCount, uint32_t hWnd, const pfc::string8_fast& prompt, const pfc::string8_fast& caption, const pfc::string8_fast& def, bool error_on_cancel )
+pfc::string8_fast JsUtils::InputBoxWithOpt( size_t optArgCount, uint32_t hWnd, const pfc::string8_fast& prompt, const pfc::string8_fast& caption, const pfc::string8_fast& def, bool error_on_cancel )
 {
     switch ( optArgCount )
     {
@@ -577,93 +528,78 @@ JsUtils::InputBoxWithOpt( size_t optArgCount, uint32_t hWnd, const pfc::string8_
     case 2:
         return InputBox( hWnd, prompt, caption );
     default:
-        JS_ReportErrorUTF8( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
-        return std::nullopt;
-    }   
+        throw smp::SmpException( smp::string::Formatter() << "Internal error: invalid number of optional arguments specified: " << optArgCount );
+    }
 }
 
-std::optional<bool>
-JsUtils::IsKeyPressed( uint32_t vkey )
+bool JsUtils::IsKeyPressed( uint32_t vkey )
 {
     return ::IsKeyPressed( vkey );
 }
 
-std::optional<std::wstring>
-JsUtils::MapString( const std::wstring& str, uint32_t lcid, uint32_t flags )
-{// TODO: LCMapString is deprecated, replace with a new V2 method (based on LCMapStringEx)
+std::wstring JsUtils::MapString( const std::wstring& str, uint32_t lcid, uint32_t flags )
+{ // TODO: LCMapString is deprecated, replace with a new V2 method (based on LCMapStringEx)
     // WinAPI is weird: 0 - error (with LastError), > 0 - characters required
     int iRet = ::LCMapStringW( lcid, flags, str.c_str(), str.length() + 1, nullptr, 0 );
-    IF_WINAPI_FAILED_RETURN_WITH_REPORT( pJsCtx_, iRet, std::nullopt, LCMapStringW );
+    IF_WINAPI_FAILED_THROW_SMP( iRet, "LCMapStringW" );
 
     std::unique_ptr<wchar_t[]> dst( new wchar_t[iRet] );
     iRet = ::LCMapStringW( lcid, flags, str.c_str(), str.length() + 1, dst.get(), iRet );
-    IF_WINAPI_FAILED_RETURN_WITH_REPORT( pJsCtx_, iRet, std::nullopt, LCMapStringW );
+    IF_WINAPI_FAILED_THROW_SMP( iRet, "LCMapStringW" );
 
     return dst.get();
 }
 
-std::optional<bool>
-JsUtils::PathWildcardMatch( const std::wstring& pattern, const std::wstring& str )
+bool JsUtils::PathWildcardMatch( const std::wstring& pattern, const std::wstring& str )
 {
     return PathMatchSpec( str.c_str(), pattern.c_str() );
 }
 
-std::optional<std::wstring>
-JsUtils::ReadINI( const std::wstring& filename, const std::wstring& section, const std::wstring& key, const std::wstring& defaultval )
-{// TODO: inspect the code (replace with std::filesystem perhaps?)
+std::wstring JsUtils::ReadINI( const std::wstring& filename, const std::wstring& section, const std::wstring& key, const std::wstring& defaultval )
+{ // TODO: inspect the code (replace with std::filesystem perhaps?)
     WCHAR buff[255] = { 0 };
     GetPrivateProfileString( section.c_str(), key.c_str(), nullptr, buff, sizeof( buff ), filename.c_str() );
     return !buff[0] ? defaultval : buff;
 }
 
-std::optional<std::wstring> 
-JsUtils::ReadINIWithOpt( size_t optArgCount, const std::wstring& filename, const std::wstring& section, const std::wstring& key, const std::wstring& defaultval )
+std::wstring JsUtils::ReadINIWithOpt( size_t optArgCount, const std::wstring& filename, const std::wstring& section, const std::wstring& key, const std::wstring& defaultval )
 {
-    if ( optArgCount > 1 )
+    switch ( optArgCount )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
-        return std::nullopt;
-    }
-
-    if ( optArgCount == 1 )
-    {
+    case 0:
+        return ReadINI( filename, section, key, defaultval );
+    case 1:
         return ReadINI( filename, section, key );
+    default:
+        throw smp::SmpException( smp::string::Formatter() << "Internal error: invalid number of optional arguments specified: " << optArgCount );
     }
-
-    return ReadINI( filename, section, key, defaultval );
 }
 
-std::optional<std::wstring>
-JsUtils::ReadTextFile( const pfc::string8_fast& filePath, uint32_t codepage )
+std::wstring JsUtils::ReadTextFile( const pfc::string8_fast& filePath, uint32_t codepage )
 {
     auto retVal = file::ReadFromFile( pJsCtx_, filePath );
     if ( !retVal )
-    {// report in ReadFromFile;
-        return std::nullopt;
+    { // TODO: remove
+        throw smp::JsException();
     }
 
     return retVal.value();
 }
 
-std::optional<std::wstring> 
-JsUtils::ReadTextFileWithOpt( size_t optArgCount, const pfc::string8_fast& filePath, uint32_t codepage )
+std::wstring JsUtils::ReadTextFileWithOpt( size_t optArgCount, const pfc::string8_fast& filePath, uint32_t codepage )
 {
-    if ( optArgCount > 1 )
+    switch ( optArgCount )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
-        return std::nullopt;
-    }
-
-    if ( optArgCount == 1 )
-    {
+    case 0:
+        return ReadTextFile( filePath, codepage );
+    case 1:
         return ReadTextFile( filePath );
+    default:
+        throw smp::SmpException( smp::string::Formatter() << "Internal error: invalid number of optional arguments specified: " << optArgCount );
     }
-
-    return ReadTextFile( filePath, codepage );
 }
 
-std::optional<JS::Value> 
-JsUtils::ShowHtmlDialog( uint32_t hWnd, const std::wstring& htmlCode, JS::HandleValue options )
+JS::Value JsUtils::ShowHtmlDialog( uint32_t hWnd, const std::wstring& htmlCode, JS::HandleValue options )
 {
     modal_dialog_scope scope;
     if ( scope.can_create() )
@@ -673,66 +609,57 @@ JsUtils::ShowHtmlDialog( uint32_t hWnd, const std::wstring& htmlCode, JS::Handle
         int iRet = (int)dlg.DoModal( HWND( hWnd ) );
         if ( -1 == iRet || IDABORT == iRet )
         {
-            return std::nullopt;
+            throw smp::SmpException( smp::string::Formatter() << "DoModal failed: " << iRet );
         }
     }
 
     return JS::UndefinedValue();
 }
 
-std::optional<JS::Value>
-JsUtils::ShowHtmlDialogWithOpt( size_t optArgCount, uint32_t hWnd, const std::wstring& htmlCode, JS::HandleValue options )
+JS::Value JsUtils::ShowHtmlDialogWithOpt( size_t optArgCount, uint32_t hWnd, const std::wstring& htmlCode, JS::HandleValue options )
 {
     switch ( optArgCount )
     {
-    case 1:
-        return ShowHtmlDialog( hWnd, htmlCode );
     case 0:
         return ShowHtmlDialog( hWnd, htmlCode, options );
+    case 1:
+        return ShowHtmlDialog( hWnd, htmlCode );
     default:
-        JS_ReportErrorUTF8( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
-        return std::nullopt;
+        throw smp::SmpException( smp::string::Formatter() << "Internal error: invalid number of optional arguments specified: " << optArgCount );
     }
 }
 
-std::optional<bool>
-JsUtils::WriteINI( const std::wstring& filename, const std::wstring& section, const std::wstring& key, const std::wstring& val )
-{// TODO: inspect the code (replace with std::filesystem perhaps?)
+bool JsUtils::WriteINI( const std::wstring& filename, const std::wstring& section, const std::wstring& key, const std::wstring& val )
+{ // TODO: inspect the code (replace with std::filesystem perhaps?)
     return WritePrivateProfileString( section.c_str(), key.c_str(), val.c_str(), filename.c_str() );
 }
 
-std::optional<bool>
-JsUtils::WriteTextFile( const pfc::string8_fast& filename, const pfc::string8_fast& content, bool write_bom )
-{// TODO: inspect the code (replace with std::filesystem perhaps?)
+bool JsUtils::WriteTextFile( const pfc::string8_fast& filename, const pfc::string8_fast& content, bool write_bom )
+{ // TODO: inspect the code (replace with std::filesystem perhaps?)
     if ( filename.is_empty() )
     {
         return false;
     }
-    
+
     return helpers::write_file( filename.c_str(), content, write_bom );
 }
 
-std::optional<bool> 
-JsUtils::WriteTextFileWithOpt( size_t optArgCount, const pfc::string8_fast& filename, const pfc::string8_fast& content, bool write_bom )
+bool JsUtils::WriteTextFileWithOpt( size_t optArgCount, const pfc::string8_fast& filename, const pfc::string8_fast& content, bool write_bom )
 {
-    if ( optArgCount > 1 )
+    switch ( optArgCount )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
-        return std::nullopt;
-    }
-
-    if ( optArgCount == 1 )
-    {
+    case 0:
+        return WriteTextFile( filename, content, write_bom );
+    case 1:
         return WriteTextFile( filename, content );
+    default:
+        throw smp::SmpException( smp::string::Formatter() << "Internal error: invalid number of optional arguments specified: " << optArgCount );
     }
-
-    return WriteTextFile( filename, content, write_bom );
 }
 
-std::optional<pfc::string8_fast>
-JsUtils::get_Version()
+pfc::string8_fast JsUtils::get_Version()
 {
     return SMP_VERSION;
 }
 
-}
+} // namespace mozjs

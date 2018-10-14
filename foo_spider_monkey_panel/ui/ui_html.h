@@ -131,16 +131,13 @@ public:
     ULONG STDMETHODCALLTYPE Release( void ) override;
 
 private:
-    bool ParseOptions( JS::HandleValue options );
+    void ParseOptions( JS::HandleValue options ) noexcept(false);
     void SetOptions();
 
 private:
     JSContext* pJsCtx_ = nullptr;
 
     const std::wstring& htmlCodeOrPath_;
-
-    // TODO: replace with exception
-    bool isInitSuccess = false;
 
     // TODO: replace with unique_ptr
     HICON hIcon_ = nullptr;

@@ -6,7 +6,6 @@
 #include <string>
 #include <memory>
 
-
 namespace mozjs
 {
 
@@ -31,28 +30,29 @@ public:
     static size_t GetInternalSize();
 
 public:
-    std::optional<nullptr_t> SetPseudoCaption( uint32_t x, uint32_t y, uint32_t w, uint32_t h );
+    void SetPseudoCaption( uint32_t x, uint32_t y, uint32_t w, uint32_t h );
 
 public:
-    std::optional<JSObject*> get_Aero();
-    std::optional<bool> get_BlockMaximize();
-    std::optional<float> get_FoobarCpuUsage();
-    std::optional<uint8_t> get_FrameStyle();
-    std::optional<bool> get_FullScreen();
-    std::optional<uint8_t> get_MainWindowState();
-    std::optional<bool> get_Sizing();
-    std::optional<float> get_SystemCpuUsage();
-    std::optional<nullptr_t> put_BlockMaximize( bool block );
-    std::optional<nullptr_t> put_FrameStyle( uint8_t style );
-    std::optional<nullptr_t> put_FullScreen( bool is );    
-    std::optional<nullptr_t> put_MainWindowState( uint8_t state );
+    JSObject* get_Aero();
+    bool get_BlockMaximize();
+    float get_FoobarCpuUsage();
+    uint8_t get_FrameStyle();
+    bool get_FullScreen();
+    uint8_t get_MainWindowState();
+    bool get_Sizing();
+    float get_SystemCpuUsage();
+    void put_BlockMaximize( bool block );
+    void put_FrameStyle( uint8_t style );
+    void put_FullScreen( bool is );
+    void put_MainWindowState( uint8_t state );
 
-    std::optional<nullptr_t> put_Sizing( bool enable );
+    void put_Sizing( bool enable );
+
 private:
     JsFbWindow( JSContext* cx, HWND hFbWnd );
 
 private:
-    JSContext * pJsCtx_ = nullptr;
+    JSContext* pJsCtx_ = nullptr;
     HWND hFbWnd_ = nullptr;
 
     struct CpuUsageStats
@@ -63,5 +63,4 @@ private:
     } cpuUsageStats;
 };
 
-}
-
+} // namespace mozjs

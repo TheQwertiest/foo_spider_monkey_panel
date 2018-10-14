@@ -61,7 +61,7 @@ const JSPropertySpec jsProperties[] = {
     JS_PS_END
 };
 
-}
+} // namespace
 
 namespace mozjs
 {
@@ -77,16 +77,16 @@ JsFbWindow::JsFbWindow( JSContext* cx, HWND hFbWnd )
 }
 
 JsFbWindow::~JsFbWindow()
-{  
+{
 }
 
-std::unique_ptr<JsFbWindow> 
+std::unique_ptr<JsFbWindow>
 JsFbWindow::CreateNative( JSContext* cx )
 {
     HWND hFbWnd = FindWindow( L"{E7076D1C-A7BF-4f39-B771-BCBE88F2A2A8}", nullptr );
     IF_WINAPI_FAILED_RETURN_WITH_REPORT( cx, !!hFbWnd, nullptr, FindWindow );
 
-    return std::unique_ptr<JsFbWindow>( new JsFbWindow(cx, hFbWnd ) );
+    return std::unique_ptr<JsFbWindow>( new JsFbWindow( cx, hFbWnd ) );
 }
 
 size_t JsFbWindow::GetInternalSize()
@@ -94,27 +94,21 @@ size_t JsFbWindow::GetInternalSize()
     return 0;
 }
 
-
-std::optional<nullptr_t>
-JsFbWindow::SetPseudoCaption( uint32_t x, uint32_t y, uint32_t w, uint32_t h )
-{// TODO: azaza
-    return std::nullopt;
+void JsFbWindow::SetPseudoCaption( uint32_t x, uint32_t y, uint32_t w, uint32_t h )
+{ // TODO: azaza
 }
 
-std::optional<JSObject*> 
-JsFbWindow::get_Aero()
-{// TODO: azaza
-    return std::nullopt;
+JSObject* JsFbWindow::get_Aero()
+{ // TODO: azaza
+    return nullptr;
 }
 
-std::optional<bool> 
-JsFbWindow::get_BlockMaximize()
-{// TODO: azaza
-    return std::nullopt;
+bool JsFbWindow::get_BlockMaximize()
+{ // TODO: azaza
+    return false;
 }
 
-std::optional<float>
-JsFbWindow::get_FoobarCpuUsage()
+float JsFbWindow::get_FoobarCpuUsage()
 {
     HANDLE handle = GetCurrentProcess();
     FILETIME dummyTime;
@@ -127,7 +121,7 @@ JsFbWindow::get_FoobarCpuUsage()
 
         return 0.0f;
     }
-    
+
     CpuUsageStats newStats;
     newStats.time = timeGetTime();
     if ( !GetProcessTimes( handle, &dummyTime, &dummyTime2, &newStats.kernelTime, &newStats.userTime ) )
@@ -136,7 +130,7 @@ JsFbWindow::get_FoobarCpuUsage()
     }
 
     uint64_t procTime = uint64_t( newStats.kernelTime.dwLowDateTime - cpuUsageStats.kernelTime.dwLowDateTime )
-        + uint64_t( newStats.userTime.dwLowDateTime - cpuUsageStats.userTime.dwLowDateTime );
+                        + uint64_t( newStats.userTime.dwLowDateTime - cpuUsageStats.userTime.dwLowDateTime );
     uint32_t timeDiff = newStats.time - cpuUsageStats.time;
 
     if ( timeDiff )
@@ -144,35 +138,30 @@ JsFbWindow::get_FoobarCpuUsage()
         cpuUsageStats = newStats;
     }
 
-    return timeDiff ? ((procTime * 100) / timeDiff) : 0.0f;
+    return timeDiff ? ( ( procTime * 100 ) / timeDiff ) : 0.0f;
 }
 
-std::optional<uint8_t> 
-JsFbWindow::get_FrameStyle()
-{// TODO: azaza
-    return std::nullopt;
+uint8_t JsFbWindow::get_FrameStyle()
+{ // TODO: azaza
+    return 0;
 }
 
-std::optional<bool> 
-JsFbWindow::get_FullScreen()
-{// TODO: azaza
-    return std::nullopt;
+bool JsFbWindow::get_FullScreen()
+{ // TODO: azaza
+    return false;
 }
 
-std::optional<uint8_t> 
-JsFbWindow::get_MainWindowState()
-{// TODO: azaza
-    return std::nullopt;
+uint8_t JsFbWindow::get_MainWindowState()
+{ // TODO: azaza
+    return 0;
 }
 
-std::optional<bool>
-JsFbWindow::get_Sizing()
-{// TODO: azaza
-    return std::nullopt;
+bool JsFbWindow::get_Sizing()
+{ // TODO: azaza
+    return false;
 }
 
-std::optional<float> 
-JsFbWindow::get_SystemCpuUsage()
+float JsFbWindow::get_SystemCpuUsage()
 { /*
     FILETIME idleTime;
     FILETIME userTime;
@@ -201,69 +190,58 @@ JsFbWindow::get_SystemCpuUsage()
     return 0.0f;
 }
 
-std::optional<nullptr_t> 
-JsFbWindow::put_BlockMaximize( bool block )
-{// TODO: azaza
-    return std::nullopt;
+void JsFbWindow::put_BlockMaximize( bool block )
+{ // TODO: azaza
 }
 
-std::optional<nullptr_t> 
-JsFbWindow::put_FrameStyle( uint8_t style )
+void JsFbWindow::put_FrameStyle( uint8_t style )
 {
     LONG lStyle = GetWindowLong( hFbWnd_, GWL_STYLE );
     switch ( style )
     {
     case 0:
     {
-        lStyle &= (WS_CAPTION | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SYSMENU);
+        lStyle &= ( WS_CAPTION | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SYSMENU );
         break;
     }
     case 1:
     {
-        lStyle &= ~(WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SYSMENU);
-        lStyle &= (WS_CAPTION | WS_THICKFRAME);
+        lStyle &= ~( WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SYSMENU );
+        lStyle &= ( WS_CAPTION | WS_THICKFRAME );
         break;
     }
     case 2:
     {
-        lStyle &= ~(WS_CAPTION | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SYSMENU);
-        lStyle &= (WS_THICKFRAME);
+        lStyle &= ~( WS_CAPTION | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SYSMENU );
+        lStyle &= ( WS_THICKFRAME );
         break;
     }
     case 3:
     {
-        lStyle &= ~(WS_CAPTION | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SYSMENU);        
+        lStyle &= ~( WS_CAPTION | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SYSMENU );
         break;
     }
     default:
     {
         JS_ReportErrorUTF8( pJsCtx_, "Unknown style: %u", style );
-        return std::nullopt;
+        throw smp::SmpException( "" );
     }
     }
 
     SetWindowLong( hFbWnd_, GWL_STYLE, lStyle );
     SetWindowPos( hFbWnd_, nullptr, 0, 0, 0, 0, SWP_FRAMECHANGED | SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOOWNERZORDER );
-
-    return nullptr;
 }
 
-std::optional<nullptr_t>
-JsFbWindow::put_FullScreen( bool is )
-{// TODO: azaza
-    return std::nullopt;
+void JsFbWindow::put_FullScreen( bool is )
+{ // TODO: azaza
 }
 
-std::optional<nullptr_t> 
-JsFbWindow::put_MainWindowState( uint8_t state )
-{// TODO: azaza
-    return std::nullopt;
+void JsFbWindow::put_MainWindowState( uint8_t state )
+{ // TODO: azaza
 }
 
-std::optional<nullptr_t> 
-JsFbWindow::put_Sizing( bool enable )
-{// TODO: azaza
-    return std::nullopt;
+void JsFbWindow::put_Sizing( bool enable )
+{ // TODO: azaza
 }
 
-}
+} // namespace mozjs

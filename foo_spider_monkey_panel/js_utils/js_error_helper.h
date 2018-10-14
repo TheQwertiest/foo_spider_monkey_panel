@@ -7,21 +7,24 @@ namespace mozjs::error
 template <typename F, typename... Args>
 bool Execute_JsSafe( JSContext* cx, std::string_view functionName, F func, Args... args )
 {
-    bool bRet = true;
     try
     {
-        bRet = func( cx, std::forward<Args>( args )... );
+        func( cx, std::forward<Args>( args )... );
     }
     catch ( ... )
     {
         mozjs::error::ExceptionToJsError( cx );
-        bRet = false;
-    }
-    if ( !bRet )
+        mozjs::error::ReportJsErrorWithFunctionName( cx, std::string( functionName.data(), functionName.size() ).c_str() );
+        return false;
+    }    
+
+    if (JS_IsExceptionPending(cx))
     {
         mozjs::error::ReportJsErrorWithFunctionName( cx, std::string( functionName.data(), functionName.size() ).c_str() );
+        return false;
     }
-    return bRet;
+
+    return true;
 }
 
 class AutoJsReport

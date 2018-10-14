@@ -36,7 +36,6 @@ JSClass jsClass = {
     &jsOps
 };
 
-
 bool Enumerator_Constructor_Impl( JSContext* cx, unsigned argc, JS::Value* vp )
 {
     JS::CallArgs args = JS::CallArgsFromVp( argc, vp );
@@ -55,11 +54,10 @@ bool Enumerator_Constructor_Impl( JSContext* cx, unsigned argc, JS::Value* vp )
     }
 
     auto pActiveXObject = retVal.value();
-    JS::RootedObject jsObject( cx, 
-                               JsEnumerator::CreateJs( cx, (pActiveXObject->pUnknown_ ? pActiveXObject->pUnknown_ : pActiveXObject->pDispatch_) )
-    );
+    JS::RootedObject jsObject( cx,
+                               JsEnumerator::CreateJs( cx, ( pActiveXObject->pUnknown_ ? pActiveXObject->pUnknown_ : pActiveXObject->pDispatch_ ) ) );
     if ( !jsObject )
-    {// report in CreateJs
+    { // report in CreateJs
         return false;
     }
 
@@ -86,7 +84,7 @@ const JSPropertySpec jsProperties[] = {
     JS_PS_END
 };
 
-}
+} // namespace
 
 namespace mozjs
 {
@@ -105,7 +103,7 @@ JsEnumerator::JsEnumerator( JSContext* cx, EnumVARIANTComPtr pEnum, bool hasElem
 {
 }
 
-std::unique_ptr<JsEnumerator> 
+std::unique_ptr<JsEnumerator>
 JsEnumerator::CreateNative( JSContext* cx, IUnknown* pUnknown )
 {
     assert( pUnknown );
@@ -117,19 +115,13 @@ JsEnumerator::CreateNative( JSContext* cx, IUnknown* pUnknown )
         EnumVARIANTComPtr pEnum( pCollection.Get( (DISPID)DISPID_NEWENUM ) );
 
         auto pNative = std::unique_ptr<JsEnumerator>( new JsEnumerator( cx, pEnum, !!collectionSize ) );
-        if ( !pNative->GetCurrentElement() )
-        {// reports
-            return nullptr;
-        }
+        pNative->GetCurrentElement();
 
         return pNative;
     }
-    catch ( const _com_error& e )
-    {
-        pfc::string8_fast errorMsg8 = pfc::stringcvt::string_utf8_from_wide( (const wchar_t*)e.ErrorMessage() );
-        pfc::string8_fast errorSource8 = pfc::stringcvt::string_utf8_from_wide( e.Source().length() ? (const wchar_t*)e.Source() : L"" );
-        pfc::string8_fast errorDesc8 = pfc::stringcvt::string_utf8_from_wide( e.Description().length() ? (const wchar_t*)e.Description() : L"" );
-        JS_ReportErrorUTF8( cx, "COM error: message %s; source: %s; description: %s", errorMsg8.c_str(), errorSource8.c_str(), errorDesc8.c_str() );
+    catch ( ... )
+    { // TODO: remove
+        error::ExceptionToJsError( cx );
         return nullptr;
     }
 }
@@ -139,81 +131,63 @@ size_t JsEnumerator::GetInternalSize( IUnknown* /*pUnknown*/ )
     return 0;
 }
 
-
-std::optional<bool> 
-JsEnumerator::AtEnd()
+bool JsEnumerator::AtEnd()
 {
     return !hasElements_ || isAtEnd_;
 }
 
-std::optional<JS::Value> 
-JsEnumerator::Item()
+JS::Value JsEnumerator::Item()
 {
     if ( !hasElements_ || isAtEnd_ )
     {
         return JS::UndefinedValue();
     }
 
-    JS::RootedValue jsValue(pJsCtx_);
+    JS::RootedValue jsValue( pJsCtx_ );
     if ( !convert::com::VariantToJs( pJsCtx_, curElem_, &jsValue ) )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "Failed to convert COM object" );
-        return std::nullopt;
+        throw smp::SmpException( "Failed to convert COM object" );
     }
 
     return jsValue;
 }
 
-std::optional<std::nullptr_t> 
-JsEnumerator::MoveFirst()
+void JsEnumerator::MoveFirst()
 {
     HRESULT hr = pEnum_->Reset();
-    IF_HR_FAILED_RETURN_WITH_REPORT( pJsCtx_, hr, std::nullopt, Reset );
+    IF_HR_FAILED_THROW_SMP( hr, "Reset" );
 
-    if ( !GetCurrentElement() )
-    {// reports
-        return std::nullopt;
-    }
-    
-    return nullptr;
+    GetCurrentElement();
 }
 
-std::optional<std::nullptr_t> 
-JsEnumerator::MoveNext()
+void JsEnumerator::MoveNext()
 {
-    if ( !GetCurrentElement() )
-    {// reports
-        return std::nullopt;
-    }
-
-    return nullptr;
+    GetCurrentElement();
 }
 
-bool JsEnumerator::GetCurrentElement()
+void JsEnumerator::GetCurrentElement()
 {
     if ( !hasElements_ || isAtEnd_ )
     {
-        return true;
+        return;
     }
 
     ULONG fetchedElements = 0;
     HRESULT hr = pEnum_->Next( 1, curElem_.GetAddress(), &fetchedElements );
     if ( S_FALSE == hr )
-    {// meaning that we've reached the end
+    { // meaning that we've reached the end
         fetchedElements = 0;
     }
     else
     {
-        IF_HR_FAILED_RETURN_WITH_REPORT( pJsCtx_, hr, false, Next );
+        IF_HR_FAILED_THROW_SMP( hr, "Next" );
     }
-    
+
     if ( !fetchedElements )
     {
         isAtEnd_ = true;
         curElem_.Clear();
     }
-
-    return true;
 }
 
-}
+} // namespace mozjs

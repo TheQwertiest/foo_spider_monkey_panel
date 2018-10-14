@@ -32,18 +32,18 @@ public:
     static size_t GetInternalSize( bool isValid, uint32_t playlistIndex, uint32_t playlistItemIndex );
 
 public:
-    std::optional<bool> get_IsValid();
-    std::optional<uint32_t> get_PlaylistIndex();
-    std::optional<uint32_t> get_PlaylistItemIndex();
+    bool get_IsValid();
+    uint32_t get_PlaylistIndex();
+    uint32_t get_PlaylistItemIndex();
 
 private:
     JsFbPlayingItemLocation( JSContext* cx, bool isValid, uint32_t playlistIndex, uint32_t playlistItemIndex );
 
 private:
-    JSContext * pJsCtx_ = nullptr;
+    JSContext* pJsCtx_ = nullptr;
     bool isValid_;
     uint32_t playlistIndex_;
     uint32_t playlistItemIndex_;
 };
 
-}
+} // namespace mozjs

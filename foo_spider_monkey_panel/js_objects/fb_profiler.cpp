@@ -6,7 +6,6 @@
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
 
-
 namespace
 {
 
@@ -36,8 +35,8 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( Print, JsFbProfiler::Print )
 MJS_DEFINE_JS_FN_FROM_NATIVE( Reset, JsFbProfiler::Reset )
 
 const JSFunctionSpec jsFunctions[] = {
-    JS_FN( "Print",  Print, 0, DefaultPropsFlags() ),
-    JS_FN( "Reset",  Reset, 0, DefaultPropsFlags() ),
+    JS_FN( "Print", Print, 0, DefaultPropsFlags() ),
+    JS_FN( "Reset", Reset, 0, DefaultPropsFlags() ),
     JS_FS_END
 };
 
@@ -48,7 +47,7 @@ const JSPropertySpec jsProperties[] = {
     JS_PS_END
 };
 
-}
+} // namespace
 
 namespace mozjs
 {
@@ -60,7 +59,7 @@ const JsPrototypeId JsFbProfiler::PrototypeId = JsPrototypeId::FbProfiler;
 
 JsFbProfiler::JsFbProfiler( JSContext* cx, const pfc::string8_fast& name )
     : pJsCtx_( cx )
-    , name_(name.c_str())
+    , name_( name.c_str() )
 {
     timer_.start();
 }
@@ -80,26 +79,21 @@ size_t JsFbProfiler::GetInternalSize( const pfc::string8_fast& name )
     return name.length();
 }
 
-std::optional<std::nullptr_t> 
-JsFbProfiler::Print()
+void JsFbProfiler::Print()
 {
-    FB2K_console_formatter() 
+    FB2K_console_formatter()
         << SMP_NAME_WITH_VERSION ": FbProfiler (" << name_ << "): "
-        << static_cast<uint32_t>(timer_.query() * 1000) << " ms";
-    return nullptr;
+        << static_cast<uint32_t>( timer_.query() * 1000 ) << " ms";
 }
 
-std::optional<std::nullptr_t> 
-JsFbProfiler::Reset()
+void JsFbProfiler::Reset()
 {
     timer_.start();
-    return nullptr;
 }
 
-std::optional<uint32_t> 
-JsFbProfiler::get_Time()
+uint32_t JsFbProfiler::get_Time()
 {
-    return static_cast<uint32_t>(timer_.query() * 1000);
+    return static_cast<uint32_t>( timer_.query() * 1000 );
 }
 
-}
+} // namespace mozjs

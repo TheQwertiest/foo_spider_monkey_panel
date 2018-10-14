@@ -1,7 +1,7 @@
 #pragma once
 
 #include <optional>
-#include <string>
+#include <utils/string_helpers.h>
 
 struct JSFreeOp;
 struct JSContext;
@@ -9,40 +9,34 @@ class JSObject;
 
 namespace mozjs
 {
-// TODO: replace hasFailed with exception
+
 template <typename T>
-std::optional<T> GetOptionalProperty( JSContext* cx, JS::HandleObject jsObject, const std::string& propName, bool& hasFailed )
+std::optional<T> GetOptionalProperty( JSContext* cx, JS::HandleObject jsObject, const std::string& propName )
 {
     bool hasProp;
     if ( !JS_HasProperty( cx, jsObject, propName.c_str(), &hasProp ) )
-    { // reports
-        hasFailed = true;
-        return std::nullopt;
+    {
+        throw smp::JsException();
     }
 
     if ( !hasProp )
     {
-        hasFailed = false;
         return std::nullopt;
     }
 
-     JS::RootedValue jsValue( cx );
-     if ( !JS_GetProperty( cx, jsObject, propName.c_str(), &jsValue ) )
-     { // reports
-          hasFailed = true;
-          return std::nullopt;
-     }
+    JS::RootedValue jsValue( cx );
+    if ( !JS_GetProperty( cx, jsObject, propName.c_str(), &jsValue ) )
+    {
+        throw smp::JsException();
+    }
 
-     auto retVal = convert::to_native::ToValue<T>( cx, jsValue );
-     if ( !retVal )
-     {
-          JS_ReportErrorUTF8( cx, "`%s` property is of wrong type", propName.c_str() );
-          hasFailed = true;
-          return std::nullopt;
-     }
+    auto retVal = convert::to_native::ToValue<T>( cx, jsValue );
+    if ( !retVal )
+    {
+        throw smp::SmpException( smp::string::Formatter() << "`" << propName.c_str() << "` property is of wrong type" );
+    }
 
-     hasFailed = false;
-     return retVal.value();
+    return retVal.value();
 };
 
-}
+} // namespace mozjs

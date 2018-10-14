@@ -45,12 +45,11 @@ const JSPropertySpec jsProperties[] = {
     JS_PS_END
 };
 
-
-const JSFunctionSpec jsFunctions[] = {    
+const JSFunctionSpec jsFunctions[] = {
     JS_FS_END
 };
 
-}
+} // namespace
 
 namespace mozjs
 {
@@ -69,7 +68,7 @@ JsDropSourceAction::~JsDropSourceAction()
 {
 }
 
-std::unique_ptr<mozjs::JsDropSourceAction> 
+std::unique_ptr<mozjs::JsDropSourceAction>
 JsDropSourceAction::CreateNative( JSContext* cx )
 {
     return std::unique_ptr<JsDropSourceAction>( new JsDropSourceAction( cx ) );
@@ -80,43 +79,34 @@ size_t JsDropSourceAction::GetInternalSize()
     return 0;
 }
 
-DropActionParams & JsDropSourceAction::GetDropActionParams()
+DropActionParams& JsDropSourceAction::GetDropActionParams()
 {
     return actionParams_;
 }
 
-std::optional<uint32_t> 
-JsDropSourceAction::get_Effect()
+uint32_t JsDropSourceAction::get_Effect()
 {
     return actionParams_.effect;
 }
 
-std::optional<std::nullptr_t> 
-JsDropSourceAction::put_Base( uint32_t base )
+void JsDropSourceAction::put_Base( uint32_t base )
 {
     actionParams_.base = base;
-    return nullptr;
 }
 
-std::optional<std::nullptr_t> 
-JsDropSourceAction::put_Effect( uint32_t effect )
+void JsDropSourceAction::put_Effect( uint32_t effect )
 {
     actionParams_.effect = effect;
-    return nullptr;
 }
 
-std::optional<std::nullptr_t> 
-JsDropSourceAction::put_Playlist( int32_t id )
+void JsDropSourceAction::put_Playlist( int32_t id )
 {
     actionParams_.playlistIdx = id;
-    return nullptr;
 }
 
-std::optional<std::nullptr_t> 
-JsDropSourceAction::put_ToSelect( bool toSelect )
+void JsDropSourceAction::put_ToSelect( bool toSelect )
 {
     actionParams_.toSelect = toSelect;
-    return nullptr;
 }
 
-}
+} // namespace mozjs

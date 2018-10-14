@@ -172,9 +172,6 @@
     <ClCompile Include="js_utils\file_helpers.cpp">
       <Filter>js_utils</Filter>
     </ClCompile>
-    <ClCompile Include="js_objects\aero.cpp">
-      <Filter>js_objects</Filter>
-    </ClCompile>
     <ClCompile Include="js_objects\fb_window.cpp">
       <Filter>js_objects</Filter>
     </ClCompile>
@@ -472,9 +469,6 @@
       <Filter>z_uncategorized</Filter>
     </ClInclude>
     <ClInclude Include="js_objects\fb_window.h">
-      <Filter>js_objects</Filter>
-    </ClInclude>
-    <ClInclude Include="js_objects\aero.h">
       <Filter>js_objects</Filter>
     </ClInclude>
     <ClInclude Include="adv_config.h">

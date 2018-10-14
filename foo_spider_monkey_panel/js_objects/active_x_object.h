@@ -58,7 +58,7 @@ public:
     bool IsInvoke( const std::wstring& name );
     std::vector<std::wstring> GetAllMembers();
 
-    std::optional<std::wstring> ToString();
+    std::wstring ToString();
 
     bool Get( const std::wstring& propName, JS::MutableHandleValue vp );
     bool Get( JS::CallArgs& args );

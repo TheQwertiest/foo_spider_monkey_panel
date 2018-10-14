@@ -26,7 +26,7 @@ FbProperties::~FbProperties()
     RemoveHeapTracer();
 }
 
-std::unique_ptr<FbProperties> 
+std::unique_ptr<FbProperties>
 FbProperties::Create( JSContext* cx, js_panel_window& parentPanel )
 {
     std::unique_ptr<FbProperties> fbProps( new FbProperties( cx, parentPanel ) );
@@ -45,9 +45,8 @@ void FbProperties::RemoveHeapTracer()
     properties_.clear();
 }
 
-std::optional<JS::Heap<JS::Value>>
-FbProperties::GetProperty( const std::wstring& propName, JS::HandleValue propDefaultValue )
-{    
+JS::Value FbProperties::GetProperty( const std::wstring& propName, JS::HandleValue propDefaultValue )
+{
     std::wstring trimmedPropName( smp::string::Trim( propName ) );
 
     bool hasProperty = false;
@@ -66,28 +65,23 @@ FbProperties::GetProperty( const std::wstring& propName, JS::HandleValue propDef
                 hasProperty = true;
                 properties_.emplace( trimmedPropName, std::make_unique<HeapElement>( jsProp ) );
             }
-        }        
+        }
     }
 
     if ( !hasProperty )
     {
         if ( propDefaultValue.isNullOrUndefined() )
-        {// Not a error: user does not want to set default value
-            JS::Heap<JS::Value> tmpVal;
-            tmpVal.setNull();
-            return std::make_optional( tmpVal );
+        { // Not a error: user does not want to set default value            
+            return JS::NullValue();
         }
 
-        if ( !SetProperty( trimmedPropName, propDefaultValue ) )
-        {
-            return std::nullopt;
-        }
+        SetProperty( trimmedPropName, propDefaultValue );
     }
 
-    return std::make_optional( properties_[trimmedPropName]->value );
+    return properties_[trimmedPropName]->value.get();
 }
 
-bool FbProperties::SetProperty( const std::wstring& propName, JS::HandleValue propValue )
+void FbProperties::SetProperty( const std::wstring& propName, JS::HandleValue propValue )
 {
     std::wstring trimmedPropName( smp::string::Trim( propName ) );
 
@@ -95,32 +89,29 @@ bool FbProperties::SetProperty( const std::wstring& propName, JS::HandleValue pr
     {
         parentPanel_.get_config_prop().remove_config_item( trimmedPropName );
         properties_.erase( trimmedPropName );
-        return true;
+        return;
     }
 
     auto serializedValue = SerializeJsValue( pJsCtx_, propValue );
     if ( !serializedValue )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "Unsupported value type" );
-        return false;
+        throw smp::SmpException( "Unsupported value type" );        
     }
 
-    properties_.insert_or_assign(trimmedPropName, std::make_unique<HeapElement>( propValue ));
+    properties_.insert_or_assign( trimmedPropName, std::make_unique<HeapElement>( propValue ) );
     parentPanel_.get_config_prop().set_config_item( trimmedPropName, serializedValue.value() );
-    
-    return true;
 }
 
-void FbProperties::TraceHeapValue( JSTracer *trc, void *data )
+void FbProperties::TraceHeapValue( JSTracer* trc, void* data )
 {
     assert( data );
     auto jsObject = static_cast<FbProperties*>( data );
     auto& properties = jsObject->properties_;
-    
-    for ( auto& [name,heapElem] : properties )
+
+    for ( auto& [name, heapElem] : properties )
     {
         JS::TraceEdge( trc, &heapElem->value, "CustomHeap_Properties" );
     }
 }
 
-}
+} // namespace mozjs

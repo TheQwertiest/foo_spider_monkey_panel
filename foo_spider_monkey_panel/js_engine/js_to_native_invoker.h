@@ -5,6 +5,7 @@
 #include <js_objects/global_object.h>
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
+#include <utils/string_helpers.h>
 
 #pragma warning( push )
 #pragma warning( disable : 4100 ) // unused variable
@@ -34,7 +35,7 @@
     bool functionName( JSContext* cx, unsigned argc, JS::Value* vp )                                          \
     {                                                                                                         \
         auto wrappedFunc = []( JSContext* cx, unsigned argc, JS::Value* vp ) {                                \
-            return InvokeNativeCallback<optArgCount>( cx, &functionImpl, &functionImplWithOpt, argc, vp );    \
+            InvokeNativeCallback<optArgCount>( cx, &functionImpl, &functionImplWithOpt, argc, vp );    \
         };                                                                                                    \
         return mozjs::error::Execute_JsSafe( cx, #functionName, wrappedFunc, argc, vp );                      \
     }
@@ -47,12 +48,12 @@ namespace mozjs
 {
 
 template <size_t OptArgCount = 0, typename BaseClass, typename ReturnType, typename FuncOptType, typename... ArgTypes>
-bool InvokeNativeCallback( JSContext* cx,
+void InvokeNativeCallback( JSContext* cx,
                            ReturnType ( BaseClass::*fn )( ArgTypes... ),
                            FuncOptType fnWithOpt,
                            unsigned argc, JS::Value* vp )
 {
-    return InvokeNativeCallback_Impl<
+    InvokeNativeCallback_Impl<
         OptArgCount,
         BaseClass,
         ReturnType,
@@ -62,12 +63,12 @@ bool InvokeNativeCallback( JSContext* cx,
 }
 
 template <size_t OptArgCount = 0, typename BaseClass, typename ReturnType, typename FuncOptType, typename... ArgTypes>
-bool InvokeNativeCallback( JSContext* cx,
+void InvokeNativeCallback( JSContext* cx,
                            ReturnType ( BaseClass::*fn )( ArgTypes... ) const,
                            FuncOptType fnWithOpt,
                            unsigned argc, JS::Value* vp )
 {
-    return InvokeNativeCallback_Impl<
+    InvokeNativeCallback_Impl<
         OptArgCount,
         BaseClass,
         ReturnType,
@@ -77,7 +78,7 @@ bool InvokeNativeCallback( JSContext* cx,
 }
 
 template <size_t OptArgCount, typename BaseClass, typename ReturnType, typename FuncType, typename FuncOptType, typename... ArgTypes>
-bool InvokeNativeCallback_Impl( JSContext* cx,
+void InvokeNativeCallback_Impl( JSContext* cx,
                                 FuncType fn,
                                 FuncOptType fnWithOpt,
                                 unsigned argc, JS::Value* vp )
@@ -88,31 +89,39 @@ bool InvokeNativeCallback_Impl( JSContext* cx,
     JS::CallArgs args = JS::CallArgsFromVp( argc, vp );
     if ( args.length() < ( maxArgCount - OptArgCount ) )
     {
-        JS_ReportErrorUTF8( cx, "Invalid number of arguments" );
-        return false;
+        throw smp::SmpException( "Invalid number of arguments" );
     }
 
     BaseClass* baseClass = InvokeNativeCallback_GetThisObject<BaseClass>( cx, args.thisv() );
     if ( !baseClass )
     {
-        JS_ReportErrorUTF8( cx, "Invalid `this` context" );
-        return false;
+        throw smp::SmpException( "Invalid `this` context" );
     }
 
     // Parse arguments
 
-    bool bRet = true;
-    size_t failedIdx = 0;
+    auto throwSmp_InvalidArg = [cx] (size_t failedIdx)
+    {
+        if ( JS_IsExceptionPending( cx ) )
+        { // do not overwrite internal errors
+            throw smp::JsException();
+        }
+        else
+        {
+            throw smp::SmpException( smp::string::Formatter() << "Argument #" << failedIdx << " is of wrong type" );
+        }
+    };
+
     auto callbackArguments =
         JsToNativeArguments<maxArgCount, ArgTypes...>(
             args,
-            [maxArgCount, cx, &bRet, &failedIdx]( const JS::CallArgs& jsArgs, auto argTypeStruct, size_t index ) {
+            [maxArgCount, cx, &throwSmp_InvalidArg]( const JS::CallArgs& jsArgs, auto argTypeStruct, size_t index ) {
                 using ArgType = typename std::remove_const_t<std::remove_reference_t<decltype( argTypeStruct )::type>>;
 
                 if constexpr ( std::is_same_v<ArgType, JS::HandleValue> )
                 { // Skip conversion, pass through
                     if ( index >= jsArgs.length() || index > maxArgCount )
-                    {                     // Not an error: default value might be set in callback
+                    { // Not an error: default value might be set in callback
                         return jsArgs[0]; ///< Dummy value
                     }
                     return jsArgs[index];
@@ -131,9 +140,7 @@ bool InvokeNativeCallback_Impl( JSContext* cx,
                         auto retVal = convert::to_native::ToValue<ArgType>( cx, curArg );
                         if ( !retVal )
                         {
-                            failedIdx = index;
-                            bRet = false;
-                            return ArgType();
+                            throwSmp_InvalidArg( index );
                         }
 
                         return retVal.value();
@@ -143,9 +150,7 @@ bool InvokeNativeCallback_Impl( JSContext* cx,
                         // TODO: think if there is a good way to move this to convert::to_native
                         if ( !curArg.isObjectOrNull() )
                         {
-                            failedIdx = index;
-                            bRet = false;
-                            return static_cast<ArgType>( nullptr );
+                            throwSmp_InvalidArg( index );
                         }
 
                         if ( curArg.isNull() )
@@ -157,9 +162,7 @@ bool InvokeNativeCallback_Impl( JSContext* cx,
                         auto retVal = convert::to_native::ToValue<ArgType>( cx, jsObject );
                         if ( !retVal )
                         {
-                            failedIdx = index;
-                            bRet = false;
-                            return static_cast<ArgType>( nullptr );
+                            throwSmp_InvalidArg( index );
                         }
 
                         return retVal.value();
@@ -170,47 +173,36 @@ bool InvokeNativeCallback_Impl( JSContext* cx,
                     }
                 }
             } );
-    if ( !bRet )
-    {
-        if ( !JS_IsExceptionPending( cx ) )
-        { // do not overwrite internal errors
-            JS_ReportErrorUTF8( cx, "Argument #%d is of wrong type", failedIdx );
-        }
-        return false;
-    }
 
     // Call function
     // May return raw JS pointer! (see below)
-    ReturnType retVal =
-        InvokeNativeCallback_Call<!!OptArgCount, ReturnType>( baseClass, fn, fnWithOpt, callbackArguments, ( maxArgCount > args.length() ? maxArgCount - args.length() : 0 ) );
-    if ( !retVal )
+    auto invokeNative = [&]()
     {
-        return false;
-    }
+        return InvokeNativeCallback_Call<!!OptArgCount, ReturnType>( baseClass, fn, fnWithOpt, callbackArguments, (maxArgCount > args.length() ? maxArgCount - args.length() : 0) );
+    };
 
     // Return value
-    if constexpr ( std::is_same_v<ReturnType::value_type, JSObject*> )
+    if constexpr ( std::is_same_v<ReturnType, JSObject*> )
     { // A raw JS pointer! Be careful when editing this code!
-        args.rval().setObjectOrNull( retVal.value() );
+        args.rval().setObjectOrNull( invokeNative() );
     }
-    else if constexpr ( std::is_same_v<ReturnType::value_type, JS::Heap<JS::Value>> || std::is_same_v<ReturnType::value_type, JS::Value> )
-    { // Might contain unrooted JS::Value! Be careful when editing this code!
-        args.rval().set( retVal.value() );
+    else if constexpr ( std::is_same_v<ReturnType, JS::Value> )
+    { // Unrooted JS::Value! Be careful when editing this code!
+        args.rval().set( invokeNative() );
     }
-    else if constexpr ( std::is_same_v<ReturnType::value_type, nullptr_t> )
+    else if constexpr ( std::is_same_v<ReturnType, void> )
     {
+        invokeNative();
         args.rval().setUndefined();
     }
     else
     {
-        if ( !convert::to_js::ToValue( cx, retVal.value(), args.rval() ) )
+        auto retVal = invokeNative();
+        if ( !convert::to_js::ToValue( cx, retVal, args.rval() ) )
         {
-            JS_ReportErrorUTF8( cx, "Internal error: failed to convert return value" );
-            return false;
+            throw smp::SmpException( "Internal error: failed to convert return value" );
         }
     }
-
-    return true;
 }
 
 template <typename BaseClass>

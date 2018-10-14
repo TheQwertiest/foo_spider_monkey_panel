@@ -6,7 +6,6 @@
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
 
-
 namespace
 {
 
@@ -41,12 +40,12 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( MetaValue, JsFbFileInfo::MetaValue );
 MJS_DEFINE_JS_FN_FROM_NATIVE( MetaValueCount, JsFbFileInfo::MetaValueCount );
 
 const JSFunctionSpec jsFunctions[] = {
-    JS_FN( "InfoFind",       InfoFind      , 1, DefaultPropsFlags() ),
-    JS_FN( "InfoName",       InfoName      , 1, DefaultPropsFlags() ),
-    JS_FN( "InfoValue",      InfoValue     , 1, DefaultPropsFlags() ),
-    JS_FN( "MetaFind",       MetaFind      , 1, DefaultPropsFlags() ),
-    JS_FN( "MetaName",       MetaName      , 1, DefaultPropsFlags() ),
-    JS_FN( "MetaValue",      MetaValue     , 2, DefaultPropsFlags() ),
+    JS_FN( "InfoFind", InfoFind, 1, DefaultPropsFlags() ),
+    JS_FN( "InfoName", InfoName, 1, DefaultPropsFlags() ),
+    JS_FN( "InfoValue", InfoValue, 1, DefaultPropsFlags() ),
+    JS_FN( "MetaFind", MetaFind, 1, DefaultPropsFlags() ),
+    JS_FN( "MetaName", MetaName, 1, DefaultPropsFlags() ),
+    JS_FN( "MetaValue", MetaValue, 2, DefaultPropsFlags() ),
     JS_FN( "MetaValueCount", MetaValueCount, 1, DefaultPropsFlags() ),
     JS_FS_END
 };
@@ -54,15 +53,14 @@ const JSFunctionSpec jsFunctions[] = {
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_InfoCount, JsFbFileInfo::get_InfoCount );
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_MetaCount, JsFbFileInfo::get_MetaCount );
 
-
 const JSPropertySpec jsProperties[] = {
-    
-    JS_PSG( "InfoCount", get_InfoCount , DefaultPropsFlags() ),
-    JS_PSG( "MetaCount", get_MetaCount , DefaultPropsFlags() ),
+
+    JS_PSG( "InfoCount", get_InfoCount, DefaultPropsFlags() ),
+    JS_PSG( "MetaCount", get_MetaCount, DefaultPropsFlags() ),
     JS_PS_END
 };
 
-}
+} // namespace
 
 namespace mozjs
 {
@@ -72,10 +70,9 @@ const JSFunctionSpec* JsFbFileInfo::JsFunctions = jsFunctions;
 const JSPropertySpec* JsFbFileInfo::JsProperties = jsProperties;
 const JsPrototypeId JsFbFileInfo::PrototypeId = JsPrototypeId::FbFileInfo;
 
-
 JsFbFileInfo::JsFbFileInfo( JSContext* cx, std::unique_ptr<file_info_impl> fileInfo )
     : pJsCtx_( cx )
-    , fileInfo_(std::move( fileInfo ))
+    , fileInfo_( std::move( fileInfo ) )
 {
 }
 
@@ -83,7 +80,7 @@ JsFbFileInfo::~JsFbFileInfo()
 {
 }
 
-std::unique_ptr<mozjs::JsFbFileInfo> 
+std::unique_ptr<mozjs::JsFbFileInfo>
 JsFbFileInfo::CreateNative( JSContext* cx, std::unique_ptr<file_info_impl> fileInfo )
 {
     if ( !fileInfo )
@@ -92,47 +89,40 @@ JsFbFileInfo::CreateNative( JSContext* cx, std::unique_ptr<file_info_impl> fileI
         return nullptr;
     }
 
-    return std::unique_ptr<JsFbFileInfo>( new JsFbFileInfo( cx, std::move(fileInfo) ) );
+    return std::unique_ptr<JsFbFileInfo>( new JsFbFileInfo( cx, std::move( fileInfo ) ) );
 }
-
 
 size_t JsFbFileInfo::GetInternalSize( const std::unique_ptr<file_info_impl>& /*fileInfo*/ )
 {
     return sizeof( file_info_impl );
 }
 
-std::optional<int32_t> 
-JsFbFileInfo::InfoFind( const pfc::string8_fast& name )
+int32_t JsFbFileInfo::InfoFind( const pfc::string8_fast& name )
 {
     return fileInfo_->info_find_ex( name.c_str(), name.length() );
 }
 
-std::optional<pfc::string8_fast> 
-JsFbFileInfo::InfoName( uint32_t index )
+pfc::string8_fast JsFbFileInfo::InfoName( uint32_t index )
 {
     if ( index >= fileInfo_->info_get_count() )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "Index is out of bounds" );
-        return std::nullopt;
+        throw smp::SmpException( "Index is out of bounds" );
     }
 
     return fileInfo_->info_enum_name( index );
 }
 
-std::optional<pfc::string8_fast> 
-JsFbFileInfo::InfoValue( uint32_t index )
+pfc::string8_fast JsFbFileInfo::InfoValue( uint32_t index )
 {
     if ( index >= fileInfo_->info_get_count() )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "Index is out of bounds" );
-        return std::nullopt;
+        throw smp::SmpException( "Index is out of bounds" );
     }
 
     return fileInfo_->info_enum_value( index );
 }
 
-std::optional<int32_t> 
-JsFbFileInfo::MetaFind( const pfc::string8_fast& name )
+int32_t JsFbFileInfo::MetaFind( const pfc::string8_fast& name )
 {
     t_size idx = fileInfo_->meta_find_ex( name.c_str(), name.length() );
     if ( idx == pfc_infinite )
@@ -143,53 +133,45 @@ JsFbFileInfo::MetaFind( const pfc::string8_fast& name )
     return static_cast<int32_t>( idx );
 }
 
-std::optional<pfc::string8_fast> 
-JsFbFileInfo::MetaName( uint32_t index )
+pfc::string8_fast JsFbFileInfo::MetaName( uint32_t index )
 {
     if ( index >= fileInfo_->meta_get_count() )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "Index is out of bounds" );
-        return std::nullopt;
+        throw smp::SmpException( "Index is out of bounds" );
     }
 
     return fileInfo_->meta_enum_name( index );
 }
 
-std::optional<pfc::string8_fast> 
-JsFbFileInfo::MetaValue( uint32_t infoIndex, uint32_t valueIndex )
+pfc::string8_fast JsFbFileInfo::MetaValue( uint32_t infoIndex, uint32_t valueIndex )
 {
     if ( infoIndex >= fileInfo_->meta_get_count()
          || valueIndex >= fileInfo_->meta_enum_value_count( infoIndex ) )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "Index is out of bounds" );
-        return std::nullopt;
+        throw smp::SmpException( "Index is out of bounds" );
     }
 
     return fileInfo_->meta_enum_value( infoIndex, valueIndex );
 }
 
-std::optional<uint32_t> 
-JsFbFileInfo::MetaValueCount( uint32_t index )
+uint32_t JsFbFileInfo::MetaValueCount( uint32_t index )
 {
     if ( index >= fileInfo_->meta_get_count() )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "Index is out of bounds" );
-        return std::nullopt;
+        throw smp::SmpException( "Index is out of bounds" );
     }
 
     return fileInfo_->meta_enum_value_count( index );
 }
 
-std::optional<uint32_t> 
-JsFbFileInfo::get_InfoCount()
+uint32_t JsFbFileInfo::get_InfoCount()
 {
     return fileInfo_->info_get_count();
 }
 
-std::optional<uint32_t> 
-JsFbFileInfo::get_MetaCount()
+uint32_t JsFbFileInfo::get_MetaCount()
 {
     return fileInfo_->meta_get_count();
 }
 
-}
+} // namespace mozjs

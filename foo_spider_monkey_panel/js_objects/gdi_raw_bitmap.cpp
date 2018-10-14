@@ -11,7 +11,6 @@
 
 #include <helpers.h>
 
-
 namespace
 {
 
@@ -46,11 +45,11 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( get_Width, JsGdiRawBitmap::get_Width )
 
 const JSPropertySpec jsProperties[] = {
     JS_PSG( "Height", get_Height, DefaultPropsFlags() ),
-    JS_PSG( "Width",  get_Width, DefaultPropsFlags() ),
+    JS_PSG( "Width", get_Width, DefaultPropsFlags() ),
     JS_PS_END
 };
 
-}
+} // namespace
 
 namespace mozjs
 {
@@ -66,10 +65,10 @@ JsGdiRawBitmap::JsGdiRawBitmap( JSContext* cx,
                                 uint32_t width,
                                 uint32_t height )
     : pJsCtx_( cx )
-    , hDc_(std::move(hDc))
-    , hBmp_(std::move(hBmp))
-    , width_(width)
-    , height_(height)
+    , hDc_( std::move( hDc ) )
+    , hBmp_( std::move( hBmp ) )
+    , width_( width )
+    , height_( height )
 {
     hBmpOld_ = SelectBitmap( hDc_.get(), hBmp_.get() );
 }
@@ -78,7 +77,6 @@ JsGdiRawBitmap::~JsGdiRawBitmap()
 {
     SelectBitmap( hDc_.get(), hBmpOld_ );
 }
-
 
 std::unique_ptr<JsGdiRawBitmap>
 JsGdiRawBitmap::CreateNative( JSContext* cx, Gdiplus::Bitmap* pBmp )
@@ -98,15 +96,14 @@ JsGdiRawBitmap::CreateNative( JSContext* cx, Gdiplus::Bitmap* pBmp )
         JS_ReportErrorUTF8( cx, "Internal error: failed to get HBITMAP from Gdiplus::Bitmap" );
         return nullptr;
     }
-    
+
     return std::unique_ptr<JsGdiRawBitmap>(
-        new JsGdiRawBitmap( cx, std::move(hDc), std::move(hBitmap), pBmp->GetWidth(), pBmp->GetHeight() ) 
-    );
+        new JsGdiRawBitmap( cx, std::move( hDc ), std::move( hBitmap ), pBmp->GetWidth(), pBmp->GetHeight() ) );
 }
 
 size_t JsGdiRawBitmap::GetInternalSize( Gdiplus::Bitmap* pBmp )
-{// We generate only PixelFormat32bppPARGB images
-    return pBmp->GetWidth()*pBmp->GetHeight()*Gdiplus::GetPixelFormatSize( PixelFormat32bppPARGB );
+{ // We generate only PixelFormat32bppPARGB images
+    return pBmp->GetWidth() * pBmp->GetHeight() * Gdiplus::GetPixelFormatSize( PixelFormat32bppPARGB );
 }
 
 HDC JsGdiRawBitmap::GetHDC() const
@@ -114,14 +111,14 @@ HDC JsGdiRawBitmap::GetHDC() const
     return hDc_.get();
 }
 
-std::optional<std::uint32_t> JsGdiRawBitmap::get_Height()
+std::uint32_t JsGdiRawBitmap::get_Height()
 {
     return height_;
 }
 
-std::optional<std::uint32_t> JsGdiRawBitmap::get_Width()
+std::uint32_t JsGdiRawBitmap::get_Width()
 {
     return width_;
 }
 
-}
+} // namespace mozjs

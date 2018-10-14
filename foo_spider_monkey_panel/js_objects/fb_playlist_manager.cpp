@@ -9,6 +9,7 @@
 #include <js_objects/fb_playlist_recycler_manager.h>
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
+#include <utils/string_helpers.h>
 
 #include <helpers.h>
 
@@ -83,53 +84,52 @@ MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( SortByFormatV2, JsFbPlaylistManager::Sort
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( SortPlaylistsByName, JsFbPlaylistManager::SortPlaylistsByName, JsFbPlaylistManager::SortPlaylistsByNameWithOpt, 1 );
 MJS_DEFINE_JS_FN_FROM_NATIVE( UndoBackup, JsFbPlaylistManager::UndoBackup );
 
-
 const JSFunctionSpec jsFunctions[] = {
-    JS_FN("AddItemToPlaybackQueue", AddItemToPlaybackQueue, 1, DefaultPropsFlags() ),
-    JS_FN("AddLocations", AddLocations, 2, DefaultPropsFlags() ),
-    JS_FN("AddPlaylistItemToPlaybackQueue", AddPlaylistItemToPlaybackQueue, 2, DefaultPropsFlags() ),
-    JS_FN("ClearPlaylist", ClearPlaylist, 1, DefaultPropsFlags() ),
-    JS_FN("ClearPlaylistSelection", ClearPlaylistSelection, 1, DefaultPropsFlags() ),
-    JS_FN("CreateAutoPlaylist", CreateAutoPlaylist, 3, DefaultPropsFlags() ),
-    JS_FN("CreatePlaylist", CreatePlaylist, 2, DefaultPropsFlags() ),
-    JS_FN("DuplicatePlaylist", DuplicatePlaylist, 2, DefaultPropsFlags() ),
-    JS_FN("EnsurePlaylistItemVisible", EnsurePlaylistItemVisible, 2, DefaultPropsFlags() ),
-    JS_FN("ExecutePlaylistDefaultAction", ExecutePlaylistDefaultAction, 2, DefaultPropsFlags() ),
-    JS_FN("FindOrCreatePlaylist", FindOrCreatePlaylist, 2, DefaultPropsFlags() ),
-    JS_FN("FindPlaybackQueueItemIndex", FindPlaybackQueueItemIndex, 3, DefaultPropsFlags() ),
-    JS_FN("FindPlaylist", FindPlaylist, 1, DefaultPropsFlags() ),
-    JS_FN("FlushPlaybackQueue", FlushPlaybackQueue, 0, DefaultPropsFlags() ),
-    JS_FN("GetPlaybackQueueContents", GetPlaybackQueueContents, 0, DefaultPropsFlags() ),
-    JS_FN("GetPlaybackQueueHandles", GetPlaybackQueueHandles, 0, DefaultPropsFlags() ),
-    JS_FN("GetPlayingItemLocation", GetPlayingItemLocation, 0, DefaultPropsFlags() ),
-    JS_FN("GetPlaylistFocusItemIndex", GetPlaylistFocusItemIndex, 1, DefaultPropsFlags() ),
-    JS_FN("GetPlaylistItems", GetPlaylistItems, 1, DefaultPropsFlags() ),
-    JS_FN("GetPlaylistName", GetPlaylistName, 1, DefaultPropsFlags() ),
-    JS_FN("GetPlaylistSelectedItems", GetPlaylistSelectedItems, 1, DefaultPropsFlags() ),
-    JS_FN("InsertPlaylistItems", InsertPlaylistItems, 3, DefaultPropsFlags() ),
-    JS_FN("InsertPlaylistItemsFilter", InsertPlaylistItemsFilter, 3, DefaultPropsFlags() ),
-    JS_FN("IsAutoPlaylist", IsAutoPlaylist, 1, DefaultPropsFlags() ),
-    JS_FN("IsPlaylistItemSelected", IsPlaylistItemSelected, 2, DefaultPropsFlags() ),
-    JS_FN("IsPlaylistLocked", IsPlaylistLocked, 1, DefaultPropsFlags() ),
-    JS_FN("MovePlaylist", MovePlaylist, 2, DefaultPropsFlags() ),
-    JS_FN("MovePlaylistSelection", MovePlaylistSelection, 2, DefaultPropsFlags() ),
-    JS_FN("PlaylistItemCount", PlaylistItemCount, 1, DefaultPropsFlags() ),
-    JS_FN("RemoveItemFromPlaybackQueue", RemoveItemFromPlaybackQueue, 1, DefaultPropsFlags() ),
-    JS_FN("RemoveItemsFromPlaybackQueue", RemoveItemsFromPlaybackQueue, 1, DefaultPropsFlags() ),
-    JS_FN("RemovePlaylist", RemovePlaylist, 1, DefaultPropsFlags() ),
-    JS_FN("RemovePlaylistSelection", RemovePlaylistSelection, 1, DefaultPropsFlags() ),
-    JS_FN("RemovePlaylistSwitch", RemovePlaylistSwitch, 1, DefaultPropsFlags() ),
-    JS_FN("RenamePlaylist", RenamePlaylist, 2, DefaultPropsFlags() ),
-    JS_FN("SetActivePlaylistContext", SetActivePlaylistContext, 0, DefaultPropsFlags() ),
-    JS_FN("SetPlaylistFocusItem", SetPlaylistFocusItem, 2, DefaultPropsFlags() ),
-    JS_FN("SetPlaylistFocusItemByHandle", SetPlaylistFocusItemByHandle, 2, DefaultPropsFlags() ),
-    JS_FN("SetPlaylistSelection", SetPlaylistSelection, 3, DefaultPropsFlags() ),
-    JS_FN("SetPlaylistSelectionSingle", SetPlaylistSelectionSingle, 3, DefaultPropsFlags() ),
-    JS_FN("ShowAutoPlaylistUI", ShowAutoPlaylistUI, 1, DefaultPropsFlags() ),
-    JS_FN("SortByFormat", SortByFormat, 2, DefaultPropsFlags() ),
-    JS_FN("SortByFormatV2", SortByFormatV2, 2, DefaultPropsFlags() ),
-    JS_FN("SortPlaylistsByName", SortPlaylistsByName, 0, DefaultPropsFlags() ),
-    JS_FN("UndoBackup", UndoBackup, 1, DefaultPropsFlags() ),
+    JS_FN( "AddItemToPlaybackQueue", AddItemToPlaybackQueue, 1, DefaultPropsFlags() ),
+    JS_FN( "AddLocations", AddLocations, 2, DefaultPropsFlags() ),
+    JS_FN( "AddPlaylistItemToPlaybackQueue", AddPlaylistItemToPlaybackQueue, 2, DefaultPropsFlags() ),
+    JS_FN( "ClearPlaylist", ClearPlaylist, 1, DefaultPropsFlags() ),
+    JS_FN( "ClearPlaylistSelection", ClearPlaylistSelection, 1, DefaultPropsFlags() ),
+    JS_FN( "CreateAutoPlaylist", CreateAutoPlaylist, 3, DefaultPropsFlags() ),
+    JS_FN( "CreatePlaylist", CreatePlaylist, 2, DefaultPropsFlags() ),
+    JS_FN( "DuplicatePlaylist", DuplicatePlaylist, 2, DefaultPropsFlags() ),
+    JS_FN( "EnsurePlaylistItemVisible", EnsurePlaylistItemVisible, 2, DefaultPropsFlags() ),
+    JS_FN( "ExecutePlaylistDefaultAction", ExecutePlaylistDefaultAction, 2, DefaultPropsFlags() ),
+    JS_FN( "FindOrCreatePlaylist", FindOrCreatePlaylist, 2, DefaultPropsFlags() ),
+    JS_FN( "FindPlaybackQueueItemIndex", FindPlaybackQueueItemIndex, 3, DefaultPropsFlags() ),
+    JS_FN( "FindPlaylist", FindPlaylist, 1, DefaultPropsFlags() ),
+    JS_FN( "FlushPlaybackQueue", FlushPlaybackQueue, 0, DefaultPropsFlags() ),
+    JS_FN( "GetPlaybackQueueContents", GetPlaybackQueueContents, 0, DefaultPropsFlags() ),
+    JS_FN( "GetPlaybackQueueHandles", GetPlaybackQueueHandles, 0, DefaultPropsFlags() ),
+    JS_FN( "GetPlayingItemLocation", GetPlayingItemLocation, 0, DefaultPropsFlags() ),
+    JS_FN( "GetPlaylistFocusItemIndex", GetPlaylistFocusItemIndex, 1, DefaultPropsFlags() ),
+    JS_FN( "GetPlaylistItems", GetPlaylistItems, 1, DefaultPropsFlags() ),
+    JS_FN( "GetPlaylistName", GetPlaylistName, 1, DefaultPropsFlags() ),
+    JS_FN( "GetPlaylistSelectedItems", GetPlaylistSelectedItems, 1, DefaultPropsFlags() ),
+    JS_FN( "InsertPlaylistItems", InsertPlaylistItems, 3, DefaultPropsFlags() ),
+    JS_FN( "InsertPlaylistItemsFilter", InsertPlaylistItemsFilter, 3, DefaultPropsFlags() ),
+    JS_FN( "IsAutoPlaylist", IsAutoPlaylist, 1, DefaultPropsFlags() ),
+    JS_FN( "IsPlaylistItemSelected", IsPlaylistItemSelected, 2, DefaultPropsFlags() ),
+    JS_FN( "IsPlaylistLocked", IsPlaylistLocked, 1, DefaultPropsFlags() ),
+    JS_FN( "MovePlaylist", MovePlaylist, 2, DefaultPropsFlags() ),
+    JS_FN( "MovePlaylistSelection", MovePlaylistSelection, 2, DefaultPropsFlags() ),
+    JS_FN( "PlaylistItemCount", PlaylistItemCount, 1, DefaultPropsFlags() ),
+    JS_FN( "RemoveItemFromPlaybackQueue", RemoveItemFromPlaybackQueue, 1, DefaultPropsFlags() ),
+    JS_FN( "RemoveItemsFromPlaybackQueue", RemoveItemsFromPlaybackQueue, 1, DefaultPropsFlags() ),
+    JS_FN( "RemovePlaylist", RemovePlaylist, 1, DefaultPropsFlags() ),
+    JS_FN( "RemovePlaylistSelection", RemovePlaylistSelection, 1, DefaultPropsFlags() ),
+    JS_FN( "RemovePlaylistSwitch", RemovePlaylistSwitch, 1, DefaultPropsFlags() ),
+    JS_FN( "RenamePlaylist", RenamePlaylist, 2, DefaultPropsFlags() ),
+    JS_FN( "SetActivePlaylistContext", SetActivePlaylistContext, 0, DefaultPropsFlags() ),
+    JS_FN( "SetPlaylistFocusItem", SetPlaylistFocusItem, 2, DefaultPropsFlags() ),
+    JS_FN( "SetPlaylistFocusItemByHandle", SetPlaylistFocusItemByHandle, 2, DefaultPropsFlags() ),
+    JS_FN( "SetPlaylistSelection", SetPlaylistSelection, 3, DefaultPropsFlags() ),
+    JS_FN( "SetPlaylistSelectionSingle", SetPlaylistSelectionSingle, 3, DefaultPropsFlags() ),
+    JS_FN( "ShowAutoPlaylistUI", ShowAutoPlaylistUI, 1, DefaultPropsFlags() ),
+    JS_FN( "SortByFormat", SortByFormat, 2, DefaultPropsFlags() ),
+    JS_FN( "SortByFormatV2", SortByFormatV2, 2, DefaultPropsFlags() ),
+    JS_FN( "SortPlaylistsByName", SortPlaylistsByName, 0, DefaultPropsFlags() ),
+    JS_FN( "UndoBackup", UndoBackup, 1, DefaultPropsFlags() ),
     JS_FS_END
 };
 
@@ -151,7 +151,7 @@ const JSPropertySpec jsProperties[] = {
     JS_PS_END
 };
 
-}
+} // namespace
 
 namespace mozjs
 {
@@ -186,41 +186,34 @@ void JsFbPlaylistManager::CleanupBeforeDestruction()
     jsPlaylistRecycler_.reset();
 }
 
-std::optional<std::nullptr_t>
-JsFbPlaylistManager::AddItemToPlaybackQueue( JsFbMetadbHandle* handle )
+void JsFbPlaylistManager::AddItemToPlaybackQueue( JsFbMetadbHandle* handle )
 {
     if ( !handle )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "handle argument is null" );
-        return std::nullopt;
+        throw smp::SmpException( "handle argument is null" );
     }
 
     playlist_manager::get()->queue_add_item( handle->GetHandle() );
-    return nullptr;
 }
 
-std::optional<std::nullptr_t> 
-JsFbPlaylistManager::AddLocations( uint32_t playlistIndex, JS::HandleValue locations, bool select )
-{ 
+void JsFbPlaylistManager::AddLocations( uint32_t playlistIndex, JS::HandleValue locations, bool select )
+{
     JS::RootedObject jsObject( pJsCtx_, locations.toObjectOrNull() );
     if ( !jsObject )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "locations argument is not a JS object" );
-        return std::nullopt;
+        throw smp::SmpException( "locations argument is not a JS object" );
     }
 
     bool is;
     if ( !JS_IsArrayObject( pJsCtx_, jsObject, &is ) )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "locations argument is an array" );
-        return std::nullopt;
+        throw smp::SmpException( "locations argument is an array" );
     }
 
     uint32_t arraySize;
     if ( !JS_GetArrayLength( pJsCtx_, jsObject, &arraySize ) )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "Failed to get locations argument array length" );
-        return std::nullopt;
+        throw smp::SmpException( "Failed to get locations argument array length" );
     }
 
     pfc::string_list_impl locations2;
@@ -230,15 +223,13 @@ JsFbPlaylistManager::AddLocations( uint32_t playlistIndex, JS::HandleValue locat
     {
         if ( !JS_GetElement( pJsCtx_, jsObject, i, &arrayElement ) )
         {
-            JS_ReportErrorUTF8( pJsCtx_, "Failed to get locations[%u]", i );
-            return std::nullopt;
+            throw smp::SmpException( smp::string::Formatter() << "Failed to get locations[" << i << "]" );
         }
 
         auto retVal = convert::to_native::ToValue<pfc::string8_fast>( pJsCtx_, arrayElement );
         if ( !retVal )
         {
-            JS_ReportErrorUTF8( pJsCtx_, "locations[%u] is not a string", i );
-            return std::nullopt;
+            throw smp::SmpException( smp::string::Formatter() << "locations[" << i << "] is not a string" );
         }
 
         locations2.add_item( retVal->c_str() );
@@ -252,63 +243,45 @@ JsFbPlaylistManager::AddLocations( uint32_t playlistIndex, JS::HandleValue locat
         nullptr,
         nullptr,
         new service_impl_t<helpers::js_process_locations>( playlistIndex, base, select ) );
-
-    return nullptr;
 }
 
-std::optional<std::nullptr_t> 
-JsFbPlaylistManager::AddLocationsWithOpt( size_t optArgCount, uint32_t playlistIndex, JS::HandleValue locations, bool select )
+void JsFbPlaylistManager::AddLocationsWithOpt( size_t optArgCount, uint32_t playlistIndex, JS::HandleValue locations, bool select )
 {
-    if ( optArgCount > 1 )
+    switch ( optArgCount )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "Internal error: invalid number of optional arguments specified: %u", optArgCount );
-        return std::nullopt;
-    }
-
-    if ( optArgCount == 1 )
-    {
+    case 0:
+        return AddLocations( playlistIndex, locations, select );
+    case 1:
         return AddLocations( playlistIndex, locations );
+    default:
+        throw smp::SmpException( smp::string::Formatter() << "Internal error: invalid number of optional arguments specified: " << optArgCount );
     }
-
-    return AddLocations( playlistIndex, locations, select );
 }
 
-std::optional<std::nullptr_t>
-JsFbPlaylistManager::AddPlaylistItemToPlaybackQueue( uint32_t playlistIndex, uint32_t playlistItemIndex )
+void JsFbPlaylistManager::AddPlaylistItemToPlaybackQueue( uint32_t playlistIndex, uint32_t playlistItemIndex )
 {
     playlist_manager::get()->queue_add_item_playlist( playlistIndex, playlistItemIndex );
-    return nullptr;
 }
 
-std::optional<std::nullptr_t>
-JsFbPlaylistManager::ClearPlaylist( uint32_t playlistIndex )
+void JsFbPlaylistManager::ClearPlaylist( uint32_t playlistIndex )
 {
     playlist_manager::get()->playlist_clear( playlistIndex );
-    return nullptr;
 }
 
-std::optional<std::nullptr_t>
-JsFbPlaylistManager::ClearPlaylistSelection( uint32_t playlistIndex )
+void JsFbPlaylistManager::ClearPlaylistSelection( uint32_t playlistIndex )
 {
     playlist_manager::get()->playlist_clear_selection( playlistIndex );
-    return nullptr;
 }
 
-std::optional<int32_t>
-JsFbPlaylistManager::CreateAutoPlaylist( uint32_t playlistIndex, const pfc::string8_fast& name, const pfc::string8_fast& query, const pfc::string8_fast& sort, uint32_t flags )
+int32_t JsFbPlaylistManager::CreateAutoPlaylist( uint32_t playlistIndex, const pfc::string8_fast& name, const pfc::string8_fast& query, const pfc::string8_fast& sort, uint32_t flags )
 {
-    std::optional<int32_t> optPos = CreatePlaylist( playlistIndex, name );
-    if ( !optPos )
-    {
-        return std::nullopt;
-    }
-         
-    if (-1 == optPos )
-    {// Not a script stopping error
-        return -1;        
+    int32_t optPos = CreatePlaylist( playlistIndex, name );
+    if ( -1 == optPos )
+    { // Not a script stopping error
+        return -1;
     }
 
-    uint32_t upos = static_cast<uint32_t>(optPos.value());
+    uint32_t upos = static_cast<uint32_t>( optPos );
     try
     {
         autoplaylist_manager::get()->add_client_simple( query.c_str(), sort.c_str(), upos, flags );
@@ -321,29 +294,22 @@ JsFbPlaylistManager::CreateAutoPlaylist( uint32_t playlistIndex, const pfc::stri
     }
 }
 
-std::optional<int32_t> 
-JsFbPlaylistManager::CreateAutoPlaylistWithOpt( size_t optArgCount, uint32_t playlistIndex, const pfc::string8_fast& name, const pfc::string8_fast& query, const pfc::string8_fast& sort, uint32_t flags )
+int32_t JsFbPlaylistManager::CreateAutoPlaylistWithOpt( size_t optArgCount, uint32_t playlistIndex, const pfc::string8_fast& name, const pfc::string8_fast& query, const pfc::string8_fast& sort, uint32_t flags )
 {
-    if ( optArgCount > 2 )
+    switch ( optArgCount )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
-        return std::nullopt;
-    }
-
-    if ( optArgCount == 2 )
-    {
-        return CreateAutoPlaylist( playlistIndex, name, query );
-    }
-    else if ( optArgCount == 1 )
-    {
+    case 0:
+        return CreateAutoPlaylist( playlistIndex, name, query, sort, flags );
+    case 1:
         return CreateAutoPlaylist( playlistIndex, name, query, sort );
+    case 2:
+        return CreateAutoPlaylist( playlistIndex, name, query );
+    default:
+        throw smp::SmpException( smp::string::Formatter() << "Internal error: invalid number of optional arguments specified: " << optArgCount );
     }
-
-    return CreateAutoPlaylist( playlistIndex, name, query, sort, flags );
 }
 
-std::optional<int32_t>
-JsFbPlaylistManager::CreatePlaylist( uint32_t playlistIndex, const pfc::string8_fast& name )
+int32_t JsFbPlaylistManager::CreatePlaylist( uint32_t playlistIndex, const pfc::string8_fast& name )
 {
     auto api = playlist_manager::get();
 
@@ -356,19 +322,17 @@ JsFbPlaylistManager::CreatePlaylist( uint32_t playlistIndex, const pfc::string8_
     {
         upos = api->create_playlist( name.c_str(), name.length(), playlistIndex );
     }
-    
-    return (pfc_infinite == upos ? -1 : static_cast<int32_t>(upos));
+
+    return ( pfc_infinite == upos ? -1 : static_cast<int32_t>( upos ) );
 }
 
-std::optional<uint32_t>
-JsFbPlaylistManager::DuplicatePlaylist( uint32_t from, const pfc::string8_fast& name )
+uint32_t JsFbPlaylistManager::DuplicatePlaylist( uint32_t from, const pfc::string8_fast& name )
 {
     auto api = playlist_manager_v4::get();
 
     if ( from >= api->get_playlist_count() )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "Index is out of bounds" );
-        return std::nullopt;
+        throw smp::SmpException( "Index is out of bounds" );
     }
 
     metadb_handle_list contents;
@@ -385,21 +349,17 @@ JsFbPlaylistManager::DuplicatePlaylist( uint32_t from, const pfc::string8_fast& 
     return api->create_playlist_ex( uname.get_ptr(), uname.get_length(), from + 1, contents, &dummy_reader, dummy_abort );
 }
 
-std::optional<std::nullptr_t>
-JsFbPlaylistManager::EnsurePlaylistItemVisible( uint32_t playlistIndex, uint32_t playlistItemIndex )
+void JsFbPlaylistManager::EnsurePlaylistItemVisible( uint32_t playlistIndex, uint32_t playlistItemIndex )
 {
     playlist_manager::get()->playlist_ensure_visible( playlistIndex, playlistItemIndex );
-    return nullptr;
 }
 
-std::optional<bool>
-JsFbPlaylistManager::ExecutePlaylistDefaultAction( uint32_t playlistIndex, uint32_t playlistItemIndex )
+bool JsFbPlaylistManager::ExecutePlaylistDefaultAction( uint32_t playlistIndex, uint32_t playlistItemIndex )
 {
     return playlist_manager::get()->playlist_execute_default_action( playlistIndex, playlistItemIndex );
 }
 
-std::optional<int32_t>
-JsFbPlaylistManager::FindOrCreatePlaylist( const pfc::string8_fast& name, bool unlocked )
+int32_t JsFbPlaylistManager::FindOrCreatePlaylist( const pfc::string8_fast& name, bool unlocked )
 {
     auto api = playlist_manager::get();
 
@@ -413,16 +373,14 @@ JsFbPlaylistManager::FindOrCreatePlaylist( const pfc::string8_fast& name, bool u
         upos = api->find_or_create_playlist( name.c_str(), name.length() );
     }
 
-    return (pfc_infinite == upos ? -1 : static_cast<int32_t>(upos));
+    return ( pfc_infinite == upos ? -1 : static_cast<int32_t>( upos ) );
 }
 
-std::optional<int32_t>
-JsFbPlaylistManager::FindPlaybackQueueItemIndex( JsFbMetadbHandle* handle, uint32_t playlistIndex, uint32_t playlistItemIndex )
+int32_t JsFbPlaylistManager::FindPlaybackQueueItemIndex( JsFbMetadbHandle* handle, uint32_t playlistIndex, uint32_t playlistItemIndex )
 {
     if ( !handle )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "handle argument is null" );
-        return std::nullopt;
+        throw smp::SmpException( "handle argument is null" );
     }
 
     t_playback_queue_item item;
@@ -431,25 +389,21 @@ JsFbPlaylistManager::FindPlaybackQueueItemIndex( JsFbMetadbHandle* handle, uint3
     item.m_item = playlistItemIndex;
 
     uint32_t upos = playlist_manager::get()->queue_find_index( item );
-    return (pfc_infinite == upos ? -1 : static_cast<int32_t>(upos));
+    return ( pfc_infinite == upos ? -1 : static_cast<int32_t>( upos ) );
 }
 
-std::optional<int32_t>
-JsFbPlaylistManager::FindPlaylist( const pfc::string8_fast& name )
+int32_t JsFbPlaylistManager::FindPlaylist( const pfc::string8_fast& name )
 {
     uint32_t upos = playlist_manager::get()->find_playlist( name.c_str(), name.length() );
-    return (pfc_infinite == upos ? -1 : static_cast<int32_t>(upos));
+    return ( pfc_infinite == upos ? -1 : static_cast<int32_t>( upos ) );
 }
 
-std::optional<std::nullptr_t>
-JsFbPlaylistManager::FlushPlaybackQueue()
+void JsFbPlaylistManager::FlushPlaybackQueue()
 {
     playlist_manager::get()->queue_flush();
-    return nullptr;
 }
 
-std::optional<JSObject*> 
-JsFbPlaylistManager::GetPlaybackQueueContents()
+JSObject* JsFbPlaylistManager::GetPlaybackQueueContents()
 {
     pfc::list_t<t_playback_queue_item> contents;
     playlist_manager::get()->queue_get_contents( contents );
@@ -457,8 +411,8 @@ JsFbPlaylistManager::GetPlaybackQueueContents()
 
     JS::RootedObject jsArray( pJsCtx_, JS_NewArrayObject( pJsCtx_, count ) );
     if ( !jsArray )
-    {// reports
-        return std::nullopt;
+    {
+        throw smp::JsException();
     }
 
     JS::RootedValue jsValue( pJsCtx_ );
@@ -467,22 +421,21 @@ JsFbPlaylistManager::GetPlaybackQueueContents()
     {
         jsObject.set( JsFbPlaybackQueueItem::CreateJs( pJsCtx_, contents[i] ) );
         if ( !jsObject )
-        {// report in Create
-            return std::nullopt;
+        { // TODO: remove
+            throw smp::JsException();
         }
 
         jsValue.set( JS::ObjectValue( *jsObject ) );
         if ( !JS_SetElement( pJsCtx_, jsArray, i, jsValue ) )
-        {// report in JS_SetElement
-            return std::nullopt;
+        {
+            throw smp::JsException();
         }
     }
 
     return jsArray;
 }
 
-std::optional<JSObject*>
-JsFbPlaylistManager::GetPlaybackQueueHandles()
+JSObject* JsFbPlaylistManager::GetPlaybackQueueHandles()
 {
     pfc::list_t<t_playback_queue_item> contents;
     playlist_manager::get()->queue_get_contents( contents );
@@ -495,170 +448,143 @@ JsFbPlaylistManager::GetPlaybackQueueHandles()
 
     JS::RootedObject jsObject( pJsCtx_, JsFbMetadbHandleList::CreateJs( pJsCtx_, items ) );
     if ( !jsObject )
-    {// report in Create
-        return std::nullopt;
+    { // TODO: remove
+        throw smp::JsException();
     }
 
     return jsObject;
 }
 
-std::optional<JSObject*>
-JsFbPlaylistManager::GetPlayingItemLocation()
+JSObject* JsFbPlaylistManager::GetPlayingItemLocation()
 {
-    t_size playlistIndex = t_size(pfc_infinite);
-    t_size playlistItemIndex = t_size(pfc_infinite);
+    t_size playlistIndex = t_size( pfc_infinite );
+    t_size playlistItemIndex = t_size( pfc_infinite );
     bool isValid = playlist_manager::get()->get_playing_item_location( &playlistIndex, &playlistItemIndex );
-    
+
     JS::RootedObject jsObject( pJsCtx_, JsFbPlayingItemLocation::CreateJs( pJsCtx_, isValid, playlistIndex, playlistItemIndex ) );
     if ( !jsObject )
-    {// report in Create
-        return std::nullopt;
+    { // TODO: remove
+        throw smp::JsException();
     }
 
     return jsObject;
 }
 
-std::optional<int32_t>
-JsFbPlaylistManager::GetPlaylistFocusItemIndex( uint32_t playlistIndex )
+int32_t JsFbPlaylistManager::GetPlaylistFocusItemIndex( uint32_t playlistIndex )
 {
     uint32_t upos = playlist_manager::get()->playlist_get_focus_item( playlistIndex );
-    return (pfc_infinite == upos ? -1 : static_cast<int32_t>(upos));
+    return ( pfc_infinite == upos ? -1 : static_cast<int32_t>( upos ) );
 }
 
-std::optional<JSObject*>
-JsFbPlaylistManager::GetPlaylistItems( uint32_t playlistIndex )
+JSObject* JsFbPlaylistManager::GetPlaylistItems( uint32_t playlistIndex )
 {
     metadb_handle_list items;
     playlist_manager::get()->playlist_get_all_items( playlistIndex, items );
-    
+
     JS::RootedObject jsObject( pJsCtx_, JsFbMetadbHandleList::CreateJs( pJsCtx_, items ) );
     if ( !jsObject )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "Internal error: failed to create JS object" );
-        return std::nullopt;
+        throw smp::SmpException( "Internal error: failed to create JS object" );
     }
 
     return jsObject;
 }
 
-std::optional<pfc::string8_fast>
-JsFbPlaylistManager::GetPlaylistName( uint32_t playlistIndex )
+pfc::string8_fast JsFbPlaylistManager::GetPlaylistName( uint32_t playlistIndex )
 {
     pfc::string8_fast name;
     playlist_manager::get()->playlist_get_name( playlistIndex, name );
     return name.c_str();
 }
 
-std::optional<JSObject*>
-JsFbPlaylistManager::GetPlaylistSelectedItems( uint32_t playlistIndex )
+JSObject* JsFbPlaylistManager::GetPlaylistSelectedItems( uint32_t playlistIndex )
 {
     metadb_handle_list items;
     playlist_manager::get()->playlist_get_selected_items( playlistIndex, items );
-    
+
     JS::RootedObject jsObject( pJsCtx_, JsFbMetadbHandleList::CreateJs( pJsCtx_, items ) );
     if ( !jsObject )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "Internal error: failed to create JS object" );
-        return std::nullopt;
+        throw smp::SmpException( "Internal error: failed to create JS object" );
     }
 
     return jsObject;
 }
 
-std::optional<std::nullptr_t>
-JsFbPlaylistManager::InsertPlaylistItems( uint32_t playlistIndex, uint32_t base, JsFbMetadbHandleList* handles, bool select )
-{    
+void JsFbPlaylistManager::InsertPlaylistItems( uint32_t playlistIndex, uint32_t base, JsFbMetadbHandleList* handles, bool select )
+{
     if ( !handles )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "handles argument is null" );
-        return std::nullopt;
+        throw smp::SmpException( "handles argument is null" );
     }
 
     pfc::bit_array_val selection( select );
     playlist_manager::get()->playlist_insert_items( playlistIndex, base, handles->GetHandleList(), selection );
-    return nullptr;
 }
 
-std::optional<std::nullptr_t>
-JsFbPlaylistManager::InsertPlaylistItemsWithOpt( size_t optArgCount, uint32_t playlistIndex, uint32_t base, JsFbMetadbHandleList* handles, bool select )
+void JsFbPlaylistManager::InsertPlaylistItemsWithOpt( size_t optArgCount, uint32_t playlistIndex, uint32_t base, JsFbMetadbHandleList* handles, bool select )
 {
-    if ( optArgCount > 1 )
+    switch ( optArgCount )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
-        return std::nullopt;
-    }
-
-    if ( optArgCount == 1 )
-    {
+    case 0:
+        return InsertPlaylistItems( playlistIndex, base, handles, select );
+    case 1:
         return InsertPlaylistItems( playlistIndex, base, handles );
+    default:
+        throw smp::SmpException( smp::string::Formatter() << "Internal error: invalid number of optional arguments specified: " << optArgCount );
     }
-
-    return InsertPlaylistItems( playlistIndex, base, handles, select );
 }
 
-std::optional<std::nullptr_t>
-JsFbPlaylistManager::InsertPlaylistItemsFilter( uint32_t playlistIndex, uint32_t base, JsFbMetadbHandleList* handles, bool select )
-{    
+void JsFbPlaylistManager::InsertPlaylistItemsFilter( uint32_t playlistIndex, uint32_t base, JsFbMetadbHandleList* handles, bool select )
+{
     if ( !handles )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "handles argument is null" );
-        return std::nullopt;
+        throw smp::SmpException( "handles argument is null" );
     }
 
     playlist_manager::get()->playlist_insert_items_filter( playlistIndex, base, handles->GetHandleList(), select );
-    return nullptr;
 }
 
-std::optional<std::nullptr_t>
-JsFbPlaylistManager::InsertPlaylistItemsFilterWithOpt( size_t optArgCount, uint32_t playlistIndex, uint32_t base, JsFbMetadbHandleList* handles, bool select )
+void JsFbPlaylistManager::InsertPlaylistItemsFilterWithOpt( size_t optArgCount, uint32_t playlistIndex, uint32_t base, JsFbMetadbHandleList* handles, bool select )
 {
-    if ( optArgCount > 1 )
+    switch ( optArgCount )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
-        return std::nullopt;
-    }
-
-    if ( optArgCount == 1 )
-    {
+    case 0:
+        return InsertPlaylistItemsFilter( playlistIndex, base, handles, select );
+    case 1:
         return InsertPlaylistItemsFilter( playlistIndex, base, handles );
+    default:
+        throw smp::SmpException( smp::string::Formatter() << "Internal error: invalid number of optional arguments specified: " << optArgCount );
     }
-
-    return InsertPlaylistItemsFilter( playlistIndex, base, handles, select );
 }
 
-std::optional<bool>
-JsFbPlaylistManager::IsAutoPlaylist( uint32_t playlistIndex )
+bool JsFbPlaylistManager::IsAutoPlaylist( uint32_t playlistIndex )
 {
     if ( playlistIndex >= playlist_manager::get()->get_playlist_count() )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "Index is out of bounds" );
-        return std::nullopt;
+        throw smp::SmpException( "Index is out of bounds" );
     }
 
     return autoplaylist_manager::get()->is_client_present( playlistIndex );
 }
 
-std::optional<bool>
-JsFbPlaylistManager::IsPlaylistItemSelected( uint32_t playlistIndex, uint32_t playlistItemIndex )
+bool JsFbPlaylistManager::IsPlaylistItemSelected( uint32_t playlistIndex, uint32_t playlistItemIndex )
 {
     return playlist_manager::get()->playlist_is_item_selected( playlistIndex, playlistItemIndex );
 }
 
-std::optional<bool>
-JsFbPlaylistManager::IsPlaylistLocked( uint32_t playlistIndex )
+bool JsFbPlaylistManager::IsPlaylistLocked( uint32_t playlistIndex )
 {
     auto api = playlist_manager::get();
     if ( playlistIndex >= api->get_playlist_count() )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "Index is out of bounds" );
-        return std::nullopt;
+        throw smp::SmpException( "Index is out of bounds" );
     }
 
     return api->playlist_lock_is_present( playlistIndex );
 }
 
-std::optional<bool>
-JsFbPlaylistManager::MovePlaylist( uint32_t from, uint32_t to )
+bool JsFbPlaylistManager::MovePlaylist( uint32_t from, uint32_t to )
 {
     auto api = playlist_manager::get();
     order_helper order( api->get_playlist_count() );
@@ -668,7 +594,7 @@ JsFbPlaylistManager::MovePlaylist( uint32_t from, uint32_t to )
         return false;
     }
 
-    int8_t inc = (from < to) ? 1 : -1;
+    int8_t inc = ( from < to ) ? 1 : -1;
     for ( uint32_t i = from; i != to; i += inc )
     {
         order[i] = order[i + inc];
@@ -679,166 +605,135 @@ JsFbPlaylistManager::MovePlaylist( uint32_t from, uint32_t to )
     return api->reorder( order.get_ptr(), order.get_count() );
 }
 
-std::optional<bool>
-JsFbPlaylistManager::MovePlaylistSelection( uint32_t playlistIndex, int32_t delta )
+bool JsFbPlaylistManager::MovePlaylistSelection( uint32_t playlistIndex, int32_t delta )
 {
     return playlist_manager::get()->playlist_move_selection( playlistIndex, delta );
 }
 
-std::optional<uint32_t>
-JsFbPlaylistManager::PlaylistItemCount( uint32_t playlistIndex )
+uint32_t JsFbPlaylistManager::PlaylistItemCount( uint32_t playlistIndex )
 {
     return playlist_manager::get()->playlist_get_item_count( playlistIndex );
 }
 
-std::optional<std::nullptr_t>
-JsFbPlaylistManager::RemoveItemFromPlaybackQueue( uint32_t index )
+void JsFbPlaylistManager::RemoveItemFromPlaybackQueue( uint32_t index )
 {
     playlist_manager::get()->queue_remove_mask( pfc::bit_array_one( index ) );
-    return nullptr;
 }
 
-std::optional<std::nullptr_t> 
-JsFbPlaylistManager::RemoveItemsFromPlaybackQueue( JS::HandleValue affectedItems )
+void JsFbPlaylistManager::RemoveItemsFromPlaybackQueue( JS::HandleValue affectedItems )
 {
     JS::RootedObject jsObject( pJsCtx_, affectedItems.toObjectOrNull() );
     if ( !jsObject )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "affectedItems argument is not a JS object" );
-        return std::nullopt;
+        throw smp::SmpException( "affectedItems argument is not a JS object" );
     }
 
     bool is;
     if ( !JS_IsArrayObject( pJsCtx_, jsObject, &is ) )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "affectedItems argument is an array" );
-        return std::nullopt;
+        throw smp::SmpException( "affectedItems argument is an array" );
     }
 
     uint32_t arraySize;
     if ( !JS_GetArrayLength( pJsCtx_, jsObject, &arraySize ) )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "Failed to get affectedItems argument array length" );
-        return std::nullopt;
+        throw smp::SmpException( "Failed to get affectedItems argument array length" );
     }
 
     auto api = playlist_manager::get();
     pfc::bit_array_bittable affected( api->queue_get_count() );
-    
+
     JS::RootedValue arrayElement( pJsCtx_ );
     for ( uint32_t i = 0; i < arraySize; ++i )
     {
         if ( !JS_GetElement( pJsCtx_, jsObject, i, &arrayElement ) )
         {
-            JS_ReportErrorUTF8( pJsCtx_, "Failed to get affectedItems[%u]", i );
-            return std::nullopt;
+            throw smp::SmpException( smp::string::Formatter() << "Failed to get affectedItems[" << i << "]" );
         }
 
         auto retVal = convert::to_native::ToValue<uint32_t>( pJsCtx_, arrayElement );
         if ( !retVal )
         {
-            JS_ReportErrorUTF8( pJsCtx_, "affectedItems[%u] can't be converted to number", i );
-            return std::nullopt;
+            throw smp::SmpException( smp::string::Formatter() << "affectedItems[" << i << "] can't be converted to number" );
         }
 
         affected.set( retVal.value(), true );
     }
-    
+
     api->queue_remove_mask( affected );
-    return nullptr;
 }
 
-std::optional<bool>
-JsFbPlaylistManager::RemovePlaylist( uint32_t playlistIndex )
+bool JsFbPlaylistManager::RemovePlaylist( uint32_t playlistIndex )
 {
     return playlist_manager::get()->remove_playlist( playlistIndex );
 }
 
-std::optional<std::nullptr_t>
-JsFbPlaylistManager::RemovePlaylistSelection( uint32_t playlistIndex, bool crop )
+void JsFbPlaylistManager::RemovePlaylistSelection( uint32_t playlistIndex, bool crop )
 {
     playlist_manager::get()->playlist_remove_selection( playlistIndex, crop );
-    return nullptr;
 }
 
-std::optional<std::nullptr_t> 
-JsFbPlaylistManager::RemovePlaylistSelectionWithOpt( size_t optArgCount, uint32_t playlistIndex, bool crop )
+void JsFbPlaylistManager::RemovePlaylistSelectionWithOpt( size_t optArgCount, uint32_t playlistIndex, bool crop )
 {
-    if ( optArgCount > 1 )
+    switch ( optArgCount )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
-        return std::nullopt;
-    }
-
-    if ( optArgCount == 1 )
-    {
+    case 0:
+        return RemovePlaylistSelection( playlistIndex, crop );
+    case 1:
         return RemovePlaylistSelection( playlistIndex );
+    default:
+        throw smp::SmpException( smp::string::Formatter() << "Internal error: invalid number of optional arguments specified: " << optArgCount );
     }
-
-    return RemovePlaylistSelection( playlistIndex, crop );
 }
 
-std::optional<bool>
-JsFbPlaylistManager::RemovePlaylistSwitch( uint32_t playlistIndex )
+bool JsFbPlaylistManager::RemovePlaylistSwitch( uint32_t playlistIndex )
 {
     return playlist_manager::get()->remove_playlist_switch( playlistIndex );
 }
 
-std::optional<bool>
-JsFbPlaylistManager::RenamePlaylist( uint32_t playlistIndex, const pfc::string8_fast& name )
+bool JsFbPlaylistManager::RenamePlaylist( uint32_t playlistIndex, const pfc::string8_fast& name )
 {
     return playlist_manager::get()->playlist_rename( playlistIndex, name.c_str(), name.length() );
 }
 
-std::optional<std::nullptr_t>
-JsFbPlaylistManager::SetActivePlaylistContext()
+void JsFbPlaylistManager::SetActivePlaylistContext()
 {
     ui_edit_context_manager::get()->set_context_active_playlist();
-    return nullptr;
 }
 
-std::optional<std::nullptr_t>
-JsFbPlaylistManager::SetPlaylistFocusItem( uint32_t playlistIndex, uint32_t playlistItemIndex )
+void JsFbPlaylistManager::SetPlaylistFocusItem( uint32_t playlistIndex, uint32_t playlistItemIndex )
 {
     playlist_manager::get()->playlist_set_focus_item( playlistIndex, playlistItemIndex );
-    return nullptr;
 }
 
-std::optional<std::nullptr_t>
-JsFbPlaylistManager::SetPlaylistFocusItemByHandle( uint32_t playlistIndex, JsFbMetadbHandle* handle )
+void JsFbPlaylistManager::SetPlaylistFocusItemByHandle( uint32_t playlistIndex, JsFbMetadbHandle* handle )
 {
     if ( !handle )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "handle argument is null" );
-        return std::nullopt;
+        throw smp::SmpException( "handle argument is null" );
     }
 
     playlist_manager::get()->playlist_set_focus_by_handle( playlistIndex, handle->GetHandle() );
-    return nullptr;
 }
 
-std::optional<std::nullptr_t> 
-JsFbPlaylistManager::SetPlaylistSelection( uint32_t playlistIndex, JS::HandleValue affectedItems, bool state )
+void JsFbPlaylistManager::SetPlaylistSelection( uint32_t playlistIndex, JS::HandleValue affectedItems, bool state )
 {
     JS::RootedObject jsObject( pJsCtx_, affectedItems.toObjectOrNull() );
     if ( !jsObject )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "affectedItems argument is not a JS object" );
-        return std::nullopt;
+        throw smp::SmpException( "affectedItems argument is not a JS object" );
     }
 
     bool is;
     if ( !JS_IsArrayObject( pJsCtx_, jsObject, &is ) )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "affectedItems argument is an array" );
-        return std::nullopt;
+        throw smp::SmpException( "affectedItems argument is an array" );
     }
 
     uint32_t arraySize;
     if ( !JS_GetArrayLength( pJsCtx_, jsObject, &arraySize ) )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "Failed to get affectedItems argument array length" );
-        return std::nullopt;
+        throw smp::SmpException( "Failed to get affectedItems argument array length" );
     }
 
     auto api = playlist_manager::get();
@@ -849,15 +744,13 @@ JsFbPlaylistManager::SetPlaylistSelection( uint32_t playlistIndex, JS::HandleVal
     {
         if ( !JS_GetElement( pJsCtx_, jsObject, i, &arrayElement ) )
         {
-            JS_ReportErrorUTF8( pJsCtx_, "Failed to get affectedItems[%u]", i );
-            return std::nullopt;
+            throw smp::SmpException( smp::string::Formatter() << "Failed to get affectedItems[" << i << "]" );
         }
 
         auto retVal = convert::to_native::ToValue<uint32_t>( pJsCtx_, arrayElement );
         if ( !retVal )
         {
-            JS_ReportErrorUTF8( pJsCtx_, "affectedItems[%u] can't be converted to number" );
-            return std::nullopt;
+            throw smp::SmpException( smp::string::Formatter() << "affectedItems[" << i << "] can't be converted to number" );
         }
 
         affected.set( retVal.value(), true );
@@ -865,24 +758,18 @@ JsFbPlaylistManager::SetPlaylistSelection( uint32_t playlistIndex, JS::HandleVal
 
     pfc::bit_array_val status( state );
     api->playlist_set_selection( playlistIndex, affected, status );
-
-    return nullptr;
 }
 
-std::optional<std::nullptr_t>
-JsFbPlaylistManager::SetPlaylistSelectionSingle( uint32_t playlistIndex, uint32_t playlistItemIndex, bool state )
+void JsFbPlaylistManager::SetPlaylistSelectionSingle( uint32_t playlistIndex, uint32_t playlistItemIndex, bool state )
 {
     playlist_manager::get()->playlist_set_selection_single( playlistIndex, playlistItemIndex, state );
-    return nullptr;
 }
 
-std::optional<bool>
-JsFbPlaylistManager::ShowAutoPlaylistUI( uint32_t playlistIndex )
+bool JsFbPlaylistManager::ShowAutoPlaylistUI( uint32_t playlistIndex )
 {
     if ( playlistIndex >= playlist_manager::get()->get_playlist_count() )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "Index is out of bounds" );
-        return std::nullopt;
+        throw smp::SmpException( "Index is out of bounds" );
     }
 
     auto api = autoplaylist_manager::get();
@@ -897,31 +784,25 @@ JsFbPlaylistManager::ShowAutoPlaylistUI( uint32_t playlistIndex )
     return true;
 }
 
-std::optional<bool>
-JsFbPlaylistManager::SortByFormat( uint32_t playlistIndex, const pfc::string8_fast& pattern, bool selOnly )
+bool JsFbPlaylistManager::SortByFormat( uint32_t playlistIndex, const pfc::string8_fast& pattern, bool selOnly )
 {
     return playlist_manager::get()->playlist_sort_by_format( playlistIndex, pattern.is_empty() ? nullptr : pattern.c_str(), selOnly );
 }
 
-std::optional<bool> 
-JsFbPlaylistManager::SortByFormatWithOpt( size_t optArgCount, uint32_t playlistIndex, const pfc::string8_fast& pattern, bool selOnly )
+bool JsFbPlaylistManager::SortByFormatWithOpt( size_t optArgCount, uint32_t playlistIndex, const pfc::string8_fast& pattern, bool selOnly )
 {
-    if ( optArgCount > 1 )
+    switch ( optArgCount )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
-        return std::nullopt;
-    }
-
-    if ( optArgCount == 1 )
-    {
+    case 0:
+        return SortByFormat( playlistIndex, pattern, selOnly );
+    case 1:
         return SortByFormat( playlistIndex, pattern );
+    default:
+        throw smp::SmpException( smp::string::Formatter() << "Internal error: invalid number of optional arguments specified: " << optArgCount );
     }
-
-    return SortByFormat( playlistIndex, pattern, selOnly );
 }
 
-std::optional<bool>
-JsFbPlaylistManager::SortByFormatV2( uint32_t playlistIndex, const pfc::string8_fast& pattern, int8_t direction )
+bool JsFbPlaylistManager::SortByFormatV2( uint32_t playlistIndex, const pfc::string8_fast& pattern, int8_t direction )
 {
     auto api = playlist_manager::get();
     metadb_handle_list handles;
@@ -938,25 +819,20 @@ JsFbPlaylistManager::SortByFormatV2( uint32_t playlistIndex, const pfc::string8_
     return api->playlist_reorder_items( playlistIndex, order.get_ptr(), order.get_count() );
 }
 
-std::optional<bool> 
-JsFbPlaylistManager::SortByFormatV2WithOpt( size_t optArgCount, uint32_t playlistIndex, const pfc::string8_fast& pattern, int8_t direction )
+bool JsFbPlaylistManager::SortByFormatV2WithOpt( size_t optArgCount, uint32_t playlistIndex, const pfc::string8_fast& pattern, int8_t direction )
 {
-    if ( optArgCount > 1 )
+    switch ( optArgCount )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
-        return std::nullopt;
-    }
-
-    if ( optArgCount == 1 )
-    {
+    case 0:
+        return SortByFormatV2( playlistIndex, pattern, direction );
+    case 1:
         return SortByFormatV2( playlistIndex, pattern );
+    default:
+        throw smp::SmpException( smp::string::Formatter() << "Internal error: invalid number of optional arguments specified: " << optArgCount );
     }
-
-    return SortByFormatV2( playlistIndex, pattern, direction );
 }
 
-std::optional<std::nullptr_t>
-JsFbPlaylistManager::SortPlaylistsByName( int8_t direction )
+void JsFbPlaylistManager::SortPlaylistsByName( int8_t direction )
 {
     // TODO: investigate this code
     auto api = playlist_manager::get();
@@ -984,115 +860,93 @@ JsFbPlaylistManager::SortPlaylistsByName( int8_t direction )
     }
 
     api->reorder( order.get_ptr(), order.get_count() );
-    return nullptr;
 }
 
-std::optional<std::nullptr_t> 
-JsFbPlaylistManager::SortPlaylistsByNameWithOpt( size_t optArgCount, int8_t direction )
+void JsFbPlaylistManager::SortPlaylistsByNameWithOpt( size_t optArgCount, int8_t direction )
 {
-    if ( optArgCount > 1 )
+    switch ( optArgCount )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
-        return std::nullopt;
-    }
-
-    if ( optArgCount == 1 )
-    {
+    case 0:
+        return SortPlaylistsByName( direction );
+    case 1:
         return SortPlaylistsByName();
+    default:
+        throw smp::SmpException( smp::string::Formatter() << "Internal error: invalid number of optional arguments specified: " << optArgCount );
     }
-
-    return SortPlaylistsByName( direction );
 }
 
-std::optional<std::nullptr_t>
-JsFbPlaylistManager::UndoBackup( uint32_t playlistIndex )
+void JsFbPlaylistManager::UndoBackup( uint32_t playlistIndex )
 {
     playlist_manager::get()->playlist_undo_backup( playlistIndex );
-    return nullptr;
 }
 
-std::optional<int32_t>
-JsFbPlaylistManager::get_ActivePlaylist()
+int32_t JsFbPlaylistManager::get_ActivePlaylist()
 {
     uint32_t upos = playlist_manager::get()->get_active_playlist();
-    return (pfc_infinite == upos ? -1 : static_cast<int32_t>(upos));
+    return ( pfc_infinite == upos ? -1 : static_cast<int32_t>( upos ) );
 }
 
-std::optional<uint32_t>
-JsFbPlaylistManager::get_PlaybackOrder()
+uint32_t JsFbPlaylistManager::get_PlaybackOrder()
 {
     return playlist_manager::get()->playback_order_get_active();
 }
 
-std::optional<int32_t>
-JsFbPlaylistManager::get_PlayingPlaylist()
+int32_t JsFbPlaylistManager::get_PlayingPlaylist()
 {
     uint32_t upos = playlist_manager::get()->get_playing_playlist();
-    return (pfc_infinite == upos ? -1 : static_cast<int32_t>(upos));
+    return ( pfc_infinite == upos ? -1 : static_cast<int32_t>( upos ) );
 }
 
-std::optional<uint32_t>
-JsFbPlaylistManager::get_PlaylistCount()
+uint32_t JsFbPlaylistManager::get_PlaylistCount()
 {
     return playlist_manager::get()->get_playlist_count();
 }
 
-std::optional<JSObject*>
-JsFbPlaylistManager::get_PlaylistRecyclerManager()
+JSObject* JsFbPlaylistManager::get_PlaylistRecyclerManager()
 {
     if ( !jsPlaylistRecycler_.initialized() )
     {
         jsPlaylistRecycler_.init( pJsCtx_, JsFbPlaylistRecyclerManager::CreateJs( pJsCtx_ ) );
         if ( !jsPlaylistRecycler_ )
         {
-            JS_ReportErrorUTF8( pJsCtx_, "Internal error: failed to create JS object" );
-            return std::nullopt;
+            throw smp::SmpException( "Internal error: failed to create JS object" );
         }
     }
 
     return jsPlaylistRecycler_;
 }
 
-std::optional<std::nullptr_t>
-JsFbPlaylistManager::put_ActivePlaylist( uint32_t playlistIndex )
+void JsFbPlaylistManager::put_ActivePlaylist( uint32_t playlistIndex )
 {
     auto api = playlist_manager::get();
     if ( playlistIndex >= api->get_playlist_count() )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "Index is out of bounds" );
-        return std::nullopt;
+        throw smp::SmpException( "Index is out of bounds" );
     }
 
     api->set_active_playlist( playlistIndex );
-    return nullptr;
 }
 
-std::optional<std::nullptr_t>
-JsFbPlaylistManager::put_PlaybackOrder( uint32_t order )
+void JsFbPlaylistManager::put_PlaybackOrder( uint32_t order )
 {
     auto api = playlist_manager::get();
     if ( order >= api->playback_order_get_count() )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "Unknown play back order id: %u", order );
-        return std::nullopt;
-    }    
+        throw smp::SmpException( smp::string::Formatter() << "Unknown playback order id: " << order );
+    }
 
     api->playback_order_set_active( order );
-    return nullptr;
 }
 
-std::optional<std::nullptr_t>
-JsFbPlaylistManager::put_PlayingPlaylist( uint32_t playlistIndex )
+void JsFbPlaylistManager::put_PlayingPlaylist( uint32_t playlistIndex )
 {
     auto api = playlist_manager::get();
     if ( playlistIndex >= api->get_playlist_count() )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "Index is out of bounds" );
-        return std::nullopt;
+        throw smp::SmpException( "Index is out of bounds" );
     }
 
     api->set_playing_playlist( playlistIndex );
-    return nullptr;
 }
 
-}
+} // namespace mozjs

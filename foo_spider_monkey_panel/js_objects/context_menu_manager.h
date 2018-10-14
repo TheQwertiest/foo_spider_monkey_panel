@@ -35,19 +35,19 @@ public:
     static size_t GetInternalSize();
 
 public:
-    std::optional<std::nullptr_t> BuildMenu( JsMenuObject* menuObject, int32_t base_id, int32_t max_id = -1 );
-    std::optional<std::nullptr_t> BuildMenuWithOpt( size_t optArgCount, JsMenuObject* menuObject, int32_t base_id, int32_t max_id );
-    std::optional<bool> ExecuteByID( uint32_t id );
-    std::optional<std::nullptr_t> InitContext( JsFbMetadbHandleList* handles );
-    std::optional<std::nullptr_t> InitContextPlaylist();
-    std::optional<std::nullptr_t> InitNowPlaying();
+    void BuildMenu( JsMenuObject* menuObject, int32_t base_id, int32_t max_id = -1 );
+    void BuildMenuWithOpt( size_t optArgCount, JsMenuObject* menuObject, int32_t base_id, int32_t max_id );
+    bool ExecuteByID( uint32_t id );
+    void InitContext( JsFbMetadbHandleList* handles );
+    void InitContextPlaylist();
+    void InitNowPlaying();
 
 private:
     JsContextMenuManager( JSContext* cx );
 
 private:
-    JSContext * pJsCtx_ = nullptr;
+    JSContext* pJsCtx_ = nullptr;
     contextmenu_manager::ptr contextMenu_;
 };
 
-}
+} // namespace mozjs

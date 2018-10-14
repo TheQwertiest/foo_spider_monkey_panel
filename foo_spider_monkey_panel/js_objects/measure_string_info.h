@@ -32,21 +32,21 @@ public:
     static size_t GetInternalSize( float x, float y, float w, float h, uint32_t l, uint32_t c );
 
 public:
-    std::optional<uint32_t> get_Chars();
-    std::optional<float> get_Height();
-    std::optional<uint32_t> get_Lines();
-    std::optional<float> get_Width();
-    std::optional<float> get_X();
-    std::optional<float> get_Y();
+    uint32_t get_Chars();
+    float get_Height();
+    uint32_t get_Lines();
+    float get_Width();
+    float get_X();
+    float get_Y();
 
 private:
     JsMeasureStringInfo( JSContext* cx, float x, float y, float w, float h, uint32_t l, uint32_t c );
 
 private:
-    JSContext * pJsCtx_ = nullptr;
+    JSContext* pJsCtx_ = nullptr;
 
     float x_, y_, w_, h_;
     int lines_, characters_;
 };
 
-}
+} // namespace mozjs

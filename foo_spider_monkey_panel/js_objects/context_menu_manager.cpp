@@ -7,7 +7,7 @@
 #include <js_objects/menu_object.h>
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
-
+#include <utils/string_helpers.h>
 
 namespace
 {
@@ -53,7 +53,7 @@ const JSPropertySpec jsProperties[] = {
     JS_PS_END
 };
 
-}
+} // namespace
 
 namespace mozjs
 {
@@ -72,7 +72,7 @@ JsContextMenuManager::~JsContextMenuManager()
 {
 }
 
-std::unique_ptr<mozjs::JsContextMenuManager> 
+std::unique_ptr<mozjs::JsContextMenuManager>
 JsContextMenuManager::CreateNative( JSContext* cx )
 {
     return std::unique_ptr<JsContextMenuManager>( new JsContextMenuManager( cx ) );
@@ -83,85 +83,68 @@ size_t JsContextMenuManager::GetInternalSize()
     return 0;
 }
 
-std::optional<std::nullptr_t> 
-JsContextMenuManager::BuildMenu( JsMenuObject* menuObject, int32_t base_id, int32_t max_id )
+void JsContextMenuManager::BuildMenu( JsMenuObject* menuObject, int32_t base_id, int32_t max_id )
 {
     if ( contextMenu_.is_empty() )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "Context menu is not initialized" );
-        return std::nullopt;
+        throw smp::SmpException( "Context menu is not initialized" );
     }
 
     if ( !menuObject )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "menuObject argument is null" );
-        return std::nullopt;
+        throw smp::SmpException( "menuObject argument is null" );
     }
 
     HMENU hMenu = menuObject->HMenu();
     contextmenu_node* parent = contextMenu_->get_root();
     contextMenu_->win32_build_menu( hMenu, parent, base_id, max_id );
-    return nullptr;
 }
 
-std::optional<std::nullptr_t> 
-JsContextMenuManager::BuildMenuWithOpt( size_t optArgCount, JsMenuObject* menuObject, int32_t base_id, int32_t max_id )
+void JsContextMenuManager::BuildMenuWithOpt( size_t optArgCount, JsMenuObject* menuObject, int32_t base_id, int32_t max_id )
 {
-    if ( optArgCount > 1 )
+    switch ( optArgCount )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
-        return std::nullopt;
-    }
-
-    if ( optArgCount == 1 )
-    {
+    case 0:
+        return BuildMenu( menuObject, base_id, max_id );
+    case 1:
         return BuildMenu( menuObject, base_id );
+    default:
+        throw smp::SmpException( smp::string::Formatter() << "Internal error: invalid number of optional arguments specified: " << optArgCount );
     }
-
-    return BuildMenu( menuObject, base_id, max_id );
 }
 
-std::optional<bool> 
-JsContextMenuManager::ExecuteByID( uint32_t id )
+bool JsContextMenuManager::ExecuteByID( uint32_t id )
 {
     if ( contextMenu_.is_empty() )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "Context menu is not initialized" );
-        return std::nullopt;
+        throw smp::SmpException( "Context menu is not initialized" );
     }
 
     return contextMenu_->execute_by_id( id );
 }
 
-std::optional<std::nullptr_t> 
-JsContextMenuManager::InitContext( JsFbMetadbHandleList* handles )
+void JsContextMenuManager::InitContext( JsFbMetadbHandleList* handles )
 {
     if ( !handles )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "handles argument is null" );
-        return std::nullopt;
+        throw smp::SmpException( "handles argument is null" );
     }
 
     metadb_handle_list_cref handles_ptr = handles->GetHandleList();
     contextmenu_manager::g_create( contextMenu_ );
     contextMenu_->init_context( handles_ptr, contextmenu_manager::flag_show_shortcuts );
-    return nullptr;
 }
 
-std::optional<std::nullptr_t> 
-JsContextMenuManager::InitContextPlaylist()
+void JsContextMenuManager::InitContextPlaylist()
 {
     contextmenu_manager::g_create( contextMenu_ );
     contextMenu_->init_context_playlist( contextmenu_manager::flag_show_shortcuts );
-    return nullptr;
 }
 
-std::optional<std::nullptr_t> 
-JsContextMenuManager::InitNowPlaying()
+void JsContextMenuManager::InitNowPlaying()
 {
     contextmenu_manager::g_create( contextMenu_ );
     contextMenu_->init_context_now_playing( contextmenu_manager::flag_show_shortcuts );
-    return nullptr;
 }
 
-}
+} // namespace mozjs

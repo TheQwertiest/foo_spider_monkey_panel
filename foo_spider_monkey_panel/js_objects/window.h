@@ -38,60 +38,60 @@ public:
     void CleanupBeforeDestruction();
 
 public: // methods
-    std::optional<std::nullptr_t> ClearInterval( uint32_t intervalId );
-    std::optional<std::nullptr_t> ClearTimeout( uint32_t timeoutId );
-    std::optional<JSObject*> CreatePopupMenu();
-    std::optional<JSObject*> CreateThemeManager( const std::wstring& classid );
-    std::optional<JSObject*> CreateTooltip( const std::wstring& name = L"Segoe UI", float pxSize = 12, uint32_t style = 0 );
-    std::optional<JSObject*> CreateTooltipWithOpt( size_t optArgCount, const std::wstring& name, float pxSize, uint32_t style );
-    std::optional<std::nullptr_t> DefinePanel( const pfc::string8_fast& name, JS::HandleValue options = JS::UndefinedHandleValue );
-    std::optional<std::nullptr_t> DefinePanelWithOpt( size_t optArgCount, const pfc::string8_fast& name, JS::HandleValue options = JS::UndefinedHandleValue );
-    std::optional<uint32_t> GetColourCUI( uint32_t type, const std::wstring& guidstr = L"" );
-    std::optional<uint32_t> GetColourCUIWithOpt( size_t optArgCount, uint32_t type, const std::wstring& guidstr );
-    std::optional<uint32_t> GetColourDUI( uint32_t type );
-    std::optional<JSObject*> GetFontCUI( uint32_t type, const std::wstring& guidstr = L"" );
-    std::optional<JSObject*> GetFontCUIWithOpt( size_t optArgCount, uint32_t type, const std::wstring& guidstr );
-    std::optional<JSObject*> GetFontDUI( uint32_t type );
-    std::optional<JS::Heap<JS::Value>> GetProperty( const std::wstring& name, JS::HandleValue defaultval = JS::NullHandleValue );
-    std::optional<JS::Heap<JS::Value>> GetPropertyWithOpt( size_t optArgCount, const std::wstring& name, JS::HandleValue defaultval );
-    std::optional<std::nullptr_t> NotifyOthers( const std::wstring& name, JS::HandleValue info );
-    std::optional<std::nullptr_t> Reload();
-    std::optional<std::nullptr_t> Repaint( bool force = false);
-    std::optional<std::nullptr_t> RepaintWithOpt( size_t optArgCount, bool force );
-    std::optional<std::nullptr_t> RepaintRect( uint32_t x, uint32_t y, uint32_t w, uint32_t h, bool force = false);
-    std::optional<std::nullptr_t> RepaintRectWithOpt( size_t optArgCount, uint32_t x, uint32_t y, uint32_t w, uint32_t h, bool force );
-    std::optional<std::nullptr_t> SetCursor( uint32_t id );
-    std::optional<uint32_t> SetInterval( JS::HandleValue func, uint32_t delay );
-    std::optional<std::nullptr_t> SetProperty( const std::wstring& name, JS::HandleValue val = JS::NullHandleValue );
-    std::optional<std::nullptr_t> SetPropertyWithOpt( size_t optArgCount, const std::wstring& name, JS::HandleValue val );
-    std::optional<uint32_t> SetTimeout( JS::HandleValue func, uint32_t delay );
-    std::optional<std::nullptr_t> ShowConfigure();
-    std::optional<std::nullptr_t> ShowProperties();
+    void ClearInterval( uint32_t intervalId );
+    void ClearTimeout( uint32_t timeoutId );
+    JSObject* CreatePopupMenu();
+    JSObject* CreateThemeManager( const std::wstring& classid );
+    JSObject* CreateTooltip( const std::wstring& name = L"Segoe UI", float pxSize = 12, uint32_t style = 0 );
+    JSObject* CreateTooltipWithOpt( size_t optArgCount, const std::wstring& name, float pxSize, uint32_t style );
+    void DefinePanel( const pfc::string8_fast& name, JS::HandleValue options = JS::UndefinedHandleValue );
+    void DefinePanelWithOpt( size_t optArgCount, const pfc::string8_fast& name, JS::HandleValue options = JS::UndefinedHandleValue );
+    uint32_t GetColourCUI( uint32_t type, const std::wstring& guidstr = L"" );
+    uint32_t GetColourCUIWithOpt( size_t optArgCount, uint32_t type, const std::wstring& guidstr );
+    uint32_t GetColourDUI( uint32_t type );
+    JSObject* GetFontCUI( uint32_t type, const std::wstring& guidstr = L"" );
+    JSObject* GetFontCUIWithOpt( size_t optArgCount, uint32_t type, const std::wstring& guidstr );
+    JSObject* GetFontDUI( uint32_t type );
+    JS::Value GetProperty( const std::wstring& name, JS::HandleValue defaultval = JS::NullHandleValue );
+    JS::Value GetPropertyWithOpt( size_t optArgCount, const std::wstring& name, JS::HandleValue defaultval );
+    void NotifyOthers( const std::wstring& name, JS::HandleValue info );
+    void Reload();
+    void Repaint( bool force = false );
+    void RepaintWithOpt( size_t optArgCount, bool force );
+    void RepaintRect( uint32_t x, uint32_t y, uint32_t w, uint32_t h, bool force = false );
+    void RepaintRectWithOpt( size_t optArgCount, uint32_t x, uint32_t y, uint32_t w, uint32_t h, bool force );
+    void SetCursor( uint32_t id );
+    uint32_t SetInterval( JS::HandleValue func, uint32_t delay );
+    void SetProperty( const std::wstring& name, JS::HandleValue val = JS::NullHandleValue );
+    void SetPropertyWithOpt( size_t optArgCount, const std::wstring& name, JS::HandleValue val );
+    uint32_t SetTimeout( JS::HandleValue func, uint32_t delay );
+    void ShowConfigure();
+    void ShowProperties();
 
 public: // props
-    std::optional<uint32_t> get_DlgCode();
-    std::optional<uint32_t> get_Height();
-    std::optional<uint32_t> get_ID();
-    std::optional<uint32_t> get_InstanceType();
-    std::optional<bool> get_IsTransparent();
-    std::optional<bool> get_IsVisible();
-    std::optional<uint32_t> get_MaxHeight();
-    std::optional<uint32_t> get_MaxWidth();
-    std::optional<uint32_t> get_MinHeight();
-    std::optional<uint32_t> get_MinWidth();
-    std::optional<pfc::string8_fast> get_Name();
-    std::optional<uint32_t> get_Width();
-    std::optional<std::nullptr_t> put_DlgCode( uint32_t code );
-    std::optional<std::nullptr_t> put_MaxHeight( uint32_t height );
-    std::optional<std::nullptr_t> put_MaxWidth( uint32_t width );
-    std::optional<std::nullptr_t> put_MinHeight( uint32_t height );
-    std::optional<std::nullptr_t> put_MinWidth( uint32_t width );
-   
+    uint32_t get_DlgCode();
+    uint32_t get_Height();
+    uint32_t get_ID();
+    uint32_t get_InstanceType();
+    bool get_IsTransparent();
+    bool get_IsVisible();
+    uint32_t get_MaxHeight();
+    uint32_t get_MaxWidth();
+    uint32_t get_MinHeight();
+    uint32_t get_MinWidth();
+    pfc::string8_fast get_Name();
+    uint32_t get_Width();
+    void put_DlgCode( uint32_t code );
+    void put_MaxHeight( uint32_t height );
+    void put_MaxWidth( uint32_t width );
+    void put_MinHeight( uint32_t height );
+    void put_MinWidth( uint32_t width );
+
 private:
     JsWindow( JSContext* cx, js_panel_window& parentPanel, std::unique_ptr<FbProperties> fbProperties );
 
 private:
-    JSContext * pJsCtx_;
+    JSContext* pJsCtx_;
     js_panel_window& parentPanel_;
 
     bool isPanelDefined_ = false;
@@ -99,4 +99,4 @@ private:
     CComPtr<IDropTargetImpl> dropTargetHandler_;
 };
 
-}
+} // namespace mozjs

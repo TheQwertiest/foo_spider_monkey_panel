@@ -10,7 +10,7 @@ class SmpException
     : public std::runtime_error
 {
 public:
-    SmpException( const std::string& errorText )
+    explicit SmpException( const std::string& errorText )
         : std::runtime_error( errorText )
     {}
 

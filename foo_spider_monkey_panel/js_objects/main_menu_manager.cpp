@@ -5,7 +5,7 @@
 #include <js_objects/menu_object.h>
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
-
+#include <utils/string_helpers.h>
 
 namespace
 {
@@ -48,7 +48,7 @@ const JSPropertySpec jsProperties[] = {
     JS_PS_END
 };
 
-}
+} // namespace
 
 namespace mozjs
 {
@@ -62,7 +62,6 @@ JsMainMenuManager::JsMainMenuManager( JSContext* cx )
     : pJsCtx_( cx )
 {
 }
-
 
 JsMainMenuManager::~JsMainMenuManager()
 {
@@ -79,19 +78,16 @@ size_t JsMainMenuManager::GetInternalSize()
     return sizeof( mainmenu_manager );
 }
 
-std::optional<std::nullptr_t> 
-JsMainMenuManager::BuildMenu( JsMenuObject* menu, int32_t base_id, int32_t count )
+void JsMainMenuManager::BuildMenu( JsMenuObject* menu, int32_t base_id, int32_t count )
 {
     if ( menuManager_.is_empty() )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "Main menu manager is not initialized" );
-        return std::nullopt;
+        throw smp::SmpException( "Main menu manager is not initialized" );
     }
 
     if ( !menu )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "menu argument is null" );
-        return std::nullopt;
+        throw smp::SmpException( "menu argument is null" );
     }
 
     // HACK: workaround for foo_menu_addons
@@ -102,32 +98,26 @@ JsMainMenuManager::BuildMenu( JsMenuObject* menu, int32_t base_id, int32_t count
     catch ( ... )
     {
     }
-
-    return nullptr;
 }
 
-std::optional<bool> 
-JsMainMenuManager::ExecuteByID( uint32_t id )
+bool JsMainMenuManager::ExecuteByID( uint32_t id )
 {
     if ( menuManager_.is_empty() )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "Main menu manager is not initialized" );
-        return std::nullopt;
+        throw smp::SmpException( "Main menu manager is not initialized" );
     }
 
     return menuManager_->execute_command( id );
 }
 
-std::optional<std::nullptr_t> 
-JsMainMenuManager::Init( const pfc::string8_fast & root_name )
+void JsMainMenuManager::Init( const pfc::string8_fast& root_name )
 {
-    const auto preparedRootName = [&]()
-    {
+    const auto preparedRootName = [&]() {
         std::string tmp = root_name.c_str(); ///< Don't care about UTF8 here: we need exact match
         std::transform( tmp.begin(), tmp.end(), tmp.begin(), []( const unsigned char i ) { return static_cast<char>(::tolower( i ) ); } );
         return tmp;
     }();
-    
+
     struct RootElement
     {
         const char* name;
@@ -137,28 +127,25 @@ JsMainMenuManager::Init( const pfc::string8_fast & root_name )
     // In mainmenu_groups:
     // static const GUID file,view,edit,playback,library,help;
     const RootElement validRoots[] =
-    {
-        { "file", &mainmenu_groups::file },
-        { "view", &mainmenu_groups::view },
-        { "edit", &mainmenu_groups::edit },
-        { "playback", &mainmenu_groups::playback },
-        { "library", &mainmenu_groups::library },
-        { "help", &mainmenu_groups::help },
-    };
+        {
+            { "file", &mainmenu_groups::file },
+            { "view", &mainmenu_groups::view },
+            { "edit", &mainmenu_groups::edit },
+            { "playback", &mainmenu_groups::playback },
+            { "library", &mainmenu_groups::library },
+            { "help", &mainmenu_groups::help },
+        };
 
-    auto result = std::find_if( std::cbegin( validRoots ), std::cend( validRoots ), [&preparedRootName]( auto& root )
-    {
+    auto result = std::find_if( std::cbegin( validRoots ), std::cend( validRoots ), [&preparedRootName]( auto& root ) {
         return preparedRootName == root.name;
     } );
     if ( result == std::cend( validRoots ) )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "Invalid menu root name %s", root_name.c_str() );
-        return std::nullopt;
+        throw smp::SmpException( smp::string::Formatter() << "Invalid menu root name " << root_name.c_str() );
     }
 
     menuManager_ = standard_api_create_t<mainmenu_manager>();
-    menuManager_->instantiate( *(result->guid) );
-    return nullptr;
+    menuManager_->instantiate( *( result->guid ) );
 }
 
-}
+} // namespace mozjs

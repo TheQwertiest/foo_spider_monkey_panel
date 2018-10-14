@@ -33,22 +33,22 @@ public:
     static size_t GetInternalSize();
 
 public:
-    DropActionParams & GetDropActionParams();
+    DropActionParams& GetDropActionParams();
 
 public:
-    std::optional<uint32_t> get_Effect();
-    std::optional<std::nullptr_t> put_Base( uint32_t base );
-    std::optional<std::nullptr_t> put_Effect( uint32_t effect );
-    std::optional<std::nullptr_t> put_Playlist( int32_t id );
-    std::optional<std::nullptr_t> put_ToSelect( bool to_select );
+    uint32_t get_Effect();
+    void put_Base( uint32_t base );
+    void put_Effect( uint32_t effect );
+    void put_Playlist( int32_t id );
+    void put_ToSelect( bool to_select );
 
 private:
     JsDropSourceAction( JSContext* cx );
 
 private:
-    JSContext * pJsCtx_ = nullptr;
+    JSContext* pJsCtx_ = nullptr;
 
     DropActionParams actionParams_;
 };
 
-}
+} // namespace mozjs

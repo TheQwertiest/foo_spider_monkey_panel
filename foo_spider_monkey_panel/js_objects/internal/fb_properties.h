@@ -25,16 +25,16 @@ public:
 public:
     void RemoveHeapTracer();
 
-    std::optional<JS::Heap<JS::Value>> GetProperty( const std::wstring& propName, JS::HandleValue propDefaultValue );
-    bool SetProperty( const std::wstring& propName, JS::HandleValue propValue );
+    JS::Value GetProperty( const std::wstring& propName, JS::HandleValue propDefaultValue );
+    void SetProperty( const std::wstring& propName, JS::HandleValue propValue );
 
 private:
     FbProperties( JSContext* cx, js_panel_window& parentPanel );
 
-    static void TraceHeapValue( JSTracer *trc, void *data );
+    static void TraceHeapValue( JSTracer* trc, void* data );
 
 private:
-    JSContext * pJsCtx_ = nullptr;
+    JSContext* pJsCtx_ = nullptr;
     js_panel_window& parentPanel_;
 
     struct HeapElement
@@ -48,4 +48,4 @@ private:
     std::unordered_map<std::wstring, std::unique_ptr<HeapElement>> properties_;
 };
 
-}
+} // namespace mozjs

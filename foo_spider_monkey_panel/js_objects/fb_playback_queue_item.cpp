@@ -7,7 +7,6 @@
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
 
-
 namespace
 {
 
@@ -44,12 +43,11 @@ const JSPropertySpec jsProperties[] = {
     JS_PS_END
 };
 
-
 const JSFunctionSpec jsFunctions[] = {
     JS_FS_END
 };
 
-}
+} // namespace
 
 namespace mozjs
 {
@@ -65,12 +63,11 @@ JsFbPlaybackQueueItem::JsFbPlaybackQueueItem( JSContext* cx, const t_playback_qu
 {
 }
 
-
 JsFbPlaybackQueueItem::~JsFbPlaybackQueueItem()
 {
 }
 
-std::unique_ptr<JsFbPlaybackQueueItem> 
+std::unique_ptr<JsFbPlaybackQueueItem>
 JsFbPlaybackQueueItem::CreateNative( JSContext* cx, const t_playback_queue_item& playbackQueueItem )
 {
     return std::unique_ptr<JsFbPlaybackQueueItem>( new JsFbPlaybackQueueItem( cx, playbackQueueItem ) );
@@ -81,28 +78,25 @@ size_t JsFbPlaybackQueueItem::GetInternalSize( const t_playback_queue_item& /*pl
     return 0;
 }
 
-std::optional<JSObject*> 
-JsFbPlaybackQueueItem::get_Handle()
+JSObject* JsFbPlaybackQueueItem::get_Handle()
 {
     JS::RootedObject jsObject( pJsCtx_, JsFbMetadbHandle::CreateJs( pJsCtx_, playbackQueueItem_.m_handle ) );
     if ( !jsObject )
-    {// report in Create
-        return std::nullopt;
+    { // TODO: Remove
+        throw smp::JsException();
     }
 
     return jsObject;
 }
 
-std::optional<uint32_t> 
-JsFbPlaybackQueueItem::get_PlaylistIndex()
+uint32_t JsFbPlaybackQueueItem::get_PlaylistIndex()
 {
     return playbackQueueItem_.m_playlist;
 }
 
-std::optional<uint32_t> 
-JsFbPlaybackQueueItem::get_PlaylistItemIndex()
+uint32_t JsFbPlaybackQueueItem::get_PlaylistItemIndex()
 {
     return playbackQueueItem_.m_item;
 }
 
-}
+} // namespace mozjs

@@ -36,30 +36,30 @@ public:
 
 public:
     ~JsEnumerator() = default;
-    
+
     static std::unique_ptr<JsEnumerator> CreateNative( JSContext* cx, IUnknown* pUnknown );
     static size_t GetInternalSize( IUnknown* pUnknown );
 
-public: 
-    std::optional<bool> AtEnd();
-    std::optional<JS::Value> Item();
-    std::optional<std::nullptr_t> MoveFirst();
-    std::optional<std::nullptr_t> MoveNext();
+public:
+    bool AtEnd();
+    JS::Value Item();
+    void MoveFirst();
+    void MoveNext();
 
 private:
     // alias for IEnumVARIANTPtr: don't want to drag extra com headers
-    using EnumVARIANTComPtr = _com_ptr_t<_com_IIID<IEnumVARIANT, &__uuidof(IEnumVARIANT)> >;
+    using EnumVARIANTComPtr = _com_ptr_t<_com_IIID<IEnumVARIANT, &__uuidof( IEnumVARIANT )>>;
 
     JsEnumerator( JSContext* cx, EnumVARIANTComPtr pEnum, bool hasElements );
 
-    bool GetCurrentElement();
+    void GetCurrentElement();
 
 private:
-    JSContext * pJsCtx_ = nullptr;
+    JSContext* pJsCtx_ = nullptr;
     EnumVARIANTComPtr pEnum_ = nullptr;
     _variant_t curElem_;
     bool hasElements_ = false;
-    bool isAtEnd_ = false;   
+    bool isAtEnd_ = false;
 };
 
-}
+} // namespace mozjs

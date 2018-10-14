@@ -14,7 +14,6 @@
 
 #include <helpers.h>
 
-
 namespace
 {
 
@@ -57,8 +56,7 @@ const JSPropertySpec jsProperties[] = {
     JS_PS_END
 };
 
-
-}
+} // namespace
 
 namespace mozjs
 {
@@ -87,31 +85,28 @@ size_t JsGdiUtils::GetInternalSize()
     return 0;
 }
 
-std::optional<JSObject*>
-JsGdiUtils::CreateImage( uint32_t w, uint32_t h )
+JSObject* JsGdiUtils::CreateImage( uint32_t w, uint32_t h )
 {
     std::unique_ptr<Gdiplus::Bitmap> img( new Gdiplus::Bitmap( w, h, PixelFormat32bppPARGB ) );
     if ( !gdi::IsGdiPlusObjectValid( img.get() ) )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "Bitmap creation failed" );
-        return std::nullopt;
+        throw smp::SmpException( "Bitmap creation failed" );
     }
 
-    JS::RootedObject jsObject( pJsCtx_, JsGdiBitmap::CreateJs( pJsCtx_, std::move(img) ) );
+    JS::RootedObject jsObject( pJsCtx_, JsGdiBitmap::CreateJs( pJsCtx_, std::move( img ) ) );
     if ( !jsObject )
-    {// report in Create
-        return std::nullopt;
+    { // TODO: remove
+        throw smp::JsException();
     }
 
     return jsObject;
 }
 
-std::optional<JSObject*>
-JsGdiUtils::Font( const std::wstring& fontName, float pxSize, uint32_t style )
+JSObject* JsGdiUtils::Font( const std::wstring& fontName, float pxSize, uint32_t style )
 {
     std::unique_ptr<Gdiplus::Font> pGdiFont( new Gdiplus::Font( fontName.c_str(), pxSize, style, Gdiplus::UnitPixel ) );
     if ( !gdi::IsGdiPlusObjectValid( pGdiFont.get() ) )
-    {// Not an error: font not found
+    { // Not an error: font not found
         return nullptr;
     }
 
@@ -132,67 +127,59 @@ JsGdiUtils::Font( const std::wstring& fontName, float pxSize, uint32_t style )
         DEFAULT_QUALITY,
         DEFAULT_PITCH | FF_DONTCARE,
         fontName.c_str() );
-    IF_WINAPI_FAILED_RETURN_WITH_REPORT( pJsCtx_, !!hFont, std::nullopt, CreateFont );
-    scope::final_action autoFont( [hFont]()
-    {
+    IF_WINAPI_FAILED_THROW_SMP( !!hFont, "CreateFont" );
+    scope::final_action autoFont( [hFont]() {
         DeleteObject( hFont );
     } );
 
-    JS::RootedObject jsObject( pJsCtx_, JsGdiFont::CreateJs( pJsCtx_, std::move(pGdiFont), hFont, true ) );
+    JS::RootedObject jsObject( pJsCtx_, JsGdiFont::CreateJs( pJsCtx_, std::move( pGdiFont ), hFont, true ) );
     if ( !jsObject )
-    {// report in Create
-        return std::nullopt;
+    { // TODO: remove
+        throw smp::JsException();
     }
 
     autoFont.cancel();
     return jsObject;
 }
 
-std::optional<JSObject*>
-JsGdiUtils::FontWithOpt( size_t optArgCount, const std::wstring& fontName, float pxSize, uint32_t style )
+JSObject* JsGdiUtils::FontWithOpt( size_t optArgCount, const std::wstring& fontName, float pxSize, uint32_t style )
 {
-    if ( optArgCount > 1 )
+    switch ( optArgCount )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
-        return std::nullopt;
-    }
-
-    if ( optArgCount == 1 )
-    {
+    case 0:
+        return Font( fontName, pxSize, style );
+    case 1:
         return Font( fontName, pxSize );
+    default:
+        throw smp::SmpException( smp::string::Formatter() << "Internal error: invalid number of optional arguments specified: " << optArgCount );
     }
-
-    return Font( fontName, pxSize, style );
 }
 
-std::optional<JSObject*> 
-JsGdiUtils::Image( const std::wstring& path )
+JSObject* JsGdiUtils::Image( const std::wstring& path )
 {
-    std::unique_ptr<Gdiplus::Bitmap> img = image::LoadImage(path);
+    std::unique_ptr<Gdiplus::Bitmap> img = image::LoadImage( path );
     if ( !img )
     {
         return nullptr;
     }
 
-    JS::RootedObject jsObject( pJsCtx_, JsGdiBitmap::CreateJs( pJsCtx_, std::move(img) ) );
+    JS::RootedObject jsObject( pJsCtx_, JsGdiBitmap::CreateJs( pJsCtx_, std::move( img ) ) );
     if ( !jsObject )
-    {// report in Create
-        return std::nullopt;
+    { // TODO: remove
+        throw smp::JsException();
     }
 
     return jsObject;
 }
 
-std::optional<std::uint32_t> 
-JsGdiUtils::LoadImageAsync( uint32_t hWnd, const std::wstring& path )
+std::uint32_t JsGdiUtils::LoadImageAsync( uint32_t hWnd, const std::wstring& path )
 {
     if ( !hWnd )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "Invalid hWnd argument" );
-        return std::nullopt;
+        throw smp::SmpException( "Invalid hWnd argument" );
     }
     // Such cast will work only on x86
     return image::LoadImageAsync( (HWND)hWnd, path );
 }
 
-}
+} // namespace mozjs

@@ -41,17 +41,17 @@ public:
     titleformat_object::ptr GetTitleFormat();
 
 public:
-    std::optional<pfc::string8_fast> Eval( bool force = false );
-    std::optional<pfc::string8_fast> EvalWithOpt( size_t optArgCount, bool force );
-    std::optional<pfc::string8_fast> EvalWithMetadb( JsFbMetadbHandle* handle );
-    std::optional<JSObject*> EvalWithMetadbs( JsFbMetadbHandleList* handles );
+    pfc::string8_fast Eval( bool force = false );
+    pfc::string8_fast EvalWithOpt( size_t optArgCount, bool force );
+    pfc::string8_fast EvalWithMetadb( JsFbMetadbHandle* handle );
+    JSObject* EvalWithMetadbs( JsFbMetadbHandleList* handles );
 
 private:
-    JsFbTitleFormat( JSContext* cx, const pfc::string8_fast& expr );    
+    JsFbTitleFormat( JSContext* cx, const pfc::string8_fast& expr );
 
 private:
-    JSContext * pJsCtx_ = nullptr;
+    JSContext* pJsCtx_ = nullptr;
     titleformat_object::ptr titleFormatObject_;
 };
 
-}
+} // namespace mozjs

@@ -35,19 +35,19 @@ public:
 
 public:
     // TODO: add a new argument to print (custom message) and update doc
-    std::optional<std::nullptr_t> Print();
-    std::optional<std::nullptr_t> Reset();
+    void Print();
+    void Reset();
 
 public:
-    std::optional<uint32_t> get_Time();
+    uint32_t get_Time();
 
 private:
     JsFbProfiler( JSContext* cx, const pfc::string8_fast& name );
 
 private:
-    JSContext * pJsCtx_ = nullptr;
+    JSContext* pJsCtx_ = nullptr;
     pfc::string_simple name_;
     pfc::hires_timer timer_;
 };
 
-}
+} // namespace mozjs

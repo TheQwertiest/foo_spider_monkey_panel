@@ -15,7 +15,6 @@
 
 #include <helpers.h>
 
-
 namespace
 {
 
@@ -94,7 +93,7 @@ const JSPropertySpec jsProperties[] = {
     JS_PS_END
 };
 
-}
+} // namespace
 
 namespace mozjs
 {
@@ -109,7 +108,6 @@ JsGdiGraphics::JsGdiGraphics( JSContext* cx )
     , pGdi_( nullptr )
 {
 }
-
 
 JsGdiGraphics::~JsGdiGraphics()
 {
@@ -136,19 +134,16 @@ void JsGdiGraphics::SetGraphicsObject( Gdiplus::Graphics* graphics )
     pGdi_ = graphics;
 }
 
-std::optional<uint32_t>
-JsGdiGraphics::CalcTextHeight( const std::wstring& str, JsGdiFont* font )
+uint32_t JsGdiGraphics::CalcTextHeight( const std::wstring& str, JsGdiFont* font )
 {
     if ( !pGdi_ )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "Internal error: Gdiplus::Graphics object is null" );
-        return std::nullopt;
+        throw smp::SmpException( "Internal error: Gdiplus::Graphics object is null" );
     }
 
     if ( !font )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "font argument is null" );
-        return std::nullopt;
+        throw smp::SmpException( "font argument is null" );
     }
 
     HFONT hFont = font->GetHFont();
@@ -163,19 +158,16 @@ JsGdiGraphics::CalcTextHeight( const std::wstring& str, JsGdiFont* font )
     return textH;
 }
 
-std::optional<uint32_t>
-JsGdiGraphics::CalcTextWidth( const std::wstring& str, JsGdiFont* font )
+uint32_t JsGdiGraphics::CalcTextWidth( const std::wstring& str, JsGdiFont* font )
 {
     if ( !pGdi_ )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "Internal error: Gdiplus::Graphics object is null" );
-        return std::nullopt;
+        throw smp::SmpException( "Internal error: Gdiplus::Graphics object is null" );
     }
 
     if ( !font )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "font argument is null" );
-        return std::nullopt;
+        throw smp::SmpException( "font argument is null" );
     }
 
     HFONT hFont = font->GetHFont();
@@ -191,38 +183,31 @@ JsGdiGraphics::CalcTextWidth( const std::wstring& str, JsGdiFont* font )
     return textW;
 }
 
-std::optional<std::nullptr_t>
-JsGdiGraphics::DrawEllipse( float x, float y, float w, float h, float line_width, uint32_t colour )
+void JsGdiGraphics::DrawEllipse( float x, float y, float w, float h, float line_width, uint32_t colour )
 {
     if ( !pGdi_ )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "Internal error: Gdiplus::Graphics object is null" );
-        return std::nullopt;
+        throw smp::SmpException( "Internal error: Gdiplus::Graphics object is null" );
     }
 
     Gdiplus::Pen pen( colour, line_width );
     Gdiplus::Status gdiRet = pGdi_->DrawEllipse( &pen, x, y, w, h );
-    IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, std::nullopt, DrawEllipse );
-
-    return nullptr;
+    IF_GDI_FAILED_THROW_SMP( gdiRet, "DrawEllipse" );
 }
 
-std::optional<std::nullptr_t>
-JsGdiGraphics::DrawImage( JsGdiBitmap* image,
-                          float dstX, float dstY, float dstW, float dstH,
-                          float srcX, float srcY, float srcW, float srcH,
-                          float angle, uint8_t alpha )
+void JsGdiGraphics::DrawImage( JsGdiBitmap* image,
+                               float dstX, float dstY, float dstW, float dstH,
+                               float srcX, float srcY, float srcW, float srcH,
+                               float angle, uint8_t alpha )
 {
     if ( !pGdi_ )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "Internal error: Gdiplus::Graphics object is null" );
-        return std::nullopt;
+        throw smp::SmpException( "Internal error: Gdiplus::Graphics object is null" );
     }
 
     if ( !image )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "image argument is null" );
-        return std::nullopt;
+        throw smp::SmpException( "image argument is null" );
     }
 
     Gdiplus::Bitmap* img = image->GdiBitmap();
@@ -240,13 +225,13 @@ JsGdiGraphics::DrawImage( JsGdiBitmap* image,
         pt.Y = dstY + dstH / 2;
 
         gdiRet = m.RotateAt( angle, pt );
-        IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, std::nullopt, RotateAt );
+        IF_GDI_FAILED_THROW_SMP( gdiRet, "RotateAt" );
 
         gdiRet = pGdi_->GetTransform( &oldMatrix );
-        IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, std::nullopt, GetTransform );
+        IF_GDI_FAILED_THROW_SMP( gdiRet, "GetTransform" );
 
         gdiRet = pGdi_->SetTransform( &m );
-        IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, std::nullopt, SetTransform );
+        IF_GDI_FAILED_THROW_SMP( gdiRet, "SetTransform" );
     }
 
     if ( alpha < 255 )
@@ -255,162 +240,127 @@ JsGdiGraphics::DrawImage( JsGdiBitmap* image,
         Gdiplus::ColorMatrix cm = { 0.0f };
 
         cm.m[0][0] = cm.m[1][1] = cm.m[2][2] = cm.m[4][4] = 1.0f;
-        cm.m[3][3] = static_cast<float>(alpha) / 255;
+        cm.m[3][3] = static_cast<float>( alpha ) / 255;
 
         gdiRet = ia.SetColorMatrix( &cm );
-        IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, std::nullopt, SetColorMatrix );
+        IF_GDI_FAILED_THROW_SMP( gdiRet, "SetColorMatrix" );
 
         gdiRet = pGdi_->DrawImage( img, Gdiplus::RectF( dstX, dstY, dstW, dstH ), srcX, srcY, srcW, srcH, Gdiplus::UnitPixel, &ia );
-        IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, std::nullopt, DrawImage );
+        IF_GDI_FAILED_THROW_SMP( gdiRet, "DrawImage" );
     }
     else
     {
         gdiRet = pGdi_->DrawImage( img, Gdiplus::RectF( dstX, dstY, dstW, dstH ), srcX, srcY, srcW, srcH, Gdiplus::UnitPixel );
-        IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, std::nullopt, DrawImage );
+        IF_GDI_FAILED_THROW_SMP( gdiRet, "DrawImage" );
     }
 
     if ( angle != 0.0 )
     {
         gdiRet = pGdi_->SetTransform( &oldMatrix );
-        IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, std::nullopt, SetTransform );
+        IF_GDI_FAILED_THROW_SMP( gdiRet, "SetTransform" );
     }
-
-    return nullptr;
 }
 
-std::optional<std::nullptr_t> 
-JsGdiGraphics::DrawImageWithOpt( size_t optArgCount, JsGdiBitmap* image, 
-                                 float dstX, float dstY, float dstW, float dstH, 
-                                 float srcX, float srcY, float srcW, float srcH, float angle,
-                                 uint8_t alpha )
+void JsGdiGraphics::DrawImageWithOpt( size_t optArgCount, JsGdiBitmap* image,
+                                      float dstX, float dstY, float dstW, float dstH,
+                                      float srcX, float srcY, float srcW, float srcH, float angle,
+                                      uint8_t alpha )
 {
-    if ( optArgCount > 2 )
+    switch ( optArgCount )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
-        return std::nullopt;
-    }
-
-    if ( optArgCount == 2 )
-    {
-        return DrawImage( image, dstX, dstY, dstW, dstH, srcX, srcY, srcW, srcH );
-    }
-    else if ( optArgCount == 1 )
-    {
+    case 0:
+        return DrawImage( image, dstX, dstY, dstW, dstH, srcX, srcY, srcW, srcH, angle, alpha );
+    case 1:
         return DrawImage( image, dstX, dstY, dstW, dstH, srcX, srcY, srcW, srcH, angle );
+    case 2:
+        return DrawImage( image, dstX, dstY, dstW, dstH, srcX, srcY, srcW, srcH );
+    default:
+        throw smp::SmpException( smp::string::Formatter() << "Internal error: invalid number of optional arguments specified: " << optArgCount );
     }
-
-    return DrawImage( image, dstX, dstY, dstW, dstH, srcX, srcY, srcW, srcH, angle, alpha );
 }
 
-std::optional<std::nullptr_t>
-JsGdiGraphics::DrawLine( float x1, float y1, float x2, float y2, float line_width, uint32_t colour )
+void JsGdiGraphics::DrawLine( float x1, float y1, float x2, float y2, float line_width, uint32_t colour )
 {
     if ( !pGdi_ )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "Internal error: Gdiplus::Graphics object is null" );
-        return std::nullopt;
+        throw smp::SmpException( "Internal error: Gdiplus::Graphics object is null" );
     }
 
     Gdiplus::Pen pen( colour, line_width );
     Gdiplus::Status gdiRet = pGdi_->DrawLine( &pen, x1, y1, x2, y2 );
-    IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, std::nullopt, DrawLine );
-
-    return nullptr;
+    IF_GDI_FAILED_THROW_SMP( gdiRet, "DrawLine" );
 }
 
-std::optional<std::nullptr_t>
-JsGdiGraphics::DrawPolygon( uint32_t colour, float line_width, JS::HandleValue points )
+void JsGdiGraphics::DrawPolygon( uint32_t colour, float line_width, JS::HandleValue points )
 {
     if ( !pGdi_ )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "Internal error: Gdiplus::Graphics object is null" );
-        return std::nullopt;
+        throw smp::SmpException( "Internal error: Gdiplus::Graphics object is null" );
     }
 
     std::vector<Gdiplus::PointF> gdiPoints;
-    if ( !ParsePoints( points, gdiPoints ) )
-    {// Report in ParsePoints
-        return std::nullopt;
-    }
+    ParsePoints( points, gdiPoints );
 
     Gdiplus::Pen pen( colour, line_width );
     Gdiplus::Status gdiRet = pGdi_->DrawPolygon( &pen, gdiPoints.data(), gdiPoints.size() );
-    IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, std::nullopt, DrawPolygon );
-
-    return nullptr;
+    IF_GDI_FAILED_THROW_SMP( gdiRet, "DrawPolygon" );
 }
 
-std::optional<std::nullptr_t>
-JsGdiGraphics::DrawRect( float x, float y, float w, float h, float line_width, uint32_t colour )
+void JsGdiGraphics::DrawRect( float x, float y, float w, float h, float line_width, uint32_t colour )
 {
     if ( !pGdi_ )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "Internal error: Gdiplus::Graphics object is null" );
-        return std::nullopt;
+        throw smp::SmpException( "Internal error: Gdiplus::Graphics object is null" );
     }
 
     Gdiplus::Pen pen( colour, line_width );
     Gdiplus::Status gdiRet = pGdi_->DrawRectangle( &pen, x, y, w, h );
-    IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, std::nullopt, DrawRectangle );
-
-    return nullptr;
+    IF_GDI_FAILED_THROW_SMP( gdiRet, "DrawRectangle" );
 }
 
-std::optional<std::nullptr_t>
-JsGdiGraphics::DrawRoundRect( float x, float y, float w, float h, float arc_width, float arc_height, float line_width, uint32_t colour )
+void JsGdiGraphics::DrawRoundRect( float x, float y, float w, float h, float arc_width, float arc_height, float line_width, uint32_t colour )
 {
     if ( !pGdi_ )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "Internal error: Gdiplus::Graphics object is null" );
-        return std::nullopt;
+        throw smp::SmpException( "Internal error: Gdiplus::Graphics object is null" );
     }
 
     if ( 2 * arc_width > w || 2 * arc_height > h )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "Arc argument has invalid value" );
-        return std::nullopt;
+        throw smp::SmpException( "Arc argument has invalid value" );
     }
 
     Gdiplus::Pen pen( colour, line_width );
     Gdiplus::GraphicsPath gp;
     Gdiplus::RectF rect( x, y, w, h );
-    if ( !GetRoundRectPath( gp, rect, arc_width, arc_height ) )
-    {// reports
-        return std::nullopt;
-    }
+    GetRoundRectPath( gp, rect, arc_width, arc_height );
 
     Gdiplus::Status gdiRet = pen.SetStartCap( Gdiplus::LineCapRound );
-    IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, std::nullopt, SetStartCap );
+    IF_GDI_FAILED_THROW_SMP( gdiRet, "SetStartCap" );
 
     gdiRet = pen.SetEndCap( Gdiplus::LineCapRound );
-    IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, std::nullopt, SetEndCap );
+    IF_GDI_FAILED_THROW_SMP( gdiRet, "SetEndCap" );
 
     gdiRet = pGdi_->DrawPath( &pen, &gp );
-    IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, std::nullopt, DrawPath );
-
-    return nullptr;
+    IF_GDI_FAILED_THROW_SMP( gdiRet, "DrawPath" );
 }
 
-std::optional<std::nullptr_t>
-JsGdiGraphics::DrawString( const std::wstring& str, JsGdiFont* font, uint32_t colour, float x, float y, float w, float h, uint32_t flags )
+void JsGdiGraphics::DrawString( const std::wstring& str, JsGdiFont* font, uint32_t colour, float x, float y, float w, float h, uint32_t flags )
 {
     if ( !pGdi_ )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "Internal error: Gdiplus::Graphics object is null" );
-        return std::nullopt;
+        throw smp::SmpException( "Internal error: Gdiplus::Graphics object is null" );
     }
 
     if ( !font )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "font argument is null" );
-        return std::nullopt;
+        throw smp::SmpException( "font argument is null" );
     }
-    
+
     Gdiplus::Font* pGdiFont = font->GdiFont();
     if ( !pGdiFont )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "Internal error: GdiFont is null" );
-        return std::nullopt;
+        throw smp::SmpException( "Internal error: GdiFont is null" );
     }
 
     Gdiplus::SolidBrush br( colour );
@@ -418,59 +368,50 @@ JsGdiGraphics::DrawString( const std::wstring& str, JsGdiFont* font, uint32_t co
 
     if ( flags != 0 )
     {
-        Gdiplus::Status gdiRet = fmt.SetAlignment( (Gdiplus::StringAlignment)((flags >> 28) & 0x3) ); //0xf0000000
-        IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, std::nullopt, SetAlignment );
+        Gdiplus::Status gdiRet = fmt.SetAlignment( ( Gdiplus::StringAlignment )( ( flags >> 28 ) & 0x3 ) ); //0xf0000000
+        IF_GDI_FAILED_THROW_SMP( gdiRet, "SetAlignment" );
 
-        gdiRet = fmt.SetLineAlignment( (Gdiplus::StringAlignment)((flags >> 24) & 0x3) ); //0x0f000000
-        IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, std::nullopt, SetLineAlignment );
+        gdiRet = fmt.SetLineAlignment( ( Gdiplus::StringAlignment )( ( flags >> 24 ) & 0x3 ) ); //0x0f000000
+        IF_GDI_FAILED_THROW_SMP( gdiRet, "SetLineAlignment" );
 
-        gdiRet = fmt.SetTrimming( (Gdiplus::StringTrimming)((flags >> 20) & 0x7) ); //0x00f00000
-        IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, std::nullopt, SetTrimming );
+        gdiRet = fmt.SetTrimming( ( Gdiplus::StringTrimming )( ( flags >> 20 ) & 0x7 ) ); //0x00f00000
+        IF_GDI_FAILED_THROW_SMP( gdiRet, "SetTrimming" );
 
-        gdiRet = fmt.SetFormatFlags( (Gdiplus::StringFormatFlags)(flags & 0x7FFF) ); //0x0000ffff
-        IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, std::nullopt, SetFormatFlags );
+        gdiRet = fmt.SetFormatFlags( ( Gdiplus::StringFormatFlags )( flags & 0x7FFF ) ); //0x0000ffff
+        IF_GDI_FAILED_THROW_SMP( gdiRet, "SetFormatFlags" );
     }
 
     Gdiplus::Status gdiRet = pGdi_->DrawString( str.c_str(), -1, pGdiFont, Gdiplus::RectF( x, y, w, h ), &fmt, &br );
-    IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, std::nullopt, DrawString );
-
-    return nullptr;
+    IF_GDI_FAILED_THROW_SMP( gdiRet, "DrawString" );
 }
 
-std::optional<std::nullptr_t>
-JsGdiGraphics::DrawStringWithOpt( size_t optArgCount, const std::wstring& str, JsGdiFont* font, uint32_t colour, 
-                                  float x, float y, float w, float h, 
-                                  uint32_t flags )
+void JsGdiGraphics::DrawStringWithOpt( size_t optArgCount, const std::wstring& str, JsGdiFont* font, uint32_t colour,
+                                       float x, float y, float w, float h,
+                                       uint32_t flags )
 {
-    if ( optArgCount > 1 )
+    switch ( optArgCount )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
-        return std::nullopt;
-    }
-
-    if ( optArgCount == 1 )
-    {
+    case 0:
+        return DrawString( str, font, colour, x, y, w, h, flags );
+    case 1:
         return DrawString( str, font, colour, x, y, w, h );
+    default:
+        throw smp::SmpException( smp::string::Formatter() << "Internal error: invalid number of optional arguments specified: " << optArgCount );
     }
-
-    return DrawString( str, font, colour, x, y, w, h, flags );
 }
 
-std::optional<JSObject*> 
-JsGdiGraphics::EstimateLineWrap( const std::wstring& str, JsGdiFont* font, uint32_t max_width )
+JSObject* JsGdiGraphics::EstimateLineWrap( const std::wstring& str, JsGdiFont* font, uint32_t max_width )
 {
     if ( !pGdi_ )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "Internal error: Gdiplus::Graphics object is null" );
-        return std::nullopt;
+        throw smp::SmpException( "Internal error: Gdiplus::Graphics object is null" );
     }
 
     if ( !font )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "font argument is null" );
-        return std::nullopt;
+        throw smp::SmpException( "font argument is null" );
     }
-    
+
     std::list<helpers::wrapped_item> result;
     {
         HFONT hFont = font->GetHFont();
@@ -487,234 +428,188 @@ JsGdiGraphics::EstimateLineWrap( const std::wstring& str, JsGdiFont* font, uint3
 
     JS::RootedObject jsArray( pJsCtx_, JS_NewArrayObject( pJsCtx_, result.size() * 2 ) );
     if ( !jsArray )
-    {// reports
-        return std::nullopt;
+    {
+        throw smp::JsException();
     }
 
     JS::RootedValue jsValue( pJsCtx_ );
     size_t i = 0;
-    for ( auto&[text, width] : result )
+    for ( auto& [text, width] : result )
     {
         std::wstring tmpString( (const wchar_t*)text );
         if ( !convert::to_js::ToValue( pJsCtx_, tmpString, &jsValue ) )
         {
-            JS_ReportErrorUTF8( pJsCtx_, "Internal error: cast to JSString failed" );
-            return std::nullopt;
+            throw smp::SmpException( "Internal error: cast to JSString failed" );
         }
 
         if ( !JS_SetElement( pJsCtx_, jsArray, i++, jsValue ) )
-        {// report in JS_SetElement
-            return std::nullopt;
+        {
+            throw smp::JsException();
         }
 
         jsValue.setNumber( (uint32_t)width );
         if ( !JS_SetElement( pJsCtx_, jsArray, i++, jsValue ) )
-        {// report in JS_SetElement
-            return std::nullopt;
+        {
+            throw smp::JsException();
         }
     }
 
     return jsArray;
 }
 
-std::optional<std::nullptr_t>
-JsGdiGraphics::FillEllipse( float x, float y, float w, float h, uint32_t colour )
+void JsGdiGraphics::FillEllipse( float x, float y, float w, float h, uint32_t colour )
 {
     if ( !pGdi_ )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "Internal error: Gdiplus::Graphics object is null" );
-        return std::nullopt;
+        throw smp::SmpException( "Internal error: Gdiplus::Graphics object is null" );
     }
 
     Gdiplus::SolidBrush br( colour );
     Gdiplus::Status gdiRet = pGdi_->FillEllipse( &br, x, y, w, h );
-    IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, std::nullopt, FillEllipse );
-
-    return nullptr;
+    IF_GDI_FAILED_THROW_SMP( gdiRet, "FillEllipse" );
 }
 
-std::optional<std::nullptr_t>
-JsGdiGraphics::FillGradRect( float x, float y, float w, float h, float angle, uint32_t colour1, uint32_t colour2, float focus )
+void JsGdiGraphics::FillGradRect( float x, float y, float w, float h, float angle, uint32_t colour1, uint32_t colour2, float focus )
 {
     if ( !pGdi_ )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "Internal error: Gdiplus::Graphics object is null" );
-        return std::nullopt;
+        throw smp::SmpException( "Internal error: Gdiplus::Graphics object is null" );
     }
 
     Gdiplus::RectF rect( x, y, w, h );
     Gdiplus::LinearGradientBrush brush( rect, colour1, colour2, angle, TRUE );
     Gdiplus::Status gdiRet = brush.SetBlendTriangularShape( focus );
-    IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, std::nullopt, SetBlendTriangularShape );
+    IF_GDI_FAILED_THROW_SMP( gdiRet, "SetBlendTriangularShape" );
 
     gdiRet = pGdi_->FillRectangle( &brush, rect );
-    IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, std::nullopt, FillRectangle );
-
-    return nullptr;
+    IF_GDI_FAILED_THROW_SMP( gdiRet, "FillRectangle" );
 }
 
-std::optional<std::nullptr_t> 
-JsGdiGraphics::FillGradRectWithOpt( size_t optArgCount, float x, float y, float w, float h, float angle, uint32_t colour1, uint32_t colour2, float focus )
+void JsGdiGraphics::FillGradRectWithOpt( size_t optArgCount, float x, float y, float w, float h, float angle, uint32_t colour1, uint32_t colour2, float focus )
 {
-    if ( optArgCount > 1 )
+    switch ( optArgCount )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
-        return std::nullopt;
+    case 0:
+        return FillGradRect( x, y, w, h, angle, colour1, colour2, focus );
+    case 1:
+        return FillGradRect( x, y, w, h, angle, colour1, colour2 );
+    default:
+        throw smp::SmpException( smp::string::Formatter() << "Internal error: invalid number of optional arguments specified: " << optArgCount );
     }
-
-    if ( optArgCount == 1 )
-    {
-        return FillGradRect(x, y, w, h, angle, colour1, colour2);
-    }
-
-    return FillGradRect( x, y, w, h, angle, colour1, colour2, focus );
 }
 
-std::optional<std::nullptr_t>
-JsGdiGraphics::FillPolygon( uint32_t colour, uint32_t fillmode, JS::HandleValue points )
+void JsGdiGraphics::FillPolygon( uint32_t colour, uint32_t fillmode, JS::HandleValue points )
 {
     if ( !pGdi_ )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "Internal error: Gdiplus::Graphics object is null" );
-        return std::nullopt;
+        throw smp::SmpException( "Internal error: Gdiplus::Graphics object is null" );
     }
 
     std::vector<Gdiplus::PointF> gdiPoints;
-    if ( !ParsePoints( points, gdiPoints ) )
-    {// Report in ParsePoints
-        return std::nullopt;
-    }
+    ParsePoints( points, gdiPoints );
 
     Gdiplus::SolidBrush br( colour );
     Gdiplus::Status gdiRet = pGdi_->FillPolygon( &br, gdiPoints.data(), gdiPoints.size(), (Gdiplus::FillMode)fillmode );
-    IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, std::nullopt, FillPolygon );
-
-    return nullptr;
+    IF_GDI_FAILED_THROW_SMP( gdiRet, "FillPolygon" );
 }
 
-std::optional<std::nullptr_t>
-JsGdiGraphics::FillRoundRect( float x, float y, float w, float h, float arc_width, float arc_height, uint32_t colour )
+void JsGdiGraphics::FillRoundRect( float x, float y, float w, float h, float arc_width, float arc_height, uint32_t colour )
 {
     if ( !pGdi_ )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "Internal error: Gdiplus::Graphics object is null" );
-        return std::nullopt;
+        throw smp::SmpException( "Internal error: Gdiplus::Graphics object is null" );
     }
 
     if ( 2 * arc_width > w || 2 * arc_height > h )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "Arc argument has invalid value" );
-        return std::nullopt;
+        throw smp::SmpException( "Arc argument has invalid value" );
     }
 
     Gdiplus::SolidBrush br( colour );
     Gdiplus::GraphicsPath gp;
     Gdiplus::RectF rect( x, y, w, h );
-    if ( !GetRoundRectPath( gp, rect, arc_width, arc_height ) )
-    {// reports
-        return std::nullopt;
-    }
+    GetRoundRectPath( gp, rect, arc_width, arc_height );
 
     Gdiplus::Status gdiRet = pGdi_->FillPath( &br, &gp );
-    IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, std::nullopt, FillPath );
-
-    return nullptr;
+    IF_GDI_FAILED_THROW_SMP( gdiRet, "FillPath" );
 }
 
-std::optional<std::nullptr_t>
-JsGdiGraphics::FillSolidRect( float x, float y, float w, float h, uint32_t colour )
+void JsGdiGraphics::FillSolidRect( float x, float y, float w, float h, uint32_t colour )
 {
     if ( !pGdi_ )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "Internal error: Gdiplus::Graphics object is null" );
-        return std::nullopt;
+        throw smp::SmpException( "Internal error: Gdiplus::Graphics object is null" );
     }
 
     Gdiplus::SolidBrush brush( colour );
     Gdiplus::Status gdiRet = pGdi_->FillRectangle( &brush, x, y, w, h );
-    IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, std::nullopt, FillRectangle );
-
-    return nullptr;
+    IF_GDI_FAILED_THROW_SMP( gdiRet, "FillRectangle" );
 }
 
-std::optional<std::nullptr_t>
-JsGdiGraphics::GdiAlphaBlend( JsGdiRawBitmap* bitmap,
-                              int32_t dstX, int32_t dstY, uint32_t dstW, uint32_t dstH,
-                              int32_t srcX, int32_t srcY, uint32_t srcW, uint32_t srcH,
-                              uint8_t alpha )
+void JsGdiGraphics::GdiAlphaBlend( JsGdiRawBitmap* bitmap,
+                                   int32_t dstX, int32_t dstY, uint32_t dstW, uint32_t dstH,
+                                   int32_t srcX, int32_t srcY, uint32_t srcW, uint32_t srcH,
+                                   uint8_t alpha )
 {
     if ( !pGdi_ )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "Internal error: Gdiplus::Graphics object is null" );
-        return std::nullopt;
+        throw smp::SmpException( "Internal error: Gdiplus::Graphics object is null" );
     }
 
     if ( !bitmap )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "bitmap argument is null" );
-        return std::nullopt;
+        throw smp::SmpException( "bitmap argument is null" );
     }
 
     HDC srcDc = bitmap->GetHDC();
     assert( srcDc );
 
     HDC dc = pGdi_->GetHDC();
-    scope::final_action autoHdcReleaser( [pGdi = pGdi_, dc]()
-    {
+    scope::final_action autoHdcReleaser( [pGdi = pGdi_, dc]() {
         pGdi->ReleaseHDC( dc );
     } );
 
     BLENDFUNCTION bf = { AC_SRC_OVER, 0, alpha, AC_SRC_ALPHA };
 
     BOOL bRet = ::GdiAlphaBlend( dc, dstX, dstY, dstW, dstH, srcDc, srcX, srcY, srcW, srcH, bf );
-    IF_WINAPI_FAILED_RETURN_WITH_REPORT( pJsCtx_, bRet, std::nullopt, GdiAlphaBlend );
-
-    return nullptr;
+    IF_WINAPI_FAILED_THROW_SMP( bRet, "GdiAlphaBlend" );
 }
 
-std::optional<std::nullptr_t> 
-JsGdiGraphics::GdiAlphaBlendWithOpt( size_t optArgCount, JsGdiRawBitmap* bitmap, 
-                                     int32_t dstX, int32_t dstY, uint32_t dstW, uint32_t dstH, 
-                                     int32_t srcX, int32_t srcY, uint32_t srcW, uint32_t srcH, 
-                                     uint8_t alpha )
+void JsGdiGraphics::GdiAlphaBlendWithOpt( size_t optArgCount, JsGdiRawBitmap* bitmap,
+                                          int32_t dstX, int32_t dstY, uint32_t dstW, uint32_t dstH,
+                                          int32_t srcX, int32_t srcY, uint32_t srcW, uint32_t srcH,
+                                          uint8_t alpha )
 {
-    if ( optArgCount > 1 )
+    switch ( optArgCount )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
-        return std::nullopt;
-    }
-
-    if ( optArgCount == 1 )
-    {
+    case 0:
+        return GdiAlphaBlend( bitmap, dstX, dstY, dstW, dstH, srcX, srcY, srcW, srcH, alpha );
+    case 1:
         return GdiAlphaBlend( bitmap, dstX, dstY, dstW, dstH, srcX, srcY, srcW, srcH );
+    default:
+        throw smp::SmpException( smp::string::Formatter() << "Internal error: invalid number of optional arguments specified: " << optArgCount );
     }
-
-    return GdiAlphaBlend( bitmap, dstX, dstY, dstW, dstH, srcX, srcY, srcW, srcH, alpha );
 }
 
-std::optional<std::nullptr_t>
-JsGdiGraphics::GdiDrawBitmap( JsGdiRawBitmap* bitmap,
-                              int32_t dstX, int32_t dstY, uint32_t dstW, uint32_t dstH,
-                              int32_t srcX, int32_t srcY, uint32_t srcW, uint32_t srcH )
+void JsGdiGraphics::GdiDrawBitmap( JsGdiRawBitmap* bitmap,
+                                   int32_t dstX, int32_t dstY, uint32_t dstW, uint32_t dstH,
+                                   int32_t srcX, int32_t srcY, uint32_t srcW, uint32_t srcH )
 {
     if ( !pGdi_ )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "Internal error: Gdiplus::Graphics object is null" );
-        return std::nullopt;
+        throw smp::SmpException( "Internal error: Gdiplus::Graphics object is null" );
     }
 
     if ( !bitmap )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "bitmap argument is null" );
-        return std::nullopt;
+        throw smp::SmpException( "bitmap argument is null" );
     }
 
     HDC srcDc = bitmap->GetHDC();
     assert( srcDc );
 
     HDC dc = pGdi_->GetHDC();
-    scope::final_action autoHdcReleaser( [pGdi = pGdi_, dc]()
-    {
+    scope::final_action autoHdcReleaser( [pGdi = pGdi_, dc]() {
         pGdi->ReleaseHDC( dc );
     } );
 
@@ -722,45 +617,39 @@ JsGdiGraphics::GdiDrawBitmap( JsGdiRawBitmap* bitmap,
     if ( dstW == srcW && dstH == srcH )
     {
         bRet = BitBlt( dc, dstX, dstY, dstW, dstH, srcDc, srcX, srcY, SRCCOPY );
-        IF_WINAPI_FAILED_RETURN_WITH_REPORT( pJsCtx_, bRet, std::nullopt, BitBlt );
+        IF_WINAPI_FAILED_THROW_SMP( bRet, "BitBlt" );
     }
     else
     {
         bRet = SetStretchBltMode( dc, HALFTONE );
-        IF_WINAPI_FAILED_RETURN_WITH_REPORT( pJsCtx_, bRet, std::nullopt, SetStretchBltMode );
+        IF_WINAPI_FAILED_THROW_SMP( bRet, "SetStretchBltMode" );
 
         bRet = SetBrushOrgEx( dc, 0, 0, nullptr );
-        IF_WINAPI_FAILED_RETURN_WITH_REPORT( pJsCtx_, bRet, std::nullopt, SetBrushOrgEx );
+        IF_WINAPI_FAILED_THROW_SMP( bRet, "SetBrushOrgEx" );
 
         bRet = StretchBlt( dc, dstX, dstY, dstW, dstH, srcDc, srcX, srcY, srcW, srcH, SRCCOPY );
-        IF_WINAPI_FAILED_RETURN_WITH_REPORT( pJsCtx_, bRet, std::nullopt, StretchBlt );
+        IF_WINAPI_FAILED_THROW_SMP( bRet, "StretchBlt" );
     }
-
-    return nullptr;
 }
 
-std::optional<std::nullptr_t> 
-JsGdiGraphics::GdiDrawText( const std::wstring& str, JsGdiFont* font, uint32_t colour, int32_t x, int32_t y, uint32_t w, uint32_t h, uint32_t format )
+void JsGdiGraphics::GdiDrawText( const std::wstring& str, JsGdiFont* font, uint32_t colour, int32_t x, int32_t y, uint32_t w, uint32_t h, uint32_t format )
 {
     if ( !pGdi_ )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "Internal error: Gdiplus::Graphics object is null" );
-        return std::nullopt;
+        throw smp::SmpException( "Internal error: Gdiplus::Graphics object is null" );
     }
 
     if ( !font )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "font argument is null" );
-        return std::nullopt;
+        throw smp::SmpException( "font argument is null" );
     }
-    
+
     HFONT hFont = font->GetHFont();
     assert( hFont );
-   
+
     HDC dc = pGdi_->GetHDC();
     HFONT oldfont = SelectFont( dc, hFont );
-    scope::final_action autoHdcReleaser( [pGdi=pGdi_, dc, oldfont]()
-    {
+    scope::final_action autoHdcReleaser( [pGdi = pGdi_, dc, oldfont]() {
         SelectFont( dc, oldfont );
         pGdi->ReleaseHDC( dc );
     } );
@@ -769,12 +658,12 @@ JsGdiGraphics::GdiDrawText( const std::wstring& str, JsGdiFont* font, uint32_t c
     DRAWTEXTPARAMS dpt = { sizeof( DRAWTEXTPARAMS ), 4, 0, 0, 0 };
 
     SetTextColor( dc, helpers::convert_argb_to_colorref( colour ) );
-    
+
     int iRet = SetBkMode( dc, TRANSPARENT );
-    IF_WINAPI_FAILED_RETURN_WITH_REPORT( pJsCtx_, CLR_INVALID != iRet, std::nullopt, SetBkMode );
-    
+    IF_WINAPI_FAILED_THROW_SMP( CLR_INVALID != iRet, "SetBkMode" );
+
     UINT uRet = SetTextAlign( dc, TA_LEFT | TA_TOP | TA_NOUPDATECP );
-    IF_WINAPI_FAILED_RETURN_WITH_REPORT( pJsCtx_, GDI_ERROR != uRet, std::nullopt, SetTextAlign );
+    IF_WINAPI_FAILED_THROW_SMP( GDI_ERROR != uRet, "SetTextAlign" );
 
     if ( format & DT_MODIFYSTRING )
     {
@@ -790,7 +679,7 @@ JsGdiGraphics::GdiDrawText( const std::wstring& str, JsGdiFont* font, uint32_t c
         memcpy( &rc_old, &rc, sizeof( RECT ) );
 
         iRet = DrawText( dc, str.c_str(), -1, &rc_calc, format );
-        IF_WINAPI_FAILED_RETURN_WITH_REPORT( pJsCtx_, iRet, std::nullopt, DrawText );
+        IF_WINAPI_FAILED_THROW_SMP( iRet, "DrawText" );
 
         format &= ~DT_CALCRECT;
 
@@ -806,44 +695,35 @@ JsGdiGraphics::GdiDrawText( const std::wstring& str, JsGdiFont* font, uint32_t c
         }
     }
 
-    iRet = DrawTextEx( dc, const_cast<wchar_t*>(str.c_str()), -1, &rc, format, &dpt );
-    IF_WINAPI_FAILED_RETURN_WITH_REPORT( pJsCtx_, iRet, std::nullopt, DrawTextEx );
-
-    return nullptr;
+    iRet = DrawTextEx( dc, const_cast<wchar_t*>( str.c_str() ), -1, &rc, format, &dpt );
+    IF_WINAPI_FAILED_THROW_SMP( iRet, "DrawTextEx" );
 }
 
-std::optional<std::nullptr_t> 
-JsGdiGraphics::GdiDrawTextWithOpt( size_t optArgCount, const std::wstring& str, JsGdiFont* font, uint32_t colour, 
-                                   int32_t x, int32_t y, uint32_t w, uint32_t h, 
-                                   uint32_t format )
+void JsGdiGraphics::GdiDrawTextWithOpt( size_t optArgCount, const std::wstring& str, JsGdiFont* font, uint32_t colour,
+                                        int32_t x, int32_t y, uint32_t w, uint32_t h,
+                                        uint32_t format )
 {
-    if ( optArgCount > 1 )
+    switch ( optArgCount )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
-        return std::nullopt;
-    }
-
-    if ( optArgCount == 1 )
-    {
+    case 0:
+        return GdiDrawText( str, font, colour, x, y, w, h, format );
+    case 1:
         return GdiDrawText( str, font, colour, x, y, w, h );
+    default:
+        throw smp::SmpException( smp::string::Formatter() << "Internal error: invalid number of optional arguments specified: " << optArgCount );
     }
-
-    return GdiDrawText( str, font, colour, x, y, w, h, format );
 }
 
-std::optional<JSObject*> 
-JsGdiGraphics::MeasureString( const std::wstring& str, JsGdiFont* font, float x, float y, float w, float h, uint32_t flags )
+JSObject* JsGdiGraphics::MeasureString( const std::wstring& str, JsGdiFont* font, float x, float y, float w, float h, uint32_t flags )
 {
     if ( !pGdi_ )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "Internal error: Gdiplus::Graphics object is null" );
-        return std::nullopt;
+        throw smp::SmpException( "Internal error: Gdiplus::Graphics object is null" );
     }
 
     if ( !font )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "font argument is null" );
-        return std::nullopt;
+        throw smp::SmpException( "font argument is null" );
     }
 
     Gdiplus::Font* fn = font->GdiFont();
@@ -853,234 +733,200 @@ JsGdiGraphics::MeasureString( const std::wstring& str, JsGdiFont* font, float x,
 
     if ( flags != 0 )
     {
-        fmt.SetAlignment( (Gdiplus::StringAlignment)((flags >> 28) & 0x3) ); //0xf0000000
-        fmt.SetLineAlignment( (Gdiplus::StringAlignment)((flags >> 24) & 0x3) ); //0x0f000000
-        fmt.SetTrimming( (Gdiplus::StringTrimming)((flags >> 20) & 0x7) ); //0x00f00000
-        fmt.SetFormatFlags( (Gdiplus::StringFormatFlags)(flags & 0x7FFF) ); //0x0000ffff
+        fmt.SetAlignment( ( Gdiplus::StringAlignment )( ( flags >> 28 ) & 0x3 ) );     //0xf0000000
+        fmt.SetLineAlignment( ( Gdiplus::StringAlignment )( ( flags >> 24 ) & 0x3 ) ); //0x0f000000
+        fmt.SetTrimming( ( Gdiplus::StringTrimming )( ( flags >> 20 ) & 0x7 ) );       //0x00f00000
+        fmt.SetFormatFlags( ( Gdiplus::StringFormatFlags )( flags & 0x7FFF ) );        //0x0000ffff
     }
 
     Gdiplus::RectF bound;
     int chars, lines;
 
     Gdiplus::Status gdiRet = pGdi_->MeasureString( str.c_str(), -1, fn, Gdiplus::RectF( x, y, w, h ), &fmt, &bound, &chars, &lines );
-    IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, std::nullopt, MeasureString );
+    IF_GDI_FAILED_THROW_SMP( gdiRet, "MeasureString" );
 
     JS::RootedObject jsObject( pJsCtx_, JsMeasureStringInfo::CreateJs( pJsCtx_, bound.X, bound.Y, bound.Width, bound.Height, lines, chars ) );
     if ( !jsObject )
-    {// report in Create
-        return std::nullopt;
+    { // TODO: remove
+        throw smp::JsException();
     }
 
     return jsObject;
 }
 
-std::optional<JSObject*> 
-JsGdiGraphics::MeasureStringWithOpt( size_t optArgCount, const std::wstring& str, JsGdiFont* font,
-                                     float x, float y, float w, float h, 
-                                     uint32_t flags )
+JSObject* JsGdiGraphics::MeasureStringWithOpt( size_t optArgCount, const std::wstring& str, JsGdiFont* font,
+                                               float x, float y, float w, float h,
+                                               uint32_t flags )
 {
-    if ( optArgCount > 1 )
+    switch ( optArgCount )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
-        return std::nullopt;
-    }
-
-    if ( optArgCount == 1 )
-    {
+    case 0:
+        return MeasureString( str, font, x, y, w, h, flags );
+    case 1:
         return MeasureString( str, font, x, y, w, h );
+    default:
+        throw smp::SmpException( smp::string::Formatter() << "Internal error: invalid number of optional arguments specified: " << optArgCount );
     }
-
-    return MeasureString( str, font, x, y, w, h, flags );
 }
 
-std::optional<std::nullptr_t> 
-JsGdiGraphics::SetInterpolationMode( uint32_t mode )
+void JsGdiGraphics::SetInterpolationMode( uint32_t mode )
 {
     if ( !pGdi_ )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "Internal error: Gdiplus::Graphics object is null" );
-        return std::nullopt;
+        throw smp::SmpException( "Internal error: Gdiplus::Graphics object is null" );
     }
 
     Gdiplus::Status gdiRet = pGdi_->SetInterpolationMode( (Gdiplus::InterpolationMode)mode );
-    IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, std::nullopt, SetInterpolationMode );
-
-    return nullptr;
+    IF_GDI_FAILED_THROW_SMP( gdiRet, "SetInterpolationMode" );
 }
 
-std::optional<std::nullptr_t> 
-JsGdiGraphics::SetInterpolationModeWithOpt( size_t optArgCount, uint32_t mode )
+void JsGdiGraphics::SetInterpolationModeWithOpt( size_t optArgCount, uint32_t mode )
 {
-    if ( optArgCount > 1 )
+    switch ( optArgCount )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
-        return std::nullopt;
-    }
-
-    if ( optArgCount == 1 )
-    {
+    case 0:
+        return SetInterpolationMode( mode );
+    case 1:
         return SetInterpolationMode();
+    default:
+        throw smp::SmpException( smp::string::Formatter() << "Internal error: invalid number of optional arguments specified: " << optArgCount );
     }
-
-    return SetInterpolationMode( mode );
 }
 
-std::optional<std::nullptr_t> JsGdiGraphics::SetSmoothingMode( uint32_t mode )
+void JsGdiGraphics::SetSmoothingMode( uint32_t mode )
 {
     if ( !pGdi_ )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "Internal error: Gdiplus::Graphics object is null" );
-        return std::nullopt;
+        throw smp::SmpException( "Internal error: Gdiplus::Graphics object is null" );
     }
 
     Gdiplus::Status gdiRet = pGdi_->SetSmoothingMode( (Gdiplus::SmoothingMode)mode );
-    IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, std::nullopt, SetSmoothingMode );
-
-    return nullptr;
+    IF_GDI_FAILED_THROW_SMP( gdiRet, "SetSmoothingMode" );
 }
 
-std::optional<std::nullptr_t> JsGdiGraphics::SetSmoothingModeWithOpt( size_t optArgCount, uint32_t mode )
+void JsGdiGraphics::SetSmoothingModeWithOpt( size_t optArgCount, uint32_t mode )
 {
-    if ( optArgCount > 1 )
+    switch ( optArgCount )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
-        return std::nullopt;
-    }
-
-    if ( optArgCount == 1 )
-    {
+    case 0:
+        return SetSmoothingMode( mode );
+    case 1:
         return SetSmoothingMode();
+    default:
+        throw smp::SmpException( smp::string::Formatter() << "Internal error: invalid number of optional arguments specified: " << optArgCount );
     }
-
-    return SetSmoothingMode( mode );
 }
 
-std::optional<std::nullptr_t> JsGdiGraphics::SetTextRenderingHint( uint32_t mode )
+void JsGdiGraphics::SetTextRenderingHint( uint32_t mode )
 {
     if ( !pGdi_ )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "Internal error: Gdiplus::Graphics object is null" );
-        return std::nullopt;
+        throw smp::SmpException( "Internal error: Gdiplus::Graphics object is null" );
     }
 
     Gdiplus::Status gdiRet = pGdi_->SetTextRenderingHint( (Gdiplus::TextRenderingHint)mode );
-    IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, std::nullopt, SetTextRenderingHint );
-
-    return nullptr;
+    IF_GDI_FAILED_THROW_SMP( gdiRet, "SetTextRenderingHint" );
 }
 
-std::optional<std::nullptr_t> JsGdiGraphics::SetTextRenderingHintWithOpt( size_t optArgCount, uint32_t mode )
+void JsGdiGraphics::SetTextRenderingHintWithOpt( size_t optArgCount, uint32_t mode )
 {
-    if ( optArgCount > 1 )
+    switch ( optArgCount )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
-        return std::nullopt;
-    }
-
-    if ( optArgCount == 1 )
-    {
+    case 0:
+        return SetTextRenderingHint( mode );
+    case 1:
         return SetTextRenderingHint();
+    default:
+        throw smp::SmpException( smp::string::Formatter() << "Internal error: invalid number of optional arguments specified: " << optArgCount );
     }
-
-    return SetTextRenderingHint( mode );
 }
 
-bool JsGdiGraphics::GetRoundRectPath( Gdiplus::GraphicsPath& gp, Gdiplus::RectF& rect, float arc_width, float arc_height )
+void JsGdiGraphics::GetRoundRectPath( Gdiplus::GraphicsPath& gp, Gdiplus::RectF& rect, float arc_width, float arc_height )
 {
     float arc_dia_w = arc_width * 2;
     float arc_dia_h = arc_height * 2;
     Gdiplus::RectF corner( rect.X, rect.Y, arc_dia_w, arc_dia_h );
 
     Gdiplus::Status gdiRet = gp.Reset();
-    IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, false, Reset );
+    IF_GDI_FAILED_THROW_SMP( gdiRet, "Reset" );
 
     // top left
     gdiRet = gp.AddArc( corner, 180, 90 );
-    IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, false, AddArc );
+    IF_GDI_FAILED_THROW_SMP( gdiRet, "AddArc" );
 
     // top right
-    corner.X += (rect.Width - arc_dia_w);
+    corner.X += ( rect.Width - arc_dia_w );
     gdiRet = gp.AddArc( corner, 270, 90 );
-    IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, false, AddArc );
+    IF_GDI_FAILED_THROW_SMP( gdiRet, "AddArc" );
 
     // bottom right
-    corner.Y += (rect.Height - arc_dia_h);
+    corner.Y += ( rect.Height - arc_dia_h );
     gdiRet = gp.AddArc( corner, 0, 90 );
-    IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, false, AddArc );
+    IF_GDI_FAILED_THROW_SMP( gdiRet, "AddArc" );
 
     // bottom left
-    corner.X -= (rect.Width - arc_dia_w);
+    corner.X -= ( rect.Width - arc_dia_w );
     gdiRet = gp.AddArc( corner, 90, 90 );
-    IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, false, AddArc );
+    IF_GDI_FAILED_THROW_SMP( gdiRet, "AddArc" );
 
     gdiRet = gp.CloseFigure();
-    IF_GDI_FAILED_RETURN_WITH_REPORT( pJsCtx_, gdiRet, false, CloseFigure );
-
-    return true;
+    IF_GDI_FAILED_THROW_SMP( gdiRet, "CloseFigure" );
 }
 
-bool JsGdiGraphics::ParsePoints( JS::HandleValue jsValue, std::vector<Gdiplus::PointF> &gdiPoints )
+void JsGdiGraphics::ParsePoints( JS::HandleValue jsValue, std::vector<Gdiplus::PointF>& gdiPoints )
 {
     gdiPoints.clear();
 
     JS::RootedObject jsObject( pJsCtx_, jsValue.toObjectOrNull() );
     if ( !jsObject )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "Points argument is not a JS object" );
-        return false;
+        throw smp::SmpException( "Points argument is not a JS object" );
     }
 
     bool is;
     if ( !JS_IsArrayObject( pJsCtx_, jsObject, &is ) )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "Points argument is an array" );
-        return false;
+        throw smp::SmpException( "Points argument is an array" );
     }
 
     uint32_t arraySize;
     if ( !JS_GetArrayLength( pJsCtx_, jsObject, &arraySize ) )
-    {// report in JS_GetArrayLength
-        return false;
+    {
+        throw smp::JsException();
     }
 
     if ( arraySize % 2 > 0 )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "Points count must be multiple of two" );
-        return false;
+        throw smp::SmpException( "Points count must be multiple of two" );
     }
 
     JS::RootedValue arrayElement( pJsCtx_ );
     for ( uint32_t i = 0; i < arraySize; i += 2 )
     {
         if ( !JS_GetElement( pJsCtx_, jsObject, i, &arrayElement ) )
-        {// report in JS_GetElement
-            return false;
+        {
+            throw smp::JsException();
         }
 
         auto xVal = convert::to_native::ToValue<float>( pJsCtx_, arrayElement );
         if ( !xVal )
         {
-            JS_ReportErrorUTF8( pJsCtx_, "points[%d] can't be converted to number", i );
-            return false;
+            throw smp::SmpException( smp::string::Formatter() << "points[" << i << "] can't be converted to number" );
         }
 
-
         if ( !JS_GetElement( pJsCtx_, jsObject, i + 1, &arrayElement ) )
-        {// report in JS_GetElement
-            return false;
+        {
+            throw smp::JsException();
         }
 
         auto yVal = convert::to_native::ToValue<float>( pJsCtx_, arrayElement );
         if ( !yVal )
         {
-            JS_ReportErrorUTF8( pJsCtx_, "points[%d] can't be converted to number", i + 1 );
-            return false;
+            throw smp::SmpException( smp::string::Formatter() << "points[" << i + 1 << "] can't be converted to number" );
         }
 
         gdiPoints.emplace_back( Gdiplus::PointF( xVal.value(), yVal.value() ) );
     }
-
-    return true;
 }
 
-}
+} // namespace mozjs

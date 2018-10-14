@@ -5,7 +5,6 @@
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
 
-
 namespace
 {
 
@@ -52,8 +51,7 @@ const JSPropertySpec jsProperties[] = {
     JS_PS_END
 };
 
-
-}
+} // namespace
 
 namespace mozjs
 {
@@ -65,7 +63,7 @@ const JsPrototypeId JsMeasureStringInfo::PrototypeId = JsPrototypeId::MeasureStr
 
 JsMeasureStringInfo::JsMeasureStringInfo( JSContext* cx, float x, float y, float w, float h, uint32_t lines, uint32_t characters )
     : pJsCtx_( cx )
-    , x_(x)
+    , x_( x )
     , y_( y )
     , w_( w )
     , h_( h )
@@ -89,40 +87,34 @@ size_t JsMeasureStringInfo::GetInternalSize( float /*x*/, float /*y*/, float /*w
     return 0;
 }
 
-std::optional<uint32_t> 
-JsMeasureStringInfo::get_Chars()
+uint32_t JsMeasureStringInfo::get_Chars()
 {
     return characters_;
 }
 
-std::optional<float> 
-JsMeasureStringInfo::get_Height()
+float JsMeasureStringInfo::get_Height()
 {
     return h_;
 }
 
-std::optional<uint32_t> 
-JsMeasureStringInfo::get_Lines()
+uint32_t JsMeasureStringInfo::get_Lines()
 {
     return lines_;
 }
 
-std::optional<float> 
-JsMeasureStringInfo::get_Width()
+float JsMeasureStringInfo::get_Width()
 {
     return w_;
 }
 
-std::optional<float> 
-JsMeasureStringInfo::get_X()
+float JsMeasureStringInfo::get_X()
 {
     return x_;
 }
 
-std::optional<float> 
-JsMeasureStringInfo::get_Y()
+float JsMeasureStringInfo::get_Y()
 {
     return y_;
 }
 
-}
+} // namespace mozjs

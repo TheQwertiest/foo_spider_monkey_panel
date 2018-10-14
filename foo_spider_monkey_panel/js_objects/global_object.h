@@ -21,20 +21,20 @@ public:
     static const JSClass& JsClass;
 
 public:
-    ~JsGlobalObject();    
+    ~JsGlobalObject();
 
-    static JSObject* CreateNative( JSContext* cx, JsContainer &parentContainer, js_panel_window& parentPanel );
+    static JSObject* CreateNative( JSContext* cx, JsContainer& parentContainer, js_panel_window& parentPanel );
 
 public:
-    void Fail( const pfc::string8_fast &errorText );
+    void Fail( const pfc::string8_fast& errorText );
 
     GlobalHeapManager& GetHeapManager() const;
 
     static void CleanupBeforeDestruction( JSContext* cx, JS::HandleObject self );
 
 public: // methods
-    std::optional<std::nullptr_t> IncludeScript( const pfc::string8_fast& path );
-    
+    void IncludeScript( const pfc::string8_fast& path );
+
     template <typename T>
     static void CleanupObjectProperty( JSContext* cx, JS::HandleObject self, const std::string& propName )
     {
@@ -42,7 +42,7 @@ public: // methods
         if ( JS_GetProperty( cx, self, propName.data(), &jsPropertyValue ) && jsPropertyValue.isObject() )
         {
             JS::RootedObject jsProperty( cx, &jsPropertyValue.toObject() );
-            auto pNative = static_cast<T*>(JS_GetInstancePrivate( cx, jsProperty, &T::JsClass, nullptr ));
+            auto pNative = static_cast<T*>( JS_GetInstancePrivate( cx, jsProperty, &T::JsClass, nullptr ) );
             if ( pNative )
             {
                 pNative->CleanupBeforeDestruction();
@@ -51,14 +51,14 @@ public: // methods
     }
 
 private:
-    JsGlobalObject( JSContext* cx, JsContainer &parentContainer );
+    JsGlobalObject( JSContext* cx, JsContainer& parentContainer );
 
 private:
-    JSContext * pJsCtx_ = nullptr;
-    JsContainer &parentContainer_;
+    JSContext* pJsCtx_ = nullptr;
+    JsContainer& parentContainer_;
 
 private: // heap
     std::unique_ptr<GlobalHeapManager> heapManager_;
 };
 
-}
+} // namespace mozjs

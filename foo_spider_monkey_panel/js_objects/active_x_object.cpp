@@ -609,17 +609,22 @@ std::vector<std::wstring> ActiveXObject::GetAllMembers()
     return memberList;
 }
 
-std::optional<std::wstring> 
-ActiveXObject::ToString()
+std::wstring ActiveXObject::ToString()
 {
     JS::RootedValue jsValue( pJsCtx_ );
     auto dispRet = GetDispId( L"toString", false );
     if ( !Get( (dispRet ? L"toString" : L""), &jsValue ) )
-    {// reports
-        return std::nullopt;
+    {// TODO: remove
+        throw smp::JsException();
     }
 
-    return convert::to_native::ToValue<std::wstring>( pJsCtx_, jsValue );
+    auto retVal = convert::to_native::ToValue<std::wstring>( pJsCtx_, jsValue );
+    if ( !retVal )
+    {
+        throw smp::JsException();
+    }
+
+    return retVal.value();
 }
 
 bool ActiveXObject::Get( const std::wstring& propName, JS::MutableHandleValue vp )

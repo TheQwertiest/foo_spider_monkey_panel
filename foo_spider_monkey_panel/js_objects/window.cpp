@@ -21,7 +21,6 @@
 #include <helpers.h>
 #include <user_message.h>
 
-
 namespace
 {
 
@@ -179,34 +178,28 @@ void JsWindow::CleanupBeforeDestruction()
     }
 }
 
-std::optional<std::nullptr_t>
-JsWindow::ClearInterval( uint32_t intervalId )
+void JsWindow::ClearInterval( uint32_t intervalId )
 {
     parentPanel_.ClearIntervalOrTimeout( intervalId );
-    return nullptr;
 }
 
-std::optional<std::nullptr_t>
-JsWindow::ClearTimeout( uint32_t timeoutId )
+void JsWindow::ClearTimeout( uint32_t timeoutId )
 {
     parentPanel_.ClearIntervalOrTimeout( timeoutId );
-    return nullptr;
 }
 
-std::optional<JSObject*>
-JsWindow::CreatePopupMenu()
+JSObject* JsWindow::CreatePopupMenu()
 {
     JS::RootedObject jsObject( pJsCtx_, JsMenuObject::CreateJs( pJsCtx_, parentPanel_.GetHWND() ) );
     if ( !jsObject )
-    { // Report in Create
-        return std::nullopt;
+    { // TODO: remove
+        throw smp::JsException();
     }
 
     return jsObject;
 }
 
-std::optional<JSObject*>
-JsWindow::CreateThemeManager( const std::wstring& classid )
+JSObject* JsWindow::CreateThemeManager( const std::wstring& classid )
 {
     if ( !JsThemeManager::HasThemeData( parentPanel_.GetHWND(), classid ) )
     { // Not a error: not found
@@ -215,15 +208,14 @@ JsWindow::CreateThemeManager( const std::wstring& classid )
 
     JS::RootedObject jsObject( pJsCtx_, JsThemeManager::CreateJs( pJsCtx_, parentPanel_.GetHWND(), classid ) );
     if ( !jsObject )
-    { // Report in Create
-        return std::nullopt;
+    { // TODO: remove
+        throw smp::JsException();
     }
 
     return jsObject;
 }
 
-std::optional<JSObject*>
-JsWindow::CreateTooltip( const std::wstring& name, float pxSize, uint32_t style )
+JSObject* JsWindow::CreateTooltip( const std::wstring& name, float pxSize, uint32_t style )
 {
     auto& tooltip_param = parentPanel_.GetPanelTooltipParam();
     tooltip_param.fontName = name;
@@ -232,45 +224,35 @@ JsWindow::CreateTooltip( const std::wstring& name, float pxSize, uint32_t style 
 
     JS::RootedObject jsObject( pJsCtx_, JsFbTooltip::CreateJs( pJsCtx_, parentPanel_.GetHWND(), tooltip_param ) );
     if ( !jsObject )
-    { // Report in Create
-        return std::nullopt;
+    { // TODO: remove
+        throw smp::JsException();
     }
 
     return jsObject;
 }
 
-std::optional<JSObject*>
-JsWindow::CreateTooltipWithOpt( size_t optArgCount, const std::wstring& name, float pxSize, uint32_t style )
+JSObject* JsWindow::CreateTooltipWithOpt( size_t optArgCount, const std::wstring& name, float pxSize, uint32_t style )
 {
-    if ( optArgCount > 3 )
+    switch ( optArgCount )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
-        return std::nullopt;
-    }
-
-    if ( optArgCount == 3 )
-    {
-        return CreateTooltip();
-    }
-    else if ( optArgCount == 2 )
-    {
-        return CreateTooltip( name );
-    }
-    else if ( optArgCount == 1 )
-    {
+    case 0:
+        return CreateTooltip( name, pxSize, style );
+    case 1:
         return CreateTooltip( name, pxSize );
+    case 2:
+        return CreateTooltip( name );
+    case 3:
+        return CreateTooltip();
+    default:
+        throw smp::SmpException( smp::string::Formatter() << "Internal error: invalid number of optional arguments specified: " << optArgCount );
     }
-
-    return CreateTooltip( name, pxSize, style );
 }
 
-std::optional<std::nullptr_t>
-JsWindow::DefinePanel( const pfc::string8_fast& name, JS::HandleValue options )
+void JsWindow::DefinePanel( const pfc::string8_fast& name, JS::HandleValue options )
 { // TODO: clean up this mess
     if ( isPanelDefined_ )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "DefinePanel can't be called twice" );
-        return std::nullopt;
+        throw smp::SmpException( "DefinePanel can't be called twice" );
     }
 
     struct Options
@@ -289,50 +271,35 @@ JsWindow::DefinePanel( const pfc::string8_fast& name, JS::HandleValue options )
         {
             if ( !options.isObject() )
             {
-                JS_ReportErrorUTF8( pJsCtx_, "options argument is not an object" );
-                return std::nullopt;
+                throw smp::SmpException( "options argument is not an object" );
             }
 
             JS::RootedObject jsOptions( pJsCtx_, &options.toObject() );
-            bool hasFailed = false;
 
-            parsed_options.author = GetOptionalProperty<pfc::string8_fast>( pJsCtx_, jsOptions, "author", hasFailed ).value_or("");
-            if ( hasFailed )
-            { // reports
-                return std::nullopt;
-            }
+            parsed_options.author = GetOptionalProperty<pfc::string8_fast>( pJsCtx_, jsOptions, "author" ).value_or( "" );
+            parsed_options.version = GetOptionalProperty<pfc::string8_fast>( pJsCtx_, jsOptions, "version" ).value_or( "" );
 
-            parsed_options.version = GetOptionalProperty<pfc::string8_fast>( pJsCtx_, jsOptions, "version", hasFailed ).value_or( "" );
-            if ( hasFailed )
-            { // reports
-                return std::nullopt;
-            }
-           
             bool hasProperty;
             if ( !JS_HasProperty( pJsCtx_, jsOptions, "features", &hasProperty ) )
-            { // reports
-                return std::nullopt;
+            {
+                throw smp::JsException();
             }
 
             if ( hasProperty )
             {
                 JS::RootedValue jsFeaturesValue( pJsCtx_ );
                 if ( !JS_GetProperty( pJsCtx_, jsOptions, "features", &jsFeaturesValue ) )
-                { // reports
-                    return std::nullopt;
+                {
+                    throw smp::JsException();
                 }
 
                 if ( !jsFeaturesValue.isObject() )
                 {
-                    JS_ReportErrorUTF8( pJsCtx_, "features is not an object" );
-                    return std::nullopt;
+                    throw smp::SmpException( "`features` is not an object" );
                 }
 
-                parsed_options.features.drag_n_drop = GetOptionalProperty<bool>( pJsCtx_, jsOptions, "drag_n_drop", hasFailed ).value_or( false );
-                if ( hasFailed )
-                { // reports
-                    return std::nullopt;
-                }
+                JS::RootedObject jsFeatures( pJsCtx_, &jsFeaturesValue.toObject() );
+                parsed_options.features.drag_n_drop = GetOptionalProperty<bool>( pJsCtx_, jsFeatures, "drag_n_drop" ).value_or( false );
             }
         }
     }
@@ -345,37 +312,30 @@ JsWindow::DefinePanel( const pfc::string8_fast& name, JS::HandleValue options )
         dropTargetHandler_.Attach( new com_object_impl_t<HostDropTarget>( parentPanel_.GetHWND() ) );
 
         HRESULT hr = dropTargetHandler_->RegisterDragDrop();
-        IF_HR_FAILED_RETURN_WITH_REPORT( pJsCtx_, hr, std::nullopt, RegisterDragDrop );
+        IF_HR_FAILED_THROW_SMP( hr, "RegisterDragDrop" );
     }
 
     isPanelDefined_ = true;
-    return nullptr;
 }
 
-std::optional<std::nullptr_t>
-JsWindow::DefinePanelWithOpt( size_t optArgCount, const pfc::string8_fast& name, JS::HandleValue options )
+void JsWindow::DefinePanelWithOpt( size_t optArgCount, const pfc::string8_fast& name, JS::HandleValue options )
 {
-    if ( optArgCount > 1 )
+    switch ( optArgCount )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
-        return std::nullopt;
-    }
-
-    if ( optArgCount == 1 )
-    {
+    case 0:
+        return DefinePanel( name, options );
+    case 1:
         return DefinePanel( name );
+    default:
+        throw smp::SmpException( smp::string::Formatter() << "Internal error: invalid number of optional arguments specified: " << optArgCount );
     }
-
-    return DefinePanel( name, options );
 }
 
-std::optional<uint32_t>
-JsWindow::GetColourCUI( uint32_t type, const std::wstring& guidstr )
+uint32_t JsWindow::GetColourCUI( uint32_t type, const std::wstring& guidstr )
 {
     if ( parentPanel_.GetPanelType() != js_panel_window::PanelType::CUI )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "Can be called only in CUI" );
-        return std::nullopt;
+        throw smp::SmpException( "Can be called only in CUI" );
     }
 
     GUID guid;
@@ -386,48 +346,40 @@ JsWindow::GetColourCUI( uint32_t type, const std::wstring& guidstr )
     else
     {
         HRESULT hr = CLSIDFromString( guidstr.c_str(), &guid );
-        IF_HR_FAILED_RETURN_WITH_REPORT( pJsCtx_, hr, std::nullopt, CLSIDFromString );
+        IF_HR_FAILED_THROW_SMP( hr, "CLSIDFromString" );
     }
 
     return parentPanel_.GetColourCUI( type, guid );
 }
 
-std::optional<uint32_t>
-JsWindow::GetColourCUIWithOpt( size_t optArgCount, uint32_t type, const std::wstring& guidstr )
+uint32_t JsWindow::GetColourCUIWithOpt( size_t optArgCount, uint32_t type, const std::wstring& guidstr )
 {
-    if ( optArgCount > 1 )
+    switch ( optArgCount )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
-        return std::nullopt;
-    }
-
-    if ( optArgCount == 1 )
-    {
+    case 0:
+        return GetColourCUI( type, guidstr );
+    case 1:
         return GetColourCUI( type );
+    default:
+        throw smp::SmpException( smp::string::Formatter() << "Internal error: invalid number of optional arguments specified: " << optArgCount );
     }
-
-    return GetColourCUI( type, guidstr );
 }
 
-std::optional<uint32_t>
-JsWindow::GetColourDUI( uint32_t type )
+uint32_t JsWindow::GetColourDUI( uint32_t type )
 {
     if ( parentPanel_.GetPanelType() != js_panel_window::PanelType::DUI )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "Can be called only in DUI" );
-        return std::nullopt;
+        throw smp::SmpException( "Can be called only in DUI" );
     }
 
     return parentPanel_.GetColourDUI( type );
 }
 
-std::optional<JSObject*>
-JsWindow::GetFontCUI( uint32_t type, const std::wstring& guidstr )
+JSObject* JsWindow::GetFontCUI( uint32_t type, const std::wstring& guidstr )
 {
     if ( parentPanel_.GetPanelType() != js_panel_window::PanelType::CUI )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "Can be called only in CUI" );
-        return std::nullopt;
+        throw smp::SmpException( "Can be called only in CUI" );
     }
 
     GUID guid;
@@ -438,7 +390,7 @@ JsWindow::GetFontCUI( uint32_t type, const std::wstring& guidstr )
     else
     {
         HRESULT hr = CLSIDFromString( guidstr.c_str(), &guid );
-        IF_HR_FAILED_RETURN_WITH_REPORT( pJsCtx_, hr, std::nullopt, CLSIDFromString );
+        IF_HR_FAILED_THROW_SMP( hr, "CLSIDFromString" );
     }
 
     auto hFont = gdi::CreateUniquePtr( parentPanel_.GetFontCUI( type, guid ) );
@@ -455,38 +407,32 @@ JsWindow::GetFontCUI( uint32_t type, const std::wstring& guidstr )
 
     JS::RootedObject jsObject( pJsCtx_, JsGdiFont::CreateJs( pJsCtx_, std::move( pGdiFont ), hFont.release(), true ) );
     if ( !jsObject )
-    { // Report in Create
-        return std::nullopt;
+    { // TODO: remove
+        throw smp::JsException();
     }
 
     hFont.release();
     return jsObject;
 }
 
-std::optional<JSObject*>
-JsWindow::GetFontCUIWithOpt( size_t optArgCount, uint32_t type, const std::wstring& guidstr )
+JSObject* JsWindow::GetFontCUIWithOpt( size_t optArgCount, uint32_t type, const std::wstring& guidstr )
 {
-    if ( optArgCount > 1 )
+    switch ( optArgCount )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
-        return std::nullopt;
-    }
-
-    if ( optArgCount == 1 )
-    {
+    case 0:
+        return GetFontCUI( type, guidstr );
+    case 1:
         return GetFontCUI( type );
+    default:
+        throw smp::SmpException( smp::string::Formatter() << "Internal error: invalid number of optional arguments specified: " << optArgCount );
     }
-
-    return GetFontCUI( type, guidstr );
 }
 
-std::optional<JSObject*>
-JsWindow::GetFontDUI( uint32_t type )
+JSObject* JsWindow::GetFontDUI( uint32_t type )
 {
     if ( parentPanel_.GetPanelType() != js_panel_window::PanelType::DUI )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "Can be called only in DUI" );
-        return std::nullopt;
+        throw smp::SmpException( "Can be called only in DUI" );
     }
 
     HFONT hFont = parentPanel_.GetFontDUI( type ); // No need to delete, it is managed by DUI
@@ -503,240 +449,188 @@ JsWindow::GetFontDUI( uint32_t type )
 
     JS::RootedObject jsObject( pJsCtx_, JsGdiFont::CreateJs( pJsCtx_, std::move( pGdiFont ), hFont, false ) );
     if ( !jsObject )
-    { // Report in Create
-        return std::nullopt;
+    { // TODO: remove
+        throw smp::JsException();
     }
 
     return jsObject;
 }
 
-std::optional<JS::Heap<JS::Value>>
-JsWindow::GetProperty( const std::wstring& name, JS::HandleValue defaultval )
+JS::Value JsWindow::GetProperty( const std::wstring& name, JS::HandleValue defaultval )
 {
     return fbProperties_->GetProperty( name, defaultval );
 }
 
-std::optional<JS::Heap<JS::Value>>
-JsWindow::GetPropertyWithOpt( size_t optArgCount, const std::wstring& name, JS::HandleValue defaultval )
+JS::Value JsWindow::GetPropertyWithOpt( size_t optArgCount, const std::wstring& name, JS::HandleValue defaultval )
 {
-    if ( optArgCount > 1 )
+    switch ( optArgCount )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
-        return std::nullopt;
-    }
-
-    if ( optArgCount == 1 )
-    {
+    case 0:
+        return GetProperty( name, defaultval );
+    case 1:
         return GetProperty( name );
+    default:
+        throw smp::SmpException( smp::string::Formatter() << "Internal error: invalid number of optional arguments specified: " << optArgCount );
     }
-
-    return GetProperty( name, defaultval );
 }
 
-std::optional<std::nullptr_t>
-JsWindow::NotifyOthers( const std::wstring& name, JS::HandleValue info )
+void JsWindow::NotifyOthers( const std::wstring& name, JS::HandleValue info )
 {
     // TODO: think about replacing with PostMessage
     panel_manager::instance().send_msg_to_others(
         parentPanel_.GetHWND(),
         CALLBACK_UWM_ON_NOTIFY_DATA,
         reinterpret_cast<WPARAM>( &name ),
-        reinterpret_cast<LPARAM>( &info ) 
-    );    
-
-    return nullptr;
+        reinterpret_cast<LPARAM>( &info ) );
 }
 
-std::optional<std::nullptr_t>
-JsWindow::Reload()
+void JsWindow::Reload()
 {
     PostMessage( parentPanel_.GetHWND(), UWM_RELOAD, 0, 0 );
-    return nullptr;
 }
 
-std::optional<std::nullptr_t>
-JsWindow::Repaint( bool force )
+void JsWindow::Repaint( bool force )
 {
     parentPanel_.Repaint( force );
-    return nullptr;
 }
 
-std::optional<std::nullptr_t> JsWindow::RepaintWithOpt( size_t optArgCount, bool force )
+void JsWindow::RepaintWithOpt( size_t optArgCount, bool force )
 {
-    if ( optArgCount > 1 )
+    switch ( optArgCount )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
-        return std::nullopt;
-    }
-
-    if ( optArgCount == 1 )
-    {
+    case 0:
+        return Repaint( force );
+    case 1:
         return Repaint();
+    default:
+        throw smp::SmpException( smp::string::Formatter() << "Internal error: invalid number of optional arguments specified: " << optArgCount );
     }
-
-    return Repaint( force );
 }
 
-std::optional<std::nullptr_t>
-JsWindow::RepaintRect( uint32_t x, uint32_t y, uint32_t w, uint32_t h, bool force )
+void JsWindow::RepaintRect( uint32_t x, uint32_t y, uint32_t w, uint32_t h, bool force )
 {
     parentPanel_.RepaintRect( x, y, w, h, force );
-    return nullptr;
 }
 
-std::optional<std::nullptr_t> JsWindow::RepaintRectWithOpt( size_t optArgCount, uint32_t x, uint32_t y, uint32_t w, uint32_t h, bool force )
+void JsWindow::RepaintRectWithOpt( size_t optArgCount, uint32_t x, uint32_t y, uint32_t w, uint32_t h, bool force )
 {
-    if ( optArgCount > 1 )
+    switch ( optArgCount )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
-        return std::nullopt;
-    }
-
-    if ( optArgCount == 1 )
-    {
+    case 0:
+        return RepaintRect( x, y, w, h, force );
+    case 1:
         return RepaintRect( x, y, w, h );
+    default:
+        throw smp::SmpException( smp::string::Formatter() << "Internal error: invalid number of optional arguments specified: " << optArgCount );
     }
-
-    return RepaintRect( x, y, w, h, force );
 }
 
-std::optional<std::nullptr_t>
-JsWindow::SetCursor( uint32_t id )
+void JsWindow::SetCursor( uint32_t id )
 {
     ::SetCursor( LoadCursor( nullptr, MAKEINTRESOURCE( id ) ) );
-    return nullptr;
 }
 
-std::optional<uint32_t>
-JsWindow::SetInterval( JS::HandleValue func, uint32_t delay )
+uint32_t JsWindow::SetInterval( JS::HandleValue func, uint32_t delay )
 { // TODO: try to remove the roundabout call (JsWindow > js_panel_window > JsContainer)
     if ( !func.isObject() || !JS_ObjectIsFunction( pJsCtx_, &func.toObject() ) )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "func argument is not a JS function" );
-        return std::nullopt;
+        throw smp::SmpException( "func argument is not a JS function" );
     }
 
     JS::RootedFunction jsFunction( pJsCtx_, JS_ValueToFunction( pJsCtx_, func ) );
     return parentPanel_.SetInterval( jsFunction, delay );
 }
 
-std::optional<std::nullptr_t>
-JsWindow::SetProperty( const std::wstring& name, JS::HandleValue val )
+void JsWindow::SetProperty( const std::wstring& name, JS::HandleValue val )
 {
-    if ( !fbProperties_->SetProperty( name, val ) )
-    { // report in SetProperty
-        return std::nullopt;
-    }
-
-    return nullptr;
+    fbProperties_->SetProperty( name, val );
 }
 
-std::optional<std::nullptr_t>
-JsWindow::SetPropertyWithOpt( size_t optArgCount, const std::wstring& name, JS::HandleValue val )
+void JsWindow::SetPropertyWithOpt( size_t optArgCount, const std::wstring& name, JS::HandleValue val )
 {
-    if ( optArgCount > 1 )
+    switch ( optArgCount )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "Internal error: invalid number of optional arguments specified: %d", optArgCount );
-        return std::nullopt;
-    }
-
-    if ( optArgCount == 1 )
-    {
+    case 0:
+        return SetProperty( name, val );
+    case 1:
         return SetProperty( name );
+    default:
+        throw smp::SmpException( smp::string::Formatter() << "Internal error: invalid number of optional arguments specified: " << optArgCount );
     }
-
-    return SetProperty( name, val );
 }
 
-std::optional<uint32_t>
-JsWindow::SetTimeout( JS::HandleValue func, uint32_t delay )
+uint32_t JsWindow::SetTimeout( JS::HandleValue func, uint32_t delay )
 {
     if ( !func.isObject() || !JS_ObjectIsFunction( pJsCtx_, &func.toObject() ) )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "func argument is not a JS function" );
-        return std::nullopt;
+        throw smp::SmpException( "func argument is not a JS function" );
     }
 
     JS::RootedFunction jsFunction( pJsCtx_, JS_ValueToFunction( pJsCtx_, func ) );
     return parentPanel_.SetTimeout( jsFunction, delay );
 }
 
-std::optional<std::nullptr_t>
-JsWindow::ShowConfigure()
+void JsWindow::ShowConfigure()
 {
     PostMessage( parentPanel_.GetHWND(), UWM_SHOW_CONFIGURE, 0, 0 );
-    return nullptr;
 }
 
-std::optional<std::nullptr_t>
-JsWindow::ShowProperties()
+void JsWindow::ShowProperties()
 {
     PostMessage( parentPanel_.GetHWND(), UWM_SHOW_PROPERTIES, 0, 0 );
-    return nullptr;
 }
 
-std::optional<uint32_t>
-JsWindow::get_DlgCode()
+uint32_t JsWindow::get_DlgCode()
 {
     return parentPanel_.DlgCode();
 }
 
-std::optional<uint32_t>
-JsWindow::get_Height()
+uint32_t JsWindow::get_Height()
 {
     return parentPanel_.GetHeight();
 }
 
-std::optional<uint32_t>
-JsWindow::get_ID()
+uint32_t JsWindow::get_ID()
 { // Will work properly only on x86
     return reinterpret_cast<uint32_t>( parentPanel_.GetHWND() );
 }
 
-std::optional<uint32_t>
-JsWindow::get_InstanceType()
+uint32_t JsWindow::get_InstanceType()
 {
     return static_cast<uint32_t>( parentPanel_.GetPanelType() );
 }
 
-std::optional<bool>
-JsWindow::get_IsTransparent()
+bool JsWindow::get_IsTransparent()
 {
     return parentPanel_.get_pseudo_transparent();
 }
 
-std::optional<bool>
-JsWindow::get_IsVisible()
+bool JsWindow::get_IsVisible()
 {
     return IsWindowVisible( parentPanel_.GetHWND() );
 }
 
-std::optional<uint32_t>
-JsWindow::get_MaxHeight()
+uint32_t JsWindow::get_MaxHeight()
 {
     return parentPanel_.MaxSize().y;
 }
 
-std::optional<uint32_t>
-JsWindow::get_MaxWidth()
+uint32_t JsWindow::get_MaxWidth()
 {
     return parentPanel_.MaxSize().x;
 }
 
-std::optional<uint32_t>
-JsWindow::get_MinHeight()
+uint32_t JsWindow::get_MinHeight()
 {
     return parentPanel_.MinSize().y;
 }
 
-std::optional<uint32_t>
-JsWindow::get_MinWidth()
+uint32_t JsWindow::get_MinWidth()
 {
     return parentPanel_.MinSize().x;
 }
 
-std::optional<pfc::string8_fast>
-JsWindow::get_Name()
+pfc::string8_fast JsWindow::get_Name()
 {
     pfc::string8_fast name = parentPanel_.ScriptInfo().name;
     if ( name.is_empty() )
@@ -747,49 +641,38 @@ JsWindow::get_Name()
     return pfc::string8_fast( name.c_str(), name.length() );
 }
 
-std::optional<uint32_t>
-JsWindow::get_Width()
+uint32_t JsWindow::get_Width()
 {
     return parentPanel_.GetWidth();
 }
 
-std::optional<std::nullptr_t>
-JsWindow::put_DlgCode( uint32_t code )
+void JsWindow::put_DlgCode( uint32_t code )
 {
     parentPanel_.DlgCode() = code;
-    return nullptr;
 }
 
-std::optional<std::nullptr_t>
-JsWindow::put_MaxHeight( uint32_t height )
+void JsWindow::put_MaxHeight( uint32_t height )
 {
     parentPanel_.MaxSize().y = height;
     PostMessage( parentPanel_.GetHWND(), UWM_SIZE_LIMIT_CHANGED, 0, uie::size_limit_maximum_height );
-    return nullptr;
 }
 
-std::optional<std::nullptr_t>
-JsWindow::put_MaxWidth( uint32_t width )
+void JsWindow::put_MaxWidth( uint32_t width )
 {
     parentPanel_.MaxSize().x = width;
     PostMessage( parentPanel_.GetHWND(), UWM_SIZE_LIMIT_CHANGED, 0, uie::size_limit_maximum_width );
-    return nullptr;
 }
 
-std::optional<std::nullptr_t>
-JsWindow::put_MinHeight( uint32_t height )
+void JsWindow::put_MinHeight( uint32_t height )
 {
     parentPanel_.MinSize().y = height;
     PostMessage( parentPanel_.GetHWND(), UWM_SIZE_LIMIT_CHANGED, 0, uie::size_limit_minimum_height );
-    return nullptr;
 }
 
-std::optional<std::nullptr_t>
-JsWindow::put_MinWidth( uint32_t width )
+void JsWindow::put_MinWidth( uint32_t width )
 {
     parentPanel_.MinSize().x = width;
     PostMessage( parentPanel_.GetHWND(), UWM_SIZE_LIMIT_CHANGED, 0, uie::size_limit_minimum_width );
-    return nullptr;
 }
 
 } // namespace mozjs

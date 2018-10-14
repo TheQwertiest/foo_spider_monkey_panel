@@ -35,16 +35,16 @@ public:
     static size_t GetInternalSize();
 
 public:
-    std::optional<std::nullptr_t> BuildMenu( JsMenuObject* p, int32_t base_id, int32_t count );
-    std::optional<bool> ExecuteByID( uint32_t id );
-    std::optional<std::nullptr_t> Init( const pfc::string8_fast & root_name );
+    void BuildMenu( JsMenuObject* p, int32_t base_id, int32_t count );
+    bool ExecuteByID( uint32_t id );
+    void Init( const pfc::string8_fast& root_name );
 
 private:
     JsMainMenuManager( JSContext* cx );
 
 private:
-    JSContext * pJsCtx_ = nullptr;
+    JSContext* pJsCtx_ = nullptr;
     mainmenu_manager::ptr menuManager_;
 };
 
-}
+} // namespace mozjs

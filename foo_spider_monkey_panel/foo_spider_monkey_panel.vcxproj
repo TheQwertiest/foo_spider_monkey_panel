@@ -112,7 +112,6 @@
     <ClCompile Include="js_engine\js_gc.cpp" />
     <ClCompile Include="js_engine\native_to_js_invoker.cpp" />
     <ClCompile Include="js_objects\active_x_object.cpp" />
-    <ClCompile Include="js_objects\aero.cpp" />
     <ClCompile Include="js_objects\console.cpp" />
     <ClCompile Include="js_objects\context_menu_manager.cpp" />
     <ClCompile Include="js_objects\drop_source_action.cpp" />
@@ -211,7 +210,6 @@
     <ClInclude Include="js_engine\js_to_native_invoker.h" />
     <ClInclude Include="js_engine\native_to_js_invoker.h" />
     <ClInclude Include="js_objects\active_x_object.h" />
-    <ClInclude Include="js_objects\aero.h" />
     <ClInclude Include="js_objects\enumerator.h" />
     <ClInclude Include="js_objects\fb_window.h" />
     <ClInclude Include="js_objects\internal\fb_properties.h" />

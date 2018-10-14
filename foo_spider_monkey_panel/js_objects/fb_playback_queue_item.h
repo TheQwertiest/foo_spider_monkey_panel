@@ -8,7 +8,6 @@ class JSObject;
 struct JSContext;
 struct JSClass;
 
-
 namespace mozjs
 {
 
@@ -33,16 +32,16 @@ public:
     static size_t GetInternalSize( const t_playback_queue_item& playbackQueueItem );
 
 public:
-    std::optional<JSObject*> get_Handle();
-    std::optional<uint32_t> get_PlaylistIndex();
-    std::optional<uint32_t> get_PlaylistItemIndex();
+    JSObject* get_Handle();
+    uint32_t get_PlaylistIndex();
+    uint32_t get_PlaylistItemIndex();
 
 private:
     JsFbPlaybackQueueItem( JSContext* cx, const t_playback_queue_item& playbackQueueItem );
 
 private:
-    JSContext * pJsCtx_ = nullptr;
+    JSContext* pJsCtx_ = nullptr;
     t_playback_queue_item playbackQueueItem_;
 };
 
-}
+} // namespace mozjs

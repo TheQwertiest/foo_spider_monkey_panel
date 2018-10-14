@@ -41,8 +41,8 @@ public:
     HDC GetHDC() const;
 
 public: // props
-    std::optional<std::uint32_t> get_Height();
-    std::optional<std::uint32_t> get_Width();
+    std::uint32_t get_Height();
+    std::uint32_t get_Width();
 
 private:
     JsGdiRawBitmap( JSContext* cx,
@@ -52,12 +52,12 @@ private:
                     uint32_t height );
 
 private:
-    JSContext * pJsCtx_ = nullptr;
+    JSContext* pJsCtx_ = nullptr;
     gdi::unique_dc_ptr hDc_;
     gdi::unique_bitmap_ptr hBmp_;
-    HBITMAP hBmpOld_;    
+    HBITMAP hBmpOld_;
     uint32_t width_;
     uint32_t height_;
 };
 
-}
+} // namespace mozjs

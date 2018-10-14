@@ -34,16 +34,16 @@ public:
     static size_t GetInternalSize( const ui_selection_holder::ptr& holder );
 
 public:
-   std::optional<std::nullptr_t> SetPlaylistSelectionTracking();
-   std::optional<std::nullptr_t> SetPlaylistTracking();
-   std::optional<std::nullptr_t> SetSelection( JsFbMetadbHandleList* handles );
+    void SetPlaylistSelectionTracking();
+    void SetPlaylistTracking();
+    void SetSelection( JsFbMetadbHandleList* handles );
 
 private:
     JsFbUiSelectionHolder( JSContext* cx, const ui_selection_holder::ptr& holder );
 
 private:
-    JSContext * pJsCtx_ = nullptr;
+    JSContext* pJsCtx_ = nullptr;
     ui_selection_holder::ptr holder_;
 };
 
-}
+} // namespace mozjs
