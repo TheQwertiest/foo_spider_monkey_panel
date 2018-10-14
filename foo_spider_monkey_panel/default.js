@@ -1,12 +1,14 @@
+"use strict";
+
 // Use with GdiDrawText()
-var DT_CENTER = 0x00000001;
-var DT_VCENTER = 0x00000004;
-var DT_WORDBREAK = 0x00000010;
-var DT_CALCRECT = 0x00000400;
-var DT_NOPREFIX = 0x00000800;
+const DT_CENTER = 0x00000001;
+const DT_VCENTER = 0x00000004;
+const DT_WORDBREAK = 0x00000010;
+const DT_CALCRECT = 0x00000400;
+const DT_NOPREFIX = 0x00000800;
 
 // Used in window.GetColorCUI()
-var ColourTypeCUI = {
+const ColourTypeCUI = {
 	text: 0,
 	selection_text: 1,
 	inactive_selection_text: 2,
@@ -17,13 +19,13 @@ var ColourTypeCUI = {
 };
 
 // Used in window.GetFontCUI()
-var FontTypeCUI = {
+const FontTypeCUI = {
 	items: 0,
 	labels: 1
 };
 
 // Used in window.GetColourDUI()
-var ColourTypeDUI = {
+const ColourTypeDUI = {
 	text: 0,
 	background: 1,
 	highlight: 2,
@@ -31,7 +33,7 @@ var ColourTypeDUI = {
 };
 
 // Used in window.GetFontDUI()
-var FontTypeDUI = {
+const FontTypeDUI = {
 	defaults: 0,
 	tabs: 1,
 	lists: 2,
@@ -41,50 +43,31 @@ var FontTypeDUI = {
 };
 
 // Used in window.SetCursor()
-var IDC_HAND = 32649;
+const IDC_HAND = 32649;
 
-var g_is_default_ui = window.InstanceType;
-var g_font = null;
-var g_text = get_version_string() + "\n\nClick here to open the editor.";
-var ww = 0, wh = 0;
-var g_textcolour = 0, g_textcolour_hl = 0;
-var g_backcolour = 0;
-var g_hot = false;
+let g_is_default_ui = window.InstanceType;
+let g_font = null;
+let g_text = `Spider Monkey Panel v${utils.Version}\n\nClick here to open the editor`;
+let g_textcolour = 0;
+let g_textcolour_hl = 0;
+let g_backcolour = 0;
+let g_hot = false;
+
+let ww = 0;
+let wh = 0;
+
 get_font();
 get_colours();
 
-function get_font() {
-	if (g_is_default_ui) { // DUI
-		g_font = window.GetFontDUI(FontTypeDUI.defaults);
-	} else { // CUI
-		g_font = window.GetFontCUI(FontTypeCUI.items);
-	}
-}
-
-function get_colours() {
-	if (g_is_default_ui) { // DUI
-		g_textcolour = window.GetColourDUI(ColourTypeDUI.text);
-		g_textcolour_hl = window.GetColourDUI(ColourTypeDUI.highlight);
-		g_backcolour = window.GetColourDUI(ColourTypeDUI.background);
-	} else { // CUI
-		g_textcolour = window.GetColourCUI(ColourTypeCUI.text);
-		g_textcolour_hl = window.GetColourCUI(ColourTypeCUI.text);
-		g_backcolour = window.GetColourCUI(ColourTypeCUI.background);
-	}
-}
-
-function get_version_string() {
-    return "Spider Monkey Panel v" + utils.Version;
-}
-
-function on_size() {
-	ww = window.Width;
-	wh = window.Height;
-}
 
 function on_paint(gr) {
-	gr.FillSolidRect(0, 0, ww, wh, g_backcolour);
-	gr.GdiDrawText(g_text, g_font, g_hot ? g_textcolour_hl : g_textcolour, 0, 0, ww, wh, DT_VCENTER | DT_CENTER | DT_WORDBREAK | DT_CALCRECT | DT_NOPREFIX);
+    gr.FillSolidRect(0, 0, ww, wh, g_backcolour);
+    gr.GdiDrawText(g_text, g_font, g_hot ? g_textcolour_hl : g_textcolour, 0, 0, ww, wh, DT_VCENTER | DT_CENTER | DT_WORDBREAK | DT_CALCRECT | DT_NOPREFIX);
+}
+
+function on_size(width, height) {
+    ww = width;
+    wh = height;
 }
 
 function on_mouse_lbtn_up(x, y) {
@@ -114,4 +97,24 @@ function on_font_changed() {
 function on_colours_changed() {
 	get_colours();
 	window.Repaint();
+}
+
+function get_font() {
+    if (g_is_default_ui) { // DUI
+        g_font = window.GetFontDUI(FontTypeDUI.defaults);
+    } else { // CUI
+        g_font = window.GetFontCUI(FontTypeCUI.items);
+    }
+}
+
+function get_colours() {
+    if (g_is_default_ui) { // DUI
+        g_textcolour = window.GetColourDUI(ColourTypeDUI.text);
+        g_textcolour_hl = window.GetColourDUI(ColourTypeDUI.highlight);
+        g_backcolour = window.GetColourDUI(ColourTypeDUI.background);
+    } else { // CUI
+        g_textcolour = window.GetColourCUI(ColourTypeCUI.text);
+        g_textcolour_hl = window.GetColourCUI(ColourTypeCUI.text);
+        g_backcolour = window.GetColourCUI(ColourTypeCUI.background);
+    }
 }
