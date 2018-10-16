@@ -100,9 +100,6 @@
     <ClCompile Include="js_objects\fb_profiler.cpp">
       <Filter>js_objects</Filter>
     </ClCompile>
-    <ClCompile Include="js_objects\fb_playlist_recycler_manager.cpp">
-      <Filter>js_objects</Filter>
-    </ClCompile>
     <ClCompile Include="js_objects\fb_playlist_manager.cpp">
       <Filter>js_objects</Filter>
     </ClCompile>
@@ -253,6 +250,9 @@
     <ClCompile Include="ui\ui_html.cpp">
       <Filter>ui</Filter>
     </ClCompile>
+    <ClCompile Include="js_objects\fb_playlist_recycler.cpp">
+      <Filter>js_objects</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="js_engine\js_engine.h">
@@ -379,9 +379,6 @@
       <Filter>js_objects</Filter>
     </ClInclude>
     <ClInclude Include="js_objects\fb_playlist_manager.h">
-      <Filter>js_objects</Filter>
-    </ClInclude>
-    <ClInclude Include="js_objects\fb_playlist_recycler_manager.h">
       <Filter>js_objects</Filter>
     </ClInclude>
     <ClInclude Include="js_objects\fb_profiler.h">
@@ -585,6 +582,9 @@
     <ClInclude Include="smp_exception.h">
       <Filter>z_uncategorized</Filter>
     </ClInclude>
+    <ClInclude Include="js_objects\fb_playlist_recycler.h">
+      <Filter>js_objects</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="default.js">
@@ -609,16 +609,16 @@
     <None Include="..\component\docs\Callbacks.js">
       <Filter>_docs</Filter>
     </None>
-    <None Include="..\component\docs\js_doc\Interfaces.js">
-      <Filter>_docs</Filter>
-    </None>
-    <None Include="..\component\docs\js_doc\IUiHacks.js">
-      <Filter>_docs</Filter>
-    </None>
     <None Include="..\CHANGELOG.md">
       <Filter>_docs</Filter>
     </None>
     <None Include="..\README.md">
+      <Filter>_docs</Filter>
+    </None>
+    <None Include="..\component\docs\js\foo_ui_hacks.js">
+      <Filter>_docs</Filter>
+    </None>
+    <None Include="..\component\docs\js\foo_spider_monkey_panel.js">
       <Filter>_docs</Filter>
     </None>
   </ItemGroup>

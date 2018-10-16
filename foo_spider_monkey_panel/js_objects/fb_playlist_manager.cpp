@@ -6,7 +6,7 @@
 #include <js_objects/fb_metadb_handle_list.h>
 #include <js_objects/fb_playing_item_location.h>
 #include <js_objects/fb_playback_queue_item.h>
-#include <js_objects/fb_playlist_recycler_manager.h>
+#include <js_objects/fb_playlist_recycler.h>
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
 #include <utils/string_helpers.h>
@@ -137,7 +137,7 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( get_ActivePlaylist, JsFbPlaylistManager::get_Activ
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_PlaybackOrder, JsFbPlaylistManager::get_PlaybackOrder );
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_PlayingPlaylist, JsFbPlaylistManager::get_PlayingPlaylist );
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_PlaylistCount, JsFbPlaylistManager::get_PlaylistCount );
-MJS_DEFINE_JS_FN_FROM_NATIVE( get_PlaylistRecyclerManager, JsFbPlaylistManager::get_PlaylistRecyclerManager );
+MJS_DEFINE_JS_FN_FROM_NATIVE( get_PlaylistRecycler, JsFbPlaylistManager::get_PlaylistRecycler );
 MJS_DEFINE_JS_FN_FROM_NATIVE( put_ActivePlaylist, JsFbPlaylistManager::put_ActivePlaylist );
 MJS_DEFINE_JS_FN_FROM_NATIVE( put_PlaybackOrder, JsFbPlaylistManager::put_PlaybackOrder );
 MJS_DEFINE_JS_FN_FROM_NATIVE( put_PlayingPlaylist, JsFbPlaylistManager::put_PlayingPlaylist );
@@ -147,7 +147,7 @@ const JSPropertySpec jsProperties[] = {
     JS_PSGS( "PlaybackOrder", get_PlaybackOrder, put_PlaybackOrder, DefaultPropsFlags() ),
     JS_PSGS( "PlayingPlaylist", get_PlayingPlaylist, put_PlayingPlaylist, DefaultPropsFlags() ),
     JS_PSG( "PlaylistCount", get_PlaylistCount, DefaultPropsFlags() ),
-    JS_PSG( "PlaylistRecyclerManager", get_PlaylistRecyclerManager, DefaultPropsFlags() ),
+    JS_PSG( "PlaylistRecycler", get_PlaylistRecycler, DefaultPropsFlags() ),
     JS_PS_END
 };
 
@@ -893,11 +893,11 @@ uint32_t JsFbPlaylistManager::get_PlaylistCount()
     return playlist_manager::get()->get_playlist_count();
 }
 
-JSObject* JsFbPlaylistManager::get_PlaylistRecyclerManager()
+JSObject* JsFbPlaylistManager::get_PlaylistRecycler()
 {
     if ( !jsPlaylistRecycler_.initialized() )
     {
-        jsPlaylistRecycler_.init( pJsCtx_, JsFbPlaylistRecyclerManager::CreateJs( pJsCtx_ ) );
+        jsPlaylistRecycler_.init( pJsCtx_, JsFbPlaylistRecycler::CreateJs( pJsCtx_ ) );
         if ( !jsPlaylistRecycler_ )
         {
             throw smp::SmpException( "Internal error: failed to create JS object" );

@@ -15,7 +15,7 @@ namespace mozjs
 class JsFbMetadbHandle;
 class JsFbMetadbHandleList;
 class JsFbPlayingItemLocation;
-class JsFbPlaylistRecyclerManager;
+class JsFbPlaylistRecycler;
 
 class JsFbPlaylistManager
     : public JsObjectBase<JsFbPlaylistManager>
@@ -97,7 +97,7 @@ public:
     uint32_t get_PlaybackOrder();
     int32_t get_PlayingPlaylist();
     uint32_t get_PlaylistCount();
-    JSObject* get_PlaylistRecyclerManager();
+    JSObject* get_PlaylistRecycler();
     void put_ActivePlaylist( uint32_t playlistIndex );
     void put_PlaybackOrder( uint32_t order );
     void put_PlayingPlaylist( uint32_t playlistIndex );

@@ -1,6 +1,6 @@
 #include <stdafx.h>
 
-#include "fb_playlist_recycler_manager.h"
+#include "fb_playlist_recycler.h"
 
 #include <js_engine/js_to_native_invoker.h>
 #include <js_objects/fb_metadb_handle_list.h>
@@ -22,7 +22,7 @@ JSClassOps jsOps = {
     nullptr,
     nullptr,
     nullptr,
-    JsFbPlaylistRecyclerManager::FinalizeJsObject,
+    JsFbPlaylistRecycler::FinalizeJsObject,
     nullptr,
     nullptr,
     nullptr,
@@ -30,28 +30,29 @@ JSClassOps jsOps = {
 };
 
 JSClass jsClass = {
-    "FbPlaylistRecyclerManager",
+    "FbPlaylistRecycler",
     DefaultClassFlags(),
     &jsOps
 };
 
-MJS_DEFINE_JS_FN_FROM_NATIVE( Purge, JsFbPlaylistRecyclerManager::Purge )
-MJS_DEFINE_JS_FN_FROM_NATIVE( Restore, JsFbPlaylistRecyclerManager::Restore )
+MJS_DEFINE_JS_FN_FROM_NATIVE( GetContent, JsFbPlaylistRecycler::GetContent )
+MJS_DEFINE_JS_FN_FROM_NATIVE( GetName, JsFbPlaylistRecycler::GetName )
+MJS_DEFINE_JS_FN_FROM_NATIVE( Purge, JsFbPlaylistRecycler::Purge )
+MJS_DEFINE_JS_FN_FROM_NATIVE( Restore, JsFbPlaylistRecycler::Restore )
 
 const JSFunctionSpec jsFunctions[] = {
+    JS_FN( "GetContent", GetContent, 1, DefaultPropsFlags() ),
+    JS_FN( "GetName", GetName, 1, DefaultPropsFlags() ),
     JS_FN( "Purge", Purge, 1, DefaultPropsFlags() ),
     JS_FN( "Restore", Restore, 1, DefaultPropsFlags() ),
     JS_FS_END
 };
 
-MJS_DEFINE_JS_FN_FROM_NATIVE( get_Content, JsFbPlaylistRecyclerManager::get_Content )
-MJS_DEFINE_JS_FN_FROM_NATIVE( get_Count, JsFbPlaylistRecyclerManager::get_Count )
-MJS_DEFINE_JS_FN_FROM_NATIVE( get_Name, JsFbPlaylistRecyclerManager::get_Name )
+MJS_DEFINE_JS_FN_FROM_NATIVE( get_Count, JsFbPlaylistRecycler::get_Count )
 
 const JSPropertySpec jsProperties[] = {
-    JS_PSG( "Content", get_Content, DefaultPropsFlags() ),
+    
     JS_PSG( "Count", get_Count, DefaultPropsFlags() ),
-    JS_PSG( "Name", get_Name, DefaultPropsFlags() ),
     JS_PS_END
 };
 
@@ -60,31 +61,63 @@ const JSPropertySpec jsProperties[] = {
 namespace mozjs
 {
 
-const JSClass JsFbPlaylistRecyclerManager::JsClass = jsClass;
-const JSFunctionSpec* JsFbPlaylistRecyclerManager::JsFunctions = jsFunctions;
-const JSPropertySpec* JsFbPlaylistRecyclerManager::JsProperties = jsProperties;
+const JSClass JsFbPlaylistRecycler::JsClass = jsClass;
+const JSFunctionSpec* JsFbPlaylistRecycler::JsFunctions = jsFunctions;
+const JSPropertySpec* JsFbPlaylistRecycler::JsProperties = jsProperties;
 
-JsFbPlaylistRecyclerManager::JsFbPlaylistRecyclerManager( JSContext* cx )
+JsFbPlaylistRecycler::JsFbPlaylistRecycler( JSContext* cx )
     : pJsCtx_( cx )
 {
 }
 
-JsFbPlaylistRecyclerManager::~JsFbPlaylistRecyclerManager()
+JsFbPlaylistRecycler::~JsFbPlaylistRecycler()
 {
 }
 
-std::unique_ptr<JsFbPlaylistRecyclerManager>
-JsFbPlaylistRecyclerManager::CreateNative( JSContext* cx )
+std::unique_ptr<JsFbPlaylistRecycler>
+JsFbPlaylistRecycler::CreateNative( JSContext* cx )
 {
-    return std::unique_ptr<JsFbPlaylistRecyclerManager>( new JsFbPlaylistRecyclerManager( cx ) );
+    return std::unique_ptr<JsFbPlaylistRecycler>( new JsFbPlaylistRecycler( cx ) );
 }
 
-size_t JsFbPlaylistRecyclerManager::GetInternalSize()
+size_t JsFbPlaylistRecycler::GetInternalSize()
 {
     return 0;
 }
 
-void JsFbPlaylistRecyclerManager::Purge( JS::HandleValue affectedItems )
+JSObject* JsFbPlaylistRecycler::GetContent( uint32_t index )
+{
+    auto api = playlist_manager_v3::get();
+    t_size count = api->recycler_get_count();
+    if ( index >= count )
+    {
+        throw smp::SmpException( "Index is out of bounds" );
+    }
+
+    metadb_handle_list handles;
+    playlist_manager_v3::get()->recycler_get_content( index, handles );
+
+    JS::RootedObject jsObject( pJsCtx_, JsFbMetadbHandleList::CreateJs( pJsCtx_, handles ) );
+    assert( jsObject );
+
+    return jsObject;
+}
+
+pfc::string8_fast JsFbPlaylistRecycler::GetName( uint32_t index )
+{
+    auto api = playlist_manager_v3::get();
+    t_size count = api->recycler_get_count();
+    if ( index >= count )
+    {
+        throw smp::SmpException( "Index is out of bounds" );
+    }
+
+    pfc::string8_fast name;
+    playlist_manager_v3::get()->recycler_get_name( index, name );
+    return name.c_str();
+}
+
+void JsFbPlaylistRecycler::Purge( JS::HandleValue affectedItems )
 {
     JS::RootedObject jsObject( pJsCtx_, affectedItems.toObjectOrNull() );
     if ( !jsObject )
@@ -127,7 +160,7 @@ void JsFbPlaylistRecyclerManager::Purge( JS::HandleValue affectedItems )
     api->recycler_purge( affected );
 }
 
-void JsFbPlaylistRecyclerManager::Restore( uint32_t index )
+void JsFbPlaylistRecycler::Restore( uint32_t index )
 {
     auto api = playlist_manager_v3::get();
     t_size count = api->recycler_get_count();
@@ -139,41 +172,9 @@ void JsFbPlaylistRecyclerManager::Restore( uint32_t index )
     api->recycler_restore( index );
 }
 
-JSObject* JsFbPlaylistRecyclerManager::get_Content( uint32_t index )
-{
-    auto api = playlist_manager_v3::get();
-    t_size count = api->recycler_get_count();
-    if ( index >= count )
-    {
-        throw smp::SmpException( "Index is out of bounds" );
-    }
-
-    metadb_handle_list handles;
-    playlist_manager_v3::get()->recycler_get_content( index, handles );
-
-    JS::RootedObject jsObject( pJsCtx_, JsFbMetadbHandleList::CreateJs( pJsCtx_, handles ) );
-    assert( jsObject );
-
-    return jsObject;
-}
-
-uint32_t JsFbPlaylistRecyclerManager::get_Count()
+uint32_t JsFbPlaylistRecycler::get_Count()
 {
     return playlist_manager_v3::get()->recycler_get_count();
-}
-
-pfc::string8_fast JsFbPlaylistRecyclerManager::get_Name( uint32_t index )
-{
-    auto api = playlist_manager_v3::get();
-    t_size count = api->recycler_get_count();
-    if ( index >= count )
-    {
-        throw smp::SmpException( "Index is out of bounds" );
-    }
-
-    pfc::string8_fast name;
-    playlist_manager_v3::get()->recycler_get_name( index, name );
-    return name.c_str();
 }
 
 } // namespace mozjs

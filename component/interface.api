@@ -76,7 +76,7 @@ plman.ActivePlaylist
 plman.PlaybackOrder
 plman.PlayingPlaylist
 plman.PlaylistCount
-plman.PlaylistRecyclerManager
+plman.PlaylistRecycler
 
 plman.AddItemToPlaybackQueue(handle)
 plman.AddLocations(playlistIndex, paths[, select])

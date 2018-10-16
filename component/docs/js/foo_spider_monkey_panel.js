@@ -694,10 +694,12 @@ let plman = {
     PlaylistCount: undefined, // (uint) (read)
 
     /**
-     * @type {FbPlaylistRecyclerManager}
+     * A Recycle Bin for playlists.
+     * 
+     * @type {FbPlaylistRecycler}
      * @readonly
      */
-    PlaylistRecyclerManager: undefined, // (FbPlaylistRecyclerManager) (read)
+    PlaylistRecycler: undefined, // (FbPlaylistRecycler) (read)
 
     /**
      * This operation is asynchronous and may take some time to complete if it's a large array.
@@ -2180,10 +2182,12 @@ function FbMetadbHandleList() {
 }
 
 /**
+ * A Recycle Bin for playlists.
+ * 
  * @constructor
  * @hideconstructor
  */
-function FbPlaylistRecyclerManager() {
+function FbPlaylistRecycler() {
 
     /**
      * @type {number}
@@ -2195,13 +2199,13 @@ function FbPlaylistRecyclerManager() {
      * @param {number} index
      * @return {string}
      */
-    this.Name = function (index) {}; // (string) (read)
+    this.GetName = function (index) {}; // (string) (read)
 
     /**
      * @param {number} index
      * @return {FbMetadbHandleList}
      */
-    this.Content = function (index) {}; // (FbMetadbHandleList) (read)
+    this.GetContent = function (index) {}; // (FbMetadbHandleList) (read)
 
     /**
      * @param {number} affectedItems array like [1, 3, 5]

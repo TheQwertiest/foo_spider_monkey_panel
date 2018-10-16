@@ -12,8 +12,8 @@ struct JSClass;
 namespace mozjs
 {
 
-class JsFbPlaylistRecyclerManager
-    : public JsObjectBase<JsFbPlaylistRecyclerManager>
+class JsFbPlaylistRecycler
+    : public JsObjectBase<JsFbPlaylistRecycler>
 {
 public:
     static constexpr bool HasProto = false;
@@ -25,22 +25,22 @@ public:
     static const JSPropertySpec* JsProperties;
 
 public:
-    ~JsFbPlaylistRecyclerManager();
+    ~JsFbPlaylistRecycler();
 
-    static std::unique_ptr<JsFbPlaylistRecyclerManager> CreateNative( JSContext* cx );
+    static std::unique_ptr<JsFbPlaylistRecycler> CreateNative( JSContext* cx );
     static size_t GetInternalSize();
 
 public:
+    JSObject* GetContent( uint32_t index );
+    pfc::string8_fast GetName( uint32_t index );
     void Purge( JS::HandleValue affectedItems );
     void Restore( uint32_t index );
 
 public:
-    JSObject* get_Content( uint32_t index );
     uint32_t get_Count();
-    pfc::string8_fast get_Name( uint32_t index );
 
 private:
-    JsFbPlaylistRecyclerManager( JSContext* cx );
+    JsFbPlaylistRecycler( JSContext* cx );
 
 private:
     JSContext* pJsCtx_ = nullptr;

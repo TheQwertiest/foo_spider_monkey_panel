@@ -51,7 +51,7 @@
     <ClCompile>
       <AdditionalIncludeDirectories>$(ProjectDir);$(IncludePath)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalOptions>/Zc:threadSafeInit- /Zm200 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/Zm200 %(AdditionalOptions)</AdditionalOptions>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <TreatWarningAsError>true</TreatWarningAsError>
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
@@ -123,7 +123,7 @@
     <ClCompile Include="js_objects\fb_playback_queue_item.cpp" />
     <ClCompile Include="js_objects\fb_playing_item_location.cpp" />
     <ClCompile Include="js_objects\fb_playlist_manager.cpp" />
-    <ClCompile Include="js_objects\fb_playlist_recycler_manager.cpp" />
+    <ClCompile Include="js_objects\fb_playlist_recycler.cpp" />
     <ClCompile Include="js_objects\fb_profiler.cpp" />
     <ClCompile Include="js_objects\fb_title_format.cpp" />
     <ClCompile Include="js_objects\fb_tooltip.cpp" />
@@ -212,6 +212,7 @@
     <ClInclude Include="js_engine\native_to_js_invoker.h" />
     <ClInclude Include="js_objects\active_x_object.h" />
     <ClInclude Include="js_objects\enumerator.h" />
+    <ClInclude Include="js_objects\fb_playlist_recycler.h" />
     <ClInclude Include="js_objects\fb_window.h" />
     <ClInclude Include="js_objects\internal\fb_properties.h" />
     <ClInclude Include="js_objects\internal\global_heap_manager.h" />
@@ -226,7 +227,6 @@
     <ClInclude Include="js_objects\fb_playback_queue_item.h" />
     <ClInclude Include="js_objects\fb_playing_item_location.h" />
     <ClInclude Include="js_objects\fb_playlist_manager.h" />
-    <ClInclude Include="js_objects\fb_playlist_recycler_manager.h" />
     <ClInclude Include="js_objects\fb_profiler.h" />
     <ClInclude Include="js_objects\fb_title_format.h" />
     <ClInclude Include="js_objects\fb_tooltip.h" />
@@ -300,8 +300,8 @@
     <None Include="..\component\docs\Codepages.js" />
     <None Include="..\component\docs\Flags.js" />
     <None Include="..\component\docs\Helpers.js" />
-    <None Include="..\component\docs\js_doc\Interfaces.js" />
-    <None Include="..\component\docs\js_doc\IUiHacks.js" />
+    <None Include="..\component\docs\js\foo_spider_monkey_panel.js" />
+    <None Include="..\component\docs\js\foo_ui_hacks.js" />
     <None Include="..\component\interface.api" />
     <None Include="..\component\jscript.api" />
     <None Include="..\README.md" />
