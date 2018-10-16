@@ -18,6 +18,7 @@ if '%2'=='--debug' (
 
 set COMPONENT_DIR_NO_SLASH=%ROOT_DIR%component
 set RESULT_CONFIGURATION_DIR=%ROOT_DIR%_result\Win32_%CONFIGURATION%\
+set DOC_DIR_NO_SLASH=%ROOT_DIR%_result\html
 set COMPONENT_LICENSE=%ROOT_DIR%LICENSE
 set COMPONENT_DLL=%RESULT_CONFIGURATION_DIR%\bin\foo_spider_monkey_panel.dll
 set COMPONENT_PDB=%RESULT_CONFIGURATION_DIR%\dbginfo\foo_spider_monkey_panel.pdb
@@ -35,6 +36,12 @@ if exist "%COMPONENT_OUT_DIR_NO_SLASH%" rmdir /s/q "%COMPONENT_OUT_DIR_NO_SLASH%
 mkdir "%COMPONENT_OUT_DIR_NO_SLASH%"
 xcopy /r/y/s/q/i "%COMPONENT_DIR_NO_SLASH%" "%COMPONENT_OUT_DIR_NO_SLASH%"
 if errorlevel 1 goto fail
+if exist "%DOC_DIR_NO_SLASH%" (
+    xcopy /r/y/s/q/i "%DOC_DIR_NO_SLASH%" "%COMPONENT_OUT_DIR_NO_SLASH%\docs\html"
+    if errorlevel 1 goto fail
+) else (
+    echo No docs found. Skipping...
+)
 xcopy /r/y/s/q/i "%SAMPLES_COMPLETE_DIR_NO_SLASH%" "%COMPONENT_OUT_DIR_NO_SLASH%\samples\complete"
 if errorlevel 1 goto fail
 xcopy /r/y/s/q "%MOZ_JS_BIN_DIR%*.dll" "%COMPONENT_OUT_DIR%"

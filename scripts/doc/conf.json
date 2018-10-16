@@ -1,0 +1,5 @@
+{
+    "opts": {
+         "template": "C:/Users/appveyor/AppData/Roaming/npm/node_modules/tui-jsdoc-template"
+    }
+}

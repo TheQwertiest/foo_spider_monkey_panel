@@ -10,4 +10,5 @@
 - patch_submodules.bat - Patch submodules.
 - unpack_mozjs.bat - Unpack SpiderMonkey binaries and headers to the proper place.
 
-
+- install_jsdoc.bat - Install jsdoc npm package and required theme.
+- create_doc.bat - Create html file from jsodc'd .js file.
