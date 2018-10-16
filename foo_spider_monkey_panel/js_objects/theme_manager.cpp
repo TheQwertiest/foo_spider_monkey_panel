@@ -127,7 +127,7 @@ void JsThemeManager::DrawThemeBackground( JsGdiGraphics* gr,
         pclip_rc = nullptr;
     }
 
-    HRESULT hr = ::DrawThemeBackground( hTheme_, dc, partId_, 0, &rc, pclip_rc );
+    HRESULT hr = ::DrawThemeBackground( hTheme_, dc, partId_, stateId_, &rc, pclip_rc );
     IF_HR_FAILED_THROW_SMP( hr, "DrawThemeBackground" );
 }
 
