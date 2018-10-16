@@ -30,7 +30,7 @@ public:
 
     GlobalHeapManager& GetHeapManager() const;
 
-    static void CleanupBeforeDestruction( JSContext* cx, JS::HandleObject self );
+    static void PrepareForGc( JSContext* cx, JS::HandleObject self );
 
 public: // methods
     void IncludeScript( const pfc::string8_fast& path );
@@ -45,7 +45,7 @@ public: // methods
             auto pNative = static_cast<T*>( JS_GetInstancePrivate( cx, jsProperty, &T::JsClass, nullptr ) );
             if ( pNative )
             {
-                pNative->CleanupBeforeDestruction();
+                pNative->PrepareForGc();
             }
         }
     }

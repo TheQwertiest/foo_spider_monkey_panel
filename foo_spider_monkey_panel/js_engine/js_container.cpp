@@ -1,6 +1,7 @@
 #include <stdafx.h>
 #include "js_container.h"
 
+#include <js_engine/js_engine.h>
 #include <js_engine/js_compartment_inner.h>
 #include <js_objects/global_object.h>
 #include <js_objects/gdi_graphics.h>
@@ -17,38 +18,44 @@
 #pragma warning( disable : 4251 ) // dll interface warning
 #pragma warning( disable : 4996 ) // C++17 deprecation warning
 #include <js/Wrapper.h>
-#pragma warning( pop ) 
-
+#pragma warning( pop )
 
 namespace mozjs
 {
 
-JsContainer::JsContainer()    
+JsContainer::JsContainer( js_panel_window& parentPanel )
 {
+    pParentPanel_ = &parentPanel;
+
+    bool bRet = JsEngine::GetInstance().RegisterContainer( *this );
+    jsStatus_ = ( bRet ? JsStatus::Ready : JsStatus::EngineFailed );
 }
 
 JsContainer::~JsContainer()
 {
     Finalize();
+    JsEngine::GetInstance().UnregisterContainer( *this );
     pJsCtx_ = nullptr;
 }
 
-void JsContainer::Prepare( JSContext *cx, js_panel_window& parentPanel )
+void JsContainer::SetJsCtx( JSContext* cx )
 {
     assert( cx );
-
     pJsCtx_ = cx;
-    pParentPanel_ = &parentPanel;
-    jsStatus_ = JsStatus::Prepared;    
 }
 
 bool JsContainer::Initialize()
 {
-    assert( JsStatus::NotPrepared != jsStatus_ );
+    if ( JsStatus::EngineFailed == jsStatus_ )
+    {
+        Fail( "JS engine failed to initialize" );
+        return false;
+    }
+
     assert( pJsCtx_ );
     assert( pParentPanel_ );
 
-    if ( JsStatus::Ready == jsStatus_ )
+    if ( JsStatus::Working == jsStatus_ )
     {
         return true;
     }
@@ -65,8 +72,7 @@ bool JsContainer::Initialize()
 
         jsGlobal_.init( pJsCtx_, JsGlobalObject::CreateNative( pJsCtx_, *this, *pParentPanel_ ) );
         assert( jsGlobal_ );
-        scope::final_action autoGlobal( [&]()
-        {
+        scope::final_action autoGlobal( [&]() {
             jsGlobal_.reset();
         } );
 
@@ -80,36 +86,36 @@ bool JsContainer::Initialize()
     catch ( ... )
     {
         error::ExceptionToJsError( pJsCtx_ );
-        
+
         const auto errorText = error::GetTextFromCurrentJsError( pJsCtx_ );
         JS_ClearPendingException( pJsCtx_ );
 
         Fail( errorText );
         return false;
     }
-    
+
     pNativeGlobal_ = static_cast<JsGlobalObject*>( JS_GetPrivate( jsGlobal_ ) );
     assert( pNativeGlobal_ );
     pNativeGraphics_ = static_cast<JsGdiGraphics*>( JS_GetPrivate( jsGraphics_ ) );
     assert( pNativeGraphics_ );
 
-    jsStatus_ = JsStatus::Ready;
+    jsStatus_ = JsStatus::Working;
 
     return true;
 }
 
 void JsContainer::Finalize()
 {
-    if ( JsStatus::NotPrepared == jsStatus_ )
+    if ( JsStatus::Ready == jsStatus_ )
     {
         return;
     }
 
-    if ( JsStatus::Failed != jsStatus_ )
-    {// Don't suppress error: it should be cleared only on initialization
-        jsStatus_ = JsStatus::Prepared;
+    if ( JsStatus::Failed != jsStatus_ && JsStatus::EngineFailed != jsStatus_ )
+    { // Don't suppress error: it should be cleared only on initialization
+        jsStatus_ = JsStatus::Ready;
     }
-    
+
     pNativeGraphics_ = nullptr;
     jsGraphics_.reset();
     jsDropAction_.reset();
@@ -124,7 +130,7 @@ void JsContainer::Finalize()
         JSAutoRequest ar( pJsCtx_ );
         JSAutoCompartment ac( pJsCtx_, jsGlobal_ );
 
-        JsGlobalObject::CleanupBeforeDestruction( pJsCtx_, jsGlobal_ );
+        JsGlobalObject::PrepareForGc( pJsCtx_, jsGlobal_ );
 
         auto pJsCompartment = static_cast<JsCompartmentInner*>( JS_GetCompartmentPrivate( js::GetContextCompartment( pJsCtx_ ) ) );
         assert( pJsCompartment );
@@ -135,14 +141,16 @@ void JsContainer::Finalize()
     jsGlobal_.reset();
 }
 
-void JsContainer::Fail( const pfc::string8_fast &errorText )
+void JsContainer::Fail( const pfc::string8_fast& errorText )
 {
     Finalize();
-    jsStatus_ = JsStatus::Failed;
+    if ( JsStatus::EngineFailed != jsStatus_ )
+    { // Don't supress error
+        jsStatus_ = JsStatus::Failed;
+    }
 
     assert( pParentPanel_ );
-    const pfc::string8_fast errorTextPadded = [pParentPanel = pParentPanel_, &errorText]()
-    {
+    const pfc::string8_fast errorTextPadded = [pParentPanel = pParentPanel_, &errorText]() {
         pfc::string8_fast text = "Error: " SMP_NAME_WITH_VERSION;
         text += " (";
         text += pParentPanel->ScriptInfo().build_info_string();
@@ -165,11 +173,11 @@ JsContainer::JsStatus JsContainer::GetStatus() const
     return jsStatus_;
 }
 
-bool JsContainer::ExecuteScript( const pfc::string8_fast&  scriptCode )
+bool JsContainer::ExecuteScript( const pfc::string8_fast& scriptCode )
 {
     assert( pJsCtx_ );
     assert( jsGlobal_.initialized() );
-    assert( JsStatus::Ready == jsStatus_ );
+    assert( JsStatus::Working == jsStatus_ );
 
     isParsingScript_ = true;
 
@@ -179,7 +187,7 @@ bool JsContainer::ExecuteScript( const pfc::string8_fast&  scriptCode )
     opts.setUTF8( true );
     opts.setFileAndLine( "<main>", 1 );
 
-    JS::RootedValue dummyRval( pJsCtx_ );    
+    JS::RootedValue dummyRval( pJsCtx_ );
     bool bRet = JS::Evaluate( pJsCtx_, opts, scriptCode.c_str(), scriptCode.length(), &dummyRval );
 
     isParsingScript_ = false;
@@ -193,20 +201,21 @@ void JsContainer::InvokeOnDragAction( const pfc::string8_fast& functionName, con
         return;
     }
 
+    auto selfSaver = shared_from_this();
     scope::JsScope autoScope( pJsCtx_, jsGlobal_ );
 
     if ( !CreateDropActionIfNeeded() )
-    {// reports
+    { // reports
         return;
     }
 
     pNativeDropAction_->GetDropActionParams() = actionParams;
 
     auto retVal = InvokeJsCallback( functionName,
-                                    static_cast<JS::HandleObject>(jsDropAction_),
-                                    static_cast<int32_t>(pt.x),
-                                    static_cast<int32_t>(pt.y),
-                                    static_cast<uint32_t>(keyState) );
+                                    static_cast<JS::HandleObject>( jsDropAction_ ),
+                                    static_cast<int32_t>( pt.x ),
+                                    static_cast<int32_t>( pt.y ),
+                                    static_cast<uint32_t>( keyState ) );
     if ( retVal )
     {
         actionParams = pNativeDropAction_->GetDropActionParams();
@@ -214,12 +223,13 @@ void JsContainer::InvokeOnDragAction( const pfc::string8_fast& functionName, con
 }
 
 void JsContainer::InvokeOnNotify( WPARAM wp, LPARAM lp )
-{   
+{
     if ( !IsReadyForCallback() )
     {
         return;
     }
 
+    auto selfSaver = shared_from_this();
     scope::JsScope autoScope( pJsCtx_, jsGlobal_ );
 
     // Bind object to current compartment
@@ -248,11 +258,12 @@ void JsContainer::InvokeOnPaint( Gdiplus::Graphics& gr )
         return;
     }
 
+    auto selfSaver = shared_from_this();
     pNativeGraphics_->SetGraphicsObject( &gr );
 
     if ( !InvokeJsCallback( "on_paint",
-                           static_cast<JS::HandleObject>(jsGraphics_) ) )
-    {// Will clear pNativeGraphics_ on error through Fail
+                            static_cast<JS::HandleObject>( jsGraphics_ ) ) )
+    { // Will clear pNativeGraphics_ on error through Fail
         return;
     }
     pNativeGraphics_->SetGraphicsObject( nullptr );
@@ -260,31 +271,34 @@ void JsContainer::InvokeOnPaint( Gdiplus::Graphics& gr )
 
 uint32_t JsContainer::SetInterval( HWND hWnd, uint32_t delay, JS::HandleFunction jsFunction )
 {
-    if ( JsStatus::Ready != jsStatus_ )
-    {// allowed to be executed during script evaluation
+    if ( JsStatus::Working != jsStatus_ )
+    { // allowed to be executed during script evaluation
         return 0;
     }
 
+    // No need to self-save since this call can't cause suicide
     return HostTimerDispatcher::Get().setInterval( hWnd, delay, pJsCtx_, jsFunction );
 }
 
 uint32_t JsContainer::SetTimeout( HWND hWnd, uint32_t delay, JS::HandleFunction jsFunction )
 {
-    if ( JsStatus::Ready != jsStatus_ )
-    {// allowed to be executed during script evaluation
+    if ( JsStatus::Working != jsStatus_ )
+    { // allowed to be executed during script evaluation
         return 0;
     }
 
+    // No need to self-save since this call can't cause suicide
     return HostTimerDispatcher::Get().setTimeout( hWnd, delay, pJsCtx_, jsFunction );
 }
 
 void JsContainer::KillTimer( uint32_t timerId )
 {
-    if ( !IsReadyForCallback() )
-    {
+    if ( JsStatus::Working != jsStatus_ )
+    { // allowed to be executed during script evaluation
         return;
     }
 
+    // No need to self-save since this call can't cause suicide
     HostTimerDispatcher::Get().killTimer( timerId );
 }
 
@@ -295,6 +309,7 @@ void JsContainer::InvokeTimerFunction( uint32_t timerId )
         return;
     }
 
+    auto selfSaver = shared_from_this();
     HostTimerDispatcher::Get().onInvokeMessage( timerId );
 }
 
@@ -312,19 +327,19 @@ bool JsContainer::CreateDropActionIfNeeded()
     }
     catch ( ... )
     {
-        error::ExceptionToJsError( pJsCtx_ );        
+        error::ExceptionToJsError( pJsCtx_ );
         return false;
     }
 
-    pNativeDropAction_ = static_cast<JsDropSourceAction*>(JS_GetPrivate( jsDropAction_ ));
+    pNativeDropAction_ = static_cast<JsDropSourceAction*>( JS_GetPrivate( jsDropAction_ ) );
     assert( pNativeDropAction_ );
-    
+
     return true;
 }
 
 bool JsContainer::IsReadyForCallback() const
 {
-    return ( JsStatus::Ready == jsStatus_ ) && !isParsingScript_;
+    return ( JsStatus::Working == jsStatus_ ) && !isParsingScript_;
 }
 
-}
+} // namespace mozjs

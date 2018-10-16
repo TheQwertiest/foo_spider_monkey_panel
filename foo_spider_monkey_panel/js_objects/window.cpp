@@ -145,7 +145,7 @@ JsWindow::JsWindow( JSContext* cx, js_panel_window& parentPanel, std::unique_ptr
 
 JsWindow::~JsWindow()
 {
-    CleanupBeforeDestruction();
+    PrepareForGc();
 }
 
 std::unique_ptr<JsWindow>
@@ -165,7 +165,7 @@ size_t JsWindow::GetInternalSize( const js_panel_window& parentPanel )
     return sizeof( FbProperties );
 }
 
-void JsWindow::CleanupBeforeDestruction()
+void JsWindow::PrepareForGc()
 {
     if ( fbProperties_ )
     {
@@ -176,20 +176,37 @@ void JsWindow::CleanupBeforeDestruction()
         dropTargetHandler_->RevokeDragDrop();
         dropTargetHandler_.Release();
     }
+
+    isFinalized_ = true;
 }
 
 void JsWindow::ClearInterval( uint32_t intervalId )
 {
+    if ( isFinalized_ )
+    {
+        return;
+    }
+
     parentPanel_.ClearIntervalOrTimeout( intervalId );
 }
 
 void JsWindow::ClearTimeout( uint32_t timeoutId )
 {
+    if ( isFinalized_ )
+    {
+        return;
+    }
+
     parentPanel_.ClearIntervalOrTimeout( timeoutId );
 }
 
 JSObject* JsWindow::CreatePopupMenu()
 {
+    if ( isFinalized_ )
+    {
+        return nullptr;
+    }
+
     JS::RootedObject jsObject( pJsCtx_, JsMenuObject::CreateJs( pJsCtx_, parentPanel_.GetHWND() ) );
     assert( jsObject );
 
@@ -198,6 +215,11 @@ JSObject* JsWindow::CreatePopupMenu()
 
 JSObject* JsWindow::CreateThemeManager( const std::wstring& classid )
 {
+    if ( isFinalized_ )
+    {
+        return nullptr;
+    }
+
     if ( !JsThemeManager::HasThemeData( parentPanel_.GetHWND(), classid ) )
     { // Not a error: not found
         return nullptr;
@@ -211,6 +233,11 @@ JSObject* JsWindow::CreateThemeManager( const std::wstring& classid )
 
 JSObject* JsWindow::CreateTooltip( const std::wstring& name, float pxSize, uint32_t style )
 {
+    if ( isFinalized_ )
+    {
+        return nullptr;
+    }
+
     auto& tooltip_param = parentPanel_.GetPanelTooltipParam();
     tooltip_param.fontName = name;
     tooltip_param.fontSize = pxSize;
@@ -241,6 +268,11 @@ JSObject* JsWindow::CreateTooltipWithOpt( size_t optArgCount, const std::wstring
 
 void JsWindow::DefinePanel( const pfc::string8_fast& name, JS::HandleValue options )
 { // TODO: clean up this mess
+    if ( isFinalized_ )
+    {
+        return;
+    }
+
     if ( isPanelDefined_ )
     {
         throw smp::SmpException( "DefinePanel can't be called twice" );
@@ -324,6 +356,11 @@ void JsWindow::DefinePanelWithOpt( size_t optArgCount, const pfc::string8_fast& 
 
 uint32_t JsWindow::GetColourCUI( uint32_t type, const std::wstring& guidstr )
 {
+    if ( isFinalized_ )
+    {
+        return 0;
+    }
+
     if ( parentPanel_.GetPanelType() != js_panel_window::PanelType::CUI )
     {
         throw smp::SmpException( "Can be called only in CUI" );
@@ -358,6 +395,11 @@ uint32_t JsWindow::GetColourCUIWithOpt( size_t optArgCount, uint32_t type, const
 
 uint32_t JsWindow::GetColourDUI( uint32_t type )
 {
+    if ( isFinalized_ )
+    {
+        return 0;
+    }
+
     if ( parentPanel_.GetPanelType() != js_panel_window::PanelType::DUI )
     {
         throw smp::SmpException( "Can be called only in DUI" );
@@ -368,6 +410,11 @@ uint32_t JsWindow::GetColourDUI( uint32_t type )
 
 JSObject* JsWindow::GetFontCUI( uint32_t type, const std::wstring& guidstr )
 {
+    if ( isFinalized_ )
+    {
+        return nullptr;
+    }
+
     if ( parentPanel_.GetPanelType() != js_panel_window::PanelType::CUI )
     {
         throw smp::SmpException( "Can be called only in CUI" );
@@ -417,6 +464,11 @@ JSObject* JsWindow::GetFontCUIWithOpt( size_t optArgCount, uint32_t type, const 
 
 JSObject* JsWindow::GetFontDUI( uint32_t type )
 {
+    if ( isFinalized_ )
+    {
+        return nullptr;
+    }
+
     if ( parentPanel_.GetPanelType() != js_panel_window::PanelType::DUI )
     {
         throw smp::SmpException( "Can be called only in DUI" );
@@ -442,6 +494,11 @@ JSObject* JsWindow::GetFontDUI( uint32_t type )
 
 JS::Value JsWindow::GetProperty( const std::wstring& name, JS::HandleValue defaultval )
 {
+    if ( isFinalized_ )
+    {
+        return JS::UndefinedValue();
+    }
+
     return fbProperties_->GetProperty( name, defaultval );
 }
 
@@ -460,6 +517,11 @@ JS::Value JsWindow::GetPropertyWithOpt( size_t optArgCount, const std::wstring& 
 
 void JsWindow::NotifyOthers( const std::wstring& name, JS::HandleValue info )
 {
+    if ( isFinalized_ )
+    {
+        return;
+    }
+
     // TODO: think about replacing with PostMessage
     panel_manager::instance().send_msg_to_others(
         parentPanel_.GetHWND(),
@@ -470,11 +532,21 @@ void JsWindow::NotifyOthers( const std::wstring& name, JS::HandleValue info )
 
 void JsWindow::Reload()
 {
+    if ( isFinalized_ )
+    {
+        return;
+    }
+
     PostMessage( parentPanel_.GetHWND(), UWM_RELOAD, 0, 0 );
 }
 
 void JsWindow::Repaint( bool force )
 {
+    if ( isFinalized_ )
+    {
+        return;
+    }
+
     parentPanel_.Repaint( force );
 }
 
@@ -493,6 +565,11 @@ void JsWindow::RepaintWithOpt( size_t optArgCount, bool force )
 
 void JsWindow::RepaintRect( uint32_t x, uint32_t y, uint32_t w, uint32_t h, bool force )
 {
+    if ( isFinalized_ )
+    {
+        return;
+    }
+
     parentPanel_.RepaintRect( x, y, w, h, force );
 }
 
@@ -511,11 +588,21 @@ void JsWindow::RepaintRectWithOpt( size_t optArgCount, uint32_t x, uint32_t y, u
 
 void JsWindow::SetCursor( uint32_t id )
 {
+    if ( isFinalized_ )
+    {
+        return;
+    }
+
     ::SetCursor( LoadCursor( nullptr, MAKEINTRESOURCE( id ) ) );
 }
 
 uint32_t JsWindow::SetInterval( JS::HandleValue func, uint32_t delay )
 { // TODO: try to remove the roundabout call (JsWindow > js_panel_window > JsContainer)
+    if ( isFinalized_ )
+    {
+        return 0;
+    }
+
     if ( !func.isObject() || !JS_ObjectIsFunction( pJsCtx_, &func.toObject() ) )
     {
         throw smp::SmpException( "func argument is not a JS function" );
@@ -527,6 +614,11 @@ uint32_t JsWindow::SetInterval( JS::HandleValue func, uint32_t delay )
 
 void JsWindow::SetProperty( const std::wstring& name, JS::HandleValue val )
 {
+    if ( isFinalized_ )
+    {
+        return;
+    }
+
     fbProperties_->SetProperty( name, val );
 }
 
@@ -545,6 +637,11 @@ void JsWindow::SetPropertyWithOpt( size_t optArgCount, const std::wstring& name,
 
 uint32_t JsWindow::SetTimeout( JS::HandleValue func, uint32_t delay )
 {
+    if ( isFinalized_ )
+    {
+        return 0;
+    }
+
     if ( !func.isObject() || !JS_ObjectIsFunction( pJsCtx_, &func.toObject() ) )
     {
         throw smp::SmpException( "func argument is not a JS function" );
@@ -556,66 +653,132 @@ uint32_t JsWindow::SetTimeout( JS::HandleValue func, uint32_t delay )
 
 void JsWindow::ShowConfigure()
 {
+    if ( isFinalized_ )
+    {
+        return;
+    }
+
     PostMessage( parentPanel_.GetHWND(), UWM_SHOW_CONFIGURE, 0, 0 );
 }
 
 void JsWindow::ShowProperties()
 {
+    if ( isFinalized_ )
+    {
+        return;
+    }
+
     PostMessage( parentPanel_.GetHWND(), UWM_SHOW_PROPERTIES, 0, 0 );
 }
 
 uint32_t JsWindow::get_DlgCode()
 {
+    if ( isFinalized_ )
+    {
+        return 0;
+    }
+
     return parentPanel_.DlgCode();
 }
 
 uint32_t JsWindow::get_Height()
 {
+    if ( isFinalized_ )
+    {
+        return 0;
+    }
+
     return parentPanel_.GetHeight();
 }
 
 uint32_t JsWindow::get_ID()
-{ // Will work properly only on x86
+{
+    if ( isFinalized_ )
+    {
+        return 0;
+    }
+    
+    // Will work properly only on x86
     return reinterpret_cast<uint32_t>( parentPanel_.GetHWND() );
 }
 
 uint32_t JsWindow::get_InstanceType()
 {
+    if ( isFinalized_ )
+    {
+        return 0;
+    }
+
     return static_cast<uint32_t>( parentPanel_.GetPanelType() );
 }
 
 bool JsWindow::get_IsTransparent()
 {
+    if ( isFinalized_ )
+    {
+        return false;
+    }
+
     return parentPanel_.get_pseudo_transparent();
 }
 
 bool JsWindow::get_IsVisible()
 {
+    if ( isFinalized_ )
+    {
+        return false;
+    }
+
     return IsWindowVisible( parentPanel_.GetHWND() );
 }
 
 uint32_t JsWindow::get_MaxHeight()
 {
+    if ( isFinalized_ )
+    {
+        return 0;
+    }
+
     return parentPanel_.MaxSize().y;
 }
 
 uint32_t JsWindow::get_MaxWidth()
 {
+    if ( isFinalized_ )
+    {
+        return 0;
+    }
+
     return parentPanel_.MaxSize().x;
 }
 
 uint32_t JsWindow::get_MinHeight()
 {
+    if ( isFinalized_ )
+    {
+        return 0;
+    }
+
     return parentPanel_.MinSize().y;
 }
 
 uint32_t JsWindow::get_MinWidth()
 {
+    if ( isFinalized_ )
+    {
+        return 0;
+    }
+
     return parentPanel_.MinSize().x;
 }
 
 pfc::string8_fast JsWindow::get_Name()
 {
+    if ( isFinalized_ )
+    {
+        return "";
+    }
+
     pfc::string8_fast name = parentPanel_.ScriptInfo().name;
     if ( name.is_empty() )
     {
@@ -627,34 +790,64 @@ pfc::string8_fast JsWindow::get_Name()
 
 uint32_t JsWindow::get_Width()
 {
+    if ( isFinalized_ )
+    {
+        return 0;
+    }
+
     return parentPanel_.GetWidth();
 }
 
 void JsWindow::put_DlgCode( uint32_t code )
 {
+    if ( isFinalized_ )
+    {
+        return;
+    }
+
     parentPanel_.DlgCode() = code;
 }
 
 void JsWindow::put_MaxHeight( uint32_t height )
 {
+    if ( isFinalized_ )
+    {
+        return;
+    }
+
     parentPanel_.MaxSize().y = height;
     PostMessage( parentPanel_.GetHWND(), UWM_SIZE_LIMIT_CHANGED, 0, uie::size_limit_maximum_height );
 }
 
 void JsWindow::put_MaxWidth( uint32_t width )
 {
+    if ( isFinalized_ )
+    {
+        return;
+    }
+
     parentPanel_.MaxSize().x = width;
     PostMessage( parentPanel_.GetHWND(), UWM_SIZE_LIMIT_CHANGED, 0, uie::size_limit_maximum_width );
 }
 
 void JsWindow::put_MinHeight( uint32_t height )
 {
+    if ( isFinalized_ )
+    {
+        return;
+    }
+
     parentPanel_.MinSize().y = height;
     PostMessage( parentPanel_.GetHWND(), UWM_SIZE_LIMIT_CHANGED, 0, uie::size_limit_minimum_height );
 }
 
 void JsWindow::put_MinWidth( uint32_t width )
 {
+    if ( isFinalized_ )
+    {
+        return;
+    }
+
     parentPanel_.MinSize().x = width;
     PostMessage( parentPanel_.GetHWND(), UWM_SIZE_LIMIT_CHANGED, 0, uie::size_limit_minimum_width );
 }

@@ -155,7 +155,7 @@ void JsEngine::OnHeartbeat()
     {// OOM
         for ( auto& [hWnd, jsContainer] : registeredContainers_ )
         {
-            if ( mozjs::JsContainer::JsStatus::Failed != jsContainer.get().GetStatus() )
+            if ( mozjs::JsContainer::JsStatus::Working == jsContainer.get().GetStatus() )
             {
                 jsContainer.get().Fail( "Out of memory" );
             }
@@ -198,22 +198,22 @@ void JsEngine::PrepareForExit()
     shouldShutdown_ = true;
 }
 
-bool JsEngine::RegisterPanel( js_panel_window& panel, JsContainer& jsContainer )
+bool JsEngine::RegisterContainer( JsContainer& jsContainer )
 {
     if ( !registeredContainers_.size() && !Initialize() )
     {
         return false;
     }
 
-    jsContainer.Prepare( pJsCtx_, panel );
-    registeredContainers_.insert_or_assign( panel.GetHWND(), jsContainer );
+    jsContainer.SetJsCtx( pJsCtx_ );
+    registeredContainers_.insert_or_assign( &jsContainer, jsContainer );
 
     return true;
 }
 
-void JsEngine::UnregisterPanel( js_panel_window& parentPanel )
+void JsEngine::UnregisterContainer( JsContainer& jsContainer )
 {
-    auto elem = registeredContainers_.find( parentPanel.GetHWND() );
+    auto elem = registeredContainers_.find( &jsContainer );
     if ( elem != registeredContainers_.end() )
     {
         elem->second.get().Finalize();

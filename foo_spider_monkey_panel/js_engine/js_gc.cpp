@@ -5,6 +5,7 @@
 #include <js_engine/js_compartment_inner.h>
 #include <js_utils/js_error_helper.h>
 #include <js_utils/scope_helper.h>
+#include <js_utils/winapi_error_helper.h>
 
 #include <adv_config.h>
 
@@ -76,11 +77,8 @@ void JsGc::UpdateGcConfig()
 
     MEMORYSTATUSEX statex = { 0 };
     statex.dwLength = sizeof( statex );
-    if ( !GlobalMemoryStatusEx( &statex ) )
-    {// TODO: replace with IF macro
-        std::string errorCode = std::to_string( GetLastError() );
-        throw smp::SmpException( "GlobalMemoryStatusEx failed: error code " + std::to_string( GetLastError() ) );
-    }
+    BOOL bRet = GlobalMemoryStatusEx( &statex );
+    IF_WINAPI_FAILED_THROW_SMP( !!bRet, "GlobalMemoryStatusEx" );
 
     if ( smp_advconf::g_var_max_heap.get() > statex.ullTotalPhys / 4 )
     {

@@ -35,7 +35,7 @@ public:
     static std::unique_ptr<JsFbPlaylistManager> CreateNative( JSContext* cx );
     static size_t GetInternalSize();
 
-    void CleanupBeforeDestruction();
+    void PrepareForGc();
 
 public:
     void AddItemToPlaybackQueue( JsFbMetadbHandle* handle );

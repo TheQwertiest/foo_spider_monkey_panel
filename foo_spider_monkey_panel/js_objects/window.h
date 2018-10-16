@@ -35,7 +35,7 @@ public:
     static size_t GetInternalSize( const js_panel_window& parentPanel );
 
 public:
-    void CleanupBeforeDestruction();
+    void PrepareForGc();
 
 public: // methods
     void ClearInterval( uint32_t intervalId );
@@ -93,6 +93,8 @@ private:
 private:
     JSContext* pJsCtx_;
     js_panel_window& parentPanel_;
+
+    bool isFinalized_ = false; ///< if true, then parentPanel_ might be alredy inaccessible
 
     bool isPanelDefined_ = false;
     std::unique_ptr<FbProperties> fbProperties_;

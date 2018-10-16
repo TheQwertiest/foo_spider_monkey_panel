@@ -18,21 +18,22 @@ struct DropActionParams;
 
 // Must not leak exceptions!
 class JsContainer final
+    : public std::enable_shared_from_this<JsContainer>
 {
-    // To access preparation call
+    // To set JS_Context
     friend class JsEngine;
 
 public:
-    JsContainer();
+    JsContainer(js_panel_window& parentPanel);
     ~JsContainer();
 
 public:
     enum class JsStatus
     {
+        EngineFailed,
+        Failed,
         Ready,
-        Prepared,
-        NotPrepared,
-        Failed
+        Working
     };
 
 public:
@@ -53,6 +54,8 @@ public:
         {
             return std::nullopt;
         }
+
+        auto selfSaver = shared_from_this();
         return mozjs::InvokeJsCallback<ReturnType>( pJsCtx_, jsGlobal_, functionName, std::forward<ArgTypes>( args )... );
     }
 
@@ -69,7 +72,7 @@ public: // callbacks that require js data
 private:
     JsContainer( const JsContainer& ) = delete;
 
-    void Prepare( JSContext *cx, js_panel_window& parentPanel );
+    void SetJsCtx( JSContext *cx );
 
     bool IsReadyForCallback() const;
 
@@ -87,7 +90,7 @@ private:
     JsGdiGraphics* pNativeGraphics_ = nullptr;
     JsDropSourceAction* pNativeDropAction_ = nullptr;
 
-    JsStatus jsStatus_ = JsStatus::NotPrepared;
+    JsStatus jsStatus_ = JsStatus::EngineFailed;
     bool isParsingScript_ = false;
 };
 

@@ -22,7 +22,8 @@ namespace mozjs
 class JsContainer;
 
 class JsEngine final
-{
+{    
+
 public:
     ~JsEngine();
     JsEngine( const JsEngine& ) = delete;
@@ -32,8 +33,8 @@ public:
     void PrepareForExit();
 
 public:
-    bool RegisterPanel( js_panel_window& parentPanel, JsContainer& jsContainer );
-    void UnregisterPanel( js_panel_window& parentPanel );
+    bool RegisterContainer( JsContainer& jsContainer );
+    void UnregisterContainer( JsContainer& jsContainer );
 
 public:
     void OnHeartbeat();
@@ -57,7 +58,7 @@ private:
     bool isInitialized_ = false;
     bool shouldShutdown_ = false;
 
-    std::map<HWND, std::reference_wrapper<JsContainer>> registeredContainers_;
+    std::map<void*, std::reference_wrapper<JsContainer>> registeredContainers_;
 
     std::unique_ptr<smp::HeartbeatWindow> heartbeatWindow_;
     std::thread heartbeatThread_;

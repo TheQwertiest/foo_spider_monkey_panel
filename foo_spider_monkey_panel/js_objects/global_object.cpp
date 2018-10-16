@@ -171,7 +171,7 @@ GlobalHeapManager& JsGlobalObject::GetHeapManager() const
     return *heapManager_;
 }
 
-void JsGlobalObject::CleanupBeforeDestruction( JSContext* cx, JS::HandleObject self )
+void JsGlobalObject::PrepareForGc( JSContext* cx, JS::HandleObject self )
 {
     auto nativeGlobal = static_cast<JsGlobalObject*>(JS_GetInstancePrivate( cx, self, &JsGlobalObject::JsClass, nullptr ));
     assert( nativeGlobal );

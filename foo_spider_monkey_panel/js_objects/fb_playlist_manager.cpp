@@ -167,7 +167,7 @@ JsFbPlaylistManager::JsFbPlaylistManager( JSContext* cx )
 
 JsFbPlaylistManager::~JsFbPlaylistManager()
 {
-    CleanupBeforeDestruction();
+    PrepareForGc();
 }
 
 std::unique_ptr<JsFbPlaylistManager>
@@ -181,7 +181,7 @@ size_t JsFbPlaylistManager::GetInternalSize()
     return 0;
 }
 
-void JsFbPlaylistManager::CleanupBeforeDestruction()
+void JsFbPlaylistManager::PrepareForGc()
 {
     jsPlaylistRecycler_.reset();
 }
