@@ -1,5 +1,9 @@
-/** @constructor */
+/**
+ * @constructor
+ * @hideconstructor
+ */
 function IUIHacks() {
+
     /** @type{IAero} */
     this.Aero = undefined;
 
@@ -16,10 +20,10 @@ function IUIHacks() {
     this.FoobarCPUUsage = undefined;
 
     /**
-     * 0 - Default;
-     * 1 - SmallCaption;
-     * 2 - NoCaption;
-     * 3 - NoBorder;
+     * 0 - Default;<br>
+     * 1 - SmallCaption;<br>
+     * 2 - NoCaption;<br>
+     * 3 - NoBorder
      *
      * @type{number}
      */
@@ -29,9 +33,9 @@ function IUIHacks() {
     this.FullScreen = undefined;
 
     /**
-     * 0 - Show;
-     * 1 - Hide;
-     * 2 - Auto;
+     * 0 - Show;<br>
+     * 1 - Hide;<br>
+     * 2 - Auto
      *
      * @type{number}
      */
@@ -41,9 +45,9 @@ function IUIHacks() {
     this.MainWindowID = undefined;
 
     /**
-     * 0 - Normal;
-     * 1 - Minimized;
-     * 2 - Maximized;
+     * 0 - Normal;<br>
+     * 1 - Minimized;<br>
+     * 2 - Maximized
      *
      * @type{number}
      */
@@ -74,17 +78,28 @@ function IUIHacks() {
     /** @type{float} */
     this.SystemCPUUsage = undefined;
 
-    /** @constructor */
+    /**
+     * @param {number} x
+     * @param {number} y
+     * @param {number} w
+     * @param {number} h
+     */
+    this.SetPseudoCaption = function (x, y, w, h) {};
+
+    /**
+     * @constructor
+     * @hideconstructor
+     */
     function IAero() {
 
         /** @type{boolean} */
         this.Active = undefined;
 
         /**
-         *  0 - Default;
-         *  1 - Disabled;
-         *  2 - GlassFrame;
-         *  3 - SheetOfGlass: aero effect applied on whole window;
+         *  0 - Default;<br>
+         *  1 - Disabled;<br>
+         *  2 - GlassFrame;<br>
+         *  3 - SheetOfGlass: aero effect applied on whole window
          *
          *  @type{number}
          */
@@ -106,7 +121,10 @@ function IUIHacks() {
         this.Transparency = undefined;
     }
 
-    /** @constructor */
+    /**
+     * @constructor
+     * @hideconstructor
+     */
     function IConstraints() {
         /** @type{boolean} */
         this.Enabled = undefined;
@@ -118,9 +136,15 @@ function IUIHacks() {
         this.Height = undefined;
     }
 
-    /** @constructor */
+    /**
+     * @constructor
+     * @hideconstructor
+     */
     function IMasterVolume() {
-        /** @type{number} */
+        /**
+         * @type{number}
+         * @readonly
+         */
         this.ChannelCount = undefined; // read-only
 
         /** @type{boolean} */
@@ -141,16 +165,10 @@ function IUIHacks() {
          */
         this.SetChannelVolume = function(channelIdx, volume) {};
 
+        /** @method */
         this.VolumeStepDown = function() {};
 
+        /** @method */
         this.VolumeStepUp = function() {};
     }
-
-    /**
-     * @param {number} x
-     * @param {number} y
-     * @param {number} w
-     * @param {number} h
-     */
-    this.SetPseudoCaption = function (x, y, w, h) {};
 }
