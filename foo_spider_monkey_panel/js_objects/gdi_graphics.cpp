@@ -872,57 +872,30 @@ void JsGdiGraphics::GetRoundRectPath( Gdiplus::GraphicsPath& gp, Gdiplus::RectF&
 
 void JsGdiGraphics::ParsePoints( JS::HandleValue jsValue, std::vector<Gdiplus::PointF>& gdiPoints )
 {
+    bool isX = true;
+    float x = 0.0;
+    auto pointParser = [&gdiPoints, &isX, &x]( float coordinate ) {
+        if ( isX )
+        {
+            x = coordinate;
+        }
+        else
+        {
+            gdiPoints.emplace_back( Gdiplus::PointF( x, coordinate ) );
+        }
+
+        isX = !isX;
+    };
+
     gdiPoints.clear();
-
-    JS::RootedObject jsObject( pJsCtx_, jsValue.toObjectOrNull() );
-    if ( !jsObject )
-    {
-        throw smp::SmpException( "Points argument is not a JS object" );
-    }
-
-    bool is;
-    if ( !JS_IsArrayObject( pJsCtx_, jsObject, &is ) )
-    {
-        throw smp::SmpException( "Points argument is an array" );
-    }
-
-    uint32_t arraySize;
-    if ( !JS_GetArrayLength( pJsCtx_, jsObject, &arraySize ) )
+    if ( !convert::to_native::ProcessArray<float>( pJsCtx_, jsValue, pointParser ) )
     {
         throw smp::JsException();
     }
 
-    if ( arraySize % 2 > 0 )
+    if ( gdiPoints.size() % 2 > 0 )
     {
-        throw smp::SmpException( "Points count must be multiple of two" );
-    }
-
-    JS::RootedValue arrayElement( pJsCtx_ );
-    for ( uint32_t i = 0; i < arraySize; i += 2 )
-    {
-        if ( !JS_GetElement( pJsCtx_, jsObject, i, &arrayElement ) )
-        {
-            throw smp::JsException();
-        }
-
-        auto xVal = convert::to_native::ToValue<float>( pJsCtx_, arrayElement );
-        if ( !xVal )
-        {
-            throw smp::SmpException( smp::string::Formatter() << "points[" << i << "] can't be converted to number" );
-        }
-
-        if ( !JS_GetElement( pJsCtx_, jsObject, i + 1, &arrayElement ) )
-        {
-            throw smp::JsException();
-        }
-
-        auto yVal = convert::to_native::ToValue<float>( pJsCtx_, arrayElement );
-        if ( !yVal )
-        {
-            throw smp::SmpException( smp::string::Formatter() << "points[" << i + 1 << "] can't be converted to number" );
-        }
-
-        gdiPoints.emplace_back( Gdiplus::PointF( xVal.value(), yVal.value() ) );
+        throw smp::SmpException( "Points count must be a multiple of two" );
     }
 }
 

@@ -198,46 +198,19 @@ void JsFbPlaylistManager::AddItemToPlaybackQueue( JsFbMetadbHandle* handle )
 
 void JsFbPlaylistManager::AddLocations( uint32_t playlistIndex, JS::HandleValue locations, bool select )
 {
-    JS::RootedObject jsObject( pJsCtx_, locations.toObjectOrNull() );
-    if ( !jsObject )
+    pfc::string_list_impl location_list;
+
+    if ( !convert::to_native::ProcessArray<pfc::string8_fast>(
+             pJsCtx_,
+             locations,
+             [&location_list]( const pfc::string8_fast& location ) { location_list.add_item( location ); } ) )
     {
-        throw smp::SmpException( "locations argument is not a JS object" );
-    }
-
-    bool is;
-    if ( !JS_IsArrayObject( pJsCtx_, jsObject, &is ) )
-    {
-        throw smp::SmpException( "locations argument is an array" );
-    }
-
-    uint32_t arraySize;
-    if ( !JS_GetArrayLength( pJsCtx_, jsObject, &arraySize ) )
-    {
-        throw smp::SmpException( "Failed to get locations argument array length" );
-    }
-
-    pfc::string_list_impl locations2;
-
-    JS::RootedValue arrayElement( pJsCtx_ );
-    for ( uint32_t i = 0; i < arraySize; ++i )
-    {
-        if ( !JS_GetElement( pJsCtx_, jsObject, i, &arrayElement ) )
-        {
-            throw smp::SmpException( smp::string::Formatter() << "Failed to get locations[" << i << "]" );
-        }
-
-        auto retVal = convert::to_native::ToValue<pfc::string8_fast>( pJsCtx_, arrayElement );
-        if ( !retVal )
-        {
-            throw smp::SmpException( smp::string::Formatter() << "locations[" << i << "] is not a string" );
-        }
-
-        locations2.add_item( retVal->c_str() );
+        throw smp::JsException();
     }
 
     t_size base = playlist_manager::get()->playlist_get_item_count( playlistIndex );
     playlist_incoming_item_filter_v2::get()->process_locations_async(
-        locations2,
+        location_list,
         playlist_incoming_item_filter_v2::op_flag_no_filter | playlist_incoming_item_filter_v2::op_flag_delay_ui,
         nullptr,
         nullptr,
@@ -613,42 +586,12 @@ void JsFbPlaylistManager::RemoveItemFromPlaybackQueue( uint32_t index )
 
 void JsFbPlaylistManager::RemoveItemsFromPlaybackQueue( JS::HandleValue affectedItems )
 {
-    JS::RootedObject jsObject( pJsCtx_, affectedItems.toObjectOrNull() );
-    if ( !jsObject )
-    {
-        throw smp::SmpException( "affectedItems argument is not a JS object" );
-    }
-
-    bool is;
-    if ( !JS_IsArrayObject( pJsCtx_, jsObject, &is ) )
-    {
-        throw smp::SmpException( "affectedItems argument is an array" );
-    }
-
-    uint32_t arraySize;
-    if ( !JS_GetArrayLength( pJsCtx_, jsObject, &arraySize ) )
-    {
-        throw smp::SmpException( "Failed to get affectedItems argument array length" );
-    }
-
     auto api = playlist_manager::get();
     pfc::bit_array_bittable affected( api->queue_get_count() );
 
-    JS::RootedValue arrayElement( pJsCtx_ );
-    for ( uint32_t i = 0; i < arraySize; ++i )
+    if ( !convert::to_native::ProcessArray<uint32_t>( pJsCtx_, affectedItems, [&affected]( uint32_t index ) { affected.set( index, true ); } ) )
     {
-        if ( !JS_GetElement( pJsCtx_, jsObject, i, &arrayElement ) )
-        {
-            throw smp::SmpException( smp::string::Formatter() << "Failed to get affectedItems[" << i << "]" );
-        }
-
-        auto retVal = convert::to_native::ToValue<uint32_t>( pJsCtx_, arrayElement );
-        if ( !retVal )
-        {
-            throw smp::SmpException( smp::string::Formatter() << "affectedItems[" << i << "] can't be converted to number" );
-        }
-
-        affected.set( retVal.value(), true );
+        throw smp::JsException();
     }
 
     api->queue_remove_mask( affected );
@@ -709,42 +652,15 @@ void JsFbPlaylistManager::SetPlaylistFocusItemByHandle( uint32_t playlistIndex, 
 
 void JsFbPlaylistManager::SetPlaylistSelection( uint32_t playlistIndex, JS::HandleValue affectedItems, bool state )
 {
-    JS::RootedObject jsObject( pJsCtx_, affectedItems.toObjectOrNull() );
-    if ( !jsObject )
-    {
-        throw smp::SmpException( "affectedItems argument is not a JS object" );
-    }
-
-    bool is;
-    if ( !JS_IsArrayObject( pJsCtx_, jsObject, &is ) )
-    {
-        throw smp::SmpException( "affectedItems argument is an array" );
-    }
-
-    uint32_t arraySize;
-    if ( !JS_GetArrayLength( pJsCtx_, jsObject, &arraySize ) )
-    {
-        throw smp::SmpException( "Failed to get affectedItems argument array length" );
-    }
-
     auto api = playlist_manager::get();
     pfc::bit_array_bittable affected( api->playlist_get_item_count( playlistIndex ) );
 
-    JS::RootedValue arrayElement( pJsCtx_ );
-    for ( uint32_t i = 0; i < arraySize; ++i )
+    if ( !convert::to_native::ProcessArray<uint32_t>(
+             pJsCtx_,
+             affectedItems,
+             [&affected]( uint32_t index ) { affected.set( index, true ); } ) )
     {
-        if ( !JS_GetElement( pJsCtx_, jsObject, i, &arrayElement ) )
-        {
-            throw smp::SmpException( smp::string::Formatter() << "Failed to get affectedItems[" << i << "]" );
-        }
-
-        auto retVal = convert::to_native::ToValue<uint32_t>( pJsCtx_, arrayElement );
-        if ( !retVal )
-        {
-            throw smp::SmpException( smp::string::Formatter() << "affectedItems[" << i << "] can't be converted to number" );
-        }
-
-        affected.set( retVal.value(), true );
+        throw smp::JsException();
     }
 
     pfc::bit_array_val status( state );

@@ -5,7 +5,7 @@ namespace mozjs::error
 {
 
 template <typename F, typename... Args>
-bool Execute_JsSafe( JSContext* cx, std::string_view functionName, F func, Args... args )
+bool Execute_JsSafe( JSContext* cx, std::string_view functionName, F&& func, Args... args )
 {
     try
     {
