@@ -275,10 +275,7 @@ JS::Value JsUtils::FileTest( const std::wstring& path, const std::wstring& mode 
         JS::RootedValue jsValue( pJsCtx_ );
         for ( size_t i = 0; i < _countof( out ); ++i )
         {
-            if ( !convert::to_js::ToValue( pJsCtx_, out[i], &jsValue ) )
-            {
-                throw smp::SmpException( "Internal error: cast to JSString failed" );
-            }
+            convert::to_js::ToValue( pJsCtx_, out[i], &jsValue );
 
             if ( !JS_SetElement( pJsCtx_, jsArray, i, jsValue ) )
             {
@@ -458,10 +455,7 @@ JSObject* JsUtils::Glob( const pfc::string8_fast& pattern, uint32_t exc_mask, ui
     for ( t_size i = 0; i < files.get_count(); ++i )
     {
         pfc::string8_fast tmpString( files[i] );
-        if ( !convert::to_js::ToValue( pJsCtx_, tmpString, &jsValue ) )
-        {
-            throw smp::SmpException( "Internal error: cast to JSString failed" );
-        }
+        convert::to_js::ToValue( pJsCtx_, tmpString, &jsValue );
 
         if ( !JS_SetElement( pJsCtx_, evalResult, i, jsValue ) )
         {

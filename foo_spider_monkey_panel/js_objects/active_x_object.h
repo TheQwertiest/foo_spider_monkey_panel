@@ -60,11 +60,11 @@ public:
 
     std::wstring ToString();
 
-    bool Get( const std::wstring& propName, JS::MutableHandleValue vp );
-    bool Get( JS::CallArgs& args );
-    bool Set( const std::wstring& propName, JS::HandleValue v );
-    bool Set( const JS::CallArgs& args );
-    bool Invoke( const std::wstring& funcName, const JS::CallArgs& args );
+    void Get( const std::wstring& propName, JS::MutableHandleValue vp );
+    void Get( JS::CallArgs& args );
+    void Set( const std::wstring& propName, JS::HandleValue v );
+    void Set( const JS::CallArgs& args );
+    void Invoke( const std::wstring& funcName, const JS::CallArgs& args );
 
 private:
     struct MemberInfo

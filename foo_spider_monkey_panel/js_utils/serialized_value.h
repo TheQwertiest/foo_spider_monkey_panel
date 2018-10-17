@@ -27,7 +27,7 @@ struct SerializedJsValue
     pfc::string8_fast strVal;
 };
 
-std::optional<SerializedJsValue> SerializeJsValue( JSContext* cx, JS::HandleValue jsValue );
+SerializedJsValue SerializeJsValue( JSContext* cx, JS::HandleValue jsValue );
 bool DeserializeJsValue( JSContext* cx, const SerializedJsValue& serializedValue, JS::MutableHandleValue jsValue );
 
 

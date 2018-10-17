@@ -412,10 +412,7 @@ JSObject* JsFbMetadbHandleList::GetLibraryRelativePaths()
         }
 
         pfc::string8_fast tmpString( path.c_str(), path.length() );
-        if ( !convert::to_js::ToValue( pJsCtx_, tmpString, &jsValue ) )
-        {
-            throw smp::JsException();
-        }
+        convert::to_js::ToValue( pJsCtx_, tmpString, &jsValue );
 
         if ( !JS_SetElement( pJsCtx_, jsArray, i, jsValue ) )
         { // Report in JS_SetElement

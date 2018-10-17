@@ -93,13 +93,9 @@ void FbProperties::SetProperty( const std::wstring& propName, JS::HandleValue pr
     }
 
     auto serializedValue = SerializeJsValue( pJsCtx_, propValue );
-    if ( !serializedValue )
-    {
-        throw smp::SmpException( "Unsupported value type" );        
-    }
 
     properties_.insert_or_assign( trimmedPropName, std::make_unique<HeapElement>( propValue ) );
-    parentPanel_.get_config_prop().set_config_item( trimmedPropName, serializedValue.value() );
+    parentPanel_.get_config_prop().set_config_item( trimmedPropName, serializedValue );
 }
 
 void FbProperties::TraceHeapValue( JSTracer* trc, void* data )

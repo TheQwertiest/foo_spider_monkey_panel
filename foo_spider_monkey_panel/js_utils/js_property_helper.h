@@ -30,13 +30,7 @@ std::optional<T> GetOptionalProperty( JSContext* cx, JS::HandleObject jsObject, 
         throw smp::JsException();
     }
 
-    auto retVal = convert::to_native::ToValue<T>( cx, jsValue );
-    if ( !retVal )
-    {
-        throw smp::SmpException( smp::string::Formatter() << "`" << propName.c_str() << "` property is of wrong type" );
-    }
-
-    return retVal.value();
+    return convert::to_native::ToValue<T>( cx, jsValue );
 };
 
 } // namespace mozjs

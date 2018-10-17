@@ -151,10 +151,7 @@ JSObject* JsFbTitleFormat::EvalWithMetadbs( JsFbMetadbHandleList* handles )
         pfc::string8_fast text;
         handles_cref[i]->format_title( nullptr, text, titleFormatObject_, nullptr );
 
-        if ( !convert::to_js::ToValue( pJsCtx_, text, &jsValue ) )
-        {
-            throw smp::SmpException( "Internal error: cast to JSString failed" );
-        }
+        convert::to_js::ToValue( pJsCtx_, text, &jsValue );
 
         if ( !JS_SetElement( pJsCtx_, evalResult, i, jsValue ) )
         {

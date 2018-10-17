@@ -1,6 +1,5 @@
 #pragma once
 
-
 namespace mozjs::error
 {
 
@@ -16,9 +15,9 @@ bool Execute_JsSafe( JSContext* cx, std::string_view functionName, F&& func, Arg
         mozjs::error::ExceptionToJsError( cx );
         mozjs::error::ReportJsErrorWithFunctionName( cx, std::string( functionName.data(), functionName.size() ).c_str() );
         return false;
-    }    
+    }
 
-    if (JS_IsExceptionPending(cx))
+    if ( JS_IsExceptionPending( cx ) )
     {
         mozjs::error::ReportJsErrorWithFunctionName( cx, std::string( functionName.data(), functionName.size() ).c_str() );
         return false;
@@ -36,12 +35,13 @@ public:
     void Disable();
 
 private:
-    JSContext * cx;
+    JSContext* cx;
     bool isDisabled_ = false;
 };
 
 pfc::string8_fast GetTextFromCurrentJsError( JSContext* cx );
 void ExceptionToJsError( JSContext* cx );
+void SuppressException( JSContext* cx );
 void ReportJsErrorWithFunctionName( JSContext* cx, const char* functionName );
 
-}
+} // namespace mozjs::error

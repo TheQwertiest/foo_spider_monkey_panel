@@ -51,7 +51,7 @@ const JSFunctionSpec jsFunctions[] = {
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_Count, JsFbPlaylistRecycler::get_Count )
 
 const JSPropertySpec jsProperties[] = {
-    
+
     JS_PSG( "Count", get_Count, DefaultPropsFlags() ),
     JS_PS_END
 };
@@ -122,10 +122,7 @@ void JsFbPlaylistRecycler::Purge( JS::HandleValue affectedItems )
     auto api = playlist_manager_v3::get();
     pfc::bit_array_bittable affected( api->recycler_get_count() );
 
-    if ( !convert::to_native::ProcessArray<uint32_t>( pJsCtx_, affectedItems, [&affected]( uint32_t index ) { affected.set( index, true ); } ) )
-    {
-        throw smp::JsException();
-    }
+    convert::to_native::ProcessArray<uint32_t>( pJsCtx_, affectedItems, [&affected]( uint32_t index ) { affected.set( index, true ); } );
 
     api->recycler_purge( affected );
 }

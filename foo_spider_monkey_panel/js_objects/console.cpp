@@ -16,16 +16,9 @@ bool LogImpl( JSContext* cx, unsigned argc, JS::Value* vp )
     JS::CallArgs args = JS::CallArgsFromVp( argc, vp );
 
     pfc::string8_fast outputString;
-
     for ( unsigned i = 0; i < args.length(); i++ )
     {
-        auto retVal = convert::to_native::ToValue<pfc::string8_fast>( cx, args[i] );
-        if ( !retVal )
-        {// reports
-            return false;
-        }
-
-        outputString += retVal.value();
+        outputString += convert::to_native::ToValue<pfc::string8_fast>( cx, args[i] );
         if ( i < args.length() )
         {
             outputString.add_char( ' ' );

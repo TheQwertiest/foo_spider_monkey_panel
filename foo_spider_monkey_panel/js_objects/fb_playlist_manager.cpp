@@ -200,13 +200,10 @@ void JsFbPlaylistManager::AddLocations( uint32_t playlistIndex, JS::HandleValue 
 {
     pfc::string_list_impl location_list;
 
-    if ( !convert::to_native::ProcessArray<pfc::string8_fast>(
-             pJsCtx_,
-             locations,
-             [&location_list]( const pfc::string8_fast& location ) { location_list.add_item( location ); } ) )
-    {
-        throw smp::JsException();
-    }
+    convert::to_native::ProcessArray<pfc::string8_fast>(
+        pJsCtx_,
+        locations,
+        [&location_list]( const pfc::string8_fast& location ) { location_list.add_item( location ); } );
 
     t_size base = playlist_manager::get()->playlist_get_item_count( playlistIndex );
     playlist_incoming_item_filter_v2::get()->process_locations_async(
@@ -589,10 +586,7 @@ void JsFbPlaylistManager::RemoveItemsFromPlaybackQueue( JS::HandleValue affected
     auto api = playlist_manager::get();
     pfc::bit_array_bittable affected( api->queue_get_count() );
 
-    if ( !convert::to_native::ProcessArray<uint32_t>( pJsCtx_, affectedItems, [&affected]( uint32_t index ) { affected.set( index, true ); } ) )
-    {
-        throw smp::JsException();
-    }
+    convert::to_native::ProcessArray<uint32_t>( pJsCtx_, affectedItems, [&affected]( uint32_t index ) { affected.set( index, true ); } );
 
     api->queue_remove_mask( affected );
 }
@@ -655,13 +649,10 @@ void JsFbPlaylistManager::SetPlaylistSelection( uint32_t playlistIndex, JS::Hand
     auto api = playlist_manager::get();
     pfc::bit_array_bittable affected( api->playlist_get_item_count( playlistIndex ) );
 
-    if ( !convert::to_native::ProcessArray<uint32_t>(
-             pJsCtx_,
-             affectedItems,
-             [&affected]( uint32_t index ) { affected.set( index, true ); } ) )
-    {
-        throw smp::JsException();
-    }
+    convert::to_native::ProcessArray<uint32_t>(
+        pJsCtx_,
+        affectedItems,
+        [&affected]( uint32_t index ) { affected.set( index, true ); } );
 
     pfc::bit_array_val status( state );
     api->playlist_set_selection( playlistIndex, affected, status );

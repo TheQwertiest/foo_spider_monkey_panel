@@ -467,10 +467,7 @@ void CDialogHtml::ParseOptions( JS::HandleValue options )
         }
 
         _variant_t data;
-        if ( !convert::com::JsToVariant( pJsCtx_, jsValue, *data.GetAddress() ) )
-        {
-            throw smp::SmpException( "`data` is of unsupported type" );
-        }
+        convert::com::JsToVariant( pJsCtx_, jsValue, *data.GetAddress() );
 
         pExternal_.Attach( new com_object_impl_t<smp::com::HostExternal>( data ) );
     }

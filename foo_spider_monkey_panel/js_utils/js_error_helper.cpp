@@ -90,7 +90,7 @@ void AutoJsReport::Disable()
 pfc::string8_fast GetTextFromCurrentJsError( JSContext* cx )
 {
     assert( JS_IsExceptionPending( cx ) );
-    
+
     JS::RootedValue excn( cx );
     (void)JS_GetPendingException( cx, &excn );
 
@@ -98,13 +98,16 @@ pfc::string8_fast GetTextFromCurrentJsError( JSContext* cx )
 
     if ( excn.isString() )
     {
-        auto retVal = convert::to_native::ToValue<pfc::string8_fast>( cx, excn );
-        if ( !retVal )
-        {
-            return errorText;
+        try
+        { // Must not throw errors in error handler
+            errorText = convert::to_native::ToValue<pfc::string8_fast>( cx, excn );
         }
-
-        errorText = retVal.value();
+        catch ( const smp::JsException& )
+        {
+        }
+        catch ( const smp::SmpException& )
+        {
+        }
     }
     else if ( excn.isObject() )
     {
@@ -181,6 +184,30 @@ void ExceptionToJsError( JSContext* cx )
     // while hoping that this exception will reach fb2k handler.
 }
 
+void SuppressException( JSContext* cx )
+{
+    try
+    {
+        throw;
+    }
+    catch ( const smp::JsException& )
+    {
+    }
+    catch ( const smp::SmpException& )
+    {
+    }
+    catch ( const _com_error& )
+    {
+    }
+    catch ( const std::bad_alloc& )
+    {
+    }
+    // SM is not designed to handle uncaught exceptions, so we are risking here,
+    // while hoping that this exception will reach fb2k handler.
+
+    JS_ClearPendingException( cx );
+}
+
 void ReportJsErrorWithFunctionName( JSContext* cx, const char* functionName )
 {
     scope::final_action autoJsReport( [cx, functionName]() {
@@ -213,21 +240,37 @@ void ReportJsErrorWithFunctionName( JSContext* cx, const char* functionName )
 
     if ( excn.isString() )
     {
-        auto retVal = convert::to_native::ToValue<pfc::string8_fast>( cx, excn );
-        if ( !retVal )
+        pfc::string8_fast curMessage;
+        try
+        { // Must not throw errors in error handler
+            curMessage = convert::to_native::ToValue<pfc::string8_fast>( cx, excn );
+        }
+        catch ( const smp::JsException& )
+        {
+            return;
+        }
+        catch ( const smp::SmpException& )
         {
             return;
         }
 
-        if ( retVal.value() == pfc::string8_fast( "out of memory" ) )
+        if ( curMessage == pfc::string8_fast( "out of memory" ) )
         { // Can't modify the message since we're out of memory
             autoJsReport.cancel();
             return;
         }
 
-        const pfc::string8_fast newMessage = makeErrorString( retVal.value() );
+        const pfc::string8_fast newMessage = makeErrorString( curMessage );
         JS::RootedValue jsMessage( cx );
-        if ( !convert::to_js::ToValue<pfc::string8_fast>( cx, newMessage, &jsMessage ) )
+        try
+        { // Must not throw errors in error handler
+            convert::to_js::ToValue<pfc::string8_fast>( cx, newMessage, &jsMessage );
+        }
+        catch ( const smp::JsException& )
+        {
+            return;
+        }
+        catch ( const smp::SmpException& )
         {
             return;
         }
@@ -260,8 +303,16 @@ void ReportJsErrorWithFunctionName( JSContext* cx, const char* functionName )
 
         JS::RootedValue jsFilename( cx );
         JS::RootedValue jsMessage( cx );
-        if ( !convert::to_js::ToValue<pfc::string8_fast>( cx, report->filename, &jsFilename )
-             || !convert::to_js::ToValue<pfc::string8_fast>( cx, newMessage, &jsMessage ) )
+        try
+        { // Must not throw errors in error handler
+            convert::to_js::ToValue<pfc::string8_fast>( cx, report->filename, &jsFilename );
+            convert::to_js::ToValue<pfc::string8_fast>( cx, newMessage, &jsMessage );
+        }
+        catch ( const smp::JsException& )
+        {
+            return;
+        }
+        catch ( const smp::SmpException& )
         {
             return;
         }

@@ -2,7 +2,7 @@
 
 #include <optional>
 
-namespace mozjs::convert::to_native
+namespace mozjs::convert::to_native::internal
 {
 
 template <class T>
@@ -20,121 +20,74 @@ struct is_convertable
 template <class T>
 inline constexpr bool is_convertable_v = is_convertable<T>::value;
 
+// TODO: move to a more suitable place
 template <typename T>
-std::optional<T> ToValue( JSContext* cx, const JS::HandleObject& jsObject )
+struct is_vector : public std::false_type
+{
+};
+
+template <typename T, typename A>
+struct is_vector<std::vector<T, A>> : public std::true_type
+{
+};
+
+template <class T>
+inline constexpr bool is_vector_v = is_vector<T>::value;
+
+template <typename T>
+T ToSimpleValue( JSContext* cx, const JS::HandleObject& jsObject )
 {
     auto pNative = GetInnerInstancePrivate<std::remove_pointer_t<T>>( cx, jsObject );
     if ( !pNative )
     {
-        return std::nullopt;
+        throw smp::SmpException( "Object is not of valid type" );
     }
 
     return pNative;
 }
 
-std::optional<std::wstring> ToValue( JSContext* cx, const JS::HandleString& jsString );
-
 template <typename T>
-std::optional<T> ToValue( JSContext* cx, const JS::HandleValue& jsValue )
+T ToSimpleValue( JSContext* cx, const JS::HandleValue& jsValue )
 {
     static_assert( 0, "Unsupported type" );
-    isValid = false;
-    return T();
 }
 
 template <>
-std::optional<bool> ToValue<bool>( JSContext* cx, const JS::HandleValue& jsValue );
+bool ToSimpleValue<bool>( JSContext* cx, const JS::HandleValue& jsValue );
 
 template <>
-std::optional<int8_t> ToValue<int8_t>( JSContext* cx, const JS::HandleValue& jsValue );
+int8_t ToSimpleValue<int8_t>( JSContext* cx, const JS::HandleValue& jsValue );
 
 template <>
-std::optional<int32_t> ToValue<int32_t>( JSContext* cx, const JS::HandleValue& jsValue );
+int32_t ToSimpleValue<int32_t>( JSContext* cx, const JS::HandleValue& jsValue );
 
 template <>
-std::optional<uint8_t> ToValue<uint8_t>( JSContext* cx, const JS::HandleValue& jsValue );
+uint8_t ToSimpleValue<uint8_t>( JSContext* cx, const JS::HandleValue& jsValue );
 
 template <>
-std::optional<uint32_t> ToValue<uint32_t>( JSContext* cx, const JS::HandleValue& jsValue );
+uint32_t ToSimpleValue<uint32_t>( JSContext* cx, const JS::HandleValue& jsValue );
 
 /// @details Returns only approximate uint64_t value, use with care!
 template <>
-std::optional<uint64_t> ToValue<uint64_t>( JSContext* cx, const JS::HandleValue& jsValue );
+uint64_t ToSimpleValue<uint64_t>( JSContext* cx, const JS::HandleValue& jsValue );
 
 template <>
-std::optional<float> ToValue<float>( JSContext* cx, const JS::HandleValue& jsValue );
+float ToSimpleValue<float>( JSContext* cx, const JS::HandleValue& jsValue );
 
 template <>
-std::optional<double> ToValue<double>( JSContext* cx, const JS::HandleValue& jsValue );
+double ToSimpleValue<double>( JSContext* cx, const JS::HandleValue& jsValue );
 
 template <>
-std::optional<pfc::string8_fast> ToValue<pfc::string8_fast>( JSContext* cx, const JS::HandleValue& jsValue );
+pfc::string8_fast ToSimpleValue<pfc::string8_fast>( JSContext* cx, const JS::HandleValue& jsValue );
 
 template <>
-std::optional<std::wstring> ToValue<std::wstring>( JSContext* cx, const JS::HandleValue& jsValue );
+std::wstring ToSimpleValue<std::wstring>( JSContext* cx, const JS::HandleValue& jsValue );
 
 template <>
-std::optional<std::nullptr_t> ToValue<std::nullptr_t>( JSContext* cx, const JS::HandleValue& jsValue );
+std::nullptr_t ToSimpleValue<std::nullptr_t>( JSContext* cx, const JS::HandleValue& jsValue );
 
-// TODO: think about moving to ToValue
-template <typename T, typename F>
-bool ProcessArray( JSContext* cx, JS::HandleObject jsObject, F&& workerFunc )
-{
-    bool is;
-    if ( !JS_IsArrayObject( cx, jsObject, &is ) )
-    { // reports
-        return false;
-    }
-
-    if ( !is )
-    {
-        JS_ReportErrorUTF8( cx, "object is not an array" );
-        return false;
-    }
-
-    uint32_t arraySize;
-    if ( !JS_GetArrayLength( cx, jsObject, &arraySize ) )
-    { // reports
-        return false;
-    }
-
-    std::vector<T> nativeValues;
-    JS::RootedValue arrayElement( cx );
-    for ( uint32_t i = 0; i < arraySize; ++i )
-    {
-        if ( !JS_GetElement( cx, jsObject, i, &arrayElement ) )
-        { // reports
-            return false;
-        }
-
-        auto retVal = convert::to_native::ToValue<T>( cx, arrayElement );
-        if ( !retVal )
-        { // override report
-            JS_ReportErrorUTF8( cx, "array[%u] is not of the required type", i );
-            return false;
-        }
-
-        workerFunc( retVal.value() );
-    }
-
-    return true;
-}
-
-// TODO: think about moving to ToValue
-template <typename T, typename F>
-bool ProcessArray( JSContext* cx, JS::HandleValue jsValue, F&& workerFunc )
-{
-    JS::RootedObject jsObject( cx, jsValue.toObjectOrNull() );
-    if ( !jsObject )
-    {
-        throw smp::SmpException( "value is not a JS object" );
-    }
-    return ProcessArray<T>( cx, jsObject, std::forward<F>( workerFunc ) );
-}
-
-// TODO: think about moving to ToValue
 template <typename T>
-std::optional<std::vector<T>> ToVector( JSContext* cx, JS::HandleObject jsObject )
+std::vector<T> ToVector( JSContext* cx, JS::HandleObject jsObject )
 {
     std::vector<T> nativeValues;
     if ( !ProcessArray<T>( cx, jsObject, [&nativeValues]( T&& nativeValue ) { nativeValues.push_back( std::forward<T>( nativeValue ) ) } ) )
@@ -146,7 +99,7 @@ std::optional<std::vector<T>> ToVector( JSContext* cx, JS::HandleObject jsObject
 }
 
 template <typename T>
-std::optional<std::vector<T>> ToVector( JSContext* cx, JS::HandleValue jsValue )
+std::vector<T> ToVector( JSContext* cx, JS::HandleValue jsValue )
 {
     std::vector<T> nativeValues;
     if ( !ProcessArray<T>( cx, jsValue, [&nativeValues]( T&& nativeValue ) { nativeValues.push_back( std::forward<T>( nativeValue ) ) } ) )
@@ -155,6 +108,90 @@ std::optional<std::vector<T>> ToVector( JSContext* cx, JS::HandleValue jsValue )
     }
 
     return nativeValues;
+}
+
+} // namespace mozjs::convert::to_native::internal
+
+namespace mozjs::convert::to_native
+{
+
+template <typename T>
+T ToValue( JSContext* cx, JS::HandleValue jsValue )
+{
+    if constexpr ( to_native::internal::is_convertable_v<T> )
+    { // Construct and copy
+        return to_native::internal::ToSimpleValue<T>( cx, jsValue );
+    }
+    else if constexpr ( std::is_pointer_v<T> )
+    { // Extract native pointer
+        // TODO: think if there is a good way to move this to convert::to_native
+        if ( !jsValue.isObjectOrNull() )
+        {
+            throw smp::SmpException( "Value is not a JS object" );
+        }
+
+        if ( jsValue.isNull() )
+        { // Not an error: null might be a valid argument
+            return static_cast<T>( nullptr );
+        }
+
+        JS::RootedObject jsObject( cx, &jsValue.toObject() );
+        return internal::ToSimpleValue<T>( cx, jsObject );
+    }
+    else if constexpr ( internal::is_vector_v<T> )
+    {
+        return internal::ToVector<T::value_type>( cx, jsValue );
+    }
+    else
+    {
+        static_assert( 0, "Unsupported argument type" );
+    }
+}
+
+std::wstring ToValue( JSContext* cx, const JS::HandleString& jsString );
+
+template <typename T, typename F>
+void ProcessArray( JSContext* cx, JS::HandleObject jsObject, F&& workerFunc )
+{
+    bool is;
+    if ( !JS_IsArrayObject( cx, jsObject, &is ) )
+    {
+        throw smp::JsException();
+    }
+
+    if ( !is )
+    {
+        throw smp::SmpException( "Object is not an array" );
+    }
+
+    uint32_t arraySize;
+    if ( !JS_GetArrayLength( cx, jsObject, &arraySize ) )
+    {
+        throw smp::JsException();
+    }
+
+    std::vector<T> nativeValues;
+    JS::RootedValue arrayElement( cx );
+    for ( uint32_t i = 0; i < arraySize; ++i )
+    {
+        if ( !JS_GetElement( cx, jsObject, i, &arrayElement ) )
+        {
+            throw smp::JsException();
+        }
+
+        workerFunc( ToValue<T>( cx, arrayElement ) );
+    }
+}
+
+template <typename T, typename F>
+void ProcessArray( JSContext* cx, JS::HandleValue jsValue, F&& workerFunc )
+{
+    JS::RootedObject jsObject( cx, jsValue.toObjectOrNull() );
+    if ( !jsObject )
+    {
+        throw smp::SmpException( "Value is not a JS object" );
+    }
+    to_native::ProcessArray<T>( cx, jsObject, std::forward<F>( workerFunc ) );
 }
 
 } // namespace mozjs::convert::to_native

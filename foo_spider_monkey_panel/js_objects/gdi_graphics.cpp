@@ -437,10 +437,7 @@ JSObject* JsGdiGraphics::EstimateLineWrap( const std::wstring& str, JsGdiFont* f
     for ( auto& [text, width] : result )
     {
         std::wstring tmpString( (const wchar_t*)text );
-        if ( !convert::to_js::ToValue( pJsCtx_, tmpString, &jsValue ) )
-        {
-            throw smp::SmpException( "Internal error: cast to JSString failed" );
-        }
+        convert::to_js::ToValue( pJsCtx_, tmpString, &jsValue );
 
         if ( !JS_SetElement( pJsCtx_, jsArray, i++, jsValue ) )
         {
@@ -888,10 +885,7 @@ void JsGdiGraphics::ParsePoints( JS::HandleValue jsValue, std::vector<Gdiplus::P
     };
 
     gdiPoints.clear();
-    if ( !convert::to_native::ProcessArray<float>( pJsCtx_, jsValue, pointParser ) )
-    {
-        throw smp::JsException();
-    }
+    convert::to_native::ProcessArray<float>( pJsCtx_, jsValue, pointParser );
 
     if ( gdiPoints.size() % 2 > 0 )
     {

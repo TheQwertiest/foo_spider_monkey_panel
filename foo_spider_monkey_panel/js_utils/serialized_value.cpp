@@ -7,7 +7,7 @@
 namespace mozjs
 {
 
-std::optional<SerializedJsValue> SerializeJsValue( JSContext* cx, JS::HandleValue jsValue )
+SerializedJsValue SerializeJsValue( JSContext* cx, JS::HandleValue jsValue )
 {
     SerializedJsValue serializedValue;
 
@@ -30,14 +30,11 @@ std::optional<SerializedJsValue> SerializeJsValue( JSContext* cx, JS::HandleValu
     {
         serializedValue.type = JsValueType::pt_string;
         JS::RootedValue rVal( cx, jsValue );
-        auto retVal = convert::to_native::ToValue<pfc::string8_fast>( cx, rVal );
-        assert( retVal.has_value() );
-        serializedValue.strVal = retVal.value();
+        serializedValue.strVal = convert::to_native::ToValue<pfc::string8_fast>( cx, rVal );
     }
     else
     {
-        assert( 0 );
-        return std::nullopt;
+        throw smp::SmpException( "Unsupported value type" ); 
     }
 
     return serializedValue;
@@ -64,12 +61,7 @@ bool DeserializeJsValue( JSContext* cx, const SerializedJsValue& serializedValue
     }
     case JsValueType::pt_string:
     {
-        if ( !convert::to_js::ToValue( cx, serializedValue.strVal, jsValue ) )
-        {// should not happen
-            assert( 0 );
-            return false;
-        }
-
+        convert::to_js::ToValue( cx, serializedValue.strVal, jsValue );
         break;
     }
     default:
@@ -81,4 +73,4 @@ bool DeserializeJsValue( JSContext* cx, const SerializedJsValue& serializedValue
     return true;
 }
 
-}
+} // namespace mozjs

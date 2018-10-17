@@ -3,9 +3,9 @@
 #include <stdafx.h>
 #include "active_x_object.h"
 
-#include <js_engine/js_engine.h>
 #include <convert/js_to_native.h>
 #include <convert/native_to_js.h>
+#include <convert/com.h>
 #include <js_engine/js_to_native_invoker.h>
 #include <js_objects/global_object.h>
 #include <js_objects/internal/global_heap_manager.h>
@@ -13,10 +13,11 @@
 #include <js_utils/js_prototype_helpers.h>
 #include <js_utils/com_error_helper.h>
 #include <js_utils/scope_helper.h>
-#include <convert/com.h>
-
+#include <utils/string_helpers.h>
 #include <com_objects/script_interface.h>
 #include <com_objects/com_tools.h>
+
+#include <smp_exception.h>
 
 #include <vector>
 #include <string>
@@ -103,40 +104,38 @@ ActiveXObjectProxyHandler::has( JSContext* cx, JS::HandleObject proxy, JS::Handl
 bool ActiveXObjectProxyHandler::get( JSContext* cx, JS::HandleObject proxy, JS::HandleValue receiver,
                                      JS::HandleId id, JS::MutableHandleValue vp ) const
 {
-    if ( JSID_IS_STRING( id ) || JSID_IS_INT( id ) )
+    try
     {
-        JS::RootedObject target( cx, js::GetProxyTargetObject( proxy ) );
-        auto pNativeTarget = static_cast<ActiveXObject*>( JS_GetPrivate( target ) );
-        assert( pNativeTarget );
-
-        std::wstring propName;
-        if ( JSID_IS_STRING( id ) )
+        if ( JSID_IS_STRING( id ) || JSID_IS_INT( id ) )
         {
-            JS::RootedString jsString( cx, JSID_TO_STRING( id ) );
-            assert( jsString );
+            JS::RootedObject target( cx, js::GetProxyTargetObject( proxy ) );
+            auto pNativeTarget = static_cast<ActiveXObject*>( JS_GetPrivate( target ) );
+            assert( pNativeTarget );
 
-            auto retVal = convert::to_native::ToValue( cx, jsString );
-            if ( !retVal )
+            std::wstring propName;
+            if ( JSID_IS_STRING( id ) )
             {
-                if ( !JS_IsExceptionPending( cx ) )
-                {
-                    JS_ReportErrorUTF8( cx, "Failed to parse property name" );
-                }
-                return false;
+                JS::RootedString jsString( cx, JSID_TO_STRING( id ) );
+                assert( jsString );
+
+                propName = convert::to_native::ToValue( cx, jsString );
+            }
+            else if ( JSID_IS_INT( id ) )
+            {
+                propName = std::to_wstring( JSID_TO_INT( id ) );
             }
 
-            propName = retVal.value();
+            if ( pNativeTarget->IsGet( propName ) || JSID_IS_INT( id ) )
+            {
+                pNativeTarget->Get( propName, vp );
+                return true;
+            }
         }
-        else if ( JSID_IS_INT( id ) )
-        {
-            int32_t idx = JSID_TO_INT( id );
-            propName = std::to_wstring( idx );
-        }
-
-        if ( pNativeTarget->IsGet( propName ) || JSID_IS_INT( id ) )
-        {
-            return pNativeTarget->Get( propName, vp );
-        }
+    }
+    catch ( ... )
+    {
+        error::ExceptionToJsError( cx );
+        return false;
     }
 
     return js::ForwardingProxyHandler::get( cx, proxy, receiver, id, vp );
@@ -145,38 +144,33 @@ bool ActiveXObjectProxyHandler::get( JSContext* cx, JS::HandleObject proxy, JS::
 bool ActiveXObjectProxyHandler::set( JSContext* cx, JS::HandleObject proxy, JS::HandleId id, JS::HandleValue v,
                                      JS::HandleValue receiver, JS::ObjectOpResult& result ) const
 {
-    if ( !JSID_IS_STRING( id ) )
+    try
     {
-        return js::ForwardingProxyHandler::set( cx, proxy, id, v, receiver, result );
-    }
-
-    JS::RootedObject target( cx, js::GetProxyTargetObject( proxy ) );
-    auto pNativeTarget = static_cast<ActiveXObject*>( JS_GetPrivate( target ) );
-    assert( pNativeTarget );
-
-    JS::RootedString jsString( cx, JSID_TO_STRING( id ) );
-    assert( jsString );
-
-    auto retVal = convert::to_native::ToValue( cx, jsString );
-    if ( !retVal )
-    {
-        if ( !JS_IsExceptionPending( cx ) )
+        if ( !JSID_IS_STRING( id ) )
         {
-            JS_ReportErrorUTF8( cx, "Failed to parse property name" );
+            return js::ForwardingProxyHandler::set( cx, proxy, id, v, receiver, result );
         }
-        return false;
+
+        JS::RootedObject target( cx, js::GetProxyTargetObject( proxy ) );
+        auto pNativeTarget = static_cast<ActiveXObject*>( JS_GetPrivate( target ) );
+        assert( pNativeTarget );
+
+        JS::RootedString jsString( cx, JSID_TO_STRING( id ) );
+        assert( jsString );
+
+        const std::wstring propName = convert::to_native::ToValue( cx, jsString );
+
+        if ( pNativeTarget->IsSet( propName ) )
+        {
+            pNativeTarget->Set( propName, v );
+            result.succeed();
+            return true;
+        }
     }
-
-    std::wstring propName = retVal.value();
-    if ( pNativeTarget->IsSet( propName ) )
+    catch ( ... )
     {
-        if ( !pNativeTarget->Set( propName, v ) )
-        { // report in set
-            return false;
-        }
-
-        result.succeed();
-        return true;
+        error::ExceptionToJsError( cx );
+        return false;
     }
 
     return js::ForwardingProxyHandler::set( cx, proxy, id, v, receiver, result );
@@ -205,6 +199,21 @@ bool ActiveXObjectProxyHandler::ownPropertyKeys( JSContext* cx, JS::HandleObject
     return true;
 }
 */
+
+void JsToVariantSafe( JSContext* cx, JS::HandleValue rval, VARIANTARG& arg )
+{
+    try
+    {
+        convert::com::JsToVariant( cx, rval, arg );
+    }
+    catch ( ... )
+    {
+        error::SuppressException( cx ); ///< reset, since we can't report
+        arg.vt = VT_ERROR;
+        arg.scode = 0;
+    }
+}
+
 } // namespace
 
 namespace
@@ -241,21 +250,17 @@ bool ActiveX_Constructor_Impl( JSContext* cx, unsigned argc, JS::Value* vp )
         return false;
     }
 
-    auto retVal = mozjs::convert::to_native::ToValue<std::wstring>( cx, args[0] );
-    if ( !retVal )
+    try
     {
-        JS_ReportErrorUTF8( cx, "Failed to parse name argument" );
+        const auto activeXName = mozjs::convert::to_native::ToValue<std::wstring>( cx, args[0] );
+        args.rval().setObjectOrNull( ActiveXObject::CreateJs( cx, activeXName ) );
+        return true;
+    }
+    catch ( ... )
+    {
+        error::ExceptionToJsError( cx );
         return false;
     }
-
-    JS::RootedObject jsObject( cx, ActiveXObject::CreateJs( cx, retVal.value() ) );
-    if ( !jsObject )
-    { // report in CreateJs
-        return false;
-    }
-
-    args.rval().setObjectOrNull( jsObject );
-    return true;
 }
 
 bool ActiveX_Run_Impl( JSContext* cx, unsigned argc, JS::Value* vp )
@@ -276,17 +281,16 @@ bool ActiveX_Run_Impl( JSContext* cx, unsigned argc, JS::Value* vp )
         return false;
     }
 
-    auto retVal = convert::to_native::ToValue( cx, jsString );
-    if ( !retVal )
+    try
     {
-        if ( !JS_IsExceptionPending( cx ) )
-        {
-            JS_ReportErrorUTF8( cx, "Failed to parse property name" );
-        }
+        pNative->Invoke( convert::to_native::ToValue( cx, jsString ), args );
+        return true;
+    }
+    catch ( ... )
+    {
+        error::ExceptionToJsError( cx );
         return false;
     }
-
-    return pNative->Invoke( retVal.value(), args );
 }
 
 bool ActiveX_Get_Impl( JSContext* cx, unsigned argc, JS::Value* vp )
@@ -300,7 +304,16 @@ bool ActiveX_Get_Impl( JSContext* cx, unsigned argc, JS::Value* vp )
         return false;
     }
 
-    return pNative->Get( args );
+    try
+    {
+        pNative->Get( args );
+        return true;
+    }
+    catch ( ... )
+    {
+        error::ExceptionToJsError( cx );
+        return false;
+    }
 }
 
 bool ActiveX_Set_Impl( JSContext* cx, unsigned argc, JS::Value* vp )
@@ -314,7 +327,16 @@ bool ActiveX_Set_Impl( JSContext* cx, unsigned argc, JS::Value* vp )
         return false;
     }
 
-    return pNative->Set( args );
+    try
+    {
+        pNative->Set( args );
+        return true;
+    }
+    catch ( ... )
+    {
+        error::ExceptionToJsError( cx );
+        return false;
+    }
 }
 
 MJS_DEFINE_JS_FN( ActiveX_Constructor, ActiveX_Constructor_Impl )
@@ -519,7 +541,7 @@ std::optional<DISPID> ActiveXObject::GetDispId( const std::wstring& name, bool r
     {
         if ( reportError )
         {
-            JS_ReportErrorUTF8( pJsCtx_, "Internal error: pDispatch_ is null" );
+            throw smp::SmpException( "Internal error: pDispatch_ is null" );
         }
         return std::nullopt;
     }
@@ -546,7 +568,7 @@ std::optional<DISPID> ActiveXObject::GetDispId( const std::wstring& name, bool r
             if ( reportError )
             {
                 pfc::string8_fast tmpStr = pfc::stringcvt::string_utf8_from_wide( name.c_str() );
-                JS_ReportErrorUTF8( pJsCtx_, "Failed to get DISPID for `%s`", tmpStr.c_str() );
+                throw smp::SmpException( smp::string::Formatter() << "Failed to get DISPID for `" << tmpStr.c_str() << "`" );
             }
             return std::nullopt;
         }
@@ -603,33 +625,23 @@ std::wstring ActiveXObject::ToString()
 {
     JS::RootedValue jsValue( pJsCtx_ );
     auto dispRet = GetDispId( L"toString", false );
-    if ( !Get( ( dispRet ? L"toString" : L"" ), &jsValue ) )
-    { // TODO: remove
-        throw smp::JsException();
-    }
+    Get( ( dispRet ? L"toString" : L"" ), &jsValue );
 
-    auto retVal = convert::to_native::ToValue<std::wstring>( pJsCtx_, jsValue );
-    if ( !retVal )
-    {
-        throw smp::JsException();
-    }
-
-    return retVal.value();
+    return convert::to_native::ToValue<std::wstring>( pJsCtx_, jsValue );
 }
 
-bool ActiveXObject::Get( const std::wstring& propName, JS::MutableHandleValue vp )
+void ActiveXObject::Get( const std::wstring& propName, JS::MutableHandleValue vp )
 {
     if ( !pDispatch_ )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "Internal error: pDispatch_ is null" );
-        return false;
+        throw smp::SmpException( "Internal error: pDispatch_ is null" );
     }
 
     auto dispRet = GetDispId( propName, false );
     if ( !dispRet )
     { // not an error
         vp.setUndefined();
-        return true;
+        return;
     }
 
     DISPPARAMS dispparams = { nullptr, nullptr, 0, 0 };
@@ -655,46 +667,30 @@ bool ActiveXObject::Get( const std::wstring& propName, JS::MutableHandleValue vp
     if ( !SUCCEEDED( hresult ) )
     {
         ReportActiveXError( pJsCtx_, hresult, exception, argerr );
-        return false;
     }
 
-    if ( !convert::com::VariantToJs( pJsCtx_, VarResult, vp ) )
-    { // report in VariantToJs
-        return false;
-    }
-
-    return true;
+    convert::com::VariantToJs( pJsCtx_, VarResult, vp );
 }
 
-bool ActiveXObject::Get( JS::CallArgs& callArgs )
+void ActiveXObject::Get( JS::CallArgs& callArgs )
 {
     if ( !pDispatch_ )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "Internal error: pDispatch_ is null" );
-        return false;
+        throw smp::SmpException( "Internal error: pDispatch_ is null" );
     }
 
     if ( !callArgs.length() )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "Property name is missing" );
-        return false;
+        throw smp::SmpException( "Property name is missing" );
     }
 
-    auto propNameRetVal = convert::to_native::ToValue<std::wstring>( pJsCtx_, callArgs[0] );
-    if ( !propNameRetVal )
-    {
-        JS_ReportErrorUTF8( pJsCtx_, "Property name argument is not a string" );
-        return false;
-    }
-
-    const std::wstring propName = propNameRetVal.value();
+    const std::wstring propName = convert::to_native::ToValue<std::wstring>( pJsCtx_, callArgs[0] );
 
     auto dispRet = GetDispId( propName );
     if ( !dispRet )
     {
         pfc::string8_fast tmpStr = pfc::stringcvt::string_utf8_from_wide( propName.c_str() );
-        JS_ReportErrorUTF8( pJsCtx_, "Invalid property name: %s", tmpStr.c_str() );
-        return false;
+        throw smp::SmpException( smp::string::Formatter() << "Invalid property name: " << tmpStr.c_str() );
     }
 
     uint32_t argc = callArgs.length() - 1;
@@ -710,13 +706,10 @@ bool ActiveXObject::Get( JS::CallArgs& callArgs )
         args.reset( new VARIANTARG[argc] );
         dispparams.rgvarg = args.get();
         dispparams.cArgs = argc;
+
         for ( size_t i = 0; i < argc; i++ )
         {
-            if ( !convert::com::JsToVariant( pJsCtx_, callArgs[1 + i], args[argc - i - 1] ) )
-            {
-                args[argc - i - 1].vt = VT_ERROR;
-                args[argc - i - 1].scode = 0;
-            }
+            JsToVariantSafe( pJsCtx_, callArgs[1 + i], args[argc - i - 1] );
         }
     }
 
@@ -744,42 +737,30 @@ bool ActiveXObject::Get( JS::CallArgs& callArgs )
     if ( !SUCCEEDED( hresult ) )
     {
         ReportActiveXError( pJsCtx_, hresult, exception, argerr );
-        return false;
     }
 
-    if ( !convert::com::VariantToJs( pJsCtx_, VarResult, callArgs.rval() ) )
-    { // report in VariantToJs
-        return false;
-    }
-
-    return true;
+    convert::com::VariantToJs( pJsCtx_, VarResult, callArgs.rval() );
 }
 
-bool ActiveXObject::Set( const std::wstring& propName, JS::HandleValue v )
+void ActiveXObject::Set( const std::wstring& propName, JS::HandleValue v )
 {
     if ( !pDispatch_ )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "Internal error: pDispatch_ is null" );
-        return false;
+        throw smp::SmpException( "Internal error: pDispatch_ is null" );
     }
 
     auto dispRet = GetDispId( propName );
     if ( !dispRet )
     {
         pfc::string8_fast tmpStr = pfc::stringcvt::string_utf8_from_wide( propName.c_str() );
-        JS_ReportErrorUTF8( pJsCtx_, "Invalid property name: %s", tmpStr.c_str() );
-        return false;
+        throw smp::SmpException( smp::string::Formatter() << "Invalid property name: " << tmpStr.c_str() );
     }
 
     VARIANTARG arg;
     DISPID dispput = DISPID_PROPERTYPUT;
     DISPPARAMS dispparams = { &arg, &dispput, 1, 1 };
 
-    if ( !convert::com::JsToVariant( pJsCtx_, v, arg ) )
-    {
-        arg.vt = VT_ERROR;
-        arg.scode = 0;
-    }
+    JsToVariantSafe( pJsCtx_, v, arg );
 
     WORD flag = DISPATCH_PROPERTYPUT;
     if ( ( arg.vt == VT_DISPATCH || arg.vt == VT_UNKNOWN )
@@ -806,41 +787,28 @@ bool ActiveXObject::Set( const std::wstring& propName, JS::HandleValue v )
     if ( !SUCCEEDED( hresult ) )
     {
         ReportActiveXError( pJsCtx_, hresult, exception, argerr );
-        return false;
     }
-
-    return true;
 }
 
-bool ActiveXObject::Set( const JS::CallArgs& callArgs )
+void ActiveXObject::Set( const JS::CallArgs& callArgs )
 {
     if ( !pDispatch_ )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "Internal error: pDispatch_ is null" );
-        return false;
+        throw smp::SmpException( "Internal error: pDispatch_ is null" );
     }
 
     if ( !callArgs.length() )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "Property name is missing" );
-        return false;
+        throw smp::SmpException( "Property name is missing" );
     }
 
-    auto propNameRetVal = convert::to_native::ToValue<std::wstring>( pJsCtx_, callArgs[0] );
-    if ( !propNameRetVal )
-    {
-        JS_ReportErrorUTF8( pJsCtx_, "Property name argument is not a string" );
-        return false;
-    }
-
-    const std::wstring propName = propNameRetVal.value();
+    const std::wstring propName = convert::to_native::ToValue<std::wstring>( pJsCtx_, callArgs[0] );
 
     auto dispRet = GetDispId( propName );
     if ( !dispRet )
     {
         pfc::string8_fast tmpStr = pfc::stringcvt::string_utf8_from_wide( propName.c_str() );
-        JS_ReportErrorUTF8( pJsCtx_, "Invalid property name: %s", tmpStr.c_str() );
-        return false;
+        throw smp::SmpException( smp::string::Formatter() << "Invalid property name: " << tmpStr.c_str() );
     }
 
     uint32_t argc = callArgs.length() - 1;
@@ -858,11 +826,7 @@ bool ActiveXObject::Set( const JS::CallArgs& callArgs )
         dispparams.cArgs = argc;
         for ( size_t i = 0; i < argc; i++ )
         {
-            if ( !convert::com::JsToVariant( pJsCtx_, callArgs[1 + i], args[argc - i - 1] ) )
-            {
-                args[argc - i - 1].vt = VT_ERROR;
-                args[argc - i - 1].scode = 0;
-            }
+            JsToVariantSafe( pJsCtx_, callArgs[1 + i], args[argc - i - 1] );
         }
     }
 
@@ -892,26 +856,21 @@ bool ActiveXObject::Set( const JS::CallArgs& callArgs )
     if ( !SUCCEEDED( hresult ) )
     {
         ReportActiveXError( pJsCtx_, hresult, exception, argerr );
-        return false;
     }
-
-    return true;
 }
 
-bool ActiveXObject::Invoke( const std::wstring& funcName, const JS::CallArgs& callArgs )
+void ActiveXObject::Invoke( const std::wstring& funcName, const JS::CallArgs& callArgs )
 {
     if ( !pDispatch_ )
     {
-        JS_ReportErrorUTF8( pJsCtx_, "Internal error: pDispatch_ is null" );
-        return false;
+        throw smp::SmpException( "Internal error: pDispatch_ is null" );
     }
 
     auto dispRet = GetDispId( funcName );
     if ( !dispRet )
     {
         pfc::string8_fast tmpStr = pfc::stringcvt::string_utf8_from_wide( funcName.c_str() );
-        JS_ReportErrorUTF8( pJsCtx_, "Invalid function name: %s", tmpStr.c_str() );
-        return false;
+        throw smp::SmpException( smp::string::Formatter() << "Invalid function name: " << tmpStr.c_str() );
     }
 
     uint32_t argc = callArgs.length();
@@ -929,11 +888,7 @@ bool ActiveXObject::Invoke( const std::wstring& funcName, const JS::CallArgs& ca
         dispparams.cArgs = argc;
         for ( size_t i = 0; i < argc; i++ )
         {
-            if ( !convert::com::JsToVariant( pJsCtx_, callArgs[i], args[argc - i - 1] ) )
-            {
-                args[argc - i - 1].vt = VT_ERROR;
-                args[argc - i - 1].scode = 0;
-            }
+            JsToVariantSafe( pJsCtx_, callArgs[i], args[argc - i - 1] );
         }
     }
 
@@ -961,15 +916,9 @@ bool ActiveXObject::Invoke( const std::wstring& funcName, const JS::CallArgs& ca
     if ( !SUCCEEDED( hresult ) )
     {
         ReportActiveXError( pJsCtx_, hresult, exception, argerr );
-        return false;
     }
 
-    if ( !convert::com::VariantToJs( pJsCtx_, VarResult, callArgs.rval() ) )
-    { // report in VariantToJs
-        return false;
-    }
-
-    return true;
+    convert::com::VariantToJs( pJsCtx_, VarResult, callArgs.rval() );
 }
 
 void ActiveXObject::SetupMembers( JS::HandleObject jsObject )

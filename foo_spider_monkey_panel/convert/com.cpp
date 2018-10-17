@@ -9,6 +9,8 @@
 #include <js_objects/internal/global_heap_manager.h>
 #include <js_objects/active_x_object.h>
 #include <js_utils/scope_helper.h>
+#include <js_utils/js_object_helper.h>
+#include <js_utils/winapi_error_helper.h>
 #include <convert/js_to_native.h>
 
 namespace
@@ -53,7 +55,7 @@ protected:
 
     /// @details Might be called off main thread
     virtual void FinalRelease()
-    {   // most of the JS object might be invalid at GC time,
+    { // most of the JS object might be invalid at GC time,
         // so we need to be extra careful
         if ( !isJsAvailable_ )
         {
@@ -82,7 +84,7 @@ protected:
 
     STDMETHODIMP ExecuteValue( VARIANT arg1, VARIANT arg2, VARIANT arg3, VARIANT arg4, VARIANT arg5, VARIANT arg6, VARIANT arg7,
                                VARIANT* pResult )
-    {
+    { // TODO: set JS fail somehow
         if ( !pResult )
         {
             return E_POINTER;
@@ -106,24 +108,35 @@ protected:
         JS::RootedFunction rFunc( pJsCtx_, JS_ValueToFunction( pJsCtx_, vFunc ) );
         std::array<VARIANT*, 7> args = { &arg1, &arg2, &arg3, &arg4, &arg5, &arg6, &arg7 };
         JS::AutoValueArray<args.size()> wrappedArgs( pJsCtx_ );
-        for ( size_t i = 0; i < args.size(); ++i )
+
+        try
         {
-            if ( !convert::com::VariantToJs( pJsCtx_, *args[i], wrappedArgs[i] ) )
+            for ( size_t i = 0; i < args.size(); ++i )
             {
-                JS_ClearPendingException( pJsCtx_ ); ///< can't forward exceptions inside ActiveXObject objects (see reasons above)...
-                return E_FAIL;
+                convert::com::VariantToJs( pJsCtx_, *args[i], wrappedArgs[i] );
             }
+        }
+        catch ( ... )
+        {
+            error::SuppressException( pJsCtx_ ); ///< reset, since we can't report
+            return E_FAIL;
         }
 
         JS::RootedValue retVal( pJsCtx_ );
         if ( !JS::Call( pJsCtx_, jsGlobal, rFunc, wrappedArgs, &retVal ) )
-        {                                        // TODO: set fail somehow
-            JS_ClearPendingException( pJsCtx_ ); ///< can't forward exceptions inside ActiveXObject objects (see reasons above)...
+        {
+            JS_ClearPendingException( pJsCtx_ ); ///< reset, since we can't report
             return E_FAIL;
         }
 
-        if ( !convert::com::JsToVariant( pJsCtx_, retVal, *pResult ) )
+        try
         {
+            convert::com::JsToVariant( pJsCtx_, retVal, *pResult );
+        }
+        catch ( ... )
+        {
+            error::SuppressException( pJsCtx_ ); ///< reset, since we can't report
+
             pResult->vt = VT_ERROR;
             pResult->scode = 0;
             return E_FAIL;
@@ -142,20 +155,19 @@ private:
     bool isJsAvailable_ = false;
 };
 
-bool JsArrayToComArray( JSContext* cx, JS::HandleObject obj, VARIANT& var )
+void JsArrayToComArray( JSContext* cx, JS::HandleObject obj, VARIANT& var )
 {
     uint32_t len;
     if ( !JS_GetArrayLength( cx, obj, &len ) )
     {
-        return false;
+        throw smp::JsException();
     }
 
     // Create the safe array of variants and populate it
     SAFEARRAY* safeArray = SafeArrayCreateVector( VT_VARIANT, 0, len );
     if ( !safeArray )
     {
-        //err = NS_ERROR_OUT_OF_MEMORY;
-        return false;
+        throw smp::SmpException( "SafeArrayCreateVector failed" );
     }
 
     scope::final_action autoSa( [safeArray]() {
@@ -167,8 +179,7 @@ bool JsArrayToComArray( JSContext* cx, JS::HandleObject obj, VARIANT& var )
         VARIANT* varArray = nullptr;
         if ( FAILED( SafeArrayAccessData( safeArray, reinterpret_cast<void**>( &varArray ) ) ) )
         {
-            //err = NS_ERROR_FAILURE;
-            return false;
+            throw smp::SmpException( "SafeArrayAccessData failed" );
         }
 
         scope::final_action autoSaData( [safeArray]() {
@@ -180,22 +191,16 @@ bool JsArrayToComArray( JSContext* cx, JS::HandleObject obj, VARIANT& var )
             JS::RootedValue val( cx );
             if ( !JS_GetElement( cx, obj, i, &val ) )
             {
-                //err = NS_ERROR_FAILURE;
-                return false;
+                throw smp::JsException();
             }
 
-            if ( !JsToVariant( cx, val, varArray[i] ) )
-            {
-                //err = NS_ERROR_FAILURE;
-                return false;
-            }
+            JsToVariant( cx, val, varArray[i] );
         }
     }
 
     var.vt = VT_ARRAY | VT_VARIANT;
     var.parray = safeArray;
     autoSa.cancel(); // cancel array destruction
-    return true;
 }
 
 bool ComArrayToJsArray( JSContext* cx, const VARIANT& src, JS::MutableHandleValue& dest )
@@ -203,31 +208,23 @@ bool ComArrayToJsArray( JSContext* cx, const VARIANT& src, JS::MutableHandleValu
     // We only support one dimensional arrays for now
     if ( SafeArrayGetDim( src.parray ) != 1 )
     {
-        // err = NS_ERROR_FAILURE;
-        return false;
+        throw smp::SmpException( "Multi-dimensional array are not supported failed" );
     }
     // Get the upper bound;
     long ubound;
-    if ( FAILED( SafeArrayGetUBound( src.parray, 1, &ubound ) ) )
-    {
-        // err = NS_ERROR_FAILURE;
-        return false;
-    }
+    HRESULT hr = SafeArrayGetUBound( src.parray, 1, &ubound );
+    IF_HR_FAILED_THROW_SMP( hr, "SafeArrayGetUBound" );
 
     // Get the lower bound
     long lbound;
-    if ( FAILED( SafeArrayGetLBound( src.parray, 1, &lbound ) ) )
-    {
-        // err = NS_ERROR_FAILURE;
-        return false;
-    }
+    hr = SafeArrayGetLBound( src.parray, 1, &lbound );
+    IF_HR_FAILED_THROW_SMP( hr, "SafeArrayGetLBound" );
 
     // Create the JS Array
     JS::RootedObject jsArray( cx, JS_NewArrayObject( cx, ubound - lbound + 1 ) );
     if ( !jsArray )
     {
-        // err = NS_ERROR_OUT_OF_MEMORY;
-        return false;
+        throw smp::JsException();
     }
 
     // Divine the type of our array
@@ -238,10 +235,8 @@ bool ComArrayToJsArray( JSContext* cx, const VARIANT& src, JS::MutableHandleValu
     }
     else // This was maybe a VT_SAFEARRAY
     {
-        if ( FAILED( SafeArrayGetVartype( src.parray, &vartype ) ) )
-        {
-            return false;
-        }
+        hr = SafeArrayGetVartype( src.parray, &vartype );
+        IF_HR_FAILED_THROW_SMP( hr, "SafeArrayGetVartype" );
     }
 
     JS::RootedValue jsVal( cx );
@@ -258,20 +253,13 @@ bool ComArrayToJsArray( JSContext* cx, const VARIANT& src, JS::MutableHandleValu
             var.vt = vartype;
             hr = SafeArrayGetElement( src.parray, &i, &var.byref );
         }
-        if ( FAILED( hr ) )
-        {
-            // err = NS_ERROR_FAILURE;
-            return false;
-        }
+        IF_HR_FAILED_THROW_SMP( hr, "SafeArrayGetElement" );
 
-        if ( !VariantToJs( cx, var, &jsVal ) )
-        {
-            return false;
-        }
+        VariantToJs( cx, var, &jsVal );
 
         if ( !JS_SetElement( cx, jsArray, i, jsVal ) )
         {
-            return false;
+            throw smp::JsException();
         }
     }
 
@@ -285,7 +273,7 @@ namespace mozjs::convert::com
 {
 
 /// VariantToJs assumes that the caller will call VariantClear, so call AddRef on new objects
-bool VariantToJs( JSContext* cx, VARIANTARG& var, JS::MutableHandleValue rval )
+void VariantToJs( JSContext* cx, VARIANTARG& var, JS::MutableHandleValue rval )
 {
 #define FETCH( x ) ( ref ? *( var.p##x ) : var.x )
 
@@ -297,174 +285,144 @@ bool VariantToJs( JSContext* cx, VARIANTARG& var, JS::MutableHandleValue rval )
         type &= ~VT_BYREF;
     }
 
-    try
+    switch ( type )
     {
-        switch ( type )
+    case VT_ERROR:
+        rval.setUndefined();
+        break;
+    case VT_NULL:
+        rval.setNull();
+        break;
+    case VT_EMPTY:
+        rval.setUndefined();
+        break;
+    case VT_I1:
+        rval.setInt32( static_cast<int32_t>( FETCH( cVal ) ) );
+        break;
+    case VT_I2:
+        rval.setInt32( static_cast<int32_t>( FETCH( iVal ) ) );
+        break;
+    case VT_INT:
+    case VT_I4:
+        rval.setInt32( FETCH( lVal ) );
+        break;
+    case VT_R4:
+        rval.setNumber( FETCH( fltVal ) );
+        break;
+    case VT_R8:
+        rval.setNumber( FETCH( dblVal ) );
+        break;
+
+    case VT_BOOL:
+        rval.setBoolean( FETCH( boolVal ) ? true : false );
+        break;
+
+    case VT_UI1:
+        rval.setNumber( static_cast<uint32_t>( FETCH( bVal ) ) );
+        break;
+    case VT_UI2:
+        rval.setNumber( static_cast<uint32_t>( FETCH( uiVal ) ) );
+        break;
+    case VT_UINT:
+    case VT_UI4:
+        rval.setNumber( static_cast<uint32_t>( FETCH( ulVal ) ) );
+        break;
+
+    case VT_BSTR:
+    {
+        JS::RootedString jsString( cx, JS_NewUCStringCopyN( cx, (char16_t*)FETCH( bstrVal ), SysStringLen( FETCH( bstrVal ) ) ) );
+        if ( !jsString )
         {
-        case VT_ERROR:
-            rval.setUndefined();
-            break;
-        case VT_NULL:
+            throw smp::JsException();
+        }
+        rval.setString( jsString );
+        break;
+    };
+    case VT_DATE:
+    {
+        DATE d = FETCH( date );
+        SYSTEMTIME time;
+        VariantTimeToSystemTime( d, &time );
+
+        JS::RootedObject jsObject( cx, JS_NewDateObject( cx, time.wYear, time.wMonth - 1, time.wDay, time.wHour, time.wMinute, time.wSecond ) );
+        if ( !jsObject )
+        {
+            throw smp::JsException();
+        }
+        rval.setObjectOrNull( jsObject );
+        break;
+    }
+
+    case VT_UNKNOWN:
+    {
+        if ( !FETCH( punkVal ) )
+        {
             rval.setNull();
             break;
-        case VT_EMPTY:
-            rval.setUndefined();
-            break;
-        case VT_I1:
-            rval.setInt32( static_cast<int32_t>( FETCH( cVal ) ) );
-            break;
-        case VT_I2:
-            rval.setInt32( static_cast<int32_t>( FETCH( iVal ) ) );
-            break;
-        case VT_INT:
-        case VT_I4:
-            rval.setInt32( FETCH( lVal ) );
-            break;
-        case VT_R4:
-            rval.setNumber( FETCH( fltVal ) );
-            break;
-        case VT_R8:
-            rval.setNumber( FETCH( dblVal ) );
-            break;
-
-        case VT_BOOL:
-            rval.setBoolean( FETCH( boolVal ) ? true : false );
-            break;
-
-        case VT_UI1:
-            rval.setNumber( static_cast<uint32_t>( FETCH( bVal ) ) );
-            break;
-        case VT_UI2:
-            rval.setNumber( static_cast<uint32_t>( FETCH( uiVal ) ) );
-            break;
-        case VT_UINT:
-        case VT_UI4:
-            rval.setNumber( static_cast<uint32_t>( FETCH( ulVal ) ) );
-            break;
-
-        case VT_BSTR:
-        {
-            rval.setString( JS_NewUCStringCopyN( cx, (char16_t*)FETCH( bstrVal ), SysStringLen( FETCH( bstrVal ) ) ) );
-            break;
-        };
-        case VT_DATE:
-        {
-            DATE d = FETCH( date );
-            SYSTEMTIME time;
-            VariantTimeToSystemTime( d, &time );
-            rval.setObjectOrNull( JS_NewDateObject( cx,
-                                                    time.wYear,
-                                                    time.wMonth - 1,
-                                                    time.wDay,
-                                                    time.wHour,
-                                                    time.wMinute,
-                                                    time.wSecond ) );
-
-            break;
         }
 
-        case VT_UNKNOWN:
-        {
-            if ( !FETCH( punkVal ) )
-            {
-                rval.setNull();
-                break;
-            }
+        std::unique_ptr<ActiveXObject> x( new ActiveXObject( cx, FETCH( punkVal ), true ) );
+        JS::RootedObject jsObject( cx, ActiveXObject::CreateJsFromNative( cx, std::move( x ) ) );
+        assert( jsObject );
 
-            std::unique_ptr<ActiveXObject> x( new ActiveXObject( cx, FETCH( punkVal ), true ) );
-            if ( !x->pUnknown_ && !x->pDispatch_ )
-            {
-                return false;
-            }
-
-            JS::RootedObject jsObject( cx, ActiveXObject::CreateJsFromNative( cx, std::move( x ) ) );
-            if ( !jsObject )
-            {
-                return false;
-            }
-
-            rval.setObjectOrNull( jsObject );
-            break;
-        }
-        case VT_DISPATCH:
-        {
-            if ( !FETCH( pdispVal ) )
-            {
-                rval.setNull();
-                break;
-            }
-
-            std::unique_ptr<ActiveXObject> x( new ActiveXObject( cx, FETCH( pdispVal ), true ) );
-            if ( !x->pUnknown_ && !x->pDispatch_ )
-            {
-                return false;
-            }
-
-            JS::RootedObject jsObject( cx, ActiveXObject::CreateJsFromNative( cx, std::move( x ) ) );
-            if ( !jsObject )
-            {
-                return false;
-            }
-
-            rval.setObjectOrNull( jsObject );
-            break;
-        }
-        case VT_ARRAY | VT_VARIANT:
-        {
-            if ( !ComArrayToJsArray( cx, var, rval ) )
-            {
-                return false;
-            }
-            break;
-        }
-        case VT_VARIANT: //traverse the indirection list?
-            if ( ref )
-            {
-                VARIANTARG* v = var.pvarVal;
-                if ( v )
-                {
-                    return VariantToJs( cx, *v, rval );
-                }
-            }
-            break;
-        default:
-            if ( type <= VT_CLSID )
-            {
-                JS::RootedObject jsObject( cx, ActiveXObject::CreateJsFromNative( cx, std::make_unique<ActiveXObject>( cx, var ) ) );
-                if ( !jsObject )
-                {
-                    return false;
-                }
-
-                rval.setObjectOrNull( jsObject );
-                return true;
-            }
-
-            return false;
-        }
+        rval.setObjectOrNull( jsObject );
+        break;
     }
-    catch ( ... )
+    case VT_DISPATCH:
     {
-        return false;
+        if ( !FETCH( pdispVal ) )
+        {
+            rval.setNull();
+            break;
+        }
+
+        std::unique_ptr<ActiveXObject> x( new ActiveXObject( cx, FETCH( pdispVal ), true ) );
+        JS::RootedObject jsObject( cx, ActiveXObject::CreateJsFromNative( cx, std::move( x ) ) );
+        assert( jsObject );
+
+        rval.setObjectOrNull( jsObject );
+        break;
     }
-    return true;
+    case VT_ARRAY | VT_VARIANT:
+    {
+        ComArrayToJsArray( cx, var, rval );
+        break;
+    }
+    case VT_VARIANT: //traverse the indirection list?
+        if ( ref )
+        {
+            VARIANTARG* v = var.pvarVal;
+            if ( v )
+            {
+                return VariantToJs( cx, *v, rval );
+            }
+        }
+        break;
+    default:
+        if ( type > VT_CLSID )
+        {
+            throw smp::SmpException( smp::string::Formatter() << "ActiveX: unsupported object type: " << type );
+        }
+
+        JS::RootedObject jsObject( cx, ActiveXObject::CreateJsFromNative( cx, std::make_unique<ActiveXObject>( cx, var ) ) );
+        assert( jsObject );
+
+        rval.setObjectOrNull( jsObject );
+    }
 }
 
-bool JsToVariant( JSContext* cx, JS::HandleValue rval, VARIANTARG& arg )
+void JsToVariant( JSContext* cx, JS::HandleValue rval, VARIANTARG& arg )
 {
     VariantInit( &arg );
 
     if ( rval.isObject() )
     {
         JS::RootedObject j0( cx, &rval.toObject() );
-        if ( JS_InstanceOf( cx, j0, &ActiveXObject::JsClass, 0 ) )
+
+        auto pNative = GetInnerInstancePrivate<ActiveXObject>( cx, j0 );
+        if ( pNative )
         {
-            ActiveXObject* x = static_cast<ActiveXObject*>( JS_GetPrivate( j0 ) );
-            if ( !x )
-            {
-                //JS_ReportErrorUTF8( cx, "Internal error: JS_GetPrivate failed" );
-                return false;
-            }
+            ActiveXObject* x = pNative;
             if ( x->variant_.vt != VT_EMPTY )
             {
                 //1.7.2.3
@@ -473,27 +431,23 @@ bool JsToVariant( JSContext* cx, JS::HandleValue rval, VARIANTARG& arg )
                 //1.7.2.2 could address invalid memory if x is freed before arg
                 // arg.vt = VT_VARIANT | VT_BYREF;
                 // arg.pvarVal = &x->variant_;
-                return true;
             }
-            if ( x->pDispatch_ )
+            else if ( x->pDispatch_ )
             {
                 arg.vt = VT_DISPATCH;
                 arg.pdispVal = x->pDispatch_;
                 x->pDispatch_->AddRef();
-                return true;
             }
             else if ( x->pUnknown_ )
             {
                 arg.vt = VT_UNKNOWN;
                 arg.punkVal = x->pUnknown_;
                 x->pUnknown_->AddRef();
-                return true;
             }
             else
             {
                 arg.vt = VT_BYREF | VT_UNKNOWN;
                 arg.ppunkVal = &x->pUnknown_;
-                return true;
             }
         }
         else if ( JS_ObjectIsFunction( cx, j0 ) )
@@ -502,18 +456,22 @@ bool JsToVariant( JSContext* cx, JS::HandleValue rval, VARIANTARG& arg )
 
             arg.vt = VT_DISPATCH;
             arg.pdispVal = new com_object_impl_t<WrappedJs>( cx, func );
-            return true;
         }
         else
         {
             bool is;
-            if ( JS_IsArrayObject( cx, rval, &is ) && is )
+            if ( !JS_IsArrayObject( cx, rval, &is ) )
             {
-                return JsArrayToComArray( cx, j0, arg );
+                throw smp::JsException();
+            }
+
+            if ( is )
+            {
+                JsArrayToComArray( cx, j0, arg );
             }
             else
             {
-                return false;
+                throw smp::SmpException( "ActiveX: unsupported JS object type" );
             }
         }
     }
@@ -521,49 +479,38 @@ bool JsToVariant( JSContext* cx, JS::HandleValue rval, VARIANTARG& arg )
     {
         arg.vt = VT_BOOL;
         arg.boolVal = rval.toBoolean() ? -1 : 0;
-        return true;
     }
     else if ( rval.isInt32() )
     {
         arg.vt = VT_I4;
         arg.lVal = rval.toInt32();
-        return true;
     }
     else if ( rval.isDouble() )
     {
         arg.vt = VT_R8;
         arg.dblVal = rval.toDouble();
-        return true;
     }
     else if ( rval.isNull() )
     {
         arg.vt = VT_NULL;
         arg.scode = 0;
-        return true;
     }
     else if ( rval.isUndefined() )
     {
         arg.vt = VT_EMPTY;
         arg.scode = 0;
-        return true;
     }
     else if ( rval.isString() )
     {
-        auto str = convert::to_native::ToValue<std::wstring>( cx, rval );
-        if ( !str )
-        {
-            return false;
-        }
-
-        _bstr_t bStr = str.value().c_str();
+        const auto str = convert::to_native::ToValue<std::wstring>( cx, rval );
+        _bstr_t bStr = str.c_str();
 
         arg.vt = VT_BSTR;
         arg.bstrVal = bStr.Detach();
-        return true;
     }
     else
     {
-        return false;
+        throw smp::SmpException( "ActiveX: unsupported JS value type" );
     }
 }
 

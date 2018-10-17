@@ -39,35 +39,27 @@ JSClass jsClass = {
 bool Enumerator_Constructor_Impl( JSContext* cx, unsigned argc, JS::Value* vp )
 {
     JS::CallArgs args = JS::CallArgsFromVp( argc, vp );
-    if ( !argc || !args[0].isObject() )
+    if ( !argc )
     {
-        JS_ReportErrorUTF8( cx, "Argument is not an ActiveX object" );
-        return false;
-    }
-
-    JS::RootedObject jsArgObject( cx, &args[0].toObject() );
-    auto retVal = mozjs::convert::to_native::ToValue<ActiveXObject*>( cx, jsArgObject );
-    if ( !retVal )
-    {
-        JS_ReportErrorUTF8( cx, "Argument is not an ActiveX object" );
+        JS_ReportErrorUTF8( cx, "Not enough arguments" );
         return false;
     }
 
     try
     {
-        auto pActiveXObject = retVal.value();
+        auto pActiveXObject = mozjs::convert::to_native::ToValue<ActiveXObject*>( cx, args[0] );
         JS::RootedObject jsObject( cx,
                                    JsEnumerator::CreateJs( cx, ( pActiveXObject->pUnknown_ ? pActiveXObject->pUnknown_ : pActiveXObject->pDispatch_ ) ) );
         assert( jsObject );
 
         args.rval().setObjectOrNull( jsObject );
     }
-    catch (...)
+    catch ( ... )
     {
         error::ExceptionToJsError( cx );
         return false;
     }
-    
+
     return true;
 }
 
@@ -142,10 +134,7 @@ JS::Value JsEnumerator::Item()
     }
 
     JS::RootedValue jsValue( pJsCtx_ );
-    if ( !convert::com::VariantToJs( pJsCtx_, curElem_, &jsValue ) )
-    {
-        throw smp::SmpException( "Failed to convert COM object" );
-    }
+    convert::com::VariantToJs( pJsCtx_, curElem_, &jsValue );
 
     return jsValue;
 }
