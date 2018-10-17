@@ -244,17 +244,17 @@ JSObject* JsGdiBitmap::GetColourScheme( uint32_t count )
     Gdiplus::Status gdiRet = pGdi_->LockBits( &rect, Gdiplus::ImageLockModeRead, PixelFormat32bppARGB, &bmpdata );
     IF_GDI_FAILED_THROW_SMP( gdiRet, "LockBits" );
 
-    std::map<unsigned, int> color_counters;
-    const unsigned colors_length = bmpdata.Width * bmpdata.Height;
-    const t_uint32* colors = (const t_uint32*)bmpdata.Scan0;
+    std::map<uint32_t, uint32_t> color_counters;
+    const uint32_t colors_length = bmpdata.Width * bmpdata.Height;
+    const uint32_t* colors = (const uint32_t*)bmpdata.Scan0;
 
-    for ( unsigned i = 0; i < colors_length; ++i )
+    for ( uint32_t i = 0; i < colors_length; ++i )
     {
         // format: 0xaarrggbb
-        unsigned color = colors[i];
-        unsigned r = ( color >> 16 ) & 0xff;
-        unsigned g = ( color >> 8 ) & 0xff;
-        unsigned b = (color)&0xff;
+        uint32_t color = colors[i];
+        uint32_t r = ( color >> 16 ) & 0xff;
+        uint32_t g = ( color >> 8 ) & 0xff;
+        uint32_t b = (color)&0xff;
 
         // Round colors
         r = ( r + 16 ) & 0xffffffe0;
@@ -277,7 +277,7 @@ JSObject* JsGdiBitmap::GetColourScheme( uint32_t count )
     pGdi_->UnlockBits( &bmpdata );
 
     // Sorting
-    typedef std::pair<unsigned, int> sort_vec_pair_t;
+    typedef std::pair<uint32_t, uint32_t> sort_vec_pair_t;
     std::vector<sort_vec_pair_t> sort_vec( color_counters.begin(), color_counters.end() );
     count = std::min( count, sort_vec.size() );
     std::partial_sort(
@@ -288,24 +288,17 @@ JSObject* JsGdiBitmap::GetColourScheme( uint32_t count )
             return a.second > b.second;
         } );
 
-    JS::RootedObject jsArray( pJsCtx_, JS_NewArrayObject( pJsCtx_, count ) );
-    if ( !jsArray )
-    {
-        throw smp::JsException();
-    }
 
     JS::RootedValue jsValue( pJsCtx_ );
-    for ( t_size i = 0; i < count; ++i )
-    {
-        jsValue.setNumber( sort_vec[i].first );
+    convert::to_js::ToArrayValue(
+        pJsCtx_,
+        sort_vec,
+        []( const auto& vec, auto index ) {
+            return vec[index].first;
+        },
+        &jsValue );
 
-        if ( !JS_SetElement( pJsCtx_, jsArray, i, jsValue ) )
-        {
-            throw smp::JsException();
-        }
-    }
-
-    return jsArray;
+    return &jsValue.toObject();
 }
 
 pfc::string8_fast JsGdiBitmap::GetColourSchemeJSON( uint32_t count )

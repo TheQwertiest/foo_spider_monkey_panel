@@ -136,30 +136,18 @@ JSObject* JsFbTitleFormat::EvalWithMetadbs( JsFbMetadbHandleList* handles )
         throw smp::SmpException( "handles argument is null" );
     }
 
-    metadb_handle_list_cref handles_cref = handles->GetHandleList();
-    t_size count = handles_cref.get_count();
-
-    JS::RootedObject evalResult( pJsCtx_, JS_NewArrayObject( pJsCtx_, count ) );
-    if ( !evalResult )
-    {
-        throw smp::JsException();
-    }
-
     JS::RootedValue jsValue( pJsCtx_ );
-    for ( t_size i = 0; i < count; ++i )
-    {
-        pfc::string8_fast text;
-        handles_cref[i]->format_title( nullptr, text, titleFormatObject_, nullptr );
+    convert::to_js::ToArrayValue(
+        pJsCtx_,
+        handles->GetHandleList(),
+        [&titleFormat = titleFormatObject_]( const auto& vec, auto index ) {
+            pfc::string8_fast text;
+            vec[index]->format_title( nullptr, text, titleFormat, nullptr );
+            return text;
+        },
+        &jsValue );
 
-        convert::to_js::ToValue( pJsCtx_, text, &jsValue );
-
-        if ( !JS_SetElement( pJsCtx_, evalResult, i, jsValue ) )
-        {
-            throw smp::JsException();
-        }
-    }
-
-    return evalResult;
+    return &jsValue.toObject();
 }
 
 } // namespace mozjs

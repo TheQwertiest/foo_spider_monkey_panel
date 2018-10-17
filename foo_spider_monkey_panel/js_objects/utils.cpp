@@ -243,15 +243,15 @@ JS::Value JsUtils::FileTest( const std::wstring& path, const std::wstring& mode 
     }
     else if ( L"split" == mode )
     {
-        const wchar_t* fn = PathFindFileName( cleanedPath.c_str() );
+        const wchar_t* cPath = cleanedPath.c_str();
+        const wchar_t* fn = PathFindFileName( cPath );
         const wchar_t* ext = PathFindExtension( fn );
         wchar_t dir[MAX_PATH] = { 0 };
 
-        std::wstring out[3];
-
+        std::vector<std::wstring> out(3);
         if ( PathIsFileSpec( fn ) )
         {
-            StringCchCopyN( dir, _countof( dir ), cleanedPath.c_str(), fn - cleanedPath.c_str() );
+            StringCchCopyN( dir, _countof( dir ), cPath, fn - cPath );
             PathAddBackslash( dir );
 
             out[0].assign( dir );
@@ -266,24 +266,16 @@ JS::Value JsUtils::FileTest( const std::wstring& path, const std::wstring& mode 
             out[0].assign( dir );
         }
 
-        JS::RootedObject jsArray( pJsCtx_, JS_NewArrayObject( pJsCtx_, _countof( out ) ) );
-        if ( !jsArray )
-        {
-            throw smp::JsException();
-        }
-
         JS::RootedValue jsValue( pJsCtx_ );
-        for ( size_t i = 0; i < _countof( out ); ++i )
-        {
-            convert::to_js::ToValue( pJsCtx_, out[i], &jsValue );
+        convert::to_js::ToArrayValue(
+            pJsCtx_,
+            out,
+            []( const auto& vec, auto index ) {
+                return vec[index];
+            },
+            &jsValue );
 
-            if ( !JS_SetElement( pJsCtx_, jsArray, i, jsValue ) )
-            {
-                throw smp::JsException();
-            }
-        }
-
-        return JS::ObjectValue( *jsArray );
+        return jsValue;
     }
     else if ( L"chardet" == mode )
     {
@@ -426,7 +418,7 @@ uint32_t JsUtils::GetSystemMetrics( uint32_t index )
 
 JSObject* JsUtils::Glob( const pfc::string8_fast& pattern, uint32_t exc_mask, uint32_t inc_mask )
 {
-    pfc::string_list_impl files;
+    std::vector<pfc::string8_fast> files;
     {
         std::unique_ptr<uFindFile> ff( uFindFirstFile( pattern.c_str() ) );
         if ( ff )
@@ -438,32 +430,22 @@ JSObject* JsUtils::Glob( const pfc::string8_fast& pattern, uint32_t exc_mask, ui
                 DWORD attr = ff->GetAttributes();
                 if ( ( attr & inc_mask ) && !( attr & exc_mask ) )
                 {
-                    const pfc::string8_fast fullPath = dir + ff->GetFileName();
-                    files.add_item( fullPath.c_str() );
+                    files.emplace_back( dir + ff->GetFileName() );
                 }
             } while ( ff->FindNext() );
         }
     }
 
-    JS::RootedObject evalResult( pJsCtx_, JS_NewArrayObject( pJsCtx_, files.get_count() ) );
-    if ( !evalResult )
-    {
-        throw smp::JsException();
-    }
-
     JS::RootedValue jsValue( pJsCtx_ );
-    for ( t_size i = 0; i < files.get_count(); ++i )
-    {
-        pfc::string8_fast tmpString( files[i] );
-        convert::to_js::ToValue( pJsCtx_, tmpString, &jsValue );
+    convert::to_js::ToArrayValue(
+        pJsCtx_,
+        files,
+        []( auto& vec, auto idx ) {
+            return vec[idx];
+        },
+        &jsValue );
 
-        if ( !JS_SetElement( pJsCtx_, evalResult, i, jsValue ) )
-        {
-            throw smp::JsException();
-        }
-    }
-
-    return evalResult;
+    return &jsValue.toObject();
 }
 
 JSObject* JsUtils::GlobWithOpt( size_t optArgCount, const pfc::string8_fast& pattern, uint32_t exc_mask, uint32_t inc_mask )

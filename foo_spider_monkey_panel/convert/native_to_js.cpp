@@ -4,6 +4,7 @@
 #include <js_objects/global_object.h>
 #include <js_objects/fb_metadb_handle.h>
 #include <js_objects/fb_metadb_handle_list.h>
+#include <js_objects/fb_playback_queue_item.h>
 #include <js_objects/gdi_bitmap.h>
 
 
@@ -142,6 +143,15 @@ template <>
 void ToValue( JSContext * cx, const metadb_handle_list& inValue, JS::MutableHandleValue wrappedValue )
 {
     JS::RootedObject jsObject( cx, JsFbMetadbHandleList::CreateJs( cx, inValue ) );
+    assert( jsObject );
+
+    wrappedValue.setObjectOrNull( jsObject );
+}
+
+template <>
+void ToValue( JSContext* cx, const t_playback_queue_item& inValue, JS::MutableHandleValue wrappedValue )
+{
+    JS::RootedObject jsObject( cx, JsFbPlaybackQueueItem::CreateJs( cx, inValue ) );
     assert( jsObject );
 
     wrappedValue.setObjectOrNull( jsObject );

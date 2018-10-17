@@ -377,29 +377,17 @@ JSObject* JsFbPlaylistManager::GetPlaybackQueueContents()
 {
     pfc::list_t<t_playback_queue_item> contents;
     playlist_manager::get()->queue_get_contents( contents );
-    t_size count = contents.get_count();
-
-    JS::RootedObject jsArray( pJsCtx_, JS_NewArrayObject( pJsCtx_, count ) );
-    if ( !jsArray )
-    {
-        throw smp::JsException();
-    }
 
     JS::RootedValue jsValue( pJsCtx_ );
-    JS::RootedObject jsObject( pJsCtx_ );
-    for ( t_size i = 0; i < count; ++i )
-    {
-        jsObject.set( JsFbPlaybackQueueItem::CreateJs( pJsCtx_, contents[i] ) );
-        assert( jsObject );
+    convert::to_js::ToArrayValue(
+        pJsCtx_,
+        contents,
+        []( const auto& vec, auto index ) {
+            return vec[index];
+        },
+        &jsValue );
 
-        jsValue.set( JS::ObjectValue( *jsObject ) );
-        if ( !JS_SetElement( pJsCtx_, jsArray, i, jsValue ) )
-        {
-            throw smp::JsException();
-        }
-    }
-
-    return jsArray;
+    return &jsValue.toObject();
 }
 
 JSObject* JsFbPlaylistManager::GetPlaybackQueueHandles()

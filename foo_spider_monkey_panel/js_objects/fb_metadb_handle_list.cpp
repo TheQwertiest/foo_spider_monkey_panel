@@ -346,29 +346,16 @@ JSObject* JsFbMetadbHandleList::Clone()
 
 JSObject* JsFbMetadbHandleList::Convert()
 {
-    t_size count = metadbHandleList_.get_count();
-
-    JS::RootedObject jsArray( pJsCtx_, JS_NewArrayObject( pJsCtx_, count ) );
-    if ( !jsArray )
-    {
-        throw smp::JsException();
-    }
-
     JS::RootedValue jsValue( pJsCtx_ );
-    JS::RootedObject jsObject( pJsCtx_ );
-    for ( t_size i = 0; i < count; ++i )
-    {
-        jsObject = JsFbMetadbHandle::CreateJs( pJsCtx_, metadbHandleList_.get_item_ref( i ) );
-        assert( jsObject );
+    convert::to_js::ToArrayValue(
+        pJsCtx_,
+        metadbHandleList_,
+        []( const auto& vec, auto index ) {
+            return vec[index];
+        },
+        &jsValue );
 
-        jsValue.set( JS::ObjectValue( *jsObject ) );
-        if ( !JS_SetElement( pJsCtx_, jsArray, i, jsValue ) )
-        {
-            throw smp::JsException();
-        }
-    }
-
-    return jsArray;
+    return &jsValue.toObject();
 }
 
 int32_t JsFbMetadbHandleList::Find( JsFbMetadbHandle* handle )
@@ -390,37 +377,23 @@ int32_t JsFbMetadbHandleList::Find( JsFbMetadbHandle* handle )
 JSObject* JsFbMetadbHandleList::GetLibraryRelativePaths()
 {
     auto api = library_manager::get();
-    t_size count = metadbHandleList_.get_count();
-
-    pfc::string8_fastalloc path;
-    path.prealloc( 512 );
-    metadb_handle_ptr item;
-
-    JS::RootedObject jsArray( pJsCtx_, JS_NewArrayObject( pJsCtx_, count ) );
-    if ( !jsArray )
-    {
-        throw smp::JsException();
-    }
 
     JS::RootedValue jsValue( pJsCtx_ );
-    for ( t_size i = 0; i < count; ++i )
-    {
-        item = metadbHandleList_.get_item_ref( i );
-        if ( !api->get_relative_path( item, path ) )
-        {
-            path = "";
-        }
+    convert::to_js::ToArrayValue(
+        pJsCtx_,
+        metadbHandleList_,
+        [&api]( const auto& vec, auto index ) {
+            pfc::string8_fast path;            
+            if ( !api->get_relative_path( vec[index], path ) )
+            {
+                path = "";
+            }
 
-        pfc::string8_fast tmpString( path.c_str(), path.length() );
-        convert::to_js::ToValue( pJsCtx_, tmpString, &jsValue );
+            return path;
+        },
+        &jsValue );
 
-        if ( !JS_SetElement( pJsCtx_, jsArray, i, jsValue ) )
-        { // Report in JS_SetElement
-            throw smp::JsException();
-        }
-    }
-
-    return jsArray;
+    return &jsValue.toObject();
 }
 
 void JsFbMetadbHandleList::Insert( uint32_t index, JsFbMetadbHandle* handle )
