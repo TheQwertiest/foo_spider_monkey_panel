@@ -123,7 +123,19 @@ std::wstring ReadFromFile( JSContext* cx, const pfc::string8_fast& path, uint32_
     }
     else
     {
-        uint32_t detectedCodepage = helpers::detect_text_charset( (const char*)pAddr, dwFileSize );
+        // TODO: dirty hack! remove
+        const std::wstring wpath = fs::absolute( fsPath ).wstring();
+        static std::unordered_map<std::wstring, uint32_t> codepageMap;
+        uint32_t detectedCodepage;
+        if ( codepageMap.count( wpath ) )
+        {
+            detectedCodepage = codepageMap[wpath];
+        }
+        else
+        {
+            detectedCodepage = helpers::detect_text_charset( (const char*)pAddr, dwFileSize );
+            codepageMap[wpath] = detectedCodepage;
+        }
 
         size_t outputSize = pfc::stringcvt::estimate_codepage_to_wide( detectedCodepage, (const char*)pAddr, dwFileSize );
         fileContent.resize( outputSize );
