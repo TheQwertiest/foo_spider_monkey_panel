@@ -547,7 +547,7 @@ std::wstring JsUtils::ReadINIWithOpt( size_t optArgCount, const std::wstring& fi
 
 std::wstring JsUtils::ReadTextFile( const pfc::string8_fast& filePath, uint32_t codepage )
 {
-    return file::ReadFromFile( pJsCtx_, filePath );
+    return file::ReadFromFile( pJsCtx_, filePath, codepage );
 }
 
 std::wstring JsUtils::ReadTextFileWithOpt( size_t optArgCount, const pfc::string8_fast& filePath, uint32_t codepage )
