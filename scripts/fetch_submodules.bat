@@ -14,9 +14,9 @@ git submodule foreach git reset --hard
 if errorlevel 1 goto fail
 git submodule update --init --depth=10
 if errorlevel 1 (
-  git submodule update --init --depth=50
+  git submodule update --init --depth=50 --force
   if errorlevel 1 (
-    git submodule update --init
+    git submodule update --init --force
     rem We tried T_T
     if errorlevel 1 goto fail
   )
