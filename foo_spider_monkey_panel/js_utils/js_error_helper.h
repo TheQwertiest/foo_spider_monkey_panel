@@ -13,13 +13,15 @@ bool Execute_JsSafe( JSContext* cx, std::string_view functionName, F&& func, Arg
     catch ( ... )
     {
         mozjs::error::ExceptionToJsError( cx );
-        mozjs::error::ReportJsErrorWithFunctionName( cx, std::string( functionName.data(), functionName.size() ).c_str() );
+        const pfc::string8_fast additionalText = pfc::string8_fast( functionName.data(), functionName.size() ) + " failed";
+        mozjs::error::PrependTextToJsError( cx, additionalText );
         return false;
     }
 
     if ( JS_IsExceptionPending( cx ) )
     {
-        mozjs::error::ReportJsErrorWithFunctionName( cx, std::string( functionName.data(), functionName.size() ).c_str() );
+        const pfc::string8_fast additionalText = pfc::string8_fast( functionName.data(), functionName.size() ) + " failed";
+        mozjs::error::PrependTextToJsError( cx, additionalText );
         return false;
     }
 
@@ -39,9 +41,9 @@ private:
     bool isDisabled_ = false;
 };
 
-pfc::string8_fast GetTextFromCurrentJsError( JSContext* cx );
+pfc::string8_fast GetFullTextFromCurrentJsError( JSContext* cx );
 void ExceptionToJsError( JSContext* cx );
 void SuppressException( JSContext* cx );
-void ReportJsErrorWithFunctionName( JSContext* cx, const char* functionName );
+void PrependTextToJsError( JSContext* cx, const pfc::string8_fast& text );
 
 } // namespace mozjs::error

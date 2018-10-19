@@ -100,7 +100,7 @@ bool JsEngine::Initialize()
     {       
         assert( JS_IsExceptionPending( autoJsCtx.get() ) );
 
-        auto errorText = error::GetTextFromCurrentJsError( autoJsCtx.get() );
+        auto errorText = error::GetFullTextFromCurrentJsError( autoJsCtx.get() );
         JS_ClearPendingException( autoJsCtx.get() );
 
         ReportException( errorText );

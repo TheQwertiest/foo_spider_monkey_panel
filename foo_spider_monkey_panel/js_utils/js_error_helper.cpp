@@ -11,6 +11,8 @@
 namespace
 {
 
+using namespace mozjs;
+
 pfc::string8_fast GetStackTraceString( JSContext* cx, JS::HandleObject exn )
 {
     // Exceptions thrown while compiling top-level script have no stack.
@@ -39,6 +41,110 @@ pfc::string8_fast GetStackTraceString( JSContext* cx, JS::HandleObject exn )
     return outString;
 }
 
+bool PrependTextToJsStringException( JSContext* cx, JS::HandleValue excn, const pfc::string8_fast& text )
+{
+    pfc::string8_fast currentMessage;
+    try
+    { // Must not throw errors in error handler
+        currentMessage = convert::to_native::ToValue<pfc::string8_fast>( cx, excn );
+    }
+    catch ( const smp::JsException& )
+    {
+        return false;
+    }
+    catch ( const smp::SmpException& )
+    {
+        return false;
+    }
+
+    if ( currentMessage == pfc::string8_fast( "out of memory" ) )
+    { // Can't modify the message since we're out of memory
+        return true;
+    }
+
+    const pfc::string8_fast newMessage = [&text, &currentMessage] {
+        pfc::string8_fast newMessage;
+        newMessage += text;
+        if ( currentMessage.length() )
+        {
+            newMessage += ( ":\n" );
+            newMessage += currentMessage;
+        }
+
+        return newMessage;
+    }();
+
+    JS::RootedValue jsMessage( cx );
+    try
+    { // Must not throw errors in error handler
+        convert::to_js::ToValue<pfc::string8_fast>( cx, newMessage, &jsMessage );
+    }
+    catch ( const smp::JsException& )
+    {
+        return false;
+    }
+    catch ( const smp::SmpException& )
+    {
+        return false;
+    }
+
+    JS_SetPendingException( cx, jsMessage );
+    return true;
+}
+
+bool PrependTextToJsObjectException( JSContext* cx, JS::HandleValue excn, const pfc::string8_fast& text )
+{
+    JS::RootedObject excnObject( cx, &excn.toObject() );
+
+    JSErrorReport* report = JS_ErrorFromException( cx, excnObject );
+    if ( !report )
+    { // Sometimes happens with custom JS errors
+        return false;
+    }
+
+    pfc::string8_fast currentMessage = report->message().c_str();
+    const pfc::string8_fast newMessage = [&text, &currentMessage] {
+        pfc::string8_fast newMessage;
+        newMessage += text;
+        if ( currentMessage.length() )
+        {
+            newMessage += ( ":\n" );
+            newMessage += currentMessage;
+        }
+
+        return newMessage;
+    }();
+
+    JS::RootedValue jsFilename( cx );
+    JS::RootedValue jsMessage( cx );
+    try
+    { // Must not throw errors in error handler
+        convert::to_js::ToValue<pfc::string8_fast>( cx, report->filename, &jsFilename );
+        convert::to_js::ToValue<pfc::string8_fast>( cx, newMessage, &jsMessage );
+    }
+    catch ( const smp::JsException& )
+    {
+        return false;
+    }
+    catch ( const smp::SmpException& )
+    {
+        return false;
+    }
+
+    JS::RootedObject excnStack( cx, JS::ExceptionStackOrNull( excnObject ) );
+    JS::RootedValue newExcn( cx );
+    JS::RootedString jsFilenameStr( cx, jsFilename.toString() );
+    JS::RootedString jsMessageStr( cx, jsMessage.toString() );
+
+    if ( !JS::CreateError( cx, (JSExnType)report->exnType, excnStack, jsFilenameStr, report->lineno, report->column, nullptr, jsMessageStr, &newExcn ) )
+    {
+        return false;
+    }
+
+    JS_SetPendingException( cx, newExcn );
+    return true;
+}
+
 } // namespace
 
 namespace mozjs::error
@@ -61,7 +167,7 @@ AutoJsReport::~AutoJsReport()
         return;
     }
 
-    pfc::string8_fast errorText = GetTextFromCurrentJsError( cx );
+    pfc::string8_fast errorText = GetFullTextFromCurrentJsError( cx );
     JS_ClearPendingException( cx );
 
     JS::RootedObject global( cx, JS::CurrentGlobalOrNull( cx ) );
@@ -87,7 +193,7 @@ void AutoJsReport::Disable()
     isDisabled_ = true;
 }
 
-pfc::string8_fast GetTextFromCurrentJsError( JSContext* cx )
+pfc::string8_fast GetFullTextFromCurrentJsError( JSContext* cx )
 {
     assert( JS_IsExceptionPending( cx ) );
 
@@ -208,10 +314,10 @@ void SuppressException( JSContext* cx )
     JS_ClearPendingException( cx );
 }
 
-void ReportJsErrorWithFunctionName( JSContext* cx, const char* functionName )
+void PrependTextToJsError( JSContext* cx, const pfc::string8_fast& text )
 {
-    scope::final_action autoJsReport( [cx, functionName]() {
-        JS_ReportErrorUTF8( cx, "'%s' failed", functionName );
+    scope::final_action autoJsReport( [cx, text]() {
+        JS_ReportErrorUTF8( cx, "%s", text.c_str() );
     } );
 
     if ( !JS_IsExceptionPending( cx ) )
@@ -223,112 +329,21 @@ void ReportJsErrorWithFunctionName( JSContext* cx, const char* functionName )
     JS::RootedValue excn( cx );
     (void)JS_GetPendingException( cx, &excn );
 
-    auto makeErrorString = [&functionName]( const pfc::string8_fast& currentMessage ) {
-        pfc::string8_fast newMessage;
-        newMessage += "'";
-        newMessage += functionName;
-        newMessage += "'";
-        newMessage += " failed";
-        if ( currentMessage.length() )
-        {
-            newMessage += ( ":\n" );
-            newMessage += currentMessage;
-        }
-
-        return newMessage;
-    };
-
     if ( excn.isString() )
     {
-        pfc::string8_fast curMessage;
-        try
-        { // Must not throw errors in error handler
-            curMessage = convert::to_native::ToValue<pfc::string8_fast>( cx, excn );
-        }
-        catch ( const smp::JsException& )
+        if ( PrependTextToJsStringException( cx, excn, text ) )
         {
-            return;
-        }
-        catch ( const smp::SmpException& )
-        {
-            return;
-        }
-
-        if ( curMessage == pfc::string8_fast( "out of memory" ) )
-        { // Can't modify the message since we're out of memory
             autoJsReport.cancel();
-            return;
         }
-
-        const pfc::string8_fast newMessage = makeErrorString( curMessage );
-        JS::RootedValue jsMessage( cx );
-        try
-        { // Must not throw errors in error handler
-            convert::to_js::ToValue<pfc::string8_fast>( cx, newMessage, &jsMessage );
-        }
-        catch ( const smp::JsException& )
-        {
-            return;
-        }
-        catch ( const smp::SmpException& )
-        {
-            return;
-        }
-
-        autoJsReport.cancel();
-        JS_SetPendingException( cx, jsMessage );
         return;
     }
     else if ( excn.isObject() )
     {
-        JS::RootedObject excnObject( cx, &excn.toObject() );
-
-        JSErrorReport* report = JS_ErrorFromException( cx, excnObject );
-        if ( !report )
-        { // Sometimes happens with custom JS errors
-            return;
-        }
-
-        pfc::string8_fast currentMessage = report->message().c_str();
-        pfc::string8_fast newMessage;
-        newMessage += "'";
-        newMessage += functionName;
-        newMessage += "'";
-        newMessage += " failed";
-        if ( currentMessage.length() )
+        if ( PrependTextToJsObjectException( cx, excn, text ) )
         {
-            newMessage += ( ":\n" );
-            newMessage += currentMessage;
+            autoJsReport.cancel();
         }
-
-        JS::RootedValue jsFilename( cx );
-        JS::RootedValue jsMessage( cx );
-        try
-        { // Must not throw errors in error handler
-            convert::to_js::ToValue<pfc::string8_fast>( cx, report->filename, &jsFilename );
-            convert::to_js::ToValue<pfc::string8_fast>( cx, newMessage, &jsMessage );
-        }
-        catch ( const smp::JsException& )
-        {
-            return;
-        }
-        catch ( const smp::SmpException& )
-        {
-            return;
-        }
-
-        JS::RootedObject excnStack( cx, JS::ExceptionStackOrNull( excnObject ) );
-        JS::RootedValue newExcn( cx );
-        JS::RootedString jsFilenameStr( cx, jsFilename.toString() );
-        JS::RootedString jsMessageStr( cx, jsMessage.toString() );
-
-        if ( !JS::CreateError( cx, (JSExnType)report->exnType, excnStack, jsFilenameStr, report->lineno, report->column, nullptr, jsMessageStr, &newExcn ) )
-        {
-            return;
-        }
-
-        autoJsReport.cancel();
-        JS_SetPendingException( cx, newExcn );
+        return;
     }
 }
 

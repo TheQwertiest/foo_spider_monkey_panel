@@ -15,6 +15,8 @@ public:
     {}
 
     virtual ~SmpException() = default;
+
+    static void ExpectTrue( bool checkValue, std::string_view errorMessage );
 };
 
 /// @brief This exception is used when JS exception is set

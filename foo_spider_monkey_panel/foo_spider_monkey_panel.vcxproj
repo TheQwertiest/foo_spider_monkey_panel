@@ -161,6 +161,7 @@
     <ClCompile Include="panel_manager.cpp" />
     <ClCompile Include="scintilla\editorctrl.cpp" />
     <ClCompile Include="scintilla\scintilla_prop_sets.cpp" />
+    <ClCompile Include="smp_exception.cpp" />
     <ClCompile Include="stats.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>

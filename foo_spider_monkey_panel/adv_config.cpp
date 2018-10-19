@@ -5,7 +5,7 @@ namespace smp::config::advanced
 {
 
 advconfig_branch_factory branch_smp(
-    "Spider Monkey Panel", g_guid_smp_adv_branch, advconfig_branch::guid_branch_display, 0
+    "Spider Monkey Panel", g_guid_smp_adv_branch, advconfig_branch::guid_branch_tools, 0
 );
 advconfig_branch_factory branch_gc(
     "GC: restart is required", g_guid_smp_adv_branch_gc, g_guid_smp_adv_branch, 0

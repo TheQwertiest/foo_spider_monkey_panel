@@ -87,7 +87,7 @@ bool JsContainer::Initialize()
     {
         error::ExceptionToJsError( pJsCtx_ );
 
-        const auto errorText = error::GetTextFromCurrentJsError( pJsCtx_ );
+        const auto errorText = error::GetFullTextFromCurrentJsError( pJsCtx_ );
         JS_ClearPendingException( pJsCtx_ );
 
         Fail( errorText );

@@ -253,6 +253,9 @@
     <ClCompile Include="scintilla\editorctrl.cpp">
       <Filter>scintilla</Filter>
     </ClCompile>
+    <ClCompile Include="smp_exception.cpp">
+      <Filter>z_uncategorized</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="js_engine\js_engine.h">
