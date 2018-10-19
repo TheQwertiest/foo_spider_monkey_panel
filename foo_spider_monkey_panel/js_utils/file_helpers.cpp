@@ -81,24 +81,14 @@ std::wstring ReadFromFile( JSContext* cx, const pfc::string8_fast& path, uint32_
 
     std::wstring fileContent;
 
-    const unsigned char bom32Be[] = { 0x00, 0x00, 0xfe, 0xff };
-    const unsigned char bom32Le[] = { 0xff, 0xfe, 0x00, 0x00 };
-    const unsigned char bom16Be[] = { 0xfe, 0xff }; // must be 4byte size
-    const unsigned char bom16Le[] = { 0xff, 0xfe }; // must be 4byte size, but not 0xff, 0xfe, 0x00, 0x00
-    const unsigned char bom8[] = { 0xef, 0xbb, 0xbf };
+    constexpr unsigned char bom32Be[] = { 0x00, 0x00, 0xfe, 0xff };
+    constexpr unsigned char bom32Le[] = { 0xff, 0xfe, 0x00, 0x00 };
+    constexpr unsigned char bom16Be[] = { 0xfe, 0xff }; // must be 4byte size
+    constexpr unsigned char bom16Le[] = { 0xff, 0xfe }; // must be 4byte size, but not 0xff, 0xfe, 0x00, 0x00
+    constexpr unsigned char bom8[] = { 0xef, 0xbb, 0xbf };
 
-    // TODO: handle all other BOM cases as well
-
-    if ( codepage )
-    {
-        size_t outputSize = pfc::stringcvt::estimate_codepage_to_wide( codepage, (const char*)pAddr, dwFileSize );
-        fileContent.resize( outputSize );
-
-        outputSize = pfc::stringcvt::convert_codepage_to_wide( codepage, fileContent.data(), outputSize, (const char*)pAddr, dwFileSize );
-        fileContent.resize( outputSize );
-    }
-    else if ( dwFileSize >= 4
-              && !memcmp( bom16Le, pAddr, sizeof( bom16Le ) ) )
+    if ( dwFileSize >= 4
+         && !memcmp( bom16Le, pAddr, sizeof( bom16Le ) ) )
     {
         pAddr += sizeof( bom16Le );
         dwFileSize -= sizeof( bom16Le );
@@ -123,18 +113,25 @@ std::wstring ReadFromFile( JSContext* cx, const pfc::string8_fast& path, uint32_
     }
     else
     {
-        // TODO: dirty hack! remove
-        const std::wstring wpath = fs::absolute( fsPath ).wstring();
-        static std::unordered_map<std::wstring, uint32_t> codepageMap;
         uint32_t detectedCodepage;
-        if ( codepageMap.count( wpath ) )
+        if ( codepage )
         {
-            detectedCodepage = codepageMap[wpath];
+            detectedCodepage = codepage;
         }
         else
-        {
-            detectedCodepage = helpers::detect_text_charset( (const char*)pAddr, dwFileSize );
-            codepageMap[wpath] = detectedCodepage;
+        { // TODO: dirty hack! remove
+            const std::wstring wpath = fs::absolute( fsPath ).wstring();
+            static std::unordered_map<std::wstring, uint32_t> codepageMap;
+
+            if ( codepageMap.count( wpath ) )
+            {
+                detectedCodepage = codepageMap[wpath];
+            }
+            else
+            {
+                detectedCodepage = helpers::detect_text_charset( (const char*)pAddr, dwFileSize );
+                codepageMap[wpath] = detectedCodepage;
+            }
         }
 
         size_t outputSize = pfc::stringcvt::estimate_codepage_to_wide( detectedCodepage, (const char*)pAddr, dwFileSize );
