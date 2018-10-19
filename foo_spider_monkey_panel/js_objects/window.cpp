@@ -335,7 +335,7 @@ void JsWindow::DefinePanel( const pfc::string8_fast& name, JS::HandleValue optio
         dropTargetHandler_.Attach( new com_object_impl_t<HostDropTarget>( parentPanel_.GetHWND() ) );
 
         HRESULT hr = dropTargetHandler_->RegisterDragDrop();
-        IF_HR_FAILED_THROW_SMP( hr, "RegisterDragDrop" );
+        mozjs::error::CheckHR( hr, "RegisterDragDrop" );
     }
 
     isPanelDefined_ = true;
@@ -374,7 +374,7 @@ uint32_t JsWindow::GetColourCUI( uint32_t type, const std::wstring& guidstr )
     else
     {
         HRESULT hr = CLSIDFromString( guidstr.c_str(), &guid );
-        IF_HR_FAILED_THROW_SMP( hr, "CLSIDFromString" );
+        mozjs::error::CheckHR( hr, "CLSIDFromString" );
     }
 
     return parentPanel_.GetColourCUI( type, guid );
@@ -428,7 +428,7 @@ JSObject* JsWindow::GetFontCUI( uint32_t type, const std::wstring& guidstr )
     else
     {
         HRESULT hr = CLSIDFromString( guidstr.c_str(), &guid );
-        IF_HR_FAILED_THROW_SMP( hr, "CLSIDFromString" );
+        mozjs::error::CheckHR( hr, "CLSIDFromString" );
     }
 
     auto hFont = gdi::CreateUniquePtr( parentPanel_.GetFontCUI( type, guid ) );

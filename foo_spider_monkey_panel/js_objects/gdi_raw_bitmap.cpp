@@ -87,7 +87,7 @@ JsGdiRawBitmap::CreateNative( JSContext* cx, Gdiplus::Bitmap* pBmp )
     }
 
     auto hDc = gdi::CreateUniquePtr( CreateCompatibleDC( nullptr ) );
-    IF_WINAPI_FAILED_THROW_SMP( !!hDc, "CreateCompatibleDC" );
+    mozjs::error::CheckWinApi( !!hDc, "CreateCompatibleDC" );
 
     auto hBitmap = gdi::CreateHBitmapFromGdiPlusBitmap( *pBmp );
     if ( !hBitmap )

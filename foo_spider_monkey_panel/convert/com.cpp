@@ -213,12 +213,12 @@ bool ComArrayToJsArray( JSContext* cx, const VARIANT& src, JS::MutableHandleValu
     // Get the upper bound;
     long ubound;
     HRESULT hr = SafeArrayGetUBound( src.parray, 1, &ubound );
-    IF_HR_FAILED_THROW_SMP( hr, "SafeArrayGetUBound" );
+    mozjs::error::CheckHR( hr, "SafeArrayGetUBound" );
 
     // Get the lower bound
     long lbound;
     hr = SafeArrayGetLBound( src.parray, 1, &lbound );
-    IF_HR_FAILED_THROW_SMP( hr, "SafeArrayGetLBound" );
+    mozjs::error::CheckHR( hr, "SafeArrayGetLBound" );
 
     // Create the JS Array
     JS::RootedObject jsArray( cx, JS_NewArrayObject( cx, ubound - lbound + 1 ) );
@@ -236,7 +236,7 @@ bool ComArrayToJsArray( JSContext* cx, const VARIANT& src, JS::MutableHandleValu
     else // This was maybe a VT_SAFEARRAY
     {
         hr = SafeArrayGetVartype( src.parray, &vartype );
-        IF_HR_FAILED_THROW_SMP( hr, "SafeArrayGetVartype" );
+        mozjs::error::CheckHR( hr, "SafeArrayGetVartype" );
     }
 
     JS::RootedValue jsVal( cx );
@@ -253,7 +253,7 @@ bool ComArrayToJsArray( JSContext* cx, const VARIANT& src, JS::MutableHandleValu
             var.vt = vartype;
             hr = SafeArrayGetElement( src.parray, &i, &var.byref );
         }
-        IF_HR_FAILED_THROW_SMP( hr, "SafeArrayGetElement" );
+        mozjs::error::CheckHR( hr, "SafeArrayGetElement" );
 
         VariantToJs( cx, var, &jsVal );
 

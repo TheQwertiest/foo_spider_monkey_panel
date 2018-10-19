@@ -1,8 +1,9 @@
 #include <stdafx.h>
 #include "gdi_error_helper.h"
 
+#include <utils/string_helpers.h>
 
-namespace mozjs
+namespace mozjs::error
 {
 
 const char* GdiErrorCodeToText( Gdiplus::Status errorCode )
@@ -56,4 +57,15 @@ const char* GdiErrorCodeToText( Gdiplus::Status errorCode )
     }
 }
 
+void CheckGdi( Gdiplus::Status gdiStatus, std::string_view functionName )
+{
+    if ( gdiStatus > 0 )
+    {
+        throw smp::SmpException(
+            smp::string::Formatter()
+            << "GdiPlus error: " << std::string( functionName.data(), functionName.size() )
+            << " failed with error (0x" << std::hex << gdiStatus << ": " << GdiErrorCodeToText( gdiStatus ) );
+    }
 }
+
+} // namespace mozjs::error

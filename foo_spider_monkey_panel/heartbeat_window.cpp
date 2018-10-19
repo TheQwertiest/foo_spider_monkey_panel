@@ -28,10 +28,10 @@ std::unique_ptr<HeartbeatWindow> HeartbeatWindow::Create()
     wx.lpszClassName = class_name;
 
     ATOM atom = RegisterClassEx( &wx );
-    IF_WINAPI_FAILED_THROW_SMP( !!atom, "RegisterClassEx" );
+    mozjs::error::CheckWinApi( !!atom, "RegisterClassEx" );
 
     HWND hWnd = CreateWindowEx( 0, MAKEINTATOM(atom), NULL, 0, 0, 0, 0, 0, HWND_MESSAGE, 0, 0, 0 );
-    IF_WINAPI_FAILED_THROW_SMP( hWnd, "CreateWindowEx" );
+    mozjs::error::CheckWinApi( hWnd, "CreateWindowEx" );
 
     return std::unique_ptr<HeartbeatWindow>( new HeartbeatWindow( hWnd ) );
 }

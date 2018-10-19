@@ -1,32 +1,12 @@
 #pragma once
 
-#include <utils/string_helpers.h>
+#include <js_utils/gdi_helpers.h>
 
-#define IF_GDI_FAILED_RETURN_WITH_REPORT( cx, gdiRet, retValue, funcName )                                                 \
-    do                                                                                                                     \
-    {                                                                                                                      \
-        if ( gdiRet > 0 )                                                                                                  \
-        {                                                                                                                  \
-            JS_ReportErrorUTF8( cx, "GDI error: '%s' failed: %s(0x%X)", #funcName, GdiErrorCodeToText( gdiRet ), gdiRet ); \
-            return retValue;                                                                                               \
-        }                                                                                                                  \
-    } while ( false )
-
-#define IF_GDI_FAILED_THROW_SMP( gdiRet, funcName )                                                                                                           \
-    do                                                                                                                                                        \
-    {                                                                                                                                                         \
-        if ( gdiRet > 0 )                                                                                                                                     \
-        {                                                                                                                                                     \
-            throw smp::SmpException(                                                                                                                          \
-                smp::string::Formatter() << "GDI error: " << funcName << " failed: " << GdiErrorCodeToText( gdiRet ) << "(0x" << std::hex << gdiRet << ")" ); \
-        }                                                                                                                                                     \
-    } while ( false )
-
-namespace mozjs
+namespace mozjs::error
 {
 
 template <typename T>
-void ValidateGdiPlusObject( const std::unique_ptr<T>& obj ) noexcept( false )
+void CheckGdiPlusObject( const std::unique_ptr<T>& obj ) noexcept( false )
 {
     if ( gdi::IsGdiPlusObjectValid( obj ) )
     {
@@ -40,10 +20,12 @@ void ValidateGdiPlusObject( const std::unique_ptr<T>& obj ) noexcept( false )
     else
     {
         throw smp::SmpException(
-            smp::string::Formatter() << "Failed to create GdiPlus object: " << GdiErrorCodeToText( obj->GetLastStatus() ) << "(0x" << std::hex << obj->GetLastStatus() << ")" );
+            smp::string::Formatter()
+            << "Failed to create GdiPlus object (0x" << std::hex << obj->GetLastStatus() << ": " << GdiErrorCodeToText( obj->GetLastStatus() ) );
     }
 }
 
 const char* GdiErrorCodeToText( Gdiplus::Status errorCode );
+void CheckGdi( Gdiplus::Status gdiStatus, std::string_view functionName );
 
-} // namespace mozjs
+} // namespace mozjs::error

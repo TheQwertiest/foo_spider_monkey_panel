@@ -121,9 +121,6 @@
     <ClCompile Include="js_objects\theme_manager.cpp">
       <Filter>js_objects</Filter>
     </ClCompile>
-    <ClCompile Include="js_utils\winapi_error_helper.cpp">
-      <Filter>js_utils</Filter>
-    </ClCompile>
     <ClCompile Include="js_objects\utils.cpp">
       <Filter>js_objects</Filter>
     </ClCompile>
@@ -255,6 +252,9 @@
     </ClCompile>
     <ClCompile Include="smp_exception.cpp">
       <Filter>z_uncategorized</Filter>
+    </ClCompile>
+    <ClCompile Include="js_utils\winapi_error_helper.cpp">
+      <Filter>js_utils</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -407,9 +407,6 @@
     </ClInclude>
     <ClInclude Include="js_objects\measure_string_info.h">
       <Filter>js_objects</Filter>
-    </ClInclude>
-    <ClInclude Include="js_utils\winapi_error_helper.h">
-      <Filter>js_utils</Filter>
     </ClInclude>
     <ClInclude Include="js_utils\art_helper.h">
       <Filter>js_utils</Filter>
@@ -584,6 +581,9 @@
     </ClInclude>
     <ClInclude Include="scintilla\editorctrl.h">
       <Filter>scintilla</Filter>
+    </ClInclude>
+    <ClInclude Include="js_utils\winapi_error_helper.h">
+      <Filter>js_utils</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -2,47 +2,32 @@
 #include "winapi_error_helper.h"
 
 #include <js_utils/scope_helper.h>
+#include <utils/string_helpers.h>
 
-namespace mozjs
+using namespace smp;
+
+namespace
 {
-
-DWORD Win32FromHResult( HRESULT hr )
-{
-    if ( (hr & 0xFFFF0000) == MAKE_HRESULT( SEVERITY_ERROR, FACILITY_WIN32, 0 ) )
-    {
-        return HRESULT_CODE( hr );
-    }
-
-    if ( hr == S_OK )
-    {
-        return ERROR_SUCCESS;
-    }
-
-    // Not a Win32 HRESULT so return a generic error code.
-    return ERROR_CAN_NOT_COMPLETE;
-}
 
 pfc::string8_fast MessageFromErrorCode( DWORD errorCode )
 {
-    LPVOID lpMsgBuf;   
+    LPVOID lpMsgBuf;
 
     DWORD dwRet = FormatMessage(
-        FORMAT_MESSAGE_ALLOCATE_BUFFER |
-        FORMAT_MESSAGE_FROM_SYSTEM |
-        FORMAT_MESSAGE_IGNORE_INSERTS,
+        FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
         nullptr,
         errorCode,
         MAKELANGID( LANG_ENGLISH, SUBLANG_ENGLISH_US ),
         (LPTSTR)&lpMsgBuf,
-        0, nullptr );
+        0,
+        nullptr );
 
     if ( !dwRet )
     {
         return pfc::string8_fast();
     }
 
-    scope::unique_ptr<std::remove_pointer_t<LPVOID>> scopedMsg( lpMsgBuf, []( auto buf )
-    {
+    mozjs::scope::unique_ptr<std::remove_pointer_t<LPVOID>> scopedMsg( lpMsgBuf, []( auto buf ) {
         LocalFree( buf );
     } );
 
@@ -50,4 +35,34 @@ pfc::string8_fast MessageFromErrorCode( DWORD errorCode )
     return msg8;
 }
 
+} // namespace
+
+namespace mozjs::error
+{
+
+void CheckHR( HRESULT hr, std::string_view functionName )
+{
+    if ( FAILED( hr ) )
+    {
+        pfc::string8_fast errorStr = MessageFromErrorCode( hr );
+        throw SmpException(
+            smp::string::Formatter()
+            << "WinAPI error: " << std::string( functionName.data(), functionName.size() )
+            << " failed with error (0x" << std::hex << hr << ": " << errorStr.c_str() );
+    }
 }
+
+void CheckWinApi( bool checkValue, std::string_view functionName )
+{
+    if ( !checkValue )
+    {
+        DWORD errorCode = GetLastError();
+        pfc::string8_fast errorStr = MessageFromErrorCode( errorCode );
+        throw SmpException(
+            smp::string::Formatter()
+            << "WinAPI error: " << std::string( functionName.data(), functionName.size() )
+            << " failed with error (0x" << std::hex << errorCode << ": " << errorStr.c_str() );
+    }
+}
+
+} // namespace mozjs::error

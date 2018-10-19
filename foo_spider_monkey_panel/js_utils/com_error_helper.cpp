@@ -6,7 +6,7 @@
 
 #include <smp_exception.h>
 
-namespace mozjs
+namespace mozjs::error
 {
 
 void ReportActiveXError( JSContext* cx, HRESULT hresult, EXCEPINFO& exception, UINT& argerr )
@@ -62,9 +62,9 @@ void ReportActiveXError( JSContext* cx, HRESULT hresult, EXCEPINFO& exception, U
     }
     default:
     {
-        IF_HR_FAILED_THROW_SMP( hresult, "ActiveXObject" );
+        mozjs::error::CheckHR( hresult, "ActiveXObject" );
     }
     }
 }
 
-} // namespace mozjs
+} // namespace mozjs::error

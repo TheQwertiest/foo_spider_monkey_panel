@@ -13,6 +13,7 @@
 #include <js_utils/js_prototype_helpers.h>
 #include <js_utils/com_error_helper.h>
 #include <js_utils/scope_helper.h>
+#include <js_utils/winapi_error_helper.h>
 #include <utils/string_helpers.h>
 #include <com_objects/script_interface.h>
 #include <com_objects/com_tools.h>
@@ -23,6 +24,8 @@
 #include <string>
 
 // TODO: cleanup the code
+
+using namespace smp;
 
 namespace
 {
@@ -134,7 +137,7 @@ bool ActiveXObjectProxyHandler::get( JSContext* cx, JS::HandleObject proxy, JS::
     }
     catch ( ... )
     {
-        error::ExceptionToJsError( cx );
+        mozjs::error::ExceptionToJsError( cx );
         return false;
     }
 
@@ -494,7 +497,7 @@ std::unique_ptr<ActiveXObject> ActiveXObject::CreateNative( JSContext* cx, const
     if ( !SUCCEEDED( hresult ) )
     {
         const pfc::string8_fast cStr = pfc::stringcvt::string_utf8_from_wide( name.c_str() );
-        throw smp::SmpException( smp::string::Formatter() << "Invalid CLSID: " << cStr.c_str() );
+        throw SmpException( smp::string::Formatter() << "Invalid CLSID: " << cStr.c_str() );
     }
 
     std::unique_ptr<ActiveXObject> nativeObject;
@@ -506,7 +509,7 @@ std::unique_ptr<ActiveXObject> ActiveXObject::CreateNative( JSContext* cx, const
         if ( !nativeObject->pUnknown_ )
         {
             const pfc::string8_fast cStr = pfc::stringcvt::string_utf8_from_wide( name.c_str() );
-            throw smp::SmpException( smp::string::Formatter() << "Failed to create ActiveXObject object via IUnknown:" << cStr.c_str() );
+            throw SmpException( smp::string::Formatter() << "Failed to create ActiveXObject object via IUnknown:" << cStr.c_str() );
         }
     }
 
@@ -516,7 +519,7 @@ std::unique_ptr<ActiveXObject> ActiveXObject::CreateNative( JSContext* cx, const
         if ( !nativeObject->pUnknown_ )
         {
             const pfc::string8_fast cStr = pfc::stringcvt::string_utf8_from_wide( name.c_str() );
-            throw smp::SmpException( smp::string::Formatter() << "Failed to create ActiveXObject object via CLSID:" << cStr.c_str() );
+            throw SmpException( smp::string::Formatter() << "Failed to create ActiveXObject object via CLSID:" << cStr.c_str() );
         }
     }
 
@@ -541,7 +544,7 @@ std::optional<DISPID> ActiveXObject::GetDispId( const std::wstring& name, bool r
     {
         if ( reportError )
         {
-            throw smp::SmpException( "Internal error: pDispatch_ is null" );
+            throw SmpException( "Internal error: pDispatch_ is null" );
         }
         return std::nullopt;
     }
@@ -568,7 +571,7 @@ std::optional<DISPID> ActiveXObject::GetDispId( const std::wstring& name, bool r
             if ( reportError )
             {
                 pfc::string8_fast tmpStr = pfc::stringcvt::string_utf8_from_wide( name.c_str() );
-                throw smp::SmpException( smp::string::Formatter() << "Failed to get DISPID for `" << tmpStr.c_str() << "`" );
+                throw SmpException( smp::string::Formatter() << "Failed to get DISPID for `" << tmpStr.c_str() << "`" );
             }
             return std::nullopt;
         }
@@ -632,10 +635,7 @@ std::wstring ActiveXObject::ToString()
 
 void ActiveXObject::Get( const std::wstring& propName, JS::MutableHandleValue vp )
 {
-    if ( !pDispatch_ )
-    {
-        throw smp::SmpException( "Internal error: pDispatch_ is null" );
-    }
+    SmpException::ExpectTrue( pDispatch_, "Internal error: pDispatch_ is null" );
 
     auto dispRet = GetDispId( propName, false );
     if ( !dispRet )
@@ -666,7 +666,7 @@ void ActiveXObject::Get( const std::wstring& propName, JS::MutableHandleValue vp
 
     if ( !SUCCEEDED( hresult ) )
     {
-        ReportActiveXError( pJsCtx_, hresult, exception, argerr );
+        error::ReportActiveXError( pJsCtx_, hresult, exception, argerr );
     }
 
     convert::com::VariantToJs( pJsCtx_, VarResult, vp );
@@ -674,15 +674,8 @@ void ActiveXObject::Get( const std::wstring& propName, JS::MutableHandleValue vp
 
 void ActiveXObject::Get( JS::CallArgs& callArgs )
 {
-    if ( !pDispatch_ )
-    {
-        throw smp::SmpException( "Internal error: pDispatch_ is null" );
-    }
-
-    if ( !callArgs.length() )
-    {
-        throw smp::SmpException( "Property name is missing" );
-    }
+    SmpException::ExpectTrue( pDispatch_, "Internal error: pDispatch_ is null" );
+    SmpException::ExpectTrue( callArgs.length(), "Property name is missing" );
 
     const std::wstring propName = convert::to_native::ToValue<std::wstring>( pJsCtx_, callArgs[0] );
 
@@ -690,7 +683,7 @@ void ActiveXObject::Get( JS::CallArgs& callArgs )
     if ( !dispRet )
     {
         pfc::string8_fast tmpStr = pfc::stringcvt::string_utf8_from_wide( propName.c_str() );
-        throw smp::SmpException( smp::string::Formatter() << "Invalid property name: " << tmpStr.c_str() );
+        throw SmpException( smp::string::Formatter() << "Invalid property name: " << tmpStr.c_str() );
     }
 
     uint32_t argc = callArgs.length() - 1;
@@ -736,7 +729,7 @@ void ActiveXObject::Get( JS::CallArgs& callArgs )
 
     if ( !SUCCEEDED( hresult ) )
     {
-        ReportActiveXError( pJsCtx_, hresult, exception, argerr );
+        error::ReportActiveXError( pJsCtx_, hresult, exception, argerr );
     }
 
     convert::com::VariantToJs( pJsCtx_, VarResult, callArgs.rval() );
@@ -744,16 +737,13 @@ void ActiveXObject::Get( JS::CallArgs& callArgs )
 
 void ActiveXObject::Set( const std::wstring& propName, JS::HandleValue v )
 {
-    if ( !pDispatch_ )
-    {
-        throw smp::SmpException( "Internal error: pDispatch_ is null" );
-    }
+    SmpException::ExpectTrue( pDispatch_, "Internal error: pDispatch_ is null" );
 
     auto dispRet = GetDispId( propName );
     if ( !dispRet )
     {
         pfc::string8_fast tmpStr = pfc::stringcvt::string_utf8_from_wide( propName.c_str() );
-        throw smp::SmpException( smp::string::Formatter() << "Invalid property name: " << tmpStr.c_str() );
+        throw SmpException( smp::string::Formatter() << "Invalid property name: " << tmpStr.c_str() );
     }
 
     VARIANTARG arg;
@@ -786,21 +776,14 @@ void ActiveXObject::Set( const std::wstring& propName, JS::HandleValue v )
 
     if ( !SUCCEEDED( hresult ) )
     {
-        ReportActiveXError( pJsCtx_, hresult, exception, argerr );
+        error::ReportActiveXError( pJsCtx_, hresult, exception, argerr );
     }
 }
 
 void ActiveXObject::Set( const JS::CallArgs& callArgs )
 {
-    if ( !pDispatch_ )
-    {
-        throw smp::SmpException( "Internal error: pDispatch_ is null" );
-    }
-
-    if ( !callArgs.length() )
-    {
-        throw smp::SmpException( "Property name is missing" );
-    }
+    SmpException::ExpectTrue( pDispatch_, "Internal error: pDispatch_ is null" );
+    SmpException::ExpectTrue( callArgs.length(), "Property name is missing" );
 
     const std::wstring propName = convert::to_native::ToValue<std::wstring>( pJsCtx_, callArgs[0] );
 
@@ -808,7 +791,7 @@ void ActiveXObject::Set( const JS::CallArgs& callArgs )
     if ( !dispRet )
     {
         pfc::string8_fast tmpStr = pfc::stringcvt::string_utf8_from_wide( propName.c_str() );
-        throw smp::SmpException( smp::string::Formatter() << "Invalid property name: " << tmpStr.c_str() );
+        throw SmpException( smp::string::Formatter() << "Invalid property name: " << tmpStr.c_str() );
     }
 
     uint32_t argc = callArgs.length() - 1;
@@ -855,22 +838,19 @@ void ActiveXObject::Set( const JS::CallArgs& callArgs )
 
     if ( !SUCCEEDED( hresult ) )
     {
-        ReportActiveXError( pJsCtx_, hresult, exception, argerr );
+        error::ReportActiveXError( pJsCtx_, hresult, exception, argerr );
     }
 }
 
 void ActiveXObject::Invoke( const std::wstring& funcName, const JS::CallArgs& callArgs )
 {
-    if ( !pDispatch_ )
-    {
-        throw smp::SmpException( "Internal error: pDispatch_ is null" );
-    }
+    SmpException::ExpectTrue( pDispatch_, "Internal error: pDispatch_ is null" );
 
     auto dispRet = GetDispId( funcName );
     if ( !dispRet )
     {
         pfc::string8_fast tmpStr = pfc::stringcvt::string_utf8_from_wide( funcName.c_str() );
-        throw smp::SmpException( smp::string::Formatter() << "Invalid function name: " << tmpStr.c_str() );
+        throw SmpException( smp::string::Formatter() << "Invalid function name: " << tmpStr.c_str() );
     }
 
     uint32_t argc = callArgs.length();
@@ -915,7 +895,7 @@ void ActiveXObject::Invoke( const std::wstring& funcName, const JS::CallArgs& ca
 
     if ( !SUCCEEDED( hresult ) )
     {
-        ReportActiveXError( pJsCtx_, hresult, exception, argerr );
+        error::ReportActiveXError( pJsCtx_, hresult, exception, argerr );
     }
 
     convert::com::VariantToJs( pJsCtx_, VarResult, callArgs.rval() );
@@ -928,31 +908,22 @@ void ActiveXObject::SetupMembers( JS::HandleObject jsObject )
         return;
     }
 
-    HRESULT hresult;
-    if ( pUnknown_ && !pDispatch_ )
-    {
-        hresult = pUnknown_->QueryInterface( IID_IDispatch, (void**)&pDispatch_ );
-    }
+    SmpException::ExpectTrue( pUnknown_ || pDispatch_, "Internal error: pUnknown_ and pDispatch_ are null" );
 
     if ( !pDispatch_ )
     {
-        throw smp::SmpException( "Failed to QueryInterface" );
+        HRESULT hr = pUnknown_->QueryInterface( IID_IDispatch, (void**)&pDispatch_ );
+        mozjs::error::CheckHR( hr, "QueryInterface" );
     }
 
     if ( !pTypeInfo_ )
     {
         unsigned ctinfo;
-        hresult = pDispatch_->GetTypeInfoCount( &ctinfo );
+        HRESULT hr = pDispatch_->GetTypeInfoCount( &ctinfo );
+        mozjs::error::CheckHR( hr, "GetTypeInfoCount" );
 
-        if ( SUCCEEDED( hresult ) && ctinfo )
-        {
-            pDispatch_->GetTypeInfo( 0, 0, &pTypeInfo_ );
-        }
-    }
-
-    if ( !pTypeInfo_ )
-    {
-        throw smp::SmpException( "Failed to GetTypeInfo" );
+        hr = pDispatch_->GetTypeInfo( 0, 0, &pTypeInfo_ );
+        mozjs::error::CheckHR( hr, "GetTypeInfo" );
     }
 
     ParseTypeInfoRecursive( pJsCtx_, pTypeInfo_, members_ );
@@ -966,11 +937,8 @@ void ActiveXObject::ParseTypeInfoRecursive( JSContext* cx, ITypeInfo* pTypeInfo,
     ParseTypeInfo( pTypeInfo, members );
 
     TYPEATTR* pAttr = nullptr;
-    HRESULT hresult = pTypeInfo->GetTypeAttr( &pAttr );
-    if ( FAILED( hresult ) )
-    {
-        throw smp::SmpException( "Failed to GetTypeAttr" );
-    }
+    HRESULT hr = pTypeInfo->GetTypeAttr( &pAttr );
+    mozjs::error::CheckHR( hr, "GetTypeAttr" );
 
     scope::final_action scopedAttrReleaser( [pTypeInfo, pAttr]() {
         if ( pTypeInfo && pAttr )
@@ -986,15 +954,12 @@ void ActiveXObject::ParseTypeInfoRecursive( JSContext* cx, ITypeInfo* pTypeInfo,
         for ( size_t i = 0; i < pAttr->cImplTypes; ++i )
         {
             HREFTYPE hRef = 0;
-            hresult = pTypeInfo->GetRefTypeOfImplType( i, &hRef );
-            if ( FAILED( hresult ) )
-            {
-                throw smp::SmpException( "Failed to GetRefTypeOfImplType" );
-            }
+            hr = pTypeInfo->GetRefTypeOfImplType( i, &hRef );
+            mozjs::error::CheckHR( hr, "GetTypeAttr" );
 
             ITypeInfo* pTypeInfoCur = nullptr;
-            hresult = pTypeInfo->GetRefTypeInfo( hRef, &pTypeInfoCur );
-            if ( SUCCEEDED( hresult ) && pTypeInfoCur )
+            hr = pTypeInfo->GetRefTypeInfo( hRef, &pTypeInfoCur );
+            if ( SUCCEEDED( hr ) && pTypeInfoCur )
             {
                 scope::unique_ptr<ITypeInfo> scopedTypeInfo( pTypeInfoCur, []( auto pTi ) {
                     pTi->Release();
@@ -1077,7 +1042,7 @@ void ActiveXObject::SetupMembers_Impl( JS::HandleObject jsObject )
         {
             if ( !JS_DefineUCFunction( pJsCtx_, jsObject, (const char16_t*)name.c_str(), name.length(), ActiveX_Run, 0, JSPROP_ENUMERATE ) )
             {
-                throw smp::JsException();
+                throw JsException();
             }
         }
     }

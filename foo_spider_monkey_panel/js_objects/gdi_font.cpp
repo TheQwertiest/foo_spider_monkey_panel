@@ -120,10 +120,10 @@ std::wstring JsGdiFont::get_Name() const
     Gdiplus::FontFamily fontFamily;
     WCHAR name[LF_FACESIZE] = { 0 };
     Gdiplus::Status gdiRet = pGdi_->GetFamily( &fontFamily );
-    IF_GDI_FAILED_THROW_SMP( gdiRet, "GetFamily" );
+    error::CheckGdi( gdiRet, "GetFamily" );
 
     gdiRet = fontFamily.GetFamilyName( name, LANG_NEUTRAL );
-    IF_GDI_FAILED_THROW_SMP( gdiRet, "GetFamilyName" );
+    error::CheckGdi( gdiRet, "GetFamilyName" );
 
     return std::wstring( name );
 }

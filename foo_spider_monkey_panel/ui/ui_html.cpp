@@ -45,27 +45,27 @@ LRESULT CDialogHtml::OnInitDialog( HWND hwndFocus, LPARAM lParam )
 
     SetOptions();
 
-    CAxWindow wndIE = GetDlgItem( IDC_IE );
-    IObjectWithSitePtr pOWS = nullptr;
-    HRESULT hr = wndIE.QueryHost( IID_IObjectWithSite, (void**)&pOWS );
-    IF_HR_FAILED_RETURN_WITH_REPORT( pJsCtx_, hr, -1, "QueryHost" );
-
-    hr = pOWS->SetSite( static_cast<IServiceProvider*>( this ) );
-    IF_HR_FAILED_RETURN_WITH_REPORT( pJsCtx_, hr, -1, "SetSite" );
-
     try
     {
+        CAxWindow wndIE = GetDlgItem( IDC_IE );
+        IObjectWithSitePtr pOWS = nullptr;
+        HRESULT hr = wndIE.QueryHost( IID_IObjectWithSite, (void**)&pOWS );
+        error::CheckHR( hr, "QueryHost" );
+
+        hr = pOWS->SetSite( static_cast<IServiceProvider*>( this ) );
+        error::CheckHR( hr, "SetSite" );
+
         IWebBrowserPtr pBrowser;
         hr = wndIE.QueryControl( &pBrowser );
-        IF_HR_FAILED_RETURN_WITH_REPORT( pJsCtx_, hr, -1, "QueryControl" );
+        error::CheckHR( hr, "QueryControl" );
 
         _variant_t v;
         hr = pBrowser->Navigate( _bstr_t( L"about:blank" ), &v, &v, &v, &v ); ///< Document object is only available after Navigate
-        IF_HR_FAILED_RETURN_WITH_REPORT( pJsCtx_, hr, -1, "Navigate" );
+        error::CheckHR( hr, "Navigate" );
 
         IDispatchPtr pDocDispatch;
         hr = pBrowser->get_Document( &pDocDispatch );
-        IF_HR_FAILED_RETURN_WITH_REPORT( pJsCtx_, hr, -1, "get_Document" );
+        error::CheckHR( hr, "get_Document" );
 
         MSHTML::IHTMLDocument2Ptr pDocument = pDocDispatch;
 
@@ -74,14 +74,14 @@ LRESULT CDialogHtml::OnInitDialog( HWND hwndFocus, LPARAM lParam )
             IOleObjectPtr pOleObject( pDocument );
             IOleClientSitePtr pClientSite;
             hr = pOleObject->GetClientSite( &pClientSite );
-            IF_HR_FAILED_RETURN_WITH_REPORT( pJsCtx_, hr, -1, "GetClientSite" );
+            error::CheckHR( hr, "GetClientSite" );
 
             pDefaultUiHandler_ = pClientSite;
 
             // Set the new custom IDocHostUIHandler
             ICustomDocPtr pCustomDoc( pDocument );
             hr = pCustomDoc->SetUIHandler( this );
-            IF_HR_FAILED_RETURN_WITH_REPORT( pJsCtx_, hr, -1, "SetUIHandler" );
+            error::CheckHR( hr, "SetUIHandler" );
         }
 
         if ( const std::wstring filePrefix = L"file://";
@@ -89,7 +89,7 @@ LRESULT CDialogHtml::OnInitDialog( HWND hwndFocus, LPARAM lParam )
              && !wmemcmp( htmlCodeOrPath_.c_str(), filePrefix.c_str(), filePrefix.length() ) )
         {
             hr = pBrowser->Navigate( _bstr_t( htmlCodeOrPath_.c_str() ), &v, &v, &v, &v );
-            IF_HR_FAILED_RETURN_WITH_REPORT( pJsCtx_, hr, -1, "Navigate" );
+            error::CheckHR( hr, "Navigate" );
         }
         else
         {
@@ -100,27 +100,24 @@ LRESULT CDialogHtml::OnInitDialog( HWND hwndFocus, LPARAM lParam )
 
             VARIANT* pSaVar = nullptr;
             hr = SafeArrayAccessData( pSaStrings, (LPVOID*)&pSaVar );
-            IF_HR_FAILED_RETURN_WITH_REPORT( pJsCtx_, hr, -1, "SafeArrayAccessData" );
+            error::CheckHR( hr, "SafeArrayAccessData" );
 
             _bstr_t bstr( htmlCodeOrPath_.c_str() );
             pSaVar->vt = VT_BSTR;
             pSaVar->bstrVal = bstr.Detach();
             hr = SafeArrayUnaccessData( pSaStrings );
-            IF_HR_FAILED_RETURN_WITH_REPORT( pJsCtx_, hr, -1, "SafeArrayUnaccessData" );
+            error::CheckHR( hr, "SafeArrayUnaccessData" );
 
             hr = pDocument->write( pSaStrings );
-            IF_HR_FAILED_RETURN_WITH_REPORT( pJsCtx_, hr, -1, "write" );
+            error::CheckHR( hr, "write" );
 
             hr = pDocument->close();
-            IF_HR_FAILED_RETURN_WITH_REPORT( pJsCtx_, hr, -1, "close" );
+            error::CheckHR( hr, "close" );
         }
     }
-    catch ( const _com_error& e )
+    catch ( ... )
     {
-        pfc::string8_fast errorMsg8 = pfc::stringcvt::string_utf8_from_wide( (const wchar_t*)e.ErrorMessage() );
-        pfc::string8_fast errorSource8 = pfc::stringcvt::string_utf8_from_wide( e.Source().length() ? (const wchar_t*)e.Source() : L"" );
-        pfc::string8_fast errorDesc8 = pfc::stringcvt::string_utf8_from_wide( e.Description().length() ? (const wchar_t*)e.Description() : L"" );
-        JS_ReportErrorUTF8( pJsCtx_, "COM error: message %s; source: %s; description: %s", errorMsg8.c_str(), errorSource8.c_str(), errorDesc8.c_str() );
+        error::ExceptionToJsError( pJsCtx_ );
         return -1;
     }
 

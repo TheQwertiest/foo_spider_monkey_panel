@@ -128,7 +128,7 @@ void JsThemeManager::DrawThemeBackground( JsGdiGraphics* gr,
     }
 
     HRESULT hr = ::DrawThemeBackground( hTheme_, dc, partId_, stateId_, &rc, pclip_rc );
-    IF_HR_FAILED_THROW_SMP( hr, "DrawThemeBackground" );
+    mozjs::error::CheckHR( hr, "DrawThemeBackground" );
 }
 
 void JsThemeManager::DrawThemeBackgroundWithOpt( size_t optArgCount, JsGdiGraphics* gr,

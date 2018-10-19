@@ -89,7 +89,7 @@ size_t JsGdiUtils::GetInternalSize()
 JSObject* JsGdiUtils::CreateImage( uint32_t w, uint32_t h )
 {
     std::unique_ptr<Gdiplus::Bitmap> img( new Gdiplus::Bitmap( w, h, PixelFormat32bppPARGB ) );
-    ValidateGdiPlusObject( img );
+    error::CheckGdiPlusObject( img );
 
     JS::RootedObject jsObject( pJsCtx_, JsGdiBitmap::CreateJs( pJsCtx_, std::move( img ) ) );
     assert( jsObject );
@@ -122,7 +122,7 @@ JSObject* JsGdiUtils::Font( const std::wstring& fontName, float pxSize, uint32_t
         DEFAULT_QUALITY,
         DEFAULT_PITCH | FF_DONTCARE,
         fontName.c_str() );
-    IF_WINAPI_FAILED_THROW_SMP( !!hFont, "CreateFont" );
+    mozjs::error::CheckWinApi( !!hFont, "CreateFont" );
     scope::final_action autoFont( [hFont]() {
         DeleteObject( hFont );
     } );

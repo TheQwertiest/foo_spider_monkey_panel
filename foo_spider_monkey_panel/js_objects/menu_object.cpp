@@ -81,7 +81,7 @@ std::unique_ptr<JsMenuObject>
 JsMenuObject::CreateNative( JSContext* cx, HWND hParentWnd )
 {
     HMENU hMenu = ::CreatePopupMenu();
-    IF_WINAPI_FAILED_THROW_SMP( !!hMenu, "CreatePopupMenu" );
+    mozjs::error::CheckWinApi( !!hMenu, "CreatePopupMenu" );
 
     return std::unique_ptr<JsMenuObject>( new JsMenuObject( cx, hParentWnd, hMenu ) );
 }
@@ -104,13 +104,13 @@ void JsMenuObject::AppendMenuItem( uint32_t flags, uint32_t item_id, const std::
     }
 
     BOOL bRet = ::AppendMenu( hMenu_, flags, item_id, text.c_str() );
-    IF_WINAPI_FAILED_THROW_SMP( bRet, "AppendMenu" );
+    mozjs::error::CheckWinApi( bRet, "AppendMenu" );
 }
 
 void JsMenuObject::AppendMenuSeparator()
 {
     BOOL bRet = ::AppendMenu( hMenu_, MF_SEPARATOR, 0, 0 );
-    IF_WINAPI_FAILED_THROW_SMP( bRet, "AppendMenu" );
+    mozjs::error::CheckWinApi( bRet, "AppendMenu" );
 }
 
 void JsMenuObject::AppendTo( JsMenuObject* parent, uint32_t flags, const std::wstring& text )
@@ -121,7 +121,7 @@ void JsMenuObject::AppendTo( JsMenuObject* parent, uint32_t flags, const std::ws
     }
 
     BOOL bRet = ::AppendMenu( parent->HMenu(), flags | MF_STRING | MF_POPUP, (UINT_PTR)hMenu_, text.c_str() );
-    IF_WINAPI_FAILED_THROW_SMP( bRet, "AppendMenu" );
+    mozjs::error::CheckWinApi( bRet, "AppendMenu" );
 
     isDetached_ = true;
 }
@@ -143,7 +143,7 @@ void JsMenuObject::CheckMenuRadioItem( uint32_t first, uint32_t last, uint32_t s
     }
 
     BOOL bRet = ::CheckMenuRadioItem( hMenu_, first, last, selected, MF_BYCOMMAND );
-    IF_WINAPI_FAILED_THROW_SMP( bRet, "CheckMenuRadioItem" );
+    mozjs::error::CheckWinApi( bRet, "CheckMenuRadioItem" );
 }
 
 std::uint32_t JsMenuObject::TrackPopupMenu( int32_t x, int32_t y, uint32_t flags )
@@ -155,7 +155,7 @@ std::uint32_t JsMenuObject::TrackPopupMenu( int32_t x, int32_t y, uint32_t flags
     flags &= ~TPM_RECURSE;
 
     BOOL bRet = ClientToScreen( hParentWnd_, &pt );
-    IF_WINAPI_FAILED_THROW_SMP( bRet, "ClientToScreen" );
+    mozjs::error::CheckWinApi( bRet, "ClientToScreen" );
 
     // Don't bother with error checking, since TrackPopupMenu returns numerous errors when clicked outside of menu
     return ::TrackPopupMenu( hMenu_, flags, pt.x, pt.y, 0, hParentWnd_, 0 );
