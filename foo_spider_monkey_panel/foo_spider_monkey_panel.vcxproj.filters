@@ -214,12 +214,6 @@
     <ClCompile Include="js_utils\gdi_helpers.cpp">
       <Filter>js_utils</Filter>
     </ClCompile>
-    <ClCompile Include="scintilla_prop_sets.cpp">
-      <Filter>z_uncategorized\scintilla</Filter>
-    </ClCompile>
-    <ClCompile Include="editorctrl.cpp">
-      <Filter>z_uncategorized\scintilla</Filter>
-    </ClCompile>
     <ClCompile Include="stats.cpp">
       <Filter>z_uncategorized</Filter>
     </ClCompile>
@@ -252,6 +246,12 @@
     </ClCompile>
     <ClCompile Include="js_objects\fb_playlist_recycler.cpp">
       <Filter>js_objects</Filter>
+    </ClCompile>
+    <ClCompile Include="scintilla\scintilla_prop_sets.cpp">
+      <Filter>scintilla</Filter>
+    </ClCompile>
+    <ClCompile Include="scintilla\editorctrl.cpp">
+      <Filter>scintilla</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -510,18 +510,6 @@
     <ClInclude Include="js_utils\gdi_helpers.h">
       <Filter>js_utils</Filter>
     </ClInclude>
-    <ClInclude Include="scintilla_prop_sets.h">
-      <Filter>z_uncategorized\scintilla</Filter>
-    </ClInclude>
-    <ClInclude Include="SString.h">
-      <Filter>z_uncategorized\scintilla</Filter>
-    </ClInclude>
-    <ClInclude Include="wtlscintilla.h">
-      <Filter>z_uncategorized\scintilla</Filter>
-    </ClInclude>
-    <ClInclude Include="editorctrl.h">
-      <Filter>z_uncategorized\scintilla</Filter>
-    </ClInclude>
     <ClInclude Include="stats.h">
       <Filter>z_uncategorized</Filter>
     </ClInclude>
@@ -581,6 +569,18 @@
     </ClInclude>
     <ClInclude Include="js_objects\fb_playlist_recycler.h">
       <Filter>js_objects</Filter>
+    </ClInclude>
+    <ClInclude Include="scintilla\scintilla_prop_sets.h">
+      <Filter>scintilla</Filter>
+    </ClInclude>
+    <ClInclude Include="scintilla\SString.h">
+      <Filter>scintilla</Filter>
+    </ClInclude>
+    <ClInclude Include="scintilla\wtlscintilla.h">
+      <Filter>scintilla</Filter>
+    </ClInclude>
+    <ClInclude Include="scintilla\editorctrl.h">
+      <Filter>scintilla</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -653,11 +653,11 @@
     <Filter Include="z_uncategorized\resources">
       <UniqueIdentifier>{c5622339-902d-4569-9e43-3a9dab7b21a7}</UniqueIdentifier>
     </Filter>
-    <Filter Include="z_uncategorized\scintilla">
-      <UniqueIdentifier>{fe84cd3a-a0ea-4f6b-9816-6d2d77d6c024}</UniqueIdentifier>
-    </Filter>
     <Filter Include="com_objects">
       <UniqueIdentifier>{613a7600-ce84-49fd-b050-5da2374693d7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="scintilla">
+      <UniqueIdentifier>{fe84cd3a-a0ea-4f6b-9816-6d2d77d6c024}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

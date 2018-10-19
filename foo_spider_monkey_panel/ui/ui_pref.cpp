@@ -1,7 +1,9 @@
-#include "stdafx.h"
+#include <stdafx.h>
 #include "ui_pref.h"
-#include "scintilla_prop_sets.h"
-#include "ui_name_value_edit.h"
+
+#include <ui/ui_name_value_edit.h>
+#include <scintilla/scintilla_prop_sets.h>
+
 
 namespace
 {

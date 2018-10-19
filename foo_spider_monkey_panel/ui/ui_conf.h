@@ -1,7 +1,7 @@
 #pragma once
 
-#include "editorctrl.h"
 #include "resource.h"
+#include <scintilla/editorctrl.h>
 
 // Forward declarations
 class js_panel_window;

@@ -93,7 +93,6 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( VolumeMute, JsFbUtils::VolumeMute )
 MJS_DEFINE_JS_FN_FROM_NATIVE( VolumeUp, JsFbUtils::VolumeUp )
 
 const JSFunctionSpec jsFunctions[] = {
-
     JS_FN( "AcquireUiSelectionHolder", AcquireUiSelectionHolder, 0, DefaultPropsFlags() ),
     JS_FN( "AddDirectory", AddDirectory, 0, DefaultPropsFlags() ),
     JS_FN( "AddFiles", AddFiles, 0, DefaultPropsFlags() ),

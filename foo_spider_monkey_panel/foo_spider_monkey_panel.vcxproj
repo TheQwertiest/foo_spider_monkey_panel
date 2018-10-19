@@ -100,7 +100,6 @@
     <ClCompile Include="convert\com.cpp" />
     <ClCompile Include="convert\js_to_native.cpp" />
     <ClCompile Include="convert\native_to_js.cpp" />
-    <ClCompile Include="editorctrl.cpp" />
     <ClCompile Include="foo_spider_monkey_panel.cpp">
       <PrecompiledHeader>Use</PrecompiledHeader>
     </ClCompile>
@@ -160,7 +159,8 @@
     <ClCompile Include="js_utils\winapi_error_helper.cpp" />
     <ClCompile Include="mainmenu.cpp" />
     <ClCompile Include="panel_manager.cpp" />
-    <ClCompile Include="scintilla_prop_sets.cpp" />
+    <ClCompile Include="scintilla\editorctrl.cpp" />
+    <ClCompile Include="scintilla\scintilla_prop_sets.cpp" />
     <ClCompile Include="stats.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
@@ -258,11 +258,13 @@
     <ClInclude Include="js_utils\serialized_value.h" />
     <ClInclude Include="js_utils\winapi_error_helper.h" />
     <ClInclude Include="panel_tooltip_param.h" />
+    <ClInclude Include="scintilla\editorctrl.h" />
+    <ClInclude Include="scintilla\scintilla_prop_sets.h" />
+    <ClInclude Include="scintilla\SString.h" />
+    <ClInclude Include="scintilla\wtlscintilla.h" />
     <ClInclude Include="smp_exception.h" />
-    <ClInclude Include="SString.h" />
     <ClInclude Include="component_defines.h" />
     <ClInclude Include="config.h" />
-    <ClInclude Include="editorctrl.h" />
     <ClInclude Include="helpers.h" />
     <ClInclude Include="host_timer_dispatcher.h" />
     <ClInclude Include="js_panel_window.h" />
@@ -271,7 +273,6 @@
     <ClInclude Include="panel_manager.h" />
     <ClInclude Include="popup_msg.h" />
     <ClInclude Include="resource.h" />
-    <ClInclude Include="scintilla_prop_sets.h" />
     <ClInclude Include="panel_info.h" />
     <ClInclude Include="stats.h" />
     <ClInclude Include="stdafx.h" />
@@ -291,7 +292,6 @@
     <ClInclude Include="utils\string_helpers.h" />
     <ClInclude Include="utils\timer_helpers.h" />
     <ClInclude Include="utils\version_helpers.h" />
-    <ClInclude Include="wtlscintilla.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\CHANGELOG.md" />
