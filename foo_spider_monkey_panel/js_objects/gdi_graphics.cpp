@@ -887,8 +887,8 @@ void JsGdiGraphics::ParsePoints( JS::HandleValue jsValue, std::vector<Gdiplus::P
     gdiPoints.clear();
     convert::to_native::ProcessArray<float>( pJsCtx_, jsValue, pointParser );
 
-    if ( gdiPoints.size() % 2 > 0 )
-    {
+    if ( !isX )
+    {// Means that we were expecting `y` coordinate
         throw smp::SmpException( "Points count must be a multiple of two" );
     }
 }
