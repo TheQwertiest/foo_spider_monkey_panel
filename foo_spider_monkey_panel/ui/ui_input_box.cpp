@@ -6,7 +6,6 @@ CInputBox::CInputBox( const char* p_prompt, const char* p_caption, const char* p
     , m_caption( p_caption )
     , m_value( p_value )
 {
-
 }
 
 LRESULT CInputBox::OnInitDialog( HWND hwndFocus, LPARAM lParam )

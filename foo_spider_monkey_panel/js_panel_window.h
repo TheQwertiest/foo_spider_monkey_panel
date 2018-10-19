@@ -27,7 +27,7 @@ public:
     virtual ~js_panel_window() = default;
 
 public:
-    virtual class_data& get_class_data() const override;
+    class_data& get_class_data() const override;
 
     void update_script( const char* code = nullptr );
     void JsEngineFail( const pfc::string8_fast& errorText );

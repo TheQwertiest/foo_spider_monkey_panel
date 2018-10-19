@@ -44,7 +44,6 @@ const JSFunctionSpec jsFunctions[] = {
 };
 
 const JSPropertySpec jsProperties[] = {
-
     JS_PS_END
 };
 

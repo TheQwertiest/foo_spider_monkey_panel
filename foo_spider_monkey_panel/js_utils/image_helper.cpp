@@ -23,7 +23,7 @@ public:
     uint32_t GetTaskId() const;
 
 private:
-    virtual void run() override;
+    void run() override;
 
 private:
     HWND hNotifyWnd_;

@@ -561,9 +561,6 @@
     <ClInclude Include="com_objects\com_tools.h">
       <Filter>com_objects</Filter>
     </ClInclude>
-    <ClInclude Include="com_objects\html_moniker.h">
-      <Filter>com_objects</Filter>
-    </ClInclude>
     <ClInclude Include="com_objects\dispatch_ptr.h">
       <Filter>com_objects</Filter>
     </ClInclude>

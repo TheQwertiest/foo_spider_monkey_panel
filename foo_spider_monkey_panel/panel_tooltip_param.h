@@ -16,4 +16,4 @@ struct PanelTooltipParam
     uint32_t fontStyle;
 };
 
-}
+} // namespace smp

@@ -51,7 +51,6 @@ const JSFunctionSpec jsFunctions[] = {
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_Count, JsFbPlaylistRecycler::get_Count )
 
 const JSPropertySpec jsProperties[] = {
-
     JS_PSG( "Count", get_Count, DefaultPropsFlags() ),
     JS_PS_END
 };

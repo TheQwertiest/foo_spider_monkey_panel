@@ -123,7 +123,6 @@ public:
                              reinterpret_cast<WPARAM>(new smp::panel::CallbackData<T>( sharedData )),
                              0 );
             }
-            
         }
     }
 

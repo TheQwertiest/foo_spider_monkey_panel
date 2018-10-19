@@ -38,7 +38,7 @@ class simple_thread_worker : public simple_thread
 public:
     simple_thread_worker() = default;
     virtual ~simple_thread_worker() = default;
-    virtual void threadProc() override;
+    void threadProc() override;
 
 private:
     PFC_CLASS_NOT_COPYABLE_EX( simple_thread_worker )

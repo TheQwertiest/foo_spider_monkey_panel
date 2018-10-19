@@ -13,7 +13,6 @@ namespace smp
 {
 
 class HeartbeatWindow;
-
 }
 
 namespace mozjs
@@ -22,8 +21,7 @@ namespace mozjs
 class JsContainer;
 
 class JsEngine final
-{    
-
+{
 public:
     ~JsEngine();
     JsEngine( const JsEngine& ) = delete;
@@ -46,14 +44,14 @@ private:
     bool Initialize();
     void Finalize();
 
-    void StartHeartbeatThread() noexcept(false);
+    void StartHeartbeatThread() noexcept( false );
     void StopHeartbeatThread();
 
 private:
     void MaybeRunJobs();
 
 private:
-    JSContext * pJsCtx_ = nullptr;
+    JSContext* pJsCtx_ = nullptr;
 
     bool isInitialized_ = false;
     bool shouldShutdown_ = false;
@@ -62,7 +60,7 @@ private:
 
     std::unique_ptr<smp::HeartbeatWindow> heartbeatWindow_;
     std::thread heartbeatThread_;
-    std::atomic_bool shouldStopHeartbeatThread_ = false;    
+    std::atomic_bool shouldStopHeartbeatThread_ = false;
 
     JsGc jsGc_;
 
@@ -70,4 +68,4 @@ private:
     uint32_t jobsStartTime_ = 0;
 };
 
-}
+} // namespace mozjs
