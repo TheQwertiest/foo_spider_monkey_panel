@@ -142,7 +142,7 @@ JS::Value JsEnumerator::Item()
 void JsEnumerator::MoveFirst()
 {
     HRESULT hr = pEnum_->Reset();
-    mozjs::error::CheckHR( hr, "Reset" );
+    error::CheckHR( hr, "Reset" );
 
     GetCurrentElement();
 }
@@ -167,7 +167,7 @@ void JsEnumerator::GetCurrentElement()
     }
     else
     {
-        mozjs::error::CheckHR( hr, "Next" );
+        error::CheckHR( hr, "Next" );
     }
 
     if ( !fetchedElements )

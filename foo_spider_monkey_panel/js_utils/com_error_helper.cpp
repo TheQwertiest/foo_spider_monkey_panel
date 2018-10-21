@@ -62,7 +62,7 @@ void ReportActiveXError( JSContext* cx, HRESULT hresult, EXCEPINFO& exception, U
     }
     default:
     {
-        mozjs::error::CheckHR( hresult, "ActiveXObject" );
+        error::CheckHR( hresult, "ActiveXObject" );
     }
     }
 }

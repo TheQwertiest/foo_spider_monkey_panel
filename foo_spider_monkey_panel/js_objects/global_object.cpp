@@ -73,7 +73,7 @@ bool IncludeScript( JSContext* cx, unsigned argc, JS::Value* vp )
     auto wrappedFunc = []( JSContext* cx, unsigned argc, JS::Value* vp ) {
         InvokeNativeCallback<0>( cx, &JsGlobalObject::IncludeScript, &JsGlobalObject::IncludeScript, argc, vp );
     };
-    return mozjs::error::Execute_JsSafe( cx, "include", wrappedFunc, argc, vp );
+    return error::Execute_JsSafe( cx, "include", wrappedFunc, argc, vp );
 }
 
 const JSFunctionSpec jsFunctions[] = {

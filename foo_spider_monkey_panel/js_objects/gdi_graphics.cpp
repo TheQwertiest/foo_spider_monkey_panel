@@ -499,7 +499,7 @@ void JsGdiGraphics::GdiAlphaBlend( JsGdiRawBitmap* bitmap,
     BLENDFUNCTION bf = { AC_SRC_OVER, 0, alpha, AC_SRC_ALPHA };
 
     BOOL bRet = ::GdiAlphaBlend( dc, dstX, dstY, dstW, dstH, srcDc, srcX, srcY, srcW, srcH, bf );
-    mozjs::error::CheckWinApi( bRet, "GdiAlphaBlend" );
+    error::CheckWinApi( bRet, "GdiAlphaBlend" );
 }
 
 void JsGdiGraphics::GdiAlphaBlendWithOpt( size_t optArgCount, JsGdiRawBitmap* bitmap,
@@ -537,18 +537,18 @@ void JsGdiGraphics::GdiDrawBitmap( JsGdiRawBitmap* bitmap,
     if ( dstW == srcW && dstH == srcH )
     {
         bRet = BitBlt( dc, dstX, dstY, dstW, dstH, srcDc, srcX, srcY, SRCCOPY );
-        mozjs::error::CheckWinApi( bRet, "BitBlt" );
+        error::CheckWinApi( bRet, "BitBlt" );
     }
     else
     {
         bRet = SetStretchBltMode( dc, HALFTONE );
-        mozjs::error::CheckWinApi( bRet, "SetStretchBltMode" );
+        error::CheckWinApi( bRet, "SetStretchBltMode" );
 
         bRet = SetBrushOrgEx( dc, 0, 0, nullptr );
-        mozjs::error::CheckWinApi( bRet, "SetBrushOrgEx" );
+        error::CheckWinApi( bRet, "SetBrushOrgEx" );
 
         bRet = StretchBlt( dc, dstX, dstY, dstW, dstH, srcDc, srcX, srcY, srcW, srcH, SRCCOPY );
-        mozjs::error::CheckWinApi( bRet, "StretchBlt" );
+        error::CheckWinApi( bRet, "StretchBlt" );
     }
 }
 
@@ -573,10 +573,10 @@ void JsGdiGraphics::GdiDrawText( const std::wstring& str, JsGdiFont* font, uint3
     SetTextColor( dc, helpers::convert_argb_to_colorref( colour ) );
 
     int iRet = SetBkMode( dc, TRANSPARENT );
-    mozjs::error::CheckWinApi( CLR_INVALID != iRet, "SetBkMode" );
+    error::CheckWinApi( CLR_INVALID != iRet, "SetBkMode" );
 
     UINT uRet = SetTextAlign( dc, TA_LEFT | TA_TOP | TA_NOUPDATECP );
-    mozjs::error::CheckWinApi( GDI_ERROR != uRet, "SetTextAlign" );
+    error::CheckWinApi( GDI_ERROR != uRet, "SetTextAlign" );
 
     if ( format & DT_MODIFYSTRING )
     {
@@ -592,7 +592,7 @@ void JsGdiGraphics::GdiDrawText( const std::wstring& str, JsGdiFont* font, uint3
         memcpy( &rc_old, &rc, sizeof( RECT ) );
 
         iRet = DrawText( dc, str.c_str(), -1, &rc_calc, format );
-        mozjs::error::CheckWinApi( iRet, "DrawText" );
+        error::CheckWinApi( iRet, "DrawText" );
 
         format &= ~DT_CALCRECT;
 
@@ -609,7 +609,7 @@ void JsGdiGraphics::GdiDrawText( const std::wstring& str, JsGdiFont* font, uint3
     }
 
     iRet = DrawTextEx( dc, const_cast<wchar_t*>( str.c_str() ), -1, &rc, format, &dpt );
-    mozjs::error::CheckWinApi( iRet, "DrawTextEx" );
+    error::CheckWinApi( iRet, "DrawTextEx" );
 }
 
 void JsGdiGraphics::GdiDrawTextWithOpt( size_t optArgCount, const std::wstring& str, JsGdiFont* font, uint32_t colour,

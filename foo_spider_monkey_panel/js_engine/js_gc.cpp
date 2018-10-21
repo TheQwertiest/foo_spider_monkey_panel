@@ -78,7 +78,7 @@ void JsGc::UpdateGcConfig()
     MEMORYSTATUSEX statex = { 0 };
     statex.dwLength = sizeof( statex );
     BOOL bRet = GlobalMemoryStatusEx( &statex );
-    mozjs::error::CheckWinApi( !!bRet, "GlobalMemoryStatusEx" );
+    error::CheckWinApi( !!bRet, "GlobalMemoryStatusEx" );
 
     if ( smp_advconf::g_var_max_heap.get() > statex.ullTotalPhys / 4 )
     {

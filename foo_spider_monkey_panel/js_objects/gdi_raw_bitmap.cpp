@@ -87,7 +87,7 @@ JsGdiRawBitmap::CreateNative( JSContext* cx, Gdiplus::Bitmap* pBmp )
     }
 
     auto hDc = gdi::CreateUniquePtr( CreateCompatibleDC( nullptr ) );
-    mozjs::error::CheckWinApi( !!hDc, "CreateCompatibleDC" );
+    error::CheckWinApi( !!hDc, "CreateCompatibleDC" );
 
     auto hBitmap = gdi::CreateHBitmapFromGdiPlusBitmap( *pBmp );
     if ( !hBitmap )
@@ -101,7 +101,7 @@ JsGdiRawBitmap::CreateNative( JSContext* cx, Gdiplus::Bitmap* pBmp )
 
 size_t JsGdiRawBitmap::GetInternalSize( Gdiplus::Bitmap* pBmp )
 { // We generate only PixelFormat32bppPARGB images
-    return pBmp->GetWidth() * pBmp->GetHeight() * Gdiplus::GetPixelFormatSize( PixelFormat32bppPARGB );
+    return pBmp->GetWidth() * pBmp->GetHeight() * Gdiplus::GetPixelFormatSize( PixelFormat32bppPARGB ) / 8;
 }
 
 HDC JsGdiRawBitmap::GetHDC() const

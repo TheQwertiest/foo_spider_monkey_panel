@@ -23,7 +23,7 @@
 #define MJS_DEFINE_JS_FN( functionName, functionImpl )                                    \
     bool functionName( JSContext* cx, unsigned argc, JS::Value* vp )                      \
     {                                                                                     \
-        return mozjs::error::Execute_JsSafe( cx, #functionName, functionImpl, argc, vp ); \
+        return error::Execute_JsSafe( cx, #functionName, functionImpl, argc, vp ); \
     }
 
 /// @brief Defines a function named `functionName`, which converts all JS arguments to corresponding arguments
@@ -37,7 +37,7 @@
         auto wrappedFunc = []( JSContext* cx, unsigned argc, JS::Value* vp ) {                                \
             InvokeNativeCallback<optArgCount>( cx, &functionImpl, &functionImplWithOpt, argc, vp );           \
         };                                                                                                    \
-        return mozjs::error::Execute_JsSafe( cx, #functionName, wrappedFunc, argc, vp );                      \
+        return error::Execute_JsSafe( cx, #functionName, wrappedFunc, argc, vp );                      \
     }
 
 /// @brief Same as MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT, but with zero optional arguments.

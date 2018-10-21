@@ -84,7 +84,7 @@ std::unique_ptr<JsFbWindow>
 JsFbWindow::CreateNative( JSContext* cx )
 {
     HWND hFbWnd = FindWindow( L"{E7076D1C-A7BF-4f39-B771-BCBE88F2A2A8}", nullptr );
-    mozjs::error::CheckWinApi( !!hFbWnd, "FindWindow" );
+    error::CheckWinApi( !!hFbWnd, "FindWindow" );
 
     return std::unique_ptr<JsFbWindow>( new JsFbWindow( cx, hFbWnd ) );
 }

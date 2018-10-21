@@ -225,7 +225,7 @@ JS::Value JsUtils::FileTest( const std::wstring& path, const std::wstring& mode 
     else if ( L"s" == mode )
     {
         HANDLE fh = CreateFile( cleanedPath.c_str(), GENERIC_READ, FILE_SHARE_READ, 0, OPEN_EXISTING, 0, 0 );
-        mozjs::error::CheckWinApi( fh != INVALID_HANDLE_VALUE, "CreateFile" );
+        error::CheckWinApi( fh != INVALID_HANDLE_VALUE, "CreateFile" );
 
         LARGE_INTEGER size = { 0 };
         GetFileSizeEx( fh, &size );
@@ -511,11 +511,11 @@ std::wstring JsUtils::MapString( const std::wstring& str, uint32_t lcid, uint32_
 { // TODO: LCMapString is deprecated, replace with a new V2 method (based on LCMapStringEx)
     // WinAPI is weird: 0 - error (with LastError), > 0 - characters required
     int iRet = ::LCMapStringW( lcid, flags, str.c_str(), str.length() + 1, nullptr, 0 );
-    mozjs::error::CheckWinApi( iRet, "LCMapStringW" );
+    error::CheckWinApi( iRet, "LCMapStringW" );
 
     std::unique_ptr<wchar_t[]> dst( new wchar_t[iRet] );
     iRet = ::LCMapStringW( lcid, flags, str.c_str(), str.length() + 1, dst.get(), iRet );
-    mozjs::error::CheckWinApi( iRet, "LCMapStringW" );
+    error::CheckWinApi( iRet, "LCMapStringW" );
 
     return dst.get();
 }

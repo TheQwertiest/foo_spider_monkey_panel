@@ -119,7 +119,7 @@ JsFbTooltip::CreateNative( JSContext* cx, HWND hParentWnd, PanelTooltipParam& p_
         nullptr,
         core_api::get_my_instance(),
         nullptr );
-    mozjs::error::CheckWinApi( !!hTooltipWnd, "CreateWindowEx" );
+    error::CheckWinApi( !!hTooltipWnd, "CreateWindowEx" );
 
     // Original position
     SetWindowPos( hTooltipWnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE );
@@ -150,7 +150,7 @@ JsFbTooltip::CreateNative( JSContext* cx, HWND hParentWnd, PanelTooltipParam& p_
         DEFAULT_QUALITY,
         DEFAULT_PITCH | FF_DONTCARE,
         p_param_ptr.fontName.c_str() );
-    mozjs::error::CheckWinApi( !!hFont, "CreateFont" );
+    error::CheckWinApi( !!hFont, "CreateFont" );
 
     SendMessage( hTooltipWnd, TTM_ADDTOOL, 0, (LPARAM)toolInfo.get() );
     SendMessage( hTooltipWnd, TTM_ACTIVATE, FALSE, 0 );

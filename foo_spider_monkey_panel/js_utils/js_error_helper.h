@@ -12,16 +12,16 @@ bool Execute_JsSafe( JSContext* cx, std::string_view functionName, F&& func, Arg
     }
     catch ( ... )
     {
-        mozjs::error::ExceptionToJsError( cx );
+        error::ExceptionToJsError( cx );
         const pfc::string8_fast additionalText = pfc::string8_fast( functionName.data(), functionName.size() ) + " failed";
-        mozjs::error::PrependTextToJsError( cx, additionalText );
+        error::PrependTextToJsError( cx, additionalText );
         return false;
     }
 
     if ( JS_IsExceptionPending( cx ) )
     {
         const pfc::string8_fast additionalText = pfc::string8_fast( functionName.data(), functionName.size() ) + " failed";
-        mozjs::error::PrependTextToJsError( cx, additionalText );
+        error::PrependTextToJsError( cx, additionalText );
         return false;
     }
 

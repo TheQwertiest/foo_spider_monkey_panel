@@ -122,7 +122,7 @@ JSObject* JsGdiUtils::Font( const std::wstring& fontName, float pxSize, uint32_t
         DEFAULT_QUALITY,
         DEFAULT_PITCH | FF_DONTCARE,
         fontName.c_str() );
-    mozjs::error::CheckWinApi( !!hFont, "CreateFont" );
+    error::CheckWinApi( !!hFont, "CreateFont" );
     scope::final_action autoFont( [hFont]() {
         DeleteObject( hFont );
     } );

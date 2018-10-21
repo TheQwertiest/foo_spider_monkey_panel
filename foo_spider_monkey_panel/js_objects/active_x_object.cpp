@@ -137,7 +137,7 @@ bool ActiveXObjectProxyHandler::get( JSContext* cx, JS::HandleObject proxy, JS::
     }
     catch ( ... )
     {
-        mozjs::error::ExceptionToJsError( cx );
+        error::ExceptionToJsError( cx );
         return false;
     }
 
@@ -913,17 +913,17 @@ void ActiveXObject::SetupMembers( JS::HandleObject jsObject )
     if ( !pDispatch_ )
     {
         HRESULT hr = pUnknown_->QueryInterface( IID_IDispatch, (void**)&pDispatch_ );
-        mozjs::error::CheckHR( hr, "QueryInterface" );
+        error::CheckHR( hr, "QueryInterface" );
     }
 
     if ( !pTypeInfo_ )
     {
         unsigned ctinfo;
         HRESULT hr = pDispatch_->GetTypeInfoCount( &ctinfo );
-        mozjs::error::CheckHR( hr, "GetTypeInfoCount" );
+        error::CheckHR( hr, "GetTypeInfoCount" );
 
         hr = pDispatch_->GetTypeInfo( 0, 0, &pTypeInfo_ );
-        mozjs::error::CheckHR( hr, "GetTypeInfo" );
+        error::CheckHR( hr, "GetTypeInfo" );
     }
 
     ParseTypeInfoRecursive( pJsCtx_, pTypeInfo_, members_ );
@@ -938,7 +938,7 @@ void ActiveXObject::ParseTypeInfoRecursive( JSContext* cx, ITypeInfo* pTypeInfo,
 
     TYPEATTR* pAttr = nullptr;
     HRESULT hr = pTypeInfo->GetTypeAttr( &pAttr );
-    mozjs::error::CheckHR( hr, "GetTypeAttr" );
+    error::CheckHR( hr, "GetTypeAttr" );
 
     scope::final_action scopedAttrReleaser( [pTypeInfo, pAttr]() {
         if ( pTypeInfo && pAttr )
@@ -955,7 +955,7 @@ void ActiveXObject::ParseTypeInfoRecursive( JSContext* cx, ITypeInfo* pTypeInfo,
         {
             HREFTYPE hRef = 0;
             hr = pTypeInfo->GetRefTypeOfImplType( i, &hRef );
-            mozjs::error::CheckHR( hr, "GetTypeAttr" );
+            error::CheckHR( hr, "GetTypeAttr" );
 
             ITypeInfo* pTypeInfoCur = nullptr;
             hr = pTypeInfo->GetRefTypeInfo( hRef, &pTypeInfoCur );

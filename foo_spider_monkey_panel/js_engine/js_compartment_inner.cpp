@@ -3,7 +3,6 @@
 
 #include <js_engine/js_engine.h>
 
-
 namespace mozjs
 {
 
@@ -26,52 +25,28 @@ bool JsCompartmentInner::IsMarkedForGc() const
     return isMarkedForGc_;
 }
 
-uint32_t JsCompartmentInner::GetCurrentHeapBytes()
+uint32_t JsCompartmentInner::GetCurrentHeapBytes() const
 {
     std::scoped_lock sl( gcDataLock_ );
-
-    if ( lastHeapSize_ > curHeapSize_ )
-    {
-        lastHeapSize_ = curHeapSize_;
-    }
-
     return curHeapSize_;
 }
 
-uint32_t JsCompartmentInner::GetLastHeapBytes()
+uint32_t JsCompartmentInner::GetLastHeapBytes() const
 {
     std::scoped_lock sl( gcDataLock_ );
-
-    if ( lastHeapSize_ > curHeapSize_ )
-    {
-        lastHeapSize_ = curHeapSize_;
-    }
-
-    return lastHeapSize_;
+    return std::min( lastHeapSize_, curHeapSize_ );
 }
 
-uint32_t JsCompartmentInner::GetCurrentAllocCount()
+uint32_t JsCompartmentInner::GetCurrentAllocCount() const
 {
     std::scoped_lock sl( gcDataLock_ );
-
-    if ( lastAllocCount_ > curAllocCount_ )
-    {
-        lastAllocCount_ = curAllocCount_;
-    }
-
     return curAllocCount_;
 }
 
-uint32_t JsCompartmentInner::GetLastAllocCount()
+uint32_t JsCompartmentInner::GetLastAllocCount() const
 {
     std::scoped_lock sl( gcDataLock_ );
-
-    if ( lastAllocCount_ > curAllocCount_ )
-    {
-        lastAllocCount_ = curAllocCount_;
-    }
-
-    return lastAllocCount_;
+    return std::min( lastAllocCount_, curAllocCount_ );
 }
 
 void JsCompartmentInner::OnHeapAllocate( uint32_t size )
@@ -114,4 +89,4 @@ bool JsCompartmentInner::IsMarkedForDeletion() const
     return isMarkedForDeletion_;
 }
 
-}
+} // namespace mozjs
