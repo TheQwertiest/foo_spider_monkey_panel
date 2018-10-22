@@ -585,6 +585,9 @@
     <ClInclude Include="js_utils\winapi_error_helper.h">
       <Filter>js_utils</Filter>
     </ClInclude>
+    <ClInclude Include="utils\pfc_helpers.h">
+      <Filter>utils</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="default.js">
