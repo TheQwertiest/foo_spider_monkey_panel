@@ -9,9 +9,28 @@
 ___
 
 ## [Unreleased][]
+
+### Added
+- Added HTML documentation.
+- Improved error reports of component startup failures.
+
 ### Fixed
+- Fixed crash when `on_main_menu` callback was invoked.
+- Fixed crash when switching layout from inside the panel.
+- Fixed occasional crash on panel removal.
 - Fixed incorrect handling of UTF-16 BOM files in `include()` and `utils.ReadTextFile()`.
-- Fixed crash when `on_main_menu` callback is invoked.
+- Fixed `ThemeManager.DrawThemeBackground()`: was ignoring `state_id` argument.
+- Fixed invalid calculation of image size, which resulted in premature OOM errors.
+
+### Changed
+- Improved `include` performance by 2x.
+- Rewrote `plman.PlaylistRecyclerManager`, since it was broken:
+   - Replaced `Name` property with `GetName` method.
+   - Replaced `Content` property with `GetContent` method.
+   - Renamed to `plman.PlaylistRecycler`.
+- Rewrote `Interfaces.js`
+   - Fixed invalid and incorrect JSDoc tags.
+   - Renamed to `foo_spider_monkey_panel.js`.
 
 ## [1.0.3][] - 2018-10-11
 ### Changed
