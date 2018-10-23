@@ -679,13 +679,13 @@ namespace helpers
         }
     }
 
-	std::wstring make_sort_string(const char* in)
-	{
-        std::wstring out( pfc::stringcvt::estimate_utf8_to_wide( in ) + 1, 0 );		
-		out[0] = ' ';//StrCmpLogicalW bug workaround.
-		pfc::stringcvt::convert_utf8_to_wide_unchecked(out.data() + 1, in);
-		return out;
-	}
+    std::wstring make_sort_string( const char* in )
+    {
+        std::wstring out( pfc::stringcvt::estimate_utf8_to_wide( in ) + 1, 0 );
+        out[0] = ' '; //StrCmpLogicalW bug workaround.
+        pfc::stringcvt::convert_utf8_to_wide_unchecked( out.data() + 1, in );
+        return out;
+    }
 
     js_process_locations::js_process_locations( int playlist_idx, UINT base, bool to_select )
         : m_playlist_idx( playlist_idx )

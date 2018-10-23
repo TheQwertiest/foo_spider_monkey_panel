@@ -9,7 +9,10 @@
 #include <js/Proxy.h>
 #pragma warning( pop )
 
+#include <nlohmann/json.hpp>
+
 #include <optional>
+
 
 class JSObject;
 struct JSContext;
@@ -89,6 +92,9 @@ public: // props
     uint32_t get_Count();
     JSObject* get_Item( uint32_t index );
     void put_Item( uint32_t index, JsFbMetadbHandle* handle );
+
+private:
+    void ModifyFileInfoWithJson( const nlohmann::json& jsonObject, file_info_impl& fileInfo );
 
 private:
     JsFbMetadbHandleList( JSContext* cx, metadb_handle_list_cref handles );

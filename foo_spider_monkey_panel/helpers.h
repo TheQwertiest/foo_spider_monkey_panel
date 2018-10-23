@@ -8,11 +8,16 @@
 
 namespace helpers
 {
-	struct custom_sort_data
-	{
-        std::wstring text;
+    struct custom_sort_data_2
+    {
+        custom_sort_data_2( const std::wstring& textId, size_t index )
+            : textId( textId )
+            , index( index )
+        {
+        }
+        std::wstring textId;
         size_t index;
-	};
+    };
 
 	struct wrapped_item
 	{
@@ -43,16 +48,19 @@ namespace helpers
 	void estimate_line_wrap_recur(HDC hdc, std::wstring_view text, size_t width, std::list<helpers::wrapped_item>& out);
 	std::wstring make_sort_string(const char* in);
 
-	template<int direction>
-	static int custom_sort_compare(const custom_sort_data& elem1, const custom_sort_data& elem2)
-	{
-		int ret = direction * StrCmpLogicalW(elem1.text.c_str(), elem2.text.c_str() );
+    template <int8_t direction = 1>
+    bool custom_sort_compare_2( const custom_sort_data_2& a, const custom_sort_data_2& b )
+    {
+        int ret = direction * StrCmpLogicalW( a.textId.c_str(), b.textId.c_str() );
         if ( !ret )
         {
-            ret = pfc::sgn_t( (t_ssize)elem1.index - (t_ssize)elem2.index );
+            return ( a.index < b.index );
         }
-		return ret;
-	}
+        else
+        {
+            return ( ret < 0 );
+        }
+    } 
 
     __declspec(noinline) static bool execute_context_command_by_name_SEH( const char* p_name, metadb_handle_list_cref p_handles, unsigned flags )
     {

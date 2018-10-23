@@ -5,8 +5,9 @@
 namespace smp
 {
 
+/// @brief STL wrapper for objects derived from pfc::list_base_const_t
 template <typename T>
-class PfcList
+class Stl
 {
 public:
     using pfc_container_type = typename std::decay_t<T>;
@@ -24,24 +25,24 @@ public:
     class const_iterator
     {
     public:
-        using value_type = PfcList::value_type;
-        using difference_type = PfcList::difference_type;
-        using size_type = PfcList::size_type;
-        using reference = PfcList::const_reference;
+        using value_type = Stl::value_type;
+        using difference_type = Stl::difference_type;
+        using size_type = Stl::size_type;
+        using reference = Stl::const_reference;
         using pointer = const value_type*;
 
         using iterator_category = std::random_access_iterator_tag;
 
         const_iterator() = default;
-        const_iterator( size_type idx, const pfc_container_type* parent )
-            : parent_( const_cast<pfc_container_type*>( parent ) )
+        const_iterator( size_type idx, const pfc_container_type* pPfc )
+            : pPfc_( pPfc )
             , curIdx_( idx )
         {
         }
 
         const_iterator( const const_iterator& other )
         {
-            parent_ = other.parent_;
+            pPfc_ = other.pPfc_;
             curIdx_ = other.curIdx_;
         }
         ~const_iterator() = default;
@@ -50,7 +51,7 @@ public:
         {
             if ( this != &other )
             {
-                parent_ = other.parent_;
+                pPfc_ = other.pPfc_;
                 curIdx_ = other.curIdx_;
             }
 
@@ -59,7 +60,7 @@ public:
 
         bool operator==( const const_iterator& other ) const
         {
-            return ( parent_ == other.parent_
+            return ( pPfc_ == other.pPfc_
                      && curIdx_ == other.curIdx_ );
         }
         bool operator!=( const const_iterator& other ) const
@@ -131,7 +132,7 @@ public:
 
         reference operator*() const
         {
-            return ( *parent_ )[curIdx_];
+            return ( *pPfc_ )[curIdx_];
         }
         /*
         pointer operator->() const
@@ -144,7 +145,7 @@ public:
         }
 
     protected:
-        pfc_container_type* parent_ = nullptr;
+        const pfc_container_type* pPfc_ = nullptr;
         size_type curIdx_ = 0;
     };
 
@@ -152,17 +153,17 @@ public:
         : public const_iterator
     {
     public:
-        using value_type = PfcList::value_type;
-        using difference_type = PfcList::difference_type;
-        using size_type = PfcList::size_type;
-        using reference = PfcList::reference;
+        using value_type = Stl::value_type;
+        using difference_type = Stl::difference_type;
+        using size_type = Stl::size_type;
+        using reference = Stl::reference;
         using pointer = value_type*;
 
         using iterator_category = std::random_access_iterator_tag;
 
         iterator() = default;
-        iterator( size_type idx, pfc_container_type* parent )
-            : const_iterator( idx, parent )
+        iterator( size_type idx, pfc_container_type* pPfc )
+            : const_iterator( idx, pPfc )
         {
         }
 
@@ -176,7 +177,7 @@ public:
         {
             if ( this != &other )
             {
-                parent_ = other.parent_;
+                pPfc_ = other.pPfc_;
                 curIdx_ = other.curIdx_;
             }
 
@@ -249,25 +250,26 @@ public:
     // typedef std::reverse_iterator<const_iterator> const_reverse_iterator; //optional
 
     template <typename = typename std::enable_if_t<std::is_reference_v<T>>>
-    PfcList( T& base )
+    Stl( T& base )
         : pfc_( base )
     {};
 
-    template <typename = typename std::enable_if_t<!std::is_reference_v<T>>>
-    PfcList()
+    template <typename... Args, typename = typename std::enable_if_t<!std::is_reference_v<T>>>
+    Stl( Args&&... args )
+        : pfc_( std::forward<Args>( args )... )
     {};
 
-    PfcList( const PfcList& ) = delete;
-    ~PfcList() = default;
+    Stl( const Stl& ) = delete;
+    ~Stl() = default;
 
-    PfcList& operator=( const PfcList& other ) = delete;
+    Stl& operator=( const Stl& other ) = delete;
 
-    // bool operator==( const PfcList& ) const;
-    // bool operator!=( const PfcList& ) const;
-    // bool operator<( const PfcList& ) const;  //optional
-    // bool operator>( const PfcList& ) const;  //optional
-    // bool operator<=( const PfcList& ) const; //optional
-    // bool operator>=( const PfcList& ) const; //optional
+    // bool operator==( const Stl& ) const;
+    // bool operator!=( const Stl& ) const;
+    // bool operator<( const Stl& ) const;  //optional
+    // bool operator>( const Stl& ) const;  //optional
+    // bool operator<=( const Stl& ) const; //optional
+    // bool operator>=( const Stl& ) const; //optional
 
     template <typename = typename std::enable_if_t<!std::is_const_v<std::remove_reference_t<T>>>> 
     iterator begin()
@@ -284,8 +286,8 @@ public:
         return begin();
     }
 
-    template <typename = typename std::enable_if_t<!std::is_const_v < std : remove_reference_t<T>>>
-        > iterator end()
+    template <typename = typename std::enable_if_t<!std::is_const_v<std ::remove_reference_t<T>>>> 
+    iterator end()
     {
         return iterator( size(), &pfc_ );
     }
@@ -371,7 +373,7 @@ public:
     void assign( std::initializer_list<T> ); //optional
     void assign( size_type, const T& );      //optional
 
-    void swap( PfcList& );
+    void swap( Stl& );
     */
 
     size_type size() const
