@@ -151,10 +151,7 @@ JSObject* JsGdiBitmap::ApplyAlpha( uint8_t alpha )
     gdiRet = g.DrawImage( pGdi_.get(), rc, 0, 0, width, height, Gdiplus::UnitPixel, &ia );
     error::CheckGdi( gdiRet, "DrawImage" );
 
-    JS::RootedObject jsObject( pJsCtx_, JsGdiBitmap::CreateJs( pJsCtx_, std::move( out ) ) );
-    assert( jsObject );
-
-    return jsObject;
+    return JsGdiBitmap::CreateJs( pJsCtx_, std::move( out ) );
 }
 
 bool JsGdiBitmap::ApplyMask( JsGdiBitmap* mask )
@@ -222,18 +219,12 @@ JSObject* JsGdiBitmap::Clone( float x, float y, float w, float h )
     std::unique_ptr<Gdiplus::Bitmap> img( pGdi_->Clone( x, y, w, h, PixelFormat32bppPARGB ) );
     error::CheckGdiPlusObject( img );
 
-    JS::RootedObject jsObject( pJsCtx_, JsGdiBitmap::CreateJs( pJsCtx_, std::move( img ) ) );
-    assert( jsObject );
-
-    return jsObject;
+    return JsGdiBitmap::CreateJs( pJsCtx_, std::move( img ) );
 }
 
 JSObject* JsGdiBitmap::CreateRawBitmap()
 {
-    JS::RootedObject jsObject( pJsCtx_, JsGdiRawBitmap::CreateJs( pJsCtx_, pGdi_.get() ) );
-    assert( jsObject );
-
-    return jsObject;
+    return JsGdiRawBitmap::CreateJs( pJsCtx_, pGdi_.get() );
 }
 
 JSObject* JsGdiBitmap::GetColourScheme( uint32_t count )
@@ -410,9 +401,8 @@ JSObject* JsGdiBitmap::GetGraphics()
         throw smp::SmpException( "Internal error: failed to get JsGdiGraphics object" );
     }
 
-    pNativeObject->SetGraphicsObject( g.get() );
+    pNativeObject->SetGraphicsObject( g.release() );
 
-    g.release();
     return jsObject;
 }
 
@@ -443,10 +433,7 @@ JSObject* JsGdiBitmap::Resize( uint32_t w, uint32_t h, uint32_t interpolationMod
     gdiRet = g.DrawImage( pGdi_.get(), 0, 0, w, h );
     error::CheckGdi( gdiRet, "DrawImage" );
 
-    JS::RootedObject jsRetObject( pJsCtx_, JsGdiBitmap::CreateJs( pJsCtx_, std::move( bitmap ) ) );
-    assert( jsRetObject );
-
-    return jsRetObject;
+    return JsGdiBitmap::CreateJs( pJsCtx_, std::move( bitmap ) );
 }
 
 JSObject* JsGdiBitmap::ResizeWithOpt( size_t optArgCount, uint32_t w, uint32_t h, uint32_t interpolationMode )

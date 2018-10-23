@@ -96,10 +96,7 @@ JSObject* JsFbPlaylistRecycler::GetContent( uint32_t index )
     metadb_handle_list handles;
     playlist_manager_v3::get()->recycler_get_content( index, handles );
 
-    JS::RootedObject jsObject( pJsCtx_, JsFbMetadbHandleList::CreateJs( pJsCtx_, handles ) );
-    assert( jsObject );
-
-    return jsObject;
+    return JsFbMetadbHandleList::CreateJs( pJsCtx_, handles );
 }
 
 pfc::string8_fast JsFbPlaylistRecycler::GetName( uint32_t index )

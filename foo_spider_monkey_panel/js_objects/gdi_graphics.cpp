@@ -651,10 +651,7 @@ JSObject* JsGdiGraphics::MeasureString( const std::wstring& str, JsGdiFont* font
     Gdiplus::Status gdiRet = pGdi_->MeasureString( str.c_str(), -1, fn, Gdiplus::RectF( x, y, w, h ), &fmt, &bound, &chars, &lines );
     error::CheckGdi( gdiRet, "MeasureString" );
 
-    JS::RootedObject jsObject( pJsCtx_, JsMeasureStringInfo::CreateJs( pJsCtx_, bound.X, bound.Y, bound.Width, bound.Height, lines, chars ) );
-    assert( jsObject );
-
-    return jsObject;
+    return JsMeasureStringInfo::CreateJs( pJsCtx_, bound.X, bound.Y, bound.Width, bound.Height, lines, chars );
 }
 
 JSObject* JsGdiGraphics::MeasureStringWithOpt( size_t optArgCount, const std::wstring& str, JsGdiFont* font,

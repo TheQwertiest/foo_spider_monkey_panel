@@ -396,15 +396,13 @@ JSObject* JsFbPlaylistManager::GetPlaybackQueueHandles()
     playlist_manager::get()->queue_get_contents( contents );
     t_size count = contents.get_count();
     metadb_handle_list items;
+
     for ( t_size i = 0; i < count; ++i )
     {
         items.add_item( contents[i].m_handle );
     }
 
-    JS::RootedObject jsObject( pJsCtx_, JsFbMetadbHandleList::CreateJs( pJsCtx_, items ) );
-    assert( jsObject );
-
-    return jsObject;
+    return JsFbMetadbHandleList::CreateJs( pJsCtx_, items );
 }
 
 JSObject* JsFbPlaylistManager::GetPlayingItemLocation()
@@ -413,10 +411,7 @@ JSObject* JsFbPlaylistManager::GetPlayingItemLocation()
     t_size playlistItemIndex = t_size( pfc_infinite );
     bool isValid = playlist_manager::get()->get_playing_item_location( &playlistIndex, &playlistItemIndex );
 
-    JS::RootedObject jsObject( pJsCtx_, JsFbPlayingItemLocation::CreateJs( pJsCtx_, isValid, playlistIndex, playlistItemIndex ) );
-    assert( jsObject );
-
-    return jsObject;
+    return JsFbPlayingItemLocation::CreateJs( pJsCtx_, isValid, playlistIndex, playlistItemIndex );
 }
 
 int32_t JsFbPlaylistManager::GetPlaylistFocusItemIndex( uint32_t playlistIndex )
@@ -430,20 +425,14 @@ JSObject* JsFbPlaylistManager::GetPlaylistItems( uint32_t playlistIndex )
     metadb_handle_list items;
     playlist_manager::get()->playlist_get_all_items( playlistIndex, items );
 
-    JS::RootedObject jsObject( pJsCtx_, JsFbMetadbHandleList::CreateJs( pJsCtx_, items ) );
-    if ( !jsObject )
-    {
-        throw smp::SmpException( "Internal error: failed to create JS object" );
-    }
-
-    return jsObject;
+    return JsFbMetadbHandleList::CreateJs( pJsCtx_, items );
 }
 
 pfc::string8_fast JsFbPlaylistManager::GetPlaylistName( uint32_t playlistIndex )
 {
     pfc::string8_fast name;
     playlist_manager::get()->playlist_get_name( playlistIndex, name );
-    return name.c_str();
+    return name;
 }
 
 JSObject* JsFbPlaylistManager::GetPlaylistSelectedItems( uint32_t playlistIndex )
@@ -451,13 +440,7 @@ JSObject* JsFbPlaylistManager::GetPlaylistSelectedItems( uint32_t playlistIndex 
     metadb_handle_list items;
     playlist_manager::get()->playlist_get_selected_items( playlistIndex, items );
 
-    JS::RootedObject jsObject( pJsCtx_, JsFbMetadbHandleList::CreateJs( pJsCtx_, items ) );
-    if ( !jsObject )
-    {
-        throw smp::SmpException( "Internal error: failed to create JS object" );
-    }
-
-    return jsObject;
+    return JsFbMetadbHandleList::CreateJs( pJsCtx_, items );
 }
 
 void JsFbPlaylistManager::InsertPlaylistItems( uint32_t playlistIndex, uint32_t base, JsFbMetadbHandleList* handles, bool select )
@@ -720,32 +703,31 @@ bool JsFbPlaylistManager::SortByFormatV2WithOpt( size_t optArgCount, uint32_t pl
 
 void JsFbPlaylistManager::SortPlaylistsByName( int8_t direction )
 {
-    // TODO: investigate this code
     auto api = playlist_manager::get();
-    t_size i, count = api->get_playlist_count();
+    const size_t count = api->get_playlist_count();
 
-    pfc::array_t<helpers::custom_sort_data> data;
-    data.set_size( count );
+    std::vector<helpers::custom_sort_data_2> data;
+    data.reserve( count );
 
     pfc::string8_fastalloc temp;
     temp.prealloc( 512 );
 
-    for ( i = 0; i < count; ++i )
+    for ( size_t i = 0; i < count; ++i )
     {
         api->playlist_get_name( i, temp );
-        data[i].index = i;
-        data[i].text = helpers::make_sort_string( temp );
+        data.emplace_back( helpers::make_sort_string( temp ), i );
     }
 
-    pfc::sort_t( data, direction > 0 ? helpers::custom_sort_compare<1> : helpers::custom_sort_compare<-1>, count );
-    order_helper order( count );
+    std::sort( data.begin(), data.end(), (direction > 0 ? helpers::custom_sort_compare_2<1> : helpers::custom_sort_compare_2<-1>));
 
-    for ( i = 0; i < count; ++i )
-    {
-        order[i] = data[i].index;
-    }
+    std::vector<size_t> order;
+    order.reserve( count );
 
-    api->reorder( order.get_ptr(), order.get_count() );
+    std::transform( data.cbegin(), data.cend(), std::back_inserter( order ), []( auto& elem ) {
+        return elem.index;
+    } );
+
+    api->reorder( order.data(), order.size() );
 }
 
 void JsFbPlaylistManager::SortPlaylistsByNameWithOpt( size_t optArgCount, int8_t direction )
@@ -793,10 +775,6 @@ JSObject* JsFbPlaylistManager::get_PlaylistRecycler()
     if ( !jsPlaylistRecycler_.initialized() )
     {
         jsPlaylistRecycler_.init( pJsCtx_, JsFbPlaylistRecycler::CreateJs( pJsCtx_ ) );
-        if ( !jsPlaylistRecycler_ )
-        {
-            throw smp::SmpException( "Internal error: failed to create JS object" );
-        }
     }
 
     return jsPlaylistRecycler_;

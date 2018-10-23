@@ -9,6 +9,8 @@
 
 #include <stats.h>
 
+using namespace smp;
+
 namespace
 {
 
@@ -97,10 +99,7 @@ JsFbMetadbHandle::~JsFbMetadbHandle()
 std::unique_ptr<mozjs::JsFbMetadbHandle> 
 JsFbMetadbHandle::CreateNative( JSContext* cx, const metadb_handle_ptr& handle )
 {
-    if ( !handle.is_valid() )
-    {
-        throw smp::SmpException( "Internal error: metadb_handle_ptr is null" );
-    }
+    SmpException::ExpectTrue( handle.is_valid(), "Internal error: metadb_handle_ptr is null" );
 
     return std::unique_ptr<JsFbMetadbHandle>( new JsFbMetadbHandle( cx, handle ) );
 }
@@ -126,13 +125,9 @@ void JsFbMetadbHandle::ClearStats()
 
 bool JsFbMetadbHandle::Compare( JsFbMetadbHandle* handle )
 {
-    if ( !handle )
-    {
-        throw smp::SmpException( "handle argument is null" );
-    }
+    SmpException::ExpectTrue( handle, "handle argument is null" );
 
-    metadb_handle_ptr otherHandle( handle->GetHandle() );
-    return otherHandle == metadbHandle_;
+    return (handle->GetHandle() == metadbHandle_);
 }
 
 JSObject* JsFbMetadbHandle::GetFileInfo()
@@ -144,16 +139,13 @@ JSObject* JsFbMetadbHandle::GetFileInfo()
         return nullptr;
     }
 
-    JS::RootedObject jsObject( pJsCtx_, JsFbFileInfo::CreateJs( pJsCtx_, std::move(pFileInfo) ) );
-    assert( jsObject );
-
-    return jsObject;
+    return JsFbFileInfo::CreateJs( pJsCtx_, std::move( pFileInfo ) );
 }
 
 void JsFbMetadbHandle::RefreshStats()
 {
-    metadb_index_hash hash;
-    if ( stats::hashHandle( metadbHandle_, hash ) )
+    if ( metadb_index_hash hash; 
+         stats::hashHandle( metadbHandle_, hash ) )
     {
         stats::refresh( hash );
     }
@@ -161,8 +153,8 @@ void JsFbMetadbHandle::RefreshStats()
 
 void JsFbMetadbHandle::SetFirstPlayed( const pfc::string8_fast& first_played )
 {
-    metadb_index_hash hash;
-    if ( stats::hashHandle( metadbHandle_, hash ) )
+    if ( metadb_index_hash hash;
+         stats::hashHandle( metadbHandle_, hash ) )
     {
         stats::fields tmp = stats::get( hash );
         if (tmp.first_played != first_played )
@@ -175,8 +167,8 @@ void JsFbMetadbHandle::SetFirstPlayed( const pfc::string8_fast& first_played )
 
 void JsFbMetadbHandle::SetLastPlayed( const pfc::string8_fast& last_played )
 {
-    metadb_index_hash hash;
-    if ( stats::hashHandle( metadbHandle_, hash ) )
+    if ( metadb_index_hash hash; 
+         stats::hashHandle( metadbHandle_, hash ) )
     {
         stats::fields tmp = stats::get( hash );
         if ( tmp.last_played != last_played )
@@ -189,8 +181,8 @@ void JsFbMetadbHandle::SetLastPlayed( const pfc::string8_fast& last_played )
 
 void JsFbMetadbHandle::SetLoved( uint32_t loved )
 {
-    metadb_index_hash hash;
-    if ( stats::hashHandle( metadbHandle_, hash ) )
+    if ( metadb_index_hash hash; 
+         stats::hashHandle( metadbHandle_, hash ) )
     {
         stats::fields tmp = stats::get( hash );
         if ( tmp.loved != loved )
@@ -203,8 +195,8 @@ void JsFbMetadbHandle::SetLoved( uint32_t loved )
 
 void JsFbMetadbHandle::SetPlaycount( uint32_t playcount )
 {
-    metadb_index_hash hash;
-    if ( stats::hashHandle( metadbHandle_, hash ) )
+    if ( metadb_index_hash hash; 
+         stats::hashHandle( metadbHandle_, hash ) )
     {
         stats::fields tmp = stats::get( hash );
         if ( tmp.playcount != playcount )
@@ -217,8 +209,8 @@ void JsFbMetadbHandle::SetPlaycount( uint32_t playcount )
 
 void JsFbMetadbHandle::SetRating( uint32_t rating )
 {
-    metadb_index_hash hash;
-    if ( stats::hashHandle( metadbHandle_, hash ) )
+    if ( metadb_index_hash hash; 
+         stats::hashHandle( metadbHandle_, hash ) )
     {
         stats::fields tmp = stats::get( hash );
         if ( tmp.rating != rating )

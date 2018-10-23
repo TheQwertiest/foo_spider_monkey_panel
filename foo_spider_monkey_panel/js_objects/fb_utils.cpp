@@ -213,11 +213,7 @@ size_t JsFbUtils::GetInternalSize()
 
 JSObject* JsFbUtils::AcquireUiSelectionHolder()
 {
-    ui_selection_holder::ptr holder = ui_selection_manager::get()->acquire();
-    JS::RootedObject jsObject( pJsCtx_, JsFbUiSelectionHolder::CreateJs( pJsCtx_, holder ) );
-    assert( jsObject );
-
-    return jsObject;
+    return JsFbUiSelectionHolder::CreateJs( pJsCtx_, ui_selection_manager::get()->acquire() );
 }
 
 void JsFbUtils::AddDirectory()
@@ -263,35 +259,22 @@ bool JsFbUtils::CopyHandleListToClipboard( JsFbMetadbHandleList* handles )
 
 JSObject* JsFbUtils::CreateContextMenuManager()
 {
-    JS::RootedObject jsObject( pJsCtx_, JsContextMenuManager::CreateJs( pJsCtx_ ) );
-    assert( jsObject );
-
-    return jsObject;
+    return JsContextMenuManager::CreateJs( pJsCtx_ );
 }
 
 JSObject* JsFbUtils::CreateHandleList()
 {
-    metadb_handle_list items;
-    JS::RootedObject jsObject( pJsCtx_, JsFbMetadbHandleList::CreateJs( pJsCtx_, items ) );
-    assert( jsObject );
-
-    return jsObject;
+    return JsFbMetadbHandleList::CreateJs( pJsCtx_, metadb_handle_list{} );
 }
 
 JSObject* JsFbUtils::CreateMainMenuManager()
 {
-    JS::RootedObject jsObject( pJsCtx_, JsMainMenuManager::CreateJs( pJsCtx_ ) );
-    assert( jsObject );
-
-    return jsObject;
+    return JsMainMenuManager::CreateJs( pJsCtx_ );
 }
 
 JSObject* JsFbUtils::CreateProfiler( const pfc::string8_fast& name )
 {
-    JS::RootedObject jsObject( pJsCtx_, JsFbProfiler::CreateJs( pJsCtx_, name ) );
-    assert( jsObject );
-
-    return jsObject;
+    return JsFbProfiler::CreateJs( pJsCtx_, name );
 }
 
 JSObject* JsFbUtils::CreateProfilerWithOpt( size_t optArgCount, const pfc::string8_fast& name )
@@ -356,13 +339,7 @@ JSObject* JsFbUtils::GetClipboardContents( uint32_t hWindow )
         }
     }
 
-    JS::RootedObject jsObject( pJsCtx_, JsFbMetadbHandleList::CreateJs( pJsCtx_, items ) );
-    if ( !jsObject )
-    {
-        throw smp::SmpException( "Internal error: failed to create JS object" );
-    }
-
-    return jsObject;
+    return JsFbMetadbHandleList::CreateJs( pJsCtx_, items );
 }
 
 pfc::string8_fast JsFbUtils::GetDSPPresets()
@@ -406,10 +383,7 @@ JSObject* JsFbUtils::GetFocusItem( bool force )
         return nullptr;
     }
 
-    JS::RootedObject jsObject( pJsCtx_, JsFbMetadbHandle::CreateJs( pJsCtx_, metadb ) );
-    assert( jsObject );
-
-    return jsObject;
+    return JsFbMetadbHandle::CreateJs( pJsCtx_, metadb );
 }
 
 JSObject* JsFbUtils::GetFocusItemWithOpt( size_t optArgCount, bool force )
@@ -430,10 +404,7 @@ JSObject* JsFbUtils::GetLibraryItems()
     metadb_handle_list items;
     library_manager::get()->get_all_items( items );
 
-    JS::RootedObject jsObject( pJsCtx_, JsFbMetadbHandleList::CreateJs( pJsCtx_, items ) );
-    assert( jsObject );
-
-    return jsObject;
+    return JsFbMetadbHandleList::CreateJs( pJsCtx_, items );
 }
 
 pfc::string8_fast JsFbUtils::GetLibraryRelativePath( JsFbMetadbHandle* handle )
@@ -461,10 +432,7 @@ JSObject* JsFbUtils::GetNowPlaying()
         return nullptr;
     }
 
-    JS::RootedObject jsObject( pJsCtx_, JsFbMetadbHandle::CreateJs( pJsCtx_, metadb ) );
-    assert( jsObject );
-
-    return jsObject;
+    return JsFbMetadbHandle::CreateJs( pJsCtx_, metadb );
 }
 
 pfc::string8_fast JsFbUtils::GetOutputDevices()
@@ -523,10 +491,7 @@ JSObject* JsFbUtils::GetQueryItems( JsFbMetadbHandleList* handles, const pfc::st
     filter->test_multi( dst_list, mask.get_ptr() );
     dst_list.filter_mask( mask.get_ptr() );
 
-    JS::RootedObject jsObject( pJsCtx_, JsFbMetadbHandleList::CreateJs( pJsCtx_, dst_list ) );
-    assert( jsObject );
-
-    return jsObject;
+    return JsFbMetadbHandleList::CreateJs( pJsCtx_, dst_list );
 }
 
 JSObject* JsFbUtils::GetSelection()
@@ -539,10 +504,7 @@ JSObject* JsFbUtils::GetSelection()
         return nullptr;
     }
 
-    JS::RootedObject jsObject( pJsCtx_, JsFbMetadbHandle::CreateJs( pJsCtx_, items[0] ) );
-    assert( jsObject );
-
-    return jsObject;
+    return JsFbMetadbHandle::CreateJs( pJsCtx_, items[0] );
 }
 
 JSObject* JsFbUtils::GetSelections( uint32_t flags )
@@ -550,10 +512,7 @@ JSObject* JsFbUtils::GetSelections( uint32_t flags )
     metadb_handle_list items;
     ui_selection_manager_v2::get()->get_selection( items, flags );
 
-    JS::RootedObject jsObject( pJsCtx_, JsFbMetadbHandleList::CreateJs( pJsCtx_, items ) );
-    assert( jsObject );
-
-    return jsObject;
+    return JsFbMetadbHandleList::CreateJs( pJsCtx_, items );
 }
 
 JSObject* JsFbUtils::GetSelectionsWithOpt( size_t optArgCount, uint32_t flags )
@@ -802,10 +761,7 @@ void JsFbUtils::Stop()
 
 JSObject* JsFbUtils::TitleFormat( const pfc::string8_fast& expression )
 {
-    JS::RootedObject jsObject( pJsCtx_, JsFbTitleFormat::CreateJs( pJsCtx_, expression ) );
-    assert( jsObject );
-
-    return jsObject;
+    return JsFbTitleFormat::CreateJs( pJsCtx_, expression );
 }
 
 void JsFbUtils::VolumeDown()

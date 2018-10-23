@@ -91,10 +91,7 @@ JSObject* JsGdiUtils::CreateImage( uint32_t w, uint32_t h )
     std::unique_ptr<Gdiplus::Bitmap> img( new Gdiplus::Bitmap( w, h, PixelFormat32bppPARGB ) );
     error::CheckGdiPlusObject( img );
 
-    JS::RootedObject jsObject( pJsCtx_, JsGdiBitmap::CreateJs( pJsCtx_, std::move( img ) ) );
-    assert( jsObject );
-
-    return jsObject;
+    return JsGdiBitmap::CreateJs( pJsCtx_, std::move( img ) );
 }
 
 JSObject* JsGdiUtils::Font( const std::wstring& fontName, float pxSize, uint32_t style )
@@ -155,10 +152,7 @@ JSObject* JsGdiUtils::Image( const std::wstring& path )
         return nullptr;
     }
 
-    JS::RootedObject jsObject( pJsCtx_, JsGdiBitmap::CreateJs( pJsCtx_, std::move( img ) ) );
-    assert( jsObject );
-
-    return jsObject;
+    return JsGdiBitmap::CreateJs( pJsCtx_, std::move( img ) );
 }
 
 std::uint32_t JsGdiUtils::LoadImageAsync( uint32_t hWnd, const std::wstring& path )

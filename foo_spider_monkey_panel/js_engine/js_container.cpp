@@ -79,7 +79,6 @@ bool JsContainer::Initialize()
         JSAutoCompartment ac( pJsCtx_, jsGlobal_ );
 
         jsGraphics_.init( pJsCtx_, JsGdiGraphics::CreateJs( pJsCtx_ ) );
-        assert( jsGraphics_ );
 
         autoGlobal.cancel();
     }
@@ -323,7 +322,6 @@ bool JsContainer::CreateDropActionIfNeeded()
     try
     {
         jsDropAction_.init( pJsCtx_, JsDropSourceAction::CreateJs( pJsCtx_ ) );
-        assert( jsDropAction_ );
     }
     catch ( ... )
     {
@@ -332,7 +330,6 @@ bool JsContainer::CreateDropActionIfNeeded()
     }
 
     pNativeDropAction_ = static_cast<JsDropSourceAction*>( JS_GetPrivate( jsDropAction_ ) );
-    assert( pNativeDropAction_ );
 
     return true;
 }

@@ -207,10 +207,7 @@ JSObject* JsWindow::CreatePopupMenu()
         return nullptr;
     }
 
-    JS::RootedObject jsObject( pJsCtx_, JsMenuObject::CreateJs( pJsCtx_, parentPanel_.GetHWND() ) );
-    assert( jsObject );
-
-    return jsObject;
+    return JsMenuObject::CreateJs( pJsCtx_, parentPanel_.GetHWND() );
 }
 
 JSObject* JsWindow::CreateThemeManager( const std::wstring& classid )
@@ -225,10 +222,7 @@ JSObject* JsWindow::CreateThemeManager( const std::wstring& classid )
         return nullptr;
     }
 
-    JS::RootedObject jsObject( pJsCtx_, JsThemeManager::CreateJs( pJsCtx_, parentPanel_.GetHWND(), classid ) );
-    assert( jsObject );
-
-    return jsObject;
+    return JsThemeManager::CreateJs( pJsCtx_, parentPanel_.GetHWND(), classid );
 }
 
 JSObject* JsWindow::CreateTooltip( const std::wstring& name, float pxSize, uint32_t style )
@@ -243,10 +237,7 @@ JSObject* JsWindow::CreateTooltip( const std::wstring& name, float pxSize, uint3
     tooltip_param.fontSize = pxSize;
     tooltip_param.fontStyle = style;
 
-    JS::RootedObject jsObject( pJsCtx_, JsFbTooltip::CreateJs( pJsCtx_, parentPanel_.GetHWND(), tooltip_param ) );
-    assert( jsObject );
-
-    return jsObject;
+    return JsFbTooltip::CreateJs( pJsCtx_, parentPanel_.GetHWND(), tooltip_param );
 }
 
 JSObject* JsWindow::CreateTooltipWithOpt( size_t optArgCount, const std::wstring& name, float pxSize, uint32_t style )
@@ -443,10 +434,7 @@ JSObject* JsWindow::GetFontCUI( uint32_t type, const std::wstring& guidstr )
         return nullptr;
     }
 
-    JS::RootedObject jsObject( pJsCtx_, JsGdiFont::CreateJs( pJsCtx_, std::move( pGdiFont ), hFont.release(), true ) );
-    assert( jsObject );
-
-    return jsObject;
+    return JsGdiFont::CreateJs( pJsCtx_, std::move( pGdiFont ), hFont.release(), true );
 }
 
 JSObject* JsWindow::GetFontCUIWithOpt( size_t optArgCount, uint32_t type, const std::wstring& guidstr )
@@ -486,10 +474,7 @@ JSObject* JsWindow::GetFontDUI( uint32_t type )
         return nullptr;
     }
 
-    JS::RootedObject jsObject( pJsCtx_, JsGdiFont::CreateJs( pJsCtx_, std::move( pGdiFont ), hFont, false ) );
-    assert( jsObject );
-
-    return jsObject;
+    return JsGdiFont::CreateJs( pJsCtx_, std::move( pGdiFont ), hFont, false );
 }
 
 JS::Value JsWindow::GetProperty( const std::wstring& name, JS::HandleValue defaultval )

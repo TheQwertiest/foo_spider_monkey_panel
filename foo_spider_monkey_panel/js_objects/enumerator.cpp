@@ -48,11 +48,9 @@ bool Enumerator_Constructor_Impl( JSContext* cx, unsigned argc, JS::Value* vp )
     try
     {
         auto pActiveXObject = mozjs::convert::to_native::ToValue<ActiveXObject*>( cx, args[0] );
-        JS::RootedObject jsObject( cx,
-                                   JsEnumerator::CreateJs( cx, ( pActiveXObject->pUnknown_ ? pActiveXObject->pUnknown_ : pActiveXObject->pDispatch_ ) ) );
-        assert( jsObject );
 
-        args.rval().setObjectOrNull( jsObject );
+        args.rval().setObjectOrNull(
+            JsEnumerator::CreateJs( cx, ( pActiveXObject->pUnknown_ ? pActiveXObject->pUnknown_ : pActiveXObject->pDispatch_ ) ) );
     }
     catch ( ... )
     {

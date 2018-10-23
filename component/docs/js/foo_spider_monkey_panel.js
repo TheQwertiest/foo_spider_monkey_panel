@@ -2042,6 +2042,8 @@ function FbMetadbHandleList() {
     this.InsertRange = function (index, handle_list) {}; // (int)
 
     /**
+     * Note: sort with {@see FbMetadbHandleList#Sort} before using.
+     * 
      * @param {FbMetadbHandleList} handle_list Sorted handle list.
      *
      * @example
@@ -2058,6 +2060,8 @@ function FbMetadbHandleList() {
     this.MakeDifference = function (handle_list) {}; // (void)
 
     /**
+     * Note: sort with {@see FbMetadbHandleList#Sort} before using.
+     * 
      * @param {FbMetadbHandleList} handle_list Sorted handle list.
      *
      * @example
@@ -2073,6 +2077,8 @@ function FbMetadbHandleList() {
     this.MakeIntersection = function (handle_list) {}; // (void)
 
     /**
+     * Note: sort with {@see FbMetadbHandleList#Sort} before using.
+     * 
      * @param {FbMetadbHandleList} handle_list Sorted handle list.
      *
      * @example

@@ -20,11 +20,7 @@ void ToValue( JSContext * cx, std::unique_ptr<Gdiplus::Bitmap> inValue, JS::Muta
         return;
     }
 
-    JS::RootedObject jsObject( cx, JsGdiBitmap::CreateJs( cx, std::move( inValue ) ) );
-    assert( jsObject );
-
-    inValue.release();
-    wrappedValue.setObjectOrNull( jsObject );
+    wrappedValue.setObjectOrNull( JsGdiBitmap::CreateJs( cx, std::move( inValue ) ) );
 }
 
 template <>
@@ -133,28 +129,19 @@ void ToValue( JSContext * cx, const metadb_handle_ptr& inValue, JS::MutableHandl
         return;
     }
 
-    JS::RootedObject jsObject( cx, JsFbMetadbHandle::CreateJs( cx, inValue ) );
-    assert( jsObject );
-
-    wrappedValue.setObjectOrNull( jsObject );
+    wrappedValue.setObjectOrNull( JsFbMetadbHandle::CreateJs( cx, inValue ) );
 }
 
 template <>
 void ToValue( JSContext * cx, const metadb_handle_list& inValue, JS::MutableHandleValue wrappedValue )
 {
-    JS::RootedObject jsObject( cx, JsFbMetadbHandleList::CreateJs( cx, inValue ) );
-    assert( jsObject );
-
-    wrappedValue.setObjectOrNull( jsObject );
+    wrappedValue.setObjectOrNull( JsFbMetadbHandleList::CreateJs( cx, inValue ) );
 }
 
 template <>
 void ToValue( JSContext* cx, const t_playback_queue_item& inValue, JS::MutableHandleValue wrappedValue )
 {
-    JS::RootedObject jsObject( cx, JsFbPlaybackQueueItem::CreateJs( cx, inValue ) );
-    assert( jsObject );
-
-    wrappedValue.setObjectOrNull( jsObject );
+    wrappedValue.setObjectOrNull( JsFbPlaybackQueueItem::CreateJs( cx, inValue ) );
 }
 
 }
