@@ -40,7 +40,6 @@ private:
     uint64_t GetCurrentTotalAllocCount();
     void UpdateGcStats();
 
-
     // GC implementation
     void PerformGc( GcLevel gcLevel );
     void PerformIncrementalGc();

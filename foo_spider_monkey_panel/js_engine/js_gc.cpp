@@ -9,7 +9,6 @@
 
 #include <adv_config.h>
 
-
 namespace mozjs
 {
 
@@ -22,7 +21,7 @@ uint32_t JsGc::GetMaxHeap()
     return static_cast<uint32_t>( smp_advconf::g_var_max_heap.get() );
 }
 
-void JsGc::Initialize(JSContext* pJsCtx)
+void JsGc::Initialize( JSContext* pJsCtx )
 {
     namespace smp_advconf = smp::config::advanced;
 
@@ -30,10 +29,10 @@ void JsGc::Initialize(JSContext* pJsCtx)
 
     UpdateGcConfig();
 
-    maxHeapSize_ = static_cast<uint32_t>(smp_advconf::g_var_max_heap.get());
-    heapGrowthRateTrigger_ = static_cast<uint32_t>(smp_advconf::g_var_max_heap_growth.get());
-    gcSliceTimeBudget_ = static_cast<uint32_t>(smp_advconf::g_var_gc_budget.get());
-    gcCheckDelay_ = static_cast<uint32_t>(smp_advconf::g_var_gc_delay.get());
+    maxHeapSize_ = static_cast<uint32_t>( smp_advconf::g_var_max_heap.get() );
+    heapGrowthRateTrigger_ = static_cast<uint32_t>( smp_advconf::g_var_max_heap_growth.get() );
+    gcSliceTimeBudget_ = static_cast<uint32_t>( smp_advconf::g_var_gc_budget.get() );
+    gcCheckDelay_ = static_cast<uint32_t>( smp_advconf::g_var_gc_delay.get() );
     allocCountTrigger_ = static_cast<uint32_t>( smp_advconf::g_var_max_alloc_increase.get() );
 
     JS_SetGCParameter( pJsCtx_, JSGC_MODE, JSGC_MODE_INCREMENTAL );
@@ -42,8 +41,8 @@ void JsGc::Initialize(JSContext* pJsCtx)
     if ( smp_advconf::g_var_gc_zeal.get() )
     {
         JS_SetGCZeal( pJsCtx_,
-                      static_cast<uint8_t>(smp_advconf::g_var_gc_zeal_level.get()), 
-                      static_cast<uint32_t>(smp_advconf::g_var_gc_zeal_freq.get()) );
+                      static_cast<uint8_t>( smp_advconf::g_var_gc_zeal_level.get() ),
+                      static_cast<uint32_t>( smp_advconf::g_var_gc_zeal_freq.get() ) );
     }
 #endif
 }
@@ -80,14 +79,22 @@ void JsGc::UpdateGcConfig()
     BOOL bRet = GlobalMemoryStatusEx( &statex );
     error::CheckWinApi( !!bRet, "GlobalMemoryStatusEx" );
 
-    if ( smp_advconf::g_var_max_heap.get() > statex.ullTotalPhys / 4 )
+    if ( !smp_advconf::g_var_max_heap.get() )
+    {// automatic
+        smp_advconf::g_var_max_heap.set( std::min<uint64_t>( statex.ullTotalPhys / 4, 1000L * 1000 * 1000 ) );
+    }
+    else if ( smp_advconf::g_var_max_heap.get() > statex.ullTotalPhys )
     {
-        smp_advconf::g_var_max_heap.set( statex.ullTotalPhys / 4 );
+        smp_advconf::g_var_max_heap.set( statex.ullTotalPhys );
     }
 
-    if ( smp_advconf::g_var_max_heap_growth.get() > smp_advconf::g_var_max_heap.get() / 8 )
+    if ( !smp_advconf::g_var_max_heap_growth.get() )
+    { // automatic
+        smp_advconf::g_var_max_heap_growth.set( std::min<uint64_t>( smp_advconf::g_var_max_heap.get() / 8, 50L * 1000 * 1000 ) );
+    }
+    else if ( smp_advconf::g_var_max_heap_growth.get() > smp_advconf::g_var_max_heap.get() / 2 )
     {
-        smp_advconf::g_var_max_heap_growth.set( smp_advconf::g_var_max_heap.get() / 8 );
+        smp_advconf::g_var_max_heap_growth.set( smp_advconf::g_var_max_heap.get() / 2 );
     }
 }
 
@@ -105,19 +112,19 @@ bool JsGc::IsTimeToGc()
 JsGc::GcLevel JsGc::GetRequiredGcLevel()
 {
     GcLevel gcLevel = GetGcLevelFromHeapSize();
-    if ( JS::IsIncrementalGCInProgress( pJsCtx_ ) 
+    if ( JS::IsIncrementalGCInProgress( pJsCtx_ )
          || gcLevel > GcLevel::None )
     {
         return std::max( GcLevel::Incremental, gcLevel );
     }
-        
+
     return GetGcLevelFromAllocCount();
 }
 
 JsGc::GcLevel JsGc::GetGcLevelFromHeapSize()
 {
     uint64_t curTotalHeapSize = GetCurrentTotalHeapSize();
-    if ( !lastTotalHeapSize_ 
+    if ( !lastTotalHeapSize_
          || lastTotalHeapSize_ > curTotalHeapSize )
     {
         lastTotalHeapSize_ = curTotalHeapSize;
@@ -144,7 +151,7 @@ JsGc::GcLevel JsGc::GetGcLevelFromHeapSize()
 JsGc::GcLevel JsGc::GetGcLevelFromAllocCount()
 {
     uint64_t curTotalAllocCount = GetCurrentTotalAllocCount();
-    if ( !lastTotalAllocCount_ 
+    if ( !lastTotalAllocCount_
          || lastTotalAllocCount_ > curTotalAllocCount )
     {
         lastTotalAllocCount_ = curTotalAllocCount;
@@ -172,10 +179,9 @@ void JsGc::UpdateGcStats()
 uint64_t JsGc::GetCurrentTotalHeapSize()
 {
     uint64_t curTotalHeapSize = JS_GetGCParameter( pJsCtx_, JSGC_BYTES );
-    JS_IterateCompartments( pJsCtx_, &curTotalHeapSize, []( JSContext*, void* data, JSCompartment* pJsCompartment )
-    {
-        auto pCurTotalHeapSize = static_cast<uint64_t*>(data);
-        auto pNativeCompartment = static_cast<JsCompartmentInner*>(JS_GetCompartmentPrivate( pJsCompartment ));
+    JS_IterateCompartments( pJsCtx_, &curTotalHeapSize, []( JSContext*, void* data, JSCompartment* pJsCompartment ) {
+        auto pCurTotalHeapSize = static_cast<uint64_t*>( data );
+        auto pNativeCompartment = static_cast<JsCompartmentInner*>( JS_GetCompartmentPrivate( pJsCompartment ) );
         if ( !pNativeCompartment )
         {
             return;
@@ -236,10 +242,9 @@ void JsGc::PerformIncrementalGc()
     if ( !JS::IsIncrementalGCInProgress( pJsCtx_ ) )
     {
         std::vector<JSCompartment*> compartments;
-        JS_IterateCompartments( pJsCtx_, &compartments, []( JSContext*, void* data, JSCompartment* pJsCompartment )
-        {
-            auto pJsCompartments = static_cast<std::vector<JSCompartment*>*>(data);
-            auto pNativeCompartment = static_cast<JsCompartmentInner*>(JS_GetCompartmentPrivate( pJsCompartment ));
+        JS_IterateCompartments( pJsCtx_, &compartments, []( JSContext*, void* data, JSCompartment* pJsCompartment ) {
+            auto pJsCompartments = static_cast<std::vector<JSCompartment*>*>( data );
+            auto pNativeCompartment = static_cast<JsCompartmentInner*>( JS_GetCompartmentPrivate( pJsCompartment ) );
             if ( !pNativeCompartment )
             {
                 return;
@@ -302,17 +307,16 @@ void JsGc::PrepareCompartmentsForGc( GcLevel gcLevel )
     {
     case mozjs::JsGc::GcLevel::Incremental:
     {
-        using TriggerData = struct  
+        using TriggerData = struct
         {
             uint32_t heapGrowthRateTrigger;
             uint32_t allocCountTrigger;
         };
         TriggerData triggers{ heapGrowthRateTrigger_, allocCountTrigger_ };
-        JS_IterateCompartments( pJsCtx_, &triggers, []( JSContext*, void* data, JSCompartment* pJsCompartment )
-        {
+        JS_IterateCompartments( pJsCtx_, &triggers, []( JSContext*, void* data, JSCompartment* pJsCompartment ) {
             TriggerData* pTriggerData = reinterpret_cast<TriggerData*>( data );
 
-            auto pNativeCompartment = static_cast<JsCompartmentInner*>(JS_GetCompartmentPrivate( pJsCompartment ));
+            auto pNativeCompartment = static_cast<JsCompartmentInner*>( JS_GetCompartmentPrivate( pJsCompartment ) );
             if ( !pNativeCompartment )
             {
                 return;
@@ -320,7 +324,7 @@ void JsGc::PrepareCompartmentsForGc( GcLevel gcLevel )
 
             bool hasHeapOvergrowth = pNativeCompartment->GetCurrentHeapBytes() > ( pNativeCompartment->GetLastHeapBytes() + pTriggerData->heapGrowthRateTrigger / 2 );
             bool hasOveralloc = pNativeCompartment->GetCurrentAllocCount() > ( pNativeCompartment->GetLastAllocCount() + pTriggerData->allocCountTrigger / 2 );
-            if ( hasHeapOvergrowth || hasOveralloc ||pNativeCompartment->IsMarkedForDeletion() )
+            if ( hasHeapOvergrowth || hasOveralloc || pNativeCompartment->IsMarkedForDeletion() )
             {
                 pNativeCompartment->OnGcStart();
             }
@@ -330,9 +334,8 @@ void JsGc::PrepareCompartmentsForGc( GcLevel gcLevel )
     case mozjs::JsGc::GcLevel::Normal:
     case mozjs::JsGc::GcLevel::Full:
     {
-        JS_IterateCompartments( pJsCtx_, nullptr, []( JSContext*, void*, JSCompartment* pJsCompartment )
-        {
-            auto pNativeCompartment = static_cast<JsCompartmentInner*>(JS_GetCompartmentPrivate( pJsCompartment ));
+        JS_IterateCompartments( pJsCtx_, nullptr, []( JSContext*, void*, JSCompartment* pJsCompartment ) {
+            auto pNativeCompartment = static_cast<JsCompartmentInner*>( JS_GetCompartmentPrivate( pJsCompartment ) );
             if ( !pNativeCompartment )
             {
                 return;
@@ -350,9 +353,8 @@ void JsGc::PrepareCompartmentsForGc( GcLevel gcLevel )
 
 void JsGc::NotifyCompartmentsOnGcEnd()
 {
-    JS_IterateCompartments( pJsCtx_, nullptr, []( JSContext*, void*, JSCompartment* pJsCompartment )
-    {
-        auto pNativeCompartment = static_cast<JsCompartmentInner*>(JS_GetCompartmentPrivate( pJsCompartment ));
+    JS_IterateCompartments( pJsCtx_, nullptr, []( JSContext*, void*, JSCompartment* pJsCompartment ) {
+        auto pNativeCompartment = static_cast<JsCompartmentInner*>( JS_GetCompartmentPrivate( pJsCompartment ) );
         if ( !pNativeCompartment )
         {
             return;
@@ -365,4 +367,4 @@ void JsGc::NotifyCompartmentsOnGcEnd()
     } );
 }
 
-}
+} // namespace mozjs

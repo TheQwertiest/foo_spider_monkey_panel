@@ -17,13 +17,12 @@ advconfig_branch_factory branch_zeal(
 #endif
 
 advconfig_integer_factory g_var_max_heap(
-    "Maximum heap size (in bytes)", g_guid_smp_adv_var_max_heap, g_guid_smp_adv_branch_gc, 0,
-    1000UL * 1000 * 1000, 128UL * 1000 * 1000, 4000UL * 1000 * 1000
+    "Maximum heap size (in bytes) (0 - auto configuration)", g_guid_smp_adv_var_max_heap, g_guid_smp_adv_branch_gc, 0,
+    0, 0, 4000UL * 1000 * 1000
 );
 advconfig_integer_factory g_var_max_heap_growth(
-    "Allowed heap growth before GC trigger (in bytes)", g_guid_smp_adv_var_max_heap_growth, g_guid_smp_adv_branch_gc, 1,
-    50UL * 1000 * 1000, 1UL * 1000 * 1000, 128UL * 1000 * 1000
-);
+    "Allowed heap growth before GC trigger (in bytes) (0 - auto configuration)", g_guid_smp_adv_var_max_heap_growth, g_guid_smp_adv_branch_gc, 1,
+    0, 0, 256UL * 1000 * 1000 );
 advconfig_integer_factory g_var_gc_budget(
     "GC cycle time budget (in ms)", g_guid_smp_adv_var_gc_budget, g_guid_smp_adv_branch_gc, 2,
     10, 1, 100
