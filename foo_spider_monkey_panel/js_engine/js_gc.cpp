@@ -9,6 +9,17 @@
 
 #include <adv_config.h>
 
+namespace
+{
+
+constexpr uint32_t kDefaultHeapMaxMb = 1000L * 1000 * 1000;
+constexpr uint32_t kDefaultHeapThresholdMb = 50L * 1000 * 1000;
+constexpr uint32_t kHighFreqTimeLimitMs = 1000;
+constexpr uint32_t kHighFreqBudgetMultiplier = 2;
+constexpr uint32_t kHighFreqHeapGrowthMultiplier = 2;
+
+} // namespace
+
 namespace mozjs
 {
 
@@ -80,8 +91,8 @@ void JsGc::UpdateGcConfig()
     error::CheckWinApi( !!bRet, "GlobalMemoryStatusEx" );
 
     if ( !smp_advconf::g_var_max_heap.get() )
-    {// automatic
-        smp_advconf::g_var_max_heap.set( std::min<uint64_t>( statex.ullTotalPhys / 4, 1000L * 1000 * 1000 ) );
+    { // detect
+        smp_advconf::g_var_max_heap.set( std::min<uint64_t>( statex.ullTotalPhys / 4, kDefaultHeapMaxMb ) );
     }
     else if ( smp_advconf::g_var_max_heap.get() > statex.ullTotalPhys )
     {
@@ -89,8 +100,8 @@ void JsGc::UpdateGcConfig()
     }
 
     if ( !smp_advconf::g_var_max_heap_growth.get() )
-    { // automatic
-        smp_advconf::g_var_max_heap_growth.set( std::min<uint64_t>( smp_advconf::g_var_max_heap.get() / 8, 50L * 1000 * 1000 ) );
+    { // detect
+        smp_advconf::g_var_max_heap_growth.set( std::min<uint64_t>( smp_advconf::g_var_max_heap.get() / 8, kDefaultHeapThresholdMb ) );
     }
     else if ( smp_advconf::g_var_max_heap_growth.get() > smp_advconf::g_var_max_heap.get() / 2 )
     {
@@ -100,10 +111,13 @@ void JsGc::UpdateGcConfig()
 
 bool JsGc::IsTimeToGc()
 {
-    if ( timeGetTime() - lastGcCheckTime_ < gcCheckDelay_ )
+    auto timeDiff = timeGetTime() - lastGcCheckTime_;
+    if ( timeDiff < gcCheckDelay_ )
     {
         return false;
     }
+
+    isHighFrequency_ = timeDiff > kHighFreqTimeLimitMs;
 
     lastGcCheckTime_ = timeGetTime();
     return true;
@@ -130,7 +144,8 @@ JsGc::GcLevel JsGc::GetGcLevelFromHeapSize()
         lastTotalHeapSize_ = curTotalHeapSize;
     }
 
-    if ( curTotalHeapSize <= lastTotalHeapSize_ + heapGrowthRateTrigger_ )
+    const uint32_t maxHeapGrowthRate = ( isHighFrequency_ ? kHighFreqHeapGrowthMultiplier * heapGrowthRateTrigger_ : heapGrowthRateTrigger_ );
+    if ( curTotalHeapSize <= lastTotalHeapSize_ + maxHeapGrowthRate )
     {
         return GcLevel::None;
     }
@@ -239,6 +254,8 @@ void JsGc::PerformGc( GcLevel gcLevel )
 
 void JsGc::PerformIncrementalGc()
 {
+    const uint32_t sliceBudget = ( isHighFrequency_ ? kHighFreqBudgetMultiplier * gcSliceTimeBudget_ : gcSliceTimeBudget_ );
+
     if ( !JS::IsIncrementalGCInProgress( pJsCtx_ ) )
     {
         std::vector<JSCompartment*> compartments;
@@ -267,12 +284,12 @@ void JsGc::PerformIncrementalGc()
             JS::PrepareForFullGC( pJsCtx_ );
         }
 
-        JS::StartIncrementalGC( pJsCtx_, GC_NORMAL, JS::gcreason::RESERVED1, gcSliceTimeBudget_ );
+        JS::StartIncrementalGC( pJsCtx_, GC_NORMAL, JS::gcreason::RESERVED1, sliceBudget );
     }
     else
     {
         JS::PrepareForIncrementalGC( pJsCtx_ );
-        JS::IncrementalGCSlice( pJsCtx_, JS::gcreason::RESERVED2, gcSliceTimeBudget_ );
+        JS::IncrementalGCSlice( pJsCtx_, JS::gcreason::RESERVED2, sliceBudget );
     }
 }
 
@@ -307,14 +324,16 @@ void JsGc::PrepareCompartmentsForGc( GcLevel gcLevel )
     {
     case mozjs::JsGc::GcLevel::Incremental:
     {
-        using TriggerData = struct
+        struct TriggerData
         {
             uint32_t heapGrowthRateTrigger;
             uint32_t allocCountTrigger;
         };
-        TriggerData triggers{ heapGrowthRateTrigger_, allocCountTrigger_ };
+        const uint32_t maxHeapGrowthRate = ( isHighFrequency_ ? kHighFreqHeapGrowthMultiplier * heapGrowthRateTrigger_ : heapGrowthRateTrigger_ );
+        TriggerData triggers{ maxHeapGrowthRate, allocCountTrigger_ };
+
         JS_IterateCompartments( pJsCtx_, &triggers, []( JSContext*, void* data, JSCompartment* pJsCompartment ) {
-            TriggerData* pTriggerData = reinterpret_cast<TriggerData*>( data );
+            const TriggerData& pTriggerData = *reinterpret_cast<const TriggerData*>( data );
 
             auto pNativeCompartment = static_cast<JsCompartmentInner*>( JS_GetCompartmentPrivate( pJsCompartment ) );
             if ( !pNativeCompartment )
@@ -322,8 +341,8 @@ void JsGc::PrepareCompartmentsForGc( GcLevel gcLevel )
                 return;
             }
 
-            bool hasHeapOvergrowth = pNativeCompartment->GetCurrentHeapBytes() > ( pNativeCompartment->GetLastHeapBytes() + pTriggerData->heapGrowthRateTrigger / 2 );
-            bool hasOveralloc = pNativeCompartment->GetCurrentAllocCount() > ( pNativeCompartment->GetLastAllocCount() + pTriggerData->allocCountTrigger / 2 );
+            bool hasHeapOvergrowth = pNativeCompartment->GetCurrentHeapBytes() > ( pNativeCompartment->GetLastHeapBytes() + pTriggerData.heapGrowthRateTrigger / 2 );
+            bool hasOveralloc = pNativeCompartment->GetCurrentAllocCount() > ( pNativeCompartment->GetLastAllocCount() + pTriggerData.allocCountTrigger / 2 );
             if ( hasHeapOvergrowth || hasOveralloc || pNativeCompartment->IsMarkedForDeletion() )
             {
                 pNativeCompartment->OnGcStart();

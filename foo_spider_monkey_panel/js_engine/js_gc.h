@@ -50,7 +50,8 @@ private:
 
 private:
     JSContext * pJsCtx_ = nullptr;
-    
+
+    bool isHighFrequency_ = false;
     uint32_t lastGcCheckTime_ = 0;
     uint64_t lastTotalHeapSize_ = 0;
     uint64_t lastTotalAllocCount_ = 0;
@@ -59,7 +60,7 @@ private:
     // Remain here mostly as a reference.
     uint32_t maxHeapSize_ = 1024UL * 1024 * 1024;
     uint32_t heapGrowthRateTrigger_ = 50UL * 1024 * 1024;
-    uint32_t gcSliceTimeBudget_ = 30;
+    uint32_t gcSliceTimeBudget_ = 10;
     uint32_t gcCheckDelay_ = 50;
     uint32_t allocCountTrigger_ = 50;
 };

@@ -18,9 +18,14 @@
 
 namespace
 {
-const uint32_t kHeartbeatRate = 73;  ///< In ms
-const uint32_t kJobsMaxBudget = 500; ///< In ms
 
+constexpr uint32_t kHeartbeatRateMs = 73;
+constexpr uint32_t kJobsMaxBudgetMs = 500;
+
+} // namespace
+
+namespace
+{
 void ReportException( const pfc::string8_fast& errorText )
 {
     const pfc::string8_fast errorTextPadded = [&errorText]() {
@@ -175,7 +180,7 @@ void JsEngine::StartHeartbeatThread()
         while ( !parent->shouldStopHeartbeatThread_ )
         {
             std::this_thread::sleep_for(
-                std::chrono::milliseconds( kHeartbeatRate ) );
+                std::chrono::milliseconds( kHeartbeatRateMs ) );
 
             PostMessage( parent->heartbeatWindow_->GetHwnd(), UWM_HEARTBEAT, 0, 0 );
         }
@@ -228,7 +233,7 @@ void JsEngine::MaybeRunJobs()
 {
     if ( areJobsInProgress_ )
     {
-        if ( timeGetTime() - jobsStartTime_ >= kJobsMaxBudget )
+        if ( timeGetTime() - jobsStartTime_ >= kJobsMaxBudgetMs )
         {
             js::StopDrainingJobQueue( pJsCtx_ );
         }
