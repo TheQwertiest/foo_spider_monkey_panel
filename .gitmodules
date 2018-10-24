@@ -6,7 +6,7 @@
 	url = https://github.com/reupen/columns_ui-sdk.git
 [submodule "submodules/foobar2000"]
 	path = submodules/foobar2000
-	url = https://github.com/reupen/foobar2000-sdk.git
+	url = https://github.com/TheQwertiest/foobar2000-sdk.git
 [submodule "submodules/smp_2003"]
 	path = submodules/smp_2003
 	url = https://github.com/marc2k3/smp_2003.git
@@ -15,7 +15,7 @@
 	url = https://github.com/mirror/scintilla.git
 [submodule "submodules/pfc"]
 	path = submodules/pfc
-	url = https://github.com/reupen/pfc.git
+	url = https://github.com/TheQwertiest/pfc.git
 [submodule "submodules/mozjs"]
 	path = submodules/mozjs
 	url = https://bitbucket.org/TheQwertiest/mozjs.git
