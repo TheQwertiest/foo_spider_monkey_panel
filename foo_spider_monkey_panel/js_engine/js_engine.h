@@ -49,6 +49,7 @@ private:
 
 private:
     void MaybeRunJobs();
+    void ReportOomError();    
 
 private:
     JSContext* pJsCtx_ = nullptr;
@@ -58,6 +59,7 @@ private:
 
     std::map<void*, std::reference_wrapper<JsContainer>> registeredContainers_;
 
+    bool isBeating_ = false;
     std::unique_ptr<smp::HeartbeatWindow> heartbeatWindow_;
     std::thread heartbeatThread_;
     std::atomic_bool shouldStopHeartbeatThread_ = false;

@@ -150,7 +150,6 @@ JSObject* JsGlobalObject::CreateNative( JSContext* cx, JsContainer &parentContai
         
         auto pNative = std::unique_ptr<JsGlobalObject>( new JsGlobalObject( cx, parentContainer ) );
         pNative->heapManager_ = GlobalHeapManager::Create( cx );
-        assert( pNative->heapManager_ );
 
         JS_SetPrivate( jsObj, pNative.release() );
 

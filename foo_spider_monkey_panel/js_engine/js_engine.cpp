@@ -3,8 +3,10 @@
 
 #include <js_engine/js_container.h>
 #include <js_engine/js_compartment_inner.h>
+#include <js_objects/global_object.h>
 #include <js_utils/js_error_helper.h>
 #include <js_utils/scope_helper.h>
+#include <utils/string_helpers.h>
 
 #include <js_panel_window.h>
 #include <adv_config.h>
@@ -14,13 +16,12 @@
 
 #include <js/Initialization.h>
 
-
 namespace
 {
-const uint32_t kHeartbeatRate = 73; ///< In ms
+const uint32_t kHeartbeatRate = 73;  ///< In ms
 const uint32_t kJobsMaxBudget = 500; ///< In ms
 
-void ReportException(const pfc::string8_fast& errorText)
+void ReportException( const pfc::string8_fast& errorText )
 {
     const pfc::string8_fast errorTextPadded = [&errorText]() {
         pfc::string8_fast text = "Critical JS engine error: " SMP_NAME_WITH_VERSION;
@@ -38,7 +39,7 @@ void ReportException(const pfc::string8_fast& errorText)
     MessageBeep( MB_ICONASTERISK );
 }
 
-}
+} // namespace
 
 namespace mozjs
 {
@@ -49,7 +50,7 @@ JsEngine::JsEngine()
 }
 
 JsEngine::~JsEngine()
-{// Can't clean up here, since mozjs.dll might be already unloaded
+{ // Can't clean up here, since mozjs.dll might be already unloaded
     assert( !isInitialized_ );
 }
 
@@ -97,7 +98,7 @@ bool JsEngine::Initialize()
         StartHeartbeatThread();
     }
     catch ( const smp::JsException& )
-    {       
+    {
         assert( JS_IsExceptionPending( autoJsCtx.get() ) );
 
         auto errorText = error::GetFullTextFromCurrentJsError( autoJsCtx.get() );
@@ -123,7 +124,7 @@ void JsEngine::Finalize()
     {
         StopHeartbeatThread();
 
-        for ( auto&[hWnd, jsContainer] : registeredContainers_ )
+        for ( auto& [hWnd, jsContainer] : registeredContainers_ )
         {
             jsContainer.get().Finalize();
         }
@@ -142,25 +143,23 @@ void JsEngine::Finalize()
 
 void JsEngine::OnHeartbeat()
 {
-    if ( !isInitialized_ )
+    if ( !isInitialized_ || isBeating_ )
     {
         return;
     }
 
-    JSAutoRequest ar( pJsCtx_ );
+    isBeating_ = true;
 
-    MaybeRunJobs();
-
-    if ( !jsGc_.MaybeGc() )
-    {// OOM
-        for ( auto& [hWnd, jsContainer] : registeredContainers_ )
-        {
-            if ( mozjs::JsContainer::JsStatus::Working == jsContainer.get().GetStatus() )
-            {
-                jsContainer.get().Fail( "Out of memory" );
-            }
+    {
+        JSAutoRequest ar( pJsCtx_ );
+        MaybeRunJobs();
+        if ( !jsGc_.MaybeGc() )
+        { // OOM
+            ReportOomError();
         }
     }
+
+    isBeating_ = false;
 }
 
 void JsEngine::StartHeartbeatThread()
@@ -176,12 +175,11 @@ void JsEngine::StartHeartbeatThread()
         while ( !parent->shouldStopHeartbeatThread_ )
         {
             std::this_thread::sleep_for(
-                std::chrono::milliseconds( kHeartbeatRate ) 
-            );
+                std::chrono::milliseconds( kHeartbeatRate ) );
 
             PostMessage( parent->heartbeatWindow_->GetHwnd(), UWM_HEARTBEAT, 0, 0 );
         }
-    } );      
+    } );
 }
 
 void JsEngine::StopHeartbeatThread()
@@ -238,9 +236,77 @@ void JsEngine::MaybeRunJobs()
     }
 
     jobsStartTime_ = timeGetTime();
-    areJobsInProgress_ = true; 
+    areJobsInProgress_ = true;
     js::RunJobs( pJsCtx_ );
-    areJobsInProgress_ = false; 
+    areJobsInProgress_ = false;
 }
 
+void JsEngine::ReportOomError()
+{
+    // A dirty way to link compartment with the corresponding container:
+    // we can't GC in JS_IterateCompartments, so we are saving pointers to
+    // native globals instead and comparing it against the one from container.
+
+    struct OomData
+    {
+        OomData( void* pGlobal, uint32_t memory )
+            : pGlobal( pGlobal )
+            , memory( memory )
+        {
+        }
+        void* pGlobal;
+        uint32_t memory;
+    };
+
+    std::vector<OomData> oomData;
+    oomData.reserve( registeredContainers_.size() );
+
+    JS_IterateCompartments( pJsCtx_, &oomData, []( JSContext* cx, void* data, JSCompartment* pJsCompartment ) {
+        std::vector<OomData>& oomData = *reinterpret_cast<std::vector<OomData>*>( data );
+
+        auto pNativeCompartment = static_cast<JsCompartmentInner*>( JS_GetCompartmentPrivate( pJsCompartment ) );
+        if ( !pNativeCompartment )
+        {
+            return;
+        }
+
+        JS::RootedObject jsGlobal( cx, JS_GetGlobalForCompartmentOrNull( cx, pJsCompartment ) );
+        if ( !jsGlobal )
+        {
+            return;
+        }
+
+        auto pNativeGlobal = static_cast<JsGlobalObject*>( JS_GetPrivate( jsGlobal ) );
+        if ( !pNativeGlobal )
+        {
+            return;
+        }
+
+        oomData.emplace_back( pNativeGlobal, pNativeCompartment->GetCurrentHeapBytes() );
+    } );
+
+    for ( auto& [hWnd, jsContainer] : registeredContainers_ )
+    {
+        if ( mozjs::JsContainer::JsStatus::Working != jsContainer.get().GetStatus() )
+        {
+            continue;
+        }
+
+        auto it = std::find_if(
+            oomData.cbegin(),
+            oomData.cend(),
+            [pNativeGlobal = jsContainer.get().pNativeGlobal_]( const auto& oomDataElem ) {
+                return oomDataElem.pGlobal == pNativeGlobal;
+            } );
+
+        std::string errorMsg = "Out of memory";
+        if ( oomData.cend() != it )
+        {
+            errorMsg += smp::string::Formatter() << ": " << it->memory << "/" << jsGc_.GetMaxHeap() << " bytes";
+        }
+
+        jsContainer.get().Fail( errorMsg.c_str() );
+    }
 }
+
+} // namespace mozjs
