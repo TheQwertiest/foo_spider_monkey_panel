@@ -25,7 +25,7 @@ advconfig_integer_factory g_var_max_heap_growth(
     0, 0, 256UL * 1000 * 1000 );
 advconfig_integer_factory g_var_gc_budget(
     "GC cycle time budget (in ms)", g_guid_smp_adv_var_gc_budget, g_guid_smp_adv_branch_gc, 2,
-    10, 1, 100
+    5, 1, 100
 );
 advconfig_integer_factory g_var_gc_delay(
     "Delay before next GC trigger (in ms)", g_guid_smp_adv_var_gc_delay, g_guid_smp_adv_branch_gc, 3,
