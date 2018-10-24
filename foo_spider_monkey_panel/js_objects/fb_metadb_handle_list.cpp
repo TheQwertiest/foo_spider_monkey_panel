@@ -59,6 +59,7 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( CalcTotalSize, JsFbMetadbHandleList::CalcTotalSize
 MJS_DEFINE_JS_FN_FROM_NATIVE( Clone, JsFbMetadbHandleList::Clone );
 MJS_DEFINE_JS_FN_FROM_NATIVE( Convert, JsFbMetadbHandleList::Convert );
 MJS_DEFINE_JS_FN_FROM_NATIVE( RemoveAttachedImage, JsFbMetadbHandleList::RemoveAttachedImage );
+MJS_DEFINE_JS_FN_FROM_NATIVE( RemoveAttachedImages, JsFbMetadbHandleList::RemoveAttachedImages );
 MJS_DEFINE_JS_FN_FROM_NATIVE( Find, JsFbMetadbHandleList::Find );
 MJS_DEFINE_JS_FN_FROM_NATIVE( GetLibraryRelativePaths, JsFbMetadbHandleList::GetLibraryRelativePaths );
 MJS_DEFINE_JS_FN_FROM_NATIVE( Insert, JsFbMetadbHandleList::Insert );
@@ -100,6 +101,7 @@ const JSFunctionSpec jsFunctions[] = {
     JS_FN( "Remove", Remove, 1, DefaultPropsFlags() ),
     JS_FN( "RemoveAll", RemoveAll, 0, DefaultPropsFlags() ),
     JS_FN( "RemoveAttachedImage", RemoveAttachedImage, 1, DefaultPropsFlags() ),
+    JS_FN( "RemoveAttachedImages", RemoveAttachedImages, 0, DefaultPropsFlags() ),
     JS_FN( "RemoveById", RemoveById, 1, DefaultPropsFlags() ),
     JS_FN( "RemoveRange", RemoveRange, 2, DefaultPropsFlags() ),
     JS_FN( "Sort", Sort, 0, DefaultPropsFlags() ),
@@ -284,7 +286,7 @@ void JsFbMetadbHandleList::AttachImage( const pfc::string8_fast& image_path, uin
         }
         if ( file.is_valid() )
         {
-            service_ptr_t<album_art_data_impl> tmp = new service_impl_t<album_art_data_impl>;
+            service_ptr_t<album_art_data_impl> tmp = fb2k::service_new<album_art_data_impl>();
             tmp->from_stream( file.get_ptr(), t_size( file->get_size_ex( abort ) ), abort );
             data = tmp;
         }
@@ -296,7 +298,7 @@ void JsFbMetadbHandleList::AttachImage( const pfc::string8_fast& image_path, uin
 
     if ( data.is_valid() )
     {
-        threaded_process_callback::ptr cb( new service_impl_t<art::embed_thread>( 0, data, metadbHandleList_, what ) );
+        auto cb( fb2k::service_new<art::embed_thread>( 0, data, metadbHandleList_, what ) );
         threaded_process::get()->run_modeless( cb,
                                                threaded_process::flag_show_progress | threaded_process::flag_show_delayed | threaded_process::flag_show_item,
                                                core_api::get_main_window(),
@@ -520,10 +522,25 @@ void JsFbMetadbHandleList::RemoveAttachedImage( uint32_t art_id )
 
     const GUID& what = art::GetGuidForArtId( art_id );
 
-    threaded_process_callback::ptr cb = new service_impl_t<art::embed_thread>( 1, album_art_data_ptr(), metadbHandleList_, what );
+    auto cb = fb2k::service_new<art::embed_thread>( 1, album_art_data_ptr(), metadbHandleList_, what );
     threaded_process::get()->run_modeless( cb,
                                            threaded_process::flag_show_progress | threaded_process::flag_show_delayed | threaded_process::flag_show_item,
                                            core_api::get_main_window(),
+                                           "Removing images..." );
+}
+
+void JsFbMetadbHandleList::RemoveAttachedImages()
+{
+    t_size count = metadbHandleList_.get_count();
+    if ( !count )
+    { // Nothing to do here
+        return;
+    }
+
+    auto cb = fb2k::service_new<art::embed_thread>( 2, album_art_data_ptr(), metadbHandleList_, pfc::guid_null );
+    threaded_process::get()->run_modeless( cb, 
+                                           threaded_process::flag_show_progress | threaded_process::flag_show_delayed | threaded_process::flag_show_item, 
+                                           core_api::get_main_window(), 
                                            "Removing images..." );
 }
 

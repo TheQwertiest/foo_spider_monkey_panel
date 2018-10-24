@@ -13,6 +13,8 @@ ___
 ### Added
 - Added HTML documentation.
 - Improved error reports of component startup failures.
+- Ported JScript Panel changes:
+   - Added `FbMetadbHandleList.RemoveAttachImages` method.
 
 ### Fixed
 - Fixed crash when `on_main_menu` callback was invoked.
@@ -24,6 +26,7 @@ ___
 
 ### Changed
 - Improved `include` performance by 2x.
+- Tweaked GC for better UX during high load.
 - Rewrote `plman.PlaylistRecyclerManager`, since it was broken:
    - Replaced `Name` property with `GetName` method.
    - Replaced `Content` property with `GetContent` method.

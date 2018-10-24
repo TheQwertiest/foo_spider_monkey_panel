@@ -71,7 +71,7 @@ void AlbumArtFetchTask::run()
             }
         }
         catch ( const smp::SmpException& )
-        {// The only possible exception is invalid art_id, which should be checked beforehand
+        { // The only possible exception is invalid art_id, which should be checked beforehand
             assert( 0 );
         }
     }
@@ -80,7 +80,7 @@ void AlbumArtFetchTask::run()
     taskResult.handle = handle_;
     taskResult.artId = artId_;
     taskResult.bitmap.swap( bitmap );
-    taskResult.imagePath = imagePath.is_empty() ? "" : file_path_display( imagePath.c_str() );
+    taskResult.imagePath = imagePath.is_empty() ? "" : file_path_display( imagePath );
     SendMessage( hNotifyWnd_, CALLBACK_UWM_ON_GET_ALBUM_ART_DONE, 0, (LPARAM)&taskResult );
 }
 
@@ -138,14 +138,14 @@ std::unique_ptr<Gdiplus::Bitmap> ExtractBitmap( album_art_extractor_instance_v2:
         auto pathlist = extractor->query_paths( artTypeGuid, abort );
         if ( pathlist->get_count() > 0 )
         {
-            *pImagePath = pathlist->get_path( 0 );
+            *pImagePath = file_path_display( pathlist->get_path( 0 ) );
         }
     }
 
     return bitmap;
 }
 
-}
+} // namespace
 
 namespace mozjs::art
 {
@@ -158,20 +158,23 @@ embed_thread::embed_thread( t_size action,
     , m_data( data )
     , m_handles( handles )
     , m_what( what )
-{}
+{
+}
 
 void embed_thread::run( threaded_process_status& p_status,
                         abort_callback& p_abort )
 {
-    t_size count = m_handles.get_count();
-    for ( t_size i = 0; i < count; ++i )
+    auto api = file_lock_manager::get();
+    for ( t_size i = 0, count = m_handles.get_count(); i < count; ++i )
     {
         const pfc::string8_fast path = m_handles.get_item( i )->get_path();
         p_status.set_progress( i, count );
         p_status.set_item_path( path );
+
         album_art_editor::ptr ptr;
         if ( album_art_editor::g_get_interface( ptr, path ) )
         {
+            file_lock_ptr lock = api->acquire_write(path, p_abort);
             try
             {
                 auto aaep = ptr->open( NULL, path, p_abort );
@@ -183,11 +186,28 @@ void embed_thread::run( threaded_process_status& p_status,
                 {
                     aaep->remove( m_what );
                 }
+                else if ( m_action == 2 )
+                {
+                    album_art_editor_instance_v2::ptr v2;
+                    if ( aaep->cast( v2 ) )
+                    { // not all file formats support this
+                        v2->remove_all();
+                    }
+                    else
+                    { // m4a is one example that needs this fallback
+                        aaep->remove( album_art_ids::artist );
+                        aaep->remove( album_art_ids::cover_back );
+                        aaep->remove( album_art_ids::cover_front );
+                        aaep->remove( album_art_ids::disc );
+                        aaep->remove( album_art_ids::icon );
+                    }
+                }
                 aaep->commit( p_abort );
             }
             catch ( ... )
             {
             }
+            lock.release();
         }
     }
 }
@@ -195,13 +215,13 @@ void embed_thread::run( threaded_process_status& p_status,
 const GUID& GetGuidForArtId( uint32_t art_id )
 {
     const GUID* guids[] =
-    {
-        &album_art_ids::cover_front,
-        &album_art_ids::cover_back,
-        &album_art_ids::disc,
-        &album_art_ids::icon,
-        &album_art_ids::artist,
-    };
+        {
+            &album_art_ids::cover_front,
+            &album_art_ids::cover_back,
+            &album_art_ids::disc,
+            &album_art_ids::icon,
+            &album_art_ids::artist,
+        };
 
     if ( art_id >= _countof( guids ) )
     {
@@ -232,13 +252,13 @@ std::unique_ptr<Gdiplus::Bitmap> GetBitmapFromEmbeddedData( const pfc::string8_f
             auto aaep = extractor->open( nullptr, rawpath.c_str(), abort );
             auto data = aaep->query( artTypeGuid, abort );
 
-            return GetBitmapFromAlbumArtData( data );            
+            return GetBitmapFromAlbumArtData( data );
         }
         catch ( ... )
         {
         }
     }
-    
+
     return nullptr;
 }
 
@@ -276,7 +296,7 @@ std::unique_ptr<Gdiplus::Bitmap> GetBitmapFromMetadb( const metadb_handle_ptr& h
         }
     }
 
-    return nullptr;    
+    return nullptr;
 }
 
 uint32_t GetAlbumArtAsync( HWND hWnd, const metadb_handle_ptr& handle, uint32_t art_id, bool need_stub, bool only_embed, bool no_load )
@@ -287,10 +307,9 @@ uint32_t GetAlbumArtAsync( HWND hWnd, const metadb_handle_ptr& handle, uint32_t 
     {
         (void)GetGuidForArtId( art_id ); ///< Check that art id is valid, since we don't want to throw in helper thread
         auto pTask = std::make_unique<AlbumArtFetchTask>( hWnd, handle, art_id, need_stub, only_embed, no_load );
-        uint32_t taskId = [&]()
-        {
-            uint64_t tmp = static_cast<uint64_t>(reinterpret_cast<uintptr_t>(pTask.get()));
-            return static_cast<uint32_t>((tmp & 0xFFFFFFFF) ^ (tmp >> 32));
+        uint32_t taskId = [&]() {
+            uint64_t tmp = static_cast<uint64_t>( reinterpret_cast<uintptr_t>( pTask.get() ) );
+            return static_cast<uint32_t>( ( tmp & 0xFFFFFFFF ) ^ ( tmp >> 32 ) );
         }();
 
         if ( simple_thread_pool::instance().enqueue( std::move( pTask ) ) )
@@ -309,4 +328,4 @@ uint32_t GetAlbumArtAsync( HWND hWnd, const metadb_handle_ptr& handle, uint32_t 
     return 0;
 }
 
-}
+} // namespace mozjs::art

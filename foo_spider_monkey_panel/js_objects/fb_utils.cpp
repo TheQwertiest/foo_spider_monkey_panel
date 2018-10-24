@@ -478,7 +478,7 @@ JSObject* JsFbUtils::GetQueryItems( JsFbMetadbHandleList* handles, const pfc::st
     try
     {
         filter = search_filter_manager_v2::get()->create_ex( query.c_str(),
-                                                             new service_impl_t<completion_notify_dummy>(),
+                                                             fb2k::service_new<completion_notify_dummy>(),
                                                              search_filter_manager_v2::KFlagSuppressNotify );
     }
     catch ( ... )
@@ -828,8 +828,7 @@ double JsFbUtils::get_PlaybackTime()
 
 pfc::string8_fast JsFbUtils::get_ProfilePath()
 {
-    pfc::string8_fast tmp( helpers::get_profile_path() );
-    return pfc::string8_fast( tmp.c_str(), tmp.length() );
+    return helpers::get_profile_path();
 }
 
 uint32_t JsFbUtils::get_ReplaygainMode()

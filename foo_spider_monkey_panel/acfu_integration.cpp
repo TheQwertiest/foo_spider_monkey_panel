@@ -70,7 +70,7 @@ public:
     }
     virtual ::acfu::request::ptr create_request()
     {
-        return new service_impl_t<smp::acfu::github_latest_release<SmpSource>>();
+        return fb2k::service_new<smp::acfu::github_latest_release<SmpSource>>();
     }
     static const char* get_owner()
     {

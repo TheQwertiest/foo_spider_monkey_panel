@@ -1930,11 +1930,7 @@ function FbMetadbHandleList() {
     this.AddRange = function (handle_list) {}; // (void)
 
     /**
-     * Note you cannot perform embedded art operations on the currently playing track - it will silently fail.<br>
-     * This is a limitation of the foobar2000 SDK. You may consider detecting if your handle list
-     * contains the playing track and stopping playback, performing this action and then restarting
-     * playback.<br>
-     * Any other errors such as invalid path, corrupt image, target file type not supporting
+     * Errors such as invalid path, corrupt image, target file type not supporting
      * embedded art, etc should all silently fail. A progress dialog will be shown for larger file
      * selections.<br>
      * Any existing artwork of the specified type will be overwritten - there is no need to remove it first.
@@ -2130,11 +2126,18 @@ function FbMetadbHandleList() {
     this.RemoveAll = function () {}; // (void)
 
     /**
-     * See {@link FbMetadbHandleList#AttachImage()} for more info as there are some limitations.
+     * Note: a progress dialog will be shown for larger file selections.
      *
      * @param {number=} [art_id=0] See Flags.js > AlbumArtId
      */
-    this.RemoveAttachedImage = function (art_id) {}; // (void)
+    this.RemoveAttachedImage = function (art_id) { }; // (void)
+
+    /**
+     * Removes all attached images.
+     * 
+     * Note: a progress dialog will be shown for larger file selections.
+     */
+    this.RemoveAttachedImages = function () { }; // (void)
 
     /**
      * @param {number} idx

@@ -14,10 +14,10 @@ public:
                   album_art_data_ptr data,
                   metadb_handle_list_cref handles,
                   GUID what );
-    void run( threaded_process_status& p_status, abort_callback& p_abort );
+    void run( threaded_process_status& p_status, abort_callback& p_abort ) override;
 
 private:
-    t_size m_action; // 0 embed, 1 remove
+    t_size m_action; // 0 embed, 1 remove, 2 remove all
     album_art_data_ptr m_data;
     metadb_handle_list m_handles;
     GUID m_what;

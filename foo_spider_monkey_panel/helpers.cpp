@@ -447,37 +447,33 @@ namespace helpers
 		return currentAlphaNum == 0 || iswalnum(next) == 0;
 	}
 
-	pfc::string8_fast get_fb2k_component_path()
-	{
-		pfc::string8_fast path;
+    pfc::string8_fast get_fb2k_component_path()
+    {
+        pfc::string8_fast path;
+        uGetModuleFileName( core_api::get_my_instance(), path );
+        path = pfc::string_directory( path );
+        path.fix_dir_separator( '\\' );
 
-		uGetModuleFileName(core_api::get_my_instance(), path);
-		path = pfc::string_directory(path);
-		path.add_char('\\');
+        return path;
+    }
 
-		return path;
-	}
+    pfc::string8_fast get_fb2k_path()
+    {
+        pfc::string8_fast path;
+        uGetModuleFileName( nullptr, path );
+        path = pfc::string_directory( path );
+        path.fix_dir_separator( '\\' );
 
-	pfc::string8_fast get_fb2k_path()
-	{
-		pfc::string8_fast path;
+        return path;
+    }
 
-		uGetModuleFileName( nullptr, path);
-		path = pfc::string_directory(path);
-		path.add_char('\\');
+    pfc::string8_fast get_profile_path()
+    {
+        pfc::string8_fast path = file_path_display( core_api::get_profile_path() );
+        path.fix_dir_separator( '\\' );
 
-		return path;
-	}
-
-	pfc::string8_fast get_profile_path()
-	{
-		pfc::string8_fast path;
-
-		path = file_path_display(core_api::get_profile_path());
-		path.fix_dir_separator('\\');
-
-		return path;
-	}
+        return path;
+    }
 
 	t_size detect_charset(const char* fileName)
 	{

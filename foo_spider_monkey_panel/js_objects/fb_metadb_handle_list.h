@@ -83,6 +83,7 @@ public: // methods
     void Remove( JsFbMetadbHandle* handle );
     void RemoveAll();
     void RemoveAttachedImage( uint32_t art_id );
+    void RemoveAttachedImages();
     void RemoveById( uint32_t index );
     void RemoveRange( uint32_t from, uint32_t count );
     void Sort();

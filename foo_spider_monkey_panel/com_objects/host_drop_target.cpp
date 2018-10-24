@@ -94,7 +94,7 @@ HRESULT HostDropTarget::OnDrop( IDataObject* pDataObj, DWORD grfKeyState, POINTL
     {
         droppedData.to_handles_async_ex( playlist_incoming_item_filter_v2::op_flag_delay_ui,
                                          core_api::get_main_window(),
-                                         new service_impl_t<helpers::js_process_locations>( actionParams_.playlistIdx, actionParams_.base, actionParams_.toSelect ) );
+                                         fb2k::service_new<helpers::js_process_locations>( actionParams_.playlistIdx, actionParams_.base, actionParams_.toSelect ) );
     }
 
     *pdwEffect = actionParams_.effect;
