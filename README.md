@@ -32,7 +32,7 @@ The main difference from the excellent `JScript Panel` component by [marc2003](h
 - `foo_spider_monkey_panel` uses open-source `SpiderMonkey` engine from Mozilla Firefox, which is being actively developed and improved every day!
 
 Main features of `Mozilla SpiderMonkey` engine:
-- ECMAScript 2017 conformant JavaScript.
+- ECMAScript 2018 conformant JavaScript.
 - Potential support of ECMAScript Next once it has been released.
 - Blazing-fast performance!
 - Easily customizable: allows to implement lot of features that couldn't be implemented before.
