@@ -1,8 +1,8 @@
 # Spider Monkey Panel 
 
 All SMP panels are defined with JavaScript, which is:
-- Implemented via Mozilla SpiderMonkey engine.
-- Conformant with ECMAScript 2017 (with the exception of modules).
+- Implemented via Mozilla SpiderMonkey engine (ESR60).
+- Conformant with ECMAScript 2018 (with the exception of modules and some RegExp features).
 - Has built-in ActiveX support (so `Microsoft.XMLHTTP` can be used for network access).
 - Has various extensions for managing foobar2000 and interacting with WinAPI.
 - Has no built-in web browser-specific objects: e.g. XMLHttpRequest, Web Workers API and etc.
