@@ -117,7 +117,7 @@ bool JsGc::IsTimeToGc()
         return false;
     }
 
-    isHighFrequency_ = timeDiff > kHighFreqTimeLimitMs;
+    isHighFrequency_ = timeDiff < kHighFreqTimeLimitMs;
 
     lastGcCheckTime_ = timeGetTime();
     return true;
