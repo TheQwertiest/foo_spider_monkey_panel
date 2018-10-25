@@ -298,7 +298,7 @@ void HostTimer::stop()
 
 VOID CALLBACK HostTimer::timerProc( PVOID lpParameter, BOOLEAN /*TimerOrWaitFired*/ )
 {
-    HostTimer* timer = (HostTimer*)lpParameter;
+    HostTimer* timer = reinterpret_cast<HostTimer*>( lpParameter );
 
     if ( timer->m_isStopped )
     {

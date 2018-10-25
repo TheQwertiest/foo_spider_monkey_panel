@@ -32,10 +32,10 @@ namespace smp::utils::kmeans
 {
 
 Point::Point( uint32_t id_point, const std::vector<uint32_t>& values, uint32_t pixel_count )
+    : id_point( id_point )
+    , pixel_count( pixel_count )
+    , values( values )
 {
-    this->id_point = id_point;
-    this->pixel_count = pixel_count;
-    this->values = values; 
 }
 
 uint32_t Point::getID() const
@@ -163,10 +163,9 @@ std::vector<Cluster> KMeans::run( std::vector<Point> & points )
     std::vector<uint32_t> prohibited_indexes;
 
     // choose K distinct values for the centers of the clusters
-    uint32_t index_point = 0;
     for ( uint32_t i = 0; i < K; ++i )
     {
-        index_point = static_cast<uint32_t>(i * total_points / K); // colours are already distinct so we can't have duplicate centers
+        uint32_t index_point = static_cast<uint32_t>( i * total_points / K ); // colours are already distinct so we can't have duplicate centers
         points[index_point].setCluster( i );        
         clusters.emplace_back( i, points[index_point] );
     }

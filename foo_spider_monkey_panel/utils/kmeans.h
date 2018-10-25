@@ -31,8 +31,8 @@ private:
     uint32_t id_point;
     uint32_t id_cluster = uint32_t(-1);
     std::vector<uint32_t> values;
-    uint32_t total_values;
-    uint32_t pixel_count;
+    uint32_t total_values = 0;
+    uint32_t pixel_count = 0;
 
 public:
     Point( uint32_t id_point, const std::vector<uint32_t>& values, uint32_t pixel_count );

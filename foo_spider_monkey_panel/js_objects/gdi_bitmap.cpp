@@ -187,10 +187,6 @@ bool JsGdiBitmap::ApplyMask( JsGdiBitmap* mask )
         return false;
     }
 
-    const int width = rect.Width;
-    const int height = rect.Height;
-    const int size = width * height;
-    //const int size_threshold = 512;
     uint32_t* pMask = reinterpret_cast<uint32_t*>( maskBmpData.Scan0 );
     uint32_t* pDst = reinterpret_cast<uint32_t*>( dstBmpData.Scan0 );
     const uint32_t* pMaskEnd = pMask + rect.Width * rect.Height;

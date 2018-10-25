@@ -16,7 +16,7 @@ ___
 - Added HTML documentation.
 - Improved error reports of component startup failures.
 - Ported JScript Panel changes:
-   - Added `FbMetadbHandleList.RemoveAttachImages` method.
+  - Added `FbMetadbHandleList.RemoveAttachImages` method.
 
 ### Fixed
 - Fixed crash when `on_main_menu` callback was invoked.
@@ -30,12 +30,12 @@ ___
 - Improved `include` performance by 2x.
 - Tweaked GC for better UX during high load.
 - Rewrote `plman.PlaylistRecyclerManager`, since it was broken:
-   - Replaced `Name` property with `GetName` method.
-   - Replaced `Content` property with `GetContent` method.
-   - Renamed to `plman.PlaylistRecycler`.
+  - Replaced `Name` property with `GetName` method.
+  - Replaced `Content` property with `GetContent` method.
+  - Renamed to `plman.PlaylistRecycler`.
 - Rewrote `Interfaces.js`
-   - Fixed invalid and incorrect JSDoc tags.
-   - Renamed to `foo_spider_monkey_panel.js`.
+  - Fixed invalid and incorrect JSDoc tags.
+  - Renamed to `foo_spider_monkey_panel.js`.
 
 ## [1.0.3][] - 2018-10-11
 ### Changed

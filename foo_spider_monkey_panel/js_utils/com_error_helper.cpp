@@ -54,7 +54,6 @@ void ReportActiveXError( JSContext* cx, HRESULT hresult, EXCEPINFO& exception, U
     case DISP_E_TYPEMISMATCH:
     {
         throw smp::SmpException( smp::string::Formatter() << "ActiveXObject: Parameter" << argerr << " type mismatch" );
-        break;
     }
     case DISP_E_PARAMNOTOPTIONAL:
     {

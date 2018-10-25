@@ -740,7 +740,6 @@ bool CScriptEditorCtrl::FindBraceMatchPos( int& braceAtCaret, int& braceOpposite
     braceAtCaret = -1;
     braceOpposite = -1;
     char charBefore = '\0';
-    int styleBefore = 0;
     const int lengthDoc = GetLength();
 
     if ( ( lengthDoc > 0 ) && ( caretPos > 0 ) )
@@ -750,7 +749,6 @@ bool CScriptEditorCtrl::FindBraceMatchPos( int& braceAtCaret, int& braceOpposite
         if ( posBefore == ( caretPos - 1 ) )
         {
             charBefore = GetCharAt( posBefore );
-            styleBefore = GetStyleAt( posBefore );
         }
     }
     // Priority goes to character before caret
@@ -767,7 +765,6 @@ bool CScriptEditorCtrl::FindBraceMatchPos( int& braceAtCaret, int& braceOpposite
         const char charAfter = GetCharAt( caretPos );
         if ( charAfter == ( caretPos + 1 ) )
         {
-            const int styleAfter = GetStyleAt( caretPos );
             if ( charAfter && IsBraceChar( charAfter ) )
             {
                 braceAtCaret = caretPos;

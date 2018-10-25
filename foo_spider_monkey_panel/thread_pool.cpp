@@ -6,7 +6,7 @@
 class simple_thread_worker_remover : public main_thread_callback
 {
 public:
-    simple_thread_worker_remover( simple_thread_worker* worker )
+    explicit simple_thread_worker_remover( simple_thread_worker* worker )
         : worker_( worker )
     {
     }

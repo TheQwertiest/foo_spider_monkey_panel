@@ -478,7 +478,6 @@ namespace helpers
 	t_size detect_charset(const char* fileName)
 	{
 		pfc::string8_fast text;
-		int textSize = 0;
 
 		try
 		{
@@ -486,7 +485,6 @@ namespace helpers
 			abort_callback_dummy abort;
 			filesystem::g_open_read(io, fileName, abort);
 			io->read_string_raw(text, abort);
-			textSize = text.get_length();
 		}
 		catch (...)
 		{
