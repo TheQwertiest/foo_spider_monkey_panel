@@ -10,6 +10,8 @@ echo Updating submodules to their latest versions
 
 cd %ROOT_DIR%
 
+git submodule sync
+if errorlevel 1 goto fail
 git submodule update --init --recursive --remote
 if errorlevel 1 (
   rem Sometimes happens with shallow copies
