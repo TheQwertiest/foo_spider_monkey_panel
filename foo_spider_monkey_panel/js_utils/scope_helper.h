@@ -2,7 +2,6 @@
 
 #include <js_utils/js_error_helper.h>
 
-#include <tuple>
 
 // TODO: separate js specific stuff
 

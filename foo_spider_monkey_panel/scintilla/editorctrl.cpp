@@ -1321,7 +1321,7 @@ void CScriptEditorCtrl::ReadAPI()
 LRESULT CScriptEditorCtrl::OnKeyDown( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled )
 {
     bHandled = FALSE;
-    ::PostMessage(::GetAncestor( m_hWnd, GA_PARENT ), UWM_KEYDOWN, wParam, lParam );
+    ::PostMessage(::GetAncestor( m_hWnd, GA_PARENT ), static_cast<UINT>( smp::MiscMessage::key_down ), wParam, lParam );
     return TRUE;
 }
 

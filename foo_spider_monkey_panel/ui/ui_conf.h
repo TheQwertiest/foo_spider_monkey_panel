@@ -1,6 +1,7 @@
 #pragma once
 
 #include "resource.h"
+#include <user_message.h>
 #include <scintilla/editorctrl.h>
 
 // Forward declarations
@@ -37,8 +38,8 @@ public:
 	BEGIN_MSG_MAP(CDialogConf)
 		MSG_WM_INITDIALOG(OnInitDialog)
 		MSG_WM_NOTIFY(OnNotify)
-		MESSAGE_HANDLER(UWM_KEYDOWN, OnUwmKeyDown)
-		MESSAGE_HANDLER(UWM_FIND_TEXT_CHANGED, OnUwmFindTextChanged)
+        MESSAGE_HANDLER( static_cast<UINT>( smp::MiscMessage::key_down ), OnUwmKeyDown )
+        MESSAGE_HANDLER( static_cast<UINT>( smp::MiscMessage::find_text_changed ), OnUwmFindTextChanged )
 		COMMAND_RANGE_HANDLER_EX(IDOK, IDCANCEL, OnCloseCmd)
 		COMMAND_ID_HANDLER_EX(IDAPPLY, OnCloseCmd)
 		COMMAND_ID_HANDLER_EX(IDC_TOOLS, OnTools)

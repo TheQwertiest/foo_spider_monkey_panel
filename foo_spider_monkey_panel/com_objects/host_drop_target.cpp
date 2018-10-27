@@ -41,7 +41,7 @@ HRESULT HostDropTarget::OnDragEnter( IDataObject* pDataObj, DWORD grfKeyState, P
     actionParams_.effect = *pdwEffect & m_fb2kAllowedEffect;
 
     ScreenToClient( m_hWnd, reinterpret_cast<LPPOINT>(&pt) );
-    SendDragMessage( CALLBACK_UWM_ON_DRAG_ENTER, grfKeyState, pt );
+    SendDragMessage( static_cast<UINT>(smp::PlayerMessage::wnd_drag_enter), grfKeyState, pt );
 
     *pdwEffect = actionParams_.effect;
     return S_OK;
@@ -49,7 +49,7 @@ HRESULT HostDropTarget::OnDragEnter( IDataObject* pDataObj, DWORD grfKeyState, P
 
 HRESULT HostDropTarget::OnDragLeave()
 {
-    SendMessage( m_hWnd, CALLBACK_UWM_ON_DRAG_LEAVE, 0, 0 );
+    SendMessage( m_hWnd, static_cast<UINT>(smp::PlayerMessage::wnd_drag_leave), 0, 0 );
     return S_OK;
 }
 
@@ -63,7 +63,7 @@ HRESULT HostDropTarget::OnDragOver( DWORD grfKeyState, POINTL pt, DWORD* pdwEffe
     actionParams_.effect = *pdwEffect & m_fb2kAllowedEffect;
 
     ScreenToClient( m_hWnd, reinterpret_cast<LPPOINT>(&pt) );
-    SendDragMessage( CALLBACK_UWM_ON_DRAG_OVER, grfKeyState, pt );
+    SendDragMessage( static_cast<UINT>(smp::PlayerMessage::wnd_drag_over), grfKeyState, pt );
 
     *pdwEffect = actionParams_.effect;
 
@@ -80,7 +80,7 @@ HRESULT HostDropTarget::OnDrop( IDataObject* pDataObj, DWORD grfKeyState, POINTL
     actionParams_.effect = *pdwEffect & m_fb2kAllowedEffect;
 
     ScreenToClient( m_hWnd, reinterpret_cast<LPPOINT>(&pt) );
-    SendDragMessage( CALLBACK_UWM_ON_DRAG_DROP, grfKeyState, pt );
+    SendDragMessage( static_cast<UINT>(smp::PlayerMessage::wnd_drag_drop), grfKeyState, pt );
 
     if ( *pdwEffect == DROPEFFECT_NONE || actionParams_.effect == DROPEFFECT_NONE )
     {

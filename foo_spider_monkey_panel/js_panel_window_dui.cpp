@@ -169,13 +169,16 @@ LRESULT js_panel_window_dui::on_message(HWND hwnd, UINT msg, WPARAM wp, LPARAM l
 	case WM_RBUTTONDOWN:
 	case WM_RBUTTONDBLCLK:
 	case WM_CONTEXTMENU:
-		if (m_is_edit_mode)
-			return DefWindowProc(hwnd, msg, wp, lp);
-		break;
-
-	case UWM_SIZE_LIMIT_CHANGED:
-		notify_size_limit_changed(lp);
-		return 0;
+    {
+        if ( m_is_edit_mode )
+            return DefWindowProc( hwnd, msg, wp, lp );
+        break;
+    }
+    case static_cast<UINT>(smp::InternalMessage::size_limit_changed):
+    {
+        notify_size_limit_changed( lp );
+        return 0;
+    }
 	}
 
 	return t_parent::on_message(hwnd, msg, wp, lp);
@@ -218,11 +221,11 @@ void js_panel_window_dui::notify(const GUID& p_what, t_size p_param1, const void
 	}
 	else if (p_what == ui_element_notify_font_changed)
 	{
-		PostMessage(t_parent::GetHWND(), CALLBACK_UWM_ON_FONT_CHANGED, 0, 0);
+		PostMessage(t_parent::GetHWND(), static_cast<UINT>(smp::PlayerMessage::ui_font_changed), 0, 0);
 	}
 	else if (p_what == ui_element_notify_colors_changed)
 	{
-		PostMessage(t_parent::GetHWND(), CALLBACK_UWM_ON_COLOURS_CHANGED, 0, 0);
+		PostMessage(t_parent::GetHWND(), static_cast<UINT>(smp::PlayerMessage::ui_colours_changed), 0, 0);
 	}
 }
 

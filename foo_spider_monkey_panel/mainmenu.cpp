@@ -72,7 +72,7 @@ public:
 	}
 	void execute(t_uint32 p_index, service_ptr_t<service_base> p_callback)
 	{
-		panel_manager::instance().post_msg_to_all(CALLBACK_UWM_ON_MAIN_MENU, p_index + 1);
+		panel_manager::instance().post_msg_to_all(static_cast<UINT>(smp::InternalMessage::main_menu_item), p_index + 1);
 	}
 	bool get_display(t_uint32 p_index, pfc::string_base& p_out, t_uint32& p_flags)
 	{

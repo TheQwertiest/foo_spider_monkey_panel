@@ -1,63 +1,64 @@
 #pragma once
 #include "helpers.h"
 
+#include <user_message.h>
+
 namespace smp::panel
 {
 
-// TODO: try to make optimizations for integral types
-
-template <class T>
-using CallbackData = std::shared_ptr<T>;
-
-template <class T>
-class ScopedCallbackData
+class CallBackDataBase
 {
 public:
-    template <class TParam>
-    ScopedCallbackData( TParam p_data )
-        : m_data( reinterpret_cast<CallbackData<T>*>(p_data) )
+    CallBackDataBase()
     {
     }
 
-    T* operator->()
+    CallBackDataBase( const CallBackDataBase& ) = delete;
+    CallBackDataBase operator=( const CallBackDataBase& ) = delete;
+
+    void* DataPtr()
     {
-        return &get();
+        return pData_;
     }
 
-    const T* operator->() const
+    void* DataPtr() const
     {
-        return &get();
+        return pData_;
     }
 
-    T& operator*()
-    {
-        return get();
-    }
-
-    const T& operator*() const
-    {
-        return get();
-    }
-
-    T& get()
-    {
-        return **m_data;
-    }
-
-    const T& get() const
-    {
-        return **m_data;
-    }
-
-private:
-    ScopedCallbackData( const ScopedCallbackData & ) = delete;
-    ScopedCallbackData operator=( const ScopedCallbackData & ) = delete;
-
-private:
-    std::unique_ptr<CallbackData<T>> m_data;
+protected:
+    void* pData_ = nullptr;
 };
 
-}
+template <typename... Args>
+class CallBackData
+    : public CallBackDataBase
+{
+public:
+    CallBackData( Args... args )
+        : data_( args... )
+    {
+        pData_ = &data_;
+    }
+
+    CallBackData( const CallBackData& ) = delete;
+    CallBackData operator=( const CallBackData& ) = delete;
+
+    auto& Data()
+    {
+        return data_;
+    }
+
+    auto& Data() const
+    {
+        return data_;
+    }
+
+private:
+    std::tuple<Args...> data_;
+};
+
+} // namespace smp::panel
 
 // TODO: consider removing fromhook
 struct metadb_callback_data
@@ -76,6 +77,8 @@ class panel_manager
 {
 public:
     panel_manager() = default;
+    panel_manager( const panel_manager& ) = delete;
+    panel_manager& operator=( const panel_manager& ) = delete;
 
 	static panel_manager& instance();
 	t_size get_count();
@@ -84,53 +87,33 @@ public:
 	void post_msg_to_all(UINT p_msg, WPARAM p_wp);
 	void post_msg_to_all(UINT p_msg, WPARAM p_wp, LPARAM p_lp);
     template<typename T>
-    void post_msg_to_all_pointer( UINT p_msg, std::unique_ptr<T> data )
+    void post_callback_msg_to_all( smp::CallbackMessage p_msg, std::unique_ptr<T> data )
     {
         if ( m_hwnds.empty() )
         {
             return;
         }
 
-        std::shared_ptr<T> sharedData( std::move( data ) );
+        std::shared_ptr<smp::panel::CallBackDataBase> sharedData( static_cast<smp::panel::CallBackDataBase*>( data.release() ) );
+
         for ( const auto& hWnd : m_hwnds )
         {
-            PostMessage( hWnd, p_msg,
-                         // ya, rly
-                         reinterpret_cast<WPARAM>(new smp::panel::CallbackData<T>( sharedData )),
-                         0 );
+            auto newSharedData = std::make_unique<std::shared_ptr<smp::panel::CallBackDataBase>>( sharedData );
+
+            BOOL bRet = PostMessage( hWnd, static_cast<UINT>(p_msg), reinterpret_cast<WPARAM>( newSharedData.get() ), 0 );
+            if ( bRet )
+            { // It still might leak though, if window was destroyed before all messages were handled
+                newSharedData.release();
+            }
         }
     }
 	void remove_window(HWND p_wnd);
 	void send_msg_to_all(UINT p_msg, WPARAM p_wp, LPARAM p_lp);
 	void send_msg_to_others(HWND p_wnd_except, UINT p_msg, WPARAM p_wp, LPARAM p_lp );
-    template<typename T>
-    void send_msg_to_others_pointer( HWND p_wnd_except, UINT p_msg, std::unique_ptr<T> data )
-    {
-        if ( m_hwnds.empty() )
-        {
-            return;
-        }
-
-        // Don't really need this (SendMessage is synchronous),
-        // but this way we can use the same interface everywhere
-        std::shared_ptr<T> sharedData( std::move(data) );  
-        for ( const auto& hWnd : m_hwnds )
-        {
-            if ( hWnd != p_wnd_except )
-            {
-                SendMessage( hWnd, p_msg,
-                             // ya, rly
-                             reinterpret_cast<WPARAM>(new smp::panel::CallbackData<T>( sharedData )),
-                             0 );
-            }
-        }
-    }
 
 private:
 	std::vector<HWND> m_hwnds;
 	static panel_manager sm_instance;
-
-	PFC_CLASS_NOT_COPYABLE_EX(panel_manager)
 };
 
 class my_dsp_config_callback : public dsp_config_callback

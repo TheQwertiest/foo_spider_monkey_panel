@@ -52,7 +52,7 @@ LRESULT CALLBACK HeartbeatWindow::WndProc( HWND hWnd, UINT message, WPARAM wPara
         {
             return 0;
         }
-        case UWM_HEARTBEAT:
+        case static_cast<UINT>(MiscMessage::heartbeat):
         {
             mozjs::JsEngine::GetInstance().OnHeartbeat();
             return 0;

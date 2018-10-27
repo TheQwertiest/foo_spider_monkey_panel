@@ -182,7 +182,7 @@ void JsEngine::StartHeartbeatThread()
             std::this_thread::sleep_for(
                 std::chrono::milliseconds( kHeartbeatRateMs ) );
 
-            PostMessage( parent->heartbeatWindow_->GetHwnd(), UWM_HEARTBEAT, 0, 0 );
+            PostMessage( parent->heartbeatWindow_->GetHwnd(), static_cast<UINT>(smp::MiscMessage::heartbeat), 0, 0 );
         }
     } );
 }

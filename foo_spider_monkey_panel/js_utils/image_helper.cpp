@@ -54,7 +54,7 @@ void LoadImageTask::run()
         taskResult.imagePath = file_path_display( pfc::stringcvt::string_utf8_from_wide( imagePath_.c_str(), imagePath_.length() ) );
     }
 
-    SendMessage( hNotifyWnd_, CALLBACK_UWM_ON_LOAD_IMAGE_DONE, 0, (LPARAM)&taskResult );
+    SendMessage( hNotifyWnd_, static_cast<UINT>(smp::InternalMessage::load_image_done), 0, (LPARAM)&taskResult );
 }
 
 }

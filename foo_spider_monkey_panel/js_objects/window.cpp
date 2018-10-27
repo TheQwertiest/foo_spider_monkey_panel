@@ -510,7 +510,7 @@ void JsWindow::NotifyOthers( const std::wstring& name, JS::HandleValue info )
     // TODO: think about replacing with PostMessage
     panel_manager::instance().send_msg_to_others(
         parentPanel_.GetHWND(),
-        CALLBACK_UWM_ON_NOTIFY_DATA,
+        static_cast<UINT>(smp::InternalMessage::notify_data),
         reinterpret_cast<WPARAM>( &name ),
         reinterpret_cast<LPARAM>( &info ) );
 }
@@ -522,7 +522,7 @@ void JsWindow::Reload()
         return;
     }
 
-    PostMessage( parentPanel_.GetHWND(), UWM_RELOAD, 0, 0 );
+    PostMessage( parentPanel_.GetHWND(), static_cast<UINT>(smp::InternalMessage::reload_script), 0, 0 );
 }
 
 void JsWindow::Repaint( bool force )
@@ -643,7 +643,7 @@ void JsWindow::ShowConfigure()
         return;
     }
 
-    PostMessage( parentPanel_.GetHWND(), UWM_SHOW_CONFIGURE, 0, 0 );
+    PostMessage( parentPanel_.GetHWND(), static_cast<UINT>(smp::InternalMessage::show_configure), 0, 0 );
 }
 
 void JsWindow::ShowProperties()
@@ -653,7 +653,7 @@ void JsWindow::ShowProperties()
         return;
     }
 
-    PostMessage( parentPanel_.GetHWND(), UWM_SHOW_PROPERTIES, 0, 0 );
+    PostMessage( parentPanel_.GetHWND(), static_cast<UINT>(smp::InternalMessage::show_properties), 0, 0 );
 }
 
 uint32_t JsWindow::get_DlgCode()
@@ -801,7 +801,7 @@ void JsWindow::put_MaxHeight( uint32_t height )
     }
 
     parentPanel_.MaxSize().y = height;
-    PostMessage( parentPanel_.GetHWND(), UWM_SIZE_LIMIT_CHANGED, 0, uie::size_limit_maximum_height );
+    PostMessage( parentPanel_.GetHWND(), static_cast<UINT>(smp::InternalMessage::size_limit_changed), 0, uie::size_limit_maximum_height );
 }
 
 void JsWindow::put_MaxWidth( uint32_t width )
@@ -812,7 +812,7 @@ void JsWindow::put_MaxWidth( uint32_t width )
     }
 
     parentPanel_.MaxSize().x = width;
-    PostMessage( parentPanel_.GetHWND(), UWM_SIZE_LIMIT_CHANGED, 0, uie::size_limit_maximum_width );
+    PostMessage( parentPanel_.GetHWND(), static_cast<UINT>(smp::InternalMessage::size_limit_changed), 0, uie::size_limit_maximum_width );
 }
 
 void JsWindow::put_MinHeight( uint32_t height )
@@ -823,7 +823,7 @@ void JsWindow::put_MinHeight( uint32_t height )
     }
 
     parentPanel_.MinSize().y = height;
-    PostMessage( parentPanel_.GetHWND(), UWM_SIZE_LIMIT_CHANGED, 0, uie::size_limit_minimum_height );
+    PostMessage( parentPanel_.GetHWND(), static_cast<UINT>(smp::InternalMessage::size_limit_changed), 0, uie::size_limit_minimum_height );
 }
 
 void JsWindow::put_MinWidth( uint32_t width )
@@ -834,7 +834,7 @@ void JsWindow::put_MinWidth( uint32_t width )
     }
 
     parentPanel_.MinSize().x = width;
-    PostMessage( parentPanel_.GetHWND(), UWM_SIZE_LIMIT_CHANGED, 0, uie::size_limit_minimum_width );
+    PostMessage( parentPanel_.GetHWND(), static_cast<UINT>(smp::InternalMessage::size_limit_changed), 0, uie::size_limit_minimum_width );
 }
 
 } // namespace mozjs

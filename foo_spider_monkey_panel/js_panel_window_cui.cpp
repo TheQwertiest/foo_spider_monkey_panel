@@ -112,9 +112,11 @@ LRESULT js_panel_window_cui::on_message(HWND hwnd, UINT msg, WPARAM wp, LPARAM l
 		}
 		break;
 
-	case UWM_SIZE_LIMIT_CHANGED:
-		notify_size_limit_changed(lp);
-		return 0;
+    case static_cast<UINT>(smp::InternalMessage::size_limit_changed):
+    {
+        notify_size_limit_changed( lp );
+        return 0;
+    }
 	}
 
 	return t_parent::on_message(hwnd, msg, wp, lp);
@@ -178,12 +180,12 @@ void js_panel_window_cui::on_bool_changed(t_size mask) const
 
 void js_panel_window_cui::on_colour_changed(t_size mask) const
 {
-	PostMessage(t_parent::GetHWND(), CALLBACK_UWM_ON_COLOURS_CHANGED, 0, 0);
+	PostMessage(t_parent::GetHWND(), static_cast<UINT>(smp::PlayerMessage::ui_colours_changed), 0, 0);
 }
 
 void js_panel_window_cui::on_font_changed(t_size mask) const
 {
-	PostMessage(t_parent::GetHWND(), CALLBACK_UWM_ON_FONT_CHANGED, 0, 0);
+	PostMessage(t_parent::GetHWND(), static_cast<UINT>(smp::PlayerMessage::ui_font_changed), 0, 0);
 }
 
 void js_panel_window_cui::set_config(stream_reader* reader, t_size size, abort_callback& abort)

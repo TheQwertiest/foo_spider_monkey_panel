@@ -196,7 +196,6 @@
     <ClInclude Include="com_objects\drop_target_impl.h" />
     <ClInclude Include="com_objects\host_drop_target.h" />
     <ClInclude Include="com_objects\host_external.h" />
-    <ClInclude Include="com_objects\scriptable_web_browser.h" />
     <ClInclude Include="com_objects\script_interface.h" />
     <ClInclude Include="com_objects\script_interface_impl.h" />
     <ClInclude Include="convert\com.h" />

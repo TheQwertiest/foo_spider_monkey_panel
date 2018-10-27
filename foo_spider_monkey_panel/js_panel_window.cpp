@@ -14,6 +14,8 @@
 
 #include <drop_action_params.h>
 
+using namespace smp;
+
 js_panel_window::js_panel_window( PanelType instanceType )
     : panelType_( instanceType )
     , m_script_info( get_config_guid() )
@@ -23,21 +25,21 @@ js_panel_window::js_panel_window( PanelType instanceType )
 ui_helpers::container_window::class_data& js_panel_window::get_class_data() const
 {
     static class_data my_class_data =
-    {
-         _T( SMP_WINDOW_CLASS_NAME ),
-         L"",
-         0,
-         false,
-         false,
-         0,
-         WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
-         edge_style_from_config( get_edge_style() ),
-         CS_DBLCLKS,
-         true,
-         true,
-         true,
-         IDC_ARROW
-    };
+        {
+            _T( SMP_WINDOW_CLASS_NAME ),
+            L"",
+            0,
+            false,
+            false,
+            0,
+            WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
+            edge_style_from_config( get_edge_style() ),
+            CS_DBLCLKS,
+            true,
+            true,
+            true,
+            IDC_ARROW
+        };
 
     return my_class_data;
 }
@@ -61,24 +63,41 @@ void js_panel_window::JsEngineFail( const pfc::string8_fast& errorText )
     popup_msg::g_show( errorText, SMP_NAME );
     MessageBeep( MB_ICONASTERISK );
 
-    SendMessage( hWnd_, UWM_SCRIPT_ERROR, 0, 0 );
+    SendMessage( hWnd_, static_cast<UINT>( InternalMessage::script_error ), 0, 0 );
 }
 
 LRESULT js_panel_window::on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
 {
-    if ( auto retVal = on_window_message( hwnd, msg, wp, lp ); retVal.has_value() )
-    {// TODO: ensure that there are no calls to JS container in `on_window_message`
+    if ( auto retVal = on_main_message( hwnd, msg, wp, lp ); retVal.has_value() )
+    {
         return retVal.value();
     }
 
-    if ( pJsContainer_ )
-    {// Don't handle JS messages if there is no JS container
+    if ( auto retVal = on_window_message( hwnd, msg, wp, lp ); retVal.has_value() )
+    {
+        return retVal.value();
+    }
+
+    if ( msg >= static_cast<UINT>( CallbackMessage::firstMessage )
+         && msg <= static_cast<UINT>( CallbackMessage::lastMessage ) )
+    {
         if ( auto retVal = on_callback_message( hwnd, msg, wp, lp ); retVal.has_value() )
         {
             return retVal.value();
         }
-
-        if ( auto retVal = on_user_message( hwnd, msg, wp, lp ); retVal.has_value() )
+    }
+    else if ( msg >= static_cast<UINT>( PlayerMessage::firstMessage )
+              && msg <= static_cast<UINT>( PlayerMessage::lastMessage ) )
+    {
+        if ( auto retVal = on_player_message( hwnd, msg, wp, lp ); retVal.has_value() )
+        {
+            return retVal.value();
+        }
+    }
+    else if ( msg >= static_cast<UINT>( InternalMessage::firstMessage )
+              && msg <= static_cast<UINT>( InternalMessage::lastMessage ) )
+    {
+        if ( auto retVal = on_internal_message( hwnd, msg, wp, lp ); retVal.has_value() )
         {
             return retVal.value();
         }
@@ -87,7 +106,7 @@ LRESULT js_panel_window::on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
     return uDefWindowProc( hwnd, msg, wp, lp );
 }
 
-std::optional<LRESULT> js_panel_window::on_window_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
+std::optional<LRESULT> js_panel_window::on_main_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
 {
     switch ( msg )
     {
@@ -101,6 +120,22 @@ std::optional<LRESULT> js_panel_window::on_window_message( HWND hwnd, UINT msg, 
         on_panel_destroy();
         return 0;
     }
+    default:
+    {
+        return std::nullopt;
+    }
+    }
+}
+
+std::optional<LRESULT> js_panel_window::on_window_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
+{
+    if ( !pJsContainer_ )
+    {
+        return std::nullopt;
+    }
+
+    switch ( msg )
+    {
     case WM_DISPLAYCHANGE:
     case WM_THEMECHANGED:
         update_script();
@@ -147,7 +182,7 @@ std::optional<LRESULT> js_panel_window::on_window_message( HWND hwnd, UINT msg, 
         on_size( rect.right - rect.left, rect.bottom - rect.top );
         if ( get_pseudo_transparent() )
         {
-            PostMessage( hWnd_, UWM_REFRESHBK, 0, 0 );
+            PostMessage( hWnd_, static_cast<UINT>( InternalMessage::refresh_bg ), 0, 0 );
         }
         else
         {
@@ -156,7 +191,9 @@ std::optional<LRESULT> js_panel_window::on_window_message( HWND hwnd, UINT msg, 
         return 0;
     }
     case WM_GETMINMAXINFO:
-    {
+    { // This message will be called before WM_CREATE as well,
+        // but we don't need to handle it before panel creation,
+        // since default values suit us just fine
         LPMINMAXINFO pmmi = reinterpret_cast<LPMINMAXINFO>( lp );
         memcpy( &pmmi->ptMaxTrackSize, &MaxSize(), sizeof( POINT ) );
         memcpy( &pmmi->ptMinTrackSize, &MinSize(), sizeof( POINT ) );
@@ -254,221 +291,67 @@ std::optional<LRESULT> js_panel_window::on_window_message( HWND hwnd, UINT msg, 
 
 std::optional<LRESULT> js_panel_window::on_callback_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
 {
-    switch ( msg )
+    std::shared_ptr<panel::CallBackDataBase> callbackData( *reinterpret_cast<std::shared_ptr<panel::CallBackDataBase>*>( wp ) );
+    if ( !pJsContainer_ )
     {
-    case CALLBACK_UWM_ON_ALWAYS_ON_TOP_CHANGED:
+        return std::nullopt;
+    }
+
+    switch ( static_cast<CallbackMessage>( msg ) )
     {
-        on_always_on_top_changed( wp );
+    case CallbackMessage::fb_item_focus_change:
+    {
+        on_item_focus_change( callbackData->DataPtr() );
         return 0;
     }
-    case CALLBACK_UWM_ON_COLOURS_CHANGED:
+    case CallbackMessage::fb_item_played:
     {
-        on_colours_changed();
+        on_item_played( callbackData->DataPtr() );
         return 0;
     }
-    case CALLBACK_UWM_ON_CURSOR_FOLLOW_PLAYBACK_CHANGED:
+    case CallbackMessage::fb_library_items_added:
     {
-        on_cursor_follow_playback_changed( wp );
+        on_library_items_added( callbackData->DataPtr() );
         return 0;
     }
-    case CALLBACK_UWM_ON_DRAG_DROP:
+    case CallbackMessage::fb_library_items_changed:
     {
-        on_drag_drop( lp );
+        on_library_items_changed( callbackData->DataPtr() );
         return 0;
     }
-    case CALLBACK_UWM_ON_DRAG_ENTER:
+    case CallbackMessage::fb_library_items_removed:
     {
-        on_drag_enter( lp );
+        on_library_items_removed( callbackData->DataPtr() );
         return 0;
     }
-    case CALLBACK_UWM_ON_DRAG_LEAVE:
+    case CallbackMessage::fb_metadb_changed:
     {
-        on_drag_leave();
+        on_metadb_changed( callbackData->DataPtr() );
         return 0;
     }
-    case CALLBACK_UWM_ON_DRAG_OVER:
+    case CallbackMessage::fb_playback_edited:
     {
-        on_drag_over( lp );
+        on_playback_edited( callbackData->DataPtr() );
         return 0;
     }
-    case CALLBACK_UWM_ON_DSP_PRESET_CHANGED:
+    case CallbackMessage::fb_playback_new_track:
     {
-        on_dsp_preset_changed();
+        on_playback_new_track( callbackData->DataPtr() );
         return 0;
     }
-    case CALLBACK_UWM_ON_FONT_CHANGED:
+    case CallbackMessage::fb_playback_seek:
     {
-        on_font_changed();
+        on_playback_seek( callbackData->DataPtr() );
         return 0;
     }
-    case CALLBACK_UWM_ON_GET_ALBUM_ART_DONE:
+    case CallbackMessage::fb_playback_time:
     {
-        on_get_album_art_done( lp );
+        on_playback_time( callbackData->DataPtr() );
         return 0;
     }
-    case CALLBACK_UWM_ON_ITEM_FOCUS_CHANGE:
+    case CallbackMessage::fb_volume_change:
     {
-        on_item_focus_change( wp );
-        return 0;
-    }
-    case CALLBACK_UWM_ON_ITEM_PLAYED:
-    {
-        on_item_played( wp );
-        return 0;
-    }
-    case CALLBACK_UWM_ON_LIBRARY_ITEMS_ADDED:
-    {
-        on_library_items_added( wp );
-        return 0;
-    }
-    case CALLBACK_UWM_ON_LIBRARY_ITEMS_CHANGED:
-    {
-        on_library_items_changed( wp );
-        return 0;
-    }
-    case CALLBACK_UWM_ON_LIBRARY_ITEMS_REMOVED:
-    {
-        on_library_items_removed( wp );
-        return 0;
-    }
-    case CALLBACK_UWM_ON_LOAD_IMAGE_DONE:
-    {
-        on_load_image_done( lp );
-        return 0;
-    }
-    case CALLBACK_UWM_ON_MAIN_MENU:
-    {
-        on_main_menu( wp );
-        return 0;
-    }
-    case CALLBACK_UWM_ON_METADB_CHANGED:
-    {
-        on_metadb_changed( wp );
-        return 0;
-    }
-    case CALLBACK_UWM_ON_NOTIFY_DATA:
-    {
-        on_notify_data( wp, lp );
-        return 0;
-    }
-    case CALLBACK_UWM_ON_OUTPUT_DEVICE_CHANGED:
-    {
-        on_output_device_changed();
-        return 0;
-    }
-    case CALLBACK_UWM_ON_PLAYBACK_DYNAMIC_INFO:
-    {
-        on_playback_dynamic_info();
-        return 0;
-    }
-    case CALLBACK_UWM_ON_PLAYBACK_DYNAMIC_INFO_TRACK:
-    {
-        on_playback_dynamic_info_track();
-        return 0;
-    }
-    case CALLBACK_UWM_ON_PLAYBACK_EDITED:
-    {
-        on_playback_edited( wp );
-        return 0;
-    }
-    case CALLBACK_UWM_ON_PLAYBACK_FOLLOW_CURSOR_CHANGED:
-    {
-        on_playback_follow_cursor_changed( wp );
-        return 0;
-    }
-    case CALLBACK_UWM_ON_PLAYBACK_NEW_TRACK:
-    {
-        on_playback_new_track( wp );
-        return 0;
-    }
-    case CALLBACK_UWM_ON_PLAYBACK_ORDER_CHANGED:
-    {
-        on_playback_order_changed( wp );
-        return 0;
-    }
-    case CALLBACK_UWM_ON_PLAYBACK_PAUSE:
-    {
-        on_playback_pause( wp );
-        return 0;
-    }
-    case CALLBACK_UWM_ON_PLAYBACK_QUEUE_CHANGED:
-    {
-        on_playback_queue_changed( wp );
-        return 0;
-    }
-    case CALLBACK_UWM_ON_PLAYBACK_SEEK:
-    {
-        on_playback_seek( wp );
-        return 0;
-    }
-    case CALLBACK_UWM_ON_PLAYBACK_STARTING:
-    {
-        on_playback_starting( wp, lp );
-        return 0;
-    }
-    case CALLBACK_UWM_ON_PLAYBACK_STOP:
-    {
-        on_playback_stop( wp );
-        return 0;
-    }
-    case CALLBACK_UWM_ON_PLAYBACK_TIME:
-    {
-        on_playback_time( wp );
-        return 0;
-    }
-    case CALLBACK_UWM_ON_PLAYLIST_ITEM_ENSURE_VISIBLE:
-    {
-        on_playlist_item_ensure_visible( wp, lp );
-        return 0;
-    }
-    case CALLBACK_UWM_ON_PLAYLIST_ITEMS_ADDED:
-    {
-        on_playlist_items_added( wp );
-        return 0;
-    }
-    case CALLBACK_UWM_ON_PLAYLIST_ITEMS_REMOVED:
-    {
-        on_playlist_items_removed( wp, lp );
-        return 0;
-    }
-    case CALLBACK_UWM_ON_PLAYLIST_ITEMS_REORDERED:
-    {
-        on_playlist_items_reordered( wp );
-        return 0;
-    }
-    case CALLBACK_UWM_ON_PLAYLIST_ITEMS_SELECTION_CHANGE:
-    {
-        on_playlist_items_selection_change();
-        return 0;
-    }
-    case CALLBACK_UWM_ON_PLAYLIST_STOP_AFTER_CURRENT_CHANGED:
-    {
-        on_playlist_stop_after_current_changed( wp );
-        return 0;
-    }
-    case CALLBACK_UWM_ON_PLAYLIST_SWITCH:
-    {
-        on_playlist_switch();
-        return 0;
-    }
-    case CALLBACK_UWM_ON_PLAYLISTS_CHANGED:
-    {
-        on_playlists_changed();
-        return 0;
-    }
-    case CALLBACK_UWM_ON_REPLAYGAIN_MODE_CHANGED:
-    {
-        on_replaygain_mode_changed( wp );
-        return 0;
-    }
-    case CALLBACK_UWM_ON_SELECTION_CHANGED:
-    {
-        on_selection_changed();
-        return 0;
-    }
-    case CALLBACK_UWM_ON_VOLUME_CHANGE:
-    {
-        on_volume_change( wp );
+        on_volume_change( callbackData->DataPtr() );
         return 0;
     }
     default:
@@ -478,47 +361,228 @@ std::optional<LRESULT> js_panel_window::on_callback_message( HWND hwnd, UINT msg
     }
 }
 
-std::optional<LRESULT> js_panel_window::on_user_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
+std::optional<LRESULT> js_panel_window::on_player_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
 {
-    switch ( msg )
+    if ( !pJsContainer_ )
     {
-    case UWM_REFRESHBK:
+        return std::nullopt;
+    }
+
+    switch ( static_cast<PlayerMessage>( msg ) )
+    {
+    case PlayerMessage::fb_always_on_top_changed:
+    {
+        on_always_on_top_changed( wp );
+        return 0;
+    }
+    case PlayerMessage::fb_cursor_follow_playback_changed:
+    {
+        on_cursor_follow_playback_changed( wp );
+        return 0;
+    }
+    case PlayerMessage::fb_dsp_preset_changed:
+    {
+        on_dsp_preset_changed();
+        return 0;
+    }
+    case PlayerMessage::fb_output_device_changed:
+    {
+        on_output_device_changed();
+        return 0;
+    }
+    case PlayerMessage::fb_playback_dynamic_info:
+    {
+        on_playback_dynamic_info();
+        return 0;
+    }
+    case PlayerMessage::fb_playback_dynamic_info_track:
+    {
+        on_playback_dynamic_info_track();
+        return 0;
+    }
+    case PlayerMessage::fb_playback_follow_cursor_changed:
+    {
+        on_playback_follow_cursor_changed( wp );
+        return 0;
+    }
+    case PlayerMessage::fb_playback_order_changed:
+    {
+        on_playback_order_changed( wp );
+        return 0;
+    }
+    case PlayerMessage::fb_playback_pause:
+    {
+        on_playback_pause( wp );
+        return 0;
+    }
+    case PlayerMessage::fb_playback_queue_changed:
+    {
+        on_playback_queue_changed( wp );
+        return 0;
+    }
+    case PlayerMessage::fb_playback_starting:
+    {
+        on_playback_starting( wp, lp );
+        return 0;
+    }
+    case PlayerMessage::fb_playback_stop:
+    {
+        on_playback_stop( wp );
+        return 0;
+    }
+    case PlayerMessage::fb_playlist_item_ensure_visible:
+    {
+        on_playlist_item_ensure_visible( wp, lp );
+        return 0;
+    }
+    case PlayerMessage::fb_playlist_items_added:
+    {
+        on_playlist_items_added( wp );
+        return 0;
+    }
+    case PlayerMessage::fb_playlist_items_removed:
+    {
+        on_playlist_items_removed( wp, lp );
+        return 0;
+    }
+    case PlayerMessage::fb_playlist_items_reordered:
+    {
+        on_playlist_items_reordered( wp );
+        return 0;
+    }
+    case PlayerMessage::fb_playlist_items_selection_change:
+    {
+        on_playlist_items_selection_change();
+        return 0;
+    }
+    case PlayerMessage::fb_playlist_stop_after_current_changed:
+    {
+        on_playlist_stop_after_current_changed( wp );
+        return 0;
+    }
+    case PlayerMessage::fb_playlist_switch:
+    {
+        on_playlist_switch();
+        return 0;
+    }
+    case PlayerMessage::fb_playlists_changed:
+    {
+        on_playlists_changed();
+        return 0;
+    }
+    case PlayerMessage::fb_replaygain_mode_changed:
+    {
+        on_replaygain_mode_changed( wp );
+        return 0;
+    }
+    case PlayerMessage::fb_selection_changed:
+    {
+        on_selection_changed();
+        return 0;
+    }
+    case PlayerMessage::ui_font_changed:
+    {
+        on_font_changed();
+        return 0;
+    }
+    case PlayerMessage::ui_colours_changed:
+    {
+        on_colours_changed();
+        return 0;
+    }
+    case PlayerMessage::wnd_drag_drop:
+    {
+        on_drag_drop( lp );
+        return 0;
+    }
+    case PlayerMessage::wnd_drag_enter:
+    {
+        on_drag_enter( lp );
+        return 0;
+    }
+    case PlayerMessage::wnd_drag_leave:
+    {
+        on_drag_leave();
+        return 0;
+    }
+    case PlayerMessage::wnd_drag_over:
+    {
+        on_drag_over( lp );
+        return 0;
+    }
+    default:
+    {
+        return std::nullopt;
+    }
+    }
+}
+
+std::optional<LRESULT> js_panel_window::on_internal_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
+{
+    if ( !pJsContainer_ )
+    {
+        return std::nullopt;
+    }
+
+    switch ( static_cast<InternalMessage>( msg ) )
+    {
+    case InternalMessage::main_menu_item:
+    {
+        on_main_menu( wp );
+        return 0;
+    }
+    case InternalMessage::get_album_art_done:
+    {
+        on_get_album_art_done( lp );
+        return 0;
+    }
+    case InternalMessage::load_image_done:
+    {
+        on_load_image_done( lp );
+        return 0;
+    }
+    case InternalMessage::notify_data:
+    {
+        on_notify_data( wp, lp );
+        return 0;
+    }
+    case InternalMessage::refresh_bg:
     {
         isBgRepaintNeeded_ = true;
         Repaint( true );
         return 0;
     }
-    case UWM_RELOAD:
+    case InternalMessage::reload_script:
     {
         update_script();
         return 0;
     }
-    case UWM_SCRIPT_ERROR:
+    case InternalMessage::script_error:
     {
         on_script_error();
         return 0;
     }
-    case UWM_SCRIPT_TERM:
+    case InternalMessage::terminate_script:
     {
         script_unload();
         return 0;
     }
-    case UWM_SHOW_CONFIGURE:
+    case InternalMessage::show_configure:
     {
         show_configure_popup( hWnd_ );
         return 0;
     }
-    case UWM_SHOW_PROPERTIES:
+    case InternalMessage::show_properties:
     {
         show_property_popup( hWnd_ );
         return 0;
     }
-    case UWM_SIZE:
+    case InternalMessage::update_size:
     {
         on_size( width_, height_ );
         if ( get_pseudo_transparent() )
         {
-            PostMessage( hWnd_, UWM_REFRESHBK, 0, 0 );
+            PostMessage( hWnd_, static_cast<UINT>( InternalMessage::refresh_bg ), 0, 0 );
         }
         else
         {
@@ -526,7 +590,7 @@ std::optional<LRESULT> js_panel_window::on_user_message( HWND hwnd, UINT msg, WP
         }
         return 0;
     }
-    case UWM_TIMER:
+    case InternalMessage::timer_proc:
     {
         pJsContainer_->InvokeTimerFunction( static_cast<uint32_t>( wp ) );
         return 0;
@@ -788,7 +852,7 @@ bool js_panel_window::script_load()
 
     maxSize_ = { INT_MAX, INT_MAX };
     minSize_ = { 0, 0 };
-    PostMessage( hWnd_, UWM_SIZE_LIMIT_CHANGED, 0, uie::size_limit_all );
+    PostMessage( hWnd_, static_cast<UINT>( InternalMessage::size_limit_changed ), 0, uie::size_limit_all );
 
     if ( !pJsContainer_->Initialize() )
     { // error reporting handled inside
@@ -801,7 +865,7 @@ bool js_panel_window::script_load()
     }
 
     // HACK: Script update will not call on_size, so invoke it explicitly
-    SendMessage( hWnd_, UWM_SIZE, 0, 0 );
+    SendMessage( hWnd_, static_cast<UINT>( InternalMessage::update_size ), 0, 0 );
 
     FB2K_console_formatter() << SMP_NAME_WITH_VERSION " (" << ScriptInfo().build_info_string() << "): initialized in " << ( uint32_t )( timer.query() * 1000 ) << " ms";
     return true;
@@ -860,7 +924,7 @@ void js_panel_window::on_erase_background()
 {
     if ( get_pseudo_transparent() )
     {
-        PostMessage( hWnd_, UWM_REFRESHBK, 0, 0 );
+        PostMessage( hWnd_, static_cast<UINT>( InternalMessage::refresh_bg ), 0, 0 );
     }
 }
 
@@ -1001,20 +1065,20 @@ void js_panel_window::on_get_album_art_done( LPARAM lp )
                                                     static_cast<pfc::string8_fast>( param->imagePath ) );
 }
 
-void js_panel_window::on_item_focus_change( WPARAM wp )
+void js_panel_window::on_item_focus_change( void* pData )
 {
-    smp::panel::ScopedCallbackData<std::tuple<t_size, t_size, t_size>> data( wp );
+    auto& data = *reinterpret_cast<std::tuple<t_size, t_size, t_size>*>( pData );
     pJsContainer_->InvokeJsCallback( "on_item_focus_change",
-                                     static_cast<int32_t>( std::get<0>( data.get() ) ),
-                                     static_cast<int32_t>( std::get<1>( data.get() ) ),
-                                     static_cast<int32_t>( std::get<2>( data.get() ) ) );
+                                     static_cast<int32_t>( std::get<0>( data ) ),
+                                     static_cast<int32_t>( std::get<1>( data ) ),
+                                     static_cast<int32_t>( std::get<2>( data ) ) );
 }
 
-void js_panel_window::on_item_played( WPARAM wp )
+void js_panel_window::on_item_played( void* pData )
 {
-    smp::panel::ScopedCallbackData<metadb_handle_ptr> data( wp );
+    auto& data = *reinterpret_cast<std::tuple<metadb_handle_ptr>*>( pData );
     pJsContainer_->InvokeJsCallback( "on_item_played",
-                                     static_cast<metadb_handle_ptr>( *data ) );
+                                     std::get<0>( data ) );
 }
 
 void js_panel_window::on_key_down( WPARAM wp )
@@ -1039,25 +1103,25 @@ void js_panel_window::on_load_image_done( LPARAM lp )
                                                     static_cast<pfc::string8_fast>( param->imagePath ) );
 }
 
-void js_panel_window::on_library_items_added( WPARAM wp )
+void js_panel_window::on_library_items_added( void* pData )
 {
-    smp::panel::ScopedCallbackData<metadb_callback_data> data( wp );
+    auto& data = *reinterpret_cast<std::tuple<metadb_callback_data>*>( pData );
     pJsContainer_->InvokeJsCallback( "on_library_items_added",
-                                     static_cast<metadb_handle_list>( data->m_items ) );
+                                     std::get<0>( data ).m_items );
 }
 
-void js_panel_window::on_library_items_changed( WPARAM wp )
+void js_panel_window::on_library_items_changed( void* pData )
 {
-    smp::panel::ScopedCallbackData<metadb_callback_data> data( wp );
+    auto& data = *reinterpret_cast<std::tuple<metadb_callback_data>*>( pData );
     pJsContainer_->InvokeJsCallback( "on_library_items_changed",
-                                     static_cast<metadb_handle_list>( data->m_items ) );
+                                     std::get<0>( data ).m_items );
 }
 
-void js_panel_window::on_library_items_removed( WPARAM wp )
+void js_panel_window::on_library_items_removed( void* pData )
 {
-    smp::panel::ScopedCallbackData<metadb_callback_data> data( wp );
+    auto& data = *reinterpret_cast<std::tuple<metadb_callback_data>*>( pData );
     pJsContainer_->InvokeJsCallback( "on_library_items_removed",
-                                     static_cast<metadb_handle_list>( data->m_items ) );
+                                     std::get<0>( data ).m_items );
 }
 
 void js_panel_window::on_main_menu( WPARAM wp )
@@ -1066,12 +1130,12 @@ void js_panel_window::on_main_menu( WPARAM wp )
                                      static_cast<uint32_t>( wp ) );
 }
 
-void js_panel_window::on_metadb_changed( WPARAM wp )
+void js_panel_window::on_metadb_changed( void* pData )
 {
-    smp::panel::ScopedCallbackData<metadb_callback_data> data( wp );
+    auto& data = *reinterpret_cast<std::tuple<metadb_callback_data>*>( pData );
     pJsContainer_->InvokeJsCallback( "on_metadb_changed",
-                                     static_cast<metadb_handle_list>( data->m_items ),
-                                     static_cast<bool>( data->m_fromhook ) );
+                                     std::get<0>( data ).m_items,
+                                     std::get<0>( data ).m_fromhook );
 }
 
 void js_panel_window::on_mouse_button_dblclk( UINT msg, WPARAM wp, LPARAM lp )
@@ -1361,11 +1425,11 @@ void js_panel_window::on_playback_dynamic_info_track()
     pJsContainer_->InvokeJsCallback( "on_playback_dynamic_info_track" );
 }
 
-void js_panel_window::on_playback_edited( WPARAM wp )
+void js_panel_window::on_playback_edited( void* pData )
 {
-    smp::panel::ScopedCallbackData<metadb_handle_ptr> data( wp );
+    auto& data = *reinterpret_cast<std::tuple<metadb_handle_ptr>*>( pData );
     pJsContainer_->InvokeJsCallback( "on_playback_edited",
-                                     static_cast<metadb_handle_ptr&>( data.get() ) );
+                                     std::get<0>(data) );
 }
 
 void js_panel_window::on_playback_follow_cursor_changed( WPARAM wp )
@@ -1374,11 +1438,11 @@ void js_panel_window::on_playback_follow_cursor_changed( WPARAM wp )
                                      static_cast<bool>( wp ) );
 }
 
-void js_panel_window::on_playback_new_track( WPARAM wp )
+void js_panel_window::on_playback_new_track( void* pData )
 {
-    smp::panel::ScopedCallbackData<metadb_handle_ptr> data( wp );
+    auto& data = *reinterpret_cast<std::tuple<metadb_handle_ptr>*>( pData );
     pJsContainer_->InvokeJsCallback( "on_playback_new_track",
-                                     static_cast<metadb_handle_ptr&>( data.get() ) );
+                                     std::get<0>(data) );
 }
 
 void js_panel_window::on_playback_order_changed( WPARAM wp )
@@ -1399,11 +1463,11 @@ void js_panel_window::on_playback_queue_changed( WPARAM wp )
                                      static_cast<uint32_t>( wp ) );
 }
 
-void js_panel_window::on_playback_seek( WPARAM wp )
+void js_panel_window::on_playback_seek( void* pData )
 {
-    smp::panel::ScopedCallbackData<double> data( wp );
+    auto& data = *reinterpret_cast<std::tuple<metadb_handle_ptr>*>( pData );
     pJsContainer_->InvokeJsCallback( "on_playback_seek",
-                                     static_cast<double>( data.get() ) );
+                                     std::get<0>(data) );
 }
 
 void js_panel_window::on_playback_starting( WPARAM wp, LPARAM lp )
@@ -1419,11 +1483,11 @@ void js_panel_window::on_playback_stop( WPARAM wp )
                                      static_cast<uint32_t>( (playback_control::t_stop_reason)wp ) );
 }
 
-void js_panel_window::on_playback_time( WPARAM wp )
+void js_panel_window::on_playback_time( void* pData )
 {
-    smp::panel::ScopedCallbackData<double> data( wp );
+    auto& data = *reinterpret_cast<std::tuple<double>*>( pData );
     pJsContainer_->InvokeJsCallback( "on_playback_time",
-                                     static_cast<double>( data.get() ) );
+                                     std::get<0>(data) );
 }
 
 void js_panel_window::on_playlist_item_ensure_visible( WPARAM wp, LPARAM lp )
@@ -1497,9 +1561,9 @@ void js_panel_window::on_size( uint32_t w, uint32_t h )
                                      static_cast<uint32_t>( h ) );
 }
 
-void js_panel_window::on_volume_change( WPARAM wp )
+void js_panel_window::on_volume_change( void* pData )
 {
-    smp::panel::ScopedCallbackData<float> data( wp );
+    auto& data = *reinterpret_cast<std::tuple<float>*>( pData );
     pJsContainer_->InvokeJsCallback( "on_volume_change",
-                                     static_cast<float>( data.get() ) );
+                                     std::get<0>(data) );
 }

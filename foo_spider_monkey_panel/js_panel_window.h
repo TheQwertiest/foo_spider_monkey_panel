@@ -34,9 +34,11 @@ public:
 
 protected:
     LRESULT on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp );
+    std::optional<LRESULT> on_main_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp );
     std::optional<LRESULT> on_window_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp );
     std::optional<LRESULT> on_callback_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp );
-    std::optional<LRESULT> on_user_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp );
+    std::optional<LRESULT> on_player_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp );
+    std::optional<LRESULT> on_internal_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp );
 
     bool show_configure_popup( HWND parent );
     bool show_property_popup( HWND parent );
@@ -120,16 +122,16 @@ private:
     void on_focus( bool isFocused );
     void on_font_changed();
     void on_get_album_art_done( LPARAM lp );
-    void on_item_focus_change( WPARAM wp );
-    void on_item_played( WPARAM wp );
+    void on_item_focus_change( void* pData );
+    void on_item_played( void* pData );
     void on_key_down( WPARAM wp );
     void on_key_up( WPARAM wp );
-    void on_library_items_added( WPARAM wp );
-    void on_library_items_changed( WPARAM wp );
-    void on_library_items_removed( WPARAM wp );
+    void on_library_items_added( void* pData );
+    void on_library_items_changed( void* pData );
+    void on_library_items_removed( void* pData );
     void on_load_image_done( LPARAM lp );
     void on_main_menu( WPARAM wp );
-    void on_metadb_changed( WPARAM wp );
+    void on_metadb_changed( void* pData );
     void on_mouse_button_dblclk( UINT msg, WPARAM wp, LPARAM lp );
     void on_mouse_button_down( UINT msg, WPARAM wp, LPARAM lp );
     bool on_mouse_button_up( UINT msg, WPARAM wp, LPARAM lp );
@@ -144,16 +146,16 @@ private:
     void on_paint_user( HDC memdc, LPRECT lpUpdateRect );
     void on_playback_dynamic_info();
     void on_playback_dynamic_info_track();
-    void on_playback_edited( WPARAM wp );
+    void on_playback_edited( void* pData );
     void on_playback_follow_cursor_changed( WPARAM wp );
-    void on_playback_new_track( WPARAM wp );
+    void on_playback_new_track( void* pData );
     void on_playback_order_changed( WPARAM wp );
     void on_playback_pause( WPARAM wp );
     void on_playback_queue_changed( WPARAM wp );
-    void on_playback_seek( WPARAM wp );
+    void on_playback_seek( void* pData );
     void on_playback_starting( WPARAM wp, LPARAM lp );
     void on_playback_stop( WPARAM wp );
-    void on_playback_time( WPARAM wp );
+    void on_playback_time( void* pData );
     void on_playlist_item_ensure_visible( WPARAM wp, LPARAM lp );
     void on_playlist_items_added( WPARAM wp );
     void on_playlist_items_removed( WPARAM wp, LPARAM lp );
@@ -165,5 +167,5 @@ private:
     void on_replaygain_mode_changed( WPARAM wp );
     void on_selection_changed();
     void on_size( uint32_t w, uint32_t h );
-    void on_volume_change( WPARAM wp );
+    void on_volume_change( void* pData );
 };

@@ -81,7 +81,7 @@ void AlbumArtFetchTask::run()
     taskResult.artId = artId_;
     taskResult.bitmap.swap( bitmap );
     taskResult.imagePath = imagePath.is_empty() ? "" : file_path_display( imagePath );
-    SendMessage( hNotifyWnd_, CALLBACK_UWM_ON_GET_ALBUM_ART_DONE, 0, (LPARAM)&taskResult );
+    SendMessage( hNotifyWnd_, static_cast<UINT>(smp::InternalMessage::get_album_art_done), 0, (LPARAM)&taskResult );
 }
 
 std::unique_ptr<Gdiplus::Bitmap> GetBitmapFromAlbumArtData( const album_art_data_ptr& data )
