@@ -447,6 +447,7 @@ void JsFbMetadbHandleList::OrderByRelativePath()
 {
     // Note: there is built-in metadb_handle_list::sort_by_relative_path(),
     // but this implementation is much faster because of timsort.
+    // Also see `get_subsong_index` below.
 
     auto api = library_manager::get();
     const size_t count = metadbHandleList_.get_count();
@@ -460,8 +461,13 @@ void JsFbMetadbHandleList::OrderByRelativePath()
     for ( size_t i = 0; i < count; ++i )
     {
         const auto& item = metadbHandleList_[i];
-        temp = "";
+        temp = ""; ///< get_relative_path won't fill data on fail
         api->get_relative_path( item, temp );
+
+        // One physical file can have multiple handles,
+        // which all return the same path, but have different subsong idx 
+        // (e.g. cuesheets or files with multiple chapters)
+        temp << item->get_subsong_index(); 
 
         data.emplace_back( helpers::make_sort_string( temp ), i );
     }
