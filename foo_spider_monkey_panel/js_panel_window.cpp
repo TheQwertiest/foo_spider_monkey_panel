@@ -1465,7 +1465,7 @@ void js_panel_window::on_playback_queue_changed( WPARAM wp )
 
 void js_panel_window::on_playback_seek( void* pData )
 {
-    auto& data = *reinterpret_cast<std::tuple<metadb_handle_ptr>*>( pData );
+    auto& data = *reinterpret_cast<std::tuple<double>*>( pData );
     pJsContainer_->InvokeJsCallback( "on_playback_seek",
                                      std::get<0>(data) );
 }
