@@ -9,6 +9,8 @@
 #include <js_utils/js_object_helper.h>
 #include <utils/string_helpers.h>
 
+using namespace smp;
+
 namespace
 {
 
@@ -85,19 +87,10 @@ size_t JsContextMenuManager::GetInternalSize()
 
 void JsContextMenuManager::BuildMenu( JsMenuObject* menuObject, int32_t base_id, int32_t max_id )
 {
-    if ( contextMenu_.is_empty() )
-    {
-        throw smp::SmpException( "Context menu is not initialized" );
-    }
+    SmpException::ExpectTrue( contextMenu_.is_valid(), "Context menu is not initialized" );
+    SmpException::ExpectTrue( menuObject, "menuObject argument is null" );
 
-    if ( !menuObject )
-    {
-        throw smp::SmpException( "menuObject argument is null" );
-    }
-
-    HMENU hMenu = menuObject->HMenu();
-    contextmenu_node* parent = contextMenu_->get_root();
-    contextMenu_->win32_build_menu( hMenu, parent, base_id, max_id );
+    contextMenu_->win32_build_menu( menuObject->HMenu(), contextMenu_->get_root(), base_id, max_id );
 }
 
 void JsContextMenuManager::BuildMenuWithOpt( size_t optArgCount, JsMenuObject* menuObject, int32_t base_id, int32_t max_id )
@@ -115,24 +108,17 @@ void JsContextMenuManager::BuildMenuWithOpt( size_t optArgCount, JsMenuObject* m
 
 bool JsContextMenuManager::ExecuteByID( uint32_t id )
 {
-    if ( contextMenu_.is_empty() )
-    {
-        throw smp::SmpException( "Context menu is not initialized" );
-    }
+    SmpException::ExpectTrue( contextMenu_.is_valid(), "Context menu is not initialized" );
 
     return contextMenu_->execute_by_id( id );
 }
 
 void JsContextMenuManager::InitContext( JsFbMetadbHandleList* handles )
 {
-    if ( !handles )
-    {
-        throw smp::SmpException( "handles argument is null" );
-    }
+    SmpException::ExpectTrue( handles, "handles argument is null" );
 
-    metadb_handle_list_cref handles_ptr = handles->GetHandleList();
     contextmenu_manager::g_create( contextMenu_ );
-    contextMenu_->init_context( handles_ptr, contextmenu_manager::flag_show_shortcuts );
+    contextMenu_->init_context( handles->GetHandleList(), contextmenu_manager::flag_show_shortcuts );
 }
 
 void JsContextMenuManager::InitContextPlaylist()

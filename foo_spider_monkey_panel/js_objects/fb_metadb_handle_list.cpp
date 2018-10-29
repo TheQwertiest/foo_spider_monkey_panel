@@ -435,8 +435,7 @@ void JsFbMetadbHandleList::OrderByFormat( JsFbTitleFormat* script, int8_t direct
 {
     SmpException::ExpectTrue( script, "script argument is null" );
 
-    titleformat_object::ptr titleFormat = script->GetTitleFormat();
-    metadbHandleList_.sort_by_format( titleFormat, nullptr, direction );
+    metadbHandleList_.sort_by_format( script->GetTitleFormat(), nullptr, direction );
 }
 
 void JsFbMetadbHandleList::OrderByPath()

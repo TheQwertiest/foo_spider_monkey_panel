@@ -18,6 +18,8 @@
 #include <stats.h>
 #include <popup_msg.h>
 
+using namespace smp;
+
 namespace
 {
 
@@ -248,10 +250,7 @@ void JsFbUtils::ClearPlaylist()
 
 bool JsFbUtils::CopyHandleListToClipboard( JsFbMetadbHandleList* handles )
 {
-    if ( !handles )
-    {
-        throw smp::SmpException( "handles argument is null" );
-    }
+    SmpException::ExpectTrue( handles, "handles argument is null" );
 
     pfc::com_ptr_t<IDataObject> pDO = ole_interaction::get()->create_dataobject( handles->GetHandleList() );
     return SUCCEEDED( OleSetClipboard( pDO.get_ptr() ) );
@@ -292,10 +291,7 @@ JSObject* JsFbUtils::CreateProfilerWithOpt( size_t optArgCount, const pfc::strin
 
 uint32_t JsFbUtils::DoDragDrop( JsFbMetadbHandleList* handles, uint32_t okEffects )
 {
-    if ( !handles )
-    {
-        throw smp::SmpException( "handles argument is null" );
-    }
+    SmpException::ExpectTrue( handles, "handles argument is null" );
 
     metadb_handle_list_cref handles_ptr = handles->GetHandleList();
     if ( !handles_ptr.get_count() || okEffects == DROPEFFECT_NONE )
@@ -344,12 +340,9 @@ JSObject* JsFbUtils::GetClipboardContents( uint32_t hWindow )
 
 pfc::string8_fast JsFbUtils::GetDSPPresets()
 {
-    using json = nlohmann::json;
+    SmpException::ExpectTrue( static_api_test_t<dsp_config_manager_v2>(), "This method requires foobar2000 v1.4 or later" );
 
-    if ( !static_api_test_t<output_manager_v2>() )
-    {
-        throw smp::SmpException( "This method requires foobar2000 v1.4 or later" );
-    }
+    using json = nlohmann::json;
 
     json j = json::array();
     auto api = output_manager_v2::get();
@@ -409,16 +402,13 @@ JSObject* JsFbUtils::GetLibraryItems()
 
 pfc::string8_fast JsFbUtils::GetLibraryRelativePath( JsFbMetadbHandle* handle )
 {
-    if ( !handle )
-    {
-        throw smp::SmpException( "handle argument is null" );
-    }
+    SmpException::ExpectTrue( handle, "handle argument is null" );
 
     metadb_handle_ptr ptr = handle->GetHandle();
     pfc::string8_fast temp;
     library_manager::get()->get_relative_path( ptr, temp );
 
-    return pfc::string8_fast( temp.c_str(), temp.length() );
+    return temp;
 }
 
 JSObject* JsFbUtils::GetNowPlaying()
@@ -434,12 +424,9 @@ JSObject* JsFbUtils::GetNowPlaying()
 
 pfc::string8_fast JsFbUtils::GetOutputDevices()
 {
-    using json = nlohmann::json;
+    SmpException::ExpectTrue( static_api_test_t<output_manager_v2>(), "This method requires foobar2000 v1.4 or later" );
 
-    if ( !static_api_test_t<output_manager_v2>() )
-    {
-        throw smp::SmpException( "This method requires foobar2000 v1.4 or later" );
-    }
+    using json = nlohmann::json;
 
     json j = json::array();
     auto api = output_manager_v2::get();
@@ -463,10 +450,7 @@ pfc::string8_fast JsFbUtils::GetOutputDevices()
 
 JSObject* JsFbUtils::GetQueryItems( JsFbMetadbHandleList* handles, const pfc::string8_fast& query )
 {
-    if ( !handles )
-    {
-        throw smp::SmpException( "handles argument is null" );
-    }
+    SmpException::ExpectTrue( handles, "handles argument is null" );
 
     metadb_handle_list_cref handles_ptr = handles->GetHandleList();
     metadb_handle_list dst_list( handles_ptr );
@@ -568,10 +552,7 @@ bool JsFbUtils::IsMainMenuCommandChecked( const pfc::string8_fast& command )
 
 bool JsFbUtils::IsMetadbInMediaLibrary( JsFbMetadbHandle* handle )
 {
-    if ( !handle )
-    {
-        throw smp::SmpException( "handle argument is null" );
-    }
+    SmpException::ExpectTrue( handle, "handle argument is null" );
 
     return library_manager::get()->is_item_in_library( handle->GetHandle() );
 }
@@ -632,20 +613,13 @@ bool JsFbUtils::RunContextCommandWithOpt( size_t optArgCount, const pfc::string8
 
 bool JsFbUtils::RunContextCommandWithMetadb( const pfc::string8_fast& command, JS::HandleValue handle, uint32_t flags )
 {
-    if ( !handle.isObject() )
-    {
-        throw smp::SmpException( "handle argument is invalid" );
-    }
+    SmpException::ExpectTrue( handle.isObject(), "handle argument is invalid" );
 
     JS::RootedObject jsObject( pJsCtx_, &handle.toObject() );
 
     JsFbMetadbHandle* jsHandle = GetInnerInstancePrivate<JsFbMetadbHandle>( pJsCtx_, jsObject );
     JsFbMetadbHandleList* jsHandleList = GetInnerInstancePrivate<JsFbMetadbHandleList>( pJsCtx_, jsObject );
-
-    if ( !jsHandle && !jsHandleList )
-    {
-        throw smp::SmpException( "handle argument is invalid" );
-    }
+    SmpException::ExpectTrue( jsHandle || jsHandleList, "handle argument is invalid" );
 
     metadb_handle_list handle_list;
     if ( jsHandleList )
@@ -685,28 +659,19 @@ void JsFbUtils::SavePlaylist()
 
 void JsFbUtils::SetDSPPreset( uint32_t idx )
 {
-    if ( !static_api_test_t<dsp_config_manager_v2>() )
-    {
-        throw smp::SmpException( "This method requires foobar2000 v1.4 or later" );
-    }
+    SmpException::ExpectTrue( static_api_test_t<dsp_config_manager_v2>(), "This method requires foobar2000 v1.4 or later" );
 
     auto api = dsp_config_manager_v2::get();
     t_size count = api->get_preset_count();
 
-    if ( idx >= count )
-    {
-        throw smp::SmpException( "Index is out of bounds" );
-    }
+    SmpException::ExpectTrue( idx < count, "Index is out of bounds" );
 
     api->select_preset( idx );
 }
 
 void JsFbUtils::SetOutputDevice( const std::wstring& output, const std::wstring& device )
 {
-    if ( !static_api_test_t<output_manager_v2>() )
-    {
-        throw smp::SmpException( "This method requires foobar2000 v1.4 or later" );
-    }
+    SmpException::ExpectTrue( static_api_test_t<output_manager_v2>(), "This method requires foobar2000 v1.4 or later" );
 
     GUID output_id, device_id;
 
@@ -783,8 +748,7 @@ bool JsFbUtils::get_AlwaysOnTop()
 
 pfc::string8_fast JsFbUtils::get_ComponentPath()
 {
-    pfc::string8_fast tmp( helpers::get_fb2k_component_path() );
-    return pfc::string8_fast( tmp.c_str(), tmp.length() );
+    return helpers::get_fb2k_component_path();
 }
 
 bool JsFbUtils::get_CursorFollowPlayback()
@@ -794,8 +758,7 @@ bool JsFbUtils::get_CursorFollowPlayback()
 
 pfc::string8_fast JsFbUtils::get_FoobarPath()
 {
-    pfc::string8_fast tmp( helpers::get_fb2k_path() );
-    return pfc::string8_fast( tmp.c_str(), tmp.length() );
+    return helpers::get_fb2k_path();
 }
 
 bool JsFbUtils::get_IsPaused()

@@ -21,6 +21,8 @@
 #include <helpers.h>
 #include <user_message.h>
 
+using namespace smp;
+
 namespace
 {
 
@@ -264,10 +266,7 @@ void JsWindow::DefinePanel( const pfc::string8_fast& name, JS::HandleValue optio
         return;
     }
 
-    if ( isPanelDefined_ )
-    {
-        throw smp::SmpException( "DefinePanel can't be called twice" );
-    }
+    SmpException::ExpectTrue( !isPanelDefined_, "DefinePanel can't be called twice" );
 
     struct Options
     {
@@ -283,10 +282,7 @@ void JsWindow::DefinePanel( const pfc::string8_fast& name, JS::HandleValue optio
     {
         if ( !options.isNullOrUndefined() )
         {
-            if ( !options.isObject() )
-            {
-                throw smp::SmpException( "options argument is not an object" );
-            }
+            SmpException::ExpectTrue( options.isObject(), "options argument is not an object" );
 
             JS::RootedObject jsOptions( pJsCtx_, &options.toObject() );
 
@@ -307,10 +303,7 @@ void JsWindow::DefinePanel( const pfc::string8_fast& name, JS::HandleValue optio
                     throw smp::JsException();
                 }
 
-                if ( !jsFeaturesValue.isObject() )
-                {
-                    throw smp::SmpException( "`features` is not an object" );
-                }
+                SmpException::ExpectTrue( jsFeaturesValue.isObject(), "`features` is not an object" );
 
                 JS::RootedObject jsFeatures( pJsCtx_, &jsFeaturesValue.toObject() );
                 parsed_options.features.drag_n_drop = GetOptionalProperty<bool>( pJsCtx_, jsFeatures, "drag_n_drop" ).value_or( false );
@@ -352,10 +345,7 @@ uint32_t JsWindow::GetColourCUI( uint32_t type, const std::wstring& guidstr )
         return 0;
     }
 
-    if ( parentPanel_.GetPanelType() != js_panel_window::PanelType::CUI )
-    {
-        throw smp::SmpException( "Can be called only in CUI" );
-    }
+    SmpException::ExpectTrue( parentPanel_.GetPanelType() == js_panel_window::PanelType::CUI, "Can be called only in CUI" );
 
     GUID guid;
     if ( guidstr.empty() )
@@ -391,10 +381,7 @@ uint32_t JsWindow::GetColourDUI( uint32_t type )
         return 0;
     }
 
-    if ( parentPanel_.GetPanelType() != js_panel_window::PanelType::DUI )
-    {
-        throw smp::SmpException( "Can be called only in DUI" );
-    }
+    SmpException::ExpectTrue( parentPanel_.GetPanelType() == js_panel_window::PanelType::DUI, "Can be called only in DUI" );
 
     return parentPanel_.GetColourDUI( type );
 }
@@ -406,10 +393,7 @@ JSObject* JsWindow::GetFontCUI( uint32_t type, const std::wstring& guidstr )
         return nullptr;
     }
 
-    if ( parentPanel_.GetPanelType() != js_panel_window::PanelType::CUI )
-    {
-        throw smp::SmpException( "Can be called only in CUI" );
-    }
+    SmpException::ExpectTrue( parentPanel_.GetPanelType() == js_panel_window::PanelType::CUI, "Can be called only in CUI" );
 
     GUID guid;
     if ( guidstr.empty() )
@@ -457,10 +441,7 @@ JSObject* JsWindow::GetFontDUI( uint32_t type )
         return nullptr;
     }
 
-    if ( parentPanel_.GetPanelType() != js_panel_window::PanelType::DUI )
-    {
-        throw smp::SmpException( "Can be called only in DUI" );
-    }
+    SmpException::ExpectTrue( parentPanel_.GetPanelType() == js_panel_window::PanelType::DUI, "Can be called only in DUI" );
 
     HFONT hFont = parentPanel_.GetFontDUI( type ); // No need to delete, it is managed by DUI
     if ( !hFont )
@@ -510,7 +491,7 @@ void JsWindow::NotifyOthers( const std::wstring& name, JS::HandleValue info )
     // TODO: think about replacing with PostMessage
     panel_manager::instance().send_msg_to_others(
         parentPanel_.GetHWND(),
-        static_cast<UINT>(smp::InternalMessage::notify_data),
+        static_cast<UINT>( smp::InternalMessage::notify_data ),
         reinterpret_cast<WPARAM>( &name ),
         reinterpret_cast<LPARAM>( &info ) );
 }
@@ -522,7 +503,7 @@ void JsWindow::Reload()
         return;
     }
 
-    PostMessage( parentPanel_.GetHWND(), static_cast<UINT>(smp::InternalMessage::reload_script), 0, 0 );
+    PostMessage( parentPanel_.GetHWND(), static_cast<UINT>( smp::InternalMessage::reload_script ), 0, 0 );
 }
 
 void JsWindow::Repaint( bool force )
@@ -643,7 +624,7 @@ void JsWindow::ShowConfigure()
         return;
     }
 
-    PostMessage( parentPanel_.GetHWND(), static_cast<UINT>(smp::InternalMessage::show_configure), 0, 0 );
+    PostMessage( parentPanel_.GetHWND(), static_cast<UINT>( smp::InternalMessage::show_configure ), 0, 0 );
 }
 
 void JsWindow::ShowProperties()
@@ -653,7 +634,7 @@ void JsWindow::ShowProperties()
         return;
     }
 
-    PostMessage( parentPanel_.GetHWND(), static_cast<UINT>(smp::InternalMessage::show_properties), 0, 0 );
+    PostMessage( parentPanel_.GetHWND(), static_cast<UINT>( smp::InternalMessage::show_properties ), 0, 0 );
 }
 
 uint32_t JsWindow::get_DlgCode()
@@ -682,7 +663,7 @@ uint32_t JsWindow::get_ID()
     {
         return 0;
     }
-    
+
     // Will work properly only on x86
     return reinterpret_cast<uint32_t>( parentPanel_.GetHWND() );
 }
@@ -759,18 +740,19 @@ uint32_t JsWindow::get_MinWidth()
 
 pfc::string8_fast JsWindow::get_Name()
 {
+    pfc::string8_fast name; ///< for RVO
     if ( isFinalized_ )
     {
         return "";
     }
 
-    pfc::string8_fast name = parentPanel_.ScriptInfo().name;
+    name = parentPanel_.ScriptInfo().name;
     if ( name.is_empty() )
     {
         name = pfc::print_guid( parentPanel_.GetGUID() );
     }
 
-    return pfc::string8_fast( name.c_str(), name.length() );
+    return name;
 }
 
 uint32_t JsWindow::get_Width()
@@ -801,7 +783,7 @@ void JsWindow::put_MaxHeight( uint32_t height )
     }
 
     parentPanel_.MaxSize().y = height;
-    PostMessage( parentPanel_.GetHWND(), static_cast<UINT>(smp::InternalMessage::size_limit_changed), 0, uie::size_limit_maximum_height );
+    PostMessage( parentPanel_.GetHWND(), static_cast<UINT>( smp::InternalMessage::size_limit_changed ), 0, uie::size_limit_maximum_height );
 }
 
 void JsWindow::put_MaxWidth( uint32_t width )
@@ -812,7 +794,7 @@ void JsWindow::put_MaxWidth( uint32_t width )
     }
 
     parentPanel_.MaxSize().x = width;
-    PostMessage( parentPanel_.GetHWND(), static_cast<UINT>(smp::InternalMessage::size_limit_changed), 0, uie::size_limit_maximum_width );
+    PostMessage( parentPanel_.GetHWND(), static_cast<UINT>( smp::InternalMessage::size_limit_changed ), 0, uie::size_limit_maximum_width );
 }
 
 void JsWindow::put_MinHeight( uint32_t height )
@@ -823,7 +805,7 @@ void JsWindow::put_MinHeight( uint32_t height )
     }
 
     parentPanel_.MinSize().y = height;
-    PostMessage( parentPanel_.GetHWND(), static_cast<UINT>(smp::InternalMessage::size_limit_changed), 0, uie::size_limit_minimum_height );
+    PostMessage( parentPanel_.GetHWND(), static_cast<UINT>( smp::InternalMessage::size_limit_changed ), 0, uie::size_limit_minimum_height );
 }
 
 void JsWindow::put_MinWidth( uint32_t width )
@@ -834,7 +816,7 @@ void JsWindow::put_MinWidth( uint32_t width )
     }
 
     parentPanel_.MinSize().x = width;
-    PostMessage( parentPanel_.GetHWND(), static_cast<UINT>(smp::InternalMessage::size_limit_changed), 0, uie::size_limit_minimum_width );
+    PostMessage( parentPanel_.GetHWND(), static_cast<UINT>( smp::InternalMessage::size_limit_changed ), 0, uie::size_limit_minimum_width );
 }
 
 } // namespace mozjs

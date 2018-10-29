@@ -127,7 +127,7 @@ bool JsFbMetadbHandle::Compare( JsFbMetadbHandle* handle )
 {
     SmpException::ExpectTrue( handle, "handle argument is null" );
 
-    return (handle->GetHandle() == metadbHandle_);
+    return ( handle->GetHandle() == metadbHandle_ );
 }
 
 JSObject* JsFbMetadbHandle::GetFileInfo()
@@ -233,7 +233,7 @@ double JsFbMetadbHandle::get_Length()
 
 pfc::string8_fast JsFbMetadbHandle::get_Path()
 {
-    return file_path_display( metadbHandle_->get_path() ).get_ptr();
+    return pfc::string8_fast( file_path_display( metadbHandle_->get_path() ) );
 }
 
 pfc::string8_fast JsFbMetadbHandle::get_RawPath()

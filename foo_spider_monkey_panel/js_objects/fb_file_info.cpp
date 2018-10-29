@@ -6,6 +6,8 @@
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
 
+using namespace smp;
+
 namespace
 {
 
@@ -82,10 +84,7 @@ JsFbFileInfo::~JsFbFileInfo()
 std::unique_ptr<mozjs::JsFbFileInfo>
 JsFbFileInfo::CreateNative( JSContext* cx, std::unique_ptr<file_info_impl> fileInfo )
 {
-    if ( !fileInfo )
-    {
-        throw smp::SmpException( "Internal error: file_info object is null" );
-    }
+    SmpException::ExpectTrue( !!fileInfo, "Internal error: file_info object is null" );
 
     return std::unique_ptr<JsFbFileInfo>( new JsFbFileInfo( cx, std::move( fileInfo ) ) );
 }
@@ -102,20 +101,14 @@ int32_t JsFbFileInfo::InfoFind( const pfc::string8_fast& name )
 
 pfc::string8_fast JsFbFileInfo::InfoName( uint32_t index )
 {
-    if ( index >= fileInfo_->info_get_count() )
-    {
-        throw smp::SmpException( "Index is out of bounds" );
-    }
+    SmpException::ExpectTrue( index < fileInfo_->info_get_count(), "Index is out of bounds" );
 
     return fileInfo_->info_enum_name( index );
 }
 
 pfc::string8_fast JsFbFileInfo::InfoValue( uint32_t index )
 {
-    if ( index >= fileInfo_->info_get_count() )
-    {
-        throw smp::SmpException( "Index is out of bounds" );
-    }
+    SmpException::ExpectTrue( index < fileInfo_->info_get_count(), "Index is out of bounds" );
 
     return fileInfo_->info_enum_value( index );
 }
@@ -133,31 +126,22 @@ int32_t JsFbFileInfo::MetaFind( const pfc::string8_fast& name )
 
 pfc::string8_fast JsFbFileInfo::MetaName( uint32_t index )
 {
-    if ( index >= fileInfo_->meta_get_count() )
-    {
-        throw smp::SmpException( "Index is out of bounds" );
-    }
+    SmpException::ExpectTrue( index < fileInfo_->meta_get_count(), "Index is out of bounds" );
 
     return fileInfo_->meta_enum_name( index );
 }
 
 pfc::string8_fast JsFbFileInfo::MetaValue( uint32_t infoIndex, uint32_t valueIndex )
 {
-    if ( infoIndex >= fileInfo_->meta_get_count()
-         || valueIndex >= fileInfo_->meta_enum_value_count( infoIndex ) )
-    {
-        throw smp::SmpException( "Index is out of bounds" );
-    }
+    SmpException::ExpectTrue( infoIndex < fileInfo_->meta_get_count(), "Index is out of bounds" );
+    SmpException::ExpectTrue( valueIndex < fileInfo_->meta_enum_value_count( infoIndex ), "Index is out of bounds" );
 
     return fileInfo_->meta_enum_value( infoIndex, valueIndex );
 }
 
 uint32_t JsFbFileInfo::MetaValueCount( uint32_t index )
 {
-    if ( index >= fileInfo_->meta_get_count() )
-    {
-        throw smp::SmpException( "Index is out of bounds" );
-    }
+    SmpException::ExpectTrue( index < fileInfo_->meta_get_count(), "Index is out of bounds" );
 
     return fileInfo_->meta_enum_value_count( index );
 }

@@ -16,6 +16,7 @@
 
 #include <map>
 
+using namespace smp;
 
 namespace
 {
@@ -103,10 +104,7 @@ JsGdiBitmap::~JsGdiBitmap()
 std::unique_ptr<JsGdiBitmap>
 JsGdiBitmap::CreateNative( JSContext* cx, std::unique_ptr<Gdiplus::Bitmap> gdiBitmap )
 {
-    if ( !gdiBitmap )
-    {
-        throw smp::SmpException( "Internal error: Gdiplus::Bitmap object is null" );
-    }
+    SmpException::ExpectTrue( !!gdiBitmap, "Internal error: Gdiplus::Bitmap object is null" );
 
     return std::unique_ptr<JsGdiBitmap>( new JsGdiBitmap( cx, std::move( gdiBitmap ) ) );
 }
@@ -161,10 +159,7 @@ JSObject* JsGdiBitmap::ApplyAlpha( uint8_t alpha )
 
 bool JsGdiBitmap::ApplyMask( JsGdiBitmap* mask )
 {
-    if ( !mask )
-    {
-        throw smp::SmpException( "mask argument is null" );
-    }
+    SmpException::ExpectTrue( mask, "mask argument is null" );
 
     Gdiplus::Bitmap* pBitmapMask = mask->GdiBitmap();
     assert( pBitmapMask );
@@ -394,13 +389,9 @@ JSObject* JsGdiBitmap::GetGraphics()
     error::CheckGdiPlusObject( g );
 
     JS::RootedObject jsObject( pJsCtx_, JsGdiGraphics::CreateJs( pJsCtx_ ) );
-    assert( jsObject );
 
     JsGdiGraphics* pNativeObject = GetInnerInstancePrivate<JsGdiGraphics>( pJsCtx_, jsObject );
-    if ( !pNativeObject )
-    {
-        throw smp::SmpException( "Internal error: failed to get JsGdiGraphics object" );
-    }
+    SmpException::ExpectTrue( pNativeObject, "Internal error: failed to get JsGdiGraphics object" );
 
     pNativeObject->SetGraphicsObject( g.release() );
 
@@ -459,7 +450,7 @@ void JsGdiBitmap::RotateFlip( uint32_t mode )
 bool JsGdiBitmap::SaveAs( const std::wstring& path, const std::wstring& format )
 {
     CLSID clsid_encoder;
-    int imageEncoderId = []( const std::wstring& format, CLSID& clsId ) -> int { // get image encoder
+    const int imageEncoderId = []( const std::wstring& format, CLSID& clsId ) -> int { // get image encoder
         UINT num = 0;
         UINT size = 0;
         Gdiplus::Status status = Gdiplus::GetImageEncodersSize( &num, &size );

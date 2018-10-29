@@ -13,6 +13,8 @@
 
 #include <helpers.h>
 
+using namespace smp;
+
 namespace
 {
 
@@ -188,10 +190,7 @@ void JsFbPlaylistManager::PrepareForGc()
 
 void JsFbPlaylistManager::AddItemToPlaybackQueue( JsFbMetadbHandle* handle )
 {
-    if ( !handle )
-    {
-        throw smp::SmpException( "handle argument is null" );
-    }
+    SmpException::ExpectTrue( handle, "handle argument is null" );
 
     playlist_manager::get()->queue_add_item( handle->GetHandle() );
 }
@@ -300,15 +299,12 @@ uint32_t JsFbPlaylistManager::DuplicatePlaylist( uint32_t from, const pfc::strin
 {
     auto api = playlist_manager_v4::get();
 
-    if ( from >= api->get_playlist_count() )
-    {
-        throw smp::SmpException( "Index is out of bounds" );
-    }
+    SmpException::ExpectTrue( from < api->get_playlist_count(), "Index is out of bounds" );
 
     metadb_handle_list contents;
     api->playlist_get_all_items( from, contents );
 
-    pfc::string8_fast uname( name.c_str(), name.length() );
+    pfc::string8_fast uname = name;
     if ( uname.is_empty() )
     {
         api->playlist_get_name( from, uname );
@@ -348,10 +344,7 @@ int32_t JsFbPlaylistManager::FindOrCreatePlaylist( const pfc::string8_fast& name
 
 int32_t JsFbPlaylistManager::FindPlaybackQueueItemIndex( JsFbMetadbHandle* handle, uint32_t playlistIndex, uint32_t playlistItemIndex )
 {
-    if ( !handle )
-    {
-        throw smp::SmpException( "handle argument is null" );
-    }
+    SmpException::ExpectTrue( handle, "handle argument is null" );
 
     t_playback_queue_item item;
     item.m_handle = handle->GetHandle();
@@ -394,10 +387,9 @@ JSObject* JsFbPlaylistManager::GetPlaybackQueueHandles()
 {
     pfc::list_t<t_playback_queue_item> contents;
     playlist_manager::get()->queue_get_contents( contents );
-    t_size count = contents.get_count();
     metadb_handle_list items;
 
-    for ( t_size i = 0; i < count; ++i )
+    for ( t_size i = 0, count = contents.get_count(); i < count; ++i )
     {
         items.add_item( contents[i].m_handle );
     }
@@ -445,10 +437,7 @@ JSObject* JsFbPlaylistManager::GetPlaylistSelectedItems( uint32_t playlistIndex 
 
 void JsFbPlaylistManager::InsertPlaylistItems( uint32_t playlistIndex, uint32_t base, JsFbMetadbHandleList* handles, bool select )
 {
-    if ( !handles )
-    {
-        throw smp::SmpException( "handles argument is null" );
-    }
+    SmpException::ExpectTrue( handles, "handles argument is null" );
 
     pfc::bit_array_val selection( select );
     playlist_manager::get()->playlist_insert_items( playlistIndex, base, handles->GetHandleList(), selection );
@@ -469,10 +458,7 @@ void JsFbPlaylistManager::InsertPlaylistItemsWithOpt( size_t optArgCount, uint32
 
 void JsFbPlaylistManager::InsertPlaylistItemsFilter( uint32_t playlistIndex, uint32_t base, JsFbMetadbHandleList* handles, bool select )
 {
-    if ( !handles )
-    {
-        throw smp::SmpException( "handles argument is null" );
-    }
+    SmpException::ExpectTrue( handles, "handles argument is null" );
 
     playlist_manager::get()->playlist_insert_items_filter( playlistIndex, base, handles->GetHandleList(), select );
 }
@@ -492,10 +478,7 @@ void JsFbPlaylistManager::InsertPlaylistItemsFilterWithOpt( size_t optArgCount, 
 
 bool JsFbPlaylistManager::IsAutoPlaylist( uint32_t playlistIndex )
 {
-    if ( playlistIndex >= playlist_manager::get()->get_playlist_count() )
-    {
-        throw smp::SmpException( "Index is out of bounds" );
-    }
+    SmpException::ExpectTrue( playlistIndex < playlist_manager::get()->get_playlist_count(), "Index is out of bounds" );
 
     return autoplaylist_manager::get()->is_client_present( playlistIndex );
 }
@@ -508,10 +491,7 @@ bool JsFbPlaylistManager::IsPlaylistItemSelected( uint32_t playlistIndex, uint32
 bool JsFbPlaylistManager::IsPlaylistLocked( uint32_t playlistIndex )
 {
     auto api = playlist_manager::get();
-    if ( playlistIndex >= api->get_playlist_count() )
-    {
-        throw smp::SmpException( "Index is out of bounds" );
-    }
+    SmpException::ExpectTrue( playlistIndex < api->get_playlist_count(), "Index is out of bounds" );
 
     return api->playlist_lock_is_present( playlistIndex );
 }
@@ -607,10 +587,7 @@ void JsFbPlaylistManager::SetPlaylistFocusItem( uint32_t playlistIndex, uint32_t
 
 void JsFbPlaylistManager::SetPlaylistFocusItemByHandle( uint32_t playlistIndex, JsFbMetadbHandle* handle )
 {
-    if ( !handle )
-    {
-        throw smp::SmpException( "handle argument is null" );
-    }
+    SmpException::ExpectTrue( handle, "handle argument is null" );
 
     playlist_manager::get()->playlist_set_focus_by_handle( playlistIndex, handle->GetHandle() );
 }
@@ -636,10 +613,7 @@ void JsFbPlaylistManager::SetPlaylistSelectionSingle( uint32_t playlistIndex, ui
 
 bool JsFbPlaylistManager::ShowAutoPlaylistUI( uint32_t playlistIndex )
 {
-    if ( playlistIndex >= playlist_manager::get()->get_playlist_count() )
-    {
-        throw smp::SmpException( "Index is out of bounds" );
-    }
+    SmpException::ExpectTrue( playlistIndex < playlist_manager::get()->get_playlist_count(), "Index is out of bounds" );
 
     auto api = autoplaylist_manager::get();
     if ( !api->is_client_present( playlistIndex ) )
@@ -783,10 +757,7 @@ JSObject* JsFbPlaylistManager::get_PlaylistRecycler()
 void JsFbPlaylistManager::put_ActivePlaylist( uint32_t playlistIndex )
 {
     auto api = playlist_manager::get();
-    if ( playlistIndex >= api->get_playlist_count() )
-    {
-        throw smp::SmpException( "Index is out of bounds" );
-    }
+    SmpException::ExpectTrue( playlistIndex < api->get_playlist_count(), "Index is out of bounds" );
 
     api->set_active_playlist( playlistIndex );
 }
@@ -805,10 +776,7 @@ void JsFbPlaylistManager::put_PlaybackOrder( uint32_t order )
 void JsFbPlaylistManager::put_PlayingPlaylist( uint32_t playlistIndex )
 {
     auto api = playlist_manager::get();
-    if ( playlistIndex >= api->get_playlist_count() )
-    {
-        throw smp::SmpException( "Index is out of bounds" );
-    }
+    SmpException::ExpectTrue( playlistIndex < api->get_playlist_count(), "Index is out of bounds" );
 
     api->set_playing_playlist( playlistIndex );
 }

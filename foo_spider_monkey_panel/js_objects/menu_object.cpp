@@ -6,6 +6,8 @@
 #include <js_utils/js_object_helper.h>
 #include <js_utils/winapi_error_helper.h>
 
+using namespace smp;
+
 namespace
 {
 
@@ -115,10 +117,7 @@ void JsMenuObject::AppendMenuSeparator()
 
 void JsMenuObject::AppendTo( JsMenuObject* parent, uint32_t flags, const std::wstring& text )
 {
-    if ( !parent )
-    {
-        throw smp::SmpException( "parent argument is null" );
-    }
+    SmpException::ExpectTrue( parent, "parent argument is null" );
 
     BOOL bRet = ::AppendMenu( parent->HMenu(), flags | MF_STRING | MF_POPUP, (UINT_PTR)hMenu_, text.c_str() );
     error::CheckWinApi( bRet, "AppendMenu" );
@@ -137,10 +136,7 @@ void JsMenuObject::CheckMenuItem( uint32_t item_id, bool check )
 
 void JsMenuObject::CheckMenuRadioItem( uint32_t first, uint32_t last, uint32_t selected )
 {
-    if ( selected < first || selected > last )
-    {
-        throw smp::SmpException( "Index is out of bounds" );
-    }
+    SmpException::ExpectTrue( selected >= first && selected <= last, "Index is out of bounds" );
 
     BOOL bRet = ::CheckMenuRadioItem( hMenu_, first, last, selected, MF_BYCOMMAND );
     error::CheckWinApi( bRet, "CheckMenuRadioItem" );

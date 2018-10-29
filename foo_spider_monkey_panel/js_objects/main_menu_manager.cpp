@@ -7,6 +7,8 @@
 #include <js_utils/js_object_helper.h>
 #include <utils/string_helpers.h>
 
+using namespace smp;
+
 namespace
 {
 
@@ -79,15 +81,8 @@ size_t JsMainMenuManager::GetInternalSize()
 
 void JsMainMenuManager::BuildMenu( JsMenuObject* menu, int32_t base_id, int32_t count )
 {
-    if ( menuManager_.is_empty() )
-    {
-        throw smp::SmpException( "Main menu manager is not initialized" );
-    }
-
-    if ( !menu )
-    {
-        throw smp::SmpException( "menu argument is null" );
-    }
+    SmpException::ExpectTrue( menuManager_.is_valid(), "Main menu manager is not initialized" );
+    SmpException::ExpectTrue( menu, "menu argument is null" );
 
     // HACK: workaround for foo_menu_addons
     try
@@ -101,10 +96,7 @@ void JsMainMenuManager::BuildMenu( JsMenuObject* menu, int32_t base_id, int32_t 
 
 bool JsMainMenuManager::ExecuteByID( uint32_t id )
 {
-    if ( menuManager_.is_empty() )
-    {
-        throw smp::SmpException( "Main menu manager is not initialized" );
-    }
+    SmpException::ExpectTrue( menuManager_.is_valid(), "Main menu manager is not initialized" );
 
     return menuManager_->execute_command( id );
 }

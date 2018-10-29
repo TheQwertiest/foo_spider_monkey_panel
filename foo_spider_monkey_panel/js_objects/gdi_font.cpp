@@ -8,6 +8,8 @@
 
 // TODO: add font caching
 
+using namespace smp;
+
 namespace
 {
 
@@ -79,15 +81,8 @@ JsGdiFont::~JsGdiFont()
 std::unique_ptr<JsGdiFont>
 JsGdiFont::CreateNative( JSContext* cx, std::unique_ptr<Gdiplus::Font> pGdiFont, HFONT hFont, bool isManaged )
 {
-    if ( !pGdiFont )
-    {
-        throw smp::SmpException( "Internal error: Gdiplus::Font object is null" );
-    }
-
-    if ( !hFont )
-    {
-        throw smp::SmpException( "Internal error: HFONT object is null" );
-    }
+    SmpException::ExpectTrue( !!pGdiFont, "Internal error: Gdiplus::Font object is null" );
+    SmpException::ExpectTrue( hFont, "Internal error: HFONT object is null" );
 
     return std::unique_ptr<JsGdiFont>( new JsGdiFont( cx, std::move( pGdiFont ), hFont, isManaged ) );
 }

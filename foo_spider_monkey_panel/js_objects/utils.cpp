@@ -25,6 +25,8 @@
 
 #include <filesystem>
 
+using namespace smp;
+
 namespace
 {
 
@@ -174,32 +176,29 @@ bool JsUtils::CheckComponentWithOpt( size_t optArgCount, const pfc::string8_fast
 
 bool JsUtils::CheckFont( const std::wstring& name )
 {
+    Gdiplus::InstalledFontCollection font_collection;
+    const int count = font_collection.GetFamilyCount();
+    std::vector<Gdiplus::FontFamily> font_families( count );
+
+    int recv;
+    Gdiplus::Status gdiRet = font_collection.GetFamilies( count, font_families.data(), &recv );
+    error::CheckGdi( gdiRet, "GetFamilies" );
+    SmpException::ExpectTrue( recv == count, "Internal error: GetFamilies numSought != numFound" );
+
     WCHAR family_name_eng[LF_FACESIZE] = { 0 };
     WCHAR family_name_loc[LF_FACESIZE] = { 0 };
-    Gdiplus::InstalledFontCollection font_collection;
-    int count = font_collection.GetFamilyCount();
-    std::unique_ptr<Gdiplus::FontFamily[]> font_families( new Gdiplus::FontFamily[count] );
-    int recv;
+    const auto it = std::find_if( font_families.cbegin(), font_families.cend(), [&family_name_eng, &family_name_loc, &name]( const auto& fontFamily ) {
+        Gdiplus::Status gdiRet = fontFamily.GetFamilyName( family_name_eng, MAKELANGID( LANG_ENGLISH, SUBLANG_ENGLISH_US ) );
+        error::CheckGdi( gdiRet, "GetFamilyName" );
 
-    Gdiplus::Status gdiRet = font_collection.GetFamilies( count, font_families.get(), &recv );
-    error::CheckGdi( gdiRet, "GetFamilies" );
+        gdiRet = fontFamily.GetFamilyName( family_name_loc );
+        error::CheckGdi( gdiRet, "GetFamilyName" );
 
-    if ( recv == count )
-    { // Find
-        for ( int i = 0; i < count; ++i )
-        {
-            font_families[i].GetFamilyName( family_name_eng, MAKELANGID( LANG_ENGLISH, SUBLANG_ENGLISH_US ) );
-            font_families[i].GetFamilyName( family_name_loc );
+        return ( !_wcsicmp( name.c_str(), family_name_loc )
+                 || !_wcsicmp( name.c_str(), family_name_eng ) );
+    } );
 
-            if ( !_wcsicmp( name.c_str(), family_name_loc )
-                 || !_wcsicmp( name.c_str(), family_name_eng ) )
-            {
-                return true;
-            }
-        }
-    }
-
-    return false;
+    return ( it != font_families.cend() );
 }
 
 uint32_t JsUtils::ColourPicker( uint32_t hWindow, uint32_t default_colour )
@@ -291,27 +290,18 @@ JS::Value JsUtils::FileTest( const std::wstring& path, const std::wstring& mode 
 
 pfc::string8_fast JsUtils::FormatDuration( double p )
 {
-    pfc::string8_fast str( pfc::format_time_ex( p, 0 ) );
-    return pfc::string8_fast( str.c_str(), str.length() );
+    return pfc::string8_fast( pfc::format_time_ex( p, 0 ) );
 }
 
 pfc::string8_fast JsUtils::FormatFileSize( uint64_t p )
 {
-    pfc::string8_fast str = pfc::format_file_size_short( p );
-    return pfc::string8_fast( str.c_str(), str.length() );
+    return pfc::string8_fast( pfc::format_file_size_short( p ) );
 }
 
 std::uint32_t JsUtils::GetAlbumArtAsync( uint32_t hWnd, JsFbMetadbHandle* handle, uint32_t art_id, bool need_stub, bool only_embed, bool no_load )
 {
-    if ( !hWnd )
-    {
-        throw smp::SmpException( "Invalid hWnd argument" );
-    }
-
-    if ( !handle )
-    {
-        throw smp::SmpException( "handle argument is null" );
-    }
+    SmpException::ExpectTrue( hWnd, "Invalid hWnd argument" );
+    SmpException::ExpectTrue( handle, "handle argument is null" );
 
     metadb_handle_ptr ptr = handle->GetHandle();
     assert( ptr.is_valid() );
@@ -365,10 +355,7 @@ JSObject* JsUtils::GetAlbumArtEmbeddedWithOpt( size_t optArgCount, const pfc::st
 
 JSObject* JsUtils::GetAlbumArtV2( JsFbMetadbHandle* handle, uint32_t art_id, bool need_stub )
 {
-    if ( !handle )
-    {
-        throw smp::SmpException( "handle argument is null" );
-    }
+    SmpException::ExpectTrue( handle, "handle argument is null" );
 
     std::unique_ptr<Gdiplus::Bitmap> artImage( art::GetBitmapFromMetadb( handle->GetHandle(), art_id, need_stub, false, nullptr ) );
     if ( !artImage )
@@ -396,13 +383,13 @@ JSObject* JsUtils::GetAlbumArtV2WithOpt( size_t optArgCount, JsFbMetadbHandle* h
 
 uint32_t JsUtils::GetSysColour( uint32_t index )
 {
-    if ( !::GetSysColorBrush( index ) )
-    { // invalid index
-        return 0;
+    auto hRet = ::GetSysColorBrush( index ); ///< no need to call DeleteObject here
+    if ( !hRet )
+    {
+        throw SmpException( smp::string::Formatter() << "Invalid color index: " << index );
     }
 
-    int col = ::GetSysColor( index );
-    return helpers::convert_colorref_to_argb( col );
+    return helpers::convert_colorref_to_argb( ::GetSysColor( index ) );
 }
 
 uint32_t JsUtils::GetSystemMetrics( uint32_t index )
@@ -507,11 +494,11 @@ std::wstring JsUtils::MapString( const std::wstring& str, uint32_t lcid, uint32_
     int iRet = ::LCMapStringW( lcid, flags, str.c_str(), str.length() + 1, nullptr, 0 );
     error::CheckWinApi( iRet, "LCMapStringW" );
 
-    std::unique_ptr<wchar_t[]> dst( new wchar_t[iRet] );
-    iRet = ::LCMapStringW( lcid, flags, str.c_str(), str.length() + 1, dst.get(), iRet );
+    std::wstring dst( iRet, '\0' );
+    iRet = ::LCMapStringW( lcid, flags, str.c_str(), str.length() + 1, (LPWSTR)dst.c_str(), dst.size() );
     error::CheckWinApi( iRet, "LCMapStringW" );
 
-    return dst.get();
+    return dst;
 }
 
 bool JsUtils::PathWildcardMatch( const std::wstring& pattern, const std::wstring& str )
@@ -521,9 +508,18 @@ bool JsUtils::PathWildcardMatch( const std::wstring& pattern, const std::wstring
 
 std::wstring JsUtils::ReadINI( const std::wstring& filename, const std::wstring& section, const std::wstring& key, const std::wstring& defaultval )
 { // TODO: inspect the code (replace with std::filesystem perhaps?)
-    WCHAR buff[255] = { 0 };
-    GetPrivateProfileString( section.c_str(), key.c_str(), nullptr, buff, sizeof( buff ), filename.c_str() );
-    return !buff[0] ? defaultval : buff;
+    std::wstring buff( 255, '\0' );
+    GetPrivateProfileString( section.c_str(), key.c_str(), nullptr, (LPWSTR)buff.c_str(), buff.size(), filename.c_str() );
+    if ( buff[0] )
+    {
+        buff.resize( wcslen( buff.c_str() ) );
+    }
+    else
+    {
+        buff = defaultval;
+    }
+
+    return buff;
 }
 
 std::wstring JsUtils::ReadINIWithOpt( size_t optArgCount, const std::wstring& filename, const std::wstring& section, const std::wstring& key, const std::wstring& defaultval )
@@ -578,6 +574,7 @@ JS::Value JsUtils::ShowHtmlDialog( uint32_t hWnd, const std::wstring& htmlCode, 
         }
     }
 
+    // TODO: placeholder for modeless
     return JS::UndefinedValue();
 }
 

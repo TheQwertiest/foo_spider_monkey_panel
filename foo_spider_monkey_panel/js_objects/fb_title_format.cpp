@@ -8,6 +8,8 @@
 #include <js_utils/js_object_helper.h>
 #include <utils/string_helpers.h>
 
+using namespace smp;
+
 namespace
 {
 
@@ -100,7 +102,7 @@ pfc::string8_fast JsFbTitleFormat::Eval( bool force )
     }
     pc->playback_format_title_ex( handle, nullptr, text, titleFormatObject_, nullptr, playback_control::display_level_all );
 
-    return pfc::string8_fast( text.c_str(), text.length() );
+    return text;
 }
 
 pfc::string8_fast JsFbTitleFormat::EvalWithOpt( size_t optArgCount, bool force )
@@ -118,23 +120,17 @@ pfc::string8_fast JsFbTitleFormat::EvalWithOpt( size_t optArgCount, bool force )
 
 pfc::string8_fast JsFbTitleFormat::EvalWithMetadb( JsFbMetadbHandle* handle )
 {
-    if ( !handle )
-    {
-        throw smp::SmpException( "handle argument is null" );
-    }
+    SmpException::ExpectTrue( handle, "handle argument is null" );
 
     pfc::string8_fast text;
     handle->GetHandle()->format_title( nullptr, text, titleFormatObject_, nullptr );
 
-    return pfc::string8_fast( text.c_str(), text.length() );
+    return text;
 }
 
 JSObject* JsFbTitleFormat::EvalWithMetadbs( JsFbMetadbHandleList* handles )
 {
-    if ( !handles )
-    {
-        throw smp::SmpException( "handles argument is null" );
-    }
+    SmpException::ExpectTrue( handles, "handles argument is null" );
 
     JS::RootedValue jsValue( pJsCtx_ );
     convert::to_js::ToArrayValue(

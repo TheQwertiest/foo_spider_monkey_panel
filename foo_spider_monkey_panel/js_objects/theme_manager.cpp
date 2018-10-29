@@ -8,6 +8,8 @@
 #include <js_utils/js_object_helper.h>
 #include <js_utils/scope_helper.h>
 
+using namespace smp;
+
 namespace
 {
 
@@ -88,10 +90,7 @@ std::unique_ptr<JsThemeManager>
 JsThemeManager::CreateNative( JSContext* cx, HWND hwnd, const std::wstring& classlist )
 {
     HTHEME hTheme = OpenThemeData( hwnd, classlist.c_str() );
-    if ( !hTheme )
-    {
-        throw smp::SmpException( "Internal error: Failed to get theme data for the provided class list" );
-    }
+    SmpException::ExpectTrue( hTheme, "Internal error: Failed to get theme data for the provided class list" );
 
     return std::unique_ptr<JsThemeManager>( new JsThemeManager( cx, hTheme ) );
 }
@@ -105,10 +104,7 @@ void JsThemeManager::DrawThemeBackground( JsGdiGraphics* gr,
                                           int32_t x, int32_t y, uint32_t w, uint32_t h,
                                           int32_t clip_x, int32_t clip_y, uint32_t clip_w, uint32_t clip_h )
 {
-    if ( !gr )
-    {
-        throw smp::SmpException( "gr argument is null" );
-    }
+    SmpException::ExpectTrue( gr, "gr argument is null" );
 
     Gdiplus::Graphics* graphics = gr->GetGraphicsObject();
     assert( graphics );

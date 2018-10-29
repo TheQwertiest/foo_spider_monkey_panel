@@ -11,6 +11,8 @@
 
 #include <helpers.h>
 
+using namespace smp;
+
 namespace
 {
 
@@ -81,19 +83,13 @@ JsGdiRawBitmap::~JsGdiRawBitmap()
 std::unique_ptr<JsGdiRawBitmap>
 JsGdiRawBitmap::CreateNative( JSContext* cx, Gdiplus::Bitmap* pBmp )
 {
-    if ( !pBmp )
-    {
-        throw smp::SmpException( "Internal error: Gdiplus::Bitmap is null" );
-    }
+    SmpException::ExpectTrue( pBmp, "Internal error: Gdiplus::Bitmap is null" );
 
     auto hDc = gdi::CreateUniquePtr( CreateCompatibleDC( nullptr ) );
     error::CheckWinApi( !!hDc, "CreateCompatibleDC" );
 
     auto hBitmap = gdi::CreateHBitmapFromGdiPlusBitmap( *pBmp );
-    if ( !hBitmap )
-    {
-        throw smp::SmpException( "Internal error: failed to get HBITMAP from Gdiplus::Bitmap" );
-    }
+    SmpException::ExpectTrue( !!hBitmap, "Internal error: failed to get HBITMAP from Gdiplus::Bitmap" );
 
     return std::unique_ptr<JsGdiRawBitmap>(
         new JsGdiRawBitmap( cx, std::move( hDc ), std::move( hBitmap ), pBmp->GetWidth(), pBmp->GetHeight() ) );

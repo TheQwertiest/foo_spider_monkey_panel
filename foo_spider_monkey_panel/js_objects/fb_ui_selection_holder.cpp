@@ -6,6 +6,8 @@
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
 
+using namespace smp;
+
 namespace
 {
 
@@ -89,10 +91,7 @@ void JsFbUiSelectionHolder::SetPlaylistTracking()
 
 void JsFbUiSelectionHolder::SetSelection( JsFbMetadbHandleList* handles )
 {
-    if ( !handles )
-    {
-        throw smp::SmpException( "handles argument is null" );
-    }
+    SmpException::ExpectTrue( handles, "handles argument is null" );
 
     holder_->set_selection( handles->GetHandleList() );
 }

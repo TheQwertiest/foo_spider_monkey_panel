@@ -15,6 +15,8 @@
 
 #include <helpers.h>
 
+using namespace smp;
+
 namespace
 {
 
@@ -157,10 +159,8 @@ JSObject* JsGdiUtils::Image( const std::wstring& path )
 
 std::uint32_t JsGdiUtils::LoadImageAsync( uint32_t hWnd, const std::wstring& path )
 {
-    if ( !hWnd )
-    {
-        throw smp::SmpException( "Invalid hWnd argument" );
-    }
+    SmpException::ExpectTrue( hWnd, "Invalid hWnd argument" );
+
     // Such cast will work only on x86
     return image::LoadImageAsync( (HWND)hWnd, path );
 }
