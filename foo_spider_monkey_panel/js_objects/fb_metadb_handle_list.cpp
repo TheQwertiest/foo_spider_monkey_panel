@@ -21,6 +21,8 @@
 #include <js/Conversions.h>
 #pragma warning( pop )
 
+#include <tim/timsort.h>
+
 // TODO: add constructor
 
 using namespace smp;
@@ -365,11 +367,7 @@ JSObject* JsFbMetadbHandleList::GetLibraryRelativePaths()
         metadbHandleList_,
         [&api]( const auto& vec, auto index ) {
             pfc::string8_fast path;
-            if ( !api->get_relative_path( vec[index], path ) )
-            {
-                path = "";
-            }
-
+            api->get_relative_path( vec[index], path );
             return path;
         },
         &jsValue );
@@ -448,10 +446,13 @@ void JsFbMetadbHandleList::OrderByPath()
 
 void JsFbMetadbHandleList::OrderByRelativePath()
 {
+    // Note: there is built-in metadb_handle_list::sort_by_relative_path(),
+    // but this implementation is much faster because of timsort.
+
     auto api = library_manager::get();
     const size_t count = metadbHandleList_.get_count();
 
-    std::vector<helpers::custom_sort_data_2> data;
+    std::vector<helpers::StrCmpLogicalCmpData> data;
     data.reserve( count );
 
     pfc::string8_fastalloc temp;
@@ -460,16 +461,13 @@ void JsFbMetadbHandleList::OrderByRelativePath()
     for ( size_t i = 0; i < count; ++i )
     {
         const auto& item = metadbHandleList_[i];
-        if ( !api->get_relative_path( item, temp ) )
-        {
-            temp = "";
-        }
-        temp << item->get_subsong_index(); ///< for better sorting
+        temp = "";
+        api->get_relative_path( item, temp );
 
         data.emplace_back( helpers::make_sort_string( temp ), i );
     }
 
-    std::sort( data.begin(), data.end(), helpers::custom_sort_compare_2<> );
+    tim::timsort( data.begin(), data.end(), helpers::StrCmpLogicalCmp<> );
 
     std::vector<size_t> order;
     order.reserve( count );

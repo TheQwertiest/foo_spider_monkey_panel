@@ -416,10 +416,7 @@ pfc::string8_fast JsFbUtils::GetLibraryRelativePath( JsFbMetadbHandle* handle )
 
     metadb_handle_ptr ptr = handle->GetHandle();
     pfc::string8_fast temp;
-    if ( !library_manager::get()->get_relative_path( ptr, temp ) )
-    {
-        temp = "";
-    }
+    library_manager::get()->get_relative_path( ptr, temp );
 
     return pfc::string8_fast( temp.c_str(), temp.length() );
 }

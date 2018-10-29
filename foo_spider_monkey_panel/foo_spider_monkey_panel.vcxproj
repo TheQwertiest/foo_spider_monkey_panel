@@ -41,6 +41,7 @@
     <Import Project="$(SolutionDir)\..\props\mozjs.props" />
     <Import Project="$(SolutionDir)\..\props\pfc.props" />
     <Import Project="$(SolutionDir)\..\props\scintilla.props" />
+    <Import Project="$(SolutionDir)\..\props\timsort.props" />
     <Import Project="$(SolutionDir)\..\props\wtl.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />

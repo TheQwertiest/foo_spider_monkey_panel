@@ -706,7 +706,7 @@ void JsFbPlaylistManager::SortPlaylistsByName( int8_t direction )
     auto api = playlist_manager::get();
     const size_t count = api->get_playlist_count();
 
-    std::vector<helpers::custom_sort_data_2> data;
+    std::vector<helpers::StrCmpLogicalCmpData> data;
     data.reserve( count );
 
     pfc::string8_fastalloc temp;
@@ -718,7 +718,7 @@ void JsFbPlaylistManager::SortPlaylistsByName( int8_t direction )
         data.emplace_back( helpers::make_sort_string( temp ), i );
     }
 
-    std::sort( data.begin(), data.end(), (direction > 0 ? helpers::custom_sort_compare_2<1> : helpers::custom_sort_compare_2<-1>));
+    std::sort( data.begin(), data.end(), (direction > 0 ? helpers::StrCmpLogicalCmp<1> : helpers::StrCmpLogicalCmp<-1>));
 
     std::vector<size_t> order;
     order.reserve( count );
