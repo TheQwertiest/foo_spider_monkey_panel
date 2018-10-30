@@ -5,6 +5,7 @@
 #include <convert/js_to_native.h>
 #include <js_objects/global_object.h>
 #include <js_utils/scope_helper.h>
+#include <js_utils/js_property_helper.h>
 
 #include <smp_exception.h>
 
@@ -18,21 +19,29 @@ pfc::string8_fast GetStackTraceString( JSContext* cx, JS::HandleObject exn )
     // Exceptions thrown while compiling top-level script have no stack.
     JS::RootedObject stackObj( cx, JS::ExceptionStackOrNull( exn ) );
     if ( !stackObj )
-    {
-        return pfc::string8_fast();
+    {// quack?
+        try
+        { // Must not throw errors in error handler
+            return GetOptionalProperty<pfc::string8_fast>( cx, exn, "stack" ).value_or( "" );
+        }
+        catch ( ... )
+        {
+            error::SuppressException( cx );
+            return "";
+        }
     }
 
     JS::RootedString stackStr( cx );
     if ( !BuildStackString( cx, stackObj, &stackStr, 2 ) )
     {
-        return pfc::string8_fast();
+        return "";
     }
 
     // JS::UniqueChars generates heap corruption exception in it's destructor
     const char* encodedString = JS_EncodeStringToUTF8( cx, stackStr );
     if ( !encodedString )
     {
-        return pfc::string8_fast();
+        return "";
     }
 
     pfc::string8_fast outString( encodedString );
@@ -96,13 +105,15 @@ bool PrependTextToJsObjectException( JSContext* cx, JS::HandleValue excn, const 
 {
     JS::RootedObject excnObject( cx, &excn.toObject() );
 
-    JSErrorReport* report = JS_ErrorFromException( cx, excnObject );
-    if ( !report )
+    js::ErrorReport report( cx );
+    if ( !report.init( cx, excn, js::ErrorReport::SniffingBehavior::WithSideEffects ) )
     { // Sometimes happens with custom JS errors
         return false;
     }
 
-    pfc::string8_fast currentMessage = report->message().c_str();
+    JSErrorReport* pReport = report.report();
+
+    pfc::string8_fast currentMessage = pReport->message().c_str();
     const pfc::string8_fast newMessage = [&text, &currentMessage] {
         pfc::string8_fast newMessage;
         newMessage += text;
@@ -119,15 +130,12 @@ bool PrependTextToJsObjectException( JSContext* cx, JS::HandleValue excn, const 
     JS::RootedValue jsMessage( cx );
     try
     { // Must not throw errors in error handler
-        convert::to_js::ToValue<pfc::string8_fast>( cx, report->filename, &jsFilename );
+        convert::to_js::ToValue<pfc::string8_fast>( cx, pReport->filename, &jsFilename );
         convert::to_js::ToValue<pfc::string8_fast>( cx, newMessage, &jsMessage );
     }
-    catch ( const smp::JsException& )
+    catch ( ... )
     {
-        return false;
-    }
-    catch ( const smp::SmpException& )
-    {
+        error::SuppressException( cx );
         return false;
     }
 
@@ -136,7 +144,7 @@ bool PrependTextToJsObjectException( JSContext* cx, JS::HandleValue excn, const 
     JS::RootedString jsFilenameStr( cx, jsFilename.toString() );
     JS::RootedString jsMessageStr( cx, jsMessage.toString() );
 
-    if ( !JS::CreateError( cx, (JSExnType)report->exnType, excnStack, jsFilenameStr, report->lineno, report->column, nullptr, jsMessageStr, &newExcn ) )
+    if ( !JS::CreateError( cx, (JSExnType)pReport->exnType, excnStack, jsFilenameStr, pReport->lineno, pReport->column, nullptr, jsMessageStr, &newExcn ) )
     {
         return false;
     }
@@ -201,56 +209,56 @@ pfc::string8_fast GetFullTextFromCurrentJsError( JSContext* cx )
     (void)JS_GetPendingException( cx, &excn );
 
     pfc::string8_fast errorText;
-
     if ( excn.isString() )
     {
         try
         { // Must not throw errors in error handler
             errorText = convert::to_native::ToValue<pfc::string8_fast>( cx, excn );
         }
-        catch ( const smp::JsException& )
+        catch ( ... )
         {
-        }
-        catch ( const smp::SmpException& )
-        {
+            error::SuppressException( cx );
         }
     }
-    else if ( excn.isObject() )
+    else
     {
-        JS::RootedObject excnObject( cx, &excn.toObject() );
-
-        JSErrorReport* report = JS_ErrorFromException( cx, excnObject );
-        if ( !report )
-        { // Can sometimes happen :/
+        js::ErrorReport report( cx );
+        if ( !report.init( cx, excn, js::ErrorReport::SniffingBehavior::WithSideEffects ) )
+        { // Sometimes happens with custom JS errors
             return errorText;
         }
 
-        assert( !JSREPORT_IS_WARNING( report->flags ) );
+        JSErrorReport* pReport = report.report();
+        assert( !JSREPORT_IS_WARNING( pReport->flags ) );
 
-        errorText = report->message().c_str();
-        if ( report->filename )
+        errorText = pReport->message().c_str();
+        if ( pReport->filename )
         {
             errorText += "\n\n";
             errorText += "File: ";
-            errorText += report->filename;
+            errorText += pReport->filename;
             errorText += "\n";
             errorText += "Line: ";
-            errorText += std::to_string( report->lineno ).c_str();
+            errorText += std::to_string( pReport->lineno ).c_str();
             errorText += ", Column: ";
-            errorText += std::to_string( report->column ).c_str();
-            if ( report->linebufLength() )
+            errorText += std::to_string( pReport->column ).c_str();
+            if ( pReport->linebufLength() )
             {
                 errorText += "\n";
-                errorText += pfc::stringcvt::string_utf8_from_utf16( report->linebuf(), report->linebufLength() );
+                errorText += pfc::stringcvt::string_utf8_from_utf16( pReport->linebuf(), pReport->linebufLength() );
             }
         }
 
-        pfc::string8_fast stackTrace = GetStackTraceString( cx, excnObject );
-        if ( !stackTrace.is_empty() )
+        if ( excn.isObject() )
         {
-            errorText += "\n\n";
-            errorText += "Stack trace:\n";
-            errorText += stackTrace;
+            JS::RootedObject excnObject( cx, &excn.toObject() );
+            pfc::string8_fast stackTrace = GetStackTraceString( cx, excnObject );
+            if ( !stackTrace.is_empty() )
+            {
+                errorText += "\n\n";
+                errorText += "Stack trace:\n";
+                errorText += stackTrace;
+            }
         }
     }
 
