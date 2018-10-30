@@ -152,7 +152,7 @@ namespace mozjs::art
 
 embed_thread::embed_thread( t_size action,
                             album_art_data_ptr data,
-                            metadb_handle_list_cref handles,
+                            const metadb_handle_list& handles,
                             GUID what )
     : m_action( action )
     , m_data( data )

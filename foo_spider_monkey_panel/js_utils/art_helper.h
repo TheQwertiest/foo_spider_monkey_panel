@@ -12,7 +12,7 @@ class embed_thread
 public:
     embed_thread( t_size action,
                   album_art_data_ptr data,
-                  metadb_handle_list_cref handles,
+                  const metadb_handle_list& handles,
                   GUID what );
     void run( threaded_process_status& p_status, abort_callback& p_abort ) override;
 

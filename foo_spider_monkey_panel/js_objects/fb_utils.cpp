@@ -293,7 +293,7 @@ uint32_t JsFbUtils::DoDragDrop( JsFbMetadbHandleList* handles, uint32_t okEffect
 {
     SmpException::ExpectTrue( handles, "handles argument is null" );
 
-    metadb_handle_list_cref handles_ptr = handles->GetHandleList();
+    const metadb_handle_list& handles_ptr = handles->GetHandleList();
     if ( !handles_ptr.get_count() || okEffects == DROPEFFECT_NONE )
     {
         return DROPEFFECT_NONE;
@@ -452,7 +452,7 @@ JSObject* JsFbUtils::GetQueryItems( JsFbMetadbHandleList* handles, const pfc::st
 {
     SmpException::ExpectTrue( handles, "handles argument is null" );
 
-    metadb_handle_list_cref handles_ptr = handles->GetHandleList();
+    const metadb_handle_list& handles_ptr = handles->GetHandleList();
     metadb_handle_list dst_list( handles_ptr );
     search_filter_v2::ptr filter;
 

@@ -50,7 +50,7 @@ DWORD convert_colorref_to_argb( COLORREF color )
            | 0xff000000;
 }
 
-bool execute_context_command_by_name( const char* p_name, metadb_handle_list_cref p_handles, unsigned flags )
+bool execute_context_command_by_name( const char* p_name, const metadb_handle_list& p_handles, unsigned flags )
 {
     contextmenu_manager::ptr cm;
     pfc::string8_fast dummy;

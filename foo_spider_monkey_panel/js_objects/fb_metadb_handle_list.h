@@ -53,11 +53,11 @@ public:
 public:
     ~JsFbMetadbHandleList();
 
-    static std::unique_ptr<JsFbMetadbHandleList> CreateNative( JSContext* cx, metadb_handle_list_cref handles );
-    static size_t GetInternalSize( metadb_handle_list_cref handles );
+    static std::unique_ptr<JsFbMetadbHandleList> CreateNative( JSContext* cx, const metadb_handle_list& handles );
+    static size_t GetInternalSize( const metadb_handle_list& handles );
 
 public:
-    metadb_handle_list_cref GetHandleList() const;
+    const metadb_handle_list& GetHandleList() const;
 
 public: // methods
     void Add( JsFbMetadbHandle* handle );
@@ -98,7 +98,7 @@ private:
     void ModifyFileInfoWithJson( const nlohmann::json& jsonObject, file_info_impl& fileInfo );
 
 private:
-    JsFbMetadbHandleList( JSContext* cx, metadb_handle_list_cref handles );
+    JsFbMetadbHandleList( JSContext* cx, const metadb_handle_list& handles );
 
 private:
     JSContext* pJsCtx_ = nullptr;

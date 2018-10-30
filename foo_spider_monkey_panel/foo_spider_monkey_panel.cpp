@@ -118,14 +118,14 @@ void FinalizeSubsystems()
 class js_initquit : public initquit
 {
 public:
-    void on_init()
+    void on_init() override
     {
         // HACK: popup_message services will not be initialized soon after start.
         check_error();
         delay_loader::g_set_ready();
     }
 
-    void on_quit()
+    void on_quit() override
     {
         mozjs::JsEngine::GetInstance().PrepareForExit();
         panel_manager::instance().send_msg_to_all( static_cast<UINT>(smp::InternalMessage::terminate_script), 0, 0 );

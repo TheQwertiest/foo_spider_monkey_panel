@@ -24,7 +24,7 @@ metadb_index_manager::ptr theAPI()
 class metadb_index_client_impl : public metadb_index_client
 {
 public:
-    metadb_index_hash transform( const file_info& info, const playable_location& location )
+    metadb_index_hash transform( const file_info& info, const playable_location& location ) override
     {
         if ( titleFormat_.is_empty() )
         {
@@ -44,7 +44,7 @@ metadb_index_client* g_client = new service_impl_single_t<metadb_index_client_im
 class init_stage_callback_impl : public init_stage_callback
 {
 public:
-    void on_init_stage( t_uint32 stage )
+    void on_init_stage( t_uint32 stage ) override
     {
         if ( stage == init_stages::before_config_read )
         {
@@ -68,7 +68,7 @@ service_factory_single_t<init_stage_callback_impl> g_init_stage_callback_impl;
 class initquit_impl : public initquit
 {
 public:
-    void on_quit()
+    void on_quit() override
     {
         g_cachedAPI.release();
     }
@@ -78,11 +78,11 @@ service_factory_single_t<initquit_impl> g_initquit_impl;
 class metadb_display_field_provider_impl : public metadb_display_field_provider
 {
 public:
-    t_uint32 get_field_count()
+    t_uint32 get_field_count() override
     {
         return 5;
     }
-    void get_field_name( t_uint32 index, pfc::string_base& out )
+    void get_field_name( t_uint32 index, pfc::string_base& out ) override
     {
         switch ( index )
         {
@@ -103,7 +103,7 @@ public:
                 break;
         }
     }
-    bool process_field( t_uint32 index, metadb_handle* handle, titleformat_text_out* out )
+    bool process_field( t_uint32 index, metadb_handle* handle, titleformat_text_out* out ) override
     {
         metadb_index_hash hash;
         if ( !g_client->hashHandle( handle, hash ) )
@@ -161,7 +161,7 @@ service_factory_single_t<metadb_display_field_provider_impl> g_metadb_display_fi
 class track_property_provider_impl : public track_property_provider_v2
 {
 public:
-    void enumerate_properties( metadb_handle_list_cref p_tracks, track_property_callback& p_out )
+    void enumerate_properties( metadb_handle_list_cref p_tracks, track_property_callback& p_out ) override
     {
         const t_size trackCount = p_tracks.get_count();
         if ( trackCount == 1 )
@@ -203,7 +203,7 @@ public:
         }
     }
 
-    void enumerate_properties_v2( metadb_handle_list_cref p_tracks, track_property_callback_v2& p_out )
+    void enumerate_properties_v2( metadb_handle_list_cref p_tracks, track_property_callback_v2& p_out ) override
     {
         if ( p_out.is_group_wanted( SMP_NAME ) )
         {
@@ -211,7 +211,7 @@ public:
         }
     }
 
-    bool is_our_tech_info( const char* p_name )
+    bool is_our_tech_info( const char* p_name ) override
     {
         return false;
     }

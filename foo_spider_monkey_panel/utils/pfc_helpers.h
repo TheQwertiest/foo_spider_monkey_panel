@@ -405,4 +405,10 @@ private:
     T pfc_;
 };
 
+template <typename T>
+using Stl_Ref = typename Stl<T&>;
+
+template <typename T>
+using Stl_CRef = typename Stl<const T&>;
+
 } // namespace smp
