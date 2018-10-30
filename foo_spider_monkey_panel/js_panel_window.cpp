@@ -67,7 +67,20 @@ void js_panel_window::JsEngineFail( const pfc::string8_fast& errorText )
 }
 
 LRESULT js_panel_window::on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
-{
+{     
+    // Microtasks (e.g. futures) should be drained only with empty JS stack and after the task (as required by ES).
+    static uint32_t nestedCounter = 0;
+    ++nestedCounter;
+
+    mozjs::scope::final_action jobsRunner( [&pJsContainer = pJsContainer_, &nestedCounter = nestedCounter] {
+        --nestedCounter;
+
+        if ( pJsContainer && !nestedCounter )
+        {
+            pJsContainer->RunJobs();
+        }
+    } );
+
     if ( auto retVal = on_main_message( hwnd, msg, wp, lp ); retVal.has_value() )
     {
         return retVal.value();
@@ -1429,7 +1442,7 @@ void js_panel_window::on_playback_edited( void* pData )
 {
     auto& data = *reinterpret_cast<std::tuple<metadb_handle_ptr>*>( pData );
     pJsContainer_->InvokeJsCallback( "on_playback_edited",
-                                     std::get<0>(data) );
+                                     std::get<0>( data ) );
 }
 
 void js_panel_window::on_playback_follow_cursor_changed( WPARAM wp )
@@ -1442,7 +1455,7 @@ void js_panel_window::on_playback_new_track( void* pData )
 {
     auto& data = *reinterpret_cast<std::tuple<metadb_handle_ptr>*>( pData );
     pJsContainer_->InvokeJsCallback( "on_playback_new_track",
-                                     std::get<0>(data) );
+                                     std::get<0>( data ) );
 }
 
 void js_panel_window::on_playback_order_changed( WPARAM wp )
@@ -1467,7 +1480,7 @@ void js_panel_window::on_playback_seek( void* pData )
 {
     auto& data = *reinterpret_cast<std::tuple<double>*>( pData );
     pJsContainer_->InvokeJsCallback( "on_playback_seek",
-                                     std::get<0>(data) );
+                                     std::get<0>( data ) );
 }
 
 void js_panel_window::on_playback_starting( WPARAM wp, LPARAM lp )
@@ -1487,7 +1500,7 @@ void js_panel_window::on_playback_time( void* pData )
 {
     auto& data = *reinterpret_cast<std::tuple<double>*>( pData );
     pJsContainer_->InvokeJsCallback( "on_playback_time",
-                                     std::get<0>(data) );
+                                     std::get<0>( data ) );
 }
 
 void js_panel_window::on_playlist_item_ensure_visible( WPARAM wp, LPARAM lp )
@@ -1565,5 +1578,5 @@ void js_panel_window::on_volume_change( void* pData )
 {
     auto& data = *reinterpret_cast<std::tuple<float>*>( pData );
     pJsContainer_->InvokeJsCallback( "on_volume_change",
-                                     std::get<0>(data) );
+                                     std::get<0>( data ) );
 }

@@ -104,6 +104,7 @@ bool PrependTextToJsStringException( JSContext* cx, JS::HandleValue excn, const 
 bool PrependTextToJsObjectException( JSContext* cx, JS::HandleValue excn, const pfc::string8_fast& text )
 {
     JS::RootedObject excnObject( cx, &excn.toObject() );
+    JS_ClearPendingException( cx ); ///< need this for js::ErrorReport::init
 
     js::ErrorReport report( cx );
     if ( !report.init( cx, excn, js::ErrorReport::SniffingBehavior::WithSideEffects ) )
@@ -175,7 +176,7 @@ AutoJsReport::~AutoJsReport()
         return;
     }
 
-    pfc::string8_fast errorText = GetFullTextFromCurrentJsError( cx );
+    pfc::string8_fast errorText = JsErrorToText( cx );
     JS_ClearPendingException( cx );
 
     JS::RootedObject global( cx, JS::CurrentGlobalOrNull( cx ) );
@@ -201,12 +202,18 @@ void AutoJsReport::Disable()
     isDisabled_ = true;
 }
 
-pfc::string8_fast GetFullTextFromCurrentJsError( JSContext* cx )
+pfc::string8_fast JsErrorToText( JSContext* cx )
 {
     assert( JS_IsExceptionPending( cx ) );
 
     JS::RootedValue excn( cx );
     (void)JS_GetPendingException( cx, &excn );
+    JS_ClearPendingException( cx ); ///< need this for js::ErrorReport::init
+
+    mozjs::scope::final_action autoErrorClear( [cx]()
+    {// There should be no exceptions on functin exit
+        JS_ClearPendingException( cx );
+    } );
 
     pfc::string8_fast errorText;
     if ( excn.isString() )

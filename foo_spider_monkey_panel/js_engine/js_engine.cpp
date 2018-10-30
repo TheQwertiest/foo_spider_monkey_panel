@@ -65,137 +65,6 @@ JsEngine& JsEngine::GetInstance()
     return jsEnv;
 }
 
-bool JsEngine::Initialize()
-{
-    if ( isInitialized_ )
-    {
-        return true;
-    }
-
-    scope::unique_ptr<JSContext> autoJsCtx( nullptr, []( auto pCtx ) {
-        JS_DestroyContext( pCtx );
-    } );
-
-    try
-    {
-        autoJsCtx.reset( JS_NewContext( jsGc_.GetMaxHeap() ) );
-        if ( !autoJsCtx )
-        {
-            throw smp::SmpException( "JS_NewContext failed" );
-        }
-
-        JSContext* cx = autoJsCtx.get();
-
-        if ( !js::UseInternalJobQueues( cx ) )
-        {
-            throw smp::JsException();
-        }
-
-        // TODO: JS::SetWarningReporter( pJsCtx_ )
-
-        if ( !JS::InitSelfHostedCode( cx ) )
-        {
-            throw smp::JsException();
-        }
-
-        jsGc_.Initialize( cx );
-
-        StartHeartbeatThread();
-    }
-    catch ( const smp::JsException& )
-    {
-        assert( JS_IsExceptionPending( autoJsCtx.get() ) );
-
-        auto errorText = error::GetFullTextFromCurrentJsError( autoJsCtx.get() );
-        JS_ClearPendingException( autoJsCtx.get() );
-
-        ReportException( errorText );
-        return false;
-    }
-    catch ( const smp::SmpException& e )
-    {
-        ReportException( e.what() );
-        return false;
-    }
-
-    pJsCtx_ = autoJsCtx.release();
-    isInitialized_ = true;
-    return true;
-}
-
-void JsEngine::Finalize()
-{
-    if ( pJsCtx_ )
-    {
-        StopHeartbeatThread();
-
-        for ( auto& [hWnd, jsContainer] : registeredContainers_ )
-        {
-            jsContainer.get().Finalize();
-        }
-
-        JS_DestroyContext( pJsCtx_ );
-        pJsCtx_ = nullptr;
-    }
-
-    if ( shouldShutdown_ )
-    {
-        JS_ShutDown();
-    }
-
-    isInitialized_ = false;
-}
-
-void JsEngine::OnHeartbeat()
-{
-    if ( !isInitialized_ || isBeating_ )
-    {
-        return;
-    }
-
-    isBeating_ = true;
-
-    {
-        JSAutoRequest ar( pJsCtx_ );
-        MaybeRunJobs();
-        if ( !jsGc_.MaybeGc() )
-        { // OOM
-            ReportOomError();
-        }
-    }
-
-    isBeating_ = false;
-}
-
-void JsEngine::StartHeartbeatThread()
-{
-    if ( !heartbeatWindow_ )
-    {
-        heartbeatWindow_ = smp::HeartbeatWindow::Create();
-        assert( heartbeatWindow_ );
-    }
-
-    shouldStopHeartbeatThread_ = false;
-    heartbeatThread_ = std::thread( [parent = this] {
-        while ( !parent->shouldStopHeartbeatThread_ )
-        {
-            std::this_thread::sleep_for(
-                std::chrono::milliseconds( kHeartbeatRateMs ) );
-
-            PostMessage( parent->heartbeatWindow_->GetHwnd(), static_cast<UINT>(smp::MiscMessage::heartbeat), 0, 0 );
-        }
-    } );
-}
-
-void JsEngine::StopHeartbeatThread()
-{
-    if ( heartbeatThread_.joinable() )
-    {
-        shouldStopHeartbeatThread_ = true;
-        heartbeatThread_.join();
-    }
-}
-
 void JsEngine::PrepareForExit()
 {
     shouldShutdown_ = true;
@@ -229,21 +98,211 @@ void JsEngine::UnregisterContainer( JsContainer& jsContainer )
     }
 }
 
+bool JsEngine::Initialize()
+{
+    if ( isInitialized_ )
+    {
+        return true;
+    }
+
+    scope::unique_ptr<JSContext> autoJsCtx( nullptr, []( auto pCtx ) {
+        JS_DestroyContext( pCtx );
+    } );
+
+    try
+    {
+        autoJsCtx.reset( JS_NewContext( jsGc_.GetMaxHeap() ) );
+        if ( !autoJsCtx )
+        {
+            throw smp::SmpException( "JS_NewContext failed" );
+        }
+
+        JSContext* cx = autoJsCtx.get();
+
+        if ( !js::UseInternalJobQueues( cx ) )
+        {
+            throw smp::JsException();
+        }
+
+        JS::SetPromiseRejectionTrackerCallback( cx, RejectedPromiseHandler, this );
+
+        // TODO: JS::SetWarningReporter( pJsCtx_ )
+
+        if ( !JS::InitSelfHostedCode( cx ) )
+        {
+            throw smp::JsException();
+        }
+
+        jsGc_.Initialize( cx );
+
+        rejectedPromises_.init( cx, JS::GCVector<JSObject*, 0, js::SystemAllocPolicy>( js::SystemAllocPolicy() ) );
+
+        StartHeartbeatThread();
+    }
+    catch ( const smp::JsException& )
+    {
+        assert( JS_IsExceptionPending( autoJsCtx.get() ) );
+        ReportException( error::JsErrorToText( autoJsCtx.get() ) );
+        return false;
+    }
+    catch ( const smp::SmpException& e )
+    {
+        ReportException( e.what() );
+        return false;
+    }
+
+    pJsCtx_ = autoJsCtx.release();
+    isInitialized_ = true;
+    return true;
+}
+
+void JsEngine::Finalize()
+{
+    if ( pJsCtx_ )
+    {
+        StopHeartbeatThread();
+
+        rejectedPromises_.reset();
+
+        for ( auto& [hWnd, jsContainer] : registeredContainers_ )
+        {
+            jsContainer.get().Finalize();
+        }
+
+        JS_DestroyContext( pJsCtx_ );
+        pJsCtx_ = nullptr;
+    }
+
+    if ( shouldShutdown_ )
+    {
+        JS_ShutDown();
+    }
+
+    isInitialized_ = false;
+}
+
+void JsEngine::OnHeartbeat()
+{
+    if ( !isInitialized_ || isBeating_ )
+    {
+        return;
+    }
+
+    isBeating_ = true;
+
+    {
+        JSAutoRequest ar( pJsCtx_ );
+        if ( !jsGc_.MaybeGc() )
+        { // OOM
+            ReportOomError();
+        }
+    }
+
+    isBeating_ = false;
+}
+
 void JsEngine::MaybeRunJobs()
 {
+    JSAutoRequest ar( pJsCtx_ );
+
+    // TODO: add ability for user to abort script here
+
     if ( areJobsInProgress_ )
-    {
+    { // might occur when called from nested loop
+        /*
+        // Use this only for script abort with error
         if ( timeGetTime() - jobsStartTime_ >= kJobsMaxBudgetMs )
         {
             js::StopDrainingJobQueue( pJsCtx_ );
         }
+        */
         return;
     }
 
     jobsStartTime_ = timeGetTime();
     areJobsInProgress_ = true;
-    js::RunJobs( pJsCtx_ );
+
+    {
+        js::RunJobs( pJsCtx_ );
+
+        for ( size_t i = 0; i < rejectedPromises_.length(); ++i )
+        {
+            auto& rejectedPromise = rejectedPromises_[i];
+            if ( !rejectedPromise )
+            {
+                continue;
+            }
+
+            JSAutoCompartment ac( pJsCtx_, rejectedPromise );
+            error::AutoJsReport are( pJsCtx_ );
+
+            JS::RootedValue jsValue( pJsCtx_, JS::GetPromiseResult( rejectedPromise ) );
+            if ( !jsValue.isNullOrUndefined() )
+            {
+                JS_SetPendingException( pJsCtx_, jsValue );
+            }
+            else
+            { // Should not reach here, mostly paranoia check
+                JS_ReportErrorUTF8( pJsCtx_, "Unhandled promise rejection" );
+            }
+        }
+        rejectedPromises_.get().clear();
+    }
+
     areJobsInProgress_ = false;
+}
+
+void JsEngine::StartHeartbeatThread()
+{
+    if ( !heartbeatWindow_ )
+    {
+        heartbeatWindow_ = smp::HeartbeatWindow::Create();
+        assert( heartbeatWindow_ );
+    }
+
+    shouldStopHeartbeatThread_ = false;
+    heartbeatThread_ = std::thread( [parent = this] {
+        while ( !parent->shouldStopHeartbeatThread_ )
+        {
+            std::this_thread::sleep_for(
+                std::chrono::milliseconds( kHeartbeatRateMs ) );
+
+            PostMessage( parent->heartbeatWindow_->GetHwnd(), static_cast<UINT>( smp::MiscMessage::heartbeat ), 0, 0 );
+        }
+    } );
+}
+
+void JsEngine::StopHeartbeatThread()
+{
+    if ( heartbeatThread_.joinable() )
+    {
+        shouldStopHeartbeatThread_ = true;
+        heartbeatThread_.join();
+    }
+}
+
+void JsEngine::RejectedPromiseHandler( JSContext* cx, JS::HandleObject promise, JS::PromiseRejectionHandlingState state, void* data )
+{
+    JsEngine& self = *reinterpret_cast<JsEngine*>( data );
+
+    if ( JS::PromiseRejectionHandlingState::Handled == state )
+    {
+        auto& uncaughtRejections = self.rejectedPromises_;
+        for ( size_t i = 0; i < uncaughtRejections.length(); ++i )
+        {
+            if ( uncaughtRejections[i] == promise )
+            {
+                // To avoid large amounts of memmoves, we don't shrink the vector here.
+                // Instead, we filter out nullptrs when iterating over the vector later.
+                uncaughtRejections[i].set( nullptr );
+                break;
+            }
+        }
+    }
+    else
+    {
+        self.rejectedPromises_.get().append( promise );
+    }
 }
 
 void JsEngine::ReportOomError()

@@ -41,7 +41,7 @@ private:
     bool isDisabled_ = false;
 };
 
-pfc::string8_fast GetFullTextFromCurrentJsError( JSContext* cx );
+pfc::string8_fast JsErrorToText( JSContext* cx );
 void ExceptionToJsError( JSContext* cx );
 void SuppressException( JSContext* cx );
 void PrependTextToJsError( JSContext* cx, const pfc::string8_fast& text );

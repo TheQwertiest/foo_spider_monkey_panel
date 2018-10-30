@@ -85,11 +85,7 @@ bool JsContainer::Initialize()
     catch ( ... )
     {
         error::ExceptionToJsError( pJsCtx_ );
-
-        const auto errorText = error::GetFullTextFromCurrentJsError( pJsCtx_ );
-        JS_ClearPendingException( pJsCtx_ );
-
-        Fail( errorText );
+        Fail( error::JsErrorToText( pJsCtx_ ) );
         return false;
     }
 
@@ -191,6 +187,11 @@ bool JsContainer::ExecuteScript( const pfc::string8_fast& scriptCode )
 
     isParsingScript_ = false;
     return bRet;
+}
+
+void JsContainer::RunJobs()
+{    
+    JsEngine::GetInstance().MaybeRunJobs();
 }
 
 void JsContainer::InvokeOnDragAction( const pfc::string8_fast& functionName, const POINTL& pt, uint32_t keyState, DropActionParams& actionParams )

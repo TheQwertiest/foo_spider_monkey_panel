@@ -36,6 +36,7 @@ public:
 
 public:
     void OnHeartbeat();
+    void MaybeRunJobs();
 
 private:
     JsEngine();
@@ -47,8 +48,11 @@ private:
     void StartHeartbeatThread() noexcept( false );
     void StopHeartbeatThread();
 
+    static void RejectedPromiseHandler( JSContext* cx, JS::HandleObject promise,
+                                     JS::PromiseRejectionHandlingState state,
+                                     void* data );
+
 private:
-    void MaybeRunJobs();
     void ReportOomError();    
 
 private:
@@ -66,6 +70,7 @@ private:
 
     JsGc jsGc_;
 
+    JS::PersistentRooted<JS::GCVector<JSObject*, 0, js::SystemAllocPolicy>> rejectedPromises_;
     bool areJobsInProgress_ = false;
     uint32_t jobsStartTime_ = 0;
 };
