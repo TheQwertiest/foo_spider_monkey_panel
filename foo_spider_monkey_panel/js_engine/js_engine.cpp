@@ -203,6 +203,11 @@ void JsEngine::OnHeartbeat()
 
 void JsEngine::MaybeRunJobs()
 {
+    if ( !isInitialized_ )
+    {
+        return;
+    }
+
     JSAutoRequest ar( pJsCtx_ );
 
     // TODO: add ability for user to abort script here

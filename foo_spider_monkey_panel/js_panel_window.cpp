@@ -72,12 +72,12 @@ LRESULT js_panel_window::on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
     static uint32_t nestedCounter = 0;
     ++nestedCounter;
 
-    mozjs::scope::final_action jobsRunner( [&pJsContainer = pJsContainer_, &nestedCounter = nestedCounter] {
+    mozjs::scope::final_action jobsRunner( [&nestedCounter = nestedCounter] {
         --nestedCounter;
 
-        if ( pJsContainer && !nestedCounter )
+        if ( !nestedCounter )
         {
-            pJsContainer->RunJobs();
+            mozjs::JsContainer::RunJobs();
         }
     } );
 
