@@ -3,10 +3,10 @@
 namespace smp
 {
 
-enum class CallbackMessage: UINT
+enum class CallbackMessage : UINT
 {
-    firstMessage = WM_USER + 100,
-    fb_item_focus_change = firstMessage,
+    first_message = WM_USER + 100,
+    fb_item_focus_change = first_message,
     fb_item_played,
     fb_library_items_added,
     fb_library_items_changed,
@@ -17,13 +17,13 @@ enum class CallbackMessage: UINT
     fb_playback_seek,
     fb_playback_time,
     fb_volume_change,
-    lastMessage = fb_volume_change,
+    last_message = fb_volume_change,
 };
 
 enum class PlayerMessage : UINT
 {
-    firstMessage = static_cast<int>(CallbackMessage::lastMessage) + 1,
-    fb_always_on_top_changed = firstMessage,
+    first_message = static_cast<int>(CallbackMessage::last_message) + 1,
+    fb_always_on_top_changed = first_message,
     fb_cursor_follow_playback_changed,
     fb_dsp_preset_changed,
     fb_output_device_changed,
@@ -51,13 +51,13 @@ enum class PlayerMessage : UINT
     wnd_drag_enter,
     wnd_drag_leave,
     wnd_drag_over,
-    lastMessage = wnd_drag_over,
+    last_message = wnd_drag_over,
 };
 
-enum class InternalMessage: UINT
+enum class InternalMessage : UINT
 {
-    firstMessage = static_cast<int>(PlayerMessage::lastMessage) + 1,
-    main_menu_item = firstMessage,
+    first_message = static_cast<int>(PlayerMessage::last_message) + 1,
+    main_menu_item = first_message,
     get_album_art_done,
     load_image_done,
     notify_data,
@@ -70,14 +70,22 @@ enum class InternalMessage: UINT
     update_size,
     size_limit_changed,
     timer_proc,
-    lastMessage = timer_proc,
+    last_message = timer_proc,
 };
 
+/// @brief Message definitions that are not handled by the panel window
 enum class MiscMessage : UINT
 {
-    find_text_changed = static_cast<int>( InternalMessage::lastMessage ) + 1,
+    find_text_changed = static_cast<int>( InternalMessage::last_message ) + 1,
     heartbeat,
     key_down,
 };
+
+template <typename T>
+bool IsInEnumRange( UINT value )
+{
+    return ( value >= static_cast<UINT>( T::first_message )
+             && value <= static_cast<UINT>( T::last_message ) );
+}
 
 } // namespace smp

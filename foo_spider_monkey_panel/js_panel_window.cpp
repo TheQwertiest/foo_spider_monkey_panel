@@ -91,24 +91,21 @@ LRESULT js_panel_window::on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
         return retVal.value();
     }
 
-    if ( msg >= static_cast<UINT>( CallbackMessage::firstMessage )
-         && msg <= static_cast<UINT>( CallbackMessage::lastMessage ) )
+    if ( IsInEnumRange<CallbackMessage>(msg) )
     {
         if ( auto retVal = on_callback_message( hwnd, msg, wp, lp ); retVal.has_value() )
         {
             return retVal.value();
         }
     }
-    else if ( msg >= static_cast<UINT>( PlayerMessage::firstMessage )
-              && msg <= static_cast<UINT>( PlayerMessage::lastMessage ) )
+    else if ( IsInEnumRange<PlayerMessage>( msg ) )
     {
         if ( auto retVal = on_player_message( hwnd, msg, wp, lp ); retVal.has_value() )
         {
             return retVal.value();
         }
     }
-    else if ( msg >= static_cast<UINT>( InternalMessage::firstMessage )
-              && msg <= static_cast<UINT>( InternalMessage::lastMessage ) )
+    else if ( IsInEnumRange<InternalMessage>( msg ) )
     {
         if ( auto retVal = on_internal_message( hwnd, msg, wp, lp ); retVal.has_value() )
         {
