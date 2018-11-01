@@ -6,6 +6,7 @@
 
 #include <helpers.h>
 #include <user_message.h>
+#include <panel_manager.h>
 
 #include <Shlwapi.h>
 
@@ -76,12 +77,17 @@ void AlbumArtFetchTask::run()
         }
     }
 
-    art::AsyncArtTaskResult taskResult;
-    taskResult.handle = handle_;
-    taskResult.artId = artId_;
-    taskResult.bitmap.swap( bitmap );
-    taskResult.imagePath = imagePath.is_empty() ? "" : file_path_display( imagePath );
-    SendMessage( hNotifyWnd_, static_cast<UINT>(smp::InternalMessage::get_album_art_done), 0, (LPARAM)&taskResult );
+    panel_manager::instance().post_callback_msg( hNotifyWnd_,
+                                                 smp::CallbackMessage::internal_get_album_art_done,
+                                                 std::make_unique<
+                                                     smp::panel::CallBackData<
+                                                         metadb_handle_ptr,
+                                                         uint32_t,
+                                                         std::unique_ptr<Gdiplus::Bitmap>,
+                                                         pfc::string8_fast>>( handle_,
+                                                                              artId_,
+                                                                              std::move( bitmap ),
+                                                                              pfc::string8_fast( imagePath.is_empty() ? "" : file_path_display( imagePath ) ) ) );
 }
 
 std::unique_ptr<Gdiplus::Bitmap> GetBitmapFromAlbumArtData( const album_art_data_ptr& data )

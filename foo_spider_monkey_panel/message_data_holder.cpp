@@ -1,7 +1,7 @@
 #include <stdafx.h>
 #include "message_data_holder.h"
 
-#include <panel_manager.h>
+#include <callback_data.h>
 
 namespace smp
 {
@@ -14,12 +14,16 @@ MessageDataHolder& MessageDataHolder::GetInstance()
 
 void MessageDataHolder::StoreData( CallbackMessage messageId, const std::vector<HWND>& recievers, std::shared_ptr<panel::CallBackDataBase> pData )
 {
+    std::scoped_lock sl( dataLock_ );
+
     assert( pData );
     dataStorage_.emplace( messageId, std::make_pair( pData, recievers ) );
 }
 
 std::shared_ptr<panel::CallBackDataBase> MessageDataHolder::ClaimData( CallbackMessage messageId, HWND hWnd )
 {
+    std::scoped_lock sl( dataLock_ );
+
     auto dataRange = dataStorage_.equal_range( messageId );
     for ( auto dataElemIt = dataRange.first; dataElemIt != dataRange.second; ++dataElemIt )
     {
@@ -32,11 +36,7 @@ std::shared_ptr<panel::CallBackDataBase> MessageDataHolder::ClaimData( CallbackM
             recievers.erase( it );
             if ( !recievers.size() )
             {
-                dataElemIt = dataStorage_.erase( dataElemIt );
-            }
-            else
-            {
-                ++dataElemIt;
+                dataStorage_.erase( dataElemIt );
             }
 
             return dataCopy;
@@ -49,11 +49,15 @@ std::shared_ptr<panel::CallBackDataBase> MessageDataHolder::ClaimData( CallbackM
 
 void MessageDataHolder::FlushDataForHwnd( HWND hWnd, const panel::CallBackDataBase* pDataToRemove )
 {
+    std::scoped_lock sl( dataLock_ );
+
     FlushDataInternal( hWnd, pDataToRemove );
 }
 
 void MessageDataHolder::FlushAllDataForHwnd( HWND hWnd )
 {
+    std::scoped_lock sl( dataLock_ );
+
     FlushDataInternal( hWnd, nullptr );
 }
 

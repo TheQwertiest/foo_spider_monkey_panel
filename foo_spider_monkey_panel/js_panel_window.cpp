@@ -73,8 +73,7 @@ LRESULT js_panel_window::on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
     static uint32_t nestedCounter = 0;
     ++nestedCounter;
 
-    mozjs::scope::final_action jobsRunner( [&nestedCounter = nestedCounter] 
-    {
+    mozjs::scope::final_action jobsRunner( [& nestedCounter = nestedCounter] {
         --nestedCounter;
 
         if ( !nestedCounter )
@@ -368,6 +367,16 @@ std::optional<LRESULT> js_panel_window::on_callback_message( HWND hwnd, UINT msg
         on_volume_change( callbackData->DataPtr() );
         return 0;
     }
+    case CallbackMessage::internal_get_album_art_done:
+    {
+        on_get_album_art_done( callbackData->DataPtr() );
+        return 0;
+    }
+    case CallbackMessage::internal_load_image_done:
+    {
+        on_load_image_done( callbackData->DataPtr() );
+        return 0;
+    }
     default:
     {
         return std::nullopt;
@@ -543,16 +552,6 @@ std::optional<LRESULT> js_panel_window::on_internal_message( HWND hwnd, UINT msg
     case InternalMessage::main_menu_item:
     {
         on_main_menu( wp );
-        return 0;
-    }
-    case InternalMessage::get_album_art_done:
-    {
-        on_get_album_art_done( lp );
-        return 0;
-    }
-    case InternalMessage::load_image_done:
-    {
-        on_load_image_done( lp );
         return 0;
     }
     case InternalMessage::notify_data:
@@ -1049,15 +1048,14 @@ void js_panel_window::on_font_changed()
     pJsContainer_->InvokeJsCallback( "on_font_changed" );
 }
 
-void js_panel_window::on_get_album_art_done( LPARAM lp )
+void js_panel_window::on_get_album_art_done( void* pData )
 {
-    // Destroyed by task runner, no need to keep track
-    auto param = reinterpret_cast<mozjs::art::AsyncArtTaskResult*>( lp );
+    auto& data = *reinterpret_cast<std::tuple<metadb_handle_ptr, uint32_t, std::unique_ptr<Gdiplus::Bitmap>, pfc::string8_fast>*>( pData );
     auto autoRet = pJsContainer_->InvokeJsCallback( "on_get_album_art_done",
-                                                    static_cast<metadb_handle_ptr>( param->handle ),
-                                                    static_cast<uint32_t>( param->artId ),
-                                                    std::move( param->bitmap ),
-                                                    static_cast<pfc::string8_fast>( param->imagePath ) );
+                                                    std::get<0>( data ),
+                                                    std::get<1>( data ),
+                                                    std::move( std::get<2>( data ) ),
+                                                    std::get<3>( data ) );
 }
 
 void js_panel_window::on_item_focus_change( void* pData )
@@ -1088,14 +1086,13 @@ void js_panel_window::on_key_up( WPARAM wp )
                                      static_cast<uint32_t>( wp ) );
 }
 
-void js_panel_window::on_load_image_done( LPARAM lp )
+void js_panel_window::on_load_image_done( void* pData )
 {
-    // Destroyed by task runner, no need to keep track
-    auto param = reinterpret_cast<mozjs::image::AsyncImageTaskResult*>( lp );
+    auto& data = *reinterpret_cast<std::tuple<uint32_t, std::unique_ptr<Gdiplus::Bitmap>, pfc::string8_fast>*>( pData );
     auto autoRet = pJsContainer_->InvokeJsCallback( "on_load_image_done",
-                                                    param->taskId,
-                                                    std::move( param->bitmap ),
-                                                    static_cast<pfc::string8_fast>( param->imagePath ) );
+                                                    std::get<0>( data ),
+                                                    std::move( std::get<1>( data ) ),
+                                                    std::get<2>( data ) );
 }
 
 void js_panel_window::on_library_items_added( void* pData )

@@ -58,6 +58,20 @@ void panel_manager::post_msg_to_all( UINT p_msg, WPARAM p_wp, LPARAM p_lp )
     }
 }
 
+void panel_manager::post_callback_msg( HWND p_wnd, smp::CallbackMessage p_msg, std::unique_ptr<smp::panel::CallBackDataBase> data )
+{
+    auto& dataStorage = MessageDataHolder::GetInstance();
+
+    std::shared_ptr<panel::CallBackDataBase> sharedData( data.release() );
+    dataStorage.StoreData( p_msg, std::vector<HWND>{p_wnd}, sharedData );
+
+    BOOL bRet = PostMessage( p_wnd, static_cast<UINT>( p_msg ), 0, 0 );
+    if ( !bRet )
+    {
+        dataStorage.FlushDataForHwnd( p_wnd, sharedData.get() );
+    }
+}
+
 void panel_manager::post_callback_msg_to_all( CallbackMessage p_msg, std::unique_ptr<panel::CallBackDataBase> data )
 {
     if ( m_hwnds.empty() )

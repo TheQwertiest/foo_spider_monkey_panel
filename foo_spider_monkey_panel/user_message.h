@@ -17,7 +17,9 @@ enum class CallbackMessage : UINT
     fb_playback_seek,
     fb_playback_time,
     fb_volume_change,
-    last_message = fb_volume_change,
+    internal_get_album_art_done,
+    internal_load_image_done,
+    last_message = internal_load_image_done,
 };
 
 enum class PlayerMessage : UINT
@@ -58,8 +60,6 @@ enum class InternalMessage : UINT
 {
     first_message = static_cast<int>(PlayerMessage::last_message) + 1,
     main_menu_item = first_message,
-    get_album_art_done,
-    load_image_done,
     notify_data,
     refresh_bg,
     reload_script,

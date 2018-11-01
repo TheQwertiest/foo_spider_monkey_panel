@@ -192,6 +192,7 @@
     <ClInclude Include="..\PropertyList\PropertyList.h" />
     <ClInclude Include="acfu_github.h" />
     <ClInclude Include="adv_config.h" />
+    <ClInclude Include="callback_data.h" />
     <ClInclude Include="com_objects\com_tools.h" />
     <ClInclude Include="com_objects\dispatch_ptr.h" />
     <ClInclude Include="com_objects\drop_source_impl.h" />

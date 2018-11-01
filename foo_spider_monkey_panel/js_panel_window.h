@@ -118,7 +118,7 @@ private:
     void on_dsp_preset_changed();
     void on_focus( bool isFocused );
     void on_font_changed();
-    void on_get_album_art_done( LPARAM lp );
+    void on_get_album_art_done( void* pData );
     void on_item_focus_change( void* pData );
     void on_item_played( void* pData );
     void on_key_down( WPARAM wp );
@@ -126,7 +126,7 @@ private:
     void on_library_items_added( void* pData );
     void on_library_items_changed( void* pData );
     void on_library_items_removed( void* pData );
-    void on_load_image_done( LPARAM lp );
+    void on_load_image_done( void* pData );
     void on_main_menu( WPARAM wp );
     void on_metadb_changed( void* pData );
     void on_mouse_button_dblclk( UINT msg, WPARAM wp, LPARAM lp );

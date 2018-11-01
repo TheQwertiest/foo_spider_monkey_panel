@@ -23,14 +23,6 @@ private:
     GUID m_what;
 };
 
-struct AsyncArtTaskResult
-{
-    metadb_handle_ptr handle;
-    uint32_t artId = 0;
-    std::unique_ptr<Gdiplus::Bitmap> bitmap;
-    pfc::string8_fast imagePath;
-};
-
 const GUID& GetGuidForArtId( uint32_t art_id ) noexcept(false);
 std::unique_ptr<Gdiplus::Bitmap> GetBitmapFromEmbeddedData( const pfc::string8_fast& rawpath, uint32_t art_id ) noexcept(false);
 std::unique_ptr<Gdiplus::Bitmap> GetBitmapFromMetadb( const metadb_handle_ptr& handle, uint32_t art_id, bool need_stub, bool no_load, pfc::string8_fast* pImagePath ) noexcept(false);

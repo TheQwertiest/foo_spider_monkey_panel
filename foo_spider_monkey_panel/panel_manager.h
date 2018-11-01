@@ -2,60 +2,7 @@
 #include "helpers.h"
 
 #include <user_message.h>
-
-namespace smp::panel
-{
-
-class CallBackDataBase
-{
-public:
-    CallBackDataBase() = default;
-    CallBackDataBase( const CallBackDataBase& ) = delete;
-    CallBackDataBase operator=( const CallBackDataBase& ) = delete;
-
-    void* DataPtr()
-    {
-        return pData_;
-    }
-
-    void* DataPtr() const
-    {
-        return pData_;
-    }
-
-protected:
-    void* pData_ = nullptr;
-};
-
-template <typename... Args>
-class CallBackData
-    : public CallBackDataBase
-{
-public:
-    CallBackData( Args... args )
-        : data_( args... )
-    {
-        pData_ = &data_;
-    }
-
-    CallBackData( const CallBackData& ) = delete;
-    CallBackData operator=( const CallBackData& ) = delete;
-
-    auto& Data()
-    {
-        return data_;
-    }
-
-    auto& Data() const
-    {
-        return data_;
-    }
-
-private:
-    std::tuple<Args...> data_;
-};
-
-} // namespace smp::panel
+#include <callback_data.h>
 
 // TODO: consider removing fromhook
 struct metadb_callback_data
@@ -85,6 +32,7 @@ public:
     void post_msg_to_all( UINT p_msg );
     void post_msg_to_all( UINT p_msg, WPARAM p_wp );
     void post_msg_to_all( UINT p_msg, WPARAM p_wp, LPARAM p_lp );
+    void post_callback_msg( HWND p_wnd, smp::CallbackMessage p_msg, std::unique_ptr<smp::panel::CallBackDataBase> data );
     void post_callback_msg_to_all( smp::CallbackMessage p_msg, std::unique_ptr<smp::panel::CallBackDataBase> data );
 
     void remove_window( HWND p_wnd );

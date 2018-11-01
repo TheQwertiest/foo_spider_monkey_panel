@@ -5,6 +5,7 @@
 
 #include <helpers.h>
 #include <user_message.h>
+#include <panel_manager.h>
 
 #include <Shlwapi.h>
 
@@ -46,15 +47,15 @@ uint32_t LoadImageTask::GetTaskId() const
 
 void LoadImageTask::run()
 {
-    image::AsyncImageTaskResult taskResult;
-    if ( !imagePath_.empty() )
-    {
-        taskResult.taskId = taskId_;
-        taskResult.bitmap = image::LoadImage( imagePath_ );
-        taskResult.imagePath = file_path_display( pfc::stringcvt::string_utf8_from_wide( imagePath_.c_str(), imagePath_.length() ) );
-    }
-
-    SendMessage( hNotifyWnd_, static_cast<UINT>(smp::InternalMessage::load_image_done), 0, (LPARAM)&taskResult );
+    panel_manager::instance().post_callback_msg( hNotifyWnd_,
+                                                 smp::CallbackMessage::internal_load_image_done,
+                                                 std::make_unique<
+                                                     smp::panel::CallBackData<
+                                                         uint32_t,
+                                                         std::unique_ptr<Gdiplus::Bitmap>,
+                                                         pfc::string8_fast>>( taskId_,
+                                                                              std::move( image::LoadImage( imagePath_ ) ),
+                                                                              pfc::string8_fast( file_path_display( pfc::stringcvt::string_utf8_from_wide( imagePath_.c_str(), imagePath_.length() ) ) ) ) );
 }
 
 }

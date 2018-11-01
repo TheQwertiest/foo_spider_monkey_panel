@@ -5,6 +5,7 @@
 #include <unordered_map>
 #include <vector>
 #include <memory>
+#include <mutex>
 
 namespace smp
 {
@@ -35,6 +36,7 @@ private:
     void FlushDataInternal( HWND hWnd, const panel::CallBackDataBase* pDataToRemove );
 
 private:
+    std::mutex dataLock_;
     std::unordered_multimap<CallbackMessage,
                             std::pair<
                                 std::shared_ptr<panel::CallBackDataBase>,

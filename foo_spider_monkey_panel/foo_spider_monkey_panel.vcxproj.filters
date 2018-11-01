@@ -591,6 +591,9 @@
     <ClInclude Include="message_data_holder.h">
       <Filter>z_uncategorized</Filter>
     </ClInclude>
+    <ClInclude Include="callback_data.h">
+      <Filter>z_uncategorized</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="default.js">
