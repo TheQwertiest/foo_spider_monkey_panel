@@ -68,9 +68,6 @@ public:
     void RepaintRect( LONG x, LONG y, LONG w, LONG h, bool force = false );
     /// @details Calls Repaint inside
     void RepaintBackground( LPRECT lprcUpdate = nullptr );
-    uint32_t SetInterval( JS::HandleFunction func, uint32_t delay );
-    uint32_t SetTimeout( JS::HandleFunction func, uint32_t delay );
-    void ClearIntervalOrTimeout( uint32_t timerId );
 
 private:
     const PanelType panelType_;

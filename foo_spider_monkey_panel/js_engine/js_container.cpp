@@ -269,39 +269,6 @@ void JsContainer::InvokeOnPaint( Gdiplus::Graphics& gr )
     pNativeGraphics_->SetGraphicsObject( nullptr );
 }
 
-uint32_t JsContainer::SetInterval( HWND hWnd, uint32_t delay, JS::HandleFunction jsFunction )
-{
-    if ( JsStatus::Working != jsStatus_ )
-    { // allowed to be executed during script evaluation
-        return 0;
-    }
-
-    // No need to self-save since this call can't cause suicide
-    return HostTimerDispatcher::Get().setInterval( hWnd, delay, pJsCtx_, jsFunction );
-}
-
-uint32_t JsContainer::SetTimeout( HWND hWnd, uint32_t delay, JS::HandleFunction jsFunction )
-{
-    if ( JsStatus::Working != jsStatus_ )
-    { // allowed to be executed during script evaluation
-        return 0;
-    }
-
-    // No need to self-save since this call can't cause suicide
-    return HostTimerDispatcher::Get().setTimeout( hWnd, delay, pJsCtx_, jsFunction );
-}
-
-void JsContainer::KillTimer( uint32_t timerId )
-{
-    if ( JsStatus::Working != jsStatus_ )
-    { // allowed to be executed during script evaluation
-        return;
-    }
-
-    // No need to self-save since this call can't cause suicide
-    HostTimerDispatcher::Get().killTimer( timerId );
-}
-
 void JsContainer::InvokeTimerFunction( uint32_t timerId )
 {
     if ( !IsReadyForCallback() )

@@ -833,21 +833,6 @@ void js_panel_window::RepaintBackground( LPRECT lprcUpdate /*= nullptr */ )
     }
 }
 
-uint32_t js_panel_window::SetInterval( JS::HandleFunction func, uint32_t delay )
-{
-    return pJsContainer_->SetInterval( hWnd_, delay, func );
-}
-
-uint32_t js_panel_window::SetTimeout( JS::HandleFunction func, uint32_t delay )
-{
-    return pJsContainer_->SetTimeout( hWnd_, delay, func );
-}
-
-void js_panel_window::ClearIntervalOrTimeout( uint32_t timerId )
-{
-    return pJsContainer_->KillTimer( timerId );
-}
-
 bool js_panel_window::script_load()
 {
     pfc::hires_timer timer;

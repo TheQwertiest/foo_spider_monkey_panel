@@ -16,6 +16,7 @@
 
 #include <com_objects/host_drop_target.h>
 
+#include <host_timer_dispatcher.h>
 #include <js_panel_window.h>
 #include <panel_manager.h>
 #include <helpers.h>
@@ -189,7 +190,7 @@ void JsWindow::ClearInterval( uint32_t intervalId )
         return;
     }
 
-    parentPanel_.ClearIntervalOrTimeout( intervalId );
+    HostTimerDispatcher::Get().killTimer( intervalId );
 }
 
 void JsWindow::ClearTimeout( uint32_t timeoutId )
@@ -199,7 +200,7 @@ void JsWindow::ClearTimeout( uint32_t timeoutId )
         return;
     }
 
-    parentPanel_.ClearIntervalOrTimeout( timeoutId );
+    HostTimerDispatcher::Get().killTimer( timeoutId );
 }
 
 JSObject* JsWindow::CreatePopupMenu()
@@ -563,7 +564,7 @@ void JsWindow::SetCursor( uint32_t id )
 }
 
 uint32_t JsWindow::SetInterval( JS::HandleValue func, uint32_t delay )
-{ // TODO: try to remove the roundabout call (JsWindow > js_panel_window > JsContainer)
+{
     if ( isFinalized_ )
     {
         return 0;
@@ -575,7 +576,7 @@ uint32_t JsWindow::SetInterval( JS::HandleValue func, uint32_t delay )
     }
 
     JS::RootedFunction jsFunction( pJsCtx_, JS_ValueToFunction( pJsCtx_, func ) );
-    return parentPanel_.SetInterval( jsFunction, delay );
+    return HostTimerDispatcher::Get().setInterval( parentPanel_.GetHWND(), delay, pJsCtx_, jsFunction );
 }
 
 void JsWindow::SetProperty( const std::wstring& name, JS::HandleValue val )
@@ -614,7 +615,7 @@ uint32_t JsWindow::SetTimeout( JS::HandleValue func, uint32_t delay )
     }
 
     JS::RootedFunction jsFunction( pJsCtx_, JS_ValueToFunction( pJsCtx_, func ) );
-    return parentPanel_.SetTimeout( jsFunction, delay );
+    return HostTimerDispatcher::Get().setTimeout( parentPanel_.GetHWND(), delay, pJsCtx_, jsFunction );
 }
 
 void JsWindow::ShowConfigure()
