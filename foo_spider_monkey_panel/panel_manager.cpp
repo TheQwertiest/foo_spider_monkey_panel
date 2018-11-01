@@ -1,10 +1,13 @@
 #include <stdafx.h>
 #include "panel_manager.h"
 
+#include <message_data_holder.h>
+
 using namespace smp;
 
 namespace
 {
+
 initquit_factory_t<my_initquit> g_my_initquit;
 library_callback_factory_t<my_library_callback> g_my_library_callback;
 play_callback_static_factory_t<my_play_callback_static> g_my_play_callback_static;
@@ -14,6 +17,7 @@ service_factory_single_t<my_config_object_notify> g_my_config_object_notify;
 service_factory_single_t<my_dsp_config_callback> g_my_dsp_config_callback;
 service_factory_single_t<my_metadb_io_callback> g_my_metadb_io_callback;
 service_factory_single_t<my_playlist_callback_static> g_my_playlist_callback_static;
+
 } // namespace
 
 panel_manager panel_manager::sm_instance;
@@ -51,6 +55,28 @@ void panel_manager::post_msg_to_all( UINT p_msg, WPARAM p_wp, LPARAM p_lp )
     for ( const auto& hWnd : m_hwnds )
     {
         PostMessage( hWnd, p_msg, p_wp, p_lp );
+    }
+}
+
+void panel_manager::post_callback_msg_to_all( CallbackMessage p_msg, std::unique_ptr<panel::CallBackDataBase> data )
+{
+    if ( m_hwnds.empty() )
+    {
+        return;
+    }
+
+    auto& dataStorage = MessageDataHolder::GetInstance();
+
+    std::shared_ptr<panel::CallBackDataBase> sharedData( data.release() );
+    dataStorage.StoreData( p_msg, m_hwnds, sharedData );
+
+    for ( const auto& hWnd : m_hwnds )
+    {
+        BOOL bRet = PostMessage( hWnd, static_cast<UINT>( p_msg ), 0, 0 );
+        if ( !bRet )
+        {
+            dataStorage.FlushDataForHwnd( hWnd, sharedData.get() );
+        }
     }
 }
 

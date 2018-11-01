@@ -9,10 +9,7 @@ namespace smp::panel
 class CallBackDataBase
 {
 public:
-    CallBackDataBase()
-    {
-    }
-
+    CallBackDataBase() = default;
     CallBackDataBase( const CallBackDataBase& ) = delete;
     CallBackDataBase operator=( const CallBackDataBase& ) = delete;
 
@@ -88,27 +85,8 @@ public:
     void post_msg_to_all( UINT p_msg );
     void post_msg_to_all( UINT p_msg, WPARAM p_wp );
     void post_msg_to_all( UINT p_msg, WPARAM p_wp, LPARAM p_lp );
-    template <typename T>
-    void post_callback_msg_to_all( smp::CallbackMessage p_msg, std::unique_ptr<T> data )
-    {
-        if ( m_hwnds.empty() )
-        {
-            return;
-        }
+    void post_callback_msg_to_all( smp::CallbackMessage p_msg, std::unique_ptr<smp::panel::CallBackDataBase> data );
 
-        std::shared_ptr<smp::panel::CallBackDataBase> sharedData( static_cast<smp::panel::CallBackDataBase*>( data.release() ) );
-
-        for ( const auto& hWnd : m_hwnds )
-        {
-            auto newSharedData = std::make_unique<std::shared_ptr<smp::panel::CallBackDataBase>>( sharedData );
-
-            BOOL bRet = PostMessage( hWnd, static_cast<UINT>( p_msg ), reinterpret_cast<WPARAM>( newSharedData.get() ), 0 );
-            if ( bRet )
-            { // It still might leak though, if window was destroyed before all messages were handled
-                newSharedData.release();
-            }
-        }
-    }
     void remove_window( HWND p_wnd );
     void send_msg_to_all( UINT p_msg, WPARAM p_wp, LPARAM p_lp );
     void send_msg_to_others( HWND p_wnd_except, UINT p_msg, WPARAM p_wp, LPARAM p_lp );

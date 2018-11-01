@@ -13,6 +13,7 @@
 #include <js_utils/gdi_helpers.h>
 
 #include <drop_action_params.h>
+#include <message_data_holder.h>
 
 using namespace smp;
 
@@ -67,12 +68,13 @@ void js_panel_window::JsEngineFail( const pfc::string8_fast& errorText )
 }
 
 LRESULT js_panel_window::on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
-{     
+{
     // Microtasks (e.g. futures) should be drained only with empty JS stack and after the task (as required by ES).
     static uint32_t nestedCounter = 0;
     ++nestedCounter;
 
-    mozjs::scope::final_action jobsRunner( [&nestedCounter = nestedCounter] {
+    mozjs::scope::final_action jobsRunner( [&nestedCounter = nestedCounter] 
+    {
         --nestedCounter;
 
         if ( !nestedCounter )
@@ -91,9 +93,9 @@ LRESULT js_panel_window::on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
         return retVal.value();
     }
 
-    if ( IsInEnumRange<CallbackMessage>(msg) )
+    if ( IsInEnumRange<CallbackMessage>( msg ) )
     {
-        if ( auto retVal = on_callback_message( hwnd, msg, wp, lp ); retVal.has_value() )
+        if ( auto retVal = on_callback_message( hwnd, msg ); retVal.has_value() )
         {
             return retVal.value();
         }
@@ -299,15 +301,17 @@ std::optional<LRESULT> js_panel_window::on_window_message( HWND hwnd, UINT msg, 
     }
 }
 
-std::optional<LRESULT> js_panel_window::on_callback_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
+std::optional<LRESULT> js_panel_window::on_callback_message( HWND hwnd, UINT msg )
 {
-    std::shared_ptr<panel::CallBackDataBase> callbackData( *reinterpret_cast<std::shared_ptr<panel::CallBackDataBase>*>( wp ) );
     if ( !pJsContainer_ )
     {
         return std::nullopt;
     }
 
-    switch ( static_cast<CallbackMessage>( msg ) )
+    const auto msgId = static_cast<CallbackMessage>( msg );
+    auto callbackData = MessageDataHolder::GetInstance().ClaimData( msgId, hwnd );
+
+    switch ( msgId )
     {
     case CallbackMessage::fb_item_focus_change:
     {
@@ -884,7 +888,6 @@ bool js_panel_window::script_load()
 void js_panel_window::script_unload()
 {
     pJsContainer_->InvokeJsCallback( "on_script_unload" );
-
     ScriptInfo().clear();
     selectionHolder_.release();
     pJsContainer_->Finalize();
@@ -959,16 +962,13 @@ void js_panel_window::on_panel_create( HWND hWnd )
 
 void js_panel_window::on_panel_destroy()
 {
+    // Careful when changing invocation order here!
+
     script_unload();
+    MessageDataHolder::GetInstance().FlushAllDataForHwnd( hWnd_ );
     pJsContainer_.reset();
 
     panel_manager::instance().remove_window( hWnd_ );
-
-    // TODO: check
-    //if ( m_gr_wrap )
-    //{
-    //m_gr_wrap.Release();
-    //}
     delete_context();
     ReleaseDC( hWnd_, hDc_ );
 }

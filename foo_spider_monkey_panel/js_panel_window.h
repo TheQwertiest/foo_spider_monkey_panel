@@ -36,7 +36,7 @@ protected:
     LRESULT on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp );
     std::optional<LRESULT> on_main_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp );
     std::optional<LRESULT> on_window_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp );
-    std::optional<LRESULT> on_callback_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp );
+    std::optional<LRESULT> on_callback_message( HWND hwnd, UINT msg );
     std::optional<LRESULT> on_player_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp );
     std::optional<LRESULT> on_internal_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp );
 
