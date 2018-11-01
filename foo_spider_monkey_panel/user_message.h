@@ -57,7 +57,7 @@ enum class PlayerMessage : UINT
 enum class InternalMessage: UINT
 {
     firstMessage = static_cast<int>(PlayerMessage::lastMessage) + 1,
-    main_menu_item,
+    main_menu_item = firstMessage,
     get_album_art_done,
     load_image_done,
     notify_data,

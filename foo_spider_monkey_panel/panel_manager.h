@@ -149,7 +149,7 @@ public:
 class my_metadb_io_callback : public metadb_io_callback
 {
 public:
-    virtual void on_changed_sorted( metadb_handle_list_cref p_items_sorted, bool p_fromhook ) override;
+    void on_changed_sorted( metadb_handle_list_cref p_items_sorted, bool p_fromhook ) override;
 };
 
 class my_play_callback_static : public play_callback_static
