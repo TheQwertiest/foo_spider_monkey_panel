@@ -17,29 +17,43 @@ void MessageDataHolder::StoreData( CallbackMessage messageId, const std::vector<
     std::scoped_lock sl( dataLock_ );
 
     assert( pData );
-    dataStorage_.emplace( messageId, std::make_pair( pData, recievers ) );
+    
+    if ( dataStorage_.count( messageId ) )
+    {
+        dataStorage_[messageId].emplace_back( std::make_pair( recievers, pData ) );
+    }
+    else
+    {
+        dataStorage_.emplace( messageId, std::vector{ std::make_pair( recievers, pData ) } );
+    }
 }
 
 std::shared_ptr<panel::CallBackDataBase> MessageDataHolder::ClaimData( CallbackMessage messageId, HWND hWnd )
 {
     std::scoped_lock sl( dataLock_ );
 
-    auto dataRange = dataStorage_.equal_range( messageId );
-    for ( auto dataElemIt = dataRange.first; dataElemIt != dataRange.second; ++dataElemIt )
+    assert( dataStorage_.count( messageId ) );
+    
+    auto& msgDataList = dataStorage_[messageId];
+    for ( auto msgDataIt = msgDataList.begin(); msgDataIt != msgDataList.end(); ++msgDataIt )
     {
-        auto& [data, recievers] = dataElemIt->second;
-        const auto it = std::find( recievers.begin(), recievers.end(), hWnd );
-        if ( recievers.end() != it )
+        auto& [recievers, pData] = *msgDataIt;
+        if ( const auto recieverIt = std::find( recievers.begin(), recievers.end(), hWnd );
+             recievers.end() != recieverIt )
         {
-            auto dataCopy = data; ///< need copy in case current element is destroyed
+            auto pDataCopy = pData; ///< need copy in case current element is destroyed
 
-            recievers.erase( it );
+            recievers.erase( recieverIt );
             if ( !recievers.size() )
             {
-                dataStorage_.erase( dataElemIt );
+                msgDataList.erase( msgDataIt );
+            }
+            if ( !msgDataList.size() )
+            {
+                dataStorage_.erase( messageId );
             }
 
-            return dataCopy;
+            return pDataCopy;
         }
     }
 
@@ -64,27 +78,38 @@ void MessageDataHolder::FlushAllDataForHwnd( HWND hWnd )
 void MessageDataHolder::FlushDataInternal( HWND hWnd, const panel::CallBackDataBase* pDataToRemove )
 {
     const bool shouldRemoveAll = !pDataToRemove;
-    for ( auto dataElemIt = dataStorage_.begin(); dataElemIt != dataStorage_.end(); )
+    for ( auto it = dataStorage_.begin(); it != dataStorage_.end(); )
     {
-        auto& [pData, recievers] = dataElemIt->second;
-        if ( !shouldRemoveAll && pData.get() != pDataToRemove )
+        auto& msgDataList = it->second;
+        for ( auto msgDataIt = msgDataList.begin(); msgDataIt != msgDataList.end(); )
         {
-            continue;
-        }
+            auto& [recievers, pData] = *msgDataIt;
+            if ( !shouldRemoveAll && pData.get() != pDataToRemove )
+            {
+                continue;
+            }
 
-        const auto it = std::find( recievers.cbegin(), recievers.cend(), hWnd );
-        if ( recievers.cend() != it )
-        {
-            recievers.erase( it );
+            const auto recieverIt = std::find( recievers.cbegin(), recievers.cend(), hWnd );
+            if ( recievers.cend() != recieverIt )
+            {
+                recievers.erase( recieverIt );
+            }
+            if ( !recievers.size() )
+            {
+                msgDataIt = msgDataList.erase( msgDataIt );
+            }
+            else
+            {
+                ++msgDataIt;
+            }
         }
-
-        if ( !recievers.size() )
+        if ( !msgDataList.size() )
         {
-            dataElemIt = dataStorage_.erase( dataElemIt );
+            it = dataStorage_.erase( it );
         }
         else
         {
-            ++dataElemIt;
+            ++it;
         }
     }
 }

@@ -36,11 +36,11 @@ private:
     void FlushDataInternal( HWND hWnd, const panel::CallBackDataBase* pDataToRemove );
 
 private:
+    using MessageData = std::pair<std::vector<HWND>, std::shared_ptr<panel::CallBackDataBase>>;
+    using MessageDataList = std::vector<MessageData>;
+
     std::mutex dataLock_;
-    std::unordered_multimap<CallbackMessage,
-                            std::pair<
-                                std::shared_ptr<panel::CallBackDataBase>,
-                                std::vector<HWND>>> dataStorage_;
+    std::unordered_map<CallbackMessage, MessageDataList> dataStorage_;
 };
 
 } // namespace smp
