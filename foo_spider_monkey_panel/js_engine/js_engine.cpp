@@ -183,7 +183,7 @@ void JsEngine::Finalize()
 
 void JsEngine::OnHeartbeat()
 {
-    if ( !isInitialized_ || isBeating_ )
+    if ( !isInitialized_ || isBeating_ || shouldStopHeartbeatThread_ )
     {
         return;
     }
