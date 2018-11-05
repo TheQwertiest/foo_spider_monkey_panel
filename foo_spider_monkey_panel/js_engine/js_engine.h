@@ -35,6 +35,9 @@ public:
     void UnregisterContainer( JsContainer& jsContainer );
 
 public:
+    const JsGc& GetGcEngine() const;
+
+public:
     void OnHeartbeat();
     void MaybeRunJobs();
 
@@ -49,11 +52,11 @@ private:
     void StopHeartbeatThread();
 
     static void RejectedPromiseHandler( JSContext* cx, JS::HandleObject promise,
-                                     JS::PromiseRejectionHandlingState state,
-                                     void* data );
+                                        JS::PromiseRejectionHandlingState state,
+                                        void* data );
 
 private:
-    void ReportOomError();    
+    void ReportOomError();
 
 private:
     JSContext* pJsCtx_ = nullptr;

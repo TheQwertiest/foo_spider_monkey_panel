@@ -12,8 +12,8 @@
 namespace
 {
 
-constexpr uint32_t kDefaultHeapMaxMb = 1000L * 1000 * 1000;
-constexpr uint32_t kDefaultHeapThresholdMb = 50L * 1000 * 1000;
+constexpr uint32_t kDefaultHeapMaxMb = 1024L * 1024 * 1024;
+constexpr uint32_t kDefaultHeapThresholdMb = 50L * 1024 * 1024;
 constexpr uint32_t kHighFreqTimeLimitMs = 1000;
 constexpr uint32_t kHighFreqBudgetMultiplier = 2;
 constexpr uint32_t kHighFreqHeapGrowthMultiplier = 2;
@@ -30,6 +30,21 @@ uint32_t JsGc::GetMaxHeap()
     UpdateGcConfig();
 
     return static_cast<uint32_t>( smp_advconf::g_var_max_heap.get() );
+}
+
+uint64_t JsGc::GetTotalHeapUsageForGlobal( JSContext* cx, JS::HandleObject jsGlobal )
+{
+    assert( jsGlobal );
+
+    auto pJsCompartment = static_cast<JsCompartmentInner*>( JS_GetCompartmentPrivate( js::GetObjectCompartment( jsGlobal ) ) );
+    assert( pJsCompartment );
+
+    return pJsCompartment->GetCurrentHeapBytes();
+}
+
+uint64_t JsGc::GetTotalHeapUsage() const
+{
+    return lastTotalHeapSize_;
 }
 
 void JsGc::Initialize( JSContext* pJsCtx )

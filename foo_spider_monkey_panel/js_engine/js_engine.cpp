@@ -181,6 +181,11 @@ void JsEngine::Finalize()
     isInitialized_ = false;
 }
 
+const JsGc& JsEngine::GetGcEngine() const
+{
+    return jsGc_;
+}
+
 void JsEngine::OnHeartbeat()
 {
     if ( !isInitialized_ || isBeating_ || shouldStopHeartbeatThread_ )

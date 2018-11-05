@@ -18,11 +18,12 @@ advconfig_branch_factory branch_zeal(
 
 advconfig_integer_factory g_var_max_heap(
     "Maximum heap size (in bytes) (0 - auto configuration)", g_guid_smp_adv_var_max_heap, g_guid_smp_adv_branch_gc, 0,
-    0, 0, 4000UL * 1000 * 1000
+    0, 0, std::numeric_limits<uint32_t>::max()
 );
 advconfig_integer_factory g_var_max_heap_growth(
     "Allowed heap growth before GC trigger (in bytes) (0 - auto configuration)", g_guid_smp_adv_var_max_heap_growth, g_guid_smp_adv_branch_gc, 1,
-    0, 0, 256UL * 1000 * 1000 );
+    0, 0, 256UL * 1024 * 1024
+);
 advconfig_integer_factory g_var_gc_budget(
     "GC cycle time budget (in ms)", g_guid_smp_adv_var_gc_budget, g_guid_smp_adv_branch_gc, 2,
     5, 1, 100

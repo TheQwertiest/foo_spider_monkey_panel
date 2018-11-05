@@ -1505,6 +1505,15 @@ let window = {
     MaxWidth: undefined, // (int) (read, write)
 
     /**
+     * Maximum allowed memory usage for the component (in bytes).<br>
+     * If the total memory usage exceeds this value, all panels will fail with OOM error.
+     * 
+     * @type {number}
+     * @readonly
+     */
+    MemoryLimit: undefined, // (uint) (read)
+
+    /**
      * See {@link window.MaxHeight}.
      *
      * @type {number}
@@ -1526,6 +1535,22 @@ let window = {
      * @readonly
      */
     Name: undefined, // (string) (read)
+
+    /**
+     * Memory usage of the current panel (in bytes).
+     * 
+     * @type {number}
+     * @readonly
+     */
+    PanelMemoryUsage: undefined, // (uint) (read)
+
+    /**
+     * Total memory usage of all panels (in bytes).
+     * 
+     * @type {number}
+     * @readonly
+     */
+    TotalMemoryUsage: undefined, // (uint) (read)
 
     /**
      * @type {number}

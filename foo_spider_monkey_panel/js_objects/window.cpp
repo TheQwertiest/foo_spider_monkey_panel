@@ -1,6 +1,7 @@
 #include <stdafx.h>
 #include "window.h"
 
+#include <js_engine/js_engine.h>
 #include <js_engine/js_to_native_invoker.h>
 #include <js_objects/menu_object.h>
 #include <js_objects/theme_manager.h>
@@ -104,9 +105,12 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( get_IsTransparent, JsWindow::get_IsTransparent )
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_IsVisible, JsWindow::get_IsVisible )
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_MaxHeight, JsWindow::get_MaxHeight )
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_MaxWidth, JsWindow::get_MaxWidth )
+MJS_DEFINE_JS_FN_FROM_NATIVE( get_MemoryLimit, JsWindow::get_MemoryLimit )
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_MinHeight, JsWindow::get_MinHeight )
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_MinWidth, JsWindow::get_MinWidth )
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_Name, JsWindow::get_Name )
+MJS_DEFINE_JS_FN_FROM_NATIVE( get_PanelMemoryUsage, JsWindow::get_PanelMemoryUsage )
+MJS_DEFINE_JS_FN_FROM_NATIVE( get_TotalMemoryUsage, JsWindow::get_TotalMemoryUsage )
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_Width, JsWindow::get_Width )
 MJS_DEFINE_JS_FN_FROM_NATIVE( put_DlgCode, JsWindow::put_DlgCode )
 MJS_DEFINE_JS_FN_FROM_NATIVE( put_MaxHeight, JsWindow::put_MaxHeight )
@@ -123,9 +127,12 @@ const JSPropertySpec jsProperties[] = {
     JS_PSG( "IsVisible", get_IsVisible, DefaultPropsFlags() ),
     JS_PSGS( "MaxHeight", get_MaxHeight, put_MaxHeight, DefaultPropsFlags() ),
     JS_PSGS( "MaxWidth", get_MaxWidth, put_MaxWidth, DefaultPropsFlags() ),
+    JS_PSG( "MemoryLimit", get_MemoryLimit, DefaultPropsFlags() ),
     JS_PSGS( "MinHeight", get_MinHeight, put_MinHeight, DefaultPropsFlags() ),
     JS_PSGS( "MinWidth", get_MinWidth, put_MinWidth, DefaultPropsFlags() ),
     JS_PSG( "Name", get_Name, DefaultPropsFlags() ),
+    JS_PSG( "PanelMemoryUsage", get_PanelMemoryUsage, DefaultPropsFlags() ),
+    JS_PSG( "TotalMemoryUsage", get_TotalMemoryUsage, DefaultPropsFlags() ),
     JS_PSG( "Width", get_Width, DefaultPropsFlags() ),
     JS_PS_END
 };
@@ -719,6 +726,16 @@ uint32_t JsWindow::get_MaxWidth()
     return parentPanel_.MaxSize().x;
 }
 
+uint32_t JsWindow::get_MemoryLimit()
+{
+    if ( isFinalized_ )
+    {
+        return 0;
+    }
+
+    return JsEngine::GetInstance().GetGcEngine().GetMaxHeap();
+}
+
 uint32_t JsWindow::get_MinHeight()
 {
     if ( isFinalized_ )
@@ -754,6 +771,27 @@ pfc::string8_fast JsWindow::get_Name()
     }
 
     return name;
+}
+
+uint64_t JsWindow::get_PanelMemoryUsage()
+{
+    if ( isFinalized_ )
+    {
+        return 0;
+    }
+
+    JS::RootedObject jsGlobal( pJsCtx_, JS::CurrentGlobalOrNull( pJsCtx_ ) );
+    return JsEngine::GetInstance().GetGcEngine().GetTotalHeapUsageForGlobal( pJsCtx_, jsGlobal );
+}
+
+uint64_t JsWindow::get_TotalMemoryUsage()
+{
+    if ( isFinalized_ )
+    {
+        return 0;
+    }
+
+    return JsEngine::GetInstance().GetGcEngine().GetTotalHeapUsage();
 }
 
 uint32_t JsWindow::get_Width()

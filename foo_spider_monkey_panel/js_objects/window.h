@@ -77,9 +77,12 @@ public: // props
     bool get_IsVisible();
     uint32_t get_MaxHeight();
     uint32_t get_MaxWidth();
+    uint32_t get_MemoryLimit();
     uint32_t get_MinHeight();
     uint32_t get_MinWidth();
     pfc::string8_fast get_Name();
+    uint64_t get_PanelMemoryUsage();
+    uint64_t get_TotalMemoryUsage();
     uint32_t get_Width();
     void put_DlgCode( uint32_t code );
     void put_MaxHeight( uint32_t height );

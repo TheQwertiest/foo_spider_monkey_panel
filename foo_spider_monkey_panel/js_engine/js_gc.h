@@ -13,15 +13,19 @@ public:
     JsGc( const JsGc& ) = delete;
     JsGc& operator=( const JsGc& ) = delete;
 
-public:    
-    static uint32_t GetMaxHeap() noexcept(false);
+public:
+    static uint32_t GetMaxHeap() noexcept( false );
+    static uint64_t GetTotalHeapUsageForGlobal( JSContext* cx, JS::HandleObject jsGlobal );
+    /// @details Returns last heap size instead of the current size,
+    /// but this should be good enough for users
+    uint64_t GetTotalHeapUsage() const;
 
-    void Initialize( JSContext* pJsCtx ) noexcept(false);  
+    void Initialize( JSContext* pJsCtx ) noexcept( false );
 
     bool MaybeGc();
 
 private:
-    enum class GcLevel: uint8_t
+    enum class GcLevel : uint8_t
     {
         None,
         Incremental,
@@ -30,7 +34,7 @@ private:
     };
 
     static void UpdateGcConfig();
-    
+
     // GC stats handling
     bool IsTimeToGc();
     GcLevel GetRequiredGcLevel();
@@ -49,7 +53,7 @@ private:
     void NotifyCompartmentsOnGcEnd();
 
 private:
-    JSContext * pJsCtx_ = nullptr;
+    JSContext* pJsCtx_ = nullptr;
 
     bool isHighFrequency_ = false;
     uint32_t lastGcCheckTime_ = 0;
@@ -65,4 +69,4 @@ private:
     uint32_t allocCountTrigger_ = 50;
 };
 
-}
+} // namespace mozjs
