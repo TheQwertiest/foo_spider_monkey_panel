@@ -9,6 +9,7 @@ class CallBackDataBase
 {
 public:
     CallBackDataBase() = default;
+    virtual ~CallBackDataBase() = default;
     CallBackDataBase( const CallBackDataBase& ) = delete;
     CallBackDataBase operator=( const CallBackDataBase& ) = delete;
 
@@ -31,12 +32,15 @@ class CallBackData
     : public CallBackDataBase
 {
 public:
-    CallBackData( Args... args )
-        : data_( std::move(args)... )
+
+    template <typename... ArgsFwd>
+    CallBackData( ArgsFwd&&... args )
+        : data_( std::forward<ArgsFwd>(args)... )
     {
         pData_ = &data_;
     }
 
+    ~CallBackData() override = default;
     CallBackData( const CallBackData& ) = delete;
     CallBackData operator=( const CallBackData& ) = delete;
 
