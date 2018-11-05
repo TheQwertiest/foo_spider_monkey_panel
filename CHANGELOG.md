@@ -10,6 +10,16 @@
 ___
 
 ## [Unreleased][]
+### Added
+- Added basic handling of exception-like objects and objects derived from `Error` in pre-ES6 style.
+- Added handling of unhandled rejected promises.
+- Added properties to `window` for memory usage tracking: `MemoryLimit`, `TotalMemoryUsage` and `PanelMemoryUsage`.
+
+### Fixed
+- Fixed timing of promises invocation: now conforms to ES standard.
+- Fixed several memory leaks on panel layout switch and on script error.
+- Fixed regression in `FbMetadbHandleList.OrderByRelativePath` performance.
+- Fixed crash on in-panel layout switch.
 
 ## [1.0.4][] - 2018-10-25
 ### Added
