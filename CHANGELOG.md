@@ -21,7 +21,6 @@ ___
 ### Fixed
 - Fixed timing of promises invocation: now conforms to ES standard.
 - Fixed several memory leaks on panel layout switch and on script error.
-- Fixed regression in `FbMetadbHandleList.OrderByRelativePath` performance.
 - Fixed crash on in-panel layout switch.
 
 ## [1.0.4][] - 2018-10-25
