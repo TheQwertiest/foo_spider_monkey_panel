@@ -164,11 +164,11 @@ JsGc::GcLevel JsGc::GetGcLevelFromHeapSize()
     {
         return GcLevel::None;
     }
-    else if ( curTotalHeapSize <= maxHeapSize_ / 2 )
+    else if ( curTotalHeapSize <= maxHeapSize_ * 0.75 )
     {
         return GcLevel::Incremental;
     }
-    else if ( curTotalHeapSize <= maxHeapSize_ * 0.75 )
+    else if ( curTotalHeapSize <= maxHeapSize_ * 0.9 )
     {
         return GcLevel::Normal;
     }
