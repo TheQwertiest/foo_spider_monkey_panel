@@ -308,73 +308,74 @@ std::optional<LRESULT> js_panel_window::on_callback_message( HWND hwnd, UINT msg
     }
 
     const auto msgId = static_cast<CallbackMessage>( msg );
-    auto callbackData = MessageDataHolder::GetInstance().ClaimData( msgId, hwnd );
+    auto pCallbackData = MessageDataHolder::GetInstance().ClaimData( msgId, hwnd );
+    auto& callbackData = *pCallbackData;
 
     switch ( msgId )
     {
     case CallbackMessage::fb_item_focus_change:
     {
-        on_item_focus_change( callbackData->DataPtr() );
+        on_item_focus_change( callbackData );
         return 0;
     }
     case CallbackMessage::fb_item_played:
     {
-        on_item_played( callbackData->DataPtr() );
+        on_item_played( callbackData );
         return 0;
     }
     case CallbackMessage::fb_library_items_added:
     {
-        on_library_items_added( callbackData->DataPtr() );
+        on_library_items_added( callbackData );
         return 0;
     }
     case CallbackMessage::fb_library_items_changed:
     {
-        on_library_items_changed( callbackData->DataPtr() );
+        on_library_items_changed( callbackData );
         return 0;
     }
     case CallbackMessage::fb_library_items_removed:
     {
-        on_library_items_removed( callbackData->DataPtr() );
+        on_library_items_removed( callbackData );
         return 0;
     }
     case CallbackMessage::fb_metadb_changed:
     {
-        on_metadb_changed( callbackData->DataPtr() );
+        on_metadb_changed( callbackData );
         return 0;
     }
     case CallbackMessage::fb_playback_edited:
     {
-        on_playback_edited( callbackData->DataPtr() );
+        on_playback_edited( callbackData );
         return 0;
     }
     case CallbackMessage::fb_playback_new_track:
     {
-        on_playback_new_track( callbackData->DataPtr() );
+        on_playback_new_track( callbackData );
         return 0;
     }
     case CallbackMessage::fb_playback_seek:
     {
-        on_playback_seek( callbackData->DataPtr() );
+        on_playback_seek( callbackData );
         return 0;
     }
     case CallbackMessage::fb_playback_time:
     {
-        on_playback_time( callbackData->DataPtr() );
+        on_playback_time( callbackData );
         return 0;
     }
     case CallbackMessage::fb_volume_change:
     {
-        on_volume_change( callbackData->DataPtr() );
+        on_volume_change( callbackData );
         return 0;
     }
     case CallbackMessage::internal_get_album_art_done:
     {
-        on_get_album_art_done( callbackData->DataPtr() );
+        on_get_album_art_done( callbackData );
         return 0;
     }
     case CallbackMessage::internal_load_image_done:
     {
-        on_load_image_done( callbackData->DataPtr() );
+        on_load_image_done( callbackData );
         return 0;
     }
     default:
@@ -1048,9 +1049,9 @@ void js_panel_window::on_font_changed()
     pJsContainer_->InvokeJsCallback( "on_font_changed" );
 }
 
-void js_panel_window::on_get_album_art_done( void* pData )
+void js_panel_window::on_get_album_art_done( panel::CallbackData& callbackData )
 {
-    auto& data = *reinterpret_cast<std::tuple<metadb_handle_ptr, uint32_t, std::unique_ptr<Gdiplus::Bitmap>, pfc::string8_fast>*>( pData );
+    auto& data = callbackData.GetData<metadb_handle_ptr, uint32_t, std::unique_ptr<Gdiplus::Bitmap>, pfc::string8_fast>();
     auto autoRet = pJsContainer_->InvokeJsCallback( "on_get_album_art_done",
                                                     std::get<0>( data ),
                                                     std::get<1>( data ),
@@ -1058,18 +1059,18 @@ void js_panel_window::on_get_album_art_done( void* pData )
                                                     std::get<3>( data ) );
 }
 
-void js_panel_window::on_item_focus_change( void* pData )
+void js_panel_window::on_item_focus_change( panel::CallbackData& callbackData )
 {
-    auto& data = *reinterpret_cast<std::tuple<t_size, t_size, t_size>*>( pData );
+    auto& data = callbackData.GetData<t_size, t_size, t_size>();
     pJsContainer_->InvokeJsCallback( "on_item_focus_change",
                                      static_cast<int32_t>( std::get<0>( data ) ),
                                      static_cast<int32_t>( std::get<1>( data ) ),
                                      static_cast<int32_t>( std::get<2>( data ) ) );
 }
 
-void js_panel_window::on_item_played( void* pData )
+void js_panel_window::on_item_played( panel::CallbackData& callbackData )
 {
-    auto& data = *reinterpret_cast<std::tuple<metadb_handle_ptr>*>( pData );
+    auto& data = callbackData.GetData<metadb_handle_ptr>();
     pJsContainer_->InvokeJsCallback( "on_item_played",
                                      std::get<0>( data ) );
 }
@@ -1086,32 +1087,32 @@ void js_panel_window::on_key_up( WPARAM wp )
                                      static_cast<uint32_t>( wp ) );
 }
 
-void js_panel_window::on_load_image_done( void* pData )
+void js_panel_window::on_load_image_done( panel::CallbackData& callbackData )
 {
-    auto& data = *reinterpret_cast<std::tuple<uint32_t, std::unique_ptr<Gdiplus::Bitmap>, pfc::string8_fast>*>( pData );
+    auto& data = callbackData.GetData<uint32_t, std::unique_ptr<Gdiplus::Bitmap>, pfc::string8_fast>();
     auto autoRet = pJsContainer_->InvokeJsCallback( "on_load_image_done",
                                                     std::get<0>( data ),
                                                     std::move( std::get<1>( data ) ),
                                                     std::get<2>( data ) );
 }
 
-void js_panel_window::on_library_items_added( void* pData )
+void js_panel_window::on_library_items_added( panel::CallbackData& callbackData )
 {
-    auto& data = *reinterpret_cast<std::tuple<metadb_callback_data>*>( pData );
+    auto& data = callbackData.GetData<metadb_callback_data>();
     pJsContainer_->InvokeJsCallback( "on_library_items_added",
                                      std::get<0>( data ).m_items );
 }
 
-void js_panel_window::on_library_items_changed( void* pData )
+void js_panel_window::on_library_items_changed( panel::CallbackData& callbackData )
 {
-    auto& data = *reinterpret_cast<std::tuple<metadb_callback_data>*>( pData );
+    auto& data = callbackData.GetData<metadb_callback_data>();
     pJsContainer_->InvokeJsCallback( "on_library_items_changed",
                                      std::get<0>( data ).m_items );
 }
 
-void js_panel_window::on_library_items_removed( void* pData )
+void js_panel_window::on_library_items_removed( panel::CallbackData& callbackData )
 {
-    auto& data = *reinterpret_cast<std::tuple<metadb_callback_data>*>( pData );
+    auto& data = callbackData.GetData<metadb_callback_data>();
     pJsContainer_->InvokeJsCallback( "on_library_items_removed",
                                      std::get<0>( data ).m_items );
 }
@@ -1122,9 +1123,9 @@ void js_panel_window::on_main_menu( WPARAM wp )
                                      static_cast<uint32_t>( wp ) );
 }
 
-void js_panel_window::on_metadb_changed( void* pData )
+void js_panel_window::on_metadb_changed( panel::CallbackData& callbackData )
 {
-    auto& data = *reinterpret_cast<std::tuple<metadb_callback_data>*>( pData );
+    auto& data = callbackData.GetData<metadb_callback_data>();
     pJsContainer_->InvokeJsCallback( "on_metadb_changed",
                                      std::get<0>( data ).m_items,
                                      std::get<0>( data ).m_fromhook );
@@ -1417,9 +1418,9 @@ void js_panel_window::on_playback_dynamic_info_track()
     pJsContainer_->InvokeJsCallback( "on_playback_dynamic_info_track" );
 }
 
-void js_panel_window::on_playback_edited( void* pData )
+void js_panel_window::on_playback_edited( panel::CallbackData& callbackData )
 {
-    auto& data = *reinterpret_cast<std::tuple<metadb_handle_ptr>*>( pData );
+    auto& data = callbackData.GetData<metadb_handle_ptr>();
     pJsContainer_->InvokeJsCallback( "on_playback_edited",
                                      std::get<0>( data ) );
 }
@@ -1430,9 +1431,9 @@ void js_panel_window::on_playback_follow_cursor_changed( WPARAM wp )
                                      static_cast<bool>( wp ) );
 }
 
-void js_panel_window::on_playback_new_track( void* pData )
+void js_panel_window::on_playback_new_track( panel::CallbackData& callbackData )
 {
-    auto& data = *reinterpret_cast<std::tuple<metadb_handle_ptr>*>( pData );
+    auto& data = callbackData.GetData<metadb_handle_ptr>();
     pJsContainer_->InvokeJsCallback( "on_playback_new_track",
                                      std::get<0>( data ) );
 }
@@ -1455,9 +1456,9 @@ void js_panel_window::on_playback_queue_changed( WPARAM wp )
                                      static_cast<uint32_t>( wp ) );
 }
 
-void js_panel_window::on_playback_seek( void* pData )
+void js_panel_window::on_playback_seek( panel::CallbackData& callbackData )
 {
-    auto& data = *reinterpret_cast<std::tuple<double>*>( pData );
+    auto& data = callbackData.GetData<double>();
     pJsContainer_->InvokeJsCallback( "on_playback_seek",
                                      std::get<0>( data ) );
 }
@@ -1475,9 +1476,9 @@ void js_panel_window::on_playback_stop( WPARAM wp )
                                      static_cast<uint32_t>( (playback_control::t_stop_reason)wp ) );
 }
 
-void js_panel_window::on_playback_time( void* pData )
+void js_panel_window::on_playback_time( panel::CallbackData& callbackData )
 {
-    auto& data = *reinterpret_cast<std::tuple<double>*>( pData );
+    auto& data = callbackData.GetData<double>();
     pJsContainer_->InvokeJsCallback( "on_playback_time",
                                      std::get<0>( data ) );
 }
@@ -1553,9 +1554,9 @@ void js_panel_window::on_size( uint32_t w, uint32_t h )
                                      static_cast<uint32_t>( h ) );
 }
 
-void js_panel_window::on_volume_change( void* pData )
+void js_panel_window::on_volume_change( panel::CallbackData& callbackData )
 {
-    auto& data = *reinterpret_cast<std::tuple<float>*>( pData );
+    auto& data = callbackData.GetData<float>();
     pJsContainer_->InvokeJsCallback( "on_volume_change",
                                      std::get<0>( data ) );
 }

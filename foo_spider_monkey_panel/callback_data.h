@@ -5,22 +5,19 @@
 namespace smp::panel
 {
 
-class CallBackDataBase
+class CallbackData
 {
 public:
-    CallBackDataBase() = default;
-    virtual ~CallBackDataBase() = default;
-    CallBackDataBase( const CallBackDataBase& ) = delete;
-    CallBackDataBase operator=( const CallBackDataBase& ) = delete;
+    CallbackData() = default;
+    virtual ~CallbackData() = default;
+    CallbackData( const CallbackData& ) = delete;
+    CallbackData operator=( const CallbackData& ) = delete;
 
-    void* DataPtr()
+    template <typename... Args>
+    std::tuple<Args...>& GetData()
     {
-        return pData_;
-    }
-
-    void* DataPtr() const
-    {
-        return pData_;
+        assert( pData_ );
+        return *reinterpret_cast<std::tuple<Args...>*>( pData_ );
     }
 
 protected:
@@ -28,31 +25,20 @@ protected:
 };
 
 template <typename... Args>
-class CallBackData
-    : public CallBackDataBase
+class CallbackDataImpl
+    : public CallbackData
 {
 public:
-
     template <typename... ArgsFwd>
-    CallBackData( ArgsFwd&&... args )
-        : data_( std::forward<ArgsFwd>(args)... )
+    CallbackDataImpl( ArgsFwd&&... args )
+        : data_( std::forward<ArgsFwd>( args )... )
     {
         pData_ = &data_;
     }
 
-    ~CallBackData() override = default;
-    CallBackData( const CallBackData& ) = delete;
-    CallBackData operator=( const CallBackData& ) = delete;
-
-    auto& Data()
-    {
-        return data_;
-    }
-
-    auto& Data() const
-    {
-        return data_;
-    }
+    ~CallbackDataImpl() override = default;
+    CallbackDataImpl( const CallbackDataImpl& ) = delete;
+    CallbackDataImpl operator=( const CallbackDataImpl& ) = delete;
 
 private:
     std::tuple<Args...> data_;

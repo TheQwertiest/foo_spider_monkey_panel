@@ -12,7 +12,7 @@ namespace smp
 
 namespace panel
 {
-class CallBackDataBase;
+class CallbackData;
 }
 
 class MessageDataHolder
@@ -24,19 +24,19 @@ public:
 
     static MessageDataHolder& GetInstance();
 
-    void StoreData( CallbackMessage messageId, const std::vector<HWND>& recievers, std::shared_ptr<panel::CallBackDataBase> pData );
-    std::shared_ptr<panel::CallBackDataBase> ClaimData( CallbackMessage messageId, HWND hWnd );
+    void StoreData( CallbackMessage messageId, const std::vector<HWND>& recievers, std::shared_ptr<panel::CallbackData> pData );
+    std::shared_ptr<panel::CallbackData> ClaimData( CallbackMessage messageId, HWND hWnd );
 
-    void FlushDataForHwnd( HWND hWnd, const panel::CallBackDataBase* pDataToRemove );
+    void FlushDataForHwnd( HWND hWnd, const panel::CallbackData* pDataToRemove );
     void FlushAllDataForHwnd( HWND hWnd );
 
 private:
     MessageDataHolder() = default;
 
-    void FlushDataInternal( HWND hWnd, const panel::CallBackDataBase* pDataToRemove );
+    void FlushDataInternal( HWND hWnd, const panel::CallbackData* pDataToRemove );
 
 private:
-    using MessageData = std::pair<std::vector<HWND>, std::shared_ptr<panel::CallBackDataBase>>;
+    using MessageData = std::pair<std::vector<HWND>, std::shared_ptr<panel::CallbackData>>;
     using MessageDataList = std::vector<MessageData>;
 
     std::mutex dataLock_;

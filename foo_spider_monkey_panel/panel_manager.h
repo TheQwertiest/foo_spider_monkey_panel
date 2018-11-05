@@ -32,8 +32,8 @@ public:
     void post_msg_to_all( UINT p_msg );
     void post_msg_to_all( UINT p_msg, WPARAM p_wp );
     void post_msg_to_all( UINT p_msg, WPARAM p_wp, LPARAM p_lp );
-    void post_callback_msg( HWND p_wnd, smp::CallbackMessage p_msg, std::unique_ptr<smp::panel::CallBackDataBase> data );
-    void post_callback_msg_to_all( smp::CallbackMessage p_msg, std::unique_ptr<smp::panel::CallBackDataBase> data );
+    void post_callback_msg( HWND p_wnd, smp::CallbackMessage p_msg, std::unique_ptr<smp::panel::CallbackData> data );
+    void post_callback_msg_to_all( smp::CallbackMessage p_msg, std::unique_ptr<smp::panel::CallbackData> data );
 
     void remove_window( HWND p_wnd );
     void send_msg_to_all( UINT p_msg, WPARAM p_wp, LPARAM p_lp );

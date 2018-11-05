@@ -58,11 +58,11 @@ void panel_manager::post_msg_to_all( UINT p_msg, WPARAM p_wp, LPARAM p_lp )
     }
 }
 
-void panel_manager::post_callback_msg( HWND p_wnd, smp::CallbackMessage p_msg, std::unique_ptr<smp::panel::CallBackDataBase> data )
+void panel_manager::post_callback_msg( HWND p_wnd, smp::CallbackMessage p_msg, std::unique_ptr<smp::panel::CallbackData> data )
 {
     auto& dataStorage = MessageDataHolder::GetInstance();
 
-    std::shared_ptr<panel::CallBackDataBase> sharedData( data.release() );
+    std::shared_ptr<panel::CallbackData> sharedData( data.release() );
     dataStorage.StoreData( p_msg, std::vector<HWND>{p_wnd}, sharedData );
 
     BOOL bRet = PostMessage( p_wnd, static_cast<UINT>( p_msg ), 0, 0 );
@@ -72,7 +72,7 @@ void panel_manager::post_callback_msg( HWND p_wnd, smp::CallbackMessage p_msg, s
     }
 }
 
-void panel_manager::post_callback_msg_to_all( CallbackMessage p_msg, std::unique_ptr<panel::CallBackDataBase> data )
+void panel_manager::post_callback_msg_to_all( CallbackMessage p_msg, std::unique_ptr<panel::CallbackData> data )
 {
     if ( m_hwnds.empty() )
     {
@@ -81,7 +81,7 @@ void panel_manager::post_callback_msg_to_all( CallbackMessage p_msg, std::unique
 
     auto& dataStorage = MessageDataHolder::GetInstance();
 
-    std::shared_ptr<panel::CallBackDataBase> sharedData( data.release() );
+    std::shared_ptr<panel::CallbackData> sharedData( data.release() );
     dataStorage.StoreData( p_msg, m_hwnds, sharedData );
 
     for ( const auto& hWnd : m_hwnds )
@@ -175,25 +175,25 @@ void my_initquit::outputConfigChanged()
 void my_library_callback::on_items_added( metadb_handle_list_cref p_data )
 {
     panel_manager::instance().post_callback_msg_to_all( CallbackMessage::fb_library_items_added,
-                                                        std::make_unique<smp::panel::CallBackData<metadb_callback_data>>( metadb_callback_data( p_data, false ) ) );
+                                                        std::make_unique<smp::panel::CallbackDataImpl<metadb_callback_data>>( metadb_callback_data( p_data, false ) ) );
 }
 
 void my_library_callback::on_items_modified( metadb_handle_list_cref p_data )
 {
     panel_manager::instance().post_callback_msg_to_all( CallbackMessage::fb_library_items_changed,
-                                                        std::make_unique<smp::panel::CallBackData<metadb_callback_data>>( metadb_callback_data( p_data, false ) ) );
+                                                        std::make_unique<smp::panel::CallbackDataImpl<metadb_callback_data>>( metadb_callback_data( p_data, false ) ) );
 }
 
 void my_library_callback::on_items_removed( metadb_handle_list_cref p_data )
 {
     panel_manager::instance().post_callback_msg_to_all( CallbackMessage::fb_library_items_removed,
-                                                        std::make_unique<smp::panel::CallBackData<metadb_callback_data>>( metadb_callback_data( p_data, false ) ) );
+                                                        std::make_unique<smp::panel::CallbackDataImpl<metadb_callback_data>>( metadb_callback_data( p_data, false ) ) );
 }
 
 void my_metadb_io_callback::on_changed_sorted( metadb_handle_list_cref p_items_sorted, bool p_fromhook )
 {
     panel_manager::instance().post_callback_msg_to_all( CallbackMessage::fb_metadb_changed,
-                                                        std::make_unique<smp::panel::CallBackData<metadb_callback_data>>( metadb_callback_data( p_items_sorted, p_fromhook ) ) );
+                                                        std::make_unique<smp::panel::CallbackDataImpl<metadb_callback_data>>( metadb_callback_data( p_items_sorted, p_fromhook ) ) );
 }
 
 unsigned my_play_callback_static::get_flags()
@@ -214,13 +214,13 @@ void my_play_callback_static::on_playback_dynamic_info_track( const file_info& i
 void my_play_callback_static::on_playback_edited( metadb_handle_ptr track )
 {
     panel_manager::instance().post_callback_msg_to_all( CallbackMessage::fb_playback_edited,
-                                                        std::make_unique<smp::panel::CallBackData<metadb_handle_ptr>>( track ) );
+                                                        std::make_unique<smp::panel::CallbackDataImpl<metadb_handle_ptr>>( track ) );
 }
 
 void my_play_callback_static::on_playback_new_track( metadb_handle_ptr track )
 {
     panel_manager::instance().post_callback_msg_to_all( CallbackMessage::fb_playback_new_track,
-                                                        std::make_unique<smp::panel::CallBackData<metadb_handle_ptr>>( track ) );
+                                                        std::make_unique<smp::panel::CallbackDataImpl<metadb_handle_ptr>>( track ) );
 }
 
 void my_play_callback_static::on_playback_pause( bool state )
@@ -231,7 +231,7 @@ void my_play_callback_static::on_playback_pause( bool state )
 void my_play_callback_static::on_playback_seek( double time )
 {
     panel_manager::instance().post_callback_msg_to_all( CallbackMessage::fb_playback_seek,
-                                                        std::make_unique<smp::panel::CallBackData<double>>( time ) );
+                                                        std::make_unique<smp::panel::CallbackDataImpl<double>>( time ) );
 }
 
 void my_play_callback_static::on_playback_starting( play_control::t_track_command cmd, bool paused )
@@ -247,13 +247,13 @@ void my_play_callback_static::on_playback_stop( play_control::t_stop_reason reas
 void my_play_callback_static::on_playback_time( double time )
 {
     panel_manager::instance().post_callback_msg_to_all( CallbackMessage::fb_playback_time,
-                                                        std::make_unique<smp::panel::CallBackData<double>>( time ) );
+                                                        std::make_unique<smp::panel::CallbackDataImpl<double>>( time ) );
 }
 
 void my_play_callback_static::on_volume_change( float newval )
 {
     panel_manager::instance().post_callback_msg_to_all( CallbackMessage::fb_volume_change,
-                                                        std::make_unique<smp::panel::CallBackData<float>>( newval ) );
+                                                        std::make_unique<smp::panel::CallbackDataImpl<float>>( newval ) );
 }
 
 void my_playback_queue_callback::on_changed( t_change_origin p_origin )
@@ -264,7 +264,7 @@ void my_playback_queue_callback::on_changed( t_change_origin p_origin )
 void my_playback_statistics_collector::on_item_played( metadb_handle_ptr p_item )
 {
     panel_manager::instance().post_callback_msg_to_all( CallbackMessage::fb_item_played,
-                                                        std::make_unique<smp::panel::CallBackData<metadb_handle_ptr>>( p_item ) );
+                                                        std::make_unique<smp::panel::CallbackDataImpl<metadb_handle_ptr>>( p_item ) );
 }
 
 GUID my_config_object_notify::get_watched_object( t_size p_index )
@@ -335,7 +335,7 @@ void my_playlist_callback_static::on_item_ensure_visible( t_size p_playlist, t_s
 void my_playlist_callback_static::on_item_focus_change( t_size p_playlist, t_size p_from, t_size p_to )
 {
     panel_manager::instance().post_callback_msg_to_all( CallbackMessage::fb_item_focus_change,
-                                                        std::make_unique<smp::panel::CallBackData<t_size, t_size, t_size>>( p_playlist, p_from, p_to ) );
+                                                        std::make_unique<smp::panel::CallbackDataImpl<t_size, t_size, t_size>>( p_playlist, p_from, p_to ) );
 }
 
 void my_playlist_callback_static::on_items_added( t_size p_playlist, t_size p_start, metadb_handle_list_cref p_data, const pfc::bit_array& p_selection )

@@ -50,7 +50,7 @@ void LoadImageTask::run()
     panel_manager::instance().post_callback_msg( hNotifyWnd_,
                                                  smp::CallbackMessage::internal_load_image_done,
                                                  std::make_unique<
-                                                     smp::panel::CallBackData<
+                                                     smp::panel::CallbackDataImpl<
                                                          uint32_t,
                                                          std::unique_ptr<Gdiplus::Bitmap>,
                                                          pfc::string8_fast>>( taskId_,

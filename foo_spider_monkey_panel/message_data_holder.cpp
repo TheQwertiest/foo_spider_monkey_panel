@@ -12,7 +12,7 @@ MessageDataHolder& MessageDataHolder::GetInstance()
     return storage;
 }
 
-void MessageDataHolder::StoreData( CallbackMessage messageId, const std::vector<HWND>& recievers, std::shared_ptr<panel::CallBackDataBase> pData )
+void MessageDataHolder::StoreData( CallbackMessage messageId, const std::vector<HWND>& recievers, std::shared_ptr<panel::CallbackData> pData )
 {
     std::scoped_lock sl( dataLock_ );
 
@@ -28,7 +28,7 @@ void MessageDataHolder::StoreData( CallbackMessage messageId, const std::vector<
     }
 }
 
-std::shared_ptr<panel::CallBackDataBase> MessageDataHolder::ClaimData( CallbackMessage messageId, HWND hWnd )
+std::shared_ptr<panel::CallbackData> MessageDataHolder::ClaimData( CallbackMessage messageId, HWND hWnd )
 {
     std::scoped_lock sl( dataLock_ );
 
@@ -61,7 +61,7 @@ std::shared_ptr<panel::CallBackDataBase> MessageDataHolder::ClaimData( CallbackM
     uBugCheck();
 }
 
-void MessageDataHolder::FlushDataForHwnd( HWND hWnd, const panel::CallBackDataBase* pDataToRemove )
+void MessageDataHolder::FlushDataForHwnd( HWND hWnd, const panel::CallbackData* pDataToRemove )
 {
     std::scoped_lock sl( dataLock_ );
 
@@ -75,7 +75,7 @@ void MessageDataHolder::FlushAllDataForHwnd( HWND hWnd )
     FlushDataInternal( hWnd, nullptr );
 }
 
-void MessageDataHolder::FlushDataInternal( HWND hWnd, const panel::CallBackDataBase* pDataToRemove )
+void MessageDataHolder::FlushDataInternal( HWND hWnd, const panel::CallbackData* pDataToRemove )
 {
     const bool shouldRemoveAll = !pDataToRemove;
     for ( auto it = dataStorage_.begin(); it != dataStorage_.end(); )

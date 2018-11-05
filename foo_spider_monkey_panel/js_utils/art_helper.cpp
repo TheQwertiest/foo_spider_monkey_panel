@@ -80,7 +80,7 @@ void AlbumArtFetchTask::run()
     panel_manager::instance().post_callback_msg( hNotifyWnd_,
                                                  smp::CallbackMessage::internal_get_album_art_done,
                                                  std::make_unique<
-                                                     smp::panel::CallBackData<
+                                                     smp::panel::CallbackDataImpl<
                                                          metadb_handle_ptr,
                                                          uint32_t,
                                                          std::unique_ptr<Gdiplus::Bitmap>,
