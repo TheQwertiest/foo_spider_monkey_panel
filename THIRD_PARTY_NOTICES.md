@@ -13,4 +13,5 @@ The linked notices are provided for information only.
 - [Scintilla - other](component/licenses/Scintilla.txt)
 - [SpiderMonkey - MPL](component/licenses/SpiderMonkey.txt)
 - [StackBlur - MIT](component/licenses/StackBlur.txt)
+- [timsort-cpp - MIT](component/licenses/timsort-cpp.txt)
 - [WTL - MS-PL](component/licenses/WTL.txt)
