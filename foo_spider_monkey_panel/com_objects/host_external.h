@@ -10,27 +10,13 @@ namespace smp::com
 class HostExternal : public IDispatchImpl3<IHostExternal>
 {
 protected:
-    HostExternal( _variant_t data )
-        : data_( data )
-    {
-    }
-
+    HostExternal( _variant_t data );
     virtual ~HostExternal() = default;
 
-    void FinalRelease() override
-    {
-    }
+    void FinalRelease() override;
 
 public:
-    STDMETHODIMP get_dialogArguments( VARIANT* pData )
-    {
-        if ( pData )
-        {
-            *pData = data_;
-        }
-
-        return S_OK;
-    }
+    STDMETHODIMP get_dialogArguments( VARIANT* pData );
 
 private:
     _variant_t data_;

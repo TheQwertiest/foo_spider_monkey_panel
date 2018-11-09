@@ -5,6 +5,9 @@
 
 #include <drop_action_params.h>
 
+namespace smp::com
+{
+
 class HostDropTarget
     : public IDropTargetImpl
 {
@@ -12,7 +15,7 @@ protected:
     virtual void FinalRelease();
 
 public:
-    HostDropTarget( HWND hWnd );
+    HostDropTarget( HWND hWnd ) noexcept( false );
     virtual ~HostDropTarget() = default;
 
     // IDropTarget
@@ -34,3 +37,5 @@ private:
     COM_QI_ENTRY( IDropTarget )
     END_COM_QI_IMPL()
 };
+
+} // namespace smp::com

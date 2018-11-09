@@ -6,10 +6,14 @@
 
 _COM_SMARTPTR_TYPEDEF( IDragSourceHelper, IID_IDragSourceHelper );
 
+namespace smp::com
+
+{
+
 class IDropSourceImpl : public IDropSource
 {
 public:
-    IDropSourceImpl( HWND hWnd, IDataObject* pDataObject, size_t itemCount, const pfc::string8_fast& customDragText );
+    IDropSourceImpl( HWND hWnd, IDataObject* pDataObject, size_t itemCount, const pfc::string8_fast& customDragText ) noexcept( false );
     virtual ~IDropSourceImpl();
 
     // IDropSource
@@ -33,3 +37,5 @@ private:
     COM_QI_ENTRY( IDropSource )
     END_COM_QI_IMPL()
 };
+
+} // namespace smp::com

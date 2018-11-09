@@ -1,7 +1,8 @@
 #include <stdafx.h>
-#include "drop_utils.h"
+#include "drag_utils.h"
 
-#include <com_objects/drag_image.h>
+#include <js_utils/scope_helper.h>
+#include <com_objects/internal/drag_image.h>
 
 namespace
 {
@@ -74,6 +75,9 @@ pfc::string8 FormatDragText( t_size selectionCount )
 
 } // namespace
 
+namespace smp::com::drag
+{
+
 HRESULT SetDefaultImage( IDataObject* pdtobj )
 {
     static const CLIPFORMAT cfRet = (CLIPFORMAT)RegisterClipboardFormat( L"UsingDefaultDragImage" );
@@ -109,8 +113,13 @@ HRESULT SetDropText( IDataObject* pdtobj, DROPIMAGETYPE dit, const wchar_t* msg,
 bool RenderDragImage( HWND hWnd, size_t itemCount, const pfc::string8_fast& customDragText, SHDRAGIMAGE& dragImage )
 {
     const pfc::string8 dragText = customDragText.is_empty() ? FormatDragText( itemCount ) : customDragText;
-    // TODO: Add CloseThemeData(m_dd_theme) somewhere
     const HTHEME m_dd_theme = ( IsThemeActive() && IsAppThemed() ? OpenThemeData( hWnd, VSCLASS_DRAGDROP ) : nullptr );
+    auto autoTheme = mozjs::scope::finally( [m_dd_theme] {
+        if ( m_dd_theme )
+        {
+            CloseThemeData( m_dd_theme );
+        }
+    } );
 
     LOGFONT lf;
     memset( &lf, 0, sizeof( LOGFONT ) );
@@ -137,3 +146,5 @@ HRESULT GetIsShowingLayered( IDataObject* pDataObj, BOOL& p_out )
     static const CLIPFORMAT cfRet = (CLIPFORMAT)RegisterClipboardFormat( L"IsShowingLayered" );
     return GetDataObjectDataSimple( pDataObj, cfRet, p_out );
 }
+
+} // namespace smp::com::drag

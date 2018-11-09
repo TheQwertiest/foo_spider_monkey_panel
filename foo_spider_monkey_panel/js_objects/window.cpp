@@ -324,7 +324,7 @@ void JsWindow::DefinePanel( const pfc::string8_fast& name, JS::HandleValue optio
     parentPanel_.ScriptInfo().version = parsed_options.version;
     if ( parsed_options.features.drag_n_drop )
     {
-        dropTargetHandler_.Attach( new com_object_impl_t<HostDropTarget>( parentPanel_.GetHWND() ) );
+        dropTargetHandler_.Attach( new com_object_impl_t<com::HostDropTarget>( parentPanel_.GetHWND() ) );
 
         HRESULT hr = dropTargetHandler_->RegisterDragDrop();
         error::CheckHR( hr, "RegisterDragDrop" );

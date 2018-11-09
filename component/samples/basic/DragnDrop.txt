@@ -116,6 +116,7 @@ function on_drag_enter(action, x, y, mask) {
         action.Effect = (action.Effect & g_drop_effect.move)
                 || (action.Effect & g_drop_effect.copy)
                 || (action.Effect & g_drop_effect.link);
+        action.Text = get_text_from_effect(action.Effect);
     }
     else {        
         action.Effect = g_drop_effect.none;
@@ -137,6 +138,7 @@ function on_drag_leave() {
 function on_drag_over(action, x, y, mask) {
     if (trace_end_zone(x, y)) {
         action.Effect = filter_effect_by_modifiers(action.Effect);
+        action.Text = get_text_from_effect(action.Effect);
     }
     else {
         action.Effect = g_drop_effect.none;
@@ -216,7 +218,7 @@ function perform_internal_drag_n_drop() {
     var cur_playlist_size = plman.PlaylistItemCount(cur_playlist_idx);
     var cur_playlist_selection = plman.GetPlaylistSelectedItems(cur_playlist_idx);
     
-    var effect = fb.DoDragDrop(cur_playlist_selection, g_drop_effect.copy | g_drop_effect.move | g_drop_effect.link);
+    var effect = fb.DoDragDrop(window.ID, cur_playlist_selection, g_drop_effect.copy | g_drop_effect.move | g_drop_effect.link);
 
     function can_handle_move_drop() {
         // We can handle the 'move drop' properly only when playlist is still in the same state
@@ -322,4 +324,29 @@ function filter_effect_by_modifiers(effect) {
 
     // Move > Copy > Link    
     return (effect & g_drop_effect.move) || (effect & g_drop_effect.copy) || (effect & g_drop_effect.link);
+}
+
+function get_text_from_effect(effect) {
+    switch (effect) {
+        case g_drop_effect.move:
+        {
+            if (is_internal_drag_n_drop_active) {
+                return 'Moving from inside';
+            }
+            return 'Moving from outside';
+        }
+        case g_drop_effect.copy:
+        {
+            if (is_internal_drag_n_drop_active) {
+                return 'Copying from inside';
+            }
+            return 'Copying from outside';
+        }
+        case g_drop_effect.link:
+        {
+            return 'Linking from outside';
+        }
+        default:
+            return '';
+    }
 }

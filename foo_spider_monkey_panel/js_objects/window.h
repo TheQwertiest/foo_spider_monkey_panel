@@ -9,7 +9,11 @@ struct JSContext;
 struct JSClass;
 
 class js_panel_window;
+
+namespace smp::com
+{
 class IDropTargetImpl;
+}
 
 namespace mozjs
 {
@@ -97,11 +101,11 @@ private:
     JSContext* pJsCtx_;
     js_panel_window& parentPanel_;
 
-    bool isFinalized_ = false; ///< if true, then parentPanel_ might be alredy inaccessible
+    bool isFinalized_ = false; ///< if true, then parentPanel_ might be already inaccessible
 
     bool isPanelDefined_ = false;
     std::unique_ptr<FbProperties> fbProperties_;
-    CComPtr<IDropTargetImpl> dropTargetHandler_;
+    CComPtr<smp::com::IDropTargetImpl> dropTargetHandler_;
 };
 
 } // namespace mozjs

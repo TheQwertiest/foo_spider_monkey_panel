@@ -9,6 +9,7 @@ struct DropActionParams
     uint32_t base = 0;
     bool toSelect = true;
     uint32_t effect = DROPEFFECT_NONE;
+    std::wstring text;
 
     void Reset()
     {

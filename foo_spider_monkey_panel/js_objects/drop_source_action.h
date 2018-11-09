@@ -40,6 +40,7 @@ public:
     void put_Base( uint32_t base );
     void put_Effect( uint32_t effect );
     void put_Playlist( int32_t id );
+    void put_Text( const std::wstring& text );
     void put_ToSelect( bool to_select );
 
 private:

@@ -1,38 +1,38 @@
 #include <stdafx.h>
 #include "drop_source_impl.h"
 
-#include <com_objects/drag_image.h>
-#include <com_objects/drop_utils.h>
+#include <com_objects/internal/drag_image.h>
+#include <com_objects/internal/drag_utils.h>
+#include <js_utils/winapi_error_helper.h>
 
 _COM_SMARTPTR_TYPEDEF( IDragSourceHelper2, IID_IDragSourceHelper2 );
+
+namespace smp::com
+{
 
 IDropSourceImpl::IDropSourceImpl( HWND hWnd, IDataObject* pDataObject, size_t itemCount, const pfc::string8_fast& customDragText )
     : pDataObject_( pDataObject )
 {
-    try
+    assert( hWnd );
+    assert( pDataObject );
+
+    HRESULT hr = pDragSourceHelper_.CreateInstance( CLSID_DragDropHelper, nullptr, CLSCTX_INPROC_SERVER );
+    mozjs::error::CheckHR( hr, "CreateInstance" );
+
+    if ( IDragSourceHelper2Ptr pDragSourceHelper2 = pDragSourceHelper_;
+         pDragSourceHelper2 )
     {
-        if ( HRESULT hr = pDragSourceHelper_.CreateInstance( CLSID_DragDropHelper, nullptr, CLSCTX_INPROC_SERVER );
-             SUCCEEDED( hr ) )
-        {
-            if ( IDragSourceHelper2Ptr pDragSourceHelper2 = pDragSourceHelper_;
-                 pDragSourceHelper2 )
-            {
-                pDragSourceHelper2->SetFlags( DSH_ALLOWDROPDESCRIPTIONTEXT );
-            }
-
-            if ( RenderDragImage( hWnd, itemCount, customDragText, dragImage_ ) )
-            {
-                (void)pDragSourceHelper_->InitializeFromBitmap( &dragImage_, pDataObject );
-            }
-
-            if ( IsThemeActive() && IsAppThemed() )
-            {
-                (void)SetDefaultImage( pDataObject );
-            }
-        }
+        (void)pDragSourceHelper2->SetFlags( DSH_ALLOWDROPDESCRIPTIONTEXT );
     }
-    catch ( const _com_error& )
+
+    if ( drag::RenderDragImage( hWnd, itemCount, customDragText, dragImage_ ) )
     {
+        (void)pDragSourceHelper_->InitializeFromBitmap( &dragImage_, pDataObject );
+    }
+
+    if ( IsThemeActive() && IsAppThemed() )
+    {
+        (void)drag::SetDefaultImage( pDataObject );
     }
 };
 
@@ -44,7 +44,6 @@ IDropSourceImpl::~IDropSourceImpl()
     }
 }
 
-// IDropSource
 STDMETHODIMP IDropSourceImpl::QueryContinueDrag( BOOL fEscapePressed, DWORD grfKeyState )
 {
     if ( fEscapePressed || ( grfKeyState & MK_RBUTTON ) || ( grfKeyState & MK_MBUTTON ) )
@@ -65,11 +64,11 @@ STDMETHODIMP IDropSourceImpl::GiveFeedback( DWORD dwEffect )
     BOOL isShowingLayered = FALSE;
     if ( IsThemeActive() )
     {
-        GetIsShowingLayered( pDataObject_, isShowingLayered );
+        drag::GetIsShowingLayered( pDataObject_, isShowingLayered );
     }
 
     HWND wnd_drag = nullptr;
-    if ( SUCCEEDED( GetDragWindow( pDataObject_, wnd_drag ) ) && wnd_drag )
+    if ( SUCCEEDED( drag::GetDragWindow( pDataObject_, wnd_drag ) ) && wnd_drag )
     {
         PostMessage( wnd_drag, DDWM_UPDATEWINDOW, NULL, NULL );
     }
@@ -77,28 +76,34 @@ STDMETHODIMP IDropSourceImpl::GiveFeedback( DWORD dwEffect )
     if ( isShowingLayered )
     {
         if ( !wasShowingLayered_ )
-        { // TODO: check for leak
-            auto cursor = LoadCursor( nullptr, IDC_ARROW );
-            SetCursor( cursor );
-        }
-        if ( wnd_drag )
         {
+            SetCursor( LoadCursor( nullptr, IDC_ARROW ) );
+        }
+        if ( wnd_drag && dwEffect == DROPEFFECT_NONE )
+        { 
+            /*
             WPARAM wp = 1;
-            if ( dwEffect & DROPEFFECT_COPY )
-                wp = 3;
-            else if ( dwEffect & DROPEFFECT_MOVE )
+            if ( dwEffect & DROPEFFECT_MOVE )
+            {
                 wp = 2;
+            }
+            else if ( dwEffect & DROPEFFECT_COPY )
+            {
+                wp = 3;
+            }
             else if ( dwEffect & DROPEFFECT_LINK )
+            {
                 wp = 4;
-
-            PostMessage( wnd_drag, WM_USER + 2, wp, NULL );
+            }
+            */
+            PostMessage( wnd_drag, DDWM_SETCURSOR, 1 /*wp*/, NULL );
         }
     }
 
-    wasShowingLayered_ = isShowingLayered != 0;
-
+    wasShowingLayered_ = !!isShowingLayered;
     m_dwLastEffect = dwEffect;
-    return isShowingLayered ? S_OK : DRAGDROP_S_USEDEFAULTCURSORS;
+
+    return ( isShowingLayered ? S_OK : DRAGDROP_S_USEDEFAULTCURSORS );
 }
 
 ULONG STDMETHODCALLTYPE IDropSourceImpl::AddRef()
@@ -115,3 +120,5 @@ ULONG STDMETHODCALLTYPE IDropSourceImpl::Release()
     }
     return rv;
 }
+
+} // namespace smp::com

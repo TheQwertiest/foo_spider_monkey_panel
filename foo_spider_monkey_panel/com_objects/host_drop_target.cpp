@@ -5,7 +5,7 @@
 #include <js_engine/js_container.h>
 #include <js_objects/global_object.h>
 #include <js_objects/drop_source_action.h>
-#include <com_objects/drop_utils.h>
+#include <com_objects/internal/drag_utils.h>
 
 #include <user_message.h>
 
@@ -25,6 +25,10 @@ DROPIMAGETYPE GetDropImageFromEffect( DWORD dwEffect )
     if ( dwEffect & DROPEFFECT_LINK )
     {
         return DROPIMAGE_LINK;
+    }
+    if ( dwEffect & DROPEFFECT_NONE )
+    {
+        return DROPIMAGE_NONE;
     }
     return DROPIMAGE_INVALID;
 }
@@ -46,8 +50,10 @@ const wchar_t* GetDropTextFromEffect( DWORD dwEffect )
     return L"";
 }
 
-}
+} // namespace
 
+namespace smp::com
+{
 
 HostDropTarget::HostDropTarget( HWND hWnd )
     : IDropTargetImpl( hWnd )
@@ -74,26 +80,28 @@ HRESULT HostDropTarget::OnDragEnter( IDataObject* pDataObj, DWORD grfKeyState, P
     {
         m_fb2kAllowedEffect = DROPEFFECT_NONE;
     }
-    else if ( native && (DROPEFFECT_MOVE & *pdwEffect) )
+    else if ( native && ( DROPEFFECT_MOVE & *pdwEffect ) )
     {
         m_fb2kAllowedEffect |= DROPEFFECT_MOVE; // Remove check_dataobject move suppression for intra fb2k interactions
     }
 
     actionParams_.effect = *pdwEffect & m_fb2kAllowedEffect;
 
-    ScreenToClient( m_hWnd, reinterpret_cast<LPPOINT>(&pt) );
-    SendDragMessage( static_cast<UINT>(smp::PlayerMessage::wnd_drag_enter), grfKeyState, pt );
+    ScreenToClient( m_hWnd, reinterpret_cast<LPPOINT>( &pt ) );
+    SendDragMessage( static_cast<UINT>( smp::PlayerMessage::wnd_drag_enter ), grfKeyState, pt );
 
     *pdwEffect = actionParams_.effect;
-    SetDropText( pDataObject_, GetDropImageFromEffect( actionParams_.effect ), GetDropTextFromEffect( actionParams_.effect ), L"" );
+
+    const wchar_t* dragText = ( actionParams_.text.empty() ? GetDropTextFromEffect( actionParams_.effect ) : actionParams_.text.c_str() );
+    drag::SetDropText( pDataObject_, GetDropImageFromEffect( actionParams_.effect ), dragText, L"" );
 
     return S_OK;
 }
 
 HRESULT HostDropTarget::OnDragLeave()
 {
-    SendMessage( m_hWnd, static_cast<UINT>(smp::PlayerMessage::wnd_drag_leave), 0, 0 );
-    SetDropText( pDataObject_, DROPIMAGE_INVALID, L"", L"" );
+    SendMessage( m_hWnd, static_cast<UINT>( smp::PlayerMessage::wnd_drag_leave ), 0, 0 );
+    drag::SetDropText( pDataObject_, DROPIMAGE_INVALID, L"", L"" );
     pDataObject_ = nullptr;
     return S_OK;
 }
@@ -107,11 +115,13 @@ HRESULT HostDropTarget::OnDragOver( DWORD grfKeyState, POINTL pt, DWORD* pdwEffe
 
     actionParams_.effect = *pdwEffect & m_fb2kAllowedEffect;
 
-    ScreenToClient( m_hWnd, reinterpret_cast<LPPOINT>(&pt) );
-    SendDragMessage( static_cast<UINT>(smp::PlayerMessage::wnd_drag_over), grfKeyState, pt );
+    ScreenToClient( m_hWnd, reinterpret_cast<LPPOINT>( &pt ) );
+    SendDragMessage( static_cast<UINT>( smp::PlayerMessage::wnd_drag_over ), grfKeyState, pt );
 
     *pdwEffect = actionParams_.effect;
-    SetDropText( pDataObject_, GetDropImageFromEffect( actionParams_.effect ), GetDropTextFromEffect( actionParams_.effect ), L"" );
+
+    const wchar_t* dragText = ( actionParams_.text.empty() ? GetDropTextFromEffect( actionParams_.effect ) : actionParams_.text.c_str() );
+    drag::SetDropText( pDataObject_, GetDropImageFromEffect( actionParams_.effect ), dragText, L"" );
 
     return S_OK;
 }
@@ -125,8 +135,8 @@ HRESULT HostDropTarget::OnDrop( IDataObject* pDataObj, DWORD grfKeyState, POINTL
 
     actionParams_.effect = *pdwEffect & m_fb2kAllowedEffect;
 
-    ScreenToClient( m_hWnd, reinterpret_cast<LPPOINT>(&pt) );
-    SendDragMessage( static_cast<UINT>(smp::PlayerMessage::wnd_drag_drop), grfKeyState, pt );
+    ScreenToClient( m_hWnd, reinterpret_cast<LPPOINT>( &pt ) );
+    SendDragMessage( static_cast<UINT>( smp::PlayerMessage::wnd_drag_drop ), grfKeyState, pt );
 
     if ( *pdwEffect == DROPEFFECT_NONE || actionParams_.effect == DROPEFFECT_NONE )
     {
@@ -144,7 +154,7 @@ HRESULT HostDropTarget::OnDrop( IDataObject* pDataObj, DWORD grfKeyState, POINTL
     }
 
     *pdwEffect = actionParams_.effect;
-    SetDropText( pDataObject_, DROPIMAGE_INVALID, L"", L"" );
+    drag::SetDropText( pDataObject_, DROPIMAGE_INVALID, L"", L"" );
     pDataObject_ = nullptr;
 
     return S_OK;
@@ -159,3 +169,5 @@ void HostDropTarget::SendDragMessage( DWORD msgId, DWORD grfKeyState, POINTL pt 
     SendMessage( m_hWnd, msgId, 0, (LPARAM)&msgParams );
     actionParams_ = msgParams.actionParams;
 }
+
+} // namespace smp::com

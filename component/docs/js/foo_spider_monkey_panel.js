@@ -290,8 +290,9 @@ let fb = {
      *   If the returned Action.Effect was not in okEffects or is equal to DROPEFFECT_NONE (=== 0), then drop will be denied:
      *   cursor icon will be changed, on_drag_drop won't be called after releasing lmbtn, on_drag_leave will be called instead.<br>
      * - DROPEFFECT_LINK should be used as fallback in case effect argument does not have DROPEFFECT_COPY (===1), since some external drops only allow DROPEFFECT_LINK effect.<br>
-     * - Changing effect on key modifiers is nice (to be in line with native Windows behaviour): see example here: https://github.com/TheQwertiest/CaTRoX_QWR/blob/ab1aa4c7fc19e08d3ccff84d5959779ba46bf704/theme/Scripts/Panel_Playlist.js#L2512.<br>
+     * - Changing effect on key modifiers is nice (to be in line with native Windows behaviour): see example here: https://github.com/TheQwertiest/CaTRoX_QWR/blob/ab1aa4c7fc19e08d3ccff84d5959779ba46bf704/theme/Scripts/Panel_Playlist.js#L2512 .<br>
      *
+     * @param {number} window_id see {@link window.ID}
      * @param {FbMetadbHandleList} handle_list
      * @param {number} effect Allowed effects.
      * @return {number} Effect that was returned in on_drag_drop.
@@ -299,7 +300,7 @@ let fb = {
      * @example
      * // See samples/basic/DragnDrop.txt
      */
-    DoDragDrop: function (handle_list, effect) {}, // (uint),
+    DoDragDrop: function (window_id, handle_list, effect) {}, // (uint),
 
     /** @method */
     Exit: function () {}, // (void)
@@ -3043,13 +3044,29 @@ function DropTargetAction() {
 
     /**
      * Active playlist.<br>
-     * -1 by default.
+     * -1 by default.<br>
+     * <br>
+     * Note: property is write-only.
      *
      * @type {number}
      */
     this.Playlist = undefined; // (write)
 
-    /** @type {boolean} */
+    /** 
+     * The tooltip text that is displayed during dragging.<br>
+     * If the property is not modified, then default tooltip text will be used.
+     * <br>
+     * Note: property is write-only.
+     * 
+     * @type {string} 
+     */
+    this.Text = undefined; // (write)
+
+    /**      
+     * Note: property is write-only.
+     * 
+     * @type {boolean} 
+     */
     this.ToSelect = undefined; // (boolean) (write)
 }
 

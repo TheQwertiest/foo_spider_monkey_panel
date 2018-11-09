@@ -35,12 +35,14 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( get_Effect, JsDropSourceAction::get_Effect )
 MJS_DEFINE_JS_FN_FROM_NATIVE( put_Base, JsDropSourceAction::put_Base )
 MJS_DEFINE_JS_FN_FROM_NATIVE( put_Effect, JsDropSourceAction::put_Effect )
 MJS_DEFINE_JS_FN_FROM_NATIVE( put_Playlist, JsDropSourceAction::put_Playlist )
+MJS_DEFINE_JS_FN_FROM_NATIVE( put_Text, JsDropSourceAction::put_Text )
 MJS_DEFINE_JS_FN_FROM_NATIVE( put_ToSelect, JsDropSourceAction::put_ToSelect )
 
 const JSPropertySpec jsProperties[] = {
     JS_PSGS( "Base", DummyGetter, put_Base, DefaultPropsFlags() ),
     JS_PSGS( "Effect", get_Effect, put_Effect, DefaultPropsFlags() ),
     JS_PSGS( "Playlist", DummyGetter, put_Playlist, DefaultPropsFlags() ),
+    JS_PSGS( "Text", DummyGetter, put_Text, DefaultPropsFlags() ),
     JS_PSGS( "ToSelect", DummyGetter, put_ToSelect, DefaultPropsFlags() ),
     JS_PS_END
 };
@@ -102,6 +104,11 @@ void JsDropSourceAction::put_Effect( uint32_t effect )
 void JsDropSourceAction::put_Playlist( int32_t id )
 {
     actionParams_.playlistIdx = id;
+}
+
+void JsDropSourceAction::put_Text( const std::wstring& text )
+{
+    actionParams_.text = text;
 }
 
 void JsDropSourceAction::put_ToSelect( bool toSelect )

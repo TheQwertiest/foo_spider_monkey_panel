@@ -5,7 +5,7 @@
 #include <stdafx.h>
 #include "drag_image.h"
 
-#include <com_objects/handle.h>
+#include <com_objects/internal/handle.h>
 
 namespace uih
 {

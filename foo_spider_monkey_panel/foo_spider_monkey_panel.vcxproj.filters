@@ -262,10 +262,16 @@
     <ClCompile Include="com_objects\drop_source_impl.cpp">
       <Filter>com_objects</Filter>
     </ClCompile>
-    <ClCompile Include="com_objects\drag_image.cpp">
+    <ClCompile Include="com_objects\drop_target_impl.cpp">
       <Filter>com_objects</Filter>
     </ClCompile>
-    <ClCompile Include="com_objects\drop_utils.cpp">
+    <ClCompile Include="com_objects\internal\drag_utils.cpp">
+      <Filter>com_objects\internal</Filter>
+    </ClCompile>
+    <ClCompile Include="com_objects\internal\drag_image.cpp">
+      <Filter>com_objects\internal</Filter>
+    </ClCompile>
+    <ClCompile Include="com_objects\host_external.cpp">
       <Filter>com_objects</Filter>
     </ClCompile>
   </ItemGroup>
@@ -603,14 +609,14 @@
     <ClInclude Include="callback_data.h">
       <Filter>z_uncategorized</Filter>
     </ClInclude>
-    <ClInclude Include="com_objects\drag_image.h">
-      <Filter>com_objects</Filter>
+    <ClInclude Include="com_objects\internal\drag_utils.h">
+      <Filter>com_objects\internal</Filter>
     </ClInclude>
-    <ClInclude Include="com_objects\handle.h">
-      <Filter>com_objects</Filter>
+    <ClInclude Include="com_objects\internal\handle.h">
+      <Filter>com_objects\internal</Filter>
     </ClInclude>
-    <ClInclude Include="com_objects\drop_utils.h">
-      <Filter>com_objects</Filter>
+    <ClInclude Include="com_objects\internal\drag_image.h">
+      <Filter>com_objects\internal</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -688,6 +694,9 @@
     </Filter>
     <Filter Include="scintilla">
       <UniqueIdentifier>{fe84cd3a-a0ea-4f6b-9816-6d2d77d6c024}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="com_objects\internal">
+      <UniqueIdentifier>{48f476b5-50dc-4578-ac4c-1cfae89d2b42}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

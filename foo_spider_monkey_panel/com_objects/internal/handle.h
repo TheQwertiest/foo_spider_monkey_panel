@@ -1,4 +1,6 @@
-// Copied from https://github.com/reupen/ui_helpers ( Copyright (c) Reupen Shah )
+// Copied from https://github.com/reupen/ui_helpers
+// Copyright (c) Reupen Shah 2003-2017
+// All rights reserved.
 
 #pragma once
 
