@@ -5,8 +5,48 @@
 #include <js_engine/js_container.h>
 #include <js_objects/global_object.h>
 #include <js_objects/drop_source_action.h>
+#include <com_objects/drop_utils.h>
 
 #include <user_message.h>
+
+namespace
+{
+
+DROPIMAGETYPE GetDropImageFromEffect( DWORD dwEffect )
+{
+    if ( dwEffect & DROPEFFECT_MOVE )
+    {
+        return DROPIMAGE_MOVE;
+    }
+    if ( dwEffect & DROPEFFECT_COPY )
+    {
+        return DROPIMAGE_COPY;
+    }
+    if ( dwEffect & DROPEFFECT_LINK )
+    {
+        return DROPIMAGE_LINK;
+    }
+    return DROPIMAGE_INVALID;
+}
+
+const wchar_t* GetDropTextFromEffect( DWORD dwEffect )
+{
+    if ( dwEffect & DROPEFFECT_MOVE )
+    {
+        return L"Move";
+    }
+    if ( dwEffect & DROPEFFECT_COPY )
+    {
+        return L"Copy";
+    }
+    if ( dwEffect & DROPEFFECT_LINK )
+    {
+        return L"Link";
+    }
+    return L"";
+}
+
+}
 
 
 HostDropTarget::HostDropTarget( HWND hWnd )
@@ -25,6 +65,7 @@ HRESULT HostDropTarget::OnDragEnter( IDataObject* pDataObj, DWORD grfKeyState, P
         return E_POINTER;
     }
 
+    pDataObject_ = pDataObj;
     actionParams_.Reset();
 
     bool native;
@@ -44,12 +85,16 @@ HRESULT HostDropTarget::OnDragEnter( IDataObject* pDataObj, DWORD grfKeyState, P
     SendDragMessage( static_cast<UINT>(smp::PlayerMessage::wnd_drag_enter), grfKeyState, pt );
 
     *pdwEffect = actionParams_.effect;
+    SetDropText( pDataObject_, GetDropImageFromEffect( actionParams_.effect ), GetDropTextFromEffect( actionParams_.effect ), L"" );
+
     return S_OK;
 }
 
 HRESULT HostDropTarget::OnDragLeave()
 {
     SendMessage( m_hWnd, static_cast<UINT>(smp::PlayerMessage::wnd_drag_leave), 0, 0 );
+    SetDropText( pDataObject_, DROPIMAGE_INVALID, L"", L"" );
+    pDataObject_ = nullptr;
     return S_OK;
 }
 
@@ -66,6 +111,7 @@ HRESULT HostDropTarget::OnDragOver( DWORD grfKeyState, POINTL pt, DWORD* pdwEffe
     SendDragMessage( static_cast<UINT>(smp::PlayerMessage::wnd_drag_over), grfKeyState, pt );
 
     *pdwEffect = actionParams_.effect;
+    SetDropText( pDataObject_, GetDropImageFromEffect( actionParams_.effect ), GetDropTextFromEffect( actionParams_.effect ), L"" );
 
     return S_OK;
 }
@@ -98,6 +144,8 @@ HRESULT HostDropTarget::OnDrop( IDataObject* pDataObj, DWORD grfKeyState, POINTL
     }
 
     *pdwEffect = actionParams_.effect;
+    SetDropText( pDataObject_, DROPIMAGE_INVALID, L"", L"" );
+    pDataObject_ = nullptr;
 
     return S_OK;
 }

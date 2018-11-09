@@ -95,6 +95,9 @@
     <ClCompile Include="acfu_integration.cpp" />
     <ClCompile Include="adv_config.cpp" />
     <ClCompile Include="com_objects\com_tools.cpp" />
+    <ClCompile Include="com_objects\drag_image.cpp" />
+    <ClCompile Include="com_objects\drop_source_impl.cpp" />
+    <ClCompile Include="com_objects\drop_utils.cpp" />
     <ClCompile Include="com_objects\host_drop_target.cpp" />
     <ClCompile Include="com_objects\script_interface_impl.cpp" />
     <ClCompile Include="config.cpp" />
@@ -195,8 +198,11 @@
     <ClInclude Include="callback_data.h" />
     <ClInclude Include="com_objects\com_tools.h" />
     <ClInclude Include="com_objects\dispatch_ptr.h" />
+    <ClInclude Include="com_objects\drag_image.h" />
     <ClInclude Include="com_objects\drop_source_impl.h" />
     <ClInclude Include="com_objects\drop_target_impl.h" />
+    <ClInclude Include="com_objects\drop_utils.h" />
+    <ClInclude Include="com_objects\handle.h" />
     <ClInclude Include="com_objects\host_drop_target.h" />
     <ClInclude Include="com_objects\host_external.h" />
     <ClInclude Include="com_objects\script_interface.h" />

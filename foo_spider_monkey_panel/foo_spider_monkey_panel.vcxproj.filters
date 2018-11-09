@@ -259,6 +259,15 @@
     <ClCompile Include="message_data_holder.cpp">
       <Filter>z_uncategorized</Filter>
     </ClCompile>
+    <ClCompile Include="com_objects\drop_source_impl.cpp">
+      <Filter>com_objects</Filter>
+    </ClCompile>
+    <ClCompile Include="com_objects\drag_image.cpp">
+      <Filter>com_objects</Filter>
+    </ClCompile>
+    <ClCompile Include="com_objects\drop_utils.cpp">
+      <Filter>com_objects</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="js_engine\js_engine.h">
@@ -593,6 +602,15 @@
     </ClInclude>
     <ClInclude Include="callback_data.h">
       <Filter>z_uncategorized</Filter>
+    </ClInclude>
+    <ClInclude Include="com_objects\drag_image.h">
+      <Filter>com_objects</Filter>
+    </ClInclude>
+    <ClInclude Include="com_objects\handle.h">
+      <Filter>com_objects</Filter>
+    </ClInclude>
+    <ClInclude Include="com_objects\drop_utils.h">
+      <Filter>com_objects</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

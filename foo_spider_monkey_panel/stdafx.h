@@ -26,6 +26,7 @@ using std::max;
 #include <MsHtmHst.h>
 #include <ShlDisp.h>
 #include <exdisp.h>
+#include <shobjidl_core.h>
 // Generates wrappers for COM listed above
 #include <ComDef.h>
 
