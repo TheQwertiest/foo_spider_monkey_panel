@@ -14,4 +14,5 @@ The linked notices are provided for information only.
 - [SpiderMonkey - MPL](component/licenses/SpiderMonkey.txt)
 - [StackBlur - MIT](component/licenses/StackBlur.txt)
 - [timsort-cpp - MIT](component/licenses/timsort-cpp.txt)
+- [UI Helpers - BSD](component/licenses/UI%20Helpers.txt)
 - [WTL - MS-PL](component/licenses/WTL.txt)
