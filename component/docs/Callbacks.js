@@ -3,7 +3,7 @@
 /*
  * !!! Do NOT include this whole file !!!
  *
- * Only include those callbacks that you actually need.
+ * Only copy those callbacks that you actually need.
  */
 
 /**
@@ -343,7 +343,7 @@ function on_playback_dynamic_info() {}
 
 /**
  * Called when Per-track dynamic info (stream track titles etc) changes.
- * Happens less often than {@link module:callbacks~on_playback_dynamic_info}.
+ * Happens less often than {@link module:callbacks~on_playback_dynamic_info on_playback_dynamic_info}.
  *
  * @function
  */
@@ -398,7 +398,7 @@ function on_playback_seek(time) {}
 
 /**
  * Playback process is being initialized.<br>
- * {@link module:callbacks~on_playback_new_track} should be called soon after this when first file is successfully opened for decoding.
+ * {@link module:callbacks~on_playback_new_track on_playback_new_track} should be called soon after this when first file is successfully opened for decoding.
  *
  * @param {number} cmd
  *     - 0 Default<br>
@@ -454,7 +454,7 @@ function on_playlist_items_removed(playlistIndex, new_count) { }
 function on_playlist_items_reordered(playlistIndex) {}
 
 /**
- * Workaround for some 3rd party playlist viewers not working with {@link module:callbacks~on_selection_changed}.
+ * Workaround for some 3rd party playlist viewers not working with {@link module:callbacks~on_selection_changed on_selection_changed}.
  *
  * @function
  */

@@ -297,7 +297,7 @@ let fb = {
      * @param {number} window_id see {@link window.ID}
      * @param {FbMetadbHandleList} handle_list
      * @param {number} effect Allowed effects.
-     * @return {number} Effect that was returned in {@link module:callbacks~on_drag_drop}.
+     * @return {number} Effect that was returned in {@link module:callbacks~on_drag_drop on_drag_drop}.
      *
      * @example
      * // See samples/basic/DragnDrop.txt
@@ -1236,7 +1236,7 @@ let utils = {
      * @param {number=} [art_id=0] See Flags.js > AlbumArtId
      * @param {boolean=} [need_stub=true]
      * @param {boolean=} [only_embed=false]
-     * @param {boolean=} [no_load=false]  If true, "image" parameter will be null in {@link module:callbacks~on_get_album_art_done} callback.
+     * @param {boolean=} [no_load=false]  If true, "image" parameter will be null in {@link module:callbacks~on_get_album_art_done on_get_album_art_done} callback.
      * @return {number}
      *
      * @example
@@ -1659,7 +1659,7 @@ let window = {
     GetFontDUI: function (type) {}, // (GdiFont)
 
     /**
-     * This will trigger {@link module:callbacks~on_notify_data}(name, info) in other panels.<br>
+     * This will trigger {@link module:callbacks~on_notify_data on_notify_data}(name, info) in other panels.<br>
      *
      * @param {string} name
      * @param {*} info
@@ -1689,7 +1689,7 @@ let window = {
     RepaintRect: function (x, y, w, h, force) {}, // (void) [force]
 
     /**
-     * This would usually be used inside the {@link module:callbacks~on_mouse_move callback}.<br>
+     * This would usually be used inside the {@link module:callbacks~on_mouse_move on_mouse_move} callback.<br>
      * Use -1 if you want to hide the cursor.
      *
      * @param {number} id See Flags.js > Used in window.SetCursor()
@@ -2315,26 +2315,45 @@ function FbPlaybackQueueItem() {
 
 /**
  * @constructor
- * @hideconstructor
+ * @param {string} name
  *
  * @example
- * let test = fb.CreateProfiler("test");
+ * let test = new FbProfiler('test');
  * // do something time consuming
  * console.log(test.Time); // Outputs bare time in ms like "789"
- * test.Print(); // Outputs component name/version/assigned name like "Spider Monkey Panel v1.0.0: FbProfiler (test): 789 ms"
+ * test.Print(); // Outputs component name/version/assigned name like "Spider Monkey Panel v1.0.0: profiler (test): 789 ms"
  */
-function FbProfiler() {
+function FbProfiler(name) {
 
     /**
      * @type {number}
      * @readonly
      */
-    this.Time = undefined; // (int) // milliseconds
+    this.Time = undefined; // (uint) // milliseconds
 
     /** @method */
-    this.Reset = function () {}; // (void)
-    /** @method */
-    this.Print = function () {}; // (void)
+    this.Reset = function () { }; // (void)
+
+    /** 
+     * @param {string=} [additionalMsg=''] string that will be prepended before measured time
+     * @param {boolean=} [printComponentInfo=true]
+     * 
+     * @example
+     * let test = new FbProfiler('Group #1');
+     * // Do smth #1
+     * test.Print('\nTask #1:', false);
+     * // Do smth #2
+     * test.Print('\nTask #2:', false);
+     * // Do smth
+     * test.Print();
+     * // Output:
+     * // profiler (Group #1): 
+     * // Task #1: 789 ms"
+     * // profiler (Group #1):
+     * // Task #2: 1530 ms"
+     * // Spider Monkey Panel v1.0.0: profiler (Group #1): 3541 ms"
+     */
+    this.Print = function (additionalMsg, printComponentInfo) {}; // (void)
 }
 
 /**
@@ -2450,7 +2469,7 @@ function FbTooltip() {
 /**
  * This is typically used to update the selection used by the default UI artwork panel
  * or any other panel that makes use of the preferences under
- * File > Preferences > Display > Selection viewers. Use in conjunction with the {@link module:callbacks~on_focus}
+ * File > Preferences > Display > Selection viewers. Use in conjunction with the {@link module:callbacks~on_focus on_focus}
  * callback.
  *
  * @constructor
@@ -2891,7 +2910,7 @@ function GdiGraphics() {
      * Provides faster and better rendering than {@link GdiGraphics#DrawString}.<br>
      * <br>
      * Do not use this to draw text on transparent background or
-     * with GdiGraphics other than the one passed in {@link module:callbacks~on_paint} callback:
+     * with GdiGraphics other than the one passed in {@link module:callbacks~on_paint on_paint} callback:
      * this will result in visual artifacts caused by ClearType hinting.<br>
      * Use {@link GdiGraphics#DrawString} instead in such cases.<br>
      * <br>
