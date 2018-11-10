@@ -20,7 +20,7 @@ set RESULT_CONFIGURATION_DIR=%ROOT_DIR%_result\Win32_%CONFIGURATION%\
 set COMPONENT_OUT_DIR_NO_SLASH=%RESULT_CONFIGURATION_DIR%component
 set COMPONENT_OUT_DIR=%COMPONENT_OUT_DIR_NO_SLASH%\
 
-set SRC_JS=%COMPONENT_DIR_NO_SLASH%\docs\js\foo_spider_monkey_panel.js
+set SRC_JS=%COMPONENT_DIR_NO_SLASH%\docs\js\foo_spider_monkey_panel.js %COMPONENT_DIR_NO_SLASH%\docs\Callbacks.js
 set DOC_DIR_NO_SLASH=%ROOT_DIR%_result\html
 
 
