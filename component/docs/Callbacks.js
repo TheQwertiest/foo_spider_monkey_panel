@@ -516,7 +516,7 @@ function on_selection_changed() { }
 /**
  * Called when panel is resized.<br>
  * Note: width and height arguments have the same values as {@link window.Width} and {@link window.Height}.<br>
- * IMPORTANT: DO NOT call {@link window.Repaint} from this callback!
+ * <b>IMPORTANT</b>: do NOT call {@link window.Repaint} from this callback!
  *
  * @param {number} width
  * @param {number} height

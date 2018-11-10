@@ -22,10 +22,10 @@ ___
 
 ### Handling foobar2000 events<a name="foobar2000-events"></a>
 
-Foobar2000 and panel events are translated to callback invocations (see [docs/Callbacks.js](../Callbacks.js) for the full list), for example: 
-- `new track being played` event from fb2k will invoke `on_playback_new_track(new_track_handle)` function from user script, if such function was defined.
-- `panel's size has changed` > `on_size(width, height)`; 
-- `mouse moved` > `on_mouse_move(x, y, mask)`
+Foobar2000 and panel events are translated to callback invocations (see [callbacks section](module-callbacks.html) for the full list), for example: 
+- `new track being played` event from fb2k will invoke [on_playback_new_track(new_track_handle)](module-callbacks.html#~on_playback_new_track) function from user script, if such function was defined.
+- `panel's size has changed` > [on_size(width, height)](module-callbacks.html#~on_size); 
+- `mouse moved` > [on_mouse_move(x, y, mask)](module-callbacks.html#~on_mouse_move)
 
 Note: for performance reasons it's advised to define only those callbacks that you actually need.
 
@@ -36,7 +36,7 @@ SMP provides a lot of JavaScript extensions to simplify the work with foobar2000
 - [`fb`](fb.html): functions for controlling foobar2000 and accessing it's data.
 - [`gdi`](gdi.html): functions for working with graphics. Most of them are wrappers for Gdi and GdiPlus methods.
 - [`plman`](plman.html): functions for managing foobar2000 playlists.
-- [`console`](console.html): has only one method [`log`](file:///X:/git/foo_spider_monkey_panel/component/docs/html/console.html#.log), which is used for logging messages to foobar2000 console.
+- [`console`](console.html): has only one method [`log`](console.html#.log), which is used for logging messages to foobar2000 console.
 - [`utils`](utils.html): various utility functions.
 - [`window`](window.html): functions for working with the current SMP panel and accessing it's properties.
 
