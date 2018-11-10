@@ -1,9 +1,9 @@
-/** @module Callbacks **/
+/** @module callbacks **/
 
 /*
  * !!! Do NOT include this whole file !!!
  *
- * Only include callbacks that you need   
+ * Only include those callbacks that you actually need.
  */
 
 /**
@@ -14,7 +14,7 @@
 function on_always_on_top_changed(state) {}
 
 /**
- * Note: in order to use this callback, use window.DlgCode(DLGC_WANTCHARS).<br>
+ * Note: in order to use this callback, use {@link window.DlgCode}(DLGC_WANTCHARS).<br>
  * See Flags.js > DLGC_WANTCHARS.
  *
  * @param {number} code UTF16 encoded char
@@ -23,7 +23,7 @@ function on_char(code) {}
 
 /**
  * Called when colours are changed via default UI/columns UI preferences.<br>
- * Note: use window.GetColourCUI()/window.GetColourDUI() to get new colours.
+ * Note: use {@link window.GetColourCUI}/{@link window.GetColourDUI} to get new colours.
  * 
  */
 function on_colours_changed() {}
@@ -297,8 +297,8 @@ function on_mouse_wheel_h(step) {}
 /**
  * Called in other panels after {@link window.NotifyOthers} is executed.<br>
  * <br>
- * // !!! Beware !!!<br>
- * 1. Data from `info` argument is only accessible inside `on_notify_data` callback:<br>
+ * <b>!!! Beware !!!</b><br>
+ * 1. Data from `info` argument is only accessible inside `on_notify_data` callback:
  *    if stored and accessed outside of the callback it will throw JS error.<br>
  *    This also applies to the data produced from that `info`: e.g. stroring `info.Path` directly (if `info` is FbMetadbHandle).<br>
  * 2. If you want to store the data from `info` you have to perform a deep copy:<br>
@@ -313,7 +313,7 @@ function on_mouse_wheel_h(step) {}
 function on_notify_data(name, info) {}
 
 /**
- * Called when output device changes. Use fb.GetOutputDevices to retrieve settings.<br>
+ * Called when output device changes. Use {@link fb.GetOutputDevices} to retrieve settings.<br>
  * Note: available only in foobar2000 v1.4 and later.
  * 
  * @function
@@ -343,7 +343,7 @@ function on_playback_dynamic_info() {}
 
 /**
  * Called when Per-track dynamic info (stream track titles etc) changes.
- * Happens less often than {@link on_playback_dynamic_info}.
+ * Happens less often than {@link module:callbacks.on_playback_dynamic_info}.
  *
  * @function
  */
@@ -398,7 +398,7 @@ function on_playback_seek(time) {}
 
 /**
  * Playback process is being initialized.<br>
- * {@link on_playback_new_track} should be called soon after this when first file is successfully opened for decoding.
+ * {@link module:callbacks.on_playback_new_track} should be called soon after this when first file is successfully opened for decoding.
  *
  * @param {number} cmd
  *     - 0 Default<br>
@@ -454,7 +454,7 @@ function on_playlist_items_removed(playlistIndex, new_count) { }
 function on_playlist_items_reordered(playlistIndex) {}
 
 /**
- * Workaround for some 3rd party playlist viewers not working with {@link on_selection_changed}.
+ * Workaround for some 3rd party playlist viewers not working with {@link module:callbacks.on_selection_changed}.
  *
  * @function
  */
