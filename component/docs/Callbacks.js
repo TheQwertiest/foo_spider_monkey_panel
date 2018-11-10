@@ -1,3 +1,5 @@
+/** @module Callbacks **/
+
 /*
  * !!! Do NOT include this whole file !!!
  *
@@ -7,6 +9,7 @@
 /**
  * Called when "Always On Top" state changes: from using the menu, Alt + A, {@link fb.AlwaysOnTop} and etc.
  * 
+ * @memberof Callbacks
  * @param {boolean} state
  */
 function on_always_on_top_changed(state) {}
@@ -14,7 +17,8 @@ function on_always_on_top_changed(state) {}
 /**
  * Note: in order to use this callback, use window.DlgCode(DLGC_WANTCHARS).<br>
  * See Flags.js > DLGC_WANTCHARS.
- * 
+ *
+ * @memberof Callbacks
  * @param {number} code UTF16 encoded char
  */
 function on_char(code) {}
@@ -22,19 +26,23 @@ function on_char(code) {}
 /**
  * Called when colours are changed via default UI/columns UI preferences.<br>
  * Note: use window.GetColourCUI()/window.GetColourDUI() to get new colours.
+ * 
+ * @memberof Callbacks
  */
 function on_colours_changed() {}
 
 /**
  * Called when "cursor follow playback" state is changed.
- * 
+ *
+ * @memberof Callbacks
  * @param {boolean} state current "cursor follow playback" value
  */
 function on_cursor_follow_playback_changed(state) {}
 
 /**
  * See {@link fb.DoDragDrop} documentation and samples/basic/DragnDrop.txt
- * 
+ *
+ * @memberof Callbacks
  * @param {DropTargetAction} action
  * @param {number} x
  * @param {number} y
@@ -44,7 +52,8 @@ function on_drag_drop(action, x, y, mask) { }
 
 /**
  * See {@link fb.DoDragDrop} documentation and samples/basic/DragnDrop.txt
- * 
+ *
+ * @memberof Callbacks
  * @param {DropTargetAction} action
  * @param {number} x
  * @param {number} y
@@ -54,14 +63,16 @@ function on_drag_enter(action, x, y, mask) { }
 
 /**
  * See {@link fb.DoDragDrop} documentation and samples/basic/DragnDrop.txt
- * 
+ *
+ * @memberof Callbacks
  * @function
  */
 function on_drag_leave() { }
 
 /**
  * See {@link fb.DoDragDrop} documentation and samples/basic/DragnDrop.txt
- * 
+ *
+ * @memberof Callbacks
  * @param {DropTargetAction} action
  * @param {number} x
  * @param {number} y
@@ -73,12 +84,15 @@ function on_drag_over(action, x, y, mask) {}
  * Called when DSP preset changes.<br>
  * Note: this callback is only available in foobar2000 v1.4 and later.<br>
  * Note2: does not get called when presets are added or removed.
+ *
+ * @memberof Callbacks
  */
 function on_dsp_preset_changed() {}
 
 /**
  *  Called when the panel gets or loses focus.
- * 
+ *
+ * @memberof Callbacks
  * @param {boolean} is_focused
  */
 function on_focus(is_focused) {}
@@ -86,12 +100,15 @@ function on_focus(is_focused) {}
 /**
  * Called when fonts are changed via DUI or CUI preferences.
  * Note: you can retrieve fonts using {@link window.GetFontDUI}/{@link window.GetFontCUI}.
+ * 
+ * @memberof Callbacks
  */
 function on_font_changed() {}
 
 /**
  * Called when thread created by {@link utils.GetAlbumArtAsync} is done.
- * 
+ *
+ * @memberof Callbacks
  * @param {FbMetadbHandle} handle
  * @param {number} art_id
  * @param {?GdiBitmap} image null on failure
@@ -101,7 +118,8 @@ function on_get_album_art_done(handle, art_id, image, image_path) {}
 
 /**
  * Called when focused item in playlist has been changed.
- * 
+ *
+ * @memberof Callbacks
  * @param {number} playlistIndex
  * @param {number} from index of the previous focused item or -1 if there was no focused item.
  * @param {number} to index of the new focued item
@@ -111,7 +129,8 @@ function on_item_focus_change(playlistIndex, from, to) {}
 /**
  * Called when at least one minute of the track has been played or the track has reached
  * its end after at least 1/3 of it has been played through.
- * 
+ *
+ * @memberof Callbacks
  * @param {FbMetadbHandle} handle
  */
 function on_item_played(handle) {}
@@ -123,6 +142,7 @@ function on_item_played(handle) {}
  * Note: keyboard shortcuts defined in the main preferences are always executed first
  * and are not passed to the callback.
  *
+ * @memberof Callbacks
  * @param {number} vkey Virtual Key Code, refer to {@link http://msdn.microsoft.com/en-us/library/ms927178.aspx}
  */
 function on_key_down(vkey) { }
@@ -131,28 +151,33 @@ function on_key_down(vkey) { }
  * Requires "Grab focus" enabled in the Configuration window.<br>
  * In order to use arrow keys, use {@link window.DlgCode}(DLGC_WANTARROWS) (see Flags.js > DLGC_WANTARROWS).
  *
+ * @memberof Callbacks
  * @param {number} vkey Virtual Key Code, refer to {@link http://msdn.microsoft.com/en-us/library/ms927178.aspx}
  */
 function on_key_up(vkey) {}
 
 /**
+ * @memberof Callbacks
  * @param {FbMetadbHandleList} handle_list
  */
 function on_library_items_added(handle_list) { }
 
 /**
+ * @memberof Callbacks
  * @param {FbMetadbHandleList} handle_list
  */
 function on_library_items_changed(handle_list) { }
 
 /**
+ * @memberof Callbacks
  * @param {FbMetadbHandleList} handle_list
  */
 function on_library_items_removed(handle_list) {}
 
 /**
  * Called when thread created by {@link gdi.LoadImageAsync} is done.
- * 
+ *
+ * @memberof Callbacks
  * @param {number} cookie the return value from the {@link gdi.LoadImageAsync} call
  * @param {?GdiBitmap} image null on failure (invalid path/not an image)
  * @param {string} image_path the path that was originally supplied to {@link gdi.LoadImageAsync}
@@ -168,7 +193,8 @@ function on_load_image_done(cookie, image, image_path) {}
  * want it to run once and so don't include it in common files and scripts where you might have
  * multiple instances.<br>
  * Important: you should avoid sharing scripts containing this code so as not to conflict with what other users may already be using.
- * 
+ *
+ * @memberof Callbacks
  * @param {number} index
  *
  * @example
@@ -187,7 +213,8 @@ function on_main_menu(index) {}
 
 /**
  * Called when metadb contents change.
- * 
+ *
+ * @memberof Callbacks
  * @param {FbMetadbHandleList} handle_list affected items
  * @param {boolean} fromhook true if notification is not from tag update, but a component that provides
  *                           tag-like data from a database. E.g. foo_playcount and {@link FbMetadbHandle#RefreshStats}
@@ -195,6 +222,7 @@ function on_main_menu(index) {}
 function on_metadb_changed(handle_list, fromhook) {}
 
 /**
+ * @memberof Callbacks
  * @param {number} x
  * @param {number} y
  * @param {number} mask see Flags.js > Mask
@@ -202,6 +230,7 @@ function on_metadb_changed(handle_list, fromhook) {}
 function on_mouse_lbtn_dblclk(x, y, mask) { }
 
 /**
+ * @memberof Callbacks
  * @param {number} x
  * @param {number} y
  * @param {number} mask see Flags.js > Mask
@@ -209,6 +238,7 @@ function on_mouse_lbtn_dblclk(x, y, mask) { }
 function on_mouse_lbtn_down(x, y, mask) { }
 
 /**
+ * @memberof Callbacks
  * @param {number} x
  * @param {number} y
  * @param {number} mask see Flags.js > Mask
@@ -216,11 +246,13 @@ function on_mouse_lbtn_down(x, y, mask) { }
 function on_mouse_lbtn_up(x, y, mask) { }
 
 /**
+ * @memberof Callbacks
  * @function
  */
 function on_mouse_leave() { }
 
 /**
+ * @memberof Callbacks
  * @param {number} x
  * @param {number} y
  * @param {number} mask see Flags.js > Mask
@@ -228,6 +260,7 @@ function on_mouse_leave() { }
 function on_mouse_mbtn_dblclk(x, y, mask) { }
 
 /**
+ * @memberof Callbacks
  * @param {number} x
  * @param {number} y
  * @param {number} mask see Flags.js > Mask
@@ -235,6 +268,7 @@ function on_mouse_mbtn_dblclk(x, y, mask) { }
 function on_mouse_mbtn_down(x, y, mask) { }
 
 /**
+ * @memberof Callbacks
  * @param {number} x
  * @param {number} y
  * @param {number} mask see Flags.js > Mask
@@ -242,6 +276,7 @@ function on_mouse_mbtn_down(x, y, mask) { }
 function on_mouse_mbtn_up(x, y, mask) { }
 
 /**
+ * @memberof Callbacks
  * @param {number} x
  * @param {number} y
  * @param {number} mask see Flags.js > Mask
@@ -249,6 +284,7 @@ function on_mouse_mbtn_up(x, y, mask) { }
 function on_mouse_move(x, y, mask) { }
 
 /**
+ * @memberof Callbacks
  * @param {number} x
  * @param {number} y
  * @param {number} mask see Flags.js > Mask
@@ -256,6 +292,7 @@ function on_mouse_move(x, y, mask) { }
 function on_mouse_rbtn_dblclk(x, y, mask) { }
 
 /**
+ * @memberof Callbacks
  * @param {number} x
  * @param {number} y
  * @param {number} mask see Flags.js > Mask
@@ -265,7 +302,8 @@ function on_mouse_rbtn_down(x, y, mask) {}
 /**
  * You must return true, if you want to suppress the default context menu.<br>
  * Note: left shift + left windows key will bypass this callback and will open default context menu.
- * 
+ *
+ * @memberof Callbacks
  * @param {number} x
  * @param {number} y
  * @param {number} mask see Flags.js > Mask
@@ -276,7 +314,8 @@ function on_mouse_rbtn_up(x, y, mask) {}
 
 /**
  * Scroll up/down
- * 
+ *
+ * @memberof Callbacks
  * @param {number} step scroll direction: -1 or 1
  */
 function on_mouse_wheel(step) {}
@@ -284,7 +323,8 @@ function on_mouse_wheel(step) {}
 
 /**
  * Scroll left/right
- * 
+ *
+ * @memberof Callbacks
  * @param {number} step scroll direction: -1 or 1
  */
 function on_mouse_wheel_h(step) {}
@@ -301,7 +341,8 @@ function on_mouse_wheel_h(step) {}
  *    - `JSON.parse(JSON.stringify(info))` for serializable objects.<br>
  *    - `new ObjectType(info)` for objects that have an approppriate constructor available, e.g. `new GdiBitmap(info)` or `new FbMetadbHandleList(info)`.<br>
  * 3. `info` argument is shared between panels, so it should NOT be modified in any way.
- * 
+ *
+ * @memberof Callbacks
  * @param {string} name
  * @param {*} info
  */
@@ -310,27 +351,32 @@ function on_notify_data(name, info) {}
 /**
  * Called when output device changes. Use fb.GetOutputDevices to retrieve settings.<br>
  * Note: available only in foobar2000 v1.4 and later.
+ * 
+ * @memberof Callbacks
  * @function
  */
 function on_output_device_changed() {}
 
 /**
  * Called when window is ready to draw.
- * 
+ *
+ * @memberof Callbacks
  * @param {GdiGraphics} gr
  */
 function on_paint(gr) {}
 
 /**
  * Called when "playback follow cursor" state is changed.
- * 
+ *
+ * @memberof Callbacks
  * @param {boolean} state current "playback follow cursor" value
  */
 function on_playback_follow_cursor_changed(state) {}
 
 /**
  * Called when dynamic info (VBR bitrate etc) changes.
- * 
+ *
+ * @memberof Callbacks
  * @function
  */
 function on_playback_dynamic_info() {}
@@ -338,7 +384,8 @@ function on_playback_dynamic_info() {}
 /**
  * Called when Per-track dynamic info (stream track titles etc) changes.
  * Happens less often than {@link on_playback_dynamic_info}.
- * 
+ *
+ * @memberof Callbacks
  * @function
  */
 function on_playback_dynamic_info_track() {}
@@ -346,21 +393,24 @@ function on_playback_dynamic_info_track() {}
 /**
  * Called when currently playing file gets edited.<br>
  * It's also called by components that provide tag-like data such as foo_playcount.
- * 
+ *
+ * @memberof Callbacks
  * @param {FbMetadbHandle} handle
  */
 function on_playback_edited(handle) {}
 
 /**
  * Playback advanced to the new track.
- * 
+ *
+ * @memberof Callbacks
  * @param {FbMetadbHandle} handle
  */
 function on_playback_new_track(handle) {}
 
 /**
  * Called when playback order is changed.
- * 
+ *
+ * @memberof Callbacks
  * @param {any} new_order_index 
  *     - 0 Default<br>
  *     - 1 Repeat (Playlist)<br>
@@ -373,11 +423,13 @@ function on_playback_new_track(handle) {}
 function on_playback_order_changed(new_order_index) {}
 
 /**
+ * @memberof Callbacks
  * @param {boolean} state true when paused, false when unpaused.
  */
 function on_playback_pause(state) {}
 
 /**
+ * @memberof Callbacks
  * @param {number} origin
  *     - 0 User added<br>
  *     - 1 User removed<br>
@@ -386,6 +438,7 @@ function on_playback_pause(state) {}
 function on_playback_queue_changed(origin) {}
 
 /**
+ * @memberof Callbacks
  * @param {float} time new position in seconds
  */
 function on_playback_seek(time) {}
@@ -393,7 +446,8 @@ function on_playback_seek(time) {}
 /**
  * Playback process is being initialized.<br>
  * {@link on_playback_new_track} should be called soon after this when first file is successfully opened for decoding.
- * 
+ *
+ * @memberof Callbacks
  * @param {number} cmd
  *     - 0 Default<br>
  *     - 1 Play<br>
@@ -408,6 +462,7 @@ function on_playback_seek(time) {}
 function on_playback_starting(cmd, is_paused) {}
 
 /**
+ * @memberof Callbacks
  * @param {number} reason
  *     - 0 Invoked by user<br>
  *     - 1 End of file<br>
@@ -418,23 +473,27 @@ function on_playback_stop(reason) {}
 
 /**
  * Called every second, for time display.
- * 
+ *
+ * @memberof Callbacks
  * @param {float} time current playback time in seconds
  */
 function on_playback_time(time) {}
 
 /**
+ * @memberof Callbacks
  * @param {number} playlistIndex
  * @param {number} playlistItemIndex
  */
 function on_playlist_item_ensure_visible(playlistIndex, playlistItemIndex) {}
 
 /**
+ * @memberof Callbacks
  * @param {number} playlistIndex
  */
 function on_playlist_items_added(playlistIndex) { }
 
 /**
+ * @memberof Callbacks
  * @param {number} playlistIndex
  * @param {number} new_count
  */
@@ -442,26 +501,30 @@ function on_playlist_items_removed(playlistIndex, new_count) { }
 
 /**
  * Changes selection too. Doesn't actually change the set of items that are selected or item having focus, just changes their order.
- * 
+ *
+ * @memberof Callbacks
  * @param {number} playlistIndex
  */
 function on_playlist_items_reordered(playlistIndex) {}
 
 /**
  * Workaround for some 3rd party playlist viewers not working with {@link on_selection_changed}.
- * 
+ *
+ * @memberof Callbacks
  * @function
  */
 function on_playlist_items_selection_change() {}
 
 /**
  * Called when "stop after current" is enabled/disabled.
- * 
+ *
+ * @memberof Callbacks
  * @param {boolean} state "stop after current" value
  */
 function on_playlist_stop_after_current_changed(state) {}
 
 /**
+ * @memberof Callbacks
  * @function
  */
 function on_playlist_switch() {}
@@ -470,13 +533,16 @@ function on_playlist_switch() {}
  * Called when:<br>
  * - Playlists are added/removed/reordered/renamed.<br>
  * - A playlist's lock status changes through the use of components such as foo_utils or foo_playlist_attributes.
+ *
+ * @memberof Callbacks
  * @function
  */
 function on_playlists_changed() {}
 
 /**
  * Note: available only in foobar2000 v1.4 and later.
- * 
+ *
+ * @memberof Callbacks
  * @param {number} new_mode
  *     - 0 None<br>
  *     - 1 Track<br>
@@ -494,14 +560,16 @@ function on_replaygain_mode_changed(new_mode) {}
  * - Script fails with error.<br>
  * - fb2k closed externally (e.g. killed with process manager).<br>
  * - fb2k fails with exception.
- * 
+ *
+ * @memberof Callbacks
  * @function
  */
 function on_script_unload() {}
 
 /**
  * Called when selection changes based on "File>Preferences>Display>Selection viewers".
- * 
+ *
+ * @memberof Callbacks
  * @function
  */
 function on_selection_changed() {}
@@ -510,13 +578,15 @@ function on_selection_changed() {}
  * Called when panel is resized.<br>
  * Note: width and height arguments have the same values as {@link window.Width} and {@link window.Height}.<br>
  * IMPORTANT: DO NOT call {@link window.Repaint} from this callback!
- * 
+ *
+ * @memberof Callbacks
  * @param {number} width
  * @param {number} height
  */
 function on_size(width, height) {}
 
 /**
+ * @memberof Callbacks
  * @param {any} val volume level in dB. Minimum is -100. Maximum is 0.
  */
 function on_volume_change(val) {}
