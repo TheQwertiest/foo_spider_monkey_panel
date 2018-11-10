@@ -39,8 +39,7 @@ class JsFbMetadbHandleList
 {
 public:
     static constexpr bool HasProto = true;
-    // TODO: add global proto
-    static constexpr bool HasGlobalProto = false;
+    static constexpr bool HasGlobalProto = true;
     static constexpr bool HasProxy = true;
     static constexpr bool HasPostCreate = false;
 
@@ -48,6 +47,7 @@ public:
     static const JSFunctionSpec* JsFunctions;
     static const JSPropertySpec* JsProperties;
     static const JsPrototypeId PrototypeId;
+    static const JSNative JsConstructor;
     static const js::BaseProxyHandler& JsProxy;
 
 public:
@@ -58,6 +58,9 @@ public:
 
 public:
     const metadb_handle_list& GetHandleList() const;
+
+public: // ctor
+    static JSObject* Constructor( JSContext* cx, JS::HandleValue jsValue = JS::UndefinedHandleValue );
 
 public: // methods
     void Add( JsFbMetadbHandle* handle );

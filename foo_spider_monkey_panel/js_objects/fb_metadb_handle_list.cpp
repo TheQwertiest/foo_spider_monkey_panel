@@ -213,6 +213,21 @@ bool FbMetadbHandleListProxyHandler::set( JSContext* cx, JS::HandleObject proxy,
 
 } // namespace
 
+namespace
+{
+
+bool Constructor_Impl( JSContext* cx, unsigned argc, JS::Value* vp )
+{
+    JS::CallArgs args = JS::CallArgsFromVp( argc, vp );
+
+    args.rval().setObjectOrNull( JsFbMetadbHandleList::Constructor( cx, ( argc ? args[0] : JS::UndefinedHandleValue ) ) );
+    return true;
+}
+
+MJS_DEFINE_JS_FN( Constructor, Constructor_Impl )
+
+}
+
 namespace mozjs
 {
 
@@ -220,6 +235,7 @@ const JSClass JsFbMetadbHandleList::JsClass = jsClass;
 const JSFunctionSpec* JsFbMetadbHandleList::JsFunctions = jsFunctions;
 const JSPropertySpec* JsFbMetadbHandleList::JsProperties = jsProperties;
 const JsPrototypeId JsFbMetadbHandleList::PrototypeId = JsPrototypeId::FbMetadbHandleList;
+const JSNative JsFbMetadbHandleList::JsConstructor = ::Constructor;
 const js::BaseProxyHandler& JsFbMetadbHandleList::JsProxy = FbMetadbHandleListProxyHandler::singleton;
 
 JsFbMetadbHandleList::JsFbMetadbHandleList( JSContext* cx, const metadb_handle_list& handles )
@@ -246,6 +262,48 @@ size_t JsFbMetadbHandleList::GetInternalSize( const metadb_handle_list& handles 
 const metadb_handle_list& JsFbMetadbHandleList::GetHandleList() const
 {
     return metadbHandleList_;
+}
+
+JSObject* JsFbMetadbHandleList::Constructor( JSContext* cx, JS::HandleValue jsValue )
+{
+    if ( jsValue.isNullOrUndefined() )
+    {
+        return JsFbMetadbHandleList::CreateJs( cx, metadb_handle_list() );
+    }
+
+    if ( auto pNativeHandle = GetInnerInstancePrivate<JsFbMetadbHandle>( cx, jsValue );
+         pNativeHandle )
+    {
+        metadb_handle_list handleList;
+        handleList.add_item( pNativeHandle->GetHandle() );
+        return JsFbMetadbHandleList::CreateJs( cx, handleList );
+    }
+
+    if ( auto pNativeHandleList = GetInnerInstancePrivate<JsFbMetadbHandleList>( cx, jsValue );
+         pNativeHandleList )
+    {
+        return JsFbMetadbHandleList::CreateJs( cx, pNativeHandleList->GetHandleList() );
+    }
+
+    {
+        bool is;
+        if ( !JS_IsArrayObject( cx, jsValue, &is ) )
+        {
+            throw smp::JsException();
+        }
+        if ( is )
+        {
+            metadb_handle_list handleList;
+            convert::to_native::ProcessArray<JsFbMetadbHandle*>( cx, jsValue, [&handleList]( auto pNativeHandle )
+            {
+                SmpException::ExpectTrue( pNativeHandle, "Array contains invalid value" );
+                handleList.add_item( pNativeHandle->GetHandle() );
+            } );
+            return JsFbMetadbHandleList::CreateJs( cx, handleList );
+        }
+    }
+
+    throw SmpException( "Unsupported argument type" );
 }
 
 void JsFbMetadbHandleList::Add( JsFbMetadbHandle* handle )

@@ -253,17 +253,9 @@ bool ActiveX_Constructor_Impl( JSContext* cx, unsigned argc, JS::Value* vp )
         return false;
     }
 
-    try
-    {
-        const auto activeXName = mozjs::convert::to_native::ToValue<std::wstring>( cx, args[0] );
-        args.rval().setObjectOrNull( ActiveXObject::CreateJs( cx, activeXName ) );
-        return true;
-    }
-    catch ( ... )
-    {
-        error::ExceptionToJsError( cx );
-        return false;
-    }
+    const auto activeXName = mozjs::convert::to_native::ToValue<std::wstring>( cx, args[0] );
+    args.rval().setObjectOrNull( ActiveXObject::CreateJs( cx, activeXName ) );
+    return true;
 }
 
 bool ActiveX_Run_Impl( JSContext* cx, unsigned argc, JS::Value* vp )
@@ -284,16 +276,8 @@ bool ActiveX_Run_Impl( JSContext* cx, unsigned argc, JS::Value* vp )
         return false;
     }
 
-    try
-    {
-        pNative->Invoke( convert::to_native::ToValue( cx, jsString ), args );
-        return true;
-    }
-    catch ( ... )
-    {
-        error::ExceptionToJsError( cx );
-        return false;
-    }
+    pNative->Invoke( convert::to_native::ToValue( cx, jsString ), args );
+    return true;
 }
 
 bool ActiveX_Get_Impl( JSContext* cx, unsigned argc, JS::Value* vp )
@@ -307,16 +291,8 @@ bool ActiveX_Get_Impl( JSContext* cx, unsigned argc, JS::Value* vp )
         return false;
     }
 
-    try
-    {
-        pNative->Get( args );
-        return true;
-    }
-    catch ( ... )
-    {
-        error::ExceptionToJsError( cx );
-        return false;
-    }
+    pNative->Get( args );
+    return true;
 }
 
 bool ActiveX_Set_Impl( JSContext* cx, unsigned argc, JS::Value* vp )
@@ -330,16 +306,8 @@ bool ActiveX_Set_Impl( JSContext* cx, unsigned argc, JS::Value* vp )
         return false;
     }
 
-    try
-    {
-        pNative->Set( args );
-        return true;
-    }
-    catch ( ... )
-    {
-        error::ExceptionToJsError( cx );
-        return false;
-    }
+    pNative->Set( args );
+    return true;
 }
 
 MJS_DEFINE_JS_FN( ActiveX_Constructor, ActiveX_Constructor_Impl )

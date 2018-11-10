@@ -251,8 +251,10 @@ let fb = {
     CreateContextMenuManager: function () {}, // (ContextMenuManager)
 
     /**
-     * Returns an empty handle list.
+     * Returns an empty handle list.<br>
+     * Deprecated: use constructor instead {@link FbMetadbHandleList}.
      *
+     * @deprecated
      * @return {FbMetadbHandleList}
      */
     CreateHandleList: function () {}, // (FbMetadbHandleList)
@@ -1925,9 +1927,9 @@ function FbFileInfo() {
  * Handle list elements can be accessed with array accessor, e.g. handle_list[i]
  *
  * @constructor
- * @hideconstructor
+ * @param {FbMetadbHandleList | FbMetadbHandle | Array<FbMetadbHandle> | null | undefined} arg
  */
-function FbMetadbHandleList() {
+function FbMetadbHandleList(arg) {
     /**
      * @type {number}
      * @readonly
@@ -1973,8 +1975,7 @@ function FbMetadbHandleList() {
      *
      * @example
      * // since there is no handle method, do this for a single item
-     * var handle_list = fb.CreateHandleList();
-     * handle_list.Add(fb.GetFocusItem());
+     * var handle_list = new FbMetadbHandleList(fb.GetFocusItem());
      * var img_path = "C:\\path\\to\\image.jpg";
      * handle_list.AttachImage(img_path, 0);
      */

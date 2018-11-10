@@ -170,6 +170,11 @@ void ProcessArray( JSContext* cx, JS::HandleObject jsObject, F&& workerFunc )
         throw smp::JsException();
     }
 
+    if ( !arraySize )
+    {// small optimization
+        return;
+    }
+
     std::vector<T> nativeValues;
     JS::RootedValue arrayElement( cx );
     for ( uint32_t i = 0; i < arraySize; ++i )
