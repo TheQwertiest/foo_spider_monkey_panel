@@ -22,7 +22,7 @@ class JsFbTitleFormat
 {
 public:
     static constexpr bool HasProto = true;
-    static constexpr bool HasGlobalProto = false;
+    static constexpr bool HasGlobalProto = true;
     static constexpr bool HasProxy = false;
     static constexpr bool HasPostCreate = false;
 
@@ -30,6 +30,7 @@ public:
     static const JSFunctionSpec* JsFunctions;
     static const JSPropertySpec* JsProperties;
     static const JsPrototypeId PrototypeId;
+    static const JSNative JsConstructor;
 
 public:
     ~JsFbTitleFormat();
@@ -39,6 +40,9 @@ public:
 
 public:
     titleformat_object::ptr GetTitleFormat();
+
+public: // ctor
+    static JSObject* Constructor( JSContext* cx, const pfc::string8_fast& expr );
 
 public:
     pfc::string8_fast Eval( bool force = false );

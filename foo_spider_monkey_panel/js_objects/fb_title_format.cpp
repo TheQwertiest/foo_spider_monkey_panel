@@ -52,6 +52,23 @@ const JSPropertySpec jsProperties[] = {
 
 } // namespace
 
+namespace
+{
+
+bool Constructor_Impl( JSContext* cx, unsigned argc, JS::Value* vp )
+{
+    JS::CallArgs args = JS::CallArgsFromVp( argc, vp );
+    SmpException::ExpectTrue( argc, "Argument is missing" );
+
+    args.rval().setObjectOrNull( JsFbTitleFormat::Constructor( cx,
+                                                               convert::to_native::ToValue<pfc::string8_fast>( cx, args[0] ) ) );
+    return true;
+}
+
+MJS_DEFINE_JS_FN( Constructor, Constructor_Impl )
+
+} // namespace
+
 namespace mozjs
 {
 
@@ -59,6 +76,7 @@ const JSClass JsFbTitleFormat::JsClass = jsClass;
 const JSFunctionSpec* JsFbTitleFormat::JsFunctions = jsFunctions;
 const JSPropertySpec* JsFbTitleFormat::JsProperties = jsProperties;
 const JsPrototypeId JsFbTitleFormat::PrototypeId = JsPrototypeId::FbTitleFormat;
+const JSNative JsFbTitleFormat::JsConstructor = ::Constructor;
 
 JsFbTitleFormat::JsFbTitleFormat( JSContext* cx, const pfc::string8_fast& expr )
     : pJsCtx_( cx )
@@ -84,6 +102,11 @@ size_t JsFbTitleFormat::GetInternalSize( const pfc::string8_fast& /*expr*/ )
 titleformat_object::ptr JsFbTitleFormat::GetTitleFormat()
 {
     return titleFormatObject_;
+}
+
+JSObject* JsFbTitleFormat::Constructor( JSContext* cx, const pfc::string8_fast& expr )
+{
+    return JsFbTitleFormat::CreateJs( cx, expr );
 }
 
 pfc::string8_fast JsFbTitleFormat::Eval( bool force )

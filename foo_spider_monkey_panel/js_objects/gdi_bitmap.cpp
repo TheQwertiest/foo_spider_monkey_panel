@@ -89,7 +89,7 @@ namespace
 bool Constructor_Impl( JSContext* cx, unsigned argc, JS::Value* vp )
 {
     JS::CallArgs args = JS::CallArgsFromVp( argc, vp );
-    SmpException::ExpectTrue( argc, "Not enough arguments" );
+    SmpException::ExpectTrue( argc, "Argument is missing" );
 
     args.rval().setObjectOrNull( JsGdiBitmap::Constructor( cx, convert::to_native::ToValue<JsGdiBitmap*>( cx, args[0] ) ) );
     return true;

@@ -8,7 +8,7 @@
  *
  * @param {string} path Path to JavaScript file
  */
-function include(path) {}
+function include(path) { }
 
 /**
  * Load ActiveX object.
@@ -61,28 +61,28 @@ function Enumerator(active_x_object) {
      *
      * @return {boolean}
      */
-    this.atEnd = function () {};
+    this.atEnd = function () { };
 
     /**
      * Returns the current item in the collection.
      *
      * @return {*}
      */
-    this.item = function () {};
+    this.item = function () { };
 
     /**
      * Resets the current item in the collection to the first item.
      *
      * @method
      */
-    this.moveFirst = function () {};
+    this.moveFirst = function () { };
 
     /**
      * Moves the current item to the next item in the collection.
      *
      * @method
      */
-    this.moveNext = function () {};
+    this.moveNext = function () { };
 }
 
 /**
@@ -94,7 +94,7 @@ let console = {
      *
      * @param {...*} var_args
      */
-    log: function (var_args) {}, // (void)
+    log: function (var_args) { }, // (void)
 };
 
 /**
@@ -199,13 +199,13 @@ let fb = {
     /**
      * @return {FbUiSelectionHolder}
      */
-    AcquireUiSelectionHolder: function () {}, // (FbUiSelectionHolder)
+    AcquireUiSelectionHolder: function () { }, // (FbUiSelectionHolder)
 
     /** @method */
-    AddDirectory: function () {}, // (void)
+    AddDirectory: function () { }, // (void)
 
     /** @method */
-    AddFiles: function () {}, // (void)
+    AddFiles: function () { }, // (void)
 
     /**
      * Checks Clipboard contents are handles or a file selection from Windows Explorer. Use in conjunction
@@ -213,12 +213,12 @@ let fb = {
      *
      * @return {boolean}
      */
-    CheckClipboardContents: function () {}, // (boolean)
+    CheckClipboardContents: function () { }, // (boolean)
 
     /**
      * Clears active playlist. If you wish to clear a specific playlist, use {@link plman.ClearPlaylist}(playlistIndex).
      */
-    ClearPlaylist: function () {}, // (void)
+    ClearPlaylist: function () { }, // (void)
 
     /**
      * Note: items can then be pasted in other playlist viewers or in Windows Explorer as files.
@@ -240,7 +240,7 @@ let fb = {
      *    }
      *  }
      */
-    CopyHandleListToClipboard: function (handle_list) {}, // (boolean)
+    CopyHandleListToClipboard: function (handle_list) { }, // (boolean)
 
     /**
      * @return {ContextMenuManager}
@@ -248,7 +248,7 @@ let fb = {
      * @example
      * // See samples\basic\MainMenuManager All-In-One, samples\basic\Menu Sample.txt
      */
-    CreateContextMenuManager: function () {}, // (ContextMenuManager)
+    CreateContextMenuManager: function () { }, // (ContextMenuManager)
 
     /**
      * Returns an empty handle list.<br>
@@ -257,7 +257,7 @@ let fb = {
      * @deprecated
      * @return {FbMetadbHandleList}
      */
-    CreateHandleList: function () {}, // (FbMetadbHandleList)
+    CreateHandleList: function () { }, // (FbMetadbHandleList)
 
     /**
      * @return {MainMenuManager}
@@ -265,13 +265,13 @@ let fb = {
      * @example
      * // See samples\basic\MainMenuManager All-In-One, samples\basic\Menu Sample.txt
      */
-    CreateMainMenuManager: function () {}, // (MainMenuManager)
+    CreateMainMenuManager: function () { }, // (MainMenuManager)
 
     /**
      * @param {string=} [name=''] Will be shown in console when used with {@link FbProfiler#Print} method.
      * @return {FbProfiler}
      */
-    CreateProfiler: function (name) {}, // (FbProfiler) [name]
+    CreateProfiler: function (name) { }, // (FbProfiler) [name]
 
     /**
      * Invokes drag-n-drop operation (see {@link https://msdn.microsoft.com/en-us/library/windows/desktop/ms678486.aspx}).<br>
@@ -302,10 +302,10 @@ let fb = {
      * @example
      * // See samples/basic/DragnDrop.txt
      */
-    DoDragDrop: function (window_id, handle_list, effect) {}, // (uint),
+    DoDragDrop: function (window_id, handle_list, effect) { }, // (uint),
 
     /** @method */
-    Exit: function () {}, // (void)
+    Exit: function () { }, // (void)
 
     /**
      * Note: clipboard contents can be handles copied to the clipboard in other components,
@@ -327,20 +327,20 @@ let fb = {
      *    return true;
      * }
      */
-    GetClipboardContents: function (window_id) {}, // (FbMetadbHandleList)
+    GetClipboardContents: function (window_id) { }, // (FbMetadbHandleList)
 
     /**
      * @param {boolean=} [force=true] When true, it will use the first item of the active playlist if it is unable to get the focus item.
      * @return {FbMetadbHandle}
      */
-    GetFocusItem: function (force) {}, // (FbMetadbHandle) [force]
+    GetFocusItem: function (force) { }, // (FbMetadbHandle) [force]
 
     /**
      * Returns all Media Library items as a handle list.
      *
      * @return {FbMetadbHandleList}
      */
-    GetLibraryItems: function () {}, // (FbMetadbHandleList)
+    GetLibraryItems: function () { }, // (FbMetadbHandleList)
 
     /**
      * Note: do not use this while looping a handle list. Use {@link FbMetadbHandleList#GetLibraryRelativePaths} instead. <br>
@@ -356,14 +356,14 @@ let fb = {
      * var handle = fb.GetNowPlaying();
      * console.log(fb.GetLibraryRelativePath(handle)); // Albums\Artist\Some Album\Some Song.flac*
      */
-    GetLibraryRelativePath: function (handle) {}, // (string)
+    GetLibraryRelativePath: function (handle) { }, // (string)
 
     /**
      * Get handle of now playing item.
      *
      * @return {?FbMetadbHandle} null, if nothing is being played.
      */
-    GetNowPlaying: function () {}, // (FbMetadbHandle)
+    GetNowPlaying: function () { }, // (FbMetadbHandle)
 
     /**
      * Available only in foobar2000 v1.4 and above. Throws a script error on v1.3. * <br>
@@ -411,7 +411,7 @@ let fb = {
      * // set to true so that is the device you'd want to display the name of
      * // or mark as selected in a menu.
      */
-    GetOutputDevices: function () {}, // (string)
+    GetOutputDevices: function () { }, // (string)
 
     /**
      * Note: use try/catch to handle invalid queries. An empty handle list will be returned if the query
@@ -427,7 +427,7 @@ let fb = {
      * @example
      * var b = fb.GetQueryItems(fb.GetLibraryItems(), "rating IS 5");
      */
-    GetQueryItems: function (handle_list, query) {}, // (FbMetadbHandleList)
+    GetQueryItems: function (handle_list, query) { }, // (FbMetadbHandleList)
 
     /**
      * Gets now playing or selected item. What you get will depend on
@@ -435,7 +435,7 @@ let fb = {
      *
      * @return {?FbMetadbHandle}
      */
-    GetSelection: function () {}, // (FbMetadbHandle)
+    GetSelection: function () { }, // (FbMetadbHandle)
 
     /**
      * Works like GetSelection(), but returns a handle list.
@@ -444,7 +444,7 @@ let fb = {
      * @param {number=} [flags=0] 1 - no now playing
      * @return {FbMetadbHandleList}
      */
-    GetSelections: function (flags) {}, // (FbMetadbHandleList) //[flags]
+    GetSelections: function (flags) { }, // (FbMetadbHandleList) //[flags]
 
     /**
      * Retrieves what the selection type is.
@@ -458,7 +458,7 @@ let fb = {
      *     5 - keyboard_shortcut_list<br>
      *     6 - media_library_viewer
      */
-    GetSelectionType: function () {}, // (uint)
+    GetSelectionType: function () { }, // (uint)
 
     /**
      * @return {boolean}
@@ -474,7 +474,7 @@ let fb = {
      * @example
      * fb.RunMainMenuCommand("Playback/Scrobble Tracks"); // available with foo_scrobble
      */
-    IsMainMenuCommandChecked: function (command) {}, // (boolean)
+    IsMainMenuCommandChecked: function (command) { }, // (boolean)
 
     /**
      * @param {FbMetadbHandle} handle
@@ -484,28 +484,28 @@ let fb = {
      * var np = fb.GetNowplaying();
      * console.log(fb.IsMetadbInMediaLibrary(np)); // If false, playing track is not in Media Library.
      */
-    IsMetadbInMediaLibrary: function (handle) {}, // (boolean)
+    IsMetadbInMediaLibrary: function (handle) { }, // (boolean)
 
     /** @method */
-    LoadPlaylist: function () {}, // (void)
+    LoadPlaylist: function () { }, // (void)
 
     /** @method */
-    Next: function () {}, // (void)
+    Next: function () { }, // (void)
 
     /** @method */
-    Pause: function () {}, // (void)
+    Pause: function () { }, // (void)
 
     /** @method */
-    Play: function () {}, // (void)
+    Play: function () { }, // (void)
 
     /** @method */
-    PlayOrPause: function () {}, // (void)
+    PlayOrPause: function () { }, // (void)
 
     /** @method */
-    Prev: function () {}, // (void)
+    Prev: function () { }, // (void)
 
     /** @method */
-    Random: function () {}, // (void)
+    Random: function () { }, // (void)
 
     /**
      * For now playing file only.
@@ -521,7 +521,7 @@ let fb = {
      * @example
      * fb.RunContextCommand("Properties");
      */
-    RunContextCommand: function (command, flags) {}, // (boolean) [, flags]
+    RunContextCommand: function (command, flags) { }, // (boolean) [, flags]
 
     /**
      * @param {string} command
@@ -529,7 +529,7 @@ let fb = {
      * @param {number=} flags Same flags as {@link fb.RunContextCommand}
      * @return {boolean}
      */
-    RunContextCommandWithMetadb: function (command, handle_or_handle_list, flags) {}, // (boolean) [, flags]
+    RunContextCommandWithMetadb: function (command, handle_or_handle_list, flags) { }, // (boolean) [, flags]
 
     /**
      * @param {string} command
@@ -538,10 +538,10 @@ let fb = {
      * @example
      * fb.RunMainMenuCommand("File/Add Location...");
      */
-    RunMainMenuCommand: function (command) {}, // (boolean)
+    RunMainMenuCommand: function (command) { }, // (boolean)
 
     /** @method */
-    SavePlaylist: function () {}, // (void)
+    SavePlaylist: function () { }, // (void)
 
     /**
      * Available only in foobar2000 v1.4 and above. Throws a script error on v1.3.<br>
@@ -558,48 +558,48 @@ let fb = {
      * // Assuming same list from above, switch output to the last device.
      * fb.SetOutputDevice(arr[4].output_id, arr[4].device_id);
      */
-    SetOutputDevice: function (output, device) {}, // (void)
+    SetOutputDevice: function (output, device) { }, // (void)
 
     /** @method */
-    ShowConsole: function () {}, // (void)
+    ShowConsole: function () { }, // (void)
 
     /**
      * Opens the Library>Search window populated with the query you set.
      *
      * @param {string} query
      */
-    ShowLibrarySearchUI: function (query) {}, // (void)
+    ShowLibrarySearchUI: function (query) { }, // (void)
 
     /**
      * @param {string} message
      * @param {string=} [title='Spider Monkey Panel']
      */
-    ShowPopupMessage: function (message, title) {}, // (void) [, title]
+    ShowPopupMessage: function (message, title) { }, // (void) [, title]
 
     /** @method */
-    ShowPreferences: function () {}, // (void)
+    ShowPreferences: function () { }, // (void)
 
     /** @method */
-    Stop: function () {}, // (void)
+    Stop: function () { }, // (void)
 
     /**
-     * Performance note: try caching `TitleFormat` objects:
-     * if you use the same query frequently, just store the result of `TitleFormat` somewhere
-     * and use it, instead of creating it every time.
+     * Performance note: if you use the same query frequently, 
+     * try caching FbTitleFormat object (by storing it somewhere),
+     * instead of creating it every time.
      *
      * @param {string} expression
      * @return {FbTitleFormat}
      */
-    TitleFormat: function (expression) {}, // (FbTitleFormat)
+    TitleFormat: function (expression) { }, // (FbTitleFormat)
 
     /** @method */
-    VolumeDown: function () {}, // (void)
+    VolumeDown: function () { }, // (void)
 
     /** @method */
-    VolumeMute: function () {}, // (void)
+    VolumeMute: function () { }, // (void)
 
     /** @method */
-    VolumeUp: function () {}, // (void)
+    VolumeUp: function () { }, // (void)
 };
 
 /**
@@ -614,7 +614,7 @@ let gdi = {
      * @param {number} h
      * @return {GdiBitmap}
      */
-    CreateImage: function (w, h) {}, // (GdiBitmap)
+    CreateImage: function (w, h) { }, // (GdiBitmap)
 
     /**
      * Performance note: avoid using inside `on_paint`.
@@ -624,7 +624,7 @@ let gdi = {
      * @param {number=} [style=0] See Flags.js > FontStyle
      * @return {?GdiFont} null, if font is not present.
      */
-    Font: function (name, size_px, style) {}, // (GdiFont) [, style]
+    Font: function (name, size_px, style) { }, // (GdiFont) [, style]
 
     /**
      * Load image from file.<br>
@@ -638,7 +638,7 @@ let gdi = {
      * @example
      * var img = gdi.Image('e:\\images folder\\my_image.png');
      */
-    Image: function (path) {}, // (GdiBitmap)
+    Image: function (path) { }, // (GdiBitmap)
 
     /**
      * Load image from file asynchronously.
@@ -647,7 +647,7 @@ let gdi = {
      * @param {string} path
      * @return {number} a unique id, which is used in `on_load_image_done`.
      */
-    LoadImageAsync: function (window_id, path) {}, // (uint)
+    LoadImageAsync: function (window_id, path) { }, // (uint)
 };
 
 /**
@@ -718,7 +718,7 @@ let plman = {
      * // This operation is asynchronous, so any code in your script directly
      * // after this line will run immediately without waiting for the job to finish.
      */
-    AddLocations: function (playlistIndex, paths, select) {}, // (void) [, select]
+    AddLocations: function (playlistIndex, paths, select) { }, // (void) [, select]
 
     /**
      * @param {number} playlistIndex
@@ -726,7 +726,7 @@ let plman = {
      * @example
      * plman.ClearPlaylist(plman.PlayingPlaylist);
      */
-    ClearPlaylist: function (playlistIndex) {}, // (void)
+    ClearPlaylist: function (playlistIndex) { }, // (void)
 
     /**
      * @param {number} playlistIndex
@@ -734,7 +734,7 @@ let plman = {
      * @example
      * plman.ClearPlaylistSelection(plman.ActivePlaylist);
      */
-    ClearPlaylistSelection: function (playlistIndex) {}, // (void)
+    ClearPlaylistSelection: function (playlistIndex) { }, // (void)
 
     /**
      * @param {number} playlistIndex
@@ -744,7 +744,7 @@ let plman = {
      * @param {number=} [flags=0] Use 1 to force sort
      * @return {number} -1 on failure
      */
-    CreateAutoPlaylist: function (playlistIndex, name, query, sort, flags) {}, // (int) [, sort][, flags]
+    CreateAutoPlaylist: function (playlistIndex, name, query, sort, flags) { }, // (int) [, sort][, flags]
 
     /**
      * @param {number} playlistIndex
@@ -759,7 +759,7 @@ let plman = {
      * // Create a new playlist named "my favourites", which is put at the end.
      * plman.CreatePlaylist(plman.PlaylistCount, 'my favourites');
      */
-    CreatePlaylist: function (playlistIndex, name) {}, // (int)
+    CreatePlaylist: function (playlistIndex, name) { }, // (int)
 
     /**
      * Note: the duplicated playlist gets inserted directly after the source playlistIndex.<br>
@@ -769,13 +769,13 @@ let plman = {
      * @param {string} name A name for the new playlist. If name is "", the name of the source playlist is used.
      * @return {number}
      */
-    DuplicatePlaylist: function (playlistIndex, name) {}, // (int)
+    DuplicatePlaylist: function (playlistIndex, name) { }, // (int)
 
     /**
      * @param {number} playlistIndex
      * @param {number} playlistItemIndex
      */
-    EnsurePlaylistItemVisible: function (playlistIndex, playlistItemIndex) {}, // (void)
+    EnsurePlaylistItemVisible: function (playlistIndex, playlistItemIndex) { }, // (void)
 
     /**
      * Starts playback by executing default doubleclick/enter action unless overridden by a lock to do something else.
@@ -784,7 +784,7 @@ let plman = {
      * @param {number} playlistItemIndex
      * @return {boolean} -1 on failure.
      */
-    ExecutePlaylistDefaultAction: function (playlistIndex, playlistItemIndex) {}, // (boolean)
+    ExecutePlaylistDefaultAction: function (playlistIndex, playlistItemIndex) { }, // (boolean)
 
     /**
      * Returns playlistIndex of named playlist or creates new one if not found.<br>
@@ -795,13 +795,13 @@ let plman = {
      *                           If false, the playlistIndex of any playlist with the matching name will be returned.
      * @return {number}
      */
-    FindOrCreatePlaylist: function (name, unlocked) {}, // (int)
+    FindOrCreatePlaylist: function (name, unlocked) { }, // (int)
 
     /**
      * @param {string} name Case insensitive.
      * @return {number} playlistIndex or -1 on failure.
      */
-    FindPlaylist: function (name) {}, // (int)
+    FindPlaylist: function (name) { }, // (int)
 
     /**
      * Retrieves playlist position of currently playing item.<br>
@@ -809,7 +809,7 @@ let plman = {
      *
      * @return {FbPlayingItemLocation}
      */
-    GetPlayingItemLocation: function () {}, // (FbPlayingItemLocation)
+    GetPlayingItemLocation: function () { }, // (FbPlayingItemLocation)
 
     /**
      * @param {number} playlistIndex
@@ -818,7 +818,7 @@ let plman = {
      * @example
      * var focus_item_index = plman.GetPlaylistFocusItemIndex(plman.ActivePlaylist); // 0 would be the first item
      */
-    GetPlaylistFocusItemIndex: function (playlistIndex) {}, // (int)
+    GetPlaylistFocusItemIndex: function (playlistIndex) { }, // (int)
 
     /**
      * @param {number} playlistIndex
@@ -827,7 +827,7 @@ let plman = {
      * @example
      * var handle_list = plman.GetPlaylistItems(plman.PlayingPlaylist);
      */
-    GetPlaylistItems: function (playlistIndex) {}, // (FbMetadbHandleList)
+    GetPlaylistItems: function (playlistIndex) { }, // (FbMetadbHandleList)
 
     /**
      * @param {number} playlistIndex
@@ -836,7 +836,7 @@ let plman = {
      * @example
      * console.log(plman.GetPlaylistName(plman.ActivePlaylist));
      */
-    GetPlaylistName: function (playlistIndex) {}, // (string)
+    GetPlaylistName: function (playlistIndex) { }, // (string)
 
     /**
      * @param {number} playlistIndex
@@ -845,7 +845,7 @@ let plman = {
      * @example
      * var selected_items = plman.GetPlaylistSelectedItems(plman.ActivePlaylist);
      */
-    GetPlaylistSelectedItems: function (playlistIndex) {}, // (FbMetadbHandleList)
+    GetPlaylistSelectedItems: function (playlistIndex) { }, // (FbMetadbHandleList)
 
     /**
      * @param {number} playlistIndex
@@ -862,7 +862,7 @@ let plman = {
      * var ap = plman.ActivePlaylist;
      * plman.InsertPlaylistItems(ap, plman.PlaylistItemCount(ap), fb.GetLibraryItems());
      */
-    InsertPlaylistItems: function (playlistIndex, base, handle_list, select) {}, // (int) [, select]
+    InsertPlaylistItems: function (playlistIndex, base, handle_list, select) { }, // (int) [, select]
 
     /**
      * Same as {@link plman.InsertPlaylistItems} except any duplicates contained in handle_list are removed.
@@ -873,20 +873,20 @@ let plman = {
      * @param {boolean=} [select=false]
      * @return {number}
      */
-    InsertPlaylistItemsFilter: function (playlistIndex, base, handle_list, select) {}, // (int) select = false
+    InsertPlaylistItemsFilter: function (playlistIndex, base, handle_list, select) { }, // (int) select = false
 
     /**
      * @param {number} playlistIndex
      * @return {boolean}
      */
-    IsAutoPlaylist: function (playlistIndex) {}, // (boolean)
+    IsAutoPlaylist: function (playlistIndex) { }, // (boolean)
 
     /**
      * @param {number} playlistIndex
      * @param {number} playlistItemIndex
      * @return {boolean}
      */
-    IsPlaylistItemSelected: function (playlistIndex, playlistItemIndex) {}, // (boolean)
+    IsPlaylistItemSelected: function (playlistIndex, playlistItemIndex) { }, // (boolean)
 
     /**
      * Note: this returns true, if the playlist is an autoplaylist. To determine if a playlist is not an autoplaylist,
@@ -895,14 +895,14 @@ let plman = {
      * @param {number} playlistIndex
      * @return {boolean}
      */
-    IsPlaylistLocked: function (playlistIndex) {}, // (boolean)
+    IsPlaylistLocked: function (playlistIndex) { }, // (boolean)
 
     /**
      * @param {number} from
      * @param {number} to
      * @return {boolean}
      */
-    MovePlaylist: function (from, to) {}, // (boolean)
+    MovePlaylist: function (from, to) { }, // (boolean)
 
     /**
      * @param {number} playlistIndex
@@ -913,7 +913,7 @@ let plman = {
      * // Moves selected items to end of playlist.
      * plman.MovePlaylistSelection(plman.ActivePlaylist, plman.PlaylistItemCount(plman.ActivePlaylist));
      */
-    MovePlaylistSelection: function (playlistIndex, delta) {}, // (boolean)
+    MovePlaylistSelection: function (playlistIndex, delta) { }, // (boolean)
 
     /**
      * @param {number} playlistIndex
@@ -922,7 +922,7 @@ let plman = {
      * @example
      * console.log(plman.PlaylistItemCount(plman.PlayingPlaylist)); // 12
      */
-    PlaylistItemCount: function (playlistIndex) {}, // (uint) (read)
+    PlaylistItemCount: function (playlistIndex) { }, // (uint) (read)
 
     /**
      * Removes the specified playlist.<br>
@@ -932,7 +932,7 @@ let plman = {
      * @param {number} playlistIndex
      * @return {boolean}
      */
-    RemovePlaylist: function (playlistIndex) {}, // (boolean)
+    RemovePlaylist: function (playlistIndex) { }, // (boolean)
 
     /**
      * @param {number} playlistIndex
@@ -944,7 +944,7 @@ let plman = {
      * @example <Remove items that are NOT selected>
      * plman.RemovePlaylistSelection(plman.ActivePlaylist, true);
      */
-    RemovePlaylistSelection: function (playlistIndex, crop) {}, // (void) [, crop]
+    RemovePlaylistSelection: function (playlistIndex, crop) { }, // (void) [, crop]
 
     /**
      * Removes the specified playlist.<br>
@@ -953,14 +953,14 @@ let plman = {
      * @param {number} playlistIndex
      * @return {boolean}
      */
-    RemovePlaylistSwitch: function (playlistIndex) {}, // (boolean)
+    RemovePlaylistSwitch: function (playlistIndex) { }, // (boolean)
 
     /**
      * @param {number} playlistIndex
      * @param {string} name
      * @return {boolean}
      */
-    RenamePlaylist: function (playlistIndex, name) {}, // (boolean)
+    RenamePlaylist: function (playlistIndex, name) { }, // (boolean)
 
     /**
      * Workaround so you can use the Edit menu or run {@link fb.RunMainMenuCommand}("Edit/Something...")
@@ -975,7 +975,7 @@ let plman = {
      *    }
      * }
      */
-    SetActivePlaylistContext: function () {}, // (void)
+    SetActivePlaylistContext: function () { }, // (void)
 
     /**
      * @param {number} playlistIndex
@@ -984,7 +984,7 @@ let plman = {
      * @example
      * plman.SetPlaylistFocusItem(plman.ActivePlaylist, 0);
      */
-    SetPlaylistFocusItem: function (playlistIndex, playlistItemIndex) {}, // (void)
+    SetPlaylistFocusItem: function (playlistIndex, playlistItemIndex) { }, // (void)
 
     /**
      * @param {number} playlistIndex
@@ -995,7 +995,7 @@ let plman = {
      * var handle = plman.GetPlaylistItems(ap)[1]; // 2nd item in playlist
      * plman.SetPlaylistFocusItemByHandle(ap, handle);
      */
-    SetPlaylistFocusItemByHandle: function (playlistIndex, handle) {}, // (void)
+    SetPlaylistFocusItemByHandle: function (playlistIndex, handle) { }, // (void)
 
     /**
      * @param {number} playlistIndex
@@ -1006,7 +1006,7 @@ let plman = {
      * // Selects first, third and fifth tracks in playlist. This does not affect other selected items.
      * plman.SetPlaylistSelection(plman.ActivePlaylist, [0, 2, 4], true);
      */
-    SetPlaylistSelection: function (playlistIndex, affectedItems, state) {}, // (void)
+    SetPlaylistSelection: function (playlistIndex, affectedItems, state) { }, // (void)
 
     /**
      * @param {number} playlistIndex
@@ -1022,7 +1022,7 @@ let plman = {
      * // Selects last item in playlist. This does not affect other selected items.
      * plman.SetPlaylistSelectionSingle(ap, plman.PlaylistItemCount(ap) - 1, true);
      */
-    SetPlaylistSelectionSingle: function (playlistIndex, playlistItemIndex, state) {}, // (void)
+    SetPlaylistSelectionSingle: function (playlistIndex, playlistItemIndex, state) { }, // (void)
 
     /**
      * Shows popup window letting you edit certain autoplaylist properties.<br>
@@ -1034,7 +1034,7 @@ let plman = {
      * @example
      * fb.ShowAutoPlaylistUI(plman.ActivePlaylist);
      */
-    ShowAutoPlaylistUI: function (playlistIndex) {}, // (boolean)
+    ShowAutoPlaylistUI: function (playlistIndex) { }, // (boolean)
 
     /**
      * @param {number} playlistIndex Index of playlist to alter.
@@ -1042,7 +1042,7 @@ let plman = {
      * @param {boolean=} [selected_items_only=false]
      * @return {boolean} true on success, false on failure (playlist locked etc).
      */
-    SortByFormat: function (playlistIndex, pattern, selected_items_only) {}, // (boolean) [, selected_items_only]
+    SortByFormat: function (playlistIndex, pattern, selected_items_only) { }, // (boolean) [, selected_items_only]
 
     /**
      * @param {number} playlistIndex Index of playlist to alter.
@@ -1052,32 +1052,32 @@ let plman = {
      *     -1 - descending<br>
      * @return {boolean}
      */
-    SortByFormatV2: function (playlistIndex, pattern, direction) {}, // (boolean) [, direction]
+    SortByFormatV2: function (playlistIndex, pattern, direction) { }, // (boolean) [, direction]
 
     /**
      * @param {number=} [direction=1]
      *     1 - ascending<br>
      *     -1 - descending<br>
      */
-    SortPlaylistsByName: function (direction) {}, //(void)
+    SortPlaylistsByName: function (direction) { }, //(void)
 
     /**
      * Call before using other {@link plman} methods that add/remove/reorder playlist items so a history will be available from the Edit menu.
      *
      * @param {number} playlistIndex
      */
-    UndoBackup: function (playlistIndex) {}, // (void)
+    UndoBackup: function (playlistIndex) { }, // (void)
 
     /**
      * @param {FbMetadbHandle} handle
      */
-    AddItemToPlaybackQueue: function (handle) {}, // (void)
+    AddItemToPlaybackQueue: function (handle) { }, // (void)
 
     /**
      * @param {number} playlistIndex
      * @param {number} playlistItemIndex
      */
-    AddPlaylistItemToPlaybackQueue: function (playlistIndex, playlistItemIndex) {}, // (void)
+    AddPlaylistItemToPlaybackQueue: function (playlistIndex, playlistItemIndex) { }, // (void)
 
     /**
      * @param {FbMetadbHandle} handle
@@ -1085,10 +1085,10 @@ let plman = {
      * @param {number} playlistItemIndex
      * @return {number} -1 on failure
      */
-    FindPlaybackQueueItemIndex: function (handle, playlistIndex, playlistItemIndex) {}, // (int)
+    FindPlaybackQueueItemIndex: function (handle, playlistIndex, playlistItemIndex) { }, // (int)
 
     /** @method */
-    FlushPlaybackQueue: function () {}, // (void)
+    FlushPlaybackQueue: function () { }, // (void)
 
     /**
      * @return {Array<FbPlaybackQueueItem>}
@@ -1100,7 +1100,7 @@ let plman = {
      *     console.log(contents[0].PlaylistIndex, contents[0].PlaylistItemIndex);
      * }
      */
-    GetPlaybackQueueContents: function () {}, // (Array)
+    GetPlaybackQueueContents: function () { }, // (Array)
 
     /**
      * @return {FbMetadbHandleList}
@@ -1111,17 +1111,17 @@ let plman = {
      *    // use "Count" to determine if Playback Queue is active.
      * }
      */
-    GetPlaybackQueueHandles: function () {}, // ((FbMetadbHandleList))
+    GetPlaybackQueueHandles: function () { }, // ((FbMetadbHandleList))
 
     /**
      * @param {number} index
      */
-    RemoveItemFromPlaybackQueue: function (index) {}, // (void)
+    RemoveItemFromPlaybackQueue: function (index) { }, // (void)
 
     /**
      * @param {Array<number>} affectedItems Array like [1, 3, 5]
      */
-    RemoveItemsFromPlaybackQueue: function (affectedItems) {}, // (void)
+    RemoveItemsFromPlaybackQueue: function (affectedItems) { }, // (void)
 };
 
 /**
@@ -1170,7 +1170,7 @@ let utils = {
      * @example
      * console.log(utils.CheckComponent("foo_playcount", true));
      */
-    CheckComponent: function (name, is_dll) {}, //(boolean)
+    CheckComponent: function (name, is_dll) { }, //(boolean)
 
     /**
      * Check if the font is installed.<br>
@@ -1179,7 +1179,7 @@ let utils = {
      * @param {string} name Can be either in English or the localised name in your OS.
      * @return {boolean}
      */
-    CheckFont: function (name) {}, // (boolean)
+    CheckFont: function (name) { }, // (boolean)
 
     /**
      * Spawns a windows popup dialog to let you choose a colour.
@@ -1192,7 +1192,7 @@ let utils = {
      * var colour = utils.ColourPicker(window.ID, RGB(255, 0, 0));
      * // See docs\Helper.js for RGB function.
      */
-    ColourPicker: function (window_id, default_colour) {}, // (int)
+    ColourPicker: function (window_id, default_colour) { }, // (int)
 
     /**
      * @param {string} path
@@ -1210,7 +1210,7 @@ let utils = {
      * // arr[1] <= "Somefile"
      * // arr[2] <= ".txt"
      */
-    FileTest: function (path, mode) {}, // (VARIANT)
+    FileTest: function (path, mode) { }, // (VARIANT)
 
     /**
      * @param {number} seconds
@@ -1219,7 +1219,7 @@ let utils = {
      * @example
      * console.log(utils.FormatDuration(plman.GetPlaylistItems(plman.ActivePlaylist).CalcTotalDuration())); // 1wk 1d 17:25:30
      */
-    FormatDuration: function (seconds) {}, // (string)
+    FormatDuration: function (seconds) { }, // (string)
 
     /**
      * @param {number} bytes
@@ -1228,7 +1228,7 @@ let utils = {
      * @example
      * console.log(utils.FormatFileSize(plman.GetPlaylistItems(plman.ActivePlaylist).CalcTotalSize())); // 7.9 GB
      */
-    FormatFileSize: function (bytes) {}, // (string)
+    FormatFileSize: function (bytes) { }, // (string)
 
     /**
      * @param {number} window_id {@link window.ID}
@@ -1242,7 +1242,7 @@ let utils = {
      * @example
      * // See samples\basic\GetAlbumArtAsync.txt
      */
-    GetAlbumArtAsync: function (window_id, handle, art_id, need_stub, only_embed, no_load) {}, // (uint) [, art_id][, need_stub][, only_embed][, no_load]
+    GetAlbumArtAsync: function (window_id, handle, art_id, need_stub, only_embed, no_load) { }, // (uint) [, art_id][, need_stub][, only_embed][, no_load]
 
     /**
      * @param {string} rawpath
@@ -1252,7 +1252,7 @@ let utils = {
      * @example
      * var img = utils.GetAlbumArtEmbedded(fb.GetNowPlaying().RawPath, 0);
      */
-    GetAlbumArtEmbedded: function (rawpath, art_id) {}, // (GdiBitmap) [, art_id]
+    GetAlbumArtEmbedded: function (rawpath, art_id) { }, // (GdiBitmap) [, art_id]
 
     /**
      * See samples\basic\GetAlbumArtV2.txt
@@ -1262,7 +1262,7 @@ let utils = {
      * @param {boolean=} [need_stub=true]
      * @return {GdiBitmap}
      */
-    GetAlbumArtV2: function (handle, art_id, need_stub) {}, // (GdiBitmap) [, art_id][, need_stub]
+    GetAlbumArtV2: function (handle, art_id, need_stub) { }, // (GdiBitmap) [, art_id][, need_stub]
 
     /**
      * @param {number} index {@link http://msdn.microsoft.com/en-us/library/ms724371%28VS.85%29.aspx}
@@ -1271,13 +1271,13 @@ let utils = {
      * @example
      * var splitter_colour = utils.GetSysColour(15);
      */
-    GetSysColor: function (index) {}, // (uint)
+    GetSysColor: function (index) { }, // (uint)
 
     /**
      * @param {number} index {@link http://msdn.microsoft.com/en-us/library/ms724385%28VS.85%29.aspx}
      * @return {number} 0 if failed
      */
-    GetSystemMetrics: function (index) {}, // (int)
+    GetSystemMetrics: function (index) { }, // (int)
 
     /**
      * @param {string} pattern
@@ -1288,7 +1288,7 @@ let utils = {
      * @example
      * var arr = utils.Glob("C:\\*.*");
      */
-    Glob: function (pattern, exc_mask, inc_mask) {}, // (Array) [, exc_mask][, inc_mask]
+    Glob: function (pattern, exc_mask, inc_mask) { }, // (Array) [, exc_mask][, inc_mask]
 
     /**
      * @param {number} window_id
@@ -1313,13 +1313,13 @@ let utils = {
      *     // Dialog was closed by pressing Esc, Cancel or the Close button.
      * }
      */
-    InputBox: function (window_id, prompt, caption, defaultval, error_on_cancel) {}, // (string)
+    InputBox: function (window_id, prompt, caption, defaultval, error_on_cancel) { }, // (string)
 
     /**
      * @param {number} vkey {@link http://msdn.microsoft.com/en-us/library/ms927178.aspx}. Some are defined in Flags.js > Used with utils.IsKeyPressed().
      * @return {boolean}
      */
-    IsKeyPressed: function (vkey) {}, // (boolean)
+    IsKeyPressed: function (vkey) { }, // (boolean)
 
     /**
      * @param {string} text
@@ -1327,7 +1327,7 @@ let utils = {
      * @param {number} flags
      * @return {string}
      */
-    MapString: function (text, lcid, flags) {}, // (string)
+    MapString: function (text, lcid, flags) { }, // (string)
 
     /**
      * Using Microsoft MS-DOS wildcards match type. eg "*.txt", "abc?.tx?"
@@ -1336,7 +1336,7 @@ let utils = {
      * @param {string} str
      * @return {boolean}
      */
-    PathWildcardMatch: function (pattern, str) {}, // (boolean)
+    PathWildcardMatch: function (pattern, str) { }, // (boolean)
 
     /**
      * @param {string} filename
@@ -1346,7 +1346,7 @@ let utils = {
      * @example
      * var text = utils.ReadTextFile("E:\\some text file.txt");
      */
-    ReadTextFile: function (filename, codepage) {}, // (string) [,codepage]
+    ReadTextFile: function (filename, codepage) { }, // (string) [,codepage]
 
     /**
      * Note: this only returns up to 255 characters per value.
@@ -1360,7 +1360,7 @@ let utils = {
      * @example
      * var username = utils.ReadINI("e:\\my_file.ini", "Last.fm", "username");
      */
-    ReadINI: function (filename, section, key, defaultval) {}, // (string) [, defaultval]
+    ReadINI: function (filename, section, key, defaultval) { }, // (string) [, defaultval]
 
     /**
      * Displays an html dialog, rendered by IE engine.<br>
@@ -1412,7 +1412,7 @@ let utils = {
      * @example
      * utils.WriteINI("e:\\my_file.ini", "Last.fm", "username", "Bob");
      */
-    WriteINI: function (filename, section, key, val) {}, // (boolean)
+    WriteINI: function (filename, section, key, val) { }, // (boolean)
 
     /**
      * The parent folder must already exist.
@@ -1432,7 +1432,7 @@ let utils = {
      * @example <caption>UTF8 without BOM</caption>
      * utils.WriteTextFile("z:\\3.txt", "test", false);
      */
-    WriteTextFile: function (filename, content, write_bom) {}, //(boolean)
+    WriteTextFile: function (filename, content, write_bom) { }, //(boolean)
 };
 
 /**
@@ -1564,12 +1564,12 @@ let window = {
     /**
      * @param {number} timerID
      */
-    ClearTimeout: function (timerID) {}, // (void)
+    ClearTimeout: function (timerID) { }, // (void)
 
     /**
      * @param {number} timerID
      */
-    ClearInterval: function (timerID) {}, // (void)
+    ClearInterval: function (timerID) { }, // (void)
 
     /**
      * Setups the panel information and available features.<br>
@@ -1583,12 +1583,12 @@ let window = {
      * @param {object=} [options.features=undefined] Additional script features
      * @param {boolean=} [options.features.drag_n_drop=false] Indicates if drag_n_drop functionality should be enabled
      */
-    DefinePanel: function (name, options) {}, // (void)
+    DefinePanel: function (name, options) { }, // (void)
 
     /**
      * @return {number}
      */
-    SetInterval: function (func, delay) {}, // (uint)
+    SetInterval: function (func, delay) { }, // (uint)
 
     /**
      * @return {number}
@@ -1596,7 +1596,7 @@ let window = {
      * @example
      * // See samples\basic\Timer.txt
      */
-    SetTimeout: function (func, delay) {}, // (uint)
+    SetTimeout: function (func, delay) { }, // (uint)
 
     /**
      * @return {MenuObject}
@@ -1604,7 +1604,7 @@ let window = {
      * @example
      * // See samples\basic\MainMenuManager All-In-One, samples\basic\Menu Sample.txt
      */
-    CreatePopupMenu: function () {}, // (MenuObject)
+    CreatePopupMenu: function () { }, // (MenuObject)
 
     /**
      * @param {Array<string>} class_list {@link http://msdn.microsoft.com/en-us/library/bb773210%28VS.85%29.aspx}
@@ -1613,7 +1613,7 @@ let window = {
      * @example
      * // See samples\basic\SimpleThemedButton.txt
      */
-    CreateThemeManager: function (class_list) {}, // (ThemeManager)
+    CreateThemeManager: function (class_list) { }, // (ThemeManager)
 
     /**
      * @param {string=} [font_name='Segoe UI']
@@ -1621,27 +1621,27 @@ let window = {
      * @param {number=} [font_style=0] See Flags.js > FontStyle
      * @return {FbTooltip}
      */
-    CreateTooltip: function (font_name, font_size_px, font_style) {}, // (FbTooltip) [font_name][, font_size_px][, font_style]
+    CreateTooltip: function (font_name, font_size_px, font_style) { }, // (FbTooltip) [font_name][, font_size_px][, font_style]
 
     /**
      * @param {number} type
      * @param {string=} client_guid
      * @return {number}
      */
-    GetColourCUI: function (type, client_guid) {}, // (uint) [, client_guid]
+    GetColourCUI: function (type, client_guid) { }, // (uint) [, client_guid]
 
     /**
      * @param {number} type
      * @return {number}
      */
-    GetColourDUI: function (type) {}, // (uint)
+    GetColourDUI: function (type) { }, // (uint)
 
     /**
      * @param {number} type See Flags.js > Used in window.GetFontXXX()
      * @param {string=} client_guid See Flags.js > Used in GetFontCUI() as client_guid.
      * @return {GdiFont} null if the component was unable to determine your font.
      */
-    GetFontCUI: function (type, client_guid) {}, // (GdiFont) [, client_guid]
+    GetFontCUI: function (type, client_guid) { }, // (GdiFont) [, client_guid]
 
     /**
      * @param {number} type See Flags.js > Used in window.GetFontXXX()
@@ -1656,7 +1656,7 @@ let window = {
      *    font = gdi.Font("Segoe UI", 12);
      * }
      */
-    GetFontDUI: function (type) {}, // (GdiFont)
+    GetFontDUI: function (type) { }, // (GdiFont)
 
     /**
      * This will trigger {@link module:callbacks~on_notify_data on_notify_data}(name, info) in other panels.<br>
@@ -1664,18 +1664,18 @@ let window = {
      * @param {string} name
      * @param {*} info
      */
-    NotifyOthers: function (name, info) {}, // (void)
+    NotifyOthers: function (name, info) { }, // (void)
 
     /**
      * Reload panel.
      * @method
      */
-    Reload: function () {}, // (void)
+    Reload: function () { }, // (void)
 
     /**
      * @param {boolean=} [force=false]
      */
-    Repaint: function (force) {}, // (void) [force]
+    Repaint: function (force) { }, // (void) [force]
 
     /**
      * Use this instead of window.Repaint on frequently updated areas
@@ -1686,7 +1686,7 @@ let window = {
      * @param {number} h
      * @param {boolean=} [force=false]
      */
-    RepaintRect: function (x, y, w, h, force) {}, // (void) [force]
+    RepaintRect: function (x, y, w, h, force) { }, // (void) [force]
 
     /**
      * This would usually be used inside the {@link module:callbacks~on_mouse_move on_mouse_move} callback.<br>
@@ -1694,7 +1694,7 @@ let window = {
      *
      * @param {number} id See Flags.js > Used in window.SetCursor()
      */
-    SetCursor: function (id) {}, // (void)
+    SetCursor: function (id) { }, // (void)
 
     /**
      * Get value of property.<br>
@@ -1707,7 +1707,7 @@ let window = {
      * @param {*=} defaultval
      * @return {*}
      */
-    GetProperty: function (name, defaultval) {}, // (VARIANT) [, defaultval]
+    GetProperty: function (name, defaultval) { }, // (VARIANT) [, defaultval]
 
     /**
      * Set property value.<br>
@@ -1720,19 +1720,19 @@ let window = {
      * @param {string} name
      * @param {*=} val
      */
-    SetProperty: function (name, val) {}, // (void)
+    SetProperty: function (name, val) { }, // (void)
 
     /**
      * Show configuration window of current panel
      * @method
      */
-    ShowConfigure: function () {}, // (void)
+    ShowConfigure: function () { }, // (void)
 
     /**
      * Show properties window of current panel
      * @method
      */
-    ShowProperties: function () {}, // (void)
+    ShowProperties: function () { }, // (void)
 };
 
 /**
@@ -1784,49 +1784,49 @@ function FbMetadbHandle() {
      *
      * @param {number} playcount Use 0 to clear
      */
-    this.SetPlayCount = function (playcount) {}; // (void)
+    this.SetPlayCount = function (playcount) { }; // (void)
 
     /**
      * See {@link https://github.com/TheQwertiest/foo_spider_monkey_panel/wiki/Playback-stats}
      *
      * @param {number} loved Use 0 to clear
      */
-    this.SetLoved = function (loved) {}; // (void)
+    this.SetLoved = function (loved) { }; // (void)
 
     /**
      * See {@link https://github.com/TheQwertiest/foo_spider_monkey_panel/wiki/Playback-stats}
      *
      * @param {string} first_played Use "" to clear
      */
-    this.SetFirstPlayed = function (first_played) {}; // (void)
+    this.SetFirstPlayed = function (first_played) { }; // (void)
 
     /**
      * See {@link https://github.com/TheQwertiest/foo_spider_monkey_panel/wiki/Playback-stats}
      *
      * @param {string} last_played Use "" to clear
      */
-    this.SetLastPlayed = function (last_played) {}; // (void)
+    this.SetLastPlayed = function (last_played) { }; // (void)
 
     /**
      * See {@link https://github.com/TheQwertiest/foo_spider_monkey_panel/wiki/Playback-stats}
      *
      * @param {number} rating Use 0 to clear
      */
-    this.SetRating = function (rating) {}; // (void)
+    this.SetRating = function (rating) { }; // (void)
 
     /**
      * See {@link https://github.com/TheQwertiest/foo_spider_monkey_panel/wiki/Playback-stats}
      *
      * @method
      */
-    this.ClearStats = function () {}; // (void)
+    this.ClearStats = function () { }; // (void)
 
     /**
      * See {@link https://github.com/TheQwertiest/foo_spider_monkey_panel/wiki/Playback-stats}
      *
      * @method
      */
-    this.RefreshStats = function () {}; // (void)
+    this.RefreshStats = function () { }; // (void)
 
     /**
      * Compare two {@link FbMetadbHandle} instances, pointer only.<br>
@@ -1838,12 +1838,12 @@ function FbMetadbHandle() {
      * @example
      * handle.Compare(handle2);
      */
-    this.Compare = function (handle) {}; // (boolean)
+    this.Compare = function (handle) { }; // (boolean)
 
     /**
      * @return {FbFileInfo}
      */
-    this.GetFileInfo = function () {}; // (FbFileInfo)
+    this.GetFileInfo = function () { }; // (FbFileInfo)
 }
 
 /**
@@ -1875,25 +1875,25 @@ function FbFileInfo() {
      * @param {string} name
      * @return {number} -1 on failure
      */
-    this.InfoFind = function (name) {}; //
+    this.InfoFind = function (name) { }; //
 
     /**
      * @param {number} idx
      * @return {string}
      */
-    this.InfoName = function (idx) {}; //
+    this.InfoName = function (idx) { }; //
 
     /**
      * @param {number} idx
      * @return {string}
      */
-    this.InfoValue = function (idx) {}; //
+    this.InfoValue = function (idx) { }; //
 
     /**
      * @param {string} name
      * @return {number} -1 on failure
      */
-    this.MetaFind = function (name) {}; //
+    this.MetaFind = function (name) { }; //
 
     /**
      * Note: the case of the tag name returned can be different depending on tag type,
@@ -1907,20 +1907,20 @@ function FbFileInfo() {
      *      console.log(file_info.MetaName(i).toUpperCase());
      * }
      */
-    this.MetaName = function (idx) {}; //
+    this.MetaName = function (idx) { }; //
 
     /**
      * @param {number} idx
      * @param {number} vidx
      * @return {string}
      */
-    this.MetaValue = function (idx, vidx) {}; //
+    this.MetaValue = function (idx, vidx) { }; //
 
     /**
      * @param {number} idx
      * @return {number}
      */
-    this.MetaValueCount = function (idx) {}; //
+    this.MetaValueCount = function (idx) { }; //
 }
 
 /**
@@ -1947,7 +1947,7 @@ function FbMetadbHandleList(arg) {
      * @example
      * handle_list.Add(fb.GetNowPlaying());
      */
-    this.Add = function (handle) {}; // (uint)
+    this.Add = function (handle) { }; // (uint)
 
     /**
      * @param {FbMetadbHandleList} handle_list
@@ -1955,7 +1955,7 @@ function FbMetadbHandleList(arg) {
      * @example
      * handle_list.AddRange(fb.GetLibraryItems());
      */
-    this.AddRange = function (handle_list) {}; // (void)
+    this.AddRange = function (handle_list) { }; // (void)
 
     /**
      * Errors such as invalid path, corrupt image, target file type not supporting
@@ -1979,7 +1979,7 @@ function FbMetadbHandleList(arg) {
      * var img_path = "C:\\path\\to\\image.jpg";
      * handle_list.AttachImage(img_path, 0);
      */
-    this.AttachImage = function (image_path, art_id) {}; //(void)
+    this.AttachImage = function (image_path, art_id) { }; //(void)
 
     /**
      * Faster than {@link FbMetadbHandleList#Find}.
@@ -1987,19 +1987,19 @@ function FbMetadbHandleList(arg) {
      * @param {FbMetadbHandle} handle Must be sorted with {@link FbMetadbHandleList#Sort}.
      * @return {number} -1 on failure.
      */
-    this.BSearch = function (handle) {}; // (uint)
+    this.BSearch = function (handle) { }; // (uint)
 
     /**
      * @return {float|number} total duration in seconds. For display purposes, consider using {@link utils.FormatDuration} on the result.
      */
-    this.CalcTotalDuration = function () {}; // (double)
+    this.CalcTotalDuration = function () { }; // (double)
 
     /**
      * Requires a system with IE9 or later to work properly.<br>
      *
      * @return {number} total size in bytes. For display purposes, consider using utils.FormatFileSize() on the result.
      */
-    this.CalcTotalSize = function () {}; // (LONGLONG)
+    this.CalcTotalSize = function () { }; // (LONGLONG)
 
     /**
      * @return {FbMetadbHandleList}
@@ -2007,7 +2007,7 @@ function FbMetadbHandleList(arg) {
      * @example
      * var handle_list2 = handle_list.Clone();
      */
-    this.Clone = function () {}; // (FbMetadbHandleList)
+    this.Clone = function () { }; // (FbMetadbHandleList)
 
     /**
      * Converts {@link FbMetadbHandleList} to an array of {@link FbMetadbHandle}.<br>
@@ -2022,7 +2022,7 @@ function FbMetadbHandleList(arg) {
      *    // do something with playlist_items_array[i] which is your handle
      * }
      */
-    this.Convert = function () {}; // (Array)
+    this.Convert = function () { }; // (Array)
 
     /**
      * Note: if sorted with {@link FbMetadbHandleList#Sort}, use {@link FbMetadbHandleList#BSearch} instead.
@@ -2030,7 +2030,7 @@ function FbMetadbHandleList(arg) {
      * @param {FbMetadbHandle} handle
      * @return {number} index in the handle list on success, -1 on failure
      */
-    this.Find = function (handle) {}; // (int)
+    this.Find = function (handle) { }; // (int)
 
     /**
      * See {@link fb.GetLibraryRelativePath}.<br>
@@ -2044,7 +2044,7 @@ function FbMetadbHandleList(arg) {
      * handle_list.OrderByRelativePath();
      * var relative_paths = handle_list.GetLibraryRelativePaths();
      */
-    this.GetLibraryRelativePaths = function () {}; //(Array)
+    this.GetLibraryRelativePaths = function () { }; //(Array)
 
     /**
      * @param {number} index
@@ -2055,14 +2055,14 @@ function FbMetadbHandleList(arg) {
      * // This inserts at the end of the handle list.
      * handle_list.Insert(handle_list.Count, fb.GetNowPlaying());
      */
-    this.Insert = function (index, handle) {}; // (int)
+    this.Insert = function (index, handle) { }; // (int)
 
     /**
      * @param {number} index
      * @param {FbMetadbHandleList} handle_list
      * @return {number}
      */
-    this.InsertRange = function (index, handle_list) {}; // (int)
+    this.InsertRange = function (index, handle_list) { }; // (int)
 
     /**
      * Note: sort with {@link FbMetadbHandleList#Sort} before using.
@@ -2080,7 +2080,7 @@ function FbMetadbHandleList(arg) {
      * // "one" now only contains handles that were unique to "one".
      * // Anything that also existed in "two" will have been removed.
      */
-    this.MakeDifference = function (handle_list) {}; // (void)
+    this.MakeDifference = function (handle_list) { }; // (void)
 
     /**
      * Note: sort with {@link FbMetadbHandleList#Sort} before using.
@@ -2097,7 +2097,7 @@ function FbMetadbHandleList(arg) {
      * one.MakeIntersection(two);
      * // "one" now only contains handles that were in BOTH "one" AND "two"
      */
-    this.MakeIntersection = function (handle_list) {}; // (void)
+    this.MakeIntersection = function (handle_list) { }; // (void)
 
     /**
      * Note: sort with {@link FbMetadbHandleList#Sort} before using.
@@ -2114,7 +2114,7 @@ function FbMetadbHandleList(arg) {
      * one.MakeUnion(two);
      * // "one" now contains all handles from "one" AND "two" with any duplicates removed
      */
-    this.MakeUnion = function (handle_list) {}; // (void)
+    this.MakeUnion = function (handle_list) { }; // (void)
 
     /**
      * @param {FbTitleFormat} tfo An instance of FbTitleFormat.
@@ -2125,32 +2125,32 @@ function FbMetadbHandleList(arg) {
      * var tfo = fb.TitleFormat("%album artist%|%date%|%album%|%discnumber%|%tracknumber%");
      * handle_list.OrderByFormat(tfo, 1);
      */
-    this.OrderByFormat = function (tfo, direction) {}; // (void)
+    this.OrderByFormat = function (tfo, direction) { }; // (void)
 
     /**
      * Note: this method should only be used on a handle list containing items that are monitored as part of the Media Library.
      *
      * @method
      */
-    this.OrderByPath = function () {}; // (void)
+    this.OrderByPath = function () { }; // (void)
 
     /** @method */
-    this.OrderByRelativePath = function () {}; // (void)
+    this.OrderByRelativePath = function () { }; // (void)
 
     /**
      * See {@link https://github.com/TheQwertiest/foo_spider_monkey_panel/wiki/Playback-stats}
      *
      * @method
      */
-    this.RefreshStats = function () {}; // (void)
+    this.RefreshStats = function () { }; // (void)
 
     /**
      * @param {FbMetadbHandle} handle
      */
-    this.Remove = function (handle) {}; // (void)
+    this.Remove = function (handle) { }; // (void)
 
     /** @method */
-    this.RemoveAll = function () {}; // (void)
+    this.RemoveAll = function () { }; // (void)
 
     /**
      * Note: a progress dialog will be shown for larger file selections.
@@ -2172,7 +2172,7 @@ function FbMetadbHandleList(arg) {
      * @example
      * handle_list.RemoveById(0);
      */
-    this.RemoveById = function (idx) {}; // (void)
+    this.RemoveById = function (idx) { }; // (void)
 
     /**
      * @param {number} from
@@ -2181,14 +2181,14 @@ function FbMetadbHandleList(arg) {
      * @example
      * handle_list.RemoveRange(10, 20);
      */
-    this.RemoveRange = function (from, num) {}; // (void)
+    this.RemoveRange = function (from, num) { }; // (void)
 
     /**
      * Remove duplicates and optimise for other handle list operations
      *
      * @method
      */
-    this.Sort = function () {}; // (void)
+    this.Sort = function () { }; // (void)
 
     /**
      * Updated metadb tags with new values.
@@ -2214,7 +2214,7 @@ function FbMetadbHandleList(arg) {
      *
      * handles.UpdateFileInfoFromJSON(JSON.stringify(arr));
      */
-    this.UpdateFileInfoFromJSON = function (str) {}; // (void)
+    this.UpdateFileInfoFromJSON = function (str) { }; // (void)
 }
 
 /**
@@ -2235,23 +2235,23 @@ function FbPlaylistRecycler() {
      * @param {number} index
      * @return {string}
      */
-    this.GetName = function (index) {}; // (string) (read)
+    this.GetName = function (index) { }; // (string) (read)
 
     /**
      * @param {number} index
      * @return {FbMetadbHandleList}
      */
-    this.GetContent = function (index) {}; // (FbMetadbHandleList) (read)
+    this.GetContent = function (index) { }; // (FbMetadbHandleList) (read)
 
     /**
      * @param {number} affectedItems array like [1, 3, 5]
      */
-    this.Purge = function (affectedItems) {}; // (void)
+    this.Purge = function (affectedItems) { }; // (void)
 
     /**
      * @param {number} index
      */
-    this.Restore = function (index) {}; // (void)
+    this.Restore = function (index) { }; // (void)
 }
 
 /**
@@ -2335,7 +2335,7 @@ function FbProfiler(name) {
     this.Reset = function () { }; // (void)
 
     /** 
-     * @param {string=} [additionalMsg=''] string that will be prepended before measured time
+     * @param {string=} [additionalMsg=''] string that will be prepended to the measured time
      * @param {boolean=} [printComponentInfo=true]
      * 
      * @example
@@ -2353,17 +2353,21 @@ function FbProfiler(name) {
      * // Task #2: 1530 ms"
      * // Spider Monkey Panel v1.0.0: profiler (Group #1): 3541 ms"
      */
-    this.Print = function (additionalMsg, printComponentInfo) {}; // (void)
+    this.Print = function (additionalMsg, printComponentInfo) { }; // (void)
 }
 
 /**
+ * Performance note: if you use the same query frequently, 
+ * try caching FbTitleFormat object (by storing it somewhere),
+ * instead of creating it every time.
+ * 
  * @constructor
- * @hideconstructor
+ * @param {string} expression
  */
-function FbTitleFormat() {
+function FbTitleFormat(expression) {
     /**
-     * Always use Eval when you want dynamic info such as %playback_time%, %bitrate% etc.
-     * {@link EvalWithMetadb}(fb.GetNowplaying()) will not give the results you want.
+     * Always use Eval when you want dynamic info such as %playback_time%, %bitrate% etc.<br>
+     * {@link FbTitleFormat#EvalWithMetadb}(fb.GetNowplaying()) will not give the results you want.
      *
      * @param {boolean=} [force=false] If true, you can process text that doesn't contain
      *     title formatting even when foobar2000 isn't playing. When playing, you
@@ -2374,7 +2378,7 @@ function FbTitleFormat() {
      * var tfo = fb.TitleFormat("%artist%");
      * console.log(tfo.Eval());
      */
-    this.Eval = function (force) {}; // [force]
+    this.Eval = function (force) { }; // [force]
 
     /**
      * @param {FbMetadbHandle} handle
@@ -2384,7 +2388,7 @@ function FbTitleFormat() {
      * var tfo = fb.TitleFormat("%artist%");
      * console.log(tfo.EvalWithMetadb(fb.GetFocusItem()));
      */
-    this.EvalWithMetadb = function (handle) {}; //
+    this.EvalWithMetadb = function (handle) { }; //
 
     /**
      * @param handle_list {FbMetadbHandleList}
@@ -2396,7 +2400,7 @@ function FbTitleFormat() {
      * let artists = tfo.EvalWithMetadbs(handle_list);
      * console.log(handle_list.Count === artists.length); // should always be true!
      */
-    this.EvalWithMetadbs = function (handle_list) {}; //(Array)
+    this.EvalWithMetadbs = function (handle_list) { }; //(Array)
 }
 
 /**
@@ -2428,22 +2432,22 @@ function FbTooltip() {
      *    tooltip.Activate();
      * }
      */
-    this.Activate = function () {}; // (void)
+    this.Activate = function () { }; // (void)
 
     /** @method */
-    this.Deactivate = function () {}; // (void)
+    this.Deactivate = function () { }; // (void)
 
     /**
      * @param {number} type
      * @return {number}
      */
-    this.GetDelayTime = function (type) {}; // (int)
+    this.GetDelayTime = function (type) { }; // (int)
 
     /**
      * @param {number} type See Flags.js > Used in {@link FbTooltip#GetDelayTime} and {@link FbTooltip#SetDelayTime}
      * @param {number} time
      */
-    this.SetDelayTime = function (type, time) {}; // (void)
+    this.SetDelayTime = function (type, time) { }; // (void)
 
     /**
      * Use if you want multi-line tooltips.<br>
@@ -2455,7 +2459,7 @@ function FbTooltip() {
      * tooltip.SetMaxWidth(800);
      * tooltip.Text = "Line1\nLine2";
      */
-    this.SetMaxWidth = function (width) {}; // (void)
+    this.SetMaxWidth = function (width) { }; // (void)
 
     /**
      * Note: check that x, y positions have changed from the last time, otherwise it will flicker.
@@ -2463,7 +2467,7 @@ function FbTooltip() {
      * @param {number} x
      * @param {number} y
      */
-    this.TrackPosition = function (x, y) {}; // (void)
+    this.TrackPosition = function (x, y) { }; // (void)
 }
 
 /**
@@ -2508,7 +2512,7 @@ function FbUiSelectionHolder() {
      *
      * @param {FbMetadbHandleList} handle_list
      */
-    this.SetSelection = function (handle_list) {}; // (void)
+    this.SetSelection = function (handle_list) { }; // (void)
 
     /**
      * Sets selected items to playlist selection and enables tracking.<br>
@@ -2516,7 +2520,7 @@ function FbUiSelectionHolder() {
      * updated. Tracking ends when a set method is called on any ui_selection_holder
      * or when the last reference to this ui_selection_holder is released.
      */
-    this.SetPlaylistSelectionTracking = function () {}; // (void)
+    this.SetPlaylistSelectionTracking = function () { }; // (void)
 
     /**
      * Sets selected items to playlist contents and enables tracking.<br>
@@ -2524,7 +2528,7 @@ function FbUiSelectionHolder() {
      * updated. Tracking ends when a set method is called on any ui_selection_holder
      * or when the last reference to this ui_selection_holder is released.
      */
-    this.SetPlaylistTracking = function () {}; // (void)
+    this.SetPlaylistTracking = function () { }; // (void)
 }
 
 /**
@@ -2549,7 +2553,7 @@ function GdiBitmap(arg) {
      * @param {number} alpha Valid values 0-255.
      * @return {GdiBitmap}
      */
-    this.ApplyAlpha = function (alpha) {}; // (GdiBitmap)
+    this.ApplyAlpha = function (alpha) { }; // (GdiBitmap)
 
     /**
      * Changes will be saved in the current bitmap. See samples\basic\Apply Mask.txt
@@ -2557,7 +2561,7 @@ function GdiBitmap(arg) {
      * @param {GdiBitmap} img
      * @return {boolean}
      */
-    this.ApplyMask = function (img) {}; // (boolean)
+    this.ApplyMask = function (img) { }; // (boolean)
 
     /**
      * @param {number} x
@@ -2566,20 +2570,20 @@ function GdiBitmap(arg) {
      * @param {number} h
      * @return {GdiBitmap}
      */
-    this.Clone = function (x, y, w, h) {}; // (GdiBitmap)
+    this.Clone = function (x, y, w, h) { }; // (GdiBitmap)
 
     /**
      * Create a DDB bitmap from GdiBitmap, which is used in {@link GdiGraphics#GdiDrawBitmap}
      *
      * @return {GdiRawBitmap}
      */
-    this.CreateRawBitmap = function () {}; // (GdiRawBitmap)
+    this.CreateRawBitmap = function () { }; // (GdiRawBitmap)
 
     /**
      * @param {number} max_count
      * @return {Array<number>}
      */
-    this.GetColourScheme = function (max_count) {}; // (Array)
+    this.GetColourScheme = function (max_count) { }; // (Array)
 
     /**
      * Returns a JSON array in string form so you need to use JSON.parse() on the result.<br>
@@ -2599,20 +2603,20 @@ function GdiBitmap(arg) {
      * console.log(colours[0].freq); // 0.34
      * console.log(toRGB(colours[0].col)); // [192, 0, 0]
      */
-    this.GetColourSchemeJSON = function (max_count) {}; // (string)
+    this.GetColourSchemeJSON = function (max_count) { }; // (string)
 
     /**
      * Note: don't forget to use {@link GdiGraphics#ReleaseGraphics} after operations on GdiGraphics interface is done!
      *
      * @return {GdiGraphics}
      */
-    this.GetGraphics = function () {};
+    this.GetGraphics = function () { };
 
     /**
      * @param {GdiGraphics} gr
      * @return {GdiGraphics}
      */
-    this.ReleaseGraphics = function (gr) {}; // (GdiGraphics)
+    this.ReleaseGraphics = function (gr) { }; // (GdiGraphics)
 
     /**
      * @param {number} w
@@ -2620,12 +2624,12 @@ function GdiBitmap(arg) {
      * @param {number=} [mode=0] See Flags.js > InterpolationMode
      * @return{GdiBitmap}
      */
-    this.Resize = function (w, h, mode) {}; // (GdiBitmap) [, mode]
+    this.Resize = function (w, h, mode) { }; // (GdiBitmap) [, mode]
 
     /**
      * @param {number} mode See Flags.js > RotateFlipType
      */
-    this.RotateFlip = function (mode) {}; // (void)
+    this.RotateFlip = function (mode) { }; // (void)
 
     /**
      * @param {string} path Full path including file extension. The parent folder must already exist.
@@ -2643,7 +2647,7 @@ function GdiBitmap(arg) {
      *     img.SaveAs("D:\\export.jpg", "image/jpeg");
      * }
      */
-    this.SaveAs = function (path, format) {}; // (boolean) [, format]
+    this.SaveAs = function (path, format) { }; // (boolean) [, format]
 
     /**
      * @param {number} radius Valid values 2-254. S
@@ -2654,7 +2658,7 @@ function GdiBitmap(arg) {
      * @example <caption>Blur text<caption>
      * // samples\basic\StackBlur (text).txt
      */
-    this.StackBlur = function (radius) {}; // (void)
+    this.StackBlur = function (radius) { }; // (void)
 }
 
 /**
@@ -2721,7 +2725,7 @@ function GdiGraphics() {
      * @param {GdiFont} font
      * @return {number}
      */
-    this.CalcTextHeight = function (str, font) {}; // (uint)
+    this.CalcTextHeight = function (str, font) { }; // (uint)
 
     /**
      * Calculates text width for {@link GdiGraphics#GdiDrawText}.
@@ -2730,7 +2734,7 @@ function GdiGraphics() {
      * @param {GdiFont} font
      * @return {number}
      */
-    this.CalcTextWidth = function (str, font) {}; // (uint)
+    this.CalcTextWidth = function (str, font) { }; // (uint)
 
     /**
      * @param {number} x
@@ -2740,7 +2744,7 @@ function GdiGraphics() {
      * @param {number} line_width
      * @param {number} colour
      */
-    this.DrawEllipse = function (x, y, w, h, line_width, colour) {}; // (void)
+    this.DrawEllipse = function (x, y, w, h, line_width, colour) { }; // (void)
 
     /**
      * @param {GdiBitmap} img
@@ -2755,7 +2759,7 @@ function GdiGraphics() {
      * @param {number=} [angle=0]
      * @param {number=} [alpha=255] Valid values 0-255.
      */
-    this.DrawImage = function (img, dstX, dstY, dstW, dstH, srcX, srcY, srcW, srcH, angle, alpha) {}; // (void) [, angle][, alpha]
+    this.DrawImage = function (img, dstX, dstY, dstW, dstH, srcX, srcY, srcW, srcH, angle, alpha) { }; // (void) [, angle][, alpha]
 
     /**
      * @param {number} x1
@@ -2765,14 +2769,14 @@ function GdiGraphics() {
      * @param {number} line_width
      * @param {number} colour
      */
-    this.DrawLine = function (x1, y1, x2, y2, line_width, colour) {}; // (void)
+    this.DrawLine = function (x1, y1, x2, y2, line_width, colour) { }; // (void)
 
     /**
      * @param {number} colour
      * @param {number} line_width
      * @param {Array<Array<number>>} points
      */
-    this.DrawPolygon = function (colour, line_width, points) {}; // (void)
+    this.DrawPolygon = function (colour, line_width, points) { }; // (void)
 
     /**
      * Should be only used when {@link GdiGraphics#GdiDrawText} is not applicable.
@@ -2786,7 +2790,7 @@ function GdiGraphics() {
      * @param {number} h
      * @param {number=} [flags=0] See Flags.js > StringFormatFlags
      */
-    this.DrawString = function (str, font, colour, x, y, w, h, flags) {}; // (void) [, flags]
+    this.DrawString = function (str, font, colour, x, y, w, h, flags) { }; // (void) [, flags]
 
     /**
      * @param {number} x
@@ -2796,7 +2800,7 @@ function GdiGraphics() {
      * @param {number} line_width
      * @param {number} colour
      */
-    this.DrawRect = function (x, y, w, h, line_width, colour) {}; // (void)
+    this.DrawRect = function (x, y, w, h, line_width, colour) { }; // (void)
 
     /**
      * @param {number} x
@@ -2808,7 +2812,7 @@ function GdiGraphics() {
      * @param {number} line_width
      * @param {number} colour
      */
-    this.DrawRoundRect = function (x, y, w, h, arc_width, arc_height, line_width, colour) {}; // (void)
+    this.DrawRoundRect = function (x, y, w, h, arc_width, arc_height, line_width, colour) { }; // (void)
 
     /**
      * @param {string} str
@@ -2824,7 +2828,7 @@ function GdiGraphics() {
      *    [2n + 2] text line n <br>
      *    [2n + 3] width of text line n (px)
      */
-    this.EstimateLineWrap = function (str, font, max_width) {}; // (Array)
+    this.EstimateLineWrap = function (str, font, max_width) { }; // (Array)
 
     /**
      * @param {number} x
@@ -2833,7 +2837,7 @@ function GdiGraphics() {
      * @param {number} h
      * @param {number} colour
      */
-    this.FillEllipse = function (x, y, w, h, colour) {}; // (void)
+    this.FillEllipse = function (x, y, w, h, colour) { }; // (void)
 
     /**
      * Note: this may appear buggy depending on rectangle size. The easiest fix is
@@ -2848,14 +2852,14 @@ function GdiGraphics() {
      * @param {number} colour2
      * @param {float} [focus=1.0] Specify where the centred colour will be at its highest intensity. Valid values between 0 and 1.
      */
-    this.FillGradRect = function (x, y, w, h, angle, colour1, colour2, focus) {}; // (void) [, focus]
+    this.FillGradRect = function (x, y, w, h, angle, colour1, colour2, focus) { }; // (void) [, focus]
 
     /**
      * @param {number} colour
      * @param {number} fillmode 0 alternate, 1 winding.
      * @param {Array<Array<number>>} points
      */
-    this.FillPolygon = function (colour, fillmode, points) {}; // (void)
+    this.FillPolygon = function (colour, fillmode, points) { }; // (void)
 
     /**
      * @param {number} x
@@ -2866,7 +2870,7 @@ function GdiGraphics() {
      * @param {number} arc_height
      * @param {number} colour
      */
-    this.FillRoundRect = function (x, y, w, h, arc_width, arc_height, colour) {}; // (void)
+    this.FillRoundRect = function (x, y, w, h, arc_width, arc_height, colour) { }; // (void)
 
     /**
      * @param {number} x
@@ -2875,7 +2879,7 @@ function GdiGraphics() {
      * @param {number} h
      * @param {number} colour
      */
-    this.FillSolidRect = function (x, y, w, h, colour) {}; // (void)
+    this.FillSolidRect = function (x, y, w, h, colour) { }; // (void)
 
     /**
      * @param {GdiRawBitmap} img
@@ -2889,7 +2893,7 @@ function GdiGraphics() {
      * @param {number} srcH
      * @param {number=} [alpha=255] Valid values 0-255.
      */
-    this.GdiAlphaBlend = function (img, dstX, dstY, dstW, dstH, srcX, srcY, srcW, srcH, alpha) {}; // (void) [, alpha]
+    this.GdiAlphaBlend = function (img, dstX, dstY, dstW, dstH, srcX, srcY, srcW, srcH, alpha) { }; // (void) [, alpha]
 
     /**
      * Always faster than {@link GdiGraphics#DrawImage}, does not support alpha channel.
@@ -2904,7 +2908,7 @@ function GdiGraphics() {
      * @param {number} srcW
      * @param {number} srcH
      */
-    this.GdiDrawBitmap = function (img, dstX, dstY, dstW, dstH, srcX, srcY, srcW, srcH) {}; // (void)
+    this.GdiDrawBitmap = function (img, dstX, dstY, dstW, dstH, srcX, srcY, srcW, srcH) { }; // (void)
 
     /**
      * Provides faster and better rendering than {@link GdiGraphics#DrawString}.<br>
@@ -2932,7 +2936,7 @@ function GdiGraphics() {
      *     [3] bottom (DT_CALCRECT) <br>
      *     [4] characters drawn
      */
-    this.GdiDrawText = function (str, font, colour, x, y, w, h, format) {}; // (Array) [, format]
+    this.GdiDrawText = function (str, font, colour, x, y, w, h, format) { }; // (Array) [, format]
 
     /**
      * Calculates text dimensions for {@link GdiGraphics#DrawString}.
@@ -2946,7 +2950,7 @@ function GdiGraphics() {
      * @param {number=} [flags=0] See Flags.js > StringFormatFlags
      * @return {MeasureStringInfo}
      */
-    this.MeasureString = function (str, font, x, y, w, h, flags) {}; // (MeasureStringInfo) [, flags]
+    this.MeasureString = function (str, font, x, y, w, h, flags) { }; // (MeasureStringInfo) [, flags]
 
     /**
      * @constructor
@@ -3014,17 +3018,17 @@ function GdiGraphics() {
      *
      * @param {number=} [mode=0]
      */
-    this.SetInterpolationMode = function (mode) {}; // (void)
+    this.SetInterpolationMode = function (mode) { }; // (void)
 
     /**
      * @param {number=} [mode=0] See Flags.js > SmoothingMode
      */
-    this.SetSmoothingMode = function (mode) {}; // (void)
+    this.SetSmoothingMode = function (mode) { }; // (void)
 
     /**
      * @param {number=} [mode=0] See Flags.js > TextRenderingHint
      */
-    this.SetTextRenderingHint = function (mode) {}; // (void)
+    this.SetTextRenderingHint = function (mode) { }; // (void)
 }
 
 /**
@@ -3100,13 +3104,13 @@ function ContextMenuManager() {
      * @param {number} base_id
      * @param {number=} [max_id=-1]
      */
-    this.BuildMenu = function (menuObj, base_id, max_id) {}; // (void)
+    this.BuildMenu = function (menuObj, base_id, max_id) { }; // (void)
 
     /**
      * @param {number} id
      * @return {boolean}
      */
-    this.ExecuteByID = function (id) {}; // (boolean)
+    this.ExecuteByID = function (id) { }; // (boolean)
 
     /**
      * @param {FbMetadbHandleList} handle_list
@@ -3120,7 +3124,7 @@ function ContextMenuManager() {
     this.InitContextPlaylist = function () { }; // (void)
 
     /** @method */
-    this.InitNowPlaying = function () {}; // (void)
+    this.InitNowPlaying = function () { }; // (void)
 }
 
 /**
@@ -3133,16 +3137,16 @@ function MainMenuManager() {
      * @param {number} base_id
      * @param {number} count
      */
-    this.BuildMenu = function (menuObj, base_id, count) {}; // (void)
+    this.BuildMenu = function (menuObj, base_id, count) { }; // (void)
 
     /**
      * @param {number} id
      * @return {boolean}
      */
-    this.ExecuteByID = function (id) {}; // (boolean)
+    this.ExecuteByID = function (id) { }; // (boolean)
 
     /** @method */
-    this.Init = function (root_name) {}; // (void)
+    this.Init = function (root_name) { }; // (void)
 }
 
 /**
@@ -3156,30 +3160,30 @@ function MenuObject() {
      * @param {number} item_id Integer greater than 0. Each menu item needs a unique id.
      * @param {string} text
      */
-    this.AppendMenuItem = function (flags, item_id, text) {}; // (void)
+    this.AppendMenuItem = function (flags, item_id, text) { }; // (void)
 
     /** @method */
-    this.AppendMenuSeparator = function () {}; // (void)
+    this.AppendMenuSeparator = function () { }; // (void)
 
     /**
      * @param {MenuObject} parentMenu
      * @param {number} flags
      * @param {string} text
      */
-    this.AppendTo = function (parentMenu, flags, text) {}; // (void)
+    this.AppendTo = function (parentMenu, flags, text) { }; // (void)
 
     /**
      * @param {number} item_id
      * @param {boolean} check
      */
-    this.CheckMenuItem = function (item_id, check) {}; // (void)
+    this.CheckMenuItem = function (item_id, check) { }; // (void)
 
     /**
      * @param {number} first_item_id
      * @param {number} last_item_id
      * @param {number} selected_item_id
      */
-    this.CheckMenuRadioItem = function (first_item_id, last_item_id, selected_item_id) {}; // (void)
+    this.CheckMenuRadioItem = function (first_item_id, last_item_id, selected_item_id) { }; // (void)
 
     /**
      * @param {number} x
@@ -3187,7 +3191,7 @@ function MenuObject() {
      * @param {number=} [flags=0] See Flags.js > Used in TrackPopupMenu().
      * @return {number}
      */
-    this.TrackPopupMenu = function (x, y, flags) {}; // (int) [, flags]
+    this.TrackPopupMenu = function (x, y, flags) { }; // (int) [, flags]
 }
 
 /**
@@ -3206,13 +3210,13 @@ function ThemeManager() {
      * @param {number=} [clip_w=0]
      * @param {number=} [clip_h=0]
      */
-    this.DrawThemeBackground = function (gr, x, y, w, h, clip_x, clip_y, clip_w, clip_h) {}; // (void) [, clip_x][, clip_y][, clip_w][, clip_h]
+    this.DrawThemeBackground = function (gr, x, y, w, h, clip_x, clip_y, clip_w, clip_h) { }; // (void) [, clip_x][, clip_y][, clip_w][, clip_h]
 
     /**
      * @param {number} partid
      * @return {boolean}
      */
-    this.IsThemePartDefined = function (partid) {}; // (boolean)
+    this.IsThemePartDefined = function (partid) { }; // (boolean)
 
     /**
      * See {@link http://msdn.microsoft.com/en-us/library/bb773210%28VS.85%29.aspx}
@@ -3220,5 +3224,5 @@ function ThemeManager() {
      * @param {number} partid
      * @param {number=} [stateid=0]
      */
-    this.SetPartAndStateID = function (partid, stateid) {}; // (void)
+    this.SetPartAndStateID = function (partid, stateid) { }; // (void)
 }

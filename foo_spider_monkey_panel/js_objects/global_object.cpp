@@ -10,6 +10,7 @@
 #include <js_objects/fb_metadb_handle_list.h>
 #include <js_objects/fb_playlist_manager.h>
 #include <js_objects/fb_profiler.h>
+#include <js_objects/fb_title_format.h>
 #include <js_objects/fb_utils.h>
 #include <js_objects/gdi_bitmap.h>
 #include <js_objects/gdi_utils.h>
@@ -153,6 +154,7 @@ JSObject* JsGlobalObject::CreateNative( JSContext* cx, JsContainer &parentContai
         CreateAndInstallPrototype<JsEnumerator>( cx, JsPrototypeId::Enumerator );
         CreateAndInstallPrototype<JsFbMetadbHandleList>( cx, JsPrototypeId::FbMetadbHandleList );
         CreateAndInstallPrototype<JsFbProfiler>( cx, JsPrototypeId::FbProfiler );
+        CreateAndInstallPrototype<JsFbTitleFormat>( cx, JsPrototypeId::FbTitleFormat );
         
         auto pNative = std::unique_ptr<JsGlobalObject>( new JsGlobalObject( cx, parentContainer ) );
         pNative->heapManager_ = GlobalHeapManager::Create( cx );
