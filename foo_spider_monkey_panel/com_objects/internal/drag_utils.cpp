@@ -65,7 +65,7 @@ HRESULT SetDataBlob( IDataObject* pdtobj, CLIPFORMAT cf, const void* pvBlob, UIN
 pfc::string8 FormatDragText( t_size selectionCount )
 {
     pfc::string8 retStr;
-    retStr << selectionCount << " item";
+    retStr << selectionCount << " track";
     if ( selectionCount > 1 )
     {
         retStr << "s";
@@ -110,9 +110,8 @@ HRESULT SetDropText( IDataObject* pdtobj, DROPIMAGETYPE dit, const wchar_t* msg,
     return S_OK;
 }
 
-bool RenderDragImage( HWND hWnd, size_t itemCount, const pfc::string8_fast& customDragText, SHDRAGIMAGE& dragImage )
+bool RenderDragImage( HWND hWnd, size_t itemCount, SHDRAGIMAGE& dragImage )
 {
-    const pfc::string8 dragText = customDragText.is_empty() ? FormatDragText( itemCount ) : customDragText;
     const HTHEME m_dd_theme = ( IsThemeActive() && IsAppThemed() ? OpenThemeData( hWnd, VSCLASS_DRAGDROP ) : nullptr );
     auto autoTheme = mozjs::scope::finally( [m_dd_theme] {
         if ( m_dd_theme )
@@ -125,7 +124,7 @@ bool RenderDragImage( HWND hWnd, size_t itemCount, const pfc::string8_fast& cust
     memset( &lf, 0, sizeof( LOGFONT ) );
     SystemParametersInfo( SPI_GETICONTITLELOGFONT, 0, &lf, 0 );
 
-    return !!uih::create_drag_image( hWnd, true, m_dd_theme, GetSysColor( COLOR_HIGHLIGHT ), GetSysColor( COLOR_HIGHLIGHTTEXT ), nullptr, &lf, !dragText.is_empty(), dragText, &dragImage );
+    return !!uih::create_drag_image( hWnd, true, m_dd_theme, GetSysColor( COLOR_HIGHLIGHT ), GetSysColor( COLOR_HIGHLIGHTTEXT ), nullptr, &lf, true, FormatDragText( itemCount ), &dragImage );
 }
 
 HRESULT GetDragWindow( IDataObject* pDataObj, HWND& p_wnd )

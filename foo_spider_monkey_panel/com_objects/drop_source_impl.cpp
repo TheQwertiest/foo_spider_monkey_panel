@@ -10,11 +10,12 @@ _COM_SMARTPTR_TYPEDEF( IDragSourceHelper2, IID_IDragSourceHelper2 );
 namespace smp::com
 {
 
-IDropSourceImpl::IDropSourceImpl( HWND hWnd, IDataObject* pDataObject, size_t itemCount, const pfc::string8_fast& customDragText )
+IDropSourceImpl::IDropSourceImpl( HWND hWnd, IDataObject* pDataObject, size_t itemCount )
     : pDataObject_( pDataObject )
 {
     assert( hWnd );
     assert( pDataObject );
+    assert( itemCount );
 
     HRESULT hr = pDragSourceHelper_.CreateInstance( CLSID_DragDropHelper, nullptr, CLSCTX_INPROC_SERVER );
     mozjs::error::CheckHR( hr, "CreateInstance" );
@@ -25,7 +26,7 @@ IDropSourceImpl::IDropSourceImpl( HWND hWnd, IDataObject* pDataObject, size_t it
         (void)pDragSourceHelper2->SetFlags( DSH_ALLOWDROPDESCRIPTIONTEXT );
     }
 
-    if ( drag::RenderDragImage( hWnd, itemCount, customDragText, dragImage_ ) )
+    if ( drag::RenderDragImage( hWnd, itemCount, dragImage_ ) )
     {
         (void)pDragSourceHelper_->InitializeFromBitmap( &dragImage_, pDataObject );
     }

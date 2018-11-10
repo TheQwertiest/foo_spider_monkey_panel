@@ -13,7 +13,7 @@ namespace smp::com
 class IDropSourceImpl : public IDropSource
 {
 public:
-    IDropSourceImpl( HWND hWnd, IDataObject* pDataObject, size_t itemCount, const pfc::string8_fast& customDragText ) noexcept( false );
+    IDropSourceImpl( HWND hWnd, IDataObject* pDataObject, size_t itemCoun ) noexcept( false );
     virtual ~IDropSourceImpl();
 
     // IDropSource
@@ -25,7 +25,7 @@ public:
 private:
     IDragSourceHelperPtr pDragSourceHelper_;
     IDataObject* pDataObject_ = nullptr;
-    SHDRAGIMAGE dragImage_ = { 0 };
+    SHDRAGIMAGE dragImage_ = {};
 
     bool wasShowingLayered_ = false;
 

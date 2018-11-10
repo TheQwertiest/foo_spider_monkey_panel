@@ -46,8 +46,7 @@ public:
     JSObject* CreateMainMenuManager();
     JSObject* CreateProfiler( const pfc::string8_fast& name = "" );
     JSObject* CreateProfilerWithOpt( size_t optArgCount, const pfc::string8_fast& name );
-    uint32_t DoDragDrop( uint32_t hWindow, JsFbMetadbHandleList* handles, uint32_t okEffects, const pfc::string8_fast& customDragText = "" );
-    uint32_t DoDragDropWithOpt( size_t optArgCount, uint32_t hWindow, JsFbMetadbHandleList* handles, uint32_t okEffects, const pfc::string8_fast& customDragText );
+    uint32_t DoDragDrop( uint32_t hWindow, JsFbMetadbHandleList* handles, uint32_t okEffects );
     void Exit();
     JSObject* GetClipboardContents( uint32_t hWindow );
     pfc::string8_fast GetDSPPresets();

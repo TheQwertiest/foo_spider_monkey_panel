@@ -55,7 +55,7 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( CreateContextMenuManager, JsFbUtils::CreateContext
 MJS_DEFINE_JS_FN_FROM_NATIVE( CreateHandleList, JsFbUtils::CreateHandleList )
 MJS_DEFINE_JS_FN_FROM_NATIVE( CreateMainMenuManager, JsFbUtils::CreateMainMenuManager )
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( CreateProfiler, JsFbUtils::CreateProfiler, JsFbUtils::CreateProfilerWithOpt, 1 )
-MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( DoDragDrop, JsFbUtils::DoDragDrop, JsFbUtils::DoDragDropWithOpt, 1 )
+MJS_DEFINE_JS_FN_FROM_NATIVE( DoDragDrop, JsFbUtils::DoDragDrop )
 MJS_DEFINE_JS_FN_FROM_NATIVE( Exit, JsFbUtils::Exit )
 MJS_DEFINE_JS_FN_FROM_NATIVE( GetClipboardContents, JsFbUtils::GetClipboardContents )
 MJS_DEFINE_JS_FN_FROM_NATIVE( GetDSPPresets, JsFbUtils::GetDSPPresets )
@@ -289,7 +289,7 @@ JSObject* JsFbUtils::CreateProfilerWithOpt( size_t optArgCount, const pfc::strin
     }
 }
 
-uint32_t JsFbUtils::DoDragDrop( uint32_t hWindow, JsFbMetadbHandleList* handles, uint32_t okEffects, const pfc::string8_fast& customDragText )
+uint32_t JsFbUtils::DoDragDrop( uint32_t hWindow, JsFbMetadbHandleList* handles, uint32_t okEffects )
 {
     SmpException::ExpectTrue( handles, "handles argument is null" );
 
@@ -300,24 +300,11 @@ uint32_t JsFbUtils::DoDragDrop( uint32_t hWindow, JsFbMetadbHandleList* handles,
     }
 
     pfc::com_ptr_t<IDataObject> pDO = ole_interaction::get()->create_dataobject( handles_ptr );
-    pfc::com_ptr_t<com::IDropSourceImpl> pIDropSource = new com::IDropSourceImpl( (HWND)hWindow, pDO.get_ptr(), handles_ptr.get_count(), customDragText );
+    pfc::com_ptr_t<com::IDropSourceImpl> pIDropSource = new com::IDropSourceImpl( (HWND)hWindow, pDO.get_ptr(), handles_ptr.get_count() );
 
     DWORD returnEffect;
     HRESULT hr = SHDoDragDrop( nullptr, pDO.get_ptr(), pIDropSource.get_ptr(), okEffects, &returnEffect );
     return ( DRAGDROP_S_CANCEL == hr ? DROPEFFECT_NONE : returnEffect );
-}
-
-uint32_t JsFbUtils::DoDragDropWithOpt( size_t optArgCount, uint32_t hWindow, JsFbMetadbHandleList* handles, uint32_t okEffects, const pfc::string8_fast& customDragText )
-{
-    switch ( optArgCount )
-    {
-    case 0:
-        return DoDragDrop( hWindow, handles, okEffects, customDragText );
-    case 1:
-        return DoDragDrop( hWindow, handles, okEffects );
-    default:
-        throw smp::SmpException( smp::string::Formatter() << "Internal error: invalid number of optional arguments specified: " << optArgCount );
-    }
 }
 
 void JsFbUtils::Exit()
