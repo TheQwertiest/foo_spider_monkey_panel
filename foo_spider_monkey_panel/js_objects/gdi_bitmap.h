@@ -24,7 +24,7 @@ class JsGdiBitmap
 {
 public:
     static constexpr bool HasProto = true;
-    static constexpr bool HasGlobalProto = false;
+    static constexpr bool HasGlobalProto = true;
     static constexpr bool HasProxy = false;
     static constexpr bool HasPostCreate = false;
 
@@ -32,6 +32,7 @@ public:
     static const JSFunctionSpec* JsFunctions;
     static const JSPropertySpec* JsProperties;
     static const JsPrototypeId PrototypeId;
+    static const JSNative JsConstructor;
 
 public:
     ~JsGdiBitmap();
@@ -41,6 +42,9 @@ public:
 
 public:
     Gdiplus::Bitmap* GdiBitmap() const;
+
+public: // ctor
+    static JSObject* Constructor( JSContext* cx, JsGdiBitmap* other );
 
 public: //methods
     JSObject* ApplyAlpha( uint8_t alpha );

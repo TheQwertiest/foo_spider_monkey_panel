@@ -226,7 +226,7 @@ bool Constructor_Impl( JSContext* cx, unsigned argc, JS::Value* vp )
 
 MJS_DEFINE_JS_FN( Constructor, Constructor_Impl )
 
-}
+} // namespace
 
 namespace mozjs
 {
@@ -294,8 +294,7 @@ JSObject* JsFbMetadbHandleList::Constructor( JSContext* cx, JS::HandleValue jsVa
         if ( is )
         {
             metadb_handle_list handleList;
-            convert::to_native::ProcessArray<JsFbMetadbHandle*>( cx, jsValue, [&handleList]( auto pNativeHandle )
-            {
+            convert::to_native::ProcessArray<JsFbMetadbHandle*>( cx, jsValue, [&handleList]( auto pNativeHandle ) {
                 SmpException::ExpectTrue( pNativeHandle, "Array contains invalid value" );
                 handleList.add_item( pNativeHandle->GetHandle() );
             } );
@@ -523,9 +522,9 @@ void JsFbMetadbHandleList::OrderByRelativePath()
         api->get_relative_path( item, temp );
 
         // One physical file can have multiple handles,
-        // which all return the same path, but have different subsong idx 
+        // which all return the same path, but have different subsong idx
         // (e.g. cuesheets or files with multiple chapters)
-        temp << item->get_subsong_index(); 
+        temp << item->get_subsong_index();
 
         data.emplace_back( helpers::make_sort_string( temp ), i );
     }
@@ -599,9 +598,9 @@ void JsFbMetadbHandleList::RemoveAttachedImages()
     }
 
     auto cb = fb2k::service_new<art::embed_thread>( 2, album_art_data_ptr(), metadbHandleList_, pfc::guid_null );
-    threaded_process::get()->run_modeless( cb, 
-                                           threaded_process::flag_show_progress | threaded_process::flag_show_delayed | threaded_process::flag_show_item, 
-                                           core_api::get_main_window(), 
+    threaded_process::get()->run_modeless( cb,
+                                           threaded_process::flag_show_progress | threaded_process::flag_show_delayed | threaded_process::flag_show_item,
+                                           core_api::get_main_window(),
                                            "Removing images..." );
 }
 

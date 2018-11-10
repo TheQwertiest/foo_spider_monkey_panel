@@ -10,6 +10,7 @@
 #include <js_objects/fb_metadb_handle_list.h>
 #include <js_objects/fb_playlist_manager.h>
 #include <js_objects/fb_utils.h>
+#include <js_objects/gdi_bitmap.h>
 #include <js_objects/gdi_utils.h>
 #include <js_objects/hacks.h>
 #include <js_objects/utils.h>
@@ -147,6 +148,7 @@ JSObject* JsGlobalObject::CreateNative( JSContext* cx, JsContainer &parentContai
 #endif
 
         CreateAndInstallPrototype<ActiveXObject>( cx, JsPrototypeId::ActiveX );
+        CreateAndInstallPrototype<JsGdiBitmap>( cx, JsPrototypeId::GdiBitmap );
         CreateAndInstallPrototype<JsEnumerator>( cx, JsPrototypeId::Enumerator );
         CreateAndInstallPrototype<JsFbMetadbHandleList>( cx, JsPrototypeId::FbMetadbHandleList );
         

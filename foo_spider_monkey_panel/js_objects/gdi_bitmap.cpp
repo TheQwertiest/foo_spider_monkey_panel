@@ -83,6 +83,22 @@ const JSPropertySpec jsProperties[] = {
 
 } // namespace
 
+namespace
+{
+
+bool Constructor_Impl( JSContext* cx, unsigned argc, JS::Value* vp )
+{
+    JS::CallArgs args = JS::CallArgsFromVp( argc, vp );
+    SmpException::ExpectTrue( argc, "Not enough arguments" );
+
+    args.rval().setObjectOrNull( JsGdiBitmap::Constructor( cx, convert::to_native::ToValue<JsGdiBitmap*>( cx, args[0] ) ) );
+    return true;
+}
+
+MJS_DEFINE_JS_FN( Constructor, Constructor_Impl )
+
+} // namespace
+
 namespace mozjs
 {
 
@@ -90,6 +106,7 @@ const JSClass JsGdiBitmap::JsClass = jsClass;
 const JSFunctionSpec* JsGdiBitmap::JsFunctions = jsFunctions;
 const JSPropertySpec* JsGdiBitmap::JsProperties = jsProperties;
 const JsPrototypeId JsGdiBitmap::PrototypeId = JsPrototypeId::GdiBitmap;
+const JSNative JsGdiBitmap::JsConstructor = ::Constructor;
 
 JsGdiBitmap::JsGdiBitmap( JSContext* cx, std::unique_ptr<Gdiplus::Bitmap> gdiBitmap )
     : pJsCtx_( cx )
@@ -117,6 +134,18 @@ size_t JsGdiBitmap::GetInternalSize( const std::unique_ptr<Gdiplus::Bitmap>& gdi
 Gdiplus::Bitmap* JsGdiBitmap::GdiBitmap() const
 {
     return pGdi_.get();
+}
+
+JSObject* JsGdiBitmap::Constructor( JSContext* cx, JsGdiBitmap* other )
+{
+    SmpException::ExpectTrue( other, "Invalid argument type" );
+
+    auto pGdi = other->GdiBitmap();
+
+    std::unique_ptr<Gdiplus::Bitmap> img( pGdi->Clone( 0, 0, pGdi->GetWidth(), pGdi->GetHeight(), PixelFormat32bppPARGB ) );
+    error::CheckGdiPlusObject( img );
+
+    return JsGdiBitmap::CreateJs( cx, std::move( img ) );
 }
 
 std::uint32_t JsGdiBitmap::get_Height()

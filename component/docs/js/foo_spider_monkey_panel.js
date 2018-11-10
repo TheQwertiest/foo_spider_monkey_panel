@@ -1982,9 +1982,9 @@ function FbMetadbHandleList(arg) {
     this.AttachImage = function (image_path, art_id) {}; //(void)
 
     /**
-     * Faster than Find()
+     * Faster than {@see FbMetadbHandleList#Find}.
      *
-     * @param {FbMetadbHandle} handle Must be sorted.
+     * @param {FbMetadbHandle} handle Must be sorted with {@see FbMetadbHandleList#Sort}.
      * @return {number} -1 on failure.
      */
     this.BSearch = function (handle) {}; // (uint)
@@ -2010,7 +2010,7 @@ function FbMetadbHandleList(arg) {
     this.Clone = function () {}; // (FbMetadbHandleList)
 
     /**
-     * Converts {@link FbMetadbHandleList} to arrau of {@link FbMetadbHandle}.<br>
+     * Converts {@link FbMetadbHandleList} to an array of {@link FbMetadbHandle}.<br>
      * Use this instead of looping through {@link FbMetadbHandleList}, if the playlist is big
      * or if you need to loop multiple times.<br>
      *
@@ -2025,10 +2025,10 @@ function FbMetadbHandleList(arg) {
     this.Convert = function () {}; // (Array)
 
     /**
-     * Note: if sorted, use {@link FbMetadbHandleList#BSearch} instead.
+     * Note: if sorted with {@see FbMetadbHandleList#Sort}, use {@link FbMetadbHandleList#BSearch} instead.
      *
      * @param {FbMetadbHandle} handle
-     * @return {number} -1 on failure
+     * @return {number} index in the handle list on success, -1 on failure
      */
     this.Find = function (handle) {}; // (int)
 
@@ -2510,9 +2510,9 @@ function FbUiSelectionHolder() {
 
 /**
  * @constructor
- * @hideconstructor
+ * @param {GdiBitmap} arg
  */
-function GdiBitmap() {
+function GdiBitmap(arg) {
 
     /**
      * @type {number}
