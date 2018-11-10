@@ -278,9 +278,9 @@ let fb = {
      * <br>
      * Quick tips:<br>
      * - If you need only to drag from your panel with copy (i.e. without physically moving them):
-     *      use only fb.DoDragDrop(handles, DROPEFFECT_COPY | DROPEFFECT_LINK ).<br>
+     *      use only fb.DoDragDrop(handles, DROPEFFECT_COPY | DROPEFFECT_LINK).<br>
      * - If you need only to receive drop to your panel with copy:
-     *      handle on_drop_* callbacks, while setting action.effect argument to (DROPEFFECT_COPY | DROPEFFECT_LINK ).<br>
+     *      handle on_drop_* callbacks, while setting action.effect argument to (DROPEFFECT_COPY | DROPEFFECT_LINK).<br>
      * <br>
      * Full drag-n-drop interface description:<br>
      * - Drag-n-drop interface is based on Microsoft IDropSource and IDropTarget interfaces, so a lot of info (including examples) could be gathered from MSDN (IDropSource, IDropTarget, DoDragDrop, DROPEFFECT).<br>
@@ -297,7 +297,7 @@ let fb = {
      * @param {number} window_id see {@link window.ID}
      * @param {FbMetadbHandleList} handle_list
      * @param {number} effect Allowed effects.
-     * @return {number} Effect that was returned in on_drag_drop.
+     * @return {number} Effect that was returned in {@link module:callbacks~on_drag_drop}.
      *
      * @example
      * // See samples/basic/DragnDrop.txt
@@ -1236,7 +1236,7 @@ let utils = {
      * @param {number=} [art_id=0] See Flags.js > AlbumArtId
      * @param {boolean=} [need_stub=true]
      * @param {boolean=} [only_embed=false]
-     * @param {boolean=} [no_load=false]  If true, "image" parameter will be null in on_get_album_art_done callback.
+     * @param {boolean=} [no_load=false]  If true, "image" parameter will be null in {@link module:callbacks~on_get_album_art_done} callback.
      * @return {number}
      *
      * @example
@@ -1659,7 +1659,7 @@ let window = {
     GetFontDUI: function (type) {}, // (GdiFont)
 
     /**
-     * This will trigger `on_notify_data(name, info)` in other panels.<br>
+     * This will trigger {@link module:callbacks~on_notify_data}(name, info) in other panels.<br>
      *
      * @param {string} name
      * @param {*} info
@@ -1689,7 +1689,7 @@ let window = {
     RepaintRect: function (x, y, w, h, force) {}, // (void) [force]
 
     /**
-     * This would usually be used inside the on_mouse_move callback.<br>
+     * This would usually be used inside the {@link module:callbacks~on_mouse_move callback}.<br>
      * Use -1 if you want to hide the cursor.
      *
      * @param {number} id See Flags.js > Used in window.SetCursor()
@@ -2450,8 +2450,8 @@ function FbTooltip() {
 /**
  * This is typically used to update the selection used by the default UI artwork panel
  * or any other panel that makes use of the preferences under
- * File > Preferences > Display > Selection viewers. Use in conjunction with the on_focus
- * callback. See Callbacks.js.
+ * File > Preferences > Display > Selection viewers. Use in conjunction with the {@link module:callbacks~on_focus}
+ * callback.
  *
  * @constructor
  * @hideconstructor
@@ -2891,7 +2891,7 @@ function GdiGraphics() {
      * Provides faster and better rendering than {@link GdiGraphics#DrawString}.<br>
      * <br>
      * Do not use this to draw text on transparent background or
-     * with GdiGraphics other than the one passed in on_paint callback:
+     * with GdiGraphics other than the one passed in {@link module:callbacks~on_paint} callback:
      * this will result in visual artifacts caused by ClearType hinting.<br>
      * Use {@link GdiGraphics#DrawString} instead in such cases.<br>
      * <br>
