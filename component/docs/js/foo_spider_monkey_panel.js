@@ -209,14 +209,14 @@ let fb = {
 
     /**
      * Checks Clipboard contents are handles or a file selection from Windows Explorer. Use in conjunction
-     * with fb.GetClipboardContents().
+     * with {@link fb.GetClipboardContents}.
      *
      * @return {boolean}
      */
     CheckClipboardContents: function () {}, // (boolean)
 
     /**
-     * Clears active playlist. If you wish to clear a specific playlist, use plman.ClearPlaylist(playlistIndex).
+     * Clears active playlist. If you wish to clear a specific playlist, use {@link plman.ClearPlaylist}(playlistIndex).
      */
     ClearPlaylist: function () {}, // (void)
 
@@ -366,7 +366,7 @@ let fb = {
     GetNowPlaying: function () {}, // (FbMetadbHandle)
 
     /**
-     * foobar2000 v1.4 and above only. Throws a script error on v1.3. * <br>
+     * Available only in foobar2000 v1.4 and above. Throws a script error on v1.3. * <br>
      * Returns a JSON array in string form so you need to use JSON.parse() on the result.
      *
      * @return {string}
@@ -544,7 +544,7 @@ let fb = {
     SavePlaylist: function () {}, // (void)
 
     /**
-     * foobar2000 v1.4 and above only. Throws a script error on v1.3.<br>
+     * Available only in foobar2000 v1.4 and above. Throws a script error on v1.3.<br>
      * See {@link fb.GetOutputDevices}.
      *
      * @param {string} output
@@ -583,7 +583,7 @@ let fb = {
     Stop: function () {}, // (void)
 
     /**
-     * Performance note: try caching `TitleFormat` objects -
+     * Performance note: try caching `TitleFormat` objects:
      * if you use the same query frequently, just store the result of `TitleFormat` somewhere
      * and use it, instead of creating it every time.
      *
@@ -963,7 +963,7 @@ let plman = {
     RenamePlaylist: function (playlistIndex, name) {}, // (boolean)
 
     /**
-     * Workaround so you can use the Edit menu or run fb.RunMainMenuCommand("Edit/Something...")
+     * Workaround so you can use the Edit menu or run {@link fb.RunMainMenuCommand}("Edit/Something...")
      * when your panel has focus and a dedicated playlist viewer doesn't.
      *
      * @example
@@ -1363,20 +1363,20 @@ let utils = {
     ReadINI: function (filename, section, key, defaultval) {}, // (string) [, defaultval]
 
     /**
-     * Displays an html dialog, rendered by IE engine.
-     * Utilizes the latest non-Edge IE that you have on your system.
-     * Dialog is modal (blocks input to the parent window while open).
-     *
-     * Html code must be IE compatible, meaning:
-     * - JavaScript features are limited by IE (see {@link https://www.w3schools.com/js/js_versions.asp}).
-     * - Objects passed to `data` are limited to standard JavaScript objects:
-     *   - No extensions from Spider Monkey Panel (e.g. no FbMetadbHandle or GdiBitmap).
-     *
-     * There are also additional limitations:
-     * - options.data may contain only the following types:
-     *   - Basic types: number, string, boolean, null, undefined.
-     *   - Objects as string: the only way to pass objects is to convert them to string and back with `JSON.stringify()` and `JSON.parse()`.
-     *   - Arrays: must be cast via `.toArray()` inside html. Each element has same type limitations as options.data.
+     * Displays an html dialog, rendered by IE engine.<br>
+     * Utilizes the latest non-Edge IE that you have on your system.<br>
+     * Dialog is modal (blocks input to the parent window while open).<br>
+     *<br>
+     * Html code must be IE compatible, meaning:<br>
+     * - JavaScript features are limited by IE (see {@link https://www.w3schools.com/js/js_versions.asp}).<br>
+     * - Objects passed to `data` are limited to standard JavaScript objects:<br>
+     *   - No extensions from Spider Monkey Panel (e.g. no FbMetadbHandle or GdiBitmap).<br>
+     *<br>
+     * There are also additional limitations:<br>
+     * - options.data may contain only the following types:<br>
+     *   - Basic types: number, string, boolean, null, undefined.<br>
+     *   - Objects as string: the only way to pass objects is to convert them to string and back with `JSON.stringify()` and `JSON.parse()`.<br>
+     *   - Arrays: must be cast via `.toArray()` inside html. Each element has same type limitations as options.data.<br>
      *   - Functions: with maximum of 7 arguments. Each argument has same type limitations as options.data.
      *
      * @param {number} window_id {@link window.ID}
@@ -1452,8 +1452,8 @@ let window = {
     DlgCode: undefined, // (int) (read, write)
 
     /**
-     * Required in fb.GetClipboardContents, utils.ColourPicker, utils.GetAlbumArtAsync,
-     * utils.InputBox, utils.LoadImageAsync, etc.
+     * Required in multiple methods such as {@link fb.GetClipboardContents}, {@link utils.ColourPicker}, {@link utils.GetAlbumArtAsync},
+     * {@link utils.InputBox}, {@link utils.LoadImageAsync} and etc.
      *
      * @type {number}
      * @readonly
@@ -1830,7 +1830,7 @@ function FbMetadbHandle() {
 
     /**
      * Compare two {@link FbMetadbHandle} instances, pointer only.<br>
-     * If you want to compare them physically, use the "RawPath" property.
+     * If you want to compare them physically, use the {@link FbMetadbHandle#RawPath} property.
      *
      * @param {FbMetadbHandle} handle
      * @return {boolean}
@@ -1982,9 +1982,9 @@ function FbMetadbHandleList(arg) {
     this.AttachImage = function (image_path, art_id) {}; //(void)
 
     /**
-     * Faster than {@see FbMetadbHandleList#Find}.
+     * Faster than {@link FbMetadbHandleList#Find}.
      *
-     * @param {FbMetadbHandle} handle Must be sorted with {@see FbMetadbHandleList#Sort}.
+     * @param {FbMetadbHandle} handle Must be sorted with {@link FbMetadbHandleList#Sort}.
      * @return {number} -1 on failure.
      */
     this.BSearch = function (handle) {}; // (uint)
@@ -2025,7 +2025,7 @@ function FbMetadbHandleList(arg) {
     this.Convert = function () {}; // (Array)
 
     /**
-     * Note: if sorted with {@see FbMetadbHandleList#Sort}, use {@link FbMetadbHandleList#BSearch} instead.
+     * Note: if sorted with {@link FbMetadbHandleList#Sort}, use {@link FbMetadbHandleList#BSearch} instead.
      *
      * @param {FbMetadbHandle} handle
      * @return {number} index in the handle list on success, -1 on failure
@@ -2065,7 +2065,7 @@ function FbMetadbHandleList(arg) {
     this.InsertRange = function (index, handle_list) {}; // (int)
 
     /**
-     * Note: sort with {@see FbMetadbHandleList#Sort} before using.
+     * Note: sort with {@link FbMetadbHandleList#Sort} before using.
      * 
      * @param {FbMetadbHandleList} handle_list Sorted handle list.
      *
@@ -2083,7 +2083,7 @@ function FbMetadbHandleList(arg) {
     this.MakeDifference = function (handle_list) {}; // (void)
 
     /**
-     * Note: sort with {@see FbMetadbHandleList#Sort} before using.
+     * Note: sort with {@link FbMetadbHandleList#Sort} before using.
      * 
      * @param {FbMetadbHandleList} handle_list Sorted handle list.
      *
@@ -2100,7 +2100,7 @@ function FbMetadbHandleList(arg) {
     this.MakeIntersection = function (handle_list) {}; // (void)
 
     /**
-     * Note: sort with {@see FbMetadbHandleList#Sort} before using.
+     * Note: sort with {@link FbMetadbHandleList#Sort} before using.
      * 
      * @param {FbMetadbHandleList} handle_list Sorted handle list.
      *
@@ -2344,7 +2344,7 @@ function FbProfiler() {
 function FbTitleFormat() {
     /**
      * Always use Eval when you want dynamic info such as %playback_time%, %bitrate% etc.
-     * EvalWithMetadb(fb.GetNowplaying()) will not give the results you want.
+     * {@link EvalWithMetadb}(fb.GetNowplaying()) will not give the results you want.
      *
      * @param {boolean=} [force=false] If true, you can process text that doesn't contain
      *     title formatting even when foobar2000 isn't playing. When playing, you
@@ -2550,7 +2550,7 @@ function GdiBitmap(arg) {
     this.Clone = function (x, y, w, h) {}; // (GdiBitmap)
 
     /**
-     * Create a DDB bitmap from GdiBitmap, which is used in {@link gdi.GdiDrawBitmap}
+     * Create a DDB bitmap from GdiBitmap, which is used in {@link GdiGraphics#GdiDrawBitmap}
      *
      * @return {GdiRawBitmap}
      */
@@ -2565,7 +2565,7 @@ function GdiBitmap(arg) {
     /**
      * Returns a JSON array in string form so you need to use JSON.parse() on the result.<br>
      * Each entry in the array is an object which contains colour and frequency values.<br>
-     * Uses a different method for calculating colours than GetColourScheme.<br>
+     * Uses a different method for calculating colours than {@link GdiBitmap#GetColourScheme}.<br>
      * Image is automatically resized during processing for performance reasons so there's no
      * need to resize before calling the method.
      *
@@ -2583,7 +2583,7 @@ function GdiBitmap(arg) {
     this.GetColourSchemeJSON = function (max_count) {}; // (string)
 
     /**
-     * Note: don't forget to use {@link GdiGraphics#ReleaseGraphics()} after operations on GdiGraphics interface is done!
+     * Note: don't forget to use {@link GdiGraphics#ReleaseGraphics} after operations on GdiGraphics interface is done!
      *
      * @return {GdiGraphics}
      */
@@ -2888,13 +2888,13 @@ function GdiGraphics() {
     this.GdiDrawBitmap = function (img, dstX, dstY, dstW, dstH, srcX, srcY, srcW, srcH) {}; // (void)
 
     /**
-     * Provides faster and better rendering than {@link GdiGraphics#DrawString}.
-     *
+     * Provides faster and better rendering than {@link GdiGraphics#DrawString}.<br>
+     * <br>
      * Do not use this to draw text on transparent background or
      * with GdiGraphics other than the one passed in on_paint callback:
-     * this will result in visual artifacts caused by ClearType hinting.
-     * Use {@link GdiGraphics#DrawString} instead in such cases.*
-     *
+     * this will result in visual artifacts caused by ClearType hinting.<br>
+     * Use {@link GdiGraphics#DrawString} instead in such cases.<br>
+     * <br>
      * To calculate text dimensions use {@link GdiGraphics#CalcTextHeight}, {@link GdiGraphics#CalcTextWidth} or DT_CALCRECT flag.
      *
      * @param {string} str

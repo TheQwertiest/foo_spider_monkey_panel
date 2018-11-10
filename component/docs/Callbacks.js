@@ -118,7 +118,7 @@ function on_item_played(handle) {}
 
 /**
  * Requires "Grab focus" enabled in the Configuration window.<br>
- * In order to use arrow keys, use {@link window.DlgCode(DLGC_WANTARROWS)} (see Flags.js > DLGC_WANTARROWS).<br>
+ * In order to use arrow keys, use {@link window.DlgCode}(DLGC_WANTARROWS) (see Flags.js > DLGC_WANTARROWS).<br>
  * <br>
  * Note: keyboard shortcuts defined in the main preferences are always executed first
  * and are not passed to the callback.
@@ -129,7 +129,7 @@ function on_key_down(vkey) { }
 
 /**
  * Requires "Grab focus" enabled in the Configuration window.<br>
- * In order to use arrow keys, use {@link window.DlgCode(DLGC_WANTARROWS)} (see Flags.js > DLGC_WANTARROWS).
+ * In order to use arrow keys, use {@link window.DlgCode}(DLGC_WANTARROWS) (see Flags.js > DLGC_WANTARROWS).
  *
  * @param {number} vkey Virtual Key Code, refer to {@link http://msdn.microsoft.com/en-us/library/ms927178.aspx}
  */
@@ -151,7 +151,7 @@ function on_library_items_changed(handle_list) { }
 function on_library_items_removed(handle_list) {}
 
 /**
- * Called when thread created by gdi.LoadImageAsync() is done.
+ * Called when thread created by {@link gdi.LoadImageAsync} is done.
  * 
  * @param {number} cookie the return value from the {@link gdi.LoadImageAsync} call
  * @param {?GdiBitmap} image null on failure (invalid path/not an image)
@@ -161,12 +161,13 @@ function on_load_image_done(cookie, image, image_path) {}
 
 /**
  * On the main menu>File>Spider Monkey Panel, there are 10 menu items and whichever number
- * is selected is sent as the "index" to this callback. Being main menu items now means you
- * can bind them to global keyboard shortcuts, standard toolbar buttons, panel stack splitter
- * buttons, etc. Remember to think carefully about where you use this code as you probably only
+ * is selected is sent as the "index" to this callback. <br>
+ * Being main menu items now means you can bind them to global keyboard shortcuts, standard toolbar buttons, panel stack splitter
+ * buttons, etc.<br>
+ * Remember to think carefully about where you use this code as you probably only
  * want it to run once and so don't include it in common files and scripts where you might have
- * multiple instances. Also, you should avoid sharing scripts containing this code so as not
- * to conflict with what other users may already be using.
+ * multiple instances.<br>
+ * Important: you should avoid sharing scripts containing this code so as not to conflict with what other users may already be using.
  * 
  * @param {number} index
  *
@@ -289,7 +290,7 @@ function on_mouse_wheel(step) {}
 function on_mouse_wheel_h(step) {}
 
 /**
- * Called in other panels after {@link window.NotifyOthers(name, info) } is executed.<br>
+ * Called in other panels after {@link window.NotifyOthers} is executed.<br>
  * <br>
  * // !!! Beware !!!<br>
  * 1. Data from `info` argument is only accessible inside `on_notify_data` callback:<br>
