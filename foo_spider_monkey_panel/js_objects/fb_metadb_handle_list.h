@@ -60,7 +60,7 @@ public:
     const metadb_handle_list& GetHandleList() const;
 
 public: // ctor
-    static JSObject* Constructor( JSContext* cx, JS::HandleValue jsValue );
+    static JSObject* Constructor( JSContext* cx, JS::HandleValue jsValue = JS::UndefinedHandleValue );
 
 public: // methods
     void Add( JsFbMetadbHandle* handle );

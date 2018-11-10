@@ -17,8 +17,7 @@ class JsFbProfiler
 {
 public:
     static constexpr bool HasProto = true;
-    // TODO: add global proto
-    static constexpr bool HasGlobalProto = false;
+    static constexpr bool HasGlobalProto = true;
     static constexpr bool HasProxy = false;
     static constexpr bool HasPostCreate = false;
 
@@ -26,6 +25,7 @@ public:
     static const JSFunctionSpec* JsFunctions;
     static const JSPropertySpec* JsProperties;
     static const JsPrototypeId PrototypeId;
+    static const JSNative JsConstructor;
 
 public:
     ~JsFbProfiler();
@@ -33,9 +33,12 @@ public:
     static std::unique_ptr<JsFbProfiler> CreateNative( JSContext* cx, const pfc::string8_fast& name );
     static size_t GetInternalSize( const pfc::string8_fast& name );
 
+public: // ctor
+    static JSObject* Constructor( JSContext* cx, const pfc::string8_fast& name );
+
 public:
-    // TODO: add a new argument to print (custom message) and update doc
-    void Print();
+    void Print( const pfc::string8_fast& additionalMsg = "", bool printComponentInfo = true );
+    void PrintWithOpt( size_t optArgCount, const pfc::string8_fast& additionalMsg, bool printComponentInfo );
     void Reset();
 
 public:

@@ -5,6 +5,9 @@
 #include <js_engine/js_to_native_invoker.h>
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
+#include <smp_exception.h>
+
+using namespace smp;
 
 namespace
 {
@@ -31,7 +34,7 @@ JSClass jsClass = {
     &jsOps
 };
 
-MJS_DEFINE_JS_FN_FROM_NATIVE( Print, JsFbProfiler::Print )
+MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( Print, JsFbProfiler::Print, JsFbProfiler::PrintWithOpt, 2 )
 MJS_DEFINE_JS_FN_FROM_NATIVE( Reset, JsFbProfiler::Reset )
 
 const JSFunctionSpec jsFunctions[] = {
@@ -49,6 +52,22 @@ const JSPropertySpec jsProperties[] = {
 
 } // namespace
 
+namespace
+{
+
+bool Constructor_Impl( JSContext* cx, unsigned argc, JS::Value* vp )
+{
+    JS::CallArgs args = JS::CallArgsFromVp( argc, vp );
+
+    args.rval().setObjectOrNull( JsFbProfiler::Constructor( cx,
+                                                            ( argc ? convert::to_native::ToValue<pfc::string8_fast>( cx, args[0] ) : pfc::string8_fast() ) ) );
+    return true;
+}
+
+MJS_DEFINE_JS_FN( Constructor, Constructor_Impl )
+
+} // namespace
+
 namespace mozjs
 {
 
@@ -56,6 +75,7 @@ const JSClass JsFbProfiler::JsClass = jsClass;
 const JSFunctionSpec* JsFbProfiler::JsFunctions = jsFunctions;
 const JSPropertySpec* JsFbProfiler::JsProperties = jsProperties;
 const JsPrototypeId JsFbProfiler::PrototypeId = JsPrototypeId::FbProfiler;
+const JSNative JsFbProfiler::JsConstructor = ::Constructor;
 
 JsFbProfiler::JsFbProfiler( JSContext* cx, const pfc::string8_fast& name )
     : pJsCtx_( cx )
@@ -79,11 +99,46 @@ size_t JsFbProfiler::GetInternalSize( const pfc::string8_fast& name )
     return name.length();
 }
 
-void JsFbProfiler::Print()
+JSObject* JsFbProfiler::Constructor( JSContext* cx, const pfc::string8_fast& name )
 {
-    FB2K_console_formatter()
-        << SMP_NAME_WITH_VERSION ": FbProfiler (" << name_ << "): "
-        << static_cast<uint32_t>( timer_.query() * 1000 ) << " ms";
+    return JsFbProfiler::CreateJs( cx, name );
+}
+
+void JsFbProfiler::Print( const pfc::string8_fast& additionalMsg, bool printComponentInfo )
+{
+    pfc::string8_fast msg;
+    if ( printComponentInfo )
+    {
+        msg << SMP_NAME_WITH_VERSION ": ";
+    }
+    msg << "profiler";
+    if ( !name_.is_empty() )
+    {
+        msg << " (" << name_ << ")";
+    }
+    msg << ":";
+    if ( !additionalMsg.is_empty() )
+    {
+        msg << " ";
+        msg << additionalMsg;
+    }
+    msg << " " << static_cast<uint32_t>( timer_.query() * 1000 ) << " ms";
+    FB2K_console_formatter() << msg;
+}
+
+void JsFbProfiler::PrintWithOpt( size_t optArgCount, const pfc::string8_fast& additionalMsg, bool printComponentInfo )
+{
+    switch ( optArgCount )
+    {
+    case 0:
+        return Print( additionalMsg, printComponentInfo );
+    case 1:
+        return Print( additionalMsg );
+    case 2:
+        return Print();
+    default:
+        throw smp::SmpException( smp::string::Formatter() << "Internal error: invalid number of optional arguments specified: " << optArgCount );
+    }
 }
 
 void JsFbProfiler::Reset()
