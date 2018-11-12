@@ -23,7 +23,6 @@
 
 #include <tim/timsort.h>
 
-// TODO: add constructor
 
 using namespace smp;
 

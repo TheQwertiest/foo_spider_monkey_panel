@@ -20,7 +20,7 @@ pfc::string8_fast ParseJsArray( JSContext* cx, JS::HandleObject jsObject )
 {
     pfc::string8_fast output;
 
-    output += "[ ";
+    output += "[";
 
     uint32_t arraySize;
     if ( !JS_GetArrayLength( cx, jsObject, &arraySize ) )
@@ -43,7 +43,7 @@ pfc::string8_fast ParseJsArray( JSContext* cx, JS::HandleObject jsObject )
         }
     }
 
-    output += " ]";
+    output += "]";
 
     return output;
 }
@@ -52,7 +52,7 @@ pfc::string8_fast ParseJsObject( JSContext* cx, JS::HandleObject jsObject )
 {
     pfc::string8_fast output;
 
-    output += "{ ";
+    output += "{";
 
     JS::Rooted<JS::IdVector> jsVector( cx, cx );
     if ( !JS_Enumerate( cx, jsObject, &jsVector ) )
@@ -60,7 +60,40 @@ pfc::string8_fast ParseJsObject( JSContext* cx, JS::HandleObject jsObject )
         throw smp::JsException();
     }
 
-    output += " }";
+    JS::RootedValue jsIdValue( cx );
+    JS::RootedValue jsValue( cx );
+    bool hasFunctions = false;
+    for ( size_t i = 0, length = jsVector.length(); i < length; ++i )
+    {
+        auto& jsId = jsVector[i];
+        if ( !JS_GetPropertyById( cx, jsObject, jsId, &jsValue ) )
+        {
+            throw smp::JsException();
+        }
+
+        if ( jsValue.isObject() && JS_ObjectIsFunction( cx, &jsValue.toObject() ) )
+        {
+            hasFunctions = true;
+        }
+        else
+        {
+            jsIdValue = js::IdToValue( jsId );
+            output += convert::to_native::ToValue<pfc::string8_fast>( cx, jsIdValue );
+            output += "=";
+            output += ParseJsValue( cx, jsValue );
+            if ( i != length - 1 || hasFunctions )
+            {
+                output += ", ";
+            }
+        }
+    }
+
+    if ( hasFunctions )
+    {
+        output += "...";
+    }
+
+    output += "}";
 
     return output;
 }
@@ -68,10 +101,10 @@ pfc::string8_fast ParseJsObject( JSContext* cx, JS::HandleObject jsObject )
 pfc::string8_fast ParseJsValue( JSContext* cx, JS::HandleValue jsValue )
 {
     pfc::string8_fast output;
-
-    output += convert::to_native::ToValue<pfc::string8_fast>( cx, jsValue );
+    
     if ( !jsValue.isObject() )
     {
+        output += convert::to_native::ToValue<pfc::string8_fast>( cx, jsValue );
         return output;
     }
 
@@ -89,6 +122,7 @@ pfc::string8_fast ParseJsValue( JSContext* cx, JS::HandleValue jsValue )
     }
     else
     {
+        output += JS::InformalValueTypeName( jsValue );
         output += " ";
         output += ParseJsObject( cx, jsObject );
     }
@@ -102,6 +136,20 @@ std::optional<pfc::string8_fast> ParseLogArgs( JSContext* cx, JS::CallArgs& args
     {
         return std::nullopt;
     }
+
+    pfc::string8_fast outputString;
+    for ( unsigned i = 0; i < args.length(); i++ )
+    {
+        outputString += ParseJsValue( cx, args[i] );
+        if ( i < args.length() )
+        {
+            outputString += " ";
+        }
+    }
+
+    return outputString;
+    /*
+
 
     pfc::string8_fast output;
 
@@ -237,7 +285,7 @@ std::optional<pfc::string8_fast> ParseLogArgs( JSContext* cx, JS::CallArgs& args
         }
     }
 
-    return output;
+    return output;*/
 }
 
 // TODO: wrap in a proper class
