@@ -5,22 +5,21 @@
 #include <js_utils/js_object_helper.h>
 #include <js_utils/scope_helper.h>
 
-
 namespace
 {
 
-constexpr uint32_t kMaxLogDepth = 0;
+constexpr uint32_t kMaxLogDepth = 20;
 
-}
+} // namespace
 
 namespace
 {
 
 using namespace mozjs;
 
-pfc::string8_fast ParseJsValue( JSContext* cx, JS::HandleValue jsValue, uint32_t& logDepth );
+pfc::string8_fast ParseJsValue( JSContext* cx, JS::HandleValue jsValue, JS::AutoObjectVector& curObjects, uint32_t& logDepth );
 
-pfc::string8_fast ParseJsArray( JSContext* cx, JS::HandleObject jsObject, uint32_t& logDepth )
+pfc::string8_fast ParseJsArray( JSContext* cx, JS::HandleObject jsObject, JS::AutoObjectVector& curObjects, uint32_t& logDepth )
 {
     pfc::string8_fast output;
 
@@ -40,7 +39,7 @@ pfc::string8_fast ParseJsArray( JSContext* cx, JS::HandleObject jsObject, uint32
             throw smp::JsException();
         }
 
-        output += ParseJsValue( cx, arrayElement, logDepth );
+        output += ParseJsValue( cx, arrayElement, curObjects, logDepth );
         if ( i != arraySize - 1 )
         {
             output += ", ";
@@ -52,11 +51,12 @@ pfc::string8_fast ParseJsArray( JSContext* cx, JS::HandleObject jsObject, uint32
     return output;
 }
 
-pfc::string8_fast ParseJsObject( JSContext* cx, JS::HandleObject jsObject, uint32_t& logDepth )
+pfc::string8_fast ParseJsObject( JSContext* cx, JS::HandleObject jsObject, JS::AutoObjectVector& curObjects, uint32_t& logDepth )
 {
     pfc::string8_fast output;
 
-    output += "{";
+    output += JS::InformalValueTypeName( JS::ObjectValue( *jsObject ) );
+    output += " {";
 
     JS::AutoIdVector jsVector( cx );
     if ( !js::GetPropertyKeys( cx, jsObject, 0, &jsVector ) )
@@ -84,7 +84,7 @@ pfc::string8_fast ParseJsObject( JSContext* cx, JS::HandleObject jsObject, uint3
             jsIdValue = js::IdToValue( jsId );
             output += convert::to_native::ToValue<pfc::string8_fast>( cx, jsIdValue );
             output += "=";
-            output += ParseJsValue( cx, jsValue, logDepth );
+            output += ParseJsValue( cx, jsValue, curObjects, logDepth );
             if ( i != length - 1 || hasFunctions )
             {
                 output += ", ";
@@ -102,7 +102,7 @@ pfc::string8_fast ParseJsObject( JSContext* cx, JS::HandleObject jsObject, uint3
     return output;
 }
 
-pfc::string8_fast ParseJsValue( JSContext* cx, JS::HandleValue jsValue, uint32_t& logDepth )
+pfc::string8_fast ParseJsValue( JSContext* cx, JS::HandleValue jsValue, JS::AutoObjectVector& curObjects, uint32_t& logDepth )
 {
     pfc::string8_fast output;
 
@@ -122,33 +122,50 @@ pfc::string8_fast ParseJsValue( JSContext* cx, JS::HandleValue jsValue, uint32_t
         {
             output += "'";
         }
-
-        return output;
-    }
-    
-    if ( logDepth > kMaxLogDepth )
-    {// Don't print object, if we reached depth limit
-        output += JS::InformalValueTypeName( jsValue );
-        return output;
-    }
-
-    JS::RootedObject jsObject( cx, &jsValue.toObject() );
-
-    bool is;
-    if ( !JS_IsArrayObject( cx, jsObject, &is ) )
-    {
-        throw smp::JsException();
-    }
-
-    if ( is )
-    {
-        output += ParseJsArray( cx, jsObject, logDepth );
     }
     else
     {
-        output += JS::InformalValueTypeName( jsValue );
-        output += " ";
-        output += ParseJsObject( cx, jsObject, logDepth );
+        if ( logDepth > kMaxLogDepth )
+        { // Don't parse object, if we reached the depth limit
+            output += JS::InformalValueTypeName( jsValue );
+            return output;
+        }
+
+        JS::RootedObject jsObject( cx, &jsValue.toObject() );
+
+        if ( JS_ObjectIsFunction( cx, jsObject ) )
+        {
+            output += JS::InformalValueTypeName( jsValue );
+        }
+        else
+        {
+            for ( const auto& curObject : curObjects )
+            {
+                if ( jsObject.get() == curObject )
+                {
+                    output += "<Circular>";
+                    return output;
+                }
+            }
+
+            curObjects.emplaceBack( jsObject );
+            auto autoPop = mozjs::scope::finally( [&curObjects] { curObjects.popBack(); } );
+
+            bool is;
+            if ( !JS_IsArrayObject( cx, jsObject, &is ) )
+            {
+                throw smp::JsException();
+            }
+
+            if ( is )
+            {
+                output += ParseJsArray( cx, jsObject, curObjects, logDepth );
+            }
+            else
+            {
+                output += ParseJsObject( cx, jsObject, curObjects, logDepth );
+            }
+        }
     }
 
     return output;
@@ -162,10 +179,13 @@ std::optional<pfc::string8_fast> ParseLogArgs( JSContext* cx, JS::CallArgs& args
     }
 
     pfc::string8_fast outputString;
+    JS::AutoObjectVector curObjects( cx );
+    uint32_t logDepth = 0;
     for ( unsigned i = 0; i < args.length(); i++ )
     {
-        uint32_t logDepth = 0;
-        outputString += ParseJsValue( cx, args[i], logDepth );
+        assert( !logDepth );
+        assert( !curObjects.length() );
+        outputString += ParseJsValue( cx, args[i], curObjects, logDepth );
         if ( i < args.length() )
         {
             outputString += " ";
