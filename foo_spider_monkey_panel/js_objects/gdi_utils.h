@@ -42,7 +42,6 @@ private:
 
 private:
     JSContext* pJsCtx_ = nullptr;
-    ;
 };
 
 } // namespace mozjs
