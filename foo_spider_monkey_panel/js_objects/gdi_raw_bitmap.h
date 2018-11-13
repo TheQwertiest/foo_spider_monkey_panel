@@ -46,15 +46,15 @@ public: // props
 
 private:
     JsGdiRawBitmap( JSContext* cx,
-                    gdi::unique_dc_ptr hDc,
-                    gdi::unique_bitmap_ptr hBmp,
+                    gdi::unique_gdi_ptr<HDC> hDc,
+                    gdi::unique_gdi_ptr<HBITMAP> hBmp,
                     uint32_t width,
                     uint32_t height );
 
 private:
     JSContext* pJsCtx_ = nullptr;
-    gdi::unique_dc_ptr hDc_;
-    gdi::unique_bitmap_ptr hBmp_;
+    gdi::unique_gdi_ptr<HDC> hDc_;
+    gdi::unique_gdi_ptr<HBITMAP> hBmp_;
     HBITMAP hBmpOld_;
     uint32_t width_;
     uint32_t height_;

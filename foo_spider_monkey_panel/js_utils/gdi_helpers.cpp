@@ -4,7 +4,7 @@
 namespace mozjs::gdi
 {
 
-unique_bitmap_ptr CreateHBitmapFromGdiPlusBitmap( Gdiplus::Bitmap& bitmap )
+unique_gdi_ptr<HBITMAP> CreateHBitmapFromGdiPlusBitmap( Gdiplus::Bitmap& bitmap )
 {
     Gdiplus::Rect rect;
     rect.X = rect.Y = 0;

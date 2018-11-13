@@ -62,8 +62,8 @@ const JSPropertySpec* JsGdiRawBitmap::JsProperties = jsProperties;
 const JsPrototypeId JsGdiRawBitmap::PrototypeId = JsPrototypeId::GdiRawBitmap;
 
 JsGdiRawBitmap::JsGdiRawBitmap( JSContext* cx,
-                                gdi::unique_dc_ptr hDc,
-                                gdi::unique_bitmap_ptr hBmp,
+                                gdi::unique_gdi_ptr<HDC> hDc,
+                                gdi::unique_gdi_ptr<HBITMAP> hBmp,
                                 uint32_t width,
                                 uint32_t height )
     : pJsCtx_( cx )

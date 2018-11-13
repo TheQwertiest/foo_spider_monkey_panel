@@ -2,7 +2,6 @@
 
 #include <js_utils/js_error_helper.h>
 
-
 // TODO: separate js specific stuff
 
 struct JSContext;
@@ -11,18 +10,18 @@ namespace mozjs::scope
 {
 
 template <typename T>
-using unique_ptr = std::unique_ptr<T, void(*)(T*)>;
+using unique_ptr = std::unique_ptr<T, void ( * )( T* )>;
 
 template <class F>
 class final_action
-{
+{// Ripped from gsl
 public:
-    explicit final_action( F f ) noexcept 
+    explicit final_action( F f ) noexcept
         : f_( std::move( f ) )
     {
     }
 
-    final_action( final_action&& other ) noexcept 
+    final_action( final_action&& other ) noexcept
         : f_( std::move( other.f_ ) )
         , invoke_( other.invoke_ )
     {
@@ -51,23 +50,11 @@ private:
     bool invoke_{ true };
 };
 
-template <class F>
-final_action<F> finally( const F& f ) noexcept
-{
-    return final_action<F>( f );
-}
-
-template <class F>
-final_action<F> finally( F&& f ) noexcept
-{
-    return final_action<F>( std::forward<F>( f ));
-}
-
 class JsScope
 {
 public:
-    JsScope(JSContext* cx, JS::HandleObject global, bool enableAutoReport = true )
-        : ar_(cx)
+    JsScope( JSContext* cx, JS::HandleObject global, bool enableAutoReport = true )
+        : ar_( cx )
         , ac_( cx, global )
         , are_( cx )
     {
@@ -91,4 +78,4 @@ private:
     error::AutoJsReport are_;
 };
 
-}
+} // namespace mozjs::scope

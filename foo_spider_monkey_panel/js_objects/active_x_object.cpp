@@ -628,8 +628,8 @@ void ActiveXObject::Get( const std::wstring& propName, JS::MutableHandleValue vp
                                           &VarResult,
                                           &exception,
                                           &argerr );
-    scope::unique_ptr<VARIANT> autoVarClear( &VarResult, []( auto pVar ) {
-        VariantClear( pVar );
+    scope::final_action autoVarClear( [&VarResult] {
+        VariantClear( &VarResult );
     } );
 
     if ( !SUCCEEDED( hresult ) )
@@ -685,8 +685,8 @@ void ActiveXObject::Get( JS::CallArgs& callArgs )
                                           &VarResult,
                                           &exception,
                                           &argerr );
-    scope::unique_ptr<VARIANT> autoVarClear( &VarResult, []( auto pVar ) {
-        VariantClear( pVar );
+    scope::final_action autoVarClear( [&VarResult] {
+        VariantClear( &VarResult );
     } );
 
     for ( size_t i = 0; i < argc; i++ )
@@ -851,8 +851,8 @@ void ActiveXObject::Invoke( const std::wstring& funcName, const JS::CallArgs& ca
                                           &VarResult,
                                           &exception,
                                           &argerr );
-    scope::unique_ptr<VARIANT> autoVarClear( &VarResult, []( auto pVar ) {
-        VariantClear( pVar );
+    scope::final_action autoVarClear( [&VarResult] {
+        VariantClear( &VarResult );
     } );
 
     for ( size_t i = 0; i < argc; i++ )
@@ -908,7 +908,7 @@ void ActiveXObject::ParseTypeInfoRecursive( JSContext* cx, ITypeInfo* pTypeInfo,
     HRESULT hr = pTypeInfo->GetTypeAttr( &pAttr );
     error::CheckHR( hr, "GetTypeAttr" );
 
-    scope::final_action scopedAttrReleaser( [pTypeInfo, pAttr]() {
+    scope::final_action autoTypeAttr( [pTypeInfo, pAttr] {
         if ( pTypeInfo && pAttr )
         {
             pTypeInfo->ReleaseTypeAttr( pAttr );
@@ -929,8 +929,8 @@ void ActiveXObject::ParseTypeInfoRecursive( JSContext* cx, ITypeInfo* pTypeInfo,
             hr = pTypeInfo->GetRefTypeInfo( hRef, &pTypeInfoCur );
             if ( SUCCEEDED( hr ) && pTypeInfoCur )
             {
-                scope::unique_ptr<ITypeInfo> scopedTypeInfo( pTypeInfoCur, []( auto pTi ) {
-                    pTi->Release();
+                scope::final_action autoTypeInfo( [pTypeInfoCur] {
+                    pTypeInfoCur->Release();
                 } );
 
                 ParseTypeInfoRecursive( cx, pTypeInfoCur, members );

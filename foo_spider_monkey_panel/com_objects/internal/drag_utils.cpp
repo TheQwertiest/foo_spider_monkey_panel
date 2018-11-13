@@ -113,7 +113,7 @@ HRESULT SetDropText( IDataObject* pdtobj, DROPIMAGETYPE dit, const wchar_t* msg,
 bool RenderDragImage( HWND hWnd, size_t itemCount, SHDRAGIMAGE& dragImage )
 {
     const HTHEME m_dd_theme = ( IsThemeActive() && IsAppThemed() ? OpenThemeData( hWnd, VSCLASS_DRAGDROP ) : nullptr );
-    auto autoTheme = mozjs::scope::finally( [m_dd_theme] {
+    mozjs::scope::final_action autoTheme( [m_dd_theme] {
         if ( m_dd_theme )
         {
             CloseThemeData( m_dd_theme );

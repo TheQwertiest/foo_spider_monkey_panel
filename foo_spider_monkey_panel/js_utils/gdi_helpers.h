@@ -1,7 +1,5 @@
 #pragma once
 
-#include <js_utils/scope_helper.h>
-
 #include <windef.h>
 
 #include <memory>
@@ -21,40 +19,23 @@ bool IsGdiPlusObjectValid( const std::unique_ptr<T>& obj )
     return IsGdiPlusObjectValid( obj.get() );
 }
 
-// TODO: replace with template unique_gdi_ptr
-
-using unique_bitmap_ptr = scope::unique_ptr<std::remove_pointer_t<HBITMAP>>;
-using unique_dc_ptr = scope::unique_ptr<std::remove_pointer_t<HDC>>;
-using unique_font_ptr = scope::unique_ptr<std::remove_pointer_t<HFONT>>;
-using unique_brush_ptr = scope::unique_ptr<std::remove_pointer_t<HBRUSH>>;
+template <typename T>
+using unique_gdi_ptr = std::unique_ptr<std::remove_pointer_t<T>, void ( * )( T )>;
 
 template <typename T>
-scope::unique_ptr<T> CreateUniquePtr( T* pObject )
+unique_gdi_ptr<T> CreateUniquePtr( T pObject )
 {
-    if constexpr ( std::is_same_v<T*, HBITMAP> )
-    {
-        return unique_bitmap_ptr( pObject, []( auto pObject ) { DeleteObject( pObject ); } );
-    }
-    else if constexpr ( std::is_same_v<T*, HDC> )
-    {
-        return unique_dc_ptr( pObject, []( auto pObject ) { DeleteDC( pObject ); } );
-    }
-    else if constexpr ( std::is_same_v<T*, HFONT> )
-    {
-        return unique_font_ptr( pObject, []( auto pObject ) { DeleteObject( pObject ); } );
-    }
-    else if constexpr ( std::is_same_v<T*, HBRUSH> )
-    {
-        return unique_brush_ptr( pObject, []( auto pObject ) { DeleteObject( pObject ); } );
-    }
-    else
-    {
-        static_assert( 0, "Unsupported type" );
-    }
+    static_assert( std::is_same_v<T, HBITMAP> 
+                   || std::is_same_v<T, HDC> 
+                   || std::is_same_v<T, HFONT> 
+                   || std::is_same_v<T, HBRUSH>,
+                   "Unsupported type" );
+
+    return unique_gdi_ptr<T>( pObject, []( auto pObject ) { DeleteObject( pObject ); } );
 }
 
 /// @details Does not report
 /// @return nullptr - error, create HBITMAP - otherwise
-unique_bitmap_ptr CreateHBitmapFromGdiPlusBitmap( Gdiplus::Bitmap& bitmap );
+unique_gdi_ptr<HBITMAP> CreateHBitmapFromGdiPlusBitmap( Gdiplus::Bitmap& bitmap );
 
 } // namespace mozjs::gdi

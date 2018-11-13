@@ -21,14 +21,13 @@ pfc::string8_fast MessageFromErrorCode( DWORD errorCode )
         (LPTSTR)&lpMsgBuf,
         0,
         nullptr );
-
     if ( !dwRet )
     {
         return pfc::string8_fast();
     }
 
-    mozjs::scope::unique_ptr<std::remove_pointer_t<LPVOID>> scopedMsg( lpMsgBuf, []( auto buf ) {
-        LocalFree( buf );
+    mozjs::scope::final_action autoMsg([lpMsgBuf] {
+        LocalFree( lpMsgBuf );
     } );
 
     pfc::string8_fast msg8 = pfc::stringcvt::string_utf8_from_wide( (const wchar_t*)lpMsgBuf );
