@@ -4,7 +4,7 @@
 #include <js_utils/js_property_helper.h>
 #include <js_utils/js_error_helper.h>
 #include <utils/scope_helpers.h>
-#include <utils/winapi_error_helper.h>
+#include <utils/winapi_error_helpers.h>
 #include <com_objects/dispatch_ptr.h>
 #include <convert/js_to_native.h>
 #include <convert/com.h>

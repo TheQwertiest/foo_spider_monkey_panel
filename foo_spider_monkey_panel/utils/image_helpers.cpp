@@ -1,5 +1,5 @@
 #include <stdafx.h>
-#include "image_helper.h"
+#include "image_helpers.h"
 
 #include <utils/gdi_helpers.h>
 
@@ -58,7 +58,7 @@ void LoadImageTask::run()
                                                                               pfc::string8_fast( file_path_display( pfc::stringcvt::string_utf8_from_wide( imagePath_.c_str(), imagePath_.length() ) ) ) ) );
 }
 
-}
+} // namespace
 
 namespace smp::image
 {
@@ -101,4 +101,4 @@ std::unique_ptr<Gdiplus::Bitmap> LoadImage( const std::wstring& imagePath )
     return img;
 }
 
-}
+} // namespace smp::image

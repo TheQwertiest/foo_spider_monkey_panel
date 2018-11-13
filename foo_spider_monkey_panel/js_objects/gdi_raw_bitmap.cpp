@@ -2,11 +2,11 @@
 #include "gdi_raw_bitmap.h"
 
 #include <js_engine/js_to_native_invoker.h>
-#include <utils/gdi_error_helper.h>
-#include <js_utils/gdi_helpers.h>
+#include <utils/gdi_error_helpers.h>
+#include <utils/gdi_helpers.h>
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
-#include <utils/winapi_error_helper.h>
+#include <utils/winapi_error_helpers.h>
 #include <utils/scope_helpers.h>
 
 #include <helpers.h>

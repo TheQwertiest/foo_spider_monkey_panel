@@ -5,7 +5,7 @@
 #include <js_engine/js_compartment_inner.h>
 #include <js_utils/js_error_helper.h>
 #include <utils/scope_helpers.h>
-#include <utils/winapi_error_helper.h>
+#include <utils/winapi_error_helpers.h>
 
 #include <adv_config.h>
 

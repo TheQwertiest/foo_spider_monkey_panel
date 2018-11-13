@@ -1,5 +1,5 @@
 #include <stdafx.h>
-#include "gdi_error_helper.h"
+#include "gdi_error_helpers.h"
 
 #include <utils/string_helpers.h>
 

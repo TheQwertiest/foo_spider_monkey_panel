@@ -10,7 +10,7 @@
 
 using namespace smp;
 
-namespace mozjs::file
+namespace smp::file
 {
 
 std::wstring CleanPath( const std::wstring& path )
@@ -146,4 +146,4 @@ std::wstring ReadFromFile( JSContext* cx, const pfc::string8_fast& path, uint32_
     return fileContent;
 }
 
-} // namespace mozjs::file
+} // namespace smp::file

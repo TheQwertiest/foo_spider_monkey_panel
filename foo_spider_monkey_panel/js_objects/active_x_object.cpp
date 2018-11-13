@@ -11,9 +11,9 @@
 #include <js_objects/internal/global_heap_manager.h>
 #include <js_utils/js_object_helper.h>
 #include <js_utils/js_prototype_helpers.h>
-#include <utils/com_error_helper.h>
+#include <utils/com_error_helpers.h>
 #include <utils/scope_helpers.h>
-#include <utils/winapi_error_helper.h>
+#include <utils/winapi_error_helpers.h>
 #include <utils/string_helpers.h>
 #include <com_objects/script_interface.h>
 #include <com_objects/com_tools.h>

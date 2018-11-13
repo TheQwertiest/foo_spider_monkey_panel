@@ -12,8 +12,8 @@
 #include <js_utils/js_object_helper.h>
 #include <js_utils/js_property_helper.h>
 #include <utils/scope_helpers.h>
-#include <js_utils/gdi_helpers.h>
-#include <utils/winapi_error_helper.h>
+#include <utils/gdi_helpers.h>
+#include <utils/winapi_error_helpers.h>
 
 #include <com_objects/host_drop_target.h>
 

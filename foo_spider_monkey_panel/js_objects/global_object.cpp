@@ -20,7 +20,7 @@
 #include <js_objects/internal/global_heap_manager.h>
 #include <js_utils/js_object_helper.h>
 #include <js_utils/js_error_helper.h>
-#include <js_utils/file_helpers.h>
+#include <utils/file_helpers.h>
 
 #include <js_panel_window.h>
 #include <helpers.h>
@@ -191,7 +191,7 @@ void JsGlobalObject::PrepareForGc( JSContext* cx, JS::HandleObject self )
 
 void JsGlobalObject::IncludeScript( const pfc::string8_fast& path )
 {
-    const std::wstring scriptCode = file::ReadFromFile( pJsCtx_, path );
+    const std::wstring scriptCode = smp::file::ReadFromFile( pJsCtx_, path );
     const auto filename = [&path]
     {
         namespace fs = std::filesystem;

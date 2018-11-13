@@ -1,8 +1,8 @@
 #include <stdafx.h>
-#include "com_error_helper.h"
+#include "com_error_helpers.h"
 
 #include <utils/string_helpers.h>
-#include <utils/winapi_error_helper.h>
+#include <utils/winapi_error_helpers.h>
 
 #include <smp_exception.h>
 

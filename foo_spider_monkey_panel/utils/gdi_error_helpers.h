@@ -1,6 +1,6 @@
 #pragma once
 
-#include <js_utils/gdi_helpers.h>
+#include <utils/gdi_helpers.h>
 
 namespace smp::error
 {

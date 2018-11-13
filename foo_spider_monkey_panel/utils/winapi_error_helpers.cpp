@@ -1,5 +1,5 @@
 #include <stdafx.h>
-#include "winapi_error_helper.h"
+#include "winapi_error_helpers.h"
 
 #include <utils/scope_helpers.h>
 #include <utils/string_helpers.h>

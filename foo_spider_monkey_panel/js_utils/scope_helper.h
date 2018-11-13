@@ -4,7 +4,7 @@
 
 struct JSContext;
 
-namespace mozjs::scope
+namespace mozjs
 {
 
 class JsScope
@@ -35,4 +35,4 @@ private:
     mozjs::error::AutoJsReport are_;
 };
 
-} // namespace mozjs::scope
+} // namespace mozjs

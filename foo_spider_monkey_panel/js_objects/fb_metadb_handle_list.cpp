@@ -7,7 +7,7 @@
 #include <js_objects/fb_title_format.h>
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
-#include <js_utils/art_helper.h>
+#include <utils/art_helpers.h>
 #include <utils/string_helpers.h>
 #include <utils/pfc_helpers.h>
 

@@ -11,7 +11,7 @@
 #include <js_utils/js_object_helper.h>
 #include <js_utils/js_error_helper.h>
 #include <utils/scope_helpers.h>
-#include <utils/winapi_error_helper.h>
+#include <utils/winapi_error_helpers.h>
 #include <convert/js_to_native.h>
 
 using namespace smp;

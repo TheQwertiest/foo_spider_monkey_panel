@@ -1,7 +1,7 @@
 #include <stdafx.h>
 #include "gdi_helpers.h"
 
-namespace mozjs::gdi
+namespace smp::gdi
 {
 
 unique_gdi_ptr<HBITMAP> CreateHBitmapFromGdiPlusBitmap( Gdiplus::Bitmap& bitmap )
@@ -14,7 +14,7 @@ unique_gdi_ptr<HBITMAP> CreateHBitmapFromGdiPlusBitmap( Gdiplus::Bitmap& bitmap 
     Gdiplus::BitmapData bmpdata;
     if ( bitmap.LockBits( &rect, Gdiplus::ImageLockModeRead, PixelFormat32bppPARGB, &bmpdata ) != Gdiplus::Ok )
     { // Error
-        return CreateUniquePtr( HBITMAP(nullptr) );
+        return CreateUniquePtr( HBITMAP( nullptr ) );
     }
 
     BITMAP bm;
@@ -31,4 +31,5 @@ unique_gdi_ptr<HBITMAP> CreateHBitmapFromGdiPlusBitmap( Gdiplus::Bitmap& bitmap 
 
     return CreateUniquePtr( hBitmap );
 }
-}
+
+} // namespace smp::gdi

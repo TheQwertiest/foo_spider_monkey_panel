@@ -15,7 +15,7 @@
 namespace
 {
 
-using namespace mozjs;
+using namespace smp;
 
 class AlbumArtFetchTask : public simple_thread_task
 {
@@ -153,7 +153,7 @@ std::unique_ptr<Gdiplus::Bitmap> ExtractBitmap( album_art_extractor_instance_v2:
 
 } // namespace
 
-namespace mozjs::art
+namespace smp::art
 {
 
 embed_thread::embed_thread( t_size action,

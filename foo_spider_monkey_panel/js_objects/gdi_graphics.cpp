@@ -7,10 +7,10 @@
 #include <js_objects/gdi_bitmap.h>
 #include <js_objects/gdi_raw_bitmap.h>
 #include <js_objects/measure_string_info.h>
-#include <utils/gdi_error_helper.h>
+#include <utils/gdi_error_helpers.h>
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
-#include <utils/winapi_error_helper.h>
+#include <utils/winapi_error_helpers.h>
 #include <utils/scope_helpers.h>
 
 #include <helpers.h>

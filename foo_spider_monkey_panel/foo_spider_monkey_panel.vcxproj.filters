@@ -121,9 +121,6 @@
     <ClCompile Include="js_objects\utils.cpp">
       <Filter>js_objects</Filter>
     </ClCompile>
-    <ClCompile Include="js_utils\art_helper.cpp">
-      <Filter>js_utils</Filter>
-    </ClCompile>
     <ClCompile Include="js_objects\fb_utils.cpp">
       <Filter>js_objects</Filter>
     </ClCompile>
@@ -131,9 +128,6 @@
       <Filter>js_objects</Filter>
     </ClCompile>
     <ClCompile Include="js_utils\serialized_value.cpp">
-      <Filter>js_utils</Filter>
-    </ClCompile>
-    <ClCompile Include="js_utils\image_helper.cpp">
       <Filter>js_utils</Filter>
     </ClCompile>
     <ClCompile Include="js_objects\internal\fb_properties.cpp">
@@ -156,9 +150,6 @@
     </ClCompile>
     <ClCompile Include="convert\js_to_native.cpp">
       <Filter>convert</Filter>
-    </ClCompile>
-    <ClCompile Include="js_utils\file_helpers.cpp">
-      <Filter>js_utils</Filter>
     </ClCompile>
     <ClCompile Include="js_objects\fb_window.cpp">
       <Filter>js_objects</Filter>
@@ -201,9 +192,6 @@
     </ClCompile>
     <ClCompile Include="ui\ui_name_value_edit.cpp">
       <Filter>ui</Filter>
-    </ClCompile>
-    <ClCompile Include="js_utils\gdi_helpers.cpp">
-      <Filter>js_utils</Filter>
     </ClCompile>
     <ClCompile Include="stats.cpp">
       <Filter>z_uncategorized</Filter>
@@ -265,13 +253,25 @@
     <ClCompile Include="com_objects\host_external.cpp">
       <Filter>com_objects</Filter>
     </ClCompile>
-    <ClCompile Include="utils\winapi_error_helper.cpp">
+    <ClCompile Include="utils\file_helpers.cpp">
       <Filter>utils</Filter>
     </ClCompile>
-    <ClCompile Include="utils\gdi_error_helper.cpp">
+    <ClCompile Include="utils\gdi_error_helpers.cpp">
       <Filter>utils</Filter>
     </ClCompile>
-    <ClCompile Include="utils\com_error_helper.cpp">
+    <ClCompile Include="utils\gdi_helpers.cpp">
+      <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="utils\image_helpers.cpp">
+      <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="utils\winapi_error_helpers.cpp">
+      <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="utils\art_helpers.cpp">
+      <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="utils\com_error_helpers.cpp">
       <Filter>utils</Filter>
     </ClCompile>
   </ItemGroup>
@@ -423,9 +423,6 @@
     <ClInclude Include="js_objects\measure_string_info.h">
       <Filter>js_objects</Filter>
     </ClInclude>
-    <ClInclude Include="js_utils\art_helper.h">
-      <Filter>js_utils</Filter>
-    </ClInclude>
     <ClInclude Include="js_utils\scope_helper.h">
       <Filter>js_utils</Filter>
     </ClInclude>
@@ -433,9 +430,6 @@
       <Filter>z_uncategorized</Filter>
     </ClInclude>
     <ClInclude Include="js_utils\serialized_value.h">
-      <Filter>js_utils</Filter>
-    </ClInclude>
-    <ClInclude Include="js_utils\image_helper.h">
       <Filter>js_utils</Filter>
     </ClInclude>
     <ClInclude Include="js_objects\object_base.h">
@@ -470,9 +464,6 @@
     </ClInclude>
     <ClInclude Include="resource.h">
       <Filter>z_uncategorized\resources</Filter>
-    </ClInclude>
-    <ClInclude Include="js_utils\file_helpers.h">
-      <Filter>js_utils</Filter>
     </ClInclude>
     <ClInclude Include="drop_action_params.h">
       <Filter>z_uncategorized</Filter>
@@ -518,9 +509,6 @@
     </ClInclude>
     <ClInclude Include="ui\ui_input_box.h">
       <Filter>ui</Filter>
-    </ClInclude>
-    <ClInclude Include="js_utils\gdi_helpers.h">
-      <Filter>js_utils</Filter>
     </ClInclude>
     <ClInclude Include="stats.h">
       <Filter>z_uncategorized</Filter>
@@ -609,13 +597,25 @@
     <ClInclude Include="utils\scope_helpers.h">
       <Filter>utils</Filter>
     </ClInclude>
-    <ClInclude Include="utils\winapi_error_helper.h">
+    <ClInclude Include="utils\file_helpers.h">
       <Filter>utils</Filter>
     </ClInclude>
-    <ClInclude Include="utils\gdi_error_helper.h">
+    <ClInclude Include="utils\gdi_error_helpers.h">
       <Filter>utils</Filter>
     </ClInclude>
-    <ClInclude Include="utils\com_error_helper.h">
+    <ClInclude Include="utils\gdi_helpers.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\image_helpers.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\winapi_error_helpers.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\art_helpers.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\com_error_helpers.h">
       <Filter>utils</Filter>
     </ClInclude>
   </ItemGroup>

@@ -179,7 +179,7 @@ bool JsContainer::ExecuteScript( const pfc::string8_fast& scriptCode )
 
     isParsingScript_ = true;
 
-    scope::JsScope autoScope( pJsCtx_, jsGlobal_ );
+    JsScope autoScope( pJsCtx_, jsGlobal_ );
 
     JS::CompileOptions opts( pJsCtx_ );
     opts.setUTF8( true );
@@ -205,7 +205,7 @@ void JsContainer::InvokeOnDragAction( const pfc::string8_fast& functionName, con
     }
 
     auto selfSaver = shared_from_this();
-    scope::JsScope autoScope( pJsCtx_, jsGlobal_ );
+    JsScope autoScope( pJsCtx_, jsGlobal_ );
 
     if ( !CreateDropActionIfNeeded() )
     { // reports
@@ -233,7 +233,7 @@ void JsContainer::InvokeOnNotify( WPARAM wp, LPARAM lp )
     }
 
     auto selfSaver = shared_from_this();
-    scope::JsScope autoScope( pJsCtx_, jsGlobal_ );
+    JsScope autoScope( pJsCtx_, jsGlobal_ );
 
     // Bind object to current compartment
     JS::RootedValue jsValue( pJsCtx_, *reinterpret_cast<JS::HandleValue*>( lp ) );

@@ -1,7 +1,7 @@
 #include <stdafx.h>
 #include "drop_target_impl.h"
 
-#include <utils/winapi_error_helper.h>
+#include <utils/winapi_error_helpers.h>
 
 namespace smp::com
 {

@@ -8,9 +8,9 @@
 
 #include <js_engine/js_container.h>
 #include <utils/scope_helpers.h>
-#include <js_utils/art_helper.h>
-#include <js_utils/image_helper.h>
-#include <js_utils/gdi_helpers.h>
+#include <utils/art_helpers.h>
+#include <utils/image_helpers.h>
+#include <utils/gdi_helpers.h>
 
 #include <drop_action_params.h>
 #include <message_data_holder.h>
@@ -1314,7 +1314,7 @@ void js_panel_window::on_paint( HDC dc, LPRECT lpUpdateRect )
     }
 
     HDC memdc = CreateCompatibleDC( dc );
-    auto autoMemDc = mozjs::gdi::CreateUniquePtr( memdc );
+    auto autoMemDc = smp::gdi::CreateUniquePtr( memdc );
 
     HBITMAP oldbmp = SelectBitmap( memdc, hBitmap_ );
     utils::final_action autoBmp( [memdc, oldbmp] {
@@ -1331,7 +1331,7 @@ void js_panel_window::on_paint( HDC dc, LPRECT lpUpdateRect )
         if ( get_pseudo_transparent() )
         {
             HDC bkdc = CreateCompatibleDC( dc );
-            auto autoBkDc = mozjs::gdi::CreateUniquePtr( bkdc );
+            auto autoBkDc = smp::gdi::CreateUniquePtr( bkdc );
 
             HBITMAP bkoldbmp = SelectBitmap( bkdc, hBitmapBg_ );
             utils::final_action autoBkBmp( [bkdc, bkoldbmp] {
@@ -1377,7 +1377,7 @@ void js_panel_window::on_paint_error( HDC memdc )
         DEFAULT_QUALITY,
         DEFAULT_PITCH | FF_DONTCARE,
         _T( "Tahoma" ) );
-    auto autoFont = mozjs::gdi::CreateUniquePtr( newfont );
+    auto autoFont = smp::gdi::CreateUniquePtr( newfont );
 
     HFONT oldfont = (HFONT)SelectObject( memdc, newfont );
     utils::final_action autoFontSelect( [memdc, oldfont]() {
@@ -1386,7 +1386,7 @@ void js_panel_window::on_paint_error( HDC memdc )
 
     LOGBRUSH lbBack = { BS_SOLID, RGB( 225, 60, 45 ), 0 };
     HBRUSH hBack = CreateBrushIndirect( &lbBack );
-    auto autoHBack = mozjs::gdi::CreateUniquePtr( hBack );
+    auto autoHBack = smp::gdi::CreateUniquePtr( hBack );
 
     RECT rc = { 0, 0, (LONG)width_, (LONG)height_ };
     FillRect( memdc, &rc, hBack );

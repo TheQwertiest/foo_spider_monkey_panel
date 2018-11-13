@@ -2,7 +2,7 @@
 #include "heartbeat_window.h"
 
 #include <js_engine/js_engine.h>
-#include <utils/winapi_error_helper.h>
+#include <utils/winapi_error_helpers.h>
 
 #include <user_message.h>
 

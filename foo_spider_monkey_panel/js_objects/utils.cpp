@@ -5,11 +5,11 @@
 #include <js_objects/fb_metadb_handle.h>
 #include <js_objects/gdi_bitmap.h>
 #include <js_utils/js_error_helper.h>
-#include <utils/gdi_error_helper.h>
-#include <utils/winapi_error_helper.h>
+#include <utils/gdi_error_helpers.h>
+#include <utils/winapi_error_helpers.h>
 #include <js_utils/js_object_helper.h>
-#include <js_utils/art_helper.h>
-#include <js_utils/file_helpers.h>
+#include <utils/art_helpers.h>
+#include <utils/file_helpers.h>
 #include <utils/scope_helpers.h>
 
 #include <ui/ui_input_box.h>
@@ -213,7 +213,7 @@ uint32_t JsUtils::ColourPicker( uint32_t hWindow, uint32_t default_colour )
 
 JS::Value JsUtils::FileTest( const std::wstring& path, const std::wstring& mode )
 {
-    const std::wstring cleanedPath = file::CleanPath( path );
+    const std::wstring cleanedPath = smp::file::CleanPath( path );
 
     if ( L"e" == mode ) // exists
     {
@@ -537,7 +537,7 @@ std::wstring JsUtils::ReadINIWithOpt( size_t optArgCount, const std::wstring& fi
 
 std::wstring JsUtils::ReadTextFile( const pfc::string8_fast& filePath, uint32_t codepage )
 {
-    return file::ReadFromFile( pJsCtx_, filePath, codepage );
+    return smp::file::ReadFromFile( pJsCtx_, filePath, codepage );
 }
 
 std::wstring JsUtils::ReadTextFileWithOpt( size_t optArgCount, const pfc::string8_fast& filePath, uint32_t codepage )
