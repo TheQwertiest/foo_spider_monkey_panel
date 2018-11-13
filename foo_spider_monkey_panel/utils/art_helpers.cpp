@@ -71,23 +71,24 @@ void AlbumArtFetchTask::run()
                 bitmap = art::GetBitmapFromMetadb( handle_, artId_, needStub_, noLoad_, &imagePath );
             }
         }
-        catch ( const smp::SmpException& )
+        catch ( const SmpException& )
         { // The only possible exception is invalid art_id, which should be checked beforehand
             assert( 0 );
         }
     }
 
-    panel_manager::instance().post_callback_msg( hNotifyWnd_,
-                                                 smp::CallbackMessage::internal_get_album_art_done,
-                                                 std::make_unique<
-                                                     smp::panel::CallbackDataImpl<
-                                                         metadb_handle_ptr,
-                                                         uint32_t,
-                                                         std::unique_ptr<Gdiplus::Bitmap>,
-                                                         pfc::string8_fast>>( handle_,
-                                                                              artId_,
-                                                                              std::move( bitmap ),
-                                                                              pfc::string8_fast( imagePath.is_empty() ? "" : file_path_display( imagePath ) ) ) );
+    pfc::string8_fast path = ( imagePath.is_empty() ? "" : file_path_display( imagePath ) );
+    panel::panel_manager::instance().post_callback_msg( hNotifyWnd_,
+                                                        smp::CallbackMessage::internal_get_album_art_done,
+                                                        std::make_unique<
+                                                            smp::panel::CallbackDataImpl<
+                                                                metadb_handle_ptr,
+                                                                uint32_t,
+                                                                std::unique_ptr<Gdiplus::Bitmap>,
+                                                                pfc::string8_fast>>( handle_,
+                                                                                     artId_,
+                                                                                     std::move( bitmap ),
+                                                                                     path ) );
 }
 
 std::unique_ptr<Gdiplus::Bitmap> GetBitmapFromAlbumArtData( const album_art_data_ptr& data )
@@ -180,7 +181,7 @@ void embed_thread::run( threaded_process_status& p_status,
         album_art_editor::ptr ptr;
         if ( album_art_editor::g_get_interface( ptr, path ) )
         {
-            file_lock_ptr lock = api->acquire_write(path, p_abort);
+            file_lock_ptr lock = api->acquire_write( path, p_abort );
             try
             {
                 auto aaep = ptr->open( NULL, path, p_abort );
@@ -231,7 +232,7 @@ const GUID& GetGuidForArtId( uint32_t art_id )
 
     if ( art_id >= _countof( guids ) )
     {
-        throw smp::SmpException( smp::string::Formatter() << "Unknown art_id: " << art_id );
+        throw SmpException( smp::string::Formatter() << "Unknown art_id: " << art_id );
     }
 
     return *guids[art_id];
@@ -323,7 +324,7 @@ uint32_t GetAlbumArtAsync( HWND hWnd, const metadb_handle_ptr& handle, uint32_t 
             return taskId;
         }
     }
-    catch ( const smp::SmpException& )
+    catch ( const SmpException& )
     {
         throw;
     }
@@ -334,4 +335,4 @@ uint32_t GetAlbumArtAsync( HWND hWnd, const metadb_handle_ptr& handle, uint32_t 
     return 0;
 }
 
-} // namespace mozjs::art
+} // namespace smp::art

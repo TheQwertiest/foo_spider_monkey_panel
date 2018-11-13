@@ -15,7 +15,8 @@
 #include <drop_action_params.h>
 #include <message_data_holder.h>
 
-using namespace smp;
+namespace smp::panel
+{
 
 js_panel_window::js_panel_window( PanelType instanceType )
     : panelType_( instanceType )
@@ -707,7 +708,7 @@ int js_panel_window::GetWidth() const
     return width_;
 }
 
-smp::PanelTooltipParam& js_panel_window::GetPanelTooltipParam()
+PanelTooltipParam& js_panel_window::GetPanelTooltipParam()
 {
     return panelTooltipParam_;
 }
@@ -722,7 +723,7 @@ t_size& js_panel_window::DlgCode()
     return dlgCode_;
 }
 
-js_panel_window::PanelType js_panel_window::GetPanelType() const
+PanelType js_panel_window::GetPanelType() const
 {
     return panelType_;
 }
@@ -995,7 +996,7 @@ void js_panel_window::on_cursor_follow_playback_changed( WPARAM wp )
 
 void js_panel_window::on_drag_drop( LPARAM lp )
 {
-    auto actionParams = reinterpret_cast<mozjs::DropActionMessageParams*>( lp );
+    auto actionParams = reinterpret_cast<DropActionMessageParams*>( lp );
     pJsContainer_->InvokeOnDragAction( "on_drag_drop",
                                        actionParams->pt,
                                        actionParams->keyState,
@@ -1004,7 +1005,7 @@ void js_panel_window::on_drag_drop( LPARAM lp )
 
 void js_panel_window::on_drag_enter( LPARAM lp )
 {
-    auto actionParams = reinterpret_cast<mozjs::DropActionMessageParams*>( lp );
+    auto actionParams = reinterpret_cast<DropActionMessageParams*>( lp );
     pJsContainer_->InvokeOnDragAction( "on_drag_enter",
                                        actionParams->pt,
                                        actionParams->keyState,
@@ -1018,7 +1019,7 @@ void js_panel_window::on_drag_leave()
 
 void js_panel_window::on_drag_over( LPARAM lp )
 {
-    auto actionParams = reinterpret_cast<mozjs::DropActionMessageParams*>( lp );
+    auto actionParams = reinterpret_cast<DropActionMessageParams*>( lp );
     pJsContainer_->InvokeOnDragAction( "on_drag_over",
                                        actionParams->pt,
                                        actionParams->keyState,
@@ -1560,3 +1561,5 @@ void js_panel_window::on_volume_change( panel::CallbackData& callbackData )
     pJsContainer_->InvokeJsCallback( "on_volume_change",
                                      std::get<0>( data ) );
 }
+
+} // namespace smp::panel

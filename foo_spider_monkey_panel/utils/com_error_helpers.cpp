@@ -61,7 +61,7 @@ void ReportActiveXError( HRESULT hresult, EXCEPINFO& exception, UINT& argerr )
     }
     default:
     {
-        smp::error::CheckHR( hresult, "ActiveXObject" );
+        CheckHR( hresult, "ActiveXObject" );
     }
     }
 }

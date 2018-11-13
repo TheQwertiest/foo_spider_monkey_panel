@@ -3,7 +3,7 @@
 #include <string>
 #include <memory>
 
-namespace smp
+namespace smp::panel
 {
 
 struct PanelTooltipParam
@@ -16,4 +16,4 @@ struct PanelTooltipParam
     uint32_t fontStyle;
 };
 
-} // namespace smp
+} // namespace smp::panel

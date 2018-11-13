@@ -12,21 +12,20 @@ class JsContainer;
 
 namespace smp::panel
 {
+
 class CallbackData;
-}
+
+enum class PanelType : unsigned int
+{
+    CUI = 0,
+    DUI = 1
+};
 
 // TODO: split this class somehow
 class js_panel_window
     : public ui_helpers::container_window
-    , public smp::config::PanelSettings
+    , public config::PanelSettings
 {
-public:
-    enum class PanelType : unsigned int
-    {
-        CUI = 0,
-        DUI = 1
-    };
-
 public:
     js_panel_window( PanelType instanceType = PanelType::CUI );
     virtual ~js_panel_window() = default;
@@ -59,7 +58,7 @@ public:
     POINT& MinSize();
     int GetHeight() const;
     int GetWidth() const;
-    smp::PanelTooltipParam& GetPanelTooltipParam();
+    PanelTooltipParam& GetPanelTooltipParam();
     PanelInfo& ScriptInfo();
 
     t_size& DlgCode();
@@ -96,7 +95,7 @@ private:
     t_size dlgCode_ = 0;                       // modified only from external
     POINT maxSize_ = { INT_MAX, INT_MAX };     // modified only from external
     POINT minSize_ = { 0, 0 };                 // modified only from external
-    smp::PanelTooltipParam panelTooltipParam_; // modified only from external
+    PanelTooltipParam panelTooltipParam_; // modified only from external
 
 private:
     bool script_load();
@@ -171,3 +170,5 @@ private:
     void on_size( uint32_t w, uint32_t h );
     void on_volume_change( smp::panel::CallbackData& callbackData );
 };
+
+} // namespace smp::panel

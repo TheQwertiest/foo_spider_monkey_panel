@@ -1,11 +1,11 @@
 #pragma once
 
-namespace mozjs
+namespace smp::panel
 {
 
-struct DropActionParams 
+struct DropActionParams
 {
-    int32_t playlistIdx = -1;// -1 means active playlist
+    int32_t playlistIdx = -1; // -1 means active playlist
     uint32_t base = 0;
     bool toSelect = true;
     uint32_t effect = DROPEFFECT_NONE;
@@ -27,5 +27,4 @@ struct DropActionMessageParams
     uint32_t keyState;
 };
 
-}
-
+} // namespace smp::panel

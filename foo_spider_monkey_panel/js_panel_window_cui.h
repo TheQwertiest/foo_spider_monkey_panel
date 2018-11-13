@@ -1,5 +1,8 @@
 #pragma once
 
+namespace smp::panel
+{
+
 class js_panel_window_cui
     : public js_panel_window
     , public uie::window
@@ -38,3 +41,5 @@ private:
     using t_parent = js_panel_window;
     uie::window_host_ptr m_host;
 };
+
+} // namespace smp::panel

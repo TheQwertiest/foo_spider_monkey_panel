@@ -146,7 +146,7 @@ const JSClass JsWindow::JsClass = jsClass;
 const JSFunctionSpec* JsWindow::JsFunctions = jsFunctions;
 const JSPropertySpec* JsWindow::JsProperties = jsProperties;
 
-JsWindow::JsWindow( JSContext* cx, js_panel_window& parentPanel, std::unique_ptr<FbProperties> fbProperties )
+JsWindow::JsWindow( JSContext* cx, smp::panel::js_panel_window& parentPanel, std::unique_ptr<FbProperties> fbProperties )
     : pJsCtx_( cx )
     , parentPanel_( parentPanel )
     , fbProperties_( std::move( fbProperties ) )
@@ -159,7 +159,7 @@ JsWindow::~JsWindow()
 }
 
 std::unique_ptr<JsWindow>
-JsWindow::CreateNative( JSContext* cx, js_panel_window& parentPanel )
+JsWindow::CreateNative( JSContext* cx, smp::panel::js_panel_window& parentPanel )
 {
     std::unique_ptr<FbProperties> fbProperties = FbProperties::Create( cx, parentPanel );
     if ( !fbProperties )
@@ -170,7 +170,7 @@ JsWindow::CreateNative( JSContext* cx, js_panel_window& parentPanel )
     return std::unique_ptr<JsWindow>( new JsWindow( cx, parentPanel, std::move( fbProperties ) ) );
 }
 
-size_t JsWindow::GetInternalSize( const js_panel_window& parentPanel )
+size_t JsWindow::GetInternalSize( const smp::panel::js_panel_window& parentPanel )
 {
     return sizeof( FbProperties );
 }
@@ -263,7 +263,7 @@ JSObject* JsWindow::CreateTooltipWithOpt( size_t optArgCount, const std::wstring
     case 3:
         return CreateTooltip();
     default:
-        throw smp::SmpException( smp::string::Formatter() << "Internal error: invalid number of optional arguments specified: " << optArgCount );
+        throw SmpException( smp::string::Formatter() << "Internal error: invalid number of optional arguments specified: " << optArgCount );
     }
 }
 
@@ -300,7 +300,7 @@ void JsWindow::DefinePanel( const pfc::string8_fast& name, JS::HandleValue optio
             bool hasProperty;
             if ( !JS_HasProperty( pJsCtx_, jsOptions, "features", &hasProperty ) )
             {
-                throw smp::JsException();
+                throw JsException();
             }
 
             if ( hasProperty )
@@ -308,7 +308,7 @@ void JsWindow::DefinePanel( const pfc::string8_fast& name, JS::HandleValue optio
                 JS::RootedValue jsFeaturesValue( pJsCtx_ );
                 if ( !JS_GetProperty( pJsCtx_, jsOptions, "features", &jsFeaturesValue ) )
                 {
-                    throw smp::JsException();
+                    throw JsException();
                 }
 
                 SmpException::ExpectTrue( jsFeaturesValue.isObject(), "`features` is not an object" );
@@ -353,7 +353,7 @@ uint32_t JsWindow::GetColourCUI( uint32_t type, const std::wstring& guidstr )
         return 0;
     }
 
-    SmpException::ExpectTrue( parentPanel_.GetPanelType() == js_panel_window::PanelType::CUI, "Can be called only in CUI" );
+    SmpException::ExpectTrue( parentPanel_.GetPanelType() == panel::PanelType::CUI, "Can be called only in CUI" );
 
     GUID guid;
     if ( guidstr.empty() )
@@ -389,7 +389,7 @@ uint32_t JsWindow::GetColourDUI( uint32_t type )
         return 0;
     }
 
-    SmpException::ExpectTrue( parentPanel_.GetPanelType() == js_panel_window::PanelType::DUI, "Can be called only in DUI" );
+    SmpException::ExpectTrue( parentPanel_.GetPanelType() == panel::PanelType::DUI, "Can be called only in DUI" );
 
     return parentPanel_.GetColourDUI( type );
 }
@@ -401,7 +401,7 @@ JSObject* JsWindow::GetFontCUI( uint32_t type, const std::wstring& guidstr )
         return nullptr;
     }
 
-    SmpException::ExpectTrue( parentPanel_.GetPanelType() == js_panel_window::PanelType::CUI, "Can be called only in CUI" );
+    SmpException::ExpectTrue( parentPanel_.GetPanelType() == panel::PanelType::CUI, "Can be called only in CUI" );
 
     GUID guid;
     if ( guidstr.empty() )
@@ -449,7 +449,7 @@ JSObject* JsWindow::GetFontDUI( uint32_t type )
         return nullptr;
     }
 
-    SmpException::ExpectTrue( parentPanel_.GetPanelType() == js_panel_window::PanelType::DUI, "Can be called only in DUI" );
+    SmpException::ExpectTrue( parentPanel_.GetPanelType() == panel::PanelType::DUI, "Can be called only in DUI" );
 
     HFONT hFont = parentPanel_.GetFontDUI( type ); // No need to delete, it is managed by DUI
     if ( !hFont )
@@ -497,7 +497,7 @@ void JsWindow::NotifyOthers( const std::wstring& name, JS::HandleValue info )
     }
 
     // TODO: think about replacing with PostMessage
-    panel_manager::instance().send_msg_to_others(
+    panel::panel_manager::instance().send_msg_to_others(
         parentPanel_.GetHWND(),
         static_cast<UINT>( smp::InternalMessage::notify_data ),
         reinterpret_cast<WPARAM>( &name ),
@@ -511,7 +511,7 @@ void JsWindow::Reload()
         return;
     }
 
-    PostMessage( parentPanel_.GetHWND(), static_cast<UINT>( smp::InternalMessage::reload_script ), 0, 0 );
+    PostMessage( parentPanel_.GetHWND(), static_cast<UINT>( InternalMessage::reload_script ), 0, 0 );
 }
 
 void JsWindow::Repaint( bool force )

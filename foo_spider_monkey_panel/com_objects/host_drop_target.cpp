@@ -162,7 +162,7 @@ HRESULT HostDropTarget::OnDrop( IDataObject* pDataObj, DWORD grfKeyState, POINTL
 
 void HostDropTarget::SendDragMessage( DWORD msgId, DWORD grfKeyState, POINTL pt )
 {
-    mozjs::DropActionMessageParams msgParams;
+    panel::DropActionMessageParams msgParams;
     msgParams.actionParams = actionParams_;
     msgParams.keyState = grfKeyState;
     msgParams.pt = pt;

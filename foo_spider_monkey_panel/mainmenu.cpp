@@ -2,6 +2,8 @@
 #include "user_message.h"
 #include "panel_manager.h"
 
+using namespace smp;
+
 static mainmenu_group_popup_factory g_mainmenu_group(
      g_guid_smp_mainmenu_group_id, mainmenu_groups::file, static_cast<t_uint32>(mainmenu_commands::sort_priority_dontcare), SMP_NAME
 );
@@ -72,7 +74,7 @@ public:
 	}
 	void execute(t_uint32 p_index, service_ptr_t<service_base> p_callback)
 	{
-		panel_manager::instance().post_msg_to_all(static_cast<UINT>(smp::InternalMessage::main_menu_item), p_index + 1);
+		panel::panel_manager::instance().post_msg_to_all(static_cast<UINT>(InternalMessage::main_menu_item), p_index + 1);
 	}
 	bool get_display(t_uint32 p_index, pfc::string_base& p_out, t_uint32& p_flags)
 	{

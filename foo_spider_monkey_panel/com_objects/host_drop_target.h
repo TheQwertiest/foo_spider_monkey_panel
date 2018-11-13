@@ -28,7 +28,7 @@ private:
     void SendDragMessage( DWORD msgId, DWORD grfKeyState, POINTL pt );
 
 private:
-    mozjs::DropActionParams actionParams_;
+    panel::DropActionParams actionParams_;
     IDataObjectPtr pDataObject_ = nullptr;
     DWORD m_fb2kAllowedEffect = DROPEFFECT_NONE;
 

@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "ui_property.h"
 
+#include <js_panel_window.h>
+
 // stringstream
 #include <sstream>
 // precision

@@ -5,7 +5,10 @@
 #include <scintilla/editorctrl.h>
 
 // Forward declarations
+namespace smp::panel
+{
 class js_panel_window;
+}
 
 class CDialogFind;
 class CDialogReplace;
@@ -13,7 +16,7 @@ class CDialogReplace;
 class CDialogConf : public CDialogImpl<CDialogConf>, public CDialogResize<CDialogConf>
 {
 public:
-	CDialogConf(js_panel_window* p_parent) : m_parent(p_parent), m_dlgfind(NULL), m_dlgreplace(NULL), m_lastSearchText(""), m_lastFlags(0)
+	CDialogConf(smp::panel::js_panel_window* p_parent) : m_parent(p_parent), m_dlgfind(NULL), m_dlgreplace(NULL), m_lastSearchText(""), m_lastFlags(0)
 	{
 	}
 
@@ -73,7 +76,7 @@ private:
 	CScriptEditorCtrl m_editorctrl;
 	CDialogFind* m_dlgfind;
 	CDialogReplace* m_dlgreplace;
-	js_panel_window* m_parent;
+    smp::panel::js_panel_window* m_parent;
 	pfc::string8 m_caption;
 	unsigned int m_lastFlags;
 	pfc::string8 m_lastSearchText;

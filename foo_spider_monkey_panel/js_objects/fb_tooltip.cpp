@@ -70,7 +70,7 @@ const JSFunctionSpec* JsFbTooltip::JsFunctions = jsFunctions;
 const JSPropertySpec* JsFbTooltip::JsProperties = jsProperties;
 const JsPrototypeId JsFbTooltip::PrototypeId = JsPrototypeId::FbTooltip;
 
-JsFbTooltip::JsFbTooltip( JSContext* cx, HFONT hFont, HWND hParentWnd, HWND hTooltipWnd, std::unique_ptr<TOOLINFO> toolInfo, PanelTooltipParam& p_param_ptr )
+JsFbTooltip::JsFbTooltip( JSContext* cx, HFONT hFont, HWND hParentWnd, HWND hTooltipWnd, std::unique_ptr<TOOLINFO> toolInfo, panel::PanelTooltipParam& p_param_ptr )
     : pJsCtx_( cx )
     , hFont_( hFont )
     , hParentWnd_( hParentWnd )
@@ -99,7 +99,7 @@ JsFbTooltip::~JsFbTooltip()
 }
 
 std::unique_ptr<JsFbTooltip>
-JsFbTooltip::CreateNative( JSContext* cx, HWND hParentWnd, PanelTooltipParam& p_param_ptr )
+JsFbTooltip::CreateNative( JSContext* cx, HWND hParentWnd, panel::PanelTooltipParam& p_param_ptr )
 {
     SmpException::ExpectTrue( hParentWnd, "Internal error: hParentWnd is null" );
 
@@ -156,7 +156,7 @@ JsFbTooltip::CreateNative( JSContext* cx, HWND hParentWnd, PanelTooltipParam& p_
     return std::unique_ptr<JsFbTooltip>( new JsFbTooltip( cx, hFont, hParentWnd, hTooltipWnd, std::move( toolInfo ), p_param_ptr ) );
 }
 
-size_t JsFbTooltip::GetInternalSize( HWND /*hParentWnd*/, const smp::PanelTooltipParam& /*p_param_ptr*/ )
+size_t JsFbTooltip::GetInternalSize( HWND /*hParentWnd*/, const panel::PanelTooltipParam& /*p_param_ptr*/ )
 {
     return sizeof( LOGFONT ) + sizeof( TOOLINFO );
 }

@@ -32,8 +32,8 @@ public:
 public:
     ~JsFbTooltip();
 
-    static std::unique_ptr<JsFbTooltip> CreateNative( JSContext* cx, HWND hParentWnd, smp::PanelTooltipParam& p_param_ptr );
-    static size_t GetInternalSize( HWND hParentWnd, const smp::PanelTooltipParam& p_param_ptr );
+    static std::unique_ptr<JsFbTooltip> CreateNative( JSContext* cx, HWND hParentWnd, smp::panel::PanelTooltipParam& p_param_ptr );
+    static size_t GetInternalSize( HWND hParentWnd, const smp::panel::PanelTooltipParam& p_param_ptr );
 
 public:
     void Activate();
@@ -49,7 +49,7 @@ public:
     void put_TrackActivate( bool activate );
 
 private:
-    JsFbTooltip( JSContext* cx, HFONT hFont, HWND hParentWnd, HWND hTooltipWnd, std::unique_ptr<TOOLINFO> toolInfo, smp::PanelTooltipParam& p_param_ptr );
+    JsFbTooltip( JSContext* cx, HFONT hFont, HWND hParentWnd, HWND hTooltipWnd, std::unique_ptr<TOOLINFO> toolInfo, smp::panel::PanelTooltipParam& p_param_ptr );
 
 private:
     JSContext* pJsCtx_ = nullptr;
@@ -59,7 +59,7 @@ private:
     HWND hParentWnd_;
     std::wstring tipBuffer_;
     std::unique_ptr<TOOLINFO> toolInfo_;
-    smp::PanelTooltipParam& panelTooltipParam_;
+    smp::panel::PanelTooltipParam& panelTooltipParam_;
 };
 
 } // namespace mozjs

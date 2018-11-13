@@ -4,8 +4,11 @@
 
 #include <optional>
 
-
+namespace smp::panel
+{
 class js_panel_window;
+struct DropActionParams;
+} // namespace smp::panel
 
 namespace mozjs
 {
@@ -14,7 +17,6 @@ class JsEngine;
 class JsGlobalObject;
 class JsGdiGraphics;
 class JsDropSourceAction;
-struct DropActionParams;
 
 // Must not leak exceptions!
 class JsContainer final
@@ -24,7 +26,7 @@ class JsContainer final
     friend class JsEngine;
 
 public:
-    JsContainer(js_panel_window& parentPanel);
+    JsContainer( smp::panel::js_panel_window& parentPanel );
     ~JsContainer();
 
 public:
@@ -40,7 +42,7 @@ public:
     bool Initialize();
     void Finalize();
 
-    void Fail( const pfc::string8_fast &errorText );
+    void Fail( const pfc::string8_fast& errorText );
 
     JsStatus GetStatus() const;
 
@@ -62,7 +64,7 @@ public:
     static void RunJobs();
 
 public: // callbacks that require js data
-    void InvokeOnDragAction( const pfc::string8_fast& functionName, const POINTL& pt, uint32_t keyState, DropActionParams& actionParams );    
+    void InvokeOnDragAction( const pfc::string8_fast& functionName, const POINTL& pt, uint32_t keyState, smp::panel::DropActionParams& actionParams );
     void InvokeOnNotify( WPARAM wp, LPARAM lp );
     void InvokeOnPaint( Gdiplus::Graphics& gr );
     void InvokeTimerFunction( uint32_t timerId );
@@ -70,7 +72,7 @@ public: // callbacks that require js data
 private:
     JsContainer( const JsContainer& ) = delete;
 
-    void SetJsCtx( JSContext *cx );
+    void SetJsCtx( JSContext* cx );
 
     bool IsReadyForCallback() const;
 
@@ -78,8 +80,8 @@ private:
     bool CreateDropActionIfNeeded();
 
 private:
-    JSContext * pJsCtx_ = nullptr;
-    js_panel_window* pParentPanel_ = nullptr;
+    JSContext* pJsCtx_ = nullptr;
+    smp::panel::js_panel_window* pParentPanel_ = nullptr;
 
     JS::PersistentRootedObject jsGlobal_;
     JS::PersistentRootedObject jsGraphics_;
@@ -92,4 +94,4 @@ private:
     bool isParsingScript_ = false;
 };
 
-}
+} // namespace mozjs

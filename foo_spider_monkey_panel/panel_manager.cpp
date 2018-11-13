@@ -3,137 +3,137 @@
 
 #include <message_data_holder.h>
 
+namespace
+{
+
 using namespace smp;
+using namespace smp::panel;
+
+class my_dsp_config_callback : public dsp_config_callback
+{
+public:
+    virtual void on_core_settings_change( const dsp_chain_config& p_newdata );
+};
+
+class my_initquit
+    : public initquit
+    , public ui_selection_callback
+    , public replaygain_core_settings_notify
+    , public output_config_change_callback
+{
+public:
+    void on_init() override;
+    void on_quit() override;
+    void on_changed( t_replaygain_config const& cfg ) override;
+    void on_selection_changed( metadb_handle_list_cref p_selection ) override;
+    void outputConfigChanged() override;
+};
+
+class my_library_callback : public library_callback
+{
+public:
+    void on_items_added( metadb_handle_list_cref p_data ) override;
+    void on_items_modified( metadb_handle_list_cref p_data ) override;
+    void on_items_removed( metadb_handle_list_cref p_data ) override;
+};
+
+class my_metadb_io_callback : public metadb_io_callback
+{
+public:
+    void on_changed_sorted( metadb_handle_list_cref p_items_sorted, bool p_fromhook ) override;
+};
+
+class my_play_callback_static : public play_callback_static
+{
+public:
+    unsigned get_flags() override;
+    void on_playback_dynamic_info( const file_info& info ) override;
+    void on_playback_dynamic_info_track( const file_info& info ) override;
+    void on_playback_edited( metadb_handle_ptr track ) override;
+    void on_playback_new_track( metadb_handle_ptr track ) override;
+    void on_playback_pause( bool state ) override;
+    void on_playback_seek( double time ) override;
+    void on_playback_starting( play_control::t_track_command cmd, bool paused ) override;
+    void on_playback_stop( play_control::t_stop_reason reason ) override;
+    void on_playback_time( double time ) override;
+    void on_volume_change( float newval ) override;
+};
+
+class my_playback_queue_callback : public playback_queue_callback
+{
+public:
+    void on_changed( t_change_origin p_origin ) override;
+};
+
+class my_playback_statistics_collector : public playback_statistics_collector
+{
+public:
+    void on_item_played( metadb_handle_ptr p_item ) override;
+};
+
+class my_config_object_notify : public config_object_notify
+{
+public:
+    GUID get_watched_object( t_size p_index ) override;
+    t_size get_watched_object_count() override;
+    void on_watched_object_changed( const config_object::ptr& p_object ) override;
+};
+
+class my_playlist_callback_static : public playlist_callback_static
+{
+public:
+    void on_default_format_changed() override
+    {
+    }
+    void on_items_modified( t_size p_playlist, const pfc::bit_array& p_mask ) override
+    {
+    }
+    void on_items_modified_fromplayback( t_size p_playlist, const pfc::bit_array& p_mask, play_control::t_display_level p_level ) override
+    {
+    }
+    void on_items_removing( t_size p_playlist, const pfc::bit_array& p_mask, t_size p_old_count, t_size p_new_count ) override
+    {
+    }
+    void on_items_replaced( t_size p_playlist, const pfc::bit_array& p_mask, const pfc::list_base_const_t<t_on_items_replaced_entry>& p_data ) override
+    {
+    }
+    void on_playlists_removing( const pfc::bit_array& p_mask, t_size p_old_count, t_size p_new_count ) override
+    {
+    }
+
+    unsigned get_flags() override;
+    void on_item_ensure_visible( t_size p_playlist, t_size p_idx ) override;
+    void on_item_focus_change( t_size p_playlist, t_size p_from, t_size p_to ) override;
+    void on_items_added( t_size p_playlist, t_size p_start, metadb_handle_list_cref p_data, const pfc::bit_array& p_selection ) override;
+    void on_items_removed( t_size p_playlist, const pfc::bit_array& p_mask, t_size p_old_count, t_size p_new_count ) override;
+    void on_items_reordered( t_size p_playlist, const t_size* p_order, t_size p_count ) override;
+    void on_items_selection_change( t_size p_playlist, const pfc::bit_array& p_affected, const pfc::bit_array& p_state ) override;
+    void on_playback_order_changed( t_size p_new_index ) override;
+    void on_playlist_activate( t_size p_old, t_size p_new ) override;
+    void on_playlist_created( t_size p_index, const char* p_name, t_size p_name_len ) override;
+    void on_playlist_locked( t_size p_playlist, bool p_locked ) override;
+    void on_playlist_renamed( t_size p_index, const char* p_new_name, t_size p_new_name_len ) override;
+    void on_playlists_removed( const pfc::bit_array& p_mask, t_size p_old_count, t_size p_new_count ) override;
+    void on_playlists_reorder( const t_size* p_order, t_size p_count ) override;
+
+private:
+    void on_playlist_switch();
+    void on_playlists_changed();
+};
+
+} // namespace
 
 namespace
 {
 
-initquit_factory_t<my_initquit> g_my_initquit;
-library_callback_factory_t<my_library_callback> g_my_library_callback;
-play_callback_static_factory_t<my_play_callback_static> g_my_play_callback_static;
-play_callback_static_factory_t<my_playback_queue_callback> g_my_playback_queue_callback;
-playback_statistics_collector_factory_t<my_playback_statistics_collector> g_my_playback_statistics_collector;
-service_factory_single_t<my_config_object_notify> g_my_config_object_notify;
-service_factory_single_t<my_dsp_config_callback> g_my_dsp_config_callback;
-service_factory_single_t<my_metadb_io_callback> g_my_metadb_io_callback;
-service_factory_single_t<my_playlist_callback_static> g_my_playlist_callback_static;
-
-} // namespace
-
-panel_manager panel_manager::sm_instance;
-
-panel_manager& panel_manager::instance()
-{
-    return sm_instance;
-}
-
-t_size panel_manager::get_count()
-{
-    return m_hwnds.size();
-}
-
-void panel_manager::add_window( HWND p_wnd )
-{
-    if ( m_hwnds.cend() == std::find( m_hwnds.cbegin(), m_hwnds.cend(), p_wnd ) )
-    {
-        m_hwnds.push_back( p_wnd );
-    }
-}
-
-void panel_manager::post_msg_to_all( UINT p_msg )
-{
-    post_msg_to_all( p_msg, 0, 0 );
-}
-
-void panel_manager::post_msg_to_all( UINT p_msg, WPARAM p_wp )
-{
-    post_msg_to_all( p_msg, p_wp, 0 );
-}
-
-void panel_manager::post_msg_to_all( UINT p_msg, WPARAM p_wp, LPARAM p_lp )
-{
-    for ( const auto& hWnd : m_hwnds )
-    {
-        PostMessage( hWnd, p_msg, p_wp, p_lp );
-    }
-}
-
-void panel_manager::post_callback_msg( HWND p_wnd, smp::CallbackMessage p_msg, std::unique_ptr<smp::panel::CallbackData> data )
-{
-    auto& dataStorage = MessageDataHolder::GetInstance();
-
-    std::shared_ptr<panel::CallbackData> sharedData( data.release() );
-    dataStorage.StoreData( p_msg, std::vector<HWND>{p_wnd}, sharedData );
-
-    BOOL bRet = PostMessage( p_wnd, static_cast<UINT>( p_msg ), 0, 0 );
-    if ( !bRet )
-    {
-        dataStorage.FlushDataForHwnd( p_wnd, sharedData.get() );
-    }
-}
-
-void panel_manager::post_callback_msg_to_all( CallbackMessage p_msg, std::unique_ptr<panel::CallbackData> data )
-{
-    if ( m_hwnds.empty() )
-    {
-        return;
-    }
-
-    auto& dataStorage = MessageDataHolder::GetInstance();
-
-    std::shared_ptr<panel::CallbackData> sharedData( data.release() );
-    dataStorage.StoreData( p_msg, m_hwnds, sharedData );
-
-    for ( const auto& hWnd : m_hwnds )
-    {
-        BOOL bRet = PostMessage( hWnd, static_cast<UINT>( p_msg ), 0, 0 );
-        if ( !bRet )
-        {
-            dataStorage.FlushDataForHwnd( hWnd, sharedData.get() );
-        }
-    }
-}
-
-void panel_manager::remove_window( HWND p_wnd )
-{
-    if ( auto it = std::find( m_hwnds.cbegin(), m_hwnds.cend(), p_wnd ); m_hwnds.cend() != it )
-    {
-        m_hwnds.erase( it );
-    }
-}
-
-void panel_manager::send_msg_to_all( UINT p_msg, WPARAM p_wp, LPARAM p_lp )
-{
-    for ( const auto& hWnd : m_hwnds )
-    {
-        SendMessage( hWnd, p_msg, p_wp, p_lp );
-    }
-}
-
-void panel_manager::send_msg_to_others( HWND p_wnd_except, UINT p_msg, WPARAM p_wp, LPARAM p_lp )
-{
-    if ( m_hwnds.size() < 2 )
-    {
-        return;
-    }
-
-    for ( const auto& hWnd : m_hwnds )
-    {
-        if ( hWnd != p_wnd_except )
-        {
-            SendMessage( hWnd, p_msg, p_wp, p_lp );
-        }
-    }
-}
-
 void my_dsp_config_callback::on_core_settings_change( const dsp_chain_config& p_newdata )
 {
-    panel_manager::instance().post_msg_to_all( static_cast<UINT>( PlayerMessage::fb_dsp_preset_changed ) );
+    panel::panel_manager::instance().post_msg_to_all( static_cast<UINT>( PlayerMessage::fb_dsp_preset_changed ) );
 }
 
 void my_initquit::on_selection_changed( metadb_handle_list_cref p_selection )
 {
-    panel_manager::instance().post_msg_to_all( static_cast<UINT>( PlayerMessage::fb_selection_changed ) );
+    panel::panel_manager::instance().post_msg_to_all( static_cast<UINT>( PlayerMessage::fb_selection_changed ) );
 }
 
 void my_initquit::on_init()
@@ -164,36 +164,36 @@ void my_initquit::on_quit()
 
 void my_initquit::on_changed( t_replaygain_config const& cfg )
 {
-    panel_manager::instance().post_msg_to_all( static_cast<UINT>( PlayerMessage::fb_replaygain_mode_changed ), (WPARAM)cfg.m_source_mode );
+    panel::panel_manager::instance().post_msg_to_all( static_cast<UINT>( PlayerMessage::fb_replaygain_mode_changed ), (WPARAM)cfg.m_source_mode );
 }
 
 void my_initquit::outputConfigChanged()
 {
-    panel_manager::instance().post_msg_to_all( static_cast<UINT>( PlayerMessage::fb_output_device_changed ) );
+    panel::panel_manager::instance().post_msg_to_all( static_cast<UINT>( PlayerMessage::fb_output_device_changed ) );
 }
 
 void my_library_callback::on_items_added( metadb_handle_list_cref p_data )
 {
-    panel_manager::instance().post_callback_msg_to_all( CallbackMessage::fb_library_items_added,
-                                                        std::make_unique<smp::panel::CallbackDataImpl<metadb_callback_data>>( metadb_callback_data( p_data, false ) ) );
+    panel::panel_manager::instance().post_callback_msg_to_all( CallbackMessage::fb_library_items_added,
+                                                               std::make_unique<CallbackDataImpl<metadb_callback_data>>( metadb_callback_data( p_data, false ) ) );
 }
 
 void my_library_callback::on_items_modified( metadb_handle_list_cref p_data )
 {
-    panel_manager::instance().post_callback_msg_to_all( CallbackMessage::fb_library_items_changed,
-                                                        std::make_unique<smp::panel::CallbackDataImpl<metadb_callback_data>>( metadb_callback_data( p_data, false ) ) );
+    panel::panel_manager::instance().post_callback_msg_to_all( CallbackMessage::fb_library_items_changed,
+                                                               std::make_unique<CallbackDataImpl<metadb_callback_data>>( metadb_callback_data( p_data, false ) ) );
 }
 
 void my_library_callback::on_items_removed( metadb_handle_list_cref p_data )
 {
-    panel_manager::instance().post_callback_msg_to_all( CallbackMessage::fb_library_items_removed,
-                                                        std::make_unique<smp::panel::CallbackDataImpl<metadb_callback_data>>( metadb_callback_data( p_data, false ) ) );
+    panel::panel_manager::instance().post_callback_msg_to_all( CallbackMessage::fb_library_items_removed,
+                                                               std::make_unique<CallbackDataImpl<metadb_callback_data>>( metadb_callback_data( p_data, false ) ) );
 }
 
 void my_metadb_io_callback::on_changed_sorted( metadb_handle_list_cref p_items_sorted, bool p_fromhook )
 {
-    panel_manager::instance().post_callback_msg_to_all( CallbackMessage::fb_metadb_changed,
-                                                        std::make_unique<smp::panel::CallbackDataImpl<metadb_callback_data>>( metadb_callback_data( p_items_sorted, p_fromhook ) ) );
+    panel::panel_manager::instance().post_callback_msg_to_all( CallbackMessage::fb_metadb_changed,
+                                                               std::make_unique<CallbackDataImpl<metadb_callback_data>>( metadb_callback_data( p_items_sorted, p_fromhook ) ) );
 }
 
 unsigned my_play_callback_static::get_flags()
@@ -203,68 +203,68 @@ unsigned my_play_callback_static::get_flags()
 
 void my_play_callback_static::on_playback_dynamic_info( const file_info& info )
 {
-    panel_manager::instance().post_msg_to_all( static_cast<UINT>( PlayerMessage::fb_playback_dynamic_info ) );
+    panel::panel_manager::instance().post_msg_to_all( static_cast<UINT>( PlayerMessage::fb_playback_dynamic_info ) );
 }
 
 void my_play_callback_static::on_playback_dynamic_info_track( const file_info& info )
 {
-    panel_manager::instance().post_msg_to_all( static_cast<UINT>( PlayerMessage::fb_playback_dynamic_info_track ) );
+    panel::panel_manager::instance().post_msg_to_all( static_cast<UINT>( PlayerMessage::fb_playback_dynamic_info_track ) );
 }
 
 void my_play_callback_static::on_playback_edited( metadb_handle_ptr track )
 {
-    panel_manager::instance().post_callback_msg_to_all( CallbackMessage::fb_playback_edited,
-                                                        std::make_unique<smp::panel::CallbackDataImpl<metadb_handle_ptr>>( track ) );
+    panel::panel_manager::instance().post_callback_msg_to_all( CallbackMessage::fb_playback_edited,
+                                                               std::make_unique<CallbackDataImpl<metadb_handle_ptr>>( track ) );
 }
 
 void my_play_callback_static::on_playback_new_track( metadb_handle_ptr track )
 {
-    panel_manager::instance().post_callback_msg_to_all( CallbackMessage::fb_playback_new_track,
-                                                        std::make_unique<smp::panel::CallbackDataImpl<metadb_handle_ptr>>( track ) );
+    panel::panel_manager::instance().post_callback_msg_to_all( CallbackMessage::fb_playback_new_track,
+                                                               std::make_unique<CallbackDataImpl<metadb_handle_ptr>>( track ) );
 }
 
 void my_play_callback_static::on_playback_pause( bool state )
 {
-    panel_manager::instance().post_msg_to_all( static_cast<UINT>( PlayerMessage::fb_playback_pause ), (WPARAM)state );
+    panel::panel_manager::instance().post_msg_to_all( static_cast<UINT>( PlayerMessage::fb_playback_pause ), (WPARAM)state );
 }
 
 void my_play_callback_static::on_playback_seek( double time )
 {
-    panel_manager::instance().post_callback_msg_to_all( CallbackMessage::fb_playback_seek,
-                                                        std::make_unique<smp::panel::CallbackDataImpl<double>>( time ) );
+    panel::panel_manager::instance().post_callback_msg_to_all( CallbackMessage::fb_playback_seek,
+                                                               std::make_unique<CallbackDataImpl<double>>( time ) );
 }
 
 void my_play_callback_static::on_playback_starting( play_control::t_track_command cmd, bool paused )
 {
-    panel_manager::instance().post_msg_to_all( static_cast<UINT>( PlayerMessage::fb_playback_starting ), (WPARAM)cmd, (LPARAM)paused );
+    panel::panel_manager::instance().post_msg_to_all( static_cast<UINT>( PlayerMessage::fb_playback_starting ), (WPARAM)cmd, (LPARAM)paused );
 }
 
 void my_play_callback_static::on_playback_stop( play_control::t_stop_reason reason )
 {
-    panel_manager::instance().post_msg_to_all( static_cast<UINT>( PlayerMessage::fb_playback_stop ), (WPARAM)reason );
+    panel::panel_manager::instance().post_msg_to_all( static_cast<UINT>( PlayerMessage::fb_playback_stop ), (WPARAM)reason );
 }
 
 void my_play_callback_static::on_playback_time( double time )
 {
-    panel_manager::instance().post_callback_msg_to_all( CallbackMessage::fb_playback_time,
-                                                        std::make_unique<smp::panel::CallbackDataImpl<double>>( time ) );
+    panel::panel_manager::instance().post_callback_msg_to_all( CallbackMessage::fb_playback_time,
+                                                               std::make_unique<CallbackDataImpl<double>>( time ) );
 }
 
 void my_play_callback_static::on_volume_change( float newval )
 {
-    panel_manager::instance().post_callback_msg_to_all( CallbackMessage::fb_volume_change,
-                                                        std::make_unique<smp::panel::CallbackDataImpl<float>>( newval ) );
+    panel::panel_manager::instance().post_callback_msg_to_all( CallbackMessage::fb_volume_change,
+                                                               std::make_unique<CallbackDataImpl<float>>( newval ) );
 }
 
 void my_playback_queue_callback::on_changed( t_change_origin p_origin )
 {
-    panel_manager::instance().post_msg_to_all( static_cast<UINT>( PlayerMessage::fb_playback_queue_changed ), (WPARAM)p_origin );
+    panel::panel_manager::instance().post_msg_to_all( static_cast<UINT>( PlayerMessage::fb_playback_queue_changed ), (WPARAM)p_origin );
 }
 
 void my_playback_statistics_collector::on_item_played( metadb_handle_ptr p_item )
 {
-    panel_manager::instance().post_callback_msg_to_all( CallbackMessage::fb_item_played,
-                                                        std::make_unique<smp::panel::CallbackDataImpl<metadb_handle_ptr>>( p_item ) );
+    panel::panel_manager::instance().post_callback_msg_to_all( CallbackMessage::fb_item_played,
+                                                               std::make_unique<CallbackDataImpl<metadb_handle_ptr>>( p_item ) );
 }
 
 GUID my_config_object_notify::get_watched_object( t_size p_index )
@@ -319,7 +319,7 @@ void my_config_object_notify::on_watched_object_changed( const config_object::pt
 
     bool boolval;
     p_object->get_data_bool( boolval );
-    panel_manager::instance().post_msg_to_all( msg, boolval );
+    panel::panel_manager::instance().post_msg_to_all( msg, boolval );
 }
 
 unsigned my_playlist_callback_static::get_flags()
@@ -329,38 +329,38 @@ unsigned my_playlist_callback_static::get_flags()
 
 void my_playlist_callback_static::on_item_ensure_visible( t_size p_playlist, t_size p_idx )
 {
-    panel_manager::instance().post_msg_to_all( static_cast<UINT>( PlayerMessage::fb_playlist_item_ensure_visible ), p_playlist, p_idx );
+    panel::panel_manager::instance().post_msg_to_all( static_cast<UINT>( PlayerMessage::fb_playlist_item_ensure_visible ), p_playlist, p_idx );
 }
 
 void my_playlist_callback_static::on_item_focus_change( t_size p_playlist, t_size p_from, t_size p_to )
 {
-    panel_manager::instance().post_callback_msg_to_all( CallbackMessage::fb_item_focus_change,
-                                                        std::make_unique<smp::panel::CallbackDataImpl<t_size, t_size, t_size>>( p_playlist, p_from, p_to ) );
+    panel::panel_manager::instance().post_callback_msg_to_all( CallbackMessage::fb_item_focus_change,
+                                                               std::make_unique<CallbackDataImpl<t_size, t_size, t_size>>( p_playlist, p_from, p_to ) );
 }
 
 void my_playlist_callback_static::on_items_added( t_size p_playlist, t_size p_start, metadb_handle_list_cref p_data, const pfc::bit_array& p_selection )
 {
-    panel_manager::instance().post_msg_to_all( static_cast<UINT>( PlayerMessage::fb_playlist_items_added ), p_playlist );
+    panel::panel_manager::instance().post_msg_to_all( static_cast<UINT>( PlayerMessage::fb_playlist_items_added ), p_playlist );
 }
 
 void my_playlist_callback_static::on_items_removed( t_size p_playlist, const pfc::bit_array& p_mask, t_size p_old_count, t_size p_new_count )
 {
-    panel_manager::instance().post_msg_to_all( static_cast<UINT>( PlayerMessage::fb_playlist_items_removed ), p_playlist, p_new_count );
+    panel::panel_manager::instance().post_msg_to_all( static_cast<UINT>( PlayerMessage::fb_playlist_items_removed ), p_playlist, p_new_count );
 }
 
 void my_playlist_callback_static::on_items_reordered( t_size p_playlist, const t_size* p_order, t_size p_count )
 {
-    panel_manager::instance().post_msg_to_all( static_cast<UINT>( PlayerMessage::fb_playlist_items_reordered ), p_playlist );
+    panel::panel_manager::instance().post_msg_to_all( static_cast<UINT>( PlayerMessage::fb_playlist_items_reordered ), p_playlist );
 }
 
 void my_playlist_callback_static::on_items_selection_change( t_size p_playlist, const pfc::bit_array& p_affected, const pfc::bit_array& p_state )
 {
-    panel_manager::instance().post_msg_to_all( static_cast<UINT>( PlayerMessage::fb_playlist_items_selection_change ) );
+    panel::panel_manager::instance().post_msg_to_all( static_cast<UINT>( PlayerMessage::fb_playlist_items_selection_change ) );
 }
 
 void my_playlist_callback_static::on_playback_order_changed( t_size p_new_index )
 {
-    panel_manager::instance().post_msg_to_all( static_cast<UINT>( PlayerMessage::fb_playback_order_changed ), (WPARAM)p_new_index );
+    panel::panel_manager::instance().post_msg_to_all( static_cast<UINT>( PlayerMessage::fb_playback_order_changed ), (WPARAM)p_new_index );
 }
 
 void my_playlist_callback_static::on_playlist_activate( t_size p_old, t_size p_new )
@@ -398,10 +398,138 @@ void my_playlist_callback_static::on_playlists_reorder( const t_size* p_order, t
 
 void my_playlist_callback_static::on_playlist_switch()
 {
-    panel_manager::instance().post_msg_to_all( static_cast<UINT>( PlayerMessage::fb_playlist_switch ) );
+    panel::panel_manager::instance().post_msg_to_all( static_cast<UINT>( PlayerMessage::fb_playlist_switch ) );
 }
 
 void my_playlist_callback_static::on_playlists_changed()
 {
-    panel_manager::instance().post_msg_to_all( static_cast<UINT>( PlayerMessage::fb_playlists_changed ) );
+    panel::panel_manager::instance().post_msg_to_all( static_cast<UINT>( PlayerMessage::fb_playlists_changed ) );
 }
+
+} // namespace
+
+namespace
+{
+
+initquit_factory_t<my_initquit> g_my_initquit;
+library_callback_factory_t<my_library_callback> g_my_library_callback;
+play_callback_static_factory_t<my_play_callback_static> g_my_play_callback_static;
+play_callback_static_factory_t<my_playback_queue_callback> g_my_playback_queue_callback;
+playback_statistics_collector_factory_t<my_playback_statistics_collector> g_my_playback_statistics_collector;
+service_factory_single_t<my_config_object_notify> g_my_config_object_notify;
+service_factory_single_t<my_dsp_config_callback> g_my_dsp_config_callback;
+service_factory_single_t<my_metadb_io_callback> g_my_metadb_io_callback;
+service_factory_single_t<my_playlist_callback_static> g_my_playlist_callback_static;
+
+} // namespace
+
+namespace smp::panel
+{
+
+panel::panel_manager panel::panel_manager::sm_instance;
+
+panel::panel_manager& panel::panel_manager::instance()
+{
+    return sm_instance;
+}
+
+t_size panel::panel_manager::get_count()
+{
+    return m_hwnds.size();
+}
+
+void panel::panel_manager::add_window( HWND p_wnd )
+{
+    if ( m_hwnds.cend() == std::find( m_hwnds.cbegin(), m_hwnds.cend(), p_wnd ) )
+    {
+        m_hwnds.push_back( p_wnd );
+    }
+}
+
+void panel::panel_manager::post_msg_to_all( UINT p_msg )
+{
+    post_msg_to_all( p_msg, 0, 0 );
+}
+
+void panel::panel_manager::post_msg_to_all( UINT p_msg, WPARAM p_wp )
+{
+    post_msg_to_all( p_msg, p_wp, 0 );
+}
+
+void panel::panel_manager::post_msg_to_all( UINT p_msg, WPARAM p_wp, LPARAM p_lp )
+{
+    for ( const auto& hWnd : m_hwnds )
+    {
+        PostMessage( hWnd, p_msg, p_wp, p_lp );
+    }
+}
+
+void panel::panel_manager::post_callback_msg( HWND p_wnd, smp::CallbackMessage p_msg, std::unique_ptr<CallbackData> data )
+{
+    auto& dataStorage = MessageDataHolder::GetInstance();
+
+    std::shared_ptr<panel::CallbackData> sharedData( data.release() );
+    dataStorage.StoreData( p_msg, std::vector<HWND>{ p_wnd }, sharedData );
+
+    BOOL bRet = PostMessage( p_wnd, static_cast<UINT>( p_msg ), 0, 0 );
+    if ( !bRet )
+    {
+        dataStorage.FlushDataForHwnd( p_wnd, sharedData.get() );
+    }
+}
+
+void panel::panel_manager::post_callback_msg_to_all( CallbackMessage p_msg, std::unique_ptr<panel::CallbackData> data )
+{
+    if ( m_hwnds.empty() )
+    {
+        return;
+    }
+
+    auto& dataStorage = MessageDataHolder::GetInstance();
+
+    std::shared_ptr<panel::CallbackData> sharedData( data.release() );
+    dataStorage.StoreData( p_msg, m_hwnds, sharedData );
+
+    for ( const auto& hWnd : m_hwnds )
+    {
+        BOOL bRet = PostMessage( hWnd, static_cast<UINT>( p_msg ), 0, 0 );
+        if ( !bRet )
+        {
+            dataStorage.FlushDataForHwnd( hWnd, sharedData.get() );
+        }
+    }
+}
+
+void panel::panel_manager::remove_window( HWND p_wnd )
+{
+    if ( auto it = std::find( m_hwnds.cbegin(), m_hwnds.cend(), p_wnd ); m_hwnds.cend() != it )
+    {
+        m_hwnds.erase( it );
+    }
+}
+
+void panel::panel_manager::send_msg_to_all( UINT p_msg, WPARAM p_wp, LPARAM p_lp )
+{
+    for ( const auto& hWnd : m_hwnds )
+    {
+        SendMessage( hWnd, p_msg, p_wp, p_lp );
+    }
+}
+
+void panel::panel_manager::send_msg_to_others( HWND p_wnd_except, UINT p_msg, WPARAM p_wp, LPARAM p_lp )
+{
+    if ( m_hwnds.size() < 2 )
+    {
+        return;
+    }
+
+    for ( const auto& hWnd : m_hwnds )
+    {
+        if ( hWnd != p_wnd_except )
+        {
+            SendMessage( hWnd, p_msg, p_wp, p_lp );
+        }
+    }
+}
+
+} // namespace smp::panel

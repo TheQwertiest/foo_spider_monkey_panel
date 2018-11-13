@@ -104,7 +104,7 @@ JsGlobalObject::~JsGlobalObject()
 }
 
 // TODO: remove js_panel_window from ctor (add a method to JsContainer instead)
-JSObject* JsGlobalObject::CreateNative( JSContext* cx, JsContainer &parentContainer, js_panel_window& parentPanel )
+JSObject* JsGlobalObject::CreateNative( JSContext* cx, JsContainer &parentContainer, smp::panel::js_panel_window& parentPanel )
 {
     if ( !jsOps.trace )
     {// JS_GlobalObjectTraceHook address is only accessible after mozjs is loaded.      

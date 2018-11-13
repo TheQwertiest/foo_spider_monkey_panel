@@ -1,5 +1,8 @@
 #pragma once
 
+namespace smp::panel
+{
+
 class js_panel_window_dui
     : public js_panel_window
     , public ui_element_instance
@@ -43,3 +46,5 @@ private:
     bool m_is_edit_mode;
     ui_element_instance_callback::ptr m_callback;
 };
+
+} // namespace smp::panel

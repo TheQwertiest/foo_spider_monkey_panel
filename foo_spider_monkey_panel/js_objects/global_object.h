@@ -3,7 +3,10 @@
 #include <optional>
 #include <set>
 
+namespace smp::panel
+{
 class js_panel_window;
+}
 
 namespace mozjs
 {
@@ -23,7 +26,7 @@ public:
 public:
     ~JsGlobalObject();
 
-    static JSObject* CreateNative( JSContext* cx, JsContainer& parentContainer, js_panel_window& parentPanel );
+    static JSObject* CreateNative( JSContext* cx, JsContainer& parentContainer, smp::panel::js_panel_window& parentPanel );
 
 public:
     void Fail( const pfc::string8_fast& errorText );

@@ -1,11 +1,10 @@
 #include <stdafx.h>
 #include "stats.h"
 
-
 namespace
 {
 
-using namespace stats;
+using namespace smp::stats;
 
 const char pinTo[] = "$lower(%artist% - %title%)";
 const t_filetimestamp retentionPeriod = system_time_periods::week * 4;
@@ -86,21 +85,21 @@ public:
     {
         switch ( index )
         {
-            case 0:
-                out = "smp_playcount";
-                break;
-            case 1:
-                out = "smp_loved";
-                break;
-            case 2:
-                out = "smp_first_played";
-                break;
-            case 3:
-                out = "smp_last_played";
-                break;
-            case 4:
-                out = "smp_rating";
-                break;
+        case 0:
+            out = "smp_playcount";
+            break;
+        case 1:
+            out = "smp_loved";
+            break;
+        case 2:
+            out = "smp_first_played";
+            break;
+        case 3:
+            out = "smp_last_played";
+            break;
+        case 4:
+            out = "smp_rating";
+            break;
         }
     }
     bool process_field( t_uint32 index, metadb_handle* handle, titleformat_text_out* out ) override
@@ -112,46 +111,46 @@ public:
 
         switch ( index )
         {
-            case 0:
-            {
-                stats_t value = tmp.playcount;
-                if ( !value )
-                    return false;
-                out->write_int( titleformat_inputtypes::meta, value );
-                return true;
-            }
-            case 1:
-            {
-                stats_t value = tmp.loved;
-                if ( !value )
-                    return false;
-                out->write_int( titleformat_inputtypes::meta, value );
-                return true;
-            }
-            case 2:
-            {
-                pfc::string8 value = tmp.first_played;
-                if ( value.is_empty() )
-                    return false;
-                out->write( titleformat_inputtypes::meta, value );
-                return true;
-            }
-            case 3:
-            {
-                pfc::string8 value = tmp.last_played;
-                if ( value.is_empty() )
-                    return false;
-                out->write( titleformat_inputtypes::meta, value );
-                return true;
-            }
-            case 4:
-            {
-                stats_t value = tmp.rating;
-                if ( !value )
-                    return false;
-                out->write_int( titleformat_inputtypes::meta, value );
-                return true;
-            }
+        case 0:
+        {
+            stats_t value = tmp.playcount;
+            if ( !value )
+                return false;
+            out->write_int( titleformat_inputtypes::meta, value );
+            return true;
+        }
+        case 1:
+        {
+            stats_t value = tmp.loved;
+            if ( !value )
+                return false;
+            out->write_int( titleformat_inputtypes::meta, value );
+            return true;
+        }
+        case 2:
+        {
+            pfc::string8 value = tmp.first_played;
+            if ( value.is_empty() )
+                return false;
+            out->write( titleformat_inputtypes::meta, value );
+            return true;
+        }
+        case 3:
+        {
+            pfc::string8 value = tmp.last_played;
+            if ( value.is_empty() )
+                return false;
+            out->write( titleformat_inputtypes::meta, value );
+            return true;
+        }
+        case 4:
+        {
+            stats_t value = tmp.rating;
+            if ( !value )
+                return false;
+            out->write_int( titleformat_inputtypes::meta, value );
+            return true;
+        }
         }
         return false;
     }
@@ -220,7 +219,7 @@ service_factory_single_t<track_property_provider_impl> g_track_property_provider
 
 } // namespace
 
-namespace stats
+namespace smp::stats
 {
 
 bool hashHandle( metadb_handle_ptr const& pMetadb, metadb_index_hash& hash )
@@ -276,4 +275,4 @@ void refresh( const metadb_index_hash& hash )
     theAPI()->dispatch_refresh( g_guid_smp_metadb_index, hash );
 }
 
-} // namespace stats
+} // namespace smp::stats

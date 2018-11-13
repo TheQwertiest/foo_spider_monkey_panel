@@ -8,7 +8,6 @@
 
 #include <filesystem>
 
-using namespace smp;
 
 namespace smp::file
 {

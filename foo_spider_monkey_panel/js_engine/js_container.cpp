@@ -26,7 +26,7 @@ using namespace smp;
 namespace mozjs
 {
 
-JsContainer::JsContainer( js_panel_window& parentPanel )
+JsContainer::JsContainer( panel::js_panel_window& parentPanel )
 {
     pParentPanel_ = &parentPanel;
 
@@ -197,7 +197,7 @@ void JsContainer::RunJobs()
     JsEngine::GetInstance().MaybeRunJobs();
 }
 
-void JsContainer::InvokeOnDragAction( const pfc::string8_fast& functionName, const POINTL& pt, uint32_t keyState, DropActionParams& actionParams )
+void JsContainer::InvokeOnDragAction( const pfc::string8_fast& functionName, const POINTL& pt, uint32_t keyState, panel::DropActionParams& actionParams )
 {
     if ( !IsReadyForCallback() )
     {

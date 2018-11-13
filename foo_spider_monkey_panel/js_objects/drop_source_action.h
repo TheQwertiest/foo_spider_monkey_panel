@@ -33,7 +33,7 @@ public:
     static size_t GetInternalSize();
 
 public:
-    DropActionParams& GetDropActionParams();
+    smp::panel::DropActionParams& GetDropActionParams();
 
 public:
     uint32_t get_Effect();
@@ -49,7 +49,7 @@ private:
 private:
     JSContext* pJsCtx_ = nullptr;
 
-    DropActionParams actionParams_;
+    smp::panel::DropActionParams actionParams_;
 };
 
 } // namespace mozjs

@@ -2,13 +2,17 @@
 
 #include "config.h"
 #include "resource.h"
-#include "js_panel_window.h"
 #include "../PropertyList/PropertyList.h"
+
+namespace smp::panel
+{
+class js_panel_window;
+}
 
 class CDialogProperty : public CDialogImpl<CDialogProperty>, public CDialogResize<CDialogProperty>
 {
 public:
-	CDialogProperty(js_panel_window* p_parent) : m_parent(p_parent)
+	CDialogProperty(smp::panel::js_panel_window* p_parent) : m_parent(p_parent)
 	{
 	}
 
@@ -57,6 +61,6 @@ public:
 
 private:
 	CPropertyListCtrl m_properties;
-	js_panel_window* m_parent;
+    smp::panel::js_panel_window* m_parent;
 	smp::config::PanelProperties::config_map m_dup_prop_map;
 };

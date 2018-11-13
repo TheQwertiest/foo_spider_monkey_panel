@@ -8,7 +8,10 @@ class JSObject;
 struct JSContext;
 struct JSClass;
 
+namespace smp::panel
+{
 class js_panel_window;
+}
 
 namespace smp::com
 {
@@ -35,8 +38,8 @@ public:
 public:
     ~JsWindow();
 
-    static std::unique_ptr<JsWindow> CreateNative( JSContext* cx, js_panel_window& parentPanel );
-    static size_t GetInternalSize( const js_panel_window& parentPanel );
+    static std::unique_ptr<JsWindow> CreateNative( JSContext* cx, smp::panel::js_panel_window& parentPanel );
+    static size_t GetInternalSize( const smp::panel::js_panel_window& parentPanel );
 
 public:
     void PrepareForGc();
@@ -95,11 +98,11 @@ public: // props
     void put_MinWidth( uint32_t width );
 
 private:
-    JsWindow( JSContext* cx, js_panel_window& parentPanel, std::unique_ptr<FbProperties> fbProperties );
+    JsWindow( JSContext* cx, smp::panel::js_panel_window& parentPanel, std::unique_ptr<FbProperties> fbProperties );
 
 private:
     JSContext* pJsCtx_;
-    js_panel_window& parentPanel_;
+    smp::panel::js_panel_window& parentPanel_;
 
     bool isFinalized_ = false; ///< if true, then parentPanel_ might be already inaccessible
 

@@ -81,7 +81,7 @@ size_t JsDropSourceAction::GetInternalSize()
     return 0;
 }
 
-DropActionParams& JsDropSourceAction::GetDropActionParams()
+smp::panel::DropActionParams& JsDropSourceAction::GetDropActionParams()
 {
     return actionParams_;
 }
