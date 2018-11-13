@@ -73,7 +73,7 @@ enum class InternalMessage : UINT
     last_message = timer_proc,
 };
 
-/// @brief Message definitions that are not handled by the panel window
+/// @brief Message definitions that are not handled by the main panel window
 enum class MiscMessage : UINT
 {
     find_text_changed = static_cast<int>( InternalMessage::last_message ) + 1,

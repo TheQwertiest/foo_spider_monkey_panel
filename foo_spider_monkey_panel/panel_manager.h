@@ -8,6 +8,7 @@ namespace smp::panel
 {
 
 // TODO: consider removing fromhook
+// TODO: move to a more suitable place
 struct metadb_callback_data
 {
     metadb_handle_list m_items;

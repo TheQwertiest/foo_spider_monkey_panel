@@ -2,7 +2,7 @@
 
 #include <utils/string_helpers.h>
 #include <utils/version_helpers.h>
-#include <acfu_github.h>
+#include <utils/acfu_github.h>
 
 #include <acfu-sdk/utils/common.h>
 
@@ -38,7 +38,7 @@ public:
     }
     virtual GUID get_guid()
     {
-        return g_guid_acfu_source;
+        return g_guid_smp_acfu_source;
     }
     virtual void get_info( file_info& info )
     {
@@ -49,7 +49,7 @@ public:
         }
 
         info.meta_set( "version", installedVersion_.c_str() );
-        info.meta_set( "name", "Spider Monkey Panel" );
+        info.meta_set( "name", SMP_NAME );
         info.meta_set( "module", componentFileName_ );
     }
     virtual bool is_newer( const file_info& info )
@@ -86,6 +86,7 @@ private:
     bool isVersionFetched_ = false;
     std::string installedVersion_;
 };
+
 static service_factory_single_t<SmpSource> g_smpSource;
 
 } // namespace smp::acfu
