@@ -3,7 +3,10 @@
 
 #include <js_engine/js_to_native_invoker.h>
 #include <js_utils/js_object_helper.h>
-#include <js_utils/scope_helper.h>
+#include <utils/scope_helpers.h>
+
+
+using namespace smp;
 
 namespace
 {
@@ -107,7 +110,7 @@ pfc::string8_fast ParseJsValue( JSContext* cx, JS::HandleValue jsValue, JS::Auto
     pfc::string8_fast output;
 
     ++logDepth;
-    auto autoDecrement = mozjs::scope::finally( [&logDepth] { --logDepth; } );
+    utils::final_action autoDecrement( [&logDepth] { --logDepth; } );
 
     if ( !jsValue.isObject() )
     {
@@ -149,7 +152,7 @@ pfc::string8_fast ParseJsValue( JSContext* cx, JS::HandleValue jsValue, JS::Auto
             }
 
             curObjects.emplaceBack( jsObject );
-            auto autoPop = mozjs::scope::finally( [&curObjects] { curObjects.popBack(); } );
+            utils::final_action autoPop( [&curObjects] { curObjects.popBack(); } );
 
             bool is;
             if ( !JS_IsArrayObject( cx, jsObject, &is ) )

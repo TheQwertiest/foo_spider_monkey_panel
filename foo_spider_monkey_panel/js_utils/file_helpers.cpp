@@ -1,12 +1,14 @@
 #include <stdafx.h>
 #include "file_helpers.h"
 
-#include <js_utils/scope_helper.h>
+#include <utils/scope_helpers.h>
 #include <utils/string_helpers.h>
 
 #include <helpers.h>
 
 #include <filesystem>
+
+using namespace smp;
 
 namespace mozjs::file
 {
@@ -49,7 +51,7 @@ std::wstring ReadFromFile( JSContext* cx, const pfc::string8_fast& path, uint32_
     {
         throw smp::SmpException( smp::string::Formatter() << "Failed to open script file: " << cleanPath.c_str() );
     }
-    scope::final_action autoFile( [hFile]() {
+    utils::final_action autoFile( [hFile]() {
         CloseHandle( hFile );
     } );
 
@@ -58,7 +60,7 @@ std::wstring ReadFromFile( JSContext* cx, const pfc::string8_fast& path, uint32_
     {
         throw smp::SmpException( smp::string::Formatter() << "Internal error: CreateFileMapping failed for `" << cleanPath.c_str() << "`" );
     }
-    scope::final_action autoMapping( [hFileMapping]() {
+    utils::final_action autoMapping( [hFileMapping]() {
         CloseHandle( hFileMapping );
     } );
 
@@ -68,7 +70,7 @@ std::wstring ReadFromFile( JSContext* cx, const pfc::string8_fast& path, uint32_
     {
         throw smp::SmpException( smp::string::Formatter() << "Internal error: MapViewOfFile failed for `" << cleanPath.c_str() << "`" );
     }
-    scope::final_action autoAddress( [pAddr]() {
+    utils::final_action autoAddress( [pAddr]() {
         UnmapViewOfFile( pAddr );
     } );
 

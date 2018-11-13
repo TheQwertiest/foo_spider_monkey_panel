@@ -3,7 +3,7 @@
 
 #include <js_engine/js_to_native_invoker.h>
 #include <js_utils/js_error_helper.h>
-#include <js_utils/winapi_error_helper.h>
+#include <utils/winapi_error_helper.h>
 #include <js_utils/js_object_helper.h>
 
 using namespace smp;
@@ -116,7 +116,7 @@ JsFbTooltip::CreateNative( JSContext* cx, HWND hParentWnd, PanelTooltipParam& p_
         nullptr,
         core_api::get_my_instance(),
         nullptr );
-    error::CheckWinApi( !!hTooltipWnd, "CreateWindowEx" );
+    smp::error::CheckWinApi( !!hTooltipWnd, "CreateWindowEx" );
 
     // Original position
     SetWindowPos( hTooltipWnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE );
@@ -147,7 +147,7 @@ JsFbTooltip::CreateNative( JSContext* cx, HWND hParentWnd, PanelTooltipParam& p_
         DEFAULT_QUALITY,
         DEFAULT_PITCH | FF_DONTCARE,
         p_param_ptr.fontName.c_str() );
-    error::CheckWinApi( !!hFont, "CreateFont" );
+    smp::error::CheckWinApi( !!hFont, "CreateFont" );
 
     SendMessage( hTooltipWnd, TTM_ADDTOOL, 0, (LPARAM)toolInfo.get() );
     SendMessage( hTooltipWnd, TTM_ACTIVATE, FALSE, 0 );

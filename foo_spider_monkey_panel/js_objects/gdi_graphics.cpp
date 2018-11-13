@@ -7,11 +7,11 @@
 #include <js_objects/gdi_bitmap.h>
 #include <js_objects/gdi_raw_bitmap.h>
 #include <js_objects/measure_string_info.h>
-#include <js_utils/gdi_error_helper.h>
+#include <utils/gdi_error_helper.h>
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
-#include <js_utils/winapi_error_helper.h>
-#include <js_utils/scope_helper.h>
+#include <utils/winapi_error_helper.h>
+#include <utils/scope_helpers.h>
 
 #include <helpers.h>
 
@@ -177,7 +177,7 @@ void JsGdiGraphics::DrawEllipse( float x, float y, float w, float h, float line_
 
     Gdiplus::Pen pen( colour, line_width );
     Gdiplus::Status gdiRet = pGdi_->DrawEllipse( &pen, x, y, w, h );
-    error::CheckGdi( gdiRet, "DrawEllipse" );
+    smp::error::CheckGdi( gdiRet, "DrawEllipse" );
 }
 
 void JsGdiGraphics::DrawImage( JsGdiBitmap* image,
@@ -203,13 +203,13 @@ void JsGdiGraphics::DrawImage( JsGdiBitmap* image,
         pt.Y = dstY + dstH / 2;
 
         gdiRet = m.RotateAt( angle, pt );
-        error::CheckGdi( gdiRet, "RotateAt" );
+        smp::error::CheckGdi( gdiRet, "RotateAt" );
 
         gdiRet = pGdi_->GetTransform( &oldMatrix );
-        error::CheckGdi( gdiRet, "GetTransform" );
+        smp::error::CheckGdi( gdiRet, "GetTransform" );
 
         gdiRet = pGdi_->SetTransform( &m );
-        error::CheckGdi( gdiRet, "SetTransform" );
+        smp::error::CheckGdi( gdiRet, "SetTransform" );
     }
 
     if ( alpha < 255 )
@@ -221,21 +221,21 @@ void JsGdiGraphics::DrawImage( JsGdiBitmap* image,
         cm.m[3][3] = static_cast<float>( alpha ) / 255;
 
         gdiRet = ia.SetColorMatrix( &cm );
-        error::CheckGdi( gdiRet, "SetColorMatrix" );
+        smp::error::CheckGdi( gdiRet, "SetColorMatrix" );
 
         gdiRet = pGdi_->DrawImage( img, Gdiplus::RectF( dstX, dstY, dstW, dstH ), srcX, srcY, srcW, srcH, Gdiplus::UnitPixel, &ia );
-        error::CheckGdi( gdiRet, "DrawImage" );
+        smp::error::CheckGdi( gdiRet, "DrawImage" );
     }
     else
     {
         gdiRet = pGdi_->DrawImage( img, Gdiplus::RectF( dstX, dstY, dstW, dstH ), srcX, srcY, srcW, srcH, Gdiplus::UnitPixel );
-        error::CheckGdi( gdiRet, "DrawImage" );
+        smp::error::CheckGdi( gdiRet, "DrawImage" );
     }
 
     if ( angle != 0.0 )
     {
         gdiRet = pGdi_->SetTransform( &oldMatrix );
-        error::CheckGdi( gdiRet, "SetTransform" );
+        smp::error::CheckGdi( gdiRet, "SetTransform" );
     }
 }
 
@@ -263,7 +263,7 @@ void JsGdiGraphics::DrawLine( float x1, float y1, float x2, float y2, float line
 
     Gdiplus::Pen pen( colour, line_width );
     Gdiplus::Status gdiRet = pGdi_->DrawLine( &pen, x1, y1, x2, y2 );
-    error::CheckGdi( gdiRet, "DrawLine" );
+    smp::error::CheckGdi( gdiRet, "DrawLine" );
 }
 
 void JsGdiGraphics::DrawPolygon( uint32_t colour, float line_width, JS::HandleValue points )
@@ -275,7 +275,7 @@ void JsGdiGraphics::DrawPolygon( uint32_t colour, float line_width, JS::HandleVa
 
     Gdiplus::Pen pen( colour, line_width );
     Gdiplus::Status gdiRet = pGdi_->DrawPolygon( &pen, gdiPoints.data(), gdiPoints.size() );
-    error::CheckGdi( gdiRet, "DrawPolygon" );
+    smp::error::CheckGdi( gdiRet, "DrawPolygon" );
 }
 
 void JsGdiGraphics::DrawRect( float x, float y, float w, float h, float line_width, uint32_t colour )
@@ -284,7 +284,7 @@ void JsGdiGraphics::DrawRect( float x, float y, float w, float h, float line_wid
 
     Gdiplus::Pen pen( colour, line_width );
     Gdiplus::Status gdiRet = pGdi_->DrawRectangle( &pen, x, y, w, h );
-    error::CheckGdi( gdiRet, "DrawRectangle" );
+    smp::error::CheckGdi( gdiRet, "DrawRectangle" );
 }
 
 void JsGdiGraphics::DrawRoundRect( float x, float y, float w, float h, float arc_width, float arc_height, float line_width, uint32_t colour )
@@ -302,13 +302,13 @@ void JsGdiGraphics::DrawRoundRect( float x, float y, float w, float h, float arc
     GetRoundRectPath( gp, rect, arc_width, arc_height );
 
     Gdiplus::Status gdiRet = pen.SetStartCap( Gdiplus::LineCapRound );
-    error::CheckGdi( gdiRet, "SetStartCap" );
+    smp::error::CheckGdi( gdiRet, "SetStartCap" );
 
     gdiRet = pen.SetEndCap( Gdiplus::LineCapRound );
-    error::CheckGdi( gdiRet, "SetEndCap" );
+    smp::error::CheckGdi( gdiRet, "SetEndCap" );
 
     gdiRet = pGdi_->DrawPath( &pen, &gp );
-    error::CheckGdi( gdiRet, "DrawPath" );
+    smp::error::CheckGdi( gdiRet, "DrawPath" );
 }
 
 void JsGdiGraphics::DrawString( const std::wstring& str, JsGdiFont* font, uint32_t colour, float x, float y, float w, float h, uint32_t flags )
@@ -325,20 +325,20 @@ void JsGdiGraphics::DrawString( const std::wstring& str, JsGdiFont* font, uint32
     if ( flags != 0 )
     {
         Gdiplus::Status gdiRet = fmt.SetAlignment( ( Gdiplus::StringAlignment )( ( flags >> 28 ) & 0x3 ) ); //0xf0000000
-        error::CheckGdi( gdiRet, "SetAlignment" );
+        smp::error::CheckGdi( gdiRet, "SetAlignment" );
 
         gdiRet = fmt.SetLineAlignment( ( Gdiplus::StringAlignment )( ( flags >> 24 ) & 0x3 ) ); //0x0f000000
-        error::CheckGdi( gdiRet, "SetLineAlignment" );
+        smp::error::CheckGdi( gdiRet, "SetLineAlignment" );
 
         gdiRet = fmt.SetTrimming( ( Gdiplus::StringTrimming )( ( flags >> 20 ) & 0x7 ) ); //0x00f00000
-        error::CheckGdi( gdiRet, "SetTrimming" );
+        smp::error::CheckGdi( gdiRet, "SetTrimming" );
 
         gdiRet = fmt.SetFormatFlags( ( Gdiplus::StringFormatFlags )( flags & 0x7FFF ) ); //0x0000ffff
-        error::CheckGdi( gdiRet, "SetFormatFlags" );
+        smp::error::CheckGdi( gdiRet, "SetFormatFlags" );
     }
 
     Gdiplus::Status gdiRet = pGdi_->DrawString( str.c_str(), -1, pGdiFont, Gdiplus::RectF( x, y, w, h ), &fmt, &br );
-    error::CheckGdi( gdiRet, "DrawString" );
+    smp::error::CheckGdi( gdiRet, "DrawString" );
 }
 
 void JsGdiGraphics::DrawStringWithOpt( size_t optArgCount, const std::wstring& str, JsGdiFont* font, uint32_t colour,
@@ -409,7 +409,7 @@ void JsGdiGraphics::FillEllipse( float x, float y, float w, float h, uint32_t co
 
     Gdiplus::SolidBrush br( colour );
     Gdiplus::Status gdiRet = pGdi_->FillEllipse( &br, x, y, w, h );
-    error::CheckGdi( gdiRet, "FillEllipse" );
+    smp::error::CheckGdi( gdiRet, "FillEllipse" );
 }
 
 void JsGdiGraphics::FillGradRect( float x, float y, float w, float h, float angle, uint32_t colour1, uint32_t colour2, float focus )
@@ -419,10 +419,10 @@ void JsGdiGraphics::FillGradRect( float x, float y, float w, float h, float angl
     Gdiplus::RectF rect( x, y, w, h );
     Gdiplus::LinearGradientBrush brush( rect, colour1, colour2, angle, TRUE );
     Gdiplus::Status gdiRet = brush.SetBlendTriangularShape( focus );
-    error::CheckGdi( gdiRet, "SetBlendTriangularShape" );
+    smp::error::CheckGdi( gdiRet, "SetBlendTriangularShape" );
 
     gdiRet = pGdi_->FillRectangle( &brush, rect );
-    error::CheckGdi( gdiRet, "FillRectangle" );
+    smp::error::CheckGdi( gdiRet, "FillRectangle" );
 }
 
 void JsGdiGraphics::FillGradRectWithOpt( size_t optArgCount, float x, float y, float w, float h, float angle, uint32_t colour1, uint32_t colour2, float focus )
@@ -447,7 +447,7 @@ void JsGdiGraphics::FillPolygon( uint32_t colour, uint32_t fillmode, JS::HandleV
 
     Gdiplus::SolidBrush br( colour );
     Gdiplus::Status gdiRet = pGdi_->FillPolygon( &br, gdiPoints.data(), gdiPoints.size(), (Gdiplus::FillMode)fillmode );
-    error::CheckGdi( gdiRet, "FillPolygon" );
+    smp::error::CheckGdi( gdiRet, "FillPolygon" );
 }
 
 void JsGdiGraphics::FillRoundRect( float x, float y, float w, float h, float arc_width, float arc_height, uint32_t colour )
@@ -465,7 +465,7 @@ void JsGdiGraphics::FillRoundRect( float x, float y, float w, float h, float arc
     GetRoundRectPath( gp, rect, arc_width, arc_height );
 
     Gdiplus::Status gdiRet = pGdi_->FillPath( &br, &gp );
-    error::CheckGdi( gdiRet, "FillPath" );
+    smp::error::CheckGdi( gdiRet, "FillPath" );
 }
 
 void JsGdiGraphics::FillSolidRect( float x, float y, float w, float h, uint32_t colour )
@@ -477,7 +477,7 @@ void JsGdiGraphics::FillSolidRect( float x, float y, float w, float h, uint32_t 
 
     Gdiplus::SolidBrush brush( colour );
     Gdiplus::Status gdiRet = pGdi_->FillRectangle( &brush, x, y, w, h );
-    error::CheckGdi( gdiRet, "FillRectangle" );
+    smp::error::CheckGdi( gdiRet, "FillRectangle" );
 }
 
 void JsGdiGraphics::GdiAlphaBlend( JsGdiRawBitmap* bitmap,
@@ -492,14 +492,14 @@ void JsGdiGraphics::GdiAlphaBlend( JsGdiRawBitmap* bitmap,
     assert( srcDc );
 
     HDC dc = pGdi_->GetHDC();
-    scope::final_action autoHdcReleaser( [pGdi = pGdi_, dc]() {
+    utils::final_action autoHdcReleaser( [pGdi = pGdi_, dc]() {
         pGdi->ReleaseHDC( dc );
     } );
 
     BLENDFUNCTION bf = { AC_SRC_OVER, 0, alpha, AC_SRC_ALPHA };
 
     BOOL bRet = ::GdiAlphaBlend( dc, dstX, dstY, dstW, dstH, srcDc, srcX, srcY, srcW, srcH, bf );
-    error::CheckWinApi( bRet, "GdiAlphaBlend" );
+    smp::error::CheckWinApi( bRet, "GdiAlphaBlend" );
 }
 
 void JsGdiGraphics::GdiAlphaBlendWithOpt( size_t optArgCount, JsGdiRawBitmap* bitmap,
@@ -529,7 +529,7 @@ void JsGdiGraphics::GdiDrawBitmap( JsGdiRawBitmap* bitmap,
     assert( srcDc );
 
     HDC dc = pGdi_->GetHDC();
-    scope::final_action autoHdcReleaser( [pGdi = pGdi_, dc]() {
+    utils::final_action autoHdcReleaser( [pGdi = pGdi_, dc]() {
         pGdi->ReleaseHDC( dc );
     } );
 
@@ -537,18 +537,18 @@ void JsGdiGraphics::GdiDrawBitmap( JsGdiRawBitmap* bitmap,
     if ( dstW == srcW && dstH == srcH )
     {
         bRet = BitBlt( dc, dstX, dstY, dstW, dstH, srcDc, srcX, srcY, SRCCOPY );
-        error::CheckWinApi( bRet, "BitBlt" );
+        smp::error::CheckWinApi( bRet, "BitBlt" );
     }
     else
     {
         bRet = SetStretchBltMode( dc, HALFTONE );
-        error::CheckWinApi( bRet, "SetStretchBltMode" );
+        smp::error::CheckWinApi( bRet, "SetStretchBltMode" );
 
         bRet = SetBrushOrgEx( dc, 0, 0, nullptr );
-        error::CheckWinApi( bRet, "SetBrushOrgEx" );
+        smp::error::CheckWinApi( bRet, "SetBrushOrgEx" );
 
         bRet = StretchBlt( dc, dstX, dstY, dstW, dstH, srcDc, srcX, srcY, srcW, srcH, SRCCOPY );
-        error::CheckWinApi( bRet, "StretchBlt" );
+        smp::error::CheckWinApi( bRet, "StretchBlt" );
     }
 }
 
@@ -562,7 +562,7 @@ void JsGdiGraphics::GdiDrawText( const std::wstring& str, JsGdiFont* font, uint3
 
     HDC dc = pGdi_->GetHDC();
     HFONT oldfont = SelectFont( dc, hFont );
-    scope::final_action autoHdcReleaser( [pGdi = pGdi_, dc, oldfont]() {
+    utils::final_action autoHdcReleaser( [pGdi = pGdi_, dc, oldfont]() {
         SelectFont( dc, oldfont );
         pGdi->ReleaseHDC( dc );
     } );
@@ -573,10 +573,10 @@ void JsGdiGraphics::GdiDrawText( const std::wstring& str, JsGdiFont* font, uint3
     SetTextColor( dc, helpers::convert_argb_to_colorref( colour ) );
 
     int iRet = SetBkMode( dc, TRANSPARENT );
-    error::CheckWinApi( CLR_INVALID != iRet, "SetBkMode" );
+    smp::error::CheckWinApi( CLR_INVALID != iRet, "SetBkMode" );
 
     UINT uRet = SetTextAlign( dc, TA_LEFT | TA_TOP | TA_NOUPDATECP );
-    error::CheckWinApi( GDI_ERROR != uRet, "SetTextAlign" );
+    smp::error::CheckWinApi( GDI_ERROR != uRet, "SetTextAlign" );
 
     if ( format & DT_MODIFYSTRING )
     {
@@ -592,7 +592,7 @@ void JsGdiGraphics::GdiDrawText( const std::wstring& str, JsGdiFont* font, uint3
         memcpy( &rc_old, &rc, sizeof( RECT ) );
 
         iRet = DrawText( dc, str.c_str(), -1, &rc_calc, format );
-        error::CheckWinApi( iRet, "DrawText" );
+        smp::error::CheckWinApi( iRet, "DrawText" );
 
         format &= ~DT_CALCRECT;
 
@@ -609,7 +609,7 @@ void JsGdiGraphics::GdiDrawText( const std::wstring& str, JsGdiFont* font, uint3
     }
 
     iRet = DrawTextEx( dc, const_cast<wchar_t*>( str.c_str() ), -1, &rc, format, &dpt );
-    error::CheckWinApi( iRet, "DrawTextEx" );
+    smp::error::CheckWinApi( iRet, "DrawTextEx" );
 }
 
 void JsGdiGraphics::GdiDrawTextWithOpt( size_t optArgCount, const std::wstring& str, JsGdiFont* font, uint32_t colour,
@@ -649,7 +649,7 @@ JSObject* JsGdiGraphics::MeasureString( const std::wstring& str, JsGdiFont* font
     int chars, lines;
 
     Gdiplus::Status gdiRet = pGdi_->MeasureString( str.c_str(), -1, fn, Gdiplus::RectF( x, y, w, h ), &fmt, &bound, &chars, &lines );
-    error::CheckGdi( gdiRet, "MeasureString" );
+    smp::error::CheckGdi( gdiRet, "MeasureString" );
 
     return JsMeasureStringInfo::CreateJs( pJsCtx_, bound.X, bound.Y, bound.Width, bound.Height, lines, chars );
 }
@@ -677,7 +677,7 @@ void JsGdiGraphics::SetInterpolationMode( uint32_t mode )
     }
 
     Gdiplus::Status gdiRet = pGdi_->SetInterpolationMode( (Gdiplus::InterpolationMode)mode );
-    error::CheckGdi( gdiRet, "SetInterpolationMode" );
+    smp::error::CheckGdi( gdiRet, "SetInterpolationMode" );
 }
 
 void JsGdiGraphics::SetInterpolationModeWithOpt( size_t optArgCount, uint32_t mode )
@@ -698,7 +698,7 @@ void JsGdiGraphics::SetSmoothingMode( uint32_t mode )
     SmpException::ExpectTrue( pGdi_, "Internal error: Gdiplus::Graphics object is null" );
 
     Gdiplus::Status gdiRet = pGdi_->SetSmoothingMode( (Gdiplus::SmoothingMode)mode );
-    error::CheckGdi( gdiRet, "SetSmoothingMode" );
+    smp::error::CheckGdi( gdiRet, "SetSmoothingMode" );
 }
 
 void JsGdiGraphics::SetSmoothingModeWithOpt( size_t optArgCount, uint32_t mode )
@@ -719,7 +719,7 @@ void JsGdiGraphics::SetTextRenderingHint( uint32_t mode )
     SmpException::ExpectTrue( pGdi_, "Internal error: Gdiplus::Graphics object is null" );
 
     Gdiplus::Status gdiRet = pGdi_->SetTextRenderingHint( (Gdiplus::TextRenderingHint)mode );
-    error::CheckGdi( gdiRet, "SetTextRenderingHint" );
+    smp::error::CheckGdi( gdiRet, "SetTextRenderingHint" );
 }
 
 void JsGdiGraphics::SetTextRenderingHintWithOpt( size_t optArgCount, uint32_t mode )
@@ -742,29 +742,29 @@ void JsGdiGraphics::GetRoundRectPath( Gdiplus::GraphicsPath& gp, Gdiplus::RectF&
     Gdiplus::RectF corner( rect.X, rect.Y, arc_dia_w, arc_dia_h );
 
     Gdiplus::Status gdiRet = gp.Reset();
-    error::CheckGdi( gdiRet, "Reset" );
+    smp::error::CheckGdi( gdiRet, "Reset" );
 
     // top left
     gdiRet = gp.AddArc( corner, 180, 90 );
-    error::CheckGdi( gdiRet, "AddArc" );
+    smp::error::CheckGdi( gdiRet, "AddArc" );
 
     // top right
     corner.X += ( rect.Width - arc_dia_w );
     gdiRet = gp.AddArc( corner, 270, 90 );
-    error::CheckGdi( gdiRet, "AddArc" );
+    smp::error::CheckGdi( gdiRet, "AddArc" );
 
     // bottom right
     corner.Y += ( rect.Height - arc_dia_h );
     gdiRet = gp.AddArc( corner, 0, 90 );
-    error::CheckGdi( gdiRet, "AddArc" );
+    smp::error::CheckGdi( gdiRet, "AddArc" );
 
     // bottom left
     corner.X -= ( rect.Width - arc_dia_w );
     gdiRet = gp.AddArc( corner, 90, 90 );
-    error::CheckGdi( gdiRet, "AddArc" );
+    smp::error::CheckGdi( gdiRet, "AddArc" );
 
     gdiRet = gp.CloseFigure();
-    error::CheckGdi( gdiRet, "CloseFigure" );
+    smp::error::CheckGdi( gdiRet, "CloseFigure" );
 }
 
 void JsGdiGraphics::ParsePoints( JS::HandleValue jsValue, std::vector<Gdiplus::PointF>& gdiPoints )

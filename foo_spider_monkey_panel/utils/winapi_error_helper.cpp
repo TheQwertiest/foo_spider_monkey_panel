@@ -1,7 +1,7 @@
 #include <stdafx.h>
 #include "winapi_error_helper.h"
 
-#include <js_utils/scope_helper.h>
+#include <utils/scope_helpers.h>
 #include <utils/string_helpers.h>
 
 using namespace smp;
@@ -26,7 +26,7 @@ pfc::string8_fast MessageFromErrorCode( DWORD errorCode )
         return pfc::string8_fast();
     }
 
-    mozjs::scope::final_action autoMsg([lpMsgBuf] {
+    utils::final_action autoMsg( [lpMsgBuf] {
         LocalFree( lpMsgBuf );
     } );
 
@@ -36,7 +36,7 @@ pfc::string8_fast MessageFromErrorCode( DWORD errorCode )
 
 } // namespace
 
-namespace mozjs::error
+namespace smp::error
 {
 
 void CheckHR( HRESULT hr, std::string_view functionName )
@@ -64,4 +64,4 @@ void CheckWinApi( bool checkValue, std::string_view functionName )
     }
 }
 
-} // namespace mozjs::error
+} // namespace smp::error

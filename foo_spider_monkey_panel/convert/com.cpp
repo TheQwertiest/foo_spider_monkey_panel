@@ -8,10 +8,13 @@
 #include <js_objects/global_object.h>
 #include <js_objects/internal/global_heap_manager.h>
 #include <js_objects/active_x_object.h>
-#include <js_utils/scope_helper.h>
 #include <js_utils/js_object_helper.h>
-#include <js_utils/winapi_error_helper.h>
+#include <js_utils/js_error_helper.h>
+#include <utils/scope_helpers.h>
+#include <utils/winapi_error_helper.h>
 #include <convert/js_to_native.h>
+
+using namespace smp;
 
 namespace
 {
@@ -118,7 +121,7 @@ protected:
         }
         catch ( ... )
         {
-            error::SuppressException( pJsCtx_ ); ///< reset, since we can't report
+            mozjs::error::SuppressException( pJsCtx_ ); ///< reset, since we can't report
             return E_FAIL;
         }
 
@@ -135,7 +138,7 @@ protected:
         }
         catch ( ... )
         {
-            error::SuppressException( pJsCtx_ ); ///< reset, since we can't report
+            mozjs::error::SuppressException( pJsCtx_ ); ///< reset, since we can't report
 
             pResult->vt = VT_ERROR;
             pResult->scode = 0;
@@ -170,7 +173,7 @@ void JsArrayToComArray( JSContext* cx, JS::HandleObject obj, VARIANT& var )
         throw smp::SmpException( "SafeArrayCreateVector failed" );
     }
 
-    scope::final_action autoSa( [safeArray]() {
+    utils::final_action autoSa( [safeArray]() {
         SafeArrayDestroy( safeArray );
     } );
 
@@ -182,7 +185,7 @@ void JsArrayToComArray( JSContext* cx, JS::HandleObject obj, VARIANT& var )
             throw smp::SmpException( "SafeArrayAccessData failed" );
         }
 
-        scope::final_action autoSaData( [safeArray]() {
+        utils::final_action autoSaData( [safeArray]() {
             SafeArrayUnaccessData( safeArray );
         } );
 
@@ -213,12 +216,12 @@ bool ComArrayToJsArray( JSContext* cx, const VARIANT& src, JS::MutableHandleValu
     // Get the upper bound;
     long ubound;
     HRESULT hr = SafeArrayGetUBound( src.parray, 1, &ubound );
-    error::CheckHR( hr, "SafeArrayGetUBound" );
+    smp::error::CheckHR( hr, "SafeArrayGetUBound" );
 
     // Get the lower bound
     long lbound;
     hr = SafeArrayGetLBound( src.parray, 1, &lbound );
-    error::CheckHR( hr, "SafeArrayGetLBound" );
+    smp::error::CheckHR( hr, "SafeArrayGetLBound" );
 
     // Create the JS Array
     JS::RootedObject jsArray( cx, JS_NewArrayObject( cx, ubound - lbound + 1 ) );
@@ -236,7 +239,7 @@ bool ComArrayToJsArray( JSContext* cx, const VARIANT& src, JS::MutableHandleValu
     else // This was maybe a VT_SAFEARRAY
     {
         hr = SafeArrayGetVartype( src.parray, &vartype );
-        error::CheckHR( hr, "SafeArrayGetVartype" );
+        smp::error::CheckHR( hr, "SafeArrayGetVartype" );
     }
 
     JS::RootedValue jsVal( cx );
@@ -253,7 +256,7 @@ bool ComArrayToJsArray( JSContext* cx, const VARIANT& src, JS::MutableHandleValu
             var.vt = vartype;
             hr = SafeArrayGetElement( src.parray, &i, &var.byref );
         }
-        error::CheckHR( hr, "SafeArrayGetElement" );
+        smp::error::CheckHR( hr, "SafeArrayGetElement" );
 
         VariantToJs( cx, var, &jsVal );
 

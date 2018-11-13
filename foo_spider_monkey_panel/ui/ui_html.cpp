@@ -1,9 +1,10 @@
 #include <stdafx.h>
 #include "ui_html.h"
 
-#include <js_utils/scope_helper.h>
-#include <js_utils/winapi_error_helper.h>
 #include <js_utils/js_property_helper.h>
+#include <js_utils/js_error_helper.h>
+#include <utils/scope_helpers.h>
+#include <utils/winapi_error_helper.h>
 #include <com_objects/dispatch_ptr.h>
 #include <convert/js_to_native.h>
 #include <convert/com.h>
@@ -38,7 +39,7 @@ CDialogHtml::~CDialogHtml()
 
 LRESULT CDialogHtml::OnInitDialog( HWND hwndFocus, LPARAM lParam )
 {
-    scope::final_action autoExit( [&] {
+    utils::final_action autoExit( [&] {
         EndDialog( -1 );
     } );
 
@@ -49,22 +50,22 @@ LRESULT CDialogHtml::OnInitDialog( HWND hwndFocus, LPARAM lParam )
         CAxWindow wndIE = GetDlgItem( IDC_IE );
         IObjectWithSitePtr pOWS = nullptr;
         HRESULT hr = wndIE.QueryHost( IID_IObjectWithSite, (void**)&pOWS );
-        error::CheckHR( hr, "QueryHost" );
+        smp::error::CheckHR( hr, "QueryHost" );
 
         hr = pOWS->SetSite( static_cast<IServiceProvider*>( this ) );
-        error::CheckHR( hr, "SetSite" );
+        smp::error::CheckHR( hr, "SetSite" );
 
         IWebBrowserPtr pBrowser;
         hr = wndIE.QueryControl( &pBrowser );
-        error::CheckHR( hr, "QueryControl" );
+        smp::error::CheckHR( hr, "QueryControl" );
 
         _variant_t v;
         hr = pBrowser->Navigate( _bstr_t( L"about:blank" ), &v, &v, &v, &v ); ///< Document object is only available after Navigate
-        error::CheckHR( hr, "Navigate" );
+        smp::error::CheckHR( hr, "Navigate" );
 
         IDispatchPtr pDocDispatch;
         hr = pBrowser->get_Document( &pDocDispatch );
-        error::CheckHR( hr, "get_Document" );
+        smp::error::CheckHR( hr, "get_Document" );
 
         MSHTML::IHTMLDocument2Ptr pDocument = pDocDispatch;
 
@@ -73,14 +74,14 @@ LRESULT CDialogHtml::OnInitDialog( HWND hwndFocus, LPARAM lParam )
             IOleObjectPtr pOleObject( pDocument );
             IOleClientSitePtr pClientSite;
             hr = pOleObject->GetClientSite( &pClientSite );
-            error::CheckHR( hr, "GetClientSite" );
+            smp::error::CheckHR( hr, "GetClientSite" );
 
             pDefaultUiHandler_ = pClientSite;
 
             // Set the new custom IDocHostUIHandler
             ICustomDocPtr pCustomDoc( pDocument );
             hr = pCustomDoc->SetUIHandler( this );
-            error::CheckHR( hr, "SetUIHandler" );
+            smp::error::CheckHR( hr, "SetUIHandler" );
         }
 
         if ( const std::wstring filePrefix = L"file://";
@@ -88,35 +89,35 @@ LRESULT CDialogHtml::OnInitDialog( HWND hwndFocus, LPARAM lParam )
              && !wmemcmp( htmlCodeOrPath_.c_str(), filePrefix.c_str(), filePrefix.length() ) )
         {
             hr = pBrowser->Navigate( _bstr_t( htmlCodeOrPath_.c_str() ), &v, &v, &v, &v );
-            error::CheckHR( hr, "Navigate" );
+            smp::error::CheckHR( hr, "Navigate" );
         }
         else
         {
             SAFEARRAY* pSaStrings = SafeArrayCreateVector( VT_VARIANT, 0, 1 );
-            scope::final_action autoPsa( [pSaStrings]() {
+            utils::final_action autoPsa( [pSaStrings]() {
                 SafeArrayDestroy( pSaStrings );
             } );
 
             VARIANT* pSaVar = nullptr;
             hr = SafeArrayAccessData( pSaStrings, (LPVOID*)&pSaVar );
-            error::CheckHR( hr, "SafeArrayAccessData" );
+            smp::error::CheckHR( hr, "SafeArrayAccessData" );
 
             _bstr_t bstr( htmlCodeOrPath_.c_str() );
             pSaVar->vt = VT_BSTR;
             pSaVar->bstrVal = bstr.Detach();
             hr = SafeArrayUnaccessData( pSaStrings );
-            error::CheckHR( hr, "SafeArrayUnaccessData" );
+            smp::error::CheckHR( hr, "SafeArrayUnaccessData" );
 
             hr = pDocument->write( pSaStrings );
-            error::CheckHR( hr, "write" );
+            smp::error::CheckHR( hr, "write" );
 
             hr = pDocument->close();
-            error::CheckHR( hr, "close" );
+            smp::error::CheckHR( hr, "close" );
         }
     }
     catch ( ... )
     {
-        error::ExceptionToJsError( pJsCtx_ );
+        mozjs::error::ExceptionToJsError( pJsCtx_ );
         return -1;
     }
 

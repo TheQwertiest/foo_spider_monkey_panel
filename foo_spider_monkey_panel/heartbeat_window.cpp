@@ -2,7 +2,7 @@
 #include "heartbeat_window.h"
 
 #include <js_engine/js_engine.h>
-#include <js_utils/winapi_error_helper.h>
+#include <utils/winapi_error_helper.h>
 
 #include <user_message.h>
 
@@ -30,10 +30,10 @@ std::unique_ptr<HeartbeatWindow> HeartbeatWindow::Create()
     wx.lpszClassName = class_name;
 
     ATOM atom = RegisterClassEx( &wx );
-    error::CheckWinApi( !!atom, "RegisterClassEx" );
+    smp::error::CheckWinApi( !!atom, "RegisterClassEx" );
 
     HWND hWnd = CreateWindowEx( 0, MAKEINTATOM(atom), NULL, 0, 0, 0, 0, 0, HWND_MESSAGE, 0, 0, 0 );
-    error::CheckWinApi( hWnd, "CreateWindowEx" );
+    smp::error::CheckWinApi( hWnd, "CreateWindowEx" );
 
     return std::unique_ptr<HeartbeatWindow>( new HeartbeatWindow( hWnd ) );
 }

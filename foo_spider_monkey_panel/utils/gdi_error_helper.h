@@ -2,7 +2,7 @@
 
 #include <js_utils/gdi_helpers.h>
 
-namespace mozjs::error
+namespace smp::error
 {
 
 template <typename T>
@@ -15,11 +15,11 @@ void CheckGdiPlusObject( const std::unique_ptr<T>& obj ) noexcept( false )
 
     if ( !obj )
     {
-        throw smp::SmpException( "Failed to create GdiPlus object" );
+        throw SmpException( "Failed to create GdiPlus object" );
     }
     else
     {
-        throw smp::SmpException(
+        throw SmpException(
             smp::string::Formatter()
             << "Failed to create GdiPlus object (0x" << std::hex << obj->GetLastStatus() << ": " << GdiErrorCodeToText( obj->GetLastStatus() ) );
     }
@@ -28,4 +28,4 @@ void CheckGdiPlusObject( const std::unique_ptr<T>& obj ) noexcept( false )
 const char* GdiErrorCodeToText( Gdiplus::Status errorCode );
 void CheckGdi( Gdiplus::Status gdiStatus, std::string_view functionName );
 
-} // namespace mozjs::error
+} // namespace smp::error

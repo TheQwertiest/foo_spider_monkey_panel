@@ -11,9 +11,9 @@
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
 #include <js_utils/js_property_helper.h>
-#include <js_utils/scope_helper.h>
+#include <utils/scope_helpers.h>
 #include <js_utils/gdi_helpers.h>
-#include <js_utils/winapi_error_helper.h>
+#include <utils/winapi_error_helper.h>
 
 #include <com_objects/host_drop_target.h>
 
@@ -327,7 +327,7 @@ void JsWindow::DefinePanel( const pfc::string8_fast& name, JS::HandleValue optio
         dropTargetHandler_.Attach( new com_object_impl_t<com::HostDropTarget>( parentPanel_.GetHWND() ) );
 
         HRESULT hr = dropTargetHandler_->RegisterDragDrop();
-        error::CheckHR( hr, "RegisterDragDrop" );
+        smp::error::CheckHR( hr, "RegisterDragDrop" );
     }
 
     isPanelDefined_ = true;
@@ -363,7 +363,7 @@ uint32_t JsWindow::GetColourCUI( uint32_t type, const std::wstring& guidstr )
     else
     {
         HRESULT hr = CLSIDFromString( guidstr.c_str(), &guid );
-        error::CheckHR( hr, "CLSIDFromString" );
+        smp::error::CheckHR( hr, "CLSIDFromString" );
     }
 
     return parentPanel_.GetColourCUI( type, guid );
@@ -411,7 +411,7 @@ JSObject* JsWindow::GetFontCUI( uint32_t type, const std::wstring& guidstr )
     else
     {
         HRESULT hr = CLSIDFromString( guidstr.c_str(), &guid );
-        error::CheckHR( hr, "CLSIDFromString" );
+        smp::error::CheckHR( hr, "CLSIDFromString" );
     }
 
     auto hFont = gdi::CreateUniquePtr( parentPanel_.GetFontCUI( type, guid ) );

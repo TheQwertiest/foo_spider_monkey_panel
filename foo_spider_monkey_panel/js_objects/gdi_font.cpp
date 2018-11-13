@@ -2,7 +2,7 @@
 #include "gdi_font.h"
 
 #include <js_engine/js_to_native_invoker.h>
-#include <js_utils/gdi_error_helper.h>
+#include <utils/gdi_error_helper.h>
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
 
@@ -115,10 +115,10 @@ std::wstring JsGdiFont::get_Name() const
     Gdiplus::FontFamily fontFamily;
     WCHAR name[LF_FACESIZE] = { 0 };
     Gdiplus::Status gdiRet = pGdi_->GetFamily( &fontFamily );
-    error::CheckGdi( gdiRet, "GetFamily" );
+    smp::error::CheckGdi( gdiRet, "GetFamily" );
 
     gdiRet = fontFamily.GetFamilyName( name, LANG_NEUTRAL );
-    error::CheckGdi( gdiRet, "GetFamilyName" );
+    smp::error::CheckGdi( gdiRet, "GetFamilyName" );
 
     return std::wstring( name );
 }

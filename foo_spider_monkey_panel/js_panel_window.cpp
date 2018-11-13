@@ -7,7 +7,7 @@
 #include <ui/ui_property.h>
 
 #include <js_engine/js_container.h>
-#include <js_utils/scope_helper.h>
+#include <utils/scope_helpers.h>
 #include <js_utils/art_helper.h>
 #include <js_utils/image_helper.h>
 #include <js_utils/gdi_helpers.h>
@@ -73,7 +73,7 @@ LRESULT js_panel_window::on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
     static uint32_t nestedCounter = 0;
     ++nestedCounter;
 
-    mozjs::scope::final_action jobsRunner( [& nestedCounter = nestedCounter] {
+    utils::final_action jobsRunner( [& nestedCounter = nestedCounter] {
         --nestedCounter;
 
         if ( !nestedCounter )
@@ -909,7 +909,7 @@ void js_panel_window::on_context_menu( int x, int y )
 {
     const int base_id = 0;
     HMENU hMenu = CreatePopupMenu();
-    mozjs::scope::final_action autoMenu( [hMenu] {
+    utils::final_action autoMenu( [hMenu] {
         DestroyMenu( hMenu );
     } );
 
@@ -1317,7 +1317,7 @@ void js_panel_window::on_paint( HDC dc, LPRECT lpUpdateRect )
     auto autoMemDc = mozjs::gdi::CreateUniquePtr( memdc );
 
     HBITMAP oldbmp = SelectBitmap( memdc, hBitmap_ );
-    mozjs::scope::final_action autoBmp( [memdc, oldbmp] {
+    utils::final_action autoBmp( [memdc, oldbmp] {
         SelectBitmap( memdc, oldbmp );
     } );
 
@@ -1334,7 +1334,7 @@ void js_panel_window::on_paint( HDC dc, LPRECT lpUpdateRect )
             auto autoBkDc = mozjs::gdi::CreateUniquePtr( bkdc );
 
             HBITMAP bkoldbmp = SelectBitmap( bkdc, hBitmapBg_ );
-            mozjs::scope::final_action autoBkBmp( [bkdc, bkoldbmp] {
+            utils::final_action autoBkBmp( [bkdc, bkoldbmp] {
                 SelectBitmap( bkdc, bkoldbmp );
             } );
 
@@ -1380,7 +1380,7 @@ void js_panel_window::on_paint_error( HDC memdc )
     auto autoFont = mozjs::gdi::CreateUniquePtr( newfont );
 
     HFONT oldfont = (HFONT)SelectObject( memdc, newfont );
-    mozjs::scope::final_action autoFontSelect( [memdc, oldfont]() {
+    utils::final_action autoFontSelect( [memdc, oldfont]() {
         SelectObject( memdc, oldfont );
     } );
 

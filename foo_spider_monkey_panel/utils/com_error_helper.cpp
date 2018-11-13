@@ -2,24 +2,24 @@
 #include "com_error_helper.h"
 
 #include <utils/string_helpers.h>
-#include <js_utils/winapi_error_helper.h>
+#include <utils/winapi_error_helper.h>
 
 #include <smp_exception.h>
 
-namespace mozjs::error
+namespace smp::error
 {
 
-void ReportActiveXError( JSContext* cx, HRESULT hresult, EXCEPINFO& exception, UINT& argerr )
+void ReportActiveXError( HRESULT hresult, EXCEPINFO& exception, UINT& argerr )
 {
     switch ( hresult )
     {
     case DISP_E_BADPARAMCOUNT:
     {
-        throw smp::SmpException( "ActiveXObject: Wrong number of parameters" );
+        throw SmpException( "ActiveXObject: Wrong number of parameters" );
     }
     case DISP_E_BADVARTYPE:
     {
-        throw smp::SmpException( smp::string::Formatter() << "ActiveXObject: Bad variable type " << argerr );
+        throw SmpException( smp::string::Formatter() << "ActiveXObject: Bad variable type " << argerr );
     }
     case DISP_E_EXCEPTION:
     {
@@ -41,29 +41,29 @@ void ReportActiveXError( JSContext* cx, HRESULT hresult, EXCEPINFO& exception, U
         SysFreeString( exception.bstrDescription );
         SysFreeString( exception.bstrHelpFile );
 
-        throw smp::SmpException( errorMsg );
+        throw SmpException( errorMsg );
     }
     case DISP_E_OVERFLOW:
     {
-        throw smp::SmpException( smp::string::Formatter() << "ActiveXObject: Can not convert variable " << argerr );
+        throw SmpException( smp::string::Formatter() << "ActiveXObject: Can not convert variable " << argerr );
     }
     case DISP_E_PARAMNOTFOUND:
     {
-        throw smp::SmpException( smp::string::Formatter() << "ActiveXObject: Parameter" << argerr << " not found" );
+        throw SmpException( smp::string::Formatter() << "ActiveXObject: Parameter" << argerr << " not found" );
     }
     case DISP_E_TYPEMISMATCH:
     {
-        throw smp::SmpException( smp::string::Formatter() << "ActiveXObject: Parameter" << argerr << " type mismatch" );
+        throw SmpException( smp::string::Formatter() << "ActiveXObject: Parameter" << argerr << " type mismatch" );
     }
     case DISP_E_PARAMNOTOPTIONAL:
     {
-        throw smp::SmpException( smp::string::Formatter() << "ActiveXObject: Parameter" << argerr << " is required" );
+        throw SmpException( smp::string::Formatter() << "ActiveXObject: Parameter" << argerr << " is required" );
     }
     default:
     {
-        error::CheckHR( hresult, "ActiveXObject" );
+        smp::error::CheckHR( hresult, "ActiveXObject" );
     }
     }
 }
 
-} // namespace mozjs::error
+} // namespace smp::error

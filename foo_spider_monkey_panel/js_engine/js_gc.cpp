@@ -4,8 +4,8 @@
 #include <js_engine/js_container.h>
 #include <js_engine/js_compartment_inner.h>
 #include <js_utils/js_error_helper.h>
-#include <js_utils/scope_helper.h>
-#include <js_utils/winapi_error_helper.h>
+#include <utils/scope_helpers.h>
+#include <utils/winapi_error_helper.h>
 
 #include <adv_config.h>
 
@@ -103,7 +103,7 @@ void JsGc::UpdateGcConfig()
     MEMORYSTATUSEX statex = { 0 };
     statex.dwLength = sizeof( statex );
     BOOL bRet = GlobalMemoryStatusEx( &statex );
-    error::CheckWinApi( !!bRet, "GlobalMemoryStatusEx" );
+    smp::error::CheckWinApi( !!bRet, "GlobalMemoryStatusEx" );
 
     if ( !smp_advconf::g_var_max_heap.get() )
     { // detect

@@ -160,7 +160,7 @@ bool FbMetadbHandleListProxyHandler::get( JSContext* cx, JS::HandleObject proxy,
         }
         catch ( ... )
         {
-            error::ExceptionToJsError( cx );
+            mozjs::error::ExceptionToJsError( cx );
             return false;
         }
 
@@ -199,7 +199,7 @@ bool FbMetadbHandleListProxyHandler::set( JSContext* cx, JS::HandleObject proxy,
         }
         catch ( ... )
         {
-            error::ExceptionToJsError( cx );
+            mozjs::error::ExceptionToJsError( cx );
             return false;
         }
 
@@ -394,7 +394,7 @@ JSObject* JsFbMetadbHandleList::Convert()
     JS::RootedValue jsValue( pJsCtx_ );
     convert::to_js::ToArrayValue(
         pJsCtx_,
-        metadbHandleList_,
+        smp::Make_Stl_CRef( metadbHandleList_ ),
         []( const auto& vec, auto index ) {
             return vec[index];
         },
@@ -420,7 +420,7 @@ JSObject* JsFbMetadbHandleList::GetLibraryRelativePaths()
     JS::RootedValue jsValue( pJsCtx_ );
     convert::to_js::ToArrayValue(
         pJsCtx_,
-        metadbHandleList_,
+        smp::Make_Stl_CRef( metadbHandleList_ ),
         [&api]( const auto& vec, auto index ) {
             pfc::string8_fast path;
             api->get_relative_path( vec[index], path );
@@ -452,8 +452,8 @@ void JsFbMetadbHandleList::MakeDifference( JsFbMetadbHandleList* handles )
 {
     SmpException::ExpectTrue( handles, "handles argument is null" );
 
-    const smp::Stl_CRef<metadb_handle_list> a( metadbHandleList_ );
-    const smp::Stl_CRef<metadb_handle_list> b( handles->GetHandleList() );
+    const auto a = Make_Stl_CRef( metadbHandleList_ );
+    const auto b = Make_Stl_CRef( handles->GetHandleList() );
     smp::Stl<metadb_handle_list> result;
 
     std::set_difference( a.cbegin(), a.cend(), b.cbegin(), b.cend(), std::back_inserter( result ) );
@@ -465,8 +465,8 @@ void JsFbMetadbHandleList::MakeIntersection( JsFbMetadbHandleList* handles )
 {
     SmpException::ExpectTrue( handles, "handles argument is null" );
 
-    const smp::Stl_CRef<metadb_handle_list> a( metadbHandleList_ );
-    const smp::Stl_CRef<metadb_handle_list> b( handles->GetHandleList() );
+    const auto a = Make_Stl_CRef( metadbHandleList_ );
+    const auto b = Make_Stl_CRef( handles->GetHandleList() );
     smp::Stl<metadb_handle_list> result;
 
     std::set_intersection( a.cbegin(), a.cend(), b.cbegin(), b.cend(), std::back_inserter( result ) );
@@ -478,8 +478,8 @@ void JsFbMetadbHandleList::MakeUnion( JsFbMetadbHandleList* handles )
 {
     SmpException::ExpectTrue( handles, "handles argument is null" );
 
-    const smp::Stl_CRef<metadb_handle_list> a( metadbHandleList_ );
-    const smp::Stl_CRef<metadb_handle_list> b( handles->GetHandleList() );
+    const auto a = Make_Stl_CRef( metadbHandleList_ );
+    const auto b = Make_Stl_CRef( handles->GetHandleList() );
     smp::Stl<metadb_handle_list> result;
 
     std::set_union( a.cbegin(), a.cend(), b.cbegin(), b.cend(), std::back_inserter( result ) );
@@ -542,7 +542,8 @@ void JsFbMetadbHandleList::OrderByRelativePath()
 
 void JsFbMetadbHandleList::RefreshStats()
 {
-    const smp::Stl_CRef<metadb_handle_list> handleList( metadbHandleList_ );
+    const auto handleList = Make_Stl_CRef( metadbHandleList_ );
+
     pfc::list_t<metadb_index_hash> hashes;
     for ( const auto& handle : handleList )
     {

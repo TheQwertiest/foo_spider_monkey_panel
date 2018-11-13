@@ -5,7 +5,7 @@
 #include <js_engine/js_compartment_inner.h>
 #include <js_objects/global_object.h>
 #include <js_utils/js_error_helper.h>
-#include <js_utils/scope_helper.h>
+#include <utils/scope_helpers.h>
 #include <utils/string_helpers.h>
 
 #include <js_panel_window.h>
@@ -15,6 +15,8 @@
 #include <popup_msg.h>
 
 #include <js/Initialization.h>
+
+using namespace smp;
 
 namespace
 {
@@ -105,7 +107,7 @@ bool JsEngine::Initialize()
         return true;
     }
 
-    scope::unique_ptr<JSContext> autoJsCtx( nullptr, []( auto pCtx ) {
+    utils::unique_ptr<JSContext> autoJsCtx( nullptr, []( auto pCtx ) {
         JS_DestroyContext( pCtx );
     } );
 
@@ -142,7 +144,7 @@ bool JsEngine::Initialize()
     catch ( const smp::JsException& )
     {
         assert( JS_IsExceptionPending( autoJsCtx.get() ) );
-        ReportException( error::JsErrorToText( autoJsCtx.get() ) );
+        ReportException( mozjs::error::JsErrorToText( autoJsCtx.get() ) );
         return false;
     }
     catch ( const smp::SmpException& e )
@@ -244,7 +246,7 @@ void JsEngine::MaybeRunJobs()
             }
 
             JSAutoCompartment ac( pJsCtx_, rejectedPromise );
-            error::AutoJsReport are( pJsCtx_ );
+            mozjs::error::AutoJsReport are( pJsCtx_ );
 
             JS::RootedValue jsValue( pJsCtx_, JS::GetPromiseResult( rejectedPromise ) );
             if ( !jsValue.isNullOrUndefined() )

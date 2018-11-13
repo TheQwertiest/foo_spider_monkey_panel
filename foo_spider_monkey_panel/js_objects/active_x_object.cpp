@@ -1,4 +1,4 @@
-/// Code extracted from wrap_com.cpp from JSDB by Shanti Rao (see http://jsdb.org)
+/// Code based on from wrap_com.cpp from JSDB by Shanti Rao (see http://jsdb.org)
 
 #include <stdafx.h>
 #include "active_x_object.h"
@@ -11,9 +11,9 @@
 #include <js_objects/internal/global_heap_manager.h>
 #include <js_utils/js_object_helper.h>
 #include <js_utils/js_prototype_helpers.h>
-#include <js_utils/com_error_helper.h>
-#include <js_utils/scope_helper.h>
-#include <js_utils/winapi_error_helper.h>
+#include <utils/com_error_helper.h>
+#include <utils/scope_helpers.h>
+#include <utils/winapi_error_helper.h>
 #include <utils/string_helpers.h>
 #include <com_objects/script_interface.h>
 #include <com_objects/com_tools.h>
@@ -137,7 +137,7 @@ bool ActiveXObjectProxyHandler::get( JSContext* cx, JS::HandleObject proxy, JS::
     }
     catch ( ... )
     {
-        error::ExceptionToJsError( cx );
+        mozjs::error::ExceptionToJsError( cx );
         return false;
     }
 
@@ -172,7 +172,7 @@ bool ActiveXObjectProxyHandler::set( JSContext* cx, JS::HandleObject proxy, JS::
     }
     catch ( ... )
     {
-        error::ExceptionToJsError( cx );
+        mozjs::error::ExceptionToJsError( cx );
         return false;
     }
 
@@ -211,7 +211,7 @@ void JsToVariantSafe( JSContext* cx, JS::HandleValue rval, VARIANTARG& arg )
     }
     catch ( ... )
     {
-        error::SuppressException( cx ); ///< reset, since we can't report
+        mozjs::error::SuppressException( cx ); ///< reset, since we can't report
         arg.vt = VT_ERROR;
         arg.scode = 0;
     }
@@ -628,13 +628,13 @@ void ActiveXObject::Get( const std::wstring& propName, JS::MutableHandleValue vp
                                           &VarResult,
                                           &exception,
                                           &argerr );
-    scope::final_action autoVarClear( [&VarResult] {
+    utils::final_action autoVarClear( [&VarResult] {
         VariantClear( &VarResult );
     } );
 
     if ( !SUCCEEDED( hresult ) )
     {
-        error::ReportActiveXError( pJsCtx_, hresult, exception, argerr );
+        smp::error::ReportActiveXError( hresult, exception, argerr );
     }
 
     convert::com::VariantToJs( pJsCtx_, VarResult, vp );
@@ -685,7 +685,7 @@ void ActiveXObject::Get( JS::CallArgs& callArgs )
                                           &VarResult,
                                           &exception,
                                           &argerr );
-    scope::final_action autoVarClear( [&VarResult] {
+    utils::final_action autoVarClear( [&VarResult] {
         VariantClear( &VarResult );
     } );
 
@@ -697,7 +697,7 @@ void ActiveXObject::Get( JS::CallArgs& callArgs )
 
     if ( !SUCCEEDED( hresult ) )
     {
-        error::ReportActiveXError( pJsCtx_, hresult, exception, argerr );
+        smp::error::ReportActiveXError( hresult, exception, argerr );
     }
 
     convert::com::VariantToJs( pJsCtx_, VarResult, callArgs.rval() );
@@ -744,7 +744,7 @@ void ActiveXObject::Set( const std::wstring& propName, JS::HandleValue v )
 
     if ( !SUCCEEDED( hresult ) )
     {
-        error::ReportActiveXError( pJsCtx_, hresult, exception, argerr );
+        smp::error::ReportActiveXError( hresult, exception, argerr );
     }
 }
 
@@ -806,7 +806,7 @@ void ActiveXObject::Set( const JS::CallArgs& callArgs )
 
     if ( !SUCCEEDED( hresult ) )
     {
-        error::ReportActiveXError( pJsCtx_, hresult, exception, argerr );
+        smp::error::ReportActiveXError( hresult, exception, argerr );
     }
 }
 
@@ -851,7 +851,7 @@ void ActiveXObject::Invoke( const std::wstring& funcName, const JS::CallArgs& ca
                                           &VarResult,
                                           &exception,
                                           &argerr );
-    scope::final_action autoVarClear( [&VarResult] {
+    utils::final_action autoVarClear( [&VarResult] {
         VariantClear( &VarResult );
     } );
 
@@ -863,7 +863,7 @@ void ActiveXObject::Invoke( const std::wstring& funcName, const JS::CallArgs& ca
 
     if ( !SUCCEEDED( hresult ) )
     {
-        error::ReportActiveXError( pJsCtx_, hresult, exception, argerr );
+        smp::error::ReportActiveXError( hresult, exception, argerr );
     }
 
     convert::com::VariantToJs( pJsCtx_, VarResult, callArgs.rval() );
@@ -881,17 +881,17 @@ void ActiveXObject::SetupMembers( JS::HandleObject jsObject )
     if ( !pDispatch_ )
     {
         HRESULT hr = pUnknown_->QueryInterface( IID_IDispatch, (void**)&pDispatch_ );
-        error::CheckHR( hr, "QueryInterface" );
+        smp::error::CheckHR( hr, "QueryInterface" );
     }
 
     if ( !pTypeInfo_ )
     {
         unsigned ctinfo;
         HRESULT hr = pDispatch_->GetTypeInfoCount( &ctinfo );
-        error::CheckHR( hr, "GetTypeInfoCount" );
+        smp::error::CheckHR( hr, "GetTypeInfoCount" );
 
         hr = pDispatch_->GetTypeInfo( 0, 0, &pTypeInfo_ );
-        error::CheckHR( hr, "GetTypeInfo" );
+        smp::error::CheckHR( hr, "GetTypeInfo" );
     }
 
     ParseTypeInfoRecursive( pJsCtx_, pTypeInfo_, members_ );
@@ -906,9 +906,9 @@ void ActiveXObject::ParseTypeInfoRecursive( JSContext* cx, ITypeInfo* pTypeInfo,
 
     TYPEATTR* pAttr = nullptr;
     HRESULT hr = pTypeInfo->GetTypeAttr( &pAttr );
-    error::CheckHR( hr, "GetTypeAttr" );
+    smp::error::CheckHR( hr, "GetTypeAttr" );
 
-    scope::final_action autoTypeAttr( [pTypeInfo, pAttr] {
+    utils::final_action autoTypeAttr( [pTypeInfo, pAttr] {
         if ( pTypeInfo && pAttr )
         {
             pTypeInfo->ReleaseTypeAttr( pAttr );
@@ -923,13 +923,13 @@ void ActiveXObject::ParseTypeInfoRecursive( JSContext* cx, ITypeInfo* pTypeInfo,
         {
             HREFTYPE hRef = 0;
             hr = pTypeInfo->GetRefTypeOfImplType( i, &hRef );
-            error::CheckHR( hr, "GetTypeAttr" );
+            smp::error::CheckHR( hr, "GetTypeAttr" );
 
             ITypeInfo* pTypeInfoCur = nullptr;
             hr = pTypeInfo->GetRefTypeInfo( hRef, &pTypeInfoCur );
             if ( SUCCEEDED( hr ) && pTypeInfoCur )
             {
-                scope::final_action autoTypeInfo( [pTypeInfoCur] {
+                utils::final_action autoTypeInfo( [pTypeInfoCur] {
                     pTypeInfoCur->Release();
                 } );
 

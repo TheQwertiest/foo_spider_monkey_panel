@@ -2,7 +2,7 @@
 #include "fb_window.h"
 
 #include <js_engine/js_to_native_invoker.h>
-#include <js_utils/winapi_error_helper.h>
+#include <utils/winapi_error_helper.h>
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
 
@@ -84,7 +84,7 @@ std::unique_ptr<JsFbWindow>
 JsFbWindow::CreateNative( JSContext* cx )
 {
     HWND hFbWnd = FindWindow( L"{E7076D1C-A7BF-4f39-B771-BCBE88F2A2A8}", nullptr );
-    error::CheckWinApi( !!hFbWnd, "FindWindow" );
+    smp::error::CheckWinApi( !!hFbWnd, "FindWindow" );
 
     return std::unique_ptr<JsFbWindow>( new JsFbWindow( cx, hFbWnd ) );
 }

@@ -25,9 +25,6 @@
     <ClCompile Include="js_objects\gdi_raw_bitmap.cpp">
       <Filter>js_objects</Filter>
     </ClCompile>
-    <ClCompile Include="js_utils\gdi_error_helper.cpp">
-      <Filter>js_utils</Filter>
-    </ClCompile>
     <ClCompile Include="js_utils\js_error_helper.cpp">
       <Filter>js_utils</Filter>
     </ClCompile>
@@ -154,9 +151,6 @@
     <ClCompile Include="convert\com.cpp">
       <Filter>convert</Filter>
     </ClCompile>
-    <ClCompile Include="js_utils\com_error_helper.cpp">
-      <Filter>js_utils</Filter>
-    </ClCompile>
     <ClCompile Include="convert\native_to_js.cpp">
       <Filter>convert</Filter>
     </ClCompile>
@@ -253,9 +247,6 @@
     <ClCompile Include="smp_exception.cpp">
       <Filter>z_uncategorized</Filter>
     </ClCompile>
-    <ClCompile Include="js_utils\winapi_error_helper.cpp">
-      <Filter>js_utils</Filter>
-    </ClCompile>
     <ClCompile Include="message_data_holder.cpp">
       <Filter>z_uncategorized</Filter>
     </ClCompile>
@@ -273,6 +264,15 @@
     </ClCompile>
     <ClCompile Include="com_objects\host_external.cpp">
       <Filter>com_objects</Filter>
+    </ClCompile>
+    <ClCompile Include="utils\winapi_error_helper.cpp">
+      <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="utils\gdi_error_helper.cpp">
+      <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="utils\com_error_helper.cpp">
+      <Filter>utils</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -299,9 +299,6 @@
     </ClInclude>
     <ClInclude Include="js_objects\gdi_raw_bitmap.h">
       <Filter>js_objects</Filter>
-    </ClInclude>
-    <ClInclude Include="js_utils\gdi_error_helper.h">
-      <Filter>js_utils</Filter>
     </ClInclude>
     <ClInclude Include="js_utils\js_error_helper.h">
       <Filter>js_utils</Filter>
@@ -465,9 +462,6 @@
     <ClInclude Include="convert\com.h">
       <Filter>convert</Filter>
     </ClInclude>
-    <ClInclude Include="js_utils\com_error_helper.h">
-      <Filter>js_utils</Filter>
-    </ClInclude>
     <ClInclude Include="convert\native_to_js.h">
       <Filter>convert</Filter>
     </ClInclude>
@@ -546,9 +540,6 @@
     <ClInclude Include="utils\version_helpers.h">
       <Filter>utils</Filter>
     </ClInclude>
-    <ClInclude Include="utils\timer_helpers.h">
-      <Filter>utils</Filter>
-    </ClInclude>
     <ClInclude Include="com_objects\host_drop_target.h">
       <Filter>com_objects</Filter>
     </ClInclude>
@@ -597,9 +588,6 @@
     <ClInclude Include="scintilla\editorctrl.h">
       <Filter>scintilla</Filter>
     </ClInclude>
-    <ClInclude Include="js_utils\winapi_error_helper.h">
-      <Filter>js_utils</Filter>
-    </ClInclude>
     <ClInclude Include="utils\pfc_helpers.h">
       <Filter>utils</Filter>
     </ClInclude>
@@ -617,6 +605,18 @@
     </ClInclude>
     <ClInclude Include="com_objects\internal\drag_image.h">
       <Filter>com_objects\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\scope_helpers.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\winapi_error_helper.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\gdi_error_helper.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\com_error_helper.h">
+      <Filter>utils</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

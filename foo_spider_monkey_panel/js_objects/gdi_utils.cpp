@@ -8,10 +8,10 @@
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
 #include <js_utils/gdi_helpers.h>
-#include <js_utils/gdi_error_helper.h>
-#include <js_utils/scope_helper.h>
+#include <utils/gdi_error_helper.h>
+#include <utils/scope_helpers.h>
 #include <js_utils/image_helper.h>
-#include <js_utils/winapi_error_helper.h>
+#include <utils/winapi_error_helper.h>
 
 #include <helpers.h>
 
@@ -91,7 +91,7 @@ size_t JsGdiUtils::GetInternalSize()
 JSObject* JsGdiUtils::CreateImage( uint32_t w, uint32_t h )
 {
     std::unique_ptr<Gdiplus::Bitmap> img( new Gdiplus::Bitmap( w, h, PixelFormat32bppPARGB ) );
-    error::CheckGdiPlusObject( img );
+    smp::error::CheckGdiPlusObject( img );
 
     return JsGdiBitmap::CreateJs( pJsCtx_, std::move( img ) );
 }
@@ -121,8 +121,8 @@ JSObject* JsGdiUtils::Font( const std::wstring& fontName, float pxSize, uint32_t
         DEFAULT_QUALITY,
         DEFAULT_PITCH | FF_DONTCARE,
         fontName.c_str() );
-    error::CheckWinApi( !!hFont, "CreateFont" );
-    scope::final_action autoFont( [hFont]() {
+    smp::error::CheckWinApi( !!hFont, "CreateFont" );
+    utils::final_action autoFont( [hFont]() {
         DeleteObject( hFont );
     } );
 

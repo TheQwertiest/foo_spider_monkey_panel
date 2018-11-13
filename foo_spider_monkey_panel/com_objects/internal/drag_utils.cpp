@@ -1,7 +1,7 @@
 #include <stdafx.h>
 #include "drag_utils.h"
 
-#include <js_utils/scope_helper.h>
+#include <utils/scope_helpers.h>
 #include <com_objects/internal/drag_image.h>
 
 namespace
@@ -113,7 +113,7 @@ HRESULT SetDropText( IDataObject* pdtobj, DROPIMAGETYPE dit, const wchar_t* msg,
 bool RenderDragImage( HWND hWnd, size_t itemCount, SHDRAGIMAGE& dragImage )
 {
     const HTHEME m_dd_theme = ( IsThemeActive() && IsAppThemed() ? OpenThemeData( hWnd, VSCLASS_DRAGDROP ) : nullptr );
-    mozjs::scope::final_action autoTheme( [m_dd_theme] {
+    utils::final_action autoTheme( [m_dd_theme] {
         if ( m_dd_theme )
         {
             CloseThemeData( m_dd_theme );

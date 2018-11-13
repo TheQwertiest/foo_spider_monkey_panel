@@ -3,7 +3,7 @@
 
 #include <js_engine/js_to_native_invoker.h>
 #include <js_objects/fb_window.h>
-#include <js_utils/gdi_error_helper.h>
+#include <utils/gdi_error_helper.h>
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
 

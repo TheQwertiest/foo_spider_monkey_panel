@@ -4,9 +4,9 @@
 #include <js_engine/js_to_native_invoker.h>
 #include <js_objects/gdi_graphics.h>
 #include <js_utils/js_error_helper.h>
-#include <js_utils/winapi_error_helper.h>
+#include <utils/winapi_error_helper.h>
 #include <js_utils/js_object_helper.h>
-#include <js_utils/scope_helper.h>
+#include <utils/scope_helpers.h>
 
 using namespace smp;
 
@@ -110,7 +110,7 @@ void JsThemeManager::DrawThemeBackground( JsGdiGraphics* gr,
     assert( graphics );
 
     HDC dc = graphics->GetHDC();
-    scope::final_action autoHdcReleaser( [graphics, dc]() {
+    utils::final_action autoHdcReleaser( [graphics, dc]() {
         graphics->ReleaseHDC( dc );
     } );
 
@@ -124,7 +124,7 @@ void JsThemeManager::DrawThemeBackground( JsGdiGraphics* gr,
     }
 
     HRESULT hr = ::DrawThemeBackground( hTheme_, dc, partId_, stateId_, &rc, pclip_rc );
-    error::CheckHR( hr, "DrawThemeBackground" );
+    smp::error::CheckHR( hr, "DrawThemeBackground" );
 }
 
 void JsThemeManager::DrawThemeBackgroundWithOpt( size_t optArgCount, JsGdiGraphics* gr,

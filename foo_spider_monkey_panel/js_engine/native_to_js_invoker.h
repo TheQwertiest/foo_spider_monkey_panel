@@ -21,7 +21,7 @@ std::optional<ReturnType> InvokeJsCallback( JSContext* cx,
 
     JSAutoRequest ar( cx );
     JSAutoCompartment ac( cx, globalObject );
-    error::AutoJsReport are( cx );
+    mozjs::error::AutoJsReport are( cx );
 
     JS::RootedValue funcValue( cx );
     if ( !JS_GetProperty( cx, globalObject, functionName.c_str(), &funcValue ) )
@@ -59,7 +59,7 @@ std::optional<ReturnType> InvokeJsCallback( JSContext* cx,
     }
     catch ( ... )
     {
-        error::ExceptionToJsError( cx );
+        mozjs::error::ExceptionToJsError( cx );
         return std::nullopt;
     }
 }

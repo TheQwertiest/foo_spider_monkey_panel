@@ -8,6 +8,7 @@
 #include <js_objects/drop_source_action.h>
 #include <js_utils/js_error_helper.h>
 #include <js_utils/scope_helper.h>
+#include <utils/scope_helpers.h>
 
 #include <js_panel_window.h>
 #include <host_timer_dispatcher.h>
@@ -19,6 +20,8 @@
 #pragma warning( disable : 4996 ) // C++17 deprecation warning
 #include <js/Wrapper.h>
 #pragma warning( pop )
+
+using namespace smp;
 
 namespace mozjs
 {
@@ -72,7 +75,7 @@ bool JsContainer::Initialize()
 
         jsGlobal_.init( pJsCtx_, JsGlobalObject::CreateNative( pJsCtx_, *this, *pParentPanel_ ) );
         assert( jsGlobal_ );
-        scope::final_action autoGlobal( [&]() {
+        utils::final_action autoGlobal( [&]() {
             jsGlobal_.reset();
         } );
 
@@ -84,8 +87,8 @@ bool JsContainer::Initialize()
     }
     catch ( ... )
     {
-        error::ExceptionToJsError( pJsCtx_ );
-        Fail( error::JsErrorToText( pJsCtx_ ) );
+        mozjs::error::ExceptionToJsError( pJsCtx_ );
+        Fail( mozjs::error::JsErrorToText( pJsCtx_ ) );
         return false;
     }
 
@@ -293,7 +296,7 @@ bool JsContainer::CreateDropActionIfNeeded()
     }
     catch ( ... )
     {
-        error::ExceptionToJsError( pJsCtx_ );
+        mozjs::error::ExceptionToJsError( pJsCtx_ );
         return false;
     }
 

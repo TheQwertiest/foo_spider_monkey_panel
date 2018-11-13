@@ -251,13 +251,11 @@ public:
 
     template <typename = typename std::enable_if_t<std::is_reference_v<T>>>
     Stl( T& base )
-        : pfc_( base )
-    {};
+        : pfc_( base ){};
 
     template <typename... Args, typename = typename std::enable_if_t<!std::is_reference_v<T>>>
     Stl( Args&&... args )
-        : pfc_( std::forward<Args>( args )... )
-    {};
+        : pfc_( std::forward<Args>( args )... ){};
 
     Stl( const Stl& ) = delete;
     ~Stl() = default;
@@ -271,7 +269,7 @@ public:
     // bool operator<=( const Stl& ) const; //optional
     // bool operator>=( const Stl& ) const; //optional
 
-    template <typename = typename std::enable_if_t<!std::is_const_v<std::remove_reference_t<T>>>> 
+    template <typename = typename std::enable_if_t<!std::is_const_v<std::remove_reference_t<T>>>>
     iterator begin()
     {
         return iterator( 0, &pfc_ );
@@ -286,7 +284,7 @@ public:
         return begin();
     }
 
-    template <typename = typename std::enable_if_t<!std::is_const_v<std ::remove_reference_t<T>>>> 
+    template <typename = typename std::enable_if_t<!std::is_const_v<std ::remove_reference_t<T>>>>
     iterator end()
     {
         return iterator( size(), &pfc_ );
@@ -390,7 +388,7 @@ public:
     }
 
 public:
-    template <typename = typename std::enable_if_t<!std::is_const_v<std::remove_reference_t<T>>>> 
+    template <typename = typename std::enable_if_t<!std::is_const_v<std::remove_reference_t<T>>>>
     pfc_container_type& Pfc()
     {
         return pfc_;
@@ -410,5 +408,17 @@ using Stl_Ref = typename Stl<T&>;
 
 template <typename T>
 using Stl_CRef = typename Stl<const T&>;
+
+template <typename T>
+Stl_Ref<T> Make_Stl_Ref( T& base )
+{
+    return Stl_Ref<T>( base );
+}
+
+template <typename T>
+Stl_CRef<T> Make_Stl_CRef( const T& base )
+{
+    return Stl_CRef<T>( base );
+}
 
 } // namespace smp

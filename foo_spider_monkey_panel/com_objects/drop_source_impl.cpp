@@ -3,7 +3,7 @@
 
 #include <com_objects/internal/drag_image.h>
 #include <com_objects/internal/drag_utils.h>
-#include <js_utils/winapi_error_helper.h>
+#include <utils/winapi_error_helper.h>
 
 _COM_SMARTPTR_TYPEDEF( IDragSourceHelper2, IID_IDragSourceHelper2 );
 
@@ -18,7 +18,7 @@ IDropSourceImpl::IDropSourceImpl( HWND hWnd, IDataObject* pDataObject, size_t it
     assert( itemCount );
 
     HRESULT hr = pDragSourceHelper_.CreateInstance( CLSID_DragDropHelper, nullptr, CLSCTX_INPROC_SERVER );
-    mozjs::error::CheckHR( hr, "CreateInstance" );
+    smp::error::CheckHR( hr, "CreateInstance" );
 
     if ( IDragSourceHelper2Ptr pDragSourceHelper2 = pDragSourceHelper_;
          pDragSourceHelper2 )

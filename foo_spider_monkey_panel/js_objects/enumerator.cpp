@@ -5,7 +5,7 @@
 #include <js_objects/active_x_object.h>
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
-#include <js_utils/winapi_error_helper.h>
+#include <utils/winapi_error_helper.h>
 #include <com_objects/dispatch_ptr.h>
 #include <convert/com.h>
 
@@ -54,7 +54,7 @@ bool Enumerator_Constructor_Impl( JSContext* cx, unsigned argc, JS::Value* vp )
     }
     catch ( ... )
     {
-        error::ExceptionToJsError( cx );
+        mozjs::error::ExceptionToJsError( cx );
         return false;
     }
 
@@ -140,7 +140,7 @@ JS::Value JsEnumerator::Item()
 void JsEnumerator::MoveFirst()
 {
     HRESULT hr = pEnum_->Reset();
-    error::CheckHR( hr, "Reset" );
+    smp::error::CheckHR( hr, "Reset" );
 
     GetCurrentElement();
 }
@@ -165,7 +165,7 @@ void JsEnumerator::GetCurrentElement()
     }
     else
     {
-        error::CheckHR( hr, "Next" );
+        smp::error::CheckHR( hr, "Next" );
     }
 
     if ( !fetchedElements )

@@ -5,12 +5,12 @@
 #include <js_objects/fb_metadb_handle.h>
 #include <js_objects/gdi_bitmap.h>
 #include <js_utils/js_error_helper.h>
-#include <js_utils/gdi_error_helper.h>
-#include <js_utils/winapi_error_helper.h>
+#include <utils/gdi_error_helper.h>
+#include <utils/winapi_error_helper.h>
 #include <js_utils/js_object_helper.h>
 #include <js_utils/art_helper.h>
 #include <js_utils/file_helpers.h>
-#include <js_utils/scope_helper.h>
+#include <utils/scope_helpers.h>
 
 #include <ui/ui_input_box.h>
 #include <ui/ui_html.h>
@@ -182,17 +182,17 @@ bool JsUtils::CheckFont( const std::wstring& name )
 
     int recv;
     Gdiplus::Status gdiRet = font_collection.GetFamilies( count, font_families.data(), &recv );
-    error::CheckGdi( gdiRet, "GetFamilies" );
+    smp::error::CheckGdi( gdiRet, "GetFamilies" );
     SmpException::ExpectTrue( recv == count, "Internal error: GetFamilies numSought != numFound" );
 
     WCHAR family_name_eng[LF_FACESIZE] = { 0 };
     WCHAR family_name_loc[LF_FACESIZE] = { 0 };
     const auto it = std::find_if( font_families.cbegin(), font_families.cend(), [&family_name_eng, &family_name_loc, &name]( const auto& fontFamily ) {
         Gdiplus::Status gdiRet = fontFamily.GetFamilyName( family_name_eng, MAKELANGID( LANG_ENGLISH, SUBLANG_ENGLISH_US ) );
-        error::CheckGdi( gdiRet, "GetFamilyName" );
+        smp::error::CheckGdi( gdiRet, "GetFamilyName" );
 
         gdiRet = fontFamily.GetFamilyName( family_name_loc );
-        error::CheckGdi( gdiRet, "GetFamilyName" );
+        smp::error::CheckGdi( gdiRet, "GetFamilyName" );
 
         return ( !_wcsicmp( name.c_str(), family_name_loc )
                  || !_wcsicmp( name.c_str(), family_name_eng ) );
@@ -224,7 +224,7 @@ JS::Value JsUtils::FileTest( const std::wstring& path, const std::wstring& mode 
     else if ( L"s" == mode )
     {
         HANDLE fh = CreateFile( cleanedPath.c_str(), GENERIC_READ, FILE_SHARE_READ, 0, OPEN_EXISTING, 0, 0 );
-        error::CheckWinApi( fh != INVALID_HANDLE_VALUE, "CreateFile" );
+        smp::error::CheckWinApi( fh != INVALID_HANDLE_VALUE, "CreateFile" );
 
         LARGE_INTEGER size = { 0 };
         GetFileSizeEx( fh, &size );
@@ -492,11 +492,11 @@ std::wstring JsUtils::MapString( const std::wstring& str, uint32_t lcid, uint32_
 { // TODO: LCMapString is deprecated, replace with a new V2 method (based on LCMapStringEx)
     // WinAPI is weird: 0 - error (with LastError), > 0 - characters required
     int iRet = ::LCMapStringW( lcid, flags, str.c_str(), str.length() + 1, nullptr, 0 );
-    error::CheckWinApi( iRet, "LCMapStringW" );
+    smp::error::CheckWinApi( iRet, "LCMapStringW" );
 
     std::wstring dst( iRet, '\0' );
     iRet = ::LCMapStringW( lcid, flags, str.c_str(), str.length() + 1, (LPWSTR)dst.c_str(), dst.size() );
-    error::CheckWinApi( iRet, "LCMapStringW" );
+    smp::error::CheckWinApi( iRet, "LCMapStringW" );
 
     return dst;
 }

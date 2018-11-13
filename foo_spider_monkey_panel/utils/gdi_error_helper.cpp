@@ -3,7 +3,7 @@
 
 #include <utils/string_helpers.h>
 
-namespace mozjs::error
+namespace smp::error
 {
 
 const char* GdiErrorCodeToText( Gdiplus::Status errorCode )
@@ -68,4 +68,4 @@ void CheckGdi( Gdiplus::Status gdiStatus, std::string_view functionName )
     }
 }
 
-} // namespace mozjs::error
+} // namespace smp::error

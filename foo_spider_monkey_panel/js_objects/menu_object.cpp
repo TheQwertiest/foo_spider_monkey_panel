@@ -4,7 +4,7 @@
 #include <js_engine/js_to_native_invoker.h>
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
-#include <js_utils/winapi_error_helper.h>
+#include <utils/winapi_error_helper.h>
 
 using namespace smp;
 
@@ -83,7 +83,7 @@ std::unique_ptr<JsMenuObject>
 JsMenuObject::CreateNative( JSContext* cx, HWND hParentWnd )
 {
     HMENU hMenu = ::CreatePopupMenu();
-    error::CheckWinApi( !!hMenu, "CreatePopupMenu" );
+    smp::error::CheckWinApi( !!hMenu, "CreatePopupMenu" );
 
     return std::unique_ptr<JsMenuObject>( new JsMenuObject( cx, hParentWnd, hMenu ) );
 }
@@ -106,13 +106,13 @@ void JsMenuObject::AppendMenuItem( uint32_t flags, uint32_t item_id, const std::
     }
 
     BOOL bRet = ::AppendMenu( hMenu_, flags, item_id, text.c_str() );
-    error::CheckWinApi( bRet, "AppendMenu" );
+    smp::error::CheckWinApi( bRet, "AppendMenu" );
 }
 
 void JsMenuObject::AppendMenuSeparator()
 {
     BOOL bRet = ::AppendMenu( hMenu_, MF_SEPARATOR, 0, 0 );
-    error::CheckWinApi( bRet, "AppendMenu" );
+    smp::error::CheckWinApi( bRet, "AppendMenu" );
 }
 
 void JsMenuObject::AppendTo( JsMenuObject* parent, uint32_t flags, const std::wstring& text )
@@ -120,7 +120,7 @@ void JsMenuObject::AppendTo( JsMenuObject* parent, uint32_t flags, const std::ws
     SmpException::ExpectTrue( parent, "parent argument is null" );
 
     BOOL bRet = ::AppendMenu( parent->HMenu(), flags | MF_STRING | MF_POPUP, (UINT_PTR)hMenu_, text.c_str() );
-    error::CheckWinApi( bRet, "AppendMenu" );
+    smp::error::CheckWinApi( bRet, "AppendMenu" );
 
     isDetached_ = true;
 }
@@ -139,7 +139,7 @@ void JsMenuObject::CheckMenuRadioItem( uint32_t first, uint32_t last, uint32_t s
     SmpException::ExpectTrue( selected >= first && selected <= last, "Index is out of bounds" );
 
     BOOL bRet = ::CheckMenuRadioItem( hMenu_, first, last, selected, MF_BYCOMMAND );
-    error::CheckWinApi( bRet, "CheckMenuRadioItem" );
+    smp::error::CheckWinApi( bRet, "CheckMenuRadioItem" );
 }
 
 std::uint32_t JsMenuObject::TrackPopupMenu( int32_t x, int32_t y, uint32_t flags )
@@ -151,7 +151,7 @@ std::uint32_t JsMenuObject::TrackPopupMenu( int32_t x, int32_t y, uint32_t flags
     flags &= ~TPM_RECURSE;
 
     BOOL bRet = ClientToScreen( hParentWnd_, &pt );
-    error::CheckWinApi( bRet, "ClientToScreen" );
+    smp::error::CheckWinApi( bRet, "ClientToScreen" );
 
     // Don't bother with error checking, since TrackPopupMenu returns numerous errors when clicked outside of menu
     return ::TrackPopupMenu( hMenu_, flags, pt.x, pt.y, 0, hParentWnd_, 0 );

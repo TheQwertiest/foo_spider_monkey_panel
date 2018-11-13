@@ -4,10 +4,12 @@
 #include <convert/native_to_js.h>
 #include <convert/js_to_native.h>
 #include <js_objects/global_object.h>
-#include <js_utils/scope_helper.h>
+#include <utils/scope_helpers.h>
 #include <js_utils/js_property_helper.h>
 
 #include <smp_exception.h>
+
+using namespace smp;
 
 namespace
 {
@@ -26,7 +28,7 @@ pfc::string8_fast GetStackTraceString( JSContext* cx, JS::HandleObject exn )
         }
         catch ( ... )
         {
-            error::SuppressException( cx );
+            mozjs::error::SuppressException( cx );
             return "";
         }
     }
@@ -136,7 +138,7 @@ bool PrependTextToJsObjectException( JSContext* cx, JS::HandleValue excn, const 
     }
     catch ( ... )
     {
-        error::SuppressException( cx );
+        mozjs::error::SuppressException( cx );
         return false;
     }
 
@@ -210,8 +212,8 @@ pfc::string8_fast JsErrorToText( JSContext* cx )
     (void)JS_GetPendingException( cx, &excn );
     JS_ClearPendingException( cx ); ///< need this for js::ErrorReport::init
 
-    mozjs::scope::final_action autoErrorClear( [cx]()
-    {// There should be no exceptions on functin exit
+    utils::final_action autoErrorClear( [cx]()
+    {// There should be no exceptions on function exit
         JS_ClearPendingException( cx );
     } );
 
@@ -224,7 +226,7 @@ pfc::string8_fast JsErrorToText( JSContext* cx )
         }
         catch ( ... )
         {
-            error::SuppressException( cx );
+            mozjs::error::SuppressException( cx );
         }
     }
     else
@@ -331,7 +333,7 @@ void SuppressException( JSContext* cx )
 
 void PrependTextToJsError( JSContext* cx, const pfc::string8_fast& text )
 {
-    scope::final_action autoJsReport( [cx, text]() {
+    utils::final_action autoJsReport( [cx, text]() {
         JS_ReportErrorUTF8( cx, "%s", text.c_str() );
     } );
 
@@ -362,4 +364,4 @@ void PrependTextToJsError( JSContext* cx, const pfc::string8_fast& text )
     }
 }
 
-} // namespace mozjs::error
+} // namespace error

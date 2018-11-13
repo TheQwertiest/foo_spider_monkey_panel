@@ -1,7 +1,7 @@
 #include <stdafx.h>
 #include "drop_target_impl.h"
 
-#include <js_utils/winapi_error_helper.h>
+#include <utils/winapi_error_helper.h>
 
 namespace smp::com
 {
@@ -12,7 +12,7 @@ IDropTargetImpl::IDropTargetImpl( HWND hWnd )
     assert( hWnd );
 
     HRESULT hr = m_dropTargetHelper.CreateInstance( CLSID_DragDropHelper, nullptr, CLSCTX_INPROC_SERVER );
-    mozjs::error::CheckHR( hr, "CreateInstance" );
+    smp::error::CheckHR( hr, "CreateInstance" );
 }
 
 IDropTargetImpl::~IDropTargetImpl()

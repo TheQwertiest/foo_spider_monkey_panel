@@ -81,40 +81,15 @@ template <>
 void ToValue( JSContext* cx, const t_playback_queue_item& inValue, JS::MutableHandleValue wrappedValue );
 
 template <typename T, typename F>
-void ToArrayValue( JSContext* cx, const std::vector<T>& inValue, F&& accessorFunc, JS::MutableHandleValue wrappedValue )
+void ToArrayValue( JSContext* cx, const T& inVector, F&& accessorFunc, JS::MutableHandleValue wrappedValue )
 {
-    JS::RootedObject jsArray( cx, JS_NewArrayObject( cx, inValue.size() ) );
-    if ( !jsArray )
-    {
-        throw smp::JsException();
-    }
+    JS::RootedObject jsArray( cx, JS_NewArrayObject( cx, inVector.size() ) );
+    smp::JsException::ExpectTrue( jsArray );
 
     JS::RootedValue jsValue( cx );
-    for ( t_size i = 0; i < inValue.size(); ++i )
+    for ( size_t i = 0; i < inVector.size(); ++i )
     {
-        ToValue( cx, accessorFunc( inValue, i ), &jsValue );
-        if ( !JS_SetElement( cx, jsArray, i, jsValue ) )
-        {
-            throw smp::JsException();
-        }
-    }
-
-    wrappedValue.set( JS::ObjectValue( *jsArray ) );
-}
-
-template <typename T, typename F>
-void ToArrayValue( JSContext* cx, const pfc::list_base_const_t<T>& inValue, F&& accessorFunc, JS::MutableHandleValue wrappedValue )
-{
-    JS::RootedObject jsArray( cx, JS_NewArrayObject( cx, inValue.get_count() ) );
-    if ( !jsArray )
-    {
-        throw smp::JsException();
-    }
-
-    JS::RootedValue jsValue( cx );
-    for ( t_size i = 0; i < inValue.get_count(); ++i )
-    {
-        ToValue( cx, accessorFunc( inValue, i ), &jsValue );
+        ToValue( cx, accessorFunc( inVector, i ), &jsValue );
         if ( !JS_SetElement( cx, jsArray, i, jsValue ) )
         {
             throw smp::JsException();

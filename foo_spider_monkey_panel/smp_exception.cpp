@@ -12,4 +12,12 @@ void SmpException::ExpectTrue( bool checkValue, std::string_view errorMessage )
     }
 }
 
+void JsException::ExpectTrue( bool checkValue )
+{
+    if ( !checkValue )
+    {
+        throw JsException();
+    }
+}
+
 } // namespace smp

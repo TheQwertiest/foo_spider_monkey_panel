@@ -154,15 +154,12 @@
     <ClCompile Include="js_panel_window_cui.cpp" />
     <ClCompile Include="js_panel_window_dui.cpp" />
     <ClCompile Include="js_utils\art_helper.cpp" />
-    <ClCompile Include="js_utils\com_error_helper.cpp" />
     <ClCompile Include="js_utils\file_helpers.cpp" />
-    <ClCompile Include="js_utils\gdi_error_helper.cpp" />
     <ClCompile Include="js_utils\gdi_helpers.cpp" />
     <ClCompile Include="js_utils\image_helper.cpp" />
     <ClCompile Include="js_utils\js_error_helper.cpp" />
     <ClCompile Include="js_utils\js_object_helper.cpp" />
     <ClCompile Include="js_utils\serialized_value.cpp" />
-    <ClCompile Include="js_utils\winapi_error_helper.cpp" />
     <ClCompile Include="mainmenu.cpp" />
     <ClCompile Include="message_data_holder.cpp" />
     <ClCompile Include="panel_manager.cpp" />
@@ -185,10 +182,13 @@
     <ClCompile Include="ui\ui_pref.cpp" />
     <ClCompile Include="ui\ui_property.cpp" />
     <ClCompile Include="ui\ui_replace.cpp" />
+    <ClCompile Include="utils\com_error_helper.cpp" />
+    <ClCompile Include="utils\gdi_error_helper.cpp" />
     <ClCompile Include="utils\kmeans.cpp" />
     <ClCompile Include="utils\stackblur.cpp" />
     <ClCompile Include="utils\string_helpers.cpp" />
     <ClCompile Include="utils\version_helpers.cpp" />
+    <ClCompile Include="utils\winapi_error_helper.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\PropertyList\PropertyItem.h" />
@@ -256,9 +256,7 @@
     <ClInclude Include="js_objects\utils.h" />
     <ClInclude Include="js_objects\window.h" />
     <ClInclude Include="js_utils\art_helper.h" />
-    <ClInclude Include="js_utils\com_error_helper.h" />
     <ClInclude Include="js_utils\file_helpers.h" />
-    <ClInclude Include="js_utils\gdi_error_helper.h" />
     <ClInclude Include="js_utils\gdi_helpers.h" />
     <ClInclude Include="js_utils\image_helper.h" />
     <ClInclude Include="js_utils\js_error_helper.h" />
@@ -267,7 +265,6 @@
     <ClInclude Include="js_utils\js_prototype_helpers.h" />
     <ClInclude Include="js_utils\scope_helper.h" />
     <ClInclude Include="js_utils\serialized_value.h" />
-    <ClInclude Include="js_utils\winapi_error_helper.h" />
     <ClInclude Include="message_data_holder.h" />
     <ClInclude Include="panel_tooltip_param.h" />
     <ClInclude Include="scintilla\editorctrl.h" />
@@ -299,12 +296,15 @@
     <ClInclude Include="ui\ui_property.h" />
     <ClInclude Include="ui\ui_replace.h" />
     <ClInclude Include="user_message.h" />
+    <ClInclude Include="utils\com_error_helper.h" />
+    <ClInclude Include="utils\gdi_error_helper.h" />
     <ClInclude Include="utils\kmeans.h" />
     <ClInclude Include="utils\pfc_helpers.h" />
+    <ClInclude Include="utils\scope_helpers.h" />
     <ClInclude Include="utils\stackblur.h" />
     <ClInclude Include="utils\string_helpers.h" />
-    <ClInclude Include="utils\timer_helpers.h" />
     <ClInclude Include="utils\version_helpers.h" />
+    <ClInclude Include="utils\winapi_error_helper.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\CHANGELOG.md" />

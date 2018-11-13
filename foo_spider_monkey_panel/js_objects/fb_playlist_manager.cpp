@@ -10,6 +10,7 @@
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
 #include <utils/string_helpers.h>
+#include <utils/pfc_helpers.h>
 
 #include <helpers.h>
 
@@ -374,7 +375,7 @@ JSObject* JsFbPlaylistManager::GetPlaybackQueueContents()
     JS::RootedValue jsValue( pJsCtx_ );
     convert::to_js::ToArrayValue(
         pJsCtx_,
-        contents,
+        smp::Make_Stl_CRef( contents ),
         []( const auto& vec, auto index ) {
             return vec[index];
         },

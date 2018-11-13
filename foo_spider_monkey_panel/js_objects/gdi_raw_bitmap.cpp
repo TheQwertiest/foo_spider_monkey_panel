@@ -2,12 +2,12 @@
 #include "gdi_raw_bitmap.h"
 
 #include <js_engine/js_to_native_invoker.h>
-#include <js_utils/gdi_error_helper.h>
+#include <utils/gdi_error_helper.h>
 #include <js_utils/gdi_helpers.h>
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
-#include <js_utils/winapi_error_helper.h>
-#include <js_utils/scope_helper.h>
+#include <utils/winapi_error_helper.h>
+#include <utils/scope_helpers.h>
 
 #include <helpers.h>
 
@@ -86,7 +86,7 @@ JsGdiRawBitmap::CreateNative( JSContext* cx, Gdiplus::Bitmap* pBmp )
     SmpException::ExpectTrue( pBmp, "Internal error: Gdiplus::Bitmap is null" );
 
     auto hDc = gdi::CreateUniquePtr( CreateCompatibleDC( nullptr ) );
-    error::CheckWinApi( !!hDc, "CreateCompatibleDC" );
+    smp::error::CheckWinApi( !!hDc, "CreateCompatibleDC" );
 
     auto hBitmap = gdi::CreateHBitmapFromGdiPlusBitmap( *pBmp );
     SmpException::ExpectTrue( !!hBitmap, "Internal error: failed to get HBITMAP from Gdiplus::Bitmap" );
