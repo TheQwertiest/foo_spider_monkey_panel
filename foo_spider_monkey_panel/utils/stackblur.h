@@ -13,6 +13,6 @@ by Victor Laskin (victor.laskin@gmail.com)
 More details: http://vitiy.info/stackblur-algorithm-multi-threaded-blur-for-cpp
 */
 
-void stack_blur_filter( Gdiplus::Bitmap& img, int radius ) throw();
+void stack_blur_filter( Gdiplus::Bitmap& img, int radius );
 
-}
+} // namespace smp::utils

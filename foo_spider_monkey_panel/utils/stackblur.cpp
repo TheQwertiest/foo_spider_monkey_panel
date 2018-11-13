@@ -278,7 +278,7 @@ void stackblur( unsigned char* src, ///< input image data
 namespace smp::utils
 {
 
-void stack_blur_filter( Gdiplus::Bitmap& img, int radius ) throw()
+void stack_blur_filter( Gdiplus::Bitmap& img, int radius )
 {
     int width = img.GetWidth();
     int height = img.GetHeight();

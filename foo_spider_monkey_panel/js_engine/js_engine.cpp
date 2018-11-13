@@ -116,7 +116,7 @@ bool JsEngine::Initialize()
         autoJsCtx.reset( JS_NewContext( jsGc_.GetMaxHeap() ) );
         if ( !autoJsCtx )
         {
-            throw smp::SmpException( "JS_NewContext failed" );
+            throw SmpException( "JS_NewContext failed" );
         }
 
         JSContext* cx = autoJsCtx.get();
@@ -147,7 +147,7 @@ bool JsEngine::Initialize()
         ReportException( mozjs::error::JsErrorToText( autoJsCtx.get() ) );
         return false;
     }
-    catch ( const smp::SmpException& e )
+    catch ( const SmpException& e )
     {
         ReportException( e.what() );
         return false;

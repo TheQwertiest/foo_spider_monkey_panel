@@ -40,7 +40,7 @@ std::wstring ReadFromFile( JSContext* cx, const pfc::string8_fast& path, uint32_
     std::error_code dummyErr;
     if ( !fs::exists( fsPath ) || !fs::is_regular_file( fsPath, dummyErr ) )
     {
-        throw smp::SmpException( smp::string::Formatter() << "Path does not point to a valid file: " << cleanPath.c_str() );
+        throw SmpException( smp::string::Formatter() << "Path does not point to a valid file: " << cleanPath.c_str() );
     }
 
     // Prepare file
@@ -48,7 +48,7 @@ std::wstring ReadFromFile( JSContext* cx, const pfc::string8_fast& path, uint32_
     HANDLE hFile = CreateFile( fsPath.wstring().c_str(), GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr );
     if ( !hFile )
     {
-        throw smp::SmpException( smp::string::Formatter() << "Failed to open script file: " << cleanPath.c_str() );
+        throw SmpException( smp::string::Formatter() << "Failed to open script file: " << cleanPath.c_str() );
     }
     utils::final_action autoFile( [hFile]() {
         CloseHandle( hFile );
@@ -57,7 +57,7 @@ std::wstring ReadFromFile( JSContext* cx, const pfc::string8_fast& path, uint32_
     HANDLE hFileMapping = CreateFileMapping( hFile, nullptr, PAGE_READONLY, 0, 0, nullptr );
     if ( !hFileMapping )
     {
-        throw smp::SmpException( smp::string::Formatter() << "Internal error: CreateFileMapping failed for `" << cleanPath.c_str() << "`" );
+        throw SmpException( smp::string::Formatter() << "Internal error: CreateFileMapping failed for `" << cleanPath.c_str() << "`" );
     }
     utils::final_action autoMapping( [hFileMapping]() {
         CloseHandle( hFileMapping );
@@ -67,7 +67,7 @@ std::wstring ReadFromFile( JSContext* cx, const pfc::string8_fast& path, uint32_
     LPCBYTE pAddr = (LPCBYTE)MapViewOfFile( hFileMapping, FILE_MAP_READ, 0, 0, 0 );
     if ( !pAddr )
     {
-        throw smp::SmpException( smp::string::Formatter() << "Internal error: MapViewOfFile failed for `" << cleanPath.c_str() << "`" );
+        throw SmpException( smp::string::Formatter() << "Internal error: MapViewOfFile failed for `" << cleanPath.c_str() << "`" );
     }
     utils::final_action autoAddress( [pAddr]() {
         UnmapViewOfFile( pAddr );
@@ -75,7 +75,7 @@ std::wstring ReadFromFile( JSContext* cx, const pfc::string8_fast& path, uint32_
 
     if ( dwFileSize == INVALID_FILE_SIZE )
     {
-        throw smp::SmpException( smp::string::Formatter() << "Internal error: failed to read file size of `" << cleanPath.c_str() << "`" );
+        throw SmpException( smp::string::Formatter() << "Internal error: failed to read file size of `" << cleanPath.c_str() << "`" );
     }
 
     // Read file

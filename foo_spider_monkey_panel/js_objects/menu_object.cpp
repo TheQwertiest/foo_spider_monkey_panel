@@ -102,7 +102,7 @@ void JsMenuObject::AppendMenuItem( uint32_t flags, uint32_t item_id, const std::
 {
     if ( flags & MF_POPUP )
     {
-        throw smp::SmpException( "Invalid flags: MF_POPUP when adding menu item" );
+        throw SmpException( "Invalid flags: MF_POPUP when adding menu item" );
     }
 
     BOOL bRet = ::AppendMenu( hMenu_, flags, item_id, text.c_str() );
@@ -130,7 +130,7 @@ void JsMenuObject::CheckMenuItem( uint32_t item_id, bool check )
     DWORD dRet = ::CheckMenuItem( hMenu_, item_id, check != VARIANT_FALSE ? MF_CHECKED : MF_UNCHECKED );
     if ( static_cast<DWORD>( -1 ) == dRet )
     {
-        throw smp::SmpException( "Menu item with specified id does not exist" );
+        throw SmpException( "Menu item with specified id does not exist" );
     }
 }
 
@@ -166,7 +166,7 @@ std::uint32_t JsMenuObject::TrackPopupMenuWithOpt( size_t optArgCount, int32_t x
     case 1:
         return TrackPopupMenu( x, y );
     default:
-        throw smp::SmpException( smp::string::Formatter() << "Internal error: invalid number of optional arguments specified: " << optArgCount );
+        throw SmpException( smp::string::Formatter() << "Internal error: invalid number of optional arguments specified: " << optArgCount );
     }
 }
 

@@ -71,5 +71,5 @@ using std::max;
 #undef SubclassWindow
 #endif
 
-#include "component_defines.h"
-#include "smp_exception.h"
+#include <component_defines.h>
+#include <smp_exception.h>

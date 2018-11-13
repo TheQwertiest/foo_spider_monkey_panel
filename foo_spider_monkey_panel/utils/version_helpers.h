@@ -9,4 +9,4 @@ namespace smp::version
 /// @return true, if string 'a' represents version newer than 'b'
 bool IsNewerSemver( const std::string& a, const std::string& b );
 
-}
+} // namespace smp::version

@@ -5,6 +5,8 @@
 namespace smp
 {
 
+// TODO: rename to smth more suitable. E.g. smp::stl::vector.
+
 /// @brief STL wrapper for objects derived from pfc::list_base_const_t
 template <typename T>
 class Stl

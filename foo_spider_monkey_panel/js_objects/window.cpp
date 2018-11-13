@@ -342,7 +342,7 @@ void JsWindow::DefinePanelWithOpt( size_t optArgCount, const pfc::string8_fast& 
     case 1:
         return DefinePanel( name );
     default:
-        throw smp::SmpException( smp::string::Formatter() << "Internal error: invalid number of optional arguments specified: " << optArgCount );
+        throw SmpException( smp::string::Formatter() << "Internal error: invalid number of optional arguments specified: " << optArgCount );
     }
 }
 
@@ -378,7 +378,7 @@ uint32_t JsWindow::GetColourCUIWithOpt( size_t optArgCount, uint32_t type, const
     case 1:
         return GetColourCUI( type );
     default:
-        throw smp::SmpException( smp::string::Formatter() << "Internal error: invalid number of optional arguments specified: " << optArgCount );
+        throw SmpException( smp::string::Formatter() << "Internal error: invalid number of optional arguments specified: " << optArgCount );
     }
 }
 
@@ -438,7 +438,7 @@ JSObject* JsWindow::GetFontCUIWithOpt( size_t optArgCount, uint32_t type, const 
     case 1:
         return GetFontCUI( type );
     default:
-        throw smp::SmpException( smp::string::Formatter() << "Internal error: invalid number of optional arguments specified: " << optArgCount );
+        throw SmpException( smp::string::Formatter() << "Internal error: invalid number of optional arguments specified: " << optArgCount );
     }
 }
 
@@ -485,7 +485,7 @@ JS::Value JsWindow::GetPropertyWithOpt( size_t optArgCount, const std::wstring& 
     case 1:
         return GetProperty( name );
     default:
-        throw smp::SmpException( smp::string::Formatter() << "Internal error: invalid number of optional arguments specified: " << optArgCount );
+        throw SmpException( smp::string::Formatter() << "Internal error: invalid number of optional arguments specified: " << optArgCount );
     }
 }
 
@@ -533,7 +533,7 @@ void JsWindow::RepaintWithOpt( size_t optArgCount, bool force )
     case 1:
         return Repaint();
     default:
-        throw smp::SmpException( smp::string::Formatter() << "Internal error: invalid number of optional arguments specified: " << optArgCount );
+        throw SmpException( smp::string::Formatter() << "Internal error: invalid number of optional arguments specified: " << optArgCount );
     }
 }
 
@@ -556,7 +556,7 @@ void JsWindow::RepaintRectWithOpt( size_t optArgCount, uint32_t x, uint32_t y, u
     case 1:
         return RepaintRect( x, y, w, h );
     default:
-        throw smp::SmpException( smp::string::Formatter() << "Internal error: invalid number of optional arguments specified: " << optArgCount );
+        throw SmpException( smp::string::Formatter() << "Internal error: invalid number of optional arguments specified: " << optArgCount );
     }
 }
 
@@ -579,7 +579,7 @@ uint32_t JsWindow::SetInterval( JS::HandleValue func, uint32_t delay )
 
     if ( !func.isObject() || !JS_ObjectIsFunction( pJsCtx_, &func.toObject() ) )
     {
-        throw smp::SmpException( "func argument is not a JS function" );
+        throw SmpException( "func argument is not a JS function" );
     }
 
     JS::RootedFunction jsFunction( pJsCtx_, JS_ValueToFunction( pJsCtx_, func ) );
@@ -605,7 +605,7 @@ void JsWindow::SetPropertyWithOpt( size_t optArgCount, const std::wstring& name,
     case 1:
         return SetProperty( name );
     default:
-        throw smp::SmpException( smp::string::Formatter() << "Internal error: invalid number of optional arguments specified: " << optArgCount );
+        throw SmpException( smp::string::Formatter() << "Internal error: invalid number of optional arguments specified: " << optArgCount );
     }
 }
 
@@ -618,7 +618,7 @@ uint32_t JsWindow::SetTimeout( JS::HandleValue func, uint32_t delay )
 
     if ( !func.isObject() || !JS_ObjectIsFunction( pJsCtx_, &func.toObject() ) )
     {
-        throw smp::SmpException( "func argument is not a JS function" );
+        throw SmpException( "func argument is not a JS function" );
     }
 
     JS::RootedFunction jsFunction( pJsCtx_, JS_ValueToFunction( pJsCtx_, func ) );
@@ -761,7 +761,7 @@ pfc::string8_fast JsWindow::get_Name()
     pfc::string8_fast name; ///< for RVO
     if ( isFinalized_ )
     {
-        return "";
+        return name;
     }
 
     name = parentPanel_.ScriptInfo().name;

@@ -434,7 +434,7 @@ void CDialogHtml::ParseOptions( JS::HandleValue options )
 
     if ( !options.isObject() )
     {
-        throw smp::SmpException( "options argument is not an object" );
+        throw SmpException( "options argument is not an object" );
     }
 
     JS::RootedObject jsObject( pJsCtx_, &options.toObject() );

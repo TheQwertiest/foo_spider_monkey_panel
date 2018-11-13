@@ -63,7 +63,7 @@ bool PrependTextToJsStringException( JSContext* cx, JS::HandleValue excn, const 
     {
         return false;
     }
-    catch ( const smp::SmpException& )
+    catch ( const SmpException& )
     {
         return false;
     }
@@ -94,7 +94,7 @@ bool PrependTextToJsStringException( JSContext* cx, JS::HandleValue excn, const 
     {
         return false;
     }
-    catch ( const smp::SmpException& )
+    catch ( const SmpException& )
     {
         return false;
     }
@@ -284,7 +284,7 @@ void ExceptionToJsError( JSContext* cx )
     {
         assert( JS_IsExceptionPending( cx ) );
     }
-    catch ( const smp::SmpException& e )
+    catch ( const SmpException& e )
     {
         JS_ClearPendingException( cx );
         JS_ReportErrorUTF8( cx, e.what() );
@@ -316,7 +316,7 @@ void SuppressException( JSContext* cx )
     catch ( const smp::JsException& )
     {
     }
-    catch ( const smp::SmpException& )
+    catch ( const SmpException& )
     {
     }
     catch ( const _com_error& )

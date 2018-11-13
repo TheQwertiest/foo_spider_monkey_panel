@@ -102,7 +102,7 @@ void JsContextMenuManager::BuildMenuWithOpt( size_t optArgCount, JsMenuObject* m
     case 1:
         return BuildMenu( menuObject, base_id );
     default:
-        throw smp::SmpException( smp::string::Formatter() << "Internal error: invalid number of optional arguments specified: " << optArgCount );
+        throw SmpException( smp::string::Formatter() << "Internal error: invalid number of optional arguments specified: " << optArgCount );
     }
 }
 

@@ -196,7 +196,7 @@ bool JsGdiBitmap::ApplyMask( JsGdiBitmap* mask )
     if ( pBitmapMask->GetHeight() != pGdi_->GetHeight()
          || pBitmapMask->GetWidth() != pGdi_->GetWidth() )
     {
-        throw smp::SmpException( "Mismatched dimensions" );
+        throw SmpException( "Mismatched dimensions" );
     }
 
     Gdiplus::Rect rect( 0, 0, pGdi_->GetWidth(), pGdi_->GetHeight() );
@@ -466,7 +466,7 @@ JSObject* JsGdiBitmap::ResizeWithOpt( size_t optArgCount, uint32_t w, uint32_t h
     case 1:
         return Resize( w, h );
     default:
-        throw smp::SmpException( smp::string::Formatter() << "Internal error: invalid number of optional arguments specified: " << optArgCount );
+        throw SmpException( smp::string::Formatter() << "Internal error: invalid number of optional arguments specified: " << optArgCount );
     }
 }
 
@@ -528,7 +528,7 @@ bool JsGdiBitmap::SaveAsWithOpt( size_t optArgCount, const std::wstring& path, c
     case 1:
         return SaveAs( path );
     default:
-        throw smp::SmpException( smp::string::Formatter() << "Internal error: invalid number of optional arguments specified: " << optArgCount );
+        throw SmpException( smp::string::Formatter() << "Internal error: invalid number of optional arguments specified: " << optArgCount );
     }
 }
 

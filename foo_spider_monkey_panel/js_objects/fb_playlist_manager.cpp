@@ -224,7 +224,7 @@ void JsFbPlaylistManager::AddLocationsWithOpt( size_t optArgCount, uint32_t play
     case 1:
         return AddLocations( playlistIndex, locations );
     default:
-        throw smp::SmpException( smp::string::Formatter() << "Internal error: invalid number of optional arguments specified: " << optArgCount );
+        throw SmpException( smp::string::Formatter() << "Internal error: invalid number of optional arguments specified: " << optArgCount );
     }
 }
 
@@ -275,7 +275,7 @@ int32_t JsFbPlaylistManager::CreateAutoPlaylistWithOpt( size_t optArgCount, uint
     case 2:
         return CreateAutoPlaylist( playlistIndex, name, query );
     default:
-        throw smp::SmpException( smp::string::Formatter() << "Internal error: invalid number of optional arguments specified: " << optArgCount );
+        throw SmpException( smp::string::Formatter() << "Internal error: invalid number of optional arguments specified: " << optArgCount );
     }
 }
 
@@ -453,7 +453,7 @@ void JsFbPlaylistManager::InsertPlaylistItemsWithOpt( size_t optArgCount, uint32
     case 1:
         return InsertPlaylistItems( playlistIndex, base, handles );
     default:
-        throw smp::SmpException( smp::string::Formatter() << "Internal error: invalid number of optional arguments specified: " << optArgCount );
+        throw SmpException( smp::string::Formatter() << "Internal error: invalid number of optional arguments specified: " << optArgCount );
     }
 }
 
@@ -473,7 +473,7 @@ void JsFbPlaylistManager::InsertPlaylistItemsFilterWithOpt( size_t optArgCount, 
     case 1:
         return InsertPlaylistItemsFilter( playlistIndex, base, handles );
     default:
-        throw smp::SmpException( smp::string::Formatter() << "Internal error: invalid number of optional arguments specified: " << optArgCount );
+        throw SmpException( smp::string::Formatter() << "Internal error: invalid number of optional arguments specified: " << optArgCount );
     }
 }
 
@@ -500,22 +500,24 @@ bool JsFbPlaylistManager::IsPlaylistLocked( uint32_t playlistIndex )
 bool JsFbPlaylistManager::MovePlaylist( uint32_t from, uint32_t to )
 {
     auto api = playlist_manager::get();
-    order_helper order( api->get_playlist_count() );
-
-    if ( from >= order.get_count() || to >= order.get_count() )
+    const t_size playlistCount = api->get_playlist_count();
+    if ( from >= playlistCount || to >= playlistCount )
     {
         return false;
     }
 
-    int8_t inc = ( from < to ) ? 1 : -1;
+    std::vector<t_size> order( playlistCount );
+    std::iota( order.begin(), order.end(), 0 );
+    
+    const int8_t inc = ( from < to ) ? 1 : -1;
     for ( uint32_t i = from; i != to; i += inc )
     {
-        order[i] = order[i + inc];
+        order[i] = i + inc;
     }
 
     order[to] = from;
 
-    return api->reorder( order.get_ptr(), order.get_count() );
+    return api->reorder( order.data(), order.size() );
 }
 
 bool JsFbPlaylistManager::MovePlaylistSelection( uint32_t playlistIndex, int32_t delta )
@@ -562,7 +564,7 @@ void JsFbPlaylistManager::RemovePlaylistSelectionWithOpt( size_t optArgCount, ui
     case 1:
         return RemovePlaylistSelection( playlistIndex );
     default:
-        throw smp::SmpException( smp::string::Formatter() << "Internal error: invalid number of optional arguments specified: " << optArgCount );
+        throw SmpException( smp::string::Formatter() << "Internal error: invalid number of optional arguments specified: " << optArgCount );
     }
 }
 
@@ -642,7 +644,7 @@ bool JsFbPlaylistManager::SortByFormatWithOpt( size_t optArgCount, uint32_t play
     case 1:
         return SortByFormat( playlistIndex, pattern );
     default:
-        throw smp::SmpException( smp::string::Formatter() << "Internal error: invalid number of optional arguments specified: " << optArgCount );
+        throw SmpException( smp::string::Formatter() << "Internal error: invalid number of optional arguments specified: " << optArgCount );
     }
 }
 
@@ -652,15 +654,15 @@ bool JsFbPlaylistManager::SortByFormatV2( uint32_t playlistIndex, const pfc::str
     metadb_handle_list handles;
     api->playlist_get_all_items( playlistIndex, handles );
 
-    pfc::array_t<t_size> order;
-    order.set_count( handles.get_count() );
+    std::vector<t_size> order( handles.get_count() );
+    std::iota( order.begin(), order.end(), 0 );
 
     titleformat_object::ptr script;
     titleformat_compiler::get()->compile_safe( script, pattern.c_str() );
 
-    metadb_handle_list_helper::sort_by_format_get_order( handles, order.get_ptr(), script, nullptr, direction );
+    metadb_handle_list_helper::sort_by_format_get_order( handles, order.data(), script, nullptr, direction );
 
-    return api->playlist_reorder_items( playlistIndex, order.get_ptr(), order.get_count() );
+    return api->playlist_reorder_items( playlistIndex, order.data(), order.size() );
 }
 
 bool JsFbPlaylistManager::SortByFormatV2WithOpt( size_t optArgCount, uint32_t playlistIndex, const pfc::string8_fast& pattern, int8_t direction )
@@ -672,7 +674,7 @@ bool JsFbPlaylistManager::SortByFormatV2WithOpt( size_t optArgCount, uint32_t pl
     case 1:
         return SortByFormatV2( playlistIndex, pattern );
     default:
-        throw smp::SmpException( smp::string::Formatter() << "Internal error: invalid number of optional arguments specified: " << optArgCount );
+        throw SmpException( smp::string::Formatter() << "Internal error: invalid number of optional arguments specified: " << optArgCount );
     }
 }
 
@@ -714,7 +716,7 @@ void JsFbPlaylistManager::SortPlaylistsByNameWithOpt( size_t optArgCount, int8_t
     case 1:
         return SortPlaylistsByName();
     default:
-        throw smp::SmpException( smp::string::Formatter() << "Internal error: invalid number of optional arguments specified: " << optArgCount );
+        throw SmpException( smp::string::Formatter() << "Internal error: invalid number of optional arguments specified: " << optArgCount );
     }
 }
 
@@ -768,7 +770,7 @@ void JsFbPlaylistManager::put_PlaybackOrder( uint32_t order )
     auto api = playlist_manager::get();
     if ( order >= api->playback_order_get_count() )
     {
-        throw smp::SmpException( smp::string::Formatter() << "Unknown playback order id: " << order );
+        throw SmpException( smp::string::Formatter() << "Unknown playback order id: " << order );
     }
 
     api->playback_order_set_active( order );

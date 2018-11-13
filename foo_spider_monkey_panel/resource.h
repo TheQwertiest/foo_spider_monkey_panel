@@ -44,9 +44,7 @@
 #define IDD_DIALOG_INPUT                1062
 #define IDC_INPUT_PROMPT                1063
 #define IDC_INPUT_VALUE                 1064
-#define IDC_EXPLORER1                   1065
 #define IDC_IE                          1065
-#define IDC_IE_PLACEHOLDER              1066
 
 #ifndef IDC_STATIC
 #define IDC_STATIC                      -1
@@ -58,7 +56,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        115
 #define _APS_NEXT_COMMAND_VALUE         40012
-#define _APS_NEXT_CONTROL_VALUE         1067
+#define _APS_NEXT_CONTROL_VALUE         1066
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

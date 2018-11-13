@@ -314,7 +314,7 @@ uint32_t GetAlbumArtAsync( HWND hWnd, const metadb_handle_ptr& handle, uint32_t 
     {
         (void)GetGuidForArtId( art_id ); ///< Check that art id is valid, since we don't want to throw in helper thread
         auto pTask = std::make_unique<AlbumArtFetchTask>( hWnd, handle, art_id, need_stub, only_embed, no_load );
-        uint32_t taskId = [&]() {
+        uint32_t taskId = [&] {
             uint64_t tmp = static_cast<uint64_t>( reinterpret_cast<uintptr_t>( pTask.get() ) );
             return static_cast<uint32_t>( ( tmp & 0xFFFFFFFF ) ^ ( tmp >> 32 ) );
         }();

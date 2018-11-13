@@ -142,7 +142,7 @@ JSObject* JsGdiUtils::FontWithOpt( size_t optArgCount, const std::wstring& fontN
     case 1:
         return Font( fontName, pxSize );
     default:
-        throw smp::SmpException( smp::string::Formatter() << "Internal error: invalid number of optional arguments specified: " << optArgCount );
+        throw SmpException( smp::string::Formatter() << "Internal error: invalid number of optional arguments specified: " << optArgCount );
     }
 }
 

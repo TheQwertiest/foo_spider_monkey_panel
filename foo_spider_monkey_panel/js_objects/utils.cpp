@@ -170,7 +170,7 @@ bool JsUtils::CheckComponentWithOpt( size_t optArgCount, const pfc::string8_fast
     case 1:
         return CheckComponent( name );
     default:
-        throw smp::SmpException( smp::string::Formatter() << "Internal error: invalid number of optional arguments specified: " << optArgCount );
+        throw SmpException( smp::string::Formatter() << "Internal error: invalid number of optional arguments specified: " << optArgCount );
     }
 }
 
@@ -285,7 +285,7 @@ JS::Value JsUtils::FileTest( const std::wstring& path, const std::wstring& mode 
         return jsValue;
     }
 
-    throw smp::SmpException( "Invalid value of mode argument" );
+    throw SmpException( "Invalid value of mode argument" );
 }
 
 pfc::string8_fast JsUtils::FormatDuration( double p )
@@ -325,7 +325,7 @@ std::uint32_t JsUtils::GetAlbumArtAsyncWithOpt( size_t optArgCount, uint32_t hWn
     case 4:
         return GetAlbumArtAsync( hWnd, handle );
     default:
-        throw smp::SmpException( smp::string::Formatter() << "Internal error: invalid number of optional arguments specified: " << optArgCount );
+        throw SmpException( smp::string::Formatter() << "Internal error: invalid number of optional arguments specified: " << optArgCount );
     }
 }
 
@@ -349,7 +349,7 @@ JSObject* JsUtils::GetAlbumArtEmbeddedWithOpt( size_t optArgCount, const pfc::st
     case 1:
         return GetAlbumArtEmbedded( rawpath );
     default:
-        throw smp::SmpException( smp::string::Formatter() << "Internal error: invalid number of optional arguments specified: " << optArgCount );
+        throw SmpException( smp::string::Formatter() << "Internal error: invalid number of optional arguments specified: " << optArgCount );
     }
 }
 
@@ -377,7 +377,7 @@ JSObject* JsUtils::GetAlbumArtV2WithOpt( size_t optArgCount, JsFbMetadbHandle* h
     case 2:
         return GetAlbumArtV2( handle );
     default:
-        throw smp::SmpException( smp::string::Formatter() << "Internal error: invalid number of optional arguments specified: " << optArgCount );
+        throw SmpException( smp::string::Formatter() << "Internal error: invalid number of optional arguments specified: " << optArgCount );
     }
 }
 
@@ -440,7 +440,7 @@ JSObject* JsUtils::GlobWithOpt( size_t optArgCount, const pfc::string8_fast& pat
     case 2:
         return Glob( pattern );
     default:
-        throw smp::SmpException( smp::string::Formatter() << "Internal error: invalid number of optional arguments specified: " << optArgCount );
+        throw SmpException( smp::string::Formatter() << "Internal error: invalid number of optional arguments specified: " << optArgCount );
     }
 }
 
@@ -454,7 +454,7 @@ pfc::string8_fast JsUtils::InputBox( uint32_t hWnd, const pfc::string8_fast& pro
         int status = dlg.DoModal( HWND( hWnd ) );
         if ( status == IDCANCEL && error_on_cancel )
         {
-            throw smp::SmpException( "Dialog window was closed" );
+            throw SmpException( "Dialog window was closed" );
         }
 
         if ( status == IDOK )
@@ -479,7 +479,7 @@ pfc::string8_fast JsUtils::InputBoxWithOpt( size_t optArgCount, uint32_t hWnd, c
     case 2:
         return InputBox( hWnd, prompt, caption );
     default:
-        throw smp::SmpException( smp::string::Formatter() << "Internal error: invalid number of optional arguments specified: " << optArgCount );
+        throw SmpException( smp::string::Formatter() << "Internal error: invalid number of optional arguments specified: " << optArgCount );
     }
 }
 
@@ -531,7 +531,7 @@ std::wstring JsUtils::ReadINIWithOpt( size_t optArgCount, const std::wstring& fi
     case 1:
         return ReadINI( filename, section, key );
     default:
-        throw smp::SmpException( smp::string::Formatter() << "Internal error: invalid number of optional arguments specified: " << optArgCount );
+        throw SmpException( smp::string::Formatter() << "Internal error: invalid number of optional arguments specified: " << optArgCount );
     }
 }
 
@@ -549,7 +549,7 @@ std::wstring JsUtils::ReadTextFileWithOpt( size_t optArgCount, const pfc::string
     case 1:
         return ReadTextFile( filePath );
     default:
-        throw smp::SmpException( smp::string::Formatter() << "Internal error: invalid number of optional arguments specified: " << optArgCount );
+        throw SmpException( smp::string::Formatter() << "Internal error: invalid number of optional arguments specified: " << optArgCount );
     }
 }
 
@@ -569,7 +569,7 @@ JS::Value JsUtils::ShowHtmlDialog( uint32_t hWnd, const std::wstring& htmlCode, 
             }
             else
             {
-                throw smp::SmpException( smp::string::Formatter() << "DoModal failed: " << iRet );
+                throw SmpException( smp::string::Formatter() << "DoModal failed: " << iRet );
             }
         }
     }
@@ -587,7 +587,7 @@ JS::Value JsUtils::ShowHtmlDialogWithOpt( size_t optArgCount, uint32_t hWnd, con
     case 1:
         return ShowHtmlDialog( hWnd, htmlCode );
     default:
-        throw smp::SmpException( smp::string::Formatter() << "Internal error: invalid number of optional arguments specified: " << optArgCount );
+        throw SmpException( smp::string::Formatter() << "Internal error: invalid number of optional arguments specified: " << optArgCount );
     }
 }
 
@@ -615,7 +615,7 @@ bool JsUtils::WriteTextFileWithOpt( size_t optArgCount, const pfc::string8_fast&
     case 1:
         return WriteTextFile( filename, content );
     default:
-        throw smp::SmpException( smp::string::Formatter() << "Internal error: invalid number of optional arguments specified: " << optArgCount );
+        throw SmpException( smp::string::Formatter() << "Internal error: invalid number of optional arguments specified: " << optArgCount );
     }
 }
 

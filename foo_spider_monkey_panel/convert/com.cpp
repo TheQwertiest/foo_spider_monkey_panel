@@ -170,7 +170,7 @@ void JsArrayToComArray( JSContext* cx, JS::HandleObject obj, VARIANT& var )
     SAFEARRAY* safeArray = SafeArrayCreateVector( VT_VARIANT, 0, len );
     if ( !safeArray )
     {
-        throw smp::SmpException( "SafeArrayCreateVector failed" );
+        throw SmpException( "SafeArrayCreateVector failed" );
     }
 
     utils::final_action autoSa( [safeArray]() {
@@ -182,7 +182,7 @@ void JsArrayToComArray( JSContext* cx, JS::HandleObject obj, VARIANT& var )
         VARIANT* varArray = nullptr;
         if ( FAILED( SafeArrayAccessData( safeArray, reinterpret_cast<void**>( &varArray ) ) ) )
         {
-            throw smp::SmpException( "SafeArrayAccessData failed" );
+            throw SmpException( "SafeArrayAccessData failed" );
         }
 
         utils::final_action autoSaData( [safeArray]() {
@@ -211,7 +211,7 @@ bool ComArrayToJsArray( JSContext* cx, const VARIANT& src, JS::MutableHandleValu
     // We only support one dimensional arrays for now
     if ( SafeArrayGetDim( src.parray ) != 1 )
     {
-        throw smp::SmpException( "Multi-dimensional array are not supported failed" );
+        throw SmpException( "Multi-dimensional array are not supported failed" );
     }
     // Get the upper bound;
     long ubound;
@@ -404,7 +404,7 @@ void VariantToJs( JSContext* cx, VARIANTARG& var, JS::MutableHandleValue rval )
     default:
         if ( type > VT_CLSID )
         {
-            throw smp::SmpException( smp::string::Formatter() << "ActiveX: unsupported object type: " << type );
+            throw SmpException( smp::string::Formatter() << "ActiveX: unsupported object type: " << type );
         }
 
         JS::RootedObject jsObject( cx, ActiveXObject::CreateJsFromNative( cx, std::make_unique<ActiveXObject>( cx, var ) ) );
@@ -474,7 +474,7 @@ void JsToVariant( JSContext* cx, JS::HandleValue rval, VARIANTARG& arg )
             }
             else
             {
-                throw smp::SmpException( "ActiveX: unsupported JS object type" );
+                throw SmpException( "ActiveX: unsupported JS object type" );
             }
         }
     }
@@ -513,7 +513,7 @@ void JsToVariant( JSContext* cx, JS::HandleValue rval, VARIANTARG& arg )
     }
     else
     {
-        throw smp::SmpException( "ActiveX: unsupported JS value type" );
+        throw SmpException( "ActiveX: unsupported JS value type" );
     }
 }
 

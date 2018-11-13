@@ -165,7 +165,7 @@ void ProcessArray( JSContext* cx, JS::HandleObject jsObject, F&& workerFunc )
 
     if ( !is )
     {
-        throw smp::SmpException( "Object is not an array" );
+        throw SmpException( "Object is not an array" );
     }
 
     uint32_t arraySize;
@@ -198,7 +198,7 @@ void ProcessArray( JSContext* cx, JS::HandleValue jsValue, F&& workerFunc )
     JS::RootedObject jsObject( cx, jsValue.toObjectOrNull() );
     if ( !jsObject )
     {
-        throw smp::SmpException( "Value is not a JS object" );
+        throw SmpException( "Value is not a JS object" );
     }
     to_native::ProcessArray<T>( cx, jsObject, std::forward<F>( workerFunc ) );
 }

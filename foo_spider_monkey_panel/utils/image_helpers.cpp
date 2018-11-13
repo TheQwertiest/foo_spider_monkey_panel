@@ -36,8 +36,8 @@ LoadImageTask::LoadImageTask( HWND hNotifyWnd, const std::wstring& imagePath )
     : hNotifyWnd_( hNotifyWnd )
     , imagePath_( imagePath )
 {
-    uint64_t tmp = reinterpret_cast<uint64_t>( this );
-    taskId_ = static_cast<uint32_t>( ( tmp & 0xFFFFFFFF ) ^ ( tmp >> 32 ) );
+    // Such cast will provide unique id only on x86
+    taskId_ = reinterpret_cast<uint32_t>( this );
 }
 
 uint32_t LoadImageTask::GetTaskId() const
@@ -85,7 +85,7 @@ uint32_t LoadImageAsync( HWND hWnd, const std::wstring& imagePath )
 
 std::unique_ptr<Gdiplus::Bitmap> LoadImage( const std::wstring& imagePath )
 {
-    // Since using Gdiplus::Bitmap(path) will result locking file, so use IStream instead to prevent it.
+    // Since using Gdiplus::Bitmap(path) will result locking file, using IStream instead to prevent it.
     IStreamPtr pStream;
     HRESULT hr = SHCreateStreamOnFileEx( imagePath.c_str(), STGM_READ | STGM_SHARE_DENY_WRITE, GENERIC_READ, FALSE, nullptr, &pStream );
     if ( !SUCCEEDED( hr ) )
