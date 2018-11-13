@@ -1766,6 +1766,7 @@ function FbMetadbHandle() {
     this.SubSong = undefined; // (int) (read)
 
     /**
+     * Returns -1, if size is unavailable.<br>
      * Note: requires a system with IE9 or later to work properly.
      *
      * @type {number}

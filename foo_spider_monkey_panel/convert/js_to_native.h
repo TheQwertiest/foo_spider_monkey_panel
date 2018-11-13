@@ -67,6 +67,10 @@ uint8_t ToSimpleValue<uint8_t>( JSContext* cx, const JS::HandleValue& jsValue );
 template <>
 uint32_t ToSimpleValue<uint32_t>( JSContext* cx, const JS::HandleValue& jsValue );
 
+/// @details Returns only approximate int64_t value, use with care!
+template <>
+int64_t ToSimpleValue<int64_t>( JSContext* cx, const JS::HandleValue& jsValue );
+
 /// @details Returns only approximate uint64_t value, use with care!
 template <>
 uint64_t ToSimpleValue<uint64_t>( JSContext* cx, const JS::HandleValue& jsValue );

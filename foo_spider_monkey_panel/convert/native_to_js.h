@@ -45,6 +45,10 @@ void ToValue( JSContext* cx, const int32_t& inValue, JS::MutableHandleValue wrap
 template <>
 void ToValue( JSContext* cx, const uint32_t& inValue, JS::MutableHandleValue wrappedValue );
 
+/// @details Returns only approximate int64_t value, use with care!
+template <>
+void ToValue( JSContext* cx, const int64_t& inValue, JS::MutableHandleValue wrappedValue );
+
 /// @details Returns only approximate uint64_t value, use with care!
 template <>
 void ToValue( JSContext* cx, const uint64_t& inValue, JS::MutableHandleValue wrappedValue );

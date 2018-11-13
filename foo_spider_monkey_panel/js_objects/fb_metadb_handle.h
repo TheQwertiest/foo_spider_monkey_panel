@@ -46,7 +46,7 @@ public: // methods
     void SetRating( uint32_t rating );
 
 public: // props
-    std::uint64_t get_FileSize();
+    std::int64_t get_FileSize();
     double get_Length();
     pfc::string8_fast get_Path();
     pfc::string8_fast get_RawPath();

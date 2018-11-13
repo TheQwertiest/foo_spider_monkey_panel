@@ -58,6 +58,17 @@ uint32_t ToSimpleValue( JSContext* cx, const JS::HandleValue& jsValue )
 }
 
 template <>
+int64_t ToSimpleValue( JSContext* cx, const JS::HandleValue& jsValue )
+{
+    int64_t val;
+    if ( !JS::ToInt64( cx, jsValue, &val ) )
+    {
+        throw smp::JsException();
+    }
+    return val;
+}
+
+template <>
 uint64_t ToSimpleValue( JSContext* cx, const JS::HandleValue& jsValue )
 {
     uint64_t val;

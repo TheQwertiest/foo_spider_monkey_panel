@@ -221,9 +221,9 @@ void JsFbMetadbHandle::SetRating( uint32_t rating )
     }
 }
 
-std::uint64_t JsFbMetadbHandle::get_FileSize()
+std::int64_t JsFbMetadbHandle::get_FileSize()
 {
-    return static_cast<uint64_t>(metadbHandle_->get_filesize());
+    return static_cast<int64_t>(metadbHandle_->get_filesize());
 }
 
 double JsFbMetadbHandle::get_Length()
