@@ -316,13 +316,13 @@ VOID CALLBACK HostTimer::timerProc( PVOID lpParameter, BOOLEAN /*TimerOrWaitFire
     if ( !timer->m_isRepeated )
     {
         timer->m_isStopped = true;
-        SendMessage( timer->m_hWnd, static_cast<UINT>( smp::InternalImmediateMessage::timer_proc ), timer->m_id, 0 );
+        SendMessage( timer->m_hWnd, static_cast<UINT>( smp::InternalSyncMessage::timer_proc ), timer->m_id, 0 );
         HostTimerDispatcher::Get().onTimerStopRequest( timer->m_hWnd, timer->m_hTimer, timer->m_id );
 
         return;
     }
 
-    SendMessage( timer->m_hWnd, static_cast<UINT>( smp::InternalImmediateMessage::timer_proc ), timer->m_id, 0 );
+    SendMessage( timer->m_hWnd, static_cast<UINT>( smp::InternalSyncMessage::timer_proc ), timer->m_id, 0 );
 }
 
 HWND HostTimer::GetHwnd() const

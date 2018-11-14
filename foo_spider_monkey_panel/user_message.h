@@ -55,7 +55,7 @@ enum class PlayerMessage : UINT
 };
 
 /// @details These messages are asynchronous
-enum class InternalDelayedMessage : UINT
+enum class InternalAsyncMessage : UINT
 {
     first_message = static_cast<int>(PlayerMessage::last_message) + 1,
     main_menu_item = first_message,
@@ -68,9 +68,9 @@ enum class InternalDelayedMessage : UINT
 };
 
 /// @details These messages are synchronous
-enum class InternalImmediateMessage : UINT
+enum class InternalSyncMessage : UINT
 {
-    first_message = static_cast<int>( InternalDelayedMessage::last_message ) + 1,
+    first_message = static_cast<int>( InternalAsyncMessage::last_message ) + 1,
     notify_data = first_message,
     script_error,
     terminate_script,
@@ -86,9 +86,10 @@ enum class InternalImmediateMessage : UINT
 /// @brief Message definitions that are not handled by the main panel window
 enum class MiscMessage : UINT
 {
-    find_text_changed = static_cast<int>( InternalDelayedMessage::last_message ) + 1,
+    find_text_changed = static_cast<int>( InternalSyncMessage::last_message ) + 1,
     heartbeat,
     key_down,
+    run_task,
 };
 
 template <typename T>

@@ -183,7 +183,7 @@ LRESULT js_panel_window_dui::on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM 
             return DefWindowProc( hwnd, msg, wp, lp );
         break;
     }
-    case static_cast<UINT>( smp::InternalDelayedMessage::size_limit_changed ):
+    case static_cast<UINT>( smp::InternalAsyncMessage::size_limit_changed ):
     {
         notify_size_limit_changed( lp );
         return 0;

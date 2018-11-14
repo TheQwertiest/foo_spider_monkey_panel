@@ -22,10 +22,13 @@ using namespace smp;
 
 bool IsDelayedMessage( UINT msg )
 {
-    return ( IsInEnumRange<CallbackMessage>( msg ) || IsInEnumRange<PlayerMessage>( msg ) || IsInEnumRange<InternalDelayedMessage>( msg ) );
+    return ( IsInEnumRange<CallbackMessage>( msg )
+             || IsInEnumRange<PlayerMessage>( msg )
+             || IsInEnumRange<InternalAsyncMessage>( msg )
+             || msg == static_cast<UINT>( MiscMessage::run_task ) );
 }
 
-}
+} // namespace
 
 namespace smp::panel
 {
@@ -77,35 +80,50 @@ void js_panel_window::JsEngineFail( const pfc::string8_fast& errorText )
     popup_msg::g_show( errorText, SMP_NAME );
     MessageBeep( MB_ICONASTERISK );
 
-    SendMessage( hWnd_, static_cast<UINT>( InternalImmediateMessage::script_error ), 0, 0 );
+    SendMessage( hWnd_, static_cast<UINT>( InternalSyncMessage::script_error ), 0, 0 );
 }
 
 LRESULT js_panel_window::on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
 {
-    // Microtasks (e.g. futures) should be drained only with empty JS stack and after the task (as required by ES).
     static uint32_t nestedCounter = 0;
     ++nestedCounter;
 
-    utils::final_action jobsRunner( [& nestedCounter = nestedCounter] {
+    utils::final_action jobsRunner( [&nestedCounter = nestedCounter, &taskQueue = taskQueue_, hWnd = hWnd_] {
         --nestedCounter;
 
         if ( !nestedCounter )
-        {
-            mozjs::JsContainer::RunJobs();
-            // RunDelayedTasks();
+        { // Microtasks (e.g. futures) should be drained only with empty JS stack and after the current task (as required by ES).
+            // Also see https://developer.mozilla.org/en-US/docs/Web/JavaScript/EventLoop#Run-to-completion
+            mozjs::JsContainer::RunMicroTasks();
+            if ( !taskQueue.empty() )
+            {
+                PostMessage( hWnd, static_cast<UINT>( MiscMessage::run_task ), 0, 0 );
+            }
         }
     } );
 
     if ( IsDelayedMessage( msg ) )
     {
-        if ( auto retVal = proccess_delayed_messages( hwnd, msg, wp, lp ); retVal.has_value() )
+        if ( msg != static_cast<UINT>( MiscMessage::run_task ) )
         {
-            return retVal.value();
+            taskQueue_.emplace( msg, wp, lp );
+        }
+
+        if ( nestedCounter == 1 && !taskQueue_.empty() )
+        {
+            const auto [taskMsg, taskWp, taskLp] = taskQueue_.front();
+            auto retVal = proccess_async_messages( taskMsg, taskWp, taskLp );
+            taskQueue_.pop();
+
+            if ( retVal )
+            {
+                return retVal.value();
+            }
         }
     }
     else
     {
-        if ( auto retVal = proccess_immediate_messages( hwnd, msg, wp, lp ); retVal.has_value() )
+        if ( auto retVal = proccess_sync_messages( hwnd, msg, wp, lp ); retVal.has_value() )
         {
             return retVal.value();
         }
@@ -114,21 +132,21 @@ LRESULT js_panel_window::on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
     return uDefWindowProc( hwnd, msg, wp, lp );
 }
 
-std::optional<LRESULT> js_panel_window::proccess_immediate_messages( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
+std::optional<LRESULT> js_panel_window::proccess_sync_messages( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
 {
     if ( auto retVal = process_main_messages( hwnd, msg, wp, lp ); retVal.has_value() )
     {
         return retVal.value();
     }
 
-    if ( auto retVal = process_window_messages( hwnd, msg, wp, lp ); retVal.has_value() )
+    if ( auto retVal = process_window_messages( msg, wp, lp ); retVal.has_value() )
     {
         return retVal.value();
     }
 
-    if ( IsInEnumRange<InternalImmediateMessage>( msg ) )
+    if ( IsInEnumRange<InternalSyncMessage>( msg ) )
     {
-        if ( auto retVal = process_internal_immediate_messages( hwnd, static_cast<InternalImmediateMessage>( msg ), wp, lp ); retVal.has_value() )
+        if ( auto retVal = process_internal_sync_messages( static_cast<InternalSyncMessage>( msg ), wp, lp ); retVal.has_value() )
         {
             return retVal.value();
         }
@@ -137,31 +155,32 @@ std::optional<LRESULT> js_panel_window::proccess_immediate_messages( HWND hwnd, 
     return std::nullopt;
 }
 
-std::optional<LRESULT> js_panel_window::proccess_delayed_messages( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
+std::optional<LRESULT> js_panel_window::proccess_async_messages( UINT msg, WPARAM wp, LPARAM lp )
 {
+    if ( !pJsContainer_ )
+    {
+        return std::nullopt;
+    }
+
+    std::optional<LRESULT> retVal;
     if ( IsInEnumRange<CallbackMessage>( msg ) )
     {
-        if ( auto retVal = process_callback_messages( hwnd, static_cast<CallbackMessage>( msg ) ); retVal.has_value() )
-        {
-            return retVal.value();
-        }
+        retVal = process_callback_messages( static_cast<CallbackMessage>( msg ) );
     }
     else if ( IsInEnumRange<PlayerMessage>( msg ) )
     {
-        if ( auto retVal = process_player_messages( hwnd, static_cast<PlayerMessage>( msg ), wp, lp ); retVal.has_value() )
-        {
-            return retVal.value();
-        }
+        retVal = process_player_messages( static_cast<PlayerMessage>( msg ), wp, lp );
     }
-    else if ( IsInEnumRange<InternalDelayedMessage>( msg ) )
+    else if ( IsInEnumRange<InternalAsyncMessage>( msg ) )
     {
-        if ( auto retVal = process_internal_delayed_messages( hwnd, static_cast<InternalDelayedMessage>( msg ), wp, lp ); retVal.has_value() )
-        {
-            return retVal.value();
-        }
+        retVal = process_internal_async_messages( static_cast<InternalAsyncMessage>( msg ), wp, lp );
+    }
+    else
+    {
+        assert( 0 );
     }
 
-    return std::nullopt;
+    return retVal;
 }
 
 std::optional<LRESULT> js_panel_window::process_main_messages( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
@@ -185,7 +204,7 @@ std::optional<LRESULT> js_panel_window::process_main_messages( HWND hwnd, UINT m
     }
 }
 
-std::optional<LRESULT> js_panel_window::process_window_messages( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
+std::optional<LRESULT> js_panel_window::process_window_messages( UINT msg, WPARAM wp, LPARAM lp )
 {
     if ( !pJsContainer_ )
     {
@@ -240,7 +259,7 @@ std::optional<LRESULT> js_panel_window::process_window_messages( HWND hwnd, UINT
         on_size( rect.right - rect.left, rect.bottom - rect.top );
         if ( get_pseudo_transparent() )
         {
-            PostMessage( hWnd_, static_cast<UINT>( InternalDelayedMessage::refresh_bg ), 0, 0 );
+            PostMessage( hWnd_, static_cast<UINT>( InternalAsyncMessage::refresh_bg ), 0, 0 );
         }
         else
         {
@@ -347,14 +366,9 @@ std::optional<LRESULT> js_panel_window::process_window_messages( HWND hwnd, UINT
     }
 }
 
-std::optional<LRESULT> js_panel_window::process_callback_messages( HWND hwnd, CallbackMessage msg )
+std::optional<LRESULT> js_panel_window::process_callback_messages( CallbackMessage msg )
 {
-    if ( !pJsContainer_ )
-    {
-        return std::nullopt;
-    }
-
-    auto pCallbackData = MessageDataHolder::GetInstance().ClaimData( msg, hwnd );
+    auto pCallbackData = MessageDataHolder::GetInstance().ClaimData( msg, hWnd_ );
     auto& callbackData = *pCallbackData;
 
     switch ( msg )
@@ -431,13 +445,8 @@ std::optional<LRESULT> js_panel_window::process_callback_messages( HWND hwnd, Ca
     }
 }
 
-std::optional<LRESULT> js_panel_window::process_player_messages( HWND hwnd, PlayerMessage msg, WPARAM wp, LPARAM lp )
+std::optional<LRESULT> js_panel_window::process_player_messages( PlayerMessage msg, WPARAM wp, LPARAM lp )
 {
-    if ( !pJsContainer_ )
-    {
-        return std::nullopt;
-    }
-
     switch ( msg )
     {
     case PlayerMessage::fb_always_on_top_changed:
@@ -567,7 +576,7 @@ std::optional<LRESULT> js_panel_window::process_player_messages( HWND hwnd, Play
     }
 }
 
-std::optional<LRESULT> js_panel_window::process_internal_immediate_messages( HWND hwnd, InternalImmediateMessage msg, WPARAM wp, LPARAM lp )
+std::optional<LRESULT> js_panel_window::process_internal_sync_messages( InternalSyncMessage msg, WPARAM wp, LPARAM lp )
 {
     if ( !pJsContainer_ )
     {
@@ -576,27 +585,27 @@ std::optional<LRESULT> js_panel_window::process_internal_immediate_messages( HWN
 
     switch ( msg )
     {
-    case InternalImmediateMessage::notify_data:
+    case InternalSyncMessage::notify_data:
     {
         on_notify_data( wp, lp );
         return 0;
     }
-    case InternalImmediateMessage::script_error:
+    case InternalSyncMessage::script_error:
     {
         on_script_error();
         return 0;
     }
-    case InternalImmediateMessage::terminate_script:
+    case InternalSyncMessage::terminate_script:
     {
         script_unload();
         return 0;
     }
-    case InternalImmediateMessage::update_size:
+    case InternalSyncMessage::update_size:
     {
         on_size( width_, height_ );
         if ( get_pseudo_transparent() )
         {
-            PostMessage( hWnd_, static_cast<UINT>( InternalDelayedMessage::refresh_bg ), 0, 0 );
+            PostMessage( hWnd_, static_cast<UINT>( InternalAsyncMessage::refresh_bg ), 0, 0 );
         }
         else
         {
@@ -604,27 +613,27 @@ std::optional<LRESULT> js_panel_window::process_internal_immediate_messages( HWN
         }
         return 0;
     }
-    case InternalImmediateMessage::timer_proc:
+    case InternalSyncMessage::timer_proc:
     {
         pJsContainer_->InvokeTimerFunction( static_cast<uint32_t>( wp ) );
         return 0;
     }
-    case InternalImmediateMessage::wnd_drag_drop:
+    case InternalSyncMessage::wnd_drag_drop:
     {
         on_drag_drop( lp );
         return 0;
     }
-    case InternalImmediateMessage::wnd_drag_enter:
+    case InternalSyncMessage::wnd_drag_enter:
     {
         on_drag_enter( lp );
         return 0;
     }
-    case InternalImmediateMessage::wnd_drag_leave:
+    case InternalSyncMessage::wnd_drag_leave:
     {
         on_drag_leave();
         return 0;
     }
-    case InternalImmediateMessage::wnd_drag_over:
+    case InternalSyncMessage::wnd_drag_over:
     {
         on_drag_over( lp );
         return 0;
@@ -636,37 +645,32 @@ std::optional<LRESULT> js_panel_window::process_internal_immediate_messages( HWN
     }
 }
 
-std::optional<LRESULT> js_panel_window::process_internal_delayed_messages( HWND hwnd, InternalDelayedMessage msg, WPARAM wp, LPARAM lp )
+std::optional<LRESULT> js_panel_window::process_internal_async_messages( InternalAsyncMessage msg, WPARAM wp, LPARAM lp )
 {
-    if ( !pJsContainer_ )
-    {
-        return std::nullopt;
-    }
-
     switch ( msg )
     {
-    case InternalDelayedMessage::main_menu_item:
+    case InternalAsyncMessage::main_menu_item:
     {
         on_main_menu( wp );
         return 0;
     }
-    case InternalDelayedMessage::refresh_bg:
+    case InternalAsyncMessage::refresh_bg:
     {
         isBgRepaintNeeded_ = true;
         Repaint( true );
         return 0;
     }
-    case InternalDelayedMessage::reload_script:
+    case InternalAsyncMessage::reload_script:
     {
         update_script();
         return 0;
     }
-    case InternalDelayedMessage::show_configure:
+    case InternalAsyncMessage::show_configure:
     {
         show_configure_popup( hWnd_ );
         return 0;
     }
-    case InternalDelayedMessage::show_properties:
+    case InternalAsyncMessage::show_properties:
     {
         show_property_popup( hWnd_ );
         return 0;
@@ -913,7 +917,7 @@ bool js_panel_window::script_load()
 
     maxSize_ = { INT_MAX, INT_MAX };
     minSize_ = { 0, 0 };
-    PostMessage( hWnd_, static_cast<UINT>( InternalDelayedMessage::size_limit_changed ), 0, uie::size_limit_all );
+    PostMessage( hWnd_, static_cast<UINT>( InternalAsyncMessage::size_limit_changed ), 0, uie::size_limit_all );
 
     if ( !pJsContainer_->Initialize() )
     { // error reporting handled inside
@@ -926,7 +930,7 @@ bool js_panel_window::script_load()
     }
 
     // HACK: Script update will not call on_size, so invoke it explicitly
-    SendMessage( hWnd_, static_cast<UINT>( InternalImmediateMessage::update_size ), 0, 0 );
+    SendMessage( hWnd_, static_cast<UINT>( InternalSyncMessage::update_size ), 0, 0 );
 
     FB2K_console_formatter() << SMP_NAME_WITH_VERSION " (" << ScriptInfo().build_info_string() << "): initialized in " << ( uint32_t )( timer.query() * 1000 ) << " ms";
     return true;
@@ -984,7 +988,7 @@ void js_panel_window::on_erase_background()
 {
     if ( get_pseudo_transparent() )
     {
-        PostMessage( hWnd_, static_cast<UINT>( InternalDelayedMessage::refresh_bg ), 0, 0 );
+        PostMessage( hWnd_, static_cast<UINT>( InternalAsyncMessage::refresh_bg ), 0, 0 );
     }
 }
 
@@ -992,6 +996,7 @@ void js_panel_window::on_panel_create( HWND hWnd )
 {
     RECT rect;
     hWnd_ = hWnd;
+
     hDc_ = GetDC( hWnd_ );
     GetClientRect( hWnd_, &rect );
     width_ = rect.right - rect.left;

@@ -5,6 +5,9 @@
 #include <panel_tooltip_param.h>
 #include <user_message.h>
 
+#include <queue>
+
+
 namespace mozjs
 {
 class JsContainer;
@@ -38,14 +41,14 @@ public:
 
 protected:
     LRESULT on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp );
-    std::optional<LRESULT> proccess_immediate_messages( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp );
-    std::optional<LRESULT> proccess_delayed_messages( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp );
-    std::optional<LRESULT> on_main_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp );
-    std::optional<LRESULT> on_window_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp );
-    std::optional<LRESULT> on_callback_message( HWND hwnd, CallbackMessage msg );
-    std::optional<LRESULT> on_player_message( HWND hwnd, PlayerMessage msg, WPARAM wp, LPARAM lp );
-    std::optional<LRESULT> on_internal_immediate_message( HWND hwnd, InternalImmediateMessage msg, WPARAM wp, LPARAM lp );
-    std::optional<LRESULT> on_internal_delayed_message( HWND hwnd, InternalDelayedMessage msg, WPARAM wp, LPARAM lp );
+    std::optional<LRESULT> proccess_sync_messages( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp );
+    std::optional<LRESULT> proccess_async_messages( UINT msg, WPARAM wp, LPARAM lp );
+    std::optional<LRESULT> process_main_messages( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp );
+    std::optional<LRESULT> process_window_messages( UINT msg, WPARAM wp, LPARAM lp );
+    std::optional<LRESULT> process_callback_messages( CallbackMessage msg );
+    std::optional<LRESULT> process_player_messages( PlayerMessage msg, WPARAM wp, LPARAM lp );
+    std::optional<LRESULT> process_internal_sync_messages( InternalSyncMessage msg, WPARAM wp, LPARAM lp );
+    std::optional<LRESULT> process_internal_async_messages( InternalAsyncMessage msg, WPARAM wp, LPARAM lp );
 
     bool show_configure_popup( HWND parent );
     bool show_property_popup( HWND parent );
@@ -77,7 +80,21 @@ public:
     void RepaintBackground( LPRECT lprcUpdate = nullptr );
 
 private:
+    struct Task
+    {
+        Task( UINT msg, uint32_t wp, uint32_t lp )
+            : msg( msg )
+            , wp( wp )
+            , lp( lp )
+        {
+        }
+        UINT msg;
+        uint32_t wp = 0;
+        uint32_t lp = 0;
+    };
+
     const PanelType panelType_;
+    std::queue<Task> taskQueue_;
     std::shared_ptr<mozjs::JsContainer> pJsContainer_;
 
     HWND hWnd_ = nullptr;
@@ -95,10 +112,10 @@ private:
     bool isMouseTracked_ = false;              // used only internally
     ui_selection_holder::ptr selectionHolder_; // used only internally
 
-    t_size dlgCode_ = 0;                       // modified only from external
-    POINT maxSize_ = { INT_MAX, INT_MAX };     // modified only from external
-    POINT minSize_ = { 0, 0 };                 // modified only from external
-    PanelTooltipParam panelTooltipParam_; // modified only from external
+    t_size dlgCode_ = 0;                   // modified only from external
+    POINT maxSize_ = { INT_MAX, INT_MAX }; // modified only from external
+    POINT minSize_ = { 0, 0 };             // modified only from external
+    PanelTooltipParam panelTooltipParam_;  // modified only from external
 
 private:
     bool script_load();

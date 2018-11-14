@@ -128,7 +128,7 @@ public:
     void on_quit() override
     {
         mozjs::JsEngine::GetInstance().PrepareForExit();
-        smp::panel::panel_manager::instance().send_msg_to_all( static_cast<UINT>(smp::InternalImmediateMessage::terminate_script), 0, 0 );
+        smp::panel::panel_manager::instance().send_msg_to_all( static_cast<UINT>(smp::InternalSyncMessage::terminate_script), 0, 0 );
         simple_thread_pool::instance().join();
     }
 
