@@ -2,7 +2,7 @@
 
 #### Table of Contents
 - [Unreleased](#unreleased)
-- [1.0.5](#104---2018-11-06)
+- [1.0.5](#105---2018-11-06)
 - [1.0.4](#104---2018-10-25)
 - [1.0.3](#103---2018-10-11)
 - [1.0.2](#102---2018-10-05)
@@ -11,6 +11,26 @@
 ___
 
 ## [Unreleased][]
+### Added
+- Improved drag-n-drop window:
+  - Image displays number of tracks being dragged.
+  - Tooltip text describes the performed drop action (configurable through `action.Text` field).
+- Added global constructors for the following objects:
+  - `FbMetadbHandleList`: from another `FbMetadbHandleList`, from an array of `FbMetadbHandle`s, from `FbMetadbHandle` and a default constructor.
+  - `GdiBitmap`: from another `GdiBitmap`.
+  - `FbProfiler`: the same as `fb.CreateProfiler`.
+  - `FbTitleFormat`: the same as `fb.TitleFormat`.
+- Improved logging of objects through `console.log`: now it displays object's content as well.
+- Added `callbacks` to HTML documentation.
+- Added arguments to `FbProfiler.Print`: additional message and an option to disable component info.
+
+### Changed
+- Reimplemented SMP call handling so as to conform with `Run to completion` rule.
+- `fb.DoDragDrop` now requires an additional `window.ID` argument.
+- Made adjustment to GC policies.
+
+### Fixed
+- `FbMetadbHandle.FileSize` returns -1 properly now, when file size is not available.
 
 ## [1.0.5][] - 2018-11-06
 ### Added
@@ -30,14 +50,6 @@ ___
 - Ported JScript Panel changes:
   - Added `FbMetadbHandleList.RemoveAttachImages` method.
 
-### Fixed
-- Fixed crash when `on_main_menu` callback was invoked.
-- Fixed crash when switching layout from inside the panel.
-- Fixed occasional crash on panel removal.
-- Fixed incorrect handling of UTF-16 BOM files in `include()` and `utils.ReadTextFile()`.
-- Fixed `ThemeManager.DrawThemeBackground()`: was ignoring `state_id` argument.
-- Fixed invalid calculation of image size, which resulted in premature OOM errors.
-
 ### Changed
 - Improved `include` performance by 2x.
 - Tweaked GC for better UX during high load.
@@ -48,6 +60,14 @@ ___
 - Rewrote `Interfaces.js`
   - Fixed invalid and incorrect JSDoc tags.
   - Renamed to `foo_spider_monkey_panel.js`.
+
+### Fixed
+- Fixed crash when `on_main_menu` callback was invoked.
+- Fixed crash when switching layout from inside the panel.
+- Fixed occasional crash on panel removal.
+- Fixed incorrect handling of UTF-16 BOM files in `include()` and `utils.ReadTextFile()`.
+- Fixed `ThemeManager.DrawThemeBackground()`: was ignoring `state_id` argument.
+- Fixed invalid calculation of image size, which resulted in premature OOM errors.
 
 ## [1.0.3][] - 2018-10-11
 ### Changed
@@ -79,7 +99,7 @@ ___
 - Fixed `fb.RunContextCommandWithMetadb()`.
 - Fixed samples:
   - Removed left-over `.Dispose()` calls.
-  - Rewrote html dialog sample (HtmlDialogWithCheckBox.txt).
+  - Rewrote HTML dialog sample (HtmlDialogWithCheckBox.txt).
 - Added a few fixes to `ActiveXObject` for better compatibility.
 
 ## [1.0.0][] - 2018-10-01
@@ -106,7 +126,7 @@ ___
 - Updated samples with compatibility fixes.
 
 [unreleased]: https://github.com/theqwertiest/foo_spider_monkey_panel/compare/v1.0.5...HEAD
-[1.0.4]: https://github.com/TheQwertiest/foo_spider_monkey_panel/compare/v1.0.4...v1.0.5
+[1.0.5]: https://github.com/TheQwertiest/foo_spider_monkey_panel/compare/v1.0.4...v1.0.5
 [1.0.4]: https://github.com/TheQwertiest/foo_spider_monkey_panel/compare/v1.0.3...v1.0.4
 [1.0.3]: https://github.com/TheQwertiest/foo_spider_monkey_panel/compare/v1.0.2...v1.0.3
 [1.0.2]: https://github.com/TheQwertiest/foo_spider_monkey_panel/compare/v1.0.1...v1.0.2
