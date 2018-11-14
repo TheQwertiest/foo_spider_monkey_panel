@@ -3,6 +3,7 @@
 namespace smp
 {
 
+/// @details These messages are asynchronous
 enum class CallbackMessage : UINT
 {
     first_message = WM_USER + 100,
@@ -22,6 +23,7 @@ enum class CallbackMessage : UINT
     last_message = internal_load_image_done,
 };
 
+/// @details These messages are asynchronous
 enum class PlayerMessage : UINT
 {
     first_message = static_cast<int>(CallbackMessage::last_message) + 1,
@@ -49,6 +51,31 @@ enum class PlayerMessage : UINT
     fb_selection_changed,
     ui_colours_changed,
     ui_font_changed,
+    last_message = ui_font_changed,
+};
+
+/// @details These messages are asynchronous
+enum class InternalDelayedMessage : UINT
+{
+    first_message = static_cast<int>(PlayerMessage::last_message) + 1,
+    main_menu_item = first_message,
+    refresh_bg,
+    reload_script,
+    show_configure,
+    show_properties,
+    size_limit_changed,
+    last_message = size_limit_changed,
+};
+
+/// @details These messages are synchronous
+enum class InternalImmediateMessage : UINT
+{
+    first_message = static_cast<int>( InternalDelayedMessage::last_message ) + 1,
+    notify_data = first_message,
+    script_error,
+    terminate_script,
+    timer_proc,
+    update_size,
     wnd_drag_drop,
     wnd_drag_enter,
     wnd_drag_leave,
@@ -56,27 +83,10 @@ enum class PlayerMessage : UINT
     last_message = wnd_drag_over,
 };
 
-enum class InternalMessage : UINT
-{
-    first_message = static_cast<int>(PlayerMessage::last_message) + 1,
-    main_menu_item = first_message,
-    notify_data,
-    refresh_bg,
-    reload_script,
-    script_error,
-    terminate_script,
-    show_configure,
-    show_properties,
-    update_size,
-    size_limit_changed,
-    timer_proc,
-    last_message = timer_proc,
-};
-
 /// @brief Message definitions that are not handled by the main panel window
 enum class MiscMessage : UINT
 {
-    find_text_changed = static_cast<int>( InternalMessage::last_message ) + 1,
+    find_text_changed = static_cast<int>( InternalDelayedMessage::last_message ) + 1,
     heartbeat,
     key_down,
 };

@@ -118,7 +118,7 @@ LRESULT js_panel_window_cui::on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM 
         }
         break;
 
-    case static_cast<UINT>( smp::InternalMessage::size_limit_changed ):
+    case static_cast<UINT>( smp::InternalDelayedMessage::size_limit_changed ):
     {
         notify_size_limit_changed( lp );
         return 0;

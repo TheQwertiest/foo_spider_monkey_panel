@@ -1,9 +1,9 @@
 #pragma once
 
-#include "config.h"
-#include "panel_info.h"
-
+#include <config.h>
+#include <panel_info.h>
 #include <panel_tooltip_param.h>
+#include <user_message.h>
 
 namespace mozjs
 {
@@ -38,11 +38,14 @@ public:
 
 protected:
     LRESULT on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp );
+    std::optional<LRESULT> proccess_immediate_messages( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp );
+    std::optional<LRESULT> proccess_delayed_messages( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp );
     std::optional<LRESULT> on_main_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp );
     std::optional<LRESULT> on_window_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp );
-    std::optional<LRESULT> on_callback_message( HWND hwnd, UINT msg );
-    std::optional<LRESULT> on_player_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp );
-    std::optional<LRESULT> on_internal_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp );
+    std::optional<LRESULT> on_callback_message( HWND hwnd, CallbackMessage msg );
+    std::optional<LRESULT> on_player_message( HWND hwnd, PlayerMessage msg, WPARAM wp, LPARAM lp );
+    std::optional<LRESULT> on_internal_immediate_message( HWND hwnd, InternalImmediateMessage msg, WPARAM wp, LPARAM lp );
+    std::optional<LRESULT> on_internal_delayed_message( HWND hwnd, InternalDelayedMessage msg, WPARAM wp, LPARAM lp );
 
     bool show_configure_popup( HWND parent );
     bool show_property_popup( HWND parent );
