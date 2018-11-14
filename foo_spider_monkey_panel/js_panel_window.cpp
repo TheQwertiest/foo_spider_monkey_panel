@@ -88,7 +88,8 @@ LRESULT js_panel_window::on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
     static uint32_t nestedCounter = 0;
     ++nestedCounter;
 
-    utils::final_action jobsRunner( [&nestedCounter = nestedCounter, &taskQueue = taskQueue_, hWnd = hWnd_] {
+    utils::final_action jobsRunner( [& nestedCounter = nestedCounter, &taskQueue = taskQueue_, hWnd = hWnd_] 
+    {
         --nestedCounter;
 
         if ( !nestedCounter )
@@ -795,14 +796,7 @@ PanelType js_panel_window::GetPanelType() const
 
 void js_panel_window::Repaint( bool force /*= false */ )
 {
-    if ( force )
-    {
-        RedrawWindow( hWnd_, nullptr, nullptr, RDW_INVALIDATE | RDW_UPDATENOW );
-    }
-    else
-    {
-        InvalidateRect( hWnd_, nullptr, FALSE );
-    }
+    RedrawWindow( hWnd_, nullptr, nullptr, RDW_INVALIDATE | ( force ? RDW_UPDATENOW : 0 ) );
 }
 
 void js_panel_window::RepaintRect( LONG x, LONG y, LONG w, LONG h, bool force /*= false */ )
@@ -813,14 +807,7 @@ void js_panel_window::RepaintRect( LONG x, LONG y, LONG w, LONG h, bool force /*
     rc.right = x + w;
     rc.bottom = y + h;
 
-    if ( force )
-    {
-        RedrawWindow( hWnd_, &rc, nullptr, RDW_INVALIDATE | RDW_UPDATENOW );
-    }
-    else
-    {
-        InvalidateRect( hWnd_, &rc, FALSE );
-    }
+    RedrawWindow( hWnd_, &rc, nullptr, RDW_INVALIDATE | ( force ? RDW_UPDATENOW : 0 ) );
 }
 
 void js_panel_window::RepaintBackground( LPRECT lprcUpdate /*= nullptr */ )
