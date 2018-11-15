@@ -14,6 +14,7 @@
 
 #include <drop_action_params.h>
 #include <message_data_holder.h>
+#include <host_timer_dispatcher.h>
 
 namespace
 {
@@ -88,8 +89,7 @@ LRESULT js_panel_window::on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
     static uint32_t nestedCounter = 0;
     ++nestedCounter;
 
-    utils::final_action jobsRunner( [& nestedCounter = nestedCounter, &taskQueue = taskQueue_, hWnd = hWnd_] 
-    {
+    utils::final_action jobsRunner( [& nestedCounter = nestedCounter, &taskQueue = taskQueue_, hWnd = hWnd_, curInstanceId = curInstanceId_] {
         --nestedCounter;
 
         if ( !nestedCounter )
@@ -98,7 +98,7 @@ LRESULT js_panel_window::on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
             mozjs::JsContainer::RunMicroTasks();
             if ( !taskQueue.empty() )
             {
-                PostMessage( hWnd, static_cast<UINT>( MiscMessage::run_task ), 0, 0 );
+                PostMessage( hWnd, static_cast<UINT>( MiscMessage::run_task ), 0, curInstanceId );
             }
         }
     } );
@@ -110,11 +110,15 @@ LRESULT js_panel_window::on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
             taskQueue_.emplace( msg, wp, lp );
         }
 
-        if ( nestedCounter == 1 && !taskQueue_.empty() )
+        if ( nestedCounter == 1 && !taskQueue_.empty()
+             && !( msg == static_cast<UINT>( MiscMessage::run_task ) && curInstanceId_ != lp ) )
         {
             const auto [taskMsg, taskWp, taskLp] = taskQueue_.front();
             auto retVal = proccess_async_messages( taskMsg, taskWp, taskLp );
-            taskQueue_.pop();
+            if ( !taskQueue_.empty() )
+            {
+                taskQueue_.pop();
+            }
 
             if ( retVal )
             {
@@ -439,6 +443,11 @@ std::optional<LRESULT> js_panel_window::process_callback_messages( CallbackMessa
         on_load_image_done( callbackData );
         return 0;
     }
+    case CallbackMessage::internal_timer_proc:
+    {
+        on_timer_proc( callbackData );
+        return 0;
+    }
     default:
     {
         return std::nullopt;
@@ -612,11 +621,6 @@ std::optional<LRESULT> js_panel_window::process_internal_sync_messages( Internal
         {
             Repaint();
         }
-        return 0;
-    }
-    case InternalSyncMessage::timer_proc:
-    {
-        pJsContainer_->InvokeTimerFunction( static_cast<uint32_t>( wp ) );
         return 0;
     }
     case InternalSyncMessage::wnd_drag_drop:
@@ -888,6 +892,8 @@ void js_panel_window::RepaintBackground( LPRECT lprcUpdate /*= nullptr */ )
 
 bool js_panel_window::script_load()
 {
+    ++curInstanceId_;
+
     pfc::hires_timer timer;
     timer.start();
 
@@ -926,6 +932,7 @@ bool js_panel_window::script_load()
 void js_panel_window::script_unload()
 {
     pJsContainer_->InvokeJsCallback( "on_script_unload" );
+    std::swap( taskQueue_, std::queue<Task>() );
     ScriptInfo().clear();
     selectionHolder_.release();
     pJsContainer_->Finalize();
@@ -1022,6 +1029,12 @@ void js_panel_window::on_script_error()
 
     Repaint();
     script_unload();
+}
+
+void js_panel_window::on_timer_proc( smp::panel::CallbackData& callbackData )
+{
+    auto& data = callbackData.GetData<std::shared_ptr<HostTimerTask>>();
+    pJsContainer_->InvokeTimerFunction( *std::get<0>( data ) );
 }
 
 void js_panel_window::on_always_on_top_changed( WPARAM wp )

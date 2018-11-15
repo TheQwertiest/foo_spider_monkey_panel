@@ -4,6 +4,8 @@
 
 #include <optional>
 
+class HostTimerTask;
+
 namespace smp::panel
 {
 class js_panel_window;
@@ -67,7 +69,7 @@ public: // callbacks that require js data
     void InvokeOnDragAction( const pfc::string8_fast& functionName, const POINTL& pt, uint32_t keyState, smp::panel::DropActionParams& actionParams );
     void InvokeOnNotify( WPARAM wp, LPARAM lp );
     void InvokeOnPaint( Gdiplus::Graphics& gr );
-    void InvokeTimerFunction( uint32_t timerId );
+    void InvokeTimerFunction( HostTimerTask& timerTask );
 
 private:
     JsContainer( const JsContainer& ) = delete;

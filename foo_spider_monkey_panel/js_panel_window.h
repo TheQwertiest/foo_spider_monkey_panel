@@ -93,6 +93,7 @@ private:
         uint32_t lp = 0;
     };
 
+    uint32_t curInstanceId_ = 0; ///< Used to filter out messages from previous globals
     const PanelType panelType_;
     std::queue<Task> taskQueue_;
     std::shared_ptr<mozjs::JsContainer> pJsContainer_;
@@ -129,6 +130,7 @@ private:
     void on_panel_create( HWND hWnd );
     void on_panel_destroy();
     void on_script_error();
+    void on_timer_proc( smp::panel::CallbackData& callbackData );
 
     // JS callbacks
     void on_always_on_top_changed( WPARAM wp );

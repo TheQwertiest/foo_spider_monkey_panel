@@ -272,7 +272,7 @@ void JsContainer::InvokeOnPaint( Gdiplus::Graphics& gr )
     pNativeGraphics_->SetGraphicsObject( nullptr );
 }
 
-void JsContainer::InvokeTimerFunction( uint32_t timerId )
+void JsContainer::InvokeTimerFunction( HostTimerTask& timerTask )
 {
     if ( !IsReadyForCallback() )
     {
@@ -280,7 +280,8 @@ void JsContainer::InvokeTimerFunction( uint32_t timerId )
     }
 
     auto selfSaver = shared_from_this();
-    HostTimerDispatcher::Get().onInvokeMessage( timerId );
+    JsScope autoScope( pJsCtx_, jsGlobal_ );
+    timerTask.InvokeJs();
 }
 
 bool JsContainer::CreateDropActionIfNeeded()

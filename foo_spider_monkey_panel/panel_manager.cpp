@@ -3,7 +3,6 @@
 
 #include <message_data_holder.h>
 
-
 namespace smp::panel
 {
 

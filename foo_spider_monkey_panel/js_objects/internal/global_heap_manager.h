@@ -16,7 +16,7 @@ class IHeapUser
 public:
     IHeapUser() = default;
     virtual ~IHeapUser() = default;
-    virtual void DisableHeapCleanup() = 0;
+    virtual void PrepareForGlobalGc() = 0;
 };
 
 /// @details Contains a tracer, which is removed only in destructor

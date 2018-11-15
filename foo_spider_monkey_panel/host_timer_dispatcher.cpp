@@ -1,11 +1,12 @@
-#include "stdafx.h"
+#include <stdafx.h>
 #include "host_timer_dispatcher.h"
 
 #include <js_objects/global_object.h>
 #include <js_objects/internal/global_heap_manager.h>
 #include <js_utils/js_error_helper.h>
 
-#include "user_message.h"
+#include <user_message.h>
+#include <panel_manager.h>
 
 HostTimerDispatcher::HostTimerDispatcher()
 {
@@ -42,7 +43,7 @@ void HostTimerDispatcher::killTimer( uint32_t timerId )
     auto it = m_timerMap.find( timerId );
     if ( m_timerMap.end() != it )
     {
-        it->second->timer->stop();
+        it->second->stop();
     }
 }
 
@@ -53,12 +54,12 @@ void HostTimerDispatcher::onPanelUnload( HWND hWnd )
     {
         std::lock_guard<std::mutex> lock( m_timerMutex );
 
-        for ( const auto& [timerId, v] : m_timerMap )
+        for ( const auto& [timerId, timer] : m_timerMap )
         {
-            if ( v->timer->GetHwnd() == hWnd )
+            if ( timer->GetHwnd() == hWnd )
             {
                 timersToDelete.push_back( timerId );
-                m_timerMap[timerId]->task->DisableHeapCleanup();
+                m_timerMap[timerId]->GetTask().PrepareForGlobalGc();
             }
         }
     }
@@ -66,24 +67,6 @@ void HostTimerDispatcher::onPanelUnload( HWND hWnd )
     for ( auto timerId : timersToDelete )
     {
         killTimer( timerId );
-    }
-}
-
-void HostTimerDispatcher::onInvokeMessage( uint32_t timerId )
-{
-    std::shared_ptr<HostTimerTask> task;
-    {
-        std::lock_guard<std::mutex> lock( m_timerMutex );
-
-        if ( m_timerMap.count( timerId ) )
-        {
-            task = m_timerMap[timerId]->task;
-        }
-    }
-
-    if ( task )
-    {
-        task->invoke();
     }
 }
 
@@ -123,9 +106,9 @@ uint32_t HostTimerDispatcher::createTimer( HWND hWnd, uint32_t delay, bool isRep
         id = m_curTimerId++;
     }
 
-    m_timerMap.emplace( id, std::make_unique<TimerObject>( std::make_unique<HostTimer>( hWnd, id, delay, isRepeated ), std::make_unique<HostTimerTask>( cx, jsFunction ) ) );
+    m_timerMap.emplace( id, std::make_unique<HostTimer>( hWnd, id, delay, isRepeated, std::make_unique<HostTimerTask>( cx, jsFunction ) ) );
 
-    if ( !m_timerMap[id]->timer->start( m_hTimerQueue ) )
+    if ( !m_timerMap[id]->start( m_hTimerQueue ) )
     {
         m_timerMap.erase( id );
         return 0;
@@ -218,13 +201,11 @@ HostTimerTask::HostTimerTask( JSContext* cx, JS::HandleFunction jsFunction )
 
     JS::RootedObject jsGlobal( cx, JS::CurrentGlobalOrNull( cx ) );
     assert( jsGlobal );
-    JS::RootedValue globalValue( cx, JS::ObjectValue( *jsGlobal ) );
 
     pNativeGlobal_ = static_cast<mozjs::JsGlobalObject*>( JS_GetInstancePrivate( cx, jsGlobal, &mozjs::JsGlobalObject::JsClass, nullptr ) );
     assert( pNativeGlobal_ );
 
     funcId_ = pNativeGlobal_->GetHeapManager().Store( funcValue );
-    globalId_ = pNativeGlobal_->GetHeapManager().Store( globalValue );
 
     isJsAvailable_ = true;
 }
@@ -234,103 +215,95 @@ HostTimerTask::~HostTimerTask()
     if ( isJsAvailable_ )
     {
         pNativeGlobal_->GetHeapManager().Remove( funcId_ );
-        pNativeGlobal_->GetHeapManager().Remove( globalId_ );
     }
 }
 
-void HostTimerTask::invoke()
+void HostTimerTask::InvokeJs()
 {
-    if ( !isJsAvailable_ )
-    {
-        return;
-    }
-
-    JSAutoRequest ar( pJsCtx_ );
-    JS::RootedObject jsGlobal( pJsCtx_, pNativeGlobal_->GetHeapManager().Get( globalId_ ).toObjectOrNull() );
+    JS::RootedObject jsGlobal( pJsCtx_, JS::CurrentGlobalOrNull( pJsCtx_ ) );
     assert( jsGlobal );
-    JSAutoCompartment ac( pJsCtx_, jsGlobal );
-
     JS::RootedValue vFunc( pJsCtx_, pNativeGlobal_->GetHeapManager().Get( funcId_ ) );
     JS::RootedFunction rFunc( pJsCtx_, JS_ValueToFunction( pJsCtx_, vFunc ) );
 
-    JS::RootedValue retVal( pJsCtx_ );
-
-    {
-        mozjs::error::AutoJsReport are( pJsCtx_ );
-        JS::Call( pJsCtx_, jsGlobal, rFunc, JS::HandleValueArray::empty(), &retVal );
-    }
+    JS::RootedValue dummyRetVal( pJsCtx_ );
+    JS::Call( pJsCtx_, jsGlobal, rFunc, JS::HandleValueArray::empty(), &dummyRetVal );
 }
 
-void HostTimerTask::DisableHeapCleanup()
+void HostTimerTask::PrepareForGlobalGc()
 {
     // Global is being destroyed, can't access anything
     isJsAvailable_ = false;
 }
 
-HostTimer::HostTimer( HWND hWnd, uint32_t id, uint32_t delay, bool isRepeated )
+HostTimer::HostTimer( HWND hWnd, uint32_t id, uint32_t delay, bool isRepeated, std::shared_ptr<HostTimerTask> task )
+    : hWnd_( hWnd )
+    , delay_( delay )
+    , isRepeated_( isRepeated )
+    , id_( id )
+    , task_( task )
 {
-    m_hWnd = hWnd;
-    m_delay = delay;
-    m_isRepeated = isRepeated;
-    m_id = id;
-}
-
-HostTimer::~HostTimer()
-{
+    assert( task );
 }
 
 bool HostTimer::start( HANDLE hTimerQueue )
 {
     return !!CreateTimerQueueTimer(
-        &m_hTimer,
+        &hTimer_,
         hTimerQueue,
         HostTimer::timerProc,
         this,
-        m_delay,
-        m_isRepeated ? m_delay : 0,
-        WT_EXECUTEINTIMERTHREAD | ( m_isRepeated ? 0 : WT_EXECUTEONLYONCE ) );
+        delay_,
+        isRepeated_ ? delay_ : 0,
+        WT_EXECUTEINTIMERTHREAD | ( isRepeated_ ? 0 : WT_EXECUTEONLYONCE ) );
 }
 
 void HostTimer::stop()
 {
-    m_isStopRequested = true;
+    isStopRequested_ = true;
 }
 
 VOID CALLBACK HostTimer::timerProc( PVOID lpParameter, BOOLEAN /*TimerOrWaitFired*/ )
 {
     HostTimer* timer = reinterpret_cast<HostTimer*>( lpParameter );
 
-    if ( timer->m_isStopped )
+    if ( timer->isStopped_ )
     {
         return;
     }
 
-    if ( timer->m_isStopRequested )
+    if ( timer->isStopRequested_ )
     {
-        timer->m_isStopped = true;
-        HostTimerDispatcher::Get().onTimerStopRequest( timer->m_hWnd, timer->m_hTimer, timer->m_id );
+        timer->isStopped_ = true;
+        HostTimerDispatcher::Get().onTimerStopRequest( timer->hWnd_, timer->hTimer_, timer->id_ );
 
         return;
     }
 
-    if ( !timer->m_isRepeated )
+    auto postTimerTask = [&timer]
     {
-        timer->m_isStopped = true;
-        SendMessage( timer->m_hWnd, static_cast<UINT>( smp::InternalSyncMessage::timer_proc ), timer->m_id, 0 );
-        HostTimerDispatcher::Get().onTimerStopRequest( timer->m_hWnd, timer->m_hTimer, timer->m_id );
+        smp::panel::panel_manager::instance().post_callback_msg( timer->hWnd_,
+                                                                 smp::CallbackMessage::internal_timer_proc,
+                                                                 std::make_unique<smp::panel::CallbackDataImpl<std::shared_ptr<HostTimerTask>>>( timer->task_ ) );
+    };
+
+    if ( !timer->isRepeated_ )
+    {
+        timer->isStopped_ = true;
+        postTimerTask();
+        HostTimerDispatcher::Get().onTimerStopRequest( timer->hWnd_, timer->hTimer_, timer->id_ );
 
         return;
     }
 
-    SendMessage( timer->m_hWnd, static_cast<UINT>( smp::InternalSyncMessage::timer_proc ), timer->m_id, 0 );
+    postTimerTask();
 }
 
 HWND HostTimer::GetHwnd() const
 {
-    return m_hWnd;
+    return hWnd_;
 }
 
-HANDLE HostTimer::GetHandle() const
+HostTimerTask& HostTimer::GetTask()
 {
-    return m_hTimer;
+    return *task_;
 }

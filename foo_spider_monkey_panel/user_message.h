@@ -20,7 +20,8 @@ enum class CallbackMessage : UINT
     fb_volume_change,
     internal_get_album_art_done,
     internal_load_image_done,
-    last_message = internal_load_image_done,
+    internal_timer_proc,
+    last_message = internal_timer_proc,
 };
 
 /// @details These messages are asynchronous
@@ -74,7 +75,6 @@ enum class InternalSyncMessage : UINT
     notify_data = first_message,
     script_error,
     terminate_script,
-    timer_proc,
     update_size,
     wnd_drag_drop,
     wnd_drag_enter,

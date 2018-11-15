@@ -94,7 +94,7 @@ void GlobalHeapManager::RemoveTracer()
 
         for ( auto& [id, heapUser] : heapUsers_ )
         {
-            heapUser->DisableHeapCleanup();
+            heapUser->PrepareForGlobalGc();
         }
         unusedHeapElements_.clear();
         heapElements_.clear();
