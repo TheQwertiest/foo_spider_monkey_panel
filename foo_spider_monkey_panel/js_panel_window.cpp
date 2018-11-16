@@ -716,9 +716,10 @@ void js_panel_window::build_context_menu( HMENU menu, int x, int y, int id_base 
     ::AppendMenu( menu, MF_STRING, id_base + 1, _T( "&Reload" ) );
     ::AppendMenu( menu, MF_SEPARATOR, 0, 0 );
     ::AppendMenu( menu, MF_STRING, id_base + 2, _T( "&Open component folder" ) );
+    ::AppendMenu( menu, MF_STRING, id_base + 3, _T( "&Open documentation" ) );
     ::AppendMenu( menu, MF_SEPARATOR, 0, 0 );
-    ::AppendMenu( menu, MF_STRING, id_base + 3, _T( "&Properties" ) );
-    ::AppendMenu( menu, MF_STRING, id_base + 4, _T( "&Configure..." ) );
+    ::AppendMenu( menu, MF_STRING, id_base + 4, _T( "&Properties" ) );
+    ::AppendMenu( menu, MF_STRING, id_base + 5, _T( "&Configure..." ) );
 }
 
 void js_panel_window::execute_context_menu_command( int id, int id_base )
@@ -734,14 +735,24 @@ void js_panel_window::execute_context_menu_command( int id, int id_base )
     {
         pfc::stringcvt::string_os_from_utf8 folder( helpers::get_fb2k_component_path() );
         ShellExecute( nullptr, _T( "open" ), folder, nullptr, nullptr, SW_SHOW );
+        break;
     }
-    break;
     case 3:
+    {
+        pfc::stringcvt::string_os_from_utf8 htmlHelp( helpers::get_fb2k_component_path() + "docs\\html\\index.html" );
+        ShellExecute( nullptr, _T( "open" ), htmlHelp, nullptr, nullptr, SW_SHOW );
+        break;
+    }
+    case 4:
+    {
         show_property_popup( hWnd_ );
         break;
-    case 4:
+    }
+    case 5:
+    {
         show_configure_popup( hWnd_ );
         break;
+    }
     }
 }
 
