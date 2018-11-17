@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "thread_pool.h"
 #include "popup_msg.h"
-#include "panel_manager.h"
+#include <message_manager.h>
 #include "user_message.h"
 
 #include <js_engine/js_engine.h>
@@ -128,7 +128,7 @@ public:
     void on_quit() override
     {
         mozjs::JsEngine::GetInstance().PrepareForExit();
-        smp::panel::panel_manager::instance().send_msg_to_all( static_cast<UINT>(smp::InternalSyncMessage::terminate_script), 0, 0 );
+        smp::panel::message_manager::instance().send_msg_to_all( static_cast<UINT>(smp::InternalSyncMessage::terminate_script) );
         simple_thread_pool::instance().join();
     }
 

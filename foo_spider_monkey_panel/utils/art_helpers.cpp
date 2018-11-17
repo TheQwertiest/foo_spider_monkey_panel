@@ -6,7 +6,7 @@
 
 #include <helpers.h>
 #include <user_message.h>
-#include <panel_manager.h>
+#include <message_manager.h>
 
 #include <Shlwapi.h>
 
@@ -78,7 +78,7 @@ void AlbumArtFetchTask::run()
     }
 
     pfc::string8_fast path = ( imagePath.is_empty() ? "" : file_path_display( imagePath ) );
-    panel::panel_manager::instance().post_callback_msg( hNotifyWnd_,
+    panel::message_manager::instance().post_callback_msg( hNotifyWnd_,
                                                         smp::CallbackMessage::internal_get_album_art_done,
                                                         std::make_unique<
                                                             smp::panel::CallbackDataImpl<

@@ -61,9 +61,6 @@
     <ClCompile Include="mainmenu.cpp">
       <Filter>z_uncategorized</Filter>
     </ClCompile>
-    <ClCompile Include="panel_manager.cpp">
-      <Filter>z_uncategorized</Filter>
-    </ClCompile>
     <ClCompile Include="stdafx.cpp">
       <Filter>z_uncategorized</Filter>
     </ClCompile>
@@ -235,9 +232,6 @@
     <ClCompile Include="smp_exception.cpp">
       <Filter>z_uncategorized</Filter>
     </ClCompile>
-    <ClCompile Include="message_data_holder.cpp">
-      <Filter>z_uncategorized</Filter>
-    </ClCompile>
     <ClCompile Include="com_objects\drop_source_impl.cpp">
       <Filter>com_objects</Filter>
     </ClCompile>
@@ -278,6 +272,9 @@
       <Filter>z_uncategorized</Filter>
     </ClCompile>
     <ClCompile Include="popup_msg.cpp">
+      <Filter>z_uncategorized</Filter>
+    </ClCompile>
+    <ClCompile Include="message_manager.cpp">
       <Filter>z_uncategorized</Filter>
     </ClCompile>
   </ItemGroup>
@@ -340,9 +337,6 @@
       <Filter>z_uncategorized</Filter>
     </ClInclude>
     <ClInclude Include="js_panel_window_dui.h">
-      <Filter>z_uncategorized</Filter>
-    </ClInclude>
-    <ClInclude Include="panel_manager.h">
       <Filter>z_uncategorized</Filter>
     </ClInclude>
     <ClInclude Include="popup_msg.h">
@@ -582,9 +576,6 @@
     <ClInclude Include="utils\pfc_helpers.h">
       <Filter>utils</Filter>
     </ClInclude>
-    <ClInclude Include="message_data_holder.h">
-      <Filter>z_uncategorized</Filter>
-    </ClInclude>
     <ClInclude Include="callback_data.h">
       <Filter>z_uncategorized</Filter>
     </ClInclude>
@@ -623,6 +614,9 @@
     </ClInclude>
     <ClInclude Include="utils\acfu_github.h">
       <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="message_manager.h">
+      <Filter>z_uncategorized</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

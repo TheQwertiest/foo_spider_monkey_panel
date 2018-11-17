@@ -6,7 +6,7 @@
 #include <js_utils/js_error_helper.h>
 
 #include <user_message.h>
-#include <panel_manager.h>
+#include <message_manager.h>
 
 HostTimerDispatcher::HostTimerDispatcher()
 {
@@ -281,7 +281,7 @@ VOID CALLBACK HostTimer::timerProc( PVOID lpParameter, BOOLEAN /*TimerOrWaitFire
 
     auto postTimerTask = [&timer]
     {
-        smp::panel::panel_manager::instance().post_callback_msg( timer->hWnd_,
+        smp::panel::message_manager::instance().post_callback_msg( timer->hWnd_,
                                                                  smp::CallbackMessage::internal_timer_proc,
                                                                  std::make_unique<smp::panel::CallbackDataImpl<std::shared_ptr<HostTimerTask>>>( timer->task_ ) );
     };

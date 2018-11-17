@@ -3,7 +3,8 @@
 #include "js_panel_window_dui.h"
 
 #include "helpers.h"
-#include "user_message.h"
+#include <user_message.h>
+#include <message_manager.h>
 
 namespace
 {
@@ -230,11 +231,11 @@ void js_panel_window_dui::notify( const GUID& p_what, t_size p_param1, const voi
     }
     else if ( p_what == ui_element_notify_font_changed )
     {
-        PostMessage( t_parent::GetHWND(), static_cast<UINT>( smp::PlayerMessage::ui_font_changed ), 0, 0 );
+        message_manager::instance().post_msg( t_parent::GetHWND(), static_cast<UINT>( smp::PlayerMessage::ui_font_changed ) );
     }
     else if ( p_what == ui_element_notify_colors_changed )
     {
-        PostMessage( t_parent::GetHWND(), static_cast<UINT>( smp::PlayerMessage::ui_colours_changed ), 0, 0 );
+        message_manager::instance().post_msg( t_parent::GetHWND(), static_cast<UINT>( smp::PlayerMessage::ui_font_changed ) );
     }
 }
 

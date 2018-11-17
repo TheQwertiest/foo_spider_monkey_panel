@@ -3,7 +3,8 @@
 #include "js_panel_window_cui.h"
 
 #include "helpers.h"
-#include "user_message.h"
+#include <user_message.h>
+#include <message_manager.h>
 
 namespace
 {
@@ -186,12 +187,12 @@ void js_panel_window_cui::on_bool_changed( t_size mask ) const
 
 void js_panel_window_cui::on_colour_changed( t_size mask ) const
 {
-    PostMessage( t_parent::GetHWND(), static_cast<UINT>( smp::PlayerMessage::ui_colours_changed ), 0, 0 );
+    message_manager::instance().post_msg( t_parent::GetHWND(), static_cast<UINT>( smp::PlayerMessage::ui_colours_changed ) );
 }
 
 void js_panel_window_cui::on_font_changed( t_size mask ) const
 {
-    PostMessage( t_parent::GetHWND(), static_cast<UINT>( smp::PlayerMessage::ui_font_changed ), 0, 0 );
+    message_manager::instance().post_msg( t_parent::GetHWND(), static_cast<UINT>( smp::PlayerMessage::ui_font_changed ) );
 }
 
 void js_panel_window_cui::set_config( stream_reader* reader, t_size size, abort_callback& abort )

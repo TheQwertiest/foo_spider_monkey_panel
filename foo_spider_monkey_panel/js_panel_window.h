@@ -82,18 +82,17 @@ public:
 private:
     struct Task
     {
-        Task( UINT msg, uint32_t wp, uint32_t lp )
+        Task( UINT msg, uint32_t wp = 0, uint32_t lp = 0 )
             : msg( msg )
             , wp( wp )
             , lp( lp )
         {
         }
         UINT msg;
-        uint32_t wp = 0;
-        uint32_t lp = 0;
+        uint32_t wp;
+        uint32_t lp;
     };
 
-    uint32_t curInstanceId_ = 0; ///< Used to filter out messages from previous globals
     const PanelType panelType_;
     std::queue<Task> taskQueue_;
     std::shared_ptr<mozjs::JsContainer> pJsContainer_;
@@ -130,7 +129,7 @@ private:
     void on_panel_create( HWND hWnd );
     void on_panel_destroy();
     void on_script_error();
-    void on_timer_proc( smp::panel::CallbackData& callbackData );
+    void on_timer_proc( CallbackData& callbackData );
 
     // JS callbacks
     void on_always_on_top_changed( WPARAM wp );
@@ -144,17 +143,17 @@ private:
     void on_dsp_preset_changed();
     void on_focus( bool isFocused );
     void on_font_changed();
-    void on_get_album_art_done( smp::panel::CallbackData& callbackData );
-    void on_item_focus_change( smp::panel::CallbackData& callbackData );
-    void on_item_played( smp::panel::CallbackData& callbackData );
+    void on_get_album_art_done( CallbackData& callbackData );
+    void on_item_focus_change( CallbackData& callbackData );
+    void on_item_played( CallbackData& callbackData );
     void on_key_down( WPARAM wp );
     void on_key_up( WPARAM wp );
-    void on_library_items_added( smp::panel::CallbackData& callbackData );
-    void on_library_items_changed( smp::panel::CallbackData& callbackData );
-    void on_library_items_removed( smp::panel::CallbackData& callbackData );
-    void on_load_image_done( smp::panel::CallbackData& callbackData );
+    void on_library_items_added( CallbackData& callbackData );
+    void on_library_items_changed( CallbackData& callbackData );
+    void on_library_items_removed( CallbackData& callbackData );
+    void on_load_image_done( CallbackData& callbackData );
     void on_main_menu( WPARAM wp );
-    void on_metadb_changed( smp::panel::CallbackData& callbackData );
+    void on_metadb_changed( CallbackData& callbackData );
     void on_mouse_button_dblclk( UINT msg, WPARAM wp, LPARAM lp );
     void on_mouse_button_down( UINT msg, WPARAM wp, LPARAM lp );
     bool on_mouse_button_up( UINT msg, WPARAM wp, LPARAM lp );
@@ -169,19 +168,19 @@ private:
     void on_paint_user( HDC memdc, LPRECT lpUpdateRect );
     void on_playback_dynamic_info();
     void on_playback_dynamic_info_track();
-    void on_playback_edited( smp::panel::CallbackData& callbackData );
+    void on_playback_edited( CallbackData& callbackData );
     void on_playback_follow_cursor_changed( WPARAM wp );
-    void on_playback_new_track( smp::panel::CallbackData& callbackData );
+    void on_playback_new_track( CallbackData& callbackData );
     void on_playback_order_changed( WPARAM wp );
     void on_playback_pause( WPARAM wp );
     void on_playback_queue_changed( WPARAM wp );
-    void on_playback_seek( smp::panel::CallbackData& callbackData );
-    void on_playback_starting( WPARAM wp, LPARAM lp );
+    void on_playback_seek( CallbackData& callbackData );
+    void on_playback_starting( CallbackData& callbackData );
     void on_playback_stop( WPARAM wp );
-    void on_playback_time( smp::panel::CallbackData& callbackData );
-    void on_playlist_item_ensure_visible( WPARAM wp, LPARAM lp );
+    void on_playback_time( CallbackData& callbackData );
+    void on_playlist_item_ensure_visible( CallbackData& callbackData );
     void on_playlist_items_added( WPARAM wp );
-    void on_playlist_items_removed( WPARAM wp, LPARAM lp );
+    void on_playlist_items_removed( CallbackData& callbackData );
     void on_playlist_items_reordered( WPARAM wp );
     void on_playlist_items_selection_change();
     void on_playlist_stop_after_current_changed( WPARAM wp );
@@ -190,7 +189,7 @@ private:
     void on_replaygain_mode_changed( WPARAM wp );
     void on_selection_changed();
     void on_size( uint32_t w, uint32_t h );
-    void on_volume_change( smp::panel::CallbackData& callbackData );
+    void on_volume_change( CallbackData& callbackData );
 };
 
 } // namespace smp::panel

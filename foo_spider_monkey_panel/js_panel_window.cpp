@@ -1,6 +1,6 @@
 #include <stdafx.h>
 #include "js_panel_window.h"
-#include "panel_manager.h"
+#include <message_manager.h>
 #include "popup_msg.h"
 
 #include <ui/ui_conf.h>
@@ -13,15 +13,15 @@
 #include <utils/gdi_helpers.h>
 
 #include <drop_action_params.h>
-#include <message_data_holder.h>
 #include <host_timer_dispatcher.h>
+#include <helpers.h>
 
 namespace
 {
 
 using namespace smp;
 
-bool IsDelayedMessage( UINT msg )
+bool IsAsyncMessage( UINT msg )
 {
     return ( IsInEnumRange<CallbackMessage>( msg )
              || IsInEnumRange<PlayerMessage>( msg )
@@ -89,7 +89,7 @@ LRESULT js_panel_window::on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
     static uint32_t nestedCounter = 0;
     ++nestedCounter;
 
-    utils::final_action jobsRunner( [& nestedCounter = nestedCounter, &taskQueue = taskQueue_, hWnd = hWnd_, curInstanceId = curInstanceId_] {
+    utils::final_action jobsRunner( [& nestedCounter = nestedCounter, &taskQueue = taskQueue_, hWnd = hWnd_] {
         --nestedCounter;
 
         if ( !nestedCounter )
@@ -98,31 +98,33 @@ LRESULT js_panel_window::on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
             mozjs::JsContainer::RunMicroTasks();
             if ( !taskQueue.empty() )
             {
-                PostMessage( hWnd, static_cast<UINT>( MiscMessage::run_task ), 0, curInstanceId );
+                message_manager::instance().post_msg( hWnd, static_cast<UINT>( MiscMessage::run_task ) );
             }
         }
     } );
 
-    if ( IsDelayedMessage( msg ) )
+    if ( IsAsyncMessage( msg ) )
     {
-        if ( msg != static_cast<UINT>( MiscMessage::run_task ) )
+        if ( message_manager::instance().IsAsyncMessageRelevant( hWnd_, msg, lp ) )
         {
-            taskQueue_.emplace( msg, wp, lp );
-        }
-
-        if ( nestedCounter == 1 && !taskQueue_.empty()
-             && !( msg == static_cast<UINT>( MiscMessage::run_task ) && curInstanceId_ != lp ) )
-        {
-            const auto [taskMsg, taskWp, taskLp] = taskQueue_.front();
-            auto retVal = proccess_async_messages( taskMsg, taskWp, taskLp );
-            if ( !taskQueue_.empty() )
+            if ( msg != static_cast<UINT>( MiscMessage::run_task ) )
             {
-                taskQueue_.pop();
+                taskQueue_.emplace( msg, wp, lp );
             }
 
-            if ( retVal )
+            if ( nestedCounter == 1 && !taskQueue_.empty() )
             {
-                return retVal.value();
+                const auto [taskMsg, taskWp, taskLp] = taskQueue_.front();
+                auto retVal = proccess_async_messages( taskMsg, taskWp, taskLp );
+                if ( !taskQueue_.empty() )
+                {
+                    taskQueue_.pop();
+                }
+
+                if ( retVal )
+                {
+                    return retVal.value();
+                }
             }
         }
     }
@@ -264,7 +266,7 @@ std::optional<LRESULT> js_panel_window::process_window_messages( UINT msg, WPARA
         on_size( rect.right - rect.left, rect.bottom - rect.top );
         if ( get_pseudo_transparent() )
         {
-            PostMessage( hWnd_, static_cast<UINT>( InternalAsyncMessage::refresh_bg ), 0, 0 );
+            message_manager::instance().post_msg( hWnd_, static_cast<UINT>( InternalAsyncMessage::refresh_bg ) );
         }
         else
         {
@@ -373,7 +375,7 @@ std::optional<LRESULT> js_panel_window::process_window_messages( UINT msg, WPARA
 
 std::optional<LRESULT> js_panel_window::process_callback_messages( CallbackMessage msg )
 {
-    auto pCallbackData = MessageDataHolder::GetInstance().ClaimData( msg, hWnd_ );
+    auto pCallbackData = message_manager::instance().ClaimCallbackMessage( hWnd_, msg );
     auto& callbackData = *pCallbackData;
 
     switch ( msg )
@@ -408,6 +410,11 @@ std::optional<LRESULT> js_panel_window::process_callback_messages( CallbackMessa
         on_metadb_changed( callbackData );
         return 0;
     }
+    case CallbackMessage::fb_playback_starting:
+    {
+        on_playback_starting( callbackData );
+        return 0;
+    }
     case CallbackMessage::fb_playback_edited:
     {
         on_playback_edited( callbackData );
@@ -426,6 +433,16 @@ std::optional<LRESULT> js_panel_window::process_callback_messages( CallbackMessa
     case CallbackMessage::fb_playback_time:
     {
         on_playback_time( callbackData );
+        return 0;
+    }
+    case CallbackMessage::fb_playlist_item_ensure_visible:
+    {
+        on_playlist_item_ensure_visible( callbackData );
+        return 0;
+    }
+    case CallbackMessage::fb_playlist_items_removed:
+    {
+        on_playlist_items_removed( callbackData );
         return 0;
     }
     case CallbackMessage::fb_volume_change:
@@ -509,29 +526,14 @@ std::optional<LRESULT> js_panel_window::process_player_messages( PlayerMessage m
         on_playback_queue_changed( wp );
         return 0;
     }
-    case PlayerMessage::fb_playback_starting:
-    {
-        on_playback_starting( wp, lp );
-        return 0;
-    }
     case PlayerMessage::fb_playback_stop:
     {
         on_playback_stop( wp );
         return 0;
     }
-    case PlayerMessage::fb_playlist_item_ensure_visible:
-    {
-        on_playlist_item_ensure_visible( wp, lp );
-        return 0;
-    }
     case PlayerMessage::fb_playlist_items_added:
     {
         on_playlist_items_added( wp );
-        return 0;
-    }
-    case PlayerMessage::fb_playlist_items_removed:
-    {
-        on_playlist_items_removed( wp, lp );
         return 0;
     }
     case PlayerMessage::fb_playlist_items_reordered:
@@ -615,7 +617,7 @@ std::optional<LRESULT> js_panel_window::process_internal_sync_messages( Internal
         on_size( width_, height_ );
         if ( get_pseudo_transparent() )
         {
-            PostMessage( hWnd_, static_cast<UINT>( InternalAsyncMessage::refresh_bg ), 0, 0 );
+            message_manager::instance().post_msg( hWnd_, static_cast<UINT>( InternalAsyncMessage::refresh_bg ) );
         }
         else
         {
@@ -892,8 +894,6 @@ void js_panel_window::RepaintBackground( LPRECT lprcUpdate /*= nullptr */ )
 
 bool js_panel_window::script_load()
 {
-    ++curInstanceId_;
-
     pfc::hires_timer timer;
     timer.start();
 
@@ -910,7 +910,7 @@ bool js_panel_window::script_load()
 
     maxSize_ = { INT_MAX, INT_MAX };
     minSize_ = { 0, 0 };
-    PostMessage( hWnd_, static_cast<UINT>( InternalAsyncMessage::size_limit_changed ), 0, uie::size_limit_all );
+    message_manager::instance().post_msg( hWnd_, static_cast<UINT>( InternalAsyncMessage::size_limit_changed ), uie::size_limit_all );
 
     if ( !pJsContainer_->Initialize() )
     { // error reporting handled inside
@@ -933,6 +933,7 @@ void js_panel_window::script_unload()
 {
     pJsContainer_->InvokeJsCallback( "on_script_unload" );
     std::swap( taskQueue_, std::queue<Task>() );
+    message_manager::instance().regenerate_window( hWnd_ );
     ScriptInfo().clear();
     selectionHolder_.release();
     pJsContainer_->Finalize();
@@ -982,7 +983,7 @@ void js_panel_window::on_erase_background()
 {
     if ( get_pseudo_transparent() )
     {
-        PostMessage( hWnd_, static_cast<UINT>( InternalAsyncMessage::refresh_bg ), 0, 0 );
+        message_manager::instance().post_msg( hWnd_, static_cast<UINT>( InternalAsyncMessage::refresh_bg ) );
     }
 }
 
@@ -999,7 +1000,7 @@ void js_panel_window::on_panel_create( HWND hWnd )
     // Interfaces
     // TODO: check
     // m_gr_wrap.Attach( new com_object_impl_t<GdiGraphics>(), false );
-    panel_manager::instance().add_window( hWnd_ );
+    message_manager::instance().add_window( hWnd_ );
 
     // TODO: add error handling
     pJsContainer_ = std::make_shared<mozjs::JsContainer>( *this );
@@ -1011,10 +1012,9 @@ void js_panel_window::on_panel_destroy()
     // Careful when changing invocation order here!
 
     script_unload();
-    MessageDataHolder::GetInstance().FlushAllDataForHwnd( hWnd_ );
     pJsContainer_.reset();
 
-    panel_manager::instance().remove_window( hWnd_ );
+    message_manager::instance().remove_window( hWnd_ );
     delete_context();
     ReleaseDC( hWnd_, hDc_ );
 }
@@ -1031,7 +1031,7 @@ void js_panel_window::on_script_error()
     script_unload();
 }
 
-void js_panel_window::on_timer_proc( smp::panel::CallbackData& callbackData )
+void js_panel_window::on_timer_proc( CallbackData& callbackData )
 {
     auto& data = callbackData.GetData<std::shared_ptr<HostTimerTask>>();
     pJsContainer_->InvokeTimerFunction( *std::get<0>( data ) );
@@ -1116,7 +1116,7 @@ void js_panel_window::on_font_changed()
     pJsContainer_->InvokeJsCallback( "on_font_changed" );
 }
 
-void js_panel_window::on_get_album_art_done( panel::CallbackData& callbackData )
+void js_panel_window::on_get_album_art_done( CallbackData& callbackData )
 {
     auto& data = callbackData.GetData<metadb_handle_ptr, uint32_t, std::unique_ptr<Gdiplus::Bitmap>, pfc::string8_fast>();
     auto autoRet = pJsContainer_->InvokeJsCallback( "on_get_album_art_done",
@@ -1126,7 +1126,7 @@ void js_panel_window::on_get_album_art_done( panel::CallbackData& callbackData )
                                                     std::get<3>( data ) );
 }
 
-void js_panel_window::on_item_focus_change( panel::CallbackData& callbackData )
+void js_panel_window::on_item_focus_change( CallbackData& callbackData )
 {
     auto& data = callbackData.GetData<t_size, t_size, t_size>();
     pJsContainer_->InvokeJsCallback( "on_item_focus_change",
@@ -1135,7 +1135,7 @@ void js_panel_window::on_item_focus_change( panel::CallbackData& callbackData )
                                      static_cast<int32_t>( std::get<2>( data ) ) );
 }
 
-void js_panel_window::on_item_played( panel::CallbackData& callbackData )
+void js_panel_window::on_item_played( CallbackData& callbackData )
 {
     auto& data = callbackData.GetData<metadb_handle_ptr>();
     pJsContainer_->InvokeJsCallback( "on_item_played",
@@ -1154,7 +1154,7 @@ void js_panel_window::on_key_up( WPARAM wp )
                                      static_cast<uint32_t>( wp ) );
 }
 
-void js_panel_window::on_load_image_done( panel::CallbackData& callbackData )
+void js_panel_window::on_load_image_done( CallbackData& callbackData )
 {
     auto& data = callbackData.GetData<uint32_t, std::unique_ptr<Gdiplus::Bitmap>, pfc::string8_fast>();
     auto autoRet = pJsContainer_->InvokeJsCallback( "on_load_image_done",
@@ -1163,21 +1163,21 @@ void js_panel_window::on_load_image_done( panel::CallbackData& callbackData )
                                                     std::get<2>( data ) );
 }
 
-void js_panel_window::on_library_items_added( panel::CallbackData& callbackData )
+void js_panel_window::on_library_items_added( CallbackData& callbackData )
 {
     auto& data = callbackData.GetData<metadb_callback_data>();
     pJsContainer_->InvokeJsCallback( "on_library_items_added",
                                      std::get<0>( data ).m_items );
 }
 
-void js_panel_window::on_library_items_changed( panel::CallbackData& callbackData )
+void js_panel_window::on_library_items_changed( CallbackData& callbackData )
 {
     auto& data = callbackData.GetData<metadb_callback_data>();
     pJsContainer_->InvokeJsCallback( "on_library_items_changed",
                                      std::get<0>( data ).m_items );
 }
 
-void js_panel_window::on_library_items_removed( panel::CallbackData& callbackData )
+void js_panel_window::on_library_items_removed( CallbackData& callbackData )
 {
     auto& data = callbackData.GetData<metadb_callback_data>();
     pJsContainer_->InvokeJsCallback( "on_library_items_removed",
@@ -1190,7 +1190,7 @@ void js_panel_window::on_main_menu( WPARAM wp )
                                      static_cast<uint32_t>( wp ) );
 }
 
-void js_panel_window::on_metadb_changed( panel::CallbackData& callbackData )
+void js_panel_window::on_metadb_changed( CallbackData& callbackData )
 {
     auto& data = callbackData.GetData<metadb_callback_data>();
     pJsContainer_->InvokeJsCallback( "on_metadb_changed",
@@ -1485,7 +1485,7 @@ void js_panel_window::on_playback_dynamic_info_track()
     pJsContainer_->InvokeJsCallback( "on_playback_dynamic_info_track" );
 }
 
-void js_panel_window::on_playback_edited( panel::CallbackData& callbackData )
+void js_panel_window::on_playback_edited( CallbackData& callbackData )
 {
     auto& data = callbackData.GetData<metadb_handle_ptr>();
     pJsContainer_->InvokeJsCallback( "on_playback_edited",
@@ -1498,7 +1498,7 @@ void js_panel_window::on_playback_follow_cursor_changed( WPARAM wp )
                                      static_cast<bool>( wp ) );
 }
 
-void js_panel_window::on_playback_new_track( panel::CallbackData& callbackData )
+void js_panel_window::on_playback_new_track( CallbackData& callbackData )
 {
     auto& data = callbackData.GetData<metadb_handle_ptr>();
     pJsContainer_->InvokeJsCallback( "on_playback_new_track",
@@ -1523,18 +1523,19 @@ void js_panel_window::on_playback_queue_changed( WPARAM wp )
                                      static_cast<uint32_t>( wp ) );
 }
 
-void js_panel_window::on_playback_seek( panel::CallbackData& callbackData )
+void js_panel_window::on_playback_seek( CallbackData& callbackData )
 {
     auto& data = callbackData.GetData<double>();
     pJsContainer_->InvokeJsCallback( "on_playback_seek",
                                      std::get<0>( data ) );
 }
 
-void js_panel_window::on_playback_starting( WPARAM wp, LPARAM lp )
+void js_panel_window::on_playback_starting( CallbackData& callbackData )
 {
+    auto& data = callbackData.GetData<playback_control::t_track_command, bool>();
     pJsContainer_->InvokeJsCallback( "on_playback_starting",
-                                     static_cast<uint32_t>( (playback_control::t_track_command)wp ),
-                                     static_cast<bool>( lp != 0 ) );
+                                     static_cast<uint32_t>( std::get<0>( data ) ),
+                                     std::get<1>( data ) );
 }
 
 void js_panel_window::on_playback_stop( WPARAM wp )
@@ -1543,18 +1544,19 @@ void js_panel_window::on_playback_stop( WPARAM wp )
                                      static_cast<uint32_t>( (playback_control::t_stop_reason)wp ) );
 }
 
-void js_panel_window::on_playback_time( panel::CallbackData& callbackData )
+void js_panel_window::on_playback_time( CallbackData& callbackData )
 {
     auto& data = callbackData.GetData<double>();
     pJsContainer_->InvokeJsCallback( "on_playback_time",
                                      std::get<0>( data ) );
 }
 
-void js_panel_window::on_playlist_item_ensure_visible( WPARAM wp, LPARAM lp )
+void js_panel_window::on_playlist_item_ensure_visible( CallbackData& callbackData )
 {
+    auto& data = callbackData.GetData<t_size, t_size>();
     pJsContainer_->InvokeJsCallback( "on_playlist_item_ensure_visible",
-                                     static_cast<uint32_t>( wp ),
-                                     static_cast<uint32_t>( lp ) );
+                                     static_cast<uint32_t>( std::get<0>( data ) ),
+                                     static_cast<uint32_t>( std::get<1>( data ) ) );
 }
 
 void js_panel_window::on_playlist_items_added( WPARAM wp )
@@ -1563,11 +1565,12 @@ void js_panel_window::on_playlist_items_added( WPARAM wp )
                                      static_cast<uint32_t>( wp ) );
 }
 
-void js_panel_window::on_playlist_items_removed( WPARAM wp, LPARAM lp )
+void js_panel_window::on_playlist_items_removed( CallbackData& callbackData )
 {
+    auto& data = callbackData.GetData<t_size, t_size>();
     pJsContainer_->InvokeJsCallback( "on_playlist_items_removed",
-                                     static_cast<uint32_t>( wp ),
-                                     static_cast<uint32_t>( lp ) );
+                                     static_cast<uint32_t>( std::get<0>( data ) ),
+                                     static_cast<uint32_t>( std::get<1>( data ) ) );
 }
 
 void js_panel_window::on_playlist_items_reordered( WPARAM wp )
@@ -1621,7 +1624,7 @@ void js_panel_window::on_size( uint32_t w, uint32_t h )
                                      static_cast<uint32_t>( h ) );
 }
 
-void js_panel_window::on_volume_change( panel::CallbackData& callbackData )
+void js_panel_window::on_volume_change( CallbackData& callbackData )
 {
     auto& data = callbackData.GetData<float>();
     pJsContainer_->InvokeJsCallback( "on_volume_change",

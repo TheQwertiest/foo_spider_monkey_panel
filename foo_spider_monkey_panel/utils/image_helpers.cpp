@@ -5,7 +5,7 @@
 
 #include <helpers.h>
 #include <user_message.h>
-#include <panel_manager.h>
+#include <message_manager.h>
 
 #include <Shlwapi.h>
 
@@ -48,7 +48,7 @@ uint32_t LoadImageTask::GetTaskId() const
 void LoadImageTask::run()
 {
     const pfc::string8_fast path = file_path_display( pfc::stringcvt::string_utf8_from_wide( imagePath_.c_str(), imagePath_.length() ) );
-    panel::panel_manager::instance().post_callback_msg( hNotifyWnd_,
+    panel::message_manager::instance().post_callback_msg( hNotifyWnd_,
                                                         smp::CallbackMessage::internal_load_image_done,
                                                         std::make_unique<
                                                             smp::panel::CallbackDataImpl<
