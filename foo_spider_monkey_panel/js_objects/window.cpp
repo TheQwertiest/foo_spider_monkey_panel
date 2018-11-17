@@ -822,7 +822,7 @@ void JsWindow::put_MaxHeight( uint32_t height )
     }
 
     parentPanel_.MaxSize().y = height;
-    panel::message_manager::instance().post_msg( parentPanel_.GetHWND(), static_cast<UINT>( InternalAsyncMessage::size_limit_changed ), uie::size_limit_maximum_height );
+    PostMessage( parentPanel_.GetHWND(), static_cast<UINT>( MiscMessage::size_limit_changed ), uie::size_limit_maximum_height, 0 );
 }
 
 void JsWindow::put_MaxWidth( uint32_t width )
@@ -833,7 +833,7 @@ void JsWindow::put_MaxWidth( uint32_t width )
     }
 
     parentPanel_.MaxSize().x = width;
-    panel::message_manager::instance().post_msg( parentPanel_.GetHWND(), static_cast<UINT>( InternalAsyncMessage::size_limit_changed ), uie::size_limit_maximum_width );
+    PostMessage( parentPanel_.GetHWND(), static_cast<UINT>( MiscMessage::size_limit_changed ), uie::size_limit_maximum_width, 0 );
 }
 
 void JsWindow::put_MinHeight( uint32_t height )
@@ -844,7 +844,7 @@ void JsWindow::put_MinHeight( uint32_t height )
     }
 
     parentPanel_.MinSize().y = height;
-    panel::message_manager::instance().post_msg( parentPanel_.GetHWND(), static_cast<UINT>( InternalAsyncMessage::size_limit_changed ), uie::size_limit_minimum_height );
+    PostMessage( parentPanel_.GetHWND(), static_cast<UINT>( MiscMessage::size_limit_changed ), uie::size_limit_minimum_height, 0 );
 }
 
 void JsWindow::put_MinWidth( uint32_t width )
@@ -855,7 +855,7 @@ void JsWindow::put_MinWidth( uint32_t width )
     }
 
     parentPanel_.MinSize().x = width;
-    panel::message_manager::instance().post_msg( parentPanel_.GetHWND(), static_cast<UINT>( InternalAsyncMessage::size_limit_changed ), uie::size_limit_minimum_width );
+    PostMessage( parentPanel_.GetHWND(), static_cast<UINT>( MiscMessage::size_limit_changed ), uie::size_limit_minimum_width, 0 );
 }
 
 } // namespace mozjs

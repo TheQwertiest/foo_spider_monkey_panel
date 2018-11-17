@@ -13,13 +13,10 @@ enum class CallbackMessage : UINT
     fb_library_items_changed,
     fb_library_items_removed,
     fb_metadb_changed,
-    fb_playback_starting,
     fb_playback_edited,
     fb_playback_new_track,
     fb_playback_seek,
     fb_playback_time,
-    fb_playlist_item_ensure_visible,
-    fb_playlist_items_removed,
     fb_volume_change,
     internal_get_album_art_done,
     internal_load_image_done,
@@ -41,9 +38,12 @@ enum class PlayerMessage : UINT
     fb_playback_order_changed,
     fb_playback_pause,
     fb_playback_queue_changed,
+    fb_playback_starting,
     fb_playback_stop,
+    fb_playlist_item_ensure_visible,
     fb_playlist_items_added,
     fb_playlist_items_reordered,
+    fb_playlist_items_removed,
     fb_playlist_items_selection_change,
     fb_playlist_stop_after_current_changed,
     fb_playlist_switch,
@@ -64,8 +64,7 @@ enum class InternalAsyncMessage : UINT
     reload_script,
     show_configure,
     show_properties,
-    size_limit_changed,
-    last_message = size_limit_changed,
+    last_message = show_properties,
 };
 
 /// @details These messages are synchronous
@@ -89,7 +88,8 @@ enum class MiscMessage : UINT
     find_text_changed = static_cast<int>( InternalSyncMessage::last_message ) + 1,
     heartbeat,
     key_down,
-    run_task,
+    run_task_async,
+    size_limit_changed
 };
 
 template <typename T>

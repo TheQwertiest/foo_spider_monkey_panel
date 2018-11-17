@@ -7,7 +7,6 @@
 
 #include <queue>
 
-
 namespace mozjs
 {
 class JsContainer;
@@ -80,21 +79,7 @@ public:
     void RepaintBackground( LPRECT lprcUpdate = nullptr );
 
 private:
-    struct Task
-    {
-        Task( UINT msg, uint32_t wp = 0, uint32_t lp = 0 )
-            : msg( msg )
-            , wp( wp )
-            , lp( lp )
-        {
-        }
-        UINT msg;
-        uint32_t wp;
-        uint32_t lp;
-    };
-
     const PanelType panelType_;
-    std::queue<Task> taskQueue_;
     std::shared_ptr<mozjs::JsContainer> pJsContainer_;
 
     HWND hWnd_ = nullptr;
@@ -175,12 +160,12 @@ private:
     void on_playback_pause( WPARAM wp );
     void on_playback_queue_changed( WPARAM wp );
     void on_playback_seek( CallbackData& callbackData );
-    void on_playback_starting( CallbackData& callbackData );
+    void on_playback_starting( WPARAM wp, LPARAM lp );
     void on_playback_stop( WPARAM wp );
     void on_playback_time( CallbackData& callbackData );
-    void on_playlist_item_ensure_visible( CallbackData& callbackData );
+    void on_playlist_item_ensure_visible( WPARAM wp, LPARAM lp );
     void on_playlist_items_added( WPARAM wp );
-    void on_playlist_items_removed( CallbackData& callbackData );
+    void on_playlist_items_removed( WPARAM wp, LPARAM lp );
     void on_playlist_items_reordered( WPARAM wp );
     void on_playlist_items_selection_change();
     void on_playlist_stop_after_current_changed( WPARAM wp );

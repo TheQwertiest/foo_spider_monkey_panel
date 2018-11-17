@@ -1,7 +1,6 @@
 #include <stdafx.h>
 #include "message_manager.h"
 
-
 namespace smp::panel
 {
 
@@ -11,71 +10,122 @@ message_manager& message_manager::instance()
     return sm_instance;
 }
 
-void message_manager::add_window( HWND hWnd )
+void message_manager::AddWindow( HWND hWnd )
 {
-    std::scoped_lock sl( dataMutex_ );
+    std::scoped_lock sl( wndDataMutex_ );
 
-    assert( !windowData_.count( hWnd ) );
-    windowData_.emplace( hWnd, WindowData{} );
+    assert( !wndDataMap_.count( hWnd ) );
+    wndDataMap_.emplace( hWnd, WindowData{} );
 }
 
-void message_manager::regenerate_window( HWND hWnd )
+void message_manager::RemoveWindow( HWND hWnd )
 {
-    std::scoped_lock sl( dataMutex_ );
+    std::scoped_lock sl( wndDataMutex_ );
 
-    assert( windowData_.count( hWnd ) );
-    ++(windowData_[hWnd].currentGeneration);
-    windowData_[hWnd].msgQueue.clear();
+    assert( wndDataMap_.count( hWnd ) );
+    wndDataMap_.erase( hWnd );
 }
 
-void message_manager::remove_window( HWND hWnd )
+void message_manager::EnableAsyncMessages( HWND hWnd )
 {
-    std::scoped_lock sl( dataMutex_ );
+    DisableAsyncMessages( hWnd );
 
-    assert( windowData_.count( hWnd ) );
-    windowData_.erase( hWnd );
+    std::scoped_lock sl( wndDataMutex_ );
+
+    assert( wndDataMap_.count( hWnd ) );
+    auto& windowData = wndDataMap_[hWnd];
+
+    ++( windowData.currentGeneration );
+    windowData.isAsyncEnabled = true;
 }
 
-bool message_manager::IsAsyncMessageRelevant( HWND hWnd, UINT msg, LPARAM lp )
+void message_manager::DisableAsyncMessages( HWND hWnd )
 {
-    std::scoped_lock sl( dataMutex_ );
+    std::scoped_lock sl( wndDataMutex_ );
 
-    assert( windowData_.count( hWnd ) );
-    return windowData_[hWnd].currentGeneration == static_cast<uint32_t>( lp );
+    assert( wndDataMap_.count( hWnd ) );
+    auto& windowData = wndDataMap_[hWnd];
+
+    windowData.callbackMsgQueue.clear();
+    windowData.asyncMsgQueue.clear();
+    windowData.isAsyncEnabled = false;
 }
 
-std::shared_ptr<CallbackData> message_manager::ClaimCallbackMessage( HWND hWnd, CallbackMessage msg )
+bool message_manager::IsAsyncMessage( UINT msg )
 {
-    std::scoped_lock sl( dataMutex_ );
+    return ( msg == static_cast<UINT>( MiscMessage::run_task_async ) );
+}
 
-    assert( windowData_.count( hWnd ) );
-    auto& [currentGeneration, msgQueue] = windowData_[hWnd];
+std::optional<message_manager::AsyncMessage> message_manager::ClaimAsyncMessage( HWND hWnd, UINT msg, WPARAM wp, LPARAM lp )
+{
+    assert( IsAsyncMessage( msg ) );
+    std::scoped_lock sl( wndDataMutex_ );
 
-    const auto it = std::find_if( msgQueue.cbegin(), msgQueue.cend(), [msgId = msg]( const auto& msg ) {
+    assert( wndDataMap_.count( hWnd ) );
+    auto& [currentGeneration, callbackMsgQueue, asyncMsgQueue, isAsyncEnabled] = wndDataMap_[hWnd];
+
+    if ( currentGeneration != static_cast<uint32_t>(wp) || asyncMsgQueue.empty() )
+    {
+        return std::nullopt;
+    }
+
+    auto curMsg = asyncMsgQueue.front();
+    asyncMsgQueue.pop_front();
+    return curMsg;
+}
+
+std::shared_ptr<CallbackData> message_manager::ClaimCallbackMessageData( HWND hWnd, CallbackMessage msg )
+{
+    std::scoped_lock sl( wndDataMutex_ );
+
+    assert( wndDataMap_.count( hWnd ) );
+    auto& [currentGeneration, callbackMsgQueue, asyncMsgQueue, isAsyncEnabled] = wndDataMap_[hWnd];
+
+    const auto it = std::find_if( callbackMsgQueue.cbegin(), callbackMsgQueue.cend(), [msgId = msg]( const auto& msg ) {
         return msg.id == msgId;
     } );
-    assert( it != msgQueue.cend() );
+    assert( it != callbackMsgQueue.cend() );
 
     auto msgData = it->pData;
-    msgQueue.erase( it );
+    callbackMsgQueue.erase( it );
 
     return msgData;
 }
 
-void message_manager::post_msg( HWND hWnd, UINT msg, WPARAM wp )
+void message_manager::RequestNextAsyncMessage( HWND hWnd )
 {
-    std::scoped_lock sl( dataMutex_ );
+    std::scoped_lock sl( wndDataMutex_ );
 
-    assert( windowData_.count( hWnd ) );
-    PostMessage( hWnd, msg, wp, windowData_[hWnd].currentGeneration );
+    if ( !wndDataMap_.count( hWnd ) )
+    {// this is possible when invoked before window initialization
+        return;
+    }
+
+    const auto& [currentGeneration, callbackMsgQueue, asyncMsgQueue, isAsyncEnabled] = wndDataMap_[hWnd];
+
+    if ( !asyncMsgQueue.empty() )
+    {
+        PostMessage( hWnd, static_cast<UINT>(MiscMessage::run_task_async), currentGeneration, 0 );
+    }
 }
 
-void message_manager::post_msg_to_all( UINT msg, WPARAM wp )
+void message_manager::post_msg( HWND hWnd, UINT msg, WPARAM wp, LPARAM lp )
 {
-    std::scoped_lock sl( dataMutex_ );
-    for ( const auto& [hWnd, wndData] : windowData_ )
+    assert( IsAllowedAsyncMessage( msg ) );
+    std::scoped_lock sl( wndDataMutex_ );
+
+    assert( wndDataMap_.count( hWnd ) );
+    post_msg_impl( hWnd, wndDataMap_[hWnd], msg, wp, lp );
+}
+
+void message_manager::post_msg_to_all( UINT msg, WPARAM wp, LPARAM lp )
+{
+    assert( IsAllowedAsyncMessage( msg ) );
+    std::scoped_lock sl( wndDataMutex_ );
+
+    for ( auto& [hWnd, wndData] : wndDataMap_ )
     {
-        PostMessage( hWnd, msg, wp, wndData.currentGeneration );
+        post_msg_impl( hWnd, wndData, msg, wp, lp );
     }
 }
 
@@ -83,50 +133,36 @@ void message_manager::post_callback_msg( HWND hWnd, CallbackMessage msg, std::un
 {
     std::shared_ptr<CallbackData> sharedData( data.release() );
 
-    std::scoped_lock sl( dataMutex_ );
-    assert( windowData_.count( hWnd ) );
+    std::scoped_lock sl( wndDataMutex_ );
+    assert( wndDataMap_.count( hWnd ) );
 
-    auto& [currentGeneration, msgQueue] = windowData_[hWnd];
-
-    msgQueue.emplace_back( msg, sharedData );
-
-    BOOL bRet = PostMessage( hWnd, static_cast<UINT>( msg ), 0, currentGeneration );
-    if ( !bRet )
-    {
-        msgQueue.pop_back();
-    }
+    post_callback_msg_impl( hWnd, wndDataMap_[hWnd], msg, sharedData );
 }
 
 void message_manager::post_callback_msg_to_all( CallbackMessage msg, std::unique_ptr<CallbackData> data )
 {
-    if ( windowData_.empty() )
+    if ( wndDataMap_.empty() )
     {
         return;
     }
 
     std::shared_ptr<CallbackData> sharedData( data.release() );
 
-    std::scoped_lock sl( dataMutex_ );
-    for ( auto& [hWnd, wndData] : windowData_ )
+    std::scoped_lock sl( wndDataMutex_ );
+    for ( auto& [hWnd, wndData] : wndDataMap_ )
     {
-        wndData.msgQueue.emplace_back( msg, sharedData );
-
-        BOOL bRet = PostMessage( hWnd, static_cast<UINT>( msg ), 0, wndData.currentGeneration );
-        if ( !bRet )
-        {
-            wndData.msgQueue.pop_back();
-        }
+        post_callback_msg_impl( hWnd, wndData, msg, sharedData );
     }
 }
 
 void message_manager::send_msg_to_all( UINT msg, WPARAM wp, LPARAM lp )
 {
     std::vector<HWND> hWnds;
-    hWnds.reserve( windowData_.size() );
+    hWnds.reserve( wndDataMap_.size() );
 
     {
-        std::scoped_lock sl( dataMutex_ );
-        for ( const auto& [hWnd, wndData] : windowData_ )
+        std::scoped_lock sl( wndDataMutex_ );
+        for ( const auto& [hWnd, wndData] : wndDataMap_ )
         {
             hWnds.emplace_back( hWnd );
         }
@@ -141,11 +177,11 @@ void message_manager::send_msg_to_all( UINT msg, WPARAM wp, LPARAM lp )
 void message_manager::send_msg_to_others( HWND hWnd_except, UINT msg, WPARAM wp, LPARAM lp )
 {
     std::vector<HWND> hWnds;
-    hWnds.reserve( windowData_.size() );
+    hWnds.reserve( wndDataMap_.size() );
 
     {
-        std::scoped_lock sl( dataMutex_ );
-        for ( const auto& [hWnd, wndData] : windowData_ )
+        std::scoped_lock sl( wndDataMutex_ );
+        for ( const auto& [hWnd, wndData] : wndDataMap_ )
         {
             hWnds.emplace_back( hWnd );
         }
@@ -157,6 +193,46 @@ void message_manager::send_msg_to_others( HWND hWnd_except, UINT msg, WPARAM wp,
         {
             SendMessage( hWnd, msg, wp, lp );
         }
+    }
+}
+
+bool message_manager::IsAllowedAsyncMessage( UINT msg )
+{
+    return ( IsInEnumRange<CallbackMessage>( msg )
+             || IsInEnumRange<PlayerMessage>( msg )
+             || IsInEnumRange<InternalAsyncMessage>( msg ) );
+}
+
+void message_manager::post_msg_impl( HWND hWnd, WindowData& windowData, UINT msg, WPARAM wp, LPARAM lp )
+{
+    auto& [currentGeneration, callbackMsgQueue, asyncMsgQueue, isAsyncEnabled] = windowData;
+    if ( !isAsyncEnabled )
+    {
+        return;
+    }
+
+    asyncMsgQueue.emplace_back( msg, wp, lp );
+    if ( !PostMessage( hWnd, static_cast<INT>( MiscMessage::run_task_async ), currentGeneration, 0 ) )
+    {
+        asyncMsgQueue.pop_back();
+    }
+}
+
+void message_manager::post_callback_msg_impl( HWND hWnd, WindowData& windowData, CallbackMessage msg, std::shared_ptr<CallbackData> msgData )
+{
+    auto& [currentGeneration, callbackMsgQueue, asyncMsgQueue, isAsyncEnabled] = windowData;
+    if ( !isAsyncEnabled )
+    {
+        return;
+    }
+
+    callbackMsgQueue.emplace_back( msg, msgData );
+    asyncMsgQueue.emplace_back( static_cast<INT>(msg), 0, 0 );
+
+    if ( !PostMessage( hWnd, static_cast<INT>( MiscMessage::run_task_async ), currentGeneration, 0 ) )
+    {
+        asyncMsgQueue.pop_back();
+        callbackMsgQueue.pop_back();
     }
 }
 

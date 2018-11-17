@@ -12,24 +12,11 @@
 #include <utils/image_helpers.h>
 #include <utils/gdi_helpers.h>
 
+#include <metadb_callback_data.h>
 #include <drop_action_params.h>
 #include <host_timer_dispatcher.h>
 #include <helpers.h>
 
-namespace
-{
-
-using namespace smp;
-
-bool IsAsyncMessage( UINT msg )
-{
-    return ( IsInEnumRange<CallbackMessage>( msg )
-             || IsInEnumRange<PlayerMessage>( msg )
-             || IsInEnumRange<InternalAsyncMessage>( msg )
-             || msg == static_cast<UINT>( MiscMessage::run_task ) );
-}
-
-} // namespace
 
 namespace smp::panel
 {
@@ -89,38 +76,26 @@ LRESULT js_panel_window::on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
     static uint32_t nestedCounter = 0;
     ++nestedCounter;
 
-    utils::final_action jobsRunner( [& nestedCounter = nestedCounter, &taskQueue = taskQueue_, hWnd = hWnd_] {
+    utils::final_action jobsRunner( [& nestedCounter = nestedCounter, hWnd = hWnd_] {
         --nestedCounter;
 
         if ( !nestedCounter )
         { // Microtasks (e.g. futures) should be drained only with empty JS stack and after the current task (as required by ES).
             // Also see https://developer.mozilla.org/en-US/docs/Web/JavaScript/EventLoop#Run-to-completion
             mozjs::JsContainer::RunMicroTasks();
-            if ( !taskQueue.empty() )
-            {
-                message_manager::instance().post_msg( hWnd, static_cast<UINT>( MiscMessage::run_task ) );
-            }
+            message_manager::instance().RequestNextAsyncMessage( hWnd );
         }
     } );
 
-    if ( IsAsyncMessage( msg ) )
+    if ( message_manager::instance().IsAsyncMessage( msg ) )
     {
-        if ( message_manager::instance().IsAsyncMessageRelevant( hWnd_, msg, lp ) )
+        if ( nestedCounter == 1 )
         {
-            if ( msg != static_cast<UINT>( MiscMessage::run_task ) )
+            auto optMessage = message_manager::instance().ClaimAsyncMessage( hWnd_, msg, wp, lp );
+            if ( optMessage )
             {
-                taskQueue_.emplace( msg, wp, lp );
-            }
-
-            if ( nestedCounter == 1 && !taskQueue_.empty() )
-            {
-                const auto [taskMsg, taskWp, taskLp] = taskQueue_.front();
-                auto retVal = proccess_async_messages( taskMsg, taskWp, taskLp );
-                if ( !taskQueue_.empty() )
-                {
-                    taskQueue_.pop();
-                }
-
+                const auto [asyncMsg, asyncWp, asyncLp] = optMessage.value();
+                auto retVal = proccess_async_messages( asyncMsg, asyncWp, asyncLp );
                 if ( retVal )
                 {
                     return retVal.value();
@@ -375,7 +350,7 @@ std::optional<LRESULT> js_panel_window::process_window_messages( UINT msg, WPARA
 
 std::optional<LRESULT> js_panel_window::process_callback_messages( CallbackMessage msg )
 {
-    auto pCallbackData = message_manager::instance().ClaimCallbackMessage( hWnd_, msg );
+    auto pCallbackData = message_manager::instance().ClaimCallbackMessageData( hWnd_, msg );
     auto& callbackData = *pCallbackData;
 
     switch ( msg )
@@ -410,11 +385,6 @@ std::optional<LRESULT> js_panel_window::process_callback_messages( CallbackMessa
         on_metadb_changed( callbackData );
         return 0;
     }
-    case CallbackMessage::fb_playback_starting:
-    {
-        on_playback_starting( callbackData );
-        return 0;
-    }
     case CallbackMessage::fb_playback_edited:
     {
         on_playback_edited( callbackData );
@@ -433,16 +403,6 @@ std::optional<LRESULT> js_panel_window::process_callback_messages( CallbackMessa
     case CallbackMessage::fb_playback_time:
     {
         on_playback_time( callbackData );
-        return 0;
-    }
-    case CallbackMessage::fb_playlist_item_ensure_visible:
-    {
-        on_playlist_item_ensure_visible( callbackData );
-        return 0;
-    }
-    case CallbackMessage::fb_playlist_items_removed:
-    {
-        on_playlist_items_removed( callbackData );
         return 0;
     }
     case CallbackMessage::fb_volume_change:
@@ -531,6 +491,16 @@ std::optional<LRESULT> js_panel_window::process_player_messages( PlayerMessage m
         on_playback_stop( wp );
         return 0;
     }
+    case PlayerMessage::fb_playback_starting:
+    {
+        on_playback_starting( wp, lp );
+        return 0;
+    }
+    case PlayerMessage::fb_playlist_item_ensure_visible:
+    {
+        on_playlist_item_ensure_visible( wp, lp );
+        return 0;
+    }
     case PlayerMessage::fb_playlist_items_added:
     {
         on_playlist_items_added( wp );
@@ -539,6 +509,11 @@ std::optional<LRESULT> js_panel_window::process_player_messages( PlayerMessage m
     case PlayerMessage::fb_playlist_items_reordered:
     {
         on_playlist_items_reordered( wp );
+        return 0;
+    }
+    case PlayerMessage::fb_playlist_items_removed:
+    {
+        on_playlist_items_removed( wp, lp );
         return 0;
     }
     case PlayerMessage::fb_playlist_items_selection_change:
@@ -908,6 +883,8 @@ bool js_panel_window::script_load()
     pfc::hires_timer timer;
     timer.start();
 
+    message_manager::instance().EnableAsyncMessages( hWnd_ );
+
     const auto extstyle = [&]() {
         DWORD extstyle = GetWindowLongPtr( hWnd_, GWL_EXSTYLE );
         extstyle &= ~WS_EX_CLIENTEDGE & ~WS_EX_STATICEDGE;
@@ -921,7 +898,7 @@ bool js_panel_window::script_load()
 
     maxSize_ = { INT_MAX, INT_MAX };
     minSize_ = { 0, 0 };
-    message_manager::instance().post_msg( hWnd_, static_cast<UINT>( InternalAsyncMessage::size_limit_changed ), uie::size_limit_all );
+    PostMessage( hWnd_, static_cast<UINT>( MiscMessage::size_limit_changed ), uie::size_limit_all, 0 );
 
     if ( !pJsContainer_->Initialize() )
     { // error reporting handled inside
@@ -943,8 +920,7 @@ bool js_panel_window::script_load()
 void js_panel_window::script_unload()
 {
     pJsContainer_->InvokeJsCallback( "on_script_unload" );
-    std::swap( taskQueue_, std::queue<Task>() );
-    message_manager::instance().regenerate_window( hWnd_ );
+    message_manager::instance().DisableAsyncMessages( hWnd_ );
     ScriptInfo().clear();
     selectionHolder_.release();
     pJsContainer_->Finalize();
@@ -1011,7 +987,7 @@ void js_panel_window::on_panel_create( HWND hWnd )
     // Interfaces
     // TODO: check
     // m_gr_wrap.Attach( new com_object_impl_t<GdiGraphics>(), false );
-    message_manager::instance().add_window( hWnd_ );
+    message_manager::instance().AddWindow( hWnd_ );
 
     // TODO: add error handling
     pJsContainer_ = std::make_shared<mozjs::JsContainer>( *this );
@@ -1025,7 +1001,7 @@ void js_panel_window::on_panel_destroy()
     script_unload();
     pJsContainer_.reset();
 
-    message_manager::instance().remove_window( hWnd_ );
+    message_manager::instance().RemoveWindow( hWnd_ );
     delete_context();
     ReleaseDC( hWnd_, hDc_ );
 }
@@ -1541,12 +1517,11 @@ void js_panel_window::on_playback_seek( CallbackData& callbackData )
                                      std::get<0>( data ) );
 }
 
-void js_panel_window::on_playback_starting( CallbackData& callbackData )
+void js_panel_window::on_playback_starting( WPARAM wp, LPARAM lp )
 {
-    auto& data = callbackData.GetData<playback_control::t_track_command, bool>();
     pJsContainer_->InvokeJsCallback( "on_playback_starting",
-                                     static_cast<uint32_t>( std::get<0>( data ) ),
-                                     std::get<1>( data ) );
+                                     static_cast<uint32_t>( (playback_control::t_track_command)wp ),
+                                     static_cast<bool>( lp != 0 ) );
 }
 
 void js_panel_window::on_playback_stop( WPARAM wp )
@@ -1562,12 +1537,11 @@ void js_panel_window::on_playback_time( CallbackData& callbackData )
                                      std::get<0>( data ) );
 }
 
-void js_panel_window::on_playlist_item_ensure_visible( CallbackData& callbackData )
+void js_panel_window::on_playlist_item_ensure_visible( WPARAM wp, LPARAM lp )
 {
-    auto& data = callbackData.GetData<t_size, t_size>();
     pJsContainer_->InvokeJsCallback( "on_playlist_item_ensure_visible",
-                                     static_cast<uint32_t>( std::get<0>( data ) ),
-                                     static_cast<uint32_t>( std::get<1>( data ) ) );
+                                     static_cast<uint32_t>( wp ),
+                                     static_cast<uint32_t>( lp ) );
 }
 
 void js_panel_window::on_playlist_items_added( WPARAM wp )
@@ -1576,12 +1550,11 @@ void js_panel_window::on_playlist_items_added( WPARAM wp )
                                      static_cast<uint32_t>( wp ) );
 }
 
-void js_panel_window::on_playlist_items_removed( CallbackData& callbackData )
+void js_panel_window::on_playlist_items_removed( WPARAM wp, LPARAM lp )
 {
-    auto& data = callbackData.GetData<t_size, t_size>();
     pJsContainer_->InvokeJsCallback( "on_playlist_items_removed",
-                                     static_cast<uint32_t>( std::get<0>( data ) ),
-                                     static_cast<uint32_t>( std::get<1>( data ) ) );
+                                     static_cast<uint32_t>( wp ),
+                                     static_cast<uint32_t>( lp ) );
 }
 
 void js_panel_window::on_playlist_items_reordered( WPARAM wp )
