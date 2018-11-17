@@ -1292,10 +1292,7 @@ bool js_panel_window::on_mouse_button_up( UINT msg, WPARAM wp, LPARAM lp )
                                                               static_cast<int32_t>( GET_X_LPARAM( lp ) ),
                                                               static_cast<int32_t>( GET_Y_LPARAM( lp ) ),
                                                               static_cast<uint32_t>( wp ) );
-        if ( autoRet )
-        {
-            ret = autoRet.value();
-        }
+        ret = autoRet.value_or( false );
         break;
     }
     }

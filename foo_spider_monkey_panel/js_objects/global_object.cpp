@@ -26,7 +26,7 @@
 #include <helpers.h>
 
 #include <filesystem>
-#include <fstream>  
+
 
 namespace
 {
@@ -35,18 +35,18 @@ using namespace mozjs;
 
 void JsFinalizeOpLocal( JSFreeOp* /*fop*/, JSObject* obj )
 {
-    auto x = static_cast<JsGlobalObject*>(JS_GetPrivate( obj ));
+    auto x = static_cast<JsGlobalObject*>( JS_GetPrivate( obj ) );
     if ( x )
     {
         delete x;
         JS_SetPrivate( obj, nullptr );
 
-        auto pJsCompartment = static_cast<JsCompartmentInner*>(JS_GetCompartmentPrivate( js::GetObjectCompartment( obj ) ));
+        auto pJsCompartment = static_cast<JsCompartmentInner*>( JS_GetCompartmentPrivate( js::GetObjectCompartment( obj ) ) );
         if ( pJsCompartment )
         {
             delete pJsCompartment;
             JS_SetCompartmentPrivate( js::GetObjectCompartment( obj ), nullptr );
-        }        
+        }
     }
 }
 
@@ -65,9 +65,9 @@ JSClassOps jsOps = {
 };
 
 JSClass jsClass = {
-     "Global",
-     JSCLASS_GLOBAL_FLAGS_WITH_SLOTS( static_cast<uint32_t>(JsPrototypeId::ProrototypeCount) ) | JSCLASS_HAS_PRIVATE | JSCLASS_FOREGROUND_FINALIZE,
-     &jsOps
+    "Global",
+    JSCLASS_GLOBAL_FLAGS_WITH_SLOTS( static_cast<uint32_t>( JsPrototypeId::ProrototypeCount ) ) | JSCLASS_HAS_PRIVATE | JSCLASS_FOREGROUND_FINALIZE,
+    &jsOps
 };
 
 // Defining function manually, because we want a proper logging and we can't name it `include`
@@ -80,34 +80,43 @@ bool IncludeScript( JSContext* cx, unsigned argc, JS::Value* vp )
     return mozjs::error::Execute_JsSafe( cx, "include", wrappedFunc, argc, vp );
 }
 
+MJS_DEFINE_JS_FN_FROM_NATIVE( ClearInterval, JsGlobalObject::ClearInterval )
+MJS_DEFINE_JS_FN_FROM_NATIVE( ClearTimeout, JsGlobalObject::ClearTimeout )
+MJS_DEFINE_JS_FN_FROM_NATIVE( SetInterval, JsGlobalObject::SetInterval )
+MJS_DEFINE_JS_FN_FROM_NATIVE( SetTimeout, JsGlobalObject::SetTimeout )
+
 const JSFunctionSpec jsFunctions[] = {
+    JS_FN( "clearInterval", ClearInterval, 1, DefaultPropsFlags() ),
+    JS_FN( "clearTimeout", ClearTimeout, 1, DefaultPropsFlags() ),
     JS_FN( "include", IncludeScript, 1, DefaultPropsFlags() ),
+    JS_FN( "setInterval", SetInterval, 2, DefaultPropsFlags() ),
+    JS_FN( "setTimeout", SetTimeout, 2, DefaultPropsFlags() ),
     JS_FS_END
 };
 
-
-}
+} // namespace
 
 namespace mozjs
 {
 
-const JSClass& JsGlobalObject::JsClass = jsClass; 
+const JSClass& JsGlobalObject::JsClass = jsClass;
 
-JsGlobalObject::JsGlobalObject( JSContext* cx, JsContainer &parentContainer )
+JsGlobalObject::JsGlobalObject( JSContext* cx, JsContainer& parentContainer, JsWindow* pJsWindow )
     : pJsCtx_( cx )
     , parentContainer_( parentContainer )
-{    
+    , pJsWindow_( pJsWindow )
+{
 }
 
 JsGlobalObject::~JsGlobalObject()
-{// No need to cleanup JS here, since it must be performed manually beforehand anyway
+{ // No need to cleanup JS here, since it must be performed manually beforehand anyway
 }
 
 // TODO: remove js_panel_window from ctor (add a method to JsContainer instead)
-JSObject* JsGlobalObject::CreateNative( JSContext* cx, JsContainer &parentContainer, smp::panel::js_panel_window& parentPanel )
+JSObject* JsGlobalObject::CreateNative( JSContext* cx, JsContainer& parentContainer, smp::panel::js_panel_window& parentPanel )
 {
     if ( !jsOps.trace )
-    {// JS_GlobalObjectTraceHook address is only accessible after mozjs is loaded.      
+    { // JS_GlobalObjectTraceHook address is only accessible after mozjs is loaded.
         jsOps.trace = JS_GlobalObjectTraceHook;
     }
 
@@ -155,8 +164,11 @@ JSObject* JsGlobalObject::CreateNative( JSContext* cx, JsContainer &parentContai
         CreateAndInstallPrototype<JsFbMetadbHandleList>( cx, JsPrototypeId::FbMetadbHandleList );
         CreateAndInstallPrototype<JsFbProfiler>( cx, JsPrototypeId::FbProfiler );
         CreateAndInstallPrototype<JsFbTitleFormat>( cx, JsPrototypeId::FbTitleFormat );
-        
-        auto pNative = std::unique_ptr<JsGlobalObject>( new JsGlobalObject( cx, parentContainer ) );
+
+        auto pJsWindow = GetNativeObjectProperty<JsWindow>( cx, jsObj, "window" );
+        assert( pJsWindow );
+
+        auto pNative = std::unique_ptr<JsGlobalObject>( new JsGlobalObject( cx, parentContainer, pJsWindow ) );
         pNative->heapManager_ = GlobalHeapManager::Create( cx );
 
         JS_SetPrivate( jsObj, pNative.release() );
@@ -167,9 +179,9 @@ JSObject* JsGlobalObject::CreateNative( JSContext* cx, JsContainer &parentContai
     return jsObj;
 }
 
-void JsGlobalObject::Fail( const pfc::string8_fast &errorText )
+void JsGlobalObject::Fail( const pfc::string8_fast& errorText )
 {
-    parentContainer_.Fail(errorText);    
+    parentContainer_.Fail( errorText );
 }
 
 GlobalHeapManager& JsGlobalObject::GetHeapManager() const
@@ -180,7 +192,7 @@ GlobalHeapManager& JsGlobalObject::GetHeapManager() const
 
 void JsGlobalObject::PrepareForGc( JSContext* cx, JS::HandleObject self )
 {
-    auto nativeGlobal = static_cast<JsGlobalObject*>(JS_GetInstancePrivate( cx, self, &JsGlobalObject::JsClass, nullptr ));
+    auto nativeGlobal = static_cast<JsGlobalObject*>( JS_GetInstancePrivate( cx, self, &JsGlobalObject::JsClass, nullptr ) );
     assert( nativeGlobal );
 
     CleanupObjectProperty<JsWindow>( cx, self, "window" );
@@ -189,14 +201,23 @@ void JsGlobalObject::PrepareForGc( JSContext* cx, JS::HandleObject self )
     nativeGlobal->heapManager_.reset();
 }
 
+void JsGlobalObject::ClearInterval( uint32_t intervalId )
+{
+    pJsWindow_->ClearInterval( intervalId );
+}
+
+void JsGlobalObject::ClearTimeout( uint32_t timeoutId )
+{
+    pJsWindow_->ClearInterval( timeoutId );
+}
+
 void JsGlobalObject::IncludeScript( const pfc::string8_fast& path )
 {
     const std::wstring scriptCode = smp::file::ReadFromFile( pJsCtx_, path );
-    const auto filename = [&path]
-    {
+    const auto filename = [&path] {
         namespace fs = std::filesystem;
         pfc::string8_fast tmpPath = path;
-        tmpPath.replace_string( "/", "\\", 0 );        
+        tmpPath.replace_string( "/", "\\", 0 );
         return fs::u8path( tmpPath.c_str() ).filename().u8string(); // all check are performed in ReadFromFile
     }();
 
@@ -211,4 +232,14 @@ void JsGlobalObject::IncludeScript( const pfc::string8_fast& path )
     }
 }
 
+uint32_t JsGlobalObject::SetInterval( JS::HandleValue func, uint32_t delay )
+{
+    return pJsWindow_->SetInterval( func, delay );
 }
+
+uint32_t JsGlobalObject::SetTimeout( JS::HandleValue func, uint32_t delay )
+{
+    return pJsWindow_->SetTimeout( func, delay );
+}
+
+} // namespace mozjs

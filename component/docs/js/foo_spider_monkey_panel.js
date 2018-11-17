@@ -11,6 +11,43 @@
 function include(path) { }
 
 /**
+ * See {@link https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/clearTimeout}.
+ * 
+ * @param {number} timerID
+ */
+function clearTimeout(timerID) { } // (void)
+
+/**
+ * See {@link https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/clearInterval}.
+ * 
+ * @param {number} timerID
+ */
+function clearInterval(timerID) { } // (void)
+
+/**
+ * See {@link https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/setInterval}.
+ * 
+ * @param {function()} func
+ * @param {number} delay
+ * 
+ * @return {number}
+ */
+function setInterval(func, delay) { } // (uint)
+
+/**
+ * See {@link https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/setTimeout}.
+ * 
+ * @param {function()} func
+ * @param {number} delay
+ * 
+ * @return {number}
+ *
+ * @example
+ * // See samples\basic\Timer.txt
+ */
+function setTimeout(func, delay) { } // (uint)
+
+/**
  * Load ActiveX object.
  *
  * @constructor
@@ -1562,11 +1599,15 @@ let window = {
     Width: undefined, // (int) (read)
 
     /**
+     * See {@link clearTimeout}.
+     * 
      * @param {number} timerID
      */
     ClearTimeout: function (timerID) { }, // (void)
 
     /**
+     * See {@link clearInterval}.
+     * 
      * @param {number} timerID
      */
     ClearInterval: function (timerID) { }, // (void)
@@ -1584,19 +1625,6 @@ let window = {
      * @param {boolean=} [options.features.drag_n_drop=false] Indicates if drag_n_drop functionality should be enabled
      */
     DefinePanel: function (name, options) { }, // (void)
-
-    /**
-     * @return {number}
-     */
-    SetInterval: function (func, delay) { }, // (uint)
-
-    /**
-     * @return {number}
-     *
-     * @example
-     * // See samples\basic\Timer.txt
-     */
-    SetTimeout: function (func, delay) { }, // (uint)
 
     /**
      * @return {MenuObject}
@@ -1659,6 +1687,19 @@ let window = {
     GetFontDUI: function (type) { }, // (GdiFont)
 
     /**
+     * Get value of property.<br>
+     * If property does not exist and defaultval is not undefined and not null,
+     * it will be created with the value of defaultval.<br>
+     * <br>
+     * Note: leading and trailing whitespace are removed from property name.
+     *
+     * @param {string} name
+     * @param {*=} defaultval
+     * @return {*}
+     */
+    GetProperty: function (name, defaultval) { }, // (VARIANT) [, defaultval]
+
+    /**
      * This will trigger {@link module:callbacks~on_notify_data on_notify_data}(name, info) in other panels.<br>
      *
      * @param {string} name
@@ -1697,17 +1738,14 @@ let window = {
     SetCursor: function (id) { }, // (void)
 
     /**
-     * Get value of property.<br>
-     * If property does not exist and defaultval is not undefined and not null,
-     * it will be created with the value of defaultval.<br>
-     * <br>
-     * Note: leading and trailing whitespace are removed from property name.
+     * See {@link setInterval}.
      *
-     * @param {string} name
-     * @param {*=} defaultval
-     * @return {*}
+     * @param {function()} func
+     * @param {number} delay
+     *
+     * @return {number}
      */
-    GetProperty: function (name, defaultval) { }, // (VARIANT) [, defaultval]
+    SetInterval: function (func, delay) { }, // (uint)
 
     /**
      * Set property value.<br>
@@ -1721,6 +1759,16 @@ let window = {
      * @param {*=} val
      */
     SetProperty: function (name, val) { }, // (void)
+
+    /**
+     * See {@link setTimeout}.
+     *
+     * @param {function()} func
+     * @param {number} delay
+     *
+     * @return {number}
+     */
+    SetTimeout: function (func, delay) { }, // (uint)
 
     /**
      * Show configuration window of current panel

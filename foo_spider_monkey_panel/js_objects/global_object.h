@@ -12,6 +12,7 @@ namespace mozjs
 {
 
 class JsContainer;
+class JsWindow;
 class GlobalHeapManager;
 
 class JsGlobalObject
@@ -36,31 +37,44 @@ public:
     static void PrepareForGc( JSContext* cx, JS::HandleObject self );
 
 public: // methods
+    void ClearInterval( uint32_t intervalId );
+    void ClearTimeout( uint32_t timeoutId );
     void IncludeScript( const pfc::string8_fast& path );
+    uint32_t SetInterval( JS::HandleValue func, uint32_t delay );
+    uint32_t SetTimeout( JS::HandleValue func, uint32_t delay );
+
+private:
+    JsGlobalObject( JSContext* cx, JsContainer& parentContainer, JsWindow* pJsWindow );
 
     template <typename T>
-    static void CleanupObjectProperty( JSContext* cx, JS::HandleObject self, const std::string& propName )
+    static T* GetNativeObjectProperty( JSContext* cx, JS::HandleObject self, const std::string& propName )
     {
         JS::RootedValue jsPropertyValue( cx );
         if ( JS_GetProperty( cx, self, propName.data(), &jsPropertyValue ) && jsPropertyValue.isObject() )
         {
             JS::RootedObject jsProperty( cx, &jsPropertyValue.toObject() );
-            auto pNative = static_cast<T*>( JS_GetInstancePrivate( cx, jsProperty, &T::JsClass, nullptr ) );
-            if ( pNative )
-            {
-                pNative->PrepareForGc();
-            }
+            return static_cast<T*>( JS_GetInstancePrivate( cx, jsProperty, &T::JsClass, nullptr ) );
         }
+
+        return nullptr;
     }
 
-private:
-    JsGlobalObject( JSContext* cx, JsContainer& parentContainer );
+    template <typename T>
+    static void CleanupObjectProperty( JSContext* cx, JS::HandleObject self, const std::string& propName )
+    {
+        auto pNative = GetNativeObjectProperty<T>( cx, self, propName );
+        if ( pNative )
+        {
+            pNative->PrepareForGc();
+        }
+    }
 
 private:
     JSContext* pJsCtx_ = nullptr;
     JsContainer& parentContainer_;
 
-private: // heap
+    JsWindow* pJsWindow_ = nullptr;
+
     std::unique_ptr<GlobalHeapManager> heapManager_;
 };
 
