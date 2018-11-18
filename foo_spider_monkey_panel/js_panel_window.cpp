@@ -82,7 +82,7 @@ LRESULT js_panel_window::on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
     utils::final_action jobsRunner( [& nestedCounter = nestedCounter, hWnd = hWnd_] {
         --nestedCounter;
 
-        if ( !nestedCounter )
+        if ( !nestedCounter || !modal_dialog_scope::can_create() )
         { // Microtasks (e.g. futures) should be drained only with empty JS stack and after the current task (as required by ES).
             // Also see https://developer.mozilla.org/en-US/docs/Web/JavaScript/EventLoop#Run-to-completion
             mozjs::JsContainer::RunMicroTasks();
@@ -92,7 +92,7 @@ LRESULT js_panel_window::on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
 
     if ( message_manager::instance().IsAsyncMessage( msg ) )
     {
-        if ( nestedCounter == 1 )
+        if ( nestedCounter == 1 || !modal_dialog_scope::can_create() )
         {
             auto optMessage = message_manager::instance().ClaimAsyncMessage( hWnd_, msg, wp, lp );
             if ( optMessage )
