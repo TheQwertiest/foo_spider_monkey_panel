@@ -472,10 +472,11 @@ JSObject* JsUtils::GlobWithOpt( size_t optArgCount, const pfc::string8_fast& pat
 
 pfc::string8_fast JsUtils::InputBox( uint32_t hWnd, const pfc::string8_fast& prompt, const pfc::string8_fast& caption, const pfc::string8_fast& def, bool error_on_cancel )
 {
-    modal_dialog_scope scope;
-    if ( scope.can_create() )
+    if ( modal_dialog_scope::can_create() )
     {
+        modal_dialog_scope scope;
         scope.initialize( HWND( hWnd ) );
+
         CInputBox dlg( prompt, caption, def );
         int status = dlg.DoModal( HWND( hWnd ) );
         if ( status == IDCANCEL && error_on_cancel )
@@ -581,10 +582,11 @@ std::wstring JsUtils::ReadTextFileWithOpt( size_t optArgCount, const pfc::string
 
 JS::Value JsUtils::ShowHtmlDialog( uint32_t hWnd, const std::wstring& htmlCode, JS::HandleValue options )
 {
-    modal_dialog_scope scope;
-    if ( scope.can_create() )
+    if ( modal_dialog_scope::can_create() )
     {
+        modal_dialog_scope scope;
         scope.initialize( HWND( hWnd ) );
+
         smp::ui::CDialogHtml dlg( pJsCtx_, htmlCode, options );
         int iRet = (int)dlg.DoModal( HWND( hWnd ) );
         if ( -1 == iRet || IDABORT == iRet )

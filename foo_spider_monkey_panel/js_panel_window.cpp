@@ -674,24 +674,30 @@ std::optional<LRESULT> js_panel_window::process_internal_async_messages( Interna
 
 bool js_panel_window::show_configure_popup( HWND parent )
 {
-    modal_dialog_scope scope;
-    if ( !scope.can_create() )
+    if ( !modal_dialog_scope::can_create() )
+    {
         return false;
+    }
+
+    modal_dialog_scope scope;
     scope.initialize( parent );
 
     CDialogConf dlg( this );
     return ( dlg.DoModal( parent ) == IDOK );
 }
 
-bool js_panel_window::show_property_popup( HWND parent )
+void js_panel_window::show_property_popup( HWND parent )
 {
+    if ( !modal_dialog_scope::can_create() )
+    {
+        return;
+    }
+
     modal_dialog_scope scope;
-    if ( !scope.can_create() )
-        return false;
     scope.initialize( parent );
 
     CDialogProperty dlg( this );
-    return ( dlg.DoModal( parent ) == IDOK );
+    (void)dlg.DoModal( parent );
 }
 
 void js_panel_window::build_context_menu( HMENU menu, int x, int y, int id_base )
