@@ -289,7 +289,7 @@ let fb = {
 
     /**
      * Returns an empty handle list.<br>
-     * Deprecated: use constructor instead {@link FbMetadbHandleList}.
+     * Deprecated: use {@link FbMetadbHandleList} constructor instead.
      *
      * @deprecated
      * @return {FbMetadbHandleList}

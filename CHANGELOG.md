@@ -15,18 +15,24 @@ ___
 - Improved drag-n-drop window:
   - Image displays number of tracks being dragged.
   - Tooltip text describes the performed drop action (configurable through `action.Text` field).
-- Added global constructors for the following objects:
-  - `FbMetadbHandleList`: from another `FbMetadbHandleList`, from an array of `FbMetadbHandle`s, from `FbMetadbHandle` and a default constructor.
-  - `GdiBitmap`: from another `GdiBitmap`.
-  - `FbProfiler`: the same as `fb.CreateProfiler`.
-  - `FbTitleFormat`: the same as `fb.TitleFormat`.
+- API changes:
+  - Added `clearInterval`, `clearTimeout`, `setInterval`, `setTimeout` methods to global namespace.
+  - Added `gdi.LoadImageSyncV2` method;
+  - Added `utils.GetAlbumArtAsyncV2` method;
+  - Added arguments to `FbProfiler.Print`: additional message and an option to disable component info.
+  - Added global constructors for the following objects:
+    - `FbMetadbHandleList`: from another `FbMetadbHandleList`, from an array of `FbMetadbHandle`s, from a single `FbMetadbHandle` and a default constructor.
+    - `GdiBitmap`: from another `GdiBitmap`.
+    - `FbProfiler`: the same as `fb.CreateProfiler`.
+    - `FbTitleFormat`: the same as `fb.TitleFormat`.
 - Improved logging of objects through `console.log`: now it displays object's content as well.
 - Added `callbacks` to HTML documentation.
-- Added arguments to `FbProfiler.Print`: additional message and an option to disable component info.
 
 ### Changed
+- API changes:
+  - `fb.DoDragDrop` now requires an additional `window.ID` argument.
+  - `fb.CreateHandleList` is marked as **Deprecated** and will be removed in v2.0.0.
 - Reimplemented SMP call handling so as to conform with `Run to completion` rule.
-- `fb.DoDragDrop` now requires an additional `window.ID` argument.
 - Made adjustment to GC policies.
 
 ### Fixed
@@ -36,7 +42,8 @@ ___
 ### Added
 - Added basic handling of exception-like objects and objects derived from `Error` in pre-ES6 style.
 - Added handling of unhandled rejected promises.
-- Added properties to `window` for memory usage tracking: `MemoryLimit`, `TotalMemoryUsage` and `PanelMemoryUsage`.
+- API changes:
+  - Added properties to `window` for memory usage tracking: `MemoryLimit`, `TotalMemoryUsage` and `PanelMemoryUsage`.
 
 ### Fixed
 - Fixed timing of promises invocation: now conforms to ES standard.
