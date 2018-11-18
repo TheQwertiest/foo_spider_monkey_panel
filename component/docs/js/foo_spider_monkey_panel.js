@@ -682,9 +682,26 @@ let gdi = {
      *
      * @param {number} window_id see {@link window.ID}
      * @param {string} path
-     * @return {number} a unique id, which is used in `on_load_image_done`.
+     * 
+     * @return {number} a unique id, which is used in {@link module:callbacks~on_load_image_done on_load_image_done}.
+     * 
+     * @example
+     * // See samples\basic\LoadImageAsync.txt
      */
     LoadImageAsync: function (window_id, path) { }, // (uint)
+
+    /**
+    * Returns a `Promise` object, which will be resolved when image loading is done.
+    * 
+    * @param {number} window_id see {@link window.ID}
+    * @param {string} path
+    * 
+    * @return {Promise.<?GdiBitmap>}
+    *
+    * @example
+    * // See samples\basic\LoadImageAsyncV2.txt
+    */
+    LoadImageAsyncV2: function (window_id, path) { }
 };
 
 /**

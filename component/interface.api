@@ -76,6 +76,7 @@ gdi.CreateImage(w, h)
 gdi.Font(name, size_px[, style])
 gdi.Image(path)
 gdi.LoadImageAsync(window_id, path)
+gdi.LoadImageAsyncV2(window_id, path)
 
 plman.ActivePlaylist
 plman.PlaybackOrder

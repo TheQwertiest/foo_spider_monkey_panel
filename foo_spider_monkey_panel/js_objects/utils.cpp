@@ -250,7 +250,7 @@ JS::Value JsUtils::FileTest( const std::wstring& path, const std::wstring& mode 
         const wchar_t* ext = PathFindExtension( fn );
         wchar_t dir[MAX_PATH] = { 0 };
 
-        std::vector<std::wstring> out(3);
+        std::vector<std::wstring> out( 3 );
         if ( PathIsFileSpec( fn ) )
         {
             StringCchCopyN( dir, _countof( dir ), cPath, fn - cPath );
@@ -307,7 +307,7 @@ void JsUtils::GetAlbumArtAsync( uint32_t hWnd, JsFbMetadbHandle* handle, uint32_
     SmpException::ExpectTrue( handle, "handle argument is null" );
 
     // Such cast will work only on x86
-    smp::art::GetAlbumArtAsync( (HWND)hWnd, handle->GetHandle(), art_id, need_stub, only_embed, no_load );
+    smp::art::GetAlbumArtAsync( reinterpret_cast<HWND>( hWnd ), handle->GetHandle(), art_id, need_stub, only_embed, no_load );
 }
 
 void JsUtils::GetAlbumArtAsyncWithOpt( size_t optArgCount, uint32_t hWnd, JsFbMetadbHandle* handle, uint32_t art_id, bool need_stub, bool only_embed, bool no_load )
@@ -331,9 +331,11 @@ void JsUtils::GetAlbumArtAsyncWithOpt( size_t optArgCount, uint32_t hWnd, JsFbMe
 
 JSObject* JsUtils::GetAlbumArtAsyncV2( uint32_t hWnd, JsFbMetadbHandle* handle, uint32_t art_id, bool need_stub, bool only_embed, bool no_load )
 {
+    SmpException::ExpectTrue( hWnd, "Invalid hWnd argument" );
     SmpException::ExpectTrue( handle, "handle argument is null" );
 
-    return mozjs::art::GetAlbumArtPromise( pJsCtx_, hWnd, handle->GetHandle(), art_id, need_stub, only_embed, no_load );
+    // Such cast will work only on x86
+    return mozjs::art::GetAlbumArtPromise( pJsCtx_, reinterpret_cast<HWND>( hWnd ), handle->GetHandle(), art_id, need_stub, only_embed, no_load );
 }
 
 JSObject* JsUtils::GetAlbumArtAsyncV2WithOpt( size_t optArgCount, uint32_t hWnd, JsFbMetadbHandle* handle, uint32_t art_id, bool need_stub, bool only_embed, bool no_load )
@@ -415,7 +417,7 @@ uint32_t JsUtils::GetSysColour( uint32_t index )
         throw SmpException( smp::string::Formatter() << "Invalid color index: " << index );
     }
 
-    return helpers::convert_colorref_to_argb( ::GetSysColor( index ) );
+    return helpers::convert_colorref_to_argb(::GetSysColor( index ) );
 }
 
 uint32_t JsUtils::GetSystemMetrics( uint32_t index )

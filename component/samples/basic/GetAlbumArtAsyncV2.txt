@@ -1,4 +1,4 @@
-window.DefinePanel("GetAlbumArtAsync", { author: "TheQwertiest" });
+window.DefinePanel("GetAlbumArtAsyncV2", { author: "TheQwertiest" });
 include(fb.ComponentPath + "docs\\Flags.js");
 include(fb.ComponentPath + "docs\\Helpers.js");
 
@@ -37,8 +37,9 @@ function on_playback_new_track(metadb) {
     }
     g_img = null;
     path = null;
+    cur_metadb = metadb;
     
-    get_album_art(metadb, AlbumArtId.front);
+    get_album_art_async(metadb, AlbumArtId.front);
 }
 
 function on_mouse_lbtn_dblclk(x, y) {
@@ -47,10 +48,10 @@ function on_mouse_lbtn_dblclk(x, y) {
         fb.ShowPopupMessage(path);
 }
 
-const get_album_art = async (metadb, art_id) =>
+const get_album_art_async = async (metadb, art_id) =>
 {
     var result = await utils.GetAlbumArtAsyncV2(window.ID, metadb, art_id);
-    if (metadb == cur_metadb)
+    if (metadb === cur_metadb)
     {
         path = result.path;
         g_img = result.image;

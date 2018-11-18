@@ -7,6 +7,7 @@
 #include <js_objects/gdi_bitmap.h>
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
+#include <js_utils/js_image_helpers.h>
 #include <utils/gdi_helpers.h>
 #include <utils/gdi_error_helpers.h>
 #include <utils/scope_helpers.h>
@@ -46,12 +47,14 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( CreateImage, JsGdiUtils::CreateImage )
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( Font, JsGdiUtils::Font, JsGdiUtils::FontWithOpt, 1 )
 MJS_DEFINE_JS_FN_FROM_NATIVE( Image, JsGdiUtils::Image )
 MJS_DEFINE_JS_FN_FROM_NATIVE( LoadImageAsync, JsGdiUtils::LoadImageAsync )
+MJS_DEFINE_JS_FN_FROM_NATIVE( LoadImageAsyncV2, JsGdiUtils::LoadImageAsyncV2 )
 
 const JSFunctionSpec jsFunctions[] = {
     JS_FN( "CreateImage", CreateImage, 2, DefaultPropsFlags() ),
     JS_FN( "Font", Font, 2, DefaultPropsFlags() ),
     JS_FN( "Image", Image, 1, DefaultPropsFlags() ),
     JS_FN( "LoadImageAsync", LoadImageAsync, 2, DefaultPropsFlags() ),
+    JS_FN( "LoadImageAsyncV2", LoadImageAsyncV2, 2, DefaultPropsFlags() ),
     JS_FS_END
 };
 
@@ -148,7 +151,7 @@ JSObject* JsGdiUtils::FontWithOpt( size_t optArgCount, const std::wstring& fontN
 
 JSObject* JsGdiUtils::Image( const std::wstring& path )
 {
-    std::unique_ptr<Gdiplus::Bitmap> img = image::LoadImage( path );
+    std::unique_ptr<Gdiplus::Bitmap> img = smp::image::LoadImage( path );
     if ( !img )
     {
         return nullptr;
@@ -162,7 +165,15 @@ std::uint32_t JsGdiUtils::LoadImageAsync( uint32_t hWnd, const std::wstring& pat
     SmpException::ExpectTrue( hWnd, "Invalid hWnd argument" );
 
     // Such cast will work only on x86
-    return image::LoadImageAsync( (HWND)hWnd, path );
+    return smp::image::LoadImageAsync( reinterpret_cast<HWND>( hWnd ), path );
+}
+
+JSObject* JsGdiUtils::LoadImageAsyncV2( uint32_t hWnd, const std::wstring& path )
+{
+    SmpException::ExpectTrue( hWnd, "Invalid hWnd argument" );
+
+    // Such cast will work only on x86
+    return mozjs::image::GetImagePromise( pJsCtx_, reinterpret_cast<HWND>( hWnd ), path );
 }
 
 } // namespace mozjs

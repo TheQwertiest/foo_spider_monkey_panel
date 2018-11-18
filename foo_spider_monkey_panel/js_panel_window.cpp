@@ -420,7 +420,7 @@ std::optional<LRESULT> js_panel_window::process_callback_messages( CallbackMessa
     }
     case CallbackMessage::internal_get_album_art_promise_done:
     {
-        on_get_album_art_promise_done( callbackData );
+        on_js_task( callbackData );
         return 0;
     }
     case CallbackMessage::internal_load_image_done:
@@ -428,9 +428,14 @@ std::optional<LRESULT> js_panel_window::process_callback_messages( CallbackMessa
         on_load_image_done( callbackData );
         return 0;
     }
+    case CallbackMessage::internal_load_image_promise_done:
+    {
+        on_js_task( callbackData );
+        return 0;
+    }
     case CallbackMessage::internal_timer_proc:
     {
-        on_timer_proc( callbackData );
+        on_js_task( callbackData );
         return 0;
     }
     default:
@@ -1032,7 +1037,7 @@ void js_panel_window::on_script_error()
     script_unload();
 }
 
-void js_panel_window::on_timer_proc( CallbackData& callbackData )
+void js_panel_window::on_js_task( CallbackData& callbackData )
 {
     auto& data = callbackData.GetData<std::shared_ptr<mozjs::JsAsyncTask>>();
     pJsContainer_->InvokeJsAsyncTask( *std::get<0>( data ) );
@@ -1125,12 +1130,6 @@ void js_panel_window::on_get_album_art_done( CallbackData& callbackData )
                                                     std::get<1>( data ),
                                                     std::move( std::get<2>( data ) ),
                                                     std::get<3>( data ) );
-}
-
-void js_panel_window::on_get_album_art_promise_done( CallbackData& callbackData )
-{
-    auto& data = callbackData.GetData<std::shared_ptr<mozjs::JsAsyncTask>>();
-    pJsContainer_->InvokeJsAsyncTask( *std::get<0>( data ) );
 }
 
 void js_panel_window::on_item_focus_change( CallbackData& callbackData )

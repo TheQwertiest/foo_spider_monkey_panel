@@ -27,7 +27,6 @@ private:
 
 private:
     metadb_handle_ptr handle_;
-    pfc::string8_fast rawPath_;
     uint32_t artId_;
     bool needStub_;
     bool onlyEmbed_;
@@ -38,7 +37,6 @@ private:
 AlbumArtFetchTask::AlbumArtFetchTask( HWND hNotifyWnd, metadb_handle_ptr handle, uint32_t artId, bool need_stub, bool only_embed, bool no_load )
     : hNotifyWnd_( hNotifyWnd )
     , handle_( handle )
-    , rawPath_( handle_->get_path() )
     , artId_( artId )
     , needStub_( need_stub )
     , onlyEmbed_( only_embed )
@@ -49,29 +47,8 @@ AlbumArtFetchTask::AlbumArtFetchTask( HWND hNotifyWnd, metadb_handle_ptr handle,
 void AlbumArtFetchTask::run()
 {
     pfc::string8_fast imagePath;
-    std::unique_ptr<Gdiplus::Bitmap> bitmap;
+    std::unique_ptr<Gdiplus::Bitmap> bitmap = art::GetBitmapFromMetadbOrEmbed( handle_, artId_, needStub_, onlyEmbed_, noLoad_, &imagePath );
 
-    try
-    {
-        if ( onlyEmbed_ )
-        {
-            bitmap = art::GetBitmapFromEmbeddedData( rawPath_, artId_ );
-            if ( bitmap )
-            {
-                imagePath = handle_->get_path();
-            }
-        }
-        else
-        {
-            bitmap = art::GetBitmapFromMetadb( handle_, artId_, needStub_, noLoad_, &imagePath );
-        }
-    }
-    catch ( const SmpException& )
-    { // The only possible exception is invalid art_id, which should be checked beforehand
-        assert( 0 );
-    }
-
-    pfc::string8_fast path = ( imagePath.is_empty() ? "" : file_path_display( imagePath ) );
     panel::message_manager::instance().post_callback_msg( hNotifyWnd_,
                                                           smp::CallbackMessage::internal_get_album_art_done,
                                                           std::make_unique<
@@ -82,7 +59,7 @@ void AlbumArtFetchTask::run()
                                                                   pfc::string8_fast>>( handle_,
                                                                                        artId_,
                                                                                        std::move( bitmap ),
-                                                                                       path ) );
+                                                                                       imagePath ) );
 }
 
 std::unique_ptr<Gdiplus::Bitmap> GetBitmapFromAlbumArtData( const album_art_data_ptr& data )
@@ -275,10 +252,7 @@ std::unique_ptr<Gdiplus::Bitmap> GetBitmapFromEmbeddedData( const pfc::string8_f
 
 std::unique_ptr<Gdiplus::Bitmap> GetBitmapFromMetadb( const metadb_handle_ptr& handle, uint32_t art_id, bool need_stub, bool no_load, pfc::string8_fast* pImagePath )
 {
-    if ( !handle.is_valid() )
-    {
-        return nullptr;
-    }
+    assert( handle.is_valid() );
 
     const GUID& artTypeGuid = GetGuidForArtId( art_id );
     abort_callback_dummy abort;
@@ -308,6 +282,41 @@ std::unique_ptr<Gdiplus::Bitmap> GetBitmapFromMetadb( const metadb_handle_ptr& h
     }
 
     return nullptr;
+}
+
+std::unique_ptr<Gdiplus::Bitmap> GetBitmapFromMetadbOrEmbed( const metadb_handle_ptr& handle, uint32_t art_id, bool need_stub, bool only_embed, bool no_load, pfc::string8_fast* pImagePath )
+{
+    assert( handle.is_valid() );
+
+    pfc::string8_fast imagePath;
+    std::unique_ptr<Gdiplus::Bitmap> bitmap;
+
+    try
+    {
+        if ( only_embed )
+        {
+            bitmap = GetBitmapFromEmbeddedData( handle->get_path(), art_id );
+            if ( bitmap )
+            {
+                imagePath = handle->get_path();
+            }
+        }
+        else
+        {
+            bitmap = GetBitmapFromMetadb( handle, art_id, need_stub, no_load, &imagePath );
+        }
+    }
+    catch ( const SmpException& )
+    { // The only possible exception is invalid art_id, which should be checked beforehand
+        assert( 0 );
+    }
+
+    if ( pImagePath )
+    {
+        *pImagePath = (imagePath.is_empty() ? "" : file_path_display( imagePath ));
+    }
+
+    return bitmap;
 }
 
 void GetAlbumArtAsync( HWND hWnd, const metadb_handle_ptr& handle, uint32_t art_id, bool need_stub, bool only_embed, bool no_load )

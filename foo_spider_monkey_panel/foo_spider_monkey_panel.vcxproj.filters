@@ -280,6 +280,9 @@
     <ClCompile Include="js_utils\js_art_helpers.cpp">
       <Filter>js_utils</Filter>
     </ClCompile>
+    <ClCompile Include="js_utils\js_image_helpers.cpp">
+      <Filter>js_utils</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="js_engine\js_engine.h">
@@ -625,6 +628,9 @@
       <Filter>z_uncategorized</Filter>
     </ClInclude>
     <ClInclude Include="js_utils\js_art_helpers.h">
+      <Filter>js_utils</Filter>
+    </ClInclude>
+    <ClInclude Include="js_utils\js_image_helpers.h">
       <Filter>js_utils</Filter>
     </ClInclude>
   </ItemGroup>

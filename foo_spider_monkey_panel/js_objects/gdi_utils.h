@@ -36,6 +36,7 @@ public:
     JSObject* FontWithOpt( size_t optArgCount, const std::wstring& fontName, float pxSize, uint32_t style );
     JSObject* Image( const std::wstring& path );
     std::uint32_t LoadImageAsync( uint32_t hWnd, const std::wstring& path );
+    JSObject* LoadImageAsyncV2( uint32_t hWnd, const std::wstring& path );
 
 private:
     JsGdiUtils( JSContext* cx );

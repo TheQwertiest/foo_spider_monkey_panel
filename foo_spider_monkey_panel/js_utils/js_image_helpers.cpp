@@ -7,7 +7,7 @@
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
 #include <js_utils/js_async_task.h>
-#include <utils/art_helpers.h>
+#include <utils/image_helpers.h>
 #include <utils/gdi_helpers.h>
 #include <utils/string_helpers.h>
 #include <convert/native_to_js.h>
@@ -15,7 +15,6 @@
 #include <helpers.h>
 #include <user_message.h>
 #include <message_manager.h>
-
 
 // TODO: remove duplicate code from art_helpers
 
@@ -26,41 +25,35 @@ namespace
 
 using namespace mozjs;
 
-class JsAlbumArtTask
+class JsImageTask
     : public JsAsyncTaskImpl<JS::HandleValue>
 {
 public:
-    JsAlbumArtTask( JSContext* cx,
-                    JS::HandleValue jsPromise );
-    ~JsAlbumArtTask() override = default;
+    JsImageTask( JSContext* cx,
+                 JS::HandleValue jsPromise );
+    ~JsImageTask() override = default;
 
-    void SetData( std::unique_ptr<Gdiplus::Bitmap> image,
-                  const pfc::string8_fast& path );
+    void SetData( std::unique_ptr<Gdiplus::Bitmap> image );
 
 private:
     void InvokeJsImpl( JSContext* cx, JS::HandleObject jsGlobal, JS::HandleValue jsPromiseValue ) override;
 
 private:
     std::unique_ptr<Gdiplus::Bitmap> image_;
-    pfc::string8_fast path_;
 };
 
-class AlbumArtV2FetchTask
+class ImageFetchTask
     : public simple_thread_task
     , public IHeapUser
 {
 public:
-    AlbumArtV2FetchTask( JSContext* cx,
-                         JS::HandleObject jsPromise,
-                         HWND hNotifyWnd, 
-                         metadb_handle_ptr handle,
-                         uint32_t artId,
-                         bool need_stub,
-                         bool only_embed,
-                         bool no_load );
+    ImageFetchTask( JSContext* cx,
+                    JS::HandleObject jsPromise,
+                    HWND hNotifyWnd,
+                    const std::wstring& imagePath );
 
     /// @details Executed off main thread
-    ~AlbumArtV2FetchTask() override;
+    ~ImageFetchTask() override;
 
     // IHeapUser
     void PrepareForGlobalGc() override;
@@ -70,19 +63,14 @@ public:
 
 private:
     HWND hNotifyWnd_;
-    metadb_handle_ptr handle_;
-    pfc::string8_fast rawPath_;
-    uint32_t artId_;
-    bool needStub_;
-    bool onlyEmbed_;
-    bool noLoad_;
+    std::wstring imagePath_;
 
     std::mutex cleanupLock_;
     bool isJsAvailable_ = false;
 
     mozjs::JsGlobalObject* pNativeGlobal_ = nullptr;
 
-    std::shared_ptr<JsAlbumArtTask> jsTask_;
+    std::shared_ptr<JsImageTask> jsTask_;
 };
 
 } // namespace
@@ -90,21 +78,12 @@ private:
 namespace
 {
 
-AlbumArtV2FetchTask::AlbumArtV2FetchTask( JSContext* cx,
-                                          JS::HandleObject jsPromise,
-                                          HWND hNotifyWnd, 
-                                          metadb_handle_ptr handle,
-                                          uint32_t artId,
-                                          bool need_stub,
-                                          bool only_embed,
-                                          bool no_load )
+ImageFetchTask::ImageFetchTask( JSContext* cx,
+                                JS::HandleObject jsPromise,
+                                HWND hNotifyWnd,
+                                const std::wstring& imagePath )
     : hNotifyWnd_( hNotifyWnd )
-    , handle_( handle )
-    , rawPath_( handle_->get_path() )
-    , artId_( artId )
-    , needStub_( need_stub )
-    , onlyEmbed_( only_embed )
-    , noLoad_( no_load )
+    , imagePath_( imagePath )
 {
     assert( cx );
 
@@ -115,14 +94,14 @@ AlbumArtV2FetchTask::AlbumArtV2FetchTask( JSContext* cx,
     assert( pNativeGlobal_ );
 
     JS::RootedValue jsPromiseValue( cx, JS::ObjectValue( *jsPromise ) );
-    jsTask_ = std::make_unique<JsAlbumArtTask>( cx, jsPromiseValue );
+    jsTask_ = std::make_unique<JsImageTask>( cx, jsPromiseValue );
 
     pNativeGlobal_->GetHeapManager().RegisterUser( this );
 
     isJsAvailable_ = true;
 }
 
-AlbumArtV2FetchTask::~AlbumArtV2FetchTask()
+ImageFetchTask::~ImageFetchTask()
 {
     if ( !isJsAvailable_ )
     {
@@ -138,7 +117,7 @@ AlbumArtV2FetchTask::~AlbumArtV2FetchTask()
     pNativeGlobal_->GetHeapManager().UnregisterUser( this );
 }
 
-void AlbumArtV2FetchTask::PrepareForGlobalGc()
+void ImageFetchTask::PrepareForGlobalGc()
 {
     std::scoped_lock sl( cleanupLock_ );
     // Global is being destroyed, can't access anything
@@ -147,17 +126,16 @@ void AlbumArtV2FetchTask::PrepareForGlobalGc()
     jsTask_->PrepareForGlobalGc();
 }
 
-void AlbumArtV2FetchTask::run()
+void ImageFetchTask::run()
 {
     if ( !isJsAvailable_ )
     {
         return;
     }
 
-    pfc::string8_fast imagePath;
-    std::unique_ptr<Gdiplus::Bitmap> bitmap = smp::art::GetBitmapFromMetadbOrEmbed( handle_, artId_, needStub_, onlyEmbed_, noLoad_, &imagePath );
+    std::unique_ptr<Gdiplus::Bitmap> bitmap = smp::image::LoadImage( imagePath_ );
 
-    jsTask_->SetData( std::move( bitmap ), imagePath );
+    jsTask_->SetData( std::move( bitmap ) );
 
     panel::message_manager::instance().post_callback_msg( hNotifyWnd_,
                                                           smp::CallbackMessage::internal_get_album_art_promise_done,
@@ -166,19 +144,18 @@ void AlbumArtV2FetchTask::run()
                                                                   std::shared_ptr<JsAsyncTask>>>( jsTask_ ) );
 }
 
-JsAlbumArtTask::JsAlbumArtTask( JSContext* cx,
-                                JS::HandleValue jsPromise )
+JsImageTask::JsImageTask( JSContext* cx,
+                          JS::HandleValue jsPromise )
     : JsAsyncTaskImpl( cx, jsPromise )
 {
 }
 
-void JsAlbumArtTask::SetData( std::unique_ptr<Gdiplus::Bitmap> image, const pfc::string8_fast& path )
+void JsImageTask::SetData( std::unique_ptr<Gdiplus::Bitmap> image )
 {
     image_ = std::move( image );
-    path_ = path;
 }
 
-void JsAlbumArtTask::InvokeJsImpl( JSContext* cx, JS::HandleObject jsGlobal, JS::HandleValue jsPromiseValue )
+void JsImageTask::InvokeJsImpl( JSContext* cx, JS::HandleObject jsGlobal, JS::HandleValue jsPromiseValue )
 {
     JS::RootedObject jsPromise( cx, &jsPromiseValue.toObject() );
 
@@ -190,19 +167,8 @@ void JsAlbumArtTask::InvokeJsImpl( JSContext* cx, JS::HandleObject jsGlobal, JS:
             JS::RootedObject jsBitmap( cx, JsGdiBitmap::CreateJs( cx, std::move( image_ ) ) );
             jsBitmapValue = jsBitmap ? JS::ObjectValue( *jsBitmap ) : JS::UndefinedValue();
         }
-        JS::RootedValue jsPath( cx );
-        convert::to_js::ToValue( cx, path_, &jsPath );
 
-        JS::RootedObject jsResult( cx, JS_NewPlainObject( cx ) );
-        if ( !jsResult
-             || !JS_DefineProperty( cx, jsResult, "image", jsBitmapValue, DefaultPropsFlags() )
-             || !JS_DefineProperty( cx, jsResult, "path", jsPath, DefaultPropsFlags() ) )
-        {
-            throw JsException();
-        }
-
-        JS::RootedValue jsResultValue( cx, JS::ObjectValue( *jsResult ) );
-        (void)JS::ResolvePromise( cx, jsPromise, jsResultValue );
+        (void)JS::ResolvePromise( cx, jsPromise, jsBitmapValue );
     }
     catch ( ... )
     {
@@ -215,21 +181,17 @@ void JsAlbumArtTask::InvokeJsImpl( JSContext* cx, JS::HandleObject jsGlobal, JS:
 
 } // namespace
 
-namespace mozjs::art
+namespace mozjs::image
 {
 
-JSObject* GetAlbumArtPromise( JSContext* cx, HWND hWnd, const metadb_handle_ptr& handle, uint32_t art_id, bool need_stub, bool only_embed, bool no_load )
+JSObject* GetImagePromise( JSContext* cx, HWND hWnd, const std::wstring& imagePath )
 {
-    assert( handle.is_valid() );
-
     JS::RootedObject jsObject( cx, JS::NewPromiseObject( cx, nullptr ) );
     JsException::ExpectTrue( jsObject );
 
     try
     {
-        (void)smp::art::GetGuidForArtId( art_id ); ///< Check that art id is valid, since we don't want to throw in helper thread
-
-        if ( !simple_thread_pool::instance().enqueue( std::make_unique<AlbumArtV2FetchTask>( cx, jsObject, hWnd, handle, art_id, need_stub, only_embed, no_load ) ) )
+        if ( !simple_thread_pool::instance().enqueue( std::make_unique<ImageFetchTask>( cx, jsObject, hWnd, imagePath ) ) )
         {
             throw SmpException( "Internal error: failed to enqueue ArtV2 task" );
         }
@@ -242,4 +204,4 @@ JSObject* GetAlbumArtPromise( JSContext* cx, HWND hWnd, const metadb_handle_ptr&
     return jsObject;
 }
 
-} // namespace mozjs::art
+} // namespace mozjs::image

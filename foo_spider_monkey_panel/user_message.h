@@ -21,6 +21,7 @@ enum class CallbackMessage : UINT
     internal_get_album_art_done,
     internal_get_album_art_promise_done,
     internal_load_image_done,
+    internal_load_image_promise_done,
     internal_timer_proc,
     last_message = internal_timer_proc,
 };
