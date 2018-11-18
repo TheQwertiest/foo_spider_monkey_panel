@@ -4,6 +4,11 @@ include(path)
 
 console.log(message)
 
+clearInterval(timer_id)
+clearTimeout(timer_id)
+setInterval(func, delay)
+setTimeout(func, delay)
+
 fb.AlwaysOnTop
 fb.ComponentPath
 fb.CursorFollowPlayback
@@ -133,6 +138,7 @@ utils.FileTest(path, mode)
 utils.FormatDuration(seconds)
 utils.FormatFileSize(bytes)
 utils.GetAlbumArtAsync(window_id, handle[, art_id, need_stub, only_embed, no_load])
+utils.GetAlbumArtAsyncV2(window_id, handle[, art_id, need_stub, only_embed, no_load])
 utils.GetAlbumArtEmbedded(rawpath[, art_id])
 utils.GetAlbumArtV2(handle[, art_id, need_stub])
 utils.GetSysColour(index)
