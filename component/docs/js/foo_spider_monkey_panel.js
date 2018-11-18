@@ -1274,12 +1274,34 @@ let utils = {
      * @param {boolean=} [need_stub=true]
      * @param {boolean=} [only_embed=false]
      * @param {boolean=} [no_load=false]  If true, "image" parameter will be null in {@link module:callbacks~on_get_album_art_done on_get_album_art_done} callback.
-     * @return {number}
      *
      * @example
      * // See samples\basic\GetAlbumArtAsync.txt
      */
-    GetAlbumArtAsync: function (window_id, handle, art_id, need_stub, only_embed, no_load) { }, // (uint) [, art_id][, need_stub][, only_embed][, no_load]
+    GetAlbumArtAsync: function (window_id, handle, art_id, need_stub, only_embed, no_load) { }, // (void) [, art_id][, need_stub][, only_embed][, no_load]
+
+    /**
+     * @typedef {Object} ArtPromiseResult
+     * @property {?GdiBitmap} image null on failure
+     * @property {?string} image_path path to image file (or music file if image is embedded)
+     */
+
+    /**
+     * Returns a `Promise` object, which will be resolved when art loading is done.
+     * 
+     * @param {number} window_id {@link window.ID}
+     * @param {FbMetadbHandle} handle
+     * @param {number=} [art_id=0] See Flags.js > AlbumArtId
+     * @param {boolean=} [need_stub=true]
+     * @param {boolean=} [only_embed=false]
+     * @param {boolean=} [no_load=false] If true, "image" parameter will be null in {@link ArtPromiseResult}.
+     * 
+     * @return {Promise.<ArtPromiseResult>}
+     *
+     * @example
+     * // See samples\basic\GetAlbumArtAsyncV2.txt
+     */
+    GetAlbumArtAsyncV2: function (window_id, handle, art_id, need_stub, only_embed, no_load) { },
 
     /**
      * @param {string} rawpath

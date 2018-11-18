@@ -5,9 +5,10 @@
 #include <js_objects/fb_metadb_handle.h>
 #include <js_objects/gdi_bitmap.h>
 #include <js_utils/js_error_helper.h>
+#include <js_utils/js_object_helper.h>
+#include <js_utils/js_art_helpers.h>
 #include <utils/gdi_error_helpers.h>
 #include <utils/winapi_error_helpers.h>
-#include <js_utils/js_object_helper.h>
 #include <utils/art_helpers.h>
 #include <utils/file_helpers.h>
 #include <utils/scope_helpers.h>
@@ -59,6 +60,7 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( FileTest, JsUtils::FileTest );
 MJS_DEFINE_JS_FN_FROM_NATIVE( FormatDuration, JsUtils::FormatDuration );
 MJS_DEFINE_JS_FN_FROM_NATIVE( FormatFileSize, JsUtils::FormatFileSize );
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( GetAlbumArtAsync, JsUtils::GetAlbumArtAsync, JsUtils::GetAlbumArtAsyncWithOpt, 4 );
+MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( GetAlbumArtAsyncV2, JsUtils::GetAlbumArtAsyncV2, JsUtils::GetAlbumArtAsyncV2WithOpt, 4 );
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( GetAlbumArtEmbedded, JsUtils::GetAlbumArtEmbedded, JsUtils::GetAlbumArtEmbeddedWithOpt, 1 );
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( GetAlbumArtV2, JsUtils::GetAlbumArtV2, JsUtils::GetAlbumArtV2WithOpt, 2 );
 MJS_DEFINE_JS_FN_FROM_NATIVE( GetSysColour, JsUtils::GetSysColour );
@@ -82,6 +84,7 @@ const JSFunctionSpec jsFunctions[] = {
     JS_FN( "FormatDuration", FormatDuration, 1, DefaultPropsFlags() ),
     JS_FN( "FormatFileSize", FormatFileSize, 1, DefaultPropsFlags() ),
     JS_FN( "GetAlbumArtAsync", GetAlbumArtAsync, 2, DefaultPropsFlags() ),
+    JS_FN( "GetAlbumArtAsyncV2", GetAlbumArtAsyncV2, 2, DefaultPropsFlags() ),
     JS_FN( "GetAlbumArtEmbedded", GetAlbumArtEmbedded, 1, DefaultPropsFlags() ),
     JS_FN( "GetAlbumArtV2", GetAlbumArtV2, 1, DefaultPropsFlags() ),
     JS_FN( "GetSysColour", GetSysColour, 1, DefaultPropsFlags() ),
@@ -298,19 +301,16 @@ pfc::string8_fast JsUtils::FormatFileSize( uint64_t p )
     return pfc::string8_fast( pfc::format_file_size_short( p ) );
 }
 
-std::uint32_t JsUtils::GetAlbumArtAsync( uint32_t hWnd, JsFbMetadbHandle* handle, uint32_t art_id, bool need_stub, bool only_embed, bool no_load )
+void JsUtils::GetAlbumArtAsync( uint32_t hWnd, JsFbMetadbHandle* handle, uint32_t art_id, bool need_stub, bool only_embed, bool no_load )
 {
     SmpException::ExpectTrue( hWnd, "Invalid hWnd argument" );
     SmpException::ExpectTrue( handle, "handle argument is null" );
 
-    metadb_handle_ptr ptr = handle->GetHandle();
-    assert( ptr.is_valid() );
-
     // Such cast will work only on x86
-    return art::GetAlbumArtAsync( (HWND)hWnd, ptr, art_id, need_stub, only_embed, no_load );
+    smp::art::GetAlbumArtAsync( (HWND)hWnd, handle->GetHandle(), art_id, need_stub, only_embed, no_load );
 }
 
-std::uint32_t JsUtils::GetAlbumArtAsyncWithOpt( size_t optArgCount, uint32_t hWnd, JsFbMetadbHandle* handle, uint32_t art_id, bool need_stub, bool only_embed, bool no_load )
+void JsUtils::GetAlbumArtAsyncWithOpt( size_t optArgCount, uint32_t hWnd, JsFbMetadbHandle* handle, uint32_t art_id, bool need_stub, bool only_embed, bool no_load )
 {
     switch ( optArgCount )
     {
@@ -329,9 +329,35 @@ std::uint32_t JsUtils::GetAlbumArtAsyncWithOpt( size_t optArgCount, uint32_t hWn
     }
 }
 
+JSObject* JsUtils::GetAlbumArtAsyncV2( uint32_t hWnd, JsFbMetadbHandle* handle, uint32_t art_id, bool need_stub, bool only_embed, bool no_load )
+{
+    SmpException::ExpectTrue( handle, "handle argument is null" );
+
+    return mozjs::art::GetAlbumArtPromise( pJsCtx_, hWnd, handle->GetHandle(), art_id, need_stub, only_embed, no_load );
+}
+
+JSObject* JsUtils::GetAlbumArtAsyncV2WithOpt( size_t optArgCount, uint32_t hWnd, JsFbMetadbHandle* handle, uint32_t art_id, bool need_stub, bool only_embed, bool no_load )
+{
+    switch ( optArgCount )
+    {
+    case 0:
+        return GetAlbumArtAsyncV2( hWnd, handle, art_id, need_stub, only_embed, no_load );
+    case 1:
+        return GetAlbumArtAsyncV2( hWnd, handle, art_id, need_stub, only_embed );
+    case 2:
+        return GetAlbumArtAsyncV2( hWnd, handle, art_id, need_stub );
+    case 3:
+        return GetAlbumArtAsyncV2( hWnd, handle, art_id );
+    case 4:
+        return GetAlbumArtAsyncV2( hWnd, handle );
+    default:
+        throw SmpException( smp::string::Formatter() << "Internal error: invalid number of optional arguments specified: " << optArgCount );
+    }
+}
+
 JSObject* JsUtils::GetAlbumArtEmbedded( const pfc::string8_fast& rawpath, uint32_t art_id )
 {
-    std::unique_ptr<Gdiplus::Bitmap> artImage( art::GetBitmapFromEmbeddedData( rawpath, art_id ) );
+    std::unique_ptr<Gdiplus::Bitmap> artImage( smp::art::GetBitmapFromEmbeddedData( rawpath, art_id ) );
     if ( !artImage )
     { // Not an error: no art found
         return nullptr;
@@ -357,7 +383,7 @@ JSObject* JsUtils::GetAlbumArtV2( JsFbMetadbHandle* handle, uint32_t art_id, boo
 {
     SmpException::ExpectTrue( handle, "handle argument is null" );
 
-    std::unique_ptr<Gdiplus::Bitmap> artImage( art::GetBitmapFromMetadb( handle->GetHandle(), art_id, need_stub, false, nullptr ) );
+    std::unique_ptr<Gdiplus::Bitmap> artImage( smp::art::GetBitmapFromMetadb( handle->GetHandle(), art_id, need_stub, false, nullptr ) );
     if ( !artImage )
     { // Not an error: no art found
         return nullptr;

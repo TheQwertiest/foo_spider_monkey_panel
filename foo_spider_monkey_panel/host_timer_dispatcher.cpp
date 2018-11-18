@@ -2,7 +2,6 @@
 #include "host_timer_dispatcher.h"
 
 #include <js_objects/global_object.h>
-#include <js_objects/internal/global_heap_manager.h>
 #include <js_utils/js_error_helper.h>
 
 #include <user_message.h>
@@ -106,7 +105,8 @@ uint32_t HostTimerDispatcher::createTimer( HWND hWnd, uint32_t delay, bool isRep
         id = m_curTimerId++;
     }
 
-    m_timerMap.emplace( id, std::make_unique<HostTimer>( hWnd, id, delay, isRepeated, std::make_unique<HostTimerTask>( cx, jsFunction ) ) );
+    JS::RootedValue jsFuncValue( cx, JS::ObjectValue( *JS_GetFunctionObject( jsFunction ) ) );
+    m_timerMap.emplace( id, std::make_unique<HostTimer>( hWnd, id, delay, isRepeated, std::make_unique<HostTimerTask>( cx, jsFuncValue ) ) );
 
     if ( !m_timerMap[id]->start( m_hTimerQueue ) )
     {
@@ -191,48 +191,17 @@ void HostTimerDispatcher::threadMain()
     }
 }
 
-HostTimerTask::HostTimerTask( JSContext* cx, JS::HandleFunction jsFunction )
-    : pJsCtx_( cx )
+HostTimerTask::HostTimerTask( JSContext* cx, JS::HandleValue funcValue )
+    : JsAsyncTaskImpl( cx, funcValue )
 {
-    assert( cx );
-
-    JS::RootedObject funcObject( cx, JS_GetFunctionObject( jsFunction ) );
-    JS::RootedValue funcValue( cx, JS::ObjectValue( *funcObject ) );
-
-    JS::RootedObject jsGlobal( cx, JS::CurrentGlobalOrNull( cx ) );
-    assert( jsGlobal );
-
-    pNativeGlobal_ = static_cast<mozjs::JsGlobalObject*>( JS_GetInstancePrivate( cx, jsGlobal, &mozjs::JsGlobalObject::JsClass, nullptr ) );
-    assert( pNativeGlobal_ );
-
-    funcId_ = pNativeGlobal_->GetHeapManager().Store( funcValue );
-
-    isJsAvailable_ = true;
 }
 
-HostTimerTask::~HostTimerTask()
+void HostTimerTask::InvokeJsImpl( JSContext* cx, JS::HandleObject jsGlobal, JS::HandleValue funcValue )
 {
-    if ( isJsAvailable_ )
-    {
-        pNativeGlobal_->GetHeapManager().Remove( funcId_ );
-    }
-}
+    JS::RootedFunction rFunc( cx, JS_ValueToFunction( cx, funcValue ) );
 
-void HostTimerTask::InvokeJs()
-{
-    JS::RootedObject jsGlobal( pJsCtx_, JS::CurrentGlobalOrNull( pJsCtx_ ) );
-    assert( jsGlobal );
-    JS::RootedValue vFunc( pJsCtx_, pNativeGlobal_->GetHeapManager().Get( funcId_ ) );
-    JS::RootedFunction rFunc( pJsCtx_, JS_ValueToFunction( pJsCtx_, vFunc ) );
-
-    JS::RootedValue dummyRetVal( pJsCtx_ );
-    JS::Call( pJsCtx_, jsGlobal, rFunc, JS::HandleValueArray::empty(), &dummyRetVal );
-}
-
-void HostTimerTask::PrepareForGlobalGc()
-{
-    // Global is being destroyed, can't access anything
-    isJsAvailable_ = false;
+    JS::RootedValue dummyRetVal( cx );
+    JS::Call( cx, jsGlobal, rFunc, JS::HandleValueArray::empty(), &dummyRetVal );
 }
 
 HostTimer::HostTimer( HWND hWnd, uint32_t id, uint32_t delay, bool isRepeated, std::shared_ptr<HostTimerTask> task )
@@ -279,11 +248,10 @@ VOID CALLBACK HostTimer::timerProc( PVOID lpParameter, BOOLEAN /*TimerOrWaitFire
         return;
     }
 
-    auto postTimerTask = [&timer]
-    {
+    auto postTimerTask = [&timer] {
         smp::panel::message_manager::instance().post_callback_msg( timer->hWnd_,
-                                                                 smp::CallbackMessage::internal_timer_proc,
-                                                                 std::make_unique<smp::panel::CallbackDataImpl<std::shared_ptr<HostTimerTask>>>( timer->task_ ) );
+                                                                   smp::CallbackMessage::internal_timer_proc,
+                                                                   std::make_unique<smp::panel::CallbackDataImpl<std::shared_ptr<HostTimerTask>>>( timer->task_ ) );
     };
 
     if ( !timer->isRepeated_ )

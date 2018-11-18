@@ -154,6 +154,7 @@
     <ClCompile Include="js_panel_window.cpp" />
     <ClCompile Include="js_panel_window_cui.cpp" />
     <ClCompile Include="js_panel_window_dui.cpp" />
+    <ClCompile Include="js_utils\js_art_helpers.cpp" />
     <ClCompile Include="js_utils\js_error_helper.cpp" />
     <ClCompile Include="js_utils\js_object_helper.cpp" />
     <ClCompile Include="js_utils\serialized_value.cpp" />
@@ -255,6 +256,7 @@
     <ClInclude Include="js_objects\theme_manager.h" />
     <ClInclude Include="js_objects\utils.h" />
     <ClInclude Include="js_objects\window.h" />
+    <ClInclude Include="js_utils\js_art_helpers.h" />
     <ClInclude Include="js_utils\js_error_helper.h" />
     <ClInclude Include="js_utils\js_object_helper.h" />
     <ClInclude Include="js_utils\js_property_helper.h" />

@@ -8,6 +8,7 @@
 #include <js_objects/drop_source_action.h>
 #include <js_utils/js_error_helper.h>
 #include <js_utils/scope_helper.h>
+#include <js_utils/js_async_task.h>
 #include <utils/scope_helpers.h>
 
 #include <js_panel_window.h>
@@ -272,7 +273,7 @@ void JsContainer::InvokeOnPaint( Gdiplus::Graphics& gr )
     pNativeGraphics_->SetGraphicsObject( nullptr );
 }
 
-void JsContainer::InvokeTimerFunction( HostTimerTask& timerTask )
+void JsContainer::InvokeJsAsyncTask( JsAsyncTask& jsTask )
 {
     if ( !IsReadyForCallback() )
     {
@@ -281,7 +282,7 @@ void JsContainer::InvokeTimerFunction( HostTimerTask& timerTask )
 
     auto selfSaver = shared_from_this();
     JsScope autoScope( pJsCtx_, jsGlobal_ );
-    timerTask.InvokeJs();
+    jsTask.InvokeJs();
 }
 
 bool JsContainer::CreateDropActionIfNeeded()

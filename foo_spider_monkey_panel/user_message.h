@@ -19,6 +19,7 @@ enum class CallbackMessage : UINT
     fb_playback_time,
     fb_volume_change,
     internal_get_album_art_done,
+    internal_get_album_art_promise_done,
     internal_load_image_done,
     internal_timer_proc,
     last_message = internal_timer_proc,

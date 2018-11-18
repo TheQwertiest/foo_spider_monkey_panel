@@ -129,6 +129,7 @@ private:
     void on_focus( bool isFocused );
     void on_font_changed();
     void on_get_album_art_done( CallbackData& callbackData );
+    void on_get_album_art_promise_done( CallbackData& callbackData );
     void on_item_focus_change( CallbackData& callbackData );
     void on_item_played( CallbackData& callbackData );
     void on_key_down( WPARAM wp );

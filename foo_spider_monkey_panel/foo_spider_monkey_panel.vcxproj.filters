@@ -277,6 +277,9 @@
     <ClCompile Include="message_manager.cpp">
       <Filter>z_uncategorized</Filter>
     </ClCompile>
+    <ClCompile Include="js_utils\js_art_helpers.cpp">
+      <Filter>js_utils</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="js_engine\js_engine.h">
@@ -620,6 +623,9 @@
     </ClInclude>
     <ClInclude Include="metadb_callback_data.h">
       <Filter>z_uncategorized</Filter>
+    </ClInclude>
+    <ClInclude Include="js_utils\js_art_helpers.h">
+      <Filter>js_utils</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

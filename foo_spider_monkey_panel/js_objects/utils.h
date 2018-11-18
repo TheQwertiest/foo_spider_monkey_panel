@@ -27,7 +27,7 @@ public:
     static const JSPropertySpec* JsProperties;
 
 public:
-    ~JsUtils();
+    ~JsUtils() override;
 
     static std::unique_ptr<JsUtils> CreateNative( JSContext* cx );
     static size_t GetInternalSize();
@@ -40,8 +40,10 @@ public:
     JS::Value FileTest( const std::wstring& path, const std::wstring& mode );
     pfc::string8_fast FormatDuration( double p );
     pfc::string8_fast FormatFileSize( uint64_t p );
-    std::uint32_t GetAlbumArtAsync( uint32_t hWnd, JsFbMetadbHandle* handle, uint32_t art_id = 0, bool need_stub = true, bool only_embed = false, bool no_load = false );
-    std::uint32_t GetAlbumArtAsyncWithOpt( size_t optArgCount, uint32_t hWnd, JsFbMetadbHandle* handle, uint32_t art_id, bool need_stub, bool only_embed, bool no_load );
+    void GetAlbumArtAsync( uint32_t hWnd, JsFbMetadbHandle* handle, uint32_t art_id = 0, bool need_stub = true, bool only_embed = false, bool no_load = false );
+    void GetAlbumArtAsyncWithOpt( size_t optArgCount, uint32_t hWnd, JsFbMetadbHandle* handle, uint32_t art_id, bool need_stub, bool only_embed, bool no_load );
+    JSObject* GetAlbumArtAsyncV2( uint32_t hWnd, JsFbMetadbHandle* handle, uint32_t art_id = 0, bool need_stub = true, bool only_embed = false, bool no_load = false );
+    JSObject* GetAlbumArtAsyncV2WithOpt( size_t optArgCount, uint32_t hWnd, JsFbMetadbHandle* handle, uint32_t art_id, bool need_stub, bool only_embed, bool no_load );
     JSObject* GetAlbumArtEmbedded( const pfc::string8_fast& rawpath, uint32_t art_id = 0 );
     JSObject* GetAlbumArtEmbeddedWithOpt( size_t optArgCount, const pfc::string8_fast& rawpath, uint32_t art_id );
     JSObject* GetAlbumArtV2( JsFbMetadbHandle* handle, uint32_t art_id = 0, bool need_stub = true );

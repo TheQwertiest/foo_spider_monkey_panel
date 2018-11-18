@@ -38,15 +38,12 @@ private:
 AlbumArtFetchTask::AlbumArtFetchTask( HWND hNotifyWnd, metadb_handle_ptr handle, uint32_t artId, bool need_stub, bool only_embed, bool no_load )
     : hNotifyWnd_( hNotifyWnd )
     , handle_( handle )
+    , rawPath_( handle_->get_path() )
     , artId_( artId )
     , needStub_( need_stub )
     , onlyEmbed_( only_embed )
     , noLoad_( no_load )
 {
-    if ( handle_.is_valid() )
-    {
-        rawPath_ = handle_->get_path();
-    }
 }
 
 void AlbumArtFetchTask::run()
@@ -54,41 +51,38 @@ void AlbumArtFetchTask::run()
     pfc::string8_fast imagePath;
     std::unique_ptr<Gdiplus::Bitmap> bitmap;
 
-    if ( handle_.is_valid() )
+    try
     {
-        try
+        if ( onlyEmbed_ )
         {
-            if ( onlyEmbed_ )
+            bitmap = art::GetBitmapFromEmbeddedData( rawPath_, artId_ );
+            if ( bitmap )
             {
-                bitmap = art::GetBitmapFromEmbeddedData( rawPath_, artId_ );
-                if ( bitmap )
-                {
-                    imagePath = handle_->get_path();
-                }
-            }
-            else
-            {
-                bitmap = art::GetBitmapFromMetadb( handle_, artId_, needStub_, noLoad_, &imagePath );
+                imagePath = handle_->get_path();
             }
         }
-        catch ( const SmpException& )
-        { // The only possible exception is invalid art_id, which should be checked beforehand
-            assert( 0 );
+        else
+        {
+            bitmap = art::GetBitmapFromMetadb( handle_, artId_, needStub_, noLoad_, &imagePath );
         }
+    }
+    catch ( const SmpException& )
+    { // The only possible exception is invalid art_id, which should be checked beforehand
+        assert( 0 );
     }
 
     pfc::string8_fast path = ( imagePath.is_empty() ? "" : file_path_display( imagePath ) );
     panel::message_manager::instance().post_callback_msg( hNotifyWnd_,
-                                                        smp::CallbackMessage::internal_get_album_art_done,
-                                                        std::make_unique<
-                                                            smp::panel::CallbackDataImpl<
-                                                                metadb_handle_ptr,
-                                                                uint32_t,
-                                                                std::unique_ptr<Gdiplus::Bitmap>,
-                                                                pfc::string8_fast>>( handle_,
-                                                                                     artId_,
-                                                                                     std::move( bitmap ),
-                                                                                     path ) );
+                                                          smp::CallbackMessage::internal_get_album_art_done,
+                                                          std::make_unique<
+                                                              smp::panel::CallbackDataImpl<
+                                                                  metadb_handle_ptr,
+                                                                  uint32_t,
+                                                                  std::unique_ptr<Gdiplus::Bitmap>,
+                                                                  pfc::string8_fast>>( handle_,
+                                                                                       artId_,
+                                                                                       std::move( bitmap ),
+                                                                                       path ) );
 }
 
 std::unique_ptr<Gdiplus::Bitmap> GetBitmapFromAlbumArtData( const album_art_data_ptr& data )
@@ -157,7 +151,7 @@ std::unique_ptr<Gdiplus::Bitmap> ExtractBitmap( album_art_extractor_instance_v2:
 namespace smp::art
 {
 
-embed_thread::embed_thread( t_size action,
+embed_thread::embed_thread( EmbedAction action,
                             album_art_data_ptr data,
                             const metadb_handle_list& handles,
                             GUID what )
@@ -185,15 +179,19 @@ void embed_thread::run( threaded_process_status& p_status,
             try
             {
                 auto aaep = ptr->open( NULL, path, p_abort );
-                if ( m_action == 0 )
+                switch ( m_action )
+                {
+                case EmbedAction::embed:
                 {
                     aaep->set( m_what, m_data, p_abort );
+                    break;
                 }
-                else if ( m_action == 1 )
+                case EmbedAction::remove:
                 {
                     aaep->remove( m_what );
+                    break;
                 }
-                else if ( m_action == 2 )
+                case EmbedAction::removeAll:
                 {
                     album_art_editor_instance_v2::ptr v2;
                     if ( aaep->cast( v2 ) )
@@ -208,11 +206,17 @@ void embed_thread::run( threaded_process_status& p_status,
                         aaep->remove( album_art_ids::disc );
                         aaep->remove( album_art_ids::icon );
                     }
+                    break;
                 }
+                default:
+                    assert( 0 );
+                    break;
+                }
+
                 aaep->commit( p_abort );
             }
-            catch ( ... )
-            {
+            catch ( const pfc::exception& )
+            { // operation failed (e.g. file does not support art embedding)
             }
             lock.release();
         }
@@ -261,8 +265,8 @@ std::unique_ptr<Gdiplus::Bitmap> GetBitmapFromEmbeddedData( const pfc::string8_f
 
             return GetBitmapFromAlbumArtData( data );
         }
-        catch ( ... )
-        {
+        catch ( const pfc::exception& )
+        { // not found
         }
     }
 
@@ -285,8 +289,8 @@ std::unique_ptr<Gdiplus::Bitmap> GetBitmapFromMetadb( const metadb_handle_ptr& h
         auto aaeiv2 = aamv2->open( pfc::list_single_ref_t<metadb_handle_ptr>( handle ), pfc::list_single_ref_t<GUID>( artTypeGuid ), abort );
         return ExtractBitmap( aaeiv2, artTypeGuid, no_load, pImagePath );
     }
-    catch ( ... )
-    {
+    catch ( const pfc::exception& )
+    { // not found
     }
 
     if ( need_stub )
@@ -298,41 +302,26 @@ std::unique_ptr<Gdiplus::Bitmap> GetBitmapFromMetadb( const metadb_handle_ptr& h
             auto data = aaeiv2_stub->query( artTypeGuid, abort );
             return ExtractBitmap( aaeiv2_stub, artTypeGuid, no_load, pImagePath );
         }
-        catch ( ... )
-        {
+        catch ( const pfc::exception& )
+        { // not found
         }
     }
 
     return nullptr;
 }
 
-uint32_t GetAlbumArtAsync( HWND hWnd, const metadb_handle_ptr& handle, uint32_t art_id, bool need_stub, bool only_embed, bool no_load )
+void GetAlbumArtAsync( HWND hWnd, const metadb_handle_ptr& handle, uint32_t art_id, bool need_stub, bool only_embed, bool no_load )
 {
     assert( handle.is_valid() );
 
     try
     {
         (void)GetGuidForArtId( art_id ); ///< Check that art id is valid, since we don't want to throw in helper thread
-        auto pTask = std::make_unique<AlbumArtFetchTask>( hWnd, handle, art_id, need_stub, only_embed, no_load );
-        uint32_t taskId = [&] {
-            uint64_t tmp = static_cast<uint64_t>( reinterpret_cast<uintptr_t>( pTask.get() ) );
-            return static_cast<uint32_t>( ( tmp & 0xFFFFFFFF ) ^ ( tmp >> 32 ) );
-        }();
-
-        if ( simple_thread_pool::instance().enqueue( std::move( pTask ) ) )
-        {
-            return taskId;
-        }
+        (void)simple_thread_pool::instance().enqueue( std::make_unique<AlbumArtFetchTask>( hWnd, handle, art_id, need_stub, only_embed, no_load ) );
     }
-    catch ( const SmpException& )
-    {
-        throw;
+    catch ( const pfc::exception& )
+    { // Could not create thread
     }
-    catch ( ... )
-    {
-    }
-
-    return 0;
 }
 
 } // namespace smp::art

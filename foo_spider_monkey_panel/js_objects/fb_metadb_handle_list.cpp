@@ -23,7 +23,6 @@
 
 #include <tim/timsort.h>
 
-
 using namespace smp;
 
 namespace
@@ -356,11 +355,11 @@ void JsFbMetadbHandleList::AttachImage( const pfc::string8_fast& image_path, uin
 
     if ( data.is_valid() )
     {
-        auto cb( fb2k::service_new<art::embed_thread>( 0, data, metadbHandleList_, what ) );
-        threaded_process::get()->run_modeless( cb,
-                                               threaded_process::flag_show_progress | threaded_process::flag_show_delayed | threaded_process::flag_show_item,
-                                               core_api::get_main_window(),
-                                               "Embedding images..." );
+        auto cb( fb2k::service_new<art::embed_thread>( art::embed_thread::EmbedAction::embed, data, metadbHandleList_, what ) );
+        (void)threaded_process::get()->run_modeless( cb,
+                                                     threaded_process::flag_show_progress | threaded_process::flag_show_delayed | threaded_process::flag_show_item,
+                                                     core_api::get_main_window(),
+                                                     "Embedding images..." );
     }
 }
 
@@ -582,11 +581,11 @@ void JsFbMetadbHandleList::RemoveAttachedImage( uint32_t art_id )
 
     const GUID& what = art::GetGuidForArtId( art_id );
 
-    auto cb = fb2k::service_new<art::embed_thread>( 1, album_art_data_ptr(), metadbHandleList_, what );
-    threaded_process::get()->run_modeless( cb,
-                                           threaded_process::flag_show_progress | threaded_process::flag_show_delayed | threaded_process::flag_show_item,
-                                           core_api::get_main_window(),
-                                           "Removing images..." );
+    auto cb = fb2k::service_new<art::embed_thread>( art::embed_thread::EmbedAction::remove, album_art_data_ptr(), metadbHandleList_, what );
+    (void)threaded_process::get()->run_modeless( cb,
+                                                 threaded_process::flag_show_progress | threaded_process::flag_show_delayed | threaded_process::flag_show_item,
+                                                 core_api::get_main_window(),
+                                                 "Removing images..." );
 }
 
 void JsFbMetadbHandleList::RemoveAttachedImages()
@@ -597,11 +596,11 @@ void JsFbMetadbHandleList::RemoveAttachedImages()
         return;
     }
 
-    auto cb = fb2k::service_new<art::embed_thread>( 2, album_art_data_ptr(), metadbHandleList_, pfc::guid_null );
-    threaded_process::get()->run_modeless( cb,
-                                           threaded_process::flag_show_progress | threaded_process::flag_show_delayed | threaded_process::flag_show_item,
-                                           core_api::get_main_window(),
-                                           "Removing images..." );
+    auto cb = fb2k::service_new<art::embed_thread>( art::embed_thread::EmbedAction::removeAll, album_art_data_ptr(), metadbHandleList_, pfc::guid_null );
+    (void)threaded_process::get()->run_modeless( cb,
+                                                 threaded_process::flag_show_progress | threaded_process::flag_show_delayed | threaded_process::flag_show_item,
+                                                 core_api::get_main_window(),
+                                                 "Removing images..." );
 }
 
 void JsFbMetadbHandleList::RemoveById( uint32_t index )

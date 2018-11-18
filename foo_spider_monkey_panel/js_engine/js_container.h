@@ -19,6 +19,7 @@ class JsEngine;
 class JsGlobalObject;
 class JsGdiGraphics;
 class JsDropSourceAction;
+class JsAsyncTask;
 
 // Must not leak exceptions!
 class JsContainer final
@@ -69,7 +70,7 @@ public: // callbacks that require js data
     void InvokeOnDragAction( const pfc::string8_fast& functionName, const POINTL& pt, uint32_t keyState, smp::panel::DropActionParams& actionParams );
     void InvokeOnNotify( WPARAM wp, LPARAM lp );
     void InvokeOnPaint( Gdiplus::Graphics& gr );
-    void InvokeTimerFunction( HostTimerTask& timerTask );
+    void InvokeJsAsyncTask( JsAsyncTask& jsTask );
 
 private:
     JsContainer( const JsContainer& ) = delete;

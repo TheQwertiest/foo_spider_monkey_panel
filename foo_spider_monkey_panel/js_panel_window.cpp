@@ -14,9 +14,12 @@
 
 #include <metadb_callback_data.h>
 #include <drop_action_params.h>
-#include <host_timer_dispatcher.h>
 #include <helpers.h>
 
+namespace mozjs
+{
+class JsAsyncTask;
+}
 
 namespace smp::panel
 {
@@ -413,6 +416,11 @@ std::optional<LRESULT> js_panel_window::process_callback_messages( CallbackMessa
     case CallbackMessage::internal_get_album_art_done:
     {
         on_get_album_art_done( callbackData );
+        return 0;
+    }
+    case CallbackMessage::internal_get_album_art_promise_done:
+    {
+        on_get_album_art_promise_done( callbackData );
         return 0;
     }
     case CallbackMessage::internal_load_image_done:
@@ -1020,8 +1028,8 @@ void js_panel_window::on_script_error()
 
 void js_panel_window::on_timer_proc( CallbackData& callbackData )
 {
-    auto& data = callbackData.GetData<std::shared_ptr<HostTimerTask>>();
-    pJsContainer_->InvokeTimerFunction( *std::get<0>( data ) );
+    auto& data = callbackData.GetData<std::shared_ptr<mozjs::JsAsyncTask>>();
+    pJsContainer_->InvokeJsAsyncTask( *std::get<0>( data ) );
 }
 
 void js_panel_window::on_always_on_top_changed( WPARAM wp )
@@ -1111,6 +1119,12 @@ void js_panel_window::on_get_album_art_done( CallbackData& callbackData )
                                                     std::get<1>( data ),
                                                     std::move( std::get<2>( data ) ),
                                                     std::get<3>( data ) );
+}
+
+void js_panel_window::on_get_album_art_promise_done( CallbackData& callbackData )
+{
+    auto& data = callbackData.GetData<std::shared_ptr<mozjs::JsAsyncTask>>();
+    pJsContainer_->InvokeJsAsyncTask( *std::get<0>( data ) );
 }
 
 void js_panel_window::on_item_focus_change( CallbackData& callbackData )

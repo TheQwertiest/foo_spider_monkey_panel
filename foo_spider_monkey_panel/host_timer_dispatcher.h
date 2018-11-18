@@ -1,5 +1,7 @@
 #pragma once
 
+#include <js_utils/js_async_task.h>
+
 #include <mutex>
 #include <map>
 #include <atomic>
@@ -90,28 +92,14 @@ private: // thread
 /// @brief Task that should be executed on timer proc
 /// @details Everything apart from destructor is performed on the MainThread
 class HostTimerTask
+    : public mozjs::JsAsyncTaskImpl<JS::HandleValue>
 {
 public:
-    /// @brief ctor
-    /// @details Pushes func to heap
-    HostTimerTask( JSContext* cx, JS::HandleFunction func );
-
-    /// @brief dtor
-    ~HostTimerTask();
-
-    /// @brief Invokes JS callback
-    /// @details Assumes that it's called from JS ready environment (compartment and request)
-    void InvokeJs();
-
-    void PrepareForGlobalGc();
+    HostTimerTask( JSContext* cx, JS::HandleValue funcValue );
+    ~HostTimerTask() override = default;
 
 private:
-    JSContext* pJsCtx_ = nullptr;
-
-    uint32_t funcId_;
-    mozjs::JsGlobalObject* pNativeGlobal_ = nullptr;
-
-    bool isJsAvailable_ = false;
+    void InvokeJsImpl( JSContext* cx, JS::HandleObject jsGlobal, JS::HandleValue funcValue ) override;
 };
 
 class HostTimer
