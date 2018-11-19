@@ -100,7 +100,7 @@ function on_font_changed() { }
  * @param {FbMetadbHandle} handle
  * @param {number} art_id
  * @param {?GdiBitmap} image null on failure
- * @param {?string} image_path path to image file (or music file if image is embedded)
+ * @param {string} image_path path to image file (or music file if image is embedded)
  */
 function on_get_album_art_done(handle, art_id, image, image_path) { }
 
