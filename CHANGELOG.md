@@ -29,6 +29,7 @@ ___
     - `FbProfiler`: accepts the same arguments as `fb.CreateProfiler`.
     - `FbTitleFormat`: accepts the same arguments as `fb.TitleFormat`.
 - Improved logging of objects through `console.log`: now it displays object's content as well.
+- Added documentation link to default context menu (accessible via `WIN-SHIFT-RightClick`).
 - Added `callbacks` to HTML documentation.
 - Updated basic samples with the new methods.
 
@@ -40,7 +41,7 @@ ___
 - Made adjustment to GC policies.
 
 ### Fixed
-- `FbMetadbHandle.FileSize` returns -1 properly now, when file size is not available.
+- `FbMetadbHandle.FileSize` returns -1 properly now when file size is not available.
 
 ## [1.0.5][] - 2018-11-06
 ### Added
