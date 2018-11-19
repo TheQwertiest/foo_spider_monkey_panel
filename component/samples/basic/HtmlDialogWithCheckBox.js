@@ -1,11 +1,11 @@
 window.DefinePanel('Html window with checkbox', {author: 'TheQwertiest'});
 
-include(fb.ComponentPath + "docs\\Flags.js");
+include(`${fb.ComponentPath}docs\\Flags.js`);
 
-var WshShell = new ActiveXObject('WScript.Shell');
+let WshShell = new ActiveXObject('WScript.Shell');
 
 function get_windows_version() {
-    var version = '';
+    let version = '';
 
     try {
         version = (WshShell.RegRead('HKLM\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\CurrentMajorVersionNumber')).toString();
@@ -28,10 +28,10 @@ function get_windows_version() {
     return '6.1';
 }
 
-var htmlCode = function() {
-    var htmlCode = utils.ReadTextFile( `${fb.ComponentPath}samples\\basic\\html\\PopupWithCheckBox.html`);
+const htmlCode = function() {
+    let htmlCode = utils.ReadTextFile( `${fb.ComponentPath}samples\\basic\\html\\PopupWithCheckBox.html`);
     
-    var cssPath = `${fb.ComponentPath}samples\\basic\\html\\`;
+    let cssPath = `${fb.ComponentPath}samples\\basic\\html\\`;
     if ( get_windows_version() === '6.1' ) {
         cssPath += "styles7.css";
     }
@@ -42,10 +42,10 @@ var htmlCode = function() {
     return htmlCode;
 }();
 
-var ww = 0;
-var wh = 0;
-var text = '>> Click Me To Open Dialog <<';
-var font = gdi.Font('Segoe Ui Semibold', 11);
+let ww = 0;
+let wh = 0;
+let text = '>> Click Me To Open Dialog <<';
+let font = gdi.Font('Segoe Ui Semibold', 11);
 
 function on_paint(gr) {
     gr.SetTextRenderingHint(TextRenderingHint.ClearTypeGridFit);

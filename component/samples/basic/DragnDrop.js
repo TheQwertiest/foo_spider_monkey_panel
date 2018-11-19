@@ -9,10 +9,9 @@
 
 window.DefinePanel("Drag n drop", { author: "TheQwertiest", features: { drag_n_drop: true } });
 
-include(fb.ComponentPath + "docs\\Flags.js");
+include(`${fb.ComponentPath}docs\\Flags.js`);
 
-var fso = new ActiveXObject('Scripting.FileSystemObject');
-
+const fso = new ActiveXObject('Scripting.FileSystemObject');
 const font = gdi.Font('Segoe Ui', 12);
 const g_drop_effect = {
     none:   0,
@@ -22,20 +21,19 @@ const g_drop_effect = {
     scroll: 0x80000000
 };
 
-var ww, wh;
+let ww, wh;
 
-var mouse_in = false;
-var mouse_down = false;
-var mouse_on_item = false;
+let mouse_in = false;
+let mouse_down = false;
+let mouse_on_item = false;
 
-var last_pressed_coord = {};
+let last_pressed_coord = {};
 
-var is_dragging = false;
-var is_internal_drag_n_drop_active = false;
-var can_drop = false;
+let is_dragging = false;
+let is_internal_drag_n_drop_active = false;
 
-var status_text = "Start dragging to or from the panel";
-var status_text_2 = "";
+let status_text = "Start dragging to or from the panel";
+let status_text_2 = "";
 
 
 ////////////////////////////
@@ -66,7 +64,7 @@ function on_mouse_move(x,y,m){
     }
 
     if (!is_dragging && mouse_on_item) {
-        var drag_diff = Math.sqrt((Math.pow(last_pressed_coord.x - x, 2) + Math.pow(last_pressed_coord.y - y, 2)));
+        let drag_diff = Math.sqrt((Math.pow(last_pressed_coord.x - x, 2) + Math.pow(last_pressed_coord.y - y, 2)));
         if (drag_diff >= 7) {
             last_pressed_coord = {
                 x: undefined,
@@ -78,7 +76,7 @@ function on_mouse_move(x,y,m){
     }
 
     return true;
-};
+}
 
 function on_mouse_lbtn_down(x, y, m) {
     mouse_down = true;
@@ -89,7 +87,7 @@ function on_mouse_lbtn_down(x, y, m) {
     mouse_on_item = trace_start_zone(x,y);
 
     return true;
-};
+}
 
 function on_mouse_lbtn_up(x, y, m) {   
     mouse_down = false;
@@ -102,7 +100,7 @@ function on_mouse_lbtn_up(x, y, m) {
     mouse_on_item = false;
 
     return true;
-};
+}
 
 function on_drag_enter(action, x, y, mask) {
     mouse_in = true;
@@ -121,7 +119,7 @@ function on_drag_enter(action, x, y, mask) {
     else {        
         action.Effect = g_drop_effect.none;
     }
-};
+}
 
 function on_drag_leave() {
     if (is_dragging) {
@@ -133,7 +131,7 @@ function on_drag_leave() {
 
     status_text_2 = "Item was dragged outside or dropped on no-drop zone";
     window.Repaint(); 
-};
+}
 
 function on_drag_over(action, x, y, mask) {
     if (trace_end_zone(x, y)) {
@@ -148,7 +146,7 @@ function on_drag_over(action, x, y, mask) {
         status_text_2 = "Item is being dragged";
         window.Repaint(); 
     }
-};
+}
 
 function on_drag_drop(action, x, y, m) {
     this.mouse_down = false; ///< because on_drag_drop suppresses on_mouse_lbtn_up call
@@ -161,10 +159,10 @@ function on_drag_drop(action, x, y, m) {
         return;
     }
 
-    var ctrl_pressed = utils.IsKeyPressed(VK_CONTROL);
+    let ctrl_pressed = utils.IsKeyPressed(VK_CONTROL);
 
     if (is_internal_drag_n_drop_active) {        
-        var copy_drop = ctrl_pressed && ((action.Effect & 1) || (action.Effect & 4));
+        let copy_drop = ctrl_pressed && ((action.Effect & 1) || (action.Effect & 4));
         drop(copy_drop);
 
         // Suppress native drop, since we've handled it ourselves
@@ -190,7 +188,7 @@ function on_drag_drop(action, x, y, m) {
             window.Repaint(); 
         }
     }
-};
+}
 
 ////////////////////////////
 // Methods
@@ -205,8 +203,8 @@ function trace_end_zone(x,y) {
 }
 
 function perform_internal_drag_n_drop() {
-    var cur_selected_index = 0;
-    var cur_playlist_idx = plman.ActivePlaylist;
+    let cur_selected_index = 0;
+    let cur_playlist_idx = plman.ActivePlaylist;
     
     is_dragging = true;
     is_internal_drag_n_drop_active = true;
@@ -215,10 +213,10 @@ function perform_internal_drag_n_drop() {
     plman.SetPlaylistSelectionSingle(cur_playlist_idx, cur_selected_index, true);
     plman.SetPlaylistFocusItem(cur_playlist_idx, cur_selected_index);
     
-    var cur_playlist_size = plman.PlaylistItemCount(cur_playlist_idx);
-    var cur_playlist_selection = plman.GetPlaylistSelectedItems(cur_playlist_idx);
+    let cur_playlist_size = plman.PlaylistItemCount(cur_playlist_idx);
+    let cur_playlist_selection = plman.GetPlaylistSelectedItems(cur_playlist_idx);
     
-    var effect = fb.DoDragDrop(window.ID, cur_playlist_selection, g_drop_effect.copy | g_drop_effect.move | g_drop_effect.link);
+    let effect = fb.DoDragDrop(window.ID, cur_playlist_selection, g_drop_effect.copy | g_drop_effect.move | g_drop_effect.link);
 
     function can_handle_move_drop() {
         // We can handle the 'move drop' properly only when playlist is still in the same state
@@ -231,10 +229,10 @@ function perform_internal_drag_n_drop() {
         // is returned for some move operations, instead of DROPEFFECT_MOVE.
         // See Q182219 for the details.
 
-        var items_to_remove = [];
-        var playlist_items = plman.GetPlaylistItems(cur_playlist_idx);
+        let items_to_remove = [];
+        let playlist_items = plman.GetPlaylistItems(cur_playlist_idx);
         [cur_selected_index].forEach(function (idx) {
-            var cur_item = playlist_items[idx];
+            let cur_item = playlist_items[idx];
             if (cur_item.RawPath.startsWith('file://') && !fso.FileExists(cur_item.Path)) {
                 items_to_remove.push(idx);
             }
@@ -254,8 +252,7 @@ function perform_internal_drag_n_drop() {
 }
 
 function drop(copy_selection) {
-    var cur_selected_index = 0;
-    var cur_playlist_idx = plman.ActivePlaylist;
+    let cur_playlist_idx = plman.ActivePlaylist;
     
     if (!is_dragging) {
         return;
@@ -263,7 +260,7 @@ function drop(copy_selection) {
 
     is_dragging = false;
 
-    var drop_idx = plman.PlaylistItemCount(cur_playlist_idx);
+    let drop_idx = plman.PlaylistItemCount(cur_playlist_idx);
     if (!copy_selection) {
         plman.MovePlaylistSelection(cur_playlist_idx, drop_idx);
         plman.SetPlaylistFocusItem(cur_playlist_idx, drop_idx + 1);
@@ -271,19 +268,19 @@ function drop(copy_selection) {
     else {
         plman.UndoBackup(cur_playlist_idx);
 
-        var cur_selection = plman.GetPlaylistSelectedItems(cur_playlist_idx);        
+        let cur_selection = plman.GetPlaylistSelectedItems(cur_playlist_idx);        
         plman.ClearPlaylistSelection(cur_playlist_idx);
         plman.InsertPlaylistItems(cur_playlist_idx, drop_idx, cur_selection, true);
         plman.SetPlaylistFocusItem(cur_playlist_idx, drop_idx);
     }
-};
+}
 
 function external_drop(action) {
-    var cur_playlist_idx = plman.ActivePlaylist;
+    let cur_playlist_idx = plman.ActivePlaylist;
     
     plman.ClearPlaylistSelection(cur_playlist_idx);
 
-    var playlist_idx;
+    let playlist_idx;
     if (!plman.PlaylistCount) {
         playlist_idx = plman.CreatePlaylist(0, 'Default');
         plman.ActivePlaylist = playlist_idx;
@@ -299,12 +296,12 @@ function external_drop(action) {
 
     is_dragging = false;
     is_internal_drag_n_drop_active = false;
-};
+}
 
 function filter_effect_by_modifiers(effect) {
-    var ctrl_pressed = utils.IsKeyPressed(VK_CONTROL);
-    var shift_pressed = utils.IsKeyPressed(VK_SHIFT);
-    var alt_pressed = utils.IsKeyPressed(VK_ALT);
+    let ctrl_pressed = utils.IsKeyPressed(VK_CONTROL);
+    let shift_pressed = utils.IsKeyPressed(VK_SHIFT);
+    let alt_pressed = utils.IsKeyPressed(VK_ALT);
 
     if (ctrl_pressed && shift_pressed && !alt_pressed
         || alt_pressed && !ctrl_pressed && !shift_pressed) {

@@ -74,9 +74,9 @@ JsThemeManager::~JsThemeManager()
     }
 }
 
-bool JsThemeManager::HasThemeData( HWND hwnd, const std::wstring& classlist )
+bool JsThemeManager::HasThemeData( HWND hwnd, const std::wstring& classId )
 { // Since CreateNative return nullptr only on error, we need to validate args beforehand
-    HTHEME hTheme = OpenThemeData( hwnd, classlist.c_str() );
+    HTHEME hTheme = OpenThemeData( hwnd, classId.c_str() );
     bool bFound = !!hTheme;
     if ( hTheme )
     {
@@ -87,15 +87,15 @@ bool JsThemeManager::HasThemeData( HWND hwnd, const std::wstring& classlist )
 }
 
 std::unique_ptr<JsThemeManager>
-JsThemeManager::CreateNative( JSContext* cx, HWND hwnd, const std::wstring& classlist )
+JsThemeManager::CreateNative( JSContext* cx, HWND hwnd, const std::wstring& classId )
 {
-    HTHEME hTheme = OpenThemeData( hwnd, classlist.c_str() );
+    HTHEME hTheme = OpenThemeData( hwnd, classId.c_str() );
     SmpException::ExpectTrue( hTheme, "Internal error: Failed to get theme data for the provided class list" );
 
     return std::unique_ptr<JsThemeManager>( new JsThemeManager( cx, hTheme ) );
 }
 
-size_t JsThemeManager::GetInternalSize( HWND /* hwnd */, const std::wstring& /* classlist */ )
+size_t JsThemeManager::GetInternalSize( HWND /* hwnd */, const std::wstring& /* classId */ )
 {
     return 0;
 }

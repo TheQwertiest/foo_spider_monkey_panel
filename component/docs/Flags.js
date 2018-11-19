@@ -25,7 +25,7 @@ var DT_NOFULLWIDTHCHARBREAK = 0x00080000;
 var DT_HIDEPREFIX = 0x00100000;
 var DT_PREFIXONLY = 0x00200000;
 
-// Used in AppendMenuItem()
+// Used in AppendMenuItem() and AppendTo()
 // For more information, see: http://msdn.microsoft.com/en-us/library/ms647616(VS.85).aspx
 var MF_SEPARATOR = 0x00000800;
 var MF_ENABLED = 0x00000000;

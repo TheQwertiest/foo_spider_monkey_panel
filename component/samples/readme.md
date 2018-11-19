@@ -22,7 +22,7 @@
          Should work on any system.  
 
 ### Usage
-Simply copy the text from any .txt file inside the various folders in to a panel's configuration dialog.
+Simply copy the text from any .txt (or .js for "basic") file inside the various folders in to a panel's configuration dialog.
 
 - "basic":  
          Some very simple samples that are referred to from "js_doc/Interfaces.js" and  

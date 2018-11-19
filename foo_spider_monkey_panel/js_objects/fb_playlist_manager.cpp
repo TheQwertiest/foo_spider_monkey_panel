@@ -48,7 +48,7 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( ClearPlaylist, JsFbPlaylistManager::ClearPlaylist 
 MJS_DEFINE_JS_FN_FROM_NATIVE( ClearPlaylistSelection, JsFbPlaylistManager::ClearPlaylistSelection );
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( CreateAutoPlaylist, JsFbPlaylistManager::CreateAutoPlaylist, JsFbPlaylistManager::CreateAutoPlaylistWithOpt, 2 );
 MJS_DEFINE_JS_FN_FROM_NATIVE( CreatePlaylist, JsFbPlaylistManager::CreatePlaylist );
-MJS_DEFINE_JS_FN_FROM_NATIVE( DuplicatePlaylist, JsFbPlaylistManager::DuplicatePlaylist );
+MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( DuplicatePlaylist, JsFbPlaylistManager::DuplicatePlaylist, JsFbPlaylistManager::DuplicatePlaylistWithOpt, 1 );
 MJS_DEFINE_JS_FN_FROM_NATIVE( EnsurePlaylistItemVisible, JsFbPlaylistManager::EnsurePlaylistItemVisible );
 MJS_DEFINE_JS_FN_FROM_NATIVE( ExecutePlaylistDefaultAction, JsFbPlaylistManager::ExecutePlaylistDefaultAction );
 MJS_DEFINE_JS_FN_FROM_NATIVE( FindOrCreatePlaylist, JsFbPlaylistManager::FindOrCreatePlaylist );
@@ -95,7 +95,7 @@ const JSFunctionSpec jsFunctions[] = {
     JS_FN( "ClearPlaylistSelection", ClearPlaylistSelection, 1, DefaultPropsFlags() ),
     JS_FN( "CreateAutoPlaylist", CreateAutoPlaylist, 3, DefaultPropsFlags() ),
     JS_FN( "CreatePlaylist", CreatePlaylist, 2, DefaultPropsFlags() ),
-    JS_FN( "DuplicatePlaylist", DuplicatePlaylist, 2, DefaultPropsFlags() ),
+    JS_FN( "DuplicatePlaylist", DuplicatePlaylist, 1, DefaultPropsFlags() ),
     JS_FN( "EnsurePlaylistItemVisible", EnsurePlaylistItemVisible, 2, DefaultPropsFlags() ),
     JS_FN( "ExecutePlaylistDefaultAction", ExecutePlaylistDefaultAction, 2, DefaultPropsFlags() ),
     JS_FN( "FindOrCreatePlaylist", FindOrCreatePlaylist, 2, DefaultPropsFlags() ),
@@ -314,6 +314,19 @@ uint32_t JsFbPlaylistManager::DuplicatePlaylist( uint32_t from, const pfc::strin
     stream_reader_dummy dummy_reader;
     abort_callback_dummy dummy_abort;
     return api->create_playlist_ex( uname.get_ptr(), uname.get_length(), from + 1, contents, &dummy_reader, dummy_abort );
+}
+
+uint32_t JsFbPlaylistManager::DuplicatePlaylistWithOpt( size_t optArgCount, uint32_t from, const pfc::string8_fast& name )
+{
+    switch ( optArgCount )
+    {
+    case 0:
+        return DuplicatePlaylist( from, name );
+    case 1:
+        return DuplicatePlaylist( from );
+    default:
+        throw SmpException( smp::string::Formatter() << "Internal error: invalid number of optional arguments specified: " << optArgCount );
+    }
 }
 
 void JsFbPlaylistManager::EnsurePlaylistItemVisible( uint32_t playlistIndex, uint32_t playlistItemIndex )

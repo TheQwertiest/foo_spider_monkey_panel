@@ -4,7 +4,7 @@
 
 /**
  * Evaluates the script in file.
- * Similar to eval({@link utils.ReadTextFile}), but provides better error reporting
+ * Similar to eval({@link utils.ReadTextFile}(path)), but provides better error reporting
  *
  * @param {string} path Path to JavaScript file
  */
@@ -29,7 +29,6 @@ function clearInterval(timerID) { } // (void)
  * 
  * @param {function()} func
  * @param {number} delay
- * 
  * @return {number}
  */
 function setInterval(func, delay) { } // (uint)
@@ -39,7 +38,6 @@ function setInterval(func, delay) { } // (uint)
  * 
  * @param {function()} func
  * @param {number} delay
- * 
  * @return {number}
  *
  * @example
@@ -54,7 +52,7 @@ function setTimeout(func, delay) { } // (uint)
  * @param {string} name
  *
  * @example
- * var xmlhttp = new ActiveXObject('Microsoft.XMLHTTP');
+ * const xmlhttp = new ActiveXObject('Microsoft.XMLHTTP');
  */
 function ActiveXObject(name) {
 
@@ -62,7 +60,6 @@ function ActiveXObject(name) {
      * Emulates COM's weird behaviour of property accessors.
      *
      * @param {number|string} prop_name Name of the property or it's numeric index
-     *
      * @return {*}
      *
      * @example
@@ -253,7 +250,8 @@ let fb = {
     CheckClipboardContents: function () { }, // (boolean)
 
     /**
-     * Clears active playlist. If you wish to clear a specific playlist, use {@link plman.ClearPlaylist}(playlistIndex).
+     * Clears active playlist.<br>
+     * If you wish to clear a specific playlist, use {@link plman.ClearPlaylist}(playlistIndex).
      */
     ClearPlaylist: function () { }, // (void)
 
@@ -264,13 +262,13 @@ let fb = {
      * @return {boolean}
      *
      * @example <caption>Copy playlist items</caption>
-     * var handle_list = plman.GetPlaylistSelectedItems(plman.ActivePlaylist);
+     * let handle_list = plman.GetPlaylistSelectedItems(plman.ActivePlaylist);
      * fb.CopyHandleListToClipboard(handle_list);
      *
      * @example <caption>cut playlist items</caption>
-     * var ap = plman.ActivePlaylist;
+     * let ap = plman.ActivePlaylist;
      * if (!plman.IsPlaylistLocked(ap)) {
-     *    var handle_list = plman.GetPlaylistSelectedItems(ap);
+     *    let handle_list = plman.GetPlaylistSelectedItems(ap);
      *    if (fb.CopyHandleListToClipboard(handle_list)) {
      *        plman.UndoBackup(ap);
      *        plman.RemovePlaylistSelection(ap);
@@ -346,19 +344,21 @@ let fb = {
 
     /**
      * Note: clipboard contents can be handles copied to the clipboard in other components,
-     * from {@link fb.CopyHandleListToClipboard} or a file selection, from Windows Explorer and etc.
+     * from {@link fb.CopyHandleListToClipboard} or a file selection, from Windows Explorer and etc.<br>
+     * <br>
+     * Performance note: validate clipboard content with {@link fb.CheckClipboardContents} before calling this method.
      *
      * @param {number} window_id
      * @return {FbMetadbHandleList}
      *
      * @example
      * function on_mouse_rbtn_up(x, y) {
-     *    var ap = plman.ActivePlaylist;
-     *    var menu = window.CreatePopupMenu();
+     *    let ap = plman.ActivePlaylist;
+     *    let menu = window.CreatePopupMenu();
      *    menu.AppendMenuItem(!plman.IsPlaylistLocked(ap) && fb.CheckClipboardContents() ? MF_STRING : MF_GRAYED, 1, "Paste"); // see Flags.js for MF_* definitions
-     *    var idx = menu.TrackPopupMenu(x, y);
+     *    let idx = menu.TrackPopupMenu(x, y);
      *    if (idx == 1) {
-     *        var handle_list  = fb.GetClipboardContents(window.ID);
+     *        let handle_list  = fb.GetClipboardContents(window.ID);
      *        plman.InsertPlaylistItems(ap, plman.PlaylistItemCount(ap), handle_list );
      *    }
      *    return true;
@@ -380,7 +380,7 @@ let fb = {
     GetLibraryItems: function () { }, // (FbMetadbHandleList)
 
     /**
-     * Note: do not use this while looping a handle list. Use {@link FbMetadbHandleList#GetLibraryRelativePaths} instead. <br>
+     * Note: do not use this while looping through a handle list. Use {@link FbMetadbHandleList#GetLibraryRelativePaths} instead. <br>
      * <br>
      * Returns an empty string when used on track not in Media Library
      *
@@ -390,13 +390,13 @@ let fb = {
      * @example
      * // The foobar2000 Media Library is configured to watch "D:\Music" and the
      * // path of the now playing item is "D:\Music\Albums\Artist\Some Album\Some Song.flac"
-     * var handle = fb.GetNowPlaying();
+     * let handle = fb.GetNowPlaying();
      * console.log(fb.GetLibraryRelativePath(handle)); // Albums\Artist\Some Album\Some Song.flac*
      */
     GetLibraryRelativePath: function (handle) { }, // (string)
 
     /**
-     * Get handle of now playing item.
+     * Get handle of the now playing track.
      *
      * @return {?FbMetadbHandle} null, if nothing is being played.
      */
@@ -409,8 +409,8 @@ let fb = {
      * @return {string}
      *
      * @example
-     * var str = fb.GetOutputDevices();
-     * var arr = JSON.parse(str);
+     * let str = fb.GetOutputDevices();
+     * let arr = JSON.parse(str);
      * console.log(JSON.stringify(arr, null, 4));
      * // [
      * //     {
@@ -459,24 +459,22 @@ let fb = {
      * @return {FbMetadbHandleList} Unsorted results.
      *
      * @example
-     * var a = fb.GetQueryItems(plman.GetPlaylistItems(plman.ActivePlaylist), "rating IS 5");
+     * let a = fb.GetQueryItems(plman.GetPlaylistItems(plman.ActivePlaylist), "rating IS 5");
      *
      * @example
-     * var b = fb.GetQueryItems(fb.GetLibraryItems(), "rating IS 5");
+     * let b = fb.GetQueryItems(fb.GetLibraryItems(), "rating IS 5");
      */
     GetQueryItems: function (handle_list, query) { }, // (FbMetadbHandleList)
 
     /**
-     * Gets now playing or selected item. What you get will depend on
-     * "File>Preferences>Display>Selection viewers".
+     * Gets now playing or selected item according to settings in "File>Preferences>Display>Selection viewers".
      *
      * @return {?FbMetadbHandle}
      */
     GetSelection: function () { }, // (FbMetadbHandle)
 
     /**
-     * Works like GetSelection(), but returns a handle list.
-     * Always returns a valid handle list instance instead of null.
+     * Works like {@link fb.GetSelection}, but returns a handle list.<br>
      *
      * @param {number=} [flags=0] 1 - no now playing
      * @return {FbMetadbHandleList}
@@ -518,12 +516,16 @@ let fb = {
      * @return {boolean}
      *
      * @example
-     * var np = fb.GetNowplaying();
+     * let np = fb.GetNowplaying();
      * console.log(fb.IsMetadbInMediaLibrary(np)); // If false, playing track is not in Media Library.
      */
     IsMetadbInMediaLibrary: function (handle) { }, // (boolean)
 
-    /** @method */
+    /**
+     * Loads playlist from file. Equivalent to `File`>`Load Playlist...`.
+     * 
+     * @method 
+     */
     LoadPlaylist: function () { }, // (void)
 
     /** @method */
@@ -545,7 +547,7 @@ let fb = {
     Random: function () { }, // (void)
 
     /**
-     * For now playing file only.
+     * Shows context menu for currently played track.
      *
      * @param {string} command
      * @param {number=} [flags=0]
@@ -561,6 +563,8 @@ let fb = {
     RunContextCommand: function (command, flags) { }, // (boolean) [, flags]
 
     /**
+     * Shows context menu for supplied tracks. 
+     * 
      * @param {string} command
      * @param {FbMetadbHandle|FbMetadbHandleList} handle_or_handle_list Handles on which to apply context menu
      * @param {number=} flags Same flags as {@link fb.RunContextCommand}
@@ -590,8 +594,8 @@ let fb = {
      * @example
      * // To actually change device, you'll need the device_id and output_id
      * // and use them with fb.SetOutputDevice.
-     * var str = fb.GetOutputDevices();
-     * var arr = JSON.parse(str);
+     * let str = fb.GetOutputDevices();
+     * let arr = JSON.parse(str);
      * // Assuming same list from above, switch output to the last device.
      * fb.SetOutputDevice(arr[4].output_id, arr[4].device_id);
      */
@@ -666,14 +670,14 @@ let gdi = {
     /**
      * Load image from file.<br>
      * <br>
-     * Performance note: consider using {@link gdi.LoadImageAsync}, if there are a lot of images to load
+     * Performance note: consider using {@link gdi.LoadImageAsync} or {@link gdi.LoadImageAsyncV2} if there are a lot of images to load
      * or if the image is big.
      *
      * @param {string} path
-     * @return {?GdiBitmap} null, if path doesn't exist or image fails to load.
+     * @return {?GdiBitmap} null, if image failed to load.
      *
      * @example
-     * var img = gdi.Image('e:\\images folder\\my_image.png');
+     * let img = gdi.Image('e:\\images folder\\my_image.png');
      */
     Image: function (path) { }, // (GdiBitmap)
 
@@ -682,7 +686,6 @@ let gdi = {
      *
      * @param {number} window_id see {@link window.ID}
      * @param {string} path
-     * 
      * @return {number} a unique id, which is used in {@link module:callbacks~on_load_image_done on_load_image_done}.
      * 
      * @example
@@ -691,16 +694,16 @@ let gdi = {
     LoadImageAsync: function (window_id, path) { }, // (uint)
 
     /**
-    * Returns a `Promise` object, which will be resolved when image loading is done.
-    * 
-    * @param {number} window_id see {@link window.ID}
-    * @param {string} path
-    * 
-    * @return {Promise.<?GdiBitmap>}
-    *
-    * @example
-    * // See samples\basic\LoadImageAsyncV2.txt
-    */
+     * Load image from file asynchronously.
+     * Returns a `Promise` object, which will be resolved when image loading is done.
+     * 
+     * @param {number} window_id see {@link window.ID}
+     * @param {string} path
+     * @return {Promise.<?GdiBitmap>}
+     *
+     * @example
+     * // See samples\basic\LoadImageAsyncV2.txt
+     */
     LoadImageAsyncV2: function (window_id, path) { }
 };
 
@@ -712,10 +715,10 @@ let gdi = {
 let plman = {
 
     /**
-     * @type {number}
+     * @type {number} -1 if there is no active playlist.
      *
      * @example
-     * console.log(plman.ActivePlaylist); // Returns -1 if there is no active playlist.
+     * console.log(plman.ActivePlaylist);
      *
      * @example
      * plman.ActivePlaylist = 1; // Switches to 2nd playlist.
@@ -737,10 +740,10 @@ let plman = {
 
 
     /**
-     * @type {number}
+     * @type {number} -1 if there is no playing playlist
      *
      * @example
-     * console.log(plman.PlayingPlaylist); // Returns -1 if there is no playing playlist
+     * console.log(plman.PlayingPlaylist);
      */
     PlayingPlaylist: undefined, // (int) (read, write)
 
@@ -820,12 +823,14 @@ let plman = {
      * It only duplicates playlist content, not the properties of the playlist (e.g. Autoplaylist).
      *
      * @param {number} playlistIndex
-     * @param {string} name A name for the new playlist. If name is "", the name of the source playlist is used.
+     * @param {?string=} [name] A name for the new playlist. If the name is "" or undefined, the name of the source playlist will be used.
      * @return {number}
      */
     DuplicatePlaylist: function (playlistIndex, name) { }, // (int)
 
     /**
+     * Signals playlist viewers to display the track (e.g. by scrolling to it's position).
+     * 
      * @param {number} playlistIndex
      * @param {number} playlistItemIndex
      */
@@ -841,8 +846,8 @@ let plman = {
     ExecutePlaylistDefaultAction: function (playlistIndex, playlistItemIndex) { }, // (boolean)
 
     /**
-     * Returns playlistIndex of named playlist or creates new one if not found.<br>
-     * If a new playlist is created, the playlistIndex of that will be returned.
+     * Returns playlist index of the named playlist or creates a new one, if not found.<br>
+     * If a new playlist is created, the playlist index of that will be returned.
      *
      * @param {string} name
      * @param {boolean} unlocked If true, locked playlists are ignored when looking for existing playlists.
@@ -870,7 +875,7 @@ let plman = {
      * @return {number} Returns -1 if nothing is selected
      *
      * @example
-     * var focus_item_index = plman.GetPlaylistFocusItemIndex(plman.ActivePlaylist); // 0 would be the first item
+     * let focus_item_index = plman.GetPlaylistFocusItemIndex(plman.ActivePlaylist); // 0 would be the first item
      */
     GetPlaylistFocusItemIndex: function (playlistIndex) { }, // (int)
 
@@ -879,7 +884,7 @@ let plman = {
      * @return {FbMetadbHandleList}
      *
      * @example
-     * var handle_list = plman.GetPlaylistItems(plman.PlayingPlaylist);
+     * let handle_list = plman.GetPlaylistItems(plman.PlayingPlaylist);
      */
     GetPlaylistItems: function (playlistIndex) { }, // (FbMetadbHandleList)
 
@@ -897,7 +902,7 @@ let plman = {
      * @return {FbMetadbHandleList}
      *
      * @example
-     * var selected_items = plman.GetPlaylistSelectedItems(plman.ActivePlaylist);
+     * let selected_items = plman.GetPlaylistSelectedItems(plman.ActivePlaylist);
      */
     GetPlaylistSelectedItems: function (playlistIndex) { }, // (FbMetadbHandleList)
 
@@ -905,15 +910,15 @@ let plman = {
      * @param {number} playlistIndex
      * @param {number} base Position in playlist
      * @param {FbMetadbHandleList} handle_list Items to insert
-     * @param {boolean=} [select=false]
+     * @param {boolean=} [select=false] If true then inserted items will be selected
      * @return {number}
      *
      * @example <caption>Add all library tracks to beginning of playlist.</caption>
-     * var ap = plman.ActivePlaylist;
+     * let ap = plman.ActivePlaylist;
      * plman.InsertPlaylistItems(ap, 0, fb.GetLibraryItems());
      *
      * @example <caption>Add all library tracks to end of playlist.</caption>
-     * var ap = plman.ActivePlaylist;
+     * let ap = plman.ActivePlaylist;
      * plman.InsertPlaylistItems(ap, plman.PlaylistItemCount(ap), fb.GetLibraryItems());
      */
     InsertPlaylistItems: function (playlistIndex, base, handle_list, select) { }, // (int) [, select]
@@ -943,7 +948,7 @@ let plman = {
     IsPlaylistItemSelected: function (playlistIndex, playlistItemIndex) { }, // (boolean)
 
     /**
-     * Note: this returns true, if the playlist is an autoplaylist. To determine if a playlist is not an autoplaylist,
+     * Note: returns true, if the playlist is an autoplaylist. To determine if a playlist is not an autoplaylist,
      * but locked with something like `foo_utils` or `foo_playlist_attributes`, use with conjunction of {@link plman.IsAutoPlaylist}.
      *
      * @param {number} playlistIndex
@@ -990,7 +995,7 @@ let plman = {
 
     /**
      * @param {number} playlistIndex
-     * @param {boolean=} [crop=false] If crop is true, then removes items that are NOT selected.
+     * @param {boolean=} [crop=false] If true, then removes items that are NOT selected.
      *
      * @example <Remove selected items from playlist>
      * plman.RemovePlaylistSelection(plman.ActivePlaylist);
@@ -1045,8 +1050,8 @@ let plman = {
      * @param {FbMetadbHandle} handle
      *
      * @example
-     * var ap = plman.ActivePlaylist;
-     * var handle = plman.GetPlaylistItems(ap)[1]; // 2nd item in playlist
+     * let ap = plman.ActivePlaylist;
+     * let handle = plman.GetPlaylistItems(ap)[1]; // 2nd item in playlist
      * plman.SetPlaylistFocusItemByHandle(ap, handle);
      */
     SetPlaylistFocusItemByHandle: function (playlistIndex, handle) { }, // (void)
@@ -1072,7 +1077,7 @@ let plman = {
      * plman.SetPlaylistSelectionSingle(plman.ActivePlaylist, 0, false);
      *
      * @example
-     * var ap = plman.ActivePlaylist;
+     * let ap = plman.ActivePlaylist;
      * // Selects last item in playlist. This does not affect other selected items.
      * plman.SetPlaylistSelectionSingle(ap, plman.PlaylistItemCount(ap) - 1, true);
      */
@@ -1116,7 +1121,8 @@ let plman = {
     SortPlaylistsByName: function (direction) { }, //(void)
 
     /**
-     * Call before using other {@link plman} methods that add/remove/reorder playlist items so a history will be available from the Edit menu.
+     * Saves playlist's current state: this will enable `Edit`>`Undo` menu item after calling other {@link plman} methods that change playlist content.<br>
+     * Note: this method should be called before performing modification to the playlist.
      *
      * @param {number} playlistIndex
      */
@@ -1148,7 +1154,7 @@ let plman = {
      * @return {Array<FbPlaybackQueueItem>}
      *
      * @example
-     * var contents = plman.GetPlaybackQueueContents();
+     * let contents = plman.GetPlaybackQueueContents();
      * if (contents.length) {
      *     // access properties of first item
      *     console.log(contents[0].PlaylistIndex, contents[0].PlaylistItemIndex);
@@ -1160,7 +1166,7 @@ let plman = {
      * @return {FbMetadbHandleList}
      *
      * @example
-     * var handles = plman.GetPlaybackQueueHandles();
+     * let handles = plman.GetPlaybackQueueHandles();
      * if (handles.Count > 0) {
      *    // use "Count" to determine if Playback Queue is active.
      * }
@@ -1194,13 +1200,13 @@ let utils = {
      *
      * @example
      * function is_compatible(requiredVersionStr) {
-     *     var requiredVersion = requiredVersionStr.split('.');
-     *     var currentVersion = utils.Version.split('.'); // e.g. 0.1.0-alpha.2
+     *     let requiredVersion = requiredVersionStr.split('.');
+     *     let currentVersion = utils.Version.split('.'); // e.g. 0.1.0-alpha.2
      *     if (currentVersion.length > 3) {
      *         currentVersion.length = 3; // We need only numbers
      *     }
      *
-     *     for(var i = 0; i<currentVersion.length; ++i) {
+     *     for(let i = 0; i< currentVersion.length; ++i) {
      *       if (currentVersion[i] != requiredVersion[i]) {
      *           return currentVersion[i] > requiredVersion[i];
      *       }
@@ -1209,7 +1215,7 @@ let utils = {
      *     return true;
      * }
      *
-     * var requiredVersionStr = '1.0.0';
+     * let requiredVersionStr = '1.0.0';
      * if (!is_compatible(requiredVersionStr)) {
      *     fb.ShowPopupMessage(`This script requires v${requiredVersionStr}. Current component version is v${utils.Version}.`);
      * }
@@ -1217,6 +1223,8 @@ let utils = {
     Version: undefined, // (string) (read)
 
     /**
+     * Checks the availability of foobar2000 component.
+     * 
      * @param {string} name
      * @param {boolean=} [is_dll=true] If true, method checks filename as well as the internal name.
      * @return {boolean}
@@ -1243,23 +1251,25 @@ let utils = {
      * @return {number}
      *
      * @example
-     * var colour = utils.ColourPicker(window.ID, RGB(255, 0, 0));
+     * let colour = utils.ColourPicker(window.ID, RGB(255, 0, 0));
      * // See docs\Helper.js for RGB function.
      */
     ColourPicker: function (window_id, default_colour) { }, // (int)
 
     /**
+     * Various utility functions for working with file.
+     * 
      * @param {string} path
      * @param {string} mode
-     *     "chardet" - Guess the charset of a file and return the codepage. It may not be accurate and returns 0 if an error occurred.<br>
-     *     "e" - If file path exists, return true.<br>
-     *     "s" - Retrieve file size, in bytes.<br>
-     *     "d" - If path is a directory, return true.<br>
-     *     "split" - Returns an Array.
+     *     "chardet" - Guesses the charset of a file and return the codepage. It may not be accurate and returns 0 if an error occurred.<br>
+     *     "e" - If file path exists, returns true.<br>
+     *     "s" - Retrieves file size, in bytes.<br>
+     *     "d" - If path is a directory, returns true.<br>
+     *     "split" - Returns an array of directory, filename and filename extension.
      * @return {*}
      *
      * @example
-     * var arr = utils.FileTest("D:\\Somedir\\Somefile.txt", "split");
+     * let arr = utils.FileTest("D:\\Somedir\\Somefile.txt", "split");
      * // arr[0] <= "D:\\Somedir\\" (always includes backslash at the end)
      * // arr[1] <= "Somefile"
      * // arr[2] <= ".txt"
@@ -1285,6 +1295,11 @@ let utils = {
     FormatFileSize: function (bytes) { }, // (string)
 
     /**
+     * Load art image for the track asynchronously.<br>
+     * <br>
+     * Performance note: consider using {@link gdi.LoadImageAsync} or {@link gdi.LoadImageAsyncV2} if there are a lot of images to load
+     * or if the image is big.
+     * 
      * @param {number} window_id {@link window.ID}
      * @param {FbMetadbHandle} handle
      * @param {number=} [art_id=0] See Flags.js > AlbumArtId
@@ -1300,19 +1315,19 @@ let utils = {
     /**
      * @typedef {Object} ArtPromiseResult
      * @property {?GdiBitmap} image null on failure
-     * @property {?string} image_path path to image file (or music file if image is embedded)
+     * @property {string} image_path path to image file (or track file if image is embedded)
      */
 
     /**
+     * Load art image for the track asynchronously.<br>
      * Returns a `Promise` object, which will be resolved when art loading is done.
      * 
      * @param {number} window_id {@link window.ID}
      * @param {FbMetadbHandle} handle
      * @param {number=} [art_id=0] See Flags.js > AlbumArtId
-     * @param {boolean=} [need_stub=true]
-     * @param {boolean=} [only_embed=false]
-     * @param {boolean=} [no_load=false] If true, "image" parameter will be null in {@link ArtPromiseResult}.
-     * 
+     * @param {boolean=} [need_stub=true] If true, will return a stub image from `Preferences`>`Display`>`Stub image path` when there is no art image available.
+     * @param {boolean=} [only_embed=false] If true, will only try to load the embedded image.
+     * @param {boolean=} [no_load=false] If true, then no art loading will be performed and only path to art will be returned in {@link ArtPromiseResult}.
      * @return {Promise.<ArtPromiseResult>}
      *
      * @example
@@ -1321,22 +1336,31 @@ let utils = {
     GetAlbumArtAsyncV2: function (window_id, handle, art_id, need_stub, only_embed, no_load) { },
 
     /**
-     * @param {string} rawpath
+     * Load embedded art image for the track.<br>
+     * <br>
+     * Performance note: consider using {@link fb.GetAlbumArtAsync} or {@link fb.GetAlbumArtAsyncV2} if there are a lot of images to load.
+     *
+     * @param {string} rawpath Path to track file
      * @param {number=} [art_id=0] See Flags.js > AlbumArtId
      * @return {GdiBitmap}
      *
      * @example
-     * var img = utils.GetAlbumArtEmbedded(fb.GetNowPlaying().RawPath, 0);
+     * let img = utils.GetAlbumArtEmbedded(fb.GetNowPlaying().RawPath, 0);
      */
     GetAlbumArtEmbedded: function (rawpath, art_id) { }, // (GdiBitmap) [, art_id]
 
     /**
-     * See samples\basic\GetAlbumArtV2.txt
+     * Load art image for the track.<br>
+     * <br>
+     * Performance note: consider using {@link fb.GetAlbumArtAsync} or {@link fb.GetAlbumArtAsyncV2} if there are a lot of images to load.
      *
      * @param {FbMetadbHandle} handle
      * @param {number=} [art_id=0] See Flags.js > AlbumArtId
      * @param {boolean=} [need_stub=true]
      * @return {GdiBitmap}
+     * 
+     * @example
+     * // See samples\basic\GetAlbumArtV2.txt
      */
     GetAlbumArtV2: function (handle, art_id, need_stub) { }, // (GdiBitmap) [, art_id][, need_stub]
 
@@ -1345,9 +1369,9 @@ let utils = {
      * @return {number} 0 if failed
      *
      * @example
-     * var splitter_colour = utils.GetSysColour(15);
+     * let splitter_colour = utils.GetSysColour(15);
      */
-    GetSysColor: function (index) { }, // (uint)
+    GetSysColour: function (index) { }, // (uint)
 
     /**
      * @param {number} index {@link http://msdn.microsoft.com/en-us/library/ms724385%28VS.85%29.aspx}
@@ -1356,13 +1380,15 @@ let utils = {
     GetSystemMetrics: function (index) { }, // (int)
 
     /**
+     * Retrieves filepaths that match the supplied pattern.
+     * 
      * @param {string} pattern
      * @param {number=} [exc_mask=0x10] Default is FILE_ATTRIBUTE_DIRECTORY. See Flags.js > Used in utils.Glob()
      * @param {number=} [inc_mask=0xffffffff]
      * @return {Array<string>}
      *
      * @example
-     * var arr = utils.Glob("C:\\*.*");
+     * let arr = utils.Glob("C:\\*.*");
      */
     Glob: function (pattern, exc_mask, inc_mask) { }, // (Array) [, exc_mask][, inc_mask]
 
@@ -1370,20 +1396,21 @@ let utils = {
      * @param {number} window_id
      * @param {string} prompt
      * @param {string} caption
-     * @param {string=} [defaultval = '']
-     * @param {boolean=} [error_on_cancel = false] If set to true, use try/catch like Example2.
+     * @param {string=} [defaultval='']
+     * @param {boolean=} [error_on_cancel=false] If set to true, use try/catch like Example2.
      * @return {string}
      *
      * @example
      * // With "error_on_cancel" not set (or set to false), cancelling the dialog will return "defaultval".
-     * var username = utils.InputBox(window.ID, "Enter your username", "Spider Monkey Panel", "");
+     * let username = utils.InputBox(window.ID, "Enter your username", "Spider Monkey Panel", "");
      *
      * @example
      * // Using Example1, you can't tell if OK or Cancel was pressed if the return value is the same
      * // as "defaultval". If you need to know, set "error_on_cancel" to true which throws a script error
      * // when Cancel is pressed.
+     * let username = "";
      * try {
-     *    var username = utils.InputBox(window.ID, "Enter your username", "Spider Monkey Panel", "", true);
+     *    username = utils.InputBox(window.ID, "Enter your username", "Spider Monkey Panel", "", true);
      *    // OK was pressed.
      * } catch(e) {
      *     // Dialog was closed by pressing Esc, Cancel or the Close button.
@@ -1398,6 +1425,8 @@ let utils = {
     IsKeyPressed: function (vkey) { }, // (boolean)
 
     /**
+     * See {@link https://docs.microsoft.com/en-us/windows/desktop/api/winnls/nf-winnls-lcmapstringa}.
+     * 
      * @param {string} text
      * @param {string} lcid
      * @param {number} flags
@@ -1406,6 +1435,7 @@ let utils = {
     MapString: function (text, lcid, flags) { }, // (string)
 
     /**
+     * Check if the supplied string matches the pattern.<br>
      * Using Microsoft MS-DOS wildcards match type. eg "*.txt", "abc?.tx?"
      *
      * @param {string} pattern
@@ -1415,12 +1445,14 @@ let utils = {
     PathWildcardMatch: function (pattern, str) { }, // (boolean)
 
     /**
+     * Performance note: supply codepage argument if it is known, since codepage detection might take some time.
+     * 
      * @param {string} filename
-     * @param {number=} [codepage=0] See Codepages.js. If codepage is 0, text file can be UTF16-BOM, UTF8-BOM or ANSI.
+     * @param {number=} [codepage=0] See Codepages.js. If codepage is 0, then automatic detection is performed.
      * @return {string}
      *
      * @example
-     * var text = utils.ReadTextFile("E:\\some text file.txt");
+     * let text = utils.ReadTextFile("E:\\some text file.txt");
      */
     ReadTextFile: function (filename, codepage) { }, // (string) [,codepage]
 
@@ -1434,7 +1466,7 @@ let utils = {
      * @return {string}
      *
      * @example
-     * var username = utils.ReadINI("e:\\my_file.ini", "Last.fm", "username");
+     * let username = utils.ReadINI("e:\\my_file.ini", "Last.fm", "username");
      */
     ReadINI: function (filename, section, key, defaultval) { }, // (string) [, defaultval]
 
@@ -1491,7 +1523,8 @@ let utils = {
     WriteINI: function (filename, section, key, val) { }, // (boolean)
 
     /**
-     * The parent folder must already exist.
+     * Note: the parent folder must already exist.
+     * Note2: the file is written with UTF8 encoding.
      *
      * @param {string} filename
      * @param {string} content
@@ -1518,9 +1551,10 @@ let utils = {
  */
 let window = {
     /**
-     * See Flags.js > With window.DlgCode
+     * Indicates which keys should be processed by the panel.<br>
+     * See {@link https://docs.microsoft.com/en-us/windows/desktop/dlgbox/wm-getdlgcode} for more info.
      *
-     * @return {number}
+     * @return {number} See Flags.js > With window.DlgCode
      *
      * @example
      * window.DlgCode(DLGC_WANTALLKEYS);
@@ -1548,8 +1582,9 @@ let window = {
     InstanceType: undefined, // (int)
 
     /**
+     * Only useful within Panel Stack Splitter (Columns UI component)<br>
      * Depends on setting inside Spider Monkey Panel Configuration window. You generally use it to determine
-     * whether or not to draw a background. Only useful within Panel Stack Splitter (Columns UI component)
+     * whether or not to draw a background.
      *
      * @type {boolean}
      * @readonly
@@ -1608,7 +1643,7 @@ let window = {
 
     /**
      * Returns the author set in {@link window.DefinePanel}.
-     * If that isn't present, the GUID of the panel is returned.
+     * If it isn't present, the GUID of the panel is returned.
      *
      * @type {string}
      * @readonly
@@ -1674,13 +1709,13 @@ let window = {
     CreatePopupMenu: function () { }, // (MenuObject)
 
     /**
-     * @param {Array<string>} class_list {@link http://msdn.microsoft.com/en-us/library/bb773210%28VS.85%29.aspx}
+     * @param {string} class_id {@link http://msdn.microsoft.com/en-us/library/bb773210%28VS.85%29.aspx}
      * @return {ThemeManager}
      *
      * @example
      * // See samples\basic\SimpleThemedButton.txt
      */
-    CreateThemeManager: function (class_list) { }, // (ThemeManager)
+    CreateThemeManager: function (class_id) { }, // (ThemeManager)
 
     /**
      * @param {string=} [font_name='Segoe UI']
@@ -1691,8 +1726,8 @@ let window = {
     CreateTooltip: function (font_name, font_size_px, font_style) { }, // (FbTooltip) [font_name][, font_size_px][, font_style]
 
     /**
-     * @param {number} type
-     * @param {string=} client_guid
+     * @param {number} type See Flags.js > Used in window.GetColourXXX()
+     * @param {string=} client_guid See Flags.js > Used in GetColourCUI() as client_guid.
      * @return {number}
      */
     GetColourCUI: function (type, client_guid) { }, // (uint) [, client_guid]
@@ -1717,7 +1752,7 @@ let window = {
      * @example
      * // To avoid errors when trying to use the font or access its properties, you
      * // should use code something like this...
-     * var font = window.GetFontDUI(0);
+     * let font = window.GetFontDUI(0);
      * if (!font) {
      *    console.log("Unable to determine your default font. Using Segoe UI instead.");
      *    font = gdi.Font("Segoe UI", 12);
@@ -1753,18 +1788,26 @@ let window = {
     Reload: function () { }, // (void)
 
     /**
-     * @param {boolean=} [force=false]
+     * Performance note: don't force the repaint unless it's really necessary -
+     * repaint calls might be grouped up when *not forced* which will turn them into a single repaint call,
+     * thus reducing the amount of {@link module:callbacks~on_paint on_paint} calls.
+     * 
+     * @param {boolean=} [force=false] If true, will repaint immediately, otherwise a repaint task will be *scheduled*.
      */
     Repaint: function (force) { }, // (void) [force]
 
     /**
-     * Use this instead of window.Repaint on frequently updated areas
-     * such as time, bitrate, seekbar, etc.
+     * Repaints a part of the screen.<br>
+     * Use this instead of {@link window.Repaint} on frequently updated areas
+     * such as time, bitrate, seekbar, etc.<br>
+     * <br>
+     * Performance note: see Performance note in {@link window.Repaint}.
+     * 
      * @param {number} x
      * @param {number} y
      * @param {number} w
      * @param {number} h
-     * @param {boolean=} [force=false]
+     * @param {boolean=} [force=false] If true, will repaint immediately, otherwise a repaint task will be *scheduled*.
      */
     RepaintRect: function (x, y, w, h, force) { }, // (void) [force]
 
@@ -1832,7 +1875,7 @@ function FbMetadbHandle() {
      * @readonly
      *
      * @example
-     * var handle = fb.GetFocusItem();
+     * let handle = fb.GetFocusItem();
      * console.log(handle.Path); // D:\SomeSong.flac
      */
     this.Path = undefined; // (string) (read)
@@ -1853,10 +1896,9 @@ function FbMetadbHandle() {
     this.SubSong = undefined; // (int) (read)
 
     /**
-     * Returns -1, if size is unavailable.<br>
      * Note: requires a system with IE9 or later to work properly.
      *
-     * @type {number}
+     * @type {number} -1 if size is unavailable
      * @readonly
      */
     this.FileSize = undefined; // (LONGLONG) (read)
@@ -1944,8 +1986,8 @@ function FbFileInfo() {
      * @readonly
      *
      * @example
-     * var handle = fb.GetFocusItem();
-     * var file_info = handle.GetFileInfo();
+     * let handle = fb.GetFocusItem();
+     * let file_info = handle.GetFileInfo();
      * console.log(file_info.MetaCount); // 11
      */
     this.MetaCount = undefined; // (read)
@@ -1991,7 +2033,7 @@ function FbFileInfo() {
      * @return {string}
      *
      * @example
-     * for (var i = 0; i < f.MetaCount; ++i) {
+     * for (let i = 0; i < f.MetaCount; ++i) {
      *      console.log(file_info.MetaName(i).toUpperCase());
      * }
      */
@@ -2055,16 +2097,16 @@ function FbMetadbHandleList(arg) {
      * @param {number=} [art_id=0] See Flags.js > AlbumArtId
      *
      * @example
-     * var handle_list = plman.GetPlaylistItems(plman.ActivePlaylist);
+     * let handle_list = plman.GetPlaylistItems(plman.ActivePlaylist);
      * if (handle_list.Count > 0) {
-     *    var img_path = 'C:\\path\\to\\image.jpg';
+     *    let img_path = 'C:\\path\\to\\image.jpg';
      *    handle_list.AttachImage(img_path, 0);
      * }
      *
      * @example
      * // since there is no handle method, do this for a single item
-     * var handle_list = new FbMetadbHandleList(fb.GetFocusItem());
-     * var img_path = "C:\\path\\to\\image.jpg";
+     * let handle_list = new FbMetadbHandleList(fb.GetFocusItem());
+     * let img_path = "C:\\path\\to\\image.jpg";
      * handle_list.AttachImage(img_path, 0);
      */
     this.AttachImage = function (image_path, art_id) { }; //(void)
@@ -2078,7 +2120,7 @@ function FbMetadbHandleList(arg) {
     this.BSearch = function (handle) { }; // (uint)
 
     /**
-     * @return {float|number} total duration in seconds. For display purposes, consider using {@link utils.FormatDuration} on the result.
+     * @return {float} total duration in seconds. For display purposes, consider using {@link utils.FormatDuration} on the result.
      */
     this.CalcTotalDuration = function () { }; // (double)
 
@@ -2093,7 +2135,7 @@ function FbMetadbHandleList(arg) {
      * @return {FbMetadbHandleList}
      *
      * @example
-     * var handle_list2 = handle_list.Clone();
+     * let handle_list2 = handle_list.Clone();
      */
     this.Clone = function () { }; // (FbMetadbHandleList)
 
@@ -2105,15 +2147,15 @@ function FbMetadbHandleList(arg) {
      * @return {Array<FbMetadbHandle>}
      *
      * @example
-     * var playlist_items_array = plman.GetPlaylistItems(plman.ActivePlaylist).Convert();
-     * for (var i = 0; i < playlist_items_array.length; ++i) {
+     * let playlist_items_array = plman.GetPlaylistItems(plman.ActivePlaylist).Convert();
+     * for (let i = 0; i < playlist_items_array.length; ++i) {
      *    // do something with playlist_items_array[i] which is your handle
      * }
      */
     this.Convert = function () { }; // (Array)
 
     /**
-     * Note: if sorted with {@link FbMetadbHandleList#Sort}, use {@link FbMetadbHandleList#BSearch} instead.
+     * Performance note: if sorted with {@link FbMetadbHandleList#Sort}, use {@link FbMetadbHandleList#BSearch} instead.
      *
      * @param {FbMetadbHandle} handle
      * @return {number} index in the handle list on success, -1 on failure
@@ -2128,9 +2170,9 @@ function FbMetadbHandleList(arg) {
      * @return {Array<string>}
      *
      * @example
-     * var handle_list = fb.GetLibraryItems();
+     * let handle_list = fb.GetLibraryItems();
      * handle_list.OrderByRelativePath();
-     * var relative_paths = handle_list.GetLibraryRelativePaths();
+     * let relative_paths = handle_list.GetLibraryRelativePaths();
      */
     this.GetLibraryRelativePaths = function () { }; //(Array)
 
@@ -2158,10 +2200,10 @@ function FbMetadbHandleList(arg) {
      * @param {FbMetadbHandleList} handle_list Sorted handle list.
      *
      * @example
-     * var one = plman.GetPlaylistItems(0);
+     * let one = plman.GetPlaylistItems(0);
      * one.Sort();
      *
-     * var two = plman.GetPlaylistItems(1);
+     * let two = plman.GetPlaylistItems(1);
      * two.Sort();
      *
      * one.MakeDifference(two);
@@ -2176,10 +2218,10 @@ function FbMetadbHandleList(arg) {
      * @param {FbMetadbHandleList} handle_list Sorted handle list.
      *
      * @example
-     * var one = plman.GetPlaylistItems(0);
+     * let one = plman.GetPlaylistItems(0);
      * one.Sort();
      *
-     * var two = plman.GetPlaylistItems(1);
+     * let two = plman.GetPlaylistItems(1);
      * two.Sort();
      *
      * one.MakeIntersection(two);
@@ -2193,10 +2235,10 @@ function FbMetadbHandleList(arg) {
      * @param {FbMetadbHandleList} handle_list Sorted handle list.
      *
      * @example
-     * var one = plman.GetPlaylistItems(0);
+     * let one = plman.GetPlaylistItems(0);
      * one.Sort();
      *
-     * var two = plman.GetPlaylistItems(1);
+     * let two = plman.GetPlaylistItems(1);
      * two.Sort();
      *
      * one.MakeUnion(two);
@@ -2209,8 +2251,8 @@ function FbMetadbHandleList(arg) {
      * @param {number} direction > 0 - ascending.
      *
      * @example
-     * var handle_list = fb.GetLibraryItems();
-     * var tfo = fb.TitleFormat("%album artist%|%date%|%album%|%discnumber%|%tracknumber%");
+     * let handle_list = fb.GetLibraryItems();
+     * let tfo = fb.TitleFormat("%album artist%|%date%|%album%|%discnumber%|%tracknumber%");
      * handle_list.OrderByFormat(tfo, 1);
      */
     this.OrderByFormat = function (tfo, direction) { }; // (void)
@@ -2286,10 +2328,10 @@ function FbMetadbHandleList(arg) {
      *
      * @example
      * // assume we've selected one album
-     * var handles = plman.GetPlaylistSelectedItems(plman.ActivePlaylist);
+     * let handles = plman.GetPlaylistSelectedItems(plman.ActivePlaylist);
      *
-     * var arr = [];
-     * for (var i = 0; i < handles.Count; ++i) {
+     * let arr = [];
+     * for (let i = 0; i < handles.Count; ++i) {
      *     // each element of the array must be an object of key names/values, indicated by the curly braces
      *     arr.push({
      *         'tracknumber' : i + 1, // independent values per track
@@ -2347,7 +2389,7 @@ function FbPlaylistRecycler() {
  * @hideconstructor
  *
  * @example
- * var playing_item_location = plman.GetPlayingItemLocation();
+ * let playing_item_location = plman.GetPlayingItemLocation();
  * if (playing_item_location.IsValid) {
  *     console.log(playing_item_location.PlaylistIndex);
  *     console.log(playing_item_location.PlaylistItemIndex);
@@ -2463,7 +2505,7 @@ function FbTitleFormat(expression) {
      * @return {string}
      *
      * @example
-     * var tfo = fb.TitleFormat("%artist%");
+     * let tfo = fb.TitleFormat("%artist%");
      * console.log(tfo.Eval());
      */
     this.Eval = function (force) { }; // [force]
@@ -2473,7 +2515,7 @@ function FbTitleFormat(expression) {
      * @return {string}
      *
      * @example
-     * var tfo = fb.TitleFormat("%artist%");
+     * let tfo = fb.TitleFormat("%artist%");
      * console.log(tfo.EvalWithMetadb(fb.GetFocusItem()));
      */
     this.EvalWithMetadb = function (handle) { }; //
@@ -2483,7 +2525,7 @@ function FbTitleFormat(expression) {
      * @return {Array<string>}
      *
      * @example
-     * var tfo = fb.TitleFormat("%artist%");
+     * let tfo = fb.TitleFormat("%artist%");
      * let handle_list = fb.GetLibraryItems();
      * let artists = tfo.EvalWithMetadbs(handle_list);
      * console.log(handle_list.Count === artists.length); // should always be true!
@@ -2500,7 +2542,7 @@ function FbTooltip() {
      * @type {string}
      *
      * @example
-     * var tooltip = window.CreateTooltip();
+     * let tooltip = window.CreateTooltip();
      * tooltip.Text = "Whoop";
      */
     this.Text = undefined; // (string) (read, write)
@@ -2514,7 +2556,7 @@ function FbTooltip() {
      * @method
      *
      * @example
-     * var text = "...";
+     * let text = "...";
      * if (tooltip.Text != text) {
      *    tooltip.Text = text;
      *    tooltip.Activate();
@@ -2568,7 +2610,7 @@ function FbTooltip() {
  * @hideconstructor
  *
  * @example <caption>For playlist viewers</caption>
- * var selection_holder = fb.AcquireUiSelectionHolder();
+ * let selection_holder = fb.AcquireUiSelectionHolder();
  * selection_holder.SetPlaylistSelectionTracking();
  *
  * function on_focus(is_focused) {
@@ -2578,8 +2620,8 @@ function FbTooltip() {
  * }
  *
  * @example <caption>For library viewers</caption>
- * var selection_holder = fb.AcquireUiSelectionHolder();
- * var handle_list = null;
+ * let selection_holder = fb.AcquireUiSelectionHolder();
+ * let handle_list = null;
  *
  * function on_mouse_lbtn_up(x, y) { // Presumably going to select something here...
  *    handle_list = ...;
@@ -2730,7 +2772,7 @@ function GdiBitmap(arg) {
      * @return {boolean}
      *
      * @example
-     * var img = utils.GetAlbumArtEmbedded(fb.GetFocusItem().RawPath, 0);
+     * let img = utils.GetAlbumArtEmbedded(fb.GetFocusItem().RawPath, 0);
      * if (img) {
      *     img.SaveAs("D:\\export.jpg", "image/jpeg");
      * }
@@ -3045,16 +3087,16 @@ function GdiGraphics() {
      * @hideconstructor
      *
      * @example
-     * include(fb.ComponentPath + 'docs\\Flags.js');
-     * include(fb.ComponentPath + 'docs\\Helpers.js');
+     * include(`${fb.ComponentPath}docs\\Flags.js`);
+     * include(`${fb.ComponentPath}docs\\Helpers.js`);
      *
-     * var sf = StringFormat(StringAlignment.Near, StringAlignment.Near);
-     * var text = utils.ReadTextFile("z:\\info.txt");
-     * var font = window.GetFontDUI(0);
+     * let sf = StringFormat(StringAlignment.Near, StringAlignment.Near);
+     * let text = utils.ReadTextFile("z:\\info.txt");
+     * let font = window.GetFontDUI(0);
      *
      * function on_paint(gr) {
      *     gr.DrawString(text, font, RGB(255, 0, 0), 0, 0, window.Width, window.Height, sf);
-     *     var temp = gr.MeasureString(text, font, 0, 0, window.Width, 10000, sf);
+     *     let temp = gr.MeasureString(text, font, 0, 0, window.Width, 10000, sf);
      *     // If we want to calculate height, we must set the height to be far larger than what
      *     // the text could possibly be.
      *
@@ -3102,9 +3144,7 @@ function GdiGraphics() {
     }
 
     /**
-     * See Flags.js > InterpolationMode
-     *
-     * @param {number=} [mode=0]
+     * @param {number=} [mode=0] See Flags.js > InterpolationMode
      */
     this.SetInterpolationMode = function (mode) { }; // (void)
 
@@ -3201,6 +3241,8 @@ function ContextMenuManager() {
     this.ExecuteByID = function (id) { }; // (boolean)
 
     /**
+     * Initializes context menu by supplied tracks.
+     * 
      * @param {FbMetadbHandleList} handle_list
      */
     this.InitContext = function (handle_list) { }; // (void)
@@ -3211,7 +3253,11 @@ function ContextMenuManager() {
      */
     this.InitContextPlaylist = function () { }; // (void)
 
-    /** @method */
+    /**
+     * Initializes context menu by currently played track.
+     * 
+     * @method 
+     */
     this.InitNowPlaying = function () { }; // (void)
 }
 
@@ -3255,7 +3301,7 @@ function MenuObject() {
 
     /**
      * @param {MenuObject} parentMenu
-     * @param {number} flags
+     * @param {number} flags See Flags.js > Used in AppendMenuItem()
      * @param {string} text
      */
     this.AppendTo = function (parentMenu, flags, text) { }; // (void)

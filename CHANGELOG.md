@@ -17,21 +17,22 @@ ___
   - Tooltip text describes the performed drop action (configurable through `action.Text` field).
 - API changes:
   - Added `clearInterval`, `clearTimeout`, `setInterval`, `setTimeout` methods to global namespace.
-  - Added `gdi.LoadImageSyncV2` method;
-  - Added `utils.GetAlbumArtAsyncV2` method;
+  - Added `gdi.LoadImageSyncV2` method.
+  - Added `utils.GetAlbumArtAsyncV2` method.
   - Added arguments to `FbProfiler.Print`: additional message and an option to disable component info.
   - Added global constructors for the following objects:
-    - `FbMetadbHandleList`: from another `FbMetadbHandleList`, from an array of `FbMetadbHandle`s, from a single `FbMetadbHandle` and a default constructor.
+    - `FbMetadbHandleList`: from another `FbMetadbHandleList`, from an array of `FbMetadbHandle`, from a single `FbMetadbHandle` and a default constructor.
     - `GdiBitmap`: from another `GdiBitmap`.
-    - `FbProfiler`: the same as `fb.CreateProfiler`.
-    - `FbTitleFormat`: the same as `fb.TitleFormat`.
+    - `FbProfiler`: accepts the same arguments as `fb.CreateProfiler`.
+    - `FbTitleFormat`: accepts the same arguments as `fb.TitleFormat`.
 - Improved logging of objects through `console.log`: now it displays object's content as well.
 - Added `callbacks` to HTML documentation.
+- Updated basic samples with the new methods.
 
 ### Changed
 - API changes:
   - `fb.DoDragDrop` now requires an additional `window.ID` argument.
-  - `fb.CreateHandleList` is marked as **Deprecated** and will be removed in v2.0.0.
+  - `fb.CreateHandleList` is marked as **\[Deprecated]** and will be removed in v2.0.0.
 - Reimplemented SMP call handling so as to conform with `Run to completion` rule.
 - Made adjustment to GC policies.
 

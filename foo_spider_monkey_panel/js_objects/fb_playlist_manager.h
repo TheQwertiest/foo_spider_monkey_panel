@@ -47,7 +47,8 @@ public:
     int32_t CreateAutoPlaylist( uint32_t playlistIndex, const pfc::string8_fast& name, const pfc::string8_fast& query, const pfc::string8_fast& sort = "", uint32_t flags = 0 );
     int32_t CreateAutoPlaylistWithOpt( size_t optArgCount, uint32_t playlistIndex, const pfc::string8_fast& name, const pfc::string8_fast& query, const pfc::string8_fast& sort, uint32_t flags );
     int32_t CreatePlaylist( uint32_t playlistIndex, const pfc::string8_fast& name );
-    uint32_t DuplicatePlaylist( uint32_t from, const pfc::string8_fast& name );
+    uint32_t DuplicatePlaylist( uint32_t from, const pfc::string8_fast& name = "" );
+    uint32_t DuplicatePlaylistWithOpt( size_t optArgCount, uint32_t from, const pfc::string8_fast& name );
     void EnsurePlaylistItemVisible( uint32_t playlistIndex, uint32_t playlistItemIndex );
     bool ExecutePlaylistDefaultAction( uint32_t playlistIndex, uint32_t playlistItemIndex );
     int32_t FindOrCreatePlaylist( const pfc::string8_fast& name, bool unlocked );
