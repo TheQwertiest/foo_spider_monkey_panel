@@ -11,4 +11,11 @@ bool DummyGetter( JSContext*, unsigned, JS::Value* vp )
     return true;
 }
 
+const void* GetSmpProxyFamily()
+{
+    // family must contain unique pointer, so the value does not really matter
+    static const char kProxyFamilyVar = 'Q';
+    return &kProxyFamilyVar;
+}
+
 }

@@ -58,7 +58,19 @@ pfc::string8_fast ParseJsObject( JSContext* cx, JS::HandleObject jsObject, JS::A
 {
     pfc::string8_fast output;
 
-    output += JS::InformalValueTypeName( JS::ObjectValue( *jsObject ) );
+    {
+        JS::RootedObject jsUnwrappedObject( cx, jsObject );
+        if ( js::IsWrapper( jsObject ) )
+        {
+            jsUnwrappedObject = js::UncheckedUnwrap( jsObject );
+        }
+        if ( js::IsProxy( jsUnwrappedObject ) && js::GetProxyHandler( jsUnwrappedObject )->family() == GetSmpProxyFamily() )
+        {
+            jsUnwrappedObject = js::GetProxyTargetObject( jsUnwrappedObject );
+        }
+
+        output += JS::InformalValueTypeName( JS::ObjectValue( *jsUnwrappedObject ) );
+    }
     output += " {";
 
     JS::AutoIdVector jsVector( cx );

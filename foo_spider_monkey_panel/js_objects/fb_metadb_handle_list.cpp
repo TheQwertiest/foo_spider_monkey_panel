@@ -126,11 +126,9 @@ class FbMetadbHandleListProxyHandler : public js::ForwardingProxyHandler
 {
 public:
     static const FbMetadbHandleListProxyHandler singleton;
-    // family must contain unique pointer, so the value does not really matter
-    static const char family;
-
+    
     constexpr FbMetadbHandleListProxyHandler()
-        : js::ForwardingProxyHandler( &family )
+        : js::ForwardingProxyHandler( GetSmpProxyFamily() )
     {
     }
 
@@ -141,7 +139,6 @@ public:
 };
 
 const FbMetadbHandleListProxyHandler FbMetadbHandleListProxyHandler::singleton;
-const char FbMetadbHandleListProxyHandler::family = 'Q';
 
 bool FbMetadbHandleListProxyHandler::get( JSContext* cx, JS::HandleObject proxy, JS::HandleValue receiver,
                                           JS::HandleId id, JS::MutableHandleValue vp ) const

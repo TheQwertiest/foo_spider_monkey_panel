@@ -55,11 +55,9 @@ class ActiveXObjectProxyHandler : public js::ForwardingProxyHandler
 {
 public:
     static const ActiveXObjectProxyHandler singleton;
-    // family must contain unique pointer, so the value does not really matter
-    static const char family;
 
     constexpr ActiveXObjectProxyHandler()
-        : js::ForwardingProxyHandler( &family )
+        : js::ForwardingProxyHandler( GetSmpProxyFamily() )
     {
     }
 
@@ -71,7 +69,6 @@ public:
 };
 
 const ActiveXObjectProxyHandler ActiveXObjectProxyHandler::singleton;
-const char ActiveXObjectProxyHandler::family = 'Q';
 
 /*
 bool 

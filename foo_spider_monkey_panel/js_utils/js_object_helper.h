@@ -1,5 +1,14 @@
 #pragma once
 
+#pragma warning( push )
+#pragma warning( disable : 4100 ) // unused variable
+#pragma warning( disable : 4251 ) // dll interface warning
+#pragma warning( disable : 4324 ) // structure was padded due to alignment specifier
+#pragma warning( disable : 4996 ) // C++17 deprecation warning
+#include <js\Wrapper.h>
+#include <js\Proxy.h>
+#pragma warning( pop ) 
+
 struct JSFreeOp;
 struct JSContext;
 class JSObject;
@@ -20,6 +29,8 @@ constexpr uint16_t DefaultPropsFlags()
 /// @details Used to define write-only property with JS_PSGS
 bool DummyGetter( JSContext* cx, unsigned argc, JS::Value* vp );
 
+const void* GetSmpProxyFamily();
+
 template<typename JsObjectType, typename ...ArgsType>
 void CreateAndInstallObject( JSContext* cx, JS::HandleObject parentObject, const pfc::string8_fast& propertyName, ArgsType&&... args )
 {
@@ -36,16 +47,21 @@ void CreateAndInstallObject( JSContext* cx, JS::HandleObject parentObject, const
 template <typename T>
 T* GetInnerInstancePrivate( JSContext* cx, JS::HandleObject jsObject )
 {
+    JS::RootedObject jsUnwrappedObject( cx, jsObject );
+    if ( js::IsWrapper( jsObject ) )
+    {
+        jsUnwrappedObject = js::UncheckedUnwrap( jsObject );
+    }
+
     if constexpr ( T::HasProxy )
     {
-        if ( js::IsProxy( jsObject ) )
+        if ( js::IsProxy( jsUnwrappedObject ) && js::GetProxyHandler( jsUnwrappedObject )->family() == GetSmpProxyFamily() )
         {
-            JS::RootedObject jsObject( cx, js::GetProxyTargetObject( jsObject ) );
-            return static_cast<T*>( JS_GetInstancePrivate( cx, jsObject, &T::JsClass, nullptr ) );
+            jsUnwrappedObject = js::GetProxyTargetObject( jsUnwrappedObject );
         }
     }
 
-    return static_cast<T*>( JS_GetInstancePrivate( cx, jsObject, &T::JsClass, nullptr ) );
+    return static_cast<T*>( JS_GetInstancePrivate( cx, jsUnwrappedObject, &T::JsClass, nullptr ) );
 }
 
 /// @brief Same as GetInnerInstancePrivate, but also check for JS::Value
