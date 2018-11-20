@@ -2,6 +2,7 @@
 
 #### Table of Contents
 - [Unreleased](#unreleased)
+- [1.1.1](#110---2018-11-20)
 - [1.1.0](#110---2018-11-19)
 - [1.0.5](#105---2018-11-06)
 - [1.0.4](#104---2018-10-25)
@@ -12,6 +13,10 @@
 ___
 
 ## [Unreleased][]
+
+## [1.1.1][] - 2018-11-20
+### Fixed
+- Fixed error in object constructor when it is invoked with data from `on_notify_data` callback.
 
 ## [1.1.0][] - 2018-11-19
 ### Added
@@ -137,7 +142,8 @@ ___
   - More rigorous error checks.
 - Updated samples with compatibility fixes.
 
-[unreleased]: https://github.com/theqwertiest/foo_spider_monkey_panel/compare/v1.1.0...HEAD
+[unreleased]: https://github.com/theqwertiest/foo_spider_monkey_panel/compare/v1.1.1...HEAD
+[1.1.1]: https://github.com/TheQwertiest/foo_spider_monkey_panel/compare/v1.1.0...v1.1.1
 [1.1.0]: https://github.com/TheQwertiest/foo_spider_monkey_panel/compare/v1.0.5...v1.1.0
 [1.0.5]: https://github.com/TheQwertiest/foo_spider_monkey_panel/compare/v1.0.4...v1.0.5
 [1.0.4]: https://github.com/TheQwertiest/foo_spider_monkey_panel/compare/v1.0.3...v1.0.4
