@@ -64,7 +64,7 @@ public:
         return mozjs::InvokeJsCallback<ReturnType>( pJsCtx_, jsGlobal_, functionName, std::forward<ArgTypes>( args )... );
     }
 
-    static void RunMicroTasks();
+    static void RunJobs();
 
 public: // callbacks that require js data
     void InvokeOnDragAction( const pfc::string8_fast& functionName, const POINTL& pt, uint32_t keyState, smp::panel::DropActionParams& actionParams );

@@ -1,7 +1,5 @@
 #include <stdafx.h>
 #include "js_panel_window.h"
-#include <message_manager.h>
-#include "popup_msg.h"
 
 #include <ui/ui_conf.h>
 #include <ui/ui_property.h>
@@ -12,9 +10,12 @@
 #include <utils/image_helpers.h>
 #include <utils/gdi_helpers.h>
 
+#include <message_manager.h>
+#include <popup_msg.h>
 #include <metadb_callback_data.h>
 #include <drop_action_params.h>
 #include <helpers.h>
+#include <message_blocking_scope.h>
 
 namespace mozjs
 {
@@ -82,23 +83,26 @@ LRESULT js_panel_window::on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
     utils::final_action jobsRunner( [& nestedCounter = nestedCounter, hWnd = hWnd_] {
         --nestedCounter;
 
-        if ( !nestedCounter || !modal_dialog_scope::can_create() )
-        { // Microtasks (e.g. futures) should be drained only with empty JS stack and after the current task (as required by ES).
+        if ( !nestedCounter )
+        { // Jobs (e.g. futures) should be drained only with empty JS stack and after the current task (as required by ES).
             // Also see https://developer.mozilla.org/en-US/docs/Web/JavaScript/EventLoop#Run-to-completion
-            mozjs::JsContainer::RunMicroTasks();
+            mozjs::JsContainer::RunJobs();
+        }
+        if ( !nestedCounter || MessageBlockingScope::IsBlocking() )
+        {
             message_manager::instance().RequestNextAsyncMessage( hWnd );
         }
     } );
 
     if ( message_manager::instance().IsAsyncMessage( msg ) )
     {
-        if ( nestedCounter == 1 || !modal_dialog_scope::can_create() )
+        if ( nestedCounter == 1 || MessageBlockingScope::IsBlocking() )
         {
             auto optMessage = message_manager::instance().ClaimAsyncMessage( hWnd_, msg, wp, lp );
             if ( optMessage )
             {
                 const auto [asyncMsg, asyncWp, asyncLp] = optMessage.value();
-                auto retVal = proccess_async_messages( asyncMsg, asyncWp, asyncLp );
+                auto retVal = process_async_messages( asyncMsg, asyncWp, asyncLp );
                 if ( retVal )
                 {
                     return retVal.value();
@@ -108,7 +112,7 @@ LRESULT js_panel_window::on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
     }
     else
     {
-        if ( auto retVal = proccess_sync_messages( hwnd, msg, wp, lp ); retVal.has_value() )
+        if ( auto retVal = process_sync_messages( hwnd, msg, wp, lp ); retVal.has_value() )
         {
             return retVal.value();
         }
@@ -117,7 +121,7 @@ LRESULT js_panel_window::on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
     return uDefWindowProc( hwnd, msg, wp, lp );
 }
 
-std::optional<LRESULT> js_panel_window::proccess_sync_messages( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
+std::optional<LRESULT> js_panel_window::process_sync_messages( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
 {
     if ( auto retVal = process_main_messages( hwnd, msg, wp, lp ); retVal.has_value() )
     {
@@ -140,7 +144,7 @@ std::optional<LRESULT> js_panel_window::proccess_sync_messages( HWND hwnd, UINT 
     return std::nullopt;
 }
 
-std::optional<LRESULT> js_panel_window::proccess_async_messages( UINT msg, WPARAM wp, LPARAM lp )
+std::optional<LRESULT> js_panel_window::process_async_messages( UINT msg, WPARAM wp, LPARAM lp )
 {
     if ( !pJsContainer_ )
     {
@@ -995,20 +999,18 @@ void js_panel_window::on_erase_background()
 
 void js_panel_window::on_panel_create( HWND hWnd )
 {
-    RECT rect;
     hWnd_ = hWnd;
-
     hDc_ = GetDC( hWnd_ );
+
+    RECT rect;
     GetClientRect( hWnd_, &rect );
     width_ = rect.right - rect.left;
     height_ = rect.bottom - rect.top;
+
     create_context();
-    // Interfaces
-    // TODO: check
-    // m_gr_wrap.Attach( new com_object_impl_t<GdiGraphics>(), false );
+
     message_manager::instance().AddWindow( hWnd_ );
 
-    // TODO: add error handling
     pJsContainer_ = std::make_shared<mozjs::JsContainer>( *this );
     script_load();
 }
@@ -1632,3 +1634,4 @@ void js_panel_window::on_volume_change( CallbackData& callbackData )
 }
 
 } // namespace smp::panel
+

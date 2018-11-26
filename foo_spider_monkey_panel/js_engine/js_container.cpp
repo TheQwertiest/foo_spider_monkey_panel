@@ -193,7 +193,7 @@ bool JsContainer::ExecuteScript( const pfc::string8_fast& scriptCode )
     return bRet;
 }
 
-void JsContainer::RunMicroTasks()
+void JsContainer::RunJobs()
 {    
     JsEngine::GetInstance().MaybeRunJobs();
 }

@@ -39,21 +39,24 @@ public:
     void JsEngineFail( const pfc::string8_fast& errorText );
 
 protected:
+    virtual void notify_size_limit_changed( LPARAM lp ) = 0;
+
     LRESULT on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp );
-    std::optional<LRESULT> proccess_sync_messages( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp );
-    std::optional<LRESULT> proccess_async_messages( UINT msg, WPARAM wp, LPARAM lp );
+    bool show_configure_popup( HWND parent );
+    void show_property_popup( HWND parent );
+
+    static void build_context_menu( HMENU menu, int x, int y, int id_base );
+    void execute_context_menu_command( int id, int id_base );
+
+private:
+    std::optional<LRESULT> process_sync_messages( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp );
+    std::optional<LRESULT> process_async_messages( UINT msg, WPARAM wp, LPARAM lp );
     std::optional<LRESULT> process_main_messages( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp );
     std::optional<LRESULT> process_window_messages( UINT msg, WPARAM wp, LPARAM lp );
     std::optional<LRESULT> process_callback_messages( CallbackMessage msg );
     std::optional<LRESULT> process_player_messages( PlayerMessage msg, WPARAM wp, LPARAM lp );
     std::optional<LRESULT> process_internal_sync_messages( InternalSyncMessage msg, WPARAM wp, LPARAM lp );
     std::optional<LRESULT> process_internal_async_messages( InternalAsyncMessage msg, WPARAM wp, LPARAM lp );
-
-    bool show_configure_popup( HWND parent );
-    void show_property_popup( HWND parent );
-    static void build_context_menu( HMENU menu, int x, int y, int id_base );
-    virtual void notify_size_limit_changed( LPARAM lp ) = 0;
-    void execute_context_menu_command( int id, int id_base );
 
 public:
     GUID GetGUID();

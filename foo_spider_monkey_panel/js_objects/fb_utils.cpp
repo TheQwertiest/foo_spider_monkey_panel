@@ -17,6 +17,7 @@
 #include <helpers.h>
 #include <stats.h>
 #include <popup_msg.h>
+#include <message_blocking_scope.h>
 
 using namespace smp;
 
@@ -294,10 +295,12 @@ uint32_t JsFbUtils::DoDragDrop( uint32_t hWindow, JsFbMetadbHandleList* handles,
     SmpException::ExpectTrue( handles, "handles argument is null" );
 
     const metadb_handle_list& handles_ptr = handles->GetHandleList();
-    if ( !handles_ptr.get_count() || okEffects == DROPEFFECT_NONE )
+    if ( MessageBlockingScope::IsBlocking() || !handles_ptr.get_count() || okEffects == DROPEFFECT_NONE )
     {
         return DROPEFFECT_NONE;
     }
+
+    MessageBlockingScope scope;
 
     pfc::com_ptr_t<IDataObject> pDO = ole_interaction::get()->create_dataobject( handles_ptr );
     pfc::com_ptr_t<com::IDropSourceImpl> pIDropSource = new com::IDropSourceImpl( (HWND)hWindow, pDO.get_ptr(), handles_ptr.get_count() );

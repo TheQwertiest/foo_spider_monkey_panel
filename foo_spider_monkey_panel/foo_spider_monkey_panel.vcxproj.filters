@@ -283,6 +283,7 @@
     <ClCompile Include="js_utils\js_image_helpers.cpp">
       <Filter>js_utils</Filter>
     </ClCompile>
+    <ClCompile Include="message_blocking_scope.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="js_engine\js_engine.h">
@@ -632,6 +633,9 @@
     </ClInclude>
     <ClInclude Include="js_utils\js_image_helpers.h">
       <Filter>js_utils</Filter>
+    </ClInclude>
+    <ClInclude Include="message_blocking_scope.h">
+      <Filter>z_uncategorized</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
