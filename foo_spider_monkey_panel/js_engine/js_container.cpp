@@ -163,7 +163,7 @@ void JsContainer::Fail( const pfc::string8_fast& errorText )
         return text;
     }();
 
-    FB2K_console_formatter() << errorTextPadded.c_str();
+    FB2K_console_formatter() << errorTextPadded;
     pParentPanel_->JsEngineFail( errorTextPadded );
 }
 

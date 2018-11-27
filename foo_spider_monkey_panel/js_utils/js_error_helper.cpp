@@ -254,7 +254,12 @@ pfc::string8_fast JsErrorToText( JSContext* cx )
             if ( pReport->linebufLength() )
             {
                 errorText += "\n";
-                errorText += pfc::stringcvt::string_utf8_from_utf16( pReport->linebuf(), pReport->linebufLength() );
+                errorText += "Source: ";
+                errorText += [pReport] {
+                    pfc::string8_fast tmpBuf = pfc::stringcvt::string_utf8_from_utf16( pReport->linebuf(), pReport->linebufLength() );
+                    tmpBuf.truncate_eol();
+                    return tmpBuf;
+                }();
             }
         }
 

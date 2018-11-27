@@ -41,7 +41,7 @@ void ReportException( const pfc::string8_fast& errorText )
         return text;
     }();
 
-    FB2K_console_formatter() << errorTextPadded.c_str();
+    FB2K_console_formatter() << errorTextPadded;
     popup_msg::g_show( errorTextPadded, SMP_NAME );
     MessageBeep( MB_ICONASTERISK );
 }
