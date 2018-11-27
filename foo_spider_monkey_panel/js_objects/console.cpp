@@ -20,7 +20,7 @@ namespace
 
 using namespace mozjs;
 
-pfc::string8_fast ParseJsValue( JSContext* cx, JS::HandleValue jsValue, JS::AutoObjectVector& curObjects, uint32_t& logDepth );
+pfc::string8_fast ParseJsValue( JSContext* cx, JS::HandleValue jsValue, JS::AutoObjectVector& curObjects, uint32_t& logDepth, bool isParentObject );
 
 pfc::string8_fast ParseJsArray( JSContext* cx, JS::HandleObject jsObject, JS::AutoObjectVector& curObjects, uint32_t& logDepth )
 {
@@ -42,7 +42,7 @@ pfc::string8_fast ParseJsArray( JSContext* cx, JS::HandleObject jsObject, JS::Au
             throw smp::JsException();
         }
 
-        output += ParseJsValue( cx, arrayElement, curObjects, logDepth );
+        output += ParseJsValue( cx, arrayElement, curObjects, logDepth, true );
         if ( i != arraySize - 1 )
         {
             output += ", ";
@@ -99,7 +99,7 @@ pfc::string8_fast ParseJsObject( JSContext* cx, JS::HandleObject jsObject, JS::A
             jsIdValue = js::IdToValue( jsId );
             output += convert::to_native::ToValue<pfc::string8_fast>( cx, jsIdValue );
             output += "=";
-            output += ParseJsValue( cx, jsValue, curObjects, logDepth );
+            output += ParseJsValue( cx, jsValue, curObjects, logDepth, true );
             if ( i != length - 1 || hasFunctions )
             {
                 output += ", ";
@@ -117,7 +117,7 @@ pfc::string8_fast ParseJsObject( JSContext* cx, JS::HandleObject jsObject, JS::A
     return output;
 }
 
-pfc::string8_fast ParseJsValue( JSContext* cx, JS::HandleValue jsValue, JS::AutoObjectVector& curObjects, uint32_t& logDepth )
+pfc::string8_fast ParseJsValue( JSContext* cx, JS::HandleValue jsValue, JS::AutoObjectVector& curObjects, uint32_t& logDepth, bool isParentObject )
 {
     pfc::string8_fast output;
 
@@ -126,16 +126,16 @@ pfc::string8_fast ParseJsValue( JSContext* cx, JS::HandleValue jsValue, JS::Auto
 
     if ( !jsValue.isObject() )
     {
-        const bool isString = jsValue.isString();
+        const bool showQuotes = isParentObject && jsValue.isString();
 
-        if ( isString )
+        if ( showQuotes )
         {
-            output += "'";
+            output += "\"";
         }
         output += convert::to_native::ToValue<pfc::string8_fast>( cx, jsValue );
-        if ( isString )
+        if ( showQuotes )
         {
-            output += "'";
+            output += "\"";
         }
     }
     else
@@ -200,7 +200,7 @@ std::optional<pfc::string8_fast> ParseLogArgs( JSContext* cx, JS::CallArgs& args
     {
         assert( !logDepth );
         assert( !curObjects.length() );
-        outputString += ParseJsValue( cx, args[i], curObjects, logDepth );
+        outputString += ParseJsValue( cx, args[i], curObjects, logDepth, false );
         if ( i < args.length() )
         {
             outputString += " ";
