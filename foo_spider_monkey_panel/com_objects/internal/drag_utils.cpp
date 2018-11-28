@@ -2,6 +2,7 @@
 #include "drag_utils.h"
 
 #include <utils/scope_helpers.h>
+#include <utils/gdi_helpers.h>
 #include <com_objects/internal/drag_image.h>
 
 namespace
@@ -108,6 +109,29 @@ HRESULT SetDropText( IDataObject* pdtobj, DROPIMAGETYPE dit, const wchar_t* msg,
     }
 
     return S_OK;
+}
+
+bool RenderUserDragImage( HWND wnd, Gdiplus::Bitmap& userImage, SHDRAGIMAGE& dragImage )
+{
+    assert( gdi::IsGdiPlusObjectValid( &userImage ) );
+
+    auto hBitmap = gdi::CreateHBitmapFromGdiPlusBitmap( userImage );
+    if ( !hBitmap )
+    {
+        return false;
+    }
+
+    const UINT width = userImage.GetWidth();
+    const UINT height = userImage.GetHeight();
+
+    dragImage.sizeDragImage.cx = width;
+    dragImage.sizeDragImage.cy = height;
+    dragImage.ptOffset.x = width / 2;
+    dragImage.ptOffset.y = height - height / 10;
+    dragImage.hbmpDragImage = hBitmap.release();
+    dragImage.crColorKey = CLR_NONE;
+
+    return TRUE;
 }
 
 bool RenderDragImage( HWND hWnd, size_t itemCount, SHDRAGIMAGE& dragImage )

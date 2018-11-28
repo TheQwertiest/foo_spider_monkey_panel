@@ -13,7 +13,7 @@ namespace smp::com
 class IDropSourceImpl : public IDropSource
 {
 public:
-    IDropSourceImpl( HWND hWnd, IDataObject* pDataObject, size_t itemCoun ) noexcept( false );
+    IDropSourceImpl( HWND hWnd, IDataObject* pDataObject, size_t itemCount, Gdiplus::Bitmap* pUserImage ) noexcept( false );
     virtual ~IDropSourceImpl();
 
     // IDropSource

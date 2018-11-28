@@ -9,6 +9,7 @@
 #include <js_objects/fb_metadb_handle_list.h>
 #include <js_objects/fb_profiler.h>
 #include <js_objects/fb_title_format.h>
+#include <js_objects/gdi_bitmap.h>
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
 #include <utils/string_helpers.h>
@@ -56,7 +57,7 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( CreateContextMenuManager, JsFbUtils::CreateContext
 MJS_DEFINE_JS_FN_FROM_NATIVE( CreateHandleList, JsFbUtils::CreateHandleList )
 MJS_DEFINE_JS_FN_FROM_NATIVE( CreateMainMenuManager, JsFbUtils::CreateMainMenuManager )
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( CreateProfiler, JsFbUtils::CreateProfiler, JsFbUtils::CreateProfilerWithOpt, 1 )
-MJS_DEFINE_JS_FN_FROM_NATIVE( DoDragDrop, JsFbUtils::DoDragDrop )
+MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( DoDragDrop, JsFbUtils::DoDragDrop, JsFbUtils::DoDragDropWithOpt, 1 )
 MJS_DEFINE_JS_FN_FROM_NATIVE( Exit, JsFbUtils::Exit )
 MJS_DEFINE_JS_FN_FROM_NATIVE( GetClipboardContents, JsFbUtils::GetClipboardContents )
 MJS_DEFINE_JS_FN_FROM_NATIVE( GetDSPPresets, JsFbUtils::GetDSPPresets )
@@ -290,7 +291,7 @@ JSObject* JsFbUtils::CreateProfilerWithOpt( size_t optArgCount, const pfc::strin
     }
 }
 
-uint32_t JsFbUtils::DoDragDrop( uint32_t hWindow, JsFbMetadbHandleList* handles, uint32_t okEffects )
+uint32_t JsFbUtils::DoDragDrop( uint32_t hWindow, JsFbMetadbHandleList* handles, uint32_t okEffects, JsGdiBitmap* image )
 {
     SmpException::ExpectTrue( handles, "handles argument is null" );
 
@@ -303,11 +304,24 @@ uint32_t JsFbUtils::DoDragDrop( uint32_t hWindow, JsFbMetadbHandleList* handles,
     MessageBlockingScope scope;
 
     pfc::com_ptr_t<IDataObject> pDO = ole_interaction::get()->create_dataobject( handles_ptr );
-    pfc::com_ptr_t<com::IDropSourceImpl> pIDropSource = new com::IDropSourceImpl( (HWND)hWindow, pDO.get_ptr(), handles_ptr.get_count() );
+    pfc::com_ptr_t<com::IDropSourceImpl> pIDropSource = new com::IDropSourceImpl( (HWND)hWindow, pDO.get_ptr(), handles_ptr.get_count(), ( image ? image->GdiBitmap() : nullptr ) );
 
     DWORD returnEffect;
     HRESULT hr = SHDoDragDrop( nullptr, pDO.get_ptr(), pIDropSource.get_ptr(), okEffects, &returnEffect );
     return ( DRAGDROP_S_CANCEL == hr ? DROPEFFECT_NONE : returnEffect );
+}
+
+uint32_t JsFbUtils::DoDragDropWithOpt( size_t optArgCount, uint32_t hWindow, JsFbMetadbHandleList* handles, uint32_t okEffects, JsGdiBitmap* image )
+{
+    switch ( optArgCount )
+    {
+    case 0:
+        return DoDragDrop( hWindow, handles, okEffects, image );
+    case 1:
+        return DoDragDrop( hWindow, handles, okEffects );
+    default:
+        throw SmpException( smp::string::Formatter() << "Internal error: invalid number of optional arguments specified: " << optArgCount );
+    }
 }
 
 void JsFbUtils::Exit()
