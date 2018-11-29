@@ -7,7 +7,6 @@
 
 #include <com_objects/internal/handle.h>
 
-
 namespace uih
 {
 // Ripped from win32_helpers.cpp
@@ -44,7 +43,9 @@ void draw_drag_image_background( HWND wnd, bool isThemed, HTHEME theme, HDC dc, 
     {
         {
             if ( IsThemeBackgroundPartiallyTransparent( theme, DD_IMAGEBG, themeState ) )
+            {
                 DrawThemeParentBackground( wnd, dc, &rc );
+            }
             DrawThemeBackground( theme, dc, DD_IMAGEBG, themeState, &rc, nullptr );
         }
     }
@@ -91,7 +92,9 @@ void draw_drag_image_label( HWND wnd, bool isThemed, HTHEME theme, HDC dc, const
         background_rect.right += margins.cxRightWidth;
 
         if ( IsThemeBackgroundPartiallyTransparent( theme, DD_TEXTBG, 0 ) )
+        {
             DrawThemeParentBackground( wnd, dc, &background_rect );
+        }
         DrawThemeBackground( theme, dc, DD_TEXTBG, theme_state, &background_rect, nullptr );
         DrawThemeText( theme, dc, DD_TEXTBG, theme_state, wtext, -1, text_flags, 0, &rc_text );
     }
@@ -107,7 +110,7 @@ void draw_drag_image_label( HWND wnd, bool isThemed, HTHEME theme, HDC dc, const
     }
 }
 
-bool draw_drag_custom_image(HDC dc, const RECT& rc, Gdiplus::Bitmap& customImage)
+bool draw_drag_custom_image( HDC dc, const RECT& rc, Gdiplus::Bitmap& customImage )
 {
     const int imgWidth = static_cast<int>( customImage.GetWidth() );
     const int imgHeight = static_cast<int>( customImage.GetHeight() );
@@ -141,7 +144,7 @@ bool draw_drag_custom_image(HDC dc, const RECT& rc, Gdiplus::Bitmap& customImage
 void draw_drag_image_icon( HDC dc, const RECT& rc, HICON icon )
 {
     // We may want to use better scaling.
-    DrawIconEx( dc, 0, 0, icon, RECT_CX( rc ), RECT_CY( rc ), NULL, nullptr, DI_NORMAL );
+    DrawIconEx( dc, 0, 0, icon, RECT_CX( rc ), RECT_CY( rc ), 0, nullptr, DI_NORMAL );
 }
 SIZE GetDragImageContentSize( HDC dc, bool isThemed, HTHEME theme )
 {

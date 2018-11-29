@@ -19,18 +19,19 @@ HRESULT GetDataObjectDataSimple( IDataObject* pDataObj, CLIPFORMAT cf, T& p_out 
 
     STGMEDIUM stgm = { 0 };
 
-    HRESULT hr;
-    if ( hr = pDataObj->GetData( &fe, &stgm ); SUCCEEDED( hr ) )
+    if ( HRESULT hr = pDataObj->GetData( &fe, &stgm ); FAILED( hr ) )
     {
-        void* pData = GlobalLock( stgm.hGlobal );
-        if ( pData )
-        {
-            p_out = *static_cast<T*>( pData );
-            GlobalUnlock( pData );
-        }
-        ReleaseStgMedium( &stgm );
+        return hr;
     }
-    return hr;
+
+    if ( void* pData = GlobalLock( stgm.hGlobal ); pData )
+    {
+        p_out = *static_cast<T*>( pData );
+        GlobalUnlock( pData );
+    }
+    ReleaseStgMedium( &stgm );
+
+    return S_OK;
 }
 
 HRESULT SetDataBlob( IDataObject* pdtobj, CLIPFORMAT cf, const void* pvBlob, UINT cbBlob )
@@ -140,14 +141,14 @@ bool RenderDragImage( HWND hWnd, size_t itemCount, bool isThemed, bool showText,
 HRESULT GetDragWindow( IDataObject* pDataObj, HWND& p_wnd )
 {
     static const CLIPFORMAT cfRet = (CLIPFORMAT)RegisterClipboardFormat( L"DragWindow" );
-    HRESULT hr;
     DWORD dw;
-    if ( hr = GetDataObjectDataSimple( pDataObj, cfRet, dw ); SUCCEEDED( hr ) )
+    if ( HRESULT hr = GetDataObjectDataSimple( pDataObj, cfRet, dw ); FAILED( hr ) )
     {
-        p_wnd = (HWND)ULongToHandle( dw );
+        return hr;
     }
 
-    return hr;
+    p_wnd = (HWND)ULongToHandle( dw );
+    return S_OK;
 }
 
 HRESULT GetIsShowingLayered( IDataObject* pDataObj, BOOL& p_out )
