@@ -235,7 +235,7 @@ void js_panel_window_dui::notify( const GUID& p_what, t_size p_param1, const voi
     }
     else if ( p_what == ui_element_notify_colors_changed )
     {
-        message_manager::instance().post_msg( t_parent::GetHWND(), static_cast<UINT>( smp::PlayerMessage::ui_font_changed ) );
+        message_manager::instance().post_msg( t_parent::GetHWND(), static_cast<UINT>( smp::PlayerMessage::ui_colours_changed ) );
     }
 }
 
