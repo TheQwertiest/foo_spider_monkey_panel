@@ -13,6 +13,14 @@
 ___
 
 ## [Unreleased][]
+### Added
+- Added additional options to `fb.DoDragDrop`: `show_text`, `use_album_art`, `use_theming` and `custom_image`.
+- By default `fb.DoDragDrop` now displays an album art of the dragged item (if available).
+### Fixed
+- Fixed callbacks not triggering when `fb.DoDragDrop` is active.
+- Fixed `on_colours_changed` callback not triggering in DUI.
+- Removed extra quotes in `console.log` when printing strings outside of objects and arrays.
+- Fixed occasional EOL issues in error report.
 
 ## [1.1.1][] - 2018-11-20
 ### Fixed
