@@ -10,7 +10,7 @@ _COM_SMARTPTR_TYPEDEF( IDragSourceHelper2, IID_IDragSourceHelper2 );
 namespace smp::com
 {
 
-IDropSourceImpl::IDropSourceImpl( HWND hWnd, IDataObject* pDataObject, size_t itemCount, Gdiplus::Bitmap* pUserImage )
+IDropSourceImpl::IDropSourceImpl( HWND hWnd, IDataObject* pDataObject, size_t itemCount, bool isThemed, bool showText, Gdiplus::Bitmap* pUserImage )
     : pDataObject_( pDataObject )
 {
     assert( hWnd );
@@ -26,15 +26,12 @@ IDropSourceImpl::IDropSourceImpl( HWND hWnd, IDataObject* pDataObject, size_t it
         (void)pDragSourceHelper2->SetFlags( DSH_ALLOWDROPDESCRIPTIONTEXT );
     }
 
-    const bool isCustomImage = ( pUserImage && drag::RenderUserDragImage( hWnd, *pUserImage, dragImage_ ) );
-
-    if ( isCustomImage
-         || drag::RenderDragImage( hWnd, itemCount, dragImage_ ) )
+    if ( drag::RenderDragImage( hWnd, itemCount, isThemed, showText, pUserImage, dragImage_ ) )
     {
         (void)pDragSourceHelper_->InitializeFromBitmap( &dragImage_, pDataObject );
     }
 
-    if ( !isCustomImage && IsThemeActive() && IsAppThemed() )
+    if ( isThemed && IsThemeActive() && IsAppThemed() )
     {
         (void)drag::SetDefaultImage( pDataObject );
     }

@@ -7,6 +7,7 @@
 
 #include <com_objects/internal/handle.h>
 
+
 namespace uih
 {
 // Ripped from win32_helpers.cpp
@@ -25,6 +26,11 @@ SIZE get_system_dpi_cached()
     return size;
 }
 
+bool UsesTheming( bool isThemed, HTHEME theme, int partId, int stateId )
+{
+    return theme && isThemed && IsThemePartDefined( theme, partId, stateId );
+}
+
 } // namespace uih
 
 namespace uih
@@ -33,11 +39,8 @@ namespace uih
 // Only used in non-themed mode – if theming is active, the shell draws the background for us
 void draw_drag_image_background( HWND wnd, bool isThemed, HTHEME theme, HDC dc, COLORREF selectionBackgroundColour, const RECT& rc )
 {
-    int themeState = 0;
-
-    bool useTheming = theme && isThemed && IsThemePartDefined( theme, DD_IMAGEBG, themeState );
-
-    if ( useTheming )
+    constexpr int themeState = 0;
+    if ( UsesTheming( isThemed, theme, DD_IMAGEBG, themeState ) )
     {
         {
             if ( IsThemeBackgroundPartiallyTransparent( theme, DD_IMAGEBG, themeState ) )
@@ -52,8 +55,9 @@ void draw_drag_image_background( HWND wnd, bool isThemed, HTHEME theme, HDC dc, 
 }
 void draw_drag_image_label( HWND wnd, bool isThemed, HTHEME theme, HDC dc, const RECT& rc, COLORREF selectionTextColour, const char* text )
 {
-    int theme_state = 0;
-    bool useTheming = theme && isThemed && IsThemePartDefined( theme, DD_TEXTBG, theme_state );
+    constexpr int theme_state = 0;
+    const bool useTheming = UsesTheming( isThemed, theme, DD_TEXTBG, theme_state );
+
     pfc::stringcvt::string_os_from_utf8 wtext( text );
     DWORD text_flags = DT_CENTER | DT_WORDBREAK;
     RECT rc_text = { 0 };
@@ -102,6 +106,38 @@ void draw_drag_image_label( HWND wnd, bool isThemed, HTHEME theme, HDC dc, const
         SetBkMode( dc, previousBackgroundMode );
     }
 }
+
+bool draw_drag_custom_image(HDC dc, const RECT& rc, Gdiplus::Bitmap& customImage)
+{
+    const int imgWidth = static_cast<int>( customImage.GetWidth() );
+    const int imgHeight = static_cast<int>( customImage.GetHeight() );
+
+    const double ratio = static_cast<float>( imgHeight ) / imgWidth;
+    int newWidth = rc.right;
+    int newHeight = rc.bottom;
+    if ( imgHeight > imgWidth )
+    {
+        newWidth = lround( static_cast<float>( newHeight ) / ratio );
+    }
+    else
+    {
+        newHeight = lround( static_cast<float>( newWidth ) * ratio );
+    }
+
+    Gdiplus::Graphics gdiGraphics( dc );
+    Gdiplus::Status gdiRet = gdiGraphics.DrawImage( &customImage,
+                                                    Gdiplus::Rect( lround( static_cast<float>( rc.right - newWidth ) / 2 ),
+                                                                   lround( static_cast<float>( rc.bottom - newHeight ) / 2 ),
+                                                                   newWidth,
+                                                                   newHeight ),
+                                                    0,
+                                                    0,
+                                                    imgWidth,
+                                                    imgHeight,
+                                                    Gdiplus::UnitPixel );
+    return ( Gdiplus::Status::Ok == gdiRet );
+}
+
 void draw_drag_image_icon( HDC dc, const RECT& rc, HICON icon )
 {
     // We may want to use better scaling.
@@ -110,12 +146,11 @@ void draw_drag_image_icon( HDC dc, const RECT& rc, HICON icon )
 SIZE GetDragImageContentSize( HDC dc, bool isThemed, HTHEME theme )
 {
     auto sz = uih::get_system_dpi_cached();
-    auto margins = MARGINS{ 0 };
-    auto themeState = 0;
-    auto hr = HRESULT{ S_OK };
+    MARGINS margins{ 0 };
+    constexpr int themeState = 0;
+    HRESULT hr{ S_OK };
 
-    auto useTheming = theme && isThemed && IsThemePartDefined( theme, DD_IMAGEBG, themeState );
-    if ( useTheming )
+    if ( UsesTheming( isThemed, theme, DD_IMAGEBG, themeState ) )
     {
         hr = GetThemePartSize( theme, dc, DD_IMAGEBG, themeState, nullptr, TS_DRAW, &sz );
         if ( SUCCEEDED( hr ) )
@@ -131,40 +166,55 @@ SIZE GetDragImageContentSize( HDC dc, bool isThemed, HTHEME theme )
 
     return sz;
 }
-BOOL create_drag_image( HWND wnd, bool isThemed, HTHEME theme, COLORREF selectionBackgroundColour,
-                        COLORREF selectionTextColour, HICON icon, const LPLOGFONT font, bool showText, const char* text,
-                        LPSHDRAGIMAGE lpsdi )
+bool create_drag_image( HWND wnd, bool isThemed, HTHEME theme, COLORREF selectionBackgroundColour,
+                        COLORREF selectionTextColour, HICON icon, const LPLOGFONT font, const char* text,
+                        Gdiplus::Bitmap* pCustomImage, LPSHDRAGIMAGE lpsdi )
 {
     HDC dc = GetDC( wnd );
     HDC dc_mem = CreateCompatibleDC( dc );
 
     SIZE size = GetDragImageContentSize( dc, isThemed, theme );
+    if ( !isThemed && pCustomImage )
+    {
+        size.cx = std::max<INT>( size.cx, pCustomImage->GetWidth() );
+        size.cy = std::max<INT>( size.cy, pCustomImage->GetHeight() );
+    }
     RECT rc = { 0, 0, size.cx, size.cy };
 
-    HBITMAP bm_mem = CreateCompatibleBitmap( dc, size.cx, size.cy ); // Not deleted - the shell takes ownership.
+    HBITMAP bm_mem = CreateCompatibleBitmap( dc, size.cx, size.cy );
     HBITMAP bm_old = SelectBitmap( dc_mem, bm_mem );
 
-    pfc::string8 drag_text;
-
     LOGFONT lf = *font;
-
     lf.lfWeight = FW_BOLD;
     // lf.lfQuality = NONANTIALIASED_QUALITY;
-    HFONT fnt = CreateFontIndirect( &lf );
 
+    HFONT fnt = CreateFontIndirect( &lf );
     HFONT font_old = SelectFont( dc_mem, fnt );
 
-    if ( !isThemed || !theme )
+    if ( pCustomImage )
     {
-        draw_drag_image_background( wnd, isThemed, theme, dc_mem, selectionBackgroundColour, rc );
+        if ( !uih::draw_drag_custom_image( dc_mem, rc, *pCustomImage ) )
+        {
+            return false;
+        }
+    }
+    else
+    {
+        if ( !isThemed || !theme )
+        {
+            uih::draw_drag_image_background( wnd, isThemed, theme, dc_mem, selectionBackgroundColour, rc );
+        }
     }
 
     if ( icon )
+    {
         uih::draw_drag_image_icon( dc_mem, rc, icon );
+    }
 
-    // Draw label
-    if ( showText )
+    if ( text )
+    {
         uih::draw_drag_image_label( wnd, isThemed, theme, dc_mem, rc, selectionTextColour, text );
+    }
 
     SelectFont( dc_mem, font_old );
     DeleteFont( fnt );
@@ -178,9 +228,9 @@ BOOL create_drag_image( HWND wnd, bool isThemed, HTHEME theme, COLORREF selectio
     lpsdi->ptOffset.x = size.cx / 2;
     lpsdi->ptOffset.y = size.cy - size.cy / 10;
     lpsdi->hbmpDragImage = bm_mem;
-    lpsdi->crColorKey = 0xffffffff;
+    lpsdi->crColorKey = CLR_NONE;
 
-    return TRUE;
+    return true;
 }
 
 } // namespace uih

@@ -304,7 +304,12 @@ uint32_t JsFbUtils::DoDragDrop( uint32_t hWindow, JsFbMetadbHandleList* handles,
     MessageBlockingScope scope;
 
     pfc::com_ptr_t<IDataObject> pDO = ole_interaction::get()->create_dataobject( handles_ptr );
-    pfc::com_ptr_t<com::IDropSourceImpl> pIDropSource = new com::IDropSourceImpl( (HWND)hWindow, pDO.get_ptr(), handles_ptr.get_count(), ( image ? image->GdiBitmap() : nullptr ) );
+    pfc::com_ptr_t<com::IDropSourceImpl> pIDropSource = new com::IDropSourceImpl( (HWND)hWindow,
+                                                                                  pDO.get_ptr(),
+                                                                                  handles_ptr.get_count(),
+                                                                                  true,
+                                                                                  true,
+                                                                                  ( image ? image->GdiBitmap() : nullptr ) );
 
     DWORD returnEffect;
     HRESULT hr = SHDoDragDrop( nullptr, pDO.get_ptr(), pIDropSource.get_ptr(), okEffects, &returnEffect );

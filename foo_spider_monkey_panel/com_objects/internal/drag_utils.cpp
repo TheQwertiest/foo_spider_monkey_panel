@@ -111,30 +111,7 @@ HRESULT SetDropText( IDataObject* pdtobj, DROPIMAGETYPE dit, const wchar_t* msg,
     return S_OK;
 }
 
-bool RenderUserDragImage( HWND wnd, Gdiplus::Bitmap& userImage, SHDRAGIMAGE& dragImage )
-{
-    assert( gdi::IsGdiPlusObjectValid( &userImage ) );
-
-    auto hBitmap = gdi::CreateHBitmapFromGdiPlusBitmap( userImage );
-    if ( !hBitmap )
-    {
-        return false;
-    }
-
-    const UINT width = userImage.GetWidth();
-    const UINT height = userImage.GetHeight();
-
-    dragImage.sizeDragImage.cx = width;
-    dragImage.sizeDragImage.cy = height;
-    dragImage.ptOffset.x = width / 2;
-    dragImage.ptOffset.y = height - height / 10;
-    dragImage.hbmpDragImage = hBitmap.release();
-    dragImage.crColorKey = CLR_NONE;
-
-    return TRUE;
-}
-
-bool RenderDragImage( HWND hWnd, size_t itemCount, SHDRAGIMAGE& dragImage )
+bool RenderDragImage( HWND hWnd, size_t itemCount, bool isThemed, bool showText, Gdiplus::Bitmap* pCustomImage, SHDRAGIMAGE& dragImage )
 {
     const HTHEME m_dd_theme = ( IsThemeActive() && IsAppThemed() ? OpenThemeData( hWnd, VSCLASS_DRAGDROP ) : nullptr );
     utils::final_action autoTheme( [m_dd_theme] {
@@ -148,7 +125,16 @@ bool RenderDragImage( HWND hWnd, size_t itemCount, SHDRAGIMAGE& dragImage )
     memset( &lf, 0, sizeof( LOGFONT ) );
     SystemParametersInfo( SPI_GETICONTITLELOGFONT, 0, &lf, 0 );
 
-    return !!uih::create_drag_image( hWnd, true, m_dd_theme, GetSysColor( COLOR_HIGHLIGHT ), GetSysColor( COLOR_HIGHLIGHTTEXT ), nullptr, &lf, true, FormatDragText( itemCount ), &dragImage );
+    return uih::create_drag_image( hWnd, 
+         isThemed, 
+         m_dd_theme, 
+         GetSysColor( COLOR_HIGHLIGHT ), 
+         GetSysColor( COLOR_HIGHLIGHTTEXT ), 
+         nullptr, 
+         &lf, 
+         ( showText ? FormatDragText( itemCount ) : nullptr ), 
+         pCustomImage, 
+         & dragImage );
 }
 
 HRESULT GetDragWindow( IDataObject* pDataObj, HWND& p_wnd )
