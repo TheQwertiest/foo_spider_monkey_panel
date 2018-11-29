@@ -47,8 +47,8 @@ public:
     JSObject* CreateMainMenuManager();
     JSObject* CreateProfiler( const pfc::string8_fast& name = "" );
     JSObject* CreateProfilerWithOpt( size_t optArgCount, const pfc::string8_fast& name );
-    uint32_t DoDragDrop( uint32_t hWindow, JsFbMetadbHandleList* handles, uint32_t okEffects, JsGdiBitmap* image = nullptr );
-    uint32_t DoDragDropWithOpt( size_t optArgCount, uint32_t hWindow, JsFbMetadbHandleList* handles, uint32_t okEffects, JsGdiBitmap* image );
+    uint32_t DoDragDrop( uint32_t hWindow, JsFbMetadbHandleList* handles, uint32_t okEffects, JS::HandleValue options = JS::UndefinedHandleValue );
+    uint32_t DoDragDropWithOpt( size_t optArgCount, uint32_t hWindow, JsFbMetadbHandleList* handles, uint32_t okEffects, JS::HandleValue options );
     void Exit();
     JSObject* GetClipboardContents( uint32_t hWindow );
     pfc::string8_fast GetDSPPresets();
@@ -116,6 +116,15 @@ public:
 
 private:
     JsFbUtils( JSContext* cx );
+
+    struct DoDragDropOptions
+    {
+        bool useTheming = true;
+        bool useAlbumArt = true;
+        bool showText = true;
+        Gdiplus::Bitmap* pCustomImage = nullptr;
+    };
+    DoDragDropOptions ParseDoDragDropOptions( JS::HandleValue options );
 
 private:
     JSContext* pJsCtx_ = nullptr;

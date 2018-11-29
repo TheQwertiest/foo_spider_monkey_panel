@@ -12,6 +12,8 @@
 #include <js_objects/gdi_bitmap.h>
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
+#include <js_utils/js_property_helper.h>
+#include <utils/art_helpers.h>
 #include <utils/string_helpers.h>
 #include <com_objects/drop_source_impl.h>
 
@@ -291,37 +293,57 @@ JSObject* JsFbUtils::CreateProfilerWithOpt( size_t optArgCount, const pfc::strin
     }
 }
 
-uint32_t JsFbUtils::DoDragDrop( uint32_t hWindow, JsFbMetadbHandleList* handles, uint32_t okEffects, JsGdiBitmap* image )
+uint32_t JsFbUtils::DoDragDrop( uint32_t hWindow, JsFbMetadbHandleList* handles, uint32_t okEffects, JS::HandleValue options )
 {
     SmpException::ExpectTrue( handles, "handles argument is null" );
+    const metadb_handle_list& handleList = handles->GetHandleList();
+    const size_t handleCount = handleList.get_count();
 
-    const metadb_handle_list& handles_ptr = handles->GetHandleList();
-    if ( MessageBlockingScope::IsBlocking() || !handles_ptr.get_count() || okEffects == DROPEFFECT_NONE )
+    std::unique_ptr<Gdiplus::Bitmap> autoImage;
+    auto parsedOptions = ParseDoDragDropOptions( options );
+    if ( !parsedOptions.pCustomImage && parsedOptions.useAlbumArt && handleCount )
+    {
+        metadb_handle_ptr metadb;
+        (void)playlist_manager::get()->activeplaylist_get_focus_item_handle( metadb );
+        if ( !metadb.is_valid() || pfc_infinite == handleList.find_item( metadb ) )
+        {
+            metadb = handleList[handleCount - 1];
+        }
+
+        autoImage = smp::art::GetBitmapFromMetadbOrEmbed( metadb, 0, false, false, false, nullptr );
+        if ( autoImage )
+        {
+            parsedOptions.pCustomImage = autoImage.get();
+        }
+    }
+
+    if ( MessageBlockingScope::IsBlocking() || !handleCount || okEffects == DROPEFFECT_NONE )
     {
         return DROPEFFECT_NONE;
     }
 
     MessageBlockingScope scope;
 
-    pfc::com_ptr_t<IDataObject> pDO = ole_interaction::get()->create_dataobject( handles_ptr );
+    pfc::com_ptr_t<IDataObject> pDO = ole_interaction::get()->create_dataobject( handleList );
+    // Such HWND cast works only on x86
     pfc::com_ptr_t<com::IDropSourceImpl> pIDropSource = new com::IDropSourceImpl( (HWND)hWindow,
                                                                                   pDO.get_ptr(),
-                                                                                  handles_ptr.get_count(),
-                                                                                  true,
-                                                                                  true,
-                                                                                  ( image ? image->GdiBitmap() : nullptr ) );
+                                                                                  handleCount,
+                                                                                  parsedOptions.useTheming,
+                                                                                  parsedOptions.showText,
+                                                                                  parsedOptions.pCustomImage );
 
     DWORD returnEffect;
     HRESULT hr = SHDoDragDrop( nullptr, pDO.get_ptr(), pIDropSource.get_ptr(), okEffects, &returnEffect );
     return ( DRAGDROP_S_CANCEL == hr ? DROPEFFECT_NONE : returnEffect );
 }
 
-uint32_t JsFbUtils::DoDragDropWithOpt( size_t optArgCount, uint32_t hWindow, JsFbMetadbHandleList* handles, uint32_t okEffects, JsGdiBitmap* image )
+uint32_t JsFbUtils::DoDragDropWithOpt( size_t optArgCount, uint32_t hWindow, JsFbMetadbHandleList* handles, uint32_t okEffects, JS::HandleValue options )
 {
     switch ( optArgCount )
     {
     case 0:
-        return DoDragDrop( hWindow, handles, okEffects, image );
+        return DoDragDrop( hWindow, handles, okEffects, options );
     case 1:
         return DoDragDrop( hWindow, handles, okEffects );
     default:
@@ -883,6 +905,27 @@ void JsFbUtils::put_StopAfterCurrent( bool p )
 void JsFbUtils::put_Volume( float value )
 {
     playback_control::get()->set_volume( value );
+}
+
+JsFbUtils::DoDragDropOptions JsFbUtils::ParseDoDragDropOptions( JS::HandleValue options )
+{
+    DoDragDropOptions parsedoptions;
+    if ( !options.isNullOrUndefined() )
+    {
+        SmpException::ExpectTrue( options.isObject(), "options argument is not an object" );
+        JS::RootedObject jsOptions( pJsCtx_, &options.toObject() );
+
+        parsedoptions.useTheming = GetOptionalProperty<bool>( pJsCtx_, jsOptions, "use_theming" ).value_or( true );
+        parsedoptions.useAlbumArt = GetOptionalProperty<bool>( pJsCtx_, jsOptions, "use_album_art" ).value_or( true );
+        parsedoptions.showText = GetOptionalProperty<bool>( pJsCtx_, jsOptions, "show_text" ).value_or( true );
+        auto jsImage = GetOptionalProperty<JsGdiBitmap*>( pJsCtx_, jsOptions, "custom_image" ).value_or( nullptr );
+        if ( jsImage )
+        {
+            parsedoptions.pCustomImage = jsImage->GdiBitmap();
+        }
+    }
+
+    return parsedoptions;
 }
 
 } // namespace mozjs

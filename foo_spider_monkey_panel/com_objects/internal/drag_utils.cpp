@@ -132,7 +132,7 @@ bool RenderDragImage( HWND hWnd, size_t itemCount, bool isThemed, bool showText,
          GetSysColor( COLOR_HIGHLIGHTTEXT ), 
          nullptr, 
          &lf, 
-         ( showText ? FormatDragText( itemCount ) : nullptr ), 
+         ( showText ? FormatDragText( itemCount ).c_str() : nullptr ), 
          pCustomImage, 
          & dragImage );
 }

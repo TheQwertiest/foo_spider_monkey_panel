@@ -100,6 +100,17 @@ public: // props
 private:
     JsWindow( JSContext* cx, smp::panel::js_panel_window& parentPanel, std::unique_ptr<FbProperties> fbProperties );
 
+    struct DefinePanelOptions
+    {
+        pfc::string8_fast author;
+        pfc::string8_fast version;
+        struct Features
+        {
+            bool drag_n_drop = false;
+        } features;
+    };
+    DefinePanelOptions ParseDefinePanelOptions( JS::HandleValue options );
+
 private:
     JSContext* pJsCtx_;
     smp::panel::js_panel_window& parentPanel_;

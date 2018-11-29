@@ -268,7 +268,7 @@ JSObject* JsWindow::CreateTooltipWithOpt( size_t optArgCount, const std::wstring
 }
 
 void JsWindow::DefinePanel( const pfc::string8_fast& name, JS::HandleValue options )
-{ // TODO: clean up this mess
+{
     if ( isFinalized_ )
     {
         return;
@@ -276,53 +276,12 @@ void JsWindow::DefinePanel( const pfc::string8_fast& name, JS::HandleValue optio
 
     SmpException::ExpectTrue( !isPanelDefined_, "DefinePanel can't be called twice" );
 
-    struct Options
-    {
-        pfc::string8_fast author;
-        pfc::string8_fast version;
-        struct Features
-        {
-            bool drag_n_drop = false;
-        } features;
-    };
-
-    Options parsed_options;
-    {
-        if ( !options.isNullOrUndefined() )
-        {
-            SmpException::ExpectTrue( options.isObject(), "options argument is not an object" );
-
-            JS::RootedObject jsOptions( pJsCtx_, &options.toObject() );
-
-            parsed_options.author = GetOptionalProperty<pfc::string8_fast>( pJsCtx_, jsOptions, "author" ).value_or( "" );
-            parsed_options.version = GetOptionalProperty<pfc::string8_fast>( pJsCtx_, jsOptions, "version" ).value_or( "" );
-
-            bool hasProperty;
-            if ( !JS_HasProperty( pJsCtx_, jsOptions, "features", &hasProperty ) )
-            {
-                throw JsException();
-            }
-
-            if ( hasProperty )
-            {
-                JS::RootedValue jsFeaturesValue( pJsCtx_ );
-                if ( !JS_GetProperty( pJsCtx_, jsOptions, "features", &jsFeaturesValue ) )
-                {
-                    throw JsException();
-                }
-
-                SmpException::ExpectTrue( jsFeaturesValue.isObject(), "`features` is not an object" );
-
-                JS::RootedObject jsFeatures( pJsCtx_, &jsFeaturesValue.toObject() );
-                parsed_options.features.drag_n_drop = GetOptionalProperty<bool>( pJsCtx_, jsFeatures, "drag_n_drop" ).value_or( false );
-            }
-        }
-    }
+    auto parsedOptions = ParseDefinePanelOptions( options );
 
     parentPanel_.ScriptInfo().name = name;
-    parentPanel_.ScriptInfo().author = parsed_options.author;
-    parentPanel_.ScriptInfo().version = parsed_options.version;
-    if ( parsed_options.features.drag_n_drop )
+    parentPanel_.ScriptInfo().author = parsedOptions.author;
+    parentPanel_.ScriptInfo().version = parsedOptions.version;
+    if ( parsedOptions.features.drag_n_drop )
     {
         dropTargetHandler_.Attach( new com_object_impl_t<com::HostDropTarget>( parentPanel_.GetHWND() ) );
 
@@ -856,6 +815,41 @@ void JsWindow::put_MinWidth( uint32_t width )
 
     parentPanel_.MinSize().x = width;
     PostMessage( parentPanel_.GetHWND(), static_cast<UINT>( MiscMessage::size_limit_changed ), uie::size_limit_minimum_width, 0 );
+}
+
+JsWindow::DefinePanelOptions JsWindow::ParseDefinePanelOptions( JS::HandleValue options )
+{
+    DefinePanelOptions parsedOptions;
+    if ( !options.isNullOrUndefined() )
+    {
+        SmpException::ExpectTrue( options.isObject(), "options argument is not an object" );
+        JS::RootedObject jsOptions( pJsCtx_, &options.toObject() );
+
+        parsedOptions.author = GetOptionalProperty<pfc::string8_fast>( pJsCtx_, jsOptions, "author" ).value_or( "" );
+        parsedOptions.version = GetOptionalProperty<pfc::string8_fast>( pJsCtx_, jsOptions, "version" ).value_or( "" );
+
+        bool hasProperty;
+        if ( !JS_HasProperty( pJsCtx_, jsOptions, "features", &hasProperty ) )
+        {
+            throw JsException();
+        }
+
+        if ( hasProperty )
+        {
+            JS::RootedValue jsFeaturesValue( pJsCtx_ );
+            if ( !JS_GetProperty( pJsCtx_, jsOptions, "features", &jsFeaturesValue ) )
+            {
+                throw JsException();
+            }
+
+            SmpException::ExpectTrue( jsFeaturesValue.isObject(), "`features` is not an object" );
+
+            JS::RootedObject jsFeatures( pJsCtx_, &jsFeaturesValue.toObject() );
+            parsedOptions.features.drag_n_drop = GetOptionalProperty<bool>( pJsCtx_, jsFeatures, "drag_n_drop" ).value_or( false );
+        }
+    }
+
+    return parsedOptions;
 }
 
 } // namespace mozjs
