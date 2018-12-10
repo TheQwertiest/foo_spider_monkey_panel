@@ -6,27 +6,29 @@
 namespace
 {
 
-struct action : public delay_loader_action
+class action : public delay_loader_action
 {
+public:
     action( const char* p_msg, const char* p_title )
         : msg_( p_msg )
         , title_( p_title )
     {
     }
 
-    pfc::string_simple msg_;
-    pfc::string_simple title_;
-
     void execute() override
     {
         ::popup_message::g_show( msg_, title_ );
     }
+
+private:
+    pfc::string_simple msg_;
+    pfc::string_simple title_;
 };
 
 } // namespace
 
-FOOGUIDDECL bool delay_loader::services_initialized_ = false;
-FOOGUIDDECL std::vector<std::unique_ptr<delay_loader_action>> delay_loader::callbacks_;
+bool delay_loader::services_initialized_ = false;
+std::vector<std::unique_ptr<delay_loader_action>> delay_loader::callbacks_;
 
 void delay_loader::g_enqueue( std::unique_ptr<delay_loader_action> callback )
 {
@@ -35,7 +37,7 @@ void delay_loader::g_enqueue( std::unique_ptr<delay_loader_action> callback )
         return;
     }
 
-    if ( g_ready() )
+    if ( services_initialized_ )
     {
         callback->execute();
     }
@@ -52,15 +54,9 @@ void delay_loader::g_set_ready()
     for ( auto& callback : callbacks_ )
     {
         callback->execute();
-        callback.reset();
     }
 
     callbacks_.clear();
-}
-
-bool delay_loader::g_ready()
-{
-    return services_initialized_;
 }
 
 void popup_msg::g_show( const char* p_msg, const char* p_title )

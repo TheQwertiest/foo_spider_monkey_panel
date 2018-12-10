@@ -10,6 +10,7 @@
 #include <utils/image_helpers.h>
 #include <utils/gdi_helpers.h>
 #include <utils/string_helpers.h>
+#include <utils/thread_pool.h>
 #include <convert/native_to_js.h>
 
 #include <helpers.h>
@@ -43,8 +44,7 @@ private:
 };
 
 class ImageFetchTask
-    : public simple_thread_task
-    , public IHeapUser
+    : public IHeapUser
 {
 public:
     ImageFetchTask( JSContext* cx,
@@ -55,11 +55,16 @@ public:
     /// @details Executed off main thread
     ~ImageFetchTask() override;
 
+    ImageFetchTask( const ImageFetchTask& ) = delete;
+    ImageFetchTask& operator=( const ImageFetchTask& ) = delete;
+
     // IHeapUser
     void PrepareForGlobalGc() override;
 
-    // simple_thread_task
-    void run() override;
+    void operator()();
+
+private:
+    void run();
 
 private:
     HWND hNotifyWnd_;
@@ -115,6 +120,11 @@ ImageFetchTask::~ImageFetchTask()
     }
 
     pNativeGlobal_->GetHeapManager().UnregisterUser( this );
+}
+
+void ImageFetchTask::operator()()
+{
+    return run();
 }
 
 void ImageFetchTask::PrepareForGlobalGc()
@@ -189,17 +199,9 @@ JSObject* GetImagePromise( JSContext* cx, HWND hWnd, const std::wstring& imagePa
     JS::RootedObject jsObject( cx, JS::NewPromiseObject( cx, nullptr ) );
     JsException::ExpectTrue( jsObject );
 
-    try
-    {
-        if ( !simple_thread_pool::instance().enqueue( std::make_unique<ImageFetchTask>( cx, jsObject, hWnd, imagePath ) ) )
-        {
-            throw SmpException( "Internal error: failed to enqueue ArtV2 task" );
-        }
-    }
-    catch ( const pfc::exception& )
-    {
-        throw SmpException( "Internal error: failed to create thread for ArtV2 task" );
-    }
+    ThreadPool::GetInstance().AddTask( [task = std::make_shared<ImageFetchTask>( cx, jsObject, hWnd, imagePath )] {
+        std::invoke( *task );
+    } );
 
     return jsObject;
 }

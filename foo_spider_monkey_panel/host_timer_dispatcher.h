@@ -15,19 +15,16 @@ class JsGlobalObject;
 class HostTimer;
 class HostTimerTask;
 
-/*
-@brief Handles JS requests for setInterval, setTimeout, clearInterval, clearTimeout.
-@details
-Everything happens inside of the main thread except for:
-- Timer procs: timer proc is called from a worker thread, but JS callback
-  handling is given back to main thread through window messaging.
-- Timer destruction: a separate 'killer' thread handles this.
-
-Usual workflow is like this (MainThread == MT, WorkerThread == WT, KillerThread == KT):
- MT:createTimer -> MT:timer.start -> WT:proc(timer) >> window_msg >> MT:panel
-                                       \-> WT:timer.remove -> KT:waitForTimer -> KT:killTimer
-*/
-
+/// @brief Handles JS requests for setInterval, setTimeout, clearInterval, clearTimeout.
+/// @details
+/// Everything happens inside of the main thread except for:
+/// - Timer procs: timer proc is called from a worker thread, but JS callback
+///   handling is given back to main thread through window messaging.
+/// - Timer destruction: a separate 'killer' thread handles this.
+///
+/// Usual workflow is like this (MainThread == MT, WorkerThread == WT, KillerThread == KT):
+///  MT:createTimer -> MT:timer.start -> WT:proc(timer) >> window_msg >> MT:panel
+///                                        \-> WT:timer.remove -> KT:waitForTimer -> KT:killTimer
 class HostTimerDispatcher
 {
 public:

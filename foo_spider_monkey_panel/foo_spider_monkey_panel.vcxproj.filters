@@ -64,9 +64,6 @@
     <ClCompile Include="stdafx.cpp">
       <Filter>z_uncategorized</Filter>
     </ClCompile>
-    <ClCompile Include="thread_pool.cpp">
-      <Filter>z_uncategorized</Filter>
-    </ClCompile>
     <ClCompile Include="js_objects\fb_metadb_handle.cpp">
       <Filter>js_objects</Filter>
     </ClCompile>
@@ -284,6 +281,9 @@
       <Filter>js_utils</Filter>
     </ClCompile>
     <ClCompile Include="message_blocking_scope.cpp" />
+    <ClCompile Include="utils\thread_pool.cpp">
+      <Filter>utils</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="js_engine\js_engine.h">
@@ -350,9 +350,6 @@
       <Filter>z_uncategorized</Filter>
     </ClInclude>
     <ClInclude Include="stdafx.h">
-      <Filter>z_uncategorized</Filter>
-    </ClInclude>
-    <ClInclude Include="thread_pool.h">
       <Filter>z_uncategorized</Filter>
     </ClInclude>
     <ClInclude Include="user_message.h">
@@ -636,6 +633,9 @@
     </ClInclude>
     <ClInclude Include="message_blocking_scope.h">
       <Filter>z_uncategorized</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\thread_pool.h">
+      <Filter>utils</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

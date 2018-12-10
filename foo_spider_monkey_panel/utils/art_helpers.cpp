@@ -3,6 +3,7 @@
 
 #include <utils/gdi_helpers.h>
 #include <utils/string_helpers.h>
+#include <utils/thread_pool.h>
 
 #include <helpers.h>
 #include <user_message.h>
@@ -17,13 +18,18 @@ namespace
 
 using namespace smp;
 
-class AlbumArtFetchTask : public simple_thread_task
+class AlbumArtFetchTask
 {
 public:
     AlbumArtFetchTask( HWND hNotifyWnd, metadb_handle_ptr handle, uint32_t artId, bool need_stub, bool only_embed, bool no_load );
 
+    AlbumArtFetchTask( const AlbumArtFetchTask& ) = delete;
+    AlbumArtFetchTask& operator=( const AlbumArtFetchTask& ) = delete;
+
+    void operator()();
+
 private:
-    void run() override;
+    void run();
 
 private:
     metadb_handle_ptr handle_;
@@ -42,6 +48,11 @@ AlbumArtFetchTask::AlbumArtFetchTask( HWND hNotifyWnd, metadb_handle_ptr handle,
     , onlyEmbed_( only_embed )
     , noLoad_( no_load )
 {
+}
+
+void AlbumArtFetchTask::operator()()
+{
+    return run();
 }
 
 void AlbumArtFetchTask::run()
@@ -322,15 +333,11 @@ std::unique_ptr<Gdiplus::Bitmap> GetBitmapFromMetadbOrEmbed( const metadb_handle
 void GetAlbumArtAsync( HWND hWnd, const metadb_handle_ptr& handle, uint32_t art_id, bool need_stub, bool only_embed, bool no_load )
 {
     assert( handle.is_valid() );
+    (void)GetGuidForArtId( art_id ); ///< Check that art id is valid, since we don't want to throw in helper thread
 
-    try
-    {
-        (void)GetGuidForArtId( art_id ); ///< Check that art id is valid, since we don't want to throw in helper thread
-        (void)simple_thread_pool::instance().enqueue( std::make_unique<AlbumArtFetchTask>( hWnd, handle, art_id, need_stub, only_embed, no_load ) );
-    }
-    catch ( const pfc::exception& )
-    { // Could not create thread
-    }
+    ThreadPool::GetInstance().AddTask( [task = std::make_shared<AlbumArtFetchTask>( hWnd, handle, art_id, need_stub, only_embed, no_load )] {
+        std::invoke( *task );
+    } );
 }
 
 } // namespace smp::art

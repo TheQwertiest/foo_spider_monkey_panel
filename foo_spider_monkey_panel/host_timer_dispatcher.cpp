@@ -153,16 +153,8 @@ void HostTimerDispatcher::threadMain()
         ThreadTask threadTask;
         {
             std::unique_lock<std::mutex> lock( m_threadTaskMutex );
-
-            while ( m_threadTaskList.empty() )
-            {
-                m_cv.wait( lock );
-            }
-
-            if ( m_threadTaskList.empty() )
-            {
-                continue;
-            }
+            
+            m_cv.wait( lock, [&threadTaskList = m_threadTaskList] { return !threadTaskList.empty(); } );
 
             threadTask = m_threadTaskList.front();
             m_threadTaskList.pop_front();
@@ -254,16 +246,16 @@ VOID CALLBACK HostTimer::timerProc( PVOID lpParameter, BOOLEAN /*TimerOrWaitFire
                                                                    std::make_unique<smp::panel::CallbackDataImpl<std::shared_ptr<HostTimerTask>>>( timer->task_ ) );
     };
 
-    if ( !timer->isRepeated_ )
+    if ( timer->isRepeated_ )
+    {
+        postTimerTask();
+    }
+    else
     {
         timer->isStopped_ = true;
         postTimerTask();
         HostTimerDispatcher::Get().onTimerStopRequest( timer->hWnd_, timer->hTimer_, timer->id_ );
-
-        return;
     }
-
-    postTimerTask();
 }
 
 HWND HostTimer::GetHwnd() const

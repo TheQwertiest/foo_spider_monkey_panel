@@ -10,6 +10,7 @@
 #include <utils/art_helpers.h>
 #include <utils/gdi_helpers.h>
 #include <utils/string_helpers.h>
+#include <utils/thread_pool.h>
 #include <convert/native_to_js.h>
 
 #include <helpers.h>
@@ -46,8 +47,7 @@ private:
 };
 
 class AlbumArtV2FetchTask
-    : public simple_thread_task
-    , public IHeapUser
+    : public IHeapUser
 {
 public:
     AlbumArtV2FetchTask( JSContext* cx,
@@ -62,11 +62,16 @@ public:
     /// @details Executed off main thread
     ~AlbumArtV2FetchTask() override;
 
+    AlbumArtV2FetchTask( const AlbumArtV2FetchTask& ) = delete;
+    AlbumArtV2FetchTask& operator=( const AlbumArtV2FetchTask& ) = delete;
+
     // IHeapUser
     void PrepareForGlobalGc() override;
 
-    // simple_thread_task
-    void run() override;
+    void operator()();
+
+private:
+    void run();
 
 private:
     HWND hNotifyWnd_;
@@ -136,6 +141,11 @@ AlbumArtV2FetchTask::~AlbumArtV2FetchTask()
     }
 
     pNativeGlobal_->GetHeapManager().UnregisterUser( this );
+}
+
+void AlbumArtV2FetchTask::operator()()
+{
+    return run();
 }
 
 void AlbumArtV2FetchTask::PrepareForGlobalGc()
@@ -221,23 +231,14 @@ namespace mozjs::art
 JSObject* GetAlbumArtPromise( JSContext* cx, HWND hWnd, const metadb_handle_ptr& handle, uint32_t art_id, bool need_stub, bool only_embed, bool no_load )
 {
     assert( handle.is_valid() );
+    (void)smp::art::GetGuidForArtId( art_id ); ///< Check that art id is valid, since we don't want to throw in helper thread
 
     JS::RootedObject jsObject( cx, JS::NewPromiseObject( cx, nullptr ) );
     JsException::ExpectTrue( jsObject );
 
-    try
-    {
-        (void)smp::art::GetGuidForArtId( art_id ); ///< Check that art id is valid, since we don't want to throw in helper thread
-
-        if ( !simple_thread_pool::instance().enqueue( std::make_unique<AlbumArtV2FetchTask>( cx, jsObject, hWnd, handle, art_id, need_stub, only_embed, no_load ) ) )
-        {
-            throw SmpException( "Internal error: failed to enqueue ArtV2 task" );
-        }
-    }
-    catch ( const pfc::exception& )
-    {
-        throw SmpException( "Internal error: failed to create thread for ArtV2 task" );
-    }
+    ThreadPool::GetInstance().AddTask( [task = std::make_shared<AlbumArtV2FetchTask>( cx, jsObject, hWnd, handle, art_id, need_stub, only_embed, no_load )] {
+        std::invoke( *task );
+    } );
 
     return jsObject;
 }

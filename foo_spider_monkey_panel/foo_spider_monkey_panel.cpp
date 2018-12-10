@@ -1,10 +1,10 @@
 #include "stdafx.h"
-#include "thread_pool.h"
 #include "popup_msg.h"
 #include <message_manager.h>
 #include "user_message.h"
 
 #include <js_engine/js_engine.h>
+#include <utils/thread_pool.h>
 
 #include <map>
 #include <sstream>
@@ -129,7 +129,7 @@ public:
     {
         mozjs::JsEngine::GetInstance().PrepareForExit();
         smp::panel::message_manager::instance().send_msg_to_all( static_cast<UINT>(smp::InternalSyncMessage::terminate_script) );
-        simple_thread_pool::instance().join();
+        smp::ThreadPool::GetInstance().Finalize();
     }
 
 private:

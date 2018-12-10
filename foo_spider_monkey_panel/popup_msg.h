@@ -1,18 +1,17 @@
 #pragma once
 
-/* WARNING: Non thread safety */
-class NOVTABLE delay_loader_action
+class delay_loader_action
 {
 public:
     virtual void execute() = 0;
 };
 
+/// @details Class usage is not thread-safe
 class delay_loader
 {
 public:
     static void g_enqueue( std::unique_ptr<delay_loader_action> callback );
     static void g_set_ready();
-    static bool g_ready();
 
 private:
     static std::vector<std::unique_ptr<delay_loader_action>> callbacks_;

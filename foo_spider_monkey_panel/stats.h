@@ -3,7 +3,7 @@
 namespace smp::stats
 {
 
-typedef uint32_t stats_t;
+using stats_t = uint32_t;
 struct fields
 {
     stats_t playcount = 0;

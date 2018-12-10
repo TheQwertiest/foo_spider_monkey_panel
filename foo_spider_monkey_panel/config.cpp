@@ -85,9 +85,7 @@ bool PanelProperties::g_load( config_map& data, stream_reader* reader, abort_cal
                 }
                 case mozjs::JsValueType::pt_string:
                 {
-                    pfc::string8_fast pfcStrVal;
-                    reader->read_string( pfcStrVal, abort );
-                    serializedValue.strVal.add_string_nc( pfcStrVal.c_str(), pfcStrVal.length() );
+                    reader->read_string( serializedValue.strVal, abort );
                     break;
                 }
                 default:
@@ -101,7 +99,7 @@ bool PanelProperties::g_load( config_map& data, stream_reader* reader, abort_cal
             data.emplace( propnameW.get_ptr(), std::make_shared<mozjs::SerializedJsValue>( serializedValue ) );
         }
     }
-    catch ( ... )
+    catch ( const pfc::exception& )
     {
         return false;
     }
@@ -230,7 +228,7 @@ bool PanelProperties::g_load_legacy( config_map& data, stream_reader* reader, ab
             data.emplace( propnameW.get_ptr(), std::make_shared<mozjs::SerializedJsValue>( serializedValue ) );
         }
     }
-    catch ( ... )
+    catch ( const pfc::exception& )
     {
         return false;
     }
@@ -277,12 +275,14 @@ void PanelProperties::g_save( const config_map& data, stream_writer* writer, abo
                     break;
                 }
                 default:
+                {
                     assert( 0 );
                     break;
+                }
             }
         }
     }
-    catch ( ... )
+    catch ( const pfc::exception& )
     {
     }
 }
@@ -345,10 +345,10 @@ PanelProperties& PanelSettings::get_config_prop()
 pfc::string8_fast PanelSettings::get_default_script_code()
 {
     pfc::string8_fast scriptCode;
-    puResource pures = uLoadResource( core_api::get_my_instance(), uMAKEINTRESOURCE( IDR_SCRIPT ), "SCRIPT" );
-    if ( pures )
+    puResource puRes = uLoadResource( core_api::get_my_instance(), uMAKEINTRESOURCE( IDR_SCRIPT ), "SCRIPT" );
+    if ( puRes )
     {
-        scriptCode.set_string( reinterpret_cast<const char*>( pures->GetPointer() ), pures->GetSize() );
+        scriptCode.set_string( reinterpret_cast<const char*>( puRes->GetPointer() ), puRes->GetSize() );
     }
     return scriptCode;
 }
@@ -362,6 +362,8 @@ void PanelSettings::load_config( stream_reader* reader, t_size size, abort_callb
 {
     reset_config();
 
+    // TODO: remove old config values and up the version
+
     if ( size > sizeof( Version ) )
     {
         try
@@ -370,7 +372,7 @@ void PanelSettings::load_config( stream_reader* reader, t_size size, abort_callb
             reader->read_object_t( ver, abort );
             if ( ver > static_cast<uint32_t>( Version::CONFIG_VERSION_CURRENT ) )
             {
-                throw std::runtime_error( "" );
+                throw pfc::exception();
             }
             reader->skip_object( sizeof( false ), abort ); // HACK: skip over "delay load"
             reader->read_object_t( m_config_guid, abort );
@@ -382,7 +384,7 @@ void PanelSettings::load_config( stream_reader* reader, t_size size, abort_callb
             reader->read_string( m_script_code, abort );
             reader->read_object_t( m_pseudo_transparent, abort );
         }
-        catch ( ... )
+        catch ( const pfc::exception& )
         {
             reset_config();
             FB2K_console_formatter() << "Error: " SMP_NAME_WITH_VERSION " Configuration has been corrupted. All settings have been reset.";
@@ -416,7 +418,7 @@ void PanelSettings::save_config( stream_writer* writer, abort_callback& abort ) 
         writer->write_string( m_script_code, abort );
         writer->write_object_t( m_pseudo_transparent, abort );
     }
-    catch ( ... )
+    catch ( const pfc::exception& )
     {
     }
 }
