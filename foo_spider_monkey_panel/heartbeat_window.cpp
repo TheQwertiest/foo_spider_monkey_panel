@@ -40,7 +40,7 @@ std::unique_ptr<HeartbeatWindow> HeartbeatWindow::Create()
 
 HWND HeartbeatWindow::GetHwnd() const
 {
-     return hWnd_;
+    return hWnd_;
 }
 
 LRESULT CALLBACK HeartbeatWindow::WndProc( HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam )

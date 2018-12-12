@@ -26,7 +26,7 @@ public:
     }
     operator std::string() const
     {
-        return stream_.str();
+        return str();
     }
 
 private:

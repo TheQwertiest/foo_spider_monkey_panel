@@ -231,27 +231,29 @@ fields get( metadb_index_hash hash )
 {
     mem_block_container_impl temp;
     theAPI()->get_user_data( g_guid_smp_metadb_index, hash, temp );
-    if ( temp.get_size() > 0 )
+
+    if ( !temp.get_size() )
     {
-        try
-        {
-            stream_reader_formatter_simple_ref<false> reader( temp.get_ptr(), temp.get_size() );
-            fields ret;
-            reader >> ret.playcount;
-            reader >> ret.loved;
-            reader >> ret.first_played;
-            reader >> ret.last_played;
-            if ( reader.get_remaining() > 0 ) // check needed here for compatibility with v2 Beta4
-            {
-                reader >> ret.rating;
-            }
-            return ret;
-        }
-        catch ( exception_io_data )
-        {
-        }
+        return fields();
     }
-    return fields();
+
+    fields ret;
+    try
+    {
+        stream_reader_formatter_simple_ref<false> reader( temp.get_ptr(), temp.get_size() );
+
+        reader >> ret.playcount;
+        reader >> ret.loved;
+        reader >> ret.first_played;
+        reader >> ret.last_played;
+        reader >> ret.rating;
+    }
+    catch ( const exception_io_data& )
+    {
+        return fields();
+    }
+
+    return ret;
 }
 
 void set( metadb_index_hash hash, fields f )

@@ -27,7 +27,7 @@ public:
     {
         static_assert( std::is_invocable_v<T> );
         static_assert( std::is_move_constructible_v<T> || std::is_copy_constructible_v<T> );
-        // This method be easily modified to be thread-safe, but we don't need it currently
+        // This method can be easily modified to be thread-safe, but we don't need that currently
         assert( core_api::is_main_thread() );
 
         if ( isExiting_ )

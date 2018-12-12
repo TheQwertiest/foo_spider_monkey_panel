@@ -280,9 +280,11 @@
     <ClCompile Include="js_utils\js_image_helpers.cpp">
       <Filter>js_utils</Filter>
     </ClCompile>
-    <ClCompile Include="message_blocking_scope.cpp" />
     <ClCompile Include="utils\thread_pool.cpp">
       <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="message_blocking_scope.cpp">
+      <Filter>z_uncategorized</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
