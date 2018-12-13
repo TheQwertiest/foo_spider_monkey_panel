@@ -8,6 +8,7 @@
 #include <helpers.h>
 #include <user_message.h>
 #include <message_manager.h>
+#include <abort_callback.h>
 
 #include <Shlwapi.h>
 
@@ -237,7 +238,7 @@ std::unique_ptr<Gdiplus::Bitmap> GetBitmapFromEmbeddedData( const pfc::string8_f
 
     service_enum_t<album_art_extractor> extractorEnum;
     album_art_extractor::ptr extractor;
-    abort_callback_dummy abort;
+    TimedAbortCallback abort;
 
     while ( extractorEnum.next( extractor ) )
     {
@@ -266,7 +267,7 @@ std::unique_ptr<Gdiplus::Bitmap> GetBitmapFromMetadb( const metadb_handle_ptr& h
     assert( handle.is_valid() );
 
     const GUID& artTypeGuid = GetGuidForArtId( art_id );
-    abort_callback_dummy abort;
+    TimedAbortCallback abort;
     auto aamv2 = album_art_manager_v2::get();
 
     try

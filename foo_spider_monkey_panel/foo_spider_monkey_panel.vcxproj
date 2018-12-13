@@ -92,6 +92,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="abort_callback.cpp" />
     <ClCompile Include="acfu_integration.cpp" />
     <ClCompile Include="adv_config.cpp" />
     <ClCompile Include="fb2k_callbacks.cpp" />
@@ -199,6 +200,7 @@
     <ClInclude Include="..\PropertyList\PropertyItemEditors.h" />
     <ClInclude Include="..\PropertyList\PropertyItemImpl.h" />
     <ClInclude Include="..\PropertyList\PropertyList.h" />
+    <ClInclude Include="abort_callback.h" />
     <ClInclude Include="adv_config.h" />
     <ClInclude Include="callback_data.h" />
     <ClInclude Include="com_objects\com_tools.h" />

@@ -11,6 +11,7 @@
 #include <utils/string_helpers.h>
 #include <utils/pfc_helpers.h>
 
+#include <abort_callback.h>
 #include <helpers.h>
 #include <stats.h>
 
@@ -326,7 +327,7 @@ void JsFbMetadbHandleList::AttachImage( const pfc::string8_fast& image_path, uin
     }
 
     const GUID& what = art::GetGuidForArtId( art_id );
-    abort_callback_dummy abort;
+    auto& abort = GlobalAbortCallback::GetInstance();
     album_art_data_ptr data;
 
     try

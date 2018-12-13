@@ -3,7 +3,8 @@
 
 #include <com_objects/script_interface_impl.h>
 
-#include "user_message.h"
+#include <user_message.h>
+#include <abort_callback.h>
 
 #include <MLang.h>
 
@@ -480,7 +481,7 @@ t_size detect_charset( const char* fileName )
     try
     {
         file_ptr io;
-        abort_callback_dummy abort;
+        auto& abort = smp::GlobalAbortCallback::GetInstance();
         filesystem::g_open_read( io, fileName, abort );
         io->read_string_raw( text, abort );
     }

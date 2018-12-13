@@ -286,6 +286,9 @@
     <ClCompile Include="message_blocking_scope.cpp">
       <Filter>z_uncategorized</Filter>
     </ClCompile>
+    <ClCompile Include="abort_callback.cpp">
+      <Filter>z_uncategorized</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="js_engine\js_engine.h">
@@ -638,6 +641,9 @@
     </ClInclude>
     <ClInclude Include="utils\thread_pool.h">
       <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="abort_callback.h">
+      <Filter>z_uncategorized</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

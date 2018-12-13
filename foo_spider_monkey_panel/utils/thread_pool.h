@@ -38,17 +38,17 @@ public:
         {
             std::scoped_lock sl( queueMutex_ );
 
-            if constexpr ( std::is_copy_constructible_v<T> && (std::is_lvalue_reference_v<T> || !std::is_move_constructible_v<T>))
-            {
-                tasks_.emplace( std::make_unique<Task>( task ) );
-            }
-            else
+            if constexpr ( !std::is_copy_constructible_v<T> && std::is_move_constructible_v<T> )
             {
                 auto taskLambda = [taskWrapper = std::make_shared<T>( std::forward<T>( task ) )] {
                     std::invoke( *taskWrapper );
                 };
                 tasks_.emplace( std::make_unique<Task>( taskLambda ) );
             }
+            else
+            {
+                tasks_.emplace( std::make_unique<Task>( task ) );
+            }            
 
             hasTask_.notify_one();
         }

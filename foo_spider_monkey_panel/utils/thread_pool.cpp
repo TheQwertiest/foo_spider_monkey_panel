@@ -12,6 +12,7 @@ ThreadPool::ThreadPool()
 
 ThreadPool::~ThreadPool()
 {
+    assert( threads_.empty() );
     assert( tasks_.empty() );
 }
 
@@ -36,7 +37,12 @@ void ThreadPool::Finalize()
             thread->join();
         }
     }
+
     threads_.clear();
+    while ( !tasks_.empty() )
+    { // Might be non-empty if thread was aborted
+        tasks_.pop();
+    }
 }
 
 void ThreadPool::AddThread()

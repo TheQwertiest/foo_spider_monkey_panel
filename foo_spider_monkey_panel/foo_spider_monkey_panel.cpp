@@ -1,10 +1,13 @@
 #include "stdafx.h"
-#include "popup_msg.h"
+
+#include <popup_msg.h>
 #include <message_manager.h>
-#include "user_message.h"
+#include <user_message.h>
+#include <abort_callback.h>
 
 #include <js_engine/js_engine.h>
 #include <utils/thread_pool.h>
+
 
 #include <map>
 #include <sstream>
@@ -126,9 +129,10 @@ public:
     }
 
     void on_quit() override
-    {
+    {// Careful when changing invocation order here!
         mozjs::JsEngine::GetInstance().PrepareForExit();
         smp::panel::message_manager::instance().send_msg_to_all( static_cast<UINT>(smp::InternalSyncMessage::terminate_script) );
+        smp::GlobalAbortCallback::GetInstance().Abort();
         smp::ThreadPool::GetInstance().Finalize();
     }
 

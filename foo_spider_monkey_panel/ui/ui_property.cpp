@@ -2,6 +2,7 @@
 #include "ui_property.h"
 
 #include <js_panel_window.h>
+#include <abort_callback.h>
 
 // stringstream
 #include <sstream>
@@ -229,7 +230,7 @@ LRESULT CDialogProperty::OnImportBnClicked( WORD wNotifyCode, WORD wID, HWND hWn
     if ( uGetOpenFileName( m_hWnd, "Property files|*.smp;*.wsp|All files|*.*", 0, "smp", "Import from", nullptr, filename, FALSE ) )
     {
         file_ptr io;
-        abort_callback_dummy abort;
+        auto& abort = smp::GlobalAbortCallback::GetInstance();
 
         try
         {
@@ -267,7 +268,7 @@ LRESULT CDialogProperty::OnExportBnClicked( WORD wNotifyCode, WORD wID, HWND hWn
     if ( uGetOpenFileName( m_hWnd, "Property files|*.smp", 0, "smp", "Save as", nullptr, path, TRUE ) )
     {
         file_ptr io;
-        abort_callback_dummy abort;
+        auto& abort = smp::GlobalAbortCallback::GetInstance();
 
         try
         {

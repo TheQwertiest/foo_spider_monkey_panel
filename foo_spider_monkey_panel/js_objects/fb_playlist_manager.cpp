@@ -12,6 +12,7 @@
 #include <utils/string_helpers.h>
 #include <utils/pfc_helpers.h>
 
+#include <abort_callback.h>
 #include <helpers.h>
 
 using namespace smp;
@@ -312,8 +313,8 @@ uint32_t JsFbPlaylistManager::DuplicatePlaylist( uint32_t from, const pfc::strin
     }
 
     stream_reader_dummy dummy_reader;
-    abort_callback_dummy dummy_abort;
-    return api->create_playlist_ex( uname.get_ptr(), uname.get_length(), from + 1, contents, &dummy_reader, dummy_abort );
+    auto& abort = smp::GlobalAbortCallback::GetInstance();
+    return api->create_playlist_ex( uname.get_ptr(), uname.get_length(), from + 1, contents, &dummy_reader, abort );
 }
 
 uint32_t JsFbPlaylistManager::DuplicatePlaylistWithOpt( size_t optArgCount, uint32_t from, const pfc::string8_fast& name )
