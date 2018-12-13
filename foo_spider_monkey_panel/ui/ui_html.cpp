@@ -378,6 +378,7 @@ STDMETHODIMP CDialogHtml::GetDropTarget( IDropTarget* pDropTarget, IDropTarget**
 
 STDMETHODIMP CDialogHtml::GetExternal( IDispatch** ppDispatch )
 {
+    assert( ppDispatch );
     if ( !pDefaultUiHandler_ )
     {
         return S_OK;

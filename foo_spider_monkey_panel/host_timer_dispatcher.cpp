@@ -164,13 +164,13 @@ void HostTimerDispatcher::threadMain()
         {
         case ThreadTaskId::killTimerTask:
         {
-            DeleteTimerQueueTimer( m_hTimerQueue, threadTask.hTimer, INVALID_HANDLE_VALUE );
+            (void)DeleteTimerQueueTimer( m_hTimerQueue, threadTask.hTimer, INVALID_HANDLE_VALUE );
             onTimerExpire( threadTask.timerId );
             break;
         }
         case ThreadTaskId::shutdownTask:
         {
-            DeleteTimerQueueEx( m_hTimerQueue, INVALID_HANDLE_VALUE );
+            (void)DeleteTimerQueueEx( m_hTimerQueue, INVALID_HANDLE_VALUE );
             m_hTimerQueue = nullptr;
             return;
         }

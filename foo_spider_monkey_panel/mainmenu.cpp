@@ -62,13 +62,13 @@ public:
     }
     void get_name( t_uint32 p_index, pfc::string_base& p_out ) override
     {
-        if ( p_index >= cmd_total )
+        if ( p_index < cmd_one || p_index >= cmd_total )
         {
             uBugCheck();
         }
 
         p_out.reset();
-        p_out << ( p_index + 1 );
+        p_out << ( static_cast<int>( p_index ) + ( 1 - cmd_one ) );
     }
     bool get_description( t_uint32 /* p_index */, pfc::string_base& p_out ) override
     {

@@ -30,8 +30,8 @@ pfc::string8_fast TrimImpl( const pfc::string8_fast& str )
         }
     }
 
-    size_t last = 0;
-    for ( last = str.length() - 1; last >= 0; --last )
+    int32_t last = 0;
+    for ( last = static_cast<int32_t>( str.length() ) - 1; last >= 0; --last )
     {
         if ( str[last] != ' ' )
         {

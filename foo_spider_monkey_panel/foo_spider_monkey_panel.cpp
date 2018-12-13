@@ -58,7 +58,7 @@ void InitializeSubsystems( HINSTANCE ins )
 
     {
         wchar_t path[MAX_PATH];
-        DWORD len = GetModuleFileName( ins, path, sizeof( path ) ); // NULL-terminated in OS newer than WinXP
+        DWORD len = GetModuleFileName( ins, path, _countof( path ) ); // NULL-terminated in OS newer than WinXP
 
         if ( HRESULT hr = LoadTypeLibEx( path, REGKIND_NONE, &g_typelib );
              FAILED( hr ) )
