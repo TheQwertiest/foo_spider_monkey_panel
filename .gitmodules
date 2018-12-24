@@ -25,7 +25,7 @@
 [submodule "submodules/json"]
 	path = submodules/json
 	url = https://github.com/nlohmann/json.git
-	fetchRecurseSubmodules = false
+	branch = master
 [submodule "submodules/timsort"]
 	path = submodules/timsort
 	url = https://github.com/tvanslyke/timsort-cpp.git
