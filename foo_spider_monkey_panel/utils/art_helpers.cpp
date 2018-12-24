@@ -112,9 +112,9 @@ std::unique_ptr<Gdiplus::Bitmap> GetBitmapFromAlbumArtData( const album_art_data
     return bmp;
 }
 
-std::unique_ptr<Gdiplus::Bitmap> ExtractBitmap( album_art_extractor_instance_v2::ptr extractor, const GUID& artTypeGuid, bool no_load, pfc::string8_fast* pImagePath )
+/// @details Throws pfc::exception, if art is not found or if aborted
+std::unique_ptr<Gdiplus::Bitmap> ExtractBitmap( album_art_extractor_instance_v2::ptr extractor, const GUID& artTypeGuid, bool no_load, pfc::string8_fast* pImagePath, abort_callback& abort )
 {
-    abort_callback_dummy abort;
     album_art_data_ptr data = extractor->query( artTypeGuid, abort );
     std::unique_ptr<Gdiplus::Bitmap> bitmap;
 
@@ -255,7 +255,7 @@ std::unique_ptr<Gdiplus::Bitmap> GetBitmapFromEmbeddedData( const pfc::string8_f
             return GetBitmapFromAlbumArtData( data );
         }
         catch ( const pfc::exception& )
-        { // not found
+        { // not found or aborted
         }
     }
 
@@ -273,23 +273,20 @@ std::unique_ptr<Gdiplus::Bitmap> GetBitmapFromMetadb( const metadb_handle_ptr& h
     try
     {
         auto aaeiv2 = aamv2->open( pfc::list_single_ref_t<metadb_handle_ptr>( handle ), pfc::list_single_ref_t<GUID>( artTypeGuid ), abort );
-        return ExtractBitmap( aaeiv2, artTypeGuid, no_load, pImagePath );
+        return ExtractBitmap( aaeiv2, artTypeGuid, no_load, pImagePath, abort );
     }
     catch ( const pfc::exception& )
-    { // not found
-    }
-
-    if ( need_stub )
-    {
-        auto aaeiv2_stub = aamv2->open_stub( abort );
-
-        try
+    { // not found or aborted
+        if ( need_stub )
         {
-            auto data = aaeiv2_stub->query( artTypeGuid, abort );
-            return ExtractBitmap( aaeiv2_stub, artTypeGuid, no_load, pImagePath );
-        }
-        catch ( const pfc::exception& )
-        { // not found
+            try
+            {
+                auto aaeiv2 = aamv2->open_stub( abort );
+                return ExtractBitmap( aaeiv2, artTypeGuid, no_load, pImagePath, abort );
+            }
+            catch ( const pfc::exception& )
+            { // not found or aborted
+            }
         }
     }
 
