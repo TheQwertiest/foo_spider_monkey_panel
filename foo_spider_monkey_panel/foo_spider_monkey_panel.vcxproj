@@ -95,6 +95,7 @@
     <ClCompile Include="abort_callback.cpp" />
     <ClCompile Include="acfu_integration.cpp" />
     <ClCompile Include="adv_config.cpp" />
+    <ClCompile Include="com_message_scope.cpp" />
     <ClCompile Include="fb2k_callbacks.cpp" />
     <ClCompile Include="com_objects\com_tools.cpp" />
     <ClCompile Include="com_objects\drop_source_impl.cpp" />
@@ -203,6 +204,7 @@
     <ClInclude Include="abort_callback.h" />
     <ClInclude Include="adv_config.h" />
     <ClInclude Include="callback_data.h" />
+    <ClInclude Include="com_message_scope.h" />
     <ClInclude Include="com_objects\com_tools.h" />
     <ClInclude Include="com_objects\dispatch_ptr.h" />
     <ClInclude Include="com_objects\drop_source_impl.h" />

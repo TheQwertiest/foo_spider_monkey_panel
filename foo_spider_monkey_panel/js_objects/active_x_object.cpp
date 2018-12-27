@@ -19,6 +19,7 @@
 #include <com_objects/com_tools.h>
 
 #include <smp_exception.h>
+#include <com_message_scope.h>
 
 #include <vector>
 #include <string>
@@ -434,6 +435,8 @@ ActiveXObject::ActiveXObject( JSContext* cx, CLSID& clsid )
 
 ActiveXObject::~ActiveXObject()
 {
+    smp::ComMessageScope cms;
+
     if ( pDispatch_ )
     {
         pDispatch_->Release();

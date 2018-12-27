@@ -78,6 +78,7 @@ public:
 
     void Repaint( bool force = false );
     void RepaintRect( LONG x, LONG y, LONG w, LONG h, bool force = false );
+    void RepaintRect( RECT rect, bool force = false );
     /// @details Calls Repaint inside
     void RepaintBackground( LPRECT lprcUpdate = nullptr );
 

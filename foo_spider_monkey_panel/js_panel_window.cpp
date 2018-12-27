@@ -16,6 +16,7 @@
 #include <drop_action_params.h>
 #include <helpers.h>
 #include <message_blocking_scope.h>
+#include <com_message_scope.h>
 
 namespace mozjs
 {
@@ -230,6 +231,12 @@ std::optional<LRESULT> js_panel_window::process_window_messages( UINT msg, WPARA
             isPaintInProgress_ = false;
 
             Repaint( true );
+            return 0;
+        }
+
+        if ( ComMessageScope::IsInScope() )
+        {// we have entered message loop because of COM messaging, delay repaint event to avoid deadlocks
+            Repaint();
             return 0;
         }
 
@@ -816,13 +823,12 @@ void js_panel_window::Repaint( bool force /*= false */ )
 
 void js_panel_window::RepaintRect( LONG x, LONG y, LONG w, LONG h, bool force /*= false */ )
 {
-    RECT rc;
-    rc.left = x;
-    rc.top = y;
-    rc.right = x + w;
-    rc.bottom = y + h;
+    RepaintRect( RECT{ x, y, x + w, y + h }, force );
+}
 
-    RedrawWindow( hWnd_, &rc, nullptr, RDW_INVALIDATE | ( force ? RDW_UPDATENOW : 0 ) );
+void js_panel_window::RepaintRect( RECT rect, bool force /*= false */ )
+{
+    RedrawWindow( hWnd_, &rect, nullptr, RDW_INVALIDATE | ( force ? RDW_UPDATENOW : 0 ) );
 }
 
 void js_panel_window::RepaintBackground( LPRECT lprcUpdate /*= nullptr */ )
