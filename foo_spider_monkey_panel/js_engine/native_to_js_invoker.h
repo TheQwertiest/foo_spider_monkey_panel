@@ -3,6 +3,7 @@
 #include <convert/native_to_js.h>
 #include <convert/js_to_native.h>
 #include <js_utils/js_error_helper.h>
+#include <js_utils/scope_helper.h>
 
 #include <optional>
 
@@ -19,9 +20,7 @@ std::optional<ReturnType> InvokeJsCallback( JSContext* cx,
     assert( !!globalObject );
     assert( functionName.length() );
 
-    JSAutoRequest ar( cx );
-    JSAutoCompartment ac( cx, globalObject );
-    mozjs::error::AutoJsReport are( cx );
+    JsScope autoScope( cx, globalObject );
 
     JS::RootedValue funcValue( cx );
     if ( !JS_GetProperty( cx, globalObject, functionName.c_str(), &funcValue ) )

@@ -39,7 +39,7 @@ public:
                   const pfc::string8_fast& path );
 
 private:
-    void InvokeJsImpl( JSContext* cx, JS::HandleObject jsGlobal, JS::HandleValue jsPromiseValue ) override;
+    bool InvokeJsImpl( JSContext* cx, JS::HandleObject jsGlobal, JS::HandleValue jsPromiseValue ) override;
 
 private:
     std::unique_ptr<Gdiplus::Bitmap> image_;
@@ -188,7 +188,7 @@ void JsAlbumArtTask::SetData( std::unique_ptr<Gdiplus::Bitmap> image, const pfc:
     path_ = path;
 }
 
-void JsAlbumArtTask::InvokeJsImpl( JSContext* cx, JS::HandleObject jsGlobal, JS::HandleValue jsPromiseValue )
+bool JsAlbumArtTask::InvokeJsImpl( JSContext* cx, JS::HandleObject jsGlobal, JS::HandleValue jsPromiseValue )
 {
     JS::RootedObject jsPromise( cx, &jsPromiseValue.toObject() );
 
@@ -213,13 +213,17 @@ void JsAlbumArtTask::InvokeJsImpl( JSContext* cx, JS::HandleObject jsGlobal, JS:
 
         JS::RootedValue jsResultValue( cx, JS::ObjectValue( *jsResult ) );
         (void)JS::ResolvePromise( cx, jsPromise, jsResultValue );
+        return true;
     }
     catch ( ... )
     {
         mozjs::error::ExceptionToJsError( cx );
+
         JS::RootedValue jsError( cx );
         (void)JS_GetPendingException( cx, &jsError );
+
         JS::RejectPromise( cx, jsPromise, jsError );
+        return false;
     }
 }
 

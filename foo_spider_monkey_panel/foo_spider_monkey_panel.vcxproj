@@ -263,6 +263,7 @@
     <ClInclude Include="js_objects\utils.h" />
     <ClInclude Include="js_objects\window.h" />
     <ClInclude Include="js_utils\js_art_helpers.h" />
+    <ClInclude Include="js_utils\js_async_task.h" />
     <ClInclude Include="js_utils\js_error_helper.h" />
     <ClInclude Include="js_utils\js_image_helpers.h" />
     <ClInclude Include="js_utils\js_object_helper.h" />

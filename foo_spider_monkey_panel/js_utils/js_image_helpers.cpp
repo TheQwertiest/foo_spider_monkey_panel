@@ -37,7 +37,7 @@ public:
     void SetData( std::unique_ptr<Gdiplus::Bitmap> image );
 
 private:
-    void InvokeJsImpl( JSContext* cx, JS::HandleObject jsGlobal, JS::HandleValue jsPromiseValue ) override;
+    bool InvokeJsImpl( JSContext* cx, JS::HandleObject jsGlobal, JS::HandleValue jsPromiseValue ) override;
 
 private:
     std::unique_ptr<Gdiplus::Bitmap> image_;
@@ -165,7 +165,7 @@ void JsImageTask::SetData( std::unique_ptr<Gdiplus::Bitmap> image )
     image_ = std::move( image );
 }
 
-void JsImageTask::InvokeJsImpl( JSContext* cx, JS::HandleObject jsGlobal, JS::HandleValue jsPromiseValue )
+bool JsImageTask::InvokeJsImpl( JSContext* cx, JS::HandleObject jsGlobal, JS::HandleValue jsPromiseValue )
 {
     JS::RootedObject jsPromise( cx, &jsPromiseValue.toObject() );
 
@@ -179,13 +179,17 @@ void JsImageTask::InvokeJsImpl( JSContext* cx, JS::HandleObject jsGlobal, JS::Ha
         }
 
         (void)JS::ResolvePromise( cx, jsPromise, jsBitmapValue );
+        return true;
     }
     catch ( ... )
     {
         mozjs::error::ExceptionToJsError( cx );
+
         JS::RootedValue jsError( cx );
         (void)JS_GetPendingException( cx, &jsError );
+
         JS::RejectPromise( cx, jsPromise, jsError );
+        return false;
     }
 }
 

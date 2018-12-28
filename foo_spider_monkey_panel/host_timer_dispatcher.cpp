@@ -188,12 +188,12 @@ HostTimerTask::HostTimerTask( JSContext* cx, JS::HandleValue funcValue )
 {
 }
 
-void HostTimerTask::InvokeJsImpl( JSContext* cx, JS::HandleObject jsGlobal, JS::HandleValue funcValue )
+bool HostTimerTask::InvokeJsImpl( JSContext* cx, JS::HandleObject jsGlobal, JS::HandleValue funcValue )
 {
     JS::RootedFunction rFunc( cx, JS_ValueToFunction( cx, funcValue ) );
 
     JS::RootedValue dummyRetVal( cx );
-    JS::Call( cx, jsGlobal, rFunc, JS::HandleValueArray::empty(), &dummyRetVal );
+    return JS::Call( cx, jsGlobal, rFunc, JS::HandleValueArray::empty(), &dummyRetVal );
 }
 
 HostTimer::HostTimer( HWND hWnd, uint32_t id, uint32_t delay, bool isRepeated, std::shared_ptr<HostTimerTask> task )

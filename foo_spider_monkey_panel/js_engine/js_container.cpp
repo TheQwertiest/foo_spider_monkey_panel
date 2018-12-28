@@ -244,9 +244,9 @@ void JsContainer::InvokeOnNotify( WPARAM wp, LPARAM lp )
     }
 
     autoScope.DisableReport(); ///< InvokeJsCallback has it's own AutoReportException
-    InvokeJsCallback( "on_notify_data",
-                      *reinterpret_cast<std::wstring*>( wp ),
-                      static_cast<JS::HandleValue>( jsValue ) );
+    (void)InvokeJsCallback( "on_notify_data",
+                            *reinterpret_cast<std::wstring*>( wp ),
+                            static_cast<JS::HandleValue>( jsValue ) );
     if ( jsValue.isObject() )
     {
         // TODO: test this! it was nuked only on success before
@@ -265,12 +265,12 @@ void JsContainer::InvokeOnPaint( Gdiplus::Graphics& gr )
     auto selfSaver = shared_from_this();
     pNativeGraphics_->SetGraphicsObject( &gr );
 
-    if ( !InvokeJsCallback( "on_paint",
-                            static_cast<JS::HandleObject>( jsGraphics_ ) ) )
-    { // Will clear pNativeGraphics_ on error through Fail
-        return;
+    (void)InvokeJsCallback( "on_paint",
+                            static_cast<JS::HandleObject>( jsGraphics_ ) );
+    if ( pNativeGraphics_ )
+    {// InvokeJsCallback invokes Fail() on error, which resets pNativeGraphics_
+        pNativeGraphics_->SetGraphicsObject( nullptr );
     }
-    pNativeGraphics_->SetGraphicsObject( nullptr );
 }
 
 void JsContainer::InvokeJsAsyncTask( JsAsyncTask& jsTask )
@@ -282,7 +282,11 @@ void JsContainer::InvokeJsAsyncTask( JsAsyncTask& jsTask )
 
     auto selfSaver = shared_from_this();
     JsScope autoScope( pJsCtx_, jsGlobal_ );
-    jsTask.InvokeJs();
+
+    if ( !jsTask.InvokeJs() )
+    {// jsTask might be already unbound, so it's cleanup must be handled here
+        jsTask.PrepareForGlobalGc();
+    }
 }
 
 bool JsContainer::CreateDropActionIfNeeded()

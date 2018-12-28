@@ -15,7 +15,7 @@ public:
     JsAsyncTask() = default;
     virtual ~JsAsyncTask() = default;
 
-    virtual void InvokeJs() = 0;
+    virtual bool InvokeJs() = 0;
     virtual void PrepareForGlobalGc() = 0;
 };
 
@@ -54,13 +54,13 @@ public:
     };
 
     /// @details Assumes that JS environment is ready (global, compartment and etc).
-    void InvokeJs() override
+    bool InvokeJs() override
     {
         JS::RootedObject jsGlobal( pJsCtx_, JS::CurrentGlobalOrNull( pJsCtx_ ) );
         assert( jsGlobal );
         JS::RootedValue vFunc( pJsCtx_, pNativeGlobal_->GetHeapManager().Get( valueHeapIds_[0] ) );
 
-        InvokeJsInternal( jsGlobal, std::make_index_sequence<sizeof...( Args )>{} );
+        return InvokeJsInternal( jsGlobal, std::make_index_sequence<sizeof...( Args )>{} );
     }
 
     void PrepareForGlobalGc() override
@@ -69,12 +69,12 @@ public:
     }
 
 private:
-    virtual void InvokeJsImpl( JSContext* cx, JS::HandleObject jsGlobal, Args... args ) = 0;
+    virtual bool InvokeJsImpl( JSContext* cx, JS::HandleObject jsGlobal, Args... args ) = 0;
 
     template <size_t... Indices>
-    void InvokeJsInternal( JS::HandleObject jsGlobal, std::index_sequence<Indices...> )
+    bool InvokeJsInternal( JS::HandleObject jsGlobal, std::index_sequence<Indices...> )
     {
-        InvokeJsImpl( pJsCtx_, jsGlobal, JS::RootedValue{ pJsCtx_, pNativeGlobal_->GetHeapManager().Get( std::get<Indices>( valueHeapIds_ ) ) }... );
+        return InvokeJsImpl( pJsCtx_, jsGlobal, JS::RootedValue{ pJsCtx_, pNativeGlobal_->GetHeapManager().Get( std::get<Indices>( valueHeapIds_ ) ) }... );
     }
 
 private:

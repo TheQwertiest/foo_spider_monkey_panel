@@ -651,6 +651,9 @@
     <ClInclude Include="com_message_scope.h">
       <Filter>z_uncategorized</Filter>
     </ClInclude>
+    <ClInclude Include="js_utils\js_async_task.h">
+      <Filter>js_utils</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="default.js">

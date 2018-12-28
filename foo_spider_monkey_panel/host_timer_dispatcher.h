@@ -96,7 +96,7 @@ public:
     ~HostTimerTask() override = default;
 
 private:
-    void InvokeJsImpl( JSContext* cx, JS::HandleObject jsGlobal, JS::HandleValue funcValue ) override;
+    bool InvokeJsImpl( JSContext* cx, JS::HandleObject jsGlobal, JS::HandleValue funcValue ) override;
 };
 
 class HostTimer
