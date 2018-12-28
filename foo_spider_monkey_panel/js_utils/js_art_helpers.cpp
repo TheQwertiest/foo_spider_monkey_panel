@@ -213,7 +213,6 @@ bool JsAlbumArtTask::InvokeJsImpl( JSContext* cx, JS::HandleObject jsGlobal, JS:
 
         JS::RootedValue jsResultValue( cx, JS::ObjectValue( *jsResult ) );
         (void)JS::ResolvePromise( cx, jsPromise, jsResultValue );
-        return true;
     }
     catch ( ... )
     {
@@ -223,8 +222,9 @@ bool JsAlbumArtTask::InvokeJsImpl( JSContext* cx, JS::HandleObject jsGlobal, JS:
         (void)JS_GetPendingException( cx, &jsError );
 
         JS::RejectPromise( cx, jsPromise, jsError );
-        return false;
     }
+
+    return true;
 }
 
 } // namespace

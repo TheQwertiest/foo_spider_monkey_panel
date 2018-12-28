@@ -179,7 +179,6 @@ bool JsImageTask::InvokeJsImpl( JSContext* cx, JS::HandleObject jsGlobal, JS::Ha
         }
 
         (void)JS::ResolvePromise( cx, jsPromise, jsBitmapValue );
-        return true;
     }
     catch ( ... )
     {
@@ -189,8 +188,9 @@ bool JsImageTask::InvokeJsImpl( JSContext* cx, JS::HandleObject jsGlobal, JS::Ha
         (void)JS_GetPendingException( cx, &jsError );
 
         JS::RejectPromise( cx, jsPromise, jsError );
-        return false;
     }
+
+    return true;
 }
 
 } // namespace
