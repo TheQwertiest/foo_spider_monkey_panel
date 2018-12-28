@@ -58,7 +58,6 @@ public:
     {
         JS::RootedObject jsGlobal( pJsCtx_, JS::CurrentGlobalOrNull( pJsCtx_ ) );
         assert( jsGlobal );
-        JS::RootedValue vFunc( pJsCtx_, pNativeGlobal_->GetHeapManager().Get( valueHeapIds_[0] ) );
 
         return InvokeJsInternal( jsGlobal, std::make_index_sequence<sizeof...( Args )>{} );
     }
