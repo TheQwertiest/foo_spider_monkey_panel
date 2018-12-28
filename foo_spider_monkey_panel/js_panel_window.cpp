@@ -236,6 +236,7 @@ std::optional<LRESULT> js_panel_window::process_window_messages( UINT msg, WPARA
 
         if ( ComMessageScope::IsInScope() )
         {// we have entered message loop because of COM messaging, delay repaint event to avoid deadlocks
+            isPaintInProgress_ = false;
             Repaint();
             return 0;
         }
