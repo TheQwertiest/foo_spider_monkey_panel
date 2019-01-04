@@ -43,6 +43,11 @@ std::wstring ReadFromFile( JSContext* cx, const pfc::string8_fast& path, uint32_
         throw SmpException( smp::string::Formatter() << "Path does not point to a valid file: " << cleanPath.c_str() );
     }
 
+    if ( !fs::file_size( fsPath ) )
+    {// CreateFileMapping fails on file with zero length, so we need to bail out early
+        return std::wstring{};
+    }
+
     // Prepare file
 
     HANDLE hFile = CreateFile( fsPath.wstring().c_str(), GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr );
