@@ -654,6 +654,9 @@
     <ClInclude Include="js_utils\js_async_task.h">
       <Filter>js_utils</Filter>
     </ClInclude>
+    <ClInclude Include="component_guids.h">
+      <Filter>z_uncategorized</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="default.js">

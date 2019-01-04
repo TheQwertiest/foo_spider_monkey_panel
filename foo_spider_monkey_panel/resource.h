@@ -2,6 +2,7 @@
 // Microsoft Visual C++ generated include file.
 // Used by foo_spider_monkey_panel.rc
 //
+#define VS_VERSION_INFO                 1
 #define IDR_SCRIPT                      101
 #define IDD_DIALOG_CONFIG               102
 #define IDD_DIALOG_FIND                 103
@@ -47,7 +48,7 @@
 #define IDC_IE                          1065
 
 #ifndef IDC_STATIC
-#define IDC_STATIC                      -1
+#    define IDC_STATIC                      -1
 #endif
 
 // Next default values for new objects

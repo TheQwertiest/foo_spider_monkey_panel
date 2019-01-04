@@ -72,4 +72,5 @@ using std::max;
 #endif
 
 #include <component_defines.h>
+#include <component_guids.h>
 #include <smp_exception.h>

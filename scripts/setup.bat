@@ -2,7 +2,7 @@
 setlocal
 
 set CUR_DIR=%~dp0
-set ROOT_DIR=%~dp0..\
+set ROOT_DIR=%CUR_DIR%..\
 if not '%1'=='' if not '%1'=='--skip_mozjs' (
     set ROOT_DIR=%1
 )
@@ -27,6 +27,8 @@ if '%SKIP_MOZJS%'=='' (
     call %CUR_DIR%unpack_mozjs.bat %ROOT_DIR%
     if errorlevel 1 goto fail
 )
+call %CUR_DIR%generate_commit_hash_header.bat %ROOT_DIR%
+if errorlevel 1 goto fail
 
 echo Setup complete!
 exit /b 0

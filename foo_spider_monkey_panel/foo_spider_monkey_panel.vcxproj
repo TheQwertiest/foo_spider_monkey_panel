@@ -50,7 +50,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(IncludePath)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(IncludePath);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <AdditionalOptions>/Zm200 %(AdditionalOptions)</AdditionalOptions>
       <PrecompiledHeader>Use</PrecompiledHeader>
@@ -204,6 +204,7 @@
     <ClInclude Include="abort_callback.h" />
     <ClInclude Include="adv_config.h" />
     <ClInclude Include="callback_data.h" />
+    <ClInclude Include="component_guids.h" />
     <ClInclude Include="com_message_scope.h" />
     <ClInclude Include="com_objects\com_tools.h" />
     <ClInclude Include="com_objects\dispatch_ptr.h" />
