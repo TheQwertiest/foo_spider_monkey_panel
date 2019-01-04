@@ -13,13 +13,9 @@
 #define IDD_DIALOG_PROPERTIES           109
 #define IDAPPLY                         110
 #define IDD_DIALOG_HTML                 111
+#define IDR_MENU_CONF                   115
 #define IDC_STATIC_GUID                 1000
 #define IDC_EDIT                        1001
-#define IDC_TOOLS                       1002
-#define IDC_STATIC_EDGE                 1005
-#define IDC_COMBO_EDGE                  1006
-#define IDC_CHECK_PSEUDO_TRANSPARENT    1007
-#define IDC_CHECK_GRABFOCUS             1008
 #define IDC_DEL                         1010
 #define IDC_CLEARALL                    1011
 #define IDC_IMPORT                      1012
@@ -46,6 +42,14 @@
 #define IDC_INPUT_PROMPT                1063
 #define IDC_INPUT_VALUE                 1064
 #define IDC_IE                          1065
+#define ID_FILE_IMPORT                  40014
+#define ID_FILE_EXPORT                  40015
+#define ID_EDIT_RESETTODEFAULT          40016
+#define ID_EDGESTYLE_NONE               40019
+#define ID_EDGESTYLE_SUNKEN             40020
+#define ID_EDGESTYLE_GREY               40021
+#define ID_PANELFEATURES_PSEUDOTRANSPARENT 40022
+#define ID_PANELFEATURES_GRABFOCUS      40023
 
 #ifndef IDC_STATIC
 #    define IDC_STATIC                      -1
@@ -55,8 +59,8 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        115
-#define _APS_NEXT_COMMAND_VALUE         40012
+#define _APS_NEXT_RESOURCE_VALUE        116
+#define _APS_NEXT_COMMAND_VALUE         40024
 #define _APS_NEXT_CONTROL_VALUE         1066
 #define _APS_NEXT_SYMED_VALUE           101
 #endif

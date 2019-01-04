@@ -7,8 +7,26 @@
 #include <js_panel_window.h>
 #include <helpers.h>
 
+constexpr int k_File_MenuPosition = 0;
+constexpr int k_Edit_MenuPosition = 1;
+constexpr int k_Features_MenuPosition = 2;
+constexpr int k_EdgeStyle_MenuPosition = 0;
+
+CDialogConf::CDialogConf( smp::panel::js_panel_window* p_parent )
+    : m_parent( p_parent )
+{
+}
+
+CDialogConf::~CDialogConf()
+{
+    m_hWnd = nullptr;
+}
+
 LRESULT CDialogConf::OnInitDialog( HWND hwndFocus, LPARAM lParam )
 {
+    menu = GetMenu();
+    assert( menu.m_hMenu );
+
     // Get caption text
     uGetWindowText( m_hWnd, m_caption );
 
@@ -44,35 +62,30 @@ LRESULT CDialogConf::OnInitDialog( HWND hwndFocus, LPARAM lParam )
     m_editorctrl.SetSavePoint();
 
     // Edge Style
-    HWND combo_edge = GetDlgItem( IDC_COMBO_EDGE );
-    ComboBox_AddString( combo_edge, _T("None") );
-    ComboBox_AddString( combo_edge, _T("Sunken") );
-    ComboBox_AddString( combo_edge, _T("Grey") );
-
-    if ( core_version_info_v2::get()->test_version( 1, 4, 0, 0 ) && m_parent->GetPanelType() == smp::panel::PanelType::DUI )
-    {
-        // disable in default UI fb2k v1.4 and above
-        ComboBox_SetCurSel( combo_edge, 0 );
-        GetDlgItem( IDC_COMBO_EDGE ).EnableWindow( false );
+    if ( m_parent->GetPanelType() == smp::panel::PanelType::DUI
+         && core_version_info_v2::get()->test_version( 1, 4, 0, 0 ) )
+    { // disable in default UI fb2k v1.4 and above
+        (void)menu.CheckMenuRadioItem( ID_EDGESTYLE_NONE, ID_EDGESTYLE_GREY, ID_EDGESTYLE_NONE, MF_BYCOMMAND );
+        (void)menu.GetSubMenu( k_Features_MenuPosition ).EnableMenuItem( k_EdgeStyle_MenuPosition, MF_BYPOSITION | MF_GRAYED );
     }
     else
     {
-        ComboBox_SetCurSel( combo_edge, m_parent->get_edge_style() );
+        (void)menu.CheckMenuRadioItem( ID_EDGESTYLE_NONE, ID_EDGESTYLE_GREY, ID_EDGESTYLE_NONE + static_cast<int>( m_parent->get_edge_style() ), MF_BYCOMMAND );
     }
 
     // Pseudo Transparent
     if ( m_parent->GetPanelType() == smp::panel::PanelType::CUI )
     {
-        uButton_SetCheck( m_hWnd, IDC_CHECK_PSEUDO_TRANSPARENT, m_parent->get_pseudo_transparent() );
+        (void)menu.CheckMenuItem( ID_PANELFEATURES_PSEUDOTRANSPARENT, m_parent->get_pseudo_transparent() ? MF_CHECKED : MF_UNCHECKED );
     }
     else
     {
-        uButton_SetCheck( m_hWnd, IDC_CHECK_PSEUDO_TRANSPARENT, false );
-        GetDlgItem( IDC_CHECK_PSEUDO_TRANSPARENT ).EnableWindow( false );
+        (void)menu.CheckMenuItem( ID_PANELFEATURES_PSEUDOTRANSPARENT, MF_UNCHECKED );
+        (void)menu.EnableMenuItem( ID_PANELFEATURES_PSEUDOTRANSPARENT, MF_GRAYED );
     }
 
     // Grab Focus
-    uButton_SetCheck( m_hWnd, IDC_CHECK_GRABFOCUS, m_parent->get_grab_focus() );
+    (void)menu.CheckMenuItem( ID_PANELFEATURES_GRABFOCUS, m_parent->get_grab_focus() ? MF_CHECKED : MF_UNCHECKED );
 
     return TRUE; // set focus to default control
 }
@@ -82,19 +95,21 @@ LRESULT CDialogConf::OnCloseCmd( WORD wNotifyCode, WORD wID, HWND hWndCtl )
     switch ( wID )
     {
     case IDOK:
+    {
         Apply();
         EndDialog( IDOK );
         break;
-
+    }
     case IDAPPLY:
+    {
         Apply();
         break;
-
+    }
     case IDCANCEL:
+    {
         if ( m_editorctrl.GetModify() )
         {
-            int ret = uMessageBox( m_hWnd, "Do you want to apply your changes?", m_caption, MB_ICONWARNING | MB_SETFOREGROUND | MB_YESNOCANCEL );
-
+            const int ret = uMessageBox( m_hWnd, "Do you want to apply your changes?", m_caption, MB_ICONWARNING | MB_SETFOREGROUND | MB_YESNOCANCEL );
             switch ( ret )
             {
             case IDYES:
@@ -108,92 +123,14 @@ LRESULT CDialogConf::OnCloseCmd( WORD wNotifyCode, WORD wID, HWND hWndCtl )
         }
 
         EndDialog( IDCANCEL );
-    }
-
-    return 0;
-}
-
-void CDialogConf::OnResetDefault()
-{
-    m_editorctrl.SetContent( smp::config::PanelSettings::get_default_script_code() );
-}
-
-void CDialogConf::OnResetCurrent()
-{
-    m_editorctrl.SetContent( m_parent->get_script_code() );
-}
-
-void CDialogConf::OnImport()
-{
-    pfc::string8 filename;
-
-    if ( uGetOpenFileName( m_hWnd, "JavaScript files|*.js|Text files|*.txt|All files|*.*", 0, "js", "Import from", nullptr, filename, FALSE ) )
-    {
-        // Open file
-        pfc::string8_fast text;
-        helpers::read_file( filename, text );
-        m_editorctrl.SetContent( text );
-    }
-}
-
-void CDialogConf::OnExport()
-{
-    pfc::string8 filename;
-
-    if ( uGetOpenFileName( m_hWnd, "JavaScript files|*.js|Text files|*.txt|All files|*.*", 0, "js", "Save as", nullptr, filename, TRUE ) )
-    {
-        int len = m_editorctrl.GetTextLength();
-        pfc::string8_fast text;
-
-        m_editorctrl.GetText( text.lock_buffer( len ), len + 1 );
-        text.unlock_buffer();
-
-        helpers::write_file( filename, text );
-    }
-}
-
-LRESULT CDialogConf::OnTools( WORD wNotifyCode, WORD wID, HWND hWndCtl )
-{
-    enum
-    {
-        kImport = 1,
-        kExport,
-        kResetDefault,
-        kResetCurrent,
-    };
-
-    HMENU menu = CreatePopupMenu();
-    AppendMenu( menu, MF_STRING, kImport, _T("&Import") );
-    AppendMenu( menu, MF_STRING, kExport, _T("E&xport") );
-    AppendMenu( menu, MF_SEPARATOR, 0, 0 );
-    AppendMenu( menu, MF_STRING, kResetDefault, _T("Reset &Default") );
-    AppendMenu( menu, MF_STRING, kResetCurrent, _T("Reset &Current") );
-
-    RECT rc = { 0 };
-    ::GetWindowRect(::GetDlgItem( m_hWnd, IDC_TOOLS ), &rc );
-
-    int ret = TrackPopupMenu( menu, TPM_RIGHTBUTTON | TPM_NONOTIFY | TPM_RETURNCMD, rc.left, rc.bottom, 0, m_hWnd, 0 );
-
-    switch ( ret )
-    {
-    case kImport:
-        OnImport();
-        break;
-
-    case kExport:
-        OnExport();
-        break;
-
-    case kResetDefault:
-        OnResetDefault();
-        break;
-
-    case kResetCurrent:
-        OnResetCurrent();
         break;
     }
+    default:
+    {
+        assert( 0 );
+    }
+    }
 
-    DestroyMenu( menu );
     return 0;
 }
 
@@ -203,9 +140,21 @@ void CDialogConf::Apply()
     std::vector<char> code( m_editorctrl.GetTextLength() + 1 );
     m_editorctrl.GetText( code.data(), code.size() );
 
-    m_parent->get_edge_style() = static_cast<smp::config::EdgeStyle>( ComboBox_GetCurSel( GetDlgItem( IDC_COMBO_EDGE ) ) );
-    m_parent->get_grab_focus() = uButton_GetCheck( m_hWnd, IDC_CHECK_GRABFOCUS );
-    m_parent->get_pseudo_transparent() = uButton_GetCheck( m_hWnd, IDC_CHECK_PSEUDO_TRANSPARENT );
+    if ( menu.GetMenuState( ID_EDGESTYLE_NONE, MF_BYCOMMAND ) & MF_CHECKED )
+    {
+        m_parent->get_edge_style() = smp::config::EdgeStyle::NO_EDGE;
+    }
+    else if ( menu.GetMenuState( ID_EDGESTYLE_GREY, MF_BYCOMMAND ) & MF_CHECKED )
+    {
+        m_parent->get_edge_style() = smp::config::EdgeStyle::GREY_EDGE;
+    }
+    else if ( menu.GetMenuState( ID_EDGESTYLE_SUNKEN, MF_BYCOMMAND ) & MF_CHECKED )
+    {
+        m_parent->get_edge_style() = smp::config::EdgeStyle::SUNKEN_EDGE;
+    }
+
+    m_parent->get_grab_focus() = menu.GetMenuState( ID_PANELFEATURES_GRABFOCUS, MF_BYCOMMAND ) & MF_CHECKED;
+    m_parent->get_pseudo_transparent() = menu.GetMenuState( ID_PANELFEATURES_PSEUDOTRANSPARENT, MF_BYCOMMAND ) & MF_CHECKED;
     m_parent->update_script( code.data() );
 
     // Window position
@@ -261,7 +210,6 @@ bool CDialogConf::MatchShortcuts( unsigned vk )
             if ( !m_dlgreplace )
             {
                 m_dlgreplace = new CDialogReplace( GetDlgItem( IDC_EDIT ) );
-
                 if ( !m_dlgreplace || !m_dlgreplace->Create( m_hWnd ) )
                 {
                     break;
@@ -327,6 +275,95 @@ LRESULT CDialogConf::OnUwmKeyDown( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
     return MatchShortcuts( wParam );
 }
 
+LRESULT CDialogConf::OnFileSave( WORD, WORD, HWND )
+{
+    Apply();
+    return 0;
+}
+
+LRESULT CDialogConf::OnFileImport( WORD, WORD, HWND )
+{
+    if ( pfc::string8 filename;
+         uGetOpenFileName( m_hWnd, "JavaScript files|*.js|Text files|*.txt|All files|*.*", 0, "js", "Import from", nullptr, filename, FALSE ) )
+    {
+        if ( pfc::string8_fast text;
+             !helpers::read_file( filename, text ) )
+        {
+            (void)uMessageBox( m_hWnd, "Failed to read file", m_caption, MB_ICONWARNING | MB_SETFOREGROUND );
+        }
+        else
+        {
+            m_editorctrl.SetContent( text );
+        }
+    }
+
+    return 0;
+}
+
+LRESULT CDialogConf::OnFileExport( WORD, WORD, HWND )
+{
+    if ( pfc::string8 filename;
+         uGetOpenFileName( m_hWnd, "JavaScript files|*.js|Text files|*.txt|All files|*.*", 0, "js", "Save as", nullptr, filename, TRUE ) )
+    {
+        const int len = m_editorctrl.GetTextLength();
+        pfc::string8_fast text;
+
+        m_editorctrl.GetText( text.lock_buffer( len ), len + 1 );
+        text.unlock_buffer();
+
+        (void)helpers::write_file( filename, text );
+    }
+    return 0;
+}
+
+LRESULT CDialogConf::OnEditResetDefault( WORD, WORD, HWND )
+{
+    m_editorctrl.SetContent( smp::config::PanelSettings::get_default_script_code() );
+    return 0;
+}
+
+LRESULT CDialogConf::OnFeaturesEdgeStyle( WORD, WORD wID, HWND )
+{
+    assert( wID >= ID_EDGESTYLE_NONE && wID <= ID_EDGESTYLE_GREY );
+    (void)menu.CheckMenuRadioItem( ID_EDGESTYLE_NONE, ID_EDGESTYLE_GREY, wID, MF_BYCOMMAND );
+    return 0;
+}
+
+LRESULT CDialogConf::OnFeaturesPseudoTransparent( WORD, WORD, HWND )
+{
+    auto menuState = menu.GetMenuState( ID_PANELFEATURES_PSEUDOTRANSPARENT, MF_BYCOMMAND );
+    if ( !( menuState & MF_GRAYED ) && !( menuState & MF_DISABLED ) )
+    {
+        (void)menu.CheckMenuItem( ID_PANELFEATURES_PSEUDOTRANSPARENT, ( menuState & MF_CHECKED ) ? MF_UNCHECKED : MF_CHECKED );
+    }
+
+    return 0;
+}
+
+LRESULT CDialogConf::OnFeaturesGrabFocus( WORD, WORD, HWND )
+{
+    auto menuState = menu.GetMenuState( ID_PANELFEATURES_GRABFOCUS, MF_BYCOMMAND );
+    if ( !( menuState & MF_GRAYED ) && !( menuState & MF_DISABLED ) )
+    {
+        (void)menu.CheckMenuItem( ID_PANELFEATURES_GRABFOCUS, ( menuState & MF_CHECKED ) ? MF_UNCHECKED : MF_CHECKED );
+    }
+
+    return 0;
+}
+
+LRESULT CDialogConf::OnHelp( WORD, WORD, HWND )
+{
+    pfc::stringcvt::string_os_from_utf8 path( helpers::get_fb2k_component_path() );
+    ShellExecute( 0, L"open", path + L"\\docs\\html\\index.html", 0, 0, SW_SHOW );
+    return 0;
+}
+
+LRESULT CDialogConf::OnAbout( WORD, WORD, HWND )
+{
+    (void)uMessageBox( m_hWnd, SMP_ABOUT, "About Spider Monkey Panel", MB_SETFOREGROUND );
+    return 0;
+}
+
 LRESULT CDialogConf::OnUwmFindTextChanged( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled )
 {
     m_lastFlags = wParam;
@@ -364,7 +401,7 @@ bool CDialogConf::FindResult( HWND hWnd, HWND hWndEdit, int pos, const char* whi
     pfc::string8 buff = "Cannot find \"";
     buff += which;
     buff += "\"";
-    uMessageBox( hWnd, buff.get_ptr(), SMP_NAME, MB_ICONINFORMATION | MB_SETFOREGROUND );
+    (void)uMessageBox( hWnd, buff.get_ptr(), SMP_NAME, MB_ICONINFORMATION | MB_SETFOREGROUND );
     return false;
 }
 

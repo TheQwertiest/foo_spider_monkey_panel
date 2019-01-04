@@ -740,13 +740,13 @@ void js_panel_window::execute_context_menu_command( int id, int id_base )
     case 2:
     {
         pfc::stringcvt::string_os_from_utf8 folder( helpers::get_fb2k_component_path() );
-        ShellExecute( nullptr, _T( "open" ), folder, nullptr, nullptr, SW_SHOW );
+        ShellExecute( nullptr, L"open", folder, nullptr, nullptr, SW_SHOW );
         break;
     }
     case 3:
     {
         pfc::stringcvt::string_os_from_utf8 htmlHelp( helpers::get_fb2k_component_path() + "docs\\html\\index.html" );
-        ShellExecute( nullptr, _T( "open" ), htmlHelp, nullptr, nullptr, SW_SHOW );
+        ShellExecute( nullptr, L"open", htmlHelp, nullptr, nullptr, SW_SHOW );
         break;
     }
     case 4:
