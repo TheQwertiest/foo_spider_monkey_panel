@@ -1905,8 +1905,7 @@ function FbMetadbHandle() {
     this.SubSong = undefined; // (int) (read)
 
     /**
-     * -1 if size is unavailable.<br>
-     * Note: requires a system with IE9 or later to work properly.
+     * -1 if size is unavailable.
      *
      * @type {number} 
      * @readonly
@@ -2135,8 +2134,6 @@ function FbMetadbHandleList(arg) {
     this.CalcTotalDuration = function () { }; // (double)
 
     /**
-     * Requires a system with IE9 or later to work properly.<br>
-     *
      * @return {number} total size in bytes. For display purposes, consider using utils.FormatFileSize() on the result.
      */
     this.CalcTotalSize = function () { }; // (LONGLONG)
