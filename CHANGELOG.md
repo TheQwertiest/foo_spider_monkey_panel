@@ -18,13 +18,18 @@ ___
 - By default `fb.DoDragDrop` now displays an album art of the dragged item (if available).
 
 ### Changed
-- `Panel Configuration`>`Export`\`Import` now use `*.js` extension by default.
+- Cleaned up `Panel Configuration` dialog:
+  - Moved all buttons and checkboxes to menu bar.
+  - Added `Help` button, which opens supplied html documentation.
+  - `Export`\`Import` now use `*.js` extension by default.
 
 ### Fixed
 - Fixed callbacks not triggering when `fb.DoDragDrop` is active.
 - Fixed `on_colours_changed` callback not triggering in DUI.
+- Fixed several fb2k crashes when triggerring script error.
 - Fixed several fb2k freezes when fetching album art through 3rd party components.
 - Fixed a few more fb2k freezes.
+- Fixed `utils.ReadTextFile` not working with empty files.
 - Fixed `utils.GetAlbumArtAsync` not working in some cases.
 - Removed extra quotes in `console.log` when printing strings outside of objects and arrays.
 - Fixed occasional EOL issues in error report.
