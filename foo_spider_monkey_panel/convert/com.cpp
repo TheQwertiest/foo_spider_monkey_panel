@@ -60,11 +60,6 @@ protected:
     virtual void FinalRelease()
     { // most of the JS object might be invalid at GC time,
         // so we need to be extra careful
-        if ( !isJsAvailable_ )
-        {
-            return;
-        }
-
         std::scoped_lock sl( cleanupLock_ );
         if ( !isJsAvailable_ )
         {
@@ -85,6 +80,7 @@ protected:
         isJsAvailable_ = false;
     }
 
+    /// @details Executed on the main thread
     STDMETHODIMP ExecuteValue( VARIANT arg1, VARIANT arg2, VARIANT arg3, VARIANT arg4, VARIANT arg5, VARIANT arg6, VARIANT arg7,
                                VARIANT* pResult )
     { // TODO: set JS fail somehow

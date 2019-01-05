@@ -10,13 +10,14 @@ namespace mozjs
 class JsGlobalObject;
 
 class JsAsyncTask
+    : public IHeapUser
 {
 public:
     JsAsyncTask() = default;
-    virtual ~JsAsyncTask() = default;
+    ~JsAsyncTask() override = default;
 
     virtual bool InvokeJs() = 0;
-    virtual void PrepareForGlobalGc() = 0;
+    virtual bool IsCanceled() const = 0;
 };
 
 template <typename... Args>
@@ -39,32 +40,51 @@ public:
 
         valueHeapIds_ = { pNativeGlobal_->GetHeapManager().Store( args )... };
 
+        pNativeGlobal_->GetHeapManager().RegisterUser( this );
+
         isJsAvailable_ = true;
     }
 
     ~JsAsyncTaskImpl() override
     {
-        if ( isJsAvailable_ )
+        std::scoped_lock sl( cleanupLock_ );
+        if ( !isJsAvailable_ )
         {
-            for ( auto heapId : valueHeapIds_ )
-            {
-                pNativeGlobal_->GetHeapManager().Remove( heapId );
-            }
+            return;
         }
+
+        for ( auto heapId : valueHeapIds_ )
+        {
+            pNativeGlobal_->GetHeapManager().Remove( heapId );
+        }
+        pNativeGlobal_->GetHeapManager().UnregisterUser( this );
     };
 
     /// @details Assumes that JS environment is ready (global, compartment and etc).
-    bool InvokeJs() override
+    bool InvokeJs() final
     {
+        std::scoped_lock sl( cleanupLock_ );
+        if ( !isJsAvailable_ )
+        {
+            return true;
+        }
+
         JS::RootedObject jsGlobal( pJsCtx_, JS::CurrentGlobalOrNull( pJsCtx_ ) );
         assert( jsGlobal );
 
         return InvokeJsInternal( jsGlobal, std::make_index_sequence<sizeof...( Args )>{} );
     }
 
-    void PrepareForGlobalGc() override
+    void PrepareForGlobalGc() final
     {
+        std::scoped_lock sl( cleanupLock_ );
         isJsAvailable_ = false;
+    }
+
+    bool IsCanceled() const final
+    {
+        std::scoped_lock sl( cleanupLock_ );
+        return isJsAvailable_;
     }
 
 private:
@@ -82,6 +102,7 @@ private:
     std::array<uint32_t, sizeof...( Args )> valueHeapIds_ = {};
     JsGlobalObject* pNativeGlobal_ = nullptr;
 
+    mutable std::mutex cleanupLock_;
     bool isJsAvailable_ = false;
 };
 

@@ -283,10 +283,7 @@ void JsContainer::InvokeJsAsyncTask( JsAsyncTask& jsTask )
     auto selfSaver = shared_from_this();
     JsScope autoScope( pJsCtx_, jsGlobal_ );
 
-    if ( !jsTask.InvokeJs() )
-    {// jsTask might be already unbound, so it's cleanup must be handled here
-        jsTask.PrepareForGlobalGc();
-    }
+    (void)jsTask.InvokeJs();
 }
 
 bool JsContainer::CreateDropActionIfNeeded()

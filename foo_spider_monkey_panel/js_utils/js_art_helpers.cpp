@@ -47,7 +47,6 @@ private:
 };
 
 class AlbumArtV2FetchTask
-    : public IHeapUser
 {
 public:
     AlbumArtV2FetchTask( JSContext* cx,
@@ -60,18 +59,13 @@ public:
                          bool no_load );
 
     /// @details Executed off main thread
-    ~AlbumArtV2FetchTask() override;
+    ~AlbumArtV2FetchTask() = default;
 
     AlbumArtV2FetchTask( const AlbumArtV2FetchTask& ) = delete;
     AlbumArtV2FetchTask& operator=( const AlbumArtV2FetchTask& ) = delete;
 
-    // IHeapUser
-    void PrepareForGlobalGc() override;
-
+    /// @details Executed off main thread
     void operator()();
-
-private:
-    void run();
 
 private:
     HWND hNotifyWnd_;
@@ -81,11 +75,6 @@ private:
     bool needStub_;
     bool onlyEmbed_;
     bool noLoad_;
-
-    std::mutex cleanupLock_;
-    bool isJsAvailable_ = false;
-
-    mozjs::JsGlobalObject* pNativeGlobal_ = nullptr;
 
     std::shared_ptr<JsAlbumArtTask> jsTask_;
 };
@@ -113,54 +102,14 @@ AlbumArtV2FetchTask::AlbumArtV2FetchTask( JSContext* cx,
 {
     assert( cx );
 
-    JS::RootedObject jsGlobal( cx, JS::CurrentGlobalOrNull( cx ) );
-    assert( jsGlobal );
-
-    pNativeGlobal_ = static_cast<mozjs::JsGlobalObject*>( JS_GetInstancePrivate( cx, jsGlobal, &mozjs::JsGlobalObject::JsClass, nullptr ) );
-    assert( pNativeGlobal_ );
-
     JS::RootedValue jsPromiseValue( cx, JS::ObjectValue( *jsPromise ) );
     jsTask_ = std::make_unique<JsAlbumArtTask>( cx, jsPromiseValue );
-
-    pNativeGlobal_->GetHeapManager().RegisterUser( this );
-
-    isJsAvailable_ = true;
-}
-
-AlbumArtV2FetchTask::~AlbumArtV2FetchTask()
-{
-    if ( !isJsAvailable_ )
-    {
-        return;
-    }
-
-    std::scoped_lock sl( cleanupLock_ );
-    if ( !isJsAvailable_ )
-    {
-        return;
-    }
-
-    pNativeGlobal_->GetHeapManager().UnregisterUser( this );
 }
 
 void AlbumArtV2FetchTask::operator()()
 {
-    return run();
-}
-
-void AlbumArtV2FetchTask::PrepareForGlobalGc()
-{
-    std::scoped_lock sl( cleanupLock_ );
-    // Global is being destroyed, can't access anything
-    isJsAvailable_ = false;
-
-    jsTask_->PrepareForGlobalGc();
-}
-
-void AlbumArtV2FetchTask::run()
-{
-    if ( !isJsAvailable_ )
-    {
+    if ( !jsTask_->IsCanceled() )
+    { // the task still might be executed and posted, since we don't block here
         return;
     }
 

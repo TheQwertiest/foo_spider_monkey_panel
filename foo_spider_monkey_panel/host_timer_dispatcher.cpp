@@ -58,7 +58,6 @@ void HostTimerDispatcher::onPanelUnload( HWND hWnd )
             if ( timer->GetHwnd() == hWnd )
             {
                 timersToDelete.push_back( timerId );
-                m_timerMap[timerId]->GetTask().PrepareForGlobalGc();
             }
         }
     }
