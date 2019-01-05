@@ -336,7 +336,7 @@ let fb = {
      * @param {boolean=} [options.show_text=true] If true, will add track count text.
      * @param {boolean=} [options.use_album_art=true] If true, will use album art of the focused item from dragged tracks (if available)
      * @param {boolean=} [options.use_theming=true] If true, will use Windows drag window style. Album art and custom image are resized to fit when Windows style is active.
-     * @param {?GdiBitmap=} [options.custom_image=undefined] Custom image. Will be also displayed if use_album_art is true, but there is no album art available.
+     * @param {?GdiBitmap=} [options.custom_image=undefined] Custom dragging image. Will be also displayed if use_album_art is true, but there is no album art available.
      * @return {number} Effect that was returned in {@link module:callbacks~on_drag_drop on_drag_drop}.
      *
      * @example
@@ -720,7 +720,9 @@ let gdi = {
 let plman = {
 
     /**
-     * @type {number} -1 if there is no active playlist.
+     * -1 if there is no active playlist.
+     * 
+     * @type {number}
      *
      * @example
      * console.log(plman.ActivePlaylist);
@@ -745,7 +747,9 @@ let plman = {
 
 
     /**
-     * @type {number} -1 if there is no playing playlist
+     * -1 if there is no playing playlist.
+     * 
+     * @type {number}
      *
      * @example
      * console.log(plman.PlayingPlaylist);
@@ -1901,9 +1905,10 @@ function FbMetadbHandle() {
     this.SubSong = undefined; // (int) (read)
 
     /**
+     * -1 if size is unavailable.<br>
      * Note: requires a system with IE9 or later to work properly.
      *
-     * @type {number} -1 if size is unavailable
+     * @type {number} 
      * @readonly
      */
     this.FileSize = undefined; // (LONGLONG) (read)
