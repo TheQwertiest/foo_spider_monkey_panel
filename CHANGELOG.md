@@ -24,7 +24,7 @@ ___
 - Cleaned up `Panel Configuration` dialog:
   - Moved all buttons and checkboxes to menu bar.
   - Added `Help` button, which opens supplied html documentation.
-  - `Export`\`Import` now use `*.js` extension by default.
+  - `Export`\\`Import` now use `*.js` extension by default.
 
 ### Fixed
 - Fixed callbacks not triggering when `fb.DoDragDrop` is active.
