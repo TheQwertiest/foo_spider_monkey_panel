@@ -393,8 +393,8 @@ pfc::string8_fast JsGdiBitmap::GetColourSchemeJSON( uint32_t count )
         } );
 
     json j = json::array();
-    t_size outCount = std::min( count, colour_counters.size() );
-    for ( t_size i = 0; i < outCount; ++i )
+    size_t outCount = std::min( count, colour_counters.size() );
+    for ( size_t i = 0; i < outCount; ++i )
     {
         const auto& centralValues = clusters[i].getCentralValues();
 

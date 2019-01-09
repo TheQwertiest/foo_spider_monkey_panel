@@ -390,8 +390,10 @@ pfc::string8_fast JsFbUtils::GetDSPPresets()
 
     json j = json::array();
     auto api = output_manager_v2::get();
+
     outputCoreConfig_t config;
     api->getCoreConfig( config );
+
     api->listDevices( [&j, &config]( const char* fullName, const GUID& output_id, const GUID& device_id ) {
         pfc::string8 output_string, device_string;
         output_string << "{" << pfc::print_guid( output_id ) << "}";
@@ -474,6 +476,7 @@ pfc::string8_fast JsFbUtils::GetOutputDevices()
 
     json j = json::array();
     auto api = output_manager_v2::get();
+
     outputCoreConfig_t config;
     api->getCoreConfig( config );
 

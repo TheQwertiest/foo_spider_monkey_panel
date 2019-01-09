@@ -652,7 +652,7 @@ void JsFbMetadbHandleList::UpdateFileInfoFromJSON( const pfc::string8_fast& str 
     std::vector<file_info_impl> info;
     info.reserve( count );
 
-    for ( t_size i = 0; i < count; ++i )
+    for ( size_t i = 0; i < count; ++i )
     {
         file_info_impl fileInfo;
         metadbHandleList_[i]->get_info( fileInfo );
@@ -696,40 +696,38 @@ void JsFbMetadbHandleList::ModifyFileInfoWithJson( const nlohmann::json& jsonObj
 {
     using json = nlohmann::json;
 
-    auto it_value_to_string8 = []( json::const_iterator& it ) {
-        const std::string value = ( it.value().type() == json::value_t::string
-                                        ? it.value().get<std::string>()
-                                        : it.value().dump() );
-        return pfc::string8_fast( value.c_str(), value.length() );
+    auto jsonToString = []( const json& value ) {
+        return ( value.type() == json::value_t::string
+                     ? value.get<std::string>()
+                     : value.dump() );
     };
 
     const json& obj = jsonObject;
     SmpException::ExpectTrue( obj.is_object() && obj.size(), "Invalid JSON info: unsupported value" );
 
-    for ( auto it = obj.cbegin(); it != obj.cend(); ++it )
+    for ( const auto& [key, value] : obj.items() )
     {
-        pfc::string8_fast key = it.key().c_str();
-        SmpException::ExpectTrue( !key.is_empty(), "Invalid JSON info: key is empty" );
+        SmpException::ExpectTrue( !key.empty(), "Invalid JSON info: key is empty" );
 
-        fileInfo.meta_remove_field( key );
+        fileInfo.meta_remove_field( key.c_str() );
 
-        if ( it.value().is_array() )
+        if ( value.is_array() )
         {
-            for ( auto ita = it.value().cbegin(); ita != it.value().cend(); ++ita )
+            for ( const auto& arrValue : value )
             {
-                if ( pfc::string8 value = it_value_to_string8( ita );
-                     !value.is_empty() )
+                if ( std::string strValue = jsonToString( arrValue );
+                     !strValue.empty() )
                 {
-                    fileInfo.meta_add( key, value );
+                    fileInfo.meta_add( key.c_str(), strValue.c_str() );
                 }
             }
         }
         else
         {
-            if ( pfc::string8 value = it_value_to_string8( it );
-                 !value.is_empty() )
+            if ( std::string strValue = jsonToString( value );
+                 !strValue.empty() )
             {
-                fileInfo.meta_set( key, value );
+                fileInfo.meta_set( key.c_str(), strValue.c_str() );
             }
         }
     }
