@@ -2,6 +2,7 @@
 
 #### Table of Contents
 - [Unreleased](#unreleased)
+- [1.1.2](#110---2018-01-09)
 - [1.1.1](#110---2018-11-20)
 - [1.1.0](#110---2018-11-19)
 - [1.0.5](#105---2018-11-06)
@@ -13,6 +14,8 @@
 ___
 
 ## [Unreleased][]
+
+## [1.1.2][] - 2018-01-09
 ### Added
 - Added additional options to `fb.DoDragDrop`: `show_text`, `use_album_art`, `use_theming` and `custom_image`.
 - By default `fb.DoDragDrop` now displays an album art of the dragged item (if available).
@@ -162,7 +165,8 @@ ___
   - More rigorous error checks.
 - Updated samples with compatibility fixes.
 
-[unreleased]: https://github.com/theqwertiest/foo_spider_monkey_panel/compare/v1.1.1...HEAD
+[unreleased]: https://github.com/theqwertiest/foo_spider_monkey_panel/compare/v1.1.2...HEAD
+[1.1.1]: https://github.com/TheQwertiest/foo_spider_monkey_panel/compare/v1.1.1...v1.1.2
 [1.1.1]: https://github.com/TheQwertiest/foo_spider_monkey_panel/compare/v1.1.0...v1.1.1
 [1.1.0]: https://github.com/TheQwertiest/foo_spider_monkey_panel/compare/v1.0.5...v1.1.0
 [1.0.5]: https://github.com/TheQwertiest/foo_spider_monkey_panel/compare/v1.0.4...v1.0.5
