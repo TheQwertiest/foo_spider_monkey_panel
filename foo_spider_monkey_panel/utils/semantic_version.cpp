@@ -105,23 +105,46 @@ std::optional<SemVer> SemVer::ParseString( const std::string& strVer )
     return semVer;
 }
 
-bool SemVer::operator>( SemVer& other )
+bool SemVer::operator==( const SemVer& other ) const
+{// metadata is ignored during comparison
+    return ( major == other.major
+             && minor == other.minor
+             && patch == other.patch
+             && prerelease == other.prerelease );
+}
+bool SemVer::operator!=( const SemVer& other ) const
+{
+    return ( !( *this == other ) );
+}
+bool SemVer::operator<( const SemVer& other ) const
 {
     if ( major != other.major )
     {
-        return ( major > other.major );
+        return ( major < other.major );
     }
     if ( minor != other.minor )
     {
-        return ( minor > other.minor );
+        return ( minor < other.minor );
     }
     if ( patch != other.patch )
     {
-        return ( patch > other.patch );
+        return ( patch < other.patch );
     }
 
     // metadata is ignored during comparison
-    return IsPreleaseNewer( prerelease, other.prerelease );
+    return IsPreleaseNewer( other.prerelease, prerelease );
+}
+bool SemVer::operator>( const SemVer& other ) const
+{
+    return ( other < *this );
+}
+bool SemVer::operator<=( const SemVer& other ) const
+{
+    return ( !( other < *this ) );
+}
+bool SemVer::operator>=( const SemVer& other ) const
+{
+    return ( !( *this < other ) );
 }
 
 bool SemVer::IsPreleaseNewer( std::string_view a, std::string_view b )

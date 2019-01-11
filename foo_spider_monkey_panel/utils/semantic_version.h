@@ -16,7 +16,12 @@ public:
 
     static std::optional<SemVer> ParseString( const std::string& strVer );
 
-    bool operator>( SemVer& other );
+    bool operator==( const SemVer& other ) const;
+    bool operator!=( const SemVer& other ) const;
+    bool operator<( const SemVer& other ) const;
+    bool operator>( const SemVer& other ) const;
+    bool operator<=( const SemVer& other ) const;
+    bool operator>=( const SemVer& other ) const;
 
 private:
     static bool IsPreleaseNewer( std::string_view a, std::string_view b );
