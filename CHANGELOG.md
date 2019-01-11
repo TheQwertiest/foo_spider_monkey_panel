@@ -2,8 +2,8 @@
 
 #### Table of Contents
 - [Unreleased](#unreleased)
-- [1.1.2](#110---2018-01-09)
-- [1.1.1](#110---2018-11-20)
+- [1.1.2](#112---2018-01-09)
+- [1.1.1](#111---2018-11-20)
 - [1.1.0](#110---2018-11-19)
 - [1.0.5](#105---2018-11-06)
 - [1.0.4](#104---2018-10-25)
@@ -166,7 +166,7 @@ ___
 - Updated samples with compatibility fixes.
 
 [unreleased]: https://github.com/theqwertiest/foo_spider_monkey_panel/compare/v1.1.2...HEAD
-[1.1.1]: https://github.com/TheQwertiest/foo_spider_monkey_panel/compare/v1.1.1...v1.1.2
+[1.1.2]: https://github.com/TheQwertiest/foo_spider_monkey_panel/compare/v1.1.1...v1.1.2
 [1.1.1]: https://github.com/TheQwertiest/foo_spider_monkey_panel/compare/v1.1.0...v1.1.1
 [1.1.0]: https://github.com/TheQwertiest/foo_spider_monkey_panel/compare/v1.0.5...v1.1.0
 [1.0.5]: https://github.com/TheQwertiest/foo_spider_monkey_panel/compare/v1.0.4...v1.0.5
