@@ -1,7 +1,7 @@
 #include "stdafx.h"
 
 #include <utils/string_helpers.h>
-#include <utils/version_helpers.h>
+#include <utils/semantic_version.h>
 #include <utils/acfu_github.h>
 
 #include <acfu-sdk/utils/common.h>
@@ -66,7 +66,15 @@ public:
             available.assign( available.c_str() + 1, available.length() - 1 );
         }
 
-        return smp::version::IsNewerSemver( available, installedVersion_ );
+        try
+        {
+            return ( smp::version::SemVer{ available } > smp::version::SemVer{ installedVersion_ } );
+        }
+        catch ( const std::runtime_error& )
+        {
+            assert( false );
+            return false;
+        }
     }
     ::acfu::request::ptr create_request() override
     {

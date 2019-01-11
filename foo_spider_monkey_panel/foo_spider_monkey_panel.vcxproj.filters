@@ -202,9 +202,6 @@
     <ClCompile Include="acfu_integration.cpp">
       <Filter>z_uncategorized</Filter>
     </ClCompile>
-    <ClCompile Include="utils\version_helpers.cpp">
-      <Filter>utils</Filter>
-    </ClCompile>
     <ClCompile Include="com_objects\host_drop_target.cpp">
       <Filter>com_objects</Filter>
     </ClCompile>
@@ -291,6 +288,9 @@
     </ClCompile>
     <ClCompile Include="com_message_scope.cpp">
       <Filter>z_uncategorized</Filter>
+    </ClCompile>
+    <ClCompile Include="utils\semantic_version.cpp">
+      <Filter>utils</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -534,9 +534,6 @@
     <ClInclude Include="utils\string_helpers.h">
       <Filter>utils</Filter>
     </ClInclude>
-    <ClInclude Include="utils\version_helpers.h">
-      <Filter>utils</Filter>
-    </ClInclude>
     <ClInclude Include="com_objects\host_drop_target.h">
       <Filter>com_objects</Filter>
     </ClInclude>
@@ -656,6 +653,9 @@
     </ClInclude>
     <ClInclude Include="component_guids.h">
       <Filter>z_uncategorized</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\semantic_version.h">
+      <Filter>utils</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

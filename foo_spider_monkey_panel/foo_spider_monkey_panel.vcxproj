@@ -190,10 +190,10 @@
     <ClCompile Include="utils\gdi_helpers.cpp" />
     <ClCompile Include="utils\image_helpers.cpp" />
     <ClCompile Include="utils\kmeans.cpp" />
+    <ClCompile Include="utils\semantic_version.cpp" />
     <ClCompile Include="utils\stackblur.cpp" />
     <ClCompile Include="utils\string_helpers.cpp" />
     <ClCompile Include="utils\thread_pool.cpp" />
-    <ClCompile Include="utils\version_helpers.cpp" />
     <ClCompile Include="utils\winapi_error_helpers.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -313,10 +313,10 @@
     <ClInclude Include="utils\kmeans.h" />
     <ClInclude Include="utils\pfc_helpers.h" />
     <ClInclude Include="utils\scope_helpers.h" />
+    <ClInclude Include="utils\semantic_version.h" />
     <ClInclude Include="utils\stackblur.h" />
     <ClInclude Include="utils\string_helpers.h" />
     <ClInclude Include="utils\thread_pool.h" />
-    <ClInclude Include="utils\version_helpers.h" />
     <ClInclude Include="utils\winapi_error_helpers.h" />
   </ItemGroup>
   <ItemGroup>
