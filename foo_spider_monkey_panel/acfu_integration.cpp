@@ -36,11 +36,11 @@ public:
         cv->get_component_version( version );
         return std::string( version.c_str(), version.length() );
     }
-    virtual GUID get_guid()
+    GUID get_guid() override
     {
         return g_guid_smp_acfu_source;
     }
-    virtual void get_info( file_info& info )
+    void get_info( file_info& info ) override
     {
         if ( !isVersionFetched_ )
         {
@@ -52,7 +52,7 @@ public:
         info.meta_set( "name", SMP_NAME );
         info.meta_set( "module", componentFileName_ );
     }
-    virtual bool is_newer( const file_info& info )
+    bool is_newer( const file_info& info ) override
     {
         if ( !info.meta_get( "version", 0 ) || installedVersion_.empty() )
         {
@@ -68,15 +68,15 @@ public:
 
         return smp::version::IsNewerSemver( available, installedVersion_ );
     }
-    virtual ::acfu::request::ptr create_request()
+    ::acfu::request::ptr create_request() override
     {
         return fb2k::service_new<smp::acfu::github_latest_release<SmpSource>>();
     }
-    static const char* get_owner()
+    static pfc::string8 get_owner()
     {
         return "TheQwertiest";
     }
-    static const char* get_repo()
+    static pfc::string8 get_repo()
     {
         return componentFileName_;
     }
