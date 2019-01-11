@@ -254,7 +254,7 @@ LRESULT CDialogProperty::OnImportBnClicked( WORD wNotifyCode, WORD wID, HWND hWn
 
             LoadProperties( false );
         }
-        catch ( ... )
+        catch ( const pfc::exception& )
         {
         }
     }
@@ -263,9 +263,8 @@ LRESULT CDialogProperty::OnImportBnClicked( WORD wNotifyCode, WORD wID, HWND hWn
 
 LRESULT CDialogProperty::OnExportBnClicked( WORD wNotifyCode, WORD wID, HWND hWndCtl )
 {
-    pfc::string8 path;
-
-    if ( uGetOpenFileName( m_hWnd, "Property files|*.smp", 0, "smp", "Save as", nullptr, path, TRUE ) )
+    if ( pfc::string8 path;
+         uGetOpenFileName( m_hWnd, "Property files|*.smp", 0, "smp", "Save as", nullptr, path, TRUE ) )
     {
         file_ptr io;
         auto& abort = smp::GlobalAbortCallback::GetInstance();
@@ -275,7 +274,7 @@ LRESULT CDialogProperty::OnExportBnClicked( WORD wNotifyCode, WORD wID, HWND hWn
             filesystem::g_open_write_new( io, path, abort );
             smp::config::PanelProperties::g_save( m_dup_prop_map, io.get_ptr(), abort );
         }
-        catch ( ... )
+        catch ( const pfc::exception& )
         {
         }
     }

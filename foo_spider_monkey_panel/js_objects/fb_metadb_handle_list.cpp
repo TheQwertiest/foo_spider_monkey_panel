@@ -346,7 +346,7 @@ void JsFbMetadbHandleList::AttachImage( const pfc::string8_fast& image_path, uin
             data = tmp;
         }
     }
-    catch ( ... )
+    catch ( const pfc::exception& )
     {
         return;
     }

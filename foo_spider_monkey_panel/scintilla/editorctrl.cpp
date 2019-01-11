@@ -1059,7 +1059,7 @@ void CScriptEditorCtrl::SetScintillaSettings()
         {
             return std::stoi( propValue );
         }
-        catch ( ... )
+        catch ( const std::logic_error& )
         {
             return std::nullopt;
         }

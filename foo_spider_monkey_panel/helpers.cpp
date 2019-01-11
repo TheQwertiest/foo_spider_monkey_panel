@@ -485,7 +485,7 @@ t_size detect_charset( const char* fileName )
         filesystem::g_open_read( io, fileName, abort );
         io->read_string_raw( text, abort );
     }
-    catch ( ... )
+    catch ( const pfc::exception& )
     {
         return 0;
     }

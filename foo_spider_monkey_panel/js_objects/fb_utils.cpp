@@ -509,9 +509,9 @@ JSObject* JsFbUtils::GetQueryItems( JsFbMetadbHandleList* handles, const pfc::st
                                                              fb2k::service_new<completion_notify_dummy>(),
                                                              search_filter_manager_v2::KFlagSuppressNotify );
     }
-    catch ( ... )
-    { // TODO: Error, but no additional info
-        throw SmpException( "" );
+    catch ( const pfc::exception& e )
+    {
+        throw SmpException( e.what() );
     }
 
     pfc::array_t<bool> mask;

@@ -258,7 +258,7 @@ int32_t JsFbPlaylistManager::CreateAutoPlaylist( uint32_t playlistIndex, const p
         autoplaylist_manager::get()->add_client_simple( query.c_str(), sort.c_str(), upos, flags );
         return upos;
     }
-    catch ( ... )
+    catch ( const pfc::exception& )
     {
         playlist_manager::get()->remove_playlist( upos );
         return -1;
