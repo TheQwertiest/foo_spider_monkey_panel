@@ -115,16 +115,22 @@ bool draw_drag_custom_image( HDC dc, const RECT& rc, Gdiplus::Bitmap& customImag
     const int imgWidth = static_cast<int>( customImage.GetWidth() );
     const int imgHeight = static_cast<int>( customImage.GetHeight() );
 
-    const double ratio = static_cast<float>( imgHeight ) / imgWidth;
-    int newWidth = rc.right;
-    int newHeight = rc.bottom;
-    if ( imgHeight > imgWidth )
+    int newWidth = imgWidth;
+    int newHeight = imgHeight;
+
+    if ( imgWidth > rc.right || imgHeight > rc.bottom )
     {
-        newWidth = lround( static_cast<float>( newHeight ) / ratio );
-    }
-    else
-    {
-        newHeight = lround( static_cast<float>( newWidth ) * ratio );
+        const double ratio = static_cast<float>( imgHeight ) / imgWidth;
+        if ( imgHeight > imgWidth )
+        {
+            newHeight = rc.bottom;
+            newWidth = lround( static_cast<float>( newHeight ) / ratio );
+        }
+        else
+        {
+            newWidth = rc.right;
+            newHeight = lround( static_cast<float>( newWidth ) * ratio );
+        }
     }
 
     Gdiplus::Graphics gdiGraphics( dc );
