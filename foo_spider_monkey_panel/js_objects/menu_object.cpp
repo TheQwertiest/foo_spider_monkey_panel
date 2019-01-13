@@ -5,6 +5,7 @@
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
 #include <utils/winapi_error_helpers.h>
+#include <message_blocking_scope.h>
 
 using namespace smp;
 
@@ -152,6 +153,13 @@ std::uint32_t JsMenuObject::TrackPopupMenu( int32_t x, int32_t y, uint32_t flags
 
     BOOL bRet = ClientToScreen( hParentWnd_, &pt );
     smp::error::CheckWinApi( bRet, "ClientToScreen" );
+
+    if ( MessageBlockingScope::IsBlocking() )
+    {
+        return 0;
+    }
+
+    MessageBlockingScope scope;
 
     // Don't bother with error checking, since TrackPopupMenu returns numerous errors when clicked outside of menu
     return ::TrackPopupMenu( hMenu_, flags, pt.x, pt.y, 0, hParentWnd_, 0 );
