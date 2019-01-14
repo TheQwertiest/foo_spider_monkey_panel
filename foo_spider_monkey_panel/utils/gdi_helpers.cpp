@@ -6,12 +6,9 @@ namespace smp::gdi
 
 unique_gdi_ptr<HBITMAP> CreateHBitmapFromGdiPlusBitmap( Gdiplus::Bitmap& bitmap )
 {
-    Gdiplus::Rect rect;
-    rect.X = rect.Y = 0;
-    rect.Width = bitmap.GetWidth();
-    rect.Height = bitmap.GetHeight();
-
+    const Gdiplus::Rect rect{ 0, 0, static_cast<int>( bitmap.GetWidth() ), static_cast<int>( bitmap.GetHeight() ) };
     Gdiplus::BitmapData bmpdata;
+
     if ( bitmap.LockBits( &rect, Gdiplus::ImageLockModeRead, PixelFormat32bppPARGB, &bmpdata ) != Gdiplus::Ok )
     { // Error
         return CreateUniquePtr( HBITMAP( nullptr ) );

@@ -160,27 +160,24 @@ std::uint32_t JsGdiBitmap::get_Width()
 
 JSObject* JsGdiBitmap::ApplyAlpha( uint8_t alpha )
 {
-    t_size width = pGdi_->GetWidth();
-    t_size height = pGdi_->GetHeight();
+    const UINT width = pGdi_->GetWidth();
+    const UINT height = pGdi_->GetHeight();
 
     std::unique_ptr<Gdiplus::Bitmap> out( new Gdiplus::Bitmap( width, height, PixelFormat32bppPARGB ) );
     smp::error::CheckGdiPlusObject( out );
 
-    Gdiplus::Graphics g( out.get() );
-    Gdiplus::ImageAttributes ia;
     Gdiplus::ColorMatrix cm = { 0.0 };
-    Gdiplus::Rect rc;
-
     cm.m[0][0] = cm.m[1][1] = cm.m[2][2] = cm.m[4][4] = 1.0;
     cm.m[3][3] = static_cast<float>( alpha ) / 255;
+
+    Gdiplus::ImageAttributes ia;
     Gdiplus::Status gdiRet = ia.SetColorMatrix( &cm );
     smp::error::CheckGdi( gdiRet, "SetColorMatrix" );
 
-    rc.X = rc.Y = 0;
-    rc.Width = width;
-    rc.Height = height;
-
-    gdiRet = g.DrawImage( pGdi_.get(), rc, 0, 0, width, height, Gdiplus::UnitPixel, &ia );
+    Gdiplus::Graphics g( out.get() );
+    gdiRet = g.DrawImage( pGdi_.get(), 
+                          Gdiplus::Rect{ 0, 0, static_cast<int>( width ), static_cast<int>( height ) }, 
+                          0, 0, width, height, Gdiplus::UnitPixel, &ia );
     smp::error::CheckGdi( gdiRet, "DrawImage" );
 
     return JsGdiBitmap::CreateJs( pJsCtx_, std::move( out ) );
@@ -199,16 +196,16 @@ bool JsGdiBitmap::ApplyMask( JsGdiBitmap* mask )
         throw SmpException( "Mismatched dimensions" );
     }
 
-    Gdiplus::Rect rect( 0, 0, pGdi_->GetWidth(), pGdi_->GetHeight() );
-    Gdiplus::BitmapData maskBmpData = { 0 };
-    Gdiplus::BitmapData dstBmpData = { 0 };
+    const Gdiplus::Rect rect( 0, 0, pGdi_->GetWidth(), pGdi_->GetHeight() );
 
+    Gdiplus::BitmapData maskBmpData = { 0 };
     Gdiplus::Status gdiRet = pBitmapMask->LockBits( &rect, Gdiplus::ImageLockModeRead, PixelFormat32bppARGB, &maskBmpData );
     if ( Gdiplus::Ok != gdiRet )
     {
         return false;
     }
 
+    Gdiplus::BitmapData dstBmpData = { 0 };
     gdiRet = pGdi_->LockBits( &rect, Gdiplus::ImageLockModeRead | Gdiplus::ImageLockModeWrite, PixelFormat32bppARGB, &dstBmpData );
     if ( Gdiplus::Ok != gdiRet )
     {
@@ -254,8 +251,8 @@ JSObject* JsGdiBitmap::CreateRawBitmap()
 
 JSObject* JsGdiBitmap::GetColourScheme( uint32_t count )
 {
+    const Gdiplus::Rect rect( 0, 0, (LONG)pGdi_->GetWidth(), (LONG)pGdi_->GetHeight() );
     Gdiplus::BitmapData bmpdata;
-    Gdiplus::Rect rect( 0, 0, (LONG)pGdi_->GetWidth(), (LONG)pGdi_->GetHeight() );
 
     Gdiplus::Status gdiRet = pGdi_->LockBits( &rect, Gdiplus::ImageLockModeRead, PixelFormat32bppARGB, &bmpdata );
     smp::error::CheckGdi( gdiRet, "LockBits" );
@@ -293,7 +290,7 @@ JSObject* JsGdiBitmap::GetColourScheme( uint32_t count )
     pGdi_->UnlockBits( &bmpdata );
 
     // Sorting
-    typedef std::pair<uint32_t, uint32_t> sort_vec_pair_t;
+    using sort_vec_pair_t = std::pair<uint32_t, uint32_t>;
     std::vector<sort_vec_pair_t> sort_vec( color_counters.begin(), color_counters.end() );
     count = std::min( count, sort_vec.size() );
     std::partial_sort(
@@ -322,22 +319,23 @@ pfc::string8_fast JsGdiBitmap::GetColourSchemeJSON( uint32_t count )
     using json = nlohmann::json;
     using namespace smp::utils::kmeans;
 
-    Gdiplus::BitmapData bmpdata;
-
     // rescaled image will have max of ~48k pixels
-    uint32_t w = std::min( pGdi_->GetWidth(), static_cast<uint32_t>( 220 ) );
-    uint32_t h = std::min( pGdi_->GetHeight(), static_cast<uint32_t>( 220 ) );
+    const uint32_t w = std::min( pGdi_->GetWidth(), static_cast<uint32_t>( 220 ) );
+    const uint32_t h = std::min( pGdi_->GetHeight(), static_cast<uint32_t>( 220 ) );
 
     auto bitmap = std::make_unique<Gdiplus::Bitmap>( w, h, PixelFormat32bppPARGB );
     smp::error::CheckGdiPlusObject( bitmap );
 
     Gdiplus::Graphics gr( bitmap.get() );
-    Gdiplus::Rect rect( 0, 0, (LONG)w, (LONG)h );
+    
     Gdiplus::Status gdiRet = gr.SetInterpolationMode( (Gdiplus::InterpolationMode)6 ); // InterpolationModeHighQualityBilinear
     smp::error::CheckGdi( gdiRet, "SetInterpolationMode" );
 
     gdiRet = gr.DrawImage( pGdi_.get(), 0, 0, w, h ); // scale image down
     smp::error::CheckGdi( gdiRet, "DrawImage" );
+
+    const Gdiplus::Rect rect( 0, 0, (LONG)w, (LONG)h );
+    Gdiplus::BitmapData bmpdata;
 
     gdiRet = bitmap->LockBits( &rect, Gdiplus::ImageLockModeRead, PixelFormat32bppARGB, &bmpdata );
     smp::error::CheckGdi( gdiRet, "LockBits" );
@@ -398,11 +396,11 @@ pfc::string8_fast JsGdiBitmap::GetColourSchemeJSON( uint32_t count )
     {
         const auto& centralValues = clusters[i].getCentralValues();
 
-        uint32_t colour = 0xff000000
-                          | static_cast<uint32_t>( centralValues[0] ) << 16
-                          | static_cast<uint32_t>( centralValues[1] ) << 8
-                          | static_cast<uint32_t>( centralValues[2] );
-        double frequency = clusters[i].getTotalPixelCount() / (double)colours_length;
+        const uint32_t colour = 0xff000000
+                                | static_cast<uint32_t>( centralValues[0] ) << 16
+                                | static_cast<uint32_t>( centralValues[1] ) << 8
+                                | static_cast<uint32_t>( centralValues[2] );
+        const double frequency = clusters[i].getTotalPixelCount() / static_cast<double>( colours_length );
 
         j.push_back(
             { { "col", colour },

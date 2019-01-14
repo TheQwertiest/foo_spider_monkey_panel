@@ -135,10 +135,10 @@ bool draw_drag_custom_image( HDC dc, const RECT& rc, Gdiplus::Bitmap& customImag
 
     Gdiplus::Graphics gdiGraphics( dc );
     Gdiplus::Status gdiRet = gdiGraphics.DrawImage( &customImage,
-                                                    Gdiplus::Rect( lround( static_cast<float>( rc.right - newWidth ) / 2 ),
+                                                    Gdiplus::Rect{ lround( static_cast<float>( rc.right - newWidth ) / 2 ),
                                                                    lround( static_cast<float>( rc.bottom - newHeight ) / 2 ),
                                                                    newWidth,
-                                                                   newHeight ),
+                                                                   newHeight },
                                                     0,
                                                     0,
                                                     imgWidth,
@@ -188,7 +188,7 @@ bool create_drag_image( HWND wnd, bool isThemed, HTHEME theme, COLORREF selectio
         size.cx = std::max<INT>( size.cx, pCustomImage->GetWidth() );
         size.cy = std::max<INT>( size.cy, pCustomImage->GetHeight() );
     }
-    RECT rc = { 0, 0, size.cx, size.cy };
+    const RECT rc { 0, 0, size.cx, size.cy };
 
     HBITMAP bm_mem = CreateCompatibleBitmap( dc, size.cx, size.cy );
     HBITMAP bm_old = SelectBitmap( dc_mem, bm_mem );

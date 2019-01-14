@@ -567,7 +567,7 @@ void JsGdiGraphics::GdiDrawText( const std::wstring& str, JsGdiFont* font, uint3
         pGdi->ReleaseHDC( dc );
     } );
 
-    RECT rc = { x, y, static_cast<LONG>( x + w ), static_cast<LONG>( y + h ) };
+    RECT rc{ x, y, static_cast<LONG>( x + w ), static_cast<LONG>( y + h ) };
     DRAWTEXTPARAMS dpt = { sizeof( DRAWTEXTPARAMS ), 4, 0, 0, 0 };
 
     SetTextColor( dc, helpers::convert_argb_to_colorref( colour ) );
@@ -586,11 +586,9 @@ void JsGdiGraphics::GdiDrawText( const std::wstring& str, JsGdiFont* font, uint3
     // Well, magic :P
     if ( format & DT_CALCRECT )
     {
-        RECT rc_calc = { 0 }, rc_old = { 0 };
+        const RECT rc_old = rc;
 
-        memcpy( &rc_calc, &rc, sizeof( RECT ) );
-        memcpy( &rc_old, &rc, sizeof( RECT ) );
-
+        RECT rc_calc = rc;
         iRet = DrawText( dc, str.c_str(), -1, &rc_calc, format );
         smp::error::CheckWinApi( iRet, "DrawText" );
 

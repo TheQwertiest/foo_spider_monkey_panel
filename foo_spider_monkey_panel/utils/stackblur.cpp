@@ -280,15 +280,11 @@ namespace smp::utils
 
 void stack_blur_filter( Gdiplus::Bitmap& img, int radius )
 {
-    int width = img.GetWidth();
-    int height = img.GetHeight();
+    const int width = img.GetWidth();
+    const int height = img.GetHeight();
 
+    const Gdiplus::Rect rect{ 0, 0, width, height };
     Gdiplus::BitmapData bmpdata;
-    Gdiplus::Rect rect;
-
-    rect.X = rect.Y = 0;
-    rect.Width = width;
-    rect.Height = height;
 
     if ( img.LockBits( &rect, Gdiplus::ImageLockModeRead | Gdiplus::ImageLockModeWrite, PixelFormat32bppPARGB, &bmpdata ) == Gdiplus::Ok )
     {

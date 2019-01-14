@@ -90,10 +90,10 @@ uint32_t LoadImageAsync( HWND hWnd, const std::wstring& imagePath )
 
 std::unique_ptr<Gdiplus::Bitmap> LoadImage( const std::wstring& imagePath )
 {
-    // Since using Gdiplus::Bitmap(path) will result locking file, using IStream instead to prevent it.
+    // Gdiplus::Bitmap(path) locks file, thus using IStream instead to prevent it.
     IStreamPtr pStream;
     HRESULT hr = SHCreateStreamOnFileEx( imagePath.c_str(), STGM_READ | STGM_SHARE_DENY_WRITE, GENERIC_READ, FALSE, nullptr, &pStream );
-    if ( !SUCCEEDED( hr ) )
+    if ( FAILED( hr ) )
     {
         return nullptr;
     }

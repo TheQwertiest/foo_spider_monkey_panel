@@ -162,7 +162,6 @@ extern "C" BOOL WINAPI DllMain( HINSTANCE ins, DWORD reason, [[maybe_unused]] LP
         InitializeSubsystems( ins );
         break;
     }
-    
     case DLL_PROCESS_DETACH:
     {
         FinalizeSubsystems();

@@ -827,7 +827,7 @@ void js_panel_window::RepaintRect( LONG x, LONG y, LONG w, LONG h, bool force /*
     RepaintRect( RECT{ x, y, x + w, y + h }, force );
 }
 
-void js_panel_window::RepaintRect( RECT rect, bool force /*= false */ )
+void js_panel_window::RepaintRect( const RECT& rect, bool force /*= false */ )
 {
     RedrawWindow( hWnd_, &rect, nullptr, RDW_INVALIDATE | ( force ? RDW_UPDATENOW : 0 ) );
 }
@@ -840,13 +840,6 @@ void js_panel_window::RepaintBackground( LPRECT lprcUpdate /*= nullptr */ )
     {
         return;
     }
-
-    HDC dc_parent = GetDC( wnd_parent );
-    HDC hdc_bk = CreateCompatibleDC( dc_parent );
-    POINT pt = { 0, 0 };
-    RECT rect_child = { 0, 0, (LONG)width_, (LONG)height_ };
-    RECT rect_parent;
-    HRGN rgn_child = nullptr;
 
     // HACK: for Tab control
     // Find siblings
@@ -866,6 +859,9 @@ void js_panel_window::RepaintBackground( LPRECT lprcUpdate /*= nullptr */ )
         }
     }
 
+    RECT rect_child = { 0, 0, (LONG)width_, (LONG)height_ };
+
+    HRGN rgn_child = nullptr;
     if ( lprcUpdate )
     {
         HRGN rgn = CreateRectRgnIndirect( lprcUpdate );
@@ -878,9 +874,11 @@ void js_panel_window::RepaintBackground( LPRECT lprcUpdate /*= nullptr */ )
         rgn_child = CreateRectRgn( 0, 0, 0, 0 );
     }
 
+    POINT pt = { 0, 0 };
     ClientToScreen( hWnd_, &pt );
     ScreenToClient( wnd_parent, &pt );
 
+    RECT rect_parent;
     CopyRect( &rect_parent, &rect_child );
     ClientToScreen( hWnd_, (LPPOINT)&rect_parent );
     ClientToScreen( hWnd_, (LPPOINT)&rect_parent + 1 );
@@ -892,6 +890,9 @@ void js_panel_window::RepaintBackground( LPRECT lprcUpdate /*= nullptr */ )
     RedrawWindow( wnd_parent, &rect_parent, nullptr, RDW_INVALIDATE | RDW_ERASE | RDW_ERASENOW | RDW_UPDATENOW );
 
     // Background bitmap
+    HDC dc_parent = GetDC( wnd_parent );
+    HDC hdc_bk = CreateCompatibleDC( dc_parent );
+    
     HBITMAP old_bmp = SelectBitmap( hdc_bk, hBitmapBg_ );
 
     // Paint BK
@@ -1436,7 +1437,7 @@ void js_panel_window::on_paint( HDC dc, LPRECT lpUpdateRect )
         }
         else
         {
-            RECT rc = { 0, 0, (LONG)width_, (LONG)height_ };
+            RECT rc{ 0, 0, (LONG)width_, (LONG)height_ };
             FillRect( memdc, &rc, ( HBRUSH )( COLOR_WINDOW + 1 ) );
         }
 
@@ -1474,7 +1475,7 @@ void js_panel_window::on_paint_error( HDC memdc )
     HBRUSH hBack = CreateBrushIndirect( &lbBack );
     auto autoHBack = smp::gdi::CreateUniquePtr( hBack );
 
-    RECT rc = { 0, 0, (LONG)width_, (LONG)height_ };
+    RECT rc{ 0, 0, (LONG)width_, (LONG)height_ };
     FillRect( memdc, &rc, hBack );
     SetBkMode( memdc, TRANSPARENT );
 
@@ -1484,12 +1485,13 @@ void js_panel_window::on_paint_error( HDC memdc )
 
 void js_panel_window::on_paint_user( HDC memdc, LPRECT lpUpdateRect )
 {
-    // Prepare graphics object to the script.
     Gdiplus::Graphics gr( memdc );
-    Gdiplus::Rect rect( lpUpdateRect->left, lpUpdateRect->top, lpUpdateRect->right - lpUpdateRect->left, lpUpdateRect->bottom - lpUpdateRect->top );
 
     // SetClip() may improve performance slightly
-    gr.SetClip( rect );
+    gr.SetClip( Gdiplus::Rect{ lpUpdateRect->left,
+                               lpUpdateRect->top,
+                               lpUpdateRect->right - lpUpdateRect->left,
+                               lpUpdateRect->bottom - lpUpdateRect->top } );
 
     pJsContainer_->InvokeOnPaint( gr );
 }

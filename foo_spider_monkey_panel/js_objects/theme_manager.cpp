@@ -114,14 +114,9 @@ void JsThemeManager::DrawThemeBackground( JsGdiGraphics* gr,
         graphics->ReleaseHDC( dc );
     } );
 
-    RECT rc = { x, y, static_cast<LONG>( x + w ), static_cast<LONG>( y + h ) };
-    RECT clip_rc = { clip_x, clip_y, static_cast<LONG>( clip_x + clip_y ), static_cast<LONG>( clip_w + clip_h ) };
-    LPCRECT pclip_rc = &clip_rc;
-
-    if ( !clip_x && !clip_y && !clip_w && !clip_h )
-    {
-        pclip_rc = nullptr;
-    }
+    const RECT rc{ x, y, static_cast<LONG>( x + w ), static_cast<LONG>( y + h ) };
+    const RECT clip_rc{ clip_x, clip_y, static_cast<LONG>( clip_x + clip_y ), static_cast<LONG>( clip_w + clip_h ) };
+    LPCRECT pclip_rc = ( !clip_x && !clip_y && !clip_w && !clip_h ) ? nullptr : &clip_rc;
 
     HRESULT hr = ::DrawThemeBackground( hTheme_, dc, partId_, stateId_, &rc, pclip_rc );
     smp::error::CheckHR( hr, "DrawThemeBackground" );
