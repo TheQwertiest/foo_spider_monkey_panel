@@ -985,6 +985,13 @@ void js_panel_window::delete_context()
 
 void js_panel_window::on_context_menu( int x, int y )
 {
+    if ( MessageBlockingScope::IsBlocking() )
+    {
+        return;
+    }
+
+    MessageBlockingScope scope;
+
     const int base_id = 0;
     HMENU hMenu = CreatePopupMenu();
     utils::final_action autoMenu( [hMenu] {
