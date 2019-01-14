@@ -4,13 +4,98 @@
 #include <ui/ui_goto.h>
 #include <ui/ui_find.h>
 #include <ui/ui_replace.h>
+#include <utils/scope_helpers.h>
 #include <js_panel_window.h>
 #include <helpers.h>
+
+_COM_SMARTPTR_TYPEDEF( IFileDialog, __uuidof( IFileDialog ) );
+_COM_SMARTPTR_TYPEDEF( IShellItem, __uuidof( IShellItem ) );
+
+namespace
+{
 
 constexpr int k_File_MenuPosition = 0;
 constexpr int k_Edit_MenuPosition = 1;
 constexpr int k_Features_MenuPosition = 2;
 constexpr int k_EdgeStyle_MenuPosition = 0;
+
+std::wstring FileDialog( const std::wstring& title, bool saveFile )
+{
+    try
+    {
+        auto checkHr = []( HRESULT hr ) {
+            if ( FAILED( hr ) )
+            {
+                throw _com_error( E_FAIL );
+            };
+        };
+
+        IFileDialogPtr pfd;
+        HRESULT hr = pfd.CreateInstance( ( saveFile ? CLSID_FileSaveDialog : CLSID_FileOpenDialog ), nullptr, CLSCTX_INPROC_SERVER );
+        checkHr( hr );
+
+        DWORD dwFlags;
+        hr = pfd->GetOptions( &dwFlags );
+        checkHr( hr );
+
+        hr = pfd->SetClientGuid( g_guid_smp_dialog_path );
+        checkHr( hr );
+
+        hr = pfd->SetTitle( title.c_str() );
+
+        constexpr COMDLG_FILTERSPEC rgSpec[3] =
+            {
+                { L"JavaScript files", L"*.js" },
+                { L"Text files", L"*.txt" },
+                { L"All files", L"*.*" },
+            };
+
+        hr = pfd->SetFileTypes( _countof( rgSpec ), rgSpec );
+        checkHr( hr );
+
+        hr = pfd->SetFileTypeIndex( 1 );
+        checkHr( hr );
+
+        hr = pfd->SetDefaultExtension( L"js" );
+        checkHr( hr );
+
+        const pfc::stringcvt::string_os_from_utf8 path( helpers::get_fb2k_component_path() );
+
+        IShellItemPtr pFolder;
+        hr = SHCreateItemFromParsingName( path, nullptr, pFolder.GetIID(), (void**)&pFolder );
+        checkHr( hr );
+
+        hr = pfd->SetDefaultFolder( pFolder );
+        checkHr( hr );
+
+        hr = pfd->Show( nullptr );
+        checkHr( hr );
+
+        IShellItemPtr psiResult;
+        hr = pfd->GetResult( &psiResult );
+        checkHr( hr );
+
+        PWSTR pszFilePath = nullptr;
+        smp::utils::final_action autoFilePath( [&pszFilePath]()
+        {
+            if ( pszFilePath )
+            {
+                CoTaskMemFree( pszFilePath );
+            }
+        } );
+
+        hr = psiResult->GetDisplayName( SIGDN_FILESYSPATH, &pszFilePath );
+        checkHr( hr );
+
+        return pszFilePath;
+    }
+    catch ( const _com_error& )
+    {
+        return std::wstring{};
+    }
+}
+
+} // namespace
 
 CDialogConf::CDialogConf( smp::panel::js_panel_window* p_parent )
     : m_parent( p_parent )
@@ -283,18 +368,20 @@ LRESULT CDialogConf::OnFileSave( WORD, WORD, HWND )
 
 LRESULT CDialogConf::OnFileImport( WORD, WORD, HWND )
 {
-    if ( pfc::string8 filename;
-         uGetOpenFileName( m_hWnd, "JavaScript files|*.js|Text files|*.txt|All files|*.*", 0, "js", "Import from", nullptr, filename, FALSE ) )
+    const pfc::stringcvt::string_utf8_from_os filename( FileDialog( L"Import File", false ).c_str() );
+    if ( filename.is_empty() )
     {
-        if ( pfc::string8_fast text;
-             !helpers::read_file( filename, text ) )
-        {
-            (void)uMessageBox( m_hWnd, "Failed to read file", m_caption, MB_ICONWARNING | MB_SETFOREGROUND );
-        }
-        else
-        {
-            m_editorctrl.SetContent( text );
-        }
+        return 0;
+    }
+
+    if ( pfc::string8_fast text;
+         !helpers::read_file( filename, text ) )
+    {
+        (void)uMessageBox( m_hWnd, "Failed to read file", m_caption, MB_ICONWARNING | MB_SETFOREGROUND );
+    }
+    else
+    {
+        m_editorctrl.SetContent( text );
     }
 
     return 0;
@@ -302,17 +389,20 @@ LRESULT CDialogConf::OnFileImport( WORD, WORD, HWND )
 
 LRESULT CDialogConf::OnFileExport( WORD, WORD, HWND )
 {
-    if ( pfc::string8 filename;
-         uGetOpenFileName( m_hWnd, "JavaScript files|*.js|Text files|*.txt|All files|*.*", 0, "js", "Save as", nullptr, filename, TRUE ) )
+    const pfc::stringcvt::string_utf8_from_os filename( FileDialog( L"Export File", true ).c_str() );
+    if ( filename.is_empty() )
     {
-        const int len = m_editorctrl.GetTextLength();
-        pfc::string8_fast text;
-
-        m_editorctrl.GetText( text.lock_buffer( len ), len + 1 );
-        text.unlock_buffer();
-
-        (void)helpers::write_file( filename, text );
+        return 0;
     }
+
+    const int len = m_editorctrl.GetTextLength();
+    pfc::string8_fast text;
+
+    m_editorctrl.GetText( text.lock_buffer( len ), len + 1 );
+    text.unlock_buffer();
+
+    (void)helpers::write_file( filename, text );
+
     return 0;
 }
 
