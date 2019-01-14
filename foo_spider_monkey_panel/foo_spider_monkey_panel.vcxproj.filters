@@ -292,6 +292,9 @@
     <ClCompile Include="utils\semantic_version.cpp">
       <Filter>utils</Filter>
     </ClCompile>
+    <ClCompile Include="utils\menu_helpers.cpp">
+      <Filter>utils</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="js_engine\js_engine.h">
@@ -655,6 +658,9 @@
       <Filter>z_uncategorized</Filter>
     </ClInclude>
     <ClInclude Include="utils\semantic_version.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\menu_helpers.h">
       <Filter>utils</Filter>
     </ClInclude>
   </ItemGroup>

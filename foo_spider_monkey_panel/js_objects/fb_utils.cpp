@@ -15,6 +15,7 @@
 #include <js_utils/js_property_helper.h>
 #include <utils/art_helpers.h>
 #include <utils/string_helpers.h>
+#include <utils/menu_helpers.h>
 #include <com_objects/drop_source_impl.h>
 
 #include <helpers.h>
@@ -588,7 +589,7 @@ bool JsFbUtils::IsLibraryEnabled()
 bool JsFbUtils::IsMainMenuCommandChecked( const pfc::string8_fast& command )
 { // TODO: inspect get_mainmenu_command_status_by_name_SEH
     t_uint32 status;
-    if ( !helpers::get_mainmenu_command_status_by_name_SEH( command.c_str(), status ) )
+    if ( !utils::get_mainmenu_command_status_by_name( command.c_str(), status ) )
     { // TODO: Error, but no additional info
         throw SmpException( "" );
     }
@@ -642,7 +643,7 @@ void JsFbUtils::Random()
 bool JsFbUtils::RunContextCommand( const pfc::string8_fast& command, uint32_t flags )
 {
     metadb_handle_list dummy_list;
-    return helpers::execute_context_command_by_name_SEH( command.c_str(), dummy_list, flags );
+    return utils::execute_context_command_by_name( command.c_str(), dummy_list, flags );
 }
 
 bool JsFbUtils::RunContextCommandWithOpt( size_t optArgCount, const pfc::string8_fast& command, uint32_t flags )
@@ -678,7 +679,7 @@ bool JsFbUtils::RunContextCommandWithMetadb( const pfc::string8_fast& command, J
         handle_list.add_item( jsHandle->GetHandle() );
     }
 
-    return helpers::execute_context_command_by_name_SEH( command.c_str(), handle_list, flags );
+    return utils::execute_context_command_by_name( command.c_str(), handle_list, flags );
 }
 
 bool JsFbUtils::RunContextCommandWithMetadbWithOpt( size_t optArgCount, const pfc::string8_fast& command, JS::HandleValue handle, uint32_t flags )
@@ -696,7 +697,7 @@ bool JsFbUtils::RunContextCommandWithMetadbWithOpt( size_t optArgCount, const pf
 
 bool JsFbUtils::RunMainMenuCommand( const pfc::string8_fast& command )
 {
-    return helpers::execute_mainmenu_command_by_name_SEH( command.c_str() );
+    return utils::execute_mainmenu_command_by_name( command.c_str() );
 }
 
 void JsFbUtils::SavePlaylist()
