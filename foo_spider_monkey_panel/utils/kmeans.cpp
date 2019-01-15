@@ -1,31 +1,15 @@
+// Based on https://github.com/marcoscastro/kmeans
+// Copyright (c) 2015 Marcos Castro de Souza
+// All rights reserved.
+
 #include <stdafx.h>
 #include "kmeans.h"
 
 #include <numeric>
 
-/*
-k-means is a clustering algorithm designed to group data points into clusters of similar points,
-and return the averaged "center" value of each cluster. The algorithm runs over the data set
-multiple times, assigning points to the nearest center, and then re-calculating the center values
-after each iteration, until the centers stabilize of max_iterations have been run.
-
-Detailed information here: https://en.wikipedia.org/wiki/K-means_clustering
-
-Here it is being used to group RGB colour values into clusters of similar colours for the purposes
-of generating a colour scheme from an image. Each data point is a distinct RGB value that
-represents a number of pixels with the same RGB value from the original image. Therefore while
-every data-point is distinct, they do not all carry the same "weight" for the purposes of
-determining the center points of each cluster.
-
-In standard k-means, the starting center values are chosen at random. This provides better results
-at the expense of potentially different values on subsequent runs with the same inputs. That was
-not acceptable for generating colour values, so the starting center colour values are evenly spaced
-across the data set.
-*/
-
 namespace
 {
-uint8_t kNumberOfColourComponents = 3;
+constexpr uint8_t kNumberOfColourComponents = 3;
 }
 
 namespace smp::utils::kmeans

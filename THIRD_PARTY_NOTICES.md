@@ -9,6 +9,7 @@ The linked notices are provided for information only.
 - [foobar2000 SDK - other](component/licenses/foobar2000%20SDK.txt)
 - [JScript Panel - Unlicense](component/licenses/JScript%20Panel.txt)
 - [JSON for Modern C++ - MIT](component/licenses/JSON%20for%20Modern%20C%2B%2B.txt)
+- [KMeans - MIT](component/licenses/KMeans.txt)
 - [PFC - Unlicense](component/licenses/PFC.txt)
 - [Scintilla - other](component/licenses/Scintilla.txt)
 - [SpiderMonkey - MPL](component/licenses/SpiderMonkey.txt)

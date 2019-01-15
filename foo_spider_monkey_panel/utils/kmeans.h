@@ -1,8 +1,13 @@
+// Based on https://github.com/marcoscastro/kmeans
+// Copyright (c) 2015 Marcos Castro de Souza
+// All rights reserved.
+
 #pragma once
 
 #include <vector>
 
 /* 
+
 k-means is a clustering algorithm designed to group data points into clusters of similar points,
 and return the averaged "center" value of each cluster. The algorithm runs over the data set
 multiple times, assigning points to the nearest center, and then re-calculating the center values 
