@@ -1,3 +1,4 @@
+#pragma once
 
 namespace smp::config::advanced
 {
@@ -13,4 +14,4 @@ extern advconfig_integer_factory g_var_gc_zeal_level;
 extern advconfig_integer_factory g_var_gc_zeal_freq;
 #endif
 
-}
+} // namespace smp::config::advanced
