@@ -5,7 +5,6 @@
 #include <utils/string_helpers.h>
 #include <utils/thread_pool.h>
 
-#include <helpers.h>
 #include <user_message.h>
 #include <message_manager.h>
 #include <abort_callback.h>

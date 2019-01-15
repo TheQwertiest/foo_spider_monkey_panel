@@ -20,7 +20,6 @@
 #include <host_timer_dispatcher.h>
 #include <js_panel_window.h>
 #include <message_manager.h>
-#include <helpers.h>
 #include <user_message.h>
 
 using namespace smp;

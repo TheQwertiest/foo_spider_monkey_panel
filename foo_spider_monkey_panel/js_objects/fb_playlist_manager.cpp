@@ -12,9 +12,9 @@
 #include <utils/string_helpers.h>
 #include <utils/pfc_helpers.h>
 #include <utils/text_helpers.h>
+#include <utils/location_processor.h>
 
 #include <abort_callback.h>
-#include <helpers.h>
 
 using namespace smp;
 
@@ -214,7 +214,7 @@ void JsFbPlaylistManager::AddLocations( uint32_t playlistIndex, JS::HandleValue 
         nullptr,
         nullptr,
         nullptr,
-        fb2k::service_new<helpers::js_process_locations>( playlistIndex, base, select ) );
+        fb2k::service_new<smp::utils::js_process_locations>( playlistIndex, base, select ) );
 }
 
 void JsFbPlaylistManager::AddLocationsWithOpt( size_t optArgCount, uint32_t playlistIndex, JS::HandleValue locations, bool select )

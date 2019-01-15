@@ -23,7 +23,6 @@
 #include <utils/file_helpers.h>
 
 #include <js_panel_window.h>
-#include <helpers.h>
 
 #include <filesystem>
 

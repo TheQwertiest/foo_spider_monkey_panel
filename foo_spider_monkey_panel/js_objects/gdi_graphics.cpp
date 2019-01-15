@@ -13,8 +13,7 @@
 #include <utils/winapi_error_helpers.h>
 #include <utils/scope_helpers.h>
 #include <utils/text_helpers.h>
-
-#include <helpers.h>
+#include <utils/colour_helpers.h>
 
 using namespace smp;
 
@@ -567,7 +566,7 @@ void JsGdiGraphics::GdiDrawText( const std::wstring& str, JsGdiFont* font, uint3
     RECT rc{ x, y, static_cast<LONG>( x + w ), static_cast<LONG>( y + h ) };
     DRAWTEXTPARAMS dpt = { sizeof( DRAWTEXTPARAMS ), 4, 0, 0, 0 };
 
-    SetTextColor( dc, helpers::convert_argb_to_colorref( colour ) );
+    SetTextColor( dc, smp::colour::convert_argb_to_colorref( colour ) );
 
     int iRet = SetBkMode( dc, TRANSPARENT );
     smp::error::CheckWinApi( CLR_INVALID != iRet, "SetBkMode" );

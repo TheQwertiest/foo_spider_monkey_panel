@@ -14,8 +14,6 @@
 #include <utils/image_helpers.h>
 #include <utils/winapi_error_helpers.h>
 
-#include <helpers.h>
-
 using namespace smp;
 
 namespace

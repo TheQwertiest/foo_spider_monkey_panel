@@ -2,7 +2,6 @@
 
 #include "script_interface.h"
 #include "com_tools.h"
-#include "helpers.h"
 
 // NOTE: Do not use com_object_impl_t<> to initialize, use com_object_singleton_t<> instead.
 class WSHUtils : public IDispatchImpl3<IWSHUtils>

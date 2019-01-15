@@ -4,7 +4,6 @@
 #include <utils/gdi_helpers.h>
 #include <utils/thread_pool.h>
 
-#include <helpers.h>
 #include <user_message.h>
 #include <message_manager.h>
 

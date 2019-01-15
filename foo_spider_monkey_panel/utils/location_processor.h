@@ -1,14 +1,7 @@
 #pragma once
 
-namespace helpers
+namespace smp::utils
 {
-
-COLORREF convert_argb_to_colorref( DWORD argb );
-DWORD convert_colorref_to_argb( COLORREF color );
-
-pfc::string8_fast get_fb2k_component_path();
-pfc::string8_fast get_fb2k_path();
-pfc::string8_fast get_profile_path();
 
 class js_process_locations : public process_locations_notify
 {
@@ -21,7 +14,7 @@ public:
 private:
     bool m_to_select;
     int m_playlist_idx;
-    t_size m_base;
+    size_t m_base;
 };
 
 } // namespace helpers

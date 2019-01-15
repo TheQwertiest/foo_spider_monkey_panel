@@ -38,31 +38,28 @@
       <Filter>js_engine</Filter>
     </ClCompile>
     <ClCompile Include="config.cpp">
-      <Filter>z_uncategorized</Filter>
+      <Filter>core</Filter>
     </ClCompile>
     <ClCompile Include="foo_spider_monkey_panel.cpp">
-      <Filter>z_uncategorized</Filter>
-    </ClCompile>
-    <ClCompile Include="helpers.cpp">
-      <Filter>z_uncategorized</Filter>
+      <Filter>core</Filter>
     </ClCompile>
     <ClCompile Include="host_timer_dispatcher.cpp">
-      <Filter>z_uncategorized</Filter>
+      <Filter>core</Filter>
     </ClCompile>
     <ClCompile Include="js_panel_window.cpp">
-      <Filter>z_uncategorized</Filter>
+      <Filter>core</Filter>
     </ClCompile>
     <ClCompile Include="js_panel_window_cui.cpp">
-      <Filter>z_uncategorized</Filter>
+      <Filter>core</Filter>
     </ClCompile>
     <ClCompile Include="js_panel_window_dui.cpp">
-      <Filter>z_uncategorized</Filter>
+      <Filter>core</Filter>
     </ClCompile>
     <ClCompile Include="mainmenu.cpp">
-      <Filter>z_uncategorized</Filter>
+      <Filter>core</Filter>
     </ClCompile>
     <ClCompile Include="stdafx.cpp">
-      <Filter>z_uncategorized</Filter>
+      <Filter>core</Filter>
     </ClCompile>
     <ClCompile Include="js_objects\fb_metadb_handle.cpp">
       <Filter>js_objects</Filter>
@@ -152,7 +149,7 @@
       <Filter>js_objects</Filter>
     </ClCompile>
     <ClCompile Include="adv_config.cpp">
-      <Filter>z_uncategorized</Filter>
+      <Filter>core</Filter>
     </ClCompile>
     <ClCompile Include="js_objects\enumerator.cpp">
       <Filter>js_objects</Filter>
@@ -188,10 +185,10 @@
       <Filter>ui</Filter>
     </ClCompile>
     <ClCompile Include="stats.cpp">
-      <Filter>z_uncategorized</Filter>
+      <Filter>core</Filter>
     </ClCompile>
     <ClCompile Include="heartbeat_window.cpp">
-      <Filter>z_uncategorized</Filter>
+      <Filter>core</Filter>
     </ClCompile>
     <ClCompile Include="js_engine\js_gc.cpp">
       <Filter>js_engine</Filter>
@@ -200,7 +197,7 @@
       <Filter>utils</Filter>
     </ClCompile>
     <ClCompile Include="acfu_integration.cpp">
-      <Filter>z_uncategorized</Filter>
+      <Filter>core</Filter>
     </ClCompile>
     <ClCompile Include="com_objects\host_drop_target.cpp">
       <Filter>com_objects</Filter>
@@ -224,7 +221,7 @@
       <Filter>scintilla</Filter>
     </ClCompile>
     <ClCompile Include="smp_exception.cpp">
-      <Filter>z_uncategorized</Filter>
+      <Filter>core</Filter>
     </ClCompile>
     <ClCompile Include="com_objects\drop_source_impl.cpp">
       <Filter>com_objects</Filter>
@@ -263,13 +260,13 @@
       <Filter>utils</Filter>
     </ClCompile>
     <ClCompile Include="fb2k_callbacks.cpp">
-      <Filter>z_uncategorized</Filter>
+      <Filter>core</Filter>
     </ClCompile>
     <ClCompile Include="popup_msg.cpp">
-      <Filter>z_uncategorized</Filter>
+      <Filter>core</Filter>
     </ClCompile>
     <ClCompile Include="message_manager.cpp">
-      <Filter>z_uncategorized</Filter>
+      <Filter>core</Filter>
     </ClCompile>
     <ClCompile Include="js_utils\js_art_helpers.cpp">
       <Filter>js_utils</Filter>
@@ -281,13 +278,13 @@
       <Filter>utils</Filter>
     </ClCompile>
     <ClCompile Include="message_blocking_scope.cpp">
-      <Filter>z_uncategorized</Filter>
+      <Filter>core</Filter>
     </ClCompile>
     <ClCompile Include="abort_callback.cpp">
-      <Filter>z_uncategorized</Filter>
+      <Filter>core</Filter>
     </ClCompile>
     <ClCompile Include="com_message_scope.cpp">
-      <Filter>z_uncategorized</Filter>
+      <Filter>core</Filter>
     </ClCompile>
     <ClCompile Include="utils\semantic_version.cpp">
       <Filter>utils</Filter>
@@ -296,6 +293,12 @@
       <Filter>utils</Filter>
     </ClCompile>
     <ClCompile Include="utils\text_helpers.cpp">
+      <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="component_paths.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
+    <ClCompile Include="utils\location_processor.cpp">
       <Filter>utils</Filter>
     </ClCompile>
   </ItemGroup>
@@ -340,46 +343,43 @@
       <Filter>js_engine</Filter>
     </ClInclude>
     <ClInclude Include="component_defines.h">
-      <Filter>z_uncategorized</Filter>
+      <Filter>core</Filter>
     </ClInclude>
     <ClInclude Include="config.h">
-      <Filter>z_uncategorized</Filter>
-    </ClInclude>
-    <ClInclude Include="helpers.h">
-      <Filter>z_uncategorized</Filter>
+      <Filter>core</Filter>
     </ClInclude>
     <ClInclude Include="host_timer_dispatcher.h">
-      <Filter>z_uncategorized</Filter>
+      <Filter>core</Filter>
     </ClInclude>
     <ClInclude Include="js_panel_window.h">
-      <Filter>z_uncategorized</Filter>
+      <Filter>core</Filter>
     </ClInclude>
     <ClInclude Include="js_panel_window_cui.h">
-      <Filter>z_uncategorized</Filter>
+      <Filter>core</Filter>
     </ClInclude>
     <ClInclude Include="js_panel_window_dui.h">
-      <Filter>z_uncategorized</Filter>
+      <Filter>core</Filter>
     </ClInclude>
     <ClInclude Include="popup_msg.h">
-      <Filter>z_uncategorized</Filter>
+      <Filter>core</Filter>
     </ClInclude>
     <ClInclude Include="stdafx.h">
-      <Filter>z_uncategorized</Filter>
+      <Filter>core</Filter>
     </ClInclude>
     <ClInclude Include="user_message.h">
-      <Filter>z_uncategorized</Filter>
+      <Filter>core</Filter>
     </ClInclude>
     <ClInclude Include="..\PropertyList\PropertyItem.h">
-      <Filter>z_uncategorized\PropertyList</Filter>
+      <Filter>PropertyList</Filter>
     </ClInclude>
     <ClInclude Include="..\PropertyList\PropertyItemEditors.h">
-      <Filter>z_uncategorized\PropertyList</Filter>
+      <Filter>PropertyList</Filter>
     </ClInclude>
     <ClInclude Include="..\PropertyList\PropertyItemImpl.h">
-      <Filter>z_uncategorized\PropertyList</Filter>
+      <Filter>PropertyList</Filter>
     </ClInclude>
     <ClInclude Include="..\PropertyList\PropertyList.h">
-      <Filter>z_uncategorized\PropertyList</Filter>
+      <Filter>PropertyList</Filter>
     </ClInclude>
     <ClInclude Include="js_objects\fb_metadb_handle.h">
       <Filter>js_objects</Filter>
@@ -445,7 +445,7 @@
       <Filter>js_utils</Filter>
     </ClInclude>
     <ClInclude Include="panel_tooltip_param.h">
-      <Filter>z_uncategorized</Filter>
+      <Filter>core</Filter>
     </ClInclude>
     <ClInclude Include="js_utils\serialized_value.h">
       <Filter>js_utils</Filter>
@@ -481,22 +481,22 @@
       <Filter>convert</Filter>
     </ClInclude>
     <ClInclude Include="resource.h">
-      <Filter>z_uncategorized\resources</Filter>
+      <Filter>core\resources</Filter>
     </ClInclude>
     <ClInclude Include="drop_action_params.h">
-      <Filter>z_uncategorized</Filter>
+      <Filter>core</Filter>
     </ClInclude>
     <ClInclude Include="js_objects\fb_window.h">
       <Filter>js_objects</Filter>
     </ClInclude>
     <ClInclude Include="adv_config.h">
-      <Filter>z_uncategorized</Filter>
+      <Filter>core</Filter>
     </ClInclude>
     <ClInclude Include="js_objects\enumerator.h">
       <Filter>js_objects</Filter>
     </ClInclude>
     <ClInclude Include="panel_info.h">
-      <Filter>z_uncategorized</Filter>
+      <Filter>core</Filter>
     </ClInclude>
     <ClInclude Include="utils\kmeans.h">
       <Filter>utils</Filter>
@@ -529,10 +529,10 @@
       <Filter>ui</Filter>
     </ClInclude>
     <ClInclude Include="stats.h">
-      <Filter>z_uncategorized</Filter>
+      <Filter>core</Filter>
     </ClInclude>
     <ClInclude Include="heartbeat_window.h">
-      <Filter>z_uncategorized</Filter>
+      <Filter>core</Filter>
     </ClInclude>
     <ClInclude Include="js_engine\js_gc.h">
       <Filter>js_engine</Filter>
@@ -571,7 +571,7 @@
       <Filter>js_utils</Filter>
     </ClInclude>
     <ClInclude Include="smp_exception.h">
-      <Filter>z_uncategorized</Filter>
+      <Filter>core</Filter>
     </ClInclude>
     <ClInclude Include="js_objects\fb_playlist_recycler.h">
       <Filter>js_objects</Filter>
@@ -592,7 +592,7 @@
       <Filter>utils</Filter>
     </ClInclude>
     <ClInclude Include="callback_data.h">
-      <Filter>z_uncategorized</Filter>
+      <Filter>core</Filter>
     </ClInclude>
     <ClInclude Include="com_objects\internal\drag_utils.h">
       <Filter>com_objects\internal</Filter>
@@ -631,10 +631,10 @@
       <Filter>utils</Filter>
     </ClInclude>
     <ClInclude Include="message_manager.h">
-      <Filter>z_uncategorized</Filter>
+      <Filter>core</Filter>
     </ClInclude>
     <ClInclude Include="metadb_callback_data.h">
-      <Filter>z_uncategorized</Filter>
+      <Filter>core</Filter>
     </ClInclude>
     <ClInclude Include="js_utils\js_art_helpers.h">
       <Filter>js_utils</Filter>
@@ -643,22 +643,22 @@
       <Filter>js_utils</Filter>
     </ClInclude>
     <ClInclude Include="message_blocking_scope.h">
-      <Filter>z_uncategorized</Filter>
+      <Filter>core</Filter>
     </ClInclude>
     <ClInclude Include="utils\thread_pool.h">
       <Filter>utils</Filter>
     </ClInclude>
     <ClInclude Include="abort_callback.h">
-      <Filter>z_uncategorized</Filter>
+      <Filter>core</Filter>
     </ClInclude>
     <ClInclude Include="com_message_scope.h">
-      <Filter>z_uncategorized</Filter>
+      <Filter>core</Filter>
     </ClInclude>
     <ClInclude Include="js_utils\js_async_task.h">
       <Filter>js_utils</Filter>
     </ClInclude>
     <ClInclude Include="component_guids.h">
-      <Filter>z_uncategorized</Filter>
+      <Filter>core</Filter>
     </ClInclude>
     <ClInclude Include="utils\semantic_version.h">
       <Filter>utils</Filter>
@@ -669,10 +669,19 @@
     <ClInclude Include="utils\text_helpers.h">
       <Filter>utils</Filter>
     </ClInclude>
+    <ClInclude Include="utils\colour_helpers.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="component_paths.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\location_processor.h">
+      <Filter>utils</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="default.js">
-      <Filter>z_uncategorized\resources</Filter>
+      <Filter>core\resources</Filter>
     </None>
     <None Include=".clang-format" />
     <None Include="..\component\interface.api">
@@ -731,12 +740,6 @@
     <Filter Include="_docs">
       <UniqueIdentifier>{2c5dc72d-4a41-4209-8fe8-0206ff7ad1da}</UniqueIdentifier>
     </Filter>
-    <Filter Include="z_uncategorized">
-      <UniqueIdentifier>{3b775acd-8e41-4e46-b8ac-2d5ebc0de307}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="z_uncategorized\resources">
-      <UniqueIdentifier>{c5622339-902d-4569-9e43-3a9dab7b21a7}</UniqueIdentifier>
-    </Filter>
     <Filter Include="com_objects">
       <UniqueIdentifier>{613a7600-ce84-49fd-b050-5da2374693d7}</UniqueIdentifier>
     </Filter>
@@ -746,13 +749,19 @@
     <Filter Include="com_objects\internal">
       <UniqueIdentifier>{48f476b5-50dc-4578-ac4c-1cfae89d2b42}</UniqueIdentifier>
     </Filter>
-    <Filter Include="z_uncategorized\PropertyList">
+    <Filter Include="core">
+      <UniqueIdentifier>{3b775acd-8e41-4e46-b8ac-2d5ebc0de307}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="core\resources">
+      <UniqueIdentifier>{c5622339-902d-4569-9e43-3a9dab7b21a7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="PropertyList">
       <UniqueIdentifier>{829a0a84-1ed1-49ce-b6f6-3195f2a84050}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="foo_spider_monkey_panel.rc">
-      <Filter>z_uncategorized\resources</Filter>
+      <Filter>core\resources</Filter>
     </ResourceCompile>
   </ItemGroup>
 </Project>

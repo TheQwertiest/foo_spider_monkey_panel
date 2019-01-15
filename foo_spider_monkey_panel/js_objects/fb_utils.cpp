@@ -17,11 +17,10 @@
 #include <utils/string_helpers.h>
 #include <utils/menu_helpers.h>
 #include <com_objects/drop_source_impl.h>
-
-#include <helpers.h>
 #include <stats.h>
 #include <popup_msg.h>
 #include <message_blocking_scope.h>
+#include <component_paths.h>
 
 using namespace smp;
 
@@ -796,7 +795,7 @@ bool JsFbUtils::get_AlwaysOnTop()
 
 pfc::string8_fast JsFbUtils::get_ComponentPath()
 {
-    return helpers::get_fb2k_component_path();
+    return smp::get_fb2k_component_path();
 }
 
 bool JsFbUtils::get_CursorFollowPlayback()
@@ -806,7 +805,7 @@ bool JsFbUtils::get_CursorFollowPlayback()
 
 pfc::string8_fast JsFbUtils::get_FoobarPath()
 {
-    return helpers::get_fb2k_path();
+    return smp::get_fb2k_path();
 }
 
 bool JsFbUtils::get_IsPaused()
@@ -836,7 +835,7 @@ double JsFbUtils::get_PlaybackTime()
 
 pfc::string8_fast JsFbUtils::get_ProfilePath()
 {
-    return helpers::get_profile_path();
+    return smp::get_profile_path();
 }
 
 uint32_t JsFbUtils::get_ReplaygainMode()

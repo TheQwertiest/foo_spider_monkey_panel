@@ -9,14 +9,13 @@
 #include <utils/art_helpers.h>
 #include <utils/image_helpers.h>
 #include <utils/gdi_helpers.h>
-
 #include <message_manager.h>
 #include <popup_msg.h>
 #include <metadb_callback_data.h>
 #include <drop_action_params.h>
-#include <helpers.h>
 #include <message_blocking_scope.h>
 #include <com_message_scope.h>
+#include <component_paths.h>
 
 namespace mozjs
 {
@@ -739,13 +738,13 @@ void js_panel_window::execute_context_menu_command( int id, int id_base )
     }
     case 2:
     {
-        pfc::stringcvt::string_os_from_utf8 folder( helpers::get_fb2k_component_path() );
+        pfc::stringcvt::string_os_from_utf8 folder( smp::get_fb2k_component_path() );
         ShellExecute( nullptr, L"open", folder, nullptr, nullptr, SW_SHOW );
         break;
     }
     case 3:
     {
-        pfc::stringcvt::string_os_from_utf8 htmlHelp( helpers::get_fb2k_component_path() + "docs\\html\\index.html" );
+        pfc::stringcvt::string_os_from_utf8 htmlHelp( smp::get_fb2k_component_path() + "docs\\html\\index.html" );
         ShellExecute( nullptr, L"open", htmlHelp, nullptr, nullptr, SW_SHOW );
         break;
     }

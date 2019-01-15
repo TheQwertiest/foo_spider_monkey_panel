@@ -1,8 +1,8 @@
-#include "stdafx.h"
+#include <stdafx.h>
 #include "js_panel_window.h"
 #include "js_panel_window_dui.h"
 
-#include "helpers.h"
+#include <utils/colour_helpers.h>
 #include <user_message.h>
 #include <message_manager.h>
 
@@ -126,7 +126,7 @@ DWORD js_panel_window_dui::GetColourDUI( unsigned type )
 
     if ( type < _countof( guids ) )
     {
-        return helpers::convert_colorref_to_argb( m_callback->query_std_color( *guids[type] ) );
+        return smp::colour::convert_colorref_to_argb( m_callback->query_std_color( *guids[type] ) );
     }
 
     return 0;

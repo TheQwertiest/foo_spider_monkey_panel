@@ -8,8 +8,6 @@
 #include <js_utils/js_object_helper.h>
 #include <utils/string_helpers.h>
 
-#include <helpers.h>
-
 using namespace smp;
 
 namespace

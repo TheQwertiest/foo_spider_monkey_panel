@@ -2,8 +2,8 @@
 #include "editorctrl.h"
 #include "scintilla_prop_sets.h"
 
-#include <helpers.h>
 #include <utils/file_helpers.h>
+#include <component_paths.h>
 
 #include <optional>
 
@@ -960,9 +960,9 @@ void CScriptEditorCtrl::Init()
     AutoCSetIgnoreCase( true );
 
     // Set embedded properties
-    SetProperty( "dir.base", helpers::get_fb2k_path() );
-    SetProperty( "dir.component", helpers::get_fb2k_component_path() );
-    SetProperty( "dir.profile", helpers::get_profile_path() );
+    SetProperty( "dir.base", smp::get_fb2k_path() );
+    SetProperty( "dir.component", smp::get_fb2k_component_path() );
+    SetProperty( "dir.profile", smp::get_profile_path() );
 
     // Load properties
     LoadProperties( g_sci_prop_sets.val() );

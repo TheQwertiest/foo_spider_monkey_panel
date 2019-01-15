@@ -13,7 +13,6 @@
 #include <utils/thread_pool.h>
 #include <convert/native_to_js.h>
 
-#include <helpers.h>
 #include <user_message.h>
 #include <message_manager.h>
 

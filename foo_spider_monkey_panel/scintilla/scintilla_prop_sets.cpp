@@ -1,7 +1,6 @@
 #include <stdafx.h>
 #include "scintilla_prop_sets.h"
 
-#include <helpers.h>
 #include <utils/file_helpers.h>
 
 

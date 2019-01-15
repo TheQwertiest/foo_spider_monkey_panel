@@ -12,11 +12,10 @@
 #include <utils/art_helpers.h>
 #include <utils/file_helpers.h>
 #include <utils/scope_helpers.h>
+#include <utils/colour_helpers.h>
 
 #include <ui/ui_input_box.h>
 #include <ui/ui_html.h>
-
-#include <helpers.h>
 
 // StringCchCopy, StringCchCopyN
 #include <StrSafe.h>
@@ -206,12 +205,12 @@ bool JsUtils::CheckFont( const std::wstring& name )
 
 uint32_t JsUtils::ColourPicker( uint32_t hWindow, uint32_t default_colour )
 {
-    COLORREF color = helpers::convert_argb_to_colorref( default_colour );
+    COLORREF color = smp::colour::convert_argb_to_colorref( default_colour );
     COLORREF colors[16] = { 0 };
     // Such cast will work only on x86
     uChooseColor( &color, (HWND)hWindow, &colors[0] );
 
-    return helpers::convert_colorref_to_argb( color );
+    return smp::colour::convert_colorref_to_argb( color );
 }
 
 JS::Value JsUtils::FileTest( const std::wstring& path, const std::wstring& mode )
@@ -417,7 +416,7 @@ uint32_t JsUtils::GetSysColour( uint32_t index )
         throw SmpException( smp::string::Formatter() << "Invalid color index: " << index );
     }
 
-    return helpers::convert_colorref_to_argb(::GetSysColor( index ) );
+    return smp::colour::convert_colorref_to_argb(::GetSysColor( index ) );
 }
 
 uint32_t JsUtils::GetSystemMetrics( uint32_t index )

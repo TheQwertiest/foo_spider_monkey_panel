@@ -7,7 +7,7 @@
 #include <utils/scope_helpers.h>
 #include <utils/file_helpers.h>
 #include <js_panel_window.h>
-#include <helpers.h>
+#include <component_paths.h>
 
 _COM_SMARTPTR_TYPEDEF( IFileDialog, __uuidof( IFileDialog ) );
 _COM_SMARTPTR_TYPEDEF( IShellItem, __uuidof( IShellItem ) );
@@ -60,7 +60,7 @@ std::wstring FileDialog( const std::wstring& title, bool saveFile )
         hr = pfd->SetDefaultExtension( L"js" );
         checkHr( hr );
 
-        const pfc::stringcvt::string_os_from_utf8 path( helpers::get_fb2k_component_path() );
+        const pfc::stringcvt::string_os_from_utf8 path( smp::get_fb2k_component_path() );
 
         IShellItemPtr pFolder;
         hr = SHCreateItemFromParsingName( path, nullptr, pFolder.GetIID(), (void**)&pFolder );
@@ -446,7 +446,7 @@ LRESULT CDialogConf::OnFeaturesGrabFocus( WORD, WORD, HWND )
 
 LRESULT CDialogConf::OnHelp( WORD, WORD, HWND )
 {
-    pfc::stringcvt::string_os_from_utf8 path( helpers::get_fb2k_component_path() );
+    pfc::stringcvt::string_os_from_utf8 path( smp::get_fb2k_component_path() );
     ShellExecute( 0, L"open", path + L"\\docs\\html\\index.html", 0, 0, SW_SHOW );
     return 0;
 }

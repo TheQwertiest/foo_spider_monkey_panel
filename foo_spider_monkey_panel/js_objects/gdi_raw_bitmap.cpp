@@ -9,8 +9,6 @@
 #include <utils/winapi_error_helpers.h>
 #include <utils/scope_helpers.h>
 
-#include <helpers.h>
-
 using namespace smp;
 
 namespace

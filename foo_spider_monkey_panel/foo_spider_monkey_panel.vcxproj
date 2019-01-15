@@ -95,6 +95,7 @@
     <ClCompile Include="abort_callback.cpp" />
     <ClCompile Include="acfu_integration.cpp" />
     <ClCompile Include="adv_config.cpp" />
+    <ClCompile Include="component_paths.cpp" />
     <ClCompile Include="com_message_scope.cpp" />
     <ClCompile Include="fb2k_callbacks.cpp" />
     <ClCompile Include="com_objects\com_tools.cpp" />
@@ -113,7 +114,6 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="heartbeat_window.cpp" />
-    <ClCompile Include="helpers.cpp" />
     <ClCompile Include="host_timer_dispatcher.cpp" />
     <ClCompile Include="js_engine\js_compartment_inner.cpp" />
     <ClCompile Include="js_engine\js_container.cpp" />
@@ -190,6 +190,7 @@
     <ClCompile Include="utils\gdi_helpers.cpp" />
     <ClCompile Include="utils\image_helpers.cpp" />
     <ClCompile Include="utils\kmeans.cpp" />
+    <ClCompile Include="utils\location_processor.cpp" />
     <ClCompile Include="utils\menu_helpers.cpp" />
     <ClCompile Include="utils\semantic_version.cpp" />
     <ClCompile Include="utils\stackblur.cpp" />
@@ -207,6 +208,7 @@
     <ClInclude Include="adv_config.h" />
     <ClInclude Include="callback_data.h" />
     <ClInclude Include="component_guids.h" />
+    <ClInclude Include="component_paths.h" />
     <ClInclude Include="com_message_scope.h" />
     <ClInclude Include="com_objects\com_tools.h" />
     <ClInclude Include="com_objects\dispatch_ptr.h" />
@@ -285,7 +287,6 @@
     <ClInclude Include="smp_exception.h" />
     <ClInclude Include="component_defines.h" />
     <ClInclude Include="config.h" />
-    <ClInclude Include="helpers.h" />
     <ClInclude Include="host_timer_dispatcher.h" />
     <ClInclude Include="js_panel_window.h" />
     <ClInclude Include="js_panel_window_cui.h" />
@@ -307,12 +308,14 @@
     <ClInclude Include="user_message.h" />
     <ClInclude Include="utils\acfu_github.h" />
     <ClInclude Include="utils\art_helpers.h" />
+    <ClInclude Include="utils\colour_helpers.h" />
     <ClInclude Include="utils\com_error_helpers.h" />
     <ClInclude Include="utils\file_helpers.h" />
     <ClInclude Include="utils\gdi_error_helpers.h" />
     <ClInclude Include="utils\gdi_helpers.h" />
     <ClInclude Include="utils\image_helpers.h" />
     <ClInclude Include="utils\kmeans.h" />
+    <ClInclude Include="utils\location_processor.h" />
     <ClInclude Include="utils\menu_helpers.h" />
     <ClInclude Include="utils\pfc_helpers.h" />
     <ClInclude Include="utils\scope_helpers.h" />

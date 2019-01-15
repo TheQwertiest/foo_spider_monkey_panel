@@ -9,7 +9,7 @@
 #include <convert/js_to_native.h>
 #include <convert/com.h>
 
-#include <helpers.h>
+#include <component_paths.h>
 
 #pragma warning( push )
 #pragma warning( disable : 4192 )
@@ -495,7 +495,7 @@ void CDialogHtml::SetOptions()
     }
 
     {
-        const std::wstring w_fb2k_path = pfc::stringcvt::string_wide_from_utf8( helpers::get_fb2k_path() + "foobar2000.exe" );
+        const std::wstring w_fb2k_path = pfc::stringcvt::string_wide_from_utf8( smp::get_fb2k_path() + "foobar2000.exe" );
         SHFILEINFO shfi;
         SHGetFileInfo( w_fb2k_path.c_str(), 0, &shfi, sizeof( SHFILEINFO ), SHGFI_ICON | SHGFI_SHELLICONSIZE | SHGFI_SMALLICON );
         if ( shfi.hIcon )

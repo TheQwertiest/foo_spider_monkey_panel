@@ -13,7 +13,6 @@
 #include <utils/text_helpers.h>
 
 #include <abort_callback.h>
-#include <helpers.h>
 #include <stats.h>
 
 #pragma warning( push )

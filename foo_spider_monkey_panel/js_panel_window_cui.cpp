@@ -1,8 +1,8 @@
-#include "stdafx.h"
+#include <stdafx.h>
 #include "js_panel_window.h"
 #include "js_panel_window_cui.h"
 
-#include "helpers.h"
+#include <utils/colour_helpers.h>
 #include <user_message.h>
 #include <message_manager.h>
 
@@ -21,7 +21,7 @@ DWORD js_panel_window_cui::GetColourCUI( unsigned type, const GUID& guid )
     {
         cui::colours::helper helper( guid );
 
-        return helpers::convert_colorref_to_argb( helper.get_colour( (cui::colours::colour_identifier_t)type ) );
+        return smp::colour::convert_colorref_to_argb( helper.get_colour( (cui::colours::colour_identifier_t)type ) );
     }
 
     return 0;
