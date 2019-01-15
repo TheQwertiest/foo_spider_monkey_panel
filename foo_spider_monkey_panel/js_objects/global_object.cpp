@@ -213,13 +213,12 @@ void JsGlobalObject::ClearTimeout( uint32_t timeoutId )
 
 void JsGlobalObject::IncludeScript( const pfc::string8_fast& path )
 {
-    const std::wstring scriptCode = smp::file::ReadFromFile( pJsCtx_, path );
-    const auto filename = [&path] {
-        namespace fs = std::filesystem;
-        pfc::string8_fast tmpPath = path;
-        tmpPath.replace_string( "/", "\\", 0 );
-        return fs::u8path( tmpPath.c_str() ).filename().u8string(); // all check are performed in ReadFromFile
-    }();
+    namespace fs = std::filesystem;
+
+    const pfc::string8_fast cleanPath = smp::file::CleanPath( path );
+    const std::wstring scriptCode = smp::file::ReadFileW( cleanPath, CP_ACP );
+
+    const auto filename = fs::u8path( cleanPath.c_str() ).filename().u8string();
 
     JS::CompileOptions opts( pJsCtx_ );
     opts.setUTF8( true );

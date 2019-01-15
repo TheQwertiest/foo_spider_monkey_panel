@@ -1,6 +1,10 @@
-#include "stdafx.h"
+#include <stdafx.h>
 #include "scintilla_prop_sets.h"
-#include "helpers.h"
+
+#include <helpers.h>
+#include <utils/file_helpers.h>
+
+
 
 const t_prop_set_init_table prop_sets_init_table[] =
 {
@@ -91,18 +95,27 @@ void cfg_sci_prop_sets::export_to_file(const char * filename)
 		content << m_data[i].key << "=" << m_data[i].val << "\r\n";
 	}
 
-	helpers::write_file(filename, content);
+	smp::file::WriteFile( filename, content );
 }
 
 void cfg_sci_prop_sets::import_from_file(const char * filename)
 {
 	typedef pfc::chain_list_v2_t<pfc::string8_fast> t_string_chain_list;
 	t_string_chain_list lines;
-	pfc::string8_fast text, key;
+    pfc::string8_fast key;
 	t_str_to_str_map data_map;
 
 	// First read whole content in a string
-	helpers::read_file(filename, text);
+    pfc::string8_fast text;
+    try
+    {
+        text = smp::file::ReadFile( filename, CP_ACP );
+    }
+    catch ( const smp::SmpException& )
+    {
+        return;
+    }
+    
 	// Then split
 	splitStringByLines(lines, text);
 

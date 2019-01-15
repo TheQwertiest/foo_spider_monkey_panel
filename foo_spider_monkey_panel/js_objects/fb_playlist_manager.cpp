@@ -11,6 +11,7 @@
 #include <js_utils/js_object_helper.h>
 #include <utils/string_helpers.h>
 #include <utils/pfc_helpers.h>
+#include <utils/text_helpers.h>
 
 #include <abort_callback.h>
 #include <helpers.h>
@@ -697,7 +698,7 @@ void JsFbPlaylistManager::SortPlaylistsByName( int8_t direction )
     auto api = playlist_manager::get();
     const size_t count = api->get_playlist_count();
 
-    std::vector<helpers::StrCmpLogicalCmpData> data;
+    std::vector<smp::utils::StrCmpLogicalCmpData> data;
     data.reserve( count );
 
     pfc::string8_fastalloc temp;
@@ -706,10 +707,10 @@ void JsFbPlaylistManager::SortPlaylistsByName( int8_t direction )
     for ( size_t i = 0; i < count; ++i )
     {
         api->playlist_get_name( i, temp );
-        data.emplace_back( helpers::make_sort_string( temp ), i );
+        data.emplace_back( temp, i );
     }
 
-    std::sort( data.begin(), data.end(), (direction > 0 ? helpers::StrCmpLogicalCmp<1> : helpers::StrCmpLogicalCmp<-1>));
+    std::sort( data.begin(), data.end(), (direction > 0 ? smp::utils::StrCmpLogicalCmp<1> : smp::utils::StrCmpLogicalCmp<-1>));
 
     std::vector<size_t> order;
     order.reserve( count );

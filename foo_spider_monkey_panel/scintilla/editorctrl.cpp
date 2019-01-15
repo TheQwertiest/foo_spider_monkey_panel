@@ -1,7 +1,9 @@
-#include "stdafx.h"
+#include <stdafx.h>
 #include "editorctrl.h"
 #include "scintilla_prop_sets.h"
-#include "helpers.h"
+
+#include <helpers.h>
+#include <utils/file_helpers.h>
 
 #include <optional>
 
@@ -1295,8 +1297,9 @@ void CScriptEditorCtrl::ReadAPI()
 
     while ( api_filename < api_endfilename )
     {
-        if ( helpers::read_file( api_filename, content ) )
+        try
         {
+            pfc::string8_fast content = smp::file::ReadFile( api_filename, CP_UTF8 );
             pfc::string_list_impl temp;
             pfc::splitStringByLines( temp, content );
 
@@ -1306,9 +1309,10 @@ void CScriptEditorCtrl::ReadAPI()
                     m_apis.add_item( temp[i] );
             }
         }
-        else
+        catch ( const smp::SmpException& e )
         {
             FB2K_console_formatter() << "Warning: " SMP_NAME_WITH_VERSION ": Could not load file " << api_filename;
+            FB2K_console_formatter() << e.what();
         }
 
         api_filename += strlen( api_filename ) + 1;

@@ -5,6 +5,7 @@
 #include <ui/ui_find.h>
 #include <ui/ui_replace.h>
 #include <utils/scope_helpers.h>
+#include <utils/file_helpers.h>
 #include <js_panel_window.h>
 #include <helpers.h>
 
@@ -374,14 +375,16 @@ LRESULT CDialogConf::OnFileImport( WORD, WORD, HWND )
         return 0;
     }
 
-    if ( pfc::string8_fast text;
-         !helpers::read_file( filename, text ) )
+    try
     {
-        (void)uMessageBox( m_hWnd, "Failed to read file", m_caption, MB_ICONWARNING | MB_SETFOREGROUND );
-    }
-    else
-    {
+        pfc::string8_fast text = smp::file::ReadFile( filename.toString(), CP_UTF8 );
         m_editorctrl.SetContent( text );
+    }
+    catch (const smp::SmpException& e)
+    {
+        std::string errorMsg = e.what();
+        errorMsg = "Failed to read file: " + errorMsg;
+        (void)uMessageBox( m_hWnd, errorMsg.c_str(), m_caption, MB_ICONWARNING | MB_SETFOREGROUND );
     }
 
     return 0;
@@ -401,7 +404,7 @@ LRESULT CDialogConf::OnFileExport( WORD, WORD, HWND )
     m_editorctrl.GetText( text.lock_buffer( len ), len + 1 );
     text.unlock_buffer();
 
-    (void)helpers::write_file( filename, text );
+    (void)smp::file::WriteFile( filename, text );
 
     return 0;
 }

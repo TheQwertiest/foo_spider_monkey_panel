@@ -7,11 +7,12 @@
 #include <js_objects/gdi_bitmap.h>
 #include <js_objects/gdi_raw_bitmap.h>
 #include <js_objects/measure_string_info.h>
-#include <utils/gdi_error_helpers.h>
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
+#include <utils/gdi_error_helpers.h>
 #include <utils/winapi_error_helpers.h>
 #include <utils/scope_helpers.h>
+#include <utils/text_helpers.h>
 
 #include <helpers.h>
 
@@ -145,7 +146,7 @@ uint32_t JsGdiGraphics::CalcTextHeight( const std::wstring& str, JsGdiFont* font
     HDC dc = pGdi_->GetHDC();
     HFONT oldfont = SelectFont( dc, hFont );
 
-    uint32_t textH = helpers::get_text_height( dc, str );
+    uint32_t textH = smp::utils::get_text_height( dc, str );
 
     SelectFont( dc, oldfont );
     pGdi_->ReleaseHDC( dc );
@@ -163,7 +164,7 @@ uint32_t JsGdiGraphics::CalcTextWidth( const std::wstring& str, JsGdiFont* font 
     assert( dc );
     HFONT oldfont = SelectFont( dc, hFont );
 
-    uint32_t textW = helpers::get_text_width( dc, str );
+    uint32_t textW = smp::utils::get_text_width( dc, str );
 
     SelectFont( dc, oldfont );
     pGdi_->ReleaseHDC( dc );
@@ -361,7 +362,7 @@ JSObject* JsGdiGraphics::EstimateLineWrap( const std::wstring& str, JsGdiFont* f
     SmpException::ExpectTrue( pGdi_, "Internal error: Gdiplus::Graphics object is null" );
     SmpException::ExpectTrue( font, "font argument is null" );
 
-    std::list<helpers::wrapped_item> result;
+    std::list<smp::utils::wrapped_item> result;
     {
         HFONT hFont = font->GetHFont();
         assert( hFont );
@@ -376,17 +377,13 @@ JSObject* JsGdiGraphics::EstimateLineWrap( const std::wstring& str, JsGdiFont* f
     }
 
     JS::RootedObject jsArray( pJsCtx_, JS_NewArrayObject( pJsCtx_, result.size() * 2 ) );
-    if ( !jsArray )
-    {
-        throw JsException();
-    }
+    JsException::ExpectTrue( jsArray );
 
     JS::RootedValue jsValue( pJsCtx_ );
     size_t i = 0;
     for ( auto& [text, width] : result )
     {
-        std::wstring tmpString( (const wchar_t*)text );
-        convert::to_js::ToValue( pJsCtx_, tmpString, &jsValue );
+        convert::to_js::ToValue( pJsCtx_, text, &jsValue );
 
         if ( !JS_SetElement( pJsCtx_, jsArray, i++, jsValue ) )
         {

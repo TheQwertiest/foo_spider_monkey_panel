@@ -10,6 +10,7 @@
 #include <utils/art_helpers.h>
 #include <utils/string_helpers.h>
 #include <utils/pfc_helpers.h>
+#include <utils/text_helpers.h>
 
 #include <abort_callback.h>
 #include <helpers.h>
@@ -505,7 +506,7 @@ void JsFbMetadbHandleList::OrderByRelativePath()
     auto api = library_manager::get();
     const size_t count = metadbHandleList_.get_count();
 
-    std::vector<helpers::StrCmpLogicalCmpData> data;
+    std::vector<smp::utils::StrCmpLogicalCmpData> data;
     data.reserve( count );
 
     pfc::string8_fastalloc temp;
@@ -522,10 +523,10 @@ void JsFbMetadbHandleList::OrderByRelativePath()
         // (e.g. cuesheets or files with multiple chapters)
         temp << item->get_subsong_index();
 
-        data.emplace_back( helpers::make_sort_string( temp ), i );
+        data.emplace_back( temp, i );
     }
 
-    tim::timsort( data.begin(), data.end(), helpers::StrCmpLogicalCmp<> );
+    tim::timsort( data.begin(), data.end(), smp::utils::StrCmpLogicalCmp<> );
 
     std::vector<size_t> order;
     order.reserve( count );
