@@ -68,22 +68,31 @@ T ConvertFileContent( const std::wstring& path, std::string_view content, UINT c
 
     if ( isWideCodepage )
     {
-        const size_t outputSize = curSize >> 1;
+        auto convertToWide = [curPos, curSize] {
+            std::wstring tmpString;
+
+            const size_t outputSize = curSize >> 1;
+
+            tmpString.resize( outputSize );
+            // Can't use wstring.assign(), because of potential aliasing issues
+            memcpy( tmpString.data(), curPos, outputSize );
+
+            return tmpString;
+        };
 
         if constexpr ( isWide )
         {
-            fileContent.resize( outputSize );
-            // Can't use wstring.assign(), because of potential aliasing issues
-            memcpy( fileContent.data(), curPos, outputSize );
+            fileContent = convertToWide();
         }
         else
         {
-            fileContent = pfc::stringcvt::string_utf8_from_wide{ reinterpret_cast<const wchar_t*>( curPos ), outputSize };
+            const auto wContent = convertToWide();
+            fileContent = pfc::stringcvt::string_utf8_from_wide{ wContent.c_str(), wContent.length() };
         }
     }
     else
     {
-        auto codepageToWide = [&] {
+        auto codepageToWide = [curPos, curSize, detectedCodepage] {
             std::wstring tmpString;
             size_t outputSize = pfc::stringcvt::estimate_codepage_to_wide( detectedCodepage, curPos, curSize );
             tmpString.resize( outputSize );
