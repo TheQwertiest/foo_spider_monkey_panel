@@ -202,7 +202,7 @@ FileReader::~FileReader()
      }
      if ( hFileMapping_ )
      {
-         UnmapViewOfFile( hFileMapping_ );
+         CloseHandle( hFileMapping_ );
      }
      if ( hFile_ )
      {
