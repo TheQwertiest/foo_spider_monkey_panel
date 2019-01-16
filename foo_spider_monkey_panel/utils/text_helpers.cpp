@@ -140,7 +140,7 @@ void estimate_line_wrap_recur( HDC hdc, std::wstring_view text, size_t width, st
 
             out.emplace_back(
                 wrapped_item{
-                    std::wstring{ text.data(), text.size() },
+                    std::wstring{ text.data(), textLength },
                     get_text_width( hdc, std::wstring_view( text.data(), textLength ) ) } );
         }
 
