@@ -2,6 +2,7 @@
 
 #### Table of Contents
 - [Unreleased](#unreleased)
+- [1.1.3](#113---2018-01-17)
 - [1.1.2](#112---2018-01-09)
 - [1.1.1](#111---2018-11-20)
 - [1.1.0](#110---2018-11-19)
@@ -14,6 +15,15 @@
 ___
 
 ## [Unreleased][]
+
+## [1.1.3][] - 2018-01-17
+### Changed
+- Removed image resizing for `custom_image` in `fb.DoDragDrop` when image fits the drag window.
+- All file dialogs now remember last used location.
+
+### Fixed
+- Fixed `Last.fm Similar Artists + User Charts + Recent Tracks` script crash.
+- Fixed callbacks not triggering when `MenuObject.TrackPopupMenu` or default context menu is active.
 
 ## [1.1.2][] - 2018-01-09
 ### Added
@@ -165,7 +175,8 @@ ___
   - More rigorous error checks.
 - Updated samples with compatibility fixes.
 
-[unreleased]: https://github.com/theqwertiest/foo_spider_monkey_panel/compare/v1.1.2...HEAD
+[unreleased]: https://github.com/theqwertiest/foo_spider_monkey_panel/compare/v1.1.3...HEAD
+[1.1.3]: https://github.com/TheQwertiest/foo_spider_monkey_panel/compare/v1.1.2...v1.1.3
 [1.1.2]: https://github.com/TheQwertiest/foo_spider_monkey_panel/compare/v1.1.1...v1.1.2
 [1.1.1]: https://github.com/TheQwertiest/foo_spider_monkey_panel/compare/v1.1.0...v1.1.1
 [1.1.0]: https://github.com/TheQwertiest/foo_spider_monkey_panel/compare/v1.0.5...v1.1.0
