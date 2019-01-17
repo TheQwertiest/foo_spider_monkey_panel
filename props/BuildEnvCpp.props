@@ -4,7 +4,7 @@
   </ImportGroup>
   <PropertyGroup >
     <_ProjectFileVersion>11.0.51106.1</_ProjectFileVersion>
-    <_PropertySheetDisplayName>basic</_PropertySheetDisplayName>
+    <_PropertySheetDisplayName>cpp_basic</_PropertySheetDisplayName>
     <IntDir>$(PlatformConfigurationDir)temp\$(Configuration)\$(ProjectName)\</IntDir>
     <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>

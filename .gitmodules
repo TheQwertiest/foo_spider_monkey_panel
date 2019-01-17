@@ -29,3 +29,6 @@
 [submodule "submodules/timsort"]
 	path = submodules/timsort
 	url = https://github.com/tvanslyke/timsort-cpp.git
+[submodule "submodules/gsl"]
+	path = submodules/gsl
+	url = https://github.com/Microsoft/GSL.git

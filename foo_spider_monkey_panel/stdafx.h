@@ -66,6 +66,9 @@ using std::max;
 #   include <jsfriendapi.h>
 #pragma warning( pop ) 
 
+// GSL
+#include <gsl/gsl.h>
+
 // Some macros defined by windowsx.h should be removed
 #ifdef _INC_WINDOWSX
 #undef SubclassWindow
