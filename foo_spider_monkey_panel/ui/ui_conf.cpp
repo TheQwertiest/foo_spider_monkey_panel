@@ -9,9 +9,6 @@
 #include <js_panel_window.h>
 #include <component_paths.h>
 
-_COM_SMARTPTR_TYPEDEF( IFileDialog, __uuidof( IFileDialog ) );
-_COM_SMARTPTR_TYPEDEF( IShellItem, __uuidof( IShellItem ) );
-
 namespace
 {
 
@@ -20,81 +17,12 @@ constexpr int k_Edit_MenuPosition = 1;
 constexpr int k_Features_MenuPosition = 2;
 constexpr int k_EdgeStyle_MenuPosition = 0;
 
-std::wstring FileDialog( const std::wstring& title, bool saveFile )
-{
-    try
+constexpr COMDLG_FILTERSPEC k_DialogExtFilter[3] =
     {
-        auto checkHr = []( HRESULT hr ) {
-            if ( FAILED( hr ) )
-            {
-                throw _com_error( E_FAIL );
-            };
-        };
-
-        IFileDialogPtr pfd;
-        HRESULT hr = pfd.CreateInstance( ( saveFile ? CLSID_FileSaveDialog : CLSID_FileOpenDialog ), nullptr, CLSCTX_INPROC_SERVER );
-        checkHr( hr );
-
-        DWORD dwFlags;
-        hr = pfd->GetOptions( &dwFlags );
-        checkHr( hr );
-
-        hr = pfd->SetClientGuid( g_guid_smp_dialog_path );
-        checkHr( hr );
-
-        hr = pfd->SetTitle( title.c_str() );
-
-        constexpr COMDLG_FILTERSPEC rgSpec[3] =
-            {
-                { L"JavaScript files", L"*.js" },
-                { L"Text files", L"*.txt" },
-                { L"All files", L"*.*" },
-            };
-
-        hr = pfd->SetFileTypes( _countof( rgSpec ), rgSpec );
-        checkHr( hr );
-
-        hr = pfd->SetFileTypeIndex( 1 );
-        checkHr( hr );
-
-        hr = pfd->SetDefaultExtension( L"js" );
-        checkHr( hr );
-
-        const pfc::stringcvt::string_os_from_utf8 path( smp::get_fb2k_component_path() );
-
-        IShellItemPtr pFolder;
-        hr = SHCreateItemFromParsingName( path, nullptr, pFolder.GetIID(), (void**)&pFolder );
-        checkHr( hr );
-
-        hr = pfd->SetDefaultFolder( pFolder );
-        checkHr( hr );
-
-        hr = pfd->Show( nullptr );
-        checkHr( hr );
-
-        IShellItemPtr psiResult;
-        hr = pfd->GetResult( &psiResult );
-        checkHr( hr );
-
-        PWSTR pszFilePath = nullptr;
-        smp::utils::final_action autoFilePath( [&pszFilePath]()
-        {
-            if ( pszFilePath )
-            {
-                CoTaskMemFree( pszFilePath );
-            }
-        } );
-
-        hr = psiResult->GetDisplayName( SIGDN_FILESYSPATH, &pszFilePath );
-        checkHr( hr );
-
-        return pszFilePath;
-    }
-    catch ( const _com_error& )
-    {
-        return std::wstring{};
-    }
-}
+        { L"JavaScript files", L"*.js" },
+        { L"Text files", L"*.txt" },
+        { L"All files", L"*.*" },
+    };
 
 } // namespace
 
@@ -369,7 +297,7 @@ LRESULT CDialogConf::OnFileSave( WORD, WORD, HWND )
 
 LRESULT CDialogConf::OnFileImport( WORD, WORD, HWND )
 {
-    const pfc::stringcvt::string_utf8_from_os filename( FileDialog( L"Import File", false ).c_str() );
+    const pfc::stringcvt::string_utf8_from_os filename( smp::file::FileDialog( L"Import File", false, k_DialogExtFilter, L"js" ).c_str() );
     if ( filename.is_empty() )
     {
         return 0;
@@ -380,7 +308,7 @@ LRESULT CDialogConf::OnFileImport( WORD, WORD, HWND )
         pfc::string8_fast text = smp::file::ReadFile( filename.toString(), CP_UTF8 );
         m_editorctrl.SetContent( text );
     }
-    catch (const smp::SmpException& e)
+    catch ( const smp::SmpException& e )
     {
         std::string errorMsg = e.what();
         errorMsg = "Failed to read file: " + errorMsg;
@@ -392,7 +320,7 @@ LRESULT CDialogConf::OnFileImport( WORD, WORD, HWND )
 
 LRESULT CDialogConf::OnFileExport( WORD, WORD, HWND )
 {
-    const pfc::stringcvt::string_utf8_from_os filename( FileDialog( L"Export File", true ).c_str() );
+    const pfc::stringcvt::string_utf8_from_os filename( smp::file::FileDialog( L"Export File", true, k_DialogExtFilter, L"js" ).c_str() );
     if ( filename.is_empty() )
     {
         return 0;

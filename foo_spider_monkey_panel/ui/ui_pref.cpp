@@ -2,157 +2,168 @@
 #include "ui_pref.h"
 
 #include <ui/ui_name_value_edit.h>
-#include <scintilla/scintilla_prop_sets.h>
+#include <utils/file_helpers.h>
 
+#include <scintilla/scintilla_prop_sets.h>
 
 namespace
 {
-	preferences_page_factory_t<js_preferences_page_impl> g_pref;
+
+constexpr COMDLG_FILTERSPEC k_DialogExtFilter[2] =
+    {
+        { L"Configuration files", L"*.cfg" },
+        { L"All files", L"*.*" },
+    };
+
+preferences_page_factory_t<js_preferences_page_impl> g_pref;
+
 }
 
-BOOL CDialogPref::OnInitDialog(HWND hwndFocus, LPARAM lParam)
+BOOL CDialogPref::OnInitDialog( HWND hwndFocus, LPARAM lParam )
 {
-	DoDataExchange();
+    DoDataExchange();
 
-	SetWindowTheme(m_props.m_hWnd, L"explorer", NULL);
+    SetWindowTheme( m_props.m_hWnd, L"explorer", NULL );
 
-	m_props.SetExtendedListViewStyle(LVS_EX_FULLROWSELECT | LVS_EX_DOUBLEBUFFER);
-	m_props.AddColumn(_T("Name"), 0);
-	m_props.SetColumnWidth(0, 150);
-	m_props.AddColumn(_T("Value"), 1);
-	m_props.SetColumnWidth(1, 310);
-	LoadProps();
+    m_props.SetExtendedListViewStyle( LVS_EX_FULLROWSELECT | LVS_EX_DOUBLEBUFFER );
+    m_props.AddColumn( _T("Name"), 0 );
+    m_props.SetColumnWidth( 0, 150 );
+    m_props.AddColumn( _T("Value"), 1 );
+    m_props.SetColumnWidth( 1, 310 );
+    LoadProps();
 
-	return TRUE; // set focus to default control
+    return TRUE; // set focus to default control
 }
 
-void CDialogPref::LoadProps(bool reset)
+void CDialogPref::LoadProps( bool reset )
 {
-	if (reset)
-		g_sci_prop_sets.reset();
+    if ( reset )
+        g_sci_prop_sets.reset();
 
-	pfc::stringcvt::string_os_from_utf8_fast conv;
-	t_sci_prop_set_list& prop_sets = g_sci_prop_sets.val();
+    pfc::stringcvt::string_os_from_utf8_fast conv;
+    t_sci_prop_set_list& prop_sets = g_sci_prop_sets.val();
 
-	m_props.DeleteAllItems();
+    m_props.DeleteAllItems();
 
-	for (t_size i = 0; i < prop_sets.get_count(); ++i)
-	{
-		conv.convert(prop_sets[i].key);
-		m_props.AddItem(i, 0, conv);
+    for ( t_size i = 0; i < prop_sets.get_count(); ++i )
+    {
+        conv.convert( prop_sets[i].key );
+        m_props.AddItem( i, 0, conv );
 
-		conv.convert(prop_sets[i].val);
-		m_props.AddItem(i, 1, conv);
-	}
+        conv.convert( prop_sets[i].val );
+        m_props.AddItem( i, 1, conv );
+    }
 
-	OnChanged();
+    OnChanged();
 }
 
-LRESULT CDialogPref::OnPropNMDblClk(LPNMHDR pnmh)
+LRESULT CDialogPref::OnPropNMDblClk( LPNMHDR pnmh )
 {
-	//for ListView - (LPNMITEMACTIVATE)pnmh
-	//for StatusBar	- (LPNMMOUSE)pnmh
-	LPNMITEMACTIVATE pniv = (LPNMITEMACTIVATE)pnmh;
+    //for ListView - (LPNMITEMACTIVATE)pnmh
+    //for StatusBar	- (LPNMMOUSE)pnmh
+    LPNMITEMACTIVATE pniv = (LPNMITEMACTIVATE)pnmh;
 
-	if (pniv->iItem >= 0)
-	{
-		t_sci_prop_set_list& prop_sets = g_sci_prop_sets.val();
-		pfc::string8 key, val;
+    if ( pniv->iItem >= 0 )
+    {
+        t_sci_prop_set_list& prop_sets = g_sci_prop_sets.val();
+        pfc::string8 key, val;
 
-		uGetItemText(pniv->iItem, 0, key);
-		uGetItemText(pniv->iItem, 1, val);
+        uGetItemText( pniv->iItem, 0, key );
+        uGetItemText( pniv->iItem, 1, val );
 
-		if (!modal_dialog_scope::can_create())
-		{
-			return false;
-		}
+        if ( !modal_dialog_scope::can_create() )
+        {
+            return false;
+        }
 
         modal_dialog_scope scope;
-		scope.initialize(m_hWnd);
+        scope.initialize( m_hWnd );
 
-		CNameValueEdit dlg(key, val);
+        CNameValueEdit dlg( key, val );
 
-		if (IDOK == dlg.DoModal(m_hWnd))
-		{
-			dlg.GetValue(val);
+        if ( IDOK == dlg.DoModal( m_hWnd ) )
+        {
+            dlg.GetValue( val );
 
-			// Save
-			for (t_size i = 0; i < prop_sets.get_count(); ++i)
-			{
-				if (strcmp(prop_sets[i].key, key) == 0)
-				{
-					prop_sets[i].val = val;
-					break;
-				}
-			}
+            // Save
+            for ( t_size i = 0; i < prop_sets.get_count(); ++i )
+            {
+                if ( strcmp( prop_sets[i].key, key ) == 0 )
+                {
+                    prop_sets[i].val = val;
+                    break;
+                }
+            }
 
-			// Update list
-			m_props.SetItemText(pniv->iItem, 1, pfc::stringcvt::string_wide_from_utf8_fast(val));
-			DoDataExchange();
-		}
-	}
+            // Update list
+            m_props.SetItemText( pniv->iItem, 1, pfc::stringcvt::string_wide_from_utf8_fast( val ) );
+            DoDataExchange();
+        }
+    }
 
-	return 0;
+    return 0;
 }
 
-void CDialogPref::uGetItemText(int nItem, int nSubItem, pfc::string_base& out)
+void CDialogPref::uGetItemText( int nItem, int nSubItem, pfc::string_base& out )
 {
-	enum
-	{
-		BUFFER_LEN = 1024
-	};
-	TCHAR buffer[BUFFER_LEN];
+    enum
+    {
+        BUFFER_LEN = 1024
+    };
+    TCHAR buffer[BUFFER_LEN];
 
-	m_props.GetItemText(nItem, nSubItem, buffer, BUFFER_LEN);
-	out.set_string(pfc::stringcvt::string_utf8_from_os(buffer));
+    m_props.GetItemText( nItem, nSubItem, buffer, BUFFER_LEN );
+    out.set_string( pfc::stringcvt::string_utf8_from_os( buffer ) );
 }
 
-void CDialogPref::OnButtonExportBnClicked(WORD wNotifyCode, WORD wID, HWND hWndCtl)
+void CDialogPref::OnButtonExportBnClicked( WORD wNotifyCode, WORD wID, HWND hWndCtl )
 {
-	pfc::string8_fast filename;
-
-	if (uGetOpenFileName(m_hWnd, "Configuration files|*.cfg", 0, "cfg", "Save as", NULL, filename, TRUE))
-		g_sci_prop_sets.export_to_file(filename);
+    const pfc::stringcvt::string_utf8_from_os filename( smp::file::FileDialog( L"Save as", true, k_DialogExtFilter, L"cfg" ).c_str() );
+    if ( !filename.is_empty() )
+    {
+        g_sci_prop_sets.export_to_file( filename );
+    }
 }
 
-void CDialogPref::OnButtonImportBnClicked(WORD wNotifyCode, WORD wID, HWND hWndCtl)
+void CDialogPref::OnButtonImportBnClicked( WORD wNotifyCode, WORD wID, HWND hWndCtl )
 {
-	pfc::string8_fast filename;
+    const pfc::stringcvt::string_utf8_from_os filename( smp::file::FileDialog( L"Import from", false, k_DialogExtFilter, L"cfg" ).c_str() );
+    if ( !filename.is_empty() )
+    {
+        g_sci_prop_sets.import_from_file( filename );
+    }
 
-	if (uGetOpenFileName(m_hWnd, "Configuration files|*.cfg|All files|*.*", 0, "cfg", "Import from", NULL, filename, FALSE))
-		g_sci_prop_sets.import_from_file(filename);
-
-	LoadProps();
+    LoadProps();
 }
 
-void CDialogPref::OnEditChange(WORD, WORD, HWND)
+void CDialogPref::OnEditChange( WORD, WORD, HWND )
 {
-	OnChanged();
+    OnChanged();
 }
 
 void CDialogPref::OnChanged()
 {
-	m_callback->on_state_changed();
+    m_callback->on_state_changed();
 }
 
 HWND CDialogPref::get_wnd()
 {
-	return m_hWnd;
+    return m_hWnd;
 }
 
 t_uint32 CDialogPref::get_state()
 {
-	t_uint32 state = preferences_state::resettable;
+    t_uint32 state = preferences_state::resettable;
 
-	return state;
+    return state;
 }
 
 void CDialogPref::apply()
 {
-	OnChanged();
+    OnChanged();
 }
 
 void CDialogPref::reset()
 {
-	LoadProps(true);
+    LoadProps( true );
 }

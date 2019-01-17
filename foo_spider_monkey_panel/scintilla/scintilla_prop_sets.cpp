@@ -108,7 +108,7 @@ void cfg_sci_prop_sets::import_from_file(const char * filename)
     pfc::string8_fast text;
     try
     {
-        text = smp::file::ReadFile( filename, CP_ACP );
+        text = smp::file::ReadFile( filename, CP_UTF8 );
     }
     catch ( const smp::SmpException& )
     {

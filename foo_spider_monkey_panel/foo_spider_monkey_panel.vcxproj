@@ -38,6 +38,7 @@
     <Import Project="$(SolutionDir)\..\props\submodules.props" />
     <Import Project="$(SolutionDir)\..\props\foobar2000_sdk.props" />
     <Import Project="$(SolutionDir)\..\props\json.props" />
+    <Import Project="$(SolutionDir)\..\props\gsl.props" />
     <Import Project="$(SolutionDir)\..\props\mozjs.props" />
     <Import Project="$(SolutionDir)\..\props\pfc.props" />
     <Import Project="$(SolutionDir)\..\props\scintilla.props" />

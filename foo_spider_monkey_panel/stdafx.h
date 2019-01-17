@@ -67,7 +67,7 @@ using std::max;
 #pragma warning( pop ) 
 
 // GSL
-#include <gsl/gsl.h>
+#include <gsl/gsl>
 
 // Some macros defined by windowsx.h should be removed
 #ifdef _INC_WINDOWSX

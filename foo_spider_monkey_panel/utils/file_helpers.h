@@ -14,4 +14,6 @@ bool WriteFile( const char* path, const pfc::string_base& content, bool write_bo
 
 UINT DetectFileCharset( const char* fileName );
 
+std::wstring FileDialog( const std::wstring& title, bool saveFile, gsl::span<const COMDLG_FILTERSPEC> filterSpec, const std::wstring& defaultExtension );
+
 } // namespace smp::file

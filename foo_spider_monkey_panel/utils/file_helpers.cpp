@@ -4,8 +4,10 @@
 #include <utils/scope_helpers.h>
 #include <utils/string_helpers.h>
 #include <utils/text_helpers.h>
+#include <utils/winapi_error_helpers.h>
 
 #include <abort_callback.h>
+#include <component_paths.h>
 
 #include <filesystem>
 
@@ -52,7 +54,7 @@ T ConvertFileContent( const std::wstring& path, std::string_view content, UINT c
 
         detectedCodepage = CP_UTF8;
     }
-    
+
     if ( !isWideCodepage && detectedCodepage == CP_ACP )
     { // TODO: dirty hack! remove
         if ( codepageMap.count( path ) )
@@ -124,17 +126,18 @@ T ConvertFileContent( const std::wstring& path, std::string_view content, UINT c
     return fileContent;
 }
 
-}
+} // namespace
 
-namespace {
+namespace
+{
 
 class FileReader
 {
 public:
     FileReader( const pfc::string8_fast& path );
     ~FileReader();
-    FileReader( const FileReader &) = delete;
-    FileReader& operator =( const FileReader& ) = delete;
+    FileReader( const FileReader& ) = delete;
+    FileReader& operator=( const FileReader& ) = delete;
 
     std::string_view GetFileContent() const;
 
@@ -205,18 +208,18 @@ FileReader::FileReader( const pfc::string8_fast& path )
 
 FileReader::~FileReader()
 {
-     if ( pFileView_ )
-     {
-         UnmapViewOfFile( pFileView_ );
-     }
-     if ( hFileMapping_ )
-     {
-         CloseHandle( hFileMapping_ );
-     }
-     if ( hFile_ )
-     {
-         CloseHandle( hFile_ );
-     }
+    if ( pFileView_ )
+    {
+        UnmapViewOfFile( pFileView_ );
+    }
+    if ( hFileMapping_ )
+    {
+        CloseHandle( hFileMapping_ );
+    }
+    if ( hFile_ )
+    {
+        CloseHandle( hFile_ );
+    }
 }
 
 std::string_view FileReader::GetFileContent() const
@@ -320,6 +323,77 @@ UINT DetectFileCharset( const char* fileName )
     }
 
     return smp::utils::detect_text_charset( std::string_view{ text, text.get_length() } );
+}
+
+std::wstring FileDialog( const std::wstring& title, bool saveFile, gsl::span<const COMDLG_FILTERSPEC> filterSpec, const std::wstring& defaultExtension )
+{
+    _COM_SMARTPTR_TYPEDEF( IFileDialog, __uuidof( IFileDialog ) );
+    _COM_SMARTPTR_TYPEDEF( IShellItem, __uuidof( IShellItem ) );
+
+    try
+    {
+        IFileDialogPtr pfd;
+        HRESULT hr = pfd.CreateInstance( ( saveFile ? CLSID_FileSaveDialog : CLSID_FileOpenDialog ), nullptr, CLSCTX_INPROC_SERVER );
+        smp::error::CheckHR( hr, "CreateInstance" );
+
+        DWORD dwFlags;
+        hr = pfd->GetOptions( &dwFlags );
+        smp::error::CheckHR( hr, "GetOptions" );
+
+        hr = pfd->SetClientGuid( g_guid_smp_dialog_path );
+        smp::error::CheckHR( hr, "SetClientGuid" );
+
+        hr = pfd->SetTitle( title.c_str() );
+        smp::error::CheckHR( hr, "SetTitle" );
+
+        if ( filterSpec.size() )
+        {
+            hr = pfd->SetFileTypes( filterSpec.size(), filterSpec.data() );
+            smp::error::CheckHR( hr, "SetFileTypes" );
+        }
+
+        //hr = pfd->SetFileTypeIndex( 1 );
+        //smp::error::CheckHR( hr, "SetFileTypeIndex" );
+
+        if ( defaultExtension.length() )
+        {
+            hr = pfd->SetDefaultExtension( defaultExtension.c_str() );
+            smp::error::CheckHR( hr, "SetDefaultExtension" );
+        }
+
+        const pfc::stringcvt::string_os_from_utf8 path( smp::get_fb2k_component_path() );
+
+        IShellItemPtr pFolder;
+        hr = SHCreateItemFromParsingName( path, nullptr, pFolder.GetIID(), (void**)&pFolder );
+        smp::error::CheckHR( hr, "SHCreateItemFromParsingName" );
+
+        hr = pfd->SetDefaultFolder( pFolder );
+        smp::error::CheckHR( hr, "SetDefaultFolder" );
+
+        hr = pfd->Show( nullptr );
+        smp::error::CheckHR( hr, "Show" );
+
+        IShellItemPtr psiResult;
+        hr = pfd->GetResult( &psiResult );
+        smp::error::CheckHR( hr, "GetResult" );
+
+        PWSTR pszFilePath = nullptr;
+        smp::utils::final_action autoFilePath( [&pszFilePath]() {
+            if ( pszFilePath )
+            {
+                CoTaskMemFree( pszFilePath );
+            }
+        } );
+
+        hr = psiResult->GetDisplayName( SIGDN_FILESYSPATH, &pszFilePath );
+        smp::error::CheckHR( hr, "GetDisplayName" );
+
+        return pszFilePath;
+    }
+    catch ( const SmpException& )
+    {
+        return std::wstring{};
+    }
 }
 
 } // namespace smp::file
