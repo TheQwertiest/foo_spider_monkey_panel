@@ -42,13 +42,10 @@ bool match_menu_command( const pfc::string8_fast& path, const pfc::string8_fast&
     return ( ( path[pathLen - commandLen - 1] == '/' ) && !_stricmp( path.c_str() + pathLen - commandLen, command ) );
 }
 
-std::optional<contextmenu_node*> find_context_command_recur( const pfc::string8_fast& p_command, pfc::string_base& path, contextmenu_node* p_parent )
+std::optional<contextmenu_node*> find_context_command_recur( const pfc::string8_fast& p_command, pfc::string_base& basePath, contextmenu_node* p_parent )
 {
-    if ( !p_parent || p_parent->get_type() != contextmenu_item_node::TYPE_POPUP )
-    {
-        return std::nullopt;
-    }
-
+    assert( p_parent && p_parent->get_type() == contextmenu_item_node::TYPE_POPUP );
+     
     for ( size_t child_id = 0; child_id < p_parent->get_num_children(); ++child_id )
     {
         contextmenu_node* child = p_parent->get_child( child_id );
@@ -57,15 +54,15 @@ std::optional<contextmenu_node*> find_context_command_recur( const pfc::string8_
             continue;
         }
 
-        path += child->get_name();
+        pfc::string8_fast curPath = basePath + child->get_name();
 
         switch ( child->get_type() )
         {
         case contextmenu_item_node::TYPE_POPUP:
         {
-            path += "/";
+            curPath.add_char('/');
 
-            if ( auto retVal = find_context_command_recur( p_command, path, child );
+            if ( auto retVal = find_context_command_recur( p_command, curPath, child );
                  retVal )
             {
                 return retVal;
@@ -75,7 +72,7 @@ std::optional<contextmenu_node*> find_context_command_recur( const pfc::string8_
         }
         case contextmenu_item_node::TYPE_COMMAND:
         {
-            if ( match_menu_command( path, p_command ) )
+            if ( match_menu_command( curPath, p_command ) )
             {
                 return child;
             }
@@ -101,8 +98,14 @@ bool execute_context_command_by_name_unsafe( const pfc::string8_fast& name, cons
         cm->init_context_now_playing( flags );
     }
 
+    auto pRoot = cm->get_root();
+    if ( !pRoot || pRoot->get_type() != contextmenu_item_node::TYPE_POPUP )
+    {
+        return false;
+    }
+
     pfc::string8_fast emptyPath;
-    if ( auto retVal = find_context_command_recur( name, emptyPath, cm->get_root() );
+    if ( auto retVal = find_context_command_recur( name, emptyPath, pRoot );
          retVal && retVal.value() )
     {
         retVal.value()->execute();
@@ -154,26 +157,30 @@ pfc::string8_fast generate_mainmenu_command_path( const GuidMenuMap& group_guid_
     return path;
 }
 
-std::optional<mainmenu_node::ptr> find_mainmenu_command_v2_node_recur( mainmenu_node::ptr node, const pfc::string8_fast& curPath, const pfc::string8_fast& name )
+std::optional<mainmenu_node::ptr> find_mainmenu_command_v2_node_recur( mainmenu_node::ptr node, const pfc::string8_fast& basePath, const pfc::string8_fast& name )
 {
-    pfc::string8_fast newPath = curPath;
+    assert( node.is_valid() );
 
-    if ( mainmenu_node::type_separator != node->get_type() )
+    pfc::string8_fast curPath = basePath;
+
+    if ( mainmenu_node::type_separator == node->get_type() )
     {
-        pfc::string8_fast displayName;
-        uint32_t tmp;
-        node->get_display( displayName, tmp );
-        if ( !displayName.is_empty() )
-        {
-            newPath += displayName;
-        }
+        return std::nullopt;
+    }
+
+    pfc::string8_fast displayName;
+    uint32_t tmp;
+    node->get_display( displayName, tmp );
+    if ( !displayName.is_empty() )
+    {
+        curPath += displayName;
     }
 
     switch ( node->get_type() )
     {
     case mainmenu_node::type_command:
     {
-        if ( match_menu_command( newPath, name ) )
+        if ( match_menu_command( curPath, name ) )
         {
             return node;
         }
@@ -181,15 +188,15 @@ std::optional<mainmenu_node::ptr> find_mainmenu_command_v2_node_recur( mainmenu_
     }
     case mainmenu_node::type_group:
     {
-        if ( !newPath.ends_with( '/' ) )
+        if ( !curPath.ends_with( '/' ) )
         {
-            newPath.add_char( '/' );
+            curPath.add_char( '/' );
         }
 
         for ( size_t i = 0; i < node->get_children_count(); ++i )
         {
             mainmenu_node::ptr child = node->get_child( i );
-            if ( auto retVal = find_mainmenu_command_v2_node_recur( child, newPath, name );
+            if ( auto retVal = find_mainmenu_command_v2_node_recur( child, curPath, name );
                  retVal )
             {
                 return retVal;
@@ -199,7 +206,7 @@ std::optional<mainmenu_node::ptr> find_mainmenu_command_v2_node_recur( mainmenu_
     }
     default:
     {
-        return std::nullopt;
+        assert( 0 );
     }
     }
 
