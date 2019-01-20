@@ -1566,7 +1566,7 @@ let window = {
      * @return {number} See Flags.js > With window.DlgCode
      *
      * @example
-     * window.DlgCode(DLGC_WANTALLKEYS);
+     * window.DlgCode = DLGC_WANTALLKEYS;
      */
     DlgCode: undefined, // (int) (read, write)
 
