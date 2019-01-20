@@ -2,6 +2,7 @@
 
 #### Table of Contents
 - [Unreleased](#unreleased)
+- [1.1.4](#114---2018-01-20)
 - [1.1.3](#113---2018-01-17)
 - [1.1.2](#112---2018-01-09)
 - [1.1.1](#111---2018-11-20)
@@ -16,9 +17,13 @@ ___
 
 ## [Unreleased][]
 
+## [1.1.4][] - 2018-11-20
+### Fixed
+- Fixed `fb.RunContextCommandWithMetadb` not working with most commands.
+
 ## [1.1.3][] - 2018-01-17
 ### Changed
-- Removed image resizing for `custom_image` in `fb.DoDragDrop` when image fits the drag window.
+- Removed image resizing for `custom_image` in `fb.DoDragDrop` when image is smaller than the drag window.
 - All file dialogs now remember last used location.
 
 ### Fixed
@@ -175,7 +180,8 @@ ___
   - More rigorous error checks.
 - Updated samples with compatibility fixes.
 
-[unreleased]: https://github.com/theqwertiest/foo_spider_monkey_panel/compare/v1.1.3...HEAD
+[unreleased]: https://github.com/theqwertiest/foo_spider_monkey_panel/compare/v1.1.4...HEAD
+[1.1.4]: https://github.com/TheQwertiest/foo_spider_monkey_panel/compare/v1.1.3...v1.1.4
 [1.1.3]: https://github.com/TheQwertiest/foo_spider_monkey_panel/compare/v1.1.2...v1.1.3
 [1.1.2]: https://github.com/TheQwertiest/foo_spider_monkey_panel/compare/v1.1.1...v1.1.2
 [1.1.1]: https://github.com/TheQwertiest/foo_spider_monkey_panel/compare/v1.1.0...v1.1.1
