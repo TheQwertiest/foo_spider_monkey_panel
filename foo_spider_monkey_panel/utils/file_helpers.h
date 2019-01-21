@@ -14,6 +14,10 @@ bool WriteFile( const char* path, const pfc::string_base& content, bool write_bo
 
 UINT DetectFileCharset( const char* fileName );
 
-std::wstring FileDialog( const std::wstring& title, bool saveFile, gsl::span<const COMDLG_FILTERSPEC> filterSpec, const std::wstring& defaultExtension );
+std::wstring FileDialog( const std::wstring& title, 
+                         bool saveFile, 
+                         gsl::span<const COMDLG_FILTERSPEC> filterSpec = std::array<COMDLG_FILTERSPEC, 1>{ COMDLG_FILTERSPEC{ L"All files", L"*.*" } }, 
+                         const std::wstring& defaultExtension = L"",
+                         const std::wstring& defaultFilename = L"" );
 
 } // namespace smp::file

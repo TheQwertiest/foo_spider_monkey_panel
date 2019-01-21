@@ -11,23 +11,6 @@
 #include <iomanip>
 #include <map>
 
-namespace
-{
-
-constexpr COMDLG_FILTERSPEC k_DialogImportExtFilter[2] =
-    {
-        { L"Property files", L"*.smp;*.wsp" },
-        { L"All files", L"*.*" },
-    };
-
-constexpr COMDLG_FILTERSPEC k_DialogExportExtFilter[2] =
-    {
-        { L"Property files", L"*.smp" },
-        { L"All files", L"*.*" },
-    };
-
-}
-
 LRESULT CDialogProperty::OnInitDialog( HWND hwndFocus, LPARAM lParam )
 {
     DlgResize_Init();
@@ -240,8 +223,14 @@ LRESULT CDialogProperty::OnDelBnClicked( WORD wNotifyCode, WORD wID, HWND hWndCt
 
 LRESULT CDialogProperty::OnImportBnClicked( WORD wNotifyCode, WORD wID, HWND hWndCtl )
 {
+    constexpr COMDLG_FILTERSPEC k_DialogImportExtFilter[2] =
+        {
+            { L"Property files", L"*.json;*.smp;*.wsp" },
+            { L"All files", L"*.*" },
+        };
+
     const pfc::string8_fast filename = 
-         pfc::stringcvt::string_utf8_from_os( smp::file::FileDialog( L"Import from", false, k_DialogImportExtFilter, L"smp" ).c_str() );
+         pfc::stringcvt::string_utf8_from_os( smp::file::FileDialog( L"Import from", false, k_DialogImportExtFilter, L"json", L"props" ).c_str() );
     if ( filename.is_empty() )
     {
         return 0;
@@ -254,7 +243,11 @@ LRESULT CDialogProperty::OnImportBnClicked( WORD wNotifyCode, WORD wID, HWND hWn
     {
         filesystem::g_open_read( io, filename, abort );
 
-        if ( filename.has_suffix( ".smp" ) )
+        if ( filename.has_suffix( ".json" ) )
+        {
+            smp::config::PanelProperties::g_load_json( m_dup_prop_map, *io, abort, true );
+        }
+        else if( filename.has_suffix( ".smp" ) )
         {
             smp::config::PanelProperties::g_load( m_dup_prop_map, io.get_ptr(), abort );
         }
@@ -264,7 +257,8 @@ LRESULT CDialogProperty::OnImportBnClicked( WORD wNotifyCode, WORD wID, HWND hWn
         }
         else
         {
-            if ( !smp::config::PanelProperties::g_load( m_dup_prop_map, io.get_ptr(), abort ) )
+            if ( !smp::config::PanelProperties::g_load_json( m_dup_prop_map, *io, abort, true )
+                 && !smp::config::PanelProperties::g_load( m_dup_prop_map, io.get_ptr(), abort ) )
             {
                 smp::config::PanelProperties::g_load_legacy( m_dup_prop_map, io.get_ptr(), abort );
             }
@@ -281,7 +275,13 @@ LRESULT CDialogProperty::OnImportBnClicked( WORD wNotifyCode, WORD wID, HWND hWn
 
 LRESULT CDialogProperty::OnExportBnClicked( WORD wNotifyCode, WORD wID, HWND hWndCtl )
 {
-    const pfc::stringcvt::string_utf8_from_os filename( smp::file::FileDialog( L"Save as", true, k_DialogExportExtFilter, L"smp" ).c_str() );
+    constexpr COMDLG_FILTERSPEC k_DialogExportExtFilter[2] =
+        {
+            { L"Property files", L"*.json" },
+            { L"All files", L"*.*" },
+        };
+
+    const pfc::stringcvt::string_utf8_from_os filename( smp::file::FileDialog( L"Save as", true, k_DialogExportExtFilter, L"json", L"props" ).c_str() );
     if ( filename.is_empty() )
     {
         return 0;
@@ -293,7 +293,7 @@ LRESULT CDialogProperty::OnExportBnClicked( WORD wNotifyCode, WORD wID, HWND hWn
     try
     {
         filesystem::g_open_write_new( io, filename, abort );
-        smp::config::PanelProperties::g_save( m_dup_prop_map, io.get_ptr(), abort );
+        smp::config::PanelProperties::g_save_json( m_dup_prop_map, *io, abort, true );
     }
     catch ( const pfc::exception& )
     {

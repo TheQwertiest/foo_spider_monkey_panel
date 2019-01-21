@@ -1,9 +1,18 @@
 #include <stdafx.h>
 #include "config.h"
 
-#include "resource.h"
-
 #include <utils/string_helpers.h>
+#include <resource.h>
+
+#include <nlohmann/json.hpp>
+
+namespace
+{
+
+constexpr const char kPropConfigVersion[] = "1";
+constexpr const char kPropConfigId[] = "properties";
+
+} // namespace
 
 namespace smp::config
 {
@@ -12,12 +21,12 @@ DWORD edge_style_from_config( EdgeStyle edge_style )
 {
     switch ( edge_style )
     {
-        case EdgeStyle::SUNKEN_EDGE:
-            return WS_EX_CLIENTEDGE;
-        case EdgeStyle::GREY_EDGE:
-            return WS_EX_STATICEDGE;
-        default:
-            return 0;
+    case EdgeStyle::SUNKEN_EDGE:
+        return WS_EX_CLIENTEDGE;
+    case EdgeStyle::GREY_EDGE:
+        return WS_EX_STATICEDGE;
+    default:
+        return 0;
     }
 }
 
@@ -68,36 +77,132 @@ bool PanelProperties::g_load( config_map& data, stream_reader* reader, abort_cal
 
             switch ( serializedValue.type )
             {
-                case mozjs::JsValueType::pt_boolean:
-                {
-                    reader->read_lendian_t( serializedValue.boolVal, abort );
-                    break;
-                }
-                case mozjs::JsValueType::pt_int32:
-                {
-                    reader->read_lendian_t( serializedValue.intVal, abort );
-                    break;
-                }
-                case mozjs::JsValueType::pt_double:
-                {
-                    reader->read_lendian_t( serializedValue.doubleVal, abort );
-                    break;
-                }
-                case mozjs::JsValueType::pt_string:
-                {
-                    reader->read_string( serializedValue.strVal, abort );
-                    break;
-                }
-                default:
-                {
-                    assert( 0 );
-                    continue;
-                }
+            case mozjs::JsValueType::pt_boolean:
+            {
+                reader->read_lendian_t( serializedValue.boolVal, abort );
+                break;
+            }
+            case mozjs::JsValueType::pt_int32:
+            {
+                reader->read_lendian_t( serializedValue.intVal, abort );
+                break;
+            }
+            case mozjs::JsValueType::pt_double:
+            {
+                reader->read_lendian_t( serializedValue.doubleVal, abort );
+                break;
+            }
+            case mozjs::JsValueType::pt_string:
+            {
+                reader->read_string( serializedValue.strVal, abort );
+                break;
+            }
+            default:
+            {
+                assert( 0 );
+                continue;
+            }
             }
 
             pfc::stringcvt::string_wide_from_utf8 propnameW( pfcPropName.c_str(), pfcPropName.length() );
             data.emplace( propnameW.get_ptr(), std::make_shared<mozjs::SerializedJsValue>( serializedValue ) );
         }
+    }
+    catch ( const pfc::exception& )
+    {
+        return false;
+    }
+
+    return true;
+}
+
+bool PanelProperties::g_load_json( config_map& data, stream_reader& reader, abort_callback& abort, bool useRawData )
+{
+    using json = nlohmann::json;
+
+    data.clear();
+
+    try
+    {
+        pfc::string8_fast jsonStr;
+        if ( useRawData )
+        {
+            reader.read_string_raw( jsonStr, abort );
+        }
+        else
+        {
+            reader.read_string( jsonStr, abort );
+        }
+
+        json jsonMain;
+        jsonMain = json::parse( jsonStr.c_str() );
+        if ( !jsonMain.is_object() )
+        {
+            return false;
+        }
+
+        if ( auto it = jsonMain.find( "version" );
+             jsonMain.cend() == it || !it->is_string() || kPropConfigVersion != static_cast<std::string>( *it ) )
+        {
+            return false;
+        }
+        if ( auto it = jsonMain.find( "id" );
+             jsonMain.cend() == it || !it->is_string() || kPropConfigId != static_cast<std::string>( *it ) )
+        {
+            return false;
+        }
+
+        auto it = jsonMain.find( "values" );
+        if ( jsonMain.cend() == it || !it->is_array() )
+        {
+            return false;
+        }
+
+        for ( auto& value : *it )
+        {
+            if ( !value.is_array() || value.size() != 2 || !value[0].is_string() )
+            {
+                return false;
+            }
+
+            mozjs::SerializedJsValue serializedValue;
+
+            const auto propName = static_cast<std::string>( value[0] );
+
+            if ( value[1].is_boolean() )
+            {
+                serializedValue.type = mozjs::JsValueType::pt_boolean;
+                serializedValue.boolVal = static_cast<bool>( value[1] );
+            }
+            else if ( value[1].is_number_integer() )
+            {
+                serializedValue.type = mozjs::JsValueType::pt_int32;
+                serializedValue.intVal = static_cast<int32_t>( value[1] );
+            }
+            else if ( value[1].is_number_float() )
+            {
+                serializedValue.type = mozjs::JsValueType::pt_double;
+                serializedValue.doubleVal = static_cast<double>( value[1] );
+            }
+            else if ( value[1].is_string() )
+            {
+                serializedValue.type = mozjs::JsValueType::pt_string;
+                const auto strVal = static_cast<std::string>( value[1] );
+                serializedValue.strVal.set_string_nc( strVal.c_str(), strVal.length() );
+            }
+            else
+            {
+                assert( 0 );
+                continue;
+            }
+
+            pfc::stringcvt::string_wide_from_utf8 propnameW( propName.c_str(), propName.length() );
+            data.emplace( propnameW.get_ptr(), std::make_shared<mozjs::SerializedJsValue>( serializedValue ) );
+        }
+    }
+    catch ( const json::exception& )
+    {
+        return false;
     }
     catch ( const pfc::exception& )
     {
@@ -236,6 +341,16 @@ bool PanelProperties::g_load_legacy( config_map& data, stream_reader* reader, ab
     return true;
 }
 
+void PanelProperties::load( stream_reader* reader, abort_callback& abort )
+{
+    g_load( m_map, reader, abort );
+}
+
+void PanelProperties::save( stream_writer* writer, abort_callback& abort ) const
+{
+    g_save( m_map, writer, abort );
+}
+
 void PanelProperties::g_save( const config_map& data, stream_writer* writer, abort_callback& abort )
 {
     try
@@ -254,31 +369,31 @@ void PanelProperties::g_save( const config_map& data, stream_writer* writer, abo
 
             switch ( serializedValue.type )
             {
-                case mozjs::JsValueType::pt_boolean:
-                {
-                    writer->write_lendian_t( serializedValue.boolVal, abort );
-                    break;
-                }
-                case mozjs::JsValueType::pt_int32:
-                {
-                    writer->write_lendian_t( serializedValue.intVal, abort );
-                    break;
-                }
-                case mozjs::JsValueType::pt_double:
-                {
-                    writer->write_lendian_t( serializedValue.doubleVal, abort );
-                    break;
-                }
-                case mozjs::JsValueType::pt_string:
-                {
-                    writer->write_string( serializedValue.strVal.c_str(), serializedValue.strVal.length(), abort );
-                    break;
-                }
-                default:
-                {
-                    assert( 0 );
-                    break;
-                }
+            case mozjs::JsValueType::pt_boolean:
+            {
+                writer->write_lendian_t( serializedValue.boolVal, abort );
+                break;
+            }
+            case mozjs::JsValueType::pt_int32:
+            {
+                writer->write_lendian_t( serializedValue.intVal, abort );
+                break;
+            }
+            case mozjs::JsValueType::pt_double:
+            {
+                writer->write_lendian_t( serializedValue.doubleVal, abort );
+                break;
+            }
+            case mozjs::JsValueType::pt_string:
+            {
+                writer->write_string( serializedValue.strVal.c_str(), serializedValue.strVal.length(), abort );
+                break;
+            }
+            default:
+            {
+                assert( 0 );
+                break;
+            }
             }
         }
     }
@@ -287,14 +402,69 @@ void PanelProperties::g_save( const config_map& data, stream_writer* writer, abo
     }
 }
 
-void PanelProperties::load( stream_reader* reader, abort_callback& abort )
+void PanelProperties::g_save_json( const config_map& data, stream_writer& writer, abort_callback& abort, bool useRawData )
 {
-    g_load( m_map, reader, abort );
-}
+    using json = nlohmann::json;
 
-void PanelProperties::save( stream_writer* writer, abort_callback& abort ) const
-{
-    g_save( m_map, writer, abort );
+    try
+    {
+        json jsonMain = json::object( { { "id", kPropConfigId },
+                                        { "version", kPropConfigVersion } } );
+
+        json jsonArray = json::array();
+        for ( const auto& [nameW, pValue] : data )
+        {
+            const pfc::stringcvt::string_utf8_from_wide propNameU8( nameW.c_str(), nameW.length() );
+            const auto& serializedValue = *pValue;
+
+            switch ( serializedValue.type )
+            {
+            case mozjs::JsValueType::pt_boolean:
+            {
+                jsonArray.push_back( { propNameU8, serializedValue.boolVal } );
+                break;
+            }
+            case mozjs::JsValueType::pt_int32:
+            {
+                jsonArray.push_back( { propNameU8, serializedValue.intVal } );
+                break;
+            }
+            case mozjs::JsValueType::pt_double:
+            {
+                jsonArray.push_back( { propNameU8, serializedValue.doubleVal } );
+                break;
+            }
+            case mozjs::JsValueType::pt_string:
+            {
+                jsonArray.push_back( { propNameU8, serializedValue.strVal } );
+                break;
+            }
+            default:
+            {
+                assert( 0 );
+                break;
+            }
+            }
+        }
+
+        jsonMain.push_back( { "values", jsonArray } );
+
+        const auto jsonStr = jsonMain.dump();
+        if ( useRawData )
+        {
+            writer.write_string_raw( jsonStr.c_str(), abort );
+        }
+        else
+        {
+            writer.write_string( jsonStr.c_str(), jsonStr.length(), abort );
+        }
+    }
+    catch ( const json::exception& )
+    {
+    }
+    catch ( const pfc::exception& )
+    {
+    }
 }
 
 PanelSettings::PanelSettings()

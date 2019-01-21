@@ -325,7 +325,11 @@ UINT DetectFileCharset( const char* fileName )
     return smp::utils::detect_text_charset( std::string_view{ text, text.get_length() } );
 }
 
-std::wstring FileDialog( const std::wstring& title, bool saveFile, gsl::span<const COMDLG_FILTERSPEC> filterSpec, const std::wstring& defaultExtension )
+std::wstring FileDialog( const std::wstring& title,
+                         bool saveFile,
+                         gsl::span<const COMDLG_FILTERSPEC> filterSpec,
+                         const std::wstring& defaultExtension,
+                         const std::wstring& defaultFilename )
 {
     _COM_SMARTPTR_TYPEDEF( IFileDialog, __uuidof( IFileDialog ) );
     _COM_SMARTPTR_TYPEDEF( IShellItem, __uuidof( IShellItem ) );
@@ -359,6 +363,12 @@ std::wstring FileDialog( const std::wstring& title, bool saveFile, gsl::span<con
         {
             hr = pfd->SetDefaultExtension( defaultExtension.c_str() );
             smp::error::CheckHR( hr, "SetDefaultExtension" );
+        }
+
+        if ( defaultFilename.length() )
+        {
+            hr = pfd->SetFileName( defaultFilename.c_str() );
+            smp::error::CheckHR( hr, "SetFileName" );
         }
 
         const pfc::stringcvt::string_os_from_utf8 path( smp::get_fb2k_component_path() );
