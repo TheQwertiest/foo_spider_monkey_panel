@@ -2,6 +2,7 @@
 
 #### Table of Contents
 - [Unreleased](#unreleased)
+- [1.1.5](#114---2018-01-21)
 - [1.1.4](#114---2018-01-20)
 - [1.1.3](#113---2018-01-17)
 - [1.1.2](#112---2018-01-09)
@@ -16,6 +17,13 @@
 ___
 
 ## [Unreleased][]
+
+## [1.1.5][] - 2018-11-21
+### Changed
+- Panel Properties now uses JSON format by default for export.
+
+### Fixed
+- Fixed incorrect parsing of UCS-2 LE encoded files.
 
 ## [1.1.4][] - 2018-11-20
 ### Fixed
@@ -180,7 +188,8 @@ ___
   - More rigorous error checks.
 - Updated samples with compatibility fixes.
 
-[unreleased]: https://github.com/theqwertiest/foo_spider_monkey_panel/compare/v1.1.4...HEAD
+[unreleased]: https://github.com/theqwertiest/foo_spider_monkey_panel/compare/v1.1.5...HEAD
+[1.1.5]: https://github.com/TheQwertiest/foo_spider_monkey_panel/compare/v1.1.4...v1.1.5
 [1.1.4]: https://github.com/TheQwertiest/foo_spider_monkey_panel/compare/v1.1.3...v1.1.4
 [1.1.3]: https://github.com/TheQwertiest/foo_spider_monkey_panel/compare/v1.1.2...v1.1.3
 [1.1.2]: https://github.com/TheQwertiest/foo_spider_monkey_panel/compare/v1.1.1...v1.1.2

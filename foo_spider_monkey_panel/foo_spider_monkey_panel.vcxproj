@@ -328,16 +328,6 @@
     <ClInclude Include="utils\winapi_error_helpers.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\CHANGELOG.md" />
-    <None Include="..\component\docs\Callbacks.js" />
-    <None Include="..\component\docs\Codepages.js" />
-    <None Include="..\component\docs\Flags.js" />
-    <None Include="..\component\docs\Helpers.js" />
-    <None Include="..\component\docs\js\foo_spider_monkey_panel.js" />
-    <None Include="..\component\docs\js\foo_ui_hacks.js" />
-    <None Include="..\component\interface.api" />
-    <None Include="..\component\jscript.api" />
-    <None Include="..\README.md" />
     <None Include=".clang-format" />
     <None Include="default.js" />
   </ItemGroup>

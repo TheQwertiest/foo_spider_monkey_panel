@@ -684,36 +684,6 @@
       <Filter>z_core\resources</Filter>
     </None>
     <None Include=".clang-format" />
-    <None Include="..\component\interface.api">
-      <Filter>_docs</Filter>
-    </None>
-    <None Include="..\component\jscript.api">
-      <Filter>_docs</Filter>
-    </None>
-    <None Include="..\component\docs\Codepages.js">
-      <Filter>_docs</Filter>
-    </None>
-    <None Include="..\component\docs\Flags.js">
-      <Filter>_docs</Filter>
-    </None>
-    <None Include="..\component\docs\Helpers.js">
-      <Filter>_docs</Filter>
-    </None>
-    <None Include="..\component\docs\Callbacks.js">
-      <Filter>_docs</Filter>
-    </None>
-    <None Include="..\CHANGELOG.md">
-      <Filter>_docs</Filter>
-    </None>
-    <None Include="..\README.md">
-      <Filter>_docs</Filter>
-    </None>
-    <None Include="..\component\docs\js\foo_ui_hacks.js">
-      <Filter>_docs</Filter>
-    </None>
-    <None Include="..\component\docs\js\foo_spider_monkey_panel.js">
-      <Filter>_docs</Filter>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="js_engine">
@@ -736,9 +706,6 @@
     </Filter>
     <Filter Include="ui">
       <UniqueIdentifier>{6cdd963f-4f38-4310-b440-f96d5e5d2df5}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="_docs">
-      <UniqueIdentifier>{2c5dc72d-4a41-4209-8fe8-0206ff7ad1da}</UniqueIdentifier>
     </Filter>
     <Filter Include="com_objects">
       <UniqueIdentifier>{613a7600-ce84-49fd-b050-5da2374693d7}</UniqueIdentifier>

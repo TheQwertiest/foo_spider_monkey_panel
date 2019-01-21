@@ -15,42 +15,108 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "foo_spider_monkey_panel", "
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "scintilla", "..\submodules\scintilla\win32\scintilla.vcxproj", "{10B2A7EF-9089-4352-BA26-7E9AEF50987D}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "3rd-part SDK", "3rd-part SDK", "{0C59EEF0-93B0-4DA2-A67D-821327C32C78}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Documentation", "Documentation", "{544844FF-3BCA-4D28-884D-997582B1E2C2}"
+	ProjectSection(SolutionItems) = preProject
+		..\CHANGELOG.md = ..\CHANGELOG.md
+		..\component\interface.api = ..\component\interface.api
+		..\component\jscript.api = ..\component\jscript.api
+		..\LICENSE = ..\LICENSE
+		..\README.md = ..\README.md
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "js_docs", "js_docs", "{324E062D-0AF2-42F1-874B-82CE61D9B2FD}"
+	ProjectSection(SolutionItems) = preProject
+		..\component\docs\Callbacks.js = ..\component\docs\Callbacks.js
+		..\component\docs\Codepages.js = ..\component\docs\Codepages.js
+		..\component\docs\Flags.js = ..\component\docs\Flags.js
+		..\component\docs\js\foo_spider_monkey_panel.js = ..\component\docs\js\foo_spider_monkey_panel.js
+		..\component\docs\js\foo_ui_hacks.js = ..\component\docs\js\foo_ui_hacks.js
+		..\component\docs\Helpers.js = ..\component\docs\Helpers.js
+		..\scripts\doc\README.md = ..\scripts\doc\README.md
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "licenses", "licenses", "{C83916CB-E2CC-436F-9B39-CDAF19B88C6C}"
+	ProjectSection(SolutionItems) = preProject
+		..\component\licenses\Columns UI SDK.txt = ..\component\licenses\Columns UI SDK.txt
+		..\component\licenses\CPropertyList.txt = ..\component\licenses\CPropertyList.txt
+		..\component\licenses\DispatchPtr.txt = ..\component\licenses\DispatchPtr.txt
+		..\component\licenses\foobar2000 SDK.txt = ..\component\licenses\foobar2000 SDK.txt
+		..\component\licenses\gsl.txt = ..\component\licenses\gsl.txt
+		..\component\licenses\JScript Panel.txt = ..\component\licenses\JScript Panel.txt
+		..\component\licenses\JSON for Modern C++.txt = ..\component\licenses\JSON for Modern C++.txt
+		..\component\licenses\KMeans.txt = ..\component\licenses\KMeans.txt
+		..\component\licenses\PFC.txt = ..\component\licenses\PFC.txt
+		..\component\licenses\Scintilla.txt = ..\component\licenses\Scintilla.txt
+		..\component\licenses\SpiderMonkey.txt = ..\component\licenses\SpiderMonkey.txt
+		..\component\licenses\StackBlur.txt = ..\component\licenses\StackBlur.txt
+		..\component\licenses\timsort-cpp.txt = ..\component\licenses\timsort-cpp.txt
+		..\component\licenses\UI Helpers.txt = ..\component\licenses\UI Helpers.txt
+		..\component\licenses\WTL.txt = ..\component\licenses\WTL.txt
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
+		Debug|x64 = Debug|x64
 		Release|Win32 = Release|Win32
+		Release|x64 = Release|x64
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{EBFFFB4E-261D-44D3-B89C-957B31A0BF9C}.Debug|Win32.ActiveCfg = Debug|Win32
 		{EBFFFB4E-261D-44D3-B89C-957B31A0BF9C}.Debug|Win32.Build.0 = Debug|Win32
+		{EBFFFB4E-261D-44D3-B89C-957B31A0BF9C}.Debug|x64.ActiveCfg = Debug|Win32
 		{EBFFFB4E-261D-44D3-B89C-957B31A0BF9C}.Release|Win32.ActiveCfg = Release|Win32
 		{EBFFFB4E-261D-44D3-B89C-957B31A0BF9C}.Release|Win32.Build.0 = Release|Win32
+		{EBFFFB4E-261D-44D3-B89C-957B31A0BF9C}.Release|x64.ActiveCfg = Release|Win32
 		{E8091321-D79D-4575-86EF-064EA1A4A20D}.Debug|Win32.ActiveCfg = Debug|Win32
 		{E8091321-D79D-4575-86EF-064EA1A4A20D}.Debug|Win32.Build.0 = Debug|Win32
+		{E8091321-D79D-4575-86EF-064EA1A4A20D}.Debug|x64.ActiveCfg = Debug|Win32
 		{E8091321-D79D-4575-86EF-064EA1A4A20D}.Release|Win32.ActiveCfg = Release|Win32
 		{E8091321-D79D-4575-86EF-064EA1A4A20D}.Release|Win32.Build.0 = Release|Win32
+		{E8091321-D79D-4575-86EF-064EA1A4A20D}.Release|x64.ActiveCfg = Release|Win32
 		{71AD2674-065B-48F5-B8B0-E1F9D3892081}.Debug|Win32.ActiveCfg = Debug|Win32
 		{71AD2674-065B-48F5-B8B0-E1F9D3892081}.Debug|Win32.Build.0 = Debug|Win32
+		{71AD2674-065B-48F5-B8B0-E1F9D3892081}.Debug|x64.ActiveCfg = Debug|Win32
 		{71AD2674-065B-48F5-B8B0-E1F9D3892081}.Release|Win32.ActiveCfg = Release|Win32
 		{71AD2674-065B-48F5-B8B0-E1F9D3892081}.Release|Win32.Build.0 = Release|Win32
+		{71AD2674-065B-48F5-B8B0-E1F9D3892081}.Release|x64.ActiveCfg = Release|Win32
 		{93EC0EDE-01CD-4FB0-B8E8-4F2A027E026E}.Debug|Win32.ActiveCfg = Debug|Win32
 		{93EC0EDE-01CD-4FB0-B8E8-4F2A027E026E}.Debug|Win32.Build.0 = Debug|Win32
+		{93EC0EDE-01CD-4FB0-B8E8-4F2A027E026E}.Debug|x64.ActiveCfg = Debug|x64
+		{93EC0EDE-01CD-4FB0-B8E8-4F2A027E026E}.Debug|x64.Build.0 = Debug|x64
 		{93EC0EDE-01CD-4FB0-B8E8-4F2A027E026E}.Release|Win32.ActiveCfg = Release|Win32
 		{93EC0EDE-01CD-4FB0-B8E8-4F2A027E026E}.Release|Win32.Build.0 = Release|Win32
+		{93EC0EDE-01CD-4FB0-B8E8-4F2A027E026E}.Release|x64.ActiveCfg = Release|x64
+		{93EC0EDE-01CD-4FB0-B8E8-4F2A027E026E}.Release|x64.Build.0 = Release|x64
 		{43DF6037-DBE4-4468-9A50-4311495F3C86}.Debug|Win32.ActiveCfg = Debug|Win32
 		{43DF6037-DBE4-4468-9A50-4311495F3C86}.Debug|Win32.Build.0 = Debug|Win32
+		{43DF6037-DBE4-4468-9A50-4311495F3C86}.Debug|x64.ActiveCfg = Debug|Win32
 		{43DF6037-DBE4-4468-9A50-4311495F3C86}.Release|Win32.ActiveCfg = Release|Win32
 		{43DF6037-DBE4-4468-9A50-4311495F3C86}.Release|Win32.Build.0 = Release|Win32
+		{43DF6037-DBE4-4468-9A50-4311495F3C86}.Release|x64.ActiveCfg = Release|Win32
 		{10B2A7EF-9089-4352-BA26-7E9AEF50987D}.Debug|Win32.ActiveCfg = Debug|Win32
 		{10B2A7EF-9089-4352-BA26-7E9AEF50987D}.Debug|Win32.Build.0 = Debug|Win32
+		{10B2A7EF-9089-4352-BA26-7E9AEF50987D}.Debug|x64.ActiveCfg = Debug|Win32
 		{10B2A7EF-9089-4352-BA26-7E9AEF50987D}.Release|Win32.ActiveCfg = Release|Win32
 		{10B2A7EF-9089-4352-BA26-7E9AEF50987D}.Release|Win32.Build.0 = Release|Win32
+		{10B2A7EF-9089-4352-BA26-7E9AEF50987D}.Release|x64.ActiveCfg = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{EBFFFB4E-261D-44D3-B89C-957B31A0BF9C} = {0C59EEF0-93B0-4DA2-A67D-821327C32C78}
+		{E8091321-D79D-4575-86EF-064EA1A4A20D} = {0C59EEF0-93B0-4DA2-A67D-821327C32C78}
+		{71AD2674-065B-48F5-B8B0-E1F9D3892081} = {0C59EEF0-93B0-4DA2-A67D-821327C32C78}
+		{93EC0EDE-01CD-4FB0-B8E8-4F2A027E026E} = {0C59EEF0-93B0-4DA2-A67D-821327C32C78}
+		{10B2A7EF-9089-4352-BA26-7E9AEF50987D} = {0C59EEF0-93B0-4DA2-A67D-821327C32C78}
+		{324E062D-0AF2-42F1-874B-82CE61D9B2FD} = {544844FF-3BCA-4D28-884D-997582B1E2C2}
+		{C83916CB-E2CC-436F-9B39-CDAF19B88C6C} = {544844FF-3BCA-4D28-884D-997582B1E2C2}
+	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {04D470B3-3881-4A19-A99F-5E04F5978FB4}
 		SolutionNewStyle = 1
+		SolutionGuid = {04D470B3-3881-4A19-A99F-5E04F5978FB4}
 	EndGlobalSection
 EndGlobal
