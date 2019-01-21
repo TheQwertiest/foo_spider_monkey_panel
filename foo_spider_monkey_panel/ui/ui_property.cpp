@@ -281,7 +281,7 @@ LRESULT CDialogProperty::OnImportBnClicked( WORD wNotifyCode, WORD wID, HWND hWn
 
 LRESULT CDialogProperty::OnExportBnClicked( WORD wNotifyCode, WORD wID, HWND hWndCtl )
 {
-    const pfc::stringcvt::string_utf8_from_os filename( smp::file::FileDialog( L"Save as", false, k_DialogExportExtFilter, L"smp" ).c_str() );
+    const pfc::stringcvt::string_utf8_from_os filename( smp::file::FileDialog( L"Save as", true, k_DialogExportExtFilter, L"smp" ).c_str() );
     if ( filename.is_empty() )
     {
         return 0;
