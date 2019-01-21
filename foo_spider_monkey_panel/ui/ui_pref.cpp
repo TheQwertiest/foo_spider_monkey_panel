@@ -118,10 +118,10 @@ void CDialogPref::uGetItemText( int nItem, int nSubItem, pfc::string_base& out )
 
 void CDialogPref::OnButtonExportBnClicked( WORD wNotifyCode, WORD wID, HWND hWndCtl )
 {
-    const pfc::stringcvt::string_utf8_from_os filename( smp::file::FileDialog( L"Save as", true, k_DialogExtFilter, L"cfg" ).c_str() );
-    if ( !filename.is_empty() )
+    const std::wstring filename( smp::file::FileDialog( L"Save as", true, k_DialogExtFilter, L"cfg" ).c_str() );
+    if ( !filename.empty() )
     {
-        g_sci_prop_sets.export_to_file( filename );
+        g_sci_prop_sets.export_to_file( filename.c_str() );
     }
 }
 

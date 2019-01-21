@@ -320,8 +320,8 @@ LRESULT CDialogConf::OnFileImport( WORD, WORD, HWND )
 
 LRESULT CDialogConf::OnFileExport( WORD, WORD, HWND )
 {
-    const pfc::stringcvt::string_utf8_from_os filename( smp::file::FileDialog( L"Export File", true, k_DialogExtFilter, L"js" ).c_str() );
-    if ( filename.is_empty() )
+    const std::wstring filename( smp::file::FileDialog( L"Export File", true, k_DialogExtFilter, L"js" ).c_str() );
+    if ( filename.empty() )
     {
         return 0;
     }
@@ -332,7 +332,7 @@ LRESULT CDialogConf::OnFileExport( WORD, WORD, HWND )
     m_editorctrl.GetText( text.lock_buffer( len ), len + 1 );
     text.unlock_buffer();
 
-    (void)smp::file::WriteFile( filename, text );
+    (void)smp::file::WriteFile( filename.c_str(), text );
 
     return 0;
 }

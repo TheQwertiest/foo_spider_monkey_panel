@@ -64,8 +64,8 @@ public:
     JS::Value ShowHtmlDialog( uint32_t hWnd, const std::wstring& htmlCode, JS::HandleValue options = JS::UndefinedHandleValue );
     JS::Value ShowHtmlDialogWithOpt( size_t optArgCount, uint32_t hWnd, const std::wstring& htmlCode, JS::HandleValue options );
     bool WriteINI( const std::wstring& filename, const std::wstring& section, const std::wstring& key, const std::wstring& val );
-    bool WriteTextFile( const pfc::string8_fast& filename, const pfc::string8_fast& content, bool write_bom = true );
-    bool WriteTextFileWithOpt( size_t optArgCount, const pfc::string8_fast& filename, const pfc::string8_fast& content, bool write_bom );
+    bool WriteTextFile( const std::wstring& filename, const pfc::string8_fast& content, bool write_bom = true );
+    bool WriteTextFileWithOpt( size_t optArgCount, const std::wstring& filename, const pfc::string8_fast& content, bool write_bom );
 
 public:
     pfc::string8_fast get_Version();

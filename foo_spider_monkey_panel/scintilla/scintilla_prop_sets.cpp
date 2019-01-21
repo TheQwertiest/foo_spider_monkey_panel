@@ -83,7 +83,7 @@ void cfg_sci_prop_sets::reset()
 	}
 }
 
-void cfg_sci_prop_sets::export_to_file(const char * filename)
+void cfg_sci_prop_sets::export_to_file( const wchar_t* filename )
 {
 	pfc::string8_fast_aggressive content;
 

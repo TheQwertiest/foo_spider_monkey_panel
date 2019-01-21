@@ -162,15 +162,12 @@ FileReader::FileReader( const pfc::string8_fast& path )
         { // CreateFileMapping fails on file with zero length, so we need to bail out early
             return;
         }
-
-        // Prepare file
-
         hFile_ = CreateFile( fsPath.wstring().c_str(), GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr );
-        if ( !hFile_ )
+        if ( INVALID_HANDLE_VALUE == hFile_ )
         {
             throw SmpException( smp::string::Formatter() << "Failed to open script file: " << path.c_str() );
         }
-        utils::final_action autoFile( [hFile = hFile_]() {
+        utils::final_action autoFile( [hFile = hFile_] {
             CloseHandle( hFile );
         } );
 
@@ -179,7 +176,7 @@ FileReader::FileReader( const pfc::string8_fast& path )
         {
             throw SmpException( smp::string::Formatter() << "Internal error: CreateFileMapping failed for `" << path.c_str() << "`" );
         }
-        utils::final_action autoMapping( [hFileMapping = hFileMapping_]() {
+        utils::final_action autoMapping( [hFileMapping = hFileMapping_] {
             CloseHandle( hFileMapping );
         } );
 
@@ -189,7 +186,7 @@ FileReader::FileReader( const pfc::string8_fast& path )
         {
             throw SmpException( smp::string::Formatter() << "Internal error: MapViewOfFile failed for `" << path.c_str() << "`" );
         }
-        utils::final_action autoAddress( [pFileView = pFileView_]() {
+        utils::final_action autoAddress( [pFileView = pFileView_] {
             UnmapViewOfFile( pFileView );
         } );
 
@@ -272,39 +269,42 @@ std::wstring ReadFileW( const pfc::string8_fast& path, UINT codepage )
     return ConvertFileContent<std::wstring>( fs::absolute( fs::u8path( path.c_str() ) ).wstring(), fileReader.GetFileContent(), codepage );
 }
 
-bool WriteFile( const char* path, const pfc::string_base& content, bool write_bom )
+bool WriteFile( const wchar_t* path, const pfc::string_base& content, bool write_bom )
 {
-    int offset = write_bom ? 3 : 0;
-    HANDLE hFile = uCreateFile( path, GENERIC_READ | GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL );
+    const int offset = ( write_bom ? sizeof( kBom8 ) : 0 );
+    HANDLE hFile = CreateFile( path, GENERIC_READ | GENERIC_WRITE, 0, nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr );
     if ( hFile == INVALID_HANDLE_VALUE )
     {
         return false;
     }
+    utils::final_action autoFile( [hFile] {
+        CloseHandle( hFile );
+    } );
 
-    HANDLE hFileMapping = uCreateFileMapping( hFile, NULL, PAGE_READWRITE, 0, content.get_length() + offset, NULL );
+    HANDLE hFileMapping = CreateFileMapping( hFile, nullptr, PAGE_READWRITE, 0, content.get_length() + offset, nullptr );
     if ( !hFileMapping )
     {
-        CloseHandle( hFile );
         return false;
     }
-
-    PBYTE pAddr = (PBYTE)MapViewOfFile( hFileMapping, FILE_MAP_WRITE, 0, 0, 0 );
-    if ( !pAddr )
-    {
+    utils::final_action autoMapping( [hFileMapping] {
         CloseHandle( hFileMapping );
-        CloseHandle( hFile );
+    } );
+
+    PBYTE pFileView = (PBYTE)MapViewOfFile( hFileMapping, FILE_MAP_WRITE, 0, 0, 0 );
+    if ( !pFileView )
+    {
         return false;
     }
+    utils::final_action autoAddress( [pFileView] {
+        UnmapViewOfFile( pFileView );
+    } );
 
     if ( write_bom )
     {
-        memcpy( pAddr, kBom8, sizeof( kBom8 ) );
+        memcpy( pFileView, kBom8, sizeof( kBom8 ) );
     }
-    memcpy( pAddr + offset, content.get_ptr(), content.get_length() );
+    memcpy( pFileView + offset, content.get_ptr(), content.get_length() );
 
-    UnmapViewOfFile( pAddr );
-    CloseHandle( hFileMapping );
-    CloseHandle( hFile );
     return true;
 }
 
@@ -390,7 +390,7 @@ std::wstring FileDialog( const std::wstring& title,
         smp::error::CheckHR( hr, "GetResult" );
 
         PWSTR pszFilePath = nullptr;
-        smp::utils::final_action autoFilePath( [&pszFilePath]() {
+        smp::utils::final_action autoFilePath( [&pszFilePath] {
             if ( pszFilePath )
             {
                 CoTaskMemFree( pszFilePath );

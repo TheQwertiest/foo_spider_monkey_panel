@@ -625,17 +625,17 @@ bool JsUtils::WriteINI( const std::wstring& filename, const std::wstring& sectio
     return WritePrivateProfileString( section.c_str(), key.c_str(), val.c_str(), filename.c_str() );
 }
 
-bool JsUtils::WriteTextFile( const pfc::string8_fast& filename, const pfc::string8_fast& content, bool write_bom )
+bool JsUtils::WriteTextFile( const std::wstring& filename, const pfc::string8_fast& content, bool write_bom )
 { // TODO: inspect the code (replace with std::filesystem perhaps?)
-    if ( filename.is_empty() )
+    if ( filename.empty() )
     {
         return false;
     }
 
-    return smp::file::WriteFile( smp::file::CleanPath( filename ).c_str(), content, write_bom );
+    return smp::file::WriteFile( smp::file::CleanPathW( filename ).c_str(), content, write_bom );
 }
 
-bool JsUtils::WriteTextFileWithOpt( size_t optArgCount, const pfc::string8_fast& filename, const pfc::string8_fast& content, bool write_bom )
+bool JsUtils::WriteTextFileWithOpt( size_t optArgCount, const std::wstring& filename, const pfc::string8_fast& content, bool write_bom )
 {
     switch ( optArgCount )
     {
