@@ -72,13 +72,9 @@ T ConvertFileContent( const std::wstring& path, std::string_view content, UINT c
     {
         auto convertToWide = [curPos, curSize] {
             std::wstring tmpString;
-
-            const size_t outputSize = curSize >> 1;
-
-            tmpString.resize( outputSize );
+            tmpString.resize( curSize >> 1 );
             // Can't use wstring.assign(), because of potential aliasing issues
-            memcpy( tmpString.data(), curPos, outputSize );
-
+            memcpy( tmpString.data(), curPos, curSize );
             return tmpString;
         };
 
