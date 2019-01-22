@@ -11,9 +11,15 @@ struct hash<GUID>
 {
     size_t operator()( const GUID& guid ) const noexcept
     {
-        const std::uint64_t* p = reinterpret_cast<const std::uint64_t*>( &guid );
+        const uint64_t guid64_1 =
+            ( static_cast<uint32_t>( guid.Data1 ) << 4 )
+            | ( static_cast<uint32_t>( guid.Data2 ) << 2 )
+            | ( static_cast<uint32_t>( guid.Data3 ) );
+        uint64_t guid64_2;
+        memcpy( &guid64_2, guid.Data4, sizeof( guid.Data4 ) );
+
         std::hash<std::uint64_t> hash;
-        return hash( p[0] ) ^ hash( p[1] );
+        return hash( guid64_1 ) ^ hash( guid64_2 );
     }
 };
 } // namespace std
