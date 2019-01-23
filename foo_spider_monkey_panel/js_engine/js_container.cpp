@@ -248,10 +248,12 @@ void JsContainer::InvokeOnNotify( WPARAM wp, LPARAM lp )
                             *reinterpret_cast<std::wstring*>( wp ),
                             static_cast<JS::HandleValue>( jsValue ) );
     if ( jsValue.isObject() )
-    {
-        // TODO: test this! it was nuked only on success before
-        // Remove binding
-        js::NukeCrossCompartmentWrapper( pJsCtx_, &jsValue.toObject() );
+    { // this will remove all wrappers (e.g. during callback re-entrancy)
+        js::NukeCrossCompartmentWrappers( pJsCtx_, 
+                                          js::SingleCompartment{ js::GetContextCompartment( pJsCtx_ ) }, 
+                                          js::GetObjectCompartment( js::UncheckedUnwrap( &jsValue.toObject() ) ),
+                                          js::NukeReferencesToWindow::DontNukeWindowReferences, ///< browser specific flag, irrelevant to us
+                                          js::NukeReferencesFromTarget::NukeIncomingReferences );
     }
 }
 
