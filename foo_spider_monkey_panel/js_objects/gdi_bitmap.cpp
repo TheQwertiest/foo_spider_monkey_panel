@@ -238,7 +238,7 @@ bool JsGdiBitmap::ApplyMask( JsGdiBitmap* mask )
 JSObject* JsGdiBitmap::Clone( float x, float y, float w, float h )
 {
     std::unique_ptr<Gdiplus::Bitmap> img( pGdi_->Clone( x, y, w, h, PixelFormat32bppPARGB ) );
-    smp::error::CheckGdiPlusObject( img );
+    smp::error::CheckGdiPlusObject( img, pGdi_.get() );
 
     return JsGdiBitmap::CreateJs( pJsCtx_, std::move( img ) );
 }

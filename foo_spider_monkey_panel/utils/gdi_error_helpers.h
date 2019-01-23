@@ -5,24 +5,23 @@
 namespace smp::error
 {
 
-template <typename T>
-void CheckGdiPlusObject( const std::unique_ptr<T>& obj ) noexcept( false )
+template <typename T, typename T_Parent = T>
+void CheckGdiPlusObject( const std::unique_ptr<T>& obj, const T_Parent* pParentObj = nullptr ) noexcept( false )
 {
     if ( gdi::IsGdiPlusObjectValid( obj ) )
     {
         return;
     }
 
-    if ( !obj )
+    if ( !obj && !pParentObj )
     {
         throw SmpException( "Failed to create GdiPlus object" );
     }
-    else
-    {
-        throw SmpException(
-            smp::string::Formatter()
-            << "Failed to create GdiPlus object (0x" << std::hex << obj->GetLastStatus() << ": " << GdiErrorCodeToText( obj->GetLastStatus() ) );
-    }
+
+    const auto pObject = ( obj ? obj.get() : pParentObj );
+    throw SmpException(
+        smp::string::Formatter()
+        << "Failed to create GdiPlus object (0x" << std::hex << pObject->GetLastStatus() << ": " << GdiErrorCodeToText( pObject->GetLastStatus() ) );
 }
 
 const char* GdiErrorCodeToText( Gdiplus::Status errorCode );
