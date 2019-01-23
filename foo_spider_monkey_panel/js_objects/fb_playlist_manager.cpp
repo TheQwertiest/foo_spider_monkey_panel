@@ -245,28 +245,24 @@ void JsFbPlaylistManager::ClearPlaylistSelection( uint32_t playlistIndex )
     playlist_manager::get()->playlist_clear_selection( playlistIndex );
 }
 
-int32_t JsFbPlaylistManager::CreateAutoPlaylist( uint32_t playlistIndex, const pfc::string8_fast& name, const pfc::string8_fast& query, const pfc::string8_fast& sort, uint32_t flags )
+uint32_t JsFbPlaylistManager::CreateAutoPlaylist( uint32_t playlistIndex, const pfc::string8_fast& name, const pfc::string8_fast& query, const pfc::string8_fast& sort, uint32_t flags )
 {
-    int32_t optPos = CreatePlaylist( playlistIndex, name );
-    if ( -1 == optPos )
-    { // Not a script stopping error
-        return -1;
-    }
+    const uint32_t upos = CreatePlaylist( playlistIndex, name );
+    assert( pfc_infinite != upos );
 
-    uint32_t upos = static_cast<uint32_t>( optPos );
     try
     {
         autoplaylist_manager::get()->add_client_simple( query.c_str(), sort.c_str(), upos, flags );
         return upos;
     }
-    catch ( const pfc::exception& )
-    {
+    catch ( const pfc::exception& e )
+    {// Bad query expression
         playlist_manager::get()->remove_playlist( upos );
-        return -1;
+        throw SmpException( e.what() );
     }
 }
 
-int32_t JsFbPlaylistManager::CreateAutoPlaylistWithOpt( size_t optArgCount, uint32_t playlistIndex, const pfc::string8_fast& name, const pfc::string8_fast& query, const pfc::string8_fast& sort, uint32_t flags )
+uint32_t JsFbPlaylistManager::CreateAutoPlaylistWithOpt( size_t optArgCount, uint32_t playlistIndex, const pfc::string8_fast& name, const pfc::string8_fast& query, const pfc::string8_fast& sort, uint32_t flags )
 {
     switch ( optArgCount )
     {
@@ -281,7 +277,7 @@ int32_t JsFbPlaylistManager::CreateAutoPlaylistWithOpt( size_t optArgCount, uint
     }
 }
 
-int32_t JsFbPlaylistManager::CreatePlaylist( uint32_t playlistIndex, const pfc::string8_fast& name )
+uint32_t JsFbPlaylistManager::CreatePlaylist( uint32_t playlistIndex, const pfc::string8_fast& name )
 {
     auto api = playlist_manager::get();
 
@@ -294,8 +290,8 @@ int32_t JsFbPlaylistManager::CreatePlaylist( uint32_t playlistIndex, const pfc::
     {
         upos = api->create_playlist( name.c_str(), name.length(), playlistIndex );
     }
-
-    return ( pfc_infinite == upos ? -1 : static_cast<int32_t>( upos ) );
+    assert( pfc_infinite != upos );
+    return upos;
 }
 
 uint32_t JsFbPlaylistManager::DuplicatePlaylist( uint32_t from, const pfc::string8_fast& name )
@@ -310,12 +306,15 @@ uint32_t JsFbPlaylistManager::DuplicatePlaylist( uint32_t from, const pfc::strin
     pfc::string8_fast uname = name;
     if ( uname.is_empty() )
     {
-        api->playlist_get_name( from, uname );
+        (void)api->playlist_get_name( from, uname );
     }
 
     stream_reader_dummy dummy_reader;
     auto& abort = smp::GlobalAbortCallback::GetInstance();
-    return api->create_playlist_ex( uname.get_ptr(), uname.get_length(), from + 1, contents, &dummy_reader, abort );
+    const uint32_t upos = api->create_playlist_ex( uname.get_ptr(), uname.get_length(), from + 1, contents, &dummy_reader, abort );
+
+    assert( pfc_infinite != upos );
+    return upos;
 }
 
 uint32_t JsFbPlaylistManager::DuplicatePlaylistWithOpt( size_t optArgCount, uint32_t from, const pfc::string8_fast& name )
@@ -341,7 +340,7 @@ bool JsFbPlaylistManager::ExecutePlaylistDefaultAction( uint32_t playlistIndex, 
     return playlist_manager::get()->playlist_execute_default_action( playlistIndex, playlistItemIndex );
 }
 
-int32_t JsFbPlaylistManager::FindOrCreatePlaylist( const pfc::string8_fast& name, bool unlocked )
+uint32_t JsFbPlaylistManager::FindOrCreatePlaylist( const pfc::string8_fast& name, bool unlocked )
 {
     auto api = playlist_manager::get();
 
@@ -355,7 +354,8 @@ int32_t JsFbPlaylistManager::FindOrCreatePlaylist( const pfc::string8_fast& name
         upos = api->find_or_create_playlist( name.c_str(), name.length() );
     }
 
-    return ( pfc_infinite == upos ? -1 : static_cast<int32_t>( upos ) );
+    assert( pfc_infinite != upos );
+    return upos;
 }
 
 int32_t JsFbPlaylistManager::FindPlaybackQueueItemIndex( JsFbMetadbHandle* handle, uint32_t playlistIndex, uint32_t playlistItemIndex )

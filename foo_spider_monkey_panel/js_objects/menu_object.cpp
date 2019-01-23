@@ -143,7 +143,7 @@ void JsMenuObject::CheckMenuRadioItem( uint32_t first, uint32_t last, uint32_t s
     smp::error::CheckWinApi( bRet, "CheckMenuRadioItem" );
 }
 
-std::uint32_t JsMenuObject::TrackPopupMenu( int32_t x, int32_t y, uint32_t flags )
+uint32_t JsMenuObject::TrackPopupMenu( int32_t x, int32_t y, uint32_t flags )
 {
     POINT pt = { x, y };
 
@@ -165,7 +165,7 @@ std::uint32_t JsMenuObject::TrackPopupMenu( int32_t x, int32_t y, uint32_t flags
     return ::TrackPopupMenu( hMenu_, flags, pt.x, pt.y, 0, hParentWnd_, 0 );
 }
 
-std::uint32_t JsMenuObject::TrackPopupMenuWithOpt( size_t optArgCount, int32_t x, int32_t y, uint32_t flags )
+uint32_t JsMenuObject::TrackPopupMenuWithOpt( size_t optArgCount, int32_t x, int32_t y, uint32_t flags )
 {
     switch ( optArgCount )
     {

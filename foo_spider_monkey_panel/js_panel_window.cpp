@@ -716,7 +716,7 @@ void js_panel_window::show_property_popup( HWND parent )
     (void)dlg.DoModal( parent );
 }
 
-void js_panel_window::build_context_menu( HMENU menu, int x, int y, int id_base )
+void js_panel_window::build_context_menu( HMENU menu, int x, int y, uint32_t id_base )
 {
     ::AppendMenu( menu, MF_STRING, id_base + 1, _T( "&Reload" ) );
     ::AppendMenu( menu, MF_SEPARATOR, 0, 0 );
@@ -727,7 +727,7 @@ void js_panel_window::build_context_menu( HMENU menu, int x, int y, int id_base 
     ::AppendMenu( menu, MF_STRING, id_base + 5, _T( "&Configure..." ) );
 }
 
-void js_panel_window::execute_context_menu_command( int id, int id_base )
+void js_panel_window::execute_context_menu_command( uint32_t id, uint32_t id_base )
 {
     switch ( id - id_base )
     {
@@ -992,14 +992,14 @@ void js_panel_window::on_context_menu( int x, int y )
 
     MessageBlockingScope scope;
 
-    const int base_id = 0;
     HMENU hMenu = CreatePopupMenu();
     utils::final_action autoMenu( [hMenu] {
         DestroyMenu( hMenu );
     } );
 
+    constexpr uint32_t base_id = 0;
     build_context_menu( hMenu, x, y, base_id );
-    int ret = TrackPopupMenu( hMenu, TPM_RIGHTBUTTON | TPM_NONOTIFY | TPM_RETURNCMD, x, y, 0, hWnd_, 0 );
+    uint32_t ret = TrackPopupMenu( hMenu, TPM_RIGHTBUTTON | TPM_NONOTIFY | TPM_RETURNCMD, x, y, 0, hWnd_, 0 );
     execute_context_menu_command( ret, base_id );
 }
 

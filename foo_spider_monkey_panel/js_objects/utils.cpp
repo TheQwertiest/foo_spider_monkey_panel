@@ -205,12 +205,15 @@ bool JsUtils::CheckFont( const std::wstring& name )
 
 uint32_t JsUtils::ColourPicker( uint32_t hWindow, uint32_t default_colour )
 {
-    COLORREF color = smp::colour::convert_argb_to_colorref( default_colour );
-    COLORREF colors[16] = { 0 };
+    COLORREF colour{};
+    COLORREF dummy[16] = { 0 };
     // Such cast will work only on x86
-    uChooseColor( &color, (HWND)hWindow, &colors[0] );
+    if ( !uChooseColor( &colour, (HWND)hWindow, &dummy[0] ) )
+    {
+        colour = smp::colour::convert_argb_to_colorref( default_colour );
+    }
 
-    return smp::colour::convert_colorref_to_argb( color );
+    return smp::colour::convert_colorref_to_argb( colour );
 }
 
 JS::Value JsUtils::FileTest( const std::wstring& path, const std::wstring& mode )

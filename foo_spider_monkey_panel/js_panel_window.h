@@ -45,8 +45,8 @@ protected:
     bool show_configure_popup( HWND parent );
     void show_property_popup( HWND parent );
 
-    static void build_context_menu( HMENU menu, int x, int y, int id_base );
-    void execute_context_menu_command( int id, int id_base );
+    static void build_context_menu( HMENU menu, int x, int y, uint32_t id_base );
+    void execute_context_menu_command( uint32_t id, uint32_t id_base );
 
 private:
     std::optional<LRESULT> process_sync_messages( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp );

@@ -182,7 +182,7 @@ JSObject* JsGdiBitmap::ApplyAlpha( uint8_t alpha )
     return JsGdiBitmap::CreateJs( pJsCtx_, std::move( out ) );
 }
 
-bool JsGdiBitmap::ApplyMask( JsGdiBitmap* mask )
+void JsGdiBitmap::ApplyMask( JsGdiBitmap* mask )
 {
     SmpException::ExpectTrue( mask, "mask argument is null" );
 
@@ -199,18 +199,19 @@ bool JsGdiBitmap::ApplyMask( JsGdiBitmap* mask )
 
     Gdiplus::BitmapData maskBmpData = { 0 };
     Gdiplus::Status gdiRet = pBitmapMask->LockBits( &rect, Gdiplus::ImageLockModeRead, PixelFormat32bppARGB, &maskBmpData );
-    if ( Gdiplus::Ok != gdiRet )
-    {
-        return false;
-    }
+    smp::error::CheckGdi( gdiRet, "mask::LockBits" );
+
+    const auto autoMaskBits = [pBitmapMask, &maskBmpData] {
+        pBitmapMask->UnlockBits( &maskBmpData );
+    };
 
     Gdiplus::BitmapData dstBmpData = { 0 };
     gdiRet = pGdi_->LockBits( &rect, Gdiplus::ImageLockModeRead | Gdiplus::ImageLockModeWrite, PixelFormat32bppARGB, &dstBmpData );
-    if ( Gdiplus::Ok != gdiRet )
-    {
-        pBitmapMask->UnlockBits( &maskBmpData );
-        return false;
-    }
+    smp::error::CheckGdi( gdiRet, "dst::LockBits" );
+
+    const auto autoDstBits = [&pGdi = pGdi_, &dstBmpData] {
+        pGdi->UnlockBits( &dstBmpData );
+    };
 
     uint32_t* pMask = reinterpret_cast<uint32_t*>( maskBmpData.Scan0 );
     uint32_t* pDst = reinterpret_cast<uint32_t*>( dstBmpData.Scan0 );
@@ -228,11 +229,6 @@ bool JsGdiBitmap::ApplyMask( JsGdiBitmap* mask )
         ++pMask;
         ++pDst;
     }
-
-    pGdi_->UnlockBits( &dstBmpData );
-    pBitmapMask->UnlockBits( &maskBmpData );
-
-    return true;
 }
 
 JSObject* JsGdiBitmap::Clone( float x, float y, float w, float h )

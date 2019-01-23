@@ -804,18 +804,18 @@ let plman = {
 
     /**
      * @param {number} playlistIndex
-     * @param {string} name A name for the new Autplaylist
-     * @param {string} query A valid query
-     * @param {string=} [sort=''] Title formatting pattern.
-     * @param {number=} [flags=0] Use 1 to force sort
-     * @return {number} -1 on failure
+     * @param {string} name Name for the new autoplaylist.
+     * @param {string} query Title formatting pattern for forming the playlist content.
+     * @param {string=} [sort=''] Title formatting pattern for sorting.
+     * @param {number=} [flags=0] 1 - when set, will keep the autoplaylist sorted and prevent user from reordering it.
+     * @return {number} Index of the created playlist.
      */
-    CreateAutoPlaylist: function (playlistIndex, name, query, sort, flags) { }, // (int) [, sort][, flags]
+    CreateAutoPlaylist: function (playlistIndex, name, query, sort, flags) { }, // (uint) [, sort][, flags]
 
     /**
      * @param {number} playlistIndex
      * @param {string} name
-     * @return {number} -1 on failure.
+     * @return {number} Index of the created playlist.
      *
      * @example
      * // Creates a new playlist named "New playlist", which is put at the beginning of the current playlists.
@@ -825,7 +825,7 @@ let plman = {
      * // Create a new playlist named "my favourites", which is put at the end.
      * plman.CreatePlaylist(plman.PlaylistCount, 'my favourites');
      */
-    CreatePlaylist: function (playlistIndex, name) { }, // (int)
+    CreatePlaylist: function (playlistIndex, name) { }, // (uint)
 
     /**
      * Note: the duplicated playlist gets inserted directly after the source playlistIndex.<br>
@@ -833,9 +833,9 @@ let plman = {
      *
      * @param {number} playlistIndex
      * @param {?string=} [name] A name for the new playlist. If the name is "" or undefined, the name of the source playlist will be used.
-     * @return {number}
+     * @return {number} Index of the created playlist.
      */
-    DuplicatePlaylist: function (playlistIndex, name) { }, // (int)
+    DuplicatePlaylist: function (playlistIndex, name) { }, // (uint)
 
     /**
      * Signals playlist viewers to display the track (e.g. by scrolling to it's position).
@@ -861,13 +861,13 @@ let plman = {
      * @param {string} name
      * @param {boolean} unlocked If true, locked playlists are ignored when looking for existing playlists.
      *                           If false, the playlistIndex of any playlist with the matching name will be returned.
-     * @return {number}
+     * @return {number} Index of the found or created playlist.
      */
-    FindOrCreatePlaylist: function (name, unlocked) { }, // (int)
+    FindOrCreatePlaylist: function (name, unlocked) { }, // (uint)
 
     /**
      * @param {string} name Case insensitive.
-     * @return {number} playlistIndex or -1 on failure.
+     * @return {number} Index of the found playlist on success, -1 on failure.
      */
     FindPlaylist: function (name) { }, // (int)
 
@@ -920,9 +920,8 @@ let plman = {
      * @param {number} base Position in playlist
      * @param {FbMetadbHandleList} handle_list Items to insert
      * @param {boolean=} [select=false] If true then inserted items will be selected
-     * @return {number}
      *
-     * @example <caption>Add all library tracks to beginning of playlist.</caption>
+     * @example <caption>Add all library tracks to the beginning of playlist.</caption>
      * let ap = plman.ActivePlaylist;
      * plman.InsertPlaylistItems(ap, 0, fb.GetLibraryItems());
      *
@@ -930,7 +929,7 @@ let plman = {
      * let ap = plman.ActivePlaylist;
      * plman.InsertPlaylistItems(ap, plman.PlaylistItemCount(ap), fb.GetLibraryItems());
      */
-    InsertPlaylistItems: function (playlistIndex, base, handle_list, select) { }, // (int) [, select]
+    InsertPlaylistItems: function (playlistIndex, base, handle_list, select) { }, // (void) [, select]
 
     /**
      * Same as {@link plman.InsertPlaylistItems} except any duplicates contained in handle_list are removed.
@@ -939,9 +938,8 @@ let plman = {
      * @param {number} base
      * @param {FbMetadbHandleList} handle_list
      * @param {boolean=} [select=false]
-     * @return {number}
      */
-    InsertPlaylistItemsFilter: function (playlistIndex, base, handle_list, select) { }, // (int) select = false
+    InsertPlaylistItemsFilter: function (playlistIndex, base, handle_list, select) { }, // (void) select = false
 
     /**
      * @param {number} playlistIndex
@@ -1152,7 +1150,7 @@ let plman = {
      * @param {FbMetadbHandle} handle
      * @param {number} playlistIndex
      * @param {number} playlistItemIndex
-     * @return {number} -1 on failure
+     * @return {number} Returns position in queue on success, -1 if track is not in queue.
      */
     FindPlaybackQueueItemIndex: function (handle, playlistIndex, playlistItemIndex) { }, // (int)
 
@@ -1256,25 +1254,25 @@ let utils = {
      * Spawns a windows popup dialog to let you choose a colour.
      *
      * @param {number} window_id {@link window.ID}
-     * @param {number} default_colour
+     * @param {number} default_colour This colour is used if OK button was not clicked.
      * @return {number}
      *
      * @example
      * let colour = utils.ColourPicker(window.ID, RGB(255, 0, 0));
      * // See docs\Helper.js for RGB function.
      */
-    ColourPicker: function (window_id, default_colour) { }, // (int)
+    ColourPicker: function (window_id, default_colour) { }, // (uint)
 
     /**
      * Various utility functions for working with file.
      * 
      * @param {string} path
      * @param {string} mode
-     *     "chardet" - Guesses the charset of a file and return the codepage. It may not be accurate and returns 0 if an error occurred.<br>
+     *     "chardet" - Detects the codepage of the given file. Returns a corresponding codepage number on success, 0 if codepage detection failed.<br>
      *     "e" - If file path exists, returns true.<br>
      *     "s" - Retrieves file size, in bytes.<br>
      *     "d" - If path is a directory, returns true.<br>
-     *     "split" - Returns an array of directory, filename and filename extension.
+     *     "split" - Returns an array of [directory, filename, filename_extension].
      * @return {*}
      *
      * @example
@@ -1568,7 +1566,7 @@ let window = {
      * @example
      * window.DlgCode = DLGC_WANTALLKEYS;
      */
-    DlgCode: undefined, // (int) (read, write)
+    DlgCode: undefined, // (uint) (read, write)
 
     /**
      * Required in multiple methods such as {@link fb.GetClipboardContents}, {@link utils.ColourPicker}, {@link utils.GetAlbumArtAsync},
@@ -1577,7 +1575,7 @@ let window = {
      * @type {number}
      * @readonly
      */
-    ID: undefined, // (read) (int)
+    ID: undefined, // (read) (uint)
 
     /**
      * You need this to determine which GetFontXXX and GetColourXXX methods to use, assuming you want to support both interfaces.<br>
@@ -1588,7 +1586,7 @@ let window = {
      * @type {number}
      * @readonly
      */
-    InstanceType: undefined, // (int)
+    InstanceType: undefined, // (uint)
 
     /**
      * Only useful within Panel Stack Splitter (Columns UI component)<br>
@@ -1610,7 +1608,7 @@ let window = {
      * @type {number}
      * @readonly
      */
-    Height: undefined, // (int) (read)
+    Height: undefined, // (uint) (read)
 
     /**
      * {@link window.MaxHeight}, {@link window.MaxWidth}, {@link window.MinHeight} and {@link window.MinWidth} can be used to lock the panel size.<br>
@@ -1618,14 +1616,14 @@ let window = {
      *
      * @type {number}
      */
-    MaxHeight: undefined, // (int) (read, write)
+    MaxHeight: undefined, // (uint) (read, write)
 
     /**
      * See {@link window.MaxHeight}.
      *
      * @type {number}
      */
-    MaxWidth: undefined, // (int) (read, write)
+    MaxWidth: undefined, // (uint) (read, write)
 
     /**
      * Maximum allowed memory usage for the component (in bytes).<br>
@@ -1641,14 +1639,14 @@ let window = {
      *
      * @type {number}
      */
-    MinHeight: undefined, // (int) (read, write)
+    MinHeight: undefined, // (uint) (read, write)
 
     /**
      * See {@link window.MaxHeight}.
      *
      * @type {number}
      */
-    MinWidth: undefined, // (int) (read, write)
+    MinWidth: undefined, // (uint) (read, write)
 
     /**
      * Returns the author set in {@link window.DefinePanel}.
@@ -1679,7 +1677,7 @@ let window = {
      * @type {number}
      * @readonly
      */
-    Width: undefined, // (int) (read)
+    Width: undefined, // (uint) (read)
 
     /**
      * See {@link clearTimeout}.
@@ -1902,7 +1900,7 @@ function FbMetadbHandle() {
      * @type {number}
      * @readonly
      */
-    this.SubSong = undefined; // (int) (read)
+    this.SubSong = undefined; // (uint) (read)
 
     /**
      * -1 if size is unavailable.
@@ -2012,7 +2010,7 @@ function FbFileInfo() {
 
     /**
      * @param {string} name
-     * @return {number} -1 on failure
+     * @return {number} -1 if not found
      */
     this.InfoFind = function (name) { }; //
 
@@ -2030,7 +2028,7 @@ function FbFileInfo() {
 
     /**
      * @param {string} name
-     * @return {number} -1 on failure
+     * @return {number} -1 if not found
      */
     this.MetaFind = function (name) { }; //
 
@@ -2050,12 +2048,14 @@ function FbFileInfo() {
 
     /**
      * @param {number} idx
-     * @param {number} vidx
+     * @param {number} value_idx Used for iterating through multi-value tags.
      * @return {string}
      */
-    this.MetaValue = function (idx, vidx) { }; //
+    this.MetaValue = function (idx, value_idx) { }; //
 
     /**
+     * The number of values contained in a meta tag.
+     * 
      * @param {number} idx
      * @return {number}
      */
@@ -2165,7 +2165,7 @@ function FbMetadbHandleList(arg) {
      * Performance note: if sorted with {@link FbMetadbHandleList#Sort}, use {@link FbMetadbHandleList#BSearch} instead.
      *
      * @param {FbMetadbHandle} handle
-     * @return {number} index in the handle list on success, -1 on failure
+     * @return {number} index in the handle list on success, -1 if not found
      */
     this.Find = function (handle) { }; // (int)
 
@@ -2186,20 +2186,18 @@ function FbMetadbHandleList(arg) {
     /**
      * @param {number} index
      * @param {FbMetadbHandle} handle
-     * @return {number}
      *
      * @example
      * // This inserts at the end of the handle list.
      * handle_list.Insert(handle_list.Count, fb.GetNowPlaying());
      */
-    this.Insert = function (index, handle) { }; // (int)
+    this.Insert = function (index, handle) { }; // (void)
 
     /**
      * @param {number} index
      * @param {FbMetadbHandleList} handle_list
-     * @return {number}
      */
-    this.InsertRange = function (index, handle_list) { }; // (int)
+    this.InsertRange = function (index, handle_list) { }; // (void)
 
     /**
      * Note: sort with {@link FbMetadbHandleList#Sort} before using.
@@ -2405,18 +2403,25 @@ function FbPlaylistRecycler() {
 function FbPlayingItemLocation() {
 
     /**
+     * False if foobar2000 isn't playing or if the playing track
+	 * has since been removed from the playlist it was on when playback was started.
+     * 
      * @type {boolean}
      * @readonly
      */
     this.IsValid = undefined; // (boolean) (read)
 
     /**
+     * -1 if item is not in a playlist
+     * 
      * @type {number}
      * @readonly
      */
     this.PlaylistIndex = undefined; // (int) (read)
 
     /**
+     * -1 if item is not in a playlist
+     * 
      * @type {number}
      * @readonly
      */
@@ -2436,13 +2441,15 @@ function FbPlaybackQueueItem() {
     this.Handle = undefined; // (FbMetadbHandle) (read)
 
     /**
+     * -1 if item is not in a playlist
+     * 
      * @type {number}
      * @readonly
      */
     this.PlaylistIndex = undefined; // (int) (read)
 
     /**
-     * -1 if added not from a playlist
+     * -1 if item is not in a playlist
      *
      * @type {number}
      * @readonly
@@ -2578,7 +2585,7 @@ function FbTooltip() {
      * @param {number} type
      * @return {number}
      */
-    this.GetDelayTime = function (type) { }; // (int)
+    this.GetDelayTime = function (type) { }; // (uint)
 
     /**
      * @param {number} type See Flags.js > Used in {@link FbTooltip#GetDelayTime} and {@link FbTooltip#SetDelayTime}
@@ -2678,13 +2685,13 @@ function GdiBitmap(arg) {
      * @type {number}
      * @readonly
      */
-    this.Height = undefined;// (int) (read)
+    this.Height = undefined;// (uint) (read)
 
     /**
      * @type {number}
      * @readonly
      */
-    this.Width = undefined;// (int) (read)
+    this.Width = undefined;// (uint) (read)
 
     /**
      * @param {number} alpha Valid values 0-255.
@@ -2693,10 +2700,12 @@ function GdiBitmap(arg) {
     this.ApplyAlpha = function (alpha) { }; // (GdiBitmap)
 
     /**
-     * Changes will be saved in the current bitmap. See samples\basic\Apply Mask.txt
+     * Changes will be saved in the current bitmap.
      *
      * @param {GdiBitmap} img
-     * @return {boolean}
+     * 
+     * @example <caption>Blur image<caption>
+     * // samples\basic\Apply Mask.txt
      */
     this.ApplyMask = function (img) { }; // (boolean)
 
@@ -2743,7 +2752,7 @@ function GdiBitmap(arg) {
     this.GetColourSchemeJSON = function (max_count) { }; // (string)
 
     /**
-     * Note: don't forget to use {@link GdiGraphics#ReleaseGraphics} after operations on GdiGraphics interface is done!
+     * Note: don't forget to use {@link GdiBitmap#ReleaseGraphics} after work on GdiGraphics is done!
      *
      * @return {GdiGraphics}
      */
@@ -2751,7 +2760,6 @@ function GdiBitmap(arg) {
 
     /**
      * @param {GdiGraphics} gr
-     * @return {GdiGraphics}
      */
     this.ReleaseGraphics = function (gr) { }; // (GdiGraphics)
 
@@ -2759,11 +2767,13 @@ function GdiBitmap(arg) {
      * @param {number} w
      * @param {number} h
      * @param {number=} [mode=0] See Flags.js > InterpolationMode
-     * @return{GdiBitmap}
+     * @return {GdiBitmap}
      */
     this.Resize = function (w, h, mode) { }; // (GdiBitmap) [, mode]
 
     /**
+     * Changes will be saved in the current bitmap.
+     * 
      * @param {number} mode See Flags.js > RotateFlipType
      */
     this.RotateFlip = function (mode) { }; // (void)
@@ -2787,7 +2797,9 @@ function GdiBitmap(arg) {
     this.SaveAs = function (path, format) { }; // (boolean) [, format]
 
     /**
-     * @param {number} radius Valid values 2-254. S
+     * Changes will be saved in the current bitmap.
+     * 
+     * @param {number} radius Valid values 2-254.
      *
      * @example <caption>Blur image<caption>
      * // samples\basic\StackBlur (image).txt
@@ -2810,7 +2822,7 @@ function GdiFont() {
      * @example
      * console.log(my_font.Height); // 15
      */
-    this.Height = undefined;//    (int)(read)
+    this.Height = undefined;//    (uint)(read)
 
     /**
      * @type {string}
@@ -2839,7 +2851,7 @@ function GdiFont() {
      * @example
      * console.log(my_font.Style);
      */
-    this.Style = undefined;//    (int)(read)
+    this.Style = undefined;//    (uint)(read)
 }
 
 /**
@@ -3117,7 +3129,7 @@ function GdiGraphics() {
          * @type {number}
          * @readonly
          */
-        this.chars = undefined; // (int) (read)
+        this.Chars = undefined; // (uint) (read)
 
         /**
          * @type {float}
@@ -3129,19 +3141,19 @@ function GdiGraphics() {
          * @type {number}
          * @readonly
          */
-        this.lines = undefined; // (int) (read)
+        this.Lines = undefined; // (uint) (read)
 
         /**
          * @type {float}
          * @readonly
          */
-        this.x = undefined; // (float) (read)
+        this.X = undefined; // (float) (read)
 
         /**
          * @type {float}
          * @readonly
          */
-        this.y = undefined; // (float) (read)
+        this.Y = undefined; // (float) (read)
 
         /**
          * @type {float}
@@ -3176,13 +3188,13 @@ function GdiRawBitmap() {
      * @type {number}
      * @readonly
      */
-    this.Width = undefined; // (int) (read)
+    this.Width = undefined; // (uint) (read)
 
     /**
      * @type {number}
      * @readonly
      */
-    this.Height = undefined; // (int) (read)
+    this.Height = undefined; // (uint) (read)
 }
 
 /**
@@ -3332,7 +3344,7 @@ function MenuObject() {
      * @param {number=} [flags=0] See Flags.js > Used in TrackPopupMenu().
      * @return {number}
      */
-    this.TrackPopupMenu = function (x, y, flags) { }; // (int) [, flags]
+    this.TrackPopupMenu = function (x, y, flags) { }; // (uint) [, flags]
 }
 
 /**

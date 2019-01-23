@@ -48,7 +48,7 @@ public: // ctor
 
 public: //methods
     JSObject* ApplyAlpha( uint8_t alpha );
-    bool ApplyMask( JsGdiBitmap* mask );
+    void ApplyMask( JsGdiBitmap* mask );
     JSObject* Clone( float x, float y, float w, float h );
     JSObject* CreateRawBitmap();
     JSObject* GetColourScheme( uint32_t count );
