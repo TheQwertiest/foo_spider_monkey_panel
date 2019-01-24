@@ -12,11 +12,11 @@
 namespace
 {
 
-constexpr unsigned int kColourCount = 4; // 0 - r, 1 - g, 2 - b, 3 - a
-using ColourArray = std::array<unsigned long, kColourCount>;
+constexpr uint32_t kColourCount = 4; // 0 - r, 1 - g, 2 - b, 3 - a
+using ColourArray = std::array<uint32_t, kColourCount>;
 
 
-static unsigned short const stackblur_mul[255] =
+constexpr uint16_t stackblur_mul[255] =
 {
     512,512,456,512,328,456,335,512,405,328,271,456,388,335,292,512,
     454,405,364,328,298,271,496,456,420,388,360,335,312,292,273,512,
@@ -36,7 +36,7 @@ static unsigned short const stackblur_mul[255] =
     289,287,285,282,280,278,275,273,271,269,267,265,263,261,259
 };
 
-static unsigned char const stackblur_shr[255] =
+constexpr uint8_t stackblur_shr[255] =
 {
      9, 11, 12, 13, 13, 14, 14, 15, 15, 15, 15, 16, 16, 16, 16, 17,
     17, 17, 17, 17, 17, 17, 18, 18, 18, 18, 18, 18, 18, 18, 18, 19,
@@ -56,128 +56,143 @@ static unsigned char const stackblur_shr[255] =
     24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24
 };
 
-void stackblur_by_segment( unsigned char* src,  ///< input image data
-                           unsigned int w,      ///< image width
-                           unsigned int h,      ///< image height
-                           unsigned int radius, ///< blur intensity (should be in 2..254 range)
+void stackblur_by_segment( uint8_t* src,  ///< input image data
+                           uint32_t w,      ///< image width
+                           uint32_t h,      ///< image height
+                           uint32_t radius, ///< blur intensity (should be in 2..254 range)
                            bool isLineSegment,  ///< false, means column segment
-                           unsigned int segmentStart,
-                           unsigned int segmentEnd,
-                           unsigned char* stack ///< stack buffer
+                           uint32_t segmentStart,
+                           uint32_t segmentEnd,
+                           uint8_t* stack ///< stack buffer
 )
 {
     // if line segment: coord_1 = x; coord_2 = y;
-    const unsigned int coord_1_shift = isLineSegment ? kColourCount : ( w * kColourCount );
-    const unsigned int coord_2_shift = isLineSegment ? ( w * kColourCount ) : kColourCount;
+    const uint32_t coord_1_shift = isLineSegment ? kColourCount : ( w * kColourCount );
+    const uint32_t coord_2_shift = isLineSegment ? ( w * kColourCount ) : kColourCount;
 
-    const unsigned int axis_1_size = isLineSegment ? w : h;
-    const unsigned int coord_1_limit = axis_1_size - 1;
+    const uint32_t axis_1_size = isLineSegment ? w : h;
+    const uint32_t coord_1_limit = axis_1_size - 1;
 
-    const unsigned int div = ( radius * 2 ) + 1;
-    const unsigned int mul_sum = stackblur_mul[radius];
-    const unsigned char shr_sum = stackblur_shr[radius];
+    const uint32_t div = ( radius * 2 ) + 1;
+    const uint32_t mul_sum = stackblur_mul[radius];
+    const uint8_t shr_sum = stackblur_shr[radius];
 
-    for ( unsigned int coord_2 = segmentStart; coord_2 < segmentEnd; ++coord_2 )
+    for ( uint32_t coord_2 = segmentStart; coord_2 < segmentEnd; ++coord_2 )
     {// iterate through segment elements (i.e. lines or columns)
         ColourArray sum_colour = { 0 };
         ColourArray sum_in_colour = { 0 };
         ColourArray sum_out_colour = { 0 };
 
-        unsigned char* src_ptr = src + coord_2_shift * coord_2;
-
-        for ( unsigned int i = 0; i <= radius; ++i )
         {
-            memcpy( &stack[kColourCount * i], src_ptr, kColourCount );
+            // preload the kernel(stack)
+            // pixels before the left edge of the image are
+            // samples of [0] (max()).  min() handles
+            // images which are smaller than the kernel.
+            const uint8_t* src_ptr = src + coord_2_shift * coord_2;
+            for ( int32_t i = -static_cast<int32_t>( radius ); i <= static_cast<int32_t>( radius ); ++i )
+            {
+                // calculate address of source pixel
+                const size_t srcOffset = std::min<uint32_t>( coord_1_limit, std::max<int32_t>( i, 0 ) );
+                const uint8_t* srcCur = src_ptr + srcOffset;
 
-            for ( unsigned int j = 0; j < kColourCount; ++j )
-            {
-                sum_colour[j] += src_ptr[j] * ( i + 1 );
-            }
-            for ( unsigned int j = 0; j < kColourCount; ++j )
-            {
-                sum_out_colour[j] += src_ptr[j];
+                // put pixel in the stack
+                memcpy( &stack[kColourCount * ( i + radius )], srcCur, kColourCount );
+
+                // rbs is a weight from (1)...(radius+1)...(1)
+                const uint32_t rbs = ( radius + 1 ) - abs( i );
+
+                // add pixel to accumulators
+                for ( uint32_t j = 0; j < kColourCount; ++j )
+                {
+                    sum_colour[j] += srcCur[j] * rbs;
+                }
+                if ( i > 0 )
+                {
+                    for ( uint32_t j = 0; j < kColourCount; ++j )
+                    {
+                        sum_in_colour[j] += srcCur[j];
+                    }
+                }
+                else
+                {
+                    for ( uint32_t j = 0; j < kColourCount; ++j )
+                    {
+                        sum_out_colour[j] += srcCur[j];
+                    }
+                }
             }
         }
 
-        for ( unsigned int i = 1; i <= radius; ++i )
-        {
-            if ( i <= coord_1_limit )
-            {
-                src_ptr += coord_1_shift;
-            }
+        // now that the kernel is preloaded
+        // stackpointer is the index of the center of the kernel
+        uint32_t stackPointer = radius;
 
-            memcpy( &stack[kColourCount * ( i + radius )], src_ptr, kColourCount );
+        uint32_t coord_1_p = std::min( radius, coord_1_limit );
+        const uint32_t src_ptr_shift = isLineSegment ? ( coord_1_p + coord_2 * w ) : ( coord_2 + coord_1_p * w );
 
-            for ( unsigned int j = 0; j < kColourCount; ++j )
-            {
-                sum_colour[j] += src_ptr[j] * ( radius + 1 - i );
-            }
-            for ( unsigned int j = 0; j < kColourCount; ++j )
-            {
-                sum_in_colour[j] += src_ptr[j];
-            }
-        }
-
-        unsigned int sp = radius;
-        unsigned int coord_p = std::min( radius, coord_1_limit );
-        unsigned int src_ptr_shift = isLineSegment ? ( coord_p + coord_2 * w ) : ( coord_2 + coord_p * w );
-
-        src_ptr = src + kColourCount * src_ptr_shift;
-        unsigned char* dst_ptr = src + coord_2 * coord_2_shift;
-        for ( unsigned int coord_1 = 0; coord_1 < axis_1_size; ++coord_1 )
+        const uint8_t* src_ptr = src + kColourCount * src_ptr_shift;
+        uint8_t* dst_ptr = src + coord_2 * coord_2_shift;
+        for ( uint32_t coord_1 = 0; coord_1 < axis_1_size; ++coord_1 )
         {// iterate through pixels inside segment element
-            for ( unsigned int j = 0; j < kColourCount; ++j )
+
+             // output a pixel
+            for ( uint32_t j = 0; j < kColourCount; ++j )
             {
                 dst_ptr[j] = static_cast<uint8_t>( ( sum_colour[j] * mul_sum ) >> shr_sum );
             }
             dst_ptr += coord_1_shift;
 
-            for ( unsigned int j = 0; j < kColourCount; ++j )
+            // remove "past" pixels from the sum
+            for ( uint32_t j = 0; j < kColourCount; ++j )
             {
                 sum_colour[j] -= sum_out_colour[j];
             }
 
-            unsigned int stack_start = sp + div - radius;
+            // remove "left" side of stack from outsum
+            uint32_t stack_start = stackPointer + div - radius;
             if ( stack_start >= div )
             {
                 stack_start -= div;
             }
-            unsigned char* stack_ptr = &stack[kColourCount * stack_start];
-
-            for ( unsigned int j = 0; j < kColourCount; ++j )
+            uint8_t* stack_ptr = &stack[kColourCount * stack_start];
+            for ( uint32_t j = 0; j < kColourCount; ++j )
             {
                 sum_out_colour[j] -= stack_ptr[j];
             }
 
-            if ( coord_p < coord_1_limit )
+            // will repeat last pixel if past the edge
+            if ( coord_1_p < coord_1_limit )
             {
                 src_ptr += coord_1_shift;
-                ++coord_p;
+                ++coord_1_p;
             }
 
+            // now this (same) stack entry is the "right" side
+            // add new pixel to the stack, and update accumulators
             memcpy( stack_ptr, src_ptr, kColourCount );
-
-            for ( unsigned int j = 0; j < kColourCount; ++j )
+            for ( uint32_t j = 0; j < kColourCount; ++j )
             {
                 sum_in_colour[j] += src_ptr[j];
             }
-            for ( unsigned int j = 0; j < kColourCount; ++j )
+            for ( uint32_t j = 0; j < kColourCount; ++j )
             {
                 sum_colour[j] += sum_in_colour[j];
             }
 
-            ++sp;
-            if ( sp >= div )
+            // slide kernel one pixel ahead (right),
+            // update accumulators again
+            ++stackPointer;
+            if ( stackPointer >= div )
             {
-                sp = 0;
+                stackPointer = 0;
             }
-            stack_ptr = &stack[sp * kColourCount];
+            stack_ptr = &stack[stackPointer * kColourCount];
 
-            for ( unsigned int j = 0; j < kColourCount; ++j )
+            for ( uint32_t j = 0; j < kColourCount; ++j )
             {
                 sum_out_colour[j] += stack_ptr[j];
             }
-            for ( unsigned int j = 0; j < kColourCount; ++j )
+            for ( uint32_t j = 0; j < kColourCount; ++j )
             {
                 sum_in_colour[j] -= stack_ptr[j];
             }
@@ -188,7 +203,7 @@ void stackblur_by_segment( unsigned char* src,  ///< input image data
 class stack_blur_task : public pfc::thread
 {
 public:
-    stack_blur_task( unsigned char* src, unsigned int w, unsigned int h, unsigned int radius, int cores, int core, unsigned char* stack )
+    stack_blur_task( uint8_t* src, uint32_t w, uint32_t h, uint32_t radius, size_t cores, size_t core, uint8_t* stack )
         : src( src )
         , w( w )
         , h( h )
@@ -201,9 +216,9 @@ public:
 
     void threadProc() override
     {
-        const unsigned int axisSize = iterateByLines ? h : w;
-        const unsigned int segmentStart = ( core * axisSize / cores );
-        const unsigned int segmentEnd = ( core + 1 ) * axisSize / cores;
+        const uint32_t axisSize = iterateByLines ? h : w;
+        const uint32_t segmentStart = ( core * axisSize / cores );
+        const uint32_t segmentEnd = ( core + 1 ) * axisSize / cores;
 
         stackblur_by_segment( src, w, h, radius, iterateByLines, segmentStart, segmentEnd, stack );
     }
@@ -214,29 +229,29 @@ public:
     }
 
 private:
-    unsigned char* src;
+    uint8_t* src;
 
-    const unsigned int w;
-    const unsigned int h;
-    const unsigned int radius;
-    const int cores;
-    const int core;
+    const uint32_t w;
+    const uint32_t h;
+    const uint32_t radius;
+    const size_t cores;
+    const size_t core;
 
     bool iterateByLines = true;
-    unsigned char* stack;
+    uint8_t* stack;
 };
 
-void stackblur( unsigned char* src, ///< input image data
-                unsigned int w,     ///< image width
-                unsigned int h,     ///< image height
-                unsigned int radius ///< blur intensity (should be in 2..254 range)
+void stackblur( uint8_t* src, ///< input image data
+                uint32_t w,     ///< image width
+                uint32_t h,     ///< image height
+                uint32_t radius ///< blur intensity (should be in 2..254 range)
 )
 {
     assert( radius <= 254 && radius >= 2 );
 
     const size_t cores = std::max( static_cast<t_size>( 1 ), pfc::getOptimalWorkerThreadCount() );
-    const unsigned int div = ( radius * 2 ) + 1;
-    std::vector<unsigned char> stack( div * 4 * cores );
+    const uint32_t div = ( radius * 2 ) + 1;
+    std::vector<uint8_t> stack( div * 4 * cores );
 
     if ( cores == 1 )
     { // no multithreading
@@ -289,7 +304,7 @@ void stack_blur_filter( Gdiplus::Bitmap& img, int radius )
     if ( img.LockBits( &rect, Gdiplus::ImageLockModeRead | Gdiplus::ImageLockModeWrite, PixelFormat32bppPARGB, &bmpdata ) == Gdiplus::Ok )
     {
         radius = std::clamp( radius, 2, 254 );
-        stackblur( (unsigned char*)bmpdata.Scan0, width, height, radius );
+        stackblur( (uint8_t*)bmpdata.Scan0, width, height, radius );
         img.UnlockBits( &bmpdata );
     }
 }
