@@ -1,7 +1,7 @@
 #pragma once
 
-#include "drop_target_impl.h"
-#include "script_interface_impl.h"
+#include <com_objects/drop_target_impl.h>
+#include <com_objects/com_tools.h>
 
 #include <drop_action_params.h>
 

@@ -51,15 +51,11 @@
 #define ID_PANELFEATURES_PSEUDOTRANSPARENT 40022
 #define ID_PANELFEATURES_GRABFOCUS      40023
 
-#ifndef IDC_STATIC
-#    define IDC_STATIC                      -1
-#endif
-
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        116
+#define _APS_NEXT_RESOURCE_VALUE        117
 #define _APS_NEXT_COMMAND_VALUE         40024
 #define _APS_NEXT_CONTROL_VALUE         1066
 #define _APS_NEXT_SYMED_VALUE           101

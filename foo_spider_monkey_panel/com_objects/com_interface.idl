@@ -1,0 +1,95 @@
+import "docobj.idl";
+
+
+[ version(1.0), uuid(6c3b2186-7acd-3e01-8887-1a693c30fdaf) ]
+library foo_spider_monkey_panel
+{
+	importlib("stdole2.tlb");
+	importlib("olepro32.dll");
+
+	[
+		dual,
+		object,
+		pointer_default(unique),
+		uuid(2e0bae19-3afe-473a-a703-0feb2d714655)
+	] 
+	interface IDisposable : IDispatch {
+		HRESULT  Dispose();
+	};
+
+	[
+		object,
+		dual,
+		pointer_default(unique),
+		uuid(0A72A7F4-024C-4DAB-92BE-5F6853294E44)
+	] 
+	interface IWrappedJs : IDispatch {
+		[id(0)] HRESULT  ExecuteValue([optional] VARIANT arg1, [optional] VARIANT arg2, [optional] VARIANT arg3, [optional] VARIANT arg4, [optional] VARIANT arg5, [optional] VARIANT arg6, [optional] VARIANT arg7, [out,retval] VARIANT *result);
+	};
+
+	[
+		object,
+		dual,
+		pointer_default(unique),
+		uuid(98D9779A-4398-47D3-8CA4-B4C8BDE60526)
+	] 
+	interface IHostExternal : IDispatch {
+		[propget] HRESULT  dialogArguments([out,retval] VARIANT *pData);
+	};
+
+     /*
+     interface IWindow;
+	[
+		object,
+		dual,
+		pointer_default(unique),
+		uuid(d53e81cd-0157-4cfe-a618-1F88d48dc0b8)
+	] 
+	interface IWSHUtils : IDispatch {
+		HRESULT  GetWndByClass([in]BSTR class_name, [out,retval] IWindow **pp);
+		HRESULT  GetWndByHandle([in]UINT window_id, [out,retval] IWindow **pp);
+		HRESULT  CloseWnd([in]IWindow *wnd);
+		HRESULT  ReleaseCapture();
+	};
+
+	[
+		object,
+		dual,
+		pointer_default(unique),
+		uuid(2f691b02-bd48-4dee-ad75-443b4c8ab461)
+	] 
+	interface IWindow : IDispatch {
+		[propget] HRESULT  ID([out,retval] UINT *pp);
+		[propget] HRESULT  ClassName([out,retval] BSTR *className);
+		[propget] HRESULT  Left([out,retval] INT *p);
+		[propget] HRESULT  Top([out,retval] INT *p);
+		[propget] HRESULT  Width([out,retval] INT *p);
+		[propget] HRESULT  Height([out,retval] INT *p);
+		[propget] HRESULT  Style([out,retval] INT *p);
+		[propget] HRESULT  ExStyle([out,retval] INT *p);
+		[propget] HRESULT  Caption([out,retval] BSTR *pp);
+		[propput] HRESULT  Left([in]INT left);
+		[propput] HRESULT  Top([in]INT top);
+		[propput] HRESULT  Width([in]INT width);
+		[propput] HRESULT  Height([in]INT height);
+		[propput] HRESULT  Style([in]INT style);
+		[propput] HRESULT  ExStyle([in]INT style);
+		[propput] HRESULT  Caption([in]BSTR title);
+		HRESULT  GetChild([in]BSTR caption, [in]BSTR class_name, [in]UINT index, [out,retval] IWindow **pp);
+		HRESULT  GetChildWithSameProcess([in]IWindow *searchWnd, [in]BSTR caption, [in]BSTR class_name, [out,retval] IWindow **pp);
+		HRESULT  GetAncestor([defaultvalue(" 1 ")] UINT flag, [out,retval] IWindow **pp);
+		HRESULT  SetParent([in]IWindow *p);
+		HRESULT  SendMsg([in]UINT msg, [in]INT wp, [in]INT lp);
+		HRESULT  Show([in]UINT flag);
+		HRESULT  Move([in]UINT x, [in]UINT y, [in]UINT w, [in]UINT h, [defaultvalue(" 0 ")] VARIANT_BOOL redraw);
+		HRESULT  IsVisible([out,retval] VARIANT_BOOL *p);
+		HRESULT  IsMinimized([out,retval] VARIANT_BOOL *p);
+		HRESULT  IsMaximized([out,retval] VARIANT_BOOL *p);
+		HRESULT  ShowCaret();
+		HRESULT  SetCaretPos([in]INT x, [in]INT y);
+		HRESULT  HideCaret();
+		HRESULT  CreateCaret([in]INT width, [in]INT height);
+		HRESULT  DestroyCaret();
+	};
+     */
+}

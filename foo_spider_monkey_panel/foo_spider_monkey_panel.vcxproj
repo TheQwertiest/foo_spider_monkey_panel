@@ -57,6 +57,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <TreatWarningAsError>true</TreatWarningAsError>
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
     </ClCompile>
     <Link>
       <AdditionalDependencies>GdiPlus.lib;shlwapi.lib;WinMM.lib;Imm32.lib;uxtheme.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -80,7 +81,6 @@
       <StringPooling>true</StringPooling>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <FloatingPointModel>Fast</FloatingPointModel>
-      <RuntimeTypeInfo>false</RuntimeTypeInfo>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
     <ResourceCompile>
@@ -106,7 +106,6 @@
     <ClCompile Include="com_objects\host_external.cpp" />
     <ClCompile Include="com_objects\internal\drag_image.cpp" />
     <ClCompile Include="com_objects\internal\drag_utils.cpp" />
-    <ClCompile Include="com_objects\script_interface_impl.cpp" />
     <ClCompile Include="config.cpp" />
     <ClCompile Include="convert\com.cpp" />
     <ClCompile Include="convert\js_to_native.cpp" />
@@ -220,8 +219,7 @@
     <ClInclude Include="com_objects\internal\drag_image.h" />
     <ClInclude Include="com_objects\internal\drag_utils.h" />
     <ClInclude Include="com_objects\internal\handle.h" />
-    <ClInclude Include="com_objects\script_interface.h" />
-    <ClInclude Include="com_objects\script_interface_impl.h" />
+    <ClInclude Include="com_objects\com_interface.h" />
     <ClInclude Include="convert\com.h" />
     <ClInclude Include="convert\js_to_native.h" />
     <ClInclude Include="convert\native_to_js.h" />
@@ -330,9 +328,11 @@
   <ItemGroup>
     <None Include=".clang-format" />
     <None Include="default.js" />
+    <None Include="foo_spider_monkey_panel.rc2" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="foo_spider_monkey_panel.rc" />
+    <ResourceCompile Include="version.rc" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\submodules\columns_ui-sdk\columns_ui-sdk.vcxproj">
@@ -351,6 +351,9 @@
       <Project>{10b2a7ef-9089-4352-ba26-7e9aef50987d}</Project>
       <Private>false</Private>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Midl Include="com_objects\com_interface.idl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

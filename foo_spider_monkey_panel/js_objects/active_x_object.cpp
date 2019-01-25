@@ -15,7 +15,7 @@
 #include <utils/scope_helpers.h>
 #include <utils/winapi_error_helpers.h>
 #include <utils/string_helpers.h>
-#include <com_objects/script_interface.h>
+#include <com_objects/com_interface.h>
 #include <com_objects/com_tools.h>
 
 #include <smp_exception.h>

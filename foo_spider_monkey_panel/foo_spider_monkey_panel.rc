@@ -12,7 +12,6 @@
 #undef APSTUDIO_HIDDEN_SYMBOLS
 
 #include <atlres.h>
-#include <component_defines.h>
 
 /////////////////////////////////////////////////////////////////////////////
 #undef APSTUDIO_READONLY_SYMBOLS
@@ -20,9 +19,9 @@
 /////////////////////////////////////////////////////////////////////////////
 // English (United States) resources
 
-#if !defined( AFX_RESOURCE_DLL ) || defined( AFX_TARG_ENU )
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
 LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
-#pragma code_page( 1252 )
+#pragma code_page(1252)
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -61,6 +60,7 @@ BEGIN
     END
 END
 
+
 #ifdef APSTUDIO_INVOKED
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -85,8 +85,7 @@ END
 
 3 TEXTINCLUDE 
 BEGIN
-    "\r\n"
-    "\0"
+    "#include ""foo_spider_monkey_panel.rc2""\0"
 END
 
 #endif    // APSTUDIO_INVOKED
@@ -349,52 +348,6 @@ BEGIN
     0
 END
 
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// Version
-//
-
-VS_VERSION_INFO VERSIONINFO
- FILEVERSION SMP_VERSION_MAJOR,SMP_VERSION_MINOR,SMP_VERSION_PATCH,0
- PRODUCTVERSION SMP_VERSION_MAJOR,SMP_VERSION_MINOR,SMP_VERSION_PATCH,0
- FILEFLAGSMASK 0x3fL
-#ifdef _DEBUG
-#ifdef SMP_VERSION_PRERELEASE_TEXT
- FILEFLAGS 0x3L
-#else
- FILEFLAGS 0x1L
-#endif
-#else
-#ifdef SMP_VERSION_PRERELEASE_TEXT
- FILEFLAGS 0x2L
-#else
- FILEFLAGS 0x0L
-#endif
-#endif
- FILEOS 0x40004L
- FILETYPE 0x2L
- FILESUBTYPE 0x0L
-BEGIN
-    BLOCK "StringFileInfo"
-    BEGIN
-        BLOCK "040904b0"
-        BEGIN
-            VALUE "FileDescription", SMP_NAME " component for foobar2000"
-            VALUE "FileVersion", SMP_VERSION
-            VALUE "InternalName", SMP_DLL_NAME
-            VALUE "LegalCopyright", "Copyright (C) 2018-2019 Yuri Shutenko"
-            VALUE "OriginalFilename", SMP_DLL_NAME
-            VALUE "ProductName", SMP_NAME
-            VALUE "ProductVersion", SMP_VERSION
-        END
-    END
-    BLOCK "VarFileInfo"
-    BEGIN
-        VALUE "Translation", 0x409, 1200
-    END
-END
-
 #endif    // English (United States) resources
 /////////////////////////////////////////////////////////////////////////////
 
@@ -405,8 +358,7 @@ END
 //
 // Generated from the TEXTINCLUDE 3 resource.
 //
-
-
+#include "foo_spider_monkey_panel.rc2"
 /////////////////////////////////////////////////////////////////////////////
 #endif    // not APSTUDIO_INVOKED
 

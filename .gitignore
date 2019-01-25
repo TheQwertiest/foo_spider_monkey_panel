@@ -17,7 +17,6 @@
 # Build results
 _result
 *.fb2k-component
-*.idl
 [Dd]ebug/
 [Dd]ebugPublic/
 [Rr]elease/

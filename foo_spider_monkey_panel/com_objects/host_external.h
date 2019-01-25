@@ -1,8 +1,12 @@
 #pragma once
 
-#include "script_interface_impl.h"
+#include <com_objects/com_interface.h>
+#include <com_objects/com_tools.h>
 
 #include <OleIdl.h>
+
+
+_COM_SMARTPTR_TYPEDEF( IHostExternal, __uuidof( IHostExternal ) );
 
 namespace smp::com
 {

@@ -2,6 +2,8 @@
 
 // TODO: cleanup
 
+extern ITypeLibPtr g_typelib;
+
 //-- IUnknown ---
 #define BEGIN_COM_QI_IMPL() \
 	public:\

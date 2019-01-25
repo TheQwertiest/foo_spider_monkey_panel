@@ -138,11 +138,13 @@ private:
         }
 
         std::stringstream ss;
-        ss << "Spider Monkey Panel initialization failed! The component will not function properly! Failures:\n\n";
+        ss << "Spider Monkey Panel initialization failed!" << std::endl;
+        ss << "The component will not function properly!" << std::endl;
+        ss << "Failures:" << std::endl << std::endl;
 
         for ( const auto& [key, failure] : g_subsystem_failures )
         {
-            ss << failure.description << ": error code 0x" << std::hex << failure.errorCode << "\n";
+            ss << failure.description << ": error code 0x" << std::hex << failure.errorCode << std::endl;
         }
 
         popup_msg::g_show( ss.str().c_str(), SMP_NAME );

@@ -1,7 +1,7 @@
 #include <stdafx.h>
 #include "com.h"
 
-#include <com_objects/script_interface.h>
+#include <com_objects/com_interface.h>
 #include <com_objects/com_tools.h>
 #include <com_objects/dispatch_ptr.h>
 
