@@ -24,6 +24,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Documentation", "Documentat
 		..\component\jscript.api = ..\component\jscript.api
 		..\LICENSE = ..\LICENSE
 		..\README.md = ..\README.md
+		..\THIRD_PARTY_NOTICES.md = ..\THIRD_PARTY_NOTICES.md
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "js_docs", "js_docs", "{324E062D-0AF2-42F1-874B-82CE61D9B2FD}"
@@ -48,6 +49,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "licenses", "licenses", "{C8
 		..\component\licenses\JSON for Modern C++.txt = ..\component\licenses\JSON for Modern C++.txt
 		..\component\licenses\KMeans.txt = ..\component\licenses\KMeans.txt
 		..\component\licenses\PFC.txt = ..\component\licenses\PFC.txt
+		..\component\licenses\range-v3.txt = ..\component\licenses\range-v3.txt
 		..\component\licenses\Scintilla.txt = ..\component\licenses\Scintilla.txt
 		..\component\licenses\SpiderMonkey.txt = ..\component\licenses\SpiderMonkey.txt
 		..\component\licenses\StackBlur.txt = ..\component\licenses\StackBlur.txt
@@ -116,7 +118,7 @@ Global
 		{C83916CB-E2CC-436F-9B39-CDAF19B88C6C} = {544844FF-3BCA-4D28-884D-997582B1E2C2}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionNewStyle = 1
 		SolutionGuid = {04D470B3-3881-4A19-A99F-5E04F5978FB4}
+		SolutionNewStyle = 1
 	EndGlobalSection
 EndGlobal

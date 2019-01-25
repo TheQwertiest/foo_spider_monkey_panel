@@ -11,6 +11,7 @@ The linked notices are provided for information only.
 - [JSON for Modern C++ - MIT](component/licenses/JSON%20for%20Modern%20C%2B%2B.txt)
 - [GSL - other](component/licenses/gsl.txt)
 - [KMeans - MIT](component/licenses/KMeans.txt)
+- [range-v3 - other](component/licenses/range-v3.txt)
 - [PFC - Unlicense](component/licenses/PFC.txt)
 - [Scintilla - other](component/licenses/Scintilla.txt)
 - [SpiderMonkey - MPL](component/licenses/SpiderMonkey.txt)
