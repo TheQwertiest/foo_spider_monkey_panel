@@ -3,9 +3,9 @@
   <ImportGroup Label="PropertySheets">
   </ImportGroup>
   <PropertyGroup>
-    <_PropertySheetDisplayName>pfc</_PropertySheetDisplayName>
+    <_PropertySheetDisplayName>scintilla</_PropertySheetDisplayName>
   </PropertyGroup>
-  <PropertyGroup Label="UserMacros">    
+  <PropertyGroup Label="UserMacros">
     <ScintillaDirectory>$(MainDir)submodules\scintilla\</ScintillaDirectory>
     <ScintillaResultDirectory>$(ScintillaDirectory)bin\</ScintillaResultDirectory>
   </PropertyGroup>
