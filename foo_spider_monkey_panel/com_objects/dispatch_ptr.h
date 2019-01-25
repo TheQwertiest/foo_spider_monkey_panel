@@ -55,6 +55,9 @@ public:
     CDispatchVariant Invoke( DispatchItem method, const Args&... args );
 
 protected:
+    template <class DispatchItem, typename... Args>
+    CDispatchVariant InvokeWrapper( DispatchItem method, WORD invokeType, const Args&... args );
+
     void InvokeHelper( DISPID dispatchItem,
                        const VARIANT* params,
                        UINT cParams,
@@ -336,24 +339,7 @@ template <class Derived>
 template <class DispatchItem, typename... Args>
 CDispatchVariant CDispatchFunctions<Derived>::Get( DispatchItem property, const Args&... args )
 {
-    constexpr size_t argCount = sizeof...( Args );
-
-    VARIANT result;
-    if constexpr ( !argCount )
-    {
-        InvokeHelper( property, nullptr, argCount, DISPATCH_PROPERTYGET, &result );
-    }
-    else
-    {
-        VARIANT args_v[argCount];
-        { // Reverse assign
-            auto it = std::rbegin( args_v );
-            ( ( *it++ = args ), ... );
-        }
-
-        InvokeHelper( property, args_v, argCount, DISPATCH_PROPERTYGET, &result );
-    }
-    return result;
+    return InvokeWrapper( property, DISPATCH_PROPERTYGET, args... );
 }
 
 // Set: set a property's value
@@ -377,12 +363,19 @@ template <class Derived>
 template <class DispatchItem, typename... Args>
 CDispatchVariant CDispatchFunctions<Derived>::Invoke( DispatchItem method, const Args&... args )
 {
+    return InvokeWrapper( method, DISPATCH_METHOD, args... );
+}
+
+template <class Derived>
+template <class DispatchItem, typename... Args>
+CDispatchVariant CDispatchFunctions<Derived>::InvokeWrapper( DispatchItem method, WORD invokeType, const Args&... args )
+{
     constexpr size_t argCount = sizeof...( Args );
 
     VARIANT result;
     if constexpr ( !argCount )
     {
-        InvokeHelper( method, nullptr, argCount, DISPATCH_METHOD, &result );
+        InvokeHelper( method, nullptr, argCount, invokeType, &result );
     }
     else
     {
@@ -392,7 +385,7 @@ CDispatchVariant CDispatchFunctions<Derived>::Invoke( DispatchItem method, const
             ( ( *it++ = args ), ... );
         }
 
-        InvokeHelper( method, args_v, argCount, DISPATCH_METHOD, &result );
+        InvokeHelper( method, args_v, argCount, invokeType, &result );
     }
     return result;
 }
