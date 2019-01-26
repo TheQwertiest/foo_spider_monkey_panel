@@ -26,7 +26,7 @@ pfc::string8_fast get_fb2k_path()
 
 pfc::string8_fast get_profile_path()
 {
-    pfc::string8_fast path = file_path_display( core_api::get_profile_path() );
+    pfc::string8_fast path = file_path_display( core_api::get_profile_path() ).get_ptr();
     path.fix_dir_separator( '\\' );
 
     return path;

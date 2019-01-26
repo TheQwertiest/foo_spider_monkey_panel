@@ -464,7 +464,7 @@ std::unique_ptr<ActiveXObject> ActiveXObject::CreateNative( JSContext* cx, const
                           : CLSIDFromProgID( name.c_str(), &clsid );
     if ( !SUCCEEDED( hresult ) )
     {
-        const pfc::string8_fast cStr = pfc::stringcvt::string_utf8_from_wide( name.c_str() );
+        const pfc::string8_fast cStr = pfc::stringcvt::string_utf8_from_wide( name.c_str() ).get_ptr();
         throw SmpException( smp::string::Formatter() << "Invalid CLSID: " << cStr.c_str() );
     }
 
@@ -476,7 +476,7 @@ std::unique_ptr<ActiveXObject> ActiveXObject::CreateNative( JSContext* cx, const
         nativeObject.reset( new ActiveXObject( cx, unk ) );
         if ( !nativeObject->pUnknown_ )
         {
-            const pfc::string8_fast cStr = pfc::stringcvt::string_utf8_from_wide( name.c_str() );
+            const pfc::string8_fast cStr = pfc::stringcvt::string_utf8_from_wide( name.c_str() ).get_ptr();
             throw SmpException( smp::string::Formatter() << "Failed to create ActiveXObject object via IUnknown:" << cStr.c_str() );
         }
     }
@@ -486,7 +486,7 @@ std::unique_ptr<ActiveXObject> ActiveXObject::CreateNative( JSContext* cx, const
         nativeObject.reset( new ActiveXObject( cx, clsid ) );
         if ( !nativeObject->pUnknown_ )
         {
-            const pfc::string8_fast cStr = pfc::stringcvt::string_utf8_from_wide( name.c_str() );
+            const pfc::string8_fast cStr = pfc::stringcvt::string_utf8_from_wide( name.c_str() ).get_ptr();
             throw SmpException( smp::string::Formatter() << "Failed to create ActiveXObject object via CLSID:" << cStr.c_str() );
         }
     }
@@ -538,7 +538,7 @@ std::optional<DISPID> ActiveXObject::GetDispId( const std::wstring& name, bool r
         {
             if ( reportError )
             {
-                pfc::string8_fast tmpStr = pfc::stringcvt::string_utf8_from_wide( name.c_str() );
+                pfc::string8_fast tmpStr = pfc::stringcvt::string_utf8_from_wide( name.c_str() ).get_ptr();
                 throw SmpException( smp::string::Formatter() << "Failed to get DISPID for `" << tmpStr.c_str() << "`" );
             }
             return std::nullopt;
@@ -650,7 +650,7 @@ void ActiveXObject::Get( JS::CallArgs& callArgs )
     auto dispRet = GetDispId( propName );
     if ( !dispRet )
     {
-        pfc::string8_fast tmpStr = pfc::stringcvt::string_utf8_from_wide( propName.c_str() );
+        pfc::string8_fast tmpStr = pfc::stringcvt::string_utf8_from_wide( propName.c_str() ).get_ptr();
         throw SmpException( smp::string::Formatter() << "Invalid property name: " << tmpStr.c_str() );
     }
 
@@ -710,7 +710,7 @@ void ActiveXObject::Set( const std::wstring& propName, JS::HandleValue v )
     auto dispRet = GetDispId( propName );
     if ( !dispRet )
     {
-        pfc::string8_fast tmpStr = pfc::stringcvt::string_utf8_from_wide( propName.c_str() );
+        pfc::string8_fast tmpStr = pfc::stringcvt::string_utf8_from_wide( propName.c_str() ).get_ptr();
         throw SmpException( smp::string::Formatter() << "Invalid property name: " << tmpStr.c_str() );
     }
 
@@ -758,7 +758,7 @@ void ActiveXObject::Set( const JS::CallArgs& callArgs )
     auto dispRet = GetDispId( propName );
     if ( !dispRet )
     {
-        pfc::string8_fast tmpStr = pfc::stringcvt::string_utf8_from_wide( propName.c_str() );
+        pfc::string8_fast tmpStr = pfc::stringcvt::string_utf8_from_wide( propName.c_str() ).get_ptr();
         throw SmpException( smp::string::Formatter() << "Invalid property name: " << tmpStr.c_str() );
     }
 
@@ -817,7 +817,7 @@ void ActiveXObject::Invoke( const std::wstring& funcName, const JS::CallArgs& ca
     auto dispRet = GetDispId( funcName );
     if ( !dispRet )
     {
-        pfc::string8_fast tmpStr = pfc::stringcvt::string_utf8_from_wide( funcName.c_str() );
+        pfc::string8_fast tmpStr = pfc::stringcvt::string_utf8_from_wide( funcName.c_str() ).get_ptr();
         throw SmpException( smp::string::Formatter() << "Invalid function name: " << tmpStr.c_str() );
     }
 

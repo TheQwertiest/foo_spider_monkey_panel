@@ -72,6 +72,7 @@
 #include "PropertyItemImpl.h"
 
 
+class CCategoryProperty;
 
 /////////////////////////////////////////////////////////////////////////////
 // CPropertyList control
@@ -82,7 +83,7 @@ class ATL_NO_VTABLE CPropertyListImpl :
 	public COwnerDraw< T >
 {
 public:
-	DECLARE_WND_SUPERCLASS(NULL, TBase::GetWndClassName())
+	DECLARE_WND_SUPERCLASS2(NULL, CPropertyListImpl, TBase::GetWndClassName())
 
 	enum { CATEGORY_INDENT = 16 };
 
@@ -113,7 +114,7 @@ public:
 
 	BOOL SubclassWindow(HWND hWnd)
 	{
-		ATLASSERT(m_hWnd == NULL);
+		ATLASSERT(this->m_hWnd == NULL);
 		ATLASSERT(::IsWindow(hWnd));
 		BOOL bRet = CWindowImpl< T, TBase, TWinTraits >::SubclassWindow(hWnd);
 		if (bRet) _Init();
@@ -122,16 +123,16 @@ public:
 
 	void SetExtendedListStyle(DWORD dwExtStyle)
 	{
-		ATLASSERT(::IsWindow(m_hWnd));
+		ATLASSERT(::IsWindow(this->m_hWnd));
 		// Assign styles
 		if ((dwExtStyle & PLS_EX_SORTED) != 0)
 		{
-			ATLASSERT(GetStyle() & LBS_SORT);
-			ATLASSERT(GetStyle() & LBS_HASSTRINGS);
+			ATLASSERT(this->GetStyle() & LBS_SORT);
+			ATLASSERT(this->GetStyle() & LBS_HASSTRINGS);
 		}
 		m_dwExtStyle = dwExtStyle;
 		// Recalc colours and fonts
-		SendMessage(WM_SETTINGCHANGE);
+		this->SendMessage(WM_SETTINGCHANGE);
 	}
 	DWORD GetExtendedListStyle() const
 	{
@@ -140,16 +141,16 @@ public:
 
 	void ResetContent()
 	{
-		ATLASSERT(::IsWindow(m_hWnd));
+		ATLASSERT(::IsWindow(this->m_hWnd));
 		_DestroyInplaceWindow();
 		TBase::ResetContent();
 	}
 	HPROPERTY AddItem(HPROPERTY prop)
 	{
-		ATLASSERT(::IsWindow(m_hWnd));
+		ATLASSERT(::IsWindow(this->m_hWnd));
 		ATLASSERT(prop);
 		if (prop == NULL) return NULL;
-		prop->SetOwner(m_hWnd, NULL);
+		prop->SetOwner(this->m_hWnd, NULL);
 		int nItem = TBase::AddString(prop->GetName());
 		if (nItem == LB_ERR) return NULL;
 		TBase::SetItemData(nItem, (DWORD_PTR)prop);
@@ -157,7 +158,7 @@ public:
 	}
 	BOOL DeleteItem(HPROPERTY prop)
 	{
-		ATLASSERT(::IsWindow(m_hWnd));
+		ATLASSERT(::IsWindow(this->m_hWnd));
 		ATLASSERT(prop);
 		// Delete *visible* property!
 		int iIndex = FindProperty(prop);
@@ -166,7 +167,7 @@ public:
 	}
 	HPROPERTY GetProperty(int index) const
 	{
-		ATLASSERT(::IsWindow(m_hWnd));
+		ATLASSERT(::IsWindow(this->m_hWnd));
 		ATLASSERT(index != -1);
 		IProperty* prop = reinterpret_cast<IProperty*>(TBase::GetItemData(index));
 		if (prop == (IProperty*)-1) prop = NULL;
@@ -174,11 +175,11 @@ public:
 	}
 	HPROPERTY FindProperty(LPCTSTR pstrName) const
 	{
-		ATLASSERT(::IsWindow(m_hWnd));
+		ATLASSERT(::IsWindow(this->m_hWnd));
 		ATLASSERT(pstrName);
 		if (pstrName == NULL) return NULL;
 		// Find property from title
-		for (int i = 0; i < GetCount(); ++i)
+		for (int i = 0; i < this->GetCount(); ++i)
 		{
 			IProperty* prop = reinterpret_cast<IProperty*>(TBase::GetItemData(i));
 			ATLASSERT(prop);
@@ -199,10 +200,10 @@ public:
 	}
 	HPROPERTY FindProperty(LPARAM lParam) const
 	{
-		ATLASSERT(::IsWindow(m_hWnd));
+		ATLASSERT(::IsWindow(this->m_hWnd));
 		// Find property from item-data
 		// Method mostly supplied by DJ (thanks to this masked site reader)
-		for (int i = 0; i < GetCount(); ++i)
+		for (int i = 0; i < this->GetCount(); ++i)
 		{
 			IProperty* prop = reinterpret_cast<IProperty*>(TBase::GetItemData(i));
 			ATLASSERT(prop);
@@ -224,10 +225,10 @@ public:
 	int FindProperty(HPROPERTY prop) const
 	{
 		// Find *visible* property!
-		ATLASSERT(::IsWindow(m_hWnd));
+		ATLASSERT(::IsWindow(this->m_hWnd));
 		ATLASSERT(prop);
 		if (prop == NULL) return 0;
-		for (int i = 0; i < GetCount(); ++i)
+		for (int i = 0; i < this->GetCount(); ++i)
 		{
 			if (TBase::GetItemData(i) == (DWORD_PTR)prop) return i;
 		}
@@ -235,14 +236,14 @@ public:
 	}
 	void GetItemName(HPROPERTY prop, LPTSTR pstr, UINT cchMax) const
 	{
-		ATLASSERT(::IsWindow(m_hWnd));
+		ATLASSERT(::IsWindow(this->m_hWnd));
 		ATLASSERT(prop);
 		if (prop == NULL) return;
 		::lstrcpyn(pstr, prop->GetName(), cchMax);
 	}
 	BOOL GetItemValue(HPROPERTY prop, VARIANT* pValue) const
 	{
-		ATLASSERT(::IsWindow(m_hWnd));
+		ATLASSERT(::IsWindow(this->m_hWnd));
 		ATLASSERT(prop);
 		ATLASSERT(pValue);
 		if (prop == NULL || pValue == NULL) return FALSE;
@@ -250,7 +251,7 @@ public:
 	}
 	BOOL SetItemValue(HPROPERTY prop, VARIANT* pValue)
 	{
-		ATLASSERT(::IsWindow(m_hWnd));
+		ATLASSERT(::IsWindow(this->m_hWnd));
 		ATLASSERT(prop);
 		ATLASSERT(pValue);
 		if (prop == NULL || pValue == NULL) return FALSE;
@@ -267,28 +268,28 @@ public:
 	}
 	LPARAM GetItemData(HPROPERTY prop) const
 	{
-		ATLASSERT(::IsWindow(m_hWnd));
+		ATLASSERT(::IsWindow(this->m_hWnd));
 		ATLASSERT(prop);
 		if (prop == NULL) return 0;
 		return prop->GetItemData();
 	}
 	void SetItemData(HPROPERTY prop, LPARAM dwData)
 	{
-		ATLASSERT(::IsWindow(m_hWnd));
+		ATLASSERT(::IsWindow(this->m_hWnd));
 		ATLASSERT(prop);
 		if (prop == NULL) return;
 		prop->SetItemData(dwData);
 	}
 	BOOL GetItemEnabled(HPROPERTY prop) const
 	{
-		ATLASSERT(::IsWindow(m_hWnd));
+		ATLASSERT(::IsWindow(this->m_hWnd));
 		ATLASSERT(prop);
 		if (prop == NULL) return FALSE;
 		return prop->IsEnabled();
 	}
 	void SetItemEnabled(HPROPERTY prop, BOOL bEnable)
 	{
-		ATLASSERT(::IsWindow(m_hWnd));
+		ATLASSERT(::IsWindow(this->m_hWnd));
 		ATLASSERT(prop);
 		if (prop == NULL) return;
 		prop->SetEnabled(bEnable);
@@ -300,18 +301,18 @@ public:
 	}
 	void SetColumnWidth(int iWidth)
 	{
-		ATLASSERT(::IsWindow(m_hWnd));
+		ATLASSERT(::IsWindow(this->m_hWnd));
 		m_iMiddle = iWidth;
 		m_bColumnFixed = true;
-		Invalidate();
+		this->Invalidate();
 	}
 	void InvalidateItem(int idx)
 	{
-		ATLASSERT(::IsWindow(m_hWnd));
+		ATLASSERT(::IsWindow(this->m_hWnd));
 		if (idx == -1) return;
 		RECT rc = { 0 };
-		GetItemRect(idx, &rc);
-		InvalidateRect(&rc);
+		this->GetItemRect(idx, &rc);
+		this->InvalidateRect(&rc);
 	}
 
 	// Unsupported methods
@@ -336,18 +337,18 @@ public:
 
 	void _Init()
 	{
-		ATLASSERT(::IsWindow(m_hWnd));
+		ATLASSERT(::IsWindow(this->m_hWnd));
 		// Needs LBS_OWNERDRAWVARIABLE and LBS_NOTIFY flags,
 		// but don't want multiselect or multicolumn flags.
-		ATLASSERT(GetStyle() & LBS_OWNERDRAWVARIABLE);
-		ATLASSERT(GetStyle() & LBS_NOTIFY);
-		ATLASSERT((GetStyle() & (LBS_MULTIPLESEL | LBS_NODATA | LBS_MULTICOLUMN)) == 0);
-		SendMessage(WM_SIZE);
-		SendMessage(WM_SETTINGCHANGE);
+		ATLASSERT(this->GetStyle() & LBS_OWNERDRAWVARIABLE);
+		ATLASSERT(this->GetStyle() & LBS_NOTIFY);
+		ATLASSERT((this->GetStyle() & (LBS_MULTIPLESEL | LBS_NODATA | LBS_MULTICOLUMN)) == 0);
+		this->SendMessage(WM_SIZE);
+		this->SendMessage(WM_SETTINGCHANGE);
 	}
 	void _GetInPlaceRect(int idx, RECT& rc) const
 	{
-		GetItemRect(idx, &rc);
+		this->GetItemRect(idx, &rc);
 		rc.left += m_iMiddle + 1;
 	}
 	BOOL _SpawnInplaceWindow(IProperty* prop, int idx)
@@ -356,13 +357,13 @@ public:
 		// Destroy old editor
 		_DestroyInplaceWindow();
 		// Do we need an editor here?
-		if (idx == -1 || idx != GetCurSel()) return FALSE;
+		if (idx == -1 || idx != this->GetCurSel()) return FALSE;
 		if (!prop->IsEnabled()) return FALSE;
 		// Create a new editor window
 		RECT rcValue = { 0 };
 		_GetInPlaceRect(idx, rcValue);
 		::InflateRect(&rcValue, 0, -1);
-		m_hwndInplace = prop->CreateInplaceControl(m_hWnd, rcValue);
+		m_hwndInplace = prop->CreateInplaceControl(this->m_hWnd, rcValue);
 		if (m_hwndInplace != NULL)
 		{
 			// Activate the new editor window
@@ -388,7 +389,7 @@ public:
 			m_hwndInplace = NULL;
 			m_iInplaceIndex = -1;
 			// Set focus back to our control
-			if (GetFocus() != m_hWnd && IsChild(GetFocus())) SetFocus();
+			if (GetFocus() != this->m_hWnd && this->IsChild(GetFocus())) this->SetFocus();
 			// Destroy control
 			switch (bKind)
 			{
@@ -410,19 +411,19 @@ public:
 	{
 		if (m_iPrevious == 0) return;
 		// PatBlt without clip children on
-		CWindow wndParent = GetParent();
+		CWindow wndParent = this->GetParent();
 		DWORD dwOldStyle = wndParent.GetWindowLong(GWL_STYLE);
 		wndParent.SetWindowLong(GWL_STYLE, dwOldStyle & ~WS_CLIPCHILDREN);
 
 		RECT rcClient = { 0 };
-		GetClientRect(&rcClient);
+		this->GetClientRect(&rcClient);
 		rcClient.left = x;
 		rcClient.right = x + 1;
-		MapWindowPoints(wndParent, &rcClient);
+		this->MapWindowPoints(wndParent, &rcClient);
 
 		// Invert the brush pattern (looks just like frame window sizing)
-		CClientDC dc = wndParent;
-		CBrush hbrHalfTone = CDCHandle::GetHalftoneBrush();
+		CClientDC dc = static_cast<HWND>(wndParent);
+		CBrush hbrHalfTone = static_cast<HBRUSH>(CDCHandle::GetHalftoneBrush());
 		HBRUSH hOldBrush = NULL;
 		if (hbrHalfTone != NULL) hOldBrush = dc.SelectBrush(hbrHalfTone);
 
@@ -434,7 +435,7 @@ public:
 	long _GetDragPos(int x) const
 	{
 		RECT rcClient = { 0 };
-		GetClientRect(&rcClient);
+		this->GetClientRect(&rcClient);
 		::InflateRect(&rcClient, -10, 0);
 		if (x > rcClient.right) x = rcClient.right;
 		if (x < rcClient.left) x = rcClient.left;
@@ -468,7 +469,7 @@ public:
 
 	LRESULT OnCreate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/)
 	{
-		LRESULT lRes = DefWindowProc(uMsg, wParam, lParam);
+		LRESULT lRes = this->DefWindowProc(uMsg, wParam, lParam);
 		_Init();
 		return lRes;
 	}
@@ -486,7 +487,7 @@ public:
 		_DestroyInplaceWindow();
 		// Calculate drag position
 		RECT rc = { 0 };
-		GetClientRect(&rc);
+		this->GetClientRect(&rc);
 		if (!m_bColumnFixed) m_iMiddle = (rc.right - rc.left) / 2;
 		m_iPrevious = 0;
 		BOOL bDummy = FALSE;
@@ -507,7 +508,7 @@ public:
 		{
 		case VK_TAB:
 		{
-			int idx = GetCurSel();
+			int idx = this->GetCurSel();
 			if (idx != -1)
 			{
 				IProperty* prop = reinterpret_cast<IProperty*>(TBase::GetItemData(idx));
@@ -519,7 +520,7 @@ public:
 		case VK_F2:
 		case VK_SPACE:
 		{
-			int idx = GetCurSel();
+			int idx = this->GetCurSel();
 			if (idx != -1)
 			{
 				IProperty* prop = reinterpret_cast<IProperty*>(TBase::GetItemData(idx));
@@ -539,7 +540,7 @@ public:
 		// and simulate the keypress in the editor-window...
 		if (wParam > _T(' '))
 		{
-			int idx = GetCurSel();
+			int idx = this->GetCurSel();
 			if (idx != -1)
 			{
 				IProperty* prop = reinterpret_cast<IProperty*>(TBase::GetItemData(idx));
@@ -563,9 +564,9 @@ public:
 	}
 	LRESULT OnLButtonDown(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/)
 	{
-		if (::GetFocus() != m_hWnd) SetFocus();
+		if (::GetFocus() != this->m_hWnd) this->SetFocus();
 
-		LRESULT lRes = DefWindowProc(uMsg, wParam, lParam);
+		LRESULT lRes = this->DefWindowProc(uMsg, wParam, lParam);
 
 		// Should we do some column resize?
 		// NOTE: Apparently the ListBox control will internally do SetCapture() to
@@ -578,14 +579,14 @@ public:
 			m_iPrevious = GET_X_LPARAM(lParam);
 		}
 
-		int idx = GetCurSel();
+		int idx = this->GetCurSel();
 		if (idx != -1)
 		{
 			IProperty* prop = reinterpret_cast<IProperty*>(TBase::GetItemData(idx));
 			ATLASSERT(prop);
 			// Ask owner first
-			NMPROPERTYITEM nmh = { m_hWnd, UINT_PTR(GetDlgCtrlID()), PIN_CLICK, prop };
-			if (::SendMessage(GetParent(), WM_NOTIFY, nmh.hdr.idFrom, (LPARAM)&nmh) == 0)
+			NMPROPERTYITEM nmh = { this->m_hWnd, UINT_PTR(this->GetDlgCtrlID()), PIN_CLICK, prop };
+			if (::SendMessage(this->GetParent(), WM_NOTIFY, nmh.hdr.idFrom, (LPARAM)&nmh) == 0)
 			{
 				if (prop->IsEnabled()) prop->Activate(PACT_CLICK, lParam);
 			}
@@ -598,7 +599,7 @@ public:
 		if (m_iPrevious > 0)
 		{
 			m_iMiddle += x - m_iPrevious;
-			Invalidate();
+			this->Invalidate();
 		}
 		m_iPrevious = 0;
 		m_iPrevXGhostBar = 0;
@@ -607,15 +608,15 @@ public:
 	}
 	LRESULT OnDblClick(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/)
 	{
-		LRESULT lRes = DefWindowProc(uMsg, wParam, lParam);
-		int idx = GetCurSel();
+		LRESULT lRes = this->DefWindowProc(uMsg, wParam, lParam);
+		int idx = this->GetCurSel();
 		if (idx != -1)
 		{
 			IProperty* prop = reinterpret_cast<IProperty*>(TBase::GetItemData(idx));
 			ATLASSERT(prop);
 			// Ask owner first
-			NMPROPERTYITEM nmh = { m_hWnd, UINT_PTR(GetDlgCtrlID()), PIN_DBLCLICK, prop };
-			if (::SendMessage(GetParent(), WM_NOTIFY, nmh.hdr.idFrom, (LPARAM)&nmh) == 0)
+			NMPROPERTYITEM nmh = { this->m_hWnd, UINT_PTR(this->GetDlgCtrlID()), PIN_DBLCLICK, prop };
+			if (::SendMessage(this->GetParent(), WM_NOTIFY, nmh.hdr.idFrom, (LPARAM)&nmh) == 0)
 			{
 				// Send DblClick action
 				if (prop->IsEnabled()) prop->Activate(PACT_DBLCLICK, lParam);
@@ -644,7 +645,7 @@ public:
 	{
 		POINT pt = { 0 };
 		::GetCursorPos(&pt);
-		ScreenToClient(&pt);
+		this->ScreenToClient(&pt);
 
 		if (pt.x == m_iMiddle)
 		{
@@ -672,20 +673,20 @@ public:
 		if (!m_TextFont.IsNull()) m_TextFont.DeleteObject();
 		if (!m_CategoryFont.IsNull()) m_CategoryFont.DeleteObject();
 		LOGFONT lf;
-		HFONT hFont = (HFONT)::SendMessage(GetParent(), WM_GETFONT, 0, 0);
+		HFONT hFont = (HFONT)::SendMessage(this->GetParent(), WM_GETFONT, 0, 0);
 		if (hFont == NULL) hFont = AtlGetDefaultGuiFont();
 		::GetObject(hFont, sizeof(lf), &lf);
 		m_di.TextFont = m_TextFont.CreateFontIndirect(&lf);
-		SetFont(m_di.TextFont);
+		this->SetFont(m_di.TextFont);
 		if ((m_dwExtStyle & PLS_EX_XPLOOK) == 0) lf.lfWeight += FW_BOLD;
 		m_di.CategoryFont = m_CategoryFont.CreateFontIndirect(&lf);
 		// Text metrics
-		CClientDC dc(m_hWnd);
+		CClientDC dc(this->m_hWnd);
 		HFONT hOldFont = dc.SelectFont(m_di.TextFont);
 		dc.GetTextMetrics(&m_di.tmText);
 		dc.SelectFont(hOldFont);
 		// Repaint
-		Invalidate();
+		this->Invalidate();
 		return 0;
 	}
 
@@ -696,7 +697,7 @@ public:
 		case VK_UP:
 		case VK_DOWN:
 		{
-			SetCurSel(GetCurSel() + (wParam == VK_UP ? -1 : 1));
+			this->SetCurSel(this->GetCurSel() + (wParam == VK_UP ? -1 : 1));
 			BOOL bDummy = FALSE;
 			OnSelChange(0, 0, NULL, bDummy);
 		}
@@ -715,14 +716,14 @@ public:
 		ATLASSERT(prop);
 		if (prop == NULL) return 0;
 		// Ask owner about change
-		NMPROPERTYITEM nmh = { m_hWnd, UINT_PTR(GetDlgCtrlID()), PIN_ITEMCHANGING, prop };
-		if (::SendMessage(GetParent(), WM_NOTIFY, nmh.hdr.idFrom, (LPARAM)&nmh) == 0)
+		NMPROPERTYITEM nmh = { this->m_hWnd, UINT_PTR(this->GetDlgCtrlID()), PIN_ITEMCHANGING, prop };
+		if (::SendMessage(this->GetParent(), WM_NOTIFY, nmh.hdr.idFrom, (LPARAM)&nmh) == 0)
 		{
 			// Set new value
 			if (!prop->SetValue(hWnd)) ::MessageBeep((UINT)-1);
 			// Let owner know
 			nmh.hdr.code = PIN_ITEMCHANGED;
-			::SendMessage(GetParent(), WM_NOTIFY, nmh.hdr.idFrom, (LPARAM)&nmh);
+			::SendMessage(this->GetParent(), WM_NOTIFY, nmh.hdr.idFrom, (LPARAM)&nmh);
 			// Repaint item
 			InvalidateItem(m_iInplaceIndex);
 		}
@@ -756,15 +757,15 @@ public:
 		ATLASSERT(prop && pVariant);
 		if (prop == NULL || pVariant == NULL) return 0;
 		// Ask owner about change
-		NMPROPERTYITEM nmh = { m_hWnd, UINT_PTR(GetDlgCtrlID()), PIN_ITEMCHANGING, prop };
-		if (::SendMessage(GetParent(), WM_NOTIFY, nmh.hdr.idFrom, (LPARAM)&nmh) == 0)
+		NMPROPERTYITEM nmh = { this->m_hWnd, UINT_PTR(this->GetDlgCtrlID()), PIN_ITEMCHANGING, prop };
+		if (::SendMessage(this->GetParent(), WM_NOTIFY, nmh.hdr.idFrom, (LPARAM)&nmh) == 0)
 		{
 			// Set new value
 			// NOTE: Do not call this from IProperty::SetValue(VARIANT*) = endless loop
 			if (!prop->SetValue(*pVariant)) ::MessageBeep((UINT)-1);
 			// Let owner know
 			nmh.hdr.code = PIN_ITEMCHANGED;
-			::SendMessage(GetParent(), WM_NOTIFY, nmh.hdr.idFrom, (LPARAM)&nmh);
+			::SendMessage(this->GetParent(), WM_NOTIFY, nmh.hdr.idFrom, (LPARAM)&nmh);
 		}
 		// Locate the updated property index
 		int idx = FindProperty(prop);
@@ -783,7 +784,7 @@ public:
 		_DestroyInplaceWindow();
 		// Activate item at once?
 		IProperty* prop = NULL;
-		int idx = GetCurSel();
+		int idx = this->GetCurSel();
 		if (idx != -1)
 		{
 			prop = reinterpret_cast<IProperty*>(TBase::GetItemData(idx));
@@ -799,8 +800,8 @@ public:
 			}
 		}
 		// Let owner know
-		NMPROPERTYITEM nmh = { m_hWnd, UINT_PTR(GetDlgCtrlID()), PIN_SELCHANGED, prop };
-		::SendMessage(GetParent(), WM_NOTIFY, nmh.hdr.idFrom, (LPARAM)&nmh);
+		NMPROPERTYITEM nmh = { this->m_hWnd, UINT_PTR(this->GetDlgCtrlID()), PIN_SELCHANGED, prop };
+		::SendMessage(this->GetParent(), WM_NOTIFY, nmh.hdr.idFrom, (LPARAM)&nmh);
 		// Redraw drag-band
 		if (m_iPrevXGhostBar > 0) _DrawGhostBar(m_iPrevXGhostBar);
 		return 0;
@@ -834,7 +835,7 @@ public:
 		if (lpDIS->itemID == (UINT)m_iInplaceIndex) di.state |= ODS_COMBOBOXEDIT;
 
 		// Special style for removing selection when control hasn't got focus
-		if ((di.dwExtStyle & PLS_EX_SHOWSELALWAYS) == 0 && (::GetFocus() != m_hWnd))
+		if ((di.dwExtStyle & PLS_EX_SHOWSELALWAYS) == 0 && (::GetFocus() != this->m_hWnd))
 		{
 			di.state &= ~ODS_SELECTED;
 		}

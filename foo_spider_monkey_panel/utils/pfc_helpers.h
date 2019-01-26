@@ -179,8 +179,8 @@ public:
         {
             if ( this != &other )
             {
-                pPfc_ = other.pPfc_;
-                curIdx_ = other.curIdx_;
+                this->pPfc_ = other.pPfc_;
+                this->curIdx_ = other.curIdx_;
             }
 
             return *this;
@@ -188,7 +188,7 @@ public:
 
         iterator& operator++()
         {
-            ++curIdx_;
+            ++( this->curIdx_ );
             return *this;
         }
         iterator operator++( int )
@@ -199,7 +199,7 @@ public:
         }
         iterator& operator--()
         {
-            --curIdx_;
+            --( this->curIdx_ );
             return *this;
         }
         iterator operator--( int )
@@ -406,10 +406,10 @@ private:
 };
 
 template <typename T>
-using Stl_Ref = typename Stl<T&>;
+using Stl_Ref = typename smp::Stl<T&>;
 
 template <typename T>
-using Stl_CRef = typename Stl<const T&>;
+using Stl_CRef = typename smp::Stl<const T&>;
 
 template <typename T>
 Stl_Ref<T> Make_Stl_Ref( T& base )

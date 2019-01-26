@@ -37,6 +37,7 @@
 #define PIN_ADDITEM             (PIN_FIRST-6)
 
 // Identifiers returned by GetKind()
+#define PROPKIND_CATEGORY   0x0001
 #define PROPKIND_SIMPLE     0x0002
 #define PROPKIND_EDIT       0x0003
 #define PROPKIND_LIST       0x0004

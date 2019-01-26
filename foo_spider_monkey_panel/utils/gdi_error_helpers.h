@@ -5,6 +5,9 @@
 namespace smp::error
 {
 
+const char* GdiErrorCodeToText( Gdiplus::Status errorCode );
+void CheckGdi( Gdiplus::Status gdiStatus, std::string_view functionName );
+
 template <typename T, typename T_Parent = T>
 void CheckGdiPlusObject( const std::unique_ptr<T>& obj, const T_Parent* pParentObj = nullptr ) noexcept( false )
 {
@@ -23,8 +26,5 @@ void CheckGdiPlusObject( const std::unique_ptr<T>& obj, const T_Parent* pParentO
         smp::string::Formatter()
         << "Failed to create GdiPlus object (0x" << std::hex << pObject->GetLastStatus() << ": " << GdiErrorCodeToText( pObject->GetLastStatus() ) );
 }
-
-const char* GdiErrorCodeToText( Gdiplus::Status errorCode );
-void CheckGdi( Gdiplus::Status gdiStatus, std::string_view functionName );
 
 } // namespace smp::error

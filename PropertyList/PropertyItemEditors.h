@@ -60,7 +60,7 @@ public:
 	LRESULT OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 	{
 		LRESULT lRes = DefWindowProc();
-		SetFont(CWindow(GetParent()).GetFont());
+		this->SetFont(CWindow(this->GetParent()).GetFont());
 		SetMargins(PROP_TEXT_INDENT, 0);   // Force EDIT margins so text doesn't jump
 		return lRes;
 	}
@@ -73,23 +73,23 @@ public:
 			// FALL THROUGH...
 		case VK_RETURN:
 			// Force focus to parent to update value (see OnKillFocus()...)
-			::SetFocus(GetParent());
+			::SetFocus(this->GetParent());
 			// FIX: Allowing a multiline EDIT to VK_ESCAPE will send a WM_CLOSE
 			//      to the list control if it's embedded in a dialog!?
 			return 0;
 		case VK_TAB:
 		case VK_UP:
 		case VK_DOWN:
-			return ::PostMessage(GetParent(), WM_USER_PROP_NAVIGATE, LOWORD(wParam), 0);
+			return ::PostMessage(this->GetParent(), WM_USER_PROP_NAVIGATE, LOWORD(wParam), 0);
 		case VK_LEFT:
 			int lLow, lHigh;
 			GetSel(lLow, lHigh);
 			if (lLow != lHigh || lLow != 0) break;
-			return ::PostMessage(GetParent(), WM_USER_PROP_NAVIGATE, LOWORD(wParam), 0);
+			return ::PostMessage(this->GetParent(), WM_USER_PROP_NAVIGATE, LOWORD(wParam), 0);
 		case VK_RIGHT:
 			GetSel(lLow, lHigh);
 			if (lLow != lHigh || lLow != GetWindowTextLength()) break;
-			return ::PostMessage(GetParent(), WM_USER_PROP_NAVIGATE, LOWORD(wParam), 0);
+			return ::PostMessage(this->GetParent(), WM_USER_PROP_NAVIGATE, LOWORD(wParam), 0);
 		}
 		bHandled = FALSE;
 		return 0;
@@ -116,7 +116,7 @@ public:
 	{
 		LRESULT lRes = DefWindowProc(uMsg, wParam, lParam);
 		m_fCancel |= (GetModify() == FALSE);
-		::SendMessage(GetParent(), m_fCancel ? WM_USER_PROP_CANCELPROPERTY : WM_USER_PROP_UPDATEPROPERTY, 0, (LPARAM)m_hWnd);
+		::SendMessage(this->GetParent(), m_fCancel ? WM_USER_PROP_CANCELPROPERTY : WM_USER_PROP_UPDATEPROPERTY, 0, (LPARAM)this->m_hWnd);
 		return lRes;
 	}
 	LRESULT OnGetDlgCode(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/)
@@ -135,7 +135,7 @@ class CPropertyDropWindowImpl :
 	public CThemeImpl< CPropertyDropWindowImpl< T, TBase > >
 {
 public:
-	DECLARE_WND_SUPERCLASS(NULL, TBase::GetWndClassName())
+	DECLARE_WND_SUPERCLASS2(NULL, CPropertyDropWindowImpl, TBase::GetWndClassName())
 
 	CContainedWindowT<CButton> m_wndButton;
 	bool m_bReadOnly;
@@ -166,19 +166,19 @@ public:
 
 	LRESULT OnCreate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/)
 	{
-		LRESULT lRes = DefWindowProc(uMsg, wParam, lParam);
+		LRESULT lRes = this->DefWindowProc(uMsg, wParam, lParam);
 		RECT rcClient = { 0 };
-		GetClientRect(&rcClient);
+		this->GetClientRect(&rcClient);
 		int cy = rcClient.bottom - rcClient.top;
 		// Setup EDIT control
-		SetFont(CWindow(GetParent()).GetFont());
-		ModifyStyle(WS_BORDER, ES_LEFT);
-		SendMessage(EM_SETMARGINS, EC_LEFTMARGIN | EC_RIGHTMARGIN, MAKELONG(PROP_TEXT_INDENT, ::GetSystemMetrics(SM_CXVSCROLL)));
+		this->SetFont(CWindow(this->GetParent()).GetFont());
+		this->ModifyStyle(WS_BORDER, ES_LEFT);
+		this->SendMessage(EM_SETMARGINS, EC_LEFTMARGIN | EC_RIGHTMARGIN, MAKELONG(PROP_TEXT_INDENT, ::GetSystemMetrics(SM_CXVSCROLL)));
 		// Create button
 		RECT rcButton = { rcClient.right - cy, rcClient.top - 1, rcClient.right, rcClient.bottom };
-		m_wndButton.Create(this, 1, m_hWnd, &rcButton, NULL, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | BS_PUSHBUTTON | BS_OWNERDRAW);
+		m_wndButton.Create(this, 1, this->m_hWnd, &rcButton, NULL, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | BS_PUSHBUTTON | BS_OWNERDRAW);
 		ATLASSERT(m_wndButton.IsWindow());
-		m_wndButton.SetFont(GetFont());
+		m_wndButton.SetFont(this->GetFont());
 		// HACK: Windows needs to repaint this guy again!
 		m_wndButton.SetFocus();
 		m_bReadOnly = true;
@@ -200,7 +200,7 @@ public:
 	}
 	LRESULT OnKillFocus(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& bHandled)
 	{
-		if ((HWND)wParam != m_wndButton) ::SendMessage(GetParent(), WM_USER_PROP_UPDATEPROPERTY, 0, (LPARAM)m_hWnd);
+		if ((HWND)wParam != m_wndButton) ::SendMessage(this->GetParent(), WM_USER_PROP_UPDATEPROPERTY, 0, (LPARAM)this->m_hWnd);
 		bHandled = FALSE;
 		return 0;
 	}
@@ -221,22 +221,22 @@ public:
 		case VK_RETURN:
 		case VK_ESCAPE:
 			// Announce the new value
-			::PostMessage(GetParent(), wParam == VK_RETURN ? WM_USER_PROP_UPDATEPROPERTY : WM_USER_PROP_CANCELPROPERTY, 0, (LPARAM)m_hWnd);
-			::SetFocus(GetParent());
+			::PostMessage(this->GetParent(), wParam == VK_RETURN ? WM_USER_PROP_UPDATEPROPERTY : WM_USER_PROP_CANCELPROPERTY, 0, (LPARAM)this->m_hWnd);
+			::SetFocus(this->GetParent());
 			break;
 		case VK_TAB:
 		case VK_UP:
 		case VK_DOWN:
-			return ::PostMessage(GetParent(), WM_USER_PROP_NAVIGATE, LOWORD(wParam), 0);
+			return ::PostMessage(this->GetParent(), WM_USER_PROP_NAVIGATE, LOWORD(wParam), 0);
 		case VK_LEFT:
 			int lLow, lHigh;
-			SendMessage(EM_GETSEL, (WPARAM)&lLow, (LPARAM)&lHigh);
+			this->SendMessage(EM_GETSEL, (WPARAM)&lLow, (LPARAM)&lHigh);
 			if (lLow != lHigh || lLow != 0) break;
-			return ::PostMessage(GetParent(), WM_USER_PROP_NAVIGATE, LOWORD(wParam), 0);
+			return ::PostMessage(this->GetParent(), WM_USER_PROP_NAVIGATE, LOWORD(wParam), 0);
 		case VK_RIGHT:
-			SendMessage(EM_GETSEL, (WPARAM)&lLow, (LPARAM)&lHigh);
-			if (lLow != lHigh || lLow != GetWindowTextLength()) break;
-			return ::PostMessage(GetParent(), WM_USER_PROP_NAVIGATE, LOWORD(wParam), 0);
+			this->SendMessage(EM_GETSEL, (WPARAM)&lLow, (LPARAM)&lHigh);
+			if (lLow != lHigh || lLow != this->GetWindowTextLength()) break;
+			return ::PostMessage(this->GetParent(), WM_USER_PROP_NAVIGATE, LOWORD(wParam), 0);
 		}
 		bHandled = FALSE;
 		return 0;
@@ -262,14 +262,14 @@ public:
 		{
 		case VK_UP:
 		case VK_DOWN:
-			return ::PostMessage(GetParent(), WM_USER_PROP_NAVIGATE, LOWORD(wParam), 0);
+			return ::PostMessage(this->GetParent(), WM_USER_PROP_NAVIGATE, LOWORD(wParam), 0);
 		case VK_F2:
 		case VK_F4:
 		case VK_SPACE:
 			m_wndButton.Click();
 			return 0;
 		case VK_ESCAPE:
-			::PostMessage(GetParent(), WM_USER_PROP_UPDATEPROPERTY, 0, (LPARAM)m_hWnd);
+			::PostMessage(this->GetParent(), WM_USER_PROP_UPDATEPROPERTY, 0, (LPARAM)this->m_hWnd);
 			return 0;
 		}
 		bHandled = FALSE;
@@ -277,7 +277,7 @@ public:
 	}
 	LRESULT OnGetDlgCode(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/)
 	{
-		return DefWindowProc(uMsg, wParam, lParam) | DLGC_WANTALLKEYS;
+		return this->DefWindowProc(uMsg, wParam, lParam) | DLGC_WANTALLKEYS;
 	}
 };
 
@@ -333,9 +333,9 @@ public:
 	{
 		// Create dropdown list (as hidden)
 		RECT rc = CWindow::rcDefault;
-		m_wndList.Create(this, 2, m_hWnd, &rc, NULL, WS_POPUP | WS_BORDER | WS_VSCROLL);
+		m_wndList.Create(this, 2, this->m_hWnd, &rc, NULL, WS_POPUP | WS_BORDER | WS_VSCROLL);
 		ATLASSERT(m_wndList.IsWindow());
-		m_wndList.SetFont(CWindow(GetParent()).GetFont());
+		m_wndList.SetFont(CWindow(this->GetParent()).GetFont());
 		// Go create the rest of the control...
 		bHandled = FALSE;
 		return 0;
@@ -397,15 +397,15 @@ public:
 				m_wndList.GetText(idx, text);
 				SetWindowText(text);
 				// Announce the new value
-				::SendMessage(GetParent(), WM_USER_PROP_UPDATEPROPERTY, 0, (LPARAM)m_hWnd);
+				::SendMessage(this->GetParent(), WM_USER_PROP_UPDATEPROPERTY, 0, (LPARAM)this->m_hWnd);
 			}
 		}
-		::SetFocus(GetParent());
+		::SetFocus(this->GetParent());
 		break;
 		case VK_ESCAPE:
 			// Announce the cancellation
-			::SendMessage(GetParent(), WM_USER_PROP_CANCELPROPERTY, 0, (LPARAM)m_hWnd);
-			::SetFocus(GetParent());
+			::SendMessage(this->GetParent(), WM_USER_PROP_CANCELPROPERTY, 0, (LPARAM)this->m_hWnd);
+			::SetFocus(this->GetParent());
 			break;
 		}
 		bHandled = FALSE;

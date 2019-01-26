@@ -321,7 +321,7 @@ std::unique_ptr<Gdiplus::Bitmap> GetBitmapFromMetadbOrEmbed( const metadb_handle
 
     if ( pImagePath )
     {
-        *pImagePath = (imagePath.is_empty() ? "" : file_path_display( imagePath ));
+        *pImagePath = ( imagePath.is_empty() ? "" : file_path_display( imagePath ).get_ptr() );
     }
 
     return bitmap;

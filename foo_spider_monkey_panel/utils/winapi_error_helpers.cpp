@@ -30,7 +30,7 @@ pfc::string8_fast MessageFromErrorCode( DWORD errorCode )
         LocalFree( lpMsgBuf );
     } );
 
-    pfc::string8_fast msg8 = pfc::stringcvt::string_utf8_from_wide( (const wchar_t*)lpMsgBuf );
+    pfc::string8_fast msg8 = pfc::stringcvt::string_utf8_from_wide( (const wchar_t*)lpMsgBuf ).get_ptr();
     return msg8;
 }
 

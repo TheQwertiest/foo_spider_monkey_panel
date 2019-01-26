@@ -432,7 +432,7 @@ bool CScriptEditorCtrl::StartCallTip()
 {
     m_nCurrentCallTip = 0;
     m_szCurrentCallTipWord = "";
-    SString line = GetCurrentLine();
+    SString line = GetCurrentLine().c_str();
     int current = GetCaretInLine();
     int pos = GetCurrentPos();
     int braces = 0;

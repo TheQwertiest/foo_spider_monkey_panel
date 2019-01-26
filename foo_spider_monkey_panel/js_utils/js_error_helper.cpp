@@ -256,7 +256,7 @@ pfc::string8_fast JsErrorToText( JSContext* cx )
                 errorText += "\n";
                 errorText += "Source: ";
                 errorText += [pReport] {
-                    pfc::string8_fast tmpBuf = pfc::stringcvt::string_utf8_from_utf16( pReport->linebuf(), pReport->linebufLength() );
+                    pfc::string8_fast tmpBuf = pfc::stringcvt::string_utf8_from_utf16( pReport->linebuf(), pReport->linebufLength() ).get_ptr();
                     tmpBuf.truncate_eol();
                     return tmpBuf;
                 }();
@@ -298,9 +298,9 @@ void ExceptionToJsError( JSContext* cx )
     {
         JS_ClearPendingException( cx );
 
-        pfc::string8_fast errorMsg8 = pfc::stringcvt::string_utf8_from_wide( e.ErrorMessage() ? (const wchar_t*)e.ErrorMessage() : L"<none>" );
-        pfc::string8_fast errorSource8 = pfc::stringcvt::string_utf8_from_wide( e.Source().length() ? (const wchar_t*)e.Source() : L"<none>" );
-        pfc::string8_fast errorDesc8 = pfc::stringcvt::string_utf8_from_wide( e.Description().length() ? (const wchar_t*)e.Description() : L"<none>" );
+        const pfc::string8_fast errorMsg8 = pfc::stringcvt::string_utf8_from_wide( e.ErrorMessage() ? (const wchar_t*)e.ErrorMessage() : L"<none>" ).get_ptr();
+        const pfc::string8_fast errorSource8 = pfc::stringcvt::string_utf8_from_wide( e.Source().length() ? (const wchar_t*)e.Source() : L"<none>" ).get_ptr();
+        const pfc::string8_fast errorDesc8 = pfc::stringcvt::string_utf8_from_wide( e.Description().length() ? (const wchar_t*)e.Description() : L"<none>" ).get_ptr();
         JS_ReportErrorUTF8( cx, "COM error: message %s; source: %s; description: %s", errorMsg8.c_str(), errorSource8.c_str(), errorDesc8.c_str() );
     }
     catch ( const std::bad_alloc& )

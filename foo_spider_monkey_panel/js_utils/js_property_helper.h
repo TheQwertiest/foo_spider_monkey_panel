@@ -1,7 +1,9 @@
 #pragma once
 
-#include <optional>
+#include <convert/js_to_native.h>
 #include <utils/string_helpers.h>
+
+#include <optional>
 
 struct JSFreeOp;
 struct JSContext;

@@ -1,5 +1,7 @@
 #pragma once
 
+#include <com_objects/com_interface.h>
+
 // TODO: cleanup
 
 extern ITypeLibPtr g_typelib;
@@ -178,7 +180,7 @@ protected:
 public:
 	STDMETHODIMP Dispose()
 	{
-		FinalRelease();
+		this->FinalRelease();
 		return S_OK;
 	}
 };
@@ -197,7 +199,7 @@ public:
 		ULONG n = Release_();
 		if (n == 0)
 		{
-			FinalRelease();
+			this->FinalRelease();
 			delete this;
 		}
 		return n;

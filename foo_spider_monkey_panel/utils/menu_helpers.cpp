@@ -48,7 +48,7 @@ bool match_menu_command( const pfc::string8_fast& path, const pfc::string8_fast&
     return ( ( path[pathLen - commandLen - 1] == '/' ) && !_stricmp( path.c_str() + pathLen - commandLen, command ) );
 }
 
-std::optional<contextmenu_node*> find_context_command_recur( const pfc::string8_fast& p_command, pfc::string_base& basePath, contextmenu_node* p_parent )
+std::optional<contextmenu_node*> find_context_command_recur( const pfc::string8_fast& p_command, pfc::string8_fast& basePath, contextmenu_node* p_parent )
 {
     assert( p_parent && p_parent->get_type() == contextmenu_item_node::TYPE_POPUP );
      
@@ -60,7 +60,8 @@ std::optional<contextmenu_node*> find_context_command_recur( const pfc::string8_
             continue;
         }
 
-        pfc::string8_fast curPath = basePath + child->get_name();
+        pfc::string8_fast curPath = basePath;
+        curPath += child->get_name();
 
         switch ( child->get_type() )
         {

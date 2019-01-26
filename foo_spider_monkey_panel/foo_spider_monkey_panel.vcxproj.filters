@@ -678,7 +678,6 @@
       <Filter>z_core\resources</Filter>
     </None>
     <None Include=".clang-format" />
-    <None Include="foo_spider_monkey_panel\tlb\foo_spider_monkey_panel.tlb" />
     <None Include="foo_spider_monkey_panel.rc2">
       <Filter>z_core\resources</Filter>
     </None>
@@ -736,8 +735,5 @@
     <Midl Include="com_objects\com_interface.idl">
       <Filter>com_objects</Filter>
     </Midl>
-  </ItemGroup>
-  <ItemGroup>
-    <Image Include="bitmap1.bmp" />
   </ItemGroup>
 </Project>

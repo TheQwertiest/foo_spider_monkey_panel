@@ -2,6 +2,17 @@
 
 #include <optional>
 
+namespace mozjs::convert::to_native
+{
+
+template <typename T, typename F>
+void ProcessArray( JSContext* cx, JS::HandleObject jsObject, F&& workerFunc );
+
+template <typename T, typename F>
+void ProcessArray( JSContext* cx, JS::HandleValue jsValue, F&& workerFunc );
+
+}
+
 namespace mozjs::convert::to_native::internal
 {
 
@@ -37,7 +48,7 @@ inline constexpr bool is_vector_v = is_vector<T>::value;
 template <typename T>
 T ToSimpleValue( JSContext* cx, const JS::HandleObject& jsObject )
 {
-    auto pNative = GetInnerInstancePrivate<std::remove_pointer_t<T>>( cx, jsObject );
+    auto pNative = mozjs::GetInnerInstancePrivate<std::remove_pointer_t<T>>( cx, jsObject );
     if ( !pNative )
     {
         throw smp::SmpException( "Object is not of valid type" );
@@ -94,7 +105,7 @@ template <typename T>
 std::vector<T> ToVector( JSContext* cx, JS::HandleObject jsObject )
 {
     std::vector<T> nativeValues;
-    if ( !ProcessArray<T>( cx, jsObject, [&nativeValues]( T&& nativeValue ) { nativeValues.push_back( std::forward<T>( nativeValue ) ) } ) )
+    if ( !ProcessArray<T>( cx, jsObject, [&nativeValues]( T&& nativeValue ) { nativeValues.push_back( std::forward<T>( nativeValue ) ); } ) )
     { // reports
         return std::nullopt;
     }
@@ -106,7 +117,7 @@ template <typename T>
 std::vector<T> ToVector( JSContext* cx, JS::HandleValue jsValue )
 {
     std::vector<T> nativeValues;
-    if ( !ProcessArray<T>( cx, jsValue, [&nativeValues]( T&& nativeValue ) { nativeValues.push_back( std::forward<T>( nativeValue ) ) } ) )
+    if ( !ProcessArray<T>( cx, jsValue, [&nativeValues]( T&& nativeValue ) { nativeValues.push_back( std::forward<T>( nativeValue ) ); } ) )
     { // reports
         return std::nullopt;
     }
@@ -165,7 +176,7 @@ void ProcessArray( JSContext* cx, JS::HandleObject jsObject, F&& workerFunc )
 
     if ( !is )
     {
-        throw SmpException( "Object is not an array" );
+        throw smp::SmpException( "Object is not an array" );
     }
 
     uint32_t arraySize;
@@ -198,7 +209,7 @@ void ProcessArray( JSContext* cx, JS::HandleValue jsValue, F&& workerFunc )
     JS::RootedObject jsObject( cx, jsValue.toObjectOrNull() );
     if ( !jsObject )
     {
-        throw SmpException( "Value is not a JS object" );
+        throw smp::SmpException( "Value is not a JS object" );
     }
     to_native::ProcessArray<T>( cx, jsObject, std::forward<F>( workerFunc ) );
 }

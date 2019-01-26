@@ -239,7 +239,7 @@ void JsEngine::MaybeRunJobs()
 
         for ( size_t i = 0; i < rejectedPromises_.length(); ++i )
         {
-            auto& rejectedPromise = rejectedPromises_[i];
+            const auto& rejectedPromise = rejectedPromises_[i];
             if ( !rejectedPromise )
             {
                 continue;

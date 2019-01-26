@@ -7,6 +7,34 @@
 
 #include <optional>
 
+
+namespace mozjs::internal
+{
+
+template <int ArgArraySize>
+void NativeToJsArguments( [[maybe_unused]] JSContext* cx,
+                          [[maybe_unused]] JS::AutoValueArray<ArgArraySize>& wrappedArgs,
+                          [[maybe_unused]] uint8_t argIndex )
+{
+}
+
+template <int ArgArraySize, typename ArgType, typename... ArgTypes>
+void NativeToJsArguments( JSContext* cx,
+                          JS::AutoValueArray<ArgArraySize>& wrappedArgs,
+                          uint8_t argIndex, ArgType&& arg, ArgTypes&&... args )
+{
+    convert::to_js::ToValue( cx, std::forward<ArgType>( arg ), wrappedArgs[argIndex] );
+    NativeToJsArguments( cx, wrappedArgs, argIndex + 1, std::forward<ArgTypes>( args )... );
+}
+
+bool InvokeJsCallback_Impl( JSContext* cx,
+                            JS::HandleObject globalObject,
+                            JS::HandleValue functionValue,
+                            const JS::HandleValueArray& args,
+                            JS::MutableHandleValue rval );
+
+} // namespace mozjs::internal
+
 namespace mozjs
 {
 
@@ -39,16 +67,16 @@ std::optional<ReturnType> InvokeJsCallback( JSContext* cx,
         if constexpr ( sizeof...( ArgTypes ) > 0 )
         {
             JS::AutoValueArray<sizeof...( ArgTypes )> wrappedArgs( cx );
-            NativeToJsArguments( cx, wrappedArgs, 0, std::forward<ArgTypes>( args )... );
+            mozjs::internal::NativeToJsArguments( cx, wrappedArgs, 0, std::forward<ArgTypes>( args )... );
 
-            if ( !InvokeJsCallback_Impl( cx, globalObject, funcValue, wrappedArgs, &retVal ) )
+            if ( !mozjs::internal::InvokeJsCallback_Impl( cx, globalObject, funcValue, wrappedArgs, &retVal ) )
             {
                 return std::nullopt;
             }
         }
         else
         {
-            if ( !InvokeJsCallback_Impl( cx, globalObject, funcValue, JS::HandleValueArray::empty(), &retVal ) )
+            if ( !mozjs::internal::InvokeJsCallback_Impl( cx, globalObject, funcValue, JS::HandleValueArray::empty(), &retVal ) )
             {
                 return std::nullopt;
             }
@@ -62,27 +90,5 @@ std::optional<ReturnType> InvokeJsCallback( JSContext* cx,
         return std::nullopt;
     }
 }
-
-template <int ArgArraySize, typename ArgType, typename... ArgTypes>
-void NativeToJsArguments( JSContext* cx,
-                          JS::AutoValueArray<ArgArraySize>& wrappedArgs,
-                          uint8_t argIndex, ArgType&& arg, ArgTypes&&... args )
-{
-    convert::to_js::ToValue( cx, std::forward<ArgType>( arg ), wrappedArgs[argIndex] );
-    NativeToJsArguments( cx, wrappedArgs, argIndex + 1, std::forward<ArgTypes>( args )... );
-}
-
-template <int ArgArraySize>
-void NativeToJsArguments( [[maybe_unused]] JSContext* cx,
-                          [[maybe_unused]] JS::AutoValueArray<ArgArraySize>& wrappedArgs,
-                          [[maybe_unused]] uint8_t argIndex )
-{
-}
-
-bool InvokeJsCallback_Impl( JSContext* cx,
-                            JS::HandleObject globalObject,
-                            JS::HandleValue functionValue,
-                            const JS::HandleValueArray& args,
-                            JS::MutableHandleValue rval );
 
 } // namespace mozjs

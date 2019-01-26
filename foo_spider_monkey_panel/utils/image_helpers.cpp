@@ -57,16 +57,16 @@ uint32_t LoadImageTask::GetTaskId() const
 
 void LoadImageTask::run()
 {
-    const pfc::string8_fast path = file_path_display( pfc::stringcvt::string_utf8_from_wide( imagePath_.c_str(), imagePath_.length() ) );
+    const pfc::string8_fast path = file_path_display( pfc::stringcvt::string_utf8_from_wide( imagePath_.c_str(), imagePath_.length() ) ).get_ptr();
     panel::message_manager::instance().post_callback_msg( hNotifyWnd_,
-                                                        smp::CallbackMessage::internal_load_image_done,
-                                                        std::make_unique<
-                                                            smp::panel::CallbackDataImpl<
-                                                                uint32_t,
-                                                                std::unique_ptr<Gdiplus::Bitmap>,
-                                                                pfc::string8_fast>>( taskId_,
-                                                                                     std::move( image::LoadImage( imagePath_ ) ),
-                                                                                     path ) );
+                                                          smp::CallbackMessage::internal_load_image_done,
+                                                          std::make_unique<
+                                                              smp::panel::CallbackDataImpl<
+                                                                  uint32_t,
+                                                                  std::unique_ptr<Gdiplus::Bitmap>,
+                                                                  pfc::string8_fast>>( taskId_,
+                                                                                       std::move( image::LoadImage( imagePath_ ) ),
+                                                                                       path ) );
 }
 
 } // namespace

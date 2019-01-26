@@ -84,7 +84,7 @@ pfc::string8_fast ParseJsObject( JSContext* cx, JS::HandleObject jsObject, JS::A
     bool hasFunctions = false;
     for ( size_t i = 0, length = jsVector.length(); i < length; ++i )
     {
-        auto& jsId = jsVector[i];
+        const auto& jsId = jsVector[i];
         if ( !JS_GetPropertyById( cx, jsObject, jsId, &jsValue ) )
         {
             throw smp::JsException();

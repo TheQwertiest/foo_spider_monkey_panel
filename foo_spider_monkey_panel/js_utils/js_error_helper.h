@@ -17,7 +17,8 @@ bool Execute_JsSafe( JSContext* cx, std::string_view functionName, F&& func, Arg
 
     if ( JS_IsExceptionPending( cx ) )
     {
-        const pfc::string8_fast additionalText = pfc::string8_fast( functionName.data(), functionName.size() ) + " failed";
+        pfc::string8_fast additionalText = pfc::string8_fast( functionName.data(), functionName.size() );
+        additionalText += " failed";
         mozjs::error::PrependTextToJsError( cx, additionalText );
         return false;
     }

@@ -188,7 +188,7 @@ protected:
         ACFU_EXPECT_JSON( json.is_object() );
         if ( t_github_conf::is_acceptable_release( json ) )
         {
-            process_release( json, info );
+            this->process_release( json, info );
         }
     }
 };
