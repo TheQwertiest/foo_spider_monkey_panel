@@ -108,21 +108,21 @@ public:
             --*this;
             return ( tmp );
         }
-        const_iterator& operator+=( size_type offset )
+        const_iterator& operator+=( difference_type offset )
         {
             curIdx_ += offset;
             return ( *this );
         }
-        const_iterator operator+( size_type offset ) const
+        const_iterator operator+( difference_type offset ) const
         {
             const_iterator tmp = *this;
             return ( tmp += offset );
         }
-        const_iterator& operator-=( size_type offset )
+        const_iterator& operator-=( difference_type offset )
         {
             return ( *this += -offset );
         }
-        const_iterator operator-( size_type offset ) const
+        const_iterator operator-( difference_type offset ) const
         {
             const_iterator tmp = *this;
             return ( tmp -= offset );
@@ -208,29 +208,29 @@ public:
             --*this;
             return ( tmp );
         }
-        iterator& operator+=( size_type offset )
+        iterator& operator+=( difference_type offset )
         {
             *static_cast<const_iterator*>( this ) += offset;
             return ( *this );
         }
-        iterator operator+( size_type offset ) const
+        iterator operator+( difference_type offset ) const
         {
             iterator tmp = *this;
             return ( tmp += offset );
         }
 
-        iterator& operator-=( size_type offset )
+        iterator& operator-=( difference_type offset )
         {
             return ( *this += -offset );
         }
-        iterator operator-( size_type offset ) const
+        iterator operator-( difference_type offset ) const
         {
             iterator tmp = *this;
             return ( tmp -= offset );
         }
         difference_type operator-( iterator other ) const
         {
-            return ( *static_cast<const_iterator*>( this ) - other );
+            return ( *static_cast<const const_iterator*>( this ) - other );
         }
 
         reference operator*() const
@@ -404,6 +404,30 @@ public:
 private:
     T pfc_;
 };
+
+template <typename T>
+typename Stl<T>::iterator begin( Stl<T>& container )
+{
+    return container.begin();
+}
+
+template <typename T>
+typename Stl<T>::iterator end( Stl<T>& container )
+{
+    return container.end();
+}
+
+template <typename T>
+typename Stl<T>::const_iterator cbegin( const Stl<T>& container )
+{
+    return container.cbegin();
+}
+
+template <typename T>
+typename Stl<T>::const_iterator cend( const Stl<T>& container )
+{
+    return container.cend();
+}
 
 template <typename T>
 using Stl_Ref = typename smp::Stl<T&>;
