@@ -134,8 +134,7 @@ void stackblur_by_segment( uint8_t* src,  ///< input image data
         uint8_t* dst_ptr = src + coord_2 * coord_2_shift;
         for ( uint32_t coord_1 = 0; coord_1 < axis_1_size; ++coord_1 )
         {// iterate through pixels inside segment element
-
-             // output a pixel
+            // output a pixel
             for ( uint32_t j = 0; j < kColourCount; ++j )
             {
                 dst_ptr[j] = static_cast<uint8_t>( ( sum_colour[j] * mul_sum ) >> shr_sum );
