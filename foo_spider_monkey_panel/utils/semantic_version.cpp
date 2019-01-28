@@ -106,7 +106,7 @@ std::optional<SemVer> SemVer::ParseString( const std::string& strVer )
 }
 
 bool SemVer::operator==( const SemVer& other ) const
-{// metadata is ignored during comparison
+{ // metadata is ignored during comparison
     return ( major == other.major
              && minor == other.minor
              && patch == other.patch
@@ -160,7 +160,7 @@ bool SemVer::IsPreleaseNewer( std::string_view a, std::string_view b )
     }
 
     auto isNumber = []( std::string_view str ) {
-        return ( str.cend() == std::find_if_not( str.cbegin(), str.cend(), []( char c ) { return std::isdigit( c ); } ) );
+        return ( str.cend() == ranges::find_if_not( str, []( char c ) { return std::isdigit( c ); } ) );
     };
 
     auto extractToken = []( std::string_view str ) -> std::string_view {

@@ -368,9 +368,8 @@ void JsEngine::ReportOomError()
             continue;
         }
 
-        auto it = std::find_if(
-            oomData.cbegin(),
-            oomData.cend(),
+        auto it = ranges::find_if(
+            oomData,
             [pNativeGlobal = jsContainer.get().pNativeGlobal_]( const auto& oomDataElem ) {
                 return oomDataElem.pGlobal == pNativeGlobal;
             } );

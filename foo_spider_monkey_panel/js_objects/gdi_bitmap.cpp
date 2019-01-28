@@ -127,7 +127,7 @@ JsGdiBitmap::CreateNative( JSContext* cx, std::unique_ptr<Gdiplus::Bitmap> gdiBi
 
 size_t JsGdiBitmap::GetInternalSize( const std::unique_ptr<Gdiplus::Bitmap>& gdiBitmap )
 {
-    return sizeof(Gdiplus::Bitmap) + gdiBitmap->GetWidth() * gdiBitmap->GetHeight() * Gdiplus::GetPixelFormatSize( gdiBitmap->GetPixelFormat() ) / 8;
+    return sizeof( Gdiplus::Bitmap ) + gdiBitmap->GetWidth() * gdiBitmap->GetHeight() * Gdiplus::GetPixelFormatSize( gdiBitmap->GetPixelFormat() ) / 8;
 }
 
 Gdiplus::Bitmap* JsGdiBitmap::GdiBitmap() const
@@ -174,9 +174,14 @@ JSObject* JsGdiBitmap::ApplyAlpha( uint8_t alpha )
     smp::error::CheckGdi( gdiRet, "SetColorMatrix" );
 
     Gdiplus::Graphics g( out.get() );
-    gdiRet = g.DrawImage( pGdi_.get(), 
-                          Gdiplus::Rect{ 0, 0, static_cast<int>( width ), static_cast<int>( height ) }, 
-                          0, 0, width, height, Gdiplus::UnitPixel, &ia );
+    gdiRet = g.DrawImage( pGdi_.get(),
+                          Gdiplus::Rect{ 0, 0, static_cast<int>( width ), static_cast<int>( height ) },
+                          0,
+                          0,
+                          width,
+                          height,
+                          Gdiplus::UnitPixel,
+                          &ia );
     smp::error::CheckGdi( gdiRet, "DrawImage" );
 
     return JsGdiBitmap::CreateJs( pJsCtx_, std::move( out ) );
@@ -209,7 +214,7 @@ void JsGdiBitmap::ApplyMask( JsGdiBitmap* mask )
     gdiRet = pGdi_->LockBits( &rect, Gdiplus::ImageLockModeRead | Gdiplus::ImageLockModeWrite, PixelFormat32bppARGB, &dstBmpData );
     smp::error::CheckGdi( gdiRet, "dst::LockBits" );
 
-    const auto autoDstBits = [&pGdi = pGdi_, &dstBmpData] {
+    const auto autoDstBits = [& pGdi = pGdi_, &dstBmpData] {
         pGdi->UnlockBits( &dstBmpData );
     };
 
@@ -287,15 +292,13 @@ JSObject* JsGdiBitmap::GetColourScheme( uint32_t count )
     // Sorting
     using sort_vec_pair_t = std::pair<uint32_t, uint32_t>;
     std::vector<sort_vec_pair_t> sort_vec( color_counters.begin(), color_counters.end() );
-    count = std::min( count, sort_vec.size() );
     std::partial_sort(
         sort_vec.begin(),
-        sort_vec.begin() + count,
+        sort_vec.begin() + std::min( count, sort_vec.size() ),
         sort_vec.end(),
         []( const sort_vec_pair_t& a, const sort_vec_pair_t& b ) {
             return a.second > b.second;
         } );
-
 
     JS::RootedValue jsValue( pJsCtx_ );
     convert::to_js::ToArrayValue(
@@ -322,7 +325,7 @@ pfc::string8_fast JsGdiBitmap::GetColourSchemeJSON( uint32_t count )
     smp::error::CheckGdiPlusObject( bitmap );
 
     Gdiplus::Graphics gr( bitmap.get() );
-    
+
     Gdiplus::Status gdiRet = gr.SetInterpolationMode( (Gdiplus::InterpolationMode)6 ); // InterpolationModeHighQualityBilinear
     smp::error::CheckGdi( gdiRet, "SetInterpolationMode" );
 
@@ -378,9 +381,8 @@ pfc::string8_fast JsGdiBitmap::GetColourSchemeJSON( uint32_t count )
     std::vector<Cluster> clusters = kmeans.run( points );
 
     // sort by largest clusters
-    std::sort(
-        clusters.begin(),
-        clusters.end(),
+    ranges::sort(
+        clusters,
         []( Cluster& a, Cluster& b ) {
             return a.getTotalPixelCount() > b.getTotalPixelCount();
         } );

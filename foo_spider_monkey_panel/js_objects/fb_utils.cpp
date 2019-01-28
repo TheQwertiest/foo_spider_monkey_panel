@@ -568,10 +568,10 @@ uint32_t JsFbUtils::GetSelectionType()
         &contextmenu_item::caller_media_library_viewer,
     };
 
-    GUID type = ui_selection_manager_v2::get()->get_selection_type( 0 );
-    for ( t_size i = 0; i < _countof( guids ); ++i )
+    const GUID type = ui_selection_manager_v2::get()->get_selection_type( 0 );
+    for ( const auto& [i, pElem] : ranges::view::enumerate( guids ) )
     {
-        if ( *guids[i] == type )
+        if ( *pElem == type )
         {
             return i;
         }

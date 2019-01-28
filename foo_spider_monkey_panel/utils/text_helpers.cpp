@@ -28,17 +28,15 @@ UINT FilterEncodings( const DetectEncodingInfo encodings[], int encodingCount, s
         case 936: // gbk
         case 949: // korean
         case 950: // big5
-        {            
+        {
             // '¡¯', <= special char
             // "ve" "d" "ll" "m" 't' 're'
             bool fallback = true;
 
-            constexpr char pattern[] = "\x92";
-            auto pPos = std::search( text.cbegin(), text.cend(), pattern, pattern + sizeof( pattern ) - 1 );
+            auto pPos = ranges::search( text, "\x92" );
             if ( pPos != text.cend() )
             {
-                constexpr char pattern2[] = "vldmtr ";
-                pPos = std::search( text.cbegin(), text.cend(), pattern, pattern2 + sizeof( pattern2 ) - 1 );
+                pPos = ranges::search( text, "vldmtr " );
                 if ( pPos != text.cend() )
                 {
                     codepage = encodings[0].nCodePage;

@@ -32,7 +32,7 @@ void Point::setCluster( uint32_t new_cluster_id )
     id_cluster = new_cluster_id;
 }
 
-uint32_t Point::getCluster()const
+uint32_t Point::getCluster() const
 {
     return id_cluster;
 }
@@ -51,19 +51,17 @@ Cluster::Cluster( uint32_t id_cluster, const Point& point )
 {
     this->id_cluster = id_cluster;
 
-    central_values.assign(point.getValues().cbegin(), point.getValues().cend());
+    central_values = point.getValues() | ranges::view::transform( []( const auto& elem ) { return static_cast<double>( elem ); } );
     points.push_back( point );
 }
 
 bool Cluster::removePoint( uint32_t id_point )
 {
-    uint32_t total_points = points.size();
-
-    for ( uint32_t i = 0; i < total_points; i++ )
+    for ( auto it = points.cbegin(); it != points.cend(); ++it )
     {
-        if ( points[i].getID() == id_point )
+        if ( it->getID() == id_point )
         {
-            points.erase( points.begin() + i );
+            points.erase( it );
             return true;
         }
     }
@@ -72,12 +70,9 @@ bool Cluster::removePoint( uint32_t id_point )
 
 uint32_t Cluster::getTotalPixelCount() const
 {
-    uint32_t total = std::accumulate( points.begin(), points.end(), 0, []( auto sum, const auto& curPoint )
-    {
+    return ranges::accumulate( points, 0, []( auto sum, const auto& curPoint ) {
         return sum + curPoint.getPixelCount();
     } );
-
-    return total;
 }
 
 const std::vector<Point>& Cluster::getPoints() const
@@ -106,8 +101,7 @@ uint32_t KMeans::getIDNearestCenter( const Point& point ) const
 {
     const auto& pointValues = point.getValues();
 
-    auto calculateDistance = [&]( uint32_t idx )
-    {
+    auto calculateDistance = [&]( uint32_t idx ) {
         double sum = 0.0;
         const auto& centralValues = clusters[idx].getCentralValues();
 
@@ -136,13 +130,13 @@ uint32_t KMeans::getIDNearestCenter( const Point& point ) const
 
 KMeans::KMeans( uint32_t K, uint32_t total_points, uint32_t max_iterations )
 {
-    this->K = std::min( std::max( K, static_cast<uint32_t>(14) ), total_points );
+    this->K = std::min( std::max( K, static_cast<uint32_t>( 14 ) ), total_points );
     this->total_points = total_points;
     this->colour_components = kNumberOfColourComponents;
     this->max_iterations = max_iterations;
 }
 
-std::vector<Cluster> KMeans::run( std::vector<Point> & points )
+std::vector<Cluster> KMeans::run( std::vector<Point>& points )
 {
     std::vector<uint32_t> prohibited_indexes;
 
@@ -150,7 +144,7 @@ std::vector<Cluster> KMeans::run( std::vector<Point> & points )
     for ( uint32_t i = 0; i < K; ++i )
     {
         uint32_t index_point = static_cast<uint32_t>( i * total_points / K ); // colours are already distinct so we can't have duplicate centers
-        points[index_point].setCluster( i );        
+        points[index_point].setCluster( i );
         clusters.emplace_back( i, points[index_point] );
     }
 
@@ -168,7 +162,7 @@ std::vector<Cluster> KMeans::run( std::vector<Point> & points )
 
             if ( id_old_cluster != id_nearest_center )
             {
-                if ( id_old_cluster != uint32_t(-1) )
+                if ( id_old_cluster != uint32_t( -1 ) )
                 {
                     clusters[id_old_cluster].removePoint( points[i].getID() );
                 }
@@ -210,4 +204,4 @@ std::vector<Cluster> KMeans::run( std::vector<Point> & points )
     return clusters;
 }
 
-}
+} // namespace smp::utils::kmeans

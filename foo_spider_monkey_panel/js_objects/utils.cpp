@@ -189,7 +189,7 @@ bool JsUtils::CheckFont( const std::wstring& name )
 
     WCHAR family_name_eng[LF_FACESIZE] = { 0 };
     WCHAR family_name_loc[LF_FACESIZE] = { 0 };
-    const auto it = std::find_if( font_families.cbegin(), font_families.cend(), [&family_name_eng, &family_name_loc, &name]( const auto& fontFamily ) {
+    const auto it = ranges::find_if( font_families, [&family_name_eng, &family_name_loc, &name]( const auto& fontFamily ) {
         Gdiplus::Status gdiRet = fontFamily.GetFamilyName( family_name_eng, MAKELANGID( LANG_ENGLISH, SUBLANG_ENGLISH_US ) );
         smp::error::CheckGdi( gdiRet, "GetFamilyName" );
 

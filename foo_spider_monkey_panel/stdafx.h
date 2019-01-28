@@ -69,6 +69,9 @@ using std::max;
 // GSL
 #include <gsl/gsl>
 
+// range v3
+#include <range/v3/all.hpp>
+
 // Some macros defined by windowsx.h should be removed
 #ifdef _INC_WINDOWSX
 #undef SubclassWindow

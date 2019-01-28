@@ -64,7 +64,7 @@ std::optional<message_manager::AsyncMessage> message_manager::ClaimAsyncMessage(
     assert( wndDataMap_.count( hWnd ) );
     auto& [currentGeneration, callbackMsgQueue, asyncMsgQueue, isAsyncEnabled] = wndDataMap_[hWnd];
 
-    if ( currentGeneration != static_cast<uint32_t>(wp) || asyncMsgQueue.empty() )
+    if ( currentGeneration != static_cast<uint32_t>( wp ) || asyncMsgQueue.empty() )
     {
         return std::nullopt;
     }
@@ -81,7 +81,7 @@ std::shared_ptr<CallbackData> message_manager::ClaimCallbackMessageData( HWND hW
     assert( wndDataMap_.count( hWnd ) );
     auto& [currentGeneration, callbackMsgQueue, asyncMsgQueue, isAsyncEnabled] = wndDataMap_[hWnd];
 
-    const auto it = std::find_if( callbackMsgQueue.cbegin(), callbackMsgQueue.cend(), [msgId = msg]( const auto& msg ) {
+    const auto it = ranges::find_if( callbackMsgQueue, [msgId = msg]( const auto& msg ) {
         return msg.id == msgId;
     } );
     assert( it != callbackMsgQueue.cend() );
@@ -97,7 +97,7 @@ void message_manager::RequestNextAsyncMessage( HWND hWnd )
     std::scoped_lock sl( wndDataMutex_ );
 
     if ( !wndDataMap_.count( hWnd ) )
-    {// this is possible when invoked before window initialization
+    { // this is possible when invoked before window initialization
         return;
     }
 
@@ -105,7 +105,7 @@ void message_manager::RequestNextAsyncMessage( HWND hWnd )
 
     if ( !asyncMsgQueue.empty() )
     {
-        PostMessage( hWnd, static_cast<UINT>(MiscMessage::run_task_async), currentGeneration, 0 );
+        PostMessage( hWnd, static_cast<UINT>( MiscMessage::run_task_async ), currentGeneration, 0 );
     }
 }
 
@@ -227,7 +227,7 @@ void message_manager::post_callback_msg_impl( HWND hWnd, WindowData& windowData,
     }
 
     callbackMsgQueue.emplace_back( msg, msgData );
-    asyncMsgQueue.emplace_back( static_cast<INT>(msg), 0, 0 );
+    asyncMsgQueue.emplace_back( static_cast<INT>( msg ), 0, 0 );
 
     if ( !PostMessage( hWnd, static_cast<INT>( MiscMessage::run_task_async ), currentGeneration, 0 ) )
     {

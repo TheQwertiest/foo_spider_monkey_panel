@@ -127,7 +127,7 @@ class FbMetadbHandleListProxyHandler : public js::ForwardingProxyHandler
 {
 public:
     static const FbMetadbHandleListProxyHandler singleton;
-    
+
     constexpr FbMetadbHandleListProxyHandler()
         : js::ForwardingProxyHandler( GetSmpProxyFamily() )
     {
@@ -527,13 +527,7 @@ void JsFbMetadbHandleList::OrderByRelativePath()
 
     tim::timsort( data.begin(), data.end(), smp::utils::StrCmpLogicalCmp<> );
 
-    std::vector<size_t> order;
-    order.reserve( count );
-
-    std::transform( data.cbegin(), data.cend(), std::back_inserter( order ), []( auto& elem ) {
-        return elem.index;
-    } );
-
+    const std::vector<size_t> order = data | ranges::view::transform( []( auto& elem ) { return elem.index; } );
     metadbHandleList_.reorder( order.data() );
 }
 

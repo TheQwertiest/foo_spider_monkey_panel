@@ -103,10 +103,10 @@ bool JsMainMenuManager::ExecuteByID( uint32_t id )
 
 void JsMainMenuManager::Init( const pfc::string8_fast& root_name )
 {
-    const auto preparedRootName = [&]() {
-        std::string tmp = root_name.c_str(); ///< Don't care about UTF8 here: we need exact match
-        std::transform( tmp.begin(), tmp.end(), tmp.begin(), []( const unsigned char i ) { return static_cast<char>(::tolower( i ) ); } );
-        return tmp;
+    const auto preparedRootName = [&root_name]() -> std::string {
+        // Don't care about UTF8 here: we need exact match
+        return std::string_view{ root_name.c_str() }
+               | ranges::view::transform( []( auto i ) { return static_cast<char>( ::tolower( i ) ); } );
     }();
 
     struct RootElement
@@ -117,17 +117,16 @@ void JsMainMenuManager::Init( const pfc::string8_fast& root_name )
 
     // In mainmenu_groups:
     // static const GUID file,view,edit,playback,library,help;
-    const RootElement validRoots[] =
-        {
-            { "file", &mainmenu_groups::file },
-            { "view", &mainmenu_groups::view },
-            { "edit", &mainmenu_groups::edit },
-            { "playback", &mainmenu_groups::playback },
-            { "library", &mainmenu_groups::library },
-            { "help", &mainmenu_groups::help },
-        };
+    const RootElement validRoots[] = {
+        { "file", &mainmenu_groups::file },
+        { "view", &mainmenu_groups::view },
+        { "edit", &mainmenu_groups::edit },
+        { "playback", &mainmenu_groups::playback },
+        { "library", &mainmenu_groups::library },
+        { "help", &mainmenu_groups::help },
+    };
 
-    auto result = std::find_if( std::cbegin( validRoots ), std::cend( validRoots ), [&preparedRootName]( auto& root ) {
+    auto result = ranges::find_if( validRoots, [&preparedRootName]( auto& root ) {
         return preparedRootName == root.name;
     } );
     if ( result == std::cend( validRoots ) )

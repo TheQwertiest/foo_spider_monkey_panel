@@ -40,6 +40,7 @@
     <Import Project="$(SolutionDir)\..\props\json.props" />
     <Import Project="$(SolutionDir)\..\props\gsl.props" />
     <Import Project="$(SolutionDir)\..\props\mozjs.props" />
+    <Import Project="$(SolutionDir)\..\props\range.props" />
     <Import Project="$(SolutionDir)\..\props\pfc.props" />
     <Import Project="$(SolutionDir)\..\props\scintilla.props" />
     <Import Project="$(SolutionDir)\..\props\timsort.props" />
