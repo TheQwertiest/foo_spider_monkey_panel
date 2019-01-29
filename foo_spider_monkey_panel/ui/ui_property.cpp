@@ -136,9 +136,7 @@ void CDialogProperty::LoadProperties( bool reload )
     { // lexicographical comparison but with lower cased chars
         bool operator()( const std::wstring& a, const std::wstring& b ) const
         {
-            return ranges::lexicographical_compare( a, b, []( wchar_t ca, wchar_t cb ) {
-                return static_cast<wchar_t>( ::towlower( ca ) ) < static_cast<wchar_t>( ::towlower( cb ) );
-            } );
+            return ( _wcsicmp( a.c_str(), b.c_str() ) < 0 );
         }
     };
     std::map<std::wstring, HPROPERTY, LowerLexCmp> propMap;
