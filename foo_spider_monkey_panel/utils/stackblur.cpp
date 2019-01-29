@@ -15,7 +15,7 @@ namespace
 constexpr uint32_t kColourCount = 4; // 0 - r, 1 - g, 2 - b, 3 - a
 using ColourArray = std::array<uint32_t, kColourCount>;
 
-
+// clang-format off
 constexpr uint16_t stackblur_mul[255] =
 {
     512,512,456,512,328,456,335,512,405,328,271,456,388,335,292,512,
@@ -55,12 +55,13 @@ constexpr uint8_t stackblur_shr[255] =
     24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24,
     24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24
 };
+// clang-format on
 
-void stackblur_by_segment( uint8_t* src,  ///< input image data
-                           uint32_t w,      ///< image width
-                           uint32_t h,      ///< image height
-                           uint32_t radius, ///< blur intensity (should be in 2..254 range)
-                           bool isLineSegment,  ///< false, means column segment
+void stackblur_by_segment( uint8_t* src,       ///< input image data
+                           uint32_t w,         ///< image width
+                           uint32_t h,         ///< image height
+                           uint32_t radius,    ///< blur intensity (should be in 2..254 range)
+                           bool isLineSegment, ///< false, means column segment
                            uint32_t segmentStart,
                            uint32_t segmentEnd,
                            uint8_t* stack ///< stack buffer
@@ -78,7 +79,7 @@ void stackblur_by_segment( uint8_t* src,  ///< input image data
     const uint8_t shr_sum = stackblur_shr[radius];
 
     for ( uint32_t coord_2 = segmentStart; coord_2 < segmentEnd; ++coord_2 )
-    {// iterate through segment elements (i.e. lines or columns)
+    { // iterate through segment elements (i.e. lines or columns)
         ColourArray sum_colour = { 0 };
         ColourArray sum_in_colour = { 0 };
         ColourArray sum_out_colour = { 0 };
@@ -133,7 +134,7 @@ void stackblur_by_segment( uint8_t* src,  ///< input image data
         const uint8_t* src_ptr = src + kColourCount * src_ptr_shift;
         uint8_t* dst_ptr = src + coord_2 * coord_2_shift;
         for ( uint32_t coord_1 = 0; coord_1 < axis_1_size; ++coord_1 )
-        {// iterate through pixels inside segment element
+        { // iterate through pixels inside segment element
             // output a pixel
             for ( uint32_t j = 0; j < kColourCount; ++j )
             {
@@ -240,7 +241,7 @@ private:
     uint8_t* stack;
 };
 
-void stackblur( uint8_t* src, ///< input image data
+void stackblur( uint8_t* src,   ///< input image data
                 uint32_t w,     ///< image width
                 uint32_t h,     ///< image height
                 uint32_t radius ///< blur intensity (should be in 2..254 range)
