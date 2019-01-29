@@ -164,10 +164,7 @@ void JsArrayToComArray( JSContext* cx, JS::HandleObject obj, VARIANT& var )
 
     // Create the safe array of variants and populate it
     SAFEARRAY* safeArray = SafeArrayCreateVector( VT_VARIANT, 0, len );
-    if ( !safeArray )
-    {
-        throw SmpException( "SafeArrayCreateVector failed" );
-    }
+    SmpException::ExpectTrue( safeArray, "SafeArrayCreateVector failed" );
 
     utils::final_action autoSa( [safeArray]() {
         SafeArrayDestroy( safeArray );
@@ -176,10 +173,8 @@ void JsArrayToComArray( JSContext* cx, JS::HandleObject obj, VARIANT& var )
     if ( len )
     {
         VARIANT* varArray = nullptr;
-        if ( FAILED( SafeArrayAccessData( safeArray, reinterpret_cast<void**>( &varArray ) ) ) )
-        {
-            throw SmpException( "SafeArrayAccessData failed" );
-        }
+        HRESULT hr = SafeArrayAccessData( safeArray, reinterpret_cast<void**>(&varArray) );
+        smp::error::CheckHR( hr, "SafeArrayAccessData" );
 
         utils::final_action autoSaData( [safeArray]() {
             SafeArrayUnaccessData( safeArray );
@@ -205,10 +200,8 @@ void JsArrayToComArray( JSContext* cx, JS::HandleObject obj, VARIANT& var )
 bool ComArrayToJsArray( JSContext* cx, const VARIANT& src, JS::MutableHandleValue& dest )
 {
     // We only support one dimensional arrays for now
-    if ( SafeArrayGetDim( src.parray ) != 1 )
-    {
-        throw SmpException( "Multi-dimensional array are not supported failed" );
-    }
+    SmpException::ExpectTrue( SafeArrayGetDim( src.parray ) == 1, "Multi-dimensional array are not supported failed" );
+
     // Get the upper bound;
     long ubound;
     HRESULT hr = SafeArrayGetUBound( src.parray, 1, &ubound );
@@ -221,10 +214,7 @@ bool ComArrayToJsArray( JSContext* cx, const VARIANT& src, JS::MutableHandleValu
 
     // Create the JS Array
     JS::RootedObject jsArray( cx, JS_NewArrayObject( cx, ubound - lbound + 1 ) );
-    if ( !jsArray )
-    {
-        throw smp::JsException();
-    }
+    JsException::ExpectTrue( jsArray );
 
     // Divine the type of our array
     VARTYPE vartype;
@@ -330,10 +320,8 @@ void VariantToJs( JSContext* cx, VARIANTARG& var, JS::MutableHandleValue rval )
     case VT_BSTR:
     {
         JS::RootedString jsString( cx, JS_NewUCStringCopyN( cx, (char16_t*)FETCH( bstrVal ), SysStringLen( FETCH( bstrVal ) ) ) );
-        if ( !jsString )
-        {
-            throw smp::JsException();
-        }
+        JsException::ExpectTrue( jsString );
+
         rval.setString( jsString );
         break;
     };
@@ -344,10 +332,8 @@ void VariantToJs( JSContext* cx, VARIANTARG& var, JS::MutableHandleValue rval )
         VariantTimeToSystemTime( d, &time );
 
         JS::RootedObject jsObject( cx, JS_NewDateObject( cx, time.wYear, time.wMonth - 1, time.wDay, time.wHour, time.wMinute, time.wSecond ) );
-        if ( !jsObject )
-        {
-            throw smp::JsException();
-        }
+        JsException::ExpectTrue( jsObject );
+
         rval.setObjectOrNull( jsObject );
         break;
     }

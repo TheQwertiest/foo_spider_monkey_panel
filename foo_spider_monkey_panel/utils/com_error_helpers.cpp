@@ -13,17 +13,19 @@ void ReportActiveXError( HRESULT hresult, EXCEPINFO& exception, UINT& argerr )
 {
     switch ( hresult )
     {
-    case DISP_E_BADPARAMCOUNT:
-    {
-        throw SmpException( "ActiveXObject: Wrong number of parameters" );
-    }
     case DISP_E_BADVARTYPE:
     {
         throw SmpException( smp::string::Formatter() << "ActiveXObject: Bad variable type " << argerr );
     }
     case DISP_E_EXCEPTION:
     {
-        std::string errorMsg;
+        auto autoCleaner = [&exception]
+        {
+            SysFreeString( exception.bstrSource );
+            SysFreeString( exception.bstrDescription );
+            SysFreeString( exception.bstrHelpFile );
+        };
+
         if ( exception.bstrDescription )
         {
             pfc::string8_fast descriptionStr( pfc::stringcvt::string_utf8_from_wide(
@@ -31,17 +33,17 @@ void ReportActiveXError( HRESULT hresult, EXCEPINFO& exception, UINT& argerr )
             pfc::string8_fast sourceStr( pfc::stringcvt::string_utf8_from_wide(
                 (wchar_t*)exception.bstrSource, SysStringLen( exception.bstrSource ) ) );
 
-            errorMsg = std::string{} + "ActiveXObject: (" + sourceStr.c_str() + ")" + descriptionStr.c_str();
+            std::string errorMsg = std::string{} + "ActiveXObject: (" + sourceStr.c_str() + ")" + descriptionStr.c_str();
+            throw SmpException( errorMsg );
+        }
+        else if ( exception.scode )
+        {
+            CheckHR( exception.scode, "ActiveXObject" );
         }
         else
         {
-            errorMsg = smp::string::Formatter() << "ActiveXObject: Error code 0x" << std::hex << exception.scode;
+            throw SmpException( "ActiveXObject: exception was thrown" );
         }
-        SysFreeString( exception.bstrSource );
-        SysFreeString( exception.bstrDescription );
-        SysFreeString( exception.bstrHelpFile );
-
-        throw SmpException( errorMsg );
     }
     case DISP_E_OVERFLOW:
     {

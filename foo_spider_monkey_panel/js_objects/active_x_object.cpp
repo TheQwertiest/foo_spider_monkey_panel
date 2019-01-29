@@ -245,11 +245,7 @@ JSClass jsClass = {
 bool ActiveX_Constructor_Impl( JSContext* cx, unsigned argc, JS::Value* vp )
 {
     JS::CallArgs args = JS::CallArgsFromVp( argc, vp );
-    if ( !argc || !args[0].isString() )
-    {
-        JS_ReportErrorUTF8( cx, "Argument 1 is not a string" );
-        return false;
-    }
+    smp::SmpException::ExpectTrue( argc && args[0].isString(), "Argument 1 is not a string" );
 
     const auto activeXName = mozjs::convert::to_native::ToValue<std::wstring>( cx, args[0] );
     args.rval().setObjectOrNull( ActiveXObject::CreateJs( cx, activeXName ) );
@@ -261,18 +257,10 @@ bool ActiveX_Run_Impl( JSContext* cx, unsigned argc, JS::Value* vp )
     JS::CallArgs args = JS::CallArgsFromVp( argc, vp );
 
     auto pNative = GetInnerInstancePrivate<ActiveXObject>( cx, args.thisv() );
-    if ( !pNative )
-    {
-        JS_ReportErrorUTF8( cx, "`this` is not an object of valid type" );
-        return false;
-    }
+    smp::SmpException::ExpectTrue( pNative, "`this` is not an object of valid type" );
 
     JS::RootedString jsString( cx, JS_GetFunctionId( JS_ValueToFunction( cx, args.calleev() ) ) );
-    if ( !jsString )
-    {
-        JS_ReportErrorUTF8( cx, "Failed to get function name" );
-        return false;
-    }
+    smp::SmpException::ExpectTrue( jsString, "Failed to get function name" );
 
     pNative->Invoke( convert::to_native::ToValue( cx, jsString ), args );
     return true;
@@ -283,11 +271,7 @@ bool ActiveX_Get_Impl( JSContext* cx, unsigned argc, JS::Value* vp )
     JS::CallArgs args = JS::CallArgsFromVp( argc, vp );
 
     auto pNative = GetInnerInstancePrivate<ActiveXObject>( cx, args.thisv() );
-    if ( !pNative )
-    {
-        JS_ReportErrorUTF8( cx, "`this` is not an object of valid type" );
-        return false;
-    }
+    smp::SmpException::ExpectTrue( pNative, "`this` is not an object of valid type" );
 
     pNative->Get( args );
     return true;
@@ -298,11 +282,7 @@ bool ActiveX_Set_Impl( JSContext* cx, unsigned argc, JS::Value* vp )
     JS::CallArgs args = JS::CallArgsFromVp( argc, vp );
 
     auto pNative = GetInnerInstancePrivate<ActiveXObject>( cx, args.thisv() );
-    if ( !pNative )
-    {
-        JS_ReportErrorUTF8( cx, "`this` is not an object of valid type" );
-        return false;
-    }
+    smp::SmpException::ExpectTrue( pNative, "`this` is not an object of valid type" );
 
     pNative->Set( args );
     return true;
