@@ -228,15 +228,14 @@ JS::Value JsUtils::FileTest( const std::wstring& path, const std::wstring& mode 
     }
     else if ( L"s" == mode )
     {
-        HANDLE fh = CreateFile( cleanedPath.c_str(), GENERIC_READ, FILE_SHARE_READ, 0, OPEN_EXISTING, 0, 0 );
-        smp::error::CheckWinApi( fh != INVALID_HANDLE_VALUE, "CreateFile" );
-
-        LARGE_INTEGER size = { 0 };
-        GetFileSizeEx( fh, &size );
-        CloseHandle( fh );
+        WIN32_FILE_ATTRIBUTE_DATA fileData;
+        if ( !GetFileAttributesEx( ( std::wstring{ L"\\\\?\\" } + cleanedPath ).c_str(), GetFileExInfoStandard, &fileData ) )
+        {
+            smp::error::CheckWinApi( false, "GetFileAttributesEx" );
+        }
 
         JS::RootedValue jsValue( pJsCtx_ );
-        jsValue.setNumber( static_cast<double>( size.QuadPart ) );
+        jsValue.setNumber( static_cast<double>( static_cast<uint64_t>( fileData.nFileSizeHigh ) << 32 | fileData.nFileSizeLow ) );
         return jsValue;
     }
     else if ( L"d" == mode )
