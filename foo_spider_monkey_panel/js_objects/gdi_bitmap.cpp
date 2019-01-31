@@ -5,6 +5,7 @@
 #include <js_objects/gdi_graphics.h>
 #include <js_objects/gdi_raw_bitmap.h>
 #include <utils/gdi_error_helpers.h>
+#include <utils/scope_helpers.h>
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
 
@@ -206,17 +207,17 @@ void JsGdiBitmap::ApplyMask( JsGdiBitmap* mask )
     Gdiplus::Status gdiRet = pBitmapMask->LockBits( &rect, Gdiplus::ImageLockModeRead, PixelFormat32bppARGB, &maskBmpData );
     smp::error::CheckGdi( gdiRet, "mask::LockBits" );
 
-    const auto autoMaskBits = [pBitmapMask, &maskBmpData] {
+    utils::final_action autoMaskBits( [pBitmapMask, &maskBmpData] {
         pBitmapMask->UnlockBits( &maskBmpData );
-    };
+    } );
 
     Gdiplus::BitmapData dstBmpData = { 0 };
     gdiRet = pGdi_->LockBits( &rect, Gdiplus::ImageLockModeRead | Gdiplus::ImageLockModeWrite, PixelFormat32bppARGB, &dstBmpData );
     smp::error::CheckGdi( gdiRet, "dst::LockBits" );
 
-    const auto autoDstBits = [& pGdi = pGdi_, &dstBmpData] {
+    utils::final_action autoDstBits( [& pGdi = pGdi_, &dstBmpData] {
         pGdi->UnlockBits( &dstBmpData );
-    };
+    } );
 
     uint32_t* pMask = reinterpret_cast<uint32_t*>( maskBmpData.Scan0 );
     uint32_t* pDst = reinterpret_cast<uint32_t*>( dstBmpData.Scan0 );
