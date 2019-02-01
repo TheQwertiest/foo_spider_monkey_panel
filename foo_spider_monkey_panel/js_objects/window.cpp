@@ -275,7 +275,7 @@ void JsWindow::DefinePanel( const pfc::string8_fast& name, JS::HandleValue optio
 
     SmpException::ExpectTrue( !isPanelDefined_, "DefinePanel can't be called twice" );
 
-    auto parsedOptions = ParseDefinePanelOptions( options );
+    const auto parsedOptions = ParseDefinePanelOptions( options );
 
     parentPanel_.ScriptInfo().name = name;
     parentPanel_.ScriptInfo().author = parsedOptions.author;
@@ -535,10 +535,8 @@ uint32_t JsWindow::SetInterval( JS::HandleValue func, uint32_t delay )
         return 0;
     }
 
-    if ( !func.isObject() || !JS_ObjectIsFunction( pJsCtx_, &func.toObject() ) )
-    {
-        throw SmpException( "func argument is not a JS function" );
-    }
+    SmpException::ExpectTrue( func.isObject() && JS_ObjectIsFunction( pJsCtx_, &func.toObject() ),
+                              "func argument is not a JS function" );
 
     JS::RootedFunction jsFunction( pJsCtx_, JS_ValueToFunction( pJsCtx_, func ) );
     return HostTimerDispatcher::Get().setInterval( parentPanel_.GetHWND(), delay, pJsCtx_, jsFunction );
@@ -574,10 +572,8 @@ uint32_t JsWindow::SetTimeout( JS::HandleValue func, uint32_t delay )
         return 0;
     }
 
-    if ( !func.isObject() || !JS_ObjectIsFunction( pJsCtx_, &func.toObject() ) )
-    {
-        throw SmpException( "func argument is not a JS function" );
-    }
+    SmpException::ExpectTrue( func.isObject() && JS_ObjectIsFunction( pJsCtx_, &func.toObject() ),
+                              "func argument is not a JS function" );
 
     JS::RootedFunction jsFunction( pJsCtx_, JS_ValueToFunction( pJsCtx_, func ) );
     return HostTimerDispatcher::Get().setTimeout( parentPanel_.GetHWND(), delay, pJsCtx_, jsFunction );
@@ -630,7 +626,7 @@ uint32_t JsWindow::get_ID()
         return 0;
     }
 
-    // Will work properly only on x86
+    // Such cast works properly only on x86
     return reinterpret_cast<uint32_t>( parentPanel_.GetHWND() );
 }
 

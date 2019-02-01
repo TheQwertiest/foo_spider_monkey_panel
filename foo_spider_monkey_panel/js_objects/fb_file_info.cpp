@@ -115,13 +115,8 @@ pfc::string8_fast JsFbFileInfo::InfoValue( uint32_t index )
 
 int32_t JsFbFileInfo::MetaFind( const pfc::string8_fast& name )
 {
-    t_size idx = fileInfo_->meta_find_ex( name.c_str(), name.length() );
-    if ( idx == pfc_infinite )
-    {
-        return -1;
-    }
-
-    return static_cast<int32_t>( idx );
+    const t_size idx = fileInfo_->meta_find_ex( name.c_str(), name.length() );
+    return ( ( idx == pfc_infinite ) ? -1 : static_cast<int32_t>( idx ) );
 }
 
 pfc::string8_fast JsFbFileInfo::MetaName( uint32_t index )

@@ -44,7 +44,7 @@ void RefreshValue( JSContext* cx, JS::HandleValue valToCheck )
     if ( pNative->pUnknown_ && !pNative->pDispatch_ )
     {
         HRESULT hresult = pNative->pUnknown_->QueryInterface( IID_IDispatch, (void**)&pNative->pDispatch_ );
-        if ( !SUCCEEDED( hresult ) )
+        if ( FAILED( hresult ) )
         {
             pNative->pDispatch_ = nullptr;
         }

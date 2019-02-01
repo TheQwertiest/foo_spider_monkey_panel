@@ -87,7 +87,8 @@ size_t JsFbPlaylistRecycler::GetInternalSize()
 JSObject* JsFbPlaylistRecycler::GetContent( uint32_t index )
 {
     auto api = playlist_manager_v3::get();
-    t_size count = api->recycler_get_count();
+
+    const t_size count = api->recycler_get_count();
     SmpException::ExpectTrue( index < count, "Index is out of bounds" );
 
     metadb_handle_list handles;
@@ -99,7 +100,8 @@ JSObject* JsFbPlaylistRecycler::GetContent( uint32_t index )
 pfc::string8_fast JsFbPlaylistRecycler::GetName( uint32_t index )
 {
     auto api = playlist_manager_v3::get();
-    t_size count = api->recycler_get_count();
+
+    const t_size count = api->recycler_get_count();
     SmpException::ExpectTrue( index < count, "Index is out of bounds" );
 
     pfc::string8_fast name;
@@ -120,7 +122,8 @@ void JsFbPlaylistRecycler::Purge( JS::HandleValue affectedItems )
 void JsFbPlaylistRecycler::Restore( uint32_t index )
 {
     auto api = playlist_manager_v3::get();
-    t_size count = api->recycler_get_count();
+
+    const t_size count = api->recycler_get_count();
     SmpException::ExpectTrue( index < count, "Index is out of bounds" );
 
     api->recycler_restore( index );

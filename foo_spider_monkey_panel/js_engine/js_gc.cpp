@@ -356,8 +356,8 @@ void JsGc::PrepareCompartmentsForGc( GcLevel gcLevel )
                 return;
             }
 
-            bool hasHeapOvergrowth = pNativeCompartment->GetCurrentHeapBytes() > ( pNativeCompartment->GetLastHeapBytes() + pTriggerData.heapGrowthRateTrigger / 2 );
-            bool hasOveralloc = pNativeCompartment->GetCurrentAllocCount() > ( pNativeCompartment->GetLastAllocCount() + pTriggerData.allocCountTrigger / 2 );
+            const bool hasHeapOvergrowth = pNativeCompartment->GetCurrentHeapBytes() > ( pNativeCompartment->GetLastHeapBytes() + pTriggerData.heapGrowthRateTrigger / 2 );
+            const bool hasOveralloc = pNativeCompartment->GetCurrentAllocCount() > ( pNativeCompartment->GetLastAllocCount() + pTriggerData.allocCountTrigger / 2 );
             if ( hasHeapOvergrowth || hasOveralloc || pNativeCompartment->IsMarkedForDeletion() )
             {
                 pNativeCompartment->OnGcStart();

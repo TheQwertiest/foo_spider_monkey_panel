@@ -293,23 +293,26 @@ bool execute_mainmenu_command_by_name( const pfc::string8_fast& name )
         return false;
     }
 }
-bool get_mainmenu_command_status_by_name( const pfc::string8_fast& name, uint32_t& status )
+void get_mainmenu_command_status_by_name( const pfc::string8_fast& name, uint32_t& status )
 {
     try
     {
-        return ApplyFnOnMainmenuNode( name,
-                                      [&status]( auto node ) {
-                                          pfc::string8_fast tmp;
-                                          node->get_display( tmp, status );
-                                      },
-                                      [&status]( auto idx, auto ptr ) {
-                                          pfc::string8_fast tmp;
-                                          ptr->get_display( idx, tmp, status );
-                                      } );
+        bool bRet = ApplyFnOnMainmenuNode(
+            name,
+            [&status]( auto node ) {
+                pfc::string8_fast tmp;
+                node->get_display( tmp, status );
+            },
+            [&status]( auto idx, auto ptr ) {
+                pfc::string8_fast tmp;
+                ptr->get_display( idx, tmp, status );
+            } );
+
+        SmpException::ExpectTrue( bRet, "Unknown menu command" );
     }
-    catch ( const pfc::exception& )
+    catch ( const pfc::exception& e )
     {
-        return false;
+        throw SmpException( e.what() );
     }
 }
 

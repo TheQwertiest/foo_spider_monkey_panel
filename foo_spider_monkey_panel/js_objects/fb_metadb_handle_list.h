@@ -98,7 +98,7 @@ public: // props
     void put_Item( uint32_t index, JsFbMetadbHandle* handle );
 
 private:
-    void ModifyFileInfoWithJson( const nlohmann::json& jsonObject, file_info_impl& fileInfo );
+    static void ModifyFileInfoWithJson( const nlohmann::json& jsonObject, file_info_impl& fileInfo );
 
 private:
     JsFbMetadbHandleList( JSContext* cx, const metadb_handle_list& handles );

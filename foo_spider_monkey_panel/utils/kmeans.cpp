@@ -57,15 +57,14 @@ Cluster::Cluster( uint32_t id_cluster, const Point& point )
 
 bool Cluster::removePoint( uint32_t id_point )
 {
-    for ( auto it = points.cbegin(); it != points.cend(); ++it )
+    const auto it = ranges::find_if( points, [id_point]( const auto& elem ) { return ( elem.getID() == id_point ); } );
+    if ( it == points.cend() )
     {
-        if ( it->getID() == id_point )
-        {
-            points.erase( it );
-            return true;
-        }
+        return false;
     }
-    return false;
+
+    points.erase( it );
+    return true;
 }
 
 uint32_t Cluster::getTotalPixelCount() const

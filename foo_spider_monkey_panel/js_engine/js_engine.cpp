@@ -87,11 +87,12 @@ bool JsEngine::RegisterContainer( JsContainer& jsContainer )
 
 void JsEngine::UnregisterContainer( JsContainer& jsContainer )
 {
-    auto elem = registeredContainers_.find( &jsContainer );
-    if ( elem != registeredContainers_.end() )
+    
+    if ( auto it = registeredContainers_.find( &jsContainer ); 
+         it != registeredContainers_.end() )
     {
-        elem->second.get().Finalize();
-        registeredContainers_.erase( elem );
+        it->second.get().Finalize();
+        registeredContainers_.erase( it );
     }
 
     if ( !registeredContainers_.size() )
@@ -371,7 +372,7 @@ void JsEngine::ReportOomError()
         auto it = ranges::find_if(
             oomData,
             [pNativeGlobal = jsContainer.get().pNativeGlobal_]( const auto& oomDataElem ) {
-                return oomDataElem.pGlobal == pNativeGlobal;
+                return ( oomDataElem.pGlobal == pNativeGlobal );
             } );
 
         std::string errorMsg = "Out of memory";

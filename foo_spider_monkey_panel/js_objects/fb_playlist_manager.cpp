@@ -201,13 +201,12 @@ void JsFbPlaylistManager::AddItemToPlaybackQueue( JsFbMetadbHandle* handle )
 void JsFbPlaylistManager::AddLocations( uint32_t playlistIndex, JS::HandleValue locations, bool select )
 {
     pfc::string_list_impl location_list;
-
     convert::to_native::ProcessArray<pfc::string8_fast>(
         pJsCtx_,
         locations,
         [&location_list]( const pfc::string8_fast& location ) { location_list.add_item( location ); } );
 
-    t_size base = playlist_manager::get()->playlist_get_item_count( playlistIndex );
+    const t_size base = playlist_manager::get()->playlist_get_item_count( playlistIndex );
     playlist_incoming_item_filter_v2::get()->process_locations_async(
         location_list,
         playlist_incoming_item_filter_v2::op_flag_no_filter | playlist_incoming_item_filter_v2::op_flag_delay_ui,
@@ -367,13 +366,13 @@ int32_t JsFbPlaylistManager::FindPlaybackQueueItemIndex( JsFbMetadbHandle* handl
     item.m_playlist = playlistIndex;
     item.m_item = playlistItemIndex;
 
-    uint32_t upos = playlist_manager::get()->queue_find_index( item );
+    const uint32_t upos = playlist_manager::get()->queue_find_index( item );
     return ( pfc_infinite == upos ? -1 : static_cast<int32_t>( upos ) );
 }
 
 int32_t JsFbPlaylistManager::FindPlaylist( const pfc::string8_fast& name )
 {
-    uint32_t upos = playlist_manager::get()->find_playlist( name.c_str(), name.length() );
+    const uint32_t upos = playlist_manager::get()->find_playlist( name.c_str(), name.length() );
     return ( pfc_infinite == upos ? -1 : static_cast<int32_t>( upos ) );
 }
 
@@ -403,8 +402,8 @@ JSObject* JsFbPlaylistManager::GetPlaybackQueueHandles()
 {
     pfc::list_t<t_playback_queue_item> contents;
     playlist_manager::get()->queue_get_contents( contents );
+    
     metadb_handle_list items;
-
     for ( t_size i = 0, count = contents.get_count(); i < count; ++i )
     {
         items.add_item( contents[i].m_handle );
@@ -424,7 +423,7 @@ JSObject* JsFbPlaylistManager::GetPlayingItemLocation()
 
 int32_t JsFbPlaylistManager::GetPlaylistFocusItemIndex( uint32_t playlistIndex )
 {
-    uint32_t upos = playlist_manager::get()->playlist_get_focus_item( playlistIndex );
+    const uint32_t upos = playlist_manager::get()->playlist_get_focus_item( playlistIndex );
     return ( pfc_infinite == upos ? -1 : static_cast<int32_t>( upos ) );
 }
 
@@ -519,6 +518,10 @@ bool JsFbPlaylistManager::MovePlaylist( uint32_t from, uint32_t to )
     if ( from >= playlistCount || to >= playlistCount )
     {
         return false;
+    }
+    if ( from == to )
+    { // Nothing to do here
+        return true;
     }
 
     std::vector<t_size> order = ranges::view::indices( playlistCount );

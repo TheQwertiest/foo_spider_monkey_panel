@@ -332,9 +332,11 @@ void JsFbMetadbHandleList::AttachImage( const pfc::string8_fast& image_path, uin
 
     try
     {
-        file::ptr file;
         pfc::string8_fast canPath;
         filesystem::g_get_canonical_path( image_path, canPath );
+
+        file::ptr file;
+
         if ( !filesystem::g_is_remote_or_unrecognized( canPath ) )
         {
             filesystem::g_open( file, canPath, filesystem::open_mode_read, abort );
@@ -525,6 +527,7 @@ void JsFbMetadbHandleList::OrderByRelativePath()
         data.emplace_back( temp, i );
     }
 
+    // TODO: consider replacing with prefix tree
     tim::timsort( data.begin(), data.end(), smp::utils::StrCmpLogicalCmp<> );
 
     const std::vector<size_t> order = data | ranges::view::transform( []( auto& elem ) { return elem.index; } );
@@ -615,26 +618,27 @@ void JsFbMetadbHandleList::UpdateFileInfoFromJSON( const pfc::string8_fast& str 
 {
     using json = nlohmann::json;
 
-    uint32_t count = metadbHandleList_.get_count();
-    if ( !count )
+    const auto handleList = Make_Stl_CRef( metadbHandleList_ );
+    if ( !handleList.size() )
     { // Not an error
         return;
     }
 
-    json jsonObject;
-    try
-    {
-        jsonObject = json::parse( str.c_str() );
-    }
-    catch ( const json::parse_error& e )
-    {
-        throw SmpException( smp::string::Formatter() << "JSON parsing failed: " << e.what() );
-    }
+    const auto jsonObject = [&str] {
+        try
+        {
+            return json::parse( str.c_str() );
+        }
+        catch ( const json::parse_error& e )
+        {
+            throw SmpException( smp::string::Formatter() << "JSON parsing failed: " << e.what() );
+        }
+    }();
 
     SmpException::ExpectTrue( jsonObject.is_array() || jsonObject.is_object(), "Invalid JSON info: unsupported value type" );
 
     const bool isArray = jsonObject.is_array();
-    if ( isArray && jsonObject.size() != count )
+    if ( isArray && jsonObject.size() != handleList.size() )
     {
         throw SmpException( "Invalid JSON info: mismatched with handle count" );
     }
@@ -643,21 +647,22 @@ void JsFbMetadbHandleList::UpdateFileInfoFromJSON( const pfc::string8_fast& str 
         throw SmpException( "Invalid JSON info: empty object" );
     }
 
-    std::vector<file_info_impl> info;
-    info.reserve( count );
+    const std::vector<file_info_impl> info =
+        ranges::view::enumerate( handleList )
+        | ranges::view::transform(
+            [isArray, &jsonObject]( const auto& zippedElem ) {
+                const auto& [i, handle] = zippedElem;
 
-    for ( size_t i = 0; i < count; ++i )
-    {
-        file_info_impl fileInfo;
-        metadbHandleList_[i]->get_info( fileInfo );
+                file_info_impl fileInfo;
+                handle->get_info( fileInfo );
 
-        ModifyFileInfoWithJson( isArray ? jsonObject[i] : jsonObject, fileInfo );
-        info.emplace_back( fileInfo );
-    }
+                ModifyFileInfoWithJson( isArray ? jsonObject[i] : jsonObject, fileInfo );
+                return fileInfo;
+            } );
 
     metadb_io_v2::get()->update_info_async_simple(
-        metadbHandleList_,
-        pfc::ptr_list_const_array_t<const file_info, file_info_impl*>( info.data(), info.size() ),
+        handleList.Pfc(),
+        pfc::ptr_list_const_array_t<const file_info, const file_info_impl*>( info.data(), info.size() ),
         core_api::get_main_window(),
         metadb_io_v2::op_flag_delay_ui,
         nullptr );
@@ -709,7 +714,7 @@ void JsFbMetadbHandleList::ModifyFileInfoWithJson( const nlohmann::json& jsonObj
         {
             for ( const auto& arrValue : value )
             {
-                if ( std::string strValue = jsonToString( arrValue );
+                if ( const std::string strValue = jsonToString( arrValue );
                      !strValue.empty() )
                 {
                     fileInfo.meta_add( key.c_str(), strValue.c_str() );
@@ -718,7 +723,7 @@ void JsFbMetadbHandleList::ModifyFileInfoWithJson( const nlohmann::json& jsonObj
         }
         else
         {
-            if ( std::string strValue = jsonToString( value );
+            if ( const std::string strValue = jsonToString( value );
                  !strValue.empty() )
             {
                 fileInfo.meta_set( key.c_str(), strValue.c_str() );

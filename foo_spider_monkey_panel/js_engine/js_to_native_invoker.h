@@ -136,7 +136,7 @@ void InvokeNativeCallback_Impl( JSContext* cx,
 
     // Call function
     // May return raw JS pointer! (see below)
-    auto invokeNative = [&]() {
+    const auto invokeNative = [&]() {
         return InvokeNativeCallback_Call<!!OptArgCount, ReturnType>( baseClass, fn, fnWithOpt, callbackArguments, ( maxArgCount > args.length() ? maxArgCount - args.length() : 0 ) );
     };
 

@@ -196,13 +196,7 @@ void JsGdiGraphics::DrawImage( JsGdiBitmap* image,
     if ( angle != 0.0 )
     {
         Gdiplus::Matrix m;
-        Gdiplus::RectF rect;
-        Gdiplus::PointF pt;
-
-        pt.X = dstX + dstW / 2;
-        pt.Y = dstY + dstH / 2;
-
-        gdiRet = m.RotateAt( angle, pt );
+        gdiRet = m.RotateAt( angle, Gdiplus::PointF{ dstX + dstW / 2, dstY + dstH / 2 } );
         smp::error::CheckGdi( gdiRet, "RotateAt" );
 
         gdiRet = pGdi_->GetTransform( &oldMatrix );
@@ -290,16 +284,11 @@ void JsGdiGraphics::DrawRect( float x, float y, float w, float h, float line_wid
 void JsGdiGraphics::DrawRoundRect( float x, float y, float w, float h, float arc_width, float arc_height, float line_width, uint32_t colour )
 {
     SmpException::ExpectTrue( pGdi_, "Internal error: Gdiplus::Graphics object is null" );
-
-    if ( 2 * arc_width > w || 2 * arc_height > h )
-    {
-        throw SmpException( "Arc argument has invalid value" );
-    }
+    SmpException::ExpectTrue( 2 * arc_width <= w && 2 * arc_height <= h, "Arc argument has invalid value" );
 
     Gdiplus::Pen pen( colour, line_width );
     Gdiplus::GraphicsPath gp;
-    Gdiplus::RectF rect( x, y, w, h );
-    GetRoundRectPath( gp, rect, arc_width, arc_height );
+    GetRoundRectPath( gp, Gdiplus::RectF{ x, y, w, h }, arc_width, arc_height );
 
     Gdiplus::Status gdiRet = pen.SetStartCap( Gdiplus::LineCapRound );
     smp::error::CheckGdi( gdiRet, "SetStartCap" );
@@ -412,7 +401,7 @@ void JsGdiGraphics::FillGradRect( float x, float y, float w, float h, float angl
 {
     SmpException::ExpectTrue( pGdi_, "Internal error: Gdiplus::Graphics object is null" );
 
-    Gdiplus::RectF rect( x, y, w, h );
+    const Gdiplus::RectF rect{ x, y, w, h };
     Gdiplus::LinearGradientBrush brush( rect, colour1, colour2, angle, TRUE );
     Gdiplus::Status gdiRet = brush.SetBlendTriangularShape( focus );
     smp::error::CheckGdi( gdiRet, "SetBlendTriangularShape" );
@@ -450,14 +439,11 @@ void JsGdiGraphics::FillRoundRect( float x, float y, float w, float h, float arc
 {
     SmpException::ExpectTrue( pGdi_, "Internal error: Gdiplus::Graphics object is null" );
 
-    if ( 2 * arc_width > w || 2 * arc_height > h )
-    {
-        throw SmpException( "Arc argument has invalid value" );
-    }
+    SmpException::ExpectTrue( 2 * arc_width <= w && 2 * arc_height <= h, "Arc argument has invalid value" );
 
     Gdiplus::SolidBrush br( colour );
     Gdiplus::GraphicsPath gp;
-    Gdiplus::RectF rect( x, y, w, h );
+    const Gdiplus::RectF rect{ x, y, w, h };
     GetRoundRectPath( gp, rect, arc_width, arc_height );
 
     Gdiplus::Status gdiRet = pGdi_->FillPath( &br, &gp );
@@ -466,10 +452,7 @@ void JsGdiGraphics::FillRoundRect( float x, float y, float w, float h, float arc
 
 void JsGdiGraphics::FillSolidRect( float x, float y, float w, float h, uint32_t colour )
 {
-    if ( !pGdi_ )
-    {
-        throw SmpException( "Internal error: Gdiplus::Graphics object is null" );
-    }
+    SmpException::ExpectTrue( pGdi_, "Internal error: Gdiplus::Graphics object is null" );
 
     Gdiplus::SolidBrush brush( colour );
     Gdiplus::Status gdiRet = pGdi_->FillRectangle( &brush, x, y, w, h );
@@ -492,9 +475,7 @@ void JsGdiGraphics::GdiAlphaBlend( JsGdiRawBitmap* bitmap,
         pGdi->ReleaseHDC( dc );
     } );
 
-    BLENDFUNCTION bf = { AC_SRC_OVER, 0, alpha, AC_SRC_ALPHA };
-
-    BOOL bRet = ::GdiAlphaBlend( dc, dstX, dstY, dstW, dstH, srcDc, srcX, srcY, srcW, srcH, bf );
+    BOOL bRet = ::GdiAlphaBlend( dc, dstX, dstY, dstW, dstH, srcDc, srcX, srcY, srcW, srcH, BLENDFUNCTION{ AC_SRC_OVER, 0, alpha, AC_SRC_ALPHA } );
     smp::error::CheckWinApi( bRet, "GdiAlphaBlend" );
 }
 
@@ -630,7 +611,6 @@ JSObject* JsGdiGraphics::MeasureString( const std::wstring& str, JsGdiFont* font
     assert( fn );
 
     Gdiplus::StringFormat fmt = Gdiplus::StringFormat::GenericTypographic();
-
     if ( flags != 0 )
     {
         fmt.SetAlignment( ( Gdiplus::StringAlignment )( ( flags >> 28 ) & 0x3 ) );     //0xf0000000
@@ -665,10 +645,7 @@ JSObject* JsGdiGraphics::MeasureStringWithOpt( size_t optArgCount, const std::ws
 
 void JsGdiGraphics::SetInterpolationMode( uint32_t mode )
 {
-    if ( !pGdi_ )
-    {
-        throw SmpException( "Internal error: Gdiplus::Graphics object is null" );
-    }
+    SmpException::ExpectTrue( pGdi_, "Internal error: Gdiplus::Graphics object is null" );
 
     Gdiplus::Status gdiRet = pGdi_->SetInterpolationMode( (Gdiplus::InterpolationMode)mode );
     smp::error::CheckGdi( gdiRet, "SetInterpolationMode" );
@@ -729,11 +706,11 @@ void JsGdiGraphics::SetTextRenderingHintWithOpt( size_t optArgCount, uint32_t mo
     }
 }
 
-void JsGdiGraphics::GetRoundRectPath( Gdiplus::GraphicsPath& gp, Gdiplus::RectF& rect, float arc_width, float arc_height )
+void JsGdiGraphics::GetRoundRectPath( Gdiplus::GraphicsPath& gp, const Gdiplus::RectF& rect, float arc_width, float arc_height )
 {
-    float arc_dia_w = arc_width * 2;
-    float arc_dia_h = arc_height * 2;
-    Gdiplus::RectF corner( rect.X, rect.Y, arc_dia_w, arc_dia_h );
+    const float arc_dia_w = arc_width * 2;
+    const float arc_dia_h = arc_height * 2;
+    Gdiplus::RectF corner{ rect.X, rect.Y, arc_dia_w, arc_dia_h };
 
     Gdiplus::Status gdiRet = gp.Reset();
     smp::error::CheckGdi( gdiRet, "Reset" );
@@ -772,7 +749,7 @@ void JsGdiGraphics::ParsePoints( JS::HandleValue jsValue, std::vector<Gdiplus::P
         }
         else
         {
-            gdiPoints.emplace_back( Gdiplus::PointF( x, coordinate ) );
+            gdiPoints.emplace_back( Gdiplus::PointF{ x, coordinate } );
         }
 
         isX = !isX;
@@ -781,10 +758,7 @@ void JsGdiGraphics::ParsePoints( JS::HandleValue jsValue, std::vector<Gdiplus::P
     gdiPoints.clear();
     convert::to_native::ProcessArray<float>( pJsCtx_, jsValue, pointParser );
 
-    if ( !isX )
-    {// Means that we were expecting `y` coordinate
-        throw SmpException( "Points count must be a multiple of two" );
-    }
+    SmpException::ExpectTrue( isX, "Points count must be a multiple of two" ); ///< Means that we were expecting `y` coordinate
 }
 
 } // namespace mozjs

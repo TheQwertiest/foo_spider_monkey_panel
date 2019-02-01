@@ -201,7 +201,7 @@ std::optional<pfc::string8_fast> ParseLogArgs( JSContext* cx, JS::CallArgs& args
         assert( !logDepth );
         assert( !curObjects.length() );
         outputString += ParseJsValue( cx, args[i], curObjects, logDepth, false );
-        if ( i < args.length() )
+        if ( i < args.length() - 1 )
         {
             outputString += " ";
         }

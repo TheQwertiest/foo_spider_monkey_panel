@@ -309,7 +309,7 @@ void ExceptionToJsError( JSContext* cx )
         JS_ReportAllocationOverflow( cx );
     }
     // SM is not designed to handle uncaught exceptions, so we are risking here,
-    // while hoping that this exception will reach fb2k handler.
+    // hoping that this exception will reach fb2k handler.
 }
 
 void SuppressException( JSContext* cx )
@@ -331,14 +331,14 @@ void SuppressException( JSContext* cx )
     {
     }
     // SM is not designed to handle uncaught exceptions, so we are risking here,
-    // while hoping that this exception will reach fb2k handler.
+    // hoping that this exception will reach fb2k handler.
 
     JS_ClearPendingException( cx );
 }
 
 void PrependTextToJsError( JSContext* cx, const pfc::string8_fast& text )
 {
-    utils::final_action autoJsReport( [cx, text]() {
+    utils::final_action autoJsReport( [cx, text] {
         JS_ReportErrorUTF8( cx, "%s", text.c_str() );
     } );
 

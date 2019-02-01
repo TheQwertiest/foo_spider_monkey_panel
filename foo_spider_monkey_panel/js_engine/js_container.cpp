@@ -76,8 +76,8 @@ bool JsContainer::Initialize()
 
         jsGlobal_.init( pJsCtx_, JsGlobalObject::CreateNative( pJsCtx_, *this, *pParentPanel_ ) );
         assert( jsGlobal_ );
-        utils::final_action autoGlobal( [&]() {
-            jsGlobal_.reset();
+        utils::final_action autoGlobal( [&jsGlobal=jsGlobal_] {
+            jsGlobal.reset();
         } );
 
         JSAutoCompartment ac( pJsCtx_, jsGlobal_ );
@@ -144,7 +144,7 @@ void JsContainer::Fail( const pfc::string8_fast& errorText )
 {
     Finalize();
     if ( JsStatus::EngineFailed != jsStatus_ )
-    { // Don't supress error
+    { // Don't suppress error
         jsStatus_ = JsStatus::Failed;
     }
 

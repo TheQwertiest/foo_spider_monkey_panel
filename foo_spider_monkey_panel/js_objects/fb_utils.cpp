@@ -362,17 +362,15 @@ JSObject* JsFbUtils::GetClipboardContents( uint32_t hWindow )
     pfc::com_ptr_t<IDataObject> pDO;
     metadb_handle_list items;
 
-    HRESULT hr = OleGetClipboard( pDO.receive_ptr() );
-    if ( SUCCEEDED( hr ) )
+    if ( SUCCEEDED( OleGetClipboard( pDO.receive_ptr() ) ) )
     {
         DWORD drop_effect = DROPEFFECT_COPY;
         bool native;
-        hr = api->check_dataobject( pDO, drop_effect, native );
-        if ( SUCCEEDED( hr ) )
+        
+        if ( SUCCEEDED( api->check_dataobject( pDO, drop_effect, native ) ) )
         {
             dropped_files_data_impl data;
-            hr = api->parse_dataobject( pDO, data );
-            if ( SUCCEEDED( hr ) )
+            if ( SUCCEEDED( api->parse_dataobject( pDO, data ) ) )
             { // Such cast will work only on x86
                 data.to_handles( items, native, (HWND)hWindow );
             }
@@ -450,9 +448,8 @@ pfc::string8_fast JsFbUtils::GetLibraryRelativePath( JsFbMetadbHandle* handle )
 {
     SmpException::ExpectTrue( handle, "handle argument is null" );
 
-    metadb_handle_ptr ptr = handle->GetHandle();
     pfc::string8_fast temp;
-    library_manager::get()->get_relative_path( ptr, temp );
+    library_manager::get()->get_relative_path( handle->GetHandle(), temp );
 
     return temp;
 }
@@ -568,16 +565,12 @@ uint32_t JsFbUtils::GetSelectionType()
         &contextmenu_item::caller_media_library_viewer,
     };
 
-    const GUID type = ui_selection_manager_v2::get()->get_selection_type( 0 );
-    for ( const auto& [i, pElem] : ranges::view::enumerate( guids ) )
-    {
-        if ( *pElem == type )
-        {
-            return i;
-        }
-    }
+    const GUID type = ui_selection_manager_v2::get()->get_selection_type( 0 );    
 
-    return 0;
+    const auto it = ranges::find_if( guids, [type]( const auto pGuid ) { return type == *pGuid; } );
+    return ( ranges::end( guids ) != it
+                 ? ranges::distance( ranges::begin( guids ), it )
+                 : 0 );
 }
 
 bool JsFbUtils::IsLibraryEnabled()
@@ -586,15 +579,12 @@ bool JsFbUtils::IsLibraryEnabled()
 }
 
 bool JsFbUtils::IsMainMenuCommandChecked( const pfc::string8_fast& command )
-{ // TODO: inspect get_mainmenu_command_status_by_name_SEH
+{
     t_uint32 status;
-    if ( !utils::get_mainmenu_command_status_by_name( command.c_str(), status ) )
-    { // TODO: Error, but no additional info
-        throw SmpException( "" );
-    }
+    utils::get_mainmenu_command_status_by_name( command.c_str(), status );
 
-    return mainmenu_commands::flag_checked == status
-           || mainmenu_commands::flag_radiochecked == status;
+    return ( mainmenu_commands::flag_checked == status
+             || mainmenu_commands::flag_radiochecked == status );
 }
 
 bool JsFbUtils::IsMetadbInMediaLibrary( JsFbMetadbHandle* handle )
@@ -721,7 +711,6 @@ void JsFbUtils::SetOutputDevice( const std::wstring& output, const std::wstring&
     SmpException::ExpectTrue( static_api_test_t<output_manager_v2>(), "This method requires foobar2000 v1.4 or later" );
 
     GUID output_id, device_id;
-
     if ( CLSIDFromString( output.c_str(), &output_id ) == NOERROR
          && CLSIDFromString( device.c_str(), &device_id ) == NOERROR )
     {
