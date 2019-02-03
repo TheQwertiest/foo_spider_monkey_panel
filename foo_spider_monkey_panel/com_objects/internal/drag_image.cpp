@@ -5,6 +5,7 @@
 #include <stdafx.h>
 #include "drag_image.h"
 
+#include <utils/image_helpers.h>
 #include <com_objects/internal/handle.h>
 
 namespace uih
@@ -115,30 +116,16 @@ bool draw_drag_custom_image( HDC dc, const RECT& rc, Gdiplus::Bitmap& customImag
     const int imgWidth = static_cast<int>( customImage.GetWidth() );
     const int imgHeight = static_cast<int>( customImage.GetHeight() );
 
-    int newWidth = imgWidth;
-    int newHeight = imgHeight;
-
-    if ( imgWidth > rc.right || imgHeight > rc.bottom )
-    {
-        const double ratio = static_cast<float>( imgHeight ) / imgWidth;
-        if ( imgHeight > imgWidth )
-        {
-            newHeight = rc.bottom;
-            newWidth = lround( static_cast<float>( newHeight ) / ratio );
-        }
-        else
-        {
-            newWidth = rc.right;
-            newHeight = lround( static_cast<float>( newWidth ) * ratio );
-        }
-    }
+    const auto [newWidth, newHeight] = [imgWidth, imgHeight, &rc] {
+        return smp::image::GetResizedImageSize( std::make_tuple( imgWidth, imgHeight ), std::make_tuple( rc.right, rc.bottom ) );
+    }();
 
     Gdiplus::Graphics gdiGraphics( dc );
     Gdiplus::Status gdiRet = gdiGraphics.DrawImage( &customImage,
                                                     Gdiplus::Rect{ lround( static_cast<float>( rc.right - newWidth ) / 2 ),
                                                                    lround( static_cast<float>( rc.bottom - newHeight ) / 2 ),
-                                                                   newWidth,
-                                                                   newHeight },
+                                                                   static_cast<int>( newWidth ),
+                                                                   static_cast<int>( newHeight ) },
                                                     0,
                                                     0,
                                                     imgWidth,

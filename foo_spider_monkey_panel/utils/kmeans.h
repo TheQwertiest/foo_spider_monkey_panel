@@ -30,61 +30,50 @@ across the data set.
 namespace smp::utils::kmeans
 {
 
-class Point
+struct Point
 {
-private:
-    uint32_t id_point;
-    uint32_t id_cluster = uint32_t(-1);
-    std::vector<uint32_t> values;
-    uint32_t total_values = 0;
-    uint32_t pixel_count = 0;
+    Point( uint32_t id, const std::vector<uint32_t>& values, uint32_t pixel_count );
 
-public:
-    Point( uint32_t id_point, const std::vector<uint32_t>& values, uint32_t pixel_count );
+    const uint32_t id;
+    const uint32_t total_values = 0;
+    const uint32_t pixel_count = 0;    
+    const std::vector<uint32_t> values;
 
-    uint32_t getID() const;
-    void setCluster( uint32_t id_cluster );
-    uint32_t getCluster() const;
-    uint32_t getPixelCount()const;
-
-    const std::vector<uint32_t>& getValues() const;
+    uint32_t id_cluster = uint32_t( -1 );
 };
 
-class Cluster
+struct Cluster
 {
-private:
-    uint32_t id_cluster;
-    std::vector<double> central_values;
-    std::vector<Point> points;
+    Cluster( uint32_t id_cluster, const Point* pPoint );
+    Cluster( Cluster&& other );
+    Cluster& operator=( Cluster&& other );
 
-public:
-    Cluster( uint32_t id_cluster, const Point& point );
+    Cluster( const Cluster& other ) = delete;
+    Cluster& operator=( const Cluster& other ) = delete;
 
-    bool removePoint( uint32_t id_point );
     uint32_t getTotalPixelCount() const;
 
-    const std::vector<Point>& getPoints() const;
-    std::vector<Point>& getPoints();
-
-    const std::vector<double>& getCentralValues() const;
-    std::vector<double>& getCentralValues();
+    uint32_t id_cluster;
+    std::vector<double> central_values;
+    std::vector<const Point*> points;
 };
 
 class KMeans
 {
-private:
-    uint32_t K; // number of clusters
-    uint32_t colour_components, total_points, max_iterations;
-    std::vector<Cluster> clusters;
+public:
+    KMeans( uint32_t K, uint32_t max_iterations );
 
+    std::vector<Cluster> run( std::vector<Point>& points );
+
+private:
     // return ID of nearest center
     // uses distance calculations from: https://en.wikipedia.org/wiki/Color_difference
-    uint32_t getIDNearestCenter( const Point& point ) const;
+    uint32_t getIDNearestCenter( const std::vector<Cluster>& clusters, const Point& point ) const;
 
-public:
-    KMeans( uint32_t K, uint32_t total_points, uint32_t  max_iterations );
-
-    std::vector<Cluster> run( std::vector<Point> & points );
+private:
+    const uint32_t K;
+    const uint32_t max_iterations;
+    const uint32_t colour_components;
 };
 
 }

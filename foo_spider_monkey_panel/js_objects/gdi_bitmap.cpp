@@ -6,6 +6,7 @@
 #include <js_objects/gdi_raw_bitmap.h>
 #include <utils/gdi_error_helpers.h>
 #include <utils/scope_helpers.h>
+#include <utils/image_helpers.h>
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
 
@@ -310,10 +311,12 @@ pfc::string8_fast JsGdiBitmap::GetColourSchemeJSON( uint32_t count )
     using namespace smp::utils::kmeans;
 
     // rescaled image will have max of ~48k pixels
-    const uint32_t w = std::min( pGdi_->GetWidth(), static_cast<uint32_t>( 220 ) );
-    const uint32_t h = std::min( pGdi_->GetHeight(), static_cast<uint32_t>( 220 ) );
+    const auto [imgWidth, imgHeight] = [&pGdi = pGdi_] {
+        constexpr uint32_t kMaxDimensionSize = 220;
+        return smp::image::GetResizedImageSize( std::make_tuple( pGdi->GetWidth(), pGdi->GetHeight() ), std::make_tuple( kMaxDimensionSize, kMaxDimensionSize ) );
+    }();
 
-    auto bitmap = std::make_unique<Gdiplus::Bitmap>( w, h, PixelFormat32bppPARGB );
+    auto bitmap = std::make_unique<Gdiplus::Bitmap>( imgWidth, imgHeight, PixelFormat32bppPARGB );
     smp::error::CheckGdiPlusObject( bitmap );
 
     Gdiplus::Graphics gr( bitmap.get() );
@@ -321,10 +324,10 @@ pfc::string8_fast JsGdiBitmap::GetColourSchemeJSON( uint32_t count )
     Gdiplus::Status gdiRet = gr.SetInterpolationMode( (Gdiplus::InterpolationMode)6 ); // InterpolationModeHighQualityBilinear
     smp::error::CheckGdi( gdiRet, "SetInterpolationMode" );
 
-    gdiRet = gr.DrawImage( pGdi_.get(), 0, 0, w, h ); // scale image down
+    gdiRet = gr.DrawImage( pGdi_.get(), 0, 0, imgWidth, imgHeight ); // scale image down
     smp::error::CheckGdi( gdiRet, "DrawImage" );
 
-    const Gdiplus::Rect rect( 0, 0, (LONG)w, (LONG)h );
+    const Gdiplus::Rect rect( 0, 0, (LONG)imgWidth, (LONG)imgHeight );
     Gdiplus::BitmapData bmpdata;
 
     gdiRet = bitmap->LockBits( &rect, Gdiplus::ImageLockModeRead, PixelFormat32bppARGB, &bmpdata );
@@ -369,21 +372,20 @@ pfc::string8_fast JsGdiBitmap::GetColourSchemeJSON( uint32_t count )
                                  } );
 
     constexpr uint32_t kKmeansIterationCount = 12;
-    KMeans kmeans( count, colour_counters.size(), kKmeansIterationCount );
-    std::vector<Cluster> clusters = kmeans.run( points );
+    std::vector<Cluster> clusters = KMeans{ count, kKmeansIterationCount }.run( points );
 
     // sort by largest clusters
     ranges::sort(
         clusters,
-        []( Cluster& a, Cluster& b ) {
+        []( const auto& a, const auto& b ) {
             return a.getTotalPixelCount() > b.getTotalPixelCount();
         } );
 
     json j = json::array();
-    size_t outCount = std::min( count, colour_counters.size() );
+    size_t outCount = std::min( count, clusters.size() );
     for ( size_t i = 0; i < outCount; ++i )
     {
-        const auto& centralValues = clusters[i].getCentralValues();
+        const auto& centralValues = clusters[i].central_values;
 
         const uint32_t colour = 0xff000000
                                 | static_cast<uint32_t>( centralValues[0] ) << 16

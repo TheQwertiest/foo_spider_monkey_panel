@@ -106,4 +106,37 @@ std::unique_ptr<Gdiplus::Bitmap> LoadImage( const std::wstring& imagePath )
     return img;
 }
 
+std::tuple<uint32_t, uint32_t>
+GetResizedImageSize( std::tuple<uint32_t, uint32_t> currentDimension,
+                     std::tuple<uint32_t, uint32_t> maxDimensions ) noexcept( true )
+{
+    const auto [maxWidth, maxHeight] = maxDimensions;
+    const auto [imgWidth, imgHeight] = currentDimension;
+
+    uint32_t newWidth;
+    uint32_t newHeight;
+    if ( imgWidth <= maxWidth && imgHeight <= maxHeight )
+    {
+        newWidth = imgWidth;
+        newHeight = imgHeight;
+    }
+    else
+    {
+        const double ratio = static_cast<double>( imgHeight ) / imgWidth;
+        const double constraintsRatio = static_cast<double>( maxHeight ) / maxWidth;
+        if ( ratio > constraintsRatio )
+        {
+            newHeight = maxHeight;
+            newWidth = lround( newHeight / ratio );
+        }
+        else // if ( imgWidth > maxWidth )
+        {
+            newWidth = maxWidth;
+            newHeight = lround( newWidth * ratio );
+        }
+    }
+
+    return std::make_tuple( newWidth, newHeight );
+}
+
 } // namespace smp::image
