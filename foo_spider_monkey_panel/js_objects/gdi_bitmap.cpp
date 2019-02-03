@@ -283,18 +283,12 @@ JSObject* JsGdiBitmap::GetColourScheme( uint32_t count )
 
     pGdi_->UnlockBits( &bmpdata );
 
-    using sort_vec_pair_t = std::pair<uint32_t, uint32_t>;
-    const uint32_t outputColourCount = std::min( count, color_counters.size() );
-
-    std::vector<sort_vec_pair_t> sort_vec( color_counters.begin(), color_counters.end() );
-    std::partial_sort(
-        sort_vec.begin(),
-        sort_vec.begin() + outputColourCount,
-        sort_vec.end(),
-        []( const sort_vec_pair_t& a, const sort_vec_pair_t& b ) {
-            return a.second > b.second;
-        } );
-    sort_vec.resize( outputColourCount );
+    std::vector<std::pair<uint32_t, uint32_t>> sort_vec( color_counters.cbegin(), color_counters.cend() );
+    ranges::sort( sort_vec,
+                  []( const auto& a, const auto& b ) {
+                      return a.second > b.second;
+                  } );
+    sort_vec.resize( std::min( count, color_counters.size() ) );
 
     JS::RootedValue jsValue( pJsCtx_ );
     convert::to_js::ToArrayValue(
@@ -383,18 +377,21 @@ pfc::string8_fast JsGdiBitmap::GetColourSchemeJSON( uint32_t count )
         []( const auto& a, const auto& b ) {
             return a.getTotalPixelCount() > b.getTotalPixelCount();
         } );
+    if ( count < clusters.size() )
+    {
+        clusters.erase( clusters.cbegin() + count, clusters.cend() );
+    }
 
     json j = json::array();
-    size_t outCount = std::min( count, clusters.size() );
-    for ( size_t i = 0; i < outCount; ++i )
+    for ( const auto& cluster: clusters )
     {
-        const auto& centralValues = clusters[i].central_values;
+        const auto& centralValues = cluster.central_values;
 
         const uint32_t colour = 0xff000000
                                 | static_cast<uint32_t>( centralValues[0] ) << 16
                                 | static_cast<uint32_t>( centralValues[1] ) << 8
                                 | static_cast<uint32_t>( centralValues[2] );
-        const double frequency = clusters[i].getTotalPixelCount() / static_cast<double>( colourRange.size() );
+        const double frequency = cluster.getTotalPixelCount() / static_cast<double>( colourRange.size() );
 
         j.push_back(
             { { "col", colour },
