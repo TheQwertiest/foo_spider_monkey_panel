@@ -284,14 +284,17 @@ JSObject* JsGdiBitmap::GetColourScheme( uint32_t count )
     pGdi_->UnlockBits( &bmpdata );
 
     using sort_vec_pair_t = std::pair<uint32_t, uint32_t>;
+    const uint32_t outputColourCount = std::min( count, color_counters.size() );
+
     std::vector<sort_vec_pair_t> sort_vec( color_counters.begin(), color_counters.end() );
     std::partial_sort(
         sort_vec.begin(),
-        sort_vec.begin() + std::min( count, sort_vec.size() ),
+        sort_vec.begin() + outputColourCount,
         sort_vec.end(),
         []( const sort_vec_pair_t& a, const sort_vec_pair_t& b ) {
             return a.second > b.second;
         } );
+    sort_vec.resize( outputColourCount );
 
     JS::RootedValue jsValue( pJsCtx_ );
     convert::to_js::ToArrayValue(
