@@ -17,6 +17,13 @@
 ___
 
 ## [Unreleased][]
+### Changed
+- Improved performance of `utils.FileTest(path, 's')`.
+
+### Fixed
+- Fixed `GdiBitmap.GetColourScheme` not limiting the number of output colours.
+- Fixed invalid colour calculation in `GdiBitmap.GetColourSchemeJSON`.
+- Fixed potential memory leaks when using `window.NotifyOthers`.
 
 ## [1.1.5][] - 2018-11-21
 ### Changed
