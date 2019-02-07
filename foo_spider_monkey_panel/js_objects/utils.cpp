@@ -629,10 +629,7 @@ bool JsUtils::WriteINI( const std::wstring& filename, const std::wstring& sectio
 
 bool JsUtils::WriteTextFile( const std::wstring& filename, const pfc::string8_fast& content, bool write_bom )
 { // TODO: inspect the code (replace with std::filesystem perhaps?)
-    if ( filename.empty() )
-    {
-        return false;
-    }
+    SmpException::ExpectTrue( filename.empty(), "Invalid filename" );
 
     return smp::file::WriteFile( smp::file::CleanPathW( filename ).c_str(), content, write_bom );
 }

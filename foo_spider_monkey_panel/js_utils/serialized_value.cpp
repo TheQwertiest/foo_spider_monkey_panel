@@ -13,24 +13,20 @@ SerializedJsValue SerializeJsValue( JSContext* cx, JS::HandleValue jsValue )
 
     if ( jsValue.isBoolean() )
     {
-        serializedValue.type = JsValueType::pt_boolean;
-        serializedValue.boolVal = jsValue.toBoolean();
+        serializedValue = jsValue.toBoolean();
     }
     else if ( jsValue.isInt32() )
     {
-        serializedValue.type = JsValueType::pt_int32;
-        serializedValue.intVal = jsValue.toInt32();
+        serializedValue = jsValue.toInt32();
     }
     else if ( jsValue.isDouble() )
     {
-        serializedValue.type = JsValueType::pt_double;
-        serializedValue.doubleVal = jsValue.toDouble();
+        serializedValue = jsValue.toDouble();
     }
     else if ( jsValue.isString() )
     {
-        serializedValue.type = JsValueType::pt_string;
         JS::RootedValue rVal( cx, jsValue );
-        serializedValue.strVal = convert::to_native::ToValue<pfc::string8_fast>( cx, rVal );
+        serializedValue = convert::to_native::ToValue<pfc::string8_fast>( cx, rVal );
     }
     else
     {
@@ -40,37 +36,31 @@ SerializedJsValue SerializeJsValue( JSContext* cx, JS::HandleValue jsValue )
     return serializedValue;
 }
 
-bool DeserializeJsValue( JSContext* cx, const SerializedJsValue& serializedValue, JS::MutableHandleValue jsValue )
+void DeserializeJsValue( JSContext* cx, const SerializedJsValue& serializedValue, JS::MutableHandleValue jsValue )
 {
-    switch ( serializedValue.type )
-    {
-    case JsValueType::pt_boolean:
-    {
-        jsValue.setBoolean( serializedValue.boolVal );
-        break;
-    }
-    case JsValueType::pt_int32:
-    {
-        jsValue.setInt32( serializedValue.intVal );
-        break;
-    }
-    case JsValueType::pt_double:
-    {
-        jsValue.setDouble( serializedValue.doubleVal );
-        break;
-    }
-    case JsValueType::pt_string:
-    {
-        convert::to_js::ToValue( cx, serializedValue.strVal, jsValue );
-        break;
-    }
-    default:
-    {
-        return false;
-    }
-    }
-
-    return true;
+    std::visit( [cx, &jsValue]( auto&& arg ) {
+        using T = std::decay_t<decltype( arg )>;
+        if constexpr ( std::is_same_v<T, bool> )
+        {
+            jsValue.setBoolean( arg );
+        }
+        else if constexpr ( std::is_same_v<T, int32_t> )
+        {
+            jsValue.setInt32( arg );
+        }
+        else if constexpr ( std::is_same_v<T, double> )
+        {
+            jsValue.setDouble( arg );
+        }
+        else if constexpr ( std::is_same_v<T, pfc::string8_fast> )
+        {
+            convert::to_js::ToValue( cx, arg, jsValue );
+        }
+        else
+        {
+            static_assert( false, "non-exhaustive visitor!" );
+        }
+    }, serializedValue );
 }
 
 } // namespace mozjs

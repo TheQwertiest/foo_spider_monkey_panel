@@ -55,45 +55,36 @@ LRESULT CDialogProperty::OnPinItemChanged( LPNMHDR pnmh )
 
         if ( pnpi->prop->GetValue( &var ) )
         {
-            switch ( val.type )
-            {
-            case mozjs::JsValueType::pt_boolean:
+            if ( std::holds_alternative<bool>( val ) )
             {
                 var.ChangeType( VT_BOOL );
-                val.boolVal = var.boolVal;
-                break;
+                val = var.boolVal;
             }
-            case mozjs::JsValueType::pt_int32:
+            else if ( std::holds_alternative<int32_t>( val ) )
             {
                 var.ChangeType( VT_I4 );
-                val.intVal = var.lVal;
-                break;
+                val = var.lVal;
             }
-            case mozjs::JsValueType::pt_double:
+            else if ( std::holds_alternative<double>( val ) )
             {
-                if ( VT_BSTR == var.vt )
+                if( VT_BSTR == var.vt )
                 {
-                    val.doubleVal = std::stod( var.bstrVal );
+                    val = std::stod( var.bstrVal );
                 }
                 else
                 {
                     var.ChangeType( VT_R8 );
-                    val.doubleVal = var.dblVal;
+                    val = var.dblVal;
                 }
-
-                break;
             }
-            case mozjs::JsValueType::pt_string:
+            else if ( std::holds_alternative<pfc::string8_fast>( val ) )
             {
                 var.ChangeType( VT_BSTR );
-                val.strVal = pfc::stringcvt::string_utf8_from_wide( var.bstrVal );
-                break;
+                val = pfc::stringcvt::string_utf8_from_wide( var.bstrVal );
             }
-            default:
+            else
             {
                 assert( 0 );
-                break;
-            }
             }
         }
     }
@@ -142,57 +133,36 @@ void CDialogProperty::LoadProperties( bool reload )
     std::map<std::wstring, HPROPERTY, LowerLexCmp> propMap;
     for ( const auto& [name, pSerializedValue] : m_dup_prop_map )
     {
-        HPROPERTY hProp = nullptr;
-        _variant_t var;
-        VariantInit( &var );
+        HPROPERTY hProp = std::visit( [&name, &doubleToString]( auto&& arg ) {
+            using T = std::decay_t<decltype( arg )>;
+            if constexpr ( std::is_same_v<T, bool> || std::is_same_v <T, int32_t> )
+            {
+                return PropCreateSimple( name.c_str(), arg );
+            }
+            else if constexpr ( std::is_same_v<T, double> )
+            {
+                const std::wstring strNumber = [arg, &doubleToString] {
+                    if ( std::trunc( arg ) == arg )
+                    { // Most likely uint64_t
+                        return std::to_wstring( static_cast<uint64_t>( arg ) );
+                    }
 
-        auto& serializedValue = *pSerializedValue;
+                    // std::to_string(double) has precision of float
+                    return doubleToString( arg );
+                }();
 
-        switch ( serializedValue.type )
-        {
-        case mozjs::JsValueType::pt_boolean:
-        {
-            hProp = PropCreateSimple( name.c_str(), serializedValue.boolVal );
-            break;
-        }
-        case mozjs::JsValueType::pt_int32:
-        {
-            var.vt = VT_I4;
-            var.lVal = serializedValue.intVal;
-            hProp = PropCreateSimple( name.c_str(), var.lVal );
-            break;
-        }
-        case mozjs::JsValueType::pt_double:
-        {
-            const std::wstring strNumber = [dVal = serializedValue.doubleVal, &doubleToString] {
-                if ( std::trunc( dVal ) == dVal )
-                { // Most likely uint64_t
-                    return std::to_wstring( static_cast<uint64_t>( dVal ) );
-                }
-
-                // std::to_string(double) has precision of float
-                return doubleToString( dVal );
-            }();
-
-            var.vt = VT_BSTR;
-            var.bstrVal = SysAllocString( strNumber.c_str() );
-            hProp = PropCreateSimple( name.c_str(), var.bstrVal );
-            break;
-        }
-        case mozjs::JsValueType::pt_string:
-        {
-            pfc::stringcvt::string_wide_from_utf8_fast wStrVal( serializedValue.strVal.c_str(), serializedValue.strVal.length() );
-            var.vt = VT_BSTR;
-            var.bstrVal = SysAllocString( wStrVal );
-            hProp = PropCreateSimple( name.c_str(), var.bstrVal );
-            break;
-        }
-        default:
-        {
-            assert( 0 );
-            continue;
-        }
-        }
+                return PropCreateSimple( name.c_str(), strNumber.c_str() );
+            }
+            else if constexpr ( std::is_same_v<T, pfc::string8_fast> )
+            {
+                pfc::stringcvt::string_wide_from_utf8_fast wStrVal( arg.c_str(), arg.length() );
+                return PropCreateSimple( name.c_str(), wStrVal );
+            }
+            else
+            {
+                static_assert( false, "non-exhaustive visitor!" );
+            }
+        }, *pSerializedValue );
 
         propMap.emplace( name, hProp );
     }

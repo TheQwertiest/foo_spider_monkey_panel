@@ -59,12 +59,11 @@ JS::Value FbProperties::GetProperty( const std::wstring& propName, JS::HandleVal
         auto prop = parentPanel_.get_config_prop().get_config_item( trimmedPropName );
         if ( prop )
         {
+            hasProperty = true;
+
             JS::RootedValue jsProp( pJsCtx_ );
-            if ( DeserializeJsValue( pJsCtx_, prop.value(), &jsProp ) )
-            {
-                hasProperty = true;
-                properties_.emplace( trimmedPropName, std::make_unique<HeapElement>( jsProp ) );
-            }
+            DeserializeJsValue( pJsCtx_, prop.value(), &jsProp );
+            properties_.emplace( trimmedPropName, std::make_unique<HeapElement>( jsProp ) );
         }
     }
 

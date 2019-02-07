@@ -122,17 +122,17 @@ GetResizedImageSize( std::tuple<uint32_t, uint32_t> currentDimension,
     }
     else
     {
-        const double ratio = static_cast<double>( imgHeight ) / imgWidth;
+        const double imgRatio = static_cast<double>( imgHeight ) / imgWidth;
         const double constraintsRatio = static_cast<double>( maxHeight ) / maxWidth;
-        if ( ratio > constraintsRatio )
+        if ( imgRatio > constraintsRatio )
         {
             newHeight = maxHeight;
-            newWidth = lround( newHeight / ratio );
+            newWidth = lround( newHeight / imgRatio );
         }
-        else // if ( imgWidth > maxWidth )
+        else
         {
             newWidth = maxWidth;
-            newHeight = lround( newWidth * ratio );
+            newHeight = lround( newWidth * imgRatio );
         }
     }
 

@@ -12,6 +12,14 @@ namespace
 constexpr const char kPropConfigVersion[] = "1";
 constexpr const char kPropConfigId[] = "properties";
 
+enum class JsValueType : uint32_t
+{ // Take care changing this: used in config
+    pt_boolean = 0,
+    pt_int32 = 1,
+    pt_double = 2,
+    pt_string = 3,
+};
+
 } // namespace
 
 namespace smp::config
@@ -73,28 +81,35 @@ bool PanelProperties::g_load( config_map& data, stream_reader* reader, abort_cal
 
             uint32_t valueType;
             reader->read_lendian_t( valueType, abort );
-            serializedValue.type = static_cast<mozjs::JsValueType>( valueType );
 
-            switch ( serializedValue.type )
+            switch ( static_cast<JsValueType>( valueType ) )
             {
-            case mozjs::JsValueType::pt_boolean:
+            case JsValueType::pt_boolean:
             {
-                reader->read_lendian_t( serializedValue.boolVal, abort );
+                bool value;
+                reader->read_lendian_t( value, abort );
+                serializedValue = value;
                 break;
             }
-            case mozjs::JsValueType::pt_int32:
+            case JsValueType::pt_int32:
             {
-                reader->read_lendian_t( serializedValue.intVal, abort );
+                int32_t value;
+                reader->read_lendian_t( value, abort );
+                serializedValue = value;
                 break;
             }
-            case mozjs::JsValueType::pt_double:
+            case JsValueType::pt_double:
             {
-                reader->read_lendian_t( serializedValue.doubleVal, abort );
+                double value;
+                reader->read_lendian_t( value, abort );
+                serializedValue = value;
                 break;
             }
-            case mozjs::JsValueType::pt_string:
+            case JsValueType::pt_string:
             {
-                reader->read_string( serializedValue.strVal, abort );
+                pfc::string8_fast value;
+                reader->read_string( value, abort );
+                serializedValue = value;
                 break;
             }
             default:
@@ -131,6 +146,7 @@ bool PanelProperties::g_load_json( config_map& data, stream_reader& reader, abor
         }
         else
         {
+            // TODO: consider adding version (i.e. binary in addition to json)
             reader.read_string( jsonStr, abort );
         }
 
@@ -171,24 +187,20 @@ bool PanelProperties::g_load_json( config_map& data, stream_reader& reader, abor
 
             if ( value.is_boolean() )
             {
-                serializedValue.type = mozjs::JsValueType::pt_boolean;
-                serializedValue.boolVal = value.get<bool>();
+                serializedValue = value.get<bool>();
             }
             else if ( value.is_number_integer() )
             {
-                serializedValue.type = mozjs::JsValueType::pt_int32;
-                serializedValue.intVal = value.get<int32_t>();
+                serializedValue = value.get<int32_t>();
             }
             else if ( value.is_number_float() )
             {
-                serializedValue.type = mozjs::JsValueType::pt_double;
-                serializedValue.doubleVal = value.get<double>();
+                serializedValue = value.get<double>();
             }
             else if ( value.is_string() )
             {
-                serializedValue.type = mozjs::JsValueType::pt_string;
                 const auto strVal = value.get<std::string>();
-                serializedValue.strVal.set_string_nc( strVal.c_str(), strVal.length() );
+                serializedValue = pfc::string8_fast{ strVal.c_str(), strVal.length() };
             }
             else
             {
@@ -239,9 +251,7 @@ bool PanelProperties::g_load_legacy( config_map& data, stream_reader* reader, ab
             {
                 int8_t val;
                 reader->read( &val, sizeof( val ), abort );
-
-                serializedValue.type = mozjs::JsValueType::pt_int32;
-                serializedValue.intVal = static_cast<int32_t>( val );
+                serializedValue = static_cast<int32_t>( val );
 
                 break;
             }
@@ -250,9 +260,7 @@ bool PanelProperties::g_load_legacy( config_map& data, stream_reader* reader, ab
             {
                 int16_t val;
                 reader->read( &val, sizeof( val ), abort );
-
-                serializedValue.type = mozjs::JsValueType::pt_int32;
-                serializedValue.intVal = static_cast<int32_t>( val );
+                serializedValue = static_cast<int32_t>( val );
 
                 break;
             }
@@ -261,9 +269,7 @@ bool PanelProperties::g_load_legacy( config_map& data, stream_reader* reader, ab
             {
                 int16_t val;
                 reader->read( &val, sizeof( val ), abort );
-
-                serializedValue.type = mozjs::JsValueType::pt_boolean;
-                serializedValue.intVal = !!val;
+                serializedValue = !!val;
 
                 break;
             }
@@ -274,9 +280,7 @@ bool PanelProperties::g_load_legacy( config_map& data, stream_reader* reader, ab
             {
                 int32_t val;
                 reader->read( &val, sizeof( val ), abort );
-
-                serializedValue.type = mozjs::JsValueType::pt_int32;
-                serializedValue.intVal = val;
+                serializedValue = val;
 
                 break;
             }
@@ -284,9 +288,7 @@ bool PanelProperties::g_load_legacy( config_map& data, stream_reader* reader, ab
             {
                 float val;
                 reader->read( &val, sizeof( val ), abort );
-
-                serializedValue.type = mozjs::JsValueType::pt_double;
-                serializedValue.doubleVal = static_cast<double>( val );
+                serializedValue = static_cast<double>( val );
 
                 break;
             }
@@ -295,9 +297,7 @@ bool PanelProperties::g_load_legacy( config_map& data, stream_reader* reader, ab
             {
                 int64_t val;
                 reader->read( &val, sizeof( val ), abort );
-
-                serializedValue.type = mozjs::JsValueType::pt_int32;
-                serializedValue.intVal = static_cast<int32_t>( val );
+                serializedValue = static_cast<int32_t>( val );
 
                 break;
             }
@@ -307,9 +307,7 @@ bool PanelProperties::g_load_legacy( config_map& data, stream_reader* reader, ab
             {
                 double val;
                 reader->read( &val, sizeof( val ), abort );
-
-                serializedValue.type = mozjs::JsValueType::pt_double;
-                serializedValue.doubleVal = val;
+                serializedValue = val;
 
                 break;
             }
@@ -317,9 +315,7 @@ bool PanelProperties::g_load_legacy( config_map& data, stream_reader* reader, ab
             {
                 pfc::string8_fast str;
                 reader->read_string( str, abort );
-
-                serializedValue.type = mozjs::JsValueType::pt_string;
-                serializedValue.strVal = str;
+                serializedValue = str;
 
                 break;
             }
@@ -364,37 +360,44 @@ void PanelProperties::g_save( const config_map& data, stream_writer* writer, abo
 
             const auto& serializedValue = *pValue;
 
-            uint32_t valueType = static_cast<uint32_t>( serializedValue.type );
-            writer->write_lendian_t( valueType, abort );
+            const JsValueType valueType = std::visit( []( auto&& arg ) {
+                using T = std::decay_t<decltype( arg )>;
+                if constexpr ( std::is_same_v<T, bool> ) 
+                {
+                    return JsValueType::pt_boolean;
+                }
+                else if constexpr ( std::is_same_v<T, int32_t> )
+                {
+                    return JsValueType::pt_int32;
+                }
+                else if constexpr ( std::is_same_v<T, double> )
+                {
+                    return JsValueType::pt_double;
+                }
+                else if constexpr ( std::is_same_v<T, pfc::string8_fast> )
+                {
+                    return JsValueType::pt_string;
+                }
+                else 
+                {
+                    static_assert( false, "non-exhaustive visitor!" );
+                }
+            }, serializedValue );
+                
+            writer->write_lendian_t( static_cast<uint32_t>( valueType ), abort );
 
-            switch ( serializedValue.type )
-            {
-            case mozjs::JsValueType::pt_boolean:
-            {
-                writer->write_lendian_t( serializedValue.boolVal, abort );
-                break;
-            }
-            case mozjs::JsValueType::pt_int32:
-            {
-                writer->write_lendian_t( serializedValue.intVal, abort );
-                break;
-            }
-            case mozjs::JsValueType::pt_double:
-            {
-                writer->write_lendian_t( serializedValue.doubleVal, abort );
-                break;
-            }
-            case mozjs::JsValueType::pt_string:
-            {
-                writer->write_string( serializedValue.strVal.c_str(), serializedValue.strVal.length(), abort );
-                break;
-            }
-            default:
-            {
-                assert( 0 );
-                break;
-            }
-            }
+            std::visit( [&writer, &abort]( auto&& arg ) {
+                using T = std::decay_t<decltype( arg )>;
+                if constexpr ( std::is_same_v<T, pfc::string8_fast> )
+                {
+                    const auto& value = arg;
+                    writer->write_string( value.c_str(), value.length(), abort );
+                }
+                else
+                {
+                    writer->write_lendian_t( arg, abort );
+                }
+            }, serializedValue );
         }
     }
     catch ( const pfc::exception& )
@@ -417,34 +420,9 @@ void PanelProperties::g_save_json( const config_map& data, stream_writer& writer
             const pfc::stringcvt::string_utf8_from_wide propNameU8( nameW.c_str(), nameW.length() );
             const auto& serializedValue = *pValue;
 
-            switch ( serializedValue.type )
-            {
-            case mozjs::JsValueType::pt_boolean:
-            {
-                jsonValues.push_back( { propNameU8, serializedValue.boolVal } );
-                break;
-            }
-            case mozjs::JsValueType::pt_int32:
-            {
-                jsonValues.push_back( { propNameU8, serializedValue.intVal } );
-                break;
-            }
-            case mozjs::JsValueType::pt_double:
-            {
-                jsonValues.push_back( { propNameU8, serializedValue.doubleVal } );
-                break;
-            }
-            case mozjs::JsValueType::pt_string:
-            {
-                jsonValues.push_back( { propNameU8, serializedValue.strVal } );
-                break;
-            }
-            default:
-            {
-                assert( 0 );
-                break;
-            }
-            }
+            std::visit( [&jsonValues, &propNameU8]( auto&& arg ) {
+                jsonValues.push_back( { propNameU8, arg } );
+            }, serializedValue );
         }
 
         jsonMain.push_back( { "values", jsonValues } );
@@ -455,7 +433,7 @@ void PanelProperties::g_save_json( const config_map& data, stream_writer& writer
             writer.write_string_raw( jsonStr.c_str(), abort );
         }
         else
-        {
+        {// TODO: consider adding version (i.e. binary in addition to json)
             writer.write_string( jsonStr.c_str(), jsonStr.length(), abort );
         }
     }
