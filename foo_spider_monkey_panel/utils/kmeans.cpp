@@ -5,63 +5,50 @@
 #include <stdafx.h>
 #include "kmeans.h"
 
-#include <numeric>
+namespace
+{
+
+constexpr uint8_t kNumberOfColourComponents = 3;
+
+}
 
 namespace
 {
-constexpr uint8_t kNumberOfColourComponents = 3;
-}
 
-namespace smp::utils::kmeans
+using namespace smp::utils::kmeans;
+
+struct Point
 {
-
-Point::Point( uint32_t id, const std::vector<uint32_t>& values, uint32_t pixel_count )
-    : id( id )
-    , pixel_count( pixel_count )
-    , values( values )
-{
-}
-
-Cluster::Cluster( uint32_t id_cluster, const Point* pPoint )
-    : id_cluster( id_cluster )
-{
-    assert( pPoint );
-
-    central_values = pPoint->values | ranges::view::transform( []( const auto& elem ) { return static_cast<double>( elem ); } );
-    points.push_back( pPoint );
-}
-
-Cluster::Cluster( Cluster&& other )
-    : id_cluster( other.id_cluster )
-    , central_values( std::move( other.central_values ) )
-    , points( std::move( other.points ) )
-{
-}
-
-Cluster& Cluster::operator=( Cluster&& other )
-{
-    if ( this != &other )
+    Point( const PointData* pData )
+        : pData( pData )
     {
-        id_cluster = other.id_cluster;
-        central_values = std::move( other.central_values );
-        points = std::move( other.points );
     }
 
-    return *this;
-}
+    const PointData* pData;
+    uint32_t id_cluster = uint32_t( -1 );
+};
 
-uint32_t Cluster::getTotalPixelCount() const
+struct Cluster
 {
-    return ranges::accumulate( points, 0, []( auto sum, const auto pPoint ) {
-        return sum + pPoint->pixel_count;
-    } );
-}
+    Cluster( uint32_t id_cluster, const Point* pPoint )
+        : id_cluster( id_cluster )
+    {
+        assert( pPoint );
+
+        central_values = ranges::view::transform( pPoint->pData->values, []( const auto& elem ) { return static_cast<double>( elem ); } );
+        points.push_back( pPoint );
+    }
+
+    uint32_t id_cluster;
+    std::vector<double> central_values;
+    std::vector<const Point*> points;
+};
 
 // return ID of nearest center
 // uses distance calculations from: https://en.wikipedia.org/wiki/Color_difference
-uint32_t KMeans::getIDNearestCenter( const std::vector<Cluster>& clusters, const Point& point ) const
+uint32_t getIDNearestCenter( const std::vector<Cluster>& clusters, const Point& point )
 {
-    const auto& pointValues = point.values;
+    const auto& pointValues = point.pData->values;
 
     auto calculateDistance = [&pointValues]( const Cluster& cluster ) {
         double sum = 0.0;
@@ -90,24 +77,36 @@ uint32_t KMeans::getIDNearestCenter( const std::vector<Cluster>& clusters, const
     return id_cluster_center;
 }
 
-KMeans::KMeans( uint32_t K, uint32_t max_iterations )
-    : K( K )
-    , max_iterations( max_iterations )
-    , colour_components( kNumberOfColourComponents )
+uint32_t getTotalPixelCount( const Cluster& cluster )
+{
+    return ranges::accumulate( cluster.points, 0, []( auto sum, const auto pPoint ) {
+        return sum + pPoint->pData->pixel_count;
+    } );
+}
+
+} // namespace
+
+namespace smp::utils::kmeans
+{
+
+PointData::PointData( const std::vector<uint8_t>& values, uint32_t pixel_count )
+    : values( values )
+    , pixel_count( pixel_count )
 {
 }
 
-std::vector<Cluster> KMeans::run( std::vector<Point>& points )
+std::vector<ClusterData> run( const std::vector<PointData>& pointsData, uint32_t K, uint32_t max_iterations )
 {
-    const size_t clusterCount = std::min( std::max( K, static_cast<uint32_t>( 14 ) ), points.size() );
+    const size_t clusterCount = std::min( std::max( K, static_cast<uint32_t>( 14 ) ), pointsData.size() );
 
+    std::vector<Point> points = ranges::view::transform( pointsData, []( const auto& data ) { return Point{ &data }; } );
     std::vector<Cluster> clusters;
     clusters.reserve( clusterCount );
 
     // choose K distinct values for the centers of the clusters
     for ( uint32_t i = 0; i < clusterCount; ++i )
-    {
-        auto& centerPoint = points[static_cast<size_t>( i * points.size() / clusterCount )]; // colours are already distinct so we can't have duplicate centers
+    { // colours are already distinct so we can't have duplicate centers
+        auto& centerPoint = points[static_cast<size_t>( i * points.size() / clusterCount )];
         centerPoint.id_cluster = i;
         clusters.emplace_back( i, &centerPoint );
     }
@@ -119,15 +118,15 @@ std::vector<Cluster> KMeans::run( std::vector<Point>& points )
         // associate each point to its nearest center
         for ( auto& point : points )
         {
-            uint32_t id_old_cluster = point.id_cluster;
-            uint32_t id_nearest_center = getIDNearestCenter( clusters, point );
+            const uint32_t id_old_cluster = point.id_cluster;
+            const uint32_t id_nearest_center = getIDNearestCenter( clusters, point );
 
             if ( id_old_cluster != id_nearest_center )
             {
                 if ( id_old_cluster != uint32_t( -1 ) )
                 {
                     auto& clusterPoints = clusters[id_old_cluster].points;
-                    const auto it = ranges::find_if( clusterPoints, [id_point = point.id]( const auto pPoint ) { return ( pPoint->id == id_point ); } );
+                    const auto it = ranges::find( clusterPoints, &point );
                     assert( it != clusterPoints.cend() );
                     clusterPoints.erase( it );
                 }
@@ -141,17 +140,18 @@ std::vector<Cluster> KMeans::run( std::vector<Point>& points )
         // recalculating the center of each cluster
         for ( auto& cluster : clusters )
         {
-            auto& centralValues = cluster.central_values;
-            for ( uint32_t j = 0; j < colour_components; j++ )
+            const uint32_t pixelsInCluster = getTotalPixelCount( cluster );
+            if ( !pixelsInCluster )
             {
-                const uint32_t pixelsInCluster = cluster.getTotalPixelCount();
-                if ( pixelsInCluster )
-                {
-                    const uint32_t sum = ranges::accumulate( cluster.points, 0, [j]( uint32_t curSum, const auto pPoint ) {
-                        return curSum + pPoint->values[j] * pPoint->pixel_count;
-                    } );
-                    centralValues[j] = static_cast<double>( sum ) / pixelsInCluster;
-                }
+                continue;
+            }
+
+            for ( uint32_t j = 0; j < kNumberOfColourComponents; j++ )
+            {
+                const uint32_t sum = ranges::accumulate( cluster.points, 0, [j]( uint32_t curSum, const auto pPoint ) {
+                    return curSum + pPoint->pData->values[j] * pPoint->pData->pixel_count;
+                } );
+                cluster.central_values[j] = static_cast<double>( sum ) / pixelsInCluster;
             }
         }
 
@@ -161,7 +161,12 @@ std::vector<Cluster> KMeans::run( std::vector<Point>& points )
         }
     }
 
-    return clusters;
+    return ranges::view::transform( clusters, []( const auto& cluster ) {
+        ClusterData clusterData;
+        clusterData.central_values = ranges::view::transform( cluster.central_values, []( const auto& value ) { return static_cast<uint8_t>( value ); } );
+        clusterData.points = ranges::view::transform( cluster.points, []( const auto& point ) { return point->pData; } );
+        return clusterData;
+    } );
 }
 
 } // namespace smp::utils::kmeans

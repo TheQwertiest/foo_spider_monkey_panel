@@ -30,50 +30,21 @@ across the data set.
 namespace smp::utils::kmeans
 {
 
-struct Point
+struct PointData
 {
-    Point( uint32_t id, const std::vector<uint32_t>& values, uint32_t pixel_count );
+    PointData() = default;
+    PointData( const std::vector<uint8_t>& values, uint32_t pixel_count );
 
-    const uint32_t id;
-    const uint32_t total_values = 0;
-    const uint32_t pixel_count = 0;    
-    const std::vector<uint32_t> values;
-
-    uint32_t id_cluster = uint32_t( -1 );
+    uint32_t pixel_count = 0;
+    std::vector<uint8_t> values;
 };
 
-struct Cluster
+struct ClusterData
 {
-    Cluster( uint32_t id_cluster, const Point* pPoint );
-    Cluster( Cluster&& other );
-    Cluster& operator=( Cluster&& other );
-
-    Cluster( const Cluster& other ) = delete;
-    Cluster& operator=( const Cluster& other ) = delete;
-
-    uint32_t getTotalPixelCount() const;
-
-    uint32_t id_cluster;
-    std::vector<double> central_values;
-    std::vector<const Point*> points;
+    std::vector<uint8_t> central_values;
+    std::vector<const PointData*> points;
 };
 
-class KMeans
-{
-public:
-    KMeans( uint32_t K, uint32_t max_iterations );
+std::vector<ClusterData> run( const std::vector<PointData>& points, uint32_t K, uint32_t max_iterations );
 
-    std::vector<Cluster> run( std::vector<Point>& points );
-
-private:
-    // return ID of nearest center
-    // uses distance calculations from: https://en.wikipedia.org/wiki/Color_difference
-    uint32_t getIDNearestCenter( const std::vector<Cluster>& clusters, const Point& point ) const;
-
-private:
-    const uint32_t K;
-    const uint32_t max_iterations;
-    const uint32_t colour_components;
-};
-
-}
+} // namespace smp::utils::kmeans

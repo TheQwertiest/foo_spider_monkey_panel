@@ -197,7 +197,7 @@ void JsGdiBitmap::ApplyMask( JsGdiBitmap* mask )
     assert( pBitmapMask );
 
     SmpException::ExpectTrue( pBitmapMask->GetHeight() == pGdi_->GetHeight()
-                              && pBitmapMask->GetWidth() == pGdi_->GetWidth(),
+                                  && pBitmapMask->GetWidth() == pGdi_->GetWidth(),
                               "Mismatched dimensions" );
 
     const Gdiplus::Rect rect{ 0, 0, static_cast<int>( pGdi_->GetWidth() ), static_cast<int>( pGdi_->GetHeight() ) };
@@ -218,7 +218,7 @@ void JsGdiBitmap::ApplyMask( JsGdiBitmap* mask )
         pGdi->UnlockBits( &dstBmpData );
     } );
 
-    const auto maskRange = ranges::make_iterator_range( reinterpret_cast<uint32_t*>( maskBmpData.Scan0 ), 
+    const auto maskRange = ranges::make_iterator_range( reinterpret_cast<uint32_t*>( maskBmpData.Scan0 ),
                                                         reinterpret_cast<uint32_t*>( maskBmpData.Scan0 ) + rect.Width * rect.Height );
     for ( auto pMask = maskRange.begin(), pDst = reinterpret_cast<uint32_t*>( dstBmpData.Scan0 ); pMask != maskRange.end(); ++pMask, ++pDst )
     {
@@ -256,12 +256,12 @@ JSObject* JsGdiBitmap::GetColourScheme( uint32_t count )
     std::map<uint32_t, uint32_t> color_counters;
     const auto colourRange = ranges::make_iterator_range( reinterpret_cast<const uint32_t*>( bmpdata.Scan0 ),
                                                           reinterpret_cast<const uint32_t*>( bmpdata.Scan0 ) + bmpdata.Width * bmpdata.Height );
-    for ( auto colour: colourRange )
+    for ( auto colour : colourRange )
     {
         // format: 0xaarrggbb
         uint32_t r = ( colour >> 16 ) & 0xff;
         uint32_t g = ( colour >> 8 ) & 0xff;
-        uint32_t b = (colour) & 0xff;
+        uint32_t b = colour & 0xff;
 
         // Round colors
         r = ( r + 16 ) & 0xffffffe0;
@@ -305,10 +305,10 @@ JSObject* JsGdiBitmap::GetColourScheme( uint32_t count )
 pfc::string8_fast JsGdiBitmap::GetColourSchemeJSON( uint32_t count )
 {
     using json = nlohmann::json;
-    using namespace smp::utils::kmeans;
+    namespace kmeans = smp::utils::kmeans;
 
     // rescaled image will have max of ~48k pixels
-    const auto [imgWidth, imgHeight] = [&pGdi = pGdi_] {
+    const auto [imgWidth, imgHeight] = [& pGdi = pGdi_] {
         constexpr uint32_t kMaxDimensionSize = 220;
         return smp::image::GetResizedImageSize( std::make_tuple( pGdi->GetWidth(), pGdi->GetHeight() ), std::make_tuple( kMaxDimensionSize, kMaxDimensionSize ) );
     }();
@@ -334,7 +334,7 @@ pfc::string8_fast JsGdiBitmap::GetColourSchemeJSON( uint32_t count )
     const auto colourRange = ranges::make_iterator_range( reinterpret_cast<const uint32_t*>( bmpdata.Scan0 ),
                                                           reinterpret_cast<const uint32_t*>( bmpdata.Scan0 ) + bmpdata.Width * bmpdata.Height );
     for ( auto colour : colourRange )
-    {// reduce color set to pass to k-means by rounding colour components to multiples of 8
+    { // reduce color set to pass to k-means by rounding colour components to multiples of 8
         uint32_t r = ( colour >> 16 ) & 0xff;
         uint32_t g = ( colour >> 8 ) & 0xff;
         uint32_t b = ( colour & 0xff );
@@ -344,46 +344,48 @@ pfc::string8_fast JsGdiBitmap::GetColourSchemeJSON( uint32_t count )
         g = ( g + 4 ) & 0xfffffff8;
         b = ( b + 4 ) & 0xfffffff8;
 
-        if ( r > 255 )
+        if ( r > 0xff )
             r = 0xff;
-        if ( g > 255 )
+        if ( g > 0xff )
             g = 0xff;
-        if ( b > 255 )
+        if ( b > 0xff )
             b = 0xff;
 
         ++colour_counters[r << 16 | g << 8 | b];
     }
     bitmap->UnlockBits( &bmpdata );
 
-    std::vector<Point> points =
-        ranges::view::enumerate( colour_counters ) |
-        ranges::view::transform( []( const auto& zippedColourCounter ) {
-                                     const auto& [i, colourCounter] = zippedColourCounter;
-                                     const auto [colour, pixelCount] = colourCounter;
+    const std::vector<kmeans::PointData> points =
+        ranges::view::transform( colour_counters, []( const auto& colourCounter ) {
+            const auto [colour, pixelCount] = colourCounter;
 
-                                     const uint8_t r = ( colour >> 16 ) & 0xff;
-                                     const uint8_t g = ( colour >> 8 ) & 0xff;
-                                     const uint8_t b = ( colour & 0xff );
+            const uint8_t r = ( colour >> 16 ) & 0xff;
+            const uint8_t g = ( colour >> 8 ) & 0xff;
+            const uint8_t b = ( colour & 0xff );
 
-                                     return Point{ static_cast<uint32_t>( i ), std::vector<uint32_t>{ r, g, b }, pixelCount };
-                                 } );
+            return kmeans::PointData{ std::vector<uint8_t>{ r, g, b }, pixelCount };
+        } );
 
     constexpr uint32_t kKmeansIterationCount = 12;
-    std::vector<Cluster> clusters = KMeans{ count, kKmeansIterationCount }.run( points );
+    std::vector<kmeans::ClusterData> clusters = kmeans::run( points, count, kKmeansIterationCount );
+
+    const auto getTotalPixelCount = []( const kmeans::ClusterData& cluster ) -> uint32_t {
+        return ranges::accumulate( cluster.points, 0, []( auto sum, const auto pData ) {
+            return sum + pData->pixel_count;
+        } );
+    };
 
     // sort by largest clusters
-    ranges::sort(
-        clusters,
-        []( const auto& a, const auto& b ) {
-            return a.getTotalPixelCount() > b.getTotalPixelCount();
-        } );
+    ranges::sort( clusters, [&getTotalPixelCount]( const auto& a, const auto& b ) {
+        return getTotalPixelCount( a ) > getTotalPixelCount( b );
+    } );
     if ( count < clusters.size() )
     {
         clusters.erase( clusters.cbegin() + count, clusters.cend() );
     }
 
     json j = json::array();
-    for ( const auto& cluster: clusters )
+    for ( const auto& cluster : clusters )
     {
         const auto& centralValues = cluster.central_values;
 
@@ -391,7 +393,7 @@ pfc::string8_fast JsGdiBitmap::GetColourSchemeJSON( uint32_t count )
                                 | static_cast<uint32_t>( centralValues[0] ) << 16
                                 | static_cast<uint32_t>( centralValues[1] ) << 8
                                 | static_cast<uint32_t>( centralValues[2] );
-        const double frequency = cluster.getTotalPixelCount() / static_cast<double>( colourRange.size() );
+        const double frequency = static_cast<double>( getTotalPixelCount( cluster ) ) / colourRange.size();
 
         j.push_back(
             { { "col", colour },
