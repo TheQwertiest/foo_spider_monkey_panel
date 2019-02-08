@@ -86,8 +86,7 @@ bool JsEngine::RegisterContainer( JsContainer& jsContainer )
 }
 
 void JsEngine::UnregisterContainer( JsContainer& jsContainer )
-{
-    
+{    
     if ( auto it = registeredContainers_.find( &jsContainer ); 
          it != registeredContainers_.end() )
     {

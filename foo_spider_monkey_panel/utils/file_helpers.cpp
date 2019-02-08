@@ -384,15 +384,15 @@ std::wstring FileDialog( const std::wstring& title,
         smp::error::CheckHR( hr, "GetResult" );
 
         PWSTR pszFilePath = nullptr;
-        smp::utils::final_action autoFilePath( [&pszFilePath] {
+        hr = psiResult->GetDisplayName( SIGDN_FILESYSPATH, &pszFilePath );
+        smp::error::CheckHR( hr, "GetDisplayName" );
+
+        smp::utils::final_action autoFilePath( [pszFilePath] {
             if ( pszFilePath )
             {
                 CoTaskMemFree( pszFilePath );
             }
         } );
-
-        hr = psiResult->GetDisplayName( SIGDN_FILESYSPATH, &pszFilePath );
-        smp::error::CheckHR( hr, "GetDisplayName" );
 
         return pszFilePath;
     }

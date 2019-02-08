@@ -19,7 +19,7 @@ using namespace smp::utils::kmeans;
 
 struct Point
 {
-    Point( const PointData* pData )
+    explicit Point( const PointData* pData )
         : pData( pData )
     {
     }
