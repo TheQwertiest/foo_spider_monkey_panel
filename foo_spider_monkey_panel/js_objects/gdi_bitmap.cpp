@@ -489,16 +489,15 @@ bool JsGdiBitmap::SaveAs( const std::wstring& path, const std::wstring& format )
             return -1;
         }
 
-        for ( UINT i = 0; i < num; ++i )
+        gsl::span<Gdiplus::ImageCodecInfo> codecSpan{ pImageCodecInfo, static_cast<std::ptrdiff_t>( num ) };
+        const auto it = ranges::find_if( codecSpan, [&format]( const auto& codec ) { return ( format == codec.MimeType ); } );
+        if ( it == codecSpan.cend() )
         {
-            if ( format != pImageCodecInfo[i].MimeType )
-            {
-                clsId = pImageCodecInfo[i].Clsid;
-                return i;
-            }
+            return -1;
         }
 
-        return -1;
+        clsId = it->Clsid;
+        return ranges::distance( codecSpan.cbegin(), it );
     }( format, clsid_encoder );
 
     if ( imageEncoderId < 0 )

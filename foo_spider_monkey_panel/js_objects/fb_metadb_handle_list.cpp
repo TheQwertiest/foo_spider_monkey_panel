@@ -504,28 +504,27 @@ void JsFbMetadbHandleList::OrderByRelativePath()
     // but this implementation is much faster because of timsort.
     // Also see `get_subsong_index` below.
 
-    auto api = library_manager::get();
-    const size_t count = metadbHandleList_.get_count();
+    const auto stlHandleList = Make_Stl_CRef( metadbHandleList_ );
 
-    std::vector<smp::utils::StrCmpLogicalCmpData> data;
-    data.reserve( count );
+    auto api = library_manager::get();
 
     pfc::string8_fastalloc temp;
     temp.prealloc( 512 );
 
-    for ( size_t i = 0; i < count; ++i )
-    {
-        const auto& item = metadbHandleList_[i];
-        temp = ""; ///< get_relative_path won't fill data on fail
-        api->get_relative_path( item, temp );
+    std::vector<smp::utils::StrCmpLogicalCmpData> data =
+        ranges::view::enumerate( stlHandleList )
+        | ranges::view::transform( [&api, &temp]( const auto& zippedHandle ) {
+              const auto& [i, handle] = zippedHandle;
+              temp = ""; ///< get_relative_path won't fill data on fail
+              api->get_relative_path( handle, temp );
 
-        // One physical file can have multiple handles,
-        // which all return the same path, but have different subsong idx
-        // (e.g. cuesheets or files with multiple chapters)
-        temp << item->get_subsong_index();
+              // One physical file can have multiple handles,
+              // which all return the same path, but have different subsong idx
+              // (e.g. cuesheets or files with multiple chapters)
+              temp << handle->get_subsong_index();
 
-        data.emplace_back( temp, i );
-    }
+              return smp::utils::StrCmpLogicalCmpData{ temp, static_cast<size_t>( i ) };
+          } );
 
     // TODO: consider replacing with prefix tree
     tim::timsort( data.begin(), data.end(), smp::utils::StrCmpLogicalCmp<> );

@@ -146,12 +146,12 @@ std::vector<ClusterData> run( const std::vector<PointData>& pointsData, uint32_t
                 continue;
             }
 
-            for ( uint32_t j = 0; j < kNumberOfColourComponents; j++ )
+            for ( auto&& [j, centralValue] : ranges::view::enumerate( cluster.central_values ) )
             {
                 const uint32_t sum = ranges::accumulate( cluster.points, 0, [j]( uint32_t curSum, const auto pPoint ) {
                     return curSum + pPoint->pData->values[j] * pPoint->pData->pixel_count;
                 } );
-                cluster.central_values[j] = static_cast<double>( sum ) / pixelsInCluster;
+                centralValue = static_cast<double>( sum ) / pixelsInCluster;
             }
         }
 
