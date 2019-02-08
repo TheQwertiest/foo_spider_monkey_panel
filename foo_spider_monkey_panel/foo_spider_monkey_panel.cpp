@@ -10,7 +10,6 @@
 
 
 #include <map>
-#include <sstream>
 
 DECLARE_COMPONENT_VERSION( SMP_NAME, SMP_VERSION, SMP_ABOUT );
 
@@ -137,17 +136,17 @@ private:
             return;
         }
 
-        std::stringstream ss;
-        ss << "Spider Monkey Panel initialization failed!" << std::endl;
-        ss << "The component will not function properly!" << std::endl;
-        ss << "Failures:" << std::endl << std::endl;
+        std::string errorText = 
+            "Spider Monkey Panel initialization failed!\r\n"
+            "The component will not function properly!\r\n"
+            "Failures:\r\n\r\n";
 
         for ( const auto& [key, failure] : g_subsystem_failures )
         {
-            ss << failure.description << ": error code 0x" << std::hex << failure.errorCode << std::endl;
+            errorText += fmt::format( "{}: error code :#X\r\n", failure.description, failure.errorCode );
         }
 
-        popup_msg::g_show( ss.str().c_str(), SMP_NAME );
+        popup_msg::g_show( errorText.c_str(), SMP_NAME );
     }
 };
 

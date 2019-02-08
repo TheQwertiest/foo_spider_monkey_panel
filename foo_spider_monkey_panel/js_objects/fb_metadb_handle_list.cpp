@@ -631,7 +631,7 @@ void JsFbMetadbHandleList::UpdateFileInfoFromJSON( const pfc::string8_fast& str 
         }
         catch ( const json::parse_error& e )
         {
-            throw SmpException( smp::string::Formatter() << "JSON parsing failed: " << e.what() );
+            throw SmpException( fmt::format( "JSON parsing failed: {}", e.what() ) );
         }
     }();
 

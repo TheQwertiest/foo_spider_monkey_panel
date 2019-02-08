@@ -378,7 +378,7 @@ void JsEngine::ReportOomError()
         std::string errorMsg = "Out of memory";
         if ( oomData.cend() != it )
         {
-            errorMsg += smp::string::Formatter() << ": " << it->memory << "/" << jsGc_.GetMaxHeap() << " bytes";
+            errorMsg += fmt::format( ": {}/{} bytes", it->memory, jsGc_.GetMaxHeap() );
         }
 
         jsContainer.get().Fail( errorMsg.c_str() );

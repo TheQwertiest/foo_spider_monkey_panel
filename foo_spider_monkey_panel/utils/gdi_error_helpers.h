@@ -22,9 +22,7 @@ void CheckGdiPlusObject( const std::unique_ptr<T>& obj, const T_Parent* pParentO
     }
 
     const auto pObject = ( obj ? obj.get() : pParentObj );
-    throw SmpException(
-        smp::string::Formatter()
-        << "Failed to create GdiPlus object (0x" << std::hex << pObject->GetLastStatus() << ": " << GdiErrorCodeToText( pObject->GetLastStatus() ) );
+    throw SmpException( fmt::format( "Failed to create GdiPlus object ({:#X}): {}", pObject->GetLastStatus(), GdiErrorCodeToText( pObject->GetLastStatus() ) ) );
 }
 
 } // namespace smp::error

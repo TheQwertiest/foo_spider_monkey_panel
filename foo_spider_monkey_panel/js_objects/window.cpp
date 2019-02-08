@@ -262,7 +262,7 @@ JSObject* JsWindow::CreateTooltipWithOpt( size_t optArgCount, const std::wstring
     case 3:
         return CreateTooltip();
     default:
-        throw SmpException( smp::string::Formatter() << "Internal error: invalid number of optional arguments specified: " << optArgCount );
+        throw SmpException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
     }
 }
 
@@ -300,7 +300,7 @@ void JsWindow::DefinePanelWithOpt( size_t optArgCount, const pfc::string8_fast& 
     case 1:
         return DefinePanel( name );
     default:
-        throw SmpException( smp::string::Formatter() << "Internal error: invalid number of optional arguments specified: " << optArgCount );
+        throw SmpException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
     }
 }
 
@@ -336,7 +336,7 @@ uint32_t JsWindow::GetColourCUIWithOpt( size_t optArgCount, uint32_t type, const
     case 1:
         return GetColourCUI( type );
     default:
-        throw SmpException( smp::string::Formatter() << "Internal error: invalid number of optional arguments specified: " << optArgCount );
+        throw SmpException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
     }
 }
 
@@ -396,7 +396,7 @@ JSObject* JsWindow::GetFontCUIWithOpt( size_t optArgCount, uint32_t type, const 
     case 1:
         return GetFontCUI( type );
     default:
-        throw SmpException( smp::string::Formatter() << "Internal error: invalid number of optional arguments specified: " << optArgCount );
+        throw SmpException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
     }
 }
 
@@ -443,7 +443,7 @@ JS::Value JsWindow::GetPropertyWithOpt( size_t optArgCount, const std::wstring& 
     case 1:
         return GetProperty( name );
     default:
-        throw SmpException( smp::string::Formatter() << "Internal error: invalid number of optional arguments specified: " << optArgCount );
+        throw SmpException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
     }
 }
 
@@ -491,7 +491,7 @@ void JsWindow::RepaintWithOpt( size_t optArgCount, bool force )
     case 1:
         return Repaint();
     default:
-        throw SmpException( smp::string::Formatter() << "Internal error: invalid number of optional arguments specified: " << optArgCount );
+        throw SmpException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
     }
 }
 
@@ -514,7 +514,7 @@ void JsWindow::RepaintRectWithOpt( size_t optArgCount, uint32_t x, uint32_t y, u
     case 1:
         return RepaintRect( x, y, w, h );
     default:
-        throw SmpException( smp::string::Formatter() << "Internal error: invalid number of optional arguments specified: " << optArgCount );
+        throw SmpException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
     }
 }
 
@@ -561,7 +561,7 @@ void JsWindow::SetPropertyWithOpt( size_t optArgCount, const std::wstring& name,
     case 1:
         return SetProperty( name );
     default:
-        throw SmpException( smp::string::Formatter() << "Internal error: invalid number of optional arguments specified: " << optArgCount );
+        throw SmpException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
     }
 }
 

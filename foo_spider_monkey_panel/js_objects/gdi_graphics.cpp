@@ -247,7 +247,7 @@ void JsGdiGraphics::DrawImageWithOpt( size_t optArgCount, JsGdiBitmap* image,
     case 2:
         return DrawImage( image, dstX, dstY, dstW, dstH, srcX, srcY, srcW, srcH );
     default:
-        throw SmpException( string::Formatter() << "Internal error: invalid number of optional arguments specified: " << optArgCount );
+        throw SmpException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
     }
 }
 
@@ -341,7 +341,7 @@ void JsGdiGraphics::DrawStringWithOpt( size_t optArgCount, const std::wstring& s
     case 1:
         return DrawString( str, font, colour, x, y, w, h );
     default:
-        throw SmpException( string::Formatter() << "Internal error: invalid number of optional arguments specified: " << optArgCount );
+        throw SmpException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
     }
 }
 
@@ -419,7 +419,7 @@ void JsGdiGraphics::FillGradRectWithOpt( size_t optArgCount, float x, float y, f
     case 1:
         return FillGradRect( x, y, w, h, angle, colour1, colour2 );
     default:
-        throw SmpException( string::Formatter() << "Internal error: invalid number of optional arguments specified: " << optArgCount );
+        throw SmpException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
     }
 }
 
@@ -491,7 +491,7 @@ void JsGdiGraphics::GdiAlphaBlendWithOpt( size_t optArgCount, JsGdiRawBitmap* bi
     case 1:
         return GdiAlphaBlend( bitmap, dstX, dstY, dstW, dstH, srcX, srcY, srcW, srcH );
     default:
-        throw SmpException( string::Formatter() << "Internal error: invalid number of optional arguments specified: " << optArgCount );
+        throw SmpException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
     }
 }
 
@@ -598,7 +598,7 @@ void JsGdiGraphics::GdiDrawTextWithOpt( size_t optArgCount, const std::wstring& 
     case 1:
         return GdiDrawText( str, font, colour, x, y, w, h );
     default:
-        throw SmpException( string::Formatter() << "Internal error: invalid number of optional arguments specified: " << optArgCount );
+        throw SmpException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
     }
 }
 
@@ -639,7 +639,7 @@ JSObject* JsGdiGraphics::MeasureStringWithOpt( size_t optArgCount, const std::ws
     case 1:
         return MeasureString( str, font, x, y, w, h );
     default:
-        throw SmpException( string::Formatter() << "Internal error: invalid number of optional arguments specified: " << optArgCount );
+        throw SmpException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
     }
 }
 
@@ -660,7 +660,7 @@ void JsGdiGraphics::SetInterpolationModeWithOpt( size_t optArgCount, uint32_t mo
     case 1:
         return SetInterpolationMode();
     default:
-        throw SmpException( string::Formatter() << "Internal error: invalid number of optional arguments specified: " << optArgCount );
+        throw SmpException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
     }
 }
 
@@ -681,7 +681,7 @@ void JsGdiGraphics::SetSmoothingModeWithOpt( size_t optArgCount, uint32_t mode )
     case 1:
         return SetSmoothingMode();
     default:
-        throw SmpException( string::Formatter() << "Internal error: invalid number of optional arguments specified: " << optArgCount );
+        throw SmpException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
     }
 }
 
@@ -702,7 +702,7 @@ void JsGdiGraphics::SetTextRenderingHintWithOpt( size_t optArgCount, uint32_t mo
     case 1:
         return SetTextRenderingHint();
     default:
-        throw SmpException( string::Formatter() << "Internal error: invalid number of optional arguments specified: " << optArgCount );
+        throw SmpException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
     }
 }
 

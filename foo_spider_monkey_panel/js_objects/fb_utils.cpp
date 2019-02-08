@@ -289,7 +289,7 @@ JSObject* JsFbUtils::CreateProfilerWithOpt( size_t optArgCount, const pfc::strin
     case 1:
         return CreateProfiler();
     default:
-        throw SmpException( smp::string::Formatter() << "Internal error: invalid number of optional arguments specified: " << optArgCount );
+        throw SmpException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
     }
 }
 
@@ -347,7 +347,7 @@ uint32_t JsFbUtils::DoDragDropWithOpt( size_t optArgCount, uint32_t hWindow, JsF
     case 1:
         return DoDragDrop( hWindow, handles, okEffects );
     default:
-        throw SmpException( smp::string::Formatter() << "Internal error: invalid number of optional arguments specified: " << optArgCount );
+        throw SmpException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
     }
 }
 
@@ -432,7 +432,7 @@ JSObject* JsFbUtils::GetFocusItemWithOpt( size_t optArgCount, bool force )
     case 1:
         return GetFocusItem();
     default:
-        throw SmpException( smp::string::Formatter() << "Internal error: invalid number of optional arguments specified: " << optArgCount );
+        throw SmpException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
     }
 }
 
@@ -549,7 +549,7 @@ JSObject* JsFbUtils::GetSelectionsWithOpt( size_t optArgCount, uint32_t flags )
     case 1:
         return GetSelections();
     default:
-        throw SmpException( smp::string::Formatter() << "Internal error: invalid number of optional arguments specified: " << optArgCount );
+        throw SmpException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
     }
 }
 
@@ -644,7 +644,7 @@ bool JsFbUtils::RunContextCommandWithOpt( size_t optArgCount, const pfc::string8
     case 1:
         return RunContextCommand( command );
     default:
-        throw SmpException( smp::string::Formatter() << "Internal error: invalid number of optional arguments specified: " << optArgCount );
+        throw SmpException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
     }
 }
 
@@ -680,7 +680,7 @@ bool JsFbUtils::RunContextCommandWithMetadbWithOpt( size_t optArgCount, const pf
     case 1:
         return RunContextCommandWithMetadb( command, handle );
     default:
-        throw SmpException( smp::string::Formatter() << "Internal error: invalid number of optional arguments specified: " << optArgCount );
+        throw SmpException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
     }
 }
 
@@ -743,7 +743,7 @@ void JsFbUtils::ShowPopupMessageWithOpt( size_t optArgCount, const pfc::string8_
     case 1:
         return ShowPopupMessage( msg );
     default:
-        throw SmpException( smp::string::Formatter() << "Internal error: invalid number of optional arguments specified: " << optArgCount );
+        throw SmpException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
     }
 }
 
@@ -882,7 +882,7 @@ void JsFbUtils::put_ReplaygainMode( uint32_t p )
         break;
     default:
     {
-        throw SmpException( smp::string::Formatter() << "Invalid replay gain mode: " << p );
+        throw SmpException( fmt::format( "Invalid replay gain mode: {}", p ) );
     }
     }
 

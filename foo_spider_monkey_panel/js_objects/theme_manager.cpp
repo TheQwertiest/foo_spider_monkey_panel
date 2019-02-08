@@ -139,7 +139,7 @@ void JsThemeManager::DrawThemeBackgroundWithOpt( size_t optArgCount, JsGdiGraphi
     case 4:
         return DrawThemeBackground( gr, x, y, w, h );
     default:
-        throw SmpException( smp::string::Formatter() << "Internal error: invalid number of optional arguments specified: " << optArgCount );
+        throw SmpException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
     }
 }
 
@@ -163,7 +163,7 @@ void JsThemeManager::SetPartAndStateIDWithOpt( size_t optArgCount, int32_t parti
     case 1:
         return SetPartAndStateID( partid );
     default:
-        throw SmpException( smp::string::Formatter() << "Internal error: invalid number of optional arguments specified: " << optArgCount );
+        throw SmpException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
     }
 }
 

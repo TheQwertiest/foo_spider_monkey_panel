@@ -131,7 +131,7 @@ void JsMainMenuManager::Init( const pfc::string8_fast& root_name )
     } );
     if ( result == std::cend( validRoots ) )
     {
-        throw SmpException( smp::string::Formatter() << "Invalid menu root name " << root_name.c_str() );
+        throw SmpException( fmt::format( "Invalid menu root name: {}", root_name.c_str() ) );
     }
 
     menuManager_ = standard_api_create_t<mainmenu_manager>();

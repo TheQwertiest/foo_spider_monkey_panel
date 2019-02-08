@@ -36,3 +36,6 @@
 	path = submodules/range
 	url = https://github.com/ericniebler/range-v3.git
 	fetchRecurseSubmodules = false
+[submodule "submodules/fmt"]
+	path = submodules/fmt
+	url = https://github.com/fmtlib/fmt.git

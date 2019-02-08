@@ -17,6 +17,8 @@ public:
 
     virtual ~SmpException() = default;
 
+    /// @details Do not pass dynamically generated strings here (e.g. fmt::format)!
+    ///          Should only be used with static strings to minimize performance impact.
     static void ExpectTrue( bool checkValue, std::string_view errorMessage );
 };
 

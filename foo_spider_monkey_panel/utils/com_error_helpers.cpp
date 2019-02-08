@@ -15,7 +15,7 @@ void ReportActiveXError( HRESULT hresult, EXCEPINFO& exception, UINT& argerr )
     {
     case DISP_E_BADVARTYPE:
     {
-        throw SmpException( smp::string::Formatter() << "ActiveXObject: Bad variable type " << argerr );
+        throw SmpException( fmt::format( "ActiveXObject: CBad variable type {}", argerr ) );
     }
     case DISP_E_EXCEPTION:
     {
@@ -28,13 +28,12 @@ void ReportActiveXError( HRESULT hresult, EXCEPINFO& exception, UINT& argerr )
 
         if ( exception.bstrDescription )
         {
-            pfc::string8_fast descriptionStr( pfc::stringcvt::string_utf8_from_wide(
+            const pfc::string8_fast descriptionStr( pfc::stringcvt::string_utf8_from_wide(
                 (wchar_t*)exception.bstrDescription, SysStringLen( exception.bstrDescription ) ) );
-            pfc::string8_fast sourceStr( pfc::stringcvt::string_utf8_from_wide(
+            const pfc::string8_fast sourceStr( pfc::stringcvt::string_utf8_from_wide(
                 (wchar_t*)exception.bstrSource, SysStringLen( exception.bstrSource ) ) );
 
-            std::string errorMsg = std::string{} + "ActiveXObject: (" + sourceStr.c_str() + ")" + descriptionStr.c_str();
-            throw SmpException( errorMsg );
+            throw SmpException( fmt::format("ActiveXObject: ({}) {}", sourceStr.c_str(), descriptionStr.c_str() ) );
         }
         else if ( exception.scode )
         {
@@ -47,19 +46,19 @@ void ReportActiveXError( HRESULT hresult, EXCEPINFO& exception, UINT& argerr )
     }
     case DISP_E_OVERFLOW:
     {
-        throw SmpException( smp::string::Formatter() << "ActiveXObject: Can not convert variable " << argerr );
+        throw SmpException( fmt::format( "ActiveXObject: Can not convert variable {}", argerr ) );
     }
     case DISP_E_PARAMNOTFOUND:
     {
-        throw SmpException( smp::string::Formatter() << "ActiveXObject: Parameter" << argerr << " not found" );
+        throw SmpException( fmt::format( "ActiveXObject: Parameter {} not found", argerr ) );
     }
     case DISP_E_TYPEMISMATCH:
     {
-        throw SmpException( smp::string::Formatter() << "ActiveXObject: Parameter" << argerr << " type mismatch" );
+        throw SmpException( fmt::format( "ActiveXObject: Parameter {} type mismatch", argerr ) );
     }
     case DISP_E_PARAMNOTOPTIONAL:
     {
-        throw SmpException( smp::string::Formatter() << "ActiveXObject: Parameter" << argerr << " is required" );
+        throw SmpException( fmt::format( "ActiveXObject: Parameter {} is required", argerr ) );
     }
     default:
     {

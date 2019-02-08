@@ -138,7 +138,7 @@ pfc::string8_fast JsFbTitleFormat::EvalWithOpt( size_t optArgCount, bool force )
     case 1:
         return Eval();
     default:
-        throw SmpException( smp::string::Formatter() << "Internal error: invalid number of optional arguments specified: " << optArgCount );
+        throw SmpException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
     }
 }
 

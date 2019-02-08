@@ -225,7 +225,7 @@ void JsFbPlaylistManager::AddLocationsWithOpt( size_t optArgCount, uint32_t play
     case 1:
         return AddLocations( playlistIndex, locations );
     default:
-        throw SmpException( smp::string::Formatter() << "Internal error: invalid number of optional arguments specified: " << optArgCount );
+        throw SmpException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
     }
 }
 
@@ -272,7 +272,7 @@ uint32_t JsFbPlaylistManager::CreateAutoPlaylistWithOpt( size_t optArgCount, uin
     case 2:
         return CreateAutoPlaylist( playlistIndex, name, query );
     default:
-        throw SmpException( smp::string::Formatter() << "Internal error: invalid number of optional arguments specified: " << optArgCount );
+        throw SmpException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
     }
 }
 
@@ -325,7 +325,7 @@ uint32_t JsFbPlaylistManager::DuplicatePlaylistWithOpt( size_t optArgCount, uint
     case 1:
         return DuplicatePlaylist( from );
     default:
-        throw SmpException( smp::string::Formatter() << "Internal error: invalid number of optional arguments specified: " << optArgCount );
+        throw SmpException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
     }
 }
 
@@ -467,7 +467,7 @@ void JsFbPlaylistManager::InsertPlaylistItemsWithOpt( size_t optArgCount, uint32
     case 1:
         return InsertPlaylistItems( playlistIndex, base, handles );
     default:
-        throw SmpException( smp::string::Formatter() << "Internal error: invalid number of optional arguments specified: " << optArgCount );
+        throw SmpException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
     }
 }
 
@@ -487,7 +487,7 @@ void JsFbPlaylistManager::InsertPlaylistItemsFilterWithOpt( size_t optArgCount, 
     case 1:
         return InsertPlaylistItemsFilter( playlistIndex, base, handles );
     default:
-        throw SmpException( smp::string::Formatter() << "Internal error: invalid number of optional arguments specified: " << optArgCount );
+        throw SmpException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
     }
 }
 
@@ -581,7 +581,7 @@ void JsFbPlaylistManager::RemovePlaylistSelectionWithOpt( size_t optArgCount, ui
     case 1:
         return RemovePlaylistSelection( playlistIndex );
     default:
-        throw SmpException( smp::string::Formatter() << "Internal error: invalid number of optional arguments specified: " << optArgCount );
+        throw SmpException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
     }
 }
 
@@ -661,7 +661,7 @@ bool JsFbPlaylistManager::SortByFormatWithOpt( size_t optArgCount, uint32_t play
     case 1:
         return SortByFormat( playlistIndex, pattern );
     default:
-        throw SmpException( smp::string::Formatter() << "Internal error: invalid number of optional arguments specified: " << optArgCount );
+        throw SmpException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
     }
 }
 
@@ -691,7 +691,7 @@ bool JsFbPlaylistManager::SortByFormatV2WithOpt( size_t optArgCount, uint32_t pl
     case 1:
         return SortByFormatV2( playlistIndex, pattern );
     default:
-        throw SmpException( smp::string::Formatter() << "Internal error: invalid number of optional arguments specified: " << optArgCount );
+        throw SmpException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
     }
 }
 
@@ -727,7 +727,7 @@ void JsFbPlaylistManager::SortPlaylistsByNameWithOpt( size_t optArgCount, int8_t
     case 1:
         return SortPlaylistsByName();
     default:
-        throw SmpException( smp::string::Formatter() << "Internal error: invalid number of optional arguments specified: " << optArgCount );
+        throw SmpException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
     }
 }
 
@@ -781,7 +781,7 @@ void JsFbPlaylistManager::put_PlaybackOrder( uint32_t order )
     auto api = playlist_manager::get();
     if ( order >= api->playback_order_get_count() )
     {
-        throw SmpException( smp::string::Formatter() << "Unknown playback order id: " << order );
+        throw SmpException( fmt::format( "Unknown playback order id: {}", order ) );
     }
 
     api->playback_order_set_active( order );

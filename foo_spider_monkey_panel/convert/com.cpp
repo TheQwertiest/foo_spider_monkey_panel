@@ -386,7 +386,7 @@ void VariantToJs( JSContext* cx, VARIANTARG& var, JS::MutableHandleValue rval )
     default:
         if ( type > VT_CLSID )
         {
-            throw SmpException( smp::string::Formatter() << "ActiveX: unsupported object type: " << type );
+            throw SmpException( fmt::format( "ActiveX: unsupported object type: {}", type ) );
         }
 
         JS::RootedObject jsObject( cx, ActiveXObject::CreateJsFromNative( cx, std::make_unique<ActiveXObject>( cx, var ) ) );

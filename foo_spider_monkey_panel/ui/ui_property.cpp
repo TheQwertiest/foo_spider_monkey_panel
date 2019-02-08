@@ -5,8 +5,6 @@
 #include <js_panel_window.h>
 #include <abort_callback.h>
 
-// stringstream
-#include <sstream>
 // precision
 #include <iomanip>
 #include <map>
@@ -117,12 +115,6 @@ void CDialogProperty::LoadProperties( bool reload )
         m_dup_prop_map = m_parent->get_config_prop().get_val();
     }
 
-    auto doubleToString = []( double dVal ) {
-        std::wostringstream out;
-        out << std::setprecision( 16 ) << dVal;
-        return out.str();
-    };
-
     struct LowerLexCmp
     { // lexicographical comparison but with lower cased chars
         bool operator()( const std::wstring& a, const std::wstring& b ) const
@@ -133,7 +125,7 @@ void CDialogProperty::LoadProperties( bool reload )
     std::map<std::wstring, HPROPERTY, LowerLexCmp> propMap;
     for ( const auto& [name, pSerializedValue] : m_dup_prop_map )
     {
-        HPROPERTY hProp = std::visit( [&name, &doubleToString]( auto&& arg ) {
+        HPROPERTY hProp = std::visit( [&name]( auto&& arg ) {
             using T = std::decay_t<decltype( arg )>;
             if constexpr ( std::is_same_v<T, bool> || std::is_same_v <T, int32_t> )
             {
@@ -141,14 +133,14 @@ void CDialogProperty::LoadProperties( bool reload )
             }
             else if constexpr ( std::is_same_v<T, double> )
             {
-                const std::wstring strNumber = [arg, &doubleToString] {
+                const std::wstring strNumber = [arg] {
                     if ( std::trunc( arg ) == arg )
                     { // Most likely uint64_t
                         return std::to_wstring( static_cast<uint64_t>( arg ) );
                     }
 
                     // std::to_string(double) has precision of float
-                    return doubleToString( arg );
+                    return fmt::format( L"{:.16}", arg );
                 }();
 
                 return PropCreateSimple( name.c_str(), strNumber.c_str() );

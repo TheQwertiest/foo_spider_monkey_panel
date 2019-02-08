@@ -36,6 +36,7 @@
     <Import Project="$(SolutionDir)\..\props\BuildEnvCpp.props" />
     <Import Project="$(SolutionDir)\..\props\DynamicRuntime.props" />
     <Import Project="$(SolutionDir)\..\props\submodules.props" />
+    <Import Project="$(SolutionDir)\..\props\fmt.props" />
     <Import Project="$(SolutionDir)\..\props\foobar2000_sdk.props" />
     <Import Project="$(SolutionDir)\..\props\json.props" />
     <Import Project="$(SolutionDir)\..\props\gsl.props" />

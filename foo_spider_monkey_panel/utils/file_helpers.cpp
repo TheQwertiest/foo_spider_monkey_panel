@@ -155,7 +155,7 @@ FileReader::FileReader( const pfc::string8_fast& path )
         fs::path fsPath = fs::u8path( path.c_str() );
         if ( !fs::exists( fsPath ) || !fs::is_regular_file( fsPath ) )
         {
-            throw SmpException( smp::string::Formatter() << "Path does not point to a valid file: " << path.c_str() );
+            throw SmpException( fmt::format( "Path does not point to a valid file: {}", path.c_str() ) );
         }
 
         if ( !fs::file_size( fsPath ) )
@@ -163,36 +163,30 @@ FileReader::FileReader( const pfc::string8_fast& path )
             return;
         }
         hFile_ = CreateFile( fsPath.wstring().c_str(), GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr );
-        if ( INVALID_HANDLE_VALUE == hFile_ )
-        {
-            throw SmpException( smp::string::Formatter() << "Failed to open script file: " << path.c_str() );
-        }
+        smp::error::CheckWinApi( ( INVALID_HANDLE_VALUE != hFile_ ), "CreateFile" );
+
         utils::final_action autoFile( [hFile = hFile_] {
             CloseHandle( hFile );
         } );
 
         hFileMapping_ = CreateFileMapping( hFile_, nullptr, PAGE_READONLY, 0, 0, nullptr );
-        if ( !hFileMapping_ )
-        {
-            throw SmpException( smp::string::Formatter() << "Internal error: CreateFileMapping failed for `" << path.c_str() << "`" );
-        }
+        smp::error::CheckWinApi( hFileMapping_, "CreateFileMapping" );
+
         utils::final_action autoMapping( [hFileMapping = hFileMapping_] {
             CloseHandle( hFileMapping );
         } );
 
         fileSize_ = GetFileSize( hFile_, nullptr );
         pFileView_ = (LPCBYTE)MapViewOfFile( hFileMapping_, FILE_MAP_READ, 0, 0, 0 );
-        if ( !pFileView_ )
-        {
-            throw SmpException( smp::string::Formatter() << "Internal error: MapViewOfFile failed for `" << path.c_str() << "`" );
-        }
+        smp::error::CheckWinApi( pFileView_, "MapViewOfFile" );
+
         utils::final_action autoAddress( [pFileView = pFileView_] {
             UnmapViewOfFile( pFileView );
         } );
 
         if ( fileSize_ == INVALID_FILE_SIZE )
         {
-            throw SmpException( smp::string::Formatter() << "Internal error: failed to read file size of `" << path.c_str() << "`" );
+            throw SmpException( fmt::format( "Internal error: failed to read file size of `{}`", path.c_str() ) );
         }
 
         autoAddress.cancel();
@@ -201,7 +195,7 @@ FileReader::FileReader( const pfc::string8_fast& path )
     }
     catch ( const fs::filesystem_error& e )
     {
-        throw SmpException( smp::string::Formatter() << "Failed to open file `" << path.c_str() << "`: " << e.what() );
+        throw SmpException( fmt::format( "Failed to open file `{}`: {}", path.c_str(), e.what() ) );
     }
 }
 

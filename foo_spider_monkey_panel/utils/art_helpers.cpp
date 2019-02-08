@@ -224,7 +224,7 @@ const GUID& GetGuidForArtId( uint32_t art_id )
 
     if ( art_id >= _countof( guids ) )
     {
-        throw SmpException( smp::string::Formatter() << "Unknown art_id: " << art_id );
+        throw SmpException( fmt::format( "Unknown art_id: {}", art_id ) );
     }
 
     return *guids[art_id];

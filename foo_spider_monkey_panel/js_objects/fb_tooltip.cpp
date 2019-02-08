@@ -175,7 +175,7 @@ uint32_t JsFbTooltip::GetDelayTime( uint32_t type )
 {
     if ( type < TTDT_AUTOMATIC || type > TTDT_INITIAL )
     {
-        throw SmpException( smp::string::Formatter() << "Invalid delay type: " << type );
+        throw SmpException( fmt::format( "Invalid delay type: {}", type ) );
     }
 
     return SendMessage( hTooltipWnd_, TTM_GETDELAYTIME, type, 0 );
@@ -185,7 +185,7 @@ void JsFbTooltip::SetDelayTime( uint32_t type, int32_t time )
 {
     if ( type < TTDT_AUTOMATIC || type > TTDT_INITIAL )
     {
-        throw SmpException( smp::string::Formatter() << "Invalid delay type: " << type );
+        throw SmpException( fmt::format( "Invalid delay type: {}", type ) );
     }
 
     SendMessage( hTooltipWnd_, TTM_SETDELAYTIME, type, ( LPARAM )(INT)MAKELONG( time, 0 ) );
