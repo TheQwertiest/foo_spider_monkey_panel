@@ -7,7 +7,7 @@ namespace
 // TODO: remove tabs as well (string_view, isspace, manual looping?)
 
 template <typename T>
-T TrimImpl(const T& str)
+T TrimImpl( const T& str )
 {
     size_t first = str.find_first_not_of( ' ' );
     if ( std::string::npos == first )
@@ -15,7 +15,7 @@ T TrimImpl(const T& str)
         return str;
     }
     size_t last = str.find_last_not_of( ' ' );
-    return str.substr( first, (last - first + 1) );
+    return str.substr( first, ( last - first + 1 ) );
 }
 
 template <>
@@ -47,8 +47,7 @@ pfc::string8_fast TrimImpl( const pfc::string8_fast& str )
     return pfc::string8_fast( &str[first], last - first + 1 );
 }
 
-
-}
+} // namespace
 
 namespace smp::string
 {
@@ -68,4 +67,4 @@ pfc::string8_fast Trim( const pfc::string8_fast& str )
     return TrimImpl( str );
 }
 
-}
+} // namespace smp::string

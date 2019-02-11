@@ -514,15 +514,41 @@ bool JsUtils::IsKeyPressed( uint32_t vkey )
 }
 
 std::wstring JsUtils::MapString( const std::wstring& str, uint32_t lcid, uint32_t flags )
-{ // TODO: LCMapString is deprecated, replace with a new V2 method (based on LCMapStringEx)
+{
     // WinAPI is weird: 0 - error (with LastError), > 0 - characters required
-    int iRet = ::LCMapStringW( lcid, flags, str.c_str(), str.length() + 1, nullptr, 0 );
-    smp::error::CheckWinApi( iRet, "LCMapStringW" );
+    int iRet = LCIDToLocaleName( lcid, nullptr, 0, LOCALE_ALLOW_NEUTRAL_NAMES );
+    smp::error::CheckWinApi( iRet, "LCIDToLocaleName(nullptr)" );
+
+    std::wstring localeName( iRet, '\0' );
+    iRet = LCIDToLocaleName( lcid, localeName.data(), localeName.size(), LOCALE_ALLOW_NEUTRAL_NAMES );
+    smp::error::CheckWinApi( iRet, "LCIDToLocaleName(data)" );
+
+    std::optional<NLSVERSIONINFOEX> versionInfo;
+    try
+    {
+        if ( _WIN32_WINNT_WIN7 > GetWindowsVersionCode() )
+        {
+            NLSVERSIONINFOEX tmpVersionInfo{};
+            BOOL bRet = GetNLSVersionEx( COMPARE_STRING, localeName.c_str(), &tmpVersionInfo );
+            smp::error::CheckWinApi( bRet, "GetNLSVersionEx" );
+
+            versionInfo = tmpVersionInfo;
+        }
+    }
+    catch ( const std::exception& )
+    {
+    }
+
+    NLSVERSIONINFO* pVersionInfo = reinterpret_cast<NLSVERSIONINFO*>( versionInfo ? &versionInfo.value() : nullptr );
+
+    iRet = LCMapStringEx( localeName.c_str(), flags, str.c_str(), str.length() + 1, nullptr, 0, pVersionInfo, nullptr, 0 );
+    smp::error::CheckWinApi( iRet, "LCMapStringEx(nullptr)" );
 
     std::wstring dst( iRet, '\0' );
-    iRet = ::LCMapStringW( lcid, flags, str.c_str(), str.length() + 1, dst.data(), dst.size() );
-    smp::error::CheckWinApi( iRet, "LCMapStringW" );
+    iRet = LCMapStringEx( localeName.c_str(), flags, str.c_str(), str.length() + 1, dst.data(), dst.size(), pVersionInfo, nullptr, 0 );
+    smp::error::CheckWinApi( iRet, "LCMapStringEx(data)" );
 
+    dst.resize( wcslen( dst.c_str() ) );
     return dst;
 }
 
@@ -532,19 +558,24 @@ bool JsUtils::PathWildcardMatch( const std::wstring& pattern, const std::wstring
 }
 
 std::wstring JsUtils::ReadINI( const std::wstring& filename, const std::wstring& section, const std::wstring& key, const std::wstring& defaultval )
-{ // TODO: inspect the code (replace with std::filesystem perhaps?)
-    std::wstring buff( 255, '\0' );
-    GetPrivateProfileString( section.c_str(), key.c_str(), nullptr, buff.data(), buff.size(), filename.c_str() );
-    if ( buff[0] )
+{
+    const wchar_t* defaultValC = ( defaultval.length() ? defaultval.c_str() : nullptr );
+
+    // WinAPI is weird: 0 - error (with LastError), > 0 - characters required
+    int iRet = GetPrivateProfileString( section.c_str(), key.c_str(), defaultValC, nullptr, 0, filename.c_str() );
+    smp::error::CheckWinApi( ( iRet || ( NO_ERROR == GetLastError() ) ), "GetPrivateProfileString(nullptr)" );
+
+    if ( !iRet )
     {
-        buff.resize( wcslen( buff.c_str() ) );
-    }
-    else
-    {
-        buff = defaultval;
+        return std::wstring{};
     }
 
-    return buff;
+    std::wstring dst( iRet, '\0' );
+    iRet = GetPrivateProfileString( section.c_str(), key.c_str(), defaultValC, dst.data(), dst.size(), filename.c_str() );
+    smp::error::CheckWinApi( iRet, "GetPrivateProfileString(data)" );
+
+    dst.resize( wcslen( dst.c_str() ) );
+    return dst;
 }
 
 std::wstring JsUtils::ReadINIWithOpt( size_t optArgCount, const std::wstring& filename, const std::wstring& section, const std::wstring& key, const std::wstring& defaultval )
@@ -618,7 +649,7 @@ JS::Value JsUtils::ShowHtmlDialogWithOpt( size_t optArgCount, uint32_t hWnd, con
 }
 
 bool JsUtils::WriteINI( const std::wstring& filename, const std::wstring& section, const std::wstring& key, const std::wstring& val )
-{ // TODO: inspect the code (replace with std::filesystem perhaps?)
+{
     return WritePrivateProfileString( section.c_str(), key.c_str(), val.c_str(), filename.c_str() );
 }
 
