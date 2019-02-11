@@ -27,7 +27,7 @@ public:
     static const JSPropertySpec* JsProperties;
 
 public:
-    ~JsUtils() override;
+    ~JsUtils() override = default;
 
     static std::unique_ptr<JsUtils> CreateNative( JSContext* cx );
     static size_t GetInternalSize();

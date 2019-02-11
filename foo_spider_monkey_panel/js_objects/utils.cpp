@@ -122,10 +122,6 @@ JsUtils::JsUtils( JSContext* cx )
 {
 }
 
-JsUtils::~JsUtils()
-{
-}
-
 std::unique_ptr<JsUtils>
 JsUtils::CreateNative( JSContext* cx )
 {
@@ -208,7 +204,7 @@ uint32_t JsUtils::ColourPicker( uint32_t hWindow, uint32_t default_colour )
     COLORREF colour{};
     COLORREF dummy[16] = { 0 };
     // Such cast will work only on x86
-    if ( !uChooseColor( &colour, (HWND)hWindow, &dummy[0] ) )
+    if ( !uChooseColor( &colour, reinterpret_cast<HWND>( hWindow ), &dummy[0] ) )
     {
         colour = smp::colour::convert_argb_to_colorref( default_colour );
     }
@@ -412,13 +408,13 @@ JSObject* JsUtils::GetAlbumArtV2WithOpt( size_t optArgCount, JsFbMetadbHandle* h
 
 uint32_t JsUtils::GetSysColour( uint32_t index )
 {
-    auto hRet = ::GetSysColorBrush( index ); ///< no need to call DeleteObject here
+    const auto hRet = ::GetSysColorBrush( index ); ///< no need to call DeleteObject here
     if ( !hRet )
     {
         throw SmpException( fmt::format( "Invalid color index: {}", index ) );
     }
 
-    return smp::colour::convert_colorref_to_argb(::GetSysColor( index ) );
+    return smp::colour::convert_colorref_to_argb( ::GetSysColor( index ) );
 }
 
 uint32_t JsUtils::GetSystemMetrics( uint32_t index )
@@ -433,11 +429,10 @@ JSObject* JsUtils::Glob( const pfc::string8_fast& pattern, uint32_t exc_mask, ui
         std::unique_ptr<uFindFile> ff( uFindFirstFile( pattern.c_str() ) );
         if ( ff )
         {
-            const char* fn = pattern.c_str() + pfc::scan_filename( pattern.c_str() );
-            const pfc::string8_fast dir( pattern.c_str(), fn - pattern.c_str() );
+            const pfc::string8_fast dir( pattern.c_str(), pfc::scan_filename( pattern.c_str() ) );
             do
             {
-                DWORD attr = ff->GetAttributes();
+                const DWORD attr = ff->GetAttributes();
                 if ( ( attr & inc_mask ) && !( attr & exc_mask ) )
                 {
                     files.emplace_back( dir + ff->GetFileName() );
@@ -478,10 +473,10 @@ pfc::string8_fast JsUtils::InputBox( uint32_t hWnd, const pfc::string8_fast& pro
     if ( modal_dialog_scope::can_create() )
     {
         modal_dialog_scope scope;
-        scope.initialize( HWND( hWnd ) );
+        scope.initialize( reinterpret_cast<HWND>( hWnd ) );
 
         CInputBox dlg( prompt, caption, def );
-        int status = dlg.DoModal( HWND( hWnd ) );
+        int status = dlg.DoModal( reinterpret_cast<HWND>( hWnd ) );
         if ( status == IDCANCEL && error_on_cancel )
         {
             throw SmpException( "Dialog window was closed" );
@@ -525,7 +520,7 @@ std::wstring JsUtils::MapString( const std::wstring& str, uint32_t lcid, uint32_
     smp::error::CheckWinApi( iRet, "LCMapStringW" );
 
     std::wstring dst( iRet, '\0' );
-    iRet = ::LCMapStringW( lcid, flags, str.c_str(), str.length() + 1, (LPWSTR)dst.c_str(), dst.size() );
+    iRet = ::LCMapStringW( lcid, flags, str.c_str(), str.length() + 1, dst.data(), dst.size() );
     smp::error::CheckWinApi( iRet, "LCMapStringW" );
 
     return dst;
@@ -539,7 +534,7 @@ bool JsUtils::PathWildcardMatch( const std::wstring& pattern, const std::wstring
 std::wstring JsUtils::ReadINI( const std::wstring& filename, const std::wstring& section, const std::wstring& key, const std::wstring& defaultval )
 { // TODO: inspect the code (replace with std::filesystem perhaps?)
     std::wstring buff( 255, '\0' );
-    GetPrivateProfileString( section.c_str(), key.c_str(), nullptr, (LPWSTR)buff.c_str(), buff.size(), filename.c_str() );
+    GetPrivateProfileString( section.c_str(), key.c_str(), nullptr, buff.data(), buff.size(), filename.c_str() );
     if ( buff[0] )
     {
         buff.resize( wcslen( buff.c_str() ) );
@@ -588,10 +583,10 @@ JS::Value JsUtils::ShowHtmlDialog( uint32_t hWnd, const std::wstring& htmlCode, 
     if ( modal_dialog_scope::can_create() )
     {
         modal_dialog_scope scope;
-        scope.initialize( HWND( hWnd ) );
+        scope.initialize( reinterpret_cast<HWND>( hWnd ) );
 
         smp::ui::CDialogHtml dlg( pJsCtx_, htmlCode, options );
-        int iRet = (int)dlg.DoModal( HWND( hWnd ) );
+        int iRet = (int)dlg.DoModal( reinterpret_cast<HWND>( hWnd ) );
         if ( -1 == iRet || IDABORT == iRet )
         {
             if ( JS_IsExceptionPending( pJsCtx_ ) )
