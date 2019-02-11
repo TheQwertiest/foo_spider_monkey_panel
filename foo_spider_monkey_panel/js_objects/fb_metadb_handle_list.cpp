@@ -535,10 +535,8 @@ void JsFbMetadbHandleList::OrderByRelativePath()
 
 void JsFbMetadbHandleList::RefreshStats()
 {
-    const auto handleList = Make_Stl_CRef( metadbHandleList_ );
-
     pfc::list_t<metadb_index_hash> hashes;
-    for ( const auto& handle : handleList )
+    for ( const auto& handle : Make_Stl_CRef( metadbHandleList_ ) )
     {
         metadb_index_hash hash;
         if ( stats::hashHandle( handle, hash ) )

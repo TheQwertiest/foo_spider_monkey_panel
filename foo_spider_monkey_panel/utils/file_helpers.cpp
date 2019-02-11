@@ -130,7 +130,7 @@ namespace
 class FileReader
 {
 public:
-    FileReader( const pfc::string8_fast& path );
+    explicit FileReader( const pfc::string8_fast& path );
     ~FileReader();
     FileReader( const FileReader& ) = delete;
     FileReader& operator=( const FileReader& ) = delete;
@@ -234,17 +234,8 @@ pfc::string8_fast CleanPath( const pfc::string8_fast& path )
 }
 
 std::wstring CleanPathW( const std::wstring& path )
-{ // TODO: replace with `ReplaceChar` or ReplaceString
-    std::wstring cleanedPath = path;
-    for ( auto& curChar : cleanedPath )
-    {
-        if ( L'/' == curChar )
-        {
-            curChar = L'\\';
-        }
-    }
-
-    return cleanedPath;
+{
+    return ranges::view::replace( path, L'/', L'\\' );
 }
 
 pfc::string8_fast ReadFile( const pfc::string8_fast& path, UINT codepage )
