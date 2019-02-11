@@ -1,9 +1,38 @@
 #include <stdafx.h>
 #include "semantic_version.h"
 
-#include <cctype>
+#include <charconv>
 
-// TODO: replace stol with from_chars
+namespace
+{
+
+std::optional<uint8_t> GetNumber( const std::string_view& strView )
+{
+    int8_t number;
+    if ( auto [pos, ec] = std::from_chars( strView.data(), strView.data() + strView.size(), number );
+         ec == std::errc{} )
+    {
+        return number;
+    }
+    else
+    {
+        return std::nullopt;
+    }
+}
+
+std::string_view ExtractSuffixData( std::string_view& strView, char separator )
+{
+    std::string_view data;
+    if ( size_t pos = strView.find_first_of( separator );
+         std::string::npos != pos )
+    {
+        data = strView.substr( pos + 1, strView.size() - pos );
+        strView.remove_suffix( strView.size() - pos );
+    }
+    return data;
+}
+
+} // namespace
 
 namespace smp::version
 {
@@ -23,84 +52,42 @@ std::optional<SemVer> SemVer::ParseString( const std::string& strVer )
     SemVer semVer;
 
     std::string_view curScope( strVer );
-    if ( size_t pos = curScope.find_first_of( '+' ); std::string::npos != pos )
-    {
-        semVer.metadata = curScope.substr( pos + 1, curScope.size() - pos );
-        curScope.remove_suffix( curScope.size() - pos );
-    }
 
-    if ( size_t pos = curScope.find_first_of( '-' ); std::string::npos != pos )
-    {
-        semVer.prerelease = curScope.substr( pos + 1, curScope.size() - pos );
-        curScope.remove_suffix( curScope.size() - pos );
-    }
-    if ( !curScope.size() )
+    semVer.metadata = ExtractSuffixData( curScope, '+' );
+    semVer.prerelease = ExtractSuffixData( curScope, '-' );
+
+    if ( curScope.empty() )
     {
         return std::nullopt;
     }
 
-    auto extractNumber = []( std::string_view& numberStrView ) -> std::optional<uint8_t> {
-        try
-        {
-            size_t idx = 0;
-            const int8_t number = std::stoi( std::string{ numberStrView.data(), numberStrView.size() }, &idx );
-            if ( !idx )
-            {
-                return std::nullopt;
-            }
+    const std::vector<std::string_view> splitViews =
+        ranges::view::split( curScope, '.' )
+        | ranges::view::transform( []( auto&& rng ) {
+              return std::string_view{ &*rng.begin(), static_cast<size_t>( ranges::distance( rng ) ) };
+          } );
 
-            numberStrView.remove_prefix( idx );
-            return number;
-        }
-        catch ( const std::invalid_argument& )
-        {
-            return std::nullopt;
-        }
-        catch ( const std::out_of_range& )
-        {
-            return std::nullopt;
-        }
-    };
-
+    std::vector<std::optional<uint8_t>> versionNums;
+    for ( const auto& splitView : splitViews )
     {
-        const auto majorNumber = extractNumber( curScope );
-        if ( !majorNumber || ( !curScope.empty() && curScope[0] != '.' ) )
+        const auto numRet = GetNumber( splitView );
+        if ( !numRet )
         {
-            return std::nullopt;
+            break;
         }
 
-        semVer.major = majorNumber.value();
-        if ( curScope.empty() )
-        {
-            return semVer;
-        }
+        versionNums.push_back( numRet );
     }
 
+    if ( versionNums.empty() || versionNums.size() > 3 )
     {
-        curScope.remove_prefix( 1 );
-        const auto minorNumber = extractNumber( curScope );
-        if ( !minorNumber || ( !curScope.empty() && curScope[0] != '.' ) )
-        {
-            return std::nullopt;
-        }
-
-        semVer.minor = minorNumber.value();
-        if ( curScope.empty() )
-        {
-            return semVer;
-        }
+        return std::nullopt;
     }
+    versionNums.resize( 3 );
 
-    {
-        curScope.remove_prefix( 1 );
-        const auto patchNumber = extractNumber( curScope );
-        if ( !patchNumber || !curScope.empty() )
-        {
-            return std::nullopt;
-        }
-
-        semVer.patch = patchNumber.value();
-    }
+    semVer.major = versionNums[0].value();
+    semVer.minor = versionNums[1].value_or( 0 );
+    semVer.patch = versionNums[2].value_or( 0 );
 
     return semVer;
 }
@@ -159,31 +146,14 @@ bool SemVer::IsPreleaseNewer( std::string_view a, std::string_view b )
         return a.empty();
     }
 
-    auto isNumber = []( std::string_view str ) {
+    const auto isNumber = []( std::string_view str ) {
         return ( str.cend() == ranges::find_if_not( str, []( char c ) { return std::isdigit( c ); } ) );
-    };
-
-    auto extractToken = []( std::string_view str ) -> std::string_view {
-        assert( !str.empty() );
-
-        std::string_view token( str );
-        if ( size_t pos = token.find_first_of( '.' ); std::string::npos != pos )
-        {
-            token = token.substr( 0, pos );
-            str.remove_prefix( pos + 1 );
-        }
-        else
-        {
-            str = std::string_view{};
-        }
-
-        return token;
     };
 
     while ( !a.empty() && !b.empty() )
     {
-        const std::string_view a_Token = extractToken( a );
-        const std::string_view b_Token = extractToken( b );
+        const std::string_view a_Token = ExtractSuffixData( a, '.' );
+        const std::string_view b_Token = ExtractSuffixData( b, '.' );
 
         const bool a_isNumber = isNumber( a_Token );
         const bool b_isNumber = isNumber( b_Token );
@@ -194,12 +164,13 @@ bool SemVer::IsPreleaseNewer( std::string_view a, std::string_view b )
 
         if ( a_isNumber && b_isNumber )
         {
-            size_t dummy = 0; // should be valid
-            const int8_t aNum = std::stoi( std::string{ a_Token.data(), a_Token.size() }, &dummy );
-            assert( dummy );
+            auto numRet = GetNumber( a_Token );
+            assert( numRet ); // should be valid
+            const int8_t aNum = numRet.value();
 
-            const int8_t bNum = std::stoi( std::string{ b_Token.data(), b_Token.size() }, &dummy );
-            assert( dummy );
+            numRet = GetNumber( a_Token );
+            assert( numRet ); // should be valid
+            const int8_t bNum = numRet.value();
 
             if ( aNum != bNum )
             {
