@@ -1,6 +1,8 @@
 #include <stdafx.h>
 #include "stats.h"
 
+#include <utils/pfc_helpers.h>
+
 namespace
 {
 
@@ -151,8 +153,9 @@ public:
             out->write_int( titleformat_inputtypes::meta, value );
             return true;
         }
+        default:
+            return false;
         }
-        return false;
     }
 };
 service_factory_single_t<metadb_display_field_provider_impl> g_metadb_display_field_provider_impl;
@@ -162,11 +165,11 @@ class track_property_provider_impl : public track_property_provider_v2
 public:
     void enumerate_properties( metadb_handle_list_cref p_tracks, track_property_callback& p_out ) override
     {
-        const t_size trackCount = p_tracks.get_count();
-        if ( trackCount == 1 )
+        const auto stlHandleList = smp::Make_Stl_CRef( p_tracks );
+        if ( stlHandleList.size() == 1 )
         {
             metadb_index_hash hash;
-            if ( g_client->hashHandle( p_tracks[0], hash ) )
+            if ( g_client->hashHandle( stlHandleList.front(), hash ) )
             {
                 fields tmp = get( hash );
                 p_out.set_property( SMP_NAME, 0, "Playcount", pfc::format_uint( tmp.playcount ) );
@@ -178,22 +181,22 @@ public:
         }
         else
         {
-            pfc::avltree_t<metadb_index_hash> hashes;
+            std::vector<metadb_index_hash> hashes;
+            hashes.reserve( stlHandleList.size() );
 
-            for ( t_size trackWalk = 0; trackWalk < trackCount; ++trackWalk )
+            for ( const auto& handle : stlHandleList )
             {
                 metadb_index_hash hash;
-                if ( g_client->hashHandle( p_tracks[trackWalk], hash ) )
+                if ( g_client->hashHandle( handle, hash ) )
                 {
-                    hashes += hash;
+                    hashes.push_back( hash );
                 }
             }
 
-            uint64_t total = 0;
-            for ( auto i = hashes.first(); i.is_valid(); ++i )
-            {
-                total += get( *i ).playcount;
-            }
+            const uint64_t total =
+                ranges::accumulate( hashes, 0, []( auto sum, auto&& hash ) {
+                    return sum + get( hash ).playcount;
+                } );
 
             if ( total > 0 )
             {

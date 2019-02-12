@@ -196,7 +196,7 @@ std::optional<pfc::string8_fast> ParseLogArgs( JSContext* cx, JS::CallArgs& args
     pfc::string8_fast outputString;
     JS::AutoObjectVector curObjects( cx );
     uint32_t logDepth = 0;
-    for ( unsigned i = 0; i < args.length(); i++ )
+    for ( size_t i = 0; i < args.length(); ++i )
     {
         assert( !logDepth );
         assert( !curObjects.length() );

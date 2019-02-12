@@ -2,6 +2,7 @@
 #include "art_helpers.h"
 
 #include <utils/gdi_helpers.h>
+#include <utils/pfc_helpers.h>
 #include <utils/string_helpers.h>
 #include <utils/thread_pool.h>
 
@@ -154,10 +155,12 @@ void embed_thread::run( threaded_process_status& p_status,
                         abort_callback& p_abort )
 {
     auto api = file_lock_manager::get();
-    for ( t_size i = 0, count = m_handles.get_count(); i < count; ++i )
+    const auto stlHandleList = smp::Make_Stl_Ref( m_handles );
+
+    for ( auto&& [i, handle] : ranges::view::enumerate( stlHandleList ) )
     {
-        const pfc::string8_fast path = m_handles.get_item( i )->get_path();
-        p_status.set_progress( i, count );
+        const pfc::string8_fast path = handle->get_path();
+        p_status.set_progress( i, stlHandleList.size() );
         p_status.set_item_path( path );
 
         album_art_editor::ptr ptr;

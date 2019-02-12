@@ -13,30 +13,34 @@ class Stl
 {
 public:
     using pfc_container_type = typename std::decay_t<T>;
+    using is_pfc_list_const = typename std::conditional_t<
+        std::is_same_v<pfc_container_type, pfc::list_base_const_t<typename pfc_container_type::t_item>>,
+        std::true_type,
+        std::false_type>;
+
     using value_type = typename pfc_container_type::t_item;
     using difference_type = ptrdiff_t;
     using size_type = size_t;
-
     using reference = value_type&;
-    // because list_base_const_t does not return reference...
+    // because list_base_const_t does not return a reference...
     using const_reference = typename std::conditional_t<
-        std::is_same_v<pfc_container_type, pfc::list_base_const_t<value_type>>,
+        is_pfc_list_const::value,
         value_type,
         const value_type&>;
+
+    static_assert( std::is_base_of_v<pfc::list_base_const_t<value_type>, pfc_container_type>, "Must be derived from pfc::list_base_const_t" );
 
     class const_iterator
     {
     public:
+        using iterator_category = std::random_access_iterator_tag;
         using value_type = Stl::value_type;
         using difference_type = Stl::difference_type;
-        using size_type = Stl::size_type;
-        using reference = Stl::const_reference;
         using pointer = const value_type*;
-
-        using iterator_category = std::random_access_iterator_tag;
+        using reference = Stl::const_reference;
 
         const_iterator() = default;
-        const_iterator( size_type idx, const pfc_container_type* pPfc )
+        const_iterator( difference_type idx, const pfc_container_type* pPfc )
             : pPfc_( pPfc )
             , curIdx_( idx )
         {
@@ -136,35 +140,33 @@ public:
         {
             return ( *pPfc_ )[curIdx_];
         }
-        /*
+        template <typename = typename std::enable_if_t<!is_pfc_list_const::value>>
         pointer operator->() const
         {
-            return &(**this);
-        }*/
-        reference operator[]( size_type offset ) const
+            return &( **this );
+        }
+        reference operator[]( difference_type offset ) const
         {
             return ( *( *this + offset ) );
         }
 
     protected:
         const pfc_container_type* pPfc_ = nullptr;
-        size_type curIdx_ = 0;
+        difference_type curIdx_ = 0;
     };
 
     class iterator
         : public const_iterator
     {
     public:
+        using iterator_category = std::random_access_iterator_tag;
         using value_type = Stl::value_type;
         using difference_type = Stl::difference_type;
-        using size_type = Stl::size_type;
+        using pointer = value_type *;
         using reference = Stl::reference;
-        using pointer = value_type*;
-
-        using iterator_category = std::random_access_iterator_tag;
 
         iterator() = default;
-        iterator( size_type idx, pfc_container_type* pPfc )
+        iterator( difference_type idx, pfc_container_type* pPfc )
             : const_iterator( idx, pPfc )
         {
         }
@@ -185,7 +187,6 @@ public:
 
             return *this;
         }
-
         iterator& operator++()
         {
             ++( this->curIdx_ );
@@ -218,7 +219,6 @@ public:
             iterator tmp = *this;
             return ( tmp += offset );
         }
-
         iterator& operator-=( difference_type offset )
         {
             return ( *this += -offset );
@@ -237,12 +237,12 @@ public:
         {
             return ( const_cast<reference>( const_iterator::operator*() ) );
         }
-        /*
+        template <typename = typename std::enable_if_t<!is_pfc_list_const::value>>
         pointer operator->() const
         {
-            return (const_cast(const_iterator::operator->()));
-        }*/
-        reference operator[]( size_type offset ) const
+            return ( const_cast<pointer>( const_iterator::operator->() ) );
+        }
+        reference operator[]( difference_type offset ) const
         {
             return ( *( *this + offset ) );
         }
@@ -309,11 +309,24 @@ public:
     const_reverse_iterator crend() const;   //optional
     */
 
+    reference front()
+    {
+        return this->operator[]( 0 );
+    }
+    const_reference front() const
+    {
+        return this->operator[]( 0 );
+    }
+    reference back()
+    {
+        return this->operator[]( this->size() - 1 );
+    }
+    const_reference back() const
+    {
+        return this->operator[]( this->size() - 1 );
+    }
+
     /*
-    reference front();             //optional
-    const_reference front() const; //optional
-    reference back();              //optional
-    const_reference back() const;  //optional
     template <class... Args>
     void emplace_front( Args&&... ); //optional
     template <class... Args>
@@ -342,11 +355,19 @@ public:
     }
     reference at( size_type idx )
     {
-        return pfc_[idx];
+        if ( idx >= this->size() )
+        {
+            throw std::out_of_range;
+        }
+        return this->operator[]( idx );
     }
     const_reference at( size_type idx ) const
     {
-        return pfc_[idx];
+        if ( idx >= this->size() )
+        {
+            throw std::out_of_range;
+        }
+        return this->operator[]( idx );
     }
 
     /*
@@ -404,30 +425,6 @@ public:
 private:
     T pfc_;
 };
-
-template <typename T>
-typename Stl<T>::iterator begin( Stl<T>& container )
-{
-    return container.begin();
-}
-
-template <typename T>
-typename Stl<T>::iterator end( Stl<T>& container )
-{
-    return container.end();
-}
-
-template <typename T>
-typename Stl<T>::const_iterator cbegin( const Stl<T>& container )
-{
-    return container.cbegin();
-}
-
-template <typename T>
-typename Stl<T>::const_iterator cend( const Stl<T>& container )
-{
-    return container.cend();
-}
 
 template <typename T>
 using Stl_Ref = typename smp::Stl<T&>;
