@@ -559,22 +559,21 @@ bool JsUtils::PathWildcardMatch( const std::wstring& pattern, const std::wstring
 
 std::wstring JsUtils::ReadINI( const std::wstring& filename, const std::wstring& section, const std::wstring& key, const std::wstring& defaultval )
 {
-    const wchar_t* defaultValC = ( defaultval.length() ? defaultval.c_str() : nullptr );
-
     // WinAPI is weird: 0 - error (with LastError), > 0 - characters required
-    int iRet = GetPrivateProfileString( section.c_str(), key.c_str(), defaultValC, nullptr, 0, filename.c_str() );
-    smp::error::CheckWinApi( ( iRet || ( NO_ERROR == GetLastError() ) ), "GetPrivateProfileString(nullptr)" );
+    std::wstring dst( MAX_PATH, '\0' );
+    int iRet = GetPrivateProfileString( section.c_str(), key.c_str(), defaultval.c_str(), dst.data(), dst.size(), filename.c_str() );
+    // TODO: Uncomment error checking in v2.x
+    // smp::error::CheckWinApi( ( iRet || ( NO_ERROR == GetLastError() ) ), "GetPrivateProfileString(nullptr)" );
 
-    if ( !iRet )
+    if ( !iRet && ( NO_ERROR != GetLastError() ) )
     {
-        return std::wstring{};
+        dst = defaultval;
+    }
+    else
+    {
+        dst.resize( wcslen( dst.c_str() ) );
     }
 
-    std::wstring dst( iRet, '\0' );
-    iRet = GetPrivateProfileString( section.c_str(), key.c_str(), defaultValC, dst.data(), dst.size(), filename.c_str() );
-    smp::error::CheckWinApi( iRet, "GetPrivateProfileString(data)" );
-
-    dst.resize( wcslen( dst.c_str() ) );
     return dst;
 }
 
