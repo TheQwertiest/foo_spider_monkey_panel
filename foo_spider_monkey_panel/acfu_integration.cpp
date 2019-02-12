@@ -49,7 +49,7 @@ public:
         }
 
         info.meta_set( "version", installedVersion_.c_str() );
-        info.meta_set( "name", SMP_NAME );
+        info.meta_set( "name", componentName_ );
         info.meta_set( "module", componentFileName_ );
     }
     bool is_newer( const file_info& info ) override
@@ -90,7 +90,9 @@ public:
     }
 
 private:
-    static constexpr char componentFileName_[] = "foo_spider_monkey_panel";
+    static constexpr char componentName_[] = SMP_NAME;
+    static constexpr char componentFileName_[] = SMP_UNDERSCORE_NAME;
+
     bool isVersionFetched_ = false;
     std::string installedVersion_;
 };
