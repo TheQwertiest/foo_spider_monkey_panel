@@ -84,6 +84,9 @@ bool JsContainer::Initialize()
 
         jsGraphics_.init( pJsCtx_, JsGdiGraphics::CreateJs( pJsCtx_ ) );
 
+        pNativeCompartment_ = static_cast<JsCompartmentInner*>( JS_GetCompartmentPrivate( js::GetContextCompartment( pJsCtx_ ) ) );
+        assert( pNativeCompartment_ );
+
         autoGlobal.cancel();
     }
     catch ( ... )
@@ -134,9 +137,11 @@ void JsContainer::Finalize()
         auto pJsCompartment = static_cast<JsCompartmentInner*>( JS_GetCompartmentPrivate( js::GetContextCompartment( pJsCtx_ ) ) );
         assert( pJsCompartment );
 
+        pNativeCompartment_ = nullptr;
         pJsCompartment->MarkForDeletion();
     }
 
+    pNativeGlobal_ = nullptr;
     jsGlobal_.reset();
 }
 

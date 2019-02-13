@@ -228,7 +228,7 @@ bool LogImpl( JSContext* cx, unsigned argc, JS::Value* vp )
 
 MJS_DEFINE_JS_FN( Log, LogImpl )
 
-static const JSFunctionSpec console_functions[] = {
+const JSFunctionSpec console_functions[] = {
     JS_FN( "log", Log, 0, DefaultPropsFlags() ),
     JS_FS_END
 };

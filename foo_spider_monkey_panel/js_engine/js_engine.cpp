@@ -63,8 +63,8 @@ JsEngine::~JsEngine()
 
 JsEngine& JsEngine::GetInstance()
 {
-    static JsEngine jsEnv;
-    return jsEnv;
+    static JsEngine je;
+    return je;
 }
 
 void JsEngine::PrepareForExit()
@@ -80,14 +80,16 @@ bool JsEngine::RegisterContainer( JsContainer& jsContainer )
     }
 
     jsContainer.SetJsCtx( pJsCtx_ );
-    registeredContainers_.insert_or_assign( &jsContainer, jsContainer );
+
+    assert( !registeredContainers_.count( &jsContainer ) );
+    registeredContainers_.emplace( &jsContainer, jsContainer );
 
     return true;
 }
 
 void JsEngine::UnregisterContainer( JsContainer& jsContainer )
-{    
-    if ( auto it = registeredContainers_.find( &jsContainer ); 
+{
+    if ( auto it = registeredContainers_.find( &jsContainer );
          it != registeredContainers_.end() )
     {
         it->second.get().Finalize();
@@ -165,11 +167,6 @@ void JsEngine::Finalize()
         StopHeartbeatThread();
 
         rejectedPromises_.reset();
-
-        for ( auto& [hWnd, jsContainer] : registeredContainers_ )
-        {
-            jsContainer.get().Finalize();
-        }
 
         JS_DestroyContext( pJsCtx_ );
         pJsCtx_ = nullptr;
@@ -319,68 +316,15 @@ void JsEngine::RejectedPromiseHandler( JSContext* cx, JS::HandleObject promise, 
 
 void JsEngine::ReportOomError()
 {
-    // A dirty way to link compartment with the corresponding container:
-    // we can't GC in JS_IterateCompartments, so we are saving pointers to
-    // native globals instead and comparing it against the one from container.
-
-    struct OomData
-    {
-        OomData( void* pGlobal, uint32_t memory )
-            : pGlobal( pGlobal )
-            , memory( memory )
-        {
-        }
-        void* pGlobal;
-        uint32_t memory;
-    };
-
-    std::vector<OomData> oomData;
-    oomData.reserve( registeredContainers_.size() );
-
-    JS_IterateCompartments( pJsCtx_, &oomData, []( JSContext* cx, void* data, JSCompartment* pJsCompartment ) {
-        std::vector<OomData>& oomData = *reinterpret_cast<std::vector<OomData>*>( data );
-
-        auto pNativeCompartment = static_cast<JsCompartmentInner*>( JS_GetCompartmentPrivate( pJsCompartment ) );
-        if ( !pNativeCompartment )
-        {
-            return;
-        }
-
-        JS::RootedObject jsGlobal( cx, JS_GetGlobalForCompartmentOrNull( cx, pJsCompartment ) );
-        if ( !jsGlobal )
-        {
-            return;
-        }
-
-        auto pNativeGlobal = static_cast<JsGlobalObject*>( JS_GetPrivate( jsGlobal ) );
-        if ( !pNativeGlobal )
-        {
-            return;
-        }
-
-        oomData.emplace_back( pNativeGlobal, pNativeCompartment->GetCurrentHeapBytes() );
-    } );
-
     for ( auto& [hWnd, jsContainer] : registeredContainers_ )
     {
-        if ( mozjs::JsContainer::JsStatus::Working != jsContainer.get().GetStatus() )
+        auto& jsContainerRef = jsContainer.get();
+        if ( mozjs::JsContainer::JsStatus::Working != jsContainerRef.GetStatus() )
         {
             continue;
         }
 
-        auto it = ranges::find_if(
-            oomData,
-            [pNativeGlobal = jsContainer.get().pNativeGlobal_]( const auto& oomDataElem ) {
-                return ( oomDataElem.pGlobal == pNativeGlobal );
-            } );
-
-        std::string errorMsg = "Out of memory";
-        if ( oomData.cend() != it )
-        {
-            errorMsg += fmt::format( ": {}/{} bytes", it->memory, jsGc_.GetMaxHeap() );
-        }
-
-        jsContainer.get().Fail( errorMsg.c_str() );
+        jsContainerRef.Fail( fmt::format( "Out of memory: {}/{} bytes", jsContainerRef.pNativeCompartment_->GetCurrentHeapBytes(), jsGc_.GetMaxHeap() ).c_str() );
     }
 }
 
