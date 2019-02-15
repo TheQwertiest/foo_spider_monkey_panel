@@ -130,7 +130,7 @@ namespace
 class FileReader
 {
 public:
-    explicit FileReader( const pfc::string8_fast& path );
+    FileReader( const pfc::string8_fast& pathbool, bool checkFileExistense = true );
     ~FileReader();
     FileReader( const FileReader& ) = delete;
     FileReader& operator=( const FileReader& ) = delete;
@@ -146,14 +146,14 @@ private:
     size_t fileSize_ = 0;
 };
 
-FileReader::FileReader( const pfc::string8_fast& path )
+FileReader::FileReader( const pfc::string8_fast& path, bool checkFileExistense )
 {
     namespace fs = std::filesystem;
 
     try
     {
         fs::path fsPath = fs::u8path( path.c_str() );
-        if ( !fs::exists( fsPath ) || !fs::is_regular_file( fsPath ) )
+        if ( checkFileExistense && ( !fs::exists( fsPath ) || !fs::is_regular_file( fsPath ) ) )
         {
             throw SmpException( fmt::format( "Path does not point to a valid file: {}", path.c_str() ) );
         }
@@ -238,19 +238,19 @@ std::wstring CleanPathW( const std::wstring& path )
     return ranges::view::replace( path, L'/', L'\\' );
 }
 
-pfc::string8_fast ReadFile( const pfc::string8_fast& path, UINT codepage )
+pfc::string8_fast ReadFile( const pfc::string8_fast& path, UINT codepage, bool checkFileExistense )
 {
     namespace fs = std::filesystem;
 
-    FileReader fileReader( path );
+    FileReader fileReader( path, checkFileExistense );
     return ConvertFileContent<pfc::string8_fast>( fs::absolute( fs::u8path( path.c_str() ) ).wstring(), fileReader.GetFileContent(), codepage );
 }
 
-std::wstring ReadFileW( const pfc::string8_fast& path, UINT codepage )
+std::wstring ReadFileW( const pfc::string8_fast& path, UINT codepage, bool checkFileExistense )
 {
     namespace fs = std::filesystem;
 
-    FileReader fileReader( path );
+    FileReader fileReader( path, checkFileExistense );
     return ConvertFileContent<std::wstring>( fs::absolute( fs::u8path( path.c_str() ) ).wstring(), fileReader.GetFileContent(), codepage );
 }
 

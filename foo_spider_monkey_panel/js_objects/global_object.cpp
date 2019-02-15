@@ -21,11 +21,14 @@
 #include <js_utils/js_object_helper.h>
 #include <js_utils/js_error_helper.h>
 #include <utils/file_helpers.h>
+#include <utils/scope_helpers.h>
 
 #include <js_panel_window.h>
+#include <component_paths.h>
 
 #include <filesystem>
 
+using namespace smp;
 
 namespace
 {
@@ -214,14 +217,43 @@ void JsGlobalObject::IncludeScript( const pfc::string8_fast& path )
 {
     namespace fs = std::filesystem;
 
-    const pfc::string8_fast cleanPath = smp::file::CleanPath( path );
-    const std::wstring scriptCode = smp::file::ReadFileW( cleanPath, CP_ACP );
+    const fs::path fsPath = [&path, &parentFilesPaths = parentFilesPaths_] {
+        try
+        {
+            fs::path fsPath = fs::u8path( smp::file::CleanPath( path ).c_str() );
+            if ( fsPath.is_relative() )
+            {
+                if ( parentFilesPaths.empty() )
+                {
+                    fsPath = fs::u8path( get_fb2k_component_path().c_str() ) / fsPath;
+                }
+                else
+                {
+                    fsPath = fs::u8path( parentFilesPaths.back() ) / fsPath;
+                }
+            }
 
-    const auto filename = fs::u8path( cleanPath.c_str() ).filename().u8string();
+            if ( !fs::exists( fsPath ) || !fs::is_regular_file( fsPath ) )
+            {
+                throw smp::SmpException( fmt::format( "Path does not point to a valid file: {}", path.c_str() ) );
+            }
+
+            return fsPath;
+        }
+        catch ( const fs::filesystem_error& e )
+        {
+            throw SmpException( fmt::format( "Failed to open file `{}`: {}", path.c_str(), e.what() ) );
+        }
+    }();
+
+    const std::wstring scriptCode = smp::file::ReadFileW( fsPath.u8string().c_str(), CP_ACP, false );
+
+    parentFilesPaths_.push_back( fsPath.parent_path().u8string() );
+    smp::utils::final_action autoPath{ [&parentFilesPaths = parentFilesPaths_] { parentFilesPaths.pop_back(); } };
 
     JS::CompileOptions opts( pJsCtx_ );
     opts.setUTF8( true );
-    opts.setFileAndLine( filename.c_str(), 1 );
+    opts.setFileAndLine( fsPath.filename().u8string().c_str(), 1 );
 
     JS::RootedValue dummyRval( pJsCtx_ );
     if ( !JS::Evaluate( pJsCtx_, opts, (char16_t*)scriptCode.c_str(), scriptCode.length(), &dummyRval ) )
