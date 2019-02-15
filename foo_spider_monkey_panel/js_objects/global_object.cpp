@@ -217,19 +217,19 @@ void JsGlobalObject::IncludeScript( const pfc::string8_fast& path )
 {
     namespace fs = std::filesystem;
 
-    const fs::path fsPath = [&path, &parentFilesPaths = parentFilesPaths_] {
+    const fs::path fsPath = [&path, &parentFilepaths = parentFilepaths_] {
         try
         {
             fs::path fsPath = fs::u8path( smp::file::CleanPath( path ).c_str() );
             if ( fsPath.is_relative() )
             {
-                if ( parentFilesPaths.empty() )
+                if ( parentFilepaths.empty() )
                 {
                     fsPath = fs::u8path( get_fb2k_component_path().c_str() ) / fsPath;
                 }
                 else
                 {
-                    fsPath = fs::u8path( parentFilesPaths.back() ) / fsPath;
+                    fsPath = fs::u8path( parentFilepaths.back() ) / fsPath;
                 }
             }
 
@@ -246,10 +246,17 @@ void JsGlobalObject::IncludeScript( const pfc::string8_fast& path )
         }
     }();
 
-    const std::wstring scriptCode = smp::file::ReadFileW( fsPath.u8string().c_str(), CP_ACP, false );
+    const auto u8Path = fsPath.u8string();
+    if ( includedFiles_.count( u8Path ) )
+    {
+        return;
+    }
 
-    parentFilesPaths_.push_back( fsPath.parent_path().u8string() );
-    smp::utils::final_action autoPath{ [&parentFilesPaths = parentFilesPaths_] { parentFilesPaths.pop_back(); } };
+    const std::wstring scriptCode = smp::file::ReadFileW( u8Path.c_str(), CP_ACP, false );
+
+    includedFiles_.emplace( u8Path );
+    parentFilepaths_.push_back( fsPath.parent_path().u8string() );
+    smp::utils::final_action autoPath{ [&parentFilesPaths = parentFilepaths_] { parentFilesPaths.pop_back(); } };
 
     JS::CompileOptions opts( pJsCtx_ );
     opts.setUTF8( true );

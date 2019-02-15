@@ -1,7 +1,7 @@
 #pragma once
 
 #include <optional>
-#include <set>
+#include <unordered_set>
 
 namespace smp::panel
 {
@@ -75,7 +75,8 @@ private:
 
     JsWindow* pJsWindow_ = nullptr;
 
-    std::vector<std::string> parentFilesPaths_;
+    std::vector<std::string> parentFilepaths_;
+    std::unordered_set<std::string> includedFiles_;
 
     std::unique_ptr<GlobalHeapManager> heapManager_;
 };
