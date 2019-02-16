@@ -17,8 +17,6 @@ protected:
     HostExternal( _variant_t data );
     virtual ~HostExternal() = default;
 
-    void FinalRelease() override;
-
 public:
     STDMETHODIMP get_dialogArguments( VARIANT* pData );
 

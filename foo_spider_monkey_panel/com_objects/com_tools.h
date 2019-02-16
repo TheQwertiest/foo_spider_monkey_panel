@@ -2,7 +2,33 @@
 
 #include <com_objects/com_interface.h>
 
+#include <unordered_map>
+
 // TODO: cleanup
+
+namespace internal
+{
+
+class type_info_cache_holder
+{
+public:
+    type_info_cache_holder();
+
+    bool empty() throw();
+
+    void init_from_typelib( ITypeLib* p_typeLib, const GUID& guid );
+
+    // "Expose" some ITypeInfo related methods here
+    HRESULT GetTypeInfo( UINT iTInfo, LCID lcid, ITypeInfo** ppTInfo );
+    HRESULT GetIDsOfNames( LPOLESTR* rgszNames, UINT cNames, MEMBERID* pMemId );
+    HRESULT Invoke( PVOID pvInstance, MEMBERID memid, WORD wFlags, DISPPARAMS* pDispParams, VARIANT* pVarResult, EXCEPINFO* pExcepInfo, UINT* puArgErr );
+
+protected:
+    std::unordered_map<ULONG, DISPID> m_cache;
+    ITypeInfoPtr m_type_info;
+};
+
+} // namespace internal
 
 extern ITypeLibPtr g_typelib;
 
@@ -22,9 +48,6 @@ extern ITypeLibPtr g_typelib;
 #define COM_QI_ENTRY(Iimpl) \
 			COM_QI_ENTRY_MULTI(Iimpl, Iimpl);
 
-#define COM_QI_ENTRY_COND(Iimpl, cond) \
-			if (cond) COM_QI_ENTRY_MULTI(Iimpl, Iimpl);
-
 #define END_COM_QI_IMPL() \
 			*ppv = NULL; \
 			return E_NOINTERFACE; \
@@ -33,65 +56,12 @@ extern ITypeLibPtr g_typelib;
 			return S_OK; \
 		}	
 
-class name_to_id_cache
-{
-public:
-	typedef ULONG hash_type;
-
-	bool lookup(hash_type hash, DISPID* p_dispid) const;
-	void add(hash_type hash, DISPID dispid);
-	static hash_type g_hash(const wchar_t* name);
-
-protected:
-	typedef pfc::map_t<hash_type, DISPID> name_to_id_map;
-	name_to_id_map m_map;
-};
-
-class type_info_cache_holder
-{
-public:
-	type_info_cache_holder() : m_type_info(NULL)
-	{
-	}
-
-	void set_type_info(ITypeInfo* type_info)
-	{
-		m_type_info = type_info;
-	}
-
-	bool valid() throw()
-	{
-		return m_type_info != NULL;
-	}
-
-	bool empty() throw()
-	{
-		return m_type_info == NULL;
-	}
-
-	ITypeInfo* get_ptr() throw()
-	{
-		return m_type_info;
-	}
-
-	void init_from_typelib(ITypeLib* p_typeLib, const GUID& guid);
-
-	// "Expose" some ITypeInfo related methods here
-	HRESULT GetTypeInfo(UINT iTInfo, LCID lcid, ITypeInfo** ppTInfo);
-	HRESULT GetIDsOfNames(LPOLESTR* rgszNames, UINT cNames, MEMBERID* pMemId);
-	HRESULT Invoke(PVOID pvInstance, MEMBERID memid, WORD wFlags, DISPPARAMS* pDispParams, VARIANT* pVarResult, EXCEPINFO* pExcepInfo, UINT* puArgErr);
-
-protected:
-	name_to_id_cache m_cache;
-	ITypeInfoPtr m_type_info;
-};
-
 //-- IDispatch --
 template <class T>
 class MyIDispatchImpl : public T
 {
 protected:
-	static type_info_cache_holder g_type_info_cache_holder;
+	static ::internal::type_info_cache_holder g_type_info_cache_holder;
 
 	MyIDispatchImpl<T>()
 	{
@@ -101,9 +71,7 @@ protected:
 		}
 	}
 
-	virtual ~MyIDispatchImpl<T>()
-	{
-	}
+    virtual ~MyIDispatchImpl<T>() = default;
 
 	virtual void FinalRelease()
 	{
@@ -135,7 +103,8 @@ public:
 	}
 };
 
-template <class T> FOOGUIDDECL type_info_cache_holder MyIDispatchImpl<T>::g_type_info_cache_holder;
+template <class T> 
+__declspec( selectany ) ::internal::type_info_cache_holder MyIDispatchImpl<T>::g_type_info_cache_holder;
 
 //-- IDispatch impl -- [T] [IDispatch] [IUnknown]
 template <class T>
@@ -148,13 +117,8 @@ class IDispatchImpl3 : public MyIDispatchImpl<T>
 	END_COM_QI_IMPL()
 
 protected:
-	IDispatchImpl3<T>()
-	{
-	}
-
-	virtual ~IDispatchImpl3<T>()
-	{
-	}
+    IDispatchImpl3<T>() = default;
+    virtual ~IDispatchImpl3<T>() = default;
 };
 
 //-- IDisposable impl -- [T] [IDisposable] [IDispatch] [IUnknown]
@@ -169,13 +133,8 @@ class IDisposableImpl4 : public MyIDispatchImpl<T>
 	END_COM_QI_IMPL()
 
 protected:
-	IDisposableImpl4<T>()
-	{
-	}
-
-	virtual ~IDisposableImpl4()
-	{
-	}
+    IDisposableImpl4<T>() = default;
+    virtual ~IDisposableImpl4() = default;
 
 public:
 	STDMETHODIMP Dispose()
@@ -189,14 +148,24 @@ template <typename _Base, bool _AddRef = true>
 class com_object_impl_t : public _Base
 {
 public:
+    template <typename... Args>
+    com_object_impl_t( Args&&... args )
+        : _Base( std::forward<Args>( args )... )
+    {
+        if constexpr ( _AddRef )
+        {
+            ++m_dwRef;
+        }
+    }
+
 	STDMETHODIMP_(ULONG) AddRef()
 	{
-		return AddRef_();
+		return ++m_dwRef;
 	}
 
 	STDMETHODIMP_(ULONG) Release()
 	{
-		ULONG n = Release_();
+		const ULONG n = --m_dwRef;
 		if (n == 0)
 		{
 			this->FinalRelease();
@@ -205,58 +174,9 @@ public:
 		return n;
 	}
 
-	TEMPLATE_CONSTRUCTOR_FORWARD_FLOOD_WITH_INITIALIZER(com_object_impl_t, _Base, { Construct_(); })
+private:
+    ~com_object_impl_t() override = default;
 
 private:
-	volatile LONG m_dwRef;
-
-	ULONG AddRef_()
-	{
-		return InterlockedIncrement(&m_dwRef);
-	}
-
-	ULONG Release_()
-	{
-		return InterlockedDecrement(&m_dwRef);
-	}
-
-	void Construct_()
-	{
-		m_dwRef = 0;
-		if (_AddRef)
-			AddRef_();
-	}
-
-	virtual ~com_object_impl_t()
-	{
-	}
+    std::atomic<ULONG> m_dwRef = 0;
 };
-
-template <class T>
-class com_object_singleton_t
-{
-public:
-	static T* instance()
-	{
-		if (!_instance)
-		{
-			insync(_cs);
-
-			if (!_instance)
-			{
-				_instance = new com_object_impl_t<T, false>();
-			}
-		}
-
-		return reinterpret_cast<T *>(_instance.GetInterfacePtr());
-	}
-
-private:
-	static IDispatchPtr _instance;
-	static critical_section _cs;
-
-	PFC_CLASS_NOT_COPYABLE_EX(com_object_singleton_t)
-};
-
-template <class T> FOOGUIDDECL IDispatchPtr com_object_singleton_t<T>::_instance;
-template <class T> FOOGUIDDECL critical_section com_object_singleton_t<T>::_cs;

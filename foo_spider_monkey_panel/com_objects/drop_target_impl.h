@@ -11,7 +11,7 @@ class IDropTargetImpl : public IDropTarget
 {
 public:
     IDropTargetImpl( HWND hWnd ) noexcept( false );
-    ;
+
     virtual ~IDropTargetImpl();
 
     HRESULT RegisterDragDrop();

@@ -31,16 +31,18 @@ using std::max;
 #include <ComDef.h>
 
 // ATL/WTL
-#include <atlstr.h>
+/// atlstr.h (includes atlbase.h) must be included first for CString to LPTSTR conversion to work.
+#include <atlstr.h> 
 #include <atlapp.h>
-#include <atlwin.h>
-#include <atlframe.h>
-#include <atldlgs.h>
+#include <atlcom.h>
+#include <atlcrack.h>
 #include <atlctrls.h>
 #include <atlddx.h>
-#include <atlcrack.h>
+#include <atldlgs.h>
+#include <atlframe.h>
 #include <atltheme.h>
 #include <atltypes.h>
+#include <atlwin.h>
 
 // Scintilla
 #include <Scintilla.h>

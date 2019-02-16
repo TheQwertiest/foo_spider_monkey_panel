@@ -9,10 +9,6 @@ HostExternal::HostExternal( _variant_t data )
 {
 }
 
-void HostExternal::FinalRelease()
-{
-}
-
 STDMETHODIMP HostExternal::get_dialogArguments( VARIANT* pData )
 {
     if ( pData )

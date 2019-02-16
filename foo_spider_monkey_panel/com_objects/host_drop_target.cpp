@@ -78,7 +78,7 @@ HRESULT HostDropTarget::OnDragEnter( IDataObject* pDataObj, DWORD grfKeyState, P
 
     bool native;
     HRESULT hr = ole_interaction::get()->check_dataobject( pDataObj, m_fb2kAllowedEffect, native );
-    if ( !SUCCEEDED( hr ) )
+    if ( FAILED( hr ) )
     {
         m_fb2kAllowedEffect = DROPEFFECT_NONE;
     }
