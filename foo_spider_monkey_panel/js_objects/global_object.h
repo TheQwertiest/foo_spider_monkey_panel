@@ -39,12 +39,19 @@ public:
 public: // methods
     void ClearInterval( uint32_t intervalId );
     void ClearTimeout( uint32_t timeoutId );
-    void IncludeScript( const pfc::string8_fast& path );
+    void IncludeScript( const pfc::string8_fast& path, JS::HandleValue options = JS::UndefinedHandleValue );
+    void IncludeScriptWithOpt( size_t optArgCount, const pfc::string8_fast& path, JS::HandleValue options );
     uint32_t SetInterval( JS::HandleValue func, uint32_t delay );
     uint32_t SetTimeout( JS::HandleValue func, uint32_t delay );
 
 private:
     JsGlobalObject( JSContext* cx, JsContainer& parentContainer, JsWindow* pJsWindow );
+
+    struct IncludeOptions
+    {
+        bool alwaysEvaluate = false;
+    };
+    IncludeOptions ParseIncludeOptions( JS::HandleValue options );
 
     template <typename T>
     static T* GetNativeObjectProperty( JSContext* cx, JS::HandleObject self, const std::string& propName )

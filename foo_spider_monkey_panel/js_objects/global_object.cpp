@@ -20,6 +20,7 @@
 #include <js_objects/internal/global_heap_manager.h>
 #include <js_utils/js_object_helper.h>
 #include <js_utils/js_error_helper.h>
+#include <js_utils/js_property_helper.h>
 #include <utils/file_helpers.h>
 #include <utils/scope_helpers.h>
 
@@ -76,8 +77,8 @@ JSClass jsClass = {
 // TODO: define a new macro?
 bool IncludeScript( JSContext* cx, unsigned argc, JS::Value* vp )
 {
-    auto wrappedFunc = []( JSContext* cx, unsigned argc, JS::Value* vp ) {
-        InvokeNativeCallback<0>( cx, &JsGlobalObject::IncludeScript, &JsGlobalObject::IncludeScript, argc, vp );
+    const auto wrappedFunc = []( JSContext* cx, unsigned argc, JS::Value* vp ) {
+        InvokeNativeCallback<1>( cx, &JsGlobalObject::IncludeScript, &JsGlobalObject::IncludeScriptWithOpt, argc, vp );
     };
     return mozjs::error::Execute_JsSafe( cx, "include", wrappedFunc, argc, vp );
 }
@@ -213,7 +214,7 @@ void JsGlobalObject::ClearTimeout( uint32_t timeoutId )
     pJsWindow_->ClearInterval( timeoutId );
 }
 
-void JsGlobalObject::IncludeScript( const pfc::string8_fast& path )
+void JsGlobalObject::IncludeScript( const pfc::string8_fast& path, JS::HandleValue options )
 {
     namespace fs = std::filesystem;
 
@@ -246,8 +247,10 @@ void JsGlobalObject::IncludeScript( const pfc::string8_fast& path )
         }
     }();
 
+    const auto parsedOptions = ParseIncludeOptions( options );
+
     const auto u8Path = fsPath.u8string();
-    if ( includedFiles_.count( u8Path ) )
+    if ( !parsedOptions.alwaysEvaluate && includedFiles_.count( u8Path ) )
     {
         return;
     }
@@ -269,6 +272,20 @@ void JsGlobalObject::IncludeScript( const pfc::string8_fast& path )
     }
 }
 
+void JsGlobalObject::IncludeScriptWithOpt( size_t optArgCount, const pfc::string8_fast& path, JS::HandleValue options )
+{
+    switch ( optArgCount )
+    {
+    case 0:
+        return IncludeScript( path, options );
+    case 1:
+        return IncludeScript( path );
+    default:
+        throw SmpException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
+    }
+}
+
+
 uint32_t JsGlobalObject::SetInterval( JS::HandleValue func, uint32_t delay )
 {
     return pJsWindow_->SetInterval( func, delay );
@@ -277,6 +294,20 @@ uint32_t JsGlobalObject::SetInterval( JS::HandleValue func, uint32_t delay )
 uint32_t JsGlobalObject::SetTimeout( JS::HandleValue func, uint32_t delay )
 {
     return pJsWindow_->SetTimeout( func, delay );
+}
+
+JsGlobalObject::IncludeOptions JsGlobalObject::ParseIncludeOptions( JS::HandleValue options )
+{
+    IncludeOptions parsedOptions;
+    if ( !options.isNullOrUndefined() )
+    {
+        SmpException::ExpectTrue( options.isObject(), "options argument is not an object" );
+        JS::RootedObject jsOptions( pJsCtx_, &options.toObject() );
+
+        parsedOptions.alwaysEvaluate = GetOptionalProperty<bool>( pJsCtx_, jsOptions, "always_evaluate" ).value_or( false );
+    }
+
+    return parsedOptions;
 }
 
 } // namespace mozjs

@@ -214,7 +214,7 @@ void InvokeNativeCallback( JSContext* cx,
 #define MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( functionName, functionImpl, functionImplWithOpt, optArgCount ) \
     bool functionName( JSContext* cx, unsigned argc, JS::Value* vp )                                          \
     {                                                                                                         \
-        auto wrappedFunc = []( JSContext* cx, unsigned argc, JS::Value* vp ) {                                \
+        const auto wrappedFunc = []( JSContext* cx, unsigned argc, JS::Value* vp ) {                          \
             InvokeNativeCallback<optArgCount>( cx, &functionImpl, &functionImplWithOpt, argc, vp );           \
         };                                                                                                    \
         return mozjs::error::Execute_JsSafe( cx, #functionName, wrappedFunc, argc, vp );                      \
