@@ -17,10 +17,16 @@
 ___
 
 ## [Unreleased][]
+### Added
+- Improved `include` method:
+  - Added support for relative paths.
+  - Added *include guard* - script file won't be evaluated a second time, if it was evaluated before (handled by new `options.always_evaluate` argument).
+
 ### Changed
 - Improved performance of `utils.FileTest(path, 's')`.
 
 ### Fixed
+- Fixed `Thumbs` and 'Album Art' script crashes.
 - Fixed `GdiBitmap.GetColourScheme` not limiting the number of output colours.
 - Fixed invalid colour calculation in `GdiBitmap.GetColourSchemeJSON`.
 - Fixed potential memory leaks when using `window.NotifyOthers`.
