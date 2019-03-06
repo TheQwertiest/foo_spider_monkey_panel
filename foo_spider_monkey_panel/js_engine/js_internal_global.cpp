@@ -1,0 +1,126 @@
+#include <stdafx.h>
+#include "js_internal_global.h"
+
+#include <js_engine/js_compartment_inner.h>
+#include <utils/file_helpers.h>
+
+namespace
+{
+
+using namespace mozjs;
+
+void JsFinalizeOpLocal( JSFreeOp* /*fop*/, JSObject* obj )
+{
+    auto pJsCompartment = static_cast<JsCompartmentInner*>( JS_GetCompartmentPrivate( js::GetObjectCompartment( obj ) ) );
+    if ( pJsCompartment )
+    {
+        delete pJsCompartment;
+        JS_SetCompartmentPrivate( js::GetObjectCompartment( obj ), nullptr );
+    }
+}
+
+JSClassOps jsOps = {
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    JsFinalizeOpLocal,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr // set in runtime to JS_GlobalObjectTraceHook
+};
+
+JSClass jsClass = {
+    "InternalGlobal",
+    JSCLASS_GLOBAL_FLAGS | JSCLASS_FOREGROUND_FINALIZE,
+    &jsOps
+};
+} // namespace
+
+namespace mozjs
+{
+
+JsInternalGlobal::JsInternalGlobal( JSContext* cx, JS::HandleObject global, JsCompartmentInner* pNativeCompartment )
+    : pJsCtx_( cx )
+    , jsGlobal_( cx, global )
+    , pNativeCompartment_( pNativeCompartment )
+    , scriptCache_( cx )
+{
+    assert( global );
+    assert( pNativeCompartment_ );
+}
+
+JsInternalGlobal::~JsInternalGlobal()
+{
+    scriptCache_.reset();
+    jsGlobal_.reset();
+}
+
+std::unique_ptr<JsInternalGlobal> JsInternalGlobal::Create( JSContext* cx )
+{
+    JSAutoRequest ar( cx );
+
+    if ( !jsOps.trace )
+    { // JS_GlobalObjectTraceHook address is only accessible after mozjs is loaded.
+        jsOps.trace = JS_GlobalObjectTraceHook;
+    }
+
+    JS::CompartmentOptions options;
+    JS::RootedObject jsObj( cx,
+                            JS_NewGlobalObject( cx, &jsClass, nullptr, JS::DontFireOnNewGlobalHook, options ) );
+    if ( !jsObj )
+    {
+        throw smp::JsException();
+    }
+
+    JsCompartmentInner* pInnerCompartment = nullptr;
+    {
+        JSAutoCompartment ac( cx, jsObj );
+        pInnerCompartment = new JsCompartmentInner();
+        JS_SetCompartmentPrivate( js::GetContextCompartment( cx ), pInnerCompartment );
+
+        JS_FireOnNewGlobalObject( cx, jsObj );
+    }
+
+    return std::unique_ptr<JsInternalGlobal>( new JsInternalGlobal( cx, jsObj, pInnerCompartment ) );
+}
+
+void JsInternalGlobal::OnSharedAllocate( uint32_t allocationSize )
+{
+    pNativeCompartment_->OnHeapAllocate( allocationSize );
+}
+
+void JsInternalGlobal::OnSharedDeallocate( uint32_t allocationSize )
+{
+    pNativeCompartment_->OnHeapDeallocate( allocationSize );
+}
+
+JSScript* JsInternalGlobal::GetCachedScript( const std::filesystem::path& absolutePath )
+{
+    auto& scriptDataMap = scriptCache_.get().data;
+    const auto u8path = absolutePath.u8string();
+    if ( auto it = scriptDataMap.find( u8path.c_str() );
+         scriptDataMap.cend() != it )
+    {
+        return it->second;
+    }
+
+    const std::wstring scriptCode = smp::file::ReadFileW( absolutePath.u8string().c_str(), CP_ACP, false );
+
+    JS::CompileOptions opts( pJsCtx_ );
+    opts.setUTF8( true );
+    opts.setFileAndLine( absolutePath.filename().u8string().c_str(), 1 );
+
+    JS::RootedScript parsedScript( pJsCtx_ );
+    if ( !JS_CompileUCScript( pJsCtx_, (char16_t*)scriptCode.c_str(), scriptCode.length(), opts, &parsedScript ) )
+    {
+        throw smp::JsException();
+    }
+
+    return scriptDataMap.emplace( u8path.c_str(), parsedScript ).first->second;
+}
+
+} // namespace mozjs

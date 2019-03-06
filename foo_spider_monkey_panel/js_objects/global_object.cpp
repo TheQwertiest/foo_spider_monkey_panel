@@ -3,7 +3,9 @@
 
 #include <js_engine/js_container.h>
 #include <js_engine/js_compartment_inner.h>
+#include <js_engine/js_engine.h>
 #include <js_engine/js_to_native_invoker.h>
+#include <js_engine/js_internal_global.h>
 #include <js_objects/active_x_object.h>
 #include <js_objects/console.h>
 #include <js_objects/enumerator.h>
@@ -255,18 +257,15 @@ void JsGlobalObject::IncludeScript( const pfc::string8_fast& path, JS::HandleVal
         return;
     }
 
-    const std::wstring scriptCode = smp::file::ReadFileW( u8Path.c_str(), CP_ACP, false );
-
     includedFiles_.emplace( u8Path );
     parentFilepaths_.push_back( fsPath.parent_path().u8string() );
     smp::utils::final_action autoPath{ [&parentFilesPaths = parentFilepaths_] { parentFilesPaths.pop_back(); } };
 
-    JS::CompileOptions opts( pJsCtx_ );
-    opts.setUTF8( true );
-    opts.setFileAndLine( fsPath.filename().u8string().c_str(), 1 );
+    JS::RootedScript jsScript( pJsCtx_, JsEngine::GetInstance().GetInternalGlobal().GetCachedScript( fsPath ) );
+    assert( jsScript );
 
     JS::RootedValue dummyRval( pJsCtx_ );
-    if ( !JS::Evaluate( pJsCtx_, opts, (char16_t*)scriptCode.c_str(), scriptCode.length(), &dummyRval ) )
+    if ( !JS::CloneAndExecuteScript( pJsCtx_, jsScript, &dummyRval ) )
     {
         throw smp::JsException();
     }

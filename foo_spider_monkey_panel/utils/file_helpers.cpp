@@ -230,6 +230,7 @@ pfc::string8_fast CleanPath( const pfc::string8_fast& path )
 {
     pfc::string8_fast tmpPath = path;
     tmpPath.replace_string( "/", "\\", 0 );
+    tmpPath.replace_string( "\\\\", "\\", 0 );
     return tmpPath;
 }
 

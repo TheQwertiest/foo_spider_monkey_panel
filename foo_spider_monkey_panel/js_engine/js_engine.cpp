@@ -3,6 +3,7 @@
 
 #include <js_engine/js_container.h>
 #include <js_engine/js_compartment_inner.h>
+#include <js_engine/js_internal_global.h>
 #include <js_objects/global_object.h>
 #include <js_utils/js_error_helper.h>
 #include <utils/scope_helpers.h>
@@ -141,6 +142,9 @@ bool JsEngine::Initialize()
 
         rejectedPromises_.init( cx, JS::GCVector<JSObject*, 0, js::SystemAllocPolicy>( js::SystemAllocPolicy() ) );
 
+        internalGlobal_ = std::move( JsInternalGlobal::Create( cx ) );
+        assert( internalGlobal_ );
+
         StartHeartbeatThread();
     }
     catch ( const smp::JsException& )
@@ -166,6 +170,7 @@ void JsEngine::Finalize()
     {
         StopHeartbeatThread();
 
+        internalGlobal_.reset();
         rejectedPromises_.reset();
 
         JS_DestroyContext( pJsCtx_ );
@@ -183,6 +188,12 @@ void JsEngine::Finalize()
 const JsGc& JsEngine::GetGcEngine() const
 {
     return jsGc_;
+}
+
+JsInternalGlobal& JsEngine::GetInternalGlobal()
+{
+    assert( internalGlobal_ );
+    return *internalGlobal_;
 }
 
 void JsEngine::OnHeartbeat()

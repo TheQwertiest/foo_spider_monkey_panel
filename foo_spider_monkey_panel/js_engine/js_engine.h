@@ -19,6 +19,7 @@ namespace mozjs
 {
 
 class JsContainer;
+class JsInternalGlobal;
 
 class JsEngine final
 {
@@ -36,6 +37,7 @@ public:
 
 public:
     const JsGc& GetGcEngine() const;
+    JsInternalGlobal& GetInternalGlobal();
 
 public:
     void OnHeartbeat();
@@ -76,6 +78,8 @@ private:
     JS::PersistentRooted<JS::GCVector<JSObject*, 0, js::SystemAllocPolicy>> rejectedPromises_;
     bool areJobsInProgress_ = false;
     uint32_t jobsStartTime_ = 0;
+
+    std::unique_ptr<JsInternalGlobal> internalGlobal_;
 };
 
 } // namespace mozjs

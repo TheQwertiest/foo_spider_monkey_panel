@@ -298,6 +298,9 @@
     <ClCompile Include="utils\location_processor.cpp">
       <Filter>utils</Filter>
     </ClCompile>
+    <ClCompile Include="js_engine\js_internal_global.cpp">
+      <Filter>js_engine</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="js_engine\js_engine.h">
@@ -671,6 +674,9 @@
     </ClInclude>
     <ClInclude Include="com_objects\com_interface.h">
       <Filter>com_objects</Filter>
+    </ClInclude>
+    <ClInclude Include="js_engine\js_internal_global.h">
+      <Filter>js_engine</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
