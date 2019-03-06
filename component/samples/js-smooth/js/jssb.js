@@ -3496,7 +3496,7 @@ function get_images() {
 	images.all.ReleaseGraphics(gb);
 
 	var img_loading = gdi.Image(images.path + "load.png");
-	var iw = Math.round(ppt.rowHeight / 2);
+	var iw = Math.abs(Math.round(ppt.rowHeight / 2));
 	images.loading_draw = img_loading.Resize(iw, iw, 7);
 
 	var nw = 250,
