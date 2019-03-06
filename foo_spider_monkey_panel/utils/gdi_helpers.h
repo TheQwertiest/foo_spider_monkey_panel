@@ -7,12 +7,14 @@
 namespace smp::gdi
 {
 
+/// @details Resets last status!
 template <typename T>
 bool IsGdiPlusObjectValid( const T* obj )
 {
     return ( obj && ( Gdiplus::Ok == obj->GetLastStatus() ) );
 }
 
+/// @details Resets last status!
 template <typename T>
 bool IsGdiPlusObjectValid( const std::unique_ptr<T>& obj )
 {
