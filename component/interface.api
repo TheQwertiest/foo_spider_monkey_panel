@@ -163,9 +163,12 @@ window.IsTransparent
 window.IsVisible
 window.MaxHeight
 window.MaxWidth
+window.MemoryLimit
 window.MinHeight
 window.MinWidth
 window.Name
+window.PanelMemoryUsage
+window.TotalMemoryUsage
 window.Width
 
 window.ClearInterval(timerID)
