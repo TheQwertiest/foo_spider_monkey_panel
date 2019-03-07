@@ -144,7 +144,7 @@ JSObject* JsGdiBitmap::Constructor( JSContext* cx, JsGdiBitmap* other )
     auto pGdi = other->GdiBitmap();
 
     std::unique_ptr<Gdiplus::Bitmap> img( pGdi->Clone( 0, 0, pGdi->GetWidth(), pGdi->GetHeight(), PixelFormat32bppPARGB ) );
-    smp::error::CheckGdiPlusObject( img );
+    smp::error::CheckGdiPlusObject( img, pGdi );
 
     return JsGdiBitmap::CreateJs( cx, std::move( img ) );
 }
