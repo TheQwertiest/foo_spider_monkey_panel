@@ -4,6 +4,8 @@
 #include <js_engine/js_compartment_inner.h>
 #include <utils/file_helpers.h>
 
+using namespace smp;
+
 namespace
 {
 
@@ -100,15 +102,31 @@ void JsInternalGlobal::OnSharedDeallocate( uint32_t allocationSize )
 
 JSScript* JsInternalGlobal::GetCachedScript( const std::filesystem::path& absolutePath )
 {
+    assert( absolutePath.is_absolute() );    
+
     auto& scriptDataMap = scriptCache_.get().data;
-    const auto u8path = absolutePath.u8string();
+    const auto u8path = absolutePath.lexically_normal().u8string();
+    const auto lastWriteTime = [&absolutePath, &u8path] {
+        try
+        {
+            return std::filesystem::last_write_time( absolutePath );
+        }
+        catch ( const std::filesystem::filesystem_error& e )
+        {
+            throw SmpException( fmt::format( "Failed to open file `{}`: {}", u8path.c_str(), e.what() ) );
+        }
+    }( );
+
     if ( auto it = scriptDataMap.find( u8path.c_str() );
          scriptDataMap.cend() != it )
     {
-        return it->second;
+        if ( it->second.writeTime == lastWriteTime )
+        {
+            return it->second.script;
+        }
     }
 
-    const std::wstring scriptCode = smp::file::ReadFileW( absolutePath.u8string().c_str(), CP_ACP, false );
+    const std::wstring scriptCode = smp::file::ReadFileW( u8path.c_str(), CP_ACP, false );
 
     JS::CompileOptions opts( pJsCtx_ );
     opts.setUTF8( true );
@@ -120,7 +138,7 @@ JSScript* JsInternalGlobal::GetCachedScript( const std::filesystem::path& absolu
         throw smp::JsException();
     }
 
-    return scriptDataMap.emplace( u8path.c_str(), parsedScript ).first->second;
+    return scriptDataMap.insert_or_assign( u8path.c_str(), JsHashMap::ValueType{ parsedScript, lastWriteTime } ).first->second.script;
 }
 
 } // namespace mozjs

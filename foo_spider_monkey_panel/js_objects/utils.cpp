@@ -214,7 +214,8 @@ uint32_t JsUtils::ColourPicker( uint32_t hWindow, uint32_t default_colour )
 
 JS::Value JsUtils::FileTest( const std::wstring& path, const std::wstring& mode )
 {
-    const std::wstring cleanedPath = smp::file::CleanPathW( path );
+    namespace fs = std::filesystem;
+    const std::wstring cleanedPath = fs::path( path.c_str() ).lexically_normal().wstring();
 
     if ( L"e" == mode ) // exists
     {
@@ -592,7 +593,7 @@ std::wstring JsUtils::ReadINIWithOpt( size_t optArgCount, const std::wstring& fi
 
 std::wstring JsUtils::ReadTextFile( const pfc::string8_fast& filePath, uint32_t codepage )
 {
-    return smp::file::ReadFileW( smp::file::CleanPath( filePath ), codepage );
+    return smp::file::ReadFileW( filePath, codepage );
 }
 
 std::wstring JsUtils::ReadTextFileWithOpt( size_t optArgCount, const pfc::string8_fast& filePath, uint32_t codepage )
@@ -656,7 +657,7 @@ bool JsUtils::WriteTextFile( const std::wstring& filename, const pfc::string8_fa
 { // TODO: inspect the code (replace with std::filesystem perhaps?)
     SmpException::ExpectTrue( !filename.empty(), "Invalid filename" );
 
-    return smp::file::WriteFile( smp::file::CleanPathW( filename ).c_str(), content, write_bom );
+    return smp::file::WriteFile( filename.c_str(), content, write_bom );
 }
 
 bool JsUtils::WriteTextFileWithOpt( size_t optArgCount, const std::wstring& filename, const pfc::string8_fast& content, bool write_bom )

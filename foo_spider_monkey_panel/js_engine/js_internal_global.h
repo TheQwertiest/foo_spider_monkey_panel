@@ -37,18 +37,29 @@ private:
 
     struct JsHashMap
     {
-        std::unordered_map<std::string, JS::Heap<JSScript*>> data;
+        struct ValueType
+        {
+            template <typename T1, typename T2>
+            ValueType( T1&& arg1, T2&& arg2 )
+                : script( std::forward<T1>( arg1 ) )
+                , writeTime( std::forward<T2>( arg2 ) )
+            {
+            }
+
+            JS::Heap<JSScript*> script;
+            std::filesystem::file_time_type writeTime;
+        };
+        std::unordered_map<std::string, ValueType> data;
 
         void trace( JSTracer* trc )
         {
-            for ( auto entry : data )
+            for ( auto& entry : data )
             {
-                JS::TraceEdge( trc, &entry.second, "map value" );
+                JS::TraceEdge( trc, &entry.second.script, "map value" );
             }
         }
     };
 
-    //using JsHashMap = JS::GCHashMap<const char*, JSScript*, js::CStringHasher>;
     JS::PersistentRooted<JsHashMap> scriptCache_;
 };
 

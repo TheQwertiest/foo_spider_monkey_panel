@@ -20,7 +20,9 @@ ___
 ### Added
 - Improved `include` method:
   - Added support for relative paths.
-  - Added *include guard* - script file won't be evaluated a second time, if it was evaluated before (handled by new `options.always_evaluate` argument).
+  - Added script caching - script files will be loaded only once (even if they are included from different panels).
+    Improves panel initialization speed when re-using same script files.
+  - Added *include guard* - script files won't be evaluated a second time, if they were evaluated before (handled by new `options.always_evaluate` argument).
 
 ### Changed
 - Improved performance of `utils.FileTest(path, 's')`.

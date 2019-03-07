@@ -130,7 +130,7 @@ namespace
 class FileReader
 {
 public:
-    FileReader( const pfc::string8_fast& pathbool, bool checkFileExistense = true );
+    FileReader( const std::filesystem::path& path, bool checkFileExistense = true );
     ~FileReader();
     FileReader( const FileReader& ) = delete;
     FileReader& operator=( const FileReader& ) = delete;
@@ -146,23 +146,22 @@ private:
     size_t fileSize_ = 0;
 };
 
-FileReader::FileReader( const pfc::string8_fast& path, bool checkFileExistense )
+FileReader::FileReader( const std::filesystem::path& path, bool checkFileExistense )
 {
     namespace fs = std::filesystem;
 
     try
     {
-        fs::path fsPath = fs::u8path( path.c_str() );
-        if ( checkFileExistense && ( !fs::exists( fsPath ) || !fs::is_regular_file( fsPath ) ) )
+        if ( checkFileExistense && ( !fs::exists( path ) || !fs::is_regular_file( path ) ) )
         {
-            throw SmpException( fmt::format( "Path does not point to a valid file: {}", path.c_str() ) );
+            throw SmpException( fmt::format( "Path does not point to a valid file: {}", path.u8string().c_str() ) );
         }
 
-        if ( !fs::file_size( fsPath ) )
+        if ( !fs::file_size( path ) )
         { // CreateFileMapping fails on file with zero length, so we need to bail out early
             return;
         }
-        hFile_ = CreateFile( fsPath.wstring().c_str(), GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr );
+        hFile_ = CreateFile( path.wstring().c_str(), GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr );
         smp::error::CheckWinApi( ( INVALID_HANDLE_VALUE != hFile_ ), "CreateFile" );
 
         utils::final_action autoFile( [hFile = hFile_] {
@@ -186,7 +185,7 @@ FileReader::FileReader( const pfc::string8_fast& path, bool checkFileExistense )
 
         if ( fileSize_ == INVALID_FILE_SIZE )
         {
-            throw SmpException( fmt::format( "Internal error: failed to read file size of `{}`", path.c_str() ) );
+            throw SmpException( fmt::format( "Internal error: failed to read file size of `{}`", path.u8string().c_str() ) );
         }
 
         autoAddress.cancel();
@@ -195,7 +194,7 @@ FileReader::FileReader( const pfc::string8_fast& path, bool checkFileExistense )
     }
     catch ( const fs::filesystem_error& e )
     {
-        throw SmpException( fmt::format( "Failed to open file `{}`: {}", path.c_str(), e.what() ) );
+        throw SmpException( fmt::format( "Failed to open file `{}`: {}", path.u8string().c_str(), e.what() ) );
     }
 }
 
@@ -221,38 +220,39 @@ std::string_view FileReader::GetFileContent() const
     return std::string_view{ reinterpret_cast<const char*>( pFileView_ ? pFileView_ : dummyVal ), fileSize_ };
 }
 
+template <typename T>
+T ReadFileImpl( const pfc::string8_fast& path, UINT codepage, bool checkFileExistense )
+{
+    namespace fs = std::filesystem;
+
+    const fs::path fsPath = [&path] {
+        try
+        {
+            return fs::absolute( fs::u8path( path.c_str() ) ).lexically_normal();
+        }
+        catch ( const std::filesystem::filesystem_error& e )
+        {
+            throw SmpException( fmt::format( "Failed to open file `{}`: {}", path.c_str(), e.what() ) );
+        }
+    }();
+
+    FileReader fileReader( fsPath, checkFileExistense );
+    return ConvertFileContent<T>( fsPath.wstring(), fileReader.GetFileContent(), codepage );
+}
+
 } // namespace
 
 namespace smp::file
 {
 
-pfc::string8_fast CleanPath( const pfc::string8_fast& path )
-{
-    pfc::string8_fast tmpPath = path;
-    tmpPath.replace_string( "/", "\\", 0 );
-    tmpPath.replace_string( "\\\\", "\\", 0 );
-    return tmpPath;
-}
-
-std::wstring CleanPathW( const std::wstring& path )
-{
-    return ranges::view::replace( path, L'/', L'\\' );
-}
-
 pfc::string8_fast ReadFile( const pfc::string8_fast& path, UINT codepage, bool checkFileExistense )
 {
-    namespace fs = std::filesystem;
-
-    FileReader fileReader( path, checkFileExistense );
-    return ConvertFileContent<pfc::string8_fast>( fs::absolute( fs::u8path( path.c_str() ) ).wstring(), fileReader.GetFileContent(), codepage );
+    return ReadFileImpl<pfc::string8_fast>( path, codepage, checkFileExistense );
 }
 
 std::wstring ReadFileW( const pfc::string8_fast& path, UINT codepage, bool checkFileExistense )
 {
-    namespace fs = std::filesystem;
-
-    FileReader fileReader( path, checkFileExistense );
-    return ConvertFileContent<std::wstring>( fs::absolute( fs::u8path( path.c_str() ) ).wstring(), fileReader.GetFileContent(), codepage );
+    return ReadFileImpl<std::wstring>( path, codepage, checkFileExistense );
 }
 
 bool WriteFile( const wchar_t* path, const pfc::string_base& content, bool write_bom )

@@ -223,7 +223,7 @@ void JsGlobalObject::IncludeScript( const pfc::string8_fast& path, JS::HandleVal
     const fs::path fsPath = [&path, &parentFilepaths = parentFilepaths_] {
         try
         {
-            fs::path fsPath = fs::u8path( smp::file::CleanPath( path ).c_str() );
+            fs::path fsPath = fs::u8path( path.c_str() );
             if ( fsPath.is_relative() )
             {
                 if ( parentFilepaths.empty() )
@@ -241,7 +241,7 @@ void JsGlobalObject::IncludeScript( const pfc::string8_fast& path, JS::HandleVal
                 throw smp::SmpException( fmt::format( "Path does not point to a valid file: {}", path.c_str() ) );
             }
 
-            return fsPath;
+            return fsPath.lexically_normal();
         }
         catch ( const fs::filesystem_error& e )
         {
@@ -258,7 +258,7 @@ void JsGlobalObject::IncludeScript( const pfc::string8_fast& path, JS::HandleVal
     }
 
     includedFiles_.emplace( u8Path );
-    parentFilepaths_.push_back( fsPath.parent_path().u8string() );
+    parentFilepaths_.emplace_back( fsPath.parent_path().u8string() );
     smp::utils::final_action autoPath{ [&parentFilesPaths = parentFilepaths_] { parentFilesPaths.pop_back(); } };
 
     JS::RootedScript jsScript( pJsCtx_, JsEngine::GetInstance().GetInternalGlobal().GetCachedScript( fsPath ) );
