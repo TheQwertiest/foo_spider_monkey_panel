@@ -25,13 +25,13 @@ bool JsCompartmentInner::IsMarkedForGc() const
     return isMarkedForGc_;
 }
 
-uint32_t JsCompartmentInner::GetCurrentHeapBytes() const
+uint64_t JsCompartmentInner::GetCurrentHeapBytes() const
 {
     std::scoped_lock sl( gcDataLock_ );
     return curHeapSize_;
 }
 
-uint32_t JsCompartmentInner::GetLastHeapBytes() const
+uint64_t JsCompartmentInner::GetLastHeapBytes() const
 {
     std::scoped_lock sl( gcDataLock_ );
     return std::min( lastHeapSize_, curHeapSize_ );
