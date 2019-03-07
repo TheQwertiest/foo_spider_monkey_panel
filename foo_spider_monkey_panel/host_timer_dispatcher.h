@@ -32,6 +32,8 @@ public:
 
     static HostTimerDispatcher& Get();
 
+    void Finalize();
+
     uint32_t setInterval( HWND hWnd, uint32_t delay, JSContext* cx, JS::HandleFunction jsFunction );
     uint32_t setTimeout( HWND hWnd, uint32_t delay, JSContext* cx, JS::HandleFunction jsFunction );
 

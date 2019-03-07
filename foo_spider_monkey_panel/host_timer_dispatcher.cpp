@@ -7,6 +7,8 @@
 #include <user_message.h>
 #include <message_manager.h>
 
+// TODO: move to JsEngine form global object
+
 HostTimerDispatcher::HostTimerDispatcher()
 {
     m_curTimerId = 1;
@@ -16,13 +18,18 @@ HostTimerDispatcher::HostTimerDispatcher()
 
 HostTimerDispatcher::~HostTimerDispatcher()
 {
-    stopThread();
+    assert( !m_thread );
 }
 
 HostTimerDispatcher& HostTimerDispatcher::Get()
 {
     static HostTimerDispatcher timerDispatcher;
     return timerDispatcher;
+}
+
+void HostTimerDispatcher::Finalize()
+{
+    stopThread();
 }
 
 uint32_t HostTimerDispatcher::setInterval( HWND hWnd, uint32_t delay, JSContext* cx, JS::HandleFunction jsFunction )

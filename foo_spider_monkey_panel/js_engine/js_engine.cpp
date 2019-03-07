@@ -9,6 +9,7 @@
 #include <utils/scope_helpers.h>
 #include <utils/string_helpers.h>
 
+#include <host_timer_dispatcher.h>
 #include <js_panel_window.h>
 #include <adv_config.h>
 #include <user_message.h>
@@ -179,6 +180,7 @@ void JsEngine::Finalize()
 
     if ( shouldShutdown_ )
     {
+        HostTimerDispatcher::Get().Finalize();
         JS_ShutDown();
     }
 
