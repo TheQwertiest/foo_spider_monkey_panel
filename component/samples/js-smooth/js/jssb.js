@@ -3097,14 +3097,8 @@ function on_size() {
 	ww = window.Width;
 	wh = window.Height;
 
-	if (!ww || !wh) {
-		ww = 1;
-		wh = 1;
-	};
-
-	window.MinWidth = 1;
-	window.MinHeight = 1;
-
+	if (!ww || !wh) return;
+	
 	// set wallpaper
 	if (fb.IsPlaying) {
 		g_wallpaperImg = setWallpaperImg(ppt.wallpaperpath, fb.GetNowPlaying());
@@ -3496,7 +3490,7 @@ function get_images() {
 	images.all.ReleaseGraphics(gb);
 
 	var img_loading = gdi.Image(images.path + "load.png");
-	var iw = Math.abs(Math.round(ppt.rowHeight / 2));
+	var iw = Math.round(ppt.rowHeight / 2);
 	images.loading_draw = img_loading.Resize(iw, iw, 7);
 
 	var nw = 250,
