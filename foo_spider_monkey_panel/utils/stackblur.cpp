@@ -93,7 +93,14 @@ void stackblur_by_segment( uint8_t* src,       ///< input image data
             for ( int32_t i = -static_cast<int32_t>( radius ); i <= static_cast<int32_t>( radius ); ++i )
             {
                 // calculate address of source pixel
-                const size_t srcOffset = std::min<uint32_t>( coord_1_limit, std::max<int32_t>( i, 0 ) );
+                const size_t srcOffset = [coord_1_limit, coord_1_shift, i]() -> size_t
+                {
+                    if ( i <= 0 )
+                    {
+                        return 0;
+                    }
+                    return coord_1_shift * std::min( static_cast<uint32_t>( i ), coord_1_limit );
+                }();
                 const uint8_t* srcCur = src_ptr + srcOffset;
 
                 // put pixel in the stack
@@ -107,18 +114,18 @@ void stackblur_by_segment( uint8_t* src,       ///< input image data
                 {
                     sum_colour[j] += srcCur[j] * rbs;
                 }
-                if ( i > 0 )
+                if ( i <= 0 )
                 {
                     for ( uint32_t j = 0; j < kColourCount; ++j )
                     {
-                        sum_in_colour[j] += srcCur[j];
+                        sum_out_colour[j] += srcCur[j];
                     }
                 }
                 else
                 {
                     for ( uint32_t j = 0; j < kColourCount; ++j )
                     {
-                        sum_out_colour[j] += srcCur[j];
+                        sum_in_colour[j] += srcCur[j];
                     }
                 }
             }
