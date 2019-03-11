@@ -3097,14 +3097,8 @@ function on_size() {
 	ww = window.Width;
 	wh = window.Height;
 
-	if (!ww || !wh) {
-		ww = 1;
-		wh = 1;
-	};
-
-	window.MinWidth = 1;
-	window.MinHeight = 1;
-
+	if (!ww || !wh) return;
+	
 	// set wallpaper
 	if (fb.IsPlaying) {
 		g_wallpaperImg = setWallpaperImg(ppt.wallpaperpath, fb.GetNowPlaying());
