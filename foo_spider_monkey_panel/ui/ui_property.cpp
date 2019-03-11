@@ -56,12 +56,12 @@ LRESULT CDialogProperty::OnPinItemChanged( LPNMHDR pnmh )
             if ( std::holds_alternative<bool>( val ) )
             {
                 var.ChangeType( VT_BOOL );
-                val = var.boolVal;
+                val = static_cast<bool>( var.boolVal );
             }
             else if ( std::holds_alternative<int32_t>( val ) )
             {
                 var.ChangeType( VT_I4 );
-                val = var.lVal;
+                val = static_cast<int32_t>( var.lVal );
             }
             else if ( std::holds_alternative<double>( val ) )
             {
@@ -78,7 +78,7 @@ LRESULT CDialogProperty::OnPinItemChanged( LPNMHDR pnmh )
             else if ( std::holds_alternative<pfc::string8_fast>( val ) )
             {
                 var.ChangeType( VT_BSTR );
-                val = pfc::stringcvt::string_utf8_from_wide( var.bstrVal );
+                val = static_cast<pfc::string8_fast>( pfc::stringcvt::string_utf8_from_wide( var.bstrVal ) );
             }
             else
             {

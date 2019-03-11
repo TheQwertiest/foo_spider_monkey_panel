@@ -1315,8 +1315,6 @@ bool js_panel_window::on_mouse_button_up( UINT msg, WPARAM wp, LPARAM lp )
     }
     case WM_RBUTTONUP:
     {
-        _variant_t result;
-
         // Bypass the user code.
         if ( IsKeyPressed( VK_LSHIFT ) && IsKeyPressed( VK_LWIN ) )
         {
