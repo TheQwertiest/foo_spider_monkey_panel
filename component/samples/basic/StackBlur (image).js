@@ -26,7 +26,7 @@ function on_paint(gr) {
     gr.DrawImage(blur_img, 0, text_h, min_dim, min_dim, 0, 0, 600, 600);
     gr.DrawImage(img, 6, text_h + 5, min_dim/3, min_dim/3, 0, 0, 600, 600);
     // RGB function is defined in docs\\Helpers.js
-    gr.FillSolidRect(0, 0, 600, 24, RGB(0, 0, 0));
+    gr.FillSolidRect(0, 0, ww, 24, RGB(0, 0, 0));
     // DT_CENTER is defined in docs\\Flags.js
     gr.GdiDrawText('Scroll mouse to change radius: ' + radius, font, RGB(255, 255, 255), 0, 0, ww, text_h, DT_CENTER);
 }
