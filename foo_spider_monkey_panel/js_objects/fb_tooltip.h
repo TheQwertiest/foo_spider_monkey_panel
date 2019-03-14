@@ -49,7 +49,7 @@ public:
     void put_TrackActivate( bool activate );
 
 private:
-    JsFbTooltip( JSContext* cx, HFONT hFont, HWND hParentWnd, HWND hTooltipWnd, std::unique_ptr<TOOLINFO> toolInfo, smp::panel::PanelTooltipParam& p_param_ptr );
+    JsFbTooltip( JSContext* cx, HWND hParentWnd, smp::panel::PanelTooltipParam& p_param_ptr );
 
 private:
     JSContext* pJsCtx_ = nullptr;

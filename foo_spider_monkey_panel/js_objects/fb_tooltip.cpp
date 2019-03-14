@@ -70,16 +70,64 @@ const JSFunctionSpec* JsFbTooltip::JsFunctions = jsFunctions;
 const JSPropertySpec* JsFbTooltip::JsProperties = jsProperties;
 const JsPrototypeId JsFbTooltip::PrototypeId = JsPrototypeId::FbTooltip;
 
-JsFbTooltip::JsFbTooltip( JSContext* cx, HFONT hFont, HWND hParentWnd, HWND hTooltipWnd, std::unique_ptr<TOOLINFO> toolInfo, panel::PanelTooltipParam& p_param_ptr )
+JsFbTooltip::JsFbTooltip( JSContext* cx, HWND hParentWnd, smp::panel::PanelTooltipParam& p_param_ptr )
     : pJsCtx_( cx )
-    , hFont_( hFont )
     , hParentWnd_( hParentWnd )
-    , hTooltipWnd_( hTooltipWnd )
     , panelTooltipParam_( p_param_ptr )
-    , tipBuffer_( PFC_WIDESTRING( SMP_NAME ) )
-    , toolInfo_( std::move( toolInfo ) )
+    , tipBuffer_( _T( SMP_NAME ) )
 {
-    toolInfo_->lpszText = (wchar_t*)tipBuffer_.c_str();
+    // TODO: add resource cleanup!
+
+    hTooltipWnd_ = CreateWindowEx(
+        WS_EX_TOPMOST,
+        TOOLTIPS_CLASS,
+        nullptr,
+        WS_POPUP | TTS_ALWAYSTIP | TTS_NOPREFIX,
+        CW_USEDEFAULT,
+        CW_USEDEFAULT,
+        CW_USEDEFAULT,
+        CW_USEDEFAULT,
+        hParentWnd_,
+        nullptr,
+        core_api::get_my_instance(),
+        nullptr );
+    smp::error::CheckWinApi( !!hTooltipWnd_, "CreateWindowEx" );
+
+    // Original position
+    SetWindowPos( hTooltipWnd_, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE );
+
+    toolInfo_.reset( new TOOLINFO );
+    // Set up tooltip information.
+    memset( toolInfo_.get(), 0, sizeof( TOOLINFO ) );
+
+    toolInfo_->cbSize = sizeof( TOOLINFO );
+    toolInfo_->uFlags = TTF_IDISHWND | TTF_SUBCLASS | TTF_TRANSPARENT;
+    toolInfo_->hinst = core_api::get_my_instance();
+    toolInfo_->hwnd = hParentWnd;
+    toolInfo_->uId = (UINT_PTR)hParentWnd;
+    toolInfo_->lpszText = (wchar_t*)tipBuffer_.c_str(); // we need to have text here, otherwise tooltip will glitch out
+
+    hFont_ = CreateFont(
+        -(INT)panelTooltipParam_.fontSize,
+        0,
+        0,
+        0,
+        ( panelTooltipParam_.fontStyle & Gdiplus::FontStyleBold ) ? FW_BOLD : FW_NORMAL,
+        ( panelTooltipParam_.fontStyle & Gdiplus::FontStyleItalic ) ? TRUE : FALSE,
+        ( panelTooltipParam_.fontStyle & Gdiplus::FontStyleUnderline ) ? TRUE : FALSE,
+        ( panelTooltipParam_.fontStyle & Gdiplus::FontStyleStrikeout ) ? TRUE : FALSE,
+        DEFAULT_CHARSET,
+        OUT_DEFAULT_PRECIS,
+        CLIP_DEFAULT_PRECIS,
+        DEFAULT_QUALITY,
+        DEFAULT_PITCH | FF_DONTCARE,
+        panelTooltipParam_.fontName.c_str() );
+    smp::error::CheckWinApi( !!hFont_, "CreateFont" );
+
+    bool bRet = SendMessage( hTooltipWnd_, TTM_ADDTOOL, 0, (LPARAM)toolInfo_.get() );
+    smp::error::CheckWinApi( bRet, "SendMessage(TTM_ADDTOOL)" );
+    SendMessage( hTooltipWnd_, TTM_ACTIVATE, FALSE, 0 );
+    SendMessage( hTooltipWnd_, WM_SETFONT, (WPARAM)hFont_, MAKELPARAM( FALSE, 0 ) );
 
     panelTooltipParam_.hTooltip = hTooltipWnd_;
     panelTooltipParam_.tooltipSize.cx = -1;
@@ -103,57 +151,7 @@ JsFbTooltip::CreateNative( JSContext* cx, HWND hParentWnd, panel::PanelTooltipPa
 {
     SmpException::ExpectTrue( hParentWnd, "Internal error: hParentWnd is null" );
 
-    HWND hTooltipWnd = CreateWindowEx(
-        WS_EX_TOPMOST,
-        TOOLTIPS_CLASS,
-        nullptr,
-        WS_POPUP | TTS_ALWAYSTIP | TTS_NOPREFIX,
-        CW_USEDEFAULT,
-        CW_USEDEFAULT,
-        CW_USEDEFAULT,
-        CW_USEDEFAULT,
-        hParentWnd,
-        nullptr,
-        core_api::get_my_instance(),
-        nullptr );
-    smp::error::CheckWinApi( !!hTooltipWnd, "CreateWindowEx" );
-
-    // Original position
-    SetWindowPos( hTooltipWnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE );
-
-    std::unique_ptr<TOOLINFO> toolInfo( new TOOLINFO );
-    // Set up tooltip information.
-    memset( toolInfo.get(), 0, sizeof( TOOLINFO ) );
-
-    toolInfo->cbSize = sizeof( TOOLINFO );
-    toolInfo->uFlags = TTF_IDISHWND | TTF_SUBCLASS | TTF_TRANSPARENT;
-    toolInfo->hinst = core_api::get_my_instance();
-    toolInfo->hwnd = hParentWnd;
-    toolInfo->uId = (UINT_PTR)hParentWnd;
-    toolInfo->lpszText = nullptr;
-
-    HFONT hFont = CreateFont(
-        -(INT)p_param_ptr.fontSize,
-        0,
-        0,
-        0,
-        ( p_param_ptr.fontStyle & Gdiplus::FontStyleBold ) ? FW_BOLD : FW_NORMAL,
-        ( p_param_ptr.fontStyle & Gdiplus::FontStyleItalic ) ? TRUE : FALSE,
-        ( p_param_ptr.fontStyle & Gdiplus::FontStyleUnderline ) ? TRUE : FALSE,
-        ( p_param_ptr.fontStyle & Gdiplus::FontStyleStrikeout ) ? TRUE : FALSE,
-        DEFAULT_CHARSET,
-        OUT_DEFAULT_PRECIS,
-        CLIP_DEFAULT_PRECIS,
-        DEFAULT_QUALITY,
-        DEFAULT_PITCH | FF_DONTCARE,
-        p_param_ptr.fontName.c_str() );
-    smp::error::CheckWinApi( !!hFont, "CreateFont" );
-
-    SendMessage( hTooltipWnd, TTM_ADDTOOL, 0, (LPARAM)toolInfo.get() );
-    SendMessage( hTooltipWnd, TTM_ACTIVATE, FALSE, 0 );
-    SendMessage( hTooltipWnd, WM_SETFONT, (WPARAM)hFont, MAKELPARAM( FALSE, 0 ) );
-
-    return std::unique_ptr<JsFbTooltip>( new JsFbTooltip( cx, hFont, hParentWnd, hTooltipWnd, std::move( toolInfo ), p_param_ptr ) );
+    return std::unique_ptr<JsFbTooltip>( new JsFbTooltip( cx, hParentWnd, p_param_ptr ) );
 }
 
 size_t JsFbTooltip::GetInternalSize( HWND /*hParentWnd*/, const panel::PanelTooltipParam& /*p_param_ptr*/ )
@@ -198,7 +196,7 @@ void JsFbTooltip::SetMaxWidth( uint32_t width )
 
 void JsFbTooltip::TrackPosition( int x, int y )
 {
-    POINT pt = { x, y };
+    POINT pt{ x, y };
     ClientToScreen( hParentWnd_, &pt );
     SendMessage( hTooltipWnd_, TTM_TRACKPOSITION, 0, MAKELONG( pt.x, pt.y ) );
 }
@@ -211,6 +209,11 @@ std::wstring JsFbTooltip::get_Text()
 void JsFbTooltip::put_Text( const std::wstring& text )
 {
     tipBuffer_ = text;
+    constexpr size_t maxTextSize = 79; // as per MSDN
+    if ( tipBuffer_.size() > maxTextSize )
+    {
+        tipBuffer_.resize( maxTextSize );
+    }
     toolInfo_->lpszText = (LPWSTR)tipBuffer_.c_str();
     SendMessage( hTooltipWnd_, TTM_SETTOOLINFO, 0, (LPARAM)toolInfo_.get() );
 }

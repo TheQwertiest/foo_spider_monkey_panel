@@ -1348,11 +1348,7 @@ void js_panel_window::on_mouse_move( WPARAM wp, LPARAM lp )
 {
     if ( !isMouseTracked_ )
     {
-        TRACKMOUSEEVENT tme;
-
-        tme.cbSize = sizeof( tme );
-        tme.hwndTrack = hWnd_;
-        tme.dwFlags = TME_LEAVE;
+        TRACKMOUSEEVENT tme{ sizeof( TRACKMOUSEEVENT ), TME_LEAVE, hWnd_, HOVER_DEFAULT };
         TrackMouseEvent( &tme );
         isMouseTracked_ = true;
 
