@@ -5,6 +5,7 @@
 #include <utils/pfc_helpers.h>
 #include <utils/string_helpers.h>
 #include <utils/thread_pool.h>
+#include <utils/scope_helpers.h>
 
 #include <user_message.h>
 #include <message_manager.h>
@@ -98,7 +99,7 @@ std::unique_ptr<Gdiplus::Bitmap> GetBitmapFromAlbumArtData( const album_art_data
 
     ULONG bytes_written = 0;
     HRESULT hr = iStream->Write( data->get_ptr(), data->get_size(), &bytes_written );
-    if ( !SUCCEEDED( hr ) || bytes_written != data->get_size() )
+    if ( FAILED( hr ) || bytes_written != data->get_size() )
     {
         return nullptr;
     }
@@ -126,7 +127,7 @@ std::unique_ptr<Gdiplus::Bitmap> ExtractBitmap( album_art_extractor_instance_v2:
     if ( pImagePath && ( no_load || bitmap ) )
     {
         auto pathlist = extractor->query_paths( artTypeGuid, abort );
-        if ( pathlist->get_count() > 0 )
+        if ( pathlist->get_count() )
         {
             *pImagePath = file_path_display( pathlist->get_path( 0 ) );
         }
@@ -157,73 +158,82 @@ void embed_thread::run( threaded_process_status& p_status,
     auto api = file_lock_manager::get();
     const auto stlHandleList = smp::Make_Stl_Ref( m_handles );
 
-    for ( auto&& [i, handle] : ranges::view::enumerate( stlHandleList ) )
+    for ( auto&& [i, handle]: ranges::view::enumerate( stlHandleList ) )
     {
         const pfc::string8_fast path = handle->get_path();
         p_status.set_progress( i, stlHandleList.size() );
         p_status.set_item_path( path );
 
         album_art_editor::ptr ptr;
-        if ( album_art_editor::g_get_interface( ptr, path ) )
+        if ( !album_art_editor::g_get_interface( ptr, path ) )
+        {
+            continue;
+        }
+
+        try
         {
             file_lock_ptr lock = api->acquire_write( path, p_abort );
-            try
-            {
-                auto aaep = ptr->open( NULL, path, p_abort );
-                switch ( m_action )
-                {
-                case EmbedAction::embed:
-                {
-                    aaep->set( m_what, m_data, p_abort );
-                    break;
-                }
-                case EmbedAction::remove:
-                {
-                    aaep->remove( m_what );
-                    break;
-                }
-                case EmbedAction::removeAll:
-                {
-                    album_art_editor_instance_v2::ptr v2;
-                    if ( aaep->cast( v2 ) )
-                    { // not all file formats support this
-                        v2->remove_all();
-                    }
-                    else
-                    { // m4a is one example that needs this fallback
-                        aaep->remove( album_art_ids::artist );
-                        aaep->remove( album_art_ids::cover_back );
-                        aaep->remove( album_art_ids::cover_front );
-                        aaep->remove( album_art_ids::disc );
-                        aaep->remove( album_art_ids::icon );
-                    }
-                    break;
-                }
-                default:
-                    assert( 0 );
-                    break;
-                }
+            smp::utils::final_action autoLock( [&lock] { lock.release(); } );
 
-                aaep->commit( p_abort );
+            auto aaep = ptr->open( NULL, path, p_abort );
+            switch ( m_action )
+            {
+            case EmbedAction::embed:
+            {
+                aaep->set( m_what, m_data, p_abort );
+                break;
             }
-            catch ( const pfc::exception& )
-            { // operation failed (e.g. file does not support art embedding)
+            case EmbedAction::remove:
+            {
+                aaep->remove( m_what );
+                break;
             }
-            lock.release();
+            case EmbedAction::removeAll:
+            {
+                album_art_editor_instance_v2::ptr v2;
+                if ( aaep->cast( v2 ) )
+                { // not all file formats support this
+                    v2->remove_all();
+                }
+                else
+                { // m4a is one example that needs this fallback
+                    const GUID* guids[] = {
+                        &album_art_ids::cover_front,
+                        &album_art_ids::cover_back,
+                        &album_art_ids::disc,
+                        &album_art_ids::icon,
+                        &album_art_ids::artist
+                    };
+
+                    for ( const auto pGuid: guids )
+                    {
+                        aaep->remove( *pGuid );
+                    }
+                }
+                break;
+            }
+            default:
+                assert( 0 );
+                break;
+            }
+
+            aaep->commit( p_abort );
+        }
+        catch ( const pfc::exception& )
+        { // operation failed (e.g. file does not support art embedding)
         }
     }
 }
 
 const GUID& GetGuidForArtId( uint32_t art_id )
 {
-    const GUID* guids[] =
-        {
-            &album_art_ids::cover_front,
-            &album_art_ids::cover_back,
-            &album_art_ids::disc,
-            &album_art_ids::icon,
-            &album_art_ids::artist,
-        };
+    const GUID* guids[] = {
+        &album_art_ids::cover_front,
+        &album_art_ids::cover_back,
+        &album_art_ids::disc,
+        &album_art_ids::icon,
+        &album_art_ids::artist,
+    };
 
     if ( art_id >= _countof( guids ) )
     {
