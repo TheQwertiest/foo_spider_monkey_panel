@@ -10,6 +10,7 @@ public:
     HeartbeatWindow( HeartbeatWindow& ) = delete;
     HeartbeatWindow& operator=( HeartbeatWindow& ) = delete;
 
+    /// @throw smp::SmpException
     static std::unique_ptr<HeartbeatWindow> Create();
 
     HWND GetHwnd() const;

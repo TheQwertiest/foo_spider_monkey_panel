@@ -15,7 +15,8 @@ protected:
     virtual void FinalRelease();
 
 public:
-    HostDropTarget( HWND hWnd ) noexcept( false );
+    /// @throw smp::SmpException
+    HostDropTarget( HWND hWnd );
     virtual ~HostDropTarget() = default;
 
     // IDropTarget

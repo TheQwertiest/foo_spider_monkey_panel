@@ -37,7 +37,8 @@ std::string_view ExtractSuffixData( std::string_view& strView, char separator )
 namespace smp::version
 {
 
-SemVer::SemVer( const std::string& strVer ) noexcept( false )
+/// @throw std::runtime_error
+SemVer::SemVer( const std::string& strVer )
 {
     const auto ret = ParseString( strVer );
     if ( !ret )

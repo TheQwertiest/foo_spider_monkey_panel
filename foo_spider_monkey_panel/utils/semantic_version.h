@@ -11,8 +11,8 @@ class SemVer
 {
 public:
     SemVer() = default;
-    /// @details throws std::runtime_error if parsing failed
-    SemVer( const std::string& strVer ) noexcept( false );
+    /// @throw std::runtime_error if parsing failed
+    SemVer( const std::string& strVer );
 
     static std::optional<SemVer> ParseString( const std::string& strVer );
 

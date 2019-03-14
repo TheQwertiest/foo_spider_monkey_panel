@@ -131,7 +131,9 @@ public:
     ULONG STDMETHODCALLTYPE Release( void ) override;
 
 private:
-    void ParseOptions( JS::HandleValue options ) noexcept(false);
+    /// @throw smp::SmpException
+    /// @throw smp::JsException
+    void ParseOptions( JS::HandleValue options );
     void SetOptions();
 
 private:

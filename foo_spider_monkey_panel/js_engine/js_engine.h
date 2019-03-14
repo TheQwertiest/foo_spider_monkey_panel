@@ -50,7 +50,8 @@ private:
     bool Initialize();
     void Finalize();
 
-    void StartHeartbeatThread() noexcept( false );
+    /// @throw smp::SmpException
+    void StartHeartbeatThread();
     void StopHeartbeatThread();
 
     static void RejectedPromiseHandler( JSContext* cx, JS::HandleObject promise,

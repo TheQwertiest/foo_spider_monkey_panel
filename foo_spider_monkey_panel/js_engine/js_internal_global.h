@@ -18,14 +18,18 @@ class JsGlobalObject;
 class JsInternalGlobal
 {
 public:
-    static std::unique_ptr<JsInternalGlobal> Create( JSContext* cx ) noexcept( false );
+    /// @throw smp::SmpException
+    /// @throw smp::JsException
+    static std::unique_ptr<JsInternalGlobal> Create( JSContext* cx );
 
     ~JsInternalGlobal();
 
     void OnSharedAllocate( uint32_t allocationSize );
     void OnSharedDeallocate( uint32_t allocationSize );
 
-    JSScript* GetCachedScript( const std::filesystem::path& absolutePath ) noexcept( false );
+    /// @throw smp::SmpException
+    /// @throw smp::JsException
+    JSScript* GetCachedScript( const std::filesystem::path& absolutePath );
 
 private:
     JsInternalGlobal( JSContext* cx, JS::HandleObject global, JsCompartmentInner* pNativeCompartment );

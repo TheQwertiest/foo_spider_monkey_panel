@@ -12,6 +12,6 @@ void draw_drag_image_label( HWND wnd, bool is_themed, HTHEME theme, HDC dc, cons
 void draw_drag_image_icon( HDC dc, const RECT& rc, HICON icon );
 bool create_drag_image( HWND wnd, bool is_themed, HTHEME theme, COLORREF selection_background_colour,
                         COLORREF selection_text_colour, HICON icon, const LPLOGFONT font, const char* text,
-                        Gdiplus::Bitmap* pUserImage, LPSHDRAGIMAGE lpsdi ) noexcept( false );
+                        Gdiplus::Bitmap* pUserImage, LPSHDRAGIMAGE lpsdi );
 
 } // namespace uih

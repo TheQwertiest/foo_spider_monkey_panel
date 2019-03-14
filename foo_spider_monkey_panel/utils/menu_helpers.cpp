@@ -91,7 +91,8 @@ std::optional<contextmenu_node*> find_context_command_recur( const pfc::string8_
     return std::nullopt;
 }
 
-bool execute_context_command_by_name_unsafe( const pfc::string8_fast& name, const metadb_handle_list& p_handles, unsigned flags ) noexcept( false )
+/// @throw pfc::exception
+bool execute_context_command_by_name_unsafe( const pfc::string8_fast& name, const metadb_handle_list& p_handles, unsigned flags )
 {
     contextmenu_manager::ptr cm;
     contextmenu_manager::g_create( cm );
@@ -220,8 +221,9 @@ std::optional<mainmenu_node::ptr> find_mainmenu_command_v2_node_recur( mainmenu_
     return std::nullopt;
 }
 
+/// @throw pfc::exception
 template <typename F_New, typename F_Old>
-bool ApplyFnOnMainmenuNode( const pfc::string8_fast& name, F_New fnNew, F_Old fnOld ) noexcept( false )
+bool ApplyFnOnMainmenuNode( const pfc::string8_fast& name, F_New fnNew, F_Old fnOld )
 {
     const GuidMenuMap group_guid_text_map = GenerateGuidMainmenuMap();
 

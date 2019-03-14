@@ -10,7 +10,8 @@ namespace smp::com
 class IDropTargetImpl : public IDropTarget
 {
 public:
-    IDropTargetImpl( HWND hWnd ) noexcept( false );
+    /// @throw smp::SmpException
+    IDropTargetImpl( HWND hWnd );
 
     virtual ~IDropTargetImpl();
 
