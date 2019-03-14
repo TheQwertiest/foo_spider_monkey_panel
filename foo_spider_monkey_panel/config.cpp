@@ -150,31 +150,25 @@ bool PanelProperties::g_load_json( config_map& data, stream_reader& reader, abor
             reader.read_string( jsonStr, abort );
         }
 
-        json jsonMain;
-        jsonMain = json::parse( jsonStr.c_str() );
+        json jsonMain = json::parse( jsonStr.c_str() );
         if ( !jsonMain.is_object() )
         {
             return false;
         }
 
-        if ( auto it = jsonMain.find( "version" );
-             jsonMain.cend() == it || !it->is_string() || kPropConfigVersion != it->get<std::string>() )
-        {
-            return false;
-        }
-        if ( auto it = jsonMain.find( "id" );
-             jsonMain.cend() == it || !it->is_string() || kPropConfigId != it->get<std::string>() )
+        if ( jsonMain.at("version").get<std::string>() != kPropConfigVersion
+             || jsonMain.at( "id" ).get<std::string>() != kPropConfigId )
         {
             return false;
         }
 
-        auto valuesIt = jsonMain.find( "values" );
-        if ( jsonMain.cend() == valuesIt || !valuesIt->is_object() )
+        auto& values = jsonMain.at( "values" );
+        if ( !values.is_object() )
         {
             return false;
         }
 
-        for ( auto& [key, value] : valuesIt.value().items() )
+        for ( auto& [key, value] : values.items() )
         {
             if ( key.empty() )
             {
@@ -182,9 +176,6 @@ bool PanelProperties::g_load_json( config_map& data, stream_reader& reader, abor
             }
 
             mozjs::SerializedJsValue serializedValue;
-
-            const auto propName = static_cast<std::string>( key );
-
             if ( value.is_boolean() )
             {
                 serializedValue = value.get<bool>();
@@ -208,7 +199,7 @@ bool PanelProperties::g_load_json( config_map& data, stream_reader& reader, abor
                 continue;
             }
 
-            pfc::stringcvt::string_wide_from_utf8 propnameW( propName.c_str(), propName.length() );
+            pfc::stringcvt::string_wide_from_utf8 propnameW( key.c_str(), key.length() );
             data.emplace( propnameW.get_ptr(), std::make_shared<mozjs::SerializedJsValue>( serializedValue ) );
         }
     }
