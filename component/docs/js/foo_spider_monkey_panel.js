@@ -2553,6 +2553,8 @@ function FbTitleFormat(expression) {
  */
 function FbTooltip() {
     /**
+     * Note: maximum allowed string length is 79 characters. Everything else will be truncated.
+     * 
      * @type {string}
      *
      * @example
@@ -2606,7 +2608,8 @@ function FbTooltip() {
     this.SetMaxWidth = function (width) { }; // (void)
 
     /**
-     * Note: check that x, y positions have changed from the last time, otherwise it will flicker.
+     * Note: check that x, y positions have changed from the last invocation, otherwise it will flicker.<br>
+     * Note 2: ensure that the tooltip does not overlap the mouse pointer, otherwise it will glitch out.
      *
      * @param {number} x
      * @param {number} y
