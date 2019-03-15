@@ -28,9 +28,16 @@ template <typename T>
 unique_gdi_ptr<T> CreateUniquePtr( T pObject )
 {
     static_assert( std::is_same_v<T, HBITMAP> || std::is_same_v<T, HDC> || std::is_same_v<T, HFONT> || std::is_same_v<T, HBRUSH>,
-                   "Unsupported type" );
+                   "Unsupported GDI type" );
 
-    return unique_gdi_ptr<T>( pObject, []( auto pObject ) { DeleteObject( pObject ); } );
+    if constexpr ( std::is_same_v<T, HDC> )
+    {
+        return unique_gdi_ptr<T>( pObject, []( auto pObject ) { DeleteDC( pObject ); } );
+    }
+    else
+    {
+        return unique_gdi_ptr<T>( pObject, []( auto pObject ) { DeleteObject( pObject ); } );
+    }
 }
 
 /// @details Does not report
