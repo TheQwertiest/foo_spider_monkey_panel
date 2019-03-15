@@ -2553,8 +2553,6 @@ function FbTitleFormat(expression) {
  */
 function FbTooltip() {
     /**
-     * Note: maximum allowed string length is 79 characters. Everything else will be truncated.
-     * 
      * @type {string}
      *
      * @example
