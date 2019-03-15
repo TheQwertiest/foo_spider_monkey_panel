@@ -44,6 +44,7 @@ private:
     GcLevel GetGcLevelFromAllocCount();
     uint64_t GetCurrentTotalHeapSize();
     uint64_t GetCurrentTotalAllocCount();
+    void UpdateGcTime();
     void UpdateGcStats();
 
     // GC implementation
@@ -59,8 +60,12 @@ private:
 
     bool isHighFrequency_ = false;
     uint32_t lastGcCheckTime_ = 0;
+    uint32_t lastGcTime_ = 0;
     uint64_t lastTotalHeapSize_ = 0;
     uint64_t lastTotalAllocCount_ = 0;
+
+    bool needToCleanGlobalHeap_ = false;
+    uint64_t lastGlobalHeapSize_ = 0;
 
     // These values are overwritten by config.
     // Remain here mostly as a reference.

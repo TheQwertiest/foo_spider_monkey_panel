@@ -89,8 +89,8 @@ bool JsGc::MaybeGc()
         return true;
     }
 
+    UpdateGcTime();
     PerformGc( gcLevel );
-
     UpdateGcStats();
 
     return ( lastTotalHeapSize_ < maxHeapSize_ );
@@ -131,8 +131,6 @@ bool JsGc::IsTimeToGc()
     {
         return false;
     }
-
-    isHighFrequency_ = timeDiff < kHighFreqTimeLimitMs;
 
     lastGcCheckTime_ = timeGetTime();
     return true;
@@ -197,10 +195,17 @@ JsGc::GcLevel JsGc::GetGcLevelFromAllocCount()
     }
 }
 
+void JsGc::UpdateGcTime()
+{
+    isHighFrequency_ = ( timeGetTime() < ( lastGcTime_ + kHighFreqTimeLimitMs ) );
+    lastGcTime_ = timeGetTime();
+}
+
 void JsGc::UpdateGcStats()
 {
     if ( !JS::IsIncrementalGCInProgress( pJsCtx_ ) )
     { // update only after current gc cycle is finished
+        lastGlobalHeapSize_ = JS_GetGCParameter( pJsCtx_, JSGC_BYTES );
         lastTotalHeapSize_ = GetCurrentTotalHeapSize();
         lastTotalAllocCount_ = GetCurrentTotalAllocCount();
     }
@@ -209,6 +214,7 @@ void JsGc::UpdateGcStats()
 uint64_t JsGc::GetCurrentTotalHeapSize()
 {
     uint64_t curTotalHeapSize = JS_GetGCParameter( pJsCtx_, JSGC_BYTES );
+
     JS_IterateCompartments( pJsCtx_, &curTotalHeapSize, []( JSContext*, void* data, JSCompartment* pJsCompartment ) {
         auto pCurTotalHeapSize = static_cast<uint64_t*>( data );
         auto pNativeCompartment = static_cast<JsCompartmentInner*>( JS_GetCompartmentPrivate( pJsCompartment ) );
@@ -273,23 +279,28 @@ void JsGc::PerformIncrementalGc()
 
     if ( !JS::IsIncrementalGCInProgress( pJsCtx_ ) )
     {
-        std::vector<JSCompartment*> compartments;
-        JS_IterateCompartments( pJsCtx_, &compartments, []( JSContext*, void* data, JSCompartment* pJsCompartment ) {
-            auto pJsCompartments = static_cast<std::vector<JSCompartment*>*>( data );
-            auto pNativeCompartment = static_cast<JsCompartmentInner*>( JS_GetCompartmentPrivate( pJsCompartment ) );
-            if ( !pNativeCompartment )
-            {
-                return;
-            }
+        using ItData = struct
+        {
+            std::vector<JSCompartment*> compartments;
+            bool needToCleanGlobalHeap;
+        };
 
-            if ( pNativeCompartment->IsMarkedForGc() )
+        ItData itData;
+        itData.needToCleanGlobalHeap = needToCleanGlobalHeap_;
+        
+        JS_IterateCompartments( pJsCtx_, &itData, []( JSContext*, void* data, JSCompartment* pJsCompartment ) {
+            auto itData = static_cast<ItData*>( data );
+            auto pNativeCompartment = static_cast<JsCompartmentInner*>( JS_GetCompartmentPrivate( pJsCompartment ) );
+
+            if ( ( !pNativeCompartment && itData->needToCleanGlobalHeap )
+                 || ( pNativeCompartment && pNativeCompartment->IsMarkedForGc() ) )
             {
-                pJsCompartments->push_back( pJsCompartment );
+                itData->compartments.push_back( pJsCompartment );
             }
         } );
-        if ( compartments.size() )
+        if ( itData.compartments.size() )
         {
-            for ( auto pCompartment : compartments )
+            for ( auto pCompartment: itData.compartments )
             {
                 JS::PrepareZoneForGC( js::GetCompartmentZone( pCompartment ) );
             }
@@ -346,6 +357,12 @@ void JsGc::PrepareCompartmentsForGc( GcLevel gcLevel )
         };
         const uint32_t maxHeapGrowthRate = ( isHighFrequency_ ? kHighFreqHeapGrowthMultiplier * heapGrowthRateTrigger_ : heapGrowthRateTrigger_ );
         TriggerData triggers{ maxHeapGrowthRate, allocCountTrigger_ };
+
+        if ( uint64_t curGlobalHeapSize = JS_GetGCParameter( pJsCtx_, JSGC_BYTES );
+             curGlobalHeapSize > ( lastGlobalHeapSize_ + triggers.heapGrowthRateTrigger ) )
+        {
+            needToCleanGlobalHeap_ = true;
+        }
 
         JS_IterateCompartments( pJsCtx_, &triggers, []( JSContext*, void* data, JSCompartment* pJsCompartment ) {
             const TriggerData& pTriggerData = *reinterpret_cast<const TriggerData*>( data );
