@@ -1,6 +1,7 @@
 #pragma once
 
 #include <js_objects/object_base.h>
+#include <utils/gdi_helpers.h>
 
 #include <panel_tooltip_param.h>
 
@@ -54,7 +55,7 @@ private:
 private:
     JSContext* pJsCtx_ = nullptr;
 
-    HFONT hFont_;
+    smp::gdi::unique_gdi_ptr<HFONT> pFont_;
     HWND hTooltipWnd_;
     HWND hParentWnd_;
     std::wstring tipBuffer_;

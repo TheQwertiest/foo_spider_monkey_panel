@@ -873,7 +873,7 @@ void js_panel_window::RepaintBackground( LPRECT lprcUpdate /*= nullptr */ )
         rgn_child = CreateRectRgn( 0, 0, 0, 0 );
     }
 
-    POINT pt = { 0, 0 };
+    POINT pt{ 0, 0 };
     ClientToScreen( hWnd_, &pt );
     ScreenToClient( wnd_parent, &pt );
 
@@ -888,18 +888,20 @@ void js_panel_window::RepaintBackground( LPRECT lprcUpdate /*= nullptr */ )
     SetWindowRgn( hWnd_, rgn_child, FALSE );
     RedrawWindow( wnd_parent, &rect_parent, nullptr, RDW_INVALIDATE | RDW_ERASE | RDW_ERASENOW | RDW_UPDATENOW );
 
-    // Background bitmap
-    HDC dc_parent = GetDC( wnd_parent );
-    HDC hdc_bk = CreateCompatibleDC( dc_parent );
-    
-    HBITMAP old_bmp = SelectBitmap( hdc_bk, hBitmapBg_ );
+    {
+        // Background bitmap
+        const HDC dc_parent = GetDC( wnd_parent );
+        const HDC hdc_bk = CreateCompatibleDC( dc_parent );
+        const HBITMAP old_bmp = SelectBitmap( hdc_bk, hBitmapBg_ );
 
-    // Paint BK
-    BitBlt( hdc_bk, rect_child.left, rect_child.top, rect_child.right - rect_child.left, rect_child.bottom - rect_child.top, dc_parent, pt.x, pt.y, SRCCOPY );
+        // Paint BK
+        BitBlt( hdc_bk, rect_child.left, rect_child.top, rect_child.right - rect_child.left, rect_child.bottom - rect_child.top, dc_parent, pt.x, pt.y, SRCCOPY );
 
-    SelectBitmap( hdc_bk, old_bmp );
-    DeleteDC( hdc_bk );
-    ReleaseDC( wnd_parent, dc_parent );
+        SelectBitmap( hdc_bk, old_bmp );
+        DeleteDC( hdc_bk );
+        ReleaseDC( wnd_parent, dc_parent );
+    }
+
     DeleteRgn( rgn_child );
     SetWindowRgn( hWnd_, nullptr, FALSE );
     if ( smp::config::EdgeStyle::NO_EDGE != get_edge_style() )
@@ -1393,37 +1395,29 @@ void js_panel_window::on_paint( HDC dc, LPRECT lpUpdateRect )
         return;
     }
 
-    HDC memdc = CreateCompatibleDC( dc );
-    auto autoMemDc = smp::gdi::CreateUniquePtr( memdc );
-
-    HBITMAP oldbmp = SelectBitmap( memdc, hBitmap_ );
-    utils::final_action autoBmp( [memdc, oldbmp] {
-        SelectBitmap( memdc, oldbmp );
-    } );
+    auto pMemDc = gdi::CreateUniquePtr( CreateCompatibleDC( dc ) );
+    const HDC hMemDc = pMemDc.get();
+    gdi::ObjectSelector autoBmp( hMemDc, hBitmap_ );
 
     if ( mozjs::JsContainer::JsStatus::EngineFailed == pJsContainer_->GetStatus()
          || mozjs::JsContainer::JsStatus::Failed == pJsContainer_->GetStatus() )
     {
-        on_paint_error( memdc );
+        on_paint_error( hMemDc );
     }
     else
     {
         if ( get_pseudo_transparent() )
         {
-            HDC bkdc = CreateCompatibleDC( dc );
-            auto autoBkDc = smp::gdi::CreateUniquePtr( bkdc );
+            const auto pBkDc = gdi::CreateUniquePtr( CreateCompatibleDC( dc ) );
+            const HDC hBkDc = pBkDc.get();
+            gdi::ObjectSelector autoBgBmp( hBkDc, hBitmapBg_ );
 
-            HBITMAP bkoldbmp = SelectBitmap( bkdc, hBitmapBg_ );
-            utils::final_action autoBkBmp( [bkdc, bkoldbmp] {
-                SelectBitmap( bkdc, bkoldbmp );
-            } );
-
-            BitBlt( memdc,
+            BitBlt( hMemDc,
                     lpUpdateRect->left,
                     lpUpdateRect->top,
                     lpUpdateRect->right - lpUpdateRect->left,
                     lpUpdateRect->bottom - lpUpdateRect->top,
-                    bkdc,
+                    hBkDc,
                     lpUpdateRect->left,
                     lpUpdateRect->top,
                     SRCCOPY );
@@ -1431,13 +1425,13 @@ void js_panel_window::on_paint( HDC dc, LPRECT lpUpdateRect )
         else
         {
             RECT rc{ 0, 0, (LONG)width_, (LONG)height_ };
-            FillRect( memdc, &rc, ( HBRUSH )( COLOR_WINDOW + 1 ) );
+            FillRect( hMemDc, &rc, ( HBRUSH )( COLOR_WINDOW + 1 ) );
         }
 
-        on_paint_user( memdc, lpUpdateRect );
+        on_paint_user( hMemDc, lpUpdateRect );
     }
 
-    BitBlt( dc, 0, 0, width_, height_, memdc, 0, 0, SRCCOPY );
+    BitBlt( dc, 0, 0, width_, height_, hMemDc, 0, 0, SRCCOPY );
 }
 
 void js_panel_window::on_paint_error( HDC memdc )
@@ -1457,16 +1451,12 @@ void js_panel_window::on_paint_error( HDC memdc )
         DEFAULT_QUALITY,
         DEFAULT_PITCH | FF_DONTCARE,
         _T( "Tahoma" ) );
-    auto autoFont = smp::gdi::CreateUniquePtr( newfont );
-
-    HFONT oldfont = (HFONT)SelectObject( memdc, newfont );
-    utils::final_action autoFontSelect( [memdc, oldfont]() {
-        SelectObject( memdc, oldfont );
-    } );
+    const auto autoFont = smp::gdi::CreateUniquePtr( newfont );
+    gdi::ObjectSelector autoFontSelector( memdc, newfont );
 
     LOGBRUSH lbBack = { BS_SOLID, RGB( 225, 60, 45 ), 0 };
-    HBRUSH hBack = CreateBrushIndirect( &lbBack );
-    auto autoHBack = smp::gdi::CreateUniquePtr( hBack );
+    const auto pBrush = smp::gdi::CreateUniquePtr( CreateBrushIndirect( &lbBack ) );
+    const HBRUSH hBack = pBrush.get();
 
     RECT rc{ 0, 0, (LONG)width_, (LONG)height_ };
     FillRect( memdc, &rc, hBack );

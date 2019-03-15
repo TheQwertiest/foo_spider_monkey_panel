@@ -141,16 +141,11 @@ uint32_t JsGdiGraphics::CalcTextHeight( const std::wstring& str, JsGdiFont* font
     SmpException::ExpectTrue( pGdi_, "Internal error: Gdiplus::Graphics object is null" );
     SmpException::ExpectTrue( font, "font argument is null" );
 
-    HFONT hFont = font->GetHFont();
-    HDC dc = pGdi_->GetHDC();
-    HFONT oldfont = SelectFont( dc, hFont );
+    const HDC hDc = pGdi_->GetHDC();
+    smp::utils::final_action autoHdcReleaser( [hDc, pGdi = pGdi_] { pGdi->ReleaseHDC( hDc ); } );
+    gdi::ObjectSelector autoFont( hDc, font->GetHFont() );
 
-    uint32_t textH = smp::utils::get_text_height( dc, str );
-
-    SelectFont( dc, oldfont );
-    pGdi_->ReleaseHDC( dc );
-
-    return textH;
+    return smp::utils::get_text_height( hDc, str );
 }
 
 uint32_t JsGdiGraphics::CalcTextWidth( const std::wstring& str, JsGdiFont* font )
@@ -158,17 +153,11 @@ uint32_t JsGdiGraphics::CalcTextWidth( const std::wstring& str, JsGdiFont* font 
     SmpException::ExpectTrue( pGdi_, "Internal error: Gdiplus::Graphics object is null" );
     SmpException::ExpectTrue( font, "font argument is null" );
 
-    HFONT hFont = font->GetHFont();
-    HDC dc = pGdi_->GetHDC();
-    assert( dc );
-    HFONT oldfont = SelectFont( dc, hFont );
+    const HDC hDc = pGdi_->GetHDC();
+    smp::utils::final_action autoHdcReleaser( [hDc, pGdi = pGdi_] { pGdi->ReleaseHDC( hDc ); } );
+    gdi::ObjectSelector autoFont( hDc, font->GetHFont() );
 
-    uint32_t textW = smp::utils::get_text_width( dc, str );
-
-    SelectFont( dc, oldfont );
-    pGdi_->ReleaseHDC( dc );
-
-    return textW;
+    return smp::utils::get_text_width( hDc, str );
 }
 
 void JsGdiGraphics::DrawEllipse( float x, float y, float w, float h, float line_width, uint32_t colour )
@@ -352,16 +341,11 @@ JSObject* JsGdiGraphics::EstimateLineWrap( const std::wstring& str, JsGdiFont* f
 
     std::list<smp::utils::wrapped_item> result;
     {
-        HFONT hFont = font->GetHFont();
-        assert( hFont );
+        const HDC hDc = pGdi_->GetHDC();
+        smp::utils::final_action autoHdcReleaser( [hDc, pGdi = pGdi_] { pGdi->ReleaseHDC( hDc ); } );
+        gdi::ObjectSelector autoFont( hDc, font->GetHFont() );
 
-        HDC dc = pGdi_->GetHDC();
-        HFONT oldfont = SelectFont( dc, hFont );
-
-        estimate_line_wrap( dc, str, max_width, result );
-
-        SelectFont( dc, oldfont );
-        pGdi_->ReleaseHDC( dc );
+        estimate_line_wrap( hDc, str, max_width, result );
     }
 
     JS::RootedObject jsArray( pJsCtx_, JS_NewArrayObject( pJsCtx_, result.size() * 2 ) );
@@ -467,15 +451,13 @@ void JsGdiGraphics::GdiAlphaBlend( JsGdiRawBitmap* bitmap,
     SmpException::ExpectTrue( pGdi_, "Internal error: Gdiplus::Graphics object is null" );
     SmpException::ExpectTrue( bitmap, "bitmap argument is null" );
 
-    HDC srcDc = bitmap->GetHDC();
+    const HDC srcDc = bitmap->GetHDC();
     assert( srcDc );
 
-    HDC dc = pGdi_->GetHDC();
-    utils::final_action autoHdcReleaser( [pGdi = pGdi_, dc]() {
-        pGdi->ReleaseHDC( dc );
-    } );
+    const HDC hDc = pGdi_->GetHDC();
+    utils::final_action autoHdcReleaser( [pGdi = pGdi_, hDc]() { pGdi->ReleaseHDC( hDc ); } );
 
-    BOOL bRet = ::GdiAlphaBlend( dc, dstX, dstY, dstW, dstH, srcDc, srcX, srcY, srcW, srcH, BLENDFUNCTION{ AC_SRC_OVER, 0, alpha, AC_SRC_ALPHA } );
+    BOOL bRet = ::GdiAlphaBlend( hDc, dstX, dstY, dstW, dstH, srcDc, srcX, srcY, srcW, srcH, BLENDFUNCTION{ AC_SRC_OVER, 0, alpha, AC_SRC_ALPHA } );
     smp::error::CheckWinApi( bRet, "GdiAlphaBlend" );
 }
 
@@ -505,26 +487,24 @@ void JsGdiGraphics::GdiDrawBitmap( JsGdiRawBitmap* bitmap,
     HDC srcDc = bitmap->GetHDC();
     assert( srcDc );
 
-    HDC dc = pGdi_->GetHDC();
-    utils::final_action autoHdcReleaser( [pGdi = pGdi_, dc]() {
-        pGdi->ReleaseHDC( dc );
-    } );
+    HDC hDc = pGdi_->GetHDC();
+    utils::final_action autoHdcReleaser( [pGdi = pGdi_, hDc]() { pGdi->ReleaseHDC( hDc ); } );
 
     BOOL bRet;
     if ( dstW == srcW && dstH == srcH )
     {
-        bRet = BitBlt( dc, dstX, dstY, dstW, dstH, srcDc, srcX, srcY, SRCCOPY );
+        bRet = BitBlt( hDc, dstX, dstY, dstW, dstH, srcDc, srcX, srcY, SRCCOPY );
         smp::error::CheckWinApi( bRet, "BitBlt" );
     }
     else
     {
-        bRet = SetStretchBltMode( dc, HALFTONE );
+        bRet = SetStretchBltMode( hDc, HALFTONE );
         smp::error::CheckWinApi( bRet, "SetStretchBltMode" );
 
-        bRet = SetBrushOrgEx( dc, 0, 0, nullptr );
+        bRet = SetBrushOrgEx( hDc, 0, 0, nullptr );
         smp::error::CheckWinApi( bRet, "SetBrushOrgEx" );
 
-        bRet = StretchBlt( dc, dstX, dstY, dstW, dstH, srcDc, srcX, srcY, srcW, srcH, SRCCOPY );
+        bRet = StretchBlt( hDc, dstX, dstY, dstW, dstH, srcDc, srcX, srcY, srcW, srcH, SRCCOPY );
         smp::error::CheckWinApi( bRet, "StretchBlt" );
     }
 }
@@ -534,25 +514,19 @@ void JsGdiGraphics::GdiDrawText( const std::wstring& str, JsGdiFont* font, uint3
     SmpException::ExpectTrue( pGdi_, "Internal error: Gdiplus::Graphics object is null" );
     SmpException::ExpectTrue( font, "font argument is null" );
 
-    HFONT hFont = font->GetHFont();
-    assert( hFont );
-
-    HDC dc = pGdi_->GetHDC();
-    HFONT oldfont = SelectFont( dc, hFont );
-    utils::final_action autoHdcReleaser( [pGdi = pGdi_, dc, oldfont]() {
-        SelectFont( dc, oldfont );
-        pGdi->ReleaseHDC( dc );
-    } );
+    const HDC hDc = pGdi_->GetHDC();
+    utils::final_action autoHdcReleaser( [pGdi = pGdi_, hDc] { pGdi->ReleaseHDC( hDc ); } );
+    gdi::ObjectSelector autoFont( hDc, font->GetHFont() );
 
     RECT rc{ x, y, static_cast<LONG>( x + w ), static_cast<LONG>( y + h ) };
     DRAWTEXTPARAMS dpt = { sizeof( DRAWTEXTPARAMS ), 4, 0, 0, 0 };
 
-    SetTextColor( dc, smp::colour::convert_argb_to_colorref( colour ) );
+    SetTextColor( hDc, smp::colour::convert_argb_to_colorref( colour ) );
 
-    int iRet = SetBkMode( dc, TRANSPARENT );
+    int iRet = SetBkMode( hDc, TRANSPARENT );
     smp::error::CheckWinApi( CLR_INVALID != iRet, "SetBkMode" );
 
-    UINT uRet = SetTextAlign( dc, TA_LEFT | TA_TOP | TA_NOUPDATECP );
+    UINT uRet = SetTextAlign( hDc, TA_LEFT | TA_TOP | TA_NOUPDATECP );
     smp::error::CheckWinApi( GDI_ERROR != uRet, "SetTextAlign" );
 
     if ( format & DT_MODIFYSTRING )
@@ -566,7 +540,7 @@ void JsGdiGraphics::GdiDrawText( const std::wstring& str, JsGdiFont* font, uint3
         const RECT rc_old = rc;
 
         RECT rc_calc = rc;
-        iRet = DrawText( dc, str.c_str(), -1, &rc_calc, format );
+        iRet = DrawText( hDc, str.c_str(), -1, &rc_calc, format );
         smp::error::CheckWinApi( iRet, "DrawText" );
 
         format &= ~DT_CALCRECT;
@@ -583,7 +557,7 @@ void JsGdiGraphics::GdiDrawText( const std::wstring& str, JsGdiFont* font, uint3
         }
     }
 
-    iRet = DrawTextEx( dc, const_cast<wchar_t*>( str.c_str() ), -1, &rc, format, &dpt );
+    iRet = DrawTextEx( hDc, const_cast<wchar_t*>( str.c_str() ), -1, &rc, format, &dpt );
     smp::error::CheckWinApi( iRet, "DrawTextEx" );
 }
 

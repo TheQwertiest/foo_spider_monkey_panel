@@ -65,17 +65,16 @@ JsGdiRawBitmap::JsGdiRawBitmap( JSContext* cx,
                                 uint32_t width,
                                 uint32_t height )
     : pJsCtx_( cx )
-    , hDc_( std::move( hDc ) )
+    , pDc_( std::move( hDc ) )
     , hBmp_( std::move( hBmp ) )
+    , autoBmp_( pDc_.get(), hBmp_.get() )
     , width_( width )
     , height_( height )
 {
-    hBmpOld_ = SelectBitmap( hDc_.get(), hBmp_.get() );
 }
 
 JsGdiRawBitmap::~JsGdiRawBitmap()
 {
-    SelectBitmap( hDc_.get(), hBmpOld_ );
 }
 
 std::unique_ptr<JsGdiRawBitmap>
@@ -83,14 +82,14 @@ JsGdiRawBitmap::CreateNative( JSContext* cx, Gdiplus::Bitmap* pBmp )
 {
     SmpException::ExpectTrue( pBmp, "Internal error: Gdiplus::Bitmap is null" );
 
-    auto hDc = gdi::CreateUniquePtr( CreateCompatibleDC( nullptr ) );
-    smp::error::CheckWinApi( !!hDc, "CreateCompatibleDC" );
+    auto pDc = gdi::CreateUniquePtr( CreateCompatibleDC( nullptr ) );
+    smp::error::CheckWinApi( !!pDc, "CreateCompatibleDC" );
 
     auto hBitmap = gdi::CreateHBitmapFromGdiPlusBitmap( *pBmp );
     SmpException::ExpectTrue( !!hBitmap, "Internal error: failed to get HBITMAP from Gdiplus::Bitmap" );
 
     return std::unique_ptr<JsGdiRawBitmap>(
-        new JsGdiRawBitmap( cx, std::move( hDc ), std::move( hBitmap ), pBmp->GetWidth(), pBmp->GetHeight() ) );
+        new JsGdiRawBitmap( cx, std::move( pDc ), std::move( hBitmap ), pBmp->GetWidth(), pBmp->GetHeight() ) );
 }
 
 size_t JsGdiRawBitmap::GetInternalSize( Gdiplus::Bitmap* pBmp )
@@ -100,7 +99,7 @@ size_t JsGdiRawBitmap::GetInternalSize( Gdiplus::Bitmap* pBmp )
 
 HDC JsGdiRawBitmap::GetHDC() const
 {
-    return hDc_.get();
+    return pDc_.get();
 }
 
 std::uint32_t JsGdiRawBitmap::get_Height()

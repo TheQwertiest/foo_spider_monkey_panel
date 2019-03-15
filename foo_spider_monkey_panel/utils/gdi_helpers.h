@@ -27,18 +27,44 @@ using unique_gdi_ptr = std::unique_ptr<std::remove_pointer_t<T>, void ( * )( T )
 template <typename T>
 unique_gdi_ptr<T> CreateUniquePtr( T pObject )
 {
-    static_assert( std::is_same_v<T, HBITMAP> || std::is_same_v<T, HDC> || std::is_same_v<T, HFONT> || std::is_same_v<T, HBRUSH>,
+    static_assert( std::is_same_v<T, HDC> 
+                   || std::is_same_v<T, HPEN> || std::is_same_v<T, HBRUSH> || std::is_same_v<T, HRGN>
+                   || std::is_same_v<T, HPALETTE> || std::is_same_v<T, HFONT> || std::is_same_v<T, HBITMAP>,
                    "Unsupported GDI type" );
 
-    if constexpr ( std::is_same_v<T, HDC> )
-    {
-        return unique_gdi_ptr<T>( pObject, []( auto pObject ) { DeleteDC( pObject ); } );
-    }
-    else
-    {
-        return unique_gdi_ptr<T>( pObject, []( auto pObject ) { DeleteObject( pObject ); } );
-    }
+    return unique_gdi_ptr<T>( pObject, []( auto pObject ) {
+        if constexpr ( std::is_same_v<T, HDC> )
+        {
+            DeleteDC( pObject );
+        }
+        else
+        {
+            DeleteObject( pObject );
+        }
+    } );
 }
+
+template <typename T>
+class ObjectSelector
+{
+    static_assert( std::is_same_v<T, HPEN> || std::is_same_v<T, HBRUSH> || std::is_same_v<T, HFONT> || std::is_same_v<T, HBITMAP>,
+                   "Unsupported GDI type" );
+
+public:
+    ObjectSelector( HDC hDc, T pNewObject )
+        : hDc_( hDc )
+        , pOldObject_( SelectObject( hDc, pNewObject ) )
+    {
+    }
+    ~ObjectSelector()
+    {
+        (void)SelectObject( hDc_, pOldObject_ );
+    }
+
+private:
+    HDC hDc_ = nullptr;
+    HGDIOBJ pOldObject_ = nullptr;
+};
 
 /// @details Does not report
 /// @return nullptr - error, create HBITMAP - otherwise

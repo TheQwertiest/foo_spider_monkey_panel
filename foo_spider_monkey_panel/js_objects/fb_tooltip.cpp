@@ -3,8 +3,9 @@
 
 #include <js_engine/js_to_native_invoker.h>
 #include <js_utils/js_error_helper.h>
-#include <utils/winapi_error_helpers.h>
 #include <js_utils/js_object_helper.h>
+#include <utils/winapi_error_helpers.h>
+#include <utils/scope_helpers.h>
 
 using namespace smp;
 
@@ -75,9 +76,8 @@ JsFbTooltip::JsFbTooltip( JSContext* cx, HWND hParentWnd, smp::panel::PanelToolt
     , hParentWnd_( hParentWnd )
     , panelTooltipParam_( p_param_ptr )
     , tipBuffer_( _T( SMP_NAME ) )
+    , pFont_( smp::gdi::CreateUniquePtr<HFONT>( nullptr ) )
 {
-    // TODO: add resource cleanup!
-
     hTooltipWnd_ = CreateWindowEx(
         WS_EX_TOPMOST,
         TOOLTIPS_CLASS,
@@ -93,6 +93,13 @@ JsFbTooltip::JsFbTooltip( JSContext* cx, HWND hParentWnd, smp::panel::PanelToolt
         nullptr );
     smp::error::CheckWinApi( !!hTooltipWnd_, "CreateWindowEx" );
 
+    smp::utils::final_action autoHwnd( [hTooltipWnd = hTooltipWnd_] {
+        if ( IsWindow( hTooltipWnd ) )
+        {
+            DestroyWindow( hTooltipWnd );
+        }
+    } );
+
     // Original position
     SetWindowPos( hTooltipWnd_, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE );
 
@@ -107,7 +114,7 @@ JsFbTooltip::JsFbTooltip( JSContext* cx, HWND hParentWnd, smp::panel::PanelToolt
     toolInfo_->uId = (UINT_PTR)hParentWnd;
     toolInfo_->lpszText = (wchar_t*)tipBuffer_.c_str(); // we need to have text here, otherwise tooltip will glitch out
 
-    hFont_ = CreateFont(
+    pFont_.reset( CreateFont(
         -(INT)panelTooltipParam_.fontSize,
         0,
         0,
@@ -121,28 +128,26 @@ JsFbTooltip::JsFbTooltip( JSContext* cx, HWND hParentWnd, smp::panel::PanelToolt
         CLIP_DEFAULT_PRECIS,
         DEFAULT_QUALITY,
         DEFAULT_PITCH | FF_DONTCARE,
-        panelTooltipParam_.fontName.c_str() );
-    smp::error::CheckWinApi( !!hFont_, "CreateFont" );
+        panelTooltipParam_.fontName.c_str() ) );
+    smp::error::CheckWinApi( !!pFont_, "CreateFont" );
 
     bool bRet = SendMessage( hTooltipWnd_, TTM_ADDTOOL, 0, (LPARAM)toolInfo_.get() );
     smp::error::CheckWinApi( bRet, "SendMessage(TTM_ADDTOOL)" );
     SendMessage( hTooltipWnd_, TTM_ACTIVATE, FALSE, 0 );
-    SendMessage( hTooltipWnd_, WM_SETFONT, (WPARAM)hFont_, MAKELPARAM( FALSE, 0 ) );
+    SendMessage( hTooltipWnd_, WM_SETFONT, (WPARAM)pFont_.get(), MAKELPARAM( FALSE, 0 ) );
 
     panelTooltipParam_.hTooltip = hTooltipWnd_;
     panelTooltipParam_.tooltipSize.cx = -1;
     panelTooltipParam_.tooltipSize.cy = -1;
+
+    autoHwnd.cancel();
 }
 
 JsFbTooltip::~JsFbTooltip()
 {
-    if ( hTooltipWnd_ && IsWindow( hTooltipWnd_ ) )
+    if ( IsWindow( hTooltipWnd_ ) )
     {
         DestroyWindow( hTooltipWnd_ );
-    }
-    if ( hFont_ )
-    {
-        DeleteObject( hFont_ );
     }
 }
 

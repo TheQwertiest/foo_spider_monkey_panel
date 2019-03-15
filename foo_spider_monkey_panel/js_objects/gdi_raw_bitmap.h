@@ -53,9 +53,9 @@ private:
 
 private:
     JSContext* pJsCtx_ = nullptr;
-    smp::gdi::unique_gdi_ptr<HDC> hDc_;
-    smp::gdi::unique_gdi_ptr<HBITMAP> hBmp_;
-    HBITMAP hBmpOld_;
+    const smp::gdi::unique_gdi_ptr<HDC> pDc_;
+    const smp::gdi::unique_gdi_ptr<HBITMAP> hBmp_;
+    const smp::gdi::ObjectSelector<HBITMAP> autoBmp_;
     uint32_t width_;
     uint32_t height_;
 };

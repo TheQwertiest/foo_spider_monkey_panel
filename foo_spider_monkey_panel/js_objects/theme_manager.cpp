@@ -110,9 +110,7 @@ void JsThemeManager::DrawThemeBackground( JsGdiGraphics* gr,
     assert( graphics );
 
     HDC dc = graphics->GetHDC();
-    utils::final_action autoHdcReleaser( [graphics, dc]() {
-        graphics->ReleaseHDC( dc );
-    } );
+    utils::final_action autoHdcReleaser( [graphics, dc]() { graphics->ReleaseHDC( dc ); } );
 
     const RECT rc{ x, y, static_cast<LONG>( x + w ), static_cast<LONG>( y + h ) };
     const RECT clip_rc{ clip_x, clip_y, static_cast<LONG>( clip_x + clip_y ), static_cast<LONG>( clip_w + clip_h ) };
