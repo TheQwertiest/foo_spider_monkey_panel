@@ -24,20 +24,16 @@ public:
 
     ~JsInternalGlobal();
 
-    void OnSharedAllocate( uint32_t allocationSize );
-    void OnSharedDeallocate( uint32_t allocationSize );
-
     /// @throw smp::SmpException
     /// @throw smp::JsException
     JSScript* GetCachedScript( const std::filesystem::path& absolutePath );
 
 private:
-    JsInternalGlobal( JSContext* cx, JS::HandleObject global, JsCompartmentInner* pNativeCompartment );
+    JsInternalGlobal( JSContext* cx, JS::HandleObject global );
 
 private:
     JSContext* pJsCtx_ = nullptr;
     JS::PersistentRootedObject jsGlobal_;
-    JsCompartmentInner* pNativeCompartment_ = nullptr;
 
     struct JsHashMap
     {

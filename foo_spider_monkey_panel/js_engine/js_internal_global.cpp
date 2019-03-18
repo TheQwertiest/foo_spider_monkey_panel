@@ -45,14 +45,12 @@ JSClass jsClass = {
 namespace mozjs
 {
 
-JsInternalGlobal::JsInternalGlobal( JSContext* cx, JS::HandleObject global, JsCompartmentInner* pNativeCompartment )
+JsInternalGlobal::JsInternalGlobal( JSContext* cx, JS::HandleObject global )
     : pJsCtx_( cx )
     , jsGlobal_( cx, global )
-    , pNativeCompartment_( pNativeCompartment )
     , scriptCache_( cx )
 {
     assert( global );
-    assert( pNativeCompartment_ );
 }
 
 JsInternalGlobal::~JsInternalGlobal()
@@ -72,32 +70,10 @@ std::unique_ptr<JsInternalGlobal> JsInternalGlobal::Create( JSContext* cx )
 
     JS::CompartmentOptions options;
     JS::RootedObject jsObj( cx,
-                            JS_NewGlobalObject( cx, &jsClass, nullptr, JS::DontFireOnNewGlobalHook, options ) );
-    if ( !jsObj )
-    {
-        throw smp::JsException();
-    }
+                            JS_NewGlobalObject( cx, &jsClass, nullptr, JS::FireOnNewGlobalHook, options ) );
+    smp::JsException::ExpectTrue( jsObj );
 
-    JsCompartmentInner* pInnerCompartment = nullptr;
-    {
-        JSAutoCompartment ac( cx, jsObj );
-        pInnerCompartment = new JsCompartmentInner();
-        JS_SetCompartmentPrivate( js::GetContextCompartment( cx ), pInnerCompartment );
-
-        JS_FireOnNewGlobalObject( cx, jsObj );
-    }
-
-    return std::unique_ptr<JsInternalGlobal>( new JsInternalGlobal( cx, jsObj, pInnerCompartment ) );
-}
-
-void JsInternalGlobal::OnSharedAllocate( uint32_t allocationSize )
-{
-    pNativeCompartment_->OnHeapAllocate( allocationSize );
-}
-
-void JsInternalGlobal::OnSharedDeallocate( uint32_t allocationSize )
-{
-    pNativeCompartment_->OnHeapDeallocate( allocationSize );
+    return std::unique_ptr<JsInternalGlobal>( new JsInternalGlobal( cx, jsObj ) );
 }
 
 JSScript* JsInternalGlobal::GetCachedScript( const std::filesystem::path& absolutePath )
