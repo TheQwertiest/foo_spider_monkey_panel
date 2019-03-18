@@ -44,7 +44,6 @@ private:
     GcLevel GetGcLevelFromAllocCount();
     uint64_t GetCurrentTotalHeapSize();
     uint64_t GetCurrentTotalAllocCount();
-    void UpdateGcTime();
     void UpdateGcStats();
 
     // GC implementation

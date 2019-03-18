@@ -89,7 +89,6 @@ bool JsGc::MaybeGc()
         return true;
     }
 
-    UpdateGcTime();
     PerformGc( gcLevel );
     UpdateGcStats();
 
@@ -195,19 +194,20 @@ JsGc::GcLevel JsGc::GetGcLevelFromAllocCount()
     }
 }
 
-void JsGc::UpdateGcTime()
-{
-    isHighFrequency_ = ( timeGetTime() < ( lastGcTime_ + kHighFreqTimeLimitMs ) );
-    lastGcTime_ = timeGetTime();
-}
-
 void JsGc::UpdateGcStats()
 {
     if ( !JS::IsIncrementalGCInProgress( pJsCtx_ ) )
     { // update only after current gc cycle is finished
+        needToCleanGlobalHeap_ = false;
         lastGlobalHeapSize_ = JS_GetGCParameter( pJsCtx_, JSGC_BYTES );
         lastTotalHeapSize_ = GetCurrentTotalHeapSize();
         lastTotalAllocCount_ = GetCurrentTotalAllocCount();
+
+        const auto curTime = timeGetTime();
+        isHighFrequency_ = ( lastGcTime_ 
+                             ? curTime < ( lastGcTime_ + kHighFreqTimeLimitMs ) 
+                             : false );
+        lastGcTime_ = curTime;
     }
 }
 
@@ -273,77 +273,6 @@ void JsGc::PerformGc( GcLevel gcLevel )
     }
 }
 
-void JsGc::PerformIncrementalGc()
-{
-    const uint32_t sliceBudget = ( isHighFrequency_ ? kHighFreqBudgetMultiplier * gcSliceTimeBudget_ : gcSliceTimeBudget_ );
-
-    if ( !JS::IsIncrementalGCInProgress( pJsCtx_ ) )
-    {
-        using ItData = struct
-        {
-            std::vector<JSCompartment*> compartments;
-            bool needToCleanGlobalHeap;
-        };
-
-        ItData itData;
-        itData.needToCleanGlobalHeap = needToCleanGlobalHeap_;
-        
-        JS_IterateCompartments( pJsCtx_, &itData, []( JSContext*, void* data, JSCompartment* pJsCompartment ) {
-            auto itData = static_cast<ItData*>( data );
-            auto pNativeCompartment = static_cast<JsCompartmentInner*>( JS_GetCompartmentPrivate( pJsCompartment ) );
-
-            if ( ( !pNativeCompartment && itData->needToCleanGlobalHeap )
-                 || ( pNativeCompartment && pNativeCompartment->IsMarkedForGc() ) )
-            {
-                itData->compartments.push_back( pJsCompartment );
-            }
-        } );
-        if ( itData.compartments.size() )
-        {
-            for ( auto pCompartment: itData.compartments )
-            {
-                JS::PrepareZoneForGC( js::GetCompartmentZone( pCompartment ) );
-            }
-        }
-        else
-        {
-            JS::PrepareForFullGC( pJsCtx_ );
-        }
-
-        JS::StartIncrementalGC( pJsCtx_, GC_NORMAL, JS::gcreason::RESERVED1, sliceBudget );
-    }
-    else
-    {
-        JS::PrepareForIncrementalGC( pJsCtx_ );
-        JS::IncrementalGCSlice( pJsCtx_, JS::gcreason::RESERVED2, sliceBudget );
-    }
-}
-
-void JsGc::PerformNormalGc()
-{
-    if ( JS::IsIncrementalGCInProgress( pJsCtx_ ) )
-    {
-        JS::PrepareForIncrementalGC( pJsCtx_ );
-        JS::FinishIncrementalGC( pJsCtx_, JS::gcreason::RESERVED3 );
-    }
-
-    JS_GC( pJsCtx_ );
-}
-
-void JsGc::PerformFullGc()
-{
-    if ( JS::IsIncrementalGCInProgress( pJsCtx_ ) )
-    {
-        JS::PrepareForIncrementalGC( pJsCtx_ );
-        JS::FinishIncrementalGC( pJsCtx_, JS::gcreason::RESERVED4 );
-    }
-
-    JS_SetGCParameter( pJsCtx_, JSGC_MODE, JSGC_MODE_GLOBAL );
-    JS::PrepareForFullGC( pJsCtx_ );
-    JS::GCForReason( pJsCtx_, GC_SHRINK, JS::gcreason::RESERVED5 );
-    JS_SetGCParameter( pJsCtx_, JSGC_MODE, JSGC_MODE_INCREMENTAL );
-}
-
 void JsGc::PrepareCompartmentsForGc( GcLevel gcLevel )
 {
     switch ( gcLevel )
@@ -400,6 +329,76 @@ void JsGc::PrepareCompartmentsForGc( GcLevel gcLevel )
         assert( 0 );
         break;
     }
+}
+
+void JsGc::PerformIncrementalGc()
+{
+    const uint32_t sliceBudget = ( isHighFrequency_ ? kHighFreqBudgetMultiplier * gcSliceTimeBudget_ : gcSliceTimeBudget_ );
+
+    if ( !JS::IsIncrementalGCInProgress( pJsCtx_ ) )
+    {
+        if ( needToCleanGlobalHeap_ )
+        {
+            JS::PrepareForFullGC( pJsCtx_ );
+        }
+        else
+        {
+            std::vector<JSCompartment*> compartments;
+
+            JS_IterateCompartments( pJsCtx_, &compartments, []( JSContext*, void* data, JSCompartment* pJsCompartment ) {
+                auto pCompartments = static_cast<std::vector<JSCompartment*>*>( data );
+                auto pNativeCompartment = static_cast<JsCompartmentInner*>( JS_GetCompartmentPrivate( pJsCompartment ) );
+
+                if ( pNativeCompartment && pNativeCompartment->IsMarkedForGc() )
+                {
+                    pCompartments->push_back( pJsCompartment );
+                }
+            } );
+            if ( compartments.size() )
+            {
+                for ( auto pCompartment: compartments )
+                {
+                    JS::PrepareZoneForGC( js::GetCompartmentZone( pCompartment ) );
+                }
+            }
+            else
+            {
+                JS::PrepareForFullGC( pJsCtx_ );
+            }
+        }
+
+        JS::StartIncrementalGC( pJsCtx_, GC_NORMAL, JS::gcreason::RESERVED1, sliceBudget );
+    }
+    else
+    {
+        JS::PrepareForIncrementalGC( pJsCtx_ );
+        JS::IncrementalGCSlice( pJsCtx_, JS::gcreason::RESERVED2, sliceBudget );
+    }
+}
+
+void JsGc::PerformNormalGc()
+{
+    if ( JS::IsIncrementalGCInProgress( pJsCtx_ ) )
+    {
+        JS::PrepareForIncrementalGC( pJsCtx_ );
+        JS::FinishIncrementalGC( pJsCtx_, JS::gcreason::RESERVED3 );
+    }
+
+    JS_GC( pJsCtx_ );
+}
+
+void JsGc::PerformFullGc()
+{
+    if ( JS::IsIncrementalGCInProgress( pJsCtx_ ) )
+    {
+        JS::PrepareForIncrementalGC( pJsCtx_ );
+        JS::FinishIncrementalGC( pJsCtx_, JS::gcreason::RESERVED4 );
+    }
+
+    JS_SetGCParameter( pJsCtx_, JSGC_MODE, JSGC_MODE_GLOBAL );
+    JS::PrepareForFullGC( pJsCtx_ );
+    JS::GCForReason( pJsCtx_, GC_SHRINK, JS::gcreason::RESERVED5 );
+    JS_SetGCParameter( pJsCtx_, JSGC_MODE, JSGC_MODE_INCREMENTAL );
 }
 
 void JsGc::NotifyCompartmentsOnGcEnd()
