@@ -118,10 +118,7 @@ bool JsEngine::Initialize()
     try
     {
         autoJsCtx.reset( JS_NewContext( jsGc_.GetMaxHeap() ) );
-        if ( !autoJsCtx )
-        {
-            throw SmpException( "JS_NewContext failed" );
-        }
+        SmpException::ExpectTrue( autoJsCtx.get(), "JS_NewContext failed" );
 
         JSContext* cx = autoJsCtx.get();
 
@@ -169,7 +166,9 @@ void JsEngine::Finalize()
 {
     if ( pJsCtx_ )
     {
+        // Stop the thread first, so that we don't get additional GC's during jsGc.Finalize
         StopHeartbeatThread();
+        jsGc_.Finalize();
 
         internalGlobal_.reset();
         rejectedPromises_.reset();

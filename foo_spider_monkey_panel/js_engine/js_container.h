@@ -52,6 +52,9 @@ public:
 
     bool ExecuteScript( const pfc::string8_fast& scriptCode );
 
+    static void RunJobs();
+
+public:
     template <typename ReturnType = std::nullptr_t, typename... ArgTypes>
     std::optional<ReturnType> InvokeJsCallback( pfc::string8_fast functionName,
                                                 ArgTypes&&... args )
@@ -65,9 +68,6 @@ public:
         return mozjs::InvokeJsCallback<ReturnType>( pJsCtx_, jsGlobal_, functionName, std::forward<ArgTypes>( args )... );
     }
 
-    static void RunJobs();
-
-public: // callbacks that require js data
     void InvokeOnDragAction( const pfc::string8_fast& functionName, const POINTL& pt, uint32_t keyState, smp::panel::DropActionParams& actionParams );
     void InvokeOnNotify( WPARAM wp, LPARAM lp );
     void InvokeOnPaint( Gdiplus::Graphics& gr );
