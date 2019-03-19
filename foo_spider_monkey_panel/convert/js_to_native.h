@@ -5,6 +5,8 @@
 namespace mozjs::convert::to_native
 {
 
+// Forward declarations
+
 template <typename T, typename F>
 void ProcessArray( JSContext* cx, JS::HandleObject jsObject, F&& workerFunc );
 
@@ -49,10 +51,7 @@ template <typename T>
 T ToSimpleValue( JSContext* cx, const JS::HandleObject& jsObject )
 {
     auto pNative = mozjs::GetInnerInstancePrivate<std::remove_pointer_t<T>>( cx, jsObject );
-    if ( !pNative )
-    {
-        throw smp::SmpException( "Object is not of valid type" );
-    }
+    smp::SmpException::ExpectTrue( pNative, "Object is not of valid type" );
 
     return pNative;
 }
@@ -166,14 +165,50 @@ T ToValue( JSContext* cx, JS::HandleValue jsValue )
 template <typename T>
 T ToValue( JSContext* cx, const JS::HandleString& jsString )
 {
-    static_assert( "Unsupported type" );
+    JS::AutoCheckCannotGC nogc;
+    size_t stringLength;
+    const JS::Latin1Char* chars = nullptr;
+    const char16_t* chars16 = nullptr;
+    
+    if ( JS_StringHasLatin1Chars( jsString ) )
+    {
+        chars = JS_GetLatin1StringCharsAndLength( cx, nogc, jsString, &stringLength );
+        smp::JsException::ExpectTrue( chars );
+    }
+    else
+    {
+        chars16 = JS_GetTwoByteStringCharsAndLength( cx, nogc, jsString, &stringLength );
+        smp::JsException::ExpectTrue( chars16 );
+    }
+    assert( chars || chars16 );
+    
+    if constexpr ( std::is_same_v<T, pfc::string8_fast> )
+    {
+        if ( chars )
+        {
+            return pfc::string8_fast{ reinterpret_cast<const char*>( chars ), stringLength };
+        }
+        else
+        {
+            return pfc::string8_fast{ pfc::stringcvt::string_utf8_from_wide( reinterpret_cast<const wchar_t*>( chars16 ), stringLength ) };
+        }
+    }
+    else if constexpr ( std::is_same_v<T, std::wstring> )
+    {
+        if ( chars )
+        {
+            return std::wstring{ pfc::stringcvt::string_wide_from_utf8( reinterpret_cast<const char*>( chars ), stringLength ) };
+        }
+        else
+        {
+            return std::wstring{ reinterpret_cast<const wchar_t*>( chars16 ), stringLength };
+        }
+    }
+    else
+    {
+        static_assert( 0, "Unsupported type" );
+    }
 }
-
-template <>
-pfc::string8_fast ToValue<pfc::string8_fast>( JSContext* cx, const JS::HandleString& jsString );
-
-template <>
-std::wstring ToValue<std::wstring>( JSContext* cx, const JS::HandleString& jsString );
 
 template <typename T, typename F>
 void ProcessArray( JSContext* cx, JS::HandleObject jsObject, F&& workerFunc )
@@ -183,11 +218,7 @@ void ProcessArray( JSContext* cx, JS::HandleObject jsObject, F&& workerFunc )
     {
         throw smp::JsException();
     }
-
-    if ( !is )
-    {
-        throw smp::SmpException( "Object is not an array" );
-    }
+    smp::SmpException::ExpectTrue( is, "Object is not an array" );
 
     uint32_t arraySize;
     if ( !JS_GetArrayLength( cx, jsObject, &arraySize ) )
@@ -217,10 +248,8 @@ template <typename T, typename F>
 void ProcessArray( JSContext* cx, JS::HandleValue jsValue, F&& workerFunc )
 {
     JS::RootedObject jsObject( cx, jsValue.toObjectOrNull() );
-    if ( !jsObject )
-    {
-        throw smp::SmpException( "Value is not a JS object" );
-    }
+    smp::SmpException::ExpectTrue( jsObject, "Value is not a JS object" );
+
     to_native::ProcessArray<T>( cx, jsObject, std::forward<F>( workerFunc ) );
 }
 
