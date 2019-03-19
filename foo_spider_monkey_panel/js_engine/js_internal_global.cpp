@@ -78,7 +78,11 @@ std::unique_ptr<JsInternalGlobal> JsInternalGlobal::Create( JSContext* cx )
 
 JSScript* JsInternalGlobal::GetCachedScript( const std::filesystem::path& absolutePath )
 {
-    assert( absolutePath.is_absolute() );    
+    assert( absolutePath.is_absolute() );
+
+    // Shared scripts must be saved in the shared global compartment (vs their respective compartments)
+    // to prevent GC issues
+    JSAutoCompartment ac( pJsCtx_, jsGlobal_ );
 
     auto& scriptDataMap = scriptCache_.get().data;
     const auto u8path = absolutePath.lexically_normal().u8string();
@@ -91,7 +95,7 @@ JSScript* JsInternalGlobal::GetCachedScript( const std::filesystem::path& absolu
         {
             throw SmpException( fmt::format( "Failed to open file `{}`: {}", u8path.c_str(), e.what() ) );
         }
-    }( );
+    }();
 
     if ( auto it = scriptDataMap.find( u8path.c_str() );
          scriptDataMap.cend() != it )
