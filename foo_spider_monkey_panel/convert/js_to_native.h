@@ -163,7 +163,17 @@ T ToValue( JSContext* cx, JS::HandleValue jsValue )
     }
 }
 
-std::wstring ToValue( JSContext* cx, const JS::HandleString& jsString );
+template <typename T>
+T ToValue( JSContext* cx, const JS::HandleString& jsString )
+{
+    static_assert( "Unsupported type" );
+}
+
+template <>
+pfc::string8_fast ToValue<pfc::string8_fast>( JSContext* cx, const JS::HandleString& jsString );
+
+template <>
+std::wstring ToValue<std::wstring>( JSContext* cx, const JS::HandleString& jsString );
 
 template <typename T, typename F>
 void ProcessArray( JSContext* cx, JS::HandleObject jsObject, F&& workerFunc )

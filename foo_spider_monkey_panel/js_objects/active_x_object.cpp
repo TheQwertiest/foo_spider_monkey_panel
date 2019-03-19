@@ -119,7 +119,7 @@ bool ActiveXObjectProxyHandler::get( JSContext* cx, JS::HandleObject proxy, JS::
                 JS::RootedString jsString( cx, JSID_TO_STRING( id ) );
                 assert( jsString );
 
-                propName = convert::to_native::ToValue( cx, jsString );
+                propName = convert::to_native::ToValue<std::wstring>( cx, jsString );
             }
             else if ( JSID_IS_INT( id ) )
             {
@@ -159,7 +159,7 @@ bool ActiveXObjectProxyHandler::set( JSContext* cx, JS::HandleObject proxy, JS::
         JS::RootedString jsString( cx, JSID_TO_STRING( id ) );
         assert( jsString );
 
-        const std::wstring propName = convert::to_native::ToValue( cx, jsString );
+        const std::wstring propName = convert::to_native::ToValue<std::wstring>( cx, jsString );
 
         if ( pNativeTarget->IsSet( propName ) )
         {
@@ -262,7 +262,7 @@ bool ActiveX_Run_Impl( JSContext* cx, unsigned argc, JS::Value* vp )
     JS::RootedString jsString( cx, JS_GetFunctionId( JS_ValueToFunction( cx, args.calleev() ) ) );
     smp::SmpException::ExpectTrue( jsString, "Failed to get function name" );
 
-    pNative->Invoke( convert::to_native::ToValue( cx, jsString ), args );
+    pNative->Invoke( convert::to_native::ToValue<std::wstring>( cx, jsString ), args );
     return true;
 }
 

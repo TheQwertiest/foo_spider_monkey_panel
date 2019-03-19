@@ -104,15 +104,15 @@ double ToSimpleValue( JSContext* cx, const JS::HandleValue& jsValue )
 template <>
 pfc::string8_fast ToSimpleValue( JSContext* cx, const JS::HandleValue& jsValue )
 {
-    auto retValue = ToSimpleValue<std::wstring>( cx, jsValue );
-    return pfc::string8_fast( pfc::stringcvt::string_utf8_from_wide( retValue.c_str(), retValue.length() ) );
+    JS::RootedString jsString( cx, JS::ToString( cx, jsValue ) );
+    return ToValue<pfc::string8_fast>( cx, jsString );
 }
 
 template <>
 std::wstring ToSimpleValue( JSContext* cx, const JS::HandleValue& jsValue )
 {
     JS::RootedString jsString( cx, JS::ToString( cx, jsValue ) );
-    return ToValue( cx, jsString );
+    return ToValue<std::wstring>( cx, jsString );
 }
 
 template <>
@@ -128,17 +128,38 @@ std::nullptr_t ToSimpleValue( JSContext* cx, const JS::HandleValue& jsValue )
 namespace mozjs::convert::to_native
 {
 
-std::wstring ToValue( JSContext* cx, const JS::HandleString& jsString )
+template <>
+pfc::string8_fast ToValue( JSContext* cx, const JS::HandleString& jsString )
 {
-    size_t strLen = JS_GetStringLength( jsString );
-    std::wstring wStr( strLen, '\0' );
-    mozilla::Range<char16_t> wCharStr( reinterpret_cast<char16_t*>( wStr.data() ), strLen );
-    if ( !JS_CopyStringChars( cx, wCharStr, jsString ) )
+    if ( !JS_StringHasLatin1Chars( jsString ) )
     {
-        throw smp::JsException();
+        auto retValue = ToValue<std::wstring>( cx, jsString );
+        return pfc::string8_fast( pfc::stringcvt::string_utf8_from_wide( retValue.c_str(), retValue.length() ) );
     }
 
-    return wStr;
+    size_t stringLength;
+    JS::AutoCheckCannotGC nogc;
+    const JS::Latin1Char* chars = JS_GetLatin1StringCharsAndLength( cx, nogc, jsString, &stringLength );
+    smp::JsException::ExpectTrue( chars );
+
+    return pfc::string8_fast{ reinterpret_cast<const char*>( chars ), stringLength };
+}
+
+template <>
+std::wstring ToValue( JSContext* cx, const JS::HandleString& jsString )
+{
+    if ( JS_StringHasLatin1Chars( jsString ) )
+    {
+        auto retValue = ToValue<pfc::string8_fast>( cx, jsString );
+        return std::wstring( pfc::stringcvt::string_wide_from_utf8( retValue.c_str(), retValue.length() ) );
+    }
+
+    size_t stringLength;
+    JS::AutoCheckCannotGC nogc;
+    const char16_t* chars = JS_GetTwoByteStringCharsAndLength( cx, nogc, jsString, &stringLength );
+    smp::JsException::ExpectTrue( chars );
+
+    return std::wstring{ reinterpret_cast<const wchar_t*>( chars ), stringLength };
 }
 
 } // namespace mozjs::convert::to_native
