@@ -124,3 +124,28 @@ std::nullptr_t ToSimpleValue( JSContext* cx, const JS::HandleValue& jsValue )
 }
 
 } // namespace mozjs::convert::to_native::internal
+
+namespace mozjs::convert::to_native
+{
+
+template <>
+pfc::string8_fast ToValue( JSContext* cx, const JS::HandleString& jsString )
+{
+    const auto& wStr = ToValue<std::wstring>( cx, jsString );
+    return pfc::string8_fast{ pfc::stringcvt::string_utf8_from_wide( wStr.c_str(), wStr.size() ) };
+}
+
+template <>
+std::wstring ToValue( JSContext* cx, const JS::HandleString& jsString )
+{
+    std::wstring wStr( JS_GetStringLength( jsString ), '\0' );
+    mozilla::Range<char16_t> wCharStr( reinterpret_cast<char16_t*>( wStr.data() ), wStr.size() );
+    if ( !JS_CopyStringChars( cx, wCharStr, jsString ) )
+    {
+        throw smp::JsException();
+    }
+
+    return wStr;
+}
+
+} // namespace mozjs::convert::to_native

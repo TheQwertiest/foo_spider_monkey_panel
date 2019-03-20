@@ -13,7 +13,7 @@ void ProcessArray( JSContext* cx, JS::HandleObject jsObject, F&& workerFunc );
 template <typename T, typename F>
 void ProcessArray( JSContext* cx, JS::HandleValue jsValue, F&& workerFunc );
 
-}
+} // namespace mozjs::convert::to_native
 
 namespace mozjs::convert::to_native::internal
 {
@@ -104,10 +104,7 @@ template <typename T>
 std::vector<T> ToVector( JSContext* cx, JS::HandleObject jsObject )
 {
     std::vector<T> nativeValues;
-    if ( !ProcessArray<T>( cx, jsObject, [&nativeValues]( T&& nativeValue ) { nativeValues.push_back( std::forward<T>( nativeValue ) ); } ) )
-    { // reports
-        return std::nullopt;
-    }
+    ProcessArray<T>( cx, jsObject, [&nativeValues]( T&& nativeValue ) { nativeValues.push_back( std::forward<T>( nativeValue ) ); } );
 
     return nativeValues;
 }
@@ -115,13 +112,10 @@ std::vector<T> ToVector( JSContext* cx, JS::HandleObject jsObject )
 template <typename T>
 std::vector<T> ToVector( JSContext* cx, JS::HandleValue jsValue )
 {
-    std::vector<T> nativeValues;
-    if ( !ProcessArray<T>( cx, jsValue, [&nativeValues]( T&& nativeValue ) { nativeValues.push_back( std::forward<T>( nativeValue ) ); } ) )
-    { // reports
-        return std::nullopt;
-    }
+    JS::RootedObject jsObject( cx, jsValue.toObjectOrNull() );
+    smp::SmpException::ExpectTrue( jsObject, "Value is not a JS object" );
 
-    return nativeValues;
+    return ToVector<T>( cx, jsObject );
 }
 
 } // namespace mozjs::convert::to_native::internal
@@ -165,50 +159,14 @@ T ToValue( JSContext* cx, JS::HandleValue jsValue )
 template <typename T>
 T ToValue( JSContext* cx, const JS::HandleString& jsString )
 {
-    JS::AutoCheckCannotGC nogc;
-    size_t stringLength;
-    const JS::Latin1Char* chars = nullptr;
-    const char16_t* chars16 = nullptr;
-    
-    if ( JS_StringHasLatin1Chars( jsString ) )
-    {
-        chars = JS_GetLatin1StringCharsAndLength( cx, nogc, jsString, &stringLength );
-        smp::JsException::ExpectTrue( chars );
-    }
-    else
-    {
-        chars16 = JS_GetTwoByteStringCharsAndLength( cx, nogc, jsString, &stringLength );
-        smp::JsException::ExpectTrue( chars16 );
-    }
-    assert( chars || chars16 );
-    
-    if constexpr ( std::is_same_v<T, pfc::string8_fast> )
-    {
-        if ( chars )
-        {
-            return pfc::string8_fast{ reinterpret_cast<const char*>( chars ), stringLength };
-        }
-        else
-        {
-            return pfc::string8_fast{ pfc::stringcvt::string_utf8_from_wide( reinterpret_cast<const wchar_t*>( chars16 ), stringLength ) };
-        }
-    }
-    else if constexpr ( std::is_same_v<T, std::wstring> )
-    {
-        if ( chars )
-        {
-            return std::wstring{ pfc::stringcvt::string_wide_from_utf8( reinterpret_cast<const char*>( chars ), stringLength ) };
-        }
-        else
-        {
-            return std::wstring{ reinterpret_cast<const wchar_t*>( chars16 ), stringLength };
-        }
-    }
-    else
-    {
-        static_assert( 0, "Unsupported type" );
-    }
+    static_assert( 0, "Unsupported type" );
 }
+
+template <>
+pfc::string8_fast ToValue( JSContext* cx, const JS::HandleString& jsString );
+
+template <>
+std::wstring ToValue( JSContext* cx, const JS::HandleString& jsString );
 
 template <typename T, typename F>
 void ProcessArray( JSContext* cx, JS::HandleObject jsObject, F&& workerFunc )
@@ -227,7 +185,7 @@ void ProcessArray( JSContext* cx, JS::HandleObject jsObject, F&& workerFunc )
     }
 
     if ( !arraySize )
-    {// small optimization
+    { // small optimization
         return;
     }
 
