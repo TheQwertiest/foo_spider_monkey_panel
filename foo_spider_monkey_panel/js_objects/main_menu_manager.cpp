@@ -129,10 +129,7 @@ void JsMainMenuManager::Init( const pfc::string8_fast& root_name )
     auto result = ranges::find_if( validRoots, [&preparedRootName]( auto& root ) {
         return preparedRootName == root.name;
     } );
-    if ( result == std::cend( validRoots ) )
-    {
-        throw SmpException( fmt::format( "Invalid menu root name: {}", root_name.c_str() ) );
-    }
+    SmpException::ExpectTrue( result != std::cend( validRoots ), "Invalid menu root name: {}", root_name );
 
     menuManager_ = standard_api_create_t<mainmenu_manager>();
     menuManager_->instantiate( *( result->guid ) );

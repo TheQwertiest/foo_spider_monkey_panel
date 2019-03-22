@@ -150,11 +150,12 @@ FileReader::FileReader( const std::filesystem::path& path, bool checkFileExisten
 {
     namespace fs = std::filesystem;
 
+    const auto u8path = path.u8string();
     try
     {
         if ( checkFileExistense && ( !fs::exists( path ) || !fs::is_regular_file( path ) ) )
         {
-            throw SmpException( fmt::format( "Path does not point to a valid file: {}", path.u8string().c_str() ) );
+            throw SmpException( fmt::format( "Path does not point to a valid file: {}", u8path ) );
         }
 
         if ( !fs::file_size( path ) )
@@ -176,6 +177,8 @@ FileReader::FileReader( const std::filesystem::path& path, bool checkFileExisten
         } );
 
         fileSize_ = GetFileSize( hFile_, nullptr );
+        SmpException::ExpectTrue( fileSize_ != INVALID_FILE_SIZE, "Internal error: failed to read file size of `{}`", u8path.c_str() );
+
         pFileView_ = (LPCBYTE)MapViewOfFile( hFileMapping_, FILE_MAP_READ, 0, 0, 0 );
         smp::error::CheckWinApi( pFileView_, "MapViewOfFile" );
 
@@ -183,18 +186,13 @@ FileReader::FileReader( const std::filesystem::path& path, bool checkFileExisten
             UnmapViewOfFile( pFileView );
         } );
 
-        if ( fileSize_ == INVALID_FILE_SIZE )
-        {
-            throw SmpException( fmt::format( "Internal error: failed to read file size of `{}`", path.u8string().c_str() ) );
-        }
-
         autoAddress.cancel();
         autoMapping.cancel();
         autoFile.cancel();
     }
     catch ( const fs::filesystem_error& e )
     {
-        throw SmpException( fmt::format( "Failed to open file `{}`: {}", path.u8string().c_str(), e.what() ) );
+        throw SmpException( fmt::format( "Failed to open file `{}`: {}", u8path, e.what() ) );
     }
 }
 

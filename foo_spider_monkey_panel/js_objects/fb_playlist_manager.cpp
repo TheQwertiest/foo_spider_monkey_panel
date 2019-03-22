@@ -637,7 +637,7 @@ bool JsFbPlaylistManager::ShowAutoPlaylistUI( uint32_t playlistIndex )
 
     auto api = autoplaylist_manager::get();
     if ( !api->is_client_present( playlistIndex ) )
-    {
+    {// TODO: replace with error in v2.0
         return false;
     }
 
@@ -714,7 +714,7 @@ void JsFbPlaylistManager::SortPlaylistsByName( int8_t direction )
 
     std::sort( data.begin(), data.end(), (direction > 0 ? smp::utils::StrCmpLogicalCmp<1> : smp::utils::StrCmpLogicalCmp<-1>));
 
-    const std::vector<size_t> order = data | ranges::view::transform( []( auto& elem ) { return elem.index; } );
+    const std::vector<size_t> order = data | ranges::view::transform( []( const auto& elem ) { return elem.index; } );
     api->reorder( order.data(), order.size() );
 }
 
@@ -779,10 +779,7 @@ void JsFbPlaylistManager::put_ActivePlaylist( uint32_t playlistIndex )
 void JsFbPlaylistManager::put_PlaybackOrder( uint32_t order )
 {
     auto api = playlist_manager::get();
-    if ( order >= api->playback_order_get_count() )
-    {
-        throw SmpException( fmt::format( "Unknown playback order id: {}", order ) );
-    }
+    SmpException::ExpectTrue( order < api->playback_order_get_count(), "Unknown playback order id: {}", order );
 
     api->playback_order_set_active( order );
 }

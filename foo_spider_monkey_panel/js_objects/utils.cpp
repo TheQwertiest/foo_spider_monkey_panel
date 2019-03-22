@@ -409,11 +409,8 @@ JSObject* JsUtils::GetAlbumArtV2WithOpt( size_t optArgCount, JsFbMetadbHandle* h
 
 uint32_t JsUtils::GetSysColour( uint32_t index )
 {
-    const auto hRet = ::GetSysColorBrush( index ); ///< no need to call DeleteObject here
-    if ( !hRet )
-    {
-        throw SmpException( fmt::format( "Invalid color index: {}", index ) );
-    }
+    const auto hBrush = ::GetSysColorBrush( index ); ///< no need to call DeleteObject here
+    SmpException::ExpectTrue( hBrush, "Invalid color index: {}", index );
 
     return smp::colour::convert_colorref_to_argb( ::GetSysColor( index ) );
 }

@@ -235,10 +235,7 @@ const GUID& GetGuidForArtId( uint32_t art_id )
         &album_art_ids::artist,
     };
 
-    if ( art_id >= _countof( guids ) )
-    {
-        throw SmpException( fmt::format( "Unknown art_id: {}", art_id ) );
-    }
+    SmpException::ExpectTrue( art_id < _countof( guids ), "Unknown art_id: {}", art_id );
 
     return *guids[art_id];
 }

@@ -869,17 +869,25 @@ void JsFbUtils::put_ReplaygainMode( uint32_t p )
     switch ( p )
     {
     case 0:
+    {
         standard_commands::main_rg_disable();
         break;
+    }
     case 1:
+    {
         standard_commands::main_rg_set_track();
         break;
+    }
     case 2:
+    {
         standard_commands::main_rg_set_album();
         break;
+    }
     case 3:
+    {
         standard_commands::run_main( standard_commands::guid_main_rg_byorder );
         break;
+    }
     default:
     {
         throw SmpException( fmt::format( "Invalid replay gain mode: {}", p ) );

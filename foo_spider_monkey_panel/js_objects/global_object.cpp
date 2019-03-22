@@ -236,10 +236,7 @@ void JsGlobalObject::IncludeScript( const pfc::string8_fast& path, JS::HandleVal
                 }
             }
 
-            if ( !fs::exists( fsPath ) || !fs::is_regular_file( fsPath ) )
-            {
-                throw smp::SmpException( fmt::format( "Path does not point to a valid file: {}", path.c_str() ) );
-            }
+            SmpException::ExpectTrue( fs::exists( fsPath ) && fs::is_regular_file( fsPath ), "Path does not point to a valid file: {}", path.c_str() );
 
             return fsPath.lexically_normal();
         }

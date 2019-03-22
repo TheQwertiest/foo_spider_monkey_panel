@@ -55,10 +55,10 @@ JSObject* GetPrototype( JSContext* cx, JsPrototypeId protoId )
     assert( slotIdx < JSCLASS_RESERVED_SLOTS( JS_GetClass( globalObject ) ) );
 
     JS::Value protoVal = JS_GetReservedSlot( globalObject, slotIdx );
-    if ( !protoVal.isObject() )
-    {
-        throw smp::SmpException( fmt::format( "Internal error: Slot {}({}) does not contain a prototype", static_cast<uint32_t>( protoId ), slotIdx ) );
-    }
+    smp::SmpException::ExpectTrue( protoVal.isObject(),
+                                   "Internal error: Slot {}({}) does not contain a prototype",
+                                   static_cast<uint32_t>( protoId ),
+                                   slotIdx );
 
     return &protoVal.toObject();
 }

@@ -442,10 +442,7 @@ std::unique_ptr<ActiveXObject> ActiveXObject::CreateNative( JSContext* cx, const
     HRESULT hresult = ( name[0] == L'{' )
                           ? CLSIDFromString( name.c_str(), &clsid )
                           : CLSIDFromProgID( name.c_str(), &clsid );
-    if ( !SUCCEEDED( hresult ) )
-    {
-        throw SmpException( fmt::format( "Invalid CLSID: {}", pfc::stringcvt::string_utf8_from_wide( name.c_str() ).get_ptr() ) );
-    }
+    SmpException::ExpectTrue( SUCCEEDED( hresult ), L"Invalid CLSID: {}", name );
 
     std::unique_ptr<ActiveXObject> nativeObject;
     IUnknown* unk = nullptr;
@@ -453,19 +450,13 @@ std::unique_ptr<ActiveXObject> ActiveXObject::CreateNative( JSContext* cx, const
     if ( SUCCEEDED( hresult ) && unk )
     {
         nativeObject.reset( new ActiveXObject( cx, unk ) );
-        if ( !nativeObject->pUnknown_ )
-        {
-            throw SmpException( fmt::format( "Failed to create ActiveXObject object via IUnknown: {}", pfc::stringcvt::string_utf8_from_wide( name.c_str() ).get_ptr() ) );
-        }
+        SmpException::ExpectTrue( nativeObject->pUnknown_, L"Failed to create ActiveXObject object via IUnknown: {}", name );
     }
 
     if ( !nativeObject )
     {
         nativeObject.reset( new ActiveXObject( cx, clsid ) );
-        if ( !nativeObject->pUnknown_ )
-        {
-            throw SmpException( fmt::format( "Failed to create ActiveXObject object via CLSID: {}", pfc::stringcvt::string_utf8_from_wide( name.c_str() ).get_ptr() ) );
-        }
+        SmpException::ExpectTrue( nativeObject->pUnknown_, L"Failed to create ActiveXObject object via CLSID: {}", name );
     }
 
     return nativeObject;
@@ -623,11 +614,8 @@ void ActiveXObject::Get( JS::CallArgs& callArgs )
 
     const std::wstring propName = convert::to_native::ToValue<std::wstring>( pJsCtx_, callArgs[0] );
 
-    auto dispRet = GetDispId( propName );
-    if ( !dispRet )
-    {
-        throw SmpException( fmt::format( "Invalid property name: {}", pfc::stringcvt::string_utf8_from_wide( propName.c_str() ).get_ptr() ) );
-    }
+    const auto dispRet = GetDispId( propName );
+    SmpException::ExpectTrue( dispRet.has_value(), L"Invalid property name: {}", propName );
 
     uint32_t argc = callArgs.length() - 1;
     VARIANT VarResult;
@@ -682,11 +670,8 @@ void ActiveXObject::Set( const std::wstring& propName, JS::HandleValue v )
 {
     SmpException::ExpectTrue( pDispatch_, "Internal error: pDispatch_ is null" );
 
-    auto dispRet = GetDispId( propName );
-    if ( !dispRet )
-    {
-        throw SmpException( fmt::format( "Invalid property name: {}", pfc::stringcvt::string_utf8_from_wide( propName.c_str() ).get_ptr() ) );
-    }
+    const auto dispRet = GetDispId( propName );
+    SmpException::ExpectTrue( dispRet.has_value(), L"Invalid property name: {}", propName );
 
     VARIANTARG arg;
     DISPID dispput = DISPID_PROPERTYPUT;
@@ -729,11 +714,8 @@ void ActiveXObject::Set( const JS::CallArgs& callArgs )
 
     const std::wstring propName = convert::to_native::ToValue<std::wstring>( pJsCtx_, callArgs[0] );
 
-    auto dispRet = GetDispId( propName );
-    if ( !dispRet )
-    {
-        throw SmpException( fmt::format( "Invalid property name: {}", pfc::stringcvt::string_utf8_from_wide( propName.c_str() ).get_ptr() ) );
-    }
+    const auto dispRet = GetDispId( propName );
+    SmpException::ExpectTrue( dispRet.has_value(), L"Invalid property name: {}", propName );
 
     uint32_t argc = callArgs.length() - 1;
     std::unique_ptr<VARIANTARG[]> args;
@@ -787,11 +769,8 @@ void ActiveXObject::Invoke( const std::wstring& funcName, const JS::CallArgs& ca
 {
     SmpException::ExpectTrue( pDispatch_, "Internal error: pDispatch_ is null" );
 
-    auto dispRet = GetDispId( funcName );
-    if ( !dispRet )
-    {
-        throw SmpException( fmt::format( "Invalid function name: {}", pfc::stringcvt::string_utf8_from_wide( funcName.c_str() ).get_ptr() ) );
-    }
+    const auto dispRet = GetDispId( funcName );
+    SmpException::ExpectTrue( dispRet.has_value(), L"Invalid function name: {}", funcName );
 
     uint32_t argc = callArgs.length();
     VARIANT VarResult;
