@@ -43,16 +43,16 @@
  
 --- a/submodules/scintilla/win32/ScintillaWin.cxx
 +++ b/submodules/scintilla/win32/ScintillaWin.cxx
-@@ -140,7 +140,7 @@
+@@ -147,7 +147,7 @@
  
  namespace {
  
 -const TCHAR callClassName[] = TEXT("CallTip");
 +const TCHAR callClassName[] = TEXT("SMP_CallTip");
  
- void *PointerFromWindow(HWND hWnd) {
+ void *PointerFromWindow(HWND hWnd) noexcept {
  	return reinterpret_cast<void *>(::GetWindowLongPtr(hWnd, 0));
-@@ -3222,7 +3222,7 @@
+@@ -3244,7 +3244,7 @@
  	wndclass.hCursor = NULL;
  	wndclass.hbrBackground = NULL;
  	wndclass.lpszMenuName = NULL;
