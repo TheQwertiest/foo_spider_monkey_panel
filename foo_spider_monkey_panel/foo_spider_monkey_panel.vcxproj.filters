@@ -301,6 +301,9 @@
     <ClCompile Include="js_engine\js_internal_global.cpp">
       <Filter>js_engine</Filter>
     </ClCompile>
+    <ClCompile Include="config_legacy.cpp">
+      <Filter>z_core</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="js_engine\js_engine.h">
@@ -444,9 +447,6 @@
     <ClInclude Include="js_utils\scope_helper.h">
       <Filter>js_utils</Filter>
     </ClInclude>
-    <ClInclude Include="panel_tooltip_param.h">
-      <Filter>z_core</Filter>
-    </ClInclude>
     <ClInclude Include="js_utils\serialized_value.h">
       <Filter>js_utils</Filter>
     </ClInclude>
@@ -483,9 +483,6 @@
     <ClInclude Include="resource.h">
       <Filter>z_core\resources</Filter>
     </ClInclude>
-    <ClInclude Include="drop_action_params.h">
-      <Filter>z_core</Filter>
-    </ClInclude>
     <ClInclude Include="js_objects\fb_window.h">
       <Filter>js_objects</Filter>
     </ClInclude>
@@ -494,9 +491,6 @@
     </ClInclude>
     <ClInclude Include="js_objects\enumerator.h">
       <Filter>js_objects</Filter>
-    </ClInclude>
-    <ClInclude Include="panel_info.h">
-      <Filter>z_core</Filter>
     </ClInclude>
     <ClInclude Include="utils\kmeans.h">
       <Filter>utils</Filter>
@@ -585,9 +579,6 @@
     <ClInclude Include="utils\pfc_helpers.h">
       <Filter>utils</Filter>
     </ClInclude>
-    <ClInclude Include="callback_data.h">
-      <Filter>z_core</Filter>
-    </ClInclude>
     <ClInclude Include="com_objects\internal\drag_utils.h">
       <Filter>com_objects\internal</Filter>
     </ClInclude>
@@ -625,9 +616,6 @@
       <Filter>utils</Filter>
     </ClInclude>
     <ClInclude Include="message_manager.h">
-      <Filter>z_core</Filter>
-    </ClInclude>
-    <ClInclude Include="metadb_callback_data.h">
       <Filter>z_core</Filter>
     </ClInclude>
     <ClInclude Include="js_utils\js_art_helpers.h">
@@ -678,6 +666,24 @@
     <ClInclude Include="js_engine\js_internal_global.h">
       <Filter>js_engine</Filter>
     </ClInclude>
+    <ClInclude Include="drop_action_params.h">
+      <Filter>z_core\data structs</Filter>
+    </ClInclude>
+    <ClInclude Include="panel_info.h">
+      <Filter>z_core\data structs</Filter>
+    </ClInclude>
+    <ClInclude Include="panel_tooltip_param.h">
+      <Filter>z_core\data structs</Filter>
+    </ClInclude>
+    <ClInclude Include="callback_data.h">
+      <Filter>z_core\data structs</Filter>
+    </ClInclude>
+    <ClInclude Include="metadb_callback_data.h">
+      <Filter>z_core\data structs</Filter>
+    </ClInclude>
+    <ClInclude Include="config_legacy.h">
+      <Filter>z_core</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="default.js">
@@ -727,6 +733,9 @@
     </Filter>
     <Filter Include="z_core\resources">
       <UniqueIdentifier>{c5622339-902d-4569-9e43-3a9dab7b21a7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="z_core\data structs">
+      <UniqueIdentifier>{152c5bdd-bddc-41d8-851c-389f61eb1305}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

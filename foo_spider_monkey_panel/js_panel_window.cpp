@@ -112,7 +112,8 @@ LRESULT js_panel_window::on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
     }
     else
     {
-        if ( auto retVal = process_sync_messages( hwnd, msg, wp, lp ); retVal.has_value() )
+        if ( auto retVal = process_sync_messages( hwnd, msg, wp, lp ); 
+             retVal.has_value() )
         {
             return retVal.value();
         }
@@ -123,19 +124,22 @@ LRESULT js_panel_window::on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
 
 std::optional<LRESULT> js_panel_window::process_sync_messages( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
 {
-    if ( auto retVal = process_main_messages( hwnd, msg, wp, lp ); retVal.has_value() )
+    if ( auto retVal = process_main_messages( hwnd, msg, wp, lp ); 
+         retVal.has_value() )
     {
         return retVal.value();
     }
 
-    if ( auto retVal = process_window_messages( msg, wp, lp ); retVal.has_value() )
+    if ( auto retVal = process_window_messages( msg, wp, lp ); 
+         retVal.has_value() )
     {
         return retVal.value();
     }
 
     if ( IsInEnumRange<InternalSyncMessage>( msg ) )
     {
-        if ( auto retVal = process_internal_sync_messages( static_cast<InternalSyncMessage>( msg ), wp, lp ); retVal.has_value() )
+        if ( auto retVal = process_internal_sync_messages( static_cast<InternalSyncMessage>( msg ), wp, lp );
+             retVal.has_value() )
         {
             return retVal.value();
         }

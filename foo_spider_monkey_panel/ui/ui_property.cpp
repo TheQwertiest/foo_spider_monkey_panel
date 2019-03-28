@@ -65,7 +65,7 @@ LRESULT CDialogProperty::OnPinItemChanged( LPNMHDR pnmh )
             }
             else if ( std::holds_alternative<double>( val ) )
             {
-                if( VT_BSTR == var.vt )
+                if ( VT_BSTR == var.vt )
                 {
                     val = std::stod( var.bstrVal );
                 }
@@ -123,11 +123,11 @@ void CDialogProperty::LoadProperties( bool reload )
         }
     };
     std::map<std::wstring, HPROPERTY, LowerLexCmp> propMap;
-    for ( const auto& [name, pSerializedValue] : m_dup_prop_map )
+    for ( const auto& [name, pSerializedValue]: m_dup_prop_map )
     {
         HPROPERTY hProp = std::visit( [&name]( auto&& arg ) {
             using T = std::decay_t<decltype( arg )>;
-            if constexpr ( std::is_same_v<T, bool> || std::is_same_v <T, int32_t> )
+            if constexpr ( std::is_same_v<T, bool> || std::is_same_v<T, int32_t> )
             {
                 return PropCreateSimple( name.c_str(), arg );
             }
@@ -159,7 +159,7 @@ void CDialogProperty::LoadProperties( bool reload )
         propMap.emplace( name, hProp );
     }
 
-    for ( auto& [name, hProp] : propMap )
+    for ( auto& [name, hProp]: propMap )
     {
         m_properties.AddItem( hProp );
     }
@@ -183,14 +183,13 @@ LRESULT CDialogProperty::OnDelBnClicked( WORD wNotifyCode, WORD wID, HWND hWndCt
 
 LRESULT CDialogProperty::OnImportBnClicked( WORD wNotifyCode, WORD wID, HWND hWndCtl )
 {
-    constexpr COMDLG_FILTERSPEC k_DialogImportExtFilter[2] =
-        {
-            { L"Property files", L"*.json;*.smp;*.wsp" },
-            { L"All files", L"*.*" },
-        };
+    constexpr COMDLG_FILTERSPEC k_DialogImportExtFilter[2] = {
+        { L"Property files", L"*.json;*.smp;*.wsp" },
+        { L"All files", L"*.*" },
+    };
 
-    const pfc::string8_fast filename = 
-         pfc::stringcvt::string_utf8_from_os( smp::file::FileDialog( L"Import from", false, k_DialogImportExtFilter, L"json", L"props" ).c_str() ).get_ptr();
+    const pfc::string8_fast filename =
+        pfc::stringcvt::string_utf8_from_os( smp::file::FileDialog( L"Import from", false, k_DialogImportExtFilter, L"json", L"props" ).c_str() ).get_ptr();
     if ( filename.is_empty() )
     {
         return 0;
@@ -207,7 +206,7 @@ LRESULT CDialogProperty::OnImportBnClicked( WORD wNotifyCode, WORD wID, HWND hWn
         {
             smp::config::PanelProperties::g_load_json( m_dup_prop_map, *io, abort, true );
         }
-        else if( filename.has_suffix( ".smp" ) )
+        else if ( filename.has_suffix( ".smp" ) )
         {
             smp::config::PanelProperties::g_load( m_dup_prop_map, io.get_ptr(), abort );
         }
@@ -235,11 +234,10 @@ LRESULT CDialogProperty::OnImportBnClicked( WORD wNotifyCode, WORD wID, HWND hWn
 
 LRESULT CDialogProperty::OnExportBnClicked( WORD wNotifyCode, WORD wID, HWND hWndCtl )
 {
-    constexpr COMDLG_FILTERSPEC k_DialogExportExtFilter[2] =
-        {
-            { L"Property files", L"*.json" },
-            { L"All files", L"*.*" },
-        };
+    constexpr COMDLG_FILTERSPEC k_DialogExportExtFilter[2] = {
+        { L"Property files", L"*.json" },
+        { L"All files", L"*.*" },
+    };
 
     const pfc::stringcvt::string_utf8_from_os filename( smp::file::FileDialog( L"Save as", true, k_DialogExportExtFilter, L"json", L"props" ).c_str() );
     if ( filename.is_empty() )
@@ -258,6 +256,6 @@ LRESULT CDialogProperty::OnExportBnClicked( WORD wNotifyCode, WORD wID, HWND hWn
     catch ( const pfc::exception& )
     {
     }
-    
+
     return 0;
 }

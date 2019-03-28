@@ -30,7 +30,7 @@ SerializedJsValue SerializeJsValue( JSContext* cx, JS::HandleValue jsValue )
     }
     else
     {
-        throw smp::SmpException( "Unsupported value type" ); 
+        throw smp::SmpException( "Unsupported value type" );
     }
 
     return serializedValue;

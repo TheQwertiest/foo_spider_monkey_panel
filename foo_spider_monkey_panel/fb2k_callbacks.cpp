@@ -74,9 +74,14 @@ public:
 class my_config_object_notify : public config_object_notify
 {
 public:
+    my_config_object_notify();
+
     GUID get_watched_object( t_size p_index ) override;
     t_size get_watched_object_count() override;
     void on_watched_object_changed( const config_object::ptr& p_object ) override;
+
+private:
+    const std::array<std::pair<GUID, PlayerMessage>, 4> watchedObjects_;
 };
 
 class my_playlist_callback_static : public playlist_callback_static
@@ -254,55 +259,39 @@ void my_playback_statistics_collector::on_item_played( metadb_handle_ptr p_item 
                                                                  std::make_unique<CallbackDataImpl<metadb_handle_ptr>>( p_item ) );
 }
 
+my_config_object_notify::my_config_object_notify()
+    : watchedObjects_{ { { standard_config_objects::bool_playlist_stop_after_current, PlayerMessage::fb_playlist_stop_after_current_changed },
+                         { standard_config_objects::bool_cursor_follows_playback, PlayerMessage::fb_cursor_follow_playback_changed },
+                         { standard_config_objects::bool_playback_follows_cursor, PlayerMessage::fb_playback_follow_cursor_changed },
+                         { standard_config_objects::bool_ui_always_on_top, PlayerMessage::fb_always_on_top_changed } } }
+{
+}
+
 GUID my_config_object_notify::get_watched_object( t_size p_index )
 {
-    switch ( p_index )
+    if ( p_index >= watchedObjects_.size() )
     {
-    case 0:
-        return standard_config_objects::bool_playlist_stop_after_current;
-
-    case 1:
-        return standard_config_objects::bool_cursor_follows_playback;
-
-    case 2:
-        return standard_config_objects::bool_playback_follows_cursor;
-
-    case 3:
-        return standard_config_objects::bool_ui_always_on_top;
+        return pfc::guid_null;
     }
 
-    return pfc::guid_null;
+    return watchedObjects_[p_index].first;
 }
 
 t_size my_config_object_notify::get_watched_object_count()
 {
-    return 4;
+    return watchedObjects_.size();
 }
 
 void my_config_object_notify::on_watched_object_changed( const config_object::ptr& p_object )
 {
-    const GUID guid = p_object->get_guid();
-    UINT msg;
-    if ( guid == standard_config_objects::bool_playlist_stop_after_current )
-    {
-        msg = static_cast<UINT>( PlayerMessage::fb_playlist_stop_after_current_changed );
-    }
-    else if ( guid == standard_config_objects::bool_cursor_follows_playback )
-    {
-        msg = static_cast<UINT>( PlayerMessage::fb_cursor_follow_playback_changed );
-    }
-    else if ( guid == standard_config_objects::bool_playback_follows_cursor )
-    {
-        msg = static_cast<UINT>( PlayerMessage::fb_playback_follow_cursor_changed );
-    }
-    else if ( guid == standard_config_objects::bool_ui_always_on_top )
-    {
-        msg = static_cast<UINT>( PlayerMessage::fb_always_on_top_changed );
-    }
-    else
+    const auto it = ranges::find_if( watchedObjects_,
+                                     [guid = p_object->get_guid()]( const auto& elem ) { return elem.first == guid; } );
+    if ( watchedObjects_.cend() == it )
     {
         return;
     }
+
+    const UINT msg = static_cast<UINT>( it->second );
 
     bool boolval;
     p_object->get_data_bool( boolval );

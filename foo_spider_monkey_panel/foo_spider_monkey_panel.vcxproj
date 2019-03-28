@@ -101,6 +101,7 @@
     <ClCompile Include="adv_config.cpp" />
     <ClCompile Include="component_paths.cpp" />
     <ClCompile Include="com_message_scope.cpp" />
+    <ClCompile Include="config_legacy.cpp" />
     <ClCompile Include="fb2k_callbacks.cpp" />
     <ClCompile Include="com_objects\com_tools.cpp" />
     <ClCompile Include="com_objects\drop_source_impl.cpp" />
@@ -224,6 +225,7 @@
     <ClInclude Include="com_objects\internal\drag_utils.h" />
     <ClInclude Include="com_objects\internal\handle.h" />
     <ClInclude Include="com_objects\com_interface.h" />
+    <ClInclude Include="config_legacy.h" />
     <ClInclude Include="convert\com.h" />
     <ClInclude Include="convert\js_to_native.h" />
     <ClInclude Include="convert\native_to_js.h" />

@@ -33,10 +33,10 @@ public:
     void remove_config_item( const std::wstring& propName );
 
     static bool g_load( config_map& data, stream_reader* reader, abort_callback& abort );    
-    static bool g_load_json( config_map& data, stream_reader& reader, abort_callback& abort, bool useRawData = false );
+    static bool g_load_json( config_map& data, stream_reader& reader, abort_callback& abort, bool loadRawString = false );
     static bool g_load_legacy( config_map& data, stream_reader* reader, abort_callback& abort );
     static void g_save( const config_map& data, stream_writer* writer, abort_callback& abort );
-    static void g_save_json( const config_map& data, stream_writer& writer, abort_callback& abort, bool useRawData = false );
+    static void g_save_json( const config_map& data, stream_writer& writer, abort_callback& abort, bool saveAsRawString = false );
     void load( stream_reader* reader, abort_callback& abort );
     void save( stream_writer* writer, abort_callback& abort ) const;
 
