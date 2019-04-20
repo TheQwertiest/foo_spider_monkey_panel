@@ -132,18 +132,8 @@ void CDialogProperty::LoadProperties( bool reload )
                 return PropCreateSimple( name.c_str(), arg );
             }
             else if constexpr ( std::is_same_v<T, double> )
-            {
-                const std::wstring strNumber = [arg] {
-                    if ( std::trunc( arg ) == arg )
-                    { // Most likely uint64_t
-                        return std::to_wstring( static_cast<uint64_t>( arg ) );
-                    }
-
-                    // std::to_string(double) has precision of float
-                    return fmt::format( L"{:.16}", arg );
-                }();
-
-                return PropCreateSimple( name.c_str(), strNumber.c_str() );
+            {// Handles both uint64_t and double
+                return PropCreateSimple( name.c_str(), fmt::format( L"{%g}", arg ).c_str() );
             }
             else if constexpr ( std::is_same_v<T, pfc::string8_fast> )
             {
