@@ -1,6 +1,7 @@
 #pragma once
 
 #include <js_engine/native_to_js_invoker.h>
+#include <utils/scope_helpers.h>
 
 #include <optional>
 
@@ -65,6 +66,10 @@ public:
         }
 
         auto selfSaver = shared_from_this();
+
+        OnJsActionStart();
+        smp::utils::final_action autoAction( [&] { OnJsActionEnd(); } );
+
         return mozjs::InvokeJsCallback<ReturnType>( pJsCtx_, jsGlobal_, functionName, std::forward<ArgTypes>( args )... );
     }
 
@@ -83,6 +88,9 @@ private:
     /// @return true on success, false with JS report on failure
     bool CreateDropActionIfNeeded();
 
+    void OnJsActionStart();
+    void OnJsActionEnd();
+
 private:
     JSContext* pJsCtx_ = nullptr;
     smp::panel::js_panel_window* pParentPanel_ = nullptr;
@@ -98,6 +106,7 @@ private:
 
     JsStatus jsStatus_ = JsStatus::EngineFailed;
     bool isParsingScript_ = false;
+    uint32_t nestedJsCounter_ = 0;
 };
 
 } // namespace mozjs

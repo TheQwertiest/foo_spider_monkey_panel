@@ -117,7 +117,7 @@ LRESULT js_panel_window::on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
         }
     }
 
-    return uDefWindowProc( hwnd, msg, wp, lp );
+    return DefWindowProc( hwnd, msg, wp, lp );
 }
 
 std::optional<LRESULT> js_panel_window::process_sync_messages( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )

@@ -42,12 +42,6 @@ JsContainer::~JsContainer()
     pJsCtx_ = nullptr;
 }
 
-void JsContainer::SetJsCtx( JSContext* cx )
-{
-    assert( cx );
-    pJsCtx_ = cx;
-}
-
 bool JsContainer::Initialize()
 {
     if ( JsStatus::EngineFailed == jsStatus_ )
@@ -293,6 +287,17 @@ void JsContainer::InvokeJsAsyncTask( JsAsyncTask& jsTask )
     (void)jsTask.InvokeJs();
 }
 
+void JsContainer::SetJsCtx( JSContext* cx )
+{
+    assert( cx );
+    pJsCtx_ = cx;
+}
+
+bool JsContainer::IsReadyForCallback() const
+{
+    return ( JsStatus::Working == jsStatus_ ) && !isParsingScript_;
+}
+
 bool JsContainer::CreateDropActionIfNeeded()
 {
     if ( jsDropAction_.initialized() )
@@ -315,9 +320,20 @@ bool JsContainer::CreateDropActionIfNeeded()
     return true;
 }
 
-bool JsContainer::IsReadyForCallback() const
+void JsContainer::OnJsActionStart()
 {
-    return ( JsStatus::Working == jsStatus_ ) && !isParsingScript_;
+    if ( nestedJsCounter_++ == 0 )
+    {
+        JsEngine::GetInstance().OnJsActionStart( *this );
+    }
+}
+
+void JsContainer::OnJsActionEnd()
+{
+    if ( --nestedJsCounter_ == 0 )
+    {
+        JsEngine::GetInstance().OnJsActionEnd( *this );
+    }
 }
 
 } // namespace mozjs

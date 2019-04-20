@@ -31,17 +31,23 @@ public:
     static JsEngine& GetInstance();
     void PrepareForExit();
 
-public:
+public: // methods accessed by JsContainer
     bool RegisterContainer( JsContainer& jsContainer );
     void UnregisterContainer( JsContainer& jsContainer );
 
-public:
+    void MaybeRunJobs();
+
+    void OnJsActionStart( JsContainer& jsContainer );
+    void OnJsActionEnd( JsContainer& jsContainer );
+
+public: // methods accessed by js objects
     const JsGc& GetGcEngine() const;
     JsInternalGlobal& GetInternalGlobal();
 
-public:
+public: // methods accessed by other internals
     void OnHeartbeat();
-    void MaybeRunJobs();
+    void OnModalWindowCreate();
+    void OnModalWindowDestroy();
 
 private:
     JsEngine();
@@ -54,11 +60,17 @@ private:
     void StartHeartbeatThread();
     void StopHeartbeatThread();
 
+    /// @throw smp::SmpException
+    void StartMonitorThread();
+    void StopMonitorThread();
+
+    static bool InterruptHandler( JSContext* cx );
+    bool OnInterrupt();
+
     static void RejectedPromiseHandler( JSContext* cx, JS::HandleObject promise,
                                         JS::PromiseRejectionHandlingState state,
                                         void* data );
 
-private:
     void ReportOomError();
 
 private:
@@ -73,6 +85,15 @@ private:
     std::unique_ptr<smp::HeartbeatWindow> heartbeatWindow_;
     std::thread heartbeatThread_;
     std::atomic_bool shouldStopHeartbeatThread_ = false;
+
+    std::mutex monitorMutex_;
+    bool canProcessMonitor_ = true;
+    std::thread monitorThread_;
+    std::atomic_bool shouldStopMonitorThread_ = false;
+    std::condition_variable hasMonitorAction_;
+    std::unordered_map<JsContainer*, std::time_t> monitoredContainers_;
+    std::vector<JsContainer*> slowContainers_;
+    bool isInInterrupt_ = false;
 
     JsGc jsGc_;
 
