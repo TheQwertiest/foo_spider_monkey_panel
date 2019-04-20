@@ -100,6 +100,30 @@ MJS_DEFINE_JS_FN( Constructor, Constructor_Impl )
 
 } // namespace
 
+namespace
+{
+
+std::unique_ptr<Gdiplus::Bitmap> CreateDownsizedImage( Gdiplus::Bitmap &srcImg, uint32_t newDimensions )
+{
+    const auto [imgWidth, imgHeight] = 
+		smp::image::GetResizedImageSize( std::make_tuple( srcImg.GetWidth(), srcImg.GetHeight() ), std::make_tuple( newDimensions, newDimensions ) );
+
+    auto pBitmap = std::make_unique<Gdiplus::Bitmap>( imgWidth, imgHeight, PixelFormat32bppPARGB );
+    smp::error::CheckGdiPlusObject( pBitmap );
+
+    Gdiplus::Graphics gr( pBitmap.get() );
+
+    Gdiplus::Status gdiRet = gr.SetInterpolationMode( Gdiplus::InterpolationModeHighQualityBilinear );
+    smp::error::CheckGdi( gdiRet, "SetInterpolationMode" );
+
+    gdiRet = gr.DrawImage( &srcImg, 0, 0, imgWidth, imgHeight ); // scale image down
+    smp::error::CheckGdi( gdiRet, "DrawImage" );
+
+	return pBitmap;
+}
+
+} // namespace
+
 namespace mozjs
 {
 
@@ -247,16 +271,20 @@ JSObject* JsGdiBitmap::CreateRawBitmap()
 
 JSObject* JsGdiBitmap::GetColourScheme( uint32_t count )
 {
-    const Gdiplus::Rect rect{ 0, 0, static_cast<int>( pGdi_->GetWidth() ), static_cast<int>( pGdi_->GetHeight() ) };
+    constexpr uint32_t kMaxDimensionSize = 220;
+    auto pBitmap = CreateDownsizedImage( *pGdi_, kMaxDimensionSize );
+    assert( pBitmap );
+
+    const Gdiplus::Rect rect{ 0, 0, static_cast<int>( pBitmap->GetWidth() ), static_cast<int>( pBitmap->GetHeight() ) };
     Gdiplus::BitmapData bmpdata;
 
-    Gdiplus::Status gdiRet = pGdi_->LockBits( &rect, Gdiplus::ImageLockModeRead, PixelFormat32bppARGB, &bmpdata );
+    Gdiplus::Status gdiRet = pBitmap->LockBits( &rect, Gdiplus::ImageLockModeRead, PixelFormat32bppARGB, &bmpdata );
     smp::error::CheckGdi( gdiRet, "LockBits" );
 
     std::map<uint32_t, uint32_t> color_counters;
     const auto colourRange = ranges::make_iterator_range( reinterpret_cast<const uint32_t*>( bmpdata.Scan0 ),
                                                           reinterpret_cast<const uint32_t*>( bmpdata.Scan0 ) + bmpdata.Width * bmpdata.Height );
-    for ( auto colour : colourRange )
+    for ( auto colour: colourRange )
     {
         // format: 0xaarrggbb
         uint32_t r = ( colour >> 16 ) & 0xff;
@@ -264,16 +292,9 @@ JSObject* JsGdiBitmap::GetColourScheme( uint32_t count )
         uint32_t b = colour & 0xff;
 
         // Round colors
-        r = ( r + 16 ) & 0xffffffe0;
-        g = ( g + 16 ) & 0xffffffe0;
-        b = ( b + 16 ) & 0xffffffe0;
-
-        if ( r > 0xff )
-            r = 0xff;
-        if ( g > 0xff )
-            g = 0xff;
-        if ( b > 0xff )
-            b = 0xff;
+        r = ( r > 0xef ) ? 0xff : ( r + 0x10 ) & 0xe0;
+        g = ( g > 0xef ) ? 0xff : ( g + 0x10 ) & 0xe0;
+        b = ( b > 0xef ) ? 0xff : ( b + 0x10 ) & 0xe0;
 
         ++color_counters[Gdiplus::Color::MakeARGB( 0xff,
                                                    static_cast<BYTE>( r ),
@@ -281,7 +302,7 @@ JSObject* JsGdiBitmap::GetColourScheme( uint32_t count )
                                                    static_cast<BYTE>( b ) )];
     }
 
-    pGdi_->UnlockBits( &bmpdata );
+    pBitmap->UnlockBits( &bmpdata );
 
     std::vector<std::pair<uint32_t, uint32_t>> sort_vec( color_counters.cbegin(), color_counters.cend() );
     ranges::sort( sort_vec,
@@ -307,53 +328,35 @@ pfc::string8_fast JsGdiBitmap::GetColourSchemeJSON( uint32_t count )
     using json = nlohmann::json;
     namespace kmeans = smp::utils::kmeans;
 
-    // rescaled image will have max of ~48k pixels
-    const auto [imgWidth, imgHeight] = [& pGdi = pGdi_] {
-        constexpr uint32_t kMaxDimensionSize = 220;
-        return smp::image::GetResizedImageSize( std::make_tuple( pGdi->GetWidth(), pGdi->GetHeight() ), std::make_tuple( kMaxDimensionSize, kMaxDimensionSize ) );
-    }();
+	// rescaled image will have max of ~48k pixels
+	constexpr uint32_t kMaxDimensionSize = 220;
+    auto pBitmap = CreateDownsizedImage( *pGdi_, kMaxDimensionSize );
+    assert( pBitmap );
 
-    auto bitmap = std::make_unique<Gdiplus::Bitmap>( imgWidth, imgHeight, PixelFormat32bppPARGB );
-    smp::error::CheckGdiPlusObject( bitmap );
-
-    Gdiplus::Graphics gr( bitmap.get() );
-
-    Gdiplus::Status gdiRet = gr.SetInterpolationMode( (Gdiplus::InterpolationMode)6 ); // InterpolationModeHighQualityBilinear
-    smp::error::CheckGdi( gdiRet, "SetInterpolationMode" );
-
-    gdiRet = gr.DrawImage( pGdi_.get(), 0, 0, imgWidth, imgHeight ); // scale image down
-    smp::error::CheckGdi( gdiRet, "DrawImage" );
-
-    const Gdiplus::Rect rect( 0, 0, (LONG)imgWidth, (LONG)imgHeight );
+    const Gdiplus::Rect rect{ 0, 0, static_cast<int>( pBitmap->GetWidth() ), static_cast<int>( pBitmap->GetHeight() ) };
     Gdiplus::BitmapData bmpdata;
 
-    gdiRet = bitmap->LockBits( &rect, Gdiplus::ImageLockModeRead, PixelFormat32bppARGB, &bmpdata );
+    Gdiplus::Status gdiRet = pBitmap->LockBits( &rect, Gdiplus::ImageLockModeRead, PixelFormat32bppARGB, &bmpdata );
     smp::error::CheckGdi( gdiRet, "LockBits" );
 
     std::map<uint32_t, uint32_t> colour_counters;
     const auto colourRange = ranges::make_iterator_range( reinterpret_cast<const uint32_t*>( bmpdata.Scan0 ),
                                                           reinterpret_cast<const uint32_t*>( bmpdata.Scan0 ) + bmpdata.Width * bmpdata.Height );
-    for ( auto colour : colourRange )
+    for ( auto colour: colourRange )
     { // reduce color set to pass to k-means by rounding colour components to multiples of 8
         uint32_t r = ( colour >> 16 ) & 0xff;
         uint32_t g = ( colour >> 8 ) & 0xff;
         uint32_t b = ( colour & 0xff );
 
-        // round colours
-        r = ( r + 4 ) & 0xfffffff8;
-        g = ( g + 4 ) & 0xfffffff8;
-        b = ( b + 4 ) & 0xfffffff8;
-
-        if ( r > 0xff )
-            r = 0xff;
-        if ( g > 0xff )
-            g = 0xff;
-        if ( b > 0xff )
-            b = 0xff;
+        // We're reducing total colors from 2^24 to 2^15 by rounding each color component value to multiples of 8.
+        // First we need to check if the byte will overflow, and if so pin to 0xff, otherwise add 4 and round down.
+        r = ( r > 0xfb ) ? 0xff : ( r + 4 ) & 0xf8;
+        g = ( g > 0xfb ) ? 0xff : ( g + 4 ) & 0xf8;
+        b = ( b > 0xfb ) ? 0xff : ( b + 4 ) & 0xf8;
 
         ++colour_counters[r << 16 | g << 8 | b];
     }
-    bitmap->UnlockBits( &bmpdata );
+    pBitmap->UnlockBits( &bmpdata );
 
     const std::vector<kmeans::PointData> points =
         ranges::view::transform( colour_counters, []( const auto& colourCounter ) {
@@ -385,7 +388,7 @@ pfc::string8_fast JsGdiBitmap::GetColourSchemeJSON( uint32_t count )
     }
 
     json j = json::array();
-    for ( const auto& cluster : clusters )
+    for ( const auto& cluster: clusters )
     {
         const auto& centralValues = cluster.central_values;
 
