@@ -678,9 +678,6 @@
     <ClInclude Include="callback_data.h">
       <Filter>z_core\data structs</Filter>
     </ClInclude>
-    <ClInclude Include="metadb_callback_data.h">
-      <Filter>z_core\data structs</Filter>
-    </ClInclude>
     <ClInclude Include="config_legacy.h">
       <Filter>z_core</Filter>
     </ClInclude>

@@ -103,10 +103,10 @@ MJS_DEFINE_JS_FN( Constructor, Constructor_Impl )
 namespace
 {
 
-std::unique_ptr<Gdiplus::Bitmap> CreateDownsizedImage( Gdiplus::Bitmap &srcImg, uint32_t newDimensions )
+std::unique_ptr<Gdiplus::Bitmap> CreateDownsizedImage( Gdiplus::Bitmap& srcImg, uint32_t newDimensions )
 {
-    const auto [imgWidth, imgHeight] = 
-		smp::image::GetResizedImageSize( std::make_tuple( srcImg.GetWidth(), srcImg.GetHeight() ), std::make_tuple( newDimensions, newDimensions ) );
+    const auto [imgWidth, imgHeight] =
+        smp::image::GetResizedImageSize( std::make_tuple( srcImg.GetWidth(), srcImg.GetHeight() ), std::make_tuple( newDimensions, newDimensions ) );
 
     auto pBitmap = std::make_unique<Gdiplus::Bitmap>( imgWidth, imgHeight, PixelFormat32bppPARGB );
     smp::error::CheckGdiPlusObject( pBitmap );
@@ -119,7 +119,7 @@ std::unique_ptr<Gdiplus::Bitmap> CreateDownsizedImage( Gdiplus::Bitmap &srcImg, 
     gdiRet = gr.DrawImage( &srcImg, 0, 0, imgWidth, imgHeight ); // scale image down
     smp::error::CheckGdi( gdiRet, "DrawImage" );
 
-	return pBitmap;
+    return pBitmap;
 }
 
 } // namespace
@@ -328,8 +328,8 @@ pfc::string8_fast JsGdiBitmap::GetColourSchemeJSON( uint32_t count )
     using json = nlohmann::json;
     namespace kmeans = smp::utils::kmeans;
 
-	// rescaled image will have max of ~48k pixels
-	constexpr uint32_t kMaxDimensionSize = 220;
+    // rescaled image will have max of ~48k pixels
+    constexpr uint32_t kMaxDimensionSize = 220;
     auto pBitmap = CreateDownsizedImage( *pGdi_, kMaxDimensionSize );
     assert( pBitmap );
 
@@ -382,9 +382,9 @@ pfc::string8_fast JsGdiBitmap::GetColourSchemeJSON( uint32_t count )
     ranges::sort( clusters, [&getTotalPixelCount]( const auto& a, const auto& b ) {
         return getTotalPixelCount( a ) > getTotalPixelCount( b );
     } );
-    if ( count < clusters.size() )
+    if ( clusters.size() > count )
     {
-        clusters.erase( clusters.cbegin() + count, clusters.cend() );
+        clusters.resize( count );
     }
 
     json j = json::array();

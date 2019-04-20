@@ -11,7 +11,6 @@
 #include <utils/gdi_helpers.h>
 #include <message_manager.h>
 #include <popup_msg.h>
-#include <metadb_callback_data.h>
 #include <drop_action_params.h>
 #include <message_blocking_scope.h>
 #include <com_message_scope.h>
@@ -33,22 +32,21 @@ js_panel_window::js_panel_window( PanelType instanceType )
 
 ui_helpers::container_window::class_data& js_panel_window::get_class_data() const
 {
-    static class_data my_class_data =
-        {
-            _T( SMP_WINDOW_CLASS_NAME ),
-            L"",
-            0,
-            false,
-            false,
-            0,
-            WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
-            edge_style_from_config( get_edge_style() ),
-            CS_DBLCLKS,
-            true,
-            true,
-            true,
-            IDC_ARROW
-        };
+    static class_data my_class_data = {
+        _T( SMP_WINDOW_CLASS_NAME ),
+        L"",
+        0,
+        false,
+        false,
+        0,
+        WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
+        edge_style_from_config( get_edge_style() ),
+        CS_DBLCLKS,
+        true,
+        true,
+        true,
+        IDC_ARROW
+    };
 
     return my_class_data;
 }
@@ -112,7 +110,7 @@ LRESULT js_panel_window::on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
     }
     else
     {
-        if ( auto retVal = process_sync_messages( hwnd, msg, wp, lp ); 
+        if ( auto retVal = process_sync_messages( hwnd, msg, wp, lp );
              retVal.has_value() )
         {
             return retVal.value();
@@ -124,13 +122,13 @@ LRESULT js_panel_window::on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
 
 std::optional<LRESULT> js_panel_window::process_sync_messages( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
 {
-    if ( auto retVal = process_main_messages( hwnd, msg, wp, lp ); 
+    if ( auto retVal = process_main_messages( hwnd, msg, wp, lp );
          retVal.has_value() )
     {
         return retVal.value();
     }
 
-    if ( auto retVal = process_window_messages( msg, wp, lp ); 
+    if ( auto retVal = process_window_messages( msg, wp, lp );
          retVal.has_value() )
     {
         return retVal.value();
@@ -158,22 +156,18 @@ std::optional<LRESULT> js_panel_window::process_async_messages( UINT msg, WPARAM
     std::optional<LRESULT> retVal;
     if ( IsInEnumRange<CallbackMessage>( msg ) )
     {
-        retVal = process_callback_messages( static_cast<CallbackMessage>( msg ) );
+        return process_callback_messages( static_cast<CallbackMessage>( msg ) );
     }
     else if ( IsInEnumRange<PlayerMessage>( msg ) )
     {
-        retVal = process_player_messages( static_cast<PlayerMessage>( msg ), wp, lp );
+        return process_player_messages( static_cast<PlayerMessage>( msg ), wp, lp );
     }
     else if ( IsInEnumRange<InternalAsyncMessage>( msg ) )
     {
-        retVal = process_internal_async_messages( static_cast<InternalAsyncMessage>( msg ), wp, lp );
-    }
-    else
-    {
-        assert( 0 );
+        return process_internal_async_messages( static_cast<InternalAsyncMessage>( msg ), wp, lp );
     }
 
-    return retVal;
+    return std::nullopt;
 }
 
 std::optional<LRESULT> js_panel_window::process_main_messages( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
@@ -238,7 +232,7 @@ std::optional<LRESULT> js_panel_window::process_window_messages( UINT msg, WPARA
         }
 
         if ( ComMessageScope::IsInScope() )
-        {// we have entered message loop because of COM messaging, delay repaint event to avoid deadlocks
+        { // we have entered message loop because of COM messaging, delay repaint event to avoid deadlocks
             isPaintInProgress_ = false;
             Repaint();
             return 0;
@@ -433,21 +427,13 @@ std::optional<LRESULT> js_panel_window::process_callback_messages( CallbackMessa
         on_get_album_art_done( callbackData );
         return 0;
     }
-    case CallbackMessage::internal_get_album_art_promise_done:
-    {
-        on_js_task( callbackData );
-        return 0;
-    }
     case CallbackMessage::internal_load_image_done:
     {
         on_load_image_done( callbackData );
         return 0;
     }
     case CallbackMessage::internal_load_image_promise_done:
-    {
-        on_js_task( callbackData );
-        return 0;
-    }
+    case CallbackMessage::internal_get_album_art_promise_done:
     case CallbackMessage::internal_timer_proc:
     {
         on_js_task( callbackData );
@@ -1193,23 +1179,23 @@ void js_panel_window::on_load_image_done( CallbackData& callbackData )
 
 void js_panel_window::on_library_items_added( CallbackData& callbackData )
 {
-    auto& data = callbackData.GetData<metadb_callback_data>();
+    auto& data = callbackData.GetData<metadb_handle_list>();
     pJsContainer_->InvokeJsCallback( "on_library_items_added",
-                                     std::get<0>( data ).m_items );
+                                     std::get<0>( data ) );
 }
 
 void js_panel_window::on_library_items_changed( CallbackData& callbackData )
 {
-    auto& data = callbackData.GetData<metadb_callback_data>();
+    auto& data = callbackData.GetData<metadb_handle_list>();
     pJsContainer_->InvokeJsCallback( "on_library_items_changed",
-                                     std::get<0>( data ).m_items );
+                                     std::get<0>( data ) );
 }
 
 void js_panel_window::on_library_items_removed( CallbackData& callbackData )
 {
-    auto& data = callbackData.GetData<metadb_callback_data>();
+    auto& data = callbackData.GetData<metadb_handle_list>();
     pJsContainer_->InvokeJsCallback( "on_library_items_removed",
-                                     std::get<0>( data ).m_items );
+                                     std::get<0>( data ) );
 }
 
 void js_panel_window::on_main_menu( WPARAM wp )
@@ -1220,10 +1206,10 @@ void js_panel_window::on_main_menu( WPARAM wp )
 
 void js_panel_window::on_metadb_changed( CallbackData& callbackData )
 {
-    auto& data = callbackData.GetData<metadb_callback_data>();
+    auto& data = callbackData.GetData<metadb_handle_list, bool>();
     pJsContainer_->InvokeJsCallback( "on_metadb_changed",
-                                     std::get<0>( data ).m_items,
-                                     std::get<0>( data ).m_fromhook );
+                                     std::get<0>( data ),
+                                     std::get<1>( data ) );
 }
 
 void js_panel_window::on_mouse_button_dblclk( UINT msg, WPARAM wp, LPARAM lp )
@@ -1637,4 +1623,3 @@ void js_panel_window::on_volume_change( CallbackData& callbackData )
 }
 
 } // namespace smp::panel
-

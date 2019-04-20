@@ -1,7 +1,6 @@
 #include <stdafx.h>
 
 #include <message_manager.h>
-#include <metadb_callback_data.h>
 
 namespace
 {
@@ -167,25 +166,25 @@ void my_initquit::outputConfigChanged()
 void my_library_callback::on_items_added( metadb_handle_list_cref p_data )
 {
     panel::message_manager::instance().post_callback_msg_to_all( CallbackMessage::fb_library_items_added,
-                                                                 std::make_unique<CallbackDataImpl<metadb_callback_data>>( metadb_callback_data( p_data, false ) ) );
+                                                                 std::make_unique<CallbackDataImpl<metadb_handle_list>>( p_data ) );
 }
 
 void my_library_callback::on_items_modified( metadb_handle_list_cref p_data )
 {
     panel::message_manager::instance().post_callback_msg_to_all( CallbackMessage::fb_library_items_changed,
-                                                                 std::make_unique<CallbackDataImpl<metadb_callback_data>>( metadb_callback_data( p_data, false ) ) );
+                                                                 std::make_unique<CallbackDataImpl<metadb_handle_list>>( p_data ) );
 }
 
 void my_library_callback::on_items_removed( metadb_handle_list_cref p_data )
 {
     panel::message_manager::instance().post_callback_msg_to_all( CallbackMessage::fb_library_items_removed,
-                                                                 std::make_unique<CallbackDataImpl<metadb_callback_data>>( metadb_callback_data( p_data, false ) ) );
+                                                                 std::make_unique<CallbackDataImpl<metadb_handle_list>>( p_data ) );
 }
 
 void my_metadb_io_callback::on_changed_sorted( metadb_handle_list_cref p_items_sorted, bool p_fromhook )
 {
     panel::message_manager::instance().post_callback_msg_to_all( CallbackMessage::fb_metadb_changed,
-                                                                 std::make_unique<CallbackDataImpl<metadb_callback_data>>( metadb_callback_data( p_items_sorted, p_fromhook ) ) );
+                                                                 std::make_unique<CallbackDataImpl<metadb_handle_list, bool>>( p_items_sorted, p_fromhook ) );
 }
 
 unsigned my_play_callback_static::get_flags()

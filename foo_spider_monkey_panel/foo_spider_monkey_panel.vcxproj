@@ -284,7 +284,6 @@
     <ClInclude Include="js_utils\serialized_value.h" />
     <ClInclude Include="message_blocking_scope.h" />
     <ClInclude Include="message_manager.h" />
-    <ClInclude Include="metadb_callback_data.h" />
     <ClInclude Include="panel_tooltip_param.h" />
     <ClInclude Include="scintilla\editorctrl.h" />
     <ClInclude Include="scintilla\scintilla_prop_sets.h" />
