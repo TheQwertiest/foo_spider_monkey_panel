@@ -12,6 +12,7 @@
 #undef APSTUDIO_HIDDEN_SYMBOLS
 
 #include <atlres.h>
+#include <component_defines.h>
 
 /////////////////////////////////////////////////////////////////////////////
 #undef APSTUDIO_READONLY_SYMBOLS
@@ -213,6 +214,18 @@ BEGIN
     CONTROL         "",IDC_IE,"{8856F961-340A-11D0-A96B-00C04FD705A2}",WS_TABSTOP,0,0,309,175
 END
 
+IDD_DIALOG_SLOWSCRIPT DIALOGEX 0, 0, 291, 98
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Warning: Unresponsive script"
+FONT 8, "Tahoma", 400, 0, 0x0
+BEGIN
+    CONTROL         "Don't ask me again",IDC_SLOWSCRIPT_CHECK_DONTASK,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,12,60,76,10
+    DEFPUSHBUTTON   "Continue",IDC_SLOWSCRIPT_CONTINUE,90,78,50,14
+    PUSHBUTTON      "Stop script",IDC_SLOWSCRIPT_STOP,150,78,50,14
+    LTEXT           "A script may be busy or may have stopped responding. You can stop the script now or let it continue.",IDC_STATIC,12,12,270,18
+    LTEXT           "Script: ScriptName",IDC_SLOWSCRIPT_SCRIPT_NAME,12,42,270,12
+END
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -299,6 +312,14 @@ BEGIN
         TOPMARGIN, 7
         BOTTOMMARGIN, 169
     END
+
+    IDD_DIALOG_SLOWSCRIPT, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 284
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 91
+    END
 END
 #endif    // APSTUDIO_INVOKED
 
@@ -325,6 +346,11 @@ IDD_DIALOG_HTML AFX_DIALOG_LAYOUT
 BEGIN
     0,
     100, 100, 100, 100
+END
+
+IDD_DIALOG_SLOWSCRIPT AFX_DIALOG_LAYOUT
+BEGIN
+    0
 END
 
 

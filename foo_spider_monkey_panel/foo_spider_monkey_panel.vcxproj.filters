@@ -310,6 +310,9 @@
     <ClCompile Include="utils\thread_helpers.cpp">
       <Filter>utils</Filter>
     </ClCompile>
+    <ClCompile Include="ui\ui_slow_script.cpp">
+      <Filter>ui</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="js_engine\js_engine.h">
@@ -692,6 +695,9 @@
     </ClInclude>
     <ClInclude Include="utils\thread_helpers.h">
       <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="ui\ui_slow_script.h">
+      <Filter>ui</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

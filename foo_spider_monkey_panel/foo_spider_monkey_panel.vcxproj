@@ -189,6 +189,7 @@
     <ClCompile Include="ui\ui_pref.cpp" />
     <ClCompile Include="ui\ui_property.cpp" />
     <ClCompile Include="ui\ui_replace.cpp" />
+    <ClCompile Include="ui\ui_slow_script.cpp" />
     <ClCompile Include="utils\art_helpers.cpp" />
     <ClCompile Include="utils\com_error_helpers.cpp" />
     <ClCompile Include="utils\file_helpers.cpp" />
@@ -313,6 +314,7 @@
     <ClInclude Include="ui\ui_pref.h" />
     <ClInclude Include="ui\ui_property.h" />
     <ClInclude Include="ui\ui_replace.h" />
+    <ClInclude Include="ui\ui_slow_script.h" />
     <ClInclude Include="user_message.h" />
     <ClInclude Include="utils\acfu_github.h" />
     <ClInclude Include="utils\art_helpers.h" />

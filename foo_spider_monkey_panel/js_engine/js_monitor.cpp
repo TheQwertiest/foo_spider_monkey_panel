@@ -7,6 +7,7 @@
 #include <js_engine/js_container.h>
 #include <utils/scope_helpers.h>
 #include <utils/thread_helpers.h>
+#include <ui/ui_slow_script.h>
 
 #include <message_blocking_scope.h>
 
@@ -16,7 +17,7 @@ namespace
 {
 
 constexpr auto kMonitorRate = std::chrono::seconds( 1 );
-constexpr auto kSlowScriptLimit = std::chrono::seconds( 10 );
+constexpr auto kSlowScriptLimit = std::chrono::seconds( 5 );
 
 } // namespace
 
@@ -131,6 +132,11 @@ bool JsMonitor::OnInterrupt()
         std::vector<std::pair<JsContainer*, ContainerData*>> dataToProcess;
         for ( auto& [pContainer, containerData]: monitoredContainers_ )
         {
+            if ( containerData.ignoreSlowScriptCheck )
+            {
+                continue;
+            }
+
             auto tmp = pContainer; // compiler bug?
             const auto it = ranges::find_if( activeContainers_, [&tmp]( auto& elem ) {
                 return ( elem.first == tmp );
@@ -154,19 +160,25 @@ bool JsMonitor::OnInterrupt()
         // don't trigger the slow script warning until (limit/2) seconds have
         // elapsed twice.
         if ( !containerData.slowScriptSecondHalf )
-        {
-            containerData.slowScriptCheckpoint = curTime;
+        { // use current time, since we might wait on warning dialog
+            containerData.slowScriptCheckpoint = std::chrono::milliseconds( GetTickCount64() );
             containerData.slowScriptSecondHalf = true;
             continue;
         }
 
-        // Popup
+        smp::ui::CDialogSlowScript::Data dlgData;
+        smp::ui::CDialogSlowScript dlg( "azaza", dlgData );
+        (void)dlg.DoModal( reinterpret_cast<HWND>( GetActiveWindow() ) );
+        containerData.ignoreSlowScriptCheck = !dlgData.askAgain;
 
-        if ( /* !popup.canceled() && */ !containerData.ignoreSlowScriptCheck )
+        if ( dlgData.stop )
         {
             pContainer->Fail( "Script aborted by user" );
             return false;
         }
+
+        containerData.slowScriptCheckpoint = std::chrono::milliseconds( GetTickCount64() );
+        containerData.slowScriptSecondHalf = false;
     }
 
     return true;
