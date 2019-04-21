@@ -56,6 +56,9 @@ public:
     static void RunJobs();
 
 public:
+    pfc::string8_fast GetPanelName() const;
+
+public:
     template <typename ReturnType = std::nullptr_t, typename... ArgTypes>
     std::optional<ReturnType> InvokeJsCallback( pfc::string8_fast functionName,
                                                 ArgTypes&&... args )

@@ -185,6 +185,9 @@ bool JsContainer::ExecuteScript( const pfc::string8_fast& scriptCode )
     opts.setUTF8( true );
     opts.setFileAndLine( "<main>", 1 );
 
+    OnJsActionStart();
+    smp::utils::final_action autoAction( [&] { OnJsActionEnd(); } );
+
     JS::RootedValue dummyRval( pJsCtx_ );
     bool bRet = JS::Evaluate( pJsCtx_, opts, scriptCode.c_str(), scriptCode.length(), &dummyRval );
 
@@ -195,6 +198,11 @@ bool JsContainer::ExecuteScript( const pfc::string8_fast& scriptCode )
 void JsContainer::RunJobs()
 {    
     JsEngine::GetInstance().MaybeRunJobs();
+}
+
+pfc::string8_fast JsContainer::GetPanelName() const
+{
+    return pParentPanel_->ScriptInfo().build_info_string();
 }
 
 void JsContainer::InvokeOnDragAction( const pfc::string8_fast& functionName, const POINTL& pt, uint32_t keyState, panel::DropActionParams& actionParams )
@@ -283,6 +291,9 @@ void JsContainer::InvokeJsAsyncTask( JsAsyncTask& jsTask )
 
     auto selfSaver = shared_from_this();
     JsScope autoScope( pJsCtx_, jsGlobal_ );
+
+    OnJsActionStart();
+    smp::utils::final_action autoAction( [&] { OnJsActionEnd(); } );
 
     (void)jsTask.InvokeJs();
 }

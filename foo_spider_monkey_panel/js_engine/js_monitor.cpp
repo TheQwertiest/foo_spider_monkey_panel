@@ -19,6 +19,11 @@ namespace
 constexpr auto kMonitorRate = std::chrono::seconds( 1 );
 constexpr auto kSlowScriptLimit = std::chrono::seconds( 5 );
 
+auto GetLowResTime()
+{
+    return std::chrono::milliseconds( GetTickCount64() );
+}
+
 } // namespace
 
 namespace mozjs
@@ -58,7 +63,7 @@ void JsMonitor::OnJsActionStart( JsContainer& jsContainer )
     {
         return;
     }
-    const auto curTime = std::chrono::milliseconds( GetTickCount64() );
+    const auto curTime = GetLowResTime();
     data.slowScriptCheckpoint = curTime;
 
     {
@@ -101,7 +106,7 @@ bool JsMonitor::OnInterrupt()
         isInInterrupt_ = false;
     } );
 
-    const auto curTime = std::chrono::milliseconds( GetTickCount64() );
+    const auto curTime = GetLowResTime();
 
     { // Action might've been blocked by modal window
         const bool isInModal = MessageBlockingScope::IsBlocking();
@@ -161,13 +166,14 @@ bool JsMonitor::OnInterrupt()
         // elapsed twice.
         if ( !containerData.slowScriptSecondHalf )
         { // use current time, since we might wait on warning dialog
-            containerData.slowScriptCheckpoint = std::chrono::milliseconds( GetTickCount64() );
+            containerData.slowScriptCheckpoint = GetLowResTime();
             containerData.slowScriptSecondHalf = true;
             continue;
         }
 
         smp::ui::CDialogSlowScript::Data dlgData;
-        smp::ui::CDialogSlowScript dlg( "azaza", dlgData );
+        smp::ui::CDialogSlowScript dlg( pContainer->GetPanelName(), dlgData );
+        // TODO: fix dialog centering (that is lack of thereof)
         (void)dlg.DoModal( reinterpret_cast<HWND>( GetActiveWindow() ) );
         containerData.ignoreSlowScriptCheck = !dlgData.askAgain;
 
@@ -177,7 +183,7 @@ bool JsMonitor::OnInterrupt()
             return false;
         }
 
-        containerData.slowScriptCheckpoint = std::chrono::milliseconds( GetTickCount64() );
+        containerData.slowScriptCheckpoint = GetLowResTime();
         containerData.slowScriptSecondHalf = false;
     }
 
@@ -221,7 +227,7 @@ void JsMonitor::StartMonitorThread()
                 }
 
                 hasPotentiallySlowScripts = [&] {
-                    const auto curTime = std::chrono::milliseconds( GetTickCount64() );
+                    const auto curTime = GetLowResTime();
 
                     const auto it = ranges::find_if( activeContainers_, [&curTime]( auto& elem ) {
                         auto& [pContainer, startTime] = elem;
