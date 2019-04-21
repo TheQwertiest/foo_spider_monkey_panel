@@ -304,6 +304,12 @@
     <ClCompile Include="config_legacy.cpp">
       <Filter>z_core</Filter>
     </ClCompile>
+    <ClCompile Include="js_engine\js_monitor.cpp">
+      <Filter>js_engine</Filter>
+    </ClCompile>
+    <ClCompile Include="utils\thread_helpers.cpp">
+      <Filter>utils</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="js_engine\js_engine.h">
@@ -680,6 +686,12 @@
     </ClInclude>
     <ClInclude Include="config_legacy.h">
       <Filter>z_core</Filter>
+    </ClInclude>
+    <ClInclude Include="js_engine\js_monitor.h">
+      <Filter>js_engine</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\thread_helpers.h">
+      <Filter>utils</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -8,11 +8,13 @@
 #include <js_utils/js_error_helper.h>
 #include <utils/scope_helpers.h>
 #include <utils/string_helpers.h>
+#include <utils/thread_helpers.h>
 
 #include <adv_config.h>
 #include <heartbeat_window.h>
 #include <host_timer_dispatcher.h>
 #include <js_panel_window.h>
+#include <message_blocking_scope.h>
 #include <popup_msg.h>
 #include <user_message.h>
 
@@ -88,6 +90,8 @@ bool JsEngine::RegisterContainer( JsContainer& jsContainer )
     assert( !registeredContainers_.count( &jsContainer ) );
     registeredContainers_.emplace( &jsContainer, jsContainer );
 
+    jsMonitor_.AddContainer( jsContainer );
+
     return true;
 }
 
@@ -96,6 +100,8 @@ void JsEngine::UnregisterContainer( JsContainer& jsContainer )
     if ( auto it = registeredContainers_.find( &jsContainer );
          it != registeredContainers_.end() )
     {
+        jsMonitor_.RemoveContainer( jsContainer );
+
         it->second.get().Finalize();
         registeredContainers_.erase( it );
     }
@@ -164,16 +170,12 @@ void JsEngine::MaybeRunJobs()
 
 void JsEngine::OnJsActionStart( JsContainer& jsContainer )
 {
-    std::unique_lock<std::mutex> ul( monitorMutex_ );
-    monitoredContainers_.emplace( &jsContainer, std::time( nullptr ) );
-    hasMonitorAction_.notify_one();
+    jsMonitor_.OnJsActionStart( jsContainer );
 }
 
 void JsEngine::OnJsActionEnd( JsContainer& jsContainer )
 {
-    std::unique_lock<std::mutex> ul( monitorMutex_ );
-    assert( monitoredContainers_.count( &jsContainer ) );
-    monitoredContainers_.erase( &jsContainer );
+    jsMonitor_.OnJsActionEnd( jsContainer );
 }
 
 const JsGc& JsEngine::GetGcEngine() const
@@ -205,24 +207,6 @@ void JsEngine::OnHeartbeat()
     }
 
     isBeating_ = false;
-}
-
-void JsEngine::OnModalWindowCreate()
-{
-    std::unique_lock<std::mutex> lock( monitorMutex_ );
-    canProcessMonitor_ = false;
-}
-
-void JsEngine::OnModalWindowDestroy()
-{
-    const auto curTime = std::time( nullptr );
-
-    std::unique_lock<std::mutex> lock( monitorMutex_ );
-    for ( auto& [pContainer, startTime]: monitoredContainers_ )
-    {
-        startTime = curTime;
-    }
-    canProcessMonitor_ = true;
 }
 
 bool JsEngine::Initialize()
@@ -270,7 +254,7 @@ bool JsEngine::Initialize()
         assert( internalGlobal_ );
 
         StartHeartbeatThread();
-        StartMonitorThread();
+        jsMonitor_.Start( cx );
     }
     catch ( const smp::JsException& )
     {
@@ -293,7 +277,7 @@ void JsEngine::Finalize()
 {
     if ( pJsCtx_ )
     {
-        StopMonitorThread();
+        jsMonitor_.Stop();
         // Stop the thread first, so that we don't get additional GC's during jsGc.Finalize
         StopHeartbeatThread();
         jsGc_.Finalize();
@@ -332,6 +316,7 @@ void JsEngine::StartHeartbeatThread()
             PostMessage( parent->heartbeatWindow_->GetHwnd(), static_cast<UINT>( smp::MiscMessage::heartbeat ), 0, 0 );
         }
     } );
+    smp::utils::SetThreadName( heartbeatThread_, "SMP Heartbeat" );
 }
 
 void JsEngine::StopHeartbeatThread()
@@ -343,62 +328,6 @@ void JsEngine::StopHeartbeatThread()
     }
 }
 
-void JsEngine::StartMonitorThread()
-{
-    shouldStopMonitorThread_ = false;
-    monitorThread_ = std::thread( [&] {
-        decltype( slowContainers_ ) slowContainers;
-
-        while ( !shouldStopMonitorThread_ )
-        {
-            std::this_thread::sleep_for(
-                std::chrono::milliseconds( kMonitorRateMs ) );
-
-            {
-                std::unique_lock<std::mutex> lock( monitorMutex_ );
-                hasMonitorAction_.wait( lock, [&] {
-                    return shouldStopMonitorThread_ || !monitoredContainers_.empty() && canProcessMonitor_ && !isInInterrupt_;
-                } );
-
-                if ( shouldStopMonitorThread_ )
-                {
-                    break;
-                }
-
-                slowContainers.clear();
-                const auto curTime = std::time( nullptr );
-                for ( auto& [pContainer, startTime]: monitoredContainers_ )
-                {
-                    constexpr time_t maxDiff = 3;
-                    if ( curTime - startTime > maxDiff )
-                    {
-                        slowContainers.emplace_back( pContainer );
-                    }
-                }
-            }
-
-            if ( !slowContainers.empty() )
-            {
-                {
-                    std::unique_lock<std::mutex> lock( monitorMutex_ );
-                    std::swap( slowContainers, slowContainers_ );
-                }
-
-                JS_RequestInterruptCallback( pJsCtx_ );
-            }
-        }
-    } );
-}
-
-void JsEngine::StopMonitorThread()
-{
-    if ( monitorThread_.joinable() )
-    {
-        shouldStopMonitorThread_ = true;
-        monitorThread_.join();
-    }
-}
-
 bool JsEngine::InterruptHandler( JSContext* )
 {
     return JsEngine::GetInstance().OnInterrupt();
@@ -406,35 +335,7 @@ bool JsEngine::InterruptHandler( JSContext* )
 
 bool JsEngine::OnInterrupt()
 {
-    if ( isInInterrupt_ )
-    {
-        return true;
-    }
-    isInInterrupt_ = true;
-    smp::utils::final_action autoBool( [& isInInterrupt = isInInterrupt_] { isInInterrupt = false; } );
-
-    decltype( slowContainers_ ) slowContainers;
-    {
-        std::unique_lock<std::mutex> lock( monitorMutex_ );
-        if ( slowContainers_.empty() )
-        {
-            return true;
-        }
-
-        std::swap( slowContainers, slowContainers_ );
-    }
-
-    for ( auto& pContainer: slowContainers )
-    {
-        if ( !registeredContainers_.count( pContainer ) )
-        {
-            continue;
-        }
-
-        pContainer->Fail( "Script aborted by user" );
-    }
-
-    return false;
+    return jsMonitor_.OnInterrupt();
 }
 
 void JsEngine::RejectedPromiseHandler( JSContext* cx, JS::HandleObject promise, JS::PromiseRejectionHandlingState state, void* data )
