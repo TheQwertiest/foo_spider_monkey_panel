@@ -138,11 +138,6 @@ bool JsMonitor::OnInterrupt()
         std::vector<std::pair<JsContainer*, ContainerData*>> dataToProcess;
         for ( auto& [pContainer, containerData]: monitoredContainers_ )
         {
-            if ( containerData.ignoreSlowScriptCheck )
-            {
-                continue;
-            }
-
             auto tmp = pContainer; // compiler bug?
             const auto it = ranges::find_if( activeContainers_, [&tmp]( auto& elem ) {
                 return ( elem.first == tmp );
@@ -157,7 +152,9 @@ bool JsMonitor::OnInterrupt()
     for ( auto [pContainer, pContainerData]: containerDataToProcess )
     {
         auto& containerData = *pContainerData;
-        if ( ( curTime - containerData.slowScriptCheckpoint ) < kSlowScriptLimit / 2.0 )
+
+        if ( containerData.ignoreSlowScriptCheck
+             || ( curTime - containerData.slowScriptCheckpoint ) < kSlowScriptLimit / 2.0 )
         {
             continue;
         }
@@ -179,33 +176,60 @@ bool JsMonitor::OnInterrupt()
 
         smp::ui::CDialogSlowScript::Data dlgData;
         {
-            auto& parentPanel = pContainer->GetParentPanel();
+            pfc::string8_fast text;
+            HWND parentHwnd;
+            if ( JsContainer::JsStatus::Working == pContainer->GetStatus() )
+            {
+                auto& parentPanel = pContainer->GetParentPanel();
+                text = parentPanel.ScriptInfo().build_info_string( false );
+                parentHwnd = parentPanel.GetHWND();
+            }
+            else if ( JsContainer::JsStatus::Ready == pContainer->GetStatus() )
+            { // possible if script destroyed the parent panel (e.g. by switching layout)
+                parentHwnd = GetActiveWindow();
+            }
+            else
+            { // possible if the interrupt was requested again after the script was aborted,
+                // but before the container was removed from active
+                continue;
+            }
 
             JS::AutoFilename filename;
             unsigned lineno;
             (void)JS::DescribeScriptedCaller( pJsCtx_, &filename, &lineno );
 
-            pfc::string8_fast text = parentPanel.ScriptInfo().build_info_string(false);
             if ( filename.get() )
             {
-                text += "\n\n";
-                text += filename.get();
+                if ( !text.is_empty() )
+                {
+                    text += "\n\n";
+                }
+                if ( strlen( filename.get() ) )
+                {
+                    text += filename.get();
+                }
+                else
+                {
+                    text += "<unknown file>";
+                }
                 text += ": ";
                 text += std::to_string( lineno ).c_str();
             }
 
             modal_dialog_scope scope;
-            scope.initialize( parentPanel.GetHWND() );
+            scope.initialize( parentHwnd );
             smp::ui::CDialogSlowScript dlg( text, dlgData );
             // TODO: fix dialog centering (that is lack of thereof)
-            (void)dlg.DoModal( parentPanel.GetHWND() );
+            (void)dlg.DoModal( parentHwnd );    
         }
 
         containerData.ignoreSlowScriptCheck = !dlgData.askAgain;
 
         if ( dlgData.stop )
-        {
-            pContainer->Fail( "Script aborted by user" );
+        {   // TODO: this might stop the script different from the one in currently iterated container,
+            // we should get the container corresponding to the currently active compartment.
+            // Example: panel_1(reported): window.NotifyOthers > panel_2(stopped): on_notify_data
+            JS_ReportErrorUTF8( pJsCtx_, "Script aborted by user" );
             return false;
         }
 
