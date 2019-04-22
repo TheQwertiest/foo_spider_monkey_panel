@@ -35,6 +35,7 @@ ___
 - Fixed crashes in `Thumbs` and `Album Art` complete samples (by marc2003).
 - Fixed `GdiBitmap.GetColourScheme` not limiting the number of output colours.
 - Fixed potential memory leaks when using `window.NotifyOthers`.
+- Tweaked GC to reduce the memory footprint.
 - Fixed fb2k freeze on exit.
 - Fixed invalid colour calculation in `GdiBitmap.GetColourSchemeJSON`.
 - Fixed colour rounding errors in `GdiBitmap.GetColourScheme` and `GdiBitmap.GetColourSchemeJSON`.
