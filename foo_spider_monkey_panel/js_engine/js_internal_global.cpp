@@ -107,10 +107,11 @@ JSScript* JsInternalGlobal::GetCachedScript( const std::filesystem::path& absolu
     }
 
     const std::wstring scriptCode = smp::file::ReadFileW( u8path.c_str(), CP_ACP, false );
+    const auto filename = absolutePath.filename().u8string();
 
     JS::CompileOptions opts( pJsCtx_ );
     opts.setUTF8( true );
-    opts.setFileAndLine( absolutePath.filename().u8string().c_str(), 1 );
+    opts.setFileAndLine( filename.c_str(), 1 );
 
     JS::RootedScript parsedScript( pJsCtx_ );
     if ( !JS_CompileUCScript( pJsCtx_, (char16_t*)scriptCode.c_str(), scriptCode.length(), opts, &parsedScript ) )
