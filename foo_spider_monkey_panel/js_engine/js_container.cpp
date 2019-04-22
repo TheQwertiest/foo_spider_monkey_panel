@@ -42,12 +42,6 @@ JsContainer::~JsContainer()
     pJsCtx_ = nullptr;
 }
 
-void JsContainer::SetJsCtx( JSContext* cx )
-{
-    assert( cx );
-    pJsCtx_ = cx;
-}
-
 bool JsContainer::Initialize()
 {
     if ( JsStatus::EngineFailed == jsStatus_ )
@@ -191,6 +185,9 @@ bool JsContainer::ExecuteScript( const pfc::string8_fast& scriptCode )
     opts.setUTF8( true );
     opts.setFileAndLine( "<main>", 1 );
 
+    OnJsActionStart();
+    smp::utils::final_action autoAction( [&] { OnJsActionEnd(); } );
+
     JS::RootedValue dummyRval( pJsCtx_ );
     bool bRet = JS::Evaluate( pJsCtx_, opts, scriptCode.c_str(), scriptCode.length(), &dummyRval );
 
@@ -201,6 +198,12 @@ bool JsContainer::ExecuteScript( const pfc::string8_fast& scriptCode )
 void JsContainer::RunJobs()
 {    
     JsEngine::GetInstance().MaybeRunJobs();
+}
+
+smp::panel::js_panel_window& JsContainer::GetParentPanel() const
+{
+    assert( pParentPanel_ );
+    return *pParentPanel_;
 }
 
 void JsContainer::InvokeOnDragAction( const pfc::string8_fast& functionName, const POINTL& pt, uint32_t keyState, panel::DropActionParams& actionParams )
@@ -290,7 +293,21 @@ void JsContainer::InvokeJsAsyncTask( JsAsyncTask& jsTask )
     auto selfSaver = shared_from_this();
     JsScope autoScope( pJsCtx_, jsGlobal_ );
 
+    OnJsActionStart();
+    smp::utils::final_action autoAction( [&] { OnJsActionEnd(); } );
+
     (void)jsTask.InvokeJs();
+}
+
+void JsContainer::SetJsCtx( JSContext* cx )
+{
+    assert( cx );
+    pJsCtx_ = cx;
+}
+
+bool JsContainer::IsReadyForCallback() const
+{
+    return ( JsStatus::Working == jsStatus_ ) && !isParsingScript_;
 }
 
 bool JsContainer::CreateDropActionIfNeeded()
@@ -315,9 +332,20 @@ bool JsContainer::CreateDropActionIfNeeded()
     return true;
 }
 
-bool JsContainer::IsReadyForCallback() const
+void JsContainer::OnJsActionStart()
 {
-    return ( JsStatus::Working == jsStatus_ ) && !isParsingScript_;
+    if ( nestedJsCounter_++ == 0 )
+    {
+        JsEngine::GetInstance().OnJsActionStart( *this );
+    }
+}
+
+void JsContainer::OnJsActionEnd()
+{
+    if ( --nestedJsCounter_ == 0 )
+    {
+        JsEngine::GetInstance().OnJsActionEnd( *this );
+    }
 }
 
 } // namespace mozjs

@@ -1,10 +1,12 @@
 #include <stdafx.h>
 #include "message_blocking_scope.h"
 
+#include <js_engine/js_engine.h>
+
 namespace smp
 {
 
-bool MessageBlockingScope::isBlocking_ = false;
+std::atomic<bool> MessageBlockingScope::isBlocking_ = false;
 
 MessageBlockingScope::MessageBlockingScope()
 {

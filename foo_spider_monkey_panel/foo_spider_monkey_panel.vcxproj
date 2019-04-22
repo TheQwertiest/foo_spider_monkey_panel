@@ -124,6 +124,7 @@
     <ClCompile Include="js_engine\js_engine.cpp" />
     <ClCompile Include="js_engine\js_gc.cpp" />
     <ClCompile Include="js_engine\js_internal_global.cpp" />
+    <ClCompile Include="js_engine\js_monitor.cpp" />
     <ClCompile Include="js_engine\native_to_js_invoker.cpp" />
     <ClCompile Include="js_objects\active_x_object.cpp" />
     <ClCompile Include="js_objects\console.cpp" />
@@ -188,6 +189,7 @@
     <ClCompile Include="ui\ui_pref.cpp" />
     <ClCompile Include="ui\ui_property.cpp" />
     <ClCompile Include="ui\ui_replace.cpp" />
+    <ClCompile Include="ui\ui_slow_script.cpp" />
     <ClCompile Include="utils\art_helpers.cpp" />
     <ClCompile Include="utils\com_error_helpers.cpp" />
     <ClCompile Include="utils\file_helpers.cpp" />
@@ -201,6 +203,7 @@
     <ClCompile Include="utils\stackblur.cpp" />
     <ClCompile Include="utils\string_helpers.cpp" />
     <ClCompile Include="utils\text_helpers.cpp" />
+    <ClCompile Include="utils\thread_helpers.cpp" />
     <ClCompile Include="utils\thread_pool.cpp" />
     <ClCompile Include="utils\winapi_error_helpers.cpp" />
   </ItemGroup>
@@ -236,6 +239,7 @@
     <ClInclude Include="js_engine\js_engine.h" />
     <ClInclude Include="js_engine\js_gc.h" />
     <ClInclude Include="js_engine\js_internal_global.h" />
+    <ClInclude Include="js_engine\js_monitor.h" />
     <ClInclude Include="js_engine\js_to_native_invoker.h" />
     <ClInclude Include="js_engine\native_to_js_invoker.h" />
     <ClInclude Include="js_objects\active_x_object.h" />
@@ -310,6 +314,7 @@
     <ClInclude Include="ui\ui_pref.h" />
     <ClInclude Include="ui\ui_property.h" />
     <ClInclude Include="ui\ui_replace.h" />
+    <ClInclude Include="ui\ui_slow_script.h" />
     <ClInclude Include="user_message.h" />
     <ClInclude Include="utils\acfu_github.h" />
     <ClInclude Include="utils\art_helpers.h" />
@@ -328,6 +333,7 @@
     <ClInclude Include="utils\stackblur.h" />
     <ClInclude Include="utils\string_helpers.h" />
     <ClInclude Include="utils\text_helpers.h" />
+    <ClInclude Include="utils\thread_helpers.h" />
     <ClInclude Include="utils\thread_pool.h" />
     <ClInclude Include="utils\winapi_error_helpers.h" />
   </ItemGroup>

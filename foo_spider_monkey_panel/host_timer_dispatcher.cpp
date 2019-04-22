@@ -3,6 +3,7 @@
 
 #include <js_objects/global_object.h>
 #include <js_utils/js_error_helper.h>
+#include <utils/thread_helpers.h>
 
 #include <user_message.h>
 #include <message_manager.h>
@@ -126,6 +127,7 @@ uint32_t HostTimerDispatcher::createTimer( HWND hWnd, uint32_t delay, bool isRep
 void HostTimerDispatcher::createThread()
 {
     m_thread = std::make_unique<std::thread>( &HostTimerDispatcher::threadMain, this );
+    smp::utils::SetThreadName( *m_thread, "SMP TimerHandler" );
 }
 
 void HostTimerDispatcher::stopThread()

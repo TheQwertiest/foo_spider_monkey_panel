@@ -1,5 +1,7 @@
 #pragma once
 
+#include <atomic>
+
 namespace smp
 {
 
@@ -12,7 +14,7 @@ public:
     static bool IsBlocking();
 
 private:
-    static bool isBlocking_;
+    static std::atomic<bool> isBlocking_;
 };
 
 } // namespace smp

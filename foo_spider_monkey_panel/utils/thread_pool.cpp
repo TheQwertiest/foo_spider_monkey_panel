@@ -1,6 +1,8 @@
 #include <stdafx.h>
 #include "thread_pool.h"
 
+#include <utils/thread_helpers.h>
+
 namespace smp
 {
 
@@ -47,7 +49,8 @@ void ThreadPool::Finalize()
 
 void ThreadPool::AddThread()
 {
-    threads_.emplace_back( std::make_unique<std::thread>( [&] { ThreadProc(); } ) );
+    auto& ret = threads_.emplace_back( std::make_unique<std::thread>( [&] { ThreadProc(); } ) );
+    smp::utils::SetThreadName( *ret, "SMP Worker" );
 }
 
 void ThreadPool::ThreadProc()

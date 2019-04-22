@@ -1,6 +1,7 @@
 #pragma once
 
 #include <js_engine/js_gc.h>
+#include <js_engine/js_monitor.h>
 
 #include <map>
 #include <functional>
@@ -31,17 +32,22 @@ public:
     static JsEngine& GetInstance();
     void PrepareForExit();
 
-public:
+public: // methods accessed by JsContainer
     bool RegisterContainer( JsContainer& jsContainer );
     void UnregisterContainer( JsContainer& jsContainer );
 
-public:
+    void MaybeRunJobs();
+
+    void OnJsActionStart( JsContainer& jsContainer );
+    void OnJsActionEnd( JsContainer& jsContainer );
+
+public: // methods accessed by js objects
     const JsGc& GetGcEngine() const;
     JsInternalGlobal& GetInternalGlobal();
 
-public:
+public: // methods accessed by other internals
     void OnHeartbeat();
-    void MaybeRunJobs();
+    bool OnInterrupt();
 
 private:
     JsEngine();
@@ -54,11 +60,12 @@ private:
     void StartHeartbeatThread();
     void StopHeartbeatThread();
 
+    static bool InterruptHandler( JSContext* cx );
+
     static void RejectedPromiseHandler( JSContext* cx, JS::HandleObject promise,
                                         JS::PromiseRejectionHandlingState state,
                                         void* data );
 
-private:
     void ReportOomError();
 
 private:
@@ -75,6 +82,7 @@ private:
     std::atomic_bool shouldStopHeartbeatThread_ = false;
 
     JsGc jsGc_;
+    JsMonitor jsMonitor_;
 
     JS::PersistentRooted<JS::GCVector<JSObject*, 0, js::SystemAllocPolicy>> rejectedPromises_;
     bool areJobsInProgress_ = false;
