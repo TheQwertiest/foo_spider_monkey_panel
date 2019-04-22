@@ -9,6 +9,8 @@ public:
 	{
 	}
 
+    // TODO: fix broken resizing and add centering
+
 	BEGIN_DLGRESIZE_MAP(CDialogFind)
 		DLGRESIZE_CONTROL(IDC_EDIT_FINDWHAT, DLSZ_SIZE_X)
 		DLGRESIZE_CONTROL(IDC_FINDUP, DLSZ_MOVE_X)
