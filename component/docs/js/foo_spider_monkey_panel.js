@@ -4,11 +4,16 @@
 
 /**
  * Evaluates the script in file.
- * Similar to eval({@link utils.ReadTextFile}(path)), but provides better error reporting
+ * Similar to eval({@link utils.ReadTextFile}(path)), but provides more features:<br>
+ * - Has `include guards` - script won't be evaluated a second time if it was evaluated before in the same panel.<br>
+ * - Has script caching - script file will be read only once from filesystem (even if it is included from different panels).<br>
+ * - Has better error reporting.
  *
- * @param {string} path Path to JavaScript file
+ * @param {string} path Absolute or relative path to JavaScript file.
+ * @param {object=} [options=undefined]
+ * @param {boolean=} [options.always_evaluate=false] If true, evaluates the script even if it was included before.
  */
-function include(path) { }
+function include(path, options) { }
 
 /**
  * See {@link https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/clearTimeout}.
@@ -342,7 +347,7 @@ let fb = {
      * @example
      * // See samples/basic/DragnDrop.txt
      */
-    DoDragDrop: function (window_id, handle_list, effect) { }, // (uint),
+    DoDragDrop: function (window_id, handle_list, effect, options) { }, // (uint),
 
     /** @method */
     Exit: function () { }, // (void)

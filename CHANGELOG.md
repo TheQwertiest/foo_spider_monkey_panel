@@ -23,16 +23,16 @@ ___
 ### Added
 - Improved `include` method:
   - Added support for relative paths.
-  - Added script caching - script files will be loaded only once (even if they are included from different panels).
+  - Added script caching - script file will be read only once from filesystem (even if it is included from different panels).
     Improves panel initialization speed when re-using same script files.
-  - Added *include guard* - script files won't be evaluated a second time, if they were evaluated before (handled by new `options.always_evaluate` argument).
+  - Added *include guard* - script won't be evaluated a second time if it was evaluated before in the same panel (handled by new `options.always_evaluate` argument).
 - Added slow script handling: script can be aborted now if it's unresponsive for some time.
 
 ### Changed
 - Improved performance of `utils.FileTest(path, 's')`.
 
 ### Fixed
-- Fixed `Thumbs` and 'Album Art' script crashes (by marc2003).
+- Fixed crashes in `Thumbs` and `Album Art` complete samples (by marc2003).
 - Fixed `GdiBitmap.GetColourScheme` not limiting the number of output colours.
 - Fixed potential memory leaks when using `window.NotifyOthers`.
 - Fixed fb2k freeze on exit.
