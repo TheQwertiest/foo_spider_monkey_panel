@@ -4,8 +4,9 @@
 namespace smp::ui
 {
 
-CDialogSlowScript::CDialogSlowScript( const pfc::string8_fast& scriptName, CDialogSlowScript::Data& data )
-    : scriptName_( scriptName )
+CDialogSlowScript::CDialogSlowScript( const pfc::string8_fast& panelName, const pfc::string8_fast& scriptInfo, CDialogSlowScript::Data& data )
+    : panelName_( panelName )
+    , scriptInfo_( scriptInfo )
     , data_( data )
 {
 }
@@ -14,9 +15,28 @@ LRESULT CDialogSlowScript::OnInitDialog( HWND hwndFocus, LPARAM lParam )
 {
     (void)CenterWindow();
 
-    const auto text = [& scriptName = scriptName_] {
-        auto tmp = pfc::string8_fast{ "Panel: " };
-        tmp += scriptName;
+    const auto text = [& panelName = panelName_, &scriptInfo = scriptInfo_] {
+        pfc::string8_fast tmp;
+        if ( !panelName.is_empty() )
+        {
+            tmp += "Panel: ";
+            tmp += panelName;
+        }
+        if ( !scriptInfo.is_empty() )
+        {
+            if ( !tmp.is_empty() )
+            {
+                tmp += "\n";
+            }
+            tmp += "Script: ";
+            tmp += scriptInfo;
+        }
+
+        if ( tmp.is_empty() )
+        {
+            tmp = "<Unable to fetch panel info>";
+        }
+
         return tmp;
     }();
 

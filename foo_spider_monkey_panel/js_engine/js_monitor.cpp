@@ -176,12 +176,12 @@ bool JsMonitor::OnInterrupt()
 
         smp::ui::CDialogSlowScript::Data dlgData;
         {
-            pfc::string8_fast text;
+            pfc::string8_fast panelName;
             HWND parentHwnd;
             if ( JsContainer::JsStatus::Working == pContainer->GetStatus() )
             {
                 auto& parentPanel = pContainer->GetParentPanel();
-                text = parentPanel.ScriptInfo().build_info_string( false );
+                panelName = parentPanel.ScriptInfo().build_info_string( false );
                 parentHwnd = parentPanel.GetHWND();
             }
             else if ( JsContainer::JsStatus::Ready == pContainer->GetStatus() )
@@ -198,35 +198,32 @@ bool JsMonitor::OnInterrupt()
             unsigned lineno;
             (void)JS::DescribeScriptedCaller( pJsCtx_, &filename, &lineno );
 
+            pfc::string8_fast scriptInfo;
             if ( filename.get() )
             {
-                if ( !text.is_empty() )
-                {
-                    text += "\n\n";
-                }
                 if ( strlen( filename.get() ) )
                 {
-                    text += filename.get();
+                    scriptInfo += filename.get();
                 }
                 else
                 {
-                    text += "<unknown file>";
+                    scriptInfo += "<unknown file>";
                 }
-                text += ": ";
-                text += std::to_string( lineno ).c_str();
+                scriptInfo += ": ";
+                scriptInfo += std::to_string( lineno ).c_str();
             }
 
             modal_dialog_scope scope;
             scope.initialize( parentHwnd );
-            smp::ui::CDialogSlowScript dlg( text, dlgData );
+            smp::ui::CDialogSlowScript dlg( panelName, scriptInfo, dlgData );
             // TODO: fix dialog centering (that is lack of thereof)
-            (void)dlg.DoModal( parentHwnd );    
+            (void)dlg.DoModal( parentHwnd );
         }
 
         containerData.ignoreSlowScriptCheck = !dlgData.askAgain;
 
         if ( dlgData.stop )
-        {   // TODO: this might stop the script different from the one in currently iterated container,
+        { // TODO: this might stop the script different from the one in currently iterated container,
             // we should get the container corresponding to the currently active compartment.
             // Example: panel_1(reported): window.NotifyOthers > panel_2(stopped): on_notify_data
             JS_ReportErrorUTF8( pJsCtx_, "Script aborted by user" );
