@@ -13,7 +13,7 @@ for %%i in ("%SCINTILLA_DIR%lexers\"*) do if not %%~nxi == LexCPP.cxx del /q "%%
 
 cd %SCINTILLA_DIR%scripts
 
-python LexGen.py
+py LexGen.py
 if errorlevel 1 goto fail
 xcopy /r/y/q "%CUR_DIR%additional_files\scintilla.vcxproj" "%SCINTILLA_DIR%win32\"
 if errorlevel 1 goto fail
