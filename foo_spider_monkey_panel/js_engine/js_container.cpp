@@ -200,9 +200,10 @@ void JsContainer::RunJobs()
     JsEngine::GetInstance().MaybeRunJobs();
 }
 
-pfc::string8_fast JsContainer::GetPanelName() const
+smp::panel::js_panel_window& JsContainer::GetParentPanel() const
 {
-    return pParentPanel_->ScriptInfo().build_info_string();
+    assert( pParentPanel_ );
+    return *pParentPanel_;
 }
 
 void JsContainer::InvokeOnDragAction( const pfc::string8_fast& functionName, const POINTL& pt, uint32_t keyState, panel::DropActionParams& actionParams )

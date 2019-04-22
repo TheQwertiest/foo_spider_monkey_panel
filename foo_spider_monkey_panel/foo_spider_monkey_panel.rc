@@ -220,8 +220,8 @@ CAPTION "Warning: Unresponsive script"
 FONT 8, "Tahoma", 400, 0, 0x0
 BEGIN
     CONTROL         "Don't ask me again",IDC_SLOWSCRIPT_CHECK_DONTASK,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,12,60,76,10
-    DEFPUSHBUTTON   "Continue",IDC_SLOWSCRIPT_CONTINUE,90,78,50,14
-    PUSHBUTTON      "Stop script",IDC_SLOWSCRIPT_STOP,150,78,50,14
+    PUSHBUTTON   "Continue",IDC_SLOWSCRIPT_CONTINUE,90,78,50,14
+    DEFPUSHBUTTON      "Stop script",IDC_SLOWSCRIPT_STOP,150,78,50,14
     LTEXT           "A script may be busy or may have stopped responding. You can stop the script now or let it continue.",IDC_STATIC,12,12,270,18
     LTEXT           "Script: ScriptName",IDC_SLOWSCRIPT_SCRIPT_NAME,12,42,270,12
 END

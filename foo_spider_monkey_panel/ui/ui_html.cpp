@@ -486,7 +486,7 @@ void CDialogHtml::SetOptions()
     // Center only after we know the size
     if ( isCentered_ )
     {
-        CenterWindow(); ///< ignore return value
+        (void)CenterWindow();
     }
 
     if ( x_ || y_ )

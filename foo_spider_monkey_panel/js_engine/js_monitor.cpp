@@ -10,6 +10,7 @@
 #include <ui/ui_slow_script.h>
 
 #include <message_blocking_scope.h>
+#include <js_panel_window.h>
 
 using namespace smp;
 
@@ -171,10 +172,35 @@ bool JsMonitor::OnInterrupt()
             continue;
         }
 
+        if ( !modal_dialog_scope::can_create() )
+        {
+            continue;
+        }
+
         smp::ui::CDialogSlowScript::Data dlgData;
-        smp::ui::CDialogSlowScript dlg( pContainer->GetPanelName(), dlgData );
-        // TODO: fix dialog centering (that is lack of thereof)
-        (void)dlg.DoModal( reinterpret_cast<HWND>( GetActiveWindow() ) );
+        {
+            auto& parentPanel = pContainer->GetParentPanel();
+
+            JS::AutoFilename filename;
+            unsigned lineno;
+            (void)JS::DescribeScriptedCaller( pJsCtx_, &filename, &lineno );
+
+            pfc::string8_fast text = parentPanel.ScriptInfo().build_info_string(false);
+            if ( filename.get() )
+            {
+                text += "\n\n";
+                text += filename.get();
+                text += ": ";
+                text += std::to_string( lineno ).c_str();
+            }
+
+            modal_dialog_scope scope;
+            scope.initialize( parentPanel.GetHWND() );
+            smp::ui::CDialogSlowScript dlg( text, dlgData );
+            // TODO: fix dialog centering (that is lack of thereof)
+            (void)dlg.DoModal( parentPanel.GetHWND() );
+        }
+
         containerData.ignoreSlowScriptCheck = !dlgData.askAgain;
 
         if ( dlgData.stop )

@@ -56,7 +56,7 @@ public:
     static void RunJobs();
 
 public:
-    pfc::string8_fast GetPanelName() const;
+    smp::panel::js_panel_window& GetParentPanel() const;
 
 public:
     template <typename ReturnType = std::nullptr_t, typename... ArgTypes>

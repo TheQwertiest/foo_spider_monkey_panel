@@ -12,14 +12,17 @@ CDialogSlowScript::CDialogSlowScript( const pfc::string8_fast& scriptName, CDial
 
 LRESULT CDialogSlowScript::OnInitDialog( HWND hwndFocus, LPARAM lParam )
 {
+    (void)CenterWindow();
+
     const auto text = [& scriptName = scriptName_] {
         auto tmp = pfc::string8_fast{ "Panel: " };
         tmp += scriptName;
         return tmp;
     }();
 
-    uSetWindowText( GetDlgItem( IDC_SLOWSCRIPT_SCRIPT_NAME ), text );
-    return TRUE; // set focus to default control
+    (void)uSetWindowText( GetDlgItem( IDC_SLOWSCRIPT_SCRIPT_NAME ), text );
+
+    return FALSE; // set focus to default control
 }
 
 LRESULT CDialogSlowScript::OnContinueScript( WORD wNotifyCode, WORD wID, HWND hWndCtl )
