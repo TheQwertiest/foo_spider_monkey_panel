@@ -4,6 +4,8 @@
 namespace smp::ui
 {
 
+// TODO: add question icon like here - https://www.google.com/search?q=firefox+slow+script+warning&tbm=isch
+
 CDialogSlowScript::CDialogSlowScript( const pfc::string8_fast& panelName, const pfc::string8_fast& scriptInfo, CDialogSlowScript::Data& data )
     : panelName_( panelName )
     , scriptInfo_( scriptInfo )
