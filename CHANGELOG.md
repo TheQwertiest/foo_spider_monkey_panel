@@ -2,6 +2,7 @@
 
 #### Table of Contents
 - [Unreleased](#unreleased)
+- [1.2.0](#114---2018-04-22)
 - [1.1.5](#114---2018-01-21)
 - [1.1.4](#114---2018-01-20)
 - [1.1.3](#113---2018-01-17)
@@ -17,21 +18,26 @@
 ___
 
 ## [Unreleased][]
+
+## [1.2.0][] - 2018-04-22
 ### Added
 - Improved `include` method:
   - Added support for relative paths.
   - Added script caching - script files will be loaded only once (even if they are included from different panels).
     Improves panel initialization speed when re-using same script files.
   - Added *include guard* - script files won't be evaluated a second time, if they were evaluated before (handled by new `options.always_evaluate` argument).
+- Added slow script handling: script can be aborted now if it's unresponsive for some time.
 
 ### Changed
 - Improved performance of `utils.FileTest(path, 's')`.
 
 ### Fixed
-- Fixed `Thumbs` and 'Album Art' script crashes.
+- Fixed `Thumbs` and 'Album Art' script crashes (by marc2003).
 - Fixed `GdiBitmap.GetColourScheme` not limiting the number of output colours.
-- Fixed invalid colour calculation in `GdiBitmap.GetColourSchemeJSON`.
 - Fixed potential memory leaks when using `window.NotifyOthers`.
+- Fixed fb2k freeze on exit.
+- Fixed invalid colour calculation in `GdiBitmap.GetColourSchemeJSON`.
+- Fixed colour rounding errors in `GdiBitmap.GetColourScheme` and `GdiBitmap.GetColourSchemeJSON`.
 
 ## [1.1.5][] - 2018-11-21
 ### Changed
@@ -203,7 +209,8 @@ ___
   - More rigorous error checks.
 - Updated samples with compatibility fixes.
 
-[unreleased]: https://github.com/theqwertiest/foo_spider_monkey_panel/compare/v1.1.5...HEAD
+[unreleased]: https://github.com/theqwertiest/foo_spider_monkey_panel/compare/v1.2.0...HEAD
+[1.2.0]: https://github.com/TheQwertiest/foo_spider_monkey_panel/compare/v1.1.5...v1.2.0
 [1.1.5]: https://github.com/TheQwertiest/foo_spider_monkey_panel/compare/v1.1.4...v1.1.5
 [1.1.4]: https://github.com/TheQwertiest/foo_spider_monkey_panel/compare/v1.1.3...v1.1.4
 [1.1.3]: https://github.com/TheQwertiest/foo_spider_monkey_panel/compare/v1.1.2...v1.1.3
