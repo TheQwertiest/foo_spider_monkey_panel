@@ -296,9 +296,14 @@ void JsMonitor::StartMonitorThread()
 
 void JsMonitor::StopMonitorThread()
 {
+    {
+        std::unique_lock<std::mutex> lock( watcherDataMutex_ );
+        shouldStopThread_ = true;
+        hasAction_.notify_one();
+    }
+
     if ( watcherThread_.joinable() )
     {
-        shouldStopThread_ = true;
         watcherThread_.join();
     }
 }
