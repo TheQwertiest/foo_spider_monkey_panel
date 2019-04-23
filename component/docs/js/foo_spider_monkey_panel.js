@@ -940,9 +940,9 @@ let plman = {
      * Same as {@link plman.InsertPlaylistItems} except any duplicates contained in handle_list are removed.
      *
      * @param {number} playlistIndex
-     * @param {number} base
-     * @param {FbMetadbHandleList} handle_list
-     * @param {boolean=} [select=false]
+     * @param {number} base Position in playlist
+     * @param {FbMetadbHandleList} handle_list Items to insert
+     * @param {boolean=} [select=false] If true then inserted items will be selected
      */
     InsertPlaylistItemsFilter: function (playlistIndex, base, handle_list, select) { }, // (void) select = false
 
@@ -1408,17 +1408,17 @@ let utils = {
      * @param {number} window_id
      * @param {string} prompt
      * @param {string} caption
-     * @param {string=} [defaultval='']
+     * @param {string=} [default_val='']
      * @param {boolean=} [error_on_cancel=false] If set to true, use try/catch like Example2.
      * @return {string}
      *
      * @example
-     * // With "error_on_cancel" not set (or set to false), cancelling the dialog will return "defaultval".
+     * // With "error_on_cancel" not set (or set to false), cancelling the dialog will return "default_val".
      * let username = utils.InputBox(window.ID, "Enter your username", "Spider Monkey Panel", "");
      *
      * @example
      * // Using Example1, you can't tell if OK or Cancel was pressed if the return value is the same
-     * // as "defaultval". If you need to know, set "error_on_cancel" to true which throws a script error
+     * // as "default_val". If you need to know, set "error_on_cancel" to true which throws a script error
      * // when Cancel is pressed.
      * let username = "";
      * try {
@@ -1428,7 +1428,7 @@ let utils = {
      *     // Dialog was closed by pressing Esc, Cancel or the Close button.
      * }
      */
-    InputBox: function (window_id, prompt, caption, defaultval, error_on_cancel) { }, // (string)
+    InputBox: function (window_id, prompt, caption, default_val, error_on_cancel) { }, // (string)
 
     /**
      * @param {number} vkey {@link http://msdn.microsoft.com/en-us/library/ms927178.aspx}. Some are defined in Flags.js > Used with utils.IsKeyPressed().
@@ -1474,13 +1474,13 @@ let utils = {
      * @param {string} filename
      * @param {string} section
      * @param {string} key
-     * @param {string=} [defaultval]
+     * @param {string=} [default_val]
      * @return {string}
      *
      * @example
      * let username = utils.ReadINI("e:\\my_file.ini", "Last.fm", "username");
      */
-    ReadINI: function (filename, section, key, defaultval) { }, // (string) [, defaultval]
+    ReadINI: function (filename, section, key, default_val) { }, // (string) [, default_val]
 
     /**
      * Displays an html dialog, rendered by IE engine.<br>
@@ -1774,16 +1774,16 @@ let window = {
 
     /**
      * Get value of property.<br>
-     * If property does not exist and defaultval is not undefined and not null,
-     * it will be created with the value of defaultval.<br>
+     * If property does not exist and default_val is not undefined and not null,
+     * it will be created with the value of default_val.<br>
      * <br>
      * Note: leading and trailing whitespace are removed from property name.
      *
      * @param {string} name
-     * @param {*=} defaultval
+     * @param {*=} default_val
      * @return {*}
      */
-    GetProperty: function (name, defaultval) { }, // (VARIANT) [, defaultval]
+    GetProperty: function (name, default_val) { }, // (VARIANT) [, default_val]
 
     /**
      * This will trigger {@link module:callbacks~on_notify_data on_notify_data}(name, info) in other panels.<br>
@@ -2540,7 +2540,7 @@ function FbTitleFormat(expression) {
     this.EvalWithMetadb = function (handle) { }; //
 
     /**
-     * @param handle_list {FbMetadbHandleList}
+     * @param {FbMetadbHandleList} handle_list
      * @return {Array<string>}
      *
      * @example
@@ -2911,7 +2911,7 @@ function GdiGraphics() {
      * @param {number} srcY
      * @param {number} srcW
      * @param {number} srcH
-     * @param {number=} [angle=0]
+     * @param {float=} [angle=0]
      * @param {number=} [alpha=255] Valid values 0-255.
      */
     this.DrawImage = function (img, dstX, dstY, dstW, dstH, srcX, srcY, srcW, srcH, angle, alpha) { }; // (void) [, angle][, alpha]
@@ -3002,7 +3002,7 @@ function GdiGraphics() {
      * @param {number} y
      * @param {number} w
      * @param {number} h
-     * @param {number} angle
+     * @param {float} angle
      * @param {number} colour1
      * @param {number} colour2
      * @param {float} [focus=1.0] Specify where the centred colour will be at its highest intensity. Valid values between 0 and 1.
@@ -3253,11 +3253,11 @@ function DropTargetAction() {
  */
 function ContextMenuManager() {
     /**
-     * @param {MenuObject} menuObj
+     * @param {MenuObject} menu_obj
      * @param {number} base_id
      * @param {number=} [max_id=-1]
      */
-    this.BuildMenu = function (menuObj, base_id, max_id) { }; // (void)
+    this.BuildMenu = function (menu_obj, base_id, max_id) { }; // (void)
 
     /**
      * @param {number} id
@@ -3292,11 +3292,11 @@ function ContextMenuManager() {
  */
 function MainMenuManager() {
     /**
-     * @param {MenuObject} menuObj
+     * @param {MenuObject} menu_obj
      * @param {number} base_id
      * @param {number} count
      */
-    this.BuildMenu = function (menuObj, base_id, count) { }; // (void)
+    this.BuildMenu = function (menu_obj, base_id, count) { }; // (void)
 
     /**
      * @param {number} id
@@ -3304,7 +3304,9 @@ function MainMenuManager() {
      */
     this.ExecuteByID = function (id) { }; // (boolean)
 
-    /** @method */
+    /** 
+     * @param {string} root_name Must be one of the following: 'file', 'view', 'edit', 'playback', 'library', 'help'
+     */
     this.Init = function (root_name) { }; // (void)
 }
 
@@ -3325,11 +3327,11 @@ function MenuObject() {
     this.AppendMenuSeparator = function () { }; // (void)
 
     /**
-     * @param {MenuObject} parentMenu
+     * @param {MenuObject} parent_menu
      * @param {number} flags See Flags.js > Used in AppendMenuItem()
      * @param {string} text
      */
-    this.AppendTo = function (parentMenu, flags, text) { }; // (void)
+    this.AppendTo = function (parent_menu, flags, text) { }; // (void)
 
     /**
      * @param {number} item_id

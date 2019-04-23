@@ -83,7 +83,7 @@ function on_dsp_preset_changed() { }
 /**
  *  Called when the panel gets or loses focus.
  *
- * @param {boolean} is_focused
+ * @param {boolean} is_focused New focus state
  */
 function on_focus(is_focused) { }
 
@@ -98,7 +98,7 @@ function on_font_changed() { }
  * Called when thread created by {@link utils.GetAlbumArtAsync} is done.
  *
  * @param {FbMetadbHandle} handle
- * @param {number} art_id
+ * @param {number} art_id See Flags.js > AlbumArtId
  * @param {?GdiBitmap} image null on failure
  * @param {string} image_path path to image file (or music file if image is embedded)
  */
@@ -408,7 +408,7 @@ function on_playback_seek(time) { }
  *     - 4 settrack (internal fb2k value)<br>
  *     - 5 Plays a random track from the current playlist<br>
  *     - 6 resume (internal fb2k value)
- * @param {boolean} is_paused
+ * @param {boolean} is_paused Current paused state
  * 
  */
 function on_playback_starting(cmd, is_paused) { }
@@ -524,6 +524,6 @@ function on_selection_changed() { }
 function on_size(width, height) { }
 
 /**
- * @param {any} val volume level in dB. Minimum is -100. Maximum is 0.
+ * @param {float} val volume level in dB. Minimum is -100. Maximum is 0.
  */
 function on_volume_change(val) { }
