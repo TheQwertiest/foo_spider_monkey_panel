@@ -300,7 +300,7 @@ function on_mouse_wheel_h(step) { }
  * <b>!!! Beware !!!</b><br>
  * 1. Data from `info` argument is only accessible inside `on_notify_data` callback:
  *    if stored and accessed outside of the callback it will throw JS error.<br>
- *    This also applies to the data produced from that `info`: e.g. stroring `info.Path` directly (if `info` is FbMetadbHandle).<br>
+ *    This also applies to the data produced from that `info`: e.g. storing `info.Path` directly (if `info` is FbMetadbHandle).<br>
  * 2. If you want to store the data from `info` you have to perform a deep copy:<br>
  *    - `String(info)` for strings.<br>
  *    - `JSON.parse(JSON.stringify(info))` for serializable objects.<br>
