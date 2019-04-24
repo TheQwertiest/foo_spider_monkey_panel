@@ -2,11 +2,12 @@
 
 #### Table of Contents
 - [Unreleased](#unreleased)
-- [1.2.0](#114---2018-04-22)
-- [1.1.5](#114---2018-01-21)
-- [1.1.4](#114---2018-01-20)
-- [1.1.3](#113---2018-01-17)
-- [1.1.2](#112---2018-01-09)
+- [1.2.1](#114---2019-04-24)
+- [1.2.0](#114---2019-04-22)
+- [1.1.5](#114---2019-01-21)
+- [1.1.4](#114---2019-01-20)
+- [1.1.3](#113---2019-01-17)
+- [1.1.2](#112---2019-01-09)
 - [1.1.1](#111---2018-11-20)
 - [1.1.0](#110---2018-11-19)
 - [1.0.5](#105---2018-11-06)
@@ -19,7 +20,11 @@ ___
 
 ## [Unreleased][]
 
-## [1.2.0][] - 2018-04-22
+## [1.2.1][] - 2019-04-24
+### Fixed
+- Fixed another fb2k freeze on exit.
+
+## [1.2.0][] - 2019-04-22
 ### Added
 - Improved `include` method:
   - Added support for relative paths.
@@ -40,18 +45,18 @@ ___
 - Fixed invalid colour calculation in `GdiBitmap.GetColourSchemeJSON`.
 - Fixed colour rounding errors in `GdiBitmap.GetColourScheme` and `GdiBitmap.GetColourSchemeJSON`.
 
-## [1.1.5][] - 2018-11-21
+## [1.1.5][] - 2019-01-21
 ### Changed
 - Panel Properties now uses JSON format by default for export.
 
 ### Fixed
 - Fixed incorrect parsing of UCS-2 LE encoded files.
 
-## [1.1.4][] - 2018-11-20
+## [1.1.4][] - 2019-01-20
 ### Fixed
 - Fixed `fb.RunContextCommandWithMetadb` not working with most commands.
 
-## [1.1.3][] - 2018-01-17
+## [1.1.3][] - 2019-01-17
 ### Changed
 - Removed image resizing for `custom_image` in `fb.DoDragDrop` when image is smaller than the drag window.
 - All file dialogs now remember last used location.
@@ -60,7 +65,7 @@ ___
 - Fixed `Last.fm Similar Artists + User Charts + Recent Tracks` script crash.
 - Fixed callbacks not triggering when `MenuObject.TrackPopupMenu` or default context menu is active.
 
-## [1.1.2][] - 2018-01-09
+## [1.1.2][] - 2019-01-09
 ### Added
 - Added additional options to `fb.DoDragDrop`: `show_text`, `use_album_art`, `use_theming` and `custom_image`.
 - By default `fb.DoDragDrop` now displays an album art of the dragged item (if available).
@@ -210,7 +215,8 @@ ___
   - More rigorous error checks.
 - Updated samples with compatibility fixes.
 
-[unreleased]: https://github.com/theqwertiest/foo_spider_monkey_panel/compare/v1.2.0...HEAD
+[unreleased]: https://github.com/theqwertiest/foo_spider_monkey_panel/compare/v1.2.1...HEAD
+[1.2.1]: https://github.com/TheQwertiest/foo_spider_monkey_panel/compare/v1.2.0...v1.2.1
 [1.2.0]: https://github.com/TheQwertiest/foo_spider_monkey_panel/compare/v1.1.5...v1.2.0
 [1.1.5]: https://github.com/TheQwertiest/foo_spider_monkey_panel/compare/v1.1.4...v1.1.5
 [1.1.4]: https://github.com/TheQwertiest/foo_spider_monkey_panel/compare/v1.1.3...v1.1.4
