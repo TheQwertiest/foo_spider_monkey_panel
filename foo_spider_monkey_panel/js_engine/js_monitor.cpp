@@ -213,8 +213,7 @@ bool JsMonitor::OnInterrupt()
                 scriptInfo += std::to_string( lineno ).c_str();
             }
 
-            modal_dialog_scope scope;
-            scope.initialize( parentHwnd );
+            modal_dialog_scope scope( parentHwnd );
             smp::ui::CDialogSlowScript dlg( panelName, scriptInfo, dlgData );
             // TODO: fix dialog centering (that is lack of thereof)
             (void)dlg.DoModal( parentHwnd );

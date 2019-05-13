@@ -76,8 +76,7 @@ LRESULT CDialogPref::OnPropNMDblClk( LPNMHDR pnmh )
             return false;
         }
 
-        modal_dialog_scope scope;
-        scope.initialize( m_hWnd );
+        modal_dialog_scope scope( m_hWnd );
 
         CNameValueEdit dlg( key, val );
 

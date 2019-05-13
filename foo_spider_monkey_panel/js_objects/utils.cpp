@@ -470,8 +470,7 @@ pfc::string8_fast JsUtils::InputBox( uint32_t hWnd, const pfc::string8_fast& pro
 {
     if ( modal_dialog_scope::can_create() )
     {
-        modal_dialog_scope scope;
-        scope.initialize( reinterpret_cast<HWND>( hWnd ) );
+        modal_dialog_scope scope( reinterpret_cast<HWND>( hWnd ) );
 
         CInputBox dlg( prompt, caption, def );
         int status = dlg.DoModal( reinterpret_cast<HWND>( hWnd ) );
@@ -610,8 +609,7 @@ JS::Value JsUtils::ShowHtmlDialog( uint32_t hWnd, const std::wstring& htmlCode, 
 {
     if ( modal_dialog_scope::can_create() )
     {
-        modal_dialog_scope scope;
-        scope.initialize( reinterpret_cast<HWND>( hWnd ) );
+        modal_dialog_scope scope( reinterpret_cast<HWND>( hWnd ) );
 
         smp::ui::CDialogHtml dlg( pJsCtx_, htmlCode, options );
         int iRet = (int)dlg.DoModal( reinterpret_cast<HWND>( hWnd ) );
