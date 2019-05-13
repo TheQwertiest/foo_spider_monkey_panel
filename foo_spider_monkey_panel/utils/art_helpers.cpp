@@ -104,7 +104,7 @@ std::unique_ptr<Gdiplus::Bitmap> GetBitmapFromAlbumArtData( const album_art_data
         return nullptr;
     }
 
-    std::unique_ptr<Gdiplus::Bitmap> bmp( new Gdiplus::Bitmap( iStream, TRUE ) );
+    std::unique_ptr<Gdiplus::Bitmap> bmp( new Gdiplus::Bitmap( static_cast<IStream*>( iStream ), TRUE ) );
     if ( !gdi::IsGdiPlusObjectValid( bmp ) )
     {
         return nullptr;

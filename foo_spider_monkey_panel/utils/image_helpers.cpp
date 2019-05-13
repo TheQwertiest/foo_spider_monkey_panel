@@ -97,7 +97,7 @@ std::unique_ptr<Gdiplus::Bitmap> LoadImage( const std::wstring& imagePath )
         return nullptr;
     }
 
-    std::unique_ptr<Gdiplus::Bitmap> img( new Gdiplus::Bitmap( pStream, TRUE ) );
+    std::unique_ptr<Gdiplus::Bitmap> img( new Gdiplus::Bitmap( static_cast<IStream*>( pStream ), TRUE ) );
     if ( !gdi::IsGdiPlusObjectValid( img ) )
     {
         return nullptr;
