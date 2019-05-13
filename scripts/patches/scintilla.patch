@@ -4,7 +4,7 @@
 @@ -26,11 +26,15 @@
  
  CRTFLAGS=-D_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES=1 -D_CRT_SECURE_NO_DEPRECATE=1 -D_SCL_SECURE_NO_WARNINGS=1 $(XP_DEFINE)
- CXXFLAGS=-Zi -TP -MP -W4 -EHsc -std:c++latest $(CRTFLAGS)
+ CXXFLAGS=-Zi -TP -MP -W4 -EHsc -std:c++17 $(CRTFLAGS)
 -CXXDEBUG=-Od -MTd -DDEBUG
 -CXXNDEBUG=-O1 -MT -DNDEBUG -GL
 +CXXDEBUG=-Od -MDd -DDEBUG
@@ -43,7 +43,7 @@
  
 --- a/submodules/scintilla/win32/ScintillaWin.cxx
 +++ b/submodules/scintilla/win32/ScintillaWin.cxx
-@@ -147,7 +147,7 @@
+@@ -148,7 +148,7 @@
  
  namespace {
  
@@ -52,12 +52,12 @@
  
  void *PointerFromWindow(HWND hWnd) noexcept {
  	return reinterpret_cast<void *>(::GetWindowLongPtr(hWnd, 0));
-@@ -3244,7 +3244,7 @@
- 	wndclass.hCursor = NULL;
- 	wndclass.hbrBackground = NULL;
- 	wndclass.lpszMenuName = NULL;
+@@ -3217,7 +3217,7 @@
+ 	wndclass.lpfnWndProc = ScintillaWin::SWndProc;
+ 	wndclass.cbWndExtra = sizeof(ScintillaWin *);
+ 	wndclass.hInstance = hInstance;
 -	wndclass.lpszClassName = L"Scintilla";
 +	wndclass.lpszClassName = L"SMP_Scintilla";
- 	wndclass.hIconSm = 0;
  	scintillaClassAtom = ::RegisterClassExW(&wndclass);
  	bool result = 0 != scintillaClassAtom;
+ 
