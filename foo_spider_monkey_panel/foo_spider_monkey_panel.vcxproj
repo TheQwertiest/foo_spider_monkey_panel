@@ -39,11 +39,11 @@
     <Import Project="$(SolutionDir)\..\props\submodules\fmt.props" />
     <Import Project="$(SolutionDir)\..\props\submodules\foobar2000_sdk.props" />
     <Import Project="$(SolutionDir)\..\props\submodules\json.props" />
-    <Import Project="$(SolutionDir)\..\props\submodules\gsl.props" />
     <Import Project="$(SolutionDir)\..\props\submodules\mozjs.props" />
     <Import Project="$(SolutionDir)\..\props\submodules\range.props" />
     <Import Project="$(SolutionDir)\..\props\submodules\pfc.props" />
     <Import Project="$(SolutionDir)\..\props\submodules\scintilla.props" />
+    <Import Project="$(SolutionDir)\..\props\submodules\span_lite.props" />
     <Import Project="$(SolutionDir)\..\props\submodules\timsort.props" />
     <Import Project="$(SolutionDir)\..\props\submodules\wtl.props" />
   </ImportGroup>

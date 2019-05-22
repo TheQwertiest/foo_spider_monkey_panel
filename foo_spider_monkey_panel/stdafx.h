@@ -72,9 +72,6 @@ using std::max;
 #define FMT_HEADER_ONLY
 #include <fmt/format.h>
 
-// GSL
-#include <gsl/gsl>
-
 // range v3
 #include <range/v3/all.hpp>
 

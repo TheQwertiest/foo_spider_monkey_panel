@@ -1,5 +1,7 @@
 #pragma once
 
+#include <nonstd/span.hpp>
+
 #include <optional>
 #include <string>
 
@@ -18,7 +20,7 @@ UINT DetectFileCharset( const char* fileName );
 
 std::wstring FileDialog( const std::wstring& title, 
                          bool saveFile, 
-                         gsl::span<const COMDLG_FILTERSPEC> filterSpec = std::array<COMDLG_FILTERSPEC, 1>{ COMDLG_FILTERSPEC{ L"All files", L"*.*" } }, 
+                         nonstd::span<const COMDLG_FILTERSPEC> filterSpec = std::array<COMDLG_FILTERSPEC, 1>{ COMDLG_FILTERSPEC{ L"All files", L"*.*" } }, 
                          const std::wstring& defaultExtension = L"",
                          const std::wstring& defaultFilename = L"" );
 

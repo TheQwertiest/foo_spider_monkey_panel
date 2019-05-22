@@ -9,6 +9,8 @@
 #include <abort_callback.h>
 #include <component_paths.h>
 
+#include <nonstd/span.hpp>
+
 #include <filesystem>
 
 namespace
@@ -313,7 +315,7 @@ UINT DetectFileCharset( const char* fileName )
 
 std::wstring FileDialog( const std::wstring& title,
                          bool saveFile,
-                         gsl::span<const COMDLG_FILTERSPEC> filterSpec,
+                         nonstd::span<const COMDLG_FILTERSPEC> filterSpec,
                          const std::wstring& defaultExtension,
                          const std::wstring& defaultFilename )
 {

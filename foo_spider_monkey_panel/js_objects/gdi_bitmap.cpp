@@ -15,6 +15,8 @@
 
 #include <nlohmann/json.hpp>
 
+#include <nonstd/span.hpp>
+
 #include <map>
 
 using namespace smp;
@@ -492,7 +494,7 @@ bool JsGdiBitmap::SaveAs( const std::wstring& path, const std::wstring& format )
             return -1;
         }
 
-        gsl::span<Gdiplus::ImageCodecInfo> codecSpan{ pImageCodecInfo, static_cast<std::ptrdiff_t>( num ) };
+        nonstd::span<Gdiplus::ImageCodecInfo> codecSpan{ pImageCodecInfo, static_cast<std::ptrdiff_t>( num ) };
         const auto it = ranges::find_if( codecSpan, [&format]( const auto& codec ) { return ( format == codec.MimeType ); } );
         if ( it == codecSpan.cend() )
         {
