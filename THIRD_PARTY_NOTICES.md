@@ -15,7 +15,7 @@ The linked notices are provided for information only.
 - [Scintilla - other](component/licenses/Scintilla.txt)
 - [SpiderMonkey - MPL](component/licenses/SpiderMonkey.txt)
 - [StackBlur - MIT](component/licenses/StackBlur.txt)
-- [span lite - BSL-1.0](component/licenses/span lite.txt)
+- [span lite - BSL-1.0](component/licenses/span%20lite.txt)
 - [timsort-cpp - MIT](component/licenses/timsort-cpp.txt)
 - [UI Helpers - BSD](component/licenses/UI%20Helpers.txt)
 - [WTL - MS-PL](component/licenses/WTL.txt)
