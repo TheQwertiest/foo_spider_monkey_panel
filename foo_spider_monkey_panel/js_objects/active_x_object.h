@@ -46,6 +46,9 @@ public:
     static size_t GetInternalSize( const std::wstring& name );
     static void PostCreate( JSContext* cx, JS::HandleObject self );
 
+public: // ctor
+    static JSObject* Constructor( JSContext* cx, const std::wstring& name );
+
 public:
     IDispatch* pDispatch_ = nullptr;
     IUnknown * pUnknown_ = nullptr;

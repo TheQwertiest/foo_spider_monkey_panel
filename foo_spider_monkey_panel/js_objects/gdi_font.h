@@ -23,7 +23,7 @@ class JsGdiFont
 {
 public:
     static constexpr bool HasProto = true;
-    static constexpr bool HasGlobalProto = false;
+    static constexpr bool HasGlobalProto = true;
     static constexpr bool HasProxy = false;
     static constexpr bool HasPostCreate = false;
 
@@ -31,6 +31,7 @@ public:
     static const JSFunctionSpec* JsFunctions;
     static const JSPropertySpec* JsProperties;
     static const JsPrototypeId PrototypeId;
+    static const JSNative JsConstructor;
 
 public:
     ~JsGdiFont();
@@ -41,6 +42,10 @@ public:
 public:
     Gdiplus::Font* GdiFont() const;
     HFONT GetHFont() const;
+
+public: // ctor
+    static JSObject* Constructor( JSContext* cx, const std::wstring& fontName, float pxSize, uint32_t style = 0 );
+    static JSObject* ConstructorWithOpt( JSContext* cx, size_t optArgCount, const std::wstring& fontName, float pxSize, uint32_t style );
 
 public: // props
     uint32_t get_Height() const;

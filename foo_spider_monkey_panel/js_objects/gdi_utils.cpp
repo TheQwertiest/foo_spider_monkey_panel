@@ -99,39 +99,7 @@ JSObject* JsGdiUtils::CreateImage( uint32_t w, uint32_t h )
 
 JSObject* JsGdiUtils::Font( const std::wstring& fontName, float pxSize, uint32_t style )
 {
-    std::unique_ptr<Gdiplus::Font> pGdiFont( new Gdiplus::Font( fontName.c_str(), pxSize, style, Gdiplus::UnitPixel ) );
-    if ( !gdi::IsGdiPlusObjectValid( pGdiFont ) )
-    { // Not an error: font not found
-        return nullptr;
-    }
-
-    // Generate HFONT
-    // The benefit of replacing Gdiplus::Font::GetLogFontW is that you can get it work with CCF/OpenType fonts.
-    HFONT hFont = CreateFont(
-        -(int)pxSize,
-        0,
-        0,
-        0,
-        ( style & Gdiplus::FontStyleBold ) ? FW_BOLD : FW_NORMAL,
-        ( style & Gdiplus::FontStyleItalic ) ? TRUE : FALSE,
-        ( style & Gdiplus::FontStyleUnderline ) ? TRUE : FALSE,
-        ( style & Gdiplus::FontStyleStrikeout ) ? TRUE : FALSE,
-        DEFAULT_CHARSET,
-        OUT_DEFAULT_PRECIS,
-        CLIP_DEFAULT_PRECIS,
-        DEFAULT_QUALITY,
-        DEFAULT_PITCH | FF_DONTCARE,
-        fontName.c_str() );
-    smp::error::CheckWinApi( !!hFont, "CreateFont" );
-    utils::final_action autoFont( [hFont]() {
-        DeleteObject( hFont );
-    } );
-
-    JS::RootedObject jsObject( pJsCtx_, JsGdiFont::CreateJs( pJsCtx_, std::move( pGdiFont ), hFont, true ) );
-    assert( jsObject );
-
-    autoFont.cancel();
-    return jsObject;
+    return JsGdiFont::Constructor( pJsCtx_, fontName, pxSize, style );
 }
 
 JSObject* JsGdiUtils::FontWithOpt( size_t optArgCount, const std::wstring& fontName, float pxSize, uint32_t style )

@@ -84,21 +84,7 @@ const JSPropertySpec jsProperties[] = {
     JS_PS_END
 };
 
-} // namespace
-
-namespace
-{
-
-bool Constructor_Impl( JSContext* cx, unsigned argc, JS::Value* vp )
-{
-    JS::CallArgs args = JS::CallArgsFromVp( argc, vp );
-    SmpException::ExpectTrue( argc, "Argument is missing" );
-
-    args.rval().setObjectOrNull( JsGdiBitmap::Constructor( cx, convert::to_native::ToValue<JsGdiBitmap*>( cx, args[0] ) ) );
-    return true;
-}
-
-MJS_DEFINE_JS_FN( Constructor, Constructor_Impl )
+MJS_DEFINE_JS_FN_FROM_NATIVE( GdiBitmap_Constructor, JsGdiBitmap::Constructor )
 
 } // namespace
 
@@ -133,7 +119,7 @@ const JSClass JsGdiBitmap::JsClass = jsClass;
 const JSFunctionSpec* JsGdiBitmap::JsFunctions = jsFunctions;
 const JSPropertySpec* JsGdiBitmap::JsProperties = jsProperties;
 const JsPrototypeId JsGdiBitmap::PrototypeId = JsPrototypeId::GdiBitmap;
-const JSNative JsGdiBitmap::JsConstructor = ::Constructor;
+const JSNative JsGdiBitmap::JsConstructor = ::GdiBitmap_Constructor;
 
 JsGdiBitmap::JsGdiBitmap( JSContext* cx, std::unique_ptr<Gdiplus::Bitmap> gdiBitmap )
     : pJsCtx_( cx )
@@ -474,14 +460,13 @@ void JsGdiBitmap::RotateFlip( uint32_t mode )
 
 bool JsGdiBitmap::SaveAs( const std::wstring& path, const std::wstring& format )
 {
-    CLSID clsid_encoder;
-    const int imageEncoderId = []( const std::wstring& format, CLSID& clsId ) -> int { // get image encoder
+    const auto clsIdRet = []( const std::wstring& format ) -> std::optional<CLSID> {
         UINT num = 0;
         UINT size = 0;
         Gdiplus::Status status = Gdiplus::GetImageEncodersSize( &num, &size );
         if ( status != Gdiplus::Ok || !size )
         {
-            return -1;
+            return std::nullopt;
         }
 
         std::vector<uint8_t> imageCodeInfoBuf( size );
@@ -491,26 +476,25 @@ bool JsGdiBitmap::SaveAs( const std::wstring& path, const std::wstring& format )
         status = Gdiplus::GetImageEncoders( num, size, pImageCodecInfo );
         if ( status != Gdiplus::Ok )
         {
-            return -1;
+            return std::nullopt;
         }
 
         nonstd::span<Gdiplus::ImageCodecInfo> codecSpan{ pImageCodecInfo, static_cast<std::ptrdiff_t>( num ) };
         const auto it = ranges::find_if( codecSpan, [&format]( const auto& codec ) { return ( format == codec.MimeType ); } );
         if ( it == codecSpan.cend() )
         {
-            return -1;
+            return std::nullopt;
         }
 
-        clsId = it->Clsid;
-        return ranges::distance( codecSpan.cbegin(), it );
-    }( format, clsid_encoder );
+        return it->Clsid;
+    }( format );
 
-    if ( imageEncoderId < 0 )
+    if ( !clsIdRet )
     {
         return false;
     }
 
-    Gdiplus::Status gdiRet = pGdi_->Save( path.c_str(), &clsid_encoder );
+    Gdiplus::Status gdiRet = pGdi_->Save( path.c_str(), &clsIdRet.value() );
     return ( Gdiplus::Ok == gdiRet );
 }
 

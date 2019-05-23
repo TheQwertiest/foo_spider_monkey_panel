@@ -51,22 +51,7 @@ const JSPropertySpec jsProperties[] = {
     JS_PS_END
 };
 
-} // namespace
-
-namespace
-{
-
-bool Constructor_Impl( JSContext* cx, unsigned argc, JS::Value* vp )
-{
-    JS::CallArgs args = JS::CallArgsFromVp( argc, vp );
-    SmpException::ExpectTrue( argc, "Argument is missing" );
-
-    args.rval().setObjectOrNull( JsFbTitleFormat::Constructor( cx,
-                                                               convert::to_native::ToValue<pfc::string8_fast>( cx, args[0] ) ) );
-    return true;
-}
-
-MJS_DEFINE_JS_FN( Constructor, Constructor_Impl )
+MJS_DEFINE_JS_FN_FROM_NATIVE( FbTitleFormat_Constructor, JsFbTitleFormat::Constructor )
 
 } // namespace
 
@@ -77,7 +62,7 @@ const JSClass JsFbTitleFormat::JsClass = jsClass;
 const JSFunctionSpec* JsFbTitleFormat::JsFunctions = jsFunctions;
 const JSPropertySpec* JsFbTitleFormat::JsProperties = jsProperties;
 const JsPrototypeId JsFbTitleFormat::PrototypeId = JsPrototypeId::FbTitleFormat;
-const JSNative JsFbTitleFormat::JsConstructor = ::Constructor;
+const JSNative JsFbTitleFormat::JsConstructor = ::FbTitleFormat_Constructor;
 
 JsFbTitleFormat::JsFbTitleFormat( JSContext* cx, const pfc::string8_fast& expr )
     : pJsCtx_( cx )

@@ -61,6 +61,7 @@ public:
 
 public: // ctor
     static JSObject* Constructor( JSContext* cx, JS::HandleValue jsValue = JS::UndefinedHandleValue );
+    static JSObject* ConstructorWithOpt( JSContext* cx, size_t optArgCount, JS::HandleValue jsValue );
 
 public: // methods
     void Add( JsFbMetadbHandle* handle );

@@ -50,21 +50,7 @@ const JSPropertySpec jsProperties[] = {
     JS_PS_END
 };
 
-} // namespace
-
-namespace
-{
-
-bool Constructor_Impl( JSContext* cx, unsigned argc, JS::Value* vp )
-{
-    JS::CallArgs args = JS::CallArgsFromVp( argc, vp );
-
-    args.rval().setObjectOrNull( JsFbProfiler::Constructor( cx,
-                                                            ( argc ? convert::to_native::ToValue<pfc::string8_fast>( cx, args[0] ) : pfc::string8_fast() ) ) );
-    return true;
-}
-
-MJS_DEFINE_JS_FN( Constructor, Constructor_Impl )
+MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( FbProfiler_Constructor, JsFbProfiler::Constructor, JsFbProfiler::ConstructorWithOpt, 1 )
 
 } // namespace
 
@@ -75,7 +61,7 @@ const JSClass JsFbProfiler::JsClass = jsClass;
 const JSFunctionSpec* JsFbProfiler::JsFunctions = jsFunctions;
 const JSPropertySpec* JsFbProfiler::JsProperties = jsProperties;
 const JsPrototypeId JsFbProfiler::PrototypeId = JsPrototypeId::FbProfiler;
-const JSNative JsFbProfiler::JsConstructor = ::Constructor;
+const JSNative JsFbProfiler::JsConstructor = ::FbProfiler_Constructor;
 
 JsFbProfiler::JsFbProfiler( JSContext* cx, const pfc::string8_fast& name )
     : pJsCtx_( cx )
@@ -102,6 +88,19 @@ size_t JsFbProfiler::GetInternalSize( const pfc::string8_fast& name )
 JSObject* JsFbProfiler::Constructor( JSContext* cx, const pfc::string8_fast& name )
 {
     return JsFbProfiler::CreateJs( cx, name );
+}
+
+JSObject* JsFbProfiler::ConstructorWithOpt( JSContext* cx, size_t optArgCount, const pfc::string8_fast& name )
+{
+    switch ( optArgCount )
+    {
+    case 0:
+        return Constructor( cx, name );
+    case 1:
+        return Constructor( cx, name );
+    default:
+        throw SmpException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
+    }
 }
 
 void JsFbProfiler::Print( const pfc::string8_fast& additionalMsg, bool printComponentInfo )

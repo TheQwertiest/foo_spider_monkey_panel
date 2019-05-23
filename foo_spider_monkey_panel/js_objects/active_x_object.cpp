@@ -242,16 +242,6 @@ JSClass jsClass = {
     &jsOps
 };
 
-bool ActiveX_Constructor_Impl( JSContext* cx, unsigned argc, JS::Value* vp )
-{
-    JS::CallArgs args = JS::CallArgsFromVp( argc, vp );
-    smp::SmpException::ExpectTrue( argc && args[0].isString(), "Argument 1 is not a string" );
-
-    const auto activeXName = mozjs::convert::to_native::ToValue<std::wstring>( cx, args[0] );
-    args.rval().setObjectOrNull( ActiveXObject::CreateJs( cx, activeXName ) );
-    return true;
-}
-
 bool ActiveX_Run_Impl( JSContext* cx, unsigned argc, JS::Value* vp )
 {
     JS::CallArgs args = JS::CallArgsFromVp( argc, vp );
@@ -288,7 +278,6 @@ bool ActiveX_Set_Impl( JSContext* cx, unsigned argc, JS::Value* vp )
     return true;
 }
 
-MJS_DEFINE_JS_FN( ActiveX_Constructor, ActiveX_Constructor_Impl )
 MJS_DEFINE_JS_FN( ActiveX_Run, ActiveX_Run_Impl )
 MJS_DEFINE_JS_FN( ActiveX_Get, ActiveX_Get_Impl )
 MJS_DEFINE_JS_FN( ActiveX_Set, ActiveX_Set_Impl )
@@ -305,6 +294,8 @@ const JSPropertySpec jsProperties[] = {
     JS_PS_END
 };
 
+MJS_DEFINE_JS_FN_FROM_NATIVE( ActiveXObject_Constructor, ActiveXObject::Constructor )
+
 } // namespace
 
 namespace mozjs
@@ -314,7 +305,7 @@ const JSClass ActiveXObject::JsClass = jsClass;
 const JSFunctionSpec* ActiveXObject::JsFunctions = jsFunctions;
 const JSPropertySpec* ActiveXObject::JsProperties = jsProperties;
 const JsPrototypeId ActiveXObject::PrototypeId = JsPrototypeId::ActiveX;
-const JSNative ActiveXObject::JsConstructor = ActiveX_Constructor;
+const JSNative ActiveXObject::JsConstructor = ::ActiveXObject_Constructor;
 const js::BaseProxyHandler& ActiveXObject::JsProxy = ActiveXObjectProxyHandler::singleton;
 
 ActiveXObject::ActiveXObject( JSContext* cx, VARIANTARG& var )
@@ -472,6 +463,11 @@ void ActiveXObject::PostCreate( JSContext* cx, JS::HandleObject self )
     auto pNative = static_cast<ActiveXObject*>( JS_GetInstancePrivate( cx, self, &ActiveXObject::JsClass, nullptr ) );
     assert( pNative );
     return pNative->SetupMembers( self );
+}
+
+JSObject* ActiveXObject::Constructor( JSContext* cx, const std::wstring& name )
+{
+    return ActiveXObject::CreateJs( cx, name );
 }
 
 std::optional<DISPID> ActiveXObject::GetDispId( const std::wstring& name, bool reportError )

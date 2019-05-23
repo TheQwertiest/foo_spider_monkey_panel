@@ -34,7 +34,8 @@ public:
     static size_t GetInternalSize( const pfc::string8_fast& name );
 
 public: // ctor
-    static JSObject* Constructor( JSContext* cx, const pfc::string8_fast& name );
+    static JSObject* Constructor( JSContext* cx, const pfc::string8_fast& name = "" );
+    static JSObject* ConstructorWithOpt( JSContext* cx, size_t optArgCount, const pfc::string8_fast& name );
 
 public:
     void Print( const pfc::string8_fast& additionalMsg = "", bool printComponentInfo = true );

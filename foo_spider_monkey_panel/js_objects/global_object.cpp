@@ -15,6 +15,7 @@
 #include <js_objects/fb_title_format.h>
 #include <js_objects/fb_utils.h>
 #include <js_objects/gdi_bitmap.h>
+#include <js_objects/gdi_font.h>
 #include <js_objects/gdi_utils.h>
 #include <js_objects/hacks.h>
 #include <js_objects/utils.h>
@@ -165,6 +166,7 @@ JSObject* JsGlobalObject::CreateNative( JSContext* cx, JsContainer& parentContai
 
         CreateAndInstallPrototype<ActiveXObject>( cx, JsPrototypeId::ActiveX );
         CreateAndInstallPrototype<JsGdiBitmap>( cx, JsPrototypeId::GdiBitmap );
+        CreateAndInstallPrototype<JsGdiFont>( cx, JsPrototypeId::GdiFont );
         CreateAndInstallPrototype<JsEnumerator>( cx, JsPrototypeId::Enumerator );
         CreateAndInstallPrototype<JsFbMetadbHandleList>( cx, JsPrototypeId::FbMetadbHandleList );
         CreateAndInstallPrototype<JsFbProfiler>( cx, JsPrototypeId::FbProfiler );

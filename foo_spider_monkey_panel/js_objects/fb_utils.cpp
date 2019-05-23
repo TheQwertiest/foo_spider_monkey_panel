@@ -267,7 +267,7 @@ JSObject* JsFbUtils::CreateContextMenuManager()
 
 JSObject* JsFbUtils::CreateHandleList()
 {
-    return JsFbMetadbHandleList::CreateJs( pJsCtx_, metadb_handle_list{} );
+    return JsFbMetadbHandleList::Constructor( pJsCtx_, JS::UndefinedHandleValue );
 }
 
 JSObject* JsFbUtils::CreateMainMenuManager()
@@ -277,7 +277,7 @@ JSObject* JsFbUtils::CreateMainMenuManager()
 
 JSObject* JsFbUtils::CreateProfiler( const pfc::string8_fast& name )
 {
-    return JsFbProfiler::CreateJs( pJsCtx_, name );
+    return JsFbProfiler::Constructor( pJsCtx_, name );
 }
 
 JSObject* JsFbUtils::CreateProfilerWithOpt( size_t optArgCount, const pfc::string8_fast& name )
@@ -759,7 +759,7 @@ void JsFbUtils::Stop()
 
 JSObject* JsFbUtils::TitleFormat( const pfc::string8_fast& expression )
 {
-    return JsFbTitleFormat::CreateJs( pJsCtx_, expression );
+    return JsFbTitleFormat::Constructor( pJsCtx_, expression );
 }
 
 void JsFbUtils::VolumeDown()

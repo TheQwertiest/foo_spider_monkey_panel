@@ -19,6 +19,8 @@ class Font;
 namespace mozjs
 {
 
+class ActiveXObject;
+
 class JsEnumerator
     : public JsObjectBase<JsEnumerator>
 {
@@ -39,6 +41,9 @@ public:
 
     static std::unique_ptr<JsEnumerator> CreateNative( JSContext* cx, IUnknown* pUnknown );
     static size_t GetInternalSize( IUnknown* pUnknown );
+
+public: // ctor
+    static JSObject* Constructor( JSContext* cx, ActiveXObject* pActiveXObject );
 
 public:
     bool AtEnd();

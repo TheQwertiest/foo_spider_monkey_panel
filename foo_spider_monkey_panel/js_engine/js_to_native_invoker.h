@@ -59,16 +59,15 @@ BaseClass* InvokeNativeCallback_GetThisObject( JSContext* cx, JS::HandleValue js
     return nullptr;
 }
 
-template <
-    bool HasOptArg,
-    typename ReturnType,
-    typename BaseClass,
-    typename FuncType,
-    typename FuncOptType,
-    typename ArgTupleType>
-ReturnType InvokeNativeCallback_Call( BaseClass* baseClass,
-                                      FuncType fn, FuncOptType fnWithOpt,
-                                      const ArgTupleType& argTuple, size_t optArgCount )
+template <bool HasOptArg,
+          typename ReturnType,
+          typename BaseClass,
+          typename FuncType,
+          typename FuncOptType,
+          typename ArgTupleType>
+ReturnType InvokeNativeCallback_Call_Member( BaseClass* baseClass,
+                                             FuncType fn, FuncOptType fnWithOpt,
+                                             const ArgTupleType& argTuple, size_t optArgCount )
 {
     if constexpr ( !HasOptArg )
     {
@@ -83,11 +82,38 @@ ReturnType InvokeNativeCallback_Call( BaseClass* baseClass,
     }
 }
 
-template <size_t OptArgCount, typename BaseClass, typename ReturnType, typename FuncType, typename FuncOptType, typename... ArgTypes>
-void InvokeNativeCallback_Impl( JSContext* cx,
-                                FuncType fn,
-                                FuncOptType fnWithOpt,
-                                unsigned argc, JS::Value* vp )
+template <bool HasOptArg,
+          typename ReturnType,
+          typename FuncType,
+          typename FuncOptType,
+          typename ArgTupleType>
+ReturnType InvokeNativeCallback_Call_Static( JSContext* cx,
+                                             FuncType fn, FuncOptType fnWithOpt,
+                                             const ArgTupleType& argTuple, size_t optArgCount )
+{
+    if constexpr ( !HasOptArg )
+    {
+        (void)fnWithOpt;
+        (void)optArgCount;
+        return std::apply( fn, std::tuple_cat( std::make_tuple( cx ), argTuple ) );
+    }
+    else
+    { // Invoke callback with optional argument handler
+        (void)fn;
+        return std::apply( fnWithOpt, std::tuple_cat( std::make_tuple( cx, optArgCount ), argTuple ) );
+    }
+}
+
+template <size_t OptArgCount,
+          typename BaseClass,
+          typename ReturnType,
+          typename FuncType,
+          typename FuncOptType,
+          typename... ArgTypes>
+void InvokeNativeCallback_Member( JSContext* cx,
+                                  FuncType fn,
+                                  FuncOptType fnWithOpt,
+                                  unsigned argc, JS::Value* vp )
 {
     constexpr size_t maxArgCount = sizeof...( ArgTypes );
     static_assert( OptArgCount <= maxArgCount );
@@ -106,10 +132,11 @@ void InvokeNativeCallback_Impl( JSContext* cx,
 
     // Parse arguments
 
+    JS::RootedValue dummyHandleValue( cx );
     auto callbackArguments =
         JsToNativeArguments<maxArgCount, ArgTypes...>(
             args,
-            [maxArgCount, cx]( const JS::CallArgs& jsArgs, auto argTypeStruct, size_t index ) {
+            [maxArgCount, cx, &dummyHandleValue]( const JS::CallArgs& jsArgs, auto argTypeStruct, size_t index ) {
                 using ArgType = typename std::remove_const_t<std::remove_reference_t<decltype( argTypeStruct )::type>>;
 
                 // Not an error: default value might be set in callback
@@ -119,9 +146,9 @@ void InvokeNativeCallback_Impl( JSContext* cx,
                 { // Skip conversion, pass through
                     if ( isDefaultValue )
                     {
-                        return jsArgs[0]; ///< Dummy value
+                        return ArgType( dummyHandleValue );
                     }
-                    return jsArgs[index];
+                    return ArgType( jsArgs[index] );
                 }
                 else
                 {
@@ -137,7 +164,83 @@ void InvokeNativeCallback_Impl( JSContext* cx,
     // Call function
     // May return raw JS pointer! (see below)
     const auto invokeNative = [&]() {
-        return InvokeNativeCallback_Call<!!OptArgCount, ReturnType>( baseClass, fn, fnWithOpt, callbackArguments, ( maxArgCount > args.length() ? maxArgCount - args.length() : 0 ) );
+        return InvokeNativeCallback_Call_Member<!!OptArgCount, ReturnType>( baseClass, fn, fnWithOpt, callbackArguments, ( maxArgCount > args.length() ? maxArgCount - args.length() : 0 ) );
+    };
+
+    // Return value
+    if constexpr ( std::is_same_v<ReturnType, JSObject*> )
+    { // A raw JS pointer! Be careful when editing this code!
+        args.rval().setObjectOrNull( invokeNative() );
+    }
+    else if constexpr ( std::is_same_v<ReturnType, JS::Value> )
+    { // Unrooted JS::Value! Be careful when editing this code!
+        args.rval().set( invokeNative() );
+    }
+    else if constexpr ( std::is_same_v<ReturnType, void> )
+    {
+        invokeNative();
+        args.rval().setUndefined();
+    }
+    else
+    {
+        convert::to_js::ToValue( cx, invokeNative(), args.rval() );
+    }
+}
+
+template <size_t OptArgCount,
+          typename ReturnType,
+          typename FuncType,
+          typename FuncOptType,
+          typename... ArgTypes>
+void InvokeNativeCallback_Static( JSContext* cx,
+                                  FuncType fn,
+                                  FuncOptType fnWithOpt,
+                                  unsigned argc, JS::Value* vp )
+{
+    constexpr size_t maxArgCount = sizeof...( ArgTypes );
+    static_assert( OptArgCount <= maxArgCount );
+
+    JS::CallArgs args = JS::CallArgsFromVp( argc, vp );
+    if ( args.length() < ( maxArgCount - OptArgCount ) )
+    {
+        throw smp::SmpException( "Invalid number of arguments" );
+    }
+
+    // Parse arguments
+
+    JS::RootedValue dummyHandleValue( cx );
+    auto callbackArguments =
+        JsToNativeArguments<maxArgCount, ArgTypes...>(
+            args,
+            [maxArgCount, cx, &dummyHandleValue]( const JS::CallArgs& jsArgs, auto argTypeStruct, size_t index ) {
+                using ArgType = typename std::remove_const_t<std::remove_reference_t<decltype( argTypeStruct )::type>>;
+
+                // Not an error: default value might be set in callback
+                const bool isDefaultValue = ( index >= jsArgs.length() || index > maxArgCount );
+
+                if constexpr ( std::is_same_v<ArgType, JS::HandleValue> )
+                { // Skip conversion, pass through
+                    if ( isDefaultValue )
+                    {
+                        return ArgType( dummyHandleValue );
+                    }
+                    return ArgType( jsArgs[index] );
+                }
+                else
+                {
+                    if ( isDefaultValue )
+                    {
+                        return ArgType(); ///< Dummy value
+                    }
+
+                    return convert::to_native::ToValue<ArgType>( cx, jsArgs[index] );
+                }
+            } );
+
+    // Call function
+    // May return raw JS pointer! (see below)
+    const auto invokeNative = [&]() {
+        return InvokeNativeCallback_Call_Static<!!OptArgCount, ReturnType>( cx, fn, fnWithOpt, callbackArguments, ( maxArgCount > args.length() ? maxArgCount - args.length() : 0 ) );
     };
 
     // Return value
@@ -171,7 +274,7 @@ void InvokeNativeCallback( JSContext* cx,
                            FuncOptType fnWithOpt,
                            unsigned argc, JS::Value* vp )
 {
-    mozjs::internal::InvokeNativeCallback_Impl<
+    mozjs::internal::InvokeNativeCallback_Member<
         OptArgCount,
         BaseClass,
         ReturnType,
@@ -186,9 +289,23 @@ void InvokeNativeCallback( JSContext* cx,
                            FuncOptType fnWithOpt,
                            unsigned argc, JS::Value* vp )
 {
-    mozjs::internal::InvokeNativeCallback_Impl<
+    mozjs::internal::InvokeNativeCallback_Member<
         OptArgCount,
         BaseClass,
+        ReturnType,
+        decltype( fn ),
+        FuncOptType,
+        ArgTypes...>( cx, fn, fnWithOpt, argc, vp );
+}
+
+template <size_t OptArgCount = 0, typename ReturnType, typename FuncOptType, typename... ArgTypes>
+void InvokeNativeCallback( JSContext* cx,
+                           ReturnType( __cdecl* fn )( JSContext*, ArgTypes... ),
+                           FuncOptType fnWithOpt,
+                           unsigned argc, JS::Value* vp )
+{
+    mozjs::internal::InvokeNativeCallback_Static<
+        OptArgCount,
         ReturnType,
         decltype( fn ),
         FuncOptType,

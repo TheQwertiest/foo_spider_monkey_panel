@@ -36,33 +36,6 @@ JSClass jsClass = {
     &jsOps
 };
 
-bool Enumerator_Constructor_Impl( JSContext* cx, unsigned argc, JS::Value* vp )
-{
-    JS::CallArgs args = JS::CallArgsFromVp( argc, vp );
-    if ( !argc )
-    {
-        JS_ReportErrorUTF8( cx, "Not enough arguments" );
-        return false;
-    }
-
-    try
-    {
-        auto pActiveXObject = mozjs::convert::to_native::ToValue<ActiveXObject*>( cx, args[0] );
-
-        args.rval().setObjectOrNull(
-            JsEnumerator::CreateJs( cx, ( pActiveXObject->pUnknown_ ? pActiveXObject->pUnknown_ : pActiveXObject->pDispatch_ ) ) );
-    }
-    catch ( ... )
-    {
-        mozjs::error::ExceptionToJsError( cx );
-        return false;
-    }
-
-    return true;
-}
-
-MJS_DEFINE_JS_FN( Enumerator_Constructor, Enumerator_Constructor_Impl )
-
 MJS_DEFINE_JS_FN_FROM_NATIVE( atEnd, JsEnumerator::AtEnd )
 MJS_DEFINE_JS_FN_FROM_NATIVE( item, JsEnumerator::Item )
 MJS_DEFINE_JS_FN_FROM_NATIVE( moveFirst, JsEnumerator::MoveFirst )
@@ -80,6 +53,8 @@ const JSPropertySpec jsProperties[] = {
     JS_PS_END
 };
 
+MJS_DEFINE_JS_FN_FROM_NATIVE( Enumerator_Constructor, JsEnumerator::Constructor )
+
 } // namespace
 
 namespace mozjs
@@ -89,7 +64,7 @@ const JSClass JsEnumerator::JsClass = jsClass;
 const JSFunctionSpec* JsEnumerator::JsFunctions = jsFunctions;
 const JSPropertySpec* JsEnumerator::JsProperties = jsProperties;
 const JsPrototypeId JsEnumerator::PrototypeId = JsPrototypeId::Enumerator;
-const JSNative JsEnumerator::JsConstructor = Enumerator_Constructor;
+const JSNative JsEnumerator::JsConstructor = ::Enumerator_Constructor;
 
 JsEnumerator::JsEnumerator( JSContext* cx, EnumVARIANTComPtr pEnum, bool hasElements )
     : pJsCtx_( cx )
@@ -117,6 +92,11 @@ JsEnumerator::CreateNative( JSContext* cx, IUnknown* pUnknown )
 size_t JsEnumerator::GetInternalSize( IUnknown* /*pUnknown*/ )
 {
     return 0;
+}
+
+JSObject* JsEnumerator::Constructor( JSContext* cx, ActiveXObject* pActiveXObject )
+{
+    return JsEnumerator::CreateJs( cx, ( pActiveXObject->pUnknown_ ? pActiveXObject->pUnknown_ : pActiveXObject->pDispatch_ ) );
 }
 
 bool JsEnumerator::AtEnd()
