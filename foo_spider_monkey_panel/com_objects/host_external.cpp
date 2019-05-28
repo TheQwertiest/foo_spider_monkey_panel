@@ -13,7 +13,7 @@ STDMETHODIMP HostExternal::get_dialogArguments( VARIANT* pData )
 {
     if ( pData )
     {
-        *pData = data_;
+        VariantCopy( pData, &static_cast<VARIANT>(data_) );
     }
 
     return S_OK;
