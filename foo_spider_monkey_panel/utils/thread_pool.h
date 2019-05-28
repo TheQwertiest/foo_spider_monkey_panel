@@ -74,8 +74,8 @@ private:
     const size_t maxThreadCount_;
 
     std::vector<std::unique_ptr<std::thread>> threads_;
-    std::atomic<uint32_t> idleThreadCount_ = 0;
-    std::atomic<bool> isExiting_ = false;
+    std::atomic_uint32_t idleThreadCount_ = 0;
+    std::atomic_bool isExiting_ = false;
 
     std::mutex queueMutex_;
     std::condition_variable hasTask_;

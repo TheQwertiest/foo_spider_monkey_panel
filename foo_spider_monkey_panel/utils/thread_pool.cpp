@@ -28,10 +28,14 @@ void ThreadPool::Finalize()
 {
     assert( core_api::is_main_thread() );
 
-    isExiting_ = true;
+    {
+        std::unique_lock sl( queueMutex_ );
+        isExiting_ = true;
+    }
+
     hasTask_.notify_all();
 
-    for ( const auto& thread : threads_ )
+    for ( const auto& thread: threads_ )
     {
         assert( thread );
         if ( thread->joinable() )
@@ -56,7 +60,7 @@ void ThreadPool::AddThread()
 void ThreadPool::ThreadProc()
 {
     ++idleThreadCount_;
-    auto idleCounter = [&idleThreadsCount = idleThreadCount_]() {
+    auto idleCounter = [& idleThreadsCount = idleThreadCount_]() {
         --idleThreadsCount;
     };
 

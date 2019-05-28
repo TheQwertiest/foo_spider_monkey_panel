@@ -44,7 +44,7 @@ private:
     pfc::event abortEvent_;
     HANDLE hTimer_ = nullptr;
 
-    std::atomic<bool> hasEnded_ = false;
+    std::atomic_bool hasEnded_ = false;
 };
 
 } // namespace smp

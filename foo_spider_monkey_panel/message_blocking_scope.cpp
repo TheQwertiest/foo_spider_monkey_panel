@@ -6,7 +6,7 @@
 namespace smp
 {
 
-std::atomic<bool> MessageBlockingScope::isBlocking_ = false;
+std::atomic_bool MessageBlockingScope::isBlocking_ = false;
 
 MessageBlockingScope::MessageBlockingScope()
 {

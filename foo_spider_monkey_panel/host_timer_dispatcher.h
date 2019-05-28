@@ -130,6 +130,6 @@ private:
     uint32_t delay_;
     bool isRepeated_;
 
-    std::atomic<bool> isStopRequested_ = false;
+    std::atomic_bool isStopRequested_ = false;
     bool isStopped_ = false;
 };
