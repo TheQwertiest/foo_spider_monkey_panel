@@ -47,18 +47,17 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( SetPlaycount, JsFbMetadbHandle::SetPlaycount )
 MJS_DEFINE_JS_FN_FROM_NATIVE( SetRating, JsFbMetadbHandle::SetRating )
 
 const JSFunctionSpec jsFunctions[] = {
-    JS_FN( "ClearStats",    ClearStats, 0, DefaultPropsFlags() ),
-    JS_FN( "Compare",       Compare, 1, DefaultPropsFlags() ),
-    JS_FN( "GetFileInfo",   GetFileInfo, 0, DefaultPropsFlags() ),
-    JS_FN( "RefreshStats",  RefreshStats, 0, DefaultPropsFlags() ),
-    JS_FN( "SetFirstPlayed",SetFirstPlayed, 1, DefaultPropsFlags() ),
+    JS_FN( "ClearStats", ClearStats, 0, DefaultPropsFlags() ),
+    JS_FN( "Compare", Compare, 1, DefaultPropsFlags() ),
+    JS_FN( "GetFileInfo", GetFileInfo, 0, DefaultPropsFlags() ),
+    JS_FN( "RefreshStats", RefreshStats, 0, DefaultPropsFlags() ),
+    JS_FN( "SetFirstPlayed", SetFirstPlayed, 1, DefaultPropsFlags() ),
     JS_FN( "SetLastPlayed", SetLastPlayed, 1, DefaultPropsFlags() ),
-    JS_FN( "SetLoved",      SetLoved, 1, DefaultPropsFlags() ),
-    JS_FN( "SetPlaycount",  SetPlaycount, 1, DefaultPropsFlags() ),
-    JS_FN( "SetRating",     SetRating, 1, DefaultPropsFlags() ),
+    JS_FN( "SetLoved", SetLoved, 1, DefaultPropsFlags() ),
+    JS_FN( "SetPlaycount", SetPlaycount, 1, DefaultPropsFlags() ),
+    JS_FN( "SetRating", SetRating, 1, DefaultPropsFlags() ),
     JS_FS_END
 };
-
 
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_FileSize, JsFbMetadbHandle::get_FileSize )
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_Length, JsFbMetadbHandle::get_Length )
@@ -68,15 +67,14 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( get_SubSong, JsFbMetadbHandle::get_SubSong )
 
 const JSPropertySpec jsProperties[] = {
     JS_PSG( "FileSize", get_FileSize, DefaultPropsFlags() ),
-    JS_PSG( "Length",   get_Length, DefaultPropsFlags() ),
-    JS_PSG( "Path",     get_Path, DefaultPropsFlags() ),
-    JS_PSG( "RawPath",  get_RawPath, DefaultPropsFlags() ),
-    JS_PSG( "SubSong",  get_SubSong, DefaultPropsFlags() ),
+    JS_PSG( "Length", get_Length, DefaultPropsFlags() ),
+    JS_PSG( "Path", get_Path, DefaultPropsFlags() ),
+    JS_PSG( "RawPath", get_RawPath, DefaultPropsFlags() ),
+    JS_PSG( "SubSong", get_SubSong, DefaultPropsFlags() ),
     JS_PS_END
 };
 
-
-}
+} // namespace
 
 namespace mozjs
 {
@@ -96,7 +94,7 @@ JsFbMetadbHandle::~JsFbMetadbHandle()
 {
 }
 
-std::unique_ptr<mozjs::JsFbMetadbHandle> 
+std::unique_ptr<mozjs::JsFbMetadbHandle>
 JsFbMetadbHandle::CreateNative( JSContext* cx, const metadb_handle_ptr& handle )
 {
     SmpException::ExpectTrue( handle.is_valid(), "Internal error: metadb_handle_ptr is null" );
@@ -132,10 +130,10 @@ bool JsFbMetadbHandle::Compare( JsFbMetadbHandle* handle )
 
 JSObject* JsFbMetadbHandle::GetFileInfo()
 {
-    std::unique_ptr<file_info_impl> pFileInfo(new file_info_impl);
+    std::unique_ptr<file_info_impl> pFileInfo( new file_info_impl );
 
     if ( !metadbHandle_->get_info( *pFileInfo ) )
-    {// Not an error: info not loaded yet
+    { // Not an error: info not loaded yet
         return nullptr;
     }
 
@@ -144,7 +142,7 @@ JSObject* JsFbMetadbHandle::GetFileInfo()
 
 void JsFbMetadbHandle::RefreshStats()
 {
-    if ( metadb_index_hash hash; 
+    if ( metadb_index_hash hash;
          stats::hashHandle( metadbHandle_, hash ) )
     {
         stats::refresh( hash );
@@ -157,7 +155,7 @@ void JsFbMetadbHandle::SetFirstPlayed( const pfc::string8_fast& first_played )
          stats::hashHandle( metadbHandle_, hash ) )
     {
         stats::fields tmp = stats::get( hash );
-        if (tmp.first_played != first_played )
+        if ( tmp.first_played != first_played )
         {
             tmp.first_played = first_played;
             stats::set( hash, tmp );
@@ -167,7 +165,7 @@ void JsFbMetadbHandle::SetFirstPlayed( const pfc::string8_fast& first_played )
 
 void JsFbMetadbHandle::SetLastPlayed( const pfc::string8_fast& last_played )
 {
-    if ( metadb_index_hash hash; 
+    if ( metadb_index_hash hash;
          stats::hashHandle( metadbHandle_, hash ) )
     {
         stats::fields tmp = stats::get( hash );
@@ -181,7 +179,7 @@ void JsFbMetadbHandle::SetLastPlayed( const pfc::string8_fast& last_played )
 
 void JsFbMetadbHandle::SetLoved( uint32_t loved )
 {
-    if ( metadb_index_hash hash; 
+    if ( metadb_index_hash hash;
          stats::hashHandle( metadbHandle_, hash ) )
     {
         stats::fields tmp = stats::get( hash );
@@ -195,7 +193,7 @@ void JsFbMetadbHandle::SetLoved( uint32_t loved )
 
 void JsFbMetadbHandle::SetPlaycount( uint32_t playcount )
 {
-    if ( metadb_index_hash hash; 
+    if ( metadb_index_hash hash;
          stats::hashHandle( metadbHandle_, hash ) )
     {
         stats::fields tmp = stats::get( hash );
@@ -209,7 +207,7 @@ void JsFbMetadbHandle::SetPlaycount( uint32_t playcount )
 
 void JsFbMetadbHandle::SetRating( uint32_t rating )
 {
-    if ( metadb_index_hash hash; 
+    if ( metadb_index_hash hash;
          stats::hashHandle( metadbHandle_, hash ) )
     {
         stats::fields tmp = stats::get( hash );
@@ -221,9 +219,9 @@ void JsFbMetadbHandle::SetRating( uint32_t rating )
     }
 }
 
-std::int64_t JsFbMetadbHandle::get_FileSize()
+int64_t JsFbMetadbHandle::get_FileSize()
 {
-    return static_cast<int64_t>(metadbHandle_->get_filesize());
+    return static_cast<int64_t>( metadbHandle_->get_filesize() );
 }
 
 double JsFbMetadbHandle::get_Length()
@@ -241,9 +239,9 @@ pfc::string8_fast JsFbMetadbHandle::get_RawPath()
     return metadbHandle_->get_path();
 }
 
-std::uint32_t JsFbMetadbHandle::get_SubSong()
+uint32_t JsFbMetadbHandle::get_SubSong()
 {
     return metadbHandle_->get_subsong_index();
 }
 
-}
+} // namespace mozjs

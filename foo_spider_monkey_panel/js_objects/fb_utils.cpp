@@ -236,7 +236,7 @@ bool JsFbUtils::CheckClipboardContents()
 {
     pfc::com_ptr_t<IDataObject> pDO;
     HRESULT hr = OleGetClipboard( pDO.receive_ptr() );
-    if ( !SUCCEEDED( hr ) )
+    if ( FAILED( hr ) )
     {
         return false;
     }

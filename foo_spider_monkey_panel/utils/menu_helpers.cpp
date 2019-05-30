@@ -201,7 +201,7 @@ std::optional<mainmenu_node::ptr> find_mainmenu_command_v2_node_recur( mainmenu_
             curPath.add_char( '/' );
         }
 
-        for ( size_t i = 0; i < node->get_children_count(); ++i )
+        for ( auto i: ranges::view::indices( node->get_children_count() ) )
         {
             mainmenu_node::ptr child = node->get_child( i );
             if ( auto retVal = find_mainmenu_command_v2_node_recur( child, curPath, name );
@@ -228,10 +228,9 @@ bool ApplyFnOnMainmenuNode( const pfc::string8_fast& name, F_New fnNew, F_Old fn
     const GuidMenuMap group_guid_text_map = GenerateGuidMainmenuMap();
 
     mainmenu_commands::ptr ptr;
-
     for ( service_enum_t<mainmenu_commands> e; e.next( ptr ); )
     {
-        for ( uint32_t idx = 0; idx < ptr->get_command_count(); ++idx )
+        for ( auto idx: ranges::view::indices( ptr->get_command_count() ) )
         {
             pfc::string8_fast path = generate_mainmenu_command_path( group_guid_text_map, ptr );
 

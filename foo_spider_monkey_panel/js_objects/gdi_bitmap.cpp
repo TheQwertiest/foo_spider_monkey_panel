@@ -232,14 +232,14 @@ void JsGdiBitmap::ApplyMask( JsGdiBitmap* mask )
 
     const auto maskRange = ranges::make_iterator_range( reinterpret_cast<uint32_t*>( maskBmpData.Scan0 ),
                                                         reinterpret_cast<uint32_t*>( maskBmpData.Scan0 ) + rect.Width * rect.Height );
-    for ( auto pMask = maskRange.begin(), pDst = reinterpret_cast<uint32_t*>( dstBmpData.Scan0 ); pMask != maskRange.end(); ++pMask, ++pDst )
+    for ( auto pMaskIt = maskRange.begin(), pDst = reinterpret_cast<uint32_t*>( dstBmpData.Scan0 ); pMaskIt != maskRange.end(); ++pMaskIt, ++pDst )
     {
         /// Method 1:
         // alpha = (~*p_mask & 0xff) * (*p_dst >> 24) + 0x80;
         // *p_dst = ((((alpha >> 8) + alpha) & 0xff00) << 16) | (*p_dst & 0xffffff);
 
         /// Method 2
-        uint32_t alpha = ( ( ( ~*pMask & 0xff ) * ( *pDst >> 24 ) ) << 16 ) & 0xff000000;
+        uint32_t alpha = ( ( ( ~*pMaskIt & 0xff ) * ( *pDst >> 24 ) ) << 16 ) & 0xff000000;
         *pDst = alpha | ( *pDst & 0xffffff );
     }
 }
@@ -460,7 +460,7 @@ void JsGdiBitmap::RotateFlip( uint32_t mode )
 
 bool JsGdiBitmap::SaveAs( const std::wstring& path, const std::wstring& format )
 {
-    const auto clsIdRet = []( const std::wstring& format ) -> std::optional<CLSID> {
+    const auto clsIdRet = [&format]() -> std::optional<CLSID> {
         UINT num = 0;
         UINT size = 0;
         Gdiplus::Status status = Gdiplus::GetImageEncodersSize( &num, &size );
@@ -487,7 +487,7 @@ bool JsGdiBitmap::SaveAs( const std::wstring& path, const std::wstring& format )
         }
 
         return it->Clsid;
-    }( format );
+    }();
 
     if ( !clsIdRet )
     {

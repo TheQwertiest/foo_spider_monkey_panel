@@ -105,8 +105,7 @@ pfc::string8_fast JsFbTitleFormat::Eval( bool force )
     { // Trying to get handle to any known playable location
         if ( !metadb::g_get_random_handle( handle ) )
         { // Fake handle, workaround recommended by foobar2000 devs
-            playable_location_impl dummy;
-            metadb::get()->handle_create( handle, dummy );
+            metadb::get()->handle_create( handle, playable_location_impl{} );
         }
     }
     pc->playback_format_title_ex( handle, nullptr, text, titleFormatObject_, nullptr, playback_control::display_level_all );

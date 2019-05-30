@@ -46,11 +46,11 @@ public: // methods
     void SetRating( uint32_t rating );
 
 public: // props
-    std::int64_t get_FileSize();
+    int64_t get_FileSize();
     double get_Length();
     pfc::string8_fast get_Path();
     pfc::string8_fast get_RawPath();
-    std::uint32_t get_SubSong();
+    uint32_t get_SubSong();
 
 private:
     JsFbMetadbHandle( JSContext* cx, const metadb_handle_ptr& handle );

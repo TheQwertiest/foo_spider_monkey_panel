@@ -111,7 +111,7 @@ std::vector<ClusterData> run( const std::vector<PointData>& pointsData, uint32_t
         clusters.emplace_back( i, &centerPoint );
     }
 
-    for ( uint32_t iter = 0; iter < max_iterations; ++iter )
+    for ( auto i: ranges::view::indices( max_iterations ) )
     {
         bool done = true;
 

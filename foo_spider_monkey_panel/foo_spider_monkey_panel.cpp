@@ -129,7 +129,7 @@ public:
     }
 
 private:
-    void check_error()
+    static void check_error()
     {
         if ( g_subsystem_failures.empty() )
         {
