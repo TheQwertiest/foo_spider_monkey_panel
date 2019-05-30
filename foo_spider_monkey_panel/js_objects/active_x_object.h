@@ -53,7 +53,7 @@ public:
     IDispatch* pDispatch_ = nullptr;
     IUnknown * pUnknown_ = nullptr;
     ITypeInfo * pTypeInfo_ = nullptr;
-    VARIANT variant_;
+    _variant_t variant_;
 
     bool Has( const std::wstring& name );
     bool IsGet( const std::wstring& name );

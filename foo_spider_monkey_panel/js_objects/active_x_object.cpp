@@ -311,17 +311,12 @@ const js::BaseProxyHandler& ActiveXObject::JsProxy = ActiveXObjectProxyHandler::
 ActiveXObject::ActiveXObject( JSContext* cx, VARIANTARG& var )
     : pJsCtx_( cx )
 {
-    pUnknown_ = nullptr;
-    pTypeInfo_ = nullptr;
-    pDispatch_ = nullptr;
-    VariantInit( &variant_ );
     VariantCopyInd( &variant_, &var );
 }
 
 ActiveXObject::ActiveXObject( JSContext* cx, IDispatch* pDispatch, bool addref )
     : pJsCtx_( cx )
 {
-    memset( &variant_, 0, sizeof( variant_ ) );
     pDispatch_ = pDispatch;
 
     if ( !pDispatch_ )
@@ -344,8 +339,6 @@ ActiveXObject::ActiveXObject( JSContext* cx, IDispatch* pDispatch, bool addref )
 ActiveXObject::ActiveXObject( JSContext* cx, IUnknown* pUnknown, bool addref )
     : pJsCtx_( cx )
 {
-    memset( &variant_, 0, sizeof( variant_ ) );
-
     pUnknown_ = pUnknown;
     if ( !pUnknown_ )
     {
@@ -358,7 +351,7 @@ ActiveXObject::ActiveXObject( JSContext* cx, IUnknown* pUnknown, bool addref )
     }
 
     HRESULT hresult = pUnknown_->QueryInterface( IID_IDispatch, (void**)&pDispatch_ );
-    if ( !SUCCEEDED( hresult ) )
+    if ( FAILED( hresult ) )
     {
         pDispatch_ = nullptr;
         return;
@@ -375,22 +368,17 @@ ActiveXObject::ActiveXObject( JSContext* cx, IUnknown* pUnknown, bool addref )
 ActiveXObject::ActiveXObject( JSContext* cx, CLSID& clsid )
     : pJsCtx_( cx )
 {
-    pUnknown_ = nullptr;
-    pDispatch_ = nullptr;
-    pTypeInfo_ = nullptr;
-    memset( &variant_, 0, sizeof( variant_ ) );
-
     HRESULT hresult = CoCreateInstance( clsid, nullptr, CLSCTX_INPROC_SERVER, IID_IUnknown, (void**)&pUnknown_ );
-    if ( !SUCCEEDED( hresult ) )
+    if ( FAILED( hresult ) )
     {
-        pUnknown_ = 0;
+        pUnknown_ = nullptr;
         return;
     }
 
     hresult = pUnknown_->QueryInterface( IID_IDispatch, (void**)&pDispatch_ );
     //maybe I don't know what to do with it, but it might get passed to
     //another COM function
-    if ( !SUCCEEDED( hresult ) )
+    if ( FAILED( hresult ) )
     {
         pDispatch_ = nullptr;
         return;
@@ -420,10 +408,14 @@ ActiveXObject::~ActiveXObject()
     {
         pTypeInfo_->Release();
     }
-    if ( variant_.vt )
+    try
     {
-        VariantClear( &variant_ );
+        variant_.Clear();
     }
+    catch (const _com_error&)
+    {
+    }
+    
     CoFreeUnusedLibraries();
 }
 
@@ -495,10 +487,10 @@ std::optional<DISPID> ActiveXObject::GetDispId( const std::wstring& name, bool r
     DISPID dispId;
     wchar_t* cname = const_cast<wchar_t*>( name.c_str() );
     HRESULT hresult = pDispatch_->GetIDsOfNames( IID_NULL, &cname, 1, LOCALE_USER_DEFAULT, &dispId );
-    if ( !SUCCEEDED( hresult ) )
+    if ( FAILED( hresult ) )
     {
         hresult = pDispatch_->GetIDsOfNames( IID_NULL, &cname, 1, LOCALE_SYSTEM_DEFAULT, &dispId );
-        if ( !SUCCEEDED( hresult ) )
+        if ( FAILED( hresult ) )
         {
             if ( reportError )
             {
@@ -548,7 +540,7 @@ bool ActiveXObject::IsInvoke( const std::wstring& name )
 std::vector<std::wstring> ActiveXObject::GetAllMembers()
 {
     std::vector<std::wstring> memberList;
-    for ( const auto& member : members_ )
+    for ( const auto& member: members_ )
     {
         memberList.push_back( member.first );
     }
@@ -576,10 +568,7 @@ void ActiveXObject::Get( const std::wstring& propName, JS::MutableHandleValue vp
     }
 
     DISPPARAMS dispparams = { nullptr, nullptr, 0, 0 };
-
-    VARIANT VarResult;
-    VariantInit( &VarResult );
-
+    _variant_t varResult;
     EXCEPINFO exception = { 0 };
     UINT argerr = 0;
 
@@ -588,19 +577,15 @@ void ActiveXObject::Get( const std::wstring& propName, JS::MutableHandleValue vp
                                           LOCALE_USER_DEFAULT,
                                           DISPATCH_PROPERTYGET,
                                           &dispparams,
-                                          &VarResult,
+                                          &varResult,
                                           &exception,
                                           &argerr );
-    utils::final_action autoVarClear( [&VarResult] {
-        VariantClear( &VarResult );
-    } );
-
-    if ( !SUCCEEDED( hresult ) )
+    if ( FAILED( hresult ) )
     {
         smp::error::ReportActiveXError( hresult, exception, argerr );
     }
 
-    convert::com::VariantToJs( pJsCtx_, VarResult, vp );
+    convert::com::VariantToJs( pJsCtx_, varResult, vp );
 }
 
 void ActiveXObject::Get( JS::CallArgs& callArgs )
@@ -613,27 +598,23 @@ void ActiveXObject::Get( JS::CallArgs& callArgs )
     const auto dispRet = GetDispId( propName );
     SmpException::ExpectTrue( dispRet.has_value(), L"Invalid property name: {}", propName );
 
-    uint32_t argc = callArgs.length() - 1;
-    VARIANT VarResult;
-    std::unique_ptr<VARIANTARG[]> args;
-    DISPPARAMS dispparams = { nullptr, nullptr, 0, 0 };
-
-    EXCEPINFO exception = { 0 };
-    UINT argerr = 0;
-
-    if ( argc )
+    const uint32_t argc = callArgs.length() - 1;
+    std::vector<_variant_t> args( argc );
+    for ( auto&& [i, arg]: ranges::view::enumerate( args ) )
     {
-        args.reset( new VARIANTARG[argc] );
-        dispparams.rgvarg = args.get();
-        dispparams.cArgs = argc;
-
-        for ( size_t i = 0; i < argc; i++ )
-        {
-            JsToVariantSafe( pJsCtx_, callArgs[1 + i], args[argc - i - 1] );
-        }
+        JsToVariantSafe( pJsCtx_, callArgs[argc - i], arg );
     }
 
-    VariantInit( &VarResult );
+    DISPPARAMS dispparams = { nullptr, nullptr, 0, 0 };
+    if ( !args.empty() )
+    {
+        dispparams.rgvarg = args.data();
+        dispparams.cArgs = args.size();
+    }
+
+    _variant_t varResult;
+    EXCEPINFO exception = { 0 };
+    UINT argerr = 0;
 
     // don't use DispInvoke, because we don't know the TypeInfo
     HRESULT hresult = pDispatch_->Invoke( dispRet.value(),
@@ -641,25 +622,21 @@ void ActiveXObject::Get( JS::CallArgs& callArgs )
                                           LOCALE_USER_DEFAULT,
                                           DISPATCH_PROPERTYGET,
                                           &dispparams,
-                                          &VarResult,
+                                          &varResult,
                                           &exception,
                                           &argerr );
-    utils::final_action autoVarClear( [&VarResult] {
-        VariantClear( &VarResult );
-    } );
 
-    for ( size_t i = 0; i < argc; i++ )
+    for ( auto i: ranges::view::indices( callArgs.length() - 1 ) )
     {
-        RefreshValue( pJsCtx_, callArgs[i] ); //in case any empty ActiveXObject objects were filled in by Invoke()
-        VariantClear( &args[i] );
+        RefreshValue( pJsCtx_, callArgs[1 + i] ); //in case any empty ActiveXObject objects were filled in by Invoke()
     }
 
-    if ( !SUCCEEDED( hresult ) )
+    if ( FAILED( hresult ) )
     {
         smp::error::ReportActiveXError( hresult, exception, argerr );
     }
 
-    convert::com::VariantToJs( pJsCtx_, VarResult, callArgs.rval() );
+    convert::com::VariantToJs( pJsCtx_, varResult, callArgs.rval() );
 }
 
 void ActiveXObject::Set( const std::wstring& propName, JS::HandleValue v )
@@ -669,11 +646,11 @@ void ActiveXObject::Set( const std::wstring& propName, JS::HandleValue v )
     const auto dispRet = GetDispId( propName );
     SmpException::ExpectTrue( dispRet.has_value(), L"Invalid property name: {}", propName );
 
-    VARIANTARG arg;
+    _variant_t arg;
+    JsToVariantSafe( pJsCtx_, v, arg );
+
     DISPID dispput = DISPID_PROPERTYPUT;
     DISPPARAMS dispparams = { &arg, &dispput, 1, 1 };
-
-    JsToVariantSafe( pJsCtx_, v, arg );
 
     WORD flag = DISPATCH_PROPERTYPUT;
     if ( ( arg.vt == VT_DISPATCH || arg.vt == VT_UNKNOWN )
@@ -695,9 +672,8 @@ void ActiveXObject::Set( const std::wstring& propName, JS::HandleValue v )
                                           &argerr );
 
     RefreshValue( pJsCtx_, v );
-    VariantClear( &arg );
 
-    if ( !SUCCEEDED( hresult ) )
+    if ( FAILED( hresult ) )
     {
         smp::error::ReportActiveXError( hresult, exception, argerr );
     }
@@ -713,24 +689,23 @@ void ActiveXObject::Set( const JS::CallArgs& callArgs )
     const auto dispRet = GetDispId( propName );
     SmpException::ExpectTrue( dispRet.has_value(), L"Invalid property name: {}", propName );
 
-    uint32_t argc = callArgs.length() - 1;
-    std::unique_ptr<VARIANTARG[]> args;
+    const uint32_t argc = callArgs.length() - 1;
+    std::vector<_variant_t> args( argc );
+    for ( auto&& [i, arg]: ranges::view::enumerate( args ) )
+    {
+        JsToVariantSafe( pJsCtx_, callArgs[argc - i], arg );
+    }
+
     DISPID dispput = DISPID_PROPERTYPUT;
     DISPPARAMS dispparams = { nullptr, &dispput, 0, 1 };
+    if ( !args.empty() )
+    {
+        dispparams.rgvarg = args.data();
+        dispparams.cArgs = args.size();
+    }
 
     EXCEPINFO exception = { 0 };
     UINT argerr = 0;
-
-    if ( argc )
-    {
-        args.reset( new VARIANTARG[argc] );
-        dispparams.rgvarg = args.get();
-        dispparams.cArgs = argc;
-        for ( size_t i = 0; i < argc; i++ )
-        {
-            JsToVariantSafe( pJsCtx_, callArgs[1 + i], args[argc - i - 1] );
-        }
-    }
 
     WORD flag = DISPATCH_PROPERTYPUT;
     if ( ( args[argc - 1].vt == VT_DISPATCH || args[argc - 1].vt == VT_UNKNOWN )
@@ -749,13 +724,12 @@ void ActiveXObject::Set( const JS::CallArgs& callArgs )
                                           &exception,
                                           &argerr );
 
-    for ( size_t i = 0; i < argc; i++ )
+    for ( auto i: ranges::view::indices( callArgs.length() - 1 ) )
     {
-        RefreshValue( pJsCtx_, callArgs[i] ); //in case any empty ActiveXObject objects were filled in by Invoke()
-        VariantClear( &args[i] );
+        RefreshValue( pJsCtx_, callArgs[1 + i] ); //in case any empty ActiveXObject objects were filled in by Invoke()
     }
 
-    if ( !SUCCEEDED( hresult ) )
+    if ( FAILED( hresult ) )
     {
         smp::error::ReportActiveXError( hresult, exception, argerr );
     }
@@ -768,26 +742,23 @@ void ActiveXObject::Invoke( const std::wstring& funcName, const JS::CallArgs& ca
     const auto dispRet = GetDispId( funcName );
     SmpException::ExpectTrue( dispRet.has_value(), L"Invalid function name: {}", funcName );
 
-    uint32_t argc = callArgs.length();
-    VARIANT VarResult;
-    std::unique_ptr<VARIANTARG[]> args;
-    DISPPARAMS dispparams = { nullptr, nullptr, 0, 0 };
-
-    EXCEPINFO exception = { 0 };
-    UINT argerr = 0;
-
-    if ( argc )
+    const uint32_t argc = callArgs.length();
+    std::vector<_variant_t> args( argc );
+    for ( auto&& [i, arg]: ranges::view::enumerate( args ) )
     {
-        args.reset( new VARIANTARG[argc] );
-        dispparams.rgvarg = args.get();
-        dispparams.cArgs = argc;
-        for ( size_t i = 0; i < argc; i++ )
-        {
-            JsToVariantSafe( pJsCtx_, callArgs[i], args[argc - i - 1] );
-        }
+        JsToVariantSafe( pJsCtx_, callArgs[(argc - 1) - i], arg );
     }
 
-    VariantInit( &VarResult );
+    DISPPARAMS dispparams = { nullptr, nullptr, 0, 0 };
+    if ( !args.empty() )
+    {
+        dispparams.rgvarg = args.data();
+        dispparams.cArgs = args.size();
+    }
+
+    _variant_t varResult;
+    EXCEPINFO exception = { 0 };
+    UINT argerr = 0;
 
     // don't use DispInvoke, because we don't know the TypeInfo
     HRESULT hresult = pDispatch_->Invoke( dispRet.value(),
@@ -795,25 +766,21 @@ void ActiveXObject::Invoke( const std::wstring& funcName, const JS::CallArgs& ca
                                           LOCALE_USER_DEFAULT,
                                           DISPATCH_METHOD,
                                           &dispparams,
-                                          &VarResult,
+                                          &varResult,
                                           &exception,
                                           &argerr );
-    utils::final_action autoVarClear( [&VarResult] {
-        VariantClear( &VarResult );
-    } );
 
-    for ( size_t i = 0; i < argc; i++ )
+    for ( auto i: ranges::view::indices( callArgs.length() ) )
     {
         RefreshValue( pJsCtx_, callArgs[i] ); //in case any empty ActiveXObject objects were filled in by Invoke()
-        VariantClear( &args[i] );
     }
 
-    if ( !SUCCEEDED( hresult ) )
+    if ( FAILED( hresult ) )
     {
         smp::error::ReportActiveXError( hresult, exception, argerr );
     }
 
-    convert::com::VariantToJs( pJsCtx_, VarResult, callArgs.rval() );
+    convert::com::VariantToJs( pJsCtx_, varResult, callArgs.rval() );
 }
 
 void ActiveXObject::SetupMembers( JS::HandleObject jsObject )
@@ -856,17 +823,14 @@ void ActiveXObject::ParseTypeInfoRecursive( JSContext* cx, ITypeInfo* pTypeInfo,
     smp::error::CheckHR( hr, "GetTypeAttr" );
 
     utils::final_action autoTypeAttr( [pTypeInfo, pAttr] {
-        if ( pTypeInfo && pAttr )
-        {
-            pTypeInfo->ReleaseTypeAttr( pAttr );
-        }
+        pTypeInfo->ReleaseTypeAttr( pAttr );
     } );
 
     if ( !( pAttr->wTypeFlags & TYPEFLAG_FRESTRICTED )
          && ( TKIND_DISPATCH == pAttr->typekind || TKIND_INTERFACE == pAttr->typekind )
          && pAttr->cImplTypes )
     {
-        for ( size_t i = 0; i < pAttr->cImplTypes; ++i )
+        for ( auto i: ranges::view::indices( pAttr->cImplTypes ) )
         {
             HREFTYPE hRef = 0;
             hr = pTypeInfo->GetRefTypeOfImplType( i, &hRef );
@@ -951,11 +915,11 @@ void ActiveXObject::ParseTypeInfo( ITypeInfo* pTypeInfo, MemberMap& members )
 
 void ActiveXObject::SetupMembers_Impl( JS::HandleObject jsObject )
 {
-    for ( const auto& [name, member] : members_ )
+    for ( const auto& [name, member]: members_ )
     {
         if ( member->isInvoke )
         {
-            if ( !JS_DefineUCFunction( pJsCtx_, jsObject, (const char16_t*)name.c_str(), name.length(), ActiveX_Run, 0, JSPROP_ENUMERATE ) )
+            if ( !JS_DefineUCFunction( pJsCtx_, jsObject, reinterpret_cast<const char16_t*>( name.c_str() ), name.length(), ActiveX_Run, 0, JSPROP_ENUMERATE ) )
             {
                 throw JsException();
             }
