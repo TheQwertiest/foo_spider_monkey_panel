@@ -22,6 +22,10 @@ namespace smp::ui
 {
 using namespace mozjs;
 
+// TODO: make the hook static and delete it only when all dialogs are closed (non-modal case)
+
+decltype( CDialogHtml::lastUsedWndData_ ) CDialogHtml::lastUsedWndData_;
+
 CDialogHtml::CDialogHtml( JSContext* cx, const std::wstring& htmlCodeOrPath, JS::HandleValue options )
     : pJsCtx_( cx )
     , htmlCodeOrPath_( htmlCodeOrPath )
@@ -47,7 +51,11 @@ LRESULT CDialogHtml::OnInitDialog( HWND hwndFocus, LPARAM lParam )
 
     try
     {
-        CAxWindow wndIE = static_cast<HWND>( GetDlgItem( IDC_IE ) );
+        HWND hIE = static_cast<HWND>( GetDlgItem( IDC_IE ) );
+        lastUsedWndData_.hIE = hIE;
+        lastUsedWndData_.pThis = this;
+        CAxWindow wndIE = hIE;
+
         IObjectWithSitePtr pOWS = nullptr;
         HRESULT hr = wndIE.QueryHost( IID_IObjectWithSite, (void**)&pOWS );
         smp::error::CheckHR( hr, "QueryHost" );
@@ -84,6 +92,10 @@ LRESULT CDialogHtml::OnInitDialog( HWND hwndFocus, LPARAM lParam )
             smp::error::CheckHR( hr, "SetUIHandler" );
         }
 
+        {
+            pOleInPlaceHandler_ = pBrowser;
+        }
+
         if ( const std::wstring filePrefix = L"file://";
              htmlCodeOrPath_.length() > filePrefix.length()
              && !wmemcmp( htmlCodeOrPath_.c_str(), filePrefix.c_str(), filePrefix.length() ) )
@@ -114,6 +126,8 @@ LRESULT CDialogHtml::OnInitDialog( HWND hwndFocus, LPARAM lParam )
             hr = pDocument->close();
             smp::error::CheckHR( hr, "close" );
         }
+
+        wndIE.SetFocus();
     }
     catch ( ... )
     {
@@ -121,11 +135,27 @@ LRESULT CDialogHtml::OnInitDialog( HWND hwndFocus, LPARAM lParam )
         return -1;
     }
 
+    ::SetWindowLongPtr( m_hWnd, DWLP_USER, reinterpret_cast<LONG_PTR>( this ) );
+    hMsgHook_ = ::SetWindowsHookEx( WH_GETMESSAGE, GetMsgProc, NULL, ::GetCurrentThreadId() );
+    smp::error::CheckWinApi( hMsgHook_, "SetWindowsHookEx" );
+
     autoExit.cancel();
-    return TRUE; // set focus to default control
+    return FALSE; // don't set focus to default control
 }
 
-LRESULT CDialogHtml::OnSize( UINT nType, CSize size )
+LRESULT CDialogHtml::OnDestroyDialog()
+{
+    if ( hMsgHook_ )
+    {
+        ::UnhookWindowsHookEx( hMsgHook_ );
+        lastUsedWndData_.hIE = nullptr;
+        lastUsedWndData_.pThis = nullptr;
+    }
+
+    return 0;
+}
+
+void CDialogHtml::OnSize( UINT nType, CSize size )
 {
     switch ( nType )
     {
@@ -139,14 +169,22 @@ LRESULT CDialogHtml::OnSize( UINT nType, CSize size )
     default:
         break;
     }
-
-    return 0;
 }
 
-LRESULT CDialogHtml::OnCloseCmd( WORD wNotifyCode, WORD wID, HWND hWndCtl )
+void CDialogHtml::OnClose()
 {
+    isClosing_ = true;
+    OnCloseCmd( 0, IDCANCEL, 0 );
+}
+
+void CDialogHtml::OnCloseCmd( WORD wNotifyCode, WORD wID, HWND hWndCtl )
+{
+    if ( !isClosing_ )
+    { // e.g. pressed RETURN
+        return;
+    }
+
     EndDialog( wID );
-    return 0;
 }
 
 void CDialogHtml::OnBeforeNavigate2( IDispatch* pDisp, VARIANT* URL, VARIANT* Flags,
@@ -163,7 +201,7 @@ void CDialogHtml::OnBeforeNavigate2( IDispatch* pDisp, VARIANT* URL, VARIANT* Fl
     try
     {
         _bstr_t url_b( *URL );
-        for ( const auto& urlPrefix : std::initializer_list<std::wstring>{ L"http://", L"https://" } )
+        for ( const auto& urlPrefix: std::initializer_list<std::wstring>{ L"http://", L"https://" } )
         {
             if ( url_b.length() > urlPrefix.length()
                  && !wmemcmp( url_b.GetBSTR(), urlPrefix.c_str(), urlPrefix.length() ) )
@@ -353,6 +391,60 @@ STDMETHODIMP CDialogHtml::TranslateAccelerator( LPMSG lpMsg, const GUID* pguidCm
         return S_OK;
     }
 
+    auto isSupportedKeyCombination = [& isClosing = isClosing_]( UINT wm, UINT vk ) -> bool {
+        if ( wm != WM_KEYDOWN && wm != WM_KEYUP
+             && wm != WM_SYSKEYDOWN && wm != WM_SYSKEYUP
+             && wm != WM_CHAR )
+        {
+            return false;
+        }
+
+        if ( WM_CHAR == wm )
+        { // ignore everything else
+            return ( VK_RETURN == vk );
+        }
+
+        if ( VK_ESCAPE == vk )
+        { // Restore default dialog behaviour
+            isClosing = true;
+            return false;
+        }
+
+        const bool isCtrlPressed = HIBYTE( GetKeyState( VK_CONTROL ) );
+        const bool isShiftPressed = HIBYTE( GetKeyState( VK_SHIFT ) );
+        const bool isAltPressed = HIBYTE( GetKeyState( VK_MENU ) );
+
+        constexpr std::array allowedCtrlKeys{
+            0x41, // A
+            0x43, // C
+            0x56, // V
+            0x58, // X
+            0x59, // Y
+            0x5A  // Z
+        };
+        if ( isCtrlPressed && !isShiftPressed && !isAltPressed
+             && std::cend( allowedCtrlKeys ) != ranges::find( allowedCtrlKeys, vk ) )
+        {
+            return true;
+        }
+
+        constexpr std::array allowedKeys{
+            VK_TAB, VK_RETURN
+        };
+        if ( !isCtrlPressed && !isShiftPressed && !isAltPressed
+             && std::cend( allowedKeys ) != ranges::find( allowedKeys, vk ) )
+        {
+            return true;
+        }
+
+        return false;
+    };
+
+    if ( !isSupportedKeyCombination( lpMsg->message, lpMsg->wParam ) )
+    {
+        return S_OK;
+    }
+
     return pDefaultUiHandler_->TranslateAccelerator( lpMsg, pguidCmdGroup, nCmdID );
 }
 
@@ -504,6 +596,30 @@ void CDialogHtml::SetOptions()
             SetIcon( hIcon_, FALSE );
         }
     }
+}
+
+LRESULT CALLBACK CDialogHtml::GetMsgProc( int code, WPARAM wParam, LPARAM lParam )
+{
+    LPMSG msg = reinterpret_cast<LPMSG>( lParam );
+
+    if ( msg->message >= WM_KEYFIRST && msg->message <= WM_KEYLAST )
+    { // Only react to keypress events
+
+        HWND tmpHwnd = msg->hwnd;
+        for ( ; tmpHwnd && ( ::GetWindowLong( tmpHwnd, GWL_STYLE ) & WS_CHILD ); tmpHwnd = ::GetParent( tmpHwnd ) )
+        {
+            if ( tmpHwnd == lastUsedWndData_.hIE )
+            {
+                CDialogHtml* pThis = lastUsedWndData_.pThis;
+                if ( pThis && pThis->pOleInPlaceHandler_ && pThis->pOleInPlaceHandler_->TranslateAccelerator( (LPMSG)lParam ) )
+                {
+                    msg->message = WM_NULL;
+                }
+                break;
+            }
+        }
+    }
+    return CallNextHookEx( nullptr, code, wParam, lParam );
 }
 
 } // namespace smp::ui

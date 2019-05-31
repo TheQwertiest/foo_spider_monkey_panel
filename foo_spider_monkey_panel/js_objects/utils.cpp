@@ -204,7 +204,7 @@ uint32_t JsUtils::ColourPicker( uint32_t hWindow, uint32_t default_colour )
     COLORREF colour{};
     COLORREF dummy[16] = { 0 };
     // Such cast will work only on x86
-    if ( !uChooseColor( &colour, reinterpret_cast<HWND>( hWindow ), &dummy[0] ) )
+    if ( !uChooseColor( &colour, reinterpret_cast<HWND>( hWindow ), dummy ) )
     {
         colour = smp::colour::convert_argb_to_colorref( default_colour );
     }

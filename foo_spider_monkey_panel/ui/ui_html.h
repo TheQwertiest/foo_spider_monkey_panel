@@ -36,7 +36,9 @@ public:
     BEGIN_MSG_MAP( CDialogHtml )
     CHAIN_MSG_MAP( CAxDialogImpl<CDialogHtml> )
     MSG_WM_INITDIALOG( OnInitDialog )
+    MSG_WM_DESTROY( OnDestroyDialog )
     MSG_WM_SIZE( OnSize )
+    MSG_WM_CLOSE( OnClose )
     COMMAND_RANGE_HANDLER_EX( IDOK, IDCANCEL, OnCloseCmd )
     END_MSG_MAP()
 
@@ -51,8 +53,10 @@ public:
     ~CDialogHtml();
 
     LRESULT OnInitDialog( HWND hwndFocus, LPARAM lParam );
-    LRESULT OnSize( UINT nType, CSize size );
-    LRESULT OnCloseCmd( WORD wNotifyCode, WORD wID, HWND hWndCtl );
+    LRESULT OnDestroyDialog();
+    void OnSize( UINT nType, CSize size );
+    void OnClose();
+    void OnCloseCmd( WORD wNotifyCode, WORD wID, HWND hWndCtl );
 
     void __stdcall OnBeforeNavigate2( IDispatch* pDisp, VARIANT* URL, VARIANT* Flags,
                                       VARIANT* TargetFrameName, VARIANT* PostData, VARIANT* Headers,
@@ -136,6 +140,8 @@ private:
     void ParseOptions( JS::HandleValue options );
     void SetOptions();
 
+    static LRESULT CALLBACK GetMsgProc( int code, WPARAM wParam, LPARAM lParam );
+
 private:
     JSContext* pJsCtx_ = nullptr;
 
@@ -154,9 +160,18 @@ private:
     bool isResizable_;
     bool isScrollEnabled_;
 
+    bool isClosing_ = false;
+
     IHostExternalPtr pExternal_;
 
     IDocHostUIHandlerPtr pDefaultUiHandler_;
+    IOleInPlaceActiveObjectPtr pOleInPlaceHandler_;
+    HHOOK hMsgHook_ = nullptr;
+    static struct
+    {
+        HWND hIE = nullptr;
+        CDialogHtml* pThis = nullptr;
+    } lastUsedWndData_;
 };
 
 } // namespace smp::ui
