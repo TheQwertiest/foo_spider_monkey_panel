@@ -429,7 +429,7 @@ STDMETHODIMP CDialogHtml::TranslateAccelerator( LPMSG lpMsg, const GUID* pguidCm
         }
 
         constexpr std::array allowedKeys{
-            VK_TAB, VK_RETURN
+            VK_TAB, VK_RETURN, VK_SPACE
         };
         if ( !isCtrlPressed && !isShiftPressed && !isAltPressed
              && std::cend( allowedKeys ) != ranges::find( allowedKeys, vk ) )
