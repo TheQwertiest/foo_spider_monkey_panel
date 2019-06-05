@@ -110,11 +110,6 @@
         window.resizeTo(window_w, window_h);
 
         window.input_checkbox.checked = false;
-        window.input_checkbox.onkeydown = function () {
-            if (window.event.keyCode == VK_SPACE) {
-                this.checked = !this.checked;
-            }
-        };
 
         window.btn_ok.onclick = function () {
             callback_fn && callback_fn("ok", window.input_checkbox.checked);
@@ -122,8 +117,14 @@
         };
 
         document.onkeydown = function () {
-            if (window.event.keyCode == VK_RETURN && window.document.activeElement.onclick) {
-                window.document.activeElement.onclick();
+            var cur_element = window.document.activeElement;
+            if (window.event.keyCode == VK_SPACE
+                && cur_element.tagName.toLowerCase() === 'input' && cur_element.type.toLowerCase() === 'checkbox') {
+                cur_element.checked = !cur_element.checked;
+            }
+            if (window.event.keyCode == VK_RETURN
+                && cur_element.tagName.toLowerCase() === 'button' && cur_element.onclick) {
+                cur_element.onclick();
             }
         };
 
