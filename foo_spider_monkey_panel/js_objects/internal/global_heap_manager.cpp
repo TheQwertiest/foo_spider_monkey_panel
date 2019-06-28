@@ -65,6 +65,18 @@ uint32_t GlobalHeapManager::Store( JS::HandleValue valueToStore )
     return currentHeapId_++;
 }
 
+uint32_t GlobalHeapManager::Store( JS::HandleObject valueToStore )
+{
+    JS::RootedValue jsValue( pJsCtx_, JS::ObjectValue( *valueToStore ) );
+    return Store( jsValue );
+}
+
+uint32_t GlobalHeapManager::Store( JS::HandleFunction valueToStore )
+{
+    JS::RootedObject jsObject( pJsCtx_, JS_GetFunctionObject( valueToStore ) );
+    return Store( jsObject );
+}
+
 JS::Heap<JS::Value>& GlobalHeapManager::Get( uint32_t id )
 {
     std::scoped_lock sl( heapElementsLock_ );

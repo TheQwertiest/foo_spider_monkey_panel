@@ -41,8 +41,10 @@ public: // methods
     void ClearTimeout( uint32_t timeoutId );
     void IncludeScript( const pfc::string8_fast& path, JS::HandleValue options = JS::UndefinedHandleValue );
     void IncludeScriptWithOpt( size_t optArgCount, const pfc::string8_fast& path, JS::HandleValue options );
-    uint32_t SetInterval( JS::HandleValue func, uint32_t delay );
-    uint32_t SetTimeout( JS::HandleValue func, uint32_t delay );
+    uint32_t SetInterval( JS::HandleValue func, uint32_t delay, JS::HandleValueArray funcArgs = JS::HandleValueArray{ JS::UndefinedHandleValue } );
+    uint32_t SetIntervalWithOpt( size_t optArgCount, JS::HandleValue func, uint32_t delay, JS::HandleValueArray funcArgs );
+    uint32_t SetTimeout( JS::HandleValue func, uint32_t delay, JS::HandleValueArray funcArgs );
+    uint32_t SetTimeoutWithOpt( size_t optArgCount, JS::HandleValue func, uint32_t delay, JS::HandleValueArray funcArgs );
 
 private:
     JsGlobalObject( JSContext* cx, JsContainer& parentContainer, JsWindow* pJsWindow );

@@ -88,8 +88,8 @@ bool IncludeScript( JSContext* cx, unsigned argc, JS::Value* vp )
 
 MJS_DEFINE_JS_FN_FROM_NATIVE( ClearInterval, JsGlobalObject::ClearInterval )
 MJS_DEFINE_JS_FN_FROM_NATIVE( ClearTimeout, JsGlobalObject::ClearTimeout )
-MJS_DEFINE_JS_FN_FROM_NATIVE( SetInterval, JsGlobalObject::SetInterval )
-MJS_DEFINE_JS_FN_FROM_NATIVE( SetTimeout, JsGlobalObject::SetTimeout )
+MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( SetInterval, JsGlobalObject::SetInterval, JsGlobalObject::SetIntervalWithOpt, 1 )
+MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( SetTimeout, JsGlobalObject::SetTimeout, JsGlobalObject::SetTimeoutWithOpt, 1 )
 
 const JSFunctionSpec jsFunctions[] = {
     JS_FN( "clearInterval", ClearInterval, 1, DefaultPropsFlags() ),
@@ -284,14 +284,25 @@ void JsGlobalObject::IncludeScriptWithOpt( size_t optArgCount, const pfc::string
 }
 
 
-uint32_t JsGlobalObject::SetInterval( JS::HandleValue func, uint32_t delay )
+uint32_t JsGlobalObject::SetInterval( JS::HandleValue func, uint32_t delay, JS::HandleValueArray funcArgs )
 {
-    return pJsWindow_->SetInterval( func, delay );
+    return pJsWindow_->SetInterval( func, delay, funcArgs );
 }
 
-uint32_t JsGlobalObject::SetTimeout( JS::HandleValue func, uint32_t delay )
+uint32_t JsGlobalObject::SetIntervalWithOpt( size_t optArgCount, JS::HandleValue func, uint32_t delay, JS::HandleValueArray funcArgs )
 {
-    return pJsWindow_->SetTimeout( func, delay );
+    return pJsWindow_->SetIntervalWithOpt( optArgCount, func, delay, funcArgs );
+}
+
+
+uint32_t JsGlobalObject::SetTimeout( JS::HandleValue func, uint32_t delay, JS::HandleValueArray funcArgs )
+{
+    return pJsWindow_->SetTimeout( func, delay, funcArgs );
+}
+
+uint32_t JsGlobalObject::SetTimeoutWithOpt( size_t optArgCount, JS::HandleValue func, uint32_t delay, JS::HandleValueArray funcArgs )
+{
+    return pJsWindow_->SetTimeoutWithOpt( optArgCount, func, delay, funcArgs );
 }
 
 JsGlobalObject::IncludeOptions JsGlobalObject::ParseIncludeOptions( JS::HandleValue options )

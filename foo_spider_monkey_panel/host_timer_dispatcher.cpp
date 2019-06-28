@@ -7,6 +7,7 @@
 
 #include <user_message.h>
 #include <message_manager.h>
+#include <smp_exception.h>
 
 // TODO: move to JsEngine form global object
 
@@ -33,14 +34,14 @@ void HostTimerDispatcher::Finalize()
     stopThread();
 }
 
-uint32_t HostTimerDispatcher::setInterval( HWND hWnd, uint32_t delay, JSContext* cx, JS::HandleFunction jsFunction )
+uint32_t HostTimerDispatcher::setInterval( HWND hWnd, uint32_t delay, JSContext* cx, JS::HandleFunction jsFunction, JS::HandleValueArray jsFuncArgs )
 {
-    return createTimer( hWnd, delay, true, cx, jsFunction );
+    return createTimer( hWnd, delay, true, cx, jsFunction, jsFuncArgs );
 }
 
-uint32_t HostTimerDispatcher::setTimeout( HWND hWnd, uint32_t delay, JSContext* cx, JS::HandleFunction jsFunction )
+uint32_t HostTimerDispatcher::setTimeout( HWND hWnd, uint32_t delay, JSContext* cx, JS::HandleFunction jsFunction, JS::HandleValueArray jsFuncArgs )
 {
-    return createTimer( hWnd, delay, false, cx, jsFunction );
+    return createTimer( hWnd, delay, false, cx, jsFunction, jsFuncArgs );
 }
 
 void HostTimerDispatcher::killTimer( uint32_t timerId )
@@ -61,7 +62,7 @@ void HostTimerDispatcher::onPanelUnload( HWND hWnd )
     {
         std::lock_guard<std::mutex> lock( m_timerMutex );
 
-        for ( const auto& [timerId, timer] : m_timerMap )
+        for ( const auto& [timerId, timer]: m_timerMap )
         {
             if ( timer->GetHwnd() == hWnd )
             {
@@ -70,7 +71,7 @@ void HostTimerDispatcher::onPanelUnload( HWND hWnd )
         }
     }
 
-    for ( auto timerId : timersToDelete )
+    for ( auto timerId: timersToDelete )
     {
         killTimer( timerId );
     }
@@ -97,7 +98,7 @@ void HostTimerDispatcher::onTimerStopRequest( HWND hWnd, HANDLE hTimer, uint32_t
     m_cv.notify_one();
 }
 
-uint32_t HostTimerDispatcher::createTimer( HWND hWnd, uint32_t delay, bool isRepeated, JSContext* cx, JS::HandleFunction jsFunction )
+uint32_t HostTimerDispatcher::createTimer( HWND hWnd, uint32_t delay, bool isRepeated, JSContext* cx, JS::HandleFunction jsFunction, JS::HandleValueArray jsFuncArgs )
 {
     if ( !jsFunction )
     {
@@ -113,7 +114,11 @@ uint32_t HostTimerDispatcher::createTimer( HWND hWnd, uint32_t delay, bool isRep
     }
 
     JS::RootedValue jsFuncValue( cx, JS::ObjectValue( *JS_GetFunctionObject( jsFunction ) ) );
-    m_timerMap.emplace( id, std::make_unique<HostTimer>( hWnd, id, delay, isRepeated, std::make_unique<HostTimerTask>( cx, jsFuncValue ) ) );
+    JS::RootedObject jsArrayObject( cx, JS_NewArrayObject( cx, jsFuncArgs ) );
+    smp::JsException::ExpectTrue( jsArrayObject );
+    JS::RootedValue jsArrayValue( cx, JS::ObjectValue( *jsArrayObject ) );
+
+    m_timerMap.emplace( id, std::make_unique<HostTimer>( hWnd, id, delay, isRepeated, std::make_unique<HostTimerTask>( cx, jsFuncValue, jsArrayValue ) ) );
 
     if ( !m_timerMap[id]->start( m_hTimerQueue ) )
     {
@@ -161,8 +166,8 @@ void HostTimerDispatcher::threadMain()
         ThreadTask threadTask;
         {
             std::unique_lock<std::mutex> lock( m_threadTaskMutex );
-            
-            m_cv.wait( lock, [&threadTaskList = m_threadTaskList] { return !threadTaskList.empty(); } );
+
+            m_cv.wait( lock, [& threadTaskList = m_threadTaskList] { return !threadTaskList.empty(); } );
 
             threadTask = m_threadTaskList.front();
             m_threadTaskList.pop_front();
@@ -191,17 +196,55 @@ void HostTimerDispatcher::threadMain()
     }
 }
 
-HostTimerTask::HostTimerTask( JSContext* cx, JS::HandleValue funcValue )
-    : JsAsyncTaskImpl( cx, funcValue )
+HostTimerTask::HostTimerTask( JSContext* cx, JS::HandleValue funcValue, JS::HandleValue argArrayValue )
+    : JsAsyncTaskImpl( cx, funcValue, argArrayValue )
 {
 }
 
-bool HostTimerTask::InvokeJsImpl( JSContext* cx, JS::HandleObject jsGlobal, JS::HandleValue funcValue )
+bool HostTimerTask::InvokeJsImpl( JSContext* cx, JS::HandleObject jsGlobal, JS::HandleValue funcValue, JS::HandleValue argArrayValue )
 {
-    JS::RootedFunction rFunc( cx, JS_ValueToFunction( cx, funcValue ) );
+    JS::RootedFunction jsFunc( cx, JS_ValueToFunction( cx, funcValue ) );
+    JS::RootedObject jsArrayObject( cx, argArrayValue.toObjectOrNull() );
+    assert( jsArrayObject );
+
+    bool is;
+    if ( !JS_IsArrayObject( cx, jsArrayObject, &is ) )
+    {
+        throw smp::JsException();
+    }
+    assert( is );
+
+    uint32_t arraySize;
+    if ( !JS_GetArrayLength( cx, jsArrayObject, &arraySize ) )
+    {
+        throw smp::JsException();
+    }
+
+    JS::AutoValueVector jsVector( cx );
+    if ( arraySize )
+    {
+        if ( !jsVector.reserve( arraySize ) )
+        {
+            throw std::bad_alloc();
+        }
+
+        JS::RootedValue arrayElement( cx );
+        for ( uint32_t i = 0; i < arraySize; ++i )
+        {
+            if ( !JS_GetElement( cx, jsArrayObject, i, &arrayElement ) )
+            {
+                throw smp::JsException();
+            }
+
+            if ( !jsVector.emplaceBack( arrayElement ) )
+            {
+                throw std::bad_alloc();
+            }
+        }
+    }
 
     JS::RootedValue dummyRetVal( cx );
-    return JS::Call( cx, jsGlobal, rFunc, JS::HandleValueArray::empty(), &dummyRetVal );
+    return JS::Call( cx, jsGlobal, jsFunc, jsVector, &dummyRetVal );
 }
 
 HostTimer::HostTimer( HWND hWnd, uint32_t id, uint32_t delay, bool isRepeated, std::shared_ptr<HostTimerTask> task )

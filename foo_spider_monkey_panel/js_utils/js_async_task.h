@@ -24,12 +24,13 @@ template <typename... Args>
 class JsAsyncTaskImpl
     : public JsAsyncTask
 {
+    static_assert( ( std::is_same_v<Args, JS::HandleValue> && ... ) );
+
 public:
+    /// throws JsException
     JsAsyncTaskImpl( JSContext* cx, Args... args )
         : pJsCtx_( cx )
     {
-        static_assert( ( std::is_same_v<Args, JS::HandleValue> && ... ) );
-
         assert( cx );
 
         JS::RootedObject jsGlobal( cx, JS::CurrentGlobalOrNull( cx ) );
@@ -53,7 +54,7 @@ public:
             return;
         }
 
-        for ( auto heapId : valueHeapIds_ )
+        for ( auto heapId: valueHeapIds_ )
         {
             pNativeGlobal_->GetHeapManager().Remove( heapId );
         }

@@ -34,6 +34,8 @@ public:
     void UnregisterUser( IHeapUser* heapUser );
 
     uint32_t Store( JS::HandleValue valueToStore );
+    uint32_t Store( JS::HandleObject valueToStore );
+    uint32_t Store( JS::HandleFunction valueToStore );
     JS::Heap<JS::Value>& Get( uint32_t id );
     void Remove( uint32_t id );
 

@@ -65,9 +65,9 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( Reload, JsWindow::Reload )
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( Repaint, JsWindow::Repaint, JsWindow::RepaintWithOpt, 1 )
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( RepaintRect, JsWindow::RepaintRect, JsWindow::RepaintRectWithOpt, 1 )
 MJS_DEFINE_JS_FN_FROM_NATIVE( SetCursor, JsWindow::SetCursor )
-MJS_DEFINE_JS_FN_FROM_NATIVE( SetInterval, JsWindow::SetInterval )
+MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( SetInterval, JsWindow::SetInterval, JsWindow::SetIntervalWithOpt, 1 )
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( SetProperty, JsWindow::SetProperty, JsWindow::SetPropertyWithOpt, 1 )
-MJS_DEFINE_JS_FN_FROM_NATIVE( SetTimeout, JsWindow::SetTimeout )
+MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( SetTimeout, JsWindow::SetTimeout, JsWindow::SetTimeoutWithOpt, 1 )
 MJS_DEFINE_JS_FN_FROM_NATIVE( ShowConfigure, JsWindow::ShowConfigure )
 MJS_DEFINE_JS_FN_FROM_NATIVE( ShowProperties, JsWindow::ShowProperties )
 
@@ -528,7 +528,7 @@ void JsWindow::SetCursor( uint32_t id )
     ::SetCursor( LoadCursor( nullptr, MAKEINTRESOURCE( id ) ) );
 }
 
-uint32_t JsWindow::SetInterval( JS::HandleValue func, uint32_t delay )
+uint32_t JsWindow::SetInterval( JS::HandleValue func, uint32_t delay, JS::HandleValueArray funcArgs )
 {
     if ( isFinalized_ )
     {
@@ -539,7 +539,20 @@ uint32_t JsWindow::SetInterval( JS::HandleValue func, uint32_t delay )
                               "func argument is not a JS function" );
 
     JS::RootedFunction jsFunction( pJsCtx_, JS_ValueToFunction( pJsCtx_, func ) );
-    return HostTimerDispatcher::Get().setInterval( parentPanel_.GetHWND(), delay, pJsCtx_, jsFunction );
+    return HostTimerDispatcher::Get().setInterval( parentPanel_.GetHWND(), delay, pJsCtx_, jsFunction, funcArgs );
+}
+
+uint32_t JsWindow::SetIntervalWithOpt( size_t optArgCount, JS::HandleValue func, uint32_t delay, JS::HandleValueArray funcArgs )
+{
+    switch ( optArgCount )
+    {
+    case 0:
+        return SetInterval( func, delay, funcArgs );
+    case 1:
+        return SetInterval( func, delay );
+    default:
+        throw SmpException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
+    }
 }
 
 void JsWindow::SetProperty( const std::wstring& name, JS::HandleValue val )
@@ -565,7 +578,7 @@ void JsWindow::SetPropertyWithOpt( size_t optArgCount, const std::wstring& name,
     }
 }
 
-uint32_t JsWindow::SetTimeout( JS::HandleValue func, uint32_t delay )
+uint32_t JsWindow::SetTimeout( JS::HandleValue func, uint32_t delay, JS::HandleValueArray funcArgs )
 {
     if ( isFinalized_ )
     {
@@ -576,7 +589,20 @@ uint32_t JsWindow::SetTimeout( JS::HandleValue func, uint32_t delay )
                               "func argument is not a JS function" );
 
     JS::RootedFunction jsFunction( pJsCtx_, JS_ValueToFunction( pJsCtx_, func ) );
-    return HostTimerDispatcher::Get().setTimeout( parentPanel_.GetHWND(), delay, pJsCtx_, jsFunction );
+    return HostTimerDispatcher::Get().setTimeout( parentPanel_.GetHWND(), delay, pJsCtx_, jsFunction, funcArgs );
+}
+
+uint32_t JsWindow::SetTimeoutWithOpt( size_t optArgCount, JS::HandleValue func, uint32_t delay, JS::HandleValueArray funcArgs )
+{
+    switch ( optArgCount )
+    {
+    case 0:
+        return SetTimeout( func, delay, funcArgs );
+    case 1:
+        return SetTimeout( func, delay );
+    default:
+        throw SmpException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
+    }
 }
 
 void JsWindow::ShowConfigure()

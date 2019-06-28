@@ -68,10 +68,12 @@ public: // methods
     void RepaintRect( uint32_t x, uint32_t y, uint32_t w, uint32_t h, bool force = false );
     void RepaintRectWithOpt( size_t optArgCount, uint32_t x, uint32_t y, uint32_t w, uint32_t h, bool force );
     void SetCursor( uint32_t id );
-    uint32_t SetInterval( JS::HandleValue func, uint32_t delay );
+    uint32_t SetInterval( JS::HandleValue func, uint32_t delay, JS::HandleValueArray funcArgs = JS::HandleValueArray{ JS::UndefinedHandleValue } );
+    uint32_t SetIntervalWithOpt( size_t optArgCount, JS::HandleValue func, uint32_t delay, JS::HandleValueArray funcArgs );
     void SetProperty( const std::wstring& name, JS::HandleValue val = JS::NullHandleValue );
     void SetPropertyWithOpt( size_t optArgCount, const std::wstring& name, JS::HandleValue val );
-    uint32_t SetTimeout( JS::HandleValue func, uint32_t delay );
+    uint32_t SetTimeout( JS::HandleValue func, uint32_t delay, JS::HandleValueArray funcArgs = JS::HandleValueArray{ JS::UndefinedHandleValue } );
+    uint32_t SetTimeoutWithOpt( size_t optArgCount, JS::HandleValue func, uint32_t delay, JS::HandleValueArray funcArgs );
     void ShowConfigure();
     void ShowProperties();
 

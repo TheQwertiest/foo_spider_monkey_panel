@@ -34,8 +34,8 @@ public:
 
     void Finalize();
 
-    uint32_t setInterval( HWND hWnd, uint32_t delay, JSContext* cx, JS::HandleFunction jsFunction );
-    uint32_t setTimeout( HWND hWnd, uint32_t delay, JSContext* cx, JS::HandleFunction jsFunction );
+    uint32_t setInterval( HWND hWnd, uint32_t delay, JSContext* cx, JS::HandleFunction jsFunction, JS::HandleValueArray jsFuncArgs );
+    uint32_t setTimeout( HWND hWnd, uint32_t delay, JSContext* cx, JS::HandleFunction jsFunction, JS::HandleValueArray jsFuncArgs );
 
     void killTimer( uint32_t timerId );
 
@@ -51,7 +51,8 @@ public: // callbacks
 private:
     HostTimerDispatcher();
 
-    unsigned createTimer( HWND hWnd, uint32_t delay, bool isRepeated, JSContext* cx, JS::HandleFunction jsFunction );
+    /// @throw smp::JsException
+    uint32_t createTimer( HWND hWnd, uint32_t delay, bool isRepeated, JSContext* cx, JS::HandleFunction jsFunction, JS::HandleValueArray jsFuncArgs );
 
 private: //thread
     enum class ThreadTaskId
@@ -91,14 +92,15 @@ private: // thread
 /// @brief Task that should be executed on timer proc
 /// @details Everything apart from destructor is performed on the MainThread
 class HostTimerTask
-    : public mozjs::JsAsyncTaskImpl<JS::HandleValue>
+    : public mozjs::JsAsyncTaskImpl<JS::HandleValue, JS::HandleValue>
 {
 public:
-    HostTimerTask( JSContext* cx, JS::HandleValue funcValue );
+    HostTimerTask( JSContext* cx, JS::HandleValue funcValue, JS::HandleValue argArrayValue );
     ~HostTimerTask() override = default;
 
 private:
-    bool InvokeJsImpl( JSContext* cx, JS::HandleObject jsGlobal, JS::HandleValue funcValue ) override;
+    /// throws JsException
+    bool InvokeJsImpl( JSContext* cx, JS::HandleObject jsGlobal, JS::HandleValue funcValue, JS::HandleValue argArrayValue ) override;
 };
 
 class HostTimer
