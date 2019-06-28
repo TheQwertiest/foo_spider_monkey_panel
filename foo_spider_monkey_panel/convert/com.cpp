@@ -32,9 +32,6 @@ protected:
     {
         assert( cx );
 
-        JS::RootedObject funcObject( cx, JS_GetFunctionObject( jsFunction ) );
-        assert( funcObject );
-
         JS::RootedObject jsGlobal( cx, JS::CurrentGlobalOrNull( cx ) );
         assert( jsGlobal );
 
@@ -45,10 +42,8 @@ protected:
 
         heapMgr.RegisterUser( this );
 
-        JS::RootedValue funcValue( cx, JS::ObjectValue( *funcObject ) );
-        funcId_ = heapMgr.Store( funcValue );
-        JS::RootedValue globalValue( cx, JS::ObjectValue( *jsGlobal ) );
-        globalId_ = heapMgr.Store( globalValue );
+        funcId_ = heapMgr.Store( jsFunction );
+        globalId_ = heapMgr.Store( jsGlobal );
 
         isJsAvailable_ = true;
     }
