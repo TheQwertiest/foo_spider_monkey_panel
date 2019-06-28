@@ -18,6 +18,7 @@
 #include <nonstd/span.hpp>
 
 #include <map>
+#include <cmath>
 
 using namespace smp;
 
@@ -91,10 +92,22 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( GdiBitmap_Constructor, JsGdiBitmap::Constructor )
 namespace
 {
 
-std::unique_ptr<Gdiplus::Bitmap> CreateDownsizedImage( Gdiplus::Bitmap& srcImg, uint32_t newDimensions )
+std::unique_ptr<Gdiplus::Bitmap> CreateDownsizedImage( Gdiplus::Bitmap& srcImg, uint32_t maxPixelCount )
 {
-    const auto [imgWidth, imgHeight] =
-        smp::image::GetResizedImageSize( std::make_tuple( srcImg.GetWidth(), srcImg.GetHeight() ), std::make_tuple( newDimensions, newDimensions ) );
+    const auto [imgWidth, imgHeight] = [&srcImg, maxPixelCount] {
+        if ( srcImg.GetWidth() * srcImg.GetHeight() > maxPixelCount )
+        {
+            const double ratio = (double)srcImg.GetWidth() / srcImg.GetHeight();
+            const uint32_t imgHeight = static_cast<uint32_t>( std::round( std::sqrt( maxPixelCount / ratio ) ) );
+            const uint32_t imgWidth = static_cast<uint32_t>( std::round( imgHeight * ratio ) );
+
+            return std::make_tuple( imgWidth, imgHeight );
+        }
+        else
+        {
+            return std::make_tuple( srcImg.GetWidth(), srcImg.GetHeight() );
+        }
+    }();
 
     auto pBitmap = std::make_unique<Gdiplus::Bitmap>( imgWidth, imgHeight, PixelFormat32bppPARGB );
     smp::error::CheckGdiPlusObject( pBitmap );
@@ -259,8 +272,8 @@ JSObject* JsGdiBitmap::CreateRawBitmap()
 
 JSObject* JsGdiBitmap::GetColourScheme( uint32_t count )
 {
-    constexpr uint32_t kMaxDimensionSize = 220;
-    auto pBitmap = CreateDownsizedImage( *pGdi_, kMaxDimensionSize );
+    constexpr uint32_t kMaxPixelCount = 220 * 220;
+    auto pBitmap = CreateDownsizedImage( *pGdi_, kMaxPixelCount );
     assert( pBitmap );
 
     const Gdiplus::Rect rect{ 0, 0, static_cast<int>( pBitmap->GetWidth() ), static_cast<int>( pBitmap->GetHeight() ) };
@@ -317,8 +330,8 @@ pfc::string8_fast JsGdiBitmap::GetColourSchemeJSON( uint32_t count )
     namespace kmeans = smp::utils::kmeans;
 
     // rescaled image will have max of ~48k pixels
-    constexpr uint32_t kMaxDimensionSize = 220;
-    auto pBitmap = CreateDownsizedImage( *pGdi_, kMaxDimensionSize );
+    constexpr uint32_t kMaxPixelCount = 220 * 220;
+    auto pBitmap = CreateDownsizedImage( *pGdi_, kMaxPixelCount );
     assert( pBitmap );
 
     const Gdiplus::Rect rect{ 0, 0, static_cast<int>( pBitmap->GetWidth() ), static_cast<int>( pBitmap->GetHeight() ) };
