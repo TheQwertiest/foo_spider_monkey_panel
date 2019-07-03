@@ -1,39 +1,124 @@
-﻿diff a/submodules/pfc/pfc.vcxproj b/submodules/pfc/pfc.vcxproj
+diff --git a/submodules/pfc/list.h b/submodules/pfc/list.h
+--- a/submodules/pfc/list.h
++++ b/submodules/pfc/list.h
+@@ -232,9 +232,21 @@ public:
+ 		int compare(const T& p_item1,const T& p_item2) {return ::pfc::compare_t(p_item1,p_item2);}
+ 	};
+ 
+-	void sort() {sort(sort_callback_auto());}
+-	template<typename t_compare> void sort_t(t_compare p_compare) {sort(sort_callback_impl_t<t_compare>(p_compare));}
+-	template<typename t_compare> void sort_stable_t(t_compare p_compare) {sort_stable(sort_callback_impl_t<t_compare>(p_compare));}
++	void sort()
++	{
++		sort_callback_auto tmp;
++		sort(tmp);
++	}
++	template<typename t_compare> void sort_t(t_compare p_compare)
++	{
++		sort_callback_impl_t<t_compare> tmp(p_compare);
++		sort(tmp);
++	}
++	template<typename t_compare> void sort_stable_t(t_compare p_compare)
++	{
++		sort_callback_impl_t<t_compare> tmp(p_compare);
++		sort_stable(tmp);
++	}
+ 
+ 	template<typename t_compare> void sort_remove_duplicates_t(t_compare p_compare)
+ 	{
+diff --git a/submodules/pfc/pfc.vcxproj b/submodules/pfc/pfc.vcxproj
 --- a/submodules/pfc/pfc.vcxproj
 +++ b/submodules/pfc/pfc.vcxproj
-@@ -87,7 +87,7 @@
-       <WarningLevel>Level3</WarningLevel>
-       <SuppressStartupBanner>true</SuppressStartupBanner>
-       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
--      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
-+      <RuntimeLibrary>MultiThreadedDebugDll</RuntimeLibrary>
-       <EnableEnhancedInstructionSet>NoExtensions</EnableEnhancedInstructionSet>
-       <AdditionalOptions>/Zc:threadSafeInit- %(AdditionalOptions)</AdditionalOptions>
-       <DiagnosticsFormat>Caret</DiagnosticsFormat>
-@@ -109,7 +109,7 @@
-       <Optimization>Disabled</Optimization>
-       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;PFC_DLL_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
--      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
-+      <RuntimeLibrary>MultiThreadedDebugDll</RuntimeLibrary>
-       <PrecompiledHeader>Use</PrecompiledHeader>
-       <PrecompiledHeaderFile>pfc.h</PrecompiledHeaderFile>
-       <WarningLevel>Level3</WarningLevel>
-@@ -138,7 +138,7 @@
-       <EnableEnhancedInstructionSet>NoExtensions</EnableEnhancedInstructionSet>
-       <AdditionalOptions>/Zc:threadSafeInit- %(AdditionalOptions)</AdditionalOptions>
-       <MultiProcessorCompilation>true</MultiProcessorCompilation>
--      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
-+      <RuntimeLibrary>MultiThreadedDll</RuntimeLibrary>
-       <DiagnosticsFormat>Caret</DiagnosticsFormat>
-     </ClCompile>
-     <ResourceCompile>
-@@ -165,7 +165,7 @@
-       <OmitFramePointers>false</OmitFramePointers>
-       <EnableEnhancedInstructionSet>NoExtensions</EnableEnhancedInstructionSet>
-       <BufferSecurityCheck>false</BufferSecurityCheck>
--      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
-+      <RuntimeLibrary>MultiThreadedDll</RuntimeLibrary>
-       <DiagnosticsFormat>Caret</DiagnosticsFormat>
-     </ClCompile>
-     <ResourceCompile>
+@@ -37,6 +37,7 @@
+   <PropertyGroup Label="Globals">
+     <ProjectGuid>{EBFFFB4E-261D-44D3-B89C-957B31A0BF9C}</ProjectGuid>
+     <RootNamespace>pfc</RootNamespace>
++    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+   </PropertyGroup>
+   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+@@ -44,52 +45,52 @@
+     <UseOfMfc>false</UseOfMfc>
+     <CharacterSet>Unicode</CharacterSet>
+     <WholeProgramOptimization>true</WholeProgramOptimization>
+-    <PlatformToolset>v141_xp</PlatformToolset>
++    <PlatformToolset>v142</PlatformToolset>
+   </PropertyGroup>
+   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release FB2K|Win32'" Label="Configuration">
+     <ConfigurationType>StaticLibrary</ConfigurationType>
+     <UseOfMfc>false</UseOfMfc>
+     <CharacterSet>Unicode</CharacterSet>
+     <WholeProgramOptimization>true</WholeProgramOptimization>
+-    <PlatformToolset>v141_xp</PlatformToolset>
++    <PlatformToolset>v142</PlatformToolset>
+   </PropertyGroup>
+   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+     <ConfigurationType>StaticLibrary</ConfigurationType>
+     <UseOfMfc>false</UseOfMfc>
+     <CharacterSet>Unicode</CharacterSet>
+     <WholeProgramOptimization>true</WholeProgramOptimization>
+-    <PlatformToolset>v141</PlatformToolset>
++    <PlatformToolset>v142</PlatformToolset>
+   </PropertyGroup>
+   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release FB2K|x64'" Label="Configuration">
+     <ConfigurationType>StaticLibrary</ConfigurationType>
+     <UseOfMfc>false</UseOfMfc>
+     <CharacterSet>Unicode</CharacterSet>
+     <WholeProgramOptimization>true</WholeProgramOptimization>
+-    <PlatformToolset>v141</PlatformToolset>
++    <PlatformToolset>v142</PlatformToolset>
+   </PropertyGroup>
+   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+     <ConfigurationType>StaticLibrary</ConfigurationType>
+     <UseOfMfc>false</UseOfMfc>
+     <CharacterSet>Unicode</CharacterSet>
+-    <PlatformToolset>v141_xp</PlatformToolset>
++    <PlatformToolset>v142</PlatformToolset>
+   </PropertyGroup>
+   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug FB2K|Win32'" Label="Configuration">
+     <ConfigurationType>StaticLibrary</ConfigurationType>
+     <UseOfMfc>false</UseOfMfc>
+     <CharacterSet>Unicode</CharacterSet>
+-    <PlatformToolset>v141_xp</PlatformToolset>
++    <PlatformToolset>v142</PlatformToolset>
+   </PropertyGroup>
+   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+     <ConfigurationType>StaticLibrary</ConfigurationType>
+     <UseOfMfc>false</UseOfMfc>
+     <CharacterSet>Unicode</CharacterSet>
+-    <PlatformToolset>v141</PlatformToolset>
++    <PlatformToolset>v142</PlatformToolset>
+   </PropertyGroup>
+   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug FB2K|x64'" Label="Configuration">
+     <ConfigurationType>StaticLibrary</ConfigurationType>
+     <UseOfMfc>false</UseOfMfc>
+     <CharacterSet>Unicode</CharacterSet>
+-    <PlatformToolset>v141</PlatformToolset>
++    <PlatformToolset>v142</PlatformToolset>
+   </PropertyGroup>
+   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+   <ImportGroup Label="ExtensionSettings">
+@@ -121,14 +122,8 @@
+   <PropertyGroup Label="UserMacros" />
+   <PropertyGroup>
+     <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
+-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)$(Configuration)\</OutDir>
+-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug FB2K|Win32'">$(SolutionDir)$(Configuration)\</OutDir>
+-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(Configuration)\</IntDir>
+-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug FB2K|Win32'">$(Configuration)\</IntDir>
+-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)$(Configuration)\</OutDir>
+-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release FB2K|Win32'">$(SolutionDir)$(Configuration)\</OutDir>
+-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(Configuration)\</IntDir>
+-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release FB2K|Win32'">$(Configuration)\</IntDir>
++    <OutDir>$(SolutionDir)$(Configuration)\$(ProjectName)\</OutDir>
++    <IntDir>$(SolutionDir)$(Configuration)\$(ProjectName)\</IntDir>
+   </PropertyGroup>
+   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+     <ClCompile>
+@@ -579,4 +574,4 @@
+   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+   <ImportGroup Label="ExtensionTargets">
+   </ImportGroup>
+-</Project>
+\ No newline at end of file
++</Project>
