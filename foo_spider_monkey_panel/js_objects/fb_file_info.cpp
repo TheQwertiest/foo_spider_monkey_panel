@@ -71,9 +71,10 @@ const JSFunctionSpec* JsFbFileInfo::JsFunctions = jsFunctions;
 const JSPropertySpec* JsFbFileInfo::JsProperties = jsProperties;
 const JsPrototypeId JsFbFileInfo::PrototypeId = JsPrototypeId::FbFileInfo;
 
-JsFbFileInfo::JsFbFileInfo( JSContext* cx, std::unique_ptr<file_info_impl> fileInfo )
+JsFbFileInfo::JsFbFileInfo( JSContext* cx, metadb_info_container::ptr containerInfo )
     : pJsCtx_( cx )
-    , fileInfo_( std::move( fileInfo ) )
+    , containerInfo_( containerInfo )
+    , fileInfo_( containerInfo->info() )
 {
 }
 
@@ -82,73 +83,73 @@ JsFbFileInfo::~JsFbFileInfo()
 }
 
 std::unique_ptr<mozjs::JsFbFileInfo>
-JsFbFileInfo::CreateNative( JSContext* cx, std::unique_ptr<file_info_impl> fileInfo )
+JsFbFileInfo::CreateNative( JSContext* cx, metadb_info_container::ptr containerInfo )
 {
-    SmpException::ExpectTrue( !!fileInfo, "Internal error: file_info object is null" );
+    SmpException::ExpectTrue( containerInfo.is_valid(), "Internal error: metadb_info_container object is null" );
 
-    return std::unique_ptr<JsFbFileInfo>( new JsFbFileInfo( cx, std::move( fileInfo ) ) );
+    return std::unique_ptr<JsFbFileInfo>( new JsFbFileInfo( cx, containerInfo ) );
 }
 
-size_t JsFbFileInfo::GetInternalSize( const std::unique_ptr<file_info_impl>& /*fileInfo*/ )
+size_t JsFbFileInfo::GetInternalSize( const metadb_info_container::ptr& /*containerInfo*/ )
 {
     return sizeof( file_info_impl );
 }
 
 int32_t JsFbFileInfo::InfoFind( const pfc::string8_fast& name )
 {
-    return fileInfo_->info_find_ex( name.c_str(), name.length() );
+    return fileInfo_.info_find_ex( name.c_str(), name.length() );
 }
 
 pfc::string8_fast JsFbFileInfo::InfoName( uint32_t index )
 {
-    SmpException::ExpectTrue( index < fileInfo_->info_get_count(), "Index is out of bounds" );
+    SmpException::ExpectTrue( index < fileInfo_.info_get_count(), "Index is out of bounds" );
 
-    return fileInfo_->info_enum_name( index );
+    return fileInfo_.info_enum_name( index );
 }
 
 pfc::string8_fast JsFbFileInfo::InfoValue( uint32_t index )
 {
-    SmpException::ExpectTrue( index < fileInfo_->info_get_count(), "Index is out of bounds" );
+    SmpException::ExpectTrue( index < fileInfo_.info_get_count(), "Index is out of bounds" );
 
-    return fileInfo_->info_enum_value( index );
+    return fileInfo_.info_enum_value( index );
 }
 
 int32_t JsFbFileInfo::MetaFind( const pfc::string8_fast& name )
 {
-    const t_size idx = fileInfo_->meta_find_ex( name.c_str(), name.length() );
+    const t_size idx = fileInfo_.meta_find_ex( name.c_str(), name.length() );
     return ( ( idx == pfc_infinite ) ? -1 : static_cast<int32_t>( idx ) );
 }
 
 pfc::string8_fast JsFbFileInfo::MetaName( uint32_t index )
 {
-    SmpException::ExpectTrue( index < fileInfo_->meta_get_count(), "Index is out of bounds" );
+    SmpException::ExpectTrue( index < fileInfo_.meta_get_count(), "Index is out of bounds" );
 
-    return fileInfo_->meta_enum_name( index );
+    return fileInfo_.meta_enum_name( index );
 }
 
 pfc::string8_fast JsFbFileInfo::MetaValue( uint32_t infoIndex, uint32_t valueIndex )
 {
-    SmpException::ExpectTrue( infoIndex < fileInfo_->meta_get_count(), "Index is out of bounds" );
-    SmpException::ExpectTrue( valueIndex < fileInfo_->meta_enum_value_count( infoIndex ), "Index is out of bounds" );
+    SmpException::ExpectTrue( infoIndex < fileInfo_.meta_get_count(), "Index is out of bounds" );
+    SmpException::ExpectTrue( valueIndex < fileInfo_.meta_enum_value_count( infoIndex ), "Index is out of bounds" );
 
-    return fileInfo_->meta_enum_value( infoIndex, valueIndex );
+    return fileInfo_.meta_enum_value( infoIndex, valueIndex );
 }
 
 uint32_t JsFbFileInfo::MetaValueCount( uint32_t index )
 {
-    SmpException::ExpectTrue( index < fileInfo_->meta_get_count(), "Index is out of bounds" );
+    SmpException::ExpectTrue( index < fileInfo_.meta_get_count(), "Index is out of bounds" );
 
-    return fileInfo_->meta_enum_value_count( index );
+    return fileInfo_.meta_enum_value_count( index );
 }
 
 uint32_t JsFbFileInfo::get_InfoCount()
 {
-    return fileInfo_->info_get_count();
+    return fileInfo_.info_get_count();
 }
 
 uint32_t JsFbFileInfo::get_MetaCount()
 {
-    return fileInfo_->meta_get_count();
+    return fileInfo_.meta_get_count();
 }
 
 } // namespace mozjs

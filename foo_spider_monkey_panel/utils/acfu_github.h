@@ -52,10 +52,9 @@ public:
         pfc::string8 url = form_releases_url();
         http_request::ptr request = t_github_conf::create_http_request();
 
-        service_enum_t<::acfu::authorization> e;
-        for ( service_ptr_t<::acfu::authorization> auth; e.next( auth ); )
+        for ( service_enum_t<::acfu::authorization> e; !e.finished(); ++e )
         {
-            auth->authorize( url.get_ptr(), request, abort );
+            e.get()->authorize( url.get_ptr(), request, abort );
         }
 
         file::ptr response = request->run_ex( url.get_ptr(), abort );

@@ -135,19 +135,17 @@ size_t JsUtils::GetInternalSize()
 
 bool JsUtils::CheckComponent( const pfc::string8_fast& name, bool is_dll )
 {
-    service_enum_t<componentversion> e;
-    componentversion::ptr ptr;
     pfc::string8_fast temp;
-
-    while ( e.next( ptr ) )
+    for ( service_enum_t<componentversion> e; !e.finished(); ++e )
     {
+        auto cv = e.get();
         if ( is_dll )
         {
-            ptr->get_file_name( temp );
+            cv->get_file_name( temp );
         }
         else
         {
-            ptr->get_component_name( temp );
+            cv->get_component_name( temp );
         }
 
         if ( temp == name )

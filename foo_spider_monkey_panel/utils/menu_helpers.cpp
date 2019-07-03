@@ -126,11 +126,10 @@ bool execute_context_command_by_name_unsafe( const pfc::string8_fast& name, cons
 GuidMenuMap GenerateGuidMainmenuMap()
 {
     GuidMenuMap guidMap;
-
-    mainmenu_group::ptr ptr;
-    for ( service_enum_t<mainmenu_group> e; e.next( ptr ); )
+    for ( service_enum_t<mainmenu_group> e; !e.finished(); ++e )
     {
-        guidMap[ptr->get_guid()] = ptr;
+        auto mmg = e.get();
+        guidMap[mmg->get_guid()] = mmg;
     }
 
     return guidMap;
@@ -227,17 +226,18 @@ bool ApplyFnOnMainmenuNode( const pfc::string8_fast& name, F_New fnNew, F_Old fn
 {
     const GuidMenuMap group_guid_text_map = GenerateGuidMainmenuMap();
 
-    mainmenu_commands::ptr ptr;
-    for ( service_enum_t<mainmenu_commands> e; e.next( ptr ); )
+    for ( service_enum_t<mainmenu_commands> e; !e.finished(); ++e )
     {
-        for ( auto idx: ranges::view::indices( ptr->get_command_count() ) )
-        {
-            pfc::string8_fast path = generate_mainmenu_command_path( group_guid_text_map, ptr );
+        auto mmc = e.get();
 
-            if ( mainmenu_commands_v2::ptr v2_ptr;
-                 ptr->service_query_t( v2_ptr ) && v2_ptr->is_command_dynamic( idx ) )
+        for ( auto idx: ranges::view::indices( mmc->get_command_count() ) )
+        {
+            pfc::string8_fast path = generate_mainmenu_command_path( group_guid_text_map, mmc );
+
+            if ( mainmenu_commands_v2::ptr mmc_v2;
+                 mmc->service_query_t( mmc_v2 ) && mmc_v2->is_command_dynamic( idx ) )
             { // new fb2k v1.0 commands
-                mainmenu_node::ptr node = v2_ptr->dynamic_instantiate( idx );
+                mainmenu_node::ptr node = mmc_v2->dynamic_instantiate( idx );
 
                 if ( auto retVal = find_mainmenu_command_v2_node_recur( node, path, name );
                      retVal && retVal->is_valid() )
@@ -251,12 +251,12 @@ bool ApplyFnOnMainmenuNode( const pfc::string8_fast& name, F_New fnNew, F_Old fn
 
             // old commands
             pfc::string8_fast command;
-            ptr->get_name( idx, command );
+            mmc->get_name( idx, command );
             path += command;
 
             if ( match_menu_command( path, name ) )
             {
-                fnOld( idx, ptr );
+                fnOld( idx, mmc );
                 return true;
             }
         }

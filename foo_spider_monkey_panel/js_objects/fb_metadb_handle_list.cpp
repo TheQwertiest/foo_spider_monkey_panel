@@ -650,9 +650,9 @@ void JsFbMetadbHandleList::UpdateFileInfoFromJSON( const pfc::string8_fast& str 
             [isArray, &jsonObject]( const auto& zippedElem ) {
                 const auto& [i, handle] = zippedElem;
 
-                file_info_impl fileInfo;
-                handle->get_info( fileInfo );
-
+                // TODO: think of a better way of handling unavalaible info,
+                //       currently it uses dummy value instead
+                file_info_impl fileInfo = handle->get_info_ref()->info();
                 ModifyFileInfoWithJson( isArray ? jsonObject[i] : jsonObject, fileInfo );
                 return fileInfo;
             } );

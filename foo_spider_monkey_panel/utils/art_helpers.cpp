@@ -245,12 +245,10 @@ std::unique_ptr<Gdiplus::Bitmap> GetBitmapFromEmbeddedData( const pfc::string8_f
     const pfc::string_extension extension( rawpath.c_str() );
     const GUID& artTypeGuid = GetGuidForArtId( art_id );
 
-    service_enum_t<album_art_extractor> extractorEnum;
-    album_art_extractor::ptr extractor;
     TimedAbortCallback abort;
-
-    while ( extractorEnum.next( extractor ) )
+    for ( service_enum_t<album_art_extractor> e; !e.finished(); ++e )
     {
+        auto extractor = e.get();
         if ( !extractor->is_our_path( rawpath.c_str(), extension ) )
         {
             continue;

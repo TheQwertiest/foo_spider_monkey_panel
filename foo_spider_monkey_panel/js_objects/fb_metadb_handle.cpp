@@ -130,14 +130,13 @@ bool JsFbMetadbHandle::Compare( JsFbMetadbHandle* handle )
 
 JSObject* JsFbMetadbHandle::GetFileInfo()
 {
-    std::unique_ptr<file_info_impl> pFileInfo( new file_info_impl );
-
-    if ( !metadbHandle_->get_info( *pFileInfo ) )
+    metadb_info_container::ptr containerInfo;
+    if ( !metadbHandle_->get_info_ref( containerInfo ) )
     { // Not an error: info not loaded yet
         return nullptr;
     }
 
-    return JsFbFileInfo::CreateJs( pJsCtx_, std::move( pFileInfo ) );
+    return JsFbFileInfo::CreateJs( pJsCtx_, containerInfo );
 }
 
 void JsFbMetadbHandle::RefreshStats()

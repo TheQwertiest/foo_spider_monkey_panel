@@ -17,14 +17,15 @@ public:
     static std::string FetchVersion()
     {
         componentversion::ptr cv;
-        service_enum_t<componentversion> e;
-        for ( service_ptr_t<componentversion> ptr; e.next( ptr ); )
+        for ( service_enum_t<componentversion> e; !e.finished(); ++e )
         {
+            auto curCv = e.get();
+
             pfc::string8 file_name;
-            ptr->get_file_name( file_name );
+            curCv->get_file_name( file_name );
             if ( file_name.equals( componentFileName_ ) )
             {
-                cv = ptr;
+                cv = curCv;
             }
         }
         if ( cv.is_empty() )
