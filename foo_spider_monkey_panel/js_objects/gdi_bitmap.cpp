@@ -243,8 +243,8 @@ void JsGdiBitmap::ApplyMask( JsGdiBitmap* mask )
         pGdi->UnlockBits( &dstBmpData );
     } );
 
-    const auto maskRange = ranges::make_iterator_range( reinterpret_cast<uint32_t*>( maskBmpData.Scan0 ),
-                                                        reinterpret_cast<uint32_t*>( maskBmpData.Scan0 ) + rect.Width * rect.Height );
+    const auto maskRange = ranges::make_subrange( reinterpret_cast<uint32_t*>( maskBmpData.Scan0 ),
+                                                  reinterpret_cast<uint32_t*>( maskBmpData.Scan0 ) + rect.Width * rect.Height );
     for ( auto pMaskIt = maskRange.begin(), pDst = reinterpret_cast<uint32_t*>( dstBmpData.Scan0 ); pMaskIt != maskRange.end(); ++pMaskIt, ++pDst )
     {
         /// Method 1:
@@ -283,8 +283,8 @@ JSObject* JsGdiBitmap::GetColourScheme( uint32_t count )
     smp::error::CheckGdi( gdiRet, "LockBits" );
 
     std::map<uint32_t, uint32_t> color_counters;
-    const auto colourRange = ranges::make_iterator_range( reinterpret_cast<const uint32_t*>( bmpdata.Scan0 ),
-                                                          reinterpret_cast<const uint32_t*>( bmpdata.Scan0 ) + bmpdata.Width * bmpdata.Height );
+    const auto colourRange = ranges::make_subrange( reinterpret_cast<const uint32_t*>( bmpdata.Scan0 ),
+                                                    reinterpret_cast<const uint32_t*>( bmpdata.Scan0 ) + bmpdata.Width * bmpdata.Height );
     for ( auto colour: colourRange )
     {
         // format: 0xaarrggbb
@@ -341,8 +341,8 @@ pfc::string8_fast JsGdiBitmap::GetColourSchemeJSON( uint32_t count )
     smp::error::CheckGdi( gdiRet, "LockBits" );
 
     std::map<uint32_t, uint32_t> colour_counters;
-    const auto colourRange = ranges::make_iterator_range( reinterpret_cast<const uint32_t*>( bmpdata.Scan0 ),
-                                                          reinterpret_cast<const uint32_t*>( bmpdata.Scan0 ) + bmpdata.Width * bmpdata.Height );
+    const auto colourRange = ranges::make_subrange( reinterpret_cast<const uint32_t*>( bmpdata.Scan0 ),
+                                                    reinterpret_cast<const uint32_t*>( bmpdata.Scan0 ) + bmpdata.Width * bmpdata.Height );
     for ( auto colour: colourRange )
     { // reduce color set to pass to k-means by rounding colour components to multiples of 8
         uint32_t r = ( colour >> 16 ) & 0xff;

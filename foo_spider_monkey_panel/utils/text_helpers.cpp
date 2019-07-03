@@ -33,11 +33,11 @@ UINT FilterEncodings( const DetectEncodingInfo encodings[], int encodingCount, s
             // "ve" "d" "ll" "m" 't' 're'
             bool fallback = true;
 
-            auto pPos = ranges::search( text, "\x92" );
-            if ( pPos != text.cend() )
+            auto pPos = text.rfind( "\x92" );
+            if ( pPos != std::string::npos )
             {
-                pPos = ranges::search( text, "vldmtr " );
-                if ( pPos != text.cend() )
+                pPos = text.rfind( "vldmtr " );
+                if ( pPos != std::string::npos )
                 {
                     codepage = encodings[0].nCodePage;
                     fallback = false;
