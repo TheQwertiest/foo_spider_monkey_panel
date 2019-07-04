@@ -20,6 +20,10 @@
 #include <map>
 #include <cmath>
 
+// range-v3 0.5.0 compatibility fix.
+// remove after updating to the latest version
+#define make_subrange( x, y ) make_iterator_range( x, y )
+
 using namespace smp;
 
 namespace
