@@ -44,7 +44,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "licenses", "licenses", "{C8
 		..\component\licenses\CPropertyList.txt = ..\component\licenses\CPropertyList.txt
 		..\component\licenses\DispatchPtr.txt = ..\component\licenses\DispatchPtr.txt
 		..\component\licenses\foobar2000 SDK.txt = ..\component\licenses\foobar2000 SDK.txt
-		..\component\licenses\gsl.txt = ..\component\licenses\gsl.txt
 		..\component\licenses\JScript Panel.txt = ..\component\licenses\JScript Panel.txt
 		..\component\licenses\JSON for Modern C++.txt = ..\component\licenses\JSON for Modern C++.txt
 		..\component\licenses\KMeans.txt = ..\component\licenses\KMeans.txt
@@ -118,7 +117,7 @@ Global
 		{C83916CB-E2CC-436F-9B39-CDAF19B88C6C} = {544844FF-3BCA-4D28-884D-997582B1E2C2}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionNewStyle = 1
 		SolutionGuid = {04D470B3-3881-4A19-A99F-5E04F5978FB4}
+		SolutionNewStyle = 1
 	EndGlobalSection
 EndGlobal

@@ -69,7 +69,7 @@ std::optional<SemVer> SemVer::ParseString( const std::string& strVer )
           } );
 
     std::vector<std::optional<uint8_t>> versionNums;
-    for ( const auto& splitView : splitViews )
+    for ( const auto& splitView: splitViews )
     {
         const auto numRet = GetNumber( splitView );
         if ( !numRet )
@@ -156,36 +156,38 @@ bool SemVer::IsPreleaseNewer( std::string_view a, std::string_view b )
         const std::string_view a_Token = ExtractSuffixData( a, '.' );
         const std::string_view b_Token = ExtractSuffixData( b, '.' );
 
-        const bool a_isNumber = isNumber( a_Token );
-        const bool b_isNumber = isNumber( b_Token );
-        if ( a_isNumber != b_isNumber )
-        { // Numeric identifiers always have lower precedence than non-numeric identifiers
-            return !a_isNumber;
-        }
-
-        if ( a_isNumber && b_isNumber )
-        {
-            auto numRet = GetNumber( a_Token );
-            assert( numRet ); // should be valid
-            const int8_t aNum = numRet.value();
-
-            numRet = GetNumber( a_Token );
-            assert( numRet ); // should be valid
-            const int8_t bNum = numRet.value();
-
-            if ( aNum != bNum )
-            {
-                return aNum > bNum;
-            }
-        }
         if ( a_Token != b_Token )
         {
-            return a_Token > b_Token;
-        }
+            const bool a_isNumber = isNumber( a_Token );
+            const bool b_isNumber = isNumber( b_Token );
+            if ( a_isNumber != b_isNumber )
+            { // Numeric identifiers always have lower precedence than non-numeric identifiers
+                return !a_isNumber;
+            }
+            else if ( a_isNumber && b_isNumber )
+            {
+                auto numRet = GetNumber( a_Token );
+                assert( numRet ); // should be valid, because of `isNumber` check
+                const int8_t aNum = numRet.value();
 
-        if ( a.empty() != b.empty() )
-        { // A larger set of pre-release fields has a higher precedence than a smaller set
-            return !a.empty();
+                numRet = GetNumber( a_Token );
+                assert( numRet ); // should be valid, because of `isNumber` check
+                const int8_t bNum = numRet.value();
+
+                assert( aNum != bNum ); // tokens would've been equal otherwise
+                return aNum > bNum;
+            }
+            else
+            {
+                return a_Token > b_Token;
+            }
+        }
+        else
+        {
+            if ( a.empty() != b.empty() )
+            { // A larger set of pre-release fields has a higher precedence than a smaller set
+                return !a.empty();
+            }
         }
     }
 

@@ -407,7 +407,7 @@ public:
     }
     bool empty() const
     {
-        return !pfc_.get_size();
+        return !this->size();
     }
 
 public:

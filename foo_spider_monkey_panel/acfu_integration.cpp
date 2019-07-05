@@ -16,26 +16,32 @@ class SmpSource
 public:
     static std::string FetchVersion()
     {
-        componentversion::ptr cv;
-        for ( service_enum_t<componentversion> e; !e.finished(); ++e )
-        {
-            auto curCv = e.get();
-
-            pfc::string8 file_name;
-            curCv->get_file_name( file_name );
-            if ( file_name.equals( componentFileName_ ) )
+        auto cvRet = []() -> std::optional<componentversion::ptr> {
+            for ( service_enum_t<componentversion> e; !e.finished(); ++e )
             {
-                cv = curCv;
+                auto cv = e.get();
+
+                pfc::string8 file_name;
+                cv->get_file_name( file_name );
+                if ( file_name.equals( componentFileName_ ) )
+                {
+                    return cv;
+                }
             }
-        }
-        if ( cv.is_empty() )
+
+            return std::nullopt;
+        }();
+
+        if ( !cvRet )
         {
             return "0.0.0";
         }
-
-        pfc::string8 version;
-        cv->get_component_version( version );
-        return std::string( version.c_str(), version.length() );
+        else
+        {
+            pfc::string8 version;
+            cvRet.value()->get_component_version( version );
+            return std::string( version.c_str(), version.length() );
+        }
     }
     GUID get_guid() override
     {
