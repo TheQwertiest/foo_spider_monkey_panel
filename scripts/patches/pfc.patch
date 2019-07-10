@@ -1,31 +1,3 @@
-diff --git a/submodules/pfc/list.h b/submodules/pfc/list.h
---- a/submodules/pfc/list.h
-+++ b/submodules/pfc/list.h
-@@ -232,9 +232,21 @@ public:
- 		int compare(const T& p_item1,const T& p_item2) {return ::pfc::compare_t(p_item1,p_item2);}
- 	};
- 
--	void sort() {sort(sort_callback_auto());}
--	template<typename t_compare> void sort_t(t_compare p_compare) {sort(sort_callback_impl_t<t_compare>(p_compare));}
--	template<typename t_compare> void sort_stable_t(t_compare p_compare) {sort_stable(sort_callback_impl_t<t_compare>(p_compare));}
-+	void sort()
-+	{
-+		sort_callback_auto tmp;
-+		sort(tmp);
-+	}
-+	template<typename t_compare> void sort_t(t_compare p_compare)
-+	{
-+		sort_callback_impl_t<t_compare> tmp(p_compare);
-+		sort(tmp);
-+	}
-+	template<typename t_compare> void sort_stable_t(t_compare p_compare)
-+	{
-+		sort_callback_impl_t<t_compare> tmp(p_compare);
-+		sort_stable(tmp);
-+	}
- 
- 	template<typename t_compare> void sort_remove_duplicates_t(t_compare p_compare)
- 	{
 diff --git a/submodules/pfc/pfc.vcxproj b/submodules/pfc/pfc.vcxproj
 --- a/submodules/pfc/pfc.vcxproj
 +++ b/submodules/pfc/pfc.vcxproj
@@ -115,10 +87,3 @@ diff --git a/submodules/pfc/pfc.vcxproj b/submodules/pfc/pfc.vcxproj
    </PropertyGroup>
    <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
      <ClCompile>
-@@ -579,4 +574,4 @@
-   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
-   <ImportGroup Label="ExtensionTargets">
-   </ImportGroup>
--</Project>
-\ No newline at end of file
-+</Project>

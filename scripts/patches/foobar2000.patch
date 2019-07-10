@@ -1,43 +1,3 @@
-diff --git a/submodules/foobar2000/ATLHelpers/foobar2000_ATL_helpers.vcxproj b/submodules/foobar2000/ATLHelpers/foobar2000_ATL_helpers.vcxproj
---- a/submodules/foobar2000/ATLHelpers/foobar2000_ATL_helpers.vcxproj
-+++ b/submodules/foobar2000/ATLHelpers/foobar2000_ATL_helpers.vcxproj
-@@ -14,19 +14,19 @@
-     <ProjectGuid>{622E8B19-8109-4717-BD4D-9657AA78363E}</ProjectGuid>
-     <RootNamespace>foobar2000_ATL_helpers</RootNamespace>
-     <Keyword>Win32Proj</Keyword>
--    <WindowsTargetPlatformVersion>10.0.14393.0</WindowsTargetPlatformVersion>
-+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
-   </PropertyGroup>
-   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
-   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
-     <ConfigurationType>StaticLibrary</ConfigurationType>
-     <CharacterSet>Unicode</CharacterSet>
-     <WholeProgramOptimization>true</WholeProgramOptimization>
--    <PlatformToolset>v141_xp</PlatformToolset>
-+    <PlatformToolset>v142</PlatformToolset>
-   </PropertyGroup>
-   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-     <ConfigurationType>StaticLibrary</ConfigurationType>
-     <CharacterSet>Unicode</CharacterSet>
--    <PlatformToolset>v141_xp</PlatformToolset>
-+    <PlatformToolset>v142</PlatformToolset>
-   </PropertyGroup>
-   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
-   <ImportGroup Label="ExtensionSettings">
-diff --git a/submodules/foobar2000/SDK/advconfig.h b/submodules/foobar2000/SDK/advconfig.h
---- a/submodules/foobar2000/SDK/advconfig.h
-+++ b/submodules/foobar2000/SDK/advconfig.h
-@@ -250,8 +250,8 @@ public:
- 	advconfig_integer_factory_(const char * p_name,const GUID & p_guid,const GUID & p_parent,double p_priority,t_uint64 p_initialstate,t_uint64 p_min,t_uint64 p_max, t_uint32 p_prefFlags = 0) 
- 		: service_factory_single_t<advconfig_entry_integer_impl_<int_t_> >(p_name,p_guid,p_parent,p_priority,p_initialstate,p_min,p_max,p_prefFlags) {}
- 
--	int_t get() const {return get_static_instance().get_state_int();}
--	void set(int_t val) {get_static_instance().set_state_int(val);}
-+	int_t get() const {return this->get_static_instance().get_state_int();}
-+	void set(int_t val) {this->get_static_instance().set_state_int(val);}
- 
- 	operator int_t() const {return get();}
- 	int_t operator=(int_t val) {set(val); return val;}
 diff --git a/submodules/foobar2000/SDK/foobar2000_SDK.vcxproj b/submodules/foobar2000/SDK/foobar2000_SDK.vcxproj
 --- a/submodules/foobar2000/SDK/foobar2000_SDK.vcxproj
 +++ b/submodules/foobar2000/SDK/foobar2000_SDK.vcxproj
@@ -76,19 +36,6 @@ diff --git a/submodules/foobar2000/SDK/foobar2000_SDK.vcxproj b/submodules/fooba
    </PropertyGroup>
    <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
      <ClCompile>
-diff --git a/submodules/foobar2000/SDK/playlist.h b/submodules/foobar2000/SDK/playlist.h
---- a/submodules/foobar2000/SDK/playlist.h
-+++ b/submodules/foobar2000/SDK/playlist.h
-@@ -452,7 +452,8 @@ public:
- 		PFC_STATIC_ASSERT( sizeof(p_data[0]) == 1 );
- 		typedef pfc::array_t<t_uint8,pfc::alloc_fast_aggressive> t_temp;
- 		t_temp temp;
--		if (!playlist_get_property(p_playlist,p_property,&stream_writer_buffer_append_ref_t<t_temp>(temp),abort_callback_dummy())) return false;
-+        abort_callback_dummy dummy;
-+		if (!playlist_get_property(p_playlist,p_property,&stream_writer_buffer_append_ref_t<t_temp>(temp), dummy )) return false;
- 		p_data = temp;
- 		return true;
- 	}
 diff --git a/submodules/foobar2000/foobar2000_component_client/foobar2000_component_client.vcxproj b/submodules/foobar2000/foobar2000_component_client/foobar2000_component_client.vcxproj
 --- a/submodules/foobar2000/foobar2000_component_client/foobar2000_component_client.vcxproj
 +++ b/submodules/foobar2000/foobar2000_component_client/foobar2000_component_client.vcxproj
