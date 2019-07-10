@@ -283,6 +283,11 @@ STDMETHODIMP CDialogHtml::resizeBy( LONG x, LONG y )
 
 STDMETHODIMP CDialogHtml::ShowContextMenu( DWORD dwID, POINT* ppt, IUnknown* pcmdtReserved, IDispatch* pdispReserved )
 {
+    if ( dwID == CONTEXT_MENU_TEXTSELECT || dwID == CONTEXT_MENU_CONTROL )
+    { // always show context menu for text editors
+        return S_FALSE;
+    }
+
     if ( !pDefaultUiHandler_ || !isContextMenuEnabled_ )
     {
         return S_OK;
@@ -391,22 +396,10 @@ STDMETHODIMP CDialogHtml::TranslateAccelerator( LPMSG lpMsg, const GUID* pguidCm
         return S_OK;
     }
 
-    auto isSupportedKeyCombination = [& isClosing = isClosing_]( UINT wm, UINT vk ) -> bool {
+    auto isSupportedHotKey = []( UINT wm, UINT vk ) -> bool {
         if ( wm != WM_KEYDOWN && wm != WM_KEYUP
-             && wm != WM_SYSKEYDOWN && wm != WM_SYSKEYUP
-             && wm != WM_CHAR )
+             && wm != WM_SYSKEYDOWN && wm != WM_SYSKEYUP )
         {
-            return false;
-        }
-
-        if ( WM_CHAR == wm )
-        { // ignore everything else
-            return ( VK_RETURN == vk );
-        }
-
-        if ( VK_ESCAPE == vk )
-        { // Restore default dialog behaviour
-            isClosing = true;
             return false;
         }
 
@@ -428,24 +421,21 @@ STDMETHODIMP CDialogHtml::TranslateAccelerator( LPMSG lpMsg, const GUID* pguidCm
             return true;
         }
 
-        constexpr std::array allowedKeys{
-            VK_TAB, VK_RETURN, VK_SPACE
-        };
-        if ( !isCtrlPressed && !isShiftPressed && !isAltPressed
-             && std::cend( allowedKeys ) != ranges::find( allowedKeys, vk ) )
-        {
-            return true;
-        }
-
         return false;
     };
 
-    if ( !isSupportedKeyCombination( lpMsg->message, lpMsg->wParam ) )
+    if ( isSupportedHotKey( lpMsg->message, lpMsg->wParam ) )
     {
-        return S_OK;
+        return pDefaultUiHandler_->TranslateAccelerator( lpMsg, pguidCmdGroup, nCmdID );
     }
-
-    return pDefaultUiHandler_->TranslateAccelerator( lpMsg, pguidCmdGroup, nCmdID );
+    else 
+    {
+        if ( WM_KEYDOWN == lpMsg->message && VK_ESCAPE == lpMsg->wParam )
+        { // Restore default dialog behaviour
+            isClosing_ = true;
+        }
+        return S_FALSE;
+    }
 }
 
 STDMETHODIMP CDialogHtml::GetOptionKeyPath( LPOLESTR* pchKey, DWORD dw )
@@ -600,20 +590,19 @@ void CDialogHtml::SetOptions()
 
 LRESULT CALLBACK CDialogHtml::GetMsgProc( int code, WPARAM wParam, LPARAM lParam )
 {
-    LPMSG msg = reinterpret_cast<LPMSG>( lParam );
-
-    if ( msg->message >= WM_KEYFIRST && msg->message <= WM_KEYLAST )
+    if ( LPMSG pMsg = reinterpret_cast<LPMSG>( lParam );
+         pMsg->message >= WM_KEYFIRST && pMsg->message <= WM_KEYLAST )
     { // Only react to keypress events
-
-        HWND tmpHwnd = msg->hwnd;
-        for ( ; tmpHwnd && ( ::GetWindowLong( tmpHwnd, GWL_STYLE ) & WS_CHILD ); tmpHwnd = ::GetParent( tmpHwnd ) )
+        for ( HWND tmpHwnd = pMsg->hwnd;
+              tmpHwnd && ( ::GetWindowLong( tmpHwnd, GWL_STYLE ) & WS_CHILD );
+              tmpHwnd = ::GetParent( tmpHwnd ) )
         {
             if ( tmpHwnd == lastUsedWndData_.hIE )
             {
                 CDialogHtml* pThis = lastUsedWndData_.pThis;
-                if ( pThis && pThis->pOleInPlaceHandler_ && pThis->pOleInPlaceHandler_->TranslateAccelerator( (LPMSG)lParam ) )
+                if ( pThis && pThis->pOleInPlaceHandler_ && S_OK == pThis->pOleInPlaceHandler_->TranslateAccelerator( pMsg ) )
                 {
-                    msg->message = WM_NULL;
+                    pMsg->message = WM_NULL;
                 }
                 break;
             }
