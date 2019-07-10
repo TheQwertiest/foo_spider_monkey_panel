@@ -21,7 +21,7 @@ pfc::string8_fast GetStackTraceString( JSContext* cx, JS::HandleObject exn )
     // Exceptions thrown while compiling top-level script have no stack.
     JS::RootedObject stackObj( cx, JS::ExceptionStackOrNull( exn ) );
     if ( !stackObj )
-    {// quack?
+    { // quack?
         try
         { // Must not throw errors in error handler
             return GetOptionalProperty<pfc::string8_fast>( cx, exn, "stack" ).value_or( "" );
@@ -105,6 +105,8 @@ bool PrependTextToJsStringException( JSContext* cx, JS::HandleValue excn, const 
 
 bool PrependTextToJsObjectException( JSContext* cx, JS::HandleValue excn, const pfc::string8_fast& text )
 {
+    utils::final_action autoClearOnError{ [cx] { JS_ClearPendingException( cx ); } };
+
     JS::RootedObject excnObject( cx, &excn.toObject() );
     JS_ClearPendingException( cx ); ///< need this for js::ErrorReport::init
 
@@ -147,11 +149,17 @@ bool PrependTextToJsObjectException( JSContext* cx, JS::HandleValue excn, const 
     JS::RootedString jsFilenameStr( cx, jsFilename.toString() );
     JS::RootedString jsMessageStr( cx, jsMessage.toString() );
 
+    if ( !JS_WrapObject( cx, &excnStack ) )
+    { // Need wrapping for the case when exception is thrown from internal global
+        return false;
+    }
+
     if ( !JS::CreateError( cx, (JSExnType)pReport->exnType, excnStack, jsFilenameStr, pReport->lineno, pReport->column, nullptr, jsMessageStr, &newExcn ) )
     {
         return false;
     }
 
+    autoClearOnError.cancel();
     JS_SetPendingException( cx, newExcn );
     return true;
 }
@@ -212,8 +220,7 @@ pfc::string8_fast JsErrorToText( JSContext* cx )
     (void)JS_GetPendingException( cx, &excn );
     JS_ClearPendingException( cx ); ///< need this for js::ErrorReport::init
 
-    utils::final_action autoErrorClear( [cx]()
-    {// There should be no exceptions on function exit
+    utils::final_action autoErrorClear( [cx]() { // There should be no exceptions on function exit
         JS_ClearPendingException( cx );
     } );
 
@@ -369,4 +376,4 @@ void PrependTextToJsError( JSContext* cx, const pfc::string8_fast& text )
     }
 }
 
-} // namespace error
+} // namespace mozjs::error
