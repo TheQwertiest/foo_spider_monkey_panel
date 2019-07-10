@@ -40,9 +40,6 @@
     <ClCompile Include="config.cpp">
       <Filter>z_core</Filter>
     </ClCompile>
-    <ClCompile Include="foo_spider_monkey_panel.cpp">
-      <Filter>z_core</Filter>
-    </ClCompile>
     <ClCompile Include="host_timer_dispatcher.cpp">
       <Filter>z_core</Filter>
     </ClCompile>
@@ -309,6 +306,9 @@
     </ClCompile>
     <ClCompile Include="ui\ui_slow_script.cpp">
       <Filter>ui</Filter>
+    </ClCompile>
+    <ClCompile Include="dllmain.cpp">
+      <Filter>z_core</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

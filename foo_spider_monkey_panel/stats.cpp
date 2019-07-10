@@ -8,10 +8,11 @@ namespace
 
 using namespace smp::stats;
 
-const char pinTo[] = "$lower(%artist% - %title%)";
-const t_filetimestamp retentionPeriod = system_time_periods::week * 4;
+constexpr char pinTo[] = "$lower(%artist% - %title%)";
+constexpr t_filetimestamp retentionPeriod = system_time_periods::week * 4;
 
 metadb_index_manager::ptr g_cachedAPI;
+
 metadb_index_manager::ptr theAPI()
 {
     auto ret = g_cachedAPI;

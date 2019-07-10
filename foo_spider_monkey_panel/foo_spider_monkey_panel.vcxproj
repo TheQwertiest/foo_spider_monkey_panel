@@ -103,6 +103,7 @@
     <ClCompile Include="component_paths.cpp" />
     <ClCompile Include="com_message_scope.cpp" />
     <ClCompile Include="config_legacy.cpp" />
+    <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="fb2k_callbacks.cpp" />
     <ClCompile Include="com_objects\com_tools.cpp" />
     <ClCompile Include="com_objects\drop_source_impl.cpp" />
@@ -115,9 +116,6 @@
     <ClCompile Include="convert\com.cpp" />
     <ClCompile Include="convert\js_to_native.cpp" />
     <ClCompile Include="convert\native_to_js.cpp" />
-    <ClCompile Include="foo_spider_monkey_panel.cpp">
-      <PrecompiledHeader>Use</PrecompiledHeader>
-    </ClCompile>
     <ClCompile Include="heartbeat_window.cpp" />
     <ClCompile Include="host_timer_dispatcher.cpp" />
     <ClCompile Include="js_engine\js_compartment_inner.cpp" />
