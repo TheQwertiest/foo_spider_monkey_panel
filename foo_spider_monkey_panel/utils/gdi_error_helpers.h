@@ -39,7 +39,7 @@ void CheckGdiPlusObject( const std::unique_ptr<T>& obj, const T_Parent* pParentO
 
     if ( status )
     {
-        throw SmpException( fmt::format( "Failed to create GdiPlus object ({:#X}): {}", status.value(), GdiErrorCodeToText( status.value() ) ) );
+        throw SmpException( fmt::format( "Failed to create GdiPlus object ({:#x}): {}", status.value(), GdiErrorCodeToText( status.value() ) ) );
     }
     else
     {

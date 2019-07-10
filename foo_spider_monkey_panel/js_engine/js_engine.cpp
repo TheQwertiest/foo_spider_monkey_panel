@@ -15,7 +15,6 @@
 #include <host_timer_dispatcher.h>
 #include <js_panel_window.h>
 #include <message_blocking_scope.h>
-#include <popup_msg.h>
 #include <user_message.h>
 
 #include <js/Initialization.h>
@@ -48,7 +47,7 @@ void ReportException( const pfc::string8_fast& errorText )
     }();
 
     FB2K_console_formatter() << errorTextPadded;
-    popup_msg::g_show( errorTextPadded, SMP_NAME );
+    popup_message::g_show( errorTextPadded, SMP_NAME );
     MessageBeep( MB_ICONASTERISK );
 }
 

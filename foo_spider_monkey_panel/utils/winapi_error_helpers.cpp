@@ -48,7 +48,7 @@ void CheckWinApi( bool checkValue, std::string_view functionName )
     if ( !checkValue )
     {
         const DWORD errorCode = GetLastError();
-        throw SmpException( fmt::format( "WinAPI error: {} failed with error ({:#X}): {}", functionName, errorCode, MessageFromErrorCode( errorCode ).c_str() ) );
+        throw SmpException( fmt::format( "WinAPI error: {} failed with error ({:#x}): {}", functionName, errorCode, MessageFromErrorCode( errorCode ).c_str() ) );
     }
 }
 

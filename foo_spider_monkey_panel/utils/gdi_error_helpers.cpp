@@ -61,7 +61,7 @@ void CheckGdi( Gdiplus::Status gdiStatus, std::string_view functionName )
 {
     if ( gdiStatus > 0 )
     {
-        throw SmpException( fmt::format( "GdiPlus error: {} failed with error ({:#X}): {}", functionName, gdiStatus, GdiErrorCodeToText( gdiStatus ) ) );
+        throw SmpException( fmt::format( "GdiPlus error: {} failed with error ({:#x}): {}", functionName, gdiStatus, GdiErrorCodeToText( gdiStatus ) ) );
     }
 }
 
