@@ -324,7 +324,7 @@ uint32_t JsWindow::GetColourCUI( uint32_t type, const std::wstring& guidstr )
         smp::error::CheckHR( hr, "CLSIDFromString" );
     }
 
-    return parentPanel_.GetColourCUI( type, guid );
+    return parentPanel_.GetColour( type, guid );
 }
 
 uint32_t JsWindow::GetColourCUIWithOpt( size_t optArgCount, uint32_t type, const std::wstring& guidstr )
@@ -349,7 +349,7 @@ uint32_t JsWindow::GetColourDUI( uint32_t type )
 
     SmpException::ExpectTrue( parentPanel_.GetPanelType() == panel::PanelType::DUI, "Can be called only in DUI" );
 
-    return parentPanel_.GetColourDUI( type );
+    return parentPanel_.GetColour( type );
 }
 
 JSObject* JsWindow::GetFontCUI( uint32_t type, const std::wstring& guidstr )
@@ -372,7 +372,7 @@ JSObject* JsWindow::GetFontCUI( uint32_t type, const std::wstring& guidstr )
         smp::error::CheckHR( hr, "CLSIDFromString" );
     }
 
-    auto hFont = gdi::CreateUniquePtr( parentPanel_.GetFontCUI( type, guid ) );
+    auto hFont = gdi::CreateUniquePtr( parentPanel_.GetFont( type, guid ) );
     if ( !hFont )
     { // Not an error: font not found
         return nullptr;
@@ -409,7 +409,7 @@ JSObject* JsWindow::GetFontDUI( uint32_t type )
 
     SmpException::ExpectTrue( parentPanel_.GetPanelType() == panel::PanelType::DUI, "Can be called only in DUI" );
 
-    HFONT hFont = parentPanel_.GetFontDUI( type ); // No need to delete, it is managed by DUI
+    HFONT hFont = parentPanel_.GetFont( type ); // No need to delete, it is managed by DUI
     if ( !hFont )
     { // Not an error: font not found
         return nullptr;

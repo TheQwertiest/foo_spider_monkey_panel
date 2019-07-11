@@ -71,10 +71,8 @@ public:
 
     t_size& DlgCode();
     PanelType GetPanelType() const;
-    virtual DWORD GetColourCUI( unsigned type, const GUID& guid ) = 0;
-    virtual DWORD GetColourDUI( unsigned type ) = 0;
-    virtual HFONT GetFontCUI( unsigned type, const GUID& guid ) = 0;
-    virtual HFONT GetFontDUI( unsigned type ) = 0;
+    virtual DWORD GetColour( unsigned type, const GUID& guid = pfc::guid_null ) = 0;
+    virtual HFONT GetFont( unsigned type, const GUID& guid = pfc::guid_null ) = 0;
 
     void Repaint( bool force = false );
     void RepaintRect( LONG x, LONG y, LONG w, LONG h, bool force = false );

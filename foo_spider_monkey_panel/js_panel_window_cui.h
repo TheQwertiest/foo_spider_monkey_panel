@@ -11,15 +11,13 @@ class js_panel_window_cui
 {
 protected:
     // js_panel_window
-    DWORD GetColourCUI( unsigned type, const GUID& guid ) override;
-    DWORD GetColourDUI( unsigned type ) override;
-    HFONT GetFontCUI( unsigned type, const GUID& guid ) override;
-    HFONT GetFontDUI( unsigned type ) override;
+    DWORD GetColour( unsigned type, const GUID& guid = pfc::guid_null ) override;
+    HFONT GetFont( unsigned type, const GUID& guid = pfc::guid_null ) override;
+    LRESULT on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp ) override;
 
     // uie::window
     HWND create_or_transfer_window( HWND parent, const uie::window_host_ptr& host, const ui_helpers::window_position_t& p_position ) override;
     HWND get_wnd() const override;
-    LRESULT on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp ) override;
     bool have_config_popup() const override;
     bool is_available( const uie::window_host_ptr& p ) const override;
     bool show_config_popup( HWND parent ) override;
@@ -37,9 +35,6 @@ protected:
 
     // cui::fonts::common_callback
     void on_font_changed( t_size mask ) const override;
-
-    // TODO: investigate - this was virtual, but was not overriding anything
-    const uie::window_host_ptr& get_host() const;
 
 private:
     // js_panel_window

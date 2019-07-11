@@ -18,16 +18,14 @@ public:
     static void g_get_name( pfc::string_base& out );
 
     // js_panel_window
-    DWORD GetColourCUI( unsigned type, const GUID& guid ) override;
-    DWORD GetColourDUI( unsigned type ) override;
-    HFONT GetFontCUI( unsigned type, const GUID& guid ) override;
-    HFONT GetFontDUI( unsigned type ) override;
+    DWORD GetColour( unsigned type, const GUID& guid = pfc::guid_null ) override;
+    HFONT GetFont( unsigned type, const GUID& guid = pfc::guid_null ) override;
+    LRESULT on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp ) override;
 
     // ui_element_instance
     GUID get_guid() override;
     GUID get_subclass() override;
     HWND get_wnd() override;
-    LRESULT on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp ) override;
     bool edit_mode_context_menu_get_description( unsigned p_id, unsigned p_id_base, pfc::string_base& p_out ) override;
     bool edit_mode_context_menu_test( const POINT& p_point, bool p_fromkeyboard ) override;
     ui_element_config::ptr get_configuration() override;
@@ -44,6 +42,7 @@ private:
 
     void notify_is_edit_mode_changed( bool enabled );
 
+private:
     using t_parent = js_panel_window;
     bool m_is_edit_mode;
     ui_element_instance_callback::ptr m_callback;

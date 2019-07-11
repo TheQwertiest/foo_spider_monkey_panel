@@ -110,28 +110,6 @@ void js_panel_window_dui::g_get_name( pfc::string_base& out )
     out = SMP_NAME;
 }
 
-DWORD js_panel_window_dui::GetColourCUI( unsigned type, const GUID& guid )
-{
-    return 0;
-}
-
-DWORD js_panel_window_dui::GetColourDUI( unsigned type )
-{
-    const GUID* guids[] = {
-        &ui_color_text,
-        &ui_color_background,
-        &ui_color_highlight,
-        &ui_color_selection,
-    };
-
-    if ( type < _countof( guids ) )
-    {
-        return smp::colour::convert_colorref_to_argb( m_callback->query_std_color( *guids[type] ) );
-    }
-
-    return 0;
-}
-
 GUID js_panel_window_dui::get_guid()
 {
     return g_get_guid();
@@ -142,28 +120,70 @@ GUID js_panel_window_dui::get_subclass()
     return g_get_subclass();
 }
 
-HFONT js_panel_window_dui::GetFontCUI( unsigned type, const GUID& guid )
+DWORD js_panel_window_dui::GetColour( unsigned type, const GUID& guid )
 {
-    return NULL;
-}
+    const auto& guidToQuery = [type, &guid] {
+        // Take care when changing this array:
+        // guid indexes are part of SMP API
+        const GUID* guids[] = {
+            &ui_color_text,
+            &ui_color_background,
+            &ui_color_highlight,
+            &ui_color_selection,
+        };
 
-HFONT js_panel_window_dui::GetFontDUI( unsigned type )
-{
-    const GUID* guids[] = {
-        &ui_font_default,
-        &ui_font_tabs,
-        &ui_font_lists,
-        &ui_font_playlists,
-        &ui_font_statusbar,
-        &ui_font_console,
-    };
+        if ( guid != pfc::guid_null )
+        {
+            return guid;
+        }
+        else if ( type < _countof( guids ) )
+        {
+            return *guids[type];
+        }
+        else
+        {
+            return pfc::guid_null;
+        }
+    }();
 
-    if ( type < _countof( guids ) )
+    t_ui_color colour = 0; ///< black
+    if ( guidToQuery != pfc::guid_null )
     {
-        return m_callback->query_font_ex( *guids[type] );
+        colour = m_callback->query_std_color( guidToQuery );
     }
 
-    return NULL;
+    return smp::colour::convert_colorref_to_argb( colour );
+}
+
+HFONT js_panel_window_dui::GetFont( unsigned type, const GUID& guid )
+{
+    const auto& guidToQuery = [type, &guid] {
+        // Take care when changing this array:
+        // guid indexes are part of SMP API
+        const GUID* guids[] = {
+            &ui_font_default,
+            &ui_font_tabs,
+            &ui_font_lists,
+            &ui_font_playlists,
+            &ui_font_statusbar,
+            &ui_font_console,
+        };
+
+        if ( guid != pfc::guid_null )
+        {
+            return guid;
+        }
+        else if ( type < _countof( guids ) )
+        {
+            return *guids[type];
+        }
+        else
+        {
+            return pfc::guid_null;
+        }
+    }();
+
+    return ( guid != pfc::guid_null ? m_callback->query_font_ex( guid ) : nullptr );
 }
 
 HWND js_panel_window_dui::get_wnd()

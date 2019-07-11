@@ -15,50 +15,36 @@ static uie::window_factory<smp::panel::js_panel_window_cui> g_js_panel_wndow_cui
 namespace smp::panel
 {
 
-DWORD js_panel_window_cui::GetColourCUI( unsigned type, const GUID& guid )
+DWORD js_panel_window_cui::GetColour( unsigned type, const GUID& guid )
 {
+    COLORREF colour = 0; ///< black
     if ( type <= cui::colours::colour_active_item_frame )
     {
         cui::colours::helper helper( guid );
-
-        return smp::colour::convert_colorref_to_argb( helper.get_colour( (cui::colours::colour_identifier_t)type ) );
+        colour = helper.get_colour( static_cast<cui::colours::colour_identifier_t>( type ) );
     }
 
-    return 0;
+    return smp::colour::convert_colorref_to_argb( colour );
 }
 
-DWORD js_panel_window_cui::GetColourDUI( unsigned type )
+HFONT js_panel_window_cui::GetFont( unsigned type, const GUID& guid )
 {
-    return 0;
-}
-
-HFONT js_panel_window_cui::GetFontCUI( unsigned type, const GUID& guid )
-{
-    if ( guid == pfc::guid_null )
+    try
     {
-        if ( type <= cui::fonts::font_type_labels )
+        auto api = static_api_ptr_t<cui::fonts::manager>();
+        if ( guid != pfc::guid_null )
         {
-            try
-            {
-                return static_api_ptr_t<cui::fonts::manager>()->get_font( (cui::fonts::font_type_t)type );
-            }
-            catch ( exception_service_not_found& )
-            {
-                return uCreateIconFont();
-            }
+            return api->get_font( guid );
+        }
+        else if ( type <= cui::fonts::font_type_labels )
+        {
+            return api->get_font( static_cast<cui::fonts::font_type_t>( type ) );
         }
     }
-    else
+    catch ( const exception_service_extension_not_found& )
     {
-        cui::fonts::helper helper( guid );
-        return helper.get_font();
     }
 
-    return nullptr;
-}
-
-HFONT js_panel_window_cui::GetFontDUI( unsigned type )
-{
     return nullptr;
 }
 
@@ -149,11 +135,6 @@ const GUID& js_panel_window_cui::get_extension_guid() const
     return g_guid_smp_window_cui;
 }
 
-const uie::window_host_ptr& js_panel_window_cui::get_host() const
-{
-    return m_host;
-}
-
 unsigned js_panel_window_cui::get_type() const
 {
     return uie::type_toolbar | uie::type_panel;
@@ -202,7 +183,7 @@ void js_panel_window_cui::set_config( stream_reader* reader, t_size size, abort_
 
 void js_panel_window_cui::notify_size_limit_changed( LPARAM lp )
 {
-    get_host()->on_size_limit_change( t_parent::GetHWND(), lp );
+    m_host->on_size_limit_change( t_parent::GetHWND(), lp );
 }
 
 } // namespace smp::panel
