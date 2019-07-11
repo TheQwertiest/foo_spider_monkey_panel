@@ -30,7 +30,7 @@ private:
 
     bool wasShowingLayered_ = false;
 
-    LONG m_refCount = 0;
+    std::atomic<ULONG> m_refCount = 0;
     DWORD m_dwLastEffect = DROPEFFECT_NONE;
 
     BEGIN_COM_QI_IMPL()

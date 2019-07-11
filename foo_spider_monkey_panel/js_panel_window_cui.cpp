@@ -89,7 +89,7 @@ LRESULT js_panel_window_cui::on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM 
             static_api_ptr_t<cui::fonts::manager>()->register_common_callback( this );
             static_api_ptr_t<cui::colours::manager>()->register_common_callback( this );
         }
-        catch ( ... )
+        catch ( const exception_service_extension_not_found& )
         {
         }
         break;
@@ -100,7 +100,7 @@ LRESULT js_panel_window_cui::on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM 
             static_api_ptr_t<cui::fonts::manager>()->deregister_common_callback( this );
             static_api_ptr_t<cui::colours::manager>()->deregister_common_callback( this );
         }
-        catch ( ... )
+        catch ( const exception_service_extension_not_found& )
         {
         }
         break;

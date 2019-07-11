@@ -166,7 +166,7 @@ public:
 	STDMETHODIMP_(ULONG) Release()
 	{
 		const ULONG n = --m_dwRef;
-		if (n == 0)
+		if (!n)
 		{
 			this->FinalRelease();
 			delete this;

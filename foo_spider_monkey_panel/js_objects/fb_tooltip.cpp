@@ -75,7 +75,7 @@ JsFbTooltip::JsFbTooltip( JSContext* cx, HWND hParentWnd, smp::panel::PanelToolt
     : pJsCtx_( cx )
     , hParentWnd_( hParentWnd )
     , panelTooltipParam_( p_param_ptr )
-    , tipBuffer_( _T( SMP_NAME ) )
+    , tipBuffer_( TEXT( SMP_NAME ) )
     , pFont_( smp::gdi::CreateUniquePtr<HFONT>( nullptr ) )
 {
     hTooltipWnd_ = CreateWindowEx(

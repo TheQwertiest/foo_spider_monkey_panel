@@ -109,17 +109,17 @@ STDMETHODIMP IDropSourceImpl::GiveFeedback( DWORD dwEffect )
 
 ULONG STDMETHODCALLTYPE IDropSourceImpl::AddRef()
 {
-    return InterlockedIncrement( &m_refCount );
+    return ++m_refCount;
 }
 
 ULONG STDMETHODCALLTYPE IDropSourceImpl::Release()
 {
-    LONG rv = InterlockedDecrement( &m_refCount );
-    if ( !rv )
+    const ULONG n = --m_refCount;
+    if ( !n )
     {
         delete this;
     }
-    return rv;
+    return n;
 }
 
 } // namespace smp::com

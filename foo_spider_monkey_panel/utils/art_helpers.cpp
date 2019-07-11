@@ -172,10 +172,9 @@ void embed_thread::run( threaded_process_status& p_status,
 
         try
         {
-            file_lock_ptr lock = api->acquire_write( path, p_abort );
-            smp::utils::final_action autoLock( [&lock] { lock.release(); } );
+            auto scopedLock = api->acquire_write( path, p_abort );
 
-            auto aaep = ptr->open( NULL, path, p_abort );
+            auto aaep = ptr->open( nullptr, path, p_abort );
             switch ( m_action )
             {
             case EmbedAction::embed:

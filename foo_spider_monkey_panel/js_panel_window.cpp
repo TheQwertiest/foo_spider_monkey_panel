@@ -32,7 +32,7 @@ js_panel_window::js_panel_window( PanelType instanceType )
 ui_helpers::container_window::class_data& js_panel_window::get_class_data() const
 {
     static class_data my_class_data = {
-        _T( SMP_WINDOW_CLASS_NAME ),
+        TEXT( SMP_WINDOW_CLASS_NAME ),
         L"",
         0,
         false,
@@ -705,13 +705,13 @@ void js_panel_window::show_property_popup( HWND parent )
 
 void js_panel_window::build_context_menu( HMENU menu, int x, int y, uint32_t id_base )
 {
-    ::AppendMenu( menu, MF_STRING, id_base + 1, _T( "&Reload" ) );
-    ::AppendMenu( menu, MF_SEPARATOR, 0, 0 );
-    ::AppendMenu( menu, MF_STRING, id_base + 2, _T( "&Open component folder" ) );
-    ::AppendMenu( menu, MF_STRING, id_base + 3, _T( "&Open documentation" ) );
-    ::AppendMenu( menu, MF_SEPARATOR, 0, 0 );
-    ::AppendMenu( menu, MF_STRING, id_base + 4, _T( "&Properties" ) );
-    ::AppendMenu( menu, MF_STRING, id_base + 5, _T( "&Configure..." ) );
+    ::AppendMenu( menu, MF_STRING, id_base + 1, L"&Reload" );
+    ::AppendMenu( menu, MF_SEPARATOR, 0, nullptr );
+    ::AppendMenu( menu, MF_STRING, id_base + 2, L"&Open component folder" );
+    ::AppendMenu( menu, MF_STRING, id_base + 3, L"&Open documentation" );
+    ::AppendMenu( menu, MF_SEPARATOR, 0, nullptr );
+    ::AppendMenu( menu, MF_STRING, id_base + 4, L"&Properties" );
+    ::AppendMenu( menu, MF_STRING, id_base + 5, L"&Configure..." );
 }
 
 void js_panel_window::execute_context_menu_command( uint32_t id, uint32_t id_base )
@@ -832,13 +832,13 @@ void js_panel_window::RepaintBackground( LPRECT lprcUpdate /*= nullptr */ )
     HWND hwnd = nullptr;
     while ( hwnd = FindWindowEx( wnd_parent, hwnd, nullptr, nullptr ) )
     {
-        TCHAR buff[64];
+        wchar_t buff[64];
         if ( hwnd == hWnd_ )
         {
             continue;
         }
         GetClassName( hwnd, buff, _countof( buff ) );
-        if ( _tcsstr( buff, _T( "SysTabControl32" ) ) )
+        if ( wcsstr( buff, L"SysTabControl32" ) )
         {
             wnd_parent = hwnd;
             break;
@@ -932,7 +932,10 @@ bool js_panel_window::script_load()
     // HACK: Script update will not call on_size, so invoke it explicitly
     SendMessage( hWnd_, static_cast<UINT>( InternalSyncMessage::update_size ), 0, 0 );
 
-    FB2K_console_formatter() << SMP_NAME_WITH_VERSION " (" << ScriptInfo().build_info_string() << "): initialized in " << ( uint32_t )( timer.query() * 1000 ) << " ms";
+    FB2K_console_formatter() << fmt::format( 
+        SMP_NAME_WITH_VERSION " ({}): initialized in {} ms", 
+        ScriptInfo().build_info_string().c_str(), static_cast<uint32_t>( timer.query() * 1000 )
+    ).c_str();
     return true;
 }
 
@@ -988,7 +991,7 @@ void js_panel_window::on_context_menu( int x, int y )
 
     constexpr uint32_t base_id = 0;
     build_context_menu( hMenu, x, y, base_id );
-    uint32_t ret = TrackPopupMenu( hMenu, TPM_RIGHTBUTTON | TPM_NONOTIFY | TPM_RETURNCMD, x, y, 0, hWnd_, 0 );
+    uint32_t ret = TrackPopupMenu( hMenu, TPM_RIGHTBUTTON | TPM_NONOTIFY | TPM_RETURNCMD, x, y, 0, hWnd_, nullptr );
     execute_context_menu_command( ret, base_id );
 }
 
@@ -1437,7 +1440,7 @@ void js_panel_window::on_paint_error( HDC memdc )
         CLIP_DEFAULT_PRECIS,
         DEFAULT_QUALITY,
         DEFAULT_PITCH | FF_DONTCARE,
-        _T( "Tahoma" ) );
+        L"Tahoma" );
     const auto autoFont = smp::gdi::CreateUniquePtr( newfont );
     gdi::ObjectSelector autoFontSelector( memdc, newfont );
 
