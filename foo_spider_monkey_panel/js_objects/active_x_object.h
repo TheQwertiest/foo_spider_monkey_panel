@@ -54,6 +54,7 @@ public:
     IUnknown * pUnknown_ = nullptr;
     ITypeInfo * pTypeInfo_ = nullptr;
     _variant_t variant_;
+    bool hasVariant_ = false;
 
     bool Has( const std::wstring& name );
     bool IsGet( const std::wstring& name );

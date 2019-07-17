@@ -168,7 +168,7 @@ void JsArrayToComArray( JSContext* cx, JS::HandleObject obj, VARIANT& var )
     if ( len )
     {
         VARIANT* varArray = nullptr;
-        HRESULT hr = SafeArrayAccessData( safeArray, reinterpret_cast<void**>(&varArray) );
+        HRESULT hr = SafeArrayAccessData( safeArray, reinterpret_cast<void**>( &varArray ) );
         smp::error::CheckHR( hr, "SafeArrayAccessData" );
 
         utils::final_action autoSaData( [safeArray]() {
@@ -363,11 +363,6 @@ void VariantToJs( JSContext* cx, VARIANTARG& var, JS::MutableHandleValue rval )
         rval.setObjectOrNull( jsObject );
         break;
     }
-    case VT_ARRAY | VT_VARIANT:
-    {
-        ComArrayToJsArray( cx, var, rval );
-        break;
-    }
     case VT_VARIANT: //traverse the indirection list?
         if ( ref )
         {
@@ -379,12 +374,20 @@ void VariantToJs( JSContext* cx, VARIANTARG& var, JS::MutableHandleValue rval )
         }
         break;
     default:
-        SmpException::ExpectTrue( type <= VT_CLSID, "ActiveX: unsupported object type: {}", type );
+        if ( ( type & VT_ARRAY ) && !( type & VT_UI1 ) )
+        {// skip binary data: SMP has no use for it, but it's needed in COM interface
+            ComArrayToJsArray( cx, var, rval );
+            break;
+        }
+        else
+        {
+            SmpException::ExpectTrue( type <= VT_CLSID || type == ( VT_ARRAY | VT_UI1 ), "ActiveX: unsupported object type: {:#x}", type );
 
-        JS::RootedObject jsObject( cx, ActiveXObject::CreateJsFromNative( cx, std::make_unique<ActiveXObject>( cx, var ) ) );
-        assert( jsObject );
+            JS::RootedObject jsObject( cx, ActiveXObject::CreateJsFromNative( cx, std::make_unique<ActiveXObject>( cx, var ) ) );
+            assert( jsObject );
 
-        rval.setObjectOrNull( jsObject );
+            rval.setObjectOrNull( jsObject );
+        }
     }
 }
 

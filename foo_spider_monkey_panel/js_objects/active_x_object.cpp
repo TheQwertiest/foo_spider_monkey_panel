@@ -312,6 +312,7 @@ ActiveXObject::ActiveXObject( JSContext* cx, VARIANTARG& var )
     : pJsCtx_( cx )
 {
     VariantCopyInd( &variant_, &var );
+    hasVariant_ = true;
 }
 
 ActiveXObject::ActiveXObject( JSContext* cx, IDispatch* pDispatch, bool addref )
@@ -412,10 +413,10 @@ ActiveXObject::~ActiveXObject()
     {
         variant_.Clear();
     }
-    catch (const _com_error&)
+    catch ( const _com_error& )
     {
     }
-    
+
     CoFreeUnusedLibraries();
 }
 
@@ -746,7 +747,7 @@ void ActiveXObject::Invoke( const std::wstring& funcName, const JS::CallArgs& ca
     std::vector<_variant_t> args( argc );
     for ( auto&& [i, arg]: ranges::view::enumerate( args ) )
     {
-        JsToVariantSafe( pJsCtx_, callArgs[(argc - 1) - i], arg );
+        JsToVariantSafe( pJsCtx_, callArgs[( argc - 1 ) - i], arg );
     }
 
     DISPPARAMS dispparams = { nullptr, nullptr, 0, 0 };
@@ -790,7 +791,12 @@ void ActiveXObject::SetupMembers( JS::HandleObject jsObject )
         return;
     }
 
-    SmpException::ExpectTrue( pUnknown_ || pDispatch_, "Internal error: pUnknown_ and pDispatch_ are null" );
+    SmpException::ExpectTrue( pUnknown_ || pDispatch_ || hasVariant_, "Internal error: pUnknown_ and pDispatch_ are null and variant_ was not set" );
+    if ( hasVariant_ )
+    { // opaque data
+        areMembersSetup_ = true;
+        return;
+    }
 
     if ( !pDispatch_ )
     {
