@@ -182,7 +182,7 @@ HFONT js_panel_window_dui::GetFont( unsigned type, const GUID& guid )
         }
     }();
 
-    return ( guid != pfc::guid_null ? m_callback->query_font_ex( guid ) : nullptr );
+    return ( guidToQuery != pfc::guid_null ? m_callback->query_font_ex( guidToQuery ) : nullptr );
 }
 
 HWND js_panel_window_dui::get_wnd()
