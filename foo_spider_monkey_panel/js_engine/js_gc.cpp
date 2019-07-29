@@ -62,7 +62,7 @@ void JsGc::Initialize( JSContext* pJsCtx )
     allocCountTrigger_ = static_cast<uint32_t>( smp_advconf::g_var_max_alloc_increase.get() );
 
     JS_SetGCParameter( pJsCtx_, JSGC_MODE, JSGC_MODE_INCREMENTAL );
-    // The following two parameters are not used, since we are doing everything manually. 
+    // The following two parameters are not used, since we are doing everything manually.
     // Left here mostly for future-proofing.
     JS_SetGCParameter( pJsCtx_, JSGC_SLICE_TIME_BUDGET, gcSliceTimeBudget_ );
     JS_SetGCParameter( pJsCtx_, JSGC_HIGH_FREQUENCY_TIME_LIMIT, kHighFreqTimeLimitMs );
@@ -113,6 +113,12 @@ bool JsGc::MaybeGc()
     return ( lastTotalHeapSize_ < maxHeapSize_ );
 }
 
+bool JsGc::TriggerGc()
+{
+    isManuallyTriggered_ = true;
+    return MaybeGc();
+}
+
 void JsGc::UpdateGcConfig()
 {
     namespace smp_advconf = smp::config::advanced;
@@ -123,7 +129,7 @@ void JsGc::UpdateGcConfig()
     smp::error::CheckWinApi( !!bRet, "GlobalMemoryStatusEx" );
 
     if ( !smp_advconf::g_var_max_heap.get() )
-    { // detect
+    { // detect settings automatically
         smp_advconf::g_var_max_heap.set( std::min<uint64_t>( statex.ullTotalPhys / 4, kDefaultHeapMaxMb ) );
     }
     else if ( smp_advconf::g_var_max_heap.get() > statex.ullTotalPhys )
@@ -132,7 +138,7 @@ void JsGc::UpdateGcConfig()
     }
 
     if ( !smp_advconf::g_var_max_heap_growth.get() )
-    { // detect
+    { // detect settings automatically
         smp_advconf::g_var_max_heap_growth.set( std::min<uint64_t>( smp_advconf::g_var_max_heap.get() / 8, kDefaultHeapThresholdMb ) );
     }
     else if ( smp_advconf::g_var_max_heap_growth.get() > smp_advconf::g_var_max_heap.get() / 2 )
@@ -143,26 +149,34 @@ void JsGc::UpdateGcConfig()
 
 bool JsGc::IsTimeToGc()
 {
-    auto timeDiff = timeGetTime() - lastGcCheckTime_;
-    if ( timeDiff < gcCheckDelay_ )
+    const auto curTime = timeGetTime();
+    if ( ( curTime - lastGcCheckTime_ ) < gcCheckDelay_ )
     {
         return false;
     }
 
-    lastGcCheckTime_ = timeGetTime();
+    lastGcCheckTime_ = curTime;
     return true;
 }
 
 JsGc::GcLevel JsGc::GetRequiredGcLevel()
 {
-    GcLevel gcLevel = GetGcLevelFromHeapSize();
-    if ( JS::IsIncrementalGCInProgress( pJsCtx_ )
-         || gcLevel > GcLevel::None )
-    {
-        return std::max( GcLevel::Incremental, gcLevel );
+    if ( GcLevel gcLevel = GetGcLevelFromHeapSize();
+         gcLevel > GcLevel::None )
+    { // heap trigger always has the highest priority
+        return gcLevel;
     }
-
-    return GetGcLevelFromAllocCount();
+    else if ( JS::IsIncrementalGCInProgress( pJsCtx_ )
+              || isManuallyTriggered_
+              || GetGcLevelFromAllocCount() > GcLevel::None )
+    {                                 // currently alloc trigger can be at most `GcLevel::Incremental`
+        isManuallyTriggered_ = false; // reset trigger
+        return GcLevel::Incremental;
+    }
+    else
+    {
+        return GcLevel::None;
+    }
 }
 
 JsGc::GcLevel JsGc::GetGcLevelFromHeapSize()
@@ -210,22 +224,26 @@ JsGc::GcLevel JsGc::GetGcLevelFromAllocCount()
     {
         return GcLevel::Incremental;
     }
+    // Note: check all method invocations when adding new GcLevel,
+    // since currently it's assumed that method returns `GcLevel::Incremental` at most
 }
 
 void JsGc::UpdateGcStats()
 {
-    if ( !JS::IsIncrementalGCInProgress( pJsCtx_ ) )
+    if ( JS::IsIncrementalGCInProgress( pJsCtx_ ) )
     { // update only after current gc cycle is finished
-        lastGlobalHeapSize_ = JS_GetGCParameter( pJsCtx_, JSGC_BYTES );
-        lastTotalHeapSize_ = GetCurrentTotalHeapSize();
-        lastTotalAllocCount_ = GetCurrentTotalAllocCount();
-
-        const auto curTime = timeGetTime();
-        isHighFrequency_ = ( lastGcTime_ 
-                             ? curTime < ( lastGcTime_ + kHighFreqTimeLimitMs ) 
-                             : false );
-        lastGcTime_ = curTime;
+        return;
     }
+
+    lastGlobalHeapSize_ = JS_GetGCParameter( pJsCtx_, JSGC_BYTES );
+    lastTotalHeapSize_ = GetCurrentTotalHeapSize();
+    lastTotalAllocCount_ = GetCurrentTotalAllocCount();
+
+    const auto curTime = timeGetTime();
+    isHighFrequency_ = ( lastGcTime_
+                             ? curTime < ( lastGcTime_ + kHighFreqTimeLimitMs )
+                             : false );
+    lastGcTime_ = curTime;
 }
 
 uint64_t JsGc::GetCurrentTotalHeapSize()
@@ -320,7 +338,7 @@ void JsGc::PrepareCompartmentsForGc( GcLevel gcLevel )
 
         if ( uint64_t curGlobalHeapSize = JS_GetGCParameter( pJsCtx_, JSGC_BYTES );
              curGlobalHeapSize > ( lastGlobalHeapSize_ + triggers.heapGrowthRateTrigger ) )
-        {
+        { // mark all, since we don't have any per-compartment information about allocated native JS objects
             markAllCompartments();
         }
         else
@@ -342,7 +360,7 @@ void JsGc::PrepareCompartmentsForGc( GcLevel gcLevel )
                 }
             } );
         }
-        
+
         break;
     }
     case mozjs::JsGc::GcLevel::Normal:
@@ -374,7 +392,7 @@ void JsGc::PerformIncrementalGc()
                 pCompartments->push_back( pJsCompartment );
             }
         } );
-        if ( compartments.size() )
+        if ( !compartments.empty() )
         {
             for ( auto pCompartment: compartments )
             {

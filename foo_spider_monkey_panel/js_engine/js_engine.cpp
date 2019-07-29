@@ -177,6 +177,11 @@ void JsEngine::OnJsActionEnd( JsContainer& jsContainer )
     jsMonitor_.OnJsActionEnd( jsContainer );
 }
 
+JsGc& JsEngine::GetGcEngine()
+{
+    return jsGc_;
+}
+
 const JsGc& JsEngine::GetGcEngine() const
 {
     return jsGc_;

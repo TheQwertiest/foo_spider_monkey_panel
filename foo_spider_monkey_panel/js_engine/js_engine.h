@@ -42,6 +42,7 @@ public: // methods accessed by JsContainer
     void OnJsActionEnd( JsContainer& jsContainer );
 
 public: // methods accessed by js objects
+    JsGc& GetGcEngine();
     const JsGc& GetGcEngine() const;
     JsInternalGlobal& GetInternalGlobal();
 

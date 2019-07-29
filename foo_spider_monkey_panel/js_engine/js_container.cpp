@@ -3,6 +3,7 @@
 
 #include <js_engine/js_engine.h>
 #include <js_engine/js_compartment_inner.h>
+#include <js_engine/js_gc.h>
 #include <js_objects/global_object.h>
 #include <js_objects/gdi_graphics.h>
 #include <js_objects/drop_source_action.h>
@@ -137,6 +138,8 @@ void JsContainer::Finalize()
 
     pNativeGlobal_ = nullptr;
     jsGlobal_.reset();
+
+    (void)JsEngine::GetInstance().GetGcEngine().TriggerGc();
 }
 
 void JsContainer::Fail( const pfc::string8_fast& errorText )

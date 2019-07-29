@@ -41,7 +41,9 @@ public:
 protected:
     virtual void notify_size_limit_changed( LPARAM lp ) = 0;
 
-    LRESULT on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp );
+    // ui_helpers::container_window
+    LRESULT on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp ) override;
+
     bool show_configure_popup( HWND parent );
     void show_property_popup( HWND parent );
 

@@ -26,6 +26,8 @@ public:
     void Finalize();
 
     bool MaybeGc();
+    // @brief Force gc trigger (e.g. on panel unload)
+    bool TriggerGc();
 
 private:
     enum class GcLevel : uint8_t
@@ -58,6 +60,7 @@ private:
 private:
     JSContext* pJsCtx_ = nullptr;
 
+    bool isManuallyTriggered_ = false;
     bool isHighFrequency_ = false;
     uint32_t lastGcCheckTime_ = 0;
     uint32_t lastGcTime_ = 0;
