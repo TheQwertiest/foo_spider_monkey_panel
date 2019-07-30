@@ -30,27 +30,27 @@ public:
 public:
     ~JsFbProfiler();
 
-    static std::unique_ptr<JsFbProfiler> CreateNative( JSContext* cx, const pfc::string8_fast& name );
-    static size_t GetInternalSize( const pfc::string8_fast& name );
+    static std::unique_ptr<JsFbProfiler> CreateNative( JSContext* cx, const std::u8string& name );
+    static size_t GetInternalSize( const std::u8string& name );
 
 public: // ctor
-    static JSObject* Constructor( JSContext* cx, const pfc::string8_fast& name = "" );
-    static JSObject* ConstructorWithOpt( JSContext* cx, size_t optArgCount, const pfc::string8_fast& name );
+    static JSObject* Constructor( JSContext* cx, const std::u8string& name = "" );
+    static JSObject* ConstructorWithOpt( JSContext* cx, size_t optArgCount, const std::u8string& name );
 
 public:
-    void Print( const pfc::string8_fast& additionalMsg = "", bool printComponentInfo = true );
-    void PrintWithOpt( size_t optArgCount, const pfc::string8_fast& additionalMsg, bool printComponentInfo );
+    void Print( const std::u8string& additionalMsg = "", bool printComponentInfo = true );
+    void PrintWithOpt( size_t optArgCount, const std::u8string& additionalMsg, bool printComponentInfo );
     void Reset();
 
 public:
     uint32_t get_Time();
 
 private:
-    JsFbProfiler( JSContext* cx, const pfc::string8_fast& name );
+    JsFbProfiler( JSContext* cx, const std::u8string& name );
 
 private:
     JSContext* pJsCtx_ = nullptr;
-    pfc::string_simple name_;
+    std::u8string name_;
     pfc::hires_timer timer_;
 };
 

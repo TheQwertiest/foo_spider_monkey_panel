@@ -224,8 +224,14 @@ StrCmpLogicalCmpData::StrCmpLogicalCmpData( const std::wstring& textId, size_t i
 {
 }
 
+StrCmpLogicalCmpData::StrCmpLogicalCmpData( const std::u8string& textId, size_t index )
+    : textId( make_sort_string( textId.c_str()) )
+    , index( index )
+{
+}
+
 StrCmpLogicalCmpData::StrCmpLogicalCmpData( const pfc::string8_fast& textId, size_t index )
-    : textId( make_sort_string( textId ) )
+    : textId( make_sort_string( textId.c_str() ) )
     , index( index )
 {
 }

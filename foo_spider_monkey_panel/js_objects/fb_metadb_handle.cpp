@@ -228,12 +228,12 @@ double JsFbMetadbHandle::get_Length()
     return metadbHandle_->get_length();
 }
 
-pfc::string8_fast JsFbMetadbHandle::get_Path()
+std::u8string JsFbMetadbHandle::get_Path()
 {
-    return pfc::string8_fast( file_path_display( metadbHandle_->get_path() ) );
+    return std::u8string( file_path_display( metadbHandle_->get_path() ) );
 }
 
-pfc::string8_fast JsFbMetadbHandle::get_RawPath()
+std::u8string JsFbMetadbHandle::get_RawPath()
 {
     return metadbHandle_->get_path();
 }

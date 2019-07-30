@@ -101,11 +101,11 @@ bool JsMainMenuManager::ExecuteByID( uint32_t id )
     return menuManager_->execute_command( id );
 }
 
-void JsMainMenuManager::Init( const pfc::string8_fast& root_name )
+void JsMainMenuManager::Init( const std::u8string& root_name )
 {
     const auto preparedRootName = [&root_name]() -> std::string {
         // Don't care about UTF8 here: we need exact match
-        return std::string_view{ root_name.c_str() }
+        return std::string_view{ root_name }
                | ranges::view::transform( []( auto i ) { return static_cast<char>( ::tolower( i ) ); } );
     }();
 

@@ -55,7 +55,7 @@
     <ClCompile>
       <AdditionalIncludeDirectories>$(ProjectDir);$(IncludePath);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalOptions>/Zm200 /experimental:preprocessor %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/Zm200 /experimental:preprocessor /Zc:__cplusplus %(AdditionalOptions)</AdditionalOptions>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <DisableSpecificWarnings>5105</DisableSpecificWarnings>
       <TreatWarningAsError>true</TreatWarningAsError>
@@ -291,7 +291,6 @@
     <ClInclude Include="panel_tooltip_param.h" />
     <ClInclude Include="scintilla\editorctrl.h" />
     <ClInclude Include="scintilla\scintilla_prop_sets.h" />
-    <ClInclude Include="scintilla\SString.h" />
     <ClInclude Include="scintilla\wtlscintilla.h" />
     <ClInclude Include="smp_exception.h" />
     <ClInclude Include="component_defines.h" />

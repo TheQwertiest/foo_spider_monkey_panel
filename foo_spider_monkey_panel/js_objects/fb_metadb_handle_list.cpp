@@ -318,7 +318,7 @@ void JsFbMetadbHandleList::AddRange( JsFbMetadbHandleList* handles )
     metadbHandleList_.add_items( handles->GetHandleList() );
 }
 
-void JsFbMetadbHandleList::AttachImage( const pfc::string8_fast& image_path, uint32_t art_id )
+void JsFbMetadbHandleList::AttachImage( const std::u8string& image_path, uint32_t art_id )
 {
     t_size count = metadbHandleList_.get_count();
     if ( !count )
@@ -333,7 +333,7 @@ void JsFbMetadbHandleList::AttachImage( const pfc::string8_fast& image_path, uin
     try
     {
         pfc::string8_fast canPath;
-        filesystem::g_get_canonical_path( image_path, canPath );
+        filesystem::g_get_canonical_path( image_path.c_str(), canPath );
 
         file::ptr file;
 
@@ -611,7 +611,7 @@ void JsFbMetadbHandleList::Sort()
     metadbHandleList_.sort_by_pointer_remove_duplicates();
 }
 
-void JsFbMetadbHandleList::UpdateFileInfoFromJSON( const pfc::string8_fast& str )
+void JsFbMetadbHandleList::UpdateFileInfoFromJSON( const std::u8string& str )
 {
     using json = nlohmann::json;
 
@@ -624,7 +624,7 @@ void JsFbMetadbHandleList::UpdateFileInfoFromJSON( const pfc::string8_fast& str 
     const auto jsonObject = [&str] {
         try
         {
-            return json::parse( str.c_str() );
+            return json::parse( str );
         }
         catch ( const json::parse_error& e )
         {

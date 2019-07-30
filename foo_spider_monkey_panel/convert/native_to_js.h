@@ -63,6 +63,9 @@ template <>
 void ToValue( JSContext* cx, const pfc::string8_fast& inValue, JS::MutableHandleValue wrappedValue );
 
 template <>
+void ToValue( JSContext* cx, const std::u8string& inValue, JS::MutableHandleValue wrappedValue );
+
+template <>
 void ToValue( JSContext* cx, const std::wstring_view& inValue, JS::MutableHandleValue wrappedValue );
 
 template <>

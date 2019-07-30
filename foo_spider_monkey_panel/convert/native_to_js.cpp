@@ -90,7 +90,20 @@ void ToValue( JSContext *, const float& inValue, JS::MutableHandleValue wrappedV
 }
 
 template <>
-void ToValue( JSContext * cx, const pfc::string8_fast& inValue, JS::MutableHandleValue wrappedValue )
+void ToValue( JSContext* cx, const pfc::string8_fast& inValue, JS::MutableHandleValue wrappedValue )
+{
+    size_t stringLen = MultiByteToWideChar( CP_UTF8, 0, inValue.c_str(), inValue.length(), nullptr, 0 );
+    std::wstring strVal;
+    strVal.resize( stringLen );
+
+    stringLen = MultiByteToWideChar( CP_UTF8, 0, inValue.c_str(), inValue.length(), strVal.data(), strVal.size() );
+    strVal.resize( stringLen );
+
+    ToValue<std::wstring_view>( cx, strVal, wrappedValue );
+}
+
+template <>
+void ToValue( JSContext* cx, const std::u8string& inValue, JS::MutableHandleValue wrappedValue )
 {
     size_t stringLen = MultiByteToWideChar( CP_UTF8, 0, inValue.c_str(), inValue.length(), nullptr, 0 );
     std::wstring strVal;

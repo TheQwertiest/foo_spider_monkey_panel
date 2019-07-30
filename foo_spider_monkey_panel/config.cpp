@@ -130,8 +130,7 @@ bool PanelProperties::g_load_json( config_map& data, stream_reader& reader, abor
             }
             else if ( value.is_string() )
             {
-                const auto strVal = value.get<std::string>();
-                serializedValue = pfc::string8_fast{ strVal.c_str(), strVal.length() };
+                serializedValue = value.get<std::string>();
             }
             else
             {
@@ -192,7 +191,8 @@ void PanelProperties::g_save_json( const config_map& data, stream_writer& writer
 
             std::visit( [&jsonValues, &propNameU8]( auto&& arg ) {
                 jsonValues.push_back( { propNameU8, arg } );
-            }, serializedValue );
+            },
+                        serializedValue );
         }
 
         jsonMain.push_back( { "values", jsonValues } );
@@ -251,7 +251,7 @@ const EdgeStyle& PanelSettings::get_edge_style() const
     return m_edge_style;
 }
 
-pfc::string_base& PanelSettings::get_script_code()
+std::u8string& PanelSettings::get_script_code()
 {
     return m_script_code;
 }
@@ -261,15 +261,17 @@ PanelProperties& PanelSettings::get_config_prop()
     return m_config_prop;
 }
 
-pfc::string8_fast PanelSettings::get_default_script_code()
+std::u8string PanelSettings::get_default_script_code()
 {
-    pfc::string8_fast scriptCode;
     puResource puRes = uLoadResource( core_api::get_my_instance(), uMAKEINTRESOURCE( IDR_SCRIPT ), "SCRIPT" );
     if ( puRes )
     {
-        scriptCode.set_string( reinterpret_cast<const char*>( puRes->GetPointer() ), puRes->GetSize() );
+        return std::u8string{ reinterpret_cast<const char*>( puRes->GetPointer() ), puRes->GetSize() };
     }
-    return scriptCode;
+    else
+    {
+        return std::u8string{};
+    }
 }
 
 EdgeStyle& PanelSettings::get_edge_style()
@@ -300,7 +302,9 @@ void PanelSettings::load_config( stream_reader* reader, t_size size, abort_callb
             reader->skip_object( sizeof( false ), abort ); // HACK: skip over "disable before"
             reader->read_object_t( m_grab_focus, abort );
             reader->read_object( &m_wndpl, sizeof( m_wndpl ), abort );
-            reader->read_string( m_script_code, abort );
+            pfc::string8_fast tmp;
+            reader->read_string( tmp, abort );
+            m_script_code = tmp.c_str();
             reader->read_object_t( m_pseudo_transparent, abort );
         }
         catch ( const pfc::exception& )
@@ -334,7 +338,7 @@ void PanelSettings::save_config( stream_writer* writer, abort_callback& abort ) 
         writer->write_object_t( false, abort ); // HACK: write this in place of "disable before"
         writer->write_object_t( m_grab_focus, abort );
         writer->write_object( &m_wndpl, sizeof( m_wndpl ), abort );
-        writer->write_string( m_script_code, abort );
+        writer->write_string( m_script_code.c_str(), abort );
         writer->write_object_t( m_pseudo_transparent, abort );
     }
     catch ( const pfc::exception& )

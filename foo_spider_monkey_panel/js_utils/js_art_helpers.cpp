@@ -35,14 +35,14 @@ public:
     ~JsAlbumArtTask() override = default;
 
     void SetData( std::unique_ptr<Gdiplus::Bitmap> image,
-                  const pfc::string8_fast& path );
+                  const std::u8string& path );
 
 private:
     bool InvokeJsImpl( JSContext* cx, JS::HandleObject jsGlobal, JS::HandleValue jsPromiseValue ) override;
 
 private:
     std::unique_ptr<Gdiplus::Bitmap> image_;
-    pfc::string8_fast path_;
+    std::u8string path_;
 };
 
 class AlbumArtV2FetchTask
@@ -69,7 +69,7 @@ public:
 private:
     HWND hNotifyWnd_;
     metadb_handle_ptr handle_;
-    pfc::string8_fast rawPath_;
+    std::u8string rawPath_;
     uint32_t artId_;
     bool needStub_;
     bool onlyEmbed_;
@@ -112,7 +112,7 @@ void AlbumArtV2FetchTask::operator()()
         return;
     }
 
-    pfc::string8_fast imagePath;
+    std::u8string imagePath;
     std::unique_ptr<Gdiplus::Bitmap> bitmap = smp::art::GetBitmapFromMetadbOrEmbed( handle_, artId_, needStub_, onlyEmbed_, noLoad_, &imagePath );
 
     jsTask_->SetData( std::move( bitmap ), imagePath );
@@ -130,7 +130,7 @@ JsAlbumArtTask::JsAlbumArtTask( JSContext* cx,
 {
 }
 
-void JsAlbumArtTask::SetData( std::unique_ptr<Gdiplus::Bitmap> image, const pfc::string8_fast& path )
+void JsAlbumArtTask::SetData( std::unique_ptr<Gdiplus::Bitmap> image, const std::u8string& path )
 {
     image_ = std::move( image );
     path_ = path;

@@ -576,9 +576,6 @@
     <ClInclude Include="scintilla\scintilla_prop_sets.h">
       <Filter>scintilla</Filter>
     </ClInclude>
-    <ClInclude Include="scintilla\SString.h">
-      <Filter>scintilla</Filter>
-    </ClInclude>
     <ClInclude Include="scintilla\wtlscintilla.h">
       <Filter>scintilla</Filter>
     </ClInclude>

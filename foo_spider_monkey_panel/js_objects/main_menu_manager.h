@@ -37,7 +37,7 @@ public:
 public:
     void BuildMenu( JsMenuObject* p, int32_t base_id, int32_t count );
     bool ExecuteByID( uint32_t id );
-    void Init( const pfc::string8_fast& root_name );
+    void Init( const std::u8string& root_name );
 
 private:
     JsMainMenuManager( JSContext* cx );

@@ -34,11 +34,11 @@ constexpr uint32_t kJobsMaxBudgetMs = 500;
 namespace
 {
 
-void ReportException( const pfc::string8_fast& errorText )
+void ReportException( const std::u8string& errorText )
 {
-    const pfc::string8_fast errorTextPadded = [&errorText]() {
-        pfc::string8_fast text = "Critical JS engine error: " SMP_NAME_WITH_VERSION;
-        if ( !errorText.is_empty() )
+    const std::u8string errorTextPadded = [&errorText]() {
+        std::u8string text = "Critical JS engine error: " SMP_NAME_WITH_VERSION;
+        if ( !errorText.empty() )
         {
             text += "\n";
             text += errorText;

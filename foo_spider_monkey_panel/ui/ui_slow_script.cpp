@@ -6,7 +6,7 @@ namespace smp::ui
 
 // TODO: add question icon like here - https://www.google.com/search?q=firefox+slow+script+warning&tbm=isch
 
-CDialogSlowScript::CDialogSlowScript( const pfc::string8_fast& panelName, const pfc::string8_fast& scriptInfo, CDialogSlowScript::Data& data )
+CDialogSlowScript::CDialogSlowScript( const std::u8string& panelName, const std::u8string& scriptInfo, CDialogSlowScript::Data& data )
     : panelName_( panelName )
     , scriptInfo_( scriptInfo )
     , data_( data )
@@ -18,23 +18,21 @@ LRESULT CDialogSlowScript::OnInitDialog( HWND hwndFocus, LPARAM lParam )
     (void)CenterWindow();
 
     const auto text = [& panelName = panelName_, &scriptInfo = scriptInfo_] {
-        pfc::string8_fast tmp;
-        if ( !panelName.is_empty() )
+        std::u8string tmp;
+        if ( !panelName.empty() )
         {
-            tmp += "Panel: ";
-            tmp += panelName;
+            tmp += fmt::format( "Panel: {}", panelName );
         }
-        if ( !scriptInfo.is_empty() )
+        if ( !scriptInfo.empty() )
         {
-            if ( !tmp.is_empty() )
+            if ( !tmp.empty() )
             {
                 tmp += "\n";
             }
-            tmp += "Script: ";
-            tmp += scriptInfo;
+            tmp += fmt::format( "Script: {}", scriptInfo );
         }
 
-        if ( tmp.is_empty() )
+        if ( tmp.empty() )
         {
             tmp = "<Unable to fetch panel info>";
         }
@@ -42,7 +40,7 @@ LRESULT CDialogSlowScript::OnInitDialog( HWND hwndFocus, LPARAM lParam )
         return tmp;
     }();
 
-    (void)uSetWindowText( GetDlgItem( IDC_SLOWSCRIPT_SCRIPT_NAME ), text );
+    (void)uSetWindowText( GetDlgItem( IDC_SLOWSCRIPT_SCRIPT_NAME ), text.c_str() );
 
     return FALSE; // set focus to default control
 }

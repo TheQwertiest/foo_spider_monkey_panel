@@ -142,7 +142,7 @@ void JsContainer::Finalize()
     (void)JsEngine::GetInstance().GetGcEngine().TriggerGc();
 }
 
-void JsContainer::Fail( const pfc::string8_fast& errorText )
+void JsContainer::Fail( const std::u8string& errorText )
 {
     Finalize();
     if ( JsStatus::EngineFailed != jsStatus_ )
@@ -151,12 +151,10 @@ void JsContainer::Fail( const pfc::string8_fast& errorText )
     }
 
     assert( pParentPanel_ );
-    const pfc::string8_fast errorTextPadded = [pParentPanel = pParentPanel_, &errorText]() {
-        pfc::string8_fast text = "Error: " SMP_NAME_WITH_VERSION;
-        text += " (";
-        text += pParentPanel->ScriptInfo().build_info_string();
-        text += ")";
-        if ( !errorText.is_empty() )
+    const std::u8string errorTextPadded = [pParentPanel = pParentPanel_, &errorText]() {
+        std::u8string text =
+            fmt::format( "Error: " SMP_NAME_WITH_VERSION " ({})", pParentPanel->ScriptInfo().build_info_string() );
+        if ( !errorText.empty() )
         {
             text += "\n";
             text += errorText;
@@ -165,7 +163,7 @@ void JsContainer::Fail( const pfc::string8_fast& errorText )
         return text;
     }();
 
-    FB2K_console_formatter() << errorTextPadded;
+    FB2K_console_formatter() << errorTextPadded.c_str();
     pParentPanel_->JsEngineFail( errorTextPadded );
 }
 
@@ -174,7 +172,7 @@ JsContainer::JsStatus JsContainer::GetStatus() const
     return jsStatus_;
 }
 
-bool JsContainer::ExecuteScript( const pfc::string8_fast& scriptCode )
+bool JsContainer::ExecuteScript( const std::u8string& scriptCode )
 {
     assert( pJsCtx_ );
     assert( jsGlobal_.initialized() );
@@ -209,7 +207,7 @@ smp::panel::js_panel_window& JsContainer::GetParentPanel() const
     return *pParentPanel_;
 }
 
-void JsContainer::InvokeOnDragAction( const pfc::string8_fast& functionName, const POINTL& pt, uint32_t keyState, panel::DropActionParams& actionParams )
+void JsContainer::InvokeOnDragAction( const std::u8string& functionName, const POINTL& pt, uint32_t keyState, panel::DropActionParams& actionParams )
 {
     if ( !IsReadyForCallback() )
     {

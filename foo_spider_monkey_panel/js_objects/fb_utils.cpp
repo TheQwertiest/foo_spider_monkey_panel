@@ -275,12 +275,12 @@ JSObject* JsFbUtils::CreateMainMenuManager()
     return JsMainMenuManager::CreateJs( pJsCtx_ );
 }
 
-JSObject* JsFbUtils::CreateProfiler( const pfc::string8_fast& name )
+JSObject* JsFbUtils::CreateProfiler( const std::u8string& name )
 {
     return JsFbProfiler::Constructor( pJsCtx_, name );
 }
 
-JSObject* JsFbUtils::CreateProfilerWithOpt( size_t optArgCount, const pfc::string8_fast& name )
+JSObject* JsFbUtils::CreateProfilerWithOpt( size_t optArgCount, const std::u8string& name )
 {
     switch ( optArgCount )
     {
@@ -380,7 +380,7 @@ JSObject* JsFbUtils::GetClipboardContents( uint32_t hWindow )
     return JsFbMetadbHandleList::CreateJs( pJsCtx_, items );
 }
 
-pfc::string8_fast JsFbUtils::GetDSPPresets()
+std::u8string JsFbUtils::GetDSPPresets()
 {
     SmpException::ExpectTrue( static_api_test_t<dsp_config_manager_v2>(), "This method requires foobar2000 v1.4 or later" );
 
@@ -402,7 +402,7 @@ pfc::string8_fast JsFbUtils::GetDSPPresets()
                        { "active", config.m_output == output_id && config.m_device == device_id } } );
     } );
 
-    return j.dump().c_str();
+    return j.dump();
 }
 
 JSObject* JsFbUtils::GetFocusItem( bool force )
@@ -450,7 +450,6 @@ pfc::string8_fast JsFbUtils::GetLibraryRelativePath( JsFbMetadbHandle* handle )
 
     pfc::string8_fast temp;
     library_manager::get()->get_relative_path( handle->GetHandle(), temp );
-
     return temp;
 }
 
@@ -465,7 +464,7 @@ JSObject* JsFbUtils::GetNowPlaying()
     return JsFbMetadbHandle::CreateJs( pJsCtx_, metadb );
 }
 
-pfc::string8_fast JsFbUtils::GetOutputDevices()
+std::u8string JsFbUtils::GetOutputDevices()
 {
     SmpException::ExpectTrue( static_api_test_t<output_manager_v2>(), "This method requires foobar2000 v1.4 or later" );
 
@@ -478,7 +477,7 @@ pfc::string8_fast JsFbUtils::GetOutputDevices()
     api->getCoreConfig( config );
 
     api->listDevices( [&j, &config]( pfc::string8&& name, auto&& output_id, auto&& device_id ) {
-        std::string name_string( name.get_ptr(), name.length() );
+        std::string name_string( name.c_str(), name.length() );
         std::string output_string = pfc::print_guid( output_id ).get_ptr();
         std::string device_string = pfc::print_guid( device_id ).get_ptr();
 
@@ -489,10 +488,10 @@ pfc::string8_fast JsFbUtils::GetOutputDevices()
               { "active", config.m_output == output_id && config.m_device == device_id } } );
     } );
 
-    return j.dump().c_str();
+    return j.dump();
 }
 
-JSObject* JsFbUtils::GetQueryItems( JsFbMetadbHandleList* handles, const pfc::string8_fast& query )
+JSObject* JsFbUtils::GetQueryItems( JsFbMetadbHandleList* handles, const std::u8string& query )
 {
     SmpException::ExpectTrue( handles, "handles argument is null" );
 
@@ -578,7 +577,7 @@ bool JsFbUtils::IsLibraryEnabled()
     return library_manager::get()->is_library_enabled();
 }
 
-bool JsFbUtils::IsMainMenuCommandChecked( const pfc::string8_fast& command )
+bool JsFbUtils::IsMainMenuCommandChecked( const std::u8string& command )
 {
     t_uint32 status;
     utils::get_mainmenu_command_status_by_name( command.c_str(), status );
@@ -629,13 +628,13 @@ void JsFbUtils::Random()
     standard_commands::main_random();
 }
 
-bool JsFbUtils::RunContextCommand( const pfc::string8_fast& command, uint32_t flags )
+bool JsFbUtils::RunContextCommand( const std::u8string& command, uint32_t flags )
 {
     metadb_handle_list dummy_list;
     return utils::execute_context_command_by_name( command.c_str(), dummy_list, flags );
 }
 
-bool JsFbUtils::RunContextCommandWithOpt( size_t optArgCount, const pfc::string8_fast& command, uint32_t flags )
+bool JsFbUtils::RunContextCommandWithOpt( size_t optArgCount, const std::u8string& command, uint32_t flags )
 {
     switch ( optArgCount )
     {
@@ -648,7 +647,7 @@ bool JsFbUtils::RunContextCommandWithOpt( size_t optArgCount, const pfc::string8
     }
 }
 
-bool JsFbUtils::RunContextCommandWithMetadb( const pfc::string8_fast& command, JS::HandleValue handle, uint32_t flags )
+bool JsFbUtils::RunContextCommandWithMetadb( const std::u8string& command, JS::HandleValue handle, uint32_t flags )
 {
     SmpException::ExpectTrue( handle.isObject(), "handle argument is invalid" );
 
@@ -671,7 +670,7 @@ bool JsFbUtils::RunContextCommandWithMetadb( const pfc::string8_fast& command, J
     return utils::execute_context_command_by_name( command.c_str(), handle_list, flags );
 }
 
-bool JsFbUtils::RunContextCommandWithMetadbWithOpt( size_t optArgCount, const pfc::string8_fast& command, JS::HandleValue handle, uint32_t flags )
+bool JsFbUtils::RunContextCommandWithMetadbWithOpt( size_t optArgCount, const std::u8string& command, JS::HandleValue handle, uint32_t flags )
 {
     switch ( optArgCount )
     {
@@ -684,7 +683,7 @@ bool JsFbUtils::RunContextCommandWithMetadbWithOpt( size_t optArgCount, const pf
     }
 }
 
-bool JsFbUtils::RunMainMenuCommand( const pfc::string8_fast& command )
+bool JsFbUtils::RunMainMenuCommand( const std::u8string& command )
 {
     return utils::execute_mainmenu_command_by_name( command.c_str() );
 }
@@ -724,19 +723,19 @@ void JsFbUtils::ShowConsole()
     standard_commands::run_main( guid_main_show_console );
 }
 
-void JsFbUtils::ShowLibrarySearchUI( const pfc::string8_fast& query )
+void JsFbUtils::ShowLibrarySearchUI( const std::u8string& query )
 {
     library_search_ui::get()->show( query.c_str() );
 }
 
-void JsFbUtils::ShowPopupMessage( const pfc::string8_fast& msg, const pfc::string8_fast& title )
+void JsFbUtils::ShowPopupMessage( const std::u8string& msg, const std::u8string& title )
 {
     smp::utils::DelayedExecutor::GetInstance().AddTask( [msg, title] {
         popup_message::g_show( msg.c_str(), title.c_str() );
     } );
 }
 
-void JsFbUtils::ShowPopupMessageWithOpt( size_t optArgCount, const pfc::string8_fast& msg, const pfc::string8_fast& title )
+void JsFbUtils::ShowPopupMessageWithOpt( size_t optArgCount, const std::u8string& msg, const std::u8string& title )
 {
     switch ( optArgCount )
     {
@@ -759,7 +758,7 @@ void JsFbUtils::Stop()
     standard_commands::main_stop();
 }
 
-JSObject* JsFbUtils::TitleFormat( const pfc::string8_fast& expression )
+JSObject* JsFbUtils::TitleFormat( const std::u8string& expression )
 {
     return JsFbTitleFormat::Constructor( pJsCtx_, expression );
 }
@@ -784,7 +783,7 @@ bool JsFbUtils::get_AlwaysOnTop()
     return config_object::g_get_data_bool_simple( standard_config_objects::bool_ui_always_on_top, false );
 }
 
-pfc::string8_fast JsFbUtils::get_ComponentPath()
+std::u8string JsFbUtils::get_ComponentPath()
 {
     return smp::get_fb2k_component_path();
 }
@@ -794,7 +793,7 @@ bool JsFbUtils::get_CursorFollowPlayback()
     return config_object::g_get_data_bool_simple( standard_config_objects::bool_cursor_follows_playback, false );
 }
 
-pfc::string8_fast JsFbUtils::get_FoobarPath()
+std::u8string JsFbUtils::get_FoobarPath()
 {
     return smp::get_fb2k_path();
 }
@@ -824,7 +823,7 @@ double JsFbUtils::get_PlaybackTime()
     return playback_control::get()->playback_get_position();
 }
 
-pfc::string8_fast JsFbUtils::get_ProfilePath()
+std::u8string JsFbUtils::get_ProfilePath()
 {
     return smp::get_profile_path();
 }

@@ -66,7 +66,7 @@ void js_panel_window::update_script( const char* code )
     }
 }
 
-void js_panel_window::JsEngineFail( const pfc::string8_fast& errorText )
+void js_panel_window::JsEngineFail( const std::u8string& errorText )
 {
     smp::utils::ShowErrorPopup( errorText.c_str() );
     SendMessage( hWnd_, static_cast<UINT>( InternalSyncMessage::script_error ), 0, 0 );
@@ -725,13 +725,13 @@ void js_panel_window::execute_context_menu_command( uint32_t id, uint32_t id_bas
     }
     case 2:
     {
-        pfc::stringcvt::string_os_from_utf8 folder( smp::get_fb2k_component_path() );
+        pfc::stringcvt::string_os_from_utf8 folder( smp::get_fb2k_component_path().c_str() );
         ShellExecute( nullptr, L"open", folder, nullptr, nullptr, SW_SHOW );
         break;
     }
     case 3:
     {
-        pfc::stringcvt::string_os_from_utf8 htmlHelp( smp::get_fb2k_component_path() + "docs\\html\\index.html" );
+        pfc::stringcvt::string_os_from_utf8 htmlHelp( ( smp::get_fb2k_component_path() + "docs\\html\\index.html" ).c_str() );
         ShellExecute( nullptr, L"open", htmlHelp, nullptr, nullptr, SW_SHOW );
         break;
     }
@@ -1132,7 +1132,7 @@ void js_panel_window::on_font_changed()
 
 void js_panel_window::on_get_album_art_done( CallbackData& callbackData )
 {
-    auto& data = callbackData.GetData<metadb_handle_ptr, uint32_t, std::unique_ptr<Gdiplus::Bitmap>, pfc::string8_fast>();
+    auto& data = callbackData.GetData<metadb_handle_ptr, uint32_t, std::unique_ptr<Gdiplus::Bitmap>, std::u8string>();
     auto autoRet = pJsContainer_->InvokeJsCallback( "on_get_album_art_done",
                                                     std::get<0>( data ),
                                                     std::get<1>( data ),
@@ -1170,7 +1170,7 @@ void js_panel_window::on_key_up( WPARAM wp )
 
 void js_panel_window::on_load_image_done( CallbackData& callbackData )
 {
-    auto& data = callbackData.GetData<uint32_t, std::unique_ptr<Gdiplus::Bitmap>, pfc::string8_fast>();
+    auto& data = callbackData.GetData<uint32_t, std::unique_ptr<Gdiplus::Bitmap>, std::u8string>();
     auto autoRet = pJsContainer_->InvokeJsCallback( "on_load_image_done",
                                                     std::get<0>( data ),
                                                     std::move( std::get<1>( data ) ),

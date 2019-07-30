@@ -9,7 +9,7 @@ using namespace smp;
 namespace
 {
 
-pfc::string8_fast MessageFromErrorCode( DWORD errorCode )
+std::u8string MessageFromErrorCode( DWORD errorCode )
 {
     LPVOID lpMsgBuf;
 
@@ -23,7 +23,7 @@ pfc::string8_fast MessageFromErrorCode( DWORD errorCode )
         nullptr );
     if ( !dwRet )
     {
-        return pfc::string8_fast();
+        return std::u8string();
     }
 
     utils::final_action autoMsg( [lpMsgBuf] {

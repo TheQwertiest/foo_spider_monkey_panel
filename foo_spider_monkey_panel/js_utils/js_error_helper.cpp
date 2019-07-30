@@ -16,7 +16,7 @@ namespace
 
 using namespace mozjs;
 
-pfc::string8_fast GetStackTraceString( JSContext* cx, JS::HandleObject exn )
+std::u8string GetStackTraceString( JSContext* cx, JS::HandleObject exn )
 {
     // Exceptions thrown while compiling top-level script have no stack.
     JS::RootedObject stackObj( cx, JS::ExceptionStackOrNull( exn ) );
@@ -24,7 +24,7 @@ pfc::string8_fast GetStackTraceString( JSContext* cx, JS::HandleObject exn )
     { // quack?
         try
         { // Must not throw errors in error handler
-            return GetOptionalProperty<pfc::string8_fast>( cx, exn, "stack" ).value_or( "" );
+            return GetOptionalProperty<std::u8string>( cx, exn, "stack" ).value_or( "" );
         }
         catch ( ... )
         {
@@ -46,18 +46,18 @@ pfc::string8_fast GetStackTraceString( JSContext* cx, JS::HandleObject exn )
         return "";
     }
 
-    pfc::string8_fast outString( encodedString );
+    std::u8string outString( encodedString );
     JS_free( cx, (void*)encodedString );
 
     return outString;
 }
 
-bool PrependTextToJsStringException( JSContext* cx, JS::HandleValue excn, const pfc::string8_fast& text )
+bool PrependTextToJsStringException( JSContext* cx, JS::HandleValue excn, const std::u8string& text )
 {
-    pfc::string8_fast currentMessage;
+    std::u8string currentMessage;
     try
     { // Must not throw errors in error handler
-        currentMessage = convert::to_native::ToValue<pfc::string8_fast>( cx, excn );
+        currentMessage = convert::to_native::ToValue<std::u8string>( cx, excn );
     }
     catch ( const smp::JsException& )
     {
@@ -68,13 +68,13 @@ bool PrependTextToJsStringException( JSContext* cx, JS::HandleValue excn, const 
         return false;
     }
 
-    if ( currentMessage == pfc::string8_fast( "out of memory" ) )
+    if ( currentMessage == std::u8string( "out of memory" ) )
     { // Can't modify the message since we're out of memory
         return true;
     }
 
-    const pfc::string8_fast newMessage = [&text, &currentMessage] {
-        pfc::string8_fast newMessage;
+    const std::u8string newMessage = [&text, &currentMessage] {
+        std::u8string newMessage;
         newMessage += text;
         if ( currentMessage.length() )
         {
@@ -88,7 +88,7 @@ bool PrependTextToJsStringException( JSContext* cx, JS::HandleValue excn, const 
     JS::RootedValue jsMessage( cx );
     try
     { // Must not throw errors in error handler
-        convert::to_js::ToValue<pfc::string8_fast>( cx, newMessage, &jsMessage );
+        convert::to_js::ToValue<std::u8string>( cx, newMessage, &jsMessage );
     }
     catch ( const smp::JsException& )
     {
@@ -103,7 +103,7 @@ bool PrependTextToJsStringException( JSContext* cx, JS::HandleValue excn, const 
     return true;
 }
 
-bool PrependTextToJsObjectException( JSContext* cx, JS::HandleValue excn, const pfc::string8_fast& text )
+bool PrependTextToJsObjectException( JSContext* cx, JS::HandleValue excn, const std::u8string& text )
 {
     utils::final_action autoClearOnError{ [cx] { JS_ClearPendingException( cx ); } };
 
@@ -118,9 +118,9 @@ bool PrependTextToJsObjectException( JSContext* cx, JS::HandleValue excn, const 
 
     JSErrorReport* pReport = report.report();
 
-    pfc::string8_fast currentMessage = pReport->message().c_str();
-    const pfc::string8_fast newMessage = [&text, &currentMessage] {
-        pfc::string8_fast newMessage;
+    std::u8string currentMessage = pReport->message().c_str();
+    const std::u8string newMessage = [&text, &currentMessage] {
+        std::u8string newMessage;
         newMessage += text;
         if ( currentMessage.length() )
         {
@@ -135,8 +135,8 @@ bool PrependTextToJsObjectException( JSContext* cx, JS::HandleValue excn, const 
     JS::RootedValue jsMessage( cx );
     try
     { // Must not throw errors in error handler
-        convert::to_js::ToValue<pfc::string8_fast>( cx, pReport->filename, &jsFilename );
-        convert::to_js::ToValue<pfc::string8_fast>( cx, newMessage, &jsMessage );
+        convert::to_js::ToValue<std::u8string>( cx, pReport->filename, &jsFilename );
+        convert::to_js::ToValue<std::u8string>( cx, newMessage, &jsMessage );
     }
     catch ( ... )
     {
@@ -186,7 +186,7 @@ AutoJsReport::~AutoJsReport()
         return;
     }
 
-    pfc::string8_fast errorText = JsErrorToText( cx );
+    std::u8string errorText = JsErrorToText( cx );
     JS_ClearPendingException( cx );
 
     JS::RootedObject global( cx, JS::CurrentGlobalOrNull( cx ) );
@@ -212,7 +212,7 @@ void AutoJsReport::Disable()
     isDisabled_ = true;
 }
 
-pfc::string8_fast JsErrorToText( JSContext* cx )
+std::u8string JsErrorToText( JSContext* cx )
 {
     assert( JS_IsExceptionPending( cx ) );
 
@@ -224,12 +224,12 @@ pfc::string8_fast JsErrorToText( JSContext* cx )
         JS_ClearPendingException( cx );
     } );
 
-    pfc::string8_fast errorText;
+    std::u8string errorText;
     if ( excn.isString() )
     {
         try
         { // Must not throw errors in error handler
-            errorText = convert::to_native::ToValue<pfc::string8_fast>( cx, excn );
+            errorText = convert::to_native::ToValue<std::u8string>( cx, excn );
         }
         catch ( ... )
         {
@@ -251,13 +251,8 @@ pfc::string8_fast JsErrorToText( JSContext* cx )
         if ( pReport->filename )
         {
             errorText += "\n\n";
-            errorText += "File: ";
-            errorText += pReport->filename;
-            errorText += "\n";
-            errorText += "Line: ";
-            errorText += std::to_string( pReport->lineno ).c_str();
-            errorText += ", Column: ";
-            errorText += std::to_string( pReport->column ).c_str();
+            errorText += fmt::format( "File: {}\n", pReport->filename );
+            errorText += fmt::format( "Line: {}, Column: {}", std::to_string( pReport->lineno ), std::to_string( pReport->column ) );
             if ( pReport->linebufLength() )
             {
                 errorText += "\n";
@@ -273,8 +268,8 @@ pfc::string8_fast JsErrorToText( JSContext* cx )
         if ( excn.isObject() )
         {
             JS::RootedObject excnObject( cx, &excn.toObject() );
-            pfc::string8_fast stackTrace = GetStackTraceString( cx, excnObject );
-            if ( !stackTrace.is_empty() )
+            std::u8string stackTrace = GetStackTraceString( cx, excnObject );
+            if ( !stackTrace.empty() )
             {
                 errorText += "\n\n";
                 errorText += "Stack trace:\n";
@@ -305,9 +300,9 @@ void ExceptionToJsError( JSContext* cx )
     {
         JS_ClearPendingException( cx );
 
-        const pfc::string8_fast errorMsg8 = pfc::stringcvt::string_utf8_from_wide( e.ErrorMessage() ? (const wchar_t*)e.ErrorMessage() : L"<none>" ).get_ptr();
-        const pfc::string8_fast errorSource8 = pfc::stringcvt::string_utf8_from_wide( e.Source().length() ? (const wchar_t*)e.Source() : L"<none>" ).get_ptr();
-        const pfc::string8_fast errorDesc8 = pfc::stringcvt::string_utf8_from_wide( e.Description().length() ? (const wchar_t*)e.Description() : L"<none>" ).get_ptr();
+        const std::u8string errorMsg8 = pfc::stringcvt::string_utf8_from_wide( e.ErrorMessage() ? (const wchar_t*)e.ErrorMessage() : L"<none>" ).get_ptr();
+        const std::u8string errorSource8 = pfc::stringcvt::string_utf8_from_wide( e.Source().length() ? (const wchar_t*)e.Source() : L"<none>" ).get_ptr();
+        const std::u8string errorDesc8 = pfc::stringcvt::string_utf8_from_wide( e.Description().length() ? (const wchar_t*)e.Description() : L"<none>" ).get_ptr();
         JS_ReportErrorUTF8( cx, "COM error: message %s; source: %s; description: %s", errorMsg8.c_str(), errorSource8.c_str(), errorDesc8.c_str() );
     }
     catch ( const std::bad_alloc& )
@@ -343,7 +338,7 @@ void SuppressException( JSContext* cx )
     JS_ClearPendingException( cx );
 }
 
-void PrependTextToJsError( JSContext* cx, const pfc::string8_fast& text )
+void PrependTextToJsError( JSContext* cx, const std::u8string& text )
 {
     utils::final_action autoJsReport( [cx, text] {
         JS_ReportErrorUTF8( cx, "%s", text.c_str() );

@@ -17,7 +17,7 @@ bool Execute_JsSafe( JSContext* cx, std::string_view functionName, F&& func, Arg
 
     if ( JS_IsExceptionPending( cx ) )
     {
-        pfc::string8_fast additionalText = pfc::string8_fast( functionName.data(), functionName.size() );
+        std::u8string additionalText = std::u8string( functionName.data(), functionName.size() );
         additionalText += " failed";
         mozjs::error::PrependTextToJsError( cx, additionalText );
         return false;
@@ -39,9 +39,9 @@ private:
     bool isDisabled_ = false;
 };
 
-pfc::string8_fast JsErrorToText( JSContext* cx );
+std::u8string JsErrorToText( JSContext* cx );
 void ExceptionToJsError( JSContext* cx );
 void SuppressException( JSContext* cx );
-void PrependTextToJsError( JSContext* cx, const pfc::string8_fast& text );
+void PrependTextToJsError( JSContext* cx, const std::u8string& text );
 
 } // namespace mozjs::error

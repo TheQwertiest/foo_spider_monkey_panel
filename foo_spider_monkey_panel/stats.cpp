@@ -173,11 +173,11 @@ public:
             if ( g_client->hashHandle( stlHandleList.front(), hash ) )
             {
                 fields tmp = get( hash );
-                p_out.set_property( SMP_NAME, 0, "Playcount", pfc::format_uint( tmp.playcount ) );
-                p_out.set_property( SMP_NAME, 1, "Loved", pfc::format_uint( tmp.loved ) );
+                p_out.set_property( SMP_NAME, 0, "Playcount", std::to_string( tmp.playcount ).c_str() );
+                p_out.set_property( SMP_NAME, 1, "Loved", std::to_string( tmp.loved ).c_str() );
                 p_out.set_property( SMP_NAME, 2, "First Played", tmp.first_played );
                 p_out.set_property( SMP_NAME, 3, "Last Played", tmp.last_played );
-                p_out.set_property( SMP_NAME, 4, "Rating", pfc::format_uint( tmp.rating ) );
+                p_out.set_property( SMP_NAME, 4, "Rating", std::to_string( tmp.rating ).c_str() );
             }
         }
         else

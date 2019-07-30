@@ -244,7 +244,7 @@ void JsFbPlaylistManager::ClearPlaylistSelection( uint32_t playlistIndex )
     playlist_manager::get()->playlist_clear_selection( playlistIndex );
 }
 
-uint32_t JsFbPlaylistManager::CreateAutoPlaylist( uint32_t playlistIndex, const pfc::string8_fast& name, const pfc::string8_fast& query, const pfc::string8_fast& sort, uint32_t flags )
+uint32_t JsFbPlaylistManager::CreateAutoPlaylist( uint32_t playlistIndex, const std::u8string& name, const std::u8string& query, const std::u8string& sort, uint32_t flags )
 {
     const uint32_t upos = CreatePlaylist( playlistIndex, name );
     assert( pfc_infinite != upos );
@@ -261,7 +261,7 @@ uint32_t JsFbPlaylistManager::CreateAutoPlaylist( uint32_t playlistIndex, const 
     }
 }
 
-uint32_t JsFbPlaylistManager::CreateAutoPlaylistWithOpt( size_t optArgCount, uint32_t playlistIndex, const pfc::string8_fast& name, const pfc::string8_fast& query, const pfc::string8_fast& sort, uint32_t flags )
+uint32_t JsFbPlaylistManager::CreateAutoPlaylistWithOpt( size_t optArgCount, uint32_t playlistIndex, const std::u8string& name, const std::u8string& query, const std::u8string& sort, uint32_t flags )
 {
     switch ( optArgCount )
     {
@@ -276,12 +276,12 @@ uint32_t JsFbPlaylistManager::CreateAutoPlaylistWithOpt( size_t optArgCount, uin
     }
 }
 
-uint32_t JsFbPlaylistManager::CreatePlaylist( uint32_t playlistIndex, const pfc::string8_fast& name )
+uint32_t JsFbPlaylistManager::CreatePlaylist( uint32_t playlistIndex, const std::u8string& name )
 {
     auto api = playlist_manager::get();
 
     uint32_t upos;
-    if ( name.is_empty() )
+    if ( name.empty() )
     {
         upos = api->create_playlist_autoname( playlistIndex );
     }
@@ -293,7 +293,7 @@ uint32_t JsFbPlaylistManager::CreatePlaylist( uint32_t playlistIndex, const pfc:
     return upos;
 }
 
-uint32_t JsFbPlaylistManager::DuplicatePlaylist( uint32_t from, const pfc::string8_fast& name )
+uint32_t JsFbPlaylistManager::DuplicatePlaylist( uint32_t from, const std::u8string& name )
 {
     auto api = playlist_manager_v4::get();
 
@@ -302,7 +302,7 @@ uint32_t JsFbPlaylistManager::DuplicatePlaylist( uint32_t from, const pfc::strin
     metadb_handle_list contents;
     api->playlist_get_all_items( from, contents );
 
-    pfc::string8_fast uname = name;
+    pfc::string8_fast uname = name.c_str();
     if ( uname.is_empty() )
     {
         (void)api->playlist_get_name( from, uname );
@@ -310,13 +310,13 @@ uint32_t JsFbPlaylistManager::DuplicatePlaylist( uint32_t from, const pfc::strin
 
     stream_reader_dummy dummy_reader;
     auto& abort = smp::GlobalAbortCallback::GetInstance();
-    const uint32_t upos = api->create_playlist_ex( uname.get_ptr(), uname.get_length(), from + 1, contents, &dummy_reader, abort );
+    const uint32_t upos = api->create_playlist_ex( uname.c_str(), uname.length(), from + 1, contents, &dummy_reader, abort );
 
     assert( pfc_infinite != upos );
     return upos;
 }
 
-uint32_t JsFbPlaylistManager::DuplicatePlaylistWithOpt( size_t optArgCount, uint32_t from, const pfc::string8_fast& name )
+uint32_t JsFbPlaylistManager::DuplicatePlaylistWithOpt( size_t optArgCount, uint32_t from, const std::u8string& name )
 {
     switch ( optArgCount )
     {
@@ -339,7 +339,7 @@ bool JsFbPlaylistManager::ExecutePlaylistDefaultAction( uint32_t playlistIndex, 
     return playlist_manager::get()->playlist_execute_default_action( playlistIndex, playlistItemIndex );
 }
 
-uint32_t JsFbPlaylistManager::FindOrCreatePlaylist( const pfc::string8_fast& name, bool unlocked )
+uint32_t JsFbPlaylistManager::FindOrCreatePlaylist( const std::u8string& name, bool unlocked )
 {
     auto api = playlist_manager::get();
 
@@ -370,7 +370,7 @@ int32_t JsFbPlaylistManager::FindPlaybackQueueItemIndex( JsFbMetadbHandle* handl
     return ( pfc_infinite == upos ? -1 : static_cast<int32_t>( upos ) );
 }
 
-int32_t JsFbPlaylistManager::FindPlaylist( const pfc::string8_fast& name )
+int32_t JsFbPlaylistManager::FindPlaylist( const std::u8string& name )
 {
     const uint32_t upos = playlist_manager::get()->find_playlist( name.c_str(), name.length() );
     return ( pfc_infinite == upos ? -1 : static_cast<int32_t>( upos ) );
@@ -590,7 +590,7 @@ bool JsFbPlaylistManager::RemovePlaylistSwitch( uint32_t playlistIndex )
     return playlist_manager::get()->remove_playlist_switch( playlistIndex );
 }
 
-bool JsFbPlaylistManager::RenamePlaylist( uint32_t playlistIndex, const pfc::string8_fast& name )
+bool JsFbPlaylistManager::RenamePlaylist( uint32_t playlistIndex, const std::u8string& name )
 {
     return playlist_manager::get()->playlist_rename( playlistIndex, name.c_str(), name.length() );
 }
@@ -647,12 +647,12 @@ bool JsFbPlaylistManager::ShowAutoPlaylistUI( uint32_t playlistIndex )
     return true;
 }
 
-bool JsFbPlaylistManager::SortByFormat( uint32_t playlistIndex, const pfc::string8_fast& pattern, bool selOnly )
+bool JsFbPlaylistManager::SortByFormat( uint32_t playlistIndex, const std::u8string& pattern, bool selOnly )
 {
-    return playlist_manager::get()->playlist_sort_by_format( playlistIndex, pattern.is_empty() ? nullptr : pattern.c_str(), selOnly );
+    return playlist_manager::get()->playlist_sort_by_format( playlistIndex, pattern.empty() ? nullptr : pattern.c_str(), selOnly );
 }
 
-bool JsFbPlaylistManager::SortByFormatWithOpt( size_t optArgCount, uint32_t playlistIndex, const pfc::string8_fast& pattern, bool selOnly )
+bool JsFbPlaylistManager::SortByFormatWithOpt( size_t optArgCount, uint32_t playlistIndex, const std::u8string& pattern, bool selOnly )
 {
     switch ( optArgCount )
     {
@@ -665,7 +665,7 @@ bool JsFbPlaylistManager::SortByFormatWithOpt( size_t optArgCount, uint32_t play
     }
 }
 
-bool JsFbPlaylistManager::SortByFormatV2( uint32_t playlistIndex, const pfc::string8_fast& pattern, int8_t direction )
+bool JsFbPlaylistManager::SortByFormatV2( uint32_t playlistIndex, const std::u8string& pattern, int8_t direction )
 {
     auto api = playlist_manager::get();
 
@@ -682,7 +682,7 @@ bool JsFbPlaylistManager::SortByFormatV2( uint32_t playlistIndex, const pfc::str
     return api->playlist_reorder_items( playlistIndex, order.data(), order.size() );
 }
 
-bool JsFbPlaylistManager::SortByFormatV2WithOpt( size_t optArgCount, uint32_t playlistIndex, const pfc::string8_fast& pattern, int8_t direction )
+bool JsFbPlaylistManager::SortByFormatV2WithOpt( size_t optArgCount, uint32_t playlistIndex, const std::u8string& pattern, int8_t direction )
 {
     switch ( optArgCount )
     {

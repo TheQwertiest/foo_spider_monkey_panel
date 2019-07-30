@@ -5,9 +5,9 @@ namespace smp::panel
 
 struct PanelInfo
 {
-    pfc::string8_fast name;
-    pfc::string8_fast version;
-    pfc::string8_fast author;
+    std::u8string name;
+    std::u8string version;
+    std::u8string author;
 
     PanelInfo( const GUID& guid_ref )
         : m_guid_ref( guid_ref )
@@ -25,9 +25,9 @@ struct PanelInfo
     {
         pfc::string8 ret;
 
-        if ( !name.is_empty() )
+        if ( !name.empty() )
         {
-            ret << name;
+            ret << name.c_str();
         }
         else
         {
@@ -36,13 +36,13 @@ struct PanelInfo
 
         if ( full )
         {
-            if ( !version.is_empty() )
+            if ( !version.empty() )
             {
-                ret << " v" << version;
+                ret << " v" << version.c_str();
             }
-            if ( !author.is_empty() )
+            if ( !author.empty() )
             {
-                ret << " by " << author;
+                ret << " by " << author.c_str();
             }
         }
 

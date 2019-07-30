@@ -56,9 +56,9 @@ public:
     bool& get_pseudo_transparent();
     const bool& get_pseudo_transparent() const;
     const EdgeStyle& get_edge_style() const;
-    pfc::string_base& get_script_code();
+    std::u8string& get_script_code();
     PanelProperties& get_config_prop();
-    static pfc::string8_fast get_default_script_code();
+    static std::u8string get_default_script_code();
     EdgeStyle& get_edge_style();
 
     void load_config( stream_reader* reader, t_size size, abort_callback& abort );
@@ -69,7 +69,7 @@ private:
     GUID m_config_guid;
     WINDOWPLACEMENT m_wndpl;
     PanelProperties m_config_prop;
-    pfc::string8 m_script_code;
+    std::u8string m_script_code;
     EdgeStyle m_edge_style;
     bool m_grab_focus;
     bool m_pseudo_transparent;

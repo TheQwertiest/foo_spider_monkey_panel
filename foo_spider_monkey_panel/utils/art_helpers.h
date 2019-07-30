@@ -36,14 +36,14 @@ const GUID& GetGuidForArtId( uint32_t art_id );
 
 /// @throw smp::SmpException
 /// @throw smp::JsException
-std::unique_ptr<Gdiplus::Bitmap> GetBitmapFromEmbeddedData( const pfc::string8_fast& rawpath, uint32_t art_id );
+std::unique_ptr<Gdiplus::Bitmap> GetBitmapFromEmbeddedData( const std::u8string& rawpath, uint32_t art_id );
 
 /// @throw smp::SmpException
 /// @throw smp::JsException
-std::unique_ptr<Gdiplus::Bitmap> GetBitmapFromMetadb( const metadb_handle_ptr& handle, uint32_t art_id, bool need_stub, bool no_load, pfc::string8_fast* pImagePath );
+std::unique_ptr<Gdiplus::Bitmap> GetBitmapFromMetadb( const metadb_handle_ptr& handle, uint32_t art_id, bool need_stub, bool no_load, std::u8string* pImagePath );
 
 /// @details Validate art_id before calling this function!
-std::unique_ptr<Gdiplus::Bitmap> GetBitmapFromMetadbOrEmbed( const metadb_handle_ptr& handle, uint32_t art_id, bool need_stub, bool only_embed, bool no_load, pfc::string8_fast* pImagePath );
+std::unique_ptr<Gdiplus::Bitmap> GetBitmapFromMetadbOrEmbed( const metadb_handle_ptr& handle, uint32_t art_id, bool need_stub, bool only_embed, bool no_load, std::u8string* pImagePath );
 
 /// @throw smp::SmpException
 /// @throw smp::JsException

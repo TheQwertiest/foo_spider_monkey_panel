@@ -66,7 +66,7 @@ public: // ctor
 public: // methods
     void Add( JsFbMetadbHandle* handle );
     void AddRange( JsFbMetadbHandleList* handles );
-    void AttachImage( const pfc::string8_fast& image_path, uint32_t art_id );
+    void AttachImage( const std::u8string& image_path, uint32_t art_id );
     int32_t BSearch( JsFbMetadbHandle* handle );
     double CalcTotalDuration();
     std::uint64_t CalcTotalSize();
@@ -91,7 +91,7 @@ public: // methods
     void RemoveById( uint32_t index );
     void RemoveRange( uint32_t from, uint32_t count );
     void Sort();
-    void UpdateFileInfoFromJSON( const pfc::string8_fast& str );
+    void UpdateFileInfoFromJSON( const std::u8string& str );
 
 public: // props
     uint32_t get_Count();

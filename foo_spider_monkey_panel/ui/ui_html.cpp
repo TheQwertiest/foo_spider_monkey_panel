@@ -577,7 +577,7 @@ void CDialogHtml::SetOptions()
     }
 
     {
-        const std::wstring w_fb2k_path = pfc::stringcvt::string_wide_from_utf8( smp::get_fb2k_path() + "foobar2000.exe" ).get_ptr();
+        const std::wstring w_fb2k_path = pfc::stringcvt::string_wide_from_utf8( ( smp::get_fb2k_path() + "foobar2000.exe" ).c_str() ).get_ptr();
         SHFILEINFO shfi;
         SHGetFileInfo( w_fb2k_path.c_str(), 0, &shfi, sizeof( SHFILEINFO ), SHGFI_ICON | SHGFI_SHELLICONSIZE | SHGFI_SMALLICON );
         if ( shfi.hIcon )
