@@ -1987,7 +1987,7 @@ function FbMetadbHandle() {
     this.Compare = function (handle) { }; // (boolean)
 
     /**
-     * @return {FbFileInfo}
+     * @return {?FbFileInfo} null if file info is not available.
      */
     this.GetFileInfo = function () { }; // (FbFileInfo)
 }
@@ -2004,7 +2004,9 @@ function FbFileInfo() {
      * @example
      * let handle = fb.GetFocusItem();
      * let file_info = handle.GetFileInfo();
-     * console.log(file_info.MetaCount); // 11
+     * if (file_info) {
+     *     console.log(file_info.MetaCount); // 11
+     * }
      */
     this.MetaCount = undefined; // (read)
 
