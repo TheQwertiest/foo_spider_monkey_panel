@@ -33,6 +33,11 @@ pfc::string8_fast MessageFromErrorCode( DWORD errorCode )
     return pfc::stringcvt::string_utf8_from_wide( reinterpret_cast<const wchar_t*>( lpMsgBuf ) ).get_ptr();
 }
 
+void ThrowParsedWinapiError( DWORD errorCode, std::string_view functionName )
+{
+    throw SmpException( fmt::format( "WinAPI error: {} failed with error ({:#x}): {}", functionName, errorCode, MessageFromErrorCode( errorCode ).c_str() ) );
+}
+
 } // namespace
 
 namespace smp::error
@@ -40,7 +45,10 @@ namespace smp::error
 
 void CheckHR( HRESULT hr, std::string_view functionName )
 {
-    CheckWinApi( SUCCEEDED( hr ), functionName );
+    if ( FAILED( hr ) )
+    {
+        ThrowParsedWinapiError( hr, functionName );
+    }
 }
 
 void CheckWinApi( bool checkValue, std::string_view functionName )
@@ -48,7 +56,7 @@ void CheckWinApi( bool checkValue, std::string_view functionName )
     if ( !checkValue )
     {
         const DWORD errorCode = GetLastError();
-        throw SmpException( fmt::format( "WinAPI error: {} failed with error ({:#x}): {}", functionName, errorCode, MessageFromErrorCode( errorCode ).c_str() ) );
+        ThrowParsedWinapiError( errorCode, functionName );
     }
 }
 
