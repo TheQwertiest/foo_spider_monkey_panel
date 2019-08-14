@@ -115,7 +115,7 @@ class js_initquit : public initquit
 public:
     void on_init() override
     {
-        smp::utils::DelayedExecutor::GetInstance().EnableExecution();
+        smp::utils::DelayedExecutor::GetInstance().EnableExecution(); ///< Enable task processing (e.g. error popups)
         CheckSubsystemStatus();
     }
 
@@ -145,7 +145,7 @@ private:
             errorText += fmt::format( "{}: error code: {:#x}\r\n", failure.description, failure.errorCode );
         }
 
-       smp::utils::ShowErrorPopup( errorText.c_str() );
+        smp::utils::ShowErrorPopup( errorText.c_str() );
     }
 };
 

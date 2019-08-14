@@ -366,7 +366,7 @@ JSObject* JsFbUtils::GetClipboardContents( uint32_t hWindow )
     {
         DWORD drop_effect = DROPEFFECT_COPY;
         bool native;
-        
+
         if ( SUCCEEDED( api->check_dataobject( pDO, drop_effect, native ) ) )
         {
             dropped_files_data_impl data;
@@ -555,17 +555,17 @@ JSObject* JsFbUtils::GetSelectionsWithOpt( size_t optArgCount, uint32_t flags )
 
 uint32_t JsFbUtils::GetSelectionType()
 {
-    const GUID* guids[] = {
+    const std::array<const GUID*, 7> guids = {
         &contextmenu_item::caller_undefined,
         &contextmenu_item::caller_active_playlist_selection,
         &contextmenu_item::caller_active_playlist,
         &contextmenu_item::caller_playlist_manager,
         &contextmenu_item::caller_now_playing,
         &contextmenu_item::caller_keyboard_shortcut_list,
-        &contextmenu_item::caller_media_library_viewer,
+        &contextmenu_item::caller_media_library_viewer
     };
 
-    const GUID type = ui_selection_manager_v2::get()->get_selection_type( 0 );    
+    const GUID type = ui_selection_manager_v2::get()->get_selection_type( 0 );
 
     const auto it = ranges::find_if( guids, [type]( const auto pGuid ) { return type == *pGuid; } );
     return ( ranges::end( guids ) != it
@@ -868,34 +868,18 @@ void JsFbUtils::put_PlaybackTime( double time )
 
 void JsFbUtils::put_ReplaygainMode( uint32_t p )
 {
-    switch ( p )
-    {
-    case 0:
-    {
-        standard_commands::main_rg_disable();
-        break;
-    }
-    case 1:
-    {
-        standard_commands::main_rg_set_track();
-        break;
-    }
-    case 2:
-    {
-        standard_commands::main_rg_set_album();
-        break;
-    }
-    case 3:
-    {
-        standard_commands::run_main( standard_commands::guid_main_rg_byorder );
-        break;
-    }
-    default:
-    {
-        throw SmpException( fmt::format( "Invalid replay gain mode: {}", p ) );
-    }
-    }
+    // Take care when changing this array:
+    // guid indexes are part of SMP API
+    const std::array<const GUID*, 4> guids = {
+        &standard_commands::guid_main_rg_disable,
+        &standard_commands::guid_main_rg_set_track,
+        &standard_commands::guid_main_rg_set_album,
+        &standard_commands::guid_main_rg_byorder
+    };
 
+    SmpException::ExpectTrue( p < guids.size(), "Invalid replay gain mode: {}", p );
+
+    standard_commands::run_main( *guids[p] );
     playback_control_v3::get()->restart();
 }
 

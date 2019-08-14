@@ -124,7 +124,7 @@ DWORD js_panel_window_dui::GetColour( unsigned type, const GUID& guid )
     const auto& guidToQuery = [type, &guid] {
         // Take care when changing this array:
         // guid indexes are part of SMP API
-        const GUID* guids[] = {
+        const std::array<const GUID*, 4> guids = {
             &ui_color_text,
             &ui_color_background,
             &ui_color_highlight,
@@ -135,7 +135,7 @@ DWORD js_panel_window_dui::GetColour( unsigned type, const GUID& guid )
         {
             return guid;
         }
-        else if ( type < _countof( guids ) )
+        else if ( type < guids.size() )
         {
             return *guids[type];
         }
@@ -159,7 +159,7 @@ HFONT js_panel_window_dui::GetFont( unsigned type, const GUID& guid )
     const auto& guidToQuery = [type, &guid] {
         // Take care when changing this array:
         // guid indexes are part of SMP API
-        const GUID* guids[] = {
+        const std::array<const GUID*, 6> guids = {
             &ui_font_default,
             &ui_font_tabs,
             &ui_font_lists,
@@ -172,7 +172,7 @@ HFONT js_panel_window_dui::GetFont( unsigned type, const GUID& guid )
         {
             return guid;
         }
-        else if ( type < _countof( guids ) )
+        else if ( type < guids.size() )
         {
             return *guids[type];
         }

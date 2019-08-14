@@ -8,7 +8,8 @@ namespace smp::utils
 {
 
 /// @brief This is used for executing tasks that need fully initialized fb2k to function properly.
-///        E.g. `popup_message::g_show`
+///        For example, `popup_message::g_show`, which is invoked during panel creation
+///        (panels are created before `initquit::on_init` is called).
 class DelayedExecutor
 {
 private:
@@ -46,6 +47,8 @@ public:
         }
     }
 
+
+	/// @details Should be invoked only from `initquit::on_init` 
     void EnableExecution();
 
 private:

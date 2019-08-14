@@ -196,7 +196,7 @@ void embed_thread::run( threaded_process_status& p_status,
                 }
                 else
                 { // m4a is one example that needs this fallback
-                    const GUID* guids[] = {
+                    const std::array<const GUID*, 5> guids = {
                         &album_art_ids::cover_front,
                         &album_art_ids::cover_back,
                         &album_art_ids::disc,
@@ -226,7 +226,7 @@ void embed_thread::run( threaded_process_status& p_status,
 
 const GUID& GetGuidForArtId( uint32_t art_id )
 {
-    const GUID* guids[] = {
+    const std::array<const GUID*, 5> guids = {
         &album_art_ids::cover_front,
         &album_art_ids::cover_back,
         &album_art_ids::disc,
@@ -234,7 +234,7 @@ const GUID& GetGuidForArtId( uint32_t art_id )
         &album_art_ids::artist,
     };
 
-    SmpException::ExpectTrue( art_id < _countof( guids ), "Unknown art_id: {}", art_id );
+    SmpException::ExpectTrue( art_id < guids.size(), "Unknown art_id: {}", art_id );
 
     return *guids[art_id];
 }
