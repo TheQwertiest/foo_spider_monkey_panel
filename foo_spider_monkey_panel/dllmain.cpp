@@ -1,5 +1,6 @@
 #include "stdafx.h"
 
+#include <popup_msg.h>
 #include <message_manager.h>
 #include <user_message.h>
 #include <abort_callback.h>
@@ -114,7 +115,9 @@ class js_initquit : public initquit
 public:
     void on_init() override
     {
+        // HACK: popup_message services will not be initialized soon after start.
         CheckSubsystemStatus();
+        delay_loader::g_set_ready();
     }
 
     void on_quit() override
@@ -143,7 +146,7 @@ private:
             errorText += fmt::format( "{}: error code: {:#x}\r\n", failure.description, failure.errorCode );
         }
 
-        popup_message::g_show( errorText.c_str(), SMP_NAME );
+        popup_msg::g_show( errorText.c_str(), SMP_NAME );
     }
 };
 

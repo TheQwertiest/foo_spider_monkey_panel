@@ -256,6 +256,9 @@
     <ClCompile Include="fb2k_callbacks.cpp">
       <Filter>z_core</Filter>
     </ClCompile>
+    <ClCompile Include="popup_msg.cpp">
+      <Filter>z_core</Filter>
+    </ClCompile>
     <ClCompile Include="message_manager.cpp">
       <Filter>z_core</Filter>
     </ClCompile>
@@ -367,6 +370,9 @@
       <Filter>z_core</Filter>
     </ClInclude>
     <ClInclude Include="js_panel_window_dui.h">
+      <Filter>z_core</Filter>
+    </ClInclude>
+    <ClInclude Include="popup_msg.h">
       <Filter>z_core</Filter>
     </ClInclude>
     <ClInclude Include="stdafx.h">

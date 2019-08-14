@@ -10,6 +10,7 @@
 #include <utils/image_helpers.h>
 #include <utils/gdi_helpers.h>
 #include <message_manager.h>
+#include <popup_msg.h>
 #include <drop_action_params.h>
 #include <message_blocking_scope.h>
 #include <com_message_scope.h>
@@ -66,7 +67,7 @@ void js_panel_window::update_script( const char* code )
 
 void js_panel_window::JsEngineFail( const pfc::string8_fast& errorText )
 {
-    popup_message::g_show( errorText, SMP_NAME );
+    popup_msg::g_show( errorText, SMP_NAME );
     MessageBeep( MB_ICONASTERISK );
 
     SendMessage( hWnd_, static_cast<UINT>( InternalSyncMessage::script_error ), 0, 0 );

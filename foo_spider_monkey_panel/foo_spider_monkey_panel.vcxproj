@@ -169,6 +169,7 @@
     <ClCompile Include="mainmenu.cpp" />
     <ClCompile Include="message_blocking_scope.cpp" />
     <ClCompile Include="message_manager.cpp" />
+    <ClCompile Include="popup_msg.cpp" />
     <ClCompile Include="scintilla\editorctrl.cpp" />
     <ClCompile Include="scintilla\scintilla_prop_sets.cpp" />
     <ClCompile Include="smp_exception.cpp" />
@@ -298,6 +299,7 @@
     <ClInclude Include="js_panel_window.h" />
     <ClInclude Include="js_panel_window_cui.h" />
     <ClInclude Include="js_panel_window_dui.h" />
+    <ClInclude Include="popup_msg.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="panel_info.h" />
     <ClInclude Include="stats.h" />
