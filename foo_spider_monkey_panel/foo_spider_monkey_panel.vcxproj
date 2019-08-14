@@ -169,7 +169,6 @@
     <ClCompile Include="mainmenu.cpp" />
     <ClCompile Include="message_blocking_scope.cpp" />
     <ClCompile Include="message_manager.cpp" />
-    <ClCompile Include="popup_msg.cpp" />
     <ClCompile Include="scintilla\editorctrl.cpp" />
     <ClCompile Include="scintilla\scintilla_prop_sets.cpp" />
     <ClCompile Include="smp_exception.cpp" />
@@ -191,6 +190,8 @@
     <ClCompile Include="ui\ui_slow_script.cpp" />
     <ClCompile Include="utils\art_helpers.cpp" />
     <ClCompile Include="utils\com_error_helpers.cpp" />
+    <ClCompile Include="utils\delayed_executor.cpp" />
+    <ClCompile Include="utils\error_popup.cpp" />
     <ClCompile Include="utils\file_helpers.cpp" />
     <ClCompile Include="utils\gdi_error_helpers.cpp" />
     <ClCompile Include="utils\gdi_helpers.cpp" />
@@ -299,7 +300,6 @@
     <ClInclude Include="js_panel_window.h" />
     <ClInclude Include="js_panel_window_cui.h" />
     <ClInclude Include="js_panel_window_dui.h" />
-    <ClInclude Include="popup_msg.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="panel_info.h" />
     <ClInclude Include="stats.h" />
@@ -319,6 +319,8 @@
     <ClInclude Include="utils\art_helpers.h" />
     <ClInclude Include="utils\colour_helpers.h" />
     <ClInclude Include="utils\com_error_helpers.h" />
+    <ClInclude Include="utils\delayed_executor.h" />
+    <ClInclude Include="utils\error_popup.h" />
     <ClInclude Include="utils\file_helpers.h" />
     <ClInclude Include="utils\gdi_error_helpers.h" />
     <ClInclude Include="utils\gdi_helpers.h" />

@@ -6,6 +6,7 @@
 #include <js_engine/js_internal_global.h>
 #include <js_objects/global_object.h>
 #include <js_utils/js_error_helper.h>
+#include <utils/error_popup.h>
 #include <utils/scope_helpers.h>
 #include <utils/string_helpers.h>
 #include <utils/thread_helpers.h>
@@ -15,7 +16,6 @@
 #include <host_timer_dispatcher.h>
 #include <js_panel_window.h>
 #include <message_blocking_scope.h>
-#include <popup_msg.h>
 #include <user_message.h>
 
 #include <js/Initialization.h>
@@ -47,9 +47,7 @@ void ReportException( const pfc::string8_fast& errorText )
         return text;
     }();
 
-    FB2K_console_formatter() << errorTextPadded;
-    popup_msg::g_show( errorTextPadded, SMP_NAME );
-    MessageBeep( MB_ICONASTERISK );
+    smp::utils::ShowErrorPopup( errorTextPadded.c_str() );
 }
 
 } // namespace

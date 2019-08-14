@@ -14,11 +14,11 @@
 #include <js_utils/js_object_helper.h>
 #include <js_utils/js_property_helper.h>
 #include <utils/art_helpers.h>
-#include <utils/string_helpers.h>
+#include <utils/delayed_executor.h>
 #include <utils/menu_helpers.h>
+#include <utils/string_helpers.h>
 #include <com_objects/drop_source_impl.h>
 #include <stats.h>
-#include <popup_msg.h>
 #include <message_blocking_scope.h>
 #include <component_paths.h>
 
@@ -731,7 +731,9 @@ void JsFbUtils::ShowLibrarySearchUI( const pfc::string8_fast& query )
 
 void JsFbUtils::ShowPopupMessage( const pfc::string8_fast& msg, const pfc::string8_fast& title )
 {
-    popup_msg::g_show( msg.c_str(), title.c_str() );
+    smp::utils::DelayedExecutor::GetInstance().AddTask( [msg, title] {
+        popup_message::g_show( msg.c_str(), title.c_str() );
+    } );
 }
 
 void JsFbUtils::ShowPopupMessageWithOpt( size_t optArgCount, const pfc::string8_fast& msg, const pfc::string8_fast& title )

@@ -256,9 +256,6 @@
     <ClCompile Include="fb2k_callbacks.cpp">
       <Filter>z_core</Filter>
     </ClCompile>
-    <ClCompile Include="popup_msg.cpp">
-      <Filter>z_core</Filter>
-    </ClCompile>
     <ClCompile Include="message_manager.cpp">
       <Filter>z_core</Filter>
     </ClCompile>
@@ -312,6 +309,12 @@
     </ClCompile>
     <ClCompile Include="dllmain.cpp">
       <Filter>z_core</Filter>
+    </ClCompile>
+    <ClCompile Include="utils\delayed_executor.cpp">
+      <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="utils\error_popup.cpp">
+      <Filter>utils</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -370,9 +373,6 @@
       <Filter>z_core</Filter>
     </ClInclude>
     <ClInclude Include="js_panel_window_dui.h">
-      <Filter>z_core</Filter>
-    </ClInclude>
-    <ClInclude Include="popup_msg.h">
       <Filter>z_core</Filter>
     </ClInclude>
     <ClInclude Include="stdafx.h">
@@ -698,6 +698,12 @@
     </ClInclude>
     <ClInclude Include="ui\ui_slow_script.h">
       <Filter>ui</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\delayed_executor.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\error_popup.h">
+      <Filter>utils</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

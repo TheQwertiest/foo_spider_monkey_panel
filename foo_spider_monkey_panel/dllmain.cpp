@@ -1,13 +1,13 @@
 #include "stdafx.h"
 
-#include <popup_msg.h>
 #include <message_manager.h>
 #include <user_message.h>
 #include <abort_callback.h>
 
 #include <js_engine/js_engine.h>
+#include <utils/delayed_executor.h>
+#include <utils/error_popup.h>
 #include <utils/thread_pool.h>
-
 
 #include <map>
 
@@ -115,15 +115,14 @@ class js_initquit : public initquit
 public:
     void on_init() override
     {
-        // HACK: popup_message services will not be initialized soon after start.
+        smp::utils::DelayedExecutor::GetInstance().EnableExecution();
         CheckSubsystemStatus();
-        delay_loader::g_set_ready();
     }
 
     void on_quit() override
-    {// Careful when changing invocation order here!
+    { // Careful when changing invocation order here!
         mozjs::JsEngine::GetInstance().PrepareForExit();
-        smp::panel::message_manager::instance().send_msg_to_all( static_cast<UINT>(smp::InternalSyncMessage::terminate_script) );
+        smp::panel::message_manager::instance().send_msg_to_all( static_cast<UINT>( smp::InternalSyncMessage::terminate_script ) );
         smp::GlobalAbortCallback::GetInstance().Abort();
         smp::ThreadPool::GetInstance().Finalize();
     }
@@ -136,17 +135,17 @@ private:
             return;
         }
 
-        std::string errorText = 
+        std::string errorText =
             "Spider Monkey Panel initialization failed!\r\n"
             "The component will not function properly!\r\n"
             "Failures:\r\n\r\n";
 
-        for ( const auto& [key, failure] : g_subsystem_failures )
+        for ( const auto& [key, failure]: g_subsystem_failures )
         {
             errorText += fmt::format( "{}: error code: {:#x}\r\n", failure.description, failure.errorCode );
         }
 
-        popup_msg::g_show( errorText.c_str(), SMP_NAME );
+       smp::utils::ShowErrorPopup( errorText.c_str() );
     }
 };
 

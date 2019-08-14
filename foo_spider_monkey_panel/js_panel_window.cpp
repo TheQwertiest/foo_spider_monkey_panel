@@ -5,12 +5,13 @@
 #include <ui/ui_property.h>
 
 #include <js_engine/js_container.h>
-#include <utils/scope_helpers.h>
 #include <utils/art_helpers.h>
-#include <utils/image_helpers.h>
+#include <utils/error_popup.h>
 #include <utils/gdi_helpers.h>
+#include <utils/image_helpers.h>
+#include <utils/scope_helpers.h>
+
 #include <message_manager.h>
-#include <popup_msg.h>
 #include <drop_action_params.h>
 #include <message_blocking_scope.h>
 #include <com_message_scope.h>
@@ -67,9 +68,7 @@ void js_panel_window::update_script( const char* code )
 
 void js_panel_window::JsEngineFail( const pfc::string8_fast& errorText )
 {
-    popup_msg::g_show( errorText, SMP_NAME );
-    MessageBeep( MB_ICONASTERISK );
-
+    smp::utils::ShowErrorPopup( errorText.c_str() );
     SendMessage( hWnd_, static_cast<UINT>( InternalSyncMessage::script_error ), 0, 0 );
 }
 
