@@ -29,7 +29,7 @@ uint32_t JsGc::GetMaxHeap()
 
     UpdateGcConfig();
 
-    return static_cast<uint32_t>( smp_advconf::g_var_max_heap.get() );
+    return static_cast<uint32_t>( smp_advconf::gc_max_heap.get() );
 }
 
 uint64_t JsGc::GetTotalHeapUsageForGlobal( JSContext* cx, JS::HandleObject jsGlobal )
@@ -55,11 +55,11 @@ void JsGc::Initialize( JSContext* pJsCtx )
 
     UpdateGcConfig();
 
-    maxHeapSize_ = static_cast<uint32_t>( smp_advconf::g_var_max_heap.get() );
-    heapGrowthRateTrigger_ = static_cast<uint32_t>( smp_advconf::g_var_max_heap_growth.get() );
-    gcSliceTimeBudget_ = static_cast<uint32_t>( smp_advconf::g_var_gc_budget.get() );
-    gcCheckDelay_ = static_cast<uint32_t>( smp_advconf::g_var_gc_delay.get() );
-    allocCountTrigger_ = static_cast<uint32_t>( smp_advconf::g_var_max_alloc_increase.get() );
+    maxHeapSize_ = static_cast<uint32_t>( smp_advconf::gc_max_heap.get() );
+    heapGrowthRateTrigger_ = static_cast<uint32_t>( smp_advconf::gc_max_heap_growth.get() );
+    gcSliceTimeBudget_ = static_cast<uint32_t>( smp_advconf::gc_budget.get() );
+    gcCheckDelay_ = static_cast<uint32_t>( smp_advconf::gc_delay.get() );
+    allocCountTrigger_ = static_cast<uint32_t>( smp_advconf::gc_max_alloc_increase.get() );
 
     JS_SetGCParameter( pJsCtx_, JSGC_MODE, JSGC_MODE_INCREMENTAL );
     // The following two parameters are not used, since we are doing everything manually.
@@ -68,11 +68,11 @@ void JsGc::Initialize( JSContext* pJsCtx )
     JS_SetGCParameter( pJsCtx_, JSGC_HIGH_FREQUENCY_TIME_LIMIT, kHighFreqTimeLimitMs );
 
 #ifdef DEBUG
-    if ( smp_advconf::g_var_gc_zeal.get() )
+    if ( smp_advconf::zeal.get() )
     {
         JS_SetGCZeal( pJsCtx_,
-                      static_cast<uint8_t>( smp_advconf::g_var_gc_zeal_level.get() ),
-                      static_cast<uint32_t>( smp_advconf::g_var_gc_zeal_freq.get() ) );
+                      static_cast<uint8_t>( smp_advconf::zeal_level.get() ),
+                      static_cast<uint32_t>( smp_advconf::zeal_freq.get() ) );
     }
 #endif
 }
@@ -128,22 +128,22 @@ void JsGc::UpdateGcConfig()
     BOOL bRet = GlobalMemoryStatusEx( &statex );
     smp::error::CheckWinApi( !!bRet, "GlobalMemoryStatusEx" );
 
-    if ( !smp_advconf::g_var_max_heap.get() )
+    if ( !smp_advconf::gc_max_heap.get() )
     { // detect settings automatically
-        smp_advconf::g_var_max_heap.set( std::min<uint64_t>( statex.ullTotalPhys / 4, kDefaultHeapMaxMb ) );
+        smp_advconf::gc_max_heap.set( std::min<uint64_t>( statex.ullTotalPhys / 4, kDefaultHeapMaxMb ) );
     }
-    else if ( smp_advconf::g_var_max_heap.get() > statex.ullTotalPhys )
+    else if ( smp_advconf::gc_max_heap.get() > statex.ullTotalPhys )
     {
-        smp_advconf::g_var_max_heap.set( statex.ullTotalPhys );
+        smp_advconf::gc_max_heap.set( statex.ullTotalPhys );
     }
 
-    if ( !smp_advconf::g_var_max_heap_growth.get() )
+    if ( !smp_advconf::gc_max_heap_growth.get() )
     { // detect settings automatically
-        smp_advconf::g_var_max_heap_growth.set( std::min<uint64_t>( smp_advconf::g_var_max_heap.get() / 8, kDefaultHeapThresholdMb ) );
+        smp_advconf::gc_max_heap_growth.set( std::min<uint64_t>( smp_advconf::gc_max_heap.get() / 8, kDefaultHeapThresholdMb ) );
     }
-    else if ( smp_advconf::g_var_max_heap_growth.get() > smp_advconf::g_var_max_heap.get() / 2 )
+    else if ( smp_advconf::gc_max_heap_growth.get() > smp_advconf::gc_max_heap.get() / 2 )
     {
-        smp_advconf::g_var_max_heap_growth.set( smp_advconf::g_var_max_heap.get() / 2 );
+        smp_advconf::gc_max_heap_growth.set( smp_advconf::gc_max_heap.get() / 2 );
     }
 }
 
