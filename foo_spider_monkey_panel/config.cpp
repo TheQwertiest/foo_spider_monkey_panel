@@ -42,12 +42,13 @@ PanelProperties::config_map& PanelProperties::get_val()
 
 std::optional<mozjs::SerializedJsValue> PanelProperties::get_config_item( const std::wstring& propName )
 {
-    if ( !m_map.count( propName ) )
+    auto it = m_map.find( propName );
+    if ( it == m_map.end() )
     {
         return std::nullopt;
     }
 
-    return *( m_map[propName].get() );
+    return *( it->second );
 }
 
 void PanelProperties::set_config_item( const std::wstring& propName, const mozjs::SerializedJsValue& serializedValue )

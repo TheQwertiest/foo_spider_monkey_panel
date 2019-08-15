@@ -44,11 +44,10 @@ LRESULT CDialogProperty::OnPinItemChanged( LPNMHDR pnmh )
 {
     LPNMPROPERTYITEM pnpi = (LPNMPROPERTYITEM)pnmh;
 
-    std::wstring name = pnpi->prop->GetName();
-
-    if ( m_dup_prop_map.count( name ) )
+    if ( auto it = m_dup_prop_map.find( pnpi->prop->GetName() ); 
+		it != m_dup_prop_map.end() )
     {
-        auto& val = *( m_dup_prop_map[name].get() );
+        auto& val = *( it->second );
         _variant_t var;
 
         if ( pnpi->prop->GetValue( &var ) )

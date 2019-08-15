@@ -59,14 +59,15 @@ T ConvertFileContent( const std::wstring& path, std::string_view content, UINT c
 
     if ( !isWideCodepage && detectedCodepage == CP_ACP )
     { // TODO: dirty hack! remove
-        if ( codepageMap.count( path ) )
+        if ( const auto it = codepageMap.find( path );
+             it != codepageMap.cend() )
         {
-            detectedCodepage = codepageMap[path];
+            detectedCodepage = it->second;
         }
         else
         {
             detectedCodepage = smp::utils::detect_text_charset( std::string_view{ curPos, curSize } );
-            codepageMap[path] = detectedCodepage;
+            codepageMap.emplace( path, detectedCodepage );
         }
     }
 
