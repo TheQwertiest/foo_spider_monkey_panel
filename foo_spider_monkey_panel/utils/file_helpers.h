@@ -9,12 +9,12 @@ namespace smp::file
 {
 
 /// @throw smp::SmpException
-pfc::string8_fast ReadFile( const pfc::string8_fast& path, UINT codepage, bool checkFileExistense = true );
+std::u8string ReadFile( const std::u8string& path, UINT codepage, bool checkFileExistense = true );
 
 /// @throw smp::SmpException
-std::wstring ReadFileW( const pfc::string8_fast& path, UINT codepage, bool checkFileExistense = true );
+std::wstring ReadFileW( const std::u8string& path, UINT codepage, bool checkFileExistense = true );
 
-bool WriteFile( const wchar_t* path, const pfc::string_base& content, bool write_bom = true );
+bool WriteFile( const wchar_t* path, const std::u8string& content, bool write_bom = true );
 
 UINT DetectFileCharset( const char* fileName );
 

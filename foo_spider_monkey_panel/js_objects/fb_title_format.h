@@ -35,14 +35,14 @@ public:
 public:
     ~JsFbTitleFormat();
 
-    static std::unique_ptr<JsFbTitleFormat> CreateNative( JSContext* cx, const pfc::string8_fast& expr );
-    static size_t GetInternalSize( const pfc::string8_fast& expr );
+    static std::unique_ptr<JsFbTitleFormat> CreateNative( JSContext* cx, const std::u8string& expr );
+    static size_t GetInternalSize( const std::u8string& expr );
 
 public:
     titleformat_object::ptr GetTitleFormat();
 
 public: // ctor
-    static JSObject* Constructor( JSContext* cx, const pfc::string8_fast& expr );
+    static JSObject* Constructor( JSContext* cx, const std::u8string& expr );
 
 public:
     pfc::string8_fast Eval( bool force = false );
@@ -51,7 +51,7 @@ public:
     JSObject* EvalWithMetadbs( JsFbMetadbHandleList* handles );
 
 private:
-    JsFbTitleFormat( JSContext* cx, const pfc::string8_fast& expr );
+    JsFbTitleFormat( JSContext* cx, const std::u8string& expr );
 
 private:
     JSContext* pJsCtx_ = nullptr;

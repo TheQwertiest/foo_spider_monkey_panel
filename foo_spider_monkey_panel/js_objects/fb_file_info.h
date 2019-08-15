@@ -32,12 +32,12 @@ public:
     static size_t GetInternalSize( const metadb_info_container::ptr& containerInfo );
 
 public:
-    int32_t InfoFind( const pfc::string8_fast& name );
-    pfc::string8_fast InfoName( uint32_t idx );
-    pfc::string8_fast InfoValue( uint32_t idx );
-    int32_t MetaFind( const pfc::string8_fast& name );
-    pfc::string8_fast MetaName( uint32_t idx );
-    pfc::string8_fast MetaValue( uint32_t idx, uint32_t vidx );
+    int32_t InfoFind( const std::u8string& name );
+    std::u8string InfoName( uint32_t idx );
+    std::u8string InfoValue( uint32_t idx );
+    int32_t MetaFind( const std::u8string& name );
+    std::u8string MetaName( uint32_t idx );
+    std::u8string MetaValue( uint32_t idx, uint32_t vidx );
     uint32_t MetaValueCount( uint32_t idx );
 
 public:

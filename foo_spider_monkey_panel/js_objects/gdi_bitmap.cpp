@@ -328,7 +328,7 @@ JSObject* JsGdiBitmap::GetColourScheme( uint32_t count )
     return &jsValue.toObject();
 }
 
-pfc::string8_fast JsGdiBitmap::GetColourSchemeJSON( uint32_t count )
+std::u8string JsGdiBitmap::GetColourSchemeJSON( uint32_t count )
 {
     using json = nlohmann::json;
     namespace kmeans = smp::utils::kmeans;
@@ -408,7 +408,7 @@ pfc::string8_fast JsGdiBitmap::GetColourSchemeJSON( uint32_t count )
               { "freq", frequency } } );
     }
 
-    return j.dump().c_str();
+    return j.dump();
 }
 
 JSObject* JsGdiBitmap::GetGraphics()
@@ -496,7 +496,7 @@ bool JsGdiBitmap::SaveAs( const std::wstring& path, const std::wstring& format )
             return std::nullopt;
         }
 
-        nonstd::span<Gdiplus::ImageCodecInfo> codecSpan{ pImageCodecInfo, static_cast<std::ptrdiff_t>( num ) };
+        nonstd::span<Gdiplus::ImageCodecInfo> codecSpan{ pImageCodecInfo, num };
         const auto it = ranges::find_if( codecSpan, [&format]( const auto& codec ) { return ( format == codec.MimeType ); } );
         if ( it == codecSpan.cend() )
         {

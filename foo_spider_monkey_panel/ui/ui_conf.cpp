@@ -72,7 +72,7 @@ LRESULT CDialogConf::OnInitDialog( HWND hwndFocus, LPARAM lParam )
     m_editorctrl.SetScintillaSettings();
     m_editorctrl.SetJScript();
     m_editorctrl.ReadAPI();
-    m_editorctrl.SetContent( m_parent->get_script_code(), true );
+    m_editorctrl.SetContent( m_parent->get_script_code().c_str(), true );
     m_editorctrl.SetSavePoint();
 
     // Edge Style
@@ -305,13 +305,12 @@ LRESULT CDialogConf::OnFileImport( WORD, WORD, HWND )
 
     try
     {
-        pfc::string8_fast text = smp::file::ReadFile( filename.toString(), CP_UTF8 );
-        m_editorctrl.SetContent( text );
+        const std::u8string text = smp::file::ReadFile( filename.toString(), CP_UTF8 );
+        m_editorctrl.SetContent( text.c_str() );
     }
     catch ( const smp::SmpException& e )
     {
-        std::string errorMsg = e.what();
-        errorMsg = "Failed to read file: " + errorMsg;
+        const std::string errorMsg = fmt::format( "Failed to read file: {}", e.what() );
         (void)uMessageBox( m_hWnd, errorMsg.c_str(), m_caption, MB_ICONWARNING | MB_SETFOREGROUND );
     }
 
@@ -326,11 +325,11 @@ LRESULT CDialogConf::OnFileExport( WORD, WORD, HWND )
         return 0;
     }
 
-    const int len = m_editorctrl.GetTextLength();
-    pfc::string8_fast text;
+    std::u8string text;
+    text.resize( m_editorctrl.GetTextLength() + 1 );
 
-    m_editorctrl.GetText( text.lock_buffer( len ), len + 1 );
-    text.unlock_buffer();
+    m_editorctrl.GetText( text.data(), text.size() );
+    text.resize( strlen( text.data() ) );
 
     (void)smp::file::WriteFile( filename.c_str(), text );
 
@@ -339,7 +338,7 @@ LRESULT CDialogConf::OnFileExport( WORD, WORD, HWND )
 
 LRESULT CDialogConf::OnEditResetDefault( WORD, WORD, HWND )
 {
-    m_editorctrl.SetContent( smp::config::PanelSettings::get_default_script_code() );
+    m_editorctrl.SetContent( smp::config::PanelSettings::get_default_script_code().c_str() );
     return 0;
 }
 
@@ -374,7 +373,7 @@ LRESULT CDialogConf::OnFeaturesGrabFocus( WORD, WORD, HWND )
 
 LRESULT CDialogConf::OnHelp( WORD, WORD, HWND )
 {
-    pfc::stringcvt::string_os_from_utf8 path( smp::get_fb2k_component_path() );
+    pfc::stringcvt::string_os_from_utf8 path( smp::get_fb2k_component_path().c_str() );
     ShellExecute( 0, L"open", path + L"\\docs\\html\\index.html", 0, 0, SW_SHOW );
     return 0;
 }

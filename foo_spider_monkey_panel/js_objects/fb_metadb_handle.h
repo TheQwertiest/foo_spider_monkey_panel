@@ -48,8 +48,8 @@ public: // methods
 public: // props
     int64_t get_FileSize();
     double get_Length();
-    pfc::string8_fast get_Path();
-    pfc::string8_fast get_RawPath();
+    std::u8string get_Path();
+    std::u8string get_RawPath();
     uint32_t get_SubSong();
 
 private:

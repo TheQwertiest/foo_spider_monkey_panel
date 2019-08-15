@@ -20,7 +20,7 @@ namespace mozjs::convert::to_native::internal
 
 template <class T>
 struct _is_convertable_v
-    : std::bool_constant<std::is_fundamental_v<T> || std::is_same_v<pfc::string8_fast, T> || std::is_same_v<std::wstring, T>>
+    : std::bool_constant<std::is_fundamental_v<T> || std::is_same_v<std::u8string, T> || std::is_same_v<std::wstring, T> || std::is_same_v<pfc::string8_fast, T>>
 {
 };
 
@@ -92,10 +92,13 @@ template <>
 double ToSimpleValue<double>( JSContext* cx, const JS::HandleValue& jsValue );
 
 template <>
-pfc::string8_fast ToSimpleValue<pfc::string8_fast>( JSContext* cx, const JS::HandleValue& jsValue );
+std::u8string ToSimpleValue<std::u8string>( JSContext* cx, const JS::HandleValue& jsValue );
 
 template <>
 std::wstring ToSimpleValue<std::wstring>( JSContext* cx, const JS::HandleValue& jsValue );
+
+template <>
+pfc::string8_fast ToSimpleValue<pfc::string8_fast>( JSContext* cx, const JS::HandleValue& jsValue );
 
 template <>
 std::nullptr_t ToSimpleValue<std::nullptr_t>( JSContext* cx, const JS::HandleValue& jsValue );
@@ -163,10 +166,13 @@ T ToValue( JSContext* cx, const JS::HandleString& jsString )
 }
 
 template <>
-pfc::string8_fast ToValue( JSContext* cx, const JS::HandleString& jsString );
+std::u8string ToValue( JSContext* cx, const JS::HandleString& jsString );
 
 template <>
 std::wstring ToValue( JSContext* cx, const JS::HandleString& jsString );
+
+template <>
+pfc::string8_fast ToValue( JSContext* cx, const JS::HandleString& jsString );
 
 template <typename T, typename F>
 void ProcessArray( JSContext* cx, JS::HandleObject jsObject, F&& workerFunc )

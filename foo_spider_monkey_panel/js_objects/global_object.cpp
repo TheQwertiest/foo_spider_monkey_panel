@@ -186,7 +186,7 @@ JSObject* JsGlobalObject::CreateNative( JSContext* cx, JsContainer& parentContai
     return jsObj;
 }
 
-void JsGlobalObject::Fail( const pfc::string8_fast& errorText )
+void JsGlobalObject::Fail( const std::u8string& errorText )
 {
     parentContainer_.Fail( errorText );
 }
@@ -218,19 +218,19 @@ void JsGlobalObject::ClearTimeout( uint32_t timeoutId )
     pJsWindow_->ClearInterval( timeoutId );
 }
 
-void JsGlobalObject::IncludeScript( const pfc::string8_fast& path, JS::HandleValue options )
+void JsGlobalObject::IncludeScript( const std::u8string& path, JS::HandleValue options )
 {
     namespace fs = std::filesystem;
 
     const fs::path fsPath = [&path, &parentFilepaths = parentFilepaths_] {
         try
         {
-            fs::path fsPath = fs::u8path( path.c_str() );
+            fs::path fsPath = fs::u8path( path );
             if ( fsPath.is_relative() )
             {
                 if ( parentFilepaths.empty() )
                 {
-                    fsPath = fs::u8path( get_fb2k_component_path().c_str() ) / fsPath;
+                    fsPath = fs::u8path( get_fb2k_component_path() ) / fsPath;
                 }
                 else
                 {
@@ -238,13 +238,13 @@ void JsGlobalObject::IncludeScript( const pfc::string8_fast& path, JS::HandleVal
                 }
             }
 
-            SmpException::ExpectTrue( fs::exists( fsPath ) && fs::is_regular_file( fsPath ), "Path does not point to a valid file: {}", path.c_str() );
+            SmpException::ExpectTrue( fs::exists( fsPath ) && fs::is_regular_file( fsPath ), "Path does not point to a valid file: {}", path );
 
             return fsPath.lexically_normal();
         }
         catch ( const fs::filesystem_error& e )
         {
-            throw SmpException( fmt::format( "Failed to open file `{}`: {}", path.c_str(), e.what() ) );
+            throw SmpException( fmt::format( "Failed to open file `{}`: {}", path, e.what() ) );
         }
     }();
 
@@ -270,7 +270,7 @@ void JsGlobalObject::IncludeScript( const pfc::string8_fast& path, JS::HandleVal
     }
 }
 
-void JsGlobalObject::IncludeScriptWithOpt( size_t optArgCount, const pfc::string8_fast& path, JS::HandleValue options )
+void JsGlobalObject::IncludeScriptWithOpt( size_t optArgCount, const std::u8string& path, JS::HandleValue options )
 {
     switch ( optArgCount )
     {

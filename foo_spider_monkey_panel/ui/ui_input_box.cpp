@@ -10,9 +10,9 @@ CInputBox::CInputBox( const char* p_prompt, const char* p_caption, const char* p
 
 LRESULT CInputBox::OnInitDialog( HWND hwndFocus, LPARAM lParam )
 {
-    uSetWindowText( m_hWnd, m_caption );
-    uSendDlgItemMessageText( m_hWnd, IDC_INPUT_PROMPT, WM_SETTEXT, 0, m_prompt );
-    uSendDlgItemMessageText( m_hWnd, IDC_INPUT_VALUE, WM_SETTEXT, 0, m_value );
+    uSetWindowText( m_hWnd, m_caption.c_str() );
+    uSendDlgItemMessageText( m_hWnd, IDC_INPUT_PROMPT, WM_SETTEXT, 0, m_prompt.c_str() );
+    uSendDlgItemMessageText( m_hWnd, IDC_INPUT_VALUE, WM_SETTEXT, 0, m_value.c_str() );
 
     // Select all
     SendDlgItemMessage( IDC_INPUT_VALUE, EM_SETSEL, 0, -1 );
@@ -28,7 +28,9 @@ LRESULT CInputBox::OnCommand( UINT codeNotify, int id, HWND hwndCtl )
     {
         if ( id == IDOK )
         {
-            uGetDlgItemText( m_hWnd, IDC_INPUT_VALUE, m_value );
+            pfc::string8_fast tmp;
+            uGetDlgItemText( m_hWnd, IDC_INPUT_VALUE, tmp );
+            m_value = tmp;
         }
 
         EndDialog( id );
@@ -37,7 +39,7 @@ LRESULT CInputBox::OnCommand( UINT codeNotify, int id, HWND hwndCtl )
     return 0;
 }
 
-void CInputBox::GetValue( pfc::string_base& p_value )
+std::u8string CInputBox::GetValue()
 {
-    p_value = m_value;
+    return m_value;
 }

@@ -1,24 +1,12 @@
 #include <stdafx.h>
 #include "semantic_version.h"
 
+#include <utils/string_helpers.h>
+
 #include <charconv>
 
 namespace
 {
-
-std::optional<uint8_t> GetNumber( const std::string_view& strView )
-{
-    int8_t number;
-    if ( auto [pos, ec] = std::from_chars( strView.data(), strView.data() + strView.size(), number );
-         ec == std::errc{} )
-    {
-        return number;
-    }
-    else
-    {
-        return std::nullopt;
-    }
-}
 
 std::string_view ExtractSuffixData( std::string_view& strView, char separator )
 {
@@ -62,16 +50,10 @@ std::optional<SemVer> SemVer::ParseString( const std::string& strVer )
         return std::nullopt;
     }
 
-    const std::vector<std::string_view> splitViews =
-        ranges::view::split( curScope, '.' )
-        | ranges::view::transform( []( auto&& rng ) {
-              return std::string_view{ &*rng.begin(), static_cast<size_t>( ranges::distance( rng ) ) };
-          } );
-
     std::vector<std::optional<uint8_t>> versionNums;
-    for ( const auto& splitView: splitViews )
+    for ( const auto& splitView: smp::string::Split( curScope, '.' ) )
     {
-        const auto numRet = GetNumber( splitView );
+        const auto numRet = smp::string::GetNumber<int8_t>( splitView );
         if ( !numRet )
         {
             break;
@@ -166,11 +148,11 @@ bool SemVer::IsPreleaseNewer( std::string_view a, std::string_view b )
             }
             else if ( a_isNumber && b_isNumber )
             {
-                auto numRet = GetNumber( a_Token );
+                auto numRet = smp::string::GetNumber<int8_t>( a_Token );
                 assert( numRet ); // should be valid, because of `isNumber` check
                 const int8_t aNum = numRet.value();
 
-                numRet = GetNumber( a_Token );
+                numRet = smp::string::GetNumber<int8_t>( a_Token );
                 assert( numRet ); // should be valid, because of `isNumber` check
                 const int8_t bNum = numRet.value();
 

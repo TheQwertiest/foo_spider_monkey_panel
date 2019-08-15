@@ -114,7 +114,7 @@ void SaveProperties_Binary( const PanelProperties::config_map& data, stream_writ
                 {
                     return JsValueType::pt_double;
                 }
-                else if constexpr ( std::is_same_v<T, pfc::string8_fast> )
+                else if constexpr ( std::is_same_v<T, std::u8string> )
                 {
                     return JsValueType::pt_string;
                 }
@@ -128,7 +128,7 @@ void SaveProperties_Binary( const PanelProperties::config_map& data, stream_writ
 
             std::visit( [&writer, &abort]( auto&& arg ) {
                 using T = std::decay_t<decltype( arg )>;
-                if constexpr ( std::is_same_v<T, pfc::string8_fast> )
+                if constexpr ( std::is_same_v<T, std::u8string> )
                 {
                     const auto& value = arg;
                     writer->write_string( value.c_str(), value.length(), abort );

@@ -15,17 +15,12 @@ enum t_sci_editor_style_flag
 
 struct t_sci_editor_style
 {
-	t_sci_editor_style()
-	{
-		flags = 0;
-	}
-
-	unsigned flags;
-	bool italics, bold, underlined;
+	unsigned flags{};
+    bool italics{}, bold{}, underlined{};
 	pfc::string_simple font;
-	unsigned size;
-	DWORD fore, back;
-	int case_force;
+    unsigned size{};
+    DWORD fore{}, back{};
+    int case_force{};
 };
 
 struct t_sci_prop_set

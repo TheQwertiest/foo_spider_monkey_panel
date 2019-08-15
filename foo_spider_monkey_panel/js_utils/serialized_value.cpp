@@ -26,7 +26,7 @@ SerializedJsValue SerializeJsValue( JSContext* cx, JS::HandleValue jsValue )
     else if ( jsValue.isString() )
     {
         JS::RootedValue rVal( cx, jsValue );
-        serializedValue = convert::to_native::ToValue<pfc::string8_fast>( cx, rVal );
+        serializedValue = convert::to_native::ToValue<std::u8string>( cx, rVal );
     }
     else
     {
@@ -52,7 +52,7 @@ void DeserializeJsValue( JSContext* cx, const SerializedJsValue& serializedValue
         {
             jsValue.setDouble( arg );
         }
-        else if constexpr ( std::is_same_v<T, pfc::string8_fast> )
+        else if constexpr ( std::is_same_v<T, std::u8string> )
         {
             convert::to_js::ToValue( cx, arg, jsValue );
         }

@@ -52,7 +52,7 @@ public: //methods
     JSObject* Clone( float x, float y, float w, float h );
     JSObject* CreateRawBitmap();
     JSObject* GetColourScheme( uint32_t count );
-    pfc::string8_fast GetColourSchemeJSON( uint32_t count );
+    std::u8string GetColourSchemeJSON( uint32_t count );
     JSObject* GetGraphics();
     void ReleaseGraphics( JsGdiGraphics* graphics );
     JSObject* Resize( uint32_t w, uint32_t h, uint32_t interpolationMode = 0 );

@@ -111,7 +111,7 @@ T ConvertFileContent( const std::wstring& path, std::string_view content, UINT c
         {
             if ( CP_UTF8 == detectedCodepage )
             {
-                fileContent.set_string( curPos, curSize );
+                fileContent = std::u8string( curPos, curSize );
             }
             else
             {
@@ -221,18 +221,18 @@ std::string_view FileReader::GetFileContent() const
 }
 
 template <typename T>
-T ReadFileImpl( const pfc::string8_fast& path, UINT codepage, bool checkFileExistense )
+T ReadFileImpl( const std::u8string& path, UINT codepage, bool checkFileExistense )
 {
     namespace fs = std::filesystem;
 
     const fs::path fsPath = [&path] {
         try
         {
-            return fs::absolute( fs::u8path( path.c_str() ) ).lexically_normal();
+            return fs::absolute( fs::u8path( path ) ).lexically_normal();
         }
         catch ( const std::filesystem::filesystem_error& e )
         {
-            throw SmpException( fmt::format( "Failed to open file `{}`: {}", path.c_str(), e.what() ) );
+            throw SmpException( fmt::format( "Failed to open file `{}`: {}", path, e.what() ) );
         }
     }();
 
@@ -245,17 +245,17 @@ T ReadFileImpl( const pfc::string8_fast& path, UINT codepage, bool checkFileExis
 namespace smp::file
 {
 
-pfc::string8_fast ReadFile( const pfc::string8_fast& path, UINT codepage, bool checkFileExistense )
+std::u8string ReadFile( const std::u8string& path, UINT codepage, bool checkFileExistense )
 {
-    return ReadFileImpl<pfc::string8_fast>( path, codepage, checkFileExistense );
+    return ReadFileImpl<std::u8string>( path, codepage, checkFileExistense );
 }
 
-std::wstring ReadFileW( const pfc::string8_fast& path, UINT codepage, bool checkFileExistense )
+std::wstring ReadFileW( const std::u8string& path, UINT codepage, bool checkFileExistense )
 {
     return ReadFileImpl<std::wstring>( path, codepage, checkFileExistense );
 }
 
-bool WriteFile( const wchar_t* path, const pfc::string_base& content, bool write_bom )
+bool WriteFile( const wchar_t* path, const std::u8string& content, bool write_bom )
 {
     const int offset = ( write_bom ? sizeof( kBom8 ) : 0 );
     HANDLE hFile = CreateFile( path, GENERIC_READ | GENERIC_WRITE, 0, nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr );
@@ -267,7 +267,7 @@ bool WriteFile( const wchar_t* path, const pfc::string_base& content, bool write
         CloseHandle( hFile );
     } );
 
-    HANDLE hFileMapping = CreateFileMapping( hFile, nullptr, PAGE_READWRITE, 0, content.get_length() + offset, nullptr );
+    HANDLE hFileMapping = CreateFileMapping( hFile, nullptr, PAGE_READWRITE, 0, content.length() + offset, nullptr );
     if ( !hFileMapping )
     {
         return false;
@@ -289,7 +289,7 @@ bool WriteFile( const wchar_t* path, const pfc::string_base& content, bool write
     {
         memcpy( pFileView, kBom8, sizeof( kBom8 ) );
     }
-    memcpy( pFileView + offset, content.get_ptr(), content.get_length() );
+    memcpy( pFileView + offset, content.c_str(), content.length() );
 
     return true;
 }
@@ -359,7 +359,7 @@ std::wstring FileDialog( const std::wstring& title,
             smp::error::CheckHR( hr, "SetFileName" );
         }
 
-        const pfc::stringcvt::string_os_from_utf8 path( smp::get_fb2k_component_path() );
+        const pfc::stringcvt::string_os_from_utf8 path( smp::get_fb2k_component_path().c_str() );
 
         IShellItemPtr pFolder;
         hr = SHCreateItemFromParsingName( path, nullptr, pFolder.GetIID(), (void**)&pFolder );

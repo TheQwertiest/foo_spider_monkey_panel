@@ -133,7 +133,7 @@ size_t JsUtils::GetInternalSize()
     return 0;
 }
 
-bool JsUtils::CheckComponent( const pfc::string8_fast& name, bool is_dll )
+bool JsUtils::CheckComponent( const std::u8string& name, bool is_dll )
 {
     pfc::string8_fast temp;
     for ( service_enum_t<componentversion> e; !e.finished(); ++e )
@@ -148,7 +148,7 @@ bool JsUtils::CheckComponent( const pfc::string8_fast& name, bool is_dll )
             cv->get_component_name( temp );
         }
 
-        if ( temp == name )
+        if ( temp.c_str() == name )
         {
             return true;
         }
@@ -157,7 +157,7 @@ bool JsUtils::CheckComponent( const pfc::string8_fast& name, bool is_dll )
     return false;
 }
 
-bool JsUtils::CheckComponentWithOpt( size_t optArgCount, const pfc::string8_fast& name, bool is_dll )
+bool JsUtils::CheckComponentWithOpt( size_t optArgCount, const std::u8string& name, bool is_dll )
 {
     switch ( optArgCount )
     {
@@ -287,14 +287,14 @@ JS::Value JsUtils::FileTest( const std::wstring& path, const std::wstring& mode 
     throw SmpException( "Invalid value of mode argument" );
 }
 
-pfc::string8_fast JsUtils::FormatDuration( double p )
+std::u8string JsUtils::FormatDuration( double p )
 {
-    return pfc::string8_fast( pfc::format_time_ex( p, 0 ) );
+    return std::u8string( pfc::format_time_ex( p, 0 ) );
 }
 
-pfc::string8_fast JsUtils::FormatFileSize( uint64_t p )
+std::u8string JsUtils::FormatFileSize( uint64_t p )
 {
-    return pfc::string8_fast( pfc::format_file_size_short( p ) );
+    return std::u8string( pfc::format_file_size_short( p ) );
 }
 
 void JsUtils::GetAlbumArtAsync( uint32_t hWnd, JsFbMetadbHandle* handle, uint32_t art_id, bool need_stub, bool only_embed, bool no_load )
@@ -353,7 +353,7 @@ JSObject* JsUtils::GetAlbumArtAsyncV2WithOpt( size_t optArgCount, uint32_t hWnd,
     }
 }
 
-JSObject* JsUtils::GetAlbumArtEmbedded( const pfc::string8_fast& rawpath, uint32_t art_id )
+JSObject* JsUtils::GetAlbumArtEmbedded( const std::u8string& rawpath, uint32_t art_id )
 {
     std::unique_ptr<Gdiplus::Bitmap> artImage( smp::art::GetBitmapFromEmbeddedData( rawpath, art_id ) );
     if ( !artImage )
@@ -364,7 +364,7 @@ JSObject* JsUtils::GetAlbumArtEmbedded( const pfc::string8_fast& rawpath, uint32
     return JsGdiBitmap::CreateJs( pJsCtx_, std::move( artImage ) );
 }
 
-JSObject* JsUtils::GetAlbumArtEmbeddedWithOpt( size_t optArgCount, const pfc::string8_fast& rawpath, uint32_t art_id )
+JSObject* JsUtils::GetAlbumArtEmbeddedWithOpt( size_t optArgCount, const std::u8string& rawpath, uint32_t art_id )
 {
     switch ( optArgCount )
     {
@@ -418,14 +418,14 @@ uint32_t JsUtils::GetSystemMetrics( uint32_t index )
     return ::GetSystemMetrics( index );
 }
 
-JSObject* JsUtils::Glob( const pfc::string8_fast& pattern, uint32_t exc_mask, uint32_t inc_mask )
+JSObject* JsUtils::Glob( const std::u8string& pattern, uint32_t exc_mask, uint32_t inc_mask )
 {
-    std::vector<pfc::string8_fast> files;
+    std::vector<std::u8string> files;
     {
         std::unique_ptr<uFindFile> ff( uFindFirstFile( pattern.c_str() ) );
         if ( ff )
         {
-            const pfc::string8_fast dir( pattern.c_str(), pfc::scan_filename( pattern.c_str() ) );
+            const std::u8string dir( pattern.c_str(), pfc::scan_filename( pattern.c_str() ) );
             do
             {
                 const DWORD attr = ff->GetAttributes();
@@ -449,7 +449,7 @@ JSObject* JsUtils::Glob( const pfc::string8_fast& pattern, uint32_t exc_mask, ui
     return &jsValue.toObject();
 }
 
-JSObject* JsUtils::GlobWithOpt( size_t optArgCount, const pfc::string8_fast& pattern, uint32_t exc_mask, uint32_t inc_mask )
+JSObject* JsUtils::GlobWithOpt( size_t optArgCount, const std::u8string& pattern, uint32_t exc_mask, uint32_t inc_mask )
 {
     switch ( optArgCount )
     {
@@ -464,13 +464,13 @@ JSObject* JsUtils::GlobWithOpt( size_t optArgCount, const pfc::string8_fast& pat
     }
 }
 
-pfc::string8_fast JsUtils::InputBox( uint32_t hWnd, const pfc::string8_fast& prompt, const pfc::string8_fast& caption, const pfc::string8_fast& def, bool error_on_cancel )
+std::u8string JsUtils::InputBox( uint32_t hWnd, const std::u8string& prompt, const std::u8string& caption, const std::u8string& def, bool error_on_cancel )
 {
     if ( modal_dialog_scope::can_create() )
     {
         modal_dialog_scope scope( reinterpret_cast<HWND>( hWnd ) );
 
-        CInputBox dlg( prompt, caption, def );
+        CInputBox dlg( prompt.c_str(), caption.c_str(), def.c_str() );
         int status = dlg.DoModal( reinterpret_cast<HWND>( hWnd ) );
         if ( status == IDCANCEL && error_on_cancel )
         {
@@ -479,16 +479,14 @@ pfc::string8_fast JsUtils::InputBox( uint32_t hWnd, const pfc::string8_fast& pro
 
         if ( status == IDOK )
         {
-            pfc::string8_fast val;
-            dlg.GetValue( val );
-            return val;
+            return dlg.GetValue();
         }
     }
 
     return def;
 }
 
-pfc::string8_fast JsUtils::InputBoxWithOpt( size_t optArgCount, uint32_t hWnd, const pfc::string8_fast& prompt, const pfc::string8_fast& caption, const pfc::string8_fast& def, bool error_on_cancel )
+std::u8string JsUtils::InputBoxWithOpt( size_t optArgCount, uint32_t hWnd, const std::u8string& prompt, const std::u8string& caption, const std::u8string& def, bool error_on_cancel )
 {
     switch ( optArgCount )
     {
@@ -585,12 +583,12 @@ std::wstring JsUtils::ReadINIWithOpt( size_t optArgCount, const std::wstring& fi
     }
 }
 
-std::wstring JsUtils::ReadTextFile( const pfc::string8_fast& filePath, uint32_t codepage )
+std::wstring JsUtils::ReadTextFile( const std::u8string& filePath, uint32_t codepage )
 {
     return smp::file::ReadFileW( filePath, codepage );
 }
 
-std::wstring JsUtils::ReadTextFileWithOpt( size_t optArgCount, const pfc::string8_fast& filePath, uint32_t codepage )
+std::wstring JsUtils::ReadTextFileWithOpt( size_t optArgCount, const std::u8string& filePath, uint32_t codepage )
 {
     switch ( optArgCount )
     {
@@ -646,14 +644,14 @@ bool JsUtils::WriteINI( const std::wstring& filename, const std::wstring& sectio
     return WritePrivateProfileString( section.c_str(), key.c_str(), val.c_str(), filename.c_str() );
 }
 
-bool JsUtils::WriteTextFile( const std::wstring& filename, const pfc::string8_fast& content, bool write_bom )
+bool JsUtils::WriteTextFile( const std::wstring& filename, const std::u8string& content, bool write_bom )
 { // TODO: inspect the code (replace with std::filesystem perhaps?)
     SmpException::ExpectTrue( !filename.empty(), "Invalid filename" );
 
     return smp::file::WriteFile( filename.c_str(), content, write_bom );
 }
 
-bool JsUtils::WriteTextFileWithOpt( size_t optArgCount, const std::wstring& filename, const pfc::string8_fast& content, bool write_bom )
+bool JsUtils::WriteTextFileWithOpt( size_t optArgCount, const std::wstring& filename, const std::u8string& content, bool write_bom )
 {
     switch ( optArgCount )
     {
@@ -666,7 +664,7 @@ bool JsUtils::WriteTextFileWithOpt( size_t optArgCount, const std::wstring& file
     }
 }
 
-pfc::string8_fast JsUtils::get_Version()
+std::u8string JsUtils::get_Version()
 {
     return SMP_VERSION;
 }

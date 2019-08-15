@@ -19,10 +19,10 @@ public:
 
     LRESULT OnInitDialog( HWND hwndFocus, LPARAM lParam );
     LRESULT OnCommand( UINT codeNotify, int id, HWND hwndCtl );
-    void GetValue( pfc::string_base& p_value );
+    std::u8string GetValue();
 
 private:
-    pfc::string8 m_prompt;
-    pfc::string8 m_caption;
-    pfc::string8 m_value;
+    std::u8string m_prompt;
+    std::u8string m_caption;
+    std::u8string m_value;
 };

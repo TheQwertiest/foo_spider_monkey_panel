@@ -36,7 +36,7 @@ public:
     class_data& get_class_data() const override;
 
     void update_script( const char* code = nullptr );
-    void JsEngineFail( const pfc::string8_fast& errorText );
+    void JsEngineFail( const std::u8string& errorText );
 
 protected:
     virtual void notify_size_limit_changed( LPARAM lp ) = 0;

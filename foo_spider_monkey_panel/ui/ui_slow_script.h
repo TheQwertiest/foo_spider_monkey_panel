@@ -14,7 +14,7 @@ public:
         bool stop = false;
     };
 
-    CDialogSlowScript( const pfc::string8_fast& panelName, const pfc::string8_fast& scriptInfo, CDialogSlowScript::Data& data );
+    CDialogSlowScript( const std::u8string& panelName, const std::u8string& scriptInfo, CDialogSlowScript::Data& data );
 
     BEGIN_MSG_MAP( CDialogSlowScript )
     MSG_WM_INITDIALOG( OnInitDialog )
@@ -36,8 +36,8 @@ public:
     LRESULT OnCloseCmd( WORD wNotifyCode, WORD wID, HWND hWndCtl );
 
 private:
-    const pfc::string8_fast panelName_;
-    const pfc::string8_fast scriptInfo_;
+    const std::u8string panelName_;
+    const std::u8string scriptInfo_;
     CDialogSlowScript::Data& data_;
 };
 

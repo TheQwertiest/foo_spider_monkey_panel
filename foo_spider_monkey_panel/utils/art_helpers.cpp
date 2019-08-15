@@ -59,7 +59,7 @@ void AlbumArtFetchTask::operator()()
 
 void AlbumArtFetchTask::run()
 {
-    pfc::string8_fast imagePath;
+    std::u8string imagePath;
     std::unique_ptr<Gdiplus::Bitmap> bitmap = art::GetBitmapFromMetadbOrEmbed( handle_, artId_, needStub_, onlyEmbed_, noLoad_, &imagePath );
 
     panel::message_manager::instance().post_callback_msg( hNotifyWnd_,
@@ -69,7 +69,7 @@ void AlbumArtFetchTask::run()
                                                                   metadb_handle_ptr,
                                                                   uint32_t,
                                                                   std::unique_ptr<Gdiplus::Bitmap>,
-                                                                  pfc::string8_fast>>( handle_,
+                                                                  std::u8string>>( handle_,
                                                                                        artId_,
                                                                                        std::move( bitmap ),
                                                                                        imagePath ) );
@@ -114,7 +114,7 @@ std::unique_ptr<Gdiplus::Bitmap> GetBitmapFromAlbumArtData( const album_art_data
 }
 
 /// @details Throws pfc::exception, if art is not found or if aborted
-std::unique_ptr<Gdiplus::Bitmap> ExtractBitmap( album_art_extractor_instance_v2::ptr extractor, const GUID& artTypeGuid, bool no_load, pfc::string8_fast* pImagePath, abort_callback& abort )
+std::unique_ptr<Gdiplus::Bitmap> ExtractBitmap( album_art_extractor_instance_v2::ptr extractor, const GUID& artTypeGuid, bool no_load, std::u8string* pImagePath, abort_callback& abort )
 {
     album_art_data_ptr data = extractor->query( artTypeGuid, abort );
     std::unique_ptr<Gdiplus::Bitmap> bitmap;
@@ -160,21 +160,21 @@ void embed_thread::run( threaded_process_status& p_status,
 
     for ( auto&& [i, handle]: ranges::view::enumerate( stlHandleList ) )
     {
-        const pfc::string8_fast path = handle->get_path();
+        const std::u8string path = handle->get_path();
         p_status.set_progress( i, stlHandleList.size() );
-        p_status.set_item_path( path );
+        p_status.set_item_path( path.c_str() );
 
         album_art_editor::ptr ptr;
-        if ( !album_art_editor::g_get_interface( ptr, path ) )
+        if ( !album_art_editor::g_get_interface( ptr, path.c_str() ) )
         {
             continue;
         }
 
         try
         {
-            auto scopedLock = api->acquire_write( path, p_abort );
+            auto scopedLock = api->acquire_write( path.c_str(), p_abort );
 
-            auto aaep = ptr->open( nullptr, path, p_abort );
+            auto aaep = ptr->open( nullptr, path.c_str(), p_abort );
             switch ( m_action )
             {
             case EmbedAction::embed:
@@ -239,7 +239,7 @@ const GUID& GetGuidForArtId( uint32_t art_id )
     return *guids[art_id];
 }
 
-std::unique_ptr<Gdiplus::Bitmap> GetBitmapFromEmbeddedData( const pfc::string8_fast& rawpath, uint32_t art_id )
+std::unique_ptr<Gdiplus::Bitmap> GetBitmapFromEmbeddedData( const std::u8string& rawpath, uint32_t art_id )
 {
     const pfc::string_extension extension( rawpath.c_str() );
     const GUID& artTypeGuid = GetGuidForArtId( art_id );
@@ -268,7 +268,7 @@ std::unique_ptr<Gdiplus::Bitmap> GetBitmapFromEmbeddedData( const pfc::string8_f
     return nullptr;
 }
 
-std::unique_ptr<Gdiplus::Bitmap> GetBitmapFromMetadb( const metadb_handle_ptr& handle, uint32_t art_id, bool need_stub, bool no_load, pfc::string8_fast* pImagePath )
+std::unique_ptr<Gdiplus::Bitmap> GetBitmapFromMetadb( const metadb_handle_ptr& handle, uint32_t art_id, bool need_stub, bool no_load, std::u8string* pImagePath )
 {
     assert( handle.is_valid() );
 
@@ -299,11 +299,11 @@ std::unique_ptr<Gdiplus::Bitmap> GetBitmapFromMetadb( const metadb_handle_ptr& h
     return nullptr;
 }
 
-std::unique_ptr<Gdiplus::Bitmap> GetBitmapFromMetadbOrEmbed( const metadb_handle_ptr& handle, uint32_t art_id, bool need_stub, bool only_embed, bool no_load, pfc::string8_fast* pImagePath )
+std::unique_ptr<Gdiplus::Bitmap> GetBitmapFromMetadbOrEmbed( const metadb_handle_ptr& handle, uint32_t art_id, bool need_stub, bool only_embed, bool no_load, std::u8string* pImagePath )
 {
     assert( handle.is_valid() );
 
-    pfc::string8_fast imagePath;
+    std::u8string imagePath;
     std::unique_ptr<Gdiplus::Bitmap> bitmap;
 
     try
@@ -328,7 +328,7 @@ std::unique_ptr<Gdiplus::Bitmap> GetBitmapFromMetadbOrEmbed( const metadb_handle
 
     if ( pImagePath )
     {
-        *pImagePath = ( imagePath.is_empty() ? "" : file_path_display( imagePath ).get_ptr() );
+        *pImagePath = ( imagePath.empty() ? "" : file_path_display( imagePath.c_str() ).get_ptr() );
     }
 
     return bitmap;

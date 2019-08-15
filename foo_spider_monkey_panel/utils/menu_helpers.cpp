@@ -29,7 +29,7 @@ namespace
 
 using GuidMenuMap = std::unordered_map<GUID, mainmenu_group::ptr>;
 
-bool match_menu_command( const pfc::string8_fast& path, const pfc::string8_fast& command )
+bool match_menu_command( const std::u8string& path, const std::u8string& command )
 {
     const auto commandLen = command.length();
     const auto pathLen = path.length();
@@ -45,10 +45,10 @@ bool match_menu_command( const pfc::string8_fast& path, const pfc::string8_fast&
         return true;
     }
 
-    return ( ( path[pathLen - commandLen - 1] == '/' ) && !_stricmp( path.c_str() + pathLen - commandLen, command ) );
+    return ( ( path[pathLen - commandLen - 1] == '/' ) && !_stricmp( path.c_str() + pathLen - commandLen, command.c_str() ) );
 }
 
-std::optional<contextmenu_node*> find_context_command_recur( const pfc::string8_fast& p_command, pfc::string8_fast& basePath, contextmenu_node* p_parent )
+std::optional<contextmenu_node*> find_context_command_recur( const std::u8string& p_command, std::u8string& basePath, contextmenu_node* p_parent )
 {
     assert( p_parent && p_parent->get_type() == contextmenu_item_node::TYPE_POPUP );
      
@@ -60,14 +60,14 @@ std::optional<contextmenu_node*> find_context_command_recur( const pfc::string8_
             continue;
         }
 
-        pfc::string8_fast curPath = basePath;
+        std::u8string curPath = basePath;
         curPath += child->get_name();
 
         switch ( child->get_type() )
         {
         case contextmenu_item_node::TYPE_POPUP:
         {
-            curPath.add_char('/');
+            curPath += '/';
 
             if ( auto retVal = find_context_command_recur( p_command, curPath, child );
                  retVal )
@@ -92,7 +92,7 @@ std::optional<contextmenu_node*> find_context_command_recur( const pfc::string8_
 }
 
 /// @throw pfc::exception
-bool execute_context_command_by_name_unsafe( const pfc::string8_fast& name, const metadb_handle_list& p_handles, unsigned flags )
+bool execute_context_command_by_name_unsafe( const std::u8string& name, const metadb_handle_list& p_handles, unsigned flags )
 {
     contextmenu_manager::ptr cm;
     contextmenu_manager::g_create( cm );
@@ -112,7 +112,7 @@ bool execute_context_command_by_name_unsafe( const pfc::string8_fast& name, cons
         return false;
     }
 
-    pfc::string8_fast emptyPath;
+    std::u8string emptyPath;
     if ( auto retVal = find_context_command_recur( name, emptyPath, pRoot );
          retVal && retVal.value() )
     {
@@ -135,9 +135,9 @@ GuidMenuMap GenerateGuidMainmenuMap()
     return guidMap;
 }
 
-pfc::string8_fast generate_mainmenu_command_path( const GuidMenuMap& group_guid_map, const service_ptr_t<mainmenu_commands> ptr )
+std::u8string generate_mainmenu_command_path( const GuidMenuMap& group_guid_map, const service_ptr_t<mainmenu_commands> ptr )
 {
-    pfc::string8_fast path;
+    std::u8string path;
 
     GUID group_guid = ptr->get_parent();
     while ( group_guid_map.count( group_guid ) )
@@ -147,14 +147,12 @@ pfc::string8_fast generate_mainmenu_command_path( const GuidMenuMap& group_guid_
         if ( mainmenu_group_popup::ptr group_popup_ptr;
              group_ptr->service_query_t( group_popup_ptr ) )
         {
-            pfc::string8_fast temp;
-            group_popup_ptr->get_display_string( temp );
+            pfc::string8_fast displayName;
+            group_popup_ptr->get_display_string( displayName );
 
-            if ( !temp.is_empty() )
+            if ( !displayName.is_empty() )
             {
-                temp.add_char( '/' );
-                temp += path;
-                path = temp;
+                path = fmt::format( "{}/{}", displayName.c_str(), path );
             }
         }
 
@@ -164,11 +162,11 @@ pfc::string8_fast generate_mainmenu_command_path( const GuidMenuMap& group_guid_
     return path;
 }
 
-std::optional<mainmenu_node::ptr> find_mainmenu_command_v2_node_recur( mainmenu_node::ptr node, const pfc::string8_fast& basePath, const pfc::string8_fast& name )
+std::optional<mainmenu_node::ptr> find_mainmenu_command_v2_node_recur( mainmenu_node::ptr node, const std::u8string& basePath, const std::u8string& name )
 {
     assert( node.is_valid() );
 
-    pfc::string8_fast curPath = basePath;
+    std::u8string curPath = basePath;
 
     if ( mainmenu_node::type_separator == node->get_type() )
     {
@@ -180,7 +178,7 @@ std::optional<mainmenu_node::ptr> find_mainmenu_command_v2_node_recur( mainmenu_
     node->get_display( displayName, tmp );
     if ( !displayName.is_empty() )
     {
-        curPath += displayName;
+        curPath += displayName.c_str();
     }
 
     switch ( node->get_type() )
@@ -195,9 +193,9 @@ std::optional<mainmenu_node::ptr> find_mainmenu_command_v2_node_recur( mainmenu_
     }
     case mainmenu_node::type_group:
     {
-        if ( !curPath.ends_with( '/' ) )
+        if ( curPath[curPath.length() - 1] != '/' )
         {
-            curPath.add_char( '/' );
+            curPath += '/';
         }
 
         for ( auto i: ranges::view::indices( node->get_children_count() ) )
@@ -222,7 +220,7 @@ std::optional<mainmenu_node::ptr> find_mainmenu_command_v2_node_recur( mainmenu_
 
 /// @throw pfc::exception
 template <typename F_New, typename F_Old>
-bool ApplyFnOnMainmenuNode( const pfc::string8_fast& name, F_New fnNew, F_Old fnOld )
+bool ApplyFnOnMainmenuNode( const std::u8string& name, F_New fnNew, F_Old fnOld )
 {
     const GuidMenuMap group_guid_text_map = GenerateGuidMainmenuMap();
 
@@ -232,7 +230,7 @@ bool ApplyFnOnMainmenuNode( const pfc::string8_fast& name, F_New fnNew, F_Old fn
 
         for ( auto idx: ranges::view::indices( mmc->get_command_count() ) )
         {
-            pfc::string8_fast path = generate_mainmenu_command_path( group_guid_text_map, mmc );
+            std::u8string path = generate_mainmenu_command_path( group_guid_text_map, mmc );
 
             if ( mainmenu_commands_v2::ptr mmc_v2;
                  mmc->service_query_t( mmc_v2 ) && mmc_v2->is_command_dynamic( idx ) )
@@ -270,7 +268,7 @@ bool ApplyFnOnMainmenuNode( const pfc::string8_fast& name, F_New fnNew, F_Old fn
 namespace smp::utils
 {
 
-bool execute_context_command_by_name( const pfc::string8_fast& name, const metadb_handle_list& p_handles, unsigned flags )
+bool execute_context_command_by_name( const std::u8string& name, const metadb_handle_list& p_handles, unsigned flags )
 {
     try
     {
@@ -281,7 +279,7 @@ bool execute_context_command_by_name( const pfc::string8_fast& name, const metad
         return false;
     }
 }
-bool execute_mainmenu_command_by_name( const pfc::string8_fast& name )
+bool execute_mainmenu_command_by_name( const std::u8string& name )
 {
     try
     {
@@ -294,7 +292,7 @@ bool execute_mainmenu_command_by_name( const pfc::string8_fast& name )
         return false;
     }
 }
-void get_mainmenu_command_status_by_name( const pfc::string8_fast& name, uint32_t& status )
+void get_mainmenu_command_status_by_name( const std::u8string& name, uint32_t& status )
 {
     try
     {

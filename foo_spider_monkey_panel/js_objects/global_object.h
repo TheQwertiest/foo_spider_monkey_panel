@@ -30,7 +30,7 @@ public:
     static JSObject* CreateNative( JSContext* cx, JsContainer& parentContainer, smp::panel::js_panel_window& parentPanel );
 
 public:
-    void Fail( const pfc::string8_fast& errorText );
+    void Fail( const std::u8string& errorText );
 
     GlobalHeapManager& GetHeapManager() const;
 
@@ -39,8 +39,8 @@ public:
 public: // methods
     void ClearInterval( uint32_t intervalId );
     void ClearTimeout( uint32_t timeoutId );
-    void IncludeScript( const pfc::string8_fast& path, JS::HandleValue options = JS::UndefinedHandleValue );
-    void IncludeScriptWithOpt( size_t optArgCount, const pfc::string8_fast& path, JS::HandleValue options );
+    void IncludeScript( const std::u8string& path, JS::HandleValue options = JS::UndefinedHandleValue );
+    void IncludeScriptWithOpt( size_t optArgCount, const std::u8string& path, JS::HandleValue options );
     uint32_t SetInterval( JS::HandleValue func, uint32_t delay, JS::HandleValueArray funcArgs = JS::HandleValueArray{ JS::UndefinedHandleValue } );
     uint32_t SetIntervalWithOpt( size_t optArgCount, JS::HandleValue func, uint32_t delay, JS::HandleValueArray funcArgs );
     uint32_t SetTimeout( JS::HandleValue func, uint32_t delay, JS::HandleValueArray funcArgs );

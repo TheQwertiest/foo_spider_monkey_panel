@@ -64,7 +64,7 @@ const JSPropertySpec* JsFbTitleFormat::JsProperties = jsProperties;
 const JsPrototypeId JsFbTitleFormat::PrototypeId = JsPrototypeId::FbTitleFormat;
 const JSNative JsFbTitleFormat::JsConstructor = ::FbTitleFormat_Constructor;
 
-JsFbTitleFormat::JsFbTitleFormat( JSContext* cx, const pfc::string8_fast& expr )
+JsFbTitleFormat::JsFbTitleFormat( JSContext* cx, const std::u8string& expr )
     : pJsCtx_( cx )
 {
     titleformat_compiler::get()->compile_safe( titleFormatObject_, expr.c_str() );
@@ -75,12 +75,12 @@ JsFbTitleFormat::~JsFbTitleFormat()
 }
 
 std::unique_ptr<JsFbTitleFormat>
-JsFbTitleFormat::CreateNative( JSContext* cx, const pfc::string8_fast& expr )
+JsFbTitleFormat::CreateNative( JSContext* cx, const std::u8string& expr )
 {
     return std::unique_ptr<JsFbTitleFormat>( new JsFbTitleFormat( cx, expr ) );
 }
 
-size_t JsFbTitleFormat::GetInternalSize( const pfc::string8_fast& /*expr*/ )
+size_t JsFbTitleFormat::GetInternalSize( const std::u8string& /*expr*/ )
 {
     return sizeof( titleformat_object );
 }
@@ -90,7 +90,7 @@ titleformat_object::ptr JsFbTitleFormat::GetTitleFormat()
     return titleFormatObject_;
 }
 
-JSObject* JsFbTitleFormat::Constructor( JSContext* cx, const pfc::string8_fast& expr )
+JSObject* JsFbTitleFormat::Constructor( JSContext* cx, const std::u8string& expr )
 {
     return JsFbTitleFormat::CreateJs( cx, expr );
 }
@@ -99,8 +99,7 @@ pfc::string8_fast JsFbTitleFormat::Eval( bool force )
 {
     auto pc = playback_control::get();
     metadb_handle_ptr handle;
-    pfc::string8_fast text;
-
+    
     if ( !pc->is_playing() && force )
     { // Trying to get handle to any known playable location
         if ( !metadb::g_get_random_handle( handle ) )
@@ -108,8 +107,9 @@ pfc::string8_fast JsFbTitleFormat::Eval( bool force )
             metadb::get()->handle_create( handle, playable_location_impl{} );
         }
     }
-    pc->playback_format_title_ex( handle, nullptr, text, titleFormatObject_, nullptr, playback_control::display_level_all );
 
+    pfc::string8_fast text;
+    pc->playback_format_title_ex( handle, nullptr, text, titleFormatObject_, nullptr, playback_control::display_level_all );
     return text;
 }
 
@@ -132,7 +132,6 @@ pfc::string8_fast JsFbTitleFormat::EvalWithMetadb( JsFbMetadbHandle* handle )
 
     pfc::string8_fast text;
     handle->GetHandle()->format_title( nullptr, text, titleFormatObject_, nullptr );
-
     return text;
 }
 

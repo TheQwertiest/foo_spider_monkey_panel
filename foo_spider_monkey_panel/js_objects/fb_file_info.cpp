@@ -95,39 +95,39 @@ size_t JsFbFileInfo::GetInternalSize( const metadb_info_container::ptr& /*contai
     return sizeof( file_info_impl );
 }
 
-int32_t JsFbFileInfo::InfoFind( const pfc::string8_fast& name )
+int32_t JsFbFileInfo::InfoFind( const std::u8string& name )
 {
     return fileInfo_.info_find_ex( name.c_str(), name.length() );
 }
 
-pfc::string8_fast JsFbFileInfo::InfoName( uint32_t index )
+std::u8string JsFbFileInfo::InfoName( uint32_t index )
 {
     SmpException::ExpectTrue( index < fileInfo_.info_get_count(), "Index is out of bounds" );
 
     return fileInfo_.info_enum_name( index );
 }
 
-pfc::string8_fast JsFbFileInfo::InfoValue( uint32_t index )
+std::u8string JsFbFileInfo::InfoValue( uint32_t index )
 {
     SmpException::ExpectTrue( index < fileInfo_.info_get_count(), "Index is out of bounds" );
 
     return fileInfo_.info_enum_value( index );
 }
 
-int32_t JsFbFileInfo::MetaFind( const pfc::string8_fast& name )
+int32_t JsFbFileInfo::MetaFind( const std::u8string& name )
 {
     const t_size idx = fileInfo_.meta_find_ex( name.c_str(), name.length() );
     return ( ( idx == pfc_infinite ) ? -1 : static_cast<int32_t>( idx ) );
 }
 
-pfc::string8_fast JsFbFileInfo::MetaName( uint32_t index )
+std::u8string JsFbFileInfo::MetaName( uint32_t index )
 {
     SmpException::ExpectTrue( index < fileInfo_.meta_get_count(), "Index is out of bounds" );
 
     return fileInfo_.meta_enum_name( index );
 }
 
-pfc::string8_fast JsFbFileInfo::MetaValue( uint32_t infoIndex, uint32_t valueIndex )
+std::u8string JsFbFileInfo::MetaValue( uint32_t infoIndex, uint32_t valueIndex )
 {
     SmpException::ExpectTrue( infoIndex < fileInfo_.meta_get_count(), "Index is out of bounds" );
     SmpException::ExpectTrue( valueIndex < fileInfo_.meta_enum_value_count( infoIndex ), "Index is out of bounds" );

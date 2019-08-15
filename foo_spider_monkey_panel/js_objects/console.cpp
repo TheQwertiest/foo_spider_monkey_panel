@@ -20,11 +20,11 @@ namespace
 
 using namespace mozjs;
 
-pfc::string8_fast ParseJsValue( JSContext* cx, JS::HandleValue jsValue, JS::AutoObjectVector& curObjects, uint32_t& logDepth, bool isParentObject );
+std::u8string ParseJsValue( JSContext* cx, JS::HandleValue jsValue, JS::AutoObjectVector& curObjects, uint32_t& logDepth, bool isParentObject );
 
-pfc::string8_fast ParseJsArray( JSContext* cx, JS::HandleObject jsObject, JS::AutoObjectVector& curObjects, uint32_t& logDepth )
+std::u8string ParseJsArray( JSContext* cx, JS::HandleObject jsObject, JS::AutoObjectVector& curObjects, uint32_t& logDepth )
 {
-    pfc::string8_fast output;
+    std::u8string output;
 
     output += "[";
 
@@ -54,9 +54,9 @@ pfc::string8_fast ParseJsArray( JSContext* cx, JS::HandleObject jsObject, JS::Au
     return output;
 }
 
-pfc::string8_fast ParseJsObject( JSContext* cx, JS::HandleObject jsObject, JS::AutoObjectVector& curObjects, uint32_t& logDepth )
+std::u8string ParseJsObject( JSContext* cx, JS::HandleObject jsObject, JS::AutoObjectVector& curObjects, uint32_t& logDepth )
 {
-    pfc::string8_fast output;
+    std::u8string output;
 
     {
         JS::RootedObject jsUnwrappedObject( cx, jsObject );
@@ -97,7 +97,7 @@ pfc::string8_fast ParseJsObject( JSContext* cx, JS::HandleObject jsObject, JS::A
         else
         {
             jsIdValue = js::IdToValue( jsId );
-            output += convert::to_native::ToValue<pfc::string8_fast>( cx, jsIdValue );
+            output += convert::to_native::ToValue<std::u8string>( cx, jsIdValue );
             output += "=";
             output += ParseJsValue( cx, jsValue, curObjects, logDepth, true );
             if ( i != length - 1 || hasFunctions )
@@ -117,9 +117,9 @@ pfc::string8_fast ParseJsObject( JSContext* cx, JS::HandleObject jsObject, JS::A
     return output;
 }
 
-pfc::string8_fast ParseJsValue( JSContext* cx, JS::HandleValue jsValue, JS::AutoObjectVector& curObjects, uint32_t& logDepth, bool isParentObject )
+std::u8string ParseJsValue( JSContext* cx, JS::HandleValue jsValue, JS::AutoObjectVector& curObjects, uint32_t& logDepth, bool isParentObject )
 {
-    pfc::string8_fast output;
+    std::u8string output;
 
     ++logDepth;
     utils::final_action autoDecrement( [&logDepth] { --logDepth; } );
@@ -132,7 +132,7 @@ pfc::string8_fast ParseJsValue( JSContext* cx, JS::HandleValue jsValue, JS::Auto
         {
             output += "\"";
         }
-        output += convert::to_native::ToValue<pfc::string8_fast>( cx, jsValue );
+        output += convert::to_native::ToValue<std::u8string>( cx, jsValue );
         if ( showQuotes )
         {
             output += "\"";
@@ -186,14 +186,14 @@ pfc::string8_fast ParseJsValue( JSContext* cx, JS::HandleValue jsValue, JS::Auto
     return output;
 }
 
-std::optional<pfc::string8_fast> ParseLogArgs( JSContext* cx, JS::CallArgs& args )
+std::optional<std::u8string> ParseLogArgs( JSContext* cx, JS::CallArgs& args )
 {
     if ( !args.length() )
     {
         return std::nullopt;
     }
 
-    pfc::string8_fast outputString;
+    std::u8string outputString;
     JS::AutoObjectVector curObjects( cx );
     uint32_t logDepth = 0;
     for ( size_t i = 0; i < args.length(); ++i )

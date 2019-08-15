@@ -41,7 +41,7 @@ namespace mozjs
 template <typename ReturnType = std::nullptr_t, typename... ArgTypes>
 std::optional<ReturnType> InvokeJsCallback( JSContext* cx,
                                             JS::HandleObject globalObject,
-                                            pfc::string8_fast functionName,
+                                            std::u8string functionName,
                                             ArgTypes&&... args )
 {
     assert( cx );

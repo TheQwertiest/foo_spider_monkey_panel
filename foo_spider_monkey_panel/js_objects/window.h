@@ -51,8 +51,8 @@ public: // methods
     JSObject* CreateThemeManager( const std::wstring& classid );
     JSObject* CreateTooltip( const std::wstring& name = L"Segoe UI", float pxSize = 12, uint32_t style = 0 );
     JSObject* CreateTooltipWithOpt( size_t optArgCount, const std::wstring& name, float pxSize, uint32_t style );
-    void DefinePanel( const pfc::string8_fast& name, JS::HandleValue options = JS::UndefinedHandleValue );
-    void DefinePanelWithOpt( size_t optArgCount, const pfc::string8_fast& name, JS::HandleValue options = JS::UndefinedHandleValue );
+    void DefinePanel( const std::u8string& name, JS::HandleValue options = JS::UndefinedHandleValue );
+    void DefinePanelWithOpt( size_t optArgCount, const std::u8string& name, JS::HandleValue options = JS::UndefinedHandleValue );
     uint32_t GetColourCUI( uint32_t type, const std::wstring& guidstr = L"" );
     uint32_t GetColourCUIWithOpt( size_t optArgCount, uint32_t type, const std::wstring& guidstr );
     uint32_t GetColourDUI( uint32_t type );
@@ -89,7 +89,7 @@ public: // props
     uint32_t get_MemoryLimit();
     uint32_t get_MinHeight();
     uint32_t get_MinWidth();
-    pfc::string8_fast get_Name();
+    std::u8string get_Name();
     uint64_t get_PanelMemoryUsage();
     uint64_t get_TotalMemoryUsage();
     uint32_t get_Width();
@@ -104,8 +104,8 @@ private:
 
     struct DefinePanelOptions
     {
-        pfc::string8_fast author;
-        pfc::string8_fast version;
+        std::u8string author;
+        std::u8string version;
         struct Features
         {
             bool drag_n_drop = false;

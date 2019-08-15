@@ -266,7 +266,7 @@ JSObject* JsWindow::CreateTooltipWithOpt( size_t optArgCount, const std::wstring
     }
 }
 
-void JsWindow::DefinePanel( const pfc::string8_fast& name, JS::HandleValue options )
+void JsWindow::DefinePanel( const std::u8string& name, JS::HandleValue options )
 {
     if ( isFinalized_ )
     {
@@ -291,7 +291,7 @@ void JsWindow::DefinePanel( const pfc::string8_fast& name, JS::HandleValue optio
     isPanelDefined_ = true;
 }
 
-void JsWindow::DefinePanelWithOpt( size_t optArgCount, const pfc::string8_fast& name, JS::HandleValue options )
+void JsWindow::DefinePanelWithOpt( size_t optArgCount, const std::u8string& name, JS::HandleValue options )
 {
     switch ( optArgCount )
     {
@@ -736,21 +736,22 @@ uint32_t JsWindow::get_MinWidth()
     return parentPanel_.MinSize().x;
 }
 
-pfc::string8_fast JsWindow::get_Name()
+std::u8string JsWindow::get_Name()
 {
-    pfc::string8_fast name; ///< for RVO
     if ( isFinalized_ )
+    {
+        return std::u8string{};
+    }
+
+    if ( const auto& name = parentPanel_.ScriptInfo().name;
+         !name.empty() )
     {
         return name;
     }
-
-    name = parentPanel_.ScriptInfo().name;
-    if ( name.is_empty() )
+    else
     {
-        name = pfc::print_guid( parentPanel_.GetGUID() );
+        return pfc::print_guid( parentPanel_.GetGUID() ).get_ptr();
     }
-
-    return name;
 }
 
 uint64_t JsWindow::get_PanelMemoryUsage()
@@ -846,8 +847,8 @@ JsWindow::DefinePanelOptions JsWindow::ParseDefinePanelOptions( JS::HandleValue 
         SmpException::ExpectTrue( options.isObject(), "options argument is not an object" );
         JS::RootedObject jsOptions( pJsCtx_, &options.toObject() );
 
-        parsedOptions.author = GetOptionalProperty<pfc::string8_fast>( pJsCtx_, jsOptions, "author" ).value_or( "" );
-        parsedOptions.version = GetOptionalProperty<pfc::string8_fast>( pJsCtx_, jsOptions, "version" ).value_or( "" );
+        parsedOptions.author = GetOptionalProperty<std::u8string>( pJsCtx_, jsOptions, "author" ).value_or( "" );
+        parsedOptions.version = GetOptionalProperty<std::u8string>( pJsCtx_, jsOptions, "version" ).value_or( "" );
 
         bool hasProperty;
         if ( !JS_HasProperty( pJsCtx_, jsOptions, "features", &hasProperty ) )

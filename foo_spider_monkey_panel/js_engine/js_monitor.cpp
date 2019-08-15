@@ -176,7 +176,7 @@ bool JsMonitor::OnInterrupt()
 
         smp::ui::CDialogSlowScript::Data dlgData;
         {
-            pfc::string8_fast panelName;
+            std::u8string panelName;
             HWND parentHwnd;
             if ( JsContainer::JsStatus::Working == pContainer->GetStatus() )
             {
@@ -198,7 +198,7 @@ bool JsMonitor::OnInterrupt()
             unsigned lineno;
             (void)JS::DescribeScriptedCaller( pJsCtx_, &filename, &lineno );
 
-            pfc::string8_fast scriptInfo;
+            std::u8string scriptInfo;
             if ( filename.get() )
             {
                 if ( strlen( filename.get() ) )
@@ -209,8 +209,7 @@ bool JsMonitor::OnInterrupt()
                 {
                     scriptInfo += "<unknown file>";
                 }
-                scriptInfo += ": ";
-                scriptInfo += std::to_string( lineno ).c_str();
+                scriptInfo += ": " + std::to_string( lineno );
             }
 
             modal_dialog_scope scope( parentHwnd );

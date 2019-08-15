@@ -63,9 +63,9 @@ const JSPropertySpec* JsFbProfiler::JsProperties = jsProperties;
 const JsPrototypeId JsFbProfiler::PrototypeId = JsPrototypeId::FbProfiler;
 const JSNative JsFbProfiler::JsConstructor = ::FbProfiler_Constructor;
 
-JsFbProfiler::JsFbProfiler( JSContext* cx, const pfc::string8_fast& name )
+JsFbProfiler::JsFbProfiler( JSContext* cx, const std::u8string& name )
     : pJsCtx_( cx )
-    , name_( name.c_str() )
+    , name_( name )
 {
     timer_.start();
 }
@@ -75,22 +75,22 @@ JsFbProfiler::~JsFbProfiler()
 }
 
 std::unique_ptr<JsFbProfiler>
-JsFbProfiler::CreateNative( JSContext* cx, const pfc::string8_fast& name )
+JsFbProfiler::CreateNative( JSContext* cx, const std::u8string& name )
 {
     return std::unique_ptr<JsFbProfiler>( new JsFbProfiler( cx, name ) );
 }
 
-size_t JsFbProfiler::GetInternalSize( const pfc::string8_fast& name )
+size_t JsFbProfiler::GetInternalSize( const std::u8string& name )
 {
     return name.length();
 }
 
-JSObject* JsFbProfiler::Constructor( JSContext* cx, const pfc::string8_fast& name )
+JSObject* JsFbProfiler::Constructor( JSContext* cx, const std::u8string& name )
 {
     return JsFbProfiler::CreateJs( cx, name );
 }
 
-JSObject* JsFbProfiler::ConstructorWithOpt( JSContext* cx, size_t optArgCount, const pfc::string8_fast& name )
+JSObject* JsFbProfiler::ConstructorWithOpt( JSContext* cx, size_t optArgCount, const std::u8string& name )
 {
     switch ( optArgCount )
     {
@@ -103,29 +103,29 @@ JSObject* JsFbProfiler::ConstructorWithOpt( JSContext* cx, size_t optArgCount, c
     }
 }
 
-void JsFbProfiler::Print( const pfc::string8_fast& additionalMsg, bool printComponentInfo )
+void JsFbProfiler::Print( const std::u8string& additionalMsg, bool printComponentInfo )
 {
-    pfc::string8_fast msg;
+    std::u8string msg;
     if ( printComponentInfo )
     {
-        msg << SMP_NAME_WITH_VERSION ": ";
+        msg += SMP_NAME_WITH_VERSION ": ";
     }
-    msg << "profiler";
-    if ( !name_.is_empty() )
+    msg += "profiler";
+    if ( !name_.empty() )
     {
-        msg << " (" << name_ << ")";
+        msg += fmt::format( " ({})", name_.c_str() );
     }
-    msg << ":";
-    if ( !additionalMsg.is_empty() )
+    msg += ":";
+    if ( !additionalMsg.empty() )
     {
-        msg << " ";
-        msg << additionalMsg;
+        msg += " " + additionalMsg;
     }
-    msg << " " << static_cast<uint32_t>( timer_.query() * 1000 ) << " ms";
-    FB2K_console_formatter() << msg;
+    msg += fmt::format( " {}ms", static_cast<uint32_t>( timer_.query() * 1000 ) );
+
+    FB2K_console_formatter() << msg.c_str();
 }
 
-void JsFbProfiler::PrintWithOpt( size_t optArgCount, const pfc::string8_fast& additionalMsg, bool printComponentInfo )
+void JsFbProfiler::PrintWithOpt( size_t optArgCount, const std::u8string& additionalMsg, bool printComponentInfo )
 {
     switch ( optArgCount )
     {

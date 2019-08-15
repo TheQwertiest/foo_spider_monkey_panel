@@ -102,10 +102,10 @@ double ToSimpleValue( JSContext* cx, const JS::HandleValue& jsValue )
 }
 
 template <>
-pfc::string8_fast ToSimpleValue( JSContext* cx, const JS::HandleValue& jsValue )
+std::u8string ToSimpleValue( JSContext* cx, const JS::HandleValue& jsValue )
 {
     JS::RootedString jsString( cx, JS::ToString( cx, jsValue ) );
-    return ToValue<pfc::string8_fast>( cx, jsString );
+    return ToValue<std::u8string>( cx, jsString );
 }
 
 template <>
@@ -113,6 +113,13 @@ std::wstring ToSimpleValue( JSContext* cx, const JS::HandleValue& jsValue )
 {
     JS::RootedString jsString( cx, JS::ToString( cx, jsValue ) );
     return ToValue<std::wstring>( cx, jsString );
+}
+
+template <>
+pfc::string8_fast ToSimpleValue( JSContext* cx, const JS::HandleValue& jsValue )
+{
+    JS::RootedString jsString( cx, JS::ToString( cx, jsValue ) );
+    return ToValue<pfc::string8_fast>( cx, jsString );
 }
 
 template <>
@@ -129,10 +136,10 @@ namespace mozjs::convert::to_native
 {
 
 template <>
-pfc::string8_fast ToValue( JSContext* cx, const JS::HandleString& jsString )
+std::u8string ToValue( JSContext* cx, const JS::HandleString& jsString )
 {
     const auto& wStr = ToValue<std::wstring>( cx, jsString );
-    return pfc::string8_fast{ pfc::stringcvt::string_utf8_from_wide( wStr.c_str(), wStr.size() ) };
+    return std::u8string{ pfc::stringcvt::string_utf8_from_wide( wStr.c_str(), wStr.size() ) };
 }
 
 template <>
@@ -146,6 +153,13 @@ std::wstring ToValue( JSContext* cx, const JS::HandleString& jsString )
     }
 
     return wStr;
+}
+
+template <>
+pfc::string8_fast ToValue( JSContext* cx, const JS::HandleString& jsString )
+{
+    const auto& wStr = ToValue<std::wstring>( cx, jsString );
+    return pfc::string8_fast{ pfc::stringcvt::string_utf8_from_wide( wStr.c_str(), wStr.size() ) };
 }
 
 } // namespace mozjs::convert::to_native
