@@ -67,6 +67,11 @@ bool IsBraceChar( int ch )
     return ch == '[' || ch == ']' || ch == '(' || ch == ')' || ch == '{' || ch == '}';
 }
 
+bool IsCSym( int ch )
+{
+    return __iswcsym( static_cast<wint_t>( ch ) );
+}
+
 int int_from_hex_digit( int ch )
 {
     if ( ( ch >= '0' ) && ( ch <= '9' ) )
@@ -409,7 +414,7 @@ LRESULT CScriptEditorCtrl::OnCharAdded( LPNMHDR pnmh )
             {
                 m_nBraceCount--;
             }
-            else if ( !__iscsym( ch ) )
+            else if ( !IsCSym( ch ) )
             {
                 AutoCCancel();
 
@@ -428,7 +433,7 @@ LRESULT CScriptEditorCtrl::OnCharAdded( LPNMHDR pnmh )
             {
                 AutomaticIndentation( ch );
 
-                if ( __iscsym( ch ) || ch == '.' )
+                if ( IsCSym( ch ) || ch == '.' )
                     StartAutoComplete();
             }
         }
@@ -472,7 +477,7 @@ void CScriptEditorCtrl::ReadAPI()
             const auto content = smp::file::ReadFile( std::u8string{ file.data(), file.size() }, CP_UTF8 );
             for ( const auto& line: SplitStringLines( content ) )
             {
-                if ( !line.empty() && __iscsym( line[0] ) )
+                if ( !line.empty() && IsCSym( line[0] ) )
                 {
                     m_apis.emplace( line.data(), line.size() );
                 }
@@ -763,14 +768,14 @@ bool CScriptEditorCtrl::StartCallTip()
             current--;
             pos--;
         }
-    } while ( current > 0 && !__iscsym( line[current - 1] ) );
+    } while ( current > 0 && !IsCSym( line[current - 1] ) );
 
     if ( current <= 0 )
         return true;
 
     m_nStartCalltipWord = current - 1;
 
-    while ( m_nStartCalltipWord > 0 && ( __iscsym( line[m_nStartCalltipWord - 1] ) || ( line[m_nStartCalltipWord - 1] == '.' ) ) )
+    while ( m_nStartCalltipWord > 0 && ( IsCSym( line[m_nStartCalltipWord - 1] ) || ( line[m_nStartCalltipWord - 1] == '.' ) ) )
     {
         --m_nStartCalltipWord;
     }
@@ -868,7 +873,7 @@ bool CScriptEditorCtrl::StartAutoComplete()
 
     int startword = current;
 
-    while ( ( startword > 0 ) && ( __iscsym( line[startword - 1] ) || line[startword - 1] == '.' ) )
+    while ( ( startword > 0 ) && ( IsCSym( line[startword - 1] ) || line[startword - 1] == '.' ) )
     {
         startword--;
     }

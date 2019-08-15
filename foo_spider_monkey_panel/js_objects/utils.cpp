@@ -213,55 +213,60 @@ uint32_t JsUtils::ColourPicker( uint32_t hWindow, uint32_t default_colour )
 JS::Value JsUtils::FileTest( const std::wstring& path, const std::wstring& mode )
 {
     namespace fs = std::filesystem;
-    const std::wstring cleanedPath = fs::path( path.c_str() ).lexically_normal().wstring();
+    const auto cleanedPath = fs::path( path.c_str() ).lexically_normal();
+
+	const auto getFileStatus = []( const fs::path& path ) {
+        try
+        {
+            return fs::status( path );
+        }
+        catch ( const fs::filesystem_error& e )
+        {
+            throw SmpException( fmt::format( "Failed to get the status of `{}`: {}", path.u8string(), e.what() ) );
+        }
+    };
 
     if ( L"e" == mode ) // exists
     {
         JS::RootedValue jsValue( pJsCtx_ );
-        jsValue.setBoolean( PathFileExists( path.c_str() ) );
+        jsValue.setBoolean( fs::exists( getFileStatus( cleanedPath ) ) );
         return jsValue;
     }
     else if ( L"s" == mode )
     {
-        WIN32_FILE_ATTRIBUTE_DATA fileData;
-        if ( !GetFileAttributesEx( ( std::wstring{ L"\\\\?\\" } + cleanedPath ).c_str(), GetFileExInfoStandard, &fileData ) )
-        {
-            smp::error::CheckWinApi( false, "GetFileAttributesEx" );
-        }
+        const auto filesize = [&cleanedPath] {
+            try
+            {
+                return fs::file_size( cleanedPath );
+            }
+            catch ( const fs::filesystem_error& e )
+            {
+                throw SmpException( fmt::format( "Failed to get the size of `{}`: {}", cleanedPath.u8string(), e.what() ) );
+            }
+        }();
 
         JS::RootedValue jsValue( pJsCtx_ );
-        jsValue.setNumber( static_cast<double>( static_cast<uint64_t>( fileData.nFileSizeHigh ) << 32 | fileData.nFileSizeLow ) );
+        jsValue.setNumber( static_cast<double>( filesize ) );
         return jsValue;
     }
     else if ( L"d" == mode )
     {
         JS::RootedValue jsValue( pJsCtx_ );
-        jsValue.setBoolean( PathIsDirectory( cleanedPath.c_str() ) );
+        jsValue.setBoolean( fs::is_directory( getFileStatus( cleanedPath ) ) );
         return jsValue;
     }
     else if ( L"split" == mode )
     {
-        const wchar_t* cPath = cleanedPath.c_str();
-        const wchar_t* fn = PathFindFileName( cPath );
-        const wchar_t* ext = PathFindExtension( fn );
-        wchar_t dir[MAX_PATH] = { 0 };
-
         std::vector<std::wstring> out( 3 );
-        if ( PathIsFileSpec( fn ) )
+        if ( PathIsFileSpec( cleanedPath.filename().c_str() ) )
         {
-            StringCchCopyN( dir, _countof( dir ), cPath, fn - cPath );
-            PathAddBackslash( dir );
-
-            out[0].assign( dir );
-            out[1].assign( fn, ext - fn );
-            out[2].assign( ext );
+            out[0] = cleanedPath.parent_path() / "";
+            out[1] = cleanedPath.filename();
+            out[2] = cleanedPath.extension();
         }
         else
         {
-            StringCchCopy( dir, _countof( dir ), cleanedPath.c_str() );
-            PathAddBackslash( dir );
-
-            out[0].assign( dir );
+            out[0] = cleanedPath / "";
         }
 
         JS::RootedValue jsValue( pJsCtx_ );
@@ -277,10 +282,12 @@ JS::Value JsUtils::FileTest( const std::wstring& path, const std::wstring& mode 
     }
     else if ( L"chardet" == mode )
     {
+        const std::wstring tmpStr = cleanedPath;
+
         JS::RootedValue jsValue( pJsCtx_ );
         jsValue.setNumber(
             static_cast<uint32_t>(
-                smp::file::DetectFileCharset( pfc::stringcvt::string_utf8_from_wide( cleanedPath.c_str(), cleanedPath.length() ) ) ) );
+                smp::file::DetectFileCharset( pfc::stringcvt::string_utf8_from_wide( tmpStr.c_str(), tmpStr.length() ) ) ) );
         return jsValue;
     }
 
