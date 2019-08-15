@@ -53,11 +53,11 @@ public:
             auto api = theAPI();
             try
             {
-                api->add( g_client, g_guid_smp_metadb_index, retentionPeriod );
+                api->add( g_client, smp::guid::metadb_index, retentionPeriod );
             }
             catch ( std::exception const& e )
             {
-                api->remove( g_guid_smp_metadb_index );
+                api->remove( smp::guid::metadb_index );
                 FB2K_console_formatter() << SMP_NAME " stats: Critical initialization failure: " << e;
                 return;
             }
@@ -234,7 +234,7 @@ bool hashHandle( metadb_handle_ptr const& pMetadb, metadb_index_hash& hash )
 fields get( metadb_index_hash hash )
 {
     mem_block_container_impl temp;
-    theAPI()->get_user_data( g_guid_smp_metadb_index, hash, temp );
+    theAPI()->get_user_data( smp::guid::metadb_index, hash, temp );
 
     if ( !temp.get_size() )
     {
@@ -268,17 +268,17 @@ void set( metadb_index_hash hash, fields f )
     writer << f.first_played;
     writer << f.last_played;
     writer << f.rating;
-    theAPI()->set_user_data( g_guid_smp_metadb_index, hash, writer.m_buffer.get_ptr(), writer.m_buffer.get_size() );
+    theAPI()->set_user_data( smp::guid::metadb_index, hash, writer.m_buffer.get_ptr(), writer.m_buffer.get_size() );
 }
 
 void refresh( const pfc::list_base_const_t<metadb_index_hash>& hashes )
 {
-    theAPI()->dispatch_refresh( g_guid_smp_metadb_index, hashes );
+    theAPI()->dispatch_refresh( smp::guid::metadb_index, hashes );
 }
 
 void refresh( const metadb_index_hash& hash )
 {
-    theAPI()->dispatch_refresh( g_guid_smp_metadb_index, hash );
+    theAPI()->dispatch_refresh( smp::guid::metadb_index, hash );
 }
 
 } // namespace smp::stats

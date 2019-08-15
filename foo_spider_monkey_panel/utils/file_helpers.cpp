@@ -332,7 +332,7 @@ std::wstring FileDialog( const std::wstring& title,
         hr = pfd->GetOptions( &dwFlags );
         smp::error::CheckHR( hr, "GetOptions" );
 
-        hr = pfd->SetClientGuid( g_guid_smp_dialog_path );
+        hr = pfd->SetClientGuid( smp::guid::dialog_path );
         smp::error::CheckHR( hr, "SetClientGuid" );
 
         hr = pfd->SetTitle( title.c_str() );

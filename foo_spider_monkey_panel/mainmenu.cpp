@@ -31,16 +31,16 @@ namespace
 {
 
 my_mainmenu_commands::my_mainmenu_commands()
-    : menuObjects_{ g_guid_smp_menu_one,
-                    g_guid_smp_menu_two,
-                    g_guid_smp_menu_three,
-                    g_guid_smp_menu_four,
-                    g_guid_smp_menu_five,
-                    g_guid_smp_menu_six,
-                    g_guid_smp_menu_seven,
-                    g_guid_smp_menu_eight,
-                    g_guid_smp_menu_nine,
-                    g_guid_smp_menu_ten }
+    : menuObjects_{ smp::guid::menu_1,
+                    smp::guid::menu_2,
+                    smp::guid::menu_3,
+                    smp::guid::menu_4,
+                    smp::guid::menu_5,
+                    smp::guid::menu_6,
+                    smp::guid::menu_7,
+                    smp::guid::menu_8,
+                    smp::guid::menu_9,
+                    smp::guid::menu_10 }
 {
 }
 
@@ -75,7 +75,7 @@ bool my_mainmenu_commands::get_description( t_uint32 /* p_index */, pfc::string_
 }
 GUID my_mainmenu_commands::get_parent()
 {
-    return g_guid_smp_mainmenu_group_id;
+    return smp::guid::mainmenu_group;
 }
 void my_mainmenu_commands::execute( t_uint32 p_index, service_ptr_t<service_base> p_callback )
 {
@@ -94,7 +94,7 @@ namespace
 {
 
 mainmenu_group_popup_factory g_mainmenu_group(
-    g_guid_smp_mainmenu_group_id, mainmenu_groups::file, static_cast<t_uint32>( mainmenu_commands::sort_priority_dontcare ), SMP_NAME );
+    smp::guid::mainmenu_group, mainmenu_groups::file, static_cast<t_uint32>( mainmenu_commands::sort_priority_dontcare ), SMP_NAME );
 
 mainmenu_commands_factory_t<my_mainmenu_commands> g_my_mainmenu_commands_factory;
 

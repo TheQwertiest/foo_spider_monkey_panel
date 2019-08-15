@@ -59,7 +59,7 @@ public:
 
     GUID get_guid() override
     {
-        return g_guid_smp_ui_pref;
+        return smp::guid::ui_pref;
     }
 
     GUID get_parent_guid() override

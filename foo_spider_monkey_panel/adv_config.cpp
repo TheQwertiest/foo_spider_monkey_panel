@@ -5,50 +5,50 @@ namespace smp::config::advanced
 {
 
 advconfig_branch_factory branch_smp(
-    "Spider Monkey Panel", g_guid_smp_adv_branch, advconfig_branch::guid_branch_tools, 0
+    "Spider Monkey Panel", smp::guid::adv_branch, advconfig_branch::guid_branch_tools, 0
 );
 advconfig_branch_factory branch_gc(
-    "GC: restart is required", g_guid_smp_adv_branch_gc, g_guid_smp_adv_branch, 0
+    "GC: restart is required", smp::guid::adv_branch_gc, smp::guid::adv_branch, 0
 );
 #ifdef _DEBUG
 advconfig_branch_factory branch_zeal(
-    "Zeal", g_guid_smp_adv_branch_zeal, g_guid_smp_adv_branch_gc, 4
+    "Zeal", smp::guid::adv_branch_zeal, smp::guid::adv_branch_gc, 4
 );
 #endif
 
 advconfig_integer_factory g_var_max_heap(
-    "Maximum heap size (in bytes) (0 - auto configuration)", g_guid_smp_adv_var_max_heap, g_guid_smp_adv_branch_gc, 0,
+    "Maximum heap size (in bytes) (0 - auto configuration)", smp::guid::adv_var_gc_max_heap, smp::guid::adv_branch_gc, 0,
     0, 0, std::numeric_limits<uint32_t>::max()
 );
 advconfig_integer_factory g_var_max_heap_growth(
-    "Allowed heap growth before GC trigger (in bytes) (0 - auto configuration)", g_guid_smp_adv_var_max_heap_growth, g_guid_smp_adv_branch_gc, 1,
+    "Allowed heap growth before GC trigger (in bytes) (0 - auto configuration)", smp::guid::adv_var_gc_max_heap_growth, smp::guid::adv_branch_gc, 1,
     0, 0, 256UL * 1024 * 1024
 );
 advconfig_integer_factory g_var_gc_budget(
-    "GC cycle time budget (in ms)", g_guid_smp_adv_var_gc_budget, g_guid_smp_adv_branch_gc, 2,
+    "GC cycle time budget (in ms)", smp::guid::adv_var_gc_budget, smp::guid::adv_branch_gc, 2,
     5, 1, 100
 );
 advconfig_integer_factory g_var_gc_delay(
-    "Delay before next GC trigger (in ms)", g_guid_smp_adv_var_gc_delay, g_guid_smp_adv_branch_gc, 3,
+    "Delay before next GC trigger (in ms)", smp::guid::adv_var_gc_delay, smp::guid::adv_branch_gc, 3,
     50, 1, 500
 );
 // TODO: fine-tune alloc count
 advconfig_integer_factory g_var_max_alloc_increase(
-    "Allowed number of allocations before next GC trigger", g_guid_smp_adv_var_max_alloc_increase, g_guid_smp_adv_branch_gc, 4,
+    "Allowed number of allocations before next GC trigger", smp::guid::adv_var_gc_max_alloc_increase, smp::guid::adv_branch_gc, 4,
     1000, 1, 100000
 );
 
 #ifdef _DEBUG
 advconfig_checkbox_factory g_var_gc_zeal(
-    "Enable", g_guid_smp_adv_var_gc_zeal, g_guid_smp_adv_branch_zeal, 0,
+    "Enable", smp::guid::adv_var_zeal, smp::guid::adv_branch_zeal, 0,
     false
 );
 advconfig_integer_factory g_var_gc_zeal_level(
-    "Level", g_guid_smp_adv_var_gc_zeal_level, g_guid_smp_adv_branch_zeal, 1,
+    "Level", smp::guid::adv_var_zeal_level, smp::guid::adv_branch_zeal, 1,
     2, 0, 14
 );
 advconfig_integer_factory g_var_gc_zeal_freq(
-    "Frequency (in number of allocations)", g_guid_smp_adv_var_gc_zeal_freq, g_guid_smp_adv_branch_zeal, 2,
+    "Frequency (in number of allocations)", smp::guid::adv_var_zeal_freq, smp::guid::adv_branch_zeal, 2,
     400, 1, 5000
 );
 #endif

@@ -42,7 +42,7 @@ namespace
 
 GUID SmpSource::get_guid()
 {
-    return g_guid_smp_acfu_source;
+    return smp::guid::acfu_source;
 }
 
 void SmpSource::get_info( file_info& info )

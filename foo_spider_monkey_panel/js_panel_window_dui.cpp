@@ -81,7 +81,7 @@ js_panel_window_dui::~js_panel_window_dui()
 
 GUID js_panel_window_dui::g_get_guid()
 {
-    return g_guid_smp_window_dui;
+    return smp::guid::window_dui;
 }
 
 GUID js_panel_window_dui::g_get_subclass()
