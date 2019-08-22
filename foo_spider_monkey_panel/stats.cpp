@@ -1,7 +1,6 @@
 #include <stdafx.h>
 #include "stats.h"
 
-#include <utils/pfc_helpers.h>
 
 namespace
 {
@@ -110,7 +109,8 @@ public:
         metadb_index_hash hash;
         if ( !g_client->hashHandle( handle, hash ) )
             return false;
-        fields tmp = get( hash );
+
+        const fields tmp = get( hash );
 
         switch ( index )
         {
@@ -132,18 +132,20 @@ public:
         }
         case 2:
         {
-            pfc::string8 value = tmp.first_played;
-            if ( value.is_empty() )
+            const auto& value = tmp.first_played;
+            if ( value.empty() )
+            {
                 return false;
-            out->write( titleformat_inputtypes::meta, value );
+            }
+            out->write( titleformat_inputtypes::meta, value.c_str(), value.length() );
             return true;
         }
         case 3:
         {
-            pfc::string8 value = tmp.last_played;
-            if ( value.is_empty() )
+            const auto& value = tmp.last_played;
+            if ( value.empty() )
                 return false;
-            out->write( titleformat_inputtypes::meta, value );
+            out->write( titleformat_inputtypes::meta, value.c_str(), value.length() );
             return true;
         }
         case 4:
@@ -166,7 +168,7 @@ class track_property_provider_impl : public track_property_provider_v2
 public:
     void enumerate_properties( metadb_handle_list_cref p_tracks, track_property_callback& p_out ) override
     {
-        const auto stlHandleList = smp::Make_Stl_CRef( p_tracks );
+        const auto stlHandleList = smp::pfc_x::Make_Stl_CRef( p_tracks );
         if ( stlHandleList.size() == 1 )
         {
             metadb_index_hash hash;
@@ -175,8 +177,8 @@ public:
                 fields tmp = get( hash );
                 p_out.set_property( SMP_NAME, 0, "Playcount", std::to_string( tmp.playcount ).c_str() );
                 p_out.set_property( SMP_NAME, 1, "Loved", std::to_string( tmp.loved ).c_str() );
-                p_out.set_property( SMP_NAME, 2, "First Played", tmp.first_played );
-                p_out.set_property( SMP_NAME, 3, "Last Played", tmp.last_played );
+                p_out.set_property( SMP_NAME, 2, "First Played", tmp.first_played.c_str() );
+                p_out.set_property( SMP_NAME, 3, "Last Played", tmp.last_played.c_str() );
                 p_out.set_property( SMP_NAME, 4, "Rating", std::to_string( tmp.rating ).c_str() );
             }
         }
@@ -185,7 +187,7 @@ public:
             std::vector<metadb_index_hash> hashes;
             hashes.reserve( stlHandleList.size() );
 
-            for ( const auto& handle : stlHandleList )
+            for ( const auto& handle: stlHandleList )
             {
                 metadb_index_hash hash;
                 if ( g_client->hashHandle( handle, hash ) )

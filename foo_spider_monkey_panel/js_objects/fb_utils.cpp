@@ -392,13 +392,12 @@ std::u8string JsFbUtils::GetDSPPresets()
     outputCoreConfig_t config;
     api->getCoreConfig( config );
 
-    api->listDevices( [&j, &config]( const char* fullName, const GUID& output_id, const GUID& device_id ) {
-        pfc::string8 output_string, device_string;
-        output_string << "{" << pfc::print_guid( output_id ) << "}";
-        device_string << "{" << pfc::print_guid( device_id ) << "}";
+    api->listDevices( [&j, &config]( const std::u8string& fullName, const GUID& output_id, const GUID& device_id ) {
+        const std::u8string output_string = fmt::format( "{{{}}}", pfc::print_guid( output_id ) );
+        const std::u8string device_string = fmt::format( "{{{}}}", pfc::print_guid( device_id ) );
         j.push_back( { { "name", fullName },
-                       { "output_id", output_string.get_ptr() },
-                       { "device_id", device_string.get_ptr() },
+                       { "output_id", output_string },
+                       { "device_id", device_string },
                        { "active", config.m_output == output_id && config.m_device == device_id } } );
     } );
 
@@ -476,15 +475,14 @@ std::u8string JsFbUtils::GetOutputDevices()
     outputCoreConfig_t config;
     api->getCoreConfig( config );
 
-    api->listDevices( [&j, &config]( pfc::string8&& name, auto&& output_id, auto&& device_id ) {
-        std::string name_string( name.c_str(), name.length() );
-        std::string output_string = pfc::print_guid( output_id ).get_ptr();
-        std::string device_string = pfc::print_guid( device_id ).get_ptr();
+    api->listDevices( [&j, &config]( const std::u8string& name, const GUID& output_id, const GUID& device_id ) {
+        const std::u8string output_string = fmt::format( "{{{}}}", pfc::print_guid( output_id ) );
+        const std::u8string device_string = fmt::format( "{{{}}}", pfc::print_guid( device_id ) );
 
         j.push_back(
-            { { "name", name_string },
-              { "output_id", "{" + output_string + "}" },
-              { "device_id", "{" + device_string + "}" },
+            { { "name", name },
+              { "output_id", output_string },
+              { "device_id", device_string },
               { "active", config.m_output == output_id && config.m_device == device_id } } );
     } );
 

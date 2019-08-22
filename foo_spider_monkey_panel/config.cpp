@@ -61,7 +61,7 @@ void PanelProperties::remove_config_item( const std::wstring& propName )
     m_map.erase( propName );
 }
 
-bool PanelProperties::g_load( config_map& data, stream_reader* reader, abort_callback& abort )
+bool PanelProperties::g_load( config_map& data, stream_reader& reader, abort_callback& abort )
 {
     return LoadProperties_Binary( data, reader, abort );
 }
@@ -74,10 +74,10 @@ bool PanelProperties::g_load_json( config_map& data, stream_reader& reader, abor
 
     try
     {
-        pfc::string8_fast jsonStr;
+        std::u8string jsonStr;
         if ( loadRawString )
         {
-            reader.read_string_raw( jsonStr, abort );
+            jsonStr = smp::pfc_x::ReadRawString( reader, abort );
         }
         else
         {
@@ -88,10 +88,10 @@ bool PanelProperties::g_load_json( config_map& data, stream_reader& reader, abor
                 return false;
             }
 
-            reader.read_string( jsonStr, abort );
+			jsonStr = smp::pfc_x::ReadString( reader, abort );
         }
 
-        json jsonMain = json::parse( jsonStr.c_str() );
+        json jsonMain = json::parse( jsonStr );
         if ( !jsonMain.is_object() )
         {
             return false;
@@ -155,22 +155,22 @@ bool PanelProperties::g_load_json( config_map& data, stream_reader& reader, abor
     return true;
 }
 
-bool PanelProperties::g_load_legacy( config_map& data, stream_reader* reader, abort_callback& abort )
+bool PanelProperties::g_load_legacy( config_map& data, stream_reader& reader, abort_callback& abort )
 {
     return LoadProperties_Com( data, reader, abort );
 }
 
-void PanelProperties::load( stream_reader* reader, abort_callback& abort )
+void PanelProperties::load( stream_reader& reader, abort_callback& abort )
 {
     g_load( m_map, reader, abort );
 }
 
-void PanelProperties::save( stream_writer* writer, abort_callback& abort ) const
+void PanelProperties::save( stream_writer& writer, abort_callback& abort ) const
 {
     g_save( m_map, writer, abort );
 }
 
-void PanelProperties::g_save( const config_map& data, stream_writer* writer, abort_callback& abort )
+void PanelProperties::g_save( const config_map& data, stream_writer& writer, abort_callback& abort )
 {
     SaveProperties_Binary( data, writer, abort );
 }
@@ -280,7 +280,7 @@ EdgeStyle& PanelSettings::get_edge_style()
     return m_edge_style;
 }
 
-void PanelSettings::load_config( stream_reader* reader, t_size size, abort_callback& abort )
+void PanelSettings::load_config( stream_reader& reader, t_size size, abort_callback& abort )
 {
     reset_config();
 
@@ -291,22 +291,20 @@ void PanelSettings::load_config( stream_reader* reader, t_size size, abort_callb
         try
         {
             uint32_t ver = 0;
-            reader->read_object_t( ver, abort );
+            reader.read_object_t( ver, abort );
             if ( ver > static_cast<uint32_t>( Version::CONFIG_VERSION_CURRENT ) )
             {
                 throw pfc::exception();
             }
-            reader->skip_object( sizeof( false ), abort ); // HACK: skip over "delay load"
-            reader->read_object_t( m_config_guid, abort );
-            reader->read_object( &m_edge_style, sizeof( m_edge_style ), abort );
+            reader.skip_object( sizeof( false ), abort ); // HACK: skip over "delay load"
+            reader.read_object_t( m_config_guid, abort );
+            reader.read_object( &m_edge_style, sizeof( m_edge_style ), abort );
             m_config_prop.load( reader, abort );
-            reader->skip_object( sizeof( false ), abort ); // HACK: skip over "disable before"
-            reader->read_object_t( m_grab_focus, abort );
-            reader->read_object( &m_wndpl, sizeof( m_wndpl ), abort );
-            pfc::string8_fast tmp;
-            reader->read_string( tmp, abort );
-            m_script_code = tmp.c_str();
-            reader->read_object_t( m_pseudo_transparent, abort );
+            reader.skip_object( sizeof( false ), abort ); // HACK: skip over "disable before"
+            reader.read_object_t( m_grab_focus, abort );
+            reader.read_object( &m_wndpl, sizeof( m_wndpl ), abort );
+            m_script_code = smp::pfc_x::ReadString( reader, abort );
+            reader.read_object_t( m_pseudo_transparent, abort );
         }
         catch ( const pfc::exception& )
         {
@@ -323,24 +321,25 @@ void PanelSettings::reset_config()
     m_wndpl.length = 0;
     m_grab_focus = true;
     m_edge_style = EdgeStyle::NO_EDGE;
-    CoCreateGuid( &m_config_guid );
+	// should not fail
+    (void)CoCreateGuid( &m_config_guid );
 }
 
-void PanelSettings::save_config( stream_writer* writer, abort_callback& abort ) const
+void PanelSettings::save_config( stream_writer& writer, abort_callback& abort ) const
 {
     try
     {
         auto currentVersion = static_cast<uint32_t>( Version::CONFIG_VERSION_CURRENT );
-        writer->write_object_t( currentVersion, abort );
-        writer->write_object_t( false, abort ); // HACK: write this in place of "delay load"
-        writer->write_object_t( m_config_guid, abort );
-        writer->write_object( &m_edge_style, sizeof( m_edge_style ), abort );
+        writer.write_object_t( currentVersion, abort );
+        writer.write_object_t( false, abort ); // HACK: write this in place of "delay load"
+        writer.write_object_t( m_config_guid, abort );
+        writer.write_object( &m_edge_style, sizeof( m_edge_style ), abort );
         m_config_prop.save( writer, abort );
-        writer->write_object_t( false, abort ); // HACK: write this in place of "disable before"
-        writer->write_object_t( m_grab_focus, abort );
-        writer->write_object( &m_wndpl, sizeof( m_wndpl ), abort );
-        writer->write_string( m_script_code.c_str(), abort );
-        writer->write_object_t( m_pseudo_transparent, abort );
+        writer.write_object_t( false, abort ); // HACK: write this in place of "disable before"
+        writer.write_object_t( m_grab_focus, abort );
+        writer.write_object( &m_wndpl, sizeof( m_wndpl ), abort );
+        writer.write_string( m_script_code.c_str(), abort );
+        writer.write_object_t( m_pseudo_transparent, abort );
     }
     catch ( const pfc::exception& )
     {

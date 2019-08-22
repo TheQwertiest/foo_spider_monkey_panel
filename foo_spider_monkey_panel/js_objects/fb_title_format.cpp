@@ -7,7 +7,6 @@
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
 #include <utils/string_helpers.h>
-#include <utils/pfc_helpers.h>
 
 using namespace smp;
 
@@ -142,7 +141,7 @@ JSObject* JsFbTitleFormat::EvalWithMetadbs( JsFbMetadbHandleList* handles )
     JS::RootedValue jsValue( pJsCtx_ );
     convert::to_js::ToArrayValue(
         pJsCtx_,
-        smp::Make_Stl_CRef( handles->GetHandleList() ),
+        smp::pfc_x::Make_Stl_CRef( handles->GetHandleList() ),
         [&titleFormat = titleFormatObject_]( const auto& vec, auto index ) {
             pfc::string8_fast text;
             vec[index]->format_title( nullptr, text, titleFormat, nullptr );

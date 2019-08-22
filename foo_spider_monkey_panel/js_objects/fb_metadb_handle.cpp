@@ -148,7 +148,7 @@ void JsFbMetadbHandle::RefreshStats()
     }
 }
 
-void JsFbMetadbHandle::SetFirstPlayed( const pfc::string8_fast& first_played )
+void JsFbMetadbHandle::SetFirstPlayed( const std::u8string& first_played )
 {
     if ( metadb_index_hash hash;
          stats::hashHandle( metadbHandle_, hash ) )
@@ -162,7 +162,7 @@ void JsFbMetadbHandle::SetFirstPlayed( const pfc::string8_fast& first_played )
     }
 }
 
-void JsFbMetadbHandle::SetLastPlayed( const pfc::string8_fast& last_played )
+void JsFbMetadbHandle::SetLastPlayed( const std::u8string& last_played )
 {
     if ( metadb_index_hash hash;
          stats::hashHandle( metadbHandle_, hash ) )

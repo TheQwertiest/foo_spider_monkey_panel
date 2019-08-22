@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include <stdafx.h>
 #include "com_tools.h"
 
 #include <nonstd/span.hpp>

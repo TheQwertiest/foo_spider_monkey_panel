@@ -9,7 +9,6 @@
 #include <js_utils/js_object_helper.h>
 #include <utils/art_helpers.h>
 #include <utils/string_helpers.h>
-#include <utils/pfc_helpers.h>
 #include <utils/text_helpers.h>
 
 #include <abort_callback.h>
@@ -393,7 +392,7 @@ JSObject* JsFbMetadbHandleList::Convert()
     JS::RootedValue jsValue( pJsCtx_ );
     convert::to_js::ToArrayValue(
         pJsCtx_,
-        smp::Make_Stl_CRef( metadbHandleList_ ),
+        smp::pfc_x::Make_Stl_CRef( metadbHandleList_ ),
         []( const auto& vec, auto index ) {
             return vec[index];
         },
@@ -419,7 +418,7 @@ JSObject* JsFbMetadbHandleList::GetLibraryRelativePaths()
     JS::RootedValue jsValue( pJsCtx_ );
     convert::to_js::ToArrayValue(
         pJsCtx_,
-        smp::Make_Stl_CRef( metadbHandleList_ ),
+        smp::pfc_x::Make_Stl_CRef( metadbHandleList_ ),
         [&api]( const auto& vec, auto index ) {
             pfc::string8_fast path;
             api->get_relative_path( vec[index], path );
@@ -451,9 +450,9 @@ void JsFbMetadbHandleList::MakeDifference( JsFbMetadbHandleList* handles )
 {
     SmpException::ExpectTrue( handles, "handles argument is null" );
 
-    const auto a = Make_Stl_CRef( metadbHandleList_ );
-    const auto b = Make_Stl_CRef( handles->GetHandleList() );
-    smp::Stl<metadb_handle_list> result;
+    const auto a = pfc_x::Make_Stl_CRef( metadbHandleList_ );
+    const auto b = pfc_x::Make_Stl_CRef( handles->GetHandleList() );
+    smp::pfc_x::Stl<metadb_handle_list> result;
 
     std::set_difference( a.cbegin(), a.cend(), b.cbegin(), b.cend(), std::back_inserter( result ) );
 
@@ -464,9 +463,9 @@ void JsFbMetadbHandleList::MakeIntersection( JsFbMetadbHandleList* handles )
 {
     SmpException::ExpectTrue( handles, "handles argument is null" );
 
-    const auto a = Make_Stl_CRef( metadbHandleList_ );
-    const auto b = Make_Stl_CRef( handles->GetHandleList() );
-    smp::Stl<metadb_handle_list> result;
+    const auto a = pfc_x::Make_Stl_CRef( metadbHandleList_ );
+    const auto b = pfc_x::Make_Stl_CRef( handles->GetHandleList() );
+    pfc_x::Stl<metadb_handle_list> result;
 
     std::set_intersection( a.cbegin(), a.cend(), b.cbegin(), b.cend(), std::back_inserter( result ) );
 
@@ -477,9 +476,9 @@ void JsFbMetadbHandleList::MakeUnion( JsFbMetadbHandleList* handles )
 {
     SmpException::ExpectTrue( handles, "handles argument is null" );
 
-    const auto a = Make_Stl_CRef( metadbHandleList_ );
-    const auto b = Make_Stl_CRef( handles->GetHandleList() );
-    smp::Stl<metadb_handle_list> result;
+    const auto a = pfc_x::Make_Stl_CRef( metadbHandleList_ );
+    const auto b = pfc_x::Make_Stl_CRef( handles->GetHandleList() );
+    pfc_x::Stl<metadb_handle_list> result;
 
     std::set_union( a.cbegin(), a.cend(), b.cbegin(), b.cend(), std::back_inserter( result ) );
 
@@ -504,7 +503,7 @@ void JsFbMetadbHandleList::OrderByRelativePath()
     // but this implementation is much faster because of timsort.
     // Also see `get_subsong_index` below.
 
-    const auto stlHandleList = Make_Stl_CRef( metadbHandleList_ );
+    const auto stlHandleList = pfc_x::Make_Stl_CRef( metadbHandleList_ );
 
     auto api = library_manager::get();
 
@@ -536,7 +535,7 @@ void JsFbMetadbHandleList::OrderByRelativePath()
 void JsFbMetadbHandleList::RefreshStats()
 {
     pfc::list_t<metadb_index_hash> hashes;
-    for ( const auto& handle : Make_Stl_CRef( metadbHandleList_ ) )
+    for ( const auto& handle: pfc_x::Make_Stl_CRef( metadbHandleList_ ) )
     {
         metadb_index_hash hash;
         if ( stats::hashHandle( handle, hash ) )
@@ -615,7 +614,7 @@ void JsFbMetadbHandleList::UpdateFileInfoFromJSON( const std::u8string& str )
 {
     using json = nlohmann::json;
 
-    const auto handleList = Make_Stl_CRef( metadbHandleList_ );
+    const auto handleList = pfc_x::Make_Stl_CRef( metadbHandleList_ );
     if ( !handleList.size() )
     { // Not an error
         return;

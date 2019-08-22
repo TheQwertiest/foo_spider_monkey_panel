@@ -316,6 +316,9 @@
     <ClCompile Include="utils\error_popup.cpp">
       <Filter>utils</Filter>
     </ClCompile>
+    <ClCompile Include="utils\pfc_helpers_stream.cpp">
+      <Filter>utils</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="js_engine\js_engine.h">
@@ -582,9 +585,6 @@
     <ClInclude Include="scintilla\editorctrl.h">
       <Filter>scintilla</Filter>
     </ClInclude>
-    <ClInclude Include="utils\pfc_helpers.h">
-      <Filter>utils</Filter>
-    </ClInclude>
     <ClInclude Include="com_objects\internal\drag_utils.h">
       <Filter>com_objects\internal</Filter>
     </ClInclude>
@@ -700,6 +700,15 @@
       <Filter>utils</Filter>
     </ClInclude>
     <ClInclude Include="utils\error_popup.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\pfc_helpers_stream.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\pfc_helpers_ui.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\pfc_helpers_cnt.h">
       <Filter>utils</Filter>
     </ClInclude>
   </ItemGroup>

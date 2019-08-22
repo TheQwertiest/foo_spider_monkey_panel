@@ -206,18 +206,18 @@ LRESULT CDialogProperty::OnImportBnClicked( WORD wNotifyCode, WORD wID, HWND hWn
         }
         else if ( filename.has_suffix( ".smp" ) )
         {
-            smp::config::PanelProperties::g_load( m_dup_prop_map, io.get_ptr(), abort );
+            smp::config::PanelProperties::g_load( m_dup_prop_map, *io, abort );
         }
         else if ( filename.has_suffix( ".wsp" ) )
         {
-            smp::config::PanelProperties::g_load_legacy( m_dup_prop_map, io.get_ptr(), abort );
+            smp::config::PanelProperties::g_load_legacy( m_dup_prop_map, *io, abort );
         }
         else
         {
             if ( !smp::config::PanelProperties::g_load_json( m_dup_prop_map, *io, abort, true )
-                 && !smp::config::PanelProperties::g_load( m_dup_prop_map, io.get_ptr(), abort ) )
+                 && !smp::config::PanelProperties::g_load( m_dup_prop_map, *io, abort ) )
             {
-                smp::config::PanelProperties::g_load_legacy( m_dup_prop_map, io.get_ptr(), abort );
+                smp::config::PanelProperties::g_load_legacy( m_dup_prop_map, *io, abort );
             }
         }
 

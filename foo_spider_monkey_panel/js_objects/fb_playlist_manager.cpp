@@ -10,7 +10,6 @@
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
 #include <utils/string_helpers.h>
-#include <utils/pfc_helpers.h>
 #include <utils/text_helpers.h>
 #include <utils/location_processor.h>
 
@@ -201,10 +200,10 @@ void JsFbPlaylistManager::AddItemToPlaybackQueue( JsFbMetadbHandle* handle )
 void JsFbPlaylistManager::AddLocations( uint32_t playlistIndex, JS::HandleValue locations, bool select )
 {
     pfc::string_list_impl location_list;
-    convert::to_native::ProcessArray<pfc::string8_fast>(
+    convert::to_native::ProcessArray<std::u8string>(
         pJsCtx_,
         locations,
-        [&location_list]( const pfc::string8_fast& location ) { location_list.add_item( location ); } );
+        [&location_list]( const auto& location ) { location_list.add_item( location.c_str() ); } );
 
     const t_size base = playlist_manager::get()->playlist_get_item_count( playlistIndex );
     playlist_incoming_item_filter_v2::get()->process_locations_async(
@@ -389,7 +388,7 @@ JSObject* JsFbPlaylistManager::GetPlaybackQueueContents()
     JS::RootedValue jsValue( pJsCtx_ );
     convert::to_js::ToArrayValue(
         pJsCtx_,
-        smp::Make_Stl_CRef( contents ),
+        smp::pfc_x::Make_Stl_CRef( contents ),
         []( const auto& vec, auto index ) {
             return vec[index];
         },

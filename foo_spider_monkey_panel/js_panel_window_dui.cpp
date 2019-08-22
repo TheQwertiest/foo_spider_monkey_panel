@@ -100,7 +100,7 @@ ui_element_config::ptr js_panel_window_dui::g_get_default_configuration()
     PanelSettings vars;
 
     vars.reset_config();
-    vars.save_config( &builder.m_stream, fb2k::noAbort );
+    vars.save_config( builder.m_stream, fb2k::noAbort );
     return builder.finish( g_get_guid() );
 }
 
@@ -226,7 +226,7 @@ bool js_panel_window_dui::edit_mode_context_menu_test( const POINT& p_point, boo
 ui_element_config::ptr js_panel_window_dui::get_configuration()
 {
     ui_element_config_builder builder;
-    save_config( &builder.m_stream, fb2k::noAbort );
+    save_config( builder.m_stream, fb2k::noAbort );
     return builder.finish( g_get_guid() );
 }
 
@@ -259,7 +259,7 @@ void js_panel_window_dui::notify( const GUID& p_what, t_size p_param1, const voi
 void js_panel_window_dui::set_configuration( ui_element_config::ptr data )
 {
     ui_element_config_parser parser( data );
-    load_config( &parser.m_stream, parser.get_remaining(), fb2k::noAbort );
+    load_config( parser.m_stream, parser.get_remaining(), fb2k::noAbort );
 
     // FIX: If window already created, DUI won't destroy it and create it again.
     if ( t_parent::GetHWND() )

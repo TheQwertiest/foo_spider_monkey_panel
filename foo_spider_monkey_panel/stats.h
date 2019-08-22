@@ -8,8 +8,8 @@ struct fields
 {
     stats_t playcount = 0;
     stats_t loved = 0;
-    pfc::string8 first_played;
-    pfc::string8 last_played;
+    std::u8string first_played;
+    std::u8string last_played;
     stats_t rating = 0;
 };
 

@@ -934,7 +934,7 @@ bool js_panel_window::script_load()
 
     FB2K_console_formatter() << fmt::format( 
         SMP_NAME_WITH_VERSION " ({}): initialized in {} ms", 
-        ScriptInfo().build_info_string().c_str(), static_cast<uint32_t>( timer.query() * 1000 )
+        ScriptInfo().build_info_string(), static_cast<uint32_t>( timer.query() * 1000 )
     ).c_str();
     return true;
 }

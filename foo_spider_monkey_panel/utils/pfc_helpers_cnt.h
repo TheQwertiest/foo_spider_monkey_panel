@@ -2,10 +2,8 @@
 
 #include <memory>
 
-namespace smp
+namespace smp::pfc_x
 {
-
-// TODO: rename to smth more suitable. E.g. smp::stl::vector.
 
 /// @brief STL wrapper for objects derived from pfc::list_base_const_t
 template <typename T>
@@ -162,7 +160,7 @@ public:
         using iterator_category = std::random_access_iterator_tag;
         using value_type = Stl::value_type;
         using difference_type = Stl::difference_type;
-        using pointer = value_type *;
+        using pointer = value_type*;
         using reference = Stl::reference;
 
         iterator() = default;
@@ -427,10 +425,10 @@ private:
 };
 
 template <typename T>
-using Stl_Ref = typename smp::Stl<T&>;
+using Stl_Ref = typename smp::pfc_x::Stl<T&>;
 
 template <typename T>
-using Stl_CRef = typename smp::Stl<const T&>;
+using Stl_CRef = typename smp::pfc_x::Stl<const T&>;
 
 template <typename T>
 Stl_Ref<T> Make_Stl_Ref( T& base )
@@ -444,4 +442,4 @@ Stl_CRef<T> Make_Stl_CRef( const T& base )
     return Stl_CRef<T>( base );
 }
 
-} // namespace smp
+} // namespace smp::pfc_x

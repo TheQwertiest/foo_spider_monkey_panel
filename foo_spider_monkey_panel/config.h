@@ -32,13 +32,13 @@ public:
     void set_config_item( const std::wstring& propName, const mozjs::SerializedJsValue& serializedValue );
     void remove_config_item( const std::wstring& propName );
 
-    static bool g_load( config_map& data, stream_reader* reader, abort_callback& abort );    
+    static bool g_load( config_map& data, stream_reader& reader, abort_callback& abort );    
     static bool g_load_json( config_map& data, stream_reader& reader, abort_callback& abort, bool loadRawString = false );
-    static bool g_load_legacy( config_map& data, stream_reader* reader, abort_callback& abort );
-    static void g_save( const config_map& data, stream_writer* writer, abort_callback& abort );
+    static bool g_load_legacy( config_map& data, stream_reader& reader, abort_callback& abort );
+    static void g_save( const config_map& data, stream_writer& writer, abort_callback& abort );
     static void g_save_json( const config_map& data, stream_writer& writer, abort_callback& abort, bool saveAsRawString = false );
-    void load( stream_reader* reader, abort_callback& abort );
-    void save( stream_writer* writer, abort_callback& abort ) const;
+    void load( stream_reader& reader, abort_callback& abort );
+    void save( stream_writer& writer, abort_callback& abort ) const;
 
 private:
     config_map m_map;
@@ -61,9 +61,9 @@ public:
     static std::u8string get_default_script_code();
     EdgeStyle& get_edge_style();
 
-    void load_config( stream_reader* reader, t_size size, abort_callback& abort );
+    void load_config( stream_reader& reader, t_size size, abort_callback& abort );
     void reset_config();
-    void save_config( stream_writer* writer, abort_callback& abort ) const;
+    void save_config( stream_writer& writer, abort_callback& abort ) const;
 
 private:
     GUID m_config_guid;

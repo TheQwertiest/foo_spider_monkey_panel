@@ -199,6 +199,7 @@
     <ClCompile Include="utils\kmeans.cpp" />
     <ClCompile Include="utils\location_processor.cpp" />
     <ClCompile Include="utils\menu_helpers.cpp" />
+    <ClCompile Include="utils\pfc_helpers_stream.cpp" />
     <ClCompile Include="utils\semantic_version.cpp" />
     <ClCompile Include="utils\stackblur.cpp" />
     <ClCompile Include="utils\string_helpers.cpp" />
@@ -327,7 +328,9 @@
     <ClInclude Include="utils\kmeans.h" />
     <ClInclude Include="utils\location_processor.h" />
     <ClInclude Include="utils\menu_helpers.h" />
-    <ClInclude Include="utils\pfc_helpers.h" />
+    <ClInclude Include="utils\pfc_helpers_cnt.h" />
+    <ClInclude Include="utils\pfc_helpers_stream.h" />
+    <ClInclude Include="utils\pfc_helpers_ui.h" />
     <ClInclude Include="utils\scope_helpers.h" />
     <ClInclude Include="utils\semantic_version.h" />
     <ClInclude Include="utils\stackblur.h" />

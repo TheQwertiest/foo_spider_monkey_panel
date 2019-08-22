@@ -21,28 +21,28 @@ struct PanelInfo
         author = "";
     }
 
-    pfc::string8 build_info_string( bool full = true ) const
+    std::u8string build_info_string( bool full = true ) const
     {
-        pfc::string8 ret;
+        std::u8string ret;
 
         if ( !name.empty() )
         {
-            ret << name.c_str();
+            ret += name;
         }
         else
         {
-            ret << "{" << pfc::print_guid( m_guid_ref ) << "}";
+            ret += fmt::format( "{{{}}}", pfc::print_guid( m_guid_ref ) );
         }
 
         if ( full )
         {
             if ( !version.empty() )
             {
-                ret << " v" << version.c_str();
+                ret += fmt::format( " v{}", version );
             }
             if ( !author.empty() )
             {
-                ret << " by " << author.c_str();
+                ret += fmt::format( " by {}", author );
             }
         }
 

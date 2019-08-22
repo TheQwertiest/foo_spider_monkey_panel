@@ -2,7 +2,6 @@
 #include "art_helpers.h"
 
 #include <utils/gdi_helpers.h>
-#include <utils/pfc_helpers.h>
 #include <utils/string_helpers.h>
 #include <utils/thread_pool.h>
 #include <utils/scope_helpers.h>
@@ -156,7 +155,7 @@ void embed_thread::run( threaded_process_status& p_status,
                         abort_callback& p_abort )
 {
     auto api = file_lock_manager::get();
-    const auto stlHandleList = smp::Make_Stl_Ref( m_handles );
+    const auto stlHandleList = pfc_x::Make_Stl_Ref( m_handles );
 
     for ( auto&& [i, handle]: ranges::view::enumerate( stlHandleList ) )
     {

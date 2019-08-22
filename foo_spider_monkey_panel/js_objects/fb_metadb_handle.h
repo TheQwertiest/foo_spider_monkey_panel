@@ -39,8 +39,8 @@ public: // methods
     bool Compare( JsFbMetadbHandle* handle );
     JSObject* GetFileInfo();
     void RefreshStats();
-    void SetFirstPlayed( const pfc::string8_fast& first_played );
-    void SetLastPlayed( const pfc::string8_fast& last_played );
+    void SetFirstPlayed( const std::u8string& first_played );
+    void SetLastPlayed( const std::u8string& last_played );
     void SetLoved( uint32_t loved );
     void SetPlaycount( uint32_t playcount );
     void SetRating( uint32_t rating );

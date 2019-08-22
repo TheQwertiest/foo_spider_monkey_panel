@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include <stdafx.h>
 
 #include <utils/string_helpers.h>
 #include <utils/semantic_version.h>

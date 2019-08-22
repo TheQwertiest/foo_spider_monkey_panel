@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include <stdafx.h>
 
 #include <message_manager.h>
 #include <user_message.h>

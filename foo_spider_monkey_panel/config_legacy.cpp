@@ -19,53 +19,50 @@ enum class JsValueType : uint32_t
 namespace smp::config
 {
 
-bool LoadProperties_Binary( PanelProperties::config_map& data, stream_reader* reader, abort_callback& abort )
+bool LoadProperties_Binary( PanelProperties::config_map& data, stream_reader& reader, abort_callback& abort )
 {
     data.clear();
 
     try
     {
         uint32_t count;
-        reader->read_lendian_t( count, abort );
+        reader.read_lendian_t( count, abort );
 
         for ( uint32_t i = 0; i < count; ++i )
         {
             mozjs::SerializedJsValue serializedValue;
 
-            pfc::string8_fast pfcPropName;
-            reader->read_string( pfcPropName, abort );
+            const std::u8string u8PropName = smp::pfc_x::ReadString( reader, abort );
 
             uint32_t valueType;
-            reader->read_lendian_t( valueType, abort );
+            reader.read_lendian_t( valueType, abort );
 
             switch ( static_cast<JsValueType>( valueType ) )
             {
             case JsValueType::pt_boolean:
             {
                 bool value;
-                reader->read_lendian_t( value, abort );
+                reader.read_lendian_t( value, abort );
                 serializedValue = value;
                 break;
             }
             case JsValueType::pt_int32:
             {
                 int32_t value;
-                reader->read_lendian_t( value, abort );
+                reader.read_lendian_t( value, abort );
                 serializedValue = value;
                 break;
             }
             case JsValueType::pt_double:
             {
                 double value;
-                reader->read_lendian_t( value, abort );
+                reader.read_lendian_t( value, abort );
                 serializedValue = value;
                 break;
             }
             case JsValueType::pt_string:
             {
-                pfc::string8_fast value;
-                reader->read_string( value, abort );
-                serializedValue = value;
+                serializedValue = smp::pfc_x::ReadString( reader, abort );
                 break;
             }
             default:
@@ -75,7 +72,7 @@ bool LoadProperties_Binary( PanelProperties::config_map& data, stream_reader* re
             }
             }
 
-            pfc::stringcvt::string_wide_from_utf8 propnameW( pfcPropName.c_str(), pfcPropName.length() );
+            pfc::stringcvt::string_wide_from_utf8 propnameW( u8PropName.c_str(), u8PropName.length() );
             data.emplace( propnameW.get_ptr(), std::make_shared<mozjs::SerializedJsValue>( serializedValue ) );
         }
     }
@@ -87,16 +84,16 @@ bool LoadProperties_Binary( PanelProperties::config_map& data, stream_reader* re
     return true;
 }
 
-void SaveProperties_Binary( const PanelProperties::config_map& data, stream_writer* writer, abort_callback& abort )
+void SaveProperties_Binary( const PanelProperties::config_map& data, stream_writer& writer, abort_callback& abort )
 {
     try
     {
-        writer->write_lendian_t( static_cast<uint32_t>( data.size() ), abort );
+        writer.write_lendian_t( static_cast<uint32_t>( data.size() ), abort );
 
         for ( const auto& [name, pValue]: data )
         {
-            pfc::stringcvt::string_utf8_from_wide propNameW( name.c_str(), name.length() );
-            writer->write_string( propNameW.get_ptr(), propNameW.length(), abort );
+            pfc::stringcvt::string_utf8_from_wide propnameW( name.c_str(), name.length() );
+            writer.write_string( propnameW.get_ptr(), propnameW.length(), abort );
 
             const auto& serializedValue = *pValue;
 
@@ -124,18 +121,18 @@ void SaveProperties_Binary( const PanelProperties::config_map& data, stream_writ
                 }
             }, serializedValue );
 
-            writer->write_lendian_t( static_cast<uint32_t>( valueType ), abort );
+            writer.write_lendian_t( static_cast<uint32_t>( valueType ), abort );
 
             std::visit( [&writer, &abort]( auto&& arg ) {
                 using T = std::decay_t<decltype( arg )>;
                 if constexpr ( std::is_same_v<T, std::u8string> )
                 {
                     const auto& value = arg;
-                    writer->write_string( value.c_str(), value.length(), abort );
+                    writer.write_string( value.c_str(), value.length(), abort );
                 }
                 else
                 {
-                    writer->write_lendian_t( arg, abort );
+                    writer.write_lendian_t( arg, abort );
                 }
             }, serializedValue );
         }
@@ -145,23 +142,21 @@ void SaveProperties_Binary( const PanelProperties::config_map& data, stream_writ
     }
 }
 
-bool LoadProperties_Com( PanelProperties::config_map& data, stream_reader* reader, abort_callback& abort )
+bool LoadProperties_Com( PanelProperties::config_map& data, stream_reader& reader, abort_callback& abort )
 {
     data.clear();
 
     try
     {
         t_size count;
-        reader->read_lendian_t( count, abort );
+        reader.read_lendian_t( count, abort );
 
         for ( t_size i = 0; i < count; ++i )
         {
-            pfc::string8_fast propName;
-            reader->read_string( propName, abort );
-            propName = smp::string::Trim( propName );
+            const std::u8string u8propName = smp::string::Trim( smp::pfc_x::ReadString( reader, abort ) );
 
             VARTYPE vt;
-            reader->read_lendian_t( vt, abort );
+            reader.read_lendian_t( vt, abort );
 
             mozjs::SerializedJsValue serializedValue;
 
@@ -171,7 +166,7 @@ bool LoadProperties_Com( PanelProperties::config_map& data, stream_reader* reade
             case VT_I1:
             {
                 int8_t val;
-                reader->read( &val, sizeof( val ), abort );
+                reader.read( &val, sizeof( val ), abort );
                 serializedValue = static_cast<int32_t>( val );
 
                 break;
@@ -180,7 +175,7 @@ bool LoadProperties_Com( PanelProperties::config_map& data, stream_reader* reade
             case VT_UI2:
             {
                 int16_t val;
-                reader->read( &val, sizeof( val ), abort );
+                reader.read( &val, sizeof( val ), abort );
                 serializedValue = static_cast<int32_t>( val );
 
                 break;
@@ -189,7 +184,7 @@ bool LoadProperties_Com( PanelProperties::config_map& data, stream_reader* reade
             case VT_BOOL:
             {
                 int16_t val;
-                reader->read( &val, sizeof( val ), abort );
+                reader.read( &val, sizeof( val ), abort );
                 serializedValue = !!val;
 
                 break;
@@ -200,7 +195,7 @@ bool LoadProperties_Com( PanelProperties::config_map& data, stream_reader* reade
             case VT_UINT:
             {
                 int32_t val;
-                reader->read( &val, sizeof( val ), abort );
+                reader.read( &val, sizeof( val ), abort );
                 serializedValue = val;
 
                 break;
@@ -208,7 +203,7 @@ bool LoadProperties_Com( PanelProperties::config_map& data, stream_reader* reade
             case VT_R4:
             {
                 float val;
-                reader->read( &val, sizeof( val ), abort );
+                reader.read( &val, sizeof( val ), abort );
                 serializedValue = static_cast<double>( val );
 
                 break;
@@ -217,7 +212,7 @@ bool LoadProperties_Com( PanelProperties::config_map& data, stream_reader* reade
             case VT_UI8:
             {
                 int64_t val;
-                reader->read( &val, sizeof( val ), abort );
+                reader.read( &val, sizeof( val ), abort );
                 serializedValue = static_cast<int32_t>( val );
 
                 break;
@@ -227,17 +222,14 @@ bool LoadProperties_Com( PanelProperties::config_map& data, stream_reader* reade
             case VT_DATE:
             {
                 double val;
-                reader->read( &val, sizeof( val ), abort );
+                reader.read( &val, sizeof( val ), abort );
                 serializedValue = val;
 
                 break;
             }
             case VT_BSTR:
             {
-                pfc::string8_fast str;
-                reader->read_string( str, abort );
-                serializedValue = str;
-
+                serializedValue = smp::pfc_x::ReadString( reader, abort );
                 break;
             }
             default:
@@ -246,7 +238,7 @@ bool LoadProperties_Com( PanelProperties::config_map& data, stream_reader* reade
             }
             }
 
-            pfc::stringcvt::string_wide_from_utf8 propnameW( propName.c_str(), propName.length() );
+            pfc::stringcvt::string_wide_from_utf8 propnameW( u8propName.c_str(), u8propName.length() );
             data.emplace( propnameW.get_ptr(), std::make_shared<mozjs::SerializedJsValue>( serializedValue ) );
         }
     }

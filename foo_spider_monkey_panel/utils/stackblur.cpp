@@ -6,7 +6,7 @@
 // by Victor Laskin (victor.laskin@gmail.com)
 // More details: http://vitiy.info/stackblur-algorithm-multi-threaded-blur-for-cpp
 
-#include "stdafx.h"
+#include <stdafx.h>
 #include "stackblur.h"
 
 namespace
