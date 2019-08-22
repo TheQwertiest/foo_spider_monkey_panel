@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include <stdafx.h>
 #include "ui_conf.h"
 
 #include <ui/ui_goto.h>
@@ -17,23 +17,20 @@ constexpr int k_Edit_MenuPosition = 1;
 constexpr int k_Features_MenuPosition = 2;
 constexpr int k_EdgeStyle_MenuPosition = 0;
 
-constexpr COMDLG_FILTERSPEC k_DialogExtFilter[3] =
-    {
-        { L"JavaScript files", L"*.js" },
-        { L"Text files", L"*.txt" },
-        { L"All files", L"*.*" },
-    };
+constexpr COMDLG_FILTERSPEC k_DialogExtFilter[3] = {
+    { L"JavaScript files", L"*.js" },
+    { L"Text files", L"*.txt" },
+    { L"All files", L"*.*" },
+};
 
 } // namespace
+
+namespace smp::ui
+{
 
 CDialogConf::CDialogConf( smp::panel::js_panel_window* p_parent )
     : m_parent( p_parent )
 {
-}
-
-CDialogConf::~CDialogConf()
-{
-    m_hWnd = nullptr;
 }
 
 LRESULT CDialogConf::OnInitDialog( HWND hwndFocus, LPARAM lParam )
@@ -42,7 +39,7 @@ LRESULT CDialogConf::OnInitDialog( HWND hwndFocus, LPARAM lParam )
     assert( menu.m_hMenu );
 
     // Get caption text
-    uGetWindowText( m_hWnd, m_caption );
+    m_caption = smp::pfc_x::uGetWindowText<std::u8string>( m_hWnd );
 
     // Init resize
     DlgResize_Init();
@@ -63,9 +60,8 @@ LRESULT CDialogConf::OnInitDialog( HWND hwndFocus, LPARAM lParam )
     }
 
     // GUID Text
-    pfc::string8 guid_text = "GUID: ";
-    guid_text += pfc::print_guid( m_parent->get_config_guid() );
-    uSetWindowText( GetDlgItem( IDC_STATIC_GUID ), guid_text );
+    const std::u8string guid_text = fmt::format( "GUID: {}", pfc::print_guid( m_parent->get_config_guid() ) );
+    uSetWindowText( GetDlgItem( IDC_STATIC_GUID ), guid_text.c_str() );
 
     // Edit Control
     m_editorctrl.SubclassWindow( GetDlgItem( IDC_EDIT ) );
@@ -123,7 +119,7 @@ LRESULT CDialogConf::OnCloseCmd( WORD wNotifyCode, WORD wID, HWND hWndCtl )
     {
         if ( m_editorctrl.GetModify() )
         {
-            const int ret = uMessageBox( m_hWnd, "Do you want to apply your changes?", m_caption, MB_ICONWARNING | MB_SETFOREGROUND | MB_YESNOCANCEL );
+            const int ret = uMessageBox( m_hWnd, "Do you want to apply your changes?", m_caption.c_str(), MB_ICONWARNING | MB_SETFOREGROUND | MB_YESNOCANCEL );
             switch ( ret )
             {
             case IDYES:
@@ -186,15 +182,13 @@ LRESULT CDialogConf::OnNotify( int idCtrl, LPNMHDR pnmh )
     {
     case SCN_SAVEPOINTLEFT:
     { // dirty
-        pfc::string8 caption = m_caption;
-
-        caption += " *";
-        uSetWindowText( m_hWnd, caption );
+        const auto tmpStr = m_caption + " *";
+        uSetWindowText( m_hWnd, tmpStr.c_str() );
         break;
     }
     case SCN_SAVEPOINTREACHED:
     { // not dirty
-        uSetWindowText( m_hWnd, m_caption );
+        uSetWindowText( m_hWnd, m_caption.c_str() );
         break;
     }
     }
@@ -255,9 +249,9 @@ bool CDialogConf::MatchShortcuts( unsigned vk )
         if ( vk == VK_F3 )
         {
             // Find next one
-            if ( !m_lastSearchText.is_empty() )
+            if ( !m_lastSearchText.empty() )
             {
-                FindNext( m_hWnd, m_editorctrl.m_hWnd, m_lastFlags, m_lastSearchText );
+                FindNext( m_hWnd, m_editorctrl.m_hWnd, m_lastFlags, m_lastSearchText.c_str() );
             }
             else
             {
@@ -270,9 +264,9 @@ bool CDialogConf::MatchShortcuts( unsigned vk )
         if ( vk == VK_F3 )
         {
             // Find previous one
-            if ( !m_lastSearchText.is_empty() )
+            if ( !m_lastSearchText.empty() )
             {
-                FindPrevious( m_hWnd, m_editorctrl.m_hWnd, m_lastFlags, m_lastSearchText );
+                FindPrevious( m_hWnd, m_editorctrl.m_hWnd, m_lastFlags, m_lastSearchText.c_str() );
             }
             else
             {
@@ -311,7 +305,7 @@ LRESULT CDialogConf::OnFileImport( WORD, WORD, HWND )
     catch ( const smp::SmpException& e )
     {
         const std::string errorMsg = fmt::format( "Failed to read file: {}", e.what() );
-        (void)uMessageBox( m_hWnd, errorMsg.c_str(), m_caption, MB_ICONWARNING | MB_SETFOREGROUND );
+        (void)uMessageBox( m_hWnd, errorMsg.c_str(), m_caption.c_str(), MB_ICONWARNING | MB_SETFOREGROUND );
     }
 
     return 0;
@@ -393,7 +387,7 @@ LRESULT CDialogConf::OnUwmFindTextChanged( UINT uMsg, WPARAM wParam, LPARAM lPar
 
 bool CDialogConf::FindNext( HWND hWnd, HWND hWndEdit, unsigned flags, const char* which )
 {
-    ::SendMessage(::GetAncestor( hWndEdit, GA_PARENT ), static_cast<UINT>( smp::MiscMessage::find_text_changed ), flags, reinterpret_cast<LPARAM>( which ) );
+    ::SendMessage( ::GetAncestor( hWndEdit, GA_PARENT ), static_cast<UINT>( smp::MiscMessage::find_text_changed ), flags, reinterpret_cast<LPARAM>( which ) );
 
     SendMessage( hWndEdit, SCI_CHARRIGHT, 0, 0 );
     SendMessage( hWndEdit, SCI_SEARCHANCHOR, 0, 0 );
@@ -403,7 +397,7 @@ bool CDialogConf::FindNext( HWND hWnd, HWND hWndEdit, unsigned flags, const char
 
 bool CDialogConf::FindPrevious( HWND hWnd, HWND hWndEdit, unsigned flags, const char* which )
 {
-    ::SendMessage(::GetAncestor( hWndEdit, GA_PARENT ), static_cast<UINT>( smp::MiscMessage::find_text_changed ), flags, reinterpret_cast<LPARAM>( which ) );
+    ::SendMessage( ::GetAncestor( hWndEdit, GA_PARENT ), static_cast<UINT>( smp::MiscMessage::find_text_changed ), flags, reinterpret_cast<LPARAM>( which ) );
 
     SendMessage( hWndEdit, SCI_SEARCHANCHOR, 0, 0 );
     int pos = ::SendMessage( hWndEdit, SCI_SEARCHPREV, flags, reinterpret_cast<LPARAM>( which ) );
@@ -418,10 +412,8 @@ bool CDialogConf::FindResult( HWND hWnd, HWND hWndEdit, int pos, const char* whi
         return true;
     }
 
-    pfc::string8 buff = "Cannot find \"";
-    buff += which;
-    buff += "\"";
-    (void)uMessageBox( hWnd, buff.get_ptr(), SMP_NAME, MB_ICONINFORMATION | MB_SETFOREGROUND );
+    const auto msg = fmt::format( "Cannot find \"{}\"", which );
+    (void)uMessageBox( hWnd, msg.c_str(), SMP_NAME, MB_ICONINFORMATION | MB_SETFOREGROUND );
     return false;
 }
 
@@ -436,3 +428,5 @@ void CDialogConf::OpenFindDialog()
     m_dlgfind->ShowWindow( SW_SHOW );
     m_dlgfind->SetFocus();
 }
+
+} // namespace smp::ui

@@ -24,33 +24,33 @@ public:
     };
 
     BEGIN_COM_QI_IMPL()
-    COM_QI_ENTRY_MULTI( IUnknown, IServiceProvider )
-    COM_QI_ENTRY( IHTMLOMWindowServices )
-    COM_QI_ENTRY( IServiceProvider )
+		COM_QI_ENTRY_MULTI( IUnknown, IServiceProvider )
+		COM_QI_ENTRY( IHTMLOMWindowServices )
+		COM_QI_ENTRY( IServiceProvider )
     END_COM_QI_IMPL()
 
     BEGIN_SERVICE_MAP( CDialogHtml )
-    SERVICE_ENTRY( SID_SHTMLOMWindowServices )
+		SERVICE_ENTRY( SID_SHTMLOMWindowServices )
     END_SERVICE_MAP()
 
     BEGIN_MSG_MAP( CDialogHtml )
-    CHAIN_MSG_MAP( CAxDialogImpl<CDialogHtml> )
-    MSG_WM_INITDIALOG( OnInitDialog )
-    MSG_WM_DESTROY( OnDestroyDialog )
-    MSG_WM_SIZE( OnSize )
-    MSG_WM_CLOSE( OnClose )
-    COMMAND_RANGE_HANDLER_EX( IDOK, IDCANCEL, OnCloseCmd )
+		CHAIN_MSG_MAP( CAxDialogImpl<CDialogHtml> )
+		MSG_WM_INITDIALOG( OnInitDialog )
+		MSG_WM_DESTROY( OnDestroyDialog )
+		MSG_WM_SIZE( OnSize )
+		MSG_WM_CLOSE( OnClose )
+		COMMAND_RANGE_HANDLER_EX( IDOK, IDCANCEL, OnCloseCmd )
     END_MSG_MAP()
 
     BEGIN_SINK_MAP( CDialogHtml )
-    SINK_ENTRY( IDC_IE, DISPID_BEFORENAVIGATE2, OnBeforeNavigate2 )
-    SINK_ENTRY( IDC_IE, DISPID_TITLECHANGE, OnTitleChange )
-    SINK_ENTRY( IDC_IE, DISPID_WINDOWCLOSING, OnWindowClosing )
+		SINK_ENTRY( IDC_IE, DISPID_BEFORENAVIGATE2, OnBeforeNavigate2 )
+		SINK_ENTRY( IDC_IE, DISPID_TITLECHANGE, OnTitleChange )
+		SINK_ENTRY( IDC_IE, DISPID_WINDOWCLOSING, OnWindowClosing )
     END_SINK_MAP()
 
 public:
     CDialogHtml( JSContext* cx, const std::wstring& htmlCodeOrPath, JS::HandleValue options );
-    ~CDialogHtml();
+    ~CDialogHtml() override;
 
     LRESULT OnInitDialog( HWND hwndFocus, LPARAM lParam );
     LRESULT OnDestroyDialog();

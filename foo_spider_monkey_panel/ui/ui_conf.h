@@ -10,44 +10,46 @@ namespace smp::panel
 class js_panel_window;
 }
 
+namespace smp::ui
+{
+
 class CDialogFind;
 class CDialogReplace;
 
-class CDialogConf 
+class CDialogConf
     : public CDialogImpl<CDialogConf>
     , public CDialogResize<CDialogConf>
 {
 public:
     CDialogConf( smp::panel::js_panel_window* p_parent );
-    ~CDialogConf() override;
 
     BEGIN_DLGRESIZE_MAP( CDialogConf )
-        DLGRESIZE_CONTROL( IDC_STATIC_GUID, DLSZ_SIZE_X )
-        DLGRESIZE_CONTROL( IDC_EDIT, DLSZ_SIZE_X | DLSZ_SIZE_Y )
-        DLGRESIZE_CONTROL( IDOK, DLSZ_MOVE_X | DLSZ_MOVE_Y )
-        DLGRESIZE_CONTROL( IDAPPLY, DLSZ_MOVE_X | DLSZ_MOVE_Y )
-        DLGRESIZE_CONTROL( IDCANCEL, DLSZ_MOVE_X | DLSZ_MOVE_Y )
+		DLGRESIZE_CONTROL( IDC_STATIC_GUID, DLSZ_SIZE_X )
+		DLGRESIZE_CONTROL( IDC_EDIT, DLSZ_SIZE_X | DLSZ_SIZE_Y )
+		DLGRESIZE_CONTROL( IDOK, DLSZ_MOVE_X | DLSZ_MOVE_Y )
+		DLGRESIZE_CONTROL( IDAPPLY, DLSZ_MOVE_X | DLSZ_MOVE_Y )
+		DLGRESIZE_CONTROL( IDCANCEL, DLSZ_MOVE_X | DLSZ_MOVE_Y )
     END_DLGRESIZE_MAP()
 
     BEGIN_MSG_MAP( CDialogConf )
-        MSG_WM_INITDIALOG( OnInitDialog )
-        MSG_WM_NOTIFY( OnNotify )
-        MESSAGE_HANDLER( static_cast<UINT>( smp::MiscMessage::key_down ), OnUwmKeyDown )
-        MESSAGE_HANDLER( static_cast<UINT>( smp::MiscMessage::find_text_changed ), OnUwmFindTextChanged )
-        COMMAND_RANGE_HANDLER_EX( IDOK, IDCANCEL, OnCloseCmd )
-        COMMAND_ID_HANDLER_EX( IDAPPLY, OnCloseCmd )
-        // Menu
-        COMMAND_ID_HANDLER_EX( ID_FILE_SAVE, OnFileSave )
-        COMMAND_ID_HANDLER_EX( ID_FILE_IMPORT, OnFileImport )
-        COMMAND_ID_HANDLER_EX( ID_FILE_EXPORT, OnFileExport )
-        COMMAND_ID_HANDLER_EX( ID_EDIT_RESETTODEFAULT, OnEditResetDefault )
-        COMMAND_RANGE_HANDLER_EX( ID_EDGESTYLE_NONE, ID_EDGESTYLE_GREY, OnFeaturesEdgeStyle )
-        COMMAND_ID_HANDLER_EX( ID_PANELFEATURES_PSEUDOTRANSPARENT, OnFeaturesPseudoTransparent )
-        COMMAND_ID_HANDLER_EX( ID_PANELFEATURES_GRABFOCUS, OnFeaturesGrabFocus )
-        COMMAND_ID_HANDLER_EX( ID_HELP, OnHelp )
-        COMMAND_ID_HANDLER_EX( ID_APP_ABOUT, OnAbout )
-        CHAIN_MSG_MAP( CDialogResize<CDialogConf> )
-        REFLECT_NOTIFICATIONS()
+		MSG_WM_INITDIALOG( OnInitDialog )
+		MSG_WM_NOTIFY( OnNotify )
+		MESSAGE_HANDLER( static_cast<UINT>( smp::MiscMessage::key_down ), OnUwmKeyDown )
+		MESSAGE_HANDLER( static_cast<UINT>( smp::MiscMessage::find_text_changed ), OnUwmFindTextChanged )
+		COMMAND_RANGE_HANDLER_EX( IDOK, IDCANCEL, OnCloseCmd )
+		COMMAND_ID_HANDLER_EX( IDAPPLY, OnCloseCmd )
+		// Menu
+		COMMAND_ID_HANDLER_EX( ID_FILE_SAVE, OnFileSave )
+		COMMAND_ID_HANDLER_EX( ID_FILE_IMPORT, OnFileImport )
+		COMMAND_ID_HANDLER_EX( ID_FILE_EXPORT, OnFileExport )
+		COMMAND_ID_HANDLER_EX( ID_EDIT_RESETTODEFAULT, OnEditResetDefault )
+		COMMAND_RANGE_HANDLER_EX( ID_EDGESTYLE_NONE, ID_EDGESTYLE_GREY, OnFeaturesEdgeStyle )
+		COMMAND_ID_HANDLER_EX( ID_PANELFEATURES_PSEUDOTRANSPARENT, OnFeaturesPseudoTransparent )
+		COMMAND_ID_HANDLER_EX( ID_PANELFEATURES_GRABFOCUS, OnFeaturesGrabFocus )
+		COMMAND_ID_HANDLER_EX( ID_HELP, OnHelp )
+		COMMAND_ID_HANDLER_EX( ID_APP_ABOUT, OnAbout )
+		CHAIN_MSG_MAP( CDialogResize<CDialogConf> )
+		REFLECT_NOTIFICATIONS()
     END_MSG_MAP()
 
     enum
@@ -87,7 +89,9 @@ private:
     CDialogReplace* m_dlgreplace = nullptr;
     CMenu menu;
 
-    pfc::string8 m_caption;
+    std::u8string m_caption;
     unsigned int m_lastFlags = 0;
-    pfc::string8 m_lastSearchText;
+    std::u8string m_lastSearchText;
 };
+
+} // namespace smp::ui

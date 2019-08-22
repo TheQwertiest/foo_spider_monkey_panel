@@ -17,11 +17,11 @@ public:
     CDialogSlowScript( const std::u8string& panelName, const std::u8string& scriptInfo, CDialogSlowScript::Data& data );
 
     BEGIN_MSG_MAP( CDialogSlowScript )
-    MSG_WM_INITDIALOG( OnInitDialog )
-    COMMAND_ID_HANDLER_EX( IDC_SLOWSCRIPT_CONTINUE, OnContinueScript )
-    COMMAND_ID_HANDLER_EX( IDC_SLOWSCRIPT_STOP, OnStopScript )
-    COMMAND_HANDLER_EX( IDC_SLOWSCRIPT_CHECK_DONTASK, BN_CLICKED, OnDontAskClick )
-    COMMAND_RANGE_HANDLER_EX( IDOK, IDCANCEL, OnCloseCmd )
+		MSG_WM_INITDIALOG( OnInitDialog )
+		COMMAND_ID_HANDLER_EX( IDC_SLOWSCRIPT_CONTINUE, OnContinueScript )
+		COMMAND_ID_HANDLER_EX( IDC_SLOWSCRIPT_STOP, OnStopScript )
+		COMMAND_HANDLER_EX( IDC_SLOWSCRIPT_CHECK_DONTASK, BN_CLICKED, OnDontAskClick )
+		COMMAND_RANGE_HANDLER_EX( IDOK, IDCANCEL, OnCloseCmd )
     END_MSG_MAP()
 
     enum

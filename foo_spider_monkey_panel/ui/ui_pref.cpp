@@ -6,17 +6,66 @@
 
 #include <scintilla/scintilla_prop_sets.h>
 
+#include <filesystem>
+
+namespace fs = std::filesystem;
+
 namespace
 {
 
-constexpr COMDLG_FILTERSPEC k_DialogExtFilter[2] =
+class js_preferences_page_impl
+    : public preferences_page_v3
+{
+public:
+    const char* get_name() override
     {
-        { L"Configuration files", L"*.cfg" },
-        { L"All files", L"*.*" },
-    };
+        return SMP_NAME;
+    }
+
+    GUID get_guid() override
+    {
+        return smp::guid::ui_pref;
+    }
+
+    GUID get_parent_guid() override
+    {
+        return preferences_page::guid_tools;
+    }
+
+    bool get_help_url( pfc::string_base& p_out ) override
+    {
+        p_out = "https://github.com/TheQwertiest/foo_spider_monkey_panel/wiki";
+        return true;
+    }
+
+    preferences_page_instance::ptr instantiate( HWND parent, preferences_page_callback::ptr callback ) override
+    {
+        auto p = fb2k::service_new<smp::ui::CDialogPref>( callback );
+        p->Create( parent );
+        return p;
+    }
+};
 
 preferences_page_factory_t<js_preferences_page_impl> g_pref;
 
+}
+
+namespace
+{
+
+constexpr COMDLG_FILTERSPEC k_DialogExtFilter[2] = {
+    { L"Configuration files", L"*.cfg" },
+    { L"All files", L"*.*" },
+};
+
+} // namespace
+
+namespace smp::ui
+{
+
+CDialogPref::CDialogPref( preferences_page_callback::ptr callback )
+    : m_callback( callback )
+{
 }
 
 BOOL CDialogPref::OnInitDialog( HWND hwndFocus, LPARAM lParam )
@@ -45,12 +94,12 @@ void CDialogPref::LoadProps( bool reset )
 
     m_props.DeleteAllItems();
 
-    for ( t_size i = 0; i < prop_sets.get_count(); ++i )
+    for ( auto&& [i, prop]: ranges::view::enumerate( prop_sets ) )
     {
-        conv.convert( prop_sets[i].key );
+        conv.convert( prop.key.c_str() );
         m_props.AddItem( i, 0, conv );
 
-        conv.convert( prop_sets[i].val );
+        conv.convert( prop.val.c_str() );
         m_props.AddItem( i, 1, conv );
     }
 
@@ -66,10 +115,9 @@ LRESULT CDialogPref::OnPropNMDblClk( LPNMHDR pnmh )
     if ( pniv->iItem >= 0 )
     {
         t_sci_prop_set_list& prop_sets = g_sci_prop_sets.val();
-        pfc::string8 key, val;
 
-        uGetItemText( pniv->iItem, 0, key );
-        uGetItemText( pniv->iItem, 1, val );
+        const auto key = this->uGetItemText( pniv->iItem, 0 );
+        const auto val = this->uGetItemText( pniv->iItem, 1 );
 
         if ( !modal_dialog_scope::can_create() )
         {
@@ -78,24 +126,21 @@ LRESULT CDialogPref::OnPropNMDblClk( LPNMHDR pnmh )
 
         modal_dialog_scope scope( m_hWnd );
 
-        CNameValueEdit dlg( key, val );
+        CNameValueEdit dlg( key.c_str(), val.c_str() );
 
         if ( IDOK == dlg.DoModal( m_hWnd ) )
         {
-            dlg.GetValue( val );
+            const auto newVal = dlg.GetValue();
 
             // Save
-            for ( t_size i = 0; i < prop_sets.get_count(); ++i )
+            auto it = ranges::find_if( prop_sets, [&key]( const auto& elem ) { return ( strcmp( elem.key, key.c_str() ) == 0 ); } );
+            if ( it != prop_sets.end() )
             {
-                if ( strcmp( prop_sets[i].key, key ) == 0 )
-                {
-                    prop_sets[i].val = val;
-                    break;
-                }
+                it->val = newVal.c_str();
             }
 
             // Update list
-            m_props.SetItemText( pniv->iItem, 1, pfc::stringcvt::string_wide_from_utf8_fast( val ) );
+            m_props.SetItemText( pniv->iItem, 1, pfc::stringcvt::string_wide_from_utf8_fast( newVal.c_str() ) );
             DoDataExchange();
         }
     }
@@ -103,33 +148,35 @@ LRESULT CDialogPref::OnPropNMDblClk( LPNMHDR pnmh )
     return 0;
 }
 
-void CDialogPref::uGetItemText( int nItem, int nSubItem, pfc::string_base& out )
+std::u8string CDialogPref::uGetItemText( int nItem, int nSubItem )
 {
-    enum
-    {
-        BUFFER_LEN = 1024
-    };
-    TCHAR buffer[BUFFER_LEN];
+    std::wstring buffer;
 
-    m_props.GetItemText( nItem, nSubItem, buffer, BUFFER_LEN );
-    out.set_string( pfc::stringcvt::string_utf8_from_os( buffer ) );
+    auto size = m_props.GetItemText( nItem, nSubItem, buffer.data(), 0 );
+    buffer.resize( size + 1 );
+    (void)m_props.GetItemText( nItem, nSubItem, buffer.data(), size );
+    buffer.resize( wcslen( buffer.c_str() ) );
+
+    return pfc::stringcvt::string_utf8_from_os( buffer.c_str() ).get_ptr();
 }
 
 void CDialogPref::OnButtonExportBnClicked( WORD wNotifyCode, WORD wID, HWND hWndCtl )
 {
-    const std::wstring filename( smp::file::FileDialog( L"Save as", true, k_DialogExtFilter, L"cfg" ).c_str() );
-    if ( !filename.empty() )
+    fs::path path( smp::file::FileDialog( L"Save as", true, k_DialogExtFilter, L"cfg" ) );
+    if ( !path.empty() )
     {
-        g_sci_prop_sets.export_to_file( filename.c_str() );
+        path = path.lexically_normal();
+        g_sci_prop_sets.export_to_file( path.wstring().c_str() );
     }
 }
 
 void CDialogPref::OnButtonImportBnClicked( WORD wNotifyCode, WORD wID, HWND hWndCtl )
 {
-    const pfc::stringcvt::string_utf8_from_os filename( smp::file::FileDialog( L"Import from", false, k_DialogExtFilter, L"cfg" ).c_str() );
-    if ( !filename.is_empty() )
+    fs::path path( smp::file::FileDialog( L"Import from", false, k_DialogExtFilter, L"cfg" ) );
+    if ( !path.empty() )
     {
-        g_sci_prop_sets.import_from_file( filename );
+        path = path.lexically_normal();
+        g_sci_prop_sets.import_from_file( path.u8string().c_str() );
     }
 
     LoadProps();
@@ -166,3 +213,5 @@ void CDialogPref::reset()
 {
     LoadProps( true );
 }
+
+} // namespace smp::ui

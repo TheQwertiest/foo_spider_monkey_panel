@@ -34,7 +34,7 @@ struct t_prop_set_init_table
 	const char * defaultval;
 };
 
-typedef pfc::list_t<t_sci_prop_set> t_sci_prop_set_list;
+typedef std::vector<t_sci_prop_set> t_sci_prop_set_list;
 typedef pfc::map_t<pfc::string_simple, pfc::string_simple, pfc::comparator_stricmp_ascii> t_str_to_str_map;
 
 class cfg_sci_prop_sets : public cfg_var

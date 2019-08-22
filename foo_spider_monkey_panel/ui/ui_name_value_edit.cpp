@@ -1,40 +1,45 @@
-#include "stdafx.h"
+#include <stdafx.h>
 #include "ui_name_value_edit.h"
 
-CNameValueEdit::CNameValueEdit( const char* p_name, const char* p_value ) 
+namespace smp::ui
+{
+
+CNameValueEdit::CNameValueEdit( const char* p_name, const char* p_value )
     : m_name( p_name )
     , m_value( p_value )
 {
 }
 
-LRESULT CNameValueEdit::OnInitDialog(HWND hwndFocus, LPARAM lParam)
+LRESULT CNameValueEdit::OnInitDialog( HWND hwndFocus, LPARAM lParam )
 {
-	uSendDlgItemMessageText(m_hWnd, IDC_EDIT_NAME, WM_SETTEXT, 0, m_name);
-	uSendDlgItemMessageText(m_hWnd, IDC_EDIT_VALUE, WM_SETTEXT, 0, m_value);
+    uSendDlgItemMessageText( m_hWnd, IDC_EDIT_NAME, WM_SETTEXT, 0, m_name.c_str() );
+    uSendDlgItemMessageText( m_hWnd, IDC_EDIT_VALUE, WM_SETTEXT, 0, m_value.c_str() );
 
-	// Select all
-	SendDlgItemMessage(IDC_EDIT_VALUE, EM_SETSEL, 0, -1);
-	::SetFocus(GetDlgItem(IDC_EDIT_VALUE));
+    // Select all
+    SendDlgItemMessage( IDC_EDIT_VALUE, EM_SETSEL, 0, -1 );
+    ::SetFocus( GetDlgItem( IDC_EDIT_VALUE ) );
 
-	return FALSE;
+    return FALSE;
 }
 
-LRESULT CNameValueEdit::OnCommand(UINT codeNotify, int id, HWND hwndCtl)
+LRESULT CNameValueEdit::OnCommand( UINT codeNotify, int id, HWND hwndCtl )
 {
-	if (id == IDOK || id == IDCANCEL)
-	{
+    if ( id == IDOK || id == IDCANCEL )
+    {
         if ( id == IDOK )
         {
-            uGetDlgItemText( m_hWnd, IDC_EDIT_VALUE, m_value );
+            m_value = smp::pfc_x::uGetWindowText<std::u8string>( GetDlgItem( IDC_EDIT_VALUE ) );
         }
 
-		EndDialog(id);
-	}
+        EndDialog( id );
+    }
 
-	return 0;
+    return 0;
 }
 
-void CNameValueEdit::GetValue( pfc::string_base& p_value )
+std::u8string CNameValueEdit::GetValue()
 {
-    p_value = m_value;
+    return m_value;
 }
+
+} // namespace smp::ui

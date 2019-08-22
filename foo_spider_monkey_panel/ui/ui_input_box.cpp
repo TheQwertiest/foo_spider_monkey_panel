@@ -1,5 +1,8 @@
-#include "stdafx.h"
+#include <stdafx.h>
 #include "ui_input_box.h"
+
+namespace smp::ui
+{
 
 CInputBox::CInputBox( const char* p_prompt, const char* p_caption, const char* p_value )
     : m_prompt( p_prompt )
@@ -28,9 +31,7 @@ LRESULT CInputBox::OnCommand( UINT codeNotify, int id, HWND hwndCtl )
     {
         if ( id == IDOK )
         {
-            pfc::string8_fast tmp;
-            uGetDlgItemText( m_hWnd, IDC_INPUT_VALUE, tmp );
-            m_value = tmp;
+            m_value = smp::pfc_x::uGetWindowText<std::u8string>( GetDlgItem( IDC_INPUT_VALUE ) );
         }
 
         EndDialog( id );
@@ -43,3 +44,5 @@ std::u8string CInputBox::GetValue()
 {
     return m_value;
 }
+
+} // namespace smp::ui

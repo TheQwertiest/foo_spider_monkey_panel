@@ -1184,9 +1184,9 @@ void CScriptEditorCtrl::Init()
     LoadProperties( g_sci_prop_sets.val() );
 }
 
-void CScriptEditorCtrl::LoadProperties( const pfc::list_t<t_sci_prop_set>& data )
+void CScriptEditorCtrl::LoadProperties( const std::vector<t_sci_prop_set>& data )
 {
-    for ( t_size i = 0; i < data.get_count(); ++i )
+    for ( t_size i = 0; i < data.size(); ++i )
     {
         SetProperty( data[i].key.get_ptr(), data[i].val.get_ptr() );
     }

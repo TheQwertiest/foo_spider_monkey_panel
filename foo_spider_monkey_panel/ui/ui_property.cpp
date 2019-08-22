@@ -8,6 +8,17 @@
 // precision
 #include <iomanip>
 #include <map>
+#include <filesystem>
+
+namespace fs = std::filesystem;
+
+namespace smp::ui
+{
+
+CDialogProperty::CDialogProperty( smp::panel::js_panel_window* p_parent )
+    : m_parent( p_parent )
+{
+}
 
 LRESULT CDialogProperty::OnInitDialog( HWND hwndFocus, LPARAM lParam )
 {
@@ -44,8 +55,8 @@ LRESULT CDialogProperty::OnPinItemChanged( LPNMHDR pnmh )
 {
     LPNMPROPERTYITEM pnpi = (LPNMPROPERTYITEM)pnmh;
 
-    if ( auto it = m_dup_prop_map.find( pnpi->prop->GetName() ); 
-		it != m_dup_prop_map.end() )
+    if ( auto it = m_dup_prop_map.find( pnpi->prop->GetName() );
+         it != m_dup_prop_map.end() )
     {
         auto& val = *( it->second );
         _variant_t var;
@@ -152,7 +163,8 @@ void CDialogProperty::LoadProperties( bool reload )
             {
                 static_assert( false, "non-exhaustive visitor!" );
             }
-        }, *pSerializedValue );
+        },
+                                      *pSerializedValue );
 
         propMap.emplace( name, hProp );
     }
@@ -186,34 +198,35 @@ LRESULT CDialogProperty::OnImportBnClicked( WORD wNotifyCode, WORD wID, HWND hWn
         { L"All files", L"*.*" },
     };
 
-    const pfc::string8_fast filename =
-        pfc::stringcvt::string_utf8_from_os( smp::file::FileDialog( L"Import from", false, k_DialogImportExtFilter, L"json", L"props" ).c_str() ).get_ptr();
-    if ( filename.is_empty() )
+    fs::path path( smp::file::FileDialog( L"Import from", false, k_DialogImportExtFilter, L"json", L"props" ) );
+    if ( path.empty() )
     {
         return 0;
     }
+    path = path.lexically_normal();
 
     file_ptr io;
     auto& abort = smp::GlobalAbortCallback::GetInstance();
 
     try
     {
-        filesystem::g_open_read( io, filename, abort );
+        filesystem::g_open_read( io, path.u8string().c_str(), abort );
 
-        if ( filename.has_suffix( ".json" ) )
+        const auto extension = path.extension();
+        if ( extension == ".json" )
         {
             smp::config::PanelProperties::g_load_json( m_dup_prop_map, *io, abort, true );
         }
-        else if ( filename.has_suffix( ".smp" ) )
+        else if ( extension == ".smp" )
         {
             smp::config::PanelProperties::g_load( m_dup_prop_map, *io, abort );
         }
-        else if ( filename.has_suffix( ".wsp" ) )
+        else if ( extension == ".wsp" )
         {
             smp::config::PanelProperties::g_load_legacy( m_dup_prop_map, *io, abort );
         }
         else
-        {
+        { // let's brute-force it!
             if ( !smp::config::PanelProperties::g_load_json( m_dup_prop_map, *io, abort, true )
                  && !smp::config::PanelProperties::g_load( m_dup_prop_map, *io, abort ) )
             {
@@ -237,18 +250,19 @@ LRESULT CDialogProperty::OnExportBnClicked( WORD wNotifyCode, WORD wID, HWND hWn
         { L"All files", L"*.*" },
     };
 
-    const pfc::stringcvt::string_utf8_from_os filename( smp::file::FileDialog( L"Save as", true, k_DialogExportExtFilter, L"json", L"props" ).c_str() );
-    if ( filename.is_empty() )
+    fs::path path( smp::file::FileDialog( L"Save as", true, k_DialogExportExtFilter, L"json", L"props" ) );
+    if ( path.empty() )
     {
         return 0;
     }
+    path = path.lexically_normal();
 
     file_ptr io;
     auto& abort = smp::GlobalAbortCallback::GetInstance();
 
     try
     {
-        filesystem::g_open_write_new( io, filename, abort );
+        filesystem::g_open_write_new( io, path.u8string().c_str(), abort );
         smp::config::PanelProperties::g_save_json( m_dup_prop_map, *io, abort, true );
     }
     catch ( const pfc::exception& )
@@ -257,3 +271,5 @@ LRESULT CDialogProperty::OnExportBnClicked( WORD wNotifyCode, WORD wID, HWND hWn
 
     return 0;
 }
+
+} // namespace smp::ui

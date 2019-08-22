@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include <stdafx.h>
 #include "ui_slow_script.h"
 
 namespace smp::ui

@@ -477,7 +477,7 @@ std::u8string JsUtils::InputBox( uint32_t hWnd, const std::u8string& prompt, con
     {
         modal_dialog_scope scope( reinterpret_cast<HWND>( hWnd ) );
 
-        CInputBox dlg( prompt.c_str(), caption.c_str(), def.c_str() );
+        smp::ui::CInputBox dlg( prompt.c_str(), caption.c_str(), def.c_str() );
         int status = dlg.DoModal( reinterpret_cast<HWND>( hWnd ) );
         if ( status == IDCANCEL && error_on_cancel )
         {

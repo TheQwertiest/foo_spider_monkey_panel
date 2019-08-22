@@ -686,7 +686,7 @@ bool js_panel_window::show_configure_popup( HWND parent )
 
     modal_dialog_scope scope( parent );
 
-    CDialogConf dlg( this );
+    smp::ui::CDialogConf dlg( this );
     return ( dlg.DoModal( parent ) == IDOK );
 }
 
@@ -699,7 +699,7 @@ void js_panel_window::show_property_popup( HWND parent )
 
     modal_dialog_scope scope( parent );
 
-    CDialogProperty dlg( this );
+    smp::ui::CDialogProperty dlg( this );
     (void)dlg.DoModal( parent );
 }
 

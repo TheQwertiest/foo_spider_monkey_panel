@@ -1,26 +1,40 @@
-#include "stdafx.h"
+#include <stdafx.h>
 #include "ui_goto.h"
 
-LRESULT CDialogGoto::OnInitDialog(HWND hwndFocus, LPARAM lParam)
+#include <utils/string_helpers.h>
+
+namespace smp::ui
 {
-	int cur_pos = SendMessage(m_hedit, SCI_GETCURRENTPOS, 0, 0);
-	int cur_line = SendMessage(m_hedit, SCI_LINEFROMPOSITION, cur_pos, 0);
 
-	uSetWindowText(GetDlgItem(IDC_EDIT_LINENUMBER), pfc::format_int(cur_line + 1).get_ptr());
-
-	return TRUE; // set focus to default control
+CDialogGoto::CDialogGoto( HWND p_hedit )
+    : m_hedit( p_hedit )
+{
 }
 
-LRESULT CDialogGoto::OnCloseCmd(WORD wNotifyCode, WORD wID, HWND hWndCtl)
+LRESULT CDialogGoto::OnInitDialog( HWND hwndFocus, LPARAM lParam )
 {
-	if (wID == IDOK)
-	{
-		pfc::string8 text;
-		uGetWindowText(GetDlgItem(IDC_EDIT_LINENUMBER), text);
-		unsigned i = pfc::atoui_ex(text.get_ptr(), text.length()) - 1;
-		SendMessage(m_hedit, SCI_GOTOLINE, i, 0);
-	}
+    const int cur_pos = SendMessage( m_hedit, SCI_GETCURRENTPOS, 0, 0 );
+    const int cur_line = SendMessage( m_hedit, SCI_LINEFROMPOSITION, cur_pos, 0 );
 
-	EndDialog(wID);
-	return 0;
+    uSetWindowText( GetDlgItem( IDC_EDIT_LINENUMBER ), std::to_string( cur_line + 1 ).c_str() );
+
+    return TRUE; // set focus to default control
 }
+
+LRESULT CDialogGoto::OnCloseCmd( WORD wNotifyCode, WORD wID, HWND hWndCtl )
+{
+    if ( wID == IDOK )
+    {
+        const auto text = smp::pfc_x::uGetWindowText<std::u8string>( GetDlgItem( IDC_EDIT_LINENUMBER ) );
+        const auto numRet = smp::string::GetNumber<unsigned>( static_cast<std::u8string_view>( text ) );
+        if ( numRet )
+        {
+            SendMessage( m_hedit, SCI_GOTOLINE, numRet.value(), 0 );
+        }
+    }
+
+    EndDialog( wID );
+    return 0;
+}
+
+} // namespace smp::ui

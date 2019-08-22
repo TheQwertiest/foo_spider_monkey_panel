@@ -90,7 +90,7 @@ private:
     bool RangeIsAllWhitespace( int start, int end );
     std::optional<DWORD> GetPropertyColor( const char* key );
     void Init();
-    void LoadProperties( const pfc::list_t<t_sci_prop_set>& data );
+    void LoadProperties( const std::vector<t_sci_prop_set>& data );
     void RestoreDefaultStyle();
     void TrackWidth();
     void SetAllStylesFromTable( nonstd::span<const t_style_to_key> table );
