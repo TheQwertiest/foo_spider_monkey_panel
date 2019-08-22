@@ -84,7 +84,7 @@ public:
 private:
     smp::panel::js_panel_window* m_parent = nullptr;
 
-    CScriptEditorCtrl m_editorctrl;
+    scintilla::CScriptEditorCtrl m_editorctrl;
     CDialogFind* m_dlgfind = nullptr;
     CDialogReplace* m_dlgreplace = nullptr;
     CMenu menu;

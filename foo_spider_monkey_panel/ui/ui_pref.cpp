@@ -10,6 +10,8 @@
 
 namespace fs = std::filesystem;
 
+using namespace scintilla;
+
 namespace
 {
 
@@ -87,10 +89,10 @@ BOOL CDialogPref::OnInitDialog( HWND hwndFocus, LPARAM lParam )
 void CDialogPref::LoadProps( bool reset )
 {
     if ( reset )
-        g_sci_prop_sets.reset();
+        g_scintillaCfg.reset();
 
     pfc::stringcvt::string_os_from_utf8_fast conv;
-    t_sci_prop_set_list& prop_sets = g_sci_prop_sets.val();
+    const auto& prop_sets = g_scintillaCfg.val();
 
     m_props.DeleteAllItems();
 
@@ -114,7 +116,7 @@ LRESULT CDialogPref::OnPropNMDblClk( LPNMHDR pnmh )
 
     if ( pniv->iItem >= 0 )
     {
-        t_sci_prop_set_list& prop_sets = g_sci_prop_sets.val();
+        auto& prop_sets = g_scintillaCfg.val();
 
         const auto key = this->uGetItemText( pniv->iItem, 0 );
         const auto val = this->uGetItemText( pniv->iItem, 1 );
@@ -133,10 +135,10 @@ LRESULT CDialogPref::OnPropNMDblClk( LPNMHDR pnmh )
             const auto newVal = dlg.GetValue();
 
             // Save
-            auto it = ranges::find_if( prop_sets, [&key]( const auto& elem ) { return ( strcmp( elem.key, key.c_str() ) == 0 ); } );
+            auto it = ranges::find_if( prop_sets, [&key]( const auto& elem ) { return ( elem.key == key ); } );
             if ( it != prop_sets.end() )
             {
-                it->val = newVal.c_str();
+                it->val = newVal;
             }
 
             // Update list
@@ -166,7 +168,7 @@ void CDialogPref::OnButtonExportBnClicked( WORD wNotifyCode, WORD wID, HWND hWnd
     if ( !path.empty() )
     {
         path = path.lexically_normal();
-        g_sci_prop_sets.export_to_file( path.wstring().c_str() );
+        g_scintillaCfg.export_to_file( path.wstring().c_str() );
     }
 }
 
@@ -176,7 +178,7 @@ void CDialogPref::OnButtonImportBnClicked( WORD wNotifyCode, WORD wID, HWND hWnd
     if ( !path.empty() )
     {
         path = path.lexically_normal();
-        g_sci_prop_sets.import_from_file( path.u8string().c_str() );
+        g_scintillaCfg.import_from_file( path.u8string().c_str() );
     }
 
     LoadProps();

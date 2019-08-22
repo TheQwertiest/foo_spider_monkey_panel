@@ -1,4 +1,4 @@
-// Stolen from SciTE
+// Extracted from SciTE
 // Copyright 1998-2005 by Neil Hodgson <neilh@scintilla.org>
 // The License.txt file describes the conditions under which this software may be distributed.
 #pragma once
@@ -10,43 +10,11 @@
 #include <set>
 #include <optional>
 
-enum class IndentationStatus
+namespace scintilla
 {
-    isNone,        // no effect on indentation
-    isBlockStart,  // indentation block begin such as "{" or VB "function"
-    isBlockEnd,    // indentation end indicator such as "}" or VB "end"
-    isKeyWordStart // Keywords that cause indentation
-};
-
-struct StyleAndWords
-{
-    StyleAndWords() = default;
-    StyleAndWords( const std::u8string& words, int styleNumber = 0 )
-        : words( words )
-        , styleNumber( styleNumber )
-    {
-    }
-
-    int styleNumber{};
-    std::u8string words;
-    bool IsEmpty() const
-    {
-        return words.length() == 0;
-    }
-    bool IsSingleChar() const
-    {
-        return words.length() == 1;
-    }
-};
 
 // forward declaration
-struct t_sci_prop_set;
-
-struct t_style_to_key
-{
-    int style_num;
-    const char* key;
-};
+struct ScintillaProp;
 
 class CScriptEditorCtrl : public CScintillaCtrl
 {
@@ -75,25 +43,40 @@ public:
     BOOL SubclassWindow( HWND hWnd );
 
 private:
+    enum class IndentationStatus
+    {
+        isNone,        // no effect on indentation
+        isBlockStart,  // indentation block begin such as "{" or VB "function"
+        isBlockEnd,    // indentation end indicator such as "}" or VB "end"
+        isKeyWordStart // Keywords that cause indentation
+    };
+
     struct KeyWordComparator
     {
         bool operator()( const std::u8string& a,
                          const std::u8string& b );
     };
 
+    struct BracePosition
+    {
+        std::optional<int> current;
+        std::optional<int> matching;
+    };
+
+private:
     // Operations and Implementation
     Sci_CharacterRange GetSelection();
     int GetCaretInLine();
     std::u8string GetCurrentLine();
     IndentationStatus GetIndentState( int line );
-    size_t GetLinePartsInStyle( int line, int style1, int style2, nonstd::span<std::u8string> parts );
+    std::vector<std::pair<std::u8string, int>> GetStyledParts( int line, nonstd::span<const int> styles, size_t maxParts );
     bool RangeIsAllWhitespace( int start, int end );
     std::optional<DWORD> GetPropertyColor( const char* key );
     void Init();
-    void LoadProperties( const std::vector<t_sci_prop_set>& data );
+    void LoadProperties( nonstd::span<const ScintillaProp> data );
     void RestoreDefaultStyle();
     void TrackWidth();
-    void SetAllStylesFromTable( nonstd::span<const t_style_to_key> table );
+    void LoadStyleFromProperties();
     void AutoMarginWidth();
     bool StartCallTip();
     void ContinueCallTip();
@@ -101,7 +84,7 @@ private:
     bool StartAutoComplete();
     int IndentOfBlock( int line );
     void AutomaticIndentation( char ch );
-    bool FindBraceMatchPos( int& braceAtCaret, int& braceOpposite );
+    BracePosition FindBraceMatchPos();
     std::optional<std::vector<std::u8string_view>> GetNearestWords( std::u8string_view wordPart, std::optional<char8_t> separator = std::nullopt );
     std::optional<std::u8string_view> GetFullDefinitionForWord( std::u8string_view word );
     void SetIndentation( int line, int indent );
@@ -114,13 +97,10 @@ private:
     int m_nLastPosCallTip = 0;
     int m_nStatementLookback = 10;
 
-    StyleAndWords m_BlockStart{ "{", SCE_C_OPERATOR };
-    StyleAndWords m_BlockEnd{ "}", SCE_C_OPERATOR };
-    StyleAndWords m_StatementEnd{ ";", SCE_C_OPERATOR };
-    StyleAndWords m_StatementIndent{ "case default do else for if while", SCE_C_WORD };
-
     std::u8string m_szCurrentCallTipWord;
     std::u8string m_szFunctionDefinition;
 
     std::set<std::u8string, KeyWordComparator> m_apis;
 };
+
+} // namespace scintilla

@@ -1,71 +1,59 @@
 #pragma once
 
-enum t_sci_editor_style_flag
+#include <nonstd/span.hpp>
+#include <map>
+
+namespace scintilla
 {
-	ESF_NONE = 0,
-	ESF_FONT = 1 << 0,
-	ESF_SIZE = 1 << 1,
-	ESF_FORE = 1 << 2,
-	ESF_BACK = 1 << 3,
-	ESF_BOLD = 1 << 4,
-	ESF_ITALICS = 1 << 5,
-	ESF_UNDERLINED = 1 << 6,
-	ESF_CASEFORCE = 1 << 7,
+
+struct ScintillaProp
+{
+    std::u8string key;
+    std::u8string defaultval;
+    std::u8string val;
 };
 
-struct t_sci_editor_style
+using ScintillaPropList = std::vector<ScintillaProp>;
+
+class ScintillaCfg : public cfg_var
 {
-	unsigned flags{};
-    bool italics{}, bold{}, underlined{};
-	pfc::string_simple font;
-    unsigned size{};
-    DWORD fore{}, back{};
-    int case_force{};
-};
-
-struct t_sci_prop_set
-{
-	pfc::string_simple key, defaultval, val;
-};
-
-struct t_prop_set_init_table
-{
-	const char * key;
-	const char * defaultval;
-};
-
-typedef std::vector<t_sci_prop_set> t_sci_prop_set_list;
-typedef pfc::map_t<pfc::string_simple, pfc::string_simple, pfc::comparator_stricmp_ascii> t_str_to_str_map;
-
-class cfg_sci_prop_sets : public cfg_var
-{
-private:
-	t_sci_prop_set_list m_data;
-
-	void init_data(const t_prop_set_init_table * p_default);
-	void merge_data(const t_str_to_str_map & data_map);
+public:
+    struct DefaultPropValue
+    {
+        const char* key;
+        const char* defaultval;
+    };
 
 public:
-	explicit inline cfg_sci_prop_sets(const GUID & p_guid, const t_prop_set_init_table * p_default) : cfg_var(p_guid)
-	{
-		init_data(p_default);
-	}
+    ScintillaCfg( const GUID& p_guid, nonstd::span<const DefaultPropValue> p_default );
 
-	inline t_sci_prop_set_list & val()
-	{
-		return m_data;
-	}
-	inline const t_sci_prop_set_list & val() const
-	{
-		return m_data;
-	}
+    ScintillaPropList& val();
+    const ScintillaPropList& val() const;
 
-	void get_data_raw(stream_writer * p_stream, abort_callback & p_abort);
-	void set_data_raw(stream_reader * p_stream, t_size p_sizehint, abort_callback & p_abort);
+    // cfg_var
+    void get_data_raw( stream_writer* p_stream, abort_callback& p_abort ) override;
+    void set_data_raw( stream_reader* p_stream, t_size p_sizehint, abort_callback& p_abort ) override;
 
-	void reset();
+    void reset();
     void export_to_file( const wchar_t* filename );
-	void import_from_file(const char * filename);
+    void import_from_file( const char* filename );
+
+private:
+    struct StriCmpAscii
+    {
+        bool operator()( const std::u8string& a, const std::u8string& b ) const;
+    };
+
+    using ScintillaPropValues = std::map<std::u8string, std::u8string, StriCmpAscii>;
+
+private:
+    void init_data( nonstd::span<const DefaultPropValue> p_default );
+    void merge_data( const ScintillaPropValues& data_map );
+
+private:
+	ScintillaPropList m_data;
 };
 
-extern cfg_sci_prop_sets g_sci_prop_sets;
+extern ScintillaCfg g_scintillaCfg;
+
+} // namespace scintilla
