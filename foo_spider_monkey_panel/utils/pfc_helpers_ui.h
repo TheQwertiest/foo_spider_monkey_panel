@@ -25,7 +25,7 @@ T uGetWindowText( HWND wnd )
     }
     else
     {
-        return pfc::stringcvt::string_utf8_from_wide( text.c_str() ).get_ptr();
+        return smp::unicode::ToU8( text );
     }
 }
 

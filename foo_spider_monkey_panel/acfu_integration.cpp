@@ -65,8 +65,8 @@ bool SmpSource::is_newer( const file_info& info )
         return false;
     }
 
-    std::string available = info.meta_get( "version", 0 );
-    available = smp::string::Trim( available );
+    std::u8string available = info.meta_get( "version", 0 );
+    available = smp::string::Trim<char8_t>( available );
     if ( available[0] == 'v' )
     {
         available.assign( available.c_str() + 1, available.length() - 1 );

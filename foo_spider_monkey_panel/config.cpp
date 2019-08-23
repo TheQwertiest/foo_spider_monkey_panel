@@ -139,8 +139,7 @@ bool PanelProperties::g_load_json( config_map& data, stream_reader& reader, abor
                 continue;
             }
 
-            pfc::stringcvt::string_wide_from_utf8 propnameW( key.c_str(), key.length() );
-            data.emplace( propnameW.get_ptr(), std::make_shared<mozjs::SerializedJsValue>( serializedValue ) );
+            data.emplace( smp::unicode::ToWide( key ), std::make_shared<mozjs::SerializedJsValue>( serializedValue ) );
         }
     }
     catch ( const json::exception& )
@@ -187,13 +186,12 @@ void PanelProperties::g_save_json( const config_map& data, stream_writer& writer
         json jsonValues = json::object();
         for ( const auto& [nameW, pValue]: data )
         {
-            const pfc::stringcvt::string_utf8_from_wide propNameU8( nameW.c_str(), nameW.length() );
+            const auto propertyName = smp::unicode::ToU8( nameW );
             const auto& serializedValue = *pValue;
 
-            std::visit( [&jsonValues, &propNameU8]( auto&& arg ) {
-                jsonValues.push_back( { propNameU8, arg } );
-            },
-                        serializedValue );
+            std::visit( [&jsonValues, &propertyName]( auto&& arg ) {
+                jsonValues.push_back( { propertyName, arg } );
+            }, serializedValue );
         }
 
         jsonMain.push_back( { "values", jsonValues } );

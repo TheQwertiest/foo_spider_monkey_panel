@@ -319,6 +319,9 @@
     <ClCompile Include="utils\pfc_helpers_stream.cpp">
       <Filter>utils</Filter>
     </ClCompile>
+    <ClCompile Include="utils\unicode.cpp">
+      <Filter>utils</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="js_engine\js_engine.h">
@@ -709,6 +712,9 @@
       <Filter>utils</Filter>
     </ClInclude>
     <ClInclude Include="utils\pfc_helpers_cnt.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\unicode.h">
       <Filter>utils</Filter>
     </ClInclude>
   </ItemGroup>

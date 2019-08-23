@@ -708,7 +708,7 @@ void JsFbPlaylistManager::SortPlaylistsByName( int8_t direction )
     for ( size_t i = 0; i < count; ++i )
     {
         api->playlist_get_name( i, temp );
-        data.emplace_back( temp, i );
+        data.emplace_back( std::u8string_view{ temp.c_str(), temp.length() }, i );
     }
 
     std::sort( data.begin(), data.end(), (direction > 0 ? smp::utils::StrCmpLogicalCmp<1> : smp::utils::StrCmpLogicalCmp<-1>));

@@ -291,15 +291,15 @@ LRESULT CDialogConf::OnFileSave( WORD, WORD, HWND )
 
 LRESULT CDialogConf::OnFileImport( WORD, WORD, HWND )
 {
-    const pfc::stringcvt::string_utf8_from_os filename( smp::file::FileDialog( L"Import File", false, k_DialogExtFilter, L"js" ).c_str() );
-    if ( filename.is_empty() )
+    const auto filename = smp::unicode::ToU8( smp::file::FileDialog( L"Import File", false, k_DialogExtFilter, L"js" ) );
+    if ( filename.empty() )
     {
         return 0;
     }
 
     try
     {
-        const std::u8string text = smp::file::ReadFile( filename.toString(), CP_UTF8 );
+        const auto text = smp::file::ReadFile( filename, CP_UTF8 );
         m_editorctrl.SetContent( text.c_str() );
     }
     catch ( const smp::SmpException& e )
@@ -367,8 +367,8 @@ LRESULT CDialogConf::OnFeaturesGrabFocus( WORD, WORD, HWND )
 
 LRESULT CDialogConf::OnHelp( WORD, WORD, HWND )
 {
-    pfc::stringcvt::string_os_from_utf8 path( smp::get_fb2k_component_path().c_str() );
-    ShellExecute( 0, L"open", path + L"\\docs\\html\\index.html", 0, 0, SW_SHOW );
+    const auto path = smp::unicode::ToWide( smp::get_fb2k_component_path() ) + L"\\docs\\html\\index.html";
+    ShellExecute( 0, L"open", path.c_str(), 0, 0, SW_SHOW );
     return 0;
 }
 

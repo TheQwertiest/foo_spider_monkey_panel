@@ -35,8 +35,8 @@ public:
     {
         if ( !checkValue )
         {
-            const pfc::stringcvt::string_utf8_from_wide u8string( fmt::format( errorMessage, std::forward<Args>( errorMessageFmtArgs )... ).c_str() );
-            throw SmpException( u8string.get_ptr() );
+            const auto u8msg = smp::unicode::ToU8( fmt::format( errorMessage, std::forward<Args>( errorMessageFmtArgs )... ) );
+            throw SmpException( u8msg );
         }
     }
 };

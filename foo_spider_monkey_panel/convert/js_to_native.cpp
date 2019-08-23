@@ -138,8 +138,7 @@ namespace mozjs::convert::to_native
 template <>
 std::u8string ToValue( JSContext* cx, const JS::HandleString& jsString )
 {
-    const auto& wStr = ToValue<std::wstring>( cx, jsString );
-    return std::u8string{ pfc::stringcvt::string_utf8_from_wide( wStr.c_str(), wStr.size() ) };
+    return smp::unicode::ToU8( ToValue<std::wstring>( cx, jsString ) );
 }
 
 template <>
@@ -158,8 +157,7 @@ std::wstring ToValue( JSContext* cx, const JS::HandleString& jsString )
 template <>
 pfc::string8_fast ToValue( JSContext* cx, const JS::HandleString& jsString )
 {
-    const auto& wStr = ToValue<std::wstring>( cx, jsString );
-    return pfc::string8_fast{ pfc::stringcvt::string_utf8_from_wide( wStr.c_str(), wStr.size() ) };
+    return ToValue<std::u8string>( cx, jsString ).c_str();
 }
 
 } // namespace mozjs::convert::to_native

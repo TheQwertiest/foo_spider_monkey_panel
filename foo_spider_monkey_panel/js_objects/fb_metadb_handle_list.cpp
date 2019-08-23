@@ -522,7 +522,7 @@ void JsFbMetadbHandleList::OrderByRelativePath()
               // (e.g. cuesheets or files with multiple chapters)
               temp << handle->get_subsong_index();
 
-              return smp::utils::StrCmpLogicalCmpData{ temp, static_cast<size_t>( i ) };
+              return smp::utils::StrCmpLogicalCmpData{ std::u8string_view{ temp.c_str(), temp.length() }, static_cast<size_t>( i ) };
           } );
 
     // TODO: consider replacing with prefix tree
@@ -646,15 +646,15 @@ void JsFbMetadbHandleList::UpdateFileInfoFromJSON( const std::u8string& str )
     const std::vector<file_info_impl> info =
         ranges::view::enumerate( handleList )
         | ranges::view::transform(
-            [isArray, &jsonObject]( const auto& zippedElem ) {
-                const auto& [i, handle] = zippedElem;
+              [isArray, &jsonObject]( const auto& zippedElem ) {
+                  const auto& [i, handle] = zippedElem;
 
-                // TODO: think of a better way of handling unavalaible info,
-                //       currently it uses dummy value instead
-                file_info_impl fileInfo = handle->get_info_ref()->info();
-                ModifyFileInfoWithJson( isArray ? jsonObject[i] : jsonObject, fileInfo );
-                return fileInfo;
-            } );
+                  // TODO: think of a better way of handling unavalaible info,
+                  //       currently it uses dummy value instead
+                  file_info_impl fileInfo = handle->get_info_ref()->info();
+                  ModifyFileInfoWithJson( isArray ? jsonObject[i] : jsonObject, fileInfo );
+                  return fileInfo;
+              } );
 
     metadb_io_v2::get()->update_info_async_simple(
         handleList.Pfc(),
@@ -700,7 +700,7 @@ void JsFbMetadbHandleList::ModifyFileInfoWithJson( const nlohmann::json& jsonObj
     const json& obj = jsonObject;
     SmpException::ExpectTrue( obj.is_object() && obj.size(), "Invalid JSON info: unsupported value" );
 
-    for ( const auto& [key, value] : obj.items() )
+    for ( const auto& [key, value]: obj.items() )
     {
         SmpException::ExpectTrue( !key.empty(), "Invalid JSON info: key is empty" );
 
@@ -708,7 +708,7 @@ void JsFbMetadbHandleList::ModifyFileInfoWithJson( const nlohmann::json& jsonObj
 
         if ( value.is_array() )
         {
-            for ( const auto& arrValue : value )
+            for ( const auto& arrValue: value )
             {
                 if ( const std::string strValue = jsonToString( arrValue );
                      !strValue.empty() )

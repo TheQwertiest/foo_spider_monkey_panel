@@ -57,7 +57,7 @@ uint32_t LoadImageTask::GetTaskId() const
 
 void LoadImageTask::run()
 {
-    const std::u8string path = file_path_display( pfc::stringcvt::string_utf8_from_wide( imagePath_.c_str(), imagePath_.length() ) ).get_ptr();
+    const std::u8string path = file_path_display( smp::unicode::ToU8( imagePath_).c_str() ).get_ptr();
     panel::message_manager::instance().post_callback_msg( hNotifyWnd_,
                                                           smp::CallbackMessage::internal_load_image_done,
                                                           std::make_unique<

@@ -62,14 +62,6 @@ UINT FilterEncodings( const DetectEncodingInfo encodings[], int encodingCount, s
     return codepage;
 }
 
-std::wstring make_sort_string( const char* in )
-{
-    std::wstring out( pfc::stringcvt::estimate_utf8_to_wide( in ) + 1, 0 );
-    out[0] = ' '; //StrCmpLogicalW bug workaround.
-    pfc::stringcvt::convert_utf8_to_wide_unchecked( out.data() + 1, in );
-    return out;
-}
-
 int is_wrap_char( wchar_t current, wchar_t next )
 {
     if ( iswpunct( current ) )
@@ -222,18 +214,14 @@ StrCmpLogicalCmpData::StrCmpLogicalCmpData( const std::wstring& textId, size_t i
     : textId( std::wstring{ ' ' } + textId )
     , index( index )
 {
+	// space is needed for StrCmpLogicalW bug workaround
 }
 
-StrCmpLogicalCmpData::StrCmpLogicalCmpData( const std::u8string& textId, size_t index )
-    : textId( make_sort_string( textId.c_str()) )
+StrCmpLogicalCmpData::StrCmpLogicalCmpData( const std::u8string_view& textId, size_t index )
+    : textId( L' ' + smp::unicode::ToWide( textId ) )
     , index( index )
 {
-}
-
-StrCmpLogicalCmpData::StrCmpLogicalCmpData( const pfc::string8_fast& textId, size_t index )
-    : textId( make_sort_string( textId.c_str() ) )
-    , index( index )
-{
+    // space is needed for StrCmpLogicalW bug workaround
 }
 
 } // namespace smp::utils

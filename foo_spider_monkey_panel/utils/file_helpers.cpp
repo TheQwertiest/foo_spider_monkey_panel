@@ -73,7 +73,7 @@ T ConvertFileContent( const std::wstring& path, std::string_view content, UINT c
 
     if ( isWideCodepage )
     {
-        auto convertToWide = [curPos, curSize] {
+        auto readDataAsWide = [curPos, curSize] {
             std::wstring tmpString;
             tmpString.resize( curSize >> 1 );
             // Can't use wstring.assign(), because of potential aliasing issues
@@ -83,12 +83,11 @@ T ConvertFileContent( const std::wstring& path, std::string_view content, UINT c
 
         if constexpr ( isWide )
         {
-            fileContent = convertToWide();
+            fileContent = readDataAsWide();
         }
         else
         {
-            const auto wContent = convertToWide();
-            fileContent = pfc::stringcvt::string_utf8_from_wide{ wContent.c_str(), wContent.length() };
+            fileContent = smp::unicode::ToU8( readDataAsWide() );
         }
     }
     else
@@ -116,8 +115,7 @@ T ConvertFileContent( const std::wstring& path, std::string_view content, UINT c
             }
             else
             {
-                const std::wstring tmpString = codepageToWide();
-                fileContent = pfc::stringcvt::string_utf8_from_wide( tmpString.c_str(), tmpString.length() );
+                fileContent = smp::unicode::ToU8( codepageToWide() );
             }
         }
     }
@@ -360,10 +358,10 @@ std::wstring FileDialog( const std::wstring& title,
             smp::error::CheckHR( hr, "SetFileName" );
         }
 
-        const pfc::stringcvt::string_os_from_utf8 path( smp::get_fb2k_component_path().c_str() );
+        const auto path = smp::unicode::ToWide( smp::get_fb2k_component_path() );
 
         IShellItemPtr pFolder;
-        hr = SHCreateItemFromParsingName( path, nullptr, pFolder.GetIID(), (void**)&pFolder );
+        hr = SHCreateItemFromParsingName( path.c_str(), nullptr, pFolder.GetIID(), (void**)&pFolder );
         smp::error::CheckHR( hr, "SHCreateItemFromParsingName" );
 
         hr = pfd->SetDefaultFolder( pFolder );

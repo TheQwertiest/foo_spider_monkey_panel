@@ -72,8 +72,7 @@ bool LoadProperties_Binary( PanelProperties::config_map& data, stream_reader& re
             }
             }
 
-            pfc::stringcvt::string_wide_from_utf8 propnameW( u8PropName.c_str(), u8PropName.length() );
-            data.emplace( propnameW.get_ptr(), std::make_shared<mozjs::SerializedJsValue>( serializedValue ) );
+            data.emplace( smp::unicode::ToWide( u8PropName ), std::make_shared<mozjs::SerializedJsValue>( serializedValue ) );
         }
     }
     catch ( const pfc::exception& )
@@ -92,8 +91,7 @@ void SaveProperties_Binary( const PanelProperties::config_map& data, stream_writ
 
         for ( const auto& [name, pValue]: data )
         {
-            pfc::stringcvt::string_utf8_from_wide propnameW( name.c_str(), name.length() );
-            writer.write_string( propnameW.get_ptr(), propnameW.length(), abort );
+            pfc_x::WriteString( writer, smp::unicode::ToU8( name ), abort );
 
             const auto& serializedValue = *pValue;
 
@@ -153,7 +151,7 @@ bool LoadProperties_Com( PanelProperties::config_map& data, stream_reader& reade
 
         for ( t_size i = 0; i < count; ++i )
         {
-            const std::u8string u8propName = smp::string::Trim( smp::pfc_x::ReadString( reader, abort ) );
+            const std::u8string u8propName = smp::string::Trim<char8_t>( smp::pfc_x::ReadString( reader, abort ) );
 
             VARTYPE vt;
             reader.read_lendian_t( vt, abort );
@@ -238,8 +236,7 @@ bool LoadProperties_Com( PanelProperties::config_map& data, stream_reader& reade
             }
             }
 
-            pfc::stringcvt::string_wide_from_utf8 propnameW( u8propName.c_str(), u8propName.length() );
-            data.emplace( propnameW.get_ptr(), std::make_shared<mozjs::SerializedJsValue>( serializedValue ) );
+            data.emplace( smp::unicode::ToWide( u8propName ), std::make_shared<mozjs::SerializedJsValue>( serializedValue ) );
         }
     }
     catch ( const pfc::exception& )

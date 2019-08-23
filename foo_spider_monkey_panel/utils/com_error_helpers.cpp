@@ -28,11 +28,8 @@ void ReportActiveXError( HRESULT hresult, EXCEPINFO& exception, UINT& argerr )
 
         if ( exception.bstrDescription )
         {
-            const std::u8string descriptionStr( pfc::stringcvt::string_utf8_from_wide(
-                (wchar_t*)exception.bstrDescription, SysStringLen( exception.bstrDescription ) ) );
-            const std::u8string sourceStr( pfc::stringcvt::string_utf8_from_wide(
-                (wchar_t*)exception.bstrSource, SysStringLen( exception.bstrSource ) ) );
-
+            const auto descriptionStr = smp::unicode::ToU8( (wchar_t*)exception.bstrDescription );
+            const auto sourceStr = smp::unicode::ToU8( (wchar_t*)exception.bstrSource );
             throw SmpException( fmt::format("ActiveXObject: ({}) {}", sourceStr, descriptionStr ) );
         }
         else if ( exception.scode )

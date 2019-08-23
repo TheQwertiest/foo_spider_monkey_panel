@@ -91,18 +91,14 @@ void CDialogPref::LoadProps( bool reset )
     if ( reset )
         g_scintillaCfg.reset();
 
-    pfc::stringcvt::string_os_from_utf8_fast conv;
     const auto& prop_sets = g_scintillaCfg.val();
 
     m_props.DeleteAllItems();
 
     for ( auto&& [i, prop]: ranges::view::enumerate( prop_sets ) )
     {
-        conv.convert( prop.key.c_str() );
-        m_props.AddItem( i, 0, conv );
-
-        conv.convert( prop.val.c_str() );
-        m_props.AddItem( i, 1, conv );
+        m_props.AddItem( i, 0, smp::unicode::ToWide( prop.key ).c_str() );
+        m_props.AddItem( i, 1, smp::unicode::ToWide( prop.val ).c_str() );
     }
 
     OnChanged();
@@ -142,7 +138,7 @@ LRESULT CDialogPref::OnPropNMDblClk( LPNMHDR pnmh )
             }
 
             // Update list
-            m_props.SetItemText( pniv->iItem, 1, pfc::stringcvt::string_wide_from_utf8_fast( newVal.c_str() ) );
+            m_props.SetItemText( pniv->iItem, 1, smp::unicode::ToWide( newVal ).c_str() );
             DoDataExchange();
         }
     }
@@ -159,7 +155,7 @@ std::u8string CDialogPref::uGetItemText( int nItem, int nSubItem )
     (void)m_props.GetItemText( nItem, nSubItem, buffer.data(), size );
     buffer.resize( wcslen( buffer.c_str() ) );
 
-    return pfc::stringcvt::string_utf8_from_os( buffer.c_str() ).get_ptr();
+    return smp::unicode::ToU8( buffer );
 }
 
 void CDialogPref::OnButtonExportBnClicked( WORD wNotifyCode, WORD wID, HWND hWndCtl )

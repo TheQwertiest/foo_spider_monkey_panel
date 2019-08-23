@@ -725,14 +725,14 @@ void js_panel_window::execute_context_menu_command( uint32_t id, uint32_t id_bas
     }
     case 2:
     {
-        pfc::stringcvt::string_os_from_utf8 folder( smp::get_fb2k_component_path().c_str() );
-        ShellExecute( nullptr, L"open", folder, nullptr, nullptr, SW_SHOW );
+        const auto folder = smp::unicode::ToWide( smp::get_fb2k_component_path() );
+        ShellExecute( nullptr, L"open", folder.c_str(), nullptr, nullptr, SW_SHOW );
         break;
     }
     case 3:
     {
-        pfc::stringcvt::string_os_from_utf8 htmlHelp( ( smp::get_fb2k_component_path() + "docs\\html\\index.html" ).c_str() );
-        ShellExecute( nullptr, L"open", htmlHelp, nullptr, nullptr, SW_SHOW );
+        const auto htmlHelp = smp::unicode::ToWide( smp::get_fb2k_component_path() ) + L"docs\\html\\index.html";
+        ShellExecute( nullptr, L"open", htmlHelp.c_str(), nullptr, nullptr, SW_SHOW );
         break;
     }
     case 4:

@@ -21,8 +21,7 @@ void estimate_line_wrap( HDC hdc, const std::wstring& text, size_t width, std::l
 struct StrCmpLogicalCmpData
 {
     StrCmpLogicalCmpData( const std::wstring& textId, size_t index );
-    StrCmpLogicalCmpData( const std::u8string& textId, size_t index );
-    StrCmpLogicalCmpData( const pfc::string8_fast& textId, size_t index );
+    StrCmpLogicalCmpData( const std::u8string_view& textId, size_t index );
 
     std::wstring textId; ///< if set manually (not via ctor), must be prepended with ` ` for StrCmpLogicalW bug workaround
     size_t index;

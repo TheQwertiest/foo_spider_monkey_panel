@@ -88,7 +88,7 @@ LRESULT CDialogProperty::OnPinItemChanged( LPNMHDR pnmh )
             else if ( std::holds_alternative<std::u8string>( val ) )
             {
                 var.ChangeType( VT_BSTR );
-                val = static_cast<std::u8string>( pfc::stringcvt::string_utf8_from_wide( var.bstrVal ) );
+                val = smp::unicode::ToU8( var.bstrVal );
             }
             else
             {
@@ -156,8 +156,7 @@ void CDialogProperty::LoadProperties( bool reload )
             }
             else if constexpr ( std::is_same_v<T, std::u8string> )
             {
-                pfc::stringcvt::string_wide_from_utf8_fast wStrVal( arg.c_str(), arg.length() );
-                return PropCreateSimple( name.c_str(), wStrVal );
+                return PropCreateSimple( name.c_str(), smp::unicode::ToWide( arg ).c_str() );
             }
             else
             {

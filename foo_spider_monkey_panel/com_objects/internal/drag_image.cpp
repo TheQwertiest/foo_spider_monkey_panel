@@ -60,18 +60,18 @@ void draw_drag_image_label( HWND wnd, bool isThemed, HTHEME theme, HDC dc, const
     constexpr int theme_state = 0;
     const bool useTheming = UsesTheming( isThemed, theme, DD_TEXTBG, theme_state );
 
-    pfc::stringcvt::string_os_from_utf8 wtext( text );
+    const std::wstring wtext = smp::unicode::ToWide( text );
     DWORD text_flags = DT_CENTER | DT_WORDBREAK;
     RECT rc_text = { 0 };
 
     if ( useTheming )
     {
-        GetThemeTextExtent( theme, dc, DD_TEXTBG, theme_state, wtext, -1, text_flags, &rc, &rc_text );
+        GetThemeTextExtent( theme, dc, DD_TEXTBG, theme_state, wtext.c_str(), wtext.length(), text_flags, &rc, &rc_text );
     }
     else
     {
         rc_text = rc;
-        DrawText( dc, wtext, -1, &rc_text, text_flags | DT_CALCRECT );
+        DrawText( dc, wtext.c_str(), wtext.length(), &rc_text, text_flags | DT_CALCRECT );
     }
 
     auto x_offset = ( RECT_CX( rc ) - RECT_CX( rc_text ) ) / 2;
@@ -97,7 +97,7 @@ void draw_drag_image_label( HWND wnd, bool isThemed, HTHEME theme, HDC dc, const
             DrawThemeParentBackground( wnd, dc, &background_rect );
         }
         DrawThemeBackground( theme, dc, DD_TEXTBG, theme_state, &background_rect, nullptr );
-        DrawThemeText( theme, dc, DD_TEXTBG, theme_state, wtext, -1, text_flags, 0, &rc_text );
+        DrawThemeText( theme, dc, DD_TEXTBG, theme_state, wtext.c_str(), wtext.length(), text_flags, 0, &rc_text );
     }
     else
     {
@@ -105,7 +105,7 @@ void draw_drag_image_label( HWND wnd, bool isThemed, HTHEME theme, HDC dc, const
         auto previousBackgroundMode = GetBkMode( dc );
         SetTextColor( dc, selectionTextColour );
         SetBkMode( dc, TRANSPARENT );
-        DrawText( dc, wtext, -1, &rc_text, text_flags );
+        DrawText( dc, wtext.c_str(), wtext.length(), &rc_text, text_flags );
         SetTextColor( dc, previousColour );
         SetBkMode( dc, previousBackgroundMode );
     }

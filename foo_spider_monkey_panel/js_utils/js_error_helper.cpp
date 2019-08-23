@@ -300,10 +300,10 @@ void ExceptionToJsError( JSContext* cx )
     {
         JS_ClearPendingException( cx );
 
-        const std::u8string errorMsg8 = pfc::stringcvt::string_utf8_from_wide( e.ErrorMessage() ? (const wchar_t*)e.ErrorMessage() : L"<none>" ).get_ptr();
-        const std::u8string errorSource8 = pfc::stringcvt::string_utf8_from_wide( e.Source().length() ? (const wchar_t*)e.Source() : L"<none>" ).get_ptr();
-        const std::u8string errorDesc8 = pfc::stringcvt::string_utf8_from_wide( e.Description().length() ? (const wchar_t*)e.Description() : L"<none>" ).get_ptr();
-        JS_ReportErrorUTF8( cx, "COM error: message %s; source: %s; description: %s", errorMsg8.c_str(), errorSource8.c_str(), errorDesc8.c_str() );
+        const auto errorMsg8 = smp::unicode::ToU8( e.ErrorMessage() ? (const wchar_t*)e.ErrorMessage() : L"<none>" );
+        const auto errorSource8 = smp::unicode::ToU8( e.Source().length() ? (const wchar_t*)e.Source() : L"<none>" );
+        const auto errorDesc8 = smp::unicode::ToU8( e.Description().length() ? (const wchar_t*)e.Description() : L"<none>" );
+        JS_ReportErrorUTF8( cx, fmt::format( "COM error: message {}; source: {}; description: {}", errorMsg8, errorSource8, errorDesc8 ).c_str() );
     }
     catch ( const std::bad_alloc& )
     {

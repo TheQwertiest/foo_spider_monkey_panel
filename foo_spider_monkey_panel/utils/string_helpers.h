@@ -8,9 +8,24 @@
 namespace smp::string
 {
 
-std::wstring Trim( const std::wstring& str );
-std::u8string Trim( const std::u8string& str );
-pfc::string8_fast Trim( const pfc::string8_fast& str );
+template <typename T>
+std::basic_string_view<T> TrimView( std::basic_string_view<T> str )
+{
+    size_t first = str.find_first_not_of( ' ' );
+    if ( std::string::npos == first )
+    {
+        return str;
+    }
+    size_t last = str.find_last_not_of( ' ' );
+    return str.substr( first, ( last - first + 1 ) );
+}
+
+template <typename T>
+std::basic_string<T> Trim( std::basic_string_view<T> str )
+{
+    const auto view = TrimView( str );
+    return std::basic_string<T>{ view.data(), view.size() };
+}
 
 std::vector<std::u8string_view> SplitByLines( std::u8string_view str );
 

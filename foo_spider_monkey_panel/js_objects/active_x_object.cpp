@@ -495,7 +495,7 @@ std::optional<DISPID> ActiveXObject::GetDispId( const std::wstring& name, bool r
         {
             if ( reportError )
             {
-                throw SmpException( fmt::format( "Failed to get DISPID for `{}`", pfc::stringcvt::string_utf8_from_wide( name.c_str() ).get_ptr() ) );
+                throw SmpException( fmt::format( "Failed to get DISPID for `{}`", smp::unicode::ToU8( name ) ) );
             }
             return std::nullopt;
         }

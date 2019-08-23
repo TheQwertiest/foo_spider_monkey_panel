@@ -30,12 +30,12 @@ std::u8string MessageFromErrorCode( DWORD errorCode )
         LocalFree( lpMsgBuf );
     } );
 
-    return pfc::stringcvt::string_utf8_from_wide( reinterpret_cast<const wchar_t*>( lpMsgBuf ) ).get_ptr();
+    return smp::unicode::ToU8( reinterpret_cast<const wchar_t*>( lpMsgBuf ) );
 }
 
 void ThrowParsedWinapiError( DWORD errorCode, std::string_view functionName )
 {
-    throw SmpException( fmt::format( "WinAPI error: {} failed with error ({:#x}): {}", functionName, errorCode, MessageFromErrorCode( errorCode ).c_str() ) );
+    throw SmpException( fmt::format( "WinAPI error: {} failed with error ({:#x}): {}", functionName, errorCode, MessageFromErrorCode( errorCode ) ) );
 }
 
 } // namespace
