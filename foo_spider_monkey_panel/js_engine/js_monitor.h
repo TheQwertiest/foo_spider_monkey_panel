@@ -21,7 +21,7 @@ class JsInternalGlobal;
 class JsMonitor final
 {
 public:
-    JsMonitor() = default;
+    JsMonitor();
     ~JsMonitor() = default;
     JsMonitor( const JsMonitor& ) = delete;
     JsMonitor& operator=( const JsMonitor& ) = delete;
@@ -45,8 +45,11 @@ private:
     void StartMonitorThread();
     void StopMonitorThread();
 
+	bool HasActivePopup( bool isMainThread ) const;
+
 private:
     JSContext* pJsCtx_ = nullptr;
+    HWND hFb2k_ = nullptr;
 
     struct ContainerData
     {
@@ -72,7 +75,7 @@ private:
     std::unordered_map<JsContainer*, std::chrono::milliseconds> activeContainers_;
     bool isInInterrupt_ = false;
 
-    bool wasInModal_ = false;
+    std::atomic_bool wasInModal_ = false;
 };
 
 } // namespace mozjs

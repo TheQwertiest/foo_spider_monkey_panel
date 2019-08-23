@@ -5,6 +5,7 @@
 
 #include <js_engine/js_engine.h>
 #include <js_engine/js_container.h>
+#include <utils/delayed_executor.h>
 #include <utils/scope_helpers.h>
 #include <utils/thread_helpers.h>
 #include <ui/ui_slow_script.h>
@@ -29,6 +30,11 @@ auto GetLowResTime()
 
 namespace mozjs
 {
+
+JsMonitor::JsMonitor()
+{ // JsMonitor might be created before fb2k is fully initialized
+    smp::utils::DelayedExecutor::GetInstance().AddTask( [&hFb2k = hFb2k_] { hFb2k = core_api::get_main_window(); } );
+}
 
 void JsMonitor::Start( JSContext* cx )
 {
@@ -110,7 +116,8 @@ bool JsMonitor::OnInterrupt()
     const auto curTime = GetLowResTime();
 
     { // Action might've been blocked by modal window
-        const bool isInModal = MessageBlockingScope::IsBlocking();
+        const bool isInModal = HasActivePopup( true );
+
         if ( wasInModal_ && !isInModal )
         {
             for ( auto& [pContainer, containerData]: monitoredContainers_ )
@@ -272,6 +279,12 @@ void JsMonitor::StartMonitorThread()
                 }
 
                 hasPotentiallySlowScripts = [&] {
+                    if ( HasActivePopup( false ) )
+                    { // popup detected, delay monitoring
+                        wasInModal_ = true;
+                        return false;
+                    }
+
                     const auto curTime = GetLowResTime();
 
                     const auto it = ranges::find_if( activeContainers_, [&curTime]( auto& elem ) {
@@ -304,6 +317,21 @@ void JsMonitor::StopMonitorThread()
     {
         watcherThread_.join();
     }
+}
+
+bool JsMonitor::HasActivePopup( bool isMainThread ) const
+{
+    if ( isMainThread && MessageBlockingScope::IsBlocking() )
+    {
+        return true;
+    }
+
+    if ( hFb2k_ && GetLastActivePopup( hFb2k_ ) != hFb2k_ )
+    {
+        return true;
+    }
+
+    return false;
 }
 
 } // namespace mozjs
