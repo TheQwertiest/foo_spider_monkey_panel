@@ -50,7 +50,9 @@ public:
     LRESULT OnInitDialog( HWND hwndFocus, LPARAM lParam );
     LRESULT OnReplace( WORD wNotifyCode, WORD wID, HWND hWndCtl );
     LRESULT OnReplaceall( WORD wNotifyCode, WORD wID, HWND hWndCtl );
-    void OnFinalMessage( HWND hWnd );
+    
+	// CDialogImpl
+    void OnFinalMessage( HWND hWnd ) override;
 
 private:
     class CEditWithReturn : public CWindowImpl<CEditWithReturn, CEdit>

@@ -77,9 +77,9 @@ BOOL CDialogPref::OnInitDialog( HWND hwndFocus, LPARAM lParam )
     SetWindowTheme( m_props.m_hWnd, L"explorer", NULL );
 
     m_props.SetExtendedListViewStyle( LVS_EX_FULLROWSELECT | LVS_EX_DOUBLEBUFFER );
-    m_props.AddColumn( _T("Name"), 0 );
+    m_props.AddColumn( L"Name", 0 );
     m_props.SetColumnWidth( 0, 150 );
-    m_props.AddColumn( _T("Value"), 1 );
+    m_props.AddColumn( L"Value", 1 );
     m_props.SetColumnWidth( 1, 310 );
     LoadProps();
 
@@ -197,9 +197,7 @@ HWND CDialogPref::get_wnd()
 
 t_uint32 CDialogPref::get_state()
 {
-    t_uint32 state = preferences_state::resettable;
-
-    return state;
+    return preferences_state::resettable;
 }
 
 void CDialogPref::apply()

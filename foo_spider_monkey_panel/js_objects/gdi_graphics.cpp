@@ -339,13 +339,13 @@ JSObject* JsGdiGraphics::EstimateLineWrap( const std::wstring& str, JsGdiFont* f
     SmpException::ExpectTrue( pGdi_, "Internal error: Gdiplus::Graphics object is null" );
     SmpException::ExpectTrue( font, "font argument is null" );
 
-    std::list<smp::utils::wrapped_item> result;
+    std::vector<smp::utils::wrapped_item> result;
     {
         const HDC hDc = pGdi_->GetHDC();
         smp::utils::final_action autoHdcReleaser( [hDc, pGdi = pGdi_] { pGdi->ReleaseHDC( hDc ); } );
         gdi::ObjectSelector autoFont( hDc, font->GetHFont() );
 
-        estimate_line_wrap( hDc, str, max_width, result );
+        result = smp::utils::estimate_line_wrap( hDc, str, max_width );
     }
 
     JS::RootedObject jsArray( pJsCtx_, JS_NewArrayObject( pJsCtx_, result.size() * 2 ) );
@@ -353,7 +353,7 @@ JSObject* JsGdiGraphics::EstimateLineWrap( const std::wstring& str, JsGdiFont* f
 
     JS::RootedValue jsValue( pJsCtx_ );
     size_t i = 0;
-    for ( auto& [text, width] : result )
+    for ( auto& [text, width]: result )
     {
         convert::to_js::ToValue( pJsCtx_, text, &jsValue );
 

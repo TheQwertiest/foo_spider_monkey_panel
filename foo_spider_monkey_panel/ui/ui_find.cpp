@@ -31,7 +31,7 @@ LRESULT CDialogFind::OnFindDown( WORD wNotifyCode, WORD wID, HWND hWndCtl )
 
 LRESULT CDialogFind::OnEditFindWhatEnChange( WORD wNotifyCode, WORD wID, HWND hWndCtl )
 {
-    m_text = smp::pfc_x::uGetWindowText<std::u8string>( GetDlgItem( IDC_EDIT_FINDWHAT ) );
+    m_text = smp::pfc_x::uGetWindowText<char8_t>( GetDlgItem( IDC_EDIT_FINDWHAT ) );
     return 0;
 }
 

@@ -25,7 +25,7 @@ LRESULT CDialogGoto::OnCloseCmd( WORD wNotifyCode, WORD wID, HWND hWndCtl )
 {
     if ( wID == IDOK )
     {
-        const auto text = smp::pfc_x::uGetWindowText<std::u8string>( GetDlgItem( IDC_EDIT_LINENUMBER ) );
+        const auto text = smp::pfc_x::uGetWindowText<char8_t>( GetDlgItem( IDC_EDIT_LINENUMBER ) );
         const auto numRet = smp::string::GetNumber<unsigned>( static_cast<std::u8string_view>( text ) );
         if ( numRet )
         {

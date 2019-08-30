@@ -41,7 +41,7 @@ public:
 
 private:
     F f_;
-    bool invoke_{ true };
+    bool invoke_ = true;
 };
 
 } // namespace smp::utils

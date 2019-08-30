@@ -42,7 +42,9 @@ public:
     LRESULT OnFindDown( WORD wNotifyCode, WORD wID, HWND hWndCtl );
     LRESULT OnFlagCommand( WORD wNotifyCode, WORD wID, HWND hWndCtl );
     LRESULT OnInitDialog( HWND hwndFocus, LPARAM lParam );
-    void OnFinalMessage( HWND hWnd );
+	
+	// CDialogImpl
+    void OnFinalMessage( HWND hWnd ) override;
 
 private:
     class CEditWithReturn : public CWindowImpl<CEditWithReturn, CEdit>

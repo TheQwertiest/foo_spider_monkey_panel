@@ -28,7 +28,7 @@ LRESULT CNameValueEdit::OnCommand( UINT codeNotify, int id, HWND hwndCtl )
     {
         if ( id == IDOK )
         {
-            m_value = smp::pfc_x::uGetWindowText<std::u8string>( GetDlgItem( IDC_EDIT_VALUE ) );
+            m_value = smp::pfc_x::uGetWindowText<char8_t>( GetDlgItem( IDC_EDIT_VALUE ) );
         }
 
         EndDialog( id );

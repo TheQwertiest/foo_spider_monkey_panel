@@ -162,8 +162,7 @@ void CDialogProperty::LoadProperties( bool reload )
             {
                 static_assert( false, "non-exhaustive visitor!" );
             }
-        },
-                                      *pSerializedValue );
+        }, *pSerializedValue );
 
         propMap.emplace( name, hProp );
     }

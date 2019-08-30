@@ -6,12 +6,14 @@ namespace smp::pfc_x
 {
 
 template <typename T>
-T uGetWindowText( HWND wnd )
+std::basic_string<T> uGetWindowText( HWND wnd )
 {
+    static_assert( std::is_same_v<T, wchar_t> || std::is_same_v<T, char8_t> || std::is_same_v<T, char> );
+
     auto size = ::GetWindowTextLength( wnd );
     if ( !size )
     {
-        return T{};
+        return std::basic_string<T>{};
     }
 
     std::wstring text;
@@ -19,7 +21,7 @@ T uGetWindowText( HWND wnd )
     (void)::GetWindowText( wnd, text.data(), text.size() );
     text.resize( wcslen( text.c_str() ) );
 
-    if constexpr ( std::is_same_v<typename T::value_type, wchar_t> )
+    if constexpr ( std::is_same_v<T, wchar_t> )
     {
         return text;
     }
@@ -30,12 +32,12 @@ T uGetWindowText( HWND wnd )
 }
 
 template <typename T>
-T uGetDlgItemText( HWND wnd, UINT id )
+std::basic_string<T> uGetDlgItemText( HWND wnd, UINT id )
 {
     const auto hControl = ::GetDlgItem( wnd, id );
     if ( !hControl )
     {
-        return T{};
+        return std::basic_string<T>{};
     }
 
     return smp::pfc_x::uGetWindowText<T>( hControl );

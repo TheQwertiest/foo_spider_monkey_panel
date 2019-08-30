@@ -39,7 +39,7 @@ LRESULT CDialogConf::OnInitDialog( HWND hwndFocus, LPARAM lParam )
     assert( menu.m_hMenu );
 
     // Get caption text
-    m_caption = smp::pfc_x::uGetWindowText<std::u8string>( m_hWnd );
+    m_caption = smp::pfc_x::uGetWindowText<char8_t>( m_hWnd );
 
     // Init resize
     DlgResize_Init();
@@ -182,8 +182,7 @@ LRESULT CDialogConf::OnNotify( int idCtrl, LPNMHDR pnmh )
     {
     case SCN_SAVEPOINTLEFT:
     { // dirty
-        const auto tmpStr = m_caption + " *";
-        uSetWindowText( m_hWnd, tmpStr.c_str() );
+        uSetWindowText( m_hWnd, ( m_caption + " *" ).c_str() );
         break;
     }
     case SCN_SAVEPOINTREACHED:

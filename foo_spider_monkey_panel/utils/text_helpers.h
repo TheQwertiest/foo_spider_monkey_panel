@@ -13,10 +13,10 @@ size_t get_text_width( HDC hdc, std::wstring_view text );
 
 struct wrapped_item
 {
-    std::wstring text;
+    std::wstring_view text;
     size_t width;
 };
-void estimate_line_wrap( HDC hdc, const std::wstring& text, size_t width, std::list<smp::utils::wrapped_item>& out );
+std::vector<smp::utils::wrapped_item> estimate_line_wrap( HDC hdc, const std::wstring& text, size_t width );
 
 struct StrCmpLogicalCmpData
 {

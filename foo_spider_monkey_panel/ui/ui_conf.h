@@ -84,9 +84,9 @@ public:
 private:
     smp::panel::js_panel_window* m_parent = nullptr;
 
-    scintilla::CScriptEditorCtrl m_editorctrl;
-    CDialogFind* m_dlgfind = nullptr;
-    CDialogReplace* m_dlgreplace = nullptr;
+    scintilla::CScriptEditorCtrl m_editorctrl;	
+    CDialogFind* m_dlgfind = nullptr; ///< self-destructs on closure
+    CDialogReplace* m_dlgreplace = nullptr; ///< self-destructs on closure
     CMenu menu;
 
     std::u8string m_caption;

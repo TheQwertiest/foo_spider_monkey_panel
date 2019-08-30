@@ -23,7 +23,7 @@ LRESULT CDialogReplace::OnFindNext( WORD wNotifyCode, WORD wID, HWND hWndCtl )
 
 LRESULT CDialogReplace::OnEditFindWhatEnChange( WORD wNotifyCode, WORD wID, HWND hWndCtl )
 {
-    m_text = smp::pfc_x::uGetWindowText<std::u8string>( GetDlgItem( IDC_EDIT_FINDWHAT ) );
+    m_text = smp::pfc_x::uGetWindowText<char8_t>( GetDlgItem( IDC_EDIT_FINDWHAT ) );
     return 0;
 }
 
@@ -83,7 +83,7 @@ LRESULT CDialogReplace::OnInitDialog( HWND hwndFocus, LPARAM lParam )
 
 LRESULT CDialogReplace::OnEditReplaceEnChange( WORD wNotifyCode, WORD wID, HWND hWndCtl )
 {
-    m_reptext = smp::pfc_x::uGetWindowText<std::u8string>( GetDlgItem( IDC_EDIT_REPLACE ) );
+    m_reptext = smp::pfc_x::uGetWindowText<char8_t>( GetDlgItem( IDC_EDIT_REPLACE ) );
     return 0;
 }
 

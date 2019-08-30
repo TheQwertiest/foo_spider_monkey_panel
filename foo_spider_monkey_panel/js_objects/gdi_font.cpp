@@ -73,6 +73,8 @@ JsGdiFont::JsGdiFont( JSContext* cx, std::unique_ptr<Gdiplus::Font> gdiFont, HFO
     , hFont_( hFont )
     , pGdi_( std::move( gdiFont ) )
 {
+    assert( pGdi_.get() );
+    assert( hFont_ );
 }
 
 JsGdiFont::~JsGdiFont()
@@ -106,7 +108,6 @@ HFONT JsGdiFont::GetHFont() const
 {
     return hFont_;
 }
-
 
 JSObject* JsGdiFont::Constructor( JSContext* cx, const std::wstring& fontName, float pxSize, uint32_t style )
 {
