@@ -19,7 +19,7 @@ if '%2'=='--debug' (
 set COMPONENT_DIR_NO_SLASH=%ROOT_DIR%component
 set RESULT_CONFIGURATION_DIR=%ROOT_DIR%_result\Win32_%CONFIGURATION%\
 set DOC_DIR_NO_SLASH=%ROOT_DIR%_result\html
-set COMPONENT_LICENSE=%ROOT_DIR%LICENSE
+set COMPONENT_TXT_FILES=%ROOT_DIR%LICENSE %ROOT_DIR%CHANGELOG.md
 set COMPONENT_DLL=%RESULT_CONFIGURATION_DIR%\bin\foo_spider_monkey_panel.dll
 set COMPONENT_PDB=%RESULT_CONFIGURATION_DIR%\dbginfo\foo_spider_monkey_panel.pdb
 set SAMPLES_COMPLETE_DIR_NO_SLASH=%ROOT_DIR%submodules\smp_2003
@@ -46,8 +46,10 @@ xcopy /r/y/s/q/i "%SAMPLES_COMPLETE_DIR_NO_SLASH%" "%COMPONENT_OUT_DIR_NO_SLASH%
 if errorlevel 1 goto fail
 xcopy /r/y/s/q "%MOZ_JS_BIN_DIR%*.dll" "%COMPONENT_OUT_DIR%"
 if errorlevel 1 goto fail
-xcopy /r/y/q "%COMPONENT_LICENSE%" "%COMPONENT_OUT_DIR%"
-if errorlevel 1 goto fail
+for %%i in (%COMPONENT_TXT_FILES%) do (
+	xcopy /r/y/q "%%i" "%COMPONENT_OUT_DIR%"
+	if errorlevel 1 goto fail
+)
 xcopy /r/y/q "%COMPONENT_DLL%" "%COMPONENT_OUT_DIR%"
 if errorlevel 1 goto fail
 if '%CONFIGURATION%'=='Debug' (
