@@ -19,17 +19,20 @@ std::u8string ReadString( stream_reader& stream, abort_callback& abort )
 
 std::u8string ReadRawString( stream_reader& stream, abort_callback& abort )
 { // ripped from `stream_reader::read_string_raw`
-    constexpr size_t delta = 256;
-
-    char buffer[delta];
+    constexpr size_t maxBufferSize = 256;
+    char buffer[maxBufferSize];
     std::u8string value;
 
-    for ( size_t delta_done = stream.read( buffer, delta, abort );
-          delta_done < delta;
-          delta_done = stream.read( buffer, delta, abort ) )
+    bool hasMoreData = true;
+    do
     {
-        value.append( buffer, delta_done );
-    }
+        const size_t dataRead = stream.read( buffer, sizeof( buffer ), abort );
+        hasMoreData = ( dataRead == maxBufferSize );
+        if ( dataRead )
+        {
+            value.append( buffer, dataRead );
+        }
+    } while ( hasMoreData );
 
     return value;
 }
@@ -37,6 +40,11 @@ std::u8string ReadRawString( stream_reader& stream, abort_callback& abort )
 void WriteString( stream_writer& stream, const std::u8string& val, abort_callback& abort )
 {
     stream.write_string( val.c_str(), val.length(), abort );
+}
+
+void WriteStringRaw( stream_writer& stream, const std::u8string& val, abort_callback& abort )
+{
+    stream.write_object( val.c_str(), val.length(), abort );
 }
 
 } // namespace smp::pfc_x

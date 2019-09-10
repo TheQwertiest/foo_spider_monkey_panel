@@ -29,5 +29,6 @@ namespace smp::pfc_x
 std::u8string ReadString( stream_reader& stream, abort_callback& abort );
 std::u8string ReadRawString( stream_reader& stream, abort_callback& abort );
 void WriteString( stream_writer& stream, const std::u8string& val, abort_callback& abort );
+void WriteStringRaw( stream_writer& stream, const std::u8string& val, abort_callback& abort );
 
 } // namespace smp::pfc_x
