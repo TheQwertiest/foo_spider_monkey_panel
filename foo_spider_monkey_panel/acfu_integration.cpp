@@ -65,16 +65,19 @@ bool SmpSource::is_newer( const file_info& info )
         return false;
     }
 
-    std::u8string available = info.meta_get( "version", 0 );
-    available = smp::string::Trim<char8_t>( available );
-    if ( available[0] == 'v' )
-    {
-        available.assign( available.c_str() + 1, available.length() - 1 );
-    }
+    const std::u8string availableVersion = [&info]() {
+        std::u8string version = info.meta_get( "version", 0 );
+        version = smp::string::Trim<char8_t>( version );
+        if ( version[0] == 'v' )
+        {
+            version = version.substr( 1 );
+        }
+        return version;
+    }();
 
     try
     {
-        return ( smp::version::SemVer{ available } > smp::version::SemVer{ installedVersion_ } );
+        return ( smp::version::SemVer{ availableVersion } > smp::version::SemVer{ installedVersion_ } );
     }
     catch ( const std::runtime_error& )
     {
