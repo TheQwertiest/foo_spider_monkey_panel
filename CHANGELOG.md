@@ -19,6 +19,31 @@
 ___
 
 ## [Unreleased][]
+### Added
+- A lot of fixes to `utils.ShowHtmlDialog`:
+  - Fixed an occasional fb2k crash.
+  - Added proper shortcut handling (e.g. CTRL-C, CTRL-V).
+  - Fixed `enter` key always closing the dialog.
+  - Fixed incorect handling of some keyboard events (e.g. space and tab keys).
+- API changes:
+  - Added global constructors for `GdiFont`.
+  - Added support for passing arguments to the callback in `setInterval` and `setTimeout`.
+
+### Changed
+- More accurate colour calculation in `GetColourScheme` and `GetColourSchemeJson`.
+- Made GetColourXXX and GetFontXXX behaviour more consistent:
+  - GetColourXXX always returns black colour when the requested one is not available.
+  - GetFontXXX always returns null when the required font is not found.
+- Tweaked GC behaviour to reduce memory consumption during panel reload.
+- Updated `HtmlDialogWithCheckBox` sample.
+
+### Fixed
+- Fixed `FbUiSelectionHolder.SetPlaylistSelectionTracking` not working.
+- Fixed fb2k crash when there is an error in a cached script.
+- Fixed slow script handler triggering wrongly with some modal dialogs.
+- Fixed error report being blank in some cases.
+- Fixed docs for `FbMetadbHandle.GetFileInfo`: was missing info about return value.
+- Fixed crashes in `jsplaylist-mod`, `js-smooth`, `thumbs` and other complete samples (by marc2003).
 
 ## [1.2.1][] - 2019-04-24
 ### Fixed
