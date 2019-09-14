@@ -2,6 +2,7 @@
 
 #### Table of Contents
 - [Unreleased](#unreleased)
+- [1.2.2](#122---2019-09-14)
 - [1.2.1](#121---2019-04-24)
 - [1.2.0](#120---2019-04-22)
 - [1.1.5](#115---2019-01-21)
@@ -19,14 +20,11 @@
 ___
 
 ## [Unreleased][]
+
+## [1.2.2][] - 2019-09-14
 ### Added
-- A lot of fixes to `utils.ShowHtmlDialog`:
-  - Fixed an occasional fb2k crash.
-  - Added proper shortcut handling (e.g. CTRL-C, CTRL-V).
-  - Fixed `enter` key always closing the dialog.
-  - Fixed incorect handling of some keyboard events (e.g. space and tab keys).
 - API changes:
-  - Added global constructors for `GdiFont`.
+  - Added global constructor for `GdiFont`.
   - Added support for passing arguments to the callback in `setInterval` and `setTimeout`.
 
 ### Changed
@@ -38,6 +36,11 @@ ___
 - Updated `HtmlDialogWithCheckBox` sample.
 
 ### Fixed
+- A lot of fixes to `utils.ShowHtmlDialog`:
+  - Fixed an occasional fb2k crash.
+  - Added proper shortcut handling (e.g. CTRL-C, CTRL-V).
+  - Fixed `enter` key always closing the dialog.
+  - Fixed incorect handling of some keyboard events (e.g. space and tab keys).
 - Fixed `FbUiSelectionHolder.SetPlaylistSelectionTracking` not working.
 - Fixed fb2k crash when there is an error in a cached script.
 - Fixed slow script handler triggering wrongly with some modal dialogs.
@@ -240,7 +243,8 @@ ___
   - More rigorous error checks.
 - Updated samples with compatibility fixes.
 
-[unreleased]: https://github.com/theqwertiest/foo_spider_monkey_panel/compare/v1.2.1...HEAD
+[unreleased]: https://github.com/theqwertiest/foo_spider_monkey_panel/compare/v1.2.2-preview...HEAD
+[1.2.2]: https://github.com/TheQwertiest/foo_spider_monkey_panel/compare/v1.2.1...v1.2.2-preview
 [1.2.1]: https://github.com/TheQwertiest/foo_spider_monkey_panel/compare/v1.2.0...v1.2.1
 [1.2.0]: https://github.com/TheQwertiest/foo_spider_monkey_panel/compare/v1.1.5...v1.2.0
 [1.1.5]: https://github.com/TheQwertiest/foo_spider_monkey_panel/compare/v1.1.4...v1.1.5
