@@ -14,7 +14,7 @@ std::string_view ExtractSuffixData( std::string_view& strView, char separator )
     if ( size_t pos = strView.find_first_of( separator );
          std::string::npos != pos )
     {
-        data = strView.substr( pos + 1, strView.size() - pos );
+        data = strView.substr( pos + 1 );
         strView.remove_suffix( strView.size() - pos );
     }
     return data;
@@ -25,7 +25,6 @@ std::string_view ExtractSuffixData( std::string_view& strView, char separator )
 namespace smp::version
 {
 
-/// @throw std::runtime_error
 SemVer::SemVer( const std::string& strVer )
 {
     const auto ret = ParseString( strVer );
@@ -56,7 +55,7 @@ std::optional<SemVer> SemVer::ParseString( const std::string& strVer )
         const auto numRet = smp::string::GetNumber<int8_t>( splitView );
         if ( !numRet )
         {
-            break;
+            return std::nullopt;
         }
 
         versionNums.push_back( numRet );

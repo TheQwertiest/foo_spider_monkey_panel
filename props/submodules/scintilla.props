@@ -6,7 +6,7 @@
     <_PropertySheetDisplayName>scintilla</_PropertySheetDisplayName>
   </PropertyGroup>
   <PropertyGroup Label="UserMacros">
-    <ScintillaDirectory>$(MainDir)submodules\scintilla\</ScintillaDirectory>
+    <ScintillaDirectory>$(SubmodulesDirectory)scintilla\</ScintillaDirectory>
     <ScintillaResultDirectory>$(ScintillaDirectory)bin\</ScintillaResultDirectory>
   </PropertyGroup>
   <PropertyGroup>

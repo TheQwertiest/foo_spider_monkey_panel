@@ -152,7 +152,7 @@ UINT detect_text_charset( std::string_view text )
     _COM_SMARTPTR_TYPEDEF( IMultiLanguage2, IID_IMultiLanguage2 );
     IMultiLanguage2Ptr lang;
 
-    HRESULT hr = lang.CreateInstance( CLSID_CMultiLanguage, NULL, CLSCTX_INPROC_SERVER );
+    HRESULT hr = lang.CreateInstance( CLSID_CMultiLanguage, nullptr, CLSCTX_INPROC_SERVER );
     if ( FAILED( hr ) )
     {
         return CP_ACP;

@@ -57,8 +57,8 @@ private:
 
     struct CpuUsageStats
     {
-        FILETIME userTime;
-        FILETIME kernelTime;
+        FILETIME userTime{};
+        FILETIME kernelTime{};
         DWORD time = 0;
     } cpuUsageStats;
 };

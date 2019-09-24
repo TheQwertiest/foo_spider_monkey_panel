@@ -13,10 +13,12 @@ STDMETHODIMP HostExternal::get_dialogArguments( VARIANT* pData )
 {
     if ( pData )
     {
-        VariantCopy( pData, &static_cast<VARIANT>(data_) );
+        return VariantCopy( pData, &static_cast<VARIANT>( data_ ) );
     }
-
-    return S_OK;
+    else
+    {
+        return S_OK;
+    }
 }
 
 } // namespace smp::com

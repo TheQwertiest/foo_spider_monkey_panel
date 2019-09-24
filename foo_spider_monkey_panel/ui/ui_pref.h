@@ -21,7 +21,10 @@ public:
 		MSG_WM_INITDIALOG( OnInitDialog )
 		COMMAND_HANDLER_EX( IDC_BUTTON_EXPORT, BN_CLICKED, OnButtonExportBnClicked )
 		COMMAND_HANDLER_EX( IDC_BUTTON_IMPORT, BN_CLICKED, OnButtonImportBnClicked )
+#pragma warning( push )
+#pragma warning( disable : 26454 ) // Arithmetic overflow
 		NOTIFY_HANDLER_EX( IDC_LIST_EDITOR_PROP, NM_DBLCLK, OnPropNMDblClk )
+#pragma warning( pop ) 
     END_MSG_MAP()
 
     BOOL OnInitDialog( HWND hwndFocus, LPARAM lParam );

@@ -29,7 +29,10 @@ public:
 		COM_QI_ENTRY( IServiceProvider )
     END_COM_QI_IMPL()
 
+#pragma warning( push )
+#pragma warning( disable : 6388 ) // might not be '0'
     BEGIN_SERVICE_MAP( CDialogHtml )
+#pragma warning( pop ) 
 		SERVICE_ENTRY( SID_SHTMLOMWindowServices )
     END_SERVICE_MAP()
 

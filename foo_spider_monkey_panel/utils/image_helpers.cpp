@@ -33,7 +33,7 @@ private:
 
 private:
     HWND hNotifyWnd_;
-    uint32_t taskId_;
+    uint32_t taskId_{};
     std::wstring imagePath_;
 };
 

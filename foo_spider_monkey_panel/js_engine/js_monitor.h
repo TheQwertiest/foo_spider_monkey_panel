@@ -61,7 +61,7 @@ private:
         JsContainer* pContainer;
 
         bool ignoreSlowScriptCheck = false;
-        std::chrono::milliseconds slowScriptCheckpoint;
+        std::chrono::milliseconds slowScriptCheckpoint{};
         bool slowScriptSecondHalf = false;
     };
 

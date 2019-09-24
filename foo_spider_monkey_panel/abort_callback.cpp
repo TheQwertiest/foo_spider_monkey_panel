@@ -120,7 +120,7 @@ abort_callback_event TimedAbortCallback::get_abort_event() const
 VOID CALLBACK TimedAbortCallback::timerProc( PVOID lpParameter, BOOLEAN /*TimerOrWaitFired*/ )
 {
     assert( lpParameter );
-    auto& parent = *reinterpret_cast<TimedAbortCallback*>( lpParameter );
+    auto& parent = *static_cast<TimedAbortCallback*>( lpParameter );
 
     parent.hasEnded_ = true;
     parent.abortEvent_.set_state( true );

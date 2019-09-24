@@ -13,7 +13,7 @@ struct hash<GUID>
     {
         const uint64_t guid64_1 =
             ( static_cast<uint64_t>( guid.Data1 ) << 32 )
-            | ( static_cast<uint32_t>( guid.Data2 ) << 16 )
+            | ( static_cast<uint64_t>( guid.Data2 ) << 16 )
             | guid.Data3;
         uint64_t guid64_2;
         memcpy( &guid64_2, guid.Data4, sizeof( guid.Data4 ) );

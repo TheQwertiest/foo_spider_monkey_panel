@@ -16,7 +16,7 @@ std::wstring ReadFileW( const std::u8string& path, UINT codepage, bool checkFile
 
 bool WriteFile( const wchar_t* path, const std::u8string& content, bool write_bom = true );
 
-UINT DetectFileCharset( const char* fileName );
+UINT DetectFileCharset( const std::u8string& path );
 
 std::wstring FileDialog( const std::wstring& title, 
                          bool saveFile, 

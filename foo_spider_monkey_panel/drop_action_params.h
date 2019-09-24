@@ -22,9 +22,9 @@ struct DropActionParams
 
 struct DropActionMessageParams
 {
-    DropActionParams actionParams;
-    POINTL pt;
-    uint32_t keyState;
+    DropActionParams actionParams{};
+    POINTL pt{};
+    uint32_t keyState{};
 };
 
 } // namespace smp::panel

@@ -32,7 +32,7 @@ void ReportActiveXError( HRESULT hresult, EXCEPINFO& exception, UINT& argerr )
             const auto sourceStr = smp::unicode::ToU8( (wchar_t*)exception.bstrSource );
             throw SmpException( fmt::format("ActiveXObject: ({}) {}", sourceStr, descriptionStr ) );
         }
-        else if ( exception.scode )
+        else if ( FAILED( exception.scode ) )
         {
             CheckHR( exception.scode, "ActiveXObject" );
         }

@@ -578,7 +578,7 @@ void CDialogHtml::SetOptions()
 
     {
         const auto w_fb2k_path = smp::unicode::ToWide( smp::get_fb2k_path() ) + L"foobar2000.exe";
-        SHFILEINFO shfi;
+        SHFILEINFO shfi{};
         SHGetFileInfo( w_fb2k_path.c_str(), 0, &shfi, sizeof( SHFILEINFO ), SHGFI_ICON | SHGFI_SHELLICONSIZE | SHGFI_SMALLICON );
         if ( shfi.hIcon )
         {

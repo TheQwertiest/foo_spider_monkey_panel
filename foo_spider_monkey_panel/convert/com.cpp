@@ -406,7 +406,8 @@ void JsToVariant( JSContext* cx, JS::HandleValue rval, VARIANTARG& arg )
             if ( x->variant_.vt != VT_EMPTY )
             {
                 //1.7.2.3
-                VariantCopyInd( &arg, &x->variant_ );
+                HRESULT hr = VariantCopyInd( &arg, &x->variant_ );
+                smp::error::CheckHR( hr, "VariantCopyInd" );
                 //VariantCopy(&arg,&x->variant_);
                 //1.7.2.2 could address invalid memory if x is freed before arg
                 // arg.vt = VT_VARIANT | VT_BYREF;

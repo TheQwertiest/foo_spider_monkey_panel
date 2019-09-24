@@ -63,13 +63,24 @@ private:
         std::optional<int> matching;
     };
 
+    struct StyledPart
+    {
+        StyledPart( std::u8string value, int style )
+            : value( std::move( value ) )
+            , style( style )
+        {
+        }
+        std::u8string value;
+        int style;
+    };
+
 private:
     // Operations and Implementation
     Sci_CharacterRange GetSelection();
     int GetCaretInLine();
     std::u8string GetCurrentLine();
     IndentationStatus GetIndentState( int line );
-    std::vector<std::pair<std::u8string, int>> GetStyledParts( int line, nonstd::span<const int> styles, size_t maxParts );
+    std::vector<StyledPart> GetStyledParts( int line, nonstd::span<const int> styles, size_t maxParts );
     bool RangeIsAllWhitespace( int start, int end );
     std::optional<DWORD> GetPropertyColor( const char* key );
     void Init();

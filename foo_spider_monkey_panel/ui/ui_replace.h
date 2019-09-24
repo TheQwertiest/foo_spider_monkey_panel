@@ -107,7 +107,7 @@ private:
         }
 
     private:
-        HWND m_parent;
+        HWND m_parent = nullptr;
     };
 
     bool m_havefound;

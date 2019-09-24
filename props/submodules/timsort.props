@@ -6,7 +6,7 @@
     <_PropertySheetDisplayName>timsort</_PropertySheetDisplayName>
   </PropertyGroup>
   <PropertyGroup>
-    <IncludePath>$(MainDir)submodules\timsort\include\;$(IncludePath)</IncludePath>
+    <IncludePath>$(SubmodulesDirectory)timsort\include\;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemGroup />
 </Project>

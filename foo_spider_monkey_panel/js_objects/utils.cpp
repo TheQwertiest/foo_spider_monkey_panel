@@ -213,9 +213,9 @@ uint32_t JsUtils::ColourPicker( uint32_t hWindow, uint32_t default_colour )
 JS::Value JsUtils::FileTest( const std::wstring& path, const std::wstring& mode )
 {
     namespace fs = std::filesystem;
-    const auto cleanedPath = fs::path( path.c_str() ).lexically_normal();
+    const auto cleanedPath = fs::path( path ).lexically_normal();
 
-	const auto getFileStatus = []( const fs::path& path ) {
+    const auto getFileStatus = []( const fs::path& path ) {
         try
         {
             return fs::status( path );
@@ -282,16 +282,14 @@ JS::Value JsUtils::FileTest( const std::wstring& path, const std::wstring& mode 
     }
     else if ( L"chardet" == mode )
     {
-        const std::wstring tmpStr = cleanedPath;
-
         JS::RootedValue jsValue( pJsCtx_ );
-        jsValue.setNumber(
-            static_cast<uint32_t>(
-                smp::file::DetectFileCharset( pfc::stringcvt::string_utf8_from_wide( tmpStr.c_str(), tmpStr.length() ) ) ) );
+        jsValue.setNumber( static_cast<uint32_t>( smp::file::DetectFileCharset( cleanedPath.u8string() ) ) );
         return jsValue;
     }
-
-    throw SmpException( "Invalid value of mode argument" );
+    else
+    {
+        throw SmpException( fmt::format( "Invalid value of mode argument: '{}'", smp::unicode::ToU8( mode ) ) );
+    }
 }
 
 std::u8string JsUtils::FormatDuration( double p )

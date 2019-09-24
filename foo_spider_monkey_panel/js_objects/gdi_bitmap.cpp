@@ -158,6 +158,7 @@ JsGdiBitmap::CreateNative( JSContext* cx, std::unique_ptr<Gdiplus::Bitmap> gdiBi
 
 size_t JsGdiBitmap::GetInternalSize( const std::unique_ptr<Gdiplus::Bitmap>& gdiBitmap )
 {
+    // TODO: GetInternalSize is called before CreateNative (that has argument validation), but gdiBitmap is not checked for null here.
     return sizeof( Gdiplus::Bitmap ) + gdiBitmap->GetWidth() * gdiBitmap->GetHeight() * Gdiplus::GetPixelFormatSize( gdiBitmap->GetPixelFormat() ) / 8;
 }
 
@@ -247,6 +248,7 @@ void JsGdiBitmap::ApplyMask( JsGdiBitmap* mask )
         pGdi->UnlockBits( &dstBmpData );
     } );
 
+    assert( maskBmpData.Scan0 );
     const auto maskRange = ranges::make_subrange( reinterpret_cast<uint32_t*>( maskBmpData.Scan0 ),
                                                   reinterpret_cast<uint32_t*>( maskBmpData.Scan0 ) + rect.Width * rect.Height );
     for ( auto pMaskIt = maskRange.begin(), pDst = reinterpret_cast<uint32_t*>( dstBmpData.Scan0 ); pMaskIt != maskRange.end(); ++pMaskIt, ++pDst )

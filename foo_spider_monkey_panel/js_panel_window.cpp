@@ -832,13 +832,13 @@ void js_panel_window::RepaintBackground( LPRECT lprcUpdate /*= nullptr */ )
     HWND hwnd = nullptr;
     while ( hwnd = FindWindowEx( wnd_parent, hwnd, nullptr, nullptr ) )
     {
-        wchar_t buff[64];
+        std::array<wchar_t, 64> buff;
         if ( hwnd == hWnd_ )
         {
             continue;
         }
-        GetClassName( hwnd, buff, _countof( buff ) );
-        if ( wcsstr( buff, L"SysTabControl32" ) )
+        GetClassName( hwnd, buff.data(), buff.size() );
+        if ( wcsstr( buff.data(), L"SysTabControl32" ) )
         {
             wnd_parent = hwnd;
             break;

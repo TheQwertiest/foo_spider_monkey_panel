@@ -6,7 +6,7 @@
     <_PropertySheetDisplayName>span-lite</_PropertySheetDisplayName>
   </PropertyGroup>
   <PropertyGroup>
-    <IncludePath>$(MainDir)submodules\span-lite\include\;$(IncludePath)</IncludePath>
+    <IncludePath>$(SubmodulesDirectory)span-lite\include\;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemGroup />
 </Project>

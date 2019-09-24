@@ -38,7 +38,10 @@ public:
 		COMMAND_HANDLER_EX( IDC_DEL, BN_CLICKED, OnDelBnClicked )
 		COMMAND_HANDLER_EX( IDC_IMPORT, BN_CLICKED, OnImportBnClicked )
 		COMMAND_HANDLER_EX( IDC_EXPORT, BN_CLICKED, OnExportBnClicked )
+#pragma warning( push )
+#pragma warning( disable : 26454 ) // Arithmetic overflow
 		NOTIFY_CODE_HANDLER_EX( PIN_ITEMCHANGED, OnPinItemChanged )
+#pragma warning( pop ) 
 		CHAIN_MSG_MAP( CDialogResize<CDialogProperty> )
 		REFLECT_NOTIFICATIONS()
     END_MSG_MAP()

@@ -115,7 +115,7 @@ ScintillaStyle ParseStyle( std::u8string_view p_definition )
         }
 
         const auto values = smp::string::Split( attribute, ':' );
-        if ( values.empty() )
+        if ( values.empty() || values[0].empty() )
         {
             continue;
         }
@@ -603,7 +603,6 @@ CScriptEditorCtrl::IndentationStatus CScriptEditorCtrl::GetIndentState( int line
             if ( ranges::find( keywords, part ) != ranges::cend( keywords ) )
             {
                 return IndentationStatus::isKeyWordStart;
-                ;
             }
         }
     }
@@ -611,9 +610,9 @@ CScriptEditorCtrl::IndentationStatus CScriptEditorCtrl::GetIndentState( int line
     return IndentationStatus::isNone;
 }
 
-std::vector<std::pair<std::u8string, int>> CScriptEditorCtrl::GetStyledParts( int line, nonstd::span<const int> styles, size_t maxParts )
+std::vector<CScriptEditorCtrl::StyledPart> CScriptEditorCtrl::GetStyledParts( int line, nonstd::span<const int> styles, size_t maxParts )
 {
-    std::vector<std::pair<std::u8string, int>> parts;
+    std::vector<StyledPart> parts;
     parts.reserve( maxParts );
 
     std::u8string curPart;
@@ -681,7 +680,7 @@ bool CScriptEditorCtrl::RangeIsAllWhitespace( int start, int end )
 bool CScriptEditorCtrl::StartCallTip()
 {
     m_nCurrentCallTip = 0;
-    m_szCurrentCallTipWord = "";
+    m_szCurrentCallTipWord.clear();
     std::u8string line = GetCurrentLine();
     int current = GetCaretInLine();
     int pos = GetCurrentPos();
@@ -729,7 +728,6 @@ bool CScriptEditorCtrl::StartCallTip()
 
     line.resize( current );
     m_szCurrentCallTipWord = line.c_str() + m_nStartCalltipWord;
-    m_szFunctionDefinition = "";
     FillFunctionDefinition( pos );
     return true;
 }
@@ -786,6 +784,8 @@ void CScriptEditorCtrl::ContinueCallTip()
 
 void CScriptEditorCtrl::FillFunctionDefinition( int pos )
 {
+    m_szFunctionDefinition.clear();
+
     if ( pos )
     {
         m_nLastPosCallTip = pos;

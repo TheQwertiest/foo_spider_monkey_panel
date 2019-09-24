@@ -91,7 +91,7 @@ JsFbTooltip::JsFbTooltip( JSContext* cx, HWND hParentWnd, smp::panel::PanelToolt
         nullptr,
         core_api::get_my_instance(),
         nullptr );
-    smp::error::CheckWinApi( !!hTooltipWnd_, "CreateWindowEx" );
+    smp::error::CheckWinApi( hTooltipWnd_, "CreateWindowEx" );
 
     smp::utils::final_action autoHwnd( [hTooltipWnd = hTooltipWnd_] {
         if ( IsWindow( hTooltipWnd ) )

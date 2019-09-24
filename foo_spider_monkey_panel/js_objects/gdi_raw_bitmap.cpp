@@ -97,6 +97,7 @@ size_t JsGdiRawBitmap::GetInternalSize( Gdiplus::Bitmap* pBmp )
     return pBmp->GetWidth() * pBmp->GetHeight() * Gdiplus::GetPixelFormatSize( PixelFormat32bppPARGB ) / 8;
 }
 
+__notnull
 HDC JsGdiRawBitmap::GetHDC() const
 {
     return pDc_.get();

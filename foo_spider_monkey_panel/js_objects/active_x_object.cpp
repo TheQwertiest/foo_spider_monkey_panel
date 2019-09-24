@@ -311,19 +311,24 @@ const js::BaseProxyHandler& ActiveXObject::JsProxy = ActiveXObjectProxyHandler::
 ActiveXObject::ActiveXObject( JSContext* cx, VARIANTARG& var )
     : pJsCtx_( cx )
 {
-    VariantCopyInd( &variant_, &var );
+    HRESULT hr = VariantCopyInd( &variant_, &var );
+    if ( FAILED( hr ) )
+    {
+        return;
+    }
+
     hasVariant_ = true;
 }
 
 ActiveXObject::ActiveXObject( JSContext* cx, IDispatch* pDispatch, bool addref )
     : pJsCtx_( cx )
+    , pDispatch_( pDispatch )
 {
-    pDispatch_ = pDispatch;
-
     if ( !pDispatch_ )
     {
         return;
     }
+    
     if ( addref )
     {
         pDispatch_->AddRef();
@@ -339,8 +344,8 @@ ActiveXObject::ActiveXObject( JSContext* cx, IDispatch* pDispatch, bool addref )
 
 ActiveXObject::ActiveXObject( JSContext* cx, IUnknown* pUnknown, bool addref )
     : pJsCtx_( cx )
+    , pUnknown_( pUnknown )
 {
-    pUnknown_ = pUnknown;
     if ( !pUnknown_ )
     {
         return;

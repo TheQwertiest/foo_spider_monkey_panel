@@ -54,7 +54,7 @@
     <LinkIncremental>true</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup>
-    <CAExcludePath>$(IncludePath);$(CAExcludePath)</CAExcludePath>
+    <CAExcludePath>$(IncludePath);$(ProjectDir)..\PropertyList\;$(CAExcludePath)</CAExcludePath>
   </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>

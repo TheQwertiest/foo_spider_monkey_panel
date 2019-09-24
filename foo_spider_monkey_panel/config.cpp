@@ -265,7 +265,7 @@ std::u8string PanelSettings::get_default_script_code()
     puResource puRes = uLoadResource( core_api::get_my_instance(), uMAKEINTRESOURCE( IDR_SCRIPT ), "SCRIPT" );
     if ( puRes )
     {
-        return std::u8string{ reinterpret_cast<const char*>( puRes->GetPointer() ), puRes->GetSize() };
+        return std::u8string{ static_cast<const char*>( puRes->GetPointer() ), puRes->GetSize() };
     }
     else
     {
@@ -327,7 +327,7 @@ void PanelSettings::save_config( stream_writer& writer, abort_callback& abort ) 
 {
     try
     {
-        auto currentVersion = static_cast<uint32_t>( Version::CONFIG_VERSION_CURRENT );
+        const auto currentVersion = static_cast<uint32_t>( Version::CONFIG_VERSION_CURRENT );
         writer.write_object_t( currentVersion, abort );
         writer.write_object_t( false, abort ); // HACK: write this in place of "delay load"
         writer.write_object_t( m_config_guid, abort );

@@ -102,6 +102,7 @@ public:
     virtual ~JsObjectBase() = default;
 
 public:
+    [[nodiscard]] 
     static JSObject* CreateProto( JSContext* cx )
     {
         JS::RootedObject jsObject( cx,
@@ -120,6 +121,7 @@ public:
         return jsObject;
     }
 
+    [[nodiscard]] 
     static JSObject* InstallProto( JSContext* cx, JS::HandleObject parentObject )
     {
         auto pJsProto = JS_InitClass( cx, parentObject, nullptr, &T::JsClass, T::JsConstructor, 0, T::JsProperties, T::JsFunctions, nullptr, nullptr );
@@ -131,6 +133,7 @@ public:
     }
 
     template <typename... ArgTypes>
+    [[nodiscard]] 
     static JSObject* CreateJs( JSContext* cx, ArgTypes&&... args )
     {
         JS::RootedObject jsProto( cx );
@@ -152,6 +155,7 @@ public:
         return CreateJsObject_Final( cx, jsProto, jsObject, std::move( nativeObject ) );
     }
 
+    [[nodiscard]] 
     static JSObject* CreateJsFromNative( JSContext* cx, std::unique_ptr<T> nativeObject )
     {
         JS::RootedObject jsProto( cx );
@@ -187,6 +191,7 @@ public:
 
 private:
     template <typename = typename std::enable_if_t<T::HasProto>>
+    [[nodiscard]]
     static JSObject* GetProto( JSContext* cx )
     {
         JS::RootedObject jsProto( cx );
@@ -202,6 +207,7 @@ private:
         return jsProto;
     }
 
+    [[nodiscard]]
     static JSObject* CreateJsObject_Base( JSContext* cx, [[maybe_unused]] JS::HandleObject jsProto )
     {
         JS::RootedObject jsObject( cx );
@@ -232,6 +238,7 @@ private:
         return jsObject;
     }
 
+    [[nodiscard]]
     static JSObject* CreateJsObject_Final( JSContext* cx,
                                            [[maybe_unused]] JS::HandleObject jsProto,
                                            JS::HandleObject jsBaseObject,

@@ -99,7 +99,7 @@ private:
         }
 
     private:
-        HWND m_parent;
+        HWND m_parent = nullptr;
     };
 
     CEditWithReturn m_find;

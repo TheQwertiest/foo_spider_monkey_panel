@@ -597,7 +597,7 @@ void JsFbMetadbHandleList::RemoveAttachedImages()
 void JsFbMetadbHandleList::RemoveById( uint32_t index )
 {
     SmpException::ExpectTrue( index < metadbHandleList_.get_count(), "Index is out of bounds" );
-    metadbHandleList_.remove_by_idx( index );
+    (void)metadbHandleList_.remove_by_idx( index );
 }
 
 void JsFbMetadbHandleList::RemoveRange( uint32_t from, uint32_t count )

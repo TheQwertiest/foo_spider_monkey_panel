@@ -78,7 +78,7 @@ private:
         bool isPutRef = false;
         bool isInvoke = false;
         bool hasDispId = false;
-        DISPID dispId;
+        DISPID dispId{};
     };
 
     using MemberMap = std::unordered_map<std::wstring, std::unique_ptr<MemberInfo>>;

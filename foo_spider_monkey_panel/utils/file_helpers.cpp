@@ -123,6 +123,20 @@ T ConvertFileContent( const std::wstring& path, std::string_view content, UINT c
     return fileContent;
 }
 
+std::filesystem::path GetAbsoluteNormalPath( const std::filesystem::path& path )
+{
+    namespace fs = std::filesystem;
+
+    try
+    {
+        return fs::absolute( path ).lexically_normal();
+    }
+    catch ( const fs::filesystem_error& e )
+    {
+        throw SmpException( fmt::format( "Failed to open file `{}`: {}", path.u8string(), e.what() ) );
+    }
+}
+
 } // namespace
 
 namespace
@@ -131,15 +145,17 @@ namespace
 class FileReader
 {
 public:
-    FileReader( const std::filesystem::path& path, bool checkFileExistense = true );
+    FileReader( const std::u8string& path, bool checkFileExistense = true );
     ~FileReader();
     FileReader( const FileReader& ) = delete;
     FileReader& operator=( const FileReader& ) = delete;
 
     std::string_view GetFileContent() const;
+    std::wstring GetFullPath() const;
 
 private:
     std::string_view fileContent_;
+    std::wstring wPath_;
 
     HANDLE hFile_ = nullptr;
     HANDLE hFileMapping_ = nullptr;
@@ -147,23 +163,26 @@ private:
     size_t fileSize_ = 0;
 };
 
-FileReader::FileReader( const std::filesystem::path& path, bool checkFileExistense )
+FileReader::FileReader( const std::u8string& inPath, bool checkFileExistense )
 {
     namespace fs = std::filesystem;
 
-    const auto u8path = path.u8string();
+    const auto fsPath = GetAbsoluteNormalPath( fs::u8path( inPath ) );
+    const auto u8path = fsPath.u8string();
+    wPath_ = fsPath.wstring();
+
     try
     {
-        if ( checkFileExistense && ( !fs::exists( path ) || !fs::is_regular_file( path ) ) )
+        if ( checkFileExistense && ( !fs::exists( fsPath ) || !fs::is_regular_file( fsPath ) ) )
         {
             throw SmpException( fmt::format( "Path does not point to a valid file: {}", u8path ) );
         }
 
-        if ( !fs::file_size( path ) )
+        if ( !fs::file_size( fsPath ) )
         { // CreateFileMapping fails on file with zero length, so we need to bail out early
             return;
         }
-        hFile_ = CreateFile( path.wstring().c_str(), GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr );
+        hFile_ = CreateFile( fsPath.wstring().c_str(), GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr );
         smp::error::CheckWinApi( ( INVALID_HANDLE_VALUE != hFile_ ), "CreateFile" );
 
         utils::final_action autoFile( [hFile = hFile_] {
@@ -178,7 +197,7 @@ FileReader::FileReader( const std::filesystem::path& path, bool checkFileExisten
         } );
 
         fileSize_ = GetFileSize( hFile_, nullptr );
-        SmpException::ExpectTrue( fileSize_ != INVALID_FILE_SIZE, "Internal error: failed to read file size of `{}`", u8path.c_str() );
+        SmpException::ExpectTrue( fileSize_ != INVALID_FILE_SIZE, "Internal error: failed to read file size of `{}`", u8path );
 
         pFileView_ = (LPCBYTE)MapViewOfFile( hFileMapping_, FILE_MAP_READ, 0, 0, 0 );
         smp::error::CheckWinApi( pFileView_, "MapViewOfFile" );
@@ -215,28 +234,20 @@ FileReader::~FileReader()
 
 std::string_view FileReader::GetFileContent() const
 {
-    const LPCBYTE dummyVal = reinterpret_cast<LPCBYTE>( &fileSize_ );
-    return std::string_view{ reinterpret_cast<const char*>( pFileView_ ? pFileView_ : dummyVal ), fileSize_ };
+    assert( pFileView_ );
+    return std::string_view{ reinterpret_cast<const char*>( pFileView_ ), fileSize_ };
+}
+
+std::wstring FileReader::GetFullPath() const
+{
+    return wPath_;
 }
 
 template <typename T>
 T ReadFileImpl( const std::u8string& path, UINT codepage, bool checkFileExistense )
 {
-    namespace fs = std::filesystem;
-
-    const fs::path fsPath = [&path] {
-        try
-        {
-            return fs::absolute( fs::u8path( path ) ).lexically_normal();
-        }
-        catch ( const std::filesystem::filesystem_error& e )
-        {
-            throw SmpException( fmt::format( "Failed to open file `{}`: {}", path, e.what() ) );
-        }
-    }();
-
-    FileReader fileReader( fsPath, checkFileExistense );
-    return ConvertFileContent<T>( fsPath.wstring(), fileReader.GetFileContent(), codepage );
+    const FileReader fileReader( path, checkFileExistense );
+    return ConvertFileContent<T>( fileReader.GetFullPath(), fileReader.GetFileContent(), codepage );
 }
 
 } // namespace
@@ -293,23 +304,9 @@ bool WriteFile( const wchar_t* path, const std::u8string& content, bool write_bo
     return true;
 }
 
-UINT DetectFileCharset( const char* fileName )
+UINT DetectFileCharset( const std::u8string& path )
 {
-    pfc::string8_fast text;
-
-    try
-    {
-        file_ptr io;
-        auto& abort = smp::GlobalAbortCallback::GetInstance();
-        filesystem::g_open_read( io, fileName, abort );
-        io->read_string_raw( text, abort );
-    }
-    catch ( const pfc::exception& )
-    {
-        return 0;
-    }
-
-    return smp::utils::detect_text_charset( std::string_view{ text, text.get_length() } );
+    return smp::utils::detect_text_charset( FileReader{ path }.GetFileContent() );
 }
 
 std::wstring FileDialog( const std::wstring& title,

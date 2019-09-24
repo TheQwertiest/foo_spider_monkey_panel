@@ -38,6 +38,7 @@ public:
     static size_t GetInternalSize( Gdiplus::Bitmap* pBmp );
 
 public:
+    __notnull
     HDC GetHDC() const;
 
 public: // props

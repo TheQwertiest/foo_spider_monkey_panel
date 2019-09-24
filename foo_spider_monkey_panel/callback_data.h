@@ -17,7 +17,7 @@ public:
     std::tuple<Args...>& GetData()
     {
         assert( pData_ );
-        return *reinterpret_cast<std::tuple<Args...>*>( pData_ );
+        return *static_cast<std::tuple<Args...>*>( pData_ );
     }
 
 protected:
