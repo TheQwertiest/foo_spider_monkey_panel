@@ -41,13 +41,14 @@
     <Import Project="$(SolutionDir)\..\props\submodules\fmt.props" />
     <Import Project="$(SolutionDir)\..\props\submodules\foobar2000_sdk.props" />
     <Import Project="$(SolutionDir)\..\props\submodules\json.props" />
-    <Import Project="$(SolutionDir)\..\props\submodules\mozjs.props" />
     <Import Project="$(SolutionDir)\..\props\submodules\range.props" />
     <Import Project="$(SolutionDir)\..\props\submodules\pfc.props" />
     <Import Project="$(SolutionDir)\..\props\submodules\scintilla.props" />
     <Import Project="$(SolutionDir)\..\props\submodules\span_lite.props" />
     <Import Project="$(SolutionDir)\..\props\submodules\timsort.props" />
     <Import Project="$(SolutionDir)\..\props\submodules\wtl.props" />
+    <Import Project="$(SolutionDir)\..\props\local_dependencies\mozjs.props" />
+    <Import Project="$(SolutionDir)\..\props\local_dependencies\property_list.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)'=='Debug'">
@@ -215,10 +216,6 @@
     <ClCompile Include="utils\winapi_error_helpers.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\PropertyList\PropertyItem.h" />
-    <ClInclude Include="..\PropertyList\PropertyItemEditors.h" />
-    <ClInclude Include="..\PropertyList\PropertyItemImpl.h" />
-    <ClInclude Include="..\PropertyList\PropertyList.h" />
     <ClInclude Include="abort_callback.h" />
     <ClInclude Include="adv_config.h" />
     <ClInclude Include="callback_data.h" />
