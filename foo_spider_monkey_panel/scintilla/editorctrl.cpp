@@ -435,6 +435,7 @@ void CScriptEditorCtrl::SetContent( const char* text, bool clear_undo_buffer )
 void CScriptEditorCtrl::SetJScript()
 {
     // clang-format off
+    // protect array value format style
 
 	// source: https://www.w3schools.com/js/js_reserved.asp
     constexpr std::array js_words{

@@ -32,6 +32,9 @@ protected:
 
 extern ITypeLibPtr g_typelib;
 
+// clang-format off
+// protect macro format style
+
 //-- IUnknown ---
 #define BEGIN_COM_QI_IMPL() \
 	public:\
@@ -55,6 +58,8 @@ extern ITypeLibPtr g_typelib;
 			reinterpret_cast<IUnknown*>(*ppv)->AddRef(); \
 			return S_OK; \
 		}	
+
+// clang-format on
 
 //-- IDispatch --
 template <class T>

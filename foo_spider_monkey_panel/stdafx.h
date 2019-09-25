@@ -1,5 +1,8 @@
 #pragma once
 
+// clang-format off
+// !!! Include order is important here (esp. for Win headers) !!!
+
 // Spider Monkey ESR60 and CUI support only Win7+
 #define _WIN32_WINNT _WIN32_WINNT_WIN7
 #define WINVER _WIN32_WINNT_WIN7
@@ -107,3 +110,5 @@ using u8string_view = basic_string_view<char8_t>;
 #include <component_defines.h>
 #include <component_guids.h>
 #include <smp_exception.h>
+
+// clang-format on

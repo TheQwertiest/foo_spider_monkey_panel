@@ -16,6 +16,7 @@ constexpr uint32_t kColourCount = 4; // 0 - r, 1 - g, 2 - b, 3 - a
 using ColourArray = std::array<uint32_t, kColourCount>;
 
 // clang-format off
+// protect array value format style
 constexpr uint16_t stackblur_mul[255] =
 {
     512,512,456,512,328,456,335,512,405,328,271,456,388,335,292,512,

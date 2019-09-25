@@ -106,7 +106,7 @@ private:
     int m_nCurrentCallTip = 0;
     int m_nStartCalltipWord = 0;
     int m_nLastPosCallTip = 0;
-    int m_nStatementLookback = 10;
+    const int m_nStatementLookback = 10;
 
     std::u8string m_szCurrentCallTipWord;
     std::u8string m_szFunctionDefinition;
