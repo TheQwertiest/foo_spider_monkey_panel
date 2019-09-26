@@ -32,7 +32,7 @@ SemVer::SemVer( const std::string& strVer )
     {
         throw std::runtime_error( "Parsing failed" );
     }
-    *this = ret.value();
+    *this = *ret;
 }
 
 std::optional<SemVer> SemVer::ParseString( const std::string& strVer )
@@ -67,7 +67,7 @@ std::optional<SemVer> SemVer::ParseString( const std::string& strVer )
     }
     versionNums.resize( 3 );
 
-    semVer.major = versionNums[0].value();
+    semVer.major = *versionNums[0];
     semVer.minor = versionNums[1].value_or( 0 );
     semVer.patch = versionNums[2].value_or( 0 );
 
@@ -149,11 +149,11 @@ bool SemVer::IsPreleaseNewer( std::string_view a, std::string_view b )
             {
                 auto numRet = smp::string::GetNumber<int8_t>( a_Token );
                 assert( numRet ); // should be valid, because of `isNumber` check
-                const int8_t aNum = numRet.value();
+                const int8_t aNum = *numRet;
 
                 numRet = smp::string::GetNumber<int8_t>( a_Token );
                 assert( numRet ); // should be valid, because of `isNumber` check
-                const int8_t bNum = numRet.value();
+                const int8_t bNum = *numRet;
 
                 assert( aNum != bNum ); // tokens would've been equal otherwise
                 return aNum > bNum;

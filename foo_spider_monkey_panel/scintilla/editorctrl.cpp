@@ -173,7 +173,7 @@ ScintillaStyle ParseStyle( std::u8string_view p_definition )
                 if ( intRet )
                 {
                     p_style.flags |= ESF_SIZE;
-                    p_style.size = intRet.value();
+                    p_style.size = *intRet;
                 }
             }
         }
@@ -278,15 +278,15 @@ LRESULT CScriptEditorCtrl::OnUpdateUI( LPNMHDR pnmn )
     {
         if ( bracePos.matching )
         {
-            const auto currentBrace = bracePos.current.value();
-            const auto matchingBrace = bracePos.matching.value();
+            const auto currentBrace = *bracePos.current;
+            const auto matchingBrace = *bracePos.matching;
 
             BraceHighlight( currentBrace, matchingBrace );
             SetHighlightGuide( std::min( GetColumn( currentBrace ), GetColumn( matchingBrace ) ) );
         }
         else
         {
-            BraceBadLight( bracePos.current.value() );
+            BraceBadLight( *bracePos.current );
             SetHighlightGuide( 0 );
         }
     }
@@ -396,7 +396,7 @@ void CScriptEditorCtrl::ReadAPI()
         return;
     }
 
-    const auto files = smp::string::Split<char8_t>( propvalRet.value(), ';' );
+    const auto files = smp::string::Split<char8_t>( *propvalRet, ';' );
     std::u8string content;
     for ( const auto& file: files )
     {
@@ -493,31 +493,31 @@ void CScriptEditorCtrl::SetScintillaSettings()
             return std::nullopt;
         }
 
-        return smp::string::GetNumber<int>( static_cast<std::string_view>( propvalRet.value() ) );
+        return smp::string::GetNumber<int>( static_cast<std::string_view>( *propvalRet ) );
     };
 
     auto retVal = getIntFromProp( "style.wrap.mode" );
     if ( retVal )
     {
-        SetWrapMode( retVal.value() );
+        SetWrapMode( *retVal );
     }
 
     retVal = getIntFromProp( "style.wrap.visualflags" );
     if ( retVal )
     {
-        SetWrapVisualFlags( retVal.value() );
+        SetWrapVisualFlags( *retVal );
     }
 
     retVal = getIntFromProp( "style.wrap.visualflags.location" );
     if ( retVal )
     {
-        SetWrapVisualFlagsLocation( retVal.value() );
+        SetWrapVisualFlagsLocation( *retVal );
     }
 
     retVal = getIntFromProp( "style.wrap.indentmode" );
     if ( retVal )
     {
-        SetWrapIndentMode( retVal.value() );
+        SetWrapIndentMode( *retVal );
     }
 }
 
@@ -803,7 +803,7 @@ void CScriptEditorCtrl::FillFunctionDefinition( int pos )
         return;
     }
 
-    m_szFunctionDefinition = std::u8string{ definitionRet.value().data(), definitionRet.value().size() };
+    m_szFunctionDefinition = std::u8string{ definitionRet->data(), definitionRet->size() };
 
     CallTipShow( m_nLastPosCallTip - m_szCurrentCallTipWord.length(), m_szFunctionDefinition.c_str() );
     ContinueCallTip();
@@ -839,7 +839,7 @@ bool CScriptEditorCtrl::StartAutoComplete()
         return false;
     }
 
-    const auto& acWordsStr = JoinWithSpace( acWordsRet.value() );
+    const auto& acWordsStr = JoinWithSpace( *acWordsRet );
     AutoCShow( word.length(), acWordsStr.c_str() );
 
     return true;
@@ -1014,7 +1014,7 @@ std::optional<std::vector<std::u8string_view>> CScriptEditorCtrl::GetNearestWord
         std::u8string_view wordToPlace;
         if ( separator )
         {
-            const auto charIt = ranges::find( word, separator.value() );
+            const auto charIt = ranges::find( word, *separator );
             if ( word.cend() != charIt )
             {
                 wordToPlace = std::u8string_view( word.c_str(), (size_t)std::distance( word.cbegin(), charIt ) );
@@ -1064,7 +1064,7 @@ std::optional<DWORD> CScriptEditorCtrl::GetPropertyColor( const char* key )
         return std::nullopt;
     }
 
-    return GetColourFromHex( propvalRet.value() );
+    return GetColourFromHex( *propvalRet );
 }
 
 void CScriptEditorCtrl::Init()
@@ -1155,7 +1155,7 @@ void CScriptEditorCtrl::RestoreDefaultStyle()
     colorRet = GetPropertyColor( "style.selection.back" );
     if ( colorRet )
     {
-        SetSelBack( true, colorRet.value() );
+        SetSelBack( true, *colorRet );
     }
     else
     {
@@ -1173,7 +1173,7 @@ void CScriptEditorCtrl::RestoreDefaultStyle()
     if ( colorRet )
     {
         SetCaretLineVisible( true );
-        SetCaretLineBack( colorRet.value() );
+        SetCaretLineBack( *colorRet );
     }
     else
     {
@@ -1207,7 +1207,7 @@ void CScriptEditorCtrl::LoadStyleFromProperties()
         const auto propvalRet = GetPropertyExpanded_Opt( propname );
         if ( propvalRet )
         {
-            const ScintillaStyle style = ParseStyle( propvalRet.value() );
+            const ScintillaStyle style = ParseStyle( *propvalRet );
 
             if ( style.flags & ESF_FONT )
                 StyleSetFont( style_num, style.font.c_str() );

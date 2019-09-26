@@ -29,7 +29,7 @@ LRESULT CDialogGoto::OnCloseCmd( WORD wNotifyCode, WORD wID, HWND hWndCtl )
         const auto numRet = smp::string::GetNumber<unsigned>( static_cast<std::u8string_view>( text ) );
         if ( numRet )
         {
-            SendMessage( m_hedit, SCI_GOTOLINE, numRet.value(), 0 );
+            SendMessage( m_hedit, SCI_GOTOLINE, *numRet, 0 );
         }
     }
 

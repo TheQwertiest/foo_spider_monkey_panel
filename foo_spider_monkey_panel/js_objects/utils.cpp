@@ -537,7 +537,7 @@ std::wstring JsUtils::MapString( const std::wstring& str, uint32_t lcid, uint32_
     {
     }
 
-    NLSVERSIONINFO* pVersionInfo = reinterpret_cast<NLSVERSIONINFO*>( versionInfo ? &versionInfo.value() : nullptr );
+    NLSVERSIONINFO* pVersionInfo = reinterpret_cast<NLSVERSIONINFO*>( versionInfo ? &( *versionInfo ) : nullptr );
 
     iRet = LCMapStringEx( localeName.c_str(), flags, str.c_str(), str.length() + 1, nullptr, 0, pVersionInfo, nullptr, 0 );
     smp::error::CheckWinApi( iRet, "LCMapStringEx(nullptr)" );

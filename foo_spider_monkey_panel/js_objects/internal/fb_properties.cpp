@@ -62,7 +62,7 @@ JS::Value FbProperties::GetProperty( const std::wstring& propName, JS::HandleVal
             hasProperty = true;
 
             JS::RootedValue jsProp( pJsCtx_ );
-            DeserializeJsValue( pJsCtx_, prop.value(), &jsProp );
+            DeserializeJsValue( pJsCtx_, *prop, &jsProp );
             properties_.emplace( trimmedPropName, std::make_unique<HeapElement>( jsProp ) );
         }
     }

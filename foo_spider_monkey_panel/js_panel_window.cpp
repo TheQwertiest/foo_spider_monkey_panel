@@ -98,11 +98,11 @@ LRESULT js_panel_window::on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
             auto optMessage = message_manager::instance().ClaimAsyncMessage( hWnd_, msg, wp, lp );
             if ( optMessage )
             {
-                const auto [asyncMsg, asyncWp, asyncLp] = optMessage.value();
+                const auto [asyncMsg, asyncWp, asyncLp] = *optMessage;
                 auto retVal = process_async_messages( asyncMsg, asyncWp, asyncLp );
                 if ( retVal )
                 {
-                    return retVal.value();
+                    return *retVal;
                 }
             }
         }
@@ -112,7 +112,7 @@ LRESULT js_panel_window::on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
         if ( auto retVal = process_sync_messages( hwnd, msg, wp, lp );
              retVal.has_value() )
         {
-            return retVal.value();
+            return *retVal;
         }
     }
 
@@ -124,13 +124,13 @@ std::optional<LRESULT> js_panel_window::process_sync_messages( HWND hwnd, UINT m
     if ( auto retVal = process_main_messages( hwnd, msg, wp, lp );
          retVal.has_value() )
     {
-        return retVal.value();
+        return *retVal;
     }
 
     if ( auto retVal = process_window_messages( msg, wp, lp );
          retVal.has_value() )
     {
-        return retVal.value();
+        return *retVal;
     }
 
     if ( IsInEnumRange<InternalSyncMessage>( msg ) )
@@ -138,7 +138,7 @@ std::optional<LRESULT> js_panel_window::process_sync_messages( HWND hwnd, UINT m
         if ( auto retVal = process_internal_sync_messages( static_cast<InternalSyncMessage>( msg ), wp, lp );
              retVal.has_value() )
         {
-            return retVal.value();
+            return *retVal;
         }
     }
 

@@ -63,37 +63,40 @@ LRESULT CDialogProperty::OnPinItemChanged( LPNMHDR pnmh )
 
         if ( pnpi->prop->GetValue( &var ) )
         {
-            if ( std::holds_alternative<bool>( val ) )
-            {
-                var.ChangeType( VT_BOOL );
-                val = static_cast<bool>( var.boolVal );
-            }
-            else if ( std::holds_alternative<int32_t>( val ) )
-            {
-                var.ChangeType( VT_I4 );
-                val = static_cast<int32_t>( var.lVal );
-            }
-            else if ( std::holds_alternative<double>( val ) )
-            {
-                if ( VT_BSTR == var.vt )
+            std::visit( [&var]( auto& arg ) {
+                using T = std::decay_t<decltype( arg )>;
+                if constexpr ( std::is_same_v<T, bool> )
                 {
-                    val = std::stod( var.bstrVal );
+                    var.ChangeType( VT_BOOL );
+                    arg = static_cast<bool>( var.boolVal );
+                }
+                else if constexpr ( std::is_same_v<T, int32_t> )
+                {
+                    var.ChangeType( VT_I4 );
+                    arg = static_cast<int32_t>( var.lVal );
+                }
+                else if constexpr ( std::is_same_v<T, double> )
+                {
+                    if ( VT_BSTR == var.vt )
+                    {
+                        arg = std::stod( var.bstrVal );
+                    }
+                    else
+                    {
+                        var.ChangeType( VT_R8 );
+                        arg = var.dblVal;
+                    }
+                }
+                else if constexpr ( std::is_same_v<T, std::u8string> )
+                {
+                    var.ChangeType( VT_BSTR );
+                    arg = smp::unicode::ToU8( var.bstrVal );
                 }
                 else
                 {
-                    var.ChangeType( VT_R8 );
-                    val = var.dblVal;
+                    static_assert( false, "non-exhaustive visitor!" );
                 }
-            }
-            else if ( std::holds_alternative<std::u8string>( val ) )
-            {
-                var.ChangeType( VT_BSTR );
-                val = smp::unicode::ToU8( var.bstrVal );
-            }
-            else
-            {
-                assert( 0 );
-            }
+            }, val );
         }
     }
 

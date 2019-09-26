@@ -103,7 +103,7 @@ pfc::string8 SmpSource::get_repo()
 
 std::string SmpSource::FetchVersion()
 {
-    auto cvRet = []() -> std::optional<componentversion::ptr> {
+    auto cvRet = []() -> componentversion::ptr {
         for ( service_enum_t<componentversion> e; !e.finished(); ++e )
         {
             auto cv = e.get();
@@ -116,17 +116,17 @@ std::string SmpSource::FetchVersion()
             }
         }
 
-        return std::nullopt;
+        return componentversion::ptr{};
     }();
 
-    if ( !cvRet )
+    if ( cvRet.is_empty() )
     {
         return "0.0.0";
     }
     else
     {
         pfc::string8 version;
-        cvRet.value()->get_component_version( version );
+        cvRet->get_component_version( version );
         return std::string( version.c_str(), version.length() );
     }
 }

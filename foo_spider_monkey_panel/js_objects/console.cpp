@@ -222,7 +222,7 @@ bool LogImpl( JSContext* cx, unsigned argc, JS::Value* vp )
         return true;
     }
 
-    console::info( output.value().c_str() );
+    console::info( output->c_str() );
     return true;
 }
 

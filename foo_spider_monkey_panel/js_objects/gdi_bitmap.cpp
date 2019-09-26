@@ -513,7 +513,7 @@ bool JsGdiBitmap::SaveAs( const std::wstring& path, const std::wstring& format )
         return false;
     }
 
-    Gdiplus::Status gdiRet = pGdi_->Save( path.c_str(), &clsIdRet.value() );
+    Gdiplus::Status gdiRet = pGdi_->Save( path.c_str(), &( *clsIdRet ) );
     return ( Gdiplus::Ok == gdiRet );
 }
 

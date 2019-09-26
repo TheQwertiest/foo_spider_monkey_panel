@@ -97,7 +97,7 @@ ActiveXObjectProxyHandler::has( JSContext* cx, JS::HandleObject proxy, JS::Handl
         return false;
     }
     
-    *bp = pNativeTarget->Has( retVal.value() );
+    *bp = pNativeTarget->Has( *retVal );
     return true;
 }
 */
@@ -578,7 +578,7 @@ void ActiveXObject::Get( const std::wstring& propName, JS::MutableHandleValue vp
     EXCEPINFO exception = { 0 };
     UINT argerr = 0;
 
-    HRESULT hresult = pDispatch_->Invoke( dispRet.value(),
+    HRESULT hresult = pDispatch_->Invoke( *dispRet,
                                           IID_NULL,
                                           LOCALE_USER_DEFAULT,
                                           DISPATCH_PROPERTYGET,
@@ -623,7 +623,7 @@ void ActiveXObject::Get( JS::CallArgs& callArgs )
     UINT argerr = 0;
 
     // don't use DispInvoke, because we don't know the TypeInfo
-    HRESULT hresult = pDispatch_->Invoke( dispRet.value(),
+    HRESULT hresult = pDispatch_->Invoke( *dispRet,
                                           IID_NULL,
                                           LOCALE_USER_DEFAULT,
                                           DISPATCH_PROPERTYGET,
@@ -668,7 +668,7 @@ void ActiveXObject::Set( const std::wstring& propName, JS::HandleValue v )
     EXCEPINFO exception = { 0 };
     UINT argerr = 0;
 
-    HRESULT hresult = pDispatch_->Invoke( dispRet.value(),
+    HRESULT hresult = pDispatch_->Invoke( *dispRet,
                                           IID_NULL,
                                           LOCALE_USER_DEFAULT,
                                           flag,
@@ -721,7 +721,7 @@ void ActiveXObject::Set( const JS::CallArgs& callArgs )
     }
 
     // don't use DispInvoke, because we don't know the TypeInfo
-    HRESULT hresult = pDispatch_->Invoke( dispRet.value(),
+    HRESULT hresult = pDispatch_->Invoke( *dispRet,
                                           IID_NULL,
                                           LOCALE_USER_DEFAULT,
                                           flag,
@@ -767,7 +767,7 @@ void ActiveXObject::Invoke( const std::wstring& funcName, const JS::CallArgs& ca
     UINT argerr = 0;
 
     // don't use DispInvoke, because we don't know the TypeInfo
-    HRESULT hresult = pDispatch_->Invoke( dispRet.value(),
+    HRESULT hresult = pDispatch_->Invoke( *dispRet,
                                           IID_NULL,
                                           LOCALE_USER_DEFAULT,
                                           DISPATCH_METHOD,

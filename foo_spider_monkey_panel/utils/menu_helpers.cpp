@@ -48,7 +48,7 @@ bool match_menu_command( const std::u8string& path, const std::u8string& command
     return ( ( path[pathLen - commandLen - 1] == '/' ) && !_stricmp( path.c_str() + pathLen - commandLen, command.c_str() ) );
 }
 
-std::optional<contextmenu_node*> find_context_command_recur( const std::u8string& p_command, std::u8string& basePath, contextmenu_node* p_parent )
+contextmenu_node* find_context_command_recur( const std::u8string& p_command, std::u8string& basePath, contextmenu_node* p_parent )
 {
     assert( p_parent && p_parent->get_type() == contextmenu_item_node::TYPE_POPUP );
      
@@ -88,7 +88,7 @@ std::optional<contextmenu_node*> find_context_command_recur( const std::u8string
         }
     }
 
-    return std::nullopt;
+    return nullptr;
 }
 
 /// @throw pfc::exception
@@ -114,9 +114,9 @@ bool execute_context_command_by_name_unsafe( const std::u8string& name, const me
 
     std::u8string emptyPath;
     if ( auto retVal = find_context_command_recur( name, emptyPath, pRoot );
-         retVal && retVal.value() )
+         retVal )
     {
-        retVal.value()->execute();
+        retVal->execute();
         return true;
     }
 
@@ -162,7 +162,7 @@ std::u8string generate_mainmenu_command_path( const GuidMenuMap& group_guid_map,
     return path;
 }
 
-std::optional<mainmenu_node::ptr> find_mainmenu_command_v2_node_recur( mainmenu_node::ptr node, const std::u8string& basePath, const std::u8string& name )
+mainmenu_node::ptr find_mainmenu_command_v2_node_recur( mainmenu_node::ptr node, const std::u8string& basePath, const std::u8string& name )
 {
     assert( node.is_valid() );
 
@@ -170,7 +170,7 @@ std::optional<mainmenu_node::ptr> find_mainmenu_command_v2_node_recur( mainmenu_
 
     if ( mainmenu_node::type_separator == node->get_type() )
     {
-        return std::nullopt;
+        return mainmenu_node::ptr{};
     }
 
     pfc::string8_fast displayName;
@@ -202,7 +202,7 @@ std::optional<mainmenu_node::ptr> find_mainmenu_command_v2_node_recur( mainmenu_
         {
             mainmenu_node::ptr child = node->get_child( i );
             if ( auto retVal = find_mainmenu_command_v2_node_recur( child, curPath, name );
-                 retVal )
+                 retVal.is_valid() )
             {
                 return retVal;
             }
@@ -215,7 +215,7 @@ std::optional<mainmenu_node::ptr> find_mainmenu_command_v2_node_recur( mainmenu_
     }
     }
 
-    return std::nullopt;
+    return mainmenu_node::ptr{};
 }
 
 /// @throw pfc::exception
@@ -238,9 +238,9 @@ bool ApplyFnOnMainmenuNode( const std::u8string& name, F_New fnNew, F_Old fnOld 
                 mainmenu_node::ptr node = mmc_v2->dynamic_instantiate( idx );
 
                 if ( auto retVal = find_mainmenu_command_v2_node_recur( node, path, name );
-                     retVal && retVal->is_valid() )
+                     retVal.is_valid() )
                 {
-                    fnNew( retVal.value() );
+                    fnNew( retVal );
                     return true;
                 }
 
