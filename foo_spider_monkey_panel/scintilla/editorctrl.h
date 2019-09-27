@@ -3,12 +3,13 @@
 // The License.txt file describes the conditions under which this software may be distributed.
 #pragma once
 
-#include "wtlscintilla.h"
 #include "user_message.h"
+#include "wtlscintilla.h"
 
 #include <nonstd/span.hpp>
-#include <set>
+
 #include <optional>
+#include <set>
 
 namespace scintilla
 {
@@ -21,13 +22,12 @@ class CScriptEditorCtrl : public CScintillaCtrl
 public:
     CScriptEditorCtrl() = default;
 
-    // Message map and handlers
     BEGIN_MSG_MAP( CScriptEditorCtrl )
-    MESSAGE_HANDLER( WM_KEYDOWN, OnKeyDown )
-    REFLECTED_NOTIFY_CODE_HANDLER_EX( SCN_UPDATEUI, OnUpdateUI )
-    REFLECTED_NOTIFY_CODE_HANDLER_EX( SCN_CHARADDED, OnCharAdded )
-    REFLECTED_NOTIFY_CODE_HANDLER_EX( SCN_ZOOM, OnZoom )
-    REFLECTED_COMMAND_CODE_HANDLER_EX( SCEN_CHANGE, OnChange )
+        MESSAGE_HANDLER( WM_KEYDOWN, OnKeyDown )
+        REFLECTED_NOTIFY_CODE_HANDLER_EX( SCN_UPDATEUI, OnUpdateUI )
+        REFLECTED_NOTIFY_CODE_HANDLER_EX( SCN_CHARADDED, OnCharAdded )
+        REFLECTED_NOTIFY_CODE_HANDLER_EX( SCN_ZOOM, OnZoom )
+        REFLECTED_COMMAND_CODE_HANDLER_EX( SCEN_CHANGE, OnChange )
     END_MSG_MAP()
 
     LRESULT OnKeyDown( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled );

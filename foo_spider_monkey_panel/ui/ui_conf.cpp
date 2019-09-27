@@ -1,13 +1,13 @@
 #include <stdafx.h>
+
 #include "ui_conf.h"
 
 #include <ui/ui_goto.h>
-#include <ui/ui_find.h>
-#include <ui/ui_replace.h>
-#include <utils/scope_helpers.h>
 #include <utils/file_helpers.h>
-#include <js_panel_window.h>
+#include <utils/scope_helpers.h>
+
 #include <component_paths.h>
+#include <js_panel_window.h>
 
 namespace
 {
@@ -29,7 +29,8 @@ namespace smp::ui
 {
 
 CDialogConf::CDialogConf( smp::panel::js_panel_window* p_parent )
-    : m_parent( p_parent )
+    : CScintillaFindReplaceImpl( m_editorctrl )
+    , m_parent( p_parent )
 {
 }
 
@@ -209,23 +210,12 @@ bool CDialogConf::MatchShortcuts( unsigned vk )
         {
         case 'F':
         {
-            OpenFindDialog();
+            FindReplace( true );
             return true;
         }
         case 'H':
         {
-            if ( !m_dlgreplace )
-            {
-                m_dlgreplace = new CDialogReplace( GetDlgItem( IDC_EDIT ) );
-                if ( !m_dlgreplace || !m_dlgreplace->Create( m_hWnd ) )
-                {
-                    break;
-                }
-            }
-
-            m_dlgreplace->ShowWindow( SW_SHOW );
-            m_dlgreplace->SetFocus();
-
+            FindReplace( false );
             return true;
         }
         case 'G':
@@ -247,14 +237,13 @@ bool CDialogConf::MatchShortcuts( unsigned vk )
     {
         if ( vk == VK_F3 )
         {
-            // Find next one
-            if ( !m_lastSearchText.empty() )
+            if ( HasFindText() )
             {
-                FindNext( m_hWnd, m_editorctrl.m_hWnd, m_lastFlags, m_lastSearchText.c_str() );
+                FindNext();
             }
             else
             {
-                OpenFindDialog();
+                FindReplace( true );
             }
         }
     }
@@ -262,14 +251,13 @@ bool CDialogConf::MatchShortcuts( unsigned vk )
     {
         if ( vk == VK_F3 )
         {
-            // Find previous one
-            if ( !m_lastSearchText.empty() )
+            if ( HasFindText() )
             {
-                FindPrevious( m_hWnd, m_editorctrl.m_hWnd, m_lastFlags, m_lastSearchText.c_str() );
+                FindPrevious();
             }
             else
             {
-                OpenFindDialog();
+                FindReplace( true );
             }
         }
     }
@@ -375,57 +363,6 @@ LRESULT CDialogConf::OnAbout( WORD, WORD, HWND )
 {
     (void)uMessageBox( m_hWnd, SMP_ABOUT, "About Spider Monkey Panel", MB_SETFOREGROUND );
     return 0;
-}
-
-LRESULT CDialogConf::OnUwmFindTextChanged( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled )
-{
-    m_lastFlags = wParam;
-    m_lastSearchText = reinterpret_cast<const char*>( lParam );
-    return 0;
-}
-
-bool CDialogConf::FindNext( HWND hWnd, HWND hWndEdit, unsigned flags, const char* which )
-{
-    ::SendMessage( ::GetAncestor( hWndEdit, GA_PARENT ), static_cast<UINT>( smp::MiscMessage::find_text_changed ), flags, reinterpret_cast<LPARAM>( which ) );
-
-    SendMessage( hWndEdit, SCI_CHARRIGHT, 0, 0 );
-    SendMessage( hWndEdit, SCI_SEARCHANCHOR, 0, 0 );
-    int pos = ::SendMessage( hWndEdit, SCI_SEARCHNEXT, flags, reinterpret_cast<LPARAM>( which ) );
-    return FindResult( hWnd, hWndEdit, pos, which );
-}
-
-bool CDialogConf::FindPrevious( HWND hWnd, HWND hWndEdit, unsigned flags, const char* which )
-{
-    ::SendMessage( ::GetAncestor( hWndEdit, GA_PARENT ), static_cast<UINT>( smp::MiscMessage::find_text_changed ), flags, reinterpret_cast<LPARAM>( which ) );
-
-    SendMessage( hWndEdit, SCI_SEARCHANCHOR, 0, 0 );
-    int pos = ::SendMessage( hWndEdit, SCI_SEARCHPREV, flags, reinterpret_cast<LPARAM>( which ) );
-    return FindResult( hWnd, hWndEdit, pos, which );
-}
-
-bool CDialogConf::FindResult( HWND hWnd, HWND hWndEdit, int pos, const char* which )
-{
-    if ( pos != -1 )
-    { // Scroll to view
-        ::SendMessage( hWndEdit, SCI_SCROLLCARET, 0, 0 );
-        return true;
-    }
-
-    const auto msg = fmt::format( "Cannot find \"{}\"", which );
-    (void)uMessageBox( hWnd, msg.c_str(), SMP_NAME, MB_ICONINFORMATION | MB_SETFOREGROUND );
-    return false;
-}
-
-void CDialogConf::OpenFindDialog()
-{
-    if ( !m_dlgfind )
-    { // Create it on request.
-        m_dlgfind = new CDialogFind( GetDlgItem( IDC_EDIT ) );
-        m_dlgfind->Create( m_hWnd );
-    }
-
-    m_dlgfind->ShowWindow( SW_SHOW );
-    m_dlgfind->SetFocus();
 }
 
 } // namespace smp::ui

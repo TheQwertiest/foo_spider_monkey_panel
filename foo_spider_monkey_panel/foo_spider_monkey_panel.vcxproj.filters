@@ -163,13 +163,7 @@
     <ClCompile Include="ui\ui_property.cpp">
       <Filter>ui</Filter>
     </ClCompile>
-    <ClCompile Include="ui\ui_replace.cpp">
-      <Filter>ui</Filter>
-    </ClCompile>
     <ClCompile Include="ui\ui_conf.cpp">
-      <Filter>ui</Filter>
-    </ClCompile>
-    <ClCompile Include="ui\ui_find.cpp">
       <Filter>ui</Filter>
     </ClCompile>
     <ClCompile Include="ui\ui_goto.cpp">
@@ -321,6 +315,9 @@
     </ClCompile>
     <ClCompile Include="utils\unicode.cpp">
       <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\ui_find_replace.cpp">
+      <Filter>ui</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -510,13 +507,7 @@
     <ClInclude Include="ui\ui_property.h">
       <Filter>ui</Filter>
     </ClInclude>
-    <ClInclude Include="ui\ui_replace.h">
-      <Filter>ui</Filter>
-    </ClInclude>
     <ClInclude Include="ui\ui_conf.h">
-      <Filter>ui</Filter>
-    </ClInclude>
-    <ClInclude Include="ui\ui_find.h">
       <Filter>ui</Filter>
     </ClInclude>
     <ClInclude Include="ui\ui_goto.h">
@@ -704,6 +695,9 @@
     </ClInclude>
     <ClInclude Include="utils\unicode.h">
       <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="ui\ui_find_replace.h">
+      <Filter>ui</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

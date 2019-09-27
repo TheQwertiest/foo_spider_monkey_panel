@@ -42,6 +42,7 @@ using std::max;
 #include <atlctrls.h>
 #include <atlddx.h>
 #include <atldlgs.h>
+#include <atlfind.h>
 #include <atlframe.h>
 #include <atltheme.h>
 #include <atltypes.h>

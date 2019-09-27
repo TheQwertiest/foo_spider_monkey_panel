@@ -183,7 +183,7 @@
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="ui\ui_conf.cpp" />
-    <ClCompile Include="ui\ui_find.cpp" />
+    <ClCompile Include="ui\ui_find_replace.cpp" />
     <ClCompile Include="ui\ui_goto.cpp" />
     <ClCompile Include="ui\ui_html.cpp">
       <MultiProcessorCompilation>false</MultiProcessorCompilation>
@@ -192,7 +192,6 @@
     <ClCompile Include="ui\ui_name_value_edit.cpp" />
     <ClCompile Include="ui\ui_pref.cpp" />
     <ClCompile Include="ui\ui_property.cpp" />
-    <ClCompile Include="ui\ui_replace.cpp" />
     <ClCompile Include="ui\ui_slow_script.cpp" />
     <ClCompile Include="utils\art_helpers.cpp" />
     <ClCompile Include="utils\com_error_helpers.cpp" />
@@ -308,14 +307,13 @@
     <ClInclude Include="stats.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="ui\ui_conf.h" />
-    <ClInclude Include="ui\ui_find.h" />
+    <ClInclude Include="ui\ui_find_replace.h" />
     <ClInclude Include="ui\ui_goto.h" />
     <ClInclude Include="ui\ui_html.h" />
     <ClInclude Include="ui\ui_input_box.h" />
     <ClInclude Include="ui\ui_name_value_edit.h" />
     <ClInclude Include="ui\ui_pref.h" />
     <ClInclude Include="ui\ui_property.h" />
-    <ClInclude Include="ui\ui_replace.h" />
     <ClInclude Include="ui\ui_slow_script.h" />
     <ClInclude Include="user_message.h" />
     <ClInclude Include="utils\acfu_github.h" />

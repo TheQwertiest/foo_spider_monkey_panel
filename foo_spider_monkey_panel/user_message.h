@@ -87,8 +87,7 @@ enum class InternalSyncMessage : UINT
 /// @brief Message definitions that are not handled by the main panel window
 enum class MiscMessage : UINT
 {
-    find_text_changed = static_cast<int>( InternalSyncMessage::last_message ) + 1,
-    heartbeat,
+    heartbeat = static_cast<int>( InternalSyncMessage::last_message ) + 1,
     key_down,
     run_task_async,
     size_limit_changed
