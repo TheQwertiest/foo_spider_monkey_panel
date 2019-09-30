@@ -3,8 +3,10 @@
 // The License.txt file describes the conditions under which this software may be distributed.
 #pragma once
 
-#include "user_message.h"
-#include "wtlscintilla.h"
+#include <scintilla/wtlscintilla.h>
+#include <ui/ui_find_replace.h>
+
+#include <user_message.h>
 
 #include <nonstd/span.hpp>
 
@@ -17,12 +19,15 @@ namespace scintilla
 // forward declaration
 struct ScintillaProp;
 
-class CScriptEditorCtrl : public CScintillaCtrl
+class CScriptEditorCtrl
+    : public CScintillaCtrl
+    , public smp::ui::CScintillaFindReplaceImpl<CScriptEditorCtrl>
 {
 public:
-    CScriptEditorCtrl() = default;
+    CScriptEditorCtrl();
 
     BEGIN_MSG_MAP( CScriptEditorCtrl )
+        CHAIN_MSG_MAP_ALT( CScintillaFindReplaceImpl<CScriptEditorCtrl>, 1 )
         MESSAGE_HANDLER( WM_KEYDOWN, OnKeyDown )
         REFLECTED_NOTIFY_CODE_HANDLER_EX( SCN_UPDATEUI, OnUpdateUI )
         REFLECTED_NOTIFY_CODE_HANDLER_EX( SCN_CHARADDED, OnCharAdded )
@@ -35,6 +40,8 @@ public:
     LRESULT OnCharAdded( LPNMHDR pnmh );
     LRESULT OnZoom( LPNMHDR pnmn );
     LRESULT OnChange( UINT uNotifyCode, int nID, HWND wndCtl );
+
+    bool ProcessKey( uint32_t vk );
 
     void ReadAPI();
     void SetJScript();

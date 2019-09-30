@@ -319,6 +319,9 @@
     <ClCompile Include="ui\ui_find_replace.cpp">
       <Filter>ui</Filter>
     </ClCompile>
+    <ClCompile Include="utils\hook_handler.cpp">
+      <Filter>utils</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="js_engine\js_engine.h">
@@ -698,6 +701,9 @@
     </ClInclude>
     <ClInclude Include="ui\ui_find_replace.h">
       <Filter>ui</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\hook_handler.h">
+      <Filter>utils</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -200,6 +200,7 @@
     <ClCompile Include="utils\file_helpers.cpp" />
     <ClCompile Include="utils\gdi_error_helpers.cpp" />
     <ClCompile Include="utils\gdi_helpers.cpp" />
+    <ClCompile Include="utils\hook_handler.cpp" />
     <ClCompile Include="utils\image_helpers.cpp" />
     <ClCompile Include="utils\kmeans.cpp" />
     <ClCompile Include="utils\location_processor.cpp" />
@@ -325,6 +326,7 @@
     <ClInclude Include="utils\file_helpers.h" />
     <ClInclude Include="utils\gdi_error_helpers.h" />
     <ClInclude Include="utils\gdi_helpers.h" />
+    <ClInclude Include="utils\hook_handler.h" />
     <ClInclude Include="utils\image_helpers.h" />
     <ClInclude Include="utils\kmeans.h" />
     <ClInclude Include="utils\location_processor.h" />

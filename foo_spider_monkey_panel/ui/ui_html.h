@@ -143,7 +143,7 @@ private:
     void ParseOptions( JS::HandleValue options );
     void SetOptions();
 
-    static LRESULT CALLBACK GetMsgProc( int code, WPARAM wParam, LPARAM lParam );
+    static void GetMsgProc( int code, WPARAM wParam, LPARAM lParam, HWND hParent, CDialogHtml* pParent );
 
 private:
     JSContext* pJsCtx_ = nullptr;
@@ -169,12 +169,7 @@ private:
 
     IDocHostUIHandlerPtr pDefaultUiHandler_;
     IOleInPlaceActiveObjectPtr pOleInPlaceHandler_;
-    HHOOK hMsgHook_ = nullptr;
-    static struct
-    {
-        HWND hIE = nullptr;
-        CDialogHtml* pThis = nullptr;
-    } lastUsedWndData_;
+    uint32_t hookId_ = 0;
 };
 
 } // namespace smp::ui

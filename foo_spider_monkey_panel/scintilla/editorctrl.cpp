@@ -1,15 +1,18 @@
 #include <stdafx.h>
+
 #include "editorctrl.h"
+
 #include "scintilla_prop_sets.h"
 
+#include <ui/ui_goto.h>
 #include <utils/colour_helpers.h>
 #include <utils/file_helpers.h>
 #include <utils/string_helpers.h>
 
 #include <component_paths.h>
 
-#include <optional>
 #include <charconv>
+#include <optional>
 
 using namespace scintilla;
 
@@ -89,7 +92,7 @@ bool IsCSym( int ch )
 
 DWORD GetColourFromHex( std::u8string_view hex )
 {
-	// Value format: #XXXXXX
+    // Value format: #XXXXXX
     if ( hex.size() != 7 )
     {
         return 0;
@@ -264,11 +267,16 @@ bool CScriptEditorCtrl::KeyWordComparator::operator()( const std::u8string& a, c
     }
 }
 
+CScriptEditorCtrl::CScriptEditorCtrl()
+    : smp::ui::CScintillaFindReplaceImpl<CScriptEditorCtrl>( *this )
+{
+}
+
 LRESULT CScriptEditorCtrl::OnKeyDown( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled )
 {
-    bHandled = FALSE;
-    ::PostMessage( ::GetAncestor( m_hWnd, GA_PARENT ), static_cast<UINT>( smp::MiscMessage::key_down ), wParam, lParam );
-    return TRUE;
+    bHandled = false;
+    (void)::PostMessage( ::GetAncestor( m_hWnd, GA_PARENT ), static_cast<UINT>( smp::MiscMessage::key_down ), wParam, lParam );
+    return 1;
 }
 
 LRESULT CScriptEditorCtrl::OnUpdateUI( LPNMHDR pnmn )
@@ -382,6 +390,69 @@ LRESULT CScriptEditorCtrl::OnChange( UINT uNotifyCode, int nID, HWND wndCtl )
     AutoMarginWidth();
 
     return 0;
+}
+
+bool CScriptEditorCtrl::ProcessKey( uint32_t vk )
+{
+    const int modifiers = ( IsKeyPressed( VK_SHIFT ) ? SCMOD_SHIFT : 0 )
+                          | ( IsKeyPressed( VK_CONTROL ) ? SCMOD_CTRL : 0 )
+                          | ( IsKeyPressed( VK_MENU ) ? SCMOD_ALT : 0 );
+
+    // Hotkeys
+    if ( modifiers == SCMOD_CTRL )
+    {
+        switch ( vk )
+        {
+        case 'F':
+        {
+            FindReplace( true );
+        }
+        case 'H':
+        {
+            FindReplace( false );
+            return true;
+        }
+        case 'G':
+        {
+            modal_dialog_scope scope( m_hWnd );
+            smp::ui::CDialogGoto dlg( m_hWnd );
+            dlg.DoModal( m_hWnd );
+            return true;
+        }
+        }
+    }
+    else if ( modifiers == 0 )
+    {
+        if ( vk == VK_F3 )
+        {
+            if ( HasFindText() )
+            {
+                FindNext();
+            }
+            else
+            {
+                FindReplace( true );
+            }
+            return true;
+        }
+    }
+    else if ( modifiers == SCMOD_SHIFT )
+    {
+        if ( vk == VK_F3 )
+        {
+            if ( HasFindText() )
+            {
+                FindPrevious();
+            }
+            else
+            {
+                FindReplace( true );
+            }
+            return true;
+        }
+    }
+
+    return false;
 }
 
 void CScriptEditorCtrl::ReadAPI()
@@ -830,7 +901,7 @@ bool CScriptEditorCtrl::StartAutoComplete()
             wordBuffer.remove_prefix( std::distance( it, wordBuffer.crend() ) );
         }
 
-		return wordBuffer;
+        return wordBuffer;
     }();
 
     const auto acWordsRet = GetNearestWords( word, '(' );
@@ -1087,7 +1158,7 @@ void CScriptEditorCtrl::Init()
     }
 
     // Disable Ctrl+Shift+some char
-    for ( auto code: ranges::view::indices(48, 122) )
+    for ( auto code: ranges::view::indices( 48, 122 ) )
     {
         ClearCmdKey( MAKELONG( code, SCMOD_CTRL | SCMOD_SHIFT ) );
     }

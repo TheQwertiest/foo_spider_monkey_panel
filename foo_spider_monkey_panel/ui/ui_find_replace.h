@@ -1,8 +1,11 @@
 #pragma once
 
-#include <scintilla/editorctrl.h>
-
 #include <resource.h>
+
+namespace scintilla
+{
+class CScriptEditorCtrl;
+}
 
 namespace smp::ui
 {
@@ -31,19 +34,25 @@ class CCustomFindReplaceDlg
 protected:
     BEGIN_MSG_MAP( CCustomFindReplaceDlg )
         MESSAGE_HANDLER( WM_INITDIALOG, OnInitDialog )
+        MESSAGE_HANDLER( WM_DESTROY, OnDestroy )
         COMMAND_HANDLER( IDC_CHECK_USE_REGEXP, BN_CLICKED, OnUseRegExpClick )
+        CHAIN_MSG_MAP( CFindReplaceDialog )
     END_MSG_MAP()
 
     CCustomFindReplaceDlg( bool useRegExp );
 
     LRESULT OnInitDialog( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled );
+    LRESULT OnDestroy( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled );
     LRESULT OnUseRegExpClick( WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL bHandled );
+
+    static void GetMsgProc( int code, WPARAM wParam, LPARAM lParam, HWND hParent, CCustomFindReplaceDlg* pParent );
 
 public:
     bool GetRegExpState() const;
     void SetRegExpState( bool newState );
 
 private:
+    uint32_t hookId_ = 0;
     bool useRegExp_ = false;
 };
 
@@ -59,11 +68,6 @@ protected:
         ALT_MSG_MAP( 1 )
         CHAIN_MSG_MAP_ALT( BaseClass, 1 )
     END_MSG_MAP()
-
-    LRESULT ForwardMessageToScintilla( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled )
-    {
-        return ::SendMessage( hEdit_, uMsg, wParam, lParam );
-    }
 
 public:
     CScintillaFindReplaceImpl( scintilla::CScriptEditorCtrl& sciEditor )
@@ -162,16 +166,16 @@ public:
 
     void ReplaceSel( const CString& newText )
     {
-        sciEditor_.ReplaceSel( smp::unicode::ToU8( static_cast<const wchar_t*>( newText ) ).c_str() );
+        sciEditor_.ReplaceSelection( smp::unicode::ToU8( static_cast<const wchar_t*>( newText ) ).c_str() );
     }
 
     LONG GetSelText( CString& strText ) const
     {
-        const size_t textSize = static_cast<size_t>( sciEditor_.GetSelText( nullptr ) );
+        const size_t textSize = static_cast<size_t>( sciEditor_.GetSelectedText( nullptr ) );
 
         std::u8string text;
         text.resize( textSize + 1 );
-        int iRet = sciEditor_.GetSelText( text.data() );
+        int iRet = sciEditor_.GetSelectedText( text.data() );
         text.resize( strlen( text.c_str() ) );
 
         strText = smp::unicode::ToWide( text ).c_str();
@@ -182,7 +186,7 @@ public:
     void HideSelection( BOOL bHide, BOOL bChangeStyle )
     {
         (void)bChangeStyle;
-        sciEditor_.HideSelection( bHide );
+        sciEditor_.ChangeSelectionColour( bHide );
     }
 
     POINT PosFromChar( UINT nChar ) const

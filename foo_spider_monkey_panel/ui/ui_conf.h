@@ -1,7 +1,6 @@
 #pragma once
 
 #include <scintilla/editorctrl.h>
-#include <ui/ui_find_replace.h>
 
 #include <resource.h>
 #include <user_message.h>
@@ -18,7 +17,6 @@ namespace smp::ui
 class CDialogConf
     : public CDialogImpl<CDialogConf>
     , public CDialogResize<CDialogConf>
-    , public CScintillaFindReplaceImpl<CDialogConf>
 {
 public:
     CDialogConf( smp::panel::js_panel_window* p_parent );
@@ -34,8 +32,6 @@ public:
     // TODO: add hook for KEYBOARD somewhere for CCustomEditFindReplaceDlg (e.g. ESC, Enter, TAB and etc)
 
     BEGIN_MSG_MAP( CDialogConf )
-        MESSAGE_HANDLER( EM_GETSEL, ForwardMessageToScintilla ) ///< TODO: move to CCustomEditFindReplaceDlg
-        CHAIN_MSG_MAP_ALT( CScintillaFindReplaceImpl<CDialogConf>, 1 )
         MSG_WM_INITDIALOG( OnInitDialog )
         MSG_WM_NOTIFY( OnNotify )
         MESSAGE_HANDLER( static_cast<UINT>( smp::MiscMessage::key_down ), OnUwmKeyDown )
@@ -76,13 +72,13 @@ public:
     LRESULT OnHelp( WORD wNotifyCode, WORD wID, HWND hWndCtl );
     LRESULT OnAbout( WORD wNotifyCode, WORD wID, HWND hWndCtl );
 
-    bool MatchShortcuts( unsigned vk );
+    bool ProcessKey( unsigned vk );
     void Apply();
 
 private:
     smp::panel::js_panel_window* m_parent = nullptr;
 
-    scintilla::CScriptEditorCtrl m_editorctrl;
+    scintilla::CScriptEditorCtrl sciEditor_;
     CMenu menu;
 
     std::u8string m_caption;

@@ -1,13 +1,15 @@
 #include <stdafx.h>
+
 #include "ui_html.h"
 
-#include <js_utils/js_property_helper.h>
+#include <com_objects/dispatch_ptr.h>
+#include <convert/com.h>
+#include <convert/js_to_native.h>
 #include <js_utils/js_error_helper.h>
+#include <js_utils/js_property_helper.h>
+#include <utils/hook_handler.h>
 #include <utils/scope_helpers.h>
 #include <utils/winapi_error_helpers.h>
-#include <com_objects/dispatch_ptr.h>
-#include <convert/js_to_native.h>
-#include <convert/com.h>
 
 #include <component_paths.h>
 
@@ -21,10 +23,6 @@
 namespace smp::ui
 {
 using namespace mozjs;
-
-// TODO: make the hook static and delete it only when all dialogs are closed (non-modal case)
-
-decltype( CDialogHtml::lastUsedWndData_ ) CDialogHtml::lastUsedWndData_;
 
 CDialogHtml::CDialogHtml( JSContext* cx, const std::wstring& htmlCodeOrPath, JS::HandleValue options )
     : pJsCtx_( cx )
@@ -49,11 +47,9 @@ LRESULT CDialogHtml::OnInitDialog( HWND hwndFocus, LPARAM lParam )
 
     SetOptions();
 
+    HWND hIE = static_cast<HWND>( GetDlgItem( IDC_IE ) );
     try
     {
-        HWND hIE = static_cast<HWND>( GetDlgItem( IDC_IE ) );
-        lastUsedWndData_.hIE = hIE;
-        lastUsedWndData_.pThis = this;
         CAxWindow wndIE = hIE;
 
         IObjectWithSitePtr pOWS = nullptr;
@@ -135,9 +131,10 @@ LRESULT CDialogHtml::OnInitDialog( HWND hwndFocus, LPARAM lParam )
         return -1;
     }
 
-    ::SetWindowLongPtr( m_hWnd, DWLP_USER, reinterpret_cast<LONG_PTR>( this ) );
-    hMsgHook_ = ::SetWindowsHookEx( WH_GETMESSAGE, GetMsgProc, NULL, ::GetCurrentThreadId() );
-    smp::error::CheckWinApi( hMsgHook_, "SetWindowsHookEx" );
+    hookId_ = smp::utils::HookHandler::GetInstance().RegisterHook(
+        [hIE, pThis = this]( int code, WPARAM wParam, LPARAM lParam ) {
+            GetMsgProc( code, wParam, lParam, hIE, pThis );
+        } );
 
     autoExit.cancel();
     return FALSE; // don't set focus to default control
@@ -145,11 +142,10 @@ LRESULT CDialogHtml::OnInitDialog( HWND hwndFocus, LPARAM lParam )
 
 LRESULT CDialogHtml::OnDestroyDialog()
 {
-    if ( hMsgHook_ )
+    if ( hookId_ )
     {
-        ::UnhookWindowsHookEx( hMsgHook_ );
-        lastUsedWndData_.hIE = nullptr;
-        lastUsedWndData_.pThis = nullptr;
+        smp::utils::HookHandler::GetInstance().UnregisterHook( hookId_ );
+        hookId_ = 0;
     }
 
     return 0;
@@ -428,7 +424,7 @@ STDMETHODIMP CDialogHtml::TranslateAccelerator( LPMSG lpMsg, const GUID* pguidCm
     {
         return pDefaultUiHandler_->TranslateAccelerator( lpMsg, pguidCmdGroup, nCmdID );
     }
-    else 
+    else
     {
         if ( WM_KEYDOWN == lpMsg->message && VK_ESCAPE == lpMsg->wParam )
         { // Restore default dialog behaviour
@@ -588,7 +584,7 @@ void CDialogHtml::SetOptions()
     }
 }
 
-LRESULT CALLBACK CDialogHtml::GetMsgProc( int code, WPARAM wParam, LPARAM lParam )
+void CDialogHtml::GetMsgProc( int code, WPARAM wParam, LPARAM lParam, HWND hParent, CDialogHtml* pParent )
 {
     if ( LPMSG pMsg = reinterpret_cast<LPMSG>( lParam );
          pMsg->message >= WM_KEYFIRST && pMsg->message <= WM_KEYLAST )
@@ -597,9 +593,9 @@ LRESULT CALLBACK CDialogHtml::GetMsgProc( int code, WPARAM wParam, LPARAM lParam
               tmpHwnd && ( ::GetWindowLong( tmpHwnd, GWL_STYLE ) & WS_CHILD );
               tmpHwnd = ::GetParent( tmpHwnd ) )
         {
-            if ( tmpHwnd == lastUsedWndData_.hIE )
+            if ( tmpHwnd == hParent )
             {
-                CDialogHtml* pThis = lastUsedWndData_.pThis;
+                CDialogHtml* pThis = pParent;
                 if ( pThis && pThis->pOleInPlaceHandler_ && S_OK == pThis->pOleInPlaceHandler_->TranslateAccelerator( pMsg ) )
                 {
                     pMsg->message = WM_NULL;
@@ -608,7 +604,6 @@ LRESULT CALLBACK CDialogHtml::GetMsgProc( int code, WPARAM wParam, LPARAM lParam
             }
         }
     }
-    return CallNextHookEx( nullptr, code, wParam, lParam );
 }
 
 } // namespace smp::ui

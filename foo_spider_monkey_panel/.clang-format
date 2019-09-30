@@ -39,7 +39,7 @@ IncludeCategories:
   - Regex:           '^<(atl.*\.h|jsapi\.h|jsfriendapi\.h)>'
     Priority:        5
   # <subdir/header.h>|<subdir/header.hpp>
-  - Regex:           '<[[:alnum:]_]+/[[:alnum:]_]+\.(h|hpp)>'
+  - Regex:           '<[[:alnum:]_]+/.+\.(h|hpp)>'
     Priority:        2
   # <header.h>|<header.hpp>
   - Regex:           '<[[:alnum:]_]+\.(h|hpp)>'

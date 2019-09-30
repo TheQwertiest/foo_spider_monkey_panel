@@ -74,7 +74,7 @@ public:
 		return GetLine(nLine, NULL);
 	}
 
-	void ReplaceSel(LPCSTR szText)
+	void ReplaceSelection(LPCSTR szText)
 	{
 		ATLASSERT(::IsWindow(this->m_hWnd));
 		::SendMessage(this->m_hWnd, SCI_REPLACESEL, 0, (LPARAM)szText);
@@ -576,13 +576,13 @@ public:
 		return ::SendMessage(this->m_hWnd, SCI_POINTYFROMPOSITION, 0, nPosition);
 	}
 
-	void HideSelection(bool bNormal)
+	void ChangeSelectionColour(bool bDisableSelColour)
 	{
 		ATLASSERT(::IsWindow(this->m_hWnd));
-		::SendMessage(this->m_hWnd, SCI_HIDESELECTION, bNormal, 0L);
+        ::SendMessage( this->m_hWnd, SCI_HIDESELECTION, bDisableSelColour, 0L );
 	}
 
-	int GetSelText(LPSTR szText) const
+	int GetSelectedText(LPSTR szText) const
 	{
 		ATLASSERT(::IsWindow(this->m_hWnd));
 		return ::SendMessage(this->m_hWnd, SCI_GETSELTEXT, 0, (LPARAM)szText);

@@ -29,8 +29,7 @@ namespace smp::ui
 {
 
 CDialogConf::CDialogConf( smp::panel::js_panel_window* p_parent )
-    : CScintillaFindReplaceImpl( m_editorctrl )
-    , m_parent( p_parent )
+    : m_parent( p_parent )
 {
 }
 
@@ -65,12 +64,12 @@ LRESULT CDialogConf::OnInitDialog( HWND hwndFocus, LPARAM lParam )
     uSetWindowText( GetDlgItem( IDC_STATIC_GUID ), guid_text.c_str() );
 
     // Edit Control
-    m_editorctrl.SubclassWindow( GetDlgItem( IDC_EDIT ) );
-    m_editorctrl.SetScintillaSettings();
-    m_editorctrl.SetJScript();
-    m_editorctrl.ReadAPI();
-    m_editorctrl.SetContent( m_parent->get_script_code().c_str(), true );
-    m_editorctrl.SetSavePoint();
+    sciEditor_.SubclassWindow( GetDlgItem( IDC_EDIT ) );
+    sciEditor_.SetScintillaSettings();
+    sciEditor_.SetJScript();
+    sciEditor_.ReadAPI();
+    sciEditor_.SetContent( m_parent->get_script_code().c_str(), true );
+    sciEditor_.SetSavePoint();
 
     // Edge Style
     if ( m_parent->GetPanelType() == smp::panel::PanelType::DUI
@@ -118,7 +117,7 @@ LRESULT CDialogConf::OnCloseCmd( WORD wNotifyCode, WORD wID, HWND hWndCtl )
     }
     case IDCANCEL:
     {
-        if ( m_editorctrl.GetModify() )
+        if ( sciEditor_.GetModify() )
         {
             const int ret = uMessageBox( m_hWnd, "Do you want to apply your changes?", m_caption.c_str(), MB_ICONWARNING | MB_SETFOREGROUND | MB_YESNOCANCEL );
             switch ( ret )
@@ -148,8 +147,8 @@ LRESULT CDialogConf::OnCloseCmd( WORD wNotifyCode, WORD wID, HWND hWndCtl )
 void CDialogConf::Apply()
 {
     // Get script text
-    std::vector<char> code( m_editorctrl.GetTextLength() + 1 );
-    m_editorctrl.GetText( code.data(), code.size() );
+    std::vector<char> code( sciEditor_.GetTextLength() + 1 );
+    sciEditor_.GetText( code.data(), code.size() );
 
     if ( menu.GetMenuState( ID_EDGESTYLE_NONE, MF_BYCOMMAND ) & MF_CHECKED )
     {
@@ -172,7 +171,7 @@ void CDialogConf::Apply()
     GetWindowPlacement( &m_parent->get_windowplacement() );
 
     // Save point
-    m_editorctrl.SetSavePoint();
+    sciEditor_.SetSavePoint();
 }
 
 LRESULT CDialogConf::OnNotify( int idCtrl, LPNMHDR pnmh )
@@ -197,68 +196,22 @@ LRESULT CDialogConf::OnNotify( int idCtrl, LPNMHDR pnmh )
     return 0;
 }
 
-bool CDialogConf::MatchShortcuts( unsigned vk )
+bool CDialogConf::ProcessKey( uint32_t vk )
 {
-    int modifiers = ( IsKeyPressed( VK_SHIFT ) ? SCMOD_SHIFT : 0 )
-                    | ( IsKeyPressed( VK_CONTROL ) ? SCMOD_CTRL : 0 )
-                    | ( IsKeyPressed( VK_MENU ) ? SCMOD_ALT : 0 );
+    const int modifiers = ( IsKeyPressed( VK_SHIFT ) ? SCMOD_SHIFT : 0 )
+                          | ( IsKeyPressed( VK_CONTROL ) ? SCMOD_CTRL : 0 )
+                          | ( IsKeyPressed( VK_MENU ) ? SCMOD_ALT : 0 );
 
     // Hotkeys
     if ( modifiers == SCMOD_CTRL )
     {
         switch ( vk )
         {
-        case 'F':
-        {
-            FindReplace( true );
-            return true;
-        }
-        case 'H':
-        {
-            FindReplace( false );
-            return true;
-        }
-        case 'G':
-        {
-            modal_dialog_scope scope( m_hWnd );
-            CDialogGoto dlg( GetDlgItem( IDC_EDIT ) );
-            dlg.DoModal( m_hWnd );
-
-            return true;
-        }
         case 'S':
         {
             Apply();
             return true;
         }
-        }
-    }
-    else if ( modifiers == 0 )
-    {
-        if ( vk == VK_F3 )
-        {
-            if ( HasFindText() )
-            {
-                FindNext();
-            }
-            else
-            {
-                FindReplace( true );
-            }
-        }
-    }
-    else if ( modifiers == SCMOD_SHIFT )
-    {
-        if ( vk == VK_F3 )
-        {
-            if ( HasFindText() )
-            {
-                FindPrevious();
-            }
-            else
-            {
-                FindReplace( true );
-            }
         }
     }
 
@@ -267,7 +220,9 @@ bool CDialogConf::MatchShortcuts( unsigned vk )
 
 LRESULT CDialogConf::OnUwmKeyDown( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled )
 {
-    return MatchShortcuts( wParam );
+    const uint32_t vk = (uint32_t)wParam;
+    bHandled = ( ProcessKey( vk ) || sciEditor_.ProcessKey( vk ) );
+    return ( bHandled ? 0 : 1 );
 }
 
 LRESULT CDialogConf::OnFileSave( WORD, WORD, HWND )
@@ -287,7 +242,7 @@ LRESULT CDialogConf::OnFileImport( WORD, WORD, HWND )
     try
     {
         const auto text = smp::file::ReadFile( filename, CP_UTF8 );
-        m_editorctrl.SetContent( text.c_str() );
+        sciEditor_.SetContent( text.c_str() );
     }
     catch ( const smp::SmpException& e )
     {
@@ -307,9 +262,9 @@ LRESULT CDialogConf::OnFileExport( WORD, WORD, HWND )
     }
 
     std::u8string text;
-    text.resize( m_editorctrl.GetTextLength() + 1 );
+    text.resize( sciEditor_.GetTextLength() + 1 );
 
-    m_editorctrl.GetText( text.data(), text.size() );
+    sciEditor_.GetText( text.data(), text.size() );
     text.resize( strlen( text.data() ) );
 
     (void)smp::file::WriteFile( filename.c_str(), text );
@@ -319,7 +274,7 @@ LRESULT CDialogConf::OnFileExport( WORD, WORD, HWND )
 
 LRESULT CDialogConf::OnEditResetDefault( WORD, WORD, HWND )
 {
-    m_editorctrl.SetContent( smp::config::PanelSettings::get_default_script_code().c_str() );
+    sciEditor_.SetContent( smp::config::PanelSettings::get_default_script_code().c_str() );
     return 0;
 }
 
