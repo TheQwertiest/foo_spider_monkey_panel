@@ -43,7 +43,7 @@ protected:
     LRESULT OnDestroy( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled );
     LRESULT OnUseRegExpClick( WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL bHandled );
 
-    static void GetMsgProc( int code, WPARAM wParam, LPARAM lParam, HWND hParent, CCustomFindReplaceDlg* pParent );
+    static void GetMsgProc( int code, WPARAM wParam, LPARAM lParam, HWND hParent );
 
 public:
     bool GetRegExpState() const;

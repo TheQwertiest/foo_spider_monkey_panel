@@ -59,8 +59,8 @@ LRESULT CCustomFindReplaceDlg::OnInitDialog( UINT uMsg, WPARAM wParam, LPARAM lP
     uButton_SetCheck( m_hWnd, IDC_CHECK_USE_REGEXP, useRegExp_ );
 
     hookId_ = smp::utils::HookHandler::GetInstance().RegisterHook(
-        [hParent = m_hWnd, pThis = this]( int code, WPARAM wParam, LPARAM lParam ) {
-            GetMsgProc( code, wParam, lParam, hParent, pThis );
+        [hParent = m_hWnd]( int code, WPARAM wParam, LPARAM lParam ) {
+            GetMsgProc( code, wParam, lParam, hParent );
         } );
 
     return 0;
@@ -83,15 +83,15 @@ LRESULT CCustomFindReplaceDlg::OnUseRegExpClick( WORD wNotifyCode, WORD wID, HWN
     return 0;
 }
 
-void CCustomFindReplaceDlg::GetMsgProc( int code, WPARAM wParam, LPARAM lParam, HWND hParent, CCustomFindReplaceDlg* pParent )
+void CCustomFindReplaceDlg::GetMsgProc( int code, WPARAM wParam, LPARAM lParam, HWND hParent )
 {
     if ( LPMSG pMsg = reinterpret_cast<LPMSG>( lParam );
          pMsg->message >= WM_KEYFIRST && pMsg->message <= WM_KEYLAST )
     { // Only react to keypress events
         HWND hWndFocus = ::GetFocus();
-        if ( hWndFocus != nullptr && ( ( hParent == hWndFocus ) || pParent->IsChild( hWndFocus ) ) )
+        if ( hWndFocus != nullptr && ( ( hParent == hWndFocus ) || ::IsChild( hParent, hWndFocus ) ) )
         {
-            if ( pParent->IsDialogMessage( pMsg ) )
+            if ( ::IsDialogMessage( hParent, pMsg ) )
             {
                 pMsg->message = WM_NULL;
             }

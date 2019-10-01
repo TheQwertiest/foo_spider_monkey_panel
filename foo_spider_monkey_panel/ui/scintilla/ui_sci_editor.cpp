@@ -268,6 +268,7 @@ bool CScriptEditorCtrl::KeyWordComparator::operator()( const std::u8string& a, c
 
 CScriptEditorCtrl::CScriptEditorCtrl()
     : CScintillaFindReplaceImpl<CScriptEditorCtrl>( *this )
+    , CScintillaGotoImpl( *this )
 {
 }
 
@@ -415,9 +416,7 @@ bool CScriptEditorCtrl::ProcessKey( uint32_t vk )
         }
         case 'G':
         {
-            modal_dialog_scope scope( m_hWnd );
-            CDialogGoto dlg( m_hWnd );
-            dlg.DoModal( m_hWnd );
+            ShowGoTo();
             return true;
         }
         }

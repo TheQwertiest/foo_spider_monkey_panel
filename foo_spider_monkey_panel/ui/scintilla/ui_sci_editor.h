@@ -4,6 +4,7 @@
 #pragma once
 
 #include <ui/scintilla/ui_sci_find_replace.h>
+#include <ui/scintilla/ui_sci_goto.h>
 #include <ui/scintilla/wtlscintilla.h>
 
 #include <user_message.h>
@@ -22,11 +23,13 @@ struct ScintillaProp;
 class CScriptEditorCtrl
     : public CScintillaCtrl
     , public CScintillaFindReplaceImpl<CScriptEditorCtrl>
+    , public CScintillaGotoImpl
 {
 public:
     CScriptEditorCtrl();
 
     BEGIN_MSG_MAP( CScriptEditorCtrl )
+        CHAIN_MSG_MAP( CScintillaGotoImpl )
         CHAIN_MSG_MAP_ALT( CScintillaFindReplaceImpl<CScriptEditorCtrl>, 1 )
         MESSAGE_HANDLER( WM_KEYDOWN, OnKeyDown )
         REFLECTED_NOTIFY_CODE_HANDLER_EX( SCN_UPDATEUI, OnUpdateUI )

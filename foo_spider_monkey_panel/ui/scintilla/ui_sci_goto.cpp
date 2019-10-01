@@ -2,24 +2,49 @@
 
 #include "ui_sci_goto.h"
 
+#include <ui/scintilla/ui_sci_editor.h>
+#include <utils/hook_handler.h>
 #include <utils/string_helpers.h>
+
+namespace
+{
+
+enum class GotoMsg : uint32_t
+{
+    PerformGoto,
+    FinalMessage
+};
+
+}
 
 namespace scintilla
 {
 
-CDialogGoto::CDialogGoto( HWND p_hedit )
-    : m_hedit( p_hedit )
+CDialogGoto::CDialogGoto( HWND hParent, int curLineNumber )
+    : hParent_( hParent )
+    , curLineNumber_( curLineNumber )
 {
 }
 
 LRESULT CDialogGoto::OnInitDialog( HWND hwndFocus, LPARAM lParam )
 {
-    const int cur_pos = SendMessage( m_hedit, SCI_GETCURRENTPOS, 0, 0 );
-    const int cur_line = SendMessage( m_hedit, SCI_LINEFROMPOSITION, cur_pos, 0 );
+    uSetWindowText( GetDlgItem( IDC_EDIT_LINENUMBER ), std::to_string( curLineNumber_ ).c_str() );
 
-    uSetWindowText( GetDlgItem( IDC_EDIT_LINENUMBER ), std::to_string( cur_line + 1 ).c_str() );
+    hookId_ = smp::utils::HookHandler::GetInstance().RegisterHook(
+        [hParent = m_hWnd]( int code, WPARAM wParam, LPARAM lParam ) {
+            GetMsgProc( code, wParam, lParam, hParent );
+        } );
 
     return TRUE; // set focus to default control
+}
+
+void CDialogGoto::OnDestroy()
+{
+    if ( hookId_ )
+    {
+        smp::utils::HookHandler::GetInstance().UnregisterHook( hookId_ );
+        hookId_ = 0;
+    }
 }
 
 LRESULT CDialogGoto::OnCloseCmd( WORD wNotifyCode, WORD wID, HWND hWndCtl )
@@ -30,11 +55,86 @@ LRESULT CDialogGoto::OnCloseCmd( WORD wNotifyCode, WORD wID, HWND hWndCtl )
         const auto numRet = smp::string::GetNumber<unsigned>( static_cast<std::u8string_view>( text ) );
         if ( numRet )
         {
-            SendMessage( m_hedit, SCI_GOTOLINE, *numRet, 0 );
+            ::SendMessage( hParent_, CScintillaGotoImpl::GetGotoMsg(), (WPARAM)GotoMsg::PerformGoto, (LPARAM)*numRet );
         }
     }
 
-    EndDialog( wID );
+    assert( !m_bModal );
+    DestroyWindow();
+
+    return 0;
+}
+
+void CDialogGoto::OnFinalMessage( _In_ HWND /*hWnd*/ )
+{
+    ::SendMessage( hParent_, CScintillaGotoImpl::GetGotoMsg(), (WPARAM)GotoMsg::FinalMessage, NULL );
+    delete this;
+}
+
+void CDialogGoto::GetMsgProc( int code, WPARAM wParam, LPARAM lParam, HWND hParent )
+{
+    if ( LPMSG pMsg = reinterpret_cast<LPMSG>( lParam );
+         pMsg->message >= WM_KEYFIRST && pMsg->message <= WM_KEYLAST )
+    { // Only react to keypress events
+        HWND hWndFocus = ::GetFocus();
+        if ( hWndFocus != nullptr && ( ( hParent == hWndFocus ) || ::IsChild( hParent, hWndFocus ) ) )
+        {
+            if ( ::IsDialogMessage( hParent, pMsg ) )
+            {
+                pMsg->message = WM_NULL;
+            }
+        }
+    }
+}
+
+CScintillaGotoImpl::CScintillaGotoImpl( CScriptEditorCtrl& sciEdit )
+    : sciEdit_( sciEdit )
+{
+}
+void CScintillaGotoImpl::ShowGoTo()
+{
+    if ( !pGoto_ )
+    {
+        pGoto_ = new CDialogGoto( static_cast<HWND>( sciEdit_ ), sciEdit_.LineFromPosition( sciEdit_.GetCurrentPos() ) + 1 );
+        if ( !pGoto_->Create( static_cast<HWND>( sciEdit_ ) ) )
+        {
+            delete pGoto_;
+            pGoto_ = nullptr;
+            return;
+        }
+
+        pGoto_->SetActiveWindow();
+        pGoto_->CenterWindow( sciEdit_ );
+        pGoto_->ShowWindow( SW_SHOW );
+    }
+    else
+    {
+        pGoto_->SetActiveWindow();
+        pGoto_->ShowWindow( SW_SHOW );
+    }
+}
+
+UINT CScintillaGotoImpl::GetGotoMsg()
+{
+    static const UINT msgId = ::RegisterWindowMessage( L"smp_dlg_sci_goto" );
+    return msgId;
+}
+
+LRESULT CScintillaGotoImpl::OnGotoCmd( UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/ )
+{
+    switch ( (GotoMsg)wParam )
+    {
+    case GotoMsg::PerformGoto:
+        sciEdit_.GotoLine( (uint32_t)lParam - 1 );
+        break;
+    case GotoMsg::FinalMessage:
+        pGoto_ = nullptr;
+        break;
+    default:
+        assert( 0 );
+        break;
+    }
+
     return 0;
 }
 
