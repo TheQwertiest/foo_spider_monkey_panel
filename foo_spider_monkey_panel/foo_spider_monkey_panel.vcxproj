@@ -175,16 +175,16 @@
     <ClCompile Include="mainmenu.cpp" />
     <ClCompile Include="message_blocking_scope.cpp" />
     <ClCompile Include="message_manager.cpp" />
-    <ClCompile Include="scintilla\editorctrl.cpp" />
-    <ClCompile Include="scintilla\scintilla_prop_sets.cpp" />
     <ClCompile Include="smp_exception.cpp" />
     <ClCompile Include="stats.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="ui\scintilla\sci_prop_sets.cpp" />
+    <ClCompile Include="ui\scintilla\ui_sci_editor.cpp" />
+    <ClCompile Include="ui\scintilla\ui_sci_find_replace.cpp" />
+    <ClCompile Include="ui\scintilla\ui_sci_goto.cpp" />
     <ClCompile Include="ui\ui_conf.cpp" />
-    <ClCompile Include="ui\ui_find_replace.cpp" />
-    <ClCompile Include="ui\ui_goto.cpp" />
     <ClCompile Include="ui\ui_html.cpp">
       <MultiProcessorCompilation>false</MultiProcessorCompilation>
     </ClCompile>
@@ -293,9 +293,6 @@
     <ClInclude Include="message_blocking_scope.h" />
     <ClInclude Include="message_manager.h" />
     <ClInclude Include="panel_tooltip_param.h" />
-    <ClInclude Include="scintilla\editorctrl.h" />
-    <ClInclude Include="scintilla\scintilla_prop_sets.h" />
-    <ClInclude Include="scintilla\wtlscintilla.h" />
     <ClInclude Include="smp_exception.h" />
     <ClInclude Include="component_defines.h" />
     <ClInclude Include="config.h" />
@@ -307,9 +304,12 @@
     <ClInclude Include="panel_info.h" />
     <ClInclude Include="stats.h" />
     <ClInclude Include="stdafx.h" />
+    <ClInclude Include="ui\scintilla\sci_prop_sets.h" />
+    <ClInclude Include="ui\scintilla\ui_sci_editor.h" />
+    <ClInclude Include="ui\scintilla\ui_sci_find_replace.h" />
+    <ClInclude Include="ui\scintilla\ui_sci_goto.h" />
+    <ClInclude Include="ui\scintilla\wtlscintilla.h" />
     <ClInclude Include="ui\ui_conf.h" />
-    <ClInclude Include="ui\ui_find_replace.h" />
-    <ClInclude Include="ui\ui_goto.h" />
     <ClInclude Include="ui\ui_html.h" />
     <ClInclude Include="ui\ui_input_box.h" />
     <ClInclude Include="ui\ui_name_value_edit.h" />

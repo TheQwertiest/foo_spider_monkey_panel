@@ -1,6 +1,6 @@
 #pragma once
 
-#include <scintilla/editorctrl.h>
+#include <ui/scintilla/ui_sci_editor.h>
 
 #include <resource.h>
 #include <user_message.h>
@@ -72,7 +72,7 @@ public:
     LRESULT OnHelp( WORD wNotifyCode, WORD wID, HWND hWndCtl );
     LRESULT OnAbout( WORD wNotifyCode, WORD wID, HWND hWndCtl );
 
-    bool ProcessKey( unsigned vk );
+    bool ProcessKey( uint32_t vk );
     void Apply();
 
 private:

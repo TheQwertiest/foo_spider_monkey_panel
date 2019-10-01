@@ -1,10 +1,10 @@
 #include <stdafx.h>
+
 #include "ui_pref.h"
 
+#include <ui/scintilla/sci_prop_sets.h>
 #include <ui/ui_name_value_edit.h>
 #include <utils/file_helpers.h>
-
-#include <scintilla/scintilla_prop_sets.h>
 
 #include <filesystem>
 
@@ -50,7 +50,7 @@ public:
 
 preferences_page_factory_t<js_preferences_page_impl> g_pref;
 
-}
+} // namespace
 
 namespace
 {

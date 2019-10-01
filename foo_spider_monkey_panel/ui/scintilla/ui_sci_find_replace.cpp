@@ -1,10 +1,10 @@
 #include <stdafx.h>
 
-#include "ui_find_replace.h"
+#include "ui_sci_find_replace.h"
 
 #include <utils/hook_handler.h>
 
-namespace smp::ui
+namespace scintilla
 {
 
 DWORD FindReplaceState::ToScintillaFlags( DWORD currentFlags ) const
@@ -55,7 +55,7 @@ CCustomFindReplaceDlg::CCustomFindReplaceDlg( bool useRegExp )
 
 LRESULT CCustomFindReplaceDlg::OnInitDialog( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled )
 {
-    bHandled = FALSE; ///< don't suppress base initialization
+    bHandled = false; ///< don't suppress base class methods
     uButton_SetCheck( m_hWnd, IDC_CHECK_USE_REGEXP, useRegExp_ );
 
     hookId_ = smp::utils::HookHandler::GetInstance().RegisterHook(
@@ -68,6 +68,7 @@ LRESULT CCustomFindReplaceDlg::OnInitDialog( UINT uMsg, WPARAM wParam, LPARAM lP
 
 LRESULT CCustomFindReplaceDlg::OnDestroy( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled )
 {
+    bHandled = false; ///< don't suppress base class methods
     if ( hookId_ )
     {
         smp::utils::HookHandler::GetInstance().UnregisterHook( hookId_ );
@@ -109,4 +110,4 @@ void CCustomFindReplaceDlg::SetRegExpState( bool newState )
     uButton_SetCheck( m_hWnd, IDC_CHECK_USE_REGEXP, useRegExp_ );
 }
 
-} // namespace smp::ui
+} // namespace scintilla

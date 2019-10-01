@@ -3,8 +3,8 @@
 // The License.txt file describes the conditions under which this software may be distributed.
 #pragma once
 
-#include <scintilla/wtlscintilla.h>
-#include <ui/ui_find_replace.h>
+#include <ui/scintilla/ui_sci_find_replace.h>
+#include <ui/scintilla/wtlscintilla.h>
 
 #include <user_message.h>
 
@@ -21,7 +21,7 @@ struct ScintillaProp;
 
 class CScriptEditorCtrl
     : public CScintillaCtrl
-    , public smp::ui::CScintillaFindReplaceImpl<CScriptEditorCtrl>
+    , public CScintillaFindReplaceImpl<CScriptEditorCtrl>
 {
 public:
     CScriptEditorCtrl();

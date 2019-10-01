@@ -1,18 +1,19 @@
 #pragma once
 
-#include "resource.h"
+#include <resource.h>
 
-namespace smp::ui
+namespace scintilla
 {
 
+// TODO: replace with modeless dialog
 class CDialogGoto : public CDialogImpl<CDialogGoto>
 {
 public:
     CDialogGoto( HWND p_hedit );
 
     BEGIN_MSG_MAP( CDialogGoto )
-		MSG_WM_INITDIALOG( OnInitDialog )
-		COMMAND_RANGE_HANDLER_EX( IDOK, IDCANCEL, OnCloseCmd )
+        MSG_WM_INITDIALOG( OnInitDialog )
+        COMMAND_RANGE_HANDLER_EX( IDOK, IDCANCEL, OnCloseCmd )
     END_MSG_MAP()
 
     enum
@@ -27,4 +28,4 @@ private:
     HWND m_hedit;
 };
 
-} // namespace smp::ui
+} // namespace scintilla

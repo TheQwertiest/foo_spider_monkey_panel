@@ -166,9 +166,6 @@
     <ClCompile Include="ui\ui_conf.cpp">
       <Filter>ui</Filter>
     </ClCompile>
-    <ClCompile Include="ui\ui_goto.cpp">
-      <Filter>ui</Filter>
-    </ClCompile>
     <ClCompile Include="ui\ui_input_box.cpp">
       <Filter>ui</Filter>
     </ClCompile>
@@ -201,12 +198,6 @@
     </ClCompile>
     <ClCompile Include="js_objects\fb_playlist_recycler.cpp">
       <Filter>js_objects</Filter>
-    </ClCompile>
-    <ClCompile Include="scintilla\scintilla_prop_sets.cpp">
-      <Filter>scintilla</Filter>
-    </ClCompile>
-    <ClCompile Include="scintilla\editorctrl.cpp">
-      <Filter>scintilla</Filter>
     </ClCompile>
     <ClCompile Include="smp_exception.cpp">
       <Filter>z_core</Filter>
@@ -316,11 +307,20 @@
     <ClCompile Include="utils\unicode.cpp">
       <Filter>utils</Filter>
     </ClCompile>
-    <ClCompile Include="ui\ui_find_replace.cpp">
-      <Filter>ui</Filter>
-    </ClCompile>
     <ClCompile Include="utils\hook_handler.cpp">
       <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\scintilla\ui_sci_find_replace.cpp">
+      <Filter>ui\scintilla</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\scintilla\sci_prop_sets.cpp">
+      <Filter>ui\scintilla</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\scintilla\ui_sci_editor.cpp">
+      <Filter>ui\scintilla</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\scintilla\ui_sci_goto.cpp">
+      <Filter>ui\scintilla</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -513,9 +513,6 @@
     <ClInclude Include="ui\ui_conf.h">
       <Filter>ui</Filter>
     </ClInclude>
-    <ClInclude Include="ui\ui_goto.h">
-      <Filter>ui</Filter>
-    </ClInclude>
     <ClInclude Include="ui\ui_input_box.h">
       <Filter>ui</Filter>
     </ClInclude>
@@ -560,15 +557,6 @@
     </ClInclude>
     <ClInclude Include="js_objects\fb_playlist_recycler.h">
       <Filter>js_objects</Filter>
-    </ClInclude>
-    <ClInclude Include="scintilla\scintilla_prop_sets.h">
-      <Filter>scintilla</Filter>
-    </ClInclude>
-    <ClInclude Include="scintilla\wtlscintilla.h">
-      <Filter>scintilla</Filter>
-    </ClInclude>
-    <ClInclude Include="scintilla\editorctrl.h">
-      <Filter>scintilla</Filter>
     </ClInclude>
     <ClInclude Include="com_objects\internal\drag_utils.h">
       <Filter>com_objects\internal</Filter>
@@ -699,11 +687,23 @@
     <ClInclude Include="utils\unicode.h">
       <Filter>utils</Filter>
     </ClInclude>
-    <ClInclude Include="ui\ui_find_replace.h">
-      <Filter>ui</Filter>
-    </ClInclude>
     <ClInclude Include="utils\hook_handler.h">
       <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="ui\scintilla\ui_sci_editor.h">
+      <Filter>ui\scintilla</Filter>
+    </ClInclude>
+    <ClInclude Include="ui\scintilla\ui_sci_find_replace.h">
+      <Filter>ui\scintilla</Filter>
+    </ClInclude>
+    <ClInclude Include="ui\scintilla\wtlscintilla.h">
+      <Filter>ui\scintilla</Filter>
+    </ClInclude>
+    <ClInclude Include="ui\scintilla\sci_prop_sets.h">
+      <Filter>ui\scintilla</Filter>
+    </ClInclude>
+    <ClInclude Include="ui\scintilla\ui_sci_goto.h">
+      <Filter>ui\scintilla</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -740,9 +740,6 @@
     <Filter Include="com_objects">
       <UniqueIdentifier>{613a7600-ce84-49fd-b050-5da2374693d7}</UniqueIdentifier>
     </Filter>
-    <Filter Include="scintilla">
-      <UniqueIdentifier>{fe84cd3a-a0ea-4f6b-9816-6d2d77d6c024}</UniqueIdentifier>
-    </Filter>
     <Filter Include="com_objects\internal">
       <UniqueIdentifier>{48f476b5-50dc-4578-ac4c-1cfae89d2b42}</UniqueIdentifier>
     </Filter>
@@ -754,6 +751,9 @@
     </Filter>
     <Filter Include="z_core\data structs">
       <UniqueIdentifier>{152c5bdd-bddc-41d8-851c-389f61eb1305}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ui\scintilla">
+      <UniqueIdentifier>{026a4588-b180-4f15-bc70-daedd985c371}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

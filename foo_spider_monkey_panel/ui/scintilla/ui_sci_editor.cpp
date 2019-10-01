@@ -1,10 +1,9 @@
 #include <stdafx.h>
 
-#include "editorctrl.h"
+#include "ui_sci_editor.h"
 
-#include "scintilla_prop_sets.h"
-
-#include <ui/ui_goto.h>
+#include <ui/scintilla/sci_prop_sets.h>
+#include <ui/scintilla/ui_sci_goto.h>
 #include <utils/colour_helpers.h>
 #include <utils/file_helpers.h>
 #include <utils/string_helpers.h>
@@ -268,12 +267,13 @@ bool CScriptEditorCtrl::KeyWordComparator::operator()( const std::u8string& a, c
 }
 
 CScriptEditorCtrl::CScriptEditorCtrl()
-    : smp::ui::CScintillaFindReplaceImpl<CScriptEditorCtrl>( *this )
+    : CScintillaFindReplaceImpl<CScriptEditorCtrl>( *this )
 {
 }
 
 LRESULT CScriptEditorCtrl::OnKeyDown( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled )
 {
+    // Pass the message to the parent window to handle all shortcuts (it will call us back)
     bHandled = false;
     (void)::PostMessage( ::GetAncestor( m_hWnd, GA_PARENT ), static_cast<UINT>( smp::MiscMessage::key_down ), wParam, lParam );
     return 1;
@@ -406,6 +406,7 @@ bool CScriptEditorCtrl::ProcessKey( uint32_t vk )
         case 'F':
         {
             FindReplace( true );
+            return true;
         }
         case 'H':
         {
@@ -415,7 +416,7 @@ bool CScriptEditorCtrl::ProcessKey( uint32_t vk )
         case 'G':
         {
             modal_dialog_scope scope( m_hWnd );
-            smp::ui::CDialogGoto dlg( m_hWnd );
+            CDialogGoto dlg( m_hWnd );
             dlg.DoModal( m_hWnd );
             return true;
         }

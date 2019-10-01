@@ -4,11 +4,8 @@
 
 namespace scintilla
 {
-class CScriptEditorCtrl;
-}
 
-namespace smp::ui
-{
+class CScriptEditorCtrl;
 
 struct FindReplaceState
 {
@@ -40,6 +37,7 @@ protected:
     END_MSG_MAP()
 
     CCustomFindReplaceDlg( bool useRegExp );
+    ~CCustomFindReplaceDlg() override = default;
 
     LRESULT OnInitDialog( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled );
     LRESULT OnDestroy( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled );
@@ -66,7 +64,11 @@ protected:
 
     BEGIN_MSG_MAP( CScintillaFindReplaceImpl )
         ALT_MSG_MAP( 1 )
-        CHAIN_MSG_MAP_ALT( BaseClass, 1 )
+        if ( uMsg != WM_DESTROY )
+        { // TODO: workaround for https://sourceforge.net/p/wtl/discussion/374434/thread/cdeef79112/:
+            // callback for WM_DESTROY attempts to delete already deleted pointer
+            CHAIN_MSG_MAP_ALT( BaseClass, 1 )
+        }
     END_MSG_MAP()
 
 public:
@@ -115,6 +117,8 @@ public:
                                               DWORD dwFlags = FR_DOWN,
                                               HWND hWndParent = NULL )
     {
+        assert( sciEditor_.operator HWND() == hWndParent );
+
         TFindReplaceDlg* findReplaceDialog = new TFindReplaceDlg( lastState_.useRegExp );
         if ( findReplaceDialog == NULL )
         {
@@ -132,9 +136,9 @@ public:
 
             HWND hWndFindReplace = findReplaceDialog->Create( bFindOnly,
                                                               findText.c_str(),
-                                                              replaceText.c_str(),
+                                                              ( replaceText.empty() ? nullptr : replaceText.c_str() ),
                                                               lastState_.ToFrFlags( dwFlags ),
-                                                              hWndParent );
+                                                              sciEditor_ );
             if ( hWndFindReplace == NULL )
             {
                 delete findReplaceDialog;
@@ -152,11 +156,37 @@ public:
         return findReplaceDialog;
     }
 
-    // TODO: uncomment and move to scintilla ctrl
-    /*DWORD GetStyle()
+    // TODO: workaround for https://sourceforge.net/p/wtl/discussion/374434/thread/cdeef79112/:
+    // incorrect argument passed to `ClientToScreen`
+    void AdjustDialogPosition( HWND hWndDialog )
     {
-        return 0;
-    }*/
+        ATLASSERT( ( hWndDialog != NULL ) && ::IsWindow( hWndDialog ) );
+
+        T* pT = static_cast<T*>( this );
+        LONG nStartChar = 0, nEndChar = 0;
+        // Send EM_GETSEL so we can use both Edit and RichEdit
+        // (CEdit::GetSel uses int&, and CRichEditCtrlT::GetSel uses LONG&)
+        ::SendMessage( pT->m_hWnd, EM_GETSEL, (WPARAM)&nStartChar, (LPARAM)&nEndChar );
+        POINT point = pT->PosFromChar( nStartChar );
+        ::ClientToScreen( pT->operator HWND(), &point ); ///< the fix is here
+        RECT rect = {};
+        ::GetWindowRect( hWndDialog, &rect );
+        if ( ::PtInRect( &rect, point ) != FALSE )
+        {
+            if ( point.y > ( rect.bottom - rect.top ) )
+            {
+                ::OffsetRect( &rect, 0, point.y - rect.bottom - 20 );
+            }
+            else
+            {
+                int nVertExt = GetSystemMetrics( SM_CYSCREEN );
+                if ( ( point.y + ( rect.bottom - rect.top ) ) < nVertExt )
+                    ::OffsetRect( &rect, 0, 40 + point.y - rect.top );
+            }
+
+            ::MoveWindow( hWndDialog, rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top, TRUE );
+        }
+    }
 
     BOOL FindTextSimple( LPCTSTR lpszFind, BOOL bMatchCase, BOOL bWholeWord, BOOL bFindDown /*= TRUE */ )
     {
@@ -235,6 +265,6 @@ private:
 };
 
 template <typename T>
-smp::ui::FindReplaceState CScintillaFindReplaceImpl<T>::lastState_;
+scintilla::FindReplaceState CScintillaFindReplaceImpl<T>::lastState_;
 
-} // namespace smp::ui
+} // namespace scintilla

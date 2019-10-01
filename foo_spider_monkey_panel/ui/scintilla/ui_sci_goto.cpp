@@ -1,9 +1,10 @@
 #include <stdafx.h>
-#include "ui_goto.h"
+
+#include "ui_sci_goto.h"
 
 #include <utils/string_helpers.h>
 
-namespace smp::ui
+namespace scintilla
 {
 
 CDialogGoto::CDialogGoto( HWND p_hedit )
@@ -37,4 +38,4 @@ LRESULT CDialogGoto::OnCloseCmd( WORD wNotifyCode, WORD wID, HWND hWndCtl )
     return 0;
 }
 
-} // namespace smp::ui
+} // namespace scintilla

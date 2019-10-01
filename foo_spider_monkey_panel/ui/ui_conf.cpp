@@ -2,7 +2,6 @@
 
 #include "ui_conf.h"
 
-#include <ui/ui_goto.h>
 #include <utils/file_helpers.h>
 #include <utils/scope_helpers.h>
 
@@ -196,28 +195,6 @@ LRESULT CDialogConf::OnNotify( int idCtrl, LPNMHDR pnmh )
     return 0;
 }
 
-bool CDialogConf::ProcessKey( uint32_t vk )
-{
-    const int modifiers = ( IsKeyPressed( VK_SHIFT ) ? SCMOD_SHIFT : 0 )
-                          | ( IsKeyPressed( VK_CONTROL ) ? SCMOD_CTRL : 0 )
-                          | ( IsKeyPressed( VK_MENU ) ? SCMOD_ALT : 0 );
-
-    // Hotkeys
-    if ( modifiers == SCMOD_CTRL )
-    {
-        switch ( vk )
-        {
-        case 'S':
-        {
-            Apply();
-            return true;
-        }
-        }
-    }
-
-    return false;
-}
-
 LRESULT CDialogConf::OnUwmKeyDown( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled )
 {
     const uint32_t vk = (uint32_t)wParam;
@@ -318,6 +295,28 @@ LRESULT CDialogConf::OnAbout( WORD, WORD, HWND )
 {
     (void)uMessageBox( m_hWnd, SMP_ABOUT, "About Spider Monkey Panel", MB_SETFOREGROUND );
     return 0;
+}
+
+bool CDialogConf::ProcessKey( uint32_t vk )
+{
+    const int modifiers = ( IsKeyPressed( VK_SHIFT ) ? SCMOD_SHIFT : 0 )
+                          | ( IsKeyPressed( VK_CONTROL ) ? SCMOD_CTRL : 0 )
+                          | ( IsKeyPressed( VK_MENU ) ? SCMOD_ALT : 0 );
+
+    // Hotkeys
+    if ( modifiers == SCMOD_CTRL )
+    {
+        switch ( vk )
+        {
+        case 'S':
+        {
+            Apply();
+            return true;
+        }
+        }
+    }
+
+    return false;
 }
 
 } // namespace smp::ui

@@ -1,5 +1,5 @@
 #include <stdafx.h>
-#include "scintilla_prop_sets.h"
+#include "sci_prop_sets.h"
 
 #include <utils/file_helpers.h>
 #include <utils/string_helpers.h>
