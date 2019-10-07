@@ -15,6 +15,11 @@ static uie::window_factory<smp::panel::js_panel_window_cui> g_js_panel_wndow_cui
 namespace smp::panel
 {
 
+js_panel_window_cui::js_panel_window_cui()
+    : js_panel_window( PanelType::CUI )
+{
+}
+
 DWORD js_panel_window_cui::GetColour( unsigned type, const GUID& guid )
 {
     COLORREF colour = 0; ///< black
@@ -153,7 +158,7 @@ void js_panel_window_cui::get_category( pfc::string_base& out ) const
 
 void js_panel_window_cui::get_config( stream_writer* writer, abort_callback& abort ) const
 {
-    save_config( *writer, abort );
+    GetSettings().Save( *writer, abort );
 }
 
 void js_panel_window_cui::get_name( pfc::string_base& out ) const
@@ -178,7 +183,7 @@ void js_panel_window_cui::on_font_changed( t_size mask ) const
 
 void js_panel_window_cui::set_config( stream_reader* reader, t_size size, abort_callback& abort )
 {
-    load_config( *reader, size, abort );
+    GetSettings().Load( *reader, size, abort );
 }
 
 void js_panel_window_cui::notify_size_limit_changed( LPARAM lp )

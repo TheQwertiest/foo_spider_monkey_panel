@@ -673,7 +673,7 @@ bool JsWindow::get_IsTransparent()
         return false;
     }
 
-    return parentPanel_.get_pseudo_transparent();
+    return parentPanel_.GetSettings().isPseudoTransparent;
 }
 
 bool JsWindow::get_IsVisible()

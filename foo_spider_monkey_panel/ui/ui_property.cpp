@@ -1,14 +1,16 @@
 #include <stdafx.h>
+
 #include "ui_property.h"
 
 #include <utils/file_helpers.h>
-#include <js_panel_window.h>
+
 #include <abort_callback.h>
+#include <js_panel_window.h>
 
 // precision
+#include <filesystem>
 #include <iomanip>
 #include <map>
-#include <filesystem>
 
 namespace fs = std::filesystem;
 
@@ -16,7 +18,7 @@ namespace smp::ui
 {
 
 CDialogProperty::CDialogProperty( smp::panel::js_panel_window* p_parent )
-    : m_parent( p_parent )
+    : parentPanel_( p_parent )
 {
 }
 
@@ -25,9 +27,9 @@ LRESULT CDialogProperty::OnInitDialog( HWND hwndFocus, LPARAM lParam )
     DlgResize_Init();
 
     // Subclassing
-    m_properties.SubclassWindow( GetDlgItem( IDC_LIST_PROPERTIES ) );
-    m_properties.ModifyStyle( 0, LBS_SORT | LBS_HASSTRINGS );
-    m_properties.SetExtendedListStyle( PLS_EX_SORTED | PLS_EX_XPLOOK );
+    propertyListCtrl_.SubclassWindow( GetDlgItem( IDC_LIST_PROPERTIES ) );
+    propertyListCtrl_.ModifyStyle( 0, LBS_SORT | LBS_HASSTRINGS );
+    propertyListCtrl_.SetExtendedListStyle( PLS_EX_SORTED | PLS_EX_XPLOOK );
 
     LoadProperties();
 
@@ -55,8 +57,9 @@ LRESULT CDialogProperty::OnPinItemChanged( LPNMHDR pnmh )
 {
     LPNMPROPERTYITEM pnpi = (LPNMPROPERTYITEM)pnmh;
 
-    if ( auto it = m_dup_prop_map.find( pnpi->prop->GetName() );
-         it != m_dup_prop_map.end() )
+    auto& localPropertyValues = localProperties_.values;
+    if ( auto it = localPropertyValues.find( pnpi->prop->GetName() );
+         it != localPropertyValues.end() )
     {
         auto& val = *( it->second );
         _variant_t var;
@@ -96,7 +99,8 @@ LRESULT CDialogProperty::OnPinItemChanged( LPNMHDR pnmh )
                 {
                     static_assert( false, "non-exhaustive visitor!" );
                 }
-            }, val );
+            },
+                        val );
         }
     }
 
@@ -105,8 +109,8 @@ LRESULT CDialogProperty::OnPinItemChanged( LPNMHDR pnmh )
 
 LRESULT CDialogProperty::OnClearallBnClicked( WORD wNotifyCode, WORD wID, HWND hWndCtl )
 {
-    m_dup_prop_map.clear();
-    m_properties.ResetContent();
+    localProperties_.values.clear();
+    propertyListCtrl_.ResetContent();
 
     return 0;
 }
@@ -114,18 +118,18 @@ LRESULT CDialogProperty::OnClearallBnClicked( WORD wNotifyCode, WORD wID, HWND h
 void CDialogProperty::Apply()
 {
     // Copy back
-    m_parent->get_config_prop().get_val() = m_dup_prop_map;
-    m_parent->update_script();
+    parentPanel_->GetSettings().properties = localProperties_;
+    parentPanel_->update_script();
     LoadProperties();
 }
 
 void CDialogProperty::LoadProperties( bool reload )
 {
-    m_properties.ResetContent();
+    propertyListCtrl_.ResetContent();
 
     if ( reload )
     {
-        m_dup_prop_map = m_parent->get_config_prop().get_val();
+        localProperties_ = parentPanel_->GetSettings().properties;
     }
 
     struct LowerLexCmp
@@ -136,7 +140,7 @@ void CDialogProperty::LoadProperties( bool reload )
         }
     };
     std::map<std::wstring, HPROPERTY, LowerLexCmp> propMap;
-    for ( const auto& [name, pSerializedValue]: m_dup_prop_map )
+    for ( const auto& [name, pSerializedValue]: localProperties_.values )
     {
         HPROPERTY hProp = std::visit( [&name]( auto&& arg ) {
             using T = std::decay_t<decltype( arg )>;
@@ -165,28 +169,28 @@ void CDialogProperty::LoadProperties( bool reload )
             {
                 static_assert( false, "non-exhaustive visitor!" );
             }
-        }, *pSerializedValue );
+        },
+                                      *pSerializedValue );
 
         propMap.emplace( name, hProp );
     }
 
     for ( auto& [name, hProp]: propMap )
     {
-        m_properties.AddItem( hProp );
+        propertyListCtrl_.AddItem( hProp );
     }
 }
 
 LRESULT CDialogProperty::OnDelBnClicked( WORD wNotifyCode, WORD wID, HWND hWndCtl )
 {
-    int idx = m_properties.GetCurSel();
-
-    if ( idx >= 0 )
+    if ( int idx = propertyListCtrl_.GetCurSel();
+         idx )
     {
-        HPROPERTY hproperty = m_properties.GetProperty( idx );
+        HPROPERTY hproperty = propertyListCtrl_.GetProperty( idx );
         std::wstring name = hproperty->GetName();
 
-        m_properties.DeleteItem( hproperty );
-        m_dup_prop_map.erase( name );
+        propertyListCtrl_.DeleteItem( hproperty );
+        localProperties_.values.erase( name );
     }
 
     return 0;
@@ -206,32 +210,32 @@ LRESULT CDialogProperty::OnImportBnClicked( WORD wNotifyCode, WORD wID, HWND hWn
     }
     path = path.lexically_normal();
 
-    file_ptr io;
     auto& abort = smp::GlobalAbortCallback::GetInstance();
 
     try
     {
+        file_ptr io;
         filesystem::g_open_read( io, path.u8string().c_str(), abort );
 
         const auto extension = path.extension();
         if ( extension == ".json" )
         {
-            smp::config::PanelProperties::g_load_json( m_dup_prop_map, *io, abort, true );
+            localProperties_.LoadJson( *io, abort, true );
         }
         else if ( extension == ".smp" )
         {
-            smp::config::PanelProperties::g_load( m_dup_prop_map, *io, abort );
+            localProperties_.LoadBinary( *io, abort );
         }
         else if ( extension == ".wsp" )
         {
-            smp::config::PanelProperties::g_load_legacy( m_dup_prop_map, *io, abort );
+            localProperties_.LoadLegacy( *io, abort );
         }
         else
         { // let's brute-force it!
-            if ( !smp::config::PanelProperties::g_load_json( m_dup_prop_map, *io, abort, true )
-                 && !smp::config::PanelProperties::g_load( m_dup_prop_map, *io, abort ) )
+            if ( !localProperties_.LoadJson( *io, abort, true )
+                 && !localProperties_.LoadBinary( *io, abort ) )
             {
-                smp::config::PanelProperties::g_load_legacy( m_dup_prop_map, *io, abort );
+                localProperties_.LoadLegacy( *io, abort );
             }
         }
 
@@ -264,7 +268,7 @@ LRESULT CDialogProperty::OnExportBnClicked( WORD wNotifyCode, WORD wID, HWND hWn
     try
     {
         filesystem::g_open_write_new( io, path.u8string().c_str(), abort );
-        smp::config::PanelProperties::g_save_json( m_dup_prop_map, *io, abort, true );
+        localProperties_.SaveJson( *io, abort, true );
     }
     catch ( const pfc::exception& )
     {

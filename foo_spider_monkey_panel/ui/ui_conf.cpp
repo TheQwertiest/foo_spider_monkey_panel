@@ -34,6 +34,8 @@ CDialogConf::CDialogConf( smp::panel::js_panel_window* p_parent )
 
 LRESULT CDialogConf::OnInitDialog( HWND hwndFocus, LPARAM lParam )
 {
+    auto& panelSettings = m_parent->GetSettings();
+
     menu = GetMenu();
     assert( menu.m_hMenu );
 
@@ -44,22 +46,23 @@ LRESULT CDialogConf::OnInitDialog( HWND hwndFocus, LPARAM lParam )
     DlgResize_Init();
 
     // Apply window placement
-    if ( m_parent->get_windowplacement().length == 0 )
+    auto& windowPlacement = panelSettings.windowPlacement;
+    if ( windowPlacement.length == 0 )
     {
-        m_parent->get_windowplacement().length = sizeof( WINDOWPLACEMENT );
+        windowPlacement.length = sizeof( WINDOWPLACEMENT );
 
-        if ( !GetWindowPlacement( &m_parent->get_windowplacement() ) )
+        if ( !GetWindowPlacement( &windowPlacement ) )
         {
-            memset( &m_parent->get_windowplacement(), 0, sizeof( WINDOWPLACEMENT ) );
+            memset( &windowPlacement, 0, sizeof( WINDOWPLACEMENT ) );
         }
     }
     else
     {
-        SetWindowPlacement( &m_parent->get_windowplacement() );
+        SetWindowPlacement( &windowPlacement );
     }
 
     // GUID Text
-    const std::u8string guid_text = fmt::format( "GUID: {}", pfc::print_guid( m_parent->get_config_guid() ) );
+    const std::u8string guid_text = fmt::format( "GUID: {}", pfc::print_guid( panelSettings.guid ) );
     uSetWindowText( GetDlgItem( IDC_STATIC_GUID ), guid_text.c_str() );
 
     // Edit Control
@@ -67,7 +70,7 @@ LRESULT CDialogConf::OnInitDialog( HWND hwndFocus, LPARAM lParam )
     sciEditor_.SetScintillaSettings();
     sciEditor_.SetJScript();
     sciEditor_.ReadAPI();
-    sciEditor_.SetContent( m_parent->get_script_code().c_str(), true );
+    sciEditor_.SetContent( panelSettings.script.c_str(), true );
     sciEditor_.SetSavePoint();
 
     // Edge Style
@@ -79,13 +82,13 @@ LRESULT CDialogConf::OnInitDialog( HWND hwndFocus, LPARAM lParam )
     }
     else
     {
-        (void)menu.CheckMenuRadioItem( ID_EDGESTYLE_NONE, ID_EDGESTYLE_GREY, ID_EDGESTYLE_NONE + static_cast<int>( m_parent->get_edge_style() ), MF_BYCOMMAND );
+        (void)menu.CheckMenuRadioItem( ID_EDGESTYLE_NONE, ID_EDGESTYLE_GREY, ID_EDGESTYLE_NONE + static_cast<int>( panelSettings.edgeStyle ), MF_BYCOMMAND );
     }
 
     // Pseudo Transparent
     if ( m_parent->GetPanelType() == smp::panel::PanelType::CUI )
     {
-        (void)menu.CheckMenuItem( ID_PANELFEATURES_PSEUDOTRANSPARENT, m_parent->get_pseudo_transparent() ? MF_CHECKED : MF_UNCHECKED );
+        (void)menu.CheckMenuItem( ID_PANELFEATURES_PSEUDOTRANSPARENT, panelSettings.isPseudoTransparent ? MF_CHECKED : MF_UNCHECKED );
     }
     else
     {
@@ -94,7 +97,7 @@ LRESULT CDialogConf::OnInitDialog( HWND hwndFocus, LPARAM lParam )
     }
 
     // Grab Focus
-    (void)menu.CheckMenuItem( ID_PANELFEATURES_GRABFOCUS, m_parent->get_grab_focus() ? MF_CHECKED : MF_UNCHECKED );
+    (void)menu.CheckMenuItem( ID_PANELFEATURES_GRABFOCUS, panelSettings.shouldGrabFocus ? MF_CHECKED : MF_UNCHECKED );
 
     return TRUE; // set focus to default control
 }
@@ -149,25 +152,27 @@ void CDialogConf::Apply()
     std::vector<char> code( sciEditor_.GetTextLength() + 1 );
     sciEditor_.GetText( code.data(), code.size() );
 
+    auto& panelSettings = m_parent->GetSettings();
+
     if ( menu.GetMenuState( ID_EDGESTYLE_NONE, MF_BYCOMMAND ) & MF_CHECKED )
     {
-        m_parent->get_edge_style() = smp::config::EdgeStyle::NO_EDGE;
+        panelSettings.edgeStyle = smp::config::EdgeStyle::NO_EDGE;
     }
     else if ( menu.GetMenuState( ID_EDGESTYLE_GREY, MF_BYCOMMAND ) & MF_CHECKED )
     {
-        m_parent->get_edge_style() = smp::config::EdgeStyle::GREY_EDGE;
+        panelSettings.edgeStyle = smp::config::EdgeStyle::GREY_EDGE;
     }
     else if ( menu.GetMenuState( ID_EDGESTYLE_SUNKEN, MF_BYCOMMAND ) & MF_CHECKED )
     {
-        m_parent->get_edge_style() = smp::config::EdgeStyle::SUNKEN_EDGE;
+        panelSettings.edgeStyle = smp::config::EdgeStyle::SUNKEN_EDGE;
     }
 
-    m_parent->get_grab_focus() = menu.GetMenuState( ID_PANELFEATURES_GRABFOCUS, MF_BYCOMMAND ) & MF_CHECKED;
-    m_parent->get_pseudo_transparent() = menu.GetMenuState( ID_PANELFEATURES_PSEUDOTRANSPARENT, MF_BYCOMMAND ) & MF_CHECKED;
+    panelSettings.shouldGrabFocus = menu.GetMenuState( ID_PANELFEATURES_GRABFOCUS, MF_BYCOMMAND ) & MF_CHECKED;
+    panelSettings.isPseudoTransparent = menu.GetMenuState( ID_PANELFEATURES_PSEUDOTRANSPARENT, MF_BYCOMMAND ) & MF_CHECKED;
     m_parent->update_script( code.data() );
 
     // Window position
-    GetWindowPlacement( &m_parent->get_windowplacement() );
+    GetWindowPlacement( &panelSettings.windowPlacement );
 
     // Save point
     sciEditor_.SetSavePoint();
@@ -251,7 +256,7 @@ LRESULT CDialogConf::OnFileExport( WORD, WORD, HWND )
 
 LRESULT CDialogConf::OnEditResetDefault( WORD, WORD, HWND )
 {
-    sciEditor_.SetContent( smp::config::PanelSettings::get_default_script_code().c_str() );
+    sciEditor_.SetContent( smp::config::PanelSettings::GetDefaultScript().c_str() );
     return 0;
 }
 

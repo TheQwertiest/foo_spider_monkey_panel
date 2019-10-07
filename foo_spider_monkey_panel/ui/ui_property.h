@@ -62,9 +62,9 @@ public:
     void LoadProperties( bool reload = true );
 
 private:
-    CPropertyListCtrl m_properties;
-    smp::panel::js_panel_window* m_parent;
-    smp::config::PanelProperties::config_map m_dup_prop_map;
+    CPropertyListCtrl propertyListCtrl_;
+    smp::panel::js_panel_window* parentPanel_;
+    smp::config::PanelProperties localProperties_;
 };
 
 } // namespace smp::ui

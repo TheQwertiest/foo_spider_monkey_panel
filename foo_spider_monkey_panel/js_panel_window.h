@@ -17,7 +17,7 @@ namespace smp::panel
 
 class CallbackData;
 
-enum class PanelType : unsigned int
+enum class PanelType : uint8_t
 {
     CUI = 0,
     DUI = 1
@@ -26,13 +26,13 @@ enum class PanelType : unsigned int
 // TODO: split this class somehow
 class js_panel_window
     : public ui_helpers::container_window
-    , public config::PanelSettings
 {
 public:
-    js_panel_window( PanelType instanceType = PanelType::CUI );
+    js_panel_window( PanelType instanceType );
     virtual ~js_panel_window() = default;
 
 public:
+    // ui_helpers::container_window
     class_data& get_class_data() const override;
 
     void update_script( const char* code = nullptr );
@@ -82,7 +82,12 @@ public:
     /// @details Calls Repaint inside
     void RepaintBackground( LPRECT lprcUpdate = nullptr );
 
+    config::PanelSettings& GetSettings();
+    const config::PanelSettings& GetSettings() const;
+
 private:
+    config::PanelSettings settings_;
+
     const PanelType panelType_;
     std::shared_ptr<mozjs::JsContainer> pJsContainer_;
 

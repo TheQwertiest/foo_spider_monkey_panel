@@ -17,60 +17,27 @@ constexpr uint32_t kPropConfigVersion = 1;
 constexpr const char kPropJsonConfigVersion[] = "1";
 constexpr const char kPropJsonConfigId[] = "properties";
 
+enum class Version : uint32_t
+{
+    SMP_VERSION_100 = 1, // must start with 1 so we don't break component upgrades
+    CONFIG_VERSION_CURRENT = SMP_VERSION_100
+};
+
 } // namespace
 
 namespace smp::config
 {
 
-DWORD edge_style_from_config( EdgeStyle edge_style )
+bool PanelProperties::LoadBinary( stream_reader& reader, abort_callback& abort )
 {
-    switch ( edge_style )
-    {
-    case EdgeStyle::SUNKEN_EDGE:
-        return WS_EX_CLIENTEDGE;
-    case EdgeStyle::GREY_EDGE:
-        return WS_EX_STATICEDGE;
-    default:
-        return 0;
-    }
+    return LoadProperties_Binary( values, reader, abort );
 }
 
-PanelProperties::config_map& PanelProperties::get_val()
-{
-    return m_map;
-}
-
-std::optional<mozjs::SerializedJsValue> PanelProperties::get_config_item( const std::wstring& propName )
-{
-    auto it = m_map.find( propName );
-    if ( it == m_map.end() )
-    {
-        return std::nullopt;
-    }
-
-    return *( it->second );
-}
-
-void PanelProperties::set_config_item( const std::wstring& propName, const mozjs::SerializedJsValue& serializedValue )
-{
-    m_map.insert_or_assign( propName, std::make_shared<mozjs::SerializedJsValue>( serializedValue ) );
-}
-
-void PanelProperties::remove_config_item( const std::wstring& propName )
-{
-    m_map.erase( propName );
-}
-
-bool PanelProperties::g_load( config_map& data, stream_reader& reader, abort_callback& abort )
-{
-    return LoadProperties_Binary( data, reader, abort );
-}
-
-bool PanelProperties::g_load_json( config_map& data, stream_reader& reader, abort_callback& abort, bool loadRawString )
+bool PanelProperties::LoadJson( stream_reader& reader, abort_callback& abort, bool loadRawString )
 {
     using json = nlohmann::json;
 
-    data.clear();
+    values.clear();
 
     try
     {
@@ -103,13 +70,13 @@ bool PanelProperties::g_load_json( config_map& data, stream_reader& reader, abor
             return false;
         }
 
-        auto& values = jsonMain.at( "values" );
-        if ( !values.is_object() )
+        auto& jsonValues = jsonMain.at( "values" );
+        if ( !jsonValues.is_object() )
         {
             return false;
         }
 
-        for ( auto& [key, value]: values.items() )
+        for ( auto& [key, value]: jsonValues.items() )
         {
             if ( key.empty() )
             {
@@ -139,7 +106,7 @@ bool PanelProperties::g_load_json( config_map& data, stream_reader& reader, abor
                 continue;
             }
 
-            data.emplace( smp::unicode::ToWide( key ), std::make_shared<mozjs::SerializedJsValue>( serializedValue ) );
+            values.emplace( smp::unicode::ToWide( key ), std::make_shared<mozjs::SerializedJsValue>( serializedValue ) );
         }
     }
     catch ( const json::exception& )
@@ -154,27 +121,17 @@ bool PanelProperties::g_load_json( config_map& data, stream_reader& reader, abor
     return true;
 }
 
-bool PanelProperties::g_load_legacy( config_map& data, stream_reader& reader, abort_callback& abort )
+bool PanelProperties::LoadLegacy( stream_reader& reader, abort_callback& abort )
 {
-    return LoadProperties_Com( data, reader, abort );
+    return LoadProperties_Com( values, reader, abort );
 }
 
-void PanelProperties::load( stream_reader& reader, abort_callback& abort )
+void PanelProperties::SaveBinary( stream_writer& writer, abort_callback& abort ) const
 {
-    g_load( m_map, reader, abort );
+    SaveProperties_Binary( values, writer, abort );
 }
 
-void PanelProperties::save( stream_writer& writer, abort_callback& abort ) const
-{
-    g_save( m_map, writer, abort );
-}
-
-void PanelProperties::g_save( const config_map& data, stream_writer& writer, abort_callback& abort )
-{
-    SaveProperties_Binary( data, writer, abort );
-}
-
-void PanelProperties::g_save_json( const config_map& data, stream_writer& writer, abort_callback& abort, bool saveAsRawString )
+void PanelProperties::SaveJson( stream_writer& writer, abort_callback& abort, bool saveAsRawString ) const
 {
     using json = nlohmann::json;
 
@@ -184,7 +141,7 @@ void PanelProperties::g_save_json( const config_map& data, stream_writer& writer
                                         { "version", kPropJsonConfigVersion } } );
 
         json jsonValues = json::object();
-        for ( const auto& [nameW, pValue]: data )
+        for ( const auto& [nameW, pValue]: values )
         {
             const auto propertyName = smp::unicode::ToU8( nameW );
             const auto& serializedValue = *pValue;
@@ -217,50 +174,10 @@ void PanelProperties::g_save_json( const config_map& data, stream_writer& writer
 
 PanelSettings::PanelSettings()
 {
-    reset_config();
+    ResetToDefault();
 }
 
-GUID& PanelSettings::get_config_guid()
-{
-    return m_config_guid;
-}
-
-WINDOWPLACEMENT& PanelSettings::get_windowplacement()
-{
-    return m_wndpl;
-}
-
-bool& PanelSettings::get_grab_focus()
-{
-    return m_grab_focus;
-}
-
-bool& PanelSettings::get_pseudo_transparent()
-{
-    return m_pseudo_transparent;
-}
-
-const bool& PanelSettings::get_pseudo_transparent() const
-{
-    return m_pseudo_transparent;
-}
-
-const EdgeStyle& PanelSettings::get_edge_style() const
-{
-    return m_edge_style;
-}
-
-std::u8string& PanelSettings::get_script_code()
-{
-    return m_script_code;
-}
-
-PanelProperties& PanelSettings::get_config_prop()
-{
-    return m_config_prop;
-}
-
-std::u8string PanelSettings::get_default_script_code()
+std::u8string PanelSettings::GetDefaultScript()
 {
     puResource puRes = uLoadResource( core_api::get_my_instance(), uMAKEINTRESOURCE( IDR_SCRIPT ), "SCRIPT" );
     if ( puRes )
@@ -273,14 +190,9 @@ std::u8string PanelSettings::get_default_script_code()
     }
 }
 
-EdgeStyle& PanelSettings::get_edge_style()
+void PanelSettings::Load( stream_reader& reader, t_size size, abort_callback& abort )
 {
-    return m_edge_style;
-}
-
-void PanelSettings::load_config( stream_reader& reader, t_size size, abort_callback& abort )
-{
-    reset_config();
+    ResetToDefault();
 
     // TODO: remove old config values and up the version
 
@@ -295,53 +207,58 @@ void PanelSettings::load_config( stream_reader& reader, t_size size, abort_callb
                 throw pfc::exception();
             }
             reader.skip_object( sizeof( false ), abort ); // HACK: skip over "delay load"
-            reader.read_object_t( m_config_guid, abort );
-            reader.read_object( &m_edge_style, sizeof( m_edge_style ), abort );
-            m_config_prop.load( reader, abort );
+            reader.read_object_t( guid, abort );
+            reader.read_object( &edgeStyle, sizeof( edgeStyle ), abort );
+            properties.LoadBinary( reader, abort );
             reader.skip_object( sizeof( false ), abort ); // HACK: skip over "disable before"
-            reader.read_object_t( m_grab_focus, abort );
-            reader.read_object( &m_wndpl, sizeof( m_wndpl ), abort );
-            m_script_code = smp::pfc_x::ReadString( reader, abort );
-            reader.read_object_t( m_pseudo_transparent, abort );
+            reader.read_object_t( shouldGrabFocus, abort );
+            reader.read_object( &windowPlacement, sizeof( windowPlacement ), abort );
+            script = smp::pfc_x::ReadString( reader, abort );
+            reader.read_object_t( isPseudoTransparent, abort );
         }
         catch ( const pfc::exception& )
         {
-            reset_config();
+            ResetToDefault();
             FB2K_console_formatter() << "Error: " SMP_NAME_WITH_VERSION " Configuration has been corrupted. All settings have been reset.";
         }
     }
 }
 
-void PanelSettings::reset_config()
+void PanelSettings::ResetToDefault()
 {
-    m_script_code = get_default_script_code();
-    m_pseudo_transparent = false;
-    m_wndpl.length = 0;
-    m_grab_focus = true;
-    m_edge_style = EdgeStyle::NO_EDGE;
+    script = GetDefaultScript();
+    isPseudoTransparent = false;
+    windowPlacement.length = 0;
+    shouldGrabFocus = true;
+    edgeStyle = EdgeStyle::NO_EDGE;
 	// should not fail
-    (void)CoCreateGuid( &m_config_guid );
+    (void)CoCreateGuid( &guid );
 }
 
-void PanelSettings::save_config( stream_writer& writer, abort_callback& abort ) const
+void PanelSettings::Save( stream_writer& writer, abort_callback& abort ) const
 {
     try
     {
         const auto currentVersion = static_cast<uint32_t>( Version::CONFIG_VERSION_CURRENT );
         writer.write_object_t( currentVersion, abort );
         writer.write_object_t( false, abort ); // HACK: write this in place of "delay load"
-        writer.write_object_t( m_config_guid, abort );
-        writer.write_object( &m_edge_style, sizeof( m_edge_style ), abort );
-        m_config_prop.save( writer, abort );
+        writer.write_object_t( guid, abort );
+        writer.write_object( &edgeStyle, sizeof( edgeStyle ), abort );
+        properties.SaveBinary( writer, abort );
         writer.write_object_t( false, abort ); // HACK: write this in place of "disable before"
-        writer.write_object_t( m_grab_focus, abort );
-        writer.write_object( &m_wndpl, sizeof( m_wndpl ), abort );
-        writer.write_string( m_script_code.c_str(), abort );
-        writer.write_object_t( m_pseudo_transparent, abort );
+        writer.write_object_t( shouldGrabFocus, abort );
+        writer.write_object( &windowPlacement, sizeof( windowPlacement ), abort );
+        writer.write_string( script.c_str(), abort );
+        writer.write_object_t( isPseudoTransparent, abort );
     }
     catch ( const pfc::exception& )
     {
     }
+}
+
+void PanelSettings::SaveDefault( stream_writer& writer, abort_callback& abort )
+{
+    PanelSettings().Save( writer, abort );
 }
 
 } // namespace smp::config

@@ -56,13 +56,15 @@ JS::Value FbProperties::GetProperty( const std::wstring& propName, JS::HandleVal
     }
     else
     {
-        auto prop = parentPanel_.get_config_prop().get_config_item( trimmedPropName );
-        if ( prop )
+        auto& panelPropertyValues = parentPanel_.GetSettings().properties.values;
+
+        auto it = panelPropertyValues.find( propName );
+        if ( it != panelPropertyValues.end() )
         {
             hasProperty = true;
 
             JS::RootedValue jsProp( pJsCtx_ );
-            DeserializeJsValue( pJsCtx_, *prop, &jsProp );
+            DeserializeJsValue( pJsCtx_, *it->second, &jsProp );
             properties_.emplace( trimmedPropName, std::make_unique<HeapElement>( jsProp ) );
         }
     }
@@ -84,9 +86,11 @@ void FbProperties::SetProperty( const std::wstring& propName, JS::HandleValue pr
 {
     std::wstring trimmedPropName( smp::string::Trim<wchar_t>( propName ) );
 
+    auto& panelPropertyValues = parentPanel_.GetSettings().properties.values;
+
     if ( propValue.isNullOrUndefined() )
     {
-        parentPanel_.get_config_prop().remove_config_item( trimmedPropName );
+        panelPropertyValues.erase( trimmedPropName );
         properties_.erase( trimmedPropName );
         return;
     }
@@ -94,7 +98,7 @@ void FbProperties::SetProperty( const std::wstring& propName, JS::HandleValue pr
     auto serializedValue = SerializeJsValue( pJsCtx_, propValue );
 
     properties_.insert_or_assign( trimmedPropName, std::make_unique<HeapElement>( propValue ) );
-    parentPanel_.get_config_prop().set_config_item( trimmedPropName, serializedValue );
+    panelPropertyValues.insert_or_assign( trimmedPropName, std::make_shared<SerializedJsValue>( serializedValue ) );
 }
 
 void FbProperties::TraceHeapValue( JSTracer* trc, void* data )

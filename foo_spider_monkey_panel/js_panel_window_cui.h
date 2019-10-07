@@ -9,6 +9,9 @@ class js_panel_window_cui
     , public cui::fonts::common_callback
     , public cui::colours::common_callback
 {
+public:
+    js_panel_window_cui();
+
 protected:
     // js_panel_window
     DWORD GetColour( unsigned type, const GUID& guid = pfc::guid_null ) override;

@@ -1,21 +1,39 @@
 #include <stdafx.h>
+
 #include "js_panel_window.h"
 
+#include <js_engine/js_container.h>
 #include <ui/ui_conf.h>
 #include <ui/ui_property.h>
-
-#include <js_engine/js_container.h>
 #include <utils/art_helpers.h>
 #include <utils/error_popup.h>
 #include <utils/gdi_helpers.h>
 #include <utils/image_helpers.h>
 #include <utils/scope_helpers.h>
 
-#include <message_manager.h>
-#include <drop_action_params.h>
-#include <message_blocking_scope.h>
 #include <com_message_scope.h>
 #include <component_paths.h>
+#include <drop_action_params.h>
+#include <message_blocking_scope.h>
+#include <message_manager.h>
+
+namespace
+{
+
+DWORD ConvertEdgeStyleToNativeFlags( smp::config::EdgeStyle edge_style )
+{
+    switch ( edge_style )
+    {
+    case smp::config::EdgeStyle::SUNKEN_EDGE:
+        return WS_EX_CLIENTEDGE;
+    case smp::config::EdgeStyle::GREY_EDGE:
+        return WS_EX_STATICEDGE;
+    default:
+        return 0;
+    }
+}
+
+} // namespace
 
 namespace mozjs
 {
@@ -27,7 +45,8 @@ namespace smp::panel
 
 js_panel_window::js_panel_window( PanelType instanceType )
     : panelType_( instanceType )
-    , m_script_info( get_config_guid() )
+    , settings_()
+    , m_script_info( settings_.guid )
 {
 }
 
@@ -41,7 +60,7 @@ ui_helpers::container_window::class_data& js_panel_window::get_class_data() cons
         false,
         0,
         WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
-        edge_style_from_config( get_edge_style() ),
+        ConvertEdgeStyleToNativeFlags( settings_.edgeStyle ),
         CS_DBLCLKS,
         true,
         true,
@@ -56,7 +75,7 @@ void js_panel_window::update_script( const char* code )
 {
     if ( code )
     {
-        get_script_code() = code;
+        settings_.script = code;
     }
 
     if ( pJsContainer_ )
@@ -217,7 +236,7 @@ std::optional<LRESULT> js_panel_window::process_window_messages( UINT msg, WPARA
         }
         isPaintInProgress_ = true;
 
-        if ( get_pseudo_transparent() && isBgRepaintNeeded_ )
+        if ( settings_.isPseudoTransparent && isBgRepaintNeeded_ )
         { // Two pass redraw: paint BG > Repaint() > paint FG
             RECT rc;
             GetUpdateRect( hWnd_, &rc, FALSE );
@@ -250,7 +269,7 @@ std::optional<LRESULT> js_panel_window::process_window_messages( UINT msg, WPARA
         RECT rect;
         GetClientRect( hWnd_, &rect );
         on_size( rect.right - rect.left, rect.bottom - rect.top );
-        if ( get_pseudo_transparent() )
+        if ( settings_.isPseudoTransparent )
         {
             message_manager::instance().post_msg( hWnd_, static_cast<UINT>( InternalAsyncMessage::refresh_bg ) );
         }
@@ -603,7 +622,7 @@ std::optional<LRESULT> js_panel_window::process_internal_sync_messages( Internal
     case InternalSyncMessage::update_size:
     {
         on_size( width_, height_ );
-        if ( get_pseudo_transparent() )
+        if ( settings_.isPseudoTransparent )
         {
             message_manager::instance().post_msg( hWnd_, static_cast<UINT>( InternalAsyncMessage::refresh_bg ) );
         }
@@ -750,7 +769,7 @@ void js_panel_window::execute_context_menu_command( uint32_t id, uint32_t id_bas
 
 GUID js_panel_window::GetGUID()
 {
-    return get_config_guid();
+    return settings_.guid;
 }
 
 HDC js_panel_window::GetHDC() const
@@ -891,7 +910,7 @@ void js_panel_window::RepaintBackground( LPRECT lprcUpdate /*= nullptr */ )
 
     DeleteRgn( rgn_child );
     SetWindowRgn( hWnd_, nullptr, FALSE );
-    if ( smp::config::EdgeStyle::NO_EDGE != get_edge_style() )
+    if ( smp::config::EdgeStyle::NO_EDGE != settings_.edgeStyle )
     {
         SendMessage( hWnd_, WM_NCPAINT, 1, 0 );
     }
@@ -907,7 +926,7 @@ bool js_panel_window::script_load()
     const auto extstyle = [&]() {
         DWORD extstyle = GetWindowLongPtr( hWnd_, GWL_EXSTYLE );
         extstyle &= ~WS_EX_CLIENTEDGE & ~WS_EX_STATICEDGE;
-        extstyle |= edge_style_from_config( get_edge_style() );
+        extstyle |= ConvertEdgeStyleToNativeFlags( settings_.edgeStyle );
 
         return extstyle;
     }();
@@ -924,7 +943,7 @@ bool js_panel_window::script_load()
         return false;
     }
 
-    if ( !pJsContainer_->ExecuteScript( get_script_code().c_str() ) )
+    if ( !pJsContainer_->ExecuteScript( settings_.script ) )
     { // error reporting handled inside
         return false;
     }
@@ -932,10 +951,11 @@ bool js_panel_window::script_load()
     // HACK: Script update will not call on_size, so invoke it explicitly
     SendMessage( hWnd_, static_cast<UINT>( InternalSyncMessage::update_size ), 0, 0 );
 
-    FB2K_console_formatter() << fmt::format( 
-        SMP_NAME_WITH_VERSION " ({}): initialized in {} ms", 
-        ScriptInfo().build_info_string(), static_cast<uint32_t>( timer.query() * 1000 )
-    ).c_str();
+    FB2K_console_formatter() << fmt::format(
+                                    SMP_NAME_WITH_VERSION " ({}): initialized in {} ms",
+                                    ScriptInfo().build_info_string(),
+                                    static_cast<uint32_t>( timer.query() * 1000 ) )
+                                    .c_str();
     return true;
 }
 
@@ -954,7 +974,7 @@ void js_panel_window::create_context()
 
     hBitmap_ = CreateCompatibleBitmap( hDc_, width_, height_ );
 
-    if ( get_pseudo_transparent() )
+    if ( settings_.isPseudoTransparent )
     {
         hBitmapBg_ = CreateCompatibleBitmap( hDc_, width_, height_ );
     }
@@ -997,7 +1017,7 @@ void js_panel_window::on_context_menu( int x, int y )
 
 void js_panel_window::on_erase_background()
 {
-    if ( get_pseudo_transparent() )
+    if ( settings_.isPseudoTransparent )
     {
         message_manager::instance().post_msg( hWnd_, static_cast<UINT>( InternalAsyncMessage::refresh_bg ) );
     }
@@ -1247,7 +1267,7 @@ void js_panel_window::on_mouse_button_dblclk( UINT msg, WPARAM wp, LPARAM lp )
 
 void js_panel_window::on_mouse_button_down( UINT msg, WPARAM wp, LPARAM lp )
 {
-    if ( get_grab_focus() )
+    if ( settings_.shouldGrabFocus )
     {
         SetFocus( hWnd_ );
     }
@@ -1396,7 +1416,7 @@ void js_panel_window::on_paint( HDC dc, LPRECT lpUpdateRect )
     }
     else
     {
-        if ( get_pseudo_transparent() )
+        if ( settings_.isPseudoTransparent )
         {
             const auto pBkDc = gdi::CreateUniquePtr( CreateCompatibleDC( dc ) );
             const HDC hBkDc = pBkDc.get();
@@ -1620,6 +1640,16 @@ void js_panel_window::on_volume_change( CallbackData& callbackData )
     auto& data = callbackData.GetData<float>();
     pJsContainer_->InvokeJsCallback( "on_volume_change",
                                      std::get<0>( data ) );
+}
+
+config::PanelSettings& js_panel_window::GetSettings()
+{
+    return settings_;
+}
+
+const config::PanelSettings& js_panel_window::GetSettings() const
+{
+    return settings_;
 }
 
 } // namespace smp::panel

@@ -9,16 +9,16 @@ struct PanelInfo
     std::u8string version;
     std::u8string author;
 
-    PanelInfo( const GUID& guid_ref )
-        : m_guid_ref( guid_ref )
+    PanelInfo( const GUID& guid )
+        : guid_( guid )
     {
     }
 
     void clear()
     {
-        name = "";
-        version = "";
-        author = "";
+        name.clear();
+        version.clear();
+        author.clear();
     }
 
     std::u8string build_info_string( bool full = true ) const
@@ -31,7 +31,7 @@ struct PanelInfo
         }
         else
         {
-            ret += fmt::format( "{{{}}}", pfc::print_guid( m_guid_ref ) );
+            ret += fmt::format( "{{{}}}", pfc::print_guid( guid_ ) );
         }
 
         if ( full )
@@ -50,7 +50,7 @@ struct PanelInfo
     }
 
 private:
-    const GUID& m_guid_ref;
+    GUID guid_;
 };
 
 } // namespace smp::panel

@@ -19,7 +19,7 @@ enum class JsValueType : uint32_t
 namespace smp::config
 {
 
-bool LoadProperties_Binary( PanelProperties::config_map& data, stream_reader& reader, abort_callback& abort )
+bool LoadProperties_Binary( PanelProperties::PropertyMap& data, stream_reader& reader, abort_callback& abort )
 {
     data.clear();
 
@@ -83,7 +83,7 @@ bool LoadProperties_Binary( PanelProperties::config_map& data, stream_reader& re
     return true;
 }
 
-void SaveProperties_Binary( const PanelProperties::config_map& data, stream_writer& writer, abort_callback& abort )
+void SaveProperties_Binary( const PanelProperties::PropertyMap& data, stream_writer& writer, abort_callback& abort )
 {
     try
     {
@@ -140,7 +140,7 @@ void SaveProperties_Binary( const PanelProperties::config_map& data, stream_writ
     }
 }
 
-bool LoadProperties_Com( PanelProperties::config_map& data, stream_reader& reader, abort_callback& abort )
+bool LoadProperties_Com( PanelProperties::PropertyMap& data, stream_reader& reader, abort_callback& abort )
 {
     data.clear();
 
