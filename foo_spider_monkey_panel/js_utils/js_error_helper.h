@@ -1,14 +1,45 @@
 #pragma once
 
+#include <utils/stacktrace.h>
+
+#include <adv_config.h>
+
 namespace mozjs::error
 {
+
+namespace internal
+{
+
+template <typename F, typename... Args>
+void Execute_JsWithSehStackTrace( JSContext* cx, F&& func, Args&&... args )
+{
+    __try
+    {
+        func( cx, std::forward<Args>( args )... );
+    }
+    __except ( smp::SehHandler_ConsoleStacktrace( GetExceptionInformation(), GetExceptionCode() ) )
+    {
+        throw;
+    }
+}
+
+} // namespace internal
 
 template <typename F, typename... Args>
 bool Execute_JsSafe( JSContext* cx, std::string_view functionName, F&& func, Args&&... args )
 {
     try
     {
-        func( cx, std::forward<Args>( args )... );
+#ifdef SMP_ENABLE_CXX_STACKTRACE
+        if ( smp::config::advanced::stacktrace.get() )
+        {
+            internal::Execute_JsWithSehStackTrace( cx, std::forward<F>( func ), std::forward<Args>( args )... );
+        }
+        else
+#endif //SMP_ENABLE_CXX_STACKTRACE
+        {
+            func( cx, std::forward<Args>( args )... );
+        }
     }
     catch ( ... )
     {

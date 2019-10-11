@@ -1,13 +1,15 @@
 #include <stdafx.h>
+
 #include "js_error_helper.h"
 
-#include <convert/native_to_js.h>
 #include <convert/js_to_native.h>
+#include <convert/native_to_js.h>
 #include <js_objects/global_object.h>
-#include <utils/scope_helpers.h>
 #include <js_utils/js_property_helper.h>
+#include <utils/scope_helpers.h>
 
 #include <smp_exception.h>
+
 
 using namespace smp;
 

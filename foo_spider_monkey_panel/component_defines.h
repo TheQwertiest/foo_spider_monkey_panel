@@ -41,3 +41,8 @@
                           "Based on WSH Panel Mod by T.P. Wang\n\n" \
                           "Build: " __TIME__ ", " __DATE__ "\n"     \
                           "Columns UI SDK Version: " UI_EXTENSION_VERSION
+
+#ifdef _DEBUG
+#    define SMP_ENABLE_CXX_STACKTRACE
+#endif
+

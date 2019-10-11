@@ -208,6 +208,7 @@
     <ClCompile Include="utils\pfc_helpers_stream.cpp" />
     <ClCompile Include="utils\semantic_version.cpp" />
     <ClCompile Include="utils\stackblur.cpp" />
+    <ClCompile Include="utils\stacktrace.cpp" />
     <ClCompile Include="utils\string_helpers.cpp" />
     <ClCompile Include="utils\text_helpers.cpp" />
     <ClCompile Include="utils\thread_helpers.cpp" />
@@ -337,6 +338,7 @@
     <ClInclude Include="utils\scope_helpers.h" />
     <ClInclude Include="utils\semantic_version.h" />
     <ClInclude Include="utils\stackblur.h" />
+    <ClInclude Include="utils\stacktrace.h" />
     <ClInclude Include="utils\string_helpers.h" />
     <ClInclude Include="utils\text_helpers.h" />
     <ClInclude Include="utils\thread_helpers.h" />

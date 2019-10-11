@@ -322,6 +322,9 @@
     <ClCompile Include="ui\scintilla\ui_sci_goto.cpp">
       <Filter>ui\scintilla</Filter>
     </ClCompile>
+    <ClCompile Include="utils\stacktrace.cpp">
+      <Filter>utils</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="js_engine\js_engine.h">
@@ -704,6 +707,9 @@
     </ClInclude>
     <ClInclude Include="ui\scintilla\ui_sci_goto.h">
       <Filter>ui\scintilla</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\stacktrace.h">
+      <Filter>utils</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
