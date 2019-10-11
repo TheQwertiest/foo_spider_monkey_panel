@@ -484,7 +484,7 @@ void CScriptEditorCtrl::ReadAPI()
         }
         catch ( const smp::SmpException& e )
         {
-            FB2K_console_formatter() << "Warning: " SMP_NAME_WITH_VERSION ": Could not load file " << std::u8string{ file.data(), file.size() }.c_str();
+            FB2K_console_formatter() << "Warning: " SMP_NAME_WITH_VERSION ": Could not load file " << std::u8string{ file.data(), file.size() };
             FB2K_console_formatter() << e.what();
         }
     }

@@ -163,7 +163,6 @@ void JsContainer::Fail( const std::u8string& errorText )
         return text;
     }();
 
-    FB2K_console_formatter() << errorTextPadded.c_str();
     pParentPanel_->JsEngineFail( errorTextPadded );
 }
 

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <string_view>
 
 // `operator>>` and `operator<<` overloads for various fb2k SDK streams
 
@@ -22,6 +23,9 @@ FB2K_STREAM_WRITER_OVERLOAD( std::string )
     stream.write_raw( value.c_str(), value.length() );
     return stream;
 }
+
+pfc::string_base& operator<<( pfc::string_base& in, std::u8string_view arg );
+pfc::string_base& operator<<( pfc::string_base& in, std::wstring_view arg );
 
 namespace smp::pfc_x
 {

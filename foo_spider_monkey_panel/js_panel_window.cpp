@@ -87,7 +87,7 @@ void js_panel_window::update_script( const char* code )
 
 void js_panel_window::JsEngineFail( const std::u8string& errorText )
 {
-    smp::utils::ShowErrorPopup( errorText.c_str() );
+    smp::utils::ReportErrorWithPopup( errorText.c_str() );
     SendMessage( hWnd_, static_cast<UINT>( InternalSyncMessage::script_error ), 0, 0 );
 }
 
@@ -954,8 +954,7 @@ bool js_panel_window::script_load()
     FB2K_console_formatter() << fmt::format(
                                     SMP_NAME_WITH_VERSION " ({}): initialized in {} ms",
                                     ScriptInfo().build_info_string(),
-                                    static_cast<uint32_t>( timer.query() * 1000 ) )
-                                    .c_str();
+                                    static_cast<uint32_t>( timer.query() * 1000 ) );
     return true;
 }
 

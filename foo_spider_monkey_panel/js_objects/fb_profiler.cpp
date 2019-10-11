@@ -122,7 +122,7 @@ void JsFbProfiler::Print( const std::u8string& additionalMsg, bool printComponen
     }
     msg += fmt::format( " {}ms", static_cast<uint32_t>( timer_.query() * 1000 ) );
 
-    FB2K_console_formatter() << msg.c_str();
+    FB2K_console_formatter() << msg;
 }
 
 void JsFbProfiler::PrintWithOpt( size_t optArgCount, const std::u8string& additionalMsg, bool printComponentInfo )

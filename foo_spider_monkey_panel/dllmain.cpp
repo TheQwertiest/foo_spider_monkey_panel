@@ -145,7 +145,7 @@ private:
             errorText += fmt::format( "{}: error code: {:#x}\r\n", failure.description, failure.errorCode );
         }
 
-        smp::utils::ShowErrorPopup( errorText.c_str() );
+        smp::utils::ReportErrorWithPopup( errorText.c_str() );
     }
 };
 

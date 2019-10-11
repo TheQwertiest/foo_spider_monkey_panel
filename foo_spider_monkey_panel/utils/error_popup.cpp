@@ -6,9 +6,9 @@
 namespace smp::utils
 {
 
-void ShowErrorPopup( const std::string& errorText )
+void ReportErrorWithPopup( const std::string& errorText )
 {
-    FB2K_console_formatter() << errorText.c_str();
+    FB2K_console_formatter() << errorText;
     smp::utils::DelayedExecutor::GetInstance().AddTask( [errorText] {
         popup_message::g_show( errorText.c_str(), SMP_NAME );
     } );

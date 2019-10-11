@@ -47,7 +47,7 @@ void ReportException( const std::u8string& errorText )
         return text;
     }();
 
-    smp::utils::ShowErrorPopup( errorTextPadded.c_str() );
+    smp::utils::ReportErrorWithPopup( errorTextPadded.c_str() );
 }
 
 } // namespace

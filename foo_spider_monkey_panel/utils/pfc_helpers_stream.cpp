@@ -1,5 +1,19 @@
 #include <stdafx.h>
+
 #include "pfc_helpers_stream.h"
+
+pfc::string_base& operator<<( pfc::string_base& in, std::u8string_view arg )
+{
+    in.add_string( arg.data(), arg.size() );
+    return in;
+}
+
+pfc::string_base& operator<<( pfc::string_base& in, std::wstring_view arg )
+{
+    const auto u8Arg = smp::unicode::ToU8( arg );
+    in.add_string( u8Arg.data(), u8Arg.size() );
+    return in;
+}
 
 namespace smp::pfc_x
 {
