@@ -9,9 +9,11 @@ advconfig_branch_factory branch_smp(
     "Spider Monkey Panel", smp::guid::adv_branch, advconfig_branch::guid_branch_tools, 0 );
 advconfig_branch_factory branch_gc(
     "GC: restart is required", smp::guid::adv_branch_gc, smp::guid::adv_branch, 0 );
-#ifdef _DEBUG
+#ifdef SMP_ENABLE_CXX_STACKTRACE
 advconfig_branch_factory branch_stacktrace(
     "C++ exception stack trace", smp::guid::adv_branch_stacktrace, smp::guid::adv_branch, 1 );
+#endif
+#ifdef _DEBUG
 advconfig_branch_factory branch_zeal(
     "Zeal", smp::guid::adv_branch_zeal, smp::guid::adv_branch_gc, 4 );
 #endif
@@ -42,6 +44,21 @@ advconfig_integer_factory gc_max_alloc_increase(
     smp::guid::adv_var_gc_max_alloc_increase, smp::guid::adv_branch_gc, 4,
     1000, 1, 100000 );
 
+#ifdef SMP_ENABLE_CXX_STACKTRACE
+advconfig_checkbox_factory stacktrace(
+    "Enable",
+    smp::guid::adv_var_stacktrace, smp::guid::adv_branch_stacktrace, 0,
+    false );
+advconfig_integer_factory stacktrace_max_depth(
+    "Maximum stack trace depth",
+    smp::guid::adv_var_stacktrace_depth, smp::guid::adv_branch_stacktrace, 1,
+    10, 5, 100 );
+advconfig_integer_factory stacktrace_max_recursion(
+    "Maximum number of recursions",
+    smp::guid::adv_var_stacktrace_recursion, smp::guid::adv_branch_stacktrace, 2,
+    5, 5, 100 );
+#endif
+
 #ifdef _DEBUG
 advconfig_checkbox_factory zeal(
     "Enable",
@@ -55,18 +72,7 @@ advconfig_integer_factory zeal_freq(
     "Frequency (in number of allocations)",
     smp::guid::adv_var_zeal_freq, smp::guid::adv_branch_zeal, 2,
     400, 1, 5000 );
-advconfig_checkbox_factory stacktrace(
-    "Enable",
-    smp::guid::adv_var_stacktrace, smp::guid::adv_branch_stacktrace, 0,
-    false );
-advconfig_integer_factory stacktrace_max_depth(
-    "Maximum stack trace depth",
-    smp::guid::adv_var_stacktrace_depth, smp::guid::adv_branch_stacktrace, 1,
-    10, 5, 100 );
-advconfig_integer_factory stacktrace_max_recursion(
-    "Maximum number of recursions",
-    smp::guid::adv_var_stacktrace_recursion, smp::guid::adv_branch_stacktrace, 2,
-    5, 5, 100 );
+
 #endif
 
 } // namespace smp::config::advanced
