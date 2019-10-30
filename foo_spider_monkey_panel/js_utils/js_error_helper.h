@@ -25,6 +25,11 @@ void Execute_JsWithSehStackTrace( JSContext* cx, F&& func, Args&&... args )
 
 } // namespace internal
 
+std::u8string JsErrorToText( JSContext* cx );
+void ExceptionToJsError( JSContext* cx );
+void SuppressException( JSContext* cx );
+void PrependTextToJsError( JSContext* cx, const std::u8string& text );
+
 template <typename F, typename... Args>
 bool Execute_JsSafe( JSContext* cx, std::string_view functionName, F&& func, Args&&... args )
 {
@@ -69,10 +74,5 @@ private:
     JSContext* cx;
     bool isDisabled_ = false;
 };
-
-std::u8string JsErrorToText( JSContext* cx );
-void ExceptionToJsError( JSContext* cx );
-void SuppressException( JSContext* cx );
-void PrependTextToJsError( JSContext* cx, const std::u8string& text );
 
 } // namespace mozjs::error

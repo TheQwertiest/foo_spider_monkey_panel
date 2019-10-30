@@ -3,6 +3,7 @@
 #include <js_objects/internal/global_heap_manager.h>
 
 #include <array>
+#include <mutex>
 
 namespace mozjs
 {

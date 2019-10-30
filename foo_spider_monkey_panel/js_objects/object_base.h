@@ -2,6 +2,15 @@
 
 #include <js_engine/js_compartment_inner.h>
 #include <js_utils/js_prototype_helpers.h>
+
+#pragma warning( push )
+#pragma warning( disable : 4100 ) // unused variable
+#pragma warning( disable : 4251 ) // dll interface warning
+#pragma warning( disable : 4324 ) // structure was padded due to alignment specifier
+#pragma warning( disable : 4996 ) // C++17 deprecation warning (STL4015)
+#include <js/proxy.h>
+#pragma warning( pop ) 
+
 #include <memory>
 
 class JSObject;
@@ -102,8 +111,7 @@ public:
     virtual ~JsObjectBase() = default;
 
 public:
-    [[nodiscard]] 
-    static JSObject* CreateProto( JSContext* cx )
+    [[nodiscard]] static JSObject* CreateProto( JSContext* cx )
     {
         JS::RootedObject jsObject( cx,
                                    JS_NewPlainObject( cx ) );
@@ -121,8 +129,7 @@ public:
         return jsObject;
     }
 
-    [[nodiscard]] 
-    static JSObject* InstallProto( JSContext* cx, JS::HandleObject parentObject )
+    [[nodiscard]] static JSObject* InstallProto( JSContext* cx, JS::HandleObject parentObject )
     {
         auto pJsProto = JS_InitClass( cx, parentObject, nullptr, &T::JsClass, T::JsConstructor, 0, T::JsProperties, T::JsFunctions, nullptr, nullptr );
         if ( !pJsProto )
@@ -133,8 +140,7 @@ public:
     }
 
     template <typename... ArgTypes>
-    [[nodiscard]] 
-    static JSObject* CreateJs( JSContext* cx, ArgTypes&&... args )
+    [[nodiscard]] static JSObject* CreateJs( JSContext* cx, ArgTypes&&... args )
     {
         JS::RootedObject jsProto( cx );
         if constexpr ( T::HasProto )
@@ -155,8 +161,7 @@ public:
         return CreateJsObject_Final( cx, jsProto, jsObject, std::move( nativeObject ) );
     }
 
-    [[nodiscard]] 
-    static JSObject* CreateJsFromNative( JSContext* cx, std::unique_ptr<T> nativeObject )
+    [[nodiscard]] static JSObject* CreateJsFromNative( JSContext* cx, std::unique_ptr<T> nativeObject )
     {
         JS::RootedObject jsProto( cx );
         if constexpr ( T::HasProto )
@@ -191,8 +196,7 @@ public:
 
 private:
     template <typename = typename std::enable_if_t<T::HasProto>>
-    [[nodiscard]]
-    static JSObject* GetProto( JSContext* cx )
+    [[nodiscard]] static JSObject* GetProto( JSContext* cx )
     {
         JS::RootedObject jsProto( cx );
         if constexpr ( T::HasGlobalProto )
@@ -207,8 +211,7 @@ private:
         return jsProto;
     }
 
-    [[nodiscard]]
-    static JSObject* CreateJsObject_Base( JSContext* cx, [[maybe_unused]] JS::HandleObject jsProto )
+    [[nodiscard]] static JSObject* CreateJsObject_Base( JSContext* cx, [[maybe_unused]] JS::HandleObject jsProto )
     {
         JS::RootedObject jsObject( cx );
         if constexpr ( T::HasProto )
@@ -238,11 +241,10 @@ private:
         return jsObject;
     }
 
-    [[nodiscard]]
-    static JSObject* CreateJsObject_Final( JSContext* cx,
-                                           [[maybe_unused]] JS::HandleObject jsProto,
-                                           JS::HandleObject jsBaseObject,
-                                           std::unique_ptr<T> premadeNative )
+    [[nodiscard]] static JSObject* CreateJsObject_Final( JSContext* cx,
+                                                         [[maybe_unused]] JS::HandleObject jsProto,
+                                                         JS::HandleObject jsBaseObject,
+                                                         std::unique_ptr<T> premadeNative )
     {
         auto pJsCompartment = static_cast<JsCompartmentInner*>( JS_GetCompartmentPrivate( js::GetContextCompartment( cx ) ) );
         assert( pJsCompartment );

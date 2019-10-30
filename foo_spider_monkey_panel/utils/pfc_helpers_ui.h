@@ -1,5 +1,7 @@
 #pragma once
 
+#include <utils/unicode.h>
+
 #include <string>
 
 namespace smp::pfc_x
