@@ -427,7 +427,7 @@ bool CScriptEditorCtrl::ProcessKey( uint32_t vk )
         {
             if ( HasFindText() )
             {
-                FindNext();
+                FindTextSimple( FindReplaceState::Direction::down );
             }
             else
             {
@@ -442,7 +442,7 @@ bool CScriptEditorCtrl::ProcessKey( uint32_t vk )
         {
             if ( HasFindText() )
             {
-                FindPrevious();
+                FindTextSimple( FindReplaceState::Direction::up );
             }
             else
             {

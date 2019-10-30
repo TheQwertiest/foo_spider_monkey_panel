@@ -7,6 +7,21 @@
 namespace scintilla
 {
 
+bool FindReplaceState::operator!=( const FindReplaceState& other ) const
+{
+    return ( findText != other.findText
+             || replaceText != other.replaceText
+             || findDirection != other.findDirection
+             || isCaseSensitive != other.isCaseSensitive
+             || findWholeWord != other.findWholeWord
+             || useWrapAround != other.useWrapAround
+             || useRegExp != other.useRegExp );
+}
+
+bool FindReplaceState::operator==( const FindReplaceState& other ) const {
+    return !( *this != other );
+}
+
 DWORD FindReplaceState::ToScintillaFlags( DWORD currentFlags ) const
 {
     SetFlag( currentFlags, isCaseSensitive, SCFIND_MATCHCASE );
@@ -23,7 +38,7 @@ void FindReplaceState::FromScintillaFlags( DWORD scintillaFlags )
 }
 DWORD FindReplaceState::ToFrFlags( DWORD currentFlags ) const
 {
-    SetFlag( currentFlags, findDown, FR_DOWN );
+    SetFlag( currentFlags, findDirection == Direction::down, FR_DOWN );
     SetFlag( currentFlags, isCaseSensitive, FR_MATCHCASE );
     SetFlag( currentFlags, findWholeWord, FR_WHOLEWORD );
 
@@ -31,7 +46,7 @@ DWORD FindReplaceState::ToFrFlags( DWORD currentFlags ) const
 }
 void FindReplaceState::FromFrFlags( DWORD frFlags )
 {
-    findDown = !!( frFlags & FR_DOWN );
+    findDirection = ( !!( frFlags & FR_DOWN ) ? Direction::down : Direction::up );
     isCaseSensitive = !!( frFlags & FR_MATCHCASE );
     findWholeWord = !!( frFlags & FR_WHOLEWORD );
 }
@@ -77,6 +92,29 @@ LRESULT CCustomFindReplaceDlg::OnDestroy( UINT uMsg, WPARAM wParam, LPARAM lPara
     return 0;
 }
 
+LRESULT CCustomFindReplaceDlg::OnActivate( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled )
+{
+    bHandled = false; ///< don't suppress base class methods
+
+    if ( LOWORD( wParam ) == WA_INACTIVE && IsWindowVisible() )
+    {
+        ModifyStyleEx( 0, WS_EX_LAYERED );
+        SetLayeredWindowAttributes( m_hWnd, 0, 150, LWA_ALPHA );
+    }
+    else
+    {
+        ModifyStyleEx( WS_EX_LAYERED, 0 );
+    }
+
+    return 0;
+}
+
+LRESULT CCustomFindReplaceDlg::OnWrapAroundClick( WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL bHandled )
+{
+    wrapAroundSearch_ = uButton_GetCheck( m_hWnd, wID );
+    return 0;
+}
+
 LRESULT CCustomFindReplaceDlg::OnUseRegExpClick( WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL bHandled )
 {
     useRegExp_ = uButton_GetCheck( m_hWnd, wID );
@@ -108,6 +146,17 @@ void CCustomFindReplaceDlg::SetRegExpState( bool newState )
 {
     useRegExp_ = newState;
     uButton_SetCheck( m_hWnd, IDC_CHECK_USE_REGEXP, useRegExp_ );
+}
+
+bool CCustomFindReplaceDlg::GetWrapAroundSearchState() const
+{
+    return wrapAroundSearch_;
+}
+
+void CCustomFindReplaceDlg::SetWrapAroundSearchState( bool newState )
+{
+    wrapAroundSearch_ = newState;
+    uButton_SetCheck( m_hWnd, chx3, wrapAroundSearch_ );
 }
 
 } // namespace scintilla

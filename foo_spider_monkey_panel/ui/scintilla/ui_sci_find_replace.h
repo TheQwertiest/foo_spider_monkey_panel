@@ -9,6 +9,15 @@ class CScriptEditorCtrl;
 
 struct FindReplaceState
 {
+    enum class Direction
+    {
+        down,
+        up
+    };
+
+    bool operator!=( const FindReplaceState& other ) const;
+    bool operator==( const FindReplaceState& other ) const;
+
     DWORD ToScintillaFlags( DWORD currentFlags = 0 ) const;
     void FromScintillaFlags( DWORD scintillaFlags );
     DWORD ToFrFlags( DWORD currentFlags = 0 ) const;
@@ -16,14 +25,17 @@ struct FindReplaceState
 
     std::u8string findText;
     std::u8string replaceText;
-    bool findDown = true;
+    Direction findDirection = Direction::down;
     bool isCaseSensitive = false;
     bool findWholeWord = false;
+    bool useWrapAround = true;
     bool useRegExp = false;
 
 private:
     static void SetFlag( DWORD& currentFlags, bool newFlagValue, DWORD flag );
 };
+
+class CCustomFindReplaceDlg;
 
 class CCustomFindReplaceDlg
     : public CFindReplaceDialog
@@ -32,6 +44,8 @@ protected:
     BEGIN_MSG_MAP( CCustomFindReplaceDlg )
         MESSAGE_HANDLER( WM_INITDIALOG, OnInitDialog )
         MESSAGE_HANDLER( WM_DESTROY, OnDestroy )
+        MESSAGE_HANDLER( WM_ACTIVATE, OnActivate )
+        COMMAND_HANDLER( chx3, BN_CLICKED, OnWrapAroundClick )
         COMMAND_HANDLER( IDC_CHECK_USE_REGEXP, BN_CLICKED, OnUseRegExpClick )
         CHAIN_MSG_MAP( CFindReplaceDialog )
     END_MSG_MAP()
@@ -41,6 +55,8 @@ protected:
 
     LRESULT OnInitDialog( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled );
     LRESULT OnDestroy( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled );
+    LRESULT OnActivate( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled );
+    LRESULT OnWrapAroundClick( WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL bHandled );
     LRESULT OnUseRegExpClick( WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL bHandled );
 
     static void GetMsgProc( int code, WPARAM wParam, LPARAM lParam, HWND hParent );
@@ -49,8 +65,12 @@ public:
     bool GetRegExpState() const;
     void SetRegExpState( bool newState );
 
+    bool GetWrapAroundSearchState() const;
+    void SetWrapAroundSearchState( bool newState );
+
 private:
     uint32_t hookId_ = 0;
+    bool wrapAroundSearch_ = true;
     bool useRegExp_ = false;
 };
 
@@ -61,6 +81,7 @@ class CScintillaFindReplaceImpl
 protected:
     using TFindReplaceDlg = CCustomFindReplaceDlg;
     using BaseClass = CEditFindReplaceImplBase<T>;
+    using Range = std::pair<int, int>;
 
     BEGIN_MSG_MAP( CScintillaFindReplaceImpl )
         ALT_MSG_MAP( 1 )
@@ -80,33 +101,6 @@ public:
     bool HasFindText() const
     {
         return !lastState_.findText.empty();
-    }
-
-    bool Find()
-    {
-        if ( lastState_.findDown )
-        {
-            return FindNext();
-        }
-        else
-        {
-            return FindPrevious();
-        }
-    }
-
-    bool FindNext()
-    {
-        SendMessage( hEdit_, SCI_CHARRIGHT, 0, 0 );
-        SendMessage( hEdit_, SCI_SEARCHANCHOR, 0, 0 );
-        int pos = ::SendMessage( hEdit_, SCI_SEARCHNEXT, lastState_.ToScintillaFlags(), reinterpret_cast<LPARAM>( lastState_.findText.c_str() ) );
-        return FindResult( pos, lastState_.findText );
-    }
-
-    bool FindPrevious()
-    {
-        SendMessage( hEdit_, SCI_SEARCHANCHOR, 0, 0 );
-        int pos = ::SendMessage( hEdit_, SCI_SEARCHPREV, lastState_.ToScintillaFlags(), reinterpret_cast<LPARAM>( lastState_.findText.c_str() ) );
-        return FindResult( pos, lastState_.findText );
     }
 
     // CEditFindReplaceImplBase
@@ -147,6 +141,11 @@ public:
             else
             {
                 hEdit_ = sciEditor_;
+                // Need these in case called via F3, instead of dialog buttons
+                lastState_.findText = smp::unicode::ToU8( findText );
+                lastState_.replaceText = smp::unicode::ToU8( replaceText );
+
+                findReplaceDialog->SetWrapAroundSearchState( lastState_.useWrapAround );
                 findReplaceDialog->SetRegExpState( lastState_.useRegExp );
                 findReplaceDialog->SetActiveWindow();
                 findReplaceDialog->ShowWindow( SW_SHOW );
@@ -164,8 +163,7 @@ public:
 
         T* pT = static_cast<T*>( this );
         LONG nStartChar = 0, nEndChar = 0;
-        // Send EM_GETSEL so we can use both Edit and RichEdit
-        // (CEdit::GetSel uses int&, and CRichEditCtrlT::GetSel uses LONG&)
+
         ::SendMessage( pT->m_hWnd, EM_GETSEL, (WPARAM)&nStartChar, (LPARAM)&nEndChar );
         POINT point = pT->PosFromChar( nStartChar );
         ::ClientToScreen( pT->operator HWND(), &point ); ///< the fix is here
@@ -188,10 +186,40 @@ public:
         }
     }
 
-    BOOL FindTextSimple( LPCTSTR lpszFind, BOOL bMatchCase, BOOL bWholeWord, BOOL bFindDown /*= TRUE */ )
+    /// @brief Find method called via dialog
+    bool FindTextSimple( LPCTSTR lpszFind, BOOL bMatchCase, BOOL bWholeWord, BOOL bFindDown /*= TRUE */ )
     {
-        UpdateFindReplaceState();
-        return Find();
+        const bool hasChanged = UpdateFindReplaceState();
+        if ( hasChanged )
+        {
+            ResetWrapAround();
+        }
+
+        return FindImpl( lastState_.findDirection );
+    }
+
+    /// @brief Find method called by hotkeys
+    bool FindTextSimple( FindReplaceState::Direction direction )
+    {
+        const bool hasChanged = UpdateFindReplaceState();
+        if ( hasChanged )
+        {
+            ResetWrapAround();
+        }
+
+        if ( !FindImpl( direction ) )
+        {
+            BaseClass::TextNotFound( smp::unicode::ToWide( lastState_.findText ).c_str() );
+            return false;
+        }
+        else
+        {
+            if ( BaseClass::m_pFindReplaceDialog )
+            {
+                AdjustDialogPosition( *BaseClass::m_pFindReplaceDialog );
+            }
+            return true;
+        }
     }
 
     void ReplaceSel( const CString& newText )
@@ -228,11 +256,76 @@ public:
     }
 
 private:
-    bool FindResult( int pos, const std::u8string& which )
+    bool FindImpl( FindReplaceState::Direction direction )
+    {
+        const Range selectionRange = { sciEditor_.GetSelectionStart(), sciEditor_.GetSelectionEnd() };
+        if ( lastSearchPosition_ != selectionRange.first )
+        { // user changed cursor position
+            ResetWrapAround();
+        }
+
+        const int docLength = sciEditor_.GetLength();
+
+        sciEditor_.SetSearchFlags( lastState_.ToScintillaFlags() );
+        int pos = FindInRange( direction == FindReplaceState::Direction::down
+                                   ? Range{ selectionRange.second, docLength }
+                                   : Range{ selectionRange.first, 0 } );
+
+        if ( lastState_.useWrapAround )
+        {
+            if ( pos >= 0 && !hasWrappedAround_ )
+            { // continue as usual
+                return ProcessFindResult( pos, lastState_.findText );
+            }
+
+            if ( pos == -1 && !hasWrappedAround_ )
+            { // start search on the whole document
+                pos = FindInRange( direction == FindReplaceState::Direction::down
+                                       ? Range{ 0, docLength }
+                                       : Range{ docLength, 0 } );
+            }
+
+            if ( pos == -1 )
+            {
+                if ( hasWrappedAround_ )
+                { // we had found smth before, so it's not "not found" error
+                    hasWrappedAround_ = false;
+                    pos = selectionRange.first;
+                    MessageOnWrapAroundFinish( lastState_.findText );
+                }
+            }
+            else if ( direction == FindReplaceState::Direction::down && pos >= findStartPosition_
+                      || ( direction == FindReplaceState::Direction::up ) && pos <= findStartPosition_ )
+            {
+                hasWrappedAround_ = false;
+                MessageOnWrapAroundFinish( lastState_.findText );
+            }
+            else
+            {
+                hasWrappedAround_ = true;
+            }
+        }
+
+        return ProcessFindResult( pos, lastState_.findText );
+    }
+
+    int FindInRange( const Range& searchRange )
+    {
+        ::SendMessage( hEdit_, SCI_SETTARGETRANGE, searchRange.first, searchRange.second );
+        const int pos = sciEditor_.SearchInTarget( lastState_.findText.c_str(), lastState_.findText.length() );
+        if ( pos >= 0 )
+        {
+            sciEditor_.SetSel( pos, pos + lastState_.findText.length() );
+        }
+        return pos;
+    }
+
+    bool ProcessFindResult( int pos, const std::u8string& which )
     {
         if ( pos != -1 )
-        { // Scroll to view
-            ::SendMessage( hEdit_, SCI_SCROLLCARET, 0, 0 );
+        {
+            lastSearchPosition_ = pos;
+            sciEditor_.ScrollCaret();
             return true;
         }
         else
@@ -241,18 +334,50 @@ private:
         }
     }
 
-    void UpdateFindReplaceState()
+    bool UpdateFindReplaceState()
     {
         auto pFindReplaceDialog = static_cast<TFindReplaceDlg*>( BaseClass::m_pFindReplaceDialog );
         if ( pFindReplaceDialog )
         {
+            const auto prevState = lastState_;
+
             lastState_.FromFrFlags( pFindReplaceDialog->m_fr.Flags );
             lastState_.findText = smp::unicode::ToU8( pFindReplaceDialog->GetFindString() );
             if ( !isFindOnlyDialog_ )
             {
                 lastState_.replaceText = smp::unicode::ToU8( pFindReplaceDialog->GetReplaceString() );
             }
+            lastState_.useWrapAround = pFindReplaceDialog->GetWrapAroundSearchState();
             lastState_.useRegExp = pFindReplaceDialog->GetRegExpState();
+
+            return ( prevState != lastState_ );
+        }
+
+        return false;
+    }
+
+    void ResetWrapAround()
+    {
+        hasWrappedAround_ = false;
+        findStartPosition_ = sciEditor_.GetSelectionStart();
+        lastSearchPosition_ = findStartPosition_;
+    }
+
+    void MessageOnWrapAroundFinish( const std::u8string& findText )
+    {
+        auto pFindReplaceDialog = static_cast<TFindReplaceDlg*>( BaseClass::m_pFindReplaceDialog );
+        if ( pFindReplaceDialog )
+        {
+            pFindReplaceDialog->MessageBox( L"Find reached the starting point of the search",
+                                            L"Find",
+                                            MB_OK | MB_ICONINFORMATION | MB_APPLMODAL );
+        }
+        else
+        {
+
+            static_cast<T*>( this )->MessageBox( L"Find reached the starting point of the search",
+                                                 L"Find",
+                                                 MB_OK | MB_ICONINFORMATION | MB_APPLMODAL );
         }
     }
 
@@ -261,6 +386,9 @@ private:
     HWND hEdit_ = nullptr;
 
     bool isFindOnlyDialog_ = true;
+    bool hasWrappedAround_ = false;
+    int findStartPosition_ = -1;
+    int lastSearchPosition_ = -1;
     static FindReplaceState lastState_;
 };
 
