@@ -11,11 +11,40 @@
 #    pragma comment( lib, "dbghelp.lib" )
 
 #    include <new>
+#    include <string_view>
 
 namespace
 {
 
 using FmtResultIt = fmt::format_to_n_result<nonstd::span<wchar_t>::iterator>;
+
+bool GetComponentPathNoExcept( nonstd::span<wchar_t>& pathBuffer ) noexcept
+{
+    DWORD nRet = ::GetModuleFileName( core_api::get_my_instance(), pathBuffer.data(), pathBuffer.size() );
+    if ( !nRet )
+    {
+        return false;
+    }
+    else if ( nRet == pathBuffer.size() )
+    {
+        if ( const auto errCode = GetLastError();
+             errCode == ERROR_INSUFFICIENT_BUFFER )
+        {
+            return false;
+        }
+    }
+
+    const auto pos = std::wstring_view{ pathBuffer.data() }.find_last_of( L"\\/" );
+    if ( pos == std::wstring::npos )
+    {
+        return false;
+    }
+
+    pathBuffer = pathBuffer.first( pos + 1 );
+    pathBuffer[pathBuffer.size() - 1] = L'\0';
+
+    return true;
+}
 
 FmtResultIt PrintSymbolName( HANDLE hProcess, DWORD64 stackFramePtr, nonstd::span<wchar_t> buffer )
 {
@@ -120,6 +149,25 @@ void GetStackTrace( nonstd::span<wchar_t> stackTrace,
         curView = nonstd::span<wchar_t>{ fmtRet.out, curView.end() };
         return;
     }
+    smp::utils::final_action autoSymCleanup{ [&hProcess] { SymCleanup( hProcess ); } };
+
+    {
+        std::array<wchar_t, 512> pathBuffer;
+        nonstd::span<wchar_t> path{ pathBuffer };
+        if ( !GetComponentPathNoExcept( path ) )
+        {
+            auto fmtRet = fmt::format_to_n( curView.data(), curView.size(), "<failed to fetch backtrace>: GetComponentPathNoExcept" );
+            curView = nonstd::span<wchar_t>{ fmtRet.out, curView.end() };
+            return;
+        }
+
+        if ( !SymSetSearchPathW( hProcess, path.data() ) )
+        {
+            auto fmtRet = fmt::format_to_n( curView.data(), curView.size(), "<failed to fetch backtrace>: SymSetSearchPath" );
+            curView = nonstd::span<wchar_t>{ fmtRet.out, curView.end() };
+            return;
+        }
+    }
 
     CONTEXT context = [pContext] {
         if ( pContext )
@@ -208,8 +256,6 @@ void GetStackTrace( nonstd::span<wchar_t> stackTrace,
             break;
         }
     }
-
-    SymCleanup( hProcess );
 }
 
 } // namespace smp
