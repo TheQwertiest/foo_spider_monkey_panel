@@ -85,11 +85,7 @@ protected:
 
     BEGIN_MSG_MAP( CScintillaFindReplaceImpl )
         ALT_MSG_MAP( 1 )
-        if ( uMsg != WM_DESTROY )
-        { // TODO: workaround for https://sourceforge.net/p/wtl/discussion/374434/thread/cdeef79112/:
-            // callback for WM_DESTROY attempts to delete already deleted pointer
-            CHAIN_MSG_MAP_ALT( BaseClass, 1 )
-        }
+        CHAIN_MSG_MAP_ALT( BaseClass, 1 )
     END_MSG_MAP()
 
 public:
@@ -155,37 +151,6 @@ public:
         return findReplaceDialog;
     }
 
-    // TODO: workaround for https://sourceforge.net/p/wtl/discussion/374434/thread/cdeef79112/:
-    // incorrect argument passed to `ClientToScreen`
-    void AdjustDialogPosition( HWND hWndDialog )
-    {
-        ATLASSERT( ( hWndDialog != NULL ) && ::IsWindow( hWndDialog ) );
-
-        T* pT = static_cast<T*>( this );
-        LONG nStartChar = 0, nEndChar = 0;
-
-        ::SendMessage( pT->m_hWnd, EM_GETSEL, (WPARAM)&nStartChar, (LPARAM)&nEndChar );
-        POINT point = pT->PosFromChar( nStartChar );
-        ::ClientToScreen( pT->operator HWND(), &point ); ///< the fix is here
-        RECT rect = {};
-        ::GetWindowRect( hWndDialog, &rect );
-        if ( ::PtInRect( &rect, point ) != FALSE )
-        {
-            if ( point.y > ( rect.bottom - rect.top ) )
-            {
-                ::OffsetRect( &rect, 0, point.y - rect.bottom - 20 );
-            }
-            else
-            {
-                int nVertExt = GetSystemMetrics( SM_CYSCREEN );
-                if ( ( point.y + ( rect.bottom - rect.top ) ) < nVertExt )
-                    ::OffsetRect( &rect, 0, 40 + point.y - rect.top );
-            }
-
-            ::MoveWindow( hWndDialog, rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top, TRUE );
-        }
-    }
-
     /// @brief Find method called via dialog
     bool FindTextSimple( LPCTSTR lpszFind, BOOL bMatchCase, BOOL bWholeWord, BOOL bFindDown /*= TRUE */ )
     {
@@ -216,7 +181,7 @@ public:
         {
             if ( BaseClass::m_pFindReplaceDialog )
             {
-                AdjustDialogPosition( *BaseClass::m_pFindReplaceDialog );
+                BaseClass::AdjustDialogPosition( *BaseClass::m_pFindReplaceDialog );
             }
             return true;
         }
