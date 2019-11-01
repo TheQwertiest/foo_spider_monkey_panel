@@ -4,7 +4,7 @@
 namespace smp::unicode
 {
 
-std::wstring ToWide( const std::u8string_view& src )
+std::wstring ToWide( std::u8string_view src )
 {
     size_t stringLen = MultiByteToWideChar( CP_UTF8, 0, src.data(), src.size(), nullptr, 0 );
     std::wstring strVal;
@@ -16,7 +16,12 @@ std::wstring ToWide( const std::u8string_view& src )
 	return strVal;
 }
 
-std::u8string ToU8( const std::wstring_view& src )
+std::wstring ToWide( const pfc::string_base& src )
+{
+    return ToWide( std::u8string_view{ src.c_str(), src.length() } );
+}
+
+std::u8string ToU8( std::wstring_view src )
 {
     size_t stringLen = WideCharToMultiByte( CP_UTF8, 0, src.data(), src.size(), nullptr, 0, nullptr, nullptr );
     std::u8string strVal;

@@ -8,7 +8,8 @@
 namespace smp::unicode
 {
 
-std::wstring ToWide( const std::u8string_view& src );
-std::u8string ToU8( const std::wstring_view& src );
+std::wstring ToWide( std::u8string_view src );
+std::wstring ToWide( const pfc::string_base& src );
+std::u8string ToU8( std::wstring_view src );
 
 } // namespace smp::string
