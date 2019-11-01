@@ -332,6 +332,7 @@
     <ClInclude Include="utils\kmeans.h" />
     <ClInclude Include="utils\location_processor.h" />
     <ClInclude Include="utils\menu_helpers.h" />
+    <ClInclude Include="utils\relative_filepath_trie.h" />
     <ClInclude Include="utils\pfc_helpers_cnt.h" />
     <ClInclude Include="utils\pfc_helpers_stream.h" />
     <ClInclude Include="utils\pfc_helpers_ui.h" />

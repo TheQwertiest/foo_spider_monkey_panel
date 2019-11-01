@@ -711,6 +711,9 @@
     <ClInclude Include="utils\stacktrace.h">
       <Filter>utils</Filter>
     </ClInclude>
+    <ClInclude Include="utils\relative_filepath_trie.h">
+      <Filter>utils</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="default.js">

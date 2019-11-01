@@ -21,7 +21,7 @@
 #include <js/Conversions.h>
 #pragma warning( pop )
 
-#include <tim/timsort.h>
+#include <utils/relative_filepath_trie.h>
 
 using namespace smp;
 
@@ -500,7 +500,7 @@ void JsFbMetadbHandleList::OrderByPath()
 void JsFbMetadbHandleList::OrderByRelativePath()
 {
     // Note: there is built-in metadb_handle_list::sort_by_relative_path(),
-    // but this implementation is much faster because of timsort.
+    // but this implementation is much faster because of trie.
     // Also see `get_subsong_index` below.
 
     const auto stlHandleList = pfc_x::Make_Stl_CRef( metadbHandleList_ );
@@ -510,26 +510,21 @@ void JsFbMetadbHandleList::OrderByRelativePath()
     pfc::string8_fastalloc temp;
     temp.prealloc( 512 );
 
-    std::vector<smp::utils::StrCmpLogicalCmpData> data =
-        ranges::view::enumerate( stlHandleList )
-        | ranges::view::transform( [&api, &temp]( const auto& zippedHandle ) {
-              const auto& [i, handle] = zippedHandle;
-              temp = ""; ///< get_relative_path won't fill data on fail
-              api->get_relative_path( handle, temp );
+    RelativeFilepathTrie<size_t> testTree;
+    for ( const auto& [i, handle]: ranges::view::enumerate( stlHandleList ) )
+    {
+        temp = ""; ///< get_relative_path won't fill data on fail
+        api->get_relative_path( handle, temp );
 
-              // One physical file can have multiple handles,
-              // which all return the same path, but have different subsong idx
-              // (e.g. cuesheets or files with multiple chapters)
-              temp << handle->get_subsong_index();
+        // One physical file can have multiple handles,
+        // which all return the same path, but have different subsong idx
+        // (e.g. cuesheets or files with multiple chapters)
+        temp << handle->get_subsong_index();
 
-              return smp::utils::StrCmpLogicalCmpData{ std::u8string_view{ temp.c_str(), temp.length() }, static_cast<size_t>( i ) };
-          } );
+        testTree.emplace( smp::unicode::ToWide( temp ), i );
+    }
 
-    // TODO: consider replacing with prefix tree
-    tim::timsort( data.begin(), data.end(), smp::utils::StrCmpLogicalCmp<> );
-
-    const std::vector<size_t> order = data | ranges::view::transform( []( auto& elem ) { return elem.index; } );
-    metadbHandleList_.reorder( order.data() );
+    metadbHandleList_.reorder( testTree.get_sorted_values().data() );
 }
 
 void JsFbMetadbHandleList::RefreshStats()
@@ -646,15 +641,15 @@ void JsFbMetadbHandleList::UpdateFileInfoFromJSON( const std::u8string& str )
     const std::vector<file_info_impl> info =
         ranges::view::enumerate( handleList )
         | ranges::view::transform(
-              [isArray, &jsonObject]( const auto& zippedElem ) {
-                  const auto& [i, handle] = zippedElem;
+            [isArray, &jsonObject]( const auto& zippedElem ) {
+                const auto& [i, handle] = zippedElem;
 
-                  // TODO: think of a better way of handling unavalaible info,
-                  //       currently it uses dummy value instead
-                  file_info_impl fileInfo = handle->get_info_ref()->info();
-                  ModifyFileInfoWithJson( isArray ? jsonObject[i] : jsonObject, fileInfo );
-                  return fileInfo;
-              } );
+                // TODO: think of a better way of handling unavalaible info,
+                //       currently it uses dummy value instead
+                file_info_impl fileInfo = handle->get_info_ref()->info();
+                ModifyFileInfoWithJson( isArray ? jsonObject[i] : jsonObject, fileInfo );
+                return fileInfo;
+            } );
 
     metadb_io_v2::get()->update_info_async_simple(
         handleList.Pfc(),
