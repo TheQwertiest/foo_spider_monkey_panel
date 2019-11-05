@@ -1,4 +1,5 @@
 #include <stdafx.h>
+
 #include "winapi_error_helpers.h"
 
 #include <utils/scope_helpers.h>
@@ -9,6 +10,8 @@ using namespace smp;
 namespace
 {
 
+/// @remark `std::system_category().message(errorCode)` is unsuitable, since it localizes the message
+///         and often in non-unicode way (while JS engine supports only UTF-8 and ASCII).
 std::u8string MessageFromErrorCode( DWORD errorCode )
 {
     LPVOID lpMsgBuf;
@@ -23,7 +26,7 @@ std::u8string MessageFromErrorCode( DWORD errorCode )
         nullptr );
     if ( !dwRet )
     {
-        return std::u8string();
+        return std::u8string{ "Unknown error" };
     }
 
     utils::final_action autoMsg( [lpMsgBuf] {
@@ -55,7 +58,7 @@ void CheckHR( HRESULT hr, std::string_view functionName )
     }
 }
 
-_Post_satisfies_( checkValue ) 
+_Post_satisfies_( checkValue )
 void CheckWinApi( bool checkValue, std::string_view functionName )
 {
     if ( !checkValue )
