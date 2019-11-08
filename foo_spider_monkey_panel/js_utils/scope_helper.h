@@ -11,8 +11,7 @@ class JsScope
 {
 public:
     JsScope( JSContext* cx, JS::HandleObject global, bool enableAutoReport = true )
-        : ar_( cx )
-        , ac_( cx, global )
+        : ac_( cx, global )
         , are_( cx )
     {
         if ( !enableAutoReport )
@@ -29,9 +28,8 @@ public:
         are_.Disable();
     }
 
-private:
-    JSAutoRequest ar_;
-    JSAutoCompartment ac_;
+private:    
+    JSAutoRealm ac_;
     mozjs::error::AutoJsReport are_;
 };
 

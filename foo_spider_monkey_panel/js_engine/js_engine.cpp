@@ -2,7 +2,7 @@
 #include "js_engine.h"
 
 #include <js_engine/js_container.h>
-#include <js_engine/js_compartment_inner.h>
+#include <js_engine/js_realm_inner.h>
 #include <js_engine/js_internal_global.h>
 #include <js_objects/global_object.h>
 #include <js_utils/js_error_helper.h>
@@ -117,8 +117,6 @@ void JsEngine::MaybeRunJobs()
         return;
     }
 
-    JSAutoRequest ar( pJsCtx_ );
-
     // TODO: add ability for user to abort script here
 
     if ( areJobsInProgress_ )
@@ -147,7 +145,7 @@ void JsEngine::MaybeRunJobs()
                 continue;
             }
 
-            JSAutoCompartment ac( pJsCtx_, rejectedPromise );
+            JSAutoRealm ac( pJsCtx_, rejectedPromise );
             mozjs::error::AutoJsReport are( pJsCtx_ );
 
             JS::RootedValue jsValue( pJsCtx_, JS::GetPromiseResult( rejectedPromise ) );
@@ -202,7 +200,6 @@ void JsEngine::OnHeartbeat()
     isBeating_ = true;
 
     {
-        JSAutoRequest ar( pJsCtx_ );
         if ( !jsGc_.MaybeGc() )
         { // OOM
             ReportOomError();
@@ -375,7 +372,7 @@ void JsEngine::ReportOomError()
             continue;
         }
 
-        jsContainerRef.Fail( fmt::format( "Out of memory: {}/{} bytes", jsContainerRef.pNativeCompartment_->GetCurrentHeapBytes(), jsGc_.GetMaxHeap() ).c_str() );
+        jsContainerRef.Fail( fmt::format( "Out of memory: {}/{} bytes", jsContainerRef.pNativeRealm_->GetCurrentHeapBytes(), jsGc_.GetMaxHeap() ).c_str() );
     }
 }
 

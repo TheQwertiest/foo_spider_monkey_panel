@@ -57,6 +57,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "licenses", "licenses", "{C8
 		..\component\licenses\WTL.txt = ..\component\licenses\WTL.txt
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{C276FFA1-45F8-4ABB-BD1B-50B414CEF1D0}"
+	ProjectSection(SolutionItems) = preProject
+		..\foo_spider_monkey_panel\.clang-format = ..\foo_spider_monkey_panel\.clang-format
+		..\foo_spider_monkey_panel\.clang-tidy = ..\foo_spider_monkey_panel\.clang-tidy
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -117,7 +123,7 @@ Global
 		{C83916CB-E2CC-436F-9B39-CDAF19B88C6C} = {544844FF-3BCA-4D28-884D-997582B1E2C2}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {04D470B3-3881-4A19-A99F-5E04F5978FB4}
 		SolutionNewStyle = 1
+		SolutionGuid = {04D470B3-3881-4A19-A99F-5E04F5978FB4}
 	EndGlobalSection
 EndGlobal

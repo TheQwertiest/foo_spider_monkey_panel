@@ -1,21 +1,25 @@
 #include <stdafx.h>
+
 #include "js_art_helpers.h"
 
+#include <convert/native_to_js.h>
+#include <js_objects/gdi_bitmap.h>
 #include <js_objects/global_object.h>
 #include <js_objects/internal/global_heap_manager.h>
-#include <js_objects/gdi_bitmap.h>
+#include <js_utils/js_async_task.h>
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
-#include <js_utils/js_async_task.h>
 #include <utils/art_helpers.h>
 #include <utils/gdi_helpers.h>
 #include <utils/string_helpers.h>
 #include <utils/thread_pool.h>
-#include <convert/native_to_js.h>
 
-#include <user_message.h>
 #include <message_manager.h>
+#include <user_message.h>
 
+SMP_MJS_SUPPRESS_WARNINGS_PUSH
+#include <js/Promise.h>
+SMP_MJS_SUPPRESS_WARNINGS_POP
 
 // TODO: remove duplicate code from art_helpers
 
@@ -50,7 +54,7 @@ class AlbumArtV2FetchTask
 public:
     AlbumArtV2FetchTask( JSContext* cx,
                          JS::HandleObject jsPromise,
-                         HWND hNotifyWnd, 
+                         HWND hNotifyWnd,
                          metadb_handle_ptr handle,
                          uint32_t artId,
                          bool need_stub,
@@ -85,7 +89,7 @@ namespace
 
 AlbumArtV2FetchTask::AlbumArtV2FetchTask( JSContext* cx,
                                           JS::HandleObject jsPromise,
-                                          HWND hNotifyWnd, 
+                                          HWND hNotifyWnd,
                                           metadb_handle_ptr handle,
                                           uint32_t artId,
                                           bool need_stub,
@@ -153,8 +157,8 @@ bool JsAlbumArtTask::InvokeJsImpl( JSContext* cx, JS::HandleObject jsGlobal, JS:
 
         JS::RootedObject jsResult( cx, JS_NewPlainObject( cx ) );
         if ( !jsResult
-             || !JS_DefineProperty( cx, jsResult, "image", jsBitmapValue, DefaultPropsFlags() )
-             || !JS_DefineProperty( cx, jsResult, "path", jsPath, DefaultPropsFlags() ) )
+             || !JS_DefineProperty( cx, jsResult, "image", jsBitmapValue, kDefaultPropsFlags )
+             || !JS_DefineProperty( cx, jsResult, "path", jsPath, kDefaultPropsFlags ) )
         {
             throw JsException();
         }

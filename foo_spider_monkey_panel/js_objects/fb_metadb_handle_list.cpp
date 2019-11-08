@@ -14,12 +14,9 @@
 #include <abort_callback.h>
 #include <stats.h>
 
-#pragma warning( push )
-#pragma warning( disable : 4100 ) // unused variable
-#pragma warning( disable : 4251 ) // dll interface warning
-#pragma warning( disable : 4996 ) // C++17 deprecation warning
+SMP_MJS_SUPPRESS_WARNINGS_PUSH
 #include <js/Conversions.h>
-#pragma warning( pop )
+SMP_MJS_SUPPRESS_WARNINGS_POP
 
 #include <utils/relative_filepath_trie.h>
 
@@ -46,7 +43,7 @@ JSClassOps jsOps = {
 
 JSClass jsClass = {
     "FbMetadbHandleList",
-    DefaultClassFlags(),
+    kDefaultClassFlags,
     &jsOps
 };
 
@@ -79,40 +76,40 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( Sort, JsFbMetadbHandleList::Sort );
 MJS_DEFINE_JS_FN_FROM_NATIVE( UpdateFileInfoFromJSON, JsFbMetadbHandleList::UpdateFileInfoFromJSON );
 
 const JSFunctionSpec jsFunctions[] = {
-    JS_FN( "Add", Add, 1, DefaultPropsFlags() ),
-    JS_FN( "AddRange", AddRange, 1, DefaultPropsFlags() ),
-    JS_FN( "AttachImage", AttachImage, 2, DefaultPropsFlags() ),
-    JS_FN( "BSearch", BSearch, 1, DefaultPropsFlags() ),
-    JS_FN( "CalcTotalDuration", CalcTotalDuration, 0, DefaultPropsFlags() ),
-    JS_FN( "CalcTotalSize", CalcTotalSize, 0, DefaultPropsFlags() ),
-    JS_FN( "Clone", Clone, 0, DefaultPropsFlags() ),
-    JS_FN( "Convert", Convert, 0, DefaultPropsFlags() ),
-    JS_FN( "Find", Find, 1, DefaultPropsFlags() ),
-    JS_FN( "GetLibraryRelativePaths", GetLibraryRelativePaths, 0, DefaultPropsFlags() ),
-    JS_FN( "Insert", Insert, 2, DefaultPropsFlags() ),
-    JS_FN( "InsertRange", InsertRange, 2, DefaultPropsFlags() ),
-    JS_FN( "MakeDifference", MakeDifference, 1, DefaultPropsFlags() ),
-    JS_FN( "MakeIntersection", MakeIntersection, 1, DefaultPropsFlags() ),
-    JS_FN( "MakeUnion", MakeUnion, 1, DefaultPropsFlags() ),
-    JS_FN( "OrderByFormat", OrderByFormat, 2, DefaultPropsFlags() ),
-    JS_FN( "OrderByPath", OrderByPath, 0, DefaultPropsFlags() ),
-    JS_FN( "OrderByRelativePath", OrderByRelativePath, 0, DefaultPropsFlags() ),
-    JS_FN( "RefreshStats", RefreshStats, 0, DefaultPropsFlags() ),
-    JS_FN( "Remove", Remove, 1, DefaultPropsFlags() ),
-    JS_FN( "RemoveAll", RemoveAll, 0, DefaultPropsFlags() ),
-    JS_FN( "RemoveAttachedImage", RemoveAttachedImage, 1, DefaultPropsFlags() ),
-    JS_FN( "RemoveAttachedImages", RemoveAttachedImages, 0, DefaultPropsFlags() ),
-    JS_FN( "RemoveById", RemoveById, 1, DefaultPropsFlags() ),
-    JS_FN( "RemoveRange", RemoveRange, 2, DefaultPropsFlags() ),
-    JS_FN( "Sort", Sort, 0, DefaultPropsFlags() ),
-    JS_FN( "UpdateFileInfoFromJSON", UpdateFileInfoFromJSON, 1, DefaultPropsFlags() ),
+    JS_FN( "Add", Add, 1, kDefaultPropsFlags ),
+    JS_FN( "AddRange", AddRange, 1, kDefaultPropsFlags ),
+    JS_FN( "AttachImage", AttachImage, 2, kDefaultPropsFlags ),
+    JS_FN( "BSearch", BSearch, 1, kDefaultPropsFlags ),
+    JS_FN( "CalcTotalDuration", CalcTotalDuration, 0, kDefaultPropsFlags ),
+    JS_FN( "CalcTotalSize", CalcTotalSize, 0, kDefaultPropsFlags ),
+    JS_FN( "Clone", Clone, 0, kDefaultPropsFlags ),
+    JS_FN( "Convert", Convert, 0, kDefaultPropsFlags ),
+    JS_FN( "Find", Find, 1, kDefaultPropsFlags ),
+    JS_FN( "GetLibraryRelativePaths", GetLibraryRelativePaths, 0, kDefaultPropsFlags ),
+    JS_FN( "Insert", Insert, 2, kDefaultPropsFlags ),
+    JS_FN( "InsertRange", InsertRange, 2, kDefaultPropsFlags ),
+    JS_FN( "MakeDifference", MakeDifference, 1, kDefaultPropsFlags ),
+    JS_FN( "MakeIntersection", MakeIntersection, 1, kDefaultPropsFlags ),
+    JS_FN( "MakeUnion", MakeUnion, 1, kDefaultPropsFlags ),
+    JS_FN( "OrderByFormat", OrderByFormat, 2, kDefaultPropsFlags ),
+    JS_FN( "OrderByPath", OrderByPath, 0, kDefaultPropsFlags ),
+    JS_FN( "OrderByRelativePath", OrderByRelativePath, 0, kDefaultPropsFlags ),
+    JS_FN( "RefreshStats", RefreshStats, 0, kDefaultPropsFlags ),
+    JS_FN( "Remove", Remove, 1, kDefaultPropsFlags ),
+    JS_FN( "RemoveAll", RemoveAll, 0, kDefaultPropsFlags ),
+    JS_FN( "RemoveAttachedImage", RemoveAttachedImage, 1, kDefaultPropsFlags ),
+    JS_FN( "RemoveAttachedImages", RemoveAttachedImages, 0, kDefaultPropsFlags ),
+    JS_FN( "RemoveById", RemoveById, 1, kDefaultPropsFlags ),
+    JS_FN( "RemoveRange", RemoveRange, 2, kDefaultPropsFlags ),
+    JS_FN( "Sort", Sort, 0, kDefaultPropsFlags ),
+    JS_FN( "UpdateFileInfoFromJSON", UpdateFileInfoFromJSON, 1, kDefaultPropsFlags ),
     JS_FS_END
 };
 
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_Count, JsFbMetadbHandleList::get_Count );
 
 const JSPropertySpec jsProperties[] = {
-    JS_PSG( "Count", get_Count, DefaultPropsFlags() ),
+    JS_PSG( "Count", get_Count, kDefaultPropsFlags ),
     JS_PS_END
 };
 

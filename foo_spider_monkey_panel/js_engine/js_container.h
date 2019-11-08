@@ -17,7 +17,7 @@ namespace mozjs
 {
 
 class JsEngine;
-class JsCompartmentInner;
+class JsRealmInner;
 class JsGlobalObject;
 class JsGdiGraphics;
 class JsDropSourceAction;
@@ -102,7 +102,7 @@ private:
     JS::PersistentRootedObject jsGraphics_;
     JS::PersistentRootedObject jsDropAction_;
 
-    JsCompartmentInner* pNativeCompartment_ = nullptr;
+    JsRealmInner* pNativeRealm_ = nullptr;
     JsGlobalObject* pNativeGlobal_ = nullptr;
     JsGdiGraphics* pNativeGraphics_ = nullptr;
     JsDropSourceAction* pNativeDropAction_ = nullptr;

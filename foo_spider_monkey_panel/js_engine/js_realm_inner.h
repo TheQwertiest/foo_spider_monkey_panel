@@ -5,13 +5,13 @@
 namespace mozjs
 {
 
-class JsCompartmentInner final
+class JsRealmInner final
 {
 public:
-    JsCompartmentInner() = default;
-    ~JsCompartmentInner() = default;
-    JsCompartmentInner( const JsCompartmentInner& ) = delete;
-    JsCompartmentInner& operator=( const JsCompartmentInner& ) = delete;
+    JsRealmInner() = default;
+    ~JsRealmInner() = default;
+    JsRealmInner( const JsRealmInner& ) = delete;
+    JsRealmInner& operator=( const JsRealmInner& ) = delete;
 
 public:
     void MarkForDeletion();

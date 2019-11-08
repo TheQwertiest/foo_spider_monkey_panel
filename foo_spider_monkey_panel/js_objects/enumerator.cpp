@@ -42,10 +42,10 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( moveFirst, JsEnumerator::MoveFirst )
 MJS_DEFINE_JS_FN_FROM_NATIVE( moveNext, JsEnumerator::MoveNext )
 
 const JSFunctionSpec jsFunctions[] = {
-    JS_FN( "atEnd", atEnd, 0, DefaultPropsFlags() ),
-    JS_FN( "item", item, 0, DefaultPropsFlags() ),
-    JS_FN( "moveFirst", moveFirst, 0, DefaultPropsFlags() ),
-    JS_FN( "moveNext", moveNext, 0, DefaultPropsFlags() ),
+    JS_FN( "atEnd", atEnd, 0, kDefaultPropsFlags ),
+    JS_FN( "item", item, 0, kDefaultPropsFlags ),
+    JS_FN( "moveFirst", moveFirst, 0, kDefaultPropsFlags ),
+    JS_FN( "moveNext", moveNext, 0, kDefaultPropsFlags ),
     JS_FS_END
 };
 

@@ -30,7 +30,7 @@ JSClassOps jsOps = {
 
 JSClass jsClass = {
     "Hacks",
-    DefaultClassFlags(),
+    kDefaultClassFlags,
     &jsOps
 };
 

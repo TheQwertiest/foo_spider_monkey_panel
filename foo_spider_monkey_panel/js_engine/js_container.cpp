@@ -2,7 +2,7 @@
 #include "js_container.h"
 
 #include <js_engine/js_engine.h>
-#include <js_engine/js_compartment_inner.h>
+#include <js_engine/js_realm_inner.h>
 #include <js_engine/js_gc.h>
 #include <js_objects/global_object.h>
 #include <js_objects/gdi_graphics.h>
@@ -16,12 +16,11 @@
 #include <host_timer_dispatcher.h>
 #include <smp_exception.h>
 
-#pragma warning( push )
-#pragma warning( disable : 4100 ) // unused variable
-#pragma warning( disable : 4251 ) // dll interface warning
-#pragma warning( disable : 4996 ) // C++17 deprecation warning
+SMP_MJS_SUPPRESS_WARNINGS_PUSH
+#include <js/CompilationAndEvaluation.h>
+#include <js/SourceText.h>
 #include <js/Wrapper.h>
-#pragma warning( pop )
+SMP_MJS_SUPPRESS_WARNINGS_POP
 
 using namespace smp;
 
@@ -67,20 +66,18 @@ bool JsContainer::Initialize()
 
     try
     {
-        JSAutoRequest ar( pJsCtx_ );
-
         jsGlobal_.init( pJsCtx_, JsGlobalObject::CreateNative( pJsCtx_, *this, *pParentPanel_ ) );
         assert( jsGlobal_ );
         utils::final_action autoGlobal( [&jsGlobal=jsGlobal_] {
             jsGlobal.reset();
         } );
 
-        JSAutoCompartment ac( pJsCtx_, jsGlobal_ );
+        JSAutoRealm ac( pJsCtx_, jsGlobal_ );
 
         jsGraphics_.init( pJsCtx_, JsGdiGraphics::CreateJs( pJsCtx_ ) );
 
-        pNativeCompartment_ = static_cast<JsCompartmentInner*>( JS_GetCompartmentPrivate( js::GetContextCompartment( pJsCtx_ ) ) );
-        assert( pNativeCompartment_ );
+        pNativeRealm_ = static_cast<JsRealmInner*>( JS::GetRealmPrivate( js::GetContextRealm( pJsCtx_ ) ) );
+        assert( pNativeRealm_ );
 
         autoGlobal.cancel();
     }
@@ -124,16 +121,15 @@ void JsContainer::Finalize()
     HostTimerDispatcher::Get().onPanelUnload( pParentPanel_->GetHWND() );
 
     {
-        JSAutoRequest ar( pJsCtx_ );
-        JSAutoCompartment ac( pJsCtx_, jsGlobal_ );
+        JSAutoRealm ac( pJsCtx_, jsGlobal_ );
 
         JsGlobalObject::PrepareForGc( pJsCtx_, jsGlobal_ );
 
-        auto pJsCompartment = static_cast<JsCompartmentInner*>( JS_GetCompartmentPrivate( js::GetContextCompartment( pJsCtx_ ) ) );
-        assert( pJsCompartment );
+        auto pJsRealm = static_cast<JsRealmInner*>( JS::GetRealmPrivate( js::GetContextRealm( pJsCtx_ ) ) );
+        assert( pJsRealm );
 
-        pNativeCompartment_ = nullptr;
-        pJsCompartment->MarkForDeletion();
+        pNativeRealm_ = nullptr;
+        pJsRealm->MarkForDeletion();
     }
 
     pNativeGlobal_ = nullptr;
@@ -181,15 +177,20 @@ bool JsContainer::ExecuteScript( const std::u8string& scriptCode )
 
     JsScope autoScope( pJsCtx_, jsGlobal_ );
 
+    JS::SourceText<mozilla::Utf8Unit> source;
+    if ( !source.init( pJsCtx_, scriptCode.c_str(), scriptCode.length(), JS::SourceOwnership::Borrowed ) )
+    {
+        return false;
+    }
+
     JS::CompileOptions opts( pJsCtx_ );
-    opts.setUTF8( true );
     opts.setFileAndLine( "<main>", 1 );
 
     OnJsActionStart();
     smp::utils::final_action autoAction( [&] { OnJsActionEnd(); } );
 
     JS::RootedValue dummyRval( pJsCtx_ );
-    bool bRet = JS::Evaluate( pJsCtx_, opts, scriptCode.c_str(), scriptCode.length(), &dummyRval );
+    bool bRet = JS::Evaluate( pJsCtx_, opts, source, &dummyRval );
 
     isParsingScript_ = false;
     return bRet;
@@ -244,7 +245,7 @@ void JsContainer::InvokeOnNotify( WPARAM wp, LPARAM lp )
     auto selfSaver = shared_from_this();
     JsScope autoScope( pJsCtx_, jsGlobal_ );
 
-    // Bind object to current compartment
+    // Bind object to current realm
     JS::RootedValue jsValue( pJsCtx_, *reinterpret_cast<JS::HandleValue*>( lp ) );
     if ( !JS_WrapValue( pJsCtx_, &jsValue ) )
     { // reports
@@ -257,9 +258,9 @@ void JsContainer::InvokeOnNotify( WPARAM wp, LPARAM lp )
                             static_cast<JS::HandleValue>( jsValue ) );
     if ( jsValue.isObject() )
     { // this will remove all wrappers (e.g. during callback re-entrancy)
-        js::NukeCrossCompartmentWrappers( pJsCtx_, 
+        js::NukeCrossCompartmentWrappers( pJsCtx_,
                                           js::SingleCompartment{ js::GetContextCompartment( pJsCtx_ ) }, 
-                                          js::GetObjectCompartment( js::UncheckedUnwrap( &jsValue.toObject() ) ),
+                                          js::GetNonCCWObjectRealm( js::UncheckedUnwrap( &jsValue.toObject() ) ),
                                           js::NukeReferencesToWindow::DontNukeWindowReferences, ///< browser specific flag, irrelevant to us
                                           js::NukeReferencesFromTarget::NukeIncomingReferences );
     }

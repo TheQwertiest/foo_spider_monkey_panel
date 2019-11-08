@@ -1,20 +1,25 @@
 #include <stdafx.h>
+
 #include "js_art_helpers.h"
 
+#include <convert/native_to_js.h>
+#include <js_objects/gdi_bitmap.h>
 #include <js_objects/global_object.h>
 #include <js_objects/internal/global_heap_manager.h>
-#include <js_objects/gdi_bitmap.h>
+#include <js_utils/js_async_task.h>
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
-#include <js_utils/js_async_task.h>
-#include <utils/image_helpers.h>
 #include <utils/gdi_helpers.h>
+#include <utils/image_helpers.h>
 #include <utils/string_helpers.h>
 #include <utils/thread_pool.h>
-#include <convert/native_to_js.h>
 
-#include <user_message.h>
 #include <message_manager.h>
+#include <user_message.h>
+
+SMP_MJS_SUPPRESS_WARNINGS_PUSH
+#include <js/Promise.h>
+SMP_MJS_SUPPRESS_WARNINGS_POP
 
 // TODO: remove duplicate code from art_helpers
 

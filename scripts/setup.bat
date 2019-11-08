@@ -26,6 +26,8 @@ if errorlevel 1 goto fail
 if '%SKIP_MOZJS%'=='' (
     call %CUR_DIR%unpack_mozjs.bat %ROOT_DIR%
     if errorlevel 1 goto fail
+	call %CUR_DIR%patch_mozjs.bat %ROOT_DIR%
+    if errorlevel 1 goto fail
 )
 call %CUR_DIR%generate_commit_hash_header.bat %ROOT_DIR%
 if errorlevel 1 goto fail

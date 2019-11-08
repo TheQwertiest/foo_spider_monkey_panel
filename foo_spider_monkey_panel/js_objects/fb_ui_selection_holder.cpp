@@ -38,9 +38,9 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( SetPlaylistTracking, JsFbUiSelectionHolder::SetPla
 MJS_DEFINE_JS_FN_FROM_NATIVE( SetSelection, JsFbUiSelectionHolder::SetSelection )
 
 const JSFunctionSpec jsFunctions[] = {
-    JS_FN( "SetPlaylistSelectionTracking", SetPlaylistSelectionTracking, 0, DefaultPropsFlags() ),
-    JS_FN( "SetPlaylistTracking", SetPlaylistTracking, 0, DefaultPropsFlags() ),
-    JS_FN( "SetSelection", SetSelection, 1, DefaultPropsFlags() ),
+    JS_FN( "SetPlaylistSelectionTracking", SetPlaylistSelectionTracking, 0, kDefaultPropsFlags ),
+    JS_FN( "SetPlaylistTracking", SetPlaylistTracking, 0, kDefaultPropsFlags ),
+    JS_FN( "SetSelection", SetSelection, 1, kDefaultPropsFlags ),
     JS_FS_END
 };
 

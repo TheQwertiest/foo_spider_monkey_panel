@@ -229,7 +229,7 @@ bool JsMonitor::OnInterrupt()
 
         if ( dlgData.stop )
         { // TODO: this might stop the script different from the one in currently iterated container,
-            // we should get the container corresponding to the currently active compartment.
+            // we should get the container corresponding to the currently active realm.
             // Example: panel_1(reported): window.NotifyOthers > panel_2(stopped): on_notify_data
             JS_ReportErrorUTF8( pJsCtx_, "Script aborted by user" );
             return false;
