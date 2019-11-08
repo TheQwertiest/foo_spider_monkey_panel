@@ -28,7 +28,7 @@ JSClassOps jsOps = {
 
 JSClass jsClass = {
     "FbPlaybackQueueItem",
-    DefaultClassFlags(),
+    kDefaultClassFlags,
     &jsOps
 };
 
@@ -37,9 +37,9 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( get_PlaylistIndex, JsFbPlaybackQueueItem::get_Play
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_PlaylistItemIndex, JsFbPlaybackQueueItem::get_PlaylistItemIndex )
 
 const JSPropertySpec jsProperties[] = {
-    JS_PSG( "Handle", get_Handle, DefaultPropsFlags() ),
-    JS_PSG( "PlaylistIndex", get_PlaylistIndex, DefaultPropsFlags() ),
-    JS_PSG( "PlaylistItemIndex", get_PlaylistItemIndex, DefaultPropsFlags() ),
+    JS_PSG( "Handle", get_Handle, kDefaultPropsFlags ),
+    JS_PSG( "PlaylistIndex", get_PlaylistIndex, kDefaultPropsFlags ),
+    JS_PSG( "PlaylistItemIndex", get_PlaylistItemIndex, kDefaultPropsFlags ),
     JS_PS_END
 };
 

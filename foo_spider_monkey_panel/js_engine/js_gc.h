@@ -54,8 +54,8 @@ private:
     void PerformIncrementalGc();
     void PerformNormalGc();
     void PerformFullGc();
-    void PrepareCompartmentsForGc( GcLevel gcLevel );
-    void NotifyCompartmentsOnGcEnd();
+    void PrepareRealmsForGc( GcLevel gcLevel );
+    void NotifyRealmsOnGcEnd();
 
 private:
     JSContext* pJsCtx_ = nullptr;

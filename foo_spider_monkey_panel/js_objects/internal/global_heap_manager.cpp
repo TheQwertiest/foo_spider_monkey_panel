@@ -1,11 +1,9 @@
 #include <stdafx.h>
 #include "global_heap_manager.h"
 
-#pragma warning( push )
-#pragma warning( disable : 4251 ) // dll interface warning
-#pragma warning( disable : 4996 ) // C++17 deprecation warning
+SMP_MJS_SUPPRESS_WARNINGS_PUSH
 #   include <js/TracingAPI.h>
-#pragma warning( pop )
+SMP_MJS_SUPPRESS_WARNINGS_POP
 
 namespace mozjs
 {

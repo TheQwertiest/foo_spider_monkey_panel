@@ -30,7 +30,7 @@ JSClassOps jsOps = {
 
 JSClass jsClass = {
     "FbProfiler",
-    DefaultClassFlags(),
+    kDefaultClassFlags,
     &jsOps
 };
 
@@ -38,15 +38,15 @@ MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( Print, JsFbProfiler::Print, JsFbProfiler:
 MJS_DEFINE_JS_FN_FROM_NATIVE( Reset, JsFbProfiler::Reset )
 
 const JSFunctionSpec jsFunctions[] = {
-    JS_FN( "Print", Print, 0, DefaultPropsFlags() ),
-    JS_FN( "Reset", Reset, 0, DefaultPropsFlags() ),
+    JS_FN( "Print", Print, 0, kDefaultPropsFlags ),
+    JS_FN( "Reset", Reset, 0, kDefaultPropsFlags ),
     JS_FS_END
 };
 
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_Time, JsFbProfiler::get_Time )
 
 const JSPropertySpec jsProperties[] = {
-    JS_PSG( "Time", get_Time, DefaultPropsFlags() ),
+    JS_PSG( "Time", get_Time, kDefaultPropsFlags ),
     JS_PS_END
 };
 

@@ -284,9 +284,9 @@ MJS_DEFINE_JS_FN( ActiveX_Set, ActiveX_Set_Impl )
 MJS_DEFINE_JS_FN_FROM_NATIVE( ToString, ActiveXObject::ToString )
 
 const JSFunctionSpec jsFunctions[] = {
-    JS_FN( "toString", ToString, 0, DefaultPropsFlags() ),
-    JS_FN( "ActiveX_Get", ActiveX_Get, 1, DefaultPropsFlags() ),
-    JS_FN( "ActiveX_Set", ActiveX_Set, 1, DefaultPropsFlags() ),
+    JS_FN( "toString", ToString, 0, kDefaultPropsFlags ),
+    JS_FN( "ActiveX_Get", ActiveX_Get, 1, kDefaultPropsFlags ),
+    JS_FN( "ActiveX_Set", ActiveX_Set, 1, kDefaultPropsFlags ),
     JS_FS_END
 };
 

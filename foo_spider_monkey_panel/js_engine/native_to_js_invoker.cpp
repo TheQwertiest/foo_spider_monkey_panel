@@ -1,12 +1,9 @@
 #include <stdafx.h>
 #include "native_to_js_invoker.h"
 
-#pragma warning( push )
-#pragma warning( disable : 4100 ) // unused variable
-#pragma warning( disable : 4251 ) // dll interface warning
-#pragma warning( disable : 4996 ) // C++17 deprecation warning
-#    include <js/Conversions.h>
-#pragma warning( pop )
+SMP_MJS_SUPPRESS_WARNINGS_PUSH
+#include <js/Conversions.h>
+SMP_MJS_SUPPRESS_WARNINGS_POP
 
 namespace mozjs::internal
 {

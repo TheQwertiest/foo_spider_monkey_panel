@@ -12,7 +12,7 @@ struct JSContext;
 namespace mozjs
 {
 
-class JsCompartmentInner;
+class JsRealmInner;
 class JsGlobalObject;
 
 class JsInternalGlobal

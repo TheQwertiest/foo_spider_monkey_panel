@@ -27,7 +27,7 @@ JSClassOps jsOps = {
 
 JSClass jsClass = {
     "PlayingItemLocation",
-    DefaultClassFlags(),
+    kDefaultClassFlags,
     &jsOps
 };
 
@@ -36,9 +36,9 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( get_PlaylistIndex, JsFbPlayingItemLocation::get_Pl
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_PlaylistItemIndex, JsFbPlayingItemLocation::get_PlaylistItemIndex )
 
 const JSPropertySpec jsProperties[] = {
-    JS_PSG( "IsValid", get_IsValid, DefaultPropsFlags() ),
-    JS_PSG( "PlaylistIndex", get_PlaylistIndex, DefaultPropsFlags() ),
-    JS_PSG( "PlaylistItemIndex", get_PlaylistItemIndex, DefaultPropsFlags() ),
+    JS_PSG( "IsValid", get_IsValid, kDefaultPropsFlags ),
+    JS_PSG( "PlaylistIndex", get_PlaylistIndex, kDefaultPropsFlags ),
+    JS_PSG( "PlaylistItemIndex", get_PlaylistItemIndex, kDefaultPropsFlags ),
     JS_PS_END
 };
 

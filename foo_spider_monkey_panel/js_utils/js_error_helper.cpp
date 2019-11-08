@@ -20,38 +20,28 @@ using namespace mozjs;
 
 std::u8string GetStackTraceString( JSContext* cx, JS::HandleObject exn )
 {
-    // Exceptions thrown while compiling top-level script have no stack.
-    JS::RootedObject stackObj( cx, JS::ExceptionStackOrNull( exn ) );
-    if ( !stackObj )
-    { // quack?
-        try
-        { // Must not throw errors in error handler
+    try
+    { // Must not throw errors in error handler
+
+        // Note: exceptions thrown while compiling top-level script have no stack.
+        JS::RootedObject stackObj( cx, JS::ExceptionStackOrNull( exn ) );
+        if ( !stackObj )
+        { // quack?
             return GetOptionalProperty<std::u8string>( cx, exn, "stack" ).value_or( "" );
         }
-        catch ( ... )
+
+        JS::RootedString stackStr( cx );
+        if ( !JS::BuildStackString( cx, nullptr, stackObj, &stackStr, 2 ) )
         {
-            mozjs::error::SuppressException( cx );
             return "";
         }
+        return mozjs::convert::to_native::ToValue<std::u8string>( cx, stackStr );
     }
-
-    JS::RootedString stackStr( cx );
-    if ( !BuildStackString( cx, stackObj, &stackStr, 2 ) )
+    catch ( ... )
     {
+        mozjs::error::SuppressException( cx );
         return "";
     }
-
-    // JS::UniqueChars generates heap corruption exception in it's destructor
-    const char* encodedString = JS_EncodeStringToUTF8( cx, stackStr );
-    if ( !encodedString )
-    {
-        return "";
-    }
-
-    std::u8string outString( encodedString );
-    JS_free( cx, (void*)encodedString );
-
-    return outString;
 }
 
 bool PrependTextToJsStringException( JSContext* cx, JS::HandleValue excn, const std::u8string& text )

@@ -31,7 +31,7 @@ JSClassOps jsOps = {
 
 JSClass jsClass = {
     "FbTitleFormat",
-    DefaultClassFlags(),
+    kDefaultClassFlags,
     &jsOps
 };
 
@@ -40,9 +40,9 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( EvalWithMetadb, JsFbTitleFormat::EvalWithMetadb )
 MJS_DEFINE_JS_FN_FROM_NATIVE( EvalWithMetadbs, JsFbTitleFormat::EvalWithMetadbs )
 
 const JSFunctionSpec jsFunctions[] = {
-    JS_FN( "Eval", Eval, 0, DefaultPropsFlags() ),
-    JS_FN( "EvalWithMetadb", EvalWithMetadb, 1, DefaultPropsFlags() ),
-    JS_FN( "EvalWithMetadbs", EvalWithMetadbs, 1, DefaultPropsFlags() ),
+    JS_FN( "Eval", Eval, 0, kDefaultPropsFlags ),
+    JS_FN( "EvalWithMetadb", EvalWithMetadb, 1, kDefaultPropsFlags ),
+    JS_FN( "EvalWithMetadbs", EvalWithMetadbs, 1, kDefaultPropsFlags ),
     JS_FS_END
 };
 

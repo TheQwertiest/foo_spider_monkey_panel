@@ -2,7 +2,7 @@
 #include "js_gc.h"
 
 #include <js_engine/js_container.h>
-#include <js_engine/js_compartment_inner.h>
+#include <js_engine/js_realm_inner.h>
 #include <js_utils/js_error_helper.h>
 #include <utils/scope_helpers.h>
 #include <utils/winapi_error_helpers.h>
@@ -36,10 +36,10 @@ uint64_t JsGc::GetTotalHeapUsageForGlobal( JSContext* cx, JS::HandleObject jsGlo
 {
     assert( jsGlobal );
 
-    auto pJsCompartment = static_cast<JsCompartmentInner*>( JS_GetCompartmentPrivate( js::GetObjectCompartment( jsGlobal ) ) );
-    assert( pJsCompartment );
+    auto pJsRealm = static_cast<JsRealmInner*>( JS::GetRealmPrivate( js::GetNonCCWObjectRealm( jsGlobal ) ) );
+    assert( pJsRealm );
 
-    return pJsCompartment->GetCurrentHeapBytes();
+    return pJsRealm->GetCurrentHeapBytes();
 }
 
 uint64_t JsGc::GetTotalHeapUsage() const
@@ -250,14 +250,14 @@ uint64_t JsGc::GetCurrentTotalHeapSize()
 {
     uint64_t curTotalHeapSize = JS_GetGCParameter( pJsCtx_, JSGC_BYTES );
 
-    JS_IterateCompartments( pJsCtx_, &curTotalHeapSize, []( JSContext*, void* data, JSCompartment* pJsCompartment ) {
+    JS::IterateRealms( pJsCtx_, &curTotalHeapSize, []( JSContext*, void* data, JS::Handle<JS::Realm*> pJsRealm ) {
         auto pCurTotalHeapSize = static_cast<uint64_t*>( data );
-        auto pNativeCompartment = static_cast<JsCompartmentInner*>( JS_GetCompartmentPrivate( pJsCompartment ) );
-        if ( !pNativeCompartment )
+        auto pNativeRealm = static_cast<JsRealmInner*>( JS::GetRealmPrivate( pJsRealm ) );
+        if ( !pNativeRealm )
         {
             return;
         }
-        *pCurTotalHeapSize += pNativeCompartment->GetCurrentHeapBytes();
+        *pCurTotalHeapSize += pNativeRealm->GetCurrentHeapBytes();
     } );
 
     return curTotalHeapSize;
@@ -266,14 +266,14 @@ uint64_t JsGc::GetCurrentTotalHeapSize()
 uint64_t JsGc::GetCurrentTotalAllocCount()
 {
     uint64_t curTotalAllocCount = 0;
-    JS_IterateCompartments( pJsCtx_, &curTotalAllocCount, []( JSContext*, void* data, JSCompartment* pJsCompartment ) {
+    JS::IterateRealms( pJsCtx_, &curTotalAllocCount, []( JSContext*, void* data, JS::Handle<JS::Realm*> pJsRealm ) {
         auto pCurTotalAllocCount = static_cast<uint64_t*>( data );
-        auto pNativeCompartment = static_cast<JsCompartmentInner*>( JS_GetCompartmentPrivate( pJsCompartment ) );
-        if ( !pNativeCompartment )
+        auto pNativeRealm = static_cast<JsRealmInner*>( JS::GetRealmPrivate( pJsRealm ) );
+        if ( !pNativeRealm )
         {
             return;
         }
-        *pCurTotalAllocCount += pNativeCompartment->GetCurrentAllocCount();
+        *pCurTotalAllocCount += pNativeRealm->GetCurrentAllocCount();
     } );
 
     return curTotalAllocCount;
@@ -283,7 +283,7 @@ void JsGc::PerformGc( GcLevel gcLevel )
 {
     if ( !JS::IsIncrementalGCInProgress( pJsCtx_ ) )
     {
-        PrepareCompartmentsForGc( gcLevel );
+        PrepareRealmsForGc( gcLevel );
     }
 
     switch ( gcLevel )
@@ -304,21 +304,21 @@ void JsGc::PerformGc( GcLevel gcLevel )
 
     if ( !JS::IsIncrementalGCInProgress( pJsCtx_ ) )
     {
-        NotifyCompartmentsOnGcEnd();
+        NotifyRealmsOnGcEnd();
     }
 }
 
-void JsGc::PrepareCompartmentsForGc( GcLevel gcLevel )
+void JsGc::PrepareRealmsForGc( GcLevel gcLevel )
 {
-    const auto markAllCompartments = [&] {
-        JS_IterateCompartments( pJsCtx_, nullptr, []( JSContext*, void*, JSCompartment* pJsCompartment ) {
-            auto pNativeCompartment = static_cast<JsCompartmentInner*>( JS_GetCompartmentPrivate( pJsCompartment ) );
-            if ( !pNativeCompartment )
+    const auto markAllRealms = [&] {
+        JS::IterateRealms( pJsCtx_, nullptr, []( JSContext*, void*, JS::Handle<JS::Realm*> pJsRealm ) {
+            auto pNativeRealm = static_cast<JsRealmInner*>( JS::GetRealmPrivate( pJsRealm ) );
+            if ( !pNativeRealm )
             {
                 return;
             }
 
-            pNativeCompartment->OnGcStart();
+            pNativeRealm->OnGcStart();
         } );
     };
 
@@ -338,25 +338,25 @@ void JsGc::PrepareCompartmentsForGc( GcLevel gcLevel )
 
         if ( uint64_t curGlobalHeapSize = JS_GetGCParameter( pJsCtx_, JSGC_BYTES );
              curGlobalHeapSize > ( lastGlobalHeapSize_ + triggers.heapGrowthRateTrigger ) )
-        { // mark all, since we don't have any per-compartment information about allocated native JS objects
-            markAllCompartments();
+        { // mark all, since we don't have any per-realm information about allocated native JS objects
+            markAllRealms();
         }
         else
         {
-            JS_IterateCompartments( pJsCtx_, &triggers, []( JSContext*, void* data, JSCompartment* pJsCompartment ) {
+            JS::IterateRealms( pJsCtx_, &triggers, []( JSContext*, void* data, JS::Handle<JS::Realm*> pJsRealm ) {
                 const TriggerData& pTriggerData = *reinterpret_cast<const TriggerData*>( data );
 
-                auto pNativeCompartment = static_cast<JsCompartmentInner*>( JS_GetCompartmentPrivate( pJsCompartment ) );
-                if ( !pNativeCompartment )
+                auto pNativeRealm = static_cast<JsRealmInner*>( JS::GetRealmPrivate( pJsRealm ) );
+                if ( !pNativeRealm )
                 {
                     return;
                 }
 
-                const bool hasHeapOvergrowth = pNativeCompartment->GetCurrentHeapBytes() > ( pNativeCompartment->GetLastHeapBytes() + pTriggerData.heapGrowthRateTrigger );
-                const bool hasOveralloc = pNativeCompartment->GetCurrentAllocCount() > ( pNativeCompartment->GetLastAllocCount() + pTriggerData.allocCountTrigger );
-                if ( hasHeapOvergrowth || hasOveralloc || pNativeCompartment->IsMarkedForDeletion() )
+                const bool hasHeapOvergrowth = pNativeRealm->GetCurrentHeapBytes() > ( pNativeRealm->GetLastHeapBytes() + pTriggerData.heapGrowthRateTrigger );
+                const bool hasOveralloc = pNativeRealm->GetCurrentAllocCount() > ( pNativeRealm->GetLastAllocCount() + pTriggerData.allocCountTrigger );
+                if ( hasHeapOvergrowth || hasOveralloc || pNativeRealm->IsMarkedForDeletion() )
                 {
-                    pNativeCompartment->OnGcStart();
+                    pNativeRealm->OnGcStart();
                 }
             } );
         }
@@ -366,7 +366,7 @@ void JsGc::PrepareCompartmentsForGc( GcLevel gcLevel )
     case mozjs::JsGc::GcLevel::Normal:
     case mozjs::JsGc::GcLevel::Full:
     {
-        markAllCompartments();
+        markAllRealms();
         break;
     }
     default:
@@ -381,22 +381,22 @@ void JsGc::PerformIncrementalGc()
 
     if ( !JS::IsIncrementalGCInProgress( pJsCtx_ ) )
     {
-        std::vector<JSCompartment*> compartments;
+        std::vector<JS::Realm*> realms;
 
-        JS_IterateCompartments( pJsCtx_, &compartments, []( JSContext*, void* data, JSCompartment* pJsCompartment ) {
-            auto pCompartments = static_cast<std::vector<JSCompartment*>*>( data );
-            auto pNativeCompartment = static_cast<JsCompartmentInner*>( JS_GetCompartmentPrivate( pJsCompartment ) );
+        JS::IterateRealms( pJsCtx_, &realms, []( JSContext*, void* data, JS::Handle<JS::Realm*> pJsRealm ) {
+            auto pRealms = static_cast<std::vector<JS::Realm*>*>( data );
+            auto pNativeRealm = static_cast<JsRealmInner*>( JS::GetRealmPrivate( pJsRealm ) );
 
-            if ( pNativeCompartment && pNativeCompartment->IsMarkedForGc() )
+            if ( pNativeRealm && pNativeRealm->IsMarkedForGc() )
             {
-                pCompartments->push_back( pJsCompartment );
+                pRealms->push_back( pJsRealm );
             }
         } );
-        if ( !compartments.empty() )
+        if ( !realms.empty() )
         {
-            for ( auto pCompartment: compartments )
+            for ( auto pRealm: realms )
             {
-                JS::PrepareZoneForGC( js::GetCompartmentZone( pCompartment ) );
+                JS::PrepareZoneForGC( js::GetRealmZone( pRealm ) );
             }
         }
         else
@@ -404,12 +404,12 @@ void JsGc::PerformIncrementalGc()
             JS::PrepareForFullGC( pJsCtx_ );
         }
 
-        JS::StartIncrementalGC( pJsCtx_, GC_NORMAL, JS::gcreason::RESERVED1, sliceBudget );
+        JS::StartIncrementalGC( pJsCtx_, GC_NORMAL, JS::GCReason::RESERVED4, sliceBudget );
     }
     else
     {
         JS::PrepareForIncrementalGC( pJsCtx_ );
-        JS::IncrementalGCSlice( pJsCtx_, JS::gcreason::RESERVED2, sliceBudget );
+        JS::IncrementalGCSlice( pJsCtx_, JS::GCReason::RESERVED5, sliceBudget );
     }
 }
 
@@ -418,7 +418,7 @@ void JsGc::PerformNormalGc()
     if ( JS::IsIncrementalGCInProgress( pJsCtx_ ) )
     {
         JS::PrepareForIncrementalGC( pJsCtx_ );
-        JS::FinishIncrementalGC( pJsCtx_, JS::gcreason::RESERVED3 );
+        JS::FinishIncrementalGC( pJsCtx_, JS::GCReason::RESERVED6 );
     }
 
     JS_GC( pJsCtx_ );
@@ -429,27 +429,27 @@ void JsGc::PerformFullGc()
     if ( JS::IsIncrementalGCInProgress( pJsCtx_ ) )
     {
         JS::PrepareForIncrementalGC( pJsCtx_ );
-        JS::FinishIncrementalGC( pJsCtx_, JS::gcreason::RESERVED4 );
+        JS::FinishIncrementalGC( pJsCtx_, JS::GCReason::RESERVED7 );
     }
 
     JS_SetGCParameter( pJsCtx_, JSGC_MODE, JSGC_MODE_GLOBAL );
     JS::PrepareForFullGC( pJsCtx_ );
-    JS::GCForReason( pJsCtx_, GC_SHRINK, JS::gcreason::RESERVED5 );
+    JS::NonIncrementalGC( pJsCtx_, GC_SHRINK, JS::GCReason::RESERVED8 );
     JS_SetGCParameter( pJsCtx_, JSGC_MODE, JSGC_MODE_INCREMENTAL );
 }
 
-void JsGc::NotifyCompartmentsOnGcEnd()
+void JsGc::NotifyRealmsOnGcEnd()
 {
-    JS_IterateCompartments( pJsCtx_, nullptr, []( JSContext*, void*, JSCompartment* pJsCompartment ) {
-        auto pNativeCompartment = static_cast<JsCompartmentInner*>( JS_GetCompartmentPrivate( pJsCompartment ) );
-        if ( !pNativeCompartment )
+    JS::IterateRealms( pJsCtx_, nullptr, []( JSContext*, void*, JS::Handle<JS::Realm*> pJsRealm ) {
+        auto pNativeRealm = static_cast<JsRealmInner*>( JS::GetRealmPrivate( pJsRealm ) );
+        if ( !pNativeRealm )
         {
             return;
         }
 
-        if ( pNativeCompartment->IsMarkedForGc() )
+        if ( pNativeRealm->IsMarkedForGc() )
         {
-            pNativeCompartment->OnGcDone();
+            pNativeRealm->OnGcDone();
         }
     } );
 }

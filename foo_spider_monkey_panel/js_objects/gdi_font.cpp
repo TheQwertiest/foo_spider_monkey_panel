@@ -33,7 +33,7 @@ JSClassOps jsOps = {
 
 JSClass jsClass = {
     "GdiFont",
-    DefaultClassFlags(),
+    kDefaultClassFlags,
     &jsOps
 };
 
@@ -47,10 +47,10 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( get_Size, JsGdiFont::get_Size )
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_Style, JsGdiFont::get_Style )
 
 const JSPropertySpec jsProperties[] = {
-    JS_PSG( "Height", get_Height, DefaultPropsFlags() ),
-    JS_PSG( "Name", get_Name, DefaultPropsFlags() ),
-    JS_PSG( "Size", get_Size, DefaultPropsFlags() ),
-    JS_PSG( "Style", get_Style, DefaultPropsFlags() ),
+    JS_PSG( "Height", get_Height, kDefaultPropsFlags ),
+    JS_PSG( "Name", get_Name, kDefaultPropsFlags ),
+    JS_PSG( "Size", get_Size, kDefaultPropsFlags ),
+    JS_PSG( "Style", get_Style, kDefaultPropsFlags ),
     JS_PS_END
 };
 

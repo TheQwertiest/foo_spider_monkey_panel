@@ -31,7 +31,7 @@ JSClassOps jsOps = {
 
 JSClass jsClass = {
     "FbPlaylistRecycler",
-    DefaultClassFlags(),
+    kDefaultClassFlags,
     &jsOps
 };
 
@@ -41,17 +41,17 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( Purge, JsFbPlaylistRecycler::Purge )
 MJS_DEFINE_JS_FN_FROM_NATIVE( Restore, JsFbPlaylistRecycler::Restore )
 
 const JSFunctionSpec jsFunctions[] = {
-    JS_FN( "GetContent", GetContent, 1, DefaultPropsFlags() ),
-    JS_FN( "GetName", GetName, 1, DefaultPropsFlags() ),
-    JS_FN( "Purge", Purge, 1, DefaultPropsFlags() ),
-    JS_FN( "Restore", Restore, 1, DefaultPropsFlags() ),
+    JS_FN( "GetContent", GetContent, 1, kDefaultPropsFlags ),
+    JS_FN( "GetName", GetName, 1, kDefaultPropsFlags ),
+    JS_FN( "Purge", Purge, 1, kDefaultPropsFlags ),
+    JS_FN( "Restore", Restore, 1, kDefaultPropsFlags ),
     JS_FS_END
 };
 
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_Count, JsFbPlaylistRecycler::get_Count )
 
 const JSPropertySpec jsProperties[] = {
-    JS_PSG( "Count", get_Count, DefaultPropsFlags() ),
+    JS_PSG( "Count", get_Count, kDefaultPropsFlags ),
     JS_PS_END
 };
 

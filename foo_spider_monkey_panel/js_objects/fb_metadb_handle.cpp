@@ -32,7 +32,7 @@ JSClassOps jsOps = {
 
 JSClass jsClass = {
     "FbMetadbHandle",
-    DefaultClassFlags(),
+    kDefaultClassFlags,
     &jsOps
 };
 
@@ -47,15 +47,15 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( SetPlaycount, JsFbMetadbHandle::SetPlaycount )
 MJS_DEFINE_JS_FN_FROM_NATIVE( SetRating, JsFbMetadbHandle::SetRating )
 
 const JSFunctionSpec jsFunctions[] = {
-    JS_FN( "ClearStats", ClearStats, 0, DefaultPropsFlags() ),
-    JS_FN( "Compare", Compare, 1, DefaultPropsFlags() ),
-    JS_FN( "GetFileInfo", GetFileInfo, 0, DefaultPropsFlags() ),
-    JS_FN( "RefreshStats", RefreshStats, 0, DefaultPropsFlags() ),
-    JS_FN( "SetFirstPlayed", SetFirstPlayed, 1, DefaultPropsFlags() ),
-    JS_FN( "SetLastPlayed", SetLastPlayed, 1, DefaultPropsFlags() ),
-    JS_FN( "SetLoved", SetLoved, 1, DefaultPropsFlags() ),
-    JS_FN( "SetPlaycount", SetPlaycount, 1, DefaultPropsFlags() ),
-    JS_FN( "SetRating", SetRating, 1, DefaultPropsFlags() ),
+    JS_FN( "ClearStats", ClearStats, 0, kDefaultPropsFlags ),
+    JS_FN( "Compare", Compare, 1, kDefaultPropsFlags ),
+    JS_FN( "GetFileInfo", GetFileInfo, 0, kDefaultPropsFlags ),
+    JS_FN( "RefreshStats", RefreshStats, 0, kDefaultPropsFlags ),
+    JS_FN( "SetFirstPlayed", SetFirstPlayed, 1, kDefaultPropsFlags ),
+    JS_FN( "SetLastPlayed", SetLastPlayed, 1, kDefaultPropsFlags ),
+    JS_FN( "SetLoved", SetLoved, 1, kDefaultPropsFlags ),
+    JS_FN( "SetPlaycount", SetPlaycount, 1, kDefaultPropsFlags ),
+    JS_FN( "SetRating", SetRating, 1, kDefaultPropsFlags ),
     JS_FS_END
 };
 
@@ -66,11 +66,11 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( get_RawPath, JsFbMetadbHandle::get_RawPath )
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_SubSong, JsFbMetadbHandle::get_SubSong )
 
 const JSPropertySpec jsProperties[] = {
-    JS_PSG( "FileSize", get_FileSize, DefaultPropsFlags() ),
-    JS_PSG( "Length", get_Length, DefaultPropsFlags() ),
-    JS_PSG( "Path", get_Path, DefaultPropsFlags() ),
-    JS_PSG( "RawPath", get_RawPath, DefaultPropsFlags() ),
-    JS_PSG( "SubSong", get_SubSong, DefaultPropsFlags() ),
+    JS_PSG( "FileSize", get_FileSize, kDefaultPropsFlags ),
+    JS_PSG( "Length", get_Length, kDefaultPropsFlags ),
+    JS_PSG( "Path", get_Path, kDefaultPropsFlags ),
+    JS_PSG( "RawPath", get_RawPath, kDefaultPropsFlags ),
+    JS_PSG( "SubSong", get_SubSong, kDefaultPropsFlags ),
     JS_PS_END
 };
 

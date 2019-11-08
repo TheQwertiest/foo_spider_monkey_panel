@@ -2,7 +2,7 @@
 #include "global_object.h"
 
 #include <js_engine/js_container.h>
-#include <js_engine/js_compartment_inner.h>
+#include <js_engine/js_realm_inner.h>
 #include <js_engine/js_engine.h>
 #include <js_engine/js_to_native_invoker.h>
 #include <js_engine/js_internal_global.h>
@@ -30,6 +30,10 @@
 #include <js_panel_window.h>
 #include <component_paths.h>
 
+SMP_MJS_SUPPRESS_WARNINGS_PUSH
+#include <js/CompilationAndEvaluation.h>
+SMP_MJS_SUPPRESS_WARNINGS_POP
+
 #include <filesystem>
 
 using namespace smp;
@@ -47,11 +51,11 @@ void JsFinalizeOpLocal( JSFreeOp* /*fop*/, JSObject* obj )
         delete x;
         JS_SetPrivate( obj, nullptr );
 
-        auto pJsCompartment = static_cast<JsCompartmentInner*>( JS_GetCompartmentPrivate( js::GetObjectCompartment( obj ) ) );
-        if ( pJsCompartment )
+        auto pJsRealm = static_cast<JsRealmInner*>( JS::GetRealmPrivate( js::GetNonCCWObjectRealm( obj ) ) );
+        if ( pJsRealm )
         {
-            delete pJsCompartment;
-            JS_SetCompartmentPrivate( js::GetObjectCompartment( obj ), nullptr );
+            delete pJsRealm;
+            JS::SetRealmPrivate( js::GetNonCCWObjectRealm( obj ), nullptr );
         }
     }
 }
@@ -92,11 +96,11 @@ MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( SetInterval, JsGlobalObject::SetInterval,
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( SetTimeout, JsGlobalObject::SetTimeout, JsGlobalObject::SetTimeoutWithOpt, 1 )
 
 const JSFunctionSpec jsFunctions[] = {
-    JS_FN( "clearInterval", ClearInterval, 1, DefaultPropsFlags() ),
-    JS_FN( "clearTimeout", ClearTimeout, 1, DefaultPropsFlags() ),
-    JS_FN( "include", IncludeScript, 1, DefaultPropsFlags() ),
-    JS_FN( "setInterval", SetInterval, 2, DefaultPropsFlags() ),
-    JS_FN( "setTimeout", SetTimeout, 2, DefaultPropsFlags() ),
+    JS_FN( "clearInterval", ClearInterval, 1, kDefaultPropsFlags ),
+    JS_FN( "clearTimeout", ClearTimeout, 1, kDefaultPropsFlags ),
+    JS_FN( "include", IncludeScript, 1, kDefaultPropsFlags ),
+    JS_FN( "setInterval", SetInterval, 2, kDefaultPropsFlags ),
+    JS_FN( "setTimeout", SetTimeout, 2, kDefaultPropsFlags ),
     JS_FS_END
 };
 
@@ -126,7 +130,7 @@ JSObject* JsGlobalObject::CreateNative( JSContext* cx, JsContainer& parentContai
         jsOps.trace = JS_GlobalObjectTraceHook;
     }
 
-    JS::CompartmentOptions options;
+    JS::RealmOptions options;
     JS::RootedObject jsObj( cx,
                             JS_NewGlobalObject( cx, &jsClass, nullptr, JS::DontFireOnNewGlobalHook, options ) );
     if ( !jsObj )
@@ -135,10 +139,10 @@ JSObject* JsGlobalObject::CreateNative( JSContext* cx, JsContainer& parentContai
     }
 
     {
-        JSAutoCompartment ac( cx, jsObj );
-        JS_SetCompartmentPrivate( js::GetContextCompartment( cx ), new JsCompartmentInner() );
+        JSAutoRealm ac( cx, jsObj );
+        JS::SetRealmPrivate( js::GetContextRealm( cx ), new JsRealmInner() );
 
-        if ( !JS_InitStandardClasses( cx, jsObj ) )
+        if ( !JS::InitRealmStandardClasses( cx ) )
         {
             throw smp::JsException();
         }
@@ -158,7 +162,7 @@ JSObject* JsGlobalObject::CreateNative( JSContext* cx, JsContainer& parentContai
 
 #ifdef _DEBUG
         JS::RootedObject testFuncs( cx, js::GetTestingFunctions( cx ) );
-        if ( !JS_DefineProperty( cx, jsObj, "test", testFuncs, DefaultPropsFlags() ) )
+        if ( !JS_DefineProperty( cx, jsObj, "test", testFuncs, kDefaultPropsFlags ) )
         {
             throw smp::JsException();
         }

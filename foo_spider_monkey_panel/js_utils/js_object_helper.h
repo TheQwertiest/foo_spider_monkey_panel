@@ -1,13 +1,9 @@
 #pragma once
 
-#pragma warning( push )
-#pragma warning( disable : 4100 ) // unused variable
-#pragma warning( disable : 4251 ) // dll interface warning
-#pragma warning( disable : 4324 ) // structure was padded due to alignment specifier
-#pragma warning( disable : 4996 ) // C++17 deprecation warning
+SMP_MJS_SUPPRESS_WARNINGS_PUSH
 #include <js\Wrapper.h>
 #include <js\Proxy.h>
-#pragma warning( pop ) 
+SMP_MJS_SUPPRESS_WARNINGS_POP
 
 struct JSFreeOp;
 struct JSContext;
@@ -16,15 +12,8 @@ class JSObject;
 namespace mozjs
 {
 
-constexpr uint32_t DefaultClassFlags()
-{
-    return JSCLASS_HAS_PRIVATE | JSCLASS_BACKGROUND_FINALIZE;
-}
-
-constexpr uint16_t DefaultPropsFlags()
-{
-    return JSPROP_ENUMERATE | JSPROP_PERMANENT;
-}
+inline constexpr uint32_t kDefaultClassFlags = JSCLASS_HAS_PRIVATE | JSCLASS_BACKGROUND_FINALIZE;
+inline constexpr uint8_t kDefaultPropsFlags = JSPROP_ENUMERATE | JSPROP_PERMANENT;
 
 /// @details Used to define write-only property with JS_PSGS
 bool DummyGetter( JSContext* cx, unsigned argc, JS::Value* vp );
@@ -37,7 +26,7 @@ void CreateAndInstallObject( JSContext* cx, JS::HandleObject parentObject, const
     JS::RootedObject objectToInstall( cx, JsObjectType::CreateJs( cx, args... ) );
     assert( objectToInstall );
 
-    if ( !JS_DefineProperty( cx, parentObject, propertyName.c_str(), objectToInstall, DefaultPropsFlags() ) )
+    if ( !JS_DefineProperty( cx, parentObject, propertyName.c_str(), objectToInstall, kDefaultPropsFlags ) )
     {
         throw smp::JsException();
     }
