@@ -30,7 +30,7 @@ JSClassOps jsOps = {
 
 JSClass jsClass = {
     "FbFileInfo",
-    DefaultClassFlags(),
+    kDefaultClassFlags,
     &jsOps
 };
 
@@ -44,13 +44,13 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( MetaValueCount, JsFbFileInfo::MetaValueCount );
 
 constexpr auto jsFunctions = smp::to_array<JSFunctionSpec>(
     {
-        JS_FN( "InfoFind", InfoFind, 1, DefaultPropsFlags() ),
-        JS_FN( "InfoName", InfoName, 1, DefaultPropsFlags() ),
-        JS_FN( "InfoValue", InfoValue, 1, DefaultPropsFlags() ),
-        JS_FN( "MetaFind", MetaFind, 1, DefaultPropsFlags() ),
-        JS_FN( "MetaName", MetaName, 1, DefaultPropsFlags() ),
-        JS_FN( "MetaValue", MetaValue, 2, DefaultPropsFlags() ),
-        JS_FN( "MetaValueCount", MetaValueCount, 1, DefaultPropsFlags() ),
+        JS_FN( "InfoFind", InfoFind, 1, kDefaultPropsFlags ),
+        JS_FN( "InfoName", InfoName, 1, kDefaultPropsFlags ),
+        JS_FN( "InfoValue", InfoValue, 1, kDefaultPropsFlags ),
+        JS_FN( "MetaFind", MetaFind, 1, kDefaultPropsFlags ),
+        JS_FN( "MetaName", MetaName, 1, kDefaultPropsFlags ),
+        JS_FN( "MetaValue", MetaValue, 2, kDefaultPropsFlags ),
+        JS_FN( "MetaValueCount", MetaValueCount, 1, kDefaultPropsFlags ),
         JS_FS_END,
     } );
 
@@ -59,8 +59,8 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( get_MetaCount, JsFbFileInfo::get_MetaCount );
 
 constexpr auto jsProperties = smp::to_array<JSPropertySpec>(
     {
-        JS_PSG( "InfoCount", get_InfoCount, DefaultPropsFlags() ),
-        JS_PSG( "MetaCount", get_MetaCount, DefaultPropsFlags() ),
+        JS_PSG( "InfoCount", get_InfoCount, kDefaultPropsFlags ),
+        JS_PSG( "MetaCount", get_MetaCount, kDefaultPropsFlags ),
         JS_PS_END,
     } );
 

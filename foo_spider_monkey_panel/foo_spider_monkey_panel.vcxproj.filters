@@ -124,9 +124,6 @@
     <ClCompile Include="js_objects\internal\global_heap_manager.cpp">
       <Filter>js_objects\internal</Filter>
     </ClCompile>
-    <ClCompile Include="js_engine\js_compartment_inner.cpp">
-      <Filter>js_engine</Filter>
-    </ClCompile>
     <ClCompile Include="js_objects\active_x_object.cpp">
       <Filter>js_objects</Filter>
     </ClCompile>
@@ -325,6 +322,9 @@
     <ClCompile Include="utils\stacktrace.cpp">
       <Filter>utils</Filter>
     </ClCompile>
+    <ClCompile Include="js_engine\js_realm_inner.cpp">
+      <Filter>js_engine</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="js_engine\js_engine.h">
@@ -470,9 +470,6 @@
     </ClInclude>
     <ClInclude Include="js_objects\internal\prototype_ids.h">
       <Filter>js_objects\internal</Filter>
-    </ClInclude>
-    <ClInclude Include="js_engine\js_compartment_inner.h">
-      <Filter>js_engine</Filter>
     </ClInclude>
     <ClInclude Include="js_objects\active_x_object.h">
       <Filter>js_objects</Filter>
@@ -713,6 +710,9 @@
     </ClInclude>
     <ClInclude Include="utils\relative_filepath_trie.h">
       <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="js_engine\js_realm_inner.h">
+      <Filter>js_engine</Filter>
     </ClInclude>
     <ClInclude Include="mutex_workaround.h">
       <Filter>z_core</Filter>

@@ -45,10 +45,10 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( moveNext, JsEnumerator::MoveNext )
 
 constexpr auto jsFunctions = smp::to_array<JSFunctionSpec>(
     {
-        JS_FN( "atEnd", atEnd, 0, DefaultPropsFlags() ),
-        JS_FN( "item", item, 0, DefaultPropsFlags() ),
-        JS_FN( "moveFirst", moveFirst, 0, DefaultPropsFlags() ),
-        JS_FN( "moveNext", moveNext, 0, DefaultPropsFlags() ),
+        JS_FN( "atEnd", atEnd, 0, kDefaultPropsFlags ),
+        JS_FN( "item", item, 0, kDefaultPropsFlags ),
+        JS_FN( "moveFirst", moveFirst, 0, kDefaultPropsFlags ),
+        JS_FN( "moveNext", moveNext, 0, kDefaultPropsFlags ),
         JS_FS_END,
     } );
 

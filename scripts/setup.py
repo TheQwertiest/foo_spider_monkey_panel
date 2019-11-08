@@ -11,6 +11,7 @@ import download_submodules
 import configure_scintilla
 import patch_submodules
 import unpack_mozjs
+import patch_mozjs
 import generate_commit_hash_header
 import generate_source_link_config
 
@@ -42,7 +43,7 @@ def setup( skip_mozjs,
             call_decorator("Patching submodules")(patch_submodules.patch)()
     if (not skip_mozjs):
         call_decorator("MozJs unpacking")(unpack_mozjs.unpack)()
-        # call_decorator("MozJs patching")(patch_mozjs.patch)();
+        call_decorator("MozJs patching")(patch_mozjs.patch)()
     call_decorator("Commit hash header generation")(generate_commit_hash_header.generate_header)()
     call_decorator("SourceLink configuration file generation")(generate_source_link_config.generate_config)()
 

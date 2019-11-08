@@ -220,7 +220,7 @@ bool HostTimerTask::InvokeJsImpl( JSContext* cx, JS::HandleObject jsGlobal, JS::
         throw smp::JsException();
     }
 
-    JS::AutoValueVector jsVector( cx );
+    JS::RootedValueVector jsVector( cx );
     if ( arraySize )
     {
         if ( !jsVector.reserve( arraySize ) )

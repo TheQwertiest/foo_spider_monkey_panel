@@ -7,12 +7,9 @@
 #include <js_utils/js_object_helper.h>
 #include <utils/string_helpers.h>
 
-#pragma warning( push )
-#pragma warning( disable : 4100 ) // unused variable
-#pragma warning( disable : 4251 ) // dll interface warning
-#pragma warning( disable : 4996 ) // C++17 deprecation warning
+SMP_MJS_SUPPRESS_WARNINGS_PUSH
 #include <js/Wrapper.h>
-#pragma warning( pop )
+SMP_MJS_SUPPRESS_WARNINGS_POP
 
 #include <type_traits>
 #include <vector>
@@ -74,7 +71,7 @@ constexpr bool InvokeNativeCallback_ParseArguments_Check()
 }
 
 template <typename... ArgTypes>
-auto InvokeNativeCallback_ParseArguments( JSContext* cx, JS::AutoValueVector& valueVector, const JS::CallArgs& jsArgs )
+auto InvokeNativeCallback_ParseArguments( JSContext* cx, JS::MutableHandleValueVector valueVector, const JS::CallArgs& jsArgs )
 {
     constexpr size_t argCount = sizeof...( ArgTypes );
     if constexpr ( argCount > 0 )
@@ -137,7 +134,7 @@ auto InvokeNativeCallback_ParseArguments( JSContext* cx, JS::AutoValueVector& va
                         return JS::HandleValueArray::empty();
                     }
 
-                    return ArgType( valueVector );
+                    return JS::HandleValueArray::fromMarkedLocation( valueVector.length(), valueVector.begin() );
                 }
                 else
                 {
@@ -238,8 +235,8 @@ void InvokeNativeCallback_Member( JSContext* cx,
         throw smp::SmpException( "Invalid `this` context" );
     }
 
-    JS::AutoValueVector handleValueVector( cx );
-    auto callbackArguments = InvokeNativeCallback_ParseArguments<ArgTypes...>( cx, handleValueVector, jsArgs );
+    JS::RootedValueVector handleValueVector( cx );
+    auto callbackArguments = InvokeNativeCallback_ParseArguments<ArgTypes...>( cx, &handleValueVector, jsArgs );
 
     // May return raw JS pointer! (see below)
     const auto invokeNative = [&]() {
@@ -285,8 +282,8 @@ void InvokeNativeCallback_Static( JSContext* cx,
         throw smp::SmpException( "Invalid number of arguments" );
     }
 
-    JS::AutoValueVector handleValueVector( cx );
-    auto callbackArguments = InvokeNativeCallback_ParseArguments<ArgTypes...>( cx, handleValueVector, jsArgs );
+    JS::RootedValueVector handleValueVector( cx );
+    auto callbackArguments = InvokeNativeCallback_ParseArguments<ArgTypes...>( cx, &handleValueVector, jsArgs );
 
     // May return raw JS pointer! (see below)
     const auto invokeNative = [&]() {

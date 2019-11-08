@@ -2,8 +2,13 @@
 
 #include "js_internal_global.h"
 
-#include <js_engine/js_compartment_inner.h>
+#include <js_engine/js_realm_inner.h>
 #include <utils/file_helpers.h>
+
+SMP_MJS_SUPPRESS_WARNINGS_PUSH
+#include <js/CompilationAndEvaluation.h>
+#include <js/SourceText.h>
+SMP_MJS_SUPPRESS_WARNINGS_POP
 
 using namespace smp;
 
@@ -14,11 +19,11 @@ using namespace mozjs;
 
 void JsFinalizeOpLocal( JSFreeOp* /*fop*/, JSObject* obj )
 {
-    auto pJsCompartment = static_cast<JsCompartmentInner*>( JS_GetCompartmentPrivate( js::GetObjectCompartment( obj ) ) );
-    if ( pJsCompartment )
+    auto pJsRealm = static_cast<JsRealmInner*>( JS::GetRealmPrivate( js::GetNonCCWObjectRealm( obj ) ) );
+    if ( pJsRealm )
     {
-        delete pJsCompartment;
-        JS_SetCompartmentPrivate( js::GetObjectCompartment( obj ), nullptr );
+        delete pJsRealm;
+        JS::SetRealmPrivate( js::GetNonCCWObjectRealm( obj ), nullptr );
     }
 }
 
@@ -62,14 +67,12 @@ JsInternalGlobal::~JsInternalGlobal()
 
 std::unique_ptr<JsInternalGlobal> JsInternalGlobal::Create( JSContext* cx )
 {
-    JSAutoRequest ar( cx );
-
     if ( !jsOps.trace )
     { // JS_GlobalObjectTraceHook address is only accessible after mozjs is loaded.
         jsOps.trace = JS_GlobalObjectTraceHook;
     }
 
-    JS::CompartmentOptions options;
+    JS::RealmOptions options;
     JS::RootedObject jsObj( cx,
                             JS_NewGlobalObject( cx, &jsClass, nullptr, JS::FireOnNewGlobalHook, options ) );
     smp::JsException::ExpectTrue( jsObj );
@@ -81,9 +84,9 @@ JSScript* JsInternalGlobal::GetCachedScript( const std::filesystem::path& absolu
 {
     assert( absolutePath.is_absolute() );
 
-    // Shared scripts must be saved in the shared global compartment (vs their respective compartments)
+    // Shared scripts must be saved in the shared global realm (vs their respective realms)
     // to prevent GC issues
-    JSAutoCompartment ac( pJsCtx_, jsGlobal_ );
+    JSAutoRealm ac( pJsCtx_, jsGlobal_ );
 
     auto& scriptDataMap = scriptCache_.get().data;
     const auto u8path = absolutePath.lexically_normal().u8string();
@@ -110,15 +113,17 @@ JSScript* JsInternalGlobal::GetCachedScript( const std::filesystem::path& absolu
     const std::wstring scriptCode = smp::file::ReadFileW( u8path, CP_ACP, false );
     const auto filename = absolutePath.filename().u8string();
 
-    JS::CompileOptions opts( pJsCtx_ );
-    opts.setUTF8( true );
-    opts.setFileAndLine( filename.c_str(), 1 );
-
-    JS::RootedScript parsedScript( pJsCtx_ );
-    if ( !JS_CompileUCScript( pJsCtx_, (char16_t*)scriptCode.c_str(), scriptCode.length(), opts, &parsedScript ) )
+    JS::SourceText<char16_t> source;
+    if ( !source.init( pJsCtx_, reinterpret_cast<const char16_t*>( scriptCode.c_str() ), scriptCode.length(), JS::SourceOwnership::Borrowed ) )
     {
         throw smp::JsException();
     }
+
+    JS::CompileOptions opts( pJsCtx_ );
+    opts.setFileAndLine( filename.c_str(), 1 );
+
+    JS::RootedScript parsedScript( pJsCtx_, JS::Compile( pJsCtx_, opts, source ) );
+    smp::JsException::ExpectTrue( parsedScript );
 
     return scriptDataMap.insert_or_assign( u8path, JsHashMap::ValueType{ parsedScript, lastWriteTime } ).first->second.script;
 }

@@ -1,15 +1,11 @@
 #pragma once
 
-#include <js_engine/js_compartment_inner.h>
+#include <js_engine/js_realm_inner.h>
 #include <js_utils/js_prototype_helpers.h>
 
-#pragma warning( push )
-#pragma warning( disable : 4100 ) // unused variable
-#pragma warning( disable : 4251 ) // dll interface warning
-#pragma warning( disable : 4324 ) // structure was padded due to alignment specifier
-#pragma warning( disable : 4996 ) // C++17 deprecation warning (STL4015)
+SMP_MJS_SUPPRESS_WARNINGS_PUSH
 #include <js/proxy.h>
-#pragma warning( pop ) 
+SMP_MJS_SUPPRESS_WARNINGS_POP
 
 #include <memory>
 
@@ -183,10 +179,10 @@ public:
         auto pNative = static_cast<T*>( JS_GetPrivate( pSelf ) );
         if ( pNative )
         {
-            auto pJsCompartment = static_cast<JsCompartmentInner*>( JS_GetCompartmentPrivate( js::GetObjectCompartment( pSelf ) ) );
-            if ( pJsCompartment )
+            auto pJsRealm = static_cast<JsRealmInner*>( JS::GetRealmPrivate( js::GetNonCCWObjectRealm( pSelf ) ) );
+            if ( pJsRealm )
             {
-                pJsCompartment->OnHeapDeallocate( pNative->nativeObjectSize_ );
+                pJsRealm->OnHeapDeallocate( pNative->nativeObjectSize_ );
             }
 
             delete pNative;
@@ -246,9 +242,9 @@ private:
                                                          JS::HandleObject jsBaseObject,
                                                          std::unique_ptr<T> premadeNative )
     {
-        auto pJsCompartment = static_cast<JsCompartmentInner*>( JS_GetCompartmentPrivate( js::GetContextCompartment( cx ) ) );
-        assert( pJsCompartment );
-        pJsCompartment->OnHeapAllocate( premadeNative->nativeObjectSize_ );
+        auto pJsRealm = static_cast<JsRealmInner*>( JS::GetRealmPrivate( js::GetContextRealm( cx ) ) );
+        assert( pJsRealm );
+        pJsRealm->OnHeapAllocate( premadeNative->nativeObjectSize_ );
 
         JS_SetPrivate( jsBaseObject, premadeNative.release() );
 

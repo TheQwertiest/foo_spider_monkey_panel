@@ -32,7 +32,7 @@ JSClassOps jsOps = {
 
 JSClass jsClass = {
     "MainMenuManager",
-    DefaultClassFlags(),
+    kDefaultClassFlags,
     &jsOps
 };
 
@@ -42,9 +42,9 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( Init, JsMainMenuManager::Init )
 
 constexpr auto jsFunctions = smp::to_array<JSFunctionSpec>(
     {
-        JS_FN( "BuildMenu", BuildMenu, 3, DefaultPropsFlags() ),
-        JS_FN( "ExecuteByID", ExecuteByID, 1, DefaultPropsFlags() ),
-        JS_FN( "Init", Init, 1, DefaultPropsFlags() ),
+        JS_FN( "BuildMenu", BuildMenu, 3, kDefaultPropsFlags ),
+        JS_FN( "ExecuteByID", ExecuteByID, 1, kDefaultPropsFlags ),
+        JS_FN( "Init", Init, 1, kDefaultPropsFlags ),
         JS_FS_END,
     } );
 

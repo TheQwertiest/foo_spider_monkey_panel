@@ -29,7 +29,7 @@ JSClassOps jsOps = {
 
 JSClass jsClass = {
     "FbWindow",
-    DefaultClassFlags(),
+    kDefaultClassFlags,
     &jsOps
 };
 
@@ -54,14 +54,14 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( put_Sizing, JsFbWindow::put_Sizing )
 
 constexpr auto jsProperties = smp::to_array<JSPropertySpec>(
     {
-        JS_PSG( "Aero", get_Aero, DefaultPropsFlags() ),
-        JS_PSGS( "BlockMaximize", get_BlockMaximize, put_BlockMaximize, DefaultPropsFlags() ),
-        JS_PSG( "FoobarCpuUsage", get_FoobarCpuUsage, DefaultPropsFlags() ),
-        JS_PSGS( "FrameStyle", get_FrameStyle, put_FrameStyle, DefaultPropsFlags() ),
-        JS_PSGS( "FullScreen", get_FullScreen, put_FullScreen, DefaultPropsFlags() ),
-        JS_PSGS( "MainWindowState", get_MainWindowState, put_MainWindowState, DefaultPropsFlags() ),
-        JS_PSGS( "Sizing", get_Sizing, put_Sizing, DefaultPropsFlags() ),
-        JS_PSG( "SystemCpuUsage", get_SystemCpuUsage, DefaultPropsFlags() ),
+        JS_PSG( "Aero", get_Aero, kDefaultPropsFlags ),
+        JS_PSGS( "BlockMaximize", get_BlockMaximize, put_BlockMaximize, kDefaultPropsFlags ),
+        JS_PSG( "FoobarCpuUsage", get_FoobarCpuUsage, kDefaultPropsFlags ),
+        JS_PSGS( "FrameStyle", get_FrameStyle, put_FrameStyle, kDefaultPropsFlags ),
+        JS_PSGS( "FullScreen", get_FullScreen, put_FullScreen, kDefaultPropsFlags ),
+        JS_PSGS( "MainWindowState", get_MainWindowState, put_MainWindowState, kDefaultPropsFlags ),
+        JS_PSGS( "Sizing", get_Sizing, put_Sizing, kDefaultPropsFlags ),
+        JS_PSG( "SystemCpuUsage", get_SystemCpuUsage, kDefaultPropsFlags ),
         JS_PS_END,
     } );
 

@@ -58,15 +58,18 @@ using std::max;
 #   include <columns_ui-sdk/ui_extension.h>
 #pragma warning( pop ) 
 
+#define SMP_MJS_SUPPRESS_WARNINGS_PUSH \
+    __pragma( warning( push ) )        \
+    __pragma( warning( disable : 4251 ) ) /* dll interface warning */
+
+#define SMP_MJS_SUPPRESS_WARNINGS_POP \
+    __pragma( warning( pop ) )
+
 // Mozilla SpiderMonkey
-#pragma warning( push )  
-#pragma warning( disable : 4100 ) // unused variable
-#pragma warning( disable : 4251 ) // dll interface warning
-#pragma warning( disable : 4324 ) // structure was padded due to alignment specifier
-#pragma warning( disable : 4996 ) // C++17 deprecation warning (STL4015)
-#   include <jsapi.h>
-#   include <jsfriendapi.h>
-#pragma warning( pop ) 
+SMP_MJS_SUPPRESS_WARNINGS_PUSH
+#include <jsapi.h>
+#include <jsfriendapi.h>
+SMP_MJS_SUPPRESS_WARNINGS_POP
 
 // fmt
 #define FMT_HEADER_ONLY

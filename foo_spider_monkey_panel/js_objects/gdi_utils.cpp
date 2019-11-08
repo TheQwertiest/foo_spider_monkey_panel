@@ -38,7 +38,7 @@ JSClassOps jsOps = {
 
 JSClass jsClass = {
     "GdiUtils",
-    DefaultClassFlags(),
+    kDefaultClassFlags,
     &jsOps
 };
 
@@ -50,11 +50,11 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( LoadImageAsyncV2, JsGdiUtils::LoadImageAsyncV2 )
 
 constexpr auto jsFunctions = smp::to_array<JSFunctionSpec>(
     {
-        JS_FN( "CreateImage", CreateImage, 2, DefaultPropsFlags() ),
-        JS_FN( "Font", Font, 2, DefaultPropsFlags() ),
-        JS_FN( "Image", Image, 1, DefaultPropsFlags() ),
-        JS_FN( "LoadImageAsync", LoadImageAsync, 2, DefaultPropsFlags() ),
-        JS_FN( "LoadImageAsyncV2", LoadImageAsyncV2, 2, DefaultPropsFlags() ),
+        JS_FN( "CreateImage", CreateImage, 2, kDefaultPropsFlags ),
+        JS_FN( "Font", Font, 2, kDefaultPropsFlags ),
+        JS_FN( "Image", Image, 1, kDefaultPropsFlags ),
+        JS_FN( "LoadImageAsync", LoadImageAsync, 2, kDefaultPropsFlags ),
+        JS_FN( "LoadImageAsyncV2", LoadImageAsyncV2, 2, kDefaultPropsFlags ),
         JS_FS_END,
     } );
 

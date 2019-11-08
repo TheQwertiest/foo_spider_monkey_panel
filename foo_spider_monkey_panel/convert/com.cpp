@@ -14,6 +14,10 @@
 #include <utils/scope_helpers.h>
 #include <utils/winapi_error_helpers.h>
 
+SMP_MJS_SUPPRESS_WARNINGS_PUSH
+#include <js/Date.h>
+SMP_MJS_SUPPRESS_WARNINGS_POP
+
 using namespace smp;
 
 namespace
@@ -89,14 +93,13 @@ protected:
             return E_FAIL;
         }
 
-        // Might be executed outside of main JS workflow, so we need to set request and compartment
+        // Might be executed outside of main JS workflow, so we need to set realm
 
         auto& heapMgr = pNativeGlobal_->GetHeapManager();
 
-        JSAutoRequest ar( pJsCtx_ );
         JS::RootedObject jsGlobal( pJsCtx_, heapMgr.Get( globalId_ ).toObjectOrNull() );
         assert( jsGlobal );
-        JSAutoCompartment ac( pJsCtx_, jsGlobal );
+        JSAutoRealm ac( pJsCtx_, jsGlobal );
 
         JS::RootedValue vFunc( pJsCtx_, heapMgr.Get( funcId_ ) );
         JS::RootedFunction rFunc( pJsCtx_, JS_ValueToFunction( pJsCtx_, vFunc ) );
@@ -326,7 +329,7 @@ void VariantToJs( JSContext* cx, VARIANTARG& var, JS::MutableHandleValue rval )
         SYSTEMTIME time;
         VariantTimeToSystemTime( d, &time );
 
-        JS::RootedObject jsObject( cx, JS_NewDateObject( cx, time.wYear, time.wMonth - 1, time.wDay, time.wHour, time.wMinute, time.wSecond ) );
+        JS::RootedObject jsObject( cx, JS::NewDateObject( cx, time.wYear, time.wMonth - 1, time.wDay, time.wHour, time.wMinute, time.wSecond ) );
         JsException::ExpectTrue( jsObject );
 
         rval.setObjectOrNull( jsObject );
@@ -431,7 +434,7 @@ void JsToVariant( JSContext* cx, JS::HandleValue rval, VARIANTARG& arg )
                 arg.ppunkVal = &x->pUnknown_;
             }
         }
-        else if ( JS_ObjectIsFunction( cx, j0 ) )
+        else if ( JS_ObjectIsFunction( j0 ) )
         {
             JS::RootedFunction func( cx, JS_ValueToFunction( cx, rval ) );
 

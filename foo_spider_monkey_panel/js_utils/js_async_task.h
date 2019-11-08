@@ -63,7 +63,7 @@ public:
         pNativeGlobal_->GetHeapManager().UnregisterUser( this );
     };
 
-    /// @details Assumes that JS environment is ready (global, compartment and etc).
+    /// @details Assumes that JS environment is ready (global, realm and etc).
     bool InvokeJs() final
     {
         hack::scoped_lock sl( cleanupLock_ );

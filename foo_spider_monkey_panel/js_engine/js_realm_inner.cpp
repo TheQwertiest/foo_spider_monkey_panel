@@ -1,17 +1,18 @@
 #include <stdafx.h>
-#include "js_compartment_inner.h"
+
+#include "js_realm_inner.h"
 
 #include <js_engine/js_engine.h>
 
 namespace mozjs
 {
 
-void JsCompartmentInner::OnGcStart()
+void JsRealmInner::OnGcStart()
 {
     isMarkedForGc_ = true;
 }
 
-void JsCompartmentInner::OnGcDone()
+void JsRealmInner::OnGcDone()
 {
     std::scoped_lock sl( gcDataLock_ );
 
@@ -20,43 +21,43 @@ void JsCompartmentInner::OnGcDone()
     isMarkedForGc_ = false;
 }
 
-bool JsCompartmentInner::IsMarkedForGc() const
+bool JsRealmInner::IsMarkedForGc() const
 {
     return isMarkedForGc_;
 }
 
-uint64_t JsCompartmentInner::GetCurrentHeapBytes() const
+uint64_t JsRealmInner::GetCurrentHeapBytes() const
 {
     std::scoped_lock sl( gcDataLock_ );
     return curHeapSize_;
 }
 
-uint64_t JsCompartmentInner::GetLastHeapBytes() const
+uint64_t JsRealmInner::GetLastHeapBytes() const
 {
     std::scoped_lock sl( gcDataLock_ );
     return std::min( lastHeapSize_, curHeapSize_ );
 }
 
-uint32_t JsCompartmentInner::GetCurrentAllocCount() const
+uint32_t JsRealmInner::GetCurrentAllocCount() const
 {
     std::scoped_lock sl( gcDataLock_ );
     return curAllocCount_;
 }
 
-uint32_t JsCompartmentInner::GetLastAllocCount() const
+uint32_t JsRealmInner::GetLastAllocCount() const
 {
     std::scoped_lock sl( gcDataLock_ );
     return std::min( lastAllocCount_, curAllocCount_ );
 }
 
-void JsCompartmentInner::OnHeapAllocate( uint32_t size )
+void JsRealmInner::OnHeapAllocate( uint32_t size )
 {
     std::scoped_lock sl( gcDataLock_ );
     curHeapSize_ += size;
     ++curAllocCount_;
 }
 
-void JsCompartmentInner::OnHeapDeallocate( uint32_t size )
+void JsRealmInner::OnHeapDeallocate( uint32_t size )
 {
     std::scoped_lock sl( gcDataLock_ );
     if ( size > curHeapSize_ )
@@ -79,12 +80,12 @@ void JsCompartmentInner::OnHeapDeallocate( uint32_t size )
     }
 }
 
-void JsCompartmentInner::MarkForDeletion()
+void JsRealmInner::MarkForDeletion()
 {
     isMarkedForDeletion_ = true;
 }
 
-bool JsCompartmentInner::IsMarkedForDeletion() const
+bool JsRealmInner::IsMarkedForDeletion() const
 {
     return isMarkedForDeletion_;
 }

@@ -21,9 +21,9 @@ namespace
 
 using namespace mozjs;
 
-std::u8string ParseJsValue( JSContext* cx, JS::HandleValue jsValue, JS::AutoObjectVector& curObjects, uint32_t& logDepth, bool isParentObject );
+std::u8string ParseJsValue( JSContext* cx, JS::HandleValue jsValue, JS::MutableHandleObjectVector curObjects, uint32_t& logDepth, bool isParentObject );
 
-std::u8string ParseJsArray( JSContext* cx, JS::HandleObject jsObject, JS::AutoObjectVector& curObjects, uint32_t& logDepth )
+std::u8string ParseJsArray( JSContext* cx, JS::HandleObject jsObject, JS::MutableHandleObjectVector curObjects, uint32_t& logDepth )
 {
     std::u8string output;
 
@@ -55,7 +55,7 @@ std::u8string ParseJsArray( JSContext* cx, JS::HandleObject jsObject, JS::AutoOb
     return output;
 }
 
-std::u8string ParseJsObject( JSContext* cx, JS::HandleObject jsObject, JS::AutoObjectVector& curObjects, uint32_t& logDepth )
+std::u8string ParseJsObject( JSContext* cx, JS::HandleObject jsObject, JS::MutableHandleObjectVector curObjects, uint32_t& logDepth )
 {
     std::u8string output;
 
@@ -74,7 +74,7 @@ std::u8string ParseJsObject( JSContext* cx, JS::HandleObject jsObject, JS::AutoO
     }
     output += " {";
 
-    JS::AutoIdVector jsVector( cx );
+    JS::RootedIdVector jsVector( cx );
     if ( !js::GetPropertyKeys( cx, jsObject, 0, &jsVector ) )
     {
         throw smp::JsException();
@@ -91,7 +91,7 @@ std::u8string ParseJsObject( JSContext* cx, JS::HandleObject jsObject, JS::AutoO
             throw smp::JsException();
         }
 
-        if ( jsValue.isObject() && JS_ObjectIsFunction( cx, &jsValue.toObject() ) )
+        if ( jsValue.isObject() && JS_ObjectIsFunction( &jsValue.toObject() ) )
         {
             hasFunctions = true;
         }
@@ -118,7 +118,7 @@ std::u8string ParseJsObject( JSContext* cx, JS::HandleObject jsObject, JS::AutoO
     return output;
 }
 
-std::u8string ParseJsValue( JSContext* cx, JS::HandleValue jsValue, JS::AutoObjectVector& curObjects, uint32_t& logDepth, bool isParentObject )
+std::u8string ParseJsValue( JSContext* cx, JS::HandleValue jsValue, JS::MutableHandleObjectVector curObjects, uint32_t& logDepth, bool isParentObject )
 {
     std::u8string output;
 
@@ -149,7 +149,7 @@ std::u8string ParseJsValue( JSContext* cx, JS::HandleValue jsValue, JS::AutoObje
 
         JS::RootedObject jsObject( cx, &jsValue.toObject() );
 
-        if ( JS_ObjectIsFunction( cx, jsObject ) )
+        if ( JS_ObjectIsFunction( jsObject ) )
         {
             output += JS::InformalValueTypeName( jsValue );
         }
@@ -195,13 +195,13 @@ std::optional<std::u8string> ParseLogArgs( JSContext* cx, JS::CallArgs& args )
     }
 
     std::u8string outputString;
-    JS::AutoObjectVector curObjects( cx );
+    JS::RootedObjectVector curObjects( cx );
     uint32_t logDepth = 0;
     for ( size_t i = 0; i < args.length(); ++i )
     {
         assert( !logDepth );
         assert( !curObjects.length() );
-        outputString += ParseJsValue( cx, args[i], curObjects, logDepth, false );
+        outputString += ParseJsValue( cx, args[i], &curObjects, logDepth, false );
         if ( i < args.length() - 1 )
         {
             outputString += " ";
@@ -231,7 +231,7 @@ MJS_DEFINE_JS_FN( Log, LogImpl )
 
 constexpr auto console_functions = smp::to_array<JSFunctionSpec>(
     {
-        JS_FN( "log", Log, 0, DefaultPropsFlags() ),
+        JS_FN( "log", Log, 0, kDefaultPropsFlags ),
         JS_FS_END,
     } );
 } // namespace
@@ -244,7 +244,7 @@ void DefineConsole( JSContext* cx, JS::HandleObject global )
     JS::RootedObject consoleObj( cx, JS_NewPlainObject( cx ) );
     if ( !consoleObj
          || !JS_DefineFunctions( cx, consoleObj, console_functions.data() )
-         || !JS_DefineProperty( cx, global, "console", consoleObj, DefaultPropsFlags() ) )
+         || !JS_DefineProperty( cx, global, "console", consoleObj, kDefaultPropsFlags ) )
     {
         throw smp::JsException();
     }

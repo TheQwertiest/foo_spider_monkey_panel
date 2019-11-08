@@ -46,7 +46,7 @@ JSClassOps jsOps = {
 
 JSClass jsClass = {
     "Window",
-    DefaultClassFlags(),
+    kDefaultClassFlags,
     &jsOps
 };
 
@@ -74,27 +74,27 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( ShowProperties, JsWindow::ShowProperties )
 
 constexpr auto jsFunctions = smp::to_array<JSFunctionSpec>(
     {
-        JS_FN( "ClearInterval", ClearInterval, 1, DefaultPropsFlags() ),
-        JS_FN( "ClearTimeout", ClearTimeout, 1, DefaultPropsFlags() ),
-        JS_FN( "CreatePopupMenu", CreatePopupMenu, 0, DefaultPropsFlags() ),
-        JS_FN( "CreateThemeManager", CreateThemeManager, 1, DefaultPropsFlags() ),
-        JS_FN( "CreateTooltip", CreateTooltip, 0, DefaultPropsFlags() ),
-        JS_FN( "DefinePanel", DefinePanel, 1, DefaultPropsFlags() ),
-        JS_FN( "GetColourCUI", GetColourCUI, 1, DefaultPropsFlags() ),
-        JS_FN( "GetColourDUI", GetColourDUI, 1, DefaultPropsFlags() ),
-        JS_FN( "GetFontCUI", GetFontCUI, 1, DefaultPropsFlags() ),
-        JS_FN( "GetFontDUI", GetFontDUI, 1, DefaultPropsFlags() ),
-        JS_FN( "GetProperty", GetProperty, 1, DefaultPropsFlags() ),
-        JS_FN( "NotifyOthers", NotifyOthers, 2, DefaultPropsFlags() ),
-        JS_FN( "Reload", Reload, 0, DefaultPropsFlags() ),
-        JS_FN( "Repaint", Repaint, 0, DefaultPropsFlags() ),
-        JS_FN( "RepaintRect", RepaintRect, 4, DefaultPropsFlags() ),
-        JS_FN( "SetCursor", SetCursor, 1, DefaultPropsFlags() ),
-        JS_FN( "SetInterval", SetInterval, 2, DefaultPropsFlags() ),
-        JS_FN( "SetProperty", SetProperty, 1, DefaultPropsFlags() ),
-        JS_FN( "SetTimeout", SetTimeout, 2, DefaultPropsFlags() ),
-        JS_FN( "ShowConfigure", ShowConfigure, 0, DefaultPropsFlags() ),
-        JS_FN( "ShowProperties", ShowProperties, 0, DefaultPropsFlags() ),
+        JS_FN( "ClearInterval", ClearInterval, 1, kDefaultPropsFlags ),
+        JS_FN( "ClearTimeout", ClearTimeout, 1, kDefaultPropsFlags ),
+        JS_FN( "CreatePopupMenu", CreatePopupMenu, 0, kDefaultPropsFlags ),
+        JS_FN( "CreateThemeManager", CreateThemeManager, 1, kDefaultPropsFlags ),
+        JS_FN( "CreateTooltip", CreateTooltip, 0, kDefaultPropsFlags ),
+        JS_FN( "DefinePanel", DefinePanel, 1, kDefaultPropsFlags ),
+        JS_FN( "GetColourCUI", GetColourCUI, 1, kDefaultPropsFlags ),
+        JS_FN( "GetColourDUI", GetColourDUI, 1, kDefaultPropsFlags ),
+        JS_FN( "GetFontCUI", GetFontCUI, 1, kDefaultPropsFlags ),
+        JS_FN( "GetFontDUI", GetFontDUI, 1, kDefaultPropsFlags ),
+        JS_FN( "GetProperty", GetProperty, 1, kDefaultPropsFlags ),
+        JS_FN( "NotifyOthers", NotifyOthers, 2, kDefaultPropsFlags ),
+        JS_FN( "Reload", Reload, 0, kDefaultPropsFlags ),
+        JS_FN( "Repaint", Repaint, 0, kDefaultPropsFlags ),
+        JS_FN( "RepaintRect", RepaintRect, 4, kDefaultPropsFlags ),
+        JS_FN( "SetCursor", SetCursor, 1, kDefaultPropsFlags ),
+        JS_FN( "SetInterval", SetInterval, 2, kDefaultPropsFlags ),
+        JS_FN( "SetProperty", SetProperty, 1, kDefaultPropsFlags ),
+        JS_FN( "SetTimeout", SetTimeout, 2, kDefaultPropsFlags ),
+        JS_FN( "ShowConfigure", ShowConfigure, 0, kDefaultPropsFlags ),
+        JS_FN( "ShowProperties", ShowProperties, 0, kDefaultPropsFlags ),
         JS_FS_END,
     } );
 
@@ -121,21 +121,21 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( put_MinWidth, JsWindow::put_MinWidth )
 
 constexpr auto jsProperties = smp::to_array<JSPropertySpec>(
     {
-        JS_PSGS( "DlgCode", get_DlgCode, put_DlgCode, DefaultPropsFlags() ),
-        JS_PSG( "Height", get_Height, DefaultPropsFlags() ),
-        JS_PSG( "ID", get_ID, DefaultPropsFlags() ),
-        JS_PSG( "InstanceType", get_InstanceType, DefaultPropsFlags() ),
-        JS_PSG( "IsTransparent", get_IsTransparent, DefaultPropsFlags() ),
-        JS_PSG( "IsVisible", get_IsVisible, DefaultPropsFlags() ),
-        JS_PSGS( "MaxHeight", get_MaxHeight, put_MaxHeight, DefaultPropsFlags() ),
-        JS_PSGS( "MaxWidth", get_MaxWidth, put_MaxWidth, DefaultPropsFlags() ),
-        JS_PSG( "MemoryLimit", get_MemoryLimit, DefaultPropsFlags() ),
-        JS_PSGS( "MinHeight", get_MinHeight, put_MinHeight, DefaultPropsFlags() ),
-        JS_PSGS( "MinWidth", get_MinWidth, put_MinWidth, DefaultPropsFlags() ),
-        JS_PSG( "Name", get_Name, DefaultPropsFlags() ),
-        JS_PSG( "PanelMemoryUsage", get_PanelMemoryUsage, DefaultPropsFlags() ),
-        JS_PSG( "TotalMemoryUsage", get_TotalMemoryUsage, DefaultPropsFlags() ),
-        JS_PSG( "Width", get_Width, DefaultPropsFlags() ),
+        JS_PSGS( "DlgCode", get_DlgCode, put_DlgCode, kDefaultPropsFlags ),
+        JS_PSG( "Height", get_Height, kDefaultPropsFlags ),
+        JS_PSG( "ID", get_ID, kDefaultPropsFlags ),
+        JS_PSG( "InstanceType", get_InstanceType, kDefaultPropsFlags ),
+        JS_PSG( "IsTransparent", get_IsTransparent, kDefaultPropsFlags ),
+        JS_PSG( "IsVisible", get_IsVisible, kDefaultPropsFlags ),
+        JS_PSGS( "MaxHeight", get_MaxHeight, put_MaxHeight, kDefaultPropsFlags ),
+        JS_PSGS( "MaxWidth", get_MaxWidth, put_MaxWidth, kDefaultPropsFlags ),
+        JS_PSG( "MemoryLimit", get_MemoryLimit, kDefaultPropsFlags ),
+        JS_PSGS( "MinHeight", get_MinHeight, put_MinHeight, kDefaultPropsFlags ),
+        JS_PSGS( "MinWidth", get_MinWidth, put_MinWidth, kDefaultPropsFlags ),
+        JS_PSG( "Name", get_Name, kDefaultPropsFlags ),
+        JS_PSG( "PanelMemoryUsage", get_PanelMemoryUsage, kDefaultPropsFlags ),
+        JS_PSG( "TotalMemoryUsage", get_TotalMemoryUsage, kDefaultPropsFlags ),
+        JS_PSG( "Width", get_Width, kDefaultPropsFlags ),
         JS_PS_END,
     } );
 
@@ -548,7 +548,7 @@ uint32_t JsWindow::SetInterval( JS::HandleValue func, uint32_t delay, JS::Handle
         return 0;
     }
 
-    SmpException::ExpectTrue( func.isObject() && JS_ObjectIsFunction( pJsCtx_, &func.toObject() ),
+    SmpException::ExpectTrue( func.isObject() && JS_ObjectIsFunction( &func.toObject() ),
                               "func argument is not a JS function" );
 
     JS::RootedFunction jsFunction( pJsCtx_, JS_ValueToFunction( pJsCtx_, func ) );
@@ -598,7 +598,7 @@ uint32_t JsWindow::SetTimeout( JS::HandleValue func, uint32_t delay, JS::HandleV
         return 0;
     }
 
-    SmpException::ExpectTrue( func.isObject() && JS_ObjectIsFunction( pJsCtx_, &func.toObject() ),
+    SmpException::ExpectTrue( func.isObject() && JS_ObjectIsFunction( &func.toObject() ),
                               "func argument is not a JS function" );
 
     JS::RootedFunction jsFunction( pJsCtx_, JS_ValueToFunction( pJsCtx_, func ) );

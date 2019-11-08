@@ -33,7 +33,7 @@ JSClassOps jsOps = {
 
 JSClass jsClass = {
     "ThemeManager",
-    DefaultClassFlags(),
+    kDefaultClassFlags,
     &jsOps
 };
 
@@ -43,9 +43,9 @@ MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( SetPartAndStateID, JsThemeManager::SetPar
 
 constexpr auto jsFunctions = smp::to_array<JSFunctionSpec>(
     {
-        JS_FN( "DrawThemeBackground", DrawThemeBackground, 5, DefaultPropsFlags() ),
-        JS_FN( "IsThemePartDefined", IsThemePartDefined, 1, DefaultPropsFlags() ),
-        JS_FN( "SetPartAndStateID", SetPartAndStateID, 1, DefaultPropsFlags() ),
+        JS_FN( "DrawThemeBackground", DrawThemeBackground, 5, kDefaultPropsFlags ),
+        JS_FN( "IsThemePartDefined", IsThemePartDefined, 1, kDefaultPropsFlags ),
+        JS_FN( "SetPartAndStateID", SetPartAndStateID, 1, kDefaultPropsFlags ),
         JS_FS_END,
     } );
 

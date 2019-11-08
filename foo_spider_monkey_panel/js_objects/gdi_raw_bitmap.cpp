@@ -34,7 +34,7 @@ JSClassOps jsOps = {
 
 JSClass jsClass = {
     "GdiRawBitMap",
-    DefaultClassFlags(),
+    kDefaultClassFlags,
     &jsOps
 };
 
@@ -48,8 +48,8 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( get_Width, JsGdiRawBitmap::get_Width )
 
 constexpr auto jsProperties = smp::to_array<JSPropertySpec>(
     {
-        JS_PSG( "Height", get_Height, DefaultPropsFlags() ),
-        JS_PSG( "Width", get_Width, DefaultPropsFlags() ),
+        JS_PSG( "Height", get_Height, kDefaultPropsFlags ),
+        JS_PSG( "Width", get_Width, kDefaultPropsFlags ),
         JS_PS_END,
     } );
 

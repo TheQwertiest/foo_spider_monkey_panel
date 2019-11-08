@@ -125,7 +125,7 @@
     <ClCompile Include="convert\native_to_js.cpp" />
     <ClCompile Include="heartbeat_window.cpp" />
     <ClCompile Include="host_timer_dispatcher.cpp" />
-    <ClCompile Include="js_engine\js_compartment_inner.cpp" />
+    <ClCompile Include="js_engine\js_realm_inner.cpp" />
     <ClCompile Include="js_engine\js_container.cpp" />
     <ClCompile Include="js_engine\js_engine.cpp" />
     <ClCompile Include="js_engine\js_gc.cpp" />
@@ -180,6 +180,7 @@
     <ClCompile Include="stats.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
+      <PrecompiledHeaderFile>stdafx.h</PrecompiledHeaderFile>
     </ClCompile>
     <ClCompile Include="ui\scintilla\sci_prop_sets.cpp" />
     <ClCompile Include="ui\scintilla\ui_sci_editor.cpp" />
@@ -240,7 +241,7 @@
     <ClInclude Include="convert\native_to_js.h" />
     <ClInclude Include="drop_action_params.h" />
     <ClInclude Include="heartbeat_window.h" />
-    <ClInclude Include="js_engine\js_compartment_inner.h" />
+    <ClInclude Include="js_engine\js_realm_inner.h" />
     <ClInclude Include="js_engine\js_container.h" />
     <ClInclude Include="js_engine\js_engine.h" />
     <ClInclude Include="js_engine\js_gc.h" />
