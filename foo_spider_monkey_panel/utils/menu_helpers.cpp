@@ -39,10 +39,9 @@ bool match_menu_command( const std::u8string& path, const std::u8string& command
         return false;
     }
 
-    if ( commandLen == pathLen 
-         && !_stricmp( command.c_str(), path.c_str() ) )
+    if ( commandLen == pathLen )
     {
-        return true;
+        return !_stricmp( command.c_str(), path.c_str() );
     }
 
     return ( ( path[pathLen - commandLen - 1] == '/' ) && !_stricmp( path.c_str() + pathLen - commandLen, command.c_str() ) );
