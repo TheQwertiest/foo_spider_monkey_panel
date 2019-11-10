@@ -560,7 +560,7 @@ std::wstring JsUtils::ReadINI( const std::wstring& filename, const std::wstring&
     // WinAPI is weird: 0 - error (with LastError), > 0 - characters required
     std::wstring dst( MAX_PATH, '\0' );
     int iRet = GetPrivateProfileString( section.c_str(), key.c_str(), defaultval.c_str(), dst.data(), dst.size(), filename.c_str() );
-    // TODO: Uncomment error checking in v2.x
+    // TODO v2: Uncomment error checking
     // smp::error::CheckWinApi( ( iRet || ( NO_ERROR == GetLastError() ) ), "GetPrivateProfileString(nullptr)" );
 
     if ( !iRet && ( NO_ERROR != GetLastError() ) )
