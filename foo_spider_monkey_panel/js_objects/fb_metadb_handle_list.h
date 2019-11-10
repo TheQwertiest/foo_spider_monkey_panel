@@ -68,7 +68,7 @@ public: // methods
     double CalcTotalDuration();
     std::uint64_t CalcTotalSize();
     JSObject* Clone();
-    // TODO: rename to ToArray()
+    // TODO v2: rename to ToArray()
     JSObject* Convert();
     int32_t Find( JsFbMetadbHandle* handle );
     JSObject* GetLibraryRelativePaths();

@@ -79,9 +79,7 @@ auto InvokeNativeCallback_ParseArguments( JSContext* cx, JS::MutableHandleValueV
         static_assert( InvokeNativeCallback_ParseArguments_Check<ArgTypes...>() );
     }
 
-    // TODO: uncomment once this is fixed: https://developercommunity.visualstudio.com/content/problem/610504/lambda-fails-to-implicitly-capture-constexpr-value.html
-    /*
-    constexpr bool hasValueArray = []() constexpr {
+    constexpr bool hasValueArray = [] () constexpr {
         if constexpr ( !argCount )
         {
             return false;
@@ -91,18 +89,15 @@ auto InvokeNativeCallback_ParseArguments( JSContext* cx, JS::MutableHandleValueV
             return std::is_same_v<std::tuple_element<argCount - 1, std::tuple<ArgTypes...>>::type, JS::HandleValueArray>;
         }
     }();
-    */
-    if constexpr ( argCount > 0 )
+
+    if constexpr ( hasValueArray )
     {
-        if ( std::is_same_v<std::tuple_element<argCount - 1, std::tuple<ArgTypes...>>::type, JS::HandleValueArray> )
+        if ( argCount <= jsArgs.length() )
         {
-            if ( argCount <= jsArgs.length() )
+            // Reserve memory, so that we can initialize JS::HandleValueArray correctly
+            if ( !valueVector.resize( jsArgs.length() - ( argCount - 1 ) ) )
             {
-                // Reserve memory, so that we can initialize JS::HandleValueArray correctly
-                if ( !valueVector.resize( jsArgs.length() - ( argCount - 1 ) ) )
-                {
-                    throw std::bad_alloc();
-                }
+                throw std::bad_alloc();
             }
         }
     }
@@ -144,17 +139,14 @@ auto InvokeNativeCallback_ParseArguments( JSContext* cx, JS::MutableHandleValueV
                 }
             } );
 
-    if constexpr ( argCount > 0 )
+    if constexpr ( hasValueArray )
     {
-        if ( std::is_same_v<std::tuple_element<argCount - 1, std::tuple<ArgTypes...>>::type, JS::HandleValueArray> )
+        if ( !valueVector.empty() )
         {
-            if ( !valueVector.empty() )
+            size_t startIdx = 0;
+            for ( auto i: ranges::view::indices( argCount - 1, jsArgs.length() ) )
             {
-                size_t startIdx = 0;
-                for ( auto i: ranges::view::indices( argCount - 1, jsArgs.length() ) )
-                {
-                    valueVector[startIdx++].set( jsArgs[i] );
-                }
+                valueVector[startIdx++].set( jsArgs[i] );
             }
         }
     }
@@ -361,27 +353,39 @@ void InvokeNativeCallback( JSContext* cx,
 
 /// @brief Defines a function named `functionName`, which executes `functionImpl` in a safe way:
 ///        traps C++ exceptions and converts them to JS exceptions,
-///        while adding `functionName` to error report.
-#define MJS_DEFINE_JS_FN( functionName, functionImpl )                                    \
-    bool functionName( JSContext* cx, unsigned argc, JS::Value* vp )                      \
-    {                                                                                     \
-        return mozjs::error::Execute_JsSafe( cx, #functionName, functionImpl, argc, vp ); \
+///        while adding `logName` to error report.
+#define MJS_DEFINE_JS_FN_FULL( functionName, logName, functionImpl )                \
+    bool functionName( JSContext* cx, unsigned argc, JS::Value* vp )                \
+    {                                                                               \
+        return mozjs::error::Execute_JsSafe( cx, logName, functionImpl, argc, vp ); \
     }
 
+/// @brief Same as MJS_DEFINE_JS_FN_FULL, but uses `functionName` for logging.
+#define MJS_DEFINE_JS_FN( functionName, functionImpl ) \
+    MJS_DEFINE_JS_FN_FULL( functionName, #functionName, functionImpl )
+
 /// @brief Defines a function named `functionName`, which converts all JS arguments to corresponding arguments
-///        of `functionImpl` prototype and executes it in a safe way (see MJS_DEFINE_JS_FN).
+///        of `functionImpl` prototype and executes it in a safe way (see MJS_DEFINE_JS_FN_FULL).
 ///        Allows for execution with less arguments than in `functionImpl` prototype
 ///        (`optArgCount` is the maximum amount of optional arguments),
 ///        in that case `functionImplWithOpt` will be called.
-#define MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( functionName, functionImpl, functionImplWithOpt, optArgCount ) \
-    bool functionName( JSContext* cx, unsigned argc, JS::Value* vp )                                          \
-    {                                                                                                         \
-        const auto wrappedFunc = []( JSContext* cx, unsigned argc, JS::Value* vp ) {                          \
-            InvokeNativeCallback<optArgCount>( cx, &functionImpl, &functionImplWithOpt, argc, vp );           \
-        };                                                                                                    \
-        return mozjs::error::Execute_JsSafe( cx, #functionName, wrappedFunc, argc, vp );                      \
+#define MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT_FULL( functionName, logName, functionImpl, functionImplWithOpt, optArgCount ) \
+    bool functionName( JSContext* cx, unsigned argc, JS::Value* vp )                                                        \
+    {                                                                                                                       \
+        const auto wrappedFunc = []( JSContext* cx, unsigned argc, JS::Value* vp ) {                                        \
+            InvokeNativeCallback<optArgCount>( cx, &functionImpl, &functionImplWithOpt, argc, vp );                         \
+        };                                                                                                                  \
+        return mozjs::error::Execute_JsSafe( cx, logName, wrappedFunc, argc, vp );                                          \
     }
 
-/// @brief Same as MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT, but with zero optional arguments.
+/// @brief Same as MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT_FULL, but uses `functionName` for logging.
+#define MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( functionName, functionImpl, functionImplWithOpt, optArgCount ) \
+    MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT_FULL( functionName, #functionName, functionImpl, functionImplWithOpt, optArgCount )
+
+/// @brief Same as MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT_FULL, but with zero optional arguments.
+#define MJS_DEFINE_JS_FN_FROM_NATIVE_FULL( functionName, logName, functionImpl ) \
+    MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT_FULL( functionName, logName, functionImpl, functionImpl, 0 )
+
+/// @brief Same as MJS_DEFINE_JS_FN_FROM_NATIVE_FULL, but uses `functionName` for logging.
 #define MJS_DEFINE_JS_FN_FROM_NATIVE( functionName, functionImpl ) \
     MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( functionName, functionImpl, functionImpl, 0 )

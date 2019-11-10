@@ -636,7 +636,7 @@ bool JsFbPlaylistManager::ShowAutoPlaylistUI( uint32_t playlistIndex )
 
     auto api = autoplaylist_manager::get();
     if ( !api->is_client_present( playlistIndex ) )
-    {// TODO: replace with error in v2.0
+    {// TODO v2: replace with error
         return false;
     }
 
