@@ -76,27 +76,18 @@ JSClass jsClass = {
     &jsOps
 };
 
-// Defining function manually, because we want a proper logging and we can't name it `include`
-// TODO: define a new macro?
-bool IncludeScript( JSContext* cx, unsigned argc, JS::Value* vp )
-{
-    const auto wrappedFunc = []( JSContext* cx, unsigned argc, JS::Value* vp ) {
-        InvokeNativeCallback<1>( cx, &JsGlobalObject::IncludeScript, &JsGlobalObject::IncludeScriptWithOpt, argc, vp );
-    };
-    return mozjs::error::Execute_JsSafe( cx, "include", wrappedFunc, argc, vp );
-}
-
-MJS_DEFINE_JS_FN_FROM_NATIVE( ClearInterval, JsGlobalObject::ClearInterval )
-MJS_DEFINE_JS_FN_FROM_NATIVE( ClearTimeout, JsGlobalObject::ClearTimeout )
-MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( SetInterval, JsGlobalObject::SetInterval, JsGlobalObject::SetIntervalWithOpt, 1 )
-MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( SetTimeout, JsGlobalObject::SetTimeout, JsGlobalObject::SetTimeoutWithOpt, 1 )
+MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT_FULL( IncludeScript, "include", JsGlobalObject::IncludeScript, JsGlobalObject::IncludeScriptWithOpt, 1 )
+MJS_DEFINE_JS_FN_FROM_NATIVE( clearInterval, JsGlobalObject::ClearInterval )
+MJS_DEFINE_JS_FN_FROM_NATIVE( clearTimeout, JsGlobalObject::ClearTimeout )
+MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( setInterval, JsGlobalObject::SetInterval, JsGlobalObject::SetIntervalWithOpt, 1 )
+MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( setTimeout, JsGlobalObject::SetTimeout, JsGlobalObject::SetTimeoutWithOpt, 1 )
 
 const JSFunctionSpec jsFunctions[] = {
-    JS_FN( "clearInterval", ClearInterval, 1, DefaultPropsFlags() ),
-    JS_FN( "clearTimeout", ClearTimeout, 1, DefaultPropsFlags() ),
+    JS_FN( "clearInterval", clearInterval, 1, DefaultPropsFlags() ),
+    JS_FN( "clearTimeout", clearTimeout, 1, DefaultPropsFlags() ),
     JS_FN( "include", IncludeScript, 1, DefaultPropsFlags() ),
-    JS_FN( "setInterval", SetInterval, 2, DefaultPropsFlags() ),
-    JS_FN( "setTimeout", SetTimeout, 2, DefaultPropsFlags() ),
+    JS_FN( "setInterval", setInterval, 2, DefaultPropsFlags() ),
+    JS_FN( "setTimeout", setTimeout, 2, DefaultPropsFlags() ),
     JS_FS_END
 };
 
