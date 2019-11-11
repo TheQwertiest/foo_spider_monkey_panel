@@ -26,15 +26,14 @@ public:
     static std::unique_ptr<FbProperties> Create( JSContext* cx, smp::panel::js_panel_window& parentPanel );
 
 public:
-    void RemoveHeapTracer();
+    void Trace( JSTracer* trc );
+    void PrepareForGc();
 
     JS::Value GetProperty( const std::wstring& propName, JS::HandleValue propDefaultValue );
     void SetProperty( const std::wstring& propName, JS::HandleValue propValue );
 
 private:
     FbProperties( JSContext* cx, smp::panel::js_panel_window& parentPanel );
-
-    static void TraceHeapValue( JSTracer* trc, void* data );
 
 private:
     JSContext* pJsCtx_ = nullptr;

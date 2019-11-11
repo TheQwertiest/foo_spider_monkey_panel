@@ -39,11 +39,11 @@ public:
     JS::Heap<JS::Value>& Get( uint32_t id );
     void Remove( uint32_t id );
 
+    void Trace( JSTracer* trc );
+    void PrepareForGc();
+
 private:
     GlobalHeapManager( JSContext * cx );
-
-    void RemoveTracer();
-    static void TraceHeapValue( JSTracer *trc, void *data );
 
 private: 
     JSContext * pJsCtx_ = nullptr;

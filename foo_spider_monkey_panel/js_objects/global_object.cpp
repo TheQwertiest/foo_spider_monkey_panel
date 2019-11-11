@@ -1,11 +1,12 @@
 #include <stdafx.h>
+
 #include "global_object.h"
 
 #include <js_engine/js_container.h>
 #include <js_engine/js_compartment_inner.h>
 #include <js_engine/js_engine.h>
-#include <js_engine/js_to_native_invoker.h>
 #include <js_engine/js_internal_global.h>
+#include <js_engine/js_to_native_invoker.h>
 #include <js_objects/active_x_object.h>
 #include <js_objects/console.h>
 #include <js_objects/enumerator.h>
@@ -18,17 +19,17 @@
 #include <js_objects/gdi_font.h>
 #include <js_objects/gdi_utils.h>
 #include <js_objects/hacks.h>
+#include <js_objects/internal/global_heap_manager.h>
 #include <js_objects/utils.h>
 #include <js_objects/window.h>
-#include <js_objects/internal/global_heap_manager.h>
-#include <js_utils/js_object_helper.h>
 #include <js_utils/js_error_helper.h>
+#include <js_utils/js_object_helper.h>
 #include <js_utils/js_property_helper.h>
 #include <utils/file_helpers.h>
 #include <utils/scope_helpers.h>
 
-#include <js_panel_window.h>
 #include <component_paths.h>
+#include <js_panel_window.h>
 
 #include <filesystem>
 
@@ -117,7 +118,9 @@ JSObject* JsGlobalObject::CreateNative( JSContext* cx, JsContainer& parentContai
         jsOps.trace = JS_GlobalObjectTraceHook;
     }
 
-    JS::CompartmentOptions options;
+    JS::CompartmentCreationOptions creationOptions;
+    creationOptions.setTrace( JsGlobalObject::Trace );
+    JS::CompartmentOptions options( creationOptions, JS::CompartmentBehaviors{} );
     JS::RootedObject jsObj( cx,
                             JS_NewGlobalObject( cx, &jsClass, nullptr, JS::DontFireOnNewGlobalHook, options ) );
     if ( !jsObj )
@@ -168,6 +171,7 @@ JSObject* JsGlobalObject::CreateNative( JSContext* cx, JsContainer& parentContai
 
         auto pNative = std::unique_ptr<JsGlobalObject>( new JsGlobalObject( cx, parentContainer, pJsWindow ) );
         pNative->heapManager_ = GlobalHeapManager::Create( cx );
+        assert( pNative->heapManager_ );
 
         JS_SetPrivate( jsObj, pNative.release() );
 
@@ -196,7 +200,11 @@ void JsGlobalObject::PrepareForGc( JSContext* cx, JS::HandleObject self )
     CleanupObjectProperty<JsWindow>( cx, self, "window" );
     CleanupObjectProperty<JsFbPlaylistManager>( cx, self, "plman" );
 
-    nativeGlobal->heapManager_.reset();
+    if ( nativeGlobal->heapManager_ )
+    {
+        nativeGlobal->heapManager_->PrepareForGc();
+        nativeGlobal->heapManager_.reset();
+    }
 }
 
 void JsGlobalObject::ClearInterval( uint32_t intervalId )
@@ -249,7 +257,7 @@ void JsGlobalObject::IncludeScript( const std::u8string& path, JS::HandleValue o
 
     includedFiles_.emplace( u8Path );
     parentFilepaths_.emplace_back( fsPath.parent_path().u8string() );
-    smp::utils::final_action autoPath{ [&parentFilesPaths = parentFilepaths_] { parentFilesPaths.pop_back(); } };
+    smp::utils::final_action autoPath{ [& parentFilesPaths = parentFilepaths_] { parentFilesPaths.pop_back(); } };
 
     JS::RootedScript jsScript( pJsCtx_, JsEngine::GetInstance().GetInternalGlobal().GetCachedScript( fsPath ) );
     assert( jsScript );
@@ -274,7 +282,6 @@ void JsGlobalObject::IncludeScriptWithOpt( size_t optArgCount, const std::u8stri
     }
 }
 
-
 uint32_t JsGlobalObject::SetInterval( JS::HandleValue func, uint32_t delay, JS::HandleValueArray funcArgs )
 {
     return pJsWindow_->SetInterval( func, delay, funcArgs );
@@ -284,7 +291,6 @@ uint32_t JsGlobalObject::SetIntervalWithOpt( size_t optArgCount, JS::HandleValue
 {
     return pJsWindow_->SetIntervalWithOpt( optArgCount, func, delay, funcArgs );
 }
-
 
 uint32_t JsGlobalObject::SetTimeout( JS::HandleValue func, uint32_t delay, JS::HandleValueArray funcArgs )
 {
@@ -308,6 +314,15 @@ JsGlobalObject::IncludeOptions JsGlobalObject::ParseIncludeOptions( JS::HandleVa
     }
 
     return parsedOptions;
+}
+
+void JsGlobalObject::Trace( JSTracer* trc, JSObject* obj )
+{
+    auto x = static_cast<JsGlobalObject*>( JS_GetPrivate( obj ) );
+    if ( x && x->heapManager_ )
+    {
+        x->heapManager_->Trace( trc );
+    }
 }
 
 } // namespace mozjs

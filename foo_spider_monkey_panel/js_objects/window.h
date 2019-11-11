@@ -42,6 +42,7 @@ public:
     static size_t GetInternalSize( const smp::panel::js_panel_window& parentPanel );
 
 public:
+    static void Trace( JSTracer* trc, JSObject* obj );
     void PrepareForGc();
 
 public: // methods

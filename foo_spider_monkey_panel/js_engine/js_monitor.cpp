@@ -1,17 +1,18 @@
 // A lot of logic ripped from js/xpconnect/src/XPCJSContext.cpp
 
 #include <stdafx.h>
+
 #include "js_monitor.h"
 
-#include <js_engine/js_engine.h>
 #include <js_engine/js_container.h>
+#include <js_engine/js_engine.h>
+#include <ui/ui_slow_script.h>
 #include <utils/delayed_executor.h>
 #include <utils/scope_helpers.h>
 #include <utils/thread_helpers.h>
-#include <ui/ui_slow_script.h>
 
-#include <message_blocking_scope.h>
 #include <js_panel_window.h>
+#include <message_blocking_scope.h>
 
 using namespace smp;
 
@@ -33,7 +34,7 @@ namespace mozjs
 
 JsMonitor::JsMonitor()
 { // JsMonitor might be created before fb2k is fully initialized
-    smp::utils::DelayedExecutor::GetInstance().AddTask( [&hFb2k = hFb2k_] { hFb2k = core_api::get_main_window(); } );
+    smp::utils::DelayedExecutor::GetInstance().AddTask( [& hFb2k = hFb2k_] { hFb2k = core_api::get_main_window(); } );
 }
 
 void JsMonitor::Start( JSContext* cx )
@@ -82,14 +83,19 @@ void JsMonitor::OnJsActionStart( JsContainer& jsContainer )
 
 void JsMonitor::OnJsActionEnd( JsContainer& jsContainer )
 {
-    const auto it = monitoredContainers_.find( &jsContainer );
+    auto it = monitoredContainers_.find( &jsContainer );
     assert( it != monitoredContainers_.cend() );
+
     it->second.slowScriptSecondHalf = false;
 
     {
         std::unique_lock<std::mutex> ul( watcherDataMutex_ );
-        assert( activeContainers_.count( &jsContainer ) );
-        activeContainers_.erase( &jsContainer );
+        if ( const auto itActive = activeContainers_.find( &jsContainer );
+             itActive != activeContainers_.cend() )
+        {
+            // container might or might not be in `activeContainers_` depending on if and when it's `ignoreSlowScriptCheck` was set
+            activeContainers_.erase( itActive );
+        }
     }
 }
 
@@ -145,7 +151,8 @@ bool JsMonitor::OnInterrupt()
         std::vector<std::pair<JsContainer*, ContainerData*>> dataToProcess;
         for ( auto& [pContainer, containerData]: monitoredContainers_ )
         {
-            auto tmp = pContainer; // compiler bug?
+            // TODO: report ICE to MS
+            auto tmp = pContainer;
             const auto it = ranges::find_if( activeContainers_, [&tmp]( auto& elem ) {
                 return ( elem.first == tmp );
             } );

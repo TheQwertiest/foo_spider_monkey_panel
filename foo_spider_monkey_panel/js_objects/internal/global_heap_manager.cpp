@@ -1,4 +1,5 @@
 #include <stdafx.h>
+
 #include "global_heap_manager.h"
 
 #pragma warning( push )
@@ -16,19 +17,12 @@ GlobalHeapManager::GlobalHeapManager( JSContext* cx )
 }
 
 GlobalHeapManager::~GlobalHeapManager()
-{
-    RemoveTracer();
+{ // No need to cleanup JS here, since it must be performed manually beforehand anyway
 }
 
 std::unique_ptr<GlobalHeapManager> GlobalHeapManager::Create( JSContext* cx )
 {
-    std::unique_ptr<GlobalHeapManager> tmp( new GlobalHeapManager( cx ) );
-    if ( !JS_AddExtraGCRootsTracer( cx, GlobalHeapManager::TraceHeapValue, tmp.get() ) )
-    {
-        throw smp::JsException();
-    }
-
-    return tmp;
+    return std::unique_ptr<GlobalHeapManager>( new GlobalHeapManager( cx ) );
 }
 
 void GlobalHeapManager::RegisterUser( IHeapUser* heapUser )
@@ -91,7 +85,7 @@ JS::Heap<JS::Value>& GlobalHeapManager::Get( uint32_t id )
 }
 
 void GlobalHeapManager::Remove( uint32_t id )
-{
+{ // Can be called in worker thread, outside of JS ctx, so we can't GC or destroy JS objects here
     std::scoped_lock sl( heapElementsLock_ );
 
     assert( heapElements_.count( id ) );
@@ -99,37 +93,30 @@ void GlobalHeapManager::Remove( uint32_t id )
     heapElements_.erase( id );
 }
 
-void GlobalHeapManager::RemoveTracer()
-{    
-    { // clean up everything manually
-        std::scoped_lock sl( heapUsersLock_ );
+void GlobalHeapManager::Trace( JSTracer* trc )
+{
+    std::scoped_lock sl( heapElementsLock_ );
 
-        for ( auto& [id, heapUser] : heapUsers_ )
-        {
-            heapUser->PrepareForGlobalGc();
-        }
-        unusedHeapElements_.clear();
-        heapElements_.clear();
+    for ( auto& [id, heapElement]: heapElements_ )
+    {
+        JS::TraceEdge( trc, heapElement.get(), "CustomHeap_Global" );
     }
-
-    JS_RemoveExtraGCRootsTracer( pJsCtx_, GlobalHeapManager::TraceHeapValue, this );
+    for ( auto& heapElement: unusedHeapElements_ )
+    {
+        JS::TraceEdge( trc, heapElement.get(), "CustomHeap_Global" );
+    }
 }
 
-void GlobalHeapManager::TraceHeapValue( JSTracer* trc, void* data )
-{
-    assert( data );
-    auto globalObject = static_cast<GlobalHeapManager*>( data );
+void GlobalHeapManager::PrepareForGc()
+{ // clean up everything manually
+    std::scoped_lock sl( heapUsersLock_ );
 
-    std::scoped_lock sl( globalObject->heapElementsLock_ );
-
-    for ( auto& [id, heapElement] : globalObject->heapElements_ )
+    for ( auto& [id, heapUser]: heapUsers_ )
     {
-        JS::TraceEdge( trc, heapElement.get(), "CustomHeap_Global" );
+        heapUser->PrepareForGlobalGc();
     }
-    for ( auto& heapElement : globalObject->unusedHeapElements_ )
-    {
-        JS::TraceEdge( trc, heapElement.get(), "CustomHeap_Global" );
-    }
+    unusedHeapElements_.clear();
+    heapElements_.clear();
 }
 
 } // namespace mozjs

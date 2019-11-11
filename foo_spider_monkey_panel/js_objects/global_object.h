@@ -78,6 +78,8 @@ private:
         }
     }
 
+    static void Trace( JSTracer* trc, JSObject* obj );
+
 private:
     JSContext* pJsCtx_ = nullptr;
     JsContainer& parentContainer_;
