@@ -1,21 +1,21 @@
 #include <stdafx.h>
+
 #include "window.h"
 
+#include <com_objects/host_drop_target.h>
 #include <js_engine/js_engine.h>
 #include <js_engine/js_to_native_invoker.h>
-#include <js_objects/menu_object.h>
-#include <js_objects/theme_manager.h>
 #include <js_objects/fb_tooltip.h>
 #include <js_objects/gdi_font.h>
 #include <js_objects/internal/fb_properties.h>
+#include <js_objects/menu_object.h>
+#include <js_objects/theme_manager.h>
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
 #include <js_utils/js_property_helper.h>
-#include <utils/scope_helpers.h>
 #include <utils/gdi_helpers.h>
+#include <utils/scope_helpers.h>
 #include <utils/winapi_error_helpers.h>
-
-#include <com_objects/host_drop_target.h>
 
 #include <host_timer_dispatcher.h>
 #include <js_panel_window.h>
@@ -40,12 +40,12 @@ JSClassOps jsOps = {
     nullptr,
     nullptr,
     nullptr,
-    nullptr
+    JsWindow::Trace
 };
 
 JSClass jsClass = {
     "Window",
-    JSCLASS_HAS_PRIVATE | JSCLASS_FOREGROUND_FINALIZE,
+    kDefaultClassFlags,
     &jsOps
 };
 
@@ -174,11 +174,21 @@ size_t JsWindow::GetInternalSize( const smp::panel::js_panel_window& parentPanel
     return sizeof( FbProperties );
 }
 
+void JsWindow::Trace( JSTracer* trc, JSObject* obj )
+{
+    auto x = static_cast<JsWindow*>( JS_GetPrivate( obj ) );
+    if ( x && x->fbProperties_ )
+    {
+        x->fbProperties_->Trace( trc );
+    }
+}
+
 void JsWindow::PrepareForGc()
 {
     if ( fbProperties_ )
     {
-        fbProperties_->RemoveHeapTracer();
+        fbProperties_->PrepareForGc();
+        fbProperties_.reset();
     }
     if ( dropTargetHandler_ )
     {

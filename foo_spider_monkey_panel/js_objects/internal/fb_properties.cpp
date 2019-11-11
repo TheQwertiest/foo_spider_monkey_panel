@@ -23,25 +23,24 @@ FbProperties::FbProperties( JSContext* cx, panel::js_panel_window& parentPanel )
 
 FbProperties::~FbProperties()
 {
-    RemoveHeapTracer();
 }
 
 std::unique_ptr<FbProperties>
 FbProperties::Create( JSContext* cx, panel::js_panel_window& parentPanel )
 {
-    std::unique_ptr<FbProperties> fbProps( new FbProperties( cx, parentPanel ) );
-
-    if ( !JS_AddExtraGCRootsTracer( cx, FbProperties::TraceHeapValue, fbProps.get() ) )
-    {
-        return nullptr;
-    }
-
-    return fbProps;
+    return std::unique_ptr<FbProperties>( new FbProperties( cx, parentPanel ) );
 }
 
-void FbProperties::RemoveHeapTracer()
+void FbProperties::Trace( JSTracer* trc )
 {
-    JS_RemoveExtraGCRootsTracer( pJsCtx_, FbProperties::TraceHeapValue, this );
+    for ( auto& [name, heapElem]: properties_ )
+    {
+        JS::TraceEdge( trc, &heapElem->value, "CustomHeap_Properties" );
+    }
+}
+
+void FbProperties::PrepareForGc()
+{
     properties_.clear();
 }
 
@@ -99,18 +98,6 @@ void FbProperties::SetProperty( const std::wstring& propName, JS::HandleValue pr
 
     properties_.insert_or_assign( trimmedPropName, std::make_unique<HeapElement>( propValue ) );
     panelPropertyValues.insert_or_assign( trimmedPropName, std::make_shared<SerializedJsValue>( serializedValue ) );
-}
-
-void FbProperties::TraceHeapValue( JSTracer* trc, void* data )
-{
-    assert( data );
-    auto jsObject = static_cast<FbProperties*>( data );
-    auto& properties = jsObject->properties_;
-
-    for ( auto& [name, heapElem] : properties )
-    {
-        JS::TraceEdge( trc, &heapElem->value, "CustomHeap_Properties" );
-    }
 }
 
 } // namespace mozjs

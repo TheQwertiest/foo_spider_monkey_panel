@@ -175,6 +175,7 @@ bool JsContainer::ExecuteScript( const std::u8string& scriptCode )
 
     isParsingScript_ = true;
 
+    auto selfSaver = shared_from_this();
     JsScope autoScope( pJsCtx_, jsGlobal_ );
 
     JS::SourceText<mozilla::Utf8Unit> source;
