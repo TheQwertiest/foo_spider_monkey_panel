@@ -1,4 +1,5 @@
 #include <stdafx.h>
+
 #include "file_helpers.h"
 
 #include <utils/scope_helpers.h>
@@ -32,6 +33,10 @@ template <typename T>
 T ConvertFileContent( const std::wstring& path, std::string_view content, UINT codepage )
 {
     T fileContent;
+    if ( content.empty() )
+    {
+        return fileContent;
+    }
 
     constexpr bool isWide = std::is_same_v<T, std::wstring>;
 
@@ -66,7 +71,7 @@ T ConvertFileContent( const std::wstring& path, std::string_view content, UINT c
         }
         else
         {
-            detectedCodepage = smp::utils::detect_text_charset( std::string_view{ curPos, curSize } );
+            detectedCodepage = smp::utils::DetectCharSet( std::string_view{ curPos, curSize } ).value_or( CP_ACP );
             codepageMap.emplace( path, detectedCodepage );
         }
     }
@@ -234,7 +239,6 @@ FileReader::~FileReader()
 
 std::string_view FileReader::GetFileContent() const
 {
-    assert( pFileView_ );
     return std::string_view{ reinterpret_cast<const char*>( pFileView_ ), fileSize_ };
 }
 
@@ -306,7 +310,7 @@ bool WriteFile( const wchar_t* path, const std::u8string& content, bool write_bo
 
 UINT DetectFileCharset( const std::u8string& path )
 {
-    return smp::utils::detect_text_charset( FileReader{ path }.GetFileContent() );
+    return smp::utils::DetectCharSet( FileReader{ path }.GetFileContent() ).value_or( CP_ACP );
 }
 
 std::wstring FileDialog( const std::wstring& title,
