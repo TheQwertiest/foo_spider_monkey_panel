@@ -13,10 +13,12 @@ branches:
     - gh-pages
 
 # Skipping commits affecting specific files (GitHub only). More details here: /docs/appveyor-yml
-# Disabled skips, since it prevents tag build from triggering, if last commit contains only skipped files
-#skip_commits:
-#  files:
-#     - README.md
+skip_commits:
+  # Default `skip` messages are applied even on tag builds with APPVEYOR_IGNORE_COMMIT_FILTERING_ON_TAG==true 
+  message: /\[_skip ci_\]|\[_ci skip_\]/
+  files:
+     - README.md
+     - THIRD_PARTY_NOTICES.md
 #    - docs/*
 #    - '**/*.png'
 #    - '**/*.jpg'
@@ -36,6 +38,10 @@ max_jobs: 1
 
 # Build worker image (VM template)
 image: Visual Studio 2019
+
+# environment variables
+environment:
+  APPVEYOR_IGNORE_COMMIT_FILTERING_ON_TAG: true
 
 # this is how to allow failing jobs in the matrix
 matrix:
