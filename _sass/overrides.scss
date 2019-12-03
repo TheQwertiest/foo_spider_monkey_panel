@@ -1,0 +1,11 @@
+//
+// Typography
+//
+// stylelint-disable primer/selector-no-utility, primer/no-override, selector-no-type, selector-max-type
+
+h4,
+.text-delta {
+  @include fs-4;
+  font-weight: bold !important;
+  text-transform: none !important;
+}

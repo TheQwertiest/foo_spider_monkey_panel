@@ -1,0 +1,35 @@
+plugins:
+  - jekyll-redirect-from
+  - jekyll-relative-links
+  - jekyll-remote-theme
+
+readme_index:
+  enabled: false
+
+remote_theme: pmarsceill/just-the-docs
+
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - assets/generated_files/samples/readme.md
+
+markdown: kramdown
+kramdown: 
+  parse_block_html: true
+
+baseurl: "/foo_spider_monkey_panel" 
+url: "https://theqwertiest.github.io"
+
+permalink: pretty
+
+title: Spider Monkey Panel
+
+aux_links:
+  "View on GitHub":
+    - "//github.com/theqwertiest/foo_spider_monkey_panel"
+
+color_scheme: "dark"
+
+footer_content: "Copyright &copy; 2018-2019 Yuri Shutenko.<br/>Distributed by an <a href=\"https://github.com/TheQwertiest/foo_spider_monkey_panel/blob/master/LICENSE\">MIT license.</a>"
+
+ga_tracking: UA-154231909-1

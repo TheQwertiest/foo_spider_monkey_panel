@@ -1,0 +1,5 @@
+/_site
+/Gemfile
+/Gemfile.lock
+/.sass-cache
+/assets/js/search-data.json
