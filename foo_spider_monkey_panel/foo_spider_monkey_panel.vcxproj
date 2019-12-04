@@ -16,8 +16,6 @@
     <Keyword>Win32Proj</Keyword>
     <WindowsTargetPlatformVersion>10.0.18362.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
-  <!-- 14.22 is broken: https://developercommunity.visualstudio.com/content/problem/663321/ice-error-c1001-when-using-precompiled-header.html -->
-  <Import Project="$(SolutionDir)\..\props\Microsoft.VCToolsVersion.14.21.props" />
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
@@ -68,7 +66,7 @@
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
       <ConformanceMode>true</ConformanceMode>
-	  <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
     <Link>
       <AdditionalDependencies>GdiPlus.lib;shlwapi.lib;WinMM.lib;Imm32.lib;uxtheme.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -292,6 +290,7 @@
     <ClInclude Include="js_utils\serialized_value.h" />
     <ClInclude Include="message_blocking_scope.h" />
     <ClInclude Include="message_manager.h" />
+    <ClInclude Include="mutex_workaround.h" />
     <ClInclude Include="panel_tooltip_param.h" />
     <ClInclude Include="smp_exception.h" />
     <ClInclude Include="component_defines.h" />

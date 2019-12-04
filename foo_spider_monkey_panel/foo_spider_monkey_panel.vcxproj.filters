@@ -714,6 +714,9 @@
     <ClInclude Include="utils\relative_filepath_trie.h">
       <Filter>utils</Filter>
     </ClInclude>
+    <ClInclude Include="mutex_workaround.h">
+      <Filter>z_core</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="default.js">

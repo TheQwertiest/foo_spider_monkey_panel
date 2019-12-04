@@ -1,5 +1,7 @@
 #pragma once
 
+#include <js_utils/js_object_helper.h>
+
 #include <optional>
 
 namespace mozjs::convert::to_native
