@@ -115,17 +115,14 @@ JSScript* JsInternalGlobal::GetCachedScript( const std::filesystem::path& absolu
     JS::SourceText<char16_t> source;
     if ( !source.init( pJsCtx_, reinterpret_cast<const char16_t*>( scriptCode.c_str() ), scriptCode.length(), JS::SourceOwnership::Borrowed ) )
     {
-        return false;
+        throw smp::JsException();
     }
 
     JS::CompileOptions opts( pJsCtx_ );
     opts.setFileAndLine( filename.c_str(), 1 );
 
     JS::RootedScript parsedScript( pJsCtx_, JS::Compile( pJsCtx_, opts, source ) );
-    if ( !parsedScript )
-    {
-        throw smp::JsException();
-    }
+    smp::JsException::ExpectTrue( parsedScript );
 
     return scriptDataMap.insert_or_assign( u8path.c_str(), JsHashMap::ValueType{ parsedScript, lastWriteTime } ).first->second.script;
 }

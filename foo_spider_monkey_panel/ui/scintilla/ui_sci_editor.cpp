@@ -253,7 +253,7 @@ bool StartsWith( const std::u8string_view& a, const std::u8string_view& b )
 namespace scintilla
 {
 
-bool CScriptEditorCtrl::KeyWordComparator::operator()( const std::u8string& a, const std::u8string& b )
+bool CScriptEditorCtrl::KeyWordComparator::operator()( const std::u8string& a, const std::u8string& b ) const
 {
     const int result = _stricmp( a.c_str(), b.c_str() );
     if ( !result && !a.empty() && !b.empty() && std::isalpha( a[0] ) && ( a[0] != b[0] ) )
