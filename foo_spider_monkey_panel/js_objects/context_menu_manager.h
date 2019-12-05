@@ -46,7 +46,7 @@ private:
     JsContextMenuManager( JSContext* cx );
 
 private:
-    JSContext* pJsCtx_ = nullptr;
+    [[maybe_unused]] JSContext* pJsCtx_ = nullptr;
     contextmenu_manager::ptr contextMenu_;
 };
 

@@ -1,6 +1,8 @@
 #include <stdafx.h>
+
 #include "com_error_helpers.h"
 
+#include <utils/scope_helpers.h>
 #include <utils/string_helpers.h>
 #include <utils/winapi_error_helpers.h>
 
@@ -19,18 +21,17 @@ void ReportActiveXError( HRESULT hresult, EXCEPINFO& exception, UINT& argerr )
     }
     case DISP_E_EXCEPTION:
     {
-        auto autoCleaner = [&exception]
-        {
+        const smp::utils::final_action autoCleaner( [&exception] {
             SysFreeString( exception.bstrSource );
             SysFreeString( exception.bstrDescription );
             SysFreeString( exception.bstrHelpFile );
-        };
+        } );
 
         if ( exception.bstrDescription )
         {
             const auto descriptionStr = smp::unicode::ToU8( (wchar_t*)exception.bstrDescription );
             const auto sourceStr = smp::unicode::ToU8( (wchar_t*)exception.bstrSource );
-            throw SmpException( fmt::format("ActiveXObject: ({}) {}", sourceStr, descriptionStr ) );
+            throw SmpException( fmt::format( "ActiveXObject: ({}) {}", sourceStr, descriptionStr ) );
         }
         else if ( FAILED( exception.scode ) )
         {

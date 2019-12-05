@@ -56,7 +56,7 @@ protected:
     virtual ~WrappedJs() = default;
 
     /// @details Might be called off main thread
-    virtual void FinalRelease()
+    void FinalRelease() override
     { // most of the JS object might be invalid at GC time,
         // so we need to be extra careful
         std::scoped_lock sl( cleanupLock_ );
@@ -81,7 +81,7 @@ protected:
 
     /// @details Executed on the main thread
     STDMETHODIMP ExecuteValue( VARIANT arg1, VARIANT arg2, VARIANT arg3, VARIANT arg4, VARIANT arg5, VARIANT arg6, VARIANT arg7,
-                               VARIANT* pResult )
+                               VARIANT* pResult ) override
     { // TODO: set JS fail somehow
         if ( !pResult )
         {

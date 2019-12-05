@@ -50,7 +50,7 @@ private:
     JsThemeManager( JSContext* cx, HTHEME hTheme );
 
 private:
-    JSContext* pJsCtx_ = nullptr;
+    [[maybe_unused]] JSContext* pJsCtx_ = nullptr;
 
     HTHEME hTheme_ = nullptr;
     int32_t partId_ = 0;

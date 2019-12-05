@@ -96,7 +96,7 @@ LRESULT js_panel_window::on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
     static uint32_t nestedCounter = 0;
     ++nestedCounter;
 
-    utils::final_action jobsRunner( [& nestedCounter = nestedCounter, hWnd = hWnd_] {
+    utils::final_action jobsRunner( [hWnd = hWnd_] {
         --nestedCounter;
 
         if ( !nestedCounter )
@@ -171,7 +171,6 @@ std::optional<LRESULT> js_panel_window::process_async_messages( UINT msg, WPARAM
         return std::nullopt;
     }
 
-    std::optional<LRESULT> retVal;
     if ( IsInEnumRange<CallbackMessage>( msg ) )
     {
         return process_callback_messages( static_cast<CallbackMessage>( msg ) );
@@ -849,7 +848,7 @@ void js_panel_window::RepaintBackground( LPRECT lprcUpdate /*= nullptr */ )
     // HACK: for Tab control
     // Find siblings
     HWND hwnd = nullptr;
-    while ( hwnd = FindWindowEx( wnd_parent, hwnd, nullptr, nullptr ) )
+    while ( ( hwnd = FindWindowEx( wnd_parent, hwnd, nullptr, nullptr ) ) )
     {
         std::array<wchar_t, 64> buff;
         if ( hwnd == hWnd_ )
@@ -1152,11 +1151,11 @@ void js_panel_window::on_font_changed()
 void js_panel_window::on_get_album_art_done( CallbackData& callbackData )
 {
     auto& data = callbackData.GetData<metadb_handle_ptr, uint32_t, std::unique_ptr<Gdiplus::Bitmap>, std::u8string>();
-    auto autoRet = pJsContainer_->InvokeJsCallback( "on_get_album_art_done",
-                                                    std::get<0>( data ),
-                                                    std::get<1>( data ),
-                                                    std::move( std::get<2>( data ) ),
-                                                    std::get<3>( data ) );
+    pJsContainer_->InvokeJsCallback( "on_get_album_art_done",
+                                     std::get<0>( data ),
+                                     std::get<1>( data ),
+                                     std::move( std::get<2>( data ) ),
+                                     std::get<3>( data ) );
 }
 
 void js_panel_window::on_item_focus_change( CallbackData& callbackData )
@@ -1190,10 +1189,10 @@ void js_panel_window::on_key_up( WPARAM wp )
 void js_panel_window::on_load_image_done( CallbackData& callbackData )
 {
     auto& data = callbackData.GetData<uint32_t, std::unique_ptr<Gdiplus::Bitmap>, std::u8string>();
-    auto autoRet = pJsContainer_->InvokeJsCallback( "on_load_image_done",
-                                                    std::get<0>( data ),
-                                                    std::move( std::get<1>( data ) ),
-                                                    std::get<2>( data ) );
+    pJsContainer_->InvokeJsCallback( "on_load_image_done",
+                                     std::get<0>( data ),
+                                     std::move( std::get<1>( data ) ),
+                                     std::get<2>( data ) );
 }
 
 void js_panel_window::on_library_items_added( CallbackData& callbackData )

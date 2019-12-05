@@ -65,7 +65,7 @@ void LoadImageTask::run()
                                                                   uint32_t,
                                                                   std::unique_ptr<Gdiplus::Bitmap>,
                                                                   std::u8string>>( taskId_,
-                                                                                       std::move( image::LoadImage( imagePath_ ) ),
+                                                                                       image::LoadImage( imagePath_ ),
                                                                                        path ) );
 }
 

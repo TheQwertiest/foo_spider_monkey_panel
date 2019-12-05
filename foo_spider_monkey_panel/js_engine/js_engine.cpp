@@ -26,8 +26,7 @@ namespace
 {
 
 constexpr uint32_t kHeartbeatRateMs = 73;
-constexpr uint32_t kMonitorRateMs = 95;
-constexpr uint32_t kJobsMaxBudgetMs = 500;
+[[maybe_unused]] constexpr uint32_t kJobsMaxBudgetMs = 500;
 
 } // namespace
 
@@ -250,7 +249,7 @@ bool JsEngine::Initialize()
 
         rejectedPromises_.init( cx, JS::GCVector<JSObject*, 0, js::SystemAllocPolicy>( js::SystemAllocPolicy() ) );
 
-        internalGlobal_ = std::move( JsInternalGlobal::Create( cx ) );
+        internalGlobal_ = JsInternalGlobal::Create( cx );
         assert( internalGlobal_ );
 
         StartHeartbeatThread();

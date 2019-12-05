@@ -1,24 +1,23 @@
 #pragma once
 
-#include <convert/native_to_js.h>
 #include <convert/js_to_native.h>
+#include <convert/native_to_js.h>
 #include <js_utils/js_error_helper.h>
 #include <js_utils/scope_helper.h>
 
 #include <optional>
 
-
 namespace mozjs::internal
 {
 
-template <int ArgArraySize>
+template <size_t ArgArraySize>
 void NativeToJsArguments( [[maybe_unused]] JSContext* cx,
                           [[maybe_unused]] JS::AutoValueArray<ArgArraySize>& wrappedArgs,
                           [[maybe_unused]] uint8_t argIndex )
 {
 }
 
-template <int ArgArraySize, typename ArgType, typename... ArgTypes>
+template <size_t ArgArraySize, typename ArgType, typename... ArgTypes>
 void NativeToJsArguments( JSContext* cx,
                           JS::AutoValueArray<ArgArraySize>& wrappedArgs,
                           uint8_t argIndex, ArgType&& arg, ArgTypes&&... args )

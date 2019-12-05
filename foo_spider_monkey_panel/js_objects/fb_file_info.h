@@ -48,7 +48,7 @@ private:
     JsFbFileInfo( JSContext* cx, metadb_info_container::ptr containerInfo );
 
 private:
-    JSContext* pJsCtx_ = nullptr;
+    [[maybe_unused]] JSContext* pJsCtx_ = nullptr;
     metadb_info_container::ptr containerInfo_;
     const file_info& fileInfo_;
 };
