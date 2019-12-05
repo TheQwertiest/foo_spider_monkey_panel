@@ -49,7 +49,7 @@ private:
     JsFbProfiler( JSContext* cx, const std::u8string& name );
 
 private:
-    JSContext* pJsCtx_ = nullptr;
+    [[maybe_unused]] JSContext* pJsCtx_ = nullptr;
     std::u8string name_;
     pfc::hires_timer timer_;
 };

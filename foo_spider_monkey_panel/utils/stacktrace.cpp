@@ -93,11 +93,11 @@ namespace smp
 
 LONG WINAPI SehHandler_ConsoleStacktrace( EXCEPTION_POINTERS* pExp, DWORD dwExpCode )
 {
-    const size_t kDynamicBufferSize = 4096;
+    constexpr size_t kDynamicBufferSize = 4096;
     std::array<wchar_t, 256> localBuffer;
     std::unique_ptr<wchar_t[]> dynamicBuffer( new ( std::nothrow ) wchar_t[kDynamicBufferSize] );
 
-    auto stackTraceBuffer = [&localBuffer, &dynamicBuffer, kDynamicBufferSize] {
+    auto stackTraceBuffer = [&localBuffer, &dynamicBuffer] {
         if ( dynamicBuffer )
         {
             return nonstd::span<wchar_t>{ dynamicBuffer.get(), kDynamicBufferSize };

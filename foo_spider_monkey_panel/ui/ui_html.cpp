@@ -13,13 +13,6 @@
 
 #include <component_paths.h>
 
-#pragma warning( push )
-#pragma warning( disable : 4192 )
-#pragma warning( disable : 4146 )
-#pragma warning( disable : 4278 )
-#import <mshtml.tlb>
-#pragma warning( pop )
-
 namespace smp::ui
 {
 using namespace mozjs;
@@ -71,7 +64,7 @@ LRESULT CDialogHtml::OnInitDialog( HWND hwndFocus, LPARAM lParam )
         hr = pBrowser->get_Document( &pDocDispatch );
         smp::error::CheckHR( hr, "get_Document" );
 
-        MSHTML::IHTMLDocument2Ptr pDocument = pDocDispatch;
+        IHTMLDocument2Ptr pDocument = pDocDispatch;
 
         {
             // Request default handler from MSHTML client site

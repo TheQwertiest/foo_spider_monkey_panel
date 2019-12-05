@@ -104,7 +104,7 @@ HRESULT HostDropTarget::OnDragLeave()
 {
     SendMessage( m_hWnd, static_cast<UINT>( InternalSyncMessage::wnd_drag_leave ), 0, 0 );
     drag::SetDropText( pDataObject_, DROPIMAGE_INVALID, L"", L"" );
-    pDataObject_ = nullptr;
+    pDataObject_.Release();
     return S_OK;
 }
 
@@ -157,7 +157,7 @@ HRESULT HostDropTarget::OnDrop( IDataObject* pDataObj, DWORD grfKeyState, POINTL
 
     *pdwEffect = actionParams_.effect;
     drag::SetDropText( pDataObject_, DROPIMAGE_INVALID, L"", L"" );
-    pDataObject_ = nullptr;
+    pDataObject_.Release();
 
     return S_OK;
 }

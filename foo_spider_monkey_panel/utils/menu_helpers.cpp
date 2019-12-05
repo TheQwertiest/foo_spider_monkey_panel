@@ -1,8 +1,9 @@
 #include <stdafx.h>
+
 #include "menu_helpers.h"
 
-#include <unordered_map>
 #include <optional>
+#include <unordered_map>
 
 namespace std
 {
@@ -50,7 +51,7 @@ bool match_menu_command( const std::u8string& path, const std::u8string& command
 contextmenu_node* find_context_command_recur( const std::u8string& p_command, std::u8string& basePath, contextmenu_node* p_parent )
 {
     assert( p_parent && p_parent->get_type() == contextmenu_item_node::TYPE_POPUP );
-     
+
     for ( size_t child_id = 0; child_id < p_parent->get_num_children(); ++child_id )
     {
         contextmenu_node* child = p_parent->get_child( child_id );
@@ -82,6 +83,10 @@ contextmenu_node* find_context_command_recur( const std::u8string& p_command, st
             {
                 return child;
             }
+            break;
+        }
+        default:
+        {
             break;
         }
         }
@@ -282,9 +287,10 @@ bool execute_mainmenu_command_by_name( const std::u8string& name )
 {
     try
     {
-        return ApplyFnOnMainmenuNode( name,
-                                      []( auto node ) { node->execute( nullptr ); },
-                                      []( auto idx, auto ptr ) { ptr->execute( idx, nullptr ); } );
+        return ApplyFnOnMainmenuNode(
+            name,
+            []( auto node ) { node->execute( nullptr ); },
+            []( auto idx, auto ptr ) { ptr->execute( idx, nullptr ); } );
     }
     catch ( const pfc::exception& )
     {

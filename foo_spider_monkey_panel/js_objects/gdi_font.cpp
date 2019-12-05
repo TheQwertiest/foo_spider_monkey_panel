@@ -70,8 +70,8 @@ const JSNative JsGdiFont::JsConstructor = ::GdiFont_Constructor;
 JsGdiFont::JsGdiFont( JSContext* cx, std::unique_ptr<Gdiplus::Font> gdiFont, HFONT hFont, bool isManaged )
     : pJsCtx_( cx )
     , isManaged_( isManaged )
-    , hFont_( hFont )
     , pGdi_( std::move( gdiFont ) )
+    , hFont_( hFont )
 {
     assert( pGdi_.get() );
     assert( hFont_ );

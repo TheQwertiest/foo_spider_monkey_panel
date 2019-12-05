@@ -100,7 +100,7 @@ auto InvokeNativeCallback_ParseArguments( JSContext* cx, JS::AutoValueVector& va
 
     if constexpr ( argCount > 0 )
     {
-        if constexpr ( std::is_same_v<std::tuple_element<argCount - 1, std::tuple<ArgTypes...>>::type, JS::HandleValueArray> )
+        if constexpr ( std::is_same_v<typename std::tuple_element<argCount - 1, std::tuple<ArgTypes...>>::type, JS::HandleValueArray> )
         {
             if ( argCount <= jsArgs.length() )
             {
@@ -152,7 +152,7 @@ auto InvokeNativeCallback_ParseArguments( JSContext* cx, JS::AutoValueVector& va
 
     if constexpr ( argCount > 0 )
     {
-        if constexpr ( std::is_same_v<std::tuple_element<argCount - 1, std::tuple<ArgTypes...>>::type, JS::HandleValueArray> )
+        if constexpr ( std::is_same_v<typename std::tuple_element<argCount - 1, std::tuple<ArgTypes...>>::type, JS::HandleValueArray> )
         {
             if ( !valueVector.empty() )
             {

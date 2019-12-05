@@ -46,9 +46,9 @@ public:
     END_MSG_MAP()
 
     BEGIN_SINK_MAP( CDialogHtml )
-		SINK_ENTRY( IDC_IE, DISPID_BEFORENAVIGATE2, OnBeforeNavigate2 )
-		SINK_ENTRY( IDC_IE, DISPID_TITLECHANGE, OnTitleChange )
-		SINK_ENTRY( IDC_IE, DISPID_WINDOWCLOSING, OnWindowClosing )
+        SINK_ENTRY( IDC_IE, DISPID_BEFORENAVIGATE2, &CDialogHtml::OnBeforeNavigate2 )
+        SINK_ENTRY( IDC_IE, DISPID_TITLECHANGE, &CDialogHtml::OnTitleChange )
+        SINK_ENTRY( IDC_IE, DISPID_WINDOWCLOSING, &CDialogHtml::OnWindowClosing )
     END_SINK_MAP()
 
 public:

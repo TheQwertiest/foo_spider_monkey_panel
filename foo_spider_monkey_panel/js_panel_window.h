@@ -86,9 +86,9 @@ public:
     const config::PanelSettings& GetSettings() const;
 
 private:
+    const PanelType panelType_;
     config::PanelSettings settings_;
 
-    const PanelType panelType_;
     std::shared_ptr<mozjs::JsContainer> pJsContainer_;
 
     HWND hWnd_ = nullptr;

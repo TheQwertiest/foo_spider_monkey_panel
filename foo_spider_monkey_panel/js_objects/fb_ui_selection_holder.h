@@ -42,7 +42,7 @@ private:
     JsFbUiSelectionHolder( JSContext* cx, const ui_selection_holder::ptr& holder );
 
 private:
-    JSContext* pJsCtx_ = nullptr;
+    [[maybe_unused]] JSContext* pJsCtx_ = nullptr;
     ui_selection_holder::ptr holder_;
 };
 

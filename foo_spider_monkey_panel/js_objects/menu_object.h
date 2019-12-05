@@ -47,9 +47,9 @@ private:
     JsMenuObject( JSContext* cx, HWND hParentWnd, HMENU hMenu );
 
 private:
-    JSContext* pJsCtx_ = nullptr;
-    HMENU hMenu_ = nullptr;
+    [[maybe_unused]] JSContext* pJsCtx_ = nullptr;
     HWND hParentWnd_ = nullptr;
+    HMENU hMenu_ = nullptr;
     bool isDetached_ = false;
 };
 

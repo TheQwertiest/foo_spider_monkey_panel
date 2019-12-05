@@ -8,13 +8,6 @@
 namespace
 {
 
-constexpr uint8_t kNumberOfColourComponents = 3;
-
-}
-
-namespace
-{
-
 using namespace smp::utils::kmeans;
 
 struct Point
@@ -113,6 +106,7 @@ std::vector<ClusterData> run( const std::vector<PointData>& pointsData, uint32_t
 
     for ( auto i: ranges::view::indices( max_iterations ) )
     {
+        (void)i;
         bool done = true;
 
         // associate each point to its nearest center
@@ -148,7 +142,7 @@ std::vector<ClusterData> run( const std::vector<PointData>& pointsData, uint32_t
 
             for ( auto&& [j, centralValue] : ranges::view::enumerate( cluster.central_values ) )
             {
-                const uint32_t sum = ranges::accumulate( cluster.points, 0, [j]( uint32_t curSum, const auto pPoint ) {
+                const uint32_t sum = ranges::accumulate( cluster.points, 0, [j = j]( uint32_t curSum, const auto pPoint ) {
                     return curSum + pPoint->pData->values[j] * pPoint->pData->pixel_count;
                 } );
                 centralValue = static_cast<double>( sum ) / pixelsInCluster;

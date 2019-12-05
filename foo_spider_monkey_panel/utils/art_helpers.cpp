@@ -1,16 +1,16 @@
 #include <stdafx.h>
+
 #include "art_helpers.h"
 
 #include <utils/gdi_helpers.h>
+#include <utils/scope_helpers.h>
 #include <utils/string_helpers.h>
 #include <utils/thread_pool.h>
-#include <utils/scope_helpers.h>
-
-#include <user_message.h>
-#include <message_manager.h>
-#include <abort_callback.h>
 
 #include <Shlwapi.h>
+#include <abort_callback.h>
+#include <message_manager.h>
+#include <user_message.h>
 
 #include <algorithm>
 
@@ -33,12 +33,12 @@ private:
     void run();
 
 private:
+    HWND hNotifyWnd_;
     metadb_handle_ptr handle_;
     uint32_t artId_;
     bool needStub_;
     bool onlyEmbed_;
     bool noLoad_;
-    HWND hNotifyWnd_;
 };
 
 AlbumArtFetchTask::AlbumArtFetchTask( HWND hNotifyWnd, metadb_handle_ptr handle, uint32_t artId, bool need_stub, bool only_embed, bool no_load )
@@ -69,9 +69,9 @@ void AlbumArtFetchTask::run()
                                                                   uint32_t,
                                                                   std::unique_ptr<Gdiplus::Bitmap>,
                                                                   std::u8string>>( handle_,
-                                                                                       artId_,
-                                                                                       std::move( bitmap ),
-                                                                                       imagePath ) );
+                                                                                   artId_,
+                                                                                   std::move( bitmap ),
+                                                                                   imagePath ) );
 }
 
 std::unique_ptr<Gdiplus::Bitmap> GetBitmapFromAlbumArtData( const album_art_data_ptr& data )

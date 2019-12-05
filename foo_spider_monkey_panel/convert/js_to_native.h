@@ -4,6 +4,8 @@
 
 #include <optional>
 
+#include <utils/type_traits_x.h>
+
 namespace mozjs::convert::to_native
 {
 
@@ -21,33 +23,10 @@ namespace mozjs::convert::to_native::internal
 {
 
 template <class T>
-struct _is_convertable_v
-    : std::bool_constant<std::is_fundamental_v<T> || std::is_same_v<std::u8string, T> || std::is_same_v<std::wstring, T> || std::is_same_v<pfc::string8_fast, T>>
-{
-};
+inline constexpr bool IsJsSimpleConvertableImplV = std::disjunction_v<std::is_fundamental<T>, std::is_same<std::u8string, T>, std::is_same<std::wstring, T>, std::is_same<pfc::string8_fast, T>>;
 
 template <class T>
-struct is_convertable
-    : _is_convertable_v<std::remove_cv_t<T>>::type
-{
-};
-
-template <class T>
-inline constexpr bool is_convertable_v = is_convertable<T>::value;
-
-// TODO: move to a more suitable place
-template <typename T>
-struct is_vector : public std::false_type
-{
-};
-
-template <typename T, typename A>
-struct is_vector<std::vector<T, A>> : public std::true_type
-{
-};
-
-template <class T>
-inline constexpr bool is_vector_v = is_vector<T>::value;
+inline constexpr bool IsJsSimpleConvertableV = IsJsSimpleConvertableImplV<std::remove_cv_t<T>>;
 
 template <typename T>
 T ToSimpleValue( JSContext* cx, const JS::HandleObject& jsObject )
@@ -61,7 +40,7 @@ T ToSimpleValue( JSContext* cx, const JS::HandleObject& jsObject )
 template <typename T>
 T ToSimpleValue( JSContext* cx, const JS::HandleValue& jsValue )
 {
-    static_assert( 0, "Unsupported type" );
+    static_assert( smp::always_false_v<T>, "Unsupported type" );
 }
 
 template <>
@@ -131,7 +110,7 @@ namespace mozjs::convert::to_native
 template <typename T>
 T ToValue( JSContext* cx, JS::HandleValue jsValue )
 {
-    if constexpr ( to_native::internal::is_convertable_v<T> )
+    if constexpr ( to_native::internal::IsJsSimpleConvertableV<T> )
     { // Construct and copy
         return to_native::internal::ToSimpleValue<T>( cx, jsValue );
     }
@@ -151,13 +130,13 @@ T ToValue( JSContext* cx, JS::HandleValue jsValue )
         JS::RootedObject jsObject( cx, &jsValue.toObject() );
         return internal::ToSimpleValue<T>( cx, jsObject );
     }
-    else if constexpr ( internal::is_vector_v<T> )
+    else if constexpr ( smp::is_specialization_of_v<T, std::vector> )
     {
         return internal::ToVector<T::value_type>( cx, jsValue );
     }
     else
     {
-        static_assert( 0, "Unsupported argument type" );
+        static_assert( smp::always_false_v<T>, "Unsupported type" );
     }
 }
 

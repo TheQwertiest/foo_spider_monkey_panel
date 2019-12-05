@@ -197,7 +197,7 @@ JSObject* JsGdiBitmap::ApplyAlpha( uint8_t alpha )
     std::unique_ptr<Gdiplus::Bitmap> out( new Gdiplus::Bitmap( width, height, PixelFormat32bppPARGB ) );
     smp::error::CheckGdiPlusObject( out );
 
-    Gdiplus::ColorMatrix cm = { 0.0 };
+    Gdiplus::ColorMatrix cm{};
     cm.m[0][0] = cm.m[1][1] = cm.m[2][2] = cm.m[4][4] = 1.0;
     cm.m[3][3] = static_cast<float>( alpha ) / 255;
 

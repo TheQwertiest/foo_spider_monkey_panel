@@ -717,6 +717,9 @@
     <ClInclude Include="mutex_workaround.h">
       <Filter>z_core</Filter>
     </ClInclude>
+    <ClInclude Include="utils\type_traits_x.h">
+      <Filter>utils</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="default.js">

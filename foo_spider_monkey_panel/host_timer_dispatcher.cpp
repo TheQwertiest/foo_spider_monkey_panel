@@ -248,11 +248,11 @@ bool HostTimerTask::InvokeJsImpl( JSContext* cx, JS::HandleObject jsGlobal, JS::
 }
 
 HostTimer::HostTimer( HWND hWnd, uint32_t id, uint32_t delay, bool isRepeated, std::shared_ptr<HostTimerTask> task )
-    : hWnd_( hWnd )
+    : task_( task )
+    , hWnd_( hWnd )
+    , id_( id )
     , delay_( delay )
     , isRepeated_( isRepeated )
-    , id_( id )
-    , task_( task )
 {
     assert( task );
 }

@@ -57,7 +57,7 @@ class ActiveXObjectProxyHandler : public js::ForwardingProxyHandler
 public:
     static const ActiveXObjectProxyHandler singleton;
 
-    constexpr ActiveXObjectProxyHandler()
+    ActiveXObjectProxyHandler()
         : js::ForwardingProxyHandler( GetSmpProxyFamily() )
     {
     }
