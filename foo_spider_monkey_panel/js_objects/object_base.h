@@ -191,7 +191,7 @@ public:
     }
 
 private:
-    template <typename = typename std::enable_if_t<T::HasProto>>
+    template <typename U = T, std::enable_if_t<U::HasProto, int> = 0>
     [[nodiscard]] static JSObject* GetProto( JSContext* cx )
     {
         JS::RootedObject jsProto( cx );

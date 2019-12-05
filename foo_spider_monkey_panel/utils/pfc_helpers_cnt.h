@@ -138,7 +138,7 @@ public:
         {
             return ( *pPfc_ )[curIdx_];
         }
-        template <typename = typename std::enable_if_t<!is_pfc_list_const::value>>
+        template <typename U = is_pfc_list_const, std::enable_if_t<!U::value, int> = 0>
         pointer operator->() const
         {
             return &( **this );
@@ -249,11 +249,11 @@ public:
     // typedef std::reverse_iterator<iterator> reverse_iterator;             //optional
     // typedef std::reverse_iterator<const_iterator> const_reverse_iterator; //optional
 
-    template <typename = typename std::enable_if_t<std::is_reference_v<T>>>
+    template <typename U = T, std::enable_if_t<std::is_reference_v<U>, int> = 0>
     Stl( T& base )
         : pfc_( base ){};
 
-    template <typename... Args, typename = typename std::enable_if_t<!std::is_reference_v<T>>>
+    template <typename... Args, typename U = T, std::enable_if_t<!std::is_reference_v<U>, int> = 0>
     Stl( Args&&... args )
         : pfc_( std::forward<Args>( args )... ){};
 
@@ -269,7 +269,7 @@ public:
     // bool operator<=( const Stl& ) const; //optional
     // bool operator>=( const Stl& ) const; //optional
 
-    template <typename = typename std::enable_if_t<!std::is_const_v<std::remove_reference_t<T>>>>
+    template <typename U = T, std::enable_if_t<!std::is_const_v<std::remove_reference_t<U>>, int> = 0>
     iterator begin()
     {
         return iterator( 0, &pfc_ );
@@ -284,7 +284,7 @@ public:
         return begin();
     }
 
-    template <typename = typename std::enable_if_t<!std::is_const_v<std ::remove_reference_t<T>>>>
+    template <typename U = T, std::enable_if_t<!std::is_const_v<std::remove_reference_t<U>>, int> = 0>
     iterator end()
     {
         return iterator( size(), &pfc_ );
@@ -409,7 +409,7 @@ public:
     }
 
 public:
-    template <typename = typename std::enable_if_t<!std::is_const_v<std::remove_reference_t<T>>>>
+    template <typename U = T, std::enable_if_t<!std::is_const_v<std::remove_reference_t<U>>, int> = 0>
     pfc_container_type& Pfc()
     {
         return pfc_;

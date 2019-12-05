@@ -53,7 +53,7 @@ private:
                     uint32_t height );
 
 private:
-    JSContext* pJsCtx_ = nullptr;
+    [[maybe_unused]] JSContext* pJsCtx_ = nullptr;
     const smp::gdi::unique_gdi_ptr<HDC> pDc_;
     const smp::gdi::unique_gdi_ptr<HBITMAP> hBmp_;
     const smp::gdi::ObjectSelector<HBITMAP> autoBmp_;

@@ -46,13 +46,6 @@ public:
 public: // ctor
     static JSObject* Constructor( JSContext* cx, const std::wstring& name );
 
-public:
-    IDispatch* pDispatch_ = nullptr;
-    IUnknown * pUnknown_ = nullptr;
-    ITypeInfo * pTypeInfo_ = nullptr;
-    _variant_t variant_;
-    bool hasVariant_ = false;
-
     bool Has( const std::wstring& name );
     bool IsGet( const std::wstring& name );
     bool IsSet( const std::wstring& name );
@@ -93,6 +86,13 @@ private:
     bool areMembersSetup_ = false;
 
     MemberMap members_;
+
+public:
+    IDispatch* pDispatch_ = nullptr;
+    IUnknown* pUnknown_ = nullptr;
+    ITypeInfo* pTypeInfo_ = nullptr;
+    _variant_t variant_;
+    bool hasVariant_ = false;
 };
 
 }

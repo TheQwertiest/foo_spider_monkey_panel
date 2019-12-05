@@ -243,11 +243,6 @@ bool StartsWith_CaseInsensitive( const std::u8string_view& a, const std::u8strin
     return ( ( a.size() >= b.size() ) && !pfc::stricmp_ascii_ex( a.data(), b.size(), b.data(), b.size() ) );
 }
 
-bool StartsWith( const std::u8string_view& a, const std::u8string_view& b )
-{
-    return ( ( a.size() >= b.size() ) && !a.compare( 0, b.size(), b ) );
-}
-
 } // namespace
 
 namespace scintilla
@@ -688,7 +683,6 @@ std::vector<CScriptEditorCtrl::StyledPart> CScriptEditorCtrl::GetStyledParts( in
     parts.reserve( maxParts );
 
     std::u8string curPart;
-    size_t partIdx = 0;
     const int thisLineStart = PositionFromLine( line );
     const int nextLineStart = PositionFromLine( line + 1 );
     int lastStyle = 0;
@@ -954,6 +948,10 @@ int CScriptEditorCtrl::IndentOfBlock( int line )
             {
                 indentBlock += indentSize;
             }
+            break;
+        }
+        default:
+        {
             break;
         }
         }

@@ -12,9 +12,9 @@ public:
     void on_aborted() override;
 
 private:
-    bool m_to_select;
     int m_playlist_idx;
     size_t m_base;
+    bool m_to_select;
 };
 
 } // namespace helpers

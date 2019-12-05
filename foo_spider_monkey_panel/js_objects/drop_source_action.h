@@ -47,7 +47,7 @@ private:
     JsDropSourceAction( JSContext* cx );
 
 private:
-    JSContext* pJsCtx_ = nullptr;
+    [[maybe_unused]] JSContext* pJsCtx_ = nullptr;
 
     smp::panel::DropActionParams actionParams_;
 };

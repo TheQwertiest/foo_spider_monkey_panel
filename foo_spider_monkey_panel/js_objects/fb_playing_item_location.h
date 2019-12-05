@@ -40,7 +40,7 @@ private:
     JsFbPlayingItemLocation( JSContext* cx, bool isValid, uint32_t playlistIndex, uint32_t playlistItemIndex );
 
 private:
-    JSContext* pJsCtx_ = nullptr;
+    [[maybe_unused]] JSContext* pJsCtx_ = nullptr;
     bool isValid_;
     uint32_t playlistIndex_;
     uint32_t playlistItemIndex_;

@@ -1,7 +1,9 @@
 #include <stdafx.h>
+
 #include "config_legacy.h"
 
 #include <utils/string_helpers.h>
+#include <utils/type_traits_x.h>
 
 namespace
 {
@@ -115,9 +117,10 @@ void SaveProperties_Binary( const PanelProperties::PropertyMap& data, stream_wri
                 }
                 else
                 {
-                    static_assert( false, "non-exhaustive visitor!" );
+                    static_assert( smp::always_false_v<T>, "non-exhaustive visitor!" );
                 }
-            }, serializedValue );
+            },
+                                                      serializedValue );
 
             writer.write_lendian_t( static_cast<uint32_t>( valueType ), abort );
 
@@ -132,7 +135,8 @@ void SaveProperties_Binary( const PanelProperties::PropertyMap& data, stream_wri
                 {
                     writer.write_lendian_t( arg, abort );
                 }
-            }, serializedValue );
+            },
+                        serializedValue );
         }
     }
     catch ( const pfc::exception& )

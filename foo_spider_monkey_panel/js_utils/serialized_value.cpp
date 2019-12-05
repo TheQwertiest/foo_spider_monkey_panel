@@ -1,8 +1,10 @@
 #include <stdafx.h>
+
 #include "serialized_value.h"
 
-#include <convert/native_to_js.h>
 #include <convert/js_to_native.h>
+#include <convert/native_to_js.h>
+#include <utils/type_traits_x.h>
 
 namespace mozjs
 {
@@ -58,9 +60,10 @@ void DeserializeJsValue( JSContext* cx, const SerializedJsValue& serializedValue
         }
         else
         {
-            static_assert( false, "non-exhaustive visitor!" );
+            static_assert( smp::always_false_v<T>, "non-exhaustive visitor!" );
         }
-    }, serializedValue );
+    },
+                serializedValue );
 }
 
 } // namespace mozjs

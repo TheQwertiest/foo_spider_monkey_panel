@@ -198,7 +198,7 @@ void JsGdiGraphics::DrawImage( JsGdiBitmap* image,
     if ( alpha < 255 )
     {
         Gdiplus::ImageAttributes ia;
-        Gdiplus::ColorMatrix cm = { 0.0f };
+        Gdiplus::ColorMatrix cm{};
 
         cm.m[0][0] = cm.m[1][1] = cm.m[2][2] = cm.m[4][4] = 1.0f;
         cm.m[3][3] = static_cast<float>( alpha ) / 255;

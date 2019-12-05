@@ -126,7 +126,7 @@ class FbMetadbHandleListProxyHandler : public js::ForwardingProxyHandler
 public:
     static const FbMetadbHandleListProxyHandler singleton;
 
-    constexpr FbMetadbHandleListProxyHandler()
+    FbMetadbHandleListProxyHandler()
         : js::ForwardingProxyHandler( GetSmpProxyFamily() )
     {
     }

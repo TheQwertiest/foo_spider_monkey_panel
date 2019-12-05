@@ -35,8 +35,8 @@ struct PointData
     PointData() = default;
     PointData( const std::vector<uint8_t>& values, uint32_t pixel_count );
 
-    uint32_t pixel_count = 0;
     std::vector<uint8_t> values;
+    uint32_t pixel_count = 0;
 };
 
 struct ClusterData

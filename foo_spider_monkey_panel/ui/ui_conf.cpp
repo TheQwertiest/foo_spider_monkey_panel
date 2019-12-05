@@ -11,8 +11,8 @@
 namespace
 {
 
-constexpr int k_File_MenuPosition = 0;
-constexpr int k_Edit_MenuPosition = 1;
+[[maybe_unused]] constexpr int k_File_MenuPosition = 0;
+[[maybe_unused]] constexpr int k_Edit_MenuPosition = 1;
 constexpr int k_Features_MenuPosition = 2;
 constexpr int k_EdgeStyle_MenuPosition = 0;
 
@@ -180,7 +180,7 @@ void CDialogConf::Apply()
 
 LRESULT CDialogConf::OnNotify( int idCtrl, LPNMHDR pnmh )
 {
-    SCNotification* notification = reinterpret_cast<SCNotification*>( pnmh );
+    // SCNotification* notification = reinterpret_cast<SCNotification*>( pnmh );
 
     switch ( pnmh->code )
     {

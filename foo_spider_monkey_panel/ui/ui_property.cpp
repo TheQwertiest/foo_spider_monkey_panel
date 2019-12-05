@@ -3,6 +3,7 @@
 #include "ui_property.h"
 
 #include <utils/file_helpers.h>
+#include <utils/type_traits_x.h>
 
 #include <abort_callback.h>
 #include <js_panel_window.h>
@@ -97,7 +98,7 @@ LRESULT CDialogProperty::OnPinItemChanged( LPNMHDR pnmh )
                 }
                 else
                 {
-                    static_assert( false, "non-exhaustive visitor!" );
+                    static_assert( smp::always_false_v<T>, "non-exhaustive visitor!" );
                 }
             },
                         val );
@@ -142,7 +143,7 @@ void CDialogProperty::LoadProperties( bool reload )
     std::map<std::wstring, HPROPERTY, LowerLexCmp> propMap;
     for ( const auto& [name, pSerializedValue]: localProperties_.values )
     {
-        HPROPERTY hProp = std::visit( [&name]( auto&& arg ) {
+        HPROPERTY hProp = std::visit( [&name = name]( auto&& arg ) {
             using T = std::decay_t<decltype( arg )>;
             if constexpr ( std::is_same_v<T, bool> || std::is_same_v<T, int32_t> )
             {
@@ -167,7 +168,7 @@ void CDialogProperty::LoadProperties( bool reload )
             }
             else
             {
-                static_assert( false, "non-exhaustive visitor!" );
+                static_assert( smp::always_false_v<T>, "non-exhaustive visitor!" );
             }
         },
                                       *pSerializedValue );

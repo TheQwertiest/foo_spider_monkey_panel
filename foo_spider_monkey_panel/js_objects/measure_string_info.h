@@ -43,7 +43,7 @@ private:
     JsMeasureStringInfo( JSContext* cx, float x, float y, float w, float h, uint32_t l, uint32_t c );
 
 private:
-    JSContext* pJsCtx_ = nullptr;
+    [[maybe_unused]] JSContext* pJsCtx_ = nullptr;
 
     float x_, y_, w_, h_;
     int lines_, characters_;

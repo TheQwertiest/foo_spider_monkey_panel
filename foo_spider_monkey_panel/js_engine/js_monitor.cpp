@@ -273,7 +273,7 @@ void JsMonitor::StartMonitorThread()
 
                 if ( activeContainers_.empty() )
                 {
-                    hasAction_.wait( lock, [&] { return shouldStopThread_ || !activeContainers_.empty() && !isInInterrupt_; } );
+                    hasAction_.wait( lock, [&] { return ( shouldStopThread_ || ( !activeContainers_.empty() && !isInInterrupt_ ) ); } );
                 }
                 else if ( isInInterrupt_ )
                 { // Can't interrupt

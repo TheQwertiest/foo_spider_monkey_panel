@@ -1,6 +1,8 @@
 #include <stdafx.h>
+
 #include "thread_pool.h"
 
+#include <utils/scope_helpers.h>
 #include <utils/thread_helpers.h>
 
 namespace smp
@@ -60,9 +62,9 @@ void ThreadPool::AddThread()
 void ThreadPool::ThreadProc()
 {
     ++idleThreadCount_;
-    auto idleCounter = [& idleThreadsCount = idleThreadCount_]() {
+    const auto idleCounter = smp::utils::final_action( [&idleThreadsCount = idleThreadCount_]() {
         --idleThreadsCount;
-    };
+    } );
 
     while ( true )
     {

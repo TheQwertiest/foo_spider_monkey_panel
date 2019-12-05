@@ -53,14 +53,14 @@ private:
     JsFbTooltip( JSContext* cx, HWND hParentWnd, smp::panel::PanelTooltipParam& p_param_ptr );
 
 private:
-    JSContext* pJsCtx_ = nullptr;
+    [[maybe_unused]] JSContext* pJsCtx_ = nullptr;
 
-    smp::gdi::unique_gdi_ptr<HFONT> pFont_;
     HWND hTooltipWnd_;
     HWND hParentWnd_;
-    std::wstring tipBuffer_;
-    std::unique_ptr<TOOLINFO> toolInfo_;
     smp::panel::PanelTooltipParam& panelTooltipParam_;
+    std::wstring tipBuffer_;
+    smp::gdi::unique_gdi_ptr<HFONT> pFont_;
+    std::unique_ptr<TOOLINFO> toolInfo_;
 };
 
 } // namespace mozjs
