@@ -90,10 +90,6 @@ JsFbMetadbHandle::JsFbMetadbHandle( JSContext* cx, const metadb_handle_ptr& hand
 {
 }
 
-JsFbMetadbHandle::~JsFbMetadbHandle()
-{
-}
-
 std::unique_ptr<mozjs::JsFbMetadbHandle>
 JsFbMetadbHandle::CreateNative( JSContext* cx, const metadb_handle_ptr& handle )
 {

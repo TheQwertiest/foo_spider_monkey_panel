@@ -24,7 +24,7 @@ public:
     static const JSPropertySpec* JsProperties;
 
 public:
-    ~JsFbWindow();
+    ~JsFbWindow() override = default;
 
     static std::unique_ptr<JsFbWindow> CreateNative( JSContext* cx );
     static size_t GetInternalSize();

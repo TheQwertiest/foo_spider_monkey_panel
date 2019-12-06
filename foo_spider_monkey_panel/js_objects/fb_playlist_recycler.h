@@ -25,7 +25,7 @@ public:
     static const JSPropertySpec* JsProperties;
 
 public:
-    ~JsFbPlaylistRecycler();
+    ~JsFbPlaylistRecycler() override = default;
 
     static std::unique_ptr<JsFbPlaylistRecycler> CreateNative( JSContext* cx );
     static size_t GetInternalSize();

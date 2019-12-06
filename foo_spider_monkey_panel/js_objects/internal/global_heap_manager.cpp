@@ -16,10 +16,6 @@ GlobalHeapManager::GlobalHeapManager( JSContext* cx )
 {
 }
 
-GlobalHeapManager::~GlobalHeapManager()
-{ // No need to cleanup JS here, since it must be performed manually beforehand anyway
-}
-
 std::unique_ptr<GlobalHeapManager> GlobalHeapManager::Create( JSContext* cx )
 {
     return std::unique_ptr<GlobalHeapManager>( new GlobalHeapManager( cx ) );

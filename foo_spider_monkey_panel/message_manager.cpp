@@ -56,7 +56,7 @@ bool message_manager::IsAsyncMessage( UINT msg )
     return ( msg == static_cast<UINT>( MiscMessage::run_task_async ) );
 }
 
-std::optional<message_manager::AsyncMessage> message_manager::ClaimAsyncMessage( HWND hWnd, UINT msg, WPARAM wp, LPARAM lp )
+std::optional<message_manager::AsyncMessage> message_manager::ClaimAsyncMessage( HWND hWnd, UINT msg, WPARAM wp, LPARAM )
 {
     assert( IsAsyncMessage( msg ) );
     std::scoped_lock sl( wndDataMutex_ );

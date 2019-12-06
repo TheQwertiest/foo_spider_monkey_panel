@@ -37,7 +37,7 @@ public:
     ActiveXObject( JSContext* cx, IUnknown *obj, bool addref = false );
     ActiveXObject( JSContext* cx, IDispatch *obj, bool addref = false );
     ActiveXObject( JSContext* cx, VARIANTARG& var );
-    ~ActiveXObject();
+    ~ActiveXObject() override;
 
     ActiveXObject( const ActiveXObject& ) = delete;
     ActiveXObject& operator=( const ActiveXObject& ) = delete;

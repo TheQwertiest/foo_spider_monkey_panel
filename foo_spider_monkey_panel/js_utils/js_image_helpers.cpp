@@ -113,7 +113,7 @@ void JsImageTask::SetData( std::unique_ptr<Gdiplus::Bitmap> image )
     image_ = std::move( image );
 }
 
-bool JsImageTask::InvokeJsImpl( JSContext* cx, JS::HandleObject jsGlobal, JS::HandleValue jsPromiseValue )
+bool JsImageTask::InvokeJsImpl( JSContext* cx, JS::HandleObject, JS::HandleValue jsPromiseValue )
 {
     JS::RootedObject jsPromise( cx, &jsPromiseValue.toObject() );
 

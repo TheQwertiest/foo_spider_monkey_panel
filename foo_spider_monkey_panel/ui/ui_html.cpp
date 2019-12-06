@@ -32,7 +32,7 @@ CDialogHtml::~CDialogHtml()
     }
 }
 
-LRESULT CDialogHtml::OnInitDialog( HWND hwndFocus, LPARAM lParam )
+LRESULT CDialogHtml::OnInitDialog( HWND, LPARAM )
 {
     utils::final_action autoExit( [&] {
         EndDialog( -1 );
@@ -163,10 +163,10 @@ void CDialogHtml::OnSize( UINT nType, CSize size )
 void CDialogHtml::OnClose()
 {
     isClosing_ = true;
-    OnCloseCmd( 0, IDCANCEL, 0 );
+    OnCloseCmd( 0, IDCANCEL, nullptr );
 }
 
-void CDialogHtml::OnCloseCmd( WORD wNotifyCode, WORD wID, HWND hWndCtl )
+void CDialogHtml::OnCloseCmd( WORD, WORD wID, HWND hWndCtl )
 {
     if ( !isClosing_ )
     { // e.g. pressed RETURN
@@ -176,8 +176,8 @@ void CDialogHtml::OnCloseCmd( WORD wNotifyCode, WORD wID, HWND hWndCtl )
     EndDialog( wID );
 }
 
-void CDialogHtml::OnBeforeNavigate2( IDispatch* pDisp, VARIANT* URL, VARIANT* Flags,
-                                     VARIANT* TargetFrameName, VARIANT* PostData, VARIANT* Headers,
+void CDialogHtml::OnBeforeNavigate2( IDispatch*, VARIANT* URL, VARIANT*,
+                                     VARIANT*, VARIANT*, VARIANT*,
                                      VARIANT_BOOL* Cancel )
 {
     if ( !Cancel || !URL )
@@ -219,7 +219,7 @@ void CDialogHtml::OnTitleChange( BSTR title )
     }
 }
 
-void __stdcall CDialogHtml::OnWindowClosing( VARIANT_BOOL bIsChildWindow, VARIANT_BOOL* Cancel )
+void __stdcall CDialogHtml::OnWindowClosing( VARIANT_BOOL, VARIANT_BOOL* Cancel )
 {
     EndDialog( IDOK );
     if ( Cancel )
@@ -318,7 +318,7 @@ STDMETHODIMP CDialogHtml::ShowUI( DWORD dwID, IOleInPlaceActiveObject* pActiveOb
     return pDefaultUiHandler_->ShowUI( dwID, pActiveObject, pCommandTarget, pFrame, pDoc );
 }
 
-STDMETHODIMP CDialogHtml::HideUI( void )
+STDMETHODIMP CDialogHtml::HideUI()
 {
     if ( !pDefaultUiHandler_ )
     {
@@ -328,7 +328,7 @@ STDMETHODIMP CDialogHtml::HideUI( void )
     return pDefaultUiHandler_->HideUI();
 }
 
-STDMETHODIMP CDialogHtml::UpdateUI( void )
+STDMETHODIMP CDialogHtml::UpdateUI()
 {
     if ( !pDefaultUiHandler_ )
     {
@@ -404,13 +404,8 @@ STDMETHODIMP CDialogHtml::TranslateAccelerator( LPMSG lpMsg, const GUID* pguidCm
             0x59, // Y
             0x5A  // Z
         };
-        if ( isCtrlPressed && !isShiftPressed && !isAltPressed
-             && std::cend( allowedCtrlKeys ) != ranges::find( allowedCtrlKeys, vk ) )
-        {
-            return true;
-        }
-
-        return false;
+        return ( isCtrlPressed && !isShiftPressed && !isAltPressed
+                 && std::cend( allowedCtrlKeys ) != ranges::find( allowedCtrlKeys, vk ) );
     };
 
     if ( isSupportedHotKey( lpMsg->message, lpMsg->wParam ) )
@@ -485,12 +480,12 @@ STDMETHODIMP CDialogHtml::FilterDataObject( IDataObject* pDO, IDataObject** ppDO
     return pDefaultUiHandler_->FilterDataObject( pDO, ppDORet );
 }
 
-ULONG STDMETHODCALLTYPE CDialogHtml::AddRef( void )
+ULONG STDMETHODCALLTYPE CDialogHtml::AddRef()
 {
     return 0;
 }
 
-ULONG STDMETHODCALLTYPE CDialogHtml::Release( void )
+ULONG STDMETHODCALLTYPE CDialogHtml::Release()
 {
     return 0;
 }
@@ -577,9 +572,9 @@ void CDialogHtml::SetOptions()
     }
 }
 
-void CDialogHtml::GetMsgProc( int code, WPARAM wParam, LPARAM lParam, HWND hParent, CDialogHtml* pParent )
+void CDialogHtml::GetMsgProc( int, WPARAM, LPARAM lParam, HWND hParent, CDialogHtml* pParent )
 {
-    if ( LPMSG pMsg = reinterpret_cast<LPMSG>( lParam );
+    if ( auto pMsg = reinterpret_cast<LPMSG>( lParam );
          pMsg->message >= WM_KEYFIRST && pMsg->message <= WM_KEYLAST )
     { // Only react to keypress events
         for ( HWND tmpHwnd = pMsg->hwnd;

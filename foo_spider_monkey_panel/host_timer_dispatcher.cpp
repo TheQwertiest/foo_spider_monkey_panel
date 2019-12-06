@@ -163,15 +163,16 @@ void HostTimerDispatcher::threadMain()
 {
     while ( true )
     {
-        ThreadTask threadTask;
+        const ThreadTask threadTask = [&]
         {
             std::unique_lock<std::mutex> lock( m_threadTaskMutex );
 
             m_cv.wait( lock, [& threadTaskList = m_threadTaskList] { return !threadTaskList.empty(); } );
 
-            threadTask = m_threadTaskList.front();
+            const auto threadTask = m_threadTaskList.front();
             m_threadTaskList.pop_front();
-        }
+            return threadTask;
+        }();
 
         switch ( threadTask.taskId )
         {
@@ -276,7 +277,7 @@ void HostTimer::stop()
 
 VOID CALLBACK HostTimer::timerProc( PVOID lpParameter, BOOLEAN /*TimerOrWaitFired*/ )
 {
-    HostTimer* timer = static_cast<HostTimer*>( lpParameter );
+    auto* timer = static_cast<HostTimer*>( lpParameter );
 
     if ( timer->isStopped_ )
     {

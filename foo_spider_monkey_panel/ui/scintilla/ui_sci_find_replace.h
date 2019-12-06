@@ -15,12 +15,12 @@ struct FindReplaceState
         up
     };
 
-    bool operator!=( const FindReplaceState& other ) const;
-    bool operator==( const FindReplaceState& other ) const;
+    [[nodiscard]] bool operator!=( const FindReplaceState& other ) const;
+    [[nodiscard]] bool operator==( const FindReplaceState& other ) const;
 
-    DWORD ToScintillaFlags( DWORD currentFlags = 0 ) const;
+    [[nodiscard]] DWORD ToScintillaFlags( DWORD currentFlags = 0 ) const;
     void FromScintillaFlags( DWORD scintillaFlags );
-    DWORD ToFrFlags( DWORD currentFlags = 0 ) const;
+    [[nodiscard]] DWORD ToFrFlags( DWORD currentFlags = 0 ) const;
     void FromFrFlags( DWORD frFlags );
 
     std::u8string findText;
@@ -62,10 +62,10 @@ protected:
     static void GetMsgProc( int code, WPARAM wParam, LPARAM lParam, HWND hParent );
 
 public:
-    bool GetRegExpState() const;
+    [[nodiscard]] bool GetRegExpState() const;
     void SetRegExpState( bool newState );
 
-    bool GetWrapAroundSearchState() const;
+    [[nodiscard]] bool GetWrapAroundSearchState() const;
     void SetWrapAroundSearchState( bool newState );
 
 private:
@@ -94,7 +94,7 @@ public:
     {
     }
 
-    bool HasFindText() const
+    [[nodiscard]] bool HasFindText() const
     {
         return !lastState_.findText.empty();
     }
@@ -103,9 +103,9 @@ public:
 
     TFindReplaceDlg* CreateFindReplaceDialog( BOOL bFindOnly,
                                               LPCTSTR lpszFindWhat,
-                                              LPCTSTR lpszReplaceWith = NULL,
+                                              LPCTSTR lpszReplaceWith = nullptr,
                                               DWORD dwFlags = FR_DOWN,
-                                              HWND hWndParent = NULL )
+                                              HWND hWndParent = nullptr )
     {
         assert( sciEditor_.operator HWND() == hWndParent );
 
@@ -212,7 +212,7 @@ public:
         sciEditor_.ChangeSelectionColour( bHide );
     }
 
-    POINT PosFromChar( UINT nChar ) const
+    [[nodiscard]] POINT PosFromChar( UINT nChar ) const
     {
         return POINT{
             sciEditor_.PointXFromPosition( nChar ),

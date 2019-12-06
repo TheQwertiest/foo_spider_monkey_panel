@@ -52,11 +52,11 @@ FmtResultIt PrintSymbolName( HANDLE hProcess, DWORD64 stackFramePtr, nonstd::spa
     // https://docs.microsoft.com/en-us/windows/win32/debug/retrieving-symbol-information-by-address
 
     char symbolInfoBuffer[sizeof( SYMBOL_INFOW ) + MAX_SYM_NAME * sizeof( wchar_t )];
-    SYMBOL_INFOW* pSymbolInfo = reinterpret_cast<SYMBOL_INFOW*>( symbolInfoBuffer );
+    auto* pSymbolInfo = reinterpret_cast<SYMBOL_INFOW*>( symbolInfoBuffer );
     pSymbolInfo->SizeOfStruct = sizeof( SYMBOL_INFOW );
     pSymbolInfo->MaxNameLen = MAX_SYM_NAME;
 
-    if ( !SymFromAddrW( hProcess, stackFramePtr, 0, pSymbolInfo ) )
+    if ( !SymFromAddrW( hProcess, stackFramePtr, nullptr, pSymbolInfo ) )
     {
         return fmt::format_to_n( buffer.data(), buffer.size(), L"(unknown)" );
     }
@@ -91,16 +91,16 @@ FmtResultIt PrintFileLine( HANDLE hProcess, DWORD64 stackFramePtr, nonstd::span<
 namespace smp
 {
 
-LONG WINAPI SehHandler_ConsoleStacktrace( EXCEPTION_POINTERS* pExp, DWORD dwExpCode )
+LONG WINAPI SehHandler_ConsoleStacktrace( EXCEPTION_POINTERS* pExp, DWORD )
 {
     constexpr size_t kDynamicBufferSize = 4096;
-    std::array<wchar_t, 256> localBuffer;
+    std::array<wchar_t, 256> localBuffer{};
     std::unique_ptr<wchar_t[]> dynamicBuffer( new ( std::nothrow ) wchar_t[kDynamicBufferSize] );
 
     auto stackTraceBuffer = [&localBuffer, &dynamicBuffer] {
         if ( dynamicBuffer )
         {
-            return nonstd::span<wchar_t>{ dynamicBuffer.get(), kDynamicBufferSize };
+            return nonstd::span{ dynamicBuffer.get(), kDynamicBufferSize };
         }
         else
         {
@@ -130,8 +130,8 @@ void GetStackTrace( nonstd::span<wchar_t> stackTrace,
         }
     };
 
-    const uint32_t maxRecurCount = static_cast<uint32_t>( smp_advconf::stacktrace_max_recursion.get() );
-    const uint32_t maxDepth = static_cast<uint32_t>( smp_advconf::stacktrace_max_depth.get() );
+    const auto maxRecurCount = static_cast<uint32_t>( smp_advconf::stacktrace_max_recursion.get() );
+    const auto maxDepth = static_cast<uint32_t>( smp_advconf::stacktrace_max_depth.get() );
 
     if ( !hThread )
     {
@@ -143,7 +143,7 @@ void GetStackTrace( nonstd::span<wchar_t> stackTrace,
     }
 
     SymSetOptions( SYMOPT_UNDNAME | SYMOPT_DEFERRED_LOADS | SYMOPT_FAIL_CRITICAL_ERRORS | SYMOPT_LOAD_LINES );
-    if ( !SymInitialize( hProcess, nullptr, true ) )
+    if ( !SymInitialize( hProcess, nullptr, TRUE ) )
     {
         auto fmtRet = fmt::format_to_n( curView.data(), curView.size(), "<failed to fetch backtrace>: SymInitialize" );
         curView = nonstd::span<wchar_t>{ fmtRet.out, curView.end() };
@@ -153,15 +153,15 @@ void GetStackTrace( nonstd::span<wchar_t> stackTrace,
 
     {
         std::array<wchar_t, 512> pathBuffer;
-        nonstd::span<wchar_t> path{ pathBuffer };
-        if ( !GetComponentPathNoExcept( path ) )
+        if ( nonstd::span<wchar_t> path{ pathBuffer };
+            !GetComponentPathNoExcept( path ) )
         {
             auto fmtRet = fmt::format_to_n( curView.data(), curView.size(), "<failed to fetch backtrace>: GetComponentPathNoExcept" );
             curView = nonstd::span<wchar_t>{ fmtRet.out, curView.end() };
             return;
         }
 
-        if ( !SymSetSearchPathW( hProcess, path.data() ) )
+        if ( !SymSetSearchPathW( hProcess, pathBuffer.data() ) )
         {
             auto fmtRet = fmt::format_to_n( curView.data(), curView.size(), "<failed to fetch backtrace>: SymSetSearchPath" );
             curView = nonstd::span<wchar_t>{ fmtRet.out, curView.end() };

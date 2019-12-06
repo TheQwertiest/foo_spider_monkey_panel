@@ -109,12 +109,13 @@ LRESULT js_panel_window_cui::on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM 
         {
         }
         break;
-
     case static_cast<UINT>( smp::MiscMessage::size_limit_changed ):
     {
         notify_size_limit_changed( wp );
         return 0;
     }
+    default:
+        break;
     }
 
     return t_parent::on_message( hwnd, msg, wp, lp );
@@ -125,7 +126,7 @@ bool js_panel_window_cui::have_config_popup() const
     return true;
 }
 
-bool js_panel_window_cui::is_available( const uie::window_host_ptr& p ) const
+bool js_panel_window_cui::is_available( const uie::window_host_ptr& ) const
 {
     return true;
 }
@@ -166,17 +167,17 @@ void js_panel_window_cui::get_name( pfc::string_base& out ) const
     out = SMP_NAME;
 }
 
-void js_panel_window_cui::on_bool_changed( t_size mask ) const
+void js_panel_window_cui::on_bool_changed( t_size ) const
 {
     // TODO: may be implemented one day
 }
 
-void js_panel_window_cui::on_colour_changed( t_size mask ) const
+void js_panel_window_cui::on_colour_changed( t_size ) const
 {
     message_manager::instance().post_msg( t_parent::GetHWND(), static_cast<UINT>( smp::PlayerMessage::ui_colours_changed ) );
 }
 
-void js_panel_window_cui::on_font_changed( t_size mask ) const
+void js_panel_window_cui::on_font_changed( t_size ) const
 {
     message_manager::instance().post_msg( t_parent::GetHWND(), static_cast<UINT>( smp::PlayerMessage::ui_font_changed ) );
 }

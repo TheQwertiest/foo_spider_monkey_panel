@@ -32,7 +32,7 @@ uint32_t JsGc::GetMaxHeap()
     return static_cast<uint32_t>( smp_advconf::gc_max_heap.get() );
 }
 
-uint64_t JsGc::GetTotalHeapUsageForGlobal( JSContext* cx, JS::HandleObject jsGlobal )
+uint64_t JsGc::GetTotalHeapUsageForGlobal( JSContext*, JS::HandleObject jsGlobal )
 {
     assert( jsGlobal );
 

@@ -491,7 +491,7 @@ std::optional<DISPID> ActiveXObject::GetDispId( const std::wstring& name, bool r
     }
 
     DISPID dispId;
-    wchar_t* cname = const_cast<wchar_t*>( name.c_str() );
+    auto* cname = const_cast<wchar_t*>( name.c_str() );
     HRESULT hresult = pDispatch_->GetIDsOfNames( IID_NULL, &cname, 1, LOCALE_USER_DEFAULT, &dispId );
     if ( FAILED( hresult ) )
     {
@@ -599,7 +599,7 @@ void ActiveXObject::Get( JS::CallArgs& callArgs )
     SmpException::ExpectTrue( pDispatch_, "Internal error: pDispatch_ is null" );
     SmpException::ExpectTrue( callArgs.length(), "Property name is missing" );
 
-    const std::wstring propName = convert::to_native::ToValue<std::wstring>( pJsCtx_, callArgs[0] );
+    const auto propName = convert::to_native::ToValue<std::wstring>( pJsCtx_, callArgs[0] );
 
     const auto dispRet = GetDispId( propName );
     SmpException::ExpectTrue( dispRet.has_value(), L"Invalid property name: {}", propName );
@@ -690,7 +690,7 @@ void ActiveXObject::Set( const JS::CallArgs& callArgs )
     SmpException::ExpectTrue( pDispatch_, "Internal error: pDispatch_ is null" );
     SmpException::ExpectTrue( callArgs.length(), "Property name is missing" );
 
-    const std::wstring propName = convert::to_native::ToValue<std::wstring>( pJsCtx_, callArgs[0] );
+    const auto propName = convert::to_native::ToValue<std::wstring>( pJsCtx_, callArgs[0] );
 
     const auto dispRet = GetDispId( propName );
     SmpException::ExpectTrue( dispRet.has_value(), L"Invalid property name: {}", propName );

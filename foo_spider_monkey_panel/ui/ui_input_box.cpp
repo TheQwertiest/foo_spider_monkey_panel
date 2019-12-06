@@ -11,7 +11,7 @@ CInputBox::CInputBox( const char* p_prompt, const char* p_caption, const char* p
 {
 }
 
-LRESULT CInputBox::OnInitDialog( HWND hwndFocus, LPARAM lParam )
+LRESULT CInputBox::OnInitDialog( HWND, LPARAM )
 {
     uSetWindowText( m_hWnd, m_caption.c_str() );
     uSendDlgItemMessageText( m_hWnd, IDC_INPUT_PROMPT, WM_SETTEXT, 0, m_prompt.c_str() );
@@ -25,7 +25,7 @@ LRESULT CInputBox::OnInitDialog( HWND hwndFocus, LPARAM lParam )
     return FALSE;
 }
 
-LRESULT CInputBox::OnCommand( UINT codeNotify, int id, HWND hwndCtl )
+LRESULT CInputBox::OnCommand( UINT, int id, HWND )
 {
     if ( id == IDOK || id == IDCANCEL )
     {

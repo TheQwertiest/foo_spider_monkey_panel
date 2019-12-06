@@ -97,7 +97,7 @@ JSScript* JsInternalGlobal::GetCachedScript( const std::filesystem::path& absolu
         }
     }();
 
-    if ( auto it = scriptDataMap.find( u8path.c_str() );
+    if ( auto it = scriptDataMap.find( u8path );
          scriptDataMap.cend() != it )
     {
         if ( it->second.writeTime == lastWriteTime )
@@ -106,7 +106,7 @@ JSScript* JsInternalGlobal::GetCachedScript( const std::filesystem::path& absolu
         }
     }
 
-    const std::wstring scriptCode = smp::file::ReadFileW( u8path.c_str(), CP_ACP, false );
+    const std::wstring scriptCode = smp::file::ReadFileW( u8path, CP_ACP, false );
     const auto filename = absolutePath.filename().u8string();
 
     JS::CompileOptions opts( pJsCtx_ );
@@ -119,7 +119,7 @@ JSScript* JsInternalGlobal::GetCachedScript( const std::filesystem::path& absolu
         throw smp::JsException();
     }
 
-    return scriptDataMap.insert_or_assign( u8path.c_str(), JsHashMap::ValueType{ parsedScript, lastWriteTime } ).first->second.script;
+    return scriptDataMap.insert_or_assign( u8path, JsHashMap::ValueType{ parsedScript, lastWriteTime } ).first->second.script;
 }
 
 } // namespace mozjs

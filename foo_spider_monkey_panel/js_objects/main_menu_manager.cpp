@@ -64,10 +64,6 @@ JsMainMenuManager::JsMainMenuManager( JSContext* cx )
 {
 }
 
-JsMainMenuManager::~JsMainMenuManager()
-{
-}
-
 std::unique_ptr<JsMainMenuManager>
 JsMainMenuManager::CreateNative( JSContext* cx )
 {

@@ -16,8 +16,8 @@ public:
     void Abort();
 
     // abort_callback
-    bool is_aborting() const override;
-    abort_callback_event get_abort_event() const override;
+    [[nodiscard]] bool is_aborting() const override;
+    [[nodiscard]] abort_callback_event get_abort_event() const override;
 
 private:
     abort_callback_impl abortImpl_;

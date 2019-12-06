@@ -5,7 +5,6 @@
 #include <set>
 
 
-class js_panel_window;
 class ActiveX;
 
 namespace mozjs
@@ -23,7 +22,8 @@ public:
 class GlobalHeapManager
 {
 public:
-    ~GlobalHeapManager();
+    /// @remark No need to cleanup JS here, since it must be performed manually beforehand anyway
+    ~GlobalHeapManager() = default;
     GlobalHeapManager(const GlobalHeapManager& ) = delete;
     GlobalHeapManager& operator=( const GlobalHeapManager& ) = delete;
 

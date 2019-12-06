@@ -7,7 +7,7 @@
 class JSObject;
 struct JSContext;
 
-namespace Gdi
+namespace Gdiplus
 {
 class Graphics;
 }
@@ -34,13 +34,13 @@ public:
     static const JsPrototypeId PrototypeId;
 
 public:
-    ~JsGdiGraphics();
+    ~JsGdiGraphics() override = default;
 
     static std::unique_ptr<JsGdiGraphics> CreateNative( JSContext* cx );
-    static size_t GetInternalSize();
+    [[nodiscard]] static size_t GetInternalSize();
 
 public:
-    Gdiplus::Graphics* GetGraphicsObject() const;
+    [[nodiscard]] Gdiplus::Graphics* GetGraphicsObject() const;
     void SetGraphicsObject( Gdiplus::Graphics* graphics );
 
 public:

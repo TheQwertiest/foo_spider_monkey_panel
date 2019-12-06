@@ -69,10 +69,6 @@ JsFbPlaylistRecycler::JsFbPlaylistRecycler( JSContext* cx )
 {
 }
 
-JsFbPlaylistRecycler::~JsFbPlaylistRecycler()
-{
-}
-
 std::unique_ptr<JsFbPlaylistRecycler>
 JsFbPlaylistRecycler::CreateNative( JSContext* cx )
 {

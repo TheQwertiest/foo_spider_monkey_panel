@@ -32,6 +32,7 @@ class JsContainer final
 
 public:
     JsContainer( smp::panel::js_panel_window& parentPanel );
+    JsContainer( const JsContainer& ) = delete;
     ~JsContainer();
 
 public:
@@ -82,8 +83,6 @@ public:
     void InvokeJsAsyncTask( JsAsyncTask& jsTask );
 
 private:
-    JsContainer( const JsContainer& ) = delete;
-
     void SetJsCtx( JSContext* cx );
 
     bool IsReadyForCallback() const;

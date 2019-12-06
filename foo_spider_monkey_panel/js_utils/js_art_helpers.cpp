@@ -136,7 +136,7 @@ void JsAlbumArtTask::SetData( std::unique_ptr<Gdiplus::Bitmap> image, const std:
     path_ = path;
 }
 
-bool JsAlbumArtTask::InvokeJsImpl( JSContext* cx, JS::HandleObject jsGlobal, JS::HandleValue jsPromiseValue )
+bool JsAlbumArtTask::InvokeJsImpl( JSContext* cx, JS::HandleObject, JS::HandleValue jsPromiseValue )
 {
     JS::RootedObject jsPromise( cx, &jsPromiseValue.toObject() );
 

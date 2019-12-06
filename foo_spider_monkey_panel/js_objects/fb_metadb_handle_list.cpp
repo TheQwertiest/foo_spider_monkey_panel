@@ -151,7 +151,7 @@ bool FbMetadbHandleListProxyHandler::get( JSContext* cx, JS::HandleObject proxy,
         auto pNativeTarget = static_cast<JsFbMetadbHandleList*>( JS_GetPrivate( target ) );
         assert( pNativeTarget );
 
-        uint32_t index = static_cast<uint32_t>( JSID_TO_INT( id ) );
+        const auto index = static_cast<uint32_t>( JSID_TO_INT( id ) );
         try
         {
             vp.setObjectOrNull( pNativeTarget->get_Item( index ) );
@@ -177,7 +177,7 @@ bool FbMetadbHandleListProxyHandler::set( JSContext* cx, JS::HandleObject proxy,
         auto pNativeTarget = static_cast<JsFbMetadbHandleList*>( JS_GetPrivate( target ) );
         assert( pNativeTarget );
 
-        uint32_t index = static_cast<uint32_t>( JSID_TO_INT( id ) );
+        const auto index = static_cast<uint32_t>( JSID_TO_INT( id ) );
 
         if ( !v.isObjectOrNull() )
         {
@@ -223,10 +223,6 @@ const js::BaseProxyHandler& JsFbMetadbHandleList::JsProxy = FbMetadbHandleListPr
 JsFbMetadbHandleList::JsFbMetadbHandleList( JSContext* cx, const metadb_handle_list& handles )
     : pJsCtx_( cx )
     , metadbHandleList_( handles )
-{
-}
-
-JsFbMetadbHandleList::~JsFbMetadbHandleList()
 {
 }
 
@@ -610,7 +606,7 @@ void JsFbMetadbHandleList::UpdateFileInfoFromJSON( const std::u8string& str )
     using json = nlohmann::json;
 
     const auto handleList = pfc_x::Make_Stl_CRef( metadbHandleList_ );
-    if ( !handleList.size() )
+    if ( handleList.empty() )
     { // Not an error
         return;
     }
@@ -633,7 +629,7 @@ void JsFbMetadbHandleList::UpdateFileInfoFromJSON( const std::u8string& str )
     {
         throw SmpException( "Invalid JSON info: mismatched with handle count" );
     }
-    if ( !isArray && !jsonObject.size() )
+    if ( !isArray && jsonObject.empty() )
     {
         throw SmpException( "Invalid JSON info: empty object" );
     }

@@ -66,10 +66,6 @@ JsDropSourceAction::JsDropSourceAction( JSContext* cx )
 {
 }
 
-JsDropSourceAction::~JsDropSourceAction()
-{
-}
-
 std::unique_ptr<mozjs::JsDropSourceAction>
 JsDropSourceAction::CreateNative( JSContext* cx )
 {

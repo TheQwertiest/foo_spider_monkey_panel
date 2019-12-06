@@ -70,10 +70,6 @@ JsContextMenuManager::JsContextMenuManager( JSContext* cx )
 {
 }
 
-JsContextMenuManager::~JsContextMenuManager()
-{
-}
-
 std::unique_ptr<mozjs::JsContextMenuManager>
 JsContextMenuManager::CreateNative( JSContext* cx )
 {

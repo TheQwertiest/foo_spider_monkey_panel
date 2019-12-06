@@ -107,11 +107,6 @@ const JsPrototypeId JsGdiGraphics::PrototypeId = JsPrototypeId::GdiGraphics;
 
 JsGdiGraphics::JsGdiGraphics( JSContext* cx )
     : pJsCtx_( cx )
-    , pGdi_( nullptr )
-{
-}
-
-JsGdiGraphics::~JsGdiGraphics()
 {
 }
 

@@ -102,13 +102,18 @@ public:
         case 4:
             out = "smp_rating";
             break;
+        default:
+            assert( false );
+            break;
         }
     }
     bool process_field( t_uint32 index, metadb_handle* handle, titleformat_text_out* out ) override
     {
         metadb_index_hash hash;
         if ( !g_client->hashHandle( handle, hash ) )
+        {
             return false;
+        }
 
         const fields tmp = get( hash );
 
@@ -118,7 +123,9 @@ public:
         {
             stats_t value = tmp.playcount;
             if ( !value )
+            {
                 return false;
+            }
             out->write_int( titleformat_inputtypes::meta, value );
             return true;
         }
@@ -126,7 +133,9 @@ public:
         {
             stats_t value = tmp.loved;
             if ( !value )
+            {
                 return false;
+            }
             out->write_int( titleformat_inputtypes::meta, value );
             return true;
         }
@@ -144,7 +153,9 @@ public:
         {
             const auto& value = tmp.last_played;
             if ( value.empty() )
+            {
                 return false;
+            }
             out->write( titleformat_inputtypes::meta, value.c_str(), value.length() );
             return true;
         }
@@ -152,7 +163,9 @@ public:
         {
             stats_t value = tmp.rating;
             if ( !value )
+            {
                 return false;
+            }
             out->write_int( titleformat_inputtypes::meta, value );
             return true;
         }
@@ -216,7 +229,7 @@ public:
         }
     }
 
-    bool is_our_tech_info( const char* p_name ) override
+    bool is_our_tech_info( const char* ) override
     {
         return false;
     }

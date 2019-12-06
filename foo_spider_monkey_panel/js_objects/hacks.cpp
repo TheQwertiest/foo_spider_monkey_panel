@@ -56,10 +56,6 @@ JsHacks::JsHacks( JSContext* cx )
 {
 }
 
-JsHacks::~JsHacks()
-{  
-}
-
 std::unique_ptr<JsHacks> 
 JsHacks::CreateNative( JSContext* cx )
 {

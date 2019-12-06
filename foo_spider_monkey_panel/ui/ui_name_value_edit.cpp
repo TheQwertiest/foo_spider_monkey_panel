@@ -10,7 +10,7 @@ CNameValueEdit::CNameValueEdit( const char* p_name, const char* p_value )
 {
 }
 
-LRESULT CNameValueEdit::OnInitDialog( HWND hwndFocus, LPARAM lParam )
+LRESULT CNameValueEdit::OnInitDialog( HWND, LPARAM )
 {
     uSendDlgItemMessageText( m_hWnd, IDC_EDIT_NAME, WM_SETTEXT, 0, m_name.c_str() );
     uSendDlgItemMessageText( m_hWnd, IDC_EDIT_VALUE, WM_SETTEXT, 0, m_value.c_str() );
@@ -22,7 +22,7 @@ LRESULT CNameValueEdit::OnInitDialog( HWND hwndFocus, LPARAM lParam )
     return FALSE;
 }
 
-LRESULT CNameValueEdit::OnCommand( UINT codeNotify, int id, HWND hwndCtl )
+LRESULT CNameValueEdit::OnCommand( UINT, int id, HWND )
 {
     if ( id == IDOK || id == IDCANCEL )
     {

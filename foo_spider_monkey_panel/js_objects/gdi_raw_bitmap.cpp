@@ -73,10 +73,6 @@ JsGdiRawBitmap::JsGdiRawBitmap( JSContext* cx,
 {
 }
 
-JsGdiRawBitmap::~JsGdiRawBitmap()
-{
-}
-
 std::unique_ptr<JsGdiRawBitmap>
 JsGdiRawBitmap::CreateNative( JSContext* cx, Gdiplus::Bitmap* pBmp )
 {

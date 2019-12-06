@@ -23,7 +23,7 @@ CDialogProperty::CDialogProperty( smp::panel::js_panel_window* p_parent )
 {
 }
 
-LRESULT CDialogProperty::OnInitDialog( HWND hwndFocus, LPARAM lParam )
+LRESULT CDialogProperty::OnInitDialog( HWND, LPARAM )
 {
     DlgResize_Init();
 
@@ -37,26 +37,26 @@ LRESULT CDialogProperty::OnInitDialog( HWND hwndFocus, LPARAM lParam )
     return TRUE; // set focus to default control
 }
 
-LRESULT CDialogProperty::OnCloseCmd( WORD wNotifyCode, WORD wID, HWND hWndCtl )
+LRESULT CDialogProperty::OnCloseCmd( WORD, WORD wID, HWND )
 {
     switch ( wID )
     {
-    case IDOK:
-        Apply();
-        break;
-
     case IDAPPLY:
         Apply();
         return 0;
+    case IDOK:
+        Apply();
+        EndDialog( wID );
+        return 0;
+    default:
+        EndDialog( wID );
+        return 0;
     }
-
-    EndDialog( wID );
-    return 0;
 }
 
 LRESULT CDialogProperty::OnPinItemChanged( LPNMHDR pnmh )
 {
-    LPNMPROPERTYITEM pnpi = (LPNMPROPERTYITEM)pnmh;
+    auto pnpi = (LPNMPROPERTYITEM)pnmh;
 
     auto& localPropertyValues = localProperties_.values;
     if ( auto it = localPropertyValues.find( pnpi->prop->GetName() );
@@ -108,7 +108,7 @@ LRESULT CDialogProperty::OnPinItemChanged( LPNMHDR pnmh )
     return 0;
 }
 
-LRESULT CDialogProperty::OnClearallBnClicked( WORD wNotifyCode, WORD wID, HWND hWndCtl )
+LRESULT CDialogProperty::OnClearallBnClicked( WORD, WORD, HWND )
 {
     localProperties_.values.clear();
     propertyListCtrl_.ResetContent();
@@ -182,7 +182,7 @@ void CDialogProperty::LoadProperties( bool reload )
     }
 }
 
-LRESULT CDialogProperty::OnDelBnClicked( WORD wNotifyCode, WORD wID, HWND hWndCtl )
+LRESULT CDialogProperty::OnDelBnClicked( WORD, WORD, HWND )
 {
     if ( int idx = propertyListCtrl_.GetCurSel();
          idx )
@@ -197,7 +197,7 @@ LRESULT CDialogProperty::OnDelBnClicked( WORD wNotifyCode, WORD wID, HWND hWndCt
     return 0;
 }
 
-LRESULT CDialogProperty::OnImportBnClicked( WORD wNotifyCode, WORD wID, HWND hWndCtl )
+LRESULT CDialogProperty::OnImportBnClicked( WORD, WORD, HWND )
 {
     constexpr COMDLG_FILTERSPEC k_DialogImportExtFilter[2] = {
         { L"Property files", L"*.json;*.smp;*.wsp" },
@@ -249,7 +249,7 @@ LRESULT CDialogProperty::OnImportBnClicked( WORD wNotifyCode, WORD wID, HWND hWn
     return 0;
 }
 
-LRESULT CDialogProperty::OnExportBnClicked( WORD wNotifyCode, WORD wID, HWND hWndCtl )
+LRESULT CDialogProperty::OnExportBnClicked( WORD, WORD, HWND )
 {
     constexpr COMDLG_FILTERSPEC k_DialogExportExtFilter[2] = {
         { L"Property files", L"*.json" },

@@ -32,7 +32,7 @@ void HookHandler::MaybeRegisterGlobalHook()
 {
     if ( !hHook_ )
     {
-        hHook_ = ::SetWindowsHookEx( WH_GETMESSAGE, GetMsgProc, NULL, ::GetCurrentThreadId() );
+        hHook_ = ::SetWindowsHookEx( WH_GETMESSAGE, GetMsgProc, nullptr, ::GetCurrentThreadId() );
         smp::error::CheckWinApi( hHook_, "SetWindowsHookEx" );
     }
 }

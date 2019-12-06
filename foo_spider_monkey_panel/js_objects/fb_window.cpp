@@ -76,10 +76,6 @@ JsFbWindow::JsFbWindow( JSContext* cx, HWND hFbWnd )
 {
 }
 
-JsFbWindow::~JsFbWindow()
-{
-}
-
 std::unique_ptr<JsFbWindow>
 JsFbWindow::CreateNative( JSContext* cx )
 {

@@ -64,10 +64,6 @@ JsFbUiSelectionHolder::JsFbUiSelectionHolder( JSContext* cx, const ui_selection_
 {
 }
 
-JsFbUiSelectionHolder::~JsFbUiSelectionHolder()
-{
-}
-
 std::unique_ptr<JsFbUiSelectionHolder>
 JsFbUiSelectionHolder::CreateNative( JSContext* cx, const ui_selection_holder::ptr& holder )
 {

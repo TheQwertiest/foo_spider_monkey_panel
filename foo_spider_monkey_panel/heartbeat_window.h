@@ -13,7 +13,7 @@ public:
     /// @throw smp::SmpException
     static std::unique_ptr<HeartbeatWindow> Create();
 
-    HWND GetHwnd() const;
+    [[nodiscard]] HWND GetHwnd() const;
 
 private:
     HeartbeatWindow( HWND hWnd );

@@ -46,7 +46,7 @@ void ReportException( const std::u8string& errorText )
         return text;
     }();
 
-    smp::utils::ReportErrorWithPopup( errorTextPadded.c_str() );
+    smp::utils::ReportErrorWithPopup( errorTextPadded );
 }
 
 } // namespace
@@ -77,7 +77,7 @@ void JsEngine::PrepareForExit()
 
 bool JsEngine::RegisterContainer( JsContainer& jsContainer )
 {
-    if ( !registeredContainers_.size() && !Initialize() )
+    if ( registeredContainers_.empty() && !Initialize() )
     {
         return false;
     }
@@ -103,7 +103,7 @@ void JsEngine::UnregisterContainer( JsContainer& jsContainer )
         registeredContainers_.erase( it );
     }
 
-    if ( !registeredContainers_.size() )
+    if ( registeredContainers_.empty() )
     {
         Finalize();
     }
@@ -224,7 +224,7 @@ bool JsEngine::Initialize()
 
     try
     {
-        autoJsCtx.reset( JS_NewContext( jsGc_.GetMaxHeap() ) );
+        autoJsCtx.reset( JS_NewContext( JsGc::GetMaxHeap() ) );
         SmpException::ExpectTrue( autoJsCtx.get(), "JS_NewContext failed" );
 
         JSContext* cx = autoJsCtx.get();
@@ -340,7 +340,7 @@ bool JsEngine::OnInterrupt()
     return jsMonitor_.OnInterrupt();
 }
 
-void JsEngine::RejectedPromiseHandler( JSContext* cx, JS::HandleObject promise, JS::PromiseRejectionHandlingState state, void* data )
+void JsEngine::RejectedPromiseHandler( JSContext*, JS::HandleObject promise, JS::PromiseRejectionHandlingState state, void* data )
 {
     JsEngine& self = *reinterpret_cast<JsEngine*>( data );
 
@@ -374,7 +374,7 @@ void JsEngine::ReportOomError()
             continue;
         }
 
-        jsContainerRef.Fail( fmt::format( "Out of memory: {}/{} bytes", jsContainerRef.pNativeCompartment_->GetCurrentHeapBytes(), jsGc_.GetMaxHeap() ).c_str() );
+        jsContainerRef.Fail( fmt::format( "Out of memory: {}/{} bytes", jsContainerRef.pNativeCompartment_->GetCurrentHeapBytes(), jsGc_.GetMaxHeap() ) );
     }
 }
 

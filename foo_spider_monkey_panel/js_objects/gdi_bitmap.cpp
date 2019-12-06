@@ -102,8 +102,8 @@ std::unique_ptr<Gdiplus::Bitmap> CreateDownsizedImage( Gdiplus::Bitmap& srcImg, 
         if ( srcImg.GetWidth() * srcImg.GetHeight() > maxPixelCount )
         {
             const double ratio = (double)srcImg.GetWidth() / srcImg.GetHeight();
-            const uint32_t imgHeight = static_cast<uint32_t>( std::round( std::sqrt( maxPixelCount / ratio ) ) );
-            const uint32_t imgWidth = static_cast<uint32_t>( std::round( imgHeight * ratio ) );
+            const auto imgHeight = static_cast<uint32_t>( std::round( std::sqrt( maxPixelCount / ratio ) ) );
+            const auto imgWidth = static_cast<uint32_t>( std::round( imgHeight * ratio ) );
 
             return std::make_tuple( imgWidth, imgHeight );
         }
@@ -141,10 +141,6 @@ const JSNative JsGdiBitmap::JsConstructor = ::GdiBitmap_Constructor;
 JsGdiBitmap::JsGdiBitmap( JSContext* cx, std::unique_ptr<Gdiplus::Bitmap> gdiBitmap )
     : pJsCtx_( cx )
     , pGdi_( std::move( gdiBitmap ) )
-{
-}
-
-JsGdiBitmap::~JsGdiBitmap()
 {
 }
 
@@ -420,7 +416,7 @@ JSObject* JsGdiBitmap::GetGraphics()
 
     JS::RootedObject jsObject( pJsCtx_, JsGdiGraphics::CreateJs( pJsCtx_ ) );
 
-    JsGdiGraphics* pNativeObject = GetInnerInstancePrivate<JsGdiGraphics>( pJsCtx_, jsObject );
+    auto* pNativeObject = GetInnerInstancePrivate<JsGdiGraphics>( pJsCtx_, jsObject );
     SmpException::ExpectTrue( pNativeObject, "Internal error: failed to get JsGdiGraphics object" );
 
     pNativeObject->SetGraphicsObject( g.release() );
@@ -437,10 +433,7 @@ void JsGdiBitmap::ReleaseGraphics( JsGdiGraphics* graphics )
 
     auto pGdiGraphics = graphics->GetGraphicsObject();
     graphics->SetGraphicsObject( nullptr );
-    if ( pGdiGraphics )
-    {
-        delete pGdiGraphics;
-    }
+    delete pGdiGraphics;
 }
 
 JSObject* JsGdiBitmap::Resize( uint32_t w, uint32_t h, uint32_t interpolationMode )
@@ -489,8 +482,7 @@ bool JsGdiBitmap::SaveAs( const std::wstring& path, const std::wstring& format )
         }
 
         std::vector<uint8_t> imageCodeInfoBuf( size );
-        Gdiplus::ImageCodecInfo* pImageCodecInfo =
-            reinterpret_cast<Gdiplus::ImageCodecInfo*>( imageCodeInfoBuf.data() );
+        auto* pImageCodecInfo = reinterpret_cast<Gdiplus::ImageCodecInfo*>( imageCodeInfoBuf.data() );
 
         status = Gdiplus::GetImageEncoders( num, size, pImageCodecInfo );
         if ( status != Gdiplus::Ok )

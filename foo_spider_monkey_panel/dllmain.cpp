@@ -145,7 +145,7 @@ private:
             errorText += fmt::format( "{}: error code: {:#x}\r\n", failure.description, failure.errorCode );
         }
 
-        smp::utils::ReportErrorWithPopup( errorText.c_str() );
+        smp::utils::ReportErrorWithPopup( errorText );
     }
 };
 
@@ -167,6 +167,8 @@ extern "C" BOOL WINAPI DllMain( HINSTANCE ins, DWORD reason, [[maybe_unused]] LP
         FinalizeSubsystems();
         break;
     }
+    default:
+        break;
     }
 
     return TRUE;

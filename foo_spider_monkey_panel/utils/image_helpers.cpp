@@ -26,7 +26,7 @@ public:
 
     void operator()();
 
-    uint32_t GetTaskId() const;
+    [[nodiscard]] uint32_t GetTaskId() const;
 
 private:
     void run();

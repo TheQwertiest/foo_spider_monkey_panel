@@ -33,7 +33,7 @@ public:
 
 public:
     // ui_helpers::container_window
-    class_data& get_class_data() const override;
+    [[nodiscard]] class_data& get_class_data() const override;
 
     void update_script( const char* code = nullptr );
     void JsEngineFail( const std::u8string& errorText );
@@ -61,20 +61,20 @@ private:
     std::optional<LRESULT> process_internal_async_messages( InternalAsyncMessage msg, WPARAM wp, LPARAM lp );
 
 public:
-    GUID GetGUID();
-    HDC GetHDC() const;
-    HWND GetHWND() const;
-    POINT& MaxSize();
-    POINT& MinSize();
-    int GetHeight() const;
-    int GetWidth() const;
-    PanelTooltipParam& GetPanelTooltipParam();
-    PanelInfo& ScriptInfo();
+    [[nodiscard]] GUID GetGUID();
+    [[nodiscard]] HDC GetHDC() const;
+    [[nodiscard]] HWND GetHWND() const;
+    [[nodiscard]] POINT& MaxSize();
+    [[nodiscard]] POINT& MinSize();
+    [[nodiscard]] int GetHeight() const;
+    [[nodiscard]] int GetWidth() const;
+    [[nodiscard]] PanelTooltipParam& GetPanelTooltipParam();
+    [[nodiscard]] PanelInfo& ScriptInfo();
 
-    t_size& DlgCode();
-    PanelType GetPanelType() const;
-    virtual DWORD GetColour( unsigned type, const GUID& guid = pfc::guid_null ) = 0;
-    virtual HFONT GetFont( unsigned type, const GUID& guid = pfc::guid_null ) = 0;
+    [[nodiscard]] t_size& DlgCode();
+    [[nodiscard]] PanelType GetPanelType() const;
+    virtual DWORD GetColour( unsigned type, const GUID& guid ) = 0;
+    virtual HFONT GetFont( unsigned type, const GUID& guid ) = 0;
 
     void Repaint( bool force = false );
     void RepaintRect( LONG x, LONG y, LONG w, LONG h, bool force = false );
@@ -82,8 +82,8 @@ public:
     /// @details Calls Repaint inside
     void RepaintBackground( LPRECT lprcUpdate = nullptr );
 
-    config::PanelSettings& GetSettings();
-    const config::PanelSettings& GetSettings() const;
+    [[nodiscard]] config::PanelSettings& GetSettings();
+    [[nodiscard]] const config::PanelSettings& GetSettings() const;
 
 private:
     const PanelType panelType_;

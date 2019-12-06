@@ -34,17 +34,17 @@ std::u8string ReadString( stream_reader& stream, abort_callback& abort )
 std::u8string ReadRawString( stream_reader& stream, abort_callback& abort )
 { // ripped from `stream_reader::read_string_raw`
     constexpr size_t maxBufferSize = 256;
-    char buffer[maxBufferSize];
+    std::array<char, maxBufferSize> buffer;
     std::u8string value;
 
     bool hasMoreData = true;
     do
     {
-        const size_t dataRead = stream.read( buffer, sizeof( buffer ), abort );
+        const size_t dataRead = stream.read( buffer.data(), buffer.size(), abort );
         hasMoreData = ( dataRead == maxBufferSize );
         if ( dataRead )
         {
-            value.append( buffer, dataRead );
+            value.append( buffer.data(), dataRead );
         }
     } while ( hasMoreData );
 

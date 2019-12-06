@@ -7,7 +7,6 @@
 #include <functional>
 #include <mutex>
 
-class js_panel_window;
 struct JSContext;
 
 namespace smp

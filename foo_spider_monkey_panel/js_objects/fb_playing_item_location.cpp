@@ -64,10 +64,6 @@ JsFbPlayingItemLocation::JsFbPlayingItemLocation( JSContext* cx, bool isValid, u
 {
 }
 
-JsFbPlayingItemLocation::~JsFbPlayingItemLocation()
-{
-}
-
 std::unique_ptr<JsFbPlayingItemLocation>
 JsFbPlayingItemLocation::CreateNative( JSContext* cx, bool isValid, uint32_t playlistIndex, uint32_t playlistItemIndex )
 {

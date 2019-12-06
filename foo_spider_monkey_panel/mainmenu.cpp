@@ -77,7 +77,7 @@ GUID my_mainmenu_commands::get_parent()
 {
     return smp::guid::mainmenu_group;
 }
-void my_mainmenu_commands::execute( t_uint32 p_index, service_ptr_t<service_base> p_callback )
+void my_mainmenu_commands::execute( t_uint32 p_index, service_ptr_t<service_base> )
 {
     panel::message_manager::instance().post_msg_to_all( static_cast<UINT>( InternalAsyncMessage::main_menu_item ), p_index + 1 );
 }

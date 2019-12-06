@@ -63,10 +63,6 @@ JsFbPlaybackQueueItem::JsFbPlaybackQueueItem( JSContext* cx, const t_playback_qu
 {
 }
 
-JsFbPlaybackQueueItem::~JsFbPlaybackQueueItem()
-{
-}
-
 std::unique_ptr<JsFbPlaybackQueueItem>
 JsFbPlaybackQueueItem::CreateNative( JSContext* cx, const t_playback_queue_item& playbackQueueItem )
 {

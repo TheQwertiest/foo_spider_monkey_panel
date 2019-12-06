@@ -68,9 +68,9 @@ CCustomFindReplaceDlg::CCustomFindReplaceDlg( bool useRegExp )
 {
 }
 
-LRESULT CCustomFindReplaceDlg::OnInitDialog( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled )
+LRESULT CCustomFindReplaceDlg::OnInitDialog( UINT, WPARAM, LPARAM, BOOL& bHandled )
 {
-    bHandled = false; ///< don't suppress base class methods
+    bHandled = FALSE; ///< don't suppress base class methods
     uButton_SetCheck( m_hWnd, IDC_CHECK_USE_REGEXP, useRegExp_ );
 
     hookId_ = smp::utils::HookHandler::GetInstance().RegisterHook(
@@ -81,9 +81,9 @@ LRESULT CCustomFindReplaceDlg::OnInitDialog( UINT uMsg, WPARAM wParam, LPARAM lP
     return 0;
 }
 
-LRESULT CCustomFindReplaceDlg::OnDestroy( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled )
+LRESULT CCustomFindReplaceDlg::OnDestroy( UINT, WPARAM, LPARAM, BOOL& bHandled )
 {
-    bHandled = false; ///< don't suppress base class methods
+    bHandled = FALSE; ///< don't suppress base class methods
     if ( hookId_ )
     {
         smp::utils::HookHandler::GetInstance().UnregisterHook( hookId_ );
@@ -92,9 +92,9 @@ LRESULT CCustomFindReplaceDlg::OnDestroy( UINT uMsg, WPARAM wParam, LPARAM lPara
     return 0;
 }
 
-LRESULT CCustomFindReplaceDlg::OnActivate( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled )
+LRESULT CCustomFindReplaceDlg::OnActivate( UINT, WPARAM wParam, LPARAM, BOOL& bHandled )
 {
-    bHandled = false; ///< don't suppress base class methods
+    bHandled = FALSE; ///< don't suppress base class methods
 
     if ( LOWORD( wParam ) == WA_INACTIVE && IsWindowVisible() )
     {
@@ -109,21 +109,21 @@ LRESULT CCustomFindReplaceDlg::OnActivate( UINT uMsg, WPARAM wParam, LPARAM lPar
     return 0;
 }
 
-LRESULT CCustomFindReplaceDlg::OnWrapAroundClick( WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL bHandled )
+LRESULT CCustomFindReplaceDlg::OnWrapAroundClick( WORD, WORD wID, HWND, BOOL )
 {
     wrapAroundSearch_ = uButton_GetCheck( m_hWnd, wID );
     return 0;
 }
 
-LRESULT CCustomFindReplaceDlg::OnUseRegExpClick( WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL bHandled )
+LRESULT CCustomFindReplaceDlg::OnUseRegExpClick( WORD, WORD wID, HWND, BOOL )
 {
     useRegExp_ = uButton_GetCheck( m_hWnd, wID );
     return 0;
 }
 
-void CCustomFindReplaceDlg::GetMsgProc( int code, WPARAM wParam, LPARAM lParam, HWND hParent )
+void CCustomFindReplaceDlg::GetMsgProc( int, WPARAM, LPARAM lParam, HWND hParent )
 {
-    if ( LPMSG pMsg = reinterpret_cast<LPMSG>( lParam );
+    if ( auto pMsg = reinterpret_cast<LPMSG>( lParam );
          pMsg->message >= WM_KEYFIRST && pMsg->message <= WM_KEYLAST )
     { // Only react to keypress events
         HWND hWndFocus = ::GetFocus();
