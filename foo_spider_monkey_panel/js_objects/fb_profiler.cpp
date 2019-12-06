@@ -70,10 +70,6 @@ JsFbProfiler::JsFbProfiler( JSContext* cx, const std::u8string& name )
     timer_.start();
 }
 
-JsFbProfiler::~JsFbProfiler()
-{
-}
-
 std::unique_ptr<JsFbProfiler>
 JsFbProfiler::CreateNative( JSContext* cx, const std::u8string& name )
 {
@@ -97,7 +93,7 @@ JSObject* JsFbProfiler::ConstructorWithOpt( JSContext* cx, size_t optArgCount, c
     case 0:
         return Constructor( cx, name );
     case 1:
-        return Constructor( cx, name );
+        return Constructor( cx );
     default:
         throw SmpException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
     }

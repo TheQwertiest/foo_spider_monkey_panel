@@ -35,13 +35,13 @@ public:
     static const JSNative JsConstructor;
 
 public:
-    ~JsGdiBitmap();
+    ~JsGdiBitmap() override = default;
 
     static std::unique_ptr<JsGdiBitmap> CreateNative( JSContext* cx, std::unique_ptr<Gdiplus::Bitmap> gdiBitmap );
-    static size_t GetInternalSize( const std::unique_ptr<Gdiplus::Bitmap>& gdiBitmap );
+    [[nodiscard]] static size_t GetInternalSize( const std::unique_ptr<Gdiplus::Bitmap>& gdiBitmap );
 
 public:
-    Gdiplus::Bitmap* GdiBitmap() const;
+    [[nodiscard]] Gdiplus::Bitmap* GdiBitmap() const;
 
 public: // ctor
     static JSObject* Constructor( JSContext* cx, JsGdiBitmap* other );
@@ -71,7 +71,7 @@ private:
 
 private:
     JSContext* pJsCtx_ = nullptr;
-    ;
+
     std::unique_ptr<Gdiplus::Bitmap> pGdi_;
 };
 

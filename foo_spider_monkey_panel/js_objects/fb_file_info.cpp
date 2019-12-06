@@ -78,10 +78,6 @@ JsFbFileInfo::JsFbFileInfo( JSContext* cx, metadb_info_container::ptr containerI
 {
 }
 
-JsFbFileInfo::~JsFbFileInfo()
-{
-}
-
 std::unique_ptr<mozjs::JsFbFileInfo>
 JsFbFileInfo::CreateNative( JSContext* cx, metadb_info_container::ptr containerInfo )
 {

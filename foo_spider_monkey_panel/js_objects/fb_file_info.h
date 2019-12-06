@@ -26,7 +26,7 @@ public:
     static const JsPrototypeId PrototypeId;
 
 public:
-    ~JsFbFileInfo();
+    ~JsFbFileInfo() override = default;
 
     static std::unique_ptr<JsFbFileInfo> CreateNative( JSContext* cx, metadb_info_container::ptr containerInfo );
     static size_t GetInternalSize( const metadb_info_container::ptr& containerInfo );

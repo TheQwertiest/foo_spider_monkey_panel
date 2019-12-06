@@ -27,7 +27,7 @@ public:
     static const JsPrototypeId PrototypeId;
 
 public:
-    ~JsDropSourceAction();
+    ~JsDropSourceAction() override = default;
 
     static std::unique_ptr<JsDropSourceAction> CreateNative( JSContext* cx );
     static size_t GetInternalSize();

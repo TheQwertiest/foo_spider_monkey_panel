@@ -13,7 +13,7 @@ CDialogSlowScript::CDialogSlowScript( const std::u8string& panelName, const std:
 {
 }
 
-LRESULT CDialogSlowScript::OnInitDialog( HWND hwndFocus, LPARAM lParam )
+LRESULT CDialogSlowScript::OnInitDialog( HWND, LPARAM )
 {
     (void)CenterWindow();
 
@@ -45,14 +45,14 @@ LRESULT CDialogSlowScript::OnInitDialog( HWND hwndFocus, LPARAM lParam )
     return FALSE; // set focus to default control
 }
 
-LRESULT CDialogSlowScript::OnContinueScript( WORD wNotifyCode, WORD wID, HWND hWndCtl )
+LRESULT CDialogSlowScript::OnContinueScript( WORD, WORD, HWND )
 {
     data_.stop = false;
     EndDialog( IDOK );
     return 0;
 }
 
-LRESULT CDialogSlowScript::OnStopScript( WORD wNotifyCode, WORD wID, HWND hWndCtl )
+LRESULT CDialogSlowScript::OnStopScript( WORD, WORD, HWND )
 {
     data_.stop = true;
     data_.askAgain = true;
@@ -60,13 +60,13 @@ LRESULT CDialogSlowScript::OnStopScript( WORD wNotifyCode, WORD wID, HWND hWndCt
     return 0;
 }
 
-LRESULT CDialogSlowScript::OnDontAskClick( WORD wNotifyCode, WORD wID, HWND hWndCtl )
+LRESULT CDialogSlowScript::OnDontAskClick( WORD, WORD wID, HWND hWndCtl )
 {
     data_.askAgain = uButton_GetCheck( hWndCtl, wID );
     return 0;
 }
 
-LRESULT CDialogSlowScript::OnCloseCmd( WORD wNotifyCode, WORD wID, HWND hWndCtl )
+LRESULT CDialogSlowScript::OnCloseCmd( WORD, WORD wID, HWND )
 {
     if ( wID == IDCANCEL )
     {

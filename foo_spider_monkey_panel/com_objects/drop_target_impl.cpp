@@ -35,9 +35,13 @@ HRESULT IDropTargetImpl::RevokeDragDrop()
 STDMETHODIMP IDropTargetImpl::DragEnter( IDataObject* pDataObj, DWORD grfKeyState, POINTL pt, DWORD* pdwEffect )
 {
     if ( !pDataObj )
+    {
         return E_FAIL;
+    }
     if ( !pdwEffect )
+    {
         return E_POINTER;
+    }
 
     POINT point{ pt.x, pt.y };
     m_dropTargetHelper->DragEnter( m_hWnd, pDataObj, &point, *pdwEffect );
@@ -48,7 +52,9 @@ STDMETHODIMP IDropTargetImpl::DragEnter( IDataObject* pDataObj, DWORD grfKeyStat
 STDMETHODIMP IDropTargetImpl::DragOver( DWORD grfKeyState, POINTL pt, DWORD* pdwEffect )
 {
     if ( !pdwEffect )
+    {
         return E_POINTER;
+    }
 
     POINT point{ pt.x, pt.y };
     m_dropTargetHelper->DragOver( &point, *pdwEffect );
@@ -66,9 +72,13 @@ STDMETHODIMP IDropTargetImpl::DragLeave()
 STDMETHODIMP IDropTargetImpl::Drop( IDataObject* pDataObj, DWORD grfKeyState, POINTL pt, DWORD* pdwEffect )
 {
     if ( !pDataObj )
+    {
         return E_FAIL;
+    }
     if ( !pdwEffect )
+    {
         return E_POINTER;
+    }
 
     POINT point{ pt.x, pt.y };
     m_dropTargetHelper->Drop( pDataObj, &point, *pdwEffect );

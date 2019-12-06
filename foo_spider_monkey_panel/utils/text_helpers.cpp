@@ -26,7 +26,7 @@ enum class CodePage : UINT
     Utf8 = CP_UTF8,
 };
 
-UINT FilterEncodings( nonstd::span<const DetectEncodingInfo> encodings, std::string_view text )
+UINT FilterEncodings( nonstd::span<const DetectEncodingInfo> encodings )
 {
     assert( !encodings.empty() );
 
@@ -52,23 +52,31 @@ UINT FilterEncodings( nonstd::span<const DetectEncodingInfo> encodings, std::str
     }
 }
 
-int is_wrap_char( wchar_t current, wchar_t next )
+bool is_wrap_char( wchar_t current, wchar_t next )
 {
     if ( std::iswpunct( current ) )
+    {
         return false;
+    }
 
     if ( next == '\0' )
+    {
         return true;
+    }
 
     if ( std::iswspace( current ) )
+    {
         return true;
+    }
 
     bool currentAlphaNum = !!std::iswalnum( current );
 
     if ( currentAlphaNum )
     {
         if ( std::iswpunct( next ) )
+        {
             return false;
+        }
     }
 
     return !currentAlphaNum || !std::iswalnum( next );
@@ -76,9 +84,7 @@ int is_wrap_char( wchar_t current, wchar_t next )
 
 void estimate_line_wrap_recur( HDC hdc, std::wstring_view text, size_t width, std::vector<wrapped_item>& out )
 {
-    size_t textLength = text.size();
-    size_t textWidth = get_text_width( hdc, text );
-
+    const size_t textWidth = get_text_width( hdc, text );
     if ( textWidth <= width || text.size() <= 1 )
     {
         out.emplace_back(
@@ -88,7 +94,7 @@ void estimate_line_wrap_recur( HDC hdc, std::wstring_view text, size_t width, st
     }
     else
     {
-        textLength = ( text.size() * width ) / textWidth;
+        size_t textLength = ( text.size() * width ) / textWidth;
 
         if ( get_text_width( hdc, text.substr( 0, textLength ) ) < width )
         {
@@ -158,7 +164,7 @@ std::optional<UINT> DetectCharSet( std::string_view text )
         return std::nullopt;
     }
 
-    return FilterEncodings( nonstd::span<const DetectEncodingInfo>( encodings, encodingCount ), text );
+    return FilterEncodings( nonstd::span<const DetectEncodingInfo>( encodings, encodingCount ) );
 }
 
 size_t get_text_height( HDC hdc, std::wstring_view text )

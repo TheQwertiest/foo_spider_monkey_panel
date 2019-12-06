@@ -169,7 +169,7 @@ JsWindow::CreateNative( JSContext* cx, smp::panel::js_panel_window& parentPanel 
     return std::unique_ptr<JsWindow>( new JsWindow( cx, parentPanel, std::move( fbProperties ) ) );
 }
 
-size_t JsWindow::GetInternalSize( const smp::panel::js_panel_window& parentPanel )
+size_t JsWindow::GetInternalSize( const smp::panel::js_panel_window& )
 {
     return sizeof( FbProperties );
 }
@@ -359,7 +359,7 @@ uint32_t JsWindow::GetColourDUI( uint32_t type )
 
     SmpException::ExpectTrue( parentPanel_.GetPanelType() == panel::PanelType::DUI, "Can be called only in DUI" );
 
-    return parentPanel_.GetColour( type );
+    return parentPanel_.GetColour( type, pfc::guid_null );
 }
 
 JSObject* JsWindow::GetFontCUI( uint32_t type, const std::wstring& guidstr )
@@ -419,7 +419,7 @@ JSObject* JsWindow::GetFontDUI( uint32_t type )
 
     SmpException::ExpectTrue( parentPanel_.GetPanelType() == panel::PanelType::DUI, "Can be called only in DUI" );
 
-    HFONT hFont = parentPanel_.GetFont( type ); // No need to delete, it is managed by DUI
+    HFONT hFont = parentPanel_.GetFont( type, pfc::guid_null ); // No need to delete, it is managed by DUI
     if ( !hFont )
     { // Not an error: font not found
         return nullptr;
@@ -723,7 +723,7 @@ uint32_t JsWindow::get_MemoryLimit()
         return 0;
     }
 
-    return JsEngine::GetInstance().GetGcEngine().GetMaxHeap();
+    return JsGc::GetMaxHeap();
 }
 
 uint32_t JsWindow::get_MinHeight()
@@ -772,7 +772,7 @@ uint64_t JsWindow::get_PanelMemoryUsage()
     }
 
     JS::RootedObject jsGlobal( pJsCtx_, JS::CurrentGlobalOrNull( pJsCtx_ ) );
-    return JsEngine::GetInstance().GetGcEngine().GetTotalHeapUsageForGlobal( pJsCtx_, jsGlobal );
+    return JsGc::GetTotalHeapUsageForGlobal( pJsCtx_, jsGlobal );
 }
 
 uint64_t JsWindow::get_TotalMemoryUsage()

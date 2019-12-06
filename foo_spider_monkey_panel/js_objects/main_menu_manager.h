@@ -29,7 +29,7 @@ public:
     static const JsPrototypeId PrototypeId;
 
 public:
-    ~JsMainMenuManager();
+    ~JsMainMenuManager() override = default;
 
     static std::unique_ptr<JsMainMenuManager> CreateNative( JSContext* cx );
     static size_t GetInternalSize();

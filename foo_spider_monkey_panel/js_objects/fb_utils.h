@@ -29,7 +29,7 @@ public:
     static const JSPropertySpec* JsProperties;
 
 public:
-    ~JsFbUtils();
+    ~JsFbUtils() override = default;
 
     static std::unique_ptr<JsFbUtils> CreateNative( JSContext* cx );
     static size_t GetInternalSize();

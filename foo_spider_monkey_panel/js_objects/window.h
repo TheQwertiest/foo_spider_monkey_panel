@@ -36,7 +36,7 @@ public:
     static const JSPropertySpec* JsProperties;
 
 public:
-    ~JsWindow();
+    ~JsWindow() override;
 
     static std::unique_ptr<JsWindow> CreateNative( JSContext* cx, smp::panel::js_panel_window& parentPanel );
     static size_t GetInternalSize( const smp::panel::js_panel_window& parentPanel );

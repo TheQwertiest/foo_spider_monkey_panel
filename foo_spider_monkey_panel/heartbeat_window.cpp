@@ -32,7 +32,7 @@ std::unique_ptr<HeartbeatWindow> HeartbeatWindow::Create()
     ATOM atom = RegisterClassEx( &wx );
     smp::error::CheckWinApi( !!atom, "RegisterClassEx" );
 
-    HWND hWnd = CreateWindowEx( 0, MAKEINTATOM(atom), NULL, 0, 0, 0, 0, 0, HWND_MESSAGE, 0, 0, 0 );
+    HWND hWnd = CreateWindowEx( 0, MAKEINTATOM( atom ), nullptr, 0, 0, 0, 0, 0, HWND_MESSAGE, nullptr, nullptr, nullptr );
     smp::error::CheckWinApi( hWnd, "CreateWindowEx" );
 
     return std::unique_ptr<HeartbeatWindow>( new HeartbeatWindow( hWnd ) );

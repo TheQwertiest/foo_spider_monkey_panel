@@ -48,13 +48,13 @@ public:
     static const js::BaseProxyHandler& JsProxy;
 
 public:
-    ~JsFbMetadbHandleList();
+    ~JsFbMetadbHandleList() override = default;
 
     static std::unique_ptr<JsFbMetadbHandleList> CreateNative( JSContext* cx, const metadb_handle_list& handles );
-    static size_t GetInternalSize( const metadb_handle_list& handles );
+    [[nodiscard]] static size_t GetInternalSize( const metadb_handle_list& handles );
 
 public:
-    const metadb_handle_list& GetHandleList() const;
+    [[nodiscard]] const metadb_handle_list& GetHandleList() const;
 
 public: // ctor
     static JSObject* Constructor( JSContext* cx, JS::HandleValue jsValue = JS::UndefinedHandleValue );

@@ -69,10 +69,6 @@ JsFbTitleFormat::JsFbTitleFormat( JSContext* cx, const std::u8string& expr )
     titleformat_compiler::get()->compile_safe( titleFormatObject_, expr.c_str() );
 }
 
-JsFbTitleFormat::~JsFbTitleFormat()
-{
-}
-
 std::unique_ptr<JsFbTitleFormat>
 JsFbTitleFormat::CreateNative( JSContext* cx, const std::u8string& expr )
 {

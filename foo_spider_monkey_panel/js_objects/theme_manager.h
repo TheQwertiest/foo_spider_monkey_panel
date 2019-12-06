@@ -29,7 +29,7 @@ public:
     static const JsPrototypeId PrototypeId;
 
 public:
-    ~JsThemeManager();
+    ~JsThemeManager() override;
 
     static bool HasThemeData( HWND hwnd, const std::wstring& classId );
     static std::unique_ptr<JsThemeManager> CreateNative( JSContext* cx, HWND hwnd, const std::wstring& classId );

@@ -18,10 +18,10 @@ public:
     virtual ~IDropSourceImpl();
 
     // IDropSource
-    STDMETHODIMP QueryContinueDrag( BOOL fEscapePressed, DWORD grfKeyState );
-    STDMETHODIMP GiveFeedback( DWORD dwEffect );
-    ULONG STDMETHODCALLTYPE AddRef();
-    ULONG STDMETHODCALLTYPE Release();
+    STDMETHODIMP QueryContinueDrag( BOOL fEscapePressed, DWORD grfKeyState ) override;
+    STDMETHODIMP GiveFeedback( DWORD dwEffect ) override;
+    ULONG STDMETHODCALLTYPE AddRef() override;
+    ULONG STDMETHODCALLTYPE Release() override;
 
 private:
     IDragSourceHelperPtr pDragSourceHelper_;

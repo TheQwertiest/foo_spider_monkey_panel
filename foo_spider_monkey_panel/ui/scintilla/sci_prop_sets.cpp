@@ -71,7 +71,7 @@ void ScintillaCfg::get_data_raw( stream_writer* p_stream, abort_callback& p_abor
     }
 }
 
-void ScintillaCfg::set_data_raw( stream_reader* p_stream, t_size p_sizehint, abort_callback& p_abort )
+void ScintillaCfg::set_data_raw( stream_reader* p_stream, t_size, abort_callback& p_abort )
 {
     ScintillaPropValues data_map;
 

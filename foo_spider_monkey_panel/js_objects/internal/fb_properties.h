@@ -21,7 +21,7 @@ class FbProperties
 public:
     FbProperties( const FbProperties& ) = delete;
     FbProperties& operator=( const FbProperties& ) = delete;
-    ~FbProperties();
+    ~FbProperties() = default;
 
     static std::unique_ptr<FbProperties> Create( JSContext* cx, smp::panel::js_panel_window& parentPanel );
 

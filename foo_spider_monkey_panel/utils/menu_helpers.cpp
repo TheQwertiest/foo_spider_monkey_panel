@@ -146,7 +146,7 @@ std::u8string generate_mainmenu_command_path( const GuidMenuMap& group_guid_map,
     GUID group_guid = ptr->get_parent();
     while ( group_guid_map.count( group_guid ) )
     {
-        auto group_ptr = group_guid_map.at( group_guid );
+        const auto& group_ptr = group_guid_map.at( group_guid );
 
         if ( mainmenu_group_popup::ptr group_popup_ptr;
              group_ptr->service_query_t( group_popup_ptr ) )

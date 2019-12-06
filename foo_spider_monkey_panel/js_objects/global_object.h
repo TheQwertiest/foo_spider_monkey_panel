@@ -25,14 +25,15 @@ public:
     static const JSClass& JsClass;
 
 public:
-    ~JsGlobalObject();
+    // @remark No need to cleanup JS here, since it must be performed manually beforehand anyway
+    ~JsGlobalObject() = default;
 
     static JSObject* CreateNative( JSContext* cx, JsContainer& parentContainer, smp::panel::js_panel_window& parentPanel );
 
 public:
     void Fail( const std::u8string& errorText );
 
-    GlobalHeapManager& GetHeapManager() const;
+    [[nodiscard]] GlobalHeapManager& GetHeapManager() const;
 
     static void PrepareForGc( JSContext* cx, JS::HandleObject self );
 

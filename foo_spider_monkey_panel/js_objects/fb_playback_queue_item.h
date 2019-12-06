@@ -26,7 +26,7 @@ public:
     static const JsPrototypeId PrototypeId;
 
 public:
-    ~JsFbPlaybackQueueItem();
+    ~JsFbPlaybackQueueItem() override = default;
 
     static std::unique_ptr<JsFbPlaybackQueueItem> CreateNative( JSContext* cx, const t_playback_queue_item& playbackQueueItem );
     static size_t GetInternalSize( const t_playback_queue_item& playbackQueueItem );

@@ -33,7 +33,7 @@ public:
     static const JSNative JsConstructor;
 
 public:
-    ~JsFbTitleFormat();
+    ~JsFbTitleFormat() override = default;
 
     static std::unique_ptr<JsFbTitleFormat> CreateNative( JSContext* cx, const std::u8string& expr );
     static size_t GetInternalSize( const std::u8string& expr );

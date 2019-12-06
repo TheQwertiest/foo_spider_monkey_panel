@@ -30,7 +30,7 @@ public:
     static const JSPropertySpec* JsProperties;
 
 public:
-    ~JsFbPlaylistManager();
+    ~JsFbPlaylistManager() override;
 
     static std::unique_ptr<JsFbPlaylistManager> CreateNative( JSContext* cx );
     static size_t GetInternalSize();

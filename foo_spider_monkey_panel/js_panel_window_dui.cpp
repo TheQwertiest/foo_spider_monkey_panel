@@ -14,34 +14,34 @@ template <typename TImpl>
 class my_ui_element_impl : public ui_element
 {
 public:
-    GUID get_guid()
+    GUID get_guid() override
     {
         return TImpl::g_get_guid();
     }
-    GUID get_subclass()
+    GUID get_subclass() override
     {
         return TImpl::g_get_subclass();
     }
-    void get_name( pfc::string_base& out )
+    void get_name( pfc::string_base& out ) override
     {
         TImpl::g_get_name( out );
     }
-    ui_element_instance::ptr instantiate( HWND parent, ui_element_config::ptr cfg, ui_element_instance_callback::ptr callback )
+    ui_element_instance::ptr instantiate( HWND parent, ui_element_config::ptr cfg, ui_element_instance_callback::ptr callback ) override
     {
         PFC_ASSERT( cfg->get_guid() == get_guid() );
         service_nnptr_t<ui_element_instance_impl_helper> item = fb2k::service_new<ui_element_instance_impl_helper>( cfg, callback );
         item->initialize_window( parent );
         return item;
     }
-    ui_element_config::ptr get_default_configuration()
+    ui_element_config::ptr get_default_configuration() override
     {
         return TImpl::g_get_default_configuration();
     }
-    ui_element_children_enumerator_ptr enumerate_children( ui_element_config::ptr cfg )
+    ui_element_children_enumerator_ptr enumerate_children( ui_element_config::ptr ) override
     {
-        return NULL;
+        return nullptr;
     }
-    bool get_description( pfc::string_base& out )
+    bool get_description( pfc::string_base& out ) override
     {
         out = TImpl::g_get_description();
         return true;
@@ -197,7 +197,9 @@ LRESULT js_panel_window_dui::on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM 
     case WM_CONTEXTMENU:
     {
         if ( m_is_edit_mode )
+        {
             return DefWindowProc( hwnd, msg, wp, lp );
+        }
         break;
     }
     case static_cast<UINT>( smp::MiscMessage::size_limit_changed ):
@@ -205,17 +207,19 @@ LRESULT js_panel_window_dui::on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM 
         notify_size_limit_changed( wp );
         return 0;
     }
+    default:
+        break;
     }
 
     return t_parent::on_message( hwnd, msg, wp, lp );
 }
 
-bool js_panel_window_dui::edit_mode_context_menu_get_description( unsigned p_id, unsigned p_id_base, pfc::string_base& p_out )
+bool js_panel_window_dui::edit_mode_context_menu_get_description( unsigned, unsigned, pfc::string_base& )
 {
     return false;
 }
 
-bool js_panel_window_dui::edit_mode_context_menu_test( const POINT& p_point, bool p_fromkeyboard )
+bool js_panel_window_dui::edit_mode_context_menu_test( const POINT&, bool )
 {
     return true;
 }
@@ -227,17 +231,17 @@ ui_element_config::ptr js_panel_window_dui::get_configuration()
     return builder.finish( g_get_guid() );
 }
 
-void js_panel_window_dui::edit_mode_context_menu_build( const POINT& p_point, bool p_fromkeyboard, HMENU p_menu, unsigned p_id_base )
+void js_panel_window_dui::edit_mode_context_menu_build( const POINT& p_point, bool, HMENU p_menu, unsigned p_id_base )
 {
     build_context_menu( p_menu, p_point.x, p_point.y, p_id_base );
 }
 
-void js_panel_window_dui::edit_mode_context_menu_command( const POINT& p_point, bool p_fromkeyboard, unsigned p_id, unsigned p_id_base )
+void js_panel_window_dui::edit_mode_context_menu_command( const POINT&, bool, unsigned p_id, unsigned p_id_base )
 {
     execute_context_menu_command( p_id, p_id_base );
 }
 
-void js_panel_window_dui::notify( const GUID& p_what, t_size p_param1, const void* p_param2, t_size p_param2size )
+void js_panel_window_dui::notify( const GUID& p_what, t_size, const void*, t_size )
 {
     if ( p_what == ui_element_notify_edit_mode_changed )
     {
@@ -270,7 +274,7 @@ void js_panel_window_dui::initialize_window( HWND parent )
     create( parent );
 }
 
-void js_panel_window_dui::notify_size_limit_changed( LPARAM lp )
+void js_panel_window_dui::notify_size_limit_changed( LPARAM )
 {
     m_callback->on_min_max_info_change();
 }

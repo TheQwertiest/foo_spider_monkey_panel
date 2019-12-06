@@ -9,7 +9,7 @@ class js_panel_window_dui
 {
 public:
     js_panel_window_dui( ui_element_config::ptr cfg, ui_element_instance_callback::ptr callback );
-    virtual ~js_panel_window_dui();
+    ~js_panel_window_dui() override;
 
     static GUID g_get_guid();
     static GUID g_get_subclass();
@@ -18,8 +18,8 @@ public:
     static void g_get_name( pfc::string_base& out );
 
     // js_panel_window
-    DWORD GetColour( unsigned type, const GUID& guid = pfc::guid_null ) override;
-    HFONT GetFont( unsigned type, const GUID& guid = pfc::guid_null ) override;
+    DWORD GetColour( unsigned type, const GUID& guid ) override;
+    HFONT GetFont( unsigned type, const GUID& guid ) override;
     LRESULT on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp ) override;
 
     // ui_element_instance

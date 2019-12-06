@@ -32,7 +32,7 @@ CDialogConf::CDialogConf( smp::panel::js_panel_window* p_parent )
 {
 }
 
-LRESULT CDialogConf::OnInitDialog( HWND hwndFocus, LPARAM lParam )
+LRESULT CDialogConf::OnInitDialog( HWND, LPARAM )
 {
     auto& panelSettings = m_parent->GetSettings();
 
@@ -102,7 +102,7 @@ LRESULT CDialogConf::OnInitDialog( HWND hwndFocus, LPARAM lParam )
     return TRUE; // set focus to default control
 }
 
-LRESULT CDialogConf::OnCloseCmd( WORD wNotifyCode, WORD wID, HWND hWndCtl )
+LRESULT CDialogConf::OnCloseCmd( WORD, WORD wID, HWND )
 {
     switch ( wID )
     {
@@ -128,9 +128,10 @@ LRESULT CDialogConf::OnCloseCmd( WORD wNotifyCode, WORD wID, HWND hWndCtl )
                 Apply();
                 EndDialog( IDOK );
                 break;
-
             case IDCANCEL:
                 return 0;
+            default:
+                break;
             }
         }
 
@@ -178,7 +179,7 @@ void CDialogConf::Apply()
     sciEditor_.SetSavePoint();
 }
 
-LRESULT CDialogConf::OnNotify( int idCtrl, LPNMHDR pnmh )
+LRESULT CDialogConf::OnNotify( int, LPNMHDR pnmh )
 {
     // SCNotification* notification = reinterpret_cast<SCNotification*>( pnmh );
 
@@ -200,10 +201,10 @@ LRESULT CDialogConf::OnNotify( int idCtrl, LPNMHDR pnmh )
     return 0;
 }
 
-LRESULT CDialogConf::OnUwmKeyDown( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled )
+LRESULT CDialogConf::OnUwmKeyDown( UINT, WPARAM wParam, LPARAM, BOOL& bHandled )
 {
-    const uint32_t vk = (uint32_t)wParam;
-    bHandled = ( ProcessKey( vk ) || sciEditor_.ProcessKey( vk ) );
+    const auto vk = (uint32_t)wParam;
+    bHandled = BOOL( ProcessKey( vk ) || sciEditor_.ProcessKey( vk ) );
     return ( bHandled ? 0 : 1 );
 }
 
@@ -237,7 +238,7 @@ LRESULT CDialogConf::OnFileImport( WORD, WORD, HWND )
 
 LRESULT CDialogConf::OnFileExport( WORD, WORD, HWND )
 {
-    const std::wstring filename( smp::file::FileDialog( L"Export File", true, k_DialogExtFilter, L"js" ).c_str() );
+    const std::wstring filename( smp::file::FileDialog( L"Export File", true, k_DialogExtFilter, L"js" ) );
     if ( filename.empty() )
     {
         return 0;
@@ -292,7 +293,7 @@ LRESULT CDialogConf::OnFeaturesGrabFocus( WORD, WORD, HWND )
 LRESULT CDialogConf::OnHelp( WORD, WORD, HWND )
 {
     const auto path = smp::unicode::ToWide( smp::get_fb2k_component_path() ) + L"\\docs\\html\\index.html";
-    ShellExecute( 0, L"open", path.c_str(), 0, 0, SW_SHOW );
+    ShellExecute( nullptr, L"open", path.c_str(), nullptr, nullptr, SW_SHOW );
     return 0;
 }
 
@@ -309,16 +310,10 @@ bool CDialogConf::ProcessKey( uint32_t vk )
                           | ( IsKeyPressed( VK_MENU ) ? SCMOD_ALT : 0 );
 
     // Hotkeys
-    if ( modifiers == SCMOD_CTRL )
+    if ( modifiers == SCMOD_CTRL && vk == 's' )
     {
-        switch ( vk )
-        {
-        case 'S':
-        {
-            Apply();
-            return true;
-        }
-        }
+        Apply();
+        return true;
     }
 
     return false;

@@ -28,7 +28,7 @@ public:
     static const JSNative JsConstructor;
 
 public:
-    ~JsFbProfiler();
+    ~JsFbProfiler() override = default;
 
     static std::unique_ptr<JsFbProfiler> CreateNative( JSContext* cx, const std::u8string& name );
     static size_t GetInternalSize( const std::u8string& name );

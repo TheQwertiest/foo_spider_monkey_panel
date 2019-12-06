@@ -110,10 +110,6 @@ JsGlobalObject::JsGlobalObject( JSContext* cx, JsContainer& parentContainer, JsW
 {
 }
 
-JsGlobalObject::~JsGlobalObject()
-{ // No need to cleanup JS here, since it must be performed manually beforehand anyway
-}
-
 // TODO: remove js_panel_window from ctor (add a method to JsContainer instead)
 JSObject* JsGlobalObject::CreateNative( JSContext* cx, JsContainer& parentContainer, smp::panel::js_panel_window& parentPanel )
 {
