@@ -58,7 +58,7 @@ std::optional<SemVer> SemVer::ParseString( const std::string& strVer )
             return std::nullopt;
         }
 
-        versionNums.push_back( numRet );
+        versionNums.emplace_back( numRet );
     }
 
     if ( versionNums.empty() || versionNums.size() > 3 )

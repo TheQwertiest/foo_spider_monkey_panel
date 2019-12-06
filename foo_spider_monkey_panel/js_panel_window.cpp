@@ -45,7 +45,6 @@ namespace smp::panel
 
 js_panel_window::js_panel_window( PanelType instanceType )
     : panelType_( instanceType )
-    , settings_()
     , m_script_info( settings_.guid )
 {
 }
@@ -87,7 +86,7 @@ void js_panel_window::update_script( const char* code )
 
 void js_panel_window::JsEngineFail( const std::u8string& errorText )
 {
-    smp::utils::ReportErrorWithPopup( errorText.c_str() );
+    smp::utils::ReportErrorWithPopup( errorText );
     SendMessage( hWnd_, static_cast<UINT>( InternalSyncMessage::script_error ), 0, 0 );
 }
 
@@ -110,7 +109,7 @@ LRESULT js_panel_window::on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
         }
     } );
 
-    if ( message_manager::instance().IsAsyncMessage( msg ) )
+    if ( message_manager::IsAsyncMessage( msg ) )
     {
         if ( nestedCounter == 1 || MessageBlockingScope::IsBlocking() )
         {
@@ -187,7 +186,7 @@ std::optional<LRESULT> js_panel_window::process_async_messages( UINT msg, WPARAM
     return std::nullopt;
 }
 
-std::optional<LRESULT> js_panel_window::process_main_messages( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
+std::optional<LRESULT> js_panel_window::process_main_messages( HWND hwnd, UINT msg, WPARAM, LPARAM )
 {
     switch ( msg )
     {
@@ -282,7 +281,7 @@ std::optional<LRESULT> js_panel_window::process_window_messages( UINT msg, WPARA
     { // This message will be called before WM_CREATE as well,
         // but we don't need to handle it before panel creation,
         // since default values suit us just fine
-        LPMINMAXINFO pmmi = reinterpret_cast<LPMINMAXINFO>( lp );
+        auto pmmi = reinterpret_cast<LPMINMAXINFO>( lp );
         memcpy( &pmmi->ptMaxTrackSize, &MaxSize(), sizeof( POINT ) );
         memcpy( &pmmi->ptMinTrackSize, &MinSize(), sizeof( POINT ) );
         return 0;
@@ -658,7 +657,7 @@ std::optional<LRESULT> js_panel_window::process_internal_sync_messages( Internal
     }
 }
 
-std::optional<LRESULT> js_panel_window::process_internal_async_messages( InternalAsyncMessage msg, WPARAM wp, LPARAM lp )
+std::optional<LRESULT> js_panel_window::process_internal_async_messages( InternalAsyncMessage msg, WPARAM wp, LPARAM )
 {
     switch ( msg )
     {
@@ -850,11 +849,11 @@ void js_panel_window::RepaintBackground( LPRECT lprcUpdate /*= nullptr */ )
     HWND hwnd = nullptr;
     while ( ( hwnd = FindWindowEx( wnd_parent, hwnd, nullptr, nullptr ) ) )
     {
-        std::array<wchar_t, 64> buff;
         if ( hwnd == hWnd_ )
         {
             continue;
         }
+        std::array<wchar_t, 64> buff;
         GetClassName( hwnd, buff.data(), buff.size() );
         if ( wcsstr( buff.data(), L"SysTabControl32" ) )
         {
@@ -1260,6 +1259,9 @@ void js_panel_window::on_mouse_button_dblclk( UINT msg, WPARAM wp, LPARAM lp )
                                          static_cast<uint32_t>( wp ) );
         break;
     }
+    default:
+        assert( false );
+        break;
     }
 }
 
@@ -1298,6 +1300,9 @@ void js_panel_window::on_mouse_button_down( UINT msg, WPARAM wp, LPARAM lp )
                                          static_cast<uint32_t>( wp ) );
         break;
     }
+    default:
+        assert( false );
+        break;
     }
 }
 
@@ -1338,6 +1343,9 @@ bool js_panel_window::on_mouse_button_up( UINT msg, WPARAM wp, LPARAM lp )
         ret = autoRet.value_or( false );
         break;
     }
+    default:
+        assert( false );
+        break;
     }
 
     ReleaseCapture();

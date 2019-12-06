@@ -1,11 +1,10 @@
 #pragma once
 
-#include <thread>
+#include <atomic>
+#include <cassert>
 #include <mutex>
 #include <queue>
-#include <atomic>
-
-#include <assert.h>
+#include <thread>
 
 namespace smp
 {
@@ -48,7 +47,7 @@ public:
             else
             {
                 tasks_.emplace( std::make_unique<Task>( task ) );
-            }            
+            }
 
             hasTask_.notify_one();
         }

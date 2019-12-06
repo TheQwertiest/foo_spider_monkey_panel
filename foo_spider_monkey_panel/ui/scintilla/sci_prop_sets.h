@@ -27,8 +27,8 @@ public:
 public:
     ScintillaCfg( const GUID& p_guid, nonstd::span<const DefaultPropValue> p_default );
 
-    ScintillaPropList& val();
-    const ScintillaPropList& val() const;
+    [[nodiscard]] ScintillaPropList& val();
+    [[nodiscard]] const ScintillaPropList& val() const;
 
     // cfg_var
     void get_data_raw( stream_writer* p_stream, abort_callback& p_abort ) override;

@@ -90,9 +90,9 @@ public:
         IOleInPlaceFrame* pFrame,
         IOleInPlaceUIWindow* pDoc ) override;
 
-    STDMETHODIMP HideUI( void ) override;
+    STDMETHODIMP HideUI() override;
 
-    STDMETHODIMP UpdateUI( void ) override;
+    STDMETHODIMP UpdateUI() override;
 
     STDMETHODIMP EnableModeless(
         BOOL fEnable ) override;
@@ -134,8 +134,8 @@ public:
         IDataObject** ppDORet ) override;
 
     // IUnknown
-    ULONG STDMETHODCALLTYPE AddRef( void ) override;
-    ULONG STDMETHODCALLTYPE Release( void ) override;
+    ULONG STDMETHODCALLTYPE AddRef() override;
+    ULONG STDMETHODCALLTYPE Release() override;
 
 private:
     /// @throw smp::SmpException
@@ -157,11 +157,11 @@ private:
     std::optional<uint32_t> height_;
     std::optional<int32_t> x_;
     std::optional<int32_t> y_;
-    bool isCentered_;
-    bool isContextMenuEnabled_;
-    bool isFormSelectionEnabled_;
-    bool isResizable_;
-    bool isScrollEnabled_;
+    bool isCentered_ = true;
+    bool isContextMenuEnabled_ = true;
+    bool isFormSelectionEnabled_ = false;
+    bool isResizable_ = false;
+    bool isScrollEnabled_ = false;
 
     bool isClosing_ = false;
 

@@ -32,13 +32,13 @@ public:
     static const JsPrototypeId PrototypeId;
 
 public:
-    ~JsGdiRawBitmap();
+    ~JsGdiRawBitmap() override = default;
 
     static std::unique_ptr<JsGdiRawBitmap> CreateNative( JSContext* cx, Gdiplus::Bitmap* pBmp );
     static size_t GetInternalSize( Gdiplus::Bitmap* pBmp );
 
 public:
-    __notnull
+    [[nodiscard]] __notnull
     HDC GetHDC() const;
 
 public: // props

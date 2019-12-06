@@ -14,18 +14,18 @@ public:
 
 protected:
     // js_panel_window
-    DWORD GetColour( unsigned type, const GUID& guid = pfc::guid_null ) override;
-    HFONT GetFont( unsigned type, const GUID& guid = pfc::guid_null ) override;
+    DWORD GetColour( unsigned type, const GUID& guid ) override;
+    HFONT GetFont( unsigned type, const GUID& guid ) override;
     LRESULT on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp ) override;
 
     // uie::window
     HWND create_or_transfer_window( HWND parent, const uie::window_host_ptr& host, const ui_helpers::window_position_t& p_position ) override;
-    HWND get_wnd() const override;
-    bool have_config_popup() const override;
-    bool is_available( const uie::window_host_ptr& p ) const override;
+    [[nodiscard]] HWND get_wnd() const override;
+    [[nodiscard]] bool have_config_popup() const override;
+    [[nodiscard]] bool is_available( const uie::window_host_ptr& p ) const override;
     bool show_config_popup( HWND parent ) override;
-    const GUID& get_extension_guid() const override;
-    unsigned get_type() const override;
+    [[nodiscard]] const GUID& get_extension_guid() const override;
+    [[nodiscard]] unsigned get_type() const override;
     void destroy_window() override;
     void get_category( pfc::string_base& out ) const override;
     void get_config( stream_writer* writer, abort_callback& abort ) const override;

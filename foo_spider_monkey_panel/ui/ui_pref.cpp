@@ -70,11 +70,11 @@ CDialogPref::CDialogPref( preferences_page_callback::ptr callback )
 {
 }
 
-BOOL CDialogPref::OnInitDialog( HWND hwndFocus, LPARAM lParam )
+BOOL CDialogPref::OnInitDialog( HWND, LPARAM )
 {
     DoDataExchange();
 
-    SetWindowTheme( m_props.m_hWnd, L"explorer", NULL );
+    SetWindowTheme( m_props.m_hWnd, L"explorer", nullptr );
 
     m_props.SetExtendedListViewStyle( LVS_EX_FULLROWSELECT | LVS_EX_DOUBLEBUFFER );
     m_props.AddColumn( L"Name", 0 );
@@ -89,7 +89,9 @@ BOOL CDialogPref::OnInitDialog( HWND hwndFocus, LPARAM lParam )
 void CDialogPref::LoadProps( bool reset )
 {
     if ( reset )
+    {
         g_scintillaCfg.reset();
+    }
 
     const auto& prop_sets = g_scintillaCfg.val();
 
@@ -108,7 +110,7 @@ LRESULT CDialogPref::OnPropNMDblClk( LPNMHDR pnmh )
 {
     //for ListView - (LPNMITEMACTIVATE)pnmh
     //for StatusBar	- (LPNMMOUSE)pnmh
-    LPNMITEMACTIVATE pniv = (LPNMITEMACTIVATE)pnmh;
+    auto pniv = (LPNMITEMACTIVATE)pnmh;
 
     if ( pniv->iItem >= 0 )
     {
@@ -119,7 +121,7 @@ LRESULT CDialogPref::OnPropNMDblClk( LPNMHDR pnmh )
 
         if ( !modal_dialog_scope::can_create() )
         {
-            return false;
+            return 0;
         }
 
         modal_dialog_scope scope( m_hWnd );
@@ -158,7 +160,7 @@ std::u8string CDialogPref::uGetItemText( int nItem, int nSubItem )
     return smp::unicode::ToU8( buffer );
 }
 
-void CDialogPref::OnButtonExportBnClicked( WORD wNotifyCode, WORD wID, HWND hWndCtl )
+void CDialogPref::OnButtonExportBnClicked( WORD, WORD, HWND )
 {
     fs::path path( smp::file::FileDialog( L"Save as", true, k_DialogExtFilter, L"cfg" ) );
     if ( !path.empty() )
@@ -168,7 +170,7 @@ void CDialogPref::OnButtonExportBnClicked( WORD wNotifyCode, WORD wID, HWND hWnd
     }
 }
 
-void CDialogPref::OnButtonImportBnClicked( WORD wNotifyCode, WORD wID, HWND hWndCtl )
+void CDialogPref::OnButtonImportBnClicked( WORD, WORD, HWND )
 {
     fs::path path( smp::file::FileDialog( L"Import from", false, k_DialogExtFilter, L"cfg" ) );
     if ( !path.empty() )

@@ -26,13 +26,13 @@ public:
     static const JsPrototypeId PrototypeId;
 
 public:
-    ~JsMenuObject();
+    ~JsMenuObject() override;
 
     static std::unique_ptr<JsMenuObject> CreateNative( JSContext* cx, HWND hParentWnd );
     static size_t GetInternalSize( HWND hParentWnd );
 
 public:
-    HMENU HMenu() const;
+    [[nodiscard]] HMENU HMenu() const;
 
 public:
     void AppendMenuItem( uint32_t flags, uint32_t item_id, const std::wstring& text );

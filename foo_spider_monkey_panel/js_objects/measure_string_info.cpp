@@ -72,10 +72,6 @@ JsMeasureStringInfo::JsMeasureStringInfo( JSContext* cx, float x, float y, float
 {
 }
 
-JsMeasureStringInfo::~JsMeasureStringInfo()
-{
-}
-
 std::unique_ptr<JsMeasureStringInfo>
 JsMeasureStringInfo::CreateNative( JSContext* cx, float x, float y, float w, float h, uint32_t lines, uint32_t characters )
 {

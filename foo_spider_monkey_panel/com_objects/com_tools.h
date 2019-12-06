@@ -14,7 +14,7 @@ class type_info_cache_holder
 public:
     type_info_cache_holder();
 
-    bool empty() throw();
+    [[nodiscard]] bool empty();
 
     void init_from_typelib( ITypeLib* p_typeLib, const GUID& guid );
 

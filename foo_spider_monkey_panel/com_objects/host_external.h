@@ -15,10 +15,10 @@ class HostExternal : public IDispatchImpl3<IHostExternal>
 {
 protected:
     HostExternal( _variant_t data );
-    virtual ~HostExternal() = default;
+    ~HostExternal() override = default;
 
 public:
-    STDMETHODIMP get_dialogArguments( VARIANT* pData );
+    STDMETHODIMP get_dialogArguments( VARIANT* pData ) override;
 
 private:
     _variant_t data_;

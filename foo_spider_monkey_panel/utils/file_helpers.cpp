@@ -155,8 +155,8 @@ public:
     FileReader( const FileReader& ) = delete;
     FileReader& operator=( const FileReader& ) = delete;
 
-    std::string_view GetFileContent() const;
-    std::wstring GetFullPath() const;
+    [[nodiscard]] std::string_view GetFileContent() const;
+    [[nodiscard]] std::wstring GetFullPath() const;
 
 private:
     std::string_view fileContent_;
@@ -290,7 +290,7 @@ bool WriteFile( const wchar_t* path, const std::u8string& content, bool write_bo
         CloseHandle( hFileMapping );
     } );
 
-    PBYTE pFileView = (PBYTE)MapViewOfFile( hFileMapping, FILE_MAP_WRITE, 0, 0, 0 );
+    auto pFileView = (PBYTE)MapViewOfFile( hFileMapping, FILE_MAP_WRITE, 0, 0, 0 );
     if ( !pFileView )
     {
         return false;
@@ -338,7 +338,7 @@ std::wstring FileDialog( const std::wstring& title,
         hr = pfd->SetTitle( title.c_str() );
         smp::error::CheckHR( hr, "SetTitle" );
 
-        if ( filterSpec.size() )
+        if ( !filterSpec.empty() )
         {
             hr = pfd->SetFileTypes( filterSpec.size(), filterSpec.data() );
             smp::error::CheckHR( hr, "SetFileTypes" );
@@ -362,7 +362,7 @@ std::wstring FileDialog( const std::wstring& title,
         const auto path = smp::unicode::ToWide( smp::get_fb2k_component_path() );
 
         IShellItemPtr pFolder;
-        hr = SHCreateItemFromParsingName( path.c_str(), nullptr, pFolder.GetIID(), (void**)&pFolder );
+        hr = SHCreateItemFromParsingName( path.c_str(), nullptr, IShellItemPtr::GetIID(), (void**)&pFolder );
         smp::error::CheckHR( hr, "SHCreateItemFromParsingName" );
 
         hr = pfd->SetDefaultFolder( pFolder );

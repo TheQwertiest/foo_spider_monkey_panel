@@ -26,7 +26,7 @@ CDialogGoto::CDialogGoto( HWND hParent, int curLineNumber )
 {
 }
 
-LRESULT CDialogGoto::OnInitDialog( HWND hwndFocus, LPARAM lParam )
+LRESULT CDialogGoto::OnInitDialog( HWND, LPARAM )
 {
     uSetWindowText( GetDlgItem( IDC_EDIT_LINENUMBER ), std::to_string( curLineNumber_ ).c_str() );
 
@@ -47,7 +47,7 @@ void CDialogGoto::OnDestroy()
     }
 }
 
-LRESULT CDialogGoto::OnCloseCmd( WORD wNotifyCode, WORD wID, HWND hWndCtl )
+LRESULT CDialogGoto::OnCloseCmd( WORD, WORD wID, HWND )
 {
     if ( wID == IDOK )
     {
@@ -71,9 +71,9 @@ void CDialogGoto::OnFinalMessage( _In_ HWND /*hWnd*/ )
     delete this;
 }
 
-void CDialogGoto::GetMsgProc( int code, WPARAM wParam, LPARAM lParam, HWND hParent )
+void CDialogGoto::GetMsgProc( int, WPARAM, LPARAM lParam, HWND hParent )
 {
-    if ( LPMSG pMsg = reinterpret_cast<LPMSG>( lParam );
+    if ( auto pMsg = reinterpret_cast<LPMSG>( lParam );
          pMsg->message >= WM_KEYFIRST && pMsg->message <= WM_KEYLAST )
     { // Only react to keypress events
         HWND hWndFocus = ::GetFocus();

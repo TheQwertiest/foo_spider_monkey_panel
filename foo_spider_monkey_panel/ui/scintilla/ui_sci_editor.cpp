@@ -194,7 +194,7 @@ ScintillaStyle ParseStyle( std::u8string_view p_definition )
             p_style.flags |= ESF_CASEFORCE;
             p_style.case_force = SC_CASE_MIXED;
 
-            if ( values.size() >= 2 && values[1].size() >= 1 )
+            if ( values.size() >= 2 && !values[1].empty() )
             {
                 const char8_t ch = values[1][0];
                 if ( ch == 'u' )
@@ -267,15 +267,15 @@ CScriptEditorCtrl::CScriptEditorCtrl()
 {
 }
 
-LRESULT CScriptEditorCtrl::OnKeyDown( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled )
+LRESULT CScriptEditorCtrl::OnKeyDown( UINT, WPARAM wParam, LPARAM lParam, BOOL& bHandled )
 {
     // Pass the message to the parent window to handle all shortcuts (it will call us back)
-    bHandled = false;
+    bHandled = FALSE;
     (void)::PostMessage( ::GetAncestor( m_hWnd, GA_PARENT ), static_cast<UINT>( smp::MiscMessage::key_down ), wParam, lParam );
     return 1;
 }
 
-LRESULT CScriptEditorCtrl::OnUpdateUI( LPNMHDR pnmn )
+LRESULT CScriptEditorCtrl::OnUpdateUI( LPNMHDR )
 {
     const auto bracePos = FindBraceMatchPos();
     if ( bracePos.current )
@@ -305,7 +305,7 @@ LRESULT CScriptEditorCtrl::OnUpdateUI( LPNMHDR pnmn )
 
 LRESULT CScriptEditorCtrl::OnCharAdded( LPNMHDR pnmh )
 {
-    SCNotification* notification = reinterpret_cast<SCNotification*>( pnmh );
+    auto* notification = reinterpret_cast<SCNotification*>( pnmh );
     int ch = notification->ch;
     Sci_CharacterRange crange = GetSelection();
     int selStart = crange.cpMin;
@@ -320,9 +320,13 @@ LRESULT CScriptEditorCtrl::OnCharAdded( LPNMHDR pnmh )
             case ')':
                 m_nBraceCount--;
                 if ( m_nBraceCount < 1 )
+                {
                     CallTipCancel();
+                }
                 else
+                {
                     StartCallTip();
+                }
                 break;
 
             case '(':
@@ -351,7 +355,9 @@ LRESULT CScriptEditorCtrl::OnCharAdded( LPNMHDR pnmh )
                 AutoCCancel();
 
                 if ( ch == '.' )
+                {
                     StartAutoComplete();
+                }
             }
         }
         else
@@ -366,7 +372,9 @@ LRESULT CScriptEditorCtrl::OnCharAdded( LPNMHDR pnmh )
                 AutomaticIndentation( ch );
 
                 if ( IsCSym( ch ) || ch == '.' )
+                {
                     StartAutoComplete();
+                }
             }
         }
     }
@@ -374,14 +382,14 @@ LRESULT CScriptEditorCtrl::OnCharAdded( LPNMHDR pnmh )
     return 0;
 }
 
-LRESULT CScriptEditorCtrl::OnZoom( LPNMHDR pnmn )
+LRESULT CScriptEditorCtrl::OnZoom( LPNMHDR )
 {
     AutoMarginWidth();
 
     return 0;
 }
 
-LRESULT CScriptEditorCtrl::OnChange( UINT uNotifyCode, int nID, HWND wndCtl )
+LRESULT CScriptEditorCtrl::OnChange( UINT, int, HWND )
 {
     AutoMarginWidth();
 
@@ -401,12 +409,12 @@ bool CScriptEditorCtrl::ProcessKey( uint32_t vk )
         {
         case 'F':
         {
-            FindReplace( true );
+            FindReplace( TRUE );
             return true;
         }
         case 'H':
         {
-            FindReplace( false );
+            FindReplace( FALSE );
             return true;
         }
         case 'G':
@@ -414,6 +422,8 @@ bool CScriptEditorCtrl::ProcessKey( uint32_t vk )
             ShowGoTo();
             return true;
         }
+        default:
+            break;
         }
     }
     else if ( modifiers == 0 )
@@ -426,7 +436,7 @@ bool CScriptEditorCtrl::ProcessKey( uint32_t vk )
             }
             else
             {
-                FindReplace( true );
+                FindReplace( TRUE );
             }
             return true;
         }
@@ -441,7 +451,7 @@ bool CScriptEditorCtrl::ProcessKey( uint32_t vk )
             }
             else
             {
-                FindReplace( true );
+                FindReplace( TRUE );
             }
             return true;
         }
@@ -491,7 +501,9 @@ void CScriptEditorCtrl::SetContent( const char* text, bool clear_undo_buffer )
     ConvertEOLs( SC_EOL_CRLF );
 
     if ( clear_undo_buffer )
+    {
         EmptyUndoBuffer();
+    }
 
     Colourise( 0, std::numeric_limits<unsigned int>::max() );
     GrabFocus();
@@ -592,17 +604,16 @@ BOOL CScriptEditorCtrl::SubclassWindow( HWND hWnd )
     BOOL bRet = CScintillaCtrl::SubclassWindow( hWnd );
 
     if ( bRet )
+    {
         Init();
+    }
 
     return bRet;
 }
 
 Sci_CharacterRange CScriptEditorCtrl::GetSelection()
 {
-    Sci_CharacterRange crange;
-    crange.cpMin = GetSelectionStart();
-    crange.cpMax = GetSelectionEnd();
-    return crange;
+    return Sci_CharacterRange{ static_cast<Sci_PositionCR>( GetSelectionStart() ), static_cast<Sci_PositionCR>( GetSelectionEnd() ) };
 }
 
 int CScriptEditorCtrl::GetCaretInLine()
@@ -757,9 +768,13 @@ bool CScriptEditorCtrl::StartCallTip()
         while ( current > 0 && ( braces || line[current - 1] != '(' ) )
         {
             if ( line[current - 1] == '(' )
+            {
                 braces--;
+            }
             else if ( line[current - 1] == ')' )
+            {
                 braces++;
+            }
 
             current--;
             pos--;
@@ -783,7 +798,9 @@ bool CScriptEditorCtrl::StartCallTip()
     } while ( current > 0 && !IsCSym( line[current - 1] ) );
 
     if ( current <= 0 )
+    {
         return true;
+    }
 
     m_nStartCalltipWord = current - 1;
 
@@ -808,35 +825,53 @@ void CScriptEditorCtrl::ContinueCallTip()
     for ( int i = m_nStartCalltipWord; i < current; ++i )
     {
         if ( line[i] == '(' )
+        {
             braces++;
+        }
         else if ( line[i] == ')' && braces )
+        {
             braces--;
+        }
         else if ( braces == 1 && line[i] == ',' )
+        {
             commas++;
+        }
     }
 
     int startHighlight = 0;
 
     while ( m_szFunctionDefinition[startHighlight] && m_szFunctionDefinition[startHighlight] != '(' )
+    {
         startHighlight++;
+    }
 
     if ( m_szFunctionDefinition[startHighlight] == '(' )
+    {
         startHighlight++;
+    }
 
     while ( m_szFunctionDefinition[startHighlight] && commas )
     {
         if ( m_szFunctionDefinition[startHighlight] == ',' )
+        {
             commas--;
+        }
         // If it reached the end of the argument list it means that the user typed in more
         // arguments than the ones listed in the calltip
         if ( m_szFunctionDefinition[startHighlight] == ')' )
+        {
             commas = 0;
+        }
         else
+        {
             startHighlight++;
+        }
     }
 
     if ( m_szFunctionDefinition[startHighlight] == ',' )
+    {
         startHighlight++;
+    }
 
     int endHighlight = startHighlight;
 
@@ -882,7 +917,7 @@ bool CScriptEditorCtrl::StartAutoComplete()
     }
 
     const std::u8string line = GetCurrentLine();
-    const size_t curPos = static_cast<size_t>( GetCaretInLine() );
+    const auto curPos = static_cast<size_t>( GetCaretInLine() );
 
     const std::u8string_view word = [&line, curPos] {
         std::u8string_view wordBuffer{ line.c_str(), curPos };
@@ -913,7 +948,9 @@ bool CScriptEditorCtrl::StartAutoComplete()
 int CScriptEditorCtrl::IndentOfBlock( int line )
 {
     if ( line < 0 )
+    {
         return 0;
+    }
 
     int indentSize = GetIndent();
     int indentBlock = GetLineIndentation( line );
@@ -1279,32 +1316,49 @@ void CScriptEditorCtrl::LoadStyleFromProperties()
             const ScintillaStyle style = ParseStyle( *propvalRet );
 
             if ( style.flags & ESF_FONT )
+            {
                 StyleSetFont( style_num, style.font.c_str() );
+            }
 
             if ( style.flags & ESF_SIZE )
+            {
                 StyleSetSize( style_num, style.size );
-
+            }
             if ( style.flags & ESF_FORE )
+            {
                 StyleSetFore( style_num, style.fore );
+            }
 
             if ( style.flags & ESF_BACK )
+            {
                 StyleSetBack( style_num, style.back );
+            }
 
             if ( style.flags & ESF_ITALICS )
+            {
                 StyleSetItalic( style_num, style.italics );
+            }
 
             if ( style.flags & ESF_BOLD )
+            {
                 StyleSetBold( style_num, style.bold );
+            }
 
             if ( style.flags & ESF_UNDERLINED )
+            {
                 StyleSetUnderline( style_num, style.underlined );
+            }
 
             if ( style.flags & ESF_CASEFORCE )
+            {
                 StyleSetCase( style_num, style.case_force );
+            }
         }
 
         if ( style_num == STYLE_DEFAULT )
+        {
             StyleClearAll();
+        }
     }
 }
 
@@ -1327,13 +1381,17 @@ void CScriptEditorCtrl::AutoMarginWidth()
     marginwidth = 4 + linenumwidth * ( TextWidth( STYLE_LINENUMBER, "9" ) );
 
     if ( oldmarginwidth != marginwidth )
+    {
         SetMarginWidthN( 0, marginwidth );
+    }
 }
 
 void CScriptEditorCtrl::SetIndentation( int line, int indent )
 {
     if ( indent < 0 )
+    {
         return;
+    }
 
     Sci_CharacterRange crange = GetSelection();
     int posBefore = GetLineIndentPosition( line );
@@ -1359,17 +1417,25 @@ void CScriptEditorCtrl::SetIndentation( int line, int indent )
         if ( crange.cpMin >= posAfter )
         {
             if ( crange.cpMin >= posBefore )
+            {
                 crange.cpMin += posDifference;
+            }
             else
+            {
                 crange.cpMin = posAfter;
+            }
         }
 
         if ( crange.cpMax >= posAfter )
         {
             if ( crange.cpMax >= posBefore )
+            {
                 crange.cpMax += posDifference;
+            }
             else
+            {
                 crange.cpMax = posAfter;
+            }
         }
     }
 
@@ -1378,7 +1444,7 @@ void CScriptEditorCtrl::SetIndentation( int line, int indent )
 
 std::optional<std::u8string> CScriptEditorCtrl::GetPropertyExpanded_Opt( const char8_t* key )
 {
-    int len = GetPropertyExpanded( key, 0 );
+    int len = GetPropertyExpanded( key, nullptr );
     if ( !len )
     {
         return std::nullopt;

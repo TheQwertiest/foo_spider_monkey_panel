@@ -112,7 +112,7 @@ void JsMenuObject::AppendMenuItem( uint32_t flags, uint32_t item_id, const std::
 
 void JsMenuObject::AppendMenuSeparator()
 {
-    BOOL bRet = ::AppendMenu( hMenu_, MF_SEPARATOR, 0, 0 );
+    BOOL bRet = ::AppendMenu( hMenu_, MF_SEPARATOR, 0, nullptr );
     smp::error::CheckWinApi( bRet, "AppendMenu" );
 }
 
@@ -128,7 +128,7 @@ void JsMenuObject::AppendTo( JsMenuObject* parent, uint32_t flags, const std::ws
 
 void JsMenuObject::CheckMenuItem( uint32_t item_id, bool check )
 {
-    DWORD dRet = ::CheckMenuItem( hMenu_, item_id, check != VARIANT_FALSE ? MF_CHECKED : MF_UNCHECKED );
+    DWORD dRet = ::CheckMenuItem( hMenu_, item_id, check ? MF_CHECKED : MF_UNCHECKED );
     if ( static_cast<DWORD>( -1 ) == dRet )
     {
         throw SmpException( "Menu item with specified id does not exist" );
@@ -162,7 +162,7 @@ uint32_t JsMenuObject::TrackPopupMenu( int32_t x, int32_t y, uint32_t flags )
     MessageBlockingScope scope;
 
     // Don't bother with error checking, since TrackPopupMenu returns numerous errors when clicked outside of menu
-    return ::TrackPopupMenu( hMenu_, flags, pt.x, pt.y, 0, hParentWnd_, 0 );
+    return ::TrackPopupMenu( hMenu_, flags, pt.x, pt.y, 0, hParentWnd_, nullptr );
 }
 
 uint32_t JsMenuObject::TrackPopupMenuWithOpt( size_t optArgCount, int32_t x, int32_t y, uint32_t flags )

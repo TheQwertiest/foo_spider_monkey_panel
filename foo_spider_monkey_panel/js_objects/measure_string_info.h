@@ -26,7 +26,7 @@ public:
     static const JsPrototypeId PrototypeId;
 
 public:
-    ~JsMeasureStringInfo();
+    ~JsMeasureStringInfo() override = default;
 
     static std::unique_ptr<JsMeasureStringInfo> CreateNative( JSContext* cx, float x, float y, float w, float h, uint32_t l, uint32_t c );
     static size_t GetInternalSize( float x, float y, float w, float h, uint32_t l, uint32_t c );

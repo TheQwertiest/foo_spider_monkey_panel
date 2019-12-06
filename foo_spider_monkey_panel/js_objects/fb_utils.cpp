@@ -202,10 +202,6 @@ JsFbUtils::JsFbUtils( JSContext* cx )
 {
 }
 
-JsFbUtils::~JsFbUtils()
-{
-}
-
 std::unique_ptr<JsFbUtils>
 JsFbUtils::CreateNative( JSContext* cx )
 {
@@ -578,7 +574,7 @@ bool JsFbUtils::IsLibraryEnabled()
 bool JsFbUtils::IsMainMenuCommandChecked( const std::u8string& command )
 {
     t_uint32 status;
-    utils::get_mainmenu_command_status_by_name( command.c_str(), status );
+    utils::get_mainmenu_command_status_by_name( command, status );
 
     return ( mainmenu_commands::flag_checked == status
              || mainmenu_commands::flag_radiochecked == status );
@@ -629,7 +625,7 @@ void JsFbUtils::Random()
 bool JsFbUtils::RunContextCommand( const std::u8string& command, uint32_t flags )
 {
     metadb_handle_list dummy_list;
-    return utils::execute_context_command_by_name( command.c_str(), dummy_list, flags );
+    return utils::execute_context_command_by_name( command, dummy_list, flags );
 }
 
 bool JsFbUtils::RunContextCommandWithOpt( size_t optArgCount, const std::u8string& command, uint32_t flags )
@@ -651,8 +647,8 @@ bool JsFbUtils::RunContextCommandWithMetadb( const std::u8string& command, JS::H
 
     JS::RootedObject jsObject( pJsCtx_, &handle.toObject() );
 
-    JsFbMetadbHandle* jsHandle = GetInnerInstancePrivate<JsFbMetadbHandle>( pJsCtx_, jsObject );
-    JsFbMetadbHandleList* jsHandleList = GetInnerInstancePrivate<JsFbMetadbHandleList>( pJsCtx_, jsObject );
+    auto* jsHandle = GetInnerInstancePrivate<JsFbMetadbHandle>( pJsCtx_, jsObject );
+    auto* jsHandleList = GetInnerInstancePrivate<JsFbMetadbHandleList>( pJsCtx_, jsObject );
     SmpException::ExpectTrue( jsHandle || jsHandleList, "handle argument is invalid" );
 
     metadb_handle_list handle_list;
@@ -665,7 +661,7 @@ bool JsFbUtils::RunContextCommandWithMetadb( const std::u8string& command, JS::H
         handle_list.add_item( jsHandle->GetHandle() );
     }
 
-    return utils::execute_context_command_by_name( command.c_str(), handle_list, flags );
+    return utils::execute_context_command_by_name( command, handle_list, flags );
 }
 
 bool JsFbUtils::RunContextCommandWithMetadbWithOpt( size_t optArgCount, const std::u8string& command, JS::HandleValue handle, uint32_t flags )
@@ -683,7 +679,7 @@ bool JsFbUtils::RunContextCommandWithMetadbWithOpt( size_t optArgCount, const st
 
 bool JsFbUtils::RunMainMenuCommand( const std::u8string& command )
 {
-    return utils::execute_mainmenu_command_by_name( command.c_str() );
+    return utils::execute_mainmenu_command_by_name( command );
 }
 
 void JsFbUtils::SavePlaylist()

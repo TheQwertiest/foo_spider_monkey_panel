@@ -117,12 +117,12 @@ private:
 namespace
 {
 
-void my_dsp_config_callback::on_core_settings_change( const dsp_chain_config& p_newdata )
+void my_dsp_config_callback::on_core_settings_change( const dsp_chain_config& )
 {
     panel::message_manager::instance().post_msg_to_all( static_cast<UINT>( PlayerMessage::fb_dsp_preset_changed ) );
 }
 
-void my_initquit::on_selection_changed( metadb_handle_list_cref p_selection )
+void my_initquit::on_selection_changed( metadb_handle_list_cref )
 {
     panel::message_manager::instance().post_msg_to_all( static_cast<UINT>( PlayerMessage::fb_selection_changed ) );
 }
@@ -192,12 +192,12 @@ unsigned my_play_callback_static::get_flags()
     return flag_on_playback_all | flag_on_volume_change;
 }
 
-void my_play_callback_static::on_playback_dynamic_info( const file_info& info )
+void my_play_callback_static::on_playback_dynamic_info( const file_info& )
 {
     panel::message_manager::instance().post_msg_to_all( static_cast<UINT>( PlayerMessage::fb_playback_dynamic_info ) );
 }
 
-void my_play_callback_static::on_playback_dynamic_info_track( const file_info& info )
+void my_play_callback_static::on_playback_dynamic_info_track( const file_info& )
 {
     panel::message_manager::instance().post_msg_to_all( static_cast<UINT>( PlayerMessage::fb_playback_dynamic_info_track ) );
 }
@@ -294,7 +294,7 @@ void my_config_object_notify::on_watched_object_changed( const config_object::pt
 
     bool boolval;
     p_object->get_data_bool( boolval );
-    panel::message_manager::instance().post_msg_to_all( msg, boolval );
+    panel::message_manager::instance().post_msg_to_all( msg, static_cast<WPARAM>( boolval ) );
 }
 
 unsigned my_playlist_callback_static::get_flags()
@@ -317,7 +317,7 @@ void my_playlist_callback_static::on_item_focus_change( t_size p_playlist, t_siz
                                                                  std::make_unique<CallbackDataImpl<t_size, t_size, t_size>>( p_playlist, p_from, p_to ) );
 }
 
-void my_playlist_callback_static::on_items_added( t_size p_playlist, t_size p_start, metadb_handle_list_cref p_data, const pfc::bit_array& p_selection )
+void my_playlist_callback_static::on_items_added( t_size p_playlist, t_size, metadb_handle_list_cref, const pfc::bit_array& )
 {
     panel::message_manager::instance().post_msg_to_all( static_cast<UINT>( PlayerMessage::fb_playlist_items_added ), p_playlist );
 }
@@ -326,12 +326,12 @@ void my_playlist_callback_static::on_items_removing( t_size p_playlist, const pf
 {
 }
 
-void my_playlist_callback_static::on_items_removed( t_size p_playlist, const pfc::bit_array& p_mask, t_size p_old_count, t_size p_new_count )
+void my_playlist_callback_static::on_items_removed( t_size p_playlist, const pfc::bit_array&, t_size, t_size p_new_count )
 {
     panel::message_manager::instance().post_msg_to_all( static_cast<UINT>( PlayerMessage::fb_playlist_items_removed ), p_playlist, p_new_count );
 }
 
-void my_playlist_callback_static::on_items_reordered( t_size p_playlist, const t_size* p_order, t_size p_count )
+void my_playlist_callback_static::on_items_reordered( t_size p_playlist, const t_size*, t_size )
 {
     panel::message_manager::instance().post_msg_to_all( static_cast<UINT>( PlayerMessage::fb_playlist_items_reordered ), p_playlist );
 }
@@ -340,7 +340,7 @@ void my_playlist_callback_static::on_items_replaced( t_size p_playlist, const pf
 {
 }
 
-void my_playlist_callback_static::on_items_selection_change( t_size p_playlist, const pfc::bit_array& p_affected, const pfc::bit_array& p_state )
+void my_playlist_callback_static::on_items_selection_change( t_size, const pfc::bit_array&, const pfc::bit_array& )
 {
     panel::message_manager::instance().post_msg_to_all( static_cast<UINT>( PlayerMessage::fb_playlist_items_selection_change ) );
 }
@@ -366,31 +366,31 @@ void my_playlist_callback_static::on_playlist_activate( t_size p_old, t_size p_n
     }
 }
 
-void my_playlist_callback_static::on_playlist_created( t_size p_index, const char* p_name, t_size p_name_len )
+void my_playlist_callback_static::on_playlist_created( t_size, const char*, t_size )
 {
     on_playlists_changed();
 }
 
-void my_playlist_callback_static::on_playlist_locked( t_size p_playlist, bool p_locked )
+void my_playlist_callback_static::on_playlist_locked( t_size, bool )
 {
     on_playlists_changed();
 }
 
-void my_playlist_callback_static::on_playlist_renamed( t_size p_index, const char* p_new_name, t_size p_new_name_len )
+void my_playlist_callback_static::on_playlist_renamed( t_size, const char*, t_size )
 {
     on_playlists_changed();
 }
 
-void my_playlist_callback_static::on_playlists_removing( const pfc::bit_array& p_mask, t_size p_old_count, t_size p_new_count )
+void my_playlist_callback_static::on_playlists_removing( const pfc::bit_array&, t_size, t_size )
 {
 }
 
-void my_playlist_callback_static::on_playlists_removed( const pfc::bit_array& p_mask, t_size p_old_count, t_size p_new_count )
+void my_playlist_callback_static::on_playlists_removed( const pfc::bit_array&, t_size, t_size )
 {
     on_playlists_changed();
 }
 
-void my_playlist_callback_static::on_playlists_reorder( const t_size* p_order, t_size p_count )
+void my_playlist_callback_static::on_playlists_reorder( const t_size*, t_size )
 {
     on_playlists_changed();
 }

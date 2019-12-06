@@ -1,6 +1,6 @@
 #pragma once
 
-#include <stdint.h>
+#include <cstdint>
 
 namespace mozjs
 {
@@ -15,11 +15,11 @@ public:
 
 public:
     /// @throw smp::SmpException
-    static uint32_t GetMaxHeap();
-    static uint64_t GetTotalHeapUsageForGlobal( JSContext* cx, JS::HandleObject jsGlobal );
+    [[nodiscard]] static uint32_t GetMaxHeap();
+    [[nodiscard]] static uint64_t GetTotalHeapUsageForGlobal( JSContext* cx, JS::HandleObject jsGlobal );
     /// @details Returns last heap size instead of the current size,
     /// but this should be good enough for users
-    uint64_t GetTotalHeapUsage() const;
+    [[nodiscard]] uint64_t GetTotalHeapUsage() const;
 
     /// @throw smp::SmpException
     void Initialize( JSContext* pJsCtx );

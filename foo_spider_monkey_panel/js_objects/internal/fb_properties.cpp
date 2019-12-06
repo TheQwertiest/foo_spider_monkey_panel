@@ -21,10 +21,6 @@ FbProperties::FbProperties( JSContext* cx, panel::js_panel_window& parentPanel )
 {
 }
 
-FbProperties::~FbProperties()
-{
-}
-
 std::unique_ptr<FbProperties>
 FbProperties::Create( JSContext* cx, panel::js_panel_window& parentPanel )
 {

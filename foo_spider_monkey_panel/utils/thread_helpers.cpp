@@ -23,7 +23,7 @@ namespace smp::utils
 
 void SetThreadName( std::thread& thread, const char* threadName )
 {
-    THREADNAME_INFO info;
+    THREADNAME_INFO info{};
     info.dwType = 0x1000;
     info.szName = threadName;
     info.dwThreadID = ::GetThreadId( static_cast<HANDLE>( thread.native_handle() ) );

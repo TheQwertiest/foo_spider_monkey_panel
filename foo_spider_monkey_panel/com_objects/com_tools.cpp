@@ -11,7 +11,7 @@ type_info_cache_holder::type_info_cache_holder()
 {
 }
 
-bool type_info_cache_holder::empty() throw()
+bool type_info_cache_holder::empty()
 {
     return !m_type_info;
 }

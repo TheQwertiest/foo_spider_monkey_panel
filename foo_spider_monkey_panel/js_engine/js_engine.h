@@ -11,7 +11,6 @@ SMP_MJS_SUPPRESS_WARNINGS_POP
 #include <map>
 #include <mutex>
 
-class js_panel_window;
 struct JSContext;
 
 namespace smp

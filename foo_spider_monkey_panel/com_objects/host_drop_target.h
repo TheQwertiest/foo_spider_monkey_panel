@@ -17,7 +17,7 @@ protected:
 public:
     /// @throw smp::SmpException
     HostDropTarget( HWND hWnd );
-    virtual ~HostDropTarget() = default;
+    ~HostDropTarget() override = default;
 
     // IDropTarget
     HRESULT OnDragEnter( IDataObject* pDataObj, DWORD grfKeyState, POINTL pt, DWORD* pdwEffect ) override;

@@ -37,7 +37,7 @@ public:
     static const JSNative JsConstructor;
 
 public:
-    ~JsEnumerator() = default;
+    ~JsEnumerator() override = default;
 
     static std::unique_ptr<JsEnumerator> CreateNative( JSContext* cx, IUnknown* pUnknown );
     static size_t GetInternalSize( IUnknown* pUnknown );

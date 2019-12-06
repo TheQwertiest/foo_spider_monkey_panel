@@ -223,7 +223,7 @@ void JsFbTooltip::put_TrackActivate( bool activate )
         toolInfo_->uFlags &= ~( TTF_TRACK | TTF_ABSOLUTE );
     }
 
-    SendMessage( hTooltipWnd_, TTM_TRACKACTIVATE, activate, (LPARAM)toolInfo_.get() );
+    SendMessage( hTooltipWnd_, TTM_TRACKACTIVATE, static_cast<WPARAM>( activate ), (LPARAM)toolInfo_.get() );
 }
 
 } // namespace mozjs

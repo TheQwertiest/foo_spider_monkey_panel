@@ -31,7 +31,7 @@ public:
     static const JsPrototypeId PrototypeId;
 
 public:
-    ~JsFbTooltip();
+    ~JsFbTooltip() override;
 
     static std::unique_ptr<JsFbTooltip> CreateNative( JSContext* cx, HWND hParentWnd, smp::panel::PanelTooltipParam& p_param_ptr );
     static size_t GetInternalSize( HWND hParentWnd, const smp::panel::PanelTooltipParam& p_param_ptr );

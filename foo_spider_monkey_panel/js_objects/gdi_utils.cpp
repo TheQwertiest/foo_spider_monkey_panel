@@ -74,10 +74,6 @@ JsGdiUtils::JsGdiUtils( JSContext* cx )
 {
 }
 
-JsGdiUtils::~JsGdiUtils()
-{
-}
-
 std::unique_ptr<JsGdiUtils>
 JsGdiUtils::CreateNative( JSContext* cx )
 {

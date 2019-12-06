@@ -53,7 +53,7 @@ protected:
     }
 
     /// @details Might be called off main thread
-    virtual ~WrappedJs() = default;
+    ~WrappedJs() override = default;
 
     /// @details Might be called off main thread
     void FinalRelease() override
@@ -301,7 +301,7 @@ void VariantToJs( JSContext* cx, VARIANTARG& var, JS::MutableHandleValue rval )
         break;
 
     case VT_BOOL:
-        rval.setBoolean( FETCH( boolVal ) ? true : false );
+        rval.setBoolean( FETCH( boolVal ) );
         break;
 
     case VT_UI1:
