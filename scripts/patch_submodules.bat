@@ -9,7 +9,7 @@ echo Patching submodules
 
 cd %ROOT_DIR%
 
-git apply %CUR_DIR%patches\foobar2000.patch %CUR_DIR%patches\pfc.patch %CUR_DIR%patches\columns_ui-sdk.patch %CUR_DIR%patches\scintilla.patch 
+git apply %CUR_DIR%patches\foobar2000.patch %CUR_DIR%patches\pfc.patch %CUR_DIR%patches\scintilla.patch 
 if errorlevel 1 goto fail
 exit /b 0
 
