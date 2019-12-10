@@ -112,3 +112,13 @@ diff --git a/submodules/foobar2000/SDK/foobar2000.h b/submodules/foobar2000/SDK/
  // #define FOOBAR2000_TARGET_VERSION 80 // 1.5
  
  // Use this to determine what foobar2000 SDK version is in use, undefined for releases older than 2018
+--- a/submodules/foobar2000/SDK/service.h
++++ a/submodules/foobar2000/SDK/service.h
+@@ -3,6 +3,7 @@
+ #include <utility> // std::forward
+ 
+ typedef const void* service_class_ref;
++class service_factory_base;
+ 
+ PFC_DECLARE_EXCEPTION(exception_service_not_found,pfc::exception,"Service not found");
+ PFC_DECLARE_EXCEPTION(exception_service_extension_not_found,pfc::exception,"Service extension not found");
