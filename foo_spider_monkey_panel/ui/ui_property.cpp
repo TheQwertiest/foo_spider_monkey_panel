@@ -94,7 +94,7 @@ LRESULT CDialogProperty::OnPinItemChanged( LPNMHDR pnmh )
                 else if constexpr ( std::is_same_v<T, std::u8string> )
                 {
                     var.ChangeType( VT_BSTR );
-                    arg = smp::unicode::ToU8( var.bstrVal );
+                    arg = smp::unicode::ToU8( std::wstring_view{ var.bstrVal ? var.bstrVal : L"" } );
                 }
                 else
                 {

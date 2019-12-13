@@ -189,7 +189,7 @@ public:
 
     void ReplaceSel( const CString& newText )
     {
-        sciEditor_.ReplaceSelection( smp::unicode::ToU8( static_cast<const wchar_t*>( newText ) ).c_str() );
+        sciEditor_.ReplaceSelection( smp::unicode::ToU8( std::wstring_view{ static_cast<const wchar_t*>( newText ) } ).c_str() );
     }
 
     LONG GetSelText( CString& strText ) const
@@ -307,10 +307,12 @@ private:
             const auto prevState = lastState_;
 
             lastState_.FromFrFlags( pFindReplaceDialog->m_fr.Flags );
-            lastState_.findText = smp::unicode::ToU8( pFindReplaceDialog->GetFindString() );
+            const auto findCStr = pFindReplaceDialog->GetFindString();
+            lastState_.findText = smp::unicode::ToU8( std::wstring_view{ findCStr ? findCStr : L"" } );
             if ( !isFindOnlyDialog_ )
             {
-                lastState_.replaceText = smp::unicode::ToU8( pFindReplaceDialog->GetReplaceString() );
+                const auto replaceCStr = pFindReplaceDialog->GetReplaceString();
+                lastState_.replaceText = smp::unicode::ToU8( std::wstring_view{ replaceCStr ? replaceCStr : L"" } );
             }
             lastState_.useWrapAround = pFindReplaceDialog->GetWrapAroundSearchState();
             lastState_.useRegExp = pFindReplaceDialog->GetRegExpState();
