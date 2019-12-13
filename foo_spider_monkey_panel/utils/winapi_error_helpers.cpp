@@ -28,12 +28,13 @@ std::u8string MessageFromErrorCode( DWORD errorCode )
     {
         return std::u8string{ "Unknown error" };
     }
+    assert( lpMsgBuf );
 
     utils::final_action autoMsg( [lpMsgBuf] {
         LocalFree( lpMsgBuf );
     } );
 
-    return smp::unicode::ToU8( reinterpret_cast<const wchar_t*>( lpMsgBuf ) );
+    return smp::unicode::ToU8( std::wstring_view{ reinterpret_cast<const wchar_t*>( lpMsgBuf ) } );
 }
 
 void ThrowParsedWinapiError( DWORD errorCode, std::string_view functionName )

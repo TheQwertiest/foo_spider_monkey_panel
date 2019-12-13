@@ -29,9 +29,9 @@ void ReportActiveXError( HRESULT hresult, EXCEPINFO& exception, UINT& argerr )
 
         if ( exception.bstrDescription )
         {
-            const auto descriptionStr = smp::unicode::ToU8( (wchar_t*)exception.bstrDescription );
-            const auto sourceStr = smp::unicode::ToU8( (wchar_t*)exception.bstrSource );
-            throw SmpException( fmt::format( "ActiveXObject: ({}) {}", sourceStr, descriptionStr ) );
+            const auto errorSource8 = smp::unicode::ToU8( std::wstring_view{ exception.bstrSource ? static_cast<const wchar_t*>( exception.bstrSource ) : L"<none>" } );
+            const auto errorDesc8 = smp::unicode::ToU8( std::wstring_view{ exception.bstrDescription ? exception.bstrDescription : L"<none>" } );
+            throw SmpException( fmt::format( "ActiveXObject: source: {}; description: {}", errorSource8, errorDesc8 ) );
         }
         else if ( FAILED( exception.scode ) )
         {

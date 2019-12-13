@@ -60,7 +60,7 @@ void draw_drag_image_label( HWND wnd, bool isThemed, HTHEME theme, HDC dc, const
     constexpr int theme_state = 0;
     const bool useTheming = UsesTheming( isThemed, theme, DD_TEXTBG, theme_state );
 
-    const std::wstring wtext = smp::unicode::ToWide( text );
+    const auto wtext = smp::unicode::ToWide( std::u8string_view{ text ? text : "" } );
     DWORD text_flags = DT_CENTER | DT_WORDBREAK;
     RECT rc_text = { 0 };
 
