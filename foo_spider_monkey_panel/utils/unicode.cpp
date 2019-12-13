@@ -1,4 +1,5 @@
 #include <stdafx.h>
+
 #include "unicode.h"
 
 namespace smp::unicode
@@ -6,6 +7,11 @@ namespace smp::unicode
 
 std::wstring ToWide( std::u8string_view src )
 {
+    if ( src.empty() )
+    {
+        return std::wstring{};
+    }
+
     size_t stringLen = MultiByteToWideChar( CP_UTF8, 0, src.data(), src.size(), nullptr, 0 );
     std::wstring strVal;
     strVal.resize( stringLen );
@@ -13,7 +19,7 @@ std::wstring ToWide( std::u8string_view src )
     stringLen = MultiByteToWideChar( CP_UTF8, 0, src.data(), src.size(), strVal.data(), strVal.size() );
     strVal.resize( stringLen );
 
-	return strVal;
+    return strVal;
 }
 
 std::wstring ToWide( const pfc::string_base& src )
@@ -23,6 +29,11 @@ std::wstring ToWide( const pfc::string_base& src )
 
 std::u8string ToU8( std::wstring_view src )
 {
+    if ( src.empty() )
+    {
+        return std::u8string{};
+    }
+
     size_t stringLen = WideCharToMultiByte( CP_UTF8, 0, src.data(), src.size(), nullptr, 0, nullptr, nullptr );
     std::u8string strVal;
     strVal.resize( stringLen );
@@ -30,7 +41,7 @@ std::u8string ToU8( std::wstring_view src )
     stringLen = WideCharToMultiByte( CP_UTF8, 0, src.data(), src.size(), strVal.data(), strVal.size(), nullptr, nullptr );
     strVal.resize( stringLen );
 
-	return strVal;
+    return strVal;
 }
 
 } // namespace smp::unicode
