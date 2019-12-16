@@ -47,7 +47,7 @@ protected:
     bool show_configure_popup( HWND parent );
     void show_property_popup( HWND parent );
 
-    static void build_context_menu( HMENU menu, int x, int y, uint32_t id_base );
+    static void build_context_menu( HMENU hMenu, int x, int y, uint32_t id_base );
     void execute_context_menu_command( uint32_t id, uint32_t id_base );
 
 private:
@@ -77,10 +77,9 @@ public:
     virtual HFONT GetFont( unsigned type, const GUID& guid ) = 0;
 
     void Repaint( bool force = false );
-    void RepaintRect( LONG x, LONG y, LONG w, LONG h, bool force = false );
-    void RepaintRect( const RECT& rect, bool force = false );
+    void RepaintRect( const CRect& rc, bool force = false );
     /// @details Calls Repaint inside
-    void RepaintBackground( LPRECT lprcUpdate = nullptr );
+    void RepaintBackground( const CRect& updateRc );
 
     [[nodiscard]] config::PanelSettings& GetSettings();
     [[nodiscard]] const config::PanelSettings& GetSettings() const;
@@ -91,22 +90,22 @@ private:
 
     std::shared_ptr<mozjs::JsContainer> pJsContainer_;
 
-    HWND hWnd_ = nullptr;
+    CWindow wnd_;
     HDC hDc_ = nullptr;
 
     PanelInfo m_script_info; // TODO: move to JsContainer
 
     uint32_t height_ = 0;         // Used externally as well
     uint32_t width_ = 0;          // Used externally as well
-    HBITMAP hBitmap_ = nullptr;   // used only internally
-    HBITMAP hBitmapBg_ = nullptr; // used only internally
+    CBitmap bmp_ = nullptr;   // used only internally
+    CBitmap bmpBg_ = nullptr;     // used only internally
 
     bool isBgRepaintNeeded_ = false;           // used only internally
     bool isPaintInProgress_ = false;           // used only internally
     bool isMouseTracked_ = false;              // used only internally
     ui_selection_holder::ptr selectionHolder_; // used only internally
 
-    t_size dlgCode_ = 0;                   // modified only from external
+    size_t dlgCode_ = 0;                   // modified only from external
     POINT maxSize_ = { INT_MAX, INT_MAX }; // modified only from external
     POINT minSize_ = { 0, 0 };             // modified only from external
     PanelTooltipParam panelTooltipParam_;  // modified only from external
@@ -157,9 +156,9 @@ private:
     void on_mouse_wheel_h( WPARAM wp );
     void on_notify_data( WPARAM wp, LPARAM lp );
     void on_output_device_changed();
-    void on_paint( HDC dc, LPRECT lpUpdateRect );
+    void on_paint( HDC dc, const CRect& updateRc );
     void on_paint_error( HDC memdc );
-    void on_paint_user( HDC memdc, LPRECT lpUpdateRect );
+    void on_paint_user( HDC memdc, const CRect& lpUpupdateRcdateRect );
     void on_playback_dynamic_info();
     void on_playback_dynamic_info_track();
     void on_playback_edited( CallbackData& callbackData );

@@ -512,7 +512,7 @@ void JsWindow::RepaintRect( uint32_t x, uint32_t y, uint32_t w, uint32_t h, bool
         return;
     }
 
-    parentPanel_.RepaintRect( x, y, w, h, force );
+    parentPanel_.RepaintRect( CRect{ (int)x, (int)y, (int)( x + w ), (int)( y + h ) }, force );
 }
 
 void JsWindow::RepaintRectWithOpt( size_t optArgCount, uint32_t x, uint32_t y, uint32_t w, uint32_t h, bool force )
