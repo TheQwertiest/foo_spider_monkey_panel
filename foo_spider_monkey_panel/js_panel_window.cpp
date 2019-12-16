@@ -80,7 +80,7 @@ void js_panel_window::update_script( const char* code )
     if ( pJsContainer_ )
     { // Panel might be not loaded at all, if settings are changed from Preferences.
         script_unload();
-        script_load();
+        script_load( false );
     }
 }
 
@@ -267,14 +267,6 @@ std::optional<LRESULT> js_panel_window::process_window_messages( UINT msg, WPARA
         RECT rect;
         GetClientRect( hWnd_, &rect );
         on_size( rect.right - rect.left, rect.bottom - rect.top );
-        if ( settings_.isPseudoTransparent )
-        {
-            message_manager::instance().post_msg( hWnd_, static_cast<UINT>( InternalAsyncMessage::refresh_bg ) );
-        }
-        else
-        {
-            Repaint();
-        }
         return 0;
     }
     case WM_GETMINMAXINFO:
@@ -617,17 +609,9 @@ std::optional<LRESULT> js_panel_window::process_internal_sync_messages( Internal
         script_unload();
         return 0;
     }
-    case InternalSyncMessage::update_size:
+    case InternalSyncMessage::update_size_on_reload:
     {
         on_size( width_, height_ );
-        if ( settings_.isPseudoTransparent )
-        {
-            message_manager::instance().post_msg( hWnd_, static_cast<UINT>( InternalAsyncMessage::refresh_bg ) );
-        }
-        else
-        {
-            Repaint();
-        }
         return 0;
     }
     case InternalSyncMessage::wnd_drag_drop:
@@ -914,7 +898,7 @@ void js_panel_window::RepaintBackground( LPRECT lprcUpdate /*= nullptr */ )
     }
 }
 
-bool js_panel_window::script_load()
+bool js_panel_window::script_load( bool isFirstLoad )
 {
     pfc::hires_timer timer;
     timer.start();
@@ -946,13 +930,17 @@ bool js_panel_window::script_load()
         return false;
     }
 
-    // HACK: Script update will not call on_size, so invoke it explicitly
-    SendMessage( hWnd_, static_cast<UINT>( InternalSyncMessage::update_size ), 0, 0 );
-
     FB2K_console_formatter() << fmt::format(
-                                    SMP_NAME_WITH_VERSION " ({}): initialized in {} ms",
-                                    ScriptInfo().build_info_string(),
-                                    static_cast<uint32_t>( timer.query() * 1000 ) );
+        SMP_NAME_WITH_VERSION " ({}): initialized in {} ms",
+        ScriptInfo().build_info_string(),
+        static_cast<uint32_t>( timer.query() * 1000 ) );
+
+    if ( !isFirstLoad )
+    { // Reloading script won't trigger WM_SIZE, so invoke it explicitly.
+        // We need to go through message loop to handle all JS logic correctly (e.g. jobs).
+        SendMessage( hWnd_, static_cast<UINT>( InternalSyncMessage::update_size_on_reload ), 0, 0 );
+    }
+
     return true;
 }
 
@@ -1035,7 +1023,7 @@ void js_panel_window::on_panel_create( HWND hWnd )
     message_manager::instance().AddWindow( hWnd_ );
 
     pJsContainer_ = std::make_shared<mozjs::JsContainer>( *this );
-    script_load();
+    script_load( true );
 }
 
 void js_panel_window::on_panel_destroy()
@@ -1639,6 +1627,15 @@ void js_panel_window::on_size( uint32_t w, uint32_t h )
     pJsContainer_->InvokeJsCallback( "on_size",
                                      static_cast<uint32_t>( w ),
                                      static_cast<uint32_t>( h ) );
+
+    if ( settings_.isPseudoTransparent )
+    {
+        message_manager::instance().post_msg( hWnd_, static_cast<UINT>( InternalAsyncMessage::refresh_bg ) );
+    }
+    else
+    {
+        Repaint();
+    }
 }
 
 void js_panel_window::on_volume_change( CallbackData& callbackData )
