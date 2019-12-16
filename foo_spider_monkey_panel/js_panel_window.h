@@ -112,7 +112,7 @@ private:
     PanelTooltipParam panelTooltipParam_;  // modified only from external
 
 private:
-    bool script_load();
+    bool script_load( bool isFirstLoad );
     void script_unload();
     void create_context();
     void delete_context();

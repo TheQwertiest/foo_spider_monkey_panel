@@ -76,7 +76,7 @@ enum class InternalSyncMessage : UINT
     notify_data = first_message,
     script_error,
     terminate_script,
-    update_size,
+    update_size_on_reload,
     wnd_drag_drop,
     wnd_drag_enter,
     wnd_drag_leave,
