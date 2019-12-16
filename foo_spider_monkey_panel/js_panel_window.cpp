@@ -87,7 +87,7 @@ void js_panel_window::update_script( const char* code )
 void js_panel_window::JsEngineFail( const std::u8string& errorText )
 {
     smp::utils::ReportErrorWithPopup( errorText );
-    SendMessage( hWnd_, static_cast<UINT>( InternalSyncMessage::script_error ), 0, 0 );
+    wnd_.SendMessage( static_cast<UINT>( InternalSyncMessage::script_error ), 0, 0 );
 }
 
 LRESULT js_panel_window::on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
@@ -95,7 +95,7 @@ LRESULT js_panel_window::on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
     static uint32_t nestedCounter = 0;
     ++nestedCounter;
 
-    utils::final_action jobsRunner( [hWnd = hWnd_] {
+    utils::final_action jobsRunner( [hWnd = wnd_.m_hWnd] {
         --nestedCounter;
 
         if ( !nestedCounter )
@@ -113,7 +113,7 @@ LRESULT js_panel_window::on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
     {
         if ( nestedCounter == 1 || MessageBlockingScope::IsBlocking() )
         {
-            auto optMessage = message_manager::instance().ClaimAsyncMessage( hWnd_, msg, wp, lp );
+            auto optMessage = message_manager::instance().ClaimAsyncMessage( wnd_, msg, wp, lp );
             if ( optMessage )
             {
                 const auto [asyncMsg, asyncWp, asyncLp] = *optMessage;
@@ -236,8 +236,8 @@ std::optional<LRESULT> js_panel_window::process_window_messages( UINT msg, WPARA
 
         if ( settings_.isPseudoTransparent && isBgRepaintNeeded_ )
         { // Two pass redraw: paint BG > Repaint() > paint FG
-            RECT rc;
-            GetUpdateRect( hWnd_, &rc, FALSE );
+            CRect rc;
+            wnd_.GetUpdateRect( &rc, FALSE );
             RepaintBackground( &rc ); ///< Calls Repaint() inside
 
             isBgRepaintNeeded_ = false;
@@ -254,19 +254,19 @@ std::optional<LRESULT> js_panel_window::process_window_messages( UINT msg, WPARA
             return 0;
         }
 
-        PAINTSTRUCT ps;
-        HDC dc = BeginPaint( hWnd_, &ps );
-        on_paint( dc, &ps.rcPaint );
-        EndPaint( hWnd_, &ps );
+        {
+            CPaintDC dc{ wnd_ };
+            on_paint( dc, dc.m_ps.rcPaint );
+        }
 
         isPaintInProgress_ = false;
         return 0;
     }
     case WM_SIZE:
     {
-        RECT rect;
-        GetClientRect( hWnd_, &rect );
-        on_size( rect.right - rect.left, rect.bottom - rect.top );
+        CRect rc;
+        wnd_.GetClientRect( &rc );
+        on_size( rc.Width(), rc.Height() );
         return 0;
     }
     case WM_GETMINMAXINFO:
@@ -370,7 +370,7 @@ std::optional<LRESULT> js_panel_window::process_window_messages( UINT msg, WPARA
 
 std::optional<LRESULT> js_panel_window::process_callback_messages( CallbackMessage msg )
 {
-    auto pCallbackData = message_manager::instance().ClaimCallbackMessageData( hWnd_, msg );
+    auto pCallbackData = message_manager::instance().ClaimCallbackMessageData( wnd_, msg );
     auto& callbackData = *pCallbackData;
 
     switch ( msg )
@@ -663,12 +663,12 @@ std::optional<LRESULT> js_panel_window::process_internal_async_messages( Interna
     }
     case InternalAsyncMessage::show_configure:
     {
-        show_configure_popup( hWnd_ );
+        show_configure_popup( wnd_ );
         return 0;
     }
     case InternalAsyncMessage::show_properties:
     {
-        show_property_popup( hWnd_ );
+        show_property_popup( wnd_ );
         return 0;
     }
     default:
@@ -704,15 +704,16 @@ void js_panel_window::show_property_popup( HWND parent )
     (void)dlg.DoModal( parent );
 }
 
-void js_panel_window::build_context_menu( HMENU menu, int x, int y, uint32_t id_base )
+void js_panel_window::build_context_menu( HMENU hMenu, int x, int y, uint32_t id_base )
 {
-    ::AppendMenu( menu, MF_STRING, id_base + 1, L"&Reload" );
-    ::AppendMenu( menu, MF_SEPARATOR, 0, nullptr );
-    ::AppendMenu( menu, MF_STRING, id_base + 2, L"&Open component folder" );
-    ::AppendMenu( menu, MF_STRING, id_base + 3, L"&Open documentation" );
-    ::AppendMenu( menu, MF_SEPARATOR, 0, nullptr );
-    ::AppendMenu( menu, MF_STRING, id_base + 4, L"&Properties" );
-    ::AppendMenu( menu, MF_STRING, id_base + 5, L"&Configure..." );
+    CMenuHandle menu{ hMenu };
+    menu.AppendMenu( MF_STRING, id_base + 1, L"&Reload" );
+    menu.AppendMenu( MF_SEPARATOR, UINT_PTR{}, LPCWSTR{} );
+    menu.AppendMenu( MF_STRING, id_base + 2, L"&Open component folder" );
+    menu.AppendMenu( MF_STRING, id_base + 3, L"&Open documentation" );
+    menu.AppendMenu( MF_SEPARATOR, UINT_PTR{}, LPCWSTR{} );
+    menu.AppendMenu( MF_STRING, id_base + 4, L"&Properties" );
+    menu.AppendMenu( MF_STRING, id_base + 5, L"&Configure..." );
 }
 
 void js_panel_window::execute_context_menu_command( uint32_t id, uint32_t id_base )
@@ -738,12 +739,12 @@ void js_panel_window::execute_context_menu_command( uint32_t id, uint32_t id_bas
     }
     case 4:
     {
-        show_property_popup( hWnd_ );
+        show_property_popup( wnd_ );
         break;
     }
     case 5:
     {
-        show_configure_popup( hWnd_ );
+        show_configure_popup( wnd_ );
         break;
     }
     }
@@ -761,7 +762,7 @@ HDC js_panel_window::GetHDC() const
 
 HWND js_panel_window::GetHWND() const
 {
-    return hWnd_;
+    return wnd_;
 }
 
 POINT& js_panel_window::MaxSize()
@@ -806,24 +807,19 @@ PanelType js_panel_window::GetPanelType() const
 
 void js_panel_window::Repaint( bool force /*= false */ )
 {
-    RedrawWindow( hWnd_, nullptr, nullptr, RDW_INVALIDATE | ( force ? RDW_UPDATENOW : 0 ) );
+    wnd_.RedrawWindow( nullptr, nullptr, RDW_INVALIDATE | ( force ? RDW_UPDATENOW : 0 ) );
 }
 
-void js_panel_window::RepaintRect( LONG x, LONG y, LONG w, LONG h, bool force /*= false */ )
+void js_panel_window::RepaintRect( const CRect& rc, bool force )
 {
-    RepaintRect( RECT{ x, y, x + w, y + h }, force );
+    wnd_.RedrawWindow( &rc, nullptr, RDW_INVALIDATE | ( force ? RDW_UPDATENOW : 0 ) );
 }
 
-void js_panel_window::RepaintRect( const RECT& rect, bool force /*= false */ )
+void js_panel_window::RepaintBackground( const CRect& updateRc )
 {
-    RedrawWindow( hWnd_, &rect, nullptr, RDW_INVALIDATE | ( force ? RDW_UPDATENOW : 0 ) );
-}
+    CWindow wnd_parent = GetAncestor( wnd_, GA_PARENT );
 
-void js_panel_window::RepaintBackground( LPRECT lprcUpdate /*= nullptr */ )
-{
-    HWND wnd_parent = GetAncestor( hWnd_, GA_PARENT );
-
-    if ( !wnd_parent || IsIconic( core_api::get_main_window() ) || !IsWindowVisible( hWnd_ ) )
+    if ( !wnd_parent || IsIconic( core_api::get_main_window() ) || !wnd_.IsWindowVisible() )
     {
         return;
     }
@@ -833,7 +829,7 @@ void js_panel_window::RepaintBackground( LPRECT lprcUpdate /*= nullptr */ )
     HWND hwnd = nullptr;
     while ( ( hwnd = FindWindowEx( wnd_parent, hwnd, nullptr, nullptr ) ) )
     {
-        if ( hwnd == hWnd_ )
+        if ( hwnd == wnd_ )
         {
             continue;
         }
@@ -846,55 +842,39 @@ void js_panel_window::RepaintBackground( LPRECT lprcUpdate /*= nullptr */ )
         }
     }
 
-    RECT rect_child = { 0, 0, (LONG)width_, (LONG)height_ };
-
-    HRGN rgn_child = nullptr;
-    if ( lprcUpdate )
+    CRect rc_child{ 0, 0, (LONG)width_, (LONG)height_ };
+    CRgn rgn_child{ CreateRectRgnIndirect( &rc_child ) };
     {
-        HRGN rgn = CreateRectRgnIndirect( lprcUpdate );
-        rgn_child = CreateRectRgnIndirect( &rect_child );
-        CombineRgn( rgn_child, rgn_child, rgn, RGN_DIFF );
-        DeleteRgn( rgn );
-    }
-    else
-    {
-        rgn_child = CreateRectRgn( 0, 0, 0, 0 );
+        CRgn rgn{ CreateRectRgnIndirect( &updateRc ) };
+        rgn_child.CombineRgn( rgn, RGN_DIFF );
     }
 
-    POINT pt{ 0, 0 };
-    ClientToScreen( hWnd_, &pt );
-    ScreenToClient( wnd_parent, &pt );
+    CPoint pt{ 0, 0 };
+    wnd_.ClientToScreen( &pt );
+    wnd_parent.ScreenToClient( &pt );
 
-    RECT rect_parent;
-    CopyRect( &rect_parent, &rect_child );
-    ClientToScreen( hWnd_, (LPPOINT)&rect_parent );
-    ClientToScreen( hWnd_, (LPPOINT)&rect_parent + 1 );
-    ScreenToClient( wnd_parent, (LPPOINT)&rect_parent );
-    ScreenToClient( wnd_parent, (LPPOINT)&rect_parent + 1 );
+    CRect rc_parent{ rc_child };
+    wnd_.ClientToScreen( &rc_parent );
+    wnd_parent.ScreenToClient( &rc_parent );
 
     // Force Repaint
-    SetWindowRgn( hWnd_, rgn_child, FALSE );
-    RedrawWindow( wnd_parent, &rect_parent, nullptr, RDW_INVALIDATE | RDW_ERASE | RDW_ERASENOW | RDW_UPDATENOW );
+    wnd_.SetWindowRgn( rgn_child, FALSE );
+    wnd_parent.RedrawWindow( &rc_parent, nullptr, RDW_INVALIDATE | RDW_ERASE | RDW_ERASENOW | RDW_UPDATENOW );
 
     {
         // Background bitmap
-        const HDC dc_parent = GetDC( wnd_parent );
-        const HDC hdc_bk = CreateCompatibleDC( dc_parent );
-        const HBITMAP old_bmp = SelectBitmap( hdc_bk, hBitmapBg_ );
+        CClientDC dc_parent{ wnd_parent };
+        CDC dc_bg{ dc_parent.CreateCompatibleDC() };
+        gdi::ObjectSelector autoBmp( dc_bg, bmpBg_.m_hBitmap );
 
         // Paint BK
-        BitBlt( hdc_bk, rect_child.left, rect_child.top, rect_child.right - rect_child.left, rect_child.bottom - rect_child.top, dc_parent, pt.x, pt.y, SRCCOPY );
-
-        SelectBitmap( hdc_bk, old_bmp );
-        DeleteDC( hdc_bk );
-        ReleaseDC( wnd_parent, dc_parent );
+        dc_bg.BitBlt( rc_child.left, rc_child.top, rc_child.Width(), rc_child.Height(), dc_parent, pt.x, pt.y, SRCCOPY );
     }
 
-    DeleteRgn( rgn_child );
-    SetWindowRgn( hWnd_, nullptr, FALSE );
+    wnd_.SetWindowRgn( nullptr, FALSE );
     if ( smp::config::EdgeStyle::NO_EDGE != settings_.edgeStyle )
     {
-        SendMessage( hWnd_, WM_NCPAINT, 1, 0 );
+        wnd_.SendMessage( WM_NCPAINT, 1, 0 );
     }
 }
 
@@ -903,22 +883,22 @@ bool js_panel_window::script_load( bool isFirstLoad )
     pfc::hires_timer timer;
     timer.start();
 
-    message_manager::instance().EnableAsyncMessages( hWnd_ );
+    message_manager::instance().EnableAsyncMessages( wnd_ );
 
     const auto extstyle = [&]() {
-        DWORD extstyle = GetWindowLongPtr( hWnd_, GWL_EXSTYLE );
+        DWORD extstyle = wnd_.GetWindowLongPtr( GWL_EXSTYLE );
         extstyle &= ~WS_EX_CLIENTEDGE & ~WS_EX_STATICEDGE;
         extstyle |= ConvertEdgeStyleToNativeFlags( settings_.edgeStyle );
 
         return extstyle;
     }();
 
-    SetWindowLongPtr( hWnd_, GWL_EXSTYLE, extstyle );
-    SetWindowPos( hWnd_, nullptr, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED );
+    wnd_.SetWindowLongPtr( GWL_EXSTYLE, extstyle );
+    wnd_.SetWindowPos( nullptr, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED );
 
     maxSize_ = { INT_MAX, INT_MAX };
     minSize_ = { 0, 0 };
-    PostMessage( hWnd_, static_cast<UINT>( MiscMessage::size_limit_changed ), uie::size_limit_all, 0 );
+    wnd_.PostMessage( static_cast<UINT>( MiscMessage::size_limit_changed ), uie::size_limit_all, 0 );
 
     if ( !pJsContainer_->Initialize() )
     { // error reporting handled inside
@@ -938,7 +918,7 @@ bool js_panel_window::script_load( bool isFirstLoad )
     if ( !isFirstLoad )
     { // Reloading script won't trigger WM_SIZE, so invoke it explicitly.
         // We need to go through message loop to handle all JS logic correctly (e.g. jobs).
-        SendMessage( hWnd_, static_cast<UINT>( InternalSyncMessage::update_size_on_reload ), 0, 0 );
+        wnd_.SendMessage( static_cast<UINT>( InternalSyncMessage::update_size_on_reload ), 0, 0 );
     }
 
     return true;
@@ -947,7 +927,7 @@ bool js_panel_window::script_load( bool isFirstLoad )
 void js_panel_window::script_unload()
 {
     pJsContainer_->InvokeJsCallback( "on_script_unload" );
-    message_manager::instance().DisableAsyncMessages( hWnd_ );
+    message_manager::instance().DisableAsyncMessages( wnd_ );
     ScriptInfo().clear();
     selectionHolder_.release();
     pJsContainer_->Finalize();
@@ -957,26 +937,24 @@ void js_panel_window::create_context()
 {
     delete_context();
 
-    hBitmap_ = CreateCompatibleBitmap( hDc_, width_, height_ );
+    bmp_.CreateCompatibleBitmap( hDc_, width_, height_ );
 
     if ( settings_.isPseudoTransparent )
     {
-        hBitmapBg_ = CreateCompatibleBitmap( hDc_, width_, height_ );
+        bmpBg_.CreateCompatibleBitmap( hDc_, width_, height_ );
     }
 }
 
 void js_panel_window::delete_context()
 {
-    if ( hBitmap_ )
+    if ( bmp_ )
     {
-        DeleteBitmap( hBitmap_ );
-        hBitmap_ = nullptr;
+        bmp_.DeleteObject();
     }
 
-    if ( hBitmapBg_ )
+    if ( bmpBg_ )
     {
-        DeleteBitmap( hBitmapBg_ );
-        hBitmapBg_ = nullptr;
+        bmpBg_.DeleteObject();
     }
 }
 
@@ -989,14 +967,11 @@ void js_panel_window::on_context_menu( int x, int y )
 
     MessageBlockingScope scope;
 
-    HMENU hMenu = CreatePopupMenu();
-    utils::final_action autoMenu( [hMenu] {
-        DestroyMenu( hMenu );
-    } );
-
+    CMenu menu = CreatePopupMenu();
     constexpr uint32_t base_id = 0;
-    build_context_menu( hMenu, x, y, base_id );
-    uint32_t ret = TrackPopupMenu( hMenu, TPM_RIGHTBUTTON | TPM_NONOTIFY | TPM_RETURNCMD, x, y, 0, hWnd_, nullptr );
+    build_context_menu( menu, x, y, base_id );
+
+    const uint32_t ret = menu.TrackPopupMenu( TPM_RIGHTBUTTON | TPM_NONOTIFY | TPM_RETURNCMD, x, y, wnd_, nullptr );
     execute_context_menu_command( ret, base_id );
 }
 
@@ -1004,23 +979,23 @@ void js_panel_window::on_erase_background()
 {
     if ( settings_.isPseudoTransparent )
     {
-        message_manager::instance().post_msg( hWnd_, static_cast<UINT>( InternalAsyncMessage::refresh_bg ) );
+        message_manager::instance().post_msg( wnd_, static_cast<UINT>( InternalAsyncMessage::refresh_bg ) );
     }
 }
 
 void js_panel_window::on_panel_create( HWND hWnd )
 {
-    hWnd_ = hWnd;
-    hDc_ = GetDC( hWnd_ );
+    wnd_ = hWnd;
+    hDc_ = wnd_.GetDC();
 
-    RECT rect;
-    GetClientRect( hWnd_, &rect );
-    width_ = rect.right - rect.left;
-    height_ = rect.bottom - rect.top;
+    CRect rc;
+    wnd_.GetClientRect( &rc );
+    width_ = rc.Width();
+    height_ = rc.Height();
 
     create_context();
 
-    message_manager::instance().AddWindow( hWnd_ );
+    message_manager::instance().AddWindow( wnd_ );
 
     pJsContainer_ = std::make_shared<mozjs::JsContainer>( *this );
     script_load( true );
@@ -1033,9 +1008,9 @@ void js_panel_window::on_panel_destroy()
     script_unload();
     pJsContainer_.reset();
 
-    message_manager::instance().RemoveWindow( hWnd_ );
+    message_manager::instance().RemoveWindow( wnd_ );
     delete_context();
-    ReleaseDC( hWnd_, hDc_ );
+    ReleaseDC( wnd_, hDc_ );
 }
 
 void js_panel_window::on_script_error()
@@ -1257,10 +1232,10 @@ void js_panel_window::on_mouse_button_down( UINT msg, WPARAM wp, LPARAM lp )
 {
     if ( settings_.shouldGrabFocus )
     {
-        SetFocus( hWnd_ );
+        wnd_.SetFocus();
     }
 
-    SetCapture( hWnd_ );
+    wnd_.SetCapture();
 
     switch ( msg )
     {
@@ -1354,7 +1329,7 @@ void js_panel_window::on_mouse_move( WPARAM wp, LPARAM lp )
 {
     if ( !isMouseTracked_ )
     {
-        TRACKMOUSEEVENT tme{ sizeof( TRACKMOUSEEVENT ), TME_LEAVE, hWnd_, HOVER_DEFAULT };
+        TRACKMOUSEEVENT tme{ sizeof( TRACKMOUSEEVENT ), TME_LEAVE, wnd_, HOVER_DEFAULT };
         TrackMouseEvent( &tme );
         isMouseTracked_ = true;
 
@@ -1392,93 +1367,90 @@ void js_panel_window::on_output_device_changed()
     pJsContainer_->InvokeJsCallback( "on_output_device_changed" );
 }
 
-void js_panel_window::on_paint( HDC dc, LPRECT lpUpdateRect )
+void js_panel_window::on_paint( HDC dc, const CRect& updateRc )
 {
-    if ( !dc || !lpUpdateRect || !hBitmap_ )
+    if ( !dc || !bmp_ )
     {
         return;
     }
-
-    auto pMemDc = gdi::CreateUniquePtr( CreateCompatibleDC( dc ) );
-    const HDC hMemDc = pMemDc.get();
-    gdi::ObjectSelector autoBmp( hMemDc, hBitmap_ );
+    
+    CDC memDc{ CreateCompatibleDC( dc ) };
+    gdi::ObjectSelector autoBmp( memDc, bmp_.m_hBitmap );
 
     if ( mozjs::JsContainer::JsStatus::EngineFailed == pJsContainer_->GetStatus()
          || mozjs::JsContainer::JsStatus::Failed == pJsContainer_->GetStatus() )
     {
-        on_paint_error( hMemDc );
+        on_paint_error( memDc );
     }
     else
     {
         if ( settings_.isPseudoTransparent )
         {
-            const auto pBkDc = gdi::CreateUniquePtr( CreateCompatibleDC( dc ) );
-            const HDC hBkDc = pBkDc.get();
-            gdi::ObjectSelector autoBgBmp( hBkDc, hBitmapBg_ );
+            CDC bgDc{ CreateCompatibleDC( dc ) };
+            gdi::ObjectSelector autoBgBmp( bgDc, bmpBg_.m_hBitmap );
 
-            BitBlt( hMemDc,
-                    lpUpdateRect->left,
-                    lpUpdateRect->top,
-                    lpUpdateRect->right - lpUpdateRect->left,
-                    lpUpdateRect->bottom - lpUpdateRect->top,
-                    hBkDc,
-                    lpUpdateRect->left,
-                    lpUpdateRect->top,
-                    SRCCOPY );
+            memDc.BitBlt( updateRc.left,
+                          updateRc.top,
+                          updateRc.Width(),
+                          updateRc.Height(),
+                          bgDc,
+                          updateRc.left,
+                          updateRc.top,
+                          SRCCOPY );
         }
         else
         {
-            RECT rc{ 0, 0, (LONG)width_, (LONG)height_ };
-            FillRect( hMemDc, &rc, ( HBRUSH )( COLOR_WINDOW + 1 ) );
+            CRect rc{ 0, 0, (LONG)width_, (LONG)height_ };
+            memDc.FillRect( &rc, ( HBRUSH )( COLOR_WINDOW + 1 ) );
         }
 
-        on_paint_user( hMemDc, lpUpdateRect );
+        on_paint_user( memDc, updateRc );
     }
 
-    BitBlt( dc, 0, 0, width_, height_, hMemDc, 0, 0, SRCCOPY );
+    BitBlt( dc, 0, 0, width_, height_, memDc, 0, 0, SRCCOPY );
 }
 
 void js_panel_window::on_paint_error( HDC memdc )
 {
-    HFONT newfont = CreateFont(
-        20,
-        0,
-        0,
-        0,
-        FW_BOLD,
-        FALSE,
-        FALSE,
-        FALSE,
-        DEFAULT_CHARSET,
-        OUT_DEFAULT_PRECIS,
-        CLIP_DEFAULT_PRECIS,
-        DEFAULT_QUALITY,
-        DEFAULT_PITCH | FF_DONTCARE,
-        L"Tahoma" );
-    const auto autoFont = smp::gdi::CreateUniquePtr( newfont );
-    gdi::ObjectSelector autoFontSelector( memdc, newfont );
+    CDCHandle cdc{ memdc };
+    CFont font;
+    font.CreateFont( 20,
+                     0,
+                     0,
+                     0,
+                     FW_BOLD,
+                     FALSE,
+                     FALSE,
+                     FALSE,
+                     DEFAULT_CHARSET,
+                     OUT_DEFAULT_PRECIS,
+                     CLIP_DEFAULT_PRECIS,
+                     DEFAULT_QUALITY,
+                     DEFAULT_PITCH | FF_DONTCARE,
+                     L"Tahoma" );
+    gdi::ObjectSelector autoFontSelector( cdc, font.m_hFont );
 
     LOGBRUSH lbBack = { BS_SOLID, RGB( 225, 60, 45 ), 0 };
-    const auto pBrush = smp::gdi::CreateUniquePtr( CreateBrushIndirect( &lbBack ) );
-    const HBRUSH hBack = pBrush.get();
+    CBrush brush;
+    brush.CreateBrushIndirect( &lbBack );
 
-    RECT rc{ 0, 0, (LONG)width_, (LONG)height_ };
-    FillRect( memdc, &rc, hBack );
-    SetBkMode( memdc, TRANSPARENT );
+    CRect rc{ 0, 0, (LONG)width_, (LONG)height_ };
+    cdc.FillRect( &rc, brush );
+    cdc.SetBkMode( TRANSPARENT );
 
-    SetTextColor( memdc, RGB( 255, 255, 255 ) );
-    DrawText( memdc, L"Aw, crashed :(", -1, &rc, DT_CENTER | DT_VCENTER | DT_NOPREFIX | DT_SINGLELINE );
+    cdc.SetTextColor( RGB( 255, 255, 255 ) );
+    cdc.DrawText( L"Aw, crashed :(", -1, &rc, DT_CENTER | DT_VCENTER | DT_NOPREFIX | DT_SINGLELINE );
 }
 
-void js_panel_window::on_paint_user( HDC memdc, LPRECT lpUpdateRect )
+void js_panel_window::on_paint_user( HDC memdc, const CRect& updateRc )
 {
     Gdiplus::Graphics gr( memdc );
 
     // SetClip() may improve performance slightly
-    gr.SetClip( Gdiplus::Rect{ lpUpdateRect->left,
-                               lpUpdateRect->top,
-                               lpUpdateRect->right - lpUpdateRect->left,
-                               lpUpdateRect->bottom - lpUpdateRect->top } );
+    gr.SetClip( Gdiplus::Rect{ updateRc.left,
+                               updateRc.top,
+                               updateRc.Width(),
+                               updateRc.Height() } );
 
     pJsContainer_->InvokeOnPaint( gr );
 }
@@ -1630,7 +1602,7 @@ void js_panel_window::on_size( uint32_t w, uint32_t h )
 
     if ( settings_.isPseudoTransparent )
     {
-        message_manager::instance().post_msg( hWnd_, static_cast<UINT>( InternalAsyncMessage::refresh_bg ) );
+        message_manager::instance().post_msg( wnd_, static_cast<UINT>( InternalAsyncMessage::refresh_bg ) );
     }
     else
     {
