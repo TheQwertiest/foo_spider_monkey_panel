@@ -1,8 +1,8 @@
 #pragma once
 
 SMP_MJS_SUPPRESS_WARNINGS_PUSH
-#include <js\Wrapper.h>
 #include <js\Proxy.h>
+#include <js\Wrapper.h>
 SMP_MJS_SUPPRESS_WARNINGS_POP
 
 struct JSFreeOp;
@@ -20,7 +20,7 @@ bool DummyGetter( JSContext* cx, unsigned argc, JS::Value* vp );
 
 const void* GetSmpProxyFamily();
 
-template<typename JsObjectType, typename ...ArgsType>
+template <typename JsObjectType, typename... ArgsType>
 void CreateAndInstallObject( JSContext* cx, JS::HandleObject parentObject, const std::u8string& propertyName, ArgsType&&... args )
 {
     JS::RootedObject objectToInstall( cx, JsObjectType::CreateJs( cx, args... ) );
@@ -66,4 +66,4 @@ T* GetInnerInstancePrivate( JSContext* cx, JS::HandleValue jsValue )
     return GetInnerInstancePrivate<T>( cx, jsObject );
 }
 
-}
+} // namespace mozjs

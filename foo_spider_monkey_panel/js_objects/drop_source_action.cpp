@@ -5,6 +5,7 @@
 #include <js_engine/js_to_native_invoker.h>
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
+#include <utils/array_x.h>
 
 namespace
 {
@@ -38,18 +39,15 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( put_Playlist, JsDropSourceAction::put_Playlist )
 MJS_DEFINE_JS_FN_FROM_NATIVE( put_Text, JsDropSourceAction::put_Text )
 MJS_DEFINE_JS_FN_FROM_NATIVE( put_ToSelect, JsDropSourceAction::put_ToSelect )
 
-const JSPropertySpec jsProperties[] = {
-    JS_PSGS( "Base", DummyGetter, put_Base, kDefaultPropsFlags ),
-    JS_PSGS( "Effect", get_Effect, put_Effect, kDefaultPropsFlags ),
-    JS_PSGS( "Playlist", DummyGetter, put_Playlist, kDefaultPropsFlags ),
-    JS_PSGS( "Text", DummyGetter, put_Text, kDefaultPropsFlags ),
-    JS_PSGS( "ToSelect", DummyGetter, put_ToSelect, kDefaultPropsFlags ),
-    JS_PS_END
-};
+constexpr auto jsProperties = smp::to_array<JSPropertySpec>(
+    { JS_PSGS( "Base", DummyGetter, put_Base, kDefaultPropsFlags ),
+      JS_PSGS( "Effect", get_Effect, put_Effect, kDefaultPropsFlags ),
+      JS_PSGS( "Playlist", DummyGetter, put_Playlist, kDefaultPropsFlags ),
+      JS_PSGS( "Text", DummyGetter, put_Text, kDefaultPropsFlags ),
+      JS_PSGS( "ToSelect", DummyGetter, put_ToSelect, kDefaultPropsFlags ),
+      JS_PS_END } );
 
-const JSFunctionSpec jsFunctions[] = {
-    JS_FS_END
-};
+constexpr auto jsFunctions = smp::to_array<JSFunctionSpec>( { JS_FS_END } );
 
 } // namespace
 
@@ -57,8 +55,8 @@ namespace mozjs
 {
 
 const JSClass JsDropSourceAction::JsClass = jsClass;
-const JSFunctionSpec* JsDropSourceAction::JsFunctions = jsFunctions;
-const JSPropertySpec* JsDropSourceAction::JsProperties = jsProperties;
+const JSFunctionSpec* JsDropSourceAction::JsFunctions = jsFunctions.data();
+const JSPropertySpec* JsDropSourceAction::JsProperties = jsProperties.data();
 const JsPrototypeId JsDropSourceAction::PrototypeId = JsPrototypeId::DropSourceAction;
 
 JsDropSourceAction::JsDropSourceAction( JSContext* cx )

@@ -6,6 +6,7 @@
 #include <js_objects/fb_metadb_handle_list.h>
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
+#include <utils/array_x.h>
 #include <utils/string_helpers.h>
 
 using namespace smp;
@@ -40,20 +41,18 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( GetName, JsFbPlaylistRecycler::GetName )
 MJS_DEFINE_JS_FN_FROM_NATIVE( Purge, JsFbPlaylistRecycler::Purge )
 MJS_DEFINE_JS_FN_FROM_NATIVE( Restore, JsFbPlaylistRecycler::Restore )
 
-const JSFunctionSpec jsFunctions[] = {
-    JS_FN( "GetContent", GetContent, 1, kDefaultPropsFlags ),
-    JS_FN( "GetName", GetName, 1, kDefaultPropsFlags ),
-    JS_FN( "Purge", Purge, 1, kDefaultPropsFlags ),
-    JS_FN( "Restore", Restore, 1, kDefaultPropsFlags ),
-    JS_FS_END
-};
+constexpr auto jsFunctions = smp::to_array<JSFunctionSpec>(
+    { JS_FN( "GetContent", GetContent, 1, kDefaultPropsFlags ),
+      JS_FN( "GetName", GetName, 1, kDefaultPropsFlags ),
+      JS_FN( "Purge", Purge, 1, kDefaultPropsFlags ),
+      JS_FN( "Restore", Restore, 1, kDefaultPropsFlags ),
+      JS_FS_END } );
 
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_Count, JsFbPlaylistRecycler::get_Count )
 
-const JSPropertySpec jsProperties[] = {
-    JS_PSG( "Count", get_Count, kDefaultPropsFlags ),
-    JS_PS_END
-};
+constexpr auto jsProperties = smp::to_array<JSPropertySpec>(
+    { JS_PSG( "Count", get_Count, kDefaultPropsFlags ),
+      JS_PS_END } );
 
 } // namespace
 
@@ -61,8 +60,8 @@ namespace mozjs
 {
 
 const JSClass JsFbPlaylistRecycler::JsClass = jsClass;
-const JSFunctionSpec* JsFbPlaylistRecycler::JsFunctions = jsFunctions;
-const JSPropertySpec* JsFbPlaylistRecycler::JsProperties = jsProperties;
+const JSFunctionSpec* JsFbPlaylistRecycler::JsFunctions = jsFunctions.data();
+const JSPropertySpec* JsFbPlaylistRecycler::JsProperties = jsProperties.data();
 
 JsFbPlaylistRecycler::JsFbPlaylistRecycler( JSContext* cx )
     : pJsCtx_( cx )

@@ -66,7 +66,7 @@ class AutoJsReport
 {
 public:
     explicit AutoJsReport( JSContext* cx );
-    ~AutoJsReport();
+    ~AutoJsReport() noexcept;
 
     void Disable();
 

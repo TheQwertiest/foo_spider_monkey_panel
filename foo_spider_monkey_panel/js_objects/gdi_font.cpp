@@ -1,9 +1,11 @@
 #include <stdafx.h>
+
 #include "gdi_font.h"
 
 #include <js_engine/js_to_native_invoker.h>
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
+#include <utils/array_x.h>
 #include <utils/gdi_error_helpers.h>
 #include <utils/scope_helpers.h>
 #include <utils/winapi_error_helpers.h>
@@ -37,22 +39,22 @@ JSClass jsClass = {
     &jsOps
 };
 
-const JSFunctionSpec jsFunctions[] = {
+constexpr auto jsFunctions = smp::to_array<JSFunctionSpec>(
+{
     JS_FS_END
-};
+});
 
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_Height, JsGdiFont::get_Height )
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_Name, JsGdiFont::get_Name )
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_Size, JsGdiFont::get_Size )
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_Style, JsGdiFont::get_Style )
 
-const JSPropertySpec jsProperties[] = {
-    JS_PSG( "Height", get_Height, kDefaultPropsFlags ),
-    JS_PSG( "Name", get_Name, kDefaultPropsFlags ),
-    JS_PSG( "Size", get_Size, kDefaultPropsFlags ),
-    JS_PSG( "Style", get_Style, kDefaultPropsFlags ),
-    JS_PS_END
-};
+constexpr auto jsProperties = smp::to_array<JSPropertySpec>(
+    { JS_PSG( "Height", get_Height, kDefaultPropsFlags ),
+      JS_PSG( "Name", get_Name, kDefaultPropsFlags ),
+      JS_PSG( "Size", get_Size, kDefaultPropsFlags ),
+      JS_PSG( "Style", get_Style, kDefaultPropsFlags ),
+      JS_PS_END } );
 
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( GdiFont_Constructor, JsGdiFont::Constructor, JsGdiFont::ConstructorWithOpt, 1 )
 
@@ -62,8 +64,8 @@ namespace mozjs
 {
 
 const JSClass JsGdiFont::JsClass = jsClass;
-const JSFunctionSpec* JsGdiFont::JsFunctions = jsFunctions;
-const JSPropertySpec* JsGdiFont::JsProperties = jsProperties;
+const JSFunctionSpec* JsGdiFont::JsFunctions = jsFunctions.data();
+const JSPropertySpec* JsGdiFont::JsProperties = jsProperties.data();
 const JsPrototypeId JsGdiFont::PrototypeId = JsPrototypeId::GdiFont;
 const JSNative JsGdiFont::JsConstructor = ::GdiFont_Constructor;
 
@@ -109,15 +111,15 @@ HFONT JsGdiFont::GetHFont() const
     return hFont_;
 }
 
-JSObject* JsGdiFont::Constructor( JSContext* cx, const std::wstring& fontName, float pxSize, uint32_t style )
+JSObject* JsGdiFont::Constructor( JSContext* cx, const std::wstring& fontName, uint32_t pxSize, uint32_t style )
 {
-    std::unique_ptr<Gdiplus::Font> pGdiFont( new Gdiplus::Font( fontName.c_str(), pxSize, style, Gdiplus::UnitPixel ) );
+    auto pGdiFont = std::make_unique<Gdiplus::Font>( fontName.c_str(), static_cast<Gdiplus::REAL>( pxSize ), style, Gdiplus::UnitPixel );
     smp::error::CheckGdiPlusObject( pGdiFont );
 
     // Generate HFONT
     // The benefit of replacing Gdiplus::Font::GetLogFontW is that you can get it work with CCF/OpenType fonts.
     HFONT hFont = CreateFont(
-        -(int)pxSize,
+        -static_cast<int>( pxSize ),
         0,
         0,
         0,
@@ -143,7 +145,7 @@ JSObject* JsGdiFont::Constructor( JSContext* cx, const std::wstring& fontName, f
     return jsObject;
 }
 
-JSObject* JsGdiFont::ConstructorWithOpt( JSContext* cx, size_t optArgCount, const std::wstring& fontName, float pxSize, uint32_t style )
+JSObject* JsGdiFont::ConstructorWithOpt( JSContext* cx, size_t optArgCount, const std::wstring& fontName, uint32_t pxSize, uint32_t style )
 {
     switch ( optArgCount )
     {
@@ -167,14 +169,14 @@ uint32_t JsGdiFont::get_Height() const
 std::wstring JsGdiFont::get_Name() const
 {
     Gdiplus::FontFamily fontFamily;
-    WCHAR name[LF_FACESIZE] = { 0 };
+    std::array<wchar_t, LF_FACESIZE> name{};
     Gdiplus::Status gdiRet = pGdi_->GetFamily( &fontFamily );
     smp::error::CheckGdi( gdiRet, "GetFamily" );
 
-    gdiRet = fontFamily.GetFamilyName( name, LANG_NEUTRAL );
+    gdiRet = fontFamily.GetFamilyName( name.data(), LANG_NEUTRAL );
     smp::error::CheckGdi( gdiRet, "GetFamilyName" );
 
-    return std::wstring( name );
+    return std::wstring( name.data() );
 }
 
 float JsGdiFont::get_Size() const

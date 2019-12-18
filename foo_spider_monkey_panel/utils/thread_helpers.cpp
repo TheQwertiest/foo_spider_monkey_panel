@@ -31,7 +31,7 @@ void SetThreadName( std::thread& thread, const char* threadName )
 
     __try
     {
-        RaiseException( MS_VC_EXCEPTION, 0, sizeof( info ) / sizeof( ULONG_PTR ), (ULONG_PTR*)&info );
+        RaiseException( MS_VC_EXCEPTION, 0, sizeof( info ) / sizeof( ULONG_PTR ), reinterpret_cast<ULONG_PTR*>( &info ) );
     }
     __except ( EXCEPTION_EXECUTE_HANDLER )
     {

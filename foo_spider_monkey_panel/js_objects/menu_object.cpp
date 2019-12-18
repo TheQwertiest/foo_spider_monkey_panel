@@ -1,10 +1,13 @@
 #include <stdafx.h>
+
 #include "menu_object.h"
 
 #include <js_engine/js_to_native_invoker.h>
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
+#include <utils/array_x.h>
 #include <utils/winapi_error_helpers.h>
+
 #include <message_blocking_scope.h>
 
 using namespace smp;
@@ -41,7 +44,8 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( CheckMenuItem, JsMenuObject::CheckMenuItem )
 MJS_DEFINE_JS_FN_FROM_NATIVE( CheckMenuRadioItem, JsMenuObject::CheckMenuRadioItem )
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( TrackPopupMenu, JsMenuObject::TrackPopupMenu, JsMenuObject::TrackPopupMenuWithOpt, 1 )
 
-const JSFunctionSpec jsFunctions[] = {
+constexpr auto jsFunctions = smp::to_array<JSFunctionSpec>(
+{
     JS_FN( "AppendMenuItem", AppendMenuItem, 3, kDefaultPropsFlags ),
     JS_FN( "AppendMenuSeparator", AppendMenuSeparator, 0, kDefaultPropsFlags ),
     JS_FN( "AppendTo", AppendTo, 3, kDefaultPropsFlags ),
@@ -49,11 +53,10 @@ const JSFunctionSpec jsFunctions[] = {
     JS_FN( "CheckMenuRadioItem", CheckMenuRadioItem, 3, kDefaultPropsFlags ),
     JS_FN( "TrackPopupMenu", TrackPopupMenu, 2, kDefaultPropsFlags ),
     JS_FS_END
-};
+});
 
-const JSPropertySpec jsProperties[] = {
-    JS_PS_END
-};
+constexpr auto jsProperties = smp::to_array<JSPropertySpec>(
+    { JS_PS_END } );
 
 } // namespace
 
@@ -61,8 +64,8 @@ namespace mozjs
 {
 
 const JSClass JsMenuObject::JsClass = jsClass;
-const JSFunctionSpec* JsMenuObject::JsFunctions = jsFunctions;
-const JSPropertySpec* JsMenuObject::JsProperties = jsProperties;
+const JSFunctionSpec* JsMenuObject::JsFunctions = jsFunctions.data();
+const JSPropertySpec* JsMenuObject::JsProperties = jsProperties.data();
 const JsPrototypeId JsMenuObject::PrototypeId = JsPrototypeId::MenuObject;
 
 JsMenuObject::JsMenuObject( JSContext* cx, HWND hParentWnd, HMENU hMenu )

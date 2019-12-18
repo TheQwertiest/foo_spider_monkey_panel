@@ -1,13 +1,15 @@
 #include <stdafx.h>
+
 #include "enumerator.h"
 
+#include <com_objects/dispatch_ptr.h>
+#include <convert/com.h>
 #include <js_engine/js_to_native_invoker.h>
 #include <js_objects/active_x_object.h>
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
+#include <utils/array_x.h>
 #include <utils/winapi_error_helpers.h>
-#include <com_objects/dispatch_ptr.h>
-#include <convert/com.h>
 
 // TODO: add font caching
 
@@ -41,17 +43,15 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( item, JsEnumerator::Item )
 MJS_DEFINE_JS_FN_FROM_NATIVE( moveFirst, JsEnumerator::MoveFirst )
 MJS_DEFINE_JS_FN_FROM_NATIVE( moveNext, JsEnumerator::MoveNext )
 
-const JSFunctionSpec jsFunctions[] = {
-    JS_FN( "atEnd", atEnd, 0, kDefaultPropsFlags ),
-    JS_FN( "item", item, 0, kDefaultPropsFlags ),
-    JS_FN( "moveFirst", moveFirst, 0, kDefaultPropsFlags ),
-    JS_FN( "moveNext", moveNext, 0, kDefaultPropsFlags ),
-    JS_FS_END
-};
+constexpr auto jsFunctions = smp::to_array<JSFunctionSpec>(
+    { JS_FN( "atEnd", atEnd, 0, kDefaultPropsFlags ),
+      JS_FN( "item", item, 0, kDefaultPropsFlags ),
+      JS_FN( "moveFirst", moveFirst, 0, kDefaultPropsFlags ),
+      JS_FN( "moveNext", moveNext, 0, kDefaultPropsFlags ),
+      JS_FS_END } );
 
-const JSPropertySpec jsProperties[] = {
-    JS_PS_END
-};
+constexpr auto jsProperties = smp::to_array<JSPropertySpec>(
+    { JS_PS_END } );
 
 MJS_DEFINE_JS_FN_FROM_NATIVE( Enumerator_Constructor, JsEnumerator::Constructor )
 
@@ -61,8 +61,8 @@ namespace mozjs
 {
 
 const JSClass JsEnumerator::JsClass = jsClass;
-const JSFunctionSpec* JsEnumerator::JsFunctions = jsFunctions;
-const JSPropertySpec* JsEnumerator::JsProperties = jsProperties;
+const JSFunctionSpec* JsEnumerator::JsFunctions = jsFunctions.data();
+const JSPropertySpec* JsEnumerator::JsProperties = jsProperties.data();
 const JsPrototypeId JsEnumerator::PrototypeId = JsPrototypeId::Enumerator;
 const JSNative JsEnumerator::JsConstructor = ::Enumerator_Constructor;
 
@@ -81,7 +81,7 @@ JsEnumerator::CreateNative( JSContext* cx, IUnknown* pUnknown )
 
     CDispatchPtr pCollection( pUnknown );
     uint32_t collectionSize = pCollection.Get( L"Count" );
-    EnumVARIANTComPtr pEnum( pCollection.Get( (DISPID)DISPID_NEWENUM ) );
+    EnumVARIANTComPtr pEnum( pCollection.Get( static_cast<DISPID>( DISPID_NEWENUM ) ) );
 
     auto pNative = std::unique_ptr<JsEnumerator>( new JsEnumerator( cx, pEnum, !!collectionSize ) );
     pNative->GetCurrentElement();

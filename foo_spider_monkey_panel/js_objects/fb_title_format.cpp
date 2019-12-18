@@ -1,4 +1,5 @@
 #include <stdafx.h>
+
 #include "fb_title_format.h"
 
 #include <js_engine/js_to_native_invoker.h>
@@ -6,6 +7,7 @@
 #include <js_objects/fb_metadb_handle_list.h>
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
+#include <utils/array_x.h>
 #include <utils/string_helpers.h>
 
 using namespace smp;
@@ -39,16 +41,14 @@ MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( Eval, JsFbTitleFormat::Eval, JsFbTitleFor
 MJS_DEFINE_JS_FN_FROM_NATIVE( EvalWithMetadb, JsFbTitleFormat::EvalWithMetadb )
 MJS_DEFINE_JS_FN_FROM_NATIVE( EvalWithMetadbs, JsFbTitleFormat::EvalWithMetadbs )
 
-const JSFunctionSpec jsFunctions[] = {
-    JS_FN( "Eval", Eval, 0, kDefaultPropsFlags ),
-    JS_FN( "EvalWithMetadb", EvalWithMetadb, 1, kDefaultPropsFlags ),
-    JS_FN( "EvalWithMetadbs", EvalWithMetadbs, 1, kDefaultPropsFlags ),
-    JS_FS_END
-};
+constexpr auto jsFunctions = smp::to_array<JSFunctionSpec>(
+    { JS_FN( "Eval", Eval, 0, kDefaultPropsFlags ),
+      JS_FN( "EvalWithMetadb", EvalWithMetadb, 1, kDefaultPropsFlags ),
+      JS_FN( "EvalWithMetadbs", EvalWithMetadbs, 1, kDefaultPropsFlags ),
+      JS_FS_END } );
 
-const JSPropertySpec jsProperties[] = {
-    JS_PS_END
-};
+constexpr auto jsProperties = smp::to_array<JSPropertySpec>(
+    { JS_PS_END } );
 
 MJS_DEFINE_JS_FN_FROM_NATIVE( FbTitleFormat_Constructor, JsFbTitleFormat::Constructor )
 
@@ -58,8 +58,8 @@ namespace mozjs
 {
 
 const JSClass JsFbTitleFormat::JsClass = jsClass;
-const JSFunctionSpec* JsFbTitleFormat::JsFunctions = jsFunctions;
-const JSPropertySpec* JsFbTitleFormat::JsProperties = jsProperties;
+const JSFunctionSpec* JsFbTitleFormat::JsFunctions = jsFunctions.data();
+const JSPropertySpec* JsFbTitleFormat::JsProperties = jsProperties.data();
 const JsPrototypeId JsFbTitleFormat::PrototypeId = JsPrototypeId::FbTitleFormat;
 const JSNative JsFbTitleFormat::JsConstructor = ::FbTitleFormat_Constructor;
 
@@ -94,7 +94,7 @@ pfc::string8_fast JsFbTitleFormat::Eval( bool force )
 {
     auto pc = playback_control::get();
     metadb_handle_ptr handle;
-    
+
     if ( !pc->is_playing() && force )
     { // Trying to get handle to any known playable location
         if ( !metadb::g_get_random_handle( handle ) )

@@ -2,6 +2,7 @@
 
 #include "ui_property.h"
 
+#include <utils/array_x.h>
 #include <utils/file_helpers.h>
 #include <utils/type_traits_x.h>
 
@@ -56,7 +57,7 @@ LRESULT CDialogProperty::OnCloseCmd( WORD, WORD wID, HWND )
 
 LRESULT CDialogProperty::OnPinItemChanged( LPNMHDR pnmh )
 {
-    auto pnpi = (LPNMPROPERTYITEM)pnmh;
+    auto pnpi = reinterpret_cast<LPNMPROPERTYITEM>( pnmh );
 
     auto& localPropertyValues = localProperties_.values;
     if ( auto it = localPropertyValues.find( pnpi->prop->GetName() );
@@ -199,10 +200,10 @@ LRESULT CDialogProperty::OnDelBnClicked( WORD, WORD, HWND )
 
 LRESULT CDialogProperty::OnImportBnClicked( WORD, WORD, HWND )
 {
-    constexpr COMDLG_FILTERSPEC k_DialogImportExtFilter[2] = {
+    constexpr auto k_DialogImportExtFilter = smp::to_array<COMDLG_FILTERSPEC>( {
         { L"Property files", L"*.json;*.smp;*.wsp" },
         { L"All files", L"*.*" },
-    };
+    } );
 
     fs::path path( smp::file::FileDialog( L"Import from", false, k_DialogImportExtFilter, L"json", L"props" ) );
     if ( path.empty() )
@@ -251,10 +252,11 @@ LRESULT CDialogProperty::OnImportBnClicked( WORD, WORD, HWND )
 
 LRESULT CDialogProperty::OnExportBnClicked( WORD, WORD, HWND )
 {
-    constexpr COMDLG_FILTERSPEC k_DialogExportExtFilter[2] = {
-        { L"Property files", L"*.json" },
-        { L"All files", L"*.*" },
-    };
+    constexpr auto k_DialogExportExtFilter = smp::to_array<COMDLG_FILTERSPEC>(
+        {
+            { L"Property files", L"*.json" },
+            { L"All files", L"*.*" },
+        } );
 
     fs::path path( smp::file::FileDialog( L"Save as", true, k_DialogExportExtFilter, L"json", L"props" ) );
     if ( path.empty() )

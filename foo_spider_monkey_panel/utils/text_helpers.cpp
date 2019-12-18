@@ -112,7 +112,7 @@ void estimate_line_wrap_recur( HDC hdc, std::wstring_view text, size_t width, st
         }
 
         {
-            size_t fallbackTextLength = std::max( textLength, (size_t)1 );
+            size_t fallbackTextLength = std::max<size_t>( textLength, 1 );
 
             while ( textLength > 0 && !is_wrap_char( text[textLength - 1], text[textLength] ) )
             {
@@ -153,18 +153,18 @@ std::optional<UINT> DetectCharSet( std::string_view text )
         return std::nullopt;
     }
 
-    const int maxEncodings = 2;
+    constexpr int maxEncodings = 2;
     int encodingCount = maxEncodings;
-    DetectEncodingInfo encodings[maxEncodings];
+    std::array<DetectEncodingInfo, maxEncodings> encodings;    
     int iTextSize = text.size();
 
-    hr = lang->DetectInputCodepage( MLDETECTCP_NONE, 0, const_cast<char*>( text.data() ), &iTextSize, encodings, &encodingCount );
+    hr = lang->DetectInputCodepage( MLDETECTCP_NONE, 0, const_cast<char*>( text.data() ), &iTextSize, encodings.data(), &encodingCount );
     if ( FAILED( hr ) || !encodingCount )
     {
         return std::nullopt;
     }
 
-    return FilterEncodings( nonstd::span<const DetectEncodingInfo>( encodings, encodingCount ) );
+    return FilterEncodings( nonstd::span<const DetectEncodingInfo>( encodings.data(), encodingCount ) );
 }
 
 size_t get_text_height( HDC hdc, std::wstring_view text )

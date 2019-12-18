@@ -1,12 +1,14 @@
 #include <stdafx.h>
+
 #include "theme_manager.h"
 
 #include <js_engine/js_to_native_invoker.h>
 #include <js_objects/gdi_graphics.h>
 #include <js_utils/js_error_helper.h>
-#include <utils/winapi_error_helpers.h>
 #include <js_utils/js_object_helper.h>
+#include <utils/array_x.h>
 #include <utils/scope_helpers.h>
+#include <utils/winapi_error_helpers.h>
 
 using namespace smp;
 
@@ -39,16 +41,14 @@ MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( DrawThemeBackground, JsThemeManager::Draw
 MJS_DEFINE_JS_FN_FROM_NATIVE( IsThemePartDefined, JsThemeManager::IsThemePartDefined )
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( SetPartAndStateID, JsThemeManager::SetPartAndStateID, JsThemeManager::SetPartAndStateIDWithOpt, 1 )
 
-const JSFunctionSpec jsFunctions[] = {
-    JS_FN( "DrawThemeBackground", DrawThemeBackground, 5, kDefaultPropsFlags ),
-    JS_FN( "IsThemePartDefined", IsThemePartDefined, 1, kDefaultPropsFlags ),
-    JS_FN( "SetPartAndStateID", SetPartAndStateID, 1, kDefaultPropsFlags ),
-    JS_FS_END
-};
+constexpr auto jsFunctions = smp::to_array<JSFunctionSpec>(
+    { JS_FN( "DrawThemeBackground", DrawThemeBackground, 5, kDefaultPropsFlags ),
+      JS_FN( "IsThemePartDefined", IsThemePartDefined, 1, kDefaultPropsFlags ),
+      JS_FN( "SetPartAndStateID", SetPartAndStateID, 1, kDefaultPropsFlags ),
+      JS_FS_END } );
 
-const JSPropertySpec jsProperties[] = {
-    JS_PS_END
-};
+constexpr auto jsProperties = smp::to_array<JSPropertySpec>(
+    { JS_PS_END } );
 
 } // namespace
 
@@ -56,8 +56,8 @@ namespace mozjs
 {
 
 const JSClass JsThemeManager::JsClass = jsClass;
-const JSFunctionSpec* JsThemeManager::JsFunctions = jsFunctions;
-const JSPropertySpec* JsThemeManager::JsProperties = jsProperties;
+const JSFunctionSpec* JsThemeManager::JsFunctions = jsFunctions.data();
+const JSPropertySpec* JsThemeManager::JsProperties = jsProperties.data();
 const JsPrototypeId JsThemeManager::PrototypeId = JsPrototypeId::ThemeManager;
 
 JsThemeManager::JsThemeManager( JSContext* cx, HTHEME hTheme )

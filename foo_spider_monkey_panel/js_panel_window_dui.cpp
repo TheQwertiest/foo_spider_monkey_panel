@@ -58,8 +58,7 @@ private:
     };
 };
 
-// DUI panel instance
-static service_factory_t<my_ui_element_impl<smp::panel::js_panel_window_dui>> g_js_panel_wndow_dui;
+service_factory_t<my_ui_element_impl<smp::panel::js_panel_window_dui>> g_js_panel_window_dui;
 
 } // namespace
 

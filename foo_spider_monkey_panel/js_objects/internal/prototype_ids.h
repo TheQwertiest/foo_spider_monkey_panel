@@ -5,8 +5,7 @@
 namespace mozjs
 {
 
-enum class JsPrototypeId
-    : uint32_t
+enum class JsPrototypeId : uint32_t
 {
     ActiveX,
     ContextMenuManager,

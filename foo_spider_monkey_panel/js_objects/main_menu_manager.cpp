@@ -1,10 +1,12 @@
 #include <stdafx.h>
+
 #include "main_menu_manager.h"
 
 #include <js_engine/js_to_native_invoker.h>
 #include <js_objects/menu_object.h>
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
+#include <utils/array_x.h>
 #include <utils/string_helpers.h>
 
 using namespace smp;
@@ -38,16 +40,14 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( BuildMenu, JsMainMenuManager::BuildMenu )
 MJS_DEFINE_JS_FN_FROM_NATIVE( ExecuteByID, JsMainMenuManager::ExecuteByID )
 MJS_DEFINE_JS_FN_FROM_NATIVE( Init, JsMainMenuManager::Init )
 
-const JSFunctionSpec jsFunctions[] = {
-    JS_FN( "BuildMenu", BuildMenu, 3, kDefaultPropsFlags ),
-    JS_FN( "ExecuteByID", ExecuteByID, 1, kDefaultPropsFlags ),
-    JS_FN( "Init", Init, 1, kDefaultPropsFlags ),
-    JS_FS_END
-};
+constexpr auto jsFunctions = smp::to_array<JSFunctionSpec>(
+    { JS_FN( "BuildMenu", BuildMenu, 3, kDefaultPropsFlags ),
+      JS_FN( "ExecuteByID", ExecuteByID, 1, kDefaultPropsFlags ),
+      JS_FN( "Init", Init, 1, kDefaultPropsFlags ),
+      JS_FS_END } );
 
-const JSPropertySpec jsProperties[] = {
-    JS_PS_END
-};
+constexpr auto jsProperties = smp::to_array<JSPropertySpec>(
+    { JS_PS_END } );
 
 } // namespace
 
@@ -55,8 +55,8 @@ namespace mozjs
 {
 
 const JSClass JsMainMenuManager::JsClass = jsClass;
-const JSFunctionSpec* JsMainMenuManager::JsFunctions = jsFunctions;
-const JSPropertySpec* JsMainMenuManager::JsProperties = jsProperties;
+const JSFunctionSpec* JsMainMenuManager::JsFunctions = jsFunctions.data();
+const JSPropertySpec* JsMainMenuManager::JsProperties = jsProperties.data();
 const JsPrototypeId JsMainMenuManager::PrototypeId = JsPrototypeId::MainMenuManager;
 
 JsMainMenuManager::JsMainMenuManager( JSContext* cx )
@@ -113,14 +113,15 @@ void JsMainMenuManager::Init( const std::u8string& root_name )
 
     // In mainmenu_groups:
     // static const GUID file,view,edit,playback,library,help;
-    const RootElement validRoots[] = {
-        { "file", &mainmenu_groups::file },
-        { "view", &mainmenu_groups::view },
-        { "edit", &mainmenu_groups::edit },
-        { "playback", &mainmenu_groups::playback },
-        { "library", &mainmenu_groups::library },
-        { "help", &mainmenu_groups::help },
-    };
+    const auto validRoots = smp::to_array<RootElement>(
+        {
+            { "file", &mainmenu_groups::file },
+            { "view", &mainmenu_groups::view },
+            { "edit", &mainmenu_groups::edit },
+            { "playback", &mainmenu_groups::playback },
+            { "library", &mainmenu_groups::library },
+            { "help", &mainmenu_groups::help },
+        } );
 
     auto result = ranges::find_if( validRoots, [&preparedRootName]( auto& root ) {
         return preparedRootName == root.name;

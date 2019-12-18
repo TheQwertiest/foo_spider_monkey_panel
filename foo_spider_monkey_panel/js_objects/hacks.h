@@ -2,10 +2,9 @@
 
 #include <js_objects/object_base.h>
 
+#include <memory>
 #include <optional>
 #include <string>
-#include <memory>
-
 
 namespace mozjs
 {
@@ -38,5 +37,4 @@ private:
     [[maybe_unused]] JSContext* pJsCtx_ = nullptr;
 };
 
-}
-
+} // namespace mozjs

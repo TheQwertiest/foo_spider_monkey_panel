@@ -5,6 +5,7 @@
 #include <js_engine/js_to_native_invoker.h>
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
+#include <utils/array_x.h>
 
 namespace
 {
@@ -35,16 +36,16 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( get_IsValid, JsFbPlayingItemLocation::get_IsValid 
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_PlaylistIndex, JsFbPlayingItemLocation::get_PlaylistIndex )
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_PlaylistItemIndex, JsFbPlayingItemLocation::get_PlaylistItemIndex )
 
-const JSPropertySpec jsProperties[] = {
-    JS_PSG( "IsValid", get_IsValid, kDefaultPropsFlags ),
-    JS_PSG( "PlaylistIndex", get_PlaylistIndex, kDefaultPropsFlags ),
-    JS_PSG( "PlaylistItemIndex", get_PlaylistItemIndex, kDefaultPropsFlags ),
-    JS_PS_END
-};
+constexpr auto jsProperties = smp::to_array<JSPropertySpec>(
+    { JS_PSG( "IsValid", get_IsValid, kDefaultPropsFlags ),
+      JS_PSG( "PlaylistIndex", get_PlaylistIndex, kDefaultPropsFlags ),
+      JS_PSG( "PlaylistItemIndex", get_PlaylistItemIndex, kDefaultPropsFlags ),
+      JS_PS_END } );
 
-const JSFunctionSpec jsFunctions[] = {
+constexpr auto jsFunctions = smp::to_array<JSFunctionSpec>(
+{
     JS_FS_END
-};
+});
 
 } // namespace
 
@@ -52,8 +53,8 @@ namespace mozjs
 {
 
 const JSClass JsFbPlayingItemLocation::JsClass = jsClass;
-const JSFunctionSpec* JsFbPlayingItemLocation::JsFunctions = jsFunctions;
-const JSPropertySpec* JsFbPlayingItemLocation::JsProperties = jsProperties;
+const JSFunctionSpec* JsFbPlayingItemLocation::JsFunctions = jsFunctions.data();
+const JSPropertySpec* JsFbPlayingItemLocation::JsProperties = jsProperties.data();
 const JsPrototypeId JsFbPlayingItemLocation::PrototypeId = JsPrototypeId::FbPlayingItemLocation;
 
 JsFbPlayingItemLocation::JsFbPlayingItemLocation( JSContext* cx, bool isValid, uint32_t playlistIndex, uint32_t playlistItemIndex )

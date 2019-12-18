@@ -318,6 +318,7 @@
     <ClInclude Include="ui\ui_slow_script.h" />
     <ClInclude Include="user_message.h" />
     <ClInclude Include="utils\acfu_github.h" />
+    <ClInclude Include="utils\array_x.h" />
     <ClInclude Include="utils\art_helpers.h" />
     <ClInclude Include="utils\colour_helpers.h" />
     <ClInclude Include="utils\com_error_helpers.h" />

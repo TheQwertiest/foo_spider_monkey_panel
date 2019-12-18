@@ -95,7 +95,7 @@ LONG WINAPI SehHandler_ConsoleStacktrace( EXCEPTION_POINTERS* pExp, DWORD )
 {
     constexpr size_t kDynamicBufferSize = 4096;
     std::array<wchar_t, 256> localBuffer{};
-    std::unique_ptr<wchar_t[]> dynamicBuffer( new ( std::nothrow ) wchar_t[kDynamicBufferSize] );
+    std::unique_ptr<wchar_t[]> dynamicBuffer( new ( std::nothrow ) wchar_t[kDynamicBufferSize] ); // NOLINT(hicpp-avoid-c-arrays)
 
     auto stackTraceBuffer = [&localBuffer, &dynamicBuffer] {
         if ( dynamicBuffer )

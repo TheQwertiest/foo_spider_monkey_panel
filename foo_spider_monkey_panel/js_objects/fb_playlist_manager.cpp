@@ -1,17 +1,19 @@
 #include <stdafx.h>
+
 #include "fb_playlist_manager.h"
 
 #include <js_engine/js_to_native_invoker.h>
 #include <js_objects/fb_metadb_handle.h>
 #include <js_objects/fb_metadb_handle_list.h>
-#include <js_objects/fb_playing_item_location.h>
 #include <js_objects/fb_playback_queue_item.h>
+#include <js_objects/fb_playing_item_location.h>
 #include <js_objects/fb_playlist_recycler.h>
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
+#include <utils/array_x.h>
+#include <utils/location_processor.h>
 #include <utils/string_helpers.h>
 #include <utils/text_helpers.h>
-#include <utils/location_processor.h>
 
 #include <abort_callback.h>
 
@@ -88,54 +90,53 @@ MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( SortByFormatV2, JsFbPlaylistManager::Sort
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( SortPlaylistsByName, JsFbPlaylistManager::SortPlaylistsByName, JsFbPlaylistManager::SortPlaylistsByNameWithOpt, 1 );
 MJS_DEFINE_JS_FN_FROM_NATIVE( UndoBackup, JsFbPlaylistManager::UndoBackup );
 
-const JSFunctionSpec jsFunctions[] = {
-    JS_FN( "AddItemToPlaybackQueue", AddItemToPlaybackQueue, 1, kDefaultPropsFlags ),
-    JS_FN( "AddLocations", AddLocations, 2, kDefaultPropsFlags ),
-    JS_FN( "AddPlaylistItemToPlaybackQueue", AddPlaylistItemToPlaybackQueue, 2, kDefaultPropsFlags ),
-    JS_FN( "ClearPlaylist", ClearPlaylist, 1, kDefaultPropsFlags ),
-    JS_FN( "ClearPlaylistSelection", ClearPlaylistSelection, 1, kDefaultPropsFlags ),
-    JS_FN( "CreateAutoPlaylist", CreateAutoPlaylist, 3, kDefaultPropsFlags ),
-    JS_FN( "CreatePlaylist", CreatePlaylist, 2, kDefaultPropsFlags ),
-    JS_FN( "DuplicatePlaylist", DuplicatePlaylist, 1, kDefaultPropsFlags ),
-    JS_FN( "EnsurePlaylistItemVisible", EnsurePlaylistItemVisible, 2, kDefaultPropsFlags ),
-    JS_FN( "ExecutePlaylistDefaultAction", ExecutePlaylistDefaultAction, 2, kDefaultPropsFlags ),
-    JS_FN( "FindOrCreatePlaylist", FindOrCreatePlaylist, 2, kDefaultPropsFlags ),
-    JS_FN( "FindPlaybackQueueItemIndex", FindPlaybackQueueItemIndex, 3, kDefaultPropsFlags ),
-    JS_FN( "FindPlaylist", FindPlaylist, 1, kDefaultPropsFlags ),
-    JS_FN( "FlushPlaybackQueue", FlushPlaybackQueue, 0, kDefaultPropsFlags ),
-    JS_FN( "GetPlaybackQueueContents", GetPlaybackQueueContents, 0, kDefaultPropsFlags ),
-    JS_FN( "GetPlaybackQueueHandles", GetPlaybackQueueHandles, 0, kDefaultPropsFlags ),
-    JS_FN( "GetPlayingItemLocation", GetPlayingItemLocation, 0, kDefaultPropsFlags ),
-    JS_FN( "GetPlaylistFocusItemIndex", GetPlaylistFocusItemIndex, 1, kDefaultPropsFlags ),
-    JS_FN( "GetPlaylistItems", GetPlaylistItems, 1, kDefaultPropsFlags ),
-    JS_FN( "GetPlaylistName", GetPlaylistName, 1, kDefaultPropsFlags ),
-    JS_FN( "GetPlaylistSelectedItems", GetPlaylistSelectedItems, 1, kDefaultPropsFlags ),
-    JS_FN( "InsertPlaylistItems", InsertPlaylistItems, 3, kDefaultPropsFlags ),
-    JS_FN( "InsertPlaylistItemsFilter", InsertPlaylistItemsFilter, 3, kDefaultPropsFlags ),
-    JS_FN( "IsAutoPlaylist", IsAutoPlaylist, 1, kDefaultPropsFlags ),
-    JS_FN( "IsPlaylistItemSelected", IsPlaylistItemSelected, 2, kDefaultPropsFlags ),
-    JS_FN( "IsPlaylistLocked", IsPlaylistLocked, 1, kDefaultPropsFlags ),
-    JS_FN( "MovePlaylist", MovePlaylist, 2, kDefaultPropsFlags ),
-    JS_FN( "MovePlaylistSelection", MovePlaylistSelection, 2, kDefaultPropsFlags ),
-    JS_FN( "PlaylistItemCount", PlaylistItemCount, 1, kDefaultPropsFlags ),
-    JS_FN( "RemoveItemFromPlaybackQueue", RemoveItemFromPlaybackQueue, 1, kDefaultPropsFlags ),
-    JS_FN( "RemoveItemsFromPlaybackQueue", RemoveItemsFromPlaybackQueue, 1, kDefaultPropsFlags ),
-    JS_FN( "RemovePlaylist", RemovePlaylist, 1, kDefaultPropsFlags ),
-    JS_FN( "RemovePlaylistSelection", RemovePlaylistSelection, 1, kDefaultPropsFlags ),
-    JS_FN( "RemovePlaylistSwitch", RemovePlaylistSwitch, 1, kDefaultPropsFlags ),
-    JS_FN( "RenamePlaylist", RenamePlaylist, 2, kDefaultPropsFlags ),
-    JS_FN( "SetActivePlaylistContext", SetActivePlaylistContext, 0, kDefaultPropsFlags ),
-    JS_FN( "SetPlaylistFocusItem", SetPlaylistFocusItem, 2, kDefaultPropsFlags ),
-    JS_FN( "SetPlaylistFocusItemByHandle", SetPlaylistFocusItemByHandle, 2, kDefaultPropsFlags ),
-    JS_FN( "SetPlaylistSelection", SetPlaylistSelection, 3, kDefaultPropsFlags ),
-    JS_FN( "SetPlaylistSelectionSingle", SetPlaylistSelectionSingle, 3, kDefaultPropsFlags ),
-    JS_FN( "ShowAutoPlaylistUI", ShowAutoPlaylistUI, 1, kDefaultPropsFlags ),
-    JS_FN( "SortByFormat", SortByFormat, 2, kDefaultPropsFlags ),
-    JS_FN( "SortByFormatV2", SortByFormatV2, 2, kDefaultPropsFlags ),
-    JS_FN( "SortPlaylistsByName", SortPlaylistsByName, 0, kDefaultPropsFlags ),
-    JS_FN( "UndoBackup", UndoBackup, 1, kDefaultPropsFlags ),
-    JS_FS_END
-};
+constexpr auto jsFunctions = smp::to_array<JSFunctionSpec>(
+    { JS_FN( "AddItemToPlaybackQueue", AddItemToPlaybackQueue, 1, kDefaultPropsFlags ),
+      JS_FN( "AddLocations", AddLocations, 2, kDefaultPropsFlags ),
+      JS_FN( "AddPlaylistItemToPlaybackQueue", AddPlaylistItemToPlaybackQueue, 2, kDefaultPropsFlags ),
+      JS_FN( "ClearPlaylist", ClearPlaylist, 1, kDefaultPropsFlags ),
+      JS_FN( "ClearPlaylistSelection", ClearPlaylistSelection, 1, kDefaultPropsFlags ),
+      JS_FN( "CreateAutoPlaylist", CreateAutoPlaylist, 3, kDefaultPropsFlags ),
+      JS_FN( "CreatePlaylist", CreatePlaylist, 2, kDefaultPropsFlags ),
+      JS_FN( "DuplicatePlaylist", DuplicatePlaylist, 1, kDefaultPropsFlags ),
+      JS_FN( "EnsurePlaylistItemVisible", EnsurePlaylistItemVisible, 2, kDefaultPropsFlags ),
+      JS_FN( "ExecutePlaylistDefaultAction", ExecutePlaylistDefaultAction, 2, kDefaultPropsFlags ),
+      JS_FN( "FindOrCreatePlaylist", FindOrCreatePlaylist, 2, kDefaultPropsFlags ),
+      JS_FN( "FindPlaybackQueueItemIndex", FindPlaybackQueueItemIndex, 3, kDefaultPropsFlags ),
+      JS_FN( "FindPlaylist", FindPlaylist, 1, kDefaultPropsFlags ),
+      JS_FN( "FlushPlaybackQueue", FlushPlaybackQueue, 0, kDefaultPropsFlags ),
+      JS_FN( "GetPlaybackQueueContents", GetPlaybackQueueContents, 0, kDefaultPropsFlags ),
+      JS_FN( "GetPlaybackQueueHandles", GetPlaybackQueueHandles, 0, kDefaultPropsFlags ),
+      JS_FN( "GetPlayingItemLocation", GetPlayingItemLocation, 0, kDefaultPropsFlags ),
+      JS_FN( "GetPlaylistFocusItemIndex", GetPlaylistFocusItemIndex, 1, kDefaultPropsFlags ),
+      JS_FN( "GetPlaylistItems", GetPlaylistItems, 1, kDefaultPropsFlags ),
+      JS_FN( "GetPlaylistName", GetPlaylistName, 1, kDefaultPropsFlags ),
+      JS_FN( "GetPlaylistSelectedItems", GetPlaylistSelectedItems, 1, kDefaultPropsFlags ),
+      JS_FN( "InsertPlaylistItems", InsertPlaylistItems, 3, kDefaultPropsFlags ),
+      JS_FN( "InsertPlaylistItemsFilter", InsertPlaylistItemsFilter, 3, kDefaultPropsFlags ),
+      JS_FN( "IsAutoPlaylist", IsAutoPlaylist, 1, kDefaultPropsFlags ),
+      JS_FN( "IsPlaylistItemSelected", IsPlaylistItemSelected, 2, kDefaultPropsFlags ),
+      JS_FN( "IsPlaylistLocked", IsPlaylistLocked, 1, kDefaultPropsFlags ),
+      JS_FN( "MovePlaylist", MovePlaylist, 2, kDefaultPropsFlags ),
+      JS_FN( "MovePlaylistSelection", MovePlaylistSelection, 2, kDefaultPropsFlags ),
+      JS_FN( "PlaylistItemCount", PlaylistItemCount, 1, kDefaultPropsFlags ),
+      JS_FN( "RemoveItemFromPlaybackQueue", RemoveItemFromPlaybackQueue, 1, kDefaultPropsFlags ),
+      JS_FN( "RemoveItemsFromPlaybackQueue", RemoveItemsFromPlaybackQueue, 1, kDefaultPropsFlags ),
+      JS_FN( "RemovePlaylist", RemovePlaylist, 1, kDefaultPropsFlags ),
+      JS_FN( "RemovePlaylistSelection", RemovePlaylistSelection, 1, kDefaultPropsFlags ),
+      JS_FN( "RemovePlaylistSwitch", RemovePlaylistSwitch, 1, kDefaultPropsFlags ),
+      JS_FN( "RenamePlaylist", RenamePlaylist, 2, kDefaultPropsFlags ),
+      JS_FN( "SetActivePlaylistContext", SetActivePlaylistContext, 0, kDefaultPropsFlags ),
+      JS_FN( "SetPlaylistFocusItem", SetPlaylistFocusItem, 2, kDefaultPropsFlags ),
+      JS_FN( "SetPlaylistFocusItemByHandle", SetPlaylistFocusItemByHandle, 2, kDefaultPropsFlags ),
+      JS_FN( "SetPlaylistSelection", SetPlaylistSelection, 3, kDefaultPropsFlags ),
+      JS_FN( "SetPlaylistSelectionSingle", SetPlaylistSelectionSingle, 3, kDefaultPropsFlags ),
+      JS_FN( "ShowAutoPlaylistUI", ShowAutoPlaylistUI, 1, kDefaultPropsFlags ),
+      JS_FN( "SortByFormat", SortByFormat, 2, kDefaultPropsFlags ),
+      JS_FN( "SortByFormatV2", SortByFormatV2, 2, kDefaultPropsFlags ),
+      JS_FN( "SortPlaylistsByName", SortPlaylistsByName, 0, kDefaultPropsFlags ),
+      JS_FN( "UndoBackup", UndoBackup, 1, kDefaultPropsFlags ),
+      JS_FS_END } );
 
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_ActivePlaylist, JsFbPlaylistManager::get_ActivePlaylist );
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_PlaybackOrder, JsFbPlaylistManager::get_PlaybackOrder );
@@ -146,14 +147,13 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( put_ActivePlaylist, JsFbPlaylistManager::put_Activ
 MJS_DEFINE_JS_FN_FROM_NATIVE( put_PlaybackOrder, JsFbPlaylistManager::put_PlaybackOrder );
 MJS_DEFINE_JS_FN_FROM_NATIVE( put_PlayingPlaylist, JsFbPlaylistManager::put_PlayingPlaylist );
 
-const JSPropertySpec jsProperties[] = {
-    JS_PSGS( "ActivePlaylist", get_ActivePlaylist, put_ActivePlaylist, kDefaultPropsFlags ),
-    JS_PSGS( "PlaybackOrder", get_PlaybackOrder, put_PlaybackOrder, kDefaultPropsFlags ),
-    JS_PSGS( "PlayingPlaylist", get_PlayingPlaylist, put_PlayingPlaylist, kDefaultPropsFlags ),
-    JS_PSG( "PlaylistCount", get_PlaylistCount, kDefaultPropsFlags ),
-    JS_PSG( "PlaylistRecycler", get_PlaylistRecycler, kDefaultPropsFlags ),
-    JS_PS_END
-};
+constexpr auto jsProperties = smp::to_array<JSPropertySpec>(
+    { JS_PSGS( "ActivePlaylist", get_ActivePlaylist, put_ActivePlaylist, kDefaultPropsFlags ),
+      JS_PSGS( "PlaybackOrder", get_PlaybackOrder, put_PlaybackOrder, kDefaultPropsFlags ),
+      JS_PSGS( "PlayingPlaylist", get_PlayingPlaylist, put_PlayingPlaylist, kDefaultPropsFlags ),
+      JS_PSG( "PlaylistCount", get_PlaylistCount, kDefaultPropsFlags ),
+      JS_PSG( "PlaylistRecycler", get_PlaylistRecycler, kDefaultPropsFlags ),
+      JS_PS_END } );
 
 } // namespace
 
@@ -161,8 +161,8 @@ namespace mozjs
 {
 
 const JSClass JsFbPlaylistManager::JsClass = jsClass;
-const JSFunctionSpec* JsFbPlaylistManager::JsFunctions = jsFunctions;
-const JSPropertySpec* JsFbPlaylistManager::JsProperties = jsProperties;
+const JSFunctionSpec* JsFbPlaylistManager::JsFunctions = jsFunctions.data();
+const JSPropertySpec* JsFbPlaylistManager::JsProperties = jsProperties.data();
 
 JsFbPlaylistManager::JsFbPlaylistManager( JSContext* cx )
     : pJsCtx_( cx )
@@ -401,7 +401,7 @@ JSObject* JsFbPlaylistManager::GetPlaybackQueueHandles()
 {
     pfc::list_t<t_playback_queue_item> contents;
     playlist_manager::get()->queue_get_contents( contents );
-    
+
     metadb_handle_list items;
     for ( t_size i = 0, count = contents.get_count(); i < count; ++i )
     {
@@ -636,7 +636,7 @@ bool JsFbPlaylistManager::ShowAutoPlaylistUI( uint32_t playlistIndex )
 
     auto api = autoplaylist_manager::get();
     if ( !api->is_client_present( playlistIndex ) )
-    {// TODO v2: replace with error
+    { // TODO v2: replace with error
         return false;
     }
 

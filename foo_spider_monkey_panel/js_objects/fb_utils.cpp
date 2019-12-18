@@ -1,26 +1,29 @@
 #include <stdafx.h>
+
 #include "fb_utils.h"
 
+#include <com_objects/drop_source_impl.h>
 #include <js_engine/js_to_native_invoker.h>
-#include <js_objects/fb_ui_selection_holder.h>
-#include <js_objects/main_menu_manager.h>
 #include <js_objects/context_menu_manager.h>
 #include <js_objects/fb_metadb_handle.h>
 #include <js_objects/fb_metadb_handle_list.h>
 #include <js_objects/fb_profiler.h>
 #include <js_objects/fb_title_format.h>
+#include <js_objects/fb_ui_selection_holder.h>
 #include <js_objects/gdi_bitmap.h>
+#include <js_objects/main_menu_manager.h>
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
 #include <js_utils/js_property_helper.h>
+#include <utils/array_x.h>
 #include <utils/art_helpers.h>
 #include <utils/delayed_executor.h>
 #include <utils/menu_helpers.h>
 #include <utils/string_helpers.h>
-#include <com_objects/drop_source_impl.h>
-#include <stats.h>
-#include <message_blocking_scope.h>
+
 #include <component_paths.h>
+#include <message_blocking_scope.h>
+#include <stats.h>
 
 using namespace smp;
 
@@ -98,57 +101,56 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( VolumeDown, JsFbUtils::VolumeDown )
 MJS_DEFINE_JS_FN_FROM_NATIVE( VolumeMute, JsFbUtils::VolumeMute )
 MJS_DEFINE_JS_FN_FROM_NATIVE( VolumeUp, JsFbUtils::VolumeUp )
 
-const JSFunctionSpec jsFunctions[] = {
-    JS_FN( "AcquireUiSelectionHolder", AcquireUiSelectionHolder, 0, kDefaultPropsFlags ),
-    JS_FN( "AddDirectory", AddDirectory, 0, kDefaultPropsFlags ),
-    JS_FN( "AddFiles", AddFiles, 0, kDefaultPropsFlags ),
-    JS_FN( "CheckClipboardContents", CheckClipboardContents, 0, kDefaultPropsFlags ),
-    JS_FN( "ClearPlaylist", ClearPlaylist, 0, kDefaultPropsFlags ),
-    JS_FN( "CopyHandleListToClipboard", CopyHandleListToClipboard, 1, kDefaultPropsFlags ),
-    JS_FN( "CreateContextMenuManager", CreateContextMenuManager, 0, kDefaultPropsFlags ),
-    JS_FN( "CreateHandleList", CreateHandleList, 0, kDefaultPropsFlags ),
-    JS_FN( "CreateMainMenuManager", CreateMainMenuManager, 0, kDefaultPropsFlags ),
-    JS_FN( "CreateProfiler", CreateProfiler, 0, kDefaultPropsFlags ),
-    JS_FN( "DoDragDrop", DoDragDrop, 3, kDefaultPropsFlags ),
-    JS_FN( "Exit", Exit, 0, kDefaultPropsFlags ),
-    JS_FN( "GetClipboardContents", GetClipboardContents, 0, kDefaultPropsFlags ),
-    JS_FN( "GetDSPPresets", GetDSPPresets, 0, kDefaultPropsFlags ),
-    JS_FN( "GetFocusItem", GetFocusItem, 0, kDefaultPropsFlags ),
-    JS_FN( "GetLibraryItems", GetLibraryItems, 0, kDefaultPropsFlags ),
-    JS_FN( "GetLibraryRelativePath", GetLibraryRelativePath, 1, kDefaultPropsFlags ),
-    JS_FN( "GetNowPlaying", GetNowPlaying, 0, kDefaultPropsFlags ),
-    JS_FN( "GetOutputDevices", GetOutputDevices, 0, kDefaultPropsFlags ),
-    JS_FN( "GetQueryItems", GetQueryItems, 2, kDefaultPropsFlags ),
-    JS_FN( "GetSelection", GetSelection, 0, kDefaultPropsFlags ),
-    JS_FN( "GetSelections", GetSelections, 0, kDefaultPropsFlags ),
-    JS_FN( "GetSelectionType", GetSelectionType, 0, kDefaultPropsFlags ),
-    JS_FN( "IsLibraryEnabled", IsLibraryEnabled, 0, kDefaultPropsFlags ),
-    JS_FN( "IsMainMenuCommandChecked", IsMainMenuCommandChecked, 1, kDefaultPropsFlags ),
-    JS_FN( "IsMetadbInMediaLibrary", IsMetadbInMediaLibrary, 1, kDefaultPropsFlags ),
-    JS_FN( "LoadPlaylist", LoadPlaylist, 0, kDefaultPropsFlags ),
-    JS_FN( "Next", Next, 0, kDefaultPropsFlags ),
-    JS_FN( "Pause", Pause, 0, kDefaultPropsFlags ),
-    JS_FN( "Play", Play, 0, kDefaultPropsFlags ),
-    JS_FN( "PlayOrPause", PlayOrPause, 0, kDefaultPropsFlags ),
-    JS_FN( "Prev", Prev, 0, kDefaultPropsFlags ),
-    JS_FN( "Random", Random, 0, kDefaultPropsFlags ),
-    JS_FN( "RunContextCommand", RunContextCommand, 1, kDefaultPropsFlags ),
-    JS_FN( "RunContextCommandWithMetadb", RunContextCommandWithMetadb, 2, kDefaultPropsFlags ),
-    JS_FN( "RunMainMenuCommand", RunMainMenuCommand, 1, kDefaultPropsFlags ),
-    JS_FN( "SavePlaylist", SavePlaylist, 0, kDefaultPropsFlags ),
-    JS_FN( "SetDSPPreset", SetDSPPreset, 1, kDefaultPropsFlags ),
-    JS_FN( "SetOutputDevice", SetOutputDevice, 2, kDefaultPropsFlags ),
-    JS_FN( "ShowConsole", ShowConsole, 0, kDefaultPropsFlags ),
-    JS_FN( "ShowLibrarySearchUI", ShowLibrarySearchUI, 1, kDefaultPropsFlags ),
-    JS_FN( "ShowPopupMessage", ShowPopupMessage, 1, kDefaultPropsFlags ),
-    JS_FN( "ShowPreferences", ShowPreferences, 0, kDefaultPropsFlags ),
-    JS_FN( "Stop", Stop, 0, kDefaultPropsFlags ),
-    JS_FN( "TitleFormat", TitleFormat, 1, kDefaultPropsFlags ),
-    JS_FN( "VolumeDown", VolumeDown, 0, kDefaultPropsFlags ),
-    JS_FN( "VolumeMute", VolumeMute, 0, kDefaultPropsFlags ),
-    JS_FN( "VolumeUp", VolumeUp, 0, kDefaultPropsFlags ),
-    JS_FS_END
-};
+constexpr auto jsFunctions = smp::to_array<JSFunctionSpec>(
+    { JS_FN( "AcquireUiSelectionHolder", AcquireUiSelectionHolder, 0, kDefaultPropsFlags ),
+      JS_FN( "AddDirectory", AddDirectory, 0, kDefaultPropsFlags ),
+      JS_FN( "AddFiles", AddFiles, 0, kDefaultPropsFlags ),
+      JS_FN( "CheckClipboardContents", CheckClipboardContents, 0, kDefaultPropsFlags ),
+      JS_FN( "ClearPlaylist", ClearPlaylist, 0, kDefaultPropsFlags ),
+      JS_FN( "CopyHandleListToClipboard", CopyHandleListToClipboard, 1, kDefaultPropsFlags ),
+      JS_FN( "CreateContextMenuManager", CreateContextMenuManager, 0, kDefaultPropsFlags ),
+      JS_FN( "CreateHandleList", CreateHandleList, 0, kDefaultPropsFlags ),
+      JS_FN( "CreateMainMenuManager", CreateMainMenuManager, 0, kDefaultPropsFlags ),
+      JS_FN( "CreateProfiler", CreateProfiler, 0, kDefaultPropsFlags ),
+      JS_FN( "DoDragDrop", DoDragDrop, 3, kDefaultPropsFlags ),
+      JS_FN( "Exit", Exit, 0, kDefaultPropsFlags ),
+      JS_FN( "GetClipboardContents", GetClipboardContents, 0, kDefaultPropsFlags ),
+      JS_FN( "GetDSPPresets", GetDSPPresets, 0, kDefaultPropsFlags ),
+      JS_FN( "GetFocusItem", GetFocusItem, 0, kDefaultPropsFlags ),
+      JS_FN( "GetLibraryItems", GetLibraryItems, 0, kDefaultPropsFlags ),
+      JS_FN( "GetLibraryRelativePath", GetLibraryRelativePath, 1, kDefaultPropsFlags ),
+      JS_FN( "GetNowPlaying", GetNowPlaying, 0, kDefaultPropsFlags ),
+      JS_FN( "GetOutputDevices", GetOutputDevices, 0, kDefaultPropsFlags ),
+      JS_FN( "GetQueryItems", GetQueryItems, 2, kDefaultPropsFlags ),
+      JS_FN( "GetSelection", GetSelection, 0, kDefaultPropsFlags ),
+      JS_FN( "GetSelections", GetSelections, 0, kDefaultPropsFlags ),
+      JS_FN( "GetSelectionType", GetSelectionType, 0, kDefaultPropsFlags ),
+      JS_FN( "IsLibraryEnabled", IsLibraryEnabled, 0, kDefaultPropsFlags ),
+      JS_FN( "IsMainMenuCommandChecked", IsMainMenuCommandChecked, 1, kDefaultPropsFlags ),
+      JS_FN( "IsMetadbInMediaLibrary", IsMetadbInMediaLibrary, 1, kDefaultPropsFlags ),
+      JS_FN( "LoadPlaylist", LoadPlaylist, 0, kDefaultPropsFlags ),
+      JS_FN( "Next", Next, 0, kDefaultPropsFlags ),
+      JS_FN( "Pause", Pause, 0, kDefaultPropsFlags ),
+      JS_FN( "Play", Play, 0, kDefaultPropsFlags ),
+      JS_FN( "PlayOrPause", PlayOrPause, 0, kDefaultPropsFlags ),
+      JS_FN( "Prev", Prev, 0, kDefaultPropsFlags ),
+      JS_FN( "Random", Random, 0, kDefaultPropsFlags ),
+      JS_FN( "RunContextCommand", RunContextCommand, 1, kDefaultPropsFlags ),
+      JS_FN( "RunContextCommandWithMetadb", RunContextCommandWithMetadb, 2, kDefaultPropsFlags ),
+      JS_FN( "RunMainMenuCommand", RunMainMenuCommand, 1, kDefaultPropsFlags ),
+      JS_FN( "SavePlaylist", SavePlaylist, 0, kDefaultPropsFlags ),
+      JS_FN( "SetDSPPreset", SetDSPPreset, 1, kDefaultPropsFlags ),
+      JS_FN( "SetOutputDevice", SetOutputDevice, 2, kDefaultPropsFlags ),
+      JS_FN( "ShowConsole", ShowConsole, 0, kDefaultPropsFlags ),
+      JS_FN( "ShowLibrarySearchUI", ShowLibrarySearchUI, 1, kDefaultPropsFlags ),
+      JS_FN( "ShowPopupMessage", ShowPopupMessage, 1, kDefaultPropsFlags ),
+      JS_FN( "ShowPreferences", ShowPreferences, 0, kDefaultPropsFlags ),
+      JS_FN( "Stop", Stop, 0, kDefaultPropsFlags ),
+      JS_FN( "TitleFormat", TitleFormat, 1, kDefaultPropsFlags ),
+      JS_FN( "VolumeDown", VolumeDown, 0, kDefaultPropsFlags ),
+      JS_FN( "VolumeMute", VolumeMute, 0, kDefaultPropsFlags ),
+      JS_FN( "VolumeUp", VolumeUp, 0, kDefaultPropsFlags ),
+      JS_FS_END } );
 
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_AlwaysOnTop, JsFbUtils::get_AlwaysOnTop )
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_ComponentPath, JsFbUtils::get_ComponentPath )
@@ -171,22 +173,21 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( put_ReplaygainMode, JsFbUtils::put_ReplaygainMode 
 MJS_DEFINE_JS_FN_FROM_NATIVE( put_StopAfterCurrent, JsFbUtils::put_StopAfterCurrent )
 MJS_DEFINE_JS_FN_FROM_NATIVE( put_Volume, JsFbUtils::put_Volume )
 
-const JSPropertySpec jsProperties[] = {
-    JS_PSGS( "AlwaysOnTop", get_AlwaysOnTop, put_AlwaysOnTop, kDefaultPropsFlags ),
-    JS_PSG( "ComponentPath", get_ComponentPath, kDefaultPropsFlags ),
-    JS_PSGS( "CursorFollowPlayback", get_CursorFollowPlayback, put_CursorFollowPlayback, kDefaultPropsFlags ),
-    JS_PSG( "FoobarPath", get_FoobarPath, kDefaultPropsFlags ),
-    JS_PSG( "IsPaused", get_IsPaused, kDefaultPropsFlags ),
-    JS_PSG( "IsPlaying", get_IsPlaying, kDefaultPropsFlags ),
-    JS_PSGS( "PlaybackFollowCursor", get_PlaybackFollowCursor, put_PlaybackFollowCursor, kDefaultPropsFlags ),
-    JS_PSG( "PlaybackLength", get_PlaybackLength, kDefaultPropsFlags ),
-    JS_PSGS( "PlaybackTime", get_PlaybackTime, put_PlaybackTime, kDefaultPropsFlags ),
-    JS_PSG( "ProfilePath", get_ProfilePath, kDefaultPropsFlags ),
-    JS_PSGS( "ReplaygainMode", get_ReplaygainMode, put_ReplaygainMode, kDefaultPropsFlags ),
-    JS_PSGS( "StopAfterCurrent", get_StopAfterCurrent, put_StopAfterCurrent, kDefaultPropsFlags ),
-    JS_PSGS( "Volume", get_Volume, put_Volume, kDefaultPropsFlags ),
-    JS_PS_END
-};
+constexpr auto jsProperties = smp::to_array<JSPropertySpec>(
+    { JS_PSGS( "AlwaysOnTop", get_AlwaysOnTop, put_AlwaysOnTop, kDefaultPropsFlags ),
+      JS_PSG( "ComponentPath", get_ComponentPath, kDefaultPropsFlags ),
+      JS_PSGS( "CursorFollowPlayback", get_CursorFollowPlayback, put_CursorFollowPlayback, kDefaultPropsFlags ),
+      JS_PSG( "FoobarPath", get_FoobarPath, kDefaultPropsFlags ),
+      JS_PSG( "IsPaused", get_IsPaused, kDefaultPropsFlags ),
+      JS_PSG( "IsPlaying", get_IsPlaying, kDefaultPropsFlags ),
+      JS_PSGS( "PlaybackFollowCursor", get_PlaybackFollowCursor, put_PlaybackFollowCursor, kDefaultPropsFlags ),
+      JS_PSG( "PlaybackLength", get_PlaybackLength, kDefaultPropsFlags ),
+      JS_PSGS( "PlaybackTime", get_PlaybackTime, put_PlaybackTime, kDefaultPropsFlags ),
+      JS_PSG( "ProfilePath", get_ProfilePath, kDefaultPropsFlags ),
+      JS_PSGS( "ReplaygainMode", get_ReplaygainMode, put_ReplaygainMode, kDefaultPropsFlags ),
+      JS_PSGS( "StopAfterCurrent", get_StopAfterCurrent, put_StopAfterCurrent, kDefaultPropsFlags ),
+      JS_PSGS( "Volume", get_Volume, put_Volume, kDefaultPropsFlags ),
+      JS_PS_END } );
 
 } // namespace
 
@@ -194,8 +195,8 @@ namespace mozjs
 {
 
 const JSClass JsFbUtils::JsClass = jsClass;
-const JSFunctionSpec* JsFbUtils::JsFunctions = jsFunctions;
-const JSPropertySpec* JsFbUtils::JsProperties = jsProperties;
+const JSFunctionSpec* JsFbUtils::JsFunctions = jsFunctions.data();
+const JSPropertySpec* JsFbUtils::JsProperties = jsProperties.data();
 
 JsFbUtils::JsFbUtils( JSContext* cx )
     : pJsCtx_( cx )
@@ -703,7 +704,8 @@ void JsFbUtils::SetOutputDevice( const std::wstring& output, const std::wstring&
 {
     SmpException::ExpectTrue( static_api_test_t<output_manager_v2>(), "This method requires foobar2000 v1.4 or later" );
 
-    GUID output_id, device_id;
+    GUID output_id;
+    GUID device_id;
     if ( CLSIDFromString( output.c_str(), &output_id ) == NOERROR
          && CLSIDFromString( device.c_str(), &device_id ) == NOERROR )
     {

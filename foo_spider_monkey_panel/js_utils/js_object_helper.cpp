@@ -1,6 +1,6 @@
 #include <stdafx.h>
-#include "js_object_helper.h"
 
+#include "js_object_helper.h"
 
 namespace mozjs
 {
@@ -18,4 +18,4 @@ const void* GetSmpProxyFamily()
     return &kProxyFamilyVar;
 }
 
-}
+} // namespace mozjs

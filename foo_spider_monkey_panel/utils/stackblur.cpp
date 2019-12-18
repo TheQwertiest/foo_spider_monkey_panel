@@ -312,7 +312,7 @@ void stack_blur_filter( Gdiplus::Bitmap& img, int radius )
     if ( img.LockBits( &rect, Gdiplus::ImageLockModeRead | Gdiplus::ImageLockModeWrite, PixelFormat32bppPARGB, &bmpdata ) == Gdiplus::Ok )
     {
         radius = std::clamp( radius, 2, 254 );
-        stackblur( (uint8_t*)bmpdata.Scan0, width, height, radius );
+        stackblur( static_cast<uint8_t*>( bmpdata.Scan0 ), width, height, radius );
         img.UnlockBits( &bmpdata );
     }
 }

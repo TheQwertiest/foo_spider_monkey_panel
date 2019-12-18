@@ -720,6 +720,9 @@
     <ClInclude Include="utils\type_traits_x.h">
       <Filter>utils</Filter>
     </ClInclude>
+    <ClInclude Include="utils\array_x.h">
+      <Filter>utils</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="default.js">

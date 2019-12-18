@@ -139,7 +139,7 @@ GuidMenuMap GenerateGuidMainmenuMap()
     return guidMap;
 }
 
-std::u8string generate_mainmenu_command_path( const GuidMenuMap& group_guid_map, const service_ptr_t<mainmenu_commands> ptr )
+std::u8string generate_mainmenu_command_path( const GuidMenuMap& group_guid_map, const service_ptr_t<mainmenu_commands>& ptr )
 {
     std::u8string path;
 

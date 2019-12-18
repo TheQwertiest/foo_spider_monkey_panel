@@ -25,6 +25,7 @@
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
 #include <js_utils/js_property_helper.h>
+#include <utils/array_x.h>
 #include <utils/file_helpers.h>
 #include <utils/scope_helpers.h>
 
@@ -75,7 +76,7 @@ JSClassOps jsOps = {
     nullptr // set in runtime to JS_GlobalObjectTraceHook
 };
 
-JSClass jsClass = {
+constexpr JSClass jsClass = {
     "Global",
     JSCLASS_GLOBAL_FLAGS_WITH_SLOTS( static_cast<uint32_t>( JsPrototypeId::ProrototypeCount ) ) | JSCLASS_HAS_PRIVATE | JSCLASS_FOREGROUND_FINALIZE,
     &jsOps
@@ -87,14 +88,13 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( clearTimeout, JsGlobalObject::ClearTimeout )
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( setInterval, JsGlobalObject::SetInterval, JsGlobalObject::SetIntervalWithOpt, 1 )
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( setTimeout, JsGlobalObject::SetTimeout, JsGlobalObject::SetTimeoutWithOpt, 1 )
 
-const JSFunctionSpec jsFunctions[] = {
-    JS_FN( "clearInterval", clearInterval, 1, kDefaultPropsFlags ),
-    JS_FN( "clearTimeout", clearTimeout, 1, kDefaultPropsFlags ),
-    JS_FN( "include", IncludeScript, 1, kDefaultPropsFlags ),
-    JS_FN( "setInterval", setInterval, 2, kDefaultPropsFlags ),
-    JS_FN( "setTimeout", setTimeout, 2, kDefaultPropsFlags ),
-    JS_FS_END
-};
+constexpr auto jsFunctions = smp::to_array<JSFunctionSpec>(
+    { JS_FN( "clearInterval", clearInterval, 1, kDefaultPropsFlags ),
+      JS_FN( "clearTimeout", clearTimeout, 1, kDefaultPropsFlags ),
+      JS_FN( "include", IncludeScript, 1, kDefaultPropsFlags ),
+      JS_FN( "setInterval", setInterval, 2, kDefaultPropsFlags ),
+      JS_FN( "setTimeout", setTimeout, 2, kDefaultPropsFlags ),
+      JS_FS_END } );
 
 } // namespace
 
@@ -146,7 +146,7 @@ JSObject* JsGlobalObject::CreateNative( JSContext* cx, JsContainer& parentContai
         CreateAndInstallObject<JsWindow>( cx, jsObj, "window", parentPanel );
         // CreateAndInstallObject<JsHacks>( cx, jsObj, "hacks" ) ;
 
-        if ( !JS_DefineFunctions( cx, jsObj, jsFunctions ) )
+        if ( !JS_DefineFunctions( cx, jsObj, jsFunctions.data() ) )
         {
             throw smp::JsException();
         }
@@ -258,7 +258,7 @@ void JsGlobalObject::IncludeScript( const std::u8string& path, JS::HandleValue o
 
     includedFiles_.emplace( u8Path );
     parentFilepaths_.emplace_back( fsPath.parent_path().u8string() );
-    smp::utils::final_action autoPath{ [& parentFilesPaths = parentFilepaths_] { parentFilesPaths.pop_back(); } };
+    smp::utils::final_action autoPath{ [&parentFilesPaths = parentFilepaths_] { parentFilesPaths.pop_back(); } };
 
     JS::RootedScript jsScript( pJsCtx_, JsEngine::GetInstance().GetInternalGlobal().GetCachedScript( fsPath ) );
     assert( jsScript );

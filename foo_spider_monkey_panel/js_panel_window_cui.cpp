@@ -8,8 +8,7 @@
 
 namespace
 {
-// CUI panel instance
-static uie::window_factory<smp::panel::js_panel_window_cui> g_js_panel_wndow_cui;
+uie::window_factory<smp::panel::js_panel_window_cui> g_js_panel_window_cui;
 } // namespace
 
 namespace smp::panel

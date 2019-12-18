@@ -1,10 +1,11 @@
 #include <stdafx.h>
+
 #include "console.h"
 
 #include <js_engine/js_to_native_invoker.h>
 #include <js_utils/js_object_helper.h>
+#include <utils/array_x.h>
 #include <utils/scope_helpers.h>
-
 
 using namespace smp;
 
@@ -154,7 +155,7 @@ std::u8string ParseJsValue( JSContext* cx, JS::HandleValue jsValue, JS::MutableH
         }
         else
         {
-            for ( const auto& curObject : curObjects )
+            for ( const auto& curObject: curObjects )
             {
                 if ( jsObject.get() == curObject )
                 {
@@ -228,10 +229,9 @@ bool LogImpl( JSContext* cx, unsigned argc, JS::Value* vp )
 
 MJS_DEFINE_JS_FN( Log, LogImpl )
 
-const JSFunctionSpec console_functions[] = {
-    JS_FN( "log", Log, 0, kDefaultPropsFlags ),
-    JS_FS_END
-};
+constexpr auto console_functions = smp::to_array<JSFunctionSpec>(
+    { JS_FN( "log", Log, 0, kDefaultPropsFlags ),
+      JS_FS_END } );
 } // namespace
 
 namespace mozjs
@@ -241,7 +241,7 @@ void DefineConsole( JSContext* cx, JS::HandleObject global )
 {
     JS::RootedObject consoleObj( cx, JS_NewPlainObject( cx ) );
     if ( !consoleObj
-         || !JS_DefineFunctions( cx, consoleObj, console_functions )
+         || !JS_DefineFunctions( cx, consoleObj, console_functions.data() )
          || !JS_DefineProperty( cx, global, "console", consoleObj, kDefaultPropsFlags ) )
     {
         throw smp::JsException();

@@ -34,8 +34,8 @@ private:
     DWORD m_fb2kAllowedEffect = DROPEFFECT_NONE;
 
     BEGIN_COM_QI_IMPL()
-    COM_QI_ENTRY_MULTI( IUnknown, IDropTarget )
-    COM_QI_ENTRY( IDropTarget )
+        COM_QI_ENTRY_MULTI( IUnknown, IDropTarget )
+        COM_QI_ENTRY( IDropTarget )
     END_COM_QI_IMPL()
 };
 

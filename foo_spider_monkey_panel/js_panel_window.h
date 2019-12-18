@@ -158,7 +158,7 @@ private:
     void on_output_device_changed();
     void on_paint( HDC dc, const CRect& updateRc );
     void on_paint_error( HDC memdc );
-    void on_paint_user( HDC memdc, const CRect& lpUpupdateRcdateRect );
+    void on_paint_user( HDC memdc, const CRect& updateRc );
     void on_playback_dynamic_info();
     void on_playback_dynamic_info_track();
     void on_playback_edited( CallbackData& callbackData );

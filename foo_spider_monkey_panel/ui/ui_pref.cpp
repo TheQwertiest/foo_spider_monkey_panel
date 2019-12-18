@@ -4,6 +4,7 @@
 
 #include <ui/scintilla/sci_prop_sets.h>
 #include <ui/ui_name_value_edit.h>
+#include <utils/array_x.h>
 #include <utils/file_helpers.h>
 
 #include <filesystem>
@@ -55,10 +56,11 @@ preferences_page_factory_t<js_preferences_page_impl> g_pref;
 namespace
 {
 
-constexpr COMDLG_FILTERSPEC k_DialogExtFilter[2] = {
-    { L"Configuration files", L"*.cfg" },
-    { L"All files", L"*.*" },
-};
+constexpr auto k_DialogExtFilter = smp::to_array<COMDLG_FILTERSPEC>(
+    {
+        { L"Configuration files", L"*.cfg" },
+        { L"All files", L"*.*" },
+    } );
 
 } // namespace
 
@@ -110,7 +112,7 @@ LRESULT CDialogPref::OnPropNMDblClk( LPNMHDR pnmh )
 {
     //for ListView - (LPNMITEMACTIVATE)pnmh
     //for StatusBar	- (LPNMMOUSE)pnmh
-    auto pniv = (LPNMITEMACTIVATE)pnmh;
+    auto pniv = reinterpret_cast<LPNMITEMACTIVATE>( pnmh );
 
     if ( pniv->iItem >= 0 )
     {

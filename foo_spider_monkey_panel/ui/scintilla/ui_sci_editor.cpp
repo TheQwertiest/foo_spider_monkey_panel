@@ -4,6 +4,7 @@
 
 #include <ui/scintilla/sci_prop_sets.h>
 #include <ui/scintilla/ui_sci_goto.h>
+#include <utils/array_x.h>
 #include <utils/colour_helpers.h>
 #include <utils/file_helpers.h>
 #include <utils/string_helpers.h>
@@ -671,13 +672,14 @@ CScriptEditorCtrl::IndentationStatus CScriptEditorCtrl::GetIndentState( int line
         }
         else
         {
-            constexpr const char* keywords[] = { "case",
-                                                 "default",
-                                                 "do",
-                                                 "else",
-                                                 "for",
-                                                 "if",
-                                                 "while" };
+            constexpr auto keywords = smp::to_array<const char*>(
+                { "case",
+                  "default",
+                  "do",
+                  "else",
+                  "for",
+                  "if",
+                  "while" } );
             if ( ranges::find( keywords, part ) != ranges::cend( keywords ) )
             {
                 return IndentationStatus::isKeyWordStart;
@@ -1123,7 +1125,7 @@ std::optional<std::vector<std::u8string_view>> CScriptEditorCtrl::GetNearestWord
             const auto charIt = ranges::find( word, *separator );
             if ( word.cend() != charIt )
             {
-                wordToPlace = std::u8string_view( word.c_str(), (size_t)std::distance( word.cbegin(), charIt ) );
+                wordToPlace = std::u8string_view( word.c_str(), static_cast<size_t>( std::distance( word.cbegin(), charIt ) ) );
             }
         }
         if ( wordToPlace.empty() )
@@ -1185,7 +1187,7 @@ void CScriptEditorCtrl::Init()
     UsePopUp( true );
 
     // Disable Ctrl + some char
-    const int ctrlcode[] = { 'Q', 'W', 'E', 'R', 'I', 'O', 'P', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', 'B', 'N', 'M', 186, 187, 226 };
+    constexpr auto ctrlcode = smp::to_array<int>( { 'Q', 'W', 'E', 'R', 'I', 'O', 'P', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', 'B', 'N', 'M', 186, 187, 226 } );
 
     for ( auto code: ctrlcode )
     {
@@ -1366,10 +1368,7 @@ void CScriptEditorCtrl::AutoMarginWidth()
 {
     // Auto margin width
     int linenumwidth = 1;
-    int marginwidth, oldmarginwidth;
-    int linecount;
-
-    linecount = GetLineCount();
+    int linecount = GetLineCount();
 
     while ( linecount >= 10 )
     {
@@ -1377,9 +1376,8 @@ void CScriptEditorCtrl::AutoMarginWidth()
         ++linenumwidth;
     }
 
-    oldmarginwidth = GetMarginWidthN( 0 );
-    marginwidth = 4 + linenumwidth * ( TextWidth( STYLE_LINENUMBER, "9" ) );
-
+    const int oldmarginwidth = GetMarginWidthN( 0 );
+    const int marginwidth = 4 + linenumwidth * ( TextWidth( STYLE_LINENUMBER, "9" ) );
     if ( oldmarginwidth != marginwidth )
     {
         SetMarginWidthN( 0, marginwidth );

@@ -32,7 +32,7 @@ private:
     {
         CallbackMessageWrap( CallbackMessage id, std::shared_ptr<CallbackData> pData )
             : id( id )
-            , pData( pData )
+            , pData( std::move( pData ) )
         {
         }
         CallbackMessage id;
