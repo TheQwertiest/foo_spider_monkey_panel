@@ -732,6 +732,7 @@
     <None Include="foo_spider_monkey_panel.rc2">
       <Filter>z_core\resources</Filter>
     </None>
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="js_engine">

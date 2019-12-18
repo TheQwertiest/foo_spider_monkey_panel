@@ -29,6 +29,8 @@ if '%SKIP_MOZJS%'=='' (
 )
 call %CUR_DIR%generate_commit_hash_header.bat %ROOT_DIR%
 if errorlevel 1 goto fail
+call %CUR_DIR%generate_source_link.bat
+if errorlevel 1 goto fail
 
 echo Setup complete!
 exit /b 0
