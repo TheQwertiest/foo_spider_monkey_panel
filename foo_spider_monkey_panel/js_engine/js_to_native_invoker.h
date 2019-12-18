@@ -79,7 +79,6 @@ auto InvokeNativeCallback_ParseArguments( JSContext* cx, JS::MutableHandleValueV
         static_assert( InvokeNativeCallback_ParseArguments_Check<ArgTypes...>() );
     }
 
-
     // https://developercommunity.visualstudio.com/content/problem/842828/evaluation-of-false-constexpr-branch-in-lambda-whe.html
     /*
     constexpr bool hasValueArray = []() constexpr

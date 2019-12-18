@@ -1,4 +1,5 @@
 #include <stdafx.h>
+
 #include "user_message.h"
 
 #include <message_manager.h>

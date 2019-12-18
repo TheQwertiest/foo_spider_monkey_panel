@@ -27,9 +27,7 @@ using unique_gdi_ptr = std::unique_ptr<std::remove_pointer_t<T>, void ( * )( T )
 template <typename T>
 unique_gdi_ptr<T> CreateUniquePtr( T pObject )
 {
-    static_assert( std::is_same_v<T, HDC> 
-                   || std::is_same_v<T, HPEN> || std::is_same_v<T, HBRUSH> || std::is_same_v<T, HRGN>
-                   || std::is_same_v<T, HPALETTE> || std::is_same_v<T, HFONT> || std::is_same_v<T, HBITMAP>,
+    static_assert( std::is_same_v<T, HDC> || std::is_same_v<T, HPEN> || std::is_same_v<T, HBRUSH> || std::is_same_v<T, HRGN> || std::is_same_v<T, HPALETTE> || std::is_same_v<T, HFONT> || std::is_same_v<T, HBITMAP>,
                    "Unsupported GDI type" );
 
     return unique_gdi_ptr<T>( pObject, []( auto pObject ) {

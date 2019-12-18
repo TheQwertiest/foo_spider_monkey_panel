@@ -1,4 +1,5 @@
 #include <stdafx.h>
+
 #include "native_to_js_invoker.h"
 
 SMP_MJS_SUPPRESS_WARNINGS_PUSH

@@ -35,10 +35,14 @@ JSClass jsClass = {
 };
 
 constexpr auto jsFunctions = smp::to_array<JSFunctionSpec>(
-    { JS_FS_END } );
+    {
+        JS_FS_END,
+    } );
 
 constexpr auto jsProperties = smp::to_array<JSPropertySpec>(
-    { JS_PS_END } );
+    {
+        JS_PS_END,
+    } );
 
 } // namespace
 

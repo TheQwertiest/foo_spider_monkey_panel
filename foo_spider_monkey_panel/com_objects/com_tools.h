@@ -57,7 +57,7 @@ extern ITypeLibPtr g_typelib;
 		qi_entry_done: \
 			reinterpret_cast<IUnknown*>(*ppv)->AddRef(); \
 			return S_OK; \
-		}	
+		}
 
 // clang-format on
 
@@ -66,60 +66,63 @@ template <class T>
 class MyIDispatchImpl : public T
 {
 protected:
-	static ::internal::type_info_cache_holder g_type_info_cache_holder;
+    static ::internal::type_info_cache_holder g_type_info_cache_holder;
 
-	MyIDispatchImpl<T>()
-	{
-		if (g_type_info_cache_holder.empty() && g_typelib)
-		{
-			g_type_info_cache_holder.init_from_typelib(g_typelib, __uuidof(T));
-		}
-	}
+    MyIDispatchImpl<T>()
+    {
+        if ( g_type_info_cache_holder.empty() && g_typelib )
+        {
+            g_type_info_cache_holder.init_from_typelib( g_typelib, __uuidof( T ) );
+        }
+    }
 
     virtual ~MyIDispatchImpl<T>() = default;
 
-	virtual void FinalRelease()
-	{
-	}
+    virtual void FinalRelease()
+    {
+    }
 
 public:
-	STDMETHOD(GetTypeInfoCount)(unsigned int* n)
-	{
-		if (!n) return E_INVALIDARG;
-		*n = 1;
-		return S_OK;
-	}
+    STDMETHOD( GetTypeInfoCount )( unsigned int* n )
+    {
+        if ( !n )
+            return E_INVALIDARG;
+        *n = 1;
+        return S_OK;
+    }
 
-	STDMETHOD(GetTypeInfo)(unsigned int i, LCID lcid, ITypeInfo** pp)
-	{
-		return g_type_info_cache_holder.GetTypeInfo(i, lcid, pp);
-	}
+    STDMETHOD( GetTypeInfo )( unsigned int i, LCID lcid, ITypeInfo** pp )
+    {
+        return g_type_info_cache_holder.GetTypeInfo( i, lcid, pp );
+    }
 
-	STDMETHOD(GetIDsOfNames)(REFIID riid, OLECHAR** names, unsigned int cnames, LCID lcid, DISPID* dispids)
-	{
-		if (g_type_info_cache_holder.empty()) return E_UNEXPECTED;
-		return g_type_info_cache_holder.GetIDsOfNames(names, cnames, dispids);
-	}
+    STDMETHOD( GetIDsOfNames )( REFIID riid, OLECHAR** names, unsigned int cnames, LCID lcid, DISPID* dispids )
+    {
+        if ( g_type_info_cache_holder.empty() )
+            return E_UNEXPECTED;
+        return g_type_info_cache_holder.GetIDsOfNames( names, cnames, dispids );
+    }
 
-	STDMETHOD(Invoke)(DISPID dispid, REFIID riid, LCID lcid, WORD flag, DISPPARAMS* params, VARIANT* result, EXCEPINFO* excep, unsigned int* err)
-	{
-		if (g_type_info_cache_holder.empty()) return E_UNEXPECTED;
-		return g_type_info_cache_holder.Invoke(this, dispid, flag, params, result, excep, err);
-	}
+    STDMETHOD( Invoke )( DISPID dispid, REFIID riid, LCID lcid, WORD flag, DISPPARAMS* params, VARIANT* result, EXCEPINFO* excep, unsigned int* err )
+    {
+        if ( g_type_info_cache_holder.empty() )
+            return E_UNEXPECTED;
+        return g_type_info_cache_holder.Invoke( this, dispid, flag, params, result, excep, err );
+    }
 };
 
-template <class T> 
-__declspec( selectany ) ::internal::type_info_cache_holder MyIDispatchImpl<T>::g_type_info_cache_holder;
+template <class T>
+__declspec( selectany )::internal::type_info_cache_holder MyIDispatchImpl<T>::g_type_info_cache_holder;
 
 //-- IDispatch impl -- [T] [IDispatch] [IUnknown]
 template <class T>
 class IDispatchImpl3 : public MyIDispatchImpl<T>
 {
-	BEGIN_COM_QI_IMPL()
-		COM_QI_ENTRY_MULTI(IUnknown, IDispatch)
-		COM_QI_ENTRY(T)
-		COM_QI_ENTRY(IDispatch)
-	END_COM_QI_IMPL()
+    BEGIN_COM_QI_IMPL()
+        COM_QI_ENTRY_MULTI( IUnknown, IDispatch )
+        COM_QI_ENTRY( T )
+        COM_QI_ENTRY( IDispatch )
+    END_COM_QI_IMPL()
 
 protected:
     IDispatchImpl3<T>() = default;
@@ -130,23 +133,23 @@ protected:
 template <class T>
 class IDisposableImpl4 : public MyIDispatchImpl<T>
 {
-	BEGIN_COM_QI_IMPL()
-		COM_QI_ENTRY_MULTI(IUnknown, IDispatch)
-		COM_QI_ENTRY(T)
-		COM_QI_ENTRY(IDisposable)
-		COM_QI_ENTRY(IDispatch)
-	END_COM_QI_IMPL()
+    BEGIN_COM_QI_IMPL()
+        COM_QI_ENTRY_MULTI( IUnknown, IDispatch )
+        COM_QI_ENTRY( T )
+        COM_QI_ENTRY( IDisposable )
+        COM_QI_ENTRY( IDispatch )
+    END_COM_QI_IMPL()
 
 protected:
     IDisposableImpl4<T>() = default;
     virtual ~IDisposableImpl4() = default;
 
 public:
-	STDMETHODIMP Dispose()
-	{
-		this->FinalRelease();
-		return S_OK;
-	}
+    STDMETHODIMP Dispose()
+    {
+        this->FinalRelease();
+        return S_OK;
+    }
 };
 
 template <typename _Base, bool _AddRef = true>
@@ -163,21 +166,21 @@ public:
         }
     }
 
-	STDMETHODIMP_(ULONG) AddRef()
-	{
-		return ++m_dwRef;
-	}
+    STDMETHODIMP_( ULONG ) AddRef()
+    {
+        return ++m_dwRef;
+    }
 
-	STDMETHODIMP_(ULONG) Release()
-	{
-		const ULONG n = --m_dwRef;
-		if (!n)
-		{
-			this->FinalRelease();
-			delete this;
-		}
-		return n;
-	}
+    STDMETHODIMP_( ULONG ) Release()
+    {
+        const ULONG n = --m_dwRef;
+        if ( !n )
+        {
+            this->FinalRelease();
+            delete this;
+        }
+        return n;
+    }
 
 private:
     ~com_object_impl_t() override = default;

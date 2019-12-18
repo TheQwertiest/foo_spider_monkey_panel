@@ -1,6 +1,6 @@
 #pragma once
 
-#define DDWM_SETCURSOR ( WM_USER + 2 )
+#define DDWM_SETCURSOR    ( WM_USER + 2 )
 #define DDWM_UPDATEWINDOW ( WM_USER + 3 )
 
 namespace smp::com::drag

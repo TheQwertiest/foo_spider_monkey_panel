@@ -1,4 +1,5 @@
 #include <stdafx.h>
+
 #include "heartbeat_window.h"
 
 #include <js_engine/js_engine.h>
@@ -12,9 +13,7 @@ namespace smp
 using namespace mozjs;
 
 HeartbeatWindow ::HeartbeatWindow( HWND hWnd )
-    : hWnd_( hWnd )
-{
-};
+    : hWnd_( hWnd ){};
 
 HeartbeatWindow ::~HeartbeatWindow()
 {
@@ -47,20 +46,20 @@ LRESULT CALLBACK HeartbeatWindow::WndProc( HWND hWnd, UINT message, WPARAM wPara
 {
     switch ( message )
     {
-        case WM_CREATE:            
-        case WM_DESTROY:
-        {
-            return 0;
-        }
-        case static_cast<UINT>(MiscMessage::heartbeat):
-        {
-            mozjs::JsEngine::GetInstance().OnHeartbeat();
-            return 0;
-        }
-        default:
-        {
-            return DefWindowProc( hWnd, message, wParam, lParam );
-        }
+    case WM_CREATE:
+    case WM_DESTROY:
+    {
+        return 0;
+    }
+    case static_cast<UINT>( MiscMessage::heartbeat ):
+    {
+        mozjs::JsEngine::GetInstance().OnHeartbeat();
+        return 0;
+    }
+    default:
+    {
+        return DefWindowProc( hWnd, message, wParam, lParam );
+    }
     }
 }
 

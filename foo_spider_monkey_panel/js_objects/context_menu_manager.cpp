@@ -44,15 +44,19 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( InitContextPlaylist, JsContextMenuManager::InitCon
 MJS_DEFINE_JS_FN_FROM_NATIVE( InitNowPlaying, JsContextMenuManager::InitNowPlaying )
 
 constexpr auto jsFunctions = smp::to_array<JSFunctionSpec>(
-    { JS_FN( "BuildMenu", BuildMenu, 2, kDefaultPropsFlags ),
-      JS_FN( "ExecuteByID", ExecuteByID, 1, kDefaultPropsFlags ),
-      JS_FN( "InitContext", InitContext, 1, kDefaultPropsFlags ),
-      JS_FN( "InitContextPlaylist", InitContextPlaylist, 0, kDefaultPropsFlags ),
-      JS_FN( "InitNowPlaying", InitNowPlaying, 0, kDefaultPropsFlags ),
-      JS_FS_END } );
+    {
+        JS_FN( "BuildMenu", BuildMenu, 2, kDefaultPropsFlags ),
+        JS_FN( "ExecuteByID", ExecuteByID, 1, kDefaultPropsFlags ),
+        JS_FN( "InitContext", InitContext, 1, kDefaultPropsFlags ),
+        JS_FN( "InitContextPlaylist", InitContextPlaylist, 0, kDefaultPropsFlags ),
+        JS_FN( "InitNowPlaying", InitNowPlaying, 0, kDefaultPropsFlags ),
+        JS_FS_END,
+    } );
 
 constexpr auto jsProperties = smp::to_array<JSPropertySpec>(
-    { JS_PS_END } );
+    {
+        JS_PS_END,
+    } );
 
 } // namespace
 

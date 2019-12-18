@@ -50,8 +50,7 @@ namespace smp::error
 #pragma warning( push )
 #pragma warning( disable : 28196 ) // The expression does not evaluate to true
 
-_Post_satisfies_( SUCCEEDED( hr ) )
-void CheckHR( HRESULT hr, std::string_view functionName )
+_Post_satisfies_( SUCCEEDED( hr ) ) void CheckHR( HRESULT hr, std::string_view functionName )
 {
     if ( FAILED( hr ) )
     {
@@ -59,8 +58,7 @@ void CheckHR( HRESULT hr, std::string_view functionName )
     }
 }
 
-_Post_satisfies_( checkValue )
-void CheckWinApi( bool checkValue, std::string_view functionName )
+_Post_satisfies_( checkValue ) void CheckWinApi( bool checkValue, std::string_view functionName )
 {
     if ( !checkValue )
     {

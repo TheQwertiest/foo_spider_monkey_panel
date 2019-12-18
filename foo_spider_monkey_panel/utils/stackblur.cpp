@@ -7,6 +7,7 @@
 // More details: http://vitiy.info/stackblur-algorithm-multi-threaded-blur-for-cpp
 
 #include <stdafx.h>
+
 #include "stackblur.h"
 
 namespace
@@ -94,8 +95,7 @@ void stackblur_by_segment( uint8_t* src,       ///< input image data
             for ( int32_t i = -static_cast<int32_t>( radius ); i <= static_cast<int32_t>( radius ); ++i )
             {
                 // calculate address of source pixel
-                const size_t srcOffset = [coord_1_limit, coord_1_shift, i]() -> size_t
-                {
+                const size_t srcOffset = [coord_1_limit, coord_1_shift, i]() -> size_t {
                     if ( i <= 0 )
                     {
                         return 0;
@@ -278,18 +278,18 @@ void stackblur( uint8_t* src,   ///< input image data
             worker->start();
         }
 
-        for ( auto& worker : workers )
+        for ( auto& worker: workers )
         {
             worker->waitTillDone();
         }
 
-        for ( auto& worker : workers )
+        for ( auto& worker: workers )
         {
             worker->changeAxis();
             worker->start();
         }
 
-        for ( auto& worker : workers )
+        for ( auto& worker: workers )
         {
             worker->waitTillDone();
         }

@@ -77,40 +77,44 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( Sort, JsFbMetadbHandleList::Sort );
 MJS_DEFINE_JS_FN_FROM_NATIVE( UpdateFileInfoFromJSON, JsFbMetadbHandleList::UpdateFileInfoFromJSON );
 
 constexpr auto jsFunctions = smp::to_array<JSFunctionSpec>(
-    { JS_FN( "Add", Add, 1, kDefaultPropsFlags ),
-      JS_FN( "AddRange", AddRange, 1, kDefaultPropsFlags ),
-      JS_FN( "AttachImage", AttachImage, 2, kDefaultPropsFlags ),
-      JS_FN( "BSearch", BSearch, 1, kDefaultPropsFlags ),
-      JS_FN( "CalcTotalDuration", CalcTotalDuration, 0, kDefaultPropsFlags ),
-      JS_FN( "CalcTotalSize", CalcTotalSize, 0, kDefaultPropsFlags ),
-      JS_FN( "Clone", Clone, 0, kDefaultPropsFlags ),
-      JS_FN( "Convert", Convert, 0, kDefaultPropsFlags ),
-      JS_FN( "Find", Find, 1, kDefaultPropsFlags ),
-      JS_FN( "GetLibraryRelativePaths", GetLibraryRelativePaths, 0, kDefaultPropsFlags ),
-      JS_FN( "Insert", Insert, 2, kDefaultPropsFlags ),
-      JS_FN( "InsertRange", InsertRange, 2, kDefaultPropsFlags ),
-      JS_FN( "MakeDifference", MakeDifference, 1, kDefaultPropsFlags ),
-      JS_FN( "MakeIntersection", MakeIntersection, 1, kDefaultPropsFlags ),
-      JS_FN( "MakeUnion", MakeUnion, 1, kDefaultPropsFlags ),
-      JS_FN( "OrderByFormat", OrderByFormat, 2, kDefaultPropsFlags ),
-      JS_FN( "OrderByPath", OrderByPath, 0, kDefaultPropsFlags ),
-      JS_FN( "OrderByRelativePath", OrderByRelativePath, 0, kDefaultPropsFlags ),
-      JS_FN( "RefreshStats", RefreshStats, 0, kDefaultPropsFlags ),
-      JS_FN( "Remove", Remove, 1, kDefaultPropsFlags ),
-      JS_FN( "RemoveAll", RemoveAll, 0, kDefaultPropsFlags ),
-      JS_FN( "RemoveAttachedImage", RemoveAttachedImage, 1, kDefaultPropsFlags ),
-      JS_FN( "RemoveAttachedImages", RemoveAttachedImages, 0, kDefaultPropsFlags ),
-      JS_FN( "RemoveById", RemoveById, 1, kDefaultPropsFlags ),
-      JS_FN( "RemoveRange", RemoveRange, 2, kDefaultPropsFlags ),
-      JS_FN( "Sort", Sort, 0, kDefaultPropsFlags ),
-      JS_FN( "UpdateFileInfoFromJSON", UpdateFileInfoFromJSON, 1, kDefaultPropsFlags ),
-      JS_FS_END } );
+    {
+        JS_FN( "Add", Add, 1, kDefaultPropsFlags ),
+        JS_FN( "AddRange", AddRange, 1, kDefaultPropsFlags ),
+        JS_FN( "AttachImage", AttachImage, 2, kDefaultPropsFlags ),
+        JS_FN( "BSearch", BSearch, 1, kDefaultPropsFlags ),
+        JS_FN( "CalcTotalDuration", CalcTotalDuration, 0, kDefaultPropsFlags ),
+        JS_FN( "CalcTotalSize", CalcTotalSize, 0, kDefaultPropsFlags ),
+        JS_FN( "Clone", Clone, 0, kDefaultPropsFlags ),
+        JS_FN( "Convert", Convert, 0, kDefaultPropsFlags ),
+        JS_FN( "Find", Find, 1, kDefaultPropsFlags ),
+        JS_FN( "GetLibraryRelativePaths", GetLibraryRelativePaths, 0, kDefaultPropsFlags ),
+        JS_FN( "Insert", Insert, 2, kDefaultPropsFlags ),
+        JS_FN( "InsertRange", InsertRange, 2, kDefaultPropsFlags ),
+        JS_FN( "MakeDifference", MakeDifference, 1, kDefaultPropsFlags ),
+        JS_FN( "MakeIntersection", MakeIntersection, 1, kDefaultPropsFlags ),
+        JS_FN( "MakeUnion", MakeUnion, 1, kDefaultPropsFlags ),
+        JS_FN( "OrderByFormat", OrderByFormat, 2, kDefaultPropsFlags ),
+        JS_FN( "OrderByPath", OrderByPath, 0, kDefaultPropsFlags ),
+        JS_FN( "OrderByRelativePath", OrderByRelativePath, 0, kDefaultPropsFlags ),
+        JS_FN( "RefreshStats", RefreshStats, 0, kDefaultPropsFlags ),
+        JS_FN( "Remove", Remove, 1, kDefaultPropsFlags ),
+        JS_FN( "RemoveAll", RemoveAll, 0, kDefaultPropsFlags ),
+        JS_FN( "RemoveAttachedImage", RemoveAttachedImage, 1, kDefaultPropsFlags ),
+        JS_FN( "RemoveAttachedImages", RemoveAttachedImages, 0, kDefaultPropsFlags ),
+        JS_FN( "RemoveById", RemoveById, 1, kDefaultPropsFlags ),
+        JS_FN( "RemoveRange", RemoveRange, 2, kDefaultPropsFlags ),
+        JS_FN( "Sort", Sort, 0, kDefaultPropsFlags ),
+        JS_FN( "UpdateFileInfoFromJSON", UpdateFileInfoFromJSON, 1, kDefaultPropsFlags ),
+        JS_FS_END,
+    } );
 
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_Count, JsFbMetadbHandleList::get_Count );
 
 constexpr auto jsProperties = smp::to_array<JSPropertySpec>(
-    { JS_PSG( "Count", get_Count, kDefaultPropsFlags ),
-      JS_PS_END } );
+    {
+        JS_PSG( "Count", get_Count, kDefaultPropsFlags ),
+        JS_PS_END,
+    } );
 
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( FbMetadbHandleList_Constructor, JsFbMetadbHandleList::Constructor, JsFbMetadbHandleList::ConstructorWithOpt, 1 )
 

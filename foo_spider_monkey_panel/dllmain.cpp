@@ -1,13 +1,13 @@
 #include <stdafx.h>
 
-#include <message_manager.h>
-#include <user_message.h>
-#include <abort_callback.h>
-
 #include <js_engine/js_engine.h>
 #include <utils/delayed_executor.h>
 #include <utils/error_popup.h>
 #include <utils/thread_pool.h>
+
+#include <abort_callback.h>
+#include <message_manager.h>
+#include <user_message.h>
 
 #include <map>
 

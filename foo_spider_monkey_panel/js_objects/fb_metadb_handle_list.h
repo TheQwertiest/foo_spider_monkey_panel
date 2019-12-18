@@ -10,7 +10,6 @@ SMP_MJS_SUPPRESS_WARNINGS_POP
 
 #include <optional>
 
-
 class JSObject;
 struct JSContext;
 struct JSClass;

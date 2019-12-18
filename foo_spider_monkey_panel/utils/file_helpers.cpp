@@ -23,7 +23,7 @@ using namespace smp::file;
 [[maybe_unused]] constexpr unsigned char kBom32Be[] = { 0x00, 0x00, 0xfe, 0xff };
 [[maybe_unused]] constexpr unsigned char kBom32Le[] = { 0xff, 0xfe, 0x00, 0x00 };
 [[maybe_unused]] constexpr unsigned char kBom16Be[] = { 0xfe, 0xff }; // must be 4byte size
-constexpr unsigned char kBom16Le[] = { 0xff, 0xfe }; // must be 4byte size, but not 0xff, 0xfe, 0x00, 0x00
+constexpr unsigned char kBom16Le[] = { 0xff, 0xfe };                  // must be 4byte size, but not 0xff, 0xfe, 0x00, 0x00
 constexpr unsigned char kBom8[] = { 0xef, 0xbb, 0xbf };
 
 // TODO: dirty hack! remove

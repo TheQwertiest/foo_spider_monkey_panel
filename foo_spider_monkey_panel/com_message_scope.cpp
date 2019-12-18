@@ -1,4 +1,5 @@
 #include <stdafx.h>
+
 #include "com_message_scope.h"
 
 namespace smp

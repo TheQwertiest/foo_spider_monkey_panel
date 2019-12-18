@@ -1,7 +1,9 @@
 #include <stdafx.h>
+
 #include "config.h"
 
 #include <utils/string_helpers.h>
+
 #include <config_legacy.h>
 #include <resource.h>
 
@@ -55,7 +57,7 @@ bool PanelProperties::LoadJson( stream_reader& reader, abort_callback& abort, bo
                 return false;
             }
 
-			jsonStr = smp::pfc_x::ReadString( reader, abort );
+            jsonStr = smp::pfc_x::ReadString( reader, abort );
         }
 
         json jsonMain = json::parse( jsonStr );
@@ -148,7 +150,8 @@ void PanelProperties::SaveJson( stream_writer& writer, abort_callback& abort, bo
 
             std::visit( [&jsonValues, &propertyName]( auto&& arg ) {
                 jsonValues.push_back( { propertyName, arg } );
-            }, serializedValue );
+            },
+                        serializedValue );
         }
 
         jsonMain.push_back( { "values", jsonValues } );
@@ -231,7 +234,7 @@ void PanelSettings::ResetToDefault()
     windowPlacement.length = 0;
     shouldGrabFocus = true;
     edgeStyle = EdgeStyle::NO_EDGE;
-	// should not fail
+    // should not fail
     (void)CoCreateGuid( &guid );
 }
 

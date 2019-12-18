@@ -1373,7 +1373,7 @@ void js_panel_window::on_paint( HDC dc, const CRect& updateRc )
     {
         return;
     }
-    
+
     CDC memDc{ CreateCompatibleDC( dc ) };
     gdi::ObjectSelector autoBmp( memDc, bmp_.m_hBitmap );
 

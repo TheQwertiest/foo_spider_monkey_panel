@@ -18,7 +18,7 @@ struct PanelProperties
 {
     using PropertyMap = std::unordered_map<std::wstring, std::shared_ptr<mozjs::SerializedJsValue>>;
 
-    bool LoadBinary( stream_reader& reader, abort_callback& abort );    
+    bool LoadBinary( stream_reader& reader, abort_callback& abort );
     bool LoadJson( stream_reader& reader, abort_callback& abort, bool loadRawString = false );
     bool LoadLegacy( stream_reader& reader, abort_callback& abort );
     void SaveBinary( stream_writer& writer, abort_callback& abort ) const;

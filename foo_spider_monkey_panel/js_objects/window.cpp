@@ -73,28 +73,30 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( ShowConfigure, JsWindow::ShowConfigure )
 MJS_DEFINE_JS_FN_FROM_NATIVE( ShowProperties, JsWindow::ShowProperties )
 
 constexpr auto jsFunctions = smp::to_array<JSFunctionSpec>(
-    { JS_FN( "ClearInterval", ClearInterval, 1, kDefaultPropsFlags ),
-      JS_FN( "ClearTimeout", ClearTimeout, 1, kDefaultPropsFlags ),
-      JS_FN( "CreatePopupMenu", CreatePopupMenu, 0, kDefaultPropsFlags ),
-      JS_FN( "CreateThemeManager", CreateThemeManager, 1, kDefaultPropsFlags ),
-      JS_FN( "CreateTooltip", CreateTooltip, 0, kDefaultPropsFlags ),
-      JS_FN( "DefinePanel", DefinePanel, 1, kDefaultPropsFlags ),
-      JS_FN( "GetColourCUI", GetColourCUI, 1, kDefaultPropsFlags ),
-      JS_FN( "GetColourDUI", GetColourDUI, 1, kDefaultPropsFlags ),
-      JS_FN( "GetFontCUI", GetFontCUI, 1, kDefaultPropsFlags ),
-      JS_FN( "GetFontDUI", GetFontDUI, 1, kDefaultPropsFlags ),
-      JS_FN( "GetProperty", GetProperty, 1, kDefaultPropsFlags ),
-      JS_FN( "NotifyOthers", NotifyOthers, 2, kDefaultPropsFlags ),
-      JS_FN( "Reload", Reload, 0, kDefaultPropsFlags ),
-      JS_FN( "Repaint", Repaint, 0, kDefaultPropsFlags ),
-      JS_FN( "RepaintRect", RepaintRect, 4, kDefaultPropsFlags ),
-      JS_FN( "SetCursor", SetCursor, 1, kDefaultPropsFlags ),
-      JS_FN( "SetInterval", SetInterval, 2, kDefaultPropsFlags ),
-      JS_FN( "SetProperty", SetProperty, 1, kDefaultPropsFlags ),
-      JS_FN( "SetTimeout", SetTimeout, 2, kDefaultPropsFlags ),
-      JS_FN( "ShowConfigure", ShowConfigure, 0, kDefaultPropsFlags ),
-      JS_FN( "ShowProperties", ShowProperties, 0, kDefaultPropsFlags ),
-      JS_FS_END } );
+    {
+        JS_FN( "ClearInterval", ClearInterval, 1, kDefaultPropsFlags ),
+        JS_FN( "ClearTimeout", ClearTimeout, 1, kDefaultPropsFlags ),
+        JS_FN( "CreatePopupMenu", CreatePopupMenu, 0, kDefaultPropsFlags ),
+        JS_FN( "CreateThemeManager", CreateThemeManager, 1, kDefaultPropsFlags ),
+        JS_FN( "CreateTooltip", CreateTooltip, 0, kDefaultPropsFlags ),
+        JS_FN( "DefinePanel", DefinePanel, 1, kDefaultPropsFlags ),
+        JS_FN( "GetColourCUI", GetColourCUI, 1, kDefaultPropsFlags ),
+        JS_FN( "GetColourDUI", GetColourDUI, 1, kDefaultPropsFlags ),
+        JS_FN( "GetFontCUI", GetFontCUI, 1, kDefaultPropsFlags ),
+        JS_FN( "GetFontDUI", GetFontDUI, 1, kDefaultPropsFlags ),
+        JS_FN( "GetProperty", GetProperty, 1, kDefaultPropsFlags ),
+        JS_FN( "NotifyOthers", NotifyOthers, 2, kDefaultPropsFlags ),
+        JS_FN( "Reload", Reload, 0, kDefaultPropsFlags ),
+        JS_FN( "Repaint", Repaint, 0, kDefaultPropsFlags ),
+        JS_FN( "RepaintRect", RepaintRect, 4, kDefaultPropsFlags ),
+        JS_FN( "SetCursor", SetCursor, 1, kDefaultPropsFlags ),
+        JS_FN( "SetInterval", SetInterval, 2, kDefaultPropsFlags ),
+        JS_FN( "SetProperty", SetProperty, 1, kDefaultPropsFlags ),
+        JS_FN( "SetTimeout", SetTimeout, 2, kDefaultPropsFlags ),
+        JS_FN( "ShowConfigure", ShowConfigure, 0, kDefaultPropsFlags ),
+        JS_FN( "ShowProperties", ShowProperties, 0, kDefaultPropsFlags ),
+        JS_FS_END,
+    } );
 
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_DlgCode, JsWindow::get_DlgCode )
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_Height, JsWindow::get_Height )
@@ -118,22 +120,24 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( put_MinHeight, JsWindow::put_MinHeight )
 MJS_DEFINE_JS_FN_FROM_NATIVE( put_MinWidth, JsWindow::put_MinWidth )
 
 constexpr auto jsProperties = smp::to_array<JSPropertySpec>(
-    { JS_PSGS( "DlgCode", get_DlgCode, put_DlgCode, kDefaultPropsFlags ),
-      JS_PSG( "Height", get_Height, kDefaultPropsFlags ),
-      JS_PSG( "ID", get_ID, kDefaultPropsFlags ),
-      JS_PSG( "InstanceType", get_InstanceType, kDefaultPropsFlags ),
-      JS_PSG( "IsTransparent", get_IsTransparent, kDefaultPropsFlags ),
-      JS_PSG( "IsVisible", get_IsVisible, kDefaultPropsFlags ),
-      JS_PSGS( "MaxHeight", get_MaxHeight, put_MaxHeight, kDefaultPropsFlags ),
-      JS_PSGS( "MaxWidth", get_MaxWidth, put_MaxWidth, kDefaultPropsFlags ),
-      JS_PSG( "MemoryLimit", get_MemoryLimit, kDefaultPropsFlags ),
-      JS_PSGS( "MinHeight", get_MinHeight, put_MinHeight, kDefaultPropsFlags ),
-      JS_PSGS( "MinWidth", get_MinWidth, put_MinWidth, kDefaultPropsFlags ),
-      JS_PSG( "Name", get_Name, kDefaultPropsFlags ),
-      JS_PSG( "PanelMemoryUsage", get_PanelMemoryUsage, kDefaultPropsFlags ),
-      JS_PSG( "TotalMemoryUsage", get_TotalMemoryUsage, kDefaultPropsFlags ),
-      JS_PSG( "Width", get_Width, kDefaultPropsFlags ),
-      JS_PS_END } );
+    {
+        JS_PSGS( "DlgCode", get_DlgCode, put_DlgCode, kDefaultPropsFlags ),
+        JS_PSG( "Height", get_Height, kDefaultPropsFlags ),
+        JS_PSG( "ID", get_ID, kDefaultPropsFlags ),
+        JS_PSG( "InstanceType", get_InstanceType, kDefaultPropsFlags ),
+        JS_PSG( "IsTransparent", get_IsTransparent, kDefaultPropsFlags ),
+        JS_PSG( "IsVisible", get_IsVisible, kDefaultPropsFlags ),
+        JS_PSGS( "MaxHeight", get_MaxHeight, put_MaxHeight, kDefaultPropsFlags ),
+        JS_PSGS( "MaxWidth", get_MaxWidth, put_MaxWidth, kDefaultPropsFlags ),
+        JS_PSG( "MemoryLimit", get_MemoryLimit, kDefaultPropsFlags ),
+        JS_PSGS( "MinHeight", get_MinHeight, put_MinHeight, kDefaultPropsFlags ),
+        JS_PSGS( "MinWidth", get_MinWidth, put_MinWidth, kDefaultPropsFlags ),
+        JS_PSG( "Name", get_Name, kDefaultPropsFlags ),
+        JS_PSG( "PanelMemoryUsage", get_PanelMemoryUsage, kDefaultPropsFlags ),
+        JS_PSG( "TotalMemoryUsage", get_TotalMemoryUsage, kDefaultPropsFlags ),
+        JS_PSG( "Width", get_Width, kDefaultPropsFlags ),
+        JS_PS_END,
+    } );
 
 } // namespace
 

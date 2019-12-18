@@ -1,4 +1,5 @@
 #include <stdafx.h>
+
 #include "semantic_version.h"
 
 #include <utils/string_helpers.h>

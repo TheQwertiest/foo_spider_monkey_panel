@@ -1,13 +1,13 @@
 #include <stdafx.h>
+
 #include "image_helpers.h"
 
 #include <utils/gdi_helpers.h>
 #include <utils/thread_pool.h>
 
-#include <user_message.h>
-#include <message_manager.h>
-
 #include <Shlwapi.h>
+#include <message_manager.h>
+#include <user_message.h>
 
 #include <algorithm>
 
@@ -57,7 +57,7 @@ uint32_t LoadImageTask::GetTaskId() const
 
 void LoadImageTask::run()
 {
-    const std::u8string path = file_path_display( smp::unicode::ToU8( imagePath_).c_str() ).get_ptr();
+    const std::u8string path = file_path_display( smp::unicode::ToU8( imagePath_ ).c_str() ).get_ptr();
     panel::message_manager::instance().post_callback_msg( hNotifyWnd_,
                                                           smp::CallbackMessage::internal_load_image_done,
                                                           std::make_unique<
@@ -65,8 +65,8 @@ void LoadImageTask::run()
                                                                   uint32_t,
                                                                   std::unique_ptr<Gdiplus::Bitmap>,
                                                                   std::u8string>>( taskId_,
-                                                                                       image::LoadImage( imagePath_ ),
-                                                                                       path ) );
+                                                                                   image::LoadImage( imagePath_ ),
+                                                                                   path ) );
 }
 
 } // namespace

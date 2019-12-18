@@ -44,14 +44,18 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( moveFirst, JsEnumerator::MoveFirst )
 MJS_DEFINE_JS_FN_FROM_NATIVE( moveNext, JsEnumerator::MoveNext )
 
 constexpr auto jsFunctions = smp::to_array<JSFunctionSpec>(
-    { JS_FN( "atEnd", atEnd, 0, kDefaultPropsFlags ),
-      JS_FN( "item", item, 0, kDefaultPropsFlags ),
-      JS_FN( "moveFirst", moveFirst, 0, kDefaultPropsFlags ),
-      JS_FN( "moveNext", moveNext, 0, kDefaultPropsFlags ),
-      JS_FS_END } );
+    {
+        JS_FN( "atEnd", atEnd, 0, kDefaultPropsFlags ),
+        JS_FN( "item", item, 0, kDefaultPropsFlags ),
+        JS_FN( "moveFirst", moveFirst, 0, kDefaultPropsFlags ),
+        JS_FN( "moveNext", moveNext, 0, kDefaultPropsFlags ),
+        JS_FS_END,
+    } );
 
 constexpr auto jsProperties = smp::to_array<JSPropertySpec>(
-    { JS_PS_END } );
+    {
+        JS_PS_END,
+    } );
 
 MJS_DEFINE_JS_FN_FROM_NATIVE( Enumerator_Constructor, JsEnumerator::Constructor )
 

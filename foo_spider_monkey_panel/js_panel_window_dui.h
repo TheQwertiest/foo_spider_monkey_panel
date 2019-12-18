@@ -1,5 +1,7 @@
 #pragma once
 
+#include <js_panel_window.h>
+
 namespace smp::panel
 {
 

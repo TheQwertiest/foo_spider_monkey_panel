@@ -230,8 +230,10 @@ bool LogImpl( JSContext* cx, unsigned argc, JS::Value* vp )
 MJS_DEFINE_JS_FN( Log, LogImpl )
 
 constexpr auto console_functions = smp::to_array<JSFunctionSpec>(
-    { JS_FN( "log", Log, 0, kDefaultPropsFlags ),
-      JS_FS_END } );
+    {
+        JS_FN( "log", Log, 0, kDefaultPropsFlags ),
+        JS_FS_END,
+    } );
 } // namespace
 
 namespace mozjs

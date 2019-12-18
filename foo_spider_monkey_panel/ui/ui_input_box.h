@@ -11,8 +11,8 @@ public:
     CInputBox( const char* p_prompt, const char* p_caption, const char* p_value );
 
     BEGIN_MSG_MAP( CInputBox )
-		MSG_WM_INITDIALOG( OnInitDialog )
-		MSG_WM_COMMAND( OnCommand )
+        MSG_WM_INITDIALOG( OnInitDialog )
+        MSG_WM_COMMAND( OnCommand )
     END_MSG_MAP()
 
     enum

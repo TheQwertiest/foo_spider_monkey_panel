@@ -1,4 +1,5 @@
 #include <stdafx.h>
+
 #include "host_external.h"
 
 namespace smp::com

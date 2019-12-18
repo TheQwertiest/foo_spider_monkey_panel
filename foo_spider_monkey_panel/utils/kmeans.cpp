@@ -3,6 +3,7 @@
 // All rights reserved.
 
 #include <stdafx.h>
+
 #include "kmeans.h"
 
 namespace
@@ -110,7 +111,7 @@ std::vector<ClusterData> run( const std::vector<PointData>& pointsData, uint32_t
         bool done = true;
 
         // associate each point to its nearest center
-        for ( auto& point : points )
+        for ( auto& point: points )
         {
             const uint32_t id_old_cluster = point.id_cluster;
             const uint32_t id_nearest_center = getIDNearestCenter( clusters, point );
@@ -132,7 +133,7 @@ std::vector<ClusterData> run( const std::vector<PointData>& pointsData, uint32_t
         }
 
         // recalculating the center of each cluster
-        for ( auto& cluster : clusters )
+        for ( auto& cluster: clusters )
         {
             const uint32_t pixelsInCluster = getTotalPixelCount( cluster );
             if ( !pixelsInCluster )
@@ -140,7 +141,7 @@ std::vector<ClusterData> run( const std::vector<PointData>& pointsData, uint32_t
                 continue;
             }
 
-            for ( auto&& [j, centralValue] : ranges::view::enumerate( cluster.central_values ) )
+            for ( auto&& [j, centralValue]: ranges::view::enumerate( cluster.central_values ) )
             {
                 const uint32_t sum = ranges::accumulate( cluster.points, 0, [j = j]( uint32_t curSum, const auto pPoint ) {
                     return curSum + pPoint->pData->values[j] * pPoint->pData->pixel_count;

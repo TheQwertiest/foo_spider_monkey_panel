@@ -1,4 +1,5 @@
 #include <stdafx.h>
+
 #include "ui_input_box.h"
 
 namespace smp::ui

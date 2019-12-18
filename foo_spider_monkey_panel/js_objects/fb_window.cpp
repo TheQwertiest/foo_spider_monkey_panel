@@ -34,7 +34,9 @@ JSClass jsClass = {
 };
 
 constexpr auto jsFunctions = smp::to_array<JSFunctionSpec>(
-    { JS_FS_END } );
+    {
+        JS_FS_END,
+    } );
 
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_Aero, JsFbWindow::get_Aero )
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_BlockMaximize, JsFbWindow::get_BlockMaximize )
@@ -51,15 +53,17 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( put_MainWindowState, JsFbWindow::put_MainWindowSta
 MJS_DEFINE_JS_FN_FROM_NATIVE( put_Sizing, JsFbWindow::put_Sizing )
 
 constexpr auto jsProperties = smp::to_array<JSPropertySpec>(
-    { JS_PSG( "Aero", get_Aero, kDefaultPropsFlags ),
-      JS_PSGS( "BlockMaximize", get_BlockMaximize, put_BlockMaximize, kDefaultPropsFlags ),
-      JS_PSG( "FoobarCpuUsage", get_FoobarCpuUsage, kDefaultPropsFlags ),
-      JS_PSGS( "FrameStyle", get_FrameStyle, put_FrameStyle, kDefaultPropsFlags ),
-      JS_PSGS( "FullScreen", get_FullScreen, put_FullScreen, kDefaultPropsFlags ),
-      JS_PSGS( "MainWindowState", get_MainWindowState, put_MainWindowState, kDefaultPropsFlags ),
-      JS_PSGS( "Sizing", get_Sizing, put_Sizing, kDefaultPropsFlags ),
-      JS_PSG( "SystemCpuUsage", get_SystemCpuUsage, kDefaultPropsFlags ),
-      JS_PS_END } );
+    {
+        JS_PSG( "Aero", get_Aero, kDefaultPropsFlags ),
+        JS_PSGS( "BlockMaximize", get_BlockMaximize, put_BlockMaximize, kDefaultPropsFlags ),
+        JS_PSG( "FoobarCpuUsage", get_FoobarCpuUsage, kDefaultPropsFlags ),
+        JS_PSGS( "FrameStyle", get_FrameStyle, put_FrameStyle, kDefaultPropsFlags ),
+        JS_PSGS( "FullScreen", get_FullScreen, put_FullScreen, kDefaultPropsFlags ),
+        JS_PSGS( "MainWindowState", get_MainWindowState, put_MainWindowState, kDefaultPropsFlags ),
+        JS_PSGS( "Sizing", get_Sizing, put_Sizing, kDefaultPropsFlags ),
+        JS_PSG( "SystemCpuUsage", get_SystemCpuUsage, kDefaultPropsFlags ),
+        JS_PS_END,
+    } );
 
 } // namespace
 

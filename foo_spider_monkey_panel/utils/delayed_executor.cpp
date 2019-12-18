@@ -1,4 +1,5 @@
 #include <stdafx.h>
+
 #include "delayed_executor.h"
 
 namespace smp::utils

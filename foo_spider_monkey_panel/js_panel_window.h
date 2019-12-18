@@ -95,10 +95,10 @@ private:
 
     PanelInfo m_script_info; // TODO: move to JsContainer
 
-    uint32_t height_ = 0;         // Used externally as well
-    uint32_t width_ = 0;          // Used externally as well
+    uint32_t height_ = 0;     // Used externally as well
+    uint32_t width_ = 0;      // Used externally as well
     CBitmap bmp_ = nullptr;   // used only internally
-    CBitmap bmpBg_ = nullptr;     // used only internally
+    CBitmap bmpBg_ = nullptr; // used only internally
 
     bool isBgRepaintNeeded_ = false;           // used only internally
     bool isPaintInProgress_ = false;           // used only internally

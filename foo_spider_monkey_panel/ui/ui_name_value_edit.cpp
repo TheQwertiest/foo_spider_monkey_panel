@@ -1,4 +1,5 @@
 #include <stdafx.h>
+
 #include "ui_name_value_edit.h"
 
 namespace smp::ui

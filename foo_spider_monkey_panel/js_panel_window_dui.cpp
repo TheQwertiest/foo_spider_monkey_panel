@@ -1,10 +1,11 @@
 #include <stdafx.h>
-#include "js_panel_window.h"
+
 #include "js_panel_window_dui.h"
 
 #include <utils/colour_helpers.h>
-#include <user_message.h>
+
 #include <message_manager.h>
+#include <user_message.h>
 
 namespace
 {

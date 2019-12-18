@@ -65,27 +65,31 @@ MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( SaveAs, JsGdiBitmap::SaveAs, JsGdiBitmap:
 MJS_DEFINE_JS_FN_FROM_NATIVE( StackBlur, JsGdiBitmap::StackBlur )
 
 constexpr auto jsFunctions = smp::to_array<JSFunctionSpec>(
-    { JS_FN( "ApplyAlpha", ApplyAlpha, 1, kDefaultPropsFlags ),
-      JS_FN( "ApplyMask", ApplyMask, 1, kDefaultPropsFlags ),
-      JS_FN( "Clone", Clone, 4, kDefaultPropsFlags ),
-      JS_FN( "CreateRawBitmap", CreateRawBitmap, 0, kDefaultPropsFlags ),
-      JS_FN( "GetColourScheme", GetColourScheme, 1, kDefaultPropsFlags ),
-      JS_FN( "GetColourSchemeJSON", GetColourSchemeJSON, 1, kDefaultPropsFlags ),
-      JS_FN( "GetGraphics", GetGraphics, 0, kDefaultPropsFlags ),
-      JS_FN( "ReleaseGraphics", ReleaseGraphics, 1, kDefaultPropsFlags ),
-      JS_FN( "Resize", Resize, 2, kDefaultPropsFlags ),
-      JS_FN( "RotateFlip", RotateFlip, 1, kDefaultPropsFlags ),
-      JS_FN( "SaveAs", SaveAs, 1, kDefaultPropsFlags ),
-      JS_FN( "StackBlur", StackBlur, 1, kDefaultPropsFlags ),
-      JS_FS_END } );
+    {
+        JS_FN( "ApplyAlpha", ApplyAlpha, 1, kDefaultPropsFlags ),
+        JS_FN( "ApplyMask", ApplyMask, 1, kDefaultPropsFlags ),
+        JS_FN( "Clone", Clone, 4, kDefaultPropsFlags ),
+        JS_FN( "CreateRawBitmap", CreateRawBitmap, 0, kDefaultPropsFlags ),
+        JS_FN( "GetColourScheme", GetColourScheme, 1, kDefaultPropsFlags ),
+        JS_FN( "GetColourSchemeJSON", GetColourSchemeJSON, 1, kDefaultPropsFlags ),
+        JS_FN( "GetGraphics", GetGraphics, 0, kDefaultPropsFlags ),
+        JS_FN( "ReleaseGraphics", ReleaseGraphics, 1, kDefaultPropsFlags ),
+        JS_FN( "Resize", Resize, 2, kDefaultPropsFlags ),
+        JS_FN( "RotateFlip", RotateFlip, 1, kDefaultPropsFlags ),
+        JS_FN( "SaveAs", SaveAs, 1, kDefaultPropsFlags ),
+        JS_FN( "StackBlur", StackBlur, 1, kDefaultPropsFlags ),
+        JS_FS_END,
+    } );
 
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_Height, JsGdiBitmap::get_Height )
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_Width, JsGdiBitmap::get_Width )
 
 constexpr auto jsProperties = smp::to_array<JSPropertySpec>(
-    { JS_PSG( "Height", get_Height, kDefaultPropsFlags ),
-      JS_PSG( "Width", get_Width, kDefaultPropsFlags ),
-      JS_PS_END } );
+    {
+        JS_PSG( "Height", get_Height, kDefaultPropsFlags ),
+        JS_PSG( "Width", get_Width, kDefaultPropsFlags ),
+        JS_PS_END,
+    } );
 
 MJS_DEFINE_JS_FN_FROM_NATIVE( GdiBitmap_Constructor, JsGdiBitmap::Constructor )
 

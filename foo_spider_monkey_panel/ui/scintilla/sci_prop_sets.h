@@ -1,6 +1,7 @@
 #pragma once
 
 #include <nonstd/span.hpp>
+
 #include <map>
 
 namespace scintilla
@@ -51,7 +52,7 @@ private:
     void merge_data( const ScintillaPropValues& data_map );
 
 private:
-	ScintillaPropList m_data;
+    ScintillaPropList m_data;
 };
 
 extern ScintillaCfg g_scintillaCfg;

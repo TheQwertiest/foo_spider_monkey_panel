@@ -1,9 +1,10 @@
 #include <stdafx.h>
+
 #include "drag_utils.h"
 
-#include <utils/scope_helpers.h>
-#include <utils/gdi_helpers.h>
 #include <com_objects/internal/drag_image.h>
+#include <utils/gdi_helpers.h>
+#include <utils/scope_helpers.h>
 
 namespace
 {
@@ -120,16 +121,16 @@ bool RenderDragImage( HWND hWnd, size_t itemCount, bool isThemed, bool showText,
     memset( &lf, 0, sizeof( LOGFONT ) );
     SystemParametersInfo( SPI_GETICONTITLELOGFONT, 0, &lf, 0 );
 
-    return uih::create_drag_image( hWnd, 
-         isThemed, 
-         m_dd_theme, 
-         GetSysColor( COLOR_HIGHLIGHT ), 
-         GetSysColor( COLOR_HIGHLIGHTTEXT ), 
-         nullptr, 
-         &lf, 
-         ( showText ? FormatDragText( itemCount ).c_str() : nullptr ), 
-         pCustomImage, 
-         & dragImage );
+    return uih::create_drag_image( hWnd,
+                                   isThemed,
+                                   m_dd_theme,
+                                   GetSysColor( COLOR_HIGHLIGHT ),
+                                   GetSysColor( COLOR_HIGHLIGHTTEXT ),
+                                   nullptr,
+                                   &lf,
+                                   ( showText ? FormatDragText( itemCount ).c_str() : nullptr ),
+                                   pCustomImage,
+                                   &dragImage );
 }
 
 HRESULT GetDragWindow( IDataObject* pDataObj, HWND& p_wnd )

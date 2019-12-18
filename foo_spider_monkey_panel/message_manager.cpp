@@ -1,4 +1,5 @@
 #include <stdafx.h>
+
 #include "message_manager.h"
 
 namespace smp::panel
@@ -123,7 +124,7 @@ void message_manager::post_msg_to_all( UINT msg, WPARAM wp, LPARAM lp )
     assert( IsAllowedAsyncMessage( msg ) );
     std::scoped_lock sl( wndDataMutex_ );
 
-    for ( auto& [hWnd, wndData] : wndDataMap_ )
+    for ( auto& [hWnd, wndData]: wndDataMap_ )
     {
         post_msg_impl( hWnd, wndData, msg, wp, lp );
     }
@@ -149,7 +150,7 @@ void message_manager::post_callback_msg_to_all( CallbackMessage msg, std::unique
     std::shared_ptr<CallbackData> sharedData( data.release() );
 
     std::scoped_lock sl( wndDataMutex_ );
-    for ( auto& [hWnd, wndData] : wndDataMap_ )
+    for ( auto& [hWnd, wndData]: wndDataMap_ )
     {
         post_callback_msg_impl( hWnd, wndData, msg, sharedData );
     }
@@ -162,13 +163,13 @@ void message_manager::send_msg_to_all( UINT msg, WPARAM wp, LPARAM lp )
 
     {
         std::scoped_lock sl( wndDataMutex_ );
-        for ( const auto& [hWnd, wndData] : wndDataMap_ )
+        for ( const auto& [hWnd, wndData]: wndDataMap_ )
         {
             hWnds.emplace_back( hWnd );
         }
     }
 
-    for ( const auto& hWnd : hWnds )
+    for ( const auto& hWnd: hWnds )
     {
         SendMessage( hWnd, msg, wp, lp );
     }
@@ -181,13 +182,13 @@ void message_manager::send_msg_to_others( HWND hWnd_except, UINT msg, WPARAM wp,
 
     {
         std::scoped_lock sl( wndDataMutex_ );
-        for ( const auto& [hWnd, wndData] : wndDataMap_ )
+        for ( const auto& [hWnd, wndData]: wndDataMap_ )
         {
             hWnds.emplace_back( hWnd );
         }
     }
 
-    for ( const auto& hWnd : hWnds )
+    for ( const auto& hWnd: hWnds )
     {
         if ( hWnd != hWnd_except )
         {

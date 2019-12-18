@@ -1,11 +1,11 @@
 #pragma once
 
+#include <js/GCHashTable.h>
+
+#include <filesystem>
 #include <memory>
 #include <string>
 #include <unordered_map>
-#include <filesystem>
-
-#include <js/GCHashTable.h>
 
 struct JSContext;
 
@@ -53,7 +53,7 @@ private:
 
         void trace( JSTracer* trc )
         {
-            for ( auto& entry : data )
+            for ( auto& entry: data )
             {
                 JS::TraceEdge( trc, &entry.second.script, "map value" );
             }

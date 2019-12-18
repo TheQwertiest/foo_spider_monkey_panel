@@ -2,8 +2,8 @@
 
 #include <js_objects/object_base.h>
 
-#include <string>
 #include <optional>
+#include <string>
 
 class JSObject;
 struct JSContext;

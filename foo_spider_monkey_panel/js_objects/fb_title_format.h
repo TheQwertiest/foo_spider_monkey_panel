@@ -2,8 +2,6 @@
 
 #include <js_objects/object_base.h>
 
-#include <js_objects/object_base.h>
-
 #include <optional>
 #include <string>
 

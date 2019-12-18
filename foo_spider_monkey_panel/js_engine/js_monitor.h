@@ -1,7 +1,7 @@
 #pragma once
 
-#include <map>
 #include <functional>
+#include <map>
 #include <mutex>
 
 struct JSContext;
@@ -45,7 +45,7 @@ private:
     void StartMonitorThread();
     void StopMonitorThread();
 
-	bool HasActivePopup( bool isMainThread ) const;
+    bool HasActivePopup( bool isMainThread ) const;
 
 private:
     JSContext* pJsCtx_ = nullptr;

@@ -28,7 +28,7 @@ public:
         are_.Disable();
     }
 
-private:    
+private:
     JSAutoRealm ac_;
     mozjs::error::AutoJsReport are_;
 };

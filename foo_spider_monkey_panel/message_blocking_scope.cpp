@@ -1,4 +1,5 @@
 #include <stdafx.h>
+
 #include "message_blocking_scope.h"
 
 #include <js_engine/js_engine.h>

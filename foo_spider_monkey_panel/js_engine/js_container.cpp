@@ -1,19 +1,20 @@
 #include <stdafx.h>
+
 #include "js_container.h"
 
 #include <js_engine/js_engine.h>
-#include <js_engine/js_realm_inner.h>
 #include <js_engine/js_gc.h>
-#include <js_objects/global_object.h>
-#include <js_objects/gdi_graphics.h>
+#include <js_engine/js_realm_inner.h>
 #include <js_objects/drop_source_action.h>
+#include <js_objects/gdi_graphics.h>
+#include <js_objects/global_object.h>
+#include <js_utils/js_async_task.h>
 #include <js_utils/js_error_helper.h>
 #include <js_utils/scope_helper.h>
-#include <js_utils/js_async_task.h>
 #include <utils/scope_helpers.h>
 
-#include <js_panel_window.h>
 #include <host_timer_dispatcher.h>
+#include <js_panel_window.h>
 #include <smp_exception.h>
 
 SMP_MJS_SUPPRESS_WARNINGS_PUSH
@@ -68,7 +69,7 @@ bool JsContainer::Initialize()
     {
         jsGlobal_.init( pJsCtx_, JsGlobalObject::CreateNative( pJsCtx_, *this, *pParentPanel_ ) );
         assert( jsGlobal_ );
-        utils::final_action autoGlobal( [&jsGlobal=jsGlobal_] {
+        utils::final_action autoGlobal( [&jsGlobal = jsGlobal_] {
             jsGlobal.reset();
         } );
 
@@ -198,7 +199,7 @@ bool JsContainer::ExecuteScript( const std::u8string& scriptCode )
 }
 
 void JsContainer::RunJobs()
-{    
+{
     JsEngine::GetInstance().MaybeRunJobs();
 }
 
@@ -260,7 +261,7 @@ void JsContainer::InvokeOnNotify( WPARAM wp, LPARAM lp )
     if ( jsValue.isObject() )
     { // this will remove all wrappers (e.g. during callback re-entrancy)
         js::NukeCrossCompartmentWrappers( pJsCtx_,
-                                          js::SingleCompartment{ js::GetContextCompartment( pJsCtx_ ) }, 
+                                          js::SingleCompartment{ js::GetContextCompartment( pJsCtx_ ) },
                                           js::GetNonCCWObjectRealm( js::UncheckedUnwrap( &jsValue.toObject() ) ),
                                           js::NukeReferencesToWindow::DontNukeWindowReferences, ///< browser specific flag, irrelevant to us
                                           js::NukeReferencesFromTarget::NukeIncomingReferences );
@@ -280,7 +281,7 @@ void JsContainer::InvokeOnPaint( Gdiplus::Graphics& gr )
     (void)InvokeJsCallback( "on_paint",
                             static_cast<JS::HandleObject>( jsGraphics_ ) );
     if ( pNativeGraphics_ )
-    {// InvokeJsCallback invokes Fail() on error, which resets pNativeGraphics_
+    { // InvokeJsCallback invokes Fail() on error, which resets pNativeGraphics_
         pNativeGraphics_->SetGraphicsObject( nullptr );
     }
 }

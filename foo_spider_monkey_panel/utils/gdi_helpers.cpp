@@ -1,4 +1,5 @@
 #include <stdafx.h>
+
 #include "gdi_helpers.h"
 
 namespace smp::gdi

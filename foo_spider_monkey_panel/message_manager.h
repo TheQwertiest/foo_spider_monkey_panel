@@ -1,12 +1,12 @@
 #pragma once
 
-#include <user_message.h>
 #include <callback_data.h>
+#include <user_message.h>
 
-#include <mutex>
 #include <deque>
-#include <optional>
 #include <map>
+#include <mutex>
+#include <optional>
 
 namespace smp::panel
 {

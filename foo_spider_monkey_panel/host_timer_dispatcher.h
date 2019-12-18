@@ -2,10 +2,10 @@
 
 #include <js_utils/js_async_task.h>
 
-#include <mutex>
-#include <map>
 #include <atomic>
 #include <list>
+#include <map>
+#include <mutex>
 
 namespace mozjs
 {
