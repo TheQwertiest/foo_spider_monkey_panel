@@ -48,9 +48,11 @@ matrix:
   fast_finish: true     # set this flag to immediately finish build once one of the jobs fails.
 
 cache:
-  - '%APPDATA%\npm\node_modules'    # global npm modules
   - node_modules                    # local npm modules
+  - workspaces\packages -> **\packages.config
+  - '%APPDATA%\npm\node_modules'    # global npm modules
   - '%APPDATA%\npm-cache'           # npm cache
+  - '%USERPROFILE%\.nuget\packages -> **\packages.config'
 
 # scripts that run after cloning repository
 install:
@@ -81,7 +83,7 @@ build:
 
 # scripts to run before build
 before_build:
-  - nuget restore
+  - nuget restore workspaces\foo_spider_monkey_panel.sln
 
 # to run your custom scripts instead of automatic MSBuild
 build_script:
