@@ -1,4 +1,5 @@
 #include <stdafx.h>
+
 #include "location_processor.h"
 
 namespace smp::utils

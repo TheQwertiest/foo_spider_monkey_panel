@@ -7,4 +7,4 @@ void VariantToJs( JSContext* cx, VARIANTARG& var, JS::MutableHandleValue rval );
 // assumes that variant arg is uninitialized
 void JsToVariant( JSContext* cx, JS::HandleValue rval, VARIANTARG& arg );
 
-}
+} // namespace mozjs::convert::com

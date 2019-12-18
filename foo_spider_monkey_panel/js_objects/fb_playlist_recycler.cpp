@@ -42,17 +42,21 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( Purge, JsFbPlaylistRecycler::Purge )
 MJS_DEFINE_JS_FN_FROM_NATIVE( Restore, JsFbPlaylistRecycler::Restore )
 
 constexpr auto jsFunctions = smp::to_array<JSFunctionSpec>(
-    { JS_FN( "GetContent", GetContent, 1, DefaultPropsFlags() ),
-      JS_FN( "GetName", GetName, 1, DefaultPropsFlags() ),
-      JS_FN( "Purge", Purge, 1, DefaultPropsFlags() ),
-      JS_FN( "Restore", Restore, 1, DefaultPropsFlags() ),
-      JS_FS_END } );
+    {
+        JS_FN( "GetContent", GetContent, 1, DefaultPropsFlags() ),
+        JS_FN( "GetName", GetName, 1, DefaultPropsFlags() ),
+        JS_FN( "Purge", Purge, 1, DefaultPropsFlags() ),
+        JS_FN( "Restore", Restore, 1, DefaultPropsFlags() ),
+        JS_FS_END,
+    } );
 
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_Count, JsFbPlaylistRecycler::get_Count )
 
 constexpr auto jsProperties = smp::to_array<JSPropertySpec>(
-    { JS_PSG( "Count", get_Count, DefaultPropsFlags() ),
-      JS_PS_END } );
+    {
+        JS_PSG( "Count", get_Count, DefaultPropsFlags() ),
+        JS_PS_END,
+    } );
 
 } // namespace
 

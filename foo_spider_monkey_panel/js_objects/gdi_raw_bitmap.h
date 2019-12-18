@@ -39,7 +39,8 @@ public:
 
 public:
     [[nodiscard]] __notnull
-    HDC GetHDC() const;
+        HDC
+        GetHDC() const;
 
 public: // props
     std::uint32_t get_Height();

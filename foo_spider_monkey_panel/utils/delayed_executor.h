@@ -1,8 +1,8 @@
 #pragma once
 
+#include <functional>
 #include <memory>
 #include <queue>
-#include <functional>
 
 namespace smp::utils
 {
@@ -47,8 +47,7 @@ public:
         }
     }
 
-
-	/// @details Should be invoked only from `initquit::on_init` 
+    /// @details Should be invoked only from `initquit::on_init`
     void EnableExecution();
 
 private:

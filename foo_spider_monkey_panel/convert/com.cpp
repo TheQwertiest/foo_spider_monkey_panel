@@ -1,18 +1,18 @@
 #include <stdafx.h>
+
 #include "com.h"
 
 #include <com_objects/com_interface.h>
 #include <com_objects/com_tools.h>
 #include <com_objects/dispatch_ptr.h>
-
+#include <convert/js_to_native.h>
+#include <js_objects/active_x_object.h>
 #include <js_objects/global_object.h>
 #include <js_objects/internal/global_heap_manager.h>
-#include <js_objects/active_x_object.h>
-#include <js_utils/js_object_helper.h>
 #include <js_utils/js_error_helper.h>
+#include <js_utils/js_object_helper.h>
 #include <utils/scope_helpers.h>
 #include <utils/winapi_error_helpers.h>
-#include <convert/js_to_native.h>
 
 using namespace smp;
 
@@ -375,7 +375,7 @@ void VariantToJs( JSContext* cx, VARIANTARG& var, JS::MutableHandleValue rval )
         break;
     default:
         if ( ( type & VT_ARRAY ) && !( type & VT_UI1 ) )
-        {// skip binary data: SMP has no use for it, but it's needed in COM interface
+        { // skip binary data: SMP has no use for it, but it's needed in COM interface
             ComArrayToJsArray( cx, var, rval );
             break;
         }

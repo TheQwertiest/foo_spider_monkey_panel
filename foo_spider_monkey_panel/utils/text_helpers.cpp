@@ -155,7 +155,7 @@ std::optional<UINT> DetectCharSet( std::string_view text )
 
     constexpr int maxEncodings = 2;
     int encodingCount = maxEncodings;
-    std::array<DetectEncodingInfo, maxEncodings> encodings;    
+    std::array<DetectEncodingInfo, maxEncodings> encodings;
     int iTextSize = text.size();
 
     hr = lang->DetectInputCodepage( MLDETECTCP_NONE, 0, const_cast<char*>( text.data() ), &iTextSize, encodings.data(), &encodingCount );

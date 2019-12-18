@@ -10,7 +10,6 @@
 
 #include <smp_exception.h>
 
-
 using namespace smp;
 
 namespace

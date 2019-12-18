@@ -45,18 +45,20 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( CheckMenuRadioItem, JsMenuObject::CheckMenuRadioIt
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( TrackPopupMenu, JsMenuObject::TrackPopupMenu, JsMenuObject::TrackPopupMenuWithOpt, 1 )
 
 constexpr auto jsFunctions = smp::to_array<JSFunctionSpec>(
-{
-    JS_FN( "AppendMenuItem", AppendMenuItem, 3, DefaultPropsFlags() ),
-    JS_FN( "AppendMenuSeparator", AppendMenuSeparator, 0, DefaultPropsFlags() ),
-    JS_FN( "AppendTo", AppendTo, 3, DefaultPropsFlags() ),
-    JS_FN( "CheckMenuItem", CheckMenuItem, 2, DefaultPropsFlags() ),
-    JS_FN( "CheckMenuRadioItem", CheckMenuRadioItem, 3, DefaultPropsFlags() ),
-    JS_FN( "TrackPopupMenu", TrackPopupMenu, 2, DefaultPropsFlags() ),
-    JS_FS_END
-});
+    {
+        JS_FN( "AppendMenuItem", AppendMenuItem, 3, DefaultPropsFlags() ),
+        JS_FN( "AppendMenuSeparator", AppendMenuSeparator, 0, DefaultPropsFlags() ),
+        JS_FN( "AppendTo", AppendTo, 3, DefaultPropsFlags() ),
+        JS_FN( "CheckMenuItem", CheckMenuItem, 2, DefaultPropsFlags() ),
+        JS_FN( "CheckMenuRadioItem", CheckMenuRadioItem, 3, DefaultPropsFlags() ),
+        JS_FN( "TrackPopupMenu", TrackPopupMenu, 2, DefaultPropsFlags() ),
+        JS_FS_END,
+    } );
 
 constexpr auto jsProperties = smp::to_array<JSPropertySpec>(
-    { JS_PS_END } );
+    {
+        JS_PS_END,
+    } );
 
 } // namespace
 

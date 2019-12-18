@@ -1,6 +1,6 @@
 #include <stdafx.h>
-#include "string_helpers.h"
 
+#include "string_helpers.h"
 
 namespace smp::string
 {

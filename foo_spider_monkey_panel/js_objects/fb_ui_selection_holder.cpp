@@ -40,13 +40,17 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( SetPlaylistTracking, JsFbUiSelectionHolder::SetPla
 MJS_DEFINE_JS_FN_FROM_NATIVE( SetSelection, JsFbUiSelectionHolder::SetSelection )
 
 constexpr auto jsFunctions = smp::to_array<JSFunctionSpec>(
-    { JS_FN( "SetPlaylistSelectionTracking", SetPlaylistSelectionTracking, 0, DefaultPropsFlags() ),
-      JS_FN( "SetPlaylistTracking", SetPlaylistTracking, 0, DefaultPropsFlags() ),
-      JS_FN( "SetSelection", SetSelection, 1, DefaultPropsFlags() ),
-      JS_FS_END } );
+    {
+        JS_FN( "SetPlaylistSelectionTracking", SetPlaylistSelectionTracking, 0, DefaultPropsFlags() ),
+        JS_FN( "SetPlaylistTracking", SetPlaylistTracking, 0, DefaultPropsFlags() ),
+        JS_FN( "SetSelection", SetSelection, 1, DefaultPropsFlags() ),
+        JS_FS_END,
+    } );
 
 constexpr auto jsProperties = smp::to_array<JSPropertySpec>(
-    { JS_PS_END } );
+    {
+        JS_PS_END,
+    } );
 
 } // namespace
 

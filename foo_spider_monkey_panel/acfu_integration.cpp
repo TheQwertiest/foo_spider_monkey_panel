@@ -1,8 +1,8 @@
 #include <stdafx.h>
 
-#include <utils/string_helpers.h>
-#include <utils/semantic_version.h>
 #include <utils/acfu_github.h>
+#include <utils/semantic_version.h>
+#include <utils/string_helpers.h>
 
 #include <acfu-sdk/utils/common.h>
 

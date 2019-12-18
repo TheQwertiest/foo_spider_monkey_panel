@@ -18,7 +18,8 @@ bool FindReplaceState::operator!=( const FindReplaceState& other ) const
              || useRegExp != other.useRegExp );
 }
 
-bool FindReplaceState::operator==( const FindReplaceState& other ) const {
+bool FindReplaceState::operator==( const FindReplaceState& other ) const
+{
     return !( *this != other );
 }
 

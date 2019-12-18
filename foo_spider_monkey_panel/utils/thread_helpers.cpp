@@ -1,4 +1,5 @@
 #include <stdafx.h>
+
 #include "thread_helpers.h"
 
 namespace

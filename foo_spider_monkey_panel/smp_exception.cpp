@@ -1,11 +1,11 @@
 #include <stdafx.h>
+
 #include "smp_exception.h"
 
 namespace smp
 {
 
- _Post_satisfies_( checkValue ) 
-void SmpException::ExpectTrue( bool checkValue, std::string_view errorMessage )
+_Post_satisfies_( checkValue ) void SmpException::ExpectTrue( bool checkValue, std::string_view errorMessage )
 {
     if ( !checkValue )
     {
@@ -18,8 +18,7 @@ void SmpException::ExpectTrue( _Post_notnull_ void* checkValue, std::string_view
     return ExpectTrue( static_cast<bool>( checkValue ), errorMessage );
 }
 
- _Post_satisfies_( checkValue ) 
-void JsException::ExpectTrue( bool checkValue )
+_Post_satisfies_( checkValue ) void JsException::ExpectTrue( bool checkValue )
 {
     if ( !checkValue )
     {

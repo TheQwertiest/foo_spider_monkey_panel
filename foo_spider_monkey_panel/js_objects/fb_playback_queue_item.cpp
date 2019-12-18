@@ -38,13 +38,17 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( get_PlaylistIndex, JsFbPlaybackQueueItem::get_Play
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_PlaylistItemIndex, JsFbPlaybackQueueItem::get_PlaylistItemIndex )
 
 constexpr auto jsProperties = smp::to_array<JSPropertySpec>(
-    { JS_PSG( "Handle", get_Handle, DefaultPropsFlags() ),
-      JS_PSG( "PlaylistIndex", get_PlaylistIndex, DefaultPropsFlags() ),
-      JS_PSG( "PlaylistItemIndex", get_PlaylistItemIndex, DefaultPropsFlags() ),
-      JS_PS_END } );
+    {
+        JS_PSG( "Handle", get_Handle, DefaultPropsFlags() ),
+        JS_PSG( "PlaylistIndex", get_PlaylistIndex, DefaultPropsFlags() ),
+        JS_PSG( "PlaylistItemIndex", get_PlaylistItemIndex, DefaultPropsFlags() ),
+        JS_PS_END,
+    } );
 
 constexpr auto jsFunctions = smp::to_array<JSFunctionSpec>(
-    { JS_FS_END } );
+    {
+        JS_FS_END,
+    } );
 
 } // namespace
 

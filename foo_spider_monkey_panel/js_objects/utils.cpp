@@ -76,35 +76,39 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( WriteINI, JsUtils::WriteINI );
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( WriteTextFile, JsUtils::WriteTextFile, JsUtils::WriteTextFileWithOpt, 1 );
 
 constexpr auto jsFunctions = smp::to_array<JSFunctionSpec>(
-    { JS_FN( "CheckComponent", CheckComponent, 1, DefaultPropsFlags() ),
-      JS_FN( "CheckFont", CheckFont, 1, DefaultPropsFlags() ),
-      JS_FN( "ColourPicker", ColourPicker, 2, DefaultPropsFlags() ),
-      JS_FN( "FileTest", FileTest, 2, DefaultPropsFlags() ),
-      JS_FN( "FormatDuration", FormatDuration, 1, DefaultPropsFlags() ),
-      JS_FN( "FormatFileSize", FormatFileSize, 1, DefaultPropsFlags() ),
-      JS_FN( "GetAlbumArtAsync", GetAlbumArtAsync, 2, DefaultPropsFlags() ),
-      JS_FN( "GetAlbumArtAsyncV2", GetAlbumArtAsyncV2, 2, DefaultPropsFlags() ),
-      JS_FN( "GetAlbumArtEmbedded", GetAlbumArtEmbedded, 1, DefaultPropsFlags() ),
-      JS_FN( "GetAlbumArtV2", GetAlbumArtV2, 1, DefaultPropsFlags() ),
-      JS_FN( "GetSysColour", GetSysColour, 1, DefaultPropsFlags() ),
-      JS_FN( "GetSystemMetrics", GetSystemMetrics, 1, DefaultPropsFlags() ),
-      JS_FN( "Glob", Glob, 1, DefaultPropsFlags() ),
-      JS_FN( "InputBox", InputBox, 3, DefaultPropsFlags() ),
-      JS_FN( "IsKeyPressed", IsKeyPressed, 1, DefaultPropsFlags() ),
-      JS_FN( "MapString", MapString, 3, DefaultPropsFlags() ),
-      JS_FN( "PathWildcardMatch", PathWildcardMatch, 2, DefaultPropsFlags() ),
-      JS_FN( "ReadINI", ReadINI, 3, DefaultPropsFlags() ),
-      JS_FN( "ReadTextFile", ReadTextFile, 1, DefaultPropsFlags() ),
-      JS_FN( "ShowHtmlDialog", ShowHtmlDialog, 3, DefaultPropsFlags() ),
-      JS_FN( "WriteINI", WriteINI, 4, DefaultPropsFlags() ),
-      JS_FN( "WriteTextFile", WriteTextFile, 2, DefaultPropsFlags() ),
-      JS_FS_END } );
+    {
+        JS_FN( "CheckComponent", CheckComponent, 1, DefaultPropsFlags() ),
+        JS_FN( "CheckFont", CheckFont, 1, DefaultPropsFlags() ),
+        JS_FN( "ColourPicker", ColourPicker, 2, DefaultPropsFlags() ),
+        JS_FN( "FileTest", FileTest, 2, DefaultPropsFlags() ),
+        JS_FN( "FormatDuration", FormatDuration, 1, DefaultPropsFlags() ),
+        JS_FN( "FormatFileSize", FormatFileSize, 1, DefaultPropsFlags() ),
+        JS_FN( "GetAlbumArtAsync", GetAlbumArtAsync, 2, DefaultPropsFlags() ),
+        JS_FN( "GetAlbumArtAsyncV2", GetAlbumArtAsyncV2, 2, DefaultPropsFlags() ),
+        JS_FN( "GetAlbumArtEmbedded", GetAlbumArtEmbedded, 1, DefaultPropsFlags() ),
+        JS_FN( "GetAlbumArtV2", GetAlbumArtV2, 1, DefaultPropsFlags() ),
+        JS_FN( "GetSysColour", GetSysColour, 1, DefaultPropsFlags() ),
+        JS_FN( "GetSystemMetrics", GetSystemMetrics, 1, DefaultPropsFlags() ),
+        JS_FN( "Glob", Glob, 1, DefaultPropsFlags() ),
+        JS_FN( "InputBox", InputBox, 3, DefaultPropsFlags() ),
+        JS_FN( "IsKeyPressed", IsKeyPressed, 1, DefaultPropsFlags() ),
+        JS_FN( "MapString", MapString, 3, DefaultPropsFlags() ),
+        JS_FN( "PathWildcardMatch", PathWildcardMatch, 2, DefaultPropsFlags() ),
+        JS_FN( "ReadINI", ReadINI, 3, DefaultPropsFlags() ),
+        JS_FN( "ReadTextFile", ReadTextFile, 1, DefaultPropsFlags() ),
+        JS_FN( "ShowHtmlDialog", ShowHtmlDialog, 3, DefaultPropsFlags() ),
+        JS_FN( "WriteINI", WriteINI, 4, DefaultPropsFlags() ),
+        JS_FN( "WriteTextFile", WriteTextFile, 2, DefaultPropsFlags() ),
+        JS_FS_END,
+    } );
 
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_Version, JsUtils::get_Version )
 
 constexpr auto jsProperties = smp::to_array<JSPropertySpec>(
-    { JS_PSG( "Version", get_Version, DefaultPropsFlags() ),
-      JS_PS_END } );
+    {
+        JS_PSG( "Version", get_Version, DefaultPropsFlags() ),
+        JS_PS_END,
+    } );
 
 } // namespace
 

@@ -1,8 +1,9 @@
 #include <stdafx.h>
+
 #include "fb_properties.h"
 
-#include <js_engine/js_to_native_invoker.h>
 #include <convert/native_to_js.h>
+#include <js_engine/js_to_native_invoker.h>
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
 #include <js_utils/serialized_value.h>
@@ -67,7 +68,7 @@ JS::Value FbProperties::GetProperty( const std::wstring& propName, JS::HandleVal
     if ( !hasProperty )
     {
         if ( propDefaultValue.isNullOrUndefined() )
-        { // Not a error: user does not want to set default value            
+        { // Not a error: user does not want to set default value
             return JS::NullValue();
         }
 

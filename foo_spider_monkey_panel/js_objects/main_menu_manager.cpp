@@ -41,13 +41,17 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( ExecuteByID, JsMainMenuManager::ExecuteByID )
 MJS_DEFINE_JS_FN_FROM_NATIVE( Init, JsMainMenuManager::Init )
 
 constexpr auto jsFunctions = smp::to_array<JSFunctionSpec>(
-    { JS_FN( "BuildMenu", BuildMenu, 3, DefaultPropsFlags() ),
-      JS_FN( "ExecuteByID", ExecuteByID, 1, DefaultPropsFlags() ),
-      JS_FN( "Init", Init, 1, DefaultPropsFlags() ),
-      JS_FS_END } );
+    {
+        JS_FN( "BuildMenu", BuildMenu, 3, DefaultPropsFlags() ),
+        JS_FN( "ExecuteByID", ExecuteByID, 1, DefaultPropsFlags() ),
+        JS_FN( "Init", Init, 1, DefaultPropsFlags() ),
+        JS_FS_END,
+    } );
 
 constexpr auto jsProperties = smp::to_array<JSPropertySpec>(
-    { JS_PS_END } );
+    {
+        JS_PS_END,
+    } );
 
 } // namespace
 

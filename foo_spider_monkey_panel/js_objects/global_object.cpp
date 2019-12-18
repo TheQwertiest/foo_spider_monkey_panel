@@ -85,12 +85,14 @@ MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( setInterval, JsGlobalObject::SetInterval,
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( setTimeout, JsGlobalObject::SetTimeout, JsGlobalObject::SetTimeoutWithOpt, 1 )
 
 constexpr auto jsFunctions = smp::to_array<JSFunctionSpec>(
-    { JS_FN( "clearInterval", clearInterval, 1, DefaultPropsFlags() ),
-      JS_FN( "clearTimeout", clearTimeout, 1, DefaultPropsFlags() ),
-      JS_FN( "include", IncludeScript, 1, DefaultPropsFlags() ),
-      JS_FN( "setInterval", setInterval, 2, DefaultPropsFlags() ),
-      JS_FN( "setTimeout", setTimeout, 2, DefaultPropsFlags() ),
-      JS_FS_END } );
+    {
+        JS_FN( "clearInterval", clearInterval, 1, DefaultPropsFlags() ),
+        JS_FN( "clearTimeout", clearTimeout, 1, DefaultPropsFlags() ),
+        JS_FN( "include", IncludeScript, 1, DefaultPropsFlags() ),
+        JS_FN( "setInterval", setInterval, 2, DefaultPropsFlags() ),
+        JS_FN( "setTimeout", setTimeout, 2, DefaultPropsFlags() ),
+        JS_FS_END,
+    } );
 
 } // namespace
 

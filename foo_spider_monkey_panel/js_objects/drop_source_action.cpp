@@ -40,14 +40,18 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( put_Text, JsDropSourceAction::put_Text )
 MJS_DEFINE_JS_FN_FROM_NATIVE( put_ToSelect, JsDropSourceAction::put_ToSelect )
 
 constexpr auto jsProperties = smp::to_array<JSPropertySpec>(
-    { JS_PSGS( "Base", DummyGetter, put_Base, DefaultPropsFlags() ),
-      JS_PSGS( "Effect", get_Effect, put_Effect, DefaultPropsFlags() ),
-      JS_PSGS( "Playlist", DummyGetter, put_Playlist, DefaultPropsFlags() ),
-      JS_PSGS( "Text", DummyGetter, put_Text, DefaultPropsFlags() ),
-      JS_PSGS( "ToSelect", DummyGetter, put_ToSelect, DefaultPropsFlags() ),
-      JS_PS_END } );
+    {
+        JS_PSGS( "Base", DummyGetter, put_Base, DefaultPropsFlags() ),
+        JS_PSGS( "Effect", get_Effect, put_Effect, DefaultPropsFlags() ),
+        JS_PSGS( "Playlist", DummyGetter, put_Playlist, DefaultPropsFlags() ),
+        JS_PSGS( "Text", DummyGetter, put_Text, DefaultPropsFlags() ),
+        JS_PSGS( "ToSelect", DummyGetter, put_ToSelect, DefaultPropsFlags() ),
+        JS_PS_END,
+    } );
 
-constexpr auto jsFunctions = smp::to_array<JSFunctionSpec>( { JS_FS_END } );
+constexpr auto jsFunctions = smp::to_array<JSFunctionSpec>( {
+    JS_FS_END,
+} );
 
 } // namespace
 

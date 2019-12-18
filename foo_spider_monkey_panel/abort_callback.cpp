@@ -1,4 +1,5 @@
 #include <stdafx.h>
+
 #include "abort_callback.h"
 
 namespace
@@ -74,7 +75,7 @@ void GlobalAbortCallback::Abort()
 {
     {
         std::scoped_lock sl( listenerMutex_ );
-        for ( auto& [key, listener] : listeners_ )
+        for ( auto& [key, listener]: listeners_ )
         {
             listener.get().set_state( true );
         }

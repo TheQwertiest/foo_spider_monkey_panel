@@ -1,6 +1,7 @@
 #pragma once
 
 #include "resource.h"
+
 #include <com_objects/com_tools.h>
 #include <com_objects/host_external.h>
 
@@ -24,25 +25,25 @@ public:
     };
 
     BEGIN_COM_QI_IMPL()
-		COM_QI_ENTRY_MULTI( IUnknown, IServiceProvider )
-		COM_QI_ENTRY( IHTMLOMWindowServices )
-		COM_QI_ENTRY( IServiceProvider )
+        COM_QI_ENTRY_MULTI( IUnknown, IServiceProvider )
+        COM_QI_ENTRY( IHTMLOMWindowServices )
+        COM_QI_ENTRY( IServiceProvider )
     END_COM_QI_IMPL()
 
 #pragma warning( push )
 #pragma warning( disable : 6388 ) // might not be '0'
     BEGIN_SERVICE_MAP( CDialogHtml )
-#pragma warning( pop ) 
-		SERVICE_ENTRY( SID_SHTMLOMWindowServices )
+#pragma warning( pop )
+        SERVICE_ENTRY( SID_SHTMLOMWindowServices )
     END_SERVICE_MAP()
 
     BEGIN_MSG_MAP( CDialogHtml )
-		CHAIN_MSG_MAP( CAxDialogImpl<CDialogHtml> )
-		MSG_WM_INITDIALOG( OnInitDialog )
-		MSG_WM_DESTROY( OnDestroyDialog )
-		MSG_WM_SIZE( OnSize )
-		MSG_WM_CLOSE( OnClose )
-		COMMAND_RANGE_HANDLER_EX( IDOK, IDCANCEL, OnCloseCmd )
+        CHAIN_MSG_MAP( CAxDialogImpl<CDialogHtml> )
+        MSG_WM_INITDIALOG( OnInitDialog )
+        MSG_WM_DESTROY( OnDestroyDialog )
+        MSG_WM_SIZE( OnSize )
+        MSG_WM_CLOSE( OnClose )
+        COMMAND_RANGE_HANDLER_EX( IDOK, IDCANCEL, OnCloseCmd )
     END_MSG_MAP()
 
     BEGIN_SINK_MAP( CDialogHtml )

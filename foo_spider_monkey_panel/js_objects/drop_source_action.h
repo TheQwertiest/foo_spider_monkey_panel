@@ -1,6 +1,7 @@
 #pragma once
 
 #include <js_objects/object_base.h>
+
 #include <drop_action_params.h>
 
 #include <optional>

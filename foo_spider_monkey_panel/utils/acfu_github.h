@@ -1,5 +1,5 @@
-#include <nlohmann/json.hpp>
 #include <acfu-sdk/acfu.h>
+#include <nlohmann/json.hpp>
 
 namespace smp::acfu
 {
@@ -47,7 +47,7 @@ class github_releases
     : public ::acfu::request
 {
 public:
-    void run( file_info& info, abort_callback& abort ) override 
+    void run( file_info& info, abort_callback& abort ) override
     {
         pfc::string8 url = form_releases_url();
         http_request::ptr request = t_github_conf::create_http_request();
@@ -128,7 +128,7 @@ protected:
         if ( auto it = release.find( "assets" ); it != release.end() && it->is_array() )
         {
             auto assets = it.value();
-            for ( const auto& asset : assets )
+            for ( const auto& asset: assets )
             {
                 if ( t_github_conf::is_acceptable_asset( asset ) )
                 {
@@ -145,7 +145,7 @@ protected:
     virtual void process_response( const n_json& json, file_info& info )
     {
         ACFU_EXPECT_JSON( json.is_array() );
-        for ( const auto& release : json )
+        for ( const auto& release: json )
         {
             if ( t_github_conf::is_acceptable_release( release ) )
             {
@@ -174,7 +174,7 @@ class github_latest_release
     : public github_releases<t_github_conf>
 {
 protected:
-    pfc::string8 form_releases_url() override 
+    pfc::string8 form_releases_url() override
     {
         pfc::string8 url;
         url << "https://api.github.com/repos/" << t_github_conf::get_owner()
@@ -182,7 +182,7 @@ protected:
         return url;
     }
 
-    void process_response( const n_json& json, file_info& info ) override 
+    void process_response( const n_json& json, file_info& info ) override
     {
         ACFU_EXPECT_JSON( json.is_object() );
         if ( t_github_conf::is_acceptable_release( json ) )

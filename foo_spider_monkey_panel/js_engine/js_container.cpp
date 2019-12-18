@@ -1,19 +1,20 @@
 #include <stdafx.h>
+
 #include "js_container.h"
 
 #include <js_engine/js_engine.h>
 #include <js_engine/js_compartment_inner.h>
 #include <js_engine/js_gc.h>
-#include <js_objects/global_object.h>
-#include <js_objects/gdi_graphics.h>
 #include <js_objects/drop_source_action.h>
+#include <js_objects/gdi_graphics.h>
+#include <js_objects/global_object.h>
+#include <js_utils/js_async_task.h>
 #include <js_utils/js_error_helper.h>
 #include <js_utils/scope_helper.h>
-#include <js_utils/js_async_task.h>
 #include <utils/scope_helpers.h>
 
-#include <js_panel_window.h>
 #include <host_timer_dispatcher.h>
+#include <js_panel_window.h>
 #include <smp_exception.h>
 
 #pragma warning( push )
@@ -71,7 +72,7 @@ bool JsContainer::Initialize()
 
         jsGlobal_.init( pJsCtx_, JsGlobalObject::CreateNative( pJsCtx_, *this, *pParentPanel_ ) );
         assert( jsGlobal_ );
-        utils::final_action autoGlobal( [&jsGlobal=jsGlobal_] {
+        utils::final_action autoGlobal( [&jsGlobal = jsGlobal_] {
             jsGlobal.reset();
         } );
 
@@ -197,7 +198,7 @@ bool JsContainer::ExecuteScript( const std::u8string& scriptCode )
 }
 
 void JsContainer::RunJobs()
-{    
+{
     JsEngine::GetInstance().MaybeRunJobs();
 }
 
@@ -279,7 +280,7 @@ void JsContainer::InvokeOnPaint( Gdiplus::Graphics& gr )
     (void)InvokeJsCallback( "on_paint",
                             static_cast<JS::HandleObject>( jsGraphics_ ) );
     if ( pNativeGraphics_ )
-    {// InvokeJsCallback invokes Fail() on error, which resets pNativeGraphics_
+    { // InvokeJsCallback invokes Fail() on error, which resets pNativeGraphics_
         pNativeGraphics_->SetGraphicsObject( nullptr );
     }
 }

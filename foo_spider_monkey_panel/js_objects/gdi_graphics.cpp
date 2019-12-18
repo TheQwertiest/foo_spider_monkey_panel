@@ -67,32 +67,36 @@ MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( SetSmoothingMode, JsGdiGraphics::SetSmoot
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( SetTextRenderingHint, JsGdiGraphics::SetTextRenderingHint, JsGdiGraphics::SetTextRenderingHintWithOpt, 1 )
 
 constexpr auto jsFunctions = smp::to_array<JSFunctionSpec>(
-    { JS_FN( "CalcTextHeight", CalcTextHeight, 2, DefaultPropsFlags() ),
-      JS_FN( "CalcTextWidth", CalcTextWidth, 2, DefaultPropsFlags() ),
-      JS_FN( "DrawEllipse", DrawEllipse, 6, DefaultPropsFlags() ),
-      JS_FN( "DrawImage", DrawImage, 9, DefaultPropsFlags() ),
-      JS_FN( "DrawLine", DrawLine, 6, DefaultPropsFlags() ),
-      JS_FN( "DrawPolygon", DrawPolygon, 3, DefaultPropsFlags() ),
-      JS_FN( "DrawRect", DrawRect, 6, DefaultPropsFlags() ),
-      JS_FN( "DrawRoundRect", DrawRoundRect, 8, DefaultPropsFlags() ),
-      JS_FN( "DrawString", DrawString, 7, DefaultPropsFlags() ),
-      JS_FN( "EstimateLineWrap", EstimateLineWrap, 3, DefaultPropsFlags() ),
-      JS_FN( "FillEllipse", FillEllipse, 5, DefaultPropsFlags() ),
-      JS_FN( "FillGradRect", FillGradRect, 7, DefaultPropsFlags() ),
-      JS_FN( "FillPolygon", FillPolygon, 3, DefaultPropsFlags() ),
-      JS_FN( "FillRoundRect", FillRoundRect, 7, DefaultPropsFlags() ),
-      JS_FN( "FillSolidRect", FillSolidRect, 5, DefaultPropsFlags() ),
-      JS_FN( "GdiAlphaBlend", GdiAlphaBlend, 9, DefaultPropsFlags() ),
-      JS_FN( "GdiDrawBitmap", GdiDrawBitmap, 9, DefaultPropsFlags() ),
-      JS_FN( "GdiDrawText", GdiDrawText, 7, DefaultPropsFlags() ),
-      JS_FN( "MeasureString", MeasureString, 6, DefaultPropsFlags() ),
-      JS_FN( "SetInterpolationMode", SetInterpolationMode, 0, DefaultPropsFlags() ),
-      JS_FN( "SetSmoothingMode", SetSmoothingMode, 0, DefaultPropsFlags() ),
-      JS_FN( "SetTextRenderingHint", SetTextRenderingHint, 0, DefaultPropsFlags() ),
-      JS_FS_END } );
+    {
+        JS_FN( "CalcTextHeight", CalcTextHeight, 2, DefaultPropsFlags() ),
+        JS_FN( "CalcTextWidth", CalcTextWidth, 2, DefaultPropsFlags() ),
+        JS_FN( "DrawEllipse", DrawEllipse, 6, DefaultPropsFlags() ),
+        JS_FN( "DrawImage", DrawImage, 9, DefaultPropsFlags() ),
+        JS_FN( "DrawLine", DrawLine, 6, DefaultPropsFlags() ),
+        JS_FN( "DrawPolygon", DrawPolygon, 3, DefaultPropsFlags() ),
+        JS_FN( "DrawRect", DrawRect, 6, DefaultPropsFlags() ),
+        JS_FN( "DrawRoundRect", DrawRoundRect, 8, DefaultPropsFlags() ),
+        JS_FN( "DrawString", DrawString, 7, DefaultPropsFlags() ),
+        JS_FN( "EstimateLineWrap", EstimateLineWrap, 3, DefaultPropsFlags() ),
+        JS_FN( "FillEllipse", FillEllipse, 5, DefaultPropsFlags() ),
+        JS_FN( "FillGradRect", FillGradRect, 7, DefaultPropsFlags() ),
+        JS_FN( "FillPolygon", FillPolygon, 3, DefaultPropsFlags() ),
+        JS_FN( "FillRoundRect", FillRoundRect, 7, DefaultPropsFlags() ),
+        JS_FN( "FillSolidRect", FillSolidRect, 5, DefaultPropsFlags() ),
+        JS_FN( "GdiAlphaBlend", GdiAlphaBlend, 9, DefaultPropsFlags() ),
+        JS_FN( "GdiDrawBitmap", GdiDrawBitmap, 9, DefaultPropsFlags() ),
+        JS_FN( "GdiDrawText", GdiDrawText, 7, DefaultPropsFlags() ),
+        JS_FN( "MeasureString", MeasureString, 6, DefaultPropsFlags() ),
+        JS_FN( "SetInterpolationMode", SetInterpolationMode, 0, DefaultPropsFlags() ),
+        JS_FN( "SetSmoothingMode", SetSmoothingMode, 0, DefaultPropsFlags() ),
+        JS_FN( "SetTextRenderingHint", SetTextRenderingHint, 0, DefaultPropsFlags() ),
+        JS_FS_END,
+    } );
 
 constexpr auto jsProperties = smp::to_array<JSPropertySpec>(
-    { JS_PS_END } );
+    {
+        JS_PS_END,
+    } );
 
 } // namespace
 

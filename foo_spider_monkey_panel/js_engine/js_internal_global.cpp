@@ -1,4 +1,5 @@
 #include <stdafx.h>
+
 #include "js_internal_global.h"
 
 #include <js_engine/js_compartment_inner.h>

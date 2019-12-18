@@ -154,7 +154,7 @@ void GetStackTrace( nonstd::span<wchar_t> stackTrace,
     {
         std::array<wchar_t, 512> pathBuffer;
         if ( nonstd::span<wchar_t> path{ pathBuffer };
-            !GetComponentPathNoExcept( path ) )
+             !GetComponentPathNoExcept( path ) )
         {
             auto fmtRet = fmt::format_to_n( curView.data(), curView.size(), "<failed to fetch backtrace>: GetComponentPathNoExcept" );
             curView = nonstd::span<wchar_t>{ fmtRet.out, curView.end() };

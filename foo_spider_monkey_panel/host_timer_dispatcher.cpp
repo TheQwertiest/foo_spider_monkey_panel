@@ -1,13 +1,14 @@
 #include <stdafx.h>
+
 #include "host_timer_dispatcher.h"
 
 #include <js_objects/global_object.h>
 #include <js_utils/js_error_helper.h>
 #include <utils/thread_helpers.h>
 
-#include <user_message.h>
 #include <message_manager.h>
 #include <smp_exception.h>
+#include <user_message.h>
 
 // TODO: move to JsEngine form global object
 
@@ -163,11 +164,10 @@ void HostTimerDispatcher::threadMain()
 {
     while ( true )
     {
-        const ThreadTask threadTask = [&]
-        {
+        const ThreadTask threadTask = [&] {
             std::unique_lock<std::mutex> lock( m_threadTaskMutex );
 
-            m_cv.wait( lock, [& threadTaskList = m_threadTaskList] { return !threadTaskList.empty(); } );
+            m_cv.wait( lock, [&threadTaskList = m_threadTaskList] { return !threadTaskList.empty(); } );
 
             const auto threadTask = m_threadTaskList.front();
             m_threadTaskList.pop_front();

@@ -40,9 +40,9 @@ JSClass jsClass = {
 };
 
 constexpr auto jsFunctions = smp::to_array<JSFunctionSpec>(
-{
-    JS_FS_END
-});
+    {
+        JS_FS_END,
+    } );
 
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_Height, JsGdiFont::get_Height )
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_Name, JsGdiFont::get_Name )
@@ -50,11 +50,13 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( get_Size, JsGdiFont::get_Size )
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_Style, JsGdiFont::get_Style )
 
 constexpr auto jsProperties = smp::to_array<JSPropertySpec>(
-    { JS_PSG( "Height", get_Height, DefaultPropsFlags() ),
-      JS_PSG( "Name", get_Name, DefaultPropsFlags() ),
-      JS_PSG( "Size", get_Size, DefaultPropsFlags() ),
-      JS_PSG( "Style", get_Style, DefaultPropsFlags() ),
-      JS_PS_END } );
+    {
+        JS_PSG( "Height", get_Height, DefaultPropsFlags() ),
+        JS_PSG( "Name", get_Name, DefaultPropsFlags() ),
+        JS_PSG( "Size", get_Size, DefaultPropsFlags() ),
+        JS_PSG( "Style", get_Style, DefaultPropsFlags() ),
+        JS_PS_END,
+    } );
 
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( GdiFont_Constructor, JsGdiFont::Constructor, JsGdiFont::ConstructorWithOpt, 1 )
 

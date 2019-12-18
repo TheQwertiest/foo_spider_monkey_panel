@@ -37,15 +37,17 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( get_PlaylistIndex, JsFbPlayingItemLocation::get_Pl
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_PlaylistItemIndex, JsFbPlayingItemLocation::get_PlaylistItemIndex )
 
 constexpr auto jsProperties = smp::to_array<JSPropertySpec>(
-    { JS_PSG( "IsValid", get_IsValid, DefaultPropsFlags() ),
-      JS_PSG( "PlaylistIndex", get_PlaylistIndex, DefaultPropsFlags() ),
-      JS_PSG( "PlaylistItemIndex", get_PlaylistItemIndex, DefaultPropsFlags() ),
-      JS_PS_END } );
+    {
+        JS_PSG( "IsValid", get_IsValid, DefaultPropsFlags() ),
+        JS_PSG( "PlaylistIndex", get_PlaylistIndex, DefaultPropsFlags() ),
+        JS_PSG( "PlaylistItemIndex", get_PlaylistItemIndex, DefaultPropsFlags() ),
+        JS_PS_END,
+    } );
 
 constexpr auto jsFunctions = smp::to_array<JSFunctionSpec>(
-{
-    JS_FS_END
-});
+    {
+        JS_FS_END,
+    } );
 
 } // namespace
 

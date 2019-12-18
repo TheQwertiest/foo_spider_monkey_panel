@@ -286,13 +286,17 @@ MJS_DEFINE_JS_FN( ActiveX_Set, ActiveX_Set_Impl )
 MJS_DEFINE_JS_FN_FROM_NATIVE( ToString, ActiveXObject::ToString )
 
 constexpr auto jsFunctions = smp::to_array<JSFunctionSpec>(
-    { JS_FN( "toString", ToString, 0, DefaultPropsFlags() ),
-      JS_FN( "ActiveX_Get", ActiveX_Get, 1, DefaultPropsFlags() ),
-      JS_FN( "ActiveX_Set", ActiveX_Set, 1, DefaultPropsFlags() ),
-      JS_FS_END } );
+    {
+        JS_FN( "toString", ToString, 0, DefaultPropsFlags() ),
+        JS_FN( "ActiveX_Get", ActiveX_Get, 1, DefaultPropsFlags() ),
+        JS_FN( "ActiveX_Set", ActiveX_Set, 1, DefaultPropsFlags() ),
+        JS_FS_END,
+    } );
 
 constexpr auto jsProperties = smp::to_array<JSPropertySpec>(
-    { JS_PS_END } );
+    {
+        JS_PS_END,
+    } );
 
 MJS_DEFINE_JS_FN_FROM_NATIVE( ActiveXObject_Constructor, ActiveXObject::Constructor )
 

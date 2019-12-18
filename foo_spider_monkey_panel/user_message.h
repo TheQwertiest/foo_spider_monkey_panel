@@ -29,7 +29,7 @@ enum class CallbackMessage : UINT
 /// @details These messages are asynchronous
 enum class PlayerMessage : UINT
 {
-    first_message = static_cast<int>(CallbackMessage::last_message) + 1,
+    first_message = static_cast<int>( CallbackMessage::last_message ) + 1,
     fb_always_on_top_changed = first_message,
     fb_cursor_follow_playback_changed,
     fb_dsp_preset_changed,
@@ -60,7 +60,7 @@ enum class PlayerMessage : UINT
 /// @details These messages are asynchronous
 enum class InternalAsyncMessage : UINT
 {
-    first_message = static_cast<int>(PlayerMessage::last_message) + 1,
+    first_message = static_cast<int>( PlayerMessage::last_message ) + 1,
     main_menu_item = first_message,
     refresh_bg,
     reload_script,

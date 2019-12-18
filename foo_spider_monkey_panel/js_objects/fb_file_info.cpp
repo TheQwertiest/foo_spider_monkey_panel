@@ -43,22 +43,26 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( MetaValue, JsFbFileInfo::MetaValue );
 MJS_DEFINE_JS_FN_FROM_NATIVE( MetaValueCount, JsFbFileInfo::MetaValueCount );
 
 constexpr auto jsFunctions = smp::to_array<JSFunctionSpec>(
-    { JS_FN( "InfoFind", InfoFind, 1, DefaultPropsFlags() ),
-      JS_FN( "InfoName", InfoName, 1, DefaultPropsFlags() ),
-      JS_FN( "InfoValue", InfoValue, 1, DefaultPropsFlags() ),
-      JS_FN( "MetaFind", MetaFind, 1, DefaultPropsFlags() ),
-      JS_FN( "MetaName", MetaName, 1, DefaultPropsFlags() ),
-      JS_FN( "MetaValue", MetaValue, 2, DefaultPropsFlags() ),
-      JS_FN( "MetaValueCount", MetaValueCount, 1, DefaultPropsFlags() ),
-      JS_FS_END } );
+    {
+        JS_FN( "InfoFind", InfoFind, 1, DefaultPropsFlags() ),
+        JS_FN( "InfoName", InfoName, 1, DefaultPropsFlags() ),
+        JS_FN( "InfoValue", InfoValue, 1, DefaultPropsFlags() ),
+        JS_FN( "MetaFind", MetaFind, 1, DefaultPropsFlags() ),
+        JS_FN( "MetaName", MetaName, 1, DefaultPropsFlags() ),
+        JS_FN( "MetaValue", MetaValue, 2, DefaultPropsFlags() ),
+        JS_FN( "MetaValueCount", MetaValueCount, 1, DefaultPropsFlags() ),
+        JS_FS_END,
+    } );
 
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_InfoCount, JsFbFileInfo::get_InfoCount );
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_MetaCount, JsFbFileInfo::get_MetaCount );
 
 constexpr auto jsProperties = smp::to_array<JSPropertySpec>(
-    { JS_PSG( "InfoCount", get_InfoCount, DefaultPropsFlags() ),
-      JS_PSG( "MetaCount", get_MetaCount, DefaultPropsFlags() ),
-      JS_PS_END } );
+    {
+        JS_PSG( "InfoCount", get_InfoCount, DefaultPropsFlags() ),
+        JS_PSG( "MetaCount", get_MetaCount, DefaultPropsFlags() ),
+        JS_PS_END,
+    } );
 
 } // namespace
 

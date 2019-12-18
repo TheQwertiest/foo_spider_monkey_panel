@@ -10,8 +10,7 @@ template <class F>
 class final_action
 { // Ripped from gsl
 public:
-    [[nodiscard]]
-    explicit final_action( F f ) noexcept
+    [[nodiscard]] explicit final_action( F f ) noexcept
         : f_( std::move( f ) )
     {
     }

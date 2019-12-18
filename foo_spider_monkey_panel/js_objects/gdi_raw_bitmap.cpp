@@ -39,17 +39,19 @@ JSClass jsClass = {
 };
 
 constexpr auto jsFunctions = smp::to_array<JSFunctionSpec>(
-{
-    JS_FS_END
-});
+    {
+        JS_FS_END,
+    } );
 
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_Height, JsGdiRawBitmap::get_Height )
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_Width, JsGdiRawBitmap::get_Width )
 
 constexpr auto jsProperties = smp::to_array<JSPropertySpec>(
-    { JS_PSG( "Height", get_Height, DefaultPropsFlags() ),
-      JS_PSG( "Width", get_Width, DefaultPropsFlags() ),
-      JS_PS_END } );
+    {
+        JS_PSG( "Height", get_Height, DefaultPropsFlags() ),
+        JS_PSG( "Width", get_Width, DefaultPropsFlags() ),
+        JS_PS_END,
+    } );
 
 } // namespace
 

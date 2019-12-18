@@ -1,10 +1,9 @@
 #pragma once
 
 #include <js_utils/js_object_helper.h>
+#include <utils/type_traits_x.h>
 
 #include <optional>
-
-#include <utils/type_traits_x.h>
 
 namespace mozjs::convert::to_native
 {

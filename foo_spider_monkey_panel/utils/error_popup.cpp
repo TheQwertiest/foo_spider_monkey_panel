@@ -1,4 +1,5 @@
 #include <stdafx.h>
+
 #include "error_popup.h"
 
 #include <utils/delayed_executor.h>

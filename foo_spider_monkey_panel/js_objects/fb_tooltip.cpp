@@ -44,22 +44,26 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( SetMaxWidth, JsFbTooltip::SetMaxWidth )
 MJS_DEFINE_JS_FN_FROM_NATIVE( TrackPosition, JsFbTooltip::TrackPosition )
 
 constexpr auto jsFunctions = smp::to_array<JSFunctionSpec>(
-    { JS_FN( "Activate", Activate, 0, DefaultPropsFlags() ),
-      JS_FN( "Deactivate", Deactivate, 0, DefaultPropsFlags() ),
-      JS_FN( "GetDelayTime", GetDelayTime, 1, DefaultPropsFlags() ),
-      JS_FN( "SetDelayTime", SetDelayTime, 2, DefaultPropsFlags() ),
-      JS_FN( "SetMaxWidth", SetMaxWidth, 1, DefaultPropsFlags() ),
-      JS_FN( "TrackPosition", TrackPosition, 2, DefaultPropsFlags() ),
-      JS_FS_END } );
+    {
+        JS_FN( "Activate", Activate, 0, DefaultPropsFlags() ),
+        JS_FN( "Deactivate", Deactivate, 0, DefaultPropsFlags() ),
+        JS_FN( "GetDelayTime", GetDelayTime, 1, DefaultPropsFlags() ),
+        JS_FN( "SetDelayTime", SetDelayTime, 2, DefaultPropsFlags() ),
+        JS_FN( "SetMaxWidth", SetMaxWidth, 1, DefaultPropsFlags() ),
+        JS_FN( "TrackPosition", TrackPosition, 2, DefaultPropsFlags() ),
+        JS_FS_END,
+    } );
 
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_Text, JsFbTooltip::get_Text )
 MJS_DEFINE_JS_FN_FROM_NATIVE( put_Text, JsFbTooltip::put_Text )
 MJS_DEFINE_JS_FN_FROM_NATIVE( put_TrackActivate, JsFbTooltip::put_TrackActivate )
 
 constexpr auto jsProperties = smp::to_array<JSPropertySpec>(
-    { JS_PSGS( "Text", get_Text, put_Text, DefaultPropsFlags() ),
-      JS_PSGS( "TrackActivate", DummyGetter, put_TrackActivate, DefaultPropsFlags() ),
-      JS_PS_END } );
+    {
+        JS_PSGS( "Text", get_Text, put_Text, DefaultPropsFlags() ),
+        JS_PSGS( "TrackActivate", DummyGetter, put_TrackActivate, DefaultPropsFlags() ),
+        JS_PS_END,
+    } );
 
 } // namespace
 
@@ -116,7 +120,7 @@ JsFbTooltip::JsFbTooltip( JSContext* cx, HWND hParentWnd, smp::panel::PanelToolt
 
     pFont_.reset( CreateFont(
         // from msdn: "< 0, The font mapper transforms this value into device units
-        //             and matches its absolute value against the character height of the available fonts." 
+        //             and matches its absolute value against the character height of the available fonts."
         -static_cast<int>( panelTooltipParam_.fontSize ),
         0,
         0,

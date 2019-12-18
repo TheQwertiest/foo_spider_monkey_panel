@@ -42,13 +42,17 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( IsThemePartDefined, JsThemeManager::IsThemePartDef
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( SetPartAndStateID, JsThemeManager::SetPartAndStateID, JsThemeManager::SetPartAndStateIDWithOpt, 1 )
 
 constexpr auto jsFunctions = smp::to_array<JSFunctionSpec>(
-    { JS_FN( "DrawThemeBackground", DrawThemeBackground, 5, DefaultPropsFlags() ),
-      JS_FN( "IsThemePartDefined", IsThemePartDefined, 1, DefaultPropsFlags() ),
-      JS_FN( "SetPartAndStateID", SetPartAndStateID, 1, DefaultPropsFlags() ),
-      JS_FS_END } );
+    {
+        JS_FN( "DrawThemeBackground", DrawThemeBackground, 5, DefaultPropsFlags() ),
+        JS_FN( "IsThemePartDefined", IsThemePartDefined, 1, DefaultPropsFlags() ),
+        JS_FN( "SetPartAndStateID", SetPartAndStateID, 1, DefaultPropsFlags() ),
+        JS_FS_END,
+    } );
 
 constexpr auto jsProperties = smp::to_array<JSPropertySpec>(
-    { JS_PS_END } );
+    {
+        JS_PS_END,
+    } );
 
 } // namespace
 

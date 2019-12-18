@@ -40,15 +40,19 @@ MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( Print, JsFbProfiler::Print, JsFbProfiler:
 MJS_DEFINE_JS_FN_FROM_NATIVE( Reset, JsFbProfiler::Reset )
 
 constexpr auto jsFunctions = smp::to_array<JSFunctionSpec>(
-    { JS_FN( "Print", Print, 0, DefaultPropsFlags() ),
-      JS_FN( "Reset", Reset, 0, DefaultPropsFlags() ),
-      JS_FS_END } );
+    {
+        JS_FN( "Print", Print, 0, DefaultPropsFlags() ),
+        JS_FN( "Reset", Reset, 0, DefaultPropsFlags() ),
+        JS_FS_END,
+    } );
 
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_Time, JsFbProfiler::get_Time )
 
 constexpr auto jsProperties = smp::to_array<JSPropertySpec>(
-    { JS_PSG( "Time", get_Time, DefaultPropsFlags() ),
-      JS_PS_END } );
+    {
+        JS_PSG( "Time", get_Time, DefaultPropsFlags() ),
+        JS_PS_END,
+    } );
 
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( FbProfiler_Constructor, JsFbProfiler::Constructor, JsFbProfiler::ConstructorWithOpt, 1 )
 

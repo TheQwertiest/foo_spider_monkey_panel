@@ -1,4 +1,5 @@
 #include <stdafx.h>
+
 #include "ui_slow_script.h"
 
 namespace smp::ui
@@ -17,7 +18,7 @@ LRESULT CDialogSlowScript::OnInitDialog( HWND, LPARAM )
 {
     (void)CenterWindow();
 
-    const auto text = [& panelName = panelName_, &scriptInfo = scriptInfo_] {
+    const auto text = [&panelName = panelName_, &scriptInfo = scriptInfo_] {
         std::u8string tmp;
         if ( !panelName.empty() )
         {

@@ -13,7 +13,6 @@
 
 #include <optional>
 
-
 class JSObject;
 struct JSContext;
 struct JSClass;

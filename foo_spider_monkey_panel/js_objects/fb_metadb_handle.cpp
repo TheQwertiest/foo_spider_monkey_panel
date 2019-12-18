@@ -48,16 +48,18 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( SetPlaycount, JsFbMetadbHandle::SetPlaycount )
 MJS_DEFINE_JS_FN_FROM_NATIVE( SetRating, JsFbMetadbHandle::SetRating )
 
 constexpr auto jsFunctions = smp::to_array<JSFunctionSpec>(
-    { JS_FN( "ClearStats", ClearStats, 0, DefaultPropsFlags() ),
-      JS_FN( "Compare", Compare, 1, DefaultPropsFlags() ),
-      JS_FN( "GetFileInfo", GetFileInfo, 0, DefaultPropsFlags() ),
-      JS_FN( "RefreshStats", RefreshStats, 0, DefaultPropsFlags() ),
-      JS_FN( "SetFirstPlayed", SetFirstPlayed, 1, DefaultPropsFlags() ),
-      JS_FN( "SetLastPlayed", SetLastPlayed, 1, DefaultPropsFlags() ),
-      JS_FN( "SetLoved", SetLoved, 1, DefaultPropsFlags() ),
-      JS_FN( "SetPlaycount", SetPlaycount, 1, DefaultPropsFlags() ),
-      JS_FN( "SetRating", SetRating, 1, DefaultPropsFlags() ),
-      JS_FS_END } );
+    {
+        JS_FN( "ClearStats", ClearStats, 0, DefaultPropsFlags() ),
+        JS_FN( "Compare", Compare, 1, DefaultPropsFlags() ),
+        JS_FN( "GetFileInfo", GetFileInfo, 0, DefaultPropsFlags() ),
+        JS_FN( "RefreshStats", RefreshStats, 0, DefaultPropsFlags() ),
+        JS_FN( "SetFirstPlayed", SetFirstPlayed, 1, DefaultPropsFlags() ),
+        JS_FN( "SetLastPlayed", SetLastPlayed, 1, DefaultPropsFlags() ),
+        JS_FN( "SetLoved", SetLoved, 1, DefaultPropsFlags() ),
+        JS_FN( "SetPlaycount", SetPlaycount, 1, DefaultPropsFlags() ),
+        JS_FN( "SetRating", SetRating, 1, DefaultPropsFlags() ),
+        JS_FS_END,
+    } );
 
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_FileSize, JsFbMetadbHandle::get_FileSize )
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_Length, JsFbMetadbHandle::get_Length )
@@ -66,12 +68,14 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( get_RawPath, JsFbMetadbHandle::get_RawPath )
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_SubSong, JsFbMetadbHandle::get_SubSong )
 
 constexpr auto jsProperties = smp::to_array<JSPropertySpec>(
-    { JS_PSG( "FileSize", get_FileSize, DefaultPropsFlags() ),
-      JS_PSG( "Length", get_Length, DefaultPropsFlags() ),
-      JS_PSG( "Path", get_Path, DefaultPropsFlags() ),
-      JS_PSG( "RawPath", get_RawPath, DefaultPropsFlags() ),
-      JS_PSG( "SubSong", get_SubSong, DefaultPropsFlags() ),
-      JS_PS_END } );
+    {
+        JS_PSG( "FileSize", get_FileSize, DefaultPropsFlags() ),
+        JS_PSG( "Length", get_Length, DefaultPropsFlags() ),
+        JS_PSG( "Path", get_Path, DefaultPropsFlags() ),
+        JS_PSG( "RawPath", get_RawPath, DefaultPropsFlags() ),
+        JS_PSG( "SubSong", get_SubSong, DefaultPropsFlags() ),
+        JS_PS_END,
+    } );
 
 } // namespace
 

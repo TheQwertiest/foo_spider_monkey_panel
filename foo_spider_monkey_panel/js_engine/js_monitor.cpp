@@ -34,7 +34,7 @@ namespace mozjs
 
 JsMonitor::JsMonitor()
 { // JsMonitor might be created before fb2k is fully initialized
-    smp::utils::DelayedExecutor::GetInstance().AddTask( [& hFb2k = hFb2k_] { hFb2k = core_api::get_main_window(); } );
+    smp::utils::DelayedExecutor::GetInstance().AddTask( [&hFb2k = hFb2k_] { hFb2k = core_api::get_main_window(); } );
 }
 
 void JsMonitor::Start( JSContext* cx )

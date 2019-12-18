@@ -42,13 +42,17 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( EvalWithMetadb, JsFbTitleFormat::EvalWithMetadb )
 MJS_DEFINE_JS_FN_FROM_NATIVE( EvalWithMetadbs, JsFbTitleFormat::EvalWithMetadbs )
 
 constexpr auto jsFunctions = smp::to_array<JSFunctionSpec>(
-    { JS_FN( "Eval", Eval, 0, DefaultPropsFlags() ),
-      JS_FN( "EvalWithMetadb", EvalWithMetadb, 1, DefaultPropsFlags() ),
-      JS_FN( "EvalWithMetadbs", EvalWithMetadbs, 1, DefaultPropsFlags() ),
-      JS_FS_END } );
+    {
+        JS_FN( "Eval", Eval, 0, DefaultPropsFlags() ),
+        JS_FN( "EvalWithMetadb", EvalWithMetadb, 1, DefaultPropsFlags() ),
+        JS_FN( "EvalWithMetadbs", EvalWithMetadbs, 1, DefaultPropsFlags() ),
+        JS_FS_END,
+    } );
 
 constexpr auto jsProperties = smp::to_array<JSPropertySpec>(
-    { JS_PS_END } );
+    {
+        JS_PS_END,
+    } );
 
 MJS_DEFINE_JS_FN_FROM_NATIVE( FbTitleFormat_Constructor, JsFbTitleFormat::Constructor )
 

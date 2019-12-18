@@ -33,7 +33,9 @@ constexpr JSClass jsClass = {
 };
 
 constexpr auto jsFunctions = smp::to_array<JSFunctionSpec>(
-    { JS_FS_END } );
+    {
+        JS_FS_END,
+    } );
 
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_Chars, JsMeasureStringInfo::get_Chars )
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_Height, JsMeasureStringInfo::get_Height )
@@ -43,13 +45,15 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( get_X, JsMeasureStringInfo::get_X )
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_Y, JsMeasureStringInfo::get_Y )
 
 constexpr auto jsProperties = smp::to_array<JSPropertySpec>(
-    { JS_PSG( "Chars", get_Chars, DefaultPropsFlags() ),
-      JS_PSG( "Height", get_Height, DefaultPropsFlags() ),
-      JS_PSG( "Lines", get_Lines, DefaultPropsFlags() ),
-      JS_PSG( "Width", get_Width, DefaultPropsFlags() ),
-      JS_PSG( "X", get_X, DefaultPropsFlags() ),
-      JS_PSG( "Y", get_Y, DefaultPropsFlags() ),
-      JS_PS_END } );
+    {
+        JS_PSG( "Chars", get_Chars, DefaultPropsFlags() ),
+        JS_PSG( "Height", get_Height, DefaultPropsFlags() ),
+        JS_PSG( "Lines", get_Lines, DefaultPropsFlags() ),
+        JS_PSG( "Width", get_Width, DefaultPropsFlags() ),
+        JS_PSG( "X", get_X, DefaultPropsFlags() ),
+        JS_PSG( "Y", get_Y, DefaultPropsFlags() ),
+        JS_PS_END,
+    } );
 
 } // namespace
 

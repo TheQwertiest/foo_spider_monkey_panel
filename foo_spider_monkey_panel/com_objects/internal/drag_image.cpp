@@ -3,10 +3,11 @@
 // All rights reserved.
 
 #include <stdafx.h>
+
 #include "drag_image.h"
 
-#include <utils/image_helpers.h>
 #include <com_objects/internal/handle.h>
+#include <utils/image_helpers.h>
 
 namespace uih
 {
@@ -175,7 +176,7 @@ bool create_drag_image( HWND wnd, bool isThemed, HTHEME theme, COLORREF selectio
         size.cx = std::max<INT>( size.cx, pCustomImage->GetWidth() );
         size.cy = std::max<INT>( size.cy, pCustomImage->GetHeight() );
     }
-    const RECT rc { 0, 0, size.cx, size.cy };
+    const RECT rc{ 0, 0, size.cx, size.cy };
 
     HBITMAP bm_mem = CreateCompatibleBitmap( dc, size.cx, size.cy );
     HBITMAP bm_old = SelectBitmap( dc_mem, bm_mem );
