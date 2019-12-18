@@ -843,9 +843,9 @@ void js_panel_window::RepaintBackground( const CRect& updateRc )
     }
 
     CRect rc_child{ 0, 0, static_cast<int>( width_ ), static_cast<int>( height_ ) };
-    CRgn rgn_child{ CreateRectRgnIndirect( &rc_child ) };
+    CRgn rgn_child{ ::CreateRectRgnIndirect( &rc_child ) };
     {
-        CRgn rgn{ CreateRectRgnIndirect( &updateRc ) };
+        CRgn rgn{ ::CreateRectRgnIndirect( &updateRc ) };
         rgn_child.CombineRgn( rgn, RGN_DIFF );
     }
 
@@ -864,7 +864,7 @@ void js_panel_window::RepaintBackground( const CRect& updateRc )
     {
         // Background bitmap
         CClientDC dc_parent{ wnd_parent };
-        CDC dc_bg{ dc_parent.CreateCompatibleDC() };
+        CDC dc_bg{ ::CreateCompatibleDC( dc_parent ) };
         gdi::ObjectSelector autoBmp( dc_bg, bmpBg_.m_hBitmap );
 
         // Paint BK
